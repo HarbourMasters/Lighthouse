@@ -16,3 +16,9 @@
 [submodule "tools/bk_rom_compressor"]
 	path = tools/bk_rom_compressor
 	url = https://github.com/MittenzHugg/bk_rom_compressor.git
+[submodule "libultraship"]
+	path = libultraship
+	url = https://github.com/Kenix3/libultraship.git
+[submodule "tools/Torch"]
+	path = tools/Torch
+	url = https://github.com/HarbourMasters/Torch.git
