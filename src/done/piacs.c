@@ -1,3 +1,5 @@
+#ifndef LIGHTHOUSE_P
+
 #include <os_internal.h>
 
 #define PI_Q_BUF_LEN 1
@@ -22,3 +24,5 @@ void __osPiRelAccess(void)
 {
 	osSendMesg(&__osPiAccessQueue, NULL, OS_MESG_NOBLOCK);
 }
+
+#endif // LIGHTHOUSE_P

@@ -2,8 +2,13 @@
 #define __BS_INT_H__
 
 #include <ultra64.h>
+
 #include "functions.h"
 #include "variables.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef void (*bsStateMethod)(void);  
 
@@ -87,4 +92,10 @@ bsStateMethod bsList_getInitMethod(enum bs_e i);
 bsStateMethod bsList_getUpdateMethod(enum bs_e i);
 bsStateMethod bsList_getEndMethod(enum bs_e i);
 bsStateMethod bsList_getInterruptMethod(enum bs_e i);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

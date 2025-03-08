@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 extern void func_8028F9DC(s32);
 extern void actor_predrawMethod(Actor *);
 
@@ -49,7 +52,7 @@ void __chPropellorSwitch_setState(Actor *this, s32 arg1){
             levelSpecificFlags_set(local->unk0->unk8, 1);
             func_803228D8();
             timedFunc_set_1(1.1f, (GenFunction_1)func_8028F9DC, 2);
-            timedFunc_set_3(1.1f, (GenFunction_3)func_802E4078, MAP_31_RBB_RUSTY_BUCKET_BAY, 0, 0);
+            timedFunc_set_3(1.1f, (GenFunction_3)game_setMapWithTransition, MAP_31_RBB_RUSTY_BUCKET_BAY, 0, 0);
         }else{
             levelSpecificFlags_set(local->unk0->unkA, 1);
         }

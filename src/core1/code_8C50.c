@@ -1,17 +1,31 @@
-#include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
 #include "version.h"
+#include <ultra64.h>
+
+#ifdef LIGHTHOUSE_P
+#include "compat.h"
+#else
+extern u8 n_aspMainTextStart[];
+extern u8 gSPF3DEX_fifoTextStart[];
+extern u8 gSPL3DEX_fifoTextStart[];
+
+extern u8 n_aspMainDataStart[];
+extern u8 gSPF3DEX_fifoDataStart[];
+extern u8 gSPL3DEX_fifoDataStart[];
+#endif
+
+//taskmanager, messagemgr, task_message.c
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
-}Struct_Core1_8C50_s;
+  s32 unk0;
+  s32 unk4;
+  s32 unk8;
+  s32 unkC;
+} TaskQueueElement;
 
-void func_80247224(void);
+void processTaskQueue(void);
 
 #define CORE1_8C50_EVENT_DP 4
 #define CORE1_8C50_EVENT_SP 6
@@ -21,497 +35,551 @@ void func_80247224(void);
 #define CORE1_8C50_EVENT_CONT_TIMER 13
 
 /* .extern */
-extern u8 n_aspMainTextStart[];
-extern u8 gSPF3DEX_fifoTextStart[];
-extern u8 gSPL3DEX_fifoTextStart[];
 
-extern u8 n_aspMainDataStart[];
-extern u8 gSPF3DEX_fifoDataStart[];
-extern u8 gSPL3DEX_fifoDataStart[];
 
 /* .data */
-OSTask D_80275910 = {
-    /* type */ M_AUDTASK, 
+OSTask audioTask = {
+    /* type */ M_AUDTASK,
     /* flags */ 0,
-    NULL, 0,                  /* ucode_boot */
-    NULL, SP_UCODE_SIZE,      /* ucode */
-    NULL, SP_UCODE_DATA_SIZE, /* ucode_data */
-    NULL, 0,                  /* dram_stack */
-    NULL, NULL,               /* output_buff */
-    NULL, 0,                  /* data */
-    NULL, 0,                  /* yield_data */
+    NULL,
+    0, /* ucode_boot */
+    NULL,
+    SP_UCODE_SIZE, /* ucode */
+    NULL,
+    SP_UCODE_DATA_SIZE, /* ucode_data */
+    NULL,
+    0, /* dram_stack */
+    NULL,
+    NULL, /* output_buff */
+    NULL,
+    0, /* data */
+    NULL,
+    0, /* yield_data */
 };
 
-OSTask D_80275950 = {
-    /* type */ M_GFXTASK, 
+OSTask gfxTask = {
+    /* type */ M_GFXTASK,
     /* flags */ 0,
-    NULL, 0,                  /* ucode_boot */
-    NULL, SP_UCODE_SIZE,      /* ucode */
-    NULL, SP_UCODE_DATA_SIZE, /* ucode_data */
-    0x80000400, 0x400,        /* dram_stack */
-    0x80000800, 0x8000E800,   /* output_buff */
-    NULL, 0,                  /* data */
-    NULL, OS_YIELD_DATA_SIZE, /* yield_data */
+    NULL,
+    0, /* ucode_boot */
+    NULL,
+    SP_UCODE_SIZE, /* ucode */
+    NULL,
+    SP_UCODE_DATA_SIZE, /* ucode_data */
+    0x80000400,
+    0x400, /* dram_stack */
+    0x80000800,
+    0x8000E800, /* output_buff */
+    NULL,
+    0, /* data */
+    NULL,
+    OS_YIELD_DATA_SIZE, /* yield_data */
 };
 
-s32 D_80275990 = 0;
-s32 D_80275994 = 0;
-s32 D_80275998 = 0;
-s32 D_8027599C = 0;
-
+s32 taskCounter = 0;
+s32 taskDelay = 0;
+s32 taskTimeout = 0;
+s32 taskYieldCounter = 0;
 
 /* .bss */
-u64 D_8027EF40[OS_YIELD_DATA_SIZE / sizeof(u64)];
+u64 yieldData[OS_YIELD_DATA_SIZE / sizeof(u64)];
 static u8 pad[0x20]; // 8027FB40
-OSMesgQueue D_8027FB60;
-OSMesg      D_8027FB78[20];
-OSMesgQueue D_8027FBC8;
-OSMesg      D_8027FBE0[10];
-Struct_Core1_8C50_s *D_8027FC08;
-s32 D_8027FC0C;
-bool D_8027FC10;
-s32 D_8027FC14;
-s32 D_8027FC18;
-s32 D_8027FC1C;
-s32 D_8027FC20;
-s32 D_8027FC24;
-u8 D_8027FC28[2048]; //stack for thread D_80280428;
-OSThread D_80280428;
-Struct_Core1_8C50_s * D_802805D8[20];
-volatile s32 D_80280628;
-volatile s32 D_8028062C;
-Struct_Core1_8C50_s * D_80280630[20];
-volatile s32 D_80280680;
-volatile s32 D_80280684;
-void* D_80280688;
-OSTimer D_80280690; //audio_timer
-OSTimer D_802806B0; //controller_timer
-s32 D_802806D0;
+OSMesgQueue mainQueue;
+OSMesg mainQueueMessages[20];
+OSMesgQueue secondaryQueue;
+OSMesg secondaryQueueMessages[10];
+TaskQueueElement *currentTask;
+s32 taskOverflowCounter;
+bool isTaskRunning;
+s32 taskStatus;
+s32 taskNextStatus;
+s32 taskType;
+s32 taskPreviousType;
+s32 taskYielded;
+u8 resetThreadStack[2048]; // stack for thread resetThread;
+OSThread resetThread;
+TaskQueueElement *primaryTaskQueue[20];
+volatile s32 primaryTaskQueueHead;
+volatile s32 primaryTaskQueueTail;
+TaskQueueElement *secondaryTaskQueue[20];
+volatile s32 secondaryTaskQueueHead;
+volatile s32 secondaryTaskQueueTail;
+void *currentFramebuffer;
+OSTimer audioTimer;      // audio_timer
+OSTimer controllerTimer; // controller_timer
+s32 controllerTimerEnabled;
 
 /* .code */
-void func_80246670(OSMesg arg0){
-    static s32 D_802759A0 = 1;
-    
-    osSendMesg(&D_8027FB60, arg0, 1);
-    if((s32) arg0 == 3 ){
-        D_80275994 = 0x1e;
-        if(D_802759A0){
-            osDpSetStatus(DPC_CLR_FREEZE);
-            D_802759A0 = 0;
-        }
-        osRecvMesg(&D_8027FBC8, NULL, 1);
-        D_80275994 = 0;
+void sendMesgToMainQueue(OSMesg arg0) {
+  #ifndef LIGHTHOUSE_P
+  static s32 mainQueueFlag = 1;
+
+  osSendMesg(&mainQueue, arg0, 1);
+  if ((s32)arg0 == 3) {
+    taskDelay = 0x1e;
+    if (mainQueueFlag) {
+      osDpSetStatus(DPC_CLR_FREEZE);
+      mainQueueFlag = 0;
     }
+    osRecvMesg(&secondaryQueue, NULL, 1);
+    taskDelay = 0;
+  }
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_802466F4(OSMesg arg0){
-    s32 tmp = (D_80280680 + 1) % 0x14;
-    if(D_80280684 != tmp){
-        D_80280630[D_80280680] = arg0;
-        D_80280680 = tmp;
-    }
+void enqueueToSecondaryQueue(OSMesg arg0) {
+  #ifndef LIGHTHOUSE_P
+  s32 tmp = (secondaryTaskQueueHead + 1) % 0x14;
+  if (secondaryTaskQueueTail != tmp) {
+    secondaryTaskQueue[secondaryTaskQueueHead] = arg0;
+    secondaryTaskQueueHead = tmp;
+  }
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_80246744(OSMesg arg0){
-    s32 tmp = (D_80280628 + 1) % 0x14;
-    if(D_8028062C != tmp){
-        D_802805D8[D_80280628] = arg0;
-        D_80280628 = tmp;
-    }
+void enqueueToPrimaryQueue(OSMesg arg0) {
+  #ifndef LIGHTHOUSE_P
+  s32 tmp = (primaryTaskQueueHead + 1) % 0x14;
+  if (primaryTaskQueueTail != tmp) {
+    primaryTaskQueue[primaryTaskQueueHead] = arg0;
+    primaryTaskQueueHead = tmp;
+  }
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_80246794(Struct_Core1_8C50_s * arg0){
-    ucode_getPtrAndSize(&D_80275910.t.ucode_boot, &D_80275910.t.ucode_boot_size);
-    D_80275910.t.ucode = n_aspMainTextStart;
-    D_80275910.t.ucode_data = n_aspMainDataStart;
-    D_80275910.t.data_ptr = (void*) arg0->unk8;
-    D_80275910.t.data_size = (arg0->unkC - arg0->unk8) >> 3 << 3;
-    osWritebackDCache(D_80275910.t.data_ptr , D_80275910.t.data_size);
-    osWritebackDCache(&D_80275910, sizeof(OSTask));
-    D_8027FC08 = arg0;
-    osSpTaskLoad(&D_80275910);
-    osSpTaskStartGo(&D_80275910);
-    D_8027FC1C = 4;
+void startAudioTask(TaskQueueElement *arg0) {
+  ucode_getPtrAndSize(&audioTask.t.ucode_boot, &audioTask.t.ucode_boot_size);
+  audioTask.t.ucode = n_aspMainTextStart;
+  audioTask.t.ucode_data = n_aspMainDataStart;
+  audioTask.t.data_ptr = (void *)arg0->unk8;
+  audioTask.t.data_size = (arg0->unkC - arg0->unk8) >> 3 << 3;
+  osWritebackDCache(audioTask.t.data_ptr, audioTask.t.data_size);
+  osWritebackDCache(&audioTask, sizeof(OSTask));
+  currentTask = arg0;
+  osSpTaskLoad(&audioTask);
+  osSpTaskStartGo(&audioTask);
+  taskType = 4;
 }
 
-void func_80246844(Struct_Core1_8C50_s * arg0){
-    ucode_getPtrAndSize(&D_80275950.t.ucode_boot, &D_80275950.t.ucode_boot_size);
-    D_80275950.t.ucode = gSPF3DEX_fifoTextStart;
-    D_80275950.t.ucode_data = gSPF3DEX_fifoDataStart;
-    D_80275950.t.data_ptr = (void*) arg0->unk8;
-    D_80275950.t.data_size = (arg0->unkC - arg0->unk8) >> 3 << 3;
-    osWritebackDCache(D_80275950.t.data_ptr , D_80275950.t.data_size);
-    osWritebackDCache(&D_80275950, sizeof(OSTask));
-    osSpTaskLoad(&D_80275950);
-    osSpTaskStartGo(&D_80275950);
-    D_8027FC1C = arg0->unk4 | 0x8;
-    D_8027FC18 = arg0->unk4 | 0x1;
-    if(!(osDpGetStatus() & DPC_STATUS_FREEZE)){
-        D_8027FC14 = D_8027FC18;
-        D_80275998 = 0x1e;
-    }
+void startGfxTask(TaskQueueElement *arg0) {
+  ucode_getPtrAndSize(&gfxTask.t.ucode_boot, &gfxTask.t.ucode_boot_size);
+  gfxTask.t.ucode = gSPF3DEX_fifoTextStart;
+  gfxTask.t.ucode_data = gSPF3DEX_fifoDataStart;
+  gfxTask.t.data_ptr = (void *)arg0->unk8;
+  gfxTask.t.data_size = (arg0->unkC - arg0->unk8) >> 3 << 3;
+  osWritebackDCache(gfxTask.t.data_ptr, gfxTask.t.data_size);
+  osWritebackDCache(&gfxTask, sizeof(OSTask));
+  osSpTaskLoad(&gfxTask);
+  osSpTaskStartGo(&gfxTask);
+  taskType = arg0->unk4 | 0x8;
+  taskNextStatus = arg0->unk4 | 0x1;
+  if (!(osDpGetStatus() & DPC_STATUS_FREEZE)) {
+    taskStatus = taskNextStatus;
+    taskTimeout = 0x1e;
+  }
 }
 
-void func_8024692C(Struct_Core1_8C50_s * arg0){
-    ucode_getPtrAndSize(&D_80275950.t.ucode_boot, &D_80275950.t.ucode_boot_size);
-    D_80275950.t.ucode = gSPL3DEX_fifoTextStart;
-    D_80275950.t.ucode_data = gSPL3DEX_fifoDataStart;
-    D_80275950.t.data_ptr = (void*) arg0->unk8;
-    D_80275950.t.data_size = (arg0->unkC - arg0->unk8) >> 3 << 3;
-    osWritebackDCache(D_80275950.t.data_ptr , D_80275950.t.data_size);
-    osWritebackDCache(&D_80275950, sizeof(OSTask));
-    osSpTaskLoad(&D_80275950);
-    osSpTaskStartGo(&D_80275950);
-    D_8027FC1C = arg0->unk4 | 0x8;
-    D_8027FC18 = arg0->unk4 | 0x1;
-    if(!(osDpGetStatus() & DPC_STATUS_FREEZE)){
-        D_8027FC14 = D_8027FC18;
-        D_80275998 = 0x1e;
-    }
+void startGfxTaskL3DEX(TaskQueueElement *arg0) {
+  ucode_getPtrAndSize(&gfxTask.t.ucode_boot, &gfxTask.t.ucode_boot_size);
+  gfxTask.t.ucode = gSPL3DEX_fifoTextStart;
+  gfxTask.t.ucode_data = gSPL3DEX_fifoDataStart;
+  gfxTask.t.data_ptr = (void *)arg0->unk8;
+  gfxTask.t.data_size = (arg0->unkC - arg0->unk8) >> 3 << 3;
+  osWritebackDCache(gfxTask.t.data_ptr, gfxTask.t.data_size);
+  osWritebackDCache(&gfxTask, sizeof(OSTask));
+  osSpTaskLoad(&gfxTask);
+  osSpTaskStartGo(&gfxTask);
+  taskType = arg0->unk4 | 0x8;
+  taskNextStatus = arg0->unk4 | 0x1;
+  if (!(osDpGetStatus() & DPC_STATUS_FREEZE)) {
+    taskStatus = taskNextStatus;
+    taskTimeout = 0x1e;
+  }
 }
 
-void func_80246A14(Struct_Core1_8C50_s *arg0){
-    switch(arg0->unk0){
-        case 1:
-            func_80246844(arg0);
-            break;
+void startTask(TaskQueueElement *arg0) {
+  switch (arg0->unk0) {
+  case 1:
+    startGfxTask(arg0);
+    break;
 
-        case 2:
-            func_8024692C(arg0);
-            break;
-    }
+  case 2:
+    startGfxTaskL3DEX(arg0);
+    break;
+  }
 }
 
-void func_80246A64(OSMesg msg){
-    func_802466F4(msg);
+void handleMesgType0(OSMesg msg) { enqueueToSecondaryQueue(msg); }
+
+void handleMesgType1(OSMesg msg) {
+  enqueueToPrimaryQueue(msg);
+  if (taskType == 0x10 && !isTaskRunning) {
+    startGfxTask(primaryTaskQueue[primaryTaskQueueTail]);
+    primaryTaskQueueTail = (primaryTaskQueueTail + 1) % 0x14;
+  }
 }
 
-void func_80246A84(OSMesg msg){
-    func_80246744(msg);
-    if(D_8027FC1C == 0x10 && !D_8027FC10){
-        func_80246844(D_802805D8[D_8028062C]);
-        D_8028062C = (D_8028062C + 1) % 0x14;
-    }
+void handleMesgType2(OSMesg msg) {
+  enqueueToPrimaryQueue(msg);
+  if (taskType == 0x10 && !isTaskRunning) {
+    startGfxTaskL3DEX(primaryTaskQueue[primaryTaskQueueTail]);
+    primaryTaskQueueTail = (primaryTaskQueueTail + 1) % 0x14;
+  }
 }
 
-void func_80246B0C(OSMesg msg){
-    func_80246744(msg);
-    if(D_8027FC1C == 0x10 && !D_8027FC10){
-        func_8024692C(D_802805D8[D_8028062C]);
-        D_8028062C = (D_8028062C + 1) % 0x14;
-    }
+void checkAndSendMesg(void) {
+  #ifndef LIGHTHOUSE_P
+  if (taskType == 0x10 && taskStatus == 2 &&
+      primaryTaskQueueTail == primaryTaskQueueHead &&
+      !(osDpGetStatus() & DPC_STATUS_FREEZE)) {
+    osSendMesg(&secondaryQueue, NULL, OS_MESG_NOBLOCK);
+  } else {
+    taskOverflowCounter++;
+  }
+  #else
+  //pc thing here
+  #endif 
 }
 
-void func_80246B94(void){
-    if( D_8027FC1C == 0x10 
-        && D_8027FC14 == 2 
-        && D_8028062C == D_80280628
-        && !(osDpGetStatus() & DPC_STATUS_FREEZE)
-    ){
-        osSendMesg(&D_8027FBC8, NULL, OS_MESG_NOBLOCK);
+void handleDpStatus(void) {
+  #ifndef LIGHTHOUSE_P
+  if ((taskStatus << 1) < 0) {
+    osDpSetStatus(DPC_SET_FREEZE);
+    currentFramebuffer = osViGetCurrentFramebuffer();
+    viMgr_sendMessage();
+  }
+  taskStatus = taskNextStatus = 2;
+  taskTimeout = 0;
+  if (taskType == 0x10 && primaryTaskQueueTail != primaryTaskQueueHead &&
+      !isTaskRunning) {
+    startTask(primaryTaskQueue[primaryTaskQueueTail]);
+    primaryTaskQueueTail = (primaryTaskQueueTail + 1) % 0x14;
+  } else {
+    if (taskOverflowCounter && primaryTaskQueueTail == primaryTaskQueueHead &&
+        !(osDpGetStatus() & DPC_STATUS_FREEZE)) {
+      osSendMesg(&secondaryQueue, NULL, 0);
+      taskOverflowCounter--;
     }
-    else{
-        D_8027FC0C++;
-    }
+  }
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_80246C2C(void){
-    if((D_8027FC14 << 1) < 0){
-        osDpSetStatus(DPC_SET_FREEZE);
-        D_80280688 = osViGetCurrentFramebuffer();
-        viMgr_func_8024BFAC();
-    }
-    D_8027FC14 = D_8027FC18 = 2;
-    D_80275998 = 0;
-    if(D_8027FC1C == 0x10 && D_8028062C != D_80280628 && !D_8027FC10){
-        func_80246A14(D_802805D8[D_8028062C]);
-        D_8028062C = (D_8028062C + 1) % 0x14;
-    }
-    else{
-        if(D_8027FC0C && D_8028062C == D_80280628 && !(osDpGetStatus() & DPC_STATUS_FREEZE)){
-            osSendMesg(&D_8027FBC8, NULL, 0);
-            D_8027FC0C--;
-        }
-    }
-}
+void updateTimers(void) {
+  #ifndef LIGHTHOUSE_P
+  static s32 timerCounter = 0;
+  s32 sp2C = (taskOverflowCounter != 0) &&
+             (primaryTaskQueueTail == primaryTaskQueueHead) &&
+             (taskNextStatus == 2) && (taskType == 0x10);
+  volatile s32 sp30;
 
-void func_80246D78(void){
-    static s32 D_802759A4 = 0;
-    s32 sp2C = (D_8027FC0C != 0) && (D_8028062C == D_80280628) && (D_8027FC18 == 2) && (D_8027FC1C == 0x10);
-    volatile s32 sp30;
+  sp30 = FALSE;
+  if (osViGetCurrentFramebuffer() != currentFramebuffer || sp2C) {
+    if (osDpGetStatus() & DPC_STATUS_FREEZE) {
+      osDpSetStatus(DPC_CLR_FREEZE);
 
-    sp30 = FALSE;
-    if( osViGetCurrentFramebuffer() != D_80280688 || sp2C){
-        if(osDpGetStatus() & DPC_STATUS_FREEZE){
-            osDpSetStatus(DPC_CLR_FREEZE);
+      taskStatus = taskNextStatus;
+      dummy_func_8025AFB8();
 
-            D_8027FC14 = D_8027FC18;
-            dummy_func_8025AFB8();
-
-            if(D_8027FC14 & 1){
-                D_80275998 = 0x1E;
-            }
-        }
-
-        if(sp2C){
-            osSendMesg(&D_8027FBC8, NULL, OS_MESG_NOBLOCK);
-            D_8027FC0C--;
-        }
+      if (taskStatus & 1) {
+        taskTimeout = 0x1E;
+      }
     }
 
-    D_80275990 = 0;
-
-    if(D_80275994 != 0){
-        D_80275994--;
+    if (sp2C) {
+      osSendMesg(&secondaryQueue, NULL, OS_MESG_NOBLOCK);
+      taskOverflowCounter--;
     }
+  }
 
-    if(D_8027599C != 0){
-        D_8027599C--;
-    }
+  taskCounter = 0;
 
-    if(D_80275998 != 0){
-        D_80275998--;
-        if(D_80275998 == 0){
-            sp30 = TRUE;
-        }
-    }
-    D_8027FC10 = 0;
-    D_802759A4++;
-    if(!(D_802759A4 & 1)){
-        osStopTimer(&D_80280690);
-        osSetTimer(&D_80280690, 280000, 0, &D_8027FB60, CORE1_8C50_EVENT_AUDIO_TIMER);
-    }
+  if (taskDelay != 0) {
+    taskDelay--;
+  }
 
-    if(D_802806D0){
-        osStopTimer(&D_802806B0);
+  if (taskYieldCounter != 0) {
+    taskYieldCounter--;
+  }
+
+  if (taskTimeout != 0) {
+    taskTimeout--;
+    if (taskTimeout == 0) {
+      sp30 = TRUE;
+    }
+  }
+  isTaskRunning = 0;
+  timerCounter++;
+  if (!(timerCounter & 1)) {
+    osStopTimer(&audioTimer);
+    osSetTimer(&audioTimer, 280000, 0, &mainQueue,
+               CORE1_8C50_EVENT_AUDIO_TIMER);
+  }
+
+  if (controllerTimerEnabled) {
+    osStopTimer(&controllerTimer);
 #if VERSION == VERSION_USA_1_0
-        osSetTimer(&D_802806B0, ((osClockRate / 60)* 2) / 3, 0, &D_8027FB60, CORE1_8C50_EVENT_CONT_TIMER);
+    osSetTimer(&controllerTimer, ((osClockRate / 60) * 2) / 3, 0, &mainQueue,
+               CORE1_8C50_EVENT_CONT_TIMER);
 #elif VERSION == VERSION_PAL
-        osSetTimer(&D_802806B0, ((osClockRate / 60.0)* 2) / 3, 0, &D_8027FB60, CORE1_8C50_EVENT_CONT_TIMER);
+    osSetTimer(&controllerTimer, ((osClockRate / 60.0) * 2) / 3, 0, &mainQueue,
+               CORE1_8C50_EVENT_CONT_TIMER);
 #endif
-    }
+  }
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_80247000(void) {
-    Struct_Core1_8C50_s *sp1C;
-    s32 temp_v1;
-    Struct_Core1_8C50_s *temp_v0;
+void handleSpEvent(void) {
+  #ifndef LIGHTHOUSE_P
+  TaskQueueElement *sp1C;
+  s32 temp_v1;
+  TaskQueueElement *temp_v0;
 
-    temp_v1 = D_8027FC1C;
-    if (D_8027FC1C == 0x20) {
-        sp1C = D_80280630[D_80280684];
-        D_80280684 = (D_80280684 + 1) % 20;
-        D_8027FC24 = (osSpTaskYielded(&D_80275950) == 1);
-        func_80246794(sp1C);
-        D_8027599C = 0;
-        return;
-    }
+  temp_v1 = taskType;
+  if (taskType == 0x20) {
+    sp1C = secondaryTaskQueue[secondaryTaskQueueTail];
+    secondaryTaskQueueTail = (secondaryTaskQueueTail + 1) % 20;
+    taskYielded = (osSpTaskYielded(&gfxTask) == 1);
+    startAudioTask(sp1C);
+    taskYieldCounter = 0;
+    return;
+  }
 
-    if (D_8027FC1C == 4) {
-        osSendMesg(D_8027FC08[1].unk0, D_8027FC08[1].unk4, 0);
-    }
+  if (taskType == 4) {
+    osSendMesg(currentTask[1].unk0, currentTask[1].unk4, 0);
+  }
 
-    if ((D_8027FC1C == 4) && (D_8027FC24 != 0)) {
-        osSpTaskLoad(&D_80275950);
-        osSpTaskStartGo(&D_80275950);
-        D_8027FC1C = D_8027FC20;
-        D_8027FC24 = 0;
-        return;
-    }
+  if ((taskType == 4) && (taskYielded != 0)) {
+    osSpTaskLoad(&gfxTask);
+    osSpTaskStartGo(&gfxTask);
+    taskType = taskPreviousType;
+    taskYielded = 0;
+    return;
+  }
 
-    D_8027FC1C = 0x10;
-    if ((D_8028062C != D_80280628) && (D_8027FC10 == 0)) {
-        func_80246A14(D_802805D8[D_8028062C]);
-        D_8028062C = (D_8028062C + 1) % 20;
-        return;
-    }
-    
-    if ((D_8027FC0C != 0) && (D_8027FC14 == 2) && !(osDpGetStatus() & 2)) {
-        osSendMesg(&D_8027FBC8, NULL, 0);
-        D_8027FC0C -= 1;
-    }
+  taskType = 0x10;
+  if ((primaryTaskQueueTail != primaryTaskQueueHead) && (isTaskRunning == 0)) {
+    startTask(primaryTaskQueue[primaryTaskQueueTail]);
+    primaryTaskQueueTail = (primaryTaskQueueTail + 1) % 20;
+    return;
+  }
+
+  if ((taskOverflowCounter != 0) && (taskStatus == 2) &&
+      !(osDpGetStatus() & 2)) {
+    osSendMesg(&secondaryQueue, NULL, 0);
+    taskOverflowCounter -= 1;
+  }
+  #else
+  //pc thing here
+  #endif
+}
+//clang-format off
+void setFlagTrue(OSMesg arg0){
+    isTaskRunning = TRUE;
+}
+//clang-format on
+
+void sendMesgToAudioManager(void) {
+  #ifndef LIGHTHOUSE_P
+  osSendMesg(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);
+  processTaskQueue();
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_802471D8(OSMesg arg0){
-    D_8027FC10 = TRUE;
+void processTaskQueue(void) {
+  TaskQueueElement *ptr;
+  if ((taskType == 0x10) &&
+      (secondaryTaskQueueTail != secondaryTaskQueueHead)) {
+    ptr = secondaryTaskQueue[secondaryTaskQueueTail];
+    secondaryTaskQueueTail = (secondaryTaskQueueTail + 1) % 0x14;
+    startAudioTask(ptr);
+  } else if ((taskType & 0x8) &&
+             (secondaryTaskQueueTail != secondaryTaskQueueHead)) {
+    osSpTaskYield();
+    taskPreviousType = taskType;
+    taskType = 0x20;
+    taskYieldCounter = 0x1E;
+  }
 }
 
-void func_802471EC(void){
-    osSendMesg(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);
-    func_80247224();
-}
+void noopFunction(void) {}
 
-void func_80247224(void){
-    Struct_Core1_8C50_s *ptr;
-    if((D_8027FC1C == 0x10) && (D_80280684 != D_80280680)){
-        ptr = D_80280630[D_80280684];
-        D_80280684 = (D_80280684 + 1) % 0x14;
-        func_80246794(ptr);
-    } else if((D_8027FC1C & 0x8) && (D_80280684 != D_80280680)){
-        osSpTaskYield();
-        D_8027FC20 = D_8027FC1C;
-        D_8027FC1C = 0x20;
-        D_8027599C = 0x1E;
-    }
-}
-
-void func_80247304(void){}
-
-void func_8024730C(void){
-    static OSViMode D_802759A8 = {
-        OS_VI_MPAL_LPN1, /* type */
-        { 
-          VI_CTRL_TYPE_16 | VI_CTRL_GAMMA_DITHER_ON | VI_CTRL_GAMMA_ON | 0x3200,       /*ctrl*/
-          320,          /*width*/
-          0x4651E39,    /*burst*/
-          0x20D,        /*vSync*/
-          0x40C11,      /* hSync*/
-          0xC190C1A,    /* leap*/
-          0x6C02EC,     /* hStart*/
-          0, /* xScale*/
-          0, /* vCurrent*/
-        },
-        {
-            {640, 1024, 0x2501FF, 0xE0204, 2},
-            {640, 1024, 0x2501FF, 0xE0204, 2}
-        }
-    };
-    static OSViMode D_802759F8 = {
-        OS_VI_NTSC_LPN1, /* type */
-        { 
-          VI_CTRL_TYPE_16 | VI_CTRL_GAMMA_DITHER_ON | VI_CTRL_GAMMA_ON | 0x3200,       /*ctrl*/
-          320,          /*width*/
-          0x3E52239,    /*burst*/
-          0x20D,        /*vSync*/
-          0xC15,        /* hSync*/
-          0xC150C15,    /* leap*/
-          0x6C02EC,     /* hStart*/
-          0, /* xScale*/
-          0, /* vCurrent*/
-        },
-        {
-            {0x280, 1024, 0x2501FF, 0xE0204, 2},
-            {640, 1024, 0x2501FF, 0xE0204, 2}
-        }
-    };
+void setViMode(void) {
+  #ifndef LIGHTHOUSE_P
+  static OSViMode viModeNTSC = {
+      OS_VI_MPAL_LPN1, /* type */
+      {
+          VI_CTRL_TYPE_16 | VI_CTRL_GAMMA_DITHER_ON | VI_CTRL_GAMMA_ON |
+              0x3200, /*ctrl*/
+          320,        /*width*/
+          0x4651E39,  /*burst*/
+          0x20D,      /*vSync*/
+          0x40C11,    /* hSync*/
+          0xC190C1A,  /* leap*/
+          0x6C02EC,   /* hStart*/
+          0,          /* xScale*/
+          0,          /* vCurrent*/
+      },
+      {{640, 1024, 0x2501FF, 0xE0204, 2}, {640, 1024, 0x2501FF, 0xE0204, 2}}};
+  static OSViMode viModeMPAL = {
+      OS_VI_NTSC_LPN1, /* type */
+      {
+          VI_CTRL_TYPE_16 | VI_CTRL_GAMMA_DITHER_ON | VI_CTRL_GAMMA_ON |
+              0x3200, /*ctrl*/
+          320,        /*width*/
+          0x3E52239,  /*burst*/
+          0x20D,      /*vSync*/
+          0xC15,      /* hSync*/
+          0xC150C15,  /* leap*/
+          0x6C02EC,   /* hStart*/
+          0,          /* xScale*/
+          0,          /* vCurrent*/
+      },
+      {{0x280, 1024, 0x2501FF, 0xE0204, 2}, {640, 1024, 0x2501FF, 0xE0204, 2}}};
 #if VERSION == VERSION_PAL
-    static OSViMode D_80275A48 = {
-        OS_VI_PAL_LPN1, /* type */
-        { 
-          VI_CTRL_TYPE_16 | VI_CTRL_GAMMA_DITHER_ON | VI_CTRL_GAMMA_ON | 0x3200,       /*ctrl*/
-          320,          /*width*/
-          0x404233A,    /*burst*/
-          0x271,        /*vSync*/
-          0x150C69,        /* hSync*/
-          0xC6F0C6E,    /* leap*/
-          0x800300,     /* hStart*/
-          0, /* xScale*/
-          0, /* vCurrent*/
-        },
-        {
-            {640, 1024, 0x5F0239, 0x9026B, 2},
-            {640, 1024, 0x5F0239, 0x9026B, 2}
-        }
-    };
+  static OSViMode viModePAL = {
+      OS_VI_PAL_LPN1, /* type */
+      {
+          VI_CTRL_TYPE_16 | VI_CTRL_GAMMA_DITHER_ON | VI_CTRL_GAMMA_ON |
+              0x3200, /*ctrl*/
+          320,        /*width*/
+          0x404233A,  /*burst*/
+          0x271,      /*vSync*/
+          0x150C69,   /* hSync*/
+          0xC6F0C6E,  /* leap*/
+          0x800300,   /* hStart*/
+          0,          /* xScale*/
+          0,          /* vCurrent*/
+      },
+      {{640, 1024, 0x5F0239, 0x9026B, 2}, {640, 1024, 0x5F0239, 0x9026B, 2}}};
 #endif
-    static s32 D_802806D4;
+  static s32 viModeInitialized;
 
-    if(!D_802806D4){
-        D_802806D4 = TRUE;
+  if (!viModeInitialized) {
+    viModeInitialized = TRUE;
 #if VERSION == VERSION_USA_1_0
-        if(osTvType != OS_TV_NTSC){
-            osViSetMode(&D_802759A8);
-        } else {
-            osViSetMode(&D_802759F8);
-        }
+    if (osTvType != OS_TV_NTSC) {
+      osViSetMode(&viModeNTSC);
+    } else {
+      osViSetMode(&viModeMPAL);
+    }
 #elif VERSION == VERSION_PAL
-        // if(&D_802759A8){}
-        osViSetMode(&D_80275A48);
+    // if(&viModeNTSC){}
+    osViSetMode(&viModePAL);
 #endif
-        baMotor_80250FC0(); //stop controller motors
-        do{ 
-            osDpSetStatus(DPC_STATUS_FLUSH);
-        }while(1);
-    }
+    baMotor_resetMotor(); // stop controller motors
+    do {
+      osDpSetStatus(DPC_STATUS_FLUSH);
+    } while (1);
+  }
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_80247380(void){
-    if(!(___osGetSR() & SR_IBIT5)){
-        func_8024730C();
-    }
+void checkAndSetViMode(void) {
+  if (!(___osGetSR() & SR_IBIT5)) {
+    setViMode();
+  }
+  
 }
 
-//resetproc
-void func_802473B4(void *arg0){
-    OSMesg msg = NULL;
-    do{
-        osRecvMesg(&D_8027FB60, &msg, OS_MESG_BLOCK);
-        func_80247380();
-        if((s32)msg == 3){ func_80246B94(); }
-        else if((u32)msg == 5)  { func_80246D78(); }
-        else if((u32)msg == CORE1_8C50_EVENT_DP)          { func_80246C2C(); }
-        else if((u32)msg == CORE1_8C50_EVENT_SP)          { func_80247000(); }
-        else if((u32)msg == CORE1_8C50_EVENT_AUDIO_TIMER) { func_802471EC(); }
-        else if((u32)msg == CORE1_8C50_EVENT_FAULT)       { do{}while(1); }
-        else if((u32)msg == CORE1_8C50_EVENT_PRENMI)      { func_8024730C(); }
-        else if((u32)msg == 12) {  }
-        else if((u32)msg == CORE1_8C50_EVENT_CONT_TIMER)  { pfsManager_getStartReadData(); }
-        else if((u32)msg >= 100) {
-            if(*(u32*)msg == 0){ func_80246A64(msg); }
-            else if(*(u32*)msg == 1){ func_80246A84(msg); }
-            else if(*(u32*)msg == 2){ func_80246B0C(msg); }
-            else if(*(u32*)msg == 7){ func_802471D8(msg); }
-        }
-    }while(1);
+// resetproc
+void resetProc(void *arg0) {
+  #ifndef LIGHTHOUSE_P
+  OSMesg msg = NULL;
+  do {
+    osRecvMesg(&mainQueue, &msg, OS_MESG_BLOCK);
+    checkAndSetViMode();
+    if ((s32)msg == 3) {
+      checkAndSendMesg();
+    } else if ((u32)msg == 5) {
+      updateTimers();
+    } else if ((u32)msg == CORE1_8C50_EVENT_DP) {
+      handleDpStatus();
+    } else if ((u32)msg == CORE1_8C50_EVENT_SP) {
+      handleSpEvent();
+    } else if ((u32)msg == CORE1_8C50_EVENT_AUDIO_TIMER) {
+      sendMesgToAudioManager();
+    } else if ((u32)msg == CORE1_8C50_EVENT_FAULT) {
+      do {
+      } while (1);
+    } else if ((u32)msg == CORE1_8C50_EVENT_PRENMI) {
+      setViMode();
+    } else if ((u32)msg == 12) {
+    } else if ((u32)msg == CORE1_8C50_EVENT_CONT_TIMER) {
+      pfsManager_getStartReadData();
+    } else if ((u32)msg >= 100) {
+      if (*(u32 *)msg == 0) {
+        handleMesgType0(msg);
+      } else if (*(u32 *)msg == 1) {
+        handleMesgType1(msg);
+      } else if (*(u32 *)msg == 2) {
+        handleMesgType2(msg);
+      } else if (*(u32 *)msg == 7) {
+        setFlagTrue(msg);
+      }
+    }
+  } while (1);
+  #else
+  //pc thing here
+  #endif
 }
 
 //resetThreadCreate
-void func_80247560(void){
-    u64 *tmp_v0;
-    osCreateMesgQueue(&D_8027FB60, &D_8027FB78, 20);
-    osCreateMesgQueue(&D_8027FBC8, &D_8027FBE0, 10);
-    osSetEventMesg(OS_EVENT_DP, &D_8027FB60, CORE1_8C50_EVENT_DP);
-    osSetEventMesg(OS_EVENT_SP, &D_8027FB60, CORE1_8C50_EVENT_SP);
-    osSetEventMesg(OS_EVENT_FAULT, &D_8027FB60, CORE1_8C50_EVENT_FAULT);
-    osSetEventMesg(OS_EVENT_PRENMI, &D_8027FB60, CORE1_8C50_EVENT_PRENMI);
-    viMgr_func_8024BDAC(&D_8027FB60, 5);
-    D_8027FC0C = 0;
-    D_8027FC10 = 0;
-    D_8027FC14 = D_8027FC18 = 2;
-    D_8027FC1C = D_8027FC20 = 0x10;
-    D_8027FC24 = 0;
-    D_8028062C = 0;
-    D_80280628 = 0;
-    D_80280684 = 0;
-    D_80280680 = 0;
-    tmp_v0 = D_8027EF40;
+void createResetThread(void) {
+  #ifndef LIGHTHOUSE_P
+  u64 *tmp_v0;
+  osCreateMesgQueue(&mainQueue, &mainQueueMessages, 20);
+  osCreateMesgQueue(&secondaryQueue, &secondaryQueueMessages, 10);
+  osSetEventMesg(OS_EVENT_DP, &mainQueue, CORE1_8C50_EVENT_DP);
+  osSetEventMesg(OS_EVENT_SP, &mainQueue, CORE1_8C50_EVENT_SP);
+  osSetEventMesg(OS_EVENT_FAULT, &mainQueue, CORE1_8C50_EVENT_FAULT);
+  osSetEventMesg(OS_EVENT_PRENMI, &mainQueue, CORE1_8C50_EVENT_PRENMI);
+  viMgr_addMessageQueue(&mainQueue, 5);
+  taskOverflowCounter = 0;
+  isTaskRunning = 0;
+  taskStatus = taskNextStatus = 2;
+  taskType = taskPreviousType = 0x10;
+  taskYielded = 0;
+  primaryTaskQueueTail = 0;
+  primaryTaskQueueHead = 0;
+  secondaryTaskQueueTail = 0;
+  secondaryTaskQueueHead = 0;
+  tmp_v0 = yieldData;
 
-    while ((u32) tmp_v0 % 0x10) {
-        tmp_v0 = (u64 *) ((u32) tmp_v0 + 1);
-    }
+  while ((u32)tmp_v0 % 0x10) {
+    tmp_v0 = (u64 *)((u32)tmp_v0 + 1);
+  }
 
-    D_80275950.t.yield_data_ptr = tmp_v0;
-    osCreateThread(&D_80280428, 5, func_802473B4, NULL, &D_8027FC28[2048], 60);
-    osStartThread(&D_80280428);
+  gfxTask.t.yield_data_ptr = tmp_v0;
+  osCreateThread(&resetThread, 5, resetProc, NULL, &resetThreadStack[2048], 60);
+  osStartThread(&resetThread);
+  #else
+  //pc thing here
+  #endif
 }
 
-void func_802476DC(void){
-    D_802806D0 = 1;
+void enableControllerTimer(void) { controllerTimerEnabled = 1; }
+
+void endDisplayList(Gfx **gfx) {
+  gDPPipeSync((*gfx)++);
+  gSPEndDisplayList((*gfx)++);
 }
 
-void func_802476EC(Gfx **gfx){
-    gDPPipeSync((*gfx)++);
-    gSPEndDisplayList((*gfx)++);
-}
+s32 getTaskState(void) { return taskType; }
 
-s32 func_80247720(void){
-    return D_8027FC1C;
-}
+OSMesgQueue *getMainQueue(void) { return &mainQueue; }
 
-OSMesgQueue *func_8024772C(void){
-    return &D_8027FB60;
-}
-
-OSThread *func_80247738(void){
-    return &D_80280428;
-}
+OSThread *getResetThread(void) { return &resetThread; }

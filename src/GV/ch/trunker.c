@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 
 void chTrucker_update(Actor *this);
 Actor *chTrucker_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);

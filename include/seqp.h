@@ -1,4 +1,9 @@
+#ifndef BK_SEQP_H
+#define BK_SEQP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define KILL_TIME	50000	/* 50 ms */
 
@@ -35,3 +40,8 @@ void            __n_seqpStopOsc(ALSeqPlayer *seqp, ALVoiceState *vs);
 
 void		__postNextSeqEvent(ALSeqPlayer *seqp);			/* sct 11/7/95 */
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* BK_SEQP_H */

@@ -52,7 +52,7 @@ void FP_func_80386BEC(Actor *this){
     player_getPosition(plyr_pos);
     subaddie_set_state_with_direction(this, 2, 0.01f, 1);
     actor_collisionOff(this);
-    func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
     FUNC_8030E624(SFX_90_SWITCH_PRESS, 1.0f, 32000);
     maSnowButton_decRemaining();
     particleEmitter_setRGB(pCtrl, D_80391B44);

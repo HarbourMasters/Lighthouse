@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-BKCollisionTri * func_80309B48(f32[3], f32[3], f32[3], u32);
+BKCollisionTri * findCollisionTriAlongPath3(f32[3], f32[3], f32[3], u32);
 
 /* .bss */
 struct{
@@ -57,12 +57,12 @@ void func_803895D8(ActorMarker *caller, enum asset_e text_id, s32 arg2) {
     if (text_id == 0xAD7) {
         timed_playSfx(0.1f, SFX_3F5_UNKNOWN, 1.0f, 30000);
         timed_exitStaticCamera(1.5f);
-        func_80324E38(1.5f, 0);
+        setCameraModeAtTime(1.5f, 0);
         return;
     }
     MMM_D_8038C4E0.unk0 = 1;
     timed_exitStaticCamera(1.5f);
-    func_80324E38(1.5f, 0);
+    setCameraModeAtTime(1.5f, 0);
 }
 
 void func_8038966C(void){
@@ -79,9 +79,9 @@ void func_8038966C(void){
         && jiggyscore_isCollected(JIGGY_5D_MMM_NAPPER)
     ){
         MMM_D_8038C4E0.unk2 = TRUE;
-        func_80324E38(0.0f, 3);
+        setCameraModeAtTime(0.0f, 3);
         timed_setStaticCameraToNode(0.2f, 1);
-        func_80324DBC(0.2f, 0xad9, 6, NULL, NULL, func_803895D8, NULL);
+        showDelayedTextAtTime(0.2f, 0xad9, 6, NULL, NULL, func_803895D8, NULL);
     }//L80389700
 
     if(MMM_D_8038C4E0.unk1 != 1) 
@@ -98,7 +98,7 @@ void func_8038966C(void){
     sp48[2] = sp54[2];
     sp3C[2] = sp54[2];
 
-    tmp_v0 = func_80309B48(sp48, sp3C, sp30, 0);
+    tmp_v0 = findCollisionTriAlongPath3(sp48, sp3C, sp30, 0);
 
     if(tmp_v0 != NULL){
         if((s32)(tmp_v0->flags << 4) < 0){
@@ -106,9 +106,9 @@ void func_8038966C(void){
             MMM_D_8038C4E0.unk1 = 2;
 
             if (!levelSpecificFlags_get(LEVEL_FLAG_1B_MMM_UNKNOWN)) {
-                func_80324E38(0.0f, 3);
+                setCameraModeAtTime(0.0f, 3);
                 timed_setStaticCameraToNode(0.0f, 0);
-                func_80324DBC(0.0f, 0xad7, 6, NULL, NULL, func_803895D8, NULL);
+                showDelayedTextAtTime(0.0f, 0xad7, 6, NULL, NULL, func_803895D8, NULL);
                 levelSpecificFlags_set(LEVEL_FLAG_1B_MMM_UNKNOWN, TRUE);
             }
         }

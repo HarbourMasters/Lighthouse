@@ -3,7 +3,7 @@
 #include "variables.h"
 #include "fight.h"
 
-extern void func_80324CFC(f32, s32, s32);
+extern void playTrackWithVolumeAtTime(f32, s32, s32);
 extern void func_802F9E44(s32, f32, f32, f32, f32);
 
 typedef struct {
@@ -63,7 +63,7 @@ void chjinjonator_createSpriteParticles(f32 position[3], s32 count, enum asset_e
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 0.65f, 0.85f);
     particleEmitter_setFade(pCtrl, 0.0f, 0.35f);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_setDrawMode(pCtrl, 4);
     particleEmitter_emitN(pCtrl, count);
 }
@@ -147,8 +147,8 @@ void chjinjonator_update(Actor *this){
         this->volatile_initialized = TRUE;
         local->sfx_volume_adjust = 0.40000000000000013 / (this->lifetime_value + 3.3);
         local->sfx_volume = 0.7f;
-        func_8025A6EC(JINGLE_MENACING_GRUNTILDA_B, 20000);
-        func_8025A58C(0, 0x7fff);
+        comusic_playTrackWithVolumeOverride(JINGLE_MENACING_GRUNTILDA_B, 20000);
+        playMusicWithFade(0, 0x7fff);
         this->unk44_31 = func_8030ED2C(SFX_17A_SHIPHORN, 3);
         sfxsource_setSampleRate(this->unk44_31, 25000);
         sfxsource_playSfxAtVolume(this->unk44_31, local->sfx_volume);
@@ -192,7 +192,7 @@ void chjinjonator_update(Actor *this){
                 sfxsource_freeSfxsourceByIndex(this->unk44_31);
                 this->unk44_31 = 0;
                 local->velocity_move_up = (320.0f - this->position_y) * 0.5;
-                func_80324CFC(0.0f, COMUSIC_8C_JINJONATOR_POWERUP, 32000);
+                playTrackWithVolumeAtTime(0.0f, COMUSIC_8C_JINJONATOR_POWERUP, 32000);
             }
 
             break;
@@ -252,13 +252,13 @@ void chjinjonator_update(Actor *this){
                 if(--local->attack_timer <= 0){
                     chjinjonator_803903C4(this);
                     FUNC_8030E8B4(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
-                    func_80324D54(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
+                    playSoundEffectWithPositionAtTime(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
                     if((u8)this->unk44_31){
                         func_8030E394(this->unk44_31);
                         sfxsource_freeSfxsourceByIndex(this->unk44_31);
                         this->unk44_31 = 0;
                     }
-                    func_80324D2C(0.0f, COMUSIC_8C_JINJONATOR_POWERUP);
+                    stopTrackAtTime(0.0f, COMUSIC_8C_JINJONATOR_POWERUP);
                     func_8034A174(this->marker->unk44, 0x1f, this->position);
                     this->velocity[0] = (this->position[0] - this->unk1C[0]) / time_delta;
                     this->velocity[1] = (this->position[1] - this->unk1C[1]) / time_delta;
@@ -287,7 +287,7 @@ void chjinjonator_update(Actor *this){
                 func_8034A174(this->marker->unk44, 0x1f, this->position);
                 chjinjonator_803903C4(this);
                 FUNC_8030E8B4(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
-                func_80324D54(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
+                playSoundEffectWithPositionAtTime(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
                 this->velocity[2] = 0.0f;
                 this->velocity[1] = 0.0f;
                 this->velocity[0] = 0.0f;
@@ -367,7 +367,7 @@ void chjinjonator_attack(ActorMarker *marker, s32 hit_count, bool mirrored) {
     ActorLocal_Jinjonator *local = (ActorLocal_Jinjonator *) &actor_jinjonator->local;
     s32 pad;
     
-    func_8025A6EC(chJinjonatorHitSounds[hit_count - 1], 20000);
+    comusic_playTrackWithVolumeOverride(chJinjonatorHitSounds[hit_count - 1], 20000);
 
     chjinjonator_spawnAttackParticles(actor_jinjonator, hit_count);
     FUNC_8030E8B4(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor_jinjonator->position, 1000, 6500);

@@ -2,9 +2,11 @@
 #include "functions.h"
 #include "variables.h"
 
+
 OSPiHandle CartRomHandle;
 OSPiHandle *osCartRomInit(void)
 {
+	#ifndef LIGHTHOUSE_P
 	u32 domain;
 	u32 saveMask;
 	
@@ -31,4 +33,9 @@ OSPiHandle *osCartRomInit(void)
 	__osRestoreInt(saveMask);
 	
 	return &CartRomHandle;
+
+	#else
+	return NULL;
+	//handle pc things
+	#endif
 }

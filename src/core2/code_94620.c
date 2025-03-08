@@ -29,7 +29,7 @@ bool func_8031B604(char *arg0) {
     return (arg0[0] == 0xFD) && (arg0[1] == 0x6A);
 }
 
-void func_8031B62C(void) {
+void resetDialogBin(void) {
     s_dialogBin.unk0 = (u8)0;
 }
 

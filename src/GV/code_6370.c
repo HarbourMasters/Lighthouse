@@ -52,13 +52,13 @@ void func_8038C760(Actor *this, s32 arg1){
         timed_setStaticCameraToNode(3.5f, arg1 + 0x15);
         timedFunc_set_3(3.5f, (GenFunction_3)fileProgressFlag_setN, FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, arg1, 2);
         timed_exitStaticCamera(6.5f);
-        func_80324E38(6.5f, 0);
+        setCameraModeAtTime(6.5f, 0);
     }
     else{
-        timedFunc_set_2(3.5f, (GenFunction_2)func_8025A6EC, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
+        timedFunc_set_2(3.5f, (GenFunction_2)comusic_playTrackWithVolumeOverride, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
         timedFunc_set_3(3.5f, (GenFunction_3)fileProgressFlag_setN, FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, arg1, 2);
         timed_exitStaticCamera(6.0f);
-        func_80324E38(6.0f, 0);
+        setCameraModeAtTime(6.0f, 0);
     }
 }
 
@@ -94,7 +94,7 @@ void func_8038C8A0(Actor *this, s32 next_state){
         local->unk18[1] = this->position_y;
         local->unk18[2] = this->position_z;
         if(this->state == 1){
-            baMotor_80250E94(0.0f, 0.6f, 1.0f, 0, 1.3f, 0.0f);
+            baMotor_scheduleRumblePattern(0.0f, 0.6f, 1.0f, 0, 1.3f, 0.0f);
             timed_playSfx(1.0f, SFX_3F6_RUBBING, 0.8f, 30000);
         }
     }//L8038CA6C
@@ -115,9 +115,9 @@ void func_8038C8A0(Actor *this, s32 next_state){
     }//L8038CB20
 
     if(next_state == 6){
-        func_80324E38(0.0f, 3);
+        setCameraModeAtTime(0.0f, 3);
         skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SHPYNX_EATING, 0.0f, 3.0f);
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
     }
 
     if(next_state == 7){
@@ -125,13 +125,13 @@ void func_8038C8A0(Actor *this, s32 next_state){
         local->unk18[0] = this->position_x;
         local->unk18[1] = this->position_y;
         local->unk18[2] = this->position_z;
-        baMotor_80250D94(0.7f, 0.5f, 1.3f);
+        baMotor_setRumbleParams(0.7f, 0.5f, 1.3f);
         FUNC_8030E624(SFX_3F6_RUBBING, 0.8f, 30000);
     }
 
     if(next_state == 8){
         if(this->state == 7){
-            baMotor_80250D94(0.8f, 0.7f, 3.0f);
+            baMotor_setRumbleParams(0.8f, 0.7f, 3.0f);
             func_8038C760(this, *local->unk8 + 1);
         }
         marker_despawn(this->marker);
@@ -288,7 +288,7 @@ void func_8038CC98(Actor *this){
                 func_8038C8A0(this, 6);
             }
             else{
-                func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
             }
         }
     }

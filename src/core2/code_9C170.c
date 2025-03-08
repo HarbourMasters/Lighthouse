@@ -7,20 +7,20 @@ u8 D_80383370;
 
 /* .code */
 void func_80323100(void){
-    core1_ce60_resetState();
+    map_resetState();
 }
 
 void func_80323120(void){
-    core1_ce60_func_8024AE74();
+    map_resetMusicState();
 }
 
 void func_80323140(s32 arg0, s32 arg1){
-    core1_ce60_func_8024BD40(arg0, arg1);
+    map_setMusicFlag(arg0, arg1);
     func_8032278C(arg0, arg1);
 }
 
 void func_80323170(void){
-    core1_ce60_func_8024AF48();
+    map_handleMusicEvents();
 }
 
 void func_80323190(void){
@@ -49,7 +49,7 @@ extern f32 ml_vec3f_length(f32 [3], f32[3]);
 extern void func_80341180(f32, s32, s32, f32 *, f32 [3]);
 
 /* .code */
-void func_80323240(struct56s *arg0, f32 arg1, f32 arg2[3]){
+void getCollisionHeightAtPoint(struct56s *arg0, f32 arg1, f32 arg2[3]){
     if(arg1 < 0.0f)
         arg1 = 0.0f;
     else if(1.0f < arg1)
@@ -204,7 +204,7 @@ f32 func_80323A48(f32 arg0[3], s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
                     func_80341180(arg4, arg1, 3, arg0, &spE8);
                     func_80341180(var_f24, arg1, 3, arg0, &spDC);
                     ml_vec3f_diff_copy(spC4, spDC, spE8);
-                    func_80258CDC(spD0, spC4);
+                    ml_vec3f_abs_sum(spD0, spC4);
                     var_f22 = var_f26 + gu_sqrtf(spD0[0]*spD0[0] + spD0[1]*spD0[1] + spD0[2]*spD0[2]);
                 }
             } else {
@@ -230,7 +230,7 @@ f32 func_80323A48(f32 arg0[3], s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
                 func_80341180(1.0f, arg1, 3, arg0, &spE8);
                 func_80341180((f32) var_f24, arg1, 3, arg0, &spDC);
                 ml_vec3f_diff_copy(&spC4, &spDC, &spE8);
-                func_80258CDC(&spD0, &spC4);
+                ml_vec3f_abs_sum(&spD0, &spC4);
                 var_f22 = var_f26 + gu_sqrtf(spD0[0]*spD0[0] + spD0[1]*spD0[1] + spD0[2]*spD0[2]);
             } else {
                 func_80341180(var_f24, arg1, 3, arg0, &spDC);
@@ -325,7 +325,7 @@ void func_8032417C(struct56s *arg0, f32 arg1, f32 arg2[3], f32 arg3[3]) {
     func_80341180(var_f0, sp64, 3, sp60, sp44);
     ml_vec3f_diff_copy(arg2, sp44, sp50);
     ml_vec3f_normalize(arg2);
-    func_8025727C(sp44[0], sp44[1], sp44[2], sp50[0], sp50[1], sp50[2], &arg3[0], &arg3[1]);
+    ml_vec3f_angles_between_points(sp44[0], sp44[1], sp44[2], sp50[0], sp50[1], sp50[2], &arg3[0], &arg3[1]);
     arg3[0] = mlNormalizeAngle(-arg3[0]);
     arg3[2] = 0.0f;
 }
@@ -345,7 +345,7 @@ f32 func_8032429C(struct56s *this, f32 arg1[3], f32 min, f32 max, f32 step){
     f28 = min;
     f20 = min;
     do{
-        func_80323240(this, f20, sp68);
+        getCollisionHeightAtPoint(this, f20, sp68);
         ml_vec3f_diff_copy(sp74, arg1, sp68);
         f2 = sp74[0]*sp74[0] + sp74[1]*sp74[1] + sp74[2]*sp74[2];
         if(f2 < f24){
@@ -405,8 +405,8 @@ f32 func_803243D0(struct56s *arg0, f32 arg1[3]){
         tmp_f20 = (tmp_f20/10.0)*2;
         tmp_f0 = func_8032429C(arg0, arg1, tmp_f22, tmp_f24, tmp_f20);
 
-        func_80323240(arg0, tmp_f0, sp64);
-        func_80323240(arg0, 1.0f, sp58);
+        getCollisionHeightAtPoint(arg0, tmp_f0, sp64);
+        getCollisionHeightAtPoint(arg0, 1.0f, sp58);
         if(ml_distanceSquared_vec3f(arg1, sp64) < ml_distanceSquared_vec3f(arg1, sp58)){
             return tmp_f0;
         }

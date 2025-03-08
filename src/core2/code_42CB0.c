@@ -47,11 +47,11 @@ enum honeycomb_e func_802C9C40(Actor *this){
     sp18[1] = (s32)this->position_y;
     sp18[2] = (s32)this->position_z;
 
-    tmp_a0 = func_80307164(sp18);
+    tmp_a0 = findStructInArrayD4WithRadius(sp18);
     if(tmp_a0 < 0)
         return 0;
 
-    return func_80306DBC(tmp_a0) - 0x63;
+    return getStructArrayD4Index(tmp_a0) - 0x63;
 }
 
 void __chHoneycomb_free(Actor *this){

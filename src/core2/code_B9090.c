@@ -37,7 +37,7 @@ bool func_80340020(Struct83s *self, f32 position[3], f32 arg2[3], f32 arg3, f32 
     arg7[1] = sp34[0][1] + (self->unk0 * sp6C[1]) + (self->unk4*sp60[1]);
     arg7[2] = sp34[0][2] + (self->unk0 * sp6C[2]) + (self->unk4*sp60[2]);
     mlMtxIdent();
-    func_80252C08(position, arg2, arg3, arg4);
+    mlMtx_transform_with_scale(position, arg2, arg3, arg4);
     mlMtx_apply_vec3f(arg7, arg7);
     return TRUE;
 }
@@ -64,7 +64,7 @@ void func_80340200(Struct83s *self, f32 position[3], f32 arg2[3], f32 arg3, f32 
     self->unk8[1] = arg7[1];
     self->unk8[2] = arg7[2];
     mlMtxIdent();
-    func_80252CC4(position, arg2, arg3, arg4);
+    mlMtx_inverse_transform_with_scale(position, arg2, arg3, arg4);
     mlMtx_apply_vec3f(sp94, arg7);
     for(j = 0; j < 3; j++){
         self->unk14[j] = arg5[j];
@@ -127,11 +127,11 @@ void func_80340200(Struct83s *self, f32 position[3], f32 arg2[3], f32 arg3, f32 
 }
 
 void func_80340690(Struct83s *self){
-    free(self);
+    bk_free(self);
 }
 
 Struct83s * func_803406B0(void){
-    Struct83s *self = malloc(sizeof(Struct83s));
+    Struct83s *self = heap_malloc(sizeof(Struct83s));
     self->unk1A = 0;
     return self;
 }

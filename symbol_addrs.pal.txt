@@ -20,7 +20,7 @@ func_80253034               = 0x80252c84;
 ___osGetSR                  = 0x8025AC30;
 func_8025C29C               = 0x8025beec;
 bzero                       = 0x80263790;
-osWriteBackDCacheAll        = 0x80263830;
+osWritebackDCacheAll        = 0x80263830;
 osWritebackDCache           = 0x80264740;
 osInvalDCache               = 0x802647C0;
 osSetIntMask                = 0x80265120;
@@ -44,13 +44,13 @@ osGetCount                  = 0x8026cc60;
 
 D_80276E70                  = 0x80276bc0;
 
-func_80240204               = 0x80240D80;
+audioManager_dmaHandler               = 0x80240D80;
 alUnlink                    = 0x80264080;
 alLink                      = 0x802640b0;
 osVirtualToPhysical         = 0x802642f0;
 osPiStartDma                = 0x80264420;
 D_8027D008                  = 0x8027cd48;
-D_8027D5B0                  = 0x8027D408;
+audioHeap                  = 0x8027D408;
 D_8027DCC8                  = 0x8027DB20;
 D_8027DCCC                  = 0x8027DB24;
 D_8027D100                  = 0x8027CE68;

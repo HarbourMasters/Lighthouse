@@ -25,7 +25,7 @@ extern ActorInfo gChTreasurehuntRedQuestionMark;
 extern ActorInfo gChTreasurehuntRedX;
 extern ActorInfo gChTreasure;
 
-extern void func_802D3D54(Actor *this);
+extern void initializeActorWrapper(Actor *this);
 
 static void __code26D0_genericUpdateFunc(Actor *this);
 static void __code26D0_palmTreeUpdateFunc(Actor *this);
@@ -36,14 +36,14 @@ static void __code26D0_sharkfoodIslandUpdateFunc(Actor *this);
 ActorInfo gBlubberShipTopHatch = {
      MARKER_A1_BLUBBER_SHIP_TOP_HATCH, ACTOR_10E_BLUBBER_SHIP_TOP_HATCH, ASSET_3D2_MODEL_BLUBBER_SHIP_TOP_HATCH,
      0x1, NULL, 
-     func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+     initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
      0, 0, 0.0f, 0
 };
 
 ActorInfo gLighthouseDoor = {
      MARKER_EA_LIGHTHOUSE_DOOR, ACTOR_13E_LIGHTHOUSE_DOOR, ASSET_3D6_MODEL_LIGHTHOUSE_DOOR,
      0x1, NULL, 
-     func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+     initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
      0, 0, 0.0f, 0
 };
 
@@ -115,14 +115,14 @@ void code26D0_resetSpawnableActorsForTTC(void)
 
 static void __code26D0_genericUpdateFunc(Actor *this){
     if(!this->initialized){
-        func_802D3D74(this);
+        initializeActorCollisionOff(this);
         this->initialized = TRUE;
     }
 }
 
 static void __code26D0_palmTreeUpdateFunc(Actor *this){
     if(!this->initialized){
-        func_802D3D74(this);
+        initializeActorCollisionOff(this);
         this->initialized = TRUE;
         this->scale = 2.55f;
     }
@@ -137,7 +137,7 @@ static void __code26D0_spawnLighthouseB(s32 arg0){
 static void __code26D0_lighthouseAUpdateFunc(Actor *this){
     __code26D0_genericUpdateFunc(this);
     if(!this->volatile_initialized){
-        __spawnQueue_add_1((GenFunction_1)__code26D0_spawnLighthouseB, (s32)this->marker);
+        spawnQueue_add_1((GenFunction_1)__code26D0_spawnLighthouseB, (s32)this->marker);
         this->volatile_initialized = TRUE;
     }
 }
@@ -146,7 +146,7 @@ static void __code26D0_sharkfoodIslandUpdateFunc(Actor *this){
     f32 player_position[3];
 
     if(!this->initialized){
-        func_802D3CE8(this);
+        initializeActor(this);
         this->initialized = TRUE;
         this->position_x = 0.412*(8831.0f - this->position_x) + this->position_x;
         this->position_z = 0.412*(13535.0f - this->position_z) + this->position_z;

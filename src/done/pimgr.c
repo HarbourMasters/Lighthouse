@@ -1,10 +1,9 @@
 #include <ultra64.h>
 #include "piint.h"
 
-
 extern u32 __osPiAccessQueueEnabled;
 
-OSDevMgr __osPiDevMgr = {0};
+OSMgrArgs __osPiDevMgr = {0};
 OSPiHandle *__osPiTable = NULL;
 OSPiHandle *__osCurrentHandle[2] = {&CartRomHandle, &LeoDiskHandle};
 static OSThread piThread;
@@ -14,10 +13,11 @@ static OSMesg piEventBuf;
 
 void osCreatePiManager(OSPri pri, OSMesgQueue *cmdQ, OSMesg *cmdBuf, s32 cmdMsgCnt)
 {
+	#ifndef LIGHTHOUSE_P
 	u32 savedMask;
 	OSPri oldPri;
 	OSPri myPri;
-	if (!__osPiDevMgr.active)
+	if (!__osPiDevMgr.initialized)
 	{
 		osCreateMesgQueue(cmdQ, cmdBuf, cmdMsgCnt);
 		osCreateMesgQueue(&piEventQueue, (OSMesg*)&piEventBuf, 1);
@@ -32,13 +32,13 @@ void osCreatePiManager(OSPri pri, OSMesgQueue *cmdQ, OSMesg *cmdBuf, s32 cmdMsgC
 			osSetThreadPri(NULL, pri);
 		}
 		savedMask = __osDisableInt();
-		__osPiDevMgr.active = 1;
-		__osPiDevMgr.thread = &piThread;
+		__osPiDevMgr.initialized = 1;
+		__osPiDevMgr.mgrThread = &piThread;
 		__osPiDevMgr.cmdQueue = cmdQ;
-		__osPiDevMgr.evtQueue = &piEventQueue;
-		__osPiDevMgr.acsQueue = &__osPiAccessQueue;
-		__osPiDevMgr.dma = osPiRawStartDma;
-		__osPiDevMgr.edma = osEPiRawStartDma;
+		__osPiDevMgr.eventQueue = &piEventQueue;
+		__osPiDevMgr.accessQueue = &__osPiAccessQueue;
+		__osPiDevMgr.piDmaCallback = osPiRawStartDma;
+		__osPiDevMgr.epiDmaCallback = osEPiRawStartDma;
 		osCreateThread(&piThread, 0, __osDevMgrMain, &__osPiDevMgr, &piThreadStack[OS_PIM_STACKSIZE], pri);
 		osStartThread(&piThread);
 		__osRestoreInt(savedMask);
@@ -47,4 +47,5 @@ void osCreatePiManager(OSPri pri, OSMesgQueue *cmdQ, OSMesg *cmdBuf, s32 cmdMsgC
 			osSetThreadPri(NULL, oldPri);
 		}
 	}
+	#endif
 }

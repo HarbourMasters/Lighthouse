@@ -23,7 +23,20 @@
 #ifndef __audioInternals__
 #define __audioInternals__
 
+#ifndef LIGHTHOUSE_P
 #include <libaudio.h>
+#include "n_libaudio.h"
+#else
+#include "compat.h"
+#endif
+
+#include <ultra64.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /*
  * filter message ids
@@ -334,6 +347,9 @@ void            _collectPVoices(ALSynth *drvr);
 s32             _timeToSamples(ALSynth *drvr, s32 micros);
 ALMicroTime     _samplesToTime(ALSynth *synth, s32 samples);
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

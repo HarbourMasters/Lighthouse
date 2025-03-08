@@ -44,7 +44,7 @@ void MMM_func_803871FC(Actor *this) {
             break;
     }
 
-    func_803255FC(this);
+    updateMumboState(this);
 }
 
 void chFlowerpot_reset() {

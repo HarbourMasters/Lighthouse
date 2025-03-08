@@ -17,14 +17,14 @@ enum ch_nipper_states_e {
 
 /* .data */
 ActorAnimationInfo gChNipperAnimations[8] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_C0_ANIM_NIPPER_IDLE, 2.0f},
     {ASSET_BD_ANIM_NIPPER_VULNERABLE, 1.5f},
     {ASSET_BF_ANIM_NIPPER_ATTACK, 1.2f},
     {ASSET_BE_ANIM_NIPPER_OW, 1.3f},
     {ASSET_C0_ANIM_NIPPER_IDLE, 2.0f},
     {ASSET_133_ANIM_NIPPER_DIE, 3.0f},
-    {NULL, NULL}
+    {NULL, 0.0f}
 };
 
 ActorInfo gChNipper = { 
@@ -95,7 +95,7 @@ static void __chNipper_spawnedShowTextCallback(ActorMarker *caller, enum asset_e
     this = marker_getActor(caller);
     __chNipper_setAnimationDuration(this);
     ncStaticCamera_exit();
-    comusic_8025AB44(COMUSIC_12_TTC_NIPPER, -1, 300);
+    comusic_fadeTrackWithArgsNoDelay(COMUSIC_12_TTC_NIPPER, -1, 300);
 }
 
 static void __chNipper_playDeathAnimation(Actor *this) {
@@ -141,8 +141,8 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
         for(i = 0; i < 3; i++){
             FUNC_8030E8B4(SFX_78_EAGLECRY, 0.7f, 20000, this->position, 1500, 3000);
         };
-        comusic_8025AB44(COMUSIC_12_TTC_NIPPER, 0, 300);
-        func_8025AABC(COMUSIC_12_TTC_NIPPER);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_12_TTC_NIPPER, 0, 300);
+        comusic_stopTrackById(COMUSIC_12_TTC_NIPPER);
         func_8032BB88(this, -1, 300);
         func_802BAFE4(0x1C);
         return;
@@ -202,7 +202,7 @@ static void __chNipper_updateFunc(Actor *this){
     enum bsgroup_e player_movement_group;
 
     player_getPosition(playerPosition);
-    xVelocity = func_80309D58(playerPosition, 1);
+    xVelocity = checkCollisionWithModel(playerPosition, 1);
     if(!this->volatile_initialized){
         this->volatile_initialized = TRUE;
         this->velocity_x = xVelocity;
@@ -211,15 +211,15 @@ static void __chNipper_updateFunc(Actor *this){
 
     if(this->state != CH_NIPPER_STATE_7_UNKNOWN){
         if(0.0f == this->velocity_x && xVelocity){
-            comusic_8025AB44(COMUSIC_12_TTC_NIPPER, -1, 5000);
+            comusic_fadeTrackWithArgsNoDelay(COMUSIC_12_TTC_NIPPER, -1, 5000);
             func_8032BB88(this, 0, 4000);
-            core1_ce60_incOrDecCounter(FALSE);
+            map_worthlessCounter(FALSE);
         }
         else if(!xVelocity && 0.0f != this->velocity_x){
-            comusic_8025AB44(COMUSIC_12_TTC_NIPPER, 0, 300);
-            func_8025AABC(COMUSIC_12_TTC_NIPPER);
+            comusic_fadeTrackWithArgsNoDelay(COMUSIC_12_TTC_NIPPER, 0, 300);
+            comusic_stopTrackById(COMUSIC_12_TTC_NIPPER);
             func_8032BB88(this, -1, 300);
-            core1_ce60_incOrDecCounter(TRUE);
+            map_worthlessCounter(TRUE);
         }
         this->velocity_x = xVelocity;
     }
@@ -246,7 +246,7 @@ static void __chNipper_updateFunc(Actor *this){
                     if(gcdialog_showText(ASSET_A0E_DIALOG_NIPPER_SPAWNED, 0xf, this->position, this->marker, __chNipper_spawnedShowTextCallback, NULL)){
                         this->has_met_before = TRUE;
                     }
-                    comusic_8025AB44(COMUSIC_12_TTC_NIPPER, 5000, 300);
+                    comusic_fadeTrackWithArgsNoDelay(COMUSIC_12_TTC_NIPPER, 5000, 300);
                     ncStaticCamera_setToNode(11);
                 }
                 else{

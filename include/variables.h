@@ -1,6 +1,12 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #define BAD_PI 3.141592654
 #define BAD_DTOR (BAD_PI/ 180.0)
 #define M_TAU (2*M_PI)
@@ -16,4 +22,9 @@ extern struct Overlay gOverlayTable[];
 
 extern f32  climbPoleBottom[3];
 extern f32  climbPoleTop[3];
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

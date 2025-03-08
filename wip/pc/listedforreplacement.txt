@@ -1,0 +1,53 @@
+there may be more than this, this is just 0.0001% of the thoughts so far
+
+--N64 OS Functions--
+osCreateThread
+osStartThread
+osStopThread
+osRecvMesg
+osSendMesg
+osCreateMesgQueue
+osSetEventMesg
+osViSetMode
+osViBlack
+osViSwapBuffer
+osContStartReadData
+osContGetReadData
+osEepromRead
+osEepromWrite
+osGetTime
+osSetTime
+--Graphics (RDP/RSP Routines)--
+gSPMatrix
+__gSPVertex
+gSP1Triangle
+gSP2Triangles
+__gSPDisplayList
+gDPSetCycleType
+gDPSetRenderMode
+gDPSetCombineMode
+gDPSetTextureFilter
+gDPSetTextureLUT
+gDPSetTextureImage
+gDPSetTile
+gDPSetTileSize
+gDPLoadSync
+gDPLoadBlock
+gDPLoadTile
+gDPSetPrimColor
+gDPSetEnvColor
+gDPFillRectangle
+gDPFullSync
+gSPEndDisplayList
+--Input Functions--
+osContInit
+osContStartReadData
+osContGetReadData
+osContStartQuery
+osContGetQuery
+osPfsInitPak
+osPfsReadWriteFile
+osPfsFileState
+osPfsFindFile
+osPfsAllocateFile
+osPfsDeleteFile

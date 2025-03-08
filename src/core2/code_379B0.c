@@ -45,7 +45,7 @@ void func_802BE940(void)
 void func_802BEA4C(f32 rotation[3], f32 position[3], f32 arg2, f32 dest[3]) {
     f32 sp24[3];
 
-    func_80256E24(sp24, rotation[0], rotation[1], 0.0f, 0.0f, -arg2);
+    ml_vec3f_rotate_direction(sp24, rotation[0], rotation[1], 0.0f, 0.0f, -arg2);
     ml_vec3f_add(dest, sp24, position);
 }
 

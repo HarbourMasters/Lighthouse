@@ -70,8 +70,8 @@ void SM_func_80386A00(Actor *this) {
 }
 
 void func_80386B04(ParticleEmitter *p_ctrl, f32 *arg1, s32 arg2, f32 arg3) {
-    particleEmitter_func_802EF9F8(p_ctrl, 0.6f);
-    particleEmitter_func_802EFA18(p_ctrl, 4);
+    particleEmitter_setBounceFactor(p_ctrl, 0.6f);
+    particleEmitter_setCollisionCount(p_ctrl, 4);
     particleEmitter_setFade(p_ctrl, 0.00f, 0.75f);
     particleEmitter_setModel(p_ctrl, 0x42E);
     particleEmitter_setPosition(p_ctrl, arg1);
@@ -113,7 +113,7 @@ void SM_func_80386D68(Actor *this){
 
     if (this->unk100 && codeBF0_shouldSpawnQuarrieHoneyComb(this->unk100)) {
         func_802CA1CC(HONEYCOMB_18_SM_QUARRIES);
-        __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
+        spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
     }
 
     marker_despawn(this->marker);

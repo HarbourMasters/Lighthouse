@@ -44,7 +44,7 @@ void func_802D8730(Actor *this) {
     this->velocity_y -= dt;
     if (this->velocity_y < 0.0f) {
         this->velocity_y = 0.07f;
-        pCtrl = func_802F4094(this->position, 40.0f);
+        pCtrl = createBubbleParticleEmitter(this->position, 40.0f);
         particleEmitter_setStartingScaleRange(pCtrl, 0.05f, 0.06f);
         particleEmitter_setAccelerationRange(pCtrl, 0.0f, -3400.0f, 0.0f, 0.0f, -3400.0f, 0.0f);
         particleEmitter_setRGB(pCtrl, D_80367C84);

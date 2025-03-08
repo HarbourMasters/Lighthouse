@@ -61,7 +61,7 @@ extern ActorInfo D_80390194;//honeycombswitch
 
 
 
-extern void func_802D3D54(Actor *);
+extern void initializeActorWrapper(Actor *);
 
 void func_80386A7C(Actor *);
 void func_80386BF8(Actor *arg0);
@@ -78,31 +78,31 @@ ActorAnimationInfo D_803900C0[4] = {
 
 ActorInfo D_803900E0 = {
     0x107, 0x21D, 0x493, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_80390104 = {
     0x108, 0x21C, 0x492, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_80390128 = {
     0x22D, 0x266, 0x4BA, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_8039014C = {
     0x22E, 0x267, 0x4BB, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_80390170 = {
     0x235, 0x23F, 0x4E2, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
@@ -139,7 +139,7 @@ void func_80386A7C(Actor *this){
     s32 sp28;
     s32 temp_v0;
 
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     this->depth_mode = 1;
     viewport_getPosition_vec3f(viewport);
     sp28 = func_80386A30(this->position);
@@ -167,7 +167,7 @@ Actor *func_80386B9C(ActorMarker *marker, Gfx **gdl, Mtx **mptr, Vtx **arg3){
 void func_80386BF8(Actor *arg0){
     if(!mapSpecificFlags_get(0) && honeycombscore_get(HONEYCOMB_F_RBB_BOAT_HOUSE))
         mapSpecificFlags_set(0, TRUE);
-    func_802D4A9C(arg0, 0);
+    updateActorStateBasedOnMapFlags(arg0, 0);
 }
 
 void RBB_func_80386C48(void){

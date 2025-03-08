@@ -109,8 +109,8 @@ void func_80392918(Actor *this) {
         ncStaticCamera_setToNode(0x1E);
     }
     if ((0.999 < this->unk48) && !this->unk38_0) {
-        comusic_8025AB44(COMUSIC_A8_KLUNGO_BY_FALLEN_GRUNTY, 0, 2000);
-        func_8025AABC(0xA8);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_A8_KLUNGO_BY_FALLEN_GRUNTY, 0, 2000);
+        comusic_stopTrackById(0xA8);
         this->unk38_0 = TRUE;
         mapSpecificFlags_set(7, TRUE);
         mapSpecificFlags_set(5, TRUE);

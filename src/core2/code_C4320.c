@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802E40A8(enum map_e, s32 exit);
+extern void game_setMap(enum map_e, s32 exit);
 
 typedef struct {
     u8 unk0;
@@ -82,30 +82,30 @@ void func_8034B2B0(s32 arg0) {
     Struct_core2_C4320_0 *sp18;
 
     sp18 = &D_80371F00[arg0];
-    func_802E40A8(sp18->unk0, sp18->unk2);
+    game_setMap(sp18->unk0, sp18->unk2);
     if ((map_getLevel(sp18->unk0) == LEVEL_D_CUTSCENE) || (arg0 == D_80371F8C)) {
-        func_802E40C4(1);
+        game_setTransition(1);
     } else {
-        func_802E40C4(6);
+        game_setTransition(6);
     }
-    func_802E40E8(1);
+    game_setTransitionAndReset(1);
 }
 
 void func_8034B33C(s32 arg0) {
     Struct_core2_C4320_0 *sp18;
 
     sp18 = &D_80371F44[arg0];
-    func_802E40A8(sp18->unk0, sp18->unk2);
-    func_802E412C(1, 0xB);
-    func_802E40C4(7);
+    game_setMap(sp18->unk0, sp18->unk2);
+    game_setTransitionWithArgs(1, 0xB);
+    game_setTransition(7);
     D_80386114 = sp18;
     D_80386124 = func_802C5A30();
 }
 
 void func_8034B3A4(enum map_e map_id, s32 exit_id) {
-    func_802E40A8(map_id, exit_id);
-    func_802E412C(1, 8);
-    func_802E40C4(8);
+    game_setMap(map_id, exit_id);
+    game_setTransitionWithArgs(1, 8);
+    game_setTransition(8);
     D_80386114 = &D_80371F70;
     D_80386124 = func_802C5A30();
 }
@@ -115,13 +115,13 @@ void func_8034B3F0(s32 arg0) {
     Struct_core2_C4320_0 *temp_s0;
 
     temp_s0 = &D_80371F78[arg0];
-    func_802E40A8(temp_s0->unk0, temp_s0->unk2);
+    game_setMap(temp_s0->unk0, temp_s0->unk2);
     if (temp_s0 == &D_80371F78[0]) {
-        func_802E412C(1, 5);
+        game_setTransitionWithArgs(1, 5);
     } else {
-        func_802E40E8(0);
+        game_setTransitionAndReset(0);
     }
-    func_802E40C4(0xC);
+    game_setTransition(0xC);
     D_80386114 = temp_s0;
     D_80386124 = func_802C5A30();
 }
@@ -134,7 +134,7 @@ void func_8034B474(void) {
 
 void func_8034B4E4(s32 arg0){
     D_80386128 = 0;
-    if(getGameMode() == GAME_MODE_8_BOTTLES_BONUS || getGameMode() == GAME_MODE_A_SNS_PICTURE){
+    if(game_getMode() == GAME_MODE_8_BOTTLES_BONUS || game_getMode() == GAME_MODE_A_SNS_PICTURE){
         return;
     }
 
@@ -162,7 +162,7 @@ void func_8034B580(s32 arg0) {
     if (gctransition_done() != 0) {
         D_80386128 += time_getDelta();
     }
-    if ((getGameMode() != GAME_MODE_8_BOTTLES_BONUS) && (getGameMode() != GAME_MODE_A_SNS_PICTURE)) {
+    if ((game_getMode() != GAME_MODE_8_BOTTLES_BONUS) && (game_getMode() != GAME_MODE_A_SNS_PICTURE)) {
         switch (arg0) {
         case 4:
             if ((D_80386128 >= 2.5) && (sp1C < 2.5) && (D_80371F9C == 0)) {
@@ -214,19 +214,19 @@ void func_8034B834(void) {
     }
 }
 
-void func_8034B8C0(enum map_e map_id, s32 demo_id) {
+void loadDemoAndSetFlags(enum map_e map_id, s32 demo_id) {
     demo_load(map_id,demo_id);
     D_80386118 = D_8038611C = 0;
     if (D_80386114->unk1 == 6) {
         volatileFlag_set(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE, 1);
-        func_802E4A70();
+        game_enableSpecialMode();
     }
     if ((demo_id == 0x5B) || (demo_id == 0x5F)) {
         sns_backup_items_and_unlock_all();
     }
 }
 
-void func_8034B940(void){
+void freeDemoAndRestoreItems(void){
     demo_free();
     sns_restore_backed_up_items();
 }
@@ -254,11 +254,11 @@ void func_8034B9E4(void){
 
 void func_8034BA20(void) {
     func_803219F4(5);
-    func_802E412C(1, 5);
-    func_802E40A8(MAP_97_CS_END_BEACH_2, 0);
-    func_802E40C4(1);
-    if (func_8025AD7C(5)) {
-        func_8025A7DC(5);
+    game_setTransitionWithArgs(1, 5);
+    game_setMap(MAP_97_CS_END_BEACH_2, 0);
+    game_setTransition(1);
+    if (comusic_isTrackQueued(5)) {
+        comusic_stopTrack(5);
     }
     D_80386110 = 0;
 }
@@ -283,9 +283,9 @@ s32 func_8034BAFC(void){
 
 void func_8034BB08(bool arg0) {
     D_80386120 = arg0;
-    func_802E412C(1, 3);
-    func_802E40A8(MAP_8C_SM_BANJOS_HOUSE, 2);
-    func_802E40C4(1);
+    game_setTransitionWithArgs(1, 3);
+    game_setMap(MAP_8C_SM_BANJOS_HOUSE, 2);
+    game_setTransition(1);
 }
 
 bool func_8034BB48(void) {
@@ -296,7 +296,7 @@ bool func_8034BB48(void) {
     return FALSE;
 }
 
-void func_8034BB90(void) {
+void resetGameState(void) {
     s32 sp1C;
     s32 sp18;
 
@@ -315,30 +315,30 @@ void func_8034BB90(void) {
     if( !sp1C 
         && sp18 
         && !D_8038611C 
-        && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) 
-        && ((volatileFlag_get(VOLATILE_FLAG_64) && (getGameMode() != GAME_MODE_A_SNS_PICTURE)) 
+        && (game_getMode() != GAME_MODE_8_BOTTLES_BONUS) 
+        && ((volatileFlag_get(VOLATILE_FLAG_64) && (game_getMode() != GAME_MODE_A_SNS_PICTURE)) 
         || volatileFlag_get(VOLATILE_FLAG_63))
     ) {
         func_8034B7F0(D_80386114->unk1);
-        if (getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE) {
+        if (game_getMode() == GAME_MODE_9_BANJO_AND_KAZOOIE) {
             func_8034BA9C();
-        } else if (getGameMode() == GAME_MODE_A_SNS_PICTURE) {
+        } else if (game_getMode() == GAME_MODE_A_SNS_PICTURE) {
             if (D_80386110 == D_80371F98) {
                 func_8034BA20();
             } else {
                 func_802DF0C8();
             }
         } else if (volatileFlag_get(VOLATILE_FLAG_64)) {
-            func_802E412C(1, D_80386114->unk5);
+            game_setTransitionWithArgs(1, D_80386114->unk5);
             func_8034B994();
         } else {
-            func_802E412C(1, D_80386114->unk4);
+            game_setTransitionWithArgs(1, D_80386114->unk4);
             func_8034B2B0(D_80386110);
             func_8034B474();
         }
-        if (getGameMode() != GAME_MODE_A_SNS_PICTURE) {
-            func_8025A58C(0, 800);
-            func_8025AB00();
+        if (game_getMode() != GAME_MODE_A_SNS_PICTURE) {
+            playMusicWithFade(0, 800);
+            comusic_stopMainTrackById();
         }
         volatileFlag_set(VOLATILE_FLAG_64, 0);
         volatileFlag_set(VOLATILE_FLAG_63, 0);
@@ -346,7 +346,7 @@ void func_8034BB90(void) {
     }
 }
 
-s32 func_8034BDA4(enum map_e map_id, s32 exit_id) {
+s32 getMapExitId(enum map_e map_id, s32 exit_id) {
     s32 phi_v0;
 
     if (volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) {

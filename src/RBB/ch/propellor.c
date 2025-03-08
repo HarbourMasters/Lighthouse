@@ -94,12 +94,12 @@ void chPropellor_update(Actor *this){
 
         if (levelSpecificFlags_get(local->unk8 ? LEVEL_FLAG_4_RBB_UNKNOWN : LEVEL_FLAG_3_RBB_UNKNOWN)) {
             ncStaticCamera_setToNode(9);
-            func_80324E38(0.0f, 3);
+            setCameraModeAtTime(0.0f, 3);
             timedFunc_set_2(0.1f, (GenFunction_2)levelSpecificFlags_set, local->unk8 ? 0x28 : 0x27, 1);
             timed_exitStaticCamera(4.5f);
-            func_80324E38(4.5f, 0);
+            setCameraModeAtTime(4.5f, 0);
             timedFunc_set_2(4.5f, (GenFunction_2)levelSpecificFlags_set, local->unk8 ? 0x4 : 0x3, 0);
-            timedFunc_set_3(4.5f, (GenFunction_3)func_802E4078, MAP_34_RBB_ENGINE_ROOM, !local->unk8 ? 3 : 2, 0);
+            timedFunc_set_3(4.5f, (GenFunction_3)game_setMapWithTransition, MAP_34_RBB_ENGINE_ROOM, !local->unk8 ? 3 : 2, 0);
             func_803228D8();
         }
     }//L80389EA8

@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 extern void actor_postdrawMethod(ActorMarker *);
 extern void chBottlesBonus_func_802DD080(Gfx **, Mtx **);
 extern void func_80311714(s32);
@@ -45,7 +48,7 @@ Actor *func_802DEC00(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     this = marker_getActor(marker);
     sp48 = func_8030C704();
 
-    if ((sp48 == 0) || (getGameMode() != GAME_MODE_A_SNS_PICTURE))
+    if ((sp48 == 0) || (game_getMode() != GAME_MODE_A_SNS_PICTURE))
         return this;
 
     chBottlesBonus_func_802DD080(gfx, mtx);
@@ -63,8 +66,8 @@ Actor *func_802DEC00(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     modelRender_draw(gfx, mtx, sp58, NULL, 1.0f, sp4C, D_8037DFE8);
     gDPSetColorDither((*gfx)++, G_CD_DISABLE);
-    func_80253190(gfx);
-    gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp48));
+    depthBuffer_clear(gfx);
+    __gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp48));
     modelRender_preDraw((GenFunction_1)actor_predrawMethod,  (s32)this);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (s32)marker);
     modelRender_draw(gfx, mtx, this->position, NULL, 4.5f, sp4C, marker_loadModelBin(marker));
@@ -119,7 +122,7 @@ void func_802DEE1C(Actor *this) {
         }
         sp38 = (f32) ((f64) (sp44 + 1) * 0.75);
         timedFunc_set_1(sp38, func_80311714, 0);
-        func_80324DBC(sp38, sp48, 0x80, NULL, NULL, NULL, NULL);
+        showDelayedTextAtTime(sp38, sp48, 0x80, NULL, NULL, NULL, NULL);
         timedFunc_set_1(sp38, func_80311714, 1);
         D_8037DFE4 = sp4C;
     }
@@ -163,7 +166,7 @@ void func_802DF04C(void){
 
 void func_802DF090(s32 arg0, s32 arg1){
     if(D_8037DFE0 == NULL){
-        __spawnQueue_add_0(func_802DF04C);
+        spawnQueue_add_0(func_802DF04C);
     }
 }
 

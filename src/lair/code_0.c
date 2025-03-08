@@ -5,13 +5,13 @@
 #include "actor.h"
 
 extern void func_8028F918(s32);
-extern void func_802D2FB0(Actor *, s32, s32, s32, f32, s32, s32, s32);
-extern void func_802D3CE8(Actor *);
-extern void func_802D3D54(Actor *);
-extern void func_802D3D74(Actor *this);
-extern void func_802D4830(Actor *, s32, f32);
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
-extern void func_80324CFC(f32, enum comusic_e, s32);
+extern void spawnParticles(Actor *, s32, s32, s32, f32, s32, s32, s32);
+extern void initializeActor(Actor *);
+extern void initializeActorWrapper(Actor *);
+extern void initializeActorCollisionOff(Actor *this);
+extern void playSoundEffectWithDefaultVolume(Actor *, s32, f32);
+extern void spawnParticleEffect(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void playTrackWithVolumeAtTime(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void func_8033A45C(s32, s32);
@@ -114,7 +114,7 @@ ActorAnimationInfo D_80392CB0[] = {
     {0x271,   3.0f}, 
     {0x271, 1e+08f}
 };
-ActorInfo lair_D_80392D90 = { 0x270, 0x2D8, 0x3B2, 0x1, NULL, func_802D3D54, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
+ActorInfo lair_D_80392D90 = { 0x270, 0x2D8, 0x3B2, 0x1, NULL, initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
 ActorInfo D_80392DB4 = { 0x110, 0x214, 0x4AB, 0x1, D_80392CB0, func_803896D4, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
 ActorInfo D_80392DD8 = { 0x113, 0x217, 0x4A9, 0x1, D_80392CB0, func_803896F4, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
 ActorInfo D_80392DFC = { 0x115, 0x219, 0x4AA, 0x1, D_80392CB0, func_80389714, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
@@ -217,7 +217,7 @@ void chFloorCobweb_update(Actor *this)
 {
     if(!this->initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
 
         if (fileProgressFlag_get(this->unkF4_8 == 1 ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN))
         {
@@ -241,7 +241,7 @@ void chWallCobweb_update(Actor *this)
 {
     if (!this->initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
 
         if (fileProgressFlag_get(FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN))
         {
@@ -264,7 +264,7 @@ void lair_func_80386550(Actor *this)
 {
     if (!this->initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
 
         if (fileProgressFlag_get(this->unkF4_8 == 1 ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN))
         {
@@ -333,7 +333,7 @@ ParticleEmitter *func_803866D8(s32 a0)
 
 void func_80386780(Actor *this)
 {
-    func_802D4AC0(this, 0x800000 | FILEPROG_C6_LAIR_JUMP_PAD_SWITCH_PRESSED, FILEPROG_C7_LAIR_JUMP_PAD_ACTIVE);
+    updateActorStateBasedOnFileProgress(this, 0x800000 | FILEPROG_C6_LAIR_JUMP_PAD_SWITCH_PRESSED, FILEPROG_C7_LAIR_JUMP_PAD_ACTIVE);
 }
 
 void func_803867A8(Actor *this) {
@@ -344,7 +344,7 @@ void func_803867A8(Actor *this) {
     ParticleEmitter *sp44;
 
     if (!this->initialized) {
-        func_802D3CE8(this);
+        initializeActor(this);
         this->unk1C[0] = this->position[0];
         this->unk1C[1] = this->position[1];
         this->unk1C[2] = this->position[2];
@@ -439,12 +439,12 @@ void func_803867A8(Actor *this) {
 
 void func_80386D20(Actor *this)
 {
-    func_802D4A9C(this, 0);
+    updateActorStateBasedOnMapFlags(this, 0);
 }
 
 void func_80386D40(void)
 {
-    func_802D68F0(0xC);
+    setHourglassTimer(0xC);
     item_set(ITEM_6_HOURGLASS, TRUE);
     mapSpecificFlags_set(1, TRUE);
 }
@@ -453,7 +453,7 @@ void func_80386D78(Actor *this) {
     f32 phi_f2;
 
     if (!this->initialized) {
-        func_802D3CE8(this);
+        initializeActor(this);
         this->initialized = TRUE;
         this->unk1C[1] = this->position[1];
         this->position[1] -= 300.0f;
@@ -495,7 +495,7 @@ void func_80386D78(Actor *this) {
                 func_802EE278(this, 8, 0x32, 0x46, 0.24f, 1.2f);
                 func_802EE278(this, 9, 0x28, 0x64, 0.24f, 0.8f);
                 func_802EE278(this, 0xA, 0x28, 0x28, 0.24f, 1.5f);
-                func_802D2FB0(this, 0xA, -0x1E, 0xB4, 2.0f, 0x96, 0x28, 0x64);
+                spawnParticles(this, 0xA, -0x1E, 0xB4, 2.0f, 0x96, 0x28, 0x64);
                 FUNC_8030E624(SFX_11_WOOD_BREAKING_1, 0.8f, 25000);
                 func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
                 this->position[1] = this->unk1C[1] - 300.0f;
@@ -545,8 +545,8 @@ void func_803870DC(Actor *this) {
         this->lifetime_value -= 1.0f;
         if (this->lifetime_value == 0.0f) {
             this->alpha_124_19 = 2;
-            func_80324CFC(0, COMUSIC_43_ENTER_LEVEL_GLITTER, 32700);
-            func_80324D2C(1.3f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+            playTrackWithVolumeAtTime(0, COMUSIC_43_ENTER_LEVEL_GLITTER, 32700);
+            stopTrackAtTime(1.3f, COMUSIC_43_ENTER_LEVEL_GLITTER);
         }
     }
 
@@ -600,7 +600,7 @@ Actor *lair_func_80387560(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
 //circular grate
 void func_803875F0(Actor * this)
 {
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
 
     if (!this->volatile_initialized)
     {
@@ -628,14 +628,14 @@ void func_803875F0(Actor * this)
             if (this->unk38_31)
                 return;
 
-            func_802D4830(this, 0x9A, 0.5f);
+            playSoundEffectWithDefaultVolume(this, 0x9A, 0.5f);
         }
 
         this->position_y += 4.0f;
 
         if (this->position_y > this->unk1C_y + 380.0f)
         {
-            func_802D48B8(this);
+            stopSoundEffect(this);
             FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 17000);
             marker_despawn(this->marker);
         }
@@ -656,7 +656,7 @@ void func_80387730(Actor *this) {
     s32 sp6C[3];
     f32 sp60[3];
 
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     if (!this->volatile_initialized) {
         this->volatile_initialized = TRUE;
         this->alpha_124_19 = 0xFF;
@@ -701,8 +701,8 @@ void func_80387730(Actor *this) {
             sp9C[1] = this->position[1];
             if ((ml_vec3f_distance(spAC, sp9C) < phi_f20) || (this->alpha_124_19 != 0xFF)) {
                 if (this->alpha_124_19 == 0xFF) {
-                    func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 32700);
-                    func_80324D2C(2.4f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+                    playTrackWithVolumeAtTime(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 32700);
+                    stopTrackAtTime(2.4f, COMUSIC_43_ENTER_LEVEL_GLITTER);
                     func_8028F918(2);
                 }
                 if (this->alpha_124_19 < 7U) {
@@ -821,7 +821,7 @@ void func_80387F1C(void)
     {
         jiggy_spawn(JIGGY_35_LAIR_CC_WITCH_SWITCH, tmp);
         // FIXME: macro?
-        __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, *(s32 *)&tmp[0], *(s32 *)&tmp[1], *(s32 *)&tmp[2]);
+        spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, *(s32 *)&tmp[0], *(s32 *)&tmp[1], *(s32 *)&tmp[2]);
     }
 }
 
@@ -839,7 +839,7 @@ void func_80387F78(Actor *this, enum file_progress_e progress_flag)
                 && fileProgressFlag_get(FILEPROG_9C_LAIR_CC_WITCH_SWITCH_LEFT_EYE_PRESSED)
                 && fileProgressFlag_get(FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED))
             {
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
                 timedFunc_set_0(0.9f, func_80387F1C);
             }
         }
@@ -862,7 +862,7 @@ void func_803880BC(Actor *this)
 
     if (!this->volatile_initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
 
         this->volatile_initialized = TRUE;
 
@@ -870,7 +870,7 @@ void func_803880BC(Actor *this)
         this->position_y -= 51.f;
         this->unk1C[0] = 0;
 
-        __spawnQueue_add_1((GenFunction_1)func_80387E94, reinterpret_cast(s32, this->marker));
+        spawnQueue_add_1((GenFunction_1)func_80387E94, reinterpret_cast(s32, this->marker));
 
         if (volatileFlag_get(VOLATILE_FLAG_BC_WITCH_SWITCH_PRESSED_CC) && !fileProgressFlag_get(FILEPROG_9A_CC_WITCH_SWITCH_PRESSED))
             FUNC_8030E624(SFX_3F6_RUBBING, 0.75f, 30000);
@@ -914,7 +914,7 @@ void func_803880BC(Actor *this)
 
 void func_8038824C(Actor *this)
 {
-    func_802D3CE8(this);
+    initializeActor(this);
     func_80387F78(this, FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED);
 }
 
@@ -934,7 +934,7 @@ void func_803882B0(Actor *this)
 {
     if (!this->volatile_initialized)
     {
-        func_802D3D74(this);
+        initializeActorCollisionOff(this);
 
         this->volatile_initialized = TRUE;
 
@@ -948,21 +948,21 @@ void func_803882B0(Actor *this)
         return;
 
     if (this->pitch == 0)
-        func_802D4830(this, 0x18, 0.5f);
+        playSoundEffectWithDefaultVolume(this, 0x18, 0.5f);
 
     this->pitch += 1.1;
 
     if (this->lifetime_value == 0 && this->pitch > 42.f)
     {
         this->lifetime_value = 1.f;
-        func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        comusic_playTrackWithVolumeOverride(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
     }
 
     if (this->pitch > 90.f)
     {
         this->pitch = 90.f;
         fileProgressFlag_set(FILEPROG_48_FP_WITCH_SWITCH_ADVENT_DOOR_OPEN, TRUE);
-        func_802D48B8(this);
+        stopSoundEffect(this);
     }
 }
 
@@ -1003,14 +1003,14 @@ void func_80388524(Actor *this) {
     ParticleEmitter *sp2C;
     Actor *sp28;
 
-    sp34 = func_802D677C(-1) 
-             && (func_802D677C(-1) == map_get())
-             && (func_802D67AC(-1) >= 8)
-             && (func_802D67AC(-1) < 0x12)
-             && (func_802D67DC(-1) == this->modelCacheIndex)
+    sp34 = getOrSetTransitionMap(-1) 
+             && (getOrSetTransitionMap(-1) == map_get())
+             && (getOrSetTransitionState(-1) >= 8)
+             && (getOrSetTransitionState(-1) < 0x12)
+             && (getOrSetTransitionActor(-1) == this->modelCacheIndex)
              ;
 
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     if (!this->initialized) {
         if (!sp34) {
             switch(this->modelCacheIndex){
@@ -1157,8 +1157,8 @@ void func_80388524(Actor *this) {
     }
 
     if (sp34) {
-        if (func_802D680C(-1) != 0) {
-            func_802D680C(func_802D680C(-1) - 1);
+        if (getOrSetTransitionFlag(-1) != 0) {
+            getOrSetTransitionFlag(getOrSetTransitionFlag(-1) - 1);
             return;
         }
 
@@ -1167,7 +1167,7 @@ void func_80388524(Actor *this) {
                 switch (this->state) {
                     case 0x19: //L80388B34
                         subaddie_set_state_with_direction(this, 0x1A, 0.0f, 1);
-                        func_8025A6EC(JINGLE_END_OF_INTRO, -1);
+                        comusic_playTrackWithVolumeOverride(JINGLE_END_OF_INTRO, -1);
                         break;
 
                     case 26: //L80388B54
@@ -1289,7 +1289,7 @@ void func_80388524(Actor *this) {
 
 void func_80388FC8(Actor *this)
 {
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
 
     if (!this->initialized)
     {
@@ -1344,7 +1344,7 @@ void func_80388FC8(Actor *this)
             if (this->modelCacheIndex == 0x215)
             {
                 FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.6f, 28000);
-                func_802D4830(this, 0x3EC, 0.1f);
+                playSoundEffectWithDefaultVolume(this, 0x3EC, 0.1f);
             }
         }
 
@@ -1356,7 +1356,7 @@ void func_80388FC8(Actor *this)
 
             if (this->modelCacheIndex == 0x215)
             {
-                func_802D48B8(this);
+                stopSoundEffect(this);
                 func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
             }
 
@@ -1367,7 +1367,7 @@ void func_80388FC8(Actor *this)
 
 void lair_func_80389204(Actor *this)
 {
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
 
     if (!this->initialized)
     {
@@ -1413,7 +1413,7 @@ void lair_func_80389204(Actor *this)
             if (this->unk38_31)
                 return;
             FUNC_8030E624(SFX_25_METAL_SLIDING_OVER_SMTH, 0.7f, 28000);
-            func_802D4830(this, 0x3EC, 0.2f);
+            playSoundEffectWithDefaultVolume(this, 0x3EC, 0.2f);
         }
 
         this->position_y += 3.f;
@@ -1422,7 +1422,7 @@ void lair_func_80389204(Actor *this)
         {
             this->position_y = this->unk1C[1];
 
-            func_802D48B8(this);
+            stopSoundEffect(this);
             func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
 
             this->lifetime_value = 1.f;
@@ -1432,7 +1432,7 @@ void lair_func_80389204(Actor *this)
 
 void func_803893B8(Actor *this)
 {
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
 
     if (!this->volatile_initialized)
     {
@@ -1452,13 +1452,13 @@ void func_803893B8(Actor *this)
         f32 *posY = &this->position_y;
 
         if (this->unk1C[1] == *posY)
-            func_802D4830(this, 0x9A, 0.5f);
+            playSoundEffectWithDefaultVolume(this, 0x9A, 0.5f);
 
         this->position_y += 3.f;
 
         if (this->position_y > this->unk1C[1] + 200.f)
         {
-            func_802D48B8(this);
+            stopSoundEffect(this);
             FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 29000);
             marker_despawn(this->marker);
         }
@@ -1468,7 +1468,7 @@ void func_803893B8(Actor *this)
 void lair_func_803894B0(Actor *this)
 {
     void func_802EE2E8(Actor *, s32, s32, s32, f32, f32, f32);
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
 
     if (!this->volatile_initialized)
     {
@@ -1503,37 +1503,37 @@ void lair_func_803894B0(Actor *this)
 
 void func_803896D4(Actor *this)
 {
-    func_802D4A9C(this, 0);
+    updateActorStateBasedOnMapFlags(this, 0);
 }
 
 void func_803896F4(Actor *this)
 {
-    func_802D4A9C(this, 1);
+    updateActorStateBasedOnMapFlags(this, 1);
 }
 
 void func_80389714(Actor *this)
 {
-    func_802D4A9C(this, 2);
+    updateActorStateBasedOnMapFlags(this, 2);
 }
 
 void func_80389734(Actor *this)
 {
-    func_802D4AC0(this, 0x800000 | FILEPROG_22_WATER_SWITCH_1_PRESSED, FILEPROG_23_LAIR_WATER_LEVEL_1);
+    updateActorStateBasedOnFileProgress(this, 0x800000 | FILEPROG_22_WATER_SWITCH_1_PRESSED, FILEPROG_23_LAIR_WATER_LEVEL_1);
 }
 
 void func_8038975C(Actor *this)
 {
-    func_802D4AC0(this, 0x800000 | FILEPROG_24_WATER_SWITCH_2_PRESSED, FILEPROG_25_LAIR_WATER_LEVEL_2);
+    updateActorStateBasedOnFileProgress(this, 0x800000 | FILEPROG_24_WATER_SWITCH_2_PRESSED, FILEPROG_25_LAIR_WATER_LEVEL_2);
 }
 
 void func_80389784(Actor *this)
 {
-    func_802D4AC0(this, 0x800000 | FILEPROG_26_WATER_SWITCH_3_PRESSED, FILEPROG_27_LAIR_WATER_LEVEL_3);
+    updateActorStateBasedOnFileProgress(this, 0x800000 | FILEPROG_26_WATER_SWITCH_3_PRESSED, FILEPROG_27_LAIR_WATER_LEVEL_3);
 }
 
 void func_803897AC(Actor *this)
 {
-    func_802D4AC0(this, 0x800000 | FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED, FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE);
+    updateActorStateBasedOnFileProgress(this, 0x800000 | FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED, FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE);
 }
 
 void func_803897D4(s32 arg0)
@@ -1556,19 +1556,19 @@ void func_8038982C(Actor *this)
 {
     if (!this->initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
         actor_collisionOff(this);
 
         this->initialized = TRUE;
 
         if (!fileProgressFlag_get(FILEPROG_9E_CRYPT_COFFIN_LID_OPEN))
-            __spawnQueue_add_1((GenFunction_1)func_803897D4, reinterpret_cast(s32, this->marker));
+            spawnQueue_add_1((GenFunction_1)func_803897D4, reinterpret_cast(s32, this->marker));
     }
 }
 
 void func_80389898(Actor *this)
 {
-    func_802D3CE8(this);
+    initializeActor(this);
 
     switch (this->state)
     {
@@ -1599,7 +1599,7 @@ void func_80389934(Actor *this)
 {
     if (!this->volatile_initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
         actor_collisionOff(this);
 
         this->volatile_initialized = TRUE;
@@ -1629,7 +1629,7 @@ void func_80389934(Actor *this)
                 subaddie_set_state_forward(this, 0x17);
                 actor_playAnimationOnce(this);
                 FUNC_8030E624(SFX_3F6_RUBBING, 0.6f, 32000);
-                func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
             }
 
             break;
@@ -1654,7 +1654,7 @@ f32 func_80389AAC(Actor *this, f32 a1)
 {
     // defs
     f32   randf2(f32, f32);
-    void *func_80309B48(f32 *, f32 *, f32 *, u32);
+    void *findCollisionTriAlongPath3(f32 *, f32 *, f32 *, u32);
 
     f32 vec3[3]; // $sp + 54
     f32 vec2[3]; // $sp + 48
@@ -1678,7 +1678,7 @@ f32 func_80389AAC(Actor *this, f32 a1)
 
     vec1[1] = this->position_y - 400;
 
-    if (this->unk1C[1] < 0 && func_80309B48(vec3, vec1, vec2, 0) && this->position_y <= vec1[1])
+    if (this->unk1C[1] < 0 && findCollisionTriAlongPath3(vec3, vec1, vec2, 0) && this->position_y <= vec1[1])
     {
         this->position_y = vec1[1] + 6;
 
@@ -1725,7 +1725,7 @@ void func_80389D08(Actor *this)
 {
     if (!this->volatile_initialized)
     {
-        func_802D3CE8(this);
+        initializeActor(this);
 
         this->volatile_initialized = TRUE;
         this->lifetime_value = 0;
@@ -1792,7 +1792,7 @@ Actor *func_80389E10(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp90[2] = sp84[2] + ((sp78[2] - sp84[2]) * randf());
             
 
-            func_802EE6CC(sp90, sp6C, D_80393504, 1, 0.3f, 50.0f, 180, randi2(130, 200), 0);
+            spawnParticleEffect(sp90, sp6C, D_80393504, 1, 0.3f, 50.0f, 180, randi2(130, 200), 0);
         };
     }
     return this;
@@ -1802,7 +1802,7 @@ void func_80389FA8(Actor *this, enum file_progress_e flag)
 {
     if (!this->initialized)
     {
-        func_802D3D54(this);
+        initializeActorWrapper(this);
 
         if (fileProgressFlag_get(flag))
             marker_despawn(this->marker);

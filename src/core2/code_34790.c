@@ -10,7 +10,7 @@ extern void func_802BEA4C(f32[3], f32[3], f32, f32[3]);
 extern void func_802BEBE8(f32[3], f32[3], f32, f32[3]);
 extern void func_802BEAAC(f32[3], f32[3], f32, f32[3], f32[3], f32[3], f32[3]);
 extern NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e, s32[3]);
-extern BKCollisionTri *func_80320B98(f32[3], f32[3], f32[3], s32);
+extern BKCollisionTri *findCollisionTriAlongPathWithFlags(f32[3], f32[3], f32[3], s32);
 f32 func_802BB938(f32[3], f32[3]);
 f32 func_802BBD48(void);
 f32 func_802BBEA4(f32 arg0[3], f32 arg1[3], f32 arg2, s32 arg3, s32 arg4);
@@ -49,11 +49,11 @@ bool func_802BB720(s32 arg0, f32 arg1[3], f32 arg2[3], s32 *arg3) {
         arg0 = 0x1A;
     }
     if (arg0 >= 0x80) {
-        arg1[0] = (f32) func_802E4AE8(arg0);
-        arg1[1] = (f32) func_802E4AFC(arg0);
-        arg1[2] = (f32) func_802E4B10(arg0);
+        arg1[0] = (f32) getSpecialModeData5(arg0);
+        arg1[1] = (f32) getSpecialModeData6(arg0);
+        arg1[2] = (f32) getSpecialModeData7(arg0);
         arg2[0] = 0.0f;
-        arg2[1] = mlNormalizeAngle((f32) func_802E4B24(arg0) - 180.0f);
+        arg2[1] = mlNormalizeAngle((f32) getSpecialModeData8(arg0) - 180.0f);
         arg2[2] = 0.0f;
         return TRUE;
     }
@@ -125,7 +125,7 @@ void func_802BBA84(void) {
     viewport_getPosition_vec3f(vp_position);
     viewport_getRotation_vec3f(vp_rotation);
     viewport_getLookVector(sp48);
-    D_8037D8CC = (f32) coords_func_8033EAF8(min, max, vp_position, sp48);
+    D_8037D8CC = (f32) coords_getMaxDotProduct(min, max, vp_position, sp48);
     D_8037D8CC += 100.0f;
     if (D_8037D8CC < 1000.0f) {
         D_8037D8CC = 1000.0f;
@@ -215,7 +215,7 @@ f32 func_802BBEA4(f32 arg0[3], f32 arg1[3], f32 arg2, s32 arg3, s32 arg4) {
     func_802BEBE8(arg1, arg0, arg2, sp58[3]);
     func_802BEAAC(arg1, arg0, arg2, sp58[1], sp58[4], sp58[2], sp58[5]);
     ml_vec3f_copy(sp4C, sp58[D_8037D8D0.unk30]);
-    sp38 = func_80320B98(arg0, sp4C, sp3C, arg4);
+    sp38 = findCollisionTriAlongPathWithFlags(arg0, sp4C, sp3C, arg4);
     if (sp38 != NULL) {
         phi_f2 = ml_vec3f_distance(arg0, sp4C);
         D_8037D8D0.unk0[D_8037D8D0.unk30] = sp38->flags;
@@ -343,7 +343,7 @@ void func_802BC2CC(s32 arg0) {
     if (volatileFlag_get(VOLATILE_FLAG_E) != 0) {
         func_80347A14(0);
     }
-    if (volatileFlag_getAndSet(VOLATILE_FLAG_E, 0) || func_802D686C() || (arg0 == 0x63) || !func_802BB720(arg0, D_8037D908, D_8037D918, &sp1C)) {
+    if (volatileFlag_getAndSet(VOLATILE_FLAG_E, 0) || isInTransitionMap() || (arg0 == 0x63) || !func_802BB720(arg0, D_8037D908, D_8037D918, &sp1C)) {
         if (ncCameraType == CAMERA_TYPE_2_DYNAMIC) {
             func_802BE794();
         }
@@ -357,7 +357,7 @@ void func_802BC2CC(s32 arg0) {
     viewport_setPosition_vec3f(D_8037D908);
     viewport_setRotation_vec3f(D_8037D918);
     viewport_update();
-    __spawnQueue_add_2((GenFunction_2)func_802BC2A0, reinterpret_cast(s32, sp24), reinterpret_cast(s32, sp20));
+    spawnQueue_add_2((GenFunction_2)func_802BC2A0, reinterpret_cast(s32, sp24), reinterpret_cast(s32, sp20));
     if (ncCameraType == CAMERA_TYPE_2_DYNAMIC) {
         func_802BE720();
         if (sp1C != 0x63) {
@@ -372,7 +372,7 @@ bool func_802BC428(void){
 }
 
 void func_802BC434(f32 arg0[3], f32 arg1[3], f32 arg2[3]) {
-    func_8025727C(arg1[0], arg1[1], arg1[2], arg2[0], arg2[1], arg2[2], &arg0[0], &arg0[1]);
+    ml_vec3f_angles_between_points(arg1[0], arg1[1], arg1[2], arg2[0], arg2[1], arg2[2], &arg0[0], &arg0[1]);
     arg0[0] = mlNormalizeAngle(-arg0[0]);
     arg0[2] = 0.0f;
 }

@@ -1,5 +1,9 @@
 #include <ultra64.h>
+#ifdef LIGHTHOUSE_P
+#include "pc_oscompat.h"
+#else
 #include "osint.h"
+#endif
 
 void osSetThreadPri(OSThread *t, OSPri pri)
 {

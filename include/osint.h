@@ -1,11 +1,14 @@
 #ifndef _OSINT_H
 #define _OSINT_H
+#ifndef LIGHTHOUSE_P
 #include <os_internal.h>
+
 typedef struct __OSEventState
 {
-    OSMesgQueue *messageQueue;
-    OSMesg message;
+    OSMesgQueue *queue;
+    OSMesg msg;
 } __OSEventState;
+
 extern struct __osThreadTail
 {
     OSThread *next;
@@ -20,7 +23,7 @@ extern OSThread *__osPopThread(OSThread **);
 extern void __osDispatchThread(void);
 
 extern void __osSetTimerIntr(OSTime);
-extern OSTime __osInsertTimer(OSTimer *);
+extern OSTime __osInsertTimer(OSTimer *t);
 extern void __osTimerInterrupt(void);
 extern u32 __osProbeTLB(void *);
 extern int     __osSpDeviceBusy(void);
@@ -45,4 +48,5 @@ extern s32 osViClock;
 extern void __osTimerServicesInit(void);
 extern s32 __osAiDeviceBusy(void);
 extern int __osDpDeviceBusy(void);
-#endif
+#endif  //LIGHTHOUSE_P
+#endif  //_OSINT_H

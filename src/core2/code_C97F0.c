@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 extern bool func_8028F170(f32, f32);
 
 typedef struct {
@@ -208,9 +211,9 @@ void func_80350CA4(void) {
         sp24[1] = sp30[1] + sp48[1];
         sp24[2] = sp30[2] + sp48[2];
         if (func_8028F170(sp48[1], sp48[2])) {
-            var_v0 = func_80320B98(&sp30, &sp24, &sp3C, 0x01000000);
+            var_v0 = findCollisionTriAlongPathWithFlags(&sp30, &sp24, &sp3C, 0x01000000);
         } else {
-            var_v0 = func_80309B48(&sp30, &sp24, &sp3C, 0x01000000);
+            var_v0 = findCollisionTriAlongPath3(&sp30, &sp24, &sp3C, 0x01000000);
         }
         if (var_v0 != 0) {
             D_8038617C.unk0 = 0;

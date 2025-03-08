@@ -105,7 +105,7 @@ void func_802FD064(void) {
             break;
 
         case 2:
-            if (getGameMode() != GAME_MODE_4_PAUSED) {
+            if (game_getMode() != GAME_MODE_4_PAUSED) {
                 temp_s2->unk10 -= time_getDelta();
                 if (temp_s2->unk10 < 0.0f) {
                     temp_s2->unk0 = 3;

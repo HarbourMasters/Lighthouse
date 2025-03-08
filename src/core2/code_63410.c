@@ -40,7 +40,7 @@ s32 func_802EA3AC(Struct_core2_63410_0 *arg0, s32 indx, f32 arg2[3], f32 arg3[3]
 }
 
 s32 func_802EA3F8(Struct_core2_63410_0 *arg0){
-    //return size of vector
+    //return size of bk_vector
     return arg0->unk4 - arg0->unk0;
 }
 
@@ -62,11 +62,11 @@ void func_802EA418(Struct_core2_63410_0 **arg0, Struct_core2_63410_2 *arg1, f32 
         }
     }
 
-    //check if vector capacity needs to increas
+    //check if bk_vector capacity needs to increas
     if (phi_s1->unk4 == phi_s1->unk8) {
         sp34 = (phi_s1->unk8 - phi_s1->unk0);
         sp20 = sp34 * 2;
-        phi_s1 = (Struct_core2_63410_0 *)realloc(phi_s1, sizeof(Struct_core2_63410_0) + (sizeof(Struct_core2_63410_1)*sp20));
+        phi_s1 = (Struct_core2_63410_0 *)bk_realloc(phi_s1, sizeof(Struct_core2_63410_0) + (sizeof(Struct_core2_63410_1)*sp20));
         phi_s1->unk0 = (Struct_core2_63410_1 *)(phi_s1 + 1);
         phi_s1->unk4 = phi_s1->unk0 + sp34;
         phi_s1->unk8 = phi_s1->unk0 + sp20;
@@ -85,15 +85,15 @@ void func_802EA418(Struct_core2_63410_0 **arg0, Struct_core2_63410_2 *arg1, f32 
 }
 
 void func_802EA5C4(Struct_core2_63410_0 *arg0){
-    //free vec
-    free(arg0);
+    //bk_free vec
+    bk_free(arg0);
 }
 
 Struct_core2_63410_0 *func_802EA5E4(void){
     //new
     Struct_core2_63410_0 *phi_v0;
 
-    phi_v0 = (Struct_core2_63410_0 *)malloc(sizeof(Struct_core2_63410_0) + 2 * sizeof(Struct_core2_63410_1));
+    phi_v0 = (Struct_core2_63410_0 *)heap_malloc(sizeof(Struct_core2_63410_0) + 2 * sizeof(Struct_core2_63410_1));
     phi_v0->unk0 = (Struct_core2_63410_1 *)(phi_v0 + 1);
     phi_v0->unk4 = phi_v0->unk0;
     phi_v0->unk8 = phi_v0->unk0 + 2;

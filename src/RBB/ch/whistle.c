@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 /* typedefs and declarations */
 typedef struct {
     s16 unk0;

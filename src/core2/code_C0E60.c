@@ -2,53 +2,45 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80355C60(f32[3], f32);
-
-void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height, s32 *frame_width, s32 *frame_height, s32 *texture_x, s32 *texture_y, s32 *textureCount);
-
-#define	rare_gDPLoadMultiBlock(pkt, timg, tmem, rtile, fmt, siz, width, height, \
+#define rare_gDPLoadMultiBlock(pkt, timg, tmem, rtile, fmt, siz, width, height, \
     uls, ult, \
-    pal, cms, cmt, masks, maskt, shifts, shiftt)	\
-{									\
-	gDPSetTextureImage(pkt, fmt, siz##_LOAD_BLOCK, 1, timg);	\
-	gDPSetTile(pkt, fmt, siz##_LOAD_BLOCK, 0, tmem, G_TX_LOADTILE, 0,\
-		cmt, maskt, shiftt, cms, masks, shifts);		\
-	gDPLoadSync(pkt);						\
-	gDPLoadBlock(pkt, G_TX_LOADTILE, 0, 0, 				\
-		(((width)*(height) + siz##_INCR) >> siz##_SHIFT)-1,	\
-		CALC_DXT(width, siz##_BYTES)); 				\
-	gDPPipeSync(pkt);						\
-	gDPSetTile(pkt, fmt, siz, (((width) * siz##_LINE_BYTES)+7)>>3,	\
-		tmem, rtile, pal, cmt,					\
-		maskt, shiftt, cms, masks, shifts);			\
-	gDPSetTileSize(pkt, rtile, \
-		(uls),			\
-		(ult),			\
-		((width)-1) << G_TEXTURE_IMAGE_FRAC,			\
-		((height)-1) << G_TEXTURE_IMAGE_FRAC)			\
-}
+    pal, cms, cmt, masks, maskt, shifts, shiftt) \
+    gDPSetTextureImage(pkt, fmt, siz##_LOAD_BLOCK, 1, timg); \
+    gDPSetTile(pkt, fmt, siz##_LOAD_BLOCK, 0, tmem, G_TX_LOADTILE, 0, \
+        cmt, maskt, shiftt, cms, masks, shifts); \
+    gDPLoadSync(pkt); \
+    gDPLoadBlock(pkt, G_TX_LOADTILE, 0, 0, \
+        (((width)*(height) + siz##_INCR) >> siz##_SHIFT)-1, \
+        CALC_DXT(width, siz##_BYTES)); \
+    gDPPipeSync(pkt); \
+    gDPSetTile(pkt, fmt, siz, (((width) * siz##_LINE_BYTES)+7)>>3, \
+        tmem, rtile, pal, cmt, \
+        maskt, shiftt, cms, masks, shifts); \
+    gDPSetTileSize(pkt, rtile, \
+        (uls), \
+        (ult), \
+        ((width)-1) << G_TEXTURE_IMAGE_FRAC, \
+        ((height)-1) << G_TEXTURE_IMAGE_FRAC)
 
-#define	rare_gDPLoadMultiBlock_4b(pkt, timg, tmem, rtile, fmt, width, height, \
-        uls, ult, \
-		pal, cms, cmt, masks, maskt, shifts, shiftt)		\
-{									\
-	gDPSetTextureImage(pkt, fmt, G_IM_SIZ_16b, 1, timg);		\
-	gDPSetTile(pkt, fmt, G_IM_SIZ_16b, 0, tmem, G_TX_LOADTILE, 0,	\
-		cmt, maskt, shiftt, cms, masks, shifts);		\
-	gDPLoadSync(pkt);						\
-	gDPLoadBlock(pkt, G_TX_LOADTILE, 0, 0,				\
-		(((width)*(height)+3)>>2)-1,				\
-		CALC_DXT_4b(width));					\
-	gDPPipeSync(pkt);						\
-	gDPSetTile(pkt, fmt, G_IM_SIZ_4b, ((((width)>>1)+7)>>3), tmem,	\
-		rtile, pal, cmt, maskt, shiftt, cms, masks,		\
-		shifts);						\
-	gDPSetTileSize(pkt, rtile, \
-		(uls),			\
-		(ult),			\
-		((width)-1) << G_TEXTURE_IMAGE_FRAC,			\
-		((height)-1) << G_TEXTURE_IMAGE_FRAC)			\
-}
+#define rare_gDPLoadMultiBlock_4b(pkt, timg, tmem, rtile, fmt, width, height, \
+    uls, ult, \
+    pal, cms, cmt, masks, maskt, shifts, shiftt) \
+    gDPSetTextureImage(pkt, fmt, G_IM_SIZ_16b, 1, timg); \
+    gDPSetTile(pkt, fmt, G_IM_SIZ_16b, 0, tmem, G_TX_LOADTILE, 0, \
+        cmt, maskt, shiftt, cms, masks, shifts); \
+    gDPLoadSync(pkt); \
+    gDPLoadBlock(pkt, G_TX_LOADTILE, 0, 0, \
+        (((width)*(height)+3)>>2)-1, \
+        CALC_DXT_4b(width)); \
+    gDPPipeSync(pkt); \
+    gDPSetTile(pkt, fmt, G_IM_SIZ_4b, ((((width)>>1)+7)>>3), tmem, \
+        rtile, pal, cmt, maskt, shiftt, cms, masks, \
+        shifts); \
+    gDPSetTileSize(pkt, rtile, \
+        (uls), \
+        (ult), \
+        ((width)-1) << G_TEXTURE_IMAGE_FRAC, \
+        ((height)-1) << G_TEXTURE_IMAGE_FRAC)
 
 /* .bss */
 s32 D_80386070;
@@ -79,7 +71,7 @@ void func_80347DF0(Struct81s *arg0){
 }
 
 void func_80347E34(Struct81s *arg0){
-    __spawnQueue_add_1((GenFunction_1) func_80347DF0, reinterpret_cast(s32, arg0));
+    spawnQueue_add_1((GenFunction_1) func_80347DF0, reinterpret_cast(s32, arg0));
 }
 
 void func_80347E60(Struct81s *arg0) {
@@ -111,7 +103,7 @@ void func_80347FA4(s32 arg0, s32 arg1, s32 arg2, s32 tmem){}
 
 void func_80347FB8(s32 arg0){}
 
-void func_80347FC0(Gfx **gfx, BKSprite *sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height){
+void func_80347FC0(Gfx **gfx, BKSprite_s *sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height){
     s32 sp5C;
     s32 sp58;
     s32 sp54;
@@ -123,7 +115,7 @@ void func_80347FC0(Gfx **gfx, BKSprite *sprite, s32 frame, s32 tmem, s32 rtile, 
     );
 }
 
-void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height, s32 *frame_width, s32 *frame_height, s32 *texture_x, s32 *texture_y, s32 *textureCount) {
+void func_80348044(Gfx **gfx, BKSprite_s* sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height, s32 *frame_width, s32 *frame_height, s32 *texture_x, s32 *texture_y, s32 *textureCount) {
     BKSpriteFrame *sprite_frame;
     s32 palette_addr;
     BKSpriteTextureBlock *texture_block;

@@ -16,13 +16,13 @@ struct {
 }D_80383300;
 
 /* .code */
-void func_803216D0(enum map_e map){
+void loadMapData(enum map_e map){
     s32 prev_lvl = D_80383300.level;
     D_80383300.level = map_getLevel(map);
     overlayManagerload(level_to_overlay(D_80383300.level));
     D_80383300.unk0 = 0;
-    if(func_802E4A8C()){
-        func_802E4A80();
+    if(isSpecialModeEnabled()){
+        game_disableSpecialMode();
     }else{
         if( D_80383300.level != LEVEL_6_LAIR 
             && D_80383300.level != LEVEL_C_BOSS
@@ -38,7 +38,7 @@ void func_803216D0(enum map_e map){
         bsStoredState_clearTimers();
         func_803219A8();
         if( volatileFlag_getAndSet(VOLATILE_FLAG_17, FALSE) 
-            && getGameMode() != 0
+            && game_getMode() != 0
             && D_80383300.level != LEVEL_D_CUTSCENE
             && map != MAP_91_FILE_SELECT
         ){
@@ -63,14 +63,14 @@ void func_803216D0(enum map_e map){
     }
 }
 
-void func_80321854(void){
-    if(!func_802E4A8C()){
+void initializeGameMode(void){
+    if(!isSpecialModeEnabled()){
         if( D_80383300.level == LEVEL_9_RUSTY_BUCKET_BAY){
             rbb_propellorCtrl_stop();
         }
 
         if( D_80383300.level == LEVEL_1_MUMBOS_MOUNTAIN
-            && getGameMode() != 0
+            && game_getMode() != 0
             && fileProgressFlag_get(FILEPROG_31_MM_OPEN)
             && !fileProgressFlag_get(FILEPROG_C1_BADDIES_ESCAPE_TEXT)
         ){
@@ -87,7 +87,7 @@ enum level_e level_get(void){
     return D_80383300.level;
 }
 
-int func_8032190C(void){
+int isGamePaused(void){
     return D_80383300.unk0;
 }
 

@@ -10,7 +10,7 @@ static void __chLeaky_updateFunc(Actor *this);
 
 /* .data */
 ActorAnimationInfo gChLeakyAnimations[3] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_239_ANIM_LEAKY_IDLE, 2.5f},
     {ASSET_239_ANIM_LEAKY_IDLE, 2.5f}
 };
@@ -93,12 +93,12 @@ static void __chLeaky_showDoneText(ActorMarker *caller, enum asset_e text_id, s3
         func_8034E7B8(temp_v0, -600, 4.0f, 2, 10.0f);
     }
 
-    func_80324E38(0.0f, 3);
+    setCameraModeAtTime(0.0f, 3);
     timed_setStaticCameraToNode(0.5f, 7);
     timedFunc_set_0(1.0f, __func_80388F88);
-    func_80324E38(2.5f, 0);
+    setCameraModeAtTime(2.5f, 0);
     timedFunc_set_1(2.5f, func_8028F9DC, 2);
-    timedFunc_set_3(2.5f, (GenFunction_3)func_802E4078, MAP_A_TTC_SANDCASTLE, 0, 0);
+    timedFunc_set_3(2.5f, (GenFunction_3)game_setMapWithTransition, MAP_A_TTC_SANDCASTLE, 0, 0);
     func_803228D8();
 }
 

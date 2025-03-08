@@ -7,7 +7,7 @@ void func_8028E668(f32 *, f32, f32, f32);
 int actor_animationIsAt(Actor *, f32);
 void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 void timed_exitStaticCamera(f32);
-void func_80324E38(f32, s32);
+void setCameraModeAtTime(f32, s32);
 void timed_setStaticCameraToNode(f32, s32);
 s32 player_setCarryObjectPoseInHorizontalRadius(f32 *, f32, s32, Actor **);
 
@@ -50,7 +50,7 @@ void __chlmonkey_updateBringOrange(Actor **this_ptr) {
         func_8028FA34(0xc6, *this_ptr);
         (*this_ptr)->has_met_before = TRUE;
         timed_setStaticCameraToNode(1.2f, 0xF);
-        func_80324E38(1.2f, 3);
+        setCameraModeAtTime(1.2f, 3);
     }
 
     if (this_ptr);
@@ -86,7 +86,7 @@ void __chlmonkey_complete(ActorMarker *marker, enum asset_e unused_1, s32 unused
     timed_setStaticCameraToNode(2.3f, 0x12);
     timedFunc_set_3(2.9f, __chlmonkey_spawnJiggy, actor->position_x, actor->position_y + 150.0f, actor->position_z);
     timed_exitStaticCamera(4.3f);
-    func_80324E38(4.3f, 0);
+    setCameraModeAtTime(4.3f, 0);
 }
 
 void chlmonkey_update(Actor *this) {

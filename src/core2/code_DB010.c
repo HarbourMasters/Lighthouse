@@ -4,9 +4,9 @@
 #include "variables.h"
 
 
-extern void func_802EFF5C(ParticleEmitter *, f32, f32, f32);
-extern void func_802EFF7C(ParticleEmitter *, f32, f32, f32);
-extern void func_802EFF9C(ParticleEmitter *, f32);
+extern void particleEmitter_setWaveAmplitude(ParticleEmitter *, f32, f32, f32);
+extern void particleEmitter_setWaveFrequency(ParticleEmitter *, f32, f32, f32);
+extern void particleEmitter_setWaveLength(ParticleEmitter *, f32);
 
 void func_80363310(Actor *this);
 void func_80363330(Actor *this);
@@ -42,12 +42,12 @@ void func_80361FA0(f32 arg0[3]) {
     particleEmitter_setModel(pCtrl, 0x441);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setAngularVelocityRange(pCtrl, -200.0f, 200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.01f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.01f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_2F_ORANGE_SPLAT, 16000);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373334);
-    func_802EFC28(pCtrl, &D_80373304);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373304);
     FUNC_8030E624(SFX_7C_CHEBOOF, 0.6f, 29000);
 }
 
@@ -67,11 +67,11 @@ void func_80362084(f32 position[3]) {
     particleEmitter_setRGB(pCtrl, D_8037337C);
     particleEmitter_setAlpha(pCtrl, 0xA0);
     particleEmitter_setPosition(pCtrl, position);
-    func_802EFF5C(pCtrl, 0.1f, 0.2f, 0.0f);
-    func_802EFF7C(pCtrl, 0.0f, 0.25f, 0.0f);
-    func_802EFF9C(pCtrl, 0.5f);
+    particleEmitter_setWaveAmplitude(pCtrl, 0.1f, 0.2f, 0.0f);
+    particleEmitter_setWaveFrequency(pCtrl, 0.0f, 0.25f, 0.0f);
+    particleEmitter_setWaveLength(pCtrl, 0.5f);
     particleEmitter_setPositionAndVelocityRanges(pCtrl, &D_803733B8);
-    func_802EFC28(pCtrl, &D_80373388);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373388);
 }
 
 
@@ -92,7 +92,7 @@ void func_8036215C(f32 arg0[3]) {
     particleEmitter_setAlpha(pCtrl, 0x28);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373424);
-    func_802EFC28(pCtrl, &D_803733F4);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803733F4);
 }
 
 void func_803621F0(f32 arg0[3]) {
@@ -110,7 +110,7 @@ void func_803621F0(f32 arg0[3]) {
     particleEmitter_setAlpha(pCtrl, 0xD2);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_8037349C);
-    func_802EFC28(pCtrl, &D_8037346C);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_8037346C);
 }
 
 void func_80362274(f32 arg0[3]) {
@@ -126,11 +126,11 @@ void func_80362274(f32 arg0[3]) {
     particleEmitter_setModel(pCtrl, 0x89B);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setAngularVelocityRange(pCtrl, -400.0f, -200.0f, -400.0f, 400.0f, -400.0f, 400.0f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.01f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.01f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373514);
-    func_802EFC28(pCtrl, &D_803734E4);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803734E4);
 }
 
 void func_8036233C(f32 arg0[3]) {
@@ -146,11 +146,11 @@ void func_8036233C(f32 arg0[3]) {
     particleEmitter_setModel(pCtrl, 0x89A);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setAngularVelocityRange(pCtrl, -200.0f, 200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.01f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.01f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_8037358C);
-    func_802EFC28(pCtrl, &D_8037355C);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_8037355C);
 }
 
 void func_80362404(f32 arg0[3]) {
@@ -166,7 +166,7 @@ void func_80362404(f32 arg0[3]) {
     particleEmitter_setStartingFrameRange(pCtrl, 2, 2);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setPositionAndVelocityRanges(pCtrl, &D_80373604);
-    func_802EFC28(pCtrl, &D_803735D4);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803735D4);
 }
 
 void func_8036247C(f32 arg0[3]) {
@@ -185,7 +185,7 @@ void func_8036247C(f32 arg0[3]) {
     particleEmitter_setAlpha(pCtrl, 0x64);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setPositionAndVelocityRanges(pCtrl, &D_80373670);
-    func_802EFC28(pCtrl, &D_80373640);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373640);
 }
 
 void func_80362510(Actor *actor) {
@@ -211,7 +211,7 @@ void func_80362510(Actor *actor) {
         sp30[0] * 0.01, sp30[1] * 0.01, sp30[2] * 0.01, 
         sp30[0] * 0.4, sp30[1] * 0.4, sp30[2] * 0.4
     );
-    func_802EFC28(pCtrl, &D_803736AC);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803736AC);
 }
 
 
@@ -228,7 +228,7 @@ void func_80362680(f32 arg0[3]) {
     particleEmitter_setStartingFrameRange(pCtrl, 2, 2);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setPositionAndVelocityRanges(pCtrl, &D_8037370C);
-    func_802EFC28(pCtrl, &D_803736DC);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803736DC);
 }
 
 void func_803626F8(f32 arg0[3]) {
@@ -245,7 +245,7 @@ void func_803626F8(f32 arg0[3]) {
     particleEmitter_setStartingFrameRange(pCtrl, 1, 6);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_8037376C);
-    func_802EFC28(pCtrl, &D_8037373C);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_8037373C);
 }
 
 
@@ -264,7 +264,7 @@ void func_80362770(f32 arg0[3]) {
     particleEmitter_setRGB(pCtrl, &D_803737B4);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setPositionAndVelocityRanges(pCtrl, &D_803737F0);
-    func_802EFC28(pCtrl, &D_803737C0);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803737C0);
 }
 
 void func_803627F8(f32 arg0[3]){
@@ -284,7 +284,7 @@ void func_803627F8(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 120);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_8037385C);
-    func_802EFC28(pCtrl, &D_8037382C);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_8037382C);
 }
 
 void func_8036288C(f32 arg0[3]){
@@ -304,7 +304,7 @@ void func_8036288C(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 255);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_803738E0);
-    func_802EFC28(pCtrl, &D_803738B0);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803738B0);
 }
 
 void func_80362920(f32 arg0[3]){
@@ -322,7 +322,7 @@ void func_80362920(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 60);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373964);
-    func_802EFC28(pCtrl, &D_80373934);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373934);
 }
 
 void func_803629B4(f32 arg0[3]){
@@ -342,7 +342,7 @@ void func_803629B4(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 255);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_803739E8);
-    func_802EFC28(pCtrl, &D_803739B8);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803739B8);
 }
 
 void func_80362A48(f32 arg0[3]){
@@ -362,7 +362,7 @@ void func_80362A48(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 40);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373A6C);
-    func_802EFC28(pCtrl, &D_80373A3C);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373A3C);
 }
 
 void func_80362ADC(f32 arg0[3]){
@@ -382,7 +382,7 @@ void func_80362ADC(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 40);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373AF0);
-    func_802EFC28(pCtrl, &D_80373AC0);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373AC0);
 }
 
 void func_80362B70(f32 arg0[3]){
@@ -400,7 +400,7 @@ void func_80362B70(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 110);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373B74);
-    func_802EFC28(pCtrl, &D_80373B44);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373B44);
 }
 
 void func_80362C04(f32 arg0[3]){
@@ -420,7 +420,7 @@ void func_80362C04(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 40);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373BF8);
-    func_802EFC28(pCtrl, &D_80373BC8);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373BC8);
 }
 
 void func_80362C98(f32 arg0[3]){
@@ -440,7 +440,7 @@ void func_80362C98(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 140);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373C7C);
-    func_802EFC28(pCtrl, &D_80373C4C);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373C4C);
 }
 
 void func_80362D2C(f32 arg0[3]){
@@ -460,7 +460,7 @@ void func_80362D2C(f32 arg0[3]){
     particleEmitter_setAlpha(pCtrl, 140);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373D00);
-    func_802EFC28(pCtrl, &D_80373CD0);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373CD0);
 }
 
 void func_80362DC0(f32 arg0[3]){
@@ -475,12 +475,12 @@ void func_80362DC0(f32 arg0[3]){
     particleEmitter_setModel(pCtrl, ASSET_47B_MODEL_ROCK);
     particleEmitter_setPosition(pCtrl, arg0);
     particleEmitter_setAngularVelocityRange(pCtrl, -200.0f, 200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.4f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.4f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setDrawMode(pCtrl, 2);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373D78);
-    func_802EFC28(pCtrl, &D_80373D48);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80373D48);
 }
 
 void func_80362E94(Actor *this){
@@ -488,17 +488,17 @@ void func_80362E94(Actor *this){
 
     switch(this->unkF4_8){
         case 0x3: //L80362ED8
-            if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.2){
+            if(viewport_isPointWithinDistance(this->position, 50.0f) && randf() < 0.2){
                 func_80362084(this->position);
             }
             break;
         case 0xa: //L80362F24
-            if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.1){
+            if(viewport_isPointWithinDistance(this->position, 50.0f) && randf() < 0.1){
                 func_8036247C(this->position);
             }
             break;
         case 0xc: //L80362F70
-            if(viewport_func_8024DB50(this->position, 50.0f)){
+            if(viewport_isPointWithinDistance(this->position, 50.0f)){
                 if(randf() < 0.4)
                     func_80362680(this->position);
                 if(randf() < 0.8)
@@ -506,27 +506,27 @@ void func_80362E94(Actor *this){
             }
             break;
         case 0x10://L80362FE8
-            if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.1){
+            if(viewport_isPointWithinDistance(this->position, 50.0f) && randf() < 0.1){
                 func_80362A48(this->position);
             }
             break;
         case 0x11://L80363034
-            if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.06){
+            if(viewport_isPointWithinDistance(this->position, 50.0f) && randf() < 0.06){
                 func_80362ADC(this->position);
             }
             break;
         case 0x12://L80363080
-            if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.06){
+            if(viewport_isPointWithinDistance(this->position, 50.0f) && randf() < 0.06){
                 func_80362C04(this->position);
             }
             break;
         case 0x13://L803630CC
-            if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.4){
+            if(viewport_isPointWithinDistance(this->position, 50.0f) && randf() < 0.4){
                 func_80362B70(this->position);
             }
             break;
         case 0x14://L80363118
-            if(viewport_func_8024DB50(this->position, 300.0f)){
+            if(viewport_isPointWithinDistance(this->position, 300.0f)){
                 if(randf() < 0.01)
                     func_80362C98(this->position);
                 func_80362D2C(this->position);

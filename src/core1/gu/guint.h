@@ -9,34 +9,36 @@
  *  in part, without the prior written consent of Silicon Graphics, Inc.  *
  *									  *
  **************************************************************************/
-
-#include "mbi.h"
+#ifndef LIGHTHOUSE_P
 #include "gu.h"
+#include "mbi.h"
+#else
+#include "libultraship/libultraship.h"
+#endif
 
-typedef union
-{
-	struct
-	{
-		unsigned int hi;
-		unsigned int lo;
-	} word;
+typedef union {
+  struct {
+    unsigned int hi;
+    unsigned int lo;
+  } word;
 
-	double	d;
+  double d;
 } du;
 
-typedef union
-{
-	unsigned int	i;
-	float		f;
+typedef union {
+  unsigned int i;
+  float f;
 } fu;
 
 #ifndef __GL_GL_H__
 
-typedef	float	Matrix[4][4];
+#ifndef LIGHTHOUSE_P
+typedef float Matrix[4][4];
+#endif
 
 #endif
 
-#define ROUND(d)	(int)(((d) >= 0.0) ? ((d) + 0.5) : ((d) - 0.5))
-#define	ABS(d)		((d) > 0) ? (d) : -(d)
+#define ROUND(d) (int)(((d) >= 0.0) ? ((d) + 0.5) : ((d) - 0.5))
+#define ABS(d) ((d) > 0) ? (d) : -(d)
 
-extern float	__libm_qnan_f;
+extern float __libm_qnan_f;

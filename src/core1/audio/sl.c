@@ -1,35 +1,38 @@
-#include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include <ultra64.h>
+
+#ifdef LIGHTHOUSE_P
+#include "pc_audio.h"
+#endif
 
 ALGlobals *alGlobals = NULL;
 
-void alInit(ALGlobals *g, ALSynConfig *c){
-    if (!alGlobals) { /* already initialized? */
-        alGlobals = g;
-        alSynNew(&alGlobals->drvr, c);
-    }
+void alInit(ALGlobals *g, ALSynConfig *c) {
+  if (!alGlobals) { /* already initialized? */
+    alGlobals = g;
+    alSynNew(&alGlobals->drvr, c);
+  }
 }
 
-void alClose(ALGlobals *glob)
-{
-    if (alGlobals) {
-        alSynDelete(&glob->drvr);
-        alGlobals = 0;
-    }
+void alClose(ALGlobals *glob) {
+  if (alGlobals) {
+    alSynDelete(&glob->drvr);
+    alGlobals = 0;
+  }
 }
 
-void alLink(ALLink *ln, ALLink *to){
-    ln->next = to->next;
-    ln->prev = to;
-    if (to->next)
-        to->next->prev = ln;
-    to->next = ln;
+void alLink(ALLink *ln, ALLink *to) {
+  ln->next = to->next;
+  ln->prev = to;
+  if (to->next)
+    to->next->prev = ln;
+  to->next = ln;
 }
 
-void alUnlink(ALLink *ln){
-    if (ln->next)
-        ln->next->prev = ln->prev;
-        if (ln->prev)
-        ln->prev->next = ln->next;
+void alUnlink(ALLink *ln) {
+  if (ln->next)
+    ln->next->prev = ln->prev;
+  if (ln->prev)
+    ln->prev->next = ln->next;
 }

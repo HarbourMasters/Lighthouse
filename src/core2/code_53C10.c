@@ -33,9 +33,9 @@ typedef struct {
 void func_802DABA0(ParticleEmitter *pCtrl, f32 position[3], f32 scale, enum asset_e model_id) {
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_setDrawMode(pCtrl, 2);
-    particleEmitter_func_802EF9F8(pCtrl, 0.7f);
-    particleEmitter_func_802EFA18(pCtrl, 5);
-    func_802EFA20(pCtrl, 0.8f, 1.0f);
+    particleEmitter_setBounceFactor(pCtrl, 0.7f);
+    particleEmitter_setCollisionCount(pCtrl, 5);
+    particleEmitter_setSfxPitchRange(pCtrl, 0.8f, 1.0f);
     particleEmitter_setSfx(pCtrl, SFX_1F_HITTING_AN_ENEMY_3, 6000);
     particleEmitter_setStartingScaleRange(pCtrl, scale, scale);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
@@ -128,7 +128,7 @@ bool func_802DAFBC(Actor *this) {
     }
     if (temp_v0 & 4) {
         func_8032C9E0(sp38);
-        sp34 = func_80257248(sp38, this->position);
+        sp34 = ml_vec3f_angle_between_points(sp38, this->position);
         if (((globalTimer_getTime() - local->unk38) == 0x1E) && ((sp34 - this->yaw_ideal < 15.0f) && (sp34 - this->yaw_ideal > -15.0f))) {
             func_802DAF2C(this->position, this->yaw, this->actor_specific_1_f);
         } else {
@@ -250,7 +250,7 @@ void func_802DB5A0(Actor *this) {
             return;
         }
     }
-    if (func_8028EC04()) {
+    if (isPlayerInWater()) {
         return;
     }
     if (this->unk38_31 != 0) {

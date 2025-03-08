@@ -2,8 +2,8 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80303F7C(ActorMarker *, f32, s32, s32);
-extern ActorProp *func_80303FE4(ActorMarker *, f32, s32);
+extern void findActorProp(ActorMarker *, f32, s32, s32);
+extern ActorProp *findFirstActorProp(ActorMarker *, f32, s32);
 
 typedef BKCollisionTri * (*Method_Core2_999A0_0)(f32[3], f32[3], f32[3], u32);
 typedef BKCollisionTri * (*Method_Core2_999A0_1)(f32[3], f32[3], f32, f32[3], s32, u32);
@@ -25,7 +25,7 @@ struct {
 }D_80383230;
 
 /* .public */
-BKCollisionTri *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3);
+BKCollisionTri *findCollisionTriAlongPathWithFlags(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3);
 void func_80320B44(Method_Core2_999A0_0 arg0, Method_Core2_999A0_1 arg1, Method_Core2_999A0_2 arg2, Method_Core2_999A0_3 arg3);
 
 /* .code */
@@ -43,7 +43,7 @@ f32 func_80320930(f32 arg0[3], f32 arg1, f32 arg2, u32 arg3) {
     sp30[1] = arg0[1];
     sp30[2] = arg0[2];
     sp30[1] += arg2;
-    if (func_80320B98(sp3C, sp30, sp24, arg3) != NULL) {
+    if (findCollisionTriAlongPathWithFlags(sp3C, sp30, sp24, arg3) != NULL) {
         return sp30[1];
     }
     return 100.0f;
@@ -69,9 +69,9 @@ bool func_803209F8(f32 arg0[3], f32 arg1[3], f32 *arg2, f32 arg3[3]) {
     sp34[1] = arg3[1] + 1.0f;
     arg0[2] = sp34[2] = arg3[2];
     arg0[1] = arg3[1] - 100.0f;
-    if (!func_80309B48(sp34, arg0, sp28, 0)) {
+    if (!findCollisionTriAlongPath3(sp34, arg0, sp28, 0)) {
         arg0[1] = arg3[1] - 2000.0f;
-        if (!func_80309B48(&sp34, arg0, sp28, 0)) {
+        if (!findCollisionTriAlongPath3(&sp34, arg0, sp28, 0)) {
             return 0;
         }
     }
@@ -80,7 +80,7 @@ bool func_803209F8(f32 arg0[3], f32 arg1[3], f32 *arg2, f32 arg3[3]) {
     if (*arg2 < 0.0f) {
         *arg2 = 0.0f;
     }
-    func_80258108(sp28, &arg1[1], &arg1[0]);
+    ml_vec3f_angles_from_vector(sp28, &arg1[1], &arg1[0]);
     return 1;
 }
 
@@ -103,7 +103,7 @@ void func_80320B84(void){
     D_80383230.unk84 = NULL;
 }
 
-BKCollisionTri *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 flags) {
+BKCollisionTri *findCollisionTriAlongPathWithFlags(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 flags) {
     Struct_core2_999A0_0 *var_s0;
     BKCollisionTri * temp_v0_2;
     BKCollisionTri * var_s7;
@@ -126,7 +126,7 @@ BKCollisionTri *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 flags) 
     return var_s7;
 }
 
-BKCollisionTri *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5) {
+BKCollisionTri *findCollisionTriWithOffsetAndFlags(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5) {
     Struct_core2_999A0_0 *var_s0;
     BKCollisionTri * temp_v0_2;
     BKCollisionTri * var_s7;
@@ -149,7 +149,7 @@ BKCollisionTri *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s
     return var_s7;
 }
 
-BKCollisionTri *func_80320DB0(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3) {
+BKCollisionTri *checkCollisionAlongPathWithRadius(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3) {
     Struct_core2_999A0_0 *var_s0;
     BKCollisionTri * temp_v0_2;
     BKCollisionTri * var_s7;
@@ -173,10 +173,10 @@ BKCollisionTri *func_80320DB0(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3) {
 }
 
 ActorProp *func_80320EB0(ActorMarker *marker, f32 arg1, s32 arg2){
-    return func_80303FE4(marker, arg1, arg2);
+    return findFirstActorProp(marker, arg1, arg2);
 }
 
 int func_80320ED8(ActorMarker *marker, f32 arg1, s32 arg2){
-    func_80303F7C(marker, arg1, arg2, 0);
+    findActorProp(marker, arg1, arg2, 0);
     return 0;
 }

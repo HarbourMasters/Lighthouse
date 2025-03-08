@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8025AE50(s32, f32);
+extern void comusic_fadeMainTrackWithDelay(s32, f32);
 
 #include "core2/statetimer.h"
 extern void player_stateTimer_set(s32, f32);
@@ -38,7 +38,7 @@ s32 D_80391A80;
 
 /* .code */
 void func_8038B960(void){
-    func_8025AE50(5000, 3.19f);
+    comusic_fadeMainTrackWithDelay(5000, 3.19f);
 }
 
 /* .bss */
@@ -64,7 +64,7 @@ void func_8038BA08(Actor *this){
         player_stateTimer_set(STATE_TIMER_3_TURBO_TALON, 0.0f);
 
     gcdialog_showText(ASSET_A79_DIALOG_GRABBA_DEFEAT, 0xf, this->position, this->marker, func_8038B988, NULL);
-    comusic_8025AB44(COMUSIC_57_TURBO_TRAINERS, 7000, 700);
+    comusic_fadeTrackWithArgsNoDelay(COMUSIC_57_TURBO_TRAINERS, 7000, 700);
 }
 
 s32 func_8038BAA4(Actor *jiggy){
@@ -75,11 +75,11 @@ s32 func_8038BAA4(Actor *jiggy){
     sp18[0] = (s32)jiggy->position_x;
     sp18[1] = (s32)jiggy->position_y;
     sp18[2] = (s32)jiggy->position_z;
-    tmp_v0 = func_80307164(sp18);
+    tmp_v0 = findStructInArrayD4WithRadius(sp18);
     if( tmp_v0 < 0) 
         return 0;
     else
-        return func_80306DBC(tmp_v0) + 1;
+        return getStructArrayD4Index(tmp_v0) + 1;
     
 }
 
@@ -200,7 +200,7 @@ void GV_func_8038BEA0(Actor *this){
                     this->unk38_31 = 0;
                     D_80391A80 = this->state;
                     func_802BB3DC(0, 14.0f, 0.92f);
-                    __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x11f,
+                    spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x11f,
                         reinterpret_cast(s32, this->position_x), reinterpret_cast(s32, this->position_y), reinterpret_cast(s32, this->position_z)
                     );
                 }

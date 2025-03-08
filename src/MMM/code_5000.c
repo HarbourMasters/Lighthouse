@@ -1,6 +1,14 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "core2/modelRender.h"
+
+
+#ifdef LIGHTHOUSE_P
+#include "compat.h"
+#else
+extern f32 alCents2Ratio(s32 cents); 
+#endif
 
 extern void sfxsource_setSampleRate(u8, s32);
 
@@ -104,7 +112,7 @@ void func_8038B72C(Struct5Fs *arg0, Struct68s * arg1) {
 void func_8038B754(Struct5Fs *arg0, Struct68s * arg1){
     func_8038B590(arg0, arg1);
     arg0->unkC = 1.0f;
-    func_8025A6EC(COMUSIC_2C_BUZZER, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_2C_BUZZER, 28000);
 }
 
 void func_8038B790(Struct5Fs *arg0, Struct68s *arg1, f32 arg2) {

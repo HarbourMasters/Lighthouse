@@ -37,7 +37,7 @@ void chjinjonatorbase_func_8038E0D4(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f
     s32 temp_v0 = func_8034C2C4(arg0->marker, arg1);
 
     if (temp_v0) {
-        func_8034DE60(temp_v0, arg2, arg3, arg4, 1);
+        collisionTri_isHitFromAboveByActor(temp_v0, arg2, arg3, arg4, 1);
     }
 }
 
@@ -55,7 +55,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
             
             if (local->egg_hits[indx] <= 0) {
                 chjinjonatorbase_func_8038E0D4(actor_jinjonatorbase, indx + 0x19a, -100.0f, 0.0f, 1.2f);
-                func_80324D54(1.2f, SFX_90_SWITCH_PRESS, 1.0f, 32000, actor_jinjonatorbase->position, 1000.0f, 2000.0f);
+                playSoundEffectWithPositionAtTime(1.2f, SFX_90_SWITCH_PRESS, 1.0f, 32000, actor_jinjonatorbase->position, 1000.0f, 2000.0f);
             }
         }
 
@@ -74,7 +74,7 @@ void chjinjonatorbase_spawnActivator(ActorMarker *marker) {
     Actor *sp24 = marker_getActor(marker);
 
     func_802BB3DC(0, 18.0f, 0.92f);
-    __spawnQueue_add_4((GenFunction_4) spawnQueue_actor_f32, ACTOR_3AD_JINJONATOR_STATUE_BASE_ACTIVATOR, *(u32 *)(&sp24->unk1C_x), *(u32 *)(&sp24->unk1C_y), *(u32 *)(&sp24->unk1C_z));
+    spawnQueue_add_4((GenFunction_4) spawnQueue_actor_f32, ACTOR_3AD_JINJONATOR_STATUE_BASE_ACTIVATOR, *(u32 *)(&sp24->unk1C_x), *(u32 *)(&sp24->unk1C_y), *(u32 *)(&sp24->unk1C_z));
     chjinjonatorbase_createSmokeParticles(sp24->unk1C, 16);
 }
 
@@ -116,7 +116,7 @@ void chjinjonatorbase_update(Actor *this){
         func_802F9EC4(temp_s0, this->position, 5000, 15000);
         func_802F9FD0(temp_s0, 0.25f, this->lifetime_value - 1.0, 1);
         func_802FA060(temp_s0, 17000, 17000, 0.0f);
-        func_8025A6EC(JINGLE_MENACING_GRUNTILDA_A, 15000);
+        comusic_playTrackWithVolumeOverride(JINGLE_MENACING_GRUNTILDA_A, 15000);
         func_8032BB88(this, 0, 0x7fff);
         timedFunc_set_1(8.0f, (GenFunction_1)chjinjonatorbase_func_8038E2CC, reinterpret_cast(s32,this->marker));
         this->unk1C[0] = this->position_x;
@@ -135,7 +135,7 @@ void chjinjonatorbase_update(Actor *this){
         timedFunc_set_1(this->lifetime_value* 0.28, (GenFunction_1) chjinjonatorbase_spawnActivator, reinterpret_cast(s32,this->marker));
         timedFunc_set_1(this->lifetime_value* 0.46, (GenFunction_1) chjinjonatorbase_spawnActivator, reinterpret_cast(s32,this->marker));
         timedFunc_set_1(this->lifetime_value* 0.58, (GenFunction_1) chjinjonatorbase_spawnActivator, reinterpret_cast(s32,this->marker));
-        SPAWNQUEUE_ADD_1(chjinjonatorbase_spawnStoneJinjo, this->marker);
+        SPAWNQUEUE_ADD_ONE(chjinjonatorbase_spawnStoneJinjo, this->marker);
     }
     else {
         if(this->state == CHBOSSJINJOBASE_STATE_1_RAISE) {

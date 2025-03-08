@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 typedef struct {
     f32 alpha; //motzhand_alpha
     u8 *pattern_ptr;

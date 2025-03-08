@@ -149,7 +149,7 @@ s32 func_8033F3E8(BKModel *arg0, f32 position[3], s32 min_id, s32 max_id) {
 }
 
 void model_free(BKModel *model){
-    free(model);
+    bk_free(model);
 }
 
 BKModel *func_8033F5F8(BKMeshList *meshList, BKVertexList *vertexList) {
@@ -163,7 +163,7 @@ BKModel *func_8033F5F8(BKMeshList *meshList, BKVertexList *vertexList) {
     s32 phi_s1;
     s32 phi_s6;
 
-    sp40 = (BKModel *)malloc((meshList_getVtxCount(meshList) * sizeof(BKVtxRef)) + (meshList->meshCount_0 * sizeof(BKMesh)) + sizeof(BKModel));
+    sp40 = (BKModel *)heap_malloc((meshList_getVtxCount(meshList) * sizeof(BKVtxRef)) + (meshList->meshCount_0 * sizeof(BKMesh)) + sizeof(BKModel));
     sp40->meshList_0 = meshList;
     sp40->vtxList_4 = vertexList;
     phi_s3 = (BKMesh *)(meshList + 1); 
@@ -174,7 +174,7 @@ BKModel *func_8033F5F8(BKMeshList *meshList, BKVertexList *vertexList) {
             phi_s0 = ((BKVtxRef *)(phi_s5 + 1));
             for(phi_s1 = 0; phi_s1 < phi_s3->vtxCount_2; phi_s1++){
                 phi_s0->unk10 = ((s16 *)(phi_s3 + 1))[phi_s1];
-                memcpy(phi_s0, ((Vtx *)(vertexList + 1)) + phi_s0->unk10, sizeof(Vtx));
+                heap_memcpy(phi_s0, ((Vtx *)(vertexList + 1)) + phi_s0->unk10, sizeof(Vtx));
                 phi_s0++;
             }
             phi_s3 = (BKMesh *)((s16 *)(phi_s3 + 1) + phi_s3->vtxCount_2);

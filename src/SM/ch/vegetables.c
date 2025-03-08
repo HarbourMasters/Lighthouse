@@ -33,7 +33,7 @@ static void __chVegetables_update(Actor*);
 
 /* .data */
 static ActorAnimationInfo sChCarrotAnimations[5] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_223_ANIM_TOPPER_UNKNOWN, 1000000.0f},
     {ASSET_223_ANIM_TOPPER_UNKNOWN, 1.0f},
     {ASSET_224_ANIM_TOPPER_UNKNOWN, 0.75f},
@@ -53,7 +53,7 @@ ActorInfo gChVegetablesTopperB = {
 };
 
 static ActorAnimationInfo sChOnionAnimations[5] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_226_ANIM_BAWL_UNKNOWN, 1000000.0f},
     {ASSET_226_ANIM_BAWL_UNKNOWN, 1.0f},
     {ASSET_227_ANIM_BAWL_UNKNOWN, 0.75f},
@@ -73,7 +73,7 @@ ActorInfo gChVegetablesBawlB = {
 };
 
 static ActorAnimationInfo sChCauliflowerAnimations[5] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_225_ANIM_COLLYWOBBLE_UNKNOWN, 10000000.0f},
     {ASSET_225_ANIM_COLLYWOBBLE_UNKNOWN, 1.0f},
     {ASSET_225_ANIM_COLLYWOBBLE_UNKNOWN, 10000000.0f},
@@ -151,7 +151,15 @@ static ParticleSettingsVelocityAccelerationPosition sD_8038AF0C = {
 
 /* .code */
 static void __chVegetables_setSpriteDustParticles(ParticleEmitter *emitter, f32 *position, s32 emit_count) {
+    #ifndef LIGHTHOUSE_P
     s32 sp24[3] = sChVegetablesParticleRGB;
+    #else
+    s32 sp24[3];
+    sp24[0] = sChVegetablesParticleRGB[0];
+    sp24[1] = sChVegetablesParticleRGB[1];
+    sp24[2] = sChVegetablesParticleRGB[2];
+    #endif
+
     particleEmitter_setRGB(emitter, sp24);
     particleEmitter_setSprite(emitter, ASSET_700_SPRITE_DUST);
     particleEmitter_setStartingFrameRange(emitter, 0, 7);
@@ -162,8 +170,8 @@ static void __chVegetables_setSpriteDustParticles(ParticleEmitter *emitter, f32 
 }
 
 static void __chVegetables_setParticlesForModel(ParticleEmitter *emitter, f32 *position, s32 emit_count, enum asset_e model_id) {
-    particleEmitter_func_802EF9F8(emitter, 0.6f);
-    particleEmitter_func_802EFA18(emitter, 2);
+    particleEmitter_setBounceFactor(emitter, 0.6f);
+    particleEmitter_setCollisionCount(emitter, 2);
     particleEmitter_setModel(emitter, model_id);
     particleEmitter_setPosition(emitter, position);
     particleEmitter_setDrawMode(emitter, 2);
@@ -174,8 +182,8 @@ static void __chVegetables_setParticlesForModel(ParticleEmitter *emitter, f32 *p
 }
 
 static void __chVegetables_setParticlesForModel2(ParticleEmitter *emitter, f32 *position, s32 emit_count, enum asset_e model_id) {
-    particleEmitter_func_802EF9F8(emitter, 0.6f);
-    particleEmitter_func_802EFA18(emitter, 3);
+    particleEmitter_setBounceFactor(emitter, 0.6f);
+    particleEmitter_setCollisionCount(emitter, 3);
     particleEmitter_setModel(emitter, model_id);
     particleEmitter_setPosition(emitter, position);
     particleEmitter_setDrawMode(emitter, 2);
@@ -186,8 +194,8 @@ static void __chVegetables_setParticlesForModel2(ParticleEmitter *emitter, f32 *
 }
 
 static void __chVegetables_setParticlesForHittingEnemyModel(ParticleEmitter *emitter, f32 position[3], s32 emit_count, enum asset_e model_id) {
-    particleEmitter_func_802EF9F8(emitter, 0.7f);
-    particleEmitter_func_802EFA18(emitter, 4);
+    particleEmitter_setBounceFactor(emitter, 0.7f);
+    particleEmitter_setCollisionCount(emitter, 4);
     particleEmitter_setModel(emitter, model_id);
     particleEmitter_setPosition(emitter, position);
     particleEmitter_setDrawMode(emitter, 2);
@@ -218,7 +226,7 @@ static void __chVegetables_vegetableDeathParticles(Actor* this) {
     if (this->unk38_31) {
         this->position_y += 100.0f;
         func_802CA1CC(HONEYCOMB_17_SM_COLLIWOBBLE);
-        __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position_x), reinterpret_cast(s32, this->position_y), reinterpret_cast(s32, this->position_z));
+        spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position_x), reinterpret_cast(s32, this->position_y), reinterpret_cast(s32, this->position_z));
     }
 
     timed_mapSpecificFlags_setTrue(1.5f, SM_SPECIFIC_FLAG_7);
@@ -288,7 +296,7 @@ static bool __chVegetables_func_80387FA8(Actor* this, sChVegetable* local, s32 y
     sp24[1] = sp18[1] + local->unk0_y;
     sp24[2] = sp18[2] + local->unk0_z;
 
-    if (func_80307258(sp24, this->unk10_25 - 1, this->unk10_18 - 1) == -1)
+    if (findStructInArrayBCWithRadius(sp24, this->unk10_25 - 1, this->unk10_18 - 1) == -1)
         return FALSE;
     else
         return TRUE;

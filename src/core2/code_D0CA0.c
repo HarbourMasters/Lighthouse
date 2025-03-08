@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern bool func_80320DB0(f32[3], f32, f32[3], u32);
+extern bool checkCollisionAlongPathWithRadius(f32[3], f32, f32[3], u32);
 
 /* .h */
 Actor *func_80358344(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -43,9 +43,9 @@ bool func_80357C30(Actor *this) {
     if (!this->marker->unk14_21) {
         return TRUE;
     }
-    ml_vec3f_interpolate_fast(sp20, local->unk8, local->unk18, func_802575BC(local->unk4 + 0.05));
+    ml_vec3f_interpolate_fast(sp20, local->unk8, local->unk18, ml_smoothstep(local->unk4 + 0.05));
     sp20[1] += 60.0f;
-    return !func_80320DB0(sp20, 50.0f, sp2C, 0);
+    return !checkCollisionAlongPathWithRadius(sp20, 50.0f, sp2C, 0);
 }
 
 void func_80357CD0(Actor *this, f32 arg1[3]) {
@@ -69,7 +69,7 @@ void func_80357CD0(Actor *this, f32 arg1[3]) {
     sp1C[0] = local->unk18[0] - local->unk8[0];
     sp1C[1] = local->unk18[1] - local->unk8[1];
     sp1C[2] = local->unk18[2] - local->unk8[2];
-    var_f2 = func_8025715C(sp1C[0], sp1C[2]);
+    var_f2 = ml_vec2f_angle_between_points(sp1C[0], sp1C[2]);
     if ((var_f2 - local->unk14) > 180.0f) {
         var_f2 -= 360.0f;
     }
@@ -92,7 +92,7 @@ void func_80357E34(Actor *this, f32 arg1[3]) {
     sp1C[0] = local->unk18[0] - local->unk8[0];
     sp1C[1] = local->unk18[1] - local->unk8[1];
     sp1C[2] = local->unk18[2] - local->unk8[2];
-    var_f2 = func_8025715C(sp1C[0], sp1C[2]);
+    var_f2 = ml_vec2f_angle_between_points(sp1C[0], sp1C[2]);
     temp_f12 = var_f2 - local->unk14;
     if (temp_f12 > 180.0f) {
         var_f2 -= 360.0f;
@@ -249,9 +249,9 @@ void func_80358524(f32 position[3], s32 count, enum asset_e model_id) {
     particleEmitter_setModel(temp_v0, model_id);
     particleEmitter_setPosition(p_ctrl, position);
     particleEmitter_setAngularVelocityRange(p_ctrl, -400.0f, -400.0f, -400.0f, 400.0f, 400.0f, 400.0f);
-    particleEmitter_func_802EF9F8(p_ctrl, 0.01f);
-    particleEmitter_func_802EFA18(p_ctrl, 3);
-    func_802EFA20(p_ctrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(p_ctrl, 0.01f);
+    particleEmitter_setCollisionCount(p_ctrl, 3);
+    particleEmitter_setSfxPitchRange(p_ctrl, 1.0f, 1.3f);
     particleEmitter_setSfx(p_ctrl, SFX_2F_ORANGE_SPLAT, 16000);
     particleEmitter_setVelocityAccelerationAndPositionRanges(p_ctrl, &D_803728EC);
     particleEmitter_setScaleAndLifetimeRanges(p_ctrl, &D_803728C4);
@@ -370,7 +370,7 @@ void func_80358684(Actor *this) {
                 }
             }
             if (local->unk39 == 2) {
-                sp74 = func_802575BC(local->unk4);
+                sp74 = ml_smoothstep(local->unk4);
                 this->yaw = local->unk14 + (sp74 * (local->unk24 - local->unk14));
             } else {
                 local->unk4 = 0.0f;
@@ -389,7 +389,7 @@ void func_80358684(Actor *this) {
                 local->unk39 = 0U;
                 local->unk4 = 1.0f;
             }
-            sp70 = func_802575BC(local->unk4);
+            sp70 = ml_smoothstep(local->unk4);
             ml_vec3f_interpolate_fast(this->position, local->unk8, local->unk18, sp70);
             this->yaw = local->unk14 + (sp70 * (local->unk24 - local->unk14));
             if ((skeletalAnim_getAnimId(this->unk148) == 0x23B) && (skeletalAnim_getLoopCount(this->unk148) > 0)) {

@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80324CD8(f32);
+extern void executeFunction(f32);
 
 Actor *func_803875E0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_8038774C(Actor *this);
@@ -125,7 +125,7 @@ void func_8038794C(Actor *this){
 
         if(jiggyscore_isCollected(JIGGY_2A_FP_BOGGY_1)){
             if(!jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3) && !jiggyscore_isSpawned(JIGGY_2C_FP_BOGGY_3)){
-                __spawnQueue_add_1((GenFunction_1)func_80387760, reinterpret_cast(s32, this->marker));
+                spawnQueue_add_1((GenFunction_1)func_80387760, reinterpret_cast(s32, this->marker));
             }
             this->unk38_31 = 0;
             actor_collisionOff(this);
@@ -142,7 +142,7 @@ void func_8038794C(Actor *this){
             if(mapSpecificFlags_get(0x1)){
                 func_8028F94C(1, this->position);
                 timed_setStaticCameraToNode(0.0f, 0x12);
-                func_80324DBC(1.0f, 0xc00, 0xe, NULL, this->marker, func_80387828, func_803877A8);
+                showDelayedTextAtTime(1.0f, 0xc00, 0xe, NULL, this->marker, func_80387828, func_803877A8);
                 func_803876A4(this);
                 break;
             }//L80387B38
@@ -187,7 +187,7 @@ void func_8038794C(Actor *this){
             func_8028FC8C(this->position);
             if(0.99 <= this->unk48){
                 func_8028F918(0);
-                func_80324CD8(0.0f);
+                executeFunction(0.0f);
                 timed_exitStaticCamera(0.0f);
                 func_803876F8(this);
             }
@@ -195,7 +195,7 @@ void func_8038794C(Actor *this){
         case 5://L80387D90
             if(jiggyscore_isCollected(JIGGY_2A_FP_BOGGY_1)){
                 this->unk38_31 = 0;
-                __spawnQueue_add_1((GenFunction_1)func_80387760, reinterpret_cast(s32, this->marker));
+                spawnQueue_add_1((GenFunction_1)func_80387760, reinterpret_cast(s32, this->marker));
             }
             break;
     }

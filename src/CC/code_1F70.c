@@ -10,10 +10,10 @@ extern void func_8030E9FC(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4
 extern void func_8030EA54(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4[3], f32 arg5, f32 arg6);
 extern void func_8031CE28(s32, s32, f32);
 void timed_exitStaticCamera(f32);
-extern BKCollisionTri *func_802E805C(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, s32, s32, s32);
+extern BKCollisionTri *findCollisionTriWithTransform(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, s32, s32, s32);
 extern void func_80340200(s32, f32[3], s32, f32, s32, s32, BKVertexList *, s32);
-extern void func_802E9118(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, s32, f32, s32, s32, s32);
-extern BKCollisionTri *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, f32, s32, s32);
+extern void findCollisionTriWithTransformAndRadius(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, s32, f32, s32, s32, s32);
+extern BKCollisionTri *findCollisionTriWithTransformAndScale(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, f32, s32, s32);
 extern int func_80340020(s32, f32[3], s32, f32, s32, BKVertexList *, f32[3], f32[3]);
 
 extern void boneTransformList_getBoneScale(s32, s32, f32[3]);
@@ -60,7 +60,7 @@ struct {
 BKCollisionTri *__code1F70_func_80388360(s32 arg0, s32 arg1, s32 arg2, s32 arg3){
     BKCollisionTri *out_v0;
 
-    out_v0 = func_802E805C(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3);
+    out_v0 = findCollisionTriWithTransform(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3);
     if(out_v0 && func_8029453C()){
         func_80340200(D_80389FA0.unk18, D_80389FA0.unk28, 0, 1.0f, 0, out_v0, D_80389FA0.unk40, arg1);
     }
@@ -68,11 +68,11 @@ BKCollisionTri *__code1F70_func_80388360(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 }
 
 void __code1F70_func_80388428(s32 arg0, s32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5){
-    func_802E9118(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3, arg4, arg5);
+    findCollisionTriWithTransformAndRadius(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3, arg4, arg5);
 }
 
 void func_803884A8(s32 arg0, f32 arg1, s32 arg2, s32 arg3){
-    func_802E9DD8(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3);
+    findCollisionTriWithTransformAndScale(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3);
 }
 
 void func_80388518(s32 arg0){
@@ -112,7 +112,7 @@ void func_80388664(void) {
 }
 
 void CC_func_8038868C(void) {
-    func_80324E38(0, 3);
+    setCameraModeAtTime(0, 3);
     timed_setStaticCameraToNode(0, 0);
     timed_setStaticCameraToNode(5.5f, 1);
     timed_setStaticCameraToNode(7.0f, 2);
@@ -120,10 +120,10 @@ void CC_func_8038868C(void) {
     timedFunc_set_0(13.0f, &func_80388664);
     timed_setStaticCameraToNode(16.0f, 1);
     if (jiggyscore_isCollected(JIGGY_17_CC_CLANKER_RAISED) == 0) {
-        func_80324DBC(18.0f, 0xD2C, 4, NULL, NULL, NULL, 0);
+        showDelayedTextAtTime(18.0f, 0xD2C, 4, NULL, NULL, NULL, 0);
     }
     timed_exitStaticCamera(18.0f);
-    func_80324E38(18.0f, 0);
+    setCameraModeAtTime(18.0f, 0);
 }
 
 
@@ -427,7 +427,7 @@ void CC_func_80388F4C(void){
 
 }
 
-void func_803894A0(void){
+void defragGameResources(void){
     if(D_80389FA0.unk34)
         D_80389FA0.unk34 = func_8034A348(D_80389FA0.unk34);
     

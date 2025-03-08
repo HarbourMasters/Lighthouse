@@ -1,3 +1,4 @@
+#ifndef LIGHTHOUSE_P
 #include <os_internal.h>
 #include "osint.h"
 
@@ -23,3 +24,4 @@ void __osDequeueThread(OSThread **queue, OSThread *t)
       succ = pred->next;
    }
 }
+#endif

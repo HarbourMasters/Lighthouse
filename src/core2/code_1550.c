@@ -108,7 +108,7 @@ void animBinCache_flushStale(s32 persistant){
             ){
                 assetcache_release(animBinCache[i].ptr);
                 animBinCache[i].ptr = NULL;
-                if(func_80254BC4(1))
+                if(heap_stub_return_false(1))
                     break;
             }
         }

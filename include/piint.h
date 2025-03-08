@@ -1,7 +1,17 @@
 #ifndef _PIINT_H
 #define _PIINT_H
+
+#ifdef LIGHTHOUSE_P
+#include "compat.h"
+#else
 #include <os_internal.h>
 #include <rcp.h>
+#endif
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //https://github.com/LuigiBlood/64dd/wiki/Memory-Map
 
@@ -92,7 +102,8 @@
 #define LEO_ERROR_24 24 //no reference position found?
 #define LEO_ERROR_29 29 //
 
-extern OSDevMgr __osPiDevMgr;
+extern OSMgrArgs __osPiDevMgr;
+
 extern OSPiHandle *__osCurrentHandle[2];
 extern OSPiHandle CartRomHandle;
 extern OSPiHandle LeoDiskHandle;
@@ -141,5 +152,9 @@ OSMesgQueue *osPiGetCmdQueue(void);
         }                                                 \
         __osCurrentHandle[domain] = pihandle;             \
     }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

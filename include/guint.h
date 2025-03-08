@@ -9,8 +9,14 @@
  *  in part, without the prior written consent of Silicon Graphics, Inc.  *
  *									  *
  **************************************************************************/
+
+#ifdef LIGHTHOUSE_P
+#include "libultraship/libultraship.h"
+#else
 #include "mbi.h"
 #include "gu.h"
+#endif
+
 
 typedef union
 {
@@ -30,9 +36,9 @@ typedef union
 } fu;
 
 #ifndef __GL_GL_H__
-
+#ifndef LIGHTHOUSE_P
 typedef	float	Matrix[4][4];
-
+#endif
 #endif
 
 #define ROUND(d)	(int)(((d) >= 0.0) ? ((d) + 0.5) : ((d) - 0.5))

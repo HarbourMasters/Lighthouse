@@ -3,19 +3,19 @@
 #include "variables.h"
 #include "structs.h"
 
-extern s32 func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32);
+extern s32 findCollisionTriAlongPathWithOffset(f32[3], f32[3], f32 [3], u32, f32, f32);
 
-extern void func_80244F00(f32[3], f32, f32, s32, s32);
+extern void adjustPositionAlongPath(f32[3], f32, f32, s32, s32);
 
-extern s32 func_80320DB0(f32[3], f32, f32[3], u32);
+extern s32 checkCollisionAlongPathWithRadius(f32[3], f32, f32[3], u32);
 
 extern void func_80320ED8(ActorMarker *, f32, s32);
 
 extern f32 func_8033229C(ActorMarker *marker);
 
-extern f32 func_80309B24(f32 [3]);
+extern f32 mapModel_findFloorYWithFlags(f32 [3]);
 
-extern BKCollisionTri *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
+extern BKCollisionTri *findCollisionTriWithOffsetAndFlags(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
 
 /* .h */
 typedef bool (*method_core2_A4D00_0)(Actor *, f32[3], s32, s32);
@@ -97,9 +97,9 @@ bool func_8032BC90(Actor *actor, f32 arg1[3], s32 arg2, s32 arg3) {
     func_8028E964(sp30);
 
     actor->marker->propPtr->unk8_3 = 0;
-    phi_v0 = func_80320B98(&sp30, actor->position, &sp44, actor->unk154);
+    phi_v0 = findCollisionTriAlongPathWithFlags(&sp30, actor->position, &sp44, actor->unk154);
     if (phi_v0 == 0) {
-        phi_v0 = func_80320DB0(actor->position, func_8033229C(actor->marker), &sp44, actor->unk154);
+        phi_v0 = checkCollisionAlongPathWithRadius(actor->position, func_8033229C(actor->marker), &sp44, actor->unk154);
     }
 
     actor->marker->propPtr->unk8_3 = sp40;
@@ -148,7 +148,7 @@ bool func_8032BD88(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
         var_f24 = var_f24 * 0.5;
         var_f22 = arg0->marker->unk38[1];
     }
-    func_80244F00(arg1, var_f24, var_f22, sp29C, temp_s7);
+    adjustPositionAlongPath(arg1, var_f24, var_f22, sp29C, temp_s7);
     sp88 = ((var_f24 * 2) - 4);
     sp84 = sp88 * sp88;
 
@@ -164,7 +164,7 @@ bool func_8032BD88(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
         }
         if (sp84 < ml_distanceSquared_vec3f(spBC[i].unkC, spBC[i].unk0)) {
             temp_f20 = spBC[i].unk0[1];
-            spBC[i].unk40 = func_80244E54(spBC[i].unkC, spBC[i].unk0, spBC[i].unk44, temp_s7, var_f24 - 1.0f, var_f22);
+            spBC[i].unk40 = findCollisionTriAlongPathWithOffset(spBC[i].unkC, spBC[i].unk0, spBC[i].unk44, temp_s7, var_f24 - 1.0f, var_f22);
             if (spBC[i].unk40 != 0) {
                 if ((spBC[i].unk44[1] >= 0.0) && (spBC[i].unk44[1] < 0.02)) {
                     spBC[i].unk0[1] = temp_f20;
@@ -184,7 +184,7 @@ bool func_8032BD88(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
         spBC[i].unk28[1] = spBC[i].unk0[1] + var_f22;\
         spBC[i].unk28[2] = spBC[i].unk0[2];
 
-        spBC[i].unk18 = func_80320C94(spBC[i].unk34, spBC[i].unk28, var_f24, spBC[i].unk1C, 3, temp_s7);
+        spBC[i].unk18 = findCollisionTriWithOffsetAndFlags(spBC[i].unk34, spBC[i].unk28, var_f24, spBC[i].unk1C, 3, temp_s7);
 
         if (spBC[i].unk18 == NULL)
             break;
@@ -196,7 +196,7 @@ bool func_8032BD88(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
             ml_vec3f_copy(spBC[i].unk1C, sp26C);
         }
         if (ml_isNonzero_vec3f(spBC[i].unk1C) != 0) {
-            func_802451A4(spBC[i].unkC, spBC[i].unk0, spBC[i].unk34, spBC[i].unk28, spBC[i].unk1C, (i == 0));
+            adjustPositionWithNormalAndYaw(spBC[i].unkC, spBC[i].unk0, spBC[i].unk34, spBC[i].unk28, spBC[i].unk1C, (i == 0));
         }
 
     }
@@ -222,7 +222,7 @@ bool func_8032BD88(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
 }
 
 bool func_8032C280(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
-    if ((arg0->unk10_25 != 0) && !func_80307390(arg0->unk10_25 - 1, arg0->unk10_18 - 1)) {
+    if ((arg0->unk10_25 != 0) && !isStructArrayBCFlagSet(arg0->unk10_25 - 1, arg0->unk10_18 - 1)) {
         return FALSE;
     }
     return func_8032BD88(arg0, arg1, arg2, arg3);
@@ -280,7 +280,7 @@ bool func_8032C4AC(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
         sp40[1] += arg0->unk170;
         arg0->unk170 = (-sp30 < time_getDelta() * (arg0->unk170 * 40.0)) ? time_getDelta() * (arg0->unk170 * 40.0)
                                                                          : -sp30;
-        if (func_80309B48(sp4C, sp40, sp34, 0x5E0000)) {
+        if (findCollisionTriAlongPath3(sp4C, sp40, sp34, 0x5E0000)) {
             arg0->unk170 = -10.0f;
             arg0->position[0] = sp40[0];
             arg0->position[1] = sp40[1];
@@ -297,7 +297,7 @@ bool func_8032C660(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
     f32 temp_f12;
     f32 temp_f2;
 
-    temp_f2 = func_80309B24(arg0->position) - 130.0f;
+    temp_f2 = mapModel_findFloorYWithFlags(arg0->position) - 130.0f;
     arg0->position[1] = (temp_f2 > arg0->position[1]) ? arg0->position[1] : temp_f2;
     return (temp_f2 == arg0->position[1]);
 }
@@ -307,7 +307,7 @@ bool func_8032C6E0(Actor *actor, f32 arg1[3], s32 arg2, s32 arg3) {
     s32 temp_v0;
     u32 temp_v1;
 
-    temp_v0 = func_80309D58(actor->position, actor->unk10_18);
+    temp_v0 = checkCollisionWithModel(actor->position, actor->unk10_18);
     if (actor->unk10_18 == 0) {
         actor->unk10_18 = temp_v0;
     }
@@ -324,7 +324,7 @@ bool func_8032C79C(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
     s32 temp_v0;
 
     if (arg0->unk10_25 != 0) {
-        temp_v0 = func_80307258(arg0->position, arg0->unk10_25 - 1, arg0->unk10_18 - 1);
+        temp_v0 = findStructInArrayBCWithRadius(arg0->position, arg0->unk10_25 - 1, arg0->unk10_18 - 1);
         if (temp_v0 == -1) {
             arg0->position[0] = arg1[0];
             arg0->position[1] = arg1[1];

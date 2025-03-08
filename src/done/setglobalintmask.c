@@ -1,3 +1,4 @@
+#ifndef LIGHTHOUSE_P
 #include <os_internal.h>
 #include <R4300.h>
 
@@ -7,3 +8,5 @@ void __osSetGlobalIntMask(OSHWIntr mask)
     __OSGlobalIntMask |= mask;
     __osRestoreInt(saveMask);
 }
+
+#endif // LIGHTHOUSE_P

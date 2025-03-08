@@ -132,7 +132,7 @@ void func_80391180(Actor *this){
 }
 
 void FP_func_80391254(Actor *this){
-      func_802D3D74(this);
+      initializeActorCollisionOff(this);
       if(!this->volatile_initialized){
             this->volatile_initialized = TRUE;
             if(this->marker->id ==  0x221 || this->marker->id == 0x223){
@@ -145,7 +145,7 @@ void FP_func_80391254(Actor *this){
 }
 
 void func_803912EC(Actor *this){
-      func_802D3D74(this);
+      initializeActorCollisionOff(this);
       if(mapSpecificFlags_get(0xC)){
             marker_despawn(this->marker);
       }
@@ -233,7 +233,7 @@ void func_8039180C(Actor *this){
                   marker_despawn(this->marker);
             }
             else{
-                  func_802D3D74(this);
+                  initializeActorCollisionOff(this);
                   func_80391744(this, sp24);
                   this->initialized = TRUE;
             }
@@ -241,5 +241,5 @@ void func_8039180C(Actor *this){
 }
 
 void func_80391894(Actor *this){
-      func_802D3D74(this);
+      initializeActorCollisionOff(this);
 }

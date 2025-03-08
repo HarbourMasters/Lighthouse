@@ -41,7 +41,7 @@ void func_80389FA0(f32 position[3]){
         0.0f, 40.0f, 0.0f,
         0.0f, 90.0f, 0.0f
     );
-    func_802EFC28(pCtrl, &D_80390F64);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80390F64);
 }
 
 void GV_func_8038A084(Actor *this){
@@ -53,7 +53,7 @@ void GV_func_8038A084(Actor *this){
     }
 
     if(this->unkF4_8 == 6
-        && viewport_func_8024DB50(this->position, 50.0f)
+        && viewport_isPointWithinDistance(this->position, 50.0f)
         && !this->unk38_31
         && randf() < 0.2
     ){

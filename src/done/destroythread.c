@@ -1,5 +1,10 @@
 #include <ultra64.h>
+
+#ifndef LIGHTHOUSE_P
 #include "osint.h"
+#else
+#include "pc_oscompat.h"
+#endif
 
 void osDestroyThread(OSThread *t)
 {

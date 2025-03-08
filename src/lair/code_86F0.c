@@ -3,7 +3,7 @@
 #include "variables.h"
 
 extern void func_8028F3D8(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
-extern void func_80324CFC(f32, enum comusic_e, s32);
+extern void playTrackWithVolumeAtTime(f32, enum comusic_e, s32);
 extern void rand_seed(s32);
 extern void func_8034DF30(s32, f32[3], f32[3], f32);
 extern void func_8034E088(s32, s32, s32,f32);
@@ -184,7 +184,7 @@ void func_8038EF58(ActorMarker *marker) {
     Actor *this;
 
     this = marker_getActor(marker);
-    func_8034A174(func_803097A0(), func_8038ED88(this), sp24);
+    func_8034A174(getMapModelUnk24(), func_8038ED88(this), sp24);
     func_8028E6EC(2);
     func_8028F918(0);
     func_8028F94C(4, sp24);
@@ -283,7 +283,7 @@ void func_8038F350(Actor *this, s32 next_state){
     s32 phi_s0;
 
     local = (ActorLocal_lair_86F0*)&this->local;
-    func_8034A174(func_803097A0(), func_8038ED88(this), sp50);
+    func_8034A174(getMapModelUnk24(), func_8038ED88(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
             func_8028F918(0);
@@ -360,9 +360,9 @@ void func_8038F350(Actor *this, s32 next_state){
         case 7: //L8038F724
         comusic_playTrack(COMUSIC_65_WORLD_OPENING_B);
         if (this->unkF4_8 == 1) {
-            func_80324DBC(1.0f, 0xF7E, 4, NULL, this->marker, func_8038F0C0, NULL);
+            showDelayedTextAtTime(1.0f, 0xF7E, 4, NULL, this->marker, func_8038F0C0, NULL);
         } else if (this->unkF4_8 == 0xA) {
-            func_80324DBC(1.0f, 0xFAC, 4, NULL, this->marker, func_8038F0C0, NULL);
+            showDelayedTextAtTime(1.0f, 0xFAC, 4, NULL, this->marker, func_8038F0C0, NULL);
         }
         timedFunc_set_1(2.0f, (GenFunction_1) func_8038EBEC, (s32) this->marker);
         this->lifetime_value = 3.0f;
@@ -437,8 +437,8 @@ void lair_func_8038F924(Actor *this) {
             }
             if (!fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
                 __bundle_spawnFromFirstActor(BUNDLE_20__UNKOWN, this);
-                func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
-                func_80324D2C(2.1f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+                playTrackWithVolumeAtTime(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
+                stopTrackAtTime(2.1f, COMUSIC_43_ENTER_LEVEL_GLITTER);
                 func_8030E6D4(SFX_113_PAD_APPEARS);
             }
         }
@@ -454,7 +454,15 @@ void lair_func_8038F924(Actor *this) {
             this->unk1C[0] = 0.0f;
         }
         if (this->marker->unk14_21) {
+            #ifndef LIGHTHOUSE_P
             s32 sp58[3] = D_80394824;
+            #else
+            s32 sp58[3];
+            sp58[0] = D_80394824[0];
+            sp58[1] = D_80394824[1];
+            sp58[2] = D_80394824[2];
+            #endif
+
             ParticleEmitter *sp54;
             sp54 = partEmitMgr_newEmitter(6);
             particleEmitter_setSprite(sp54, ASSET_710_SPRITE_SPARKLE_PURPLE);
@@ -468,7 +476,7 @@ void lair_func_8038F924(Actor *this) {
         }
     }
     controller_copyFaceButtons(0, sp7C);
-    func_8024E60C(0, sp6C);
+    pfsManager_getSideButtonState(0, sp6C);
     func_8038EDBC(this);
     switch(this->state){
         case 1://L8038FCD0

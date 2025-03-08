@@ -427,26 +427,26 @@ void func_802BAFE4(s32 arg0) {
                     break;
 
                 case -3:
-                    func_80324E38(temp_f0, 1);
+                    setCameraModeAtTime(temp_f0, 1);
                     phi_s0++;
                     break;
 
                 case -2:
-                    func_80324E38(temp_f0, 2);
+                    setCameraModeAtTime(temp_f0, 2);
                     phi_s0++;
                     break;
 
                 case -1:
-                    func_80324E38(temp_f0, 3);
+                    setCameraModeAtTime(temp_f0, 3);
                     phi_s0++;
                     break;
 
                 case -4:
-                    func_80324E38(temp_f0, 4);
+                    setCameraModeAtTime(temp_f0, 4);
                     break;
 
                 case -6:
-                    func_80324E38(temp_f0, 4);
+                    setCameraModeAtTime(temp_f0, 4);
                     break;
                 
                 default:
@@ -456,12 +456,12 @@ void func_802BAFE4(s32 arg0) {
         }
         temp_f0 = func_802BAFA0(arg0, phi_s1 + 1);
         if (D_803654B8[arg0][phi_s1] == -4) {
-            func_80324E38(temp_f0, 4);
+            setCameraModeAtTime(temp_f0, 4);
         } else {
             timed_exitStaticCamera(temp_f0);
         }
         for(phi_s1 = 0; phi_s1 < phi_s0; phi_s1++){
-            func_80324E38(temp_f0, 0);
+            setCameraModeAtTime(temp_f0, 0);
         }
     }
 }

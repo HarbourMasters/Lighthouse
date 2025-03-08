@@ -1,6 +1,10 @@
 #ifndef BANJO_KAZOOIE_CORE1_VIEWPORT_H
 #define BANJO_KAZOOIE_CORE1_VIEWPORT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void viewport_moveAlongZAxis(f32 offset);
 f32 viewport_getDistance(f32 arg0[3]);
 void viewport_getLookVector(f32 arg0[3]);
@@ -33,7 +37,7 @@ void viewport_setFrustumPlanes(f32 arg0[4], f32 arg1[4], f32 arg2[4], f32 arg3[4
 bool viewport_isBoundingBoxInFrustum(f32 min[3], f32 max[3]);
 bool viewport_cube_isInFrustum(Cube *cube);
 bool viewport_cube_isInFrustum2(Cube *cube);
-bool viewport_func_8024DB50(f32 pos[3], f32 distance);
+bool viewport_isPointWithinDistance(f32 pos[3], f32 distance);
 bool viewport_isPointOutsideFrustum_3f(f32 x, f32 y, f32 z);
 bool viewport_isPointOutsideFrustum_vec3f(f32 arg0[3]);
 bool viewport_isPointPlane_3f(f32 arg0, f32 arg1, f32 arg2);
@@ -45,9 +49,13 @@ f32 viewport_getAspectRatio(void);
 f32 viewport_getNear(void);
 f32 viewport_adjustAngleToRight(f32 pos[3], f32 angle);
 f32 viewport_transformCoordinate(f32 x, f32 y, f32 viewport_translation[3], f32 viewport_rotation[3]);
-bool viewport_func_8024E030(f32 pos[3], f32 *arg1);
+bool viewport_projectPointToScreen(f32 pos[3], f32 *arg1);
 void viewport_backupState(void);
 void viewport_restoreState(void);
 void viewport_adjustPointDistance(f32 pos[3], f32 distance);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

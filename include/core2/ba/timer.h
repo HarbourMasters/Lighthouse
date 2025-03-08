@@ -3,6 +3,11 @@
 
 #include <ultra64.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 void batimer_incrementBy(s32 id, f32 inc_value_sec);
 int batimer_decrement(s32 id);
 void batimer_increment(s32 id);
@@ -13,4 +18,9 @@ int batimer_isGreaterThan(s32 id, f32 value_sec);
 int batimer_isNonzero(s32 id);
 int batimer_isZero(s32 id);
 void batimer_set(s32 id, f32 value_sec);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -9,6 +9,7 @@
 
 s32 osPiRawStartDma(s32 direction, u32 devAddr, void *dramAddr, u32 size)
 {
+    #ifndef LIGHTHOUSE_P
     register u32 stat;
     WAIT_ON_IOBUSY(stat);
     IO_WRITE(PI_DRAM_ADDR_REG, osVirtualToPhysical(dramAddr));
@@ -24,5 +25,7 @@ s32 osPiRawStartDma(s32 direction, u32 devAddr, void *dramAddr, u32 size)
     default:
         return -1;
     }
+    #endif
     return 0;
+    
 }

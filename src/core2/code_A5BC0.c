@@ -8,22 +8,22 @@
 
 #define AssetCacheSize 0x3D5
 
-extern int func_802E74A0(f32[3], f32, s32, s32);
-extern s32 func_802E9118(BKCollisionList * collision_list, BKVertexList *vtx_list, f32 arg2[3], s32 arg3, f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 argA);
+extern int isPointInSphere(f32[3], f32, s32, s32);
+extern s32 findCollisionTriWithTransformAndRadius(BKCollisionList * collision_list, BKVertexList *vtx_list, f32 arg2[3], s32 arg3, f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 argA);
 extern f32 vtxList_getGlobalNorm(BKVertexList *);
-extern void spawnQueue_func_802C39D4(void);
+extern void spawnQueue_validateAndWriteEEPROM(void);
 extern bool func_80340020(s32, f32[3], f32[3], f32, s32, BKVertexList *, f32[3], f32[3]);
 extern void func_80340200(s32, f32[3], f32[3], f32, s32, s32, BKVertexList *, s32);
-extern s32 func_802E9DD8(BKCollisionList *collisionList, BKVertexList *vtxList, f32 arg2[3], f32 *arg3, f32 arg4, f32 arg5[3], f32 arg6, f32 arg7[3], s32 arg8);
+extern s32 findCollisionTriWithTransformAndScale(BKCollisionList *collisionList, BKVertexList *vtxList, f32 arg2[3], f32 *arg3, f32 arg4, f32 arg5[3], f32 arg6, f32 arg7[3], s32 arg8);
 extern void *func_802EBAE0(UNK_TYPE(s32), f32 position[3], f32 rotation[3], f32 scale, UNK_TYPE(s32), UNK_TYPE(s32), UNK_TYPE(s32), f32, UNK_TYPE(s32));
-extern BKCollisionTri *func_802E805C(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32[3], u32);
+extern BKCollisionTri *findCollisionTriWithTransform(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32[3], u32);
 
 extern f32 func_8030A590(void);
 extern void func_8030A5EC(Prop *, f32);
 
-Prop *func_80303F7C(s32, f32, s32, s32);
-s32 func_803058C0(f32);
-void func_80305CD8(s32, s32);
+Prop *findActorProp(s32, f32, s32, s32);
+s32 getCubeIndexFromPosition(f32);
+void incrementProp2Count(s32, s32);
 void code_A5BC0_initCubePropActorProp(Cube*);
 ActorMarker * func_80332A60(void);
 extern void func_8032F3D4(s32 [3], ActorMarker *, s32);
@@ -32,7 +32,7 @@ extern void func_8030A2D0(Gfx **, Mtx **, Vtx **, f32[3], f32[3], f32, s32, Cube
 s32 func_8032D9C0(Cube*, Prop*);
 void func_8032F21C(Cube *cube, s32 position[3], ActorMarker *marker, bool arg3);
 void func_80332B2C(ActorMarker * arg0);
-BKSprite *func_8030A55C(s32 arg0);
+BKSprite_s *func_8030A55C(s32 arg0);
 
 typedef union{
     struct{
@@ -49,8 +49,8 @@ typedef union{
 typedef bool( *Method_Core2_A5BC0)(NodeProp *, s32);
 
 s32 func_80330974(ActorMarker *marker, s32 arg1, f32 arg2, s32 arg3);
-s32 func_80320DB0(f32[3], f32, f32[3], u32);
-BKModelBin *func_80330DE4(ActorMarker *this);
+s32 checkCollisionAlongPathWithRadius(f32[3], f32, f32[3], u32);
+BKModelBin *func_80330DE4(ActorMarker *mathis);
 
 extern void func_80320EB0(ActorMarker *, f32, s32);
 extern void func_80320ED8(ActorMarker *, f32, s32);
@@ -59,7 +59,7 @@ s32 func_803327A8(s32 arg0);
 void func_8032CD60(Prop *);
 f32 func_8033A244(f32);
 void func_8032F64C(f32 *pos, ActorMarker * marker);
-BKSprite *func_80330F50(ActorMarker * marker);
+BKSprite_s *func_80330F50(ActorMarker * marker);
 
 /* .data */
 s32 D_8036E7B0 = 0;
@@ -85,13 +85,13 @@ u8  D_80383428[0x1C];
 s32 D_80383444;
 int D_80383448;
 s32 D_80383450[0x40];
-vector(ActorMarker *) *D_80383550;
-vector(ActorMarker *) *D_80383554;
+bk_vector(ActorMarker *) *D_80383550;
+bk_vector(ActorMarker *) *D_80383554;
 Method_Core2_A5BC0 D_80383558;
 s32 D_8038355C;
 
 /* .code */
-// This function sorts a cube's props based on distance
+// mathis function sorts a cube's props based on distance
 void func_8032CB50(Cube *cube, bool global) {
     s32 ref_position[3];
     Prop *var_v1;
@@ -166,7 +166,7 @@ void func_8032CB50(Cube *cube, bool global) {
 }
 
 void func_8032CD60(Prop *prop) {
-    BKSprite *var_v0;
+    BKSprite_s *var_v0;
     s32 sp48;
     s32 sp44;
     s32 sp40;
@@ -266,18 +266,18 @@ void func_8032D158(Cube *cube){
         func_8032CB50(cube, 0);
 }
 
-static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+static void __marker_draw(ActorMarker *mathis, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *actor;
     u32 draw_dist;
     f32 draw_dist_f;
     f32 percentage;
-    if(!this->unk3E_0){
-        this->drawFunc(this, gfx, mtx, vtx);
+    if(!mathis->unk3E_0){
+        mathis->drawFunc(mathis, gfx, mtx, vtx);
         return;
     }
-    actor =  marker_getActor(this);
+    actor =  marker_getActor(mathis);
     func_8033A28C(actor->unk58_2);
-    if( actor->unk58_2 && !this->unk40_23 && !this->unk40_21 && !D_8036E7B0){
+    if( actor->unk58_2 && !mathis->unk40_23 && !mathis->unk40_21 && !D_8036E7B0){
         func_8033A244(3700.0f);
     }
     
@@ -286,14 +286,14 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         if(draw_dist != 0){
             percentage = (f32)draw_dist*(1/(f64)0x400);
         }
-        else if(this->unk40_21){
+        else if(mathis->unk40_21){
             percentage = 2.0f;
         }
         else{
             percentage = 1.0f;
         }
         func_8033A280(percentage);
-        this->drawFunc(this, gfx, mtx, vtx);
+        mathis->drawFunc(mathis, gfx, mtx, vtx);
     }//L8032D300
     func_8033A244(30000.0f);
     func_8033A280(1.0f);
@@ -323,7 +323,7 @@ void func_8032D3D8(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     }
 }
 
-void func_8032D474(Gfx **gdl, Mtx **mptr, Vtx **vptr){
+void updateParticleSystem(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     int i;
     for(i = 0; i < vector_size(D_80383554); i++){
        __marker_draw(*(u32*) vector_at(D_80383554, i), gdl, mptr, vptr);
@@ -398,10 +398,10 @@ Prop *__codeA5BC0_initProp2Ptr(Cube *cube) {
 
     if (cube->prop2Ptr != NULL) {
         cube->prop2Cnt++;
-        cube->prop2Ptr = realloc(cube->prop2Ptr, cube->prop2Cnt * sizeof(Prop));
+        cube->prop2Ptr = bk_realloc(cube->prop2Ptr, cube->prop2Cnt * sizeof(Prop));
     } else {
         cube->prop2Cnt = 1;
-        cube->prop2Ptr = malloc(sizeof(Prop));
+        cube->prop2Ptr = heap_malloc(sizeof(Prop));
     }
     sp1C = &cube->prop2Ptr[cube->prop2Cnt-1];
     sp1C->markerFlag = FALSE;
@@ -412,10 +412,10 @@ Prop *__codeA5BC0_initProp2Ptr(Cube *cube) {
 NodeProp *__codeA5BC0_pad_func_8032D8F0(Cube *cube) {
     if (cube->prop1Ptr != 0) {
         cube->prop1Cnt++;
-        cube->prop1Ptr = realloc(cube->prop1Ptr, cube->prop1Cnt * sizeof(NodeProp));
+        cube->prop1Ptr = bk_realloc(cube->prop1Ptr, cube->prop1Cnt * sizeof(NodeProp));
     } else {
         cube->prop1Cnt = 1;
-        cube->prop1Ptr = malloc(sizeof(NodeProp));
+        cube->prop1Ptr = heap_malloc(sizeof(NodeProp));
     }
     return &cube->prop1Ptr[cube->prop1Cnt - 1];
 }
@@ -428,18 +428,18 @@ s32 func_8032D9C0(Cube *cube, Prop* prop){
     sp24 = 0;
     if(cube->prop2Cnt != 0){
         sp24 = prop->unk8_1; 
-        if(func_80305D14()){
-            func_80305CD8(func_803058C0(prop->unk4[1]), -1);
+        if(isProp2CountAllocated()){
+            incrementProp2Count(getCubeIndexFromPosition(prop->unk4[1]), -1);
         }
         if((prop - cube->prop2Ptr) < (cube->prop2Cnt - 1)){
-            memcpy(prop, prop + 1, (s32)(&cube->prop2Ptr[cube->prop2Cnt-1]) - (s32)(prop));
+            heap_memcpy(prop, prop + 1, (s32)(&cube->prop2Ptr[cube->prop2Cnt-1]) - (s32)(prop));
         }
         cube->prop2Cnt--;
         if(cube->prop2Cnt){
-            cube->prop2Ptr = realloc(cube->prop2Ptr, cube->prop2Cnt*sizeof(Prop));
+            cube->prop2Ptr = bk_realloc(cube->prop2Ptr, cube->prop2Cnt*sizeof(Prop));
             code_A5BC0_initCubePropActorProp(cube);
         }else{
-            free(cube->prop2Ptr);
+            bk_free(cube->prop2Ptr);
             cube->prop2Ptr = NULL;
         }
         return sp24;
@@ -455,7 +455,7 @@ void func_8032DB2C(Cube *cube, NodeProp *arg1) {
 
     sp24 = arg1 - cube->prop1Ptr;
     if (sp24 < cube->prop1Cnt - 1) {
-        memcpy(arg1, arg1 + 1, (s32)&cube->prop1Ptr[cube->prop1Cnt] - (s32)arg1 - sizeof(NodeProp));
+        heap_memcpy(arg1, arg1 + 1, (s32)&cube->prop1Ptr[cube->prop1Cnt] - (s32)arg1 - sizeof(NodeProp));
     }
     if (sp24 < cube->unk0_4) {
         cube->unk0_4--;
@@ -463,10 +463,10 @@ void func_8032DB2C(Cube *cube, NodeProp *arg1) {
 
     cube->prop1Cnt--;
     if (cube->prop1Cnt != 0) {
-        cube->prop1Ptr = realloc(cube->prop1Ptr, cube->prop1Cnt * sizeof(NodeProp));
+        cube->prop1Ptr = bk_realloc(cube->prop1Ptr, cube->prop1Cnt * sizeof(NodeProp));
     }
     else{
-        free(cube->prop1Ptr);
+        bk_free(cube->prop1Ptr);
         cube->prop1Ptr = NULL;
         cube->unk0_4 = 0;
     }
@@ -476,9 +476,9 @@ void func_8032DC70(s32 arg0) {
     NodeProp *sp1C;
     s32 temp_v0;
 
-    sp1C = func_803080C8(arg0);
+    sp1C = cube_findNodePropById(arg0);
     if (sp1C != NULL) {
-        func_8032DB2C(func_80308224(), sp1C);
+        func_8032DB2C(cube_getCurrentCube(), sp1C);
     }
 }
 
@@ -628,11 +628,11 @@ void cube_free(Cube *cube){
                 func_80332B2C(iProp->actorProp.marker);
             }
         }
-        free(cube->prop2Ptr);
+        bk_free(cube->prop2Ptr);
         cube->prop2Ptr = NULL;
     }
     if(cube->prop1Ptr){
-        free(cube->prop1Ptr);
+        bk_free(cube->prop1Ptr);
         cube->prop1Ptr = NULL;
     }
     cube->prop2Cnt = 0;
@@ -821,7 +821,7 @@ bool func_8032E6CC(Cube *cube, s32 *arg1, s32 arg2) {
 
 static void __codeA5BC0_freeCube1Pointer(Cube *cube, s32 cnt){
     if(cube->prop1Ptr != NULL){
-        free(cube->prop1Ptr);
+        bk_free(cube->prop1Ptr);
     }
 
     cube->prop1Cnt = cnt;
@@ -844,15 +844,15 @@ static void __codeA5BC0_initPropPointerForCube(NodeProp *node, Cube *cube, s32 c
             || (iPtr->bit6 == 0xA) 
             || (iPtr->bit0 == 1)
         ){
-            memcpy(&cube->prop1Ptr[cube_ptr_idx], &node[i], sizeof(NodeProp));
+            heap_memcpy(&cube->prop1Ptr[cube_ptr_idx], &node[i], sizeof(NodeProp));
             cube_ptr_idx--;
         } else {
-            memcpy(&cube->prop1Ptr[cube->unk0_4], &node[i], sizeof(NodeProp));
+            heap_memcpy(&cube->prop1Ptr[cube->unk0_4], &node[i], sizeof(NodeProp));
             cube->unk0_4++;
         }
     }
 
-    free(node);
+    bk_free(node);
     
     for(i = 0; i < cnt; i++){
         iPtr = &cube->prop1Ptr[i];
@@ -874,15 +874,15 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
     cube_free(cube);
     if (file_getByte_ifExpected(file_ptr, 0xA, &cube1_count)) {
         __codeA5BC0_freeCube1Pointer(cube, cube1_count);
-        cube->prop1Ptr = (NodeProp*) malloc(cube1_count * sizeof(NodeProp));
-        node_prop_ptr = (NodeProp*) malloc(cube1_count * sizeof(NodeProp));
+        cube->prop1Ptr = (NodeProp*) heap_malloc(cube1_count * sizeof(NodeProp));
+        node_prop_ptr = (NodeProp*) heap_malloc(cube1_count * sizeof(NodeProp));
         file_getNBytes_ifExpected(file_ptr, 0xB, node_prop_ptr, cube->prop1Cnt * sizeof(NodeProp));
         __codeA5BC0_initPropPointerForCube(node_prop_ptr, cube, cube1_count);
         
     } else if (file_getByte_ifExpected(file_ptr, 6, &cube1_count)) {
         __codeA5BC0_freeCube1Pointer(cube, cube1_count);
-        cube->prop1Ptr = (OtherNode*) malloc(cube1_count * sizeof(OtherNode));
-        node_prop_ptr = (OtherNode*) malloc(cube1_count * sizeof(OtherNode));
+        cube->prop1Ptr = (OtherNode*) heap_malloc(cube1_count * sizeof(OtherNode));
+        node_prop_ptr = (OtherNode*) heap_malloc(cube1_count * sizeof(OtherNode));
         file_getNBytes_ifExpected(file_ptr, 7, node_prop_ptr, cube->prop1Cnt * sizeof(OtherNode));
         for(other_prop_ptr = node_prop_ptr; other_prop_ptr < (OtherNode*)&node_prop_ptr[cube1_count]; other_prop_ptr++){
             if(other_prop_ptr->unk4_0 && !other_prop_ptr->unkC_0){
@@ -900,10 +900,10 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
             sp34 = 0;
         }
         if (cube->prop2Ptr != NULL) {
-            free(cube->prop2Ptr);
+            bk_free(cube->prop2Ptr);
         }
         cube->prop2Cnt = sp47;
-        cube->prop2Ptr = (Prop *) malloc(sp47 * sizeof(Prop));
+        cube->prop2Ptr = (Prop *) heap_malloc(sp47 * sizeof(Prop));
         file_getNBytes_ifExpected(file_ptr, 9, cube->prop2Ptr, cube->prop2Cnt * sizeof(Prop));
         for(var_v1_2 = cube->prop2Ptr; var_v1_2 < cube->prop2Ptr + sp47; var_v1_2++){
                 var_v1_2->unk8_4 = 1;
@@ -922,12 +922,12 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
             
     }
     if ((cube->prop2Ptr != NULL) && ((cube->prop2Cnt) == 0)) {
-        free(cube->prop2Ptr);
+        bk_free(cube->prop2Ptr);
         cube->prop2Ptr = NULL;
     }
     
     if ((cube->prop1Ptr != NULL) && (cube->prop1Cnt == 0)) {
-        free(cube->prop1Ptr);
+        bk_free(cube->prop1Ptr);
         cube->prop1Ptr = NULL;
         cube->unk0_4 = 0;
     }
@@ -1033,24 +1033,24 @@ void func_8032F21C(Cube *cube, s32 position[3], ActorMarker *marker, bool arg3) 
     sp1C->unk8_15 = 0;
     sp1C->unk8_5 = FALSE;
 
-    sp1C->unk8_10 = (func_802E4A08()) ? 0xF : (u8)(randf() * 32);
+    sp1C->unk8_10 = (game_isSpecialMode()) ? 0xF : (u8)(randf() * 32);
     sp1C->unk8_3 = FALSE;
     sp1C->unk8_2 = FALSE;
     sp1C->unk8_4 = TRUE;
     marker->propPtr = sp1C;
     marker->cubePtr = cube;
-    if (func_80305D14()) {
-        func_80305CD8(func_803058C0((f32)position[1]), 1);
+    if (isProp2CountAllocated()) {
+        incrementProp2Count(getCubeIndexFromPosition((f32)position[1]), 1);
     }
 }
 
 void func_8032F3D4(s32 arg0[3], ActorMarker *marker, s32 arg2){
-    func_8032F21C((marker->unk40_23)? func_8030364C() : cube_atPosition_s32(arg0), arg0, marker, arg2);
+    func_8032F21C((marker->unk40_23)? cube_getFallbackCube() : cube_atPosition_s32(arg0), arg0, marker, arg2);
 }
 
-void marker_free(ActorMarker *this){
-    func_8032D9C0(this->cubePtr, (Prop *)this->propPtr);
-    func_80332B2C(this);
+void marker_free(ActorMarker *mathis){
+    func_8032D9C0(mathis->cubePtr, (Prop *)mathis->propPtr);
+    func_80332B2C(mathis);
 }
 
 void func_8032F464(bool arg0){
@@ -1060,7 +1060,7 @@ void func_8032F464(bool arg0){
 void func_8032F470(s32 *pos, ActorMarker *arg1){
     Cube *cubePtr;
 
-    cubePtr = (arg1->unk40_23)? func_8030364C(): cube_atPosition_s32(pos);
+    cubePtr = (arg1->unk40_23)? cube_getFallbackCube(): cube_atPosition_s32(pos);
 
     if(cubePtr == arg1->cubePtr){
         arg1->propPtr->x = pos[0];
@@ -1072,11 +1072,11 @@ void func_8032F470(s32 *pos, ActorMarker *arg1){
     }
 
     if(arg1->unk2C_1)
-        func_80307CA0(arg1);
+        updateMarkerPosition(arg1);
 }
 
 Prop *func_8032F528(void){
-    Prop * prop = func_80303F7C(0, 0, 0, 1);
+    Prop * prop = findActorProp(0, 0, 0, 1);
     if(prop != NULL){
         D_80383448 = TRUE;
     }
@@ -1213,32 +1213,32 @@ void func_8032FDDC(f32 rotation[3], ActorMarker *marker) {
     marker->roll = rotation[2];
 }
 
-int func_8032FFB4(ActorMarker *this, s32 arg1){
-    this->id = arg1;
+int func_8032FFB4(ActorMarker *mathis, s32 arg1){
+    mathis->id = arg1;
 }
 
 //marker_setActorArrayIndex
-void func_8032FFD4(ActorMarker *this, s32 arg1){
-    this->actrArrayIdx = arg1;
+void func_8032FFD4(ActorMarker *mathis, s32 arg1){
+    mathis->actrArrayIdx = arg1;
 }
 
-void func_8032FFEC(ActorMarker *this, s32 arg1){
-    this->unk28 = arg1;
+void func_8032FFEC(ActorMarker *mathis, s32 arg1){
+    mathis->unk28 = arg1;
 }
 
-void marker_callCollisionFunc(ActorMarker *this, ActorMarker *other, enum marker_collision_func_type_e type){
+void marker_callCollisionFunc(ActorMarker *mathis, ActorMarker *other, enum marker_collision_func_type_e type){
     switch(type){
         case MARKER_COLLISION_FUNC_0: //ow
-            if(this->collisionFunc)
-                this->collisionFunc(this, other); 
+            if(mathis->collisionFunc)
+                mathis->collisionFunc(mathis, other); 
             break;
         case MARKER_COLLISION_FUNC_1:
-            if(this->collision2Func)
-                this->collision2Func(this, other);
+            if(mathis->collision2Func)
+                mathis->collision2Func(mathis, other);
             break;
         case MARKER_COLLISION_FUNC_2_DIE: //die
-            if(this->dieFunc)
-                this->dieFunc(this, other);
+            if(mathis->dieFunc)
+                mathis->dieFunc(mathis, other);
             break;
     }
 }
@@ -1250,10 +1250,10 @@ void func_80330078(ActorMarker *marker, ActorMarker *other_marker, s16 *arg2){
 }
 
 //marker_setCollisionMethods
-void marker_setCollisionScripts(ActorMarker *this, MarkerCollisionFunc ow_func, MarkerCollisionFunc arg2, MarkerCollisionFunc die_func){
-    this->collisionFunc = ow_func;
-    this->collision2Func = arg2;
-    this->dieFunc = die_func;
+void marker_setCollisionScripts(ActorMarker *mathis, MarkerCollisionFunc ow_func, MarkerCollisionFunc arg2, MarkerCollisionFunc die_func){
+    mathis->collisionFunc = ow_func;
+    mathis->collision2Func = arg2;
+    mathis->dieFunc = die_func;
 }
 
 void func_803300B8(ActorMarker *marker, MarkerCollisionFunc method){
@@ -1280,8 +1280,8 @@ void func_803300E0(ActorMarker *marker, Struct6Cs *arg1){
     marker->unk18 = arg1;
 }
 
-void marker_setModelId(ActorMarker *this, enum asset_e modelIndex){
-    this->modelId = modelIndex;
+void marker_setModelId(ActorMarker *mathis, enum asset_e modelIndex){
+    mathis->modelId = modelIndex;
 }
 
 void code_A5BC0_initCubePropActorProp(Cube *cube) {
@@ -1317,7 +1317,7 @@ void func_80330208(Cube *cube) {
                 position[0] = (s32) i_prop->x;
                 position[1] = (s32) i_prop->y;
                 position[2] = (s32) i_prop->z;
-                actor = func_803055E0(i_prop->unk8, position, i_prop->yaw, i_prop->unk10_31, i_prop->unk10_19);
+                actor = spawnActorWithYaw(i_prop->unk8, position, i_prop->yaw, i_prop->unk10_31, i_prop->unk10_19);
                 if (actor != NULL) {
                     actor->unk78_13 = i_prop->unk10_31;
                     actor->unkF4_8 = i_prop->radius;
@@ -1344,17 +1344,17 @@ void func_803303B8(Cube *cube) {
                 position[0] = (s32) current_node_ptr->x;
                 position[1] = (s32) current_node_ptr->y;
                 position[2] = (s32) current_node_ptr->z;
-                func_803065E4(current_node_ptr->unk8, position, current_node_ptr->radius, current_node_ptr->unk10_31, current_node_ptr->pad10_7);
+                initializeStructArrayBC(current_node_ptr->unk8, position, current_node_ptr->radius, current_node_ptr->unk10_31, current_node_ptr->pad10_7);
             } else if (current_node_ptr->bit6 == 9) {
                 position[0] = (s32) current_node_ptr->x;
                 position[1] = (s32) current_node_ptr->y;
                 position[2] = (s32) current_node_ptr->z;
-                func_8030688C(current_node_ptr->unk8, position, current_node_ptr->radius, current_node_ptr->unk10_0);
+                initializeStructArrayC8(current_node_ptr->unk8, position, current_node_ptr->radius, current_node_ptr->unk10_0);
             } else if (current_node_ptr->bit6 == 0xA) {
                 position[0] = (s32) current_node_ptr->x;
                 position[1] = (s32) current_node_ptr->y;
                 position[2] = (s32) current_node_ptr->z;
-                func_80306AA8(current_node_ptr->unk8, position, current_node_ptr->radius);
+                initializeStructArrayD4(current_node_ptr->unk8, position, current_node_ptr->radius);
             }
             current_node_ptr++;
         }
@@ -1382,7 +1382,7 @@ bool func_8033056C(Actor *actor){
 void func_803305AC(void){
     s32 i;
 
-    modelCache = (ModelCache *)malloc(AssetCacheSize * sizeof(ModelCache));
+    modelCache = (ModelCache *)heap_malloc(AssetCacheSize * sizeof(ModelCache));
     for(i = 0; i<AssetCacheSize; i++){
         modelCache[i].modelPtr = NULL;
         modelCache[i].unk4 = 0;
@@ -1401,8 +1401,8 @@ void func_803306C8(s32 arg0) {
     s32 var_s0_2;
     s32 var_s1;
 
-    temp_fp = globalTimer_getTime() - func_80255B08(arg0);
-    func_80254BD0(&sp54, 1);
+    temp_fp = globalTimer_getTime() - heap_getBlockType(arg0);
+    heap_getNthFreeBlock(&sp54, 1);
     if(sp54 > 256000) return;
     
     for(var_s1 = 0; var_s1 < ((arg0 == 1) ? 0x28 : 0x3D4); var_s1++, D_8036E7CC = (D_8036E7CC >= 0x3D4) ? 0 : D_8036E7CC + 1) {
@@ -1423,9 +1423,9 @@ void func_803306C8(s32 arg0) {
                 if (!D_8036E7CC);
 
                 var_s0_2 = TRUE;
-                func_8033B338(&var_a2->unk4, &var_a2->unk8);
+                assetCache_releaseSprite(&var_a2->unk4, &var_a2->unk8);
             }
-            if ((arg0 != 1) && (var_s0_2 == 1) && (func_80254BC4(1))) {
+            if ((arg0 != 1) && (var_s0_2 == 1) && (heap_stub_return_false(1))) {
                 return;
             }
         }
@@ -1446,7 +1446,7 @@ void func_803308A0(void) {
         
         var_s0 = &modelCache[i];
         if (var_s0->unk4) {
-            func_8033B388(&var_s0->unk4, &var_s0->unk8);
+            assetCache_releaseBKSprite(&var_s0->unk4, &var_s0->unk8);
         }
         
         var_s0 = &modelCache[i];
@@ -1457,7 +1457,7 @@ void func_803308A0(void) {
         }
     }
     
-    free(modelCache);
+    bk_free(modelCache);
     modelCache = 0;
 }
 
@@ -1494,17 +1494,17 @@ Struct6Cs *func_80330B10(void){
     return &D_8036E7D0;
 }
 
-BKModelBin *marker_loadModelBin(ActorMarker *this){
+BKModelBin *marker_loadModelBin(ActorMarker *mathis){
     Actor* thisActor;
     BKModelBin * model;
     ModelCache *modelInfo;
 
-    if(this->modelId == 0)
+    if(mathis->modelId == 0)
         return NULL;
 
-    thisActor = marker_getActor(this);
+    thisActor = marker_getActor(mathis);
     if((modelInfo = &modelCache[thisActor->modelCacheIndex])->modelPtr == NULL){
-        model = assetcache_get(this->modelId);
+        model = assetcache_get(mathis->modelId);
         modelInfo->modelPtr = model;
         if(model_getAnimTextureList(model)){
             modelInfo->animated_texture_cache_id = AnimTextureListCache_newList();
@@ -1513,8 +1513,8 @@ BKModelBin *marker_loadModelBin(ActorMarker *this){
         func_8032ACA8(thisActor);
     }
     func_8032AB84(thisActor);
-    if(!this->unk18 && this->propPtr->unk8_1 && modelInfo->modelPtr && func_8033A12C(modelInfo->modelPtr)){
-        this->unk18 = func_80330B10();
+    if(!mathis->unk18 && mathis->propPtr->unk8_1 && modelInfo->modelPtr && func_8033A12C(modelInfo->modelPtr)){
+        mathis->unk18 = func_80330B10();
     }
     modelInfo->unk10 = globalTimer_getTime();
     return modelInfo->modelPtr;
@@ -1538,35 +1538,35 @@ BKVertexList *func_80330C74(Actor *actor){
     }
 }
 
-BKVertexList *func_80330CFC(Actor *this, s32 arg1){
+BKVertexList *func_80330CFC(Actor *mathis, s32 arg1){
     ModelCache *model_cache_ptr;
-    model_cache_ptr = &modelCache[this->modelCacheIndex];
+    model_cache_ptr = &modelCache[mathis->modelCacheIndex];
     if(model_cache_ptr->modelPtr == NULL){
-        marker_loadModelBin(this->marker);
+        marker_loadModelBin(mathis->marker);
     }
-    if(this->unkF4_30 && this->unk14C[this->unkF4_29 ^ arg1] != NULL)
-        return this->unk14C[this->unkF4_29 ^ arg1];
+    if(mathis->unkF4_30 && mathis->unk14C[mathis->unkF4_29 ^ arg1] != NULL)
+        return mathis->unk14C[mathis->unkF4_29 ^ arg1];
     return model_getVtxList(model_cache_ptr->modelPtr);
 }
 
-BKVertexList * func_80330DA4(Actor *this){
-    return func_80330CFC(this, 0);
+BKVertexList * func_80330DA4(Actor *mathis){
+    return func_80330CFC(mathis, 0);
 }
 
-BKVertexList * func_80330DC4(Actor *this){
-    return func_80330CFC(this, 1);
+BKVertexList * func_80330DC4(Actor *mathis){
+    return func_80330CFC(mathis, 1);
 }
 
-BKModelBin *func_80330DE4(ActorMarker *this){
-    Actor *thisActor = marker_getActor(this);
+BKModelBin *func_80330DE4(ActorMarker *mathis){
+    Actor *thisActor = marker_getActor(mathis);
     return (modelCache + thisActor->modelCacheIndex)->modelPtr;
 }
 
-BKModelBin *func_80330E28(Actor* this){
-    return (modelCache + this->modelCacheIndex)->modelPtr;
+BKModelBin *func_80330E28(Actor* mathis){
+    return (modelCache + mathis->modelCacheIndex)->modelPtr;
 }
 
-BKSpriteDisplayData *func_80330E54(ActorMarker *marker, BKSprite **sprite_ptr) {
+BKSpriteDisplayData *func_80330E54(ActorMarker *marker, BKSprite_s **sprite_ptr) {
     ModelCache *model_cache_ptr;
 
     if (marker->modelId == 0) {
@@ -1577,7 +1577,7 @@ BKSpriteDisplayData *func_80330E54(ActorMarker *marker, BKSprite **sprite_ptr) {
     }
     model_cache_ptr = &modelCache[marker_getActor(marker)->modelCacheIndex];
     if (model_cache_ptr->unk4 == 0) {
-        model_cache_ptr->unk4 = func_8033B6C4(marker->modelId, &model_cache_ptr->unk8);
+        model_cache_ptr->unk4 = assetCache_releaseSound(marker->modelId, &model_cache_ptr->unk8);
     }
     model_cache_ptr->unk10 = globalTimer_getTime();
     if (sprite_ptr != NULL) {
@@ -1590,8 +1590,8 @@ BKSpriteDisplayData *func_80330F30(ActorMarker *marker){
     return func_80330E54(marker, NULL);
 }
 
-BKSprite *func_80330F50(ActorMarker * marker){
-    BKSprite *sp1C;
+BKSprite_s *func_80330F50(ActorMarker * marker){
+    BKSprite_s *sp1C;
     func_80330E54(marker, &sp1C);
     return sp1C;
 }
@@ -1650,7 +1650,7 @@ void func_80330FF4(void){
         func_80340200(D_8038341C->unk50, phi_s0->position, scale, 1.0f, NULL, D_80383420, func_80330DA4(phi_s0), D_80383410);
     }//L8033108C
 
-    spawnQueue_func_802C39D4();
+    spawnQueue_validateAndWriteEEPROM();
     if(D_8038341C != NULL){
         phi_s0 = marker_getActor(D_8038341C);
         player_getPosition(sp48);
@@ -1674,7 +1674,7 @@ bool func_80331158(ActorMarker *arg0, s32 arg1, s32 arg2) {
 
     actor = marker_getActor(arg0);
     if ((actor->unk3C & 0x400) && ((s32)actor->unk3C << 4) >= 0){
-        return func_802E74A0(actor->position, actor->unk178 * 1.1, arg1, arg2) == 0;
+        return isPointInSphere(actor->position, actor->unk178 * 1.1, arg1, arg2) == 0;
     }
     return FALSE;
 }
@@ -1714,7 +1714,7 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
                     spA0[0] = 0.0f;
                     spA0[1] = (f32) (var_s1->modelProp.unk0_15 * 2);
                     spA0[2] = (f32) (var_s1->modelProp.unk0_7 * 2);
-                    var_v0 = func_802E805C(temp_s2, model_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.unkA / 100.0, arg1, arg2, arg3, arg4);
+                    var_v0 = findCollisionTriWithTransform(temp_s2, model_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.unkA / 100.0, arg1, arg2, arg3, arg4);
                     if (var_v0 != NULL) {
                         var_s6 = var_v0;
                     }
@@ -1738,7 +1738,7 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
                     sp7C[0] = (f32) var_s1->actorProp.marker->pitch;
                     sp7C[1] = (f32) var_s1->actorProp.marker->yaw;
                     sp7C[2] = (f32) var_s1->actorProp.marker->roll;
-                    temp_s0_2 = func_802E805C(temp_s0, temp_a1, &sp88, &sp7C, temp_s2_2->scale, arg1, arg2, arg3, arg4);
+                    temp_s0_2 = findCollisionTriWithTransform(temp_s0, temp_a1, &sp88, &sp7C, temp_s2_2->scale, arg1, arg2, arg3, arg4);
                     if ((temp_s0_2 != NULL) && (func_8029453C())) {
                         marker_loadModelBin(var_s1->actorProp.marker);
                         if (var_s1->actorProp.marker->unk50 != 0) {
@@ -1816,7 +1816,7 @@ s32 func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3, f32 arg4[3], s
       spB0[1] = (f32) (var_s0->modelProp.unk0_15 * 2);
       new_var = spB0;
       spB0[2] = (f32) (var_s0->modelProp.unk0_7 * 2);
-      var_v0 = func_802E9118(model_collision_list, model_getVtxList(model_bin), 
+      var_v0 = findCollisionTriWithTransformAndRadius(model_collision_list, model_getVtxList(model_bin), 
         spBC, new_var, (f32) (((f32) var_s0->modelProp.unkA) / 100.0), 
         arg1, arg2, arg3, arg4, arg5, flags
     );
@@ -1848,7 +1848,7 @@ s32 func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3, f32 arg4[3], s
         sp8C[0] = (f32) var_s0->actorProp.marker->pitch;
         sp8C[1] = (f32) var_s0->actorProp.marker->yaw;
         sp8C[2] = (f32) var_s0->actorProp.marker->roll;
-        var_v0 = func_802E9118(model_bin, temp_a1, sp98, new_var2, temp_v0_6->scale, arg1, arg2, arg3, arg4, arg5, flags);
+        var_v0 = findCollisionTriWithTransformAndRadius(model_bin, temp_a1, sp98, new_var2, temp_v0_6->scale, arg1, arg2, arg3, arg4, arg5, flags);
       }
       if (var_v0 != 0)
       {
@@ -1914,7 +1914,7 @@ BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, s32 arg3,
                     spA0[1] = (f32) (mProp->unk0_15 * 2);
                     model_bin = model_bin;
                     spA0[2] = (f32) (mProp->unk0_7 * 2);
-                    var_v0 = func_802E9DD8(model_collision_list, model_getVtxList(model_bin), spAC, spA0, ((f32) mProp->unkA) / 100.0, position, radius, arg3, arg4);
+                    var_v0 = findCollisionTriWithTransformAndScale(model_collision_list, model_getVtxList(model_bin), spAC, spA0, ((f32) mProp->unkA) / 100.0, position, radius, arg3, arg4);
                     if (var_v0 != 0)
                         var_s7 = var_v0;
                 }
@@ -1937,7 +1937,7 @@ BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, s32 arg3,
             sp7C[0] = aProp->marker->pitch;
             sp7C[1] = aProp->marker->yaw;
             sp7C[2] = aProp->marker->roll;
-            var_v0 = func_802E9DD8(new_var, temp_a1, sp88, sp7C, temp_v0_6->scale, position, radius, arg3, arg4);
+            var_v0 = findCollisionTriWithTransformAndScale(new_var, temp_a1, sp88, sp7C, temp_v0_6->scale, position, radius, arg3, arg4);
             if (var_v0 != 0)
             {
             var_s7 = var_v0;
@@ -1968,7 +1968,7 @@ BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, s32 arg3,
     return var_s7;
 }
 
-f32 func_80331D20(BKSprite *sprite) {
+f32 func_80331D20(BKSprite_s *sprite) {
     BKSpriteFrame *frame;
     s32 temp_lo;
     s32 temp_lo_2;
@@ -2200,7 +2200,7 @@ void func_80332894(void) {
     s32 i;
 
     size = 0x579;
-    D_8036E7C4 = malloc(size);
+    D_8036E7C4 = heap_malloc(size);
     i = 0;
     do{
         D_8036E7C4[i] = 0;
@@ -2214,7 +2214,7 @@ void func_80332894(void) {
 }
 
 void func_8033297C(void){
-    free(D_8036E7C4);
+    bk_free(D_8036E7C4);
     D_8036E7C4 = NULL;
     func_8032D36C();
 }
@@ -2223,7 +2223,7 @@ void func_8033297C(void){
 void func_803329AC(void){
     s32 i;
     
-    D_8036E7C8 = (ActorMarker *)malloc(0xE0*sizeof(ActorMarker));
+    D_8036E7C8 = (ActorMarker *)heap_malloc(0xE0*sizeof(ActorMarker));
 
     for( i = 0; i < 0x1C; i++){
         D_80383428[i] = 0;
@@ -2235,7 +2235,7 @@ void func_803329AC(void){
 }
 
 void func_80332A38(void){
-    free(D_8036E7C8);
+    bk_free(D_8036E7C8);
     D_8036E7C8 = NULL;
 }
 

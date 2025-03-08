@@ -2,10 +2,15 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "FP.h"
+
 extern void func_8028E668(f32[3], f32, f32, f32);
 extern Actor *func_80328230(enum actor_e id, f32 pos[3], f32 rot[3]);
 extern NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e, s32[3]);
 extern f32 maSlalom_compareBoggyToPlayer(f32 arg0[3]);
+
+bool func_8038A1A0(ActorMarker *marker);
+
 
 typedef struct {
     ParticleEmitter *unk0;
@@ -94,19 +99,19 @@ void FP_func_803888E4(Actor *this){
     subaddie_set_state_with_direction(this, 0xC, 0.0001f, 1);
     if(!jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)){
         if(mapSpecificFlags_get(5)){
-            func_80324DBC(0.1f, 0xc06, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+            showDelayedTextAtTime(0.1f, 0xc06, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
         else{//L80388964
-            func_80324DBC(0.1f, 0xc03, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+            showDelayedTextAtTime(0.1f, 0xc03, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
     }
     else{//L803889A0
         func_8028F490(D_80391D0C);
         if(mapSpecificFlags_get(6)){
-            func_80324DBC(0.1f, 0xc29, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+            showDelayedTextAtTime(0.1f, 0xc29, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
         else{
-            func_80324DBC(0.1f, 0xc28, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+            showDelayedTextAtTime(0.1f, 0xc28, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
     }//L80388A30
     mapSpecificFlags_set(5, TRUE);
@@ -199,9 +204,9 @@ void func_80388D70(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         case 0xc06:
         case 0xc28:
         case 0xc29://L80388DC4
-            func_8025A6EC(COMUSIC_3A_FP_BOGGY_RACE, 25000);
-            func_8025A58C(0, 4000);
-            core1_ce60_incOrDecCounter(FALSE);
+            comusic_playTrackWithVolumeOverride(COMUSIC_3A_FP_BOGGY_RACE, 25000);
+            playMusicWithFade(0, 4000);
+            map_worthlessCounter(FALSE);
             func_802BE720();
             local->unk0 = partEmitMgr_newEmitter(16);
             local->unk4 = partEmitMgr_newEmitter(16);
@@ -424,7 +429,7 @@ void func_803896FC(Actor *this){
         maSlalom_linkBoggy(this->marker);
         this->unk38_31 = 0;
         func_80388C88(this);
-        __spawnQueue_add_0(func_803895E0);
+        spawnQueue_add_0(func_803895E0);
         if(jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2)){
             local->unk19 = 2;
             this->unk4C = 900.0f;
@@ -582,7 +587,7 @@ void func_803896FC(Actor *this){
                     case 1: //L80389F78
                         if(this->unk38_31 == 2){
                             if(jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2)){
-                                __spawnQueue_add_1((GenFunction_1)func_80388F54, reinterpret_cast(s32, this->marker));
+                                spawnQueue_add_1((GenFunction_1)func_80388F54, reinterpret_cast(s32, this->marker));
                                 maSlalom_unlinkBoggy();
                                 marker_despawn(this->marker);
                             }

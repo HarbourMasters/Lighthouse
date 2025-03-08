@@ -51,7 +51,7 @@ void func_8038718C(ActorMarker *marker){
         sp2C[0] = 0.0f;
         sp2C[2] = 0.0f;
         sp2C[1] = 450.0f;
-        func_8034DDF0(sp44, sp38, sp2C, 4.0f, 1);
+        collisionTri_isHitFromAboveByMarker(sp44, sp38, sp2C, 4.0f, 1);
         func_8034E1A4(sp44, SFX_D8_CRANE, 1.0f, 1.0f);
     }
     timed_setStaticCameraToNode(0.0f, 4);
@@ -63,7 +63,7 @@ void func_8038718C(ActorMarker *marker){
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 0.9f, 19000);
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 19000);\
     timed_exitStaticCamera(5.0f);
-    func_80324E38(5.0f, 0);
+    setCameraModeAtTime(5.0f, 0);
     timedFunc_set_2(5.0f, (GenFunction_2) func_80387090, (s32) marker, 3);
 }
 
@@ -76,7 +76,7 @@ void func_80387308(ActorMarker *marker){
     if(sp40 = func_8034C528(0x19a)){
         TUPLE_ASSIGN(sp34, 0.0f,200.0f,0.0f);
         TUPLE_ASSIGN(sp28, 0.0f, 0.0f, 0.0f);
-        func_8034DDF0(sp40, sp34, sp28, 0.5f, 1);
+        collisionTri_isHitFromAboveByMarker(sp40, sp34, sp28, 0.5f, 1);
         func_8034E1A4(sp40, SFX_D8_CRANE, 1.0f, 1.0f);
     }//L80387394
 
@@ -90,7 +90,7 @@ void func_80387308(ActorMarker *marker){
     
     timedFunc_set_2(1.5f, (GenFunction_2) func_803870BC, 0x19d, 0x1f4);
     timed_exitStaticCamera(1.5f);
-    func_80324E38(1.5f, 0);
+    setCameraModeAtTime(1.5f, 0);
 
 }
 
@@ -106,7 +106,7 @@ void func_80387488(ActorMarker *marker){
             return;
         }
     }
-    func_80324E38(0.0f, 3);
+    setCameraModeAtTime(0.0f, 3);
     timed_setStaticCameraToNode(0.0f, 6);
     timedFunc_set_1(0.5f, (GenFunction_1) func_80387308, (s32) actor->marker);
 }
@@ -130,10 +130,10 @@ void func_8038756C(Actor *this, s32 arg1){
             sp60[0] = sp60[1] = sp60[2] = 0.0f;
             
             if(temp_v0 = func_8034C528(0x19C))
-                func_8034DDF0(temp_v0, sp6C, sp60, 0.1f, 1);
+                collisionTri_isHitFromAboveByMarker(temp_v0, sp6C, sp60, 0.1f, 1);
             
             if(temp_v0 = func_8034C528(0x19D))
-                func_8034DDF0(temp_v0, sp6C, sp60, 0.1f, 1);
+                collisionTri_isHitFromAboveByMarker(temp_v0, sp6C, sp60, 0.1f, 1);
         }
     }//L80387610
 
@@ -144,14 +144,14 @@ void func_8038756C(Actor *this, s32 arg1){
         sp44[2] = -40.0f;
         
         if(temp_v0 = func_8034C528(0x19C))
-            func_8034DDF0(temp_v0, sp50, sp44, 0.1f, 1);
+            collisionTri_isHitFromAboveByMarker(temp_v0, sp50, sp44, 0.1f, 1);
         
         if(temp_v0 = func_8034C528(0x19D))
-            func_8034DDF0(temp_v0, sp50, sp44, 0.1f, 1);
+            collisionTri_isHitFromAboveByMarker(temp_v0, sp50, sp44, 0.1f, 1);
         
         timedFunc_set_2(0.1f, (GenFunction_2)func_8038711C, 0x19d, 0x1f4);
-        timedFunc_set_2(0.1f, (GenFunction_2)func_8025A6EC, COMUSIC_2B_DING_B, 28000);
-        func_80324E38(0.2f, 3);
+        timedFunc_set_2(0.1f, (GenFunction_2)comusic_playTrackWithVolumeOverride, COMUSIC_2B_DING_B, 28000);
+        setCameraModeAtTime(0.2f, 3);
         timedFunc_set_1(1.1f, (GenFunction_1)func_8038718C, (s32)this->marker);
     }//L80387704
 
@@ -175,7 +175,7 @@ void func_8038756C(Actor *this, s32 arg1){
             sp24[2] = 0.0f;
             
             
-            func_8034DDF0(sp3C, sp30, sp24, 3.0f, 1);
+            collisionTri_isHitFromAboveByMarker(sp3C, sp30, sp24, 3.0f, 1);
             func_8034E1A4(sp3C, SFX_D8_CRANE, 1.0f, 1.0f);
         }//L803877D4
         timed_playSfx(3.0f, SFX_7F_HEAVYDOOR_SLAM, 0.5f, 25000);

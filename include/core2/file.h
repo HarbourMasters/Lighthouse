@@ -2,8 +2,13 @@
 #define BANJO_KAZOOIE_FILE_H
 
 #include <ultra64.h>
-#include <bool.h> // for bool
+
+#include <bk_bool.h> // for bool
 #include <enums.h> // for enum asset_e, enum map_e 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum file_mode_e {
     FILE_MODE_0_UNKNOWN,
@@ -51,5 +56,9 @@ bool file_getNWords_ifExpected(File *file, s32 expected, s32 *dst, s32 cnt);
 bool file_get_ifExpected(File *file, s32 expected, void *dst, s32 len);
 bool file_getShort_ifExpected(File *file, s32 expected, s16 *dst);
 bool file_getNShorts_ifExpected(File *file, s32 expected, s16 *dst, s32 cnt);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

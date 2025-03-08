@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void spawnParticleEffect(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 void chSarcophagus_update(Actor *this);
@@ -43,7 +43,7 @@ void GV_func_803894B0(Actor *this){
 }
 
 void func_80389518(Actor *this){
-    func_802EE6CC(this->unk1C, D_80390E88, D_80390E78, 0, 
+    spawnParticleEffect(this->unk1C, D_80390E88, D_80390E78, 0, 
         0.55f, 50.0f, 0xDC, 0x168, 0
     );
 }
@@ -84,7 +84,7 @@ void chSarcophagus_update(Actor *this){
                 && actor_animationIsAt(this, 0.1f)
                 && !jiggyscore_isCollected(JIGGY_41_GV_MAZE)
             ){
-                func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7fff);
+                comusic_playTrackWithVolumeOverride(COMUSIC_3D_JIGGY_SPAWN, 0x7fff);
                 this->unk38_31 = 1;
             }
             if(actor_animationIsAt(this, 0.5f)){

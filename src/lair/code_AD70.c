@@ -87,8 +87,8 @@ void func_8039137C(f32 pos[3], u32 count, enum asset_e sprite)
     ParticleEmitter *p = partEmitMgr_newEmitter(count);
     particleEmitter_setSprite(p, sprite);
     particleEmitter_setPosition(p, pos);
-    particleEmitter_func_802EF9F8(p, 0.3f);
-    particleEmitter_func_802EFA18(p, 3);
+    particleEmitter_setBounceFactor(p, 0.3f);
+    particleEmitter_setCollisionCount(p, 3);
     particleEmitter_setAngularVelocityRange(p, 0, 0, 600, 0, 0, 900);
     particleEmitter_setVelocityAccelerationAndPositionRanges(p, &D_80394B30);
     particleEmitter_setScaleAndLifetimeRanges(p, &D_80394B08);

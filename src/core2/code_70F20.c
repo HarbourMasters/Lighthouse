@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 /* .code */
 void func_802F7EB0(struct3s *this){
     f32 plyrPos[3]; //sp74
@@ -79,13 +82,13 @@ void func_802F8214(struct3s * this){
     if(this->unk0)
         func_802F9D38(this->unk0);
     vector_free(this->unk20);
-    func_8033BD20(&this->unk2C);
-    free(this);
+    assetCache_releaseBKModelBin(&this->unk2C);
+    bk_free(this);
 
 }
 
 struct3s *func_802F8264(s32 arg0){
-    struct3s * ptr = (struct3s *) malloc(sizeof(struct3s));
+    struct3s * ptr = (struct3s *) heap_malloc(sizeof(struct3s));
     ptr->unk0 = 0;
     ptr->unk1C = 0;
     ptr->unk34 = 0;

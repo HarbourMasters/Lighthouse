@@ -3,11 +3,12 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "time.h"
+#include "bk_time.h"
 
 void func_80346DB4(s32);
 
 s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
+bool func_80347A4C(void);
 
 /* .bss */
 s32 D_80385F30[0x2C];
@@ -33,7 +34,7 @@ void item_inc(enum item_e item){
 }
 
 void item_dec(enum item_e item){
-    if(!func_802E4A08())
+    if(!game_isSpecialMode())
         item_adjustByDiffWithHud(item, -1);
 }
 
@@ -128,7 +129,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
             }
             if(sp2C && sp30 != sp2C ){
                 if(sp2C < sp30){
-                    func_8025A6EC(SFX_AIR_METER_DROPPING, 28000);
+                    comusic_playTrackWithVolumeOverride(SFX_AIR_METER_DROPPING, 28000);
                 }
                 else{
                     func_8030E760(0x3e9, 1.2f, 28000);
@@ -139,7 +140,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
             sp28 = itemscore_noteScores_get(level_get());
             func_80346DB4(D_80385F30[item]);
             if(D_80385F30[item] == 100 && sp28 != 100){
-                func_8025A6EC(COMUSIC_36_100TH_NOTE_COLLECTED, 20000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_36_100TH_NOTE_COLLECTED, 20000);
                 item_inc(ITEM_16_LIFE);
             }
             break;
@@ -278,7 +279,7 @@ void func_803465E4(void){
         item_adjustByDiffWithHud(ITEM_F_RED_FEATHER, 0);
     }
 
-    if(!func_8028EC04() && func_8028F070()){
+    if(!isPlayerInWater() && func_8028F070()){
         if(level_get() != LEVEL_2_TREASURE_TROVE_COVE || !levelSpecificFlags_get(LEVEL_FLAG_5_TTC_UNKNOWN)){
             is_underwater = (player_getWaterState() == BSWATERGROUP_2_UNDERWATER);
             is_on_water_surface = (player_getWaterState() == BSWATERGROUP_1_SURFACE);
@@ -314,7 +315,7 @@ void func_803465E4(void){
         }
     }//L80346A2C
 
-    if( getGameMode() != GAME_MODE_4_PAUSED
+    if( game_getMode() != GAME_MODE_4_PAUSED
         && func_8028F070()
     ){
         if(sp4C == LEVEL_C_BOSS)
@@ -336,7 +337,7 @@ void func_803465E4(void){
 void func_80346C10(enum bs_e *retVal, enum bs_e fail_state, enum bs_e success_state, enum item_e item_id, int use_item){
     if(item_empty(item_id)){
         item_adjustByDiffWithHud(item_id, 0);
-        func_8025A6EC(COMUSIC_2C_BUZZER, 22000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2C_BUZZER, 22000);
         if(fail_state != -1){
             *retVal = fail_state;
         }
@@ -350,7 +351,7 @@ void func_80346C10(enum bs_e *retVal, enum bs_e fail_state, enum bs_e success_st
     }
 }
 
-void func_80346CA8(void) {
+void initializeGameData(void) {
     D_80385FE0 = 0;
     if (D_80385FE4) {
         D_80385FE0 = TRUE;
@@ -389,7 +390,7 @@ void func_80346DB4(s32 note_count) {
     s32 level_id;
 
     level_id = level_get();
-    if (!func_802E4A08() && (level_id > 0) && (level_id < 0xE)) {
+    if (!game_isSpecialMode() && (level_id > 0) && (level_id < 0xE)) {
         if (D_80385FF0[level_id] < note_count) {
             D_80385FF0[level_id] = note_count;
             if ((level_get() == LEVEL_1_MUMBOS_MOUNTAIN) && (note_count == 50)) {

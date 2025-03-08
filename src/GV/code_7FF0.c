@@ -4,9 +4,9 @@
 #include "variables.h"
 #include "actor.h"
 
-extern void core1_7090_initSfxSource(s32, s32, s32, f32);
-extern void func_802D3D54(Actor *this);
-extern void func_802D3D74(Actor *this);
+extern void sfx_initSfxSource(s32, s32, s32, f32);
+extern void initializeActorWrapper(Actor *this);
+extern void initializeActorCollisionOff(Actor *this);
 extern Actor *func_80325F2C(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 extern void func_8032BC3C(Actor *, f32);
 extern void func_80343E20(s32, s32, f32, s32);
@@ -106,13 +106,13 @@ ActorInfo D_80391494 = { MARKER_23C_GV_SNS_SWITCH, ACTOR_245_GV_SNS_SWITCH, ASSE
 
 ActorInfo D_803914B8 = { MARKER_EB_GV_BANJO_DOOR, ACTOR_6D_GV_BANJO_DOOR, ASSET_3D8_MODEL_GV_BANJO_DOOR, 
     0x1, 0x0, 
-    func_802D3D54, func_8038E460, func_80325F2C,
+    initializeActorWrapper, func_8038E460, func_80325F2C,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_803914DC = { MARKER_ED_GV_SUN_DOOR, ACTOR_140_GV_SUN_DOOR, ASSET_3FF_MODEL_GV_SUN_DOOR, 
     0x1, 0x0, 
-    func_802D3D54, func_8038E4DC, func_80325F2C,
+    initializeActorWrapper, func_8038E4DC, func_80325F2C,
     0, 0, 0.0f, 0
 };
 
@@ -171,20 +171,20 @@ void func_8038E430(Actor *this){
 }
 
 void func_8038E460(Actor *this){//banjo_door
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     if(mapSpecificFlags_get(0x10)){
         func_8038E430(this);
         if(!mapSpecificFlags_get(2)){
             mapSpecificFlags_set(2, TRUE);
             func_8028F918(0);
-            func_80324DBC(4.0f, ASSET_A7D_DIALOG_JINXY_HELPED, 4, NULL, NULL, NULL, NULL);
+            showDelayedTextAtTime(4.0f, ASSET_A7D_DIALOG_JINXY_HELPED, 4, NULL, NULL, NULL, NULL);
         }
     }
 }
 
 void func_8038E4DC(Actor *this){
     f32 sp24;
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     if(!this->initialized){
         this->initialized = TRUE;
         this->unk1C[0] = this->unk48;
@@ -223,7 +223,7 @@ void func_8038E4DC(Actor *this){
 void func_8038E648(Actor *this){
     f32 tmp_f18;
 
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     switch(this->state){
         case 1: //L8038E690
             this->pitch = 0.0f;
@@ -231,8 +231,8 @@ void func_8038E648(Actor *this){
                 func_802BAFE4(2);
                 subaddie_set_state(this, 6);
                 this->unk38_31 = 600;
-                core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
-                func_802D68F0(25);
+                sfx_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
+                setHourglassTimer(25);
                 item_set(ITEM_6_HOURGLASS, 1);
             }
             break;
@@ -243,7 +243,7 @@ void func_8038E648(Actor *this){
                 subaddie_set_state(this, 7);
                 this->pitch = 90.0f;
                 func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
-                core1_7090_freeSfxSource(0);
+                sfx_freeSfxSource(0);
             }
             break;
 
@@ -251,7 +251,7 @@ void func_8038E648(Actor *this){
             this->unk38_31 -= time_getDelta();
             if(this->unk38_31 == 0){
                 subaddie_set_state(this, 8);
-                core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
+                sfx_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
             }
             break;
 
@@ -262,7 +262,7 @@ void func_8038E648(Actor *this){
                 this->pitch = 0.0f;
                 func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
                 mapSpecificFlags_set(5, FALSE);
-                core1_7090_freeSfxSource(0);
+                sfx_freeSfxSource(0);
                 volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
             }
             break;
@@ -272,7 +272,7 @@ void func_8038E648(Actor *this){
 void func_8038E914(Actor *this){
     func_80389F5C(this);
     if(!this->initialized){
-        func_802D3D74(this);
+        initializeActorCollisionOff(this);
         this->initialized = TRUE;
         if(sns_get_item_state(SNS_ITEM_EGG_BLUE, 1))
             marker_despawn(this->marker);
@@ -284,7 +284,7 @@ void func_8038E97C(Actor *this){
     if(!this->initialized){
         this->initialized = TRUE;
         this->scale = 1.35f;
-        func_802D3D74(this);
+        initializeActorCollisionOff(this);
         this->unk1C[0] = this->position_y;
         this->position_y += -300.0f;
     }
@@ -296,7 +296,7 @@ void func_8038E97C(Actor *this){
             this->position_y += 130.0;
             this->unk38_31 = 30;
             subaddie_set_state(this, 8);
-            core1_7090_initSfxSource(1, 0x6A, 0x7ff8, 0.3f);
+            sfx_initSfxSource(1, 0x6A, 0x7ff8, 0.3f);
         }
     }//L8038EA6C
 
@@ -314,7 +314,7 @@ void func_8038E97C(Actor *this){
         this->unk38_31 -= 1;
         if(this->unk38_31 == 0){
             subaddie_set_state(this, 1);
-            core1_7090_freeSfxSource(1);
+            sfx_freeSfxSource(1);
             func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
         }
 
@@ -322,15 +322,15 @@ void func_8038E97C(Actor *this){
 }
 
 void chKazooieDoor_update(Actor *this){
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     func_8032AA58(this, 1.3f);
     switch(this->state){
         case 1: //L8038EB98
             if(mapSpecificFlags_get(6)){
-                func_8025A6EC(COMUSIC_2B_DING_B, -1);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, -1);
                 func_802BAFE4(3);
                 subaddie_set_state(this, 6);
-                core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
+                sfx_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
                 this->unk1C[1] = this->position_y + 210.0f;
                 this->unk1C[0] = this->position_y;
             }
@@ -342,7 +342,7 @@ void chKazooieDoor_update(Actor *this){
             if(this->unk1C[1] <= this->position_y){
                 subaddie_set_state(this, 7);
                 func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
-                core1_7090_freeSfxSource(1);
+                sfx_freeSfxSource(1);
                 this->unk38_31 = 450;
             }
             break;
@@ -351,7 +351,7 @@ void chKazooieDoor_update(Actor *this){
             this->unk38_31--;
             if(this->unk38_31 == 0){
                 subaddie_set_state(this, 8);
-                core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
+                sfx_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
             }
             break;
 
@@ -362,7 +362,7 @@ void chKazooieDoor_update(Actor *this){
                 this->position_y = this->unk1C[0];
                 subaddie_set_state(this, 1);
                 func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
-                core1_7090_freeSfxSource(1);
+                sfx_freeSfxSource(1);
                 mapSpecificFlags_set(6, FALSE);
             }
             break;
@@ -371,14 +371,14 @@ void chKazooieDoor_update(Actor *this){
 
 void chSunSwitch_update(Actor *this){
 
-    func_802D4A9C(this, 3);
+    updateActorStateBasedOnMapFlags(this, 3);
     
     if( this->velocity_x == 0.0f 
         && mapSpecificFlags_get(3) == TRUE
         && func_802BB270()
     ){
         this->velocity_x = 1.0f;
-        func_802D68F0(10);
+        setHourglassTimer(10);
         item_set(ITEM_6_HOURGLASS, 1);
     }//L8038EDC8
 
@@ -402,18 +402,18 @@ void chStarSwitch_update(Actor *this){
     ){
         this->velocity_x = 0.0f;
     }
-    func_802D4A9C(this, 5);
+    updateActorStateBasedOnMapFlags(this, 5);
 }
 
 void chHoneycombSwitch_update(Actor *this){
     if(!mapSpecificFlags_get(0xd) && honeycombscore_get(HONEYCOMB_B_GV_CACTUS)){
         mapSpecificFlags_set(0xd, TRUE);
     }
-    func_802D4A9C(this, 0xd);
+    updateActorStateBasedOnMapFlags(this, 0xd);
 }
 
 void func_8038EF14(Actor *this){
-    func_802D4AC0(this, 0x8000a3, 0xa4);
+    updateActorStateBasedOnFileProgress(this, 0x8000a3, 0xa4);
 }
 
 void chKazooieTarget_update(Actor *this){
@@ -423,7 +423,7 @@ void chKazooieTarget_update(Actor *this){
         && func_802BB270()
     ){
         this->velocity_x = 1.0f;
-        func_802D68F0(0x15);
+        setHourglassTimer(0x15);
         item_set(ITEM_6_HOURGLASS, 1);
     }//L8038EDC8
 
@@ -435,7 +435,7 @@ void chKazooieTarget_update(Actor *this){
 }
 
 void func_8038F004(void){
-    func_8025A6EC(SFX_2D_KABOING, 0x7fff);
+    comusic_playTrackWithVolumeOverride(SFX_2D_KABOING, 0x7fff);
 }
 
 void func_8038F028(UNK_TYPE(s32) arg0, ActorMarker *arg1, s32 arg2, s32 arg3){
@@ -448,8 +448,8 @@ void func_8038F028(UNK_TYPE(s32) arg0, ActorMarker *arg1, s32 arg2, s32 arg3){
         sp24[0] = (f32)arg1->propPtr->x;
         sp24[1] = (f32)arg1->propPtr->y;
         sp24[2] = (f32)arg1->propPtr->z;
-        __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x4e, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
-        func_8025A6EC(COMUSIC_2B_DING_B, 22000);
+        spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x4e, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
+        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 22000);
         if(mapSpecificFlags_get(arg3)){
             timedFunc_set_0(2.0f, func_8038F004);
         }
@@ -511,7 +511,7 @@ void GV_func_8038F154(void)
 }
 
 s32 func_8038F4C0(Actor *arg0, s32 arg1){
-    if( getGameMode() != GAME_MODE_7_ATTRACT_DEMO 
+    if( game_getMode() != GAME_MODE_7_ATTRACT_DEMO 
         && (0xDBF4E829 + *(s32*)PHYS_TO_K1(0x284))
     ){
         return arg1;

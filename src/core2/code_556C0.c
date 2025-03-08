@@ -20,7 +20,7 @@ ActorMarker *D_8037DE50;
 /* .code */
 void func_802DC650(Actor * this){
     D_8037DE50 = NULL;
-    func_8025A7DC(COMUSIC_AC_GOOD_ENDING);
+    comusic_stopTrack(COMUSIC_AC_GOOD_ENDING);
 }
 
 void func_802DC67C(Actor *this){
@@ -39,22 +39,22 @@ void func_802DC6E4(void) {
     if (D_8037DE50 == 0) {
         actor = actor_spawnWithYaw_f32(0x19C, D_80368070, 0);
         D_8037DE50 = actor->marker;
-        func_8025A58C(0, 5000);
-        func_8025AB00();
-        func_8025A6EC(COMUSIC_AC_GOOD_ENDING, -1);
+        playMusicWithFade(0, 5000);
+        comusic_stopMainTrackById();
+        comusic_playTrackWithVolumeOverride(COMUSIC_AC_GOOD_ENDING, -1);
     }
 }
 
 void func_802DC748(s32 arg0, s32 arg1){
     if(D_8037DE50 == NULL){
-        __spawnQueue_add_0(func_802DC6E4);
+        spawnQueue_add_0(func_802DC6E4);
     }
 }
 
 void func_802DC780(s32 arg0, s32 arg1){
     if(D_8037DE50 != NULL){
-        comusic_8025AB44(COMUSIC_AC_GOOD_ENDING, 0, 200);
-        func_8025AABC(0x31);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_AC_GOOD_ENDING, 0, 200);
+        comusic_stopTrackById(0x31);
         func_80326310(marker_getActor(D_8037DE50));
     }
 }

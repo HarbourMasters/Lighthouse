@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-BKCollisionTri *func_80309B48(f32 *, f32 *, f32 *, u32);
+BKCollisionTri *findCollisionTriAlongPath3(f32 *, f32 *, f32 *, u32);
 void func_8031C608(struct0 *this);
 void func_8031BD98(struct0 *, f32, s32, s32, f32 *, void *, BKCollisionTri *);
 
@@ -25,7 +25,7 @@ s32 func_8031B9B0(struct0 *this, s32 arg1){
 struct0 *func_8031B9D8(void){
     struct0 *this;
 
-    this = (struct0 *)malloc(0x60);
+    this = (struct0 *)heap_malloc(0x60);
     ml_vec3f_clear(this->unk1C);
     ml_vec3f_clear(this->unk28);
     this->normX = 0.0f;
@@ -52,7 +52,7 @@ void func_8031BA7C(struct0 *this){
 }
 
 void func_8031BA9C(struct0 *this){
-    free(this);
+    bk_free(this);
 }
 
 BKCollisionTri *func_8031BABC(f32 *arg0, f32 arg1, f32 arg2, u32 arg3, struct86s *arg4) {
@@ -65,9 +65,9 @@ BKCollisionTri *func_8031BABC(f32 *arg0, f32 arg1, f32 arg2, u32 arg3, struct86s
     ml_vec3f_copy(sp28, arg0);
     sp28[1] = sp28[1] + arg2;
     if (arg3 == 0xF800FF0F) {
-        sp24 = func_80309B48(&sp34, &sp28, arg4->unk0, arg3);
+        sp24 = findCollisionTriAlongPath3(&sp34, &sp28, arg4->unk0, arg3);
     } else {
-        sp24 = func_80320B98(&sp34, &sp28, arg4->unk0, arg3);
+        sp24 = findCollisionTriAlongPathWithFlags(&sp34, &sp28, arg4->unk0, arg3);
     }
     if (sp24 != 0) {
         arg4->flags = (s32) sp24->flags;
@@ -286,7 +286,7 @@ void func_8031C29C(struct0 *arg0) {
 
 void func_8031C444(struct0 * this){}
 
-void func_8031C44C(struct0 *arg0) {
+void adjustPositionIfBelowFloorLevel(struct0 *arg0) {
     struct86s sp3C;
     BKCollisionTri *sp38;
 
@@ -338,7 +338,7 @@ s32 func_8031C5A4(struct0 *this){
     return this->unk50;
 }
 
-void func_8031C5AC(struct0 *this, f32 *dst)
+void adjustPositionForFloorCollision(struct0 *this, f32 *dst)
 { ml_vec3f_copy(dst, &this->normX);
 }
 
@@ -370,11 +370,11 @@ void func_8031C608(struct0 *this){
     this->posZ = 56.0f;
 }
 
-void func_8031C618(struct0 *this, f32 *arg1){
+void adjustPositionWithNormalVector(struct0 *this, f32 *arg1){
     ml_vec3f_copy(this->unk1C, arg1);
 }
 
-void func_8031C638(struct0 *this, s32 arg1){
+void adjustPositionWithNormalAndYawAngle(struct0 *this, s32 arg1){
     this->unk54 = arg1;
 }
 

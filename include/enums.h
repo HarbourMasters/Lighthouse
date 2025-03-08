@@ -3,6 +3,11 @@
 
 #include "version.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #define SPRITE_TYPE_CI4 (1 << 0) //0x001
 #define SPRITE_TYPE_CI8 (1 << 2) //0x004
 #define SPRITE_TYPE_I4 (1 << 5)  //0x020
@@ -5399,5 +5404,9 @@ enum vegetable_e {
     VEGETABLE_2_BAWL,
     VEGETABLE_3_COLLY_WOBBLE
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

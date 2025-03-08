@@ -172,12 +172,12 @@ extern bool chfinalboss_isJinjonatorSpawned();
 // chbossjinfo.c
 extern void chbossjinjo_createSpriteParticles(f32 position[3], s32 count, enum asset_e sprite_id, f32 scale);
 extern void chbossjinjo_createNonShrinkingSpriteParticles(f32 position[3], s32 count, enum asset_e sprite_id, f32 scale);
-extern void chbossjinjo_func_8038C588(void);
-extern void chbossjinjo_func_8038C5BC(void);
+extern void chbossjinjo_setColorToDim(void);
+extern void chbossjinjo_setColorToBright(void);
 extern void chbossjinjo_spawnParticlesAtFinalBoss(Actor *this, enum asset_e sprite1_id, enum asset_e sprite2_id, f32 scale);
 extern void chbossjinjo_spawnAttackParticles(Actor *this);
 extern void chbossjinjo_rotateYaw(Actor *this, s16 angle);
-extern void chbossjinjo_func_8038C79C(Actor *this);
+extern void chbossjinjo_spawnRandomParticles(Actor *this);
 extern void chBossJinjo_update(Actor *this);
 extern void fight_createBlastParticle(f32 position[3], enum asset_e model_id, f32 scale_ratio, f32 fade_in);
 extern void chBossJinjo_update2(Actor *this);
@@ -187,7 +187,7 @@ extern f32 chbossjinjo_getWakeUpTime(void);
 // chbossjinjobase.c
 extern void chbossjinjobase_spawnStoneJinjo(ActorMarker *marker);
 extern void chBossJinjoBase_createSmokeParticles(f32 position[3], s32 count);
-extern void chBossJinjoBase_func_8038D3DC(Actor *this, s32 arg1, f32 arg2, f32 arg3, f32 arg4);
+extern void chBossJinjoBase_movePart(Actor *this, s32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void chBossJinjoBase_getHitByEgg(ActorMarker *this, ActorMarker *other);
 extern void chBossJinjoBase_free(Actor *this);
 extern void chBossJinjoBase_update(Actor *this);
@@ -224,7 +224,7 @@ extern void chSpellFireball_collisionDie(ActorMarker *marker, ActorMarker *other
 extern bool chSpellFireball_isPositionOverThreshold(f32 *position, f32 distance);
 extern void chSpellFireball_free(Actor *this);
 extern void chSpellFireball_update(Actor *this);
-extern void chSpellFireball_func_8038FB84(ActorMarker *marker, f32 *position, f32 *velocity, f32 *arg3);
+extern void chSpellFireball_setPositionAndVelocity(ActorMarker *marker, f32 *position, f32 *velocity, f32 *arg3);
 extern void chSpellFireball_resetSpellHits(void);
 extern void chSpellFireball_setLastSpellFired(bool value);
 

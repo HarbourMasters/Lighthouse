@@ -3,9 +3,11 @@
 #include "variables.h"
 
 #include "code_C9E70.h"
+#include "core2/modelRender.h"
+
 
 extern void func_8030DBFC(u32, f32, f32, f32);
-extern bool func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
+extern bool findCollisionTriInSphereWithFlags(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
 extern void fileProgressFlag_set(enum file_progress_e, bool);
 extern void sfxsource_set_fade_distances(u8, f32, f32);
 extern void sfxsource_set_position(u8, f32[3]);
@@ -66,7 +68,7 @@ void chBeeSwarm_802CEBA8(Actor *this){
     local = (ActorLocal_core2_47BD0 *)&this->local;
     this->unk100 = NULL;
     
-    free(local->unk8);
+    bk_free(local->unk8);
     local->unk8 = NULL;
     
     assetcache_release(local->unk20);
@@ -164,7 +166,7 @@ void chBeeSwarm_802CF040(Actor *this) {
     ActorLocal_core2_47BD0 *local;
 
     local = (ActorLocal_core2_47BD0 *) &this->local;
-    local->unk8 = (Struct_core2_47BD0_0 *) malloc(local->unk0 * sizeof(Struct_core2_47BD0_0));
+    local->unk8 = (Struct_core2_47BD0_0 *) heap_malloc(local->unk0 * sizeof(Struct_core2_47BD0_0));
     
     for(phi_s1 = 0, phi_s0 = local->unk8; phi_s1 < local->unk0; phi_s1++){
         phi_s0->unk0[0] = randf2(-150.0f, 150.0f);
@@ -221,7 +223,7 @@ void chBeeSwarm_802CF1C8(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3, f32 ar
     }
     if (arg5 != 0) {
         sp3C[0] = sp3C[1] = sp3C[2] = 0.0f;
-        func_8025727C(arg2[0], arg2[1], arg2[2], sp3C[0], sp3C[1], sp3C[2], arg5, arg5 + 1);
+        ml_vec3f_angles_between_points(arg2[0], arg2[1], arg2[2], sp3C[0], sp3C[1], sp3C[2], arg5, arg5 + 1);
     }
 }
 
@@ -278,9 +280,9 @@ void chBeeSwarm_802CF610(Actor *this, ParticleEmitter *p_ctrl, f32 position[3]) 
     func_8030E6A4(SFX_66_BIRD_AUUGHH, randf2(1.75f, 1.85f), 15000);
     particleEmitter_setPosition(p_ctrl, position);
     particleEmitter_setDrawMode(p_ctrl, 2);
-    particleEmitter_func_802EF9F8(p_ctrl, 0.5f);
-    particleEmitter_func_802EFA18(p_ctrl, 3);
-    func_802EFA20(p_ctrl, 0.8f, 1.0f);
+    particleEmitter_setBounceFactor(p_ctrl, 0.5f);
+    particleEmitter_setCollisionCount(p_ctrl, 3);
+    particleEmitter_setSfxPitchRange(p_ctrl, 0.8f, 1.0f);
     particleEmitter_setSfx(p_ctrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(p_ctrl, 2.0f, 2.5f);
@@ -349,7 +351,7 @@ void chBeeSwarm_update(Actor *this) {
         
         position[1] += 50.0f;
         next_position[1] -= 500.0f;
-        if (func_80309B48(position, next_position, sp7C, 0x5E0000)) {
+        if (findCollisionTriAlongPath3(position, next_position, sp7C, 0x5E0000)) {
             local->unk18 = next_position[1];
         }
     }
@@ -403,7 +405,7 @@ void chBeeSwarm_update(Actor *this) {
     next_position[1] = this->position[1] + (this->velocity[1] * dt);
     next_position[2] = this->position[2] + (this->velocity[2] * dt);
     if (this->state != 7) {
-        if (func_80309DBC(position, next_position, 75.0f, sp7C, 3, 0)) {
+        if (findCollisionTriInSphereWithFlags(position, next_position, 75.0f, sp7C, 3, 0)) {
             ml_vec3f_normalize(sp7C);
             temp_f0 = (this->velocity[0]*sp7C[0] + this->velocity[1]*sp7C[1] + this->velocity[2]*sp7C[2]) * -1.5;
             this->velocity[0] = this->velocity[0] + (sp7C[0] * temp_f0);
@@ -427,7 +429,7 @@ void chBeeSwarm_update(Actor *this) {
             next_position[2] = this->position[2];
             position[1] += 1000.0f;
             next_position[1] -= 1000.0f;
-            if (func_80309B48(position, next_position, sp7C, 0xF800FF0F)) {
+            if (findCollisionTriAlongPath3(position, next_position, sp7C, 0xF800FF0F)) {
                 local->unk1C = next_position[1];
             } else {
                 local->unk1C = -16000.0f;

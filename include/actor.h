@@ -1,6 +1,10 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ACTOR_FLAG_NONE     (0)
 #define ACTOR_FLAG_UNKNOWN_0 (1 << 0)   // 0x1
 #define ACTOR_FLAG_UNKNOWN_1 (1 << 1)   // 0x2
@@ -30,5 +34,8 @@
 #define ACTOR_FLAG_UNKNOWN_25 (1 << 25) // 0x2000000
 #define ACTOR_FLAG_UNKNOWN_26 (1 << 26) // 0x4000000
 #define ACTOR_FLAG_UNKNOWN_27 (1 << 27) // 0x4000000
+#ifdef __cplusplus
+}
+#endif
 
 #endif // ACTOR_H

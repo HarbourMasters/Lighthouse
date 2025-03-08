@@ -71,10 +71,10 @@ struct {
 /* .code */
 void func_8038A140(UNK_TYPE(s32) arg0) {
     if (arg0 == 2) {
-        func_80324E38(0.3f, 3);
+        setCameraModeAtTime(0.3f, 3);
         timed_setStaticCameraToNode(0.3f, 1);
         timedFunc_set_2(0.3f, mapSpecificFlags_set, MMM_SPECIFIC_FLAG_3_UNKNOWN, TRUE);
-        func_80324E38(3.0f, 0);
+        setCameraModeAtTime(3.0f, 0);
         timed_exitStaticCamera(3.0f);
         timedFunc_set_1(3.0f, func_8038A140, 3);
     }
@@ -140,7 +140,7 @@ void MMM_func_8038A54C(Struct_MMM_3D50_0 *arg0, s32 arg1){
     arg0->unk3 = arg1;
     arg0->unk4 = 0.0f;
     if(arg1 == 1 && v0 != arg1){
-        func_8025A6EC(COMUSIC_2C_BUZZER, 32000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2C_BUZZER, 32000);
     }
 }
 
@@ -194,10 +194,10 @@ void func_8038A82C(Struct_MMM_3D50_0 * arg0){
             if( iPtr->unk0[iPtr->unk4] == 0){
                 func_8038A140(5);
                 chTumblar_congratulate(MMM_D_8038C510.unkC, MMM_D_8038C510.unk10);
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
             }
             else{
-                func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
             }
         }
     }

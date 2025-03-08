@@ -127,7 +127,7 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
         sp44[1] = 0.0f;
         sp44[2] = 1.0f;
         mlMtxIdent();
-        func_80252C08(NULL, sp2C, 1.0f, NULL);
+        mlMtx_transform_with_scale(NULL, sp2C, 1.0f, NULL);
         mlMtx_apply_vec3f(sp44, sp44);
         player_getPosition(sp50);
         sp50[1] += 50.0f;
@@ -147,7 +147,7 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
 void func_80387CC0(void){
     f32 sp1C[3];
     s32 tmp_v0;
-    if(getGameMode() == GAME_MODE_7_ATTRACT_DEMO)
+    if(game_getMode() == GAME_MODE_7_ATTRACT_DEMO)
         return;
 
     viewport_getRotation_vec3f(sp1C);

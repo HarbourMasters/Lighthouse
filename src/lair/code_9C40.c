@@ -44,7 +44,7 @@ void func_803900EC(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     func_8028F918(0);
     if (!fileProgressFlag_get(sp1C + FILEPROG_AD_CHEATO_BLUEEGGS_UNLOCKED)) {
         fileProgressFlag_set(sp1C + FILEPROG_AD_CHEATO_BLUEEGGS_UNLOCKED, 1);
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
     }
 }
 
@@ -72,8 +72,8 @@ void func_80390174(ActorMarker *marker, s32 arg1) {
 void func_8039024C(Actor *this){
     if(this->unk38_0){
         func_8032BB88(this, -1, 0x1f4);
-        comusic_8025AB44(COMUSIC_79_CHEATO, 0, 500);
-        func_8025AABC(COMUSIC_79_CHEATO);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_79_CHEATO, 0, 500);
+        comusic_stopTrackById(COMUSIC_79_CHEATO);
     }
 }
 
@@ -97,8 +97,8 @@ void func_803902B8(Actor *this) {
     sp58 = ml_vec3f_within_distance(this->position, sp5C, 1750.0f) && !this->has_met_before;
     if (sp58 && !this->unk38_0) {
         func_8032BB88(this, 0, 0x1F4);
-        func_8025A6EC(COMUSIC_79_CHEATO, 0);
-        comusic_8025AB44(COMUSIC_79_CHEATO, -1, 0x1F4);
+        comusic_playTrackWithVolumeOverride(COMUSIC_79_CHEATO, 0);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_79_CHEATO, -1, 0x1F4);
     }
     else if (!sp58 && this->unk38_0) {
         func_8039024C(this);
@@ -107,7 +107,7 @@ void func_803902B8(Actor *this) {
     sp58 = ml_vec3f_within_distance(this->position, sp5C, 400.0f);
     if (fileProgressFlag_get(sp54 + FILEPROG_AD_CHEATO_BLUEEGGS_UNLOCKED)) {
         controller_copyFaceButtons(0, sp3C);
-        sp58 &= (sp3C[FACE_BUTTON(BUTTON_B)] == 1) || func_8028EC04();
+        sp58 &= (sp3C[FACE_BUTTON(BUTTON_B)] == 1) || isPlayerInWater();
     }
     if (sp58 && !*(s32 *)&this->local) {
         func_80390174(this->marker, 0);

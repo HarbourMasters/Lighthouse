@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "time.h"
+#include "bk_time.h"
 
 #define _73640_MAX(s,t) ((s < t)? t: s)
 #define _73640_MIN(s,t) ((s > t)? t: s)
@@ -142,7 +142,7 @@ void itemPrint_update(void) {
                     itemPrintValues[i] += (sign * _73640_MIN(time_getDelta() * _73640_MAX(diff, 8.0f), 1.0));
                 }
                 if ((D_80381168[i] != 0) && ((globalTimer_getTime() & 7) == 0)) {
-                    func_8025A6EC(D_80381168[i], 32000);
+                    comusic_playTrackWithVolumeOverride(D_80381168[i], 32000);
                 }
                 if (D_80381378[i] != 0) {
                     if ((D_80381478[i] != 0) && ((s32) diff != D_80381478[i])) {
@@ -161,7 +161,7 @@ void itemPrint_update(void) {
                 if (item_getCount(i) == (s32) (itemPrintValues[i] + 0.01)) {
                     do{
                         if (D_803812C8[i] != 0) { 
-                            func_8025A6EC(D_803812C8[i], 0x7D00);
+                            comusic_playTrackWithVolumeOverride(D_803812C8[i], 0x7D00);
                         }
                         
                         D_80381378[i] = 0;
@@ -186,7 +186,7 @@ void itemPrint_draw(Gfx **gdl, Mtx ** mptr, Vtx **vptr){
     s32 i;
     if(D_803810B0 && level_get() != LEVEL_D_CUTSCENE){
         for(i = 0; i < 0x2C; i++){
-            if(!func_802E4A08() || i < 6){
+            if(!game_isSpecialMode() || i < 6){
                 if(func_802FB0D4(D_803692F8[i].unk14)){
                     D_803692F8[i].unk8(i, D_803692F8[i].unk14, gdl, mptr, vptr);
                 }
@@ -235,7 +235,7 @@ void itemPrint_init(void){
         D_80381428[i] = assetcache_get(D_803692E0[i]);
     }
     for(i = 0; D_803692EC[i] != -1; i++){
-        D_80381450[i] = func_8033B6C4(D_803692EC[i], &sp40);
+        D_80381450[i] = assetCache_releaseSound(D_803692EC[i], &sp40);
     }
 }
 

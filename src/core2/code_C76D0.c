@@ -9,7 +9,7 @@ void func_8034E660(s32 arg0, BKVtxRef *src, Vtx *dst, Struct73s *arg3) {
     dst->v.tc[1] = src->v.v.tc[1] + arg3->d_tc[1];
 }
 
-s32 func_8034E698(Struct73s *arg0){
+s32 getCollisionHeightFromWaterSurface(Struct73s *arg0){
     return arg0->dy;
 }
 

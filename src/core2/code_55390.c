@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
 
 extern void actor_postdrawMethod(ActorMarker *);
 
@@ -58,7 +59,7 @@ Actor *func_802DC320(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
 void func_802DC430(Actor * this){
     D_8037DE40 = NULL;
-    func_8025A7DC(COMUSIC_31_GAME_OVER);
+    comusic_stopTrack(COMUSIC_31_GAME_OVER);
 }
 
 void func_802DC45C(Actor *this){
@@ -77,22 +78,22 @@ void func_802DC4C4(void) {
     if (D_8037DE40 == 0) {
         actor = actor_spawnWithYaw_f32(ACTOR_1DB_GAME_OVER, D_80368040, 0);
         D_8037DE40 = actor->marker;
-        func_8025A58C(0, 5000);
-        func_8025AB00();
-        func_8025A6EC(COMUSIC_31_GAME_OVER, -1);
+        playMusicWithFade(0, 5000);
+        comusic_stopMainTrackById();
+        comusic_playTrackWithVolumeOverride(COMUSIC_31_GAME_OVER, -1);
     }
 }
 
 void func_802DC528(NodeProp *arg0, ActorMarker *arg1){
     if(D_8037DE40 == NULL){
-        __spawnQueue_add_0(func_802DC4C4);
+        spawnQueue_add_0(func_802DC4C4);
     }
 }
 
 void func_802DC560(s32 arg0, s32 arg1){
     if(D_8037DE40 != NULL){
-        comusic_8025AB44(COMUSIC_31_GAME_OVER, 0, 200);
-        func_8025AABC(COMUSIC_31_GAME_OVER);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_31_GAME_OVER, 0, 200);
+        comusic_stopTrackById(COMUSIC_31_GAME_OVER);
         func_80326310(marker_getActor(D_8037DE40));
     }
 }

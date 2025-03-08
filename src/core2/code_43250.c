@@ -160,7 +160,7 @@ void func_802CA1E0(Actor *this){
         reinterpret_cast(s32, this->unkBC[4]) = D_80366E64[tmp_v1].unk4;
         reinterpret_cast(s32, this->unkBC[0]) = 0;
     }
-    if(func_8025AEEC() && this->unk154){
+    if(comusic_isTrackPlaying() && this->unk154){
         tmp_v0 = (Struct_Core2_43250_1 *)this->unk154 + reinterpret_cast(s32, this->unkBC[0]);
         phi_a0 = tmp_v0->unk0;
         tmp_f4 = tmp_v0->unk2*0.0078125;

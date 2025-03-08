@@ -475,7 +475,7 @@ void chSmBottles_update(Actor *this) {
     }//L80389B20
 
     if (!this->volatile_initialized) {
-        __spawnQueue_add_1((GenFunction_1) __chSmBottles_spawnMolehill, reinterpret_cast(s32, this->marker));
+        spawnQueue_add_1((GenFunction_1) __chSmBottles_spawnMolehill, reinterpret_cast(s32, this->marker));
         this->volatile_initialized = TRUE;
     }//L80389B4C
 
@@ -507,7 +507,7 @@ void chSmBottles_update(Actor *this) {
                 }
             }
             else {//L80389CBC
-                if (!func_80329530(this, 0xfa) || player_movementGroup() || !func_8028F20C() || func_8028EC04()) {
+                if (!func_80329530(this, 0xfa) || player_movementGroup() || !func_8028F20C() || isPlayerInWater()) {
                     break;
                 }
 

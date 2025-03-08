@@ -39,11 +39,11 @@
  * Exception vectors
  */
 #define SIZE_EXCVEC	0x80			/* Size of an exc. vec */
-#define	UT_VEC		K0BASE			/* utlbmiss vector */
-#define	R_VEC		(K1BASE+0x1fc00000)	/* reset vector */
+#define	UT_VEC		K0BASE			/* utlbmiss bk_vector */
+#define	R_VEC		(K1BASE+0x1fc00000)	/* reset bk_vector */
 #define	XUT_VEC		(K0BASE+0x80)		/* extended address tlbmiss */
-#define	ECC_VEC		(K0BASE+0x100)		/* Ecc exception vector */
-#define	E_VEC		(K0BASE+0x180)		/* Gen. exception vector */
+#define	ECC_VEC		(K0BASE+0x100)		/* Ecc exception bk_vector */
+#define	E_VEC		(K0BASE+0x180)		/* Gen. exception bk_vector */
 
 /*
  * Address conversion macros

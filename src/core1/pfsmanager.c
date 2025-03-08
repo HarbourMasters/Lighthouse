@@ -6,403 +6,474 @@
 
 #include "version.h"
 
-
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 
 extern struct {
-    u8 pad0[4];
-    s32 unk4; 
-    u8 pad8[4];
-    s32 unkC; 
-} D_80379B90;
+  u8 pad0[4];
+  s32 unk4;
+  u8 pad8[4];
+  s32 unkC;
+} controllerState;
 
-extern s32 D_803727F4;
-extern s32 D_80276574;
+extern s32 previousControllerState;
+extern s32 currentControllerState;
 
 /* .data */
 #if VERSION == VERSION_USA_1_0
-    s32 D_80275D30 = 0xC3A68832; //WHAT IS THIS?
-    s32 D_80275D34 = 0xDDC3A724; //WHAT IS THIS?
+s32 checksumValue1 = 0xC3A68832; // WHAT IS THIS?
+s32 checksumValue2 = 0xDDC3A724; // WHAT IS THIS?
 #elif VERSION == VERSION_PAL
-    s32 D_80275D30 = 0xED7BCDB7; //WHAT IS THIS?
-    s32 D_80275D34 = 0xF82DC7AC; //WHAT IS THIS?
+s32 checksumValue1 = 0xED7BCDB7; // WHAT IS THIS?
+s32 checksumValue2 = 0xF82DC7AC; // WHAT IS THIS?
 #endif
 
-static s32 D_80275D38 = 0;
+static s32 isMessageQueueInitialized = 0;
 
 /* .bss */
-UNK_TYPE(s32) D_802810E0[4][5];
-u8 pfsManagerBitPattern;
-PfsManagerControllerData D_80281138[4];
-PfsManagerControllerData D_80281218;
-Struct_core1_10A00_1 D_80281250[4];
-OSMesg pfsManagerContPollingMsqBuf;
-OSMesg pfsManagerContReplyMsgBuf;
-OSContPad pfsManagerContPadData[4];
-OSContPad D_802812D0;
-OSMesgQueue pfsManagerContPollingMsqQ;
-OSMesgQueue pfsManagerContReplyMsgQ;
-f32 D_80281308[4];
-OSContStatus pfsManagerContStatus;
+UNK_TYPE(s32) buttonPressCounts[4][5];
+u8 controllerBitPattern;
+PfsManagerControllerData controllerData[4];
+PfsManagerControllerData firstControllerData;
+Struct_core1_10A00_1 controllerStateData[4];
+OSMesg contPollingMessageBuffer;
+OSMesg contReplyMessageBuffer;
+OSContPad contPadData[4];
+OSContPad currentControllerData;
+OSMesgQueue contPollingMessageQueue;
+OSMesgQueue contReplyMessageQueue;
+f32 joystickIdleTimes[4];
+OSContStatus contStatus;
 u8 pad_D_80281320[0x8];
-volatile s32 pfsManagerBusy;
-OSThread sPfsManagerThread;
-u8 sPfsManagerThreadStack[PFSMANAGER_THREAD_STACK_SIZE];
-f32 D_802816E0;
-OSMesgQueue D_802816E8;
-OSMesg D_80281700[4];
+volatile s32 isPfsManagerBusy;
+OSThread pfsManagerThread;
+u8 pfsManagerThreadStack[PFSMANAGER_THREAD_STACK_SIZE];
+f32 demoPlaybackTime;
+OSMesgQueue pfsManagerMessageQueue;
+OSMesg pfsManagerMessageBuffer[4];
 u8 pad_D_80281710[1];
 
-f32 func_8024E420(s32 arg0, s32 arg1, s32 arg2) {
-    f32 phi_f2;
+f32 pfsManager_calculateStickValue(s32 arg0, s32 arg1, s32 arg2) {
+  f32 phi_f2;
 
-    phi_f2 = 0.0125f;
-    if ((D_80379B90.unk4 != D_803727F4) || (D_80379B90.unkC != D_80276574)) {
-        phi_f2 = 0.00625f;
+  phi_f2 = 0.0125f;
+  if ((controllerState.unk4 != previousControllerState) || (controllerState.unkC != currentControllerState)) {
+    phi_f2 = 0.00625f;
+  }
+  if (arg0 > 0) {
+    arg0 = (arg2 < arg0) ? arg2 : (arg0 < arg1) ? arg1 : arg0;
+    arg0 = (s32)((arg0 - arg1) * 0x50) / (s32)(arg2 - arg1);
+  } else {
+    if (arg0 < 0) {
+      arg0 = (arg0 < -arg2) ? -arg2 : (-arg1 < arg0) ? -arg1 : arg0;
+      arg0 = (s32)((arg0 + arg1) * 0x50) / (s32)(arg2 - arg1);
     }
-    if (arg0 > 0) {
-        arg0 = (arg2 < arg0) ? arg2 : (arg0 < arg1) ? arg1 : arg0;
-        arg0 = (s32) ((arg0 - arg1) * 0x50) / (s32) (arg2 - arg1);
-    } else {
-        if (arg0 < 0) {
-            arg0 = (arg0 < -arg2) ? -arg2 : (-arg1 < arg0) ? -arg1 : arg0;
-            arg0 = (s32) ((arg0 + arg1) * 0x50) / (s32) (arg2 - arg1);
-        }
-    }
-    return phi_f2 *= arg0;
+  }
+  return phi_f2 *= arg0;
 }
 
-void controller_copyFaceButtons(s32 controller_index, s32 dst[6]){
-    dst[FACE_BUTTON(BUTTON_A)]       = D_80281138[controller_index].face_button[FACE_BUTTON(BUTTON_A)];
-    dst[FACE_BUTTON(BUTTON_B)]       = D_80281138[controller_index].face_button[FACE_BUTTON(BUTTON_B)];
-    dst[FACE_BUTTON(BUTTON_C_LEFT)]  = D_80281138[controller_index].face_button[FACE_BUTTON(BUTTON_C_LEFT)];
-    dst[FACE_BUTTON(BUTTON_C_DOWN)]  = D_80281138[controller_index].face_button[FACE_BUTTON(BUTTON_C_DOWN)];
-    dst[FACE_BUTTON(BUTTON_C_UP)]    = D_80281138[controller_index].face_button[FACE_BUTTON(BUTTON_C_UP)];
-    dst[FACE_BUTTON(BUTTON_C_RIGHT)] = D_80281138[controller_index].face_button[FACE_BUTTON(BUTTON_C_RIGHT)];
+void controller_copyFaceButtons(s32 controller_index, s32 dst[6]) {
+  dst[FACE_BUTTON(BUTTON_A)] =
+      controllerData[controller_index].face_button[FACE_BUTTON(BUTTON_A)];
+  dst[FACE_BUTTON(BUTTON_B)] =
+      controllerData[controller_index].face_button[FACE_BUTTON(BUTTON_B)];
+  dst[FACE_BUTTON(BUTTON_C_LEFT)] =
+      controllerData[controller_index].face_button[FACE_BUTTON(BUTTON_C_LEFT)];
+  dst[FACE_BUTTON(BUTTON_C_DOWN)] =
+      controllerData[controller_index].face_button[FACE_BUTTON(BUTTON_C_DOWN)];
+  dst[FACE_BUTTON(BUTTON_C_UP)] =
+      controllerData[controller_index].face_button[FACE_BUTTON(BUTTON_C_UP)];
+  dst[FACE_BUTTON(BUTTON_C_RIGHT)] =
+      controllerData[controller_index].face_button[FACE_BUTTON(BUTTON_C_RIGHT)];
 }
 
-void pfsManager_getFirstControllerFaceButtonState(s32 controller_index, s32 dst[6]){
-    dst[FACE_BUTTON(BUTTON_A)]       = D_80281218.face_button[FACE_BUTTON(BUTTON_A)];
-    dst[FACE_BUTTON(BUTTON_B)]       = D_80281218.face_button[FACE_BUTTON(BUTTON_B)];
-    dst[FACE_BUTTON(BUTTON_C_LEFT)]  = D_80281218.face_button[FACE_BUTTON(BUTTON_C_LEFT)];
-    dst[FACE_BUTTON(BUTTON_C_DOWN)]  = D_80281218.face_button[FACE_BUTTON(BUTTON_C_DOWN)];
-    dst[FACE_BUTTON(BUTTON_C_UP)]    = D_80281218.face_button[FACE_BUTTON(BUTTON_C_UP)];
-    dst[FACE_BUTTON(BUTTON_C_RIGHT)] = D_80281218.face_button[FACE_BUTTON(BUTTON_C_RIGHT)];
+void pfsManager_getFirstControllerFaceButtonState(s32 controller_index,
+                                                  s32 dst[6]) {
+  dst[FACE_BUTTON(BUTTON_A)] = firstControllerData.face_button[FACE_BUTTON(BUTTON_A)];
+  dst[FACE_BUTTON(BUTTON_B)] = firstControllerData.face_button[FACE_BUTTON(BUTTON_B)];
+  dst[FACE_BUTTON(BUTTON_C_LEFT)] =
+      firstControllerData.face_button[FACE_BUTTON(BUTTON_C_LEFT)];
+  dst[FACE_BUTTON(BUTTON_C_DOWN)] =
+      firstControllerData.face_button[FACE_BUTTON(BUTTON_C_DOWN)];
+  dst[FACE_BUTTON(BUTTON_C_UP)] =
+      firstControllerData.face_button[FACE_BUTTON(BUTTON_C_UP)];
+  dst[FACE_BUTTON(BUTTON_C_RIGHT)] =
+      firstControllerData.face_button[FACE_BUTTON(BUTTON_C_RIGHT)];
 }
 
-s32 func_8024E5E8(s32 arg0, s32 arg1){
-    return D_802810E0[arg0][arg1];
+s32 pfsManager_getButtonPressCount(s32 arg0, s32 arg1) {
+  return buttonPressCounts[arg0][arg1];
 }
 
-s32 func_8024E60C(s32 controller_index, s32 dst[3]){
-    dst[SIDE_BUTTON(BUTTON_Z)]       = D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_Z)];
-    dst[SIDE_BUTTON(BUTTON_L)]       = D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_L)];
-    dst[SIDE_BUTTON(BUTTON_R)]       = D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_R)];
+s32 pfsManager_getSideButtonState(s32 controller_index, s32 dst[3]) {
+  dst[SIDE_BUTTON(BUTTON_Z)] =
+      controllerData[controller_index].side_button[SIDE_BUTTON(BUTTON_Z)];
+  dst[SIDE_BUTTON(BUTTON_L)] =
+      controllerData[controller_index].side_button[SIDE_BUTTON(BUTTON_L)];
+  dst[SIDE_BUTTON(BUTTON_R)] =
+      controllerData[controller_index].side_button[SIDE_BUTTON(BUTTON_R)];
 }
 
-s32 func_8024E640(s32 controller_index, s32 dst[3]){
-    dst[SIDE_BUTTON(BUTTON_Z)]       = D_80281218.side_button[SIDE_BUTTON(BUTTON_Z)];
-    dst[SIDE_BUTTON(BUTTON_L)]       = D_80281218.side_button[SIDE_BUTTON(BUTTON_L)];
-    dst[SIDE_BUTTON(BUTTON_R)]       = D_80281218.side_button[SIDE_BUTTON(BUTTON_R)];
+s32 pfsManager_getFirstControllerSideButtonState(s32 controller_index,
+                                                 s32 dst[3]) {
+  dst[SIDE_BUTTON(BUTTON_Z)] = firstControllerData.side_button[SIDE_BUTTON(BUTTON_Z)];
+  dst[SIDE_BUTTON(BUTTON_L)] = firstControllerData.side_button[SIDE_BUTTON(BUTTON_L)];
+  dst[SIDE_BUTTON(BUTTON_R)] = firstControllerData.side_button[SIDE_BUTTON(BUTTON_R)];
 }
 
-f32 func_8024E668(s32 controller_index){
-    return D_80281308[controller_index];
+f32 pfsManager_getJoystickIdleTime(s32 controller_index) {
+  return joystickIdleTimes[controller_index];
 }
 
-s32 controller_getStartButton(s32 controller_index){
-    return D_80281138[controller_index].start_button;
+s32 controller_getStartButton(s32 controller_index) {
+  return controllerData[controller_index].start_button;
 }
 
-s32 func_8024E698(s32 controller_index){
-    if(globalTimer_getTime() < 2){
-        return 0;
-    }
-    
-    return D_80281138[controller_index].start_button;
+s32 pfsManager_getStartButtonState(s32 controller_index) {
+  if (globalTimer_getTime() < 2) {
+    return 0;
+  }
+
+  return controllerData[controller_index].start_button;
 }
 
-void func_8024E6E0(s32 controller_index, s32 dst[4]){
-    dst[0] = D_80281138[controller_index].unk24[0];
-    dst[1] = D_80281138[controller_index].unk24[1];
-    dst[2] = D_80281138[controller_index].unk24[2];
-    dst[3] = D_80281138[controller_index].unk24[3];
+void pfsManager_getUnknownButtonState(s32 controller_index, s32 dst[4]) {
+  dst[0] = controllerData[controller_index].unk24[0];
+  dst[1] = controllerData[controller_index].unk24[1];
+  dst[2] = controllerData[controller_index].unk24[2];
+  dst[3] = controllerData[controller_index].unk24[3];
 }
 
-void controller_getJoystick(s32 controller_index, f32 dst[2]){
-    if(func_802E4A08()){
-        dst[0] = D_80281250[controller_index].joystick[0];
-        dst[1] = D_80281250[controller_index].joystick[1];
-    }
-    else{
-        dst[0] = func_8024E420(pfsManagerContPadData[controller_index].stick_x, 7, 0x3B);
-        dst[1] = func_8024E420(pfsManagerContPadData[controller_index].stick_y, 7, 0x3D);
-    }
+void controller_getJoystick(s32 controller_index, f32 dst[2]) {
+  if (game_isSpecialMode()) {
+    dst[0] = controllerStateData[controller_index].joystick[0];
+    dst[1] = controllerStateData[controller_index].joystick[1];
+  } else {
+    dst[0] = pfsManager_calculateStickValue(
+        contPadData[controller_index].stick_x, 7, 0x3B);
+    dst[1] = pfsManager_calculateStickValue(
+        contPadData[controller_index].stick_y, 7, 0x3D);
+  }
 }
 
 void pfsManager_update(void) {
-    int j;
-    int i;
-    u32 sp5C;
-    u32 s0;
-    u32 temp_t6;
-    u32 temp_v0_3;
-    u32 var_a2;
-    if (func_8023E000() == 3) {
-        func_802E4384();
+  int j;
+  int i;
+  u32 sp5C;
+  u32 s0;
+  u32 temp_t6;
+  u32 temp_v0_3;
+  u32 var_a2;
+  if (system_getCurrentMode() == 3) {
+    game_updateTime();
+  }
+
+  osSetThreadPri(0, 0x29);
+
+  currentControllerData.stick_x = contPadData[0].stick_x;
+  currentControllerData.stick_y = contPadData[0].stick_y;
+  currentControllerData.button = contPadData[0].button;
+  if ((game_getMode() == GAME_MODE_6_FILE_PLAYBACK) ||
+      (game_getMode() == GAME_MODE_7_ATTRACT_DEMO) ||
+      (game_getMode() == GAME_MODE_8_BOTTLES_BONUS) ||
+      (game_getMode() == GAME_MODE_A_SNS_PICTURE) ||
+      (game_getMode() == GAME_MODE_9_BANJO_AND_KAZOOIE)) {
+    s0 = 0x1000;
+    if (gctransition_done()) {
+      demoPlaybackTime += time_getDelta();
+    }
+    if ((demoPlaybackTime < 1.0) ||
+        (game_getMode() == GAME_MODE_9_BANJO_AND_KAZOOIE)) {
+      s0 = 0;
+    }
+    temp_t6 = demo_readInput(&contPadData, &sp5C) == 0;
+    if ((currentControllerData.button & s0) || temp_t6) {
+      if (currentControllerData.button & s0) {
+        volatileFlag_set(VOLATILE_FLAG_64, 1);
+      } else {
+        volatileFlag_set(VOLATILE_FLAG_63, 1);
+      }
+    }
+    time_setDeltaReal_frames(sp5C);
+  }
+  sp5C = time_getDeltaReal_frames();
+  randf();
+  for (i = 0; i < 4; i++) {
+    if ((contPadData[i].button & 0x20) &&
+        (contPadData[i].button & 0x10)) {
+      buttonPressCounts[i][0] = (contPadData[i].button & 0x0004)
+                             ? (buttonPressCounts[i][0] + 1)
+                             : (0);
+      buttonPressCounts[i][1] = (contPadData[i].button & 0x2000)
+                             ? (buttonPressCounts[i][1] + 1)
+                             : (0);
+      buttonPressCounts[i][2] = (contPadData[i].button & 0x8000)
+                             ? (buttonPressCounts[i][2] + 1)
+                             : (0);
+      buttonPressCounts[i][3] = (contPadData[i].button & 0x4000)
+                             ? (buttonPressCounts[i][3] + 1)
+                             : (0);
+      buttonPressCounts[i][4] =
+          (currentControllerData.button & 0x4000) ? (buttonPressCounts[i][4] + 1) : (0);
+      for (j = 0; j < 0xE; j++) {
+        ((s32 *)(&controllerData[i]))[j] = 0;
+      }
+
+      for (j = 0; (j < 0xE) && (i == 0); j++) {
+        ((s32 *)(&firstControllerData))[j] = 0;
+      }
+
+      controllerStateData[i].unk0 = 0;
+      controllerStateData[i].unk2 = 0;
+      controllerStateData[i].unk4 = 0;
+      controllerStateData[i].unk6 = 0;
+      controllerStateData[i].joystick[0] = 0.0f;
+      controllerStateData[i].joystick[1] = 0.0f;
+      controllerStateData[i].unk8[0] = 0.0f;
+      controllerStateData[i].unk8[1] = 0.0f;
+      continue;
     }
 
-    osSetThreadPri(0, 0x29);
-
-    D_802812D0.stick_x = pfsManagerContPadData[0].stick_x;
-    D_802812D0.stick_y = pfsManagerContPadData[0].stick_y;
-    D_802812D0.button = pfsManagerContPadData[0].button;
-    if ((getGameMode() == GAME_MODE_6_FILE_PLAYBACK) 
-        || (getGameMode() == GAME_MODE_7_ATTRACT_DEMO)
-        || (getGameMode() == GAME_MODE_8_BOTTLES_BONUS)
-        || (getGameMode() == GAME_MODE_A_SNS_PICTURE)
-        || (getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE)
-    ) {
-        s0 = 0x1000;
-        if (gctransition_done()) {
-            D_802816E0 += time_getDelta();
-        }
-        if ((D_802816E0 < 1.0) || (getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE)) {
-            s0 = 0;
-        }
-        temp_t6 = demo_readInput(&pfsManagerContPadData, &sp5C) == 0;
-        if ((D_802812D0.button & s0) || temp_t6) {
-            if (D_802812D0.button & s0) {
-                volatileFlag_set(VOLATILE_FLAG_64, 1);
-            } else {
-                volatileFlag_set(VOLATILE_FLAG_63, 1);
-            }
-        }
-        time_setDeltaReal_frames(sp5C);
-    }
-    sp5C = time_getDeltaReal_frames();
-    randf();
-    for (i = 0; i < 4; i++) {
-        if ((pfsManagerContPadData[i].button & 0x20) && (pfsManagerContPadData[i].button & 0x10)) {
-            D_802810E0[i][0] = (pfsManagerContPadData[i].button & 0x0004) ? (D_802810E0[i][0] + 1) : (0);
-            D_802810E0[i][1] = (pfsManagerContPadData[i].button & 0x2000) ? (D_802810E0[i][1] + 1) : (0);
-            D_802810E0[i][2] = (pfsManagerContPadData[i].button & 0x8000) ? (D_802810E0[i][2] + 1) : (0);
-            D_802810E0[i][3] = (pfsManagerContPadData[i].button & 0x4000) ? (D_802810E0[i][3] + 1) : (0);
-            D_802810E0[i][4] = (D_802812D0.button & 0x4000) ? (D_802810E0[i][4] + 1) : (0);
-            for (j = 0; j < 0xE; j++)
-            {
-                ((s32 *) (&D_80281138[i]))[j] = 0;
-            }
-
-            for (j = 0; (j < 0xE) && (i == 0); j++)
-            {
-                ((s32 *) (&D_80281218))[j] = 0;
-            }
-
-            D_80281250[i].unk0 = 0;
-            D_80281250[i].unk2 = 0;
-            D_80281250[i].unk4 = 0;
-            D_80281250[i].unk6 = 0;
-            D_80281250[i].joystick[0] = 0.0f;
-            D_80281250[i].joystick[1] = 0.0f;
-            D_80281250[i].unk8[0] = 0.0f;
-            D_80281250[i].unk8[1] = 0.0f;
-            continue;
-        }
-
-        for (j = 0; j < 5; j++) {
-            D_802810E0[i][j] = 0;
-        }
-
-        D_80281138[i].face_button[0] = (pfsManagerContPadData[i].button & 0x8000) ? (D_80281138[i].face_button[0] + 1) : (0);
-        D_80281138[i].face_button[1] = (pfsManagerContPadData[i].button & 0x4000) ? (D_80281138[i].face_button[1] + 1) : (0);
-        D_80281138[i].face_button[2] = (pfsManagerContPadData[i].button & 0x0002) ? (D_80281138[i].face_button[2] + 1) : (0);
-        D_80281138[i].face_button[3] = (pfsManagerContPadData[i].button & 0x0004) ? (D_80281138[i].face_button[3] + 1) : (0);
-        D_80281138[i].face_button[4] = (pfsManagerContPadData[i].button & 0x0008) ? (D_80281138[i].face_button[4] + 1) : (0);
-        D_80281138[i].face_button[5] = (pfsManagerContPadData[i].button & 0x0001) ? (D_80281138[i].face_button[5] + 1) : (0);
-        D_80281138[i].side_button[0] = (pfsManagerContPadData[i].button & 0x2000) ? (D_80281138[i].side_button[0] + 1) : (0);
-        D_80281138[i].side_button[1] = (pfsManagerContPadData[i].button & 0x0020) ? (D_80281138[i].side_button[1] + 1) : (0);
-        D_80281138[i].side_button[2] = (pfsManagerContPadData[i].button & 0x0010) ? (D_80281138[i].side_button[2] + 1) : (0);
-        D_80281138[i].unk24[0] = (pfsManagerContPadData[i].button & 0x0800) ? (D_80281138[i].unk24[0] + 1) : (0);
-        D_80281138[i].unk24[1] = (pfsManagerContPadData[i].button & 0x0400) ? (D_80281138[i].unk24[1] + 1) : (0);
-        D_80281138[i].unk24[2] = (pfsManagerContPadData[i].button & 0x0200) ? (D_80281138[i].unk24[2] + 1) : (0);
-        D_80281138[i].unk24[3] = (pfsManagerContPadData[i].button & 0x0100) ? (D_80281138[i].unk24[3] + 1) : (0);
-        D_80281138[i].start_button = (pfsManagerContPadData[i].button & 0x1000) ? (D_80281138[i].start_button + 1) : (0);
-        if (i == 0) {
-            D_80281218.face_button[0] = (D_802812D0.button & 0x8000) ? (D_80281218.face_button[0] + 1) : (0);
-            D_80281218.face_button[1] = (D_802812D0.button & 0x4000) ? (D_80281218.face_button[1] + 1) : (0);
-            D_80281218.face_button[2] = (D_802812D0.button & 0x0002) ? (D_80281218.face_button[2] + 1) : (0);
-            D_80281218.face_button[3] = (D_802812D0.button & 0x0004) ? (D_80281218.face_button[3] + 1) : (0);
-            D_80281218.face_button[4] = (D_802812D0.button & 0x0008) ? (D_80281218.face_button[4] + 1) : (0);
-            D_80281218.face_button[5] = (D_802812D0.button & 0x0001) ? (D_80281218.face_button[5] + 1) : (0);
-            D_80281218.side_button[0] = (D_802812D0.button & 0x2000) ? (D_80281218.side_button[0] + 1) : (0);
-            D_80281218.side_button[1] = (D_802812D0.button & 0x0020) ? (D_80281218.side_button[1] + 1) : (0);
-            D_80281218.side_button[2] = (D_802812D0.button & 0x0010) ? (D_80281218.side_button[2] + 1) : (0);
-            D_80281218.unk24[0] = (D_802812D0.button & 0x0800) ? (D_80281218.unk24[0] + 1) : (0);
-            D_80281218.unk24[1] = (D_802812D0.button & 0x0400) ? (D_80281218.unk24[1] + 1) : (0);
-            D_80281218.unk24[2] = (D_802812D0.button & 0x0200) ? (D_80281218.unk24[2] + 1) : (0);
-            D_80281218.unk24[3] = (D_802812D0.button & 0x0100) ? (D_80281218.unk24[3] + 1) : (0);
-            D_80281218.start_button = (D_802812D0.button & 0x1000) ? ((u64)D_80281218.start_button + 1) : (0);
-        }
-        temp_v0_3 = (u16)D_80281250[i].unk0;
-        var_a2 = (u16)pfsManagerContPadData[i].button;
-        D_80281250[i].unk0 = var_a2;
-        D_80281250[i].unk2 = temp_v0_3;
-        D_80281250[i].unk4 = (~temp_v0_3) & var_a2;
-        D_80281250[i].unk6 = temp_v0_3 & (~var_a2);
-        D_80281250[i].unk8[0] = D_80281250[i].joystick[0];
-        D_80281250[i].unk8[1] = D_80281250[i].joystick[1];
-        D_80281250[i].joystick[0] = func_8024E420(pfsManagerContPadData[i].stick_x, 7, 0x3B);
-        D_80281250[i].joystick[1] = func_8024E420(pfsManagerContPadData[i].stick_y, 7, 0x3D);
-        if ((D_80281250[i].unk4 != 0) 
-            || (D_80281250[i].unk8[0] != D_80281250[i].joystick[0])
-            || (D_80281250[i].unk8[1] != D_80281250[i].joystick[1])
-        ) {
-            D_80281308[i] = 0.0f;
-        } else {
-            D_80281308[i] += time_getDelta();
-        }
+    for (j = 0; j < 5; j++) {
+      buttonPressCounts[i][j] = 0;
     }
 
-    osSetThreadPri(0, 0x14);
+    controllerData[i].face_button[0] = (contPadData[i].button & 0x8000)
+                                       ? (controllerData[i].face_button[0] + 1)
+                                       : (0);
+    controllerData[i].face_button[1] = (contPadData[i].button & 0x4000)
+                                       ? (controllerData[i].face_button[1] + 1)
+                                       : (0);
+    controllerData[i].face_button[2] = (contPadData[i].button & 0x0002)
+                                       ? (controllerData[i].face_button[2] + 1)
+                                       : (0);
+    controllerData[i].face_button[3] = (contPadData[i].button & 0x0004)
+                                       ? (controllerData[i].face_button[3] + 1)
+                                       : (0);
+    controllerData[i].face_button[4] = (contPadData[i].button & 0x0008)
+                                       ? (controllerData[i].face_button[4] + 1)
+                                       : (0);
+    controllerData[i].face_button[5] = (contPadData[i].button & 0x0001)
+                                       ? (controllerData[i].face_button[5] + 1)
+                                       : (0);
+    controllerData[i].side_button[0] = (contPadData[i].button & 0x2000)
+                                       ? (controllerData[i].side_button[0] + 1)
+                                       : (0);
+    controllerData[i].side_button[1] = (contPadData[i].button & 0x0020)
+                                       ? (controllerData[i].side_button[1] + 1)
+                                       : (0);
+    controllerData[i].side_button[2] = (contPadData[i].button & 0x0010)
+                                       ? (controllerData[i].side_button[2] + 1)
+                                       : (0);
+    controllerData[i].unk24[0] = (contPadData[i].button & 0x0800)
+                                 ? (controllerData[i].unk24[0] + 1)
+                                 : (0);
+    controllerData[i].unk24[1] = (contPadData[i].button & 0x0400)
+                                 ? (controllerData[i].unk24[1] + 1)
+                                 : (0);
+    controllerData[i].unk24[2] = (contPadData[i].button & 0x0200)
+                                 ? (controllerData[i].unk24[2] + 1)
+                                 : (0);
+    controllerData[i].unk24[3] = (contPadData[i].button & 0x0100)
+                                 ? (controllerData[i].unk24[3] + 1)
+                                 : (0);
+    controllerData[i].start_button = (contPadData[i].button & 0x1000)
+                                     ? (controllerData[i].start_button + 1)
+                                     : (0);
+    if (i == 0) {
+      firstControllerData.face_button[0] =
+          (currentControllerData.button & 0x8000) ? (firstControllerData.face_button[0] + 1) : (0);
+      firstControllerData.face_button[1] =
+          (currentControllerData.button & 0x4000) ? (firstControllerData.face_button[1] + 1) : (0);
+      firstControllerData.face_button[2] =
+          (currentControllerData.button & 0x0002) ? (firstControllerData.face_button[2] + 1) : (0);
+      firstControllerData.face_button[3] =
+          (currentControllerData.button & 0x0004) ? (firstControllerData.face_button[3] + 1) : (0);
+      firstControllerData.face_button[4] =
+          (currentControllerData.button & 0x0008) ? (firstControllerData.face_button[4] + 1) : (0);
+      firstControllerData.face_button[5] =
+          (currentControllerData.button & 0x0001) ? (firstControllerData.face_button[5] + 1) : (0);
+      firstControllerData.side_button[0] =
+          (currentControllerData.button & 0x2000) ? (firstControllerData.side_button[0] + 1) : (0);
+      firstControllerData.side_button[1] =
+          (currentControllerData.button & 0x0020) ? (firstControllerData.side_button[1] + 1) : (0);
+      firstControllerData.side_button[2] =
+          (currentControllerData.button & 0x0010) ? (firstControllerData.side_button[2] + 1) : (0);
+      firstControllerData.unk24[0] =
+          (currentControllerData.button & 0x0800) ? (firstControllerData.unk24[0] + 1) : (0);
+      firstControllerData.unk24[1] =
+          (currentControllerData.button & 0x0400) ? (firstControllerData.unk24[1] + 1) : (0);
+      firstControllerData.unk24[2] =
+          (currentControllerData.button & 0x0200) ? (firstControllerData.unk24[2] + 1) : (0);
+      firstControllerData.unk24[3] =
+          (currentControllerData.button & 0x0100) ? (firstControllerData.unk24[3] + 1) : (0);
+      firstControllerData.start_button = (currentControllerData.button & 0x1000)
+                                    ? ((u64)firstControllerData.start_button + 1)
+                                    : (0);
+    }
+    temp_v0_3 = (u16)controllerStateData[i].unk0;
+    var_a2 = (u16)contPadData[i].button;
+    controllerStateData[i].unk0 = var_a2;
+    controllerStateData[i].unk2 = temp_v0_3;
+    controllerStateData[i].unk4 = (~temp_v0_3) & var_a2;
+    controllerStateData[i].unk6 = temp_v0_3 & (~var_a2);
+    controllerStateData[i].unk8[0] = controllerStateData[i].joystick[0];
+    controllerStateData[i].unk8[1] = controllerStateData[i].joystick[1];
+    controllerStateData[i].joystick[0] = pfsManager_calculateStickValue(
+        contPadData[i].stick_x, 7, 0x3B);
+    controllerStateData[i].joystick[1] = pfsManager_calculateStickValue(
+        contPadData[i].stick_y, 7, 0x3D);
+    if ((controllerStateData[i].unk4 != 0) ||
+        (controllerStateData[i].unk8[0] != controllerStateData[i].joystick[0]) ||
+        (controllerStateData[i].unk8[1] != controllerStateData[i].joystick[1])) {
+      joystickIdleTimes[i] = 0.0f;
+    } else {
+      joystickIdleTimes[i] += time_getDelta();
+    }
+  }
+
+  osSetThreadPri(0, 0x14);
 }
 
-void pfsManager_readData(){
-    func_8024F35C(0);
-    if(!pfsManagerContStatus.errno)
-        osContGetReadData(pfsManagerContPadData);
+void pfsManager_readData() {
+  pfsManager_setBusyState(0);
+  if (!contStatus.err_no)
+    osContGetReadData(contPadData);
 }
-
 
 void pfsManager_entry(void *arg) {
-    do {
-        osRecvMesg(&pfsManagerContPollingMsqQ, 0, 1);
-        if(pfsManagerBusy == TRUE){
-            pfsManager_readData();
-        }
-        else{
-            osSendMesg(&pfsManagerContReplyMsgQ, 0, 0);
-        }
-    } while (1);
+  do {
+    osRecvMesg(&contPollingMessageQueue, 0, 1);
+    if (isPfsManagerBusy == TRUE) {
+      pfsManager_readData();
+    } else {
+      osSendMesg(&contReplyMessageQueue, (OSMesg)NULL, 0);
+    }
+  } while (1);
 }
 
 void pfsManager_init(void) {
-    osCreateMesgQueue(&pfsManagerContPollingMsqQ, &pfsManagerContPollingMsqBuf, 1);
-    osCreateMesgQueue(&pfsManagerContReplyMsgQ, &pfsManagerContReplyMsgBuf, 1);
-    osCreateThread(&sPfsManagerThread, 7, pfsManager_entry, NULL, sPfsManagerThreadStack + PFSMANAGER_THREAD_STACK_SIZE, 40);
-    osSetEventMesg(OS_EVENT_SI, &pfsManagerContPollingMsqQ, &pfsManagerContPollingMsqBuf);
-    osContInit(&pfsManagerContPollingMsqQ, &pfsManagerBitPattern, &pfsManagerContStatus);
-    osContSetCh(1);
-    func_8024F224();
-    func_802476DC();
-    osStartThread(&sPfsManagerThread);
+  osCreateMesgQueue(&contPollingMessageQueue, &contPollingMessageBuffer,
+                    1);
+  osCreateMesgQueue(&contReplyMessageQueue, &contReplyMessageBuffer, 1);
+  osCreateThread(&pfsManagerThread, 7, pfsManager_entry, NULL,
+                 pfsManagerThreadStack + PFSMANAGER_THREAD_STACK_SIZE, 40);
+                 #ifndef LIGHTHOUSE_P
+  osSetEventMesg(OS_EVENT_SI, &contPollingMessageQueue,
+                 &contPollingMessageBuffer);
+                 #endif
+  osContInit(&contPollingMessageQueue, &controllerBitPattern,
+             &contStatus);
+  osContSetCh(1);
+  pfsManager_resetControllerData();
+  enableControllerTimer();
+  osStartThread(&pfsManagerThread);
 }
 
-bool pfsManager_contErr(void) {
-    return BOOL(pfsManagerContStatus.errno);
+bool pfsManager_contErr(void) { return BOOL(contStatus.err_no); }
+
+void pfsManager_checkControllerError(void) {
+  if (pfsManager_contErr())
+    chOverlayNoController_spawn(0, 0);
 }
 
-void func_8024F150(void){
-    if(pfsManager_contErr())
-        chOverlayNoController_spawn(0,0);
+void pfsManager_handleControllerError(void) {
+  if (pfsManager_contErr())
+    chOverlayNoController_func_802DD040(0, 0);
 }
 
-void func_8024F180(void){
-    if(pfsManager_contErr())
-        chOverlayNoController_func_802DD040(0,0);
+void pfsManager_getStartReadData(void) {
+  if (isPfsManagerBusy == 0) {
+    pfsManager_setBusyState(1);
+    osContStartReadData(&contPollingMessageQueue);
+  }
 }
 
-void pfsManager_getStartReadData(void){
-    if(pfsManagerBusy == 0){
-        func_8024F35C(1);
-        osContStartReadData(&pfsManagerContPollingMsqQ);
+void pfsManager_receiveMesg(void) {
+  osRecvMesg(&contPollingMessageQueue, NULL, 1);
+  pfsManager_update();
+}
+
+void pfsManager_resetControllerData(void) {
+  s32 iCont, j;
+
+  // for(iCont = 0; iCont < 4; iCont++){
+  //     controllerStateData[iCont].unk0 = 0;
+  // }
+
+  for (iCont = 0; iCont < 4; iCont++) {
+    controllerStateData[iCont].unk0 = 0;
+    controllerStateData[iCont].unk2 = 0;
+    controllerStateData[iCont].unk4 = 0;
+    controllerStateData[iCont].unk6 = 0;
+    controllerStateData[iCont].joystick[0] = 0.0f;
+    controllerStateData[iCont].joystick[1] = 0.0f;
+    controllerStateData[iCont].unk8[0] = 0.0f;
+    controllerStateData[iCont].unk8[1] = 0.0f;
+    for (j = 0; j < 5; j++) {
+      buttonPressCounts[iCont][j] = 0;
     }
-}
-
-void func_8024F1F0(void){
-    osRecvMesg(&pfsManagerContPollingMsqQ, NULL, 1);
-    pfsManager_update();
-}
-
-void func_8024F224(void){
-    s32 iCont, j;
-
-    // for(iCont = 0; iCont < 4; iCont++){
-    //     D_80281250[iCont].unk0 = 0;
-    // }
-
-    for(iCont = 0; iCont < 4; iCont++){
-        D_80281250[iCont].unk0 = 0;
-        D_80281250[iCont].unk2 = 0;
-        D_80281250[iCont].unk4 = 0;
-        D_80281250[iCont].unk6 = 0;
-        D_80281250[iCont].joystick[0] = 0.0f;
-        D_80281250[iCont].joystick[1] = 0.0f;
-        D_80281250[iCont].unk8[0] = 0.0f;
-        D_80281250[iCont].unk8[1] = 0.0f;
-        for(j = 0; j < 5; j++){
-            D_802810E0[iCont][j] = 0;
-        }
-        for(j = 0; j < 14; j++){
-            D_80281138[iCont].face_button[j] = 0;
-        }
-        D_80281308[iCont] = 0.0f;
+    for (j = 0; j < 14; j++) {
+      controllerData[iCont].face_button[j] = 0;
     }
+    joystickIdleTimes[iCont] = 0.0f;
+  }
 }
 
-void func_8024F2E4(s32 arg0, Struct_core1_10A00_1 *arg1){
-    memcpy(arg1, D_80281250 + arg0, sizeof(Struct_core1_10A00_1));
+void pfsManager_copyControllerData(s32 arg0, Struct_core1_10A00_1 *arg1) {
+  heap_memcpy(arg1, controllerStateData + arg0, sizeof(Struct_core1_10A00_1));
 }
 
-void func_8024F328(s32 controller_index, s32 arg1){
-    D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_Z)] = arg1;
+void pfsManager_setZButtonState(s32 controller_index, s32 arg1) {
+  controllerData[controller_index].side_button[SIDE_BUTTON(BUTTON_Z)] = arg1;
 }
 
-OSMesgQueue * pfsManager_getFrameReplyQ(void){
-    return &pfsManagerContReplyMsgQ;
+OSMesgQueue *pfsManager_getFrameReplyQ(void) {
+  return &contReplyMessageQueue;
 }
 
-OSMesgQueue *pfsManager_getFrameMesgQ(void){
-    return &pfsManagerContPollingMsqQ;
+OSMesgQueue *pfsManager_getFrameMesgQ(void) {
+  return &contPollingMessageQueue;
 }
 
-void func_8024F35C(s32 arg0) {
-    if(!arg0)
-        func_8024F4AC();
-    else
-        func_8024F450();
+void pfsManager_setBusyState(s32 arg0) {
+  if (!arg0)
+    pfsManager_sendMesg();
+  else
+    pfsManager_waitForMesg();
 
-    if(arg0 || D_802816E8.validCount == 1){
-        pfsManagerBusy = arg0; 
-    }
+  if (arg0 || pfsManagerMessageQueue.validCount == 1) {
+    isPfsManagerBusy = arg0;
+  }
 }
 
-bool pfsManager_isBusy(void){
-    return pfsManagerBusy;
+bool pfsManager_isBusy(void) { return isPfsManagerBusy; }
+
+int pfsManager_getControllerInputSum(int arg0) {
+  return contPadData[arg0].button +
+         contPadData[arg0].stick_x +
+         contPadData[arg0].stick_y;
 }
 
-int func_8024F3C4(int arg0){
-    return pfsManagerContPadData[arg0].button + pfsManagerContPadData[arg0].stick_x + pfsManagerContPadData[arg0].stick_y;
+OSContPad *pfsManager_getControllerData(void) { return &currentControllerData; }
+
+/* initilizes pfsManagerMessageQueue message queue */
+void pfsManager_initMesgQueue(void) {
+  isMessageQueueInitialized = TRUE;
+  osCreateMesgQueue(&pfsManagerMessageQueue, &pfsManagerMessageBuffer, 5);
+  osSendMesg(&pfsManagerMessageQueue, (OSMesg)NULL, OS_MESG_NOBLOCK);
 }
 
-OSContPad *func_8024F3F4(void){
-    return &D_802812D0;
+void pfsManager_waitForMesg(void) {
+  if (!isMessageQueueInitialized)
+    pfsManager_initMesgQueue();
+  osRecvMesg(&pfsManagerMessageQueue, NULL, OS_MESG_BLOCK);
+#ifndef LIGHTHOUSE_P // todo: get this a pc version if needed
+
+  osSetEventMesg(OS_EVENT_SI, &contPollingMessageQueue,
+                 &contPollingMessageBuffer);
+#endif
 }
 
-/* initilizes D_802816E8 message queue */
-void func_8024F400(void) {
-    D_80275D38 = TRUE;
-    osCreateMesgQueue(&D_802816E8, &D_80281700, 5);
-    osSendMesg(&D_802816E8, 0, OS_MESG_NOBLOCK);
-}
-
-void func_8024F450(void){
-    if(!D_80275D38)
-        func_8024F400();
-    osRecvMesg(&D_802816E8, NULL, OS_MESG_BLOCK);
-    osSetEventMesg(OS_EVENT_SI, &pfsManagerContPollingMsqQ, &pfsManagerContPollingMsqBuf);
-}
-
-void func_8024F4AC(void){
-    osSendMesg(&D_802816E8, NULL, OS_MESG_NOBLOCK);
+void pfsManager_sendMesg(void) {
+  osSendMesg(&pfsManagerMessageQueue, (OSMesg)NULL, OS_MESG_NOBLOCK);
 }

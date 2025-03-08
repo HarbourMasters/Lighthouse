@@ -60,7 +60,7 @@ typedef struct {
 	int		inode_table;		/* block location */
 	int		minode_table;		/* mirrioring inode_table */
 	int		dir_table;		/* block location */
-	int		inode_start_page;	/* page # */
+	int		inodeStartPage;	/* page # */
 	u8		banks;
 	u8		activebank;
 } OSPfs;

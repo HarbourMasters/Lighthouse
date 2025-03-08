@@ -94,15 +94,15 @@ void __matchingGame_setState(s32 next_state){
             volatileFlag_set(VOLATILE_FLAG_5_FF_MINIGAME_WON, 1);
         }
         else{
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
             if(matchingGame.mummy_marker){
                 func_8035D490(matchingGame.mummy_marker);
             }
-            func_80324E38(0.5f, 3);
+            setCameraModeAtTime(0.5f, 3);
             timed_setStaticCameraToNode(1.5f, 2);
             timedFunc_set_0(1.7f, __matchingGame_spawnJIggy);
             timed_exitStaticCamera(4.0f);
-            func_80324E38(4.0f, 0);
+            setCameraModeAtTime(4.0f, 0);
 
         }
     }//L803903D8
@@ -187,7 +187,7 @@ void gv_matchingGame_update(void){
         if( func_8034DC78(matchingGame.tile_a->unk4) == 1 && func_8034DC78(matchingGame.tile_b->unk4) == 1){
             if(0.0f < matchingGame.unkC){
                 if(0.6 < matchingGame.unkC && matchingGame.unkC - dt <= 0.6){
-                    func_8025A6EC(COMUSIC_2C_BUZZER, 0x7fff);
+                    comusic_playTrackWithVolumeOverride(COMUSIC_2C_BUZZER, 0x7fff);
                 }//L803906AC
                 matchingGame.unkC -= dt;
                 if(matchingGame.unkC <= 0.0f){
@@ -210,7 +210,7 @@ void gv_matchingGame_update(void){
                         __matchingGame_setState(4); //end game state
                     }
                     else{
-                        func_8025A6EC(COMUSIC_2B_DING_B, 0x7fff);
+                        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 0x7fff);
                     }
                     matchingGame.tile_a = matchingGame.tile_b = NULL;
                 }//L803907E4

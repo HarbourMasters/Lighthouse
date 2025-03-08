@@ -2,7 +2,11 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#ifndef LIGHTHOUSE_P
 #include "n_libaudio.h"
+#else
+#include "pc_audio.h"
+#endif
 
 extern void func_80335394(N_AL_Struct81s *, f32);
 extern f32 sfx_randf2(f32, f32);
@@ -230,7 +234,7 @@ s32 func_8030CDE4(SfxSource *arg0){
     ml_vec3f_normalize(sp2C);
     sp38[1] = 0.0f;
     ml_vec3f_normalize(sp38);
-    temp_f0 = func_80256AB4(sp38[0], sp38[2], sp2C[0], sp2C[2]);
+    temp_f0 = ml_f_sin_of_angle_between_points_2D(sp38[0], sp38[2], sp2C[0], sp2C[2]);
     if(arg0->unk16){
         arg0->unk18 += 0.07*((f32)(s32)(64.0f - (temp_f0 * 63.0f)) - arg0->unk18);
     }
@@ -316,7 +320,7 @@ s32 func_8030D10C(u8 indx){
         sfxsource_clearFlag(ptr, SFX_SRC_FLAG_3_UNKOWN);
         sfxsource_clearFlag(ptr, SFX_SRC_FLAG_4_UNKOWN);
     }//L8030D2E0
-    if(getGameMode() == GAME_MODE_4_PAUSED)
+    if(game_getMode() == GAME_MODE_4_PAUSED)
         sp24++;
 
     return sp24;
@@ -455,9 +459,9 @@ void func_8030D778(void){
     }while(temp_s1);
 }
 
-void func_8030D86C(void){
+void initializeSoundSystem(void){
     func_8030D750();
-    core1_7090_alloc();
+    sfx_alloc();
     func_8030EDAC(0.0f, 1.0f);
 }
 
@@ -466,12 +470,12 @@ void func_8030D8A8(s32 arg0, s32 arg){
 }
 
 void func_8030D8B4(void){
-    func_8024FB8C();
-    func_8024F83C();
+    musicTrack_stopAll();
+    musicTrack_unloadAll();
 }
 
-void func_8030D8DC(void){
-    core1_7090_release();
+void releaseSoundEffects(void){
+    sfx_release();
     func_8030D778();
     func_8030D8B4();
 }
@@ -990,7 +994,7 @@ void func_8030EC74(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, u32 arg4, f32 a
     }
 }
 
-void func_8030ED0C(void){
+void updateAudioSystem(void){
     func_8030D644();
 }
 

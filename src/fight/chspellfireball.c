@@ -4,9 +4,9 @@
 #include "fight.h"
 #include "core2/particle.h"
 
-extern void func_80324CFC(f32, s32, s32);
+extern void playTrackWithVolumeAtTime(f32, s32, s32);
 extern Actor *func_80325CAC(ActorMarker*, Gfx**, Mtx**, Vtx **);
-bool func_80320C94(f32 [3], f32[3], f32, f32[3], s32, u32);
+bool findCollisionTriWithOffsetAndFlags(f32 [3], f32[3], f32, f32[3], s32, u32);
 f32 func_8033229C(ActorMarker *);
 
 typedef struct chspellfireball_s {
@@ -82,12 +82,12 @@ void fight_createSpriteParticles(f32 position[3], s32 count, enum asset_e sprite
     particleEmitter_setAngularVelocityRange(pCtrl, -300.0f, -300.0f, -300.0f, 300.0f, 300.0f, 300.0f);
     particleEmitter_setStartingScaleRange(pCtrl, scale_range[0], scale_range[1]);
     particleEmitter_setFinalScaleRange(pCtrl, scale_range[2], scale_range[3]);
-    particleEmitter_func_802EF9F8(pCtrl, 0.5f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
+    particleEmitter_setBounceFactor(pCtrl, 0.5f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
     particleEmitter_setSpawnIntervalRange(pCtrl, lifetime_range[0], lifetime_range[1]);
     particleEmitter_setParticleLifeTimeRange(pCtrl, lifetime_range[2], lifetime_range[3]);
     particleEmitter_setFade(pCtrl, fade[0], fade[1]);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_setDrawMode(pCtrl, 4);
     particleEmitter_emitN(pCtrl, count);
 }
@@ -106,7 +106,7 @@ void fight_createAnimatedSpriteParticles(f32 position[3], enum asset_e sprite, s
     particleEmitter_setParticleLifeTimeRange(pCtrl, lifetime_range[2], lifetime_range[3]);
     particleEmitter_setFade(pCtrl, fade[0], fade[1]);
     particleEmitter_setDrawMode(pCtrl, PART_EMIT_NO_DEPTH);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -124,7 +124,7 @@ void fight_createSmokeParticles(f32 position[3], s32 count, f32 *lifetime_and_sp
     particleEmitter_setParticleLifeTimeRange(pCtrl, lifetime_and_spawn_range[2], lifetime_and_spawn_range[3]);
     particleEmitter_setFade(pCtrl, 0.05f, 0.1f);
     particleEmitter_setDrawMode(pCtrl, PART_EMIT_NO_DEPTH);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -233,7 +233,7 @@ bool chSpellFireball_isPositionOverThreshold(f32 *position, f32 distance) {
 }
 
 void chSpellFireball_free(Actor *this) {
-    func_80324D2C(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+    stopTrackAtTime(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER);
 }
 
 void chSpellFireball_update(Actor *this) {
@@ -255,13 +255,13 @@ void chSpellFireball_update(Actor *this) {
         if (this->marker->id == MARKER_280_GRUNTY_SPELL_GREEN_ATTACK) {
             actor_collisionOff(this);
             marker_setFreeMethod(this->marker, chSpellFireball_free);
-            func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 32000);
+            playTrackWithVolumeAtTime(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 32000);
             timed_playSfx(0.0f, SFX_113_PAD_APPEARS, 1.0f, 32000);
             timed_playSfx(0.75f, 0x415, 1.0f, 32000);
             timed_playSfx(2.0f, 0x415, 1.0f, 32000);
         } else {
-            func_80324D54(0.26f, SFX_14F_FIREWORK_WHISTLING, 1.0f, 0x61A8, this->position, 1000.0f, 7500.0f);
-            func_80324D54(0.4f, SFX_14E_SOFT_EXPLOSION, 1.0f, 0x61A8, this->position, 500.0f, 4500.0f);
+            playSoundEffectWithPositionAtTime(0.26f, SFX_14F_FIREWORK_WHISTLING, 1.0f, 0x61A8, this->position, 1000.0f, 7500.0f);
+            playSoundEffectWithPositionAtTime(0.4f, SFX_14E_SOFT_EXPLOSION, 1.0f, 0x61A8, this->position, 500.0f, 4500.0f);
         }
     }
 
@@ -308,7 +308,7 @@ void chSpellFireball_update(Actor *this) {
             } else {
                 if ((this->position_y < 300.0f) &&
                     (chSpellFireball_isPositionOverThreshold(this->position, 16000000.0f)) &&
-                    (func_80320C94(old_position, this->position, func_8033229C(this->marker), D_80392908, 8, 0x40000000)))
+                    (findCollisionTriWithOffsetAndFlags(old_position, this->position, func_8033229C(this->marker), D_80392908, 8, 0x40000000)))
                 {
                     chSpellFireball_createExplosionParticles(this->marker);
                     return;
@@ -338,7 +338,7 @@ void chSpellFireball_update(Actor *this) {
     }
 }
 
-void chSpellFireball_func_8038FB84(ActorMarker *marker, f32 *position, f32 *velocity, f32 *arg3) {
+void chSpellFireball_setPositionAndVelocity(ActorMarker *marker, f32 *position, f32 *velocity, f32 *arg3) {
     Actor *actor = marker_getActor(marker);
 
     actor->position_x = position[0];

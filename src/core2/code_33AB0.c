@@ -13,7 +13,7 @@ CameraNodeType2 *cameraNodeType2_init() {
     CameraNodeType2 *this;
     f32 sp18[3];
 
-    this = (CameraNodeType2 *)malloc(sizeof(CameraNodeType2));
+    this = (CameraNodeType2 *)heap_malloc(sizeof(CameraNodeType2));
     ml_vec3f_clear(sp18);
     __cameraNodeType2_setPosition(this, sp18);
     __cameraNodeType2_setPitchYawRoll(this, sp18);
@@ -21,7 +21,7 @@ CameraNodeType2 *cameraNodeType2_init() {
 }
 
 void cameraNodeType2_free(CameraNodeType2 *this) {
-    free(this);
+    bk_free(this);
 }
 
 void cameraNodeType2_getPosition(CameraNodeType2 *this, f32 position[3]) {

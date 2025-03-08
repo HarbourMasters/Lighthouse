@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern bool func_80244D94(f32[3], f32[3], f32[3], u32, f32);
+extern bool findCollisionTriAlongPath(f32[3], f32[3], f32[3], u32, f32);
 
 typedef struct struct_core2_bd100_0_s{
     f32 unk0;
@@ -119,8 +119,8 @@ void func_80345000(Struct_Core2_BD100_0 *self, f32 arg1[3]) {
     self->unk24 = FALSE;
     func_80344F48(self, arg1, sp30);
     temp_a0 = self + 0x10;
-    if (func_80244D94(arg1, sp30, sp3C, 0x025E0080, 15.0f)) {
-        func_80257DB0(self->unk10, self->unk10, sp3C);
+    if (findCollisionTriAlongPath(arg1, sp30, sp3C, 0x025E0080, 15.0f)) {
+        ml_vec3f_reflect(self->unk10, self->unk10, sp3C);
         self->unk10[1] = ml_max_f(self->unk10[1], 250.0f);
         self->unk24 = TRUE;
     }
@@ -135,7 +135,7 @@ void func_803450B0(Struct_Core2_BD100_0 *self, f32 arg1[3]) {
     s32 pad;
 
     func_80344F48(self, arg1, sp28);
-    if (func_80244D94(arg1, sp28, sp34, 0x025E0080, 15.0f)) {
+    if (findCollisionTriAlongPath(arg1, sp28, sp34, 0x025E0080, 15.0f)) {
         ml_vec3f_clear(self->unk10);
     }
     ml_vec3f_copy(self->unk4, sp28);

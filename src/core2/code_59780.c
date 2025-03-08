@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
 extern void func_802C71F0(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
 

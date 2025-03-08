@@ -142,7 +142,7 @@ void func_803881AC(Actor *this){
     }
 
     if( 1.0f == this->velocity_x && func_80387EE4(this)){
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
         maSlalom_setPlayerGate(this->unkF4_8);
     }
 

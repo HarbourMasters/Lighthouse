@@ -26,8 +26,9 @@
 extern "C" {
 #endif
 
-#include <PR/ultratypes.h>
-#include <PR/mbi.h>
+#include <ultratypes.h>
+#include <mbi.h>
+
 
 
 /*

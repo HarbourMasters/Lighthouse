@@ -21,6 +21,7 @@ extern __osExceptionVector __osExceptionPreamble;
 // osInitialize
 void __osInitialize_common()
 {
+   #ifndef LIGHTHOUSE_P
    u32 pifdata;
    u32 clock = 0;
    __osFinalrom = TRUE;
@@ -65,4 +66,5 @@ void __osInitialize_common()
    {
       osViClock = VI_NTSC_CLOCK;
    }
+   #endif
 }

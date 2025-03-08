@@ -1,3 +1,5 @@
+#ifndef LIGHTHOUSE_P
+
 #include <ultra64.h>
 #include "rarezip.h"
 
@@ -549,7 +551,7 @@ int bkboot_inflate(void) //int inflate()
 {
   int e;                /* last block flag */
   int r;                /* result code */
-  unsigned h;           /* maximum struct huft's malloc'ed */
+  unsigned h;           /* maximum struct huft's heap_malloc'ed */
 
   /* initialize window, bit buffer */
   wp = 0;
@@ -583,3 +585,4 @@ int bkboot_inflate(void) //int inflate()
     #endif /* DEBUG */
    return 0;
 }
+#endif

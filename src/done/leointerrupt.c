@@ -1,5 +1,9 @@
 #include <ultra64.h>
+#ifndef LIGHTHOUSE_P
 #include "osint.h"
+#else
+#include "pc_oscompat.h"
+#endif
 #include "piint.h"
 
 #define WAIT_ON_IOBUSY2(stat)                                \
@@ -204,11 +208,11 @@ static void __osLeoResume(void)
 	OSMesgQueue *mq;
 	s32 last;
 	es = &__osEventStateTab[OS_EVENT_PI];
-	mq = es->messageQueue;
+	mq = es->queue;
 	if (mq == NULL || MQ_IS_FULL(mq))
 		return;
 	last = (mq->first + mq->validCount) % mq->msgCount;
-	mq->msg[last] = es->message;
+	mq->msg[last] = es->msg;
 	mq->validCount++;
 	if (mq->mtqueue->next != NULL)
 		__osEnqueueThread(&__osRunQueue, __osPopThread(&mq->mtqueue));

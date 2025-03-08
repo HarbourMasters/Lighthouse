@@ -5,7 +5,7 @@
 #include "code_B6EA0.h"
 #include "core2/anim/sprite.h"
 
-extern void func_80244D94(f32[3], f32[3], f32[3], u32, f32);
+extern void findCollisionTriAlongPath(f32[3], f32[3], f32[3], u32, f32);
 
 extern f32 func_8033EA14(s32);
 extern void func_8033EA40(s32, f32);
@@ -175,11 +175,11 @@ void fxegg_head_spawn(void){
     sp50[1] += 80.0f;
     ml_vec3f_copy(sp68, sp50);
     player_getRotation(sp44);
-    func_80256E24(sp5C, 0.0f, sp44[1], 0.0f, 0.0f, 70.0f);
+    ml_vec3f_rotate_direction(sp5C, 0.0f, sp44[1], 0.0f, 0.0f, 70.0f);
     sp50[0] += sp5C[0];
     sp50[1] += sp5C[1];
     sp50[2] += sp5C[2];
-    func_80244D94(sp68, sp50, other_marker, 0x25e0080, 15.0f);
+    findCollisionTriAlongPath(sp68, sp50, other_marker, 0x25e0080, 15.0f);
 
     projectile_setSprite(projectile_indx, ASSET_708_SPRITE_EGG_PROJECTILE);
     func_8033FFE4(projectile_indx, (s32)tmp_f8, (s32)tmp_f8);
@@ -194,7 +194,7 @@ void fxegg_head_spawn(void){
     func_80344EE4(sp77, 0.0f, 0.0f);
     func_80344D94(sp77, sp50);
     sp44[1] += 4.0;
-    func_80256E24(sp5C, 0.0f, sp44[1], 0.0f, 0.0f, 800.0f);
+    ml_vec3f_rotate_direction(sp5C, 0.0f, sp44[1], 0.0f, 0.0f, 800.0f);
     sp5C[1] = 0.0f;
     func_80344E3C(sp77, sp5C);
 }
@@ -282,7 +282,7 @@ void fxegg_ass_spawn(void) {
     _player_getPosition(marker);
     player_getRotation(sp30);
     sp30[1] = mlNormalizeAngle(sp30[1] + 180.0f);
-    func_80256E24(sp48, 0.0f, sp30[1], 0.0f, 0.0f, -18.0f);
+    ml_vec3f_rotate_direction(sp48, 0.0f, sp30[1], 0.0f, 0.0f, -18.0f);
     marker[0] += sp48[0];
     marker[1] += sp48[1];
     marker[2] += sp48[2];
@@ -300,7 +300,7 @@ void fxegg_ass_spawn(void) {
     func_80344D94(sp57, marker);
     temp_f2 = ((randf() * 6.0f) - 3.0f);
     sp30[1] = sp30[1] + temp_f2;
-    func_80256E24(sp48, 0.0f, sp30[1], 0, 0, 200.0f);
+    ml_vec3f_rotate_direction(sp48, 0.0f, sp30[1], 0, 0, 200.0f);
     sp48[1] = (randf() * 20.0f) + 700.0f;
     func_80344E3C(sp57, sp48);
 }

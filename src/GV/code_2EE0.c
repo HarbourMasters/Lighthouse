@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 void func_8038938C(Actor *this);
 Actor *func_803892D0(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 

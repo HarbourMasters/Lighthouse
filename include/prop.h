@@ -8,6 +8,10 @@
 #include "core2/modelRender.h"
 #include "core2/skeletalanim.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct sprite_prop_s{
     u32 unk0_31:0xC;
     u32 unk0_19:0x1;
@@ -46,7 +50,6 @@ typedef struct model_prop_s{
     u8 padB_3 :4;
 } ModelProp;
 
-
 typedef struct actor_prop_s{
     union {
         struct {
@@ -67,7 +70,7 @@ typedef struct actor_prop_s{
     };
 } ActorProp;
 
-typedef void(*MarkerCollisionFunc)(struct actorMarker_s *this, struct actorMarker_s *other);
+typedef void(*MarkerCollisionFunc)(struct actorMarker_s *pthis, struct actorMarker_s *other);
 typedef struct actor_s *(*MarkerDrawFunc)(struct actorMarker_s *, Gfx **, Mtx **, Vtx **);
 typedef void (*ActorUpdateFunc)(struct actor_s *);
 typedef void (*ActorFreeFunc)(struct actor_s *);
@@ -111,7 +114,7 @@ typedef struct actorMarker_s{
     u32         pad40_18:19;
     struct5Bs * unk44;
     BKModel *   unk48;
-    vector(Struct70s) * unk4C;
+    bk_vector(Struct70s) * unk4C;
     s32         unk50;
     void        (*unk54)(struct actorMarker_s *, struct actorMarker_s *, u16*);
     s32         (*unk58)(struct actorMarker_s *, struct actorMarker_s *);
@@ -255,7 +258,7 @@ typedef struct actor_s{
     f32 scale;
     /* 0x12C */ struct actor_info_s *actor_info;
     void (* unk130)(struct actor_s *);
-    vector(AnSeqElement) **unk134; //vector<AnSeqElement> //saved marker->dieFunc
+    bk_vector(AnSeqElement) **unk134; //bk_vector<AnSeqElement> //saved marker->dieFunc
     u32 unk138_31:1;
     u32 unk138_30:1;
     u32 unk138_29:1;
@@ -395,5 +398,9 @@ typedef struct {
     u32 cnt;
     Actor *actor_save_state[];
 }ActorListSaveState;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

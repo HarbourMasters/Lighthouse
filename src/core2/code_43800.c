@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
 
 extern f32 func_8028E82C(void);
 
@@ -48,7 +50,7 @@ Actor *func_802CA7BC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     this->position_y = sp40 + sp60;
     this->position_z = sp54[2];
 
-    func_80258108(sp34, &this->yaw, &this->pitch);
+    ml_vec3f_angles_from_vector(sp34, &this->yaw, &this->pitch);
 
     rotation[0] = this->pitch;
     rotation[1] = this->yaw;

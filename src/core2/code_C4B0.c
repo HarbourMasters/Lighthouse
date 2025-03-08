@@ -2,19 +2,19 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "core2/ba/physics.h"
 
+#include "core2/ba/physics.h"
 
 extern int        func_80258424(f32 vec[3], f32 minX, f32 minY, f32 minZ, f32 maxX, f32 maxY, f32 maxZ);
 extern f32        floor_getXPosition(struct0*);
-extern void       func_8031C5AC(struct0 *, f32 *);
+extern void       adjustPositionForFloorCollision(struct0 *, f32 *);
 extern f32        func_8031C5E4(struct0*);
 extern void       func_8031C5FC(struct0 *, f32);
-extern void       func_80244FC0(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4, u32 arg5);
-extern s32        func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32);
-extern BKCollisionTri *func_802457C4(f32[3], f32[3], f32, f32, f32[3], s32, u32);
+extern void       adjustPositionAlongPathWithResult(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4, u32 arg5);
+extern s32        findCollisionTriAlongPathWithOffset(f32[3], f32[3], f32 [3], u32, f32, f32);
+extern BKCollisionTri *findCollisionTriWithOffset(f32[3], f32[3], f32, f32, f32[3], s32, u32);
 extern s32        func_8029463C(void);
-extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32);
+extern BKCollisionTri *findCollisionTriWithOffsetAndFlags(f32[3], f32[3], f32, f32[3], s32, u32);
 
 void func_80294378(s32 arg0);
 void func_80294384(s32 arg0);
@@ -72,7 +72,7 @@ void func_80293440(void){
           D_8037C218[1] = bottomY;
 
      climbGetBottom(sp34);
-     func_80257F18(D_8037C218, sp34, &sp28);
+     ml_vec3f_yaw_between(D_8037C218, sp34, &sp28);
      diff = mlDiffDegF(sp28, yaw_get());
      diff = mlAbsF(diff);
      if(1.0f < diff){
@@ -86,11 +86,11 @@ void func_8029350C(f32 *arg0) {
     f32 sp38;
     u8 temp_v0;
 
-    func_8031C618(D_8037C200, arg0);
-    func_8031C638(D_8037C200, baMarker_8028D694());
-    func_8031C44C(D_8037C200);
+    adjustPositionWithNormalVector(D_8037C200, arg0);
+    adjustPositionWithNormalAndYawAngle(D_8037C200, baMarker_8028D694());
+    adjustPositionIfBelowFloorLevel(D_8037C200);
     sp38 = floor_getXPosition(D_8037C200);
-    func_8031C5AC(D_8037C200, sp3C);
+    adjustPositionForFloorCollision(D_8037C200, sp3C);
     temp_v0 = D_8037C279;
     D_8037C279 = FALSE;
     if (!(sp3C[1] < 0.432)) {
@@ -128,7 +128,7 @@ void func_80293668(void) {
     Struct_core2_C4B0_0 *sp88;
 
     temp_v0 = baMarker_8028D694();
-    func_80244FC0(D_8037C228, sp390, D_8037C1F8[1], D_8037C1F8[0], 1, temp_v0 | 0x1E0000);
+    adjustPositionAlongPathWithResult(D_8037C228, sp390, D_8037C1F8[1], D_8037C1F8[0], 1, temp_v0 | 0x1E0000);
     for(i = 0; i < 5; i++){
         sp88 = &sp90[i];
         var_s1 = (i != 0) ? &sp90[i - 1] : NULL;
@@ -145,7 +145,7 @@ void func_80293668(void) {
         temp_f0 = ((D_8037C1F8[1] * 2) - 4.0f);
         if ((sp380[0]*sp380[0] + sp380[1]*sp380[1] + sp380[2]*sp380[2]) > (temp_f0 * temp_f0)) {
             sp38C = sp88->unk0[1];
-            sp88->unk40 = func_80244E54(sp88->unkC, sp88->unk0, sp88->unk44, temp_v0 | 0x1E0000, D_8037C1F8[1] - 1.0f, D_8037C1F8[0]);
+            sp88->unk40 = findCollisionTriAlongPathWithOffset(sp88->unkC, sp88->unk0, sp88->unk44, temp_v0 | 0x1E0000, D_8037C1F8[1] - 1.0f, D_8037C1F8[0]);
             if (sp88->unk40 != 0) {
                 ml_vec3f_normalize(sp380);
                 temp_f0 = sp380[0]*sp88->unk44[0][0] + sp380[1]*sp88->unk44[0][1] +  sp380[2]*sp88->unk44[0][2];
@@ -175,7 +175,7 @@ void func_80293668(void) {
         sp88->unk28[1] = D_8037C1F8[0] + sp88->unk0[1];
         sp88->unk28[2] = sp88->unk0[2];
 
-        sp88->unk18 = func_80320C94(sp88->unk34, sp88->unk28, D_8037C1F8[1], sp88->unk1C, 3, temp_v0 | 0x1E0000);
+        sp88->unk18 = findCollisionTriWithOffsetAndFlags(sp88->unk34, sp88->unk28, D_8037C1F8[1], sp88->unk1C, 3, temp_v0 | 0x1E0000);
         if (sp88->unk18 != NULL) {
             D_8037C27D++;
             D_8037C204 = sp88->unk18;
@@ -190,14 +190,14 @@ void func_80293668(void) {
             if (i == 2) {
                 if (sp88->unk18 == sp90[0].unk18) {
                     if ((sp88->unk18 == var_s1->unk18) && func_802946FC(sp88->unk68, sp88->unk18)) {
-                        func_802578A4(sp380, sp88->unk0, sp88->unk68[0]);
+                        ml_vec3f_project_onto_plane(sp380, sp88->unk0, sp88->unk68[0]);
                         ml_vec3f_diff_copy(sp3A0, sp88->unk0, sp380);
                         ml_vec3f_set_length_copy(sp3A0, sp3A0, D_8037C1F8[1] + 1.0f);
                         sp380[0] += sp3A0[0];
                         sp380[1] += sp3A0[1];
                         sp380[2] += sp3A0[2];
                         if (!(sp88->unk18->flags & 0x00010000)) {
-                            sp88->unk18 = func_802457C4(sp380, sp88->unk0, D_8037C1F8[0], D_8037C1F8[1], sp88->unk1C, 3, temp_v0 | 0x1E0000);
+                            sp88->unk18 = findCollisionTriWithOffset(sp380, sp88->unk0, D_8037C1F8[0], D_8037C1F8[1], sp88->unk1C, 3, temp_v0 | 0x1E0000);
                         } else {
                             ml_vec3f_copy(sp88->unk0, sp380);
                         }
@@ -206,16 +206,16 @@ void func_80293668(void) {
             }
             if ((sp88->unk8C == 0) && (sp88->unk18 != NULL) && (D_8037C238[1] < 0.0f)) {
                 if( (mlAbsF(sp88->unk1C[1]) < 0.01) && func_802946FC(sp88->unk68, sp88->unk18)) {
-                    func_802578A4(sp380, sp88->unk0, sp88->unk68[0]);
+                    ml_vec3f_project_onto_plane(sp380, sp88->unk0, sp88->unk68[0]);
                     ml_vec3f_scale_copy(sp3A0, sp88->unk1C, D_8037C1F8[1] + 1.0f);
                     ml_vec3f_add(sp374, sp380, sp3A0);
-                    sp88->unk18 = func_802457C4(sp374, sp380, D_8037C1F8[0], D_8037C1F8[1], sp88->unk1C, 3, temp_v0 | 0x1E0000);
+                    sp88->unk18 = findCollisionTriWithOffset(sp374, sp380, D_8037C1F8[0], D_8037C1F8[1], sp88->unk1C, 3, temp_v0 | 0x1E0000);
                     sp88->unk0[0] = sp380[0];
                     sp88->unk0[2] = sp380[2];
                 }
             }
             if ((0.999 < sp88->unk1C[1]) && func_802946FC(sp88->unk68, sp88->unk18)) {
-                func_8025778C(sp3AC, sp88->unk0, sp88->unk68);
+                ml_find_closest_point_on_triangle(sp3AC, sp88->unk0, sp88->unk68);
                 sp380[0] = sp88->unk0[0] - sp3AC[0];
                 sp380[1] = 0.0f;
                 sp380[2] = sp88->unk0[2] - sp3AC[2];
@@ -226,7 +226,7 @@ void func_80293668(void) {
                 sp88->unk0[0] = sp380[0];
                 sp88->unk0[2] = sp380[2];
             } else if (ml_isNonzero_vec3f(sp88->unk1C)) {
-                func_802450DC(sp88->unkC, sp88->unk0, sp88->unk34, sp88->unk28, sp88->unk1C);
+                adjustPositionWithNormal(sp88->unkC, sp88->unk0, sp88->unk34, sp88->unk28, sp88->unk1C);
             }
         } else {
             break;
@@ -423,7 +423,7 @@ void func_8029445C(f32 arg0[3]){
 }
 
 void func_80294480(f32 arg0[3]){
-     func_8031C5AC(D_8037C200, arg0);
+     adjustPositionForFloorCollision(D_8037C200, arg0);
 }
 
 f32 func_802944A8(void){
@@ -504,13 +504,13 @@ BKCollisionTri *func_802946F0(void){
      return D_8037C204;
 }
 
-bool func_802946FC(f32 arg0[3][3], s32 arg1){
+int func_802946FC(f32 arg0[3][3], BKCollisionTri *arg1){
      if(arg1 == 0){
-          return 0;
+          return FALSE;
      }
      else{
-          func_802E73C8(arg0);
-          return 1;
+          copyCollisionTriVertices(arg0);
+          return TRUE;
      }
 }
 

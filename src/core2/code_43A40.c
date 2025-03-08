@@ -86,7 +86,7 @@ void chFightFlightPad_emitSparklesAtPosition(f32 position[3]){
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &chFightFlightPad_D_80366FB4);
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &chFightFlightPad_D_80366F8C);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_emitN(pCtrl, 0x18);
 }
 

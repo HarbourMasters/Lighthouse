@@ -1,15 +1,17 @@
+//clang-format off
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
 #include "fight.h"
+//clang-format on
 
 extern void func_8028F4B8(f32[3], f32, f32);
 extern void func_80320ED8(ActorMarker *, f32, s32);
-s32 func_803297C8(Actor*, f32*);
+s32 func_803297C8(Actor *, f32 *);
 Actor *func_8032813C();
-extern Actor* func_80329958(ActorMarker *this, s32 arg1);
+extern Actor *func_80329958(ActorMarker *this, s32 arg1);
 extern void func_803298D8();
-extern void func_80324CFC(f32, enum comusic_e, s32);
+extern void playTrackWithVolumeAtTime(f32, enum comusic_e, s32);
 extern void sfxsource_setSampleRate(u8, s32);
 extern void func_80328FF0(Actor *arg0, f32 arg1);
 extern void func_8028F85C(f32[3]);
@@ -196,7 +198,7 @@ void chfinalboss_func_80386698(f32 arg0) {
     Struct6Ds * temp_v0 = func_8034C528(0x19A);
 
     if (temp_v0 != NULL) {
-        func_8034DDF0(temp_v0, fight_D_80391524, D_80391530, arg0, 1);
+        collisionTri_isHitFromAboveByMarker(temp_v0, fight_D_80391524, D_80391530, arg0, 1);
     }
 }
 
@@ -207,7 +209,7 @@ void chfinalboss_createBroomstickParticles(f32 position[3], enum asset_e model_i
     particleEmitter_setAngularVelocityRange(pCtrl, -300.0f, -300.0f, -300.0f, 300.0f, 300.0f, 300.0f);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80391564);
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_8039153C);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -223,7 +225,7 @@ void chfinalboss_createSmokeParticles(f32 position[3], s32 count, f32 scale_rang
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 2.8f, 3.2f);
     particleEmitter_setFade(pCtrl, 0.3f, 0.4f);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -233,9 +235,9 @@ void chfinalboss_createGreenGlowParticle(f32 position[3], s32 color[3]) {
     particleEmitter_setStartingFrameRange(pCtrl, 2, 2);
     particleEmitter_setRGB(pCtrl, color);
     particleEmitter_setPosition(pCtrl, position);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_setPositionAndVelocityRanges(pCtrl, &D_80391618);
-    func_802EFC28(pCtrl, &D_803915E8);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803915E8);
 }
 
 void chfinalboss_createSingleSpriteParticle(f32 position[3], enum asset_e sprite_id) {
@@ -243,9 +245,9 @@ void chfinalboss_createSingleSpriteParticle(f32 position[3], enum asset_e sprite
     particleEmitter_setSprite(pCtrl, sprite_id);
     particleEmitter_setStartingFrameRange(pCtrl, 1, 6);
     particleEmitter_setPosition(pCtrl, position);
-    particleEmitter_func_802EFA78(pCtrl, 1);
+    particleEmitter_setDrawLayer(pCtrl, 1);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80391678);
-    func_802EFC28(pCtrl, &D_80391648);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80391648);
 }
 
 
@@ -344,7 +346,7 @@ void chfinalboss_func_80386CF8(Actor *actor) {
     sp4C[0] = sp28[0] + sp34[0];
     sp4C[1] = sp28[1] + sp34[1];
     sp4C[2] = sp28[2] + sp34[2];
-    func_8025727C(sp28[0], sp28[1], sp28[2], sp4C[0], sp4C[1], sp4C[2], &sp40[0], &sp40[1]);
+    ml_vec3f_angles_between_points(sp28[0], sp28[1], sp28[2], sp4C[0], sp4C[1], sp4C[2], &sp40[0], &sp40[1]);
     sp40[0] = 360.0f - sp40[0];
     sp40[2] = 0.0f;
     ncStaticCamera_setPositionAndRotation(sp4C, sp40);
@@ -386,7 +388,7 @@ void chfinalboss_func_80386F5C(ActorMarker * arg0, f32 arg1[3], f32 arg2, f32 ar
     D_80392758[2] = (f32) arg1[2];
     D_80392768[1] = arg2;
     D_80392768[2] = arg3;
-    SPAWNQUEUE_ADD_1(chfinalboss_func_80386EC0, arg0);
+    SPAWNQUEUE_ADD_ONE(chfinalboss_func_80386EC0, arg0);
 }
 
 void chfinalboss_func_80386FD8(s32 arg0) {
@@ -394,7 +396,7 @@ void chfinalboss_func_80386FD8(s32 arg0) {
 
     marker = actor_spawnWithYaw_f32(0x389, D_80392758, 0)->marker;
     func_8030E878(SFX_146_GRUNTY_SPELL_ATTACK_1, randf2(0.95f, 1.05f), 32000, D_80392758, 5000.0f, 12000.0f);
-    chSpellFireball_func_8038FB84(marker, D_80392758, D_80392768, D_80392778);
+    chSpellFireball_setPositionAndVelocity(marker, D_80392758, D_80392768, D_80392778);
 }
 
 void chfinalboss_func_80387074(s32 arg0) {
@@ -402,7 +404,7 @@ void chfinalboss_func_80387074(s32 arg0) {
 
     marker = actor_spawnWithYaw_f32(0x3AA, D_80392758, 0)->marker;
     func_8030E878(SFX_146_GRUNTY_SPELL_ATTACK_1, randf2(0.95f, 1.05f), 32000, D_80392758, 5000.0f, 12000.0f);
-    chSpellFireball_func_8038FB84(marker, D_80392758, D_80392768, D_80392778);
+    chSpellFireball_setPositionAndVelocity(marker, D_80392758, D_80392768, D_80392778);
 }
 
 void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 arg3) {
@@ -438,10 +440,10 @@ void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 a
         D_80392768[i] = (sp2C[i] - arg1[i]) / arg2 - (D_80392778[i] * arg2 / 2);
     }
     if (arg3 == 0) {
-        SPAWNQUEUE_ADD_1(chfinalboss_func_80386FD8, marker);
+        SPAWNQUEUE_ADD_ONE(chfinalboss_func_80386FD8, marker);
     }
     else{
-        SPAWNQUEUE_ADD_1(chfinalboss_func_80387074, marker);
+        SPAWNQUEUE_ADD_ONE(chfinalboss_func_80387074, marker);
     }
 }
 
@@ -523,7 +525,7 @@ bool chfinalboss_func_80387470(Actor *this, f32 arg1[3], f32 v_max, f32 arg3, f3
     next[1] = this->position[1] + this->velocity[1];
     next[2] = this->position[2] + this->velocity[2];
 
-    func_80258A4C(this->position, this->yaw - 90.0f, next, &temp.pos_z, &temp.pos_y, &temp.pos_x);
+    ml_vec3f_rotate_and_project(this->position, this->yaw - 90.0f, next, &temp.pos_z, &temp.pos_y, &temp.pos_x);
 
     this->yaw += (arg4 * temp.pos_x * dt);
 
@@ -647,7 +649,7 @@ void chfinalboss_func_80387B00(Actor *this) {
     );
 
     ml_vec3f_normalize(this->velocity);
-    this->yaw_ideal = func_8025715C(this->velocity_x, this->velocity_z) + 180.0f;
+    this->yaw_ideal = ml_vec2f_angle_between_points(this->velocity_x, this->velocity_z) + 180.0f;
     
     local->unk18 = this->position_y;
     local->unk1C = (f64) sp28[1];
@@ -665,7 +667,7 @@ void chfinalboss_func_80387BFC(Actor *this, f32 arg1) {
     sp58 = local->unk14 * local->unk14;
     sp54 = local->unk20 * local->unk20;
     sp50 = local->unk18 - local->unk1C;
-    func_80328CA8(this, (s32)func_8025715C((2.0 * local->unk20 * sp50), sp58));
+    func_80328CA8(this, (s32)ml_vec2f_angle_between_points((2.0 * local->unk20 * sp50), sp58));
     func_80328FF0(this, arg1);
     this->position[0] = this->unk1C[0] + this->velocity[0] * local->unk20;
     this->position[1] = this->unk1C[1] + this->velocity[1] * local->unk20;
@@ -800,7 +802,7 @@ void chfinalboss_phase1_setState(Actor *this, s32 next_state) {
     case 6:
         local = local;
         chfinalboss_func_80386600(this->marker, 1);
-        func_80324D54(0.4f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
+        playSoundEffectWithPositionAtTime(0.4f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
         this->actor_specific_1_f = 0.0f;
         chfinalboss_func_80387B00(this);
         local->unkA = 0;
@@ -826,12 +828,12 @@ void chfinalboss_phase1_setState(Actor *this, s32 next_state) {
         func_8030E878(SFX_EA_GRUNTY_LAUGH_1, randf2(0.95f, 1.05f), 32000, this->position, 5000.0f, 12000.0f);
         break;
     case 12:
-        func_8025A6EC(SFX_GRUNTY_SPELL_POWERUP, 30000);
+        comusic_playTrackWithVolumeOverride(SFX_GRUNTY_SPELL_POWERUP, 30000);
         break;
     case 13:
         func_8030E878(SFX_131_GRUNTY_WEEEGH, randf2(0.95f, 1.05f), 32000, this->position, 5000.0f, 12000.0f);
         if ((s32) local->hits >= 4) {
-            SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, this->marker);
+            SPAWNQUEUE_ADD_ONE(__chfinalboss_dropHealth, this->marker);
             chfinalboss_func_80388110(this->marker, 0, 0);
         }
         break;
@@ -968,7 +970,7 @@ void chfinalboss_phase1_update(ActorMarker *marker) {
             this->velocity[2] = this->position[2] - sp40[2];
             this->velocity[1] = 0.0f;
             ml_vec3f_normalize(this->velocity);
-            this->yaw_ideal = func_8025715C(this->velocity[0], this->velocity[2]) + 180.0f;
+            this->yaw_ideal = ml_vec2f_angle_between_points(this->velocity[0], this->velocity[2]) + 180.0f;
         }
         if (local->unk20 < 0.0) {
             var_a0 =  (local->hits == 0) ? 1 : 0;
@@ -1092,13 +1094,13 @@ void chfinalboss_phase2_setState(Actor *this, s32 arg1){
         local->unkA = 0;
         break;
     case 17:
-        func_8025A6EC(SFX_GRUNTY_SPELL_POWERUP, 30000);
+        comusic_playTrackWithVolumeOverride(SFX_GRUNTY_SPELL_POWERUP, 30000);
         break;
     }
 }
 
 void chfinalboss_phase2_endTextCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
-    SPAWNQUEUE_ADD_1(chfinalboss_spawnFlightPad, marker);
+    SPAWNQUEUE_ADD_ONE(chfinalboss_spawnFlightPad, marker);
 }
 
 void chfinalboss_phase2_update(ActorMarker *marker) {
@@ -1218,7 +1220,7 @@ void __chfinalboss_spawnStatue(enum ch_bossjinjo_e statue_id) {
 }
 
 void chfinalboss_spawnStatue(s32 statue_id) {
-    SPAWNQUEUE_ADD_1(__chfinalboss_spawnStatue, statue_id);
+    SPAWNQUEUE_ADD_ONE(__chfinalboss_spawnStatue, statue_id);
 }
 
 void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
@@ -1230,7 +1232,7 @@ void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
 }
 
 void chfinalboss_spawnSpellBarrier(ActorMarker *arg0) {
-    SPAWNQUEUE_ADD_1(__chfinalboss_spawnSpellBarrier, arg0);
+    SPAWNQUEUE_ADD_ONE(__chfinalboss_spawnSpellBarrier, arg0);
 }
 
 void chfinalboss_phase3_endTextCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
@@ -1238,7 +1240,7 @@ void chfinalboss_phase3_endTextCallback(ActorMarker *marker, enum asset_e text_i
 
     actor = marker_getActor(marker);
     ncStaticCamera_exit();
-    func_80324E38(0, 0);
+    setCameraModeAtTime(0, 0);
     chfinalboss_setPhase(actor->marker, FINALBOSS_PHASE_4_JINJOS);
 }
 
@@ -1271,14 +1273,14 @@ void chfinalboss_phase3_setState(Actor *this, s32 arg1) {
         break;
     case 26:
         chfinalboss_func_80386CF8(this);
-        func_80324E38(0.0f, 1);
+        setCameraModeAtTime(0.0f, 1);
         gcdialog_showText(randi2(0, 5) + 0x112C, 0xA8, NULL, this->marker, chfinalboss_phase3_endTextCallback, NULL);
         break;
     }
 }
 
 void chfinalboss_dropHealth(ActorMarker *marker) {
-    SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, marker);
+    SPAWNQUEUE_ADD_ONE(__chfinalboss_dropHealth, marker);
 }
 
 void chfinalboss_phase3_update(ActorMarker *marker) {
@@ -1356,7 +1358,7 @@ void chfinalboss_phase3_update(ActorMarker *marker) {
         break;
     case 26:
         if (actor_animationIsAt(this, 0.1f) != 0) {
-            func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
+            playTrackWithVolumeAtTime(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
         }
         if ((0.1 < sp34) && (sp34 < 0.8)) {
             func_8034A174(this->marker->unk44, 8, D_803928B8);
@@ -1368,7 +1370,7 @@ void chfinalboss_phase3_update(ActorMarker *marker) {
             chfinalboss_spawnSpellBarrier(this->marker);
         }
         if (actor_animationIsAt(this, 0.9999f)) {
-            func_80324D2C(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+            stopTrackAtTime(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER);
             chfinalboss_despawnFlightPad();
             chfinalboss_phase3_setState(this, 0x1B);
         }
@@ -1417,7 +1419,7 @@ void chfinalboss_phase4_setState(Actor *this, s32 arg1) {
             if ( !fileProgressFlag_get(FILEPROG_D2_HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT) ) {
                 local->unkA = 1U;
                 sFinalBossJinjoStatueActivated = 1;
-                func_80324E38(0.0f, 1);
+                setCameraModeAtTime(0.0f, 1);
                 timedFunc_set_1(0.0f, chfinalboss_spawnStatue, BOSSJINJO_1_ORANGE);
                 timed_setStaticCameraToNode(0.0f, 4);
                 timed_exitStaticCamera(2.2f);
@@ -1431,7 +1433,7 @@ void chfinalboss_phase4_setState(Actor *this, s32 arg1) {
                 timed_setStaticCameraToNode(6.6f, 7);
                 timed_exitStaticCamera(8.8f);
                 timedFunc_set_0(8.8f, chfinalboss_func_80389F54);
-                func_80324E38(8.8f, 0);
+                setCameraModeAtTime(8.8f, 0);
                 break;
             }
             
@@ -1448,7 +1450,7 @@ void chfinalboss_phase4_setState(Actor *this, s32 arg1) {
     case 33:
         FUNC_8030E624(SFX_131_GRUNTY_WEEEGH, 1.0f, 32000);
         timed_playSfx(0.6f, SFX_61_CARTOONY_FALL, 1.0f, 32000);
-        SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, this->marker);
+        SPAWNQUEUE_ADD_ONE(__chfinalboss_dropHealth, this->marker);
         FUNC_8030E624(SFX_D9_WOODEN_CRATE_BREAKING_1, 1.0f, 32000);
         chfinalboss_func_80386628(this->marker, 0);
         chfinalboss_createBroomstickParticles(this->position, ASSET_552_MODEL_BROOMSTICK_PIECE_HEAD,   1);
@@ -1546,7 +1548,7 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             fileProgressFlag_set(FILEPROG_D1_HAS_ACTIVATED_A_JINJO_STATUE_IN_FINAL_FIGHT, TRUE);
             sFinalBossJinjoStatueActivated = 0;
             timed_exitStaticCamera(1.0f);
-            func_80324E38(1.0f, 0);
+            setCameraModeAtTime(1.0f, 0);
         }
         if (local->hits == 0) {
             gcdialog_showText(randi2(0, 5) + 0x1140, 0x20, NULL, NULL, NULL, NULL);
@@ -1653,7 +1655,7 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             }
             else if (actor_animationIsAt(this, 0.9999f)) {
                 timed_exitStaticCamera(0.0f);
-                func_80324E38(0.0f, 0);
+                setCameraModeAtTime(0.0f, 0);
                 chfinalboss_setPhase(this->marker, FINALBOSS_PHASE_5_JINJONATOR);
                 sfxsource_freeSfxsourceByIndex(this->unk44_31);
                 this->unk44_31 = 0U;
@@ -1689,7 +1691,7 @@ void chfinalboss_phase5_setState(Actor *this, s32 next_state) {
             timed_setStaticCameraToNode(0.0f, sp28);
             timed_exitStaticCamera(7.5f);
             timedFunc_set_1(7.5f, (GenFunction_1)chfinalboss_func_8038AC50, (s32) this->marker);
-            func_80324E38(7.5f, 0);
+            setCameraModeAtTime(7.5f, 0);
             break;
 
         case 36:
@@ -1733,7 +1735,7 @@ void chfinalboss_phase5_setState(Actor *this, s32 next_state) {
             break;
 
         case 38:
-            func_8025A6EC(SFX_GRUNTY_SPELL_POWERUP, 30000);
+            comusic_playTrackWithVolumeOverride(SFX_GRUNTY_SPELL_POWERUP, 30000);
             break;
 
         case 43:
@@ -1748,7 +1750,7 @@ void chfinalboss_func_8038AF84(ActorMarker *arg0) {
 }
 
 void chfinalboss_func_8038AFB0(void) {
-    func_802E4078(MAP_87_CS_SPIRAL_MOUNTAIN_5, 0, 1);
+    game_setMapWithTransition(MAP_87_CS_SPIRAL_MOUNTAIN_5, 0, 1);
 }
 
 void chfinalboss_phase5_update(ActorMarker *marker) {
@@ -1793,13 +1795,13 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
                 func_802BB3DC(0, 63.0f, 0.9f);
                 chjinjonator_finalAttack(jinjonator_marker);
                 func_8030E6D4(SFX_HEAVY_THUNDERSTORM_01);
-                func_8025A6EC(COMUSIC_A3_JINJONATOR_HITS_GRUNTY_J, 20000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_A3_JINJONATOR_HITS_GRUNTY_J, 20000);
                 chfinalboss_phase5_setState(this, 0x2B);
                 timed_exitStaticCamera(0.0f);
                 timed_setStaticCameraToNode(0.0f, sp38 + 0xD);
                 func_8028F85C(D_803917E0);
                 D_803928C8[0] = 0.0f;
-                D_803928C8[1] = func_80257204(D_803917E0[0], D_803917E0[2], this->position[0], this->position[2]);
+                D_803928C8[1] = ml_angle_between_points_2D(D_803917E0[0], D_803917E0[2], this->position[0], this->position[2]);
                 D_803928C8[2] = 0.0f;
                 player_setIdealRotation(D_803928C8);
             }
@@ -2052,7 +2054,7 @@ void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker
             local->hits++;
             chfinalboss_phase3_setState(this, 0x19);
             if (local->hits == 4) {
-                SPAWNQUEUE_ADD_1(__chfinalboss_dropHealth, this->marker);
+                SPAWNQUEUE_ADD_ONE(__chfinalboss_dropHealth, this->marker);
             }
         }
         break;
@@ -2121,7 +2123,7 @@ void chfinalboss_update(Actor *this){
             __chFinalBossJinjoStatueMarker[i] = NULL;
         }
 
-        __spawnQueue_add_1((GenFunction_1) chfinalboss_spawnShadow, (s32) this->marker);
+        spawnQueue_add_1((GenFunction_1) chfinalboss_spawnShadow, (s32) this->marker);
         chfinalboss_setPhase(this->marker, FINALBOSS_PHASE_0_INTRO);
         local->hits = 0;
         chfinalboss_func_80386600(this->marker, 0);
@@ -2188,7 +2190,7 @@ void chfinalboss_update(Actor *this){
         sp34[1] = this->position[1];
         sp34[2] = this->position[2];
         sp34[1] = -50.0f;
-        if(func_80309B48(sp4C, sp34, sp40, 0)){
+        if(findCollisionTriAlongPath3(sp4C, sp34, sp40, 0)){
             sp34[1] += 6.0f;
             shadow->position[0] = sp34[0];
             shadow->position[1] = sp34[1];
@@ -2242,7 +2244,7 @@ void chfinalboss_setBossDefeated(void) {
     }
     chfinalboss_phase5_setState(sp4C, 0x27);
     sp48->unk8 = (u8)1;
-    func_80324E38(0, 1);
+    setCameraModeAtTime(0, 1);
     timed_setStaticCameraToNode(0, camera_node);
     timed_exitStaticCamera(temp_f20);
     timedFunc_set_0(temp_f20 * 0.08, &chfinalboss_func_8038C138);

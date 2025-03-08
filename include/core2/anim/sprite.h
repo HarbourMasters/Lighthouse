@@ -3,6 +3,9 @@
 
 #include <ultra64.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct{
     u8 index;
@@ -48,4 +51,9 @@ s32 animsprite_get_unknown(AnimSprite *this);
 f32 animsprite_get_speed(AnimSprite *this);
 int animsprite_is_stopped(AnimSprite *this);
 int animsprite_is_at_step(AnimSprite *this, s32 frame);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

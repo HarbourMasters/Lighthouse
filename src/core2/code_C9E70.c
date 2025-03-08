@@ -6,7 +6,7 @@
 
 extern struct FF_StorageStruct *D_8037DCB8;
 
-void func_80350E00(void){
+void initializeParticleSystem(void){
     quizQuestionAskedBitfield_defrag();
     gcquiz_defrag();
     if(D_8037DCB8 == NULL)
