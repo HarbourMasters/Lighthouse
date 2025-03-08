@@ -87,11 +87,15 @@ make VERSION=us.v11
 
 ## the port itself
 (run from the root folder)
+```sh
 cmake -S . -B cmake_build
 cmake --build cmake_build 2>&1 | tee build_output.log
+```
 
 ## building the rom to make sure code hasnt broken the rom
 
 (run from the root folder)
+```sh
 source myenv/bin/activate
 make clean; make 2> makefileoutput.txt
+```
