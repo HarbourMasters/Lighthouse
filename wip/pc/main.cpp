@@ -1,4 +1,5 @@
 #ifdef LIGHTHOUSE_P
+
 #include <iostream>
 #include "libultraship/libultraship.h"
 #include "compat.h"
