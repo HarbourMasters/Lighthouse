@@ -4,9 +4,9 @@
 #else
 #include <rmon.h>
 #include <bk_stdarg.h>
+#include <os.h>
 #endif
 
-#include <os.h>
 
 
 void osSyncPrintf(const char *fmt, ...) {
