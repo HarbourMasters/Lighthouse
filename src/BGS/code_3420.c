@@ -546,7 +546,7 @@ s32 chvilegame_get_score_difference(ActorMarker *marker) {
   return local->vile_score - local->player_score;
 }
 
-bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[0],
+bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[3],
                                    f32 yaw, f32 dst[3]) {
   f32 piece_direction[3];
   f32 target_direction[3];
