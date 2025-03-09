@@ -10,6 +10,20 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 # Option to select build
 option(LIGHTHOUSE_P "Build the LIGHTHOUSE" ON)
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    include(CMake/automate-vcpkg.cmake)
+
+    set(VCPKG_TRIPLET x64-windows-static)
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
+
+    vcpkg_bootstrap()
+    vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog)
+
+    if (CMAKE_C_COMPILER_LAUNCHER MATCHES "ccache|sccache")
+        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
+    endif()
+endif()
+
 # Add tools needed for the build
 add_subdirectory(libultraship)
 
@@ -78,8 +92,8 @@ add_executable(${PROJECT_NAME} ${ALL_FILES})
 # Check the compiler and set the appropriate flags
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(${PROJECT_NAME} PRIVATE -w)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(${PROJECT_NAME} PRIVATE /W0)
+#elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+#    target_compile_options(${PROJECT_NAME} PRIVATE /W0)
 endif()
 
 # Gather all subdirectories recursively (for include directories)
