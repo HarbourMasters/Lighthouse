@@ -14,7 +14,7 @@ extern "C" {
 #define PART_EMIT_ROTATABLE 0x1
 
 
-void particleEmitter_setAlpha(ParticleEmitter *this, s32 alpha);
+void particleEmitter_setAlpha(ParticleEmitter *pthis, s32 arg1);
 void particleEmitter_setSfx(ParticleEmitter *this, enum sfx_e sfx_id, s32 arg2);
 void particleEmitter_setMinHeight(ParticleEmitter *this, f32);
 void particleEmitter_setParticleCallback(ParticleEmitter *this, void (*arg1)(ParticleEmitter *this, f32 pos[3]));

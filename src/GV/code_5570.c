@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "particle.h"
+//#include "core2/particle.h"
 
 extern void comusic_fadeMainTrackWithDelay(s32, f32);
 

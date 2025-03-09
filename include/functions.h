@@ -610,10 +610,10 @@ extern enum map_e map_get(void);
 extern s32 findStructInArrayD4WithRadius(s32 arg0[3]);
 extern s32 getStructArrayD4Index(s32 arg0);
 extern bool func_80329530(Actor *sthis, s32 dist);
-extern u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
-extern void func_8038C748(void);
-extern void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);
-
+//extern u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
+//extern void func_8038C748(void);
+//extern void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);
+//extern void particleEmitter_setAlpha(ParticleEmitter *pthis, s32 arg1);
 
 #ifdef __cplusplus
 }
