@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 //os function placeholders
-OSIntMask osSetIntMask(OSIntMask){ return 0; }
+OSIntMask osSetIntMask(OSIntMask mask){ return 0; }
 void osInitialize(void) {}
 void osCreateThread(OSThread *t, OSId id, void (*entry)(void *), void *arg, void *sp, OSPri p) {}
 s32 osAiSetFrequency(u32 frequency){ return 0; }
