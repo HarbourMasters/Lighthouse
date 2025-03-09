@@ -1,4 +1,4 @@
-#ifdef PC_PORT
+#ifdef LIGHTHOUSE_P
 #include "compat.h"
 #include <stdarg.h>
 #else
