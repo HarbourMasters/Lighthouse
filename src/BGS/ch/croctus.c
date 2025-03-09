@@ -9,7 +9,6 @@ extern void func_803289EC(Actor *, f32, s32);
 extern void func_80326310(Actor *);
 extern void actor_setOpacity(Actor *, s32);
 extern void spawnQueue_add_2(void (*)(s32, s32), s32, s32);
-extern void func_802BAFE4(s32 arg0);
 
 void chCroctus_spawnChildActor(ActorMarker *, u32);
 Actor *chCroctus_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);

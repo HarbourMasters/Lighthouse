@@ -604,6 +604,16 @@ extern bool is_within_yaw_range(f32 arg0[3], f32 arg1);
 extern void chvilegame_update(Actor *actor);
 extern void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite_s *sprite, u32 frame, u32 segment);
 extern bool nodeProp_findPositionFromActorId(enum actor_e actor_id, f32 *arg1);
+extern void func_802BAFE4(s32 arg0);
+extern enum bsgroup_e player_movementGroup(void);
+extern enum map_e map_get(void);
+extern s32 findStructInArrayD4WithRadius(s32 arg0[3]);
+extern s32 getStructArrayD4Index(s32 arg0);
+extern bool func_80329530(Actor *sthis, s32 dist);
+extern u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
+extern void func_8038C748(void);
+extern void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);
+
 
 #ifdef __cplusplus
 }

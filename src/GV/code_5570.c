@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "particle.h"
 
 extern void comusic_fadeMainTrackWithDelay(s32, f32);
 
@@ -149,7 +150,7 @@ void func_8038BD8C(f32 position[3], s32 cnt){
          100.0f, 60.0f, 100.0f
     );
     particleEmitter_setStartingScaleRange(pCtrl, 0.1f, 0.5f);
-    particleEmitter_setFinalScaleRange(pCtrl, 1.2, 1.6f);
+    particleEmitter_setFinalScaleRange(pCtrl, 1.2f, 1.6f);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 0.5f, 1.4f);
     particleEmitter_emitN(pCtrl, cnt);

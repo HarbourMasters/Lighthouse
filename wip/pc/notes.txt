@@ -33,6 +33,11 @@ extern "C" {
 }
 #endif
 
+--------
+asset types:
+
+Animation, Model, Sprite_CI4, Sprite_RGBA32, Sprite_CI8, Sprite_I8, Midi, Sprite_RGBA16, Sprite_UNKNOWN(256), LevelSetup, Sprite_I4, DemoInput, Dialog, QuizQuestion, GruntyQuestion,
+
 --------------------------------------------------
 main.cpp template, i dont wanna delete it yet
 /*
