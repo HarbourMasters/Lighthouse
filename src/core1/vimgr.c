@@ -140,7 +140,11 @@ void viMgr_init(void) {
   osCreateMesgQueue(&sMesgQueue1, sMesgBuffer1, 10);
   osCreateMesgQueue(&sMesgQueue2, sMesgBuffer2, 1);
   osCreateMesgQueue(&sMesgQueue3, sMesgBuffer3, FRAMERATE);
+  #ifndef LIGHTHOUSE_P
   osViSetEvent(&sMesgQueue1, (OSMesg)NULL, 1);
+  #else
+  osViSetEvent(&sMesgQueue1, OS_MESG_PTR(NULL), 1);
+  #endif
 
   sActiveFramebuffer = 0;
   sFrameCount = 1;
@@ -162,7 +166,13 @@ void viMgr_setFrameLimit(s32 arg0) { sFrameLimit = arg0; }
 
 s32 viMgr_getFrameLimit(void) { return sFrameLimit; }
 
-void viMgr_sendMessage(void) { osSendMesg(&sMesgQueue2, (OSMesg)NULL, OS_MESG_NOBLOCK); }
+void viMgr_sendMessage(void) { 
+  #ifndef LIGHTHOUSE_P
+  osSendMesg(&sMesgQueue2, (OSMesg)NULL, OS_MESG_NOBLOCK); 
+  #else
+  osSendMesg(&sMesgQueue2, OS_MESG_PTR(NULL), OS_MESG_NOBLOCK);
+  #endif
+}
 
 void viMgr_waitForFrame(s32 arg0) {
   static s32 vimgr_frameSkipCounter;
@@ -234,7 +244,11 @@ void viMgr_entry(void *arg0) {
       isHalted();
 #endif
     }
+    #ifndef LIGHTHOUSE_P
     osSendMesg(&sMesgQueue3, (OSMesg)NULL, OS_MESG_NOBLOCK);
+    #else
+    osSendMesg(&sMesgQueue3, OS_MESG_PTR(NULL), OS_MESG_NOBLOCK);
+    #endif
 
     for (i = 0; i < 8; i++) {
       if (sMessageQueueArray[i].queue != NULL) {

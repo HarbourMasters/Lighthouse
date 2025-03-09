@@ -185,7 +185,11 @@ void sendGfxTaskMessage(void) { sendMesgToMainQueue(3); }
 void initGfxTaskQueue(void) {
   gfxTaskQueueIndex = 0;
   osCreateMesgQueue(&gfxTaskMesgQueue, &gfxTaskMesg, 1);
+  #ifndef LIGHTHOUSE_P
   osSendMesg(&gfxTaskMesgQueue, (OSMesg)NULL, 1);
+  #else
+  osSendMesg(&gfxTaskMesgQueue, OS_MESG_PTR(NULL), 1);
+  #endif
   createResetThread();
   scissorBox_setDefault();
 }

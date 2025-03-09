@@ -24,7 +24,11 @@ void __osTimerServicesInit(void) {
   __osTimerList->value = 0;
   __osTimerList->interval = __osTimerList->value;
   __osTimerList->mq = NULL;
+  #ifndef LIGHTHOUSE_P
   __osTimerList->msg = (OSMesg)NULL;
+  #else
+  __osTimerList->msg = OS_MESG_PTR(NULL);
+  #endif
 }
 
 void __osTimerInterrupt(void) {

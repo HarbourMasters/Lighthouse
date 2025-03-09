@@ -346,7 +346,11 @@ void pfsManager_entry(void *arg) {
     if (isPfsManagerBusy == TRUE) {
       pfsManager_readData();
     } else {
+      #ifndef LIGHTHOUSE_P
       osSendMesg(&contReplyMessageQueue, (OSMesg)NULL, 0);
+      #else
+      osSendMesg(&contReplyMessageQueue, OS_MESG_PTR(NULL), 0);
+      #endif
     }
   } while (1);
 }
@@ -460,7 +464,11 @@ OSContPad *pfsManager_getControllerData(void) { return &currentControllerData; }
 void pfsManager_initMesgQueue(void) {
   isMessageQueueInitialized = TRUE;
   osCreateMesgQueue(&pfsManagerMessageQueue, &pfsManagerMessageBuffer, 5);
+  #ifndef LIGHTHOUSE_P
   osSendMesg(&pfsManagerMessageQueue, (OSMesg)NULL, OS_MESG_NOBLOCK);
+  #else
+  osSendMesg(&pfsManagerMessageQueue, OS_MESG_PTR(NULL), OS_MESG_NOBLOCK);
+  #endif
 }
 
 void pfsManager_waitForMesg(void) {
@@ -475,5 +483,9 @@ void pfsManager_waitForMesg(void) {
 }
 
 void pfsManager_sendMesg(void) {
+  #ifndef LIGHTHOUSE_P
   osSendMesg(&pfsManagerMessageQueue, (OSMesg)NULL, OS_MESG_NOBLOCK);
+  #else
+  osSendMesg(&pfsManagerMessageQueue, OS_MESG_PTR(NULL), OS_MESG_NOBLOCK);
+  #endif
 }
