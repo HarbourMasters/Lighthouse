@@ -30,7 +30,7 @@ void waitForGfxTask(void) {
 
 void signalGfxTask(void) {
 #ifdef LIGHTHOUSE_P
-  osSendMesg(&gfxTaskMesgQueue, (OSMesg)NULL, OS_MESG_BLOCK);
+  osSendMesg(&gfxTaskMesgQueue,  OS_MESG_PTR(NULL), OS_MESG_BLOCK);
 #else
   osSendMesg(&gfxTaskMesgQueue, NULL, OS_MESG_BLOCK);
 #endif
