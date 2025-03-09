@@ -10,8 +10,7 @@ void chvile_update(Actor *);
 void handle_vile_health_update(ActorMarker *);
 extern bool findCollisionTriWithOffsetAndFlags(f32[3], f32[3], f32, f32[3], s32, u32);
 
-extern bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[0],
-  f32 yaw, f32 dst[3]);
+extern bool chvilegame_find_closest_piece(ActorMarker* marker, f32 position[3], f32 yaw, f32 dst[3]);
 
 typedef struct chmrvile_s {
   u8 unk0;                  // u8  pad1[0x3];
