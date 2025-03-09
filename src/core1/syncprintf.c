@@ -1,11 +1,13 @@
-#ifdef LIGHTHOUSE_P
-#include "pc_oscompat.h"
+#ifdef PC_PORT
+#include "compat.h"
+#include <stdarg.h>
 #else
-#include <os.h>
 #include <rmon.h>
+#include <bk_stdarg.h>
 #endif
 
-#include <bk_stdarg.h>
+#include <os.h>
+
 
 void osSyncPrintf(const char *fmt, ...) {
   int ans;
