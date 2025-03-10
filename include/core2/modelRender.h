@@ -2,8 +2,13 @@
 #define _MODEL_RENDER_H_
 
 #include <ultra64.h>
+
 #include "model.h"
 #include "generic.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum model_render_depth_mode_e{
     MODEL_RENDER_DEPTH_NONE    = 0,
@@ -34,4 +39,9 @@ void func_8033A4A0(enum asset_e modelId, f32 arg1, f32 arg2);
 void modelRender_setVertexList(BKVertexList *vertex_list);
 void modelRender_setDepthMode(enum model_render_depth_mode_e renderMode);
 void modelRender_defrag(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

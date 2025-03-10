@@ -1,8 +1,8 @@
 #ifndef __BANJO_KAZOOIE_CORE2_CH_SNACKER_H__
 #define __BANJO_KAZOOIE_CORE2_CH_SNACKER_H__
 
-#include "prop.h" // for ActorInfo
 #include "../snackerctl.h" //for SnackerCtlState
+#include "prop.h"          // for ActorInfo
 
 extern ActorInfo gChSnacker;
 

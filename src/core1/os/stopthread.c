@@ -1,30 +1,28 @@
 #include <ultra64.h>
+#ifdef LIGHTHOUSE_P
+#include "pc_oscompat.h"
+#else 
+#include "osint.h"
+#endif
 
-extern OSThread *__osRunningThread;
-
-void osStopThread(OSThread *t)
-{
-    register u32 saveMask = __osDisableInt();
-    register u16 state;
-    if (t == NULL)
-    {
-        state = OS_STATE_RUNNING;
-    }
-    else
-    {
-        state = t->state;
-    }
-    switch (state)
-    {
-    case OS_STATE_RUNNING:
-        __osRunningThread->state = OS_STATE_STOPPED;
-        __osEnqueueAndYield(NULL);
-        break;
-    case OS_STATE_RUNNABLE:
-    case OS_STATE_WAITING:
-        t->state = OS_STATE_STOPPED;
-        __osDequeueThread(t->queue, t);
-        break;
-    }
-    __osRestoreInt(saveMask);
+void osStopThread(OSThread *t) {
+  register u32 saveMask = __osDisableInt();
+  register u16 state;
+  if (t == NULL) {
+    state = OS_STATE_RUNNING;
+  } else {
+    state = t->state;
+  }
+  switch (state) {
+  case OS_STATE_RUNNING:
+    __osRunningThread->state = OS_STATE_STOPPED;
+    __osEnqueueAndYield(NULL);
+    break;
+  case OS_STATE_RUNNABLE:
+  case OS_STATE_WAITING:
+    t->state = OS_STATE_STOPPED;
+    __osDequeueThread(t->queue, t);
+    break;
+  }
+  __osRestoreInt(saveMask);
 }

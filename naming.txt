@@ -1,0 +1,14 @@
+file_functionWord
+variableVariables **without prefix**
+MACROS_WORD
+CONSTANTS_WORD
+t_typedefVariables
+st_structVariables
+e_enumVariables
+ENUM_MEMBERS
+g_globalVariables
+s_staticVariables
+v_volatileVariables
+p_pointerVariables
+a_arrayVariables
+

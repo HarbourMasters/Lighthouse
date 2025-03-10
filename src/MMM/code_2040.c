@@ -33,12 +33,12 @@ extern ActorInfo D_8038BEFC;
 extern ActorInfo D_80367E70;
 extern ActorInfo D_80372C3C;
 
-extern void core1_7090_initSfxSource(s32, s32, s32, f32);
-extern void func_8025AE0C(s32, f32);
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
-extern void *func_80309B48(f32[3], f32[3], f32[3], u32);
+extern void sfx_initSfxSource(s32, s32, s32, f32);
+extern void comusic_fadeMainTrack(s32, f32);
+extern void spawnParticleEffect(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void *findCollisionTriAlongPath3(f32[3], f32[3], f32[3], u32);
 
-void func_802D3D54(Actor *this);
+void initializeActorWrapper(Actor *this);
 void func_803888B8(Actor *this);
 Actor *func_80388994(ActorMarker *marker, Gfx ** gfx, Mtx **mtx, Vtx **vtx);
 void func_80388BDC(Actor *this);
@@ -63,21 +63,21 @@ ActorAnimationInfo D_8038BBE0[] = {
 ActorInfo D_8038BC28 = {
     0x9C, 0x109, 0x3CD,
     0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_8038BC4C = {
     0x9E, 0x10B, 0x3CF,
     0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_8038BC70 = {
     0x9A,  0xCB, 0x3CC,
     0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+    initializeActorWrapper, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
@@ -180,7 +180,7 @@ f32 MMM_func_80388430(Actor *this, s32 arg1, s32 arg2, f32 arg3) {
     this->unk1C[1] -= 8.0;
     sp34[1] = this->position[1] - 400.0f;
     if (this->unk1C[1] < 0.0f) {
-        if (func_80309B48(sp4C, sp34, sp40, 0) && (this->position[1] <= sp34[1])) {
+        if (findCollisionTriAlongPath3(sp4C, sp34, sp40, 0) && (this->position[1] <= sp34[1])) {
             this->position[1] = sp34[1] + 6.0f;
             switch (this->unk38_31) {
             case 1:
@@ -225,7 +225,7 @@ bool func_80388670(ActorMarker * this_marker, ActorMarker * other_marker){
 
 void func_803888B8(Actor *this){
     func_803300C0(this->marker, func_80388670);
-    func_802D3CE8(this);
+    initializeActor(this);
     this->lifetime_value = 0.0f;
     switch(this->state){
         case 4:
@@ -264,7 +264,7 @@ Actor *func_80388994(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp90[0] = sp84[0] + (sp78[0] - sp84[0]) * randf();
             sp90[1] = sp84[1];
             sp90[2] = sp84[2] + (sp78[2] - sp84[2]) * randf();
-            func_802EE6CC(sp90, sp6C, D_8038BE20, 1, 0.3f, 50.0f, 0xB4, randi2(0x82, 0xC8), 0);
+            spawnParticleEffect(sp90, sp6C, D_8038BE20, 1, 0.3f, 50.0f, 0xB4, randi2(0x82, 0xC8), 0);
         }
     }
     return this;
@@ -286,7 +286,7 @@ void func_80388B2C(Actor *this, f32 arg1) {
 void func_80388BDC(Actor *this) {
     f64 phi_f0;
 
-    func_802D3D74(this);
+    initializeActorCollisionOff(this);
     mapSpecificFlags_set(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN, BOOL((this->yaw > 260.0f) && (this->yaw < 330.0f)));
     if (!this->volatile_initialized) {
         if (this->yaw != 0.0f) {
@@ -307,10 +307,10 @@ void func_80388BDC(Actor *this) {
         if(mapSpecificFlags_get(MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
             func_802BAFE4(0x21);
             subaddie_set_state(this, 6);
-            core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
+            sfx_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_2_UNKNOWN, FALSE);
-            func_8025A6EC(COMUSIC_4_MMM_CLOCK_VERSION, -1);
-            func_8025AE0C(2000, 3.0f);
+            comusic_playTrackWithVolumeOverride(COMUSIC_4_MMM_CLOCK_VERSION, -1);
+            comusic_fadeMainTrack(2000, 3.0f);
         }
         break;
 
@@ -320,8 +320,8 @@ void func_80388BDC(Actor *this) {
             subaddie_set_state(this, 7U);
             this->yaw = 270.0f;
             func_8030E540(0x7F);
-            core1_7090_freeSfxSource(0);
-            func_802D68F0(0xE);
+            sfx_freeSfxSource(0);
+            setHourglassTimer(0xE);
             item_set(6, 1);
         }
         break;
@@ -341,7 +341,7 @@ void func_80388BDC(Actor *this) {
                 func_802BAFE4(0x23);
             }
             subaddie_set_state(this, 8);
-            core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
+            sfx_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
         }
         break;
     case 8:
@@ -351,10 +351,10 @@ void func_80388BDC(Actor *this) {
             this->yaw = 0.0f;
             func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_0_UNKNOWN, FALSE);
-            core1_7090_freeSfxSource(0);
+            sfx_freeSfxSource(0);
             if (!this->unk38_31) {
-                func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
-                func_8025AE0C(0x7D0, 2.5f);
+                comusic_playTrackWithVolumeOverride(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
+                comusic_fadeMainTrack(0x7D0, 2.5f);
             }
             this->unk38_31 = 0;
             this->lifetime_value = 0.0f;
@@ -365,11 +365,11 @@ void func_80388BDC(Actor *this) {
 }
 
 void func_80388FE4(Actor *this) { 
-    func_802D4A9C(this,0);
+    updateActorStateBasedOnMapFlags(this,0);
 }
 
 void func_80389004(Actor *this){
-    func_802D3CE8(this);
+    initializeActor(this);
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = TRUE;
@@ -385,12 +385,12 @@ void func_80389060(Actor *this){
         marker_despawn(this->marker);
     }
     else{
-        func_802D3CE8(this);
+        initializeActor(this);
     }
 }
 
 void func_803890B8(Actor *this) {
-    func_802D3D54(this);
+    initializeActorWrapper(this);
     func_8038AC04();
 }
 

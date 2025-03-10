@@ -2,9 +2,12 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+#include "core2/modelRender.h"
 
-typedef struct struct_24_s{
+
+extern void spawnParticleEffect(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+
+typedef struct t_actorParticle{
     s32 unk0;
     BKModelBin *model_bin;
     f32 unk8[3];
@@ -15,43 +18,43 @@ typedef struct struct_24_s{
     ParticleEmitter *unk3C;
     s32 unk40[4];
     f32 unk50;
-} Struct24s;
+} s_actorParticle;
 
-typedef struct struct_25_s{
-    Struct24s *begin;
-    Struct24s *current;
-    Struct24s *end;
-    Struct24s data[];
-} Struct25s;
+typedef struct t_actorParticleList{
+    s_actorParticle *begin;
+    s_actorParticle *current;
+    s_actorParticle *end;
+    s_actorParticle data[];
+} s_actorParticleList;
 
-Actor *func_802C8484(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void func_802C8C5C(Actor *this);
+Actor *actor_render(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void actor_update(Actor *this);
 
 /* .data */
-f32 D_80366330 = 0.5f;
-f32 D_80366334 = 30.0f;
-f32 D_80366338 = 150.0f;
-f32 D_8036633C = 25.0f;
-ActorInfo D_80366340 = { 0x56,  0x4A,   0x0, 0x2, 0x0, func_802C8C5C, actor_update_func_80326224, func_802C8484, 0, 0, 0.0f, 0};
-ActorInfo D_80366364 = { 0x56,  0x4B,   0x0, 0x2, 0x0, func_802C8C5C, actor_update_func_80326224, func_802C8484, 0, 0, 0.0f, 0};
-ActorInfo D_80366388 = { 0x56,   0xD,   0x0, 0x2, 0x0, func_802C8C5C, actor_update_func_80326224, func_802C8484, 0, 0, 0.0f, 0};
-ActorInfo D_803663AC = { 0x56, 0x11F,   0x0, 0x2, 0x0, func_802C8C5C, actor_update_func_80326224, func_802C8484, 0, 0, 0.0f, 0};
-ActorInfo D_803663D0 = { 0x56, 0x14F,   0x0, 0x2, 0x0, func_802C8C5C, actor_update_func_80326224, func_802C8484, 0, 0, 0.0f, 0};
-ActorInfo D_803663F4 = { 0x56, 0x3AD,   0x0, 0x2, 0x0, func_802C8C5C, actor_update_func_80326224, func_802C8484, 0, 0, 0.0f, 0};
-s32 D_80366418[3] = {0,0,0};
+f32 s_particleEffectScale = 0.5f;
+f32 s_particleEffectSpeed = 30.0f;
+f32 s_particleEffectDuration = 150.0f;
+f32 s_particleEffectIntensity = 25.0f;
+ActorInfo g_actorInfoType1 = { 0x56,  0x4A,   0x0, 0x2, 0x0, actor_update, actor_update_func_80326224, actor_render, 0, 0, 0.0f, 0};
+ActorInfo g_actorInfoType2 = { 0x56,  0x4B,   0x0, 0x2, 0x0, actor_update, actor_update_func_80326224, actor_render, 0, 0, 0.0f, 0};
+ActorInfo g_actorInfoType3 = { 0x56,   0xD,   0x0, 0x2, 0x0, actor_update, actor_update_func_80326224, actor_render, 0, 0, 0.0f, 0};
+ActorInfo g_actorInfoType4 = { 0x56, 0x11F,   0x0, 0x2, 0x0, actor_update, actor_update_func_80326224, actor_render, 0, 0, 0.0f, 0};
+ActorInfo g_actorInfoType5 = { 0x56, 0x14F,   0x0, 0x2, 0x0, actor_update, actor_update_func_80326224, actor_render, 0, 0, 0.0f, 0};
+ActorInfo g_actorInfoType6 = { 0x56, 0x3AD,   0x0, 0x2, 0x0, actor_update, actor_update_func_80326224, actor_render, 0, 0, 0.0f, 0};
+s32 a_defaultSpawnPosition[3] = {0,0,0};
 
 /* .bss */
-s32 D_8037DD90;
-s32 D_8037DD94;
-u32 D_8037DD98;
-u32 D_8037DD9C;
-u32 D_8037DDA0;
-u32 D_8037DDA4;
+s32 s_actorCount;
+s32 s_actorType;
+u32 s_spawnColor;
+u32 s_spawnColorAlpha;
+u32 s_actorSpawnPosition;
+u32 s_actorSpawnRotation;
 
 /* .code */
-void func_802C83F0(Actor *actor) {
-    Struct25s *phi_a1;
-    Struct24s *phi_s0;
+void actor_freeResources(Actor *actor) {
+    s_actorParticleList *phi_a1;
+    s_actorParticle *phi_s0;
 
     phi_a1 = actor->unk40;
     for( phi_s0 = phi_a1->begin; phi_s0 < phi_a1->current; phi_s0++){
@@ -63,12 +66,12 @@ void func_802C83F0(Actor *actor) {
         }
         phi_s0->unk3C = NULL;
     }
-    free(actor->unk40);
+    bk_free(actor->unk40);
 }
 
-Actor *func_802C8484(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    Struct25s *temp_s1;
-    Struct24s *phi_s0;
+Actor *actor_render(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+    s_actorParticleList *temp_s1;
+    s_actorParticle *phi_s0;
     f32 sp5C;
     Actor *sp58;
     u32 phi_v1;
@@ -90,26 +93,26 @@ Actor *func_802C8484(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     return sp58;
 }
 
-Actor *func_802C8580(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    Struct25s *s1 =  malloc(sizeof(Struct25s) + D_8037DD90 * sizeof(Struct24s));
+Actor *actor_initialize(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorParticleList *s1 =  heap_malloc(sizeof(s_actorParticleList) + s_actorCount * sizeof(s_actorParticle));
     Actor *actor = actor_new(position, yaw, actorInfo, flags);
     f32 f24;
     f32 sp68[3];
-    Struct24s * s0;
+    s_actorParticle * s0;
 
     actor->marker->collidable = FALSE;
     s1->begin = &s1->data[0];
     s1->current = &s1->data[0];
-    s1->end = s1->begin + D_8037DD90;
+    s1->end = s1->begin + s_actorCount;
 
     for(s1->current = s1->begin; s1->current < s1->end; s1->current++){//L802C8670
         f24 = randf2(0.0f, 360.0f);
         s0 = s1->current;
         s0->unk0 = 2;
-        s0->unk40[0] = D_8037DD98;
-        s0->unk40[1] = D_8037DD9C;
-        s0->unk40[2] = D_8037DDA0;
-        s0->unk40[3] = D_8037DDA4;
+        s0->unk40[0] = s_spawnColor;
+        s0->unk40[1] = s_spawnColorAlpha;
+        s0->unk40[2] = s_actorSpawnPosition;
+        s0->unk40[3] = s_actorSpawnRotation;
 
         TUPLE_ASSIGN(s0->unk30, 
             randf2(100.0f, 250.0f), 
@@ -120,7 +123,7 @@ Actor *func_802C8580(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
         s0->unk8[0] = randf2(50.0f, 150.0f);
         s0->unk8[1] = 0.0f;
         s0->unk8[2] = 0.0f;
-        switch(D_8037DD94){
+        switch(s_actorType){
         case 1: // 802C8740
             s0->unk30[0] = randf2(125.0f, 175.0f);
             s0->unk30[1] = randf2(400.0f, 600.0f);
@@ -184,77 +187,84 @@ Actor *func_802C8580(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
         ml_vec3f_yaw_rotate_copy(&s0->unk30, &s0->unk30, randf2(15.0f, 90.0f) + f24);
     }//L802C8A08
     actor->unk40 = s1;
-    marker_setFreeMethod(actor->marker, func_802C83F0);
+    marker_setFreeMethod(actor->marker, actor_freeResources);
     return actor;
 }
 
-Actor *func_802C8A54(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    D_8037DD90 = 0xF;
-    D_8037DD94 = 1;
-    D_8037DD98 = 0xFA;
-    *(&D_8037DD98 + 1) = 0xFA;
-    *(&D_8037DD98 + 2) = 0xFA;
-    *(&D_8037DD98 + 3) = 0x78;
-    return func_802C8580(position, yaw, actorInfo, flags);
+Actor *actor_spawnType1(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorCount = 0xF;
+    s_actorType = 1;
+    s_spawnColor = 0xFA;
+    *(&s_spawnColor + 1) = 0xFA;
+    *(&s_spawnColor + 2) = 0xFA;
+    *(&s_spawnColor + 3) = 0x78;
+    return actor_initialize(position, yaw, actorInfo, flags);
 }
 
-Actor *func_802C8AA8(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    D_8037DD90 = 0x19;
-    D_8037DD94 = 0;
-    D_8037DD98 = 0xFA;
-    *(&D_8037DD98 + 1) = 0xFA;
-    *(&D_8037DD98 + 2) = 0xFA;
-    *(&D_8037DD98 + 3) = 0x78;
-    return func_802C8580(position, yaw, actorInfo, flags);
+Actor *actor_spawnType0(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorCount = 0x19;
+    s_actorType = 0;
+    s_spawnColor = 0xFA;
+    *(&s_spawnColor + 1) = 0xFA;
+    *(&s_spawnColor + 2) = 0xFA;
+    *(&s_spawnColor + 3) = 0x78;
+    return actor_initialize(position, yaw, actorInfo, flags);
 }
 
-Actor *func_802C8AF8(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    D_8037DD90 = 0x19;
-    D_8037DD94 = 3;
-    D_8037DD98 = 0xFA;
-    *(&D_8037DD98 + 1) = 0xFA;
-    *(&D_8037DD98 + 2) = 0xFA;
-    *(&D_8037DD98 + 3) = 0x78;
-    return func_802C8580(position, yaw, actorInfo, flags);
+Actor *actor_spawnType3(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorCount = 0x19;
+    s_actorType = 3;
+    s_spawnColor = 0xFA;
+    *(&s_spawnColor + 1) = 0xFA;
+    *(&s_spawnColor + 2) = 0xFA;
+    *(&s_spawnColor + 3) = 0x78;
+    return actor_initialize(position, yaw, actorInfo, flags);
 }
 
-Actor *func_802C8B4C(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    D_8037DD90 = 0xF;
-    D_8037DD94 = 2;
-    D_8037DD98 = 0x95;
-    *(&D_8037DD98 + 1) = 0x55;
-    *(&D_8037DD98 + 2) = 0x2B;
-    *(&D_8037DD98 + 3) = 0x9B;
-    return func_802C8580(position, yaw, actorInfo, flags);
+Actor *actor_spawnType2(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorCount = 0xF;
+    s_actorType = 2;
+    s_spawnColor = 0x95;
+    *(&s_spawnColor + 1) = 0x55;
+    *(&s_spawnColor + 2) = 0x2B;
+    *(&s_spawnColor + 3) = 0x9B;
+    return actor_initialize(position, yaw, actorInfo, flags);
 }
 
-Actor *func_802C8BA8(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    D_8037DD90 = 0x19;
-    D_8037DD94 = 4;
-    D_8037DD98 = 0x95;
-    *(&D_8037DD98 + 1) = 0x55;
-    *(&D_8037DD98 + 2) = 0x2B;
-    *(&D_8037DD98 + 3) = 0x9B;
-    return func_802C8580(position, yaw, actorInfo, flags);
+Actor *actor_spawnType4(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorCount = 0x19;
+    s_actorType = 4;
+    s_spawnColor = 0x95;
+    *(&s_spawnColor + 1) = 0x55;
+    *(&s_spawnColor + 2) = 0x2B;
+    *(&s_spawnColor + 3) = 0x9B;
+    return actor_initialize(position, yaw, actorInfo, flags);
 }
 
-Actor *func_802C8C04(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
-    D_8037DD90 = 0xf;
-    D_8037DD94 = 5;
-    D_8037DD98 = 0xC8;
-    *(&D_8037DD98 + 1) = 0xC8;
-    *(&D_8037DD98 + 2) = 0xA0;
-    *(&D_8037DD98 + 3) = 0x9B;
-    return func_802C8580(position, yaw, actorInfo, flags);
+Actor *actor_spawnType5(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    s_actorCount = 0xf;
+    s_actorType = 5;
+    s_spawnColor = 0xC8;
+    *(&s_spawnColor + 1) = 0xC8;
+    *(&s_spawnColor + 2) = 0xA0;
+    *(&s_spawnColor + 3) = 0x9B;
+    return actor_initialize(position, yaw, actorInfo, flags);
 }
 
-void func_802C8C5C(Actor *actor) {
+void actor_update(Actor *actor) {
     f32 sp94[3];
     f32 temp_f0 = time_getDelta();
     f32 sp84[3];
-    Struct25s *temp_s2 = actor->unk40;
-    Struct24s *phi_s0;
-    s32 sp70[3] = D_80366418;
+    s_actorParticleList *temp_s2 = actor->unk40;
+    s_actorParticle *phi_s0;
+#ifndef LIGHTHOUSE_P
+    s32 sp70[3] = a_defaultSpawnPosition;
+#else
+    s32 sp70[3];
+    sp70[0] = a_defaultSpawnPosition[0];
+    sp70[1] = a_defaultSpawnPosition[1];
+    sp70[2] = a_defaultSpawnPosition[2];
+#endif
 
     for(phi_s0 = temp_s2->begin; phi_s0 < temp_s2->current; phi_s0++){
         if (phi_s0->unk0 == 2) {
@@ -280,7 +290,7 @@ void func_802C8C5C(Actor *actor) {
                 phi_s0->unk0 = 1;
                 phi_s0->unk3C = func_802EE5E0(1);
                 if (phi_s0->unk3C != 0) {
-                    func_802EE6CC(phi_s0->unk8, sp70, phi_s0->unk40, 1, D_80366330, D_80366334, (s32)D_80366338, (s32)D_8036633C, 1);
+                    spawnParticleEffect(phi_s0->unk8, sp70, phi_s0->unk40, 1, s_particleEffectScale, s_particleEffectSpeed, (s32)s_particleEffectDuration, (s32)s_particleEffectIntensity, 1);
                 }
             }
         }

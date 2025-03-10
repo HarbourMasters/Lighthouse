@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 extern f32 mapModel_getFloorY(f32[3]);
 extern void func_8028F45C(s32, f32[3]);
 
@@ -83,7 +86,7 @@ static bool __chTreasurehunt_isActiveHitboxBeakBusterHitbox(void) {
             comusic_id = COMUSIC_2D_PUZZLE_SOLVED_FANFARE;
             music_volume = 0x7FFF;
         }
-        func_8025A6EC(comusic_id, music_volume);
+        comusic_playTrackWithVolumeOverride(comusic_id, music_volume);
         return TRUE;
     }
     return FALSE;
@@ -123,8 +126,8 @@ static void __chTreasurehunt_checkStepProgress(s32 currentStep){
         }
 
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
-        __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
-        __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
+        spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
+        spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
     }
 }
 
@@ -157,7 +160,7 @@ void chTreasurehunt_checkStepProgress5(NodeProp *this, ActorMarker *arg1){
         particleTargetPosition[1] = (f32)this->y;
         particleTargetPosition[2] = (f32)this->z;
         particleTargetPosition[1] =  mapModel_getFloorY(particleTargetPosition);
-        __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0xF4, reinterpret_cast(s32, particleTargetPosition[0]), reinterpret_cast(s32, particleTargetPosition[1]), reinterpret_cast(s32, particleTargetPosition[2]));
+        spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0xF4, reinterpret_cast(s32, particleTargetPosition[0]), reinterpret_cast(s32, particleTargetPosition[1]), reinterpret_cast(s32, particleTargetPosition[2]));
         particleEmitter = partEmitMgr_newEmitter(3);
         particleEmitter_setRGB(particleEmitter, sChTreasurehuntParticleRGB);
         particleEmitter_setSprite(particleEmitter, ASSET_700_SPRITE_DUST);

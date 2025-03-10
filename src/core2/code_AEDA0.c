@@ -70,7 +70,7 @@ s32 D_8038363C;
 s32 D_80383640;
 s32 D_80383644;
 
-void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 frame, u32 segment);
+void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite_s *sprite, u32 frame, u32 segment);
 void func_803380F8(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 void func_803381B4(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 
@@ -85,25 +85,25 @@ void func_80335D30(Gfx **gfx){
         return;
         
     case 15:
-        gSPDisplayList((*gfx)++, D_803702C0);
+        __gSPDisplayList((*gfx)++, D_803702C0);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
         return;
 
     case 12:
-        gSPDisplayList((*gfx)++, D_80370290);
+        __gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
         return;
 
     case 10:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineLERP((*gfx)++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
         gDPSetEnvColor((*gfx)++, D_80383620, D_80383624, D_80383628, 0xFF);
         return;
 
     case 16:
-        gSPDisplayList((*gfx)++, D_80370290);
+        __gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineLERP((*gfx)++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
         gDPSetEnvColor((*gfx)++, D_80383620, D_80383624, D_80383628, 0xFF);
@@ -111,11 +111,11 @@ void func_80335D30(Gfx **gfx){
 
     case 8:
         if (D_8038361C != 0) {
-            gSPDisplayList((*gfx)++, D_80370308);
+            __gSPDisplayList((*gfx)++, D_80370308);
             gDPSetCombineLERP((*gfx)++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, COMBINED, ENVIRONMENT, COMBINED, 0, 0, 0, COMBINED);
             gDPSetEnvColor((*gfx)++, D_8038361C, D_8038361C, D_8038361C, 0xFF);
         } else {
-            gSPDisplayList((*gfx)++, D_80370260);
+            __gSPDisplayList((*gfx)++, D_80370260);
             gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         }
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
@@ -123,72 +123,72 @@ void func_80335D30(Gfx **gfx){
 
     case 7:
         if (D_8038361C != 0) {
-            gSPDisplayList((*gfx)++, D_80370308);
+            __gSPDisplayList((*gfx)++, D_80370308);
             gDPSetCombineLERP((*gfx)++, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, PRIMITIVE, COMBINED, PRIMITIVE_ALPHA, COMBINED, 0, 0, 0, COMBINED);
             gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038361C);
         } else {
-            gSPDisplayList((*gfx)++, D_80370260);
+            __gSPDisplayList((*gfx)++, D_80370260);
             gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
             gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
         }
         return;
 
     case 6:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
         return;
 
     case 13:
-        gSPDisplayList((*gfx)++, D_80370290);
+        __gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
         return;
 
     case 5:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
         return;
 
     case 9:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383630, D_80383630, D_80383630, D_8038363C);
         return;
 
     case 14:
-        gSPDisplayList((*gfx)++, D_80370290);
+        __gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383630, D_80383630, D_80383630, D_8038363C);
         return;
 
     case 1:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383630, D_80383630, D_80383630, 0xFF);
         return;
 
     case 2:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineLERP((*gfx)++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
         gDPSetPrimColor((*gfx)++, 0, 0, 0, 0, 0, D_8038363C);
         return;
 
     case 11:
-        gSPDisplayList((*gfx)++, D_80370290);
+        __gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineLERP((*gfx)++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
         gDPSetPrimColor((*gfx)++, 0, 0, 0, 0, 0, D_8038363C);
         return;
 
     case 4:
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor((*gfx)++, 0, 0, D_80383620, D_80383624, D_80383628, D_8038362C);
         return;
 
     default://L80336814
-        gSPDisplayList((*gfx)++, D_80370260);
+        __gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineLERP((*gfx)++, 0, 0, 0, TEXEL0, 0, 0, 0, PRIMITIVE, 0, 0, 0, TEXEL0, 0, 0, 0, PRIMITIVE);
         gDPSetPrimColor((*gfx)++, 0, 0, 0, 0, 0, 0xFF);
         return;
@@ -209,11 +209,12 @@ void func_8033687C( Gfx **gfx )
      }
  }
 
-void spriteRender_draw(Gfx **gfx, Vtx **vtx, BKSprite *sp, u32 frame){
+void spriteRender_draw(Gfx **gfx, Vtx **vtx, BKSprite_s *sp, u32 frame){
     spriteRender_drawWithSegment(gfx, vtx, sp, frame, 0);
 }
 
-void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 frame, u32 segment) {
+void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite_s *sprite, u32 frame, u32 segment) {
+    #ifndef LIGHTHOUSE_P
     s32 ix;
     s32 pixel_size_nibbles; //sp1C0
     s32 sp1BC;
@@ -280,9 +281,9 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     sp1B4 = *gfx;
     sp1B0 = var_a3;
     if(segment != 0){
-        gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), 0, 0);
+        __gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), 0, 0);
     }else{
-        gSPVertex((*gfx)++, sp1B0, 0, 0);
+        __gSPVertex((*gfx)++, sp1B0, 0, 0);
     }
     //for each texture (chunk) in frame
     // sp1B4 = sp1B4;
@@ -327,17 +328,17 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
         if (i_vtx == 0x10) {
             i_vtx = 0;
             if(segment != 0){
-                gSPVertex(sp1B4, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), 16, 0);
+                __gSPVertex(sp1B4, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), 16, 0);
             }else{
-                gSPVertex(sp1B4, sp1B0, 16, 0);
+                __gSPVertex(sp1B4, sp1B0, 16, 0);
             }
             //start new vtx seg
             sp1B4 = *gfx;
             sp1B0 = var_a3;
             if (segment) {
-                gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), 0, 0);
+                __gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), 0, 0);
             } else {
-                gSPVertex((*gfx)++, sp1B0, 0, 0);
+                __gSPVertex((*gfx)++, sp1B0, 0, 0);
             }
         }
         var_t2 = (BKSpriteTextureBlock *)(tmem + ((s32) (var_t2->w * var_t2->h) * pixel_size_nibbles / 2));
@@ -349,14 +350,14 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     //rewrite vtx seg start with correct vtx count
     if (i_vtx > 0) {
         if(segment != 0){
-            gSPVertex(sp1B4, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), i_vtx, 0);
+            __gSPVertex(sp1B4, SEGMENT_ADDR(segment, (s32)sp1B0 - (s32)vtx_start), i_vtx, 0);
         }else{
             if(1); 
-            gSPVertex(sp1B4, sp1B0, i_vtx, 0);
+            __gSPVertex(sp1B4, sp1B0, i_vtx, 0);
         }
     }
     else {
-        //no vtx, overwrite gSPVertex() command;
+        //no vtx, overwrite __gSPVertex() command;
         *gfx = sp1B4;
     }
 
@@ -373,6 +374,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     }
     if(sp1B4);
     func_8033687C(gfx);
+    #endif
 }
 
 void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_index) {
@@ -411,7 +413,7 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_in
     } 
     
     tmem = (u16*)(txtr_ptr + 1);
-    gSPVertex((*gfx)++, start_vtx, 12, 0);
+    __gSPVertex((*gfx)++, start_vtx, 12, 0);
 
     i_vtx0 = 0;
     for(var_s1 = 0; var_s1 < size; var_s1++){
@@ -446,7 +448,7 @@ void func_803380F8(Gfx **gfx, Mtx **mtx, f32 arg2[3]) {
     sp20[1] = arg2[1] - sp2C[1];
     sp20[2] = arg2[2] - sp2C[2];
     mlMtxSet(viewport_getMatrix());
-    func_80252330(sp20[0], sp20[1], sp20[2]);
+    mlMtx_set_translation_vec3f(sp20[0], sp20[1], sp20[2]);
     mlMtxApply(*mtx);
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 }
@@ -460,7 +462,7 @@ void func_803381B4(Gfx **gfx, Mtx **mtx, f32 arg2[3]) {
     sp20[1] = arg2[1] - sp2C[1];
     sp20[2] = arg2[2] - sp2C[2];
     mlMtxSet(viewport_getDefaultMatrix());
-    func_80252330(sp20[0], sp20[1], sp20[2]);
+    mlMtx_set_translation_vec3f(sp20[0], sp20[1], sp20[2]);
     mlMtxApply(*mtx);
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 }

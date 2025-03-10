@@ -36,9 +36,9 @@ void func_80390944(f32 position[3], s32 cnt, enum asset_e model_id){
         250.0f, 250.0f, 250.0f
     );
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_80392754);
-    particleEmitter_func_802EF9F8(pCtrl, 0.6f);
-    particleEmitter_func_802EFA18(pCtrl, 0);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.6f);
+    particleEmitter_setCollisionCount(pCtrl, 0);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_7B_ICE_BREAKING_1, 8000);
     particleEmitter_emitN(pCtrl, cnt);
 }
@@ -65,19 +65,19 @@ void func_80390ABC(ActorMarker *marker){
     func_80390944(this->position, 0xA, 0x4D3);
     func_80390A30(this->position, 6, ASSET_700_SPRITE_DUST);
     func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
-    func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     this->unk38_31 = 1;
 }
 
 void func_80390B2C(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
     func_803228D8();
-    func_802E4078(MAP_27_FP_FREEZEEZY_PEAK, 0xd, 0);
+    game_setMapWithTransition(MAP_27_FP_FREEZEEZY_PEAK, 0xd, 0);
     marker_despawn(this->marker);
 }
 
 void func_80390B70(Actor *this){
-    func_80324E38(0.0f, 3);
+    setCameraModeAtTime(0.0f, 3);
     timed_setStaticCameraToNode(0.0f, 0);
     timedFunc_set_1(0.6f, (GenFunction_1)func_80390ABC, reinterpret_cast(s32, this->marker));
     timedFunc_set_1(2.5f, (GenFunction_1)func_80390B2C, reinterpret_cast(s32, this->marker));

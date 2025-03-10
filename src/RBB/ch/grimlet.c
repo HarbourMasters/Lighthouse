@@ -74,7 +74,7 @@ Actor *func_8038846C(ActorMarker * marker, Gfx **gdl, Mtx **mptr, Vtx **vtx){
         sp34[1] = 0.0f;
         sp34[2] = local->unkC/200.0f;
         func_8033A968(sp5C, 0x12, sp34);
-        skeletalAnim_func_80335918(actor->unk148);
+        skeletalAnim_markDirty(actor->unk148);
     }
     func_8033A45C(3, (0.0f < local->unk8)? 1 : 0);
     func_8033A45C(4, (0.0f < local->unk8)? 1 : 0);
@@ -107,7 +107,7 @@ void func_80388620(Actor *this){
         func_803883B0(this, 1);
     }
     player_getPosition(plyr_pos);
-    func_80258A4C(this->position, this->yaw + -90.0f, plyr_pos, &sp60, &sp5C, &sp58);
+    ml_vec3f_rotate_and_project(this->position, this->yaw + -90.0f, plyr_pos, &sp60, &sp5C, &sp58);
     if(sp60 < 600.0f)
         local->unk8 = 1.0f;
     else{
@@ -130,7 +130,7 @@ void func_80388620(Actor *this){
         && sp58 < 1.0f
         && plyr_pos[1] < this->position_y + this->scale*200.0f
     ){
-        func_80258A4C(this->position, (this->yaw + -90.0f) + local->unk0, plyr_pos, &sp60, &sp5C, &sp58);
+        ml_vec3f_rotate_and_project(this->position, (this->yaw + -90.0f) + local->unk0, plyr_pos, &sp60, &sp5C, &sp58);
         local->unk0 += (sp58*200.0f)*sp50;
         if(1.0f < local->unk14 && (sp58 < -0.1 || 0.1 < sp58)){
                 func_8030E6A4(SFX_D0_GRIMLET_SQUEAK, mlAbsF(sp58) * 0.1 + 0.9, 0x4e20);

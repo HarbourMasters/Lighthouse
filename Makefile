@@ -1,6 +1,7 @@
 ### Configuration ###
 BASENAME := banjo
 VERSION  ?= us.v10
+TARGET_N64 ?= 1
 
 ifeq ($(VERSION),us.v10)
 	C_VERSION=0
@@ -66,7 +67,11 @@ NONMATCHING_DIR   := $(ASM_ROOT)/$(NONMATCHINGS)
 BUILD_ROOT        := build
 BUILD_DIR         := $(BUILD_ROOT)/$(VERSION)
 ALL_ASSET_FILES   := $(shell find $(ASSET_ROOT) -type f -iname '*.*' 2> /dev/null)
-C_SRCS            := $(shell find $(SRC_ROOT) -type f -iname '*.c' 2> /dev/null)
+ifeq ($(TARGET_N64),1)
+	C_SRCS := $(shell find $(SRC_ROOT) -type f -iname '*.c' -not -path "$(SRC_ROOT)/pc/*" 2> /dev/null)
+else
+	C_SRCS := $(shell find $(SRC_ROOT) -type f -iname '*.c' 2> /dev/null)
+endif
 BOOT_C_SRCS       := $(wildcard $(SRC_ROOT)/done/*.c)
 ALL_ASM_SRCS      := $(filter-out $(ASM_ROOT)/$(NONMATCHINGS), $(shell find $(ASM_ROOT) -name $(NONMATCHINGS) -prune -o -iname '*.s' 2> /dev/null))
 ALL_BINS          := $(shell find $(BIN_ROOT) -type f -iname '*.bin' 2> /dev/null)
@@ -108,6 +113,7 @@ PRELIM_Z64           := $(addprefix $(BUILD_DIR)/,$(BASENAME).$(VERSION).prelim.
 PRELIM_ELF           := $(PRELIM_Z64:.z64=.elf)
 UNCOMPRESSED_Z64     := $(addprefix $(BUILD_DIR)/,$(BASENAME).$(VERSION).uncompressed.z64)
 FINAL_Z64            := $(addprefix $(BUILD_DIR)/,$(BASENAME).$(VERSION).z64)
+FINAL_EXE            := $(addprefix $(BUILD_DIR)/,$(BASENAME).$(VERSION)game)
 ELF                  := $(FINAL_Z64:.z64=.elf)
 LD_SCRIPT            := $(BASENAME).ld
 ASSET_BIN            := $(BUILD_DIR)/assets.bin
@@ -159,7 +165,7 @@ endef
 
 # Build tool flags
 CFLAGS         := -c -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm $(OPT_FLAGS) $(MIPSBIT) -D_FINALROM -DF3DEX_GBI -DVERSION='$(C_VERSION)'
-CFLAGS         += -woff 649,654,838,807
+CFLAGS         += -woff 649,654,838,807  
 CPPFLAGS       := -D_FINALROM -DN_MICRO
 INCLUDE_CFLAGS := -I . -I include -I include/2.0L -I include/2.0L/PR
 OPT_FLAGS      := -O2 

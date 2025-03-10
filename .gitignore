@@ -72,3 +72,19 @@ undefined_funcs_auto*
 #secret folder
 tmp/
 tmp/*
+
+#More folders/files
+myenv/
+myenv/*
+_deps/
+_deps/*
+CMakeFiles/
+CMakeFiles/*
+*.cmake
+CMakeCache.txt
+cmake_build/
+cmake_build/*
+build_output.log
+errors.txt
+warnings.txt
+makefileoutput.txt

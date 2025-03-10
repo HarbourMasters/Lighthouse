@@ -38,7 +38,7 @@ void func_803546E8(void) {
     temp_s0->unk0 = randf2(-10.0f, 10.0f);
     temp_s0->unk4 = (randf() * 35.0f) + 50.0f;
     temp_s0->unk8 = randf2(-10.0f, 10.0f);
-    func_802589E4(sp28, player_getYaw(), 48.0f);
+    ml_vec3f_set_yaw_length(sp28, player_getYaw(), 48.0f);
     sp28[1] = 0.0f;
     temp_s0->unk0 += sp28[0];
     temp_s0->unk4 += sp28[1];
@@ -50,7 +50,7 @@ void func_803546E8(void) {
     animsprite_set_state(sp48, ANIM_SPRITE_STATE_STOPPED);
     func_80344E18(sp47, 5);
     func_80344EE4(sp47, -700.0f, -22000.0f);
-    func_802589E4(sp28, D_803726EC, 250.0f);
+    ml_vec3f_set_yaw_length(sp28, D_803726EC, 250.0f);
     sp28[1] = 250.0f;
     D_803726EC = mlNormalizeAngle(D_803726EC + 45.0);
     func_80344E3C(sp47, sp28);
@@ -543,7 +543,7 @@ void func_80355864(void) {
     sp28 = (sp44) ? randf2(-75.0f, 75.0f) + 400.0f
          : randf2(-50.0f, 50.0f) + 250.0f;
 
-    func_802589E4(sp2C, D_803726EC, sp28);
+    ml_vec3f_set_yaw_length(sp2C, D_803726EC, sp28);
     sp2C[1] = sp28 * ((sp44 * 0.5) + 1.0);
     D_803726EC = mlNormalizeAngle(D_803726EC + 45.0);
     func_80344E3C(sp57, sp2C);

@@ -6,15 +6,18 @@
 
 #include "prop.h"
 
+#include "core2/modelRender.h"
+
+
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
 
 extern void func_802D7124(Actor *, f32);
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void spawnParticleEffect(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 extern void func_8033A244(f32);
 
-f32 func_80257204(f32, f32, f32, f32);
+f32 ml_angle_between_points_2D(f32, f32, f32, f32);
 extern Actor *spawnQueue_bundleWithYaw_f32(enum bundle_e bundle_id, s32 x, s32 y, s32 z, s32 yaw);
 f32 func_8033229C(ActorMarker *);
 f32 player_getYaw(void);
@@ -22,15 +25,14 @@ extern void __bundle_spawnFromFirstActor(s32, Actor *);
 extern void func_8032B3A0(Actor *, ActorMarker *);
 extern void func_8032EE0C(GenFunction_2, s32);
 extern void func_8032EE20(void);
-extern void __spawnQueue_add_5(GenFunction_5, s32, s32, s32, s32, s32);
+extern void spawnQueue_add_5(GenFunction_5, s32, s32, s32, s32, s32);
 
 
 void func_8032A6A8(Actor *arg0);
 void func_8032ACA8(Actor *arg0);
 void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, struct5Cs *arg2);
-void subaddie_set_state_with_direction(Actor * this, s32 arg1, f32 arg2, s32 arg3);
-void func_8032BB88(Actor *this, s32 arg1, s32 arg2);
-int  subaddie_playerIsWithinSphere(Actor *this, s32 dist);
+void subaddie_set_state_with_direction(Actor * sthis, s32 arg1, f32 arg2, s32 arg3);
+void func_8032BB88(Actor *sthis, s32 arg1, s32 arg2);
 extern void func_8033A4A0(enum asset_e mode_id, f32, f32);
 extern void func_80338338(s32, s32, s32);
 extern void func_803382FC(s32);
@@ -84,104 +86,104 @@ Actor *func_80325340(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     return NULL;
 }
 
-void actor_predrawMethod(Actor *this){
+void actor_predrawMethod(Actor *sthis){
     s32 pad4C;
     BKModelBin *sp48;
     bool sp44;
     BKVertexList *sp40;
     f32 sp34[3];
     
-    sp48 = marker_loadModelBin(this->marker);
-    func_80330534(this);
-    if(this->anctrl != NULL){
-        anctrl_drawSetup(this->anctrl, this->position, 1);
+    sp48 = marker_loadModelBin(sthis->marker);
+    func_80330534(sthis);
+    if(sthis->anctrl != NULL){
+        anctrl_drawSetup(sthis->anctrl, sthis->position, 1);
     }
 
-    if(this->marker->unk20 != NULL){
+    if(sthis->marker->unk20 != NULL){
         sp44 = FALSE;
-        if(this->unk148 != NULL){
-            animMtxList_setBoned(&this->marker->unk20, model_getAnimationList(sp48), skeletalAnim_getBoneTransformList(this->unk148));
+        if(sthis->unk148 != NULL){
+            animMtxList_setBoned(&sthis->marker->unk20, model_getAnimationList(sp48), skeletalAnim_getBoneTransformList(sthis->unk148));
             sp44 = TRUE;
         }//L8032542C
-        else if(this->anctrl != NULL && model_getAnimationList(sp48)){
-            anim_802897D4(&this->marker->unk20, model_getAnimationList(sp48), anctrl_getAnimPtr(this->anctrl));
+        else if(sthis->anctrl != NULL && model_getAnimationList(sp48)){
+            anim_802897D4(&sthis->marker->unk20, model_getAnimationList(sp48), anctrl_getAnimPtr(sthis->anctrl));
             sp44 = TRUE;
         }//L80325474
 
         if(sp44){
-            func_8033A444(this->marker->unk20);
+            func_8033A444(sthis->marker->unk20);
         }
     }//L8032548C
 
-    if(this->alpha_124_19 < 0xFF){
-        modelRender_setAlpha(this->alpha_124_19);
+    if(sthis->alpha_124_19 < 0xFF){
+        modelRender_setAlpha(sthis->alpha_124_19);
     }
 
-    modelRender_setDepthMode(this->depth_mode);
-    if(this->marker->unk44 != 0){
-        if((s32)this->marker->unk44 == 1){
+    modelRender_setDepthMode(sthis->depth_mode);
+    if(sthis->marker->unk44 != 0){
+        if((s32)sthis->marker->unk44 == 1){
             func_8033A450(D_8036E568);
         }
         else{
-            func_8033A450(this->marker->unk44);
+            func_8033A450(sthis->marker->unk44);
         }
     }
 
-    if(this->unkF4_30){
-        sp40 = func_80330C74(this);
-        if(this->unk138_29){
-            sp34[0] = this->pitch;
-            sp34[1] = this->yaw;
-            sp34[2] = this->roll;
-            codeAC520_func_80333D48(sp40, this->position, sp34, this->scale, 0, model_getVtxList(sp48));
+    if(sthis->unkF4_30){
+        sp40 = func_80330C74(sthis);
+        if(sthis->unk138_29){
+            sp34[0] = sthis->pitch;
+            sp34[1] = sthis->yaw;
+            sp34[2] = sthis->roll;
+            codeAC520_func_80333D48(sp40, sthis->position, sp34, sthis->scale, 0, model_getVtxList(sp48));
         }//L80325560
         modelRender_setVertexList(sp40);
-        this->unkF4_29 = NOT(this->unkF4_29);
+        sthis->unkF4_29 = NOT(sthis->unkF4_29);
     }//L80325594
 
-    if(this->unk130){
-        this->unk130(this);
+    if(sthis->unk130){
+        sthis->unk130(sthis);
     }
 
-    if(this->unk148 && !this->marker->unk20){
-        modelRender_setBoneTransformList(skeletalAnim_getBoneTransformList(this->unk148));
+    if(sthis->unk148 && !sthis->marker->unk20){
+        modelRender_setBoneTransformList(skeletalAnim_getBoneTransformList(sthis->unk148));
     }
 
-    func_8033056C(this);
-    modelRender_setAnimatedTexturesCacheId(actor_getAnimatedTexturesCacheId(this));
+    func_8033056C(sthis);
+    modelRender_setAnimatedTexturesCacheId(actor_getAnimatedTexturesCacheId(sthis));
 }
 
-void func_803255FC(Actor *this) {
-    switch (this->unk124_5) {
+void updateMumboState(Actor *sthis) {
+    switch (sthis->unk124_5) {
     default:
         break;
 
     case 0:
         if (randf() < 0.03) {
-            this->unk124_5 = 1;
+            sthis->unk124_5 = 1;
         }
         break;
 
     case 1:
-        if (this->unk124_3 == 3) {
-            this->unk124_5 = 2;
+        if (sthis->unk124_3 == 3) {
+            sthis->unk124_5 = 2;
         } else {
-            this->unk124_3++;
+            sthis->unk124_3++;
         }
         break;
 
     case 2:
-        this->unk124_3--;
-        if (this->unk124_3 == 0) {
-            this->unk124_5 = 0;
+        sthis->unk124_3--;
+        if (sthis->unk124_3 == 0) {
+            sthis->unk124_5 = 0;
         }
         break;
     }
-    func_8033A45C(1, this->unk124_3 + 1);
-    func_8033A45C(2, this->unk124_3 + 1);
+    func_8033A45C(1, sthis->unk124_3 + 1);
+    func_8033A45C(2, sthis->unk124_3 + 1);
 }
 
-void func_80325760(Actor *this) {
+void updateMumboAnimation(Actor *sthis) {
     func_8033A45C(1, 4);
     func_8033A45C(2, 4);
 }
@@ -214,31 +216,31 @@ BKModelBin *func_803257B4(ActorMarker *marker) {
 
 Actor *actor_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     f32 sp3C[3];
-    Actor *this;
+    Actor *sthis;
 
-    this = marker_getActorAndRotation(marker, sp3C);
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (s32)this);
+    sthis = marker_getActorAndRotation(marker, sp3C);
+    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (s32)sthis);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (s32)marker);
-    modelRender_draw(gfx, mtx, this->position, sp3C, this->scale, (this->unk104 != NULL) ? D_8036E580 : NULL, func_803257B4(marker));
-    return this;
+    modelRender_draw(gfx, mtx, sthis->position, sp3C, sthis->scale, (sthis->unk104 != NULL) ? D_8036E580 : NULL, func_803257B4(marker));
+    return sthis;
 }
 
 Actor *func_80325934(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    Actor *this;
+    Actor *sthis;
     f32 scale[3];
     BKSpriteDisplayData *sp3C;
 
-    this = marker_getActor(marker);
+    sthis = marker_getActor(marker);
     sp3C = func_80330F30(marker);
-    scale[0] = scale[1] = scale[2] = this->scale;
-    if (this->unk104 != NULL) {
-        this->position[0] -= D_8036E58C[0];
-        this->position[1] -= D_8036E58C[1];
-        this->position[2] -= D_8036E58C[2];
+    scale[0] = scale[1] = scale[2] = sthis->scale;
+    if (sthis->unk104 != NULL) {
+        sthis->position[0] -= D_8036E58C[0];
+        sthis->position[1] -= D_8036E58C[1];
+        sthis->position[2] -= D_8036E58C[2];
     }
     func_80338338(0xFF, 0xFF, 0xFF);
-    if (this->unk124_11 != 0) {
-        func_803382FC(this->alpha_124_19);
+    if (sthis->unk124_11 != 0) {
+        func_803382FC(sthis->alpha_124_19);
         func_803382E4(0xC);
     } else if (func_80344C20(sp3C) & 0xB00) {
         func_803382E4(0xB);
@@ -247,36 +249,36 @@ Actor *func_80325934(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     func_80344C38(&func_803257A4, marker);
     func_80335D30(gfx);
-    func_80344138(sp3C, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, scale, gfx, mtx);
+    func_80344138(sp3C, marker->propPtr->unk8_15, marker->propPtr->unk8_5, sthis->position, scale, gfx, mtx);
     func_8033687C(gfx);
-    if (this->unk104 != NULL) {
-        this->position[0] = this->position[0] + D_8036E58C[0];
-        this->position[1] = this->position[1] + D_8036E58C[1];
-        this->position[2] = this->position[2] + D_8036E58C[2];
+    if (sthis->unk104 != NULL) {
+        sthis->position[0] = sthis->position[0] + D_8036E58C[0];
+        sthis->position[1] = sthis->position[1] + D_8036E58C[1];
+        sthis->position[2] = sthis->position[2] + D_8036E58C[2];
     }
-    return this;
+    return sthis;
 }
 
 Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     f32 scale[3];
     f32 rotation[3];
-    Actor *this;
+    Actor *sthis;
     s32 sp40;
 
-    this = marker_getActor(marker);
+    sthis = marker_getActor(marker);
     sp40 = func_80330F30(marker);
-    scale[0] = scale[1] = scale[2] = this->scale;
-    rotation[0] = this->pitch;
-    rotation[1] = this->yaw;
-    rotation[2] = this->roll;
-    if (this->unk104 != NULL) {
-        this->position[0] -= D_8036E58C[0];
-        this->position[1] -= D_8036E58C[1];
-        this->position[2] -= D_8036E58C[2];
+    scale[0] = scale[1] = scale[2] = sthis->scale;
+    rotation[0] = sthis->pitch;
+    rotation[1] = sthis->yaw;
+    rotation[2] = sthis->roll;
+    if (sthis->unk104 != NULL) {
+        sthis->position[0] -= D_8036E58C[0];
+        sthis->position[1] -= D_8036E58C[1];
+        sthis->position[2] -= D_8036E58C[2];
     }
     func_80338338(0xFF, 0xFF, 0xFF);
-    if (this->unk124_11 != 0) {
-        func_803382FC(this->alpha_124_19);
+    if (sthis->unk124_11 != 0) {
+        func_803382FC(sthis->alpha_124_19);
         func_803382E4(0xC);
     } else if (func_80344C20(sp40) & 0xB00) {
         func_803382E4(0xB);
@@ -285,35 +287,35 @@ Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     func_80344C38(&func_803257A4, marker);
     func_80335D30(gfx);
-    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, rotation, &scale, gfx, mtx);
+    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, sthis->position, rotation, &scale, gfx, mtx);
     func_8033687C(gfx);
-    if (this->unk104 != NULL) {
-        this->position[0] = this->position[0] + D_8036E58C[0];
-        this->position[1] = this->position[1] + D_8036E58C[1];
-        this->position[2] = this->position[2] + D_8036E58C[2];
+    if (sthis->unk104 != NULL) {
+        sthis->position[0] = sthis->position[0] + D_8036E58C[0];
+        sthis->position[1] = sthis->position[1] + D_8036E58C[1];
+        sthis->position[2] = sthis->position[2] + D_8036E58C[2];
     }
-    return this;
+    return sthis;
 }
 
 Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Gfx **mtx, Vtx **vtx) {
     f32 scale[3];
     f32 rotation[3];
-    Actor *this;
+    Actor *sthis;
     s32 sp40;
 
-    this = marker_getActor(marker);
+    sthis = marker_getActor(marker);
     sp40 = func_80330F30(marker);
-    scale[0] = scale[1] = scale[2] = this->scale;
-    if (this->unk104 != NULL) {
-        this->position[0] -= D_8036E58C[0];
-        this->position[1] -= D_8036E58C[1];
-        this->position[2] -= D_8036E58C[2];
+    scale[0] = scale[1] = scale[2] = sthis->scale;
+    if (sthis->unk104 != NULL) {
+        sthis->position[0] -= D_8036E58C[0];
+        sthis->position[1] -= D_8036E58C[1];
+        sthis->position[2] -= D_8036E58C[2];
     }
     viewport_getRotation_vec3f(rotation);
-    rotation[2] += this->roll;
+    rotation[2] += sthis->roll;
     func_80338338(0xFF, 0xFF, 0xFF);
-    if (this->unk124_11 != 0) {
-        func_803382FC(this->alpha_124_19);
+    if (sthis->unk124_11 != 0) {
+        func_803382FC(sthis->alpha_124_19);
         func_803382E4(0xC);
     } else if ((func_80344C20(sp40) & 0xB00) != 0) {
         func_803382E4(0xB);
@@ -322,27 +324,27 @@ Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Gfx **mtx, Vtx **vtx) {
     }
     func_80344C38(&func_803257A4, marker);
     func_80335D30(gfx);
-    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, rotation, scale, gfx, mtx);
+    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, sthis->position, rotation, scale, gfx, mtx);
     
     func_8033687C(gfx);
-    if (this->unk104 != NULL) {
-        this->position[0] = this->position[0] + D_8036E58C[0];
-        this->position[1] = this->position[1] + D_8036E58C[1];
-        this->position[2] = this->position[2] + D_8036E58C[2];
+    if (sthis->unk104 != NULL) {
+        sthis->position[0] = sthis->position[0] + D_8036E58C[0];
+        sthis->position[1] = sthis->position[1] + D_8036E58C[1];
+        sthis->position[2] = sthis->position[2] + D_8036E58C[2];
     }
-    return this;
+    return sthis;
 }
 
 Actor *actor_drawFullDepth(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     f32 rotation[3];
-    Actor *this;
+    Actor *sthis;
 
-    this = marker_getActorAndRotation(marker, rotation);
+    sthis = marker_getActorAndRotation(marker, rotation);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (s32)this);
+    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (s32)sthis);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (s32)marker);
-    modelRender_draw(gfx, mtx, this->position, rotation, this->scale, (this->unk104 != NULL) ?  D_8036E580 : NULL, func_803257B4(marker));
-    return this;
+    modelRender_draw(gfx, mtx, sthis->position, rotation, sthis->scale, (sthis->unk104 != NULL) ?  D_8036E580 : NULL, func_803257B4(marker));
+    return sthis;
 }
 
 Actor *func_80325F2C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
@@ -351,40 +353,40 @@ Actor *func_80325F2C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     return actor_drawFullDepth(marker, gfx, mtx, vtx);
 }
 
-void func_80325F84(Actor *this){}
+void func_80325F84(Actor *sthis){}
 
 void func_80325F8C(void) {
     suBaddieActorArray = NULL;
     D_8036E568 = func_8034A2C8();
     D_8036E56C = func_802EE5E0(0x10);
-    D_8036E570 = func_802F2AEC();
+    D_8036E570 = initializeStruct();
     D_8036E574 = 0;
     D_8036E578 = 0;
     D_8036E57C = 0;
 }
 
-void func_80325FE8(Actor *this) {
+void func_80325FE8(Actor *sthis) {
     ActorMarker *marker;
     u8 temp_v0;
 
-    marker = this->marker;
+    marker = sthis->marker;
     marker->id = 0;
-    if (this->anctrl != NULL) {
-        anctrl_free(this->anctrl);
+    if (sthis->anctrl != NULL) {
+        anctrl_free(sthis->anctrl);
     }
-    temp_v0 = this->unk44_31;
+    temp_v0 = sthis->unk44_31;
     if (temp_v0 != 0) {
         sfxsource_freeSfxsourceByIndex(temp_v0);
     }
-    this->anctrl = NULL;
-    this->unk44_31 = 0;
+    sthis->anctrl = NULL;
+    sthis->unk44_31 = 0;
 
-    if (this->unk138_7 != 0) {
-        func_8032BB88(this, -1, 8000);
-        this->unk138_7 = 0;
+    if (sthis->unk138_7 != 0) {
+        func_8032BB88(sthis, -1, 8000);
+        sthis->unk138_7 = 0;
     }
     if (marker->actorFreeFunc != NULL) {
-       marker->actorFreeFunc(this);
+       marker->actorFreeFunc(sthis);
        marker->actorFreeFunc = NULL;
     }
     if ((s32)marker->unk44 < 0) {
@@ -393,22 +395,22 @@ void func_80325FE8(Actor *this) {
        marker->unk44 = 0;
     }
     if (marker->unk4C != 0) {
-        func_8034BF54(this->marker);
+        func_8034BF54(sthis->marker);
         marker->unk4C = 0;
     }
     if (marker->unk48 != 0) {
         func_8033F784(marker);
         marker->unk48 = 0;
     }
-    if (this->unk148 != NULL) {
-        skeletalAnim_free(this->unk148);
-        this->unk148 = NULL;
+    if (sthis->unk148 != NULL) {
+        skeletalAnim_free(sthis->unk148);
+        sthis->unk148 = NULL;
     }
     if (marker->unk50 != 0) {
         func_80340690(marker->unk50);
         marker->unk50 = 0;
     }
-    func_8032ACA8(this);
+    func_8032ACA8(sthis);
 }
 
 void actorArray_free(void) {
@@ -422,96 +424,96 @@ void actorArray_free(void) {
             }
             var_s0->marker = NULL;
         }
-        free(suBaddieActorArray);
+        bk_free(suBaddieActorArray);
         suBaddieActorArray = NULL;
     }
     func_8034A2A8(D_8036E568);
     D_8036E568 = NULL;
     func_802EE5E8(D_8036E56C);
     D_8036E56C = NULL;
-    func_802F2C78(D_8036E570);
+    freeStruct(D_8036E570);
     D_8036E570 = NULL;
 }
 
-s32 func_80326218(void){
+s32 actor_getGlobalFlag(void){
     return D_8036E564;
 }
 
-void actor_update_func_80326224(Actor *this){
-    func_80343DEC(this);
+void actor_update_func_80326224(Actor *sthis){
+    func_80343DEC(sthis);
 }
 
-void func_80326244(Actor *this){
-    actor_collisionOff(this);
-    this->marker->unk2C_1 = 1;
-    func_80343DEC(this);
+void func_80326244(Actor *sthis){
+    actor_collisionOff(sthis);
+    sthis->marker->unk2C_1 = 1;
+    func_80343DEC(sthis);
 }
 
-s32 func_8032627C(Actor *this){
-    return this->alpha_124_19;
+s32 func_8032627C(Actor *sthis){
+    return sthis->alpha_124_19;
 }
 
-void actor_setOpacity(Actor *this, s32 alpha){
-    this->unk124_11 = 3; //blend mode?
-    this->alpha_124_19 = alpha;
+void actor_setOpacity(Actor *sthis, s32 alpha){
+    sthis->unk124_11 = 3; //blend mode?
+    sthis->alpha_124_19 = alpha;
 }
 
-void func_803262B8(Actor *this){
-    this->unk124_11 = 0;
-    this->alpha_124_19 = 0xff;
+void func_803262B8(Actor *sthis){
+    sthis->unk124_11 = 0;
+    sthis->alpha_124_19 = 0xff;
 }
 
-void func_803262E4(Actor *this){
-    this->alpha_124_19 = 0;
-    this->unk124_11 = 1;
+void func_803262E4(Actor *sthis){
+    sthis->alpha_124_19 = 0;
+    sthis->unk124_11 = 1;
 }
 
-void func_80326310(Actor *this){
-    this->unk124_11 = 2;
+void func_80326310(Actor *sthis){
+    sthis->unk124_11 = 2;
 }
 
-void func_80326324(Actor *this) {
-    if (this->marker->unk2C_2) {
-        this->unk1C[1] += time_getDelta();
-        if (this->unk1C[0] < this->unk1C[1]) {
-            this->unk1C[1] = this->unk1C[0];
+void func_80326324(Actor *sthis) {
+    if (sthis->marker->unk2C_2) {
+        sthis->unk1C[1] += time_getDelta();
+        if (sthis->unk1C[0] < sthis->unk1C[1]) {
+            sthis->unk1C[1] = sthis->unk1C[0];
         }
-        switch (this->unk124_11) {                  /* switch 1; irregular */
+        switch (sthis->unk124_11) {                  /* switch 1; irregular */
             case 1:                                 /* switch 1 */
-                this->alpha_124_19 = (this->unk1C[0] != 0.0f) ? (s32)(255.0f *(this->unk1C[1] / this->unk1C[0])) : 0xFF;
-                if (255.0 == this->alpha_124_19) {
-                    this->unk124_11 = 0;
+                sthis->alpha_124_19 = (sthis->unk1C[0] != 0.0f) ? (s32)(255.0f *(sthis->unk1C[1] / sthis->unk1C[0])) : 0xFF;
+                if (255.0 == sthis->alpha_124_19) {
+                    sthis->unk124_11 = 0;
                 }
                 break;
 
             case 2:                                 /* switch 1 */
-                this->alpha_124_19 = (this->unk1C[0] != 0.0f) ? (0xFF - (s32) ((this->unk1C[1] / this->unk1C[0]) * 255.0f)) : 0;
-                if (this->alpha_124_19 == 0) {
-                    this->unk124_11 = 0;
+                sthis->alpha_124_19 = (sthis->unk1C[0] != 0.0f) ? (0xFF - (s32) ((sthis->unk1C[1] / sthis->unk1C[0]) * 255.0f)) : 0;
+                if (sthis->alpha_124_19 == 0) {
+                    sthis->unk124_11 = 0;
                 }
                 break;
         }
     } else {
-        switch (this->unk124_11) {                        /* irregular */
+        switch (sthis->unk124_11) {                        /* irregular */
             case 1:
-                this->alpha_124_19 = MIN(255.0,this->alpha_124_19 + 7.0);
-                if (255.0 == this->alpha_124_19) {
-                    this->unk124_11 = 0;
+                sthis->alpha_124_19 = MIN(255.0,sthis->alpha_124_19 + 7.0);
+                if (255.0 == sthis->alpha_124_19) {
+                    sthis->unk124_11 = 0;
                 }
                 break;
 
             case 2:
-                this->alpha_124_19 = MAX(0.0, this->alpha_124_19 - 7.0);
-                if (this->alpha_124_19 == 0) {
-                    marker_despawn(this->marker);
+                sthis->alpha_124_19 = MAX(0.0, sthis->alpha_124_19 - 7.0);
+                if (sthis->alpha_124_19 == 0) {
+                    marker_despawn(sthis->marker);
                 }
                 break;
             }
     }
 }
 
-void func_80326894(Actor *this){
-    func_80326324(this);
+void func_80326894(Actor *sthis){
+    func_80326324(sthis);
 }
 
 void func_803268B4(void) {
@@ -599,7 +601,7 @@ void func_803268B4(void) {
         func_802EE5F0(D_8036E56C);
     }
     if (D_8036E570 != 0) {
-        func_802F2D8C(D_8036E570);
+        updateStructs(D_8036E570);
     }
 }
 
@@ -763,14 +765,14 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     f32 sp44[3];
     
     if(suBaddieActorArray == NULL){
-        suBaddieActorArray = (ActorArray *)malloc(sizeof(ActorArray) + 20*sizeof(Actor));
+        suBaddieActorArray = (ActorArray *)heap_malloc(sizeof(ActorArray) + 20*sizeof(Actor));
         suBaddieActorArray->cnt = 0;
         suBaddieActorArray->max_cnt = 20;
     }
     
     if(suBaddieActorArray->cnt + 1 > suBaddieActorArray->max_cnt){
         suBaddieActorArray->max_cnt = suBaddieActorArray->cnt + 5;
-        suBaddieActorArray = (ActorArray *)realloc(suBaddieActorArray, sizeof(ActorArray) + suBaddieActorArray->max_cnt*sizeof(Actor));
+        suBaddieActorArray = (ActorArray *)bk_realloc(suBaddieActorArray, sizeof(ActorArray) + suBaddieActorArray->max_cnt*sizeof(Actor));
     }
 
     ++suBaddieActorArray->cnt;
@@ -910,14 +912,14 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
         ((s32 *)suLastBaddie->unkBC)[i] = 0;
     }
     if(flags & ACTOR_FLAG_UNKNOWN_0){
-        suLastBaddie->unk10_25 = func_80306DDC(position) + 1;
+        suLastBaddie->unk10_25 = findStructInArrayBCWithHeight(position) + 1;
         if(suLastBaddie->unk10_25 == 0){
             suLastBaddie->unk10_25 = 0;
         }else{
             sp44[0] = (f32)position[0];
             sp44[1] = (f32)position[1];
             sp44[2] = (f32)position[2];
-            suLastBaddie->unk10_18 = func_80307258(&sp44, suLastBaddie->unk10_25 - 1, 0) + 1;
+            suLastBaddie->unk10_18 = findStructInArrayBCWithRadius(&sp44, suLastBaddie->unk10_25 - 1, 0) + 1;
         }
     }//L80327D30
 
@@ -963,7 +965,7 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     }
 
     if(flags & ACTOR_FLAG_UNKNOWN_8){
-        suLastBaddie->unk130 = func_803255FC;
+        suLastBaddie->unk130 = updateMumboState;
     }
 
     if(flags & ACTOR_FLAG_UNKNOWN_9){
@@ -1040,7 +1042,7 @@ static void __actor_free(ActorMarker *arg0, Actor *arg1){
     arrayEnd = &suBaddieActorArray->data[suBaddieActorArray->cnt - 1];
     func_80325FE8(arg1);
     if((s32)arg1 != arrayEnd)
-        memcpy(arg1, arrayEnd, 0x180); //memcpy
+        heap_memcpy(arg1, arrayEnd, 0x180); //heap_memcpy
     arg1->marker->actrArrayIdx = arg0->actrArrayIdx;
 
     //remove last actor from actor array
@@ -1049,7 +1051,7 @@ static void __actor_free(ActorMarker *arg0, Actor *arg1){
     //shrink actor array capacity
     if(suBaddieActorArray->cnt + 8 <= suBaddieActorArray->max_cnt){
         suBaddieActorArray->max_cnt = suBaddieActorArray->cnt + 4;
-        suBaddieActorArray = (ActorArray *)realloc(suBaddieActorArray, suBaddieActorArray->max_cnt*sizeof(Actor) + sizeof(ActorArray));
+        suBaddieActorArray = (ActorArray *)bk_realloc(suBaddieActorArray, suBaddieActorArray->max_cnt*sizeof(Actor) + sizeof(ActorArray));
     }
 
     marker_free(arg0);
@@ -1090,7 +1092,7 @@ Actor *func_80328230(enum actor_e id, f32 pos[3], f32 rot[3]){
     for(i = 0; i < 3; i++){
         sp30[i] = (s32)pos[i];
     }
-    actor = func_803055E0(id, sp30, (f32) rot[1], 0, 0);
+    actor = spawnActorWithYaw(id, sp30, (f32) rot[1], 0, 0);
     actor->pitch = rot[0];
     return actor;
 }
@@ -1158,42 +1160,42 @@ void func_80328478(f32 arg0[3], f32 arg1, f32 arg2){
     arg0[2] += sp1C[2]; 
 }
 
-static bool __subaddie_set_state(Actor *this, s32 state)
+static bool __subaddie_set_state(Actor *sthis, s32 state)
 {
     ActorAnimationInfo *animInfo;
     s32 index;
-    this->state = state;
-    if (this->unk18 == 0)
+    sthis->state = state;
+    if (sthis->unk18 == 0)
         return FALSE;
     
-    animInfo = this->unk18 + state;
+    animInfo = sthis->unk18 + state;
     index = animInfo->index;
     if (1);
 
     if (index != 0){
-        if (this->anctrl == NULL){
-            this->anctrl = anctrl_new(0);
-            anctrl_reset(this->anctrl);
+        if (sthis->anctrl == NULL){
+            sthis->anctrl = anctrl_new(0);
+            anctrl_reset(sthis->anctrl);
         }
-        anctrl_setIndex(this->anctrl, animInfo->index);
-        anctrl_setDuration(this->anctrl, animInfo->duration);
-        anctrl_setDirection(this->anctrl, mvmt_dir_forwards);
+        anctrl_setIndex(sthis->anctrl, animInfo->index);
+        anctrl_setDuration(sthis->anctrl, animInfo->duration);
+        anctrl_setDirection(sthis->anctrl, mvmt_dir_forwards);
     }
-    else if (this->anctrl) {
-        anctrl_setPlaybackType(this->anctrl, ANIMCTRL_STOPPED);
-        anctrl_setDirection(this->anctrl, mvmt_dir_forwards);
+    else if (sthis->anctrl) {
+        anctrl_setPlaybackType(sthis->anctrl, ANIMCTRL_STOPPED);
+        anctrl_setDirection(sthis->anctrl, mvmt_dir_forwards);
     }
     return TRUE;
 }
 
-void func_803285E8(Actor *this, f32 anim_start_position, int direction){
-    anctrl_setStart(this->anctrl, anim_start_position);
+void func_803285E8(Actor *sthis, f32 anim_start_position, int direction){
+    anctrl_setStart(sthis->anctrl, anim_start_position);
 
     if (direction != -1) {
-        anctrl_setDirection(this->anctrl, direction);
+        anctrl_setDirection(sthis->anctrl, direction);
     }
 
-    this->sound_timer = anim_start_position;
+    sthis->sound_timer = anim_start_position;
 }
 
 
@@ -1241,48 +1243,48 @@ s32 func_80328748(AnimCtrl *anim_ctrl, f32 min, f32 max) {
     return sp24;
 }
 
-int func_8032881C(Actor *this){
-    if(this->anctrl){
-        if(anctrl_getPlaybackType(this->anctrl) == ANIMCTRL_ONCE){
-            return anctrl_isStopped(this->anctrl);
+int func_8032881C(Actor *sthis){
+    if(sthis->anctrl){
+        if(anctrl_getPlaybackType(sthis->anctrl) == ANIMCTRL_ONCE){
+            return anctrl_isStopped(sthis->anctrl);
         }
     }
     return 0;
 }
 
-int actor_animationIsAt(Actor *this, f32 arg1){
-    f32 f2 = anctrl_getAnimTimer(this->anctrl);
-    if(f2 == this->sound_timer){
+int actor_animationIsAt(Actor *sthis, f32 arg1){
+    f32 f2 = anctrl_getAnimTimer(sthis->anctrl);
+    if(f2 == sthis->sound_timer){
         return 0;
     }
     else {
-        if(anctrl_isPlayedForwards(this->anctrl)){
-            if(this->sound_timer < f2){
-                return this->sound_timer <= arg1 && arg1 < f2;
+        if(anctrl_isPlayedForwards(sthis->anctrl)){
+            if(sthis->sound_timer < f2){
+                return sthis->sound_timer <= arg1 && arg1 < f2;
             }
             else{//L8032892C
-                return this->sound_timer <= arg1 || arg1 < f2;
+                return sthis->sound_timer <= arg1 || arg1 < f2;
             }
         }
         else{
-            if(f2 < this->sound_timer){
-                return arg1 <= this->sound_timer && f2 < arg1;
+            if(f2 < sthis->sound_timer){
+                return arg1 <= sthis->sound_timer && f2 < arg1;
             }
             else{//L8032892C
-                return arg1 <= this->sound_timer || f2 < arg1;
+                return arg1 <= sthis->sound_timer || f2 < arg1;
             }
         }
     }
 }
 
-void func_803289EC(Actor *this , f32 anim_start_position, int direction){
-    func_803285E8(this, anim_start_position, direction);
-    anctrl_start(this->anctrl, "subaddie.c", 0x6b1);
+void func_803289EC(Actor *sthis , f32 anim_start_position, int direction){
+    func_803285E8(sthis, anim_start_position, direction);
+    anctrl_start(sthis->anctrl, "subaddie.c", 0x6b1);
 }
 
-int func_80328A2C(Actor *this, f32 arg1, s32 direction, f32 probability){
+int func_80328A2C(Actor *sthis, f32 arg1, s32 direction, f32 probability){
     if(randf() < probability){
-        func_803289EC(this, arg1, direction);
+        func_803289EC(sthis, arg1, direction);
         return 1;
     }
     else{
@@ -1290,57 +1292,57 @@ int func_80328A2C(Actor *this, f32 arg1, s32 direction, f32 probability){
     }
 }
 
-void subaddie_set_state(Actor * this, u32 arg1){
-    if(__subaddie_set_state(this, arg1) && this->anctrl){
-        anctrl_start(this->anctrl, "subaddie.c", 0X6CA);
+void subaddie_set_state(Actor * sthis, u32 arg1){
+    if(__subaddie_set_state(sthis, arg1) && sthis->anctrl){
+        anctrl_start(sthis->anctrl, "subaddie.c", 0X6CA);
     }
 }
 
-void subaddie_set_state_forward(Actor * this, s32 arg1){
-    subaddie_set_state_with_direction(this, arg1, 0.0f, 1);
+void subaddie_set_state_forward(Actor * sthis, s32 arg1){
+    subaddie_set_state_with_direction(sthis, arg1, 0.0f, 1);
 }
 
-void subaddie_set_state_looped(Actor * this, u32 arg1){
-    if(__subaddie_set_state(this, arg1) && this->anctrl){
-        anctrl_setPlaybackType(this->anctrl,  ANIMCTRL_LOOP);
-        func_803289EC(this, 0.0f, 1);
+void subaddie_set_state_looped(Actor * sthis, u32 arg1){
+    if(__subaddie_set_state(sthis, arg1) && sthis->anctrl){
+        anctrl_setPlaybackType(sthis->anctrl,  ANIMCTRL_LOOP);
+        func_803289EC(sthis, 0.0f, 1);
     }
 }
 
 /* actor - maybe plays actor's animation with set probability */
-int subaddie_maybe_set_state(Actor *this, s32 myAnimId, f32 chance){
+int subaddie_maybe_set_state(Actor *sthis, s32 myAnimId, f32 chance){
     if(randf() < chance){
-        subaddie_set_state(this, myAnimId);
+        subaddie_set_state(sthis, myAnimId);
         return 1;
     }
     return 0;
 }
 
-void subaddie_set_state_with_direction(Actor * this, s32 myAnimId, f32 anim_start_position, s32 direction){
-    if (__subaddie_set_state(this, myAnimId) && this->anctrl) {
-        func_803289EC(this, anim_start_position, direction);
+void subaddie_set_state_with_direction(Actor * sthis, s32 myAnimId, f32 anim_start_position, s32 direction){
+    if (__subaddie_set_state(sthis, myAnimId) && sthis->anctrl) {
+        func_803289EC(sthis, anim_start_position, direction);
     }
 }
 
-bool subaddie_maybe_set_state_position_direction(Actor *this, s32 myAnimId, f32 start_position, s32 direction, f32 probability) {
+bool subaddie_maybe_set_state_position_direction(Actor *sthis, s32 myAnimId, f32 start_position, s32 direction, f32 probability) {
     if (randf() < probability) {
-        if (__subaddie_set_state(this, myAnimId) && this->anctrl) {
-            func_803285E8(this, start_position, direction);
-            anctrl_start(this->anctrl, "subaddie.c", 0x705);
+        if (__subaddie_set_state(sthis, myAnimId) && sthis->anctrl) {
+            func_803285E8(sthis, start_position, direction);
+            anctrl_start(sthis->anctrl, "subaddie.c", 0x705);
         }
         return TRUE;
     }
     return FALSE;
 }
 
-void subaddie_set_ideal_yaw(Actor * this, int arg1){
+void subaddie_set_ideal_yaw(Actor * sthis, int arg1){
     int retVal = arg1;
     while(retVal < 0) retVal += 0x168;
     while(retVal >= 0x168) retVal -= 0x168;
-    this->yaw_ideal = retVal;
+    sthis->yaw_ideal = retVal;
 }
 
-void func_80328CA8(Actor *this, s32 angle) {
+void func_80328CA8(Actor *sthis, s32 angle) {
     s32 fixedAngle = angle;
     while (fixedAngle < 0) {
         fixedAngle += 360;
@@ -1348,22 +1350,22 @@ void func_80328CA8(Actor *this, s32 angle) {
     while (fixedAngle >= 360) {
         fixedAngle -= 360;
     }
-    this->unk6C = fixedAngle;
+    sthis->unk6C = fixedAngle;
 }
 
-void func_80328CEC(Actor * this, s32 arg1, s32 min, s32 max){
+void func_80328CEC(Actor * sthis, s32 arg1, s32 min, s32 max){
     f32 f12;
     int abs;
     f12 = (randf() - 0.5)*(max - min)*2;
     abs = (0.0f <= f12) ? min : -min;
-    subaddie_set_ideal_yaw(this, abs + (arg1 + f12));
+    subaddie_set_ideal_yaw(sthis, abs + (arg1 + f12));
 }
 
-f32 func_80328DAC(Actor *this){
-    return D_8036E598[this->unk10_3];
+f32 func_80328DAC(Actor *sthis){
+    return D_8036E598[sthis->unk10_3];
 }
 
-f32 func_80328DCC(Actor *this, f32 angle, f32 angle_ideal, s32 arg3) {
+f32 func_80328DCC(Actor *sthis, f32 angle, f32 angle_ideal, s32 arg3) {
     f32 var_f2;
     s32 var_t16;
 
@@ -1379,10 +1381,10 @@ f32 func_80328DCC(Actor *this, f32 angle, f32 angle_ideal, s32 arg3) {
         var_f2 += 360.0f;
     }
 
-    if ((this->marker->id != 0x12) && (this->marker->unk2C_2 == 1) && ((var_f2 >= 50.0f) || (var_f2 < -50.0f))) {
+    if ((sthis->marker->id != 0x12) && (sthis->marker->unk2C_2 == 1) && ((var_f2 >= 50.0f) || (var_f2 < -50.0f))) {
         return angle_ideal;
     }
-    var_f2 = var_f2 / func_80328DAC(this);
+    var_f2 = var_f2 / func_80328DAC(sthis);
     var_t16 = arg3;
     var_f2 = (0.0f < var_f2) ? MIN(var_f2, var_t16) : MAX(var_f2, -arg3) ;
 
@@ -1396,8 +1398,8 @@ f32 func_80328DCC(Actor *this, f32 angle, f32 angle_ideal, s32 arg3) {
     return var_f2;
 }
 
-void func_80328FB0(Actor *this, f32 arg1){
-    this->yaw = func_80328DCC(this, this->yaw, this->yaw_ideal, (s32)arg1);
+void func_80328FB0(Actor *sthis, f32 arg1){
+    sthis->yaw = func_80328DCC(sthis, sthis->yaw, sthis->yaw_ideal, (s32)arg1);
 }
 
 void func_80328FF0(Actor *arg0, f32 arg1) {
@@ -1412,36 +1414,36 @@ s32 func_80329054(s32 arg0, s32 arg1) {
     return !func_8032CA80(arg0, arg1 + 4);
 }
 
-bool func_80329078(Actor *this, s32 arg1, s32 arg2){
+bool func_80329078(Actor *sthis, s32 arg1, s32 arg2){
     f32 sp1C[3];
 
-    if(this->unk10_25 == 0)
+    if(sthis->unk10_25 == 0)
         return TRUE;
 
-    sp1C[0] = this->position[0];
-    sp1C[1] = this->position[1];
-    sp1C[2] = this->position[2];
+    sp1C[0] = sthis->position[0];
+    sp1C[1] = sthis->position[1];
+    sp1C[2] = sthis->position[2];
     func_80328478(sp1C, arg1, arg2);
-    if(func_80307258(sp1C, this->unk10_25 - 1, this->unk10_18 - 1) == -1){
+    if(findStructInArrayBCWithRadius(sp1C, sthis->unk10_25 - 1, sthis->unk10_18 - 1) == -1){
         return FALSE;
     }
     return TRUE;
 }
 
-bool func_80329140(Actor *this, s32 arg1, s32 arg2){
+bool func_80329140(Actor *sthis, s32 arg1, s32 arg2){
     s32 var_v0;
     f32 sp20[3];
 
-    sp20[0] = this->position[0];
-    sp20[1] = this->position[1];
-    sp20[2] = this->position[2];
+    sp20[0] = sthis->position[0];
+    sp20[1] = sthis->position[1];
+    sp20[2] = sthis->position[2];
     func_80328478(sp20, arg1, arg2);
-    var_v0 = func_80309D58(sp20, this->unk10_18);
-    if(this->unk10_18 == 0){
-        this->unk10_18 = var_v0;
+    var_v0 = checkCollisionWithModel(sp20, sthis->unk10_18);
+    if(sthis->unk10_18 == 0){
+        sthis->unk10_18 = var_v0;
     }
     if(var_v0 == 0){
-        if (this->unk10_18 != 0) 
+        if (sthis->unk10_18 != 0) 
             return FALSE;
     }
     return TRUE;
@@ -1449,99 +1451,99 @@ bool func_80329140(Actor *this, s32 arg1, s32 arg2){
 
 int func_80329210(Actor * arg0, f32 (* arg1)[3]){
     return arg0->unk10_25 < 1 
-        || func_80307258(arg1, arg0->unk10_25 - 1, arg0->unk10_18-1) != -1;
+        || findStructInArrayBCWithRadius(arg1, arg0->unk10_25 - 1, arg0->unk10_18-1) != -1;
 }
 
-bool func_80329260(Actor *this, f32 p1[3]){
+bool func_80329260(Actor *sthis, f32 p1[3]){
     s32 var_v0;
-    var_v0 = func_80309D58(p1, this->unk10_18);
-    if(this->unk10_18 == 0){
-        this->unk10_18 = var_v0;
+    var_v0 = checkCollisionWithModel(p1, sthis->unk10_18);
+    if(sthis->unk10_18 == 0){
+        sthis->unk10_18 = var_v0;
     }
-    if(var_v0 == 0 && this->unk10_18 != 0){
+    if(var_v0 == 0 && sthis->unk10_18 != 0){
         return FALSE;
     }
     return TRUE;
 }
 
-bool func_803292E0(Actor *this){
+bool func_803292E0(Actor *sthis){
     f32 player_position[3];
-    if(this->unk10_25 == 0){
+    if(sthis->unk10_25 == 0){
         return 1;
     }
 
     _player_getPosition(player_position);
-    return func_80307258(player_position, this->unk10_25 - 1, this->unk10_18 - 1) != -1;
+    return findStructInArrayBCWithRadius(player_position, sthis->unk10_25 - 1, sthis->unk10_18 - 1) != -1;
 }
 
-bool func_80329354(Actor *this){
+bool func_80329354(Actor *sthis){
     f32 sp1C[3];
 
     _player_getPosition(sp1C);
-    return func_80329260(this, sp1C);
+    return func_80329260(sthis, sp1C);
 }
 
-bool func_80329384(Actor *this, f32 arg1){
+bool func_80329384(Actor *sthis, f32 arg1){
     f32 sp1C[3];
 
-    if(this->unk10_25 == 0)
+    if(sthis->unk10_25 == 0)
         return TRUE;
 
     _player_getPosition(sp1C);
 
-    return func_80307258(sp1C, this->unk10_25 - 1, this->unk10_18 - 1) != -1
-        && (sp1C[1] < (this->position[1] + arg1))
-        && ((this->position[1] - arg1) < sp1C[1]);
+    return findStructInArrayBCWithRadius(sp1C, sthis->unk10_25 - 1, sthis->unk10_18 - 1) != -1
+        && (sp1C[1] < (sthis->position[1] + arg1))
+        && ((sthis->position[1] - arg1) < sp1C[1]);
 }
 
-bool func_8032944C(Actor *this){
+bool func_8032944C(Actor *sthis){
     s32 v1;
     
-    v1 = this->pitch - this->unk6C;
+    v1 = sthis->pitch - sthis->unk6C;
     return ((-3 <= v1) && (v1 <= 3));
 }
 
-bool func_80329480(Actor *this){
+bool func_80329480(Actor *sthis){
     s32 v1;
 
-    v1 = this->yaw - this->yaw_ideal;
+    v1 = sthis->yaw - sthis->yaw_ideal;
     return ((-3 <= v1) && (v1 <= 3));
 }
 
-bool func_803294B4(Actor *this, s32 arg1){
+bool func_803294B4(Actor *sthis, s32 arg1){
     s32 v1;
 
-    v1 = this->yaw - this->yaw_ideal;
+    v1 = sthis->yaw - sthis->yaw_ideal;
     return ((-arg1 <= v1) && (v1 <= arg1));
 }
 
-bool func_803294F0(Actor *this, s32 arg1, s32 arg2){
+bool func_803294F0(Actor *sthis, s32 arg1, s32 arg2){
     s32 v1;
 
-    v1 = this->yaw - arg2;
+    v1 = sthis->yaw - arg2;
     return ((-arg1 <= v1) && (v1 <= arg1));
 }
 
-bool func_80329530(Actor *this, s32 dist){
+bool func_80329530(Actor *sthis, s32 dist){
     if( func_8028F098() 
         && !volatileFlag_get(VOLATILE_FLAG_BF) 
-        && subaddie_playerIsWithinSphere(this, dist)
+        && subaddie_playerIsWithinSphere(sthis, dist)
     ){
         return TRUE;
     }
     return FALSE;
 }
 
-bool subaddie_playerIsWithinSphere(Actor *this, s32 dist){
+bool subaddie_playerIsWithinSphere(Actor *sthis, s32 dist){
     f32 sp24[3];
     f32 sp18[3];
 
     func_8028E964(sp24);
     _player_getPosition(sp18);
     sp24[1] = sp18[1];
-    if( ( (this->position_x - sp24[0])*(this->position_x - sp24[0]) 
-          + (this->position_y - sp24[1])*(this->position_y - sp24[1])
-          + (this->position_z - sp24[2])*(this->position_z - sp24[2]) 
+    if( ( (sthis->position_x - sp24[0])*(sthis->position_x - sp24[0]) 
+          + (sthis->position_y - sp24[1])*(sthis->position_y - sp24[1])
+          + (sthis->position_z - sp24[2])*(sthis->position_z - sp24[2]) 
         ) < dist*dist
     ){
         return TRUE;
@@ -1549,57 +1551,57 @@ bool subaddie_playerIsWithinSphere(Actor *this, s32 dist){
     return FALSE;
 }
 
-bool subaddie_playerIsWithinAsymmetricCylinder(Actor *this, s32 radius, s32 d_upper, s32 d_lower){
+bool subaddie_playerIsWithinAsymmetricCylinder(Actor *sthis, s32 radius, s32 d_upper, s32 d_lower){
     f32 sp1C[3];
 
     player_getPosition(sp1C);
 
-    if(((this->position[1] + d_upper) < sp1C[1]) || (sp1C[1] < (this->position[1] - d_lower))){
+    if(((sthis->position[1] + d_upper) < sp1C[1]) || (sp1C[1] < (sthis->position[1] - d_lower))){
         return FALSE;
     }
-    return subaddie_playerIsWithinSphere(this, radius);
+    return subaddie_playerIsWithinSphere(sthis, radius);
 
 }
 
-bool subaddie_playerIsWithinCylinder(Actor *this, s32 radius, s32 d_y){
-    return subaddie_playerIsWithinAsymmetricCylinder(this, radius, d_y, d_y);
+bool subaddie_playerIsWithinCylinder(Actor *sthis, s32 radius, s32 d_y){
+    return subaddie_playerIsWithinAsymmetricCylinder(sthis, radius, d_y, d_y);
 }
 
-bool func_803296D8(Actor *this, s32 dist){
-    if(!this->unk124_7){
+bool func_803296D8(Actor *sthis, s32 dist){
+    if(!sthis->unk124_7){
         return TRUE;
     }
     else{
-        return func_80329530(this, dist);
+        return func_80329530(sthis, dist);
     }
 }
 
-s32 func_8032970C(Actor *this){
+s32 func_8032970C(Actor *sthis){
     f32 sp24[3];
     f32 plyr_pos[3];
 
     func_8028E964(sp24);
     _player_getPosition(plyr_pos);
     sp24[1] = plyr_pos[1];
-    return (s32) DIST_SQ_VEC3F(this->position, sp24);
+    return (s32) DIST_SQ_VEC3F(sthis->position, sp24);
 }
 
-s32 func_80329784(Actor *this){
+s32 func_80329784(Actor *sthis){
     f32 sp1C[3];
 
     func_8028E964(sp1C);
-    return (s32)func_80257204(this->position[0], this->position[2], sp1C[0], sp1C[2]);
+    return (s32)ml_angle_between_points_2D(sthis->position[0], sthis->position[2], sp1C[0], sp1C[2]);
 }
 
 s32 func_803297C8(Actor *arg0, f32 arg1[3]){
-    return (s32)func_80257204(arg0->position[0], arg0->position[2], arg1[0], arg1[2]);
+    return (s32)ml_angle_between_points_2D(arg0->position[0], arg0->position[2], arg1[0], arg1[2]);
 }
 
 void func_803297FC(Actor *arg0, f32 *o1, f32 *o2){
     f32 sp2C[3];
 
     _player_getPosition(sp2C);
-    func_8025727C(
+    ml_vec3f_angles_between_points(
         arg0->position[0], arg0->position[1], arg0->position[2],
         sp2C[0], sp2C[1], sp2C[2],
         o1, o2
@@ -1615,14 +1617,14 @@ void func_80329878(Actor *arg0, f32 arg1){
     }
 }
 
-void actor_playAnimationOnce(Actor *this){
-    if(this->anctrl)
-        anctrl_setPlaybackType(this->anctrl, ANIMCTRL_ONCE);
+void actor_playAnimationOnce(Actor *sthis){
+    if(sthis->anctrl)
+        anctrl_setPlaybackType(sthis->anctrl, ANIMCTRL_ONCE);
 }
 
-void actor_loopAnimation(Actor *this){
-    if(this->anctrl)
-        anctrl_setPlaybackType(this->anctrl,  ANIMCTRL_LOOP);
+void actor_loopAnimation(Actor *sthis){
+    if(sthis->anctrl)
+        anctrl_setPlaybackType(sthis->anctrl,  ANIMCTRL_LOOP);
 }
 
 s32 func_80329904(ActorMarker *arg0, s32 arg1, f32 *arg2){
@@ -1643,14 +1645,14 @@ Struct64s* func_8032994C(void){
 }
 
 //marker_getActorPtr
-Actor *marker_getActor(ActorMarker *this){
-    return &(suBaddieActorArray->data[this->actrArrayIdx]);
+Actor *marker_getActor(ActorMarker *sthis){
+    return &(suBaddieActorArray->data[sthis->actrArrayIdx]);
 }
 
-Actor *subaddie_getLinkedActor(Actor *this){
-    if(this->unk100 == NULL)
+Actor *subaddie_getLinkedActor(Actor *sthis){
+    if(sthis->unk100 == NULL)
         return NULL;
-    return marker_getActor(this->unk100);
+    return marker_getActor(sthis->unk100);
 }
 
 void func_803299B4(Actor *arg0) {
@@ -1680,21 +1682,21 @@ void func_803299B4(Actor *arg0) {
     func_8032F6A4(position, arg0->marker, rotation);
 }
 
-void func_80329B68(Actor *this){
-    if(this->anctrl == NULL)
+void func_80329B68(Actor *sthis){
+    if(sthis->anctrl == NULL)
         return;
 
-    if(this->stored_anctrl_playbackType_){
-        anctrl_setPlaybackType(this->anctrl, this->stored_anctrl_playbackType_);
+    if(sthis->stored_anctrl_playbackType_){
+        anctrl_setPlaybackType(sthis->anctrl, sthis->stored_anctrl_playbackType_);
     }
-    anctrl_setIndex(this->anctrl, this->stored_anctrl_index);
-    anctrl_setDirection(this->anctrl, this->stored_anctrl_forwards);
-    anctrl_setSmoothTransition(this->anctrl, this->stored_anctrl_smoothTransistion);
-    anctrl_setDuration(this->anctrl, this->stored_anctrl_duration);
-    anctrl_setStart(this->anctrl, this->stored_anctrl_timer);
-    anctrl_setSubRange(this->anctrl, this->stored_anctrl_subrangeMin, this->stored_anctrl_subrangeMax);
-    anctrl_start(this->anctrl, "subaddie.c", 0x8fd);
-    anctrl_setTimer(this->anctrl, this->sound_timer);
+    anctrl_setIndex(sthis->anctrl, sthis->stored_anctrl_index);
+    anctrl_setDirection(sthis->anctrl, sthis->stored_anctrl_forwards);
+    anctrl_setSmoothTransition(sthis->anctrl, sthis->stored_anctrl_smoothTransistion);
+    anctrl_setDuration(sthis->anctrl, sthis->stored_anctrl_duration);
+    anctrl_setStart(sthis->anctrl, sthis->stored_anctrl_timer);
+    anctrl_setSubRange(sthis->anctrl, sthis->stored_anctrl_subrangeMin, sthis->stored_anctrl_subrangeMax);
+    anctrl_start(sthis->anctrl, "subaddie.c", 0x8fd);
+    anctrl_setTimer(sthis->anctrl, sthis->sound_timer);
 }
 
 void actor_copy(Actor *dst, Actor *src){
@@ -1704,7 +1706,7 @@ void actor_copy(Actor *dst, Actor *src){
     dst->unk148 = src->unk148;
     dst->unk14C[0] = src->unk14C[0];
     dst->unk14C[1] = src->unk14C[1];
-    memcpy(src, dst, sizeof(Actor));
+    heap_memcpy(src, dst, sizeof(Actor));
 }
 
 void *actors_appendToSavestate(void * begin, u32 end){
@@ -1726,7 +1728,7 @@ void *actors_appendToSavestate(void * begin, u32 end){
             }
         }
         sp2C = end - (u32)sp3C;
-        sp3C = realloc(sp3C, sp2C + sizeof(u32) + sp30*sizeof(Actor));
+        sp3C = bk_realloc(sp3C, sp2C + sizeof(u32) + sp30*sizeof(Actor));
 
         end = (u32)sp3C + sp2C;
         *(u32 *)end = sp30;
@@ -1737,7 +1739,7 @@ void *actors_appendToSavestate(void * begin, u32 end){
                 && s1->despawn_flag == 0
                 && s1->unk40 == 0
             ){
-                memcpy(s0, s1, sizeof(Actor));
+                heap_memcpy(s0, s1, sizeof(Actor));
                 s0->unk40 = 0;
                 s0->unk138_28 = 1;
                 s0->unk14C[0] =s0->unk14C[1] = NULL;
@@ -1812,9 +1814,9 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
 
         var_s3++;
         
-        sp60 = malloc(var_s3*sizeof(Actor *));
+        sp60 = heap_malloc(var_s3*sizeof(Actor *));
         pad = sp5C + var_s2;
-        sp5C = malloc(var_s3*sizeof(Actor *));
+        sp5C = heap_malloc(var_s3*sizeof(Actor *));
         for (var_s2 = 0; var_s2 < var_s3; var_s2++) {
             *(u32*)&sp60[var_s2] = 0; 
             *(u32*)&sp5C[var_s2] = 0;
@@ -1869,8 +1871,8 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
             var_s0++;
         }
         func_803283D4();
-        free(sp60);
-        free(sp5C);
+        bk_free(sp60);
+        bk_free(sp5C);
     }
     spawnQueue_unlock();
 }
@@ -1973,17 +1975,17 @@ bool func_8032A9E4(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 //actor_setScale
-void func_8032AA58(Actor *this, f32 scale){
-    this->scale = scale;
-    this->marker->unk14_10 = 0;
+void func_8032AA58(Actor *sthis, f32 scale){
+    sthis->scale = scale;
+    sthis->marker->unk14_10 = 0;
 }
 
-void actor_collisionOff(Actor* this){
-    this->marker->collidable = FALSE;
+void actor_collisionOff(Actor* sthis){
+    sthis->marker->collidable = FALSE;
 }
 
-void actor_collisionOn(Actor* this){
-    this->marker->collidable = TRUE;
+void actor_collisionOn(Actor* sthis){
+    sthis->marker->collidable = TRUE;
 }
 
 void func_8032AA9C(void){
@@ -2155,7 +2157,7 @@ void actorArray_defrag(void) {
     }
 
     if (D_8036E570 != 0) {
-        D_8036E570 = func_802F3364(D_8036E570);
+        D_8036E570 = returnInput(D_8036E570);
     }
 }
 
@@ -2174,23 +2176,23 @@ ActorMarker *func_8032B16C(enum jiggy_e jiggy_id) {
     return NULL;
 }
 
-void func_8032B258(Actor *this, enum collision_e arg1) {
+void func_8032B258(Actor *sthis, enum collision_e arg1) {
     f32 sp44;
     f32 sp38[3];
     f32 sp34;
 
-    if ((arg1 == COLLISION_2_DIE) && this->unk138_27 != 0) {
+    if ((arg1 == COLLISION_2_DIE) && sthis->unk138_27 != 0) {
         sp44 = player_getYaw();
-        if ((s32)this->marker->unk44 < 0) {
-            func_8034A174( this->marker->unk44, 0x20, sp38);
+        if ((s32)sthis->marker->unk44 < 0) {
+            func_8034A174( sthis->marker->unk44, 0x20, sp38);
         }
-        if (((s32)this->marker->unk44 < 0) && ((sp38[0] != 0.0f) || (sp38[1] != 0.0f) || (sp38[2] != 0.0f))) {
-            __spawnQueue_add_5((GenFunction_5) spawnQueue_bundleWithYaw_f32, this->unk138_27 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp38[0]), reinterpret_cast(s32, sp38[1]), reinterpret_cast(s32, sp38[2]), reinterpret_cast(s32, sp44));
+        if (((s32)sthis->marker->unk44 < 0) && ((sp38[0] != 0.0f) || (sp38[1] != 0.0f) || (sp38[2] != 0.0f))) {
+            spawnQueue_add_5((GenFunction_5) spawnQueue_bundleWithYaw_f32, sthis->unk138_27 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp38[0]), reinterpret_cast(s32, sp38[1]), reinterpret_cast(s32, sp38[2]), reinterpret_cast(s32, sp44));
             return;
         }
         else{
-            sp34 = this->position[1] + 50.0f;
-            __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, this->unk138_27 + BUNDLE_15__JIGGY, reinterpret_cast(s32,this->position[0]), reinterpret_cast(s32,sp34), reinterpret_cast(s32,this->position[2]), reinterpret_cast(s32,sp44));
+            sp34 = sthis->position[1] + 50.0f;
+            spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sthis->unk138_27 + BUNDLE_15__JIGGY, reinterpret_cast(s32,sthis->position[0]), reinterpret_cast(s32,sp34), reinterpret_cast(s32,sthis->position[2]), reinterpret_cast(s32,sp44));
         }
     }
 }
@@ -2199,17 +2201,17 @@ bool func_8032B38C(NodeProp *node, s32 arg1){
     return node->unk8 == 0xF7;
 }
 
-void func_8032B3A0(Actor *this, ActorMarker *arg1) {
+void func_8032B3A0(Actor *sthis, ActorMarker *arg1) {
     f32 sp54[3];
     static s32 D_8036E5B0[4] = {0xFF, 0xFF, 0xFF, 0xC8};
 
 
     if (arg1 != NULL) {
-        sp54[0] = this->position[0];
-        sp54[1] = this->position[1] + func_8033229C(this->marker)*((this->unk16C_0) ? 0.5 : 1.0);
-        sp54[2] = this->position[2];
-        func_802EE6CC(sp54, 0, D_8036E5B0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
-        func_802F3CF8(sp54, !this->unk16C_0, 
+        sp54[0] = sthis->position[0];
+        sp54[1] = sthis->position[1] + func_8033229C(sthis->marker)*((sthis->unk16C_0) ? 0.5 : 1.0);
+        sp54[2] = sthis->position[2];
+        spawnParticleEffect(sp54, 0, D_8036E5B0, !sthis->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
+        createSparkleParticleEmitter(sp54, !sthis->unk16C_0, 
             (arg1->id == 1) ? 1 
             : (player_getTransformation() == TRANSFORM_5_CROC) ? 2
             : 0
@@ -2218,14 +2220,14 @@ void func_8032B3A0(Actor *this, ActorMarker *arg1) {
 }
 
 
-void func_8032B4DC(Actor *this, ActorMarker *arg1, s32 arg2) {
+void func_8032B4DC(Actor *sthis, ActorMarker *arg1, s32 arg2) {
     f32 sp3C[3];
     static s32 D_8036E5C0[4] = {0xFF, 0xFF, 0xFF, 0xC8};
 
     if (arg1 != NULL) {
-        func_8034A174(this->marker->unk44, arg2, &sp3C);
-        func_802EE6CC(sp3C, NULL, D_8036E5C0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
-        func_802F3CF8(sp3C, !this->unk16C_0, 
+        func_8034A174(sthis->marker->unk44, arg2, &sp3C);
+        spawnParticleEffect(sp3C, NULL, D_8036E5C0, !sthis->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
+        createSparkleParticleEmitter(sp3C, !sthis->unk16C_0, 
             (arg1->id == 1) ? 1 
             : (player_getTransformation() == TRANSFORM_5_CROC) ? 2
             : 0
@@ -2234,7 +2236,7 @@ void func_8032B4DC(Actor *this, ActorMarker *arg1, s32 arg2) {
 }
 
 void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, struct5Cs *arg2) {
-    Actor *this;
+    Actor *sthis;
     s32 sp70;
     s32 sp6C;
     s32 sp68;
@@ -2248,7 +2250,7 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, struct5Cs *arg2) {
     f32 sp38;
     s32 pad;
 
-    this = marker_getActor(arg0);
+    sthis = marker_getActor(arg0);
     sp70 = func_8033D5B4(arg2);
     sp6C = func_8033D584(arg2);
     sp68 = func_8033D5A4(arg2);
@@ -2265,93 +2267,93 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, struct5Cs *arg2) {
         }
 
         if (sp68 != 0) {
-            var_v0 = MAX(0 , (this->unk164[sp64] - (100 / sp68)));
-            if ((this->unk164[sp64] = var_v0) && (sp68 >= 2)) {
+            var_v0 = MAX(0 , (sthis->unk164[sp64] - (100 / sp68)));
+            if ((sthis->unk164[sp64] = var_v0) && (sp68 >= 2)) {
                 sp6C /= 2;
             }
         }
         if (sp6C != 0) {
-            bundle_setYaw(func_80257204(arg0->propPtr->x, arg0->propPtr->z, arg1->propPtr->x, arg1->propPtr->z) + 90.0f);
+            bundle_setYaw(ml_angle_between_points_2D(arg0->propPtr->x, arg0->propPtr->z, arg1->propPtr->x, arg1->propPtr->z) + 90.0f);
             D_8036E564 = sp6C;
-            if (this->unk138_25) {
-                __bundle_spawnFromFirstActor(sp6C + BUNDLE_21__ICECUBE_B, this);
+            if (sthis->unk138_25) {
+                __bundle_spawnFromFirstActor(sp6C + BUNDLE_21__ICECUBE_B, sthis);
             } else {
-                if ((this->marker->id < 0x1A1) || (this->marker->id >= 0x1A5)) {
-                    __bundle_spawnFromFirstActor(sp6C + BUNDLE_18__HONEYCOMB, this);
+                if ((sthis->marker->id < 0x1A1) || (sthis->marker->id >= 0x1A5)) {
+                    __bundle_spawnFromFirstActor(sp6C + BUNDLE_18__HONEYCOMB, sthis);
                 }
             }
         }
         if (sp68 != 0) {
-            if ((sp64 == 2) && this->unk16C_1) {
-                func_8032B3A0(this, arg1);
+            if ((sp64 == 2) && sthis->unk16C_1) {
+                func_8032B3A0(sthis, arg1);
             }
-            if ((sp64 == 1) && this->unk16C_2) {
-                func_8032B3A0(this, arg1);
+            if ((sp64 == 1) && sthis->unk16C_2) {
+                func_8032B3A0(sthis, arg1);
             }
 
-            if ((this->unk164[sp64] == 0) || ((sp64 != 0) && this->unk138_9)) {
-                if (this->unk164[sp64] != 0) {
+            if ((sthis->unk164[sp64] == 0) || ((sp64 != 0) && sthis->unk138_9)) {
+                if (sthis->unk164[sp64] != 0) {
                     sp64 -= 1;
                 }
                 if (sp64 != 2) {
-                    this->unk164[sp64] = 0x63;
+                    sthis->unk164[sp64] = 0x63;
                 }
                 if ((sp64 == 2) && (sp70 != 0)) {
                     player_yaw = player_getYaw();
-                    sp3C[0] = (s32) this->position[0];
-                    sp3C[1] = (s32) this->position[1];
-                    sp3C[2] = (s32) this->position[2];
+                    sp3C[0] = (s32) sthis->position[0];
+                    sp3C[1] = (s32) sthis->position[1];
+                    sp3C[2] = (s32) sthis->position[2];
                     if ((s32)arg0->unk44 < 0) {
                         func_8034A174(arg0->unk44, 0x20, sp50);
                     }
-                    func_8032EE0C(func_8032B38C, this);
+                    func_8032EE0C(func_8032B38C, sthis);
                     if (((s32)arg0->unk44 < 0) && ((sp50[0] != 0.0f) || (sp50[1] != 0.0f) || (sp50[2] != 0.0f))) {
-                        __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
-                    } else if (this->unk16C_3 && func_803048E0(sp3C, &sp4C, &sp48, 3, (s32) (func_8033229C(arg0) * 4.0f))) {
+                        spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
+                    } else if (sthis->unk16C_3 && updateCubeProps(sp3C, &sp4C, &sp48, 3, (s32) (func_8033229C(arg0) * 4.0f))) {
                         sp50[0] = (f32) sp48->x;
                         sp50[1] = (f32) sp48->y;
                         sp50[2] = (f32) sp48->z;
-                        __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
+                        spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
                     } else {
-                        sp38 = this->position[1] + func_8033229C(arg0);
-                        __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, sp38), reinterpret_cast(s32, this->position[2]), reinterpret_cast(s32, player_yaw));
+                        sp38 = sthis->position[1] + func_8033229C(arg0);
+                        spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sthis->position[0]), reinterpret_cast(s32, sp38), reinterpret_cast(s32, sthis->position[2]), reinterpret_cast(s32, player_yaw));
                     }
                     func_8032EE20();
                 }
                 marker_callCollisionFunc(arg0, arg1, sp64);
             }
             if ((sp64 != 0) && (sp6C != 0)) {
-                FUNC_8030E8B4(SFX_1D_HITTING_AN_ENEMY_1, 1.0f, 25984, this->position, (s32)((500.0f + func_8033229C(arg0)) * 0.5), (s32)((500.0f + func_8033229C(arg0)) * 5));
+                FUNC_8030E8B4(SFX_1D_HITTING_AN_ENEMY_1, 1.0f, 25984, sthis->position, (s32)((500.0f + func_8033229C(arg0)) * 0.5), (s32)((500.0f + func_8033229C(arg0)) * 5));
             }
         }
     }
 }
 
-void func_8032BB88(Actor *this, s32 arg1, s32 arg2){
+void func_8032BB88(Actor *sthis, s32 arg1, s32 arg2){
     s32 sp1C;
 
-    sp1C = this->unk138_7;
-    func_8025A4C4(arg1, arg2, &sp1C);
-    this->unk138_7 = sp1C;
+    sp1C = sthis->unk138_7;
+    comusic_updateMainTrack(arg1, arg2, &sp1C);
+    sthis->unk138_7 = sp1C;
 }
 
-bool func_8032BBE8(Actor *this){
-    if(this->volatile_initialized){
+bool func_8032BBE8(Actor *sthis){
+    if(sthis->volatile_initialized){
         return TRUE;
     }
-    this->volatile_initialized = TRUE;
+    sthis->volatile_initialized = TRUE;
     return FALSE;
 }
 
-void func_8032BC18(Actor *this){
-    func_80287784(this->anctrl, 0);
+void func_8032BC18(Actor *sthis){
+    anctrl_setUnk23(sthis->anctrl, 0);
 }
 
-void func_8032BC3C(Actor *this, f32 arg1){
-    this->unk48 = arg1;
-    func_80344040(this);
+void func_8032BC3C(Actor *sthis, f32 arg1){
+    sthis->unk48 = arg1;
+    func_80344040(sthis);
 }
 
-void func_8032BC60(Actor *this, s32 arg1, f32 arg2[3]){
-    func_8034A174(this->marker->unk44, arg1, arg2);
+void func_8032BC60(Actor *sthis, s32 arg1, f32 arg2[3]){
+    func_8034A174(sthis->marker->unk44, arg1, arg2);
 }

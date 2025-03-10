@@ -48,13 +48,13 @@ void func_8033A6B0(BoneTransformList *this, s32 bone_id, f32 arg2[3]) {
 }
 
 void boneTransformList_free(BoneTransformList *this){
-    free(this);
+    bk_free(this);
 }
 
 BoneTransformList *boneTransformList_new(void) {
     BoneTransformList *this;
 
-    this = (BoneTransformList *)malloc(sizeof(BoneTransformList) + 0x6D*sizeof(BoneTransform));
+    this = (BoneTransformList *)heap_malloc(sizeof(BoneTransformList) + 0x6D*sizeof(BoneTransform));
     this->ptr = (BoneTransform *) (this + 1);
     this->count = 0x6D;
     boneTransformList_reset(this);

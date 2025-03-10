@@ -1,6 +1,10 @@
+#ifndef LIGHTHOUSE_P
 #include <os_internal.h>
 #include <rcp.h>
 #include <os_libc.h>
+#else
+#include "pc_oscompat.h"
+#endif
 
 OSPiHandle LeoDiskHandle;
 OSPiHandle *__osDiskHandle;

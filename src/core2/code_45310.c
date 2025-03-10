@@ -3,10 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
-extern f32 func_80309B24(f32[3]);
+extern f32 mapModel_findFloorYWithFlags(f32[3]);
 extern void sfxsource_playSfxAtVolume(u8, f32);
 extern void func_802CC340(Actor *, f32[3]);
-extern bool func_80320DB0(f32[3], f32, f32[3], u32);
+extern bool checkCollisionAlongPathWithRadius(f32[3], f32, f32[3], u32);
 
 typedef struct {
     u8 unk0;
@@ -47,9 +47,9 @@ bool func_802CC2A0(Actor *this) {
     if (!this->marker->unk14_21) {
         return TRUE;
     }
-    ml_vec3f_interpolate_fast(sp20, local->unk8, local->unk18, func_802575BC(local->unk4 + 0.05));
+    ml_vec3f_interpolate_fast(sp20, local->unk8, local->unk18, ml_smoothstep(local->unk4 + 0.05));
     sp20[1] += 60.0f;
-    return func_80320DB0(sp20, 50.0f, sp2C, 0) == 0;
+    return checkCollisionAlongPathWithRadius(sp20, 50.0f, sp2C, 0) == 0;
 }
 
 void func_802CC340(Actor *this, f32 arg1[3]) {
@@ -73,7 +73,7 @@ void func_802CC340(Actor *this, f32 arg1[3]) {
     sp1C[0] = local->unk18[0] - local->unk8[0];
     sp1C[1] = local->unk18[1] - local->unk8[1];
     sp1C[2] = local->unk18[2] - local->unk8[2];
-    phi_f2 = func_8025715C(sp1C[0], sp1C[2]);
+    phi_f2 = ml_vec2f_angle_between_points(sp1C[0], sp1C[2]);
     if ((phi_f2 - local->unk14) > 180.0f) {
         phi_f2 = phi_f2 - 360.0f;
     }
@@ -98,7 +98,7 @@ void func_802CC4A4(Actor *this, f32 arg1[3]) {
     sp1C[0] = local->unk18[0] - local->unk8[0];
     sp1C[1] = local->unk18[1] - local->unk8[1];
     sp1C[2] = local->unk18[2] - local->unk8[2];
-    phi_f2 = func_8025715C(sp1C[0], sp1C[2]);
+    phi_f2 = ml_vec2f_angle_between_points(sp1C[0], sp1C[2]);
     phi_f12 = phi_f2 - local->unk14;
     if(phi_f12 > 180.0f){
         phi_f2 = phi_f2 - 360.0f;
@@ -128,7 +128,7 @@ bool func_802CC57C(Actor *this, f32 arg1[3]) {
         local->unk39--;
         return 0;
     }
-    sp24 = func_80309B48(sp28, sp40, sp34, 0);
+    sp24 = findCollisionTriAlongPath3(sp28, sp40, sp34, 0);
     if (sp24 != 0) {
         local->unk39 = randi2(5, 0xA);
     } else {
@@ -313,7 +313,7 @@ void func_802CCC5C(Actor *this) {
         local->unk30[1] = (s16) this->position[1];
         local->unk30[2] = (s16) this->position[2];
         local->unk30[1] = (s16) mapModel_getFloorY(this->position);
-        temp_f0 = func_80309B24(this->position);
+        temp_f0 = mapModel_findFloorYWithFlags(this->position);
         if (local->unk30[1] < temp_f0) {
             local->unk30[1] = (s16) (s32) temp_f0;
         }
@@ -387,7 +387,7 @@ void func_802CCC5C(Actor *this) {
                     }
                 }
                 if (local->unk3A == 2) {
-                    sp9C = func_802575BC(local->unk4);
+                    sp9C = ml_smoothstep(local->unk4);
                     this->yaw = local->unk14 + (sp9C*(local->unk24 - local->unk14));
                 } else {
                     local->unk4 = 0.0f;
@@ -408,7 +408,7 @@ void func_802CCC5C(Actor *this) {
                     local->unk3A = 0;
                     local->unk4 = 1.0f;
                 }
-                sp9C = func_802575BC(local->unk4);
+                sp9C = ml_smoothstep(local->unk4);
                 ml_vec3f_interpolate_fast(this->position, local->unk8, local->unk18, sp9C);
                 this->yaw = local->unk14 + (sp9C * (local->unk24 - local->unk14));
                 if ((skeletalAnim_getAnimId(this->unk148) == 0x10E) && (skeletalAnim_getLoopCount(this->unk148) > 0)) {

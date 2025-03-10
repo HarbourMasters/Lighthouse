@@ -9,7 +9,7 @@ static void __chClam_updateFunc(Actor *this);
 
 /* .data */
 ActorAnimationInfo gChClamAnimations[4] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_AA_ANIM_CLAM_IDLE, 2.0f},
     {ASSET_24_ANIM_CLAM_HOP,  1.0f},
     {ASSET_AB_ANIM_CLAM_EAT,  0.6f}
@@ -55,7 +55,7 @@ static bool __chClam_updateFuncTarget(Actor *this, f32 arg1) {
     if( (red_feather_dist < egg_dist) 
         && (red_feather_dist < 16000.0f) 
         && (egg != 0)
-        && func_80307258(egg->position, this->unk10_25 - 1, this->unk10_18 - 1) != -1
+        && findStructInArrayBCWithRadius(egg->position, this->unk10_25 - 1, this->unk10_18 - 1) != -1
     ) {
             TUPLE_COPY(target_position, egg->position)
             phi_f2 = red_feather_dist;
@@ -64,7 +64,7 @@ static bool __chClam_updateFuncTarget(Actor *this, f32 arg1) {
         (egg_dist < red_feather_dist) 
         && (egg_dist < 16000.0f) 
         && (red_feather != 0)
-        && func_80307258(red_feather->position, this->unk10_25 - 1, this->unk10_18 - 1) != -1
+        && findStructInArrayBCWithRadius(red_feather->position, this->unk10_25 - 1, this->unk10_18 - 1) != -1
     ){
             TUPLE_COPY(target_position, red_feather->position)
             phi_f2 = egg_dist;
@@ -79,7 +79,7 @@ static bool __chClam_updateFuncTarget(Actor *this, f32 arg1) {
     }
 
     this->actor_specific_1_f = phi_f2 / arg1;
-    this->yaw_ideal = func_80257204(this->position[0], this->position[2], target_position[0], target_position[2]);
+    this->yaw_ideal = ml_angle_between_points_2D(this->position[0], this->position[2], target_position[0], target_position[2]);
     if ((volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) ? 0 : 0x11) < this->actor_specific_1_f) {
         this->actor_specific_1_f = (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) != 0) ? 0.0f : 17.0f;
     } else if (sp38 == 0) {
@@ -133,9 +133,9 @@ static bool __chClam_rotateTowardTarget(Actor *this, s32 arg1) {
 
 static void __chClam_particalEmitterInit(ParticleEmitter *pCtrl, f32 position[3]){
     particleEmitter_setPosition(pCtrl, position);
-    particleEmitter_func_802EF9F8(pCtrl, 0.7f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 0.8f, 1.0f);
+    particleEmitter_setBounceFactor(pCtrl, 0.7f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
+    particleEmitter_setSfxPitchRange(pCtrl, 0.8f, 1.0f);
     particleEmitter_setSfx(pCtrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 3.5f, 3.5f);
@@ -236,7 +236,7 @@ static void __chClam_playerDropsItem(enum bundle_e bundle_id, enum item_e item_i
 
     player_getPosition(position);
     bundle_setYaw(randf2(0.0f, 359.0f));
-    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, bundle_id, reinterpret_cast(s32, position[0]), reinterpret_cast(s32, position[1]), reinterpret_cast(s32, position[2]));
+    spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, bundle_id, reinterpret_cast(s32, position[0]), reinterpret_cast(s32, position[1]), reinterpret_cast(s32, position[2]));
     item_dec(item_id);
 }
 

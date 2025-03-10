@@ -14,7 +14,7 @@ void lighting_init();
 
 /* .bss */
 struct {
-    vector(Lighting) *vector_ptr;
+    bk_vector(Lighting) *vector_ptr;
     Lighting *unk4[NUM_LIGHTING_ELEM];
     Lighting **unk44;
     Lighting **unk48; // copy of unk44
@@ -29,7 +29,7 @@ static void __lighting_init(f32 position[3], f32 rotation[3], f32 scale, f32 arg
     start_ptr = (Lighting *)vector_getBegin(sLightingVectorList.vector_ptr);
     end_ptr = (Lighting *)vector_getEnd(sLightingVectorList.vector_ptr);
     mlMtxIdent();
-    func_80252CC4(position, rotation, scale, arg3);
+    mlMtx_inverse_transform_with_scale(position, rotation, scale, arg3);
     sLightingVectorList.unk44 = sLightingVectorList.unk4;
     iPtr = start_ptr;
     for(; iPtr < end_ptr && sLightingVectorList.unk44 < sLightingVectorList.unk48; iPtr++) {

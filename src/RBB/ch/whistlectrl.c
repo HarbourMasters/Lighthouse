@@ -32,21 +32,21 @@ void __chWhistleCtrl_soundWhistle(void){
 }
 
 void __chWhistleCtrl_correct(void){
-    func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
 }
 
 void __chWhistleCtrl_wrong(ActorMarker *marker){
-    func_8025A6EC(COMUSIC_2C_BUZZER, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_2C_BUZZER, 28000);
     func_8028F530(0xD);
 }
 
 void __chWhistleCtrl_complete(void){
-    func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
-    func_80324E38(1.0f, 3);
+    comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    setCameraModeAtTime(1.0f, 3);
     timed_setStaticCameraToNode(2.0f, 10);
     timedFunc_set_0(2.2f, __chWhistleCtrl_soundWhistle);
     timed_exitStaticCamera(5.0f);
-    func_80324E38(5.0f, 0);
+    setCameraModeAtTime(5.0f, 0);
 }
 
 s32 chWhistleCtrl_newEvent(Actor *this, s32 whistle_id, Actor *other){

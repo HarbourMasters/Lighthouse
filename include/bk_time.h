@@ -3,6 +3,10 @@
 
 #include <ultra64.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void time_reset(void);
 void time_setDeltaReal_sec(f32 d_seconds);
 void time_setDeltaReal_frames(s32 d_frames);
@@ -11,5 +15,9 @@ f32 time_getDelta(void);
 f32 time_func_8033DDB8(void);
 f32 time_getDelta_frames(void);
 void time_setMultiplier(f32 multiplier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

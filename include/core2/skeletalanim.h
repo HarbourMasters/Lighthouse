@@ -1,8 +1,13 @@
 #ifndef _SKELETAL_ANIMATION_H_
 #define _SKELETAL_ANIMATION_H_
+
 #include "core2/vla.h"
 #include "generic.h"
 #include "bonetransform.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum skeletal_anim_e {
     SKELETAL_ANIM_1_LOOP = 1,
@@ -24,7 +29,7 @@ typedef struct {
     struct animation_file_s *animation_bin;
     f32 progress;
     f32 duration;
-    vector(SkeletalAnimationCallback) *callback_list;
+    bk_vector(SkeletalAnimationCallback) *callback_list;
     u8 unk14;
     u8 behavior;
     s16 animation_id;
@@ -48,11 +53,16 @@ void               skeletalAnim_setCallback_0(SkeletalAnimation *self, f32 when,
 void               skeletalAnim_setCallback_1(SkeletalAnimation *self, f32 when, GenFunction_1 fn, s32 arg);
 void               skeletalAnim_free(SkeletalAnimation *self);
 SkeletalAnimation *skeletalAnim_new(void);
-void               skeletalAnim_func_80335918(SkeletalAnimation *self);
+void               skeletalAnim_markDirty(SkeletalAnimation *self);
 void               skeletalAnim_set(SkeletalAnimation *self, enum asset_e anim_id, f32 transistion_duration, f32 duration);
 void               skeletalAnim_swap(SkeletalAnimation *self, enum asset_e anim_id, f32 transistion_duration, f32 duration);
 void               skeletalAnim_setProgress(SkeletalAnimation *self, f32 progress);
 void               skeletalAnim_setDuration(SkeletalAnimation *self, f32 duration);
 void               skeletalAnim_setBehavior(SkeletalAnimation *self, enum skeletal_anim_e behavior);
 void               skeletalAnim_update(SkeletalAnimation *self, f32 dt, s32 arg2);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

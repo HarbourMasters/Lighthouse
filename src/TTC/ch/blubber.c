@@ -29,7 +29,7 @@ enum ch_blubber_states_e {
 
 /* .data */
 ActorAnimationInfo gChBlubberAnimations[6] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_B5_ANIM_BLUBBER_WALK, 2.0f},
     {ASSET_B6_ANIM_BLUBBER_CRY, 2.0f},
     {ASSET_B6_ANIM_BLUBBER_CRY, 2.0f},
@@ -76,7 +76,7 @@ static void __chBlubber_showTextCallback2(ActorMarker *caller, enum asset_e text
 
     if(nodeProp_findPositionFromActorId(ACTOR_14B_TTC_BLUBBER_UNKNOWN, sp24)){
         jiggy_spawn(JIGGY_14_TTC_BLUBBER, sp24);
-        __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
+        spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
     }
 }
 

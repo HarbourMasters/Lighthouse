@@ -1,13 +1,18 @@
-#include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include <ultra64.h>
 
-void alCSPSetBank(ALCSPlayer *seqp, ALBank *b)
-{
-    ALEvent evt;
+#ifdef LIGHTHOUSE_P
+#include "pc_audio.h"
+#else
+#include "libaudio.h"
+#endif
 
-    evt.type = AL_SEQP_BANK_EVT;
-    evt.msg.spbank.bank = b;
+void alCSPSetBank(ALCSPlayer *seqp, ALBank *b) {
+  ALEvent evt;
 
-    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+  evt.type = AL_SEQP_BANK_EVT;
+  evt.msg.spbank.bank = b;
+
+  alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }

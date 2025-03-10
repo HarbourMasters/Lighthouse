@@ -170,26 +170,26 @@ void MMM_func_803898A0() {
 }
 
 void MMM_func_803898C8() {
-    func_8025A58C(0, 450);
+    playMusicWithFade(0, 450);
 }
 
 void func_803898EC() {
-    func_8025A58C(-1, 300);
+    playMusicWithFade(-1, 300);
 }
 
 void func_80389910() {
     gcdialog_showText(ASSET_AD5_DIALOG_UNKNOWN, 0xE, NULL, NULL, MMM_func_80389810, NULL);
-    timedFunc_set_2(0.0f, (GenFunction_2)func_8025A6EC, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+    timedFunc_set_2(0.0f, (GenFunction_2)comusic_playTrackWithVolumeOverride, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
     timed_setStaticCameraToNode(2.0f, 0);
     timedFunc_set_0(2.1f, MMM_func_803898A0);
     timedFunc_set_0(6.0f, func_803898EC);
     timed_exitStaticCamera(6.0f);
-    func_80324E38(6.0f, 0);
+    setCameraModeAtTime(6.0f, 0);
 }
 
 void func_803899BC(void){
-    func_80324E38(0.0f, 3);
-    timedFunc_set_2(0.0f, (GenFunction_2)func_8025A6EC, COMUSIC_38_MOTZAND_BEATEN, 0x7fff);
+    setCameraModeAtTime(0.0f, 3);
+    timedFunc_set_2(0.0f, (GenFunction_2)comusic_playTrackWithVolumeOverride, COMUSIC_38_MOTZAND_BEATEN, 0x7fff);
     timedFunc_set_0(2.25f, func_80389910);
 }
 
@@ -316,7 +316,7 @@ void code3420_handleOrganGame(s32 arg0, s32 arg1) {
     bool is_black_key;
 
     Me.unk8 = D_8038BF20;
-    func_80250170(0, 0x6A, 0);
+    musicTrack_setEventById(0, 0x6A, 0);
     Me.state = 0;
 
     if ((map_get() == MAP_1C_MMM_CHURCH) && (arg1 == 2)) {
@@ -368,8 +368,8 @@ void maOrgan_update(void){
         return;
     }
 
-    if(func_802501A0(0, 0x6A, &sp4C)){
-        func_80250170(0, 0x6A, 0);
+    if(musicTrack_getEvent(0, 0x6A, &sp4C)){
+        musicTrack_setEventById(0, 0x6A, 0);
         Me.unk8++;
         if(Me.unk8->unk4 == -1){
             Me.unk8 = &D_8038BF20[10];

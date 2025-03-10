@@ -117,28 +117,28 @@ void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker
                 break;
                 
             case MARKER_37_GOLD_BULLION:
-                func_8025A6EC(COMUSIC_2B_DING_B, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 0x7FFF);
                 timedFunc_set_1(0.5f, func_8035646C, FILEPROG_9_GOLD_BULLION_TEXT);
                 dialog_id = 0;
                 break;
 
             case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:
                 levelSpecificFlags_set(LEVEL_FLAG_2A_FP_UNKNOWN, TRUE);
-                func_8025A6EC(COMUSIC_2B_DING_B, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 0x7FFF);
                 __chLevelCollectible_presentCollectEmitSparkles(this->position, ASSET_711_SPRITE_SPARKLE_DARK_BLUE);
                 dialog_id = ASSET_C20_DIALOG_PRESENT_COLLECTIBLE_MEET_BLUE;
                 break;
 
             case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE:
                 levelSpecificFlags_set(LEVEL_FLAG_2B_FP_UNKNOWN, TRUE);
-                func_8025A6EC(COMUSIC_2B_DING_B, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 0x7FFF);
                 __chLevelCollectible_presentCollectEmitSparkles(this->position, ASSET_712_SPRITE_SPARKLE_GREEN);
                 dialog_id = ASSET_C21_DIALOG_PRESENT_COLLECTIBLE_MEET_GREEN;
                 break;
 
             case MARKER_1FF_RED_PRESENT_COLLECTIBLE:
                 levelSpecificFlags_set(LEVEL_FLAG_2C_FP_UNKNOWN, TRUE);
-                func_8025A6EC(COMUSIC_2B_DING_B, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 0x7FFF);
                 __chLevelCollectible_presentCollectEmitSparkles(this->position, ASSET_715_SPRITE_SPARKLE_RED);
                 dialog_id = ASSET_C22_DIALOG_PRESENT_COLLECTIBLE_MEET_RED;
                 break;
@@ -220,9 +220,9 @@ void __chLevelCollectible_returnObj(Actor *this) {
     }
     if (this->position[1] < sp20) {
         if (this->modelCacheIndex == ACTOR_2A_GOLD_BULLION) {
-            func_8025A6EC(COMUSIC_2B_DING_B, 32000);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 32000);
             if (mapSpecificFlags_get(1)) {
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
             }
         }
         this->position[1] = sp20;
@@ -237,18 +237,18 @@ void __chLevelCollectible_returnObj(Actor *this) {
                 break;
             case MARKER_36_ORANGE_COLLECTIBLE:
                 timed_mapSpecificFlags_setTrue(1.7f, MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED);
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
                 break;
             case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:
-                func_8025A6EC(COMUSIC_2B_DING_B, 32000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 32000);
                 levelSpecificFlags_set(LEVEL_FLAG_11_FP_UNKNOWN, TRUE);
                 break;
             case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE:
-                func_8025A6EC(COMUSIC_2B_DING_B, 32000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 32000);
                 levelSpecificFlags_set(LEVEL_FLAG_12_FP_UNKNOWN, TRUE);
                 break;
             case MARKER_1FF_RED_PRESENT_COLLECTIBLE:
-                func_8025A6EC(COMUSIC_2B_DING_B, 32000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 32000);
                 levelSpecificFlags_set(LEVEL_FLAG_13_FP_UNKNOWN, TRUE);
                 break;
             }

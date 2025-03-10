@@ -2,6 +2,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "FP.h"
+
 
 #include "core2/statetimer.h"
 extern void player_stateTimer_set(s32, f32);
@@ -76,10 +78,10 @@ void FP_func_8038AB60(s32 arg0){
 }
 
 void func_8038ABDC(void){
-    comusic_8025AB44(COMUSIC_3A_FP_BOGGY_RACE, 0, 4000);
-    func_8025AABC(COMUSIC_3A_FP_BOGGY_RACE);
-    func_8025A58C(-1, 4000);
-    core1_ce60_incOrDecCounter(TRUE);
+    comusic_fadeTrackWithArgsNoDelay(COMUSIC_3A_FP_BOGGY_RACE, 0, 4000);
+    comusic_stopTrackById(COMUSIC_3A_FP_BOGGY_RACE);
+    playMusicWithFade(-1, 4000);
+    map_worthlessCounter(TRUE);
 }
 
 void func_8038AC20(s32 gate_indx, s32 arg1){
@@ -126,7 +128,7 @@ void __maSlalom_spawnGate(s32 indx, s32 arg1){
 }
 
 void maSlalom_spawnGate(s32 indx, s32 arg1){
-    __spawnQueue_add_2((GenFunction_2)__maSlalom_spawnGate, indx, arg1);
+    spawnQueue_add_2((GenFunction_2)__maSlalom_spawnGate, indx, arg1);
 }
 
 void __maSlalom_despawnGate(s32 indx){
@@ -175,7 +177,7 @@ void __maSlalom_spawnBridge(s32 indx){
 }
 
 void maSlalom_spawnBridge(s32 indx){
-    __spawnQueue_add_1((GenFunction_1)__maSlalom_spawnBridge, indx);
+    spawnQueue_add_1((GenFunction_1)__maSlalom_spawnBridge, indx);
 }
 
 void maSlalom_spawnAllBridges(void){
@@ -279,7 +281,7 @@ void maSlalom_win(void){
         player_stateTimer_set(STATE_TIMER_3_TURBO_TALON, 2.0f);
     }
     func_8028F918(1);
-    func_8025A6EC(COMUSIC_3B_MINIGAME_VICTORY, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_3B_MINIGAME_VICTORY, 28000);
     FP_func_8038AB60(0);
     func_8038ABDC();
     timed_setStaticCameraToNode(0.0f, 1);
@@ -293,18 +295,18 @@ void maSlalom_lose(void){
         pntBoggy = marker_getActor(Me.boggyLink);
     
     pntBoggy->unk38_31 = 1;
-    func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+    comusic_playTrackWithVolumeOverride(COMUSIC_3C_MINIGAME_LOSS, 28000);
     FP_func_8038AB60(0);
     func_8038ABDC();
     if(!jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2)){
         timed_setStaticCameraToNode(0.0f, 1);
         timed_playSfx(1.0f, SFX_8C_BOGGY_WAHEY, 1.0f, 32000);
-        func_80324DBC(2.0f, 0xC04, 0x2b, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
+        showDelayedTextAtTime(2.0f, 0xC04, 0x2b, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
     }//L8038B4E0
     else{
         timed_setStaticCameraToNode(0.0f, 1);
         timed_playSfx(1.0f, SFX_8C_BOGGY_WAHEY, 1.0f, 32000);
-        func_80324DBC(2.0f, 0xC0b, 0x2b, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
+        showDelayedTextAtTime(2.0f, 0xC0b, 0x2b, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
 
     }
 }
@@ -358,10 +360,10 @@ void maSlalom_update(void){
             pntBoggy->unk38_31 = 2;
             timed_playSfx(1.0f, SFX_8D_BOGGY_OHWW, 1.0f, 32000);
             if(jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2) || jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)){
-                func_80324DBC(2.0f, 0xc0d, 0x2a, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
+                showDelayedTextAtTime(2.0f, 0xc0d, 0x2a, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
             }
             else{
-                func_80324DBC(2.0f, 0xc07, 0x22, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
+                showDelayedTextAtTime(2.0f, 0xc07, 0x22, pntBoggy->position, NULL, maSlalom_dialogCallback, NULL);
             }
             Me.state = MA_SLALOM_STATE_4_LOSE;
             break;
@@ -449,7 +451,7 @@ void maSlalom_start(void){
     maSlalom_spawnGate(NUM_GATES - 1, 2);
     maSlalom_spawnAllBridges();
     if(jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2) || jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2)){
-        __spawnQueue_add_0(__maSlalom_spawnTrainers);
+        spawnQueue_add_0(__maSlalom_spawnTrainers);
     }
 
     Me.playerGate = -1;
@@ -496,15 +498,15 @@ void maSlalom_setPlayerGate(s32 gate_num){
 
     switch(Me.boggyGate - Me.playerGate){
         case 3:
-            func_8025AEA0(0x3a, 266666);
+            comusic_setTrackVolume(0x3a, 266666);
             break;
         case 2:
-            func_8025AEA0(0x3a, 300000);
+            comusic_setTrackVolume(0x3a, 300000);
             break;
         case 4:
             break;
         default:
-            func_8025AEA0(0x3a, 333333);
+            comusic_setTrackVolume(0x3a, 333333);
             break;
 
 
@@ -548,7 +550,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
                     Me.hasBeenThreeBehind = 1;
                     gcdialog_showText(0xc0f, 0x20, NULL, NULL, NULL, NULL);
                 }//L8038BD94
-                func_8025AEA0(0x3a, 0x411aa);
+                comusic_setTrackVolume(0x3a, 0x411aa);
                 break;
             
             case 2:
@@ -556,11 +558,11 @@ void maSlalom_setBoggyGate(s32 gate_num){
                     Me.hasBeenTwoBehind = 1;
                     gcdialog_showText(0xc0e, 0x20, NULL, NULL, NULL, NULL);
                 }//L8038BDF0
-                func_8025AEA0(0x3a, 0x493e0);
+                comusic_setTrackVolume(0x3a, 0x493e0);
                 break;
 
             default:
-                func_8025AEA0(0x3a, 0x51615);
+                comusic_setTrackVolume(0x3a, 0x51615);
                 break;
         }
     }

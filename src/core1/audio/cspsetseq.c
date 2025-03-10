@@ -1,11 +1,16 @@
 #include <ultra64.h>
 
-void alCSPSetSeq(ALCSPlayer *seqp, ALCSeq *seq)
-{
-    ALEvent evt;
+#ifdef LIGHTHOUSE_P
+#include "pc_audio.h"
+#else
+#include "libaudio.h"
+#endif
 
-    evt.type = AL_SEQP_SEQ_EVT;
-    evt.msg.spseq.seq = seq;
+void alCSPSetSeq(ALCSPlayer *seqp, ALCSeq *seq) {
+  ALEvent evt;
 
-    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+  evt.type = AL_SEQP_SEQ_EVT;
+  evt.msg.spseq.seq = seq;
+
+  alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }

@@ -104,9 +104,9 @@ void func_8038C260(f32 position[3], s32 count, enum asset_e model_id){
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.02f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 1.5f, 1.5f);
     particleEmitter_setFade(pCtrl, 0.0f, 0.3f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.6f);
-    particleEmitter_func_802EFA18(pCtrl, 0);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.6f);
+    particleEmitter_setCollisionCount(pCtrl, 0);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_7B_ICE_BREAKING_1, 8000);
     particleEmitter_emitN(pCtrl, count);
 }
@@ -244,7 +244,7 @@ void func_8038C94C(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     Actor *this = marker_getActor(caller);
     if(!volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)){
         subaddie_set_state(this, 6);
-        __spawnQueue_add_1((GenFunction_1)func_8038C8F0, reinterpret_cast(s32, this->marker));
+        spawnQueue_add_1((GenFunction_1)func_8038C8F0, reinterpret_cast(s32, this->marker));
     }
 }
 
@@ -326,7 +326,7 @@ void func_8038C9A0(Actor *this){
                 if(other->unk38_31 != 0){
                     other->unk38_31--;
                 }
-                func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
                 marker_despawn(this->marker);
             }
             break;

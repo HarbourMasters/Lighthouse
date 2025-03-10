@@ -13,9 +13,9 @@ void func_80390000(s32 arg0){
     GV_D_80391AD0 = arg0;
     if(GV_D_80391AD0 == 1){
         ncStaticCamera_setToNode(0x14);
-        func_80324E38(0.0f, 3);
+        setCameraModeAtTime(0.0f, 3);
         timed_setStaticCameraToNode(4.0f, 0x15);
-        func_80324E38(8.0f, 0);
+        setCameraModeAtTime(8.0f, 0);
         
         tmp_v0 = &func_8034C5AC(0x130)->type_73;
         if(tmp_v0){
@@ -25,14 +25,14 @@ void func_80390000(s32 arg0){
         
         tmp_v0_2 = &func_8034C528(0x190)->type_6D;
         if(tmp_v0_2){
-            func_8034DE60(tmp_v0_2, 0.0f, 270.0f, 0.0f, 1);
+            collisionTri_isHitFromAboveByActor(tmp_v0_2, 0.0f, 270.0f, 0.0f, 1);
         }
     }//L803900AC
 
     if(GV_D_80391AD0 == 2){
         levelSpecificFlags_set(LEVEL_FLAG_6_GV_UNKNOWN, FALSE);
         func_803228D8();
-        func_802E4078(MAP_15_GV_WATER_PYRAMID, 1, 0);
+        game_setMapWithTransition(MAP_15_GV_WATER_PYRAMID, 1, 0);
     }
 }
 

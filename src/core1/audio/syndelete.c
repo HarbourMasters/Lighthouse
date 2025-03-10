@@ -1,6 +1,8 @@
 #include <ultra64.h>
 
-void alSynDelete(ALSynth *drvr)
-{
-    drvr->head = 0;
-}
+#ifdef LIGHTHOUSE_P
+#include "pc_audio.h"
+#endif
+
+
+void alSynDelete(ALSynth *drvr) { drvr->head = 0; }

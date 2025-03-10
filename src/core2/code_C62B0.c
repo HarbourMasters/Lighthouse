@@ -101,7 +101,7 @@ void func_8034DBB8(Struct6Ds *arg0){
     }
 }
 
-void func_8034DC08(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4){
+void collisionTri_copyData(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4){
     arg0->unk2C[0] = arg1[0];
     arg0->unk2C[1] = arg1[1];
     arg0->unk2C[2] = arg1[2];
@@ -148,7 +148,7 @@ void func_8034DD74(Struct6Ds *arg0, s32 arg1, BKModel *model, s32 mesh_id) {
     BKModel_getMeshCoordRange(model, mesh_id, arg0->unk14, arg0->unk1A);
 }
 
-void func_8034DDF0(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4){
+void collisionTri_isHitFromAboveByMarker(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4){
     arg0->unk2C[0] = arg1[0];
     arg0->unk2C[1] = arg1[1];
     arg0->unk2C[2] = arg1[2];
@@ -163,7 +163,7 @@ void func_8034DDF0(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4
     func_8034DBB8(arg0);
 }
 
-void func_8034DE60(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
+void collisionTri_isHitFromAboveByActor(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
     arg0->unk29 = 3;
     arg0->unk4 = arg1;
     arg0->unk44 = 0.0f;
@@ -175,12 +175,12 @@ void func_8034DE60(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
 }
 
 void func_8034DEB4(Struct6Ds *arg0, f32 arg1){
-    func_8034DE60(arg0, arg1, arg1, 0.0f, 1);
+    collisionTri_isHitFromAboveByActor(arg0, arg1, arg1, 0.0f, 1);
 }
 
 void func_8034DEE8(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
     func_8034E174(arg0);
-    func_8034DE60(arg0, arg1, arg2, arg3, arg4);
+    collisionTri_isHitFromAboveByActor(arg0, arg1, arg2, arg3, arg4);
 }
 
 void func_8034DF30(Struct6Ds *arg0, f32 arg1[4], f32 arg2[4], f32 arg3) {

@@ -21,14 +21,14 @@ void func_80324770(u8* self, s32 indx, s32 value){
 }
 
 void func_8032477C(u8 *self){
-    free(self);
+    bk_free(self);
 }
 
 u8 *func_8032479C(void){
     u8 *self;
     s32 i;
 
-    self = (u8*)malloc(0x10);
+    self = (u8*)heap_malloc(0x10);
     for(i = 0; i < 0x10; i++){
         self[i] = 0xff;
     }

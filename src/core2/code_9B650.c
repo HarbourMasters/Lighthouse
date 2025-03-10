@@ -211,7 +211,7 @@ s32 func_80322758(void){
     return D_80383340.unk2;
 }
 
-void func_80322764(void){
+void resetGameModeFlags(void){
     D_80383348 = FALSE;
      D_80383340.unk0 = D_80383340.unk2 = D_80383340.unk4 = 0;
 }
@@ -233,27 +233,27 @@ void func_8032278C(s32 arg0, s32 arg1) {
         D_8036E2B4 = 0;
         if (D_80383348 == 0) {
             if ((temp_v0 & 1) != 0) {
-                core1_ce60_func_8024ADF0(FALSE);
+                map_updateMusicState(FALSE);
             } else {
-                core1_ce60_func_8024ADF0(TRUE);
+                map_updateMusicState(TRUE);
             }
         } else {
             D_80383348 = 0;
-            core1_ce60_incOrDecCounter(TRUE);
+            map_worthlessCounter(TRUE);
         }
     }
     if ((arg0 == 1) && (arg1 == 2)) {
-        func_8025A430(-1, 0xFA0, 8);
+        comusic_fadeAllTracksWithArgs(-1, 0xFA0, 8);
     }
     if ((arg1 == 1) && (arg0 == 2)) {
-        func_8025A430(0, 0xFA0, 8);
+        comusic_fadeAllTracksWithArgs(0, 0xFA0, 8);
     }
 }
 
 
 void func_803228D8(void){
     if(!D_80383348){
-        core1_ce60_incOrDecCounter(FALSE);
+        map_worthlessCounter(FALSE);
         D_80383348 = TRUE;
     }
 }

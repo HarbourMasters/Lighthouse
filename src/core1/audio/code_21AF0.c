@@ -1,16 +1,21 @@
-#include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include <ultra64.h>
 
-void func_8025F510(ALCSPlayer *seqp, u8 chan, u8 arg2)
-{
-    ALEvent       evt;
+#ifndef LIGHTHOUSE_P
+#include "libaudio.h"
+#else
+#include "compat.h"
+#endif
 
-    evt.type            = AL_SEQP_MIDI_EVT;
-    evt.msg.midi.ticks  = 0;
-    evt.msg.midi.status = AL_MIDI_ControlChange | chan;
-    evt.msg.midi.byte1  = 0x7D;
-    evt.msg.midi.byte2  = arg2;
-                    
-    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+void n_alCSPSetChannelVolume(ALCSPlayer *seqp, u8 chan, u8 arg2) {
+  ALEvent evt;
+
+  evt.type = AL_SEQP_MIDI_EVT;
+  evt.msg.midi.ticks = 0;
+  evt.msg.midi.status = AL_MIDI_ControlChange | chan;
+  evt.msg.midi.byte1 = 0x7D;
+  evt.msg.midi.byte2 = arg2;
+
+  alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }

@@ -56,7 +56,7 @@ void func_802D88E0(Actor *this) {
         particleEmitter_setSprite(pCtrl, (this->modelCacheIndex == 0x1FF) ? ASSET_715_SPRITE_SPARKLE_RED : ASSET_713_SPRITE_SPARKLE_YELLOW);
         particleEmitter_setStartingFrameRange(pCtrl, 0, 0);
         particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_80367CD8);
-        func_802EFF50(pCtrl, 1.0f);
+        particleEmitter_setCullDistance(pCtrl, 1.0f);
         particleEmitter_setSpawnInterval(pCtrl, 0.25f);
     }
     this->lifetime_value -= time_getDelta();
@@ -89,5 +89,5 @@ void func_802D8B20(enum actor_e actor_id){
 }
 
 void func_802D8BE4(bool gold_feather){
-    __spawnQueue_add_1((GenFunction_1)func_802D8B20, (!gold_feather) ? 0x1FF : 0x200);
+    spawnQueue_add_1((GenFunction_1)func_802D8B20, (!gold_feather) ? 0x1FF : 0x200);
 }

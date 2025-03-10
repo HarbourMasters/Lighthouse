@@ -192,7 +192,7 @@ void func_80295914(void){
     badrone_init();
     bafalldamage_init();
     baflag_clearAll();
-    func_8028B6FC();
+    reset_player_state();
     func_80291590();
     bakey_reset();
     bastick_reset();
@@ -233,7 +233,7 @@ void func_80295A8C(void){
     
     stateTimer_set(STATE_TIMER_2_LONGLEG, bsStoredState_getLongLegTimer());
     stateTimer_set(STATE_TIMER_3_TURBO_TALON, bsStoredState_getTurboTimer());
-    if(func_8028ADB4())
+    if(is_cheat_code_active())
         bs_setState(badrone_enter());
     else
         bs_setState(bs_getIdleState());
@@ -291,13 +291,13 @@ void func_80295C14(void){
     func_8029858C();
     bafalldamage_update();
     func_80293F0C();
-    pitch_update();
-    roll_update();
+    pitch_update2();
+    roll_update2();
     func_802993C8();//yaw update
     func_802906D8();
     baAnim_update();
     func_8029A554();
-    func_80298344(); //climb_cooldown_update
+    climbUpdateRegrab(); //climb_cooldown_update
     func_80290108();
     eggShatter_update();
     baeyes_update();
@@ -306,7 +306,7 @@ void func_80295C14(void){
     baMarker_update();
     bacarry_update();
     snackerctl_update();
-    func_8028B71C();
+    update_player_conditions();
     func_8029D968();
     func_80297CF8();
     func_80294E60();

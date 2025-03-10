@@ -5,7 +5,9 @@
 #include "gc/zoombox.h"
 
 extern void item_set(enum item_e, s32);
-extern void func_8025A55C(s32, s32, s32);
+extern void comusic_updateTrackWithArgs(s32, s32, s32);
+
+bool gcquiz_isNotInInitialState();
 
 enum gcquiz_state {
     GCQUIZ_STATE_0_INITIAL, //803197F0
@@ -221,8 +223,8 @@ static f32 __gcquiz_animation_duration(s32 arg0){
 void gcquiz_init() {
     s32 i;
 
-    sD_803830E0 = malloc(sizeof(Struct_Core2_91E10));
-    sD_803830E0->unkC = malloc(0x400);
+    sD_803830E0 = heap_malloc(sizeof(Struct_Core2_91E10));
+    sD_803830E0->unkC = heap_malloc(0x400);
     sD_803830E0->unk16 = 0x14U;
     sD_803830E0->unk17 = 0x1E;
     sD_803830E0->portait_ids[0] = 0;
@@ -239,13 +241,13 @@ void gcquiz_free() {
     s32 i;
 
     if (sD_803830E0 != NULL) {
-        free(sD_803830E0->unkC);
+        bk_free(sD_803830E0->unkC);
         sD_803830E0->unkC = NULL;
         for(i = 0; i < 4; i++){
             gczoombox_free(sD_803830E0->zoomboxes[i]);
             sD_803830E0->zoomboxes[i] = NULL;
         }
-        free(sD_803830E0);
+        bk_free(sD_803830E0);
         sD_803830E0 = NULL;
     }
 }
@@ -284,8 +286,8 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
     }
 
     // not in asset cache?
-    if (code_B3A80_func_8033BDAC(quiz_question_index, sD_803830E0->unkC, 0x400) == 0) {
-        free(sD_803830E0->unkC);
+    if (assetCache_loadAsset(quiz_question_index, sD_803830E0->unkC, 0x400) == 0) {
+        bk_free(sD_803830E0->unkC);
         sD_803830E0->unkC = (QuizQuestionBin *) assetcache_get(quiz_question_index);
     }
 
@@ -470,7 +472,7 @@ static void __gcquiz_advanceStateTo(enum gcquiz_state state){
                 gczoombox_free(sD_803830E0->zoomboxes[i]);
                 sD_803830E0->zoomboxes[i] = NULL;
             }
-            func_8025A55C(-1, 500, 10);
+            comusic_updateTrackWithArgs(-1, 500, 10);
             break;
             
         default:
@@ -500,7 +502,7 @@ void gcquiz_func_80319EA4(void) {
     s32 phi_s0;
     f32 sp44;
 
-    if(getGameMode() != GAME_MODE_3_NORMAL && func_802E4A08() == FALSE)
+    if(game_getMode() != GAME_MODE_3_NORMAL && game_isSpecialMode() == FALSE)
         return;
     
     if(sD_803830E0 == NULL)
@@ -572,7 +574,7 @@ bool gcquiz_func_8031A154(enum ff_question_type_e q_type, s32 q_index, s32 arg2,
         sD_803830E0->unk8 = arg5;
         item_set(ITEM_6_HOURGLASS, FALSE);
         __gcquiz_uniquelyRandomizeValuesInPointer(sD_803830E0->answer_values, 1, 3, 1, 3);
-        func_8025A55C(6000, 500, 10);
+        comusic_updateTrackWithArgs(6000, 500, 10);
         __gcquiz_advanceStateTo(GCQUIZ_STATE_1_SHOW_QUESTION_VIA_ZOOMBOX);
         return TRUE;
     }
@@ -616,7 +618,7 @@ bool __gcquiz_unused(u8 *arg0, s8 *arg1, QuizQuestionStruct *arg2, s32 arg3, voi
     sD_803830E0->quiz_question_time = (s8) arg3;
     sD_803830E0->unk4 = 0;
     sD_803830E0->unk8 = arg4;
-    func_8025A55C(6000, 500, 10);
+    comusic_updateTrackWithArgs(6000, 500, 10);
     __gcquiz_advanceStateTo(GCQUIZ_STATE_1_SHOW_QUESTION_VIA_ZOOMBOX);
     return TRUE;
 }

@@ -42,7 +42,7 @@ void func_8038EC5C(Actor *this){
         this->unk38_31++;
         this->lifetime_value = 0.33f;
         if(this->unk38_31 < 4){
-            func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
         }
 
     }
@@ -127,7 +127,7 @@ void func_8038ECD8(Actor *this){
                     }
                     else{
                         player_getPosition(sp68);
-                        sp3C = func_80320B98(D_803935D0, sp68, sp30, 0);
+                        sp3C = findCollisionTriAlongPathWithFlags(D_803935D0, sp68, sp30, 0);
                         if(sp3C){
                             if(*(s32 *)(sp3C + 8) << 9 < 0)
                                 func_8038EC5C(this);

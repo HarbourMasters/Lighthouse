@@ -76,11 +76,11 @@ void RBB_func_803863F0(Actor *actor, s32 arg1){
 
         }
         if(arg1){
-            func_8034DDF0(temp_a0, sp3C, sp30, D_80390074[local->unk4].unk4, 1);
+            collisionTri_isHitFromAboveByMarker(temp_a0, sp3C, sp30, D_80390074[local->unk4].unk4, 1);
             func_8034E174(temp_a0);
         }
         else{
-            func_8034DDF0(temp_a0, sp3C, sp30, 0.0f, 1);
+            collisionTri_isHitFromAboveByMarker(temp_a0, sp3C, sp30, 0.0f, 1);
         }
     }
 }
@@ -96,7 +96,7 @@ void func_803865D0(ActorMarker *marker){
     timed_setStaticCameraToNode(0.0f, D_80390074[local->unk4].unk0);
     timedFunc_set_2(0.75*D_80390074[local->unk4].unk4, (GenFunction_2) func_803865A4, (s32)actor->marker, 4);
     timed_exitStaticCamera(0.75*D_80390074[local->unk4].unk4);
-    func_80324E38(0.75*D_80390074[local->unk4].unk4, 0);
+    setCameraModeAtTime(0.75*D_80390074[local->unk4].unk4, 0);
     timed_playSfx(D_80390074[local->unk4].unk4, SFX_7F_HEAVYDOOR_SLAM, 0.8f, 0x7fd0);
 }
 
@@ -105,15 +105,15 @@ void func_803866F4(Actor *this, s32 arg1){
     
 
     if(arg1 == 2){
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
         local = (ActorLocal_RBB_0 *) &this->local;
         local->unkC = 3;
     }
     if(arg1 == 3){
         local->unk8++;
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
-        func_80324E38(0.0f, 3);
-        timedFunc_set_2(0.5f, (GenFunction_2) func_8025A6EC, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
+        setCameraModeAtTime(0.0f, 3);
+        timedFunc_set_2(0.5f, (GenFunction_2) comusic_playTrackWithVolumeOverride, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         timedFunc_set_1(1.0f,  (GenFunction_1) func_803865D0, (s32)this->marker);
     }//L803867D4
     if(arg1 == 4){

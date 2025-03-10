@@ -78,7 +78,7 @@ void func_80390D3C(Actor *this, s32 val)
                 this->unk1C[2] = this->position_z;
             }
 
-            __spawnQueue_add_1((GenFunction_1)func_80390C00, reinterpret_cast(s32, this->marker));
+            spawnQueue_add_1((GenFunction_1)func_80390C00, reinterpret_cast(s32, this->marker));
 
             break;
         }
@@ -88,7 +88,7 @@ void func_80390D3C(Actor *this, s32 val)
             this->unk1C[1] = this->position_y;
             this->unk1C[2] = this->position_z;
 
-            __spawnQueue_add_1((GenFunction_1)func_80390CB4, reinterpret_cast(s32, this->marker));
+            spawnQueue_add_1((GenFunction_1)func_80390CB4, reinterpret_cast(s32, this->marker));
 
             break;
         }
@@ -107,7 +107,7 @@ void func_80390E28(Actor *this) {
     sp38 = mapSpecificFlags_getN(0, 2);
     if (!this->initialized) {
         if (D_80395460 == 0) {
-            D_80395460 = func_8030508C(0x377, D_80395370[0], 0x14);
+            D_80395460 = findActorPositions(0x377, D_80395370[0], 0x14);
         }
         this->unk10_12 = 0;
         for(i = 0; (i < D_80395460) && (this->unk10_12 < 4); i++){

@@ -99,7 +99,7 @@ void func_802BEFB0(void) {
     sp24[0] = sp30[0];
     sp24[1] = sp30[1] + 10000.0f;
     sp24[2] = sp30[2];
-    D_8037DA80.unkC = (func_80309B48(sp30, sp24, sp3C, 0xF800FF0F) != NULL);
+    D_8037DA80.unkC = (findCollisionTriAlongPath3(sp30, sp24, sp3C, 0xF800FF0F) != NULL);
     if (D_8037DA80.unkC) {
         D_8037DA80.unk8 = 1;
         D_8037DA80.unk4 = sp24[1] - sp30[1];
@@ -108,6 +108,6 @@ void func_802BEFB0(void) {
     sp24[0] = sp30[0];
     sp24[1] = sp30[1] - 200.0f;
     sp24[2] = sp30[2];
-    temp_v0 = func_80309B48(sp30, sp24, sp3C, 0xF800FF0F);
+    temp_v0 = findCollisionTriAlongPath3(sp30, sp24, sp3C, 0xF800FF0F);
     D_8037DA80.unk8 = (temp_v0 != NULL) && (temp_v0->unk8 & 0x1E0000);
 }

@@ -2,6 +2,10 @@
 #define _LIGHTING_H_
 #include <ultratypes.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct { 
     f32 position[3];
     f32 positionCopy[3];
@@ -16,4 +20,8 @@ typedef struct {
 
 void lighting_free();
 void lighting_init();
+#ifdef __cplusplus
+}
+#endif
+
 #endif

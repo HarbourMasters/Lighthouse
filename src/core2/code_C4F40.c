@@ -48,7 +48,7 @@ Struct_core2_C4F40_1 D_80371FC0[] = {
 };
 
 /* .bss */
-vector(Struct6Es) *D_80386130;
+bk_vector(Struct6Es) *D_80386130;
 
 /* .code */
 Struct6Es *func_8034BED0(ActorMarker *marker, s32 arg1, s32 arg2, s32 arg3) {
@@ -89,7 +89,7 @@ void func_8034BFF8(ActorMarker *marker) {
             if ((phi_s1->uid_0 >= 0x65) && (phi_s1->uid_0 < 0xC8)) {
                 func_8034BED0(marker, phi_s1->uid_0, 2, phi_s1->uid_0 - 0x64);
             } else if ((phi_s1->uid_0 >= 0xC8) && (phi_s1->uid_0 < 0x12C)) {
-                if (func_802E4A08()) {
+                if (game_isSpecialMode()) {
                     func_8034BED0(marker, phi_s1->uid_0, 1, phi_s1->uid_0 - 0xC8);
                 } else {
                     func_8034BED0(marker, phi_s1->uid_0, 0, phi_s1->uid_0 - 0xC8);

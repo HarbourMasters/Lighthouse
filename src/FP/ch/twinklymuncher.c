@@ -199,7 +199,7 @@ void func_8038E094(Actor *this){
                     func_8038C398(sp38->position, sp38->marker->id);
                     FUNC_8030E8B4(SFX_110_TWINKLY_DEATH, 1.0f, 32000, this->position, 1250, 2500);
                     FUNC_8030E8B4(SFX_27_JINJO_HI, 1.6f, 32000, this->position, 1250, 2500);
-                    func_80324D54(0.35f, SFX_110_TWINKLY_DEATH, 1.0f, 32000, this->position, 1250.0f, 2500.0f);
+                    playSoundEffectWithPositionAtTime(0.35f, SFX_110_TWINKLY_DEATH, 1.0f, 32000, this->position, 1250.0f, 2500.0f);
                     marker_despawn(sp38->marker);
                     if( !mapSpecificFlags_get(0xa) && gcdialog_showText(0xc16, 0, NULL, NULL, NULL, NULL)){
                         mapSpecificFlags_set(0xa, TRUE);

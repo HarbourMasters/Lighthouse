@@ -2,7 +2,7 @@
 #include "rand.h"
 #include "functions.h"
 #include "variables.h"
-#include <math.h>
+#include <bk_math.h>
 #ifndef MIN
 #define MIN(s,t) ((s)<(t)?(s):(t))
 #endif
@@ -131,7 +131,7 @@ void func_80387168(ActorMarker *marker, ActorMarker *other_marker){
             ){
                 subaddie_set_state_with_direction(actorPtr, 8, 0 ,1);
                 timed_setStaticCameraToNode(0.0f, 0x10);
-                func_80324E38(0.0f, 3);
+                setCameraModeAtTime(0.0f, 3);
                 FUNC_8030E624(SFX_84_GOBI_CRYING, 0.8f, 32750);
                 FUNC_8030E624(SFX_84_GOBI_CRYING, 0.8f, 32750);
             }
@@ -162,7 +162,7 @@ void func_80387370(ActorMarker *this, enum asset_e text_id, s32 arg2){
     marker_getActor(this)->velocity_x = 9.0f;
     timed_setStaticCameraToNode(0.0f, 0x11);
     timed_exitStaticCamera(3.2f);
-    func_80324E38(3.2f, 0);
+    setCameraModeAtTime(3.2f, 0);
 }
 
 void __chConga_sendOrangeProjectile(ActorMarker *congaMarker){
@@ -231,7 +231,7 @@ void func_803876D0(Actor *this){
     if(0.0f != this->velocity_x){
         this->velocity_x -= 1.0f; 
         if(0.0f == this->velocity_x){
-            __spawnQueue_add_1((GenFunction_1)func_80387100, (s32)this->marker);
+            spawnQueue_add_1((GenFunction_1)func_80387100, (s32)this->marker);
         }
     }
     marker_setCollisionScripts(this->marker, NULL, NULL, func_80387168);
@@ -372,6 +372,6 @@ void func_803876D0(Actor *this){
         || (this->state == 7 && actor_animationIsAt(this, 0.468f))
     ){
         func_8034A1B4(this->marker->unk44, 5, &this->local);
-        __spawnQueue_add_1((GenFunction_1)__chConga_sendOrangeProjectile, (s32)this->marker); //spawn orange
+        spawnQueue_add_1((GenFunction_1)__chConga_sendOrangeProjectile, (s32)this->marker); //spawn orange
     }
 }

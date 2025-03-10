@@ -31,7 +31,7 @@ void func_80390C70(f32 position[3]){
         0.0f, 40.0f, 0.0f,
         0.0f, 90.0f, 0.0f
     );
-    func_802EFC28(pCtrl, &FP_D_80392864);
+    particleEmitter_applySettingsAndEmit(pCtrl, &FP_D_80392864);
 }
 
 void func_80390D58(f32 position[3]){
@@ -56,7 +56,7 @@ void func_80390D58(f32 position[3]){
         0.0f,  -60.0f, 0.0f,
         0.0f, -100.0f, 0.0f
     );
-    func_802EFC28(pCtrl, &D_803928A0);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_803928A0);
 }
 
 void func_80390E78(ActorMarker *this_marker, ActorMarker *other_marker){
@@ -71,7 +71,7 @@ void func_80390EB0(Actor *this){
         marker_setCollisionScripts(this->marker, func_80390E78, NULL, NULL);
     }
 
-    if(viewport_func_8024DB50(this->position, 150.0f) || func_80329530(this, 1200))
+    if(viewport_isPointWithinDistance(this->position, 150.0f) || func_80329530(this, 1200))
     {
         if( !(globalTimer_getTime() & 3) && randf() < 0.2){
             func_80390C70(this->position);

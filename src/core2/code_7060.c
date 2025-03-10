@@ -48,23 +48,23 @@ f32 D_8037BFD0;
 /* .code */
 bool func_8028DFF0(s32 arg0, s32 position[3]) {
     if (arg0 >= 0x80) {
-        position[0] = func_802E4A98(arg0);
-        position[1] = func_802E4AAC(arg0);
-        position[2] = func_802E4AC0(arg0);
+        position[0] = getSpecialModeData1(arg0);
+        position[1] = getSpecialModeData2(arg0);
+        position[2] = getSpecialModeData3(arg0);
         return TRUE;
     }
     else{
-        return nodeprop_findPositionFromActorId(func_803084F0(arg0), position);
+        return nodeprop_findPositionFromActorId(getActorIdFromIndex(arg0), position);
     }
 }
 
 bool func_8028E060(s32 arg0, s32 *arg1){
     if(arg0 >= 0x80){
-        *arg1 = func_802E4AD4();
+        *arg1 = getSpecialModeData4();
         return TRUE;
     }
     else{
-        return func_80305344(func_803084F0(arg0), arg1);
+        return getNodePropYaw(getActorIdFromIndex(arg0), arg1);
     }
 }
 
@@ -122,19 +122,19 @@ void func_8028E0F0(s32 arg0, s32 arg1[3]) {
             }
             break;
         case MAP_77_GL_RBB_LOBBY:
-            if ((arg0 == 2) && func_802D6088()) {
+            if ((arg0 == 2) && isWaterLevelAtLeast2()) {
                 baflag_set(BA_FLAG_18_UNDERWATER);
             }
             break;
         case MAP_76_GL_640_NOTE_DOOR:
-            if ((arg0 == 1) && func_802D60C4()) {
+            if ((arg0 == 1) && isWaterLevelAtLeast1()) {
                 baflag_set(BA_FLAG_18_UNDERWATER);
             }
             break;
     }
 
     D_8037BFBC = arg0;
-    if (func_80305248(sp70, func_8033452C(arg0), sp7C) && !func_8028ADB4()) {
+    if (findClosestActorPosition3D(sp70, func_8033452C(arg0), sp7C) && !is_cheat_code_active()) {
         func_8028F85C(sp7C);
         func_80295A8C();
         if (sp68) {
@@ -188,7 +188,7 @@ void func_8028E4B0(void) {
     sp20 = exit_get();
     D_8037BFB8 = 0;
     player_setPosition(D_803636C0);
-    if (volatileFlag_get(VOLATILE_FLAG_E) || func_802D686C() || (sp20 == 0x65)){
+    if (volatileFlag_get(VOLATILE_FLAG_E) || isInTransitionMap() || (sp20 == 0x65)){
         return;
     }
     if (sp20 == 0x63) {
@@ -416,7 +416,7 @@ f32 player_getPitch(void){
     return pitch_get();
 }
 
-int func_8028EC04(void){
+int isPlayerInWater(void){
     return func_80298850();
 }
 
@@ -639,7 +639,7 @@ bool player_isDead(void){
 }
 
 bool func_8028F25C(void){
-    return func_8028EC04() != 0;
+    return isPlayerInWater() != 0;
 }
 
 bool func_8028F280(void){
@@ -656,7 +656,7 @@ bool func_8028F2DC(void){
 }
 
 bool func_8028F2FC(void){
-    return func_8028B528();
+    return get_player_state();
 }
 
 //sets carry actor if player is within a horizantal radius around a point
@@ -819,7 +819,7 @@ void func_8028F85C(f32 arg0[3]){
     func_80298464(arg0);
     func_80293F0C();
     snackerctl_update();
-    func_8028B71C();
+    update_player_conditions();
     func_80290B6C();
     cameraMode_update();
 }
@@ -858,7 +858,7 @@ void func_8028F974(void){
 void func_8028F994(void){
     D_803636B0 = 1;
     player_getPosition(D_803636B4);
-    func_802E4078(map_get(), 0, 0);
+    game_setMapWithTransition(map_get(), 0, 0);
 }
 
 void func_8028F9DC(s32 arg0){
@@ -911,7 +911,7 @@ void func_8028FB48(u32 mask){
     func_80294610(mask);
 }
 
-void func_8028FB68(void){
+void resetPlayerState(void){
     func_80295D74();
 }
 

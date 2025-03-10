@@ -18,7 +18,7 @@ s32 func_80321960(void){
 
 void func_8032196C(void){
      if( D_80383310 != 3 && D_80383310 != 5 ){
-        func_8025A904();
+        comusic_stopAllTracks();
     }
 }
 
@@ -33,24 +33,24 @@ void func_803219A8(void){
 void func_803219F4(s32 arg0){
     switch(D_80383310){
         case 2: //L80321A30
-            func_8025A55C(-1, 4000, 7);
-            core1_ce60_incOrDecCounter(TRUE);
-            comusic_8025AB44(COMUSIC_58_WADING_BOOTS, 0, 4000);
-            func_8025AABC(COMUSIC_58_WADING_BOOTS);
+            comusic_updateTrackWithArgs(-1, 4000, 7);
+            map_worthlessCounter(TRUE);
+            comusic_fadeTrackWithArgsNoDelay(COMUSIC_58_WADING_BOOTS, 0, 4000);
+            comusic_stopTrackById(COMUSIC_58_WADING_BOOTS);
             break;
         case 4: //L80321A6C
-            core1_ce60_incOrDecCounter(TRUE);
+            map_worthlessCounter(TRUE);
             if(D_80383314 == COMUSIC_57_TURBO_TRAINERS){
-                func_8025A55C(-1, 4000, 7);
+                comusic_updateTrackWithArgs(-1, 4000, 7);
             }
-            comusic_8025AB44(D_80383314, 0, 4000);
-            func_8025AABC(D_80383314);
+            comusic_fadeTrackWithArgsNoDelay(D_80383314, 0, 4000);
+            comusic_stopTrackById(D_80383314);
             break;
         case 3: //L80321AC0
-            func_8025A55C(-1, 4000, 7);
-            core1_ce60_incOrDecCounter(TRUE);
-            comusic_8025AB44(COMUSIC_95_BBONUS_A, 0, 4000);
-            func_8025AABC(COMUSIC_95_BBONUS_A);
+            comusic_updateTrackWithArgs(-1, 4000, 7);
+            map_worthlessCounter(TRUE);
+            comusic_fadeTrackWithArgsNoDelay(COMUSIC_95_BBONUS_A, 0, 4000);
+            comusic_stopTrackById(COMUSIC_95_BBONUS_A);
             break;
         case 1: //L80321AF8
         case 5: //L80321AF8
@@ -60,10 +60,10 @@ void func_803219F4(s32 arg0){
 
     switch(D_80383310){
         case 2: //L80321B28
-            core1_ce60_incOrDecCounter(FALSE);
-            func_8025A55C(0, 4000, 7);
-            func_8025A6EC(COMUSIC_58_WADING_BOOTS, -1);
-            func_8025A8B8(COMUSIC_58_WADING_BOOTS, 1);
+            map_worthlessCounter(FALSE);
+            comusic_updateTrackWithArgs(0, 4000, 7);
+            comusic_playTrackWithVolumeOverride(COMUSIC_58_WADING_BOOTS, -1);
+            comusic_setTrackFlag(COMUSIC_58_WADING_BOOTS, 1);
             break;
         case 4: //L80321B60
             if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
@@ -72,19 +72,19 @@ void func_803219F4(s32 arg0){
             else{
                 D_80383314 = COMUSIC_57_TURBO_TRAINERS;
             }
-            core1_ce60_incOrDecCounter(FALSE);
+            map_worthlessCounter(FALSE);
             if(D_80383314 == COMUSIC_57_TURBO_TRAINERS){
-                func_8025A55C(0, 4000, 7);
+                comusic_updateTrackWithArgs(0, 4000, 7);
             }
-            func_8025A6EC(D_80383314, -1);
-            func_8025A8B8(D_80383314, 1);
+            comusic_playTrackWithVolumeOverride(D_80383314, -1);
+            comusic_setTrackFlag(D_80383314, 1);
             break;
         case 3: //L80321BDC
             func_803228D8();
-            core1_ce60_incOrDecCounter(FALSE);
-            func_8025A55C(0, 4000, 7);
-            func_8025A6EC(COMUSIC_95_BBONUS_A, -1);
-            func_8025A8B8(COMUSIC_95_BBONUS_A, 1);
+            map_worthlessCounter(FALSE);
+            comusic_updateTrackWithArgs(0, 4000, 7);
+            comusic_playTrackWithVolumeOverride(COMUSIC_95_BBONUS_A, -1);
+            comusic_setTrackFlag(COMUSIC_95_BBONUS_A, 1);
             break;
         case 5: //L80321C1C
             func_803228D8();
@@ -94,7 +94,7 @@ void func_803219F4(s32 arg0){
     }
 }
 
-void func_80321C34(void){
+void updateGameMode(void){
     if( D_80383310 == 4
         && player_stateTimer_get(STATE_TIMER_3_TURBO_TALON) == 0.0f
     ){

@@ -1,0 +1,11 @@
+1fb13cad402518d3ae9a8dc4b52c5c54b2a4adc7:
+  name: Banjo Kazooie (U) (V1.0) (Uncompressed)
+  path: assets
+  config: 
+    gbi: F3DEX
+    sort: OFFSET
+    logging: INFO
+    output: 
+      binary: bk64.o2r
+      headers: include
+      code: src

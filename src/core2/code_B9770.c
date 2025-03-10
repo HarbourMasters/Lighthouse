@@ -3,7 +3,7 @@
 #include "variables.h"
 
 extern void sfxsource_setSampleRate(u8, s32);
-extern bool func_80323240(struct56s *, f32, f32[3]);
+extern bool getCollisionHeightAtPoint(struct56s *, f32, f32[3]);
 extern f32  func_803234FC(struct56s *, f32, f32);
 extern f32  func_80323540(struct56s *, f32, f32, f32);
 extern f32  func_803237E8(struct56s *);
@@ -132,12 +132,12 @@ typedef union{
     Struct_glspline_t0 t0;
     Struct_glspline_t1 t1;
     /* data */
-}Union_glspline;
+}SplineDataUnion_u;
 
 
 typedef struct{
     s32 unk0;
-    Union_glspline spline[];
+    SplineDataUnion_u spline[];
 }SplineList;
 
 typedef struct {
@@ -185,8 +185,8 @@ bool func_80340748(s32 arg0, s32 arg1, s32 arg2, f32 arg3[3], s32 arg4, s32 arg5
 s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, s32 arg3, s32 arg4, f32 *arg5, f32 *arg6) {
     SplineList **temp_t0 = D_80371E74;
     SplineList *temp_a0;
-    Union_glspline *temp_v0;
-    Union_glspline *var_v1;
+    SplineDataUnion_u *temp_v0;
+    SplineDataUnion_u *var_v1;
     s32 var_a2;
 
     *arg5 = -9999.0f;
@@ -208,7 +208,7 @@ s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, s32 arg3, s32 arg4, f32 *arg5,
             }
             *arg1 = arg4;
             *arg2 = var_v1->t1.unk0;
-            func_80323240(func_80342038(arg4), var_v1->t1.unk0, arg3);
+            getCollisionHeightAtPoint(func_80342038(arg4), var_v1->t1.unk0, arg3);
             return 1;
         }
     }
@@ -230,7 +230,7 @@ s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, s32 arg3, s32 arg4, f32 *arg5,
                 }
                 *arg1 = var_a2;
                 *arg2 = var_v1->t1.unk0;
-                func_80323240(func_80342038(var_a2), var_v1->t1.unk0, arg3);
+                getCollisionHeightAtPoint(func_80342038(var_a2), var_v1->t1.unk0, arg3);
                 return 1;
             }
         }
@@ -363,46 +363,46 @@ void func_803411B0(void){
     s32 padding[3];
     struct56s *spB4;
     Struct_glspline_803411B0 *spline;
-    Union_glspline *var_s0_2;
+    SplineDataUnion_u *var_s0_2;
     SplineList *spA8;
     f32 *spA4;
-    Union_glspline *var_s1_2;
+    SplineDataUnion_u *var_s1_2;
     s32 var_fp;
     s32 var_s0;
     s32 var_s2;
-    Union_glspline sp80;
+    SplineDataUnion_u sp80;
     s32 var_s5;
     u32 var_s7;
-    Union_glspline *temp_s3_2;
-    Union_glspline *temp_v0_16;
+    SplineDataUnion_u *temp_s3_2;
+    SplineDataUnion_u *temp_v0_16;
     s32 tmp;
 
     D_80371E80 = 0;
-    D_80371E70 = malloc(0);
-    D_80371E74 = malloc(0);
+    D_80371E70 = heap_malloc(0);
+    D_80371E74 = heap_malloc(0);
     D_80371E78 = 0;
-    D_803858A0 = malloc(128 * sizeof(s16));
+    D_803858A0 = heap_malloc(128 * sizeof(s16));
 
     for (spE0 = 0; spE0 < 128; spE0++) {
         D_803858A0[spE0] = 0;
     }
 
-    spE4 = func_80307E1C() + 1;
+    spE4 = getMaxProp1Count() + 1;
 
     if (spE4 <= 1) {
         return;
     }
 
-    spD8 = (Struct_glspline_803411B0 *) malloc(spE4 * sizeof(Struct_glspline_803411B0));
+    spD8 = (Struct_glspline_803411B0 *) heap_malloc(spE4 * sizeof(Struct_glspline_803411B0));
 
     for (spE0 = 0; spE0 < spE4; spE0++) {
         (spD8 + spE0)->unk0 = -1;
     }
 
-    func_80307EA8(0, spCC, &spC8, &spC4);
+    getNextProp1(0, spCC, &spC8, &spC4);
 
     do {
-        spE0 = func_80307EA8(1, spCC, &spC8, &spC4);
+        spE0 = getNextProp1(1, spCC, &spC8, &spC4);
 
         if (spE0 >= 0) {
             (spD8+spE0)->unk0 = spC8;
@@ -458,12 +458,12 @@ void func_803411B0(void){
             }
 
             tmp = var_s7 * 3;
-            spB4 = (struct56s *) malloc(8 + tmp * sizeof(f32));
+            spB4 = (struct56s *) heap_malloc(8 + tmp * sizeof(f32));
             spA4 = (f32 *) spB4;
             spB4->unk0 = var_s7;
             spB4->unk4 = 0;
 
-            spA8 = (SplineList *) malloc(4 + var_s0 * sizeof(Union_glspline));
+            spA8 = (SplineList *) heap_malloc(4 + var_s0 * sizeof(SplineDataUnion_u));
             spA8->unk0 = var_s0;
 
             var_s1_2 = &spA8->spline[0];
@@ -473,10 +473,10 @@ void func_803411B0(void){
             for (; var_s2 != 0; a0 = (spD8+a0)->unk0) {
                 if (0);
                 if ((spD8+a0)->unk8_13 == 1) {
-                    temp_v0_16 = func_803080C8(a0);
+                    temp_v0_16 = cube_findNodePropById(a0);
                     temp_v0_16->t1.unk8.pad_bit7 = D_80371E78;
 
-                    memcpy(var_s1_2, temp_v0_16, sizeof(Union_glspline));
+                    heap_memcpy(var_s1_2, temp_v0_16, sizeof(SplineDataUnion_u));
 
                     var_s1_2++;
                     var_s2--;
@@ -492,9 +492,9 @@ void func_803411B0(void){
                     var_s1_2 = var_s0_2 + 1;
 
                     if (var_s0_2->common.unk0 > var_s1_2->common.unk0) {
-                        memcpy(&sp80, var_s0_2, sizeof(Union_glspline));
-                        memcpy(var_s0_2, var_s1_2, sizeof(Union_glspline));
-                        memcpy(var_s1_2, &sp80, sizeof(Union_glspline));
+                        heap_memcpy(&sp80, var_s0_2, sizeof(SplineDataUnion_u));
+                        heap_memcpy(var_s0_2, var_s1_2, sizeof(SplineDataUnion_u));
+                        heap_memcpy(var_s1_2, &sp80, sizeof(SplineDataUnion_u));
                         var_s2++;
                     }
                 }
@@ -517,7 +517,7 @@ void func_803411B0(void){
         }
     }
 
-    free(spD8);
+    bk_free(spD8);
 }
 
 //glspline_free
@@ -532,17 +532,17 @@ void func_80341A54(void) {
 
     for(var_s0 = 0x40; var_s0 < 0x80; var_s0++){
         if (D_803858A0[var_s0] != 0) {
-            func_8025A7DC(lookup_getCoMusicId(D_803858A0[var_s0]));
+            comusic_stopTrack(lookup_getCoMusicId(D_803858A0[var_s0]));
         }
     }
 
     for(var_s0 = 0; var_s0 < D_80371E78; var_s0++){
-        free(D_80371E70[var_s0]);
-        free(D_80371E74[var_s0]);
+        bk_free(D_80371E70[var_s0]);
+        bk_free(D_80371E74[var_s0]);
     }
-    free(D_80371E70);
-    free(D_80371E74);
-    free(D_803858A0);
+    bk_free(D_80371E70);
+    bk_free(D_80371E74);
+    bk_free(D_803858A0);
     D_80371E70 = NULL;
     D_80371E74 = NULL;
     D_80371E78 = 0;
@@ -560,10 +560,10 @@ s32 func_80341BC8(struct56s *arg0, SplineList * arg1) {
     void *temp_v0_2;
 
     D_80371E78++;
-    D_80371E70 = (struct56s **)realloc(D_80371E70, D_80371E78 * sizeof(struct56s *));
+    D_80371E70 = (struct56s **)bk_realloc(D_80371E70, D_80371E78 * sizeof(struct56s *));
 
     D_80371E70[D_80371E78 - 1] = arg0;
-    D_80371E74 = (SplineList **)realloc(D_80371E74, D_80371E78 * sizeof(SplineList *));
+    D_80371E74 = (SplineList **)bk_realloc(D_80371E74, D_80371E78 * sizeof(SplineList *));
     D_80371E74[D_80371E78 - 1] = arg1;
     return D_80371E78 - 1;
 }
@@ -664,7 +664,7 @@ f32 func_80341FB0(s32 arg0, f32 arg1, s32 arg2, f32 arg3) {
         return arg1;
     }
     sp1C = func_80323F74(D_80371E70[arg0], arg1, arg3);
-    func_80323240(D_80371E70[arg0], sp1C, arg2);
+    getCollisionHeightAtPoint(D_80371E70[arg0], sp1C, arg2);
     return sp1C;
 }
 
@@ -723,8 +723,8 @@ s32 func_803421A4(s32 arg0, f32 arg1) {
     SplineList **temp_v0 = D_80371E74;
     SplineList *temp_v1;
     s32 var_a3;
-    Union_glspline *i_ptr;
-    Union_glspline *temp_a2;
+    SplineDataUnion_u *i_ptr;
+    SplineDataUnion_u *temp_a2;
 
     if (arg0 == -1) {
         return 0;
@@ -753,7 +753,7 @@ void func_803422AC(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     jiggyscore_total();
 }
 
-s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
+s32 func_803422D4(Actor *arg0, SplineDataUnion_u *arg1, SplineList *arg2){
     s32 sp84;
     u8 sfxsourceIdx;
     f32 sp7C;
@@ -776,12 +776,12 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
 
         switch (arg1->t0.unk4.common.bit3) {
             case 1:
-                func_80250530(0, arg1->t0.unk4.common.bit31, 3.0f);
+                musicTrack_setChannelMask(0, arg1->t0.unk4.common.bit31, 3.0f);
                 break;
 
             case 2:
                 D_803858A0[arg1->t0.unk10.common.bit7] = arg1->t0.unk4.common.bit31;
-                func_8025A6EC(lookup_getCoMusicId(arg1->t0.unk4.common.bit31), arg1->t0.unk4.common.bit15 * 8);
+                comusic_playTrackWithVolumeOverride(lookup_getCoMusicId(arg1->t0.unk4.common.bit31), arg1->t0.unk4.common.bit15 * 8);
                 break;
 
             case 3:
@@ -827,7 +827,7 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
 
             case 4:
                 if (D_803858A0[arg1->t0.unk10.common.bit7] != 0){
-                    func_8025A7DC(lookup_getCoMusicId(D_803858A0[arg1->t0.unk10.common.bit7]));
+                    comusic_stopTrack(lookup_getCoMusicId(D_803858A0[arg1->t0.unk10.common.bit7]));
                     D_803858A0[arg1->t0.unk10.common.bit7] = 0;
                 }
                 break;
@@ -989,7 +989,7 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
             arg0->unk138_30 = arg1->t1.unk10.bit6;
         }
         if (arg1->t1.unk8.bit9){
-            if ((!func_802E4A08()) && (arg0->modelCacheIndex == ACTOR_123_MAGIC_CARPET_2)){
+            if ((!game_isSpecialMode()) && (arg0->modelCacheIndex == ACTOR_123_MAGIC_CARPET_2)){
                 arg0->unk4C = func_80323540(func_80342038(arg0->unk44_14), arg0->unk48, 1.0f, 500.0f) / (((f32) arg1->t1.unkC.bit22) / 4);
             } else {
                 arg0->unk4C = func_80342260(arg0->unk44_14, arg0->unk48, arg1->t1.unkC.bit22);
@@ -1139,11 +1139,11 @@ s32 func_80343654(Actor *this){
 s32 func_80343694(Actor *actor, s32 indx, s32 begin, s32 end, s32 count, s32 stride) {
     SplineList **temp_v0;
     SplineList *temp_s5;
-    Union_glspline *start_ptr;
-    Union_glspline *end_ptr;
+    SplineDataUnion_u *start_ptr;
+    SplineDataUnion_u *end_ptr;
     bool var_v1;
     f32 sp48;
-    Union_glspline *i_ptr;
+    SplineDataUnion_u *i_ptr;
 
     temp_v0 = D_80371E74;
     temp_s5 = temp_v0[indx];
@@ -1199,7 +1199,7 @@ s32 func_803438E0(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
         } else {
             actor->unk48 = func_80323FDC(D_80371E70[actor->unk44_14], actor->unk48, sp40, &sp44);
         }
-        func_80323240(D_80371E70[actor->unk44_14], actor->unk48, actor->position);
+        getCollisionHeightAtPoint(D_80371E70[actor->unk44_14], actor->unk48, actor->position);
     } else {
         if (actor->unk54 != 0.0f) {
             actor->unk54 -= time_getDelta();
@@ -1207,8 +1207,8 @@ s32 func_803438E0(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
                 actor->unk54 = 0.0f;
             }
         }
-        if ((actor->unk138_3 != 0) && func_802501A0(0, actor->unk138_3 + 0x69, 0)) {
-            func_80250170(0, actor->unk138_3 + 0x69, 0);
+        if ((actor->unk138_3 != 0) && musicTrack_getEvent(0, actor->unk138_3 + 0x69, 0)) {
+            musicTrack_setEventById(0, actor->unk138_3 + 0x69, 0);
             actor->unk138_3 = 0;
         }
     }
@@ -1311,5 +1311,5 @@ void glspline_defrag(void) {
 }
 
 bool func_80344040(Actor *this){
-    return func_80323240(D_80371E70[this->unk44_14], this->unk48, this->position);
+    return getCollisionHeightAtPoint(D_80371E70[this->unk44_14], this->unk48, this->position);
 }

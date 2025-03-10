@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 #define _SQ3(x, y, z)  (((x) * (x)) + ((y) * (y)) + ((z) * (z)))
 
 /*.code*/
@@ -87,16 +90,16 @@ int func_802F8B50(struct6s *this){
 
 void func_802F8B8C(struct6s *this){
     vector_free(this->unk1C);
-    func_8033BD20(&this->unk24[0]);
-    func_8033BD20(&this->unk24[1]);
-    func_8033BD20(&this->unk24[2]);
-    func_8033BD20(&this->unk24[3]);
-    free(this);
+    assetCache_releaseBKModelBin(&this->unk24[0]);
+    assetCache_releaseBKModelBin(&this->unk24[1]);
+    assetCache_releaseBKModelBin(&this->unk24[2]);
+    assetCache_releaseBKModelBin(&this->unk24[3]);
+    bk_free(this);
 }
 
 struct6s * func_802F8BE0(s32 arg0){
-    struct6s *this = (struct6s *) malloc(sizeof(struct6s));
-    vector(struct5s) *vecPtr;
+    struct6s *this = (struct6s *) heap_malloc(sizeof(struct6s));
+    bk_vector(struct5s) *vecPtr;
     this->unk18 = 0;
     this->unk8 = 0.0f;
     this->unk4 = 0.0f;

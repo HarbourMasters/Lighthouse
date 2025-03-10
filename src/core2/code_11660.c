@@ -75,7 +75,7 @@ void func_802986D0(void){
 
 void func_80298700(void){
     s32 sp1C = func_802985F0();
-    if(func_8028ADB4()){
+    if(is_cheat_code_active()){
         D_8037C5D0 = 0;
     }
     else if(sp1C){

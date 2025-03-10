@@ -154,7 +154,7 @@ f32 vtxList_getLocalNorm(BKVertexList *this){
 }
 
 void vtxList_free(BKVertexList *vtxList){
-    free(vtxList);
+    bk_free(vtxList);
 }
 
 BKVertexList *vtxList_clone(BKVertexList *vtxList){
@@ -162,8 +162,8 @@ BKVertexList *vtxList_clone(BKVertexList *vtxList){
     size_t list_size;
     
     list_size = sizeof(BKVertexList) + vtxList->count*sizeof(Vtx);
-    out_v0 = (BKVertexList *) malloc(list_size);
-    wmemcpy(out_v0, vtxList, list_size);
+    out_v0 = (BKVertexList *) heap_malloc(list_size);
+    heap_copyWordMemory(out_v0, vtxList, list_size);
     return out_v0;
 }
 
@@ -227,11 +227,11 @@ void func_802ECBD4(BKVertexList *dst, BKVertexList *src, f32 position[3], f32 ro
     viewport_getPosition_vec3f(vp_position);
     viewport_getLookVector(vp_look);
     mlMtxIdent();
-    func_80252CC4(position, rotation, 1.0f, NULL);
+    mlMtx_inverse_transform_with_scale(position, rotation, 1.0f, NULL);
     mlMtx_apply_vec3f(vp_position, vp_position);
 
     mlMtxIdent();
-    func_80252CC4(NULL, rotation, 1.0f, NULL);
+    mlMtx_inverse_transform_with_scale(NULL, rotation, 1.0f, NULL);
     mlMtx_apply_vec3f(vp_look, vp_look);
 
     start_vtx = (Vtx *)(dst + 1);
@@ -338,7 +338,7 @@ void func_802ED180(BKVertexList *self, f32 arg1[3], f32 arg2[3], f32 arg3, f32 a
 
 
     mlMtxIdent();
-    func_80252CC4(arg1, arg2, arg3, arg4);
+    mlMtx_inverse_transform_with_scale(arg1, arg2, arg3, arg4);
     mlMtx_apply_vec3f(sp88, D_803808C0.unk10);
     mlMtx_apply_vec3f(sp7C, D_803808C0.unk4);
     temp_f20 = D_803808C0.unk1C / arg3;
@@ -358,7 +358,7 @@ void func_802ED180(BKVertexList *self, f32 arg1[3], f32 arg2[3], f32 arg3, f32 a
         if (!(temp_f20 <= temp_f0)) {
             D_803808C0.unk0 = 1;
             mlMtxIdent();
-            func_80252C08(arg1, arg2, arg3, arg4);
+            mlMtx_transform_with_scale(arg1, arg2, arg3, arg4);
             mlMtx_apply_vec3f(D_803808C0.unk20, sp70);
         }
     }

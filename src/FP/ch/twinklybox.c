@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80324CD8(f32);
+extern void executeFunction(f32);
 extern Actor *actor_spawnWithYaw_f32(enum actor_e, f32[3], s32);
 
 Actor *FP_func_8038CED0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -58,8 +58,8 @@ void func_8038CF54(f32 position[3], s32 count, enum asset_e model_id){
         200.0f, 200.0f, 200.0f
     );
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_8039210C);
-    particleEmitter_func_802EF9F8(pCtrl, 0.6f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
+    particleEmitter_setBounceFactor(pCtrl, 0.6f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -115,8 +115,8 @@ void func_8038D0A8(f32 position[3], s32 count, enum asset_e model_id){
         300.0f, 300.0f, 300.0f
     );
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_803921F8);
-    particleEmitter_func_802EF9F8(pCtrl, 0.2f);
-    particleEmitter_func_802EFA18(pCtrl, 2);
+    particleEmitter_setBounceFactor(pCtrl, 0.2f);
+    particleEmitter_setCollisionCount(pCtrl, 2);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -141,8 +141,8 @@ void func_8038D170(f32 position[3], s32 count, enum asset_e sprite_id){
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80392290);
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_80392268);
-    particleEmitter_func_802EF9F8(pCtrl, 0.2f);
-    particleEmitter_func_802EFA18(pCtrl, 2);
+    particleEmitter_setBounceFactor(pCtrl, 0.2f);
+    particleEmitter_setCollisionCount(pCtrl, 2);
     particleEmitter_emitN(pCtrl, count);
 }
 
@@ -196,10 +196,10 @@ void func_8038D3B0(Actor *arg0){
 }
 
 void func_8038D3D8(void){
-    comusic_8025AB44(COMUSIC_68_TWINKLY_MINIGAME, 0, 4000);
-    func_8025AABC(COMUSIC_68_TWINKLY_MINIGAME);
-    func_8025A58C(-1, 4000);
-    core1_ce60_incOrDecCounter(TRUE);
+    comusic_fadeTrackWithArgsNoDelay(COMUSIC_68_TWINKLY_MINIGAME, 0, 4000);
+    comusic_stopTrackById(COMUSIC_68_TWINKLY_MINIGAME);
+    playMusicWithFade(-1, 4000);
+    map_worthlessCounter(TRUE);
 }
 
 void func_8038D41C(ActorMarker *marker){
@@ -245,7 +245,7 @@ void func_8038D51C(ActorMarker *marker){
     func_8028F8F8(7, 0);
     this->unk1C[1] = 1.0f;
     timed_exitStaticCamera(1.7f);
-    func_80324E38(1.7f, 0);
+    setCameraModeAtTime(1.7f, 0);
     timedFunc_set_1(2.3f, (GenFunction_1)func_8038D294, (s32)this->marker);
     this->velocity[1] = 1.0f;
 }
@@ -258,16 +258,16 @@ void func_8038D5C8(ActorMarker *this_marker, ActorMarker *other_marker){
     if(this->state == 1 || this->state == 2){
         actor_collisionOff(this);
         timed_setStaticCameraToNode(0.0f, 0xa);
-        func_80324CD8(0.1f);
+        executeFunction(0.1f);
         func_8028F784(1);
         func_8028F490(D_8039237C);
         func_8028F8F8(7, 1);
         this->unk1C[1] = 0.0f;
-        func_8025A6EC(COMUSIC_68_TWINKLY_MINIGAME, 25000);
-        func_8025A58C(0, 4000);
-        core1_ce60_incOrDecCounter(FALSE);
+        comusic_playTrackWithVolumeOverride(COMUSIC_68_TWINKLY_MINIGAME, 25000);
+        playMusicWithFade(0, 4000);
+        map_worthlessCounter(FALSE);
         this->unk1C[2] = 428571.0f;
-        func_8025AEA0(0x68, (s32)this->unk1C[2]);
+        comusic_setTrackVolume(0x68, (s32)this->unk1C[2]);
         subaddie_set_state_with_direction(this, 3, 0.001f, 1);
         actor_playAnimationOnce(this);
         this->velocity[0] = 1.0f;
@@ -355,7 +355,7 @@ void func_8038D6C8(Actor *this){
             func_8038D324(this);
         
         if(actor_animationIsAt(this, 0.999f))
-            __spawnQueue_add_1((GenFunction_1)func_8038D474, (s32)this->marker);
+            spawnQueue_add_1((GenFunction_1)func_8038D474, (s32)this->marker);
         
         if(this->velocity[0] != 0.0f)
             break;
@@ -368,7 +368,7 @@ void func_8038D6C8(Actor *this){
         item_set(ITEM_6_HOURGLASS, TRUE);
         this->unk38_31 = 0xA;
         item_set(ITEM_24_TWINKLY_SCORE, this->unk38_31);
-        __spawnQueue_add_1((GenFunction_1)func_8038D41C, (s32)this->marker);
+        spawnQueue_add_1((GenFunction_1)func_8038D41C, (s32)this->marker);
         this->lifetime_value = 0.0f;
         func_80347A14(0);
         func_802FAD64(ITEM_14_HEALTH);
@@ -379,12 +379,12 @@ void func_8038D6C8(Actor *this){
         if(this->unk1C[2] < 233333.0f)
             this->unk1C[2] = 233333.0f;
 
-        func_8025AEA0(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
+        comusic_setTrackVolume(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
         if(item_getCount(ITEM_24_TWINKLY_SCORE) == 0){
             subaddie_set_state_with_direction(this, 1, 0.001f, 1);
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
             func_8038D3D8();
-            func_80324E38(0.0f, 3);
+            setCameraModeAtTime(0.0f, 3);
             timedFunc_set_1(1.3f, (GenFunction_1)func_8038D51C, (s32)this->marker);
             timed_setStaticCameraToNode(0.9f, 0xC);
             item_set(ITEM_24_TWINKLY_SCORE, this->unk38_31);
@@ -397,7 +397,7 @@ void func_8038D6C8(Actor *this){
             actor_playAnimationOnce(this);
             this->unk38_31 = 0;
             item_set(ITEM_6_HOURGLASS, FALSE);
-            func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+            comusic_playTrackWithVolumeOverride(COMUSIC_3C_MINIGAME_LOSS, 28000);
             func_8028F8F8(7, FALSE);
             this->unk1C[1] = 1.0f;
             func_8038D3D8();
@@ -408,7 +408,7 @@ void func_8038D6C8(Actor *this){
 
         if(0.96 < anctrl_getAnimTimer(this->anctrl)){
             if(this->lifetime_value <= 0.0){
-                __spawnQueue_add_1((GenFunction_1)func_8038D474, (s32)this->marker);
+                spawnQueue_add_1((GenFunction_1)func_8038D474, (s32)this->marker);
                 this->lifetime_value = 2.9f;
             }
             else{

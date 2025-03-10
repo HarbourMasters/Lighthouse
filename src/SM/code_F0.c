@@ -4,10 +4,15 @@
 #include "prop.h"
 #include "actor.h"
 
+#ifdef LIGHTHOUSE_P
+#include "compat.h"
+#endif
+
 int ability_hasLearned(s32);
+bool __codeF0_areRomCrcsCorrect();
+bool __codeF0_areCrcsValid();
 
-extern s32 D_80275650;
-
+extern s32 sDataCRC1;
 
 extern ActorInfo gQuarrie;
 extern ActorInfo gCodeBF0;
@@ -26,7 +31,11 @@ extern ActorInfo gBanjosChair;
 extern ActorInfo gBanjosStove;
 extern ActorInfo gRockTrappingGrunty;
 
-extern u32 D_803FFE00[4];
+#ifndef LIGHTHOUSE_P
+extern u32 a_gRomCrcValues[4];
+#else
+static u32 a_gRomCrcValues[4];
+#endif
 
 /* .data */
 s32 D_8038AAE0 = 0x000FE2C1; //compiled SM_code_crc_1
@@ -55,7 +64,7 @@ static u32 *__codeF0_getLearnedAbilitiesAddress(){
 
 static void __codeF0_learnAbility(enum ability_e ability){
     u32 *addr;
-    if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
+    if(game_getMode() != GAME_MODE_7_ATTRACT_DEMO){
         addr = __codeF0_getLearnedAbilitiesAddress();
         *addr = 1 << ability;
     }
@@ -113,24 +122,28 @@ void __codeF0_pad_func_80386614(u8 *arg0, u8 *arg1, s32 *arg2, s32 *arg3){
 
 extern u8 crc_ROM_START[];
 
-static bool __codeF0_areRomCrcsCorrect(){
+bool __codeF0_areRomCrcsCorrect(){
+    #ifndef LIGHTHOUSE_P
     u32 sp24;
 
-    if( (osPiReadIo((u32)crc_ROM_START + 8, &sp24), sp24 == D_803FFE00[0])
-        && (osPiReadIo((u32)crc_ROM_START + 12, &sp24), sp24 == D_803FFE00[1])
-        && (osPiReadIo((u32)crc_ROM_START + 16, &sp24), sp24 == D_803FFE00[2])
-        && (osPiReadIo((u32)crc_ROM_START + 20, &sp24), sp24 == D_803FFE00[3])
+    if( (osPiReadIo((u32)crc_ROM_START + 8, &sp24), sp24 == a_gRomCrcValues[0])
+        && (osPiReadIo((u32)crc_ROM_START + 12, &sp24), sp24 == a_gRomCrcValues[1])
+        && (osPiReadIo((u32)crc_ROM_START + 16, &sp24), sp24 == a_gRomCrcValues[2])
+        && (osPiReadIo((u32)crc_ROM_START + 20, &sp24), sp24 == a_gRomCrcValues[3])
     ){
         return TRUE;
     }
 
     return FALSE;
+    #else
+    return TRUE;
+    #endif
 }
 
-static bool __codeF0_areCrcsValid(){
+bool __codeF0_areCrcsValid(){
     if( D_8038B320.unk0 == D_8038AAE0
         && D_8038B320.unk4 == D_8038AAE4 
-        && D_8038B320.unkC == D_80275650 
+        && D_8038B320.unkC == sDataCRC1 
         && D_8038B320.unk8 == D_8038AAE8.word + D_8038AAE8.byte[0] + D_8038AAE8.byte[1] + D_8038AAE8.byte[2] + D_8038AAE8.byte[3]
     ){
         return TRUE;

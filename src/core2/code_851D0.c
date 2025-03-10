@@ -43,16 +43,16 @@ void *D_80382454;
 
 /* .code */
 void func_8030C160(void){
-    func_8024F150();
+    pfsManager_checkControllerError();
 }
 
 void func_8030C180(void){
-    func_8024F180();
+    pfsManager_handleControllerError();
 }
 
-void func_8030C1A0(void){
+void allocateImageBuffer(void){
     if(D_80382454 == NULL){
-        D_80382454 = D_80382450 = malloc(IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(u16) + 64);
+        D_80382454 = D_80382450 = heap_malloc(IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(u16) + 64);
 
         while((s32)D_80382450 & 0x3F){
             D_80382450++;
@@ -60,13 +60,13 @@ void func_8030C1A0(void){
     }
 }
 
-void func_8030C204(void){
+void freeImageBuffer(void){
     if(D_80382454){
-        free(D_80382454);
+        bk_free(D_80382454);
         D_80382454 = NULL;
     }
 
-    switch(getGameMode()){
+    switch(game_getMode()){
         case GAME_MODE_8_BOTTLES_BONUS:
             chBottlesBonus_func_802DEA8C(0, 0);
             break;
@@ -76,8 +76,8 @@ void func_8030C204(void){
     }
 }
 
-void func_8030C27C(void){
-    switch(getGameMode()){
+void initializeAudioSystem(void){
+    switch(game_getMode()){
         case GAME_MODE_8_BOTTLES_BONUS:
             chBottlesBonus_spawn(0, 0);
             break;
@@ -88,9 +88,9 @@ void func_8030C27C(void){
     }
 }
 
-void func_8030C2D4(Gfx **gdl, Mtx **mptr, Vtx **vptr){
+void initializeAudioChannels(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     scissorBox_setDefault();
-    func_80253640(gdl, gFramebuffers[getActiveFramebuffer()]);
+    setupGfxTask(gdl, gFramebuffers[getActiveFramebuffer()]);
 }
 
 // Draws a 160x128 image pointed to by D_80382450 into the center of the screen
@@ -98,7 +98,7 @@ void func_8030C33C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     s32 x, y;
 
     // Set up the rendering state to draw the image
-    gSPDisplayList((*gfx)++, D_8036C450);
+    __gSPDisplayList((*gfx)++, D_8036C450);
     // Iterate over every tile in the image
     for (y = 0; y < TILE_COUNT_Y; y++) {
         for(x = 0; x < TILE_COUNT_X; x++){
@@ -119,7 +119,7 @@ void func_8030C33C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         }
     }
     // Reset the rendering state
-    gSPDisplayList((*gfx)++, D_8036C4A8);
+    __gSPDisplayList((*gfx)++, D_8036C4A8);
 }
 
 

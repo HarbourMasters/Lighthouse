@@ -6,10 +6,10 @@ static void __chTreasure_updateFunc(Actor *this);
 
 /* .data */
 ActorAnimationInfo gChTreasureAnimations[4] = {
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_153_ANIM_BURIED_TREASURE_APPEAR, 2.0f},
     {ASSET_166_ANIM_BURIED_TREASURE_BOUNCE, 0.33f},
-    {NULL, NULL}
+    {NULL, 0.0f}
 };
 
 ActorInfo gChTreasure = {
@@ -22,7 +22,7 @@ ActorInfo gChTreasure = {
 /* .code */
 static void __chTreasure_die(ActorMarker *marker, ActorMarker *otherMarker){
     Actor *this = marker_getActor(marker);
-    __spawnQueue_add_4((GenFunction_4) spawnQueue_actor_f32, 0x4C, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
+    spawnQueue_add_4((GenFunction_4) spawnQueue_actor_f32, 0x4C, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
     func_802EE278(this, 3, 0xf, 0x3C, 0.2f, 1.2f);
     func_803115C4(0xA19);
     jiggy_spawn(JIGGY_11_TTC_RED_X, this->position);

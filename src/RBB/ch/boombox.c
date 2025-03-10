@@ -5,7 +5,7 @@
 
 
 extern void bundle_setYaw(f32);
-extern int  func_80309EB0(f32(*)[3], f32, f32 (*)[3], s32);
+extern int  findCollisionTriAtPositionWithFlags(f32(*)[3], f32, f32 (*)[3], s32);
 extern int func_803342AC(f32(*)[3], f32(*)[3],f32);
 
 /* typedefs and declarations */
@@ -122,8 +122,8 @@ void func_8038EC14(Actor *this){
 void func_8038ED3C(Actor * actor, s32 arg1){
     ParticleEmitter *other = partEmitMgr_newEmitter(0xa);
     particleEmitter_setAccelerationRange(other, 0.0f, -800.0f, 0.0f, 0.0f, -800.0f, 0.0f);
-    particleEmitter_func_802EF9F8(other, 0.6f);
-    particleEmitter_func_802EFA18(other, 3);
+    particleEmitter_setBounceFactor(other, 0.6f);
+    particleEmitter_setCollisionCount(other, 3);
     particleEmitter_setModel(other, arg1);
     particleEmitter_setPosition(other, actor->position);
     particleEmitter_setStartingScaleRange(other, 0.05f, 0.4f);
@@ -177,7 +177,7 @@ int func_8038EF08(Actor *this, f32 position[3], f32 arg2){
     sp40[1] = local->unk20[1] + this->scale*100.0f;
     sp40[2] = local->unk20[2];
     sp3C = this->scale*60.0f;
-    if(func_80309EB0(&sp40, sp3C, &sp30, 0)){
+    if(findCollisionTriAtPositionWithFlags(&sp40, sp3C, &sp30, 0)){
         sp50 = 1;
     }else{
         sp50 = 0;
@@ -245,7 +245,7 @@ void func_8038F190(Actor *this, s32 arg1){
     if(arg1 == 3){
         func_8038FB6C();
         actor_collisionOff(this);
-        func_80324D54(0.0f, SFX_1B_EXPLOSION_1, 1.0f, 0x7d00, this->position, 1000.0f, 2000.0f);
+        playSoundEffectWithPositionAtTime(0.0f, SFX_1B_EXPLOSION_1, 1.0f, 0x7d00, this->position, 1000.0f, 2000.0f);
         skeletalAnim_set(this->unk148, ASSET_148_ANIM_BOOMBOX_DIE, 0.2f, 1.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         func_8038EAB4(this);
@@ -382,7 +382,7 @@ void func_8038F618(Actor *this){
         sp50[1] = local->unk20[1] - local->unk14[1];
         sp50[2] = local->unk20[2] - local->unk14[2];
 
-        func_80258A4C(D_80390DEC, this->yaw - 90.0f, sp50, &sp4C, &sp48, &sp44);
+        ml_vec3f_rotate_and_project(D_80390DEC, this->yaw - 90.0f, sp50, &sp4C, &sp48, &sp44);
         
         this->yaw += (sp44*400.0f)*sp70;
         if(skeletalAnim_getLoopCount(this->unk148) > 0){

@@ -1,3 +1,4 @@
+#ifndef LIGHTHOUSE_P
 #include <os_internal.h>
 #include <R4300.h>
 #include "osint.h"
@@ -17,3 +18,5 @@ u32 osVirtualToPhysical(void *addr)
         return __osProbeTLB(addr);
     }
 }
+
+#endif

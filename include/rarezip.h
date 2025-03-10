@@ -1,8 +1,14 @@
 #ifndef RAREZIP_H
 #define RAREZIP_H
+
 #include <ultra64.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern struct huft *D_80007270;
+
 
 extern u8 *inbuf; //inbuf
 extern u8 *D_80007284; //slide
@@ -47,5 +53,9 @@ struct huft {
 #define N_MAX 288       /* maximum number of codes in any set */
 
 int bkboot_inflate(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -21,11 +21,11 @@ void chEngineFanSwitch_setState(Actor * this, s32 arg1){
     if(this->state == 2){
         func_8030E6D4(SFX_90_SWITCH_PRESS);
         this->position_y -= 35.0f;
-        func_80324E38(1.0f, 3);
+        setCameraModeAtTime(1.0f, 3);
         timed_setStaticCameraToNode(1.0f, 0);
         timedFunc_set_0(1.0f, RBB_func_803898A0);
         timed_exitStaticCamera(5.0f);
-        func_80324E38(5.0f, 0);
+        setCameraModeAtTime(5.0f, 0);
     }
 }
 

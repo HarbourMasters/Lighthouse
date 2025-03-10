@@ -76,7 +76,7 @@ void func_80388BEC(NodeProp *node, ActorMarker *marker) {
                 ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4++;
                 func_803892A8(((ActorLocal_JujuHitbox *) &closest_actor->local)->jujus);
                 func_80353580(marker);
-                __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x58, *(s32 *)&position[0], *(s32 *)&position[1], *(s32 *)&position[2]);
+                spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x58, *(s32 *)&position[0], *(s32 *)&position[1], *(s32 *)&position[2]);
             }
         }
     }
@@ -132,7 +132,7 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = TRUE;
-        __spawnQueue_add_2((GenFunction_2) __chjujuhitbox_initialize_all, this->marker, jujuCtlPtr->unk4);
+        spawnQueue_add_2((GenFunction_2) __chjujuhitbox_initialize_all, this->marker, jujuCtlPtr->unk4);
         __chjujuhitbox_playRubbingSfx(this);
         return;
     }

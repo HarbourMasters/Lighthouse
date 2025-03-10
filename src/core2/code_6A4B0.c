@@ -1,145 +1,158 @@
-#include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include <ultra64.h>
 
+//model_render2.c
 
+typedef struct DisplayListData {
+  s16 (*vtx_coord)[3];
+  u16 *tmem_raw_ptr;
+  u16 *tmem_ptr;
+  void (*draw_method)(struct DisplayListData *, Gfx **, Mtx **, Vtx **);
+  bool unk10;
+} DisplayListData;
 
-typedef struct Struct_Core2_6A4B0_2{
-    s16 (*vtx_coord)[3];
-    u16 *tmem_raw_ptr;
-    u16 *tmem_ptr;
-    void (*draw_method)(struct Struct_Core2_6A4B0_2 *, Gfx **, Mtx **, Vtx **);
-    bool unk10;
-}Struct_Core2_6A4B0_2;
-
-s16 *func_802F1804(Struct_Core2_6A4B0_2 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void func_802F18B8(Struct_Core2_6A4B0_2 *arg0);
+s16 *getVertexPosition(DisplayListData *arg0, s32 arg1, s32 arg2, s32 arg3,
+                   s32 arg4);
+void freeTextureMemory(DisplayListData *arg0);
 
 /* .data */
-Gfx D_803689D0[] = {
+Gfx defaultDisplayList[] = {
     gsDPPipeSync(),
-    gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH),
+    gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG |
+                          G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR |
+                          G_LOD | G_SHADING_SMOOTH),
     gsSPSetGeometryMode(G_SHADE | G_TEXTURE_GEN_LINEAR | G_SHADING_SMOOTH),
     gsSPTexture(0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON),
     gsDPSetCycleType(G_CYC_1CYCLE),
     gsDPSetCombineMode(G_CC_MODULATEI, G_CC_MODULATEI),
     gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
-    gsSPEndDisplayList()
-};
+    gsSPEndDisplayList()};
 
 /* .code */
-void func_802F1440(Struct_Core2_6A4B0_2 *arg0, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    Vtx *vtx_start;
+void drawModel(DisplayListData *arg0, Gfx **gfx, Mtx **mtx,
+                   Vtx **vtx) {
+  Vtx *vtx_start;
 
-    Vtx *i_vtx;
-    s32 var_s3;
-    s32 sp54;
-    s32 sp50;
-    s32 sp4C;
-    static s32 s_values[6] = {0x60, 0x840,  0x60, 0x840, 0x840,  0x60};
-    static s32 t_values[6] = {0x60,  0x60, 0x860,  0x60, 0x860, 0x860};
-    
-    if (!arg0->unk10) {
-        viewport_setRenderViewportAndOrthoMatrix(gfx, mtx);
-    }
-    gSPDisplayList((*gfx)++, D_803689D0);
+  Vtx *i_vtx;
+  s32 var_s3;
+  s32 sp54;
+  s32 sp50;
+  s32 sp4C;
+  static s32 s_values[6] = {0x60, 0x840, 0x60, 0x840, 0x840, 0x60};
+  static s32 t_values[6] = {0x60, 0x60, 0x860, 0x60, 0x860, 0x860};
 
-    i_vtx = vtx_start = *vtx;
-    for(sp4C = 0; sp4C < 6; sp4C++){
-        for(sp50 = 0; sp50 < 9; sp50++){
-            for(sp54 = 0; sp54 < 2; sp54++){
-                for(var_s3 = 0; var_s3 < 3; var_s3++){
-                    s16 *position = func_802F1804(arg0, sp50, sp4C, sp54, var_s3);
-                    i_vtx->n.ob[0] = position[0];
-                    i_vtx->n.ob[1] = position[1];
-                    i_vtx->n.ob[2] = position[2];
+  if (!arg0->unk10) {
+    viewport_setRenderViewportAndOrthoMatrix(gfx, mtx);
+  }
+  __gSPDisplayList((*gfx)++, defaultDisplayList);
 
-                    i_vtx->n.flag = 0;
+  i_vtx = vtx_start = *vtx;
+  for (sp4C = 0; sp4C < 6; sp4C++) {
+    for (sp50 = 0; sp50 < 9; sp50++) {
+      for (sp54 = 0; sp54 < 2; sp54++) {
+        for (var_s3 = 0; var_s3 < 3; var_s3++) {
+          s16 *position = getVertexPosition(arg0, sp50, sp4C, sp54, var_s3);
+          i_vtx->n.ob[0] = position[0];
+          i_vtx->n.ob[1] = position[1];
+          i_vtx->n.ob[2] = position[2];
 
-                    i_vtx->n.tc[0] = s_values[sp54 * 3 + var_s3];
-                    i_vtx->n.tc[1] = t_values[sp54 * 3 + var_s3];
-                    i_vtx->n.n[0] = -1;
-                    i_vtx->n.n[1] = -1;
-                    i_vtx->n.n[2] = -1;
-                    i_vtx->n.a = 0xFF;
-                    i_vtx++;
-                }
-            }
+          i_vtx->n.flag = 0;
+
+          i_vtx->n.tc[0] = s_values[sp54 * 3 + var_s3];
+          i_vtx->n.tc[1] = t_values[sp54 * 3 + var_s3];
+          i_vtx->n.n[0] = -1;
+          i_vtx->n.n[1] = -1;
+          i_vtx->n.n[2] = -1;
+          i_vtx->n.a = 0xFF;
+          i_vtx++;
         }
+      }
     }
-    *vtx = i_vtx;
-    i_vtx = vtx_start;
-    var_s3 = 0;
-    gSPVertex((*gfx)++, osVirtualToPhysical(i_vtx), 16, 0);
-    for(sp4C = 0; sp4C < 6; sp4C++){
-        for(sp50 = 0; sp50 < 9; sp50++){
-            s16 *tmem = arg0->tmem_ptr + (0x20*sp50 + 1) + (0x20*sp4C + 0xC)*gFramebufferWidth;
-            gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(tmem), G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, 0, 0, 0, 33, 33, 0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-            for(sp54 = 0; sp54 < 2; sp54++){
-                gSP1Triangle((*gfx)++, var_s3, var_s3 + 1, var_s3 + 2, 0);
-                var_s3 += 3;
-                if (var_s3 == 0xF) {
-                    i_vtx += 0xF;
-                    var_s3 = 0;
-                    gSPVertex((*gfx)++, osVirtualToPhysical(i_vtx), 16, 0);
-                }
-            }
+  }
+  *vtx = i_vtx;
+  i_vtx = vtx_start;
+  var_s3 = 0;
+  __gSPVertex((*gfx)++, osVirtualToPhysical(i_vtx), 16, 0);
+  for (sp4C = 0; sp4C < 6; sp4C++) {
+    for (sp50 = 0; sp50 < 9; sp50++) {
+      s16 *tmem = arg0->tmem_ptr + (0x20 * sp50 + 1) +
+                  (0x20 * sp4C + 0xC) * gFramebufferWidth;
+      gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(tmem), G_IM_FMT_RGBA,
+                         G_IM_SIZ_16b, gFramebufferWidth, 0, 0, 0, 33, 33, 0,
+                         G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP,
+                         G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+      for (sp54 = 0; sp54 < 2; sp54++) {
+        gSP1Triangle((*gfx)++, var_s3, var_s3 + 1, var_s3 + 2, 0);
+        var_s3 += 3;
+        if (var_s3 == 0xF) {
+          i_vtx += 0xF;
+          var_s3 = 0;
+          __gSPVertex((*gfx)++, osVirtualToPhysical(i_vtx), 16, 0);
         }
+      }
     }
-    if (!arg0->unk10) {
-        viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
-    }
+  }
+  if (!arg0->unk10) {
+    viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
+  }
 }
 
-s16 *func_802F1804(Struct_Core2_6A4B0_2 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    return (s16*)(arg0->vtx_coord + (arg1 * 2*3) + (arg2 * 2*3*9) + (arg3 * 3) + (arg4));
+s16 *getVertexPosition(DisplayListData *arg0, s32 arg1, s32 arg2, s32 arg3,
+                   s32 arg4) {
+  return (s16 *)(arg0->vtx_coord + (arg1 * 2 * 3) + (arg2 * 2 * 3 * 9) +
+                 (arg3 * 3) + (arg4));
 }
 
-void func_802F1858(Struct_Core2_6A4B0_2 *arg0, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    if(arg0->draw_method != NULL){
-        arg0->draw_method(arg0, gfx, mtx, vtx);
-    }
+void executeDrawMethod(DisplayListData *arg0, Gfx **gfx, Mtx **mtx,
+                   Vtx **vtx) {
+  if (arg0->draw_method != NULL) {
+    arg0->draw_method(arg0, gfx, mtx, vtx);
+  }
 }
 
-void func_802F1884(Struct_Core2_6A4B0_2 *arg0){
-    func_802F18B8(arg0);
-    free(arg0->vtx_coord);
-    free(arg0);
+void freeModel(DisplayListData *arg0) {
+  freeTextureMemory(arg0);
+  bk_free(arg0->vtx_coord);
+  bk_free(arg0);
 }
 
-void func_802F18B8(Struct_Core2_6A4B0_2 *arg0){
-    if(arg0->tmem_raw_ptr != NULL){
-        free(arg0->tmem_raw_ptr);
-        arg0->tmem_raw_ptr = NULL;
-    }
+void freeTextureMemory(DisplayListData *arg0) {
+  if (arg0->tmem_raw_ptr != NULL) {
+    bk_free(arg0->tmem_raw_ptr);
+    arg0->tmem_raw_ptr = NULL;
+  }
 }
 
-Struct_Core2_6A4B0_2 *func_802F18F0(void){
-    Struct_Core2_6A4B0_2 *self;
+DisplayListData *createModel(void) {
+  DisplayListData *self;
 
-    self = (Struct_Core2_6A4B0_2 *) malloc(sizeof(Struct_Core2_6A4B0_2));
-    self->vtx_coord = malloc(6*9*2*3*3*sizeof(u16));
-    self->tmem_raw_ptr = NULL;
-    self->draw_method = 0;
-    self->unk10 = 0;
-    return self;
+  self = (DisplayListData *)heap_malloc(sizeof(DisplayListData));
+  self->vtx_coord = heap_malloc(6 * 9 * 2 * 3 * 3 * sizeof(u16));
+  self->tmem_raw_ptr = NULL;
+  self->draw_method = 0;
+  self->unk10 = 0;
+  return self;
 }
 
-void func_802F1934(Struct_Core2_6A4B0_2 * arg0, s32 arg1){
-    func_802F18B8(arg0);
-    arg0->tmem_raw_ptr = malloc(gFramebufferWidth*gFramebufferHeight*sizeof(u16) + 0x10);
-    arg0->tmem_ptr = arg0->tmem_raw_ptr;
-    while(((s32)arg0->tmem_ptr & 0x10) == 0){
-        arg0->tmem_ptr = (u16*)((s32)arg0->tmem_ptr + 1);
-    }
-    func_80253010(arg0->tmem_ptr, gFramebuffers[arg1], gFramebufferWidth*gFramebufferHeight*sizeof(u16));
-    osWriteBackDCacheAll();
+void loadTextureMemory(DisplayListData *arg0, s32 arg1) {
+  freeTextureMemory(arg0);
+  arg0->tmem_raw_ptr =
+      heap_malloc(gFramebufferWidth * gFramebufferHeight * sizeof(u16) + 0x10);
+  arg0->tmem_ptr = arg0->tmem_raw_ptr;
+  while (((s32)arg0->tmem_ptr & 0x10) == 0) {
+    arg0->tmem_ptr = (u16 *)((s32)arg0->tmem_ptr + 1);
+  }
+  func_80253010(arg0->tmem_ptr, gFramebuffers[arg1],
+                gFramebufferWidth * gFramebufferHeight * sizeof(u16));
+  osWritebackDCacheAll();
 }
 
-void func_802F1A08(s32 arg0) { }
+void noop2(s32 arg0) {}
 
-void func_802F1A10(Struct_Core2_6A4B0_2 *arg0, f32 angle_degrees) {
+//clang-format off
+void rotateModel(DisplayListData *arg0, f32 angle_degrees) {
     s32 spCC[3];
     f32 spC0[3];
     f32 temp_f0;
@@ -156,8 +169,8 @@ void func_802F1A10(Struct_Core2_6A4B0_2 *arg0, f32 angle_degrees) {
     s32 sp90;
     s32 var_s6;
     s16 *temp_v0_2;
-    static s32 D_80368A40[6] = {0, 1, 0, 1, 1, 0};
-    static s32 D_80368A58[6] = {0, 0, 1, 0, 1, 1};
+    static s32 sValues[6] = {0, 1, 0, 1, 1, 0};
+    static s32 tValues[6] = {0, 0, 1, 0, 1, 1};
 
     cos = cosf(angle_degrees * 2 * BAD_PI);
     sin = sinf(angle_degrees * 2 * BAD_PI);
@@ -168,10 +181,10 @@ void func_802F1A10(Struct_Core2_6A4B0_2 *arg0, f32 angle_degrees) {
     for(var_s6 = 0; var_s6 < 6; var_s6++){
         for(var_s4 = 0; var_s4 < 9; var_s4++){
             for(var_s3 = 0, sp90 = 0; var_s3 < 2; var_s3++, sp90 += 3){
-                var_s1 = D_80368A40 + sp90;\
-                var_s2 = D_80368A58 + sp90;
+                var_s1 = sValues + sp90;\
+                var_s2 = tValues + sp90;
                 for(var_s0 = 0; var_s0 < 3; var_s0++){
-                    temp_v0_2 = func_802F1804(arg0, var_s4, var_s6, var_s3, var_s0);
+                    temp_v0_2 = getVertexPosition(arg0, var_s4, var_s6, var_s3, var_s0);
                     temp_f0 = (f32) (spCC[0] + var_s4 * 0x80 + (*var_s1 * 0x80));
                     temp_f2 = (f32) (spCC[1] - var_s6 * 0x80 - (*var_s2 * 0x80));
                     
@@ -194,13 +207,13 @@ void func_802F1A10(Struct_Core2_6A4B0_2 *arg0, f32 angle_degrees) {
             }
         }
     }
-    arg0->draw_method = &func_802F1440;
+    arg0->draw_method = &drawModel;
     arg0->unk10 = FALSE;
 }
 
-void func_802F1CAC(Struct_Core2_6A4B0_2 *arg0) {
-    static s32 D_80368A70[6] = {0, 1, 0, 1, 1, 0};
-    static s32 D_80368A88[6] = {0, 0, 1, 0, 1, 1};
+void translateModel(DisplayListData *arg0) {
+    static s32 translateSValues[6] = {0, 1, 0, 1, 1, 0};
+    static s32 translateTValues[6] = {0, 0, 1, 0, 1, 1};
 
     s32 sp84[3];
     f32 sp78[3];
@@ -214,7 +227,6 @@ void func_802F1CAC(Struct_Core2_6A4B0_2 *arg0) {
     s32 *var_s1;
     s32 *var_s2;
     
-
     viewport_getPosition_vec3f(sp78);
     sp84[0] = (s32) ((1000.0f - sp78[0]) - 200.0f);
     sp84[1] = (s32) ((0.0f - sp78[1]) + 300.0f);
@@ -222,10 +234,10 @@ void func_802F1CAC(Struct_Core2_6A4B0_2 *arg0) {
     for(var_s7 = 0; var_s7 < 6; var_s7++){
         for(var_s5 = 0; var_s5 < 9; var_s5++){
             for(var_s4 = 0, sp60 = 0; var_s4 < 2; var_s4++, sp60 += 3){
-                var_s1 = D_80368A70 + sp60;\
-                var_s2 = D_80368A88 + sp60;
+                var_s1 = translateSValues + sp60;\
+                var_s2 = translateTValues + sp60;
                 for(var_s0 = 0; var_s0 < 3; var_s0++){
-                    temp_v0_2 = func_802F1804(arg0, var_s5, var_s7, var_s4, var_s0);
+                    temp_v0_2 = getVertexPosition(arg0, var_s5, var_s7, var_s4, var_s0);
                     temp_v0_2[0] = (s16) (sp84[0] + var_s5*0x32 + *var_s1 * 0x32);
                     temp_v0_2[1] = (s16) (sp84[1] - var_s7*0x32 - *var_s2 * 0x32);
                     temp_v0_2[2] = (s16) sp84[2];
@@ -235,6 +247,7 @@ void func_802F1CAC(Struct_Core2_6A4B0_2 *arg0) {
             }
         }
     }
-    arg0->draw_method = &func_802F1440;
+    arg0->draw_method = &drawModel;
     arg0->unk10 = TRUE;
 }
+//clang-format on

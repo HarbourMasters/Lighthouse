@@ -112,7 +112,7 @@ void func_802960C4(s32 arg0){
             break;
         case 2: //L80296134
             player_getPosition(sp30);
-            func_802589E4(sp24, player_getYaw(), 100.0f);
+            ml_vec3f_set_yaw_length(sp24, player_getYaw(), 100.0f);
             sp24[1] = 0.0f;
             sp30[0] += sp24[0];
             sp30[1] += sp24[1];
@@ -145,7 +145,7 @@ void func_8029622C(void){
     f32 sp28[3];
 
     _player_getPosition(sp28);
-    func_80256E24(sp34, 0.0f, yaw_get(), 0.0f, 0.0f, 100.0f);
+    ml_vec3f_rotate_direction(sp34, 0.0f, yaw_get(), 0.0f, 0.0f, 100.0f);
     sp28[0] += sp34[0];
     sp28[1] += sp34[1];
     sp28[2] += sp34[2];
@@ -450,19 +450,19 @@ void func_80296608(void){
             }
             break;
         case BS_INTR_1E: //L80296A44  
-            if(func_8028ABB8()){
+            if(can_use_ability()){
                 sp2C = 2;
                 next_state = func_8029BE5C();
             }
             break;
         case BS_INTR_1D: //L80296A68
-            if(func_8028ABB8()){
+            if(can_use_ability()){
                 sp2C = 2;
                 next_state = func_8029BF4C();
             }
             break;
         case BS_INTR_1C: //L80296A8C
-            if(func_8028ABB8()){
+            if(can_use_ability()){
                 sp2C = 2;
                 next_state = func_8029BED4();
             }

@@ -4,9 +4,9 @@
 
 extern void func_8028F4B8(f32[3], f32, f32);
 extern void func_8028F66C(s32);
-extern void func_802D6310(f32, enum map_e, s32, s32, enum file_progress_e);
+extern void setMapTransitionWithDelayAndEffect(f32, enum map_e, s32, s32, enum file_progress_e);
 extern void func_802EE354(Actor *, s32, s32, s32, f32, f32, f32, s32[4], s32, s32);
-extern void func_80324CFC(f32, enum comusic_e, s32);
+extern void playTrackWithVolumeAtTime(f32, enum comusic_e, s32);
 extern void func_8034DF30(s32, f32[4], f32[4], f32);
 
 /* .h */
@@ -154,8 +154,8 @@ void func_8038A96C(Actor *this, s32 arg1) {
 void func_8038AB90(Actor *this, s32 arg1, s32 arg2, enum sfx_e sfx_id, f32 sfx_timing) {
     if (arg2 == this->unk10_12) {
         if (this->unkF4_8 == 7) {
-            func_80324CFC(0.5f, COMUSIC_8C_JINJONATOR_POWERUP, 32000);
-            func_80324D2C(7.0f, COMUSIC_8C_JINJONATOR_POWERUP);
+            playTrackWithVolumeAtTime(0.5f, COMUSIC_8C_JINJONATOR_POWERUP, 32000);
+            stopTrackAtTime(7.0f, COMUSIC_8C_JINJONATOR_POWERUP);
         }
         this->unk10_12 = 0;
         subaddie_set_state_forward(this, arg1);
@@ -164,8 +164,8 @@ void func_8038AB90(Actor *this, s32 arg1, s32 arg2, enum sfx_e sfx_id, f32 sfx_t
         if (sfx_id != SFX_0_BLOOP) {
             timed_playSfx(sfx_timing, sfx_id, 1.0f, 32000);
             if (arg2 == 2) {
-                func_8025A6CC(COMUSIC_3F_MAGIC_CARPET_RISING, 32000);
-                func_80324D2C(2.6f, COMUSIC_3F_MAGIC_CARPET_RISING);
+                comusic_playTrackWithDefaultVolume(COMUSIC_3F_MAGIC_CARPET_RISING, 32000);
+                stopTrackAtTime(2.6f, COMUSIC_3F_MAGIC_CARPET_RISING);
                 func_8030E540(SFX_7C_CHEBOOF);
             }
         }
@@ -243,10 +243,10 @@ void chWarpCauldron_update(Actor *this) {
             func_802D09B8(this, 2);
             func_8038A96C(this, 2);
             sp50 = TRUE;
-            if( ( func_802D677C(-1) != 0 
-                  && (func_802D677C(-1) == D_80393620[this->unkF4_8 - 1].unk0) 
-                  && (func_802D67AC(-1) == MAP_16_GV_RUBEES_CHAMBER) 
-                  && (func_802D680C(-1) == this->unkF4_8)
+            if( ( getOrSetTransitionMap(-1) != 0 
+                  && (getOrSetTransitionMap(-1) == D_80393620[this->unkF4_8 - 1].unk0) 
+                  && (getOrSetTransitionState(-1) == MAP_16_GV_RUBEES_CHAMBER) 
+                  && (getOrSetTransitionFlag(-1) == this->unkF4_8)
                 ) 
                 || (exit_get() == D_80393620[this->unkF4_8 - 1].unk2)
             ) {
@@ -255,7 +255,7 @@ void chWarpCauldron_update(Actor *this) {
                 func_8038AB90(this, 5, 1, 0, 0.0f);
             }
             if (!fileProgressFlag_get(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET) && fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))) {
-                if (func_802D677C(-1) != map_get()) {
+                if (getOrSetTransitionMap(-1) != map_get()) {
                     gcdialog_showText(ASSET_F7A_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
                     fileProgressFlag_set(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET, 1);
                 }
@@ -283,35 +283,35 @@ void chWarpCauldron_update(Actor *this) {
                 if (fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))){
                     switch(this->unkF4_8){
                         case 2://L8038B204
-                            func_802D6310(2.0f, MAP_6A_GL_TTC_AND_CC_PUZZLE, 0x62, 0x22, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_6A_GL_TTC_AND_CC_PUZZLE, 0x62, 0x22, 0);
                             break;
 
                         case 1://L8038B228 
-                            func_802D6310(2.0f, MAP_6F_GL_FP_LOBBY, 0x63, 0x23, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_6F_GL_FP_LOBBY, 0x63, 0x23, 0);
                             break;
 
                         case 4://L8038B24C
-                            func_802D6310(2.0f, MAP_6F_GL_FP_LOBBY, 0x64, 0x24, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_6F_GL_FP_LOBBY, 0x64, 0x24, 0);
                             break;
 
                         case 3://L8038B270
-                            func_802D6310(2.0f, MAP_77_GL_RBB_LOBBY, 0x65, 0x25, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_77_GL_RBB_LOBBY, 0x65, 0x25, 0);
                             break;
 
                         case 6://L8038B294
-                            func_802D6310(2.0f, MAP_6C_GL_RED_CAULDRON_ROOM, 0x66, 0x26, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_6C_GL_RED_CAULDRON_ROOM, 0x66, 0x26, 0);
                             break;
 
                         case 5://L8038B2B8
-                            func_802D6310(2.0f, MAP_79_GL_CCW_LOBBY, 0x67, 0x27, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_79_GL_CCW_LOBBY, 0x67, 0x27, 0);
                             break;
 
                         case 10://L8038B2DC
-                            func_802D6310(2.0f, MAP_8E_GL_FURNACE_FUN, 0x8C, 0x29, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_8E_GL_FURNACE_FUN, 0x8C, 0x29, 0);
                             break;
 
                         case 9://L8038B300
-                            func_802D6310(2.0f, MAP_93_GL_DINGPOT, 0x8D, 0x2A, 0);
+                            setMapTransitionWithDelayAndEffect(2.0f, MAP_93_GL_DINGPOT, 0x8D, 0x2A, 0);
                             break;
                     }
                 }
@@ -355,7 +355,7 @@ void chWarpCauldron_update(Actor *this) {
             }
             if (actor_animationIsAt(this, 0.63f)) {
                 volatileFlag_set(VOLATILE_FLAG_1E, 0);
-                func_802D677C(0);
+                getOrSetTransitionMap(0);
                 func_8028FCAC();
                 nodeprop_getPosition(nodeprop_findByActorIdAndActorPosition(D_80393620[this->unkF4_8 - 1].unk6, this), sp54);
                 if (this->unkF4_8 == 7) {
@@ -374,11 +374,11 @@ void chWarpCauldron_update(Actor *this) {
         case 4: //L8038B584
             func_8038A96C(this, 3);
             if (actor_animationIsAt(this, 0.99f)) {
-                func_802D6344();
-                func_802D677C(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk0);
-                func_802D67AC(0x16);
-                func_802D680C(((this->unkF4_8 - 1) ^ 1) + 1);
-                func_802D683C(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk1);
+                resetMapTransition();
+                getOrSetTransitionMap(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk0);
+                getOrSetTransitionState(0x16);
+                getOrSetTransitionFlag(((this->unkF4_8 - 1) ^ 1) + 1);
+                getOrSetTransitionNode(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk1);
                 func_8031CC40(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk0, D_80393620[((this->unkF4_8 - 1) ^ 1)].unk2);
             }
             break;
@@ -439,7 +439,7 @@ Actor *chWarpCauldron_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
         func_8033A45C(4, this->unk38_0 ? FALSE : TRUE);
     }
     this = actor_draw(marker, gfx, mtx, vtx);
-    if (marker->unk14_21 && this->unk38_0 && (getGameMode() != GAME_MODE_4_PAUSED)) {
+    if (marker->unk14_21 && this->unk38_0 && (game_getMode() != GAME_MODE_4_PAUSED)) {
         sp3C[1] = randi2(200, 255);
         sp3C[0] = randi2(150, sp3C[1]);
         sp3C[2] = 0;

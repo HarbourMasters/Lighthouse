@@ -22,7 +22,7 @@ struct {
 
 /* .code */
 void __code3040_func_80389430(){
-    if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
+    if(game_getMode() != GAME_MODE_7_ATTRACT_DEMO){
         func_8029CF48(2, 1, 0.0f);
     }
 }

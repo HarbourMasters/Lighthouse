@@ -73,7 +73,7 @@ void func_8031A678(Actor *this){
             sp20[0] = -2000.0f;
             sp20[1] = 0.0f;
             sp20[2] = 0.0f;
-            func_8034DDF0(sp2C, sp20, sp20, 0.0f, 1);
+            collisionTri_isHitFromAboveByMarker(sp2C, sp20, sp20, 0.0f, 1);
             return;
 
         case MINIGAME_3_ZUBBAS:
@@ -81,7 +81,7 @@ void func_8031A678(Actor *this){
                 sp20[0] = 0.0f;
                 sp20[1] = 0.0f;
                 sp20[2] = -1000.0f;
-                func_8034DDF0(sp2C, sp20, sp20, 0.0f, 1);
+                collisionTri_isHitFromAboveByMarker(sp2C, sp20, sp20, 0.0f, 1);
             }
             break;
 
@@ -121,11 +121,11 @@ void __chMinigame_setState(Actor *this, u32 arg1) {
                 func_80347A14(0);
             }
             if (volatileFlag_get(this->unk10_12 + 6) == 0) {
-                func_80324DBC(2.0f, this->unk10_12 + 0x1026, 0xA2, NULL, this->marker, __chMinigame_textCallback1, __chMinigame_transformToCroc);
+                showDelayedTextAtTime(2.0f, this->unk10_12 + 0x1026, 0xA2, NULL, this->marker, __chMinigame_textCallback1, __chMinigame_transformToCroc);
                 volatileFlag_set(this->unk10_12 + 6, 1);
                 this->unk138_23 = TRUE;
             } else {
-                func_80324DBC(2.0f, 0xD38, 0x20, NULL, this->marker, __chMinigame_textCallback1, NULL);
+                showDelayedTextAtTime(2.0f, 0xD38, 0x20, NULL, this->marker, __chMinigame_textCallback1, NULL);
             }
             break;
         case MINIGAME_STATE_2_IN_PROGESS:
@@ -135,11 +135,11 @@ void __chMinigame_setState(Actor *this, u32 arg1) {
         case MINIGAME_STATE_3_RETURN_TO_FF:
             volatileFlag_set(VOLATILE_FLAG_4, 1);
             func_8028F918(2);
-            func_8025AB00();
+            comusic_stopMainTrackById();
             comusic_playTrack((volatileFlag_get(VOLATILE_FLAG_5_FF_MINIGAME_WON)) ? COMUSIC_3B_MINIGAME_VICTORY : COMUSIC_3C_MINIGAME_LOSS);
-            func_802E4A70();
+            game_enableSpecialMode();
             volatileFlag_set(VOLATILE_FLAG_21, TRUE);
-            timedFunc_set_3(2.0f, (GenFunction_3)func_802E4078, MAP_8E_GL_FURNACE_FUN, 1, 1);
+            timedFunc_set_3(2.0f, (GenFunction_3)game_setMapWithTransition, MAP_8E_GL_FURNACE_FUN, 1, 1);
             break;
     }
     subaddie_set_state(this, arg1);

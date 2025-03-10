@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 /* extern functions */
 f32 mapModel_getFloorY(f32 *);
 
@@ -84,9 +87,20 @@ void chorange_update(Actor *this) {
 
 Actor *chorange_draw(ActorMarker *this, Gfx **dl, Mtx **mptr, Vtx **vtx) {
     Actor *actorPtr = actor_drawFullDepth(this, dl, mptr, vtx);
+
+    #ifdef LIGHTHOUSE_P
+    f32 sp60[3];
+    f32 rotation[3];
+    f32 position[3];
+
+    TUPLE_COPY(sp60, D_803899F4);
+    TUPLE_COPY(rotation, D_80389A00);
+    #else
     f32 sp60[3] = D_803899F4;
     f32 rotation[3] = D_80389A00;
     f32 position[3];
+    #endif
+    
 
     if (actorPtr->state == ORANGE_STATE_2_LANDED) {
         position[0] = actorPtr->position_x;

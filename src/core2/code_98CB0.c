@@ -279,7 +279,7 @@ void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length) {
     func_803203A0();
 }
 
-s32 func_8032056C(void) {
+s32 updateGameSelectText(void) {
     s32 temp_a0;
     s32 temp_a1;
     s32 temp_a1_2;

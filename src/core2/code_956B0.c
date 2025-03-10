@@ -31,7 +31,7 @@ u8 D_80383190;
 /* .code */
 // func_8031C640
 bool cutscene_skipIntroCutsceneCheck(void) {
-    if ((func_8024E698(0) == 1) && (gameFile_anyNonEmpty() != 0)) {
+    if ((pfsManager_getStartButtonState(0) == 1) && (gameFile_anyNonEmpty() != 0)) {
         return TRUE;
     }
     return FALSE;
@@ -39,7 +39,7 @@ bool cutscene_skipIntroCutsceneCheck(void) {
 
 // func_8031C688
 bool cutscene_skipEnterLairCutsceneCheck(void) {
-    if ((func_8024E698(0) == 1) 
+    if ((pfsManager_getStartButtonState(0) == 1) 
         && ((D_8037DCCE[0] != 0) 
             || (D_8037DCCE[1] != 0) 
             || (D_8037DCCE[2] != 0))) {
@@ -52,7 +52,7 @@ bool cutscene_skipEnterLairCutsceneCheck(void) {
 bool cutscene_skipGameOverCutsceneCheck(void) {
     s32 sp24;
 
-    sp24 = func_8024E698(0);
+    sp24 = pfsManager_getStartButtonState(0);
     if (mapSpecificFlags_get(0) != 0) {
         fileProgressFlag_set(FILEPROG_E1_UNKNOWN, 1);
     }
@@ -61,7 +61,7 @@ bool cutscene_skipGameOverCutsceneCheck(void) {
             mapSpecificFlags_set(0xC, TRUE);
             func_802DC528(0, 0);
             timedFunc_set_2(11.0f, (GenFunction_2)func_802DC560, 0, 0);
-            timedFunc_set_3(12.0f, (GenFunction_3)func_802E4078, MAP_1F_CS_START_RAREWARE, 0, 1);
+            timedFunc_set_3(12.0f, (GenFunction_3)game_setMapWithTransition, MAP_1F_CS_START_RAREWARE, 0, 1);
         } else {
             timedFuncQueue_flush();
         }
@@ -81,7 +81,7 @@ void cutscenetrigger_check(s32 cs_map, s32 arg1, s32 return_map, s32 return_exit
 
     if((condFunc && condFunc()) || mapSpecificFlags_get(arg1)){
         mapSpecificFlags_set(arg1, 0);
-        func_802E4078(return_map, (return_exit == -1)? 0: return_exit, 1);
+        game_setMapWithTransition(return_map, (return_exit == -1)? 0: return_exit, 1);
     }
 }
 
@@ -121,21 +121,21 @@ s32 cutscenetrigger_update(void){
 void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
     s32 sp1C;
 
-    if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) && (getGameMode() != GAME_MODE_7_ATTRACT_DEMO)) {
+    if ((D_80383190 == 0) && (game_getMode() != GAME_MODE_8_BOTTLES_BONUS) && (game_getMode() != GAME_MODE_7_ATTRACT_DEMO)) {
         sp1C = func_803226E8(map_get());
         if ((func_803226E8(map_id) != sp1C) && (func_80322914() == 0)) {
-            func_8025A388(0, 0x4E2);
-            func_8025AB00();
-            core1_ce60_incOrDecCounter(FALSE);
+            comusic_fadeAllTracksIfNotPlaying(0, 0x4E2);
+            comusic_stopMainTrackById();
+            map_worthlessCounter(FALSE);
         }
-        if (func_802E4A08()) {
-            func_802E40D0(map_id, exit_id);
-            func_802E40E8(1);
-            func_802E40C4(0xB);
+        if (game_isSpecialMode()) {
+            game_setMapWithoutTransition(map_id, exit_id);
+            game_setTransitionAndReset(1);
+            game_setTransition(0xB);
         } else {
-            func_802E4078(map_id, exit_id, 1);
+            game_setMapWithTransition(map_id, exit_id, 1);
         }
-        func_80335110(arg2);
+        fadeAllTracks(arg2);
     }
 }
 
@@ -152,8 +152,8 @@ void func_8031CC8C(s32 arg0, s32 arg1) {
     f32 vec[3];
     f32 unused[3];
 
-    if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS)) {
-        if (getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+    if ((D_80383190 == 0) && (game_getMode() != GAME_MODE_8_BOTTLES_BONUS)) {
+        if (game_getMode() != GAME_MODE_7_ATTRACT_DEMO) {
             if (arg0 != 0) {
                 ml_vec3h_to_vec3f(vec, arg0);
                 func_8031CE70(vec, arg1 >> 8, arg1 & 0xFF);
@@ -174,7 +174,7 @@ void func_8031CD44(enum map_e arg0, s32 arg1, f32 arg2, f32 yaw, s32 arg4) {
     f32 sp24[3];
 
     player_getPosition((f32 *) &sp3C);
-    func_80256E24(sp24, 0.0f, yaw, 0.0f, 0.0f, ml_map_f((f32) arg4, 0.0f, 200.0f, 10.0f, 800.0f));
+    ml_vec3f_rotate_direction(sp24, 0.0f, yaw, 0.0f, 0.0f, ml_map_f((f32) arg4, 0.0f, 200.0f, 10.0f, 800.0f));
     sp24[0] = sp3C[0] + sp24[0];
     sp24[1] = sp3C[1] + sp24[1];
     sp24[2] = sp3C[2] + sp24[2];
@@ -199,7 +199,7 @@ void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2) {
     NodeProp *phi_s0;
     f32 phi_f2;
 
-    if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) && (getGameMode() != GAME_MODE_7_ATTRACT_DEMO)) {
+    if ((D_80383190 == 0) && (game_getMode() != GAME_MODE_8_BOTTLES_BONUS) && (game_getMode() != GAME_MODE_7_ATTRACT_DEMO)) {
         if (arg0 != 0) {
             phi_s0 = func_80304ED0(&D_8036DDD0[1], arg0);
         } else {
@@ -243,10 +243,10 @@ void func_8031D09C(s32 arg0, s32 arg1) {
 }
 
 void func_8031D0C0(s32 arg0, s32 arg1) {
-    if (func_8024E698(0) == 1) {
-        func_802E412C(1, 2);
-        func_8025A2FC(0, 0x320);
-        func_8025AB00();
+    if (pfsManager_getStartButtonState(0) == 1) {
+        game_setTransitionWithArgs(1, 2);
+        comusic_fadeAllTracks(0, 0x320);
+        comusic_stopMainTrackById();
         func_8031D09C(arg0, arg1);
     }
 }
@@ -285,7 +285,7 @@ void warp_gvEnterWaterPyramidLower(s32 arg0, s32 arg1) {
 
 void warp_gvEnterRubeePyramid(s32 arg0, s32 arg1) {
     item_set(ITEM_6_HOURGLASS, 0);
-    core1_7090_freeSfxSource(1);
+    sfx_freeSfxSource(1);
     func_8031CC8C(arg0, 0x1607);
 }
 
@@ -295,7 +295,7 @@ void warp_gvEnterMatchingPyramid(s32 arg0, s32 arg1) {
 }
 
 void warp_gvEnterWaterPyramidUpper(s32 arg0, s32 arg1) {
-    core1_7090_freeSfxSource(0);
+    sfx_freeSfxSource(0);
     volatileFlag_set(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED, 1);
     func_8031CC8C(arg0, 0x1502);
 }
@@ -534,12 +534,12 @@ void func_8031DAA8(enum map_e arg0, s32 arg1) {
 void func_8031DAE0(s32 arg0, s32 arg1) {
     if (mapSpecificFlags_get(2) == 0) {
         volatileFlag_set(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED, 1);
-        core1_7090_freeSfxSource(0);
+        sfx_freeSfxSource(0);
         mapSpecificFlags_set(2, 1);
-        func_8025A6EC(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
+        comusic_playTrackWithVolumeOverride(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
         func_8028F918(1);
         timedFunc_set_2(1.8f, &func_8031DAA8, 0x1C, 1);
-        func_802D6924();
+        hideHourglassTimer();
     }
 }
 
@@ -591,7 +591,7 @@ void warp_bgsEnterMrVileLeftNostril(s32 arg0, s32 arg1) {
 }
 
 void warp_bgsEnterTanktupConditional(s32 arg0, s32 arg1) {
-    if (func_8038F570() != 0) {
+    if (chTanktup_isInState3() != 0) {
         func_8031CC8C(arg0, 0x1101);
     }
 }
@@ -1488,7 +1488,7 @@ void func_8031FB6C(s32 arg0, s32 arg1) {
     func_8031CC8C(arg0, 0x7104);
 }
 
-void func_8031FBA0(void) {
+void resetDebugFlags2(void) {
     bsStoredState_clear();
     func_8031FFAC();
     item_setItemsStartCounts();
@@ -1496,10 +1496,10 @@ void func_8031FBA0(void) {
     honeycombscore_clear();
     mumboscore_clear();
     volatileFlag_clear();
-    func_802D6344();
+    resetMapTransition();
 }
 
-void func_8031FBF8(void) {
+void resetDebugFlags(void) {
     mumboscore_debug();
     honeycombscore_debug();
     jiggyscore_debug();

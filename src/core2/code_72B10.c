@@ -5,7 +5,7 @@
 f32 sfx_randf2(f32, f32);
 
 /* .bss */
-vector(struct4Es) *D_803810A0;
+bk_vector(struct4Es) *D_803810A0;
 
 /* public */
 void func_802F9D38(s32 arg0);
@@ -57,7 +57,7 @@ int func_802F9C0C(s32 arg0){
     return (ptr->unk0)? 1 : 0;
 }
 
-void func_802F9C48(void){
+void freeAllStruct4Es(void){
     struct4Es *iPtr;
     struct4Es *startPtr;
     struct4Es *endPtr;
@@ -71,10 +71,10 @@ void func_802F9C48(void){
     vector_free(D_803810A0);
 }
 
-void func_802F9CD8(void){
+void initializeStruct4Es(void){
     int i;
     struct4Es *iPtr;
-    D_803810A0 = (vector(struct4Es) *) vector_new(sizeof(struct4Es), 0x10);
+    D_803810A0 = (bk_vector(struct4Es) *) vector_new(sizeof(struct4Es), 0x10);
     for(i = 0; i< 0x10; i++){
         iPtr = vector_pushBackNew(&D_803810A0);
         iPtr->unk0 = 0;
@@ -177,7 +177,7 @@ void func_802FA0B0(s32 arg0, s32 arg1){
     }
 }
 
-void func_802FA0F8(void){
+void releaseFontTextures(void){
     f32 tick;
     struct4Es *startPtr;
     struct4Es *endPtr;
@@ -244,11 +244,11 @@ void func_802FA0F8(void){
     }//L802FA4B4  
 }
 
-void func_802FA4E0(void){
+void initializeGameSettings(void){
     D_803810A0 = vector_defrag(D_803810A0);
 }
 
-void func_802FA508(void){
+void initializeGameTimers(void){
     struct4Es *startPtr;
     struct4Es *endPtr;
     struct4Es *iPtr;

@@ -44,12 +44,12 @@ enum mumbotoken_e func_802E0A90(Actor *this){
     pos[0] = (s32)this->position[0];
     pos[1] = (s32)this->position[1];
     pos[2] = (s32)this->position[2];
-    id = func_80307164(pos);
+    id = findStructInArrayD4WithRadius(pos);
     if(id < 0){
         return 0;
     }
     else{
-        return func_80306DBC(id) - 199;
+        return getStructArrayD4Index(id) - 199;
     }
 }
 

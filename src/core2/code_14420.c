@@ -190,7 +190,7 @@ f32 func_8029B3B0(f32 arg0) {
     if (player_isOnDangerousGround()) {
         return arg0 * 0.2;
     }
-    if (func_8028B120()) {
+    if (playerutils_noop()) {
         return arg0 * 0.2;
     }
     return arg0;
@@ -203,7 +203,7 @@ f32 func_8029B41C(void){
 
     player_getPosition(sp2C);
     viewport_getPosition_vec3f(sp20);
-    func_80257F18(sp2C, sp20, &sp1C);
+    ml_vec3f_yaw_between(sp2C, sp20, &sp1C);
     return sp1C;
 }
 
@@ -270,27 +270,27 @@ f32 func_8029B56C(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 
 void func_8029B5EC(void){
     func_802DC560(0, 0);
-    func_802E412C(1, 0);
-    func_802E4078(MAP_1F_CS_START_RAREWARE, 0, 1);
+    game_setTransitionWithArgs(1, 0);
+    game_setMapWithTransition(MAP_1F_CS_START_RAREWARE, 0, 1);
 }
 
 void func_8029B62C(void){
     if(item_empty(ITEM_16_LIFE)){
         if(!fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE) || fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE)){
-            func_8025A430(-1, 0x7D0, 3);
-            func_8025A2B0();
+            comusic_fadeAllTracksWithArgs(-1, 0x7D0, 3);
+            comusic_clearSecondaryTrack();
             func_802DC528(0, 0);
-            func_80324C58();
+            clearTimedFunctionQueue();
             timedFunc_set_0(5.0f, func_8029B5EC);
         }
         else{
-            func_802E412C(1, 0);
-            func_802E4078(MAP_83_CS_GAME_OVER_MACHINE_ROOM, 0, 1);
+            game_setTransitionWithArgs(1, 0);
+            game_setMapWithTransition(MAP_83_CS_GAME_OVER_MACHINE_ROOM, 0, 1);
 
         }
     }
     else{
-        func_802E4048(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        game_setMapAndTransition(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
     }
 }
 
@@ -299,7 +299,7 @@ void func_8029B6F0(void){
         func_8029B62C();
     }
     else{
-        func_802E4078(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        game_setMapWithTransition(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
     }
 }
 
@@ -602,7 +602,7 @@ void func_8029C0D0(void) {
     if (func_80294574()) {
         _player_getPosition(sp3C);
         sp3C[1] = sp34 = func_80294500();
-        p_ctrl = func_802F4094(sp3C, 35.0f);
+        p_ctrl = createBubbleParticleEmitter(sp3C, 35.0f);
         fxRipple_802F3554(3, sp3C);
         particleEmitter_setParticleVelocityRange(p_ctrl, -350.0f, 300.0f, -350.0f, 350.0f, 500.0f, 350.0f);
         particleEmitter_emitN(p_ctrl, 0xA);
@@ -663,7 +663,7 @@ void func_8029C3E8(f32 arg0, f32 arg1) {
     _player_getPosition(sp30);
     sp28 = ml_map_f(baphysics_get_horizontal_velocity(), 0.0f, 1000.0f, arg0, arg1);
     sp2C = player_getYaw();
-    func_802589E4(sp3C, sp2C, sp28);
+    ml_vec3f_set_yaw_length(sp3C, sp2C, sp28);
     sp3C[1] = 0.0f;
     sp30[0] += sp3C[0];\
     sp30[1] += sp3C[1];\
@@ -687,7 +687,7 @@ void func_8029C4E4(bool arg0) {
         }
         sp3C[1] = func_80294500();
         sp38 = yaw_get();
-        sp34 = func_802F4094(sp3C, 8.0f);
+        sp34 = createBubbleParticleEmitter(sp3C, 8.0f);
         particleEmitter_setSphericalParticleVelocityRange(sp34, -140.0f, sp38 - 35.0f, 200.0f, -120.0f, sp38 + 35.0f, 250.0f);
         particleEmitter_emitN(sp34, 3);
         particleEmitter_setSphericalParticleVelocityRange(sp34, -100.0f, sp38 - 35.0f, 300.0f, -90.0f, sp38 + 35.0f, 400.0f);
@@ -819,10 +819,10 @@ void func_8029C848(AnimCtrl *arg0) {
 }
 
 void func_8029C984(void){
-    func_8025AB00();
-    func_8025A2FC(0, 4000);
+    comusic_stopMainTrackById();
+    comusic_fadeAllTracks(0, 4000);
     comusic_playTrack(COMUSIC_1A_DEATH);
-    core1_ce60_incOrDecCounter(FALSE);
+    map_worthlessCounter(FALSE);
 }
 
 s32 func_8029C9C0(s32 arg0){
@@ -883,22 +883,22 @@ void func_8029CB84(void){
 }
 
 void func_8029CBC4(void){
-    func_8025A55C(-1, 4000, 0xc);
-    core1_ce60_incOrDecCounter(TRUE);
+    comusic_updateTrackWithArgs(-1, 4000, 0xc);
+    map_worthlessCounter(TRUE);
 }
 
 void func_8029CBF4(void){
     if(item_getCount(ITEM_E_JIGGY) == 10){
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
-            timedFunc_set_3(4.1f, (GenFunction_3)func_802E4078, MAP_95_CS_END_ALL_100, 0, 1);
+            timedFunc_set_3(4.1f, (GenFunction_3)game_setMapWithTransition, MAP_95_CS_END_ALL_100, 0, 1);
         }//L8029CC58
 
         timedFunc_set_0(4.0f, func_8029CBC4);
-        func_8025A6EC(COMUSIC_42_NOTEDOOR_OPENING_FANFARE, -1);
+        comusic_playTrackWithVolumeOverride(COMUSIC_42_NOTEDOOR_OPENING_FANFARE, -1);
     }//L8029CC7C
     else{
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
-            func_802E4078(MAP_95_CS_END_ALL_100, 0, 1);
+            game_setMapWithTransition(MAP_95_CS_END_ALL_100, 0, 1);
         }
         func_8029CBC4();
     }
@@ -919,9 +919,9 @@ void func_8029CCC4(void){
     if(jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
         func_8028F918(2);
     }
-    core1_ce60_incOrDecCounter(FALSE);
-    func_8025A55C(0, 4000, 0xC);
-    func_8025A6EC(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
+    map_worthlessCounter(FALSE);
+    comusic_updateTrackWithArgs(0, 4000, 0xC);
+    comusic_playTrackWithVolumeOverride(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
     timedFunc_set_0(4.0f, func_8029CBF4);
 }
 

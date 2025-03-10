@@ -462,7 +462,7 @@ CodeAD110Callback sRadiusTriggers[] ={
 };
 
 /* .bss */
-vector(Struct_core2_AD110_0) *D_803835C0;
+bk_vector(Struct_core2_AD110_0) *D_803835C0;
 
 /* .code */
 bool func_803340A0(f32 arg0[3], f32 arg1[3], f32 arg2) {

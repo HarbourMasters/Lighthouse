@@ -1,6 +1,10 @@
 #ifndef __BANJO_KAZOOIE_VERSION_H__
 #define __BANJO_KAZOOIE_VERSION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //These values of `VERSION` match the values defined via the Makefile
 #define VERSION_USA_1_0 0
 #define VERSION_PAL     1
@@ -45,6 +49,10 @@
 #define FRAMERATE 50
 #else
 #define FRAMERATE 60
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // __BANJO_KAZOOIE_VERSION_H__

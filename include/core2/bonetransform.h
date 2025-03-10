@@ -1,6 +1,12 @@
 #ifndef _BONE_TRANSFORMATION_H_
 #define _BONE_TRANSFORMATION_H_
+
 #include <ultratypes.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct {
     f32 unk0[4];
@@ -12,4 +18,10 @@ typedef struct bone_transform_list_s{
     BoneTransform *ptr;
     s32 count;
 }BoneTransformList;
+
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -43,7 +43,7 @@ void __chXmasTree_80386F3C(void){
     levelSpecificFlags_set(LEVEL_FLAG_29_FP_UNKNOWN, TRUE);
     func_803228D8();
     volatileFlag_set(VOLATILE_FLAG_E, 1);
-    func_802E4078(MAP_53_FP_CHRISTMAS_TREE, 1, 0);
+    game_setMapWithTransition(MAP_53_FP_CHRISTMAS_TREE, 1, 0);
 }
 
 void __chXmasTree_80386F84(Actor * this){
@@ -98,8 +98,8 @@ void chXmasTree_update(Actor *this){
             func_8030DD14(this->unk44_31, 3);
             sfxsource_setSampleRate(this->unk44_31, 28000);
         }
-        __spawnQueue_add_0(__chXmasTree_spawnSwitch);
-        __spawnQueue_add_1((GenFunction_1)__chXmasTree_spawnStar, reinterpret_cast(s32, this->marker));
+        spawnQueue_add_0(__chXmasTree_spawnSwitch);
+        spawnQueue_add_1((GenFunction_1)__chXmasTree_spawnStar, reinterpret_cast(s32, this->marker));
         if(fileProgressFlag_get(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME)){
             __chXmasTree_80386F84(this);
             mapSpecificFlags_set(2, FALSE);
@@ -126,7 +126,7 @@ void chXmasTree_update(Actor *this){
 
             subaddie_set_state(this, 3);
             this->lifetime_value = 2.0f;
-            func_8025A6EC(COMUSIC_61_XMAS_TREE_LIGHTS_UP, 28000);
+            comusic_playTrackWithVolumeOverride(COMUSIC_61_XMAS_TREE_LIGHTS_UP, 28000);
             func_802BAFE4(0x1A);
             gcdialog_showText(0xC14, 0, NULL, NULL, NULL, NULL);
             break;
@@ -168,7 +168,7 @@ void chXmasTree_update(Actor *this){
                     sfxsource_freeSfxsourceByIndex(tmp_a0);
                     this->unk44_31 = 0;
                 }
-                func_80324E38(0.0f, 3);
+                setCameraModeAtTime(0.0f, 3);
                 timedFunc_set_0(0.5f, __chXmasTree_80386F3C);
             }
             else{//L80387470
@@ -178,7 +178,7 @@ void chXmasTree_update(Actor *this){
                     this->lifetime_value = 0.1f;
                     if(!maSlalom_isActive()){
                         if(!mapSpecificFlags_get(9) || mapSpecificFlags_get(1)){
-                            func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+                            comusic_playTrackWithVolumeOverride(COMUSIC_3C_MINIGAME_LOSS, 28000);
                             func_802BAFE4(0x1a);
                             this->lifetime_value = 2.0f;
                         }

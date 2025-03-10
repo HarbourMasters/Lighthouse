@@ -71,14 +71,14 @@ void func_80349FB0(DemoInput *input_ptr, u32 size, int arg2){
     D_803860D8 = 0;
     if(input_ptr);
 
-    func_8030AFD8(0);
-    func_80321854();
-    func_8031FBF8();
-    func_8031FBA0();
-    func_803216D0(map_get());
-    func_8030AFA0(map_get());
+    setAudioMode(0);
+    initializeGameMode();
+    resetDebugFlags();
+    resetDebugFlags2();
+    loadMapData(map_get());
+    finalizeAudioSettings(map_get());
     volatileFlag_set(VOLATILE_FLAG_C4_WOZZA_HIDE_IN_SNS_PARADE, 1);
-    func_8024F224();
+    pfsManager_resetControllerData();
     rand_reset();
     globalTimer_reset();
 }//*/
@@ -92,7 +92,7 @@ void demo_load(enum map_e map, s32 demo_id){
     if(D_803860D4)
         demo_free();
     D_803860D4 = assetcache_get(0x504 + map_getLevel(map) + demo_id*0xD);
-    func_80349FB0(D_803860D4->inputs, func_8033B678() - sizeof(DemoFileHeader), 0);
+    func_80349FB0(D_803860D4->inputs, assetCache_releaseTexture() - sizeof(DemoFileHeader), 0);
 }
 
 void demo_free(void){

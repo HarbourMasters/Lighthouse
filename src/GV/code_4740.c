@@ -91,8 +91,8 @@ void func_8038ADFC(f32 pos[3], s32 cnt){
     particleEmitter_setPosition(pCtrl, pos);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_803910D4);
     particleEmitter_setAngularVelocityRange(pCtrl, -500.0f, -500.0f, -500.0f, 500.0f, 500.0f, 500.0f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.6f);
-    particleEmitter_func_802EFA18(pCtrl, 2);
+    particleEmitter_setBounceFactor(pCtrl, 0.6f);
+    particleEmitter_setCollisionCount(pCtrl, 2);
     particleEmitter_setStartingScaleRange(pCtrl, 1.0f, 1.0f);
     particleEmitter_setDrawMode(pCtrl, 2);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
@@ -197,7 +197,7 @@ void func_8038B124(Actor *this){
                 func_8038ABD8(this->position, 8);
             }
             else{//L8038B3E0
-                this->yaw_ideal = func_80257204(this->position_x, this->position_z, this->velocity_x, this->velocity_z);
+                this->yaw_ideal = ml_angle_between_points_2D(this->position_x, this->position_z, this->velocity_x, this->velocity_z);
                 func_80328FB0(this, 18.0f);
                 this->actor_specific_1_f = 18.0f;
                 func_80329030(this, 0);

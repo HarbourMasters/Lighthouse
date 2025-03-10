@@ -34,7 +34,7 @@ CameraNodeType1 *cameraNodeType1_init() {
     CameraNodeType1 *this;
     f32 sp20[3];
 
-    this = (CameraNodeType1 *)malloc(sizeof(CameraNodeType1));
+    this = (CameraNodeType1 *)heap_malloc(sizeof(CameraNodeType1));
     ml_vec3f_clear(sp20);
     __cameraNodeType1_setPosition(this, sp20);
     __cameraNodeType1_func_802BA808(this, sp20);
@@ -47,7 +47,7 @@ CameraNodeType1 *cameraNodeType1_init() {
 }
 
 void cameraNodeType1_free(CameraNodeType1 *this) {
-    free(this);
+    bk_free(this);
 }
 
 void cameraNodeType1_getPosition(CameraNodeType1 *this, f32 position[3]) {

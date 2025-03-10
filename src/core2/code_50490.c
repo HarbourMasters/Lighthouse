@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void spawnParticleEffect(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_802EE5E8(void *);
 
 typedef struct{
@@ -61,7 +61,7 @@ Actor *func_802D7484(s32 position[3], s32 yaw, ActorInfo *arg2, u32 arg3) {
 
     sp3C = func_802EE5E0(D_80367AA0);
     sp34 = actor_new(position, yaw, arg2, arg3);
-    func_802EE6CC(sp34->position, D_80367AA4, D_80367A90, 0, D_80367A80, D_80367A84, D_80367A88, D_80367A8C, D_80367AA0);
+    spawnParticleEffect(sp34->position, D_80367AA4, D_80367A90, 0, D_80367A80, D_80367A84, D_80367A88, D_80367A8C, D_80367AA0);
     local = (ActorLocal_core2_50490 *)&sp34->local;
     local->unk0 = sp3C;
     sp34->marker->collidable = FALSE;

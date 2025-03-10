@@ -55,10 +55,10 @@ void RBB_func_80387960(f32 arg0){
     sp24[2] = -40.0f;
     
     if(temp_v0 = func_8034C528(0x19e)){
-        func_8034DDF0(temp_v0, sp34, sp24, arg0, 1);
+        collisionTri_isHitFromAboveByMarker(temp_v0, sp34, sp24, arg0, 1);
     }
     if(temp_v0 = func_8034C528(0x19f)){
-        func_8034DDF0(temp_v0, sp34, sp24, arg0, 1);
+        collisionTri_isHitFromAboveByMarker(temp_v0, sp34, sp24, arg0, 1);
     }
 }
 
@@ -69,7 +69,7 @@ void func_803879F0(void){
     if(temp_v0){
         TUPLE_ASSIGN(sp30, 0.0f, 0.0f, 0.0f);
         TUPLE_ASSIGN(sp24, 0.0f, -1000.0f, 0.0f);
-        func_8034DC08(temp_v0, sp30, sp24, 1.5f, 1);
+        collisionTri_copyData(temp_v0, sp30, sp24, 1.5f, 1);
     }
 }
 
@@ -80,7 +80,7 @@ void func_80387A54(void){
     if(temp_v0){
         TUPLE_ASSIGN(sp30, 0.0f, -1000.0f, 0.0f);
         TUPLE_ASSIGN(sp24, 0.0f, -2000.0f, 0.0f);
-        func_8034DDF0(temp_v0, sp30, sp24, 1.0f, 1);
+        collisionTri_isHitFromAboveByMarker(temp_v0, sp30, sp24, 1.0f, 1);
     }
 }
 
@@ -91,7 +91,7 @@ void func_80387AC0(void){
     if(temp_v0){
         TUPLE_ASSIGN(sp30, 0.0f, 0.0f, 0.0f);
         TUPLE_ASSIGN(sp24, 0.0f, -2000.0f, 0.0f);
-        func_8034DDF0(temp_v0, sp30, sp24, 0.0f, 1);
+        collisionTri_isHitFromAboveByMarker(temp_v0, sp30, sp24, 0.0f, 1);
     }
 }
 
@@ -102,7 +102,7 @@ void func_80387B24(void){
     if(temp_v0){
         TUPLE_ASSIGN(sp30, 0.0f, 0.0f, 0.0f);
         TUPLE_ASSIGN(sp24, 0.0f, -500.0f, 0.0f);
-        func_8034DDF0(temp_v0, sp30, sp24, 0.1f, 1);
+        collisionTri_isHitFromAboveByMarker(temp_v0, sp30, sp24, 0.1f, 1);
     }
 }
 
@@ -149,8 +149,8 @@ void func_80387D80(void){
 
 void func_80387E20(void){
     ParticleEmitter *actor = partEmitMgr_newEmitter(0x19);
-    particleEmitter_func_802EF9F8(actor, 0.6f);
-    particleEmitter_func_802EFA18(actor, 3);
+    particleEmitter_setBounceFactor(actor, 0.6f);
+    particleEmitter_setCollisionCount(actor, 3);
     particleEmitter_setModel(actor, 0x427);
     particleEmitter_setStartingScaleRange(actor, 0.05f, 0.4f);
     particleEmitter_setAngularVelocityRange(actor, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
@@ -165,7 +165,7 @@ void RBB_func_80387F18(ActorMarker *marker, s32 arg1){
 }
 
 void RBB_func_80387F44(void){
-    baMotor_80250E94(0.5f, 1.0f, 1.5f, 0.0f, 1.0f, 1.5f);
+    baMotor_scheduleRumblePattern(0.5f, 1.0f, 1.5f, 0.0f, 1.0f, 1.5f);
 }
 
 void func_80387F88(ActorMarker *marker){
@@ -187,7 +187,7 @@ void func_80387F88(ActorMarker *marker){
     timed_playSfx(2.0f, SFX_1A_BIG_THINGS_FALL_OVER, 0.8f, 22000);
     timed_playSfx(3.0f, SFX_1A_BIG_THINGS_FALL_OVER, 0.6f, 22000);
     timed_exitStaticCamera(4.0f);
-    func_80324E38(4.0f, 0);
+    setCameraModeAtTime(4.0f, 0);
     timedFunc_set_2(4.0f, (GenFunction_2) RBB_func_80387F18, (s32) actor->marker, 3);
 }
 
@@ -206,8 +206,8 @@ void func_803881E8(Actor *this, s32 arg1){
     if(this->state == 2){
         RBB_func_80387960(0.05f);
         timedFunc_set_2(0.05f, (GenFunction_2)func_80387BEC, 0x19f, 0x1f4);
-        timedFunc_set_2(0.1f, (GenFunction_2)func_8025A6EC, COMUSIC_2B_DING_B, 28000);
-        func_80324E38(0.2f, 3);
+        timedFunc_set_2(0.1f, (GenFunction_2)comusic_playTrackWithVolumeOverride, COMUSIC_2B_DING_B, 28000);
+        setCameraModeAtTime(0.2f, 3);
         timed_setStaticCameraToNode(1.1f, 7);
         timedFunc_set_1(1.6f, (GenFunction_1)func_80388154, (s32)this->marker);
         levelSpecificFlags_set(LEVEL_FLAG_2D_RBB_UNKNOWN, TRUE);

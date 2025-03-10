@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-extern void func_802EFF9C(ParticleEmitter *, f32);
+extern void particleEmitter_setWaveLength(ParticleEmitter *, f32);
 
 /* .data */
 s32 D_80368860[] = {
@@ -59,14 +59,14 @@ void func_802EDF40(f32 pos[3], s32 arg1, s32 cnt, f32 arg3, f32 arg4, f32 arg5, 
         particleEmitter_setStartingScaleRange(pCtrl, arg3, arg3);
         particleEmitter_setFinalScaleRange(pCtrl, arg3, arg3);
         particleEmitter_setAngularVelocityRange(pCtrl, 0, 0, 0, 0, 0, 0);
-        func_802EFF9C(pCtrl, 0);
+        particleEmitter_setWaveLength(pCtrl, 0);
     }//L802EE0B4
     particleEmitter_setAccelerationRange(pCtrl, 
         0, -800.0f, 0,
         0, -800.0f, 0
     );
-    particleEmitter_func_802EF9F8(pCtrl, 0.6f);
-    particleEmitter_func_802EFA18(pCtrl, 0);
+    particleEmitter_setBounceFactor(pCtrl, 0.6f);
+    particleEmitter_setCollisionCount(pCtrl, 0);
     particleEmitter_setSpawnPositionRange(pCtrl, 
         -10.0f, -10.0f, -10.0f,
         10.0f, 10.0f, 10.0f

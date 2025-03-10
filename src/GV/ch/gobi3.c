@@ -45,7 +45,7 @@ void __chGobi3_runaway(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     timed_playSfx(2.6f, SFX_2E_BIGBUTT_RUNNING, 1.0f, 5000);
 
     timed_exitStaticCamera(3.0f);
-    func_80324E38(3.0f, 0);
+    setCameraModeAtTime(3.0f, 0);
 }
 
 void chGobi3_setState(Actor *this, s32 next_state){
@@ -62,7 +62,7 @@ void chGobi3_setState(Actor *this, s32 next_state){
     }
 
     if(next_state == 3){
-        func_80324E38(0.0f, 3);
+        setCameraModeAtTime(0.0f, 3);
         timedFunc_set_1(0.02f, (GenFunction_1)__chGobi3_func_80388270, (s32)this);
         timed_setStaticCameraToNode(0.1f, 0x12);
         timed_playSfx(0.2f, SFX_4C_LIP_SMACK, 1.0f, 32000);

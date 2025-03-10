@@ -91,11 +91,11 @@ void chhut_update(Actor *this) {
                 sfxsource_playHighPriority(SFX_5B_HEAVY_STUFF_FALLING);
                 subaddie_set_state(this, HUT_STATE_1_DAMAGED);
                 actor_playAnimationOnce(this);
-                __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (s32) this->marker);
+                spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (s32) this->marker);
                 bundle_setYaw(this->yaw);
 
                 if (mm_hut_smash_count < 5) {
-                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_803898D8[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
+                    spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_803898D8[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
                 else {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);

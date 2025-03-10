@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 typedef struct {
     u8 pad0[4];
     SkeletalAnimation  *unk4;
@@ -57,7 +60,7 @@ void func_80387A2C(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     timedFunc_set_0(3.5f, __chGobi2_spawnJIggy);
     timed_exitStaticCamera(6.0f);
     timedFunc_set_1(6.0f, (GenFunction_1) GV_func_80387A00, reinterpret_cast(s32, caller));
-    func_80324E38(6.0f, 0);
+    setCameraModeAtTime(6.0f, 0);
 }
 
 void chGobi2_setState(Actor *this, s32 next_state){
@@ -79,13 +82,13 @@ void chGobi2_setState(Actor *this, s32 next_state){
     if(next_state == 3){
         timedFunc_set_0(0.05f, GV_func_80387960);
         timed_playSfx(0.05f, SFX_84_GOBI_CRYING, 1.1f, 32000);
-        func_80324E38(0.051f, 1);
+        setCameraModeAtTime(0.051f, 1);
         timedFunc_set_1(0.06f, (GenFunction_1)func_803879D4, reinterpret_cast(s32, this->marker));
         timed_setStaticCameraToNode(0.86f, 0xb);
         timed_playSfx(0.8f, SFX_4B_GULPING, 0.8f, 28000);
         timed_playSfx(1.4f, SFX_4B_GULPING, 0.8f, 28000);
         timed_playSfx(2.0f, SFX_4B_GULPING, 0.8f, 28000);
-        func_80324DBC(3.0f, ASSET_A72_DIALOG_TRUNKER_HELPED, 0x2A, D_80390CEC, this->marker, func_80387A2C, NULL);
+        showDelayedTextAtTime(3.0f, ASSET_A72_DIALOG_TRUNKER_HELPED, 0x2A, D_80390CEC, this->marker, func_80387A2C, NULL);
     }//L80387C94
 
     if(next_state == 4){

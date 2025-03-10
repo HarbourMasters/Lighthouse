@@ -1,7 +1,17 @@
 #ifndef MUSIC_H
 #define MUSIC_H
+
 #include <ultra64.h>
+
+#ifdef LIGHTHOUSE_P
+#include "compat.h"
+#endif
+
 #include "structs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct struct_B_s{
     s32 unk0;
@@ -30,5 +40,9 @@ typedef struct music_track_meta_s{
     u16  unk4;
     // u8 pad6[2];
 }MusicTrackMeta;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

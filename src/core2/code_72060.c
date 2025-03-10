@@ -10,6 +10,8 @@ typedef struct {
 
 extern f32 vtxList_getGlobalNorm(BKVertexList *);
 
+bool func_802F989C(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
+
 struct4Cs *D_80369280 = NULL;
 
 s32 D_80369284 = 0;
@@ -62,9 +64,9 @@ void func_802F8FF0(void){
 
 void func_802F8FFC(void){
     if(D_80369280){
-        free(D_80369280->unk1C);
-        func_8033BD20(&D_80369288);
-        free(D_80369280);
+        bk_free(D_80369280->unk1C);
+        assetCache_releaseBKModelBin(&D_80369288);
+        bk_free(D_80369280);
         D_80369280 = NULL;
         D_80369284 = 0;
     }
@@ -72,11 +74,11 @@ void func_802F8FFC(void){
 
 void func_802F9054(void){
     func_802F8FFC();
-    D_80369280 = (struct4Cs *) malloc(sizeof(struct4Cs));
+    D_80369280 = (struct4Cs *) heap_malloc(sizeof(struct4Cs));
     D_80369280->unk0[0] = D_80369280->unk0[1] = D_80369280->unk0[2] = 0.0f;
     D_80369280->unkC[0] = D_80369280->unkC[1] = D_80369280->unkC[2] = 0.0f;
     D_8036928C = 0;
-    D_80369280->unk1C = malloc(100*sizeof(struct4Ds));
+    D_80369280->unk1C = heap_malloc(100*sizeof(struct4Ds));
     D_80369280->unk18 = 0;
     D_80369288 = assetcache_get(0x8a1); //2D_light
 }
@@ -94,7 +96,7 @@ void func_802F9114(void){
 void func_802F9134(s32 gfx){
     D_80369284 = D_80369284 - 1;
     if(gfx < D_80369284){
-        wmemcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
+        heap_copyWordMemory(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
     }
 }
 
@@ -199,11 +201,11 @@ void func_802F962C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         temp_s3 = (BKVertexList *)((s32)D_80369288 + D_80369288->vtx_list_offset_10);
         D_8038108C = vtxList_getGlobalNorm(temp_s3);
         func_80349AD0();
-        gSPSegment((*gfx)++, 1, osVirtualToPhysical(temp_s3 + 1));
-        gSPSegment((*gfx)++, 0x02, osVirtualToPhysical((void*)((s32)D_80369288 + D_80369288->texture_list_offset_8 + sizeof(BKTextureList) + sizeof(BKTextureHeader))));
+        __gSPSegment((*gfx)++, 1, osVirtualToPhysical(temp_s3 + 1));
+        __gSPSegment((*gfx)++, 0x02, osVirtualToPhysical((void*)((s32)D_80369288 + D_80369288->texture_list_offset_8 + sizeof(BKTextureList) + sizeof(BKTextureHeader))));
         gSPSetGeometryMode((*gfx)++, G_ZBUFFER);
-        gSPDisplayList((*gfx)++, D_80369290);
-        gSPSegment((*gfx)++, 0x03, osVirtualToPhysical(&D_803692B0));
+        __gSPDisplayList((*gfx)++, D_80369290);
+        __gSPSegment((*gfx)++, 0x03, osVirtualToPhysical(&D_803692B0));
 
         D_80381094 = (Struct_core2_72060_0 *)((s32)D_80369288 + D_80369288->geo_list_offset_4);
         
@@ -224,18 +226,18 @@ bool func_802F989C(Gfx **gfx, Mtx **mtx, f32 arg2[3]) {
     if( ((-17000.0f < D_80381070[0]) &&(D_80381070[0] < 17000.0f)) 
         && (arg2[1] > -200.0f)
         && ((-17000.0f < D_80381070[2]) && (D_80381070[2] < 17000.0f))
-        && viewport_func_8024DB50(arg2, D_8038108C)
+        && viewport_isPointWithinDistance(arg2, D_8038108C)
     ) {
-        func_80251B5C(D_80381070[0], D_80381070[1], D_80381070[2]);
+        mlMtx_set_translation(D_80381070[0], D_80381070[1], D_80381070[2]);
         mlMtxApply(*mtx);
         mlMtx_apply_vec3f_restricted(&D_80381080, D_80381094->unkC);
-        func_80251B5C(D_80381080[0], D_80381080[1], D_80381080[2]);
+        mlMtx_set_translation(D_80381080[0], D_80381080[1], D_80381080[2]);
         mlMtx_rotate_yaw_deg(D_80381060[1]);
         mlMtx_rotate_pitch_deg(D_80381060[0]);
-        func_80252A38(-(D_80381094->unkC[0]), -(D_80381094->unkC[1]), -(D_80381094->unkC[2]));
+        mlMtx_translate_vec3f(-(D_80381094->unkC[0]), -(D_80381094->unkC[1]), -(D_80381094->unkC[2]));
         mlMtxApply(*mtx);
         gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPDisplayList((*gfx)++, osVirtualToPhysical(D_80381090));
+        __gSPDisplayList((*gfx)++, osVirtualToPhysical(D_80381090));
         gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
         return TRUE;
     }

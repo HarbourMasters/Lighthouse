@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80324CD8(f32);
+extern void executeFunction(f32);
 
 typedef struct {
     u8 pad0[4];
@@ -29,7 +29,7 @@ void func_8038F520(f32 arg0){
     static f32 D_803915F0[3] = {0.0f, 0.0f, 0.0f};
     Struct70s *tmp_v0 = func_8034C528(0x19A);
     if(tmp_v0 != NULL){
-        func_8034DDF0(&tmp_v0->type_6D, D_803915E4, D_803915F0, arg0, 1);
+        collisionTri_isHitFromAboveByMarker(&tmp_v0->type_6D, D_803915E4, D_803915F0, arg0, 1);
     }
 }
 
@@ -38,7 +38,7 @@ void func_8038F56C(f32 arg0){
     static f32 D_80391608[3] = {460.0f, 1400.0f, 0.0f};
     Struct70s *tmp_v0 = func_8034C528(0x19A);
     if(tmp_v0 != NULL){
-        func_8034DDF0(&tmp_v0->type_6D, D_803915FC, D_80391608, arg0, 1);
+        collisionTri_isHitFromAboveByMarker(&tmp_v0->type_6D, D_803915FC, D_80391608, arg0, 1);
     }
 }
 
@@ -49,7 +49,7 @@ void __chMazeCtrl_markerSetState(ActorMarker *this_marker, s32 arg1){
 
 void __chMazeCtrl_8038F5E4(Actor *this){
     if(this->state == 2){
-        comusic_8025AB44(COMUSIC_26_GV_SANDYBUTT_DANGER, 0, 30000);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_26_GV_SANDYBUTT_DANGER, 0, 30000);
         item_set(ITEM_6_HOURGLASS, FALSE);
     }
 }
@@ -64,8 +64,8 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
     player_getPosition(plyr_pos);
     local->unk8 = 0.0f;
     if(next_state == 2){
-        func_8025A58C(0, 4000);
-        func_8025A6EC(COMUSIC_26_GV_SANDYBUTT_DANGER, 30000);
+        playMusicWithFade(0, 4000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_26_GV_SANDYBUTT_DANGER, 30000);
         item_set(ITEM_0_HOURGLASS_TIMER, 0xdd3);
         item_set(ITEM_6_HOURGLASS, TRUE);
         func_8038F520(1.0f);
@@ -73,12 +73,12 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
         FUNC_8030E624(SFX_3F6_RUBBING, 0.7f, 25000);
         FUNC_8030E624(SFX_3F6_RUBBING, 0.5f, 25000);
         if(1500.0f < plyr_pos[0]){
-            func_80324E38(0.0f, 3);
+            setCameraModeAtTime(0.0f, 3);
             timed_setStaticCameraToNode(0.0f, 8);
             timed_playSfx(1.0f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 32000);
-            func_80324CD8(1.2f);
+            executeFunction(1.2f);
             timed_exitStaticCamera(1.2f);
-            func_80324E38(1.2f, 0);
+            setCameraModeAtTime(1.2f, 0);
         }
         else{//L8038F754
             timed_playSfx(1.0f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 32000);
@@ -91,15 +91,15 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
     }//L8038F794
 
     if(this->state == 2){
-        func_8025A58C(-1, 400);
-        comusic_8025AB44(COMUSIC_26_GV_SANDYBUTT_DANGER, 0, 0x190);
-        func_8025AABC(COMUSIC_26_GV_SANDYBUTT_DANGER);
+        playMusicWithFade(-1, 400);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_26_GV_SANDYBUTT_DANGER, 0, 0x190);
+        comusic_stopTrackById(COMUSIC_26_GV_SANDYBUTT_DANGER);
         item_set(ITEM_6_HOURGLASS, FALSE);
     }
 
     if(next_state == 3){
-        func_80324E38(0.0f, 3);
-        timedFunc_set_2(0.0f, (GenFunction_2)func_8025A6EC, COMUSIC_3E_SANDYBUTT_FAILURE, 0x7FFF);
+        setCameraModeAtTime(0.0f, 3);
+        timedFunc_set_2(0.0f, (GenFunction_2)comusic_playTrackWithVolumeOverride, COMUSIC_3E_SANDYBUTT_FAILURE, 0x7FFF);
         timedFunc_set_2(1.0f, (GenFunction_2)__chMazeCtrl_markerSetState, reinterpret_cast(s32, this->marker), 6);
         timedFunc_set_2(2.0f, (GenFunction_2)__chMazeCtrl_markerSetState, reinterpret_cast(s32, this->marker), 4);
     }//L8038F850
@@ -112,7 +112,7 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
         func_8030E6D4(SFX_52_BANJO_YAH_OH);
         tmp_v0 = func_8034C528(400);
         if(tmp_v0){
-            func_8034DE60(&tmp_v0->type_6D, 0.0f, -1700.0f, 1.0f, 1);
+            collisionTri_isHitFromAboveByActor(&tmp_v0->type_6D, 0.0f, -1700.0f, 1.0f, 1);
         }
     }//L8038F8C4
 
@@ -132,7 +132,7 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
     if(next_state == 5){
         func_8038F56C(0.0f);
         if(++local->unk4 == 1)
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
         
         if(!levelSpecificFlags_get(LEVEL_FLAG_17_GV_UNKNOWN)){
             gcdialog_showText(ASSET_A83_DIALOG_SANDYBUTT_DONE, 4, NULL, NULL, NULL, NULL);
@@ -155,7 +155,7 @@ void chMazeCtrl_update(Actor *this){
         this->volatile_initialized = TRUE;
         this->marker->actorFreeFunc = __chMazeCtrl_8038F5E4;
         if(this->state == 2){
-            comusic_8025AB44(COMUSIC_26_GV_SANDYBUTT_DANGER, 30000, 30000);
+            comusic_fadeTrackWithArgsNoDelay(COMUSIC_26_GV_SANDYBUTT_DANGER, 30000, 30000);
             item_set(ITEM_6_HOURGLASS, TRUE);
         }
         else{

@@ -15,7 +15,7 @@ extern u8 crc_ROM_START[];
 
 // bk_boot segment crc next word
 s32 D_803727F0 = 0;
-s32 D_803727F4 = CORE2_CODE_CRC2;
+s32 previousControllerState = CORE2_CODE_CRC2;
 s32 D_803727F8 = 0;
 s32 D_803727FC = 0;
 
@@ -28,14 +28,17 @@ s32 D_80372808 = 0;
 
 // init bk_boot crc
 void func_80356580(void) {
+    #ifndef LIGHTHOUSE_P
     D_803727FC = (s32) boot_bk_boot_ROM_START;
     D_80372800 = 0;
     D_80372804 = -1;
     D_80372808 = (s32) (boot_bk_boot_ROM_END - boot_bk_boot_ROM_START);
+    #endif
 }
 
 // advance bk_boot crc by one word
 s32 func_803565BC(void) {
+    #ifndef LIGHTHOUSE_P
     u32 crc1;
     u32 crc2;
     u8 romBytes[4];
@@ -73,6 +76,9 @@ s32 func_803565BC(void) {
         }
     }
     return 1;
+    #else
+    return 1;
+    #endif
 }
 
 void func_80356714(void) {

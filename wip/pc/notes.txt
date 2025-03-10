@@ -1,0 +1,150 @@
+this doesn't always work, but when it does, it's good.
+
+spawnQueue_add_1((GenFunction_1)chMudHut_spawnExplosion, reinterpret_cast(s32, this->marker));
+=
+spawnQueue_add_1((GenFunction_1)chMudHut_spawnExplosion, (s32)this->marker);
+
+
+spawnQueue_add_2((GenFunction_2)chCroctus_spawnChildActor, reinterpret_cast(s32, marker), 0x1E);
+=
+spawnQueue_add_2((GenFunction_2)chCroctus_spawnChildActor, (s32)marker, 0x1E);
+
+-------------------------------------------------
+
+array invalid declaration fix:
+u8 sp24[3] = defaultColor1;
+=
+#ifndef LIGHTHOUSE_P
+u8 sp24[3] = defaultColor1;
+#else
+u8 sp24[3];
+sp24[0] = defaultColor1[0];
+sp24[1] = defaultColor1[1];
+sp24[2] = defaultColor1[2];
+#endif
+
+-------------------------------------------------
+for pesky header files
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+--------
+asset types:
+
+Animation, Model, Sprite_CI4, Sprite_RGBA32, Sprite_CI8, Sprite_I8, Midi, Sprite_RGBA16, Sprite_UNKNOWN(256), LevelSetup, Sprite_I4, DemoInput, Dialog, QuizQuestion, GruntyQuestion,
+
+--------------------------------------------------
+main.cpp template, i dont wanna delete it yet
+/*
+extern "C" {
+    void Main_SetVIMode(void);
+    void Main_Initialize(void);
+    void Main_ThreadEntry(void* arg);
+    void Lib_FillScreen(u8 setFill);
+    void Graphics_ThreadUpdate();
+    void AudioThread_CreateTask();
+}
+
+extern "C"
+void Graphics_PushFrame(Gfx* data) {
+    GameEngine::ProcessGfxCommands(data);
+}
+
+extern "C" void Timer_Update();
+
+void push_frame() {
+
+}
+
+#ifdef _WIN32
+int SDL_main(int argc, char **argv) {
+#else
+#if defined(__cplusplus) && defined(PLATFORM_IOS)
+extern "C"
+#endif
+int main(int argc, char *argv[]) {
+#endif
+    GameEngine::Create();
+    Main_SetVIMode();
+    Lib_FillScreen(1);
+    Main_Initialize();
+    Main_ThreadEntry(NULL);
+    while (WindowIsRunning()) {
+        push_frame();
+    }
+    GameEngine::Instance->Destroy();
+    return 0;
+} */
+
+class MyGame {
+  public:
+    bool Initialize() {
+
+        return true;
+    }
+
+    void Update() {
+        /* Graphics_ThreadUpdate();
+        GameEngine::StartAudioFrame();
+        GameEngine::Instance->StartFrame();
+        Timer_Update();
+        thread5_iteration();
+        GameEngine::EndAudioFrame(); */
+    }
+
+    void Render() {
+        // Retrieve window dimensions from your configuration or a public engine API
+        int width = 800;  // Replace with actual width
+        int height = 600; // Replace with actual height
+        // glViewport(0, 0, width, height);
+        // glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        //  Render your scene here...
+    }
+
+    void Shutdown() {
+        // Cleanup
+    }
+};
+
+// platform options `main` opening definition
+#ifdef _WIN32
+int SDL_main(int argc, char **argv) {
+#else
+#if defined(__cplusplus) && defined(PLATFORM_IOS)
+extern "C"
+#endif
+int main(int argc, char *argv[]) {
+#endif
+    MyGame game;
+    if (!game.Initialize()) {
+        fprintf(stderr, "Game initialization failed\n");
+        return -1;
+    }
+
+    // Here, instead of a global Ship loop, you might have to integrate with
+    // the engine's provided main loop or create your own loop.
+    bool running = true;
+    while (running) {
+        // You must hook in libultraship’s event handling if needed,
+        // for example via a custom event callback if the engine provides one.
+
+        game.Update();
+        game.Render();
+
+        // Swap buffers using libultraship or SDL (depends on your setup)
+        // For example:
+        // SDL_GL_SwapWindow(YourWindowPointer);
+    }
+
+    game.Shutdown();
+    return 0;
+}
+
+
+#endif

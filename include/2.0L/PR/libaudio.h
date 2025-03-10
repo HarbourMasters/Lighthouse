@@ -33,8 +33,18 @@
 extern "C" {
 #endif
 
+
+
+#ifdef LIGHTHOUSE_P
+#include <libultraship/libultra/types.h>
+#include <libultraship/libultra/mbi.h>
+#else
 #include <PR/ultratypes.h>
 #include <PR/mbi.h>
+#endif
+
+
+
     
 /***********************************************************************
  * misc defines

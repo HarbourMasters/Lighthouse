@@ -7,7 +7,7 @@
 extern void mlMtxRotatePYR(f32, f32, f32);
 
 typedef struct {
-    BKSprite *sprite_0;
+    BKSprite_s *sprite_0;
     f32 position[3];
     f32 rotation[3];
     f32 unk1C;
@@ -49,7 +49,7 @@ void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx){
             mlMtxIdent();
         }
         mlMtxRotatePYR(sp54->rotation[0], sp54->rotation[1], sp54->rotation[2]);
-        func_80252330(sp30[0], sp30[1], sp30[2]);
+        mlMtx_set_translation_vec3f(sp30[0], sp30[1], sp30[2]);
         mlMtxApply(*mtx);
         gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         func_803382E4(sp54->unk28_21);

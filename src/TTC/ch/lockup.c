@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void spawnParticleEffect(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 typedef struct {
     s32 closed_ticks_counter;
@@ -22,7 +22,7 @@ enum ch_lockup_states_e {
 
 /* .data */
 ActorAnimationInfo gChLockupAnimations[6] ={
-    {NULL, NULL},
+    {NULL, 0.0f},
     {ASSET_BC_ANIM_LOCKUP, 8000000.0f},
     {ASSET_BC_ANIM_LOCKUP, 4.0f},
     {ASSET_BC_ANIM_LOCKUP, 8000000.0f},
@@ -151,7 +151,7 @@ static void __chLockup_updateFunc(Actor *this){
                 __chLockup_close(this);
                 for(i = 5; i < 0xe; i++){
                     func_8034A174(this->marker->unk44, i, this->unk1C);
-                    func_802EE6CC(this->unk1C, sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
+                    spawnParticleEffect(this->unk1C, sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
                 }
             }
             break;

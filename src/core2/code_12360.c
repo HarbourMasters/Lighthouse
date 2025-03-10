@@ -86,9 +86,9 @@ void func_80299594(s32 arg0, f32 arg1){
     f32 sp20[3];
     func_80294480(sp2C);
     if(arg0){
-        func_8025901C(mlNormalizeAngle(yaw_get() + 180.0f), sp2C, sp20, arg1);
+        ml_vec3f_adjust_rotation(mlNormalizeAngle(yaw_get() + 180.0f), sp2C, sp20, arg1);
     } else {
-        func_8025901C(yaw_get(), sp2C, sp20, arg1);
+        ml_vec3f_adjust_rotation(yaw_get(), sp2C, sp20, arg1);
     }
     pitch_setIdeal(sp20[0]);
     roll_setIdeal(sp20[2]);

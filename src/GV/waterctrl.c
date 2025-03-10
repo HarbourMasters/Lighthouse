@@ -22,17 +22,17 @@ void __waterCtrl_setState(s32 arg0){
     void *tmp_v0;
     GV_D_80391B00.state = arg0;
     if(GV_D_80391B00.state == 2){
-        func_80324E38(0.0f, 3);
+        setCameraModeAtTime(0.0f, 3);
         timed_setStaticCameraToNode(0.0f, 0);
         timedFunc_set_0(3.0f, func_80390880);
         timed_setStaticCameraToNode(3.0f, 1);
-        func_80324E38(6.0f, 0);
+        setCameraModeAtTime(6.0f, 0);
         tmp_v0 = func_8034C528(400);
         if(tmp_v0){
             func_8030E760(SFX_3F6_RUBBING, 0.7f, 28000);
             func_8030E760(SFX_3F6_RUBBING, 0.9f, 29000);
             func_8030E760(SFX_3F6_RUBBING, 1.0f, 30000);
-            func_8034DE60(tmp_v0, 0.0f, 400.0f, 2.5f, 1);
+            collisionTri_isHitFromAboveByActor(tmp_v0, 0.0f, 400.0f, 2.5f, 1);
         }
     }
 
@@ -40,7 +40,7 @@ void __waterCtrl_setState(s32 arg0){
         levelSpecificFlags_set(LEVEL_FLAG_6_GV_UNKNOWN, TRUE);
         func_803228D8();
         volatileFlag_set(VOLATILE_FLAG_E, 1);
-        func_802E4078(MAP_12_GV_GOBIS_VALLEY, 0, 0);
+        game_setMapWithTransition(MAP_12_GV_GOBIS_VALLEY, 0, 0);
     }
 }
 
@@ -57,7 +57,7 @@ void gv_waterCtrl_init(void){
     if(jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)){
         tmp_v0 = func_8034C528(400);
         if(tmp_v0)
-            func_8034DE60(tmp_v0, 0.0f, 400.0f, 0.0f, 2);
+            collisionTri_isHitFromAboveByActor(tmp_v0, 0.0f, 400.0f, 0.0f, 2);
 
         tmp_v0_2 = func_8034C5AC(300);
         if(tmp_v0_2)

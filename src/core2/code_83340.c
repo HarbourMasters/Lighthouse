@@ -2,6 +2,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
 
 extern f32 func_8033A244(f32);
 
@@ -12,7 +14,7 @@ typedef struct{
 }struct_7AF80_0;
 
 typedef struct{
-    BKSprite *unk0;
+    BKSprite_s *unk0;
     BKSpriteDisplayData *unk4;
     s32 unk8;
     f32 unkC;
@@ -76,13 +78,13 @@ BKSpriteDisplayData *func_8030A4D4(s32 arg0)
 {
     
     if (((struct_7AF80_1 *)((s32)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk0 == 0){
-        ((struct_7AF80_1 *)((s32)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk0 = func_8033B6C4(arg0 + 0x572, &((struct_7AF80_1 *)((s32)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk4);
+        ((struct_7AF80_1 *)((s32)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk0 = assetCache_releaseSound(arg0 + 0x572, &((struct_7AF80_1 *)((s32)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk4);
     }
     D_80382394[arg0].unk8 = globalTimer_getTime();
     return D_80382394[arg0].unk4;
 }
 
-BKSprite *func_8030A55C(s32 arg0){
+BKSprite_s *func_8030A55C(s32 arg0){
     func_8030A4D4(arg0);
     return D_80382394[arg0].unk0;
 }
@@ -120,12 +122,12 @@ void func_8030A6B0(void){//clear
     }
     for(jPtr = D_80382394; jPtr < &D_80382394[0x168]; jPtr++){
         if(jPtr->unk0){
-            func_8033B338(&jPtr->unk0, &jPtr->unk4);
+            assetCache_releaseSprite(&jPtr->unk0, &jPtr->unk4);
         }
     }
-    free(D_80382390);
+    bk_free(D_80382390);
     D_80382390 = NULL;
-    free(D_80382394);
+    bk_free(D_80382394);
     D_80382394 = NULL;
 }
 
@@ -133,8 +135,8 @@ void func_8030A78C(void){//init
     struct_7AF80_0* iPtr;
     struct_7AF80_1* jPtr;
 
-    D_80382390 = (struct_7AF80_0 *)malloc(0x2A2 * sizeof(struct_7AF80_0));
-    D_80382394 = (struct_7AF80_1 *)malloc(0x168 * sizeof(struct_7AF80_1));
+    D_80382390 = (struct_7AF80_0 *)heap_malloc(0x2A2 * sizeof(struct_7AF80_0));
+    D_80382394 = (struct_7AF80_1 *)heap_malloc(0x168 * sizeof(struct_7AF80_1));
     D_8036B800 = 0;
     for(iPtr = D_80382390; iPtr < &D_80382390[0x2A2]; iPtr++){
         iPtr->unk0 = NULL;
@@ -154,13 +156,13 @@ void func_8030A850(s32 arg0) {
     struct_7AF80_0 *sp3C;
     struct_7AF80_1 *temp_a0_2;
 
-    temp_s3 = globalTimer_getTime() - func_80255B08(arg0);
+    temp_s3 = globalTimer_getTime() - heap_getBlockType(arg0);
     for(var_s0 = 0; (D_80382390 != NULL) && (var_s0 < ((arg0 == 1) ? 0x28 : 0x2A1)); var_s0++, D_8036B804 = (D_8036B804 >= 0x2A1)? 0: D_8036B804 + 1){
         sp3C = (struct_7AF80_0*)((u32)D_80382390 + sizeof(struct_7AF80_0)*D_8036B804);
         if ((sp3C->unk0 != 0) && ((sp3C->unk4 < temp_s3) || (arg0 == 3))){
             assetcache_release(sp3C->unk0);
             sp3C->unk0 = 0;
-            if( (arg0 != 1) && (func_80254BC4(1))){
+            if( (arg0 != 1) && (heap_stub_return_false(1))){
                 return;
             }
         }
@@ -169,8 +171,8 @@ void func_8030A850(s32 arg0) {
     for(var_s0 = 0; (D_80382394 != NULL) && (var_s0 < ((arg0 == 1) ? 0x28 : 0x167)); var_s0++, D_8036B808 = (D_8036B808 >= 0x167)? 0: D_8036B808 + 1){
         temp_a0_2 = (struct_7AF80_1*)((u32)D_80382394 + sizeof(struct_7AF80_1)*D_8036B808);
         if ((temp_a0_2->unk0 != 0) && ((temp_a0_2->unk8 < temp_s3) || (arg0 == 3))){
-            func_8033B338(&temp_a0_2->unk0, &temp_a0_2->unk4);
-            if( (arg0 != 1) && (func_80254BC4(1))){
+            assetCache_releaseSprite(&temp_a0_2->unk0, &temp_a0_2->unk4);
+            if( (arg0 != 1) && (heap_stub_return_false(1))){
                 return;
             }
         }
@@ -183,15 +185,15 @@ void func_8030AA6C(void) {
 
     D_80382394 = (struct_7AF80_1 *) defrag(D_80382394);
     D_80382390 = (struct_7AF80_0 *) defrag(D_80382390);
-    if (!func_802559A0() && !func_80255AE4() && D_80382390 != NULL) {
-        for(phi_s2 = 0x14; (phi_s2 != 0) && !func_80255AE4(); phi_s2--){
+    if (!heap_checkMemoryStatus() && !heap_isTempBlockSet() && D_80382390 != NULL) {
+        for(phi_s2 = 0x14; (phi_s2 != 0) && !heap_isTempBlockSet(); phi_s2--){
             D_8036B800++;
             if (D_8036B800 >= 0x2A2) {
                 D_8036B800 = 0;
             }
             temp_a0 = D_80382390[D_8036B800].unk0;
-            if (temp_a0 != NULL && (func_802546E4(temp_a0) < 0x2AF8)) {
-                D_80382390[D_8036B800].unk0 = func_80255888(D_80382390[D_8036B800].unk0);
+            if (temp_a0 != NULL && (heap_getBlockSize(temp_a0) < 0x2AF8)) {
+                D_80382390[D_8036B800].unk0 = heap_defrag_and_update_cache(D_80382390[D_8036B800].unk0);
             }
         }
     }
@@ -207,9 +209,9 @@ void func_8030ABA4(void) {
     for(phi_s0 = D_80382394; phi_s0 < D_80382394 + 360; phi_s0++){
         if (phi_s0->unk0 != NULL) {
             temp_t7 = phi_s0 - D_80382394;
-            func_8033B338(&phi_s0->unk0, &phi_s0->unk4);
+            assetCache_releaseSprite(&phi_s0->unk0, &phi_s0->unk4);
             phi_s2 = temp_t7 *sizeof(struct_7AF80_1);
-            *(BKSprite **)((s32)D_80382394 + phi_s2) = func_8033B6C4(temp_t7 + 0x572,  (BKSpriteDisplayData **)((s32)D_80382394 + phi_s2 + 4));
+            *(BKSprite_s **)((s32)D_80382394 + phi_s2) = assetCache_releaseSound(temp_t7 + 0x572,  (BKSpriteDisplayData **)((s32)D_80382394 + phi_s2 + 4));
         }
     }
     

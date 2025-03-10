@@ -11,8 +11,8 @@ ActorInfo D_80394D20 = { 0x29C, 0x3C9, 0x0, 0x0, NULL, func_80392B6C, actor_upda
 
 /* .code */
 void func_80392AB0(ActorMarker *marker, enum asset_e text_id, s32 arg2){
-    comusic_8025AB44(COMUSIC_A9_TOOTY, 0, 2000);
-    func_8025AABC(0xA9);
+    comusic_fadeTrackWithArgsNoDelay(COMUSIC_A9_TOOTY, 0, 2000);
+    comusic_stopTrackById(0xA9);
     gcparade_beginFFParade();
 }
 

@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 /* extern functions */
 extern void sfxsource_setSampleRate(u8, s32);
 
@@ -24,7 +27,7 @@ typedef struct {
 
 /* .code */
 void MMM_func_8038ABC0(s32 arg0) {
-    if (getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+    if (game_getMode() != GAME_MODE_7_ATTRACT_DEMO) {
         ability_setAllLearned(ability_getAllLearned() & ~arg0);
     }
 }

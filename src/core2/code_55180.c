@@ -32,7 +32,7 @@ void func_802DC110(f32 *position, enum asset_e sprite_id) {
     particleEmitter_setStartingFrameRange(pCtrl, 1, 6);
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_setDrawMode(pCtrl, PART_EMIT_NO_DEPTH);
-    func_802EFC28(pCtrl, &D_80368004);
+    particleEmitter_applySettingsAndEmit(pCtrl, &D_80368004);
 }
 
 bool func_802DC188(void) {
@@ -55,7 +55,7 @@ void func_802DC208(Actor *this) {
         actor_collisionOff(this);
         this->marker->propPtr->unk8_3 = TRUE;
     }
-    if( viewport_func_8024DB50(this->position, 50.0f) 
+    if( viewport_isPointWithinDistance(this->position, 50.0f) 
         && func_802DC188() 
         && !(globalTimer_getTime() & 0x1F) 
         && randf() < 0.1

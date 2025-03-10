@@ -5,12 +5,13 @@
 
 
 /* extern */
-extern void func_802D6310(f32, enum map_e, s32, s32, enum file_progress_e);
+extern void setMapTransitionWithDelayAndEffect(f32, enum map_e, s32, s32, enum file_progress_e);
 extern BKModel *mapModel_getModel(s32);
 
 extern u8 gCompletedBottleBonusGames[7];
 
 /* .h */
+
 static void __maCastle_resetSecretCheatCodeProgress(void);
 static u32 __maCastle_scrambleAddressForSecretCheatCode();
 
@@ -43,7 +44,9 @@ typedef struct
     s16 maxId;
 } BannedCheatCodeRange;
 
+bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor_tile);
 static s32 __maCastle_getNumberOfBannedCheatCodesEntered();
+bool __maCastle_isCurrentSecretCheatCodeCharacter0();
 
 /* .data */
 static s32 sSecretCheatCodeRelatedValue = NULL;
@@ -116,7 +119,7 @@ static LetterFloorTile sLetterFloorTiles[] = {
     {0x34, FLOOR_LETTER_H, 0, 0.0f}, 
     {0x36, FLOOR_LETTER_B, 0, 0.0f}, 
     {0x38, FLOOR_LETTER_K, 0, 0.0f}, 
-    {NULL, NULL, NULL, NULL}
+    {NULL, NULL, NULL, 0.0f}
 };
 
 static CheatCode sCheatCodes[0xD] = {
@@ -242,7 +245,7 @@ static void __maCastle_setLetterFloorTileState(LetterFloorTile *arg0, s32 arg1)
     arg0->timeDeltaSum = 0.0f;
     if ((arg1 == 1) && (temp_v0 != arg1))
     {
-        func_8025A6EC(COMUSIC_2C_BUZZER, 32000);
+        comusic_playTrackWithVolumeOverride(COMUSIC_2C_BUZZER, 32000);
     }
 }
 
@@ -414,7 +417,7 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                     }
                     if (cheatcode_ptr->code[cheatcode_ptr->codeCharacterIdx] == 0)
                     {
-                        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
+                        comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
 
                         if (is_in_ff_minigame)
                         {
@@ -468,7 +471,7 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                     }
                     else
                     {
-                        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                        comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 28000);
                     }
                 }
             }
@@ -494,9 +497,9 @@ static void __maCastle_resetCheatCodeProgress(void)
     }
 
     if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME))
-        strcpy(sCheatCodes[0].code, "j4663n86pink"); // EIOOZAKOJNAB
+        bk_strcpy(sCheatCodes[0].code, "j4663n86pink"); // EIOOZAKOJNAB
     else
-        strcpy(sCheatCodes[0].code, "knip68n3664j"); // BANJOKAZOOIE
+        bk_strcpy(sCheatCodes[0].code, "knip68n3664j"); // BANJOKAZOOIE
 
     __maCastle_resetSecretCheatCodeProgress();
 }
@@ -534,12 +537,12 @@ void maCastle_init(void)
         sp28 = func_8034C5AC(0x12C);
         if (levelSpecificFlags_get(LEVEL_FLAG_5_TTC_UNKNOWN)) {
             func_8034E71C(sp2C, -500, 10.0f);
-            func_80324E38(0.0f, 3);
+            setCameraModeAtTime(0.0f, 3);
             timed_setStaticCameraToNode(0.0f, 1);
             timed_exitStaticCamera(2.0f);
-            func_80324E38(2.0f, 0);
+            setCameraModeAtTime(2.0f, 0);
             func_803228D8();
-            timedFunc_set_3(2.0f, (GenFunction_3)func_802E4078, MAP_7_TTC_TREASURE_TROVE_COVE, 1, 0);
+            timedFunc_set_3(2.0f, (GenFunction_3)game_setMapWithTransition, MAP_7_TTC_TREASURE_TROVE_COVE, 1, 0);
         }
         else if (levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN) || volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
             func_8034E71C(sp2C, -500, 0.0f);
@@ -834,7 +837,7 @@ static void __maCastle_showUnlockedSnSCode(s32 secret_cheat_code_index, s32 code
 {
     if (codeId == sSecretsCheatCodes[secret_cheat_code_index].id)
     {
-        func_802D6310(1.0f, map_id, arg3, arg4, 0);
+        setMapTransitionWithDelayAndEffect(1.0f, map_id, arg3, arg4, 0);
     }
 }
 
@@ -1079,8 +1082,7 @@ static void __maCastle_checkIfBannedCheatCodeEntered(s32 secret_cheat_code_index
     __maCastle_resetSecretCheatCodeProgress();
 }
 
-static bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor_tile)
-{
+bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor_tile){
     SecretCheatCode *var_s0;
     SecretCheatCode *var_v0;
     s32 matched_secret_cheat_codes;
@@ -1180,12 +1182,12 @@ static bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor
     return TRUE;
 }
 
-static bool __maCastle_isCurrentSecretCheatCodeCharacter0()
-{
-    return *(u8 *)(sSecretsCheatCodes[0].codeCharacterIdx + (s32)sSecretsCheatCodes[0].code) == 0;
+bool __maCastle_isCurrentSecretCheatCodeCharacter0() {
+  return *(u8 *)(sSecretsCheatCodes[0].codeCharacterIdx +
+                 (s32)sSecretsCheatCodes[0].code) == 0;
 }
 
-bool maCastle_isSecretCheatCodeRelatedValueEqualToScrambledAddressValue()
-{
-    return __maCastle_scrambleAddressForSecretCheatCode() == sSecretCheatCodeRelatedValue;
+bool maCastle_isSecretCheatCodeRelatedValueEqualToScrambledAddressValue() {
+  return __maCastle_scrambleAddressForSecretCheatCode() ==
+         sSecretCheatCodeRelatedValue;
 }

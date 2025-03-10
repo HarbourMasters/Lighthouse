@@ -54,8 +54,8 @@ void func_8038BADC(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
 
 void func_8038BBC0(Actor *this) {
     if (this->unk38_0) {
-        comusic_8025AB44(COMUSIC_7A_BRENTILDA, 0, 10000);
-        func_8025AABC(COMUSIC_7A_BRENTILDA);
+        comusic_fadeTrackWithArgsNoDelay(COMUSIC_7A_BRENTILDA, 0, 10000);
+        comusic_stopTrackById(COMUSIC_7A_BRENTILDA);
         func_8032BB88(this, -1, 10000);
         this->unk38_0 = FALSE;
     }
@@ -143,7 +143,7 @@ void chBrentilda_update(Actor *this) {
                 sp74 = (sp74 + 0xC < 0xFF) ? sp74 + 0xC : 0xFF;
                 if (!this->has_met_before) {
                     comusic_playTrack(COMUSIC_81_ACTIVATING_BRENTILDA);
-                    func_80324D2C(1.0f, COMUSIC_81_ACTIVATING_BRENTILDA);
+                    stopTrackAtTime(1.0f, COMUSIC_81_ACTIVATING_BRENTILDA);
                     this->has_met_before = TRUE;
                     this->unk138_23 = FALSE;
                 }
@@ -155,7 +155,7 @@ void chBrentilda_update(Actor *this) {
                 sp74 = (sp74 - 0xC >= 0x41) ? sp74 - 0xC : 0x40;
                 if (!this->unk138_23) {
                     comusic_playTrack(COMUSIC_8B_DEACTIVATE_BRENTILDA);
-                    func_80324D2C(1.0f, COMUSIC_8B_DEACTIVATE_BRENTILDA);
+                    stopTrackAtTime(1.0f, COMUSIC_8B_DEACTIVATE_BRENTILDA);
                     this->unk138_23 = TRUE;
                     this->has_met_before = FALSE;
                 }
@@ -164,13 +164,13 @@ void chBrentilda_update(Actor *this) {
         actor_setOpacity(this, sp74);
         if (!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) {
             if ((phi_f2 < 600.0) && !this->unk38_0) {
-                comusic_8025AB44(COMUSIC_7A_BRENTILDA, -1, 0x1F4);
+                comusic_fadeTrackWithArgsNoDelay(COMUSIC_7A_BRENTILDA, -1, 0x1F4);
                 func_8032BB88(this, 0, 0x1F4);
                 this->unk38_0 = TRUE;
             }
             if ((600.0 < phi_f2) && this->unk38_0) {
-                comusic_8025AB44(COMUSIC_7A_BRENTILDA, 0, 0x1F4);
-                func_8025AABC(0x7A);
+                comusic_fadeTrackWithArgsNoDelay(COMUSIC_7A_BRENTILDA, 0, 0x1F4);
+                comusic_stopTrackById(0x7A);
                 func_8032BB88(this, -1, 0x1F4);
                 this->unk38_0 = FALSE;
             }

@@ -2,10 +2,10 @@
 #include "functions.h"
 #include "variables.h"
 
-extern bool func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
-extern bool func_80320C94(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
+extern bool findCollisionTriInSphereWithFlags(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
+extern bool findCollisionTriWithOffsetAndFlags(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
 extern f32 func_8033229C(ActorMarker *);
-extern bool func_80309D58(f32[3], s32);
+extern bool checkCollisionWithModel(f32[3], s32);
 
 typedef struct {
     s16 flags;
@@ -202,7 +202,7 @@ bool func_802C939C(Actor *actor, f32 arg1[3], f32 arg2[3], f32 arg3[3], bool arg
 
     if (bundle->flags & 0x80) {
         if (actor->unk10_25 != 0) {
-            if (func_80307258(arg2, actor->unk10_25 - 1, actor->unk10_18 - 1) == -1) {
+            if (findStructInArrayBCWithRadius(arg2, actor->unk10_25 - 1, actor->unk10_18 - 1) == -1) {
                 ml_vec3f_diff_copy(arg3, arg2, arg1);
                 ml_vec3f_normalize(arg3);
                 ml_vec3f_copy(arg2, arg1);
@@ -211,7 +211,7 @@ bool func_802C939C(Actor *actor, f32 arg1[3], f32 arg2[3], f32 arg3[3], bool arg
         }
         else {
             if ((actor->unk10_18 != 0)){
-                if(func_80309D58(arg2, actor->unk10_18) == 0) {
+                if(checkCollisionWithModel(arg2, actor->unk10_18) == 0) {
                     ml_vec3f_diff_copy(arg3, arg2, arg1);
                     ml_vec3f_normalize(arg3);
                     ml_vec3f_copy(arg2, arg1);
@@ -226,9 +226,9 @@ bool func_802C939C(Actor *actor, f32 arg1[3], f32 arg2[3], f32 arg3[3], bool arg
     arg1[1] += sp60;
     arg2[1] += sp60;
     if (arg4) {
-        var_v1 = func_80309DBC(arg1, arg2, sp60, arg3, 3, actor->unk154);
+        var_v1 = findCollisionTriInSphereWithFlags(arg1, arg2, sp60, arg3, 3, actor->unk154);
         if (!var_v1) {
-            var_v1 = func_80309B48(arg1, arg2, arg3, actor->unk154);
+            var_v1 = findCollisionTriAlongPath3(arg1, arg2, arg3, actor->unk154);
             if (var_v1) {
                 arg2[0] += arg3[0];
                 arg2[1] += arg3[1];
@@ -236,9 +236,9 @@ bool func_802C939C(Actor *actor, f32 arg1[3], f32 arg2[3], f32 arg3[3], bool arg
             }
         }
     } else {
-        var_v1 = func_80320C94(arg1, arg2, sp60, arg3, 3, actor->unk154);
+        var_v1 = findCollisionTriWithOffsetAndFlags(arg1, arg2, sp60, arg3, 3, actor->unk154);
         if (!var_v1) {
-            var_v1 = func_80320B98(arg1, arg2, arg3, actor->unk154);
+            var_v1 = findCollisionTriAlongPathWithFlags(arg1, arg2, arg3, actor->unk154);
             if (var_v1) {
                 arg2[0] += arg3[0];
                 arg2[1] += arg3[1];

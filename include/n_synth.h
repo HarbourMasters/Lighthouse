@@ -1,9 +1,13 @@
 #ifndef __N_AUDIO_INT__
 #define __N_AUDIO_INT__
+
 #include <ultra64.h>
-#include <n_libaudio.h>
+
 #include "synthInternals.h"
-#include <n_abi.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SAMPLES               184
 #define SAMPLE184(delta)      (((delta) + (SAMPLES / 2)) / SAMPLES) * SAMPLES
@@ -158,4 +162,10 @@ ALMicroTime     _n_samplesToTime(s32 samples);
 int n_alEnvmixerParam(N_PVoice *v, s32 paramId, void* param);
 //n_alLoadParam
 int n_alLoadParam(N_PVoice *v, s32 paramId, void* param);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

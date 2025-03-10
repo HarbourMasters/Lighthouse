@@ -12,7 +12,7 @@ void animMtxList_setBoneless(AnimMtxList **this_ptr, BKAnimationList *anim_list)
     
     this = *this_ptr;
     if(this->capacity_44 < anim_list->cnt_4){
-        this = (AnimMtxList *)realloc(this, anim_list->cnt_4 * sizeof(Mtx) + sizeof(AnimMtxList));
+        this = (AnimMtxList *)bk_realloc(this, anim_list->cnt_4 * sizeof(Mtx) + sizeof(AnimMtxList));
         this->capacity_44 = anim_list->cnt_4;
         (*this_ptr) = this;
     }
@@ -34,11 +34,11 @@ MtxF *animMtxList_get(AnimMtxList *this, s32 arg1){
 }
 
 void animMtxList_free(AnimMtxList *this){
-    free(this);
+    bk_free(this);
 }
 
 AnimMtxList *animMtxList_new(void){
-    AnimMtxList *this = malloc(sizeof(AnimMtxList));
+    AnimMtxList *this = heap_malloc(sizeof(AnimMtxList));
     this->size_40 = 0;
     this->capacity_44 = 0;
     mlMtxIdent();
@@ -72,7 +72,7 @@ void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, Bo
     //resize animation matrices
     this = *this_ptr;
     if(this->capacity_44 < anim_list->cnt_4){
-        this = (AnimMtxList *)realloc(this, anim_list->cnt_4 * sizeof(Mtx) + sizeof(AnimMtxList));
+        this = (AnimMtxList *)bk_realloc(this, anim_list->cnt_4 * sizeof(Mtx) + sizeof(AnimMtxList));
         this->capacity_44 = anim_list->cnt_4;
         (*this_ptr) = this;
     }
@@ -92,7 +92,7 @@ void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, Bo
         
         if(!vec4f_isZero(sp74)){
             func_80345274(sp74, sp88);
-            func_802515D4(sp88);
+            mlMtx_multiply_3x3(sp88);
         }
 
         mlMtxScale_xyz(sp68[0], sp68[1], sp68[2]);

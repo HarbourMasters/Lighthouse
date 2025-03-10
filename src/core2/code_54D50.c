@@ -3,7 +3,7 @@
 #include "variables.h"
 
 
-extern int func_8024549C(f32 [3], f32);
+extern int isOverWater(f32 [3], f32);
 
 #define _HorzDist3v(v1, v2) ((v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[2]-v2[2])*(v1[2]-v2[2]))
 
@@ -39,7 +39,7 @@ ParticleSettingsVelocityAccelerationPosition D_80367F90 ={
 /* .code */
 void func_802DBCE0(ParticleEmitter *pCtrl, f32 arg1[3]){
     ParticleEmitter *other = partEmitMgr_newEmitter(1);
-    if(func_8024549C(arg1, 4.0f)){
+    if(isOverWater(arg1, 4.0f)){
         arg1[1] += 2.0f;
         particleEmitter_setSprite(other, ASSET_70C_SPRITE_RIPPLE);
         particleEmitter_setDrawMode(other, 1);
@@ -57,7 +57,7 @@ void func_802DBCE0(ParticleEmitter *pCtrl, f32 arg1[3]){
         particleEmitter_setRGB(other, D_80367F54);
         particleEmitter_setPosition(other, arg1);
         particleEmitter_setParticleVelocityRange(other, -230.0f, 30.0f, -230.0f, 230.0f, 110.0f, 230.0f);
-        func_802EFC28(other, &D_80367F60);
+        particleEmitter_applySettingsAndEmit(other, &D_80367F60);
         FUNC_8030E8B4(SFX_7_BANJO_LANDING_03, 1.0f, 22000, arg1, 1500, 4500);
     }//L802DBE8C
 }
@@ -68,7 +68,7 @@ void func_802DBE9C(Actor *this, ParticleEmitter *pCtrl){
     particleEmitter_setPosition(pCtrl, this->position);
     particleEmitter_setDrawMode(pCtrl, 4);
     particleEmitter_setAngularVelocityRange(pCtrl, -450.0f, -450.0f, -450.0f, 450.0f, 450.0f, 450.0f);
-    particleEmitter_func_802EFA18(pCtrl, 1);
+    particleEmitter_setCollisionCount(pCtrl, 1);
     particleEmitter_setParticleCallback(pCtrl, func_802DBCE0);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 7.0f, 7.0f);

@@ -165,9 +165,9 @@ void __chChompa_emitBones(f32 position[3], s32 count, enum asset_e model_id) {
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_8038BB98);
     particleEmitter_setAngularVelocityRange(pCtrl, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
-    particleEmitter_func_802EF9F8(pCtrl, 0.4f);
-    particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_setBounceFactor(pCtrl, 0.4f);
+    particleEmitter_setCollisionCount(pCtrl, 3);
+    particleEmitter_setSfxPitchRange(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_2F_ORANGE_SPLAT, 16000);
     particleEmitter_setDrawMode(pCtrl, 2);
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_8038BB70);
@@ -205,7 +205,7 @@ void chChompa_update(Actor *this) {
         this->volatile_initialized = TRUE;
         this->unk16C_0 = TRUE;
         marker_setCollisionScripts(this->marker, NULL, __chChompa_hit, __chChompa_die);
-        __spawnQueue_add_1((GenFunction_1) __chChompa_spwanPortrait, reinterpret_cast(s32, this->marker));
+        spawnQueue_add_1((GenFunction_1) __chChompa_spwanPortrait, reinterpret_cast(s32, this->marker));
         chChompa_setState(this, this->state < CHOMPA_STATE_5_DYING ? CHOMPA_STATE_1_IDLE : CHOMPA_STATE_6_DEAD);
     }//L803880B4
 

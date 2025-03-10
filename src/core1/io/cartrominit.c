@@ -1,36 +1,40 @@
-#include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include <ultra64.h>
 
 extern OSPiHandle *__osPiTable;
 
 OSPiHandle CartRomHandle;
-OSPiHandle *osCartRomInit(void)
-{
-	u32 domain;
-	u32 saveMask;
-	
-	domain = 0;
+OSPiHandle *osCartRomInit(void) {
+  #ifndef LIGHTHOUSE_P
+  u32 domain;
+  u32 saveMask;
 
-	if (CartRomHandle.baseAddress == PHYS_TO_K1(PI_DOM1_ADDR2))
-		return &CartRomHandle;
+  domain = 0;
 
-	CartRomHandle.type = DEVICE_TYPE_CART;
-	CartRomHandle.baseAddress = PHYS_TO_K1(PI_DOM1_ADDR2);
-	osPiRawReadIo(NULL, &domain);
-	CartRomHandle.latency = domain & 0xff;
-	CartRomHandle.pulse = (domain >> 8) & 0xff;
-	CartRomHandle.pageSize = (domain >> 0x10) & 0xf;
-	CartRomHandle.relDuration = (domain >> 0x14) & 0xf;
-	CartRomHandle.domain = PI_DOMAIN1;
-	CartRomHandle.speed = 0;
+  if (CartRomHandle.baseAddress == PHYS_TO_K1(PI_DOM1_ADDR2))
+    return &CartRomHandle;
 
-    bzero(&CartRomHandle.transferInfo, sizeof(__OSTranxInfo));
+  CartRomHandle.type = DEVICE_TYPE_CART;
+  CartRomHandle.baseAddress = PHYS_TO_K1(PI_DOM1_ADDR2);
+  osPiRawReadIo(NULL, &domain);
+  CartRomHandle.latency = domain & 0xff;
+  CartRomHandle.pulse = (domain >> 8) & 0xff;
+  CartRomHandle.pageSize = (domain >> 0x10) & 0xf;
+  CartRomHandle.relDuration = (domain >> 0x14) & 0xf;
+  CartRomHandle.domain = PI_DOMAIN1;
+  CartRomHandle.speed = 0;
 
-	saveMask = __osDisableInt();
-	CartRomHandle.next = __osPiTable;
-	__osPiTable = &CartRomHandle;
-	__osRestoreInt(saveMask);
-	
-	return &CartRomHandle;
-}//*/
+  bzero(&CartRomHandle.transferInfo, sizeof(__OSTranxInfo));
+
+  saveMask = __osDisableInt();
+  CartRomHandle.next = __osPiTable;
+  __osPiTable = &CartRomHandle;
+  __osRestoreInt(saveMask);
+
+  return &CartRomHandle;
+  #else
+  return NULL;
+  // hanld epc port things
+  #endif
+} //*/

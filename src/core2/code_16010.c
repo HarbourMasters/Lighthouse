@@ -28,7 +28,7 @@ void func_8029D01C(void){
 }
 
 void func_8029D050(void){
-    basfx_80299E48();
+    basfx_stopOwSfxSource();
     func_8030E394(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_14D_BANJO_FREEZING);
     sfxsource_setSampleRate(D_8037D210, 30000);
@@ -56,7 +56,7 @@ void func_8029D154(void){
 }
 
 void func_8029D194(void) {
-    __spawnQueue_add_0(&func_8029D154);
+    spawnQueue_add_0(&func_8029D154);
     FUNC_8030E624(SFX_A_BANJO_LANDING_05, 1.0f, 28000);
     func_8030E394(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_6D_CROC_BITE);
@@ -227,7 +227,7 @@ bool canTakeGroundDamage(void){
                 && baflag_isFalse(BA_FLAG_E_TOUCHING_WADING_BOOTS)
                 && sp1C != BS_25_LONGLEG_ENTER
                 && player_getWaterState() != BSWATERGROUP_2_UNDERWATER
-                && func_8028EC04() < 1U
+                && isPlayerInWater() < 1U
                 && func_80297C6C() != 3
                 && bs_getState() != BS_3D_FALL_TUMBLING
                 && player_isDead() < 1U
@@ -255,7 +255,7 @@ void func_8029D968(void){
             sp18 = (temp_v0->flags & 0x4000)  && player_isStable();
         }
         if (sp1C || sp18) {
-            baMotor_80250D94(1.0f, 0.5f, 0.4f);
+            baMotor_setRumbleParams(1.0f, 0.5f, 0.4f);
             func_8028F504(0xD);
         }
     }//L8029DA18
@@ -274,7 +274,7 @@ void func_8029D968(void){
                 batimer_set(4, 4.0f);
                 if(func_8028F504(0xD)){
                     func_8029D230();
-                    baMotor_80250D94(1.0f, 0.5f, 0.4f);
+                    baMotor_setRumbleParams(1.0f, 0.5f, 0.4f);
                 }
                 if(item_empty(ITEM_14_HEALTH)){
                     bs_checkInterrupt(BS_INTR_13_FF_DEATH_SQUARE);

@@ -119,15 +119,15 @@ typedef struct {
  * Structure for device manager block
  */
 typedef struct {
-        s32             active;		/* Status flag */
-	OSThread	*thread;	/* Calling thread */
+        s32             initialized;		/* Status flag */
+	OSThread	*mgrThread;	/* Calling thread */
         OSMesgQueue  	*cmdQueue;	/* Command queue */
-        OSMesgQueue  	*evtQueue;	/* Event queue */
-        OSMesgQueue  	*acsQueue;	/* Access queue */
+        OSMesgQueue  	*eventQueue;	/* Event queue */
+        OSMesgQueue  	*accessQueue;	/* Access queue */
 					/* Raw DMA routine */
-        s32             (*dma)(s32, u32, void *, u32);
-        s32             (*edma)(OSPiHandle *, s32, u32, void *, u32);
-} OSDevMgr;
+        s32             (*piDmaCallback)(s32, u32, void *, u32);
+        s32             (*epiDmaCallback)(OSPiHandle *, s32, u32, void *, u32);
+} OSMgrArgs;
 
 
 #endif /* defined(_LANGUAGE_C) || defined(_LANGUAGE_C_PLUS_PLUS) */

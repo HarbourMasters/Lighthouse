@@ -103,9 +103,9 @@ extern void guFrustum(Mtx *m, float l, float r, float b, float t,
 		      float n, float f, float scale);
 extern void guFrustumF(float mf[4][4], float l, float r, float b, float t, 
 		       float n, float f, float scale);
-extern void guPerspective(Mtx *m, u16 *perspNorm, float fovy, 
+extern void gu_Perspective(Mtx *m, u16 *perspNorm, float fovy, 
 			  float aspect, float near, float far, float scale);
-extern void guPerspectiveF(float mf[4][4], u16 *perspNorm, float fovy, 
+extern void gu_PerspectiveF(float mf[4][4], u16 *perspNorm, float fovy, 
 			   float aspect, float near, float far, float scale);
 extern void guLookAt(Mtx *m, 
 			float xEye, float yEye, float zEye,
@@ -162,14 +162,14 @@ extern void guPositionF(float mf[4][4], float r, float p, float h, float s,
 			float x, float y, float z);
 extern void guMtxF2L(float mf[4][4], Mtx *m);
 extern void guMtxL2F(float mf[4][4], Mtx *m);
-extern void guMtxCatF(float m[4][4], float n[4][4], float r[4][4]);
+extern void guMtx_CatF(float m[4][4], float n[4][4], float r[4][4]);
 extern void guMtxCatL(Mtx *m, Mtx *n, Mtx *res);
 extern void guMtxXFMF(float mf[4][4], float x, float y, float z, 
 		      float *ox, float *oy, float *oz);
 extern void guMtxXFML(Mtx *m, float x, float y, float z, 
 		      float *ox, float *oy, float *oz);
 
-/* vector utility: */
+/* bk_vector utility: */
 extern void guNormalize(float *x, float *y, float *z);
 
 /* light utilities: */

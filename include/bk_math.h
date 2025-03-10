@@ -3,11 +3,19 @@
 
 #define SQ(x) ((x)*(x))
 
-#define TUPLE_ASSIGN(out, a, b, c) {\
-    out[0] = a;\
-    out[1] = b;\
-    out[2] = c;\
-}
+#ifdef LIGHTHOUSE_P
+    #define TUPLE_ASSIGN(out, a, b, c) {\
+        out[0] = (float)(a);\
+        out[1] = (float)(b);\
+        out[2] = (float)(c);\
+    }
+#else
+    #define TUPLE_ASSIGN(out, a, b, c) {\
+        out[0] = a;\
+        out[1] = b;\
+        out[2] = c;\
+    }
+#endif
 
 #define TUPLE_COPY(dst, src) {\
     dst[0] = src[0];\
@@ -64,8 +72,13 @@
 }
 
 #define LENGTH_SQ_VEC3F(v) (v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+
 #define LENGTH_VEC3F(v) gu_sqrtf(LENGTH_SQ_VEC3F(v))
 
 #define TUPLE_DOT_PRODUCT(vec1, vec2) (vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2])
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 #endif // __BANJO_KAZOOIE_MATH_H__

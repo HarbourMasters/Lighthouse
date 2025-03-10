@@ -118,7 +118,7 @@ void func_802FC0D8(void) {
                 break;
 
             case 2:
-                if (getGameMode() != GAME_MODE_4_PAUSED) {
+                if (game_getMode() != GAME_MODE_4_PAUSED) {
                     sp1C->unk10 -= time_getDelta();
                     if (sp1C->unk10 < 0.0f) {
                         sp1C->unk0 = 3;

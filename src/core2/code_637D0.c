@@ -24,7 +24,7 @@ bool func_802EA760(BKModelUnk14List *arg0, s32 arg1, f32 arg2[3], f32 rotation[3
     arg6[2] = (f32) temp_v0->unk2[2];
     *arg7 = (f32) temp_v0->unk0;
     mlMtxIdent();
-    func_80252C08(arg2, rotation, scale, arg5);
+    mlMtx_transform_with_scale(arg2, rotation, scale, arg5);
     mlMtx_apply_vec3f(arg6, arg6);
     *arg7 /= scale;
     return TRUE;
@@ -64,8 +64,8 @@ s32 func_802EA864(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
         sp8C[1] *= 2;
         sp8C[2] *= 2;
         mlMtxIdent();
-        func_80252EC8(spB0, sp8C);
-        func_80252CC4(position, rotation, scale, arg4);
+        mlMtx_translate_inverse_rotate_translate(spB0, sp8C);
+        mlMtx_inverse_transform_with_scale(position, rotation, scale, arg4);
         mlMtx_apply_vec3f(sp78, arg5);
         for(j = 0; j < 3; j++){
             if (((sp78[j] + arg6 / scale) <= spA4[j]) || (sp98[j] <= (sp78[j] - arg6 / scale))) 
@@ -105,8 +105,8 @@ s32 func_802EAB34(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
         temp_f24 = (f32) iPtr->unk0;
         temp_f20 = (f32) iPtr->unk2;
         mlMtxIdent();
-        func_80252DDC(spA0, sp94);
-        func_80252CC4(position, rotation, scale, arg4);
+        mlMtx_inverse_translate_and_rotate(spA0, sp94);
+        mlMtx_inverse_transform_with_scale(position, rotation, scale, arg4);
         mlMtx_apply_vec3f(sp78, arg5);
         if (!(temp_f20 / 2 <= (sp78[2] - arg6 / scale)) && !((sp78[2] + arg6 / scale) <= -(temp_f20 / 2))) {
             if (!(((arg6 / scale + temp_f24) *  (arg6 / scale + temp_f24)) <= ((sp78[0] * sp78[0]) + (sp78[1] * sp78[1])))) {
@@ -130,7 +130,7 @@ s32 func_802EAD5C(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     f32 sp34[3];
 
     mlMtxIdent();
-    func_80252CC4(position, rotation, scale, arg4);
+    mlMtx_inverse_transform_with_scale(position, rotation, scale, arg4);
     mlMtx_apply_vec3f(sp5C, arg5);
     t0_ptr = (BKModelUnk14_0 *)(arg0 + 1);
     t1_ptr = (BKModelUnk14_1 *)(t0_ptr + arg0->cnt0);
@@ -191,7 +191,7 @@ s32 func_802EAED4(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
         spD0[1] *= 2;
         spD0[2] *= 2;
         mlMtx_push_multiplied_2(&D_80380880, animMtxList_get(arg5, i_ptr->unk16));
-        func_80252E4C(spF4, spD0);
+        mlMtx_translate_rotate_translate(spF4, spD0);
         mlMtx_apply_f3(spB0, spE8[0], spE8[1], spE8[2]);
         mlMtx_apply_f3(sp98, spE8[0], spE8[1], spDC[2]);
         spBC[0] = spB0[0] - sp98[0];
@@ -270,7 +270,7 @@ s32 func_802EB458(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
         spAC[1] = (f32) (i_ptr->unkA[1] * 2);
         spAC[2] = (f32) (i_ptr->unkA[2] * 2);
         mlMtx_push_multiplied_2(&D_80380880, animMtxList_get(arg5, i_ptr->unkE));
-        func_80252D8C(spB8, spAC);
+        mlMtx_translate_and_rotate(spB8, spAC);
         mlMtx_apply_f3(sp98, 0.0f, 0.0f, (f32) ((-i_ptr->unk2) / 2));
         mlMtx_apply_f3(sp8C, 0.0f, 0.0f, (f32) (i_ptr->unk2 / 2));
         mlMtx_apply_f3(sp68, (f32) i_ptr->unk0, 0.0f, (f32) ((-i_ptr->unk2) / 2));
@@ -324,7 +324,7 @@ s32 func_802EB8A0(BKModelUnk14List *arg0, f32 *position, f32 *rotation, f32 scal
     f32 sp44[3];
 
     mlMtxIdent();
-    func_80252CC4(position, rotation, scale, arg4);
+    mlMtx_inverse_transform_with_scale(position, rotation, scale, arg4);
     mlMtx_apply_vec3f(sp74, arg6);
     t0_ptr = (BKModelUnk14_0 *)(arg0 + 1);
     t1_ptr = (BKModelUnk14_1 *)(t0_ptr + arg0->cnt0);
@@ -372,7 +372,7 @@ s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
   if (arg5 != 0)
   {
     mlMtxIdent();
-    func_80252C08(position, rotation, scale, arg4);
+    mlMtx_transform_with_scale(position, rotation, scale, arg4);
     mlMtxGet(&D_80380880);
     phi_v0 = func_802EB8A0(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
     if (phi_v0 == 0)
@@ -444,8 +444,8 @@ s32 func_802EBD3C(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scal
             i_rotation[2] *= 2;
 
             mlMtxIdent();
-            func_80252EC8(i_position, i_rotation); //derotate about point
-            func_80252CC4(arg1, rotation, scale, arg4); 
+            mlMtx_translate_inverse_rotate_translate(i_position, i_rotation); //derotate about point
+            mlMtx_inverse_transform_with_scale(arg1, rotation, scale, arg4); 
             mlMtx_apply_vec3f(sp68, arg5); //apply matrix to arg5
             for (i = 0; i < 3; i++)
             {
@@ -491,8 +491,8 @@ s32 func_802EC000(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scal
             temp_f20 = (f32) i_ptr->unk0;
             temp_f22 = (f32) i_ptr->unk2;
             mlMtxIdent();
-            func_80252DDC(sp90, sp84);
-            func_80252CC4(arg1, rotation, scale, arg4);
+            mlMtx_inverse_translate_and_rotate(sp90, sp84);
+            mlMtx_inverse_transform_with_scale(arg1, rotation, scale, arg4);
             mlMtx_apply_vec3f(sp68, arg5);
             temp_f0 = (f32) (temp_f22 / 2.0);
             if (!(temp_f0 <= sp68[2]) && !(sp68[2] <= -temp_f0) && !((temp_f20 * temp_f20) <= (sp68[0] * sp68[0] + sp68[1]*sp68[1]))) {
@@ -519,7 +519,7 @@ s32 func_802EC238(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scal
     i_ptr = (BKModelUnk14_2 *)(t1_ptr + arg0->cnt2);
     end_ptr = i_ptr + arg0->unk4;
     mlMtxIdent();
-    func_80252CC4(arg1, rotation, scale, arg4);
+    mlMtx_inverse_transform_with_scale(arg1, rotation, scale, arg4);
     mlMtx_apply_vec3f(sp54, arg5);
     for (i_ptr = i_ptr; i_ptr < end_ptr; i_ptr++) {
         if ((i_ptr->unk8 != 0) && ((arg6 == 0) || (arg6 == i_ptr->unk8))) {

@@ -51,7 +51,7 @@ Actor *func_8038F210(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 void func_8038F274(void){
     Struct70s *v0 = func_8034C528(0x191);
     if(v0 != NULL){
-        func_8034DE60(&v0->type_6D, 0.0f, -500.0f, 0.2f, 1);
+        collisionTri_isHitFromAboveByActor(&v0->type_6D, 0.0f, -500.0f, 0.2f, 1);
     }
 }
 
@@ -106,7 +106,7 @@ void func_8038F454(Actor *this){
         subaddie_set_state(this, 2);
         actor_loopAnimation(this);
         timed_setStaticCameraToNode(0.0f, 0x2e);
-        func_80324DBC(0.0f, 0xc1b, 0x2a, this->position, this->marker, func_8038F330, NULL);
+        showDelayedTextAtTime(0.0f, 0xc1b, 0x2a, this->position, this->marker, func_8038F330, NULL);
         timedFunc_set_1(2.5f, (GenFunction_1)func_8038F3F4, (s32)this->marker);
     }
     else{
@@ -204,7 +204,7 @@ void FP_func_8038F7AC(Actor *this){
             this->position[0] = local->unkC[0];\
             this->position[1] = local->unkC[1];\
             this->position[2] = local->unkC[2];
-            __spawnQueue_add_1((GenFunction_1)FP_func_8038F758, reinterpret_cast(s32, this->marker));
+            spawnQueue_add_1((GenFunction_1)FP_func_8038F758, reinterpret_cast(s32, this->marker));
             local->unk30 = FALSE;
         }
     }//L8038F910

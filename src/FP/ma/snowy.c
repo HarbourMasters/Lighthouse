@@ -60,7 +60,7 @@ void maSnowy_update(void){
                 if(Me.jiggySpawnerExists){
                     func_802BAFE4(0x12);
                     jiggy_spawn(JIGGY_31_FP_SIR_SLUSH, Me.spawn_pos);
-                    __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM,
+                    spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM,
                         reinterpret_cast(s32, Me.spawn_pos[0]),
                         reinterpret_cast(s32, Me.spawn_pos[1]),
                         reinterpret_cast(s32, Me.spawn_pos[2])

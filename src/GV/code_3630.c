@@ -101,8 +101,8 @@ void func_80389B1C(Actor *this){
             break;
         case 3: //L80389E14
             if( actor_animationIsAt(this, 0.2f)){
-                func_8025A58C(500, 400);
-                func_8025A6EC(COMUSIC_27_GV_RUBEES_SONG, 28000);
+                playMusicWithFade(500, 400);
+                comusic_playTrackWithVolumeOverride(COMUSIC_27_GV_RUBEES_SONG, 28000);
             }
 
             if( actor_animationIsAt(this, 0.99f)){

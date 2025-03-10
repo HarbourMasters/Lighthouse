@@ -1,6 +1,12 @@
 #ifndef __MODEL_H__
 #define __MODEL_H__
+
 #include <ultra64.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct {
     Vtx v;
@@ -201,4 +207,9 @@ typedef struct{
 BKVertexList *model_getVtxList(BKModelBin *arg0);
 Vtx *vtxList_getVertices(BKVertexList *vtxList);
 void codeAC520_func_80333D48(BKVertexList *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *arg5);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

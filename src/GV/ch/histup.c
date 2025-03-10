@@ -197,8 +197,8 @@ void func_8038DBDC(Actor *this){
                 func_80386608();
                 func_8038DB4C(0);
                 GV_D_80391AB0.unk8 = FALSE;
-                func_8025A58C(-1, 0x190);
-                func_8025A7DC(COMUSIC_27_GV_RUBEES_SONG);
+                playMusicWithFade(-1, 0x190);
+                comusic_stopTrack(COMUSIC_27_GV_RUBEES_SONG);
                 if(!this->unk44_31){
                     this->unk44_31 = func_8030ED2C(SFX_2C_PULLING_NOISE, 3);
                     this->unk1C[1] = 1.9f;

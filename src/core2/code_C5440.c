@@ -66,7 +66,7 @@ struct1Es D_80372030[] = {
 /* .bss */
 struct {
     u8 unk0;
-    vector(struct1Ds) *unk4;
+    bk_vector(struct1Ds) *unk4;
 } D_80386140;
 
 /* .public */
@@ -135,7 +135,7 @@ Struct70s *func_8034C5AC(s32 arg0){
     return NULL;
 }
 
-Struct70s *func_8034C630(s32 arg0){
+Struct70s *getCollisionHeightFromObjectModel(s32 arg0){
     struct1Ds *iPtr;
     struct1Ds *endPtr = vector_getEnd(D_80386140.unk4);
 

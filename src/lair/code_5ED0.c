@@ -67,9 +67,9 @@ extern s32  ability_getAllLearned(void); // get unlocked moves bitfield
 extern s32  item_getCount(s32); // item count get
 extern void item_adjustByDiffWithoutHud(s32, s32); // item count set
 
-extern void func_8025A55C(s32, s32, s32);
+extern void comusic_updateTrackWithArgs(s32, s32, s32);
 
-extern void func_80324CFC(f32, s16, s16);
+extern void playTrackWithVolumeAtTime(f32, s16, s16);
 
 extern void *mapModel_getModel(s32);
 extern void  player_setTransformation(s32); // set transformation
@@ -397,7 +397,7 @@ void func_8038C2D4(enum ff_question_type_e type)
 }
 
 // FF: set isAsked flag for type and question
-void lair_func_8038C338(enum ff_question_type_e type, s32 questionIdx, int val)
+void lair_chvile_isInState1(enum ff_question_type_e type, s32 questionIdx, int val)
 {
     quizQuestionAskedBitfield_set(FF_QuestionTypeInfoArr[type].startingFlagIdx + questionIdx, val);
 }
@@ -540,10 +540,10 @@ void lair_func_8038CC9C(void)
 
 void func_8038CCEC(void)
 {
-    free(D_8037DCB8->unk48);
+    bk_free(D_8037DCB8->unk48);
     D_8037DCB8->unk48 = NULL;
 
-    free(D_8037DCB8);
+    bk_free(D_8037DCB8);
     D_8037DCB8 = NULL;
 
     gcquiz_free();
@@ -589,7 +589,7 @@ void func_8038CE28(void)
     s32 i;
 
     gcquiz_init();
-    D_8037DCB8 = malloc(sizeof(struct FF_StorageStruct));
+    D_8037DCB8 = heap_malloc(sizeof(struct FF_StorageStruct));
     quizQuestionAskedBitfield_init();
 
     // dump currently unlocked moves to storage
@@ -607,7 +607,7 @@ void func_8038CE28(void)
     D_8037DCB8->unk14     = 1.f;
     D_8037DCB8->UNK_18     = 0;
     D_8037DCB8->currFfMode = 1;
-    D_8037DCB8->unk48     = malloc(0x90);
+    D_8037DCB8->unk48     = heap_malloc(0x90);
 
     gzquiz_initGruntyQuestions();
 }
@@ -707,21 +707,21 @@ void func_8038D0BC(s32 a0, s32 a1)
 
 void func_8038D16C(s32 a0, u16 a1)
 {
-    func_8025A6EC(a0, 0);
-    comusic_8025AB44(a0, 28000, 500);
-    func_80250530(func_8025ADD4(a0), a1, 0);
+    comusic_playTrackWithVolumeOverride(a0, 0);
+    comusic_fadeTrackWithArgsNoDelay(a0, 28000, 500);
+    musicTrack_setChannelMask(comusic_getTrackIndex(a0), a1, 0);
 }
 
 void func_8038D1BC(void)
 {
-    func_8025A55C(-1, 500, 9);
+    comusic_updateTrackWithArgs(-1, 500, 9);
 }
 
 void func_8038D1E4(void)
 {
     f32 cleanupDelay = -1.f;
 
-    func_8025A55C(0, 500, 9);
+    comusic_updateTrackWithArgs(0, 500, 9);
 
     switch (D_80394354[D_8037DCB8->unkC].unk0)
     {
@@ -753,7 +753,7 @@ void func_8038D1E4(void)
         }
         case 1:
         {
-            func_80324CFC(
+            playTrackWithVolumeAtTime(
                 1.f,
                 D_80394354[D_8037DCB8->unkC].unk2,
                 D_80394354[D_8037DCB8->unkC].unk4
@@ -784,7 +784,7 @@ void func_8038D1E4(void)
 void func_8038D394(void)
 {
     D_8037DCB8->unk12 = 1;
-    func_802D5058(
+    setMapTransition(
         D_803945D0[D_8037DCB8->unkC].unk0,
         D_803945D0[D_8037DCB8->unkC].UNK_01,
         D_8037DCB8->unkD >= 9
@@ -821,7 +821,7 @@ void func_8038D48C(void)
 void func_8038D4BC(void)
 {
     volatileFlag_set(VOLATILE_FLAG_2_FF_IN_MINIGAME, TRUE);
-    func_802E4A70();
+    game_enableSpecialMode();
 
     // restore moves after a delay
     timedFunc_set_1(0.25f,
@@ -831,7 +831,7 @@ void func_8038D4BC(void)
 
     // trigger warp after a delay
     timedFunc_set_3(0.25f,
-        (GenFunction_3)func_802E4078,
+        (GenFunction_3)game_setMapWithTransition,
         D_803945B8[D_8037DCB8->unkC].map,
         D_803945B8[D_8037DCB8->unkC].exit,
         1
@@ -919,24 +919,24 @@ void func_8038D670(enum FF_Action next_state) {
             if (D_8037DCB8->ffQuestionType == FFQT_2_SOUND) {
                 switch(D_80394354[D_8037DCB8->unkC].unk0){
                     case 3:
-                        comusic_8025AB44(D_80394354[D_8037DCB8->unkC].unk2, 0, 0x1F4);
-                        func_8025AABC(D_80394354[D_8037DCB8->unkC].unk2);
+                        comusic_fadeTrackWithArgsNoDelay(D_80394354[D_8037DCB8->unkC].unk2, 0, 0x1F4);
+                        comusic_stopTrackById(D_80394354[D_8037DCB8->unkC].unk2);
                         timedFunc_set_0(1.5f, func_8038D1BC);
                         break;
                     case 1: //L8038D870
-                         if (func_8025AD7C(D_80394354[D_8037DCB8->unkC].unk2)) {
-                            comusic_8025AB44(D_80394354[D_8037DCB8->unkC].unk2, 0, 0x1F4);
+                         if (comusic_isTrackQueued(D_80394354[D_8037DCB8->unkC].unk2)) {
+                            comusic_fadeTrackWithArgsNoDelay(D_80394354[D_8037DCB8->unkC].unk2, 0, 0x1F4);
                             timedFunc_set_0(1.5f, func_8038D1BC);
                         } else {
-                            func_8025A55C(-1, 0x1F4, 9);
+                            comusic_updateTrackWithArgs(-1, 0x1F4, 9);
                         }
-                        func_8025AABC(D_80394354[D_8037DCB8->unkC].unk2);
+                        comusic_stopTrackById(D_80394354[D_8037DCB8->unkC].unk2);
                         break;
                     case 2: //L8038D908
                         gczoombox_free(D_8037DCB8->unk20);
                         D_8037DCB8->unk20 = 0;
                     default:
-                        func_8025A55C(-1, 0x1F4, 9);
+                        comusic_updateTrackWithArgs(-1, 0x1F4, 9);
                         break;
                 }//L8038D91C
             }
@@ -947,7 +947,7 @@ void func_8038D670(enum FF_Action next_state) {
             func_8038D48C();
             if (D_8037DCB8->unkF == 1) {
                 lair_func_8038C640(D_8037DCB8->unk8, D_8037DCB8->unk4);
-                lair_func_8038C338(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC, 1);
+                lair_chvile_isInState1(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC, 1);
                 D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType]++;
                 if (lair_func_8038C2C0(D_8037DCB8->ffQuestionType) == D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType]) {
                     D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType] = 0;
@@ -971,7 +971,7 @@ void func_8038D670(enum FF_Action next_state) {
             } else {
                 if (D_8037DCB8->unk4->unk8 == FFTT_6_SKULL) {
                     gcpausemenu_80314AC8(0);
-                    if (func_80305248(sp30, 0x377, D_8037DCB8->playerPosition)) {
+                    if (findClosestActorPosition3D(sp30, 0x377, D_8037DCB8->playerPosition)) {
                         func_8038D548(1);
                         func_8028F5F8(sp30);
                     } else {
@@ -1005,8 +1005,8 @@ void func_8038D670(enum FF_Action next_state) {
 
         case FFA_8_FURNACE_FUN_COMPLETE: //L8038DC00
             if (fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE) == 0) {
-                func_8025A55C(0, 0x1388, 0xB);
-                func_8025AB00();
+                comusic_updateTrackWithArgs(0, 0x1388, 0xB);
+                comusic_stopMainTrackById();
                 comusic_playTrack(JINGLE_DOOR_OF_GRUNTY_OPENED);
                 fileProgressFlag_set(FILEPROG_A6_FURNACE_FUN_COMPLETE, TRUE);
                 volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, FALSE);
@@ -1157,7 +1157,7 @@ void lair_func_8038E0B0(void) {
         gcquiz_func_80319EA4();
         func_8038C9D0();
         controller_copyFaceButtons(0, sp48);
-        func_8024E60C(0, sp3C);
+        pfsManager_getSideButtonState(0, sp3C);
         if (D_8037DCB8->currFfMode < 3) {
             player_getPosition(D_8037DCB8->playerPosition);
             temp_v0 = func_8033F3E8(D_8037DCB8->unk0, D_8037DCB8->playerPosition, 0x191, 0x1F0);
@@ -1274,7 +1274,7 @@ void lair_func_8038E0B0(void) {
                     gczoombox_update(D_8037DCB8->unk20);
                 }
                 if ((D_8037DCB8->unk12 == 0) && func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
-                    func_80324C58();
+                    clearTimedFunctionQueue();
                     func_8038D670(4);
                 }
                 break;
@@ -1283,7 +1283,7 @@ void lair_func_8038E0B0(void) {
                 if (volatileFlag_get(VOLATILE_FLAG_1)) {
                     volatileFlag_set(VOLATILE_FLAG_1, 0);
                     func_8038E070();
-                    func_8025A55C(6000, 500, 0xA);
+                    comusic_updateTrackWithArgs(6000, 500, 0xA);
                 }
                 break;
 
@@ -1311,7 +1311,7 @@ void lair_func_8038E0B0(void) {
                 break;
 
             case 9://L8038E738
-                if (!func_8025AD7C(0x78)) {
+                if (!comusic_isTrackQueued(0x78)) {
                     mapSpecificFlags_set(6, TRUE);
                     func_8038D670(0);
                 }

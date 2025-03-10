@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 extern void actor_predrawMethod(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void func_8030E394(u8);
@@ -146,8 +149,8 @@ void RBB_func_8038C70C(Actor *this){
     ActorLocal_RBB_5F80 *local = (ActorLocal_RBB_5F80 *) &this->local;
     ParticleEmitter *other = partEmitMgr_newEmitter(0xa);
 
-    particleEmitter_func_802EF9F8(other, 0.6f);
-    particleEmitter_func_802EFA18(other, 3);
+    particleEmitter_setBounceFactor(other, 0.6f);
+    particleEmitter_setCollisionCount(other, 3);
     particleEmitter_setDrawMode(other, 4);
     particleEmitter_setModel(other, 0x427);
     particleEmitter_setSpawnPositionRange(other, 
@@ -221,13 +224,13 @@ void func_8038CA70(Actor *this, f32(*arg1)[3]){
 }
 
 void func_8038CB34(ActorMarker *marker, enum asset_e arg1, s32 arg2){
-    comusic_8025AB44(COMUSIC_62_RBB_BOOMBOX, -1, 0x12C);
+    comusic_fadeTrackWithArgsNoDelay(COMUSIC_62_RBB_BOOMBOX, -1, 0x12C);
 }
 
 void func_8038CB68(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     Actor *actor = marker_getActor(marker);
     timed_exitStaticCamera(0.0f);
-    func_80324E38(0.0f, 0);
+    setCameraModeAtTime(0.0f, 0);
     timedFunc_set_2(0.0f, (GenFunction_2)RBB_func_8038C370, (s32)actor->marker, 3);
 }
 
@@ -302,12 +305,12 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
     }
 
     if(this->state == 2){
-        func_8025A58C(0, 0xfa0);
-        func_8025A6EC(COMUSIC_62_RBB_BOOMBOX, -1);
-        func_8025AABC(COMUSIC_62_RBB_BOOMBOX);
+        playMusicWithFade(0, 0xfa0);
+        comusic_playTrackWithVolumeOverride(COMUSIC_62_RBB_BOOMBOX, -1);
+        comusic_stopTrackById(COMUSIC_62_RBB_BOOMBOX);
         skeletalAnim_set(this->unk148, ASSET_146_ANIM_BOSS_BOOMBOX_APPEAR, 0.0f, 2.4f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        func_80324E38(0.0f, 3);
+        setCameraModeAtTime(0.0f, 3);
         timed_setStaticCameraToNode(0.0f, 0);
         timed_playSfx(0.5f, SFX_3F5_UNKNOWN, 1.0f, 0x7fc6);
         timed_playSfx(1.25f, SFX_6C_LOCKUP_CLOSING, 1.05f, 0x7d00);
@@ -317,12 +320,12 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
             item_set(ITEM_6_HOURGLASS, 1);
             item_set(ITEM_0_HOURGLASS_TIMER, 0x1067);
             timed_exitStaticCamera(2.4f);
-            func_80324E38(2.4f, 0);
+            setCameraModeAtTime(2.4f, 0);
             timedFunc_set_2(2.4f, (GenFunction_2)RBB_func_8038C370, (s32)this->marker, 3);
         }
         else{//L8038CEFC
-            timedFunc_set_3(2.4f, (GenFunction_3)comusic_8025AB44, COMUSIC_62_RBB_BOOMBOX, 0x1f40, 0x12C);
-            func_80324DBC(2.4f, 0xb9e, 4, NULL, this->marker, func_8038CB34, func_8038CB68);
+            timedFunc_set_3(2.4f, (GenFunction_3)comusic_fadeTrackWithArgsNoDelay, COMUSIC_62_RBB_BOOMBOX, 0x1f40, 0x12C);
+            showDelayedTextAtTime(2.4f, 0xb9e, 4, NULL, this->marker, func_8038CB34, func_8038CB68);
         }
     }//L8038CF60
 
@@ -330,7 +333,7 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
         func_8030E878(0x3f2, local->unk0->unk14, 0x6d60, this->position, 500.0f, 1000.0f);
         skeletalAnim_set(this->unk148, ASSET_147_ANIM_BOOMBOX_MOVE, 0.2f, (1.0/(local->unk0->unk8)*randf2(1.0f, 1.1f)));
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        ml_vec3f_set_length(sp80, (this->state == 4)? -0x32*(2 + func_80326218()) : 300.0f/local->unk0->unk8);
+        ml_vec3f_set_length(sp80, (this->state == 4)? -0x32*(2 + actor_getGlobalFlag()) : 300.0f/local->unk0->unk8);
         local->unk14[0] = sp80[0] + this->position_x;
         local->unk14[1] = sp80[1] + this->position_y;
         local->unk14[2] = sp80[2] + this->position_z;
@@ -357,9 +360,9 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
         func_80326310(this);
         if(local->unk0->unk0 == ACTOR_284_BOSS_BOOM_BOX_SMALL){
             if(++D_80391280 == 8){
-                func_8025A58C(-1, 0x190);
-                comusic_8025AB44(COMUSIC_62_RBB_BOOMBOX, 0, 0x190);
-                func_8025AABC(COMUSIC_62_RBB_BOOMBOX);
+                playMusicWithFade(-1, 0x190);
+                comusic_fadeTrackWithArgsNoDelay(COMUSIC_62_RBB_BOOMBOX, 0, 0x190);
+                comusic_stopTrackById(COMUSIC_62_RBB_BOOMBOX);
                 if(volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)){
                     item_set(ITEM_6_HOURGLASS, 0);
                     volatileFlag_set(VOLATILE_FLAG_3, 0);
@@ -375,12 +378,12 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
             sp68[0] = this->position_x + 200.0f*local->unk0->unk4;
             sp68[1] = this->position_y + 80.0f*local->unk0->unk4;
             sp68[2] = this->position_z;
-            __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, local->unk0->unk0 + 1,  reinterpret_cast(s32, sp68[0]), reinterpret_cast(s32, sp68[1]), reinterpret_cast(s32, sp68[2]));
+            spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, local->unk0->unk0 + 1,  reinterpret_cast(s32, sp68[0]), reinterpret_cast(s32, sp68[1]), reinterpret_cast(s32, sp68[2]));
 
             sp68[0] = this->position_x - 200.0f*local->unk0->unk4;
             sp68[1] = this->position_y + 80.0f*local->unk0->unk4;
             sp68[2] = this->position_z;
-            __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, local->unk0->unk0 + 1, reinterpret_cast(s32, sp68[0]), reinterpret_cast(s32, sp68[1]), reinterpret_cast(s32, sp68[2]));
+            spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, local->unk0->unk0 + 1, reinterpret_cast(s32, sp68[0]), reinterpret_cast(s32, sp68[1]), reinterpret_cast(s32, sp68[2]));
         }
     }//L8038D378
 
@@ -421,7 +424,7 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
     }//L8038D4DC
     
     if(this->state == 3){
-        func_80258A4C(this->position, this->yaw - 90.0f, sp8C, &sp60, &sp5C, &sp58);
+        ml_vec3f_rotate_and_project(this->position, this->yaw - 90.0f, sp8C, &sp60, &sp5C, &sp58);
         if(0.7 < sp58)
             local->unk28 += 90.0f;
         else if(sp58 < -0.7){

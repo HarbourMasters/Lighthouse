@@ -126,7 +126,7 @@ void func_80352FF4(void){}
 
 void func_80352FFC(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3){
     f32 sp1C[3];
-    func_802589E4(sp1C, arg1, arg2);
+    ml_vec3f_set_yaw_length(sp1C, arg1, arg2);
     sp1C[1] = arg3;
     func_80352CF4(arg0, sp1C, randf2(380.0f, 250.0f), 4.0f);
 }

@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 extern void actor_postdrawMethod(ActorMarker *);
 
 Actor *func_802DC7E0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -77,7 +80,7 @@ void func_802DC960(void) {
 
 void func_802DC9A4(s32 arg0, s32 arg1){
     if(D_8037DE60 == NULL){
-        __spawnQueue_add_0(func_802DC960);
+        spawnQueue_add_0(func_802DC960);
     }
 }
 

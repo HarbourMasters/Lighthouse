@@ -1770,7 +1770,7 @@ typedef union {
  *        | |seg|         address             |
  *        +-+---+-----------------------------+
  */
-# define	gSPVertex(pkt, v, n, v0)				\
+# define	__gSPVertex(pkt, v, n, v0)				\
 {									\
 	Gfx *_g = (Gfx *)(pkt);						\
 	_g->words.w0 =							\
@@ -1792,12 +1792,12 @@ typedef union {
  *        | |seg|          address            |
  *        +-+---+-----------------------------+
  */
-# define	gSPVertex(pkt, v, n, v0) \
+# define	__gSPVertex(pkt, v, n, v0) \
                 gDma1p((pkt),G_VTX,(v),((n)<<10)|(sizeof(Vtx)*(n)-1),(v0)*2)
 # define	gsSPVertex(v, n, v0) \
                 gsDma1p(G_VTX,(v),((n)<<10)|(sizeof(Vtx)*(n)-1),(v0)*2)
 #else
-# define	gSPVertex(pkt, v, n, v0) \
+# define	__gSPVertex(pkt, v, n, v0) \
                 gDma1p(pkt, G_VTX, v, sizeof(Vtx)*(n),((n)-1)<<4|(v0))
 # define	gsSPVertex(v, n, v0) \
                 gsDma1p(G_VTX, v, sizeof(Vtx)*(n), ((n)-1)<<4|(v0))
@@ -1816,7 +1816,7 @@ typedef union {
 		gsDma1p(      G_MOVEMEM, (v), sizeof(Vp), G_MV_VIEWPORT)
 #endif	/* F3DEX_GBI_2 */
 
-#define	gSPDisplayList(pkt,dl)	gDma1p(pkt,G_DL,dl,0,G_DL_PUSH)
+#define	__gSPDisplayList(pkt,dl)	gDma1p(pkt,G_DL,dl,0,G_DL_PUSH)
 #define	gsSPDisplayList(   dl)	gsDma1p(   G_DL,dl,0,G_DL_PUSH)
 
 #define	gSPBranchList(pkt,dl)	gDma1p(pkt,G_DL,dl,0,G_DL_NOPUSH)
@@ -2189,7 +2189,7 @@ typedef union {
 }}
 #endif
 
-#define gSPSegment(pkt, segment, base)					\
+#define __gSPSegment(pkt, segment, base)					\
 	gMoveWd(pkt, G_MW_SEGMENT, (segment)*4, base)
 #define gsSPSegment(segment, base)					\
 	gsMoveWd(    G_MW_SEGMENT, (segment)*4, base)

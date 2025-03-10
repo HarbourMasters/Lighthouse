@@ -2,6 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/modelRender.h"
+
+
 /* extern functions */
 int func_80353064(f32 *, f32);
 void func_802BB3DC(s32, f32, f32);
@@ -110,7 +113,7 @@ void __chjuju_spawnJiggy(s32 x, s32 y, s32 z, s32 yaw) {
 }
 
 void __chjuju_solvePuzzle(s32 x, s32 y, s32 z, s32 yaw) {
-    __spawnQueue_add_4((GenFunction_4) __chjuju_spawnJiggy, x, y, z, yaw);
+    spawnQueue_add_4((GenFunction_4) __chjuju_spawnJiggy, x, y, z, yaw);
     func_802BB3DC(0, 10.0f, 0.8f);
     gcpausemenu_80314AC8(1);
 }
@@ -135,10 +138,10 @@ void func_803892A8(ActorMarker **ptr) {
             if (i == 3) {
                 gcpausemenu_80314AC8(0);
                 timedFunc_set_4(1.25f, __chjuju_solvePuzzle, jujuPtr->next_pos_x, jujuPtr->next_pos_y, jujuPtr->next_pos_z, actorPtr->yaw);
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x6d60);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x6d60);
             }
             else {//L80389384
-                func_8025A6EC(COMUSIC_2B_DING_B, 0x7fff);
+                comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 0x7fff);
             }
 
             for (s2 = 3, j = i + 1; j < 4; s2 += 5, j++) {

@@ -5,7 +5,7 @@
 /* extern functions */
 void actor_update_func_80326224(Actor *);
 void func_80329904(ActorMarker *, s32, void *);
-extern void func_802EFA20(ParticleEmitter *, f32, f32);
+extern void particleEmitter_setSfxPitchRange(ParticleEmitter *, f32, f32);
 
 /* public functions */
 void chorangepad_update(Actor *);
@@ -42,7 +42,7 @@ void func_80386444(ActorMarker *marker) {
         closest_orange_pad->state = 1;
 
         if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, 1, &distance_to_orange_pad)) {
-            func_8025A6EC(COMUSIC_2B_DING_B, 22000);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2B_DING_B, 22000);
         }
         else {
             temp_a0 = (closest_orange_pad->unk78_13 == 0x106) ? 0x10
@@ -52,7 +52,7 @@ void func_80386444(ActorMarker *marker) {
             func_802BAFE4(temp_a0);
             position[1] += 50.0f;
             timedFunc_set_3(0.6f, (GenFunction_3) __chorangepad_spawnJiggy, (s32) position[0], (s32) position[1], (s32) position[2]);
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+            comusic_playTrackWithVolumeOverride(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
 
             if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
                 gcdialog_showText(0xB3B, 4, NULL, NULL, NULL, NULL);
@@ -70,9 +70,9 @@ void func_80386444(ActorMarker *marker) {
         particleEmitter_setAngularVelocityRange(p_ctrl, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
         particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
         particleEmitter_setParticleLifeTimeRange(p_ctrl, 4.0f, 4.0f);
-        particleEmitter_func_802EF9F8(p_ctrl, 0.01f);
-        particleEmitter_func_802EFA18(p_ctrl, 3);
-        func_802EFA20(p_ctrl, 1.0f, 1.3f);
+        particleEmitter_setBounceFactor(p_ctrl, 0.01f);
+        particleEmitter_setCollisionCount(p_ctrl, 3);
+        particleEmitter_setSfxPitchRange(p_ctrl, 1.0f, 1.3f);
         particleEmitter_emitN(p_ctrl, 30);
     }
 }
