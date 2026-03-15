@@ -3,8 +3,6 @@
 #include "variables.h"
 #include "2.0L/PR/libaudio.h"
 #include "2.0L/PR/ultraerror.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 #define IFF_FILE_HDR    0x4d546864	/* 'MThd' */
 #define IFF_TRACK_HDR   0x4d54726b	/* 'MTrk' */
@@ -197,5 +195,3 @@ static s32 readVarLen(ALSeq *seq)
     }
     return (value);
 }
-
-#endif // [port] N64 SDK audio stub

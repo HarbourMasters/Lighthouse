@@ -6,9 +6,6 @@
 #include "initfx.h"
 #include "2.0L/PR/ultraerror.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 #ifndef assert
 #define assert(s) 
 #endif
@@ -433,5 +430,3 @@ f32 _doModFunc(ALDelay *d, s32 count)
 
   return(d->rsgain * val);
 }
-
-#endif // [port] N64 SDK audio stub

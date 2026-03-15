@@ -1,7 +1,5 @@
 #include "synthInternals.h"
 #include <2.0L/PR/libaudio.h>
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void alHeapInit(ALHeap *hp, u8 *base, s32 len)
 {
@@ -16,5 +14,3 @@ void alHeapInit(ALHeap *hp, u8 *base, s32 len)
     hp->cur  = hp->base;
     hp->count = 0;
 }
-
-#endif // [port] N64 SDK audio stub

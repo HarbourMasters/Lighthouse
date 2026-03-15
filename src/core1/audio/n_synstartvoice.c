@@ -19,8 +19,6 @@
 //#include <2.0L/PR/os_internal.h>
 #include <2.0L/PR/ultraerror.h>
 #include "n_synth.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void n_alSynStartVoice( N_ALVoice *v, ALWaveTable *table)
 {
@@ -48,6 +46,3 @@ void n_alSynStartVoice( N_ALVoice *v, ALWaveTable *table)
 	n_alEnvmixerParam(v->pvoice, AL_FILTER_ADD_UPDATE, update);        
     }
 }
-
-
-#endif // [port] N64 SDK audio stub

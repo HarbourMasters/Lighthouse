@@ -1,8 +1,5 @@
 #include <ultra64.h>
 #include "n_synth.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 
 void n_alSynDelete(void){
     n_syn->head = NULL;
@@ -16,5 +13,3 @@ void n_alSynDelete(void){
     n_syn->unk70 = NULL;
     n_syn->n_sndp = NULL;
 }
-
-#endif // [port] N64 SDK audio stub

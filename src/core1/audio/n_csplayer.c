@@ -8,9 +8,6 @@
 #include "2.0L/PR/ultraerror.h"
 #include <libultra/exception.h>
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 extern void func_8033F000(const char *, const char *, int);
 void    n_alSynSetVol( N_ALVoice *v, s16 volume, ALMicroTime t);
 s16             __n_vsVol(ALVoiceState *voice, ALSeqPlayer *seqp);
@@ -918,5 +915,3 @@ static void __setUsptFromTempo (ALCSPlayer *seqp, f32 tempo)
     else
 	seqp->uspt = 488;		/* This is the initial value set by alSeqpNew. */
 }
-
-#endif // [port] N64 SDK audio stub

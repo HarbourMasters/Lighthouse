@@ -158,6 +158,7 @@ add_compile_definitions(
     NON_EQUIVALENT=1
 	AVOID_UB=1
     GBI_FLOATS=1
+    N_MICRO=1
 )
 
 # Find necessary libraries
@@ -698,26 +699,26 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   install(FILES "${CMAKE_BINARY_DIR}/lighthouse.o2r" DESTINATION . COMPONENT ${PROJECT_NAME})
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-add_custom_target(CreateOSXIcons
-    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset
-    COMMAND sips -z 16 16     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16.png
-    COMMAND sips -z 32 32     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16@2x.png
-    COMMAND sips -z 32 32     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32.png
-    COMMAND sips -z 64 64     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32@2x.png
-    COMMAND sips -z 128 128   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128.png
-    COMMAND sips -z 256 256   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128@2x.png
-    COMMAND sips -z 256 256   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256.png
-    COMMAND sips -z 512 512   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256@2x.png
-    COMMAND sips -z 512 512   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512.png
-    COMMAND cp                logo.png ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512@2x.png
-    COMMAND iconutil -c icns -o ${CMAKE_BINARY_DIR}/macosx/lighthouse.icns ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Creating OSX icons ..."
-    )
-    add_dependencies(${PROJECT_NAME} CreateOSXIcons)
-    configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" COPYONLY)
-endif()
+# if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+# add_custom_target(CreateOSXIcons
+#     COMMAND mkdir -p ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset
+#     COMMAND sips -z 16 16     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16.png
+#     COMMAND sips -z 32 32     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16@2x.png
+#     COMMAND sips -z 32 32     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32.png
+#     COMMAND sips -z 64 64     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32@2x.png
+#     COMMAND sips -z 128 128   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128.png
+#     COMMAND sips -z 256 256   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128@2x.png
+#     COMMAND sips -z 256 256   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256.png
+#     COMMAND sips -z 512 512   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256@2x.png
+#     COMMAND sips -z 512 512   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512.png
+#     COMMAND cp                logo.png ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512@2x.png
+#     COMMAND iconutil -c icns -o ${CMAKE_BINARY_DIR}/macosx/lighthouse.icns ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset
+#     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+#     COMMENT "Creating OSX icons ..."
+#     )
+#     add_dependencies(${PROJECT_NAME} CreateOSXIcons)
+#     configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" COPYONLY)
+# endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/Lighthouse.desktop")

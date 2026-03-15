@@ -23,6 +23,7 @@
 #include "build.h"
 #include "port/ui/cvar_prefixes.h"
 #include "ui/LighthouseGui.hpp"
+#include "2.0L/PR/libaudio.h"
 // #include "port/patches/DisplayListPatch.h"
 #include "port/enhancements/events/PortEnhancements.h"
 
@@ -891,61 +892,40 @@ void GameEngine::StartFrame() const {
 #define gVIsPerFrame 2
 
 void GameEngine::HandleAudioThread() {
-    static unsigned short samples_high = SAMPLES_HIGH;
-    static unsigned short samples_low = SAMPLES_LOW;
-    static int countermin = 0;
-    static int frames = 0;
-#ifdef PIPE_DEBUG
-    std::ofstream outfile("audio.bin", std::ios::binary | std::ios::app);
-#endif
-    while (audio.running) {
-        {
-            std::unique_lock<std::mutex> Lock(audio.mutex);
-            while (!audio.processing && audio.running) {
-                audio.cv_to_thread.wait(Lock);
-            }
-            if (!audio.running) {
-                break;
-            }
-        }
+  int16_t audioBuffer[AUDIO_SAMPLES * 4 * 2];
+  Acmd cmdList[0x800];
 
-        // gVIsPerFrame = 2;
-
-#define AUDIO_FRAMES_PER_UPDATE (gVIsPerFrame > 0 ? gVIsPerFrame : 1)
-#define MAX_AUDIO_FRAMES_PER_UPDATE 5 // Compile-time constant with max value of gVIsPerFrame
-
-        std::unique_lock<std::mutex> Lock(audio.mutex);
-        int samples_left = AudioPlayerBuffered();
-        u32 num_audio_samples = samples_left < AudioPlayerGetDesiredBuffered() ? (((samples_high))) : (((samples_low)));
-
-        frames++;
-
-        if (frames > 60) {
-            countermin++;
-        }
-
-        // const int32_t num_audio_channels = GetNumAudioChannels();
-
-        // s16 audio_buffer[SAMPLES_HIGH * MAX_NUM_AUDIO_CHANNELS * MAX_AUDIO_FRAMES_PER_UPDATE] = { 0 };
-        // for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
-        //     AudioThread_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * num_audio_channels),
-        //                                       num_audio_samples);
-        // }
-#ifdef PIPE_DEBUG
-        if (outfile.is_open()) {
-            outfile.write(reinterpret_cast<char*>(audio_buffer),
-                          num_audio_samples * (sizeof(int16_t) * num_audio_channels * AUDIO_FRAMES_PER_UPDATE));
-        }
-#endif
-        // AudioPlayerPlayFrame((u8*) audio_buffer,
-        //                      num_audio_samples * (sizeof(int16_t) * num_audio_channels * AUDIO_FRAMES_PER_UPDATE));
-
-        audio.processing = false;
-        audio.cv_from_thread.notify_one();
+  while (mAudio.running) {
+    {
+      std::unique_lock<std::mutex> lock(mAudio.mutex);
+      while (!mAudio.processing && mAudio.running) {
+        mAudio.cv_to_thread.wait(lock);
+      }
+      if (!mAudio.running)
+        break;
     }
-#ifdef PIPE_DEBUG
-    outfile.close();
-#endif
+
+    // Generate audio twice per game frame, matching N64's 60Hz audio thread.
+    // On N64, nuAuMgr wakes every VI retrace (60Hz) and generates AlFrameSize
+    // (~552) samples. The game loop runs at 30fps → 2 audio frames per game
+    // frame. This ensures au_update_clients_for_video_frame() runs at the
+    // correct 60Hz
+    for (int pass = 0; pass < 2; pass++) {
+      int32_t cmdLen = 0;
+      int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
+
+      memset(audioBuffer, 0, samplesToGen);
+
+      alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
+      AudioPlayerPlayFrame((uint8_t *)audioBuffer, samplesToGen);
+    }
+
+    {
+      std::unique_lock<std::mutex> lock(mAudio.mutex);
+      mAudio.processing = false;
+    }
+    mAudio.cv_from_thread.notify_one();
+  }
 }
 
 void GameEngine::StartAudioFrame() {

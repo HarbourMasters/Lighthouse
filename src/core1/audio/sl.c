@@ -3,9 +3,6 @@
 #include "variables.h"
 #include "2.0L/PR/libaudio.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 ALGlobals *alGlobals = NULL;
 
 void alInit(ALGlobals *g, ALSynConfig *c){
@@ -37,5 +34,3 @@ void alUnlink(ALLink *ln){
         if (ln->prev)
         ln->prev->next = ln->next;
 }
-
-#endif // [port] N64 SDK audio stub

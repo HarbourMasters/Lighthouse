@@ -1,11 +1,8 @@
 #include <ultra64.h>
 #include "synthInternals.h"
-#include "port/mixer.h"
+#include "port/audio/mixer.h"
 #include <libultra/convert.h>
 #include <libultra/r4300.h>
-
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 #ifndef MIN
 #   define MIN(a,b) (((a)<(b))?(a):(b))
@@ -310,7 +307,8 @@ Acmd *alRaw16Pull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset, Acmd 
             dramAlign = dramLoc & 0x7;
             nbytes += dramAlign;
             aSetBuffer(ptr++, 0, *outp, 0, nbytes + 8 - (nbytes & 0x7));
-            aLoadBuffer(ptr++, dramLoc - dramAlign);
+            aLoadBuffer(ptr++, );
+            n_aLoadBuffer(ptr++, paddedSize, input, dramLoc - dramAlign);
         } else      
             dramAlign = 0; 
         *outp += dramAlign;
@@ -420,36 +418,27 @@ alLoadParam(void *filter, s32 paramID, void *param)
     return 0; // [port] MIPS implicit return, callers ignore value
 }
 
-Acmd *_decodeChunk(Acmd *ptr, ALLoadFilter *f, s32 tsam, s32 nbytes, s16 outp, s16 inp, u32 flags)
+Acmd *_decodeChunk(Acmd *ptr, ALLoadFilter *f, s32 tsam, s32 nbytes, s16 output, s16 input, s32 flags) {
+    intptr_t endAddr;
+    intptr_t endAlign;
+    s32 paddedSize;
 
-{
+    if (nbytes > 0) {
+        endAddr = (f->dma)(f->memin, nbytes, f->dmaState);
+        endAlign = endAddr & 7;
+        nbytes += endAlign;
+        paddedSize = nbytes + 8 - (nbytes & 7);
+        n_aLoadBuffer(ptr++, paddedSize, input, endAddr - endAlign);
+    } else {
+        endAlign = 0;
+    }
 
-    uintptr_t // [port] was s32, stores DMA addresses
-        dramAlign,
-        dramLoc;
-    
-    if (nbytes > 0){
-        dramLoc = (f->dma)(f->memin, nbytes, f->dmaState);
-        /*
-         * Make sure enough is loaded into DMEM to take care
-         * of 8 byte alignment
-         */
-        dramAlign = dramLoc & 0x7;
-        nbytes += dramAlign;
-        aSetBuffer(ptr++, 0, inp, 0, nbytes + 8 - (nbytes & 0x7));
-        aLoadBuffer(ptr++, dramLoc - dramAlign);
-    } else
-        dramAlign = 0;
-
-    if (flags & A_LOOP){
+    if (flags & A_LOOP) {
         aSetLoop(ptr++, K0_TO_PHYS(f->lstate));
     }
-    
-    aSetBuffer(ptr++, 0, inp + dramAlign, outp, tsam<<1);
-    aADPCMdec(ptr++, flags, K0_TO_PHYS(f->state));
-    f->first = 0;
 
+    n_aADPCMdec(ptr++, K0_TO_PHYS(f->state), flags, tsam << 1, endAlign, output);
+
+    f->first = 0;
     return ptr;
 }
-
-#endif // [port] N64 SDK audio stub

@@ -2,8 +2,6 @@
 #include "n_synth.h"
 #include "functions.h"
 
-#if 0 // [port] N64 SDK audio stub
-
 #ifdef AUD_PROFILE
 extern u32 cnt_index, resampler_num, resampler_cnt, resampler_max, resampler_min, lastCnt[];
 #endif
@@ -116,5 +114,3 @@ s32 n_alResampleParam(N_PVoice *filter, s32 paramID, void *param)
     }
     return 0;
 }
-
-#endif // [port] N64 SDK audio stub

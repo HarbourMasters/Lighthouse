@@ -3,8 +3,6 @@
 #include "variables.h"
 #include "n_synth.h"
 
-#if 0 // [port] N64 SDK audio stub
-
 Acmd *n_alAuxBusPull(s32 sampleOffset, Acmd *p) 
 {
   Acmd        *ptr = p;
@@ -23,5 +21,3 @@ Acmd *n_alAuxBusPull(s32 sampleOffset, Acmd *p)
     ptr = n_alEnvmixerPull(sources[i],sampleOffset,ptr);
   return ptr;
 }
-
-#endif // [port] N64 SDK audio stub

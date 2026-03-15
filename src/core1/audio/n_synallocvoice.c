@@ -4,9 +4,6 @@
 
 #include <ultra64.h>
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 static s32 _n_allocatePVoice(N_PVoice **pvoice, s16 priority);
 
 s32 n_alSynAllocVoice( N_ALVoice *voice, ALVoiceConfig *vc)
@@ -111,4 +108,3 @@ s32 _n_allocatePVoice(N_PVoice **pvoice, s16 priority)
     
     return stolen;
 }
-#endif // [port] N64 SDK audio stub

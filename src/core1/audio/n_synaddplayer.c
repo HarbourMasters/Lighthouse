@@ -3,8 +3,6 @@
 #include "n_synth.h"
 #include "libultraship/libultra/interrupt.h"
 #include "libultraship/libultra/exception.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void n_alSynAddPlayer( ALPlayer *client)
 {
@@ -69,5 +67,3 @@ void n_alSynAddSeqPlayer(ALPlayer *client)
 
     osSetIntMask(mask);
 }
-
-#endif // [port] N64 SDK audio stub

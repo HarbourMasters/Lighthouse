@@ -1,410 +1,141 @@
-#ifndef _ABI_H_
-#define	_ABI_H_
-#if 1
-/**************************************************************************
- *									  *
- *		 Copyright (C) 1994, Silicon Graphics, Inc.		  *
- *									  *
- *  These coded instructions, statements, and computer programs  contain  *
- *  unpublished  proprietary  information of Silicon Graphics, Inc., and  *
- *  are protected by Federal copyright law.  They  may  not be disclosed  *
- *  to  third  parties  or copied or duplicated in any form, in whole or  *
- *  in part, without the prior written consent of Silicon Graphics, Inc.  *
- *									  *
- **************************************************************************/
-
-/**************************************************************************
+/*====================================================================
  *
- *  $Revision: 1.32 $
- *  $Date: 1997/02/11 08:16:37 $
- *  $Source: /exdisk2/cvs/N64OS/Master/cvsmdev2/PR/include/abi.h,v $
+ * Copyright 1993, Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- **************************************************************************/
-
-/*
- * Header file for the Audio Binary Interface.
- * This is included in the Media Binary Interface file
- * mbi.h. 
+ * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Silicon Graphics,
+ * Inc.; the contents of this file may not be disclosed to third
+ * parties, copied or duplicated in any form, in whole or in part,
+ * without the prior written permission of Silicon Graphics, Inc.
  *
- * This file follows the framework used for graphics.
- * 
- */
+ * RESTRICTED RIGHTS LEGEND:
+ * Use, duplication or disclosure by the Government is subject to
+ * restrictions as set forth in subdivision (c)(1)(ii) of the Rights
+ * in Technical Data and Computer Software clause at DFARS
+ * 252.227-7013, and/or in similar or successor clauses in the FAR,
+ * DOD or NASA FAR Supplement. Unpublished - rights reserved under the
+ * Copyright Laws of the United States.
+ *====================================================================*/
 
-/* Audio commands: */
-#define	A_SPNOOP		0
-#define	A_ADPCM			1
-#define	A_CLEARBUFF		2
-#define	A_ENVMIXER		3
-#define	A_LOADBUFF		4
-#define	A_RESAMPLE		5
-#define A_SAVEBUFF	        6
-#define A_SEGMENT		7
-#define A_SETBUFF		8
-#define A_SETVOL		9
-#define A_DMEMMOVE              10
-#define A_LOADADPCM             11
-#define A_MIXER		        12
-#define A_INTERLEAVE            13
-#define A_POLEF                 14
-#define A_SETLOOP               15
+#ifndef __N_ABI__
+#define	__N_ABI__
 
-#define ACMD_SIZE               32
-/*
- * Audio flags
- */
-
-#define A_INIT			0x01
-#define A_CONTINUE		0x00
-#define A_LOOP                  0x02
-#define A_OUT                   0x02
-#define A_LEFT			0x02
-#define	A_RIGHT			0x00
-#define A_VOL			0x04
-#define A_RATE			0x00
-#define A_AUX			0x08
-#define A_NOAUX			0x00
-#define A_MAIN			0x00
-#define A_MIX			0x10
+// Audio command constants needed by PM64 audio system
+#ifndef A_SETVOL
+#define A_SETVOL 9
+#endif
+#ifndef A_POLEF
+#define A_POLEF 14
+#endif
 
 /*
  * BEGIN C-specific section: (typedef's)
  */
+
 #if defined(_LANGUAGE_C) || defined(_LANGUAGE_C_PLUS_PLUS)
 
-/*
- * Data Structures.
- */
-
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	gain:16;
-//	unsigned int	addr;
-//} Aadpcm;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	gain:16;
-//	unsigned int	addr;
-//} Apolef;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	pad1:16;
-//	unsigned int	addr;
-//} Aenvelope;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	pad1:8;
-//	unsigned int	dmem:16;
-//	unsigned int	pad2:16;
-//	unsigned int	count:16;
-//} Aclearbuff;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	pad1:8;
-//	unsigned int	pad2:16;
-//	unsigned int	inL:16;
-//        unsigned int    inR:16;
-//} Ainterleave;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	pad1:24;
-//	unsigned int	addr;
-//} Aloadbuff;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	pad1:16;
-//	unsigned int	addr;
-//} Aenvmixer;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	gain:16;
-//	unsigned int	dmemi:16;
-//	unsigned int	dmemo:16;
-//} Amixer;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	dmem2:16;
-//	unsigned int	addr;
-//} Apan;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	pitch:16;
-//	unsigned int	addr;
-//} Aresample;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	pad1:16;
-//	unsigned int	addr;
-//} Areverb;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	pad1:24;
-//	unsigned int	addr;
-//} Asavebuff;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	pad1:24;
-//	unsigned int    pad2:2;
-//	unsigned int    number:4;
-//	unsigned int	base:24;
-//} Asegment;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	dmemin:16;
-//	unsigned int	dmemout:16;
-//	unsigned int	count:16;
-//} Asetbuff;
-//
-//typedef struct {
-//  	unsigned int	cmd:8;
-//	unsigned int	flags:8;
-//	unsigned int	vol:16;
-//	unsigned int	voltgt:16;
-//	unsigned int	volrate:16;
-//} Asetvol;
-//
-//typedef struct {
-//    unsigned int        cmd:8;
-//    unsigned int        pad1:8;
-//    unsigned int        dmemin:16;
-//    unsigned int        dmemout:16;
-//    unsigned int        count:16;
-//} Admemmove;
-//
-//typedef struct {
-//    unsigned int        cmd:8;
-//    unsigned int        pad1:8;
-//    unsigned int        count:16;
-//    unsigned int        addr;
-//} Aloadadpcm;
-//
-//typedef struct {
-//    unsigned int        cmd:8;
-//    unsigned int        pad1:8;
-//    unsigned int        pad2:16;
-//    unsigned int        addr;
-//} Asetloop;
-        
-/*
- * Generic Acmd Packet
- */
-
-//typedef struct {
-//	unsigned int w0;
-//	unsigned int w1;
-//} Awords;
-//
-//typedef union {
-//	Awords		words;
-//	Aadpcm		adpcm;
-//        Apolef          polef;
-//	Aclearbuff	clearbuff;
-//	Aenvelope	envelope;
-//        Ainterleave     interleave;
-//	Aloadbuff	loadbuff;
-//        Aenvmixer       envmixer;
-//	Aresample	resample;
-//	Areverb		reverb;
-//	Asavebuff	savebuff;
-//	Asegment	segment;
-//	Asetbuff	setbuff;
-//	Asetvol		setvol;
-//        Admemmove       dmemmove;
-//        Aloadadpcm	loadadpcm;
-//        Amixer		mixer;
-//        Asetloop        setloop;
-//        long long int	force_union_align;	/* dummy, force alignment */
-//} Acmd;
-
-/*
- * ADPCM State
- */
-#define ADPCMVSIZE	8
-#define ADPCMFSIZE      16
-typedef short ADPCM_STATE[ADPCMFSIZE];
-
-/*
- * Pole filter state
- */
-typedef short POLEF_STATE[4];
-
-/*
- * Resampler state
- */
-typedef short RESAMPLE_STATE[16];
-
-/*
- * Resampler constants
- */
-#define UNITY_PITCH 0x8000
-#define MAX_RATIO 1.99996	/* within .03 cents of +1 octave */
-
-/*
- * Enveloper/Mixer state
- */
-typedef short ENVMIX_STATE[40];
+#ifdef PLATFORM_N64
 
 /*
  * Macros to assemble the audio command list
  */
 
-#define	aADPCMdec(pkt, f, s)						\
+#define	n_aADPCMdec(pkt, s, f, c, a, d)					\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
-	_a->words.w0 = _SHIFTL(A_ADPCM, 24, 8) | _SHIFTL(f, 16, 8);     \
-	_a->words.w1 = (unsigned int)(s);				\
+	_a->words.w0 = (_SHIFTL(A_ADPCM, 24, 8) | _SHIFTL(s, 0, 24));   \
+	_a->words.w1 = (_SHIFTL(f, 28, 4) | _SHIFTL(c, 16, 12) |        \
+			_SHIFTL(a, 12, 4) | _SHIFTL(d, 0, 12));         \
 }
 
-#define	aPoleFilter(pkt, f, g, s)					\
+#define n_aPoleFilter(pkt, f, g, t, s)					\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
 	_a->words.w0 = (_SHIFTL(A_POLEF, 24, 8) | _SHIFTL(f, 16, 8) |	\
 			_SHIFTL(g, 0, 16)); 				\
-	_a->words.w1 = (unsigned int)(s);				\
+	_a->words.w1 = (_SHIFTL(t, 24, 8) |                             \
+			_SHIFTL((unsigned int)(s), 0, 24));		\
 }
 
-#define	aClearBuffer(pkt, d, c)						\
+#define n_aEnvMixer(pkt, f, t, s)						\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
-	_a->words.w0 = _SHIFTL(A_CLEARBUFF, 24, 8) | _SHIFTL(d, 0, 24);	\
-	_a->words.w1 = (unsigned int)(c);				\
-}
-
-#define	aEnvMixer(pkt, f, s)						\
-{									\
-	Acmd *_a = (Acmd *)pkt;						\
-									\
-	_a->words.w0 = _SHIFTL(A_ENVMIXER, 24, 8) | _SHIFTL(f, 16, 8);	\
+	_a->words.w0 = (_SHIFTL(A_ENVMIXER, 24, 8) | _SHIFTL(f, 16, 8) |\
+			_SHIFTL(t, 0, 16));                     	\
 	_a->words.w1 = (unsigned int)(s);				\
 }
 
-#define	aInterleave(pkt, l, r)						\
+#define n_aInterleave(pkt)						\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
 	_a->words.w0 = _SHIFTL(A_INTERLEAVE, 24, 8);    		\
-	_a->words.w1 = _SHIFTL(l, 16, 16) | _SHIFTL(r, 0, 16);		\
 }
 
-#define	aLoadBuffer(pkt, s)						\
+#define n_aLoadBuffer(pkt, c, d, s)						\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
-	_a->words.w0 = _SHIFTL(A_LOADBUFF, 24, 8);			\
+	_a->words.w0 = (_SHIFTL(A_LOADBUFF, 24, 8) | _SHIFTL(c, 12, 12)|\
+			_SHIFTL(d, 0, 12));                             \
 	_a->words.w1 = (unsigned int)(s);				\
 }
 
-#define	aMix(pkt, f, g, i, o)						\
+#define n_aResample(pkt, s, f, p, i, o)					\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
-	_a->words.w0 = (_SHIFTL(A_MIXER, 24, 8) | _SHIFTL(f, 16, 8) |	\
-			_SHIFTL(g, 0, 16)); 				\
-	_a->words.w1 = _SHIFTL(i,16, 16) | _SHIFTL(o, 0, 16);		\
+	_a->words.w0 = (_SHIFTL(A_RESAMPLE, 24, 8) | _SHIFTL(s, 0, 24));\
+	_a->words.w1 = (_SHIFTL(f, 30, 2) | _SHIFTL(p, 14, 16) |        \
+			_SHIFTL(i, 2, 12) | _SHIFTL(o, 0, 2));          \
 }
 
-#define	aPan(pkt, f, d, s)						\
+#define n_aSaveBuffer(pkt, c, d, s)					\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
-	_a->words.w0 = (_SHIFTL(A_PAN, 24, 8) | _SHIFTL(f, 16, 8) |	\
-			_SHIFTL(d, 0, 16)); 				\
+	_a->words.w0 = (_SHIFTL(A_SAVEBUFF, 24, 8) | _SHIFTL(c, 12, 12)|\
+			_SHIFTL(d, 0, 12));                             \
 	_a->words.w1 = (unsigned int)(s);				\
 }
 
-#define	aResample(pkt, f, p, s)						\
+#define n_aSetVolume(pkt, f, v, t, r)					\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
-	_a->words.w0 = (_SHIFTL(A_RESAMPLE, 24, 8) | _SHIFTL(f, 16, 8) |\
-			_SHIFTL(p, 0, 16)); 				\
-	_a->words.w1 = (unsigned int)(s);				\
-}
-
-#define	aSaveBuffer(pkt, s)						\
-{									\
-	Acmd *_a = (Acmd *)pkt;						\
-									\
-	_a->words.w0 = _SHIFTL(A_SAVEBUFF, 24, 8);			\
-	_a->words.w1 = (unsigned int)(s);				\
-}
-
-#define	aSegment(pkt, s, b)						\
-{									\
-	Acmd *_a = (Acmd *)pkt;						\
-									\
-	_a->words.w0 = _SHIFTL(A_SEGMENT, 24, 8);			\
-	_a->words.w1 = _SHIFTL(s, 24, 8) | _SHIFTL(b, 0, 24);		\
-}
-
-#define	aSetBuffer(pkt, f, i, o, c)					\
-{									\
-	Acmd *_a = (Acmd *)pkt;						\
-									\
-	_a->words.w0 = (_SHIFTL(A_SETBUFF, 24, 8) | _SHIFTL(f, 16, 8) |	\
-			_SHIFTL(i, 0, 16)); 				\
-	_a->words.w1 = _SHIFTL(o, 16, 16) | _SHIFTL(c, 0, 16);		\
-}
-
-#define	aSetVolume(pkt, f, v, t, r)					\
-{									\
-	Acmd *_a = (Acmd *)pkt;						\
-									\
-	_a->words.w0 = (_SHIFTL(A_SETVOL, 24, 8) | _SHIFTL(f, 16, 16) |	\
+	_a->words.w0 = (_SHIFTL(A_SETVOL, 24, 8) | _SHIFTL(f, 16, 8) |	\
 			_SHIFTL(v, 0, 16)); 				\
 	_a->words.w1 = _SHIFTL(t, 16, 16) | _SHIFTL(r, 0, 16);		\
 }
 
-#define aSetLoop(pkt, a)                                                \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-        _a->words.w0 = _SHIFTL(A_SETLOOP, 24, 8);                       \
-        _a->words.w1 = (unsigned int)(a);                               \
-}
-    
-#define	aDMEMMove(pkt, i, o, c)						\
-{									\
-	Acmd *_a = (Acmd *)pkt;						\
-									\
-	_a->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(i, 0, 24);	\
-	_a->words.w1 = _SHIFTL(o, 16, 16) | _SHIFTL(c, 0, 16);		\
-}
-
-#define	aLoadADPCM(pkt, c, d)						\
+#define n_aLoadADPCM(pkt, c, d)						\
 {									\
 	Acmd *_a = (Acmd *)pkt;						\
 									\
 	_a->words.w0 = _SHIFTL(A_LOADADPCM, 24, 8) | _SHIFTL(c, 0, 24);	\
-        _a->words.w1 = (unsigned int) d;                                \
+	_a->words.w1 = (unsigned int) d;                                \
 }
 
-#endif /* _LANGUAGE_C */
+#else // PLATFORM_N64
+
+#include "port/audio/mixer.h"
+
+#define n_aNoop(pkt, outp, b, c) aDisable(pkt, outp, b, c);
+#define n_aADPCMdec(pkt, s, f, c, a, d) aADPCMdec(pkt, s, f, c, a, d);
+#define n_aPoleFilter(pkt, f, g, t, s) aPoleFilter(pkt, f, g, t, s);
+#define n_aEnvMixer(pkt, f, t, s) aEnvMixer(pkt, f, t, s);
+#define n_aInterleave(pkt) aInterleave(pkt);
+#define n_aLoadBuffer(pkt, c, d, s) aLoadBuffer(pkt, c, d, s);
+#define n_aResample(pkt, s, f, p, i, o) aResample(pkt, s, f, p, i, o);
+#define n_aSaveBuffer(pkt, c, s, d) aSaveBuffer(pkt, c, s, d);
+#define n_aSetVolume(pkt, f, v, t, r) aSetVolume(pkt, f, v, t, r);
+#define n_aLoadADPCM(pkt, c, d) aLoadADPCM(pkt, c, d);
+
 #endif
-#endif /* !_ABI_H_ */
 
+#endif /* _LANGUAGE_C */
 
-
+#endif /* __N_ABI__ */

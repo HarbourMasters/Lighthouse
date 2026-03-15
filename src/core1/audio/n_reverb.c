@@ -5,9 +5,6 @@
 //#include "2.0L/PR/os_error.h"
 #include "2.0L/PR/ultraerror.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 #define RANGE 2.0
 extern ALGlobals *alGlobals;
 
@@ -378,5 +375,3 @@ Acmd *__n_filterBuffer(ALLowPass *lp, s32 buff, Acmd *p)
 
     return ptr;
 }
-
-#endif // [port] N64 SDK audio stub

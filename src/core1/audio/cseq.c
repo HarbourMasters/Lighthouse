@@ -3,8 +3,6 @@
 //#include "2.0L/PR/os_error.h"
 #include <ultra64.h>
 //#include <libultra/convert.h>
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 static u32 __readVarLen(ALCSeq *s,u32 track);
 static u8  __getTrackByte(ALCSeq *s,u32 track);
@@ -379,5 +377,3 @@ static u32 __readVarLen(ALCSeq *seq,u32 track)
     }
     return (value);
 }
-
-#endif // [port] N64 SDK audio stub

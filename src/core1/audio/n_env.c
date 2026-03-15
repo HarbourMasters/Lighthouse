@@ -5,7 +5,6 @@
 #include "assert.h"
 
 // [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 #ifdef AUD_PROFILE
 extern u32 cnt_index, env_num, env_cnt, env_max, env_min, lastCnt[];
@@ -418,5 +417,3 @@ s16 __n_getVol(s16 ivol, s32 samples, s16 ratem, u16 ratel)
     ivol += m;
     return (s16) ivol;
 }
-
-#endif // [port] N64 SDK audio stub

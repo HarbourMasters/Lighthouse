@@ -2,8 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "2.0L/PR/libaudio.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void alCSPSetTempo(ALCSPlayer *seqp, s32 tempo)
 {
@@ -18,5 +16,3 @@ void alCSPSetTempo(ALCSPlayer *seqp, s32 tempo)
     
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
-
-#endif // [port] N64 SDK audio stub

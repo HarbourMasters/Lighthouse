@@ -4,9 +4,6 @@
 
 #include "n_synth.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 #ifndef assert
 #define assert(s) 
 #endif
@@ -360,5 +357,3 @@ static s32 func_8025C370(ALPlayer **client)
 
     return (*client)->samplesLeft;
 }
-
-#endif // [port] N64 SDK audio stub

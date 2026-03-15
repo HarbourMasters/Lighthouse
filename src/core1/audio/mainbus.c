@@ -1,7 +1,5 @@
 #include <ultra64.h>
 #include "synthInternals.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 Acmd *alMainBusPull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset, Acmd *p) 
 {
@@ -46,5 +44,3 @@ s32 alMainBusParam(void *filter, s32 paramID, void *param)
     return 0;
     
 }
-
-#endif // [port] N64 SDK audio stub

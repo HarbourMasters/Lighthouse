@@ -1,7 +1,5 @@
 #include <ultra64.h>
 #include "n_synth.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 #define ADPCMFBYTES      9
 
@@ -88,5 +86,3 @@ n_alLoadParam(N_PVoice *v, s32 paramID, void *param)
     }
     return 0; // [port] MIPS implicit return, callers ignore value
 }
-
-#endif // [port] N64 SDK audio stub

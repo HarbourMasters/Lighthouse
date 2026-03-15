@@ -5400,4 +5400,9 @@ enum vegetable_e {
     VEGETABLE_3_COLLY_WOBBLE
 };
 
+enum chvilegame_piece_type_e {
+    YUMBLIE,
+    GRUMBLIE
+};
+
 #endif

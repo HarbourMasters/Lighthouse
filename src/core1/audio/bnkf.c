@@ -5,8 +5,6 @@
 //#include "2.0L/PR/os_error.h"
 #include "2.0L/PR/ultraerror.h"
 /* copt used??? */
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void alSeqFileNew(ALSeqFile *file, u8 *base)
 {
@@ -118,6 +116,3 @@ void alBnkfNew(ALBankFile *file, u8 *table)
             _bnkfPatchBank(file->bankArray[i], offset, woffset);
     }
 }
-
-
-#endif // [port] N64 SDK audio stub
