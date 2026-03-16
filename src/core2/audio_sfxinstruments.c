@@ -23,20 +23,16 @@ ALBank * sfx_sound_bank;
 
 /* .code */
 void sfxInstruments_init(void){
-    // [port] TODO AUDIO: SFX bank init is stubbed. sfx_sound_bank remains NULL.
-    // All callers of func_8033531C/func_803354B4/func_803354EC must NULL-guard.
-    // Restore this when audio subsystem is ported (needs soundfont DMA + synth driver).
-#if 0
     ALBank *bnk;
     s32 size;
     ALInstrument *inst;
     ALBankFile * bnkf;
-    
-    
+
+
     size = soundfont1ctl_ROM_END - soundfont1ctl_ROM_START;
     bnkf = (ALBankFile *)bk_malloc(size);
     osWritebackDCache(bnkf, size);
-    osPiStartDma(func_802405D0(), 0, 0, (u32)soundfont1ctl_ROM_START, bnkf, size, func_802405C4());
+    osPiStartDma(func_802405D0(), 0, 0, (uintptr_t)soundfont1ctl_ROM_START, bnkf, size, func_802405C4()); // [port] u32 → uintptr_t
     osRecvMesg(func_802405C4(), NULL, 1);
     alBnkfNew(bnkf, soundfont1tbl_ROM_START);
     bnk = bnkf->bankArray[0];
@@ -48,7 +44,6 @@ void sfxInstruments_init(void){
     D_803835F0.unkC = func_802405B8();
     func_80243070(&D_803835F0);
     sfx_sound_bank = bnk;
-#endif
 }
 
 int func_8033531C(enum sfx_e uid, struct46s *arg1){
@@ -95,31 +90,23 @@ u32 func_80335494(Struct81s *arg0){
 }
 
 s32 func_803354B4(void){
-    // [port] TODO AUDIO: sfx_sound_bank is NULL (sfxInstruments_init stubbed)
-    // return sfx_sound_bank->instArray[0]->soundCount;
-    if (sfx_sound_bank == NULL) return 0;
+    if (sfx_sound_bank == NULL) return 0; // [port] guard
     return sfx_sound_bank->instArray[0]->soundCount;
 }
 
 s32 func_803354C8(void){
-    // [port] TODO AUDIO: music_get_sound_bank() is NULL (musicInstruments_init bank load stubbed)
-    // return music_get_sound_bank()->instArray[0]->soundCount;
     ALBank *bank = music_get_sound_bank();
-    if (bank == NULL) return 0;
+    if (bank == NULL) return 0; // [port] guard
     return bank->instArray[0]->soundCount;
 }
 
 bool func_803354EC(enum sfx_e sfx_id){
-    // [port] TODO AUDIO: sfx_sound_bank is NULL (sfxInstruments_init stubbed)
-    // return func_802445C4(sfx_sound_bank, (s16)(sfx_id + 1));
-    if (sfx_sound_bank == NULL) return false;
+    if (sfx_sound_bank == NULL) return false; // [port] guard
     return func_802445C4(sfx_sound_bank, (s16)(sfx_id + 1));
 }
 
 bool func_80335520(s32 arg0){
-    // [port] TODO AUDIO: music_get_sound_bank() is NULL (musicInstruments_init bank load stubbed)
-    // return func_802445C4(music_get_sound_bank(), (s16)(arg0 + 1));
     ALBank *bank = music_get_sound_bank();
-    if (bank == NULL) return false;
+    if (bank == NULL) return false; // [port] guard
     return func_802445C4(bank, (s16)(arg0 + 1));
 }

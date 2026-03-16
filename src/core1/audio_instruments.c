@@ -224,10 +224,6 @@ structBs     D_80282110[0x20];
 void musicInstruments_init(void){
     s32 i;
 
-    // [port] Allocate track array and initialize player state so the music
-    // system's bookkeeping works at runtime. Skip soundfont DMA, synth driver
-    // init, and bank patching — those need N64 hardware. Eventually OpenAL
-    // will replace the synth path.
     D_80282104 = 0xAD;
     D_802820E0 = (MusicTrack **) bk_malloc(D_80282104 * sizeof(MusicTrack *));
     for(i = 0; i < D_80282104; i++){
@@ -244,11 +240,6 @@ void musicInstruments_init(void){
         D_80281720[i].cseqp.state = AL_STOPPED;
     }
 
-#if 0
-    // [port] TODO AUDIO: Music bank init is stubbed. D_80282108 remains NULL,
-    // so music_get_sound_bank() returns NULL. All callers must NULL-guard.
-    // Restore this when audio subsystem is ported (needs soundfont DMA + synth driver).
-    // Original N64 init:
     ALBankFile * bnk_f;
     f32 tmpf1;
     s32 size;
@@ -256,7 +247,7 @@ void musicInstruments_init(void){
     size = soundfont2ctl_ROM_END - soundfont2ctl_ROM_START;
     bnk_f = bk_malloc(size);
     osWritebackDCacheAll();
-    osPiStartDma(func_802405D0(), 0, 0, (u32)soundfont2ctl_ROM_START, bnk_f, size, func_802405C4());
+    osPiStartDma(func_802405D0(), 0, 0, (uintptr_t)soundfont2ctl_ROM_START, bnk_f, size, func_802405C4()); // [port] u32 → uintptr_t
     osRecvMesg(func_802405C4(), 0, 1);
 
     D_802820E8.maxVoices = 0x18;
@@ -278,7 +269,6 @@ void musicInstruments_init(void){
     }
 
     func_8024FB8C();
-#endif
 }
 
 ALBank *music_get_sound_bank(void){
@@ -286,8 +276,6 @@ ALBank *music_get_sound_bank(void){
 }
 
 void func_8024F764(s32 arg0){//music track load
-    // [port] TODO AUDIO: music track loading stubbed (needs soundfont + sequencer)
-    return;
     if(D_802820E0[arg0] == NULL){
         func_8033B788();
 #if VERSION == VERSION_USA_1_0
@@ -322,8 +310,7 @@ void func_8024F83C(void){
 void func_8024F890(u8 arg0, s32 arg1){
     s32 i;
     if(arg1 == -1){
-        // [port] Only update index — skip alCSPStop since synth driver isn't initialized
-        if(arg1 != D_80281720[arg0].index && D_80281720[arg0].cseqp.drvr != NULL)
+        if(arg1 != D_80281720[arg0].index && D_80281720[arg0].cseqp.drvr != NULL) // [port] guard
             alCSPStop(&D_80281720[arg0].cseqp);
         D_80281720[arg0].index = arg1;
     }
@@ -339,8 +326,7 @@ void func_8024F890(u8 arg0, s32 arg1){
             D_80281720[arg0].unk192[i] = 0;
         }
         func_8024F764(D_80281720[arg0].index);
-        // [port] Skip synth playback calls when driver isn't initialized
-        if(D_80281720[arg0].cseqp.drvr == NULL)
+        if(D_80281720[arg0].cseqp.drvr == NULL) // [port] guard
             return;
         if (arg1 >= 0 && arg1 < 0xB0 && D_802820E0 != NULL) {
             n_alCSeqNew(&D_80281720[arg0].cseq, (u8 *)D_802820E0[arg1]); // [port] MusicTrack* to u8* for sequence data pointer

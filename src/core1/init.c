@@ -127,7 +127,7 @@ void core1_init(void) {
     assetCache_init();
     pfsManager_init();
     baMotor_init();
-    //audioManager_init();
+    audioManager_init();
     graphicsCache_init();
     ml_init();
     gctransition_reset();
