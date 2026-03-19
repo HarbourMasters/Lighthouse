@@ -38,7 +38,7 @@
 #endif
 
 const float imguiScaleOptionToValue[4] = { 0.75f, 1.0f, 1.5f, 2.0f };
-std::shared_ptr<Fast::Fast3dWindow> gsFast3dWindow;
+std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
 const uint32_t defaultImGuiScale = 1;
 int32_t previousImGuiScaleIndex = -1;
 float previousImGuiScale = defaultImGuiScale;
@@ -118,16 +118,16 @@ GameEngine::GameEngine()/* : dictionary(nullptr)*/ {
     // ShipDeviceIndexMappingManager::UpdateControllerNamesFromConfig()
 
     assets_path = Ship::Context::LocateFileAcrossAppDirs("lighthouse.o2r");
-    portArchiveVersionMatch = std::filesystem::exists(assets_path);
+    portArchiveVersionMatch = std::filesystem::exists(assets_path); // TODO: port archive versioning
 
     auto controlDeck = std::make_shared<LUS::ControlDeck>();
 
     this->context->InitControlDeck(controlDeck);
-    this->context->InitResourceManager({ assets_path }, {}, 3);
+    this->context->InitResourceManager({ assets_path }, {}, 3, true);
     this->context->InitConsole();
 
-    gsFast3dWindow = std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({}));
-    this->context->InitWindow(gsFast3dWindow);
+    lhFast3dWindow = std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({}));
+    this->context->InitWindow(lhFast3dWindow);
 
     LighthouseGui::SetupMenu();
 
@@ -258,9 +258,9 @@ void GameEngine::FinishInit() {
 
     this->context->InitAudio({ .SampleRate = 32000, .SampleLength = 512, .DesiredBuffered = 1100 });
 
-    gsFast3dWindow->SetTargetFps(60);
-    gsFast3dWindow->SetMaximumFrameLatency(1);
-    gsFast3dWindow->SetRendererUCode(ucode_f3d);
+    lhFast3dWindow->SetTargetFps(60);
+    lhFast3dWindow->SetMaximumFrameLatency(1);
+    lhFast3dWindow->SetRendererUCode(ucode_f3d);
 
     auto loader = context->GetResourceManager()->GetResourceLoader();
     auto blobFactory = std::make_shared<Ship::ResourceFactoryBinaryBlobV0>();
@@ -375,7 +375,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             "No O2R files found. Missing 'assets/' folder needed to generate OTR file.\nPlease "
             "re-extract them from the download or.\n\nExiting...",
             "OK", "", [&]() {
-                gsFast3dWindow = nullptr;
+                lhFast3dWindow = nullptr;
                 context = nullptr;
                 exit(1);
             });
@@ -393,7 +393,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         }
         switch (extractStep) {
         case ES_PORT_ARCHIVE: {
-            // if (portArchiveVersionMatch) {
+             if (portArchiveVersionMatch) {
 #ifdef _WIN32
             extractStep = ES_WINDOWS;
 #elif (defined(__WIIU__) || defined(__SWITCH__))
@@ -401,25 +401,25 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
 #else
             extractStep = ES_EXTRACT;
 #endif
-            /*} else {
-            std::string msg;
+            } else {
+                std::string msg;
 
-            #if defined(__SWITCH__)
-            msg = "\x1b[4;2HPlease re-extract it from the download.\n"
-            "\x1b[6;2HPress the Home button to exit...";
-            #elif defined(__WIIU__)
-            msg = "Please extract the soh.o2r from the Ship of Harkinian download\nto your folder.\n\nPress "
-            "and hold the power\n"
-            "button to shutdown...";
-            #else
-            msg =
-            "Please extract the soh.o2r from the Ship of Harkinian download to your folder.\n\nExiting...";
-            #endif
-            std::string title =
-            !std::filesystem::exists(assets_path) ? "Missing lighthouse.o2r" : "lighthouse.o2r is outdated";
-            LighthouseGui::RegisterPopup(title, msg, "OK", "", [&]() { exit(1); });
+                #if defined(__SWITCH__)
+                msg = "\x1b[4;2HPlease re-extract it from the download.\n"
+                "\x1b[6;2HPress the Home button to exit...";
+                #elif defined(__WIIU__)
+                msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download\nto your folder.\n\nPress "
+                "and hold the power\n"
+                "button to shutdown...";
+                #else
+                msg =
+                "Please extract the lighthouse.o2r from the Ship of Harkinian download to your folder.\n\nExiting...";
+                #endif
+                std::string title =
+                !std::filesystem::exists(assets_path) ? "Missing lighthouse.o2r" : "lighthouse.o2r is outdated";
+                LighthouseGui::RegisterPopup(title, msg, "OK", "", [&]() { exit(1); });
             }
-            continue;*/
+            continue;
         }
         case ES_WINDOWS: {
             switch (windowsStep) {
@@ -443,7 +443,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         "Lighthouse is running in a temp folder.\nExtract the .zip and run again.", "OK", "",
                         [&]() {
                             threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
+                            lhFast3dWindow = nullptr;
                             context = nullptr;
                             exit(0);
                         });
@@ -469,7 +469,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                             fclose(tfile);
                             PathTestCleanup(tfile);
                             threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
+                            lhFast3dWindow = nullptr;
                             context = nullptr;
                             exit(0);
                         });
@@ -482,7 +482,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                             "folder that does and run again.",
                             "OK", "", [&]() {
                                 threadPool = nullptr;
-                                gsFast3dWindow = nullptr;
+                                lhFast3dWindow = nullptr;
                                 context = nullptr;
                                 exit(0);
                             });
@@ -500,7 +500,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         "drive (e.g. \"C:\\Games\\Lighthouse\").",
                         "OK", "", [&]() {
                             threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
+                            lhFast3dWindow = nullptr;
                             context = nullptr;
                             exit(0);
                         });
@@ -534,7 +534,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     },
                     [&]() {
                         threadPool = nullptr;
-                        gsFast3dWindow = nullptr;
+                        lhFast3dWindow = nullptr;
                         context = nullptr;
                         exit(0);
                     });
@@ -586,7 +586,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         [&]() { promptStep = PS_LOCAL; },
                         [&]() {
                             threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
+                            lhFast3dWindow = nullptr;
                             context = nullptr;
                             exit(0);
                         });
@@ -645,7 +645,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     "No ROM O2R file detected. Please generate a ROM O2R and relaunch.",
                     "OK", "", [&]() {
                         threadPool = nullptr;
-                        gsFast3dWindow = nullptr;
+                        lhFast3dWindow = nullptr;
                         context = nullptr;
                         exit(0);
                     });
@@ -660,7 +660,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
     render:
         if (!WindowIsRunning()) {
             threadPool = nullptr;
-            gsFast3dWindow = nullptr;
+            lhFast3dWindow = nullptr;
             context = nullptr;
             exit(0);
         }
@@ -676,8 +676,8 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             continue;
         }
         gui->StartDraw();
-        gsFast3dWindow->StartFrame();
-        gsFast3dWindow->RunGuiOnly();
+        lhFast3dWindow->StartFrame();
+        lhFast3dWindow->RunGuiOnly();
         if (extracting && !ImGui::IsPopupOpen("ROM Extraction")) {
             ImGui::OpenPopup("ROM Extraction");
         }
@@ -742,7 +742,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             ImGui::PopStyleVar(2);
         }
         gui->EndDraw();
-        gsFast3dWindow->EndFrame();
+        lhFast3dWindow->EndFrame();
         ImGui::PopStyleColor(2);
     }
     threadPool = nullptr;
@@ -830,7 +830,7 @@ extern void ResourceHelpers_ClearRefCache();
 
 void GameEngine::Destroy() {
     LighthouseGui::Destroy();
-    gsFast3dWindow = nullptr;
+    lhFast3dWindow = nullptr;
 
     // Flush all resource refs so destructors run while spdlog is still active.
     // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
