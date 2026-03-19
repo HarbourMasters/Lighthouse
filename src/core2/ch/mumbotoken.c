@@ -38,8 +38,9 @@ void chMumboToken_collect(ActorMarker *marker, ActorMarker *other_marker){
 enum mumbotoken_e func_802E0A90(Actor *this){
     s32 id;
     s32 pos[3];
+    s32 ret;
 
-    map_get();
+    enum map_e map_id = map_get();
     pos[0] = (s32)this->position[0];
     pos[1] = (s32)this->position[1];
     pos[2] = (s32)this->position[2];
@@ -48,7 +49,19 @@ enum mumbotoken_e func_802E0A90(Actor *this){
         return 0;
     }
     else{
-        return func_80306DBC(id) - 199;
+        ret = func_80306DBC(id) - 199;
+#ifdef PORT_FIX
+        // [port] Fix duplicate mumbo token IDs (from BanjoRecomp)
+        // Token in MMM Inside Loggo shares ID 0x3D with another token
+        if (ret == 0x3D && pos[0] == 424 && pos[1] == 170 && pos[2] == 304 && map_id == MAP_8D_MMM_INSIDE_LOGGO) {
+            ret = 0x74; // Swap to unused ID
+        }
+        // Token in CCW Spring shares ID 0x5E with another token
+        if (ret == 0x5E && pos[0] == -2649 && pos[1] == 0 && pos[2] == -395 && map_id == MAP_43_CCW_SPRING) {
+            ret = 0x5D; // Swap to unused ID
+        }
+#endif
+        return ret;
     }
 }
 
