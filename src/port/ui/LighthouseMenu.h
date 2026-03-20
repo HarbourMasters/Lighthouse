@@ -21,6 +21,7 @@ class LighthouseMenu : public Ship::Menu {
     WidgetInfo& AddWidget(WidgetPath& pathInfo, std::string widgetName, WidgetType widgetType);
     void AddMenuSettings();
     void AddMenuEnhancements();
+    void AddMenuRestorations();
 
   private:
     char mGitCommitHashTruncated[8];

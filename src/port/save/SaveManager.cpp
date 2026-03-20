@@ -1,4 +1,6 @@
 #include "SaveManager.h"
+#include <libultraship/bridge.h>
+#include "port/ui/cvar_prefixes.h"
 
 #include <nlohmann/json.hpp>
 #include <ship/Context.h>
@@ -12,6 +14,7 @@ using json = nlohmann::ordered_json;
 namespace fs = std::filesystem;
 
 extern "C" void savedata_update_crc(void* buffer, int size);
+extern "C" int item_getCount(int item);
 
 // ─── Compact-array JSON formatter ───────────────────────────────────────────
 // Pretty-prints objects but collapses primitive arrays onto single lines.
@@ -1003,23 +1006,25 @@ void SaveManager::LoadFromDisk() {
             JsonToSlot(j, mEeprom + base);
 
             // [port] Load saved lives count and Bottles Bonus completions
-#ifdef ENHANCEMENT
-            if (j.contains("savedItems")) {
-                const auto& si = j["savedItems"];
-                if (si.contains("lives")) {
-                    mSavedLives[eepromSlot] = si["lives"].get<int>();
-                }
-            }
-            if (j.contains("progress")) {
-                const auto& prog = j["progress"];
-                if (prog.contains("bottleBonusCompleted")) {
-                    const auto& bb = prog["bottleBonusCompleted"];
-                    for (int k = 0; k < 7 && k < (int)bb.size(); k++) {
-                        mSavedBottleBonus[eepromSlot][k] = bb[k].get<int>() ? 1 : 0;
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistExtraLives"), 0)) {
+                if (j.contains("savedItems")) {
+                    const auto& si = j["savedItems"];
+                    if (si.contains("lives")) {
+                        mSavedLives[eepromSlot] = si["lives"].get<int>();
                     }
                 }
             }
-#endif
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistBottlesBonus"), 0)) {
+                if (j.contains("progress")) {
+                    const auto& prog = j["progress"];
+                    if (prog.contains("bottleBonusCompleted")) {
+                        const auto& bb = prog["bottleBonusCompleted"];
+                        for (int k = 0; k < 7 && k < (int)bb.size(); k++) {
+                            mSavedBottleBonus[eepromSlot][k] = bb[k].get<int>() ? 1 : 0;
+                        }
+                    }
+                }
+            }
 
             SPDLOG_INFO("[save] Loaded {} (slotIndex={}) into eeprom slot {}", path, slotIndex, eepromSlot);
         } catch (const std::exception& e) {
@@ -1106,23 +1111,17 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
     json j = SlotToJson(mEeprom + base);
 
     // [port] Save lives count and Bottles Bonus completions
-#ifdef ENHANCEMENT
-    {
-        extern "C" int item_getCount(int item);
-        int lives = item_getCount(0x16); // ITEM_16_LIFE
-        if (lives > 0) {
-            j["savedItems"]["lives"] = lives;
-            mSavedLives[eepromSlot] = lives;
-        }
+    int lives = item_getCount(0x16); // ITEM_16_LIFE
+    if (lives > 0) {
+        j["savedItems"]["lives"] = lives;
+        mSavedLives[eepromSlot] = lives;
     }
-    {
-        json bbArr = json::array();
-        for (int k = 0; k < 7; k++) {
-            bbArr.push_back(mSavedBottleBonus[eepromSlot][k] ? 1 : 0);
-        }
-        j["progress"]["bottleBonusCompleted"] = bbArr;
+    json bbArr = json::array();
+    for (int k = 0; k < 7; k++) {
+        bbArr.push_back(mSavedBottleBonus[eepromSlot][k] ? 1 : 0);
     }
-#endif
+    j["progress"]["bottlesBonusCompleted"] = bbArr;
+
 
     std::string filename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
     std::string path = GetSavePath(filename);
@@ -1199,7 +1198,6 @@ int32_t eeprom_writeBlocks(int32_t file, int32_t offset, void* buffer, int32_t c
 }
 
 // [port] Lives persistence — returns saved lives for an EEPROM slot (0-3), default 3
-#ifdef ENHANCEMENT
 int port_getSavedLives(int eepromSlot) {
     return SaveManager::GetSavedLives(eepromSlot);
 }
@@ -1211,7 +1209,6 @@ void port_getSavedBottleBonus(int eepromSlot, uint8_t out[7]) {
 void port_setSavedBottleBonus(int eepromSlot, const uint8_t in[7]) {
     SaveManager::SetSavedBottleBonusGames(eepromSlot, in);
 }
-#endif
 
 } // extern "C"
 

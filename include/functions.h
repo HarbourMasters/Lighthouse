@@ -14,6 +14,7 @@
 #include "core2/core2.h"
 
 #include "port/ShipUtils.h"
+#include "port/ui/cvar_prefixes.h"
 
 #include "math.h" // ToDo: sort out actual dependencies
 #include "bs_funcs.h"

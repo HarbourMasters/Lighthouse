@@ -4,18 +4,6 @@
     CVarSetInteger(cvar, val);        \
     ShipInit::Init(cvar);
 
-static std::string comboboxTooltip = "";
-bool isBetaQuestEnabled = false;
-
-extern "C" {
-void enableBetaQuest() {
-    isBetaQuestEnabled = true;
-}
-void disableBetaQuest() {
-    isBetaQuestEnabled = false;
-}
-}
-
 namespace LighthouseGui {
 
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
@@ -25,16 +13,39 @@ void LighthouseMenu::AddMenuEnhancements() {
     // Add Enhancements Menu
     AddMenuEntry("Enhancements", CVAR_SETTING("Menu.EnhancementsSidebarSection"));
 
-    // Quality of Life
-    WidgetPath path = { "Enhancements", "Placeholder", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    // Enhancements -> Cutscenes
+    WidgetPath path = { "Enhancements", "Cutscenes", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
     path.column = SECTION_COLUMN_1;
 
-    AddWidget(path, "Placeholder Section", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Lighthouse", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Autosave"))
+    AddWidget(path, "Allow Start to Skip Intro Cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.StartSkipIntro"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Empty... Bottles..."));
+        .Options(CheckboxOptions().Tooltip("Press Start to Skip Intro Cutscenes."));
+
+    // Enhancements -> Graphics
+    path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Disable Draw Distance", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Disables Draw Distance allowing objects to render further."));
+
+    // Enhancements -> Saving
+    path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Persist Bottles Bonus", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Saving.PersistBottlesBonus"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Persists Bottle Bonus progress through the save file."));
+    AddWidget(path, "Persist Extra Lives", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Saving.PersistExtraLives"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Persists Extra Lives through the save file."));
 }
 
 } // namespace LighthouseGui

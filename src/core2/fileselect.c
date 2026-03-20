@@ -120,20 +120,11 @@ extern u8 gCompletedBottleBonusGames[7];
 void gameFile_load(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     saveData_load(&gameFile_saveData[filenum]);
-#ifdef ENHANCEMENT
-    // [port] Restore lives and Bottles Bonus completions from PC save
-    item_set(ITEM_16_LIFE, port_getSavedLives(filenum));
-    port_getSavedBottleBonus(filenum, gCompletedBottleBonusGames);
-#endif
 }
 
 void gameFile_save(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     saveData_create(&gameFile_saveData[filenum]);
-#ifdef ENHANCEMENT
-    // [port] Persist Bottles Bonus completions to PC save
-    port_setSavedBottleBonus(filenum, gCompletedBottleBonusGames);
-#endif
 }
 
 bool gameFile_isNotEmpty(s32 gamenum){

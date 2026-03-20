@@ -763,12 +763,9 @@ s32 gcpausemenu_initLargestPageIndex(void) {
 }
 
 bool gcpausemenu_initReturnToLair(void) {
-#ifdef ENHANCEMENT
-    s32 level = level_get();
-    return !(level > 0 && level < LEVEL_C_BOSS && D_8036C560[level - 1].map != -1);
-#else
-    return true;
-#endif
+    bool shouldInit = true;
+    CALL_EVENT(VanillaBehavior, VB_INIT_RETURN_TO_LAIR, &shouldInit);
+    return shouldInit;
 }
 
 void gcpausemenu_init(void) {

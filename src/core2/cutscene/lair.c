@@ -29,16 +29,14 @@ u8 D_80383190;
 /* .code */
 // func_8031C640
 bool cutscene_skipIntroCutsceneCheck(void) {
-#ifdef ENHANCEMENT
-    // [port] Always allow Start to skip intro cutscenes
-    if (func_8024E698(0) == 1) {
+    // [port] Skip intro cutscene
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.StartSkipIntro"), 0) && func_8024E698(0) == 1) {
         return true;
     }
-#else
+
     if ((func_8024E698(0) == 1) && (gameFile_anyNonEmpty() != 0)) {
         return true;
     }
-#endif
     return false;
 }
 

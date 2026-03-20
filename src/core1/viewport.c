@@ -344,13 +344,11 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
     // [port] Draw distance cutoff — skip when extended draw distance is enabled
-#ifdef ENHANCEMENT
-    // TODO: replace with CVar-driven multiplier
-#else
-    if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
-        return false;
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+        if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
+            return false;
+        }
     }
-#endif
 
     min[0] = (f32) ((cube->x * 1000) - 150);
     min[1] = (f32) ((cube->y * 1000) - 150);

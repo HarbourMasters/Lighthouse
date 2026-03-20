@@ -6,7 +6,7 @@
 DEFINE_EVENT(GameFrameUpdate);
 
 typedef enum VBehaviorID {
-    VB_DUMMY
+    VB_INIT_RETURN_TO_LAIR,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior,
