@@ -28,8 +28,13 @@ static std::string JsonDumpCompactArrays(const json& j, int indent = 2) {
             size_t end = i + 1;
             bool simple = true;
             while (end < raw.size() && depth > 0) {
-                if (raw[end] == '[' || raw[end] == '{') { simple = false; break; }
-                if (raw[end] == ']') depth--;
+                if (raw[end] == '[' || raw[end] == '{') {
+                    simple = false;
+                    break;
+                }
+                if (raw[end] == ']') {
+                    depth--;
+                }
                 end++;
             }
             if (simple && depth == 0) {
@@ -38,8 +43,12 @@ static std::string JsonDumpCompactArrays(const json& j, int indent = 2) {
                 std::string inner;
                 for (size_t k = i + 1; k < end - 1; k++) {
                     char c = raw[k];
-                    if (c == '\n' || c == '\r') continue;
-                    if (c == ' ' && !inner.empty() && inner.back() == ' ') continue;
+                    if (c == '\n' || c == '\r') {
+                        continue;
+                    }
+                    if (c == ' ' && !inner.empty() && inner.back() == ' ') {
+                        continue;
+                    }
                     inner += c;
                 }
                 // Trim leading/trailing whitespace
@@ -74,22 +83,22 @@ static int VisualGameToSlot(int visual) {
 // These match the offsets computed by savedata_init() in savedata.c.
 // SaveData is 120 bytes: magic(1) + slotIndex(1) + data(112) + padding(2) + crc(4)
 
-static constexpr int JIGGY_OFFSET    = 2;
-static constexpr int JIGGY_SIZE      = 13;   // bit array for 100 jiggies
+static constexpr int JIGGY_OFFSET = 2;
+static constexpr int JIGGY_SIZE = 13; // bit array for 100 jiggies
 static constexpr int HONEYCOMB_OFFSET = 15;
-static constexpr int HONEYCOMB_SIZE  = 3;    // bit array for 24 honeycombs
-static constexpr int MUMBO_OFFSET    = 18;
-static constexpr int MUMBO_SIZE      = 16;   // bit array for 125 mumbo tokens
-static constexpr int NOTE_OFFSET     = 34;
-static constexpr int NOTE_SIZE       = 8;    // packed u64: 9 worlds × 7 bits
-static constexpr int TIME_OFFSET     = 42;
-static constexpr int TIME_SIZE       = 22;   // 11 × u16
+static constexpr int HONEYCOMB_SIZE = 3; // bit array for 24 honeycombs
+static constexpr int MUMBO_OFFSET = 18;
+static constexpr int MUMBO_SIZE = 16; // bit array for 125 mumbo tokens
+static constexpr int NOTE_OFFSET = 34;
+static constexpr int NOTE_SIZE = 8; // packed u64: 9 worlds × 7 bits
+static constexpr int TIME_OFFSET = 42;
+static constexpr int TIME_SIZE = 22; // 11 × u16
 static constexpr int PROGRESS_OFFSET = 64;
-static constexpr int PROGRESS_SIZE   = 37;   // 296 bits for file_progress_e
-static constexpr int ITEMS_OFFSET    = 101;
-static constexpr int ITEMS_SIZE      = 5;    // mumboTokens, eggs, redFeathers, goldFeathers, jiggyTotal
-static constexpr int ABILITY_OFFSET  = 106;
-static constexpr int ABILITY_SIZE    = 8;    // learnedAbilities(4) + usedAbilities(4)
+static constexpr int PROGRESS_SIZE = 37; // 296 bits for file_progress_e
+static constexpr int ITEMS_OFFSET = 101;
+static constexpr int ITEMS_SIZE = 5; // mumboTokens, eggs, redFeathers, goldFeathers, jiggyTotal
+static constexpr int ABILITY_OFFSET = 106;
+static constexpr int ABILITY_SIZE = 8; // learnedAbilities(4) + usedAbilities(4)
 
 // ─── World Collectible Definitions ──────────────────────────────────────────
 // Each world's collectible ID ranges, derived from enums.h.
@@ -99,26 +108,20 @@ struct WorldDef {
     const char* name;
     int levelId;
     int jiggyStart, jiggyCount;         // 1-based global IDs; 0,0 = none
-    int honeycombStart, honeycombCount;  // 1-based global IDs; 0,0 = none
-    int mumboStart, mumboCount;          // 1-based global IDs; 0,0 = none
+    int honeycombStart, honeycombCount; // 1-based global IDs; 0,0 = none
+    int mumboStart, mumboCount;         // 1-based global IDs; 0,0 = none
     bool hasNoteScore;
     bool hasTimeScore;
 };
 
 static const WorldDef kWorlds[] = {
     //           lvl  jig_s jig_c  hc_s hc_c  mt_s mt_c  note  time
-    { "MM",    1,   1,   10,    1,   2,    1,   5,  true,  true  },
-    { "TTC",   2,  11,   10,    3,   2,    6,  10,  true,  true  },
-    { "CC",    3,  21,   10,    5,   2,   16,   5,  true,  true  },
-    { "BGS",   4,  31,   10,    7,   2,   21,  10,  true,  true  },
-    { "FP",    5,  41,   10,    9,   2,   31,  10,  true,  true  },
-    { "LAIR",  6,  51,   10,    0,   0,   81,  10,  false, false },
-    { "GV",    7,  61,   10,   11,   2,   41,  10,  true,  true  },
-    { "CCW",   8,  71,   10,   13,   2,   91,  25,  true,  true  },
-    { "RBB",   9,  81,   10,   15,   2,   66,  15,  true,  true  },
-    { "MMM",  10,  91,   10,   17,   2,   51,  15,  true,  true  },
-    { "SM",   11,   0,    0,   19,   6,    0,   0,  false, true  },
-    { "BOSS", 12,   0,    0,    0,   0,    0,   0,  false, false },
+    { "MM", 1, 1, 10, 1, 2, 1, 5, true, true },      { "TTC", 2, 11, 10, 3, 2, 6, 10, true, true },
+    { "CC", 3, 21, 10, 5, 2, 16, 5, true, true },    { "BGS", 4, 31, 10, 7, 2, 21, 10, true, true },
+    { "FP", 5, 41, 10, 9, 2, 31, 10, true, true },   { "LAIR", 6, 51, 10, 0, 0, 81, 10, false, false },
+    { "GV", 7, 61, 10, 11, 2, 41, 10, true, true },  { "CCW", 8, 71, 10, 13, 2, 91, 25, true, true },
+    { "RBB", 9, 81, 10, 15, 2, 66, 15, true, true }, { "MMM", 10, 91, 10, 17, 2, 51, 15, true, true },
+    { "SM", 11, 0, 0, 19, 6, 0, 0, false, true },    { "BOSS", 12, 0, 0, 0, 0, 0, 0, false, false },
 };
 static constexpr int kWorldCount = sizeof(kWorlds) / sizeof(kWorlds[0]);
 
@@ -439,26 +442,26 @@ static constexpr int kProgressFlagCount = sizeof(kProgressFlags) / sizeof(kProgr
 
 // ─── Ability Names ──────────────────────────────────────────────────────────
 static const char* kAbilityNames[] = {
-    "BARGE",             // 0
-    "BEAK_BOMB",         // 1
-    "BEAK_BUSTER",       // 2
-    "CAMERA_CONTROL",    // 3
-    "CLAW_SWIPE",        // 4
-    "CLIMB",             // 5
-    "EGGS",              // 6
-    "FEATHERY_FLAP",     // 7
-    "FLAP_FLIP",         // 8
-    "FLIGHT",            // 9
-    "HOLD_A_JUMP_HIGHER",// 10
-    "RATATAT_RAP",       // 11
-    "ROLL",              // 12
-    "SHOCK_JUMP",        // 13
-    "WADING_BOOTS",      // 14
-    "DIVE",              // 15
-    "TALON_TROT",        // 16
-    "TURBO_TALON",       // 17
-    "WONDERWING",        // 18
-    "FIRST_NOTEDOOR",    // 19
+    "BARGE",              // 0
+    "BEAK_BOMB",          // 1
+    "BEAK_BUSTER",        // 2
+    "CAMERA_CONTROL",     // 3
+    "CLAW_SWIPE",         // 4
+    "CLIMB",              // 5
+    "EGGS",               // 6
+    "FEATHERY_FLAP",      // 7
+    "FLAP_FLIP",          // 8
+    "FLIGHT",             // 9
+    "HOLD_A_JUMP_HIGHER", // 10
+    "RATATAT_RAP",        // 11
+    "ROLL",               // 12
+    "SHOCK_JUMP",         // 13
+    "WADING_BOOTS",       // 14
+    "DIVE",               // 15
+    "TALON_TROT",         // 16
+    "TURBO_TALON",        // 17
+    "WONDERWING",         // 18
+    "FIRST_NOTEDOOR",     // 19
 };
 static constexpr int kAbilityCount = sizeof(kAbilityNames) / sizeof(kAbilityNames[0]);
 
@@ -473,24 +476,14 @@ struct SnsBitDef {
 
 // Unlocked flags (bits 0-6): item is visible and collectible
 static const SnsBitDef kSnsUnlocked[] = {
-    { 0, "eggYellow" },
-    { 1, "eggRed" },
-    { 2, "eggGreen" },
-    { 3, "eggBlue" },
-    { 4, "eggPink" },
-    { 5, "eggCyan" },
-    { 6, "iceKey" },
+    { 0, "eggYellow" }, { 1, "eggRed" },  { 2, "eggGreen" }, { 3, "eggBlue" },
+    { 4, "eggPink" },   { 5, "eggCyan" }, { 6, "iceKey" },
 };
 
 // Collected flags (bits 7-13): item was picked up
 static const SnsBitDef kSnsCollected[] = {
-    {  7, "eggYellow" },
-    {  8, "eggRed" },
-    {  9, "eggGreen" },
-    { 10, "eggBlue" },
-    { 11, "eggPink" },
-    { 12, "eggCyan" },
-    { 13, "iceKey" },
+    { 7, "eggYellow" }, { 8, "eggRed" },   { 9, "eggGreen" }, { 10, "eggBlue" },
+    { 11, "eggPink" },  { 12, "eggCyan" }, { 13, "iceKey" },
 };
 static constexpr int kSnsItemCount = sizeof(kSnsUnlocked) / sizeof(kSnsUnlocked[0]);
 
@@ -671,7 +664,9 @@ json SaveManager::SlotToJson(const uint8_t* slotData) {
         json general = json::object();
         for (int i = 0; i < kProgressFlagCount; i++) {
             const auto& f = kProgressFlags[i];
-            if (f.world != nullptr) continue;
+            if (f.world != nullptr) {
+                continue;
+            }
             if (f.bitWidth == 1) {
                 general[f.name] = BitfieldGetBit(progressFlags, f.bitIndex);
             } else {
@@ -686,7 +681,9 @@ json SaveManager::SlotToJson(const uint8_t* slotData) {
         json cheats = json::object();
         for (int i = 0; i < kProgressFlagCount; i++) {
             const auto& f = kProgressFlags[i];
-            if (f.world == nullptr || strcmp(f.world, "CHEATS") != 0) continue;
+            if (f.world == nullptr || strcmp(f.world, "CHEATS") != 0) {
+                continue;
+            }
             if (f.bitWidth == 1) {
                 cheats[f.name] = BitfieldGetBit(progressFlags, f.bitIndex);
             } else {
@@ -700,11 +697,11 @@ json SaveManager::SlotToJson(const uint8_t* slotData) {
     {
         const uint8_t* data = slotData + ITEMS_OFFSET;
         json obj = json::object();
-        obj["mumboTokens"]  = static_cast<int>(data[0]);
-        obj["eggs"]         = static_cast<int>(data[1]);
-        obj["redFeathers"]  = static_cast<int>(data[2]);
+        obj["mumboTokens"] = static_cast<int>(data[0]);
+        obj["eggs"] = static_cast<int>(data[1]);
+        obj["redFeathers"] = static_cast<int>(data[2]);
         obj["goldFeathers"] = static_cast<int>(data[3]);
-        obj["jiggyTotal"]   = static_cast<int>(data[4]);
+        obj["jiggyTotal"] = static_cast<int>(data[4]);
         file["savedItems"] = obj;
     }
 
@@ -763,7 +760,9 @@ json SaveManager::SlotToJson(const uint8_t* slotData) {
         json progress = json::object();
         for (int i = 0; i < kProgressFlagCount; i++) {
             const auto& f = kProgressFlags[i];
-            if (f.world == nullptr || strcmp(f.world, wd.name) != 0) continue;
+            if (f.world == nullptr || strcmp(f.world, wd.name) != 0) {
+                continue;
+            }
             if (f.bitWidth == 1) {
                 progress[f.name] = BitfieldGetBit(progressFlags, f.bitIndex);
             } else {
@@ -810,7 +809,9 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
 
         for (int w = 0; w < kWorldCount; w++) {
             const auto& wd = kWorlds[w];
-            if (!worlds.contains(wd.name)) continue;
+            if (!worlds.contains(wd.name)) {
+                continue;
+            }
             const auto& world = worlds[wd.name];
 
             // Jiggies
@@ -874,9 +875,13 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
                 const auto& progress = world["progress"];
                 for (int i = 0; i < kProgressFlagCount; i++) {
                     const auto& pf = kProgressFlags[i];
-                    if (pf.world == nullptr || strcmp(pf.world, wd.name) != 0) continue;
+                    if (pf.world == nullptr || strcmp(pf.world, wd.name) != 0) {
+                        continue;
+                    }
                     auto it = progress.find(pf.name);
-                    if (it == progress.end()) continue;
+                    if (it == progress.end()) {
+                        continue;
+                    }
                     if (pf.bitWidth == 1) {
                         BitfieldSetBit(flags, pf.bitIndex, it->get<int>());
                     } else {
@@ -903,9 +908,13 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
         const auto& progress = f["progress"];
         for (int i = 0; i < kProgressFlagCount; i++) {
             const auto& pf = kProgressFlags[i];
-            if (pf.world != nullptr) continue;
+            if (pf.world != nullptr) {
+                continue;
+            }
             auto it = progress.find(pf.name);
-            if (it == progress.end()) continue;
+            if (it == progress.end()) {
+                continue;
+            }
             if (pf.bitWidth == 1) {
                 BitfieldSetBit(flags, pf.bitIndex, it->get<int>());
             } else {
@@ -920,9 +929,13 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
         const auto& cheats = f["cheats"];
         for (int i = 0; i < kProgressFlagCount; i++) {
             const auto& pf = kProgressFlags[i];
-            if (pf.world == nullptr || strcmp(pf.world, "CHEATS") != 0) continue;
+            if (pf.world == nullptr || strcmp(pf.world, "CHEATS") != 0) {
+                continue;
+            }
             auto it = cheats.find(pf.name);
-            if (it == cheats.end()) continue;
+            if (it == cheats.end()) {
+                continue;
+            }
             if (pf.bitWidth == 1) {
                 BitfieldSetBit(flags, pf.bitIndex, it->get<int>());
             } else {
@@ -935,11 +948,21 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
     if (f.contains("savedItems")) {
         uint8_t* data = slotData + ITEMS_OFFSET;
         const auto& si = f["savedItems"];
-        if (si.contains("mumboTokens"))  data[0] = static_cast<uint8_t>(si["mumboTokens"].get<int>());
-        if (si.contains("eggs"))         data[1] = static_cast<uint8_t>(si["eggs"].get<int>());
-        if (si.contains("redFeathers"))  data[2] = static_cast<uint8_t>(si["redFeathers"].get<int>());
-        if (si.contains("goldFeathers")) data[3] = static_cast<uint8_t>(si["goldFeathers"].get<int>());
-        if (si.contains("jiggyTotal"))   data[4] = static_cast<uint8_t>(si["jiggyTotal"].get<int>());
+        if (si.contains("mumboTokens")) {
+            data[0] = static_cast<uint8_t>(si["mumboTokens"].get<int>());
+        }
+        if (si.contains("eggs")) {
+            data[1] = static_cast<uint8_t>(si["eggs"].get<int>());
+        }
+        if (si.contains("redFeathers")) {
+            data[2] = static_cast<uint8_t>(si["redFeathers"].get<int>());
+        }
+        if (si.contains("goldFeathers")) {
+            data[3] = static_cast<uint8_t>(si["goldFeathers"].get<int>());
+        }
+        if (si.contains("jiggyTotal")) {
+            data[4] = static_cast<uint8_t>(si["jiggyTotal"].get<int>());
+        }
     }
 
     // ── Abilities ──
@@ -1022,9 +1045,7 @@ void SaveManager::LoadFromDisk() {
 #endif
 
             SPDLOG_INFO("[save] Loaded {} (slotIndex={}) into eeprom slot {}", path, slotIndex, eepromSlot);
-        } catch (const std::exception& e) {
-            SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what());
-        }
+        } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what()); }
     }
 
     // Load global data
@@ -1070,14 +1091,14 @@ void SaveManager::LoadFromDisk() {
             savedata_update_crc(mEeprom + globalBase, GLOBAL_SIZE);
 
             SPDLOG_INFO("[save] Loaded global.json (snsItems=0x{:X})", snsRaw);
-        } catch (const std::exception& e) {
-            SPDLOG_ERROR("[save] Failed to load global.json: {}", e.what());
-        }
+        } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to load global.json: {}", e.what()); }
     }
 }
 
 void SaveManager::FlushSlotToDisk(int slotIndex) {
-    if (slotIndex < 1 || slotIndex > 3) return;
+    if (slotIndex < 1 || slotIndex > 3) {
+        return;
+    }
 
     EnsureDirectory();
 
@@ -1139,9 +1160,7 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
         fs::rename(tmpPath, path);
 
         SPDLOG_INFO("[save] Saved {} (eeprom slot {})", filename, eepromSlot);
-    } catch (const std::exception& e) {
-        SPDLOG_ERROR("[save] Failed to write {}: {}", filename, e.what());
-    }
+    } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to write {}: {}", filename, e.what()); }
 }
 
 void SaveManager::FlushGlobalToDisk() {
@@ -1181,9 +1200,7 @@ void SaveManager::FlushGlobalToDisk() {
         fs::rename(tmpPath, path);
 
         SPDLOG_INFO("[save] Saved global.json (snsItems=0x{:X})", snsRaw);
-    } catch (const std::exception& e) {
-        SPDLOG_ERROR("[save] Failed to write global.json: {}", e.what());
-    }
+    } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to write global.json: {}", e.what()); }
 }
 
 // ─── C Bridge ───────────────────────────────────────────────────────────────
@@ -1217,7 +1234,9 @@ void port_setSavedBottleBonus(int eepromSlot, const uint8_t in[7]) {
 
 #ifdef ENHANCEMENT
 int SaveManager::GetSavedLives(int eepromSlot) {
-    if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) return 3;
+    if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) {
+        return 3;
+    }
     return Instance().mSavedLives[eepromSlot];
 }
 
@@ -1230,7 +1249,9 @@ void SaveManager::GetSavedBottleBonusGames(int eepromSlot, uint8_t out[7]) {
 }
 
 void SaveManager::SetSavedBottleBonusGames(int eepromSlot, const uint8_t in[7]) {
-    if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) return;
+    if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) {
+        return;
+    }
     memcpy(Instance().mSavedBottleBonus[eepromSlot], in, 7);
 }
 #endif

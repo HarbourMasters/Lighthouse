@@ -30,7 +30,7 @@ struct SpriteFrameData {
 };
 
 class Sprite : public Ship::Resource<BKSprite> {
-  public:
+public:
     using Resource::Resource;
 
     Sprite() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
@@ -56,7 +56,7 @@ class Sprite : public Ship::Resource<BKSprite> {
     uint8_t animFlip = 0;      // bit22: 2 bits
     std::vector<SpriteFrameData> frames;
 
-  private:
+private:
     // Single contiguous buffer: BKSprite header + frame pointers + all frame data
     std::unique_ptr<uint8_t[]> mSpriteHeader;
 };

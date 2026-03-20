@@ -10,12 +10,12 @@
 // Matches matrices between frames by sequential index.
 
 // F3DEX opcodes (as int8_t, matching interpreter dispatch)
-static constexpr int8_t OP_MTX   = (int8_t)0x01;  // G_MTX
+static constexpr int8_t OP_MTX = (int8_t)0x01;    // G_MTX
 static constexpr int8_t OP_ENDDL = (int8_t)(-72); // G_ENDDL = G_IMMFIRST - 7
 
 struct MatrixEntry {
-    Mtx* ptr;    // Pointer to the Mtx in the display list
-    MtxF value;  // Float copy of the matrix data (GBI_FLOATS=1: Mtx is MtxF)
+    Mtx* ptr;   // Pointer to the Mtx in the display list
+    MtxF value; // Float copy of the matrix data (GBI_FLOATS=1: Mtx is MtxF)
 };
 
 static std::vector<MatrixEntry> s_currentFrame;
@@ -23,7 +23,9 @@ static std::vector<MatrixEntry> s_previousFrame;
 
 // [port] Scan root DL for modelview matrices. Stops at 2nd projection matrix (HUD switch).
 static void ScanDisplayList(Gfx* commands, std::vector<MatrixEntry>& out) {
-    if (!commands) return;
+    if (!commands) {
+        return;
+    }
 
     Gfx* cmd = commands;
     int budget = 50000;
@@ -38,7 +40,9 @@ static void ScanDisplayList(Gfx* commands, std::vector<MatrixEntry>& out) {
 
             if (isProjection) {
                 projCount++;
-                if (projCount > 1) break; // Stop at HUD/overlay projection switch
+                if (projCount > 1) {
+                    break; // Stop at HUD/overlay projection switch
+                }
             } else {
                 uintptr_t addr = cmd->words.w1;
                 if (addr != 0 && !(addr & 1)) {
@@ -79,7 +83,7 @@ std::unordered_map<Mtx*, MtxF> FrameInterpolation_Interpolate(float t) {
 
     for (size_t i = 0; i < minCount; i++) {
         const MtxF& prev = s_previousFrame[i].value;
-        const MtxF& cur  = s_currentFrame[i].value;
+        const MtxF& cur = s_currentFrame[i].value;
 
         // Translation delta check — mismatched objects are hundreds of units apart.
         float dx = fabsf(cur.mf[3][0] - prev.mf[3][0]);

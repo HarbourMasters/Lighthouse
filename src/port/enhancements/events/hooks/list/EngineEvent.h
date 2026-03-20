@@ -5,12 +5,6 @@
 
 DEFINE_EVENT(GameFrameUpdate);
 
-typedef enum VBehaviorID {
-    VB_DUMMY
-} VBehaviorID;
+typedef enum VBehaviorID { VB_DUMMY } VBehaviorID;
 
-DEFINE_EVENT(VanillaBehavior,
-    VBehaviorID id;
-    bool* should;
-    va_list args;
-);
+DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list args;);

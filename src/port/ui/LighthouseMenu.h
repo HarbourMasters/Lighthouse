@@ -9,7 +9,7 @@
 
 namespace LighthouseGui {
 class LighthouseMenu : public Ship::Menu {
-  public:
+public:
     LighthouseMenu(const std::string& consoleVariable, const std::string& name);
 
     void InitElement() override;
@@ -22,7 +22,7 @@ class LighthouseMenu : public Ship::Menu {
     void AddMenuSettings();
     void AddMenuEnhancements();
 
-  private:
+private:
     char mGitCommitHashTruncated[8];
     bool mIsTaggedVersion;
 };

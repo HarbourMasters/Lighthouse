@@ -21,7 +21,7 @@ struct Options {
 };
 
 class Window : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override{};

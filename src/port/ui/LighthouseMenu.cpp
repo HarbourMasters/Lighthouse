@@ -199,9 +199,7 @@ void LighthouseMenu::InitElement() {
            },
             "\"Boot To Debug Warp Screen\" Enabled (see Dev Tools -> General)" } },
         { DISABLE_FOR_NON_PAL_O2R,
-          { [](disabledInfo& info) -> bool {
-               return ResourceMgr_GetDialogLanguageCount() <= 1;
-           },
+          { [](disabledInfo& info) -> bool { return ResourceMgr_GetDialogLanguageCount() <= 1; },
             "Only available with a PAL o2r (English, French, German)" } },
     };
 }

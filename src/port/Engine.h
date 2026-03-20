@@ -26,7 +26,7 @@ typedef enum {
 #endif
 
 class GameEngine {
-  public:
+public:
     static GameEngine* Instance;
 
     ImFont* fontStandard;

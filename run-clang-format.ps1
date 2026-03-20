@@ -15,13 +15,11 @@ function Get-7ZipPath {
             return $exe
         }
     }
+	$defPath = "C:\\Program Files\\7-Zip\\7z.exe"
+	if (Test-Path $defPath -PathType Leaf) {
+		return $defPath;
+	}
     return $null
-}
-
-$sevenZipPath = Get-7ZipPath
-if (-not $sevenZipPath) {
-    Write-Host "7-Zip is not installed or not on PATH. Please install 7-Zip and try again."
-    exit
 }
 
 # --- Check existing clang-format ---
@@ -30,6 +28,12 @@ if (Test-Path $clangFormatFilePath) {
     if ($currentVersion -ne $requiredVersion) {
         Remove-Item $clangFormatFilePath -Force
     }
+}
+
+$sevenZipPath = Get-7ZipPath
+if (-not $clangFormatFilePath -and -not $sevenZipPath) {
+    Write-Host "7-Zip is not installed or not on PATH. Please install 7-Zip and try again."
+    exit
 }
 
 # --- Download and extract clang-format if needed ---

@@ -18,7 +18,7 @@ typedef enum {
 } StickMode;
 
 class InputViewer final : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void Draw() override;
@@ -29,12 +29,12 @@ class InputViewer final : public Ship::GuiWindow {
     InputViewer();
     ~InputViewer();
 
-  private:
+private:
     void RenderButton(std::string btn, std::string btnOutline, int state, ImVec2 size, int outlineMode);
 };
 
 class InputViewerSettingsWindow final : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override{};
