@@ -762,8 +762,7 @@ s32 gcpausemenu_initLargestPageIndex(void) {
     return largest_page_index;
 }
 
-bool gcpausemenu_initReturnToLair(void) {
-    bool shouldInit = true;
+bool gcpausemenu_initReturnToLair(bool shouldInit) {
     CALL_EVENT(VanillaBehavior, VB_INIT_RETURN_TO_LAIR, &shouldInit);
     return shouldInit;
 }
@@ -789,7 +788,7 @@ void gcpausemenu_init(void) {
     sp34 = sns_get_item_state(2, 0);
     sp38 = sns_get_item_state(1, 0);
     D_80383010.sns_items = sp38 + sp34 + sp30 + sp2C + sp28 + sp24 + sns_get_item_state(7, 0);
-    D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
+    D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair(true);
     func_80311604();
     gcpausemenu_zoomboxes_initMainMenu();
     D_80383010.joystick_sprite = assetcache_get(0x7EB);
