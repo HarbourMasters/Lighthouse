@@ -11,17 +11,17 @@
 //   absoluteBlock = file * 15 + offset
 //   reads count * 8 bytes
 
-#define EEPROM_TOTAL_SIZE   512
-#define EEPROM_BLOCK_SIZE   8
-#define SAVE_SLOT_BLOCKS    15
-#define SAVE_SLOT_SIZE      (SAVE_SLOT_BLOCKS * EEPROM_BLOCK_SIZE) // 120
-#define SAVE_SLOT_COUNT     4
+#define EEPROM_TOTAL_SIZE 512
+#define EEPROM_BLOCK_SIZE 8
+#define SAVE_SLOT_BLOCKS 15
+#define SAVE_SLOT_SIZE (SAVE_SLOT_BLOCKS * EEPROM_BLOCK_SIZE) // 120
+#define SAVE_SLOT_COUNT 4
 #define GLOBAL_OFFSET_BLOCK 0x3C // block 60
-#define GLOBAL_BLOCK_COUNT  4
-#define GLOBAL_SIZE         (GLOBAL_BLOCK_COUNT * EEPROM_BLOCK_SIZE) // 32
+#define GLOBAL_BLOCK_COUNT 4
+#define GLOBAL_SIZE (GLOBAL_BLOCK_COUNT * EEPROM_BLOCK_SIZE) // 32
 
-#define SAVE_MAGIC          0x11
-#define SAVE_VERSION        1
+#define SAVE_MAGIC 0x11
+#define SAVE_VERSION 1
 
 class SaveManager {
 public:
@@ -52,7 +52,7 @@ private:
     std::string GetSavePath(const std::string& filename);
 
     uint8_t mEeprom[EEPROM_TOTAL_SIZE];
-    int mSavedLives[SAVE_SLOT_COUNT]; // [port] Per-slot lives count
+    int mSavedLives[SAVE_SLOT_COUNT];              // [port] Per-slot lives count
     uint8_t mSavedBottleBonus[SAVE_SLOT_COUNT][7]; // [port] Per-slot Bottles Bonus completions
     bool mLoaded;
 };

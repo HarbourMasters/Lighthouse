@@ -74,14 +74,22 @@ static bool s_gpuReadbackFlipY = false;
 // then downsamples to N64 native resolution (292x216) into both gFramebuffers.
 // OpenGL returns bottom-up rows; DX11 returns top-down.
 void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
-    if (s_freezeReadback) return; // [port] preserve gFramebuffers for transition capture
-    if (s_readbackRequestFrames <= 0) return; // [port] on-demand: skip unless a consumer needs data
+    if (s_freezeReadback) {
+        return; // [port] preserve gFramebuffers for transition capture
+    }
+    if (s_readbackRequestFrames <= 0) {
+        return; // [port] on-demand: skip unless a consumer needs data
+    }
     s_readbackRequestFrames--;
-    if (!interpreter || !interpreter->mRapi) return;
+    if (!interpreter || !interpreter->mRapi) {
+        return;
+    }
 
     uint32_t dstW = (uint32_t)gFramebufferWidth;
     uint32_t dstH = (uint32_t)gFramebufferHeight;
-    if (dstW == 0 || dstH == 0) return;
+    if (dstW == 0 || dstH == 0) {
+        return;
+    }
 
     // When mRendersToFb is true (GUI has menus/letterboxing), game renders to mGameFb
     // and FB 0 is cleared at the end of Run(). Read from whichever has the frame.
@@ -89,7 +97,9 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
 
     uint32_t gpuW = 0, gpuH = 0;
     interpreter->GetCurDimensions(&gpuW, &gpuH);
-    if (gpuW == 0 || gpuH == 0) return;
+    if (gpuW == 0 || gpuH == 0) {
+        return;
+    }
 
     uint32_t neededSize = gpuW * gpuH;
     if (s_gpuReadbackSize < neededSize) {
@@ -113,9 +123,7 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
     for (int buf = 0; buf < 2; buf++) {
         uint16_t* dst = gFramebuffers[buf];
         for (uint32_t y = 0; y < dstH; y++) {
-            uint32_t srcY = s_gpuReadbackFlipY
-                ? (dstH - 1 - y) * gpuH / dstH
-                : y * gpuH / dstH;
+            uint32_t srcY = s_gpuReadbackFlipY ? (dstH - 1 - y) * gpuH / dstH : y * gpuH / dstH;
             for (uint32_t x = 0; x < dstW; x++) {
                 uint32_t srcX = x * gpuW / dstW;
                 uint16_t px = s_gpuReadbackBuffer[srcY * gpuW + srcX];
@@ -132,15 +140,25 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
 // so transition tiles capture detail at the actual render resolution instead of
 // being limited to the downsampled 292x216 gFramebuffers.
 extern "C" uint16_t port_sampleHiresReadback(int fbX, int fbY) {
-    if (!s_gpuReadbackBuffer || s_gpuReadbackW == 0 || s_gpuReadbackH == 0) return 0;
+    if (!s_gpuReadbackBuffer || s_gpuReadbackW == 0 || s_gpuReadbackH == 0) {
+        return 0;
+    }
 
     int gpuX = fbX * (int)s_gpuReadbackW / gFramebufferWidth;
     int gpuY = fbY * (int)s_gpuReadbackH / gFramebufferHeight;
 
-    if (gpuX < 0) gpuX = 0;
-    if (gpuY < 0) gpuY = 0;
-    if (gpuX >= (int)s_gpuReadbackW) gpuX = (int)s_gpuReadbackW - 1;
-    if (gpuY >= (int)s_gpuReadbackH) gpuY = (int)s_gpuReadbackH - 1;
+    if (gpuX < 0) {
+        gpuX = 0;
+    }
+    if (gpuY < 0) {
+        gpuY = 0;
+    }
+    if (gpuX >= (int)s_gpuReadbackW) {
+        gpuX = (int)s_gpuReadbackW - 1;
+    }
+    if (gpuY >= (int)s_gpuReadbackH) {
+        gpuY = (int)s_gpuReadbackH - 1;
+    }
 
     if (s_gpuReadbackFlipY) {
         gpuY = (int)s_gpuReadbackH - 1 - gpuY;
@@ -163,8 +181,8 @@ extern "C" void Framebuffer_ReadbackGPU(int bufferIndex) {
 // then CopyFramebuffer + ReadFramebufferToCPU to populate the CPU buffer.
 struct AuxColorImage {
     int fbId;
-    uint32_t width, height;     // native dimensions
-    uint32_t curFbW, curFbH;    // current FBO dimensions (avoids per-frame resize)
+    uint32_t width, height;  // native dimensions
+    uint32_t curFbW, curFbH; // current FBO dimensions (avoids per-frame resize)
 };
 static std::unordered_map<uintptr_t, AuxColorImage> sAuxColorImages;
 static int sActiveAuxFb = -1;
@@ -177,10 +195,14 @@ static void auxColorImageCallback(void* oldAddr, void* newAddr) {
         sActiveAuxFb = sAuxColorImages[(uintptr_t)newAddr].fbId;
     }
 
-    if (!oldIsAux || sActiveAuxFb < 0) return;
+    if (!oldIsAux || sActiveAuxFb < 0) {
+        return;
+    }
 
     auto interpreter = GameEngine_GetInterpreter();
-    if (!interpreter || !interpreter->mRapi) return;
+    if (!interpreter || !interpreter->mRapi) {
+        return;
+    }
     auto& aux = sAuxColorImages[(uintptr_t)oldAddr];
     auto* rapi = interpreter->mRapi;
 
@@ -229,10 +251,14 @@ static void auxColorImageCallback(void* oldAddr, void* newAddr) {
 
 extern "C" void port_registerAuxColorImage(void* cpuAddr, uint32_t width, uint32_t height) {
     uintptr_t key = (uintptr_t)cpuAddr;
-    if (sAuxColorImages.count(key)) return;
+    if (sAuxColorImages.count(key)) {
+        return;
+    }
 
     auto interpreter = GameEngine_GetInterpreter();
-    if (!interpreter || !interpreter->mRapi) return;
+    if (!interpreter || !interpreter->mRapi) {
+        return;
+    }
 
     int fb = interpreter->mRapi->CreateFramebuffer();
     interpreter->mRapi->UpdateFramebufferParameters(fb, width, height, 1, true, true, true, false);
@@ -246,7 +272,9 @@ extern "C" void port_registerAuxColorImage(void* cpuAddr, uint32_t width, uint32
 extern "C" void port_unregisterAuxColorImage(void* cpuAddr) {
     uintptr_t key = (uintptr_t)cpuAddr;
     auto it = sAuxColorImages.find(key);
-    if (it == sAuxColorImages.end()) return;
+    if (it == sAuxColorImages.end()) {
+        return;
+    }
 
     auto interpreter = GameEngine_GetInterpreter();
     if (interpreter) {
@@ -279,7 +307,9 @@ void push_frame() {
 
 // [port] Precise sleep: SDL_Delay for the bulk, then spin-wait the remainder.
 static void preciseSleep(double seconds) {
-    if (seconds <= 0) return;
+    if (seconds <= 0) {
+        return;
+    }
     double freq = (double)SDL_GetPerformanceFrequency();
     uint64_t target = SDL_GetPerformanceCounter() + (uint64_t)(seconds * freq);
 

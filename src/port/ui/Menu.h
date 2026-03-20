@@ -7,7 +7,7 @@
 namespace Ship {
 uint32_t GetVectorIndexOf(std::vector<std::string>& vector, std::string value);
 class Menu : public GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     Menu(const std::string& cVar, const std::string& name, uint8_t searchSidebarIndex_ = 0,
@@ -28,7 +28,7 @@ class Menu : public GuiWindow {
     void AddSearchWidget(SearchWidget widget);
     std::unordered_map<uint32_t, disabledInfo>& GetDisabledMap();
 
-  protected:
+protected:
     ImVec2 mOriginalSize;
     std::string mName;
     uint32_t mWindowFlags;
@@ -52,7 +52,7 @@ class Menu : public GuiWindow {
                                    "Searches all menus for the given text, including tooltips.")) } } }
     };
 
-  private:
+private:
     bool allowPopout = true; // PortNote: should be set to false on small screen ports
     bool popped;
     ImVec2 poppedSize;

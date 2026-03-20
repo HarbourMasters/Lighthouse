@@ -25,7 +25,7 @@ typedef struct {
 } CustomButtonMap;
 
 class LighthouseInputEditorWindow : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
     ~LighthouseInputEditorWindow();
 
@@ -38,12 +38,12 @@ class LighthouseInputEditorWindow : public Ship::GuiWindow {
     void DrawFullContents();
     void DrawPortTabContents(uint8_t portIndex);
 
-  protected:
+protected:
     void InitElement() override;
     void DrawElement() override;
     void UpdateElement() override;
 
-  private:
+private:
     void DrawStickDirectionLine(const char* axisDirectionName, uint8_t port, uint8_t stick, Ship::Direction direction,
                                 ImVec4 color);
     void DrawButtonLine(const char* buttonName, uint8_t port, N64ButtonMask bitmask, ImVec4 color);

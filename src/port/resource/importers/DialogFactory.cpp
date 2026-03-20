@@ -76,9 +76,9 @@ ResourceFactoryBinaryBKDialogV0::ReadResource(std::shared_ptr<Ship::File> file,
         // dialogBin_get reads bytes 1-2 as LE u16 offset (0x03, 0x00 = 3), data at byte 3
         auto block = ReadLangBlock(reader);
         std::vector<uint8_t> out;
-        out.push_back(0x01);  // header byte 0
-        out.push_back(0x03);  // byte 1: offset lo = 3
-        out.push_back(0x00);  // byte 2: offset hi = 0
+        out.push_back(0x01); // header byte 0
+        out.push_back(0x03); // byte 1: offset lo = 3
+        out.push_back(0x00); // byte 2: offset hi = 0
         out.insert(out.end(), block.begin(), block.end());
         return MakeBlob(initData, std::move(out));
     }
@@ -108,7 +108,7 @@ ResourceFactoryBinaryBKDialogV0::ReadResource(std::shared_ptr<Ship::File> file,
 
     // Build the blob
     std::vector<uint8_t> out;
-    out.push_back(0x03);  // PAL header byte 0
+    out.push_back(0x03); // PAL header byte 0
 
     // Write offset table (LE u16 for each language)
     for (uint32_t i = 0; i < langCount; i++) {

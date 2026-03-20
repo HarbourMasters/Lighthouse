@@ -4,7 +4,7 @@
 #include <ship/window/gui/GuiWindow.h>
 
 class LighthouseModalWindow final : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
     void Draw() override;
 

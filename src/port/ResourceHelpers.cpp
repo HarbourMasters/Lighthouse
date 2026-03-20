@@ -26,11 +26,11 @@ extern "C" {
 
 extern "C" uint16_t ResourceMgr_LoadTexWidthByName(char* texPath);
 extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
-extern "C" void func_8031B5C4(int32_t lang);  // decomp: set dialog language index
+extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
 
 // [port] Dialog language state — detected at boot from o2r version
-static int sDialogLanguageCount = 1;  // 1 for US/JP, 3 for PAL (EN/FR/DE)
-static int sDialogLanguage = 0;       // 0=English, 1=French, 2=German
+static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
+static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
 
 namespace {
 const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
@@ -108,9 +108,9 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             } else {
                 remapTable = &sV10toPALRemap;
                 versionName = "PAL";
-                sDialogLanguageCount = 3;  // EN, FR, DE
+                sDialogLanguageCount = 3; // EN, FR, DE
                 sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
-                func_8031B5C4(sDialogLanguage);  // Initialize decomp language index
+                func_8031B5C4(sDialogLanguage); // Initialize decomp language index
                 SPDLOG_INFO("[ResourceHelpers] PAL detected, dialog language CVar = {}", sDialogLanguage);
             }
         }
@@ -119,14 +119,15 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             uint32_t remapCount = 0;
             for (const auto& [v10Id, targetId] : *remapTable) {
                 if (symbolMap.find(v10Id) != symbolMap.end()) {
-                    continue;  // v1.0 ID already exists in manifest — no conflict
+                    continue; // v1.0 ID already exists in manifest — no conflict
                 }
                 if (auto targetEntry = symbolMap.find(targetId); targetEntry != symbolMap.end()) {
                     symbolMap[v10Id] = targetEntry->second;
                     remapCount++;
                 }
             }
-            SPDLOG_INFO("[ResourceHelpers] Detected {} o2r — injected {} v1.0 ID aliases into symbol map", versionName, remapCount);
+            SPDLOG_INFO("[ResourceHelpers] Detected {} o2r — injected {} v1.0 ID aliases into symbol map", versionName,
+                        remapCount);
         }
     });
 
@@ -145,7 +146,7 @@ extern "C" int ResourceMgr_GetDialogLanguage(void) {
 extern "C" void ResourceMgr_SetDialogLanguage(int lang) {
     if (lang >= 0 && lang < sDialogLanguageCount) {
         sDialogLanguage = lang;
-        func_8031B5C4(lang);  // Set decomp's internal language index
+        func_8031B5C4(lang); // Set decomp's internal language index
         SPDLOG_INFO("[ResourceHelpers] Dialog language set to {}", lang);
     }
 }
@@ -209,11 +210,10 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
         std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
         if (auto result = LoadAndRetainResource(mappedPath, assetId); result != nullptr) {
-            //SPDLOG_INFO("[ResourceManager] Loading '{}'", mappedPath);
+            // SPDLOG_INFO("[ResourceManager] Loading '{}'", mappedPath);
             return result;
         } else {
-            SPDLOG_WARN("[ResourceManager({})] symbol '{}' found but resource data is NULL", assetId,
-                        mappedPath);
+            SPDLOG_WARN("[ResourceManager({})] symbol '{}' found but resource data is NULL", assetId, mappedPath);
             return nullptr;
         }
     } else {

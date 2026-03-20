@@ -7,6 +7,7 @@ BreakBeforeBraces: Attach
 SpaceAfterCStyleCast: false
 Cpp11BracedListStyle: false
 IndentCaseLabels: true
+AccessModifierOffset: -4
 BinPackArguments: true
 BinPackParameters: true
 AlignAfterOpenBracket: Align

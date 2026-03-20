@@ -38,7 +38,7 @@
 #endif
 
 const float imguiScaleOptionToValue[4] = { 0.75f, 1.0f, 1.5f, 2.0f };
-std::shared_ptr<Fast::Fast3dWindow> gsFast3dWindow;
+std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
 const uint32_t defaultImGuiScale = 1;
 int32_t previousImGuiScaleIndex = -1;
 float previousImGuiScale = defaultImGuiScale;
@@ -105,7 +105,7 @@ bool VerifyArchiveVersion(OTRVersion version) {
     return version.major == gBuildVersionMajor && version.minor == gBuildVersionMinor;
 }
 
-GameEngine::GameEngine()/* : dictionary(nullptr)*/ {
+GameEngine::GameEngine() {
     this->context = Ship::Context::CreateUninitializedInstance("Lighthouse", "bk", "lighthouse.cfg.json");
 
 #ifdef __SWITCH__
@@ -118,16 +118,16 @@ GameEngine::GameEngine()/* : dictionary(nullptr)*/ {
     // ShipDeviceIndexMappingManager::UpdateControllerNamesFromConfig()
 
     assets_path = Ship::Context::LocateFileAcrossAppDirs("lighthouse.o2r");
-    portArchiveVersionMatch = std::filesystem::exists(assets_path);
+    portArchiveVersionMatch = std::filesystem::exists(assets_path); // TODO: port archive versioning
 
     auto controlDeck = std::make_shared<LUS::ControlDeck>();
 
     this->context->InitControlDeck(controlDeck);
-    this->context->InitResourceManager({ assets_path }, {}, 3);
+    this->context->InitResourceManager({ assets_path }, {}, 3, true);
     this->context->InitConsole();
 
-    gsFast3dWindow = std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({}));
-    this->context->InitWindow(gsFast3dWindow);
+    lhFast3dWindow = std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({}));
+    this->context->InitWindow(lhFast3dWindow);
 
     LighthouseGui::SetupMenu();
 
@@ -250,7 +250,7 @@ void GameEngine::FinishInit() {
     context->InitLogging(logLevel, logLevel);
     Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
     SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
-        (char*)gGitCommitHash);
+                (char*)gGitCommitHash);
 
     context->InitGfxDebugger();
     context->InitFileDropMgr();
@@ -258,9 +258,9 @@ void GameEngine::FinishInit() {
 
     this->context->InitAudio({ .SampleRate = 32000, .SampleLength = 512, .DesiredBuffered = 1100 });
 
-    gsFast3dWindow->SetTargetFps(60);
-    gsFast3dWindow->SetMaximumFrameLatency(1);
-    gsFast3dWindow->SetRendererUCode(ucode_f3d);
+    lhFast3dWindow->SetTargetFps(60);
+    lhFast3dWindow->SetMaximumFrameLatency(1);
+    lhFast3dWindow->SetRendererUCode(ucode_f3d);
 
     auto loader = context->GetResourceManager()->GetResourceLoader();
     auto blobFactory = std::make_shared<Ship::ResourceFactoryBinaryBlobV0>();
@@ -290,37 +290,37 @@ void GameEngine::FinishInit() {
                                     "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 0);
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV1>(), RESOURCE_FORMAT_BINARY,
                                     "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 1);
-    
+
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryVertexV0>(), RESOURCE_FORMAT_BINARY,
                                     "Vertex", static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLVertexV0>(), RESOURCE_FORMAT_XML, "Vertex",
                                     static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
-    
+
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryDisplayListV0>(),
                                     RESOURCE_FORMAT_BINARY, "DisplayList",
                                     static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLDisplayListV0>(), RESOURCE_FORMAT_XML,
                                     "DisplayList", static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
-    
+
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
                                     "Matrix", static_cast<uint32_t>(Fast::ResourceType::Matrix), 0);
-    
+
     loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
     loader->RegisterResourceFactory(blobFactory, RESOURCE_FORMAT_BINARY, "Blob",
-        static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
+                                    static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     LighthouseGui::SetupGuiElements();
     Instance->AudioInit();
-    //Instance->LoadDictionary();
-    //Instance->LoadPlayerAnims();
+    // Instance->LoadDictionary();
+    // Instance->LoadPlayerAnims();
 #if defined(__SWITCH__) || defined(__WIIU__)
     CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
 #endif
-    //DevConsole_Init();
-    //PortEnhancements_Init();
+    // DevConsole_Init();
+    // PortEnhancements_Init();
     ShipInit::InitAll();
 }
 
@@ -357,32 +357,33 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
 
 #if defined(__SWITCH__)
     LighthouseGui::RegisterPopup("Outdated ROM Archives",
-        "\x1b[2;2HYou've launched the Ship with an old ROM O2R file."
-        "\x1b[4;2HPlease regenerate a new ROM O2R and relaunch."
-        "\x1b[6;2HPress the Home button to exit...",
-        "OK", "", [&]() { exit(1); });
+                                 "\x1b[2;2HYou've launched the Ship with an old ROM O2R file."
+                                 "\x1b[4;2HPlease regenerate a new ROM O2R and relaunch."
+                                 "\x1b[6;2HPress the Home button to exit...",
+                                 "OK", "", [&]() { exit(1); });
 #elif defined(__WIIU__)
     LighthouseGui::RegisterPopup("Outdated ROM Archives",
-        "You've launched the Ship with an old a ROM O2R file.\n\n"
-        "Please generate a ROM O2R and relaunch.\n\n"
-        "Press and hold the Power button to shutdown...",
-        "OK", "", [&]() { exit(1); });
+                                 "You've launched the Ship with an old a ROM O2R file.\n\n"
+                                 "Please generate a ROM O2R and relaunch.\n\n"
+                                 "Press and hold the Power button to shutdown...",
+                                 "OK", "", [&]() { exit(1); });
     OSFatal();
 #endif
 
     if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("/assets"))) {
-        LighthouseGui::RegisterPopup("Extractor assets not found",
+        LighthouseGui::RegisterPopup(
+            "Extractor assets not found",
             "No O2R files found. Missing 'assets/' folder needed to generate OTR file.\nPlease "
             "re-extract them from the download or.\n\nExiting...",
             "OK", "", [&]() {
-                gsFast3dWindow = nullptr;
+                lhFast3dWindow = nullptr;
                 context = nullptr;
                 exit(1);
             });
     } else if (shouldRegen) {
         LighthouseGui::RegisterPopup("Outdated ROM Archives",
-            "Your bk.o2r was created with incompatible versions of Lighthouse.\nYou will "
-            "now be redirected to re-extract them.");
+                                     "Your bk.o2r was created with incompatible versions of Lighthouse.\n"
+                                     "You will now be redirected to re-extract them.");
         std::filesystem::remove("bk.o2r");
     }
 
@@ -392,275 +393,276 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             goto render;
         }
         switch (extractStep) {
-        case ES_PORT_ARCHIVE: {
-            // if (portArchiveVersionMatch) {
+            case ES_PORT_ARCHIVE: {
+                if (portArchiveVersionMatch) {
 #ifdef _WIN32
-            extractStep = ES_WINDOWS;
+                    extractStep = ES_WINDOWS;
 #elif (defined(__WIIU__) || defined(__SWITCH__))
-            extractStep = ES_VERIFY;
+                    extractStep = ES_VERIFY;
 #else
-            extractStep = ES_EXTRACT;
+                    extractStep = ES_EXTRACT;
 #endif
-            /*} else {
-            std::string msg;
+                } else {
+                    std::string msg;
 
-            #if defined(__SWITCH__)
-            msg = "\x1b[4;2HPlease re-extract it from the download.\n"
-            "\x1b[6;2HPress the Home button to exit...";
-            #elif defined(__WIIU__)
-            msg = "Please extract the soh.o2r from the Ship of Harkinian download\nto your folder.\n\nPress "
-            "and hold the power\n"
-            "button to shutdown...";
-            #else
-            msg =
-            "Please extract the soh.o2r from the Ship of Harkinian download to your folder.\n\nExiting...";
-            #endif
-            std::string title =
-            !std::filesystem::exists(assets_path) ? "Missing lighthouse.o2r" : "lighthouse.o2r is outdated";
-            LighthouseGui::RegisterPopup(title, msg, "OK", "", [&]() { exit(1); });
-            }
-            continue;*/
-        }
-        case ES_WINDOWS: {
-            switch (windowsStep) {
-            case WS_TEMP: {
-#ifdef _WIN32
-                char* tempVar = getenv("TEMP");
-                std::filesystem::path tempPath;
-                try {
-                    tempPath = std::filesystem::canonical(tempVar);
-                } catch (std::filesystem::filesystem_error const& ex) {
-                    std::string userPath = getenv("USERPROFILE");
-                    userPath.append("\\AppData\\Local\\Temp");
-                    tempPath = std::filesystem::canonical(userPath);
-                }
-                wchar_t buffer[MAX_PATH];
-                GetModuleFileName(NULL, buffer, _countof(buffer));
-                ownPath = std::filesystem::canonical(buffer).parent_path();
-                if (IsSubpath(ownPath, tempPath)) {
-                    LighthouseGui::RegisterPopup(
-                        "Lighthouse Path Error",
-                        "Lighthouse is running in a temp folder.\nExtract the .zip and run again.", "OK", "",
-                        [&]() {
-                            threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
-                            context = nullptr;
-                            exit(0);
-                        });
-                } else {
-                    windowsStep = WS_PERMS;
-                }
+#if defined(__SWITCH__)
+                    msg = "\x1b[4;2HPlease re-extract it from the download.\n"
+                          "\x1b[6;2HPress the Home button to exit...";
+#elif defined(__WIIU__)
+                    msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download\nto your "
+                          "folder.\n\nPress "
+                          "and hold the power\n"
+                          "button to shutdown...";
+#else
+                    msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download to your "
+                          "folder.\n\nExiting...";
 #endif
-                continue;
-            }
-            case WS_PERMS: {
-                FILE* tfile = fopen("./text.txt", "w");
-                std::filesystem::path tfolder = std::filesystem::path("./test/");
-                bool error = false;
-                try {
-                    create_directories(tfolder);
-                } catch (std::filesystem::filesystem_error const& ex) { error = true; }
-                if (tfile == NULL || error) {
-                    LighthouseGui::RegisterPopup(
-                        "Lighthouse Permissions Error",
-                        "Lighthouse does not have proper file permissions.\nPlease move it to a "
-                        "folder that does and run again.",
-                        "OK", "", [&]() {
-                            fclose(tfile);
-                            PathTestCleanup(tfile);
-                            threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
-                            context = nullptr;
-                            exit(0);
-                        });
-                } else {
-                    fclose(tfile);
-                    if (!PathTestCleanup(tfile)) {
-                        LighthouseGui::RegisterPopup(
-                            "Lighthouse Permissions Error",
-                            "Lighthouse does not have proper file permissions.\nPlease move it to a "
-                            "folder that does and run again.",
-                            "OK", "", [&]() {
-                                threadPool = nullptr;
-                                gsFast3dWindow = nullptr;
-                                context = nullptr;
-                                exit(0);
-                            });
-                    }
-                    windowsStep = WS_ONEDRIVE;
+                    std::string title =
+                        !std::filesystem::exists(assets_path) ? "Missing lighthouse.o2r" : "lighthouse.o2r is outdated";
+                    LighthouseGui::RegisterPopup(title, msg, "OK", "", [&]() { exit(1); });
                 }
                 continue;
             }
-            case WS_ONEDRIVE: {
-                if (ownPath.string().find("OneDrive") != std::string::npos) {
-                    LighthouseGui::RegisterPopup(
-                        "Lighthouse Path Error",
-                        "Lighthouse appears to be in a OneDrive folder, which will cause issues.\n"
-                        "Please move it to a folder outside of OneDrive, like the root of a\n"
-                        "drive (e.g. \"C:\\Games\\Lighthouse\").",
-                        "OK", "", [&]() {
-                            threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
-                            context = nullptr;
-                            exit(0);
-                        });
-                } else {
-                    windowsStep = WS_DONE;
-                    if (args.size() > 0) {
-                        extractStep = ES_EXTRACT_ARGS;
-                    } else {
-                        extractStep = ES_EXTRACT;
-                    }
-                }
-                continue;
-            }
-            default:
-                continue;
-            }
-            break;
-        }
-        case ES_EXTRACT_ARGS: {
-#if !defined(__SWITCH__) && !defined(__WIIU__)
-            if (args.size() == 0) {
-                LighthouseGui::RegisterPopup(
-                    "Run Lighthouse", "All files have been processed. Run Lighthouse?", "Yes", "No",
-                    [&]() {
-                        if (!std::filesystem::exists(Ship::Context::GetAppDirectoryPath("bk") + "/bk.o2r")) {
-                            extractStep = ES_EXTRACT;
-                            promptStep = PS_FILE_CHECK;
-                        } else {
-                            extractStep = ES_VERIFY;
+            case ES_WINDOWS: {
+                switch (windowsStep) {
+                    case WS_TEMP: {
+#ifdef _WIN32
+                        char* tempVar = getenv("TEMP");
+                        std::filesystem::path tempPath;
+                        try {
+                            tempPath = std::filesystem::canonical(tempVar);
+                        } catch (std::filesystem::filesystem_error const& ex) {
+                            std::string userPath = getenv("USERPROFILE");
+                            userPath.append("\\AppData\\Local\\Temp");
+                            tempPath = std::filesystem::canonical(userPath);
                         }
-                    },
-                    [&]() {
-                        threadPool = nullptr;
-                        gsFast3dWindow = nullptr;
-                        context = nullptr;
-                        exit(0);
-                    });
+                        wchar_t buffer[MAX_PATH];
+                        GetModuleFileName(NULL, buffer, _countof(buffer));
+                        ownPath = std::filesystem::canonical(buffer).parent_path();
+                        if (IsSubpath(ownPath, tempPath)) {
+                            LighthouseGui::RegisterPopup(
+                                "Lighthouse Path Error",
+                                "Lighthouse is running in a temp folder.\nExtract the .zip and run again.", "OK", "",
+                                [&]() {
+                                    threadPool = nullptr;
+                                    lhFast3dWindow = nullptr;
+                                    context = nullptr;
+                                    exit(0);
+                                });
+                        } else {
+                            windowsStep = WS_PERMS;
+                        }
+#endif
+                        continue;
+                    }
+                    case WS_PERMS: {
+                        FILE* tfile = fopen("./text.txt", "w");
+                        std::filesystem::path tfolder = std::filesystem::path("./test/");
+                        bool error = false;
+                        try {
+                            create_directories(tfolder);
+                        } catch (std::filesystem::filesystem_error const& ex) { error = true; }
+                        if (tfile == NULL || error) {
+                            LighthouseGui::RegisterPopup(
+                                "Lighthouse Permissions Error",
+                                "Lighthouse does not have proper file permissions.\nPlease move it to a "
+                                "folder that does and run again.",
+                                "OK", "", [&]() {
+                                    fclose(tfile);
+                                    PathTestCleanup(tfile);
+                                    threadPool = nullptr;
+                                    lhFast3dWindow = nullptr;
+                                    context = nullptr;
+                                    exit(0);
+                                });
+                        } else {
+                            fclose(tfile);
+                            if (!PathTestCleanup(tfile)) {
+                                LighthouseGui::RegisterPopup(
+                                    "Lighthouse Permissions Error",
+                                    "Lighthouse does not have proper file permissions.\nPlease move it to a "
+                                    "folder that does and run again.",
+                                    "OK", "", [&]() {
+                                        threadPool = nullptr;
+                                        lhFast3dWindow = nullptr;
+                                        context = nullptr;
+                                        exit(0);
+                                    });
+                            }
+                            windowsStep = WS_ONEDRIVE;
+                        }
+                        continue;
+                    }
+                    case WS_ONEDRIVE: {
+                        if (ownPath.string().find("OneDrive") != std::string::npos) {
+                            LighthouseGui::RegisterPopup(
+                                "Lighthouse Path Error",
+                                "Lighthouse appears to be in a OneDrive folder, which will cause issues.\n"
+                                "Please move it to a folder outside of OneDrive, like the root of a\n"
+                                "drive (e.g. \"C:\\Games\\Lighthouse\").",
+                                "OK", "", [&]() {
+                                    threadPool = nullptr;
+                                    lhFast3dWindow = nullptr;
+                                    context = nullptr;
+                                    exit(0);
+                                });
+                        } else {
+                            windowsStep = WS_DONE;
+                            if (args.size() > 0) {
+                                extractStep = ES_EXTRACT_ARGS;
+                            } else {
+                                extractStep = ES_EXTRACT;
+                            }
+                        }
+                        continue;
+                    }
+                    default:
+                        continue;
+                }
                 break;
             }
-            file = args.at(0);
-            args.erase(args.begin());
-            extract = GameExtractor();
-            if (extract.RunStandalone(file)) {
-                bool doExtract = true;
-                std::string archive = "bk.o2r";
-                if (std::filesystem::exists(Ship::Context::GetAppDirectoryPath("bk") + "/" + archive)) {
-                    std::string msg = "Archive for current ROM, " + archive + ", already exists.\nExtract again?";
-                    LighthouseGui::RegisterPopup("Confirm Re-extract", msg.c_str(), "Yes", "No", [&]() {
+            case ES_EXTRACT_ARGS: {
+#if !defined(__SWITCH__) && !defined(__WIIU__)
+                if (args.size() == 0) {
+                    LighthouseGui::RegisterPopup(
+                        "Run Lighthouse", "All files have been processed. Run Lighthouse?", "Yes", "No",
+                        [&]() {
+                            if (!std::filesystem::exists(Ship::Context::GetAppDirectoryPath("bk") + "/bk.o2r")) {
+                                extractStep = ES_EXTRACT;
+                                promptStep = PS_FILE_CHECK;
+                            } else {
+                                extractStep = ES_VERIFY;
+                            }
+                        },
+                        [&]() {
+                            threadPool = nullptr;
+                            lhFast3dWindow = nullptr;
+                            context = nullptr;
+                            exit(0);
+                        });
+                    break;
+                }
+                file = args.at(0);
+                args.erase(args.begin());
+                extract = GameExtractor();
+                if (extract.RunStandalone(file)) {
+                    bool doExtract = true;
+                    std::string archive = "bk.o2r";
+                    if (std::filesystem::exists(Ship::Context::GetAppDirectoryPath("bk") + "/" + archive)) {
+                        std::string msg = "Archive for current ROM, " + archive + ", already exists.\nExtract again?";
+                        LighthouseGui::RegisterPopup("Confirm Re-extract", msg.c_str(), "Yes", "No", [&]() {
+                            extracting = true;
+                            threadPool->submit_task([&]() -> void {
+                                extract.GenerateOTR(extractCount, totalExtract, "bk");
+                                extracting = false;
+                                extractCount = totalExtract = 0;
+                            });
+                        });
+                    } else {
                         extracting = true;
                         threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
                             extracting = false;
                             extractCount = totalExtract = 0;
-                            });
                         });
+                    }
                 } else {
-                    extracting = true;
-                    threadPool->submit_task([&]() -> void {
-                        extract.GenerateOTR(extractCount, totalExtract, "bk");
-                        extracting = false;
-                        extractCount = totalExtract = 0;
-                        });
+                    bool open = true;
+                    std::string msg = "File\n" + std::string(file) + "\nis not a ROM or does not match supported ROMs.";
+                    LighthouseGui::RegisterPopup("Lighthouse ROM Error", msg.c_str());
                 }
-            } else {
-                bool open = true;
-                std::string msg = "File\n" + std::string(file) + "\nis not a ROM or does not match supported ROMs.";
-                LighthouseGui::RegisterPopup("Lighthouse ROM Error", msg.c_str());
-            }
 #else
-            extractStep = ES_VERIFY;
+                extractStep = ES_VERIFY;
 #endif
-            break;
-        }
-        case ES_EXTRACT: {
-            switch (promptStep) {
-            case PS_FILE_CHECK: {
+                break;
+            }
+            case ES_EXTRACT: {
+                switch (promptStep) {
+                    case PS_FILE_CHECK: {
+                        const bool romO2RExists =
+                            std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk"));
+
+                        if (!romO2RExists) {
+                            LighthouseGui::RegisterPopup(
+                                "No O2R Files", "No O2R files found. Generate one now?", "Yes", "No",
+                                [&]() { promptStep = PS_LOCAL; },
+                                [&]() {
+                                    threadPool = nullptr;
+                                    lhFast3dWindow = nullptr;
+                                    context = nullptr;
+                                    exit(0);
+                                });
+                        } else {
+                            extractStep = ES_VERIFY;
+                        }
+                        continue;
+                    }
+                    case PS_LOCAL: {
+                        extract = GameExtractor();
+                        extract.SetSearchPath(installPath);
+                        extract.GetRoms(args);
+                        extract.SetSearchPath(Ship::Context::GetAppDirectoryPath("bk"));
+                        extract.GetRoms(args);
+                        if (!args.empty()) {
+                            promptStep = PS_WAIT;
+                            LighthouseGui::RegisterPopup(
+                                "ROMs found", "ROMs found in application directory. Would you like to process them?",
+                                "Yes", "No", [&]() { extractStep = ES_EXTRACT_ARGS; },
+                                [&]() {
+                                    args.clear();
+                                    promptStep = PS_FIRST;
+                                });
+                        } else {
+                            promptStep = PS_FIRST;
+                        }
+                        continue;
+                    }
+                    case PS_FIRST: {
+                        if (args.empty() && !extract.SelectGameFromUI()) {
+                            promptStep = PS_FILE_CHECK;
+                            continue;
+                        }
+                        extracting = true;
+                        file = extract.GetRomPath();
+                        threadPool->submit_task([&]() -> void {
+                            extract.GenerateOTR(extractCount, totalExtract, "bk");
+                            extracting = false;
+                            extractStep = ES_VERIFY;
+                            extractCount = 0;
+                            totalExtract = 0;
+                        });
+                        continue;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            }
+            case ES_VERIFY: {
                 const bool romO2RExists =
                     std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk"));
 
                 if (!romO2RExists) {
-                    LighthouseGui::RegisterPopup(
-                        "No O2R Files", "No O2R files found. Generate one now?", "Yes", "No",
-                        [&]() { promptStep = PS_LOCAL; },
-                        [&]() {
-                            threadPool = nullptr;
-                            gsFast3dWindow = nullptr;
-                            context = nullptr;
-                            exit(0);
-                        });
-                } else {
-                    extractStep = ES_VERIFY;
+                    LighthouseGui::RegisterPopup("No ROM Archive",
+                                                 "No ROM O2R file detected. Please generate a ROM O2R and relaunch.",
+                                                 "OK", "", [&]() {
+                                                     threadPool = nullptr;
+                                                     lhFast3dWindow = nullptr;
+                                                     context = nullptr;
+                                                     exit(0);
+                                                 });
                 }
-                continue;
-            }
-            case PS_LOCAL: {
-                extract = GameExtractor();
-                extract.SetSearchPath(installPath);
-                extract.GetRoms(args);
-                extract.SetSearchPath(Ship::Context::GetAppDirectoryPath("bk"));
-                extract.GetRoms(args);
-                if (!args.empty()) {
-                    promptStep = PS_WAIT;
-                    LighthouseGui::RegisterPopup(
-                        "ROMs found", "ROMs found in application directory. Would you like to process them?",
-                        "Yes", "No", [&]() { extractStep = ES_EXTRACT_ARGS; },
-                        [&]() {
-                            args.clear();
-                            promptStep = PS_FIRST;
-                        });
-                } else {
-                    promptStep = PS_FIRST;
-                }
-                continue;
-            }
-            case PS_FIRST: {
-                if (args.empty() && !extract.SelectGameFromUI()) {
-                    promptStep = PS_FILE_CHECK;
-                    continue;
-                }
-                extracting = true;
-                file = extract.GetRomPath();
-                threadPool->submit_task([&]() -> void {
-                    extract.GenerateOTR(extractCount, totalExtract, "bk");
-                    extracting = false;
-                    extractStep = ES_VERIFY;
-                    extractCount = 0;
-                    totalExtract = 0;
-                    });
+                extractDone = true;
                 continue;
             }
             default:
                 break;
-            }
-            break;
-        }
-        case ES_VERIFY: {
-            const bool romO2RExists =
-                std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk"));
-
-            if (!romO2RExists) {
-                LighthouseGui::RegisterPopup("No ROM Archive",
-                    "No ROM O2R file detected. Please generate a ROM O2R and relaunch.",
-                    "OK", "", [&]() {
-                        threadPool = nullptr;
-                        gsFast3dWindow = nullptr;
-                        context = nullptr;
-                        exit(0);
-                    });
-            }
-            extractDone = true;
-            continue;
-        }
-        default:
-            break;
         }
 
     render:
         if (!WindowIsRunning()) {
             threadPool = nullptr;
-            gsFast3dWindow = nullptr;
+            lhFast3dWindow = nullptr;
             context = nullptr;
             exit(0);
         }
@@ -676,8 +678,8 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             continue;
         }
         gui->StartDraw();
-        gsFast3dWindow->StartFrame();
-        gsFast3dWindow->RunGuiOnly();
+        lhFast3dWindow->StartFrame();
+        lhFast3dWindow->RunGuiOnly();
         if (extracting && !ImGui::IsPopupOpen("ROM Extraction")) {
             ImGui::OpenPopup("ROM Extraction");
         }
@@ -689,16 +691,17 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(color.x, color.y, color.z, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
             if (ImGui::BeginPopupModal("ROM Extraction", NULL,
-                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-                ImGuiWindowFlags_NoSavedSettings)) {
+                                       ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
+                                           ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                                           ImGuiWindowFlags_NoSavedSettings)) {
                 int phase = GameExtractor::sPhase;
                 float progress;
                 if (phase == 3) {
                     progress = 100.0f;
                 } else {
                     progress = (totalExtract > 0 ? (float)extractCount / (float)totalExtract : 0) * 100.0f;
-                    if (progress > 100.0f) progress = 100.0f;
+                    if (progress > 100.0f)
+                        progress = 100.0f;
                 }
 
                 // Status text
@@ -715,7 +718,8 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                             // Truncate with ellipsis
                             std::string ellipsis = "...";
                             float ellipsisWidth = ImGui::CalcTextSize(ellipsis.c_str()).x;
-                            while (assetName.size() > 3 && ImGui::CalcTextSize(assetName.c_str()).x > maxWidth - ellipsisWidth) {
+                            while (assetName.size() > 3 &&
+                                   ImGui::CalcTextSize(assetName.c_str()).x > maxWidth - ellipsisWidth) {
                                 assetName.pop_back();
                             }
                             assetName += ellipsis;
@@ -742,7 +746,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             ImGui::PopStyleVar(2);
         }
         gui->EndDraw();
-        gsFast3dWindow->EndFrame();
+        lhFast3dWindow->EndFrame();
         ImGui::PopStyleColor(2);
     }
     threadPool = nullptr;
@@ -791,7 +795,7 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
     iconsConfig.PixelSnapH = true;
     iconsConfig.GlyphMinAdvanceX = iconFontSize;
     mImGuiIo->Fonts->AddFontFromMemoryCompressedBase85TTF(fontawesome_compressed_data_base85, iconFontSize,
-        &iconsConfig, sIconsRanges);
+                                                          &iconsConfig, sIconsRanges);
 
     return font;
 }
@@ -819,10 +823,10 @@ void GameEngine::Create(int argc, char* argv[]) {
     instance->RunExtract(argc, argv);
     instance->FinishInit();
     LighthouseGui::SetupGuiElements();
-//#if defined(__SWITCH__) || defined(__WIIU__)
-//    CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
-//    osSetTime(0);
-//#endif
+    //#if defined(__SWITCH__) || defined(__WIIU__)
+    //    CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
+    //    osSetTime(0);
+    //#endif
     PortEnhancements_Init();
 }
 
@@ -830,7 +834,7 @@ extern void ResourceHelpers_ClearRefCache();
 
 void GameEngine::Destroy() {
     LighthouseGui::Destroy();
-    gsFast3dWindow = nullptr;
+    lhFast3dWindow = nullptr;
 
     // Flush all resource refs so destructors run while spdlog is still active.
     // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
@@ -982,7 +986,6 @@ void GameEngine::AudioExit() {
 void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter);
 extern "C" int port_isViBlack(void);
 
-
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
 
@@ -1077,7 +1080,7 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     while (time + original_fps <= next_original_frame) {
         time += original_fps;
         if (time != next_original_frame) {
-            mtx_replacements.push_back(FrameInterpolation_Interpolate((float) time / next_original_frame));
+            mtx_replacements.push_back(FrameInterpolation_Interpolate((float)time / next_original_frame));
         } else {
             mtx_replacements.emplace_back();
         }

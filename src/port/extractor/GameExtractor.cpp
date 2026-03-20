@@ -237,8 +237,10 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::string app
     return GenerateOTR(assetCount, unused, appShortName);
 }
 
-bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<size_t>& totalAssets, std::string appShortName) {
-    const std::string assets_path = fs::path(Ship::Context::LocateFileAcrossAppDirs("assets", appShortName)).parent_path().generic_string();
+bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<size_t>& totalAssets,
+                                std::string appShortName) {
+    const std::string assets_path =
+        fs::path(Ship::Context::LocateFileAcrossAppDirs("assets", appShortName)).parent_path().generic_string();
     const std::string game_path = Ship::Context::GetAppDirectoryPath(appShortName);
 
     // Count symbol_map entries for parse-phase total
@@ -252,16 +254,25 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
             if (rom && rom["path"]) {
                 auto assetDir = (fs::path(assets_path) / rom["path"].as<std::string>()).generic_string();
                 for (const auto& entry : std::filesystem::recursive_directory_iterator(assetDir)) {
-                    if (entry.is_directory()) continue;
+                    if (entry.is_directory()) {
+                        continue;
+                    }
                     const auto path = entry.path().generic_string();
-                    if (path.find(".yaml") == std::string::npos && path.find(".yml") == std::string::npos) continue;
-                    if (path.find("config.yml") != std::string::npos) continue;
+                    if (path.find(".yaml") == std::string::npos && path.find(".yml") == std::string::npos) {
+                        continue;
+                    }
+                    if (path.find("config.yml") != std::string::npos) {
+                        continue;
+                    }
                     YAML::Node root = YAML::LoadFile(path);
                     for (auto asset = root.begin(); asset != root.end(); ++asset) {
                         auto key = asset->first.as<std::string>();
-                        if (key.find(":config") != std::string::npos) continue;
+                        if (key.find(":config") != std::string::npos) {
+                            continue;
+                        }
                         auto node = asset->second;
-                        if (node["type"] && node["type"].as<std::string>() == "BK64:ASSET_TABLE" && node["symbol_map"]) {
+                        if (node["type"] && node["type"].as<std::string>() == "BK64:ASSET_TABLE" &&
+                            node["symbol_map"]) {
                             totalAssets += node["symbol_map"].size();
                         } else {
                             totalAssets++;
@@ -270,9 +281,7 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
                 }
             }
         }
-    } catch (const std::exception& e) {
-        SPDLOG_WARN("Failed to count assets: {}", e.what());
-    }
+    } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
 
     sPhase = 1; // Parsing phase
     delete Companion::Instance;

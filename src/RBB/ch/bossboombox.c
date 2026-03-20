@@ -6,7 +6,7 @@ extern void actor_predrawMethod(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void func_8030E394(u8);
 extern int func_803342AC(f32 (*)[3], f32(*)[3], f32);
-extern void particleEmitter_setModel(ParticleEmitter *, s32);
+// extern void particleEmitter_setModel(ParticleEmitter *, enum asset_e model_id); // [port] defined in functions.h
 
 
 typedef struct{
