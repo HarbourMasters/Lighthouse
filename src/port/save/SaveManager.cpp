@@ -1228,7 +1228,6 @@ void port_setSavedBottleBonus(int eepromSlot, const uint8_t in[7]) {
 
 } // extern "C"
 
-#ifdef ENHANCEMENT
 int SaveManager::GetSavedLives(int eepromSlot) {
     if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) {
         return 3;
@@ -1250,4 +1249,3 @@ void SaveManager::SetSavedBottleBonusGames(int eepromSlot, const uint8_t in[7]) 
     }
     memcpy(Instance().mSavedBottleBonus[eepromSlot], in, 7);
 }
-#endif
