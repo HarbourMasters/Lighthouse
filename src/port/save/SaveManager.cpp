@@ -1143,7 +1143,6 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
     }
     j["progress"]["bottlesBonusCompleted"] = bbArr;
 
-
     std::string filename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
     std::string path = GetSavePath(filename);
     std::string tmpPath = path + ".tmp";
