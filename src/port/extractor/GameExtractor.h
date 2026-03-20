@@ -7,7 +7,7 @@
 #include <atomic>
 
 class GameExtractor {
-  public:
+public:
     static bool GenAssetFile();
     std::optional<std::string> ValidateChecksum() const;
     bool RunStandalone(std::string rom);
@@ -21,7 +21,7 @@ class GameExtractor {
     void WritePortVersion();
     static std::string sStatusText;
     static std::atomic<int> sPhase; // 0=idle, 1=parsing, 2=exporting, 3=done
-  private:
+private:
     fs::path mGamePath;
     std::vector<uint8_t> mGameData;
     std::string mSearchPath;
