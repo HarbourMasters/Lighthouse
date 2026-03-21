@@ -3,6 +3,7 @@
 
 #include <fast/interpreter.h>
 #include "Engine.h"
+#include "ShipUtils.h"
 
 // [port] timeBeginPeriod(1) improves SDL_Delay precision for no-vsync path.
 // With vsync, sleep is unused since vsync paces the frame budget.
@@ -116,10 +117,22 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
     // but when rendering to an FBO with invertY=true (mGameFb), the interpreter flips
     // rendering so game-top is at low Y — glReadPixels row 0 is already game-top.
     const char* apiName = interpreter->mRapi->GetName();
+
+    // [port] DEBUG: log readback dimensions on first call
+    {
+        static int sLogged = 0;
+        if (!sLogged) {
+            SPDLOG_INFO("[readback] gpuW={} gpuH={} dstW={} dstH={} fbId={} rendersToFb={} api={}",
+                gpuW, gpuH, dstW, dstH, fbId, interpreter->mRendersToFb ? 1 : 0, apiName ? apiName : "null");
+            sLogged = 1;
+        }
+    }
     bool isOpenGL = (apiName && strstr(apiName, "OpenGL") != nullptr);
     s_gpuReadbackFlipY = isOpenGL && !interpreter->mRendersToFb;
 
-    // Downsample to N64 resolution for gFramebuffers (used by most decomp code)
+    // Downsample to N64 resolution for gFramebuffers (used by most decomp code).
+    // gpuW x gpuH IS the game viewport (from GetCurDimensions) — just downsample directly.
+    // The tile draw on the display side stretches to fill the viewport.
     for (int buf = 0; buf < 2; buf++) {
         uint16_t* dst = gFramebuffers[buf];
         for (uint32_t y = 0; y < dstH; y++) {
@@ -127,8 +140,7 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
             for (uint32_t x = 0; x < dstW; x++) {
                 uint32_t srcX = x * gpuW / dstW;
                 uint16_t px = s_gpuReadbackBuffer[srcY * gpuW + srcX];
-                // Byte-swap to big-endian (N64 convention). LUS ImportTextureRgba16
-                // reads bytes as BE, and decomp code assumes BE pixel layout.
+                // Byte-swap to big-endian (N64 convention).
                 dst[y * dstW + x] = (px >> 8) | (px << 8);
             }
         }

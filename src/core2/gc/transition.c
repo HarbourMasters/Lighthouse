@@ -285,9 +285,32 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     }
 
+    // [port] Widescreen transition scaling
+    f32 transitionScale;
+    s32 isJigsawWidescreen = 0;
+    f32 jigsawXScale = 1.0f;
+    {
+        s32 vpW = port_getViewportWidth();
+        f32 aspectRatio = (f32)vpW / 320.0f;
+        transitionScale = (aspectRatio > 1.01f) ? aspectRatio + 0.1f : 1.0f;
+
+        // [port] Jigsaw uses X-only projection scale to avoid vertical zoom
+        if (s_current_transition.transistion_info != NULL &&
+            (s_current_transition.transistion_info->uid == 0x10 ||
+             s_current_transition.transistion_info->uid == 0x11) &&
+            aspectRatio > 1.01f) {
+            isJigsawWidescreen = 1;
+            jigsawXScale = aspectRatio + 0.1f;
+            transitionScale = 1.0f;
+            Mtx* xScaleMtx = (*mptr)++;
+            guScale(xScaleMtx, jigsawXScale, 1.0f, 1.0f);
+            gSPMatrix((*gdl)++, xScaleMtx, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+        }
+    }
+
     //complex animation (from animation bin file)
     if(s_current_transition.state == 1 || s_current_transition.state == 6){
-        modelRender_draw(gdl, mptr, sp58, vp_rotation, 1.0f, 0, s_current_transition.model_ptr);
+        modelRender_draw(gdl, mptr, sp58, vp_rotation, transitionScale, 0, s_current_transition.model_ptr);
         if(s_current_transition.anctrl != NULL){
             gDPSetTextureFilter((*gdl)++, G_TF_BILERP);
             gDPSetColorDither((*gdl)++, G_CD_MAGICSQ);
@@ -307,7 +330,7 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
             vp_rotation[2] = s_current_transition.rotation - 90.0f*percentage;
             scale = percentage*s_current_transition.transistion_info->scale + 0.1;
         }
-        modelRender_draw(gdl, mptr, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
+        modelRender_draw(gdl, mptr, sp58, vp_rotation, scale * transitionScale, 0, s_current_transition.model_ptr);
     }
     else if(s_current_transition.state == TRANSITION_STATE_5_FADE_OUT){//L8030B9EC
         switch (s_current_transition.transistion_info->uid)
@@ -328,7 +351,7 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
                 break;
         }
         if(!(s_current_transition.substate < 3) || s_current_transition.transistion_info->uid != 0x11){
-            modelRender_draw(gdl, mptr, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
+            modelRender_draw(gdl, mptr, sp58, vp_rotation, scale * transitionScale, 0, s_current_transition.model_ptr);
         }
         else{
             modelRender_reset();
@@ -369,6 +392,12 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     }
     if(s_current_transition.anctrl != NULL){
         gDPSetTextureFilter((*gdl)++, G_TF_BILERP);
+    }
+    // [port] Restore projection after jigsaw X-scale
+    if(isJigsawWidescreen){
+        Mtx* xScaleUndoMtx = (*mptr)++;
+        guScale(xScaleUndoMtx, 1.0f / jigsawXScale, 1.0f, 1.0f);
+        gSPMatrix((*gdl)++, xScaleUndoMtx, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     }
     viewport_restoreState();
     viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);

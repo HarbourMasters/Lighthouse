@@ -246,23 +246,8 @@ void gcpausemenu_free(void) {
 
 void gcpausemenu_zoomboxes_initMainMenu(void) {
     s32 i;
-    // [port] When exit-to-lair is enabled, use evenly spaced y positions
-    // and a smaller Gruntilda portrait. Original layout has y=-100 (off-screen)
-    // for the disabled exit-to-lair slot.
-    s32 y_pos[4];
-    GcZoomboxSprite portraits[4];
     for (i = 0; i < 4; i++) {
-        y_pos[i] = D_8036C4E0[i].y;
-        portraits[i] = D_8036C4E0[i].portrait;
-    }
-    if (!D_80383010.return_to_lair_disabled) {
-        y_pos[0] = 50;
-        y_pos[1] = 80;
-        y_pos[2] = 110;
-        y_pos[3] = 140;
-    }
-    for (i = 0; i < 4; i++) {
-        D_80383010.zoombox[i] = gczoombox_new(y_pos[i], portraits[i], 2, 0, gcpausemenu_zoombox_callback);
+        D_80383010.zoombox[i] = gczoombox_new(D_8036C4E0[i].y, D_8036C4E0[i].portrait, 2, 0, gcpausemenu_zoombox_callback);
         gczoombox_func_803184C8(D_80383010.zoombox[i], 60.0f, 5, 2, 0.3f, 0, 0);
         func_80318640(D_80383010.zoombox[i], 0x1C, 0.75f, 0.9f, 0);
         func_80318760(D_80383010.zoombox[i], 8000);
@@ -764,8 +749,31 @@ s32 gcpausemenu_initLargestPageIndex(void) {
 
 bool gcpausemenu_initReturnToLair(void) {
 #ifdef ENHANCEMENT
+    // [port] Modify the menu data table directly to show/hide Exit to Lair.
+    // When in a level, enable it with evenly spaced positions.
+    // When outside a level, hide it at y=-100 and restore original layout.
     s32 level = level_get();
-    return !(level > 0 && level < LEVEL_C_BOSS && D_8036C560[level - 1].map != -1);
+    bool disabled = !(level > 0 && level < LEVEL_C_BOSS && D_8036C560[level - 1].map != -1);
+    if (!disabled) {
+        D_8036C4E0[0].y = 45;
+        D_8036C4E0[1].y = 75;
+        D_8036C4E0[2].y = 105;
+        D_8036C4E0[3].y = 135;
+        D_8036C4E0[1].delay = 0.1f;
+        D_8036C4E0[2].delay = 0.2f;
+        D_8036C4E0[3].delay = 0.3f;
+        D_8036C4E0[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_2;
+    } else {
+        D_8036C4E0[0].y = 55;
+        D_8036C4E0[1].y = -100;
+        D_8036C4E0[2].y = 90;
+        D_8036C4E0[3].y = 125;
+        D_8036C4E0[1].delay = 0.3f;
+        D_8036C4E0[2].delay = 0.1f;
+        D_8036C4E0[3].delay = 0.2f;
+        D_8036C4E0[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
+    }
+    return disabled;
 #else
     return true;
 #endif

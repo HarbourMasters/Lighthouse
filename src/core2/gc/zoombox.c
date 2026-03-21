@@ -851,40 +851,16 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     func_80335D30(gfx);
     viewport_setRenderViewportAndOrthoMatrix(gfx, mtx);
     mlMtxIdent();
-    // [port] Scale down pause menu speaker sprites (these 4 portraits are only used there)
-    temp_f12 = (f32) ((f64) this->unk198 * 0.8);
-    {
-        f32 sprite_scale = 1.0f;
-        if (this->unk1A4_24) {
-            mlMtxRotYaw(180.0f);
-            sp2C[0] = (f32) this->unk170 - ((f32) arg3 * this->unk198);
-        } else {
-            sp2C[0] = (f32) this->unk170 + ((f32) arg3 * this->unk198);
-        }
-        sp2C[1] = this->unk172 + ((f32) arg4 * this->unk198);
-        // [port] Per-sprite scale and position correction for pause menu
-        // sp2C[0] = x position, sp2C[1] = y position
-        if (this->portrait_id == ZOOMBOX_SPRITE_4_BANJO_1) {
-            sprite_scale = 0.8f;
-            sp2C[0] += 4.5f;
-            sp2C[1] += 2.5f;
-        } else if (this->portrait_id == ZOOMBOX_SPRITE_5_GRUNTILDA_2) {
-            sprite_scale = 0.5f;
-            sp2C[0] += 18.0f;
-            sp2C[1] += 24.0f;
-        } else if (this->portrait_id == ZOOMBOX_SPRITE_6_JIGGY_1) {
-            sprite_scale = 0.8f;
-            sp2C[0] += 5.5f;
-            sp2C[1] += 2.5f;
-        } else if (this->portrait_id == ZOOMBOX_SPRITE_7_TOOTY_1) {
-            sprite_scale = 0.8f;
-            sp2C[0] += 10.0f;
-            sp2C[1] += 4.0f;
-        }
-        sp2C[2] = -10.0f;
-        func_80252330((sp2C[0] * 4.0f) - ((f32)gFramebufferWidth * 2), ((f32)gFramebufferHeight * 2) - (sp2C[1] * 4.0f), sp2C[2]);
-        temp_f12 *= sprite_scale;
+    if (this->unk1A4_24) {
+        mlMtxRotYaw(180.0f);
+        sp2C[0] = (f32) this->unk170 - ((f32) arg3 * this->unk198);
+    } else {
+        sp2C[0] = (f32) this->unk170 + ((f32) arg3 * this->unk198);
     }
+    sp2C[1] = this->unk172 + ((f32) arg4 * this->unk198);
+    sp2C[2] = -10.0f;
+    func_80252330((sp2C[0] * 4.0f) - ((f32)gFramebufferWidth * 2), ((f32)gFramebufferHeight * 2) - (sp2C[1] * 4.0f), sp2C[2]);
+    temp_f12 = (f32) ((f64) this->unk198 * 0.8);
     mlMtxScale_xyz(temp_f12, temp_f12, 1.0f);
     mlMtxApply(*mtx);
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_LOAD | G_MTX_MODELVIEW);
