@@ -844,6 +844,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     //    osSetTime(0);
     //#endif
     PortEnhancements_Init();
+    ShipInit::InitAll();
 }
 
 extern void ResourceHelpers_ClearRefCache();
