@@ -169,15 +169,20 @@ void baMotor_init(void) {
 
 void __baMotor_80250D8C(void){}
 
+extern f32 port_getRumbleScale(void); // [port] 0.0–1.0 from ImGui rumble intensity
+
 void baMotor_80250D94(f32 arg0, f32 arg1, f32 arg2){
     f32 f4;
     if(arg2 != 0.0f && D_802823AC){
         if(func_802E4A08() == 0){
             if(!(0.1 < D_80282420 - D_80282424) || !(arg0 + arg1 < D_80282428 + D_8028242C)){
+                // [port] Scale intensity by ImGui rumble setting.
+                // Original N64 values are ~50% of max (duty cycling a binary motor).
+                f32 scale = port_getRumbleScale() * 2.0f;
                 D_80282420 = arg2;
                 D_80282424 = 0.0f;
-                D_80282428 = arg0;
-                D_8028242C = arg1;
+                D_80282428 = MIN(arg0 * scale, 1.0f);
+                D_8028242C = MIN(arg1 * scale, 1.0f);
             }
         }
     }

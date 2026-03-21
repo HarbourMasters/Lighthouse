@@ -239,3 +239,25 @@ extern "C" void port_setMapDebugTitle(int map_id) {
     }
 #endif
 }
+
+// [port] Returns 0.0–1.0 rumble intensity scale from the ImGui controller config.
+// Uses the average of low/high frequency percentages for the given controller port.
+extern "C" float port_getRumbleScale(void) {
+    auto ctx = Ship::Context::GetInstance();
+    if (!ctx) {
+        return 0.5f;
+    }
+
+    auto controller = ctx->GetControlDeck()->GetControllerByPort(0);
+    if (!controller) {
+        return 0.5f;
+    }
+
+    auto rumble = controller->GetRumble();
+    for (auto& [id, mapping] : rumble->GetAllRumbleMappings()) {
+        float low = mapping->GetLowFrequencyIntensityPercentage() / 100.0f;
+        float high = mapping->GetHighFrequencyIntensityPercentage() / 100.0f;
+        return (low + high) * 0.5f;
+    }
+    return 1.0f;
+}
