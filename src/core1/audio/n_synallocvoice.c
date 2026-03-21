@@ -4,9 +4,6 @@
 
 #include <ultra64.h>
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 static s32 _n_allocatePVoice(N_PVoice **pvoice, s16 priority);
 
 s32 n_alSynAllocVoice( N_ALVoice *voice, ALVoiceConfig *vc)
@@ -47,11 +44,13 @@ s32 n_alSynAllocVoice( N_ALVoice *voice, ALVoiceConfig *vc)
              * ramp down stolen voice
              */
             update = __n_allocParam();
-            update->delta      = n_syn->paramSamples;
-            update->type       = AL_FILTER_SET_VOLUME;
-            update->data.i     = 0;
-            update->moredata.i = pvoice->offset - 64;
-            n_alEnvmixerParam(voice->pvoice, AL_FILTER_ADD_UPDATE, update);
+            if (update) { // [port] pool can exhaust
+                update->delta      = n_syn->paramSamples;
+                update->type       = AL_FILTER_SET_VOLUME;
+                update->data.i     = 0;
+                update->moredata.i = pvoice->offset - 64;
+                n_alEnvmixerParam(voice->pvoice, AL_FILTER_ADD_UPDATE, update);
+            }
 
             /*
              * stop stolen voice
@@ -111,4 +110,3 @@ s32 _n_allocatePVoice(N_PVoice **pvoice, s16 priority)
     
     return stolen;
 }
-#endif // [port] N64 SDK audio stub

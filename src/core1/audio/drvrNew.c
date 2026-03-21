@@ -5,20 +5,42 @@
 #include "synthInternals.h"
 #include "2.0L/PR/libaudio.h"
 
-#if 0 // [port] N64 SDK audio stub
-
 /*
  * WARNING: THE FOLLOWING CONSTANT MUST BE KEPT IN SYNC
  * WITH SCALING IN MICROCODE!!!
  */
 #define	SCALE 16384
 
+void _init_lpfilter(ALLowPass *lp)
+{
+    s32		i, temp;
+    s16		fc;
+    f64		ffc, fcoef;
+
+    temp = lp->fc * SCALE;
+    fc = temp >> 15;
+    lp->fgain = SCALE - fc;
+
+    lp->first = 1;
+    for (i=0; i<8; i++)
+	lp->fcvec.fccoef[i] = 0;
+
+    lp->fcvec.fccoef[i++] = fc;
+    fcoef = ffc = (f64)fc/SCALE;
+
+    for (; i<16; i++){
+	fcoef *= ffc;
+	lp->fcvec.fccoef[i] = (s16)(fcoef * SCALE);
+    }
+}
+
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 /*
  * the following arrays contain default parameters for
  * a few hopefully useful effects.
  */
 #define ms *(((s32)((f32)44.1))&~0x7)
- 
+
 
 static s32 SMALLROOM_PARAMS[26] = {
     /* sections	   length */
@@ -69,29 +91,6 @@ static s32 NULL_PARAMS[10] = {
     0, 0,
     0, 0, 0, 0, 0, 0, 0, 0
 };
-
-void _init_lpfilter(ALLowPass *lp)
-{
-    s32		i, temp;
-    s16		fc;
-    f64		ffc, fcoef;
-
-    temp = lp->fc * SCALE;
-    fc = temp >> 15;
-    lp->fgain = SCALE - fc;
-
-    lp->first = 1;
-    for (i=0; i<8; i++)
-	lp->fcvec.fccoef[i] = 0;
-    
-    lp->fcvec.fccoef[i++] = fc;
-    fcoef = ffc = (f64)fc/SCALE;
-
-    for (; i<16; i++){
-	fcoef *= ffc;
-	lp->fcvec.fccoef[i] = (s16)(fcoef * SCALE);
-    }
-}
 
 void alFxNew(ALFx *r, ALSynConfig *c, ALHeap *hp)
 {
@@ -281,5 +280,4 @@ void alSaveNew(ALSave *f)
     f->first = 1;
 
 }
-
-#endif // [port] N64 SDK audio stub
+#endif

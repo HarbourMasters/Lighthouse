@@ -158,6 +158,7 @@ add_compile_definitions(
     NON_EQUIVALENT=1
 	AVOID_UB=1
     GBI_FLOATS=1
+    N_MICRO=1
 )
 
 # Find necessary libraries

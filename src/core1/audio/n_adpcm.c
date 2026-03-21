@@ -3,8 +3,7 @@
 #include <libultra/convert.h>
 #include <libultra/r4300.h>
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
+extern uintptr_t osVirtualToPhysical(void *addr); // [port] needed for K0_TO_PHYS replacement
 
 #ifndef MIN
 #   define MIN(a,b) (((a)<(b))?(a):(b))
@@ -48,7 +47,7 @@ Acmd *n_alAdpcmPull(void *filter, s16 *outp, s32 outCount, Acmd *p)
 
     inp = AL_DECODER_IN;
     aLoadADPCM(ptr++, f->bookSize,
-               K0_TO_PHYS(f->table->waveInfo.adpcmWave.book->book));
+               osVirtualToPhysical(f->table->waveInfo.adpcmWave.book->book)); // [port] was K0_TO_PHYS, truncates 64-bit pointers
 
     looped = (outCount + f->sample > f->loop.end) && (f->loop.count != 0);
     if (looped)
@@ -208,13 +207,11 @@ Acmd *_n_decodeChunk(Acmd *ptr, N_ALLoadFilter *f, s32 tsam, s32 nbytes, s16 out
         dramAlign = 0;
 
     if (flags & A_LOOP){
-        aSetLoop(ptr++, K0_TO_PHYS(f->lstate));
+        aSetLoop(ptr++, osVirtualToPhysical(f->lstate)); // [port] was K0_TO_PHYS
     }
-    
-    n_aADPCMdec(ptr++, K0_TO_PHYS(f->state), flags, tsam<<1, dramAlign, outp);
+
+    n_aADPCMdec(ptr++, osVirtualToPhysical(f->state), flags, tsam<<1, dramAlign, outp); // [port] was K0_TO_PHYS
     f->first = 0;
 
     return ptr;
 }
-
-#endif // [port] N64 SDK audio stub

@@ -8,6 +8,7 @@
 #define MAIN_THREAD_STACK_SIZE 0x17F0
 
 extern void ability_setLearned(s32 move, s32 val);
+extern void audioManager_init(void);
 
 #if VERSION == VERSION_PAL
     extern s32 D_80000300;
@@ -127,7 +128,7 @@ void core1_init(void) {
     assetCache_init();
     pfsManager_init();
     baMotor_init();
-    //audioManager_init();
+    audioManager_init();
     graphicsCache_init();
     ml_init();
     gctransition_reset();

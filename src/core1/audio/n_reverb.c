@@ -5,8 +5,8 @@
 //#include "2.0L/PR/os_error.h"
 #include "2.0L/PR/ultraerror.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
+Acmd *n_alAuxBusPull(s32 sampleOffset, Acmd *p);
+void _init_lpfilter(ALLowPass *lp);
 
 #define RANGE 2.0
 extern ALGlobals *alGlobals;
@@ -32,14 +32,39 @@ Acmd *_n_loadOutputBuffer(ALFx *r, ALDelay *d, s32 buff, Acmd *p); //_loadOutput
 Acmd *_n_loadBuffer(ALFx *r, s16 *curr_ptr, s32 buff, s32 count, Acmd *p); //_loadBuffer
 Acmd *__n_saveBuffer(ALFx *r, s16 *curr_ptr, s32 buff, Acmd *p); //__saveBuffer
 Acmd *__n_filterBuffer(ALLowPass *lp, s32 buff, Acmd *p); //__filterBuffer
-f32  _doModFunc(ALDelay *d, s32 count);
+f32 _doModFunc(ALDelay *d, s32 count)
+{
+    f32 val;
+
+    /*
+     * generate bipolar sawtooth
+     * from -RANGE to +RANGE
+     */
+    d->rsval += d->rsinc * count;
+    d->rsval = (d->rsval > RANGE) ? d->rsval - (RANGE * 2) : d->rsval;
+
+    /*
+     * convert to monopolar triangle
+     * from 0 to RANGE
+     */
+    val = d->rsval;
+    val = (val < 0) ? -val : val;
+
+    /*
+     * convert to bipolar triangle
+     * from -1 to 1
+     */
+    val -= RANGE / 2;
+
+    return (d->rsgain * val);
+}
 
 // static s32 L_INC[] = { L0_INC, L1_INC, L2_INC };
 
 /***********************************************************************
  * Reverb filter public interfaces
  ***********************************************************************/
-Acmd *n_alFxPull(void) 
+Acmd *n_alFxPull(s32 sampleOffset, Acmd *p)
 {
     ALFx	*r = (ALFx *)n_syn->auxBus->fx;
     ALFilter    *source = r->filter.source;
@@ -55,7 +80,7 @@ Acmd *n_alFxPull(void)
 #endif
     
     // assert(source);
-    ptr = n_alAuxBusPull();
+    ptr = n_alAuxBusPull(sampleOffset, p);
     /*
      * pull channels going into this effect first
      */
@@ -77,8 +102,8 @@ Acmd *n_alFxPull(void)
 
     for (i = 0; i < r->section_count; i++) {
 	d  = &r->delay[i];  /* get the ALDelay structure */
-	in_ptr  = &r->input[-d->input];
-	out_ptr = &r->input[-d->output];
+	in_ptr  = &r->input[-(s32)d->input];
+	out_ptr = &r->input[-(s32)d->output];
 	
 	if (in_ptr == prev_out_ptr) {
 	    SWAP(buff1, buff2);
@@ -246,7 +271,7 @@ Acmd *_n_loadOutputBuffer(ALFx *r, ALDelay *d, s32 buff, Acmd *p)
          * negative of that as an index into the delay buffer. loadBuffer that uses this
          * value then bumps it up if it is below the  delay buffer.
          */ 
-        out_ptr = &r->input[-(d->output - d->rsdelta)];
+        out_ptr = &r->input[-(s32)(d->output - d->rsdelta)];
         ramalign = (((uintptr_t)out_ptr & 0x7) >> 1); /* calculate the number of samples needed
                                                to align the buffer*/
 #ifdef _DEBUG
@@ -277,7 +302,7 @@ Acmd *_n_loadOutputBuffer(ALFx *r, ALDelay *d, s32 buff, Acmd *p)
         d->rs->first = 0; /* turn off first time flag */
         d->rsdelta += count - inCount; /* add the number of samples to d->rsdelta */
     } else {
-        out_ptr = &r->input[-d->output];
+        out_ptr = &r->input[-(s32)d->output];
         ptr = _n_loadBuffer(r, out_ptr, buff, inCount, ptr);
     }
 
@@ -310,11 +335,11 @@ Acmd *_n_loadBuffer(ALFx *r, s16 *curr_ptr, s32 buff, s32 count, Acmd *p)
     if (curr_ptr < r->base)
     curr_ptr += r->length;
     updated_ptr = curr_ptr + count;
-    
+
     if (updated_ptr > delay_end) {
         after_end = updated_ptr - delay_end;
         before_end = delay_end - curr_ptr;
-        
+
         n_aLoadBuffer(ptr++, before_end << 1, buff, osVirtualToPhysical(curr_ptr));
         n_aLoadBuffer(ptr++, after_end<<1, buff + (before_end<<1), osVirtualToPhysical(r->base));
     } else {
@@ -373,10 +398,8 @@ Acmd *__n_filterBuffer(ALLowPass *lp, s32 buff, Acmd *p)
 
     n_aLoadADPCM(ptr++, 32, osVirtualToPhysical(lp->fcvec.fccoef));
     t8 = buff>>8;
-    n_aPoleFilter(ptr++, lp->first, lp->fgain, t8, osVirtualToPhysical(lp->fstate));
+    n_aPoleFilter(ptr++, lp->first, lp->fgain, t8, (void *)osVirtualToPhysical(lp->fstate));
     lp->first = 0;
 
     return ptr;
 }
-
-#endif // [port] N64 SDK audio stub

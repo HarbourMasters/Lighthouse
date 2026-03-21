@@ -1,8 +1,7 @@
 #include <ultra64.h>
 #include "synthInternals.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 Acmd *alMainBusPull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset, Acmd *p) 
 {
     Acmd        *ptr = p;
@@ -44,7 +43,6 @@ s32 alMainBusParam(void *filter, s32 paramID, void *param)
     }
 
     return 0;
-    
-}
 
-#endif // [port] N64 SDK audio stub
+}
+#endif

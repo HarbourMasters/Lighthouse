@@ -7,11 +7,6 @@ extern f32 *chVile_getPostion(ActorMarker *);
 extern void bundle_setRandomVelocity(f32);
 extern void func_802FDCB8(s32);
 
-enum chvilegame_piece_type_e {
-    YUMBLIE,
-    GRUMBLIE
-};
-
 struct vilegame_piece{
     enum chvilegame_piece_type_e type;
     f32 position[3];

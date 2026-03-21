@@ -1,6 +1,4 @@
 #include <ultratypes.h>
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 f32 alCents2Ratio(s32 cents) 
 {
@@ -23,5 +21,3 @@ f32 alCents2Ratio(s32 cents)
 
     return ratio;
 }
-
-#endif // [port] N64 SDK audio stub

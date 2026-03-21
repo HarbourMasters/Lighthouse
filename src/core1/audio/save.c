@@ -1,9 +1,8 @@
 #include <ultra64.h>
 #include "synthInternals.h"
-#include "port/mixer.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
+#include "port/audio/mixer.h"
 
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 Acmd *alSavePull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset,
                  Acmd *p) 
 
@@ -40,7 +39,6 @@ s32 alSaveParam(void *filter, s32 paramID, void *param)
             break;
     }
     return 0;
-            
-}
 
-#endif // [port] N64 SDK audio stub
+}
+#endif

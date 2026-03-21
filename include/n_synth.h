@@ -23,12 +23,13 @@
 #define N_AL_DIVIDED            368
 
 typedef struct N_ALLoadFilter_s{
-    u8                          pad0[0xC];
-    ADPCM_STATE                 *state; //0xC
-    ADPCM_STATE                 *lstate; //0x10
-    ALRawLoop                   loop; //0x14
-    struct ALWaveTable_s        *table; //0x20
-    s32                         bookSize;
+    ALLink                      node;    // [port] matches N_PVoice layout
+    struct N_ALVoice_s          *vvoice; // [port] alignment with N_PVoice
+    ADPCM_STATE                 *state;  // == dc_state
+    ADPCM_STATE                 *lstate; // == dc_lstate
+    ALRawLoop                   loop;    // == dc_loop
+    struct ALWaveTable_s        *table;  // == dc_table
+    s32                         bookSize;// == dc_bookSize
     ALDMAproc                   dma;
     void                        *dmaState;
     s32                         sample;

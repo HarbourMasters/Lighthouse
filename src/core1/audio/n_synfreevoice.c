@@ -1,8 +1,6 @@
 #include "2.0L/PR/ultraerror.h"
 #include "n_synth.h"
 #include <ultra64.h>
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void n_alSynFreeVoice(N_ALVoice *voice)
 {
@@ -31,5 +29,3 @@ void n_alSynFreeVoice(N_ALVoice *voice)
 
     }
 }
-
-#endif // [port] N64 SDK audio stub

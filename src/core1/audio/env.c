@@ -2,9 +2,6 @@
 #include "synthInternals.h"
 #include "functions.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 #ifndef assert
 #define assert(s)
 #endif
@@ -16,8 +13,9 @@ extern u32 vol_num, vol_cnt, vol_max, vol_min;
 #endif
 
 #define EQPOWER_LENGTH 128
-#include "port/mixer.h"
+#include "port/audio/mixer.h"
 
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 static s16 eqpower[ EQPOWER_LENGTH ] = {
     32767,  32764,  32757,  32744,  32727,  32704,
     32677,  32644,  32607,  32564,  32517,  32464,
@@ -385,10 +383,10 @@ Acmd* _pullSubFrame(void *filter, s16 *inp, s16 *outp, s32 outCount, s32 sampleO
         aSetVolume(ptr++, A_LEFT  | A_RATE, e->ltgt, e->lratm, e->lratl);
         aSetVolume(ptr++, A_RIGHT | A_RATE, e->rtgt, e->rratm, e->rratl);
         aSetVolume(ptr++, A_AUX, e->dryamt, 0, e->wetamt);
-        aEnvMixer (ptr++, A_INIT | A_AUX, osVirtualToPhysical(e->state));
+        aEnvMixer (ptr++, A_INIT | A_AUX, 0, osVirtualToPhysical(e->state));
     }
     else
-	    aEnvMixer(ptr++, A_CONTINUE | A_AUX, osVirtualToPhysical(e->state));
+	    aEnvMixer(ptr++, A_CONTINUE | A_AUX, 0, osVirtualToPhysical(e->state));
 
     /*
      * bump the input buffer pointer
@@ -498,5 +496,4 @@ f32 _getVol(f32 ivol, s32 samples, s16 ratem, u16 ratel)
     
     return ivol;
 }
-
-#endif // [port] N64 SDK audio stub
+#endif

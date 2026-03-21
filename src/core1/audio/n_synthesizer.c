@@ -4,15 +4,13 @@
 
 #include "n_synth.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 #ifndef assert
-#define assert(s) 
+#define assert(s)
 #endif
 
-extern ALCmdHandler n_alAuxBusPull;
-extern ALCmdHandler n_alFxPull;
+Acmd *n_alSavePull(s32 sampleOffset, Acmd *p);
+Acmd *n_alAuxBusPull(s32 sampleOffset, Acmd *p);
+Acmd *n_alFxPull(s32 sampleOffset, Acmd *p);
 extern void alN_PVoiceNew(N_PVoice *mv, ALDMANew dmaNew, ALHeap *hp);
 
 
@@ -80,12 +78,12 @@ void n_alSynNew(ALSynConfig *c)
          * Allocate an effect and set parameters
          */
         n_syn->auxBus->fx = n_alSynAllocFX(0, c, hp);
-        n_syn->mainBus->filter.handler = &n_alFxPull;
+        n_syn->mainBus->filter.handler = (N_ALCmdHandler)&n_alFxPull; // [port]
     } else{
         /*
          * Connect the aux bus to the main bus
          */
-        n_syn->mainBus->filter.handler = &n_alAuxBusPull;
+        n_syn->mainBus->filter.handler = (N_ALCmdHandler)&n_alAuxBusPull; // [port]
     }
     /*
      * Build the physical voice lists
@@ -110,10 +108,11 @@ void n_alSynNew(ALSynConfig *c)
     /*
      * build the parameter update list
      */
-    params = alHeapAlloc(hp, c->maxUpdates, sizeof(ALParam));
+    // [port] pool slots sized for ALStartParamAlt (largest variant on 64-bit)
+    params = (ALParam *)alHeapAlloc(hp, c->maxUpdates, sizeof(ALStartParamAlt));
     n_syn->paramList = 0;
     for (i = 0; i < c->maxUpdates; i++) {
-        paramPtr= &params[i];
+        paramPtr = (ALParam *)((u8 *)params + i * sizeof(ALStartParamAlt));
         paramPtr->next = n_syn->paramList;
         n_syn->paramList = paramPtr;
     }
@@ -360,5 +359,3 @@ static s32 func_8025C370(ALPlayer **client)
 
     return (*client)->samplesLeft;
 }
-
-#endif // [port] N64 SDK audio stub

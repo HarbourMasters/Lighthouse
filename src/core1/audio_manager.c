@@ -9,7 +9,12 @@
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 
+// [port] 64-bit structs with pointers are larger — double the heap
+#if UINTPTR_MAX > 0xFFFFFFFF
+#define AUDIO_HEAP_SIZE VER_SELECT(0x42000, 0x47400, 0x42000, 0x42000)
+#else
 #define AUDIO_HEAP_SIZE VER_SELECT(0x21000, 0x23A00, 0x21000, 0x21000)
+#endif
 #define AUDIOMANAGER_THREAD_STACK_SIZE 0xE78
 
 extern void n_alInit(N_ALGlobals *, ALSynConfig *);
@@ -326,7 +331,7 @@ void audioManager_create(void) {
     D_8027DD7C = D_8027DD74;
     D_8027DD50.maxVVoices = 0x18;
     D_8027DD50.maxPVoices = 0x18;
-    D_8027DD50.maxUpdates = 0x80;
+    D_8027DD50.maxUpdates = 0x100; // [port] doubled — 64-bit param slots are larger, demand-based audio may call n_alAudioFrame multiple times per game frame
     D_8027DD50.dmaproc = (void*)func_802403B8;
     D_8027DD50.fxType = AL_FX_CUSTOM;
     D_8027DD50.params = (void*) &D_8027577C;
@@ -452,7 +457,8 @@ void audioManager_handleDoneMsg(AudioInfo *info)
 }
 
 #if VERSION == VERSION_USA_1_0
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){ // [port] was s32 addr/return
+uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) // [port] was s32 addr/return
+{
     void *sp44;
     uintptr_t sp40; // [port] was s32
     Struct_1D00_3 *phi_s0;
@@ -584,10 +590,14 @@ void func_802403F0(void) {
 
 #if VERSION == VERSION_USA_1_0
         if (osRecvMesg(&D_8027D008, &sp40, 0) == -1) {
+#if 0 // [port] DMA is synchronous on PC (memcpy), no completion messages to drain
             func_80247F24(2, 0x7D5);
             func_80247F9C(D_8027DCCC);
             func_80247F9C(phi_s0);
             func_802483D8();
+#else
+            break;
+#endif
         }
 #else
         osRecvMesg(&D_8027D008, &sp40, 0);

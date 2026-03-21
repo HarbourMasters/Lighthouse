@@ -2,8 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 #include "2.0L/PR/libaudio.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void alCSPSetBank(ALCSPlayer *seqp, ALBank *b)
 {
@@ -14,5 +12,3 @@ void alCSPSetBank(ALCSPlayer *seqp, ALBank *b)
 
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
-
-#endif // [port] N64 SDK audio stub

@@ -12,14 +12,14 @@
 void  func_802444C0(N_AL_Struct81s *arg0);
 void  func_80244050(ALEventQueue *arg0, N_AL_Struct81s *arg1, u16 arg2);
 
-void  func_8024324C(N_ALSndPlayer *arg0);
+ALMicroTime func_8024324C(N_ALSndPlayer *arg0);
 void  func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event);
 void  func_80243F84(N_AL_Struct81s *arg0);
 void  func_80243FE4(N_AL_Struct81s *arg0);
 s32   func_80244110(u16 *arg0, u16 *arg1);
 void  func_80244190(N_AL_Struct81s *arg0);
 void *func_80244608(void *bank_, s16 arg1, struct46s *arg2);
-void  func_80244978(s32 arg0, s16 type, s32 arg2);
+void  func_80244978(intptr_t arg0, s16 type, s32 arg2);
 // extern ALEventUnknown;
 /* .bss */
 #define CODE_5650_ABS(s) (((s) >= 0)? (s): -(s))
@@ -51,7 +51,7 @@ void func_80243070(Struct87s *arg0) {
     D_802758CC->target = 0; // [port] was NULL — s32 field
     D_802758CC->frameTime = 33000;
     D_802758CC->sndState = alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk0 * sizeof(N_AL_Struct81s)); // [port] struct ALHeap* → ALHeap*
-    alEvtqNew(&D_802758CC->evtq, alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk4 * 0x1C), arg0->unk4); // [port] struct ALHeap* → ALHeap*
+    alEvtqNew(&D_802758CC->evtq, alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk4 * sizeof(ALEventListItem)), arg0->unk4); // [port] struct ALHeap* → ALHeap*
     D_802758C0.unk8 = D_802758CC->sndState;
     for(var_s0 = 1; var_s0 < arg0->unk0; var_s0++){
         var_v0 =  (N_AL_Struct81s *)D_802758CC->sndState;
@@ -71,11 +71,10 @@ void func_80243070(Struct87s *arg0) {
     D_802758CC->nextDelta = alEvtqNextEvent(&D_802758CC->evtq, (ALEvent *)&D_802758CC->nextEvent); // [port] N_ALEvent* → ALEvent*
 }
 
-void func_8024324C(N_ALSndPlayer *arg0)
+ALMicroTime func_8024324C(N_ALSndPlayer *arg0)
 {
   N_ALSndPlayer *new_var = (N_ALSndPlayer *)arg0;
   N_ALEvent2 sp3C;
-  
   do
   {
     if ((s16)(new_var->nextEvent.type) == 0x20)
@@ -92,6 +91,7 @@ void func_8024324C(N_ALSndPlayer *arg0)
   }
   while (arg0->nextDelta == 0);
   new_var->curTime += new_var->nextDelta;
+  return new_var->nextDelta;
 }
 
 void func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event) {
@@ -459,7 +459,7 @@ void func_80244190(N_AL_Struct81s *arg0)
             }
         }
 
-        var_v1->unk48 += arg0->unk48;
+        var_v1->unk48 += ((N_ALSndPlayer *)arg0)->frameTime;
     }
 }
 
@@ -601,7 +601,7 @@ void *func_80244608(void *bank_, s16 arg1, struct46s *arg2) { // [port] void* fo
         temp_v0 = func_8024431C(bank, temp_s2);
         if (temp_v0 != NULL) {
             temp_v0->unk4C = (s32) (arg1 - 1);
-            D_802758CC->target = (s32)(intptr_t)temp_v0; // [port] N_AL_Struct81s * → s32 (N64: 32-bit pointer fit in s32)
+            D_802758CC->target = (intptr_t)temp_v0;
             sp50.type = AL_SEQ_MIDI_EVT;
             sp50.msg.generic.data[0].p = temp_v0; // [port] was (s32*) hack — pointer truncation
             var_s4 = temp_s2->keyMap->velocityMax * 0x8235;
@@ -679,11 +679,12 @@ void func_80244958(void){
     func_80244860(3);
 }
 
-void func_80244978(s32 arg0, s16 type, s32 arg2){
+void func_80244978(intptr_t arg0, s16 type, s32 arg2)
+{
     ALEvent sp18;
     if(arg0){
         sp18.type = type;
-        sp18.msg.generic.data[0].i = (intptr_t)arg0; // [port] was (s32*) hack — pointer truncation
+        sp18.msg.generic.data[0].i = arg0;
         sp18.msg.generic.data[1].i = (intptr_t)arg2;
 
         alEvtqPostEvent(&D_802758CC->evtq, &sp18, 0);

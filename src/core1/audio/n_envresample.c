@@ -1,8 +1,5 @@
 #include <ultra64.h>
 #include "n_synth.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 
 int
   n_alEnvmixerParam(N_PVoice *filter, s32 paramID, void *param)
@@ -40,5 +37,3 @@ int
   }
   return 0;
 }
-
-#endif // [port] N64 SDK audio stub

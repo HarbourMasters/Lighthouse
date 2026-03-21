@@ -233,14 +233,18 @@ extern "C" int port_getViewportWidth(void) {
     // Uses the interpreter's current dimensions (respects imgui aspect ratio settings).
     // At 4:3, returns 320. At 16:9, returns ~427.
     auto ctx = Ship::Context::GetInstance();
-    if (!ctx) return 320;
+    if (!ctx)
+        return 320;
     auto fastWnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(ctx->GetWindow());
-    if (!fastWnd) return 320;
+    if (!fastWnd)
+        return 320;
     auto interp = fastWnd->GetInterpreterWeak().lock();
-    if (!interp) return 320;
+    if (!interp)
+        return 320;
     uint32_t w = 0, h = 0;
     interp->GetCurDimensions(&w, &h);
-    if (h == 0) return 320;
+    if (h == 0)
+        return 320;
     float vpAspect = (float)w / (float)h;
     float gameAspect = 320.0f / 240.0f;
     if (vpAspect > gameAspect + 0.01f) {

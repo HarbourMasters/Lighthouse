@@ -3,9 +3,22 @@
 #include "variables.h"
 #include "2.0L/PR/libaudio.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
+void alLink(ALLink *ln, ALLink *to){
+    ln->next = to->next;
+    ln->prev = to;
+    if (to->next)
+        to->next->prev = ln;
+    to->next = ln;
+}
 
+void alUnlink(ALLink *ln){
+    if (ln->next)
+        ln->next->prev = ln->prev;
+        if (ln->prev)
+        ln->prev->next = ln->next;
+}
+
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 ALGlobals *alGlobals = NULL;
 
 void alInit(ALGlobals *g, ALSynConfig *c){
@@ -22,20 +35,4 @@ void alClose(ALGlobals *glob)
         alGlobals = 0;
     }
 }
-
-void alLink(ALLink *ln, ALLink *to){
-    ln->next = to->next;
-    ln->prev = to;
-    if (to->next)
-        to->next->prev = ln;
-    to->next = ln;
-}
-
-void alUnlink(ALLink *ln){
-    if (ln->next)
-        ln->next->prev = ln->prev;
-        if (ln->prev)
-        ln->prev->next = ln->next;
-}
-
-#endif // [port] N64 SDK audio stub
+#endif

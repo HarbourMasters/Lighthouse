@@ -10,15 +10,18 @@
 
 #include <libultra/exception.h>
 
-// [port] BK audio - SDK calls stubbed, functions preserved for game code
-
 extern void func_8025F570(ALCSPlayer *, u8);
 extern void func_8025F510(ALCSPlayer *, u8, u8);
 extern void func_8025F5C0(ALCSPlayer *, u8);
 
-extern u8 soundfont2ctl_ROM_START[];
-extern u8 soundfont2ctl_ROM_END[];
-extern u8 soundfont2tbl_ROM_START[];
+extern OSIoMesg *func_802405D0(void);
+extern OSMesgQueue *func_802405C4(void);
+extern ALHeap *func_802405B8(void);
+extern void func_8023FA64(ALSeqpConfig *arg0);
+
+extern u8 *soundfont2ctl_ROM_START;
+extern u8 *soundfont2ctl_ROM_END;
+extern u8 *soundfont2tbl_ROM_START;
 
 /* dependent functions */
 void func_8024FA98(u8, s32);
@@ -224,10 +227,6 @@ structBs     D_80282110[0x20];
 void musicInstruments_init(void){
     s32 i;
 
-    // [port] Allocate track array and initialize player state so the music
-    // system's bookkeeping works at runtime. Skip soundfont DMA, synth driver
-    // init, and bank patching — those need N64 hardware. Eventually OpenAL
-    // will replace the synth path.
     D_80282104 = 0xAD;
     D_802820E0 = (MusicTrack **) bk_malloc(D_80282104 * sizeof(MusicTrack *));
     for(i = 0; i < D_80282104; i++){
@@ -244,20 +243,14 @@ void musicInstruments_init(void){
         D_80281720[i].cseqp.state = AL_STOPPED;
     }
 
-#if 0
-    // [port] TODO AUDIO: Music bank init is stubbed. D_80282108 remains NULL,
-    // so music_get_sound_bank() returns NULL. All callers must NULL-guard.
-    // Restore this when audio subsystem is ported (needs soundfont DMA + synth driver).
-    // Original N64 init:
     ALBankFile * bnk_f;
     f32 tmpf1;
     s32 size;
 
+    // [port] Parse N64 big-endian ctl binary into native 64-bit structs
+    extern ALBankFile *port_alBnkfNew(u8 *ctlData, s32 ctlSize, u8 *tblData);
     size = soundfont2ctl_ROM_END - soundfont2ctl_ROM_START;
-    bnk_f = bk_malloc(size);
-    osWritebackDCacheAll();
-    osPiStartDma(func_802405D0(), 0, 0, (u32)soundfont2ctl_ROM_START, bnk_f, size, func_802405C4());
-    osRecvMesg(func_802405C4(), 0, 1);
+    bnk_f = port_alBnkfNew(soundfont2ctl_ROM_START, size, soundfont2tbl_ROM_START);
 
     D_802820E8.maxVoices = 0x18;
     D_802820E8.maxEvents = 0x55;
@@ -268,17 +261,15 @@ void musicInstruments_init(void){
     D_802820E8.stopOsc = NULL;
     func_8023FA64(&D_802820E8);
     for(i = 0; i < 6; i++){
-        n_alCSPNew(&D_80281720[i].cseqp, &D_802820E8);
+        n_alCSPNew((N_ALCSPlayer *)&D_80281720[i].cseqp, &D_802820E8);
     }
 
-    alBnkfNew(bnk_f, soundfont2tbl_ROM_START);
     D_80282108 = bnk_f->bankArray[0];
     for(i = 0; i < 6; i++){
         alCSPSetBank(&D_80281720[i].cseqp, D_80282108);
     }
 
     func_8024FB8C();
-#endif
 }
 
 ALBank *music_get_sound_bank(void){
@@ -286,8 +277,6 @@ ALBank *music_get_sound_bank(void){
 }
 
 void func_8024F764(s32 arg0){//music track load
-    // [port] TODO AUDIO: music track loading stubbed (needs soundfont + sequencer)
-    return;
     if(D_802820E0[arg0] == NULL){
         func_8033B788();
 #if VERSION == VERSION_USA_1_0
@@ -300,7 +289,6 @@ void func_8024F764(s32 arg0){//music track load
 
 void func_8024F7C4(s32 arg0){
     s32 i;
-    if(D_802820E0 == NULL) return; // [port] music not initialized
     if(D_802820E0[arg0] != NULL){
         i = 0;
         for(i = 0; i != 6; i++){
@@ -322,9 +310,9 @@ void func_8024F83C(void){
 void func_8024F890(u8 arg0, s32 arg1){
     s32 i;
     if(arg1 == -1){
-        // [port] Only update index — skip alCSPStop since synth driver isn't initialized
-        if(arg1 != D_80281720[arg0].index && D_80281720[arg0].cseqp.drvr != NULL)
+        if(arg1 != D_80281720[arg0].index) {
             alCSPStop(&D_80281720[arg0].cseqp);
+        }
         D_80281720[arg0].index = arg1;
     }
     else{
@@ -339,9 +327,6 @@ void func_8024F890(u8 arg0, s32 arg1){
             D_80281720[arg0].unk192[i] = 0;
         }
         func_8024F764(D_80281720[arg0].index);
-        // [port] Skip synth playback calls when driver isn't initialized
-        if(D_80281720[arg0].cseqp.drvr == NULL)
-            return;
         if (arg1 >= 0 && arg1 < 0xB0 && D_802820E0 != NULL) {
             n_alCSeqNew(&D_80281720[arg0].cseq, (u8 *)D_802820E0[arg1]); // [port] MusicTrack* to u8* for sequence data pointer
         }
@@ -472,7 +457,8 @@ void func_8024FE44(u8 arg0, f32 arg1, f32 arg2){
     }
 }
 
-s32 func_8024FEEC(u8 arg0){ // [port] was void — MIPS implicit return from alCSeqGetTicks
+s32 func_8024FEEC(u8 arg0) // [port] was void — MIPS implicit return from alCSeqGetTicks
+{
     return alCSeqGetTicks(&D_80281720[arg0].cseq);
 }
 
@@ -508,12 +494,7 @@ void func_8024FF34(void){
     }
 }
 
-// Guard against invalid track_id to prevent crash
-// Accept s32 for track_id, only cast to enum after validation
 s32 func_80250034(s32 track_id){
-    if (track_id < 0 || track_id >= 0xB0) {
-        return 0;
-    }
     return D_80275D40[track_id].unk4;
 }
 

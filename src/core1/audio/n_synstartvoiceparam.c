@@ -3,8 +3,6 @@
 #include "n_synth.h"
 #include "2.0L/PR/ultraerror.h"
 //#include "2.0L/PR/os_error.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void n_alSynStartVoiceParams(N_ALVoice *v, ALWaveTable *w,
                            f32 pitch, s16 vol, ALPan pan, u8 fxmix,
@@ -43,5 +41,3 @@ void n_alSynStartVoiceParams(N_ALVoice *v, ALWaveTable *w,
     }
     
 }
-
-#endif // [port] N64 SDK audio stub

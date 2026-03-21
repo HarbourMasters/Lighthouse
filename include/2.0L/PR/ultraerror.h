@@ -170,6 +170,7 @@ extern "C" {
 typedef	void (*OSErrorHandler)(s16, s16, ...);
 
 OSErrorHandler	osSetErrorHandler(OSErrorHandler);
+void __osError(s16 error_code, s16 num_args, ...); // [port] stub in stub.c
 #endif
 
 #ifdef _LANGUAGE_C_PLUS_PLUS

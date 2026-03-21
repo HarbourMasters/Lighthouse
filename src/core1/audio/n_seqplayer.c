@@ -8,8 +8,8 @@
 // #include "functions.h"
 // #include "variables.h"
 
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
+#define rmonPrintf(...)
+char __alSeqNextDelta(ALSeq *seq, s32 *pDeltaTicks);
 
 #define KILL_TIME 50000
 
@@ -1199,4 +1199,3 @@ void __n_postNextSeqEvent(N_ALSeqPlayer *seqp)
     evt.type = AL_SEQ_REF_EVT;
     alEvtqPostEvent(&seqp->evtq, &evt, deltaTicks * seqp->uspt);
 }
-#endif // [port] N64 SDK audio stub

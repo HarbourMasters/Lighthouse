@@ -1,7 +1,5 @@
 #include <ultra64.h>
 #include "n_synth.h"
-// [port] N64 SDK audio library - stubbed for PC port
-#if 0
 
 void func_8025F5C0(N_ALSeqPlayer *arg0, u8 arg1){
     ALEvent evt;
@@ -24,5 +22,3 @@ void func_8025F570(N_ALSeqPlayer *arg0, u8 arg1){
     evt.msg.midi.byte2 = arg1;
     alEvtqPostEvent(&arg0->evtq, &evt, 0);
 }
-
-#endif // [port] N64 SDK audio stub

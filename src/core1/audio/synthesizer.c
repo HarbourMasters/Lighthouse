@@ -1,8 +1,7 @@
 #include <ultra64.h>
 #include "synthInternals.h"
 
-#if 0 // [port] N64 SDK audio stub
-
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 #ifdef AUD_PROFILE
 //#include <os.h>
 extern u32 cnt_index, drvr_num, drvr_cnt, drvr_max, drvr_min, lastCnt[];
@@ -302,5 +301,4 @@ static s32 __nextSampleTime(ALSynth *drvr, ALPlayer **client)
 
     return (*client)->samplesLeft;
 }
-
-#endif // [port] N64 SDK audio stub
+#endif

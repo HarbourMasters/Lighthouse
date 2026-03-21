@@ -117,16 +117,6 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
     // but when rendering to an FBO with invertY=true (mGameFb), the interpreter flips
     // rendering so game-top is at low Y — glReadPixels row 0 is already game-top.
     const char* apiName = interpreter->mRapi->GetName();
-
-    // [port] DEBUG: log readback dimensions on first call
-    {
-        static int sLogged = 0;
-        if (!sLogged) {
-            SPDLOG_INFO("[readback] gpuW={} gpuH={} dstW={} dstH={} fbId={} rendersToFb={} api={}",
-                gpuW, gpuH, dstW, dstH, fbId, interpreter->mRendersToFb ? 1 : 0, apiName ? apiName : "null");
-            sLogged = 1;
-        }
-    }
     bool isOpenGL = (apiName && strstr(apiName, "OpenGL") != nullptr);
     s_gpuReadbackFlipY = isOpenGL && !interpreter->mRendersToFb;
 
@@ -180,9 +170,7 @@ extern "C" uint16_t port_sampleHiresReadback(int fbX, int fbY) {
     return (px >> 8) | (px << 8); // byte-swap to BE
 }
 
-// [port] Called from decomp code (bufferreadback.c, rendermem.c) after Graphics_PushFrame.
-// Data is already populated every frame by Framebuffer_ReadbackGPU_FromBackbuffer above,
-// so this is a no-op — the decomp code can read gFramebuffers directly.
+// [port] no-op — readback is done in Framebuffer_ReadbackGPU_FromBackbuffer
 extern "C" void Framebuffer_ReadbackGPU(int bufferIndex) {
     (void)bufferIndex;
 }
@@ -306,10 +294,11 @@ static constexpr double GAME_LOGIC_FPS = 30.0;
 static constexpr double GAME_LOGIC_FRAME_TIME = 1.0 / GAME_LOGIC_FPS;
 
 void push_frame() {
-    // GameEngine::StartAudioFrame();
     GameEngine::Instance->StartFrame();
-    // GameEngine::EndAudioFrame();
     mainLoop();
+    // [port] Audio processes after game logic to avoid data race on param lists
+    GameEngine::StartAudioFrame();
+    GameEngine::EndAudioFrame();
 }
 
 /* Rename SDL_main to main for SDL compatibility */

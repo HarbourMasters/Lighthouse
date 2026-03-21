@@ -3,8 +3,6 @@
 #include "variables.h"
 #include "2.0L/PR/libaudio.h"
 // [port] N64 SDK audio library - stubbed for PC port
-#if 0
-
 void func_8025F510(ALCSPlayer *seqp, u8 chan, u8 arg2)
 {
     ALEvent       evt;
@@ -17,5 +15,3 @@ void func_8025F510(ALCSPlayer *seqp, u8 chan, u8 arg2)
                     
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
-
-#endif // [port] N64 SDK audio stub

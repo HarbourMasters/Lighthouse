@@ -367,7 +367,7 @@ typedef struct {
     ALEventQueue        evtq;
     N_ALEvent           nextEvent;
     N_ALSynth           *drvr;          /* reference to the client driver   */
-    s32                 target;
+    intptr_t            target;
     void                *sndState;
     s32                 maxSounds;
     ALMicroTime         frameTime;
