@@ -38,6 +38,9 @@ void func_80344124(void){
 }
 
 void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 position[3], f32 scale[3], Gfx **gfx, Mtx **mtx) {
+#ifdef ENHANCEMENT
+    D_803858B0 = true; // Extended draw distance: disable sprite distance cull
+#endif
     f32 sp6C[3];
     f32 sp60[3];
     f32 temp_f14;

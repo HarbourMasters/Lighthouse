@@ -271,7 +271,7 @@ void viewport_setFrustumPlanes(f32 arg0[4], f32 arg1[4], f32 arg2[4], f32 arg3[4
 }
 
 bool viewport_isBoundingBoxInFrustum(f32 min[3], f32 max[3]) {
-    
+
     if (((sViewportFrustumPlanes[0][0] * min[0] + sViewportFrustumPlanes[0][1] * min[1] + sViewportFrustumPlanes[0][2] * min[2] + sViewportFrustumPlanes[0][3]) >= 0.0f) &&
         ((sViewportFrustumPlanes[0][0] * min[0] + sViewportFrustumPlanes[0][1] * min[1] + sViewportFrustumPlanes[0][2] * max[2] + sViewportFrustumPlanes[0][3]) >= 0.0f) &&
         ((sViewportFrustumPlanes[0][0] * min[0] + sViewportFrustumPlanes[0][1] * max[1] + sViewportFrustumPlanes[0][2] * min[2] + sViewportFrustumPlanes[0][3]) >= 0.0f) &&
@@ -343,9 +343,8 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[1] = (f32) ((cube->y * 1000) + 500) - sViewportPosition[1];
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
-    // [port] Draw distance cutoff — skip when extended draw distance is enabled
 #ifdef ENHANCEMENT
-    // TODO: replace with CVar-driven multiplier
+    // Extended draw distance: bypass cube distance check
 #else
     if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
         return false;
@@ -365,6 +364,9 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
 
 // viewport_distanceFromPlane ?
 bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
+#ifdef ENHANCEMENT
+    return true; // Extended draw distance: bypass frustum distance check
+#endif
     f32 delta[3];
     s32 i;
 

@@ -925,6 +925,7 @@ void func_80338CD0(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //CmdD_DRAW_DISTANCE
+extern s32 port_getViewportWidth(void); // [port]
 void func_80338DCC(Gfx ** gfx, Mtx ** mtx, void *arg2){
     f32 sp2C[3];
     f32 sp20[3];
@@ -933,11 +934,10 @@ void func_80338DCC(Gfx ** gfx, Mtx ** mtx, void *arg2){
         sp2C[0] = (f32)cmd->unk8[0] * modelRenderScale;
         sp2C[1] = (f32)cmd->unk8[1] * modelRenderScale;
         sp2C[2] = (f32)cmd->unk8[2] * modelRenderScale;
-
         sp20[0] = (f32)cmd->unkE[0] * modelRenderScale;
         sp20[1] = (f32)cmd->unkE[1] * modelRenderScale;
         sp20[2] = (f32)cmd->unkE[2] * modelRenderScale;
-        if(viewport_isBoundingBoxInFrustum(sp2C, sp20)){
+        if(port_getViewportWidth() > 320 || viewport_isBoundingBoxInFrustum(sp2C, sp20)){
             func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk14));
         }
     }
@@ -1035,6 +1035,13 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         modelRender_reset();
         return 0;
     }
+
+#ifdef ENHANCEMENT
+    // Extended draw distance: disable clipping, set huge distance thresholds
+    D_80383710 = false;
+    D_8038370C = 1e30f;
+    D_80383708 = 1e30f;
+#endif
 
     D_80370990 = 0;
     viewport_getPosition_vec3f(modelRenderCameraPosition);

@@ -437,11 +437,16 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
 
     for(i = 0; i < 3; i++){
-        if(vp_cube_indices[i] - sp44[i] >= 5){
-            sp44[i] = vp_cube_indices[i] - 4;
+#ifdef ENHANCEMENT
+        int width = sCubeList.width[i]; // Extended draw distance: full map
+#else
+        int width = 4;
+#endif
+        if(vp_cube_indices[i] - sp44[i] > width){
+            sp44[i] = vp_cube_indices[i] - width;
         }
-        if(sp38[i] - vp_cube_indices[i] >= 5){
-            sp38[i] = vp_cube_indices[i] + 4;
+        if(sp38[i] - vp_cube_indices[i] > width){
+            sp38[i] = vp_cube_indices[i] + width;
         }
     }
     if (sCubeList.unk3C != NULL) {
