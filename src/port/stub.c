@@ -193,12 +193,15 @@ void func_80253010(void* dest, void* src, s32 size) {
     memcpy(dest, src, size);
 }
 
+// [port] Stub out native motor calls
+#if 0
 s32 osMotorStop(void* pfs) {
     return 0;
 }
 s32 osMotorStart(void* pfs) {
     return 0;
 }
+#endif
 
 s32 osAiSetFrequency(u32 frequency) {
     f32 dacRateF = ((f32)osViClock / frequency) + 0.5f;

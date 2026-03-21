@@ -107,16 +107,45 @@ void __baMotor_80250BA4(s32 arg0, s32 arg1, s32 arg2){
 }
 
 void baMotor_80250C08(void) {
+    // [port] Rumble thread logic inlined — N64 thread/VBlank model replaced by per-frame update
+    static s32 sFrameCounter;
+    static s32 sRumbleState;
+
     if (D_802823AC != 0) {
+        s32 prev_state;
+
         D_80282424 = MIN(D_80282420, D_80282424 + time_getDelta());
+
+        prev_state = sRumbleState;
+        sFrameCounter++;
+
+        if (D_80282424 != D_80282420) {
+            f32 temp_f2 = D_80282428 + ((D_8028242C - D_80282428) * D_80282424 / D_80282420);
+            s32 var_v0 = (s32)(((1.0 - temp_f2) * 8.0) + 1);
+            if (var_v0 < 2) {
+                sRumbleState = var_v0;
+            } else {
+                sRumbleState = (sFrameCounter % var_v0) == 0;
+            }
+        } else {
+            sRumbleState = 0;
+        }
+
+        if (sRumbleState != prev_state) {
+            if (sRumbleState) {
+                __baMotor_startRumble();
+            } else {
+                __baMotor_stopRumble();
+            }
+        }
     }
 }
 
 void baMotor_init(void) {
-    // Lighthouse TODO handle with LUS?
+    // [port] Bypass N64 PFS probing and rumble thread — LUS handles motor directly.
 #if 0
     s32 pfs_status;
-    
+
     func_8024F35C(4);
     D_802823B4 = pfsManager_getFrameReplyQ();
     pfs_status = osPfsInit(D_802823B4, &D_802823B8, 0);
@@ -133,6 +162,9 @@ void baMotor_init(void) {
         viMgr_func_8024BDAC(&D_80282390, OS_MESG_32(NULL));
     }
 #endif
+    osMotorInit(NULL, &D_802823B8, 0);
+    D_802823AC = 1;
+    D_802823B0 = 1;
 }
 
 void __baMotor_80250D8C(void){}
