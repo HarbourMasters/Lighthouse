@@ -3,6 +3,8 @@
 #include "variables.h"
 #include "n_synth.h"
 
+void _init_lpfilter(ALLowPass *lp);
+
 /*
  * WARNING: THE FOLLOWING CONSTANT MUST BE KEPT IN SYNC
  * WITH SCALING IN MICROCODE!!!

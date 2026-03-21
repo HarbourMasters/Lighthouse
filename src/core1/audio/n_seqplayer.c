@@ -8,6 +8,9 @@
 // #include "functions.h"
 // #include "variables.h"
 
+#define rmonPrintf(...)
+char __alSeqNextDelta(ALSeq *seq, s32 *pDeltaTicks);
+
 #define KILL_TIME 50000
 
 void __n_postNextSeqEvent(N_ALSeqPlayer *seqp);

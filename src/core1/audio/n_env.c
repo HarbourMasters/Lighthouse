@@ -4,6 +4,8 @@
 #include "variables.h"
 #include "assert.h"
 
+Acmd *n_alResamplePull(N_PVoice *e, s16 *outp, Acmd *p);
+
 // [port] N64 SDK audio library - stubbed for PC port
 
 #ifdef AUD_PROFILE
@@ -226,10 +228,10 @@ Acmd *n_alEnvmixerPull(void *filter, s32 sampleOffset,  Acmd *p)
 
             
             case (AL_FILTER_FREE_VOICE):
-                {                  
+                {
                   ALFreeParam *param = (ALFreeParam *)e->em_ctrlList;
                   ((N_PVoice *)(param->pvoice))->offset = 0;
-                  _n_freePVoice((PVoice *)param->pvoice);
+                  _n_freePVoice((N_PVoice *)param->pvoice);
                 }
                 break;
             
@@ -245,16 +247,16 @@ Acmd *n_alEnvmixerPull(void *filter, s32 sampleOffset,  Acmd *p)
                     
             case (AL_FILTER_SET_WAVETABLE):
                 ptr = __n_pullSubFrame(e, &inp, &loutp, samples, ptr);
-                n_alLoadParam(e, AL_FILTER_SET_WAVETABLE, e->em_ctrlList->data.i);
+                n_alLoadParam(e, AL_FILTER_SET_WAVETABLE, (void *)(intptr_t)e->em_ctrlList->data.i);
                 break;
-            
+
             default:
               /*
                * Pull the reuired number of samples and then pass the message
                * on down the chain
                */
 	            ptr = __n_pullSubFrame(e, &inp, &loutp, samples, ptr);
-               n_alEnvmixerParam(e, e->em_ctrlList->type, e->em_ctrlList->data.i);
+               n_alEnvmixerParam(e, e->em_ctrlList->type, (void *)(intptr_t)e->em_ctrlList->data.i);
               break;
         }
         loutp  += (samples<<1);

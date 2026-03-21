@@ -2,6 +2,8 @@
 #include "n_synth.h"
 #include "port/audio/mixer.h"
 
+Acmd *n_alMainBusPull(s32 sampleOffset, Acmd *p);
+
 Acmd *n_alSavePull( s32 sampleOffset, Acmd *p) 
 {
     Acmd        *ptr = p;

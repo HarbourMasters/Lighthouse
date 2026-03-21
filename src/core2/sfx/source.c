@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "2.0L/PR/n_libaudio.h"
 
-extern void func_80335394(s32, f32); // [port] actual implementation takes s32, not N_AL_Struct81s*
+extern void func_80335394(intptr_t, f32); // [port]
 extern f32 sfx_randf2(f32, f32);
 
 #define SFX_SRC_FLAG_0_UNKOWN (1 << 0)
@@ -242,25 +242,25 @@ s32 func_8030CDE4(SfxSource *arg0){
 
 void func_8030CF68(s32 arg0, s32 arg1){
     if(arg0){
-        func_803353F4((s32)(intptr_t)func_8030C8F4(arg0), arg1); // [port] N_AL_Struct81s* to s32 — audio lib stores seq player as s32
+        func_803353F4((intptr_t)func_8030C8F4(arg0), arg1); // [port]
     }
 }
 
 void func_8030CF9C(s32 arg0, s32 arg1){
     if(arg0){
-        func_80335418((s32)(intptr_t)func_8030C8F4(arg0), arg1); // [port] N_AL_Struct81s* to s32
+        func_80335418((intptr_t)func_8030C8F4(arg0), arg1); // [port]
     }
 }
 
 void func_8030CFD0(s32 arg0, f32 arg1){
     if(arg0){
-        func_80335394((s32)(intptr_t)func_8030C8F4(arg0), arg1); // [port] N_AL_Struct81s* to s32
+        func_80335394((intptr_t)func_8030C8F4(arg0), arg1); // [port]
     }
 }
 
 void func_8030D004(s32 arg0, s32 arg1){
     if(arg0){
-        func_803353BC((s32)(intptr_t)func_8030C8F4(arg0), (u16) arg1); // [port] N_AL_Struct81s* → s32
+        func_803353BC((intptr_t)func_8030C8F4(arg0), (u16) arg1); // [port]
     }
 }
 

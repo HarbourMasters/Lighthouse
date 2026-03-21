@@ -2,6 +2,8 @@
 #include "n_synth.h"
 #include "functions.h"
 
+Acmd *n_alAdpcmPull(void *filter, s16 *outp, s32 outCount, Acmd *p);
+
 #ifdef AUD_PROFILE
 extern u32 cnt_index, resampler_num, resampler_cnt, resampler_max, resampler_min, lastCnt[];
 #endif

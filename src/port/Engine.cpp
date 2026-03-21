@@ -13,6 +13,7 @@
 #include <fast/resource/factory/MatrixFactory.h>
 #include <fast/resource/factory/VertexFactory.h>
 #include <ship/resource/factory/BlobFactory.h>
+#include <ship/resource/type/Blob.h>
 #include "resource/importers/AnimFactory.h"
 #include "resource/importers/DemoInputFactory.h"
 #include "resource/importers/DialogFactory.h"
@@ -51,6 +52,20 @@ namespace fs = std::filesystem;
 extern "C" {
 bool prevAltAssets = false;
 // bool gEnableGammaBoost = true;
+
+// [port] Audio synthesis entry point (decomp n_synthesizer.c)
+Acmd* n_alAudioFrame(Acmd* cmdList, s32* cmdLen, s16* outBuf, s32 outLen);
+// [port] DMA cache cleanup (decomp audio_manager.c)
+void func_802403F0(void);
+void func_80250650(void);
+
+// [port] Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
+u8* soundfont1ctl_ROM_START = NULL;
+u8* soundfont1ctl_ROM_END = NULL;
+u8* soundfont1tbl_ROM_START = NULL;
+u8* soundfont2ctl_ROM_START = NULL;
+u8* soundfont2ctl_ROM_END = NULL;
+u8* soundfont2tbl_ROM_START = NULL;
 }
 
 std::vector<uint8_t*> MemoryPool;
@@ -257,7 +272,7 @@ void GameEngine::FinishInit() {
     context->InitFileDropMgr();
     context->InitCrashHandler();
 
-    this->context->InitAudio({ .SampleRate = 32000, .SampleLength = 512, .DesiredBuffered = 1100 });
+    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
 
     lhFast3dWindow->SetTargetFps(60);
     lhFast3dWindow->SetMaximumFrameLatency(1);
@@ -887,45 +902,46 @@ void GameEngine::StartFrame() const {
 
 #endif
 
-// [port] BK runs at 30fps on N64 (2 vertical interrupts per game frame).
-// gVIsPerFrame=2 means original_fps = 60/2 = 30, which correctly paces game logic.
+// [port] 2 VIs per game frame (30fps)
 #define gVIsPerFrame 2
 
+// [port] 736 samples per audio update (44000/60, aligned to 184-sample boundary)
+#define AlFrameSize 736
+
 void GameEngine::HandleAudioThread() {
-  int16_t audioBuffer[AUDIO_SAMPLES * 4 * 2];
-  Acmd cmdList[0x800];
+    int16_t audioBuffer[AlFrameSize * 2];
+    Acmd cmdList[0x800];
 
-  while (mAudio.running) {
-    {
-      std::unique_lock<std::mutex> lock(mAudio.mutex);
-      while (!mAudio.processing && mAudio.running) {
-        mAudio.cv_to_thread.wait(lock);
-      }
-      if (!mAudio.running)
-        break;
+    while (audio.running) {
+        {
+            std::unique_lock<std::mutex> lock(audio.mutex);
+            while (!audio.processing && audio.running) {
+                audio.cv_to_thread.wait(lock);
+            }
+            if (!audio.running) {
+                break;
+            }
+        }
+
+        // [port] generate audio chunks until backend buffer is full
+        while (AudioPlayerBuffered() < AudioPlayerGetDesiredBuffered()) {
+            int32_t cmdLen = 0;
+            int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
+
+            memset(audioBuffer, 0, samplesToGen);
+
+            func_802403F0(); // [port] recycle stale DMA cache entries
+            n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
+            func_80250650(); // [port] process channel volume/tempo fades (originally in audioManager_handleFrameMsg)
+            AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
+        }
+
+        {
+            std::unique_lock<std::mutex> lock(audio.mutex);
+            audio.processing = false;
+        }
+        audio.cv_from_thread.notify_one();
     }
-
-    // Generate audio twice per game frame, matching N64's 60Hz audio thread.
-    // On N64, nuAuMgr wakes every VI retrace (60Hz) and generates AlFrameSize
-    // (~552) samples. The game loop runs at 30fps → 2 audio frames per game
-    // frame. This ensures au_update_clients_for_video_frame() runs at the
-    // correct 60Hz
-    for (int pass = 0; pass < 2; pass++) {
-      int32_t cmdLen = 0;
-      int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
-
-      memset(audioBuffer, 0, samplesToGen);
-
-      alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
-      AudioPlayerPlayFrame((uint8_t *)audioBuffer, samplesToGen);
-    }
-
-    {
-      std::unique_lock<std::mutex> lock(mAudio.mutex);
-      mAudio.processing = false;
-    }
-    mAudio.cv_from_thread.notify_one();
-  }
 }
 
 void GameEngine::StartAudioFrame() {
@@ -945,7 +961,39 @@ void GameEngine::EndAudioFrame() {
     }
 }
 
+// [port] Load soundfont BLOBs from OTR and set ROM symbol pointers
+static void LoadSoundfonts() {
+    auto rm = Ship::Context::GetInstance()->GetResourceManager();
+
+    auto loadBlob = [&rm](const char* path, uint8_t*& start, uint8_t*& end) {
+        auto res = rm->LoadResource(path);
+        if (res) {
+            start = (uint8_t*)res->GetRawPointer();
+            end = start + res->GetPointerSize();
+        } else {
+            SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
+        }
+    };
+
+    loadBlob("soundfont/soundfont1ctl", soundfont1ctl_ROM_START, soundfont1ctl_ROM_END);
+    loadBlob("soundfont/soundfont2ctl", soundfont2ctl_ROM_START, soundfont2ctl_ROM_END);
+
+    // tbl assets don't need END — only START is referenced
+    auto loadTbl = [&rm](const char* path, uint8_t*& start) {
+        auto res = rm->LoadResource(path);
+        if (res) {
+            start = (uint8_t*)res->GetRawPointer();
+        } else {
+            SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
+        }
+    };
+
+    loadTbl("soundfont/soundfont1tbl", soundfont1tbl_ROM_START);
+    loadTbl("soundfont/soundfont2tbl", soundfont2tbl_ROM_START);
+}
+
 void GameEngine::AudioInit() {
+    LoadSoundfonts();
     if (!audio.running) {
         audio.running = true;
         audio.thread = std::thread(HandleAudioThread);

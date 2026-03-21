@@ -804,7 +804,7 @@ bool func_802445C4(void *bank, s16 arg1); // [port] ALBank* -> void* (N64 audio 
 s32 func_802445AC(void *arg0); // [port] N_AL_Struct81s* -> void* (N64 audio type not in port headers)
 void * func_80244608(void *bank, s16 arg1, struct46s *arg2); // [port] ALBank* -> void* (N64 audio type not in port headers)
 void func_80244814(void *arg0); // [port] N_AL_Struct81s* -> void* (N64 audio type not in port headers)
-void func_80244978(s32 arg0, s16 type, s32 arg2);
+void func_80244978(intptr_t arg0, s16 type, s32 arg2);
 void func_80244A98(s32 arg0);
 
 // --- src/core1/ba_motor.c ---
@@ -1126,11 +1126,11 @@ void anSeq_update(void **ppAnSeq, AnimCtrl *pAnCtl); // [port] was bk_vector(AnS
 // --- src/core2/audio_sfxinstruments.c ---
 bool func_803354EC(enum sfx_e sfx_id);
 bool func_80335520(s32 arg0);
-int func_8033531C(enum sfx_e uid, struct46s *arg1);
-int func_80335354(int uid, struct46s *arg1);
-void func_803353BC(s32 arg0, u16 arg1);
-void func_803353F4(s32 arg0, s32 arg1);
-void func_80335418(s32 arg0, s32 arg1);
+intptr_t func_8033531C(enum sfx_e uid, struct46s *arg1);
+intptr_t func_80335354(int uid, struct46s *arg1);
+void func_803353BC(intptr_t arg0, u16 arg1);
+void func_803353F4(intptr_t arg0, s32 arg1);
+void func_80335418(intptr_t arg0, s32 arg1);
 // [port] removed: func_8033543C — polymorphic callers pass Struct81s*, N_AL_Struct81s*
 void sfxInstruments_init(void);
 

@@ -3,6 +3,8 @@
 #include "variables.h"
 #include "n_synth.h"
 
+Acmd *n_alEnvmixerPull(void *filter, s32 sampleOffset, Acmd *p);
+
 Acmd *n_alAuxBusPull(s32 sampleOffset, Acmd *p) 
 {
   Acmd        *ptr = p;

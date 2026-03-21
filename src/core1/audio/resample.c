@@ -2,6 +2,7 @@
 #include "synthInternals.h"
 #include "functions.h"
 
+#if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 #ifdef AUD_PROFILE
 extern u32 cnt_index, resampler_num, resampler_cnt, resampler_max, resampler_min, lastCnt[];
 #endif
@@ -124,3 +125,4 @@ s32 alResampleParam(void *filter, s32 paramID, void *param)
     }
     return 0;
 }
+#endif
