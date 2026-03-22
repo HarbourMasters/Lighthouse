@@ -24,6 +24,9 @@ void port_setMapDebugTitle(int map_id);
 // [port] Get the boot sequence setting (0=Default, 1=Authentic, 2=FileSelect)
 int port_getBootSequence(void);
 
+// [port] Currently selected game number (0-2), set at file pick. -1 if none.
+extern s32 gSelectedGameNum;
+
 // [port] Get the widescreen logical width (320 at 4:3, wider for widescreen)
 int port_getViewportWidth(void);
 

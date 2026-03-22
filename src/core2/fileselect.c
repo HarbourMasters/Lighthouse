@@ -112,14 +112,17 @@ void gameFile_clear(s32 gamenum){
     savedata_clear(&gameFile_saveData[filenum]);
 }
 
-extern int port_getSavedLives(int eepromSlot);
-extern void port_getSavedBottleBonus(int eepromSlot, u8 out[7]);
-extern void port_setSavedBottleBonus(int eepromSlot, const u8 in[7]);
-extern u8 gCompletedBottleBonusGames[7];
+extern void port_restoreFileEnhancementData(int eepromSlot);
+extern s32 D_80386068; // [port] lives backup — func_80347AA8 restores from this
+extern s32 D_80385F30[];
 
 void gameFile_load(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     saveData_load(&gameFile_saveData[filenum]);
+    // [port] Override lives backup and item array with persisted value.
+    // func_80347AA8 reads D_80386068 to restore lives after map transitions.
+    port_restoreFileEnhancementData(filenum);
+    D_80386068 = D_80385F30[ITEM_16_LIFE];
 }
 
 void gameFile_save(s32 gamenum){

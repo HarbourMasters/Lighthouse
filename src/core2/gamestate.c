@@ -4,6 +4,10 @@
 #include "variables.h"
 
 #include "bk_time.h"
+#include "port/ShipUtils.h"
+
+extern s32 gameFile_GameIdToFileIdMap[];
+extern void port_restoreFileEnhancementData(int eepromSlot);
 
 void func_80346DB4(s32);
 
@@ -156,7 +160,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
-    return item_adjustByDiff(item, diff, 0); // [port] implicit MIPS $v0 return
+    return item_adjustByDiff(item, diff, 0);
 }
 
 // func_803463F4

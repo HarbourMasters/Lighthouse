@@ -9,7 +9,7 @@
 extern void func_802D6310(f32, enum map_e, s32, s32, enum file_progress_e);
 extern BKModel *mapModel_getModel(s32);
 
-extern u8 gCompletedBottleBonusGames[7];
+extern u8 gCompletedBottlesBonusGames[7];
 
 /* .h */
 static void __maCastle_resetSecretCheatCodeProgress(void);
@@ -379,7 +379,7 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
 
             for (i = 0; i < 7; i++)
             {
-                if (gCompletedBottleBonusGames[i] != 0)
+                if (gCompletedBottlesBonusGames[i] != 0)
                 {
                     unlocked_cheat_flags |= (0x10 << i);
                 }

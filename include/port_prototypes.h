@@ -252,7 +252,7 @@ s32 mapSpecificFlags_get(s32 i);
 // --- core2/level/specificflags.c ---
 s32 levelSpecificFlags_get(s32 i);
 
-// --- core2/terrain_material.c (item system) ---
+// --- core2/gamestate.c (item system) ---
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
 
@@ -2838,7 +2838,7 @@ void func_80338370(void);
 void func_8033837C(s32 arg0);
 void spriteRender_draw(Gfx **gfx, Vtx **vtx, BKSprite *sp, u32 frame);
 
-// --- src/core2/terrain_material.c ---
+// --- src/core2/gamestate.c ---
 enum item_e carriedobj_actorId2ItemId(enum actor_e actor_id);
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff);
 s32 item_getCount(enum item_e item);
@@ -3066,7 +3066,7 @@ bool chNipper_isInState7(); // [port] definition takes s16[3] but lair.c calls w
 // --- src/core2/actor_cubepropsystem.c ---
 s32 codeA5BC0_getPositionAndReturnRadius(void *arg0, s32 arg1[3]); // [port] void* — callers pass NodeProp*, struct_core2_DB010*
 
-// --- src/core2/terrain_material.c ---
+// --- src/core2/gamestate.c ---
 void itemscore_timeScores_fromSaveData(u16 *savedata);
 
 // --- src/core2/savedata.c ---

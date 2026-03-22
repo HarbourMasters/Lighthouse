@@ -15,6 +15,12 @@ namespace fs = std::filesystem;
 
 extern "C" void savedata_update_crc(void* buffer, int size);
 extern "C" int item_getCount(int item);
+extern "C" void item_set(int, int);
+
+// Bottles Bonus variables
+extern "C" uint8_t gCompletedBottlesBonusGames[7];
+extern "C" uint8_t D_8037DCC7;
+extern "C" int32_t D_80385F30[];
 
 // ─── Compact-array JSON formatter ───────────────────────────────────────────
 // Pretty-prints objects but collapses primitive arrays onto single lines.
@@ -528,10 +534,6 @@ SaveManager& SaveManager::Instance() {
 
 SaveManager::SaveManager() : mLoaded(false) {
     memset(mEeprom, 0, sizeof(mEeprom));
-    memset(mSavedBottleBonus, 0, sizeof(mSavedBottleBonus));
-    for (int i = 0; i < SAVE_SLOT_COUNT; i++) {
-        mSavedLives[i] = 3; // default
-    }
 }
 
 // ─── EEPROM Interface ───────────────────────────────────────────────────────
@@ -1026,30 +1028,11 @@ void SaveManager::LoadFromDisk() {
             int base = eepromSlot * SAVE_SLOT_SIZE;
 
             JsonToSlot(j, mEeprom + base);
-
-            // [port] Load saved lives count and Bottles Bonus completions
-            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistExtraLives"), 0)) {
-                if (j.contains("savedItems")) {
-                    const auto& si = j["savedItems"];
-                    if (si.contains("lives")) {
-                        mSavedLives[eepromSlot] = si["lives"].get<int>();
-                    }
-                }
-            }
-            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistBottlesBonus"), 0)) {
-                if (j.contains("progress")) {
-                    const auto& prog = j["progress"];
-                    if (prog.contains("bottleBonusCompleted")) {
-                        const auto& bb = prog["bottleBonusCompleted"];
-                        for (int k = 0; k < 7 && k < (int)bb.size(); k++) {
-                            mSavedBottleBonus[eepromSlot][k] = bb[k].get<int>() ? 1 : 0;
-                        }
-                    }
-                }
-            }
-
-            SPDLOG_INFO("[save] Loaded {} (slotIndex={}) into eeprom slot {}", path, slotIndex, eepromSlot);
-        } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what()); }
+        } 
+        catch (const std::exception& e)
+        { 
+            SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what()); 
+        }
     }
 
     // Load global data
@@ -1128,17 +1111,34 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
 
     json j = SlotToJson(mEeprom + base);
 
-    // [port] Save lives count and Bottles Bonus completions
-    int lives = item_getCount(0x16); // ITEM_16_LIFE
-    if (lives > 0) {
-        j["savedItems"]["lives"] = lives;
-        mSavedLives[eepromSlot] = lives;
+    // [port] Always save enhancement data to per-file JSON (no CVar gate)
+    j["file"]["enhancements"]["lives"] = item_getCount(0x16); // ITEM_16_LIFE
+    {
+        // Bottles bonus: merge with existing JSON — completions are permanent,
+        // a zeroed live array (from init) must not downgrade saved 1s to 0s.
+        std::string existingFilename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
+        std::string existingPath = GetSavePath(existingFilename);
+        json bbArr = json::array();
+        json oldBb;
+        if (fs::exists(existingPath)) {
+            try {
+                std::ifstream ifs(existingPath);
+                auto ej = nlohmann::ordered_json::parse(ifs);
+                if (ej.contains("file") && ej["file"].contains("enhancements") &&
+                    ej["file"]["enhancements"].contains("bottlesBonusCompleted")) {
+                    oldBb = ej["file"]["enhancements"]["bottlesBonusCompleted"];
+                }
+            } catch (...) {}
+        }
+        for (int k = 0; k < 7; k++) {
+            int val = gCompletedBottlesBonusGames[k] ? 1 : 0;
+            if (!val && k < (int)oldBb.size() && oldBb[k].get<int>()) {
+                val = 1;
+            }
+            bbArr.push_back(val);
+        }
+        j["file"]["enhancements"]["bottlesBonusCompleted"] = bbArr;
     }
-    json bbArr = json::array();
-    for (int k = 0; k < 7; k++) {
-        bbArr.push_back(mSavedBottleBonus[eepromSlot][k] ? 1 : 0);
-    }
-    j["progress"]["bottlesBonusCompleted"] = bbArr;
 
     std::string filename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
     std::string path = GetSavePath(filename);
@@ -1206,39 +1206,59 @@ int32_t eeprom_writeBlocks(int32_t file, int32_t offset, void* buffer, int32_t c
     return SaveManager::Instance().WriteBlocks(file, offset, buffer, count);
 }
 
-// [port] Lives persistence — returns saved lives for an EEPROM slot (0-3), default 3
-int port_getSavedLives(int eepromSlot) {
-    return SaveManager::GetSavedLives(eepromSlot);
-}
-
-void port_getSavedBottleBonus(int eepromSlot, uint8_t out[7]) {
-    SaveManager::GetSavedBottleBonusGames(eepromSlot, out);
-}
-
-void port_setSavedBottleBonus(int eepromSlot, const uint8_t in[7]) {
-    SaveManager::SetSavedBottleBonusGames(eepromSlot, in);
+// [port] Restore per-file enhancement data (lives, bottles bonus) from JSON into game state.
+void port_restoreFileEnhancementData(int eepromSlot) {
+    SaveManager::RestoreFileEnhancementData(eepromSlot);
 }
 
 } // extern "C"
 
-int SaveManager::GetSavedLives(int eepromSlot) {
-    if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) {
-        return 3;
-    }
-    return Instance().mSavedLives[eepromSlot];
-}
-
-void SaveManager::GetSavedBottleBonusGames(int eepromSlot, uint8_t out[7]) {
-    if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) {
-        memset(out, 0, 7);
-        return;
-    }
-    memcpy(out, Instance().mSavedBottleBonus[eepromSlot], 7);
-}
-
-void SaveManager::SetSavedBottleBonusGames(int eepromSlot, const uint8_t in[7]) {
+void SaveManager::RestoreFileEnhancementData(int eepromSlot) {
     if (eepromSlot < 0 || eepromSlot >= SAVE_SLOT_COUNT) {
         return;
     }
-    memcpy(Instance().mSavedBottleBonus[eepromSlot], in, 7);
+
+    int base = eepromSlot * SAVE_SLOT_SIZE;
+    int slotIndex = Instance().mEeprom[base + 1];
+    if (slotIndex < 1 || slotIndex > 3) {
+        return;
+    }
+
+    std::string filename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
+    std::string path = Instance().GetSavePath(filename);
+    if (!fs::exists(path)) {
+        return;
+    }
+
+    try {
+        std::ifstream ifs(path);
+        nlohmann::ordered_json j = nlohmann::ordered_json::parse(ifs);
+
+        if (j.contains("file") && j["file"].contains("enhancements")) {
+            const auto& enh = j["file"]["enhancements"];
+
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistExtraLives"), 0)) {
+                if (enh.contains("lives")) {
+                    D_80385F30[0x16] = enh["lives"].get<int>(); // ITEM_16_LIFE — direct write, safe before HUD init
+                }
+            }
+
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistBottlesBonus"), 0)) {
+                if (enh.contains("bottlesBonusCompleted")) {
+                    const auto& bb = enh["bottlesBonusCompleted"];
+                    int anyCompleted = 0;
+                    for (int k = 0; k < 7 && k < (int)bb.size(); k++) {
+                        gCompletedBottlesBonusGames[k] |= bb[k].get<int>() ? 1 : 0;
+                        anyCompleted |= gCompletedBottlesBonusGames[k];
+                    }
+                    if (anyCompleted) {
+                        D_8037DCC7 = 1; // skip intro text
+                    }
+                }
+            }
+        }
+    } catch (const std::exception& e) {
+        SPDLOG_ERROR("[save] Failed to restore file enhancement data from {}: {}", path, e.what());
+    }
 }
+

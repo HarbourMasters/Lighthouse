@@ -18,7 +18,7 @@ extern void func_803458E4(f32[4], f32[4], f32[4], f32);
 #define CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT (CH_BOTTLES_BONUS_PUZZLE_HEIGHT * CH_BOTTLES_BONUS_PUZZLE_WIDTH)
 
 /* .extern symbols??? */
-extern u8 gCompletedBottleBonusGames[7];
+extern u8 gCompletedBottlesBonusGames[7];
 extern u8 D_8037DCC7;
 extern u8 D_8037DCC8;
 extern u8 D_8037DCC9;
@@ -102,7 +102,7 @@ ActorInfo chBottlesBonusDescription = {
 
 /* .bss */
 ActorMarker *chBottlesBonusMarker;
-BKModelBin *chBottleBonusBookselfModelBin;
+BKModelBin *chBottlesBonusBookselfModelBin;
 BKModelBin *D_8037DEA8;
 BKModel *D_8037DEAC;
 s32 D_8037DEB0;
@@ -113,7 +113,7 @@ Struct_core2_560F0_1 *D_8037DEC0;
 Struct_core2_560F0_1 *D_8037DEC4;
 f32 D_8037DEC8[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
 f32 D_8037DF18[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
-s32 chBottleBonusPuzzleIndex;
+s32 chBottlesBonusPuzzleIndex;
 f32 D_8037DF70[3];
 f32 D_8037DF80[3];
 s32 D_8037DF90[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
@@ -166,7 +166,7 @@ Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     {sp60[0] = 0.0f; sp60[1] = 0.0f; sp60[2] = 0.0f;};
     {sp54[0] = 0.0f; sp54[1] = 0.0f; sp54[2] = 0.0f;};
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
-    modelRender_draw(gfx, mtx, sp60, NULL, 1.0f, sp54, chBottleBonusBookselfModelBin);
+    modelRender_draw(gfx, mtx, sp60, NULL, 1.0f, sp54, chBottlesBonusBookselfModelBin);
     modelRender_draw(gfx, mtx, sp60, NULL, 1.0f, sp54, D_8037DEA8);
 
     gDPSetTextureFilter((*gfx)++, G_TF_POINT);
@@ -198,9 +198,9 @@ void chBottlesBonus_free(Actor *this) {
         D_8037DEAC = 0;
     }
 
-    if (chBottleBonusBookselfModelBin != 0) {
-        assetcache_release(chBottleBonusBookselfModelBin);
-        chBottleBonusBookselfModelBin = 0;
+    if (chBottlesBonusBookselfModelBin != 0) {
+        assetcache_release(chBottlesBonusBookselfModelBin);
+        chBottlesBonusBookselfModelBin = 0;
     }
 
     if (D_8037DEA8 != 0) {
@@ -415,21 +415,21 @@ void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id) {
 
 void chBottlesBonus_IncrementPuzzle(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     timedFunc_set_1(0.5f, (GenFunction_1)func_8034BB08, 1); // [port]
-    chBottleBonusPuzzleIndex++;
+    chBottlesBonusPuzzleIndex++;
 }
 
 void chBottlesBonus_completedPuzzle(void) {
     Actor *actor;
 
     actor = marker_getActor(chBottlesBonusMarker);
-    gCompletedBottleBonusGames[chBottleBonusPuzzleIndex] = true;
+    gCompletedBottlesBonusGames[chBottlesBonusPuzzleIndex] = true;
     func_80311714(0);
-    gcdialog_showText(D_803681A0[chBottleBonusPuzzleIndex + 1].text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_IncrementPuzzle, NULL);
+    gcdialog_showText(D_803681A0[chBottlesBonusPuzzleIndex + 1].text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_IncrementPuzzle, NULL);
     func_80311714(1);
 }
 
 s32 chBottlesBonus_getPuzzleIndex(void){
-    return chBottleBonusPuzzleIndex;
+    return chBottlesBonusPuzzleIndex;
 }
 
 void chBottlesBonus_startTimer(ActorMarker *arg0, enum asset_e arg1, s32 arg2) {
@@ -439,7 +439,7 @@ void chBottlesBonus_startTimer(ActorMarker *arg0, enum asset_e arg1, s32 arg2) {
     actor->state = 4;
     actor->lifetime_value = 0.0f;
     timedFunc_set_2(0.25f, (GenFunction_2)item_set, ITEM_6_HOURGLASS, true);
-    timedFunc_set_2(0.25f, (GenFunction_2)item_set, ITEM_0_HOURGLASS_TIMER, D_803681A0[chBottleBonusPuzzleIndex + 1].time_seconds * 60 - 1);
+    timedFunc_set_2(0.25f, (GenFunction_2)item_set, ITEM_0_HOURGLASS_TIMER, D_803681A0[chBottlesBonusPuzzleIndex + 1].time_seconds * 60 - 1);
 }
 
 void chBottlesBonus_update(Actor *this) {
@@ -460,14 +460,14 @@ void chBottlesBonus_update(Actor *this) {
         this->lifetime_value = 0.0f;
         D_8037DEB4 = D_8037DEB0 = 0;
         marker_setFreeMethod(this->marker, chBottlesBonus_free);
-        if (chBottleBonusBookselfModelBin == 0) {
-            chBottleBonusBookselfModelBin = assetcache_get(0x470);
+        if (chBottlesBonusBookselfModelBin == 0) {
+            chBottlesBonusBookselfModelBin = assetcache_get(0x470);
         }
         if (D_8037DEA8 == 0) {
             D_8037DEA8 = assetcache_get(0x471);
         }
         if (D_8037DEAC == NULL) {
-            D_8037DEAC = func_8033F5F8((BKMeshList *)func_8033A0B0(chBottleBonusBookselfModelBin), model_getVtxList(chBottleBonusBookselfModelBin));
+            D_8037DEAC = func_8033F5F8((BKMeshList *)func_8033A0B0(chBottlesBonusBookselfModelBin), model_getVtxList(chBottlesBonusBookselfModelBin));
             func_8034CF74(local, 0, D_8037DEAC, 0xF0);
         }
         func_8028746C(this->anctrl, (GenFunction_2)chBottlesBonus_func_802DD8AC);
@@ -534,7 +534,7 @@ void chBottlesBonus_update(Actor *this) {
             break;
         case 4:
             if (this->lifetime_value > 2.0) {
-                func_8025AEA0(COMUSIC_94_BBONUS, ((item_getCount(ITEM_0_HOURGLASS_TIMER) * 0x201D2) / (s32) ((D_803681A0[chBottleBonusPuzzleIndex + 1].time_seconds * 60) - 1)) + 330000);
+                func_8025AEA0(COMUSIC_94_BBONUS, ((item_getCount(ITEM_0_HOURGLASS_TIMER) * 0x201D2) / (s32) ((D_803681A0[chBottlesBonusPuzzleIndex + 1].time_seconds * 60) - 1)) + 330000);
                 if ((item_getCount(ITEM_6_HOURGLASS) == 0) && (chBottlesBonusCursor_isPuzzleCompleted() == 0)) {
                     chBottlesBonus_lose(&D_8037DCC9, 0xE26);
                 }
@@ -592,7 +592,7 @@ Actor *chBottlesBonus_new(s32 position[3], s32 yaw, ActorInfo *actor_info, u32 f
     int i;
 
     for(i = 1; i < 6; i++){
-        chBottlesBonusAnimations[i].index = D_803681A0[chBottleBonusPuzzleIndex].anim_id;
+        chBottlesBonusAnimations[i].index = D_803681A0[chBottlesBonusPuzzleIndex].anim_id;
     }
     return actor_new(position, yaw, actor_info, flags);
 }
@@ -600,7 +600,7 @@ Actor *chBottlesBonus_new(s32 position[3], s32 yaw, ActorInfo *actor_info, u32 f
 void chBottlesBonus_func_802DEB80(void) {
     int i;
     for(i = 0; i < 7; i++){
-        gCompletedBottleBonusGames[i] = 0;
+        gCompletedBottlesBonusGames[i] = 0;
     }
     D_8037DCC7 = 0;
     D_8037DCC8 = 0;
@@ -609,5 +609,5 @@ void chBottlesBonus_func_802DEB80(void) {
     D_8037DCCB = 0;
     D_8037DCCC = 0;
 
-    chBottleBonusPuzzleIndex = 0;
+    chBottlesBonusPuzzleIndex = 0;
 }
