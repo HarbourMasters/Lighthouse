@@ -33,6 +33,16 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Disables Draw Distance allowing objects to render further."));
 
+    // Enhancements -> Restorations
+    path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Restore Return to Lair", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Restorations.ReturnToLair"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Restores the unused Return to Lair option when in Worlds."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

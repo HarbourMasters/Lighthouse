@@ -21,7 +21,6 @@ public:
     WidgetInfo& AddWidget(WidgetPath& pathInfo, std::string widgetName, WidgetType widgetType);
     void AddMenuSettings();
     void AddMenuEnhancements();
-    void AddMenuRestorations();
     void AddMenuDevTools();
 
 private:

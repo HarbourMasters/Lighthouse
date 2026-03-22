@@ -124,7 +124,6 @@ void LighthouseMenu::InitElement() {
     Ship::Menu::InitElement();
     AddMenuSettings();
     AddMenuEnhancements();
-    AddMenuRestorations();
     AddMenuDevTools();
 
     if (CVarGetInteger(CVAR_SETTING("Menu.SidebarSearch"), 0)) {
