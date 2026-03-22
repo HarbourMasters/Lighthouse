@@ -3,14 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-
-typedef struct{
-    u32 unk0;
-    u32 unk4;
-}struct49s;
-
-extern struct49s gOverlayTable[];
-
 extern u8  D_8002D500;
 extern u32 D_8027BF2C;
 extern u32 D_8027BF30;
