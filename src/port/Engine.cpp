@@ -942,7 +942,7 @@ void GameEngine::HandleAudioThread() {
             func_80250650(); // [port] process channel volume/tempo fades (originally in audioManager_handleFrameMsg)
             float master_vol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 100) / 100.0f;
 
-            for (u32 i = 0; i < GameEngine_GetSamplesPerFrame(); i++) {
+            for (u32 i = 0; i < AlFrameSize * 2; i++) {
                 audioBuffer[i] = static_cast<s16>(audioBuffer[i] * master_vol);
             }
             AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
