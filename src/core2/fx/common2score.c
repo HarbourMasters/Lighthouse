@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Engine.h"
 
 #include "bk_time.h"
 
@@ -148,9 +149,14 @@ void func_802FD360(struct8s *arg0, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
     func_80347FC0(gfx, (void *)arg0->unk50, ((s32)arg0->unk60 + tmp_s2)%arg0->unk2C, 0, 0, 0, 0, 2, 2, &texture_width, &texture_height); // [port] cast uintptr_t -> void*
     tmp_f26 = (arg0->unk20 == ITEM_0_HOURGLASS_TIMER && texture_width == 0x10) ? 1.0f : 0.0f;
+    // [port] Widescreen HUD anchoring: items on the left half anchor to left edge,
+    // items on the right half anchor to right edge.
+    f32 ws_x38 = (arg0->unk38 < (f32)gFramebufferWidth / 2.0f)
+        ? OTRGetDimensionFromLeftEdge(arg0->unk38)
+        : OTRGetDimensionFromRightEdge(arg0->unk38);
     for(tmp_s4 = 0; tmp_s4 < 2; tmp_s4++){//L802FD528
         for(tmp_s2 = 0; tmp_s2 < 2; tmp_s2++){//
-            (*vtx)->v.ob[0] =  ((func_802FB0DC(arg0) + (((texture_width*arg0->unk40*tmp_s2 - texture_width*arg0->unk40/2) - (f32)gFramebufferWidth/2) + arg0->unk38)) + tmp_f26) * 4.0f;
+            (*vtx)->v.ob[0] =  ((func_802FB0DC(arg0) + (((texture_width*arg0->unk40*tmp_s2 - texture_width*arg0->unk40/2) - (f32)gFramebufferWidth/2) + ws_x38)) + tmp_f26) * 4.0f;
             (*vtx)->v.ob[1] =  ((((texture_height*arg0->unk40/2 - texture_height*arg0->unk40*tmp_s4) + (f32)gFramebufferHeight/2) - arg0->unk3C) - func_802FB0E4(arg0)*arg0->unk4C)*4.0f;
             (*vtx)->v.ob[2] = -0xA; // [port] was -0x14; Z=-20 lands exactly on guOrtho far=20 clip plane, gets clipped on PC
             (*vtx)->v.tc[0] =  ((texture_width -1) * tmp_s2) << 6;
@@ -294,7 +300,11 @@ void fxcommon2score_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **m
     strIToA(arg1->string_54, sp38);
     //print text (blue egg font)
     {
-        s32 tx = (s32)(func_802FB0DC(arg1) + arg1->unk38 + arg1->unk44 + sp34);
+        // [port] Widescreen HUD text anchoring
+        f32 ws_tx38 = (arg1->unk38 < (f32)gFramebufferWidth / 2.0f)
+            ? OTRGetDimensionFromLeftEdge(arg1->unk38)
+            : OTRGetDimensionFromRightEdge(arg1->unk38);
+        s32 tx = (s32)(func_802FB0DC(arg1) + ws_tx38 + arg1->unk44 + sp34);
         s32 ty = (s32)(func_802FB0E4(arg1)*arg1->unk4C + (arg1->unk3C + arg1->unk48));
         print_bold_spaced(tx, ty, arg1->string_54);
     }

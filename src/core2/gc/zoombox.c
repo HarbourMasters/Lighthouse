@@ -4,6 +4,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "core2/gc/zoombox.h"
+#include "port/Engine.h"
 
 #include "bk_time.h"
 
@@ -796,21 +797,25 @@ void gczoombox_func_803160A8(GcZoombox *this) {
 
 void func_803162B4(GcZoombox *this){
      func_802F7B90(this->unk168, this->unk168, this->unk168);
+     // [port] Widescreen HUD anchoring for zoombox text
+     s32 ws_textX = (s32)(this->unk1A4_24
+          ? OTRGetDimensionFromRightEdge((f32)this->unk16A)
+          : OTRGetDimensionFromLeftEdge((f32)this->unk16A));
      if(this->unk1A4_30){
           if(this->unk1A4_17){
-               func_802F79D0(this->unk16A, this->unk16C, this->unk0, this->unk166, -1);
+               func_802F79D0(ws_textX, this->unk16C, this->unk0, this->unk166, -1);
           }
           else if(this->unk1A4_15){
-               print_bold_spaced(this->unk16A, this->unk16C, this->unk0);
+               print_bold_spaced(ws_textX, this->unk16C, this->unk0);
           }else{
-               print_dialog(this->unk16A, this->unk16C, this->unk0);
+               print_dialog(ws_textX, this->unk16C, this->unk0);
           }
      }
      if(this->unk1A4_29){
           if(this->unk1A4_15){
-               print_bold_spaced(this->unk16A, this->unk16E, this->unk30);
+               print_bold_spaced(ws_textX, this->unk16E, this->unk30);
           }else{
-               print_dialog(this->unk16A, this->unk16E, this->unk30);
+               print_dialog(ws_textX, this->unk16E, this->unk30);
           }
      }
      func_802F7B90(0xff, 0xff, 0xff);
@@ -823,7 +828,13 @@ void func_803163A8(GcZoombox *this, Gfx **gfx, Mtx **mtx) {
     f32 sp38[3];
     f32 sp34;
 
-    sp34 = viewport_transformCoordinate(this->unk170, this->unk172, sp50, sp5C);
+    {
+        // [port] Widescreen HUD anchoring for zoombox bubble
+        f32 ws_bx = this->unk1A4_24
+            ? OTRGetDimensionFromRightEdge((f32)this->unk170)
+            : OTRGetDimensionFromLeftEdge((f32)this->unk170);
+        sp34 = viewport_transformCoordinate(ws_bx, this->unk172, sp50, sp5C);
+    }
     if (this->unk1A4_24) {
         sp5C[1] += 180.0f;
         sp5C[0] -= 2*sp5C[0];
@@ -859,7 +870,13 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     }
     sp2C[1] = this->unk172 + ((f32) arg4 * this->unk198);
     sp2C[2] = -10.0f;
-    func_80252330((sp2C[0] * 4.0f) - ((f32)gFramebufferWidth * 2), ((f32)gFramebufferHeight * 2) - (sp2C[1] * 4.0f), sp2C[2]);
+    {
+        // [port] Widescreen HUD anchoring for zoombox items
+        f32 ws_x = this->unk1A4_24
+            ? OTRGetDimensionFromRightEdge(sp2C[0])
+            : OTRGetDimensionFromLeftEdge(sp2C[0]);
+        func_80252330((ws_x * 4.0f) - ((f32)gFramebufferWidth * 2), ((f32)gFramebufferHeight * 2) - (sp2C[1] * 4.0f), sp2C[2]);
+    }
     temp_f12 = (f32) ((f64) this->unk198 * 0.8);
     mlMtxScale_xyz(temp_f12, temp_f12, 1.0f);
     mlMtxApply(*mtx);
