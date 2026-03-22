@@ -248,8 +248,18 @@ void _n_collectPVoices()
     }
 }
 
-void _n_freePVoice(N_PVoice *pvoice) 
+void _n_freePVoice(N_PVoice *pvoice)
 {
+    // [port] Flush pending params to prevent pool exhaustion cascade.
+    ALParam *p = pvoice->em_ctrlList;
+    while (p) {
+        ALParam *next = p->next;
+        __n_freeParam(p);
+        p = next;
+    }
+    pvoice->em_ctrlList = NULL;
+    pvoice->em_ctrlTail = NULL;
+
     /*
      * move the voice from the allocated list to the lame list
      */
