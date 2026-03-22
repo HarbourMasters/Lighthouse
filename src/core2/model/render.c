@@ -1036,12 +1036,12 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         return 0;
     }
 
-#ifdef ENHANCEMENT
-    // Extended draw distance: disable clipping, set huge distance thresholds
-    D_80383710 = false;
-    D_8038370C = 1e30f;
-    D_80383708 = 1e30f;
-#endif
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+        // Extended draw distance: disable clipping, set huge distance thresholds
+        D_80383710 = false;
+        D_8038370C = 1e30f;
+        D_80383708 = 1e30f;
+    }
 
     D_80370990 = 0;
     viewport_getPosition_vec3f(modelRenderCameraPosition);

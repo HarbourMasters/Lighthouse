@@ -437,11 +437,12 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
 
     for(i = 0; i < 3; i++){
-#ifdef ENHANCEMENT
-        int width = sCubeList.width[i]; // Extended draw distance: full map
-#else
         int width = 4;
-#endif
+
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+            width = sCubeList.width[i]; // Extended draw distance: full map
+        }
+
         if(vp_cube_indices[i] - sp44[i] > width){
             sp44[i] = vp_cube_indices[i] - width;
         }
