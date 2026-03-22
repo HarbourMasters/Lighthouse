@@ -214,7 +214,7 @@ void func_8038A964(void){
     }
 }
 
-void chvilegame_get_grumblie_model() {
+void func_8038A994() {
     func_8038A140(0);
 }
 
