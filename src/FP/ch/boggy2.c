@@ -339,6 +339,12 @@ void func_803893E4(Actor *this, f32 arg1, u8 arg2){
         sp2C = 1100.0f;
         sp28 = 2.3f;
     }
+#ifdef ENHANCEMENT
+        // Gives Boggy a 15% speed reduction during his races
+        sp30 *= 0.85f;
+        sp2C *= 0.85f;
+        sp28 *= 0.85f;
+#endif
 
     func_80343DEC(this);
     if(this->state == 7){
