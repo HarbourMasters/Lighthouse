@@ -66,7 +66,7 @@ void chFlowerpot_update(Actor *this) {
 
         case FLOWER_POT_STATE_2_FLOWERED:
             if (actor_animationIsAt(this, 0.2f)) {
-                SFX_PlayFade(SFX_12F_THAAANK_YOOOUUU, 1.0f, 30000, this->position, 300, 2000);
+                SFX_PLAYFADE(SFX_12F_THAAANK_YOOOUUU, 1.0f, 30000, this->position, 300, 2000);
             }
             break;
     }

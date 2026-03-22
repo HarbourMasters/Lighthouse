@@ -39,16 +39,16 @@ void func_8038E1A8(Actor *this){
             }
             else{
                 if(actor_animationIsAt(this, 0.2f))
-                    SFX_PlayFade(SFX_4C_LIP_SMACK, 1.0f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_4C_LIP_SMACK, 1.0f, 32000, this->position, 1250, 2500);
                 
                 if(actor_animationIsAt(this, 0.4f))
-                    SFX_PlayFade(SFX_4C_LIP_SMACK, 1.0f, 26000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_4C_LIP_SMACK, 1.0f, 26000, this->position, 1250, 2500);
                 
                 if(actor_animationIsAt(this, 0.6f))
-                    SFX_PlayFade(SFX_4C_LIP_SMACK, 1.0f, 20000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_4C_LIP_SMACK, 1.0f, 20000, this->position, 1250, 2500);
 
                 if(actor_animationIsAt(this, 0.8f))
-                    SFX_PlayFade(SFX_97_BLUBBER_BURPS, 1.0f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_97_BLUBBER_BURPS, 1.0f, 32000, this->position, 1250, 2500);
             }
             break;
     }//L8038E2E8

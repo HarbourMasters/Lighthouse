@@ -66,14 +66,14 @@ static void __chLockup_close(Actor *this){
     subaddie_set_state_with_direction(this, CH_LOCKUP_STATE_CLOSED, 0.2f, 1);
     this->marker->collidable = false;
     this->unk38_31 = 0;
-    SFX_PlayFade(SFX_6C_LOCKUP_CLOSING, 1.0f, 32000, this->position, 1250, 2500);
+    SFX_PLAYFADE(SFX_6C_LOCKUP_CLOSING, 1.0f, 32000, this->position, 1250, 2500);
 }
 
 static void __chLockup_open(Actor *this){
     code3040_func_80389468();
     subaddie_set_state_with_direction(this, CH_LOCKUP_STATE_OPENING, 0.2f, 1);
     this->unk38_31 = 1;
-    SFX_PlayFade(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
+    SFX_PLAYFADE(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
 }
 
 static void __chLockup_updateFunc(Actor *this){

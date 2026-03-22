@@ -310,10 +310,10 @@ void func_80388ED4(s32 arg0){
     f32 sp1C[3];
     func_8034A174(D_80389FA0.unk34, 5, sp1C);
     if(arg0 != 0){
-        SFX_PlayFade(SFX_91_METALLIC_SOUND, 0.7f, 32675, sp1C, 100, 6000);
+        SFX_PLAYFADE(SFX_91_METALLIC_SOUND, 0.7f, 32675, sp1C, 100, 6000);
     }
     else{
-        SFX_PlayFade(SFX_82_METAL_BREAK, 0.9f, 24000, sp1C, 100, 6000);
+        SFX_PLAYFADE(SFX_82_METAL_BREAK, 0.9f, 24000, sp1C, 100, 6000);
     }
     D_80389FA0.unk8 = 1.0f;
 }
@@ -340,11 +340,11 @@ void CC_func_80388F4C(void){
         if(D_80389FA0.unk21 == 3){
             func_8034A174(D_80389FA0.unk34, 5, sp54);
             if(sp60 < sp64){
-                SFX_PlayFade(SFX_7E_CREAKY_DOOR_OPENING, 0.6f, 32300, sp54, 1000, 5000);
+                SFX_PLAYFADE(SFX_7E_CREAKY_DOOR_OPENING, 0.6f, 32300, sp54, 1000, 5000);
             }//L80389058
 
             if(sp64 < 0.3 && 0.3 <= sp60){
-                SFX_PlayFade(SFX_7E_CREAKY_DOOR_OPENING, 0.5f, 32300, sp54, 1000, 5000);
+                SFX_PLAYFADE(SFX_7E_CREAKY_DOOR_OPENING, 0.5f, 32300, sp54, 1000, 5000);
             }
         }//L8038909C
 

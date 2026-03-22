@@ -417,13 +417,13 @@ void chmole_update(Actor *this){
                 this->unk44_31 = 0;
             }
             else if(actor_animationIsAt(this, 0.14f)){//L802DA154
-                SFX_PlayFade(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
+                SFX_PLAYFADE(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if(actor_animationIsAt(this, 0.4f)){//L802DA188
-                SFX_PlayFade(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
+                SFX_PLAYFADE(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if(actor_animationIsAt(this, 0.75f)){//L802DA1BC
-                SFX_PlayFade(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
+                SFX_PLAYFADE(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
             }
             else if(actor_animationIsAt(this, 0.35f)){//L802DA1EC
                 chmole_learnAbility(this);

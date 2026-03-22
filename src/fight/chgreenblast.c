@@ -60,7 +60,7 @@ void chGreenBlast_collisionDie(ActorMarker *marker, ActorMarker *other_marker){
     explosion_position[2] = actor->position_z;
     explosion_position[1] += 160.0f;
 
-    SFX_PlayFade(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor->position, 1000, 3500);
+    SFX_PLAYFADE(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor->position, 1000, 3500);
     timedFunc_set_0(0.0f, chGreenBlast_func_8038FC88);
     timedFunc_set_0(0.3f, chGreenBlast_func_8038FCBC);
 

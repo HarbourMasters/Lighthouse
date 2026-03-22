@@ -60,7 +60,7 @@ void chtoots_update(Actor *this){
             else if(this->unk38_31 != 0){
                 this->unk38_31--;
                 if(this->unk38_31 == 6){
-                    SFX_PlayFade(SFX_DD_JINJO_TALKING, 1.0f, 20000, this->position, 1500, 4500);
+                    SFX_PLAYFADE(SFX_DD_JINJO_TALKING, 1.0f, 20000, this->position, 1500, 4500);
                 }
             }
             else{

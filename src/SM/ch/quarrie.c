@@ -100,7 +100,7 @@ void func_80386C2C(ParticleEmitter *p_ctrl, f32 *arg1, s32 arg2, f32 arg3) {
 }
 
 void SM_func_80386D68(Actor *this){
-    SFX_PlayFade(SFX_9B_BOULDER_BREAKING_1, 1.0f, 32000, this->position, 1000, 2000);
+    SFX_PLAYFADE(SFX_9B_BOULDER_BREAKING_1, 1.0f, 32000, this->position, 1000, 2000);
 
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, 0x3F9);

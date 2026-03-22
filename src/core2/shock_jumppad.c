@@ -94,7 +94,7 @@ void chFightFlightPad_update(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
         chFightFlightPad_emitSparklesAtPosition(this->position);
-        SFX_PlayFade(SFX_113_PAD_APPEARS, 1.0f, 32000, this->position, 5000, 12000);
+        SFX_PLAYFADE(SFX_113_PAD_APPEARS, 1.0f, 32000, this->position, 5000, 12000);
     }
     this->marker->propPtr->unk8_3 = true;
     this->alpha_124_19 = MIN(this->alpha_124_19 + this->unk38_31, 0xFF);

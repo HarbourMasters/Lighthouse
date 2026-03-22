@@ -104,7 +104,7 @@ static void __chNipper_playDeathAnimation(Actor *this) {
     subaddie_set_state_with_direction(this, CH_NIPPER_STATE_4_DIEING, 0.01f, 1);
     actor_playAnimationOnce(this);
     for(i = 0; i < 3; i ++){
-        SFX_PlayFade(SFX_79_TICKER_DEATH, 0.5f, 17000, this->position, 1500, 3000);
+        SFX_PLAYFADE(SFX_79_TICKER_DEATH, 0.5f, 17000, this->position, 1500, 3000);
     };
 }
 
@@ -139,7 +139,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
         subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
         actor_playAnimationOnce(this);
         for(i = 0; i < 3; i++){
-            SFX_PlayFade(SFX_78_EAGLECRY, 0.7f, 20000, this->position, 1500, 3000);
+            SFX_PLAYFADE(SFX_78_EAGLECRY, 0.7f, 20000, this->position, 1500, 3000);
         };
         comusic_8025AB44(COMUSIC_12_TTC_NIPPER, 0, 300);
         func_8025AABC(COMUSIC_12_TTC_NIPPER);
@@ -260,7 +260,7 @@ static void __chNipper_updateFunc(Actor *this){
                 || actor_animationIsAt(this, 0.6f)
                 || actor_animationIsAt(this, 0.7f)
             ){
-                SFX_PlayFade(SFX_3D_TICKER_WALKING, 0.75f, 12000, this->position, 0x5dc, 0xbb8);
+                SFX_PLAYFADE(SFX_3D_TICKER_WALKING, 0.75f, 12000, this->position, 0x5dc, 0xbb8);
             }
             break;
 
@@ -301,7 +301,7 @@ static void __chNipper_updateFunc(Actor *this){
                 || actor_animationIsAt(this, 0.95f) 
             ){
                 for(sp48 = 0; sp48 < 3; sp48++){
-                    SFX_PlayFade(SFX_3D_TICKER_WALKING, 0.75f, 12000, this->position, 1500, 3000);
+                    SFX_PLAYFADE(SFX_3D_TICKER_WALKING, 0.75f, 12000, this->position, 1500, 3000);
                 }
             }
             break;
@@ -318,14 +318,14 @@ static void __chNipper_updateFunc(Actor *this){
                 || actor_animationIsAt(this, 0.6f)
                 || actor_animationIsAt(this, 0.7f)
             ){
-                SFX_PlayFade(SFX_3D_TICKER_WALKING, 0.75f, 12000, this->position, 0x5dc, 0xbb8);
+                SFX_PLAYFADE(SFX_3D_TICKER_WALKING, 0.75f, 12000, this->position, 0x5dc, 0xbb8);
             }
             break;
 
         case CH_NIPPER_STATE_6_DEAD:
             this->marker->collidable = false;
             if(actor_animationIsAt(this, 0.6f)){
-                SFX_PlayFade(SFX_7C_CHEBOOF, 0.9f, 20000, this->position, 1500, 3000);
+                SFX_PLAYFADE(SFX_7C_CHEBOOF, 0.9f, 20000, this->position, 1500, 3000);
                 break;
             }
 

@@ -53,7 +53,7 @@ void func_80390630(Actor *this){
             if( actor_animationIsAt(this, 0.09f)
                 || actor_animationIsAt(this, 0.19f)
             ){
-                SFX_PlayFade(SFX_88_WOZZA_NOISE, 1.0f, 22000, this->position, 500, 2000);
+                SFX_PLAYFADE(SFX_88_WOZZA_NOISE, 1.0f, 22000, this->position, 500, 2000);
             }
 
             if( actor_animationIsAt(this, 0.68f)
@@ -62,7 +62,7 @@ void func_80390630(Actor *this){
                 || actor_animationIsAt(this, 0.92f)
                 
             ){
-                SFX_PlayFade(SFX_3F2_UNKNOWN, 0.8f, 24000, this->position, 500, 2000);
+                SFX_PLAYFADE(SFX_3F2_UNKNOWN, 0.8f, 24000, this->position, 500, 2000);
             }
         }
 

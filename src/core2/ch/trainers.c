@@ -45,7 +45,7 @@ void _chtrainers_802CA378(Actor *this, bool arg1){
         if(arg1)
             FUNC_8030E624(SFX_8_BANJO_LANDING_04, 1.6f, 7000);
         else
-            SFX_PlayFade(SFX_8_BANJO_LANDING_04, 1.6f, 7000, this->position, 600, 1500);
+            SFX_PLAYFADE(SFX_8_BANJO_LANDING_04, 1.6f, 7000, this->position, 600, 1500);
     }
 
     func_802589E4(sp24, this->velocity[1], 40.0f);

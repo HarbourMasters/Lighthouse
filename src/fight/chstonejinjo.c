@@ -52,7 +52,7 @@ void chstonejinjo_update(Actor *this) {
         case STONEJINJO_STATE_2_BREAK_OPEN:
             if (this->unkF4_8 != BOSSJINJO_5_JINJONATOR) {
                 if (actor_animationIsAt(this, 0.001f)) {
-                    SFX_PlayFade(SFX_D_EGGSHELL_BREAKING, 1.2f, 25000, this->position, 1000, 5000);
+                    SFX_PLAYFADE(SFX_D_EGGSHELL_BREAKING, 1.2f, 25000, this->position, 1000, 5000);
                     func_8030E878(SFX_80_YUMYUM_CLACK, randf2(0.6f, 0.8f), 20000, this->position, 1000.0f, 5000.0f);
                 }
 
@@ -67,7 +67,7 @@ void chstonejinjo_update(Actor *this) {
             } else {
                 if (actor_animationIsAt(this, 0.001f))
                 {
-                    SFX_PlayFade(SFX_D_EGGSHELL_BREAKING, 1.2f, 25000, this->position, 1000, 5000);
+                    SFX_PLAYFADE(SFX_D_EGGSHELL_BREAKING, 1.2f, 25000, this->position, 1000, 5000);
                     func_8030E878(SFX_80_YUMYUM_CLACK, randf2(0.4f, 0.6f), 20000, this->position, 1000.0f, 5000.0f);
                 }
 

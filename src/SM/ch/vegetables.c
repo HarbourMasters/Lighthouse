@@ -204,7 +204,7 @@ static void __chVegetables_vegetableDeathParticles(Actor* this) {
     sChVegetable* local = (sChVegetable*)&this->local;
     f32 particles_position[3];
 
-    SFX_PlayFade(SFX_111_WHIPCRACK_DEATH, 1.0f, 32000, this->position, 1000, 2000);
+    SFX_PLAYFADE(SFX_111_WHIPCRACK_DEATH, 1.0f, 32000, this->position, 1000, 2000);
     if (local->vegetable_type == CH_VEGETABLE_3_COLLIWOBBLE) {
         particles_position[0] = this->position_x;
         particles_position[1] = this->position_y;
@@ -381,7 +381,7 @@ static void __chVegetables_update(Actor* this) {
 
         if (!this->unk138_23) {
             if (0.0f < this->position_y) {
-                SFX_PlayFade(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1000, 2000);
+                SFX_PLAYFADE(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1000, 2000);
                 this->unk138_23 = 1;
                 this->scale = 1.0f;
             }
@@ -492,10 +492,10 @@ static void __chVegetables_update(Actor* this) {
         func_80328FB0(this, 2.0f);
         
         if (local->vegetable_type != CH_VEGETABLE_3_COLLIWOBBLE && actor_animationIsAt(this, 0.3f))
-            SFX_PlayFade(SFX_3F2_UNKNOWN, 1.0f, 22000, this->position, 1000, 2000);
+            SFX_PLAYFADE(SFX_3F2_UNKNOWN, 1.0f, 22000, this->position, 1000, 2000);
         
         if (local->vegetable_type == CH_VEGETABLE_3_COLLIWOBBLE && actor_animationIsAt(this, 0.4f))
-            SFX_PlayFade(SFX_2_CLAW_SWIPE, 0.9f, 8000, this->position, 1000, 2000);
+            SFX_PLAYFADE(SFX_2_CLAW_SWIPE, 0.9f, 8000, this->position, 1000, 2000);
 
         break;
     case CH_VEGETABLES_STATE_3_UNKNOWN: 

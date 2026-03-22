@@ -54,7 +54,7 @@ void chbat_exitRoost(Actor *this){
         subaddie_set_state_with_direction(this, CH_BAT_STATE_EXIT_ROOST, 0.01f, 1);
         actor_playAnimationOnce(this);
         this->actor_specific_1_f = 5.0f;
-        SFX_PlayFade(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 0x4e2, 0x9c4);
+        SFX_PLAYFADE(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 0x4e2, 0x9c4);
     }
 }
 
@@ -381,7 +381,7 @@ void chBat_dieCollision(ActorMarker *this_marker, ActorMarker *other_marker){
     chBat_fall(this);
     local->cooldown = 0.0f;
     this->marker->collidable = false;
-    SFX_PlayFade(SFX_115_BUZZBOMB_DEATH, 1.3f, 26000, this->position, 1250, 2500);
+    SFX_PLAYFADE(SFX_115_BUZZBOMB_DEATH, 1.3f, 26000, this->position, 1250, 2500);
 }
 
 void chBat_attackCollision(ActorMarker *this_marker, ActorMarker *other_marker){
@@ -436,7 +436,7 @@ void chbat_update(Actor *this){
             else{
                 if(!(globalTimer_getTime() & 0xf)){
                     if(randf() < 0.35){
-                        SFX_PlayFade(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 1250, 2500);
+                        SFX_PLAYFADE(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 1250, 2500);
                     }
                 }
             }//L80360A40

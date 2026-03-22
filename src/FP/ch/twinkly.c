@@ -279,7 +279,7 @@ void func_8038C9A0(Actor *this){
 
     if(1.0f == other->unk1C[1]){
         func_8038C398(this->position, this->marker->id);
-        SFX_PlayFade(SFX_7B_ICE_BREAKING_1, 1.0f, 32000, this->position, 0x6d6, 0xdac);\
+        SFX_PLAYFADE(SFX_7B_ICE_BREAKING_1, 1.0f, 32000, this->position, 0x6d6, 0xdac);\
         marker_despawn(this->marker);
         return;
     }

@@ -118,7 +118,7 @@ void func_8035EF3C(Actor *this) {
     if( actor_animationIsAt(this, 0.2f)
         || actor_animationIsAt(this, 0.7f)
     ) {
-        SFX_PlayFade(SFX_123_BANJO_LANDING_10, 0.5f, 24000, this->position, 1750, 3500);
+        SFX_PLAYFADE(SFX_123_BANJO_LANDING_10, 0.5f, 24000, this->position, 1750, 3500);
     }
 }
 
@@ -133,8 +133,8 @@ void func_8035EF9C(ActorMarker *marker, ActorMarker *other_marker) {
     actor_playAnimationOnce(this);
     local->unk0 = 2;
     actor_collisionOff(this);
-    SFX_PlayFade(SFX_115_BUZZBOMB_DEATH, 0.6f, 32000, this->position, 1750, 3500);
-    SFX_PlayFade(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 22000, this->position, 1750, 3500);
+    SFX_PLAYFADE(SFX_115_BUZZBOMB_DEATH, 0.6f, 32000, this->position, 1750, 3500);
+    SFX_PLAYFADE(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 22000, this->position, 1750, 3500);
     func_8035EE48(this);
 }
 
@@ -145,8 +145,8 @@ void func_8035F048(ActorMarker *marker, ActorMarker *other_marker) {
     this = marker_getActor(marker);
     local = (ActorLocal_core2_D7D10 *)&this->local;
 
-    SFX_PlayFade(SFX_F9_GRUNTLING_NOISE_1,  1.2f, 22000, this->position, 1750, 3500);
-    SFX_PlayFade(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 22000, this->position, 1750, 3500);
+    SFX_PLAYFADE(SFX_F9_GRUNTLING_NOISE_1,  1.2f, 22000, this->position, 1750, 3500);
+    SFX_PLAYFADE(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 22000, this->position, 1750, 3500);
     this->velocity[2] = 0.0f;
     subaddie_set_state_with_direction(this, 6, 0.02f, 1);
     actor_playAnimationOnce(this);
@@ -160,7 +160,7 @@ void func_8035F0E8(ActorMarker *marker, ActorMarker *other_marker) {
 
     this = marker_getActor(marker);
     local = (ActorLocal_core2_D7D10 *)&this->local;
-    SFX_PlayFade(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 22000, this->position, 1750, 3500);
+    SFX_PLAYFADE(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 22000, this->position, 1750, 3500);
     this->velocity[2] = 0.8f;
     func_8035EE80(this);
 }
@@ -212,7 +212,7 @@ void func_8035F138(Actor *this) {
             }
             sfxsource_playSfxAtVolume(this->unk44_31, this->unk1C[1]);
             if (actor_animationIsAt(this, 0.66f)) {
-                SFX_PlayFade(SFX_F9_GRUNTLING_NOISE_1, 0.8f, 32000, this->position, 1750, 3500);
+                SFX_PLAYFADE(SFX_F9_GRUNTLING_NOISE_1, 0.8f, 32000, this->position, 1750, 3500);
 
             }
             if (0.99 <= anctrl_getAnimTimer(this->anctrl)) {
@@ -296,22 +296,22 @@ void func_8035F138(Actor *this) {
 
         case 7: //L8035F840
             if (actor_animationIsAt(this, 0.3f)) {
-                SFX_PlayFade(SFX_1E_HITTING_AN_ENEMY_2, 0.6f, 32000, this->position, 1750, 3500);
-                SFX_PlayFade(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 26000, this->position, 1750, 3500);
+                SFX_PLAYFADE(SFX_1E_HITTING_AN_ENEMY_2, 0.6f, 32000, this->position, 1750, 3500);
+                SFX_PLAYFADE(SFX_1D_HITTING_AN_ENEMY_1, 0.9f, 26000, this->position, 1750, 3500);
             }
 
             if( actor_animationIsAt(this, 0.5f) 
                 || actor_animationIsAt(this, 0.7f)
             ) {
-                SFX_PlayFade(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 16000, this->position, 1750, 3500);
+                SFX_PLAYFADE(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 16000, this->position, 1750, 3500);
             }
 
             if (actor_animationIsAt(this, 0.8f)) {
-                SFX_PlayFade(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 14000, this->position, 1750, 3500);
+                SFX_PLAYFADE(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 14000, this->position, 1750, 3500);
             }
 
             if (actor_animationIsAt(this, 0.9f)) {
-                SFX_PlayFade(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 12000, this->position, 1750, 3500);
+                SFX_PLAYFADE(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 12000, this->position, 1750, 3500);
             }
 
             if (actor_animationIsAt(this, 0.25f)) {

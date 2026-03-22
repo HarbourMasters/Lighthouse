@@ -97,5 +97,5 @@ void chPortrait_break(ActorMarker *marker, f32 anim_duration) {
     actor_playAnimationOnce(this);
     anctrl_setDuration(this->anctrl, anim_duration);
     this->unk38_31 = 1;
-    SFX_PlayFade(SFX_129_SWOOSH, 1.0f, 32000, this->position, 1000, 2000);
+    SFX_PLAYFADE(SFX_129_SWOOSH, 1.0f, 32000, this->position, 1000, 2000);
 }

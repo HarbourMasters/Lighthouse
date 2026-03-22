@@ -129,7 +129,7 @@ static void __chsnacker_die(ActorMarker *marker, ActorMarker *other){
 
     this = marker_getActor(marker);
     actor_collisionOff(this);
-    SFX_PlayFade(SFX_179_GRUNTY_DAMAGE, 0.6f, 32750, this->position, 300, 3000);
+    SFX_PLAYFADE(SFX_179_GRUNTY_DAMAGE, 0.6f, 32750, this->position, 300, 3000);
     subaddie_set_state_with_direction(this, CH_SNACKER_STATE_9_DEAD, 0.0f, 1);
     actor_playAnimationOnce(this);
 }
@@ -250,7 +250,7 @@ void chsnacker_update(Actor *this) {
 
         case CH_SNACKER_STATE_5_EATING: //802E14F8
             if (actor_animationIsAt(this, 0.25f)) {
-                SFX_PlayFade(SFX_6D_CROC_BITE, 1.0f, 28000, this->position, 300, 3000);
+                SFX_PLAYFADE(SFX_6D_CROC_BITE, 1.0f, 28000, this->position, 300, 3000);
             }
             if (actor_animationIsAt(this, 0.99f)) {
                 func_802E0CD0(this);

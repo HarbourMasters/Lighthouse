@@ -105,8 +105,8 @@ void func_802C61C0(ActorMarker *marker, ActorMarker *other_marker){
         && actor->state != 0xf
     ){
         subaddie_set_state_forward(actor, 0xd);
-        SFX_PlayFade(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
-        SFX_PlayFade(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
+        SFX_PLAYFADE(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
+        SFX_PLAYFADE(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
     }
 }
 

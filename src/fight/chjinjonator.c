@@ -251,7 +251,7 @@ void chjinjonator_update(Actor *this){
             if(actor_animationIsAt(this, 0.5f)){
                 if(--local->attack_timer <= 0){
                     chjinjonator_803903C4(this);
-                    SFX_PlayFade(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
+                    SFX_PLAYFADE(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
                     func_80324D54(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
                     if((u8)this->unk44_31){
                         sfxSource_triggerCallbackByIndex(this->unk44_31);
@@ -286,7 +286,7 @@ void chjinjonator_update(Actor *this){
             if(actor_animationIsAt(this, 0.999f)){
                 func_8034A174(this->marker->unk44, 0x1f, this->position);
                 chjinjonator_803903C4(this);
-                SFX_PlayFade(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
+                SFX_PLAYFADE(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
                 func_80324D54(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
                 this->velocity[2] = 0.0f;
                 this->velocity[1] = 0.0f;
@@ -370,7 +370,7 @@ void chjinjonator_attack(ActorMarker *marker, s32 hit_count, bool mirrored) {
     coMusicPlayer_playMusic(chJinjonatorHitSounds[hit_count - 1], 20000);
 
     chjinjonator_spawnAttackParticles(actor_jinjonator, hit_count);
-    SFX_PlayFade(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor_jinjonator->position, 1000, 6500);
+    SFX_PLAYFADE(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor_jinjonator->position, 1000, 6500);
 
     actor_jinjonator->velocity[2] = 0.0f;
     actor_jinjonator->velocity[1] = 0.0f;

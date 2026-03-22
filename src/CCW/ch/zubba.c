@@ -43,13 +43,13 @@ void chwasp_setState(Actor *this, s32 next_state) {
         }
     }
     if (next_state == 3) {
-        SFX_PlayFade(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200, this->position, 500, 3000);
+        SFX_PLAYFADE(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200, this->position, 500, 3000);
         func_80324D54(randf2(0.1f, 0.4f), 0x3FC, randf2(0.95f, 1.1f), 32000, this->position, 500.0f, 3000.0f);
         actor_collisionOff(this);
     }
     if (next_state == 4) {
         skeletalAnim_set(this->unk148, ASSET_171_ANIM_ZUBBA_DIE, 0.1f, 0.2f);
-        SFX_PlayFade(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200, this->position, 500, 3000);
+        SFX_PLAYFADE(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200, this->position, 500, 3000);
         func_80324D54(0.1f, 0x66, randf2(1.6f, 1.7f), 32000, this->position, 500.0f, 3000.0f);
         func_803867C8(local->unk4);
         actor_collisionOff(this);

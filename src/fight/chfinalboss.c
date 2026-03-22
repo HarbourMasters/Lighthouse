@@ -866,12 +866,12 @@ void chfinalboss_func_803885DC(Actor *this) {
         chfinalboss_func_8038856C(this, D_80391728);
     }
     if ((actor_animationIsAt(this, 0.30f) != 0) || (actor_animationIsAt(this, 0.78f) != 0)) {
-        SFX_PlayFade(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 25000, this->position, 2000, 10000);
-        SFX_PlayFade(SFX_8E_GRUNTLING_DAMAGE, 1.0f, 25000, this->position, 2000, 10000);
+        SFX_PLAYFADE(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 25000, this->position, 2000, 10000);
+        SFX_PLAYFADE(SFX_8E_GRUNTLING_DAMAGE, 1.0f, 25000, this->position, 2000, 10000);
     }
     if ((actor_animationIsAt(this, 0.40f) != 0) || (actor_animationIsAt(this, 0.88f) != 0)) {
-        SFX_PlayFade(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 25000, this->position, 2000, 10000);
-        SFX_PlayFade(SFX_8E_GRUNTLING_DAMAGE, 0.9f, 25000, this->position, 2000, 10000);
+        SFX_PLAYFADE(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 25000, this->position, 2000, 10000);
+        SFX_PLAYFADE(SFX_8E_GRUNTLING_DAMAGE, 0.9f, 25000, this->position, 2000, 10000);
 
     }
 }
@@ -957,7 +957,7 @@ void chfinalboss_phase1_update(ActorMarker *marker) {
         func_80328FB0(this, 30.0f * sp54);
         if ((local->unkA == 0) && (local->unk20 < (local->unk14 * 0.65))) {
             local->unkA = 1U;
-            SFX_PlayFade(SFX_C4_TWINKLY_MUNCHER_GRR, 0.6f, 28000, this->position, 2000, 10000);
+            SFX_PLAYFADE(SFX_C4_TWINKLY_MUNCHER_GRR, 0.6f, 28000, this->position, 2000, 10000);
         }
         if ((local->unk14 * 0.75) < local->unk20) {
             chfinalboss_func_80386B54(sp40, 0);
@@ -1082,14 +1082,14 @@ void chfinalboss_phase2_setState(Actor *this, s32 arg1){
         break;
     case 19:
         if (sp28 & 1) {
-            SFX_PlayFade(SFX_132_GRUNTY_YOW, 1.0f, 32000, this->position, 7000, 12000);
+            SFX_PLAYFADE(SFX_132_GRUNTY_YOW, 1.0f, 32000, this->position, 7000, 12000);
         }
         else{
-            SFX_PlayFade(SFX_133_GRUNTY_OHW, 1.0f, 32000, this->position, 7000, 12000);
+            SFX_PLAYFADE(SFX_133_GRUNTY_OHW, 1.0f, 32000, this->position, 7000, 12000);
         }
         break;
     case 20:
-        SFX_PlayFade(SFX_131_GRUNTY_WEEEGH, 1.0f, 32000, this->position, 5000, 12000);
+        SFX_PLAYFADE(SFX_131_GRUNTY_WEEEGH, 1.0f, 32000, this->position, 5000, 12000);
 
         local->unkA = 0;
         break;
@@ -1269,7 +1269,7 @@ void chfinalboss_phase3_setState(Actor *this, s32 arg1) {
         local->unk3 = 0;
         break;
     case 25:
-        SFX_PlayFade(SFX_131_GRUNTY_WEEEGH, 1.0f, 32000, this->position, 5000, 12000);
+        SFX_PLAYFADE(SFX_131_GRUNTY_WEEEGH, 1.0f, 32000, this->position, 5000, 12000);
         break;
     case 26:
         chfinalboss_func_80386CF8(this);
@@ -1873,7 +1873,7 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
 
         case 40:
             if (actor_animationIsAt(this, 0.21f)) {
-                SFX_PlayFade(SFX_163_GRUNTY_WILD_SCREAM, 1.0f, 32000, this->position, 5000, 12000);
+                SFX_PLAYFADE(SFX_163_GRUNTY_WILD_SCREAM, 1.0f, 32000, this->position, 5000, 12000);
             }
             if ((0.56 < sp34) && (sp34 < 0.99)) {
                 sfxSource_func_8030E2C4(this->unk44_31);

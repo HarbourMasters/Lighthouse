@@ -152,7 +152,7 @@ void func_8038DBDC(Actor *this){
                 }//L8038DE08
                 if(actor_animationIsAt(this, 0.7f)){
                     func_8038DB88(this);
-                    SFX_PlayFade(SFX_3F8_UNKNOWN, 1.0f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_3F8_UNKNOWN, 1.0f, 32000, this->position, 1250, 2500);
                 }
             }
             break;
@@ -177,16 +177,16 @@ void func_8038DBDC(Actor *this){
             }
             else{
                 if(actor_animationIsAt(this, 0.04f))
-                    SFX_PlayFade(SFX_7C_CHEBOOF, 1.0f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_7C_CHEBOOF, 1.0f, 32000, this->position, 1250, 2500);
                 
                 if(actor_animationIsAt(this, 0.04f))
-                    SFX_PlayFade(SFX_2C_PULLING_NOISE, 1.0f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_2C_PULLING_NOISE, 1.0f, 32000, this->position, 1250, 2500);
                 
                 if(actor_animationIsAt(this, 0.33f))
-                    SFX_PlayFade(SFX_2C_PULLING_NOISE, 1.2f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_2C_PULLING_NOISE, 1.2f, 32000, this->position, 1250, 2500);
 
                 if(actor_animationIsAt(this, 0.66f))
-                    SFX_PlayFade(SFX_2C_PULLING_NOISE, 1.4f, 32000, this->position, 1250, 2500);
+                    SFX_PLAYFADE(SFX_2C_PULLING_NOISE, 1.4f, 32000, this->position, 1250, 2500);
             }
             break;
         case 5: //8038DFC8

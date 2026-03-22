@@ -200,15 +200,15 @@ static void __chBlubber_updateFunc(Actor *this){
             }
 
             if(actor_animationIsAt(this, 0.3f)){
-                SFX_PlayFade(SFX_83_BLUBBER_CRYING, 0.95f, 17000, this->position, 1250, 2500);
+                SFX_PLAYFADE(SFX_83_BLUBBER_CRYING, 0.95f, 17000, this->position, 1250, 2500);
             }
 
             if(actor_animationIsAt(this, 0.53f)){
-                SFX_PlayFade(SFX_83_BLUBBER_CRYING, 0.93f, 17000, this->position, 1250, 2500);
+                SFX_PLAYFADE(SFX_83_BLUBBER_CRYING, 0.93f, 17000, this->position, 1250, 2500);
             }
 
             if(actor_animationIsAt(this, 0.72f)){
-                SFX_PlayFade(SFX_83_BLUBBER_CRYING, 0.91f, 17000, this->position, 1250, 2500);
+                SFX_PLAYFADE(SFX_83_BLUBBER_CRYING, 0.91f, 17000, this->position, 1250, 2500);
             }
 
             __chBlubber_checkJiggySpawnedTextAndAdvanceState(this);

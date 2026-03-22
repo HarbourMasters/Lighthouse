@@ -83,7 +83,7 @@ void func_80389B1C(Actor *this){
                 || actor_animationIsAt(this, 0.51f)
                 || actor_animationIsAt(this, 0.57f)
             ){
-                SFX_PlayFade(SFX_8_BANJO_LANDING_04, 3.802f, 8000, this->position, 1500, 4500);
+                SFX_PLAYFADE(SFX_8_BANJO_LANDING_04, 3.802f, 8000, this->position, 1500, 4500);
             }
 
             if( actor_animationIsAt(this, 0.4f)){

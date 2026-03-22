@@ -89,7 +89,7 @@ void func_8035D88C(ActorMarker *marker, ActorMarker *other_marker){
     this = marker_getActor(marker);
     subaddie_set_state_with_direction(this, 7, 0.0f, -1);
     actor_playAnimationOnce(this);
-    SFX_PlayFade(SFX_115_BUZZBOMB_DEATH, 0.8f, 30000, this->position, 1500, 3000);
+    SFX_PLAYFADE(SFX_115_BUZZBOMB_DEATH, 0.8f, 30000, this->position, 1500, 3000);
     actor_collisionOff(this);
 }
 
