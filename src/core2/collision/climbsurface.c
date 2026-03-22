@@ -5,7 +5,7 @@
 #include "core2/ba/physics.h"
 
 
-extern int        ml_vec3f_inside_box_f(f32 vec[3], f32 minX, f32 minY, f32 minZ, f32 maxX, f32 maxY, f32 maxZ);
+extern bool       ml_vec3f_inside_box_f(f32 vec[3], f32 minX, f32 minY, f32 minZ, f32 maxX, f32 maxY, f32 maxZ);
 extern f32        floor_getXPosition(struct0*);
 extern void       func_8031C5AC(struct0 *, f32 *);
 extern f32        floor_getYPosition(struct0*);
