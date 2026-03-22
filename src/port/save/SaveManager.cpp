@@ -547,7 +547,7 @@ int SaveManager::ReadBlocks(int file, int offset, void* buffer, int count) {
     int byteCount = count * EEPROM_BLOCK_SIZE;
 
     if (byteOffset + byteCount > EEPROM_TOTAL_SIZE) {
-        SPDLOG_ERROR("[save] ReadBlocks out of bounds: file={} offset={} count={}", file, offset, count);
+        SPDLOG_ERROR("[SaveManager] ReadBlocks out of bounds: file={} offset={} count={}", file, offset, count);
         return 1;
     }
 
@@ -566,7 +566,7 @@ int SaveManager::WriteBlocks(int file, int offset, void* buffer, int count) {
     int byteCount = count * EEPROM_BLOCK_SIZE;
 
     if (byteOffset + byteCount > EEPROM_TOTAL_SIZE) {
-        SPDLOG_ERROR("[save] WriteBlocks out of bounds: file={} offset={} count={}", file, offset, count);
+        SPDLOG_ERROR("[SaveManager] WriteBlocks out of bounds: file={} offset={} count={}", file, offset, count);
         return 1;
     }
 
@@ -597,7 +597,7 @@ int SaveManager::WriteBlocks(int file, int offset, void* buffer, int count) {
                     std::string path = GetSavePath("file" + std::to_string(SlotToVisualGame(si)) + ".json");
                     if (fs::exists(path)) {
                         fs::remove(path);
-                        SPDLOG_INFO("[save] Deleted {}", path);
+                        SPDLOG_INFO("[SaveManager] Deleted {}", path);
                     }
                 }
             }
@@ -1003,7 +1003,6 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
 // ─── Load/Flush ─────────────────────────────────────────────────────────────
 
 void SaveManager::LoadFromDisk() {
-    SPDLOG_INFO("[save] Loading save data from disk...");
     memset(mEeprom, 0, sizeof(mEeprom));
 
     // Load game files (file1.json, file2.json, file3.json)
@@ -1018,7 +1017,7 @@ void SaveManager::LoadFromDisk() {
             json j = json::parse(ifs);
 
             if (!j.contains("version") || !j.contains("slotIndex")) {
-                SPDLOG_WARN("[save] Malformed save file: {}", path);
+                SPDLOG_WARN("[SaveManager] Malformed save file: {}", path);
                 continue;
             }
 
@@ -1094,9 +1093,7 @@ void SaveManager::LoadFromDisk() {
             memcpy(mEeprom + globalBase, &snsRaw, sizeof(uint32_t));
 
             savedata_update_crc(mEeprom + globalBase, GLOBAL_SIZE);
-
-            SPDLOG_INFO("[save] Loaded global.json (snsItems=0x{:X})", snsRaw);
-        } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to load global.json: {}", e.what()); }
+        } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to load global.json: {}", e.what()); }
     }
 }
 
@@ -1118,7 +1115,7 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
     }
 
     if (eepromSlot < 0) {
-        SPDLOG_WARN("[save] FlushSlotToDisk: slotIndex {} not found in eeprom", slotIndex);
+        SPDLOG_WARN("[SaveManager] FlushSlotToDisk: slotIndex {} not found in eeprom", slotIndex);
         return;
     }
 
@@ -1156,9 +1153,7 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
             fs::remove(path);
         }
         fs::rename(tmpPath, path);
-
-        SPDLOG_INFO("[save] Saved {} (eeprom slot {})", filename, eepromSlot);
-    } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to write {}: {}", filename, e.what()); }
+    } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to write {}: {}", filename, e.what()); }
 }
 
 void SaveManager::FlushGlobalToDisk() {
@@ -1196,9 +1191,7 @@ void SaveManager::FlushGlobalToDisk() {
             fs::remove(path);
         }
         fs::rename(tmpPath, path);
-
-        SPDLOG_INFO("[save] Saved global.json (snsItems=0x{:X})", snsRaw);
-    } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to write global.json: {}", e.what()); }
+    } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to write global.json: {}", e.what()); }
 }
 
 // ─── C Bridge ───────────────────────────────────────────────────────────────

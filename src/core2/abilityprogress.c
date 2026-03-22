@@ -2,8 +2,15 @@
 #include "functions.h"
 #include "variables.h"
 
-s32 abilityprogress_learnedAbilities;
-s32 abilityprogress_usedAbilities;
+// [port] These must be contiguous — ability_getSizeAndPtr returns &learned with
+// size 8, expecting used to follow immediately. Separate globals aren't guaranteed
+// contiguous by the linker on PC. Use a struct to enforce layout.
+static struct {
+    s32 learned;
+    s32 used;
+} abilityprogress;
+#define abilityprogress_learnedAbilities abilityprogress.learned
+#define abilityprogress_usedAbilities    abilityprogress.used
 
 void ability_use(s32 arg0){
     s32 sp2C;
