@@ -22,6 +22,7 @@ public:
     void AddMenuSettings();
     void AddMenuEnhancements();
     void AddMenuRestorations();
+    void AddMenuDevTools();
 
 private:
     char mGitCommitHashTruncated[8];

@@ -1,8 +1,9 @@
 #include "EventSystem.h"
 #include <algorithm>
 #include <stdexcept>
+#include "src/port/devtools/EventDebugger.h"
 
-#include "port/enhancements/events/hooks/EventSystem.h"
+#include "port/enhancements/events/hooks/list/EngineEvent.h"
 
 EventSystem* EventSystem::Instance = new EventSystem();
 
