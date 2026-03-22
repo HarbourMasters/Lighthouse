@@ -174,7 +174,7 @@ void func_80388620(Actor *this){
             && 0.55 <= sp48
             && !local->unk5
         ){
-            FUNC_8030E8B4(SFX_20_METAL_CLANK_1, 1.0f, 32000, this->position, 500, 2500);
+            SFX_PlayFade(SFX_20_METAL_CLANK_1, 1.0f, 32000, this->position, 500, 2500);
         }
 
         if(skeletalAnim_getLoopCount(this->unk148) > 0)

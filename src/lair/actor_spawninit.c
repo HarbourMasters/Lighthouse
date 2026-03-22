@@ -391,7 +391,7 @@ void func_803867A8(Actor *this) {
             this->velocity[0] += 1.0f;
             if ((this->velocity[0] < 0.0f) || (this->velocity[0] > 19.0f)) {
                 this->velocity[0] = 0.0f;
-                FUNC_8030E8B4(SFX_3F6_RUBBING, 0.5f, 24000, this->position, 100, 2300);
+                SFX_PlayFade(SFX_3F6_RUBBING, 0.5f, 24000, this->position, 100, 2300);
 
             }
         }

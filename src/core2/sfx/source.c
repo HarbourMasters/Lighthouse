@@ -926,7 +926,7 @@ void func_8030E878(enum sfx_e id, f32 volume, u32 sampleRate, f32 position[3], f
 }
 
 // fadeDistance is a 32-bit value where the lower 16 bits represent minFadeDistance and the upper 16 bits represent maxFadeDistance.
-void sfx_playFadeShorthand(u32 arg0, f32 position[3], u32 fadeDistance){
+void SFX_PlayFade(u32 arg0, f32 position[3], u32 fadeDistance){
     sfx_play(
         (arg0 & 0x7ff), (f32)((arg0 >> 0x15) & 0x7ff)/1023.0, ((arg0 >> 0x6) & 0x7fe0),
         position, (f32)(fadeDistance & 0xffff), (f32)((fadeDistance >> 0x10) & 0xffff),

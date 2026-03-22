@@ -181,9 +181,9 @@ int __chSnowman_func_802E1F70(ActorMarker *marker, s32 arg1){
 
 void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
     Actor *actor = marker_getActor(marker);
-    FUNC_8030E8B4(SFX_15_METALLIC_HIT_2, 1.0f, 30000, actor->position, 1500, 4500);
-    FUNC_8030E8B4(SFX_3EA_UNKNOWN, 1.0f, 30000, actor->position, 1500, 4500);
-    FUNC_8030E8B4(SFX_2F_ORANGE_SPLAT, 1.0f, 30000, actor->position, 1500, 4500);
+    SFX_PlayFade(SFX_15_METALLIC_HIT_2, 1.0f, 30000, actor->position, 1500, 4500);
+    SFX_PlayFade(SFX_3EA_UNKNOWN, 1.0f, 30000, actor->position, 1500, 4500);
+    SFX_PlayFade(SFX_2F_ORANGE_SPLAT, 1.0f, 30000, actor->position, 1500, 4500);
 
     __spawnQueue_add_1((GenFunction_1)__chSnowman_spawnHat, (uintptr_t)actor->marker);
     if(map_get() == MAP_27_FP_FREEZEEZY_PEAK)
@@ -297,7 +297,7 @@ void chSnowman_update(Actor *this){
                     || actor_animationIsAt(this, 0.28f)
                     || actor_animationIsAt(this, 0.37f)
                 ){
-                    FUNC_8030E8B4(SFX_A7_WOODEN_SWOSH, 1.3f, 18000, this->position, 800, 3050);
+                    SFX_PlayFade(SFX_A7_WOODEN_SWOSH, 1.3f, 18000, this->position, 800, 3050);
                 }//L802E24FC
                 if(actor_animationIsAt(this, 0.15f)){
                     func_8030E878(SFX_3F5_UNKNOWN, randf2(1.35f, 1.5f),32000, this->position, 800.0f, 3050.0f);

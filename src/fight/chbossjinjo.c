@@ -228,23 +228,23 @@ void chBossJinjo_update(Actor *this){
                     this->unk44_31 = func_8030ED2C(0x18, 3);
                     sfxSource_func_8030E2C4(this->unk44_31);
                     coMusicPlayer_playMusic(COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7fff);
-                    FUNC_8030E8B4(SFX_C7_SHWOOP, 0.8f, 32750, this->position, 300, 2000);
+                    SFX_PlayFade(SFX_C7_SHWOOP, 0.8f, 32750, this->position, 300, 2000);
                 }
 
                 if (actor_animationIsAt(this, 0.434f)) {
-                    FUNC_8030E8B4(SFX_C7_SHWOOP, 0.9f, 32750, this->position, 300, 2000);
+                    SFX_PlayFade(SFX_C7_SHWOOP, 0.9f, 32750, this->position, 300, 2000);
                 }
 
                 if (actor_animationIsAt(this, 0.811f)) {
-                    FUNC_8030E8B4(SFX_C7_SHWOOP, 1.0f, 32750, this->position, 300, 2000);
+                    SFX_PlayFade(SFX_C7_SHWOOP, 1.0f, 32750, this->position, 300, 2000);
                 }
             } else {
                 if (actor_animationIsAt(this, 0.214f)) {
-                    FUNC_8030E8B4(SFX_C7_SHWOOP, 1.1f, 32750, this->position, 300, 2000);
+                    SFX_PlayFade(SFX_C7_SHWOOP, 1.1f, 32750, this->position, 300, 2000);
                 }
 
                 if (actor_animationIsAt(this, 0.55f)) {
-                    FUNC_8030E8B4(SFX_53_BANJO_HUIII, 1.5f, 32750, this->position, 300, 2000);
+                    SFX_PlayFade(SFX_53_BANJO_HUIII, 1.5f, 32750, this->position, 300, 2000);
                 }
                 
                 if (actor_animationIsAt(this, 0.85f)) {
@@ -266,7 +266,7 @@ void chBossJinjo_update(Actor *this){
                 if (actor_animationIsAt(this, 0.9f)) {
                     anctrl_setSmoothTransition(this->anctrl, false);
                     subaddie_set_state_with_direction(this, BOSSJINJO_STATE_5_HIT, 0.001f, 1);
-                    FUNC_8030E8B4(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
+                    SFX_PlayFade(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
                     func_80324D54(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
                     func_8034A174(this->marker->unk44, 0x1f, this->position);
 
@@ -384,7 +384,7 @@ void chbossjinjo_attack(ActorMarker *marker) {
     Actor *actor_bossjinjo = marker_getActor(marker);
 
     chbossjinjo_spawnAttackParticles(actor_bossjinjo);
-    FUNC_8030E8B4(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor_bossjinjo->position, 1000, 6500);
+    SFX_PlayFade(SFX_1B_EXPLOSION_1, 1.0f, 32000, actor_bossjinjo->position, 1000, 6500);
     marker_despawn(actor_bossjinjo->marker);
 }
 

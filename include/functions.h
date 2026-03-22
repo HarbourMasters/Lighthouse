@@ -38,7 +38,7 @@ extern f32 fabsf(f32);
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11)\
 )
 
-#define FUNC_8030E8B4(sfx_e, vol, sample_rate, position, e, f) sfx_playFadeShorthand(\
+#define SFX_PlayFade(sfx_e, vol, sample_rate, position, e, f) SFX_PlayFade(\
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11), \
     position, \
     _SHIFTL(e, 0, 16) + _SHIFTL(f, 16, 16)\
@@ -362,7 +362,7 @@ void func_8030E6D4(enum sfx_e uid);
 void func_8030E704(enum sfx_e uid);
 void func_8030E760(enum sfx_e uid, f32 arg1, s32 arg2);
 void func_8030E878(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
-void sfx_playFadeShorthand(u32,f32 [3], u32);
+void SFX_PlayFade(u32,f32 [3], u32);
 void func_8030E988(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
 void func_8030E9C4(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
 void func_8030EAAC(enum sfx_e uid, f32 arg1, s32 arg2, s32 arg3);

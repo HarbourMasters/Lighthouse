@@ -227,9 +227,9 @@ void __chLevelCollectible_returnObj(Actor *this) {
         }
         this->position[1] = sp20;
         if (this->marker->id != MARKER_36_ORANGE_COLLECTIBLE) {
-            FUNC_8030E8B4(SFX_21_EGG_BOUNCE_1, 0.76f, 25000, this->position, 1000, 2000);
+            SFX_PlayFade(SFX_21_EGG_BOUNCE_1, 0.76f, 25000, this->position, 1000, 2000);
         } else {
-            FUNC_8030E8B4(SFX_B3_ORANGE_TALKING, 1.0f, 25000, this->position, 1000, 2000);
+            SFX_PlayFade(SFX_B3_ORANGE_TALKING, 1.0f, 25000, this->position, 1000, 2000);
         }
         if (this->state == 4) {
             switch (this->marker->id) {

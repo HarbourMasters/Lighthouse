@@ -72,7 +72,7 @@ void BGS_func_8038FB84(ActorMarker *this, ActorMarker *other_marker){
     Actor *thisActor;
 
     thisActor = marker_getActor(this);
-    FUNC_8030E8B4( SFX_87_TANKTUP_OOOHW, 1.0f, 32750, thisActor->position, 1000, 3000);
+    SFX_PlayFade( SFX_87_TANKTUP_OOOHW, 1.0f, 32750, thisActor->position, 1000, 3000);
     timedFunc_set_2(0.65f, (GenFunction_2) func_8038FB40, (uintptr_t) this, (uintptr_t) other_marker);
     func_8038F51C(thisActor);
     this->collidable = false;

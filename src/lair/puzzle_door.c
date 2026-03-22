@@ -306,7 +306,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
 
         case 2: //L8038F3CC
             walkToPodium(this);
-            FUNC_8030E8B4(SFX_112_TINKER_ATTENTION, 1.0f, 32000, this->position, 500, 1000);
+            SFX_PlayFade(SFX_112_TINKER_ATTENTION, 1.0f, 32000, this->position, 500, 1000);
             break;
 
         case 3: //L8038F3F4

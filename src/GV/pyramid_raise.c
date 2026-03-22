@@ -111,7 +111,7 @@ void func_8038C8A0(Actor *this, s32 next_state){
         skeletalAnim_setProgress(this->unk148, 0.99f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         if(next_state == 4 || next_state == 5)
-            FUNC_8030E8B4(SFX_DE_WOOD_SQUEAK, 1.0f, 32675, this->position, 500, 1500);
+            SFX_PlayFade(SFX_DE_WOOD_SQUEAK, 1.0f, 32675, this->position, 500, 1500);
     }//L8038CB20
 
     if(next_state == 6){

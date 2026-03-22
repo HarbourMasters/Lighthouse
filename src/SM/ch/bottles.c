@@ -548,13 +548,13 @@ void chSmBottles_update(Actor *this) {
                 __chSmBottles_setState(this, SM_BOTTLES_STATE_3_UNKNOWN);
             }//L80389EE0
             else if (actor_animationIsAt(this, 0.14f)) {
-                FUNC_8030E8B4(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
+                SFX_PlayFade(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if (actor_animationIsAt(this, 0.4f)) { //L80389F14
-                FUNC_8030E8B4(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
+                SFX_PlayFade(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if (actor_animationIsAt(this, 0.75f)) {//L80389F48
-                FUNC_8030E8B4(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
+                SFX_PlayFade(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
             }
             else if (actor_animationIsAt(this, 0.35f)) {//L80389F78
                 if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) {

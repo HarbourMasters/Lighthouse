@@ -156,7 +156,7 @@ void chcaterpillar_update(Actor *this){
                 gcdialog_showText(ASSET_CC7_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
                 volatileFlag_set(VOLATILE_FLAG_B2, true);
             }
-            FUNC_8030E8B4(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
+            SFX_PlayFade(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
             marker_despawn(this->marker);
         }
     }//L8038A794

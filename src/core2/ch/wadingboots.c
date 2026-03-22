@@ -62,7 +62,7 @@ void chwadingboots_update(Actor *this){
                     FUNC_8030E624(SFX_3F2_UNKNOWN,  1.4f, 23000);
                 }
                 else{
-                    FUNC_8030E8B4(SFX_3F2_UNKNOWN,  1.4f, 23000, this->position, 600, 1500);
+                    SFX_PlayFade(SFX_3F2_UNKNOWN,  1.4f, 23000, this->position, 600, 1500);
                 }
             }
 

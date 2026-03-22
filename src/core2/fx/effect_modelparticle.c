@@ -194,10 +194,10 @@ void func_802DB3B0(Actor *this) {
 
     local = (ActorLocal_core2_53C10 *)&this->local;
     if (local->unkC_28 && actor_animationIsAt(this, 0.0f)) {
-        FUNC_8030E8B4(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
+        SFX_PlayFade(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
     }
     if (local->unkC_28 && actor_animationIsAt(this, 0.5f)) {
-        FUNC_8030E8B4(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
+        SFX_PlayFade(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
     }
 }
 
@@ -209,7 +209,7 @@ void func_802DB440(ActorMarker *marker, ActorMarker *other_marker) {
         && this->actor_specific_1_f >= 3.0
         && func_803294F0(this, 0x50, func_80329784(this))
     ) {
-        FUNC_8030E8B4(SFX_1F_HITTING_AN_ENEMY_3, 1.0f, 20000, this->position, 1250, 2500);
+        SFX_PlayFade(SFX_1F_HITTING_AN_ENEMY_3, 1.0f, 20000, this->position, 1250, 2500);
 
         func_802DAE40(this);
     }

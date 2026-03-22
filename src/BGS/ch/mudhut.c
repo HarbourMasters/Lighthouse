@@ -108,7 +108,7 @@ void chMudHut_update(Actor *this){
                     diffPos[2] = this->position_z;
                     diffPos[1] += 130.0;
 
-                    FUNC_8030E8B4(SFX_5B_HEAVY_STUFF_FALLING, 1.0f, 28000, this->position, 0x12C, 0xBB8);
+                    SFX_PlayFade(SFX_5B_HEAVY_STUFF_FALLING, 1.0f, 28000, this->position, 0x12C, 0xBB8);
                     subaddie_set_state(this, 2);
                     this->marker->propPtr->unk8_3 = 0;
                     actor_playAnimationOnce(this);

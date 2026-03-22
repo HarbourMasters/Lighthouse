@@ -115,7 +115,7 @@ void chLoggo_update(Actor *this) {
         case LOGGO_STATE_2_FLUSHING:
             if (actor_animationIsAt(this, 0.46f)) {
                 this->marker->propPtr->unk8_3 = false;
-                FUNC_8030E8B4(SFX_92_TOILET_FLUSH, 1.0f, 32000, this->position, 600, 1500);
+                SFX_PlayFade(SFX_92_TOILET_FLUSH, 1.0f, 32000, this->position, 600, 1500);
                 levelSpecificFlags_set(LEVEL_FLAG_33_MMM_UNKNOWN, true);
                 ml_vec3f_assign(position, this->position_x - 50.0f, this->position_y + 50.0f, this->position_z);
                 func_8028F6E4(BS_INTR_2F_LOGGO, position);

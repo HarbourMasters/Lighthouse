@@ -229,6 +229,6 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
         arg0->state = TUMBLAR_STATE_2_BREAKING;
         arg0->timer = 0.0f;
         mapSpecificFlags_set(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN, false);
-        FUNC_8030E8B4(SFX_11B_TUMBLAR_DISAPPEARING_1, 1.0f, 30000, position, 500, 2500);
+        SFX_PlayFade(SFX_11B_TUMBLAR_DISAPPEARING_1, 1.0f, 30000, position, 500, 2500);
     }
 }

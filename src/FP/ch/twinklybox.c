@@ -176,7 +176,7 @@ void func_8038D294(ActorMarker *marker){
     func_8038CF54(this->position, 12, ASSET_4D4_MODEL_TWINKLY_BOX_PAPER_SHARD);
     func_8038D01C(this->position, 12, ASSET_700_SPRITE_DUST);
     this->velocity[1] = 0.0f;
-    FUNC_8030E8B4(SFX_30_MAGIC_POOF, 1.0f, 32000, this->position, 1000, 3500);
+    SFX_PlayFade(SFX_30_MAGIC_POOF, 1.0f, 32000, this->position, 1000, 3500);
     gcdialog_showText(0xc13, 0, NULL, NULL, NULL, NULL);
 }
 
@@ -346,7 +346,7 @@ void func_8038D6C8(Actor *this){
             || actor_animationIsAt(this, 0.63f)
             || actor_animationIsAt(this, 0.81f)
         ){
-            FUNC_8030E8B4(SFX_98_DEAF_THUD, 1.0f, 32000, this->position, 400, 2000);
+            SFX_PlayFade(SFX_98_DEAF_THUD, 1.0f, 32000, this->position, 400, 2000);
         }
         break;
 

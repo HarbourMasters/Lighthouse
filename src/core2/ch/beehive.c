@@ -25,8 +25,8 @@ ActorInfo chBeehive = {MARKER_50_BEEHIVE, ACTOR_12_BEEHIVE, ASSET_364_MODEL_BEEH
 
 void chBeehive_die(ActorMarker *this, ActorMarker *other){
     Actor *actor = marker_getActor(this);
-    FUNC_8030E8B4(SFX_11_WOOD_BREAKING_1, 1.0f, 28000, actor->position, 300, 3000);
-    FUNC_8030E8B4(SFX_D_EGGSHELL_BREAKING, 1.0f, 28000, actor->position, 300, 3000);
+    SFX_PlayFade(SFX_11_WOOD_BREAKING_1, 1.0f, 28000, actor->position, 300, 3000);
+    SFX_PlayFade(SFX_D_EGGSHELL_BREAKING, 1.0f, 28000, actor->position, 300, 3000);
     subaddie_set_state(actor, CHBEEHIVE_STATE_2_DIE);
     actor_playAnimationOnce(actor);
     this->collidable = false;
