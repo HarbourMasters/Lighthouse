@@ -25,7 +25,6 @@ extern u32 client_num, client_cnt, client_max, client_min;
 #endif
 
 static s32 _n_timeToSamplesNoRound(ALPlayer **client);
-static s32 _n_timeToSamplesNoRound(s32 micros);
 /***********************************************************************
  * Synthesis driver public interfaces
  ***********************************************************************/
@@ -273,16 +272,10 @@ void _n_freePVoice(N_PVoice *pvoice)
   the truncation error produced by casting
   a float to an int.
 */
-s32 _n_timeToSamplesNoRound(s32 micros)
-{
-    f32 tmp = ((f32)micros) * n_syn->outputRate / 1000000.0 + 0.5;
-
-    return (s32)tmp;
-}
-
 s32 _n_timeToSamples(s32 micros)
 {
-    return _n_timeToSamplesNoRound(micros) & ~0xf;
+    f32 tmp = ((f32)micros) * n_syn->outputRate / 1000000.0 + 0.5;
+    return (s32)(tmp) & ~0xf;
 }
 
 static s32 _n_timeToSamplesNoRound(ALPlayer **client) 
