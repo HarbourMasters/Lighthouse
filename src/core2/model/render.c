@@ -13,7 +13,7 @@ extern bool func_802ED420(BKModelUnk20List *arg0, u8 *arg1, u32 arg2);
 extern void func_802ED52C(BKModelUnk20List *, f32[3], f32);
 extern void mlMtxRotatePYR(f32, f32, f32);
 extern void assetCache_free(void *);
-extern s32 viewport_func_8024DB50(f32[3], f32);
+extern bool viewport_func_8024DB50(f32[3], f32);
 extern AnimMtxList *animMtxList_new();
 extern AnimMtxList *animMtxList_defrag(AnimMtxList *);
 extern MtxF *animMtxList_get(AnimMtxList *this, s32 arg1);
