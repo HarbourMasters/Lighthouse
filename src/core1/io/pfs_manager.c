@@ -6,6 +6,13 @@
 
 #include "version.h"
 
+// [port] Demo frame pacing — the N64 VI count for the current demo tick.
+// Read by Game.cpp to match display time to the original N64 frame drops.
+static s32 sDemoViCount = 0;
+
+int port_getDemoViCount(void) {
+    return sDemoViCount;
+}
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 
@@ -212,6 +219,9 @@ void pfsManager_update(void) {
             }
         }
         time_setDeltaReal_frames(sp5C);
+        sDemoViCount = sp5C; // [port] expose to Game.cpp for frame pacing
+    } else {
+        sDemoViCount = 0;
     }
     sp5C = time_getDeltaReal_frames();
     randf();

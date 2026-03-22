@@ -341,9 +341,15 @@ int SDL_main(int argc, char* argv[]) {
         uint64_t frameEnd = SDL_GetPerformanceCounter();
         double frameDuration = (double)(frameEnd - frameStart) / freq;
 
-        // [port] Sleep remainder of 30fps budget if frame finished early.
-        if (frameDuration < GAME_LOGIC_FRAME_TIME) {
-            preciseSleep(GAME_LOGIC_FRAME_TIME - frameDuration);
+        // [port] During demo playback, match the N64's original frame display time.
+        // When the N64 dropped frames (viCount > 2), it displayed that frame longer.
+        // Without this, animations appear to speed up because the larger delta is
+        // applied to a constant-length PC frame.
+        int viCount = port_getDemoViCount();
+        double targetFrameTime = (viCount > 0) ? (viCount / 60.0) : GAME_LOGIC_FRAME_TIME;
+
+        if (frameDuration < targetFrameTime) {
+            preciseSleep(targetFrameTime - frameDuration);
         }
     }
 #ifdef _WIN32

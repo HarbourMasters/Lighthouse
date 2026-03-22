@@ -1016,7 +1016,9 @@ void GameEngine::AudioExit() {
     }
     audio.cv_to_thread.notify_all();
     // Wait until the audio thread quit
-    audio.thread.join();
+    if (audio.thread.joinable()) {
+        audio.thread.join();
+    }
 }
 
 // [port] GPU→CPU framebuffer readback — defined in Game.cpp
@@ -1346,14 +1348,14 @@ extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
 }
 
 extern "C" void* GameEngine_Malloc(size_t size) {
-    MemoryPool.push_back(new uint8_t[size]);
-    return (void*)MemoryPool.back();
+    MemoryPool.push_back((uint8_t*)malloc(size));
+    return MemoryPool.back();
 }
 
 extern "C" void GameEngine_Free(void* ptr) {
     for (auto it = MemoryPool.begin(); it != MemoryPool.end(); ++it) {
         if (*it == ptr) {
-            delete[] static_cast<uint8_t*>(ptr); // [port] match new uint8_t[] with delete[]
+            free(ptr);
             MemoryPool.erase(it);
             break;
         }
