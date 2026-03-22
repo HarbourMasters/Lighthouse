@@ -9,4 +9,4 @@ typedef enum VBehaviorID {
     VB_INIT_RETURN_TO_LAIR,
 } VBehaviorID;
 
-DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list args;);
+DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; void* args;);

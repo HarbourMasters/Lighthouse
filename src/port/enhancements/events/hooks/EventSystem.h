@@ -79,10 +79,8 @@ typedef struct EventListener {
 #define REGISTER_VB_SHOULD(flag, body)                                            \
     REGISTER_LISTENER(VanillaBehavior, EVENT_PRIORITY_NORMAL, [](IEvent* event) { \
         VanillaBehavior* ev = (VanillaBehavior*)event;                            \
-        va_list args;                                                             \
-        va_copy(args, ev->args);                                                  \
+        void* args = ev->args;                                                    \
         body;                                                                     \
-        va_end(args);                                                             \
     });
 
 #define COND_VB_SHOULD(id, condition, body)           \
