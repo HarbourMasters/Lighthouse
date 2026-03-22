@@ -3,7 +3,7 @@
 #include <libultraship/libultraship.h>
 
 class EventDebuggerWindow final : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override;

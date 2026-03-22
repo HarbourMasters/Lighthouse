@@ -335,9 +335,6 @@ void GameEngine::FinishInit() {
 #if defined(__SWITCH__) || defined(__WIIU__)
     CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
 #endif
-    // DevConsole_Init();
-    // PortEnhancements_Init();
-    ShipInit::InitAll();
 }
 
 void GameEngine::RunExtract(int argc, char* argv[]) {

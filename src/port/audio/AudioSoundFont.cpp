@@ -21,15 +21,35 @@ extern "C" {
 
 // Read big-endian values from byte buffer (no-op on native BE systems)
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-static u16 read_u16_be(const u8* d) { u16 v; memcpy(&v, d, 2); return v; }
-static s16 read_s16_be(const u8* d) { return (s16)read_u16_be(d); }
-static u32 read_u32_be(const u8* d) { u32 v; memcpy(&v, d, 4); return v; }
-static s32 read_s32_be(const u8* d) { return (s32)read_u32_be(d); }
+static u16 read_u16_be(const u8* d) {
+    u16 v;
+    memcpy(&v, d, 2);
+    return v;
+}
+static s16 read_s16_be(const u8* d) {
+    return (s16)read_u16_be(d);
+}
+static u32 read_u32_be(const u8* d) {
+    u32 v;
+    memcpy(&v, d, 4);
+    return v;
+}
+static s32 read_s32_be(const u8* d) {
+    return (s32)read_u32_be(d);
+}
 #else
-static u16 read_u16_be(const u8* d) { return ((u16)d[0] << 8) | d[1]; }
-static s16 read_s16_be(const u8* d) { return (s16)read_u16_be(d); }
-static u32 read_u32_be(const u8* d) { return ((u32)d[0] << 24) | ((u32)d[1] << 16) | ((u32)d[2] << 8) | d[3]; }
-static s32 read_s32_be(const u8* d) { return (s32)read_u32_be(d); }
+static u16 read_u16_be(const u8* d) {
+    return ((u16)d[0] << 8) | d[1];
+}
+static s16 read_s16_be(const u8* d) {
+    return (s16)read_u16_be(d);
+}
+static u32 read_u32_be(const u8* d) {
+    return ((u32)d[0] << 24) | ((u32)d[1] << 16) | ((u32)d[2] << 8) | d[3];
+}
+static s32 read_s32_be(const u8* d) {
+    return (s32)read_u32_be(d);
+}
 #endif
 
 /*

@@ -61,4 +61,4 @@ void RegisterReturnToLair_Init() {
     });
 }
 
-// static RegisterShipInitFunc initFunc(RegisterReturnToLair_Init, { CVAR_NAME });
+static RegisterShipInitFunc initFunc(RegisterReturnToLair_Init, { CVAR_NAME });

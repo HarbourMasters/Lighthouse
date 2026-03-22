@@ -12,8 +12,6 @@ void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(VanillaBehavior);
-
-    RegisterReturnToLair_Init();
 }
 
 void PortEnhancements_Exit() {

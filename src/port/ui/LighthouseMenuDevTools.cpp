@@ -24,11 +24,11 @@ static const std::unordered_map<int32_t, const char*> logLevels = {
     { DEBUG_LOG_OFF, "Off" },
 };
 
-//static const std::unordered_map<int32_t, const char*> debugInfoPages = {
-//    { DEBUG_PAGE_OBJECTINFO, "Object" }, { DEBUG_PAGE_CHECKSURFACEINFO, "Check Surface" },
-//    { DEBUG_PAGE_MAPINFO, "Map" },       { DEBUG_PAGE_STAGEINFO, "Stage" },
-//    { DEBUG_PAGE_EFFECTINFO, "Effect" }, { DEBUG_PAGE_ENEMYINFO, "Enemy" },
-//};
+// static const std::unordered_map<int32_t, const char*> debugInfoPages = {
+//     { DEBUG_PAGE_OBJECTINFO, "Object" }, { DEBUG_PAGE_CHECKSURFACEINFO, "Check Surface" },
+//     { DEBUG_PAGE_MAPINFO, "Map" },       { DEBUG_PAGE_STAGEINFO, "Stage" },
+//     { DEBUG_PAGE_EFFECTINFO, "Effect" }, { DEBUG_PAGE_ENEMYINFO, "Enemy" },
+// };
 
 static const std::unordered_map<int32_t, const char*> language = {
     { 0, "English" },
@@ -55,17 +55,17 @@ void LighthouseMenu::AddMenuDevTools() {
     AddWidget(path, "Log Level", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("LogLevel"))
         .Options(ComboboxOptions()
-            .Tooltip("The log level determines which messages are printed to the console."
-                " This does not affect the log file output")
-            .ComboMap(logLevels)
-            .DefaultIndex(defaultLogLevel))
+                     .Tooltip("The log level determines which messages are printed to the console."
+                              " This does not affect the log file output")
+                     .ComboMap(logLevels)
+                     .DefaultIndex(defaultLogLevel))
         .Callback([](WidgetInfo& info) {
-        Ship::Context::GetInstance()->GetLogger()->set_level(
-            (spdlog::level::level_enum)CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
-            })
+            Ship::Context::GetInstance()->GetLogger()->set_level(
+                (spdlog::level::level_enum)CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
+        })
         .PreFunc([](WidgetInfo& info) {
-        info.isHidden = mLighthouseMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
-            });
+            info.isHidden = mLighthouseMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
+        });
 #ifdef USE_GBI_TRACE
     AddWidget(path, "GFX Trace Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("GFXTrace"))
@@ -86,9 +86,9 @@ void LighthouseMenu::AddMenuDevTools() {
         .Options(WindowButtonOptions().Tooltip("Enables the separate Save Editor Window."));*/
 
     // Console
-    //path.sidebarName = "Console";
-    //AddSidebarEntry("Dev Tools", path.sidebarName, 1);
-    //AddWidget(path, "Popout Console", WIDGET_WINDOW_BUTTON)
+    // path.sidebarName = "Console";
+    // AddSidebarEntry("Dev Tools", path.sidebarName, 1);
+    // AddWidget(path, "Popout Console", WIDGET_WINDOW_BUTTON)
     //    .CVar(CVAR_WINDOW("DevConsole"))
     //    .WindowName("Console##Dev")
     //    .HideInSearch(true)
@@ -102,13 +102,13 @@ void LighthouseMenu::AddMenuDevTools() {
         .HideInSearch(true)
         .Options(WindowButtonOptions().Tooltip("Enables the separate Event Debugger Window."));
 
-    //path.sidebarName = "Object Viewer";
-    //AddSidebarEntry("Dev Tools", path.sidebarName, 1);
-    //AddWidget(path, "Popout Object Viewer", WIDGET_WINDOW_BUTTON)
-    //    .CVar(CVAR_WINDOW("ObjectViewer"))
-    //    .WindowName("Object Viewer##Dev")
-    //    .HideInSearch(true)
-    //    .Options(WindowButtonOptions().Tooltip("Enables the separate Object Viewer Window."));
+    // path.sidebarName = "Object Viewer";
+    // AddSidebarEntry("Dev Tools", path.sidebarName, 1);
+    // AddWidget(path, "Popout Object Viewer", WIDGET_WINDOW_BUTTON)
+    //     .CVar(CVAR_WINDOW("ObjectViewer"))
+    //     .WindowName("Object Viewer##Dev")
+    //     .HideInSearch(true)
+    //     .Options(WindowButtonOptions().Tooltip("Enables the separate Object Viewer Window."));
 }
 
 } // namespace LighthouseGui
