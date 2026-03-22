@@ -37,7 +37,7 @@ ListenerID EventSystem::RegisterListener(EventID id, EventCallback callback, Eve
 
 void EventSystem::UnregisterListener(EventID id, ListenerID listenerId) {
     auto& registry = this->mEventRegistry[id];
-
+    
     registry.listeners.erase(registry.listeners.begin() + listenerId);
 }
 

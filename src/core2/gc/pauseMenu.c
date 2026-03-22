@@ -747,36 +747,11 @@ s32 gcpausemenu_initLargestPageIndex(void) {
     return largest_page_index;
 }
 
+#include <stdio.h>
 bool gcpausemenu_initReturnToLair(void) {
-#ifdef ENHANCEMENT
-    // [port] Modify the menu data table directly to show/hide Exit to Lair.
-    // When in a level, enable it with evenly spaced positions.
-    // When outside a level, hide it at y=-100 and restore original layout.
-    s32 level = level_get();
-    bool disabled = !(level > 0 && level < LEVEL_C_BOSS && D_8036C560[level - 1].map != -1);
-    if (!disabled) {
-        D_8036C4E0[0].y = 45;
-        D_8036C4E0[1].y = 75;
-        D_8036C4E0[2].y = 105;
-        D_8036C4E0[3].y = 135;
-        D_8036C4E0[1].delay = 0.1f;
-        D_8036C4E0[2].delay = 0.2f;
-        D_8036C4E0[3].delay = 0.3f;
-        D_8036C4E0[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_2;
-    } else {
-        D_8036C4E0[0].y = 55;
-        D_8036C4E0[1].y = -100;
-        D_8036C4E0[2].y = 90;
-        D_8036C4E0[3].y = 125;
-        D_8036C4E0[1].delay = 0.3f;
-        D_8036C4E0[2].delay = 0.1f;
-        D_8036C4E0[3].delay = 0.2f;
-        D_8036C4E0[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
-    }
-    return disabled;
-#else
-    return true;
-#endif
+    bool shouldInit = true;
+    CALL_EVENT(VanillaBehavior, VB_INIT_RETURN_TO_LAIR, &shouldInit, &D_8036C4E0);
+    return shouldInit;
 }
 
 void gcpausemenu_init(void) {
@@ -800,7 +775,7 @@ void gcpausemenu_init(void) {
     sp34 = sns_get_item_state(2, 0);
     sp38 = sns_get_item_state(1, 0);
     D_80383010.sns_items = sp38 + sp34 + sp30 + sp2C + sp28 + sp24 + sns_get_item_state(7, 0);
-    D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair(true);
+    D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
     func_80311604();
     gcpausemenu_zoomboxes_initMainMenu();
     D_80383010.joystick_sprite = assetcache_get(0x7EB);

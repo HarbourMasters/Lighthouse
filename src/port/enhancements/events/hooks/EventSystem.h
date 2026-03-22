@@ -80,7 +80,7 @@ typedef struct EventListener {
     REGISTER_LISTENER(VanillaBehavior, EVENT_PRIORITY_NORMAL, [](IEvent* event) { \
         VanillaBehavior* ev = (VanillaBehavior*)event;                            \
         va_list args;                                                             \
-        va_start(args, ev->args);                                                 \
+        va_copy(args, ev->args);                                                  \
         body;                                                                     \
         va_end(args);                                                             \
     });
