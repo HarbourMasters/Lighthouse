@@ -125,7 +125,7 @@ static bool __func_80388088(Actor *this){
 }
 
 static bool __chNipper_shouldShowActor(Actor *this){
-    return BOOL(func_80329530(this, 1300) && __func_80388088(this));
+    return BOOL(subaddie_playerIsWithinSphereAndActive(this, 1300) && __func_80388088(this));
 }
 
 static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_marker) {
@@ -144,7 +144,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
         comusic_8025AB44(COMUSIC_12_TTC_NIPPER, 0, 300);
         func_8025AABC(COMUSIC_12_TTC_NIPPER);
         func_8032BB88(this, -1, 300);
-        func_802BAFE4(0x1C);
+        gcStaticCamera_activate(0x1C);
         return;
     }
     

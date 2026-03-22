@@ -91,7 +91,7 @@ void chstonejinjo_update(Actor *this) {
                     actor_animationIsAt(this, 0.9f) ||
                     actor_animationIsAt(this, 0.98f))
                 {
-                    func_8030E6A4(SFX_3_DULL_CANNON_SHOT, randf2(1.2f, 1.4f), 20000);
+                    gcsfx_playWithPitch(SFX_3_DULL_CANNON_SHOT, randf2(1.2f, 1.4f), 20000);
                 }
             }
 

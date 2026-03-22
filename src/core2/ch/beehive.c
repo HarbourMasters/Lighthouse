@@ -74,14 +74,14 @@ void chBeehive_update(Actor *this){
                 || actor_animationIsAt(this, 0.6f)
             ){
                 if(!this->unk38_0){
-                    func_8030E394(this->unk44_31);
+                    sfxSource_triggerCallbackByIndex(this->unk44_31);
                     sfxsource_setSfxId(this->unk44_31, SFX_67_BEEHIVE_CLONK);
                     sfxsource_setSampleRate(this->unk44_31, 12000);
                     sfxsource_playSfxAtVolume(this->unk44_31, (anctrl_getAnimTimer(this->anctrl) + 0.9) - 0.4);
                     sfxsource_set_position(this->unk44_31, this->position);
                     sfxsource_set_fade_distances(this->unk44_31, 300.0f, 1500.0f);
-                    func_8030DD14(this->unk44_31, 3);
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_setunk43_7ByIndex(this->unk44_31, 3);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }
             }
             break;

@@ -7,7 +7,7 @@ extern void func_802C0150(s32 arg0);
 
 f32 D_8037DB70;
 struct {
-    f32 D_8037DB78[3];
+    f32 cameraStateB[3];
     f32 D_8037DB84[3];
     f32 D_8037DB90[3];
 }cameraStateB;
@@ -27,9 +27,9 @@ void func_802C03BC(void) {
     static f32 D_8037DB9C;
 
 
-    ncDynamicCamera_getPosition(cameraStateB.D_8037DB78);
+    ncDynamicCamera_getPosition(cameraStateB.cameraStateB);
     ml_vec3f_diff_copy(sp20, cameraStateB.D_8037DB90, cameraStateB.D_8037DB84);
-    ml_vec3f_diff_copy(sp2C, cameraStateB.D_8037DB78, cameraStateB.D_8037DB84);
+    ml_vec3f_diff_copy(sp2C, cameraStateB.cameraStateB, cameraStateB.D_8037DB84);
     ml_vec3f_normalize(sp20);
     ml_vec3f_normalize(sp2C);
     sp1C = sp20[0]*sp2C[0] + sp20[1]*sp2C[1] + sp20[2]*sp2C[2];

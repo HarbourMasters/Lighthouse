@@ -62,7 +62,7 @@ void func_80389B1C(Actor *this){
     anctrl_setTransitionDuration(this->anctrl, 0.15f);
 
     if(this->state == 1 || this->state == 2){
-        if(! this->has_met_before && func_80329530(this, 250) && !func_80329530(this, 0x50)){
+        if(! this->has_met_before && subaddie_playerIsWithinSphereAndActive(this, 250) && !subaddie_playerIsWithinSphereAndActive(this, 0x50)){
             gcdialog_showText(ASSET_A6F_DIALOG_CHARMER_MEET, 0xe, this->position, NULL, NULL, NULL);
             this->has_met_before = true;
             mapSpecificFlags_set(0, true);
@@ -102,7 +102,7 @@ void func_80389B1C(Actor *this){
         case 3: //L80389E14
             if( actor_animationIsAt(this, 0.2f)){
                 func_8025A58C(500, 400);
-                func_8025A6EC(COMUSIC_27_GV_RUBEES_SONG, 28000);
+                coMusicPlayer_playMusic(COMUSIC_27_GV_RUBEES_SONG, 28000);
             }
 
             if( actor_animationIsAt(this, 0.99f)){

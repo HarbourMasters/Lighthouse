@@ -175,7 +175,7 @@ void func_8038F6A4(Actor *this)
       func_8038F610(this);
       if (actor_animationIsAt(this, 0.6f) && local->unk14)
     {
-      func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+      coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
       func_8028F94C(2, local->unk18);
     }
       if (actor_animationIsAt(this, 0.99f))

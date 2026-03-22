@@ -12,7 +12,7 @@ extern s32 port_getViewportWidth(void);
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
 
 extern void func_802D7124(Actor *, f32);
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 extern void func_8033A244(f32);
@@ -377,7 +377,7 @@ void func_80325F84(Actor *this){}
 void func_80325F8C(void) {
     suBaddieActorArray = NULL;
     D_8036E568 = func_8034A2C8();
-    D_8036E56C = (void *)(uintptr_t)func_802EE5E0(0x10); // [port] s32 return → void* handle
+    D_8036E56C = (void *)(uintptr_t)dustEmitter_returnGiven(0x10); // [port] s32 return → void* handle
     D_8036E570 = func_802F2AEC();
     D_8036E574 = 0;
     D_8036E578 = 0;
@@ -409,7 +409,7 @@ void func_80325FE8(Actor *this) {
        marker->actorFreeFunc = NULL;
     }
     if ((uintptr_t)marker->unk44 > 1) { // [port] N64 used (s32)<0 which fails on 64-bit (heap ptrs are positive); unk44 is 0=NULL, 1=flag, or valid ptr
-        func_8033E7CC(marker);
+        commonParticle_freeParticleByActorMarker(marker);
         func_8034A2A8(marker->unk44);
        marker->unk44 = 0;
     }
@@ -448,7 +448,7 @@ void actorArray_free(void) {
     }
     func_8034A2A8(D_8036E568);
     D_8036E568 = NULL;
-    func_802EE5E8(D_8036E56C);
+    dustEmitter_empty(D_8036E56C);
     D_8036E56C = NULL;
     func_802F2C78(D_8036E570);
     D_8036E570 = NULL;
@@ -617,7 +617,7 @@ void func_803268B4(void) {
         }
     }
     if (D_8036E56C != 0) {
-        func_802EE5F0((uintptr_t)D_8036E56C); // [port] void* → s32 param via uintptr_t
+        dustEmitter_isActive((uintptr_t)D_8036E56C); // [port] void* → s32 param via uintptr_t
     }
     if (D_8036E570 != 0) {
         func_802F2D8C(D_8036E570);
@@ -1543,7 +1543,7 @@ bool func_803294F0(Actor *this, s32 arg1, s32 arg2){
     return ((-arg1 <= v1) && (v1 <= arg1));
 }
 
-bool func_80329530(Actor *this, s32 dist){
+bool subaddie_playerIsWithinSphereAndActive(Actor *this, s32 dist){
     if( func_8028F098() 
         && !volatileFlag_get(VOLATILE_FLAG_BF) 
         && subaddie_playerIsWithinSphere(this, dist)
@@ -1591,7 +1591,7 @@ bool func_803296D8(Actor *this, s32 dist){
         return true;
     }
     else{
-        return func_80329530(this, dist);
+        return subaddie_playerIsWithinSphereAndActive(this, dist);
     }
 }
 
@@ -2229,7 +2229,7 @@ void func_8032B3A0(Actor *this, ActorMarker *arg1) {
         sp54[0] = this->position[0];
         sp54[1] = this->position[1] + func_8033229C(this->marker)*((this->unk16C_0) ? 0.5 : 1.0);
         sp54[2] = this->position[2];
-        func_802EE6CC(sp54, 0, D_8036E5B0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
+        dustEmitter_emit(sp54, 0, D_8036E5B0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
         func_802F3CF8(sp54, !this->unk16C_0, 
             (arg1->id == 1) ? 1 
             : (player_getTransformation() == TRANSFORM_5_CROC) ? 2
@@ -2245,7 +2245,7 @@ void func_8032B4DC(Actor *this, ActorMarker *arg1, s32 arg2) {
 
     if (arg1 != NULL) {
         func_8034A174(this->marker->unk44, arg2, sp3C); // [port] pass array directly (decays to f32*)
-        func_802EE6CC(sp3C, NULL, D_8036E5C0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
+        dustEmitter_emit(sp3C, NULL, D_8036E5C0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
         func_802F3CF8(sp3C, !this->unk16C_0, 
             (arg1->id == 1) ? 1 
             : (player_getTransformation() == TRANSFORM_5_CROC) ? 2
@@ -2274,7 +2274,7 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, struct5Cs *arg2) {
     sp6C = func_8033D584(arg2);
     sp68 = func_8033D5A4(arg2);
     sp64 = func_8033D574(arg2);
-    if (((func_80297C6C() != 3) && func_8028F1E0()) || (func_8033D594(arg2) == 0)) {
+    if (((baiFrame_getState() != 3) && func_8028F1E0()) || (func_8033D594(arg2) == 0)) {
         if (sp64 == 0) {
             if ((sp68 != 0) || (arg1->id == 0)) {
                 if (sp68 <= 0) {

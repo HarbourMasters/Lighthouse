@@ -676,7 +676,7 @@ void func_802A4C34(s32 arg0) {
 void func_802A4C88(s32 arg0) {
     baphysics_reset();
     baMarker_collisionOn();
-    func_80297CA8();
+    baiFrame_start();
     func_8029E070(0);
     func_80291548();
     func_802A34C8();
@@ -783,7 +783,7 @@ void func_802A503C(void){
 
 void func_802A505C(void){
     if(bs_getInterruptType() == BS_INTR_9){
-        func_8029A86C(2);
+        bs_setInterruptResponse(2);
         baflag_set(BA_FLAG_7_TOUCHING_JIGGY);
         func_8029CCC4();
     }else{

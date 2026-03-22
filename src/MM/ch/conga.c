@@ -19,7 +19,7 @@ void bundle_setYaw(f32);
 void timed_exitStaticCamera(f32);
 void MM_func_80387F44(void);
 
-void func_803876D0(Actor *);
+void chConga_update(Actor *);
 
 typedef struct chconga_s{
     TUPLE(s32, orangeSpawnPosition);
@@ -46,7 +46,7 @@ ActorAnimationInfo chCongaAnimations[9] = {
 
 ActorInfo chcongaInfo = { MARKER_7_CONGA, ACTOR_8_CONGA, ASSET_35C_MODEL_CONGA,
     1, chCongaAnimations,
-    func_803876D0, actor_update_func_80326224, actor_draw,
+    chConga_update, actor_update_func_80326224, actor_draw,
     0, 0x333, 0.0f, 0
 };
 
@@ -87,7 +87,7 @@ void func_80386FB0(Actor *this){
 void __chConga_playRandomNoise(void){
     if( (globalTimer_getTime() & 0xF) == 0xB 
         && 0.85 < randf ()
-        && !func_803114B0()
+        && !gcdialog_hasCurrentTextId()
     ){
         func_8030E58C(((s32)(randf ()*256.0f) & 1)? SFX_22_KONGA_NOISE_1: SFX_23_KONGA_NOISE_2, 1.0f);
     }
@@ -148,7 +148,7 @@ void func_80387168(ActorMarker *marker, ActorMarker *other_marker){
 }
 
 int func_803872EC(void){
-    s32 text_id = func_803114C4();
+    s32 text_id = gcdialog_getCurrentTextId();
 
     return text_id == ASSET_B37_DIALOG_CONGA_SAFE_UP_HERE
         || text_id == ASSET_B38_DIALOG_CONGA_DEFEAT
@@ -209,7 +209,7 @@ void __chConga_sendOrangeProjectile(ActorMarker *congaMarker){
     }
 }
 
-void func_803876D0(Actor *this){
+void chConga_update(Actor *this){
     f32 unused;
     NodeProp *node_prop;
     s32 sp3C;
@@ -235,7 +235,7 @@ void func_803876D0(Actor *this){
         }
     }
     marker_setCollisionScripts(this->marker, NULL, NULL, func_80387168);
-    if( !func_80329530(this, 2100)
+    if( !subaddie_playerIsWithinSphereAndActive(this, 2100)
         && this->state != 2
         && this->state != 8
     ){
@@ -246,7 +246,7 @@ void func_803876D0(Actor *this){
         return;
     }
 
-    sp3C = func_80329530(this, 1000);
+    sp3C = subaddie_playerIsWithinSphereAndActive(this, 1000);
     if( func_8032A9E4(((ActorLocal_Conga *)&this->local)->unk10, ((ActorLocal_Conga *)&this->local)->unk18, ((ActorLocal_Conga *)&this->local)->unk1C) 
         && !this->unk138_23
         && gcdialog_showText(ASSET_B37_DIALOG_CONGA_SAFE_UP_HERE, 0, 0, 0, 0, 0)

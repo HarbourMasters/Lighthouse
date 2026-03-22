@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8028F3D8(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
+extern void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 extern void func_8028F760(s32, f32, f32);
 extern void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2);
 extern void func_8031FFAC(void);
@@ -27,7 +27,7 @@ enum actor_e D_8036DDD0[] = {0, 0x184, 0x185, 0x186, -1};
 u8 D_80383190;
 
 /* .code */
-// func_8031C640
+// cutscene_skipIntroCutsceneCheck
 bool cutscene_skipIntroCutsceneCheck(void) {
     // [port] Skip intro cutscene
     if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.StartSkipIntro"), 0) && func_8024E698(0) == 1) {
@@ -40,7 +40,7 @@ bool cutscene_skipIntroCutsceneCheck(void) {
     return false;
 }
 
-// func_8031C688
+// cutscene_skipEnterLairCutsceneCheck
 bool cutscene_skipEnterLairCutsceneCheck(void) {
     if ((func_8024E698(0) == 1)
         && ((D_8037DCCE[0] != 0)
@@ -64,7 +64,7 @@ bool cutscene_skipGameOverCutsceneCheck(void) {
             mapSpecificFlags_set(0xC, true);
             func_802DC528(0, 0);
             timedFunc_set_2(11.0f, (GenFunction_2)func_802DC560, 0, 0);
-            timedFunc_set_3(12.0f, (GenFunction_3)func_802E4078, MAP_1F_CS_START_RAREWARE, 0, 1);
+            timedFunc_set_3(12.0f, (GenFunction_3)transitionToMap, MAP_1F_CS_START_RAREWARE, 0, 1);
         } else {
             timedFuncQueue_flush();
         }
@@ -84,7 +84,7 @@ void cutscenetrigger_check(s32 cs_map, s32 arg1, s32 return_map, s32 return_exit
 
     if((condFunc && condFunc()) || mapSpecificFlags_get(arg1)){
         mapSpecificFlags_set(arg1, 0);
-        func_802E4078(return_map, (return_exit == -1)? 0: return_exit, 1);
+        transitionToMap(return_map, (return_exit == -1)? 0: return_exit, 1);
     }
 }
 
@@ -136,7 +136,7 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
             func_802E40E8(1);
             func_802E40C4(0xB);
         } else {
-            func_802E4078(map_id, exit_id, 1);
+            transitionToMap(map_id, exit_id, 1);
         }
         func_80335110(arg2);
     }
@@ -186,7 +186,7 @@ void func_8031CD44(enum map_e arg0, s32 arg1, f32 arg2, f32 yaw, s32 arg4) {
     sp30[2] = sp24[2];
     ncDynamicCamera_setUpdateEnabled(0);
     func_8031CB50(arg0, arg1, 1);
-    func_8028F3D8(sp30, 1.0f, NULL, NULL);
+    player_walkToPosition(sp30, 1.0f, NULL, NULL);
 }
 
 void func_8031CE28(s32 arg0, s32 arg1, f32 arg2) {
@@ -219,7 +219,7 @@ void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2) {
                 if (phi_s0->unk8 == 0x184) {
                     ncDynamicCamera_setUpdateEnabled(0);
                     func_8031CB50(arg1, arg2, 1);
-                    func_8028F3D8(sp38, 1.0f, NULL, NULL);
+                    player_walkToPosition(sp38, 1.0f, NULL, NULL);
                 } else if (phi_s0->unk8 == 0x185) {
                     func_8031CD44(arg1, arg2, sp38[1], (f32) phi_s0->yaw, phi_s0->scale);
                 } else {
@@ -539,7 +539,7 @@ void func_8031DAE0(NodeProp *arg0, ActorMarker *arg1) {
         volatileFlag_set(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED, 1);
         core1_7090_freeSfxSource(0);
         mapSpecificFlags_set(2, 1);
-        func_8025A6EC(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
+        coMusicPlayer_playMusic(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
         func_8028F918(1);
         timedFunc_set_2(1.8f, (GenFunction_2)&func_8031DAA8, 0x1C, 1); // [port]
         func_802D6924();
@@ -1499,7 +1499,7 @@ void func_8031FB6C(NodeProp *arg0, ActorMarker *arg1) {
     func_8031CC8C(arg0, 0x7104);
 }
 
-void func_8031FBA0(void) {
+void clearScoreStates(void) {
     bsStoredState_clear();
     func_8031FFAC();
     item_setItemsStartCounts();
@@ -1510,11 +1510,11 @@ void func_8031FBA0(void) {
     func_802D6344();
 }
 
-void func_8031FBF8(void) {
+void debugScoreStates(void) {
     mumboscore_debug();
     honeycombscore_debug();
     jiggyscore_debug();
     func_803465DC();
     bsStoredState_debug();
-    func_802C5A48();
+    gameSelect_resetGameNumber();
 }

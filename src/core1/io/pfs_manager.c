@@ -21,7 +21,7 @@ extern struct {
     s32 unk4; 
     u8 pad8[4];
     s32 unkC; 
-} D_80379B90;
+} core2_BSS_START;
 
 extern s32 D_803727F4;
 extern s32 D_80276574;
@@ -70,7 +70,7 @@ f32 func_8024E420(s32 arg0, s32 arg1, s32 arg2) {
     // instead of 1.0), making it impossible to reach the 0.7 threshold used by
     // gameSelect.c and other input consumers. Bypassed.
 #if 0
-    if ((D_80379B90.unk4 != D_803727F4) || (D_80379B90.unkC != D_80276574)) {
+    if ((core2_BSS_START.unk4 != D_803727F4) || (core2_BSS_START.unkC != D_80276574)) {
         phi_f2 = 0.00625f;
     }
 #endif
@@ -108,7 +108,7 @@ s32 func_8024E5E8(s32 arg0, s32 arg1){
     return D_802810E0[arg0][arg1];
 }
 
-s32 func_8024E60C(s32 controller_index, s32 dst[3]){
+s32 controller_copySideButtons(s32 controller_index, s32 dst[3]){
     dst[SIDE_BUTTON(BUTTON_Z)]       = D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_Z)];
     dst[SIDE_BUTTON(BUTTON_L)]       = D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_L)];
     dst[SIDE_BUTTON(BUTTON_R)]       = D_80281138[controller_index].side_button[SIDE_BUTTON(BUTTON_R)];

@@ -9,7 +9,7 @@ extern void func_803289EC(Actor *, f32, s32);
 extern void func_80326310(Actor *);
 extern void actor_setOpacity(Actor *, s32);
 // [port] removed stale local extern; port_prototypes.h provides the canonical declaration
-extern void func_802BAFE4(s32 arg0);
+extern void gcStaticCamera_activate(s32 arg0);
 
 
 
@@ -64,9 +64,9 @@ void *func_80387D90(ActorMarker * arg0){
     spawnPos[1] = this->position_y;
     spawnPos[2] = this->position_z;
     marker->propPtr->unk8_3 = 0;
-    func_802BAFE4(0x19);
+    gcStaticCamera_activate(0x19);
     jiggy_spawn(JIGGY_22_CROCTUS, spawnPos);
-    func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+    coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
     return NULL; // [port] MIPS implicit return
 }
 
@@ -141,7 +141,7 @@ void func_80387FD4(Actor *this){
 
     if(this->unk38_31){
         if ((this->state != 5) && (this->state != 6)) {
-            func_8025A6EC(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
+            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
             if (this->unkF4_8 == 1) {
                 func_8028F94C(2, this->position);
                 gcdialog_showText(ASSET_C86_DIALOG_UNKNOWN, 0xE, this->position, this->marker, func_80387E68, NULL);
@@ -160,7 +160,7 @@ void func_80387FD4(Actor *this){
                 if (this->unkF4_8 < 5) {
                     bgs_D_803907B8[this->unkF4_8]->propPtr->unk8_4 = true;
                     timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->unkF4_8]);
-                    func_802BAFE4(D_803907B0[this->unkF4_8-1]);
+                    gcStaticCamera_activate(D_803907B0[this->unkF4_8-1]);
                 } else {
                     timedFunc_set_1(0.8f, (GenFunction_1)func_80387D90, (uintptr_t)this->marker);
                 }
@@ -208,7 +208,7 @@ void func_80387FD4(Actor *this){
             && !anctrl_isPlayedForwards(this->anctrl)
             && func_802BB270()
         ){
-            func_8030E6A4(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
+            gcsfx_playWithPitch(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
         }
         break;
 

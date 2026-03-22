@@ -75,7 +75,7 @@ static s32 __findIndex(MapProgressFlagToDialogID *map, s32 key) {
 }
 
 /* Checks for a specific file progress flag and triggers a dialog only if the progress flag was not set and sets the progress flag */
-s32 func_803563B8(enum file_progress_e progress_flag, s32 arg1) {
+s32 showProgressFlagDialog(enum file_progress_e progress_flag, s32 arg1) {
     s32 index;
 
     if (fileProgressFlag_get(progress_flag) != 0) {
@@ -92,12 +92,12 @@ s32 func_803563B8(enum file_progress_e progress_flag, s32 arg1) {
     }
 }
 
-void func_8035644C(enum file_progress_e progress_flag){
-    func_803563B8(progress_flag, 0);
+void progressDialog_showDialogMaskZero(enum file_progress_e progress_flag){
+    showProgressFlagDialog(progress_flag, 0);
 }
 
-void func_8035646C(enum file_progress_e progress_flag) {
-    func_803563B8(progress_flag, 4);
+void progressDialog_showDialogMaskFour(enum file_progress_e progress_flag) {
+    showProgressFlagDialog(progress_flag, 4);
 }
 
 /* Checks for a specific "volatile" progress flag and triggers a dialog only if the progress flag was not set and sets the progress flag */

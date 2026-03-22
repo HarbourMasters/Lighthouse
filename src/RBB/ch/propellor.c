@@ -36,7 +36,7 @@ void __chPropellor_setState(Actor *this, s32 arg1){
     this->state = arg1;
 }
 
-int func_80389B44(ActorMarker* marker, s32 arg1){
+int chfinalboss_dropHealth(ActorMarker* marker, s32 arg1){
     Actor *actor = marker_getActor(marker);
     ActorLocal_RBB_36A0 * local = (ActorLocal_RBB_36A0 *)&actor->local;
 
@@ -73,7 +73,7 @@ void chPropellor_update(Actor *this){
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = 1;
         this->pitch = randf2(0.0f, 300.0f);
-        func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))func_80389B44); // [port]
+        func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))chfinalboss_dropHealth); // [port]
         marker_setFreeMethod(this->marker, __chPropellor_free);
         func_80389B80(this, 1.0f);
         if(this->unk78_13 == 0x1C){
@@ -99,7 +99,7 @@ void chPropellor_update(Actor *this){
             timed_exitStaticCamera(4.5f);
             func_80324E38(4.5f, 0);
             timedFunc_set_2(4.5f, (GenFunction_2)levelSpecificFlags_set, local->unk8 ? 0x4 : 0x3, 0);
-            timedFunc_set_3(4.5f, (GenFunction_3)func_802E4078, MAP_34_RBB_ENGINE_ROOM, !local->unk8 ? 3 : 2, 0);
+            timedFunc_set_3(4.5f, (GenFunction_3)transitionToMap, MAP_34_RBB_ENGINE_ROOM, !local->unk8 ? 3 : 2, 0);
             func_803228D8();
         }
     }//L80389EA8

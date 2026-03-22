@@ -120,7 +120,7 @@ static void __func_80387774(Actor **this_ptr){
     ActorLocal_Blubber *local = (ActorLocal_Blubber *)&(*this_ptr)->local;
 
     player_setCarryObjectPoseInCylinder(local->throw_target_position, local->throw_target_radius, 100.0f, ACTOR_2A_GOLD_BULLION, this_ptr);
-    if( func_80329530(*this_ptr, 200)
+    if( subaddie_playerIsWithinSphereAndActive(*this_ptr, 200)
         && bacarry_get_markerId() == MARKER_37_GOLD_BULLION
         && player_throwCarriedObject()
     ) {
@@ -143,7 +143,7 @@ static void __chBlubber_updateFunc(Actor *this){
 
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
-    if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !func_80329530(this, 2500))
+    if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !subaddie_playerIsWithinSphereAndActive(this, 2500))
         return;
     
     if(!this->volatile_initialized){
@@ -153,7 +153,7 @@ static void __chBlubber_updateFunc(Actor *this){
         this->volatile_initialized = true;
     }//L80387970
 
-    if(func_80329530(this, 250) && !func_80329530(this, 80)
+    if(subaddie_playerIsWithinSphereAndActive(this, 250) && !subaddie_playerIsWithinSphereAndActive(this, 80)
         && !this->has_met_before
         && item_getCount(ITEM_18_GOLD_BULLIONS) == 0
     ){
@@ -227,12 +227,12 @@ static void __chBlubber_updateFunc(Actor *this){
                 }
             }
             
-            if(actor_animationIsAt(this, 0.3f) && !func_803114B0()){
+            if(actor_animationIsAt(this, 0.3f) && !gcdialog_hasCurrentTextId()){
                 FUNC_8030E624(SFX_8C_BOGGY_WAHEY, 1.0f, 27000);
             }
 
             if(actor_animationIsAt(this, 0.28f) || 
-                (actor_animationIsAt(this, 0.78f) && !func_803114B0())
+                (actor_animationIsAt(this, 0.78f) && !gcdialog_hasCurrentTextId())
             ){
                 FUNC_8030E624(SFX_80_YUMYUM_CLACK, 0.9f, 13000);
             }

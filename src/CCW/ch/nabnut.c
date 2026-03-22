@@ -141,7 +141,7 @@ void chnabnut_update(Actor *this) {
             func_80258A4C(this->position, this->yaw - 90.0f, sp30, &sp2C, &sp28, &sp24);
             this->yaw += sp24 * 10.0f;
         }
-        if (this->has_met_before && !func_803114B0()) {
+        if (this->has_met_before && !gcdialog_hasCurrentTextId()) {
             player_setCarryObjectPoseInCylinder(this->position, 500.0f, 200.0f, ACTOR_2A9_ACORN, &this);
             if ((carriedObj_getActorId() == ACTOR_2A9_ACORN) && (ml_vec3f_distance(this->position, sp30) < 300.0f) && player_throwCarriedObject()) {
                 player_setThrowTargetPosition(D_8038F350);

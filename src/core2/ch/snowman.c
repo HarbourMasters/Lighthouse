@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EFA20(ParticleEmitter *, f32, f32);
+extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void func_80328FB0(Actor *, f32);
 // extern void func_803300C0(ActorMarker *, void *); // [port] removed — prototype in port_prototypes.h (typed callback param)
@@ -124,7 +124,7 @@ void __chSnowman_spawnSnowballParticles(f32 position[3], s32 count){
     particleEmitter_setAngularVelocityRange(particleSpawner, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
     particleEmitter_func_802EF9F8(particleSpawner, 0.01f);
     particleEmitter_func_802EFA18(particleSpawner, 3);
-    func_802EFA20(particleSpawner, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(particleSpawner, 1.0f, 1.3f);
     particleEmitter_setSfx(particleSpawner, SFX_2F_ORANGE_SPLAT, 16000);
     particleEmitter_setScaleAndLifetimeRanges(particleSpawner, &D_80368694);
     particleEmitter_emitN(particleSpawner, count);
@@ -163,7 +163,7 @@ int __chSnowman_isPlayerInAttackRange(Actor *this, s32 min_distance, s32 max_dis
         if( (this->position[1] + 500.0f < player_position[1]) || (player_position[1] < this->position[1] - 500.0f))
             return 0;
     }//L802E1F28
-    if(func_80329530(this, max_distance) && !func_80329530(this, min_distance)){
+    if(subaddie_playerIsWithinSphereAndActive(this, max_distance) && !subaddie_playerIsWithinSphereAndActive(this, min_distance)){
         return 1;
     }
     return 0;
@@ -250,7 +250,7 @@ void chSnowman_update(Actor *this){
             local->unk9 = false;
             local->unkA = 1;
             __chSnowman_setYawTarget(this, 6.0f);
-            if(!func_80329530(this, 3150)){
+            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
                 __chSnowman_enterDeath(this);
             }
             else if( 
@@ -278,7 +278,7 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_2_ATTACK://L802E23E8
-            if(!func_80329530(this, 3150)){
+            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
                 __chSnowman_enterDeath(this);
             }//L802E240C
             else if( 
@@ -318,7 +318,7 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_3_DIE://L802E2604
-            if(func_80329530(this, 3150)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 3150)){
                 __chSnowman_enterIdle(this);
             }
             break;

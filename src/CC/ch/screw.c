@@ -14,7 +14,7 @@ typedef struct {
 void func_803864D4(Actor *this);
 
 /* .data */
-ActorInfo D_80389AA0 = {
+ActorInfo CC_TEXT_END = {
     MARKER_4B_CC_SCREW, ACTOR_43_CLACKER_SCREW, ASSET_890_MODEL_SCREW, 0, NULL, 
     func_803864D4, actor_update_func_80326224 , actor_draw,  
     0, 0, 0.0f, 0

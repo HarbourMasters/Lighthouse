@@ -1481,7 +1481,7 @@ enum sfx_e
     SFX_414_XMAS_GIFT_TALKING,
     SFX_415_UNKNOWN, //xmas tree
     SFX_416,
-    SFX_417_UNKNOWN, //lair/func_8038EB94, double health
+    SFX_417_UNKNOWN, //lair/activateDoubleHealth, double health
 
     SFX_419_UNKNOWN = 0x419,
     SFX_41A_UNKNOWN = 0x41a

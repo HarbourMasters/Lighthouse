@@ -71,7 +71,7 @@ void chFrogMinigame_setState(Actor * arg0, u32 next_state){
         s0->unk0 = 1;
         if(!s0->unk4){
             func_8025A58C(0, 400);
-            func_8025A6EC(MUSIC_BGS_FLIBBIT_FIGHT, 30000);
+            coMusicPlayer_playMusic(MUSIC_BGS_FLIBBIT_FIGHT, 30000);
             s0->unk4 = 1;
         }
         else{

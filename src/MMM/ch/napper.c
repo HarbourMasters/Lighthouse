@@ -203,8 +203,8 @@ void chnapper_update(Actor *this){
         }
 
         if(sp70 < 0.35 && 0.35 <= sp74){
-            if(!func_803114B0()){
-                func_8030E6A4(SFX_3F5_UNKNOWN, randf2(0.9f, 1.1f), 0x7fff);
+            if(!gcdialog_hasCurrentTextId()){
+                gcsfx_playWithPitch(SFX_3F5_UNKNOWN, randf2(0.9f, 1.1f), 0x7fff);
             }
         }
     }//L803870F8

@@ -138,7 +138,7 @@ void __overlay_mmm_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){ return; }
 void __overlay_mmm_release(void){
     func_8038953C();
     MMM_func_80389CD8();
-    func_8038A994();
+    chvilegame_get_grumblie_model();
 }
 
 void overlay_mmm_init(void){

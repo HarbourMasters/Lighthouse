@@ -9,7 +9,7 @@ void jiggyscore_setSpawned(s32, s32);
 
 /* .bss */
 struct {
-    u8 D_803832C0[0xD];
+    u8 jiggyscore[0xD];
     u8 D_803832CD[0xD];
 }jiggyscore;
 
@@ -27,7 +27,7 @@ void *jiggyscore_clearAllSpawned(void) {
 }
 
 u8* jiggyscore_getPtr(void){
-    return jiggyscore.D_803832C0;
+    return jiggyscore.jiggyscore;
 }
 
 int jiggyscore_isSpawned(enum jiggy_e jiggy_id) {
@@ -38,7 +38,7 @@ int jiggyscore_isSpawned(enum jiggy_e jiggy_id) {
 u32 jiggyscore_isCollected(enum jiggy_e jiggy_id){
     if( jiggy_id <= 0 || jiggy_id >= 0x65)
         return 0;
-    return (jiggyscore.D_803832C0[(jiggy_id - 1) / 8] & (1 << (jiggy_id & 7))) != 0;
+    return (jiggyscore.jiggyscore[(jiggy_id - 1) / 8] & (1 << (jiggy_id & 7))) != 0;
 }
 
 void jiggyscore_debug(void){}
@@ -46,7 +46,7 @@ void jiggyscore_debug(void){}
 void jiggyscore_clearAll(void){
     s32 i;
     for(i = 0; i < 0x0D; i++){
-        jiggyscore.D_803832C0[i] = 0;
+        jiggyscore.jiggyscore[i] = 0;
     }
     jiggyscore_clearAllSpawned();
 }
@@ -54,9 +54,9 @@ void jiggyscore_clearAll(void){
 void jiggyscore_setCollected(s32 indx,  s32 val){
     if( 0 < indx && indx < 0x65){
         if(val)
-            jiggyscore.D_803832C0[(indx - 1) / 8] |= (1 << (indx & 7));
+            jiggyscore.jiggyscore[(indx - 1) / 8] |= (1 << (indx & 7));
         else
-            jiggyscore.D_803832C0[(indx - 1) / 8] &= ~(1 << (indx & 7));
+            jiggyscore.jiggyscore[(indx - 1) / 8] &= ~(1 << (indx & 7));
     }
 }
 
@@ -65,11 +65,11 @@ void jiggyscore_setSpawned(s32 indx, s32 val) {
     u8 *temp_v0_2;
 
     if (val) {
-        temp_v0 = (u8*)((uintptr_t)jiggyscore.D_803832C0 + ((s32)(indx - 1) / 8) + 0xD); // [port] rewritten to avoid int→ptr→int round-trip
+        temp_v0 = (u8*)((uintptr_t)jiggyscore.jiggyscore + ((s32)(indx - 1) / 8) + 0xD); // [port] rewritten to avoid int→ptr→int round-trip
         *temp_v0 |= (1 << (indx & 7));
         return;
     }
-    temp_v0_2 = (u8*)((uintptr_t)jiggyscore.D_803832C0 + ((s32)(indx - 1) / 8) + 0xD); // [port] same fix
+    temp_v0_2 = (u8*)((uintptr_t)jiggyscore.jiggyscore + ((s32)(indx - 1) / 8) + 0xD); // [port] same fix
     *temp_v0_2 &=  ~(1 << (indx & 7));
 }
 
@@ -104,5 +104,5 @@ s32 jiggyscore_total(void) {
 
 void jiggyscore_getSizeAndPtr(s32 *size, u8 **addr){
     *size = 0x0D;
-    *addr = jiggyscore.D_803832C0; 
+    *addr = jiggyscore.jiggyscore; 
 }

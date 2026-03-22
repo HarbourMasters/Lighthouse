@@ -527,7 +527,7 @@ void func_8038CC10(void)
     func_8030DD90(D_8037DCB8->UNK_18, 0);
     sfxsource_setSampleRate(D_8037DCB8->UNK_18, 32760);
     sfxsource_playSfxAtVolume(D_8037DCB8->UNK_18, 0.7f);
-    func_8030E2C4(D_8037DCB8->UNK_18);
+    sfxSource_func_8030E2C4(D_8037DCB8->UNK_18);
 }
 
 void lair_func_8038CC9C(void)
@@ -535,7 +535,7 @@ void lair_func_8038CC9C(void)
     if (!D_8037DCB8->UNK_18)
         return;
 
-    func_8030E394(D_8037DCB8->UNK_18);
+    sfxSource_triggerCallbackByIndex(D_8037DCB8->UNK_18);
     sfxsource_freeSfxsourceByIndex(D_8037DCB8->UNK_18);
     D_8037DCB8->UNK_18 = 0;
 }
@@ -550,7 +550,7 @@ void func_8038CCEC(void)
 
     gcquiz_free();
     quizQuestionAskedBitfield_free();
-    func_802C5994();
+    gameSelect_saveAndExit();
 }
 
 void lair_func_8038CD48(void)
@@ -709,7 +709,7 @@ void func_8038D0BC(s32 a0, s32 a1)
 
 void func_8038D16C(s32 a0, u16 a1)
 {
-    func_8025A6EC(a0, 0);
+    coMusicPlayer_playMusic(a0, 0);
     comusic_8025AB44(a0, 28000, 500);
     func_80250530(func_8025ADD4(a0), a1, 0);
 }
@@ -833,7 +833,7 @@ void func_8038D4BC(void)
 
     // trigger warp after a delay
     timedFunc_set_3(0.25f,
-        (GenFunction_3)func_802E4078,
+        (GenFunction_3)transitionToMap,
         D_803945B8[D_8037DCB8->unkC].map,
         D_803945B8[D_8037DCB8->unkC].exit,
         1
@@ -961,7 +961,7 @@ void func_8038D670(enum FF_Action next_state) {
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A8_FF_GOT_JOKER);
                 }
                 if (D_8037DCB8->unk8 != 0x1EF) {
-                    func_8030E6A4(SFX_126_AUDIENCE_BOOING, 1.0f, 0x7FF8);
+                    gcsfx_playWithPitch(SFX_126_AUDIENCE_BOOING, 1.0f, 0x7FF8);
                     if (D_8037DCB8->unk4->unk8 == FFTT_5_GRUNTY) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A2_FF_GRUNTY_ANSWER_RIGHT);
                     }
@@ -1159,7 +1159,7 @@ void lair_func_8038E0B0(void) {
         gcquiz_func_80319EA4();
         func_8038C9D0();
         controller_copyFaceButtons(0, sp48);
-        func_8024E60C(0, sp3C);
+        controller_copySideButtons(0, sp3C);
         if (D_8037DCB8->currFfMode < 3) {
             player_getPosition(D_8037DCB8->playerPosition);
             temp_v0 = func_8033F3E8(D_8037DCB8->unk0, D_8037DCB8->playerPosition, 0x191, 0x1F0);

@@ -40,7 +40,7 @@ extern Struct63s D_8038DC64[];
 extern Struct63s D_8038DC74[];
 
 // TODO import from SM/code_0.h
-extern Struct63s D_8038AAC0[];
+extern Struct63s SM_TEXT_END[];
 extern Struct63s D_8038AAD0[];
 
 
@@ -69,7 +69,7 @@ Struct62s D_803731E0[0x20] = {
     {0x2FB, D_8038DB54},
     { 0xA7, D_8038DB8C},
     {0x2FC, D_8038DBDC},
-    {0x2F5, D_8038AAC0},
+    {0x2F5, SM_TEXT_END},
     {0x2F4, D_8038AAD0},
     {0x301, D_8038DBF4},
     {0x2FE, D_8038DC0C},
@@ -83,7 +83,7 @@ Struct62s D_803731E0[0x20] = {
 /* .code */
 void func_80361A30(f32 arg0[3], s32 arg1){
     if(viewport_isPointOutsideFrustum_vec3f(arg0)){
-        func_8030E6A4(arg1 >> 16, ((arg1 >> 8) & 0xff)*0.0078125, (arg1 & 0xff)*128.0);
+        gcsfx_playWithPitch(arg1 >> 16, ((arg1 >> 8) & 0xff)*0.0078125, (arg1 & 0xff)*128.0);
     }
 }
 

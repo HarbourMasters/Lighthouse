@@ -47,7 +47,7 @@ ActorInfo chgrublinInfo = { MARKER_5_GRUBLIN, ACTOR_6_GRUBLIN, ASSET_3C5_MODEL_G
 };
 
 /* .code */
-void func_803889A0(ActorMarker *this, s32 arg1){
+void chGobiRope_update(ActorMarker *this, s32 arg1){
     Actor *actorPtr;
 
     actorPtr = marker_getActor(this);
@@ -71,7 +71,7 @@ void func_80388A04(Actor *this){
     local->unk12 = 25000;
     local->unkC_28 = 1;
     local->unk30 = 0;
-    local->unk34 = func_803889A0;
+    local->unk34 = chGobiRope_update;
     local->unk14 = 1.0f;
 }
 

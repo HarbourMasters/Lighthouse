@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8025A6CC(enum comusic_e arg0, s32 arg1);
+extern void coMusicPlayer_playMusicWeak(enum comusic_e arg0, s32 arg1);
 extern void chBottlesBonusCursor_func_802DF99C(void);
 extern f32 *chBottlesBonusCursor_func_802E05AC(s32);
 extern f32  func_802E4B38(void);
@@ -397,7 +397,7 @@ void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id) {
 
     actor = marker_getActor(chBottlesBonusMarker);
     chBottlesBonusCursor_lose();
-    func_8025A6CC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+    coMusicPlayer_playMusicWeak(COMUSIC_3C_MINIGAME_LOSS, 28000);
     actor->state = 5;
     item_set(ITEM_6_HOURGLASS, false);
     func_802FAD64(0);
@@ -508,7 +508,7 @@ void chBottlesBonus_update(Actor *this) {
         case 1:
             if ((this->lifetime_value > 2.0) && gctransition_done()) {
                 this->lifetime_value = 0.0f;
-                func_8025A6EC(COMUSIC_98_BBONUS_PIECES_SHUFFLE, -1);
+                coMusicPlayer_playMusic(COMUSIC_98_BBONUS_PIECES_SHUFFLE, -1);
                 comusic_8025AB44(COMUSIC_95_BBONUS_A, 0, 2000);
                 func_8025AABC(COMUSIC_95_BBONUS_A);
                 subaddie_set_state_with_direction(this, 2, 0.0f, 1);

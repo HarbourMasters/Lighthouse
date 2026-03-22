@@ -107,7 +107,7 @@ void chJumpTutorial_update(Actor *this) {
             break;
 
         case JUMP_TUTORIAL_STATE_2_TEACHING://L8038A6C8
-            if (!func_803114B0()) {
+            if (!gcdialog_hasCurrentTextId()) {
                 if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_8_ABILITY_HOLD_A_JUMP_HIGHER_UNLOCKED)) {
                     __chJumpTutorial_setStaticCameraToNode4(this);
                     ability_unlock(ABILITY_7_FEATHERY_FLAP);

@@ -15,13 +15,13 @@ s32 gSelectedGameNum = -1;
 #define	ABS(d)		((d) >= 0) ? (d) : -(d)
 #endif
 
-void func_8031FBF8(void);
-void func_8031FBA0(void);
+void debugScoreStates(void);
+void clearScoreStates(void);
 
-Actor *func_802C4360(ActorMarker *, Gfx **, Mtx **, Vtx **);
-Actor *func_802C4464(ActorMarker *, Gfx **, Mtx **, Vtx **);
-void func_802C4C14(Actor *this);
-void func_802C5740(Actor *this);
+Actor *gameSelect_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);
+Actor *gameSelect_zoomboxDraw(ActorMarker *, Gfx **, Mtx **, Vtx **);
+void gameSelect_update(Actor *this);
+void gameSelect_initAndUpdate(Actor *this);
 
 extern void func_802C71F0(Actor *);
 extern void func_802C74F4(Actor *, s32, f32 );
@@ -36,22 +36,22 @@ extern struct5Bs *func_803097A0(void);
 extern void port_setViBlack(int active);
 
 /* .data */
-f32 D_80365DD0[3][3] = {
+f32 INITIAL_CAMERA_POSITIONS[3][3] = {
     {-320.0f, 340.0f, 350.0f},
     {110.0f, 340.0f, 110.0f},
     {-413.333313f, 353.333313f, -234.305511f}
 };
-u8 *D_80365DF4 = "USE THE CONTROL STICK TO SELECT A GAME.";   
-u8 *D_80365DF8 = "PRESS A TO PLAY THE GAME OR Z TO ERASE IT!";
-u8 *D_80365DFC = "ARE YOU SURE? PRESS A TO CONFIRM, OR B TO CANCEL";
-s32 D_80365E00 = -1;
-f32 D_80365E04[3][3] = {
+u8 *CONTROL_STICK_INSTRUCTIONS = "USE THE CONTROL STICK TO SELECT A GAME.";   
+u8 *ERASE_INSTRUCTIONS = "PRESS A TO PLAY THE GAME OR Z TO ERASE IT!";
+u8 *ERASE_CONFIRMATION = "ARE YOU SURE? PRESS A TO CONFIRM, OR B TO CANCEL";
+s32 gameNumber = -1;
+f32 INITIAL_CAMERA_TARGETS[3][3] = {
     {-435.0f,      278.0f,  -159.0f},
     { 444.635437f, 216.0f,  -356.591675f},
     {  55.0f,      191.822906f, -905.96875f}
 };
 
-ActorAnimationInfo D_80365E28[] = {
+ActorAnimationInfo banjoSleepingAnimations[] = {
     {0x000, 0.0f},
     {0x24D, 9e+09f},
     {0x24D, 2.0f},  
@@ -59,9 +59,9 @@ ActorAnimationInfo D_80365E28[] = {
     {0x24F, 0.6f},  
     {0x24D, 2.0f}
 };
-ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, D_80365E28, func_802C5740, actor_update_func_80326224, func_802C4464, 0, 0, 0.0f, 0};
+ActorInfo gameSelect_banjoSleeping = { 0xE4, 0x195, 0x532, 0x1, banjoSleepingAnimations, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
 
-ActorAnimationInfo D_80365E7C[] = {
+ActorAnimationInfo banjoGameboyAnimations[] = {
     {0x000, 0.0f}, 
     {0x250, 9e+09f},
     {0x250, 4.5f}, 
@@ -69,9 +69,9 @@ ActorAnimationInfo D_80365E7C[] = {
     {0x252, 0.67f}, 
     {0x250, 4.5f},
 };
-ActorInfo D_80365EAC = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, func_802C4C14, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
+ActorInfo gameSelect_banjoGameboy = { 0xE5, 0x196, 0x532, 0x1, banjoGameboyAnimations, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
-ActorAnimationInfo D_80365ED0[] = {
+ActorAnimationInfo banjoCookingAnimations[] = {
     {0x000, 0.0f},
     {0x24A, 9e+09f},  
     {0x24A, 1.0f},
@@ -79,7 +79,7 @@ ActorAnimationInfo D_80365ED0[] = {
     {0x24C, 1.0f},
     {0x24A, 1.0f}
 };
-ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, func_802C4C14, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
+ActorInfo gameSelect_banjoCooking = { 0xE6, 0x197, 0x532, 0x1, banjoCookingAnimations, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
 
 /* .bss */
@@ -102,22 +102,22 @@ s32 pad_8037DCD8;
 struct {
     u8 *unk0;
     u8 *unk4;
-} D_8037DCE0;
-s32 D_8037DCE8;
-s32 D_8037DCEC;
+} selectInstructions;
+s32 previousGameNumber;
+s32 isFileMoving;
 GcZoombox *chGameSelectTopZoombox;
 GcZoombox *chGameSelectBottomZoombox;
-f32 D_8037DCF8[2][3];
-f32 D_8037DD10[2][3];
-s32 D_8037DD28;
-s32 D_8037DD2C;
-f32 D_8037DD30;
-f32 D_8037DD34;
+f32 cameraPositions[2][3];
+f32 cameraDelta[2][3];
+s32 cookingSoundEffectIndex;
+s32 isTopTextNotFinishedDisplaying;
+f32 gameSelectCameraDelta;
+f32 cycleInstructionsTimer;
 
 
 
 /* .code */
-Actor *func_802C4360(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *gameSelect_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     s32 sp1C = marker->id - 0xe4;
     func_8033A45C(3, sp1C);
     func_8033A45C(1, 1);
@@ -129,7 +129,7 @@ Actor *func_802C4360(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     func_8033A45C(7, 0);
     func_8033A45C(0xC, 1);
     func_8033A45C(0xF, 1);
-    if(sp1C == D_80365E00){
+    if(sp1C == gameNumber){
         modelRender_setEnvColor(0xFF, 0xFF, 0xFF, 0xFF);
     }
     else{
@@ -138,8 +138,8 @@ Actor *func_802C4360(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
-Actor *func_802C4464(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    Actor *ret_val = func_802C4360(marker, gfx, mtx, vtx);
+Actor *gameSelect_zoomboxDraw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+    Actor *ret_val = gameSelect_draw(marker, gfx, mtx, vtx);
     if(chGameSelectBottomZoombox)
         gczoombox_draw(chGameSelectBottomZoombox, gfx, mtx, vtx);
     if(chGameSelectTopZoombox)
@@ -148,46 +148,46 @@ Actor *func_802C4464(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     
 }
 
-void func_802C44D0(s32 arg0, s32 arg1){
+void topZoomboxCallback(s32 arg0, s32 arg1){
     if(arg1 == 3)
-        D_8037DD2C = 0;
+        isTopTextNotFinishedDisplaying = 0;
 }
 
-void *func_802C44EC(f32 arg0[3], f32 arg1[3], f32 arg2) {
+void *calculateGameSelectCameraPosition(f32 arg0[3], f32 arg1[3], f32 arg2) {
     f32 phi_f12;
     f32 sp40[3];
     s32 i;
-    static bool D_8037DD38;
-    static f32 D_8037DD3C;
-    static f32 D_8037DD40;
+    static bool dummy_index;
+    static f32 bounciness;
+    static f32 sin_bounciness_half_pi;
 
     arg2 = (arg2 > 0.75) ? 0.75 : arg2;
     sp40[0] = arg1[0] - arg0[0];
     sp40[1] = arg1[1] - arg0[1];
     sp40[2] = arg1[2] - arg0[2];
-    D_8037DD38 = D_8037DD38^1;
+    dummy_index = dummy_index^1;
     phi_f12 = gu_sqrtf(sp40[0]*sp40[0] + sp40[1]*sp40[1] + sp40[2]*sp40[2]);
     if (phi_f12 < 10.0f) {
         phi_f12 = 500.0f;
     }
-    D_8037DD3C = 1.0 + (9.0f / gu_sqrtf(phi_f12));
-    D_8037DD40 = sinf(D_8037DD3C*1.5707963267948966);
+    bounciness = 1.0 + (9.0f / gu_sqrtf(phi_f12));
+    sin_bounciness_half_pi = sinf(bounciness*1.5707963267948966);
     for(i = 0; i < 3; i++){
-        D_8037DD10[D_8037DD38][i] = arg0[i] + ((arg1[i] - arg0[i])*sinf((((arg2 / 0.75) * 3.1415926535897931) / 2) * D_8037DD3C)) / D_8037DD40;
-        D_8037DCF8[D_8037DD38][i] += (D_8037DD10[D_8037DD38][i] - D_8037DCF8[D_8037DD38][i]) / 5.0;
+        cameraDelta[dummy_index][i] = arg0[i] + ((arg1[i] - arg0[i])*sinf((((arg2 / 0.75) * 3.1415926535897931) / 2) * bounciness)) / sin_bounciness_half_pi;
+        cameraPositions[dummy_index][i] += (cameraDelta[dummy_index][i] - cameraPositions[dummy_index][i]) / 5.0;
 
     }
-    return &D_8037DCF8[D_8037DD38];
+    return &cameraPositions[dummy_index];
 }
 
-void func_802C4768(s32 gamenum){
+void setGameInformationZoombox(s32 gamenum){
     u8 * sp20[2];
     static u8 upperTextLine[0x20];
     static u8 lowerTextLine[0x20];
 
-    func_8031FBF8();
-    D_80365E00 = gamenum;
-    func_8031FBA0();
+    debugScoreStates();
+    gameNumber = gamenum;
+    clearScoreStates();
     if(gameFile_isNotEmpty(gamenum)){
         gameFile_load(gamenum);
         D_8037DCCE[gamenum] = (itemscore_timeScores_get(LEVEL_6_LAIR)) ? 1 : 0;
@@ -251,12 +251,12 @@ void func_802C4768(s32 gamenum){
     gczoombox_resolve_minimize(chGameSelectBottomZoombox);
 }
 
-void func_802C4AC8(s32 arg0){
+void eraseGame(s32 arg0){
     gameFile_clear(arg0);
-    func_802C4768(arg0);
+    setGameInformationZoombox(arg0);
 }
 
-void func_802C4AF0(Actor * this){
+void gameSelect_free(Actor * this){
     int i;
 
     if(chGameSelectTopZoombox){
@@ -273,9 +273,9 @@ void func_802C4AF0(Actor * this){
         gameFile_8033CFD4(i);
     }
 
-    if(D_8037DD28){
-        func_802F9D38(D_8037DD28);
-        D_8037DD28 = 0; // [port] was NULL, use 0 for s32
+    if(cookingSoundEffectIndex){
+        func_802F9D38(cookingSoundEffectIndex);
+        cookingSoundEffectIndex = 0; // [port] was NULL, use 0 for s32
     }
 
     comusic_8025AB44(COMUSIC_73_GAMEBOY, 0, 4000);
@@ -283,7 +283,7 @@ void func_802C4AF0(Actor * this){
     func_8025AB00();
 }
 
-void func_802C4BB4(ActorMarker *marker){
+void spawnGameSelectProps(ActorMarker *marker){
     Actor *this;
     s32 sp20;
     Actor *other;
@@ -295,7 +295,7 @@ void func_802C4BB4(ActorMarker *marker){
     other->scale = sp18;
 }
 
-void func_802C4C14(Actor *this){
+void gameSelect_update(Actor *this){
     int sp84;
     int sp80;
     s32 sp74[3];
@@ -313,13 +313,13 @@ void func_802C4C14(Actor *this){
 
     sp84 = this->marker->id - 0xe4;
     gSelectedGameNum = sp84;
-    sp80 = (sp84 == D_80365E00);
+    sp80 = (sp84 == gameNumber);
     sp50 = time_getDelta();
     if(chGameSelectBottomZoombox == NULL)
         return;
 
     if(!this->initialized){
-        __spawnQueue_add_1((GenFunction_1)func_802C4BB4, (uintptr_t)this->marker);
+        __spawnQueue_add_1((GenFunction_1)spawnGameSelectProps, (uintptr_t)this->marker);
         func_802C7318(this);
         this->unk130 = func_802C71F0;
         if(sp84 == 0){
@@ -336,7 +336,7 @@ void func_802C4C14(Actor *this){
         }
     }
     else{//L802C4D24
-        func_8024E60C(0, sp74);
+        controller_copySideButtons(0, sp74);
         controller_copyFaceButtons(0, sp5C);
         controller_getJoystick(0, sp54); // [port] was &sp54, array decays to f32*
         switch(this->state){
@@ -353,12 +353,12 @@ void func_802C4C14(Actor *this){
                 case 1://L802C4DD0
                     if(randf() < 0.1){
                     // if(randf() < D_80376118){
-                        func_8030E6A4(MIN(2.0f, randf() *3.0f) + 311.0f, 1.0f, 12000);
+                        gcsfx_playWithPitch(MIN(2.0f, randf() *3.0f) + 311.0f, 1.0f, 12000);
                     }
                     break;
                 case 2://L802C4E74
                     if(randf() < 0.03){
-                        func_8030E6A4(0x3ed, randf()*0.3 + 0.7, 15000);
+                        gcsfx_playWithPitch(0x3ed, randf()*0.3 + 0.7, 15000);
                     }
                     break;
             }//L802C4ED4
@@ -378,32 +378,32 @@ void func_802C4C14(Actor *this){
                     }
 
                     if(sp84 == 2){
-                        D_8037DD28 = func_802F9AA8(SFX_12B_BOILING_AND_BUBBLING);
-                        func_802F9F80(D_8037DD28, 0.5f, 9000000000.0f, 0.5f);
-                        func_802F9DB8(D_8037DD28, 0.9f, 0.9f, 0.0f);
-                        func_802FA060(D_8037DD28, 15000, 15000, 0.0f);
+                        cookingSoundEffectIndex = func_802F9AA8(SFX_12B_BOILING_AND_BUBBLING);
+                        func_802F9F80(cookingSoundEffectIndex, 0.5f, 9000000000.0f, 0.5f);
+                        func_802F9DB8(cookingSoundEffectIndex, 0.9f, 0.9f, 0.0f);
+                        func_802FA060(cookingSoundEffectIndex, 15000, 15000, 0.0f);
                     }
                     else{
-                        if(D_8037DD28){
-                            func_802F9D38(D_8037DD28);
-                            D_8037DD28 = 0; // [port] was NULL, use 0 for s32
+                        if(cookingSoundEffectIndex){
+                            func_802F9D38(cookingSoundEffectIndex);
+                            cookingSoundEffectIndex = 0; // [port] was NULL, use 0 for s32
                         }
                     }
-                    func_802C4768(sp84);
+                    setGameInformationZoombox(sp84);
                     subaddie_set_state(this, 2);
                     break;
                 case 5://L802C5040
-                    if(D_8037DD2C == 0 && 
+                    if(isTopTextNotFinishedDisplaying == 0 && 
                         (sp5C[FACE_BUTTON(BUTTON_A)] == 1 || sp5C[FACE_BUTTON(BUTTON_B)] == 1)
                     ){
                         if(sp5C[FACE_BUTTON(BUTTON_A)] == 1){
-                            func_802C4AC8(sp84);
-                            func_8025A6EC(COMUSIC_2B_DING_B, 22000);
+                            eraseGame(sp84);
+                            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
                         }
                         subaddie_set_state(this, 2);
                         func_8031877C(chGameSelectTopZoombox);
-                        gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
-                        D_8037DD34 = 0.0f;
+                        gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+                        cycleInstructionsTimer = 0.0f;
                     }
                     break;
                 case 3://L802C50C8
@@ -430,7 +430,7 @@ void func_802C4C14(Actor *this){
                             if (newGameMap < 0) {
                                 newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
                             }
-                            timedFunc_set_3(0.0f, (GenFunction_3)func_802E4078, newGameMap, 0, 1);
+                            timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
                             {
                                 s32 knowAll = port_getRomhackKnowAllMoves();
                                 if (knowAll >= 0) {
@@ -457,12 +457,12 @@ void func_802C4C14(Actor *this){
                     if(sp74[0] == 1){
                         if(gameFile_isNotEmpty(sp84)){
                             func_8031877C(chGameSelectTopZoombox);
-                            func_803183A4(chGameSelectTopZoombox, (&D_80365DFC)[code94620_func_8031B5B0()]);
-                            D_8037DD2C = 1;
+                            func_803183A4(chGameSelectTopZoombox, (&ERASE_CONFIRMATION)[code94620_func_8031B5B0()]);
+                            isTopTextNotFinishedDisplaying = 1;
                             subaddie_set_state(this, 5);
                         }
                         else{//L802C5240
-                            func_8025A6EC(COMUSIC_2C_BUZZER, 22000);
+                            coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
                         }
                     }
                     else if(sp5C[FACE_BUTTON(BUTTON_A)] == 1){//L802C5250
@@ -471,7 +471,7 @@ void func_802C4C14(Actor *this){
                                 switch(sp84){
                                     case 0://L802C52B8
                                         sfxsource_play(SFX_31_BANJO_OHHWAAOOO, 28000);
-                                        func_8030E540(SFX_135_CARTOONY_SPRING);
+                                        gcsfx_play(SFX_135_CARTOONY_SPRING);
                                         timedFunc_set_2(0.4f, (GenFunction_2)sfxsource_play, SFX_13A_GLASS_BREAKING_7, 0x7fff);
                                         timedFunc_set_2(0.9f, (GenFunction_2)sfxsource_play, SFX_150_PORCELAIN_CRASH, 0x7fff);
                                         timedFunc_set_2(1.0f, (GenFunction_2)sfxsource_play, SFX_151_CAT_MEOW, 0x7fff);
@@ -479,12 +479,12 @@ void func_802C4C14(Actor *this){
                                     case 1://L802C5320
                                         timedFunc_set_2(0.4f, (GenFunction_2)sfxsource_play, SFX_31_BANJO_OHHWAAOOO, 28000);
                                         timedFunc_set_2(0.2f, (GenFunction_2)sfxsource_play, SFX_E_SHOCKSPRING_BOING, 28000);
-                                        func_8030E540(SFX_2D_KABOING);
+                                        gcsfx_play(SFX_2D_KABOING);
                                         break;
                                     case 2://L802C5364
                                         timedFunc_set_2(0.15f, (GenFunction_2)sfxsource_play, SFX_32_BANJO_EGHEE, 28000);
                                         sfxsource_play(SFX_3F6_RUBBING, 28000);
-                                        func_8030E540(SFX_8F_SNOWBALL_FLYING);
+                                        gcsfx_play(SFX_8F_SNOWBALL_FLYING);
                                         break;
                                 }//L802C5394
                                 subaddie_set_state(this, 4);
@@ -508,53 +508,53 @@ void func_802C4C14(Actor *this){
                         actor_playAnimationOnce(this);
                     }
                     else{//L802C5434
-                        if((0.7 < ((0.0f <= sp54[0]) ? sp54[0] : -sp54[0])) && D_8037DCEC == 0
+                        if((0.7 < ((0.0f <= sp54[0]) ? sp54[0] : -sp54[0])) && isFileMoving == 0
                         ){
-                            tmp_a2_2 = D_80365E00;
+                            tmp_a2_2 = gameNumber;
                             if(sp54[0] < 0.0f){
-                                D_8037DCEC = 1;
-                                switch(D_80365E00){
+                                isFileMoving = 1;
+                                switch(gameNumber){
                                     case 0:
-                                        D_8037DCEC = 0;
+                                        isFileMoving = 0;
                                         break;
                                     case 1:
-                                        D_80365E00 = 2;
+                                        gameNumber = 2;
                                         break;
                                     case 2:
-                                        D_80365E00 = 0;
+                                        gameNumber = 0;
                                         break;
                                 }
                             }
                             else{//L802C54D4
-                                D_8037DCEC = 1;
-                                switch(D_80365E00){
+                                isFileMoving = 1;
+                                switch(gameNumber){
                                     case 0:
-                                        D_80365E00 = 2;
+                                        gameNumber = 2;
                                         break;
                                     case 1:
-                                        D_8037DCEC = 0;
+                                        isFileMoving = 0;
                                         break;
                                     case 2:
-                                        D_80365E00 = 1;
+                                        gameNumber = 1;
                                         break;
                                 }
                             }//L802C550C
-                            if(D_8037DCEC){
-                                D_8037DCE8 = tmp_a2_2;
-                                D_8037DD30 = 0.0f;
+                            if(isFileMoving){
+                                previousGameNumber = tmp_a2_2;
+                                gameSelectCameraDelta = 0.0f;
                             }
                         }else{//L802C5530
                             if(((0.0f <= sp54[0]) ? sp54[0] : -sp54[0]) < 0.3){
-                                D_8037DCEC = 0;
+                                isFileMoving = 0;
                             }
                         }
                     }//L802C556C
-                    if(D_8037DD2C == 0){
-                        D_8037DD34 += sp50;
-                        if(20.0 < D_8037DD34){
+                    if(isTopTextNotFinishedDisplaying == 0){
+                        cycleInstructionsTimer += sp50;
+                        if(20.0 < cycleInstructionsTimer){
                             func_8031877C(chGameSelectTopZoombox);
-                            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
-                            D_8037DD34 = 0.0f;
+                            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+                            cycleInstructionsTimer = 0.0f;
                         }
                     }
                     break;
@@ -562,17 +562,17 @@ void func_802C4C14(Actor *this){
                     break;
             }
         }//L802C55E8
-        D_8037DD30 += sp50;
+        gameSelectCameraDelta += sp50;
         sp48 = func_803097A0();
         if(this->marker->unk14_21){
             for(i = 0; i < 3; i++){
                 func_8034A174(sp48, i+5, sp34);
-                ml_vec3f_copy(D_80365DD0[i], sp34);
+                ml_vec3f_copy(INITIAL_CAMERA_POSITIONS[i], sp34);
             }
         }
         ncStaticCamera_setPositionAndTarget(
-            func_802C44EC(D_80365DD0[D_8037DCE8], D_80365DD0[D_80365E00], D_8037DD30), 
-            func_802C44EC(D_80365E04[D_8037DCE8], D_80365E04[D_80365E00], D_8037DD30)
+            calculateGameSelectCameraPosition(INITIAL_CAMERA_POSITIONS[previousGameNumber], INITIAL_CAMERA_POSITIONS[gameNumber], gameSelectCameraDelta), 
+            calculateGameSelectCameraPosition(INITIAL_CAMERA_TARGETS[previousGameNumber], INITIAL_CAMERA_TARGETS[gameNumber], gameSelectCameraDelta)
         );
         if(this->marker->unk14_21) {
             osViBlack(0);
@@ -581,10 +581,10 @@ void func_802C4C14(Actor *this){
     }//L802C5734
 }
 
-void func_802C5740(Actor * this){
+void gameSelect_initAndUpdate(Actor * this){
     int i = code94620_func_8031B5B0();
-    D_8037DCE0.unk0 = (&D_80365DF4)[i];
-    D_8037DCE0.unk4 = (&D_80365DF8)[i];
+    selectInstructions.unk0 = (&CONTROL_STICK_INSTRUCTIONS)[i];
+    selectInstructions.unk4 = (&ERASE_INSTRUCTIONS)[i];
 
     if(!this->initialized){
         gameFile_8033CE40();
@@ -595,29 +595,29 @@ void func_802C5740(Actor * this){
         }//L802C57FC
 
         if(chGameSelectTopZoombox == NULL){
-            chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, func_802C44D0);
-            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
+            chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, topZoomboxCallback);
+            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
             gczoombox_open(chGameSelectTopZoombox);
             gczoombox_maximize(chGameSelectTopZoombox);
         }//L802C5860
 
-        marker_setFreeMethod(this->marker, func_802C4AF0);
-        D_8037DCEC = 0;
-        func_8031FBF8();
-        func_8031FBA0();
-        D_8037DCE8 = 0;
-        D_80365E00 = 0;
-        D_8037DCF8[1][0] = D_80365DD0[0][0];
-        D_8037DCF8[1][1] = D_80365DD0[0][1];
-        D_8037DCF8[1][2] = D_80365DD0[0][2];
+        marker_setFreeMethod(this->marker, gameSelect_free);
+        isFileMoving = 0;
+        debugScoreStates();
+        clearScoreStates();
+        previousGameNumber = 0;
+        gameNumber = 0;
+        cameraPositions[1][0] = INITIAL_CAMERA_POSITIONS[0][0];
+        cameraPositions[1][1] = INITIAL_CAMERA_POSITIONS[0][1];
+        cameraPositions[1][2] = INITIAL_CAMERA_POSITIONS[0][2];
 
-        D_8037DCF8[0][0] = D_80365E04[0][0];
-        D_8037DCF8[0][1] = D_80365E04[0][1];
-        D_8037DCF8[0][2] = D_80365E04[0][2];
-        D_8037DD30 = 0.75f;
-        D_8037DD34 = func_8038AAB0(&D_80365E04[0], &D_8037DCE8) ? 20.0 : 0.0;
+        cameraPositions[0][0] = INITIAL_CAMERA_TARGETS[0][0];
+        cameraPositions[0][1] = INITIAL_CAMERA_TARGETS[0][1];
+        cameraPositions[0][2] = INITIAL_CAMERA_TARGETS[0][2];
+        gameSelectCameraDelta = 0.75f;
+        cycleInstructionsTimer = func_8038AAB0(&INITIAL_CAMERA_TARGETS[0], &previousGameNumber) ? 20.0 : 0.0;
         actor_collisionOff(this);
-        func_8025A6EC(COMUSIC_73_GAMEBOY, 0);
+        coMusicPlayer_playMusic(COMUSIC_73_GAMEBOY, 0);
     }//L802C5940
     if(!func_8038AAB0()){
         if(chGameSelectBottomZoombox)
@@ -625,30 +625,30 @@ void func_802C5740(Actor * this){
         if(chGameSelectTopZoombox)
             gczoombox_update(chGameSelectTopZoombox);
     }
-    func_802C4C14(this);
+    gameSelect_update(this);
 }
 
-void func_802C5994(void){
+void gameSelect_saveAndExit(void){
     s32 sp1C = level_get();
     s32 t6 = map_get() == MAP_83_CS_GAME_OVER_MACHINE_ROOM;
     s32 a1 = (0 < sp1C && sp1C < 0xd);
     if( a1 || t6)
     {
-        if(D_80365E00 != -1 && !func_802E4A08() && map_get() != MAP_91_FILE_SELECT){
-            gameFile_save(D_80365E00);
-            gameFile_8033CFD4(D_80365E00);
+        if(gameNumber != -1 && !func_802E4A08() && map_get() != MAP_91_FILE_SELECT){
+            gameFile_save(gameNumber);
+            gameFile_8033CFD4(gameNumber);
         }
     }
 }
 
-s32 func_802C5A30(void){
-    return D_80365E00;
+s32 gameSelect_getGameNumber(void){
+    return gameNumber;
 }
 
-void func_802C5A3C(s32 arg0){
-    D_80365E00 = arg0;
+void gameSelect_setGameNumber(s32 arg0){
+    gameNumber = arg0;
 }
 
-void func_802C5A48(void){
-    D_80365E00 = -1;
+void gameSelect_resetGameNumber(void){
+    gameNumber = -1;
 }

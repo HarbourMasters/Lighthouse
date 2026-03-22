@@ -20,9 +20,9 @@ typedef s32 (*FuncUnk40)(ActorMarker *, s32, f32[3]);
 // ============================================================
 
 // --- core2/camera/camera_interp.c ---
-BKModelBin *func_8030A4B4(s32 arg0);
-BKSpriteDisplayData *func_8030A4D4(s32 arg0);
-BKSprite *func_8030A55C(s32 arg0);
+BKModelBin *propModelList_getModelIfActive(s32 arg0);
+BKSpriteDisplayData *propModelList_getSpriteDisplayList(s32 arg0);
+BKSprite *propModelList_getSprite(s32 arg0);
 
 // --- core2/actor_cubepropsystem.c ---
 ActorMarker *func_8032DCAC(void);
@@ -123,7 +123,7 @@ ParticleEmitter *func_802EDD8C(f32 pos[3], f32 xz_range, f32 arg2);
 ParticleEmitter *func_802F1EC8(f32 *position);
 ParticleEmitter *func_802F3E98(f32 pos[3], enum asset_e sprite_id);
 ParticleEmitter *func_802F4274(f32 arg0[3]);
-ParticleEmitter *func_802F0EF0(u8 arg0);
+ParticleEmitter *pem_getEmitterByIndex(u8 arg0);
 
 // --- core2/collectible/bundle.c ---
 Actor *bundle_spawn_f32(enum bundle_e bundle_id, f32 position[3]);
@@ -268,7 +268,7 @@ void volatileFlag_setAndTriggerDialog_0(enum volatile_flags_e arg0);
 s32 globalTimer_getTime(void);
 
 // --- core2/actor_array.c ---
-bool func_80329530(Actor *self, s32 dist);
+bool subaddie_playerIsWithinSphereAndActive(Actor *self, s32 dist);
 s32 func_803297C8(Actor *arg0, f32 arg1[3]);
 s32 func_80329054(Actor *arg0, s32 arg1); // decomp has s32 arg0 but callers pass Actor*
 void subaddie_set_ideal_yaw(Actor *self, int arg1);
@@ -296,12 +296,12 @@ void func_8030DD90(u8 indx, s32 arg1);
 int func_8030E3FC(u8 indx);
 
 // --- core2/camera/camera_motor1.c ---
-void func_802BAFE4(s32 arg0);
+void gcStaticCamera_activate(s32 arg0);
 bool func_802BB270(void);
 
 // --- core2/gc/dialog.c ---
 void func_803114D0(void);
-int func_803114B0(void);
+int gcdialog_hasCurrentTextId(void);
 
 // --- core2/cutscene/lair.c ---
 void func_8031CD20(NodeProp *arg0, s32 arg1, s32 arg2);
@@ -335,8 +335,8 @@ bool baanim_isStopped(void);
 bool baanim_isAnimID(enum asset_e anim_id);
 
 // --- core2/ba/ba_groundsurface.c ---
-bool func_8029CFA0(void);
-bool func_8029D66C(void);
+bool isOnFloor(void);
+bool isPlayerInHazard(void);
 bool canTakeGroundDamage(void);
 
 // --- core2/ba/ba_animstate.c ---
@@ -400,8 +400,8 @@ void __spawnQueue_add_0(void (*arg0)(void));
 void __spawnQueue_add_2(void (*arg0)(void), uintptr_t arg1, uintptr_t arg2);
 
 // --- core2/sprite/displaydata.c ---
-void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2); // [port] fixed: FuncUnk40 to match definition
-int func_8033E3F0(enum common_particle_e particle_id, int arg1);
+void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2); // [port] fixed: FuncUnk40 to match definition
+int commonParticle_new(enum common_particle_e particle_id, int arg1);
 
 // --- core2/particle/particle.c ---
 void particleEmitter_setModel(ParticleEmitter *self, enum asset_e model_id);
@@ -609,7 +609,7 @@ void func_8038C748(void);
 
 // --- src/GV/ch/jinxy_head.c ---
 int func_8038E344(ActorMarker *this_marker);
-void func_8038E2FC(ActorMarker *this_marker);
+void chjinjonatorbase_update(ActorMarker *this_marker);
 
 // --- src/GV/ch/toots.c ---
 void func_803865E8(void);
@@ -698,7 +698,7 @@ void maOrgan_update(void);
 void organMinigame_getKeyPosition(s32 key_indx, f32 position[3]);
 
 // --- src/MMM/minigame_shed.c ---
-void func_8038A994();
+void chvilegame_get_grumblie_model();
 void func_8038A9B4(void);
 void func_8038AA30(void *arg0, void *arg1); // [port] polymorphic: called with BKModel*/Struct_MMM_47D0_0* and s32/Struct68s*
 void func_8038AA44(void);
@@ -766,7 +766,7 @@ void maCastle_release(void);
 void maCastle_update(void);
 
 // --- src/core1/audio_instruments.c ---
-s32 func_80250034(s32 track_id);
+s32 gcMusic_getDefaultVolumeForTrack(s32 track_id);
 s32 func_802501A0(u8 arg0, s32 arg1, s32 *arg2);
 void func_8024F764(s32 arg0);
 void func_8024F7C4(s32 arg0);
@@ -792,7 +792,7 @@ void func_8025A2FC(s32 arg0, s32 arg1);
 void func_8025A388(s32 arg0, s32 arg1);
 void func_8025A430(s32 arg0, s32 arg1, s32 arg2);
 void func_8025A4C4(s32 arg0, s32 arg1, s32 *arg2);
-void func_8025A6CC(enum comusic_e track_id, s32 volume);
+void coMusicPlayer_playMusicWeak(enum comusic_e track_id, s32 volume);
 void func_8025A7DC(enum comusic_e);
 void func_8025A8B8(enum comusic_e track_id, s32 arg1);
 void func_8025A904(void);
@@ -822,10 +822,10 @@ void func_802450DC(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[
 void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3], s32 arg5);
 
 // --- src/core1/debugtext.c ---
-s32 func_802485BC(void);
-void func_80247F24(s32 arg0, s32 arg1);
-void func_80247F9C(s32 arg0);
-void func_802483D8(void);
+s32 gcdebugText_isThreadLocked(void);
+void gcdebugText_showLargeValue(s32 arg0, s32 arg1);
+void gcdebugText_showValue(s32 arg0);
+void gcdebugText_pauseThread(void);
 
 // --- src/core1/defragmanager.c ---
 void defragManager_free(void);
@@ -991,7 +991,7 @@ void func_803065E4(s32 arg0, s32 position[3], s32 radius, s32 arg3, s32 arg4);
 void func_8030688C(s32 arg0, s32 position[3], s32 radius, s32 arg3);
 void func_80306AA8(s32 arg0, s32 position[3], s32 radius);
 void func_80307CA0(ActorMarker *marker);
-void func_80308230(s32 arg0);
+void cubeList_sort(s32 arg0);
 void nodeprop_getPosition_s32(NodeProp *nodeProp, s32 dst[3]);
 void spawnableActorList_free(void);
 void spawnableActorList_new(void);
@@ -1011,8 +1011,8 @@ void codeA5BC0_getActorPosition(ActorProp *prop, s32 dst[3]);
 void codeA5BC0_setNodePropUnkC(NodeProp *arg0, s32 arg1);
 void code_A5BC0_initCubePropActorProp(Cube*);
 void cube_free(Cube *cube);
-void func_8032D120(Cube *cube);
-void func_8032D158(Cube *cube);
+void cube_sortAbsolute(Cube *cube);
+void cube_sortRelative(Cube *cube);
 void func_8032D3A8(void);
 void func_8032D3D8(Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void func_8032D474(Gfx **gdl, Mtx **mptr, Vtx **vptr);
@@ -1192,10 +1192,10 @@ void badrone_goto_end(void);
 void badrone_init(void);
 
 // --- src/core2/ba/ba_eyeblink.c ---
-s32 func_80297C6C(void);
-void func_80297C78(void);
-void func_80297CA8(void);
-void func_80297CF8(void);
+s32 baiFrame_getState(void);
+void baiFrame_reset(void);
+void baiFrame_start(void);
+void baiFrame_update(void);
 
 // --- src/core2/ba/ba_eyeblink_data.c ---
 void func_80290070(void);
@@ -1230,9 +1230,9 @@ void func_80350BFC(void);
 void func_80350CA4(void);
 
 // --- src/core2/ba/ba_groundsurface.c ---
-void func_8029CFF8(void);
-void func_8029D01C(void);
-void func_8029D968(void);
+void freeHazardSfxId(void);
+void hazards_reset(void);
+void hazards_update(void);
 
 // --- src/core2/ba/ba_health.c ---
 s32 func_802903CC(void);
@@ -1303,7 +1303,7 @@ bool func_8028F2FC(void);
 bool func_8028F428(s32 arg0, ActorMarker *marker);
 bool func_8028F45C(s32 arg0, f32 arg1[3]);
 bool func_8028F490(f32 arg0[3]);
-bool func_8028F504(s32 arg0);
+bool player_checkHazardInterrupt(s32 arg0);
 bool func_8028F530(s32 arg0);
 bool func_8028F55C(s32 arg0, ActorMarker *marker);
 bool func_8028F590(s32 arg0, ActorMarker *marker);
@@ -1346,7 +1346,7 @@ void func_8028FB68(void);
 void func_8028FC8C(f32 arg0[3]);
 void func_8028FCAC(void);
 void func_8028FCBC(void);
-void func_8028FCC8(bool arg0);
+void player_setModelVisible(bool arg0);
 void func_8028FCE8(void);
 void player_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void player_getPosition_s32(s32 arg0[3]);
@@ -1592,9 +1592,9 @@ void func_802BEF78(void);
 void func_802BEFB0(void);
 
 // --- src/core2/camera/camera_interp.c ---
-void func_8030A6B0(void);
-void func_8030A78C(void);
-void func_8030A850(s32 arg0);
+void propModelList_free(void);
+void propModelList_init(void);
+void propModelList_flush(s32 arg0);
 
 // --- src/core2/camera/camera_motor1.c ---
 s32 func_802BB294(void);
@@ -1914,7 +1914,7 @@ void func_8033DC10(void);
 void func_8033DC18(void);
 
 // --- src/core2/collision/climbsurface.c ---
-bool func_80294574(void);
+bool floor_isCurrentFloorunk59(void);
 int func_80294560(void);
 s32 func_802944F4(void);
 s32 func_80294524(void);
@@ -2028,8 +2028,8 @@ void func_8031D0C0(NodeProp *arg0, ActorMarker *arg1);
 void func_8031F9E0(void);
 void func_8031F9E8();
 void func_8031F9F4(s32 arg0);
-void func_8031FBA0(void);
-void func_8031FBF8(void);
+void clearScoreStates(void);
+void debugScoreStates(void);
 void warp_mmmEnterLoggo(NodeProp *arg0, ActorMarker *arg1);
 
 // --- src/core2/cutscene/nodeupdate.c ---
@@ -2059,7 +2059,7 @@ void dialogBin_update(void);
 void func_8031B62C(void);
 
 // --- src/core2/dialog/code_CF3E0.c ---
-void func_8035644C(enum file_progress_e progress_flag);
+void progressDialog_showDialogMaskZero(enum file_progress_e progress_flag);
 void volatileFlag_setAndTriggerDialog_4(enum volatile_flags_e arg0);
 void volatileFlag_setAndTriggerDialog_E(enum volatile_flags_e arg0);
 
@@ -2237,10 +2237,10 @@ void fxSparkle_musicNote(s16 position[3]);
 void fxSparkle_redFeather(s16 position[3]);
 
 // --- src/core2/gameSelect.c ---
-s32 func_802C5A30(void);
-void func_802C5994(void);
-void func_802C5A3C(s32 arg0);
-void func_802C5A48(void);
+s32 gameSelect_getGameNumber(void);
+void gameSelect_saveAndExit(void);
+void gameSelect_setGameNumber(s32 arg0);
+void gameSelect_resetGameNumber(void);
 
 // --- src/core2/game_complete.c ---
 s32 bitfield_get_bit(u8 *array, s32 index);
@@ -2260,13 +2260,13 @@ void volatileFlag_restoreAll(void);
 
 // --- src/core2/gc/dialog.c ---
 int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, void (*arg4)(ActorMarker *, enum asset_e, s32)); // [port] fixed truncated function pointer param
-int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)); // [port] arg6 was s32 — holds function pointer
-int func_803114C4(void);
+int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)); // [port] arg6 was s32 — holds function pointer
+int gcdialog_getCurrentTextId(void);
 int func_803115C4(s32 next_state);
 void func_8030F1D0(void);
 void func_80310D2C(void);
-void func_80311604(void);
-void func_80311650(void);
+void gcdialog_incrementYPositionModifier(void);
+void gcdialog_decrementYPositionModifier(void);
 void func_80311714(int next_state);
 void gcdialog_defrag(void);
 void gcdialog_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -2443,14 +2443,14 @@ void overlay_init(void);
 void overlay_update(void);
 
 // --- src/core2/particle/accel.c ---
-u8 func_802F0F78(s32 cnt);
-void func_802F10A4(void);
-void func_802F1104(void);
-void func_802F1190(u8 arg0);
-void func_802F11E8(void);
-void func_802F1320(void);
-void func_802F1388(void);
-void func_802F13E0(void);
+u8 pem_newEmitter(s32 cnt);
+void pem_freeAll(void);
+void pem_setAllInactive(void);
+void pem_free(u8 arg0);
+void pem_updateAll(void);
+void pem_defragAll(void);
+void pem_freeDependencies(void);
+void pem_initDependencies(void);
 
 // --- src/core2/particle/bathroom.c ---
 void func_8029ADA8(void);
@@ -2461,11 +2461,11 @@ void func_8029AE74(s32 arg0);
 void func_8029AF1C(void);
 
 // --- src/core2/particle/colordefault.c ---
-bool func_802EE5F0(s32 arg0);
-s32 func_802EE5E0(s32 arg0);
-void func_802EE5E8(void *self); // [port] ParticleEmitter* in definition, void* for sparkleemit.c compat
-void func_802EE63C(void);
-void func_802EE684(void);
+bool dustEmitter_isActive(s32 arg0);
+s32 dustEmitter_returnGiven(s32 arg0);
+void dustEmitter_empty(void *self); // [port] ParticleEmitter* in definition, void* for sparkleemit.c compat
+void dustEmitter_init(void);
+void dustEmitter_free(void);
 
 // --- src/core2/particle/emitter1.c ---
 void func_802F3CB0(void);
@@ -2757,12 +2757,12 @@ void func_8030C740(void);
 
 // --- src/core2/sfx/source.c ---
 int func_8030ED70(enum sfx_e uid);
-s32 func_8030E1C4(u8 indx);
+s32 sfxSource_getSampleRate(u8 indx);
 void func_8030D86C(void);
 void func_8030D8A8(s32 arg0, s32 arg);
 void func_8030D8DC(void);
 void func_8030DCCC(u8, s32);
-void func_8030DD54(u8 indx, void (*arg1)(u8)); // [port] fixed truncated function pointer param
+void sfxSource_setCallbackByIndex(u8 indx, void (*arg1)(u8)); // [port] fixed truncated function pointer param
 void func_8030DFB4(u8 indx, s32 arg1);
 
 // --- src/core2/sfx/streamctrl.c ---
@@ -2805,14 +2805,14 @@ void func_8034A308(struct5Bs *self, s32 indx, f32 arg2[3]);
 // --- src/core2/sprite/displaydata.c ---
 s32 func_8033E8AC(void);
 u8 func_8033E93C(void);
-void func_8033DEA0(void);
-void func_8033E184(void);
-void func_8033E1E0(void);
-void func_8033E7CC(ActorMarker *arg0);
-void func_8033E9A8(s32 arg0);
-void func_8033E9D4(void);
-void func_8033E9F4(void);
-void func_8033EA78(s32 arg0, s32 arg1);
+void commonParticle_init(void);
+void commonParticle_freeAllParticles(void);
+void commonParticle_update(void);
+void commonParticle_freeParticleByActorMarker(ActorMarker *arg0);
+void commonParticle_freeParticleByIndex(s32 arg0);
+void commonParticle_stashCurrentIndex(void);
+void commonParticle_applyIndexStash(void);
+void commonParticle_setActive(s32 arg0, s32 arg1);
 
 // --- src/core2/sprite/render.c ---
 s32 func_80344C20(BKSpriteDisplayData *self);
@@ -2913,7 +2913,7 @@ s32 func_8034F560(Struct76s *arg0);
 // --- src/core2/vtx/renderstart.c ---
 bool func_8034DC80(Struct6Ds *arg0, f32 arg1[3]);
 s32 func_8034DC78(Struct6Ds *arg0);
-// [port] removed: func_8034E0FC — polymorphic callers pass Struct6Ds*, Struct70s*
+// [port] removed: setStruct6DsOpacity — polymorphic callers pass Struct6Ds*, Struct70s*
 void func_8034E174(Struct6Ds *arg0);
 void func_8034E254(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)); // [port] fixed truncated function pointer param
 void func_8034E25C(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)); // [port] fixed truncated function pointer param
@@ -2959,7 +2959,7 @@ void lair_func_8038E0B0(void);
 void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v);
 
 // --- src/lair/puzzle_door.c ---
-bool func_8038EAE0(s32 arg0);
+bool jigsawPicture_isJigsawPictureComplete(s32 arg0);
 
 // --- src/port/stub.c ---
 s32 osContSetCh(u8 ch);
@@ -3040,7 +3040,7 @@ void func_8034CF74(void *arg0, s32 arg1, BKModel *arg2, s32 arg3); // [port] arg
 void func_8034CF90(void *arg0, BKModel *arg1, s32 arg2); // [port] arg0 is Struct72s*
 
 // --- src/core2/vtx/renderstart.c ---
-void func_8034E0FC(Struct6Ds *arg0, s32 arg1);
+void setStruct6DsOpacity(Struct6Ds *arg0, s32 arg1);
 
 // --- src/core2/map/model.c ---
 BKModel *mapModel_getModel(s32 arg0);

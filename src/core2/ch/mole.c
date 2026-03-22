@@ -30,7 +30,7 @@ ActorInfo gChMole = {
     0, 0, 0.0f, 0
 }; 
 
-// D_80367DC4
+// moleTable
 ChMoleDescription moleTable[] = {
     {ASSET_C23_DIALOG_BEAKBOMB_LEARN,      ASSET_C24_DIALOG_BEAKBOMB_REFRESHER,      0x0F, ABILITY_1_BEAK_BOMB}, 
     {ASSET_B47_DIALOG_EGGS_LEARN,          ASSET_B4B_DIALOG_EGGS_REFRESHER,          0x16, ABILITY_6_EGGS},
@@ -45,7 +45,7 @@ ChMoleDescription moleTable[] = {
 };
 
 /* .code */
-// func_802D9220
+// chmole_learnedAllLevelAbilities
 int chmole_learnedAllLevelAbilities(enum level_e level){
     // Checks if all of the level's abilities are learned.
     switch (level){
@@ -69,7 +69,7 @@ int chmole_learnedAllLevelAbilities(enum level_e level){
   }
 }
 
-// func_802D9304
+// chmole_learnedAllLevelAbilitiesDialog
 enum asset_e chmole_learnedAllLevelAbilitiesDialog(void){
     // If the player has learned all game abilities, use "learned all abilities" dialog
     // If the player learned all level abilities, use "learned world abilities" dialog
@@ -94,7 +94,7 @@ enum asset_e chmole_learnedAllLevelAbilitiesDialog(void){
     }
 }
 
-// func_802D93EC
+// chmole_learnedAllGameAbilities
 int chmole_learnedAllGameAbilities(void){
     // Checks if the player has learned all non-Spiral Mountain abilities.
     return ability_isUnlocked(ABILITY_6_EGGS)
@@ -130,7 +130,7 @@ void func_802D9530(Actor *this){
     actor_playAnimationOnce(this);
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
-    func_8030DD14(this->unk44_31, 2);
+    sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
     sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
     sfxsource_setSampleRate(this->unk44_31, 26000);
     func_8028F918(0);
@@ -142,13 +142,13 @@ void func_802D9600(Actor * this){
     this->marker->propPtr->unk8_3 = 0;
 }
 
-// func_802D9658
+// chmole_setStaticCamera
 void chmole_setStaticCamera(Actor *this){
     // Sets the camera to a static camera
     timed_setStaticCameraToNode(0.0f, moleTable[this->unkF4_8-9].camera_node);
 }
 
-// func_802D9698
+// chmole_healthRefill
 void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     // Refills the player's health upon learning a new ability, if needed
     // Also releases the camera
@@ -178,7 +178,7 @@ void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     }//L802D9820
 }
 
-// func_802D9830
+// chmole_additionalAbilityLearnActions
 void chmole_additionalAbilityLearnActions(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     // Performs actions depending on what move is being learned
     Actor *actor = marker_getActor(marker);
@@ -217,7 +217,7 @@ void chmole_additionalAbilityLearnActions(ActorMarker *marker, enum asset_e arg1
     }
 }
 
-// func_802D997C
+// chmole_learnAbility
 int chmole_learnAbility(Actor *this){
     s32 sp2C;
     s32 sp28 = 0xe;
@@ -235,7 +235,7 @@ int chmole_learnAbility(Actor *this){
         switch(moleTable[this->unkF4_8-9].ability){
             case ABILITY_9_FLIGHT:
             case ABILITY_D_SHOCK_JUMP:
-                func_8030E6A4(SFX_113_PAD_APPEARS, 0.9f, 32000);
+                gcsfx_playWithPitch(SFX_113_PAD_APPEARS, 0.9f, 32000);
                 break;
             case ABILITY_13_1ST_NOTEDOOR:
                 func_802FAD64(ITEM_C_NOTE);
@@ -257,14 +257,14 @@ void func_802D9ADC(Actor *this){
     actor_playAnimationOnce(this);
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
-    func_8030DD14(this->unk44_31, 2);
+    sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
     sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
     sfxsource_setSampleRate(this->unk44_31, 26000);
     chmole_setStaticCamera(this);
     func_8028F94C(2, this->position);
 }
 
-// func_802D9BD8
+// chmole_Refresher
 void chmole_Refresher(Actor *this){
     // Plays the scene where Bottles gives the player a refresher on the ability.
     subaddie_set_state(this, 5);
@@ -273,14 +273,14 @@ void chmole_Refresher(Actor *this){
     chmole_learnAbility(this);
 }
 
-// func_802D9C1C
+// chmole_setFacingDirection
 void chmole_setFacingDirection(Actor *this){
     // Sets the actor to always be facing the player
     subaddie_set_state_with_direction(this, 3, 0.0001f, 1);
     actor_loopAnimation(this);
 }
 
-// func_802D9C54
+// chmole_spawnMolehill
 void chmole_spawnMolehill(ActorMarker *marker){
     // Spawns a molehill for the actor
     Actor *actor = marker_getActor(marker);
@@ -298,7 +298,7 @@ void func_802D9C90(Actor *this){
     }
 }
 
-// func_802D9CBC
+// chmole_startingDialog
 void chmole_startingDialog(Actor *this){
     // If the player knows the ability, use refresher function
     // Otherwise, set player's position and spawn mole
@@ -306,7 +306,7 @@ void chmole_startingDialog(Actor *this){
         chmole_Refresher(this);
     }
     else{
-        if(func_80329530(this, 150)){
+        if(subaddie_playerIsWithinSphereAndActive(this, 150)){
             if(this->unk38_0 == 0)
                 func_8028F45C(9, this->position);
             else
@@ -316,7 +316,7 @@ void chmole_startingDialog(Actor *this){
     }
 }
 
-// func_802D9D60
+// chmole_update
 void chmole_update(Actor *this){
     // Sets up the initial functions and state for the actor
     s32 sp50[6];
@@ -393,7 +393,7 @@ void chmole_update(Actor *this){
                 }
                 else{//L802DA054
                     if( !player_movementGroup() 
-                        && func_80329530(this, 0xFA)
+                        && subaddie_playerIsWithinSphereAndActive(this, 0xFA)
                         && func_8028EFC8()
                         && sp50[FACE_BUTTON(BUTTON_B)] == 1
                     ){
@@ -409,7 +409,7 @@ void chmole_update(Actor *this){
             if( 0.0 < anctrl_getAnimTimer(this->anctrl)
                 && anctrl_getAnimTimer(this->anctrl) < 0.16
             ){
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }//L802DA128
             if(actor_animationIsAt(this, 0.9999f)){
                 chmole_setFacingDirection(this);
@@ -462,7 +462,7 @@ void chmole_update(Actor *this){
             if( 0.35 < anctrl_getAnimTimer(this->anctrl) 
                 &&  anctrl_getAnimTimer(this->anctrl) < 0.9
             ){
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             else if(actor_animationIsAt(this, 0.9999f)){//L802DA45C
                 func_802D9600(this);

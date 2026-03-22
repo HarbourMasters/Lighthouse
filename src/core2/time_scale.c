@@ -13,10 +13,10 @@ void func_80354380(f32 arg0[3], f32 arg1) {
     u8 sp1E;
     ParticleStruct0s* sp18;
 
-    if (func_8033E3F0(0xE, 1) >= 0) {
-        sp1E = func_8033E8D0();
+    if (commonParticle_new(0xE, 1) >= 0) {
+        sp1E = commonParticle_getCurrentProjectileIndex();
         sp1F = func_8033E93C();
-        sp18 = func_8033E960();
+        sp18 = commonParticle_getCurrentParticle();
         projectile_setPosition(sp1E, arg0);
         func_80344D94(sp1F, arg0);
         sp18->unk4 = arg1;
@@ -33,9 +33,9 @@ void func_803543FC(void) {
     f32 sp24[3];
     s32 temp_f16;
 
-    sp3C = func_8033E960();
-    projectile_indx = func_8033E8D0();
-    sp34 = func_8033E8F4();
+    sp3C = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp34 = commonParticle_getCurrentAnimSprite();
     sp33 = func_8033E93C();
     temp_f16 = ((randf() * 20.0f) + 80.0f);
     sp3C->unk0 = 0.0f;
@@ -62,8 +62,8 @@ void func_8035451C(void) {
     f32 sp30;
     s32 temp_f16;
 
-    temp_s0 = func_8033E960();
-    projectile_indx = func_8033E8D0();
+    temp_s0 = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
     sp38 = temp_s0->unk4;
     temp_f20 = temp_s0->unk0;
     sp30 = temp_s0->unk20;
@@ -78,6 +78,6 @@ void func_8035451C(void) {
     temp_f20 += time_getDelta();
     temp_s0->unk0 = temp_f20;
     if (sp38 < temp_f20) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     }
 }

@@ -133,7 +133,7 @@ void func_8035D490(ActorMarker *marker){
     if (map_get() == MAP_13_GV_MEMORY_GAME) {
         sp1C = marker_getActor(marker);
 
-        if (func_80329530(sp1C, 250) != 0) {
+        if (subaddie_playerIsWithinSphereAndActive(sp1C, 250) != 0) {
             __bundle_spawnFromFirstActor(BUNDLE_1C__HONEYCOMB, sp1C);
             func_8035D2C0(marker, 0);
         }

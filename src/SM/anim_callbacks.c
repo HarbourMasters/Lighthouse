@@ -22,7 +22,7 @@ void SM_func_80386420(bk_vector(AnSeqElement) **anseq, ActorMarker *marker) {
 }
 
 /* .data */
-Struct63s D_8038AAC0[] = {
+Struct63s SM_TEXT_END[] = {
     {0x20A, SM_func_803863F0},
     0
 };

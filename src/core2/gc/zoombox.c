@@ -550,7 +550,7 @@ void func_803155C8(GcZoombox *this){
         if(this->sfx_count){
             for(i = 0; i < 5; i++){
                 if(func_8030E3FC(this->unk108[i])){
-                    func_8030E394(this->unk108[i]);
+                    sfxSource_triggerCallbackByIndex(this->unk108[i]);
                 }
             }
         }
@@ -713,7 +713,7 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
             
             for(phi_s1 = 0; phi_s1 < 5; phi_s1++){
                 if (func_8030E3FC(this->unk108[phi_s1])) {
-                    func_8030E394(this->unk108[phi_s1]);
+                    sfxSource_triggerCallbackByIndex(this->unk108[phi_s1]);
                 }
             }
             if (this->sfx_count != 1) {
@@ -758,7 +758,7 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
             phi_a0 = (this->unk124[current_sfx] - phi_s1_3 < 0)? 0 : this->unk124[current_sfx] - phi_s1_3;
             phi_a1 = (this->unk124[current_sfx] - phi_s2 < 0)  ? 0 : this->unk124[current_sfx] - phi_s2;
             sfxsource_setSampleRate(this->unk108[current_sfx], randi2(phi_a0, phi_a1));
-            func_8030E2C4(this->unk108[current_sfx]);
+            sfxSource_func_8030E2C4(this->unk108[current_sfx]);
         }
     }
 }
@@ -890,11 +890,11 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
 void func_80316764(GcZoombox *this, s32 arg1) {
     s32 sp38[6];
     f32 phi_f0;
-    s32 sp2C[3]; // [port] was [2] — func_8024E60C/func_8024E640 write s32[3]
+    s32 sp2C[3]; // [port] was [2] — controller_copySideButtons/func_8024E640 write s32[3]
 
     if (!this->unk1A4_10 ) {
         controller_copyFaceButtons(0, sp38);
-        func_8024E60C(0, sp2C);
+        controller_copySideButtons(0, sp2C);
         phi_f0 = time_getDelta();
     } else {
         pfsManager_getFirstControllerFaceButtonState(0, sp38);
@@ -1080,7 +1080,7 @@ void gczoombox_update(GcZoombox *this){
 
      if( !this->unk1A4_10 ){
           controller_copyFaceButtons(0, sp58);
-          func_8024E60C(0, sp4C);
+          controller_copySideButtons(0, sp4C);
           tmp_f0 = time_getDelta();
      }
      else{
@@ -1270,7 +1270,7 @@ void gczoombox_update(GcZoombox *this){
                     }
                }
                if(this->unk1A4_11 && anctrl_isAt(this->anim_ctrl, 0.9f)){
-                    func_8030E6A4(SFX_CD_PAUSEMENU_LEAVE_SUBMENU, 1.1f, this->unk12E);
+                    gcsfx_playWithPitch(SFX_CD_PAUSEMENU_LEAVE_SUBMENU, 1.1f, this->unk12E);
                }
                if(this->unk1A4_16 && anctrl_isStopped(this->anim_ctrl)){
                     if(this->unk1A4_14){

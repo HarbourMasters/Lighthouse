@@ -15,72 +15,72 @@ typedef struct {
 }Struct_Core2_CB610_0;
 
 /* .bss */
-Struct_Core2_CB610_0 D_803861C0[40];
+Struct_Core2_CB610_0 typeMaps[40];
 
-void func_80352830(void){
+void commonParticleTypeMap_freeAll(void){
     s32 i;
     for(i = 1; i < 40; i++){
-        D_803861C0[i].occupied = false;
+        typeMaps[i].occupied = false;
     }
 }
 
-void func_80352874(void){ return; }
+void commonParticleTypeMap_unused(void){ return; }
 
-u8 func_8035287C(void){
+u8 commonParticleTypeMap_findFree(void){
     s32 i;
     for(i = 1; i < 40; i++){
-        if(!D_803861C0[i].occupied){
-            D_803861C0[i].occupied++;
-            D_803861C0[i].unk0 = 0;
-            D_803861C0[i].unk1 = 0;
-            D_803861C0[i].unk2 = 0;
+        if(!typeMaps[i].occupied){
+            typeMaps[i].occupied++;
+            typeMaps[i].unk0 = 0;
+            typeMaps[i].unk1 = 0;
+            typeMaps[i].unk2 = 0;
             return i;
         }
     }
     return 0;
 }
 
-void func_803529DC(u8 arg0) {
-    if (commonParticleType_getFreeMethod(D_803861C0[arg0].unk1) != NULL) {
-        commonParticleType_getFreeMethod(D_803861C0[arg0].unk1)();
+void commonParticleTypeMap_freeByIndex(u8 arg0) {
+    if (commonParticleType_getFreeMethod(typeMaps[arg0].unk1) != NULL) {
+        commonParticleType_getFreeMethod(typeMaps[arg0].unk1)();
     }
-    D_803861C0[arg0].occupied = 0;
+    typeMaps[arg0].occupied = 0;
 }
 
-void func_80352A38(u8 arg0, enum common_particle_e arg1){
+void commonParticleTypeMap_advanceParticleType(u8 arg0, enum common_particle_e arg1){
     void (*funcPtr)(void);
     if(arg1){
-        D_803861C0[arg0].unk2 = arg1;
-        if(commonParticleType_getFreeMethod(D_803861C0[arg0].unk1)){
-            funcPtr = commonParticleType_getFreeMethod(D_803861C0[arg0].unk1);
+        typeMaps[arg0].unk2 = arg1;
+        if(commonParticleType_getFreeMethod(typeMaps[arg0].unk1)){
+            funcPtr = commonParticleType_getFreeMethod(typeMaps[arg0].unk1);
             funcPtr();
         }
 
-        D_803861C0[arg0].unk0 = D_803861C0[arg0].unk1;
-        D_803861C0[arg0].unk1 = D_803861C0[arg0].unk2;
-        D_803861C0[arg0].unk2 = 0;
-        if(commonParticleType_getInitMethod(D_803861C0[arg0].unk1)){
-            funcPtr = commonParticleType_getInitMethod(D_803861C0[arg0].unk1);
+        typeMaps[arg0].unk0 = typeMaps[arg0].unk1;
+        typeMaps[arg0].unk1 = typeMaps[arg0].unk2;
+        typeMaps[arg0].unk2 = 0;
+        if(commonParticleType_getInitMethod(typeMaps[arg0].unk1)){
+            funcPtr = commonParticleType_getInitMethod(typeMaps[arg0].unk1);
             funcPtr();
         }
 
     }
 }
 
-s32 func_80352ACC(u8 arg0){
-    return D_803861C0[arg0].unk0;
+s32 commonParticleTypeMap_getPreviousType(u8 arg0){
+    return typeMaps[arg0].unk0;
 }
 
-s32 func_80352AE8(u8 arg0){
-    return D_803861C0[arg0].unk1;
+s32 commonParticleTypeMap_getCurrentType(u8 arg0){
+    return typeMaps[arg0].unk1;
 }
 
-s32 func_80352B04(u8 arg0){
-    return D_803861C0[arg0].unk2;
+s32 commonParticleTypeMap_getNextType(u8 arg0){
+    return typeMaps[arg0].unk2;
 }
 
-void func_80352B20(u8 arg0) {
-    if (commonParticleType_getUpdateMethod(D_803861C0[arg0].unk1) != NULL) {
-        commonParticleType_getUpdateMethod(D_803861C0[arg0].unk1)();
+void commonParticleTypeMap_updateByIndex(u8 arg0) {
+    if (commonParticleType_getUpdateMethod(typeMaps[arg0].unk1) != NULL) {
+        commonParticleType_getUpdateMethod(typeMaps[arg0].unk1)();
     }
 }

@@ -9,7 +9,7 @@ typedef struct{
     u32 unk4;
 }struct49s;
 
-extern struct49s D_803FFE10[];
+extern struct49s gOverlayTable[];
 
 extern u8  D_8002D500;
 extern u32 D_8027BF2C;
@@ -33,8 +33,8 @@ void overlay_load(
         osInvalDCache(bss_start, bss_end - bss_start);
     }
 
-    rom_start = D_803FFE10[overlay_id].unk0;
-    rom_end = D_803FFE10[overlay_id].unk4;
+    rom_start = gOverlayTable[overlay_id].unk0;
+    rom_end = gOverlayTable[overlay_id].unk4;
 
     if(overlay_id){
         func_80254008();

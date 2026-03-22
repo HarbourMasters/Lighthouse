@@ -7,7 +7,7 @@
 /* extern functions */
 void actor_update_func_80326224(Actor *);
 // [port] removed: void func_80329904 — now provided by port_prototypes.h as s32 return
-extern void func_802EFA20(ParticleEmitter *, f32, f32);
+extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 
 /* public functions */
 void chorangepad_update(Actor *);
@@ -27,7 +27,7 @@ void __chorangepad_spawnJiggy(s32 x, s32 y, s32 z) {
     jiggy_spawn(JIGGY_8_MM_ORANGE_PADS, pos);
 }
 
-void func_80386444(ActorMarker *marker) {
+void handleOrangeCollision(ActorMarker *marker) {
     f32 distance_to_orange_pad;
     Actor *closest_orange_pad;
     f32 position[3];
@@ -44,17 +44,17 @@ void func_80386444(ActorMarker *marker) {
         closest_orange_pad->state = 1;
 
         if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, 1, &distance_to_orange_pad)) {
-            func_8025A6EC(COMUSIC_2B_DING_B, 22000);
+            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
         }
         else {
             temp_a0 = (closest_orange_pad->unk78_13 == 0x106) ? 0x10
                     : (closest_orange_pad->unk78_13 == 0x76)  ? 0xf
                     : 0xe;
 
-            func_802BAFE4(temp_a0);
+            gcStaticCamera_activate(temp_a0);
             position[1] += 50.0f;
             timedFunc_set_3(0.6f, (GenFunction_3) __chorangepad_spawnJiggy, (s32) position[0], (s32) position[1], (s32) position[2]);
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
 
             if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
                 gcdialog_showText(0xB3B, 4, NULL, NULL, NULL, NULL);
@@ -74,13 +74,13 @@ void func_80386444(ActorMarker *marker) {
         particleEmitter_setParticleLifeTimeRange(p_ctrl, 4.0f, 4.0f);
         particleEmitter_func_802EF9F8(p_ctrl, 0.01f);
         particleEmitter_func_802EFA18(p_ctrl, 3);
-        func_802EFA20(p_ctrl, 1.0f, 1.3f);
+        particleEmitter_func_802EFA20(p_ctrl, 1.0f, 1.3f);
         particleEmitter_emitN(p_ctrl, 30);
     }
 }
 
-void func_80386744(NodeProp *arg0, ActorMarker *arg1) {
-    func_80386444(arg1);
+void chOrangePad_handleOrangeCollision(NodeProp *arg0, ActorMarker *arg1) {
+    handleOrangeCollision(arg1);
 }
 
 void chorangepad_update(Actor *this) {
@@ -103,7 +103,7 @@ void chorangepad_update(Actor *this) {
         closest_actor = marker_getActor(this->unk100);
     }
 
-    if (func_80329530(this, 0x28) &&
+    if (subaddie_playerIsWithinSphereAndActive(this, 0x28) &&
         !player_movementGroup() &&
         !mapSpecificFlags_get(MM_SPECIFIC_FLAG_6_UNKNOWN) &&
         closest_actor->state != 3) {
@@ -115,8 +115,8 @@ void chorangepad_update(Actor *this) {
 
     if (this->state == 1) {
         if (this->lifetime_value < 72.0f) {
-            func_8033E73C(this->marker, 5, func_80329904);
-            func_8033E3F0(9, this->marker->unk14_21);
+            commonParticle_add(this->marker, 5, func_80329904);
+            commonParticle_new(9, this->marker->unk14_21);
         }
 
         this->lifetime_value = MIN(255.0, this->lifetime_value + 7.0);

@@ -33,12 +33,12 @@
 extern f32 fabsf(f32);
 #pragma intrinsic (fabsf)
 
-//known it uses "+" instead of "|" for fight/code_9D40.c, func_8039049C, case 6
+//known it uses "+" instead of "|" for fight/code_9D40.c, chjinjonator_update, case 6
 #define FUNC_8030E624(sfx_e, vol, sample_rate) func_8030E624(\
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11)\
 )
 
-#define FUNC_8030E8B4(sfx_e, vol, sample_rate, position, e, f) func_8030E8B4(\
+#define FUNC_8030E8B4(sfx_e, vol, sample_rate, position, e, f) sfx_playFadeShorthand(\
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11), \
     position, \
     _SHIFTL(e, 0, 16) + _SHIFTL(f, 16, 16)\
@@ -46,7 +46,7 @@ extern f32 fabsf(f32);
 #define bzero(pointer, size) memset(pointer, 0, size)
 #define bcopy(src, dest, size) memcpy(dest, src, size)
 
-void func_80241304(Mtx *m, float x, float y, float z);
+void guScale(Mtx *m, float x, float y, float z);
 
 void _guMtxIdentF_80245D44(float mf[4][4]); //static should NOT be here
 
@@ -99,7 +99,7 @@ s32 bs_getState(void);
 s32 bs_getNextState(void);
 void bs_updateState(void);
 s32 bs_checkInterrupt(enum bs_interrupt_e arg0);
-void func_8029A86C(s32 arg0);
+void bs_setInterruptResponse(s32 arg0);
 enum bs_interrupt_e bs_getInterruptType(void);
 
 /* vla - variable length array*/
@@ -227,7 +227,7 @@ OSMesgQueue *pfsManager_getFrameReplyQ(void);
 
 void baMotor_80250D94(f32, f32, f32);
 
-void func_8025A6EC(enum comusic_e, s32);
+void coMusicPlayer_playMusic(enum comusic_e, s32);
 void comusic_playTrack(enum comusic_e);
 void comusic_8025AB44(enum comusic_e comusic_id, s32 arg1, s32 arg2);
 
@@ -262,13 +262,13 @@ void baeyes_openSingleEye(s32, f32);
 void bafalldamage_start(void);
 void func_80293D48(f32, f32);
 f32  func_80294438(void);
-f32  func_80294500(void);
+f32  floor_getCurrentFloorYPosition(void);
 BKCollisionTri *func_802946F0(void);
 void func_80294980(f32 arg0[3]);
 f32  get_slope_timer(void);
 f32  get_turbo_duration(void);
 void func_80295C08(void (* arg0)(void));
-void func_80297CCC(f32);
+void baiFrame_startWithValue(f32);
 f32  pitch_getIdeal(void);
 void pitch_setAngVel(f32, f32);
 void func_80298528(f32);
@@ -325,7 +325,7 @@ void func_802D6264(f32, enum map_e, s32, s32, s32, enum file_progress_e);
 Actor *func_802DC7E0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 void particleEmitter_emitN(ParticleEmitter *, int);
-void func_802EFA20(ParticleEmitter *, f32, f32);
+void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 
 ParticleEmitter *partEmitMgr_defragEmitter(ParticleEmitter *);
 ParticleEmitter *func_802F4094(f32[3], f32);
@@ -337,32 +337,32 @@ extern s32 func_802F9AA8(enum sfx_e);
 Actor * func_803055E0(enum actor_e id, s32 pos[3], s32 arg2, s32 arg3, s32 arg4);
 Actor * __actor_spawnWithYaw_s32(enum actor_e id, s32 pos[3], s32 yaw);
 f32  mapModel_getFloorY(f32[3]);
-BKModelBin *func_8030A428(s32);
+BKModelBin *propModelList_getModel(s32);
 u8   sfxsource_createSfxsourceAndReturnIndex(void);
 void sfxsource_setSfxId(u8 indx, enum sfx_e uid);
 void sfxsource_playSfxAtVolume(u8, f32);
-void func_8030DD14(u8, int);
+void sfxSource_setunk43_7ByIndex(u8, int);
 void sfxsource_set_position(u8, f32[3]);
 void func_8030DFF0(u8, s32);
 void func_8030E04C(u8, f32, f32, f32);
 void func_8030E0FC(u8, f32, f32, f32);
 f32  func_8030E200(u8);
-void func_8030E2C4(u8);
-void func_8030E394(u8 indx);
+void sfxSource_func_8030E2C4(u8);
+void sfxSource_triggerCallbackByIndex(u8 indx);
 void sfxsource_playHighPriority(enum sfx_e uid);
 void func_8030E4E4(enum sfx_e uid);
 void sfxsource_play(enum sfx_e uid, s32 sample_rate);
-void func_8030E540(enum sfx_e uid);
+void gcsfx_play(enum sfx_e uid);
 void func_8030E560(enum sfx_e uid, s32 arg1);
 void func_8030E58C(enum sfx_e uid, f32 arg1);
 void func_8030E5F4(enum sfx_e uid, f32 arg1);
 void func_8030E624(u32);
-void func_8030E6A4(enum sfx_e uid, f32 arg1, s32 arg2);
+void gcsfx_playWithPitch(enum sfx_e uid, f32 arg1, s32 arg2);
 void func_8030E6D4(enum sfx_e uid);
 void func_8030E704(enum sfx_e uid);
 void func_8030E760(enum sfx_e uid, f32 arg1, s32 arg2);
 void func_8030E878(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
-void func_8030E8B4(u32,f32 [3], u32);
+void sfx_playFadeShorthand(u32,f32 [3], u32);
 void func_8030E988(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
 void func_8030E9C4(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
 void func_8030EAAC(enum sfx_e uid, f32 arg1, s32 arg2, s32 arg3);
@@ -404,7 +404,7 @@ ActorMarker *func_8032FBE4(f32 *pos, MarkerDrawFunc arg1, int arg2, enum asset_e
 
 void marker_setFreeMethod(ActorMarker *, void (*)(Actor *));
 void marker_setCollisionScripts(ActorMarker *marker, MarkerCollisionFunc ow_func, MarkerCollisionFunc arg2, MarkerCollisionFunc die_func);
-BKModelBin *  func_80330B1C(ActorMarker *marker);
+BKModelBin *  marker_loadModelBin(ActorMarker *marker);
 BKVertexList *func_80330C74(Actor *actor);
 BKModelBin *  func_80330DE4(ActorMarker *marker);
 BKModelBin *modelRender_draw(Gfx**, Mtx**, f32 [3], f32[3], f32, f32*, BKModelBin*);
@@ -465,7 +465,7 @@ void sfxsource_set_fade_distances(u8, f32, f32);
 void func_8030DB04(u8, s32, f32 position[3], f32, f32);
 
 
-void func_802E4078(enum map_e map, s32 exit, s32 transition);
+void transitionToMap(enum map_e map, s32 exit, s32 transition);
 void levelSpecificFlags_set(s32, s32);
 void func_803228D8(void);
 

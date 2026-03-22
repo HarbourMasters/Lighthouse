@@ -176,9 +176,9 @@ void chJinjo_update(Actor * this){
                 core1_ce60_incOrDecCounter(false);
                 func_8032BB88(this, 0, 4000);
                 if(local->unk4){
-                    func_8025A6EC(COMUSIC_30_5TH_JINJO_COLLECTED, 28000);
+                    coMusicPlayer_playMusic(COMUSIC_30_5TH_JINJO_COLLECTED, 28000);
                 }else{
-                    func_8025A6EC(COMUSIC_A_JINJO_COLLECTED, 28000);
+                    coMusicPlayer_playMusic(COMUSIC_A_JINJO_COLLECTED, 28000);
                 }
             }//L802CE114
             break;
@@ -206,8 +206,8 @@ void chJinjo_update(Actor * this){
                 if(sp50 || anctrl_getAnimTimer(this->anctrl) < 0.8){
                     for(i = 0; i < 4; i++){
                         if(randf() < 0.3){
-                            func_8033E73C(this->marker, i + 5, func_80329904);
-                            func_8033E3F0(8, this->marker->unk14_21);
+                            commonParticle_add(this->marker, i + 5, func_80329904);
+                            commonParticle_new(8, this->marker->unk14_21);
                         } //L802CE2C4
                     }
                 }//L802CE2D0
@@ -222,7 +222,7 @@ void chJinjo_update(Actor * this){
                     func_802F9EC4(local->unkC, sp30, 500, 2000);
                     func_802F9F80(local->unkC, 0.0f, 9e+09, 0.0f);
                     func_802FA0B0(local->unkC, 0);
-                    func_8025A6EC(COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
+                    coMusicPlayer_playMusic(COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
                     func_8025AABC(COMUSIC_43_ENTER_LEVEL_GLITTER);
                     func_8030E9C4(SFX_C7_SHWOOP, 0.8f, 0x7FFF, sp30, 300.0f, 2000.0f);
                 }//L802CE3C4
@@ -279,7 +279,7 @@ void chJinjo_update(Actor * this){
         subaddie_set_state_with_direction(this, 4, 0.0f, -1);
         actor_playAnimationOnce(this);
     }//L802CE630
-    if(!func_803114B0()){
+    if(!gcdialog_hasCurrentTextId()){
         switch(chJinjoAnimations[this->state].index){
             case ASSET_31_ANIM_JINJO_JUMP: 
                 if(actor_animationIsAt(this, 0.6f)){

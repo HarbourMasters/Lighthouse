@@ -2176,13 +2176,13 @@ Cube *func_80308224(void){
     return D_8036A9DC;
 }
 
-void func_80308230(s32 arg0) {
+void cubeList_sort(s32 arg0) {
     Cube *iCube;
     for(iCube = sCubeList.cubes; iCube < sCubeList.cubes + sCubeList.cubeCnt; iCube++){
         if (arg0 == 0) {
-            func_8032D158(iCube); //sort cube props (dist from viewport)
+            cube_sortRelative(iCube); //sort cube props (dist from viewport)
         } else {
-            func_8032D120(iCube); //sort cube props (dist from origin)
+            cube_sortAbsolute(iCube); //sort cube props (dist from origin)
         }
     }
 }

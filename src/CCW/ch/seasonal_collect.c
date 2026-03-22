@@ -43,7 +43,7 @@ void CCW_func_8038C6A0(Actor *this, s32 next_state) {
         local->unk18 = 0.0f;
     }
     if (next_state == 4) {
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         marker_despawn(this->marker);
     }
     if (next_state == 5) {

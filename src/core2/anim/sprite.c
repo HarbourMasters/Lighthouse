@@ -7,7 +7,7 @@
 
 
 /* .bss */
-u8 D_80379B90[0x10];
+u8 core2_BSS_START[0x10];
 static AnimSprite s_animsprite_list[40];
 
 /* .code */

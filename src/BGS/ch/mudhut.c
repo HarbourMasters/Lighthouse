@@ -113,7 +113,7 @@ void chMudHut_update(Actor *this){
                     this->marker->propPtr->unk8_3 = 0;
                     actor_playAnimationOnce(this);
                     if(tmp == 5){
-                        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+                        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
                     }
                     __spawnQueue_add_1((GenFunction_1)chMudHut_spawnExplosion, (uintptr_t)this->marker);
 

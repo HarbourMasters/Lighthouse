@@ -6,171 +6,171 @@
 #include "core2/statetimer.h"
 
 /* .bss */
-u8 D_8037D210;
-u8 D_8037D211;
-u8 D_8037D212;
-f32 D_8037D218[3];
-f32 D_8037D224;
+u8 hazardSfxId;
+u8 frozenEffectsState;
+u8 swampEffectsState;
+f32 playerPosition[3];
+f32 effectTimer;
 
 /*.code */
-bool func_8029CFA0(void){
-    return func_80294574() && func_80294500() > player_getYPosition();
+bool isOnFloor(void){
+    return floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > player_getYPosition();
 }
 
-void func_8029CFF8(void){
-    sfxsource_freeSfxsourceByIndex(D_8037D210);
+void freeHazardSfxId(void){
+    sfxsource_freeSfxsourceByIndex(hazardSfxId);
 }
 
-void func_8029D01C(void){
+void hazards_reset(void){
     baflag_clear(BA_FLAG_13_TOUCHING_DANGEROUS_GROUND);
-    D_8037D210 = sfxsource_createSfxsourceAndReturnIndex();
-    D_8037D212 = 0;
+    hazardSfxId = sfxsource_createSfxsourceAndReturnIndex();
+    swampEffectsState = 0;
 }
 
-void func_8029D050(void){
+void triggerFrozenHazardEffects(void){
     basfx_80299E48();
-    func_8030E394(D_8037D210);
-    sfxsource_setSfxId(D_8037D210, SFX_14D_BANJO_FREEZING);
-    sfxsource_setSampleRate(D_8037D210, 30000);
-    sfxsource_playSfxAtVolume(D_8037D210, 1.2f);
-    func_8030DD14(D_8037D210, 3);
-    func_8030E2C4(D_8037D210);
+    sfxSource_triggerCallbackByIndex(hazardSfxId);
+    sfxsource_setSfxId(hazardSfxId, SFX_14D_BANJO_FREEZING);
+    sfxsource_setSampleRate(hazardSfxId, 30000);
+    sfxsource_playSfxAtVolume(hazardSfxId, 1.2f);
+    sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+    sfxSource_func_8030E2C4(hazardSfxId);
 
-    D_8037D211 = 2;
-    D_8037D224 = 1.0f;
+    frozenEffectsState = 2;
+    effectTimer = 1.0f;
 }
 
-void func_8029D0D8(void) {
-    func_8030E394(D_8037D210);
-    sfxsource_setSfxId(D_8037D210, SFX_B0_SIZZLING_NOISE);
-    sfxsource_setSampleRate(D_8037D210, 32000);
-    sfxsource_playSfxAtVolume(D_8037D210, randf2(0.7f, 0.8f));
-    func_8030DD14(D_8037D210, 3);
-    func_8030E2C4(D_8037D210);
+void triggerHotHazardEffects(void) {
+    sfxSource_triggerCallbackByIndex(hazardSfxId);
+    sfxsource_setSfxId(hazardSfxId, SFX_B0_SIZZLING_NOISE);
+    sfxsource_setSampleRate(hazardSfxId, 32000);
+    sfxsource_playSfxAtVolume(hazardSfxId, randf2(0.7f, 0.8f));
+    sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+    sfxSource_func_8030E2C4(hazardSfxId);
 }
 
-void func_8029D154(void){
+void spawnPiranhaParticles(void){
     f32 plyr_pos[3];
     player_getPosition(plyr_pos);
     actor_spawnWithYaw_f32(0x188, plyr_pos, (s32)yaw_get());
 }
 
-void func_8029D194(void) {
-    __spawnQueue_add_0(&func_8029D154);
+void triggerSwampHazardEffects(void) {
+    __spawnQueue_add_0(&spawnPiranhaParticles);
     FUNC_8030E624(SFX_A_BANJO_LANDING_05, 1.0f, 28000);
-    func_8030E394(D_8037D210);
-    sfxsource_setSfxId(D_8037D210, SFX_6D_CROC_BITE);
-    sfxsource_setSampleRate(D_8037D210, 22000);
-    func_8030DD14(D_8037D210, 3);
-    player_getPosition(D_8037D218);
-    D_8037D218[1] = func_80294500();
-    D_8037D212 = 4;
-    D_8037D224 = 0.0f;
+    sfxSource_triggerCallbackByIndex(hazardSfxId);
+    sfxsource_setSfxId(hazardSfxId, SFX_6D_CROC_BITE);
+    sfxsource_setSampleRate(hazardSfxId, 22000);
+    sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+    player_getPosition(playerPosition);
+    playerPosition[1] = floor_getCurrentFloorYPosition();
+    swampEffectsState = 4;
+    effectTimer = 0.0f;
 }
 
 /* plays ground damage sound effect */
-void func_8029D230(void) {
+void triggerHazardEffects(void) {
     switch (map_get()) {
         case MAP_12_GV_GOBIS_VALLEY: //L8029D2C0
         case MAP_31_RBB_RUSTY_BUCKET_BAY: //L8029D2C0
         case MAP_3C_RBB_KITCHEN: //L8029D2C0
         case MAP_6E_GL_GV_LOBBY:
         case MAP_8E_GL_FURNACE_FUN:
-            func_8029D0D8();
+            triggerHotHazardEffects();
             break;
 
         case MAP_27_FP_FREEZEEZY_PEAK: //L8029D2D0
         case MAP_7F_FP_WOZZAS_CAVE:
-            func_8029D050();
+            triggerFrozenHazardEffects();
             break;
 
         case MAP_D_BGS_BUBBLEGLOOP_SWAMP:
         case MAP_72_GL_BGS_LOBBY:
-            func_8029D194();
+            triggerSwampHazardEffects();
             break;
     }
 }
 
-void func_8029D2F8(void) {
+void updateFrozenEffects(void) {
     u8 temp_v0;
 
-    if (D_8037D211 != 0) {
-        if ((func_8029CFA0() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(D_8037D210) != 0)) {
-            func_8030E394(D_8037D210);
-            D_8037D211 = 0;
+    if (frozenEffectsState != 0) {
+        if ((isOnFloor() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(hazardSfxId) != 0)) {
+            sfxSource_triggerCallbackByIndex(hazardSfxId);
+            frozenEffectsState = 0;
             return;
         }
 
-        D_8037D224 = ml_max_f(0.0f, D_8037D224 - time_getDelta());
-        if (D_8037D224 == 0.0f) {
-            if (D_8037D211 == 1) {
-                func_8029D050();
+        effectTimer = ml_max_f(0.0f, effectTimer - time_getDelta());
+        if (effectTimer == 0.0f) {
+            if (frozenEffectsState == 1) {
+                triggerFrozenHazardEffects();
             }
-            else if (D_8037D211 == 2) {
-                func_8030E394(D_8037D210);
-                sfxsource_setSfxId(D_8037D210, SFX_134_FREEZING_SHIVER);
-                sfxsource_setSampleRate(D_8037D210, 20000);
-                sfxsource_playSfxAtVolume(D_8037D210, 1.2f);
-                func_8030DD14(D_8037D210, 3);
-                func_8030E2C4(D_8037D210);
-                D_8037D211 = 2;
-                D_8037D224 = 1.5f;
+            else if (frozenEffectsState == 2) {
+                sfxSource_triggerCallbackByIndex(hazardSfxId);
+                sfxsource_setSfxId(hazardSfxId, SFX_134_FREEZING_SHIVER);
+                sfxsource_setSampleRate(hazardSfxId, 20000);
+                sfxsource_playSfxAtVolume(hazardSfxId, 1.2f);
+                sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+                sfxSource_func_8030E2C4(hazardSfxId);
+                frozenEffectsState = 2;
+                effectTimer = 1.5f;
             }
         }
     }
 }
 
 
-void func_8029D448(void) {
+void updateBurnSfx(void) {
     f32 sp1C;
     s32 temp_a1;
 
-    if (func_8030E3FC(D_8037D210) != 0) {
+    if (func_8030E3FC(hazardSfxId) != 0) {
         sp1C = time_getDelta();
-        temp_a1 = func_8030E1C4(D_8037D210) - (s32) (sp1C * 30000.0);
+        temp_a1 = sfxSource_getSampleRate(hazardSfxId) - (s32) (sp1C * 30000.0);
         if (temp_a1 <= 0) {
-            func_8030E394(D_8037D210);
+            sfxSource_triggerCallbackByIndex(hazardSfxId);
             return;
         }
-        sfxsource_setSampleRate(D_8037D210, temp_a1);
+        sfxsource_setSampleRate(hazardSfxId, temp_a1);
     }
 }
 
-void func_8029D4D8(void) {
-    if (D_8037D212 != 0) {
-        D_8037D224 = ml_max_f(0.0f, D_8037D224 - time_getDelta());
-        if (!(D_8037D224 > 0.0f)) {
-            D_8037D212 += -1;
-            D_8037D224 = randf2(0.12f, 0.22f);
-            sfxsource_playSfxAtVolume(D_8037D210, randf2(0.95f, 1.05f));
-            func_8030E2C4(D_8037D210);
+void updateSwampEffects(void) {
+    if (swampEffectsState != 0) {
+        effectTimer = ml_max_f(0.0f, effectTimer - time_getDelta());
+        if (!(effectTimer > 0.0f)) {
+            swampEffectsState += -1;
+            effectTimer = randf2(0.12f, 0.22f);
+            sfxsource_playSfxAtVolume(hazardSfxId, randf2(0.95f, 1.05f));
+            sfxSource_func_8030E2C4(hazardSfxId);
         }
     }
 }
 
-void func_8029D5A4(void){
+void updateHazardEffects(void){
     switch (map_get()) {
         case MAP_12_GV_GOBIS_VALLEY:
         case MAP_31_RBB_RUSTY_BUCKET_BAY:
         case MAP_3C_RBB_KITCHEN:
         case MAP_6E_GL_GV_LOBBY:
         case MAP_8E_GL_FURNACE_FUN:
-            func_8029D448();
+            updateBurnSfx();
             break;
 
         case MAP_27_FP_FREEZEEZY_PEAK:
         case MAP_7F_FP_WOZZAS_CAVE:
-            func_8029D2F8();
+            updateFrozenEffects();
             break;
 
         case MAP_D_BGS_BUBBLEGLOOP_SWAMP:
         case MAP_72_GL_BGS_LOBBY:
-            func_8029D4D8();
+            updateSwampEffects();
             break;
     }
 }
 
-bool func_8029D66C(void){
+bool isPlayerInHazard(void){
     f32 sp2C[3];
 
     switch (map_get()) {
@@ -219,7 +219,7 @@ bool canTakeGroundDamage(void){
         case MAP_72_GL_BGS_LOBBY:
         case MAP_7F_FP_WOZZAS_CAVE://L8029D84C
         case MAP_8E_GL_FURNACE_FUN://L8029D84C
-            return func_8029D66C() 
+            return isPlayerInHazard() 
                 && bsStoredState_getTransformation() == TRANSFORM_1_BANJO
                 && stateTimer_isDone(STATE_TIMER_2_LONGLEG)
                 && player_movementGroup() != BSGROUP_3_WONDERWING
@@ -228,7 +228,7 @@ bool canTakeGroundDamage(void){
                 && sp1C != BS_25_LONGLEG_ENTER
                 && player_getWaterState() != BSWATERGROUP_2_UNDERWATER
                 && func_8028EC04() < 1U
-                && func_80297C6C() != 3
+                && baiFrame_getState() != 3
                 && bs_getState() != BS_3D_FALL_TUMBLING
                 && player_isDead() < 1U
                 ;
@@ -236,13 +236,13 @@ bool canTakeGroundDamage(void){
     return 0;
 }
 
-void func_8029D968(void){
+void hazards_update(void){
     s32 can_take_ground_damage;
     BKCollisionTri *temp_v0;
     s32 sp1C;
     s32 sp18;
     
-    func_8029D5A4();
+    updateHazardEffects();
     if(map_get() == MAP_12_GV_GOBIS_VALLEY){
         sp18 = 0;
         sp1C = 0;
@@ -256,7 +256,7 @@ void func_8029D968(void){
         }
         if (sp1C || sp18) {
             baMotor_80250D94(1.0f, 0.5f, 0.4f);
-            func_8028F504(0xD);
+            player_checkHazardInterrupt(0xD);
         }
     }//L8029DA18
 
@@ -265,15 +265,15 @@ void func_8029D968(void){
     if(can_take_ground_damage){
         if(map_get() == MAP_8E_GL_FURNACE_FUN){
             if(bs_checkInterrupt(BS_INTR_13_FF_DEATH_SQUARE)){
-                func_8029D230();
+                triggerHazardEffects();
             }
         }
         else{//L8029DA6C
         
             if(batimer_isZero(4)){
                 batimer_set(4, 4.0f);
-                if(func_8028F504(0xD)){
-                    func_8029D230();
+                if(player_checkHazardInterrupt(0xD)){
+                    triggerHazardEffects();
                     baMotor_80250D94(1.0f, 0.5f, 0.4f);
                 }
                 if(item_empty(ITEM_14_HEALTH)){
@@ -286,32 +286,32 @@ void func_8029D968(void){
                 case MAP_44_CCW_SUMMER://8029DB58
                 case MAP_45_CCW_AUTUMN://8029DB58
                 case MAP_46_CCW_WINTER://8029DB58
-                    func_8035644C(FILEPROG_AA_HAS_TOUCHED_CCW_BRAMBLE_FIELD);
+                    progressDialog_showDialogMaskZero(FILEPROG_AA_HAS_TOUCHED_CCW_BRAMBLE_FIELD);
                     break;
 
                 case MAP_D_BGS_BUBBLEGLOOP_SWAMP://8029DB68
                 case MAP_72_GL_BGS_LOBBY:
-                    func_8035644C(FILEPROG_F_HAS_TOUCHED_PIRAHANA_WATER);
+                    progressDialog_showDialogMaskZero(FILEPROG_F_HAS_TOUCHED_PIRAHANA_WATER);
                     break;
 
                 case MAP_3C_RBB_KITCHEN://8029DB78
-                    func_8035644C(FILEPROG_A9_HAS_TOUCHED_RBB_OVEN);
+                    progressDialog_showDialogMaskZero(FILEPROG_A9_HAS_TOUCHED_RBB_OVEN);
                     break;
 
                 case MAP_12_GV_GOBIS_VALLEY://8029DB88
                 case MAP_6E_GL_GV_LOBBY:
                 case MAP_8E_GL_FURNACE_FUN://8029DB88
-                    func_8035644C(FILEPROG_10_HAS_TOUCHED_SAND_EEL_SAND);
+                    progressDialog_showDialogMaskZero(FILEPROG_10_HAS_TOUCHED_SAND_EEL_SAND);
                     break;
 
                 case MAP_27_FP_FREEZEEZY_PEAK://8029DB98
                 case MAP_7F_FP_WOZZAS_CAVE://8029DB98
-                    func_8035644C(FILEPROG_14_HAS_TOUCHED_FP_ICY_WATER);
+                    progressDialog_showDialogMaskZero(FILEPROG_14_HAS_TOUCHED_FP_ICY_WATER);
                     break;
 
                 case MAP_1B_MMM_MAD_MONSTER_MANSION://8029DBA8
-                    if(!func_8029CFA0())
-                        func_8035644C(FILEPROG_86_HAS_TOUCHED_MMM_THORN_HEDGE);
+                    if(!isOnFloor())
+                        progressDialog_showDialogMaskZero(FILEPROG_86_HAS_TOUCHED_MMM_THORN_HEDGE);
                     break;
             }
         }

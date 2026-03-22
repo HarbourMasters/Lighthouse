@@ -92,12 +92,12 @@ void chBossJinjoBase_update(Actor *this) {
         this->unk38_31 = 0;
         this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
-        func_8030DD14(this->unk44_31, 2);
+        sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
         sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
         sfxsource_setSampleRate(this->unk44_31, 32000);
         local->sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(local->sfxsourceIdx, SFX_405_UNKNOWN);
-        func_8030DD14(local->sfxsourceIdx, 2);
+        sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 2);
         sfxsource_playSfxAtVolume(local->sfxsourceIdx, 0.7f);
         sfxsource_setSampleRate(local->sfxsourceIdx, 12000);
         FUNC_8030E624(SFX_3F6_RUBBING, 0.6f, 20000);
@@ -122,8 +122,8 @@ void chBossJinjoBase_update(Actor *this) {
 
             if(this->position_y + y_delta < this->unk1C[1]) {
                 if( !fileProgressFlag_get(FILEPROG_D2_HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT) || this->unkF4_8 == 1) {
-                    func_8030E2C4(this->unk44_31);
-                    func_8030E2C4(local->sfxsourceIdx);
+                    sfxSource_func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(local->sfxsourceIdx);
                 }
                 
                 position_delta[0] = (rumbling & 1) ? 3.0f : -3.0f;

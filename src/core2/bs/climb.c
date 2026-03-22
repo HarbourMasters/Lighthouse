@@ -222,6 +222,6 @@ void func_802ABD60(void){
         func_80296608();
         return;
     }
-    func_8029A86C(1);
+    bs_setInterruptResponse(1);
     bs_setState(next_state);
 }

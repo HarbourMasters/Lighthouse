@@ -54,7 +54,7 @@ void func_8038E1A8(Actor *this){
     }//L8038E2E8
 }
 
-void func_8038E2FC(ActorMarker *this_marker){
+void chjinjonatorbase_update(ActorMarker *this_marker){
     Actor *this = marker_getActor(this_marker);
     Actor *other = func_8032A7AC(this);
     if(other){

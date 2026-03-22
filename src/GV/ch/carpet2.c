@@ -90,7 +90,7 @@ void func_8038D47C(Actor *this){
                 mapSpecificFlags_set(0xF, true);
                 func_8028F918(2);
                 subaddie_set_state_forward(this, 3);
-                func_802BAFE4(0);
+                gcStaticCamera_activate(0);
             }
             break;
         case 2: //L8038D78C

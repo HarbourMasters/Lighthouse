@@ -24,8 +24,8 @@ extern Cube *func_80308224(void);
 extern Cube *func_8030364C(void);
 extern Cube *cube_atPosition_s32(s32 position[3]);
 
-extern f32 func_8030A590(Prop *); // [port] was (void) — takes Prop* arg (MIPS implicit $a0)
-extern void func_8030A5EC(Prop *, f32);
+extern f32 propModelList_getScale(Prop *); // [port] was (void) — takes Prop* arg (MIPS implicit $a0)
+extern void propModelList_setScale(Prop *, f32);
 
 Prop *func_80303F7C(s32, f32, s32, s32);
 s32 func_803058C0(f32);
@@ -33,12 +33,12 @@ void func_80305CD8(s32, s32);
 void code_A5BC0_initCubePropActorProp(Cube*);
 ActorMarker * func_80332A60(void);
 extern void func_8032F3D4(s32 [3], ActorMarker *, s32);
-extern void func_8030A350(Gfx **, Mtx **, Vtx **, f32[3], f32, s32, Cube*,s32 ,s32, s32, s32, s32);  
-extern void func_8030A2D0(Gfx **, Mtx **, Vtx **, f32[3], f32[3], f32, s32, Cube*);
+extern void propModelList_drawSprite(Gfx **, Mtx **, Vtx **, f32[3], f32, s32, Cube*,s32 ,s32, s32, s32, s32);  
+extern void propModelList_drawModel(Gfx **, Mtx **, Vtx **, f32[3], f32[3], f32, s32, Cube*);
 s32 func_8032D9C0(Cube*, Prop*);
 void func_8032F21C(Cube *cube, s32 position[3], ActorMarker *marker, bool arg3);
 void func_80332B2C(ActorMarker * arg0);
-BKSprite *func_8030A55C(s32 arg0);
+BKSprite *propModelList_getSprite(s32 arg0);
 
 typedef union{
     struct{
@@ -71,7 +71,7 @@ BKSprite *func_80330F50(ActorMarker * marker);
 s32 D_8036E7B0 = 0;
 u8 pad_8036E7B4[0xC] = {0}; //PROBABLY INDICATES FILE BREAK
 
-ModelCache *modelCache = NULL; //D_8036E7C0 //model pointer array pointer
+ModelCache *modelCache = NULL; //modelCache //model pointer array pointer
 u8 *D_8036E7C4 = NULL;
 ActorMarker *D_8036E7C8 = NULL;
 
@@ -186,7 +186,7 @@ void func_8032CD60(Prop *prop) {
     // Original: ((u16*)prop)[5] & 1 → markerFlag, ((u16*)prop)[0] >> 4 → unk0_31
     if (prop->markerFlag && prop->actorProp.marker == NULL) return;
     var_v0 = prop->markerFlag ? func_80330F50(prop->actorProp.marker)
-           : func_8030A55C(prop->spriteProp.unk0_31);
+           : propModelList_getSprite(prop->spriteProp.unk0_31);
     if ((var_v0 != NULL) && ((var_v0->unkC.bit27 != 0))) {
        sp48 = var_v0->unkC.bit31;
        sp44 = var_v0->unkC.bit27;
@@ -270,12 +270,12 @@ void func_8032CD60(Prop *prop) {
     }
 }
 
-void func_8032D120(Cube *cube){
+void cube_sortAbsolute(Cube *cube){
     if(cube->prop2Cnt >= 2)
         func_8032CB50(cube, 1);
 }
 
-void func_8032D158(Cube *cube){
+void cube_sortRelative(Cube *cube){
     if(cube->prop2Cnt >= 2)
         func_8032CB50(cube, 0);
 }
@@ -398,13 +398,13 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                     sp88[0] = 0.0f;
                     sp88[1] = (f32)((s32)iProp->modelProp.unk0_15*2);
                     sp88[2] = (f32)((s32)iProp->modelProp.unk0_7*2);
-                    func_8030A2D0(gfx, mtx, vtx, 
+                    propModelList_drawModel(gfx, mtx, vtx, 
                         sp94, sp88, (f32)iProp->modelProp.unkA/100.0,
                         iProp->modelProp.unk0_31, cube
                     );
                 }
                 else{//L8032D72C
-                    func_8030A350( gfx, mtx, vtx,
+                    propModelList_drawSprite( gfx, mtx, vtx,
                         sp94, (f32)iProp->spriteProp.unk0_9/100.0, iProp->spriteProp.unk0_31, cube,
                         iProp->spriteProp.unk0_18, iProp->spriteProp.unk0_15, iProp->spriteProp.unk0_12,
                         iProp->spriteProp.unk0_1, iProp->spriteProp.unk8_15
@@ -1319,7 +1319,7 @@ void func_8032FFD4(ActorMarker *this, s32 arg1){
     this->actrArrayIdx = arg1;
 }
 
-void func_8032FFEC(ActorMarker *this, s32 arg1){
+void marker_setCommonParticleIndex(ActorMarker *this, s32 arg1){
     this->unk28 = arg1;
 }
 
@@ -1826,8 +1826,8 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
         if(var_s1);
 
         if (!var_s1->markerFlag && var_s1->unk8_1 && var_s1->unk8_4) { //ModelProp
-            var_s0 = func_8030A4B4(var_s1->modelProp.unk0_31);
-            if ((var_s0 != NULL) || (func_8028F280() && ((var_s0 = func_8030A428(var_s1->modelProp.unk0_31)) != NULL))) {
+            var_s0 = propModelList_getModelIfActive(var_s1->modelProp.unk0_31);
+            if ((var_s0 != NULL) || (func_8028F280() && ((var_s0 = propModelList_getModel(var_s1->modelProp.unk0_31)) != NULL))) {
                 temp_s2 = model_getCollisionList(var_s0);
                 if (temp_s2 != 0) {
                     spAC[0] = (f32) var_s1->modelProp.unk4[0];
@@ -1929,7 +1929,7 @@ BKCollisionTri *func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3, f3
   {
     if (((!var_s0->markerFlag) && var_s0->unk8_1) && var_s0->unk8_4)
     {
-      model_bin = func_8030A4B4(var_s0->modelProp.unk0_31);
+      model_bin = propModelList_getModelIfActive(var_s0->modelProp.unk0_31);
       if (model_bin == 0)
       {
         continue;
@@ -2031,7 +2031,7 @@ BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 arg3[
         if (((!var_s0->markerFlag) && var_s0->unk8_1) && var_s0->unk8_4)
         {
             mProp = &var_s0->modelProp;
-            new_var = func_8030A4B4(mProp->unk0_31); 
+            new_var = propModelList_getModelIfActive(mProp->unk0_31); 
             if (1) { } if (1) { } if (1) { }
             model_bin = new_var;
             if (model_bin != 0){
@@ -2115,7 +2115,7 @@ f32 func_80331D20(BKSprite *sprite) {
 
 
 f32 func_80331E34(Prop *arg0){
-    return func_80331D20(func_8030A55C(arg0->spriteProp.unk0_31));
+    return func_80331D20(propModelList_getSprite(arg0->spriteProp.unk0_31));
 }
 
 f32 func_80331E64(ActorMarker *marker) {
@@ -2134,11 +2134,11 @@ f32 func_80331E64(ActorMarker *marker) {
 
 
 f32 func_80331F1C(Prop *arg0){
-    // [port] func_8030A428 can return NULL when asset is missing from o2r (N64 ROM always had it)
-    // D_80382390 array is 0x2A2 elements; out-of-range index → crash after defrag moves the array
+    // [port] propModelList_getModel can return NULL when asset is missing from o2r (N64 ROM always had it)
+    // sPropModelList array is 0x2A2 elements; out-of-range index → crash after defrag moves the array
     s32 idx = arg0->modelProp.unk0_31;
     if (idx < 0 || idx >= 0x2A2) return 0.0f;
-    BKModelBin *model = func_8030A428(idx);
+    BKModelBin *model = propModelList_getModel(idx);
     if (model == NULL) return 0.0f;
     // [port] model_getVtxList offsets into the model blob; if vtx_list_offset is 0 it returns the header itself
     if (model->vtx_list_offset_10 == 0) return 0.0f;
@@ -2208,9 +2208,9 @@ f32 func_803320BC(ActorProp *prop, f32 (*arg1)(ActorMarker *)) {
 f32 func_80332220(Prop * prop, f32 (*arg1)(Prop *)) {
     f32 phi_f12;
 
-    phi_f12 = func_8030A590(prop); // [port] was missing arg — MIPS $a0 implicit passthrough
+    phi_f12 = propModelList_getScale(prop); // [port] was missing arg — MIPS $a0 implicit passthrough
     if (phi_f12 == 0.0f) {
-        func_8030A5EC(prop, phi_f12 = arg1(prop) * 0.5);
+        propModelList_setScale(prop, phi_f12 = arg1(prop) * 0.5);
     }
     return phi_f12;
 }

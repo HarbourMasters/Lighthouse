@@ -246,7 +246,7 @@ static void __maCastle_setLetterFloorTileState(LetterFloorTile *arg0, s32 arg1)
     arg0->timeDeltaSum = 0.0f;
     if ((arg1 == 1) && (temp_v0 != arg1))
     {
-        func_8025A6EC(COMUSIC_2C_BUZZER, 32000);
+        coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 32000);
     }
 }
 
@@ -418,7 +418,7 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                     }
                     if (cheatcode_ptr->code[cheatcode_ptr->codeCharacterIdx] == 0)
                     {
-                        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
+                        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
 
                         if (is_in_ff_minigame)
                         {
@@ -437,14 +437,14 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                                 sMapState.unkC = 0.0f;
                                 mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
                                 fileProgressFlag_set(FILEPROG_FA_UNKNOWN, true);
-                                func_8030E2C4(sMapState.doorOpeningSfxSourceIdx);
+                                sfxSource_func_8030E2C4(sMapState.doorOpeningSfxSourceIdx);
                                 __maCastle_setupCheatCodeTimer(2);
                             }
                             // blue eggs & red/gold feathers check
                             else if (var_v0 & 0xE)
                             {
                                 // trigger dialog
-                                func_8035644C((cheatcode_ptr - sCheatCodes) - 1 + FILEPROG_BE_CHEATO_BLUEEGGS);
+                                progressDialog_showDialogMaskZero((cheatcode_ptr - sCheatCodes) - 1 + FILEPROG_BE_CHEATO_BLUEEGGS);
                                 switch ((cheatcode_ptr - sCheatCodes) - 1)
                                 {
                                     default:
@@ -472,7 +472,7 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                     }
                     else
                     {
-                        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                     }
                 }
             }
@@ -543,7 +543,7 @@ void maCastle_init(void)
             timed_exitStaticCamera(2.0f);
             func_80324E38(2.0f, 0);
             func_803228D8();
-            timedFunc_set_3(2.0f, (GenFunction_3)func_802E4078, MAP_7_TTC_TREASURE_TROVE_COVE, 1, 0);
+            timedFunc_set_3(2.0f, (GenFunction_3)transitionToMap, MAP_7_TTC_TREASURE_TROVE_COVE, 1, 0);
         }
         else if (levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN) || volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
             func_8034E71C(sp2C, -500, 0.0f);
@@ -561,12 +561,12 @@ void maCastle_init(void)
         sMapState.doorOpeningSfxSourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_playSfxAtVolume(sMapState.doorOpeningSfxSourceIdx, 0.1f);
         sfxsource_setSfxId(sMapState.doorOpeningSfxSourceIdx, SFX_3EC_CCW_DOOR_OPENING);
-        func_8030DD14(sMapState.doorOpeningSfxSourceIdx, 3);
+        sfxSource_setunk43_7ByIndex(sMapState.doorOpeningSfxSourceIdx, 3);
         sfxsource_setSampleRate(sMapState.doorOpeningSfxSourceIdx, 28000);
 
         sMapState.dullCannonShotSfxSourceId = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(sMapState.dullCannonShotSfxSourceId, SFX_3_DULL_CANNON_SHOT);
-        func_8030DD14(sMapState.dullCannonShotSfxSourceId, 3);
+        sfxSource_setunk43_7ByIndex(sMapState.dullCannonShotSfxSourceId, 3);
         sfxsource_setSampleRate(sMapState.dullCannonShotSfxSourceId, 0x7fff);
         __maCastle_initFloorTiles();
         __maCastle_resetCheatCodeProgress();
@@ -592,7 +592,7 @@ void maCastle_update(void)
     time_delta = time_getDelta();
     if (__maCastle_getNumberOfBannedCheatCodesEntered() == 3)
     {
-        func_802C5A3C(-1);
+        gameSelect_setGameNumber(-1);
     }
     if (sMapState.model1 != 0)
     {
@@ -642,8 +642,8 @@ void maCastle_update(void)
             if (sMapState.unkC > 4.0f)
             {
                 sMapState.banjoKazooieCodeEnteredState = 3;
-                func_8030E2C4(sMapState.dullCannonShotSfxSourceId);
-                func_8030E394(sMapState.doorOpeningSfxSourceIdx);
+                sfxSource_func_8030E2C4(sMapState.dullCannonShotSfxSourceId);
+                sfxSource_triggerCallbackByIndex(sMapState.doorOpeningSfxSourceIdx);
             }
         }
     }
@@ -1034,9 +1034,9 @@ static void __maCastle_eraseGameplayDialogCallback(ActorMarker *caller, enum ass
         __maCastle_setNumberOfBannedCheatcodesEntered(3);
         __maCastle_checkSecretCheatCodeIndex(sThirdForbiddenSecretCheatCodeIndex);
         gcdialog_showText(ASSET_FBF_DIALOG_ERASED_SAVE, 0xC, NULL, NULL, NULL, NULL);
-        gameFile_clear(func_802C5A30());
-        gameFile_8033CFD4(func_802C5A30());
-        func_802C5A3C(-1);
+        gameFile_clear(gameSelect_getGameNumber());
+        gameFile_8033CFD4(gameSelect_getGameNumber());
+        gameSelect_setGameNumber(-1);
         return;
     }
     __maCastle_resetSecretCheatCodeProgress();

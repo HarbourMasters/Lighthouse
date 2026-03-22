@@ -9,7 +9,7 @@ Actor *FP_func_8038CED0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_8038D6C8(Actor *this);
 
 /* .data */
-ActorAnimationInfo D_803920C0[] ={
+ActorAnimationInfo fight_RODATA_START[] ={
     {0x000, 0.0f},
     {0x16D, 10000000.0f},
     {0x237, 2.0f},
@@ -18,7 +18,7 @@ ActorAnimationInfo D_803920C0[] ={
 };
 
 ActorInfo D_803920E8 = { 0x204, 0x336, 0x442,
-    0x1, D_803920C0,
+    0x1, fight_RODATA_START,
     func_8038D6C8, actor_update_func_80326224, FP_func_8038CED0,
     0, 0, 0.0f, 0
 };
@@ -263,7 +263,7 @@ void func_8038D5C8(ActorMarker *this_marker, ActorMarker *other_marker){
         func_8028F490(D_8039237C);
         func_8028F8F8(7, 1);
         this->unk1C[1] = 0.0f;
-        func_8025A6EC(COMUSIC_68_TWINKLY_MINIGAME, 25000);
+        coMusicPlayer_playMusic(COMUSIC_68_TWINKLY_MINIGAME, 25000);
         func_8025A58C(0, 4000);
         core1_ce60_incOrDecCounter(false);
         this->unk1C[2] = 428571.0f;
@@ -316,7 +316,7 @@ void func_8038D6C8(Actor *this){
     switch (this->state)
     {
     case 1: //L8038D89C
-        if(!func_80329530(this, 800))
+        if(!subaddie_playerIsWithinSphereAndActive(this, 800))
             break;
 
         if(!(globalTimer_getTime() & 1))
@@ -382,7 +382,7 @@ void func_8038D6C8(Actor *this){
         func_8025AEA0(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
         if(item_getCount(ITEM_24_TWINKLY_SCORE) == 0){
             subaddie_set_state_with_direction(this, 1, 0.001f, 1);
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
             func_8038D3D8();
             func_80324E38(0.0f, 3);
             timedFunc_set_1(1.3f, (GenFunction_1)func_8038D51C, (uintptr_t)this->marker);
@@ -397,7 +397,7 @@ void func_8038D6C8(Actor *this){
             actor_playAnimationOnce(this);
             this->unk38_31 = 0;
             item_set(ITEM_6_HOURGLASS, false);
-            func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+            coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 28000);
             func_8028F8F8(7, false);
             this->unk1C[1] = 1.0f;
             func_8038D3D8();
@@ -426,7 +426,7 @@ bool func_8038DD14(void){
 
 bool func_8038DD34(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
-    if(func_80329530(this, 800))
+    if(subaddie_playerIsWithinSphereAndActive(this, 800))
         return true;
     return false;
 }

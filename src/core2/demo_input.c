@@ -25,7 +25,7 @@ typedef struct demo_file_header{
 
 void demo_free(void);
 
-DemoInput D_80371EF0 = {0, 0, 0, 2, 0};
+DemoInput _binary_bin_core2_data_EAF40_bin_end = {0, 0, 0, 2, 0};
 
 /* .bss */
 DemoInput *D_803860D0; //demo_input_ptr
@@ -49,7 +49,7 @@ int demo_readInput(OSContPad* arg0, s32* arg1){
     int not_eof = D_803860D8 < D_803860DC;
 
     if(!not_eof)
-        input_ptr = &D_80371EF0;
+        input_ptr = &_binary_bin_core2_data_EAF40_bin_end;
 #endif
 
     arg0->stick_x = input_ptr->unk0;
@@ -78,8 +78,8 @@ void func_80349FB0(DemoInput *input_ptr, u32 size, int arg2){
 
     func_8030AFD8(0);
     func_80321854();
-    func_8031FBF8();
-    func_8031FBA0();
+    debugScoreStates();
+    clearScoreStates();
     func_803216D0(map_get());
     func_8030AFA0(map_get());
     volatileFlag_set(VOLATILE_FLAG_C4_WOZZA_HIDE_IN_SNS_PARADE, 1);

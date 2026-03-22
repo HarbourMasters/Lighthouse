@@ -9,7 +9,7 @@ extern void func_802D3D74(Actor *);
 extern void func_80325F84(Actor *);
 
 
-extern ActorInfo D_8038EB50;
+extern ActorInfo CCW_TEXT_END;
 extern ActorInfo D_8038EB74;
 extern ActorInfo D_8038EBA0;
 extern ActorInfo D_8038EBD0;
@@ -102,7 +102,7 @@ void CCW_func_8038DB0C(Actor *this){
 
 void CCW_func_8038DB6C(void)
 {
-    spawnableActorList_add(&D_8038EB50, actor_new, ACTOR_FLAG_UNKNOWN_7);
+    spawnableActorList_add(&CCW_TEXT_END, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&D_8038EB74, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&D_8038EBA0, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8);
     spawnableActorList_add(&D_8038EBD0, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_25);

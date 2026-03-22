@@ -43,7 +43,7 @@ struct {
     s32 unk4; //calculated SM_code_crc2
     s32 unk8; //calculated SM_data_crc1
     s32 unkC; //calculated SM_data_crc2
-} D_8038B320;
+} SM_BSS_START;
 
 static bool __codeF0_areRomCrcsCorrect();
 static bool __codeF0_areCrcsValid();
@@ -137,10 +137,10 @@ static bool __codeF0_areRomCrcsCorrect(){
 
 static bool __codeF0_areCrcsValid(){
 #if 0
-    if( D_8038B320.unk0 == D_8038AAE0
-        && D_8038B320.unk4 == D_8038AAE4 
-        && D_8038B320.unkC == D_80275650 
-        && D_8038B320.unk8 == D_8038AAE8.word + D_8038AAE8.byte[0] + D_8038AAE8.byte[1] + D_8038AAE8.byte[2] + D_8038AAE8.byte[3]
+    if( SM_BSS_START.unk0 == D_8038AAE0
+        && SM_BSS_START.unk4 == D_8038AAE4 
+        && SM_BSS_START.unkC == D_80275650 
+        && SM_BSS_START.unk8 == D_8038AAE8.word + D_8038AAE8.byte[0] + D_8038AAE8.byte[1] + D_8038AAE8.byte[2] + D_8038AAE8.byte[3]
     ){
         return true;
     }

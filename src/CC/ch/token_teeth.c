@@ -37,7 +37,7 @@ void CC_func_80386FE0(Actor *this, s32 next_state){
     this->state = next_state;
     local->unk8 = 0.0f;
     if(this->state == 2){
-        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
     else if(this->state == 3){
         if(prev_state == 2){
@@ -123,7 +123,7 @@ void func_803870F8(Actor *this){
         if(local->egg_count == 3){
             CC_func_80386FE0(this, 2);
         }else{
-            func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         }
     }
     else if(this->state == 2 && 1.0f <= local->unk8){

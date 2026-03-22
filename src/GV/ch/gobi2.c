@@ -61,7 +61,7 @@ void func_80387A2C(ActorMarker *caller, enum asset_e text_id, s32 arg2){
 }
 
 void chGobi2_setState(Actor *this, s32 next_state){
-    static f32 D_80390CEC[3] = {1145.0f, 443.0f, 9197.0f};
+    static f32 pad_80390CEC[3] = {1145.0f, 443.0f, 9197.0f};
 
     ActorLocal_Gobi2 *local = (ActorLocal_Gobi2 *)&this->local;
 
@@ -85,7 +85,7 @@ void chGobi2_setState(Actor *this, s32 next_state){
         timed_playSfx(0.8f, SFX_4B_GULPING, 0.8f, 28000);
         timed_playSfx(1.4f, SFX_4B_GULPING, 0.8f, 28000);
         timed_playSfx(2.0f, SFX_4B_GULPING, 0.8f, 28000);
-        func_80324DBC(3.0f, ASSET_A72_DIALOG_TRUNKER_HELPED, 0x2A, D_80390CEC, this->marker, func_80387A2C, NULL);
+        func_80324DBC(3.0f, ASSET_A72_DIALOG_TRUNKER_HELPED, 0x2A, pad_80390CEC, this->marker, func_80387A2C, NULL);
     }//L80387C94
 
     if(next_state == 4){
@@ -201,7 +201,7 @@ void chGobi2_update(Actor *this){
 
     if(this->state == 2){
         if(!this->has_met_before){
-            if(func_80329530(this, 0xFA) && !func_80329530(this, 0x50)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 0xFA) && !subaddie_playerIsWithinSphereAndActive(this, 0x50)){
                 if(func_8028F2A0()){
                     if(gcdialog_showText(ASSET_A75_DIALOG_GOBI2_MEET, 0, this->position, NULL, NULL, NULL))
                         this->has_met_before = true;

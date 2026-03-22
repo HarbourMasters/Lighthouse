@@ -127,7 +127,7 @@ void func_803881AC(Actor *this){
         if(0.0f == this->velocity_x)
             return;
     }else{
-        if(!func_80329530(this, 2000) && !maSlolam_WithinRadiusOfBoggy(this->position, 2000))
+        if(!subaddie_playerIsWithinSphereAndActive(this, 2000) && !maSlolam_WithinRadiusOfBoggy(this->position, 2000))
             return;
         this->marker->collidable = true;
         this->unk124_6 = true;
@@ -142,7 +142,7 @@ void func_803881AC(Actor *this){
     }
 
     if( 1.0f == this->velocity_x && func_80387EE4(this)){
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         maSlalom_setPlayerGate(this->unkF4_8);
     }
 

@@ -89,7 +89,7 @@ void chLoggo_update(Actor *this) {
 
     switch (this->state) {
         case LOGGO_STATE_1_IDLE:
-            sp34 = func_803114B0() ? 12000 : 0;
+            sp34 = gcdialog_hasCurrentTextId() ? 12000 : 0;
 
             if (actor_animationIsAt(this, 0.09f)) {
                 func_8030E878(SFX_109_LOGGO_LID_CLAP, randf2(0.975f, 1.025f), MAX(0, 22000 - sp34), this->position, 400.0f, 1000.0f);

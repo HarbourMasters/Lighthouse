@@ -7,7 +7,7 @@
 #include "version.h"
 
 void _guRotateF(f32 mf[4][4], f32, f32, f32, f32);
-f32 func_80263FF0(f32);
+f32 sinf(f32);
 f32 cosf(f32);
 
 #if VERSION == VERSION_USA_1_0

@@ -197,12 +197,12 @@ void func_8035F138(Actor *this) {
                 this->velocity[0] = this->yaw;
             }
             anctrl_setAnimTimer(this->anctrl, 0.0f);
-            if (func_80329530(this, (s32) (this->scale * 650.0f)) && func_803292E0(this)) {
+            if (subaddie_playerIsWithinSphereAndActive(this, (s32) (this->scale * 650.0f)) && func_803292E0(this)) {
                 subaddie_set_state(this, 2U);
                 actor_playAnimationOnce(this);
                 this->unk1C[1] = 1.0f;
                 this->unk44_31 = func_8030ED2C(SFX_2C_PULLING_NOISE, 3);
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             break;
 
@@ -224,7 +224,7 @@ void func_8035F138(Actor *this) {
 
         case 3: //L8035F3AC
             func_8035EF3C(this);
-            if (!func_80329530(this, (s32) (this->scale * 1050.0f)) || !func_803292E0(this)) {
+            if (!subaddie_playerIsWithinSphereAndActive(this, (s32) (this->scale * 1050.0f)) || !func_803292E0(this)) {
                 func_8035EEC0(this);
                 break;
             }
@@ -244,7 +244,7 @@ void func_8035F138(Actor *this) {
 
         case 4: //L8035F4FC
             func_8035EF3C(this);
-            if (((f64)this->unk38_31 <= 0.0) && func_80329530(this, (s32) (this->scale * 1050.0f)) && func_803292E0(this)) {
+            if (((f64)this->unk38_31 <= 0.0) && subaddie_playerIsWithinSphereAndActive(this, (s32) (this->scale * 1050.0f)) && func_803292E0(this)) {
                 func_8035EE80(this);
                 break;
             }
@@ -265,7 +265,7 @@ void func_8035F138(Actor *this) {
 
         case 5: //L8035F6F4
             if (actor_animationIsAt(this, 0.36f) != 0) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             if ((this->unk44_31 != 0) && func_8030E3FC(this->unk44_31)) {
                 if (this->unk1C[1] > 1.0) {

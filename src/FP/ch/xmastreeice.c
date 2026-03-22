@@ -38,13 +38,13 @@ void func_80390944(f32 position[3], s32 cnt, enum asset_e model_id){
     particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_80392754);
     particleEmitter_func_802EF9F8(pCtrl, 0.6f);
     particleEmitter_func_802EFA18(pCtrl, 0);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_7B_ICE_BREAKING_1, 8000);
     particleEmitter_emitN(pCtrl, cnt);
 }
 
 void func_80390A30(f32 position[3], s32 cnt, enum asset_e sprite_id){
-    static ParticleScaleAndLifetimeRanges D_803927C4 = {{0.6f, 0.8f}, {1.0f, 1.4f}, {0.0f, 0.01f}, {1.2f, 1.8f}, 0.0f, 0.01f};
+    static ParticleScaleAndLifetimeRanges sFinalBossJinjoStatueActivated = {{0.6f, 0.8f}, {1.0f, 1.4f}, {0.0f, 0.01f}, {1.2f, 1.8f}, 0.0f, 0.01f};
     static ParticleSettingsVelocityAccelerationPosition D_803927EC = {
         {{-200.0f,   0.0f, -200.0f}, {200.0f, 200.0f, 200.0f}}, /*position*/
         {{   0.0f, -10.0f,    0.0f}, {  0.0f, -10.0f,   0.0f}}, /*velocitcy*/
@@ -56,7 +56,7 @@ void func_80390A30(f32 position[3], s32 cnt, enum asset_e sprite_id){
     particleEmitter_setSprite(pCtrl, sprite_id);
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_803927EC);
-    particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_803927C4);
+    particleEmitter_setScaleAndLifetimeRanges(pCtrl, &sFinalBossJinjoStatueActivated);
     particleEmitter_emitN(pCtrl, cnt);
 }
 
@@ -65,14 +65,14 @@ void func_80390ABC(ActorMarker *marker){
     func_80390944(this->position, 0xA, 0x4D3);
     func_80390A30(this->position, 6, ASSET_700_SPRITE_DUST);
     func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
-    func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     this->unk38_31 = 1;
 }
 
 void func_80390B2C(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
     func_803228D8();
-    func_802E4078(MAP_27_FP_FREEZEEZY_PEAK, 0xd, 0);
+    transitionToMap(MAP_27_FP_FREEZEEZY_PEAK, 0xd, 0);
     marker_despawn(this->marker);
 }
 

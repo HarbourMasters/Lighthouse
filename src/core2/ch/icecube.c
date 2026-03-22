@@ -46,7 +46,7 @@ Actor *chicecube_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 }
 
 int func_80359DF4(Actor *this, s32 arg1){
-    if(func_80329530(this, arg1) && func_803292E0(this))
+    if(subaddie_playerIsWithinSphereAndActive(this, arg1) && func_803292E0(this))
         return 1;
     return 0;
 }

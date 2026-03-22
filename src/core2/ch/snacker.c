@@ -374,7 +374,7 @@ void chSnacker_spawn(void) {
     if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) == 0) {
         func_8032BB88(snacker, 5000, 750);
         core1_ce60_incOrDecCounter(false);
-        func_8025A6EC(COMUSIC_34_SNACKER_DANGER, 0);
+        coMusicPlayer_playMusic(COMUSIC_34_SNACKER_DANGER, 0);
         comusic_8025AB44(COMUSIC_34_SNACKER_DANGER, 0x7FFF, 750);
         core1_ce60_incOrDecCounter(true);
     }

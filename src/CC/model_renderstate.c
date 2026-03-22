@@ -24,9 +24,9 @@ typedef struct{
     f32 unkC;
 }Struct_CC_13C0_1;
 
-extern Struct_CC_13C0_0 D_8036E834[];
+extern Struct_CC_13C0_0 jiggylist_list[];
 
-extern s32 D_80383568;
+extern s32 s_jiggyList_level_jiggy_count;
 
 // Struct5Fs *, struct struct_68_s *, f32[3], f32[3], f32, BKModelBin*, Gfx**, Mtx**, Vtx**);
 

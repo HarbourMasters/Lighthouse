@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-extern void func_8035644C(s32);
+extern void progressDialog_showDialogMaskZero(s32);
 
 typedef struct {
     enum mumbotoken_e uid;
@@ -28,7 +28,7 @@ void chMumboToken_collect(ActorMarker *marker, ActorMarker *other_marker){
     this = marker_getActor(marker);
     mumboscore_set(func_802E0CB0(this), true);
     func_8030E760(0x401, 1.0f, 0x7fff);
-    timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_4_MUMBO_TOKEN_TEXT); // [port]
+    timedFunc_set_1(0.75f, (GenFunction_1)progressDialog_showDialogMaskZero, FILEPROG_4_MUMBO_TOKEN_TEXT); // [port]
     fxSparkle_mumboToken(&marker->propPtr->x);
     item_inc(ITEM_1C_MUMBO_TOKEN);
     marker_despawn(marker);

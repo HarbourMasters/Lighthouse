@@ -288,7 +288,7 @@ void func_80389F08(ActorMarker *marker) {
     var_s2 = actorArray_actorCount(ACTOR_49_EXTRA_LIFE);
     vile = marker_getActor(local->vile_marker);
     if (var_s2 > 0) {
-        func_8025A6EC(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FF8);
+        coMusicPlayer_playMusic(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FF8);
     }
     for(i = 0; i < 3; i++){
         if (var_s2 < 3) {
@@ -362,7 +362,7 @@ void func_8038A068(Actor *this, s32 next_state) {
             mapSpecificFlags_set(6, true);
             func_8038C3DC(local->vile_marker);
             func_8025A58C(0, 4000);
-            timedFunc_set_2(1.0f, (GenFunction_2)func_8025A6EC, COMUSIC_55_BGS_MR_VILE, 28000);
+            timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_55_BGS_MR_VILE, 28000);
         }
     }
     if (this->state == 5) {
@@ -378,28 +378,28 @@ void func_8038A068(Actor *this, s32 next_state) {
     if (next_state == 6) {
         func_8038C3B0(local->vile_marker);
         func_80324E38(0.0f, 3);
-        timedFunc_set_2(1.0f, (GenFunction_2)func_8025A6EC, COMUSIC_3C_MINIGAME_LOSS, 28000);
+        timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3C_MINIGAME_LOSS, 28000);
         timedFunc_set_0(4.0f, (GenFunction_0)func_8038A044);
         timedFunc_set_1(4.0f, (GenFunction_1)func_80389C58, (uintptr_t)this->marker);
     }
     if (next_state == 8) {
         func_8038C3B0(local->vile_marker);
         func_80324E38(0.0f, 3);
-        timedFunc_set_2(1.0f, (GenFunction_2)func_8025A6EC, COMUSIC_3B_MINIGAME_VICTORY, 28000);
+        timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
         timedFunc_set_0(3.0f, (GenFunction_0)func_8038A044);
         timedFunc_set_1(3.0f, (GenFunction_1)func_80389D20, (uintptr_t)this->marker);
     }
     if (next_state == 9) {
         func_8038C3B0(local->vile_marker);
         func_80324E38(0.0f, 3);
-        timedFunc_set_2(1.0f, (GenFunction_2)func_8025A6EC, COMUSIC_3B_MINIGAME_VICTORY, 28000);
+        timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
         timedFunc_set_0(3.0f, (GenFunction_0)func_8038A044);
         timedFunc_set_1(3.0f, (GenFunction_1)func_80389E40, (uintptr_t)this->marker);
     }
     if (next_state == 0xA) {
         func_8038C3B0(local->vile_marker);
         func_80324E38(0.5f, 3);
-        timedFunc_set_2(1.0f, (GenFunction_2) func_8025A6EC, COMUSIC_3B_MINIGAME_VICTORY, 28000);
+        timedFunc_set_2(1.0f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
         timedFunc_set_1(3.0f, (GenFunction_1) func_80389F08, (uintptr_t)this->marker);
     }
     if (next_state == 7) {
@@ -429,7 +429,7 @@ void chvilegame_player_consume_piece(Actor *this) {
                     local->player_score++;
                     if (local->player_score == 35) {
                         item_inc(ITEM_16_LIFE);
-                        func_8025A6EC(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FF8);
+                        coMusicPlayer_playMusic(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FF8);
                     }
                     timedFunc_set_1(0.0f, (GenFunction_1)func_802FDCB8, ITEM_1A_PLAYER_VILE_SCORE);
                     timedFunc_set_1(0.5f, (GenFunction_1)func_802FDCB8, ITEM_1A_PLAYER_VILE_SCORE);

@@ -160,7 +160,7 @@ void __chSmBottles_setState(Actor *this, s32 next_state) {
 
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
             sfxsource_setSfxId(this->unk44_31, 0x3f9);
-            func_8030DD14(this->unk44_31, 2);
+            sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
             sfxsource_setSampleRate(this->unk44_31, 0x6590);
 
@@ -194,7 +194,7 @@ void __chSmBottles_setState(Actor *this, s32 next_state) {
 
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
             sfxsource_setSfxId(this->unk44_31, 0x3f9);
-            func_8030DD14(this->unk44_31, 2);
+            sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
             sfxsource_setSampleRate(this->unk44_31, 0x6590);
 
@@ -498,7 +498,7 @@ void chSmBottles_update(Actor *this) {
                 if (((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && func_8028F20C()) ||
                     mapSpecificFlags_get(SM_SPECIFIC_FLAG_10)
                 ) {//L80389C8C
-                    if (func_80329530(this, 0x96)) {
+                    if (subaddie_playerIsWithinSphereAndActive(this, 0x96)) {
                         func_8028F45C(9, this->position);
                     }
 
@@ -507,7 +507,7 @@ void chSmBottles_update(Actor *this) {
                 }
             }
             else {//L80389CBC
-                if (!func_80329530(this, 0xfa) || player_movementGroup() || !func_8028F20C() || func_8028EC04()) {
+                if (!subaddie_playerIsWithinSphereAndActive(this, 0xfa) || player_movementGroup() || !func_8028F20C() || func_8028EC04()) {
                     break;
                 }
 
@@ -520,7 +520,7 @@ void chSmBottles_update(Actor *this) {
                                 __chSmBottles_setState(this, SM_BOTTLES_STATE_5_UNKNOWN);
                             }
                             else {
-                                if (func_80329530(this, 0x96) && !sp34) {
+                                if (subaddie_playerIsWithinSphereAndActive(this, 0x96) && !sp34) {
                                     func_8028F45C(9, this->position);
                                 }
 
@@ -537,7 +537,7 @@ void chSmBottles_update(Actor *this) {
             func_80328FB0(this, 4.0f);
 
             if (0.0 < anctrl_getAnimTimer(this->anctrl) && anctrl_getAnimTimer(this->anctrl) < 0.16) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }//L80389EA0
 
             if (actor_animationIsAt(this, 0.9999f)) {
@@ -599,7 +599,7 @@ void chSmBottles_update(Actor *this) {
             if (this->unk38_0) {
                 this->lifetime_value += time_getDelta();
 
-                if (func_803114C4() != 0xe1d) {
+                if (gcdialog_getCurrentTextId() != 0xe1d) {
                     if (face_buttons[FACE_BUTTON(BUTTON_A)] == true) {
                         bakey_pressed = 1;
                     }
@@ -627,7 +627,7 @@ void chSmBottles_update(Actor *this) {
 
         case SM_BOTTLES_STATE_4_UNKNOWN: //L8038A31C
             if (0.35 < anctrl_getAnimTimer(this->anctrl) && anctrl_getAnimTimer(this->anctrl) < 0.9) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             else if (actor_animationIsAt(this, 0.9999f)) { //L8038A378
                 __chSmBottles_setState(this, SM_BOTTLES_STATE_1_UNKNOWN);

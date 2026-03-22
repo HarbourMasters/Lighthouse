@@ -30,7 +30,7 @@ Struct_CC_3130_0 D_80389C30[] = {
     { 240.0f, 0.8f}
 };
 
-ActorInfo D_80389C90 = {
+ActorInfo mm_juju_count = {
     MARKER_28_CLANKER_SAWBLADE, ACTOR_3D_CLANKER_SAWBLADE_PROPELLOR_1, ASSET_43A_MODEL_CLANKER_SAWBLADE_PROPELLOR, 
     0, NULL, 
     chSawblade_update, NULL, actor_draw, 

@@ -4,34 +4,34 @@
 #include "core2/statetimer.h"
 
 /* .bss */
-u8 D_8037C530;
+u8 iFrameState;
 
 /* .code */
-void func_80297C60(s32 arg0){
-    D_8037C530 = arg0;
+void baiFrame_setState(s32 arg0){
+    iFrameState = arg0;
 }
 
-s32 func_80297C6C(void){
-    return D_8037C530;
+s32 baiFrame_getState(void){
+    return iFrameState;
 }
 
-void func_80297C78(void){
-    D_8037C530 = 0;
-    func_80297C60(1);
+void baiFrame_reset(void){
+    iFrameState = 0;
+    baiFrame_setState(1);
     stateTimer_clear(STATE_TIMER_4_UNKNOWN);
 }
 
-void func_80297CA8(void){
-    func_80297CCC(0.6f);
+void baiFrame_start(void){
+    baiFrame_startWithValue(0.6f);
 }
 
-void func_80297CCC(f32 value){
+void baiFrame_startWithValue(f32 value){
     stateTimer_set(STATE_TIMER_4_UNKNOWN, value);
-    func_80297C60(3);
+    baiFrame_setState(3);
 }
 
-void func_80297CF8(void){
+void baiFrame_update(void){
     if(stateTimer_isDone(STATE_TIMER_4_UNKNOWN)){
-        func_80297C60(1);
+        baiFrame_setState(1);
     }
 }

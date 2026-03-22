@@ -54,7 +54,7 @@ void chcaterpillar_setState(Actor *this, s32 next_state) {
         local->unk24 = 0.0f;
     }
     if (next_state == 4) {
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         marker_despawn(this->marker);
     }
     if (next_state == 5) {

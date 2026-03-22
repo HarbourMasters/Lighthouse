@@ -6,18 +6,18 @@
 #include "core2/anim/sprite.h"
 
 extern u8 func_8033FA84(void); // [port] was s32 — returns u8
-extern u8 func_8035287C(void); // [port] was s32 — returns u8
+extern u8 commonParticleTypeMap_findFree(void); // [port] was s32 — returns u8
 extern u8 func_80344CDC(void); // [port] was s32 — returns u8
-extern void func_8032FFEC(ActorMarker *, s32); // [port] was (s32, s32) — first param is ActorMarker* pointer, truncated on 64-bit
-extern void func_80352A38(u8, enum common_particle_e); // [port] was (s32, u32)
+extern void marker_setCommonParticleIndex(ActorMarker *, s32); // [port] was (s32, s32) — first param is ActorMarker* pointer, truncated on 64-bit
+extern void commonParticleTypeMap_advanceParticleType(u8, enum common_particle_e); // [port] was (s32, u32)
 extern void func_8033FFB8(u8, s32); // [port] was (s32, s32)
 extern void projectile_getPosition(u8, f32[3]); // [port] was (s32, f32[3])
 extern void func_8032F64C(f32[3] , ActorMarker *);
-extern void func_8033FB64(u8); // [port] was s32
+extern void projectile_freeByIndex(u8); // [port] was s32
 extern void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-extern void func_803529DC(u8); // [port] was s32
+extern void commonParticleTypeMap_freeByIndex(u8); // [port] was s32
 extern void func_80344D70(u8); // [port] was s32
-extern void func_80352B20(u8); // [port] was s32
+extern void commonParticleTypeMap_updateByIndex(u8); // [port] was s32
 extern ActorMarker * func_8032FBE4(f32 *pos, MarkerDrawFunc arg1, int arg2, enum asset_e model_id);
 
 extern void func_80352614(void);
@@ -41,9 +41,9 @@ extern void func_80356364(void);
 extern void func_80352DE4(void);
 extern void func_80352F58(void);
 extern void func_80352FF4(void);
-extern void func_80354998(void);
-extern void func_80354C18(void);
-extern void func_80354DC8(void);
+extern void jiggyShine_init(void);
+extern void jiggyShine_update(void);
+extern void jiggyShine_free(void);
 extern void func_80354DD0(void);
 extern void func_80354EEC(void);
 extern void func_80355004(void);
@@ -73,7 +73,7 @@ typedef struct {
     f32 unk4;
 }Struct_Core2_B6CE0_1;
 
-void func_8033E6D4(s32 arg0);
+void freeParticleByIndex(s32 arg0);
 
 /* .data */
 Struct_Core2_B6CE0_1 D_80371E30[] ={
@@ -85,13 +85,13 @@ Struct_Core2_B6CE0_1 D_80371E30[] ={
 };
 
 /* .bss */
-ParticleStruct0s D_80384490[40];
-s32 D_80384FD0;
+ParticleStruct0s particles[40];
+s32 currentIndex;
 struct {
     s32 unk0;
     s32 unk4;
-} D_80384FD8;
-u8 D_80384FE0;
+} indexStash;
+u8 commonParticleActive;
 
 /* .code */
 f32 func_8033DE30(s32 arg0){
@@ -102,25 +102,25 @@ s32 func_8033DE44(s32 arg0){
     return D_80371E30[arg0].unk1 & 1;
 }
 
-Actor *func_8033DE60(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){ // [port] restored full MarkerDrawFunc signature
+Actor *commonParticle_markerDrawFunction(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){ // [port] restored full MarkerDrawFunc signature
     int indx = marker->unk28;
-    func_8033F7F0(D_80384490[indx].unk45, gfx, mtx, vtx);
+    func_8033F7F0(particles[indx].unk45, gfx, mtx, vtx);
     if(marker);
     return 0;
 }
 
-void func_8033DEA0(void){
+void commonParticle_init(void){
     int i;
     for(i = 0; i < 40 ;i++){
-        D_80384490[i].unk44 = 0;
+        particles[i].unk44 = 0;
     }
-    D_80384FD8.unk0 =  D_80384FD8.unk4 = 0;
+    indexStash.unk0 =  indexStash.unk4 = 0;
     commonParticleType_set(COMMON_PARTICLE_1_EGG_HEAD,  fxegg_head_spawn, fxegg_head_update, fxegg_head_destroy, 0, 1); //bsbEggAss
     commonParticleType_set(0x2,  func_803546E8, func_8035489C, func_80354990, 0, 8); //bsbWhirl //aka wonderwing
     commonParticleType_set(COMMON_PARTICLE_4_EGG_ASS,  fxegg_ass_spawn, fxegg_ass_update, fxegg_ass_destroy, 0, 1);
     commonParticleType_set(0x6,  func_8035611C, func_803562E8, func_80356364, 0, 8);
     commonParticleType_set(0x7,  func_80352DE4, func_80352F58, func_80352FF4, 0, 8);
-    commonParticleType_set(0x8,  func_80354998, func_80354C18, func_80354DC8, 0, 8);
+    commonParticleType_set(0x8,  jiggyShine_init, jiggyShine_update, jiggyShine_free, 0, 8);
     commonParticleType_set(0x9,  func_80354DD0, func_80354EEC, func_80355004, 0, 8); //orange_pad?
     commonParticleType_set(0xa,  func_8035500C, func_80355134, func_80355294, 0, 8);
     commonParticleType_set(0xb,  func_803540B4, func_803541D8, func_803540AC, 0, 8);
@@ -132,34 +132,34 @@ void func_8033DEA0(void){
     commonParticleType_set(0x11, func_8035261C, func_803526DC, func_80352614, 0, 8); //mumbotoken sparkle
 }
 
-void func_8033E184(void){
+void commonParticle_freeAllParticles(void){
     int i;
     for(i = 0; i < 40; i++){
-        if(D_80384490[i].unk44){
-            func_8033E6D4(i);
+        if(particles[i].unk44){
+            freeParticleByIndex(i);
         }
     }
 }
 
 //commonParticle_update
-void func_8033E1E0(void){
+void commonParticle_update(void){
     f32 sp4C[3];
     int i;
-    if(D_80384FE0){
+    if(commonParticleActive){
         for(i = 0; i < 40; i++){
-            if(D_80384490[i].unk44){
-                D_80384FD0 = i;
-                func_80352B20(D_80384490[D_80384FD0].unk46);
-                if(D_80384490[D_80384FD0].unk44){
-                    projectile_getPosition(D_80384490[D_80384FD0].unk45, sp4C);
-                    func_803451B0(D_80384490[D_80384FD0].unk47, sp4C);
-                    projectile_setPosition(D_80384490[D_80384FD0].unk45, sp4C);
-                    animsprite_update(D_80384490[D_80384FD0].unk34);
-                    func_8033FFB8(D_80384490[D_80384FD0].unk45, animsprite_get_frame(D_80384490[D_80384FD0].unk34));
-                    func_8032F64C(sp4C, D_80384490[D_80384FD0].marker_30);
+            if(particles[i].unk44){
+                currentIndex = i;
+                commonParticleTypeMap_updateByIndex(particles[currentIndex].unk46);
+                if(particles[currentIndex].unk44){
+                    projectile_getPosition(particles[currentIndex].unk45, sp4C);
+                    func_803451B0(particles[currentIndex].unk47, sp4C);
+                    projectile_setPosition(particles[currentIndex].unk45, sp4C);
+                    animsprite_update(particles[currentIndex].unk34);
+                    func_8033FFB8(particles[currentIndex].unk45, animsprite_get_frame(particles[currentIndex].unk34));
+                    func_8032F64C(sp4C, particles[currentIndex].marker_30);
                 }
                 else{
-                    func_8033E6D4(i);
+                    freeParticleByIndex(i);
                 }
             }
         }
@@ -167,11 +167,11 @@ void func_8033E1E0(void){
 }
 
 //commonParticle_findFree
-s32 func_8033E368(void){
+s32 commonParticle_findFree(void){
     int i;
     for(i = 0; i < 40; i++){
-        if(D_80384490[i].unk44 == 0){
-            D_80384490[i].unk44++;
+        if(particles[i].unk44 == 0){
+            particles[i].unk44++;
             return i;
         }
     }
@@ -179,7 +179,7 @@ s32 func_8033E368(void){
 }
 
 //commonParticle_new
-int func_8033E3F0(enum common_particle_e particle_id, int arg1){
+int commonParticle_new(enum common_particle_e particle_id, int arg1){
     f32 sp34[3];
     uintptr_t a0; // [port] was s32 — reused for u8 indices and AnimSprite* pointer
 
@@ -187,157 +187,157 @@ int func_8033E3F0(enum common_particle_e particle_id, int arg1){
         return -1;
     
     ml_vec3f_clear(sp34);
-    D_80384FD0 = func_8033E368();
-    if(D_80384FD0 < 0)
+    currentIndex = commonParticle_findFree();
+    if(currentIndex < 0)
         return -1;
 
     
-    D_80384490[D_80384FD0].unk45 = func_8033FA84();
-    D_80384490[D_80384FD0].unk34 = animsprite_new();
-    D_80384490[D_80384FD0].unk46 = func_8035287C();
-    D_80384490[D_80384FD0].unk47 = func_80344CDC();
+    particles[currentIndex].unk45 = func_8033FA84();
+    particles[currentIndex].unk34 = animsprite_new();
+    particles[currentIndex].unk46 = commonParticleTypeMap_findFree();
+    particles[currentIndex].unk47 = func_80344CDC();
     
-    if( ( !(a0 = D_80384490[D_80384FD0].unk45)
-          || !D_80384490[D_80384FD0].unk34
-          || !D_80384490[D_80384FD0].unk46
-          || !D_80384490[D_80384FD0].unk47
+    if( ( !(a0 = particles[currentIndex].unk45)
+          || !particles[currentIndex].unk34
+          || !particles[currentIndex].unk46
+          || !particles[currentIndex].unk47
         )
     ){//L8033E4DC
         if(a0){
-            func_8033FB64(a0);
+            projectile_freeByIndex(a0);
         }
-        a0 = (uintptr_t)D_80384490[D_80384FD0].unk34; // [port] AnimSprite* to uintptr_t
+        a0 = (uintptr_t)particles[currentIndex].unk34; // [port] AnimSprite* to uintptr_t
         if(a0){
             animsprite_free((AnimSprite *)a0); // [port] uintptr_t back to AnimSprite*
         }
-        a0 = D_80384490[D_80384FD0].unk46;
+        a0 = particles[currentIndex].unk46;
         if(a0){
-            func_803529DC(a0);
+            commonParticleTypeMap_freeByIndex(a0);
         }
-        a0 = D_80384490[D_80384FD0].unk47;
+        a0 = particles[currentIndex].unk47;
         if(a0){
             func_80344D70(a0);
         }
-        D_80384490[D_80384FD0].unk44 = 0;
+        particles[currentIndex].unk44 = 0;
         return -1;
     }
     
     //L8033E5B4
-    D_80384490[D_80384FD0].marker_30 = func_8032FBE4(sp34, (MarkerDrawFunc)func_8033DE60, 1, commonParticleType_80352C7C(particle_id));
-    D_80384490[D_80384FD0].marker_30->unk40_22 = 1;
-    func_8032FFEC(D_80384490[D_80384FD0].marker_30, (u32)D_80384FD0);
-    D_80384490[D_80384FD0].marker_30->collidable = false;
-    func_80352A38(D_80384490[D_80384FD0].unk46, particle_id);
-    func_8033FFB8(D_80384490[D_80384FD0].unk45, animsprite_get_frame(D_80384490[D_80384FD0].unk34));
-    projectile_getPosition(D_80384490[D_80384FD0].unk45, sp34);
-    func_8032F64C(sp34, D_80384490[D_80384FD0].marker_30);
-    return D_80384FD0;
+    particles[currentIndex].marker_30 = func_8032FBE4(sp34, (MarkerDrawFunc)commonParticle_markerDrawFunction, 1, commonParticleType_80352C7C(particle_id));
+    particles[currentIndex].marker_30->unk40_22 = 1;
+    marker_setCommonParticleIndex(particles[currentIndex].marker_30, (u32)currentIndex);
+    particles[currentIndex].marker_30->collidable = false;
+    commonParticleTypeMap_advanceParticleType(particles[currentIndex].unk46, particle_id);
+    func_8033FFB8(particles[currentIndex].unk45, animsprite_get_frame(particles[currentIndex].unk34));
+    projectile_getPosition(particles[currentIndex].unk45, sp34);
+    func_8032F64C(sp34, particles[currentIndex].marker_30);
+    return currentIndex;
     
 }
 
-void func_8033E6D4(s32 arg0){
-    func_803529DC(D_80384490[arg0].unk46);
-    func_80344D70(D_80384490[arg0].unk47);
-    func_8033FB64(D_80384490[arg0].unk45);
-    animsprite_free(D_80384490[arg0].unk34);
-    marker_free(D_80384490[arg0].marker_30);
-    D_80384490[arg0].marker_30 = NULL;
-    D_80384490[arg0].unk38 = 0;
-    D_80384490[arg0].unk44 = 0;
+void freeParticleByIndex(s32 arg0){
+    commonParticleTypeMap_freeByIndex(particles[arg0].unk46);
+    func_80344D70(particles[arg0].unk47);
+    projectile_freeByIndex(particles[arg0].unk45);
+    animsprite_free(particles[arg0].unk34);
+    marker_free(particles[arg0].marker_30);
+    particles[arg0].marker_30 = NULL;
+    particles[arg0].unk38 = 0;
+    particles[arg0].unk44 = 0;
 }
 
-void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s32 arg0 — pointer truncation on 64-bit
-    s32 tmp_v0 = func_8033E368();
-    D_80384490[tmp_v0].unk44--;
-    D_80384490[tmp_v0].unk38 = arg0;
-    D_80384490[tmp_v0].unk3C = arg1;
-    D_80384490[tmp_v0].unk40 = arg2;
+void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s32 arg0 — pointer truncation on 64-bit
+    s32 tmp_v0 = commonParticle_findFree();
+    particles[tmp_v0].unk44--;
+    particles[tmp_v0].unk38 = arg0;
+    particles[tmp_v0].unk3C = arg1;
+    particles[tmp_v0].unk40 = arg2;
 }
 
-void func_8033E79C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s32 arg0 — pointer truncation on 64-bit
-    D_80384490[D_80384FD0].unk38 = arg0;
-    D_80384490[D_80384FD0].unk3C = arg1;
-    D_80384490[D_80384FD0].unk40 = arg2;
+void commonParticle_modifyCurrent(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s32 arg0 — pointer truncation on 64-bit
+    particles[currentIndex].unk38 = arg0;
+    particles[currentIndex].unk3C = arg1;
+    particles[currentIndex].unk40 = arg2;
 }
 
-void func_8033E7CC(ActorMarker *arg0){ // [port] was s32 arg0 — pointer truncation on 64-bit
+void commonParticle_freeParticleByActorMarker(ActorMarker *arg0){ // [port] was s32 arg0 — pointer truncation on 64-bit
     int i;
     for(i = 0; i < 40; i++){
-        if(D_80384490[i].unk44 && arg0 == D_80384490[i].unk38){
-            func_8033E6D4(i);
+        if(particles[i].unk44 && arg0 == particles[i].unk38){
+            freeParticleByIndex(i);
         }
     }
 }
 
 ActorMarker *func_8033E840(void){
-    return D_80384490[D_80384FD0].marker_30;
+    return particles[currentIndex].marker_30;
 }
 
-ActorMarker *func_8033E864(void){
-    return D_80384490[D_80384FD0].unk38;
+ActorMarker *commonParticle_getCurrentActorMarker(void){
+    return particles[currentIndex].unk38;
 }
 
 FuncUnk40 func_8033E888(void){
-    return D_80384490[D_80384FD0].unk40;
+    return particles[currentIndex].unk40;
 }
 
 s32 func_8033E8AC(void){
-    return D_80384490[D_80384FD0].unk3C;
+    return particles[currentIndex].unk3C;
 }
 
-u8 func_8033E8D0(void){
-    return D_80384490[D_80384FD0].unk45;
+u8 commonParticle_getCurrentProjectileIndex(void){
+    return particles[currentIndex].unk45;
 }
 
-AnimSprite * func_8033E8F4(void){
-    return D_80384490[D_80384FD0].unk34;
+AnimSprite * commonParticle_getCurrentAnimSprite(void){
+    return particles[currentIndex].unk34;
 }
 
-u8 func_8033E918(void){
-    return D_80384490[D_80384FD0].unk46;
+u8 commonParticle_getCurrentTypeMapIndex(void){
+    return particles[currentIndex].unk46;
 }
 
 u8 func_8033E93C(void){
-    return D_80384490[D_80384FD0].unk47;
+    return particles[currentIndex].unk47;
 }
 
-ParticleStruct0s *func_8033E960(void){
-    return &D_80384490[D_80384FD0];
+ParticleStruct0s *commonParticle_getCurrentParticle(void){
+    return &particles[currentIndex];
 }
 
-void func_8033E984(void){
-    D_80384490[D_80384FD0].unk44 = 0;
+void commonParticle_setCurrentInUseFalse(void){
+    particles[currentIndex].unk44 = 0;
 }
 
-void func_8033E9A8(s32 arg0){
-    func_8033E6D4(arg0);
+void commonParticle_freeParticleByIndex(s32 arg0){
+    freeParticleByIndex(arg0);
 }
 
-void func_8033E9C8(s32 arg0){
-    D_80384FD0 = arg0;
+void commonParticle_setCurrentIndex(s32 arg0){
+    currentIndex = arg0;
 }
 
-void func_8033E9D4(void){
-    D_80384FD8.unk4 = D_80384FD8.unk0;
-    D_80384FD8.unk0 = D_80384FD0;
+void commonParticle_stashCurrentIndex(void){
+    indexStash.unk4 = indexStash.unk0;
+    indexStash.unk0 = currentIndex;
 }
 
-void func_8033E9F4(void){
-    D_80384FD0 = D_80384FD8.unk0;
-    D_80384FD8.unk0 = D_80384FD8.unk4;
+void commonParticle_applyIndexStash(void){
+    currentIndex = indexStash.unk0;
+    indexStash.unk0 = indexStash.unk4;
 }
 
 f32 func_8033EA14(s32 arg0){
-    return *((f32 *)func_8033E960() + arg0);
+    return *((f32 *)commonParticle_getCurrentParticle() + arg0);
 }
 
 void func_8033EA40(s32 arg0, f32 arg1){
-    *((f32 *)func_8033E960() + arg0) = arg1;
+    *((f32 *)commonParticle_getCurrentParticle() + arg0) = arg1;
 }
 
-void func_8033EA78(s32 arg0, s32 arg1){
+void commonParticle_setActive(s32 arg0, s32 arg1){
     if(arg1 == 2)
-        D_80384FE0 = 1;
+        commonParticleActive = 1;
     else
-        D_80384FE0 = 0;
+        commonParticleActive = 0;
 }

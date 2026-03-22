@@ -338,7 +338,7 @@ void func_802E4048(s32 map, s32 exit, s32 transition){
 }
 
 //take me there
-void func_802E4078(enum map_e map, s32 exit, s32 transition){
+void transitionToMap(enum map_e map, s32 exit, s32 transition){
     func_802E40D0(map, exit);
     func_802E40E8(transition);
     func_802E40C4(1);
@@ -390,7 +390,7 @@ void func_802E4170(void){
     func_802E398C(0);
     func_8030AFD8(0);
     func_80321854();
-    func_8031FBF8();
+    debugScoreStates();
     animCache_free();
     comusicPlayer_free();
     func_8030D8DC();
@@ -425,7 +425,7 @@ void func_802E4214(enum map_e map_id){
     func_80253FE8();
     time_reset();
     func_8033DC04();
-    func_8031FBA0();
+    clearScoreStates();
     D_8037E8E0.game_mode = GAME_MODE_2_UNKNOWN;
     D_8037E8E0.unk8 = 0.0f;
     time_setDeltaReal_sec(0.0f);
@@ -613,7 +613,7 @@ s32 game_defrag(void){
     
     glspline_defrag();
     animCache_defrag();
-    func_802F1320();
+    pem_defragAll();
     ncCameraNodeList_defrag();
     modelRender_defrag();
     func_8028FB68();

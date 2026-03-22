@@ -11,7 +11,7 @@ extern void ability_setLearned(s32 move, s32 val);
 extern void audioManager_init(void);
 
 #if VERSION == VERSION_PAL
-    extern s32 D_80000300;
+    extern s32 osTvType;
 #endif
 
 s32 D_80275610 = 0;
@@ -23,7 +23,7 @@ u32 D_80275654 = VER_SELECT(0xD381B72F, 0xD0709154, 0, 0); //SM_DATA_CRC_2
 char sDebugVar_80275658[] = VER_SELECT("HjunkDire:218755", "HjunkDire:300875", "HjunkDire:", "HjunkDire:");
 
 /* .bss */
-u32 D_8027A130;
+u32 core1_BSS_START;
 u8 pad_8027A138[0x400];
 u64 sDebugVar_8027A538; // never used
 u64 sDebugVar_8027A540; // never used
@@ -40,7 +40,7 @@ void enableDebugCheats(void);
 
 void func_8023DA20(s32 arg0){
 #if 0
-    bzero(&D_8027A130, core2_TEXT_START - (u8*)&D_8027A130);
+    bzero(&core1_BSS_START, core2_TEXT_START - (u8*)&core1_BSS_START);
     osWritebackDCacheAll();
     osInitialize();
 #endif
@@ -57,18 +57,18 @@ void func_8023DA74(void){
 void func_8023DA9C(s32 arg0){
     func_80254008();
     viMgr_clearFramebuffers();
-    if (D_8027A130 == 4){
+    if (core1_BSS_START == 4){
         func_802E3580();
     }
-    if (D_8027A130 == 3){
+    if (core1_BSS_START == 3){
         func_802E4170();
     }
     func_8023DA74();
-    D_8027A130 = arg0;
-    if (D_8027A130 == 3){
+    core1_BSS_START = arg0;
+    if (core1_BSS_START == 3){
         func_802E4214(gBootMap);
     }
-    if (D_8027A130 == 4){
+    if (core1_BSS_START == 4){
         dummy_func_802E35D0();
     }
     ucode_stub1();
@@ -132,7 +132,7 @@ void core1_init(void) {
     graphicsCache_init();
     ml_init();
     gctransition_reset();
-    D_8027A130 = 0;
+    core1_BSS_START = 0;
     gGlobalTimer = 0;
     func_8023DA9C(3);
 
@@ -159,7 +159,7 @@ void mainLoop(void){
         sns_write_payload_over_heap();
     func_8023DA74();
 
-    if(D_8027A130 != 3 || getGameMode() != GAME_MODE_4_PAUSED)
+    if(core1_BSS_START != 3 || getGameMode() != GAME_MODE_4_PAUSED)
         globalTimer_incTimer();
     
     if (!sDisableInput)
@@ -175,7 +175,7 @@ void mainLoop(void){
     }
 #endif
 
-    switch(D_8027A130){
+    switch(core1_BSS_START){
         case 4:
             func_802E35D8();
             break;
@@ -238,7 +238,7 @@ void func_8023DFF0(s32 arg0){
 }
 
 s32 func_8023E000(void){
-    return D_8027A130;
+    return core1_BSS_START;
 }
 
 void setBootMap(enum map_e map_id){

@@ -44,7 +44,7 @@ void __chCrab_802CB078(Actor *this) {
             return;
         }
         else{
-            if( func_80329530(this, 1500) 
+            if( subaddie_playerIsWithinSphereAndActive(this, 1500) 
                 && ( (this->modelCacheIndex == ACTOR_F2_BLACK_SNIPPET) || func_803292E0(this))
             ) {
                 this->actor_specific_1_f = 0.0f;
@@ -94,7 +94,7 @@ void __chCrab_particleEmitterSetup(ParticleEmitter *p_ctrl, f32 position[3]) {
     particleEmitter_setDrawMode(p_ctrl, 2);
     particleEmitter_func_802EF9F8(p_ctrl, 0.7f);
     particleEmitter_func_802EFA18(p_ctrl, 5);
-    func_802EFA20(p_ctrl, 0.8f, 1.0f);
+    particleEmitter_func_802EFA20(p_ctrl, 0.8f, 1.0f);
     particleEmitter_setSfx(p_ctrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(p_ctrl, 3.5f, 3.5f);
@@ -191,7 +191,7 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
             jiggy_spawn_position[0] = 13814.0f;
             jiggy_spawn_position[1] = 3812.0f;
             jiggy_spawn_position[2] = 0.0f;
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
             func_80324DBC(2.25f, ASSET_D33_DIALOG_MUTANT_CRAB_DEFEAT, 0xF, jiggy_spawn_position, NULL, __chCrab_mutantTextCallback, NULL);
         }
     }
@@ -264,7 +264,7 @@ void chCrab_update(Actor *this) {
         && !mapSpecificFlags_get(0) 
         && is_mutant_snippet
         && !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
-        && func_80329530(this, 500) && !func_80329530(this, 200)
+        && subaddie_playerIsWithinSphereAndActive(this, 500) && !subaddie_playerIsWithinSphereAndActive(this, 200)
         && !player_movementGroup()
     ) {
         if ((this->state != 6) && (this->state != 5)) {
@@ -279,7 +279,7 @@ void chCrab_update(Actor *this) {
             && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)
             && !volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)
             && !jiggyscore_isCollected(JIGGY_10_TTC_SANDCASTLE)
-            && func_80329530(this, 1600)
+            && subaddie_playerIsWithinSphereAndActive(this, 1600)
         ) {
             gcdialog_showText(0xA12, 4, this->position, NULL, NULL, NULL);
             mapSpecificFlags_set(0, true);

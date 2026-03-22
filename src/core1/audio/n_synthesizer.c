@@ -24,7 +24,7 @@ extern u32 client_num, client_cnt, client_max, client_min;
 #   define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
-static s32 func_8025C370(ALPlayer **client);
+static s32 _n_timeToSamplesNoRound(ALPlayer **client);
 static s32 _n_timeToSamplesNoRound(s32 micros);
 /***********************************************************************
  * Synthesis driver public interfaces
@@ -164,9 +164,9 @@ Acmd *n_alAudioFrame(Acmd *cmdList, s32 *cmdLen, s16 *outBuf, s32 outLen)
      * during the client handler.
      */
 
-    for (n_syn->paramSamples = func_8025C370(&client);
+    for (n_syn->paramSamples = _n_timeToSamplesNoRound(&client);
 	 n_syn->paramSamples - n_syn->curSamples < outLen;
-	 n_syn->paramSamples = func_8025C370(&client))
+	 n_syn->paramSamples = _n_timeToSamplesNoRound(&client))
     {
 	n_syn->paramSamples &= ~0xf;
 	client->samplesLeft += _n_timeToSamplesNoRound((*client->handler)(client));
@@ -285,7 +285,7 @@ s32 _n_timeToSamples(s32 micros)
     return _n_timeToSamplesNoRound(micros) & ~0xf;
 }
 
-static s32 func_8025C370(ALPlayer **client) 
+static s32 _n_timeToSamplesNoRound(ALPlayer **client) 
 {
     ALMicroTime idelta;
     ALMicroTime delta = 0x7fffffff;     /* max delta for s32 */

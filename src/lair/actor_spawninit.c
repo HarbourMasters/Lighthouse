@@ -11,12 +11,12 @@ extern void func_802D3CE8(Actor *);
 extern void func_802D3D54(Actor *);
 extern void func_802D3D74(Actor *this);
 extern void func_802D4830(Actor *, s32, f32);
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void func_8033A45C(s32, s32);
-// extern void func_8034E0FC(void *, s32); // [port] removed — prototype in port_prototypes.h (Struct6Ds* first param)
+// extern void setStruct6DsOpacity(void *, s32); // [port] removed — prototype in port_prototypes.h (Struct6Ds* first param)
 
 
 
@@ -62,8 +62,8 @@ void   func_8038A0A4(Actor *this);
 
 extern ActorInfo D_80393560;
 extern ActorInfo D_80393584;
-extern ActorInfo D_803947B0;
-extern ActorInfo D_803947D4;
+extern ActorInfo JIGSAW_PICTURE_ACTOR;
+extern ActorInfo JIGSAW_PICTURE_ACTOR_2;
 extern ActorInfo chBrentilda;
 extern ActorInfo D_80394A80;
 extern ActorInfo D_80394AB0;
@@ -85,7 +85,7 @@ extern ActorInfo D_80394CF0;
 extern ActorInfo D_80394C94;
 
 /* .data */
-ActorAnimationInfo D_80392CB0[] = {
+ActorAnimationInfo lair_TEXT_END[] = {
     {    0,   0.0f}, 
     {    0,   0.0f},
     { 0xD4,   0.15f}, 
@@ -116,19 +116,19 @@ ActorAnimationInfo D_80392CB0[] = {
     {0x271, 1e+08f}
 };
 ActorInfo lair_D_80392D90 = { 0x270, 0x2D8, 0x3B2, 0x1, NULL, func_802D3D54, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
-ActorInfo D_80392DB4 = { 0x110, 0x214, 0x4AB, 0x1, D_80392CB0, func_803896D4, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392DD8 = { 0x113, 0x217, 0x4A9, 0x1, D_80392CB0, func_803896F4, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392DFC = { 0x115, 0x219, 0x4AA, 0x1, D_80392CB0, func_80389714, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392E20 = { 0x11B, 0x221, 0x4B5, 0x1, D_80392CB0, func_80389734, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392E44 = { 0x11C, 0x222, 0x4B2, 0x1, D_80392CB0, func_8038975C, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392E68 = { 0x11D, 0x223, 0x4B0, 0x1, D_80392CB0, func_80389784, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392E8C = { 0x232, 0x23C, 0x4B8, 0x1, D_80392CB0, func_803897AC, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392EB0 = { 0x23F, 0x246, 0x534, 0x1, D_80392CB0, func_80386D20, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392ED4 = { 0x241, 0x248, 0x540, 0x1, D_80392CB0, func_80386780, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392EF8 = { MARKER_109_BREAKABLE_BRICK_WALL, ACTOR_20D_BREAKABLE_BRICK_WALL, ASSET_4A1_MODEL_BREAKABLE_BRICK_WALL, 0x1, D_80392CB0, lair_func_80386550, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0x85};
-ActorInfo D_80392F1C = { 0x264, 0x2E5, 0x550, 0x19, D_80392CB0, func_80388524, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80392F40 = { MARKER_224_BREAKABLE_FLOOR_COBWEB, ACTOR_230_BREAKABLE_FLOOR_COBWEB, ASSET_4BF_MODEL_FLOOR_COBWEB, 0xB, D_80392CB0, chFloorCobweb_update, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0x88};
-ActorInfo D_80392F64 = { MARKER_225_BREAKABLE_WALL_COBWEB,  ACTOR_231_BREAKABLE_WALL_COBWEB, ASSET_4D5_MODEL_WALL_COBWEB, 0xE, D_80392CB0, chWallCobweb_update, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0x88};
+ActorInfo D_80392DB4 = { 0x110, 0x214, 0x4AB, 0x1, lair_TEXT_END, func_803896D4, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392DD8 = { 0x113, 0x217, 0x4A9, 0x1, lair_TEXT_END, func_803896F4, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392DFC = { 0x115, 0x219, 0x4AA, 0x1, lair_TEXT_END, func_80389714, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392E20 = { 0x11B, 0x221, 0x4B5, 0x1, lair_TEXT_END, func_80389734, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392E44 = { 0x11C, 0x222, 0x4B2, 0x1, lair_TEXT_END, func_8038975C, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392E68 = { 0x11D, 0x223, 0x4B0, 0x1, lair_TEXT_END, func_80389784, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392E8C = { 0x232, 0x23C, 0x4B8, 0x1, lair_TEXT_END, func_803897AC, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392EB0 = { 0x23F, 0x246, 0x534, 0x1, lair_TEXT_END, func_80386D20, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392ED4 = { 0x241, 0x248, 0x540, 0x1, lair_TEXT_END, func_80386780, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392EF8 = { MARKER_109_BREAKABLE_BRICK_WALL, ACTOR_20D_BREAKABLE_BRICK_WALL, ASSET_4A1_MODEL_BREAKABLE_BRICK_WALL, 0x1, lair_TEXT_END, lair_func_80386550, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0x85};
+ActorInfo D_80392F1C = { 0x264, 0x2E5, 0x550, 0x19, lair_TEXT_END, func_80388524, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80392F40 = { MARKER_224_BREAKABLE_FLOOR_COBWEB, ACTOR_230_BREAKABLE_FLOOR_COBWEB, ASSET_4BF_MODEL_FLOOR_COBWEB, 0xB, lair_TEXT_END, chFloorCobweb_update, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0x88};
+ActorInfo D_80392F64 = { MARKER_225_BREAKABLE_WALL_COBWEB,  ACTOR_231_BREAKABLE_WALL_COBWEB, ASSET_4D5_MODEL_WALL_COBWEB, 0xE, lair_TEXT_END, chWallCobweb_update, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0x88};
 ActorInfo D_80392F88 = { 0x111, 0x215, 0x4A4, 0x1, NULL, func_80388FC8, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
 ActorInfo D_80392FAC = { 0x112, 0x216, 0x4A5, 0x1, NULL, func_80388FC8, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
 ActorInfo D_80392FD0 = { 0x114, 0x218, 0x4A6, 0x1, NULL, lair_func_80389204, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
@@ -158,10 +158,10 @@ ActorInfo D_8039330C = { 0x118, 0x21E, 0x4B1, 0x1, NULL, lair_func_8038A084, act
 ActorInfo D_80393330 = { 0x119, 0x21F, 0x4B6, 0x1, NULL, func_8038A0A4, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0x92};
 ActorInfo D_80393354 = { 0x266, 0x2E3, 0x563, 0x1, NULL, func_803870DC, actor_update_func_80326224, lair_func_80387560, 0, 0,   0.0f, 0};
 ActorInfo D_80393378 = { 0x17D, 0x1E1, 0x517, 0x1, NULL, func_80389D08, actor_update_func_80326224, func_80389E10, 0, 0,   0.0f, 0x8D};
-ActorInfo D_8039339C = { 0x234, 0x23E, 0x4E1, 0x12, D_80392CB0, func_8038982C, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
-ActorInfo D_803933C0 = { 0x163, 0x258, 0x511, 0x12, D_80392CB0, func_80389898, actor_update_func_80326224, func_8038664C, 0, 0,   0.0f, 0x8E};
-ActorInfo D_803933E4 = { 0x160, 0x255, 0x509, 0x15, D_80392CB0, func_80389934, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
-ActorInfo D_80393408 = { 0x102, 0x203, 0x491, 0x1, D_80392CB0, func_80387730, actor_update_func_80326224, func_80387DA8, 0, 0,   0.0f, 0};
+ActorInfo D_8039339C = { 0x234, 0x23E, 0x4E1, 0x12, lair_TEXT_END, func_8038982C, actor_update_func_80326224, actor_drawFullDepth, 0, 0,   0.0f, 0};
+ActorInfo D_803933C0 = { 0x163, 0x258, 0x511, 0x12, lair_TEXT_END, func_80389898, actor_update_func_80326224, func_8038664C, 0, 0,   0.0f, 0x8E};
+ActorInfo D_803933E4 = { 0x160, 0x255, 0x509, 0x15, lair_TEXT_END, func_80389934, actor_update_func_80326224, actor_draw, 0, 0,   0.0f, 0};
+ActorInfo D_80393408 = { 0x102, 0x203, 0x491, 0x1, lair_TEXT_END, func_80387730, actor_update_func_80326224, func_80387DA8, 0, 0,   0.0f, 0};
 ParticleScaleAndLifetimeRanges D_8039342C = {
     {0.31f, 0.37f},
     {0.17f, 0.22f},
@@ -383,7 +383,7 @@ void func_803867A8(Actor *this) {
                     this->velocity[0] += 1.0f;
                     if((this->velocity[0] < 0.0f) || (this->velocity[0] > 19.0f)) {
                         this->velocity[0] = 0.0f;
-                        func_8030E6A4(SFX_3F6_RUBBING, 0.5f, this->alpha_124_19*0x25 + 0x3840);
+                        gcsfx_playWithPitch(SFX_3F6_RUBBING, 0.5f, this->alpha_124_19*0x25 + 0x3840);
                     }
                 }
             }
@@ -443,7 +443,7 @@ void func_80386D20(Actor *this)
     func_802D4A9C(this, 0);
 }
 
-void func_80386D40(void)
+void chwasp_setState(void)
 {
     func_802D68F0(0xC);
     item_set(ITEM_6_HOURGLASS, true);
@@ -508,8 +508,8 @@ void func_80386D78(Actor *this) {
         this->scale = 0.0001f;
         this->lifetime_value = 26.0f;
         this->position[1] = this->unk1C[1];
-        func_802BAFE4(0x80);
-        timedFunc_set_0(3.0f, func_80386D40);
+        gcStaticCamera_activate(0x80);
+        timedFunc_set_0(3.0f, chwasp_setState);
     }
 }
 
@@ -614,7 +614,7 @@ void func_803875F0(Actor * this)
         if (mapSpecificFlags_get(0))
         {
             this->unk1C_y = this->position_y;
-            func_802BAFE4(0x2A);
+            gcStaticCamera_activate(0x2A);
             fileProgressFlag_set(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN, true);
             this->volatile_initialized = true;
             this->unk38_31 = 0x0C;
@@ -686,7 +686,7 @@ void func_80387730(Actor *this) {
     }
     if (!fileProgressFlag_get(this->unkF4_8 + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
         player_getPosition(spAC);
-        if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (func_803114C4() != 0xF64)) {
+        if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (gcdialog_getCurrentTextId() != 0xF64)) {
             func_802FACA4(0xC);
         }
         doorIdx = this->unkF4_8 - 1;
@@ -775,13 +775,13 @@ Actor *func_80387DA8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
      * Sets opacity of the "note" symbol
      */
     if (var2)
-        func_8034E0FC(var2, actor->opacityTimer);
+        setStruct6DsOpacity(var2, actor->opacityTimer);
 
     /**
      * Sets opacity of note door numbers
      */
     if (var1)
-        func_8034E0FC(var1, 0xFF - (s32)actor->opacityTimer);
+        setStruct6DsOpacity(var1, 0xFF - (s32)actor->opacityTimer);
 
     /**
      * Hides all note door graphics that don't match this note door's index
@@ -821,7 +821,7 @@ void func_80387F1C(void)
 {
     f32 tmp[3];
 
-    func_802BAFE4(0x7B);
+    gcStaticCamera_activate(0x7B);
 
     if (nodeProp_findPositionFromActorId(400, tmp))
     {
@@ -845,7 +845,7 @@ void func_80387F78(Actor *this, enum file_progress_e progress_flag)
                 && fileProgressFlag_get(FILEPROG_9C_LAIR_CC_WITCH_SWITCH_LEFT_EYE_PRESSED)
                 && fileProgressFlag_get(FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED))
             {
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+                coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
                 timedFunc_set_0(0.9f, func_80387F1C);
             }
         }
@@ -961,7 +961,7 @@ void func_803882B0(Actor *this)
     if (this->lifetime_value == 0 && this->pitch > 42.f)
     {
         this->lifetime_value = 1.f;
-        func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
     }
 
     if (this->pitch > 90.f)
@@ -975,7 +975,7 @@ void func_803882B0(Actor *this)
 void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s32 a3)
 {
     if (fileProgressFlag_get(progress_flag) == false)
-        func_8030E6A4(sfx, a2, a3);
+        gcsfx_playWithPitch(sfx, a2, a3);
 
     fileProgressFlag_set(progress_flag, true);
 }
@@ -1021,61 +1021,61 @@ void func_80388524(Actor *this) {
         if (!sp34) {
             switch(this->modelCacheIndex){
                 case ACTOR_2E5_DOOR_OF_GRUNTY://L80388630
-                    if (!fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) && func_8038EAE0(0xA)) {
+                    if (!fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) && jigsawPicture_isJigsawPictureComplete(0xA)) {
                         fileProgressFlag_set(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN, true);
                     }
                     break;
 
                 case ACTOR_20E_MM_ENTRANCE_DOOR: //L80388660
-                    if (!fileProgressFlag_get(FILEPROG_31_MM_OPEN) && func_8038EAE0(1)) {
+                    if (!fileProgressFlag_get(FILEPROG_31_MM_OPEN) && jigsawPicture_isJigsawPictureComplete(1)) {
                         fileProgressFlag_set(FILEPROG_31_MM_OPEN, true);
                     }
                     break;
 
                 case ACTOR_226_GV_ENTRANCE: //L80388690
-                    if (!fileProgressFlag_get(FILEPROG_36_GV_OPEN) && func_8038EAE0(6)) {
+                    if (!fileProgressFlag_get(FILEPROG_36_GV_OPEN) && jigsawPicture_isJigsawPictureComplete(6)) {
                         fileProgressFlag_set(FILEPROG_36_GV_OPEN, true);
                     }
                     break;
 
                 case ACTOR_212_CC_ENTRANCE_BARS: //L803886C0
-                    if (!fileProgressFlag_get(FILEPROG_33_CC_OPEN) && func_8038EAE0(3)) {
+                    if (!fileProgressFlag_get(FILEPROG_33_CC_OPEN) && jigsawPicture_isJigsawPictureComplete(3)) {
                         fileProgressFlag_set(FILEPROG_33_CC_OPEN, true);
                     }
                     break;
 
                 case ACTOR_211_TCC_ENTRANCE_CHEST_LID: //L803886F0
-                    if (!fileProgressFlag_get(FILEPROG_32_TTC_OPEN) && func_8038EAE0(2)) {
+                    if (!fileProgressFlag_get(FILEPROG_32_TTC_OPEN) && jigsawPicture_isJigsawPictureComplete(2)) {
                         fileProgressFlag_set(FILEPROG_32_TTC_OPEN, true);
                     }
                     break;
 
                 case ACTOR_210_BGS_ENTRANCE_DOOR: //L80388720
-                    if (!fileProgressFlag_get(FILEPROG_34_BGS_OPEN) && func_8038EAE0(4)) {
+                    if (!fileProgressFlag_get(FILEPROG_34_BGS_OPEN) && jigsawPicture_isJigsawPictureComplete(4)) {
                         fileProgressFlag_set(FILEPROG_34_BGS_OPEN, true);
                     }
                     break;
 
                 case ACTOR_20F_RBB_ENTRANCE_DOOR: //L80388750
-                    if (!fileProgressFlag_get(FILEPROG_38_RBB_OPEN) && func_8038EAE0(8)) {
+                    if (!fileProgressFlag_get(FILEPROG_38_RBB_OPEN) && jigsawPicture_isJigsawPictureComplete(8)) {
                         fileProgressFlag_set(FILEPROG_38_RBB_OPEN, true);
                     }
                     break;
 
                 case ACTOR_228_MMM_ENTRANCE_DOOR: //L80388780
-                    if (!fileProgressFlag_get(FILEPROG_37_MMM_OPEN) && func_8038EAE0(7)) {
+                    if (!fileProgressFlag_get(FILEPROG_37_MMM_OPEN) && jigsawPicture_isJigsawPictureComplete(7)) {
                         fileProgressFlag_set(FILEPROG_37_MMM_OPEN, true);
                     }
                     break;
 
                 case ACTOR_234_CCW_ENTRANCE_DOOR: //L803887B0
-                    if (!fileProgressFlag_get(FILEPROG_39_CCW_OPEN) && func_8038EAE0(9)) {
+                    if (!fileProgressFlag_get(FILEPROG_39_CCW_OPEN) && jigsawPicture_isJigsawPictureComplete(9)) {
                         fileProgressFlag_set(FILEPROG_39_CCW_OPEN, true);
                     }
                     break;
 
                 case ACTOR_235_FP_ENTANCE_DOOR: //L803887E0
-                    if (!fileProgressFlag_get(FILEPROG_35_FP_OPEN) && func_8038EAE0(5)) {
+                    if (!fileProgressFlag_get(FILEPROG_35_FP_OPEN) && jigsawPicture_isJigsawPictureComplete(5)) {
                         fileProgressFlag_set(FILEPROG_35_FP_OPEN, true);
                     }
                     break;
@@ -1173,7 +1173,7 @@ void func_80388524(Actor *this) {
                 switch (this->state) {
                     case 0x19: //L80388B34
                         subaddie_set_state_with_direction(this, 0x1A, 0.0f, 1);
-                        func_8025A6EC(JINGLE_END_OF_INTRO, -1);
+                        coMusicPlayer_playMusic(JINGLE_END_OF_INTRO, -1);
                         break;
 
                     case 26: //L80388B54
@@ -1328,7 +1328,7 @@ void func_80388FC8(Actor *this)
         {
             if (this->modelCacheIndex == 0x215)
             {
-                func_802BAFE4(0x2B);
+                gcStaticCamera_activate(0x2B);
                 if (1);  // oof
             }
 
@@ -1363,7 +1363,7 @@ void func_80388FC8(Actor *this)
             if (this->modelCacheIndex == 0x215)
             {
                 func_802D48B8(this);
-                func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
+                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
             }
 
             this->lifetime_value = 1.f;
@@ -1403,7 +1403,7 @@ void lair_func_80389204(Actor *this)
 
         if (mapSpecificFlags_get(2))
         {
-            func_802BAFE4(0x2C);
+            gcStaticCamera_activate(0x2C);
             fileProgressFlag_set(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED, true);
 
             this->volatile_initialized = true;
@@ -1429,7 +1429,7 @@ void lair_func_80389204(Actor *this)
             this->position_y = this->unk1C[1];
 
             func_802D48B8(this);
-            func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
+            gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
 
             this->lifetime_value = 1.f;
         }
@@ -1635,7 +1635,7 @@ void func_80389934(Actor *this)
                 subaddie_set_state_forward(this, 0x17);
                 actor_playAnimationOnce(this);
                 FUNC_8030E624(SFX_3F6_RUBBING, 0.6f, 32000);
-                func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+                coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
             }
 
             break;
@@ -1798,7 +1798,7 @@ Actor *func_80389E10(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp90[2] = sp84[2] + ((sp78[2] - sp84[2]) * randf());
             
 
-            func_802EE6CC(sp90, sp6C, D_80393504, 1, 0.3f, 50.0f, 180, randi2(130, 200), 0);
+            dustEmitter_emit(sp90, sp6C, D_80393504, 1, 0.3f, 50.0f, 180, randi2(130, 200), 0);
         };
     }
     return this;
@@ -1891,8 +1891,8 @@ void lair_func_8038A0C4(void)
     spawnableActorList_add(&D_80393584, actor_new, ACTOR_FLAG_UNKNOWN_1 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
     spawnableActorList_add(&D_803933E4, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
     spawnableActorList_add(&D_80393378, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
-    spawnableActorList_add(&D_803947B0, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_19);
-    spawnableActorList_add(&D_803947D4, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_19);
+    spawnableActorList_add(&JIGSAW_PICTURE_ACTOR, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_19);
+    spawnableActorList_add(&JIGSAW_PICTURE_ACTOR_2, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_19);
     spawnableActorList_add(&chBrentilda, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8);
     spawnableActorList_add(&D_80394A80, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&D_80394AB0, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_6);

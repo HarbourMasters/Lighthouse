@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 void chSarcophagus_update(Actor *this);
@@ -43,7 +43,7 @@ void GV_func_803894B0(Actor *this){
 }
 
 void func_80389518(Actor *this){
-    func_802EE6CC(this->unk1C, D_80390E88, D_80390E78, 0, 
+    dustEmitter_emit(this->unk1C, D_80390E88, D_80390E78, 0, 
         0.55f, 50.0f, 0xDC, 0x168, 0
     );
 }
@@ -71,7 +71,7 @@ void chSarcophagus_update(Actor *this){
             if(!this->initialized){
                 GV_func_803894B0(this);
             }
-            if(func_80329530(this, 500) && func_8038957C(this)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 500) && func_8038957C(this)){
                 subaddie_set_state_with_direction(this, 2, 0.01f, 1);
                 FUNC_8030E8B4(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
                 FUNC_8030E8B4(SFX_3F6_RUBBING, 1.0f, 32000, this->position, 1250, 2500);
@@ -84,7 +84,7 @@ void chSarcophagus_update(Actor *this){
                 && actor_animationIsAt(this, 0.1f)
                 && !jiggyscore_isCollected(JIGGY_41_GV_MAZE)
             ){
-                func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7fff);
+                coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7fff);
                 this->unk38_31 = 1;
             }
             if(actor_animationIsAt(this, 0.5f)){
@@ -93,7 +93,7 @@ void chSarcophagus_update(Actor *this){
             break;
 
         case 3: //L80389788
-            if(!func_80329530(this, 700)){
+            if(!subaddie_playerIsWithinSphereAndActive(this, 700)){
                 subaddie_set_state_with_direction(this, 4, 0.5f, 1);
                 FUNC_8030E8B4(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
                 FUNC_8030E8B4(SFX_3F6_RUBBING, 1.0f, 32000, this->position, 1250, 2500);

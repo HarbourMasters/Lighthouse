@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-void func_8038938C(Actor *this);
+void chfinalboss_phase2_update(Actor *this);
 Actor *func_803892D0(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 /* .data */
@@ -13,7 +13,7 @@ extern ActorAnimationInfo D_80390DC0[]={
 
 extern ActorInfo GV_D_80390DD0 = { MARKER_AF_MAGIC_CARPET_SHADOW, ACTOR_122_MAGIC_CARPET_SHADOW, ASSET_3E7_MODEL_MAGIC_CARPET_SHADOW, 
     0x1, D_80390DC0, 
-    func_8038938C, actor_update_func_80326224, func_803892D0, 
+    chfinalboss_phase2_update, actor_update_func_80326224, func_803892D0, 
     2500, 0, 0.0f, 0
 };
 
@@ -35,7 +35,7 @@ Actor *func_803892D0(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     return this;
 }
 
-void func_8038938C(Actor *this){
+void chfinalboss_phase2_update(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         this->unk124_11 = 3;

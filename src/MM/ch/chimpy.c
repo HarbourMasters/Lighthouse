@@ -44,7 +44,7 @@ ActorInfo chlmonkeyInfo = {
 void __chlmonkey_updateBringOrange(Actor **this_ptr) {
     player_setCarryObjectPoseInHorizontalRadius((*this_ptr)->position, 800.0f, ACTOR_29_ORANGE_COLLECTIBLE, this_ptr);
 
-    if (func_80329530(*this_ptr, 345) &&
+    if (subaddie_playerIsWithinSphereAndActive(*this_ptr, 345) &&
         bacarry_get_markerId() == MARKER_36_ORANGE_COLLECTIBLE &&
         player_throwCarriedObject()) {
 
@@ -68,7 +68,7 @@ void __chlmonkey_playRandomNoise(Actor *this) {
 
     if (sNoiseCooldown < 0 && randf() < 0.2) {
         sNoiseCooldown = 6;
-        func_8030E6A4(((random_noise < 0.5) ? SFX_58_CHIMPY_NOISE_1 : SFX_59_CHIMPY_NOISE_2), randf() * 0.25 + 0.85, scaled_noise_volume);
+        gcsfx_playWithPitch(((random_noise < 0.5) ? SFX_58_CHIMPY_NOISE_1 : SFX_59_CHIMPY_NOISE_2), randf() * 0.25 + 0.85, scaled_noise_volume);
     }
 }
 
@@ -99,7 +99,7 @@ void chlmonkey_update(Actor *this) {
         func_80343DEC(this);
     }
     else {//L80388630
-        if (func_80329530(this, 700) && !func_803114B0()) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId()) {
             __chlmonkey_playRandomNoise(this);
         }//L8038865C
 
@@ -118,8 +118,8 @@ void chlmonkey_update(Actor *this) {
                 else {
                     __chlmonkey_updateBringOrange(&this);
 
-                    if (func_80329530(this, 345) &&
-                        !func_80329530(this, 150) &&
+                    if (subaddie_playerIsWithinSphereAndActive(this, 345) &&
+                        !subaddie_playerIsWithinSphereAndActive(this, 150) &&
                         !item_getCount(ITEM_19_ORANGE) &&
                         !this->has_met_before) {
 

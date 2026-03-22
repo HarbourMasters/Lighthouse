@@ -10,118 +10,118 @@ typedef struct {
     u32 pad8_20:21;
 } Struct_Core2_69F60_0;
 
-void func_802F1190(u8 arg0);
+void pem_free(u8 arg0);
 
 /* .bss*/
-u8 D_80380930;
-Struct_Core2_69F60_0 D_80380938[16];
+u8 initializingIndex;
+Struct_Core2_69F60_0 emitterData[16];
 
 /* .code */
-ParticleEmitter *func_802F0EF0(u8 arg0){
-    if(D_80380938[arg0].p_emitter == NULL){
-        D_80380930 = arg0;
-        D_80380938[arg0].p_emitter = partEmitMgr_newEmitter(D_80380938[arg0].capacity);
-        particleEmitter_manualFree(D_80380938[arg0].p_emitter);
-        D_80380930 = 0;
+ParticleEmitter *pem_getEmitterByIndex(u8 arg0){
+    if(emitterData[arg0].p_emitter == NULL){
+        initializingIndex = arg0;
+        emitterData[arg0].p_emitter = partEmitMgr_newEmitter(emitterData[arg0].capacity);
+        particleEmitter_manualFree(emitterData[arg0].p_emitter);
+        initializingIndex = 0;
     }
-    D_80380938[arg0].unk0 = 1.0f;
-    return D_80380938[arg0].p_emitter;
+    emitterData[arg0].unk0 = 1.0f;
+    return emitterData[arg0].p_emitter;
 }
 
-u8 func_802F0F78(s32 cnt){
+u8 pem_newEmitter(s32 cnt){
     int i;
     for(i = 1; i < 16; i++){
-        if(D_80380938[i].unk8_31 == 0){
-            D_80380938[i].unk8_31++;
-            D_80380938[i].p_emitter = NULL;
-            D_80380938[i].capacity = cnt;
+        if(emitterData[i].unk8_31 == 0){
+            emitterData[i].unk8_31++;
+            emitterData[i].p_emitter = NULL;
+            emitterData[i].capacity = cnt;
             return i;
         }
     }
     return 0;
 }
 
-void func_802F10A4(void){
+void pem_freeAll(void){
     int i;
     for(i = 1; i < 16; i++){
-        if(D_80380938[i].unk8_31 != 0){
-            func_802F1190(i);
+        if(emitterData[i].unk8_31 != 0){
+            pem_free(i);
         }
     }
 }
 
-void func_802F1104(void){
+void pem_setAllInactive(void){
     int i;
     for(i = 1; i < 16; i++){
-        D_80380938[i].unk8_31 = 0;
+        emitterData[i].unk8_31 = 0;
     }
 }
 
-void func_802F1190(u8 arg0){
-    if(D_80380938[arg0].p_emitter){
-        partEmitMgr_freeEmitter(D_80380938[arg0].p_emitter);
+void pem_free(u8 arg0){
+    if(emitterData[arg0].p_emitter){
+        partEmitMgr_freeEmitter(emitterData[arg0].p_emitter);
     }
-    D_80380938[arg0].unk8_31 = 0;
+    emitterData[arg0].unk8_31 = 0;
 }
 
-void func_802F11E8(void){
+void pem_updateAll(void){
     int i;
     for(i = 1; i < 16; i++){
-        if( D_80380938[i].unk8_31 != 0
-            && D_80380938[i].p_emitter != NULL
-            && particleEmitter_isDone(D_80380938[i].p_emitter)
+        if( emitterData[i].unk8_31 != 0
+            && emitterData[i].p_emitter != NULL
+            && particleEmitter_isDone(emitterData[i].p_emitter)
         ){
-           D_80380938[i].unk0 -= time_getDelta();
-           if(D_80380938[i].unk0 <= 0.0f){
-                partEmitMgr_freeEmitter(D_80380938[i].p_emitter);
-                D_80380938[i].p_emitter = NULL;
+           emitterData[i].unk0 -= time_getDelta();
+           if(emitterData[i].unk0 <= 0.0f){
+                partEmitMgr_freeEmitter(emitterData[i].p_emitter);
+                emitterData[i].p_emitter = NULL;
            }
         }
     }
 }
 
-void func_802F1294(void){
+void pem_freeEmitters(void){
     int i;
     for(i = 1; i < 16; i++){
-        if( D_80380938[i].unk8_31 != 0
-            && D_80380938[i].p_emitter != NULL
-            && i != D_80380930
+        if( emitterData[i].unk8_31 != 0
+            && emitterData[i].p_emitter != NULL
+            && i != initializingIndex
         ){
-           partEmitMgr_freeEmitter(D_80380938[i].p_emitter);
-           D_80380938[i].p_emitter = NULL;
+           partEmitMgr_freeEmitter(emitterData[i].p_emitter);
+           emitterData[i].p_emitter = NULL;
         }
     }
 }
 
-void func_802F1320(void){
+void pem_defragAll(void){
     int i;
     for(i = 1; i < 16; i++){
-        if( D_80380938[i].unk8_31 != 0
-            && D_80380938[i].p_emitter != NULL
+        if( emitterData[i].unk8_31 != 0
+            && emitterData[i].p_emitter != NULL
         ){
-           D_80380938[i].p_emitter = partEmitMgr_defragEmitter(D_80380938[i].p_emitter);
+           emitterData[i].p_emitter = partEmitMgr_defragEmitter(emitterData[i].p_emitter);
         }
     }
 }
 
-void func_802F1388(void){
+void pem_freeDependencies(void){
     func_802EDD20();
     fxRipple_free();
     func_802F1E80();
     fxSparkle_free();
     func_802F404C();
     func_802F422C();
-    func_802EE684();
+    dustEmitter_free();
     func_802F3CB0();
 }
 
-void func_802F13E0(void){
+void pem_initDependencies(void){
     func_802EDD44();
     fxRipple_init();
     func_802F1EA4();
     fxSparkle_init();
     func_802F4070();
     func_802F4250();
-    func_802EE63C();
+    dustEmitter_init();
     func_802F3CD4();
 }

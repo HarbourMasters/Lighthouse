@@ -7,7 +7,7 @@
 
 
 extern ActorInfo D_80390D20;
-extern ActorInfo D_80390050;
+extern ActorInfo RBB_TEXT_END;
 extern ActorInfo D_80390200;
 extern ActorInfo D_80390270;
 extern ActorInfo D_80390D50;
@@ -172,7 +172,7 @@ void func_80386BF8(Actor *arg0){
 
 void RBB_func_80386C48(void){
     spawnableActorList_add(&D_80390D20, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_14);
-    spawnableActorList_add(&D_80390050, actor_new, ACTOR_FLAG_NONE);
+    spawnableActorList_add(&RBB_TEXT_END, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&D_80390200, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&D_80390270, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&D_80390D50, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_14 | ACTOR_FLAG_UNKNOWN_27);

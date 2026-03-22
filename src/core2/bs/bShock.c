@@ -77,7 +77,7 @@ void bsbshock_charge_update(void){
             break;
         case 1:
             if(anctrl_isAt(aCtrl, 0.11f))
-                func_8030E2C4(D_8037D382);
+                sfxSource_func_8030E2C4(D_8037D382);
             
             if(anctrl_isAt(aCtrl, 0.4036f))
                 anctrl_setDuration(aCtrl, 1.4f);

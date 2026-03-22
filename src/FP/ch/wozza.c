@@ -101,7 +101,7 @@ void func_8038F41C(Actor *this){
 }
 
 void func_8038F454(Actor *this){
-    if(!mapSpecificFlags_get(7) && player_movementGroup() != BSGROUP_A_FLYING && func_80329530(this, 1000) ){
+    if(!mapSpecificFlags_get(7) && player_movementGroup() != BSGROUP_A_FLYING && subaddie_playerIsWithinSphereAndActive(this, 1000) ){
         mapSpecificFlags_set(7, true);
         subaddie_set_state(this, 2);
         actor_loopAnimation(this);
@@ -222,13 +222,13 @@ void FP_func_8038F7AC(Actor *this){
                 break;
             }
             
-            if(func_80329530(this, 1300) && player_getTransformation() == TRANSFORM_4_WALRUS){
+            if(subaddie_playerIsWithinSphereAndActive(this, 1300) && player_getTransformation() == TRANSFORM_4_WALRUS){
                 subaddie_set_state_with_direction(this, 8, 0.02f, 1);
                 actor_loopAnimation(this);
                 break;
             }
 
-            if(func_80329530(this, 1000) && !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 1000) && !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)){
                 func_8038F454(this);
                 break;
             }
@@ -246,7 +246,7 @@ void FP_func_8038F7AC(Actor *this){
             break;
 
         case 4: //L8038FAD0
-            if(!func_80329530(this, 2000) && player_movementGroup() != BSGROUP_A_FLYING){
+            if(!subaddie_playerIsWithinSphereAndActive(this, 2000) && player_movementGroup() != BSGROUP_A_FLYING){
                 func_8038F560(this);
                 break;
             }
@@ -267,7 +267,7 @@ void FP_func_8038F7AC(Actor *this){
 
         case 6: //L8038FBA8
             FP_func_8038F6C4(this, local->unk18, 1.0f);
-            if( func_80329530(this, 1700) ) break;
+            if( subaddie_playerIsWithinSphereAndActive(this, 1700) ) break;
             if( player_movementGroup() == BSGROUP_A_FLYING )    break;
             
             func_8038F560(this);
@@ -283,7 +283,7 @@ void FP_func_8038F7AC(Actor *this){
             if(!FP_func_8038F6C4(this, local->unkC, 4.5f)) 
                 break;
 
-            if(func_80329530(this, 1000) || player_movementGroup() == BSGROUP_A_FLYING){
+            if(subaddie_playerIsWithinSphereAndActive(this, 1000) || player_movementGroup() == BSGROUP_A_FLYING){
                 func_8038F528(this);
                 break;
             }
@@ -299,7 +299,7 @@ void FP_func_8038F7AC(Actor *this){
                 break;
             }
 
-            if(func_80329530(this, 500) && !this->has_met_before){
+            if(subaddie_playerIsWithinSphereAndActive(this, 500) && !this->has_met_before){
                 if(gcdialog_showText(0xc1c, 0xAA, this->position, this->marker, func_8038F330, func_8038F3C4)){
                     timed_setStaticCameraToNode(0.0f, 0x2E);
                     this->has_met_before = true;
@@ -317,7 +317,7 @@ void FP_func_8038F7AC(Actor *this){
 
             func_8038F598(this, 2.0f);
 
-            if(!func_803114B0()){
+            if(!gcdialog_hasCurrentTextId()){
                 if( actor_animationIsAt(this, 0.02f)
                     || actor_animationIsAt(this, 0.14f)
                     || actor_animationIsAt(this, 0.28f)

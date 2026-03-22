@@ -7,8 +7,8 @@
 s32 D_8037D160; //prev_state
 s32 D_8037D164; //state
 s32 D_8037D168; //next_state
-s32 D_8037D16C; 
-s32 D_8037D170;
+s32 currentInterrupt; 
+s32 interruptResponse;
 
 void bs_clearState(void){
     D_8037D160 = 0;
@@ -52,17 +52,17 @@ void bs_updateState(void){
 }
 
 s32 bs_checkInterrupt(enum bs_interrupt_e arg0){
-    D_8037D16C = arg0;
-    D_8037D170 = 0;
+    currentInterrupt = arg0;
+    interruptResponse = 0;
     if(bsList_getInterruptMethod(D_8037D164) != NULL)
         bsList_getInterruptMethod(D_8037D164)();
-    return D_8037D170;
+    return interruptResponse;
 }
 
-void func_8029A86C(s32 arg0){
-    D_8037D170 = arg0;
+void bs_setInterruptResponse(s32 arg0){
+    interruptResponse = arg0;
 }
 
 enum bs_interrupt_e bs_getInterruptType(void){
-    return D_8037D16C;
+    return currentInterrupt;
 }

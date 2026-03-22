@@ -110,7 +110,7 @@ void __timedFunc_execute(TimedFunction *arg0){
 }
 
 void func_80324A28(s32 soundId, s32 volume){
-    func_8025A6EC(soundId, volume);
+    coMusicPlayer_playMusic(soundId, volume);
 }
 
 void func_80324A48(enum comusic_e arg0){

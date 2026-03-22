@@ -117,7 +117,7 @@ void chwasp_update(Actor *this) {
         local->unk4 = 0;
         local->unk14 = 1000.0f;
         sfxsource_setSfxId(local->sfxsourceIdx, 0x3FA);
-        func_8030DD14(local->sfxsourceIdx, 2);
+        sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 2);
         sfxsource_playSfxAtVolume(local->sfxsourceIdx, 0.9f);
         sfxsource_setSampleRate(local->sfxsourceIdx, 0);
         marker_setCollisionScripts(this->marker, func_80387124, NULL, CCW_func_80387150);
@@ -210,6 +210,6 @@ void chwasp_update(Actor *this) {
     }
     sfxsource_set_fade_distances(local->sfxsourceIdx, 500.0f, 1500.0f);
     sfxsource_set_position(local->sfxsourceIdx, this->position);
-    func_8030E2C4(local->sfxsourceIdx);
+    sfxSource_func_8030E2C4(local->sfxsourceIdx);
     sfxsource_setSampleRate(local->sfxsourceIdx, (s32) ((local->unk18 / local->unk14) * 10000.0f));
 }

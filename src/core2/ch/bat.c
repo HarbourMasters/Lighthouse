@@ -166,13 +166,13 @@ bool chbat_nearPlayer(Actor *this) {
     }
 
     if (this->unk38_31 != 0) {
-        if (func_80329530(this, 0) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 0) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
             return true;
         }
         this->unk38_31--;
         return false;
     }
-    if (func_80329530(this, 800) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
+    if (subaddie_playerIsWithinSphereAndActive(this, 800) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
         return true;
     }
 
@@ -484,7 +484,7 @@ void chbat_update(Actor *this){
                 this->position_y =  mapModel_getFloorY(this->position);
                 subaddie_set_state_with_direction(this, CH_BAT_STATE_DIE, 0.01f, 1);
                 actor_playAnimationOnce(this);
-                func_8030E6A4(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200);
+                gcsfx_playWithPitch(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200);
             }
             else{//L80360CC4
                 this->position_y += this->velocity_x * sp34;

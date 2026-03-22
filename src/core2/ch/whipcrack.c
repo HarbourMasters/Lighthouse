@@ -24,7 +24,7 @@ void __chwhipcrack_spawnPieces(Actor *this, enum asset_e model_id, s32 cnt){
     );
     particleEmitter_func_802EF9F8(pCtrl, 0.7f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 0.5f, 1.0f);
+    particleEmitter_func_802EFA20(pCtrl, 0.5f, 1.0f);
     particleEmitter_setSfx(pCtrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setModel(pCtrl, model_id);
     particleEmitter_setSpawnPositionRange(pCtrl,

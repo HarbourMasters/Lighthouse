@@ -34,7 +34,7 @@ void chShrapnel_func_802D0A38(Actor *this){
         this->unk38_31--;
     }
     else{
-        if(func_80329530(this, 600) && func_803292E0(this)){
+        if(subaddie_playerIsWithinSphereAndActive(this, 600) && func_803292E0(this)){
             this->actor_specific_1_f = 0.0f;
             subaddie_set_state_with_direction(this, 2, 0.0f, 1);
         }

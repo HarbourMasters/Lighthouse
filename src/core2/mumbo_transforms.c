@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_803255FC(Actor *);
 extern void func_80325760(Actor *);
 
@@ -170,7 +170,7 @@ static void __chMumbo_textCallback(ActorMarker *caller, enum asset_e text_id, s3
         case ASSET_DAF_DIALOG_MUMBO_TREX_MISTAKE: //L802D1A98
             this->has_met_before = false;
             if(this->unk38_31 != 0){
-                func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                 item_adjustByDiffWithHud(ITEM_1C_MUMBO_TOKEN, -this->unk38_31);
                 this->unk38_31 = 0;
             }
@@ -183,7 +183,7 @@ static void __chMumbo_textCallback(ActorMarker *caller, enum asset_e text_id, s3
             D_8037DDF0 = this->unk10_12;
             this->unk10_12 = 1;
             if(this->unk38_31){
-                func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                 item_adjustByDiffWithHud(ITEM_1C_MUMBO_TOKEN, -this->unk38_31);
             }
             
@@ -358,7 +358,7 @@ void chMumbo_update(Actor *this) {
                             subaddie_set_state(this, 5);
                         } else {
                             if (this->unk38_31) {
-                                func_8025A6EC(SFX_2B_BULL_MOO_1, 28000);
+                                coMusicPlayer_playMusic(SFX_2B_BULL_MOO_1, 28000);
                                 item_adjustByDiffWithHud(ITEM_1C_MUMBO_TOKEN, -this->unk38_31);
                             }
                             subaddie_set_state(this, 5);
@@ -367,7 +367,7 @@ void chMumbo_update(Actor *this) {
 
                         break;
                     }
-                    func_8025A6EC(COMUSIC_2C_BUZZER, 22000);
+                    coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
                     if ((levelSpecificFlags_get(LEVEL_FLAG_3E_UNKNOWN) == false) && (gcdialog_showText(ASSET_DAC_DIALOG_MUMBO_FAIL_TO_BUY, 0, NULL, NULL, NULL, NULL) != 0)) {
                         levelSpecificFlags_set(LEVEL_FLAG_3E_UNKNOWN, 1);
                     }
@@ -378,10 +378,10 @@ void chMumbo_update(Actor *this) {
         case 5: //L802D2488
             actor_playAnimationOnce(this);
             if (actor_animationIsAt(this, 0.35f)){
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             if (actor_animationIsAt(this, 0.56f)) {
-                func_8030E394(this->unk44_31);
+                sfxSource_triggerCallbackByIndex(this->unk44_31);
             }
             if (actor_animationIsAt(this, 0.57f)) {
                 func_8030E6D4(1);
@@ -504,7 +504,7 @@ Actor *chMumbo_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             || actor_animationIsAt(out, 0.36f)
          ){
             func_8034A174(func_80329934(), 9, sp44);
-            func_802EE6CC(sp44, sp38, D_8036751C, 0, 0.9f, 0.0f, 0x46, 0x14, 0);
+            dustEmitter_emit(sp44, sp38, D_8036751C, 0, 0.9f, 0.0f, 0x46, 0x14, 0);
         }
     }
     return out;

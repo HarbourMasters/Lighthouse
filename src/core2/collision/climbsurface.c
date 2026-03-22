@@ -5,10 +5,10 @@
 #include "core2/ba/physics.h"
 
 
-extern int        func_80258424(f32 vec[3], f32 minX, f32 minY, f32 minZ, f32 maxX, f32 maxY, f32 maxZ);
+extern int        ml_vec3f_inside_box_f(f32 vec[3], f32 minX, f32 minY, f32 minZ, f32 maxX, f32 maxY, f32 maxZ);
 extern f32        floor_getXPosition(struct0*);
 extern void       func_8031C5AC(struct0 *, f32 *);
-extern f32        func_8031C5E4(struct0*);
+extern f32        floor_getYPosition(struct0*);
 extern void       func_8031C5FC(struct0 *, f32);
 extern void       func_80244FC0(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4, u32 arg5);
 extern BKCollisionTri *func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32); // [port] was s32 — returns BKCollisionTri*
@@ -320,8 +320,8 @@ void func_80293F0C(void){
             _player_getPosition(D_8037C218);
             func_80298504(D_8037C228);
             ml_vec3f_diff_copy(D_8037C238, D_8037C218, D_8037C228);
-            if ((D_8037C274 == 3) && func_8031C594(D_8037C200) && (D_8037C218[1] > (func_8031C5E4(D_8037C200) - 70.0f))) {
-                D_8037C218[1] = func_8031C5E4(D_8037C200) - 70.0f;
+            if ((D_8037C274 == 3) && func_8031C594(D_8037C200) && (D_8037C218[1] > (floor_getYPosition(D_8037C200) - 70.0f))) {
+                D_8037C218[1] = floor_getYPosition(D_8037C200) - 70.0f;
                 D_8037C27E = 1;
                 baphysics_set_vertical_velocity(1.0f);
             }
@@ -341,7 +341,7 @@ void func_80293F0C(void){
             break;
     }//L80294148
     if (func_8031C594(D_8037C200)) {
-        D_8037C278 = (D_8037C218[1] < func_8031C5E4(D_8037C200));
+        D_8037C278 = (D_8037C218[1] < floor_getYPosition(D_8037C200));
     }
     ml_vec3f_diff_copy(D_8037C248, D_8037C218, D_8037C228);
     ml_vec3f_diff(D_8037C248, D_8037C238);
@@ -349,7 +349,7 @@ void func_80293F0C(void){
         D_8037C279 = 1;
     }
 
-    if(D_8037C278 && D_8037C218[1] < (func_8031C5E4(D_8037C200) - 70.0f)){
+    if(D_8037C278 && D_8037C218[1] < (floor_getYPosition(D_8037C200) - 70.0f)){
         func_80294384(3);
         if(D_8037C279 && baphysics_get_vertical_velocity() < 0.0f) {
             baphysics_set_vertical_velocity(-1.0f);
@@ -442,8 +442,8 @@ s32 func_802944F4(void){
      return D_8037C284;
 }
 
-f32 func_80294500(void){
-     return func_8031C5E4(D_8037C200);
+f32 floor_getCurrentFloorYPosition(void){
+     return floor_getYPosition(D_8037C200);
 }
 
 s32 func_80294524(void){
@@ -470,7 +470,7 @@ int func_80294560(void){
      return D_8037C280 == 3;
 }
 
-bool func_80294574(void){
+bool floor_isCurrentFloorunk59(void){
      return func_8031C594(D_8037C200);
 }
 

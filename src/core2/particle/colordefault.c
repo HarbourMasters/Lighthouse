@@ -5,45 +5,45 @@
 
 
 /* .data */
-s16 D_80368930[3] = {
+s16 emitterAssets[3] = {
     ASSET_700_SPRITE_DUST,
     ASSET_702_SPRITE_UNKNOWN,
     ASSET_70D_SPRITE_SMOKE_1
 };
 
 /* .bss */
-u8 D_80380910[3];
+u8 emitterIndexes[3];
 
 /* .code */
-s32 func_802EE5E0(s32 arg0){
+s32 dustEmitter_returnGiven(s32 arg0){
     return arg0;
 }
 
-void func_802EE5E8(void *this){ // [port] void* — callers include sparkleemit.c which passes void*
+void dustEmitter_empty(void *this){ // [port] void* — callers include sparkleemit.c which passes void*
     return;
 }
 
-bool func_802EE5F0(s32 arg0){
-    return (arg0 < 3) ? !particleEmitter_isDone(func_802F0EF0(D_80380910[arg0])) : false;
+bool dustEmitter_isActive(s32 arg0){
+    return (arg0 < 3) ? !particleEmitter_isDone(pem_getEmitterByIndex(emitterIndexes[arg0])) : false;
 }
 
-void func_802EE63C(void) {
+void dustEmitter_init(void) {
     s32 i;
 
     for(i = 0; i < 3; i++){
-        D_80380910[i] = func_802F0F78(0x20);
+        emitterIndexes[i] = pem_newEmitter(0x20);
     }
 }
 
-void func_802EE684(void) {
+void dustEmitter_free(void) {
     s32 i;
 
     for(i = 0; i < 3; i++){
-        func_802F1190(D_80380910[i]);
+        pem_free(emitterIndexes[i]);
     }
 }
 
-void func_802EE6CC(f32 position[3], f32 velocity[3], s32 color[4], s32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+void dustEmitter_emit(f32 position[3], f32 velocity[3], s32 color[4], s32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     s32 pad54;
     s32 pad50;
     s32 pad4C;
@@ -52,8 +52,8 @@ void func_802EE6CC(f32 position[3], f32 velocity[3], s32 color[4], s32 arg3, f32
     ParticleEmitter *p_ctrl;
 
     sp3C = 0x28;
-    p_ctrl = func_802F0EF0(D_80380910[arg8]);
-    particleEmitter_setSprite(p_ctrl, D_80368930[arg8]);
+    p_ctrl = pem_getEmitterByIndex(emitterIndexes[arg8]);
+    particleEmitter_setSprite(p_ctrl, emitterAssets[arg8]);
     particleEmitter_setFade(p_ctrl, 0.075f, 0.4f);
     particleEmitter_setPosition(p_ctrl, position);
     particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.0f);

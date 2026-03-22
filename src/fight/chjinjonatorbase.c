@@ -111,16 +111,16 @@ void chjinjonatorbase_update(Actor *this){
 
         this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(this->unk44_31, 0x3f9);
-        func_8030DD14(this->unk44_31, 3);
+        sfxSource_setunk43_7ByIndex(this->unk44_31, 3);
         sfxsource_playSfxAtVolume(this->unk44_31, 1.0f);
         sfxsource_setSampleRate(this->unk44_31, 26000);
-        func_8030E2C4(this->unk44_31);
+        sfxSource_func_8030E2C4(this->unk44_31);
         temp_s0 = func_802F9AA8(0x3EC);
         func_802F9DB8(temp_s0, 0.5f, 0.5f, 0.0f);
         func_802F9EC4(temp_s0, this->position, 5000, 15000);
         func_802F9FD0(temp_s0, 0.25f, this->lifetime_value - 1.0, 1);
         func_802FA060(temp_s0, 17000, 17000, 0.0f);
-        func_8025A6EC(JINGLE_MENACING_GRUNTILDA_A, 15000);
+        coMusicPlayer_playMusic(JINGLE_MENACING_GRUNTILDA_A, 15000);
         func_8032BB88(this, 0, 0x7fff);
         timedFunc_set_1(8.0f, (GenFunction_1)chjinjonatorbase_func_8038E2CC, (uintptr_t)this->marker);
         this->unk1C[0] = this->position_x;
@@ -148,7 +148,7 @@ void chjinjonatorbase_update(Actor *this){
 
             if(this->position_y + y_delta < this->unk1C[1]) {
                 if (!func_8030E3FC(this->unk44_31)) {
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }
 
                 position_delta[0] = (rumbling & 1) ? 3.0f : -3.0f;
@@ -173,7 +173,7 @@ void chjinjonatorbase_update(Actor *this){
                 subaddie_set_state(this, CHBOSSJINJOBASE_STATE_2_DEFAULT);
 
                 FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 0.8f, 32000);
-                func_8030E394(this->unk44_31);
+                sfxSource_triggerCallbackByIndex(this->unk44_31);
                 sfxsource_freeSfxsourceByIndex(this->unk44_31);
                 this->unk44_31 = 0;
 

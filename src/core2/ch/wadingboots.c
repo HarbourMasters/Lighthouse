@@ -67,7 +67,7 @@ void chwadingboots_update(Actor *this){
             }
 
             if(volatileFlag_get(VOLATILE_FLAG_10_HAS_MEET_WADING_BOOTS))  break;
-            if(!func_80329530(this, 250)) break;
+            if(!subaddie_playerIsWithinSphereAndActive(this, 250)) break;
             if(player_getTransformation() != TRANSFORM_1_BANJO) break;
             
             if(gcdialog_showText(ASSET_DA5_DIALOG_WADINGBOOTS_MEET, 0, NULL, NULL, NULL, NULL)){

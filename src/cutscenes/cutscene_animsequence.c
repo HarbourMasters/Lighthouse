@@ -170,7 +170,7 @@ void func_80386A90(uintptr_t marker, uintptr_t duration) { // [port] was (s32, s
 }
 
 void func_80386AC8(uintptr_t arg0) { // [port] was (s32) — receives pointer via anSeq
-    static ParticleScaleAndLifetimeRanges D_8038D350 = {{2.2f, 2.8f}, {6.3f, 9.4f}, {0.0f, 0.05f}, {10.0f, 10.0f}, 0.2f, 0.9f};
+    static ParticleScaleAndLifetimeRanges cutscenes_TEXT_END = {{2.2f, 2.8f}, {6.3f, 9.4f}, {0.0f, 0.05f}, {10.0f, 10.0f}, 0.2f, 0.9f};
     Actor *actor;
     ParticleEmitter *pCtrl;
     f32 sp34[3];
@@ -186,7 +186,7 @@ void func_80386AC8(uintptr_t arg0) { // [port] was (s32) — receives pointer vi
     particleEmitter_setSpawnPositionRange(pCtrl, -50.0f, 600.0f, -50.0f, 50.0f, 600.0f, 50.0f);
     particleEmitter_func_802EF9F8(pCtrl, 0.01f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    particleEmitter_setScaleAndLifetimeRanges(pCtrl, &D_8038D350);
+    particleEmitter_setScaleAndLifetimeRanges(pCtrl, &cutscenes_TEXT_END);
     particleEmitter_emitN(pCtrl, 10);
 }
 
@@ -1193,7 +1193,7 @@ void cutscenes_func_8038AB60(bk_vector(AnSeqElement) **arg0, ActorMarker *arg1) 
     func_80361D7C(arg0, 0.99f, arg1, 5, 0x9680C3U);
 }
 
-void func_8038AC54(bk_vector(AnSeqElement) **arg0, ActorMarker *arg1) {
+void chvilegame_new_piece(bk_vector(AnSeqElement) **arg0, ActorMarker *arg1) {
     anSeq_setActivationFrameDelay((void **)arg0, 1); // [port]
     func_80361C64(arg0, 0.01f, arg1, 3, 0);
     anSeq_setActivationFrameDelay((void **)arg0, 1); // [port]
@@ -1635,7 +1635,7 @@ Struct63s D_8038DB44[] = {
 };
 
 Struct63s D_8038DB54[] = {
-    {0x293, func_8038AC54}, 
+    {0x293, chvilegame_new_piece}, 
     {0x29A, func_8038B098}, 
     {0x295, func_8038B214}, 
     {0x29B, func_8038B404}, 

@@ -408,7 +408,7 @@ f32  func_802BAFA0(s32 arg0, s32 arg1){
     return (f32)D_803654B8[arg0][arg1]/10.0;
 }
 
-void func_802BAFE4(s32 arg0) {
+void gcStaticCamera_activate(s32 arg0) {
     f32 temp_f0;
     s32 phi_s1;
     s32 phi_s0;

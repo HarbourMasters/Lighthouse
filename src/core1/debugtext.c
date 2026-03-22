@@ -8,7 +8,7 @@
 #if VERSION == VERSION_USA_1_0
 
 /* .data */
-u8 D_80275A50[8][3] = {
+u8 RGB_VALUES[8][3] = {
     {0xFF, 0x00, 0x00}, // Red
     {0x00, 0xFF, 0x00}, // Green
     {0x00, 0x00, 0xFF}, // Blue
@@ -18,11 +18,11 @@ u8 D_80275A50[8][3] = {
     {0xFF, 0x80, 0x00}, // Orange
     {0x00, 0xFF, 0xFF}  // Cyan
 };
-s32 D_80275A68 = 0xFF;
-s32 D_80275A6C = 0xFF;
-s32 D_80275A70 = 0xFF;
-u8  D_80275A74[] = {1, 7, 3, 4, 0, 6, 5, 0};
-u32 D_80275A7C[] = {
+s32 red = 0xFF;
+s32 green = 0xFF;
+s32 blue = 0xFF;
+u8  COLOR_SELECTOR[] = {1, 7, 3, 4, 0, 6, 5, 0};
+u32 CHARACTER_ENCODING[] = {
     3, 0x0F6DE000,
     1, 0x0F800000,
     3, 0x0C4AE000,
@@ -65,93 +65,93 @@ u32 D_80275A7C[] = {
     2, 0x00000000
 };
 
-s16 D_80275BBC = 0;
-s16 D_80275BC0 = 0;
-s16 D_80275BC4 = 0;
-s16 D_80275BC8 = 0;
-s16 D_80275BCC = 0;
-s16 D_80275BD0 = 0;
-s16 D_80275BD4 = 0;
-s16 D_80275BD8 = 0;
-s16 D_80275BDC = 0;
- u8 D_80275BE0 = 0;
-s32 D_80275BE4 = 0;
-char D_80275BE8[] = {'a','z','A','Z','0','9','.',':', '-', ' '};
+s16 startingXCoordinate = 0;
+s16 largeYCoordinate = 0;
+s16 cursorPosition = 0;
+s16 startingYCoordinate = 0;
+s16 currentColor = 0;
+s16 isThreadLocked = 0;
+s16 currentFontSize = 0;
+s16 largeValueCursorPosition = 0;
+s16 longestLineLengthPosition = 0;
+ u8 shouldClearText = 0;
+s32 clearTime = 0;
+char CHARACTER_RANGE[] = {'a','z','A','Z','0','9','.',':', '-', ' '};
 
 
 /* .h */
-void func_802484D0(void);
-void func_8024856C(void);
-void func_80248520(void);
+void gcdebugText_wrapToTop(void);
+void gcdebugText_printSpace(void);
+void gcdebugText_endLine(void);
 
 /* code */
-void func_80247750(s32 r, s32 g, s32 b){
-    D_80275A68 = r;
-    D_80275A6C = g;
-    D_80275A70 = b;
+void setRGB(s32 r, s32 g, s32 b){
+    red = r;
+    green = g;
+    blue = b;
 }
 
-void func_8024776C(s32 x, s32 y) {
+void setPixelInFrameBuffer(s32 x, s32 y) {
     s32 rgba16;
     if( ((x >= 0) && (x < gFramebufferWidth))
         && ((y >= 0) && (y < gFramebufferHeight))
     ) {
-        gFramebuffers[0][x + y*gFramebufferWidth] = _SHIFTL(D_80275A68 >> 3, 11, 5) | _SHIFTL(D_80275A6C >> 3, 6, 5) | _SHIFTL(D_80275A70 >> 3, 1, 5) | _SHIFTL(1, 0, 1);
-        gFramebuffers[1][x + y*gFramebufferWidth] = _SHIFTL(D_80275A68 >> 3, 11, 5) | _SHIFTL(D_80275A6C >> 3, 6, 5) | _SHIFTL(D_80275A70 >> 3, 1, 5) | _SHIFTL(1, 0, 1);
+        gFramebuffers[0][x + y*gFramebufferWidth] = _SHIFTL(red >> 3, 11, 5) | _SHIFTL(green >> 3, 6, 5) | _SHIFTL(blue >> 3, 1, 5) | _SHIFTL(1, 0, 1);
+        gFramebuffers[1][x + y*gFramebufferWidth] = _SHIFTL(red >> 3, 11, 5) | _SHIFTL(green >> 3, 6, 5) | _SHIFTL(blue >> 3, 1, 5) | _SHIFTL(1, 0, 1);
         
     }
 }
 
-void func_80247818(s32 x, s32 y, s32 w, s32 h) {
+void drawPixel(s32 x, s32 y, s32 w, s32 h) {
     s32 iy;
     s32 var_s1;
     s32 ix;
 
     for(ix = 0; ix < w; ix++){
         for(iy = 0; iy < h; iy++){
-            func_8024776C(x + ix, y + iy);
+            setPixelInFrameBuffer(x + ix, y + iy);
         }
     }
     osWritebackDCacheAll();
 }
 
-void func_802478C0(s32 r, s32 g, s32 b) {
-    func_80247750(r, g, b);
-    func_80247818((gFramebufferWidth - 128) / 2, (gFramebufferHeight - 100) / 2, 128, 100);
+void drawSquare(s32 r, s32 g, s32 b) {
+    setRGB(r, g, b);
+    drawPixel((gFramebufferWidth - 128) / 2, (gFramebufferHeight - 100) / 2, 128, 100);
 }
 
-void func_8024792C(void){}
+void gcdebugText_empty(void){}
 
-void func_80247934(void) {
+void gcdebugText_stallOnThread(void) {
     s32 var_s0;
 
     for(var_s0 = 0; var_s0 < 2000000; var_s0++){
-        func_8024792C();
+        gcdebugText_empty();
     }
 }
 
-void func_80247978(s32 arg0) {
+void gcdebugText_flashSquare(s32 arg0) {
     do{
-        func_802478C0(D_80275A50[arg0][0], D_80275A50[arg0][1], D_80275A50[arg0][2]);
-        func_80247934();
-        func_802478C0(0, 0, 0);
-        func_80247934();
+        drawSquare(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
+        gcdebugText_stallOnThread();
+        drawSquare(0, 0, 0);
+        gcdebugText_stallOnThread();
     }
     while(1);
 }
 
-void func_802479E4(s32 arg0) {
-    func_802478C0(D_80275A50[arg0][0], D_80275A50[arg0][1], D_80275A50[arg0][2]);
-    func_80247934();
-    func_802478C0(0, 0, 0);
-    func_80247934();
+void gcdebugText_drawSquare(s32 arg0) {
+    drawSquare(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
+    gcdebugText_stallOnThread();
+    drawSquare(0, 0, 0);
+    gcdebugText_stallOnThread();
 }
 
-void func_80247A40(s32 arg0) {
-    func_802478C0(D_80275A50[arg0][0], D_80275A50[arg0][1], D_80275A50[arg0][2]);
+void gcdebugText_drawSquareOnly(s32 arg0) {
+    drawSquare(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
 }
 
-void func_80247A7C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 g, s32 b) {
+void drawCharacter(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 g, s32 b) {
     s32 var_s3;
     s32 sp48;
     u32 sp44;
@@ -162,7 +162,7 @@ void func_80247A7C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 
     s32 var_s0;
     u32 temp_t4;
     u32 var_s4;
-    u32 *ptr = D_80275A7C + (arg1*2);
+    u32 *ptr = CHARACTER_ENCODING + (arg1*2);
     
     var_s4 = 0x10000000;
     sp44 = ptr[0];
@@ -172,38 +172,38 @@ void func_80247A7C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 
         for(var_s3 = 0; var_s3 != sp44; var_s3++){
             var_s4 >>= 1;
             if (sp40 & var_s4) {
-                func_80247750(r, g, b);
-                func_80247818((D_80275BC4 + arg2*var_s3) - arg3, (D_80275BC8 + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
+                setRGB(r, g, b);
+                drawPixel((cursorPosition + arg2*var_s3) - arg3, (startingYCoordinate + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
             } else {
                 if (arg4 != 0) {
-                    func_80247750(0, 0, 0);
+                    setRGB(0, 0, 0);
                 }
-                func_80247818((D_80275BC4 + arg2*var_s3) - arg3, (D_80275BC8 + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
+                drawPixel((cursorPosition + arg2*var_s3) - arg3, (startingYCoordinate + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
             }
         }
     }
     if (arg3 == 0) {
-        D_80275BC4 += (sp44 * arg2) + 2;
+        cursorPosition += (sp44 * arg2) + 2;
     }
 }
 
-void func_80247C20(void) {
+void gcdebugText_clearText(void) {
     s16 *var_v0;
     s16 *var_v1;
     s32 temp_lo;
     void *temp_a0;
     s32 i;
 
-    if (D_80275BE4 == 0) {
-        D_80275BE4 = globalTimer_getTime();
+    if (clearTime == 0) {
+        clearTime = globalTimer_getTime();
         return;
     }
-    if (globalTimer_getTime() != D_80275BE4) {
-        D_80275BE0 = false;
-        D_80275BE4 = globalTimer_getTime();
+    if (globalTimer_getTime() != clearTime) {
+        shouldClearText = false;
+        clearTime = globalTimer_getTime();
     }
 
-    if (D_80275BE0) {
+    if (shouldClearText) {
         for(i = 0; i < gFramebufferWidth * gFramebufferHeight; i++){
                 gFramebuffers[0][i] = 0;
                 gFramebuffers[1][i] = 0;
@@ -212,21 +212,21 @@ void func_80247C20(void) {
     }
 }
 
-void func_80247CEC(s32 arg0, s32 arg1, s32 arg2) {
-    func_80247A7C(arg0, arg1, arg2, 1, 1, 0, 0, 0);
-    func_80247A7C(arg0, arg1, arg2, 0, 1, D_80275A50[D_80275A74[arg0]][0], D_80275A50[D_80275A74[arg0]][1], D_80275A50[D_80275A74[arg0]][2]);
+void printCharacter(s32 arg0, s32 arg1, s32 arg2) {
+    drawCharacter(arg0, arg1, arg2, 1, 1, 0, 0, 0);
+    drawCharacter(arg0, arg1, arg2, 0, 1, RGB_VALUES[COLOR_SELECTOR[arg0]][0], RGB_VALUES[COLOR_SELECTOR[arg0]][1], RGB_VALUES[COLOR_SELECTOR[arg0]][2]);
 }
 
-void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
+void printValue(s32 arg0, s32 arg1, s32 arg2) {
     s16 temp_v0;
     s32 var_a1;
     s32 var_s0;
     s32 var_s1;
 
-    D_80275BC4 = D_80275BBC;
-    D_80275BD4 = arg2;
+    cursorPosition = startingXCoordinate;
+    currentFontSize = arg2;
     if (arg1 < 0) {
-        func_80247CEC(arg0, 0x26, arg2);
+        printCharacter(arg0, 0x26, arg2);
         arg1 *= -1;
     }
     
@@ -238,64 +238,64 @@ void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
         for(var_a1 = 0; arg1 >= var_s0; var_a1++){
             arg1 -= var_s0;
         }
-        func_80247CEC(arg0, var_a1, arg2);
+        printCharacter(arg0, var_a1, arg2);
     }
 
-    func_80247CEC(arg0, arg1, arg2);
-    func_8024856C();
+    printCharacter(arg0, arg1, arg2);
+    gcdebugText_printSpace();
     if (arg2 == 7) {
-        D_80275BD8 = D_80275BC4;
-        D_80275BDC = 0;
+        largeValueCursorPosition = cursorPosition;
+        longestLineLengthPosition = 0;
     }
-    else if (D_80275BC4 >= D_80275BDC) {
-        D_80275BDC = D_80275BC4;
+    else if (cursorPosition >= longestLineLengthPosition) {
+        longestLineLengthPosition = cursorPosition;
     }
 }
 
-void func_80247F24(s32 arg0, s32 arg1) {
-    D_80275BD0 = 0;
-    D_80275BCC = arg0;
-    D_80275BBC = 0xE;
-    D_80275BC8 = 0xA;
-    func_80247D80(arg0, arg1, 7);
-    func_802484D0();
-    D_80275BC0 = D_80275BC8;
-    D_80275BDC = D_80275BBC;
-    D_80275BE0 = 1;
+void gcdebugText_showLargeValue(s32 arg0, s32 arg1) {
+    isThreadLocked = 0;
+    currentColor = arg0;
+    startingXCoordinate = 0xE;
+    startingYCoordinate = 0xA;
+    printValue(arg0, arg1, 7);
+    gcdebugText_wrapToTop();
+    largeYCoordinate = startingYCoordinate;
+    longestLineLengthPosition = startingXCoordinate;
+    shouldClearText = 1;
 }
 
 
-void func_80247F9C(s32 arg0){
-    func_80247D80(D_80275BCC, arg0, 2);
-    func_802484D0();
+void gcdebugText_showValue(s32 arg0){
+    printValue(currentColor, arg0, 2);
+    gcdebugText_wrapToTop();
 }
 
-void func_80247FD0(u32 arg0) {
+void gcdebugText_showHexValue(u32 arg0) {
     s32 var_s0;
 
-    D_80275BC4 = D_80275BBC;
-    D_80275BD4 = 2;
-    func_80247CEC(D_80275BCC, 0x25, 2);
+    cursorPosition = startingXCoordinate;
+    currentFontSize = 2;
+    printCharacter(currentColor, 0x25, 2);
      var_s0 = (arg0 >= 0x01000000U) ? 0x1C
             : (arg0 >= 0x10000U) ? 0x14
             :0xC;
     if (var_s0 >= 0) {
         do {
-            func_80247CEC(D_80275BCC, ((s32) arg0 >> var_s0) & 0xF, 2);
+            printCharacter(currentColor, ((s32) arg0 >> var_s0) & 0xF, 2);
             var_s0 -= 4;
         } while (var_s0 >= 0);
     }
-    func_80248520();
+    gcdebugText_endLine();
 }
 
-void func_80248098(f32 arg0) {
+void gcdebugText_showFloat(f32 arg0) {
     f32 var_f22;
     s32 var_s0;
 
-    D_80275BC4 = D_80275BBC;
-    D_80275BD4 = 2;
+    cursorPosition = startingXCoordinate;
+    currentFontSize = 2;
     if (arg0 < 0.0f) {
-        func_80247CEC(D_80275BCC, 0x26, 2);
+        printCharacter(currentColor, 0x26, 2);
         arg0 *= -1.0f;
     }
     var_f22 = 1e+09;
@@ -304,7 +304,7 @@ void func_80248098(f32 arg0) {
     }
     while (1e-09 <= var_f22) {
             if ((0.09 < var_f22) && (var_f22 < 0.11)) {
-                func_80247CEC(D_80275BCC, 0x24, 2);
+                printCharacter(currentColor, 0x24, 2);
             }
             
             var_s0 = 0;
@@ -312,129 +312,129 @@ void func_80248098(f32 arg0) {
                     arg0 -= var_f22;
                     var_s0 += 1;
             }
-            func_80247CEC(D_80275BCC, var_s0, 2);
+            printCharacter(currentColor, var_s0, 2);
             var_f22 /= 10.0f;
     }
-    func_80248520();
+    gcdebugText_endLine();
 }
 
 //letter to font index???
-s32 func_8024824C(s32 arg0) {
+s32 encodeCharacter(s32 arg0) {
     //lowercase_letter
-    if ((arg0 >= (s32) D_80275BE8[0]) && ((s32) D_80275BE8[1] >= arg0)) {
-        return (arg0 - D_80275BE8[0]) + 0xA;
+    if ((arg0 >= (s32) CHARACTER_RANGE[0]) && ((s32) CHARACTER_RANGE[1] >= arg0)) {
+        return (arg0 - CHARACTER_RANGE[0]) + 0xA;
     }
 
     //uppercase_letter
-    if ((arg0 >= (s32) D_80275BE8[2]) && ((s32) D_80275BE8[3] >= arg0)) {
-        return (arg0 - D_80275BE8[2]) + 0xA;
+    if ((arg0 >= (s32) CHARACTER_RANGE[2]) && ((s32) CHARACTER_RANGE[3] >= arg0)) {
+        return (arg0 - CHARACTER_RANGE[2]) + 0xA;
     }
 
     //number
-    if ((arg0 >= (s32) D_80275BE8[4]) && ((s32) D_80275BE8[5] >= arg0)) {
-        return (arg0 - D_80275BE8[4]);
+    if ((arg0 >= (s32) CHARACTER_RANGE[4]) && ((s32) CHARACTER_RANGE[5] >= arg0)) {
+        return (arg0 - CHARACTER_RANGE[4]);
     }
 
     //.
-    if (arg0 == D_80275BE8[6]) {
+    if (arg0 == CHARACTER_RANGE[6]) {
         return 0x24;
     }
 
     //:
-    if (arg0 == D_80275BE8[7]) {
+    if (arg0 == CHARACTER_RANGE[7]) {
         return 0x25;
     }
 
     //-
-    if (arg0 == D_80275BE8[8]) {
+    if (arg0 == CHARACTER_RANGE[8]) {
         return 0x26;
     }
     // 
-    if (arg0 == D_80275BE8[9]) {
+    if (arg0 == CHARACTER_RANGE[9]) {
         return 0x27;
     }
     return 0x27;
 }
 
 
-void func_80248330(u8 *arg0){
+void gcdebugText_showText(u8 *arg0){
     s32 i;
     s32 var_v0;
 
-    D_80275BC4 = D_80275BBC;
-    D_80275BD4 = 2;
+    cursorPosition = startingXCoordinate;
+    currentFontSize = 2;
     for(i = 0; arg0[i] != 0; i++){
         var_v0 = arg0[i];
-        func_80247CEC(D_80275BCC, func_8024824C(var_v0), 2);
+        printCharacter(currentColor, encodeCharacter(var_v0), 2);
     }
-    func_80248520();
+    gcdebugText_endLine();
 }
 
 
-void func_802483B8(void){
-    D_80275BD0 = 1;
+void gcdebugText_lockScreen(void){
+    isThreadLocked = 1;
     do{}while(1);
 }
 
-void func_802483D8(void){
+void gcdebugText_pauseThread(void){
     s32 i;
-    D_80275BD0 = 1;
+    isThreadLocked = 1;
     for(i = 30000000; i != 0; i--){}
-    D_80275BD0 = 0;
+    isThreadLocked = 0;
 }
 
-void func_80248404(s32 arg0){
+void gcdebugText_pauseThreadForTime(s32 arg0){
     s32 i;
 
-    D_80275BD0 = 1;
+    isThreadLocked = 1;
     while(arg0 != 0){
         for(i = 30000000; i != 0; i--){}
         arg0--;
     }
-    D_80275BD0 = 0;
+    isThreadLocked = 0;
 }
 
-void func_80248444(s32 arg0) {
-    D_80275BC8 += arg0;
-    if (D_80275BC8 >= 0xCD) {
-        D_80275BBC = D_80275BDC + 4;
-        D_80275BC4 = D_80275BBC;
-        D_80275BC8 = (D_80275BD8 < D_80275BC4) ? 0xA : D_80275BC0;
-        D_80275BDC = 0;
+void checkYAndgcdebugText_wrapToTop(s32 arg0) {
+    startingYCoordinate += arg0;
+    if (startingYCoordinate >= 0xCD) {
+        startingXCoordinate = longestLineLengthPosition + 4;
+        cursorPosition = startingXCoordinate;
+        startingYCoordinate = (largeValueCursorPosition < cursorPosition) ? 0xA : largeYCoordinate;
+        longestLineLengthPosition = 0;
     }
 }
 
-void func_802484D0(void){
-    func_80248444( D_80275BD4*5 + 2);
+void gcdebugText_wrapToTop(void){
+    checkYAndgcdebugText_wrapToTop( currentFontSize*5 + 2);
 }
 
-void func_80248500(void){
-    func_80248444(2);
+void gcdebugText_wrapToTopSmall(void){
+    checkYAndgcdebugText_wrapToTop(2);
 }
 
-void func_80248520(void){
-    func_8024856C();
-    if(D_80275BC4 >= D_80275BDC){
-        D_80275BDC = D_80275BC4;
+void gcdebugText_endLine(void){
+    gcdebugText_printSpace();
+    if(cursorPosition >= longestLineLengthPosition){
+        longestLineLengthPosition = cursorPosition;
     }
-    func_802484D0();
+    gcdebugText_wrapToTop();
 }
 
-void func_8024856C(void) {
+void gcdebugText_printSpace(void) {
     s16 sp1E;
     s16 temp_v0;
 
-    sp1E = D_80275BC4--;
-    func_80247CEC(D_80275BCC, 0x27, D_80275BD4);
-    D_80275BC4 = sp1E;
+    sp1E = cursorPosition--;
+    printCharacter(currentColor, 0x27, currentFontSize);
+    cursorPosition = sp1E;
 }
 
 
-s32 func_802485BC(void){
-    return D_80275BD0;
+s32 gcdebugText_isThreadLocked(void){
+    return isThreadLocked;
 }
 
-void func_802485C8(s32 arg0){ // [port] was UNK_TYPE(s32) — empty stub
+void gcdebugText_unused(s32 arg0){ // [port] was UNK_TYPE(s32) — empty stub
 
 }
 #endif

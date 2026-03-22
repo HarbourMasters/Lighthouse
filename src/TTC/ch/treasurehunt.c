@@ -83,7 +83,7 @@ static bool __chTreasurehunt_isActiveHitboxBeakBusterHitbox(void) {
             comusic_id = COMUSIC_2D_PUZZLE_SOLVED_FANFARE;
             music_volume = 0x7FFF;
         }
-        func_8025A6EC(comusic_id, music_volume);
+        coMusicPlayer_playMusic(comusic_id, music_volume);
         return true;
     }
     return false;

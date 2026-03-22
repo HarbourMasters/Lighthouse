@@ -249,7 +249,7 @@ void BGS_func_80386E30(ActorMarker *this, ActorMarker *other){
     }
 }
 
-void func_80386E70(ActorMarker *this, ActorMarker *other){
+void chAncientOne_draw(ActorMarker *this, ActorMarker *other){
     Actor *thisActor = marker_getActor(this);
     if(thisActor->state < 6){
         func_80386AEC(thisActor, 5);
@@ -325,7 +325,7 @@ void chflibbit_update(Actor *this){
 
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
-        marker_setCollisionScripts(this->marker, BGS_func_80386E30, func_80386E70, func_80386EB0);
+        marker_setCollisionScripts(this->marker, BGS_func_80386E30, chAncientOne_draw, func_80386EB0);
         local->unk1C[0] = randf2(-2.0f, -1.0f);
         local->unk1C[1] = randf2(-2.0f, -1.0f);
 
