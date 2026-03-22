@@ -902,6 +902,12 @@ void GameEngine::StartFrame() const {
 #define SAMPLES_LOW 528
 
 #endif
+#define NUM_AUDIO_CHANNELS 2
+#define SAMPLES_PER_FRAME (SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 2)
+
+extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
+    return SAMPLES_PER_FRAME;
+}
 
 // [port] 2 VIs per game frame (30fps)
 #define gVIsPerFrame 2
@@ -934,6 +940,11 @@ void GameEngine::HandleAudioThread() {
             func_802403F0(); // [port] recycle stale DMA cache entries
             n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
             func_80250650(); // [port] process channel volume/tempo fades (originally in audioManager_handleFrameMsg)
+            float master_vol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 100) / 100.0f;
+
+            for (u32 i = 0; i < GameEngine_GetSamplesPerFrame(); i++) {
+                audioBuffer[i] = static_cast<s16>(audioBuffer[i] * master_vol);
+            }
             AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
         }
 
@@ -1185,12 +1196,6 @@ extern "C" uint32_t GameEngine_GetSampleRate() {
     }
 
     return player->GetSampleRate();
-}
-
-#define SAMPLES_PER_FRAME ADPCMFSIZE
-
-extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
-    return SAMPLES_PER_FRAME;
 }
 
 // End

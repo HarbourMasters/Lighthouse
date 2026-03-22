@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include "UIWidgets.hpp"
+#include "src/port/devtools/EventDebugger.h"
 
 #ifdef __APPLE__
 #include <fast/backends/gfx_metal.h>
@@ -60,6 +61,7 @@ std::shared_ptr<Notification::Window> mNotificationWindow;
 std::shared_ptr<InputViewer> mInputViewer;
 std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
 std::shared_ptr<LighthouseModalWindow> mModalWindow;
+std::shared_ptr<EventDebuggerWindow> mEventDebuggerWindow;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mLighthouseMenu->GetMenuThemeColor();
@@ -171,6 +173,9 @@ void SetupGuiElements() {
     mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>("gWindows.InputViewerSettings",
                                                                        "Input Viewer Settings", ImVec2(500, 525));
     gui->AddGuiWindow(mInputViewerSettings);
+
+    mEventDebuggerWindow = std::make_shared<EventDebuggerWindow>(CVAR_WINDOW("EventDebugger"), "Event Debugger");
+    gui->AddGuiWindow(mEventDebuggerWindow);
 }
 
 void Destroy() {
@@ -201,6 +206,7 @@ void Destroy() {
     // mItemTrackerSettingsWindow = nullptr;
     mInputViewer = nullptr;
     mInputViewerSettings = nullptr;
+    mEventDebuggerWindow = nullptr;
 }
 
 void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,
