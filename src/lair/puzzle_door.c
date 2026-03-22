@@ -170,12 +170,16 @@ void func_8038EDBC(Actor *this) {
             local->unk8 = (local->unk8 - 8 > 0) ? local->unk8 - 8 : 0;
         }
         sp34 = (0xFF - local->unk8) / 255.0;
-        sp28[3] = sp34; // [port] explicit — was implicit via MIPS stack alias
+        // [port] On N64, opaque render mode ignores vertex alpha — both meshes remain
+        // visible regardless of alpha. On PC, alpha=0 hides the mesh entirely, causing
+        // the golden podium platform (baked into the model) to disappear.
+        // Keep sp44 (base mesh) always at alpha=1.0. Let sp40 (glow overlay)
+        // crossfade normally.
+        sp28[3] = 1.0f;
         func_8034DF30(sp44, sp28, sp28, 0);
         sp34 = 1.0 - sp34;
-        sp28[3] = sp34; // [port] explicit — was implicit via MIPS stack alias
+        sp28[3] = sp34;
         func_8034DF30(sp40, sp28, sp28, 0);
-        if(sp34);
     }
 }
 
