@@ -31,6 +31,11 @@ int port_getViewportWidth(void);
 // (typically 2 for 30fps, higher during original frame drops). Returns 0 outside demos.
 int port_getDemoViCount(void);
 
+// [port] Returns true if any C button (CLeft/CRight/CUp/CDown) is mapped to a
+// stick axis via LUS controller mappings. Used to enable the stick
+// diagonal/rebound filter only when relevant.
+bool port_CButtonIsAxis(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -14,6 +14,9 @@
 #include <crtdbg.h>
 #endif
 
+// [port] Check if any C button has an axis-based mapping (stick mapped to button).
+#include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
+
 extern "C" uint64_t GetUnixTimestamp() {
     auto time = std::chrono::system_clock::now();
     auto since_epoch = time.time_since_epoch();
@@ -286,4 +289,31 @@ extern "C" float port_getRumbleScale(void) {
         return (low + high) * 0.5f;
     }
     return 1.0f;
+}
+
+extern "C" bool port_CButtonIsAxis(void) {
+    auto ctx = Ship::Context::GetInstance();
+    if (!ctx) {
+        return false;
+    }
+
+    auto controller = ctx->GetControlDeck()->GetControllerByPort(0);
+    if (!controller) {
+        return false;
+    }
+
+    // Check if any C button (CLeft, CRight, CUp, CDown) has an axis-direction mapping
+    const CONTROLLERBUTTONS_T cButtons[] = { BTN_CLEFT, BTN_CRIGHT, BTN_CUP, BTN_CDOWN };
+    for (auto bitmask : cButtons) {
+        auto button = controller->GetButton(bitmask);
+        if (!button) {
+            continue;
+        }
+        for (auto& [id, mapping] : button->GetAllButtonMappings()) {
+            if (dynamic_cast<Ship::SDLAxisDirectionToButtonMapping*>(mapping.get())) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

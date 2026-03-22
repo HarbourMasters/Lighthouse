@@ -174,23 +174,33 @@ void pfsManager_update(void) {
     // Poll LUS input directly here each frame instead.
     osContGetReadData(pfsManagerContPadData);
 
-    // [port] Right-stick dominant-axis filter: on N64, C buttons were discrete
-    // physical buttons — diagonal simultaneous presses were rare. With a modern
-    // right stick mapped to C buttons, any diagonal tilt sets two C bits at once,
-    // causing e.g. camera rotation while firing eggs. Suppress the weaker axis
-    // so only the dominant direction's C button(s) remain.
-    {
-        s32 rx = pfsManagerContPadData[0].right_stick_x;
-        s32 ry = pfsManagerContPadData[0].right_stick_y;
-        s32 arx = (rx < 0) ? -rx : rx;
-        s32 ary = (ry < 0) ? -ry : ry;
-        // 0x000C = CUp|CDown (vertical), 0x0003 = CLeft|CRight (horizontal)
-        if (arx > 16 && ary > 16) {
-            if (arx >= ary) {
-                pfsManagerContPadData[0].button &= ~0x000C; // suppress vertical C
-            } else {
-                pfsManagerContPadData[0].button &= ~0x0003; // suppress horizontal C
+    // [port] Stick C-button filter. When C buttons are mapped to a stick axis,
+    // diagonal tilts and thumbstick rebound cause ghost inputs. Filters to the
+    // dominant axis and latches the direction briefly to absorb rebound.
+    if (port_CButtonIsAxis()) {
+        static u16 sLatchDir = 0;
+        static s32 sLatchTTL = 0;
+        s32 arx = pfsManagerContPadData[0].right_stick_x;
+        s32 ary = pfsManagerContPadData[0].right_stick_y;
+        if (arx < 0) { arx = -arx; }
+        if (ary < 0) { ary = -ary; }
+
+        if (arx > 16 || ary > 16) {
+            u16 dir = (arx >= ary)
+                ? (pfsManagerContPadData[0].button & 0x0003)
+                : (pfsManagerContPadData[0].button & 0x000C);
+            if (dir && dir != sLatchDir) {
+                sLatchDir = dir;
+                sLatchTTL = 3;
             }
+            if (sLatchTTL > 0) {
+                sLatchTTL--;
+                dir = sLatchDir;
+            }
+            pfsManagerContPadData[0].button = (pfsManagerContPadData[0].button & ~0x000F) | dir;
+        } else {
+            sLatchDir = 0;
+            sLatchTTL = 0;
         }
     }
 
