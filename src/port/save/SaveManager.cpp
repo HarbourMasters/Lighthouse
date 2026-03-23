@@ -19,7 +19,10 @@ extern "C" void item_set(int, int);
 
 // Bottles Bonus variables
 extern "C" uint8_t gCompletedBottlesBonusGames[7];
-extern "C" uint8_t D_8037DCC7;
+extern "C" uint8_t D_8037DCC7;  // "has seen instructions" flag
+extern "C" uint8_t D_8037DCC8;  // "has seen quit lose text" flag
+extern "C" uint8_t D_8037DCC9;  // "has seen timeout lose text" flag
+extern "C" uint8_t D_8037DCCA;  // "has seen secret game discovered" flag
 extern "C" int32_t D_80385F30[];
 
 // ─── Compact-array JSON formatter ───────────────────────────────────────────
@@ -1252,7 +1255,10 @@ void SaveManager::RestoreFileEnhancementData(int eepromSlot) {
                         anyCompleted |= gCompletedBottlesBonusGames[k];
                     }
                     if (anyCompleted) {
-                        D_8037DCC7 = 1; // skip intro text
+                        D_8037DCC7 = 1;  // skip instructions text
+                        D_8037DCC8 = 1;  // skip quit lose text
+                        D_8037DCC9 = 1;  // skip timeout lose text
+                        D_8037DCCA = 1;  // skip "secret game discovered" text
                     }
                 }
             }
