@@ -304,18 +304,25 @@ void fxcommon2score_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **m
         f32 ws_tx38 = (arg1->unk38 < (f32)gFramebufferWidth / 2.0f)
             ? OTRGetDimensionFromLeftEdge(arg1->unk38)
             : OTRGetDimensionFromRightEdge(arg1->unk38);
-        s32 tx = (s32)(func_802FB0DC(arg1) + ws_tx38 + arg1->unk44 + sp34);
+        // [port] In widescreen the hourglass sprite clips into the countdown digits.
+        // Add extra clearance for timer items when viewport is wider than 4:3.
+        f32 wsTimerPad = 0.0f;
+        if ((item_id == ITEM_0_HOURGLASS_TIMER || item_id == ITEM_1_SKULL_HOURGLASS_TIMER)
+            && port_getViewportWidth() > 320) {
+            wsTimerPad = 10.0f;
+        }
+        s32 tx = (s32)(func_802FB0DC(arg1) + ws_tx38 + arg1->unk44 + wsTimerPad + sp34);
         s32 ty = (s32)(func_802FB0E4(arg1)*arg1->unk4C + (arg1->unk3C + arg1->unk48));
         print_bold_spaced(tx, ty, arg1->string_54);
     }
-    //draw sprite?
+    //draw sprite
     func_802FD360(arg1, gfx, mtx, vtx);
 }
 
 void fxcommon2score_free(enum item_e item_id, struct8s *arg1){
     if(arg1->unk50){
-        assetCache_free((void *)arg1->unk50); // [port] cast uintptr_t -> void*
-        arg1->unk50 = 0; // [port] uintptr_t, was NULL
+        assetCache_free((void *)arg1->unk50);
+        arg1->unk50 = 0;
     }
 }
 
@@ -323,8 +330,8 @@ void func_802FDCB8(enum item_e item_id) {
     s32 i;
     struct8s *var_v0;
 
-    for(var_v0 = &D_80369960[0]; var_v0->unk20 != -1; var_v0++){
-        if(item_id == var_v0->unk20){
+    for(var_v0 = &D_80369960[0]; (int)var_v0->unk20 != -1; var_v0++){
+        if(item_id == (enum item_e)var_v0->unk20){
             var_v0->unk28 &= ~4;
             return;
         }
