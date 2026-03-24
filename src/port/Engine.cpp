@@ -424,6 +424,12 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         if (LighthouseGui::PopupsQueued() > 0 || extracting) {
             goto render;
         }
+
+        if (extractStep == ES_EXTRACT && promptStep == PS_FIRST && !extracting) {
+            extractStep = ES_VERIFY;
+            extractCount = 0;
+            totalExtract = 0;
+        }
         switch (extractStep) {
             case ES_PORT_ARCHIVE: {
                 if (portArchiveVersionMatch) {
@@ -587,7 +593,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                             threadPool->submit_task([&]() -> void {
                                 extract.GenerateOTR(extractCount, totalExtract, "bk");
                                 extracting = false;
-                                extractCount = totalExtract = 0;
                             });
                         });
                     } else {
@@ -595,7 +600,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
                             extracting = false;
-                            extractCount = totalExtract = 0;
                         });
                     }
                 } else {
@@ -658,9 +662,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
                             extracting = false;
-                            extractStep = ES_VERIFY;
-                            extractCount = 0;
-                            totalExtract = 0;
                         });
                         continue;
                     }
