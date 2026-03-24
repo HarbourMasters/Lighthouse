@@ -218,7 +218,7 @@ void CheckAndCreateModFolder() {
     }
 }
 
-static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r" };
+static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r" };
 
 static bool AnyRomArchiveExists() {
     for (const auto& archive : sRomArchives) {
@@ -292,7 +292,6 @@ void GameEngine::FinishInit() {
     lhFast3dWindow->SetRendererUCode(ucode_f3d);
 
     auto loader = context->GetResourceManager()->GetResourceLoader();
-    auto blobFactory = std::make_shared<Ship::ResourceFactoryBinaryBlobV0>();
     loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinarySpriteV0>(),
                                     RESOURCE_FORMAT_BINARY, "Sprite",
                                     static_cast<uint32_t>(Torch::ResourceType::BKSprite), 0);
@@ -336,8 +335,6 @@ void GameEngine::FinishInit() {
 
     loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
-    loader->RegisterResourceFactory(blobFactory, RESOURCE_FORMAT_BINARY, "Blob",
-                                    static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
@@ -1044,6 +1041,9 @@ static void LoadSoundfonts() {
 
 void GameEngine::AudioInit() {
     LoadSoundfonts();
+}
+
+void GameEngine::AudioStartThread() {
     if (!audio.running) {
         audio.running = true;
         audio.thread = std::thread(HandleAudioThread);

@@ -45,6 +45,7 @@ public:
     static void StartAudioFrame();
     static void EndAudioFrame();
     static void AudioInit();
+    static void AudioStartThread();
     static void AudioExit();
     void FinishInit();
     void RunExtract(int argc, char* argv[]);

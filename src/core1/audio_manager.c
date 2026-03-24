@@ -6,6 +6,7 @@
 //#include "2.0L/PR/sched.h"
 #include "2.0L/PR/n_libaudio.h"
 //#include "2.0L/PR/os_system.h"
+#include "port/ShipUtils.h"
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 
@@ -641,7 +642,7 @@ void audioManager_stopThread(void){
 void audioManager_startThread(void){
     if(D_80275774 == 0){
         D_80275774 = 1;
-        osStartThread(&audioManager.thread);
+        port_audioStartThread();
     }
 }
 

@@ -1,4 +1,5 @@
 #include "ShipUtils.h"
+#include "Engine.h"
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
@@ -27,6 +28,10 @@ extern "C" uint64_t GetUnixTimestamp() {
 
 extern "C" bool Ship_IsCStringEmpty(const char* str) {
     return str == NULL || str[0] == '\0';
+}
+
+extern "C" void port_audioStartThread(void) {
+    GameEngine::AudioStartThread();
 }
 
 extern "C" int port_checkHeap(const char* label) {

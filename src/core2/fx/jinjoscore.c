@@ -2,7 +2,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Engine.h"
 
 
 extern f32 func_802FB0E4(struct8s *);
@@ -186,7 +185,7 @@ void fxjinjoscore_draw(s32 arg0, struct8s *arg1, Gfx **gfx, Mtx **mtx, Vtx **vtx
                     // If the jinjo is collected then it's drawn fully opaque, otherwise it's drawn with partial alpha
                     gDPSetPrimColor((*gfx)++, 0, 0, 0x00, 0x00, 0x00, jinjo_collected ? 0xFF : 0x6E);
                 }
-                center_x = OTRGetDimensionFromLeftEdge(pos_x + x_offset) - (f32) gFramebufferWidth / 2;
+                center_x = pos_x - (f32) gFramebufferWidth / 2 + x_offset;
                 center_y = (f32) gFramebufferHeight / 2 + func_802FB0E4(arg1) - 266.0f + 40.0f + y_offset - D_80381E78[jinjo_id];
                 gSPVertex((*gfx)++, (uintptr_t)*vtx, 4, 0); // [port] Vtx* -> uintptr_t
                 // Set up the positions of the four vertices

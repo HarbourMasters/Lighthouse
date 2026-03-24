@@ -187,17 +187,18 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
     f32 sp44[3];
     f32 sp40;
     f32 sp3C;
-    
+    f32 draw_x;
+
     sp40 = func_802FB0E4(arg1)*a1->unk54 + a1->unk34;
     if(a1->model != NULL && func_802FB0D4(arg1)){
-        // [port] Widescreen HUD anchoring for 3D score items (jiggy, etc.)
-        f32 ws_x30 = (a1->unk30 < (f32)gFramebufferWidth / 2.0f)
+        // [port] Widescreen HUD anchoring for 3D score items
+        draw_x = (a1->unk30 < (f32)gFramebufferWidth / 2.0f)
             ? OTRGetDimensionFromLeftEdge(a1->unk30)
             : OTRGetDimensionFromRightEdge(a1->unk30);
         a1->value_string[0] = '\0';
         strIToA(a1->value_string, itemPrint_getValue(item_id));
-        print_bold_spaced(ws_x30 + a1->unk40, sp40 + a1->unk44, a1->value_string);
-        sp3C = viewport_transformCoordinate(ws_x30, sp40, sp5C, sp68);
+        print_bold_spaced(draw_x + a1->unk40, sp40 + a1->unk44, a1->value_string);
+        sp3C = viewport_transformCoordinate(draw_x, sp40, sp5C, sp68);
 
         sp44[0] = 0.0f;
         sp44[1] = a1->unk38;
@@ -215,7 +216,7 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
         if(a1->unk6C == 0.0f){
             a1->unk6C = 1.1*(vtxList_getGlobalNorm(model_getVtxList(a1->model)) * a1->unk3C);
         }
-        func_80253208(gfx, ws_x30 - a1->unk6C, sp40 - a1->unk6C, 2*a1->unk6C, 2*a1->unk6C, gFramebuffers[getActiveFramebuffer()]);
+        func_80253208(gfx, draw_x - a1->unk6C, sp40 - a1->unk6C, 2*a1->unk6C, 2*a1->unk6C, gFramebuffers[getActiveFramebuffer()]);
         if(a1->anim_ctrl != NULL){
             anctrl_drawSetup(a1->anim_ctrl, sp5C, 1);
         }

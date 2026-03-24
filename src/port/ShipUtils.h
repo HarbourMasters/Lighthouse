@@ -15,6 +15,9 @@ void BK_LOG_INFO(const char* fmt, ...);
 void BK_LOG_WARN(const char* fmt, ...);
 void BK_LOG_ERROR(const char* fmt, ...);
 
+// [port] Start the audio processing thread (called from audioManager_startThread after soundfont patching)
+void port_audioStartThread(void);
+
 // [port] Map enum to human-readable name
 const char* port_mapName(int map_id);
 
