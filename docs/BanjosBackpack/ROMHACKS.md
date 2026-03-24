@@ -43,7 +43,7 @@ BB romhacks can customize many game settings through the General Settings editor
 | Scene Assignment | Which level each map belongs to |
 | Music Assignment | Music tracks per map |
 | Skyboxes | Skybox models, scales, rotation per scene (3 layers) |
-| Warps | Return-to-lair destinations, Banjo's House/Lair warps |
+| Warps | All warp destinations (MIPS instruction scanning), return-to-lair, Banjo's House/Lair warps |
 | Max Items | Eggs, feathers, notes, jiggies, honeycombs (normal + Cheato) |
 | Unlockable Requirements | Note door thresholds, jiggy puzzle costs, mumbo costs |
 
@@ -54,7 +54,6 @@ BB also applies overlay relocation (the "Globalizer") and anti-tamper patches. T
 - Boot stub DMA code for globalized overlays
 - JAL/LUI instruction address relocation
 - Dispatch table NOPs for unused overlay slots
-- Warp function pointer table (N64 function addresses)
 
 ## Enhancements
 

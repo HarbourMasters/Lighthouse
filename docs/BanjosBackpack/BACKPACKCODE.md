@@ -2,9 +2,6 @@
 
 Technical documentation for how Lighthouse extracts and imports BB romhack configuration.
 
-- **BB Source**: https://github.com/RareExports/Banjo-s-Backpack (decompiled from BB.exe v2.0.19.0)
-- **Globalizer author**: Runehero123
-
 ## Data Sources
 
 BB modifies three data segments in the ROM. Torch's `ConfigFactory.cpp` extracts from all three and writes a binary `aGameConfig` blob (BKCF format) into the o2r.
@@ -99,9 +96,9 @@ Values encode `map_id << 8 | exit_id`.
 
 Diffed field-by-field between the relocated (modified) and original (vanilla) decompressed copies.
 
-### Scene-to-Level Association (offset 0x8288)
+### Scene-to-Level Association (offset 0x8284)
 
-8-byte entries. Map ID at +0 (u16 BE), level ID at +2 (u16 BE). Determines which world a map belongs to (`D_8036B810`).
+8-byte entries. BB reads scene_id at +4 (u16 BE) and writes level_id at +6 (byte). Our extraction reads from offset 0x8288 (= 0x8284 + 4) where scene_id is at +0 and level_id at +2 within our view. Determines which world a map belongs to (`D_8036B810`).
 
 ### Return-to-Lair Table (offset 0x8FD0)
 
@@ -179,8 +176,37 @@ Per Section:
 | 7 | NOTE_DOORS | `{u8 door_index, u8 pad, u16 threshold}` | 4 |
 | 8 | JIGGY_PUZZLES | `{u8 puzzle_index, u8 cost}` | 2 |
 | 9 | LEVEL_NAMES | `{u8 level_index, u8 len, char name[len]}` | variable |
+| 10 | WARP_DESTINATIONS | `{u16 warp_index, u16 dest}` | 4 |
 
 Empty sections are omitted. Only values that differ from vanilla are included.
+
+### Warp Destination Extraction
+
+BB's Warps tab patches MIPS instructions inside warp functions in the F37F90 code overlay to change where each warp leads. Each warp function follows a pattern (from BB source `GeneralSettings.cs`):
+
+```
+27BDFFE8  ADDIU $sp, $sp, -0x18    (prologue)
+AFBF0014  SW $ra, 0x14($sp)
+AFA?001?  SW $a0/$a1, 0x18/0x1C($sp)
+...
+0C0C????  JAL func_8031CC8C (or similar warp target)
+2405XXYY  ADDIU $a1, $zero, dest   (branch delay slot — THIS is the dest)
+8FBF0014  LW $ra, 0x14($sp)        (epilogue)
+27BD0018  ADDIU $sp, $sp, 0x18
+03E00008  JR $ra
+00000000  NOP
+```
+
+BB uses a regex to find and patch the `ADDIU $a1, $zero, dest` instruction in the **branch delay slot after the JAL**. The dest encodes `scene_id << 8 | entry_id`.
+
+**Extraction process:**
+1. Read the warp function pointer table from F9CAE0 at offset 0xC3F0 (558 entries, 4-byte N64 addresses)
+2. Convert each N64 address to a byte offset in F37F90: `offset = addr - 0x80286D10`
+3. Scan 200 bytes at that offset for a JAL followed by `ADDIU $a1, $zero, imm16` in the delay slot
+4. Compare the dest between vanilla and modified F37F90 overlays
+5. Emit diffs as WARP_DESTINATIONS entries
+
+At runtime, `nodeupdate.c` intercepts the warp dispatch. Before calling `sWarpFunctions[idx]`, it checks `port_getRomhackWarpDest(idx)`. If an override exists, it calls `func_8031CC8C(arg0, dest)` directly with the new destination, bypassing the original function.
 
 ---
 
@@ -189,6 +215,12 @@ Empty sections are omitted. Only values that differ from vanilla are included.
 `LoadGameConfig()` in `GameConfigFactory.cpp` reads `assets/aGameConfig` from the o2r archive, parses the BKCF sections, and caches all values. Decomp code calls `port_getRomhack*()` accessors (declared in `GameConfig.h`) which return the override value or `-1` for vanilla default.
 
 On vanilla ROMs (no `aGameConfig`), `port_isRomhack()` returns false and all accessors short-circuit to their default return without any map lookups.
+
+### Warp Interception
+
+`nodeupdate.c` `func_80334448()` is the warp dispatch point. Before calling `sWarpFunctions[idx](arg0, arg1)`, it checks `port_getRomhackWarpDest(idx)`. If an override exists, it calls `func_8031CC8C(arg0, dest)` directly with the remapped destination, bypassing the original warp function.
+
+Note: `start_level_1` and `start_level_2` in BB's Start Level tab share offsets with `WARP_EXIT_BANJOS_HOUSE` and `WARP_ENTER_LAIR` respectively. BB writes a single byte (the map ID) which becomes the high byte of the u16 warp destination. These are captured as WARP_DESTINATIONS entries, not separate config values.
 
 ### Actor Registry
 
@@ -199,9 +231,3 @@ BB's Globalizer makes all 13 level overlays resident simultaneously. On the port
 Some port enhancements are incompatible with romhacks and are automatically disabled when `port_isRomhack()` returns true. The UI greys out these options with a `DISABLE_FOR_ROMHACK` flag. Currently disabled:
 
 - **Return to Lair** — romhacks may reassign lair maps
-
----
-
-## Globalizer (N64-Only, Reference)
-
-The Globalizer relocates all 13 level overlays from the dynamic loading area (`0x803863F0`) to a fixed block at `0x80400000`. This is necessary on N64 because BB's modified setups may reference actors from multiple overlays. The port statically links all overlays and registers all actors globally when a romhack is detected (see Actor Registry above).

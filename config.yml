@@ -58,6 +58,21 @@ bb359a75941df74bf7290212c89fbc6e2c5601fe:
       headers: include/assets
       modding: src/assets
 
+4a50afdc7a96d903f3bd8d5a9ff45b9405cd647d:
+  name: Banjo-Kazooie - Nostalgia 64
+  path: assets/yaml/us/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk-n64.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
+
 a9f62c403a21ae9d9a1bbf9e92d752fc2cf85c2b:
   name: Banjo-Kazooie - Jiggies of Time
   path: assets/yaml/us/rev0

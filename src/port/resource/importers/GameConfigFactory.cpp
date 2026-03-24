@@ -55,6 +55,7 @@ static int sHideCollectiblesLevel = -1;
 static int sNoteDoors[12] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 static int sJiggyCosts[11] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 static char* sLevelNames[13] = {};
+static std::unordered_map<int, int> sWarpDests;
 static std::string sRomName;
 
 static constexpr uint32_t GAMECONFIG_MAGIC = 0x46434B42;
@@ -362,11 +363,60 @@ static void LoadGameConfig() {
                 }
                 break;
 
+            case 10: // WARP_DESTINATIONS
+                for (uint16_t e = 0; e < entryCount && pos + 4 <= size; e++) {
+                    int warpIdx = readLE16(data + pos);
+                    int dest = readLE16(data + pos + 2);
+                    pos += 4;
+                    sWarpDests[warpIdx] = dest;
+                }
+                break;
+
             default:
-                SPDLOG_WARN("[GameConfig] Unknown section type {}, skipping", secType);
+                SPDLOG_WARN("[GameConfig] Unknown section type {}, aborting parse", secType);
                 return;
         }
     }
+
+    int codeConstCount = 0;
+    for (int i = 0; i < 24; i++) {
+        // Check each static against its default (-1)
+        const int* vals[] = { &sNewGameMap,  &sStartLevel1,          &sStartLevel2,
+                              &sKnowAllMoves,     &sMumboCostTermite,     &sMumboCostCroc,
+                              &sMumboCostWalrus,   &sMumboCostPumpkin,     &sMumboCostBee,
+                              &sEggsNormalMax,     &sRedFeathersNormalMax, &sGoldFeathersNormalMax,
+                              &sEggsCheatomax,     &sRedFeathersCheatomax, &sGoldFeathersCheatomax,
+                              &sNotesMax,          &sJiggiesPerWorld,      &sHoneycombsPerWorld,
+                              &sExtraHcStart,      &sWarpExitBanjosHouse,  &sWarpEnterLair,
+                              &sSpecialLevel,      &sHideJiggiesLevel,     &sHideCollectiblesLevel };
+        if (*vals[i] != -1) {
+            codeConstCount++;
+        }
+    }
+    int levelNameCount = 0;
+    for (int i = 0; i < 13; i++) {
+        if (sLevelNames[i]) {
+            levelNameCount++;
+        }
+    }
+    int noteDoorCount = 0;
+    for (int i = 0; i < 12; i++) {
+        if (sNoteDoors[i] != -1) {
+            noteDoorCount++;
+        }
+    }
+    int jiggyCostCount = 0;
+    for (int i = 0; i < 11; i++) {
+        if (sJiggyCosts[i] != -1) {
+            jiggyCostCount++;
+        }
+    }
+    SPDLOG_INFO("[GameConfig] Loaded \"{}\" v{}: {} sections, {} code consts, {} scene remaps, "
+                "{} music, {} skybox, {} scene defs, {} level names, {} warps, {} note doors, "
+                "{} jiggy costs, {} return-to-lair",
+                sRomName, version, sectionCount, codeConstCount, sSceneRemaps.size(),
+                sMusicAssign.size(), sSkyboxAssign.size(), sSceneDefs.size(), levelNameCount,
+                sWarpDests.size(), noteDoorCount, jiggyCostCount, sReturnToLair.size());
 }
 
 // All accessors callable from C. Fast path: after first load, vanilla ROMs hit one branch.
@@ -585,4 +635,10 @@ extern "C" const char* port_getRomhackLevelName(int level_index) {
         return sLevelNames[level_index];
     }
     return NULL;
+}
+
+extern "C" int port_getRomhackWarpDest(int warp_index) {
+    ROMHACK_GUARD_INT;
+    auto it = sWarpDests.find(warp_index);
+    return (it != sWarpDests.end()) ? it->second : -1;
 }

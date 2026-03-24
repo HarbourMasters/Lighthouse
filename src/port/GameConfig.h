@@ -40,6 +40,7 @@ int port_getRomhackExtraHcStart(void);
 int port_getRomhackNoteDoor(int door_index);
 int port_getRomhackJiggyPuzzleCost(int puzzle_index);
 const char* port_getRomhackLevelName(int level_index);
+int port_getRomhackWarpDest(int warp_index);
 
 #ifdef __cplusplus
 }

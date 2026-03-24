@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/GameConfig.h"
 //these funtions include references to overlay functions
 extern void func_802DC528(NodeProp*, ActorMarker*);
 extern void func_802DC560(NodeProp*, ActorMarker*);
@@ -8,7 +9,7 @@ extern void func_802DC748(NodeProp*, ActorMarker*);
 extern void func_802DC780(NodeProp*, ActorMarker*);
 extern void chOverlayPressStart_spawn(NodeProp*, ActorMarker*);
 extern void chOverlayPressStart_func_802DCDC0(NodeProp*, ActorMarker*);
-// extern void func_8031D06C(NodeProp*, ActorMarker*); // [port] removed — in port_prototypes.h as (s32, s32)
+
 extern void func_8031D09C(NodeProp*, ActorMarker*);
 extern void warp_mmEnterMumbosHut(NodeProp*, ActorMarker*);
 extern void warp_mmExitMumbosHut(NodeProp*, ActorMarker*);
@@ -550,12 +551,21 @@ void func_8033443C(NodeProp *arg0, ActorMarker *arg1){}
 
 void func_80334448(NodeProp *arg0, ActorMarker *arg1) {
     s32 global_timer_time;
+    s32 warpIdx;
+    s32 warpDest;
 
     switch(codeA5BC0_getNodePropBit6(arg0)) {
         case 3: // warp (L80334480)
             global_timer_time = globalTimer_getTime();
             if ((codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time) {
-                sWarpFunctions[codeA5BC0_getNodePropUnk8(arg0)](arg0, arg1);
+                // [port] BB romhacks remap warp destinations via BKCF config
+                warpIdx = codeA5BC0_getNodePropUnk8(arg0);
+                warpDest = port_getRomhackWarpDest(warpIdx);
+                if (warpDest >= 0) {
+                    func_8031CC8C(arg0, warpDest);
+                } else {
+                    sWarpFunctions[warpIdx](arg0, arg1);
+                }
             }
             codeA5BC0_setNodePropUnkC(arg0, global_timer_time);
             break;
