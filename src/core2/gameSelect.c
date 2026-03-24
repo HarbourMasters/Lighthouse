@@ -7,8 +7,8 @@
 #include "core2/gc/zoombox.h"
 #include "core2/quiz_storage.h"
 
-extern void port_setViBlack(int active);
-#include "port/ShipUtils.h"
+#include "port/GameConfig.h"
+
 s32 gSelectedGameNum = -1;
 
 #ifndef ABS
@@ -32,6 +32,8 @@ extern void controller_getJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);
 extern struct5Bs *func_803097A0(void);
+
+extern void port_setViBlack(int active);
 
 /* .data */
 f32 D_80365DD0[3][3] = {
@@ -423,7 +425,18 @@ void func_802C4C14(Actor *this){
                             }
                         }
                         if(!gameFile_isNotEmpty(sp84)){
-                            timedFunc_set_3(0.0f, (GenFunction_3)func_802E4078, MAP_85_CS_SPIRAL_MOUNTAIN_3, 0, 1);
+                            // [port] BB romhacks can override the new-game boot map
+                            s32 newGameMap = port_getRomhackNewGameMap();
+                            if (newGameMap < 0) {
+                                newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
+                            }
+                            timedFunc_set_3(0.0f, (GenFunction_3)func_802E4078, newGameMap, 0, 1);
+                            {
+                                s32 knowAll = port_getRomhackKnowAllMoves();
+                                if (knowAll >= 0) {
+                                    ability_setAllLearned(knowAll);
+                                }
+                            }
                         }
                         else{//L802C511C
                             sp44 = 0.0f;

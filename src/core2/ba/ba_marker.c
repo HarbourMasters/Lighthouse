@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/GameConfig.h"
 #include "core2/ba/physics.h"
 #include "version.h"
 #include "prop.h"
@@ -169,16 +170,19 @@ void __baMarker_8028BA00(s32 arg0){
 
 
 void __baMarker_resolveMusicNoteCollision(Prop *arg0) {
+    s32 notesMax = port_getRomhackNotesMax();
+    if (notesMax < 0) { notesMax = 100; }
+
     if (!func_802FADD4(ITEM_1B_VILE_VILE_SCORE)) {
         item_inc(ITEM_C_NOTE);
     } else {
         item_adjustByDiffWithoutHud(ITEM_C_NOTE, 1);
     }
-    if (item_getCount(ITEM_C_NOTE) < 100) {
+    if (item_getCount(ITEM_C_NOTE) < notesMax) {
         func_8025A6EC(COMUSIC_9_NOTE_COLLECTED, 16000);
-        timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_3_MUSIC_NOTE_TEXT); // [port]
-    }
+        timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_3_MUSIC_NOTE_TEXT);
     fxSparkle_musicNote(arg0->unk4);
+    }
 }
 
 void __baMarker_8028BAB0(enum jiggy_e jiggy_id, s32 arg1, s32 arg2, s32 arg3){

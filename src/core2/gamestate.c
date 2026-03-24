@@ -7,11 +7,13 @@
 #include "port/ShipUtils.h"
 
 extern s32 gameFile_GameIdToFileIdMap[];
-extern void port_restoreFileEnhancementData(int eepromSlot);
+s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
 
 void func_80346DB4(s32);
 
-s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
+extern void port_restoreFileEnhancementData(int eepromSlot);
+
+#include "port/GameConfig.h"
 
 /* .bss */
 s32 D_80385F30[0x2C];
@@ -90,18 +92,34 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
     D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = D_80385F30[ITEM_1C_MUMBO_TOKEN];
     D_80385F30[ITEM_16_LIFE] = MIN(0xFF, D_80385F30[ITEM_16_LIFE]);
 
+    // [port] BB romhacks can override all inventory max capacities
     switch(item){
-        case ITEM_D_EGGS:
-            sp38 = (fileProgressFlag_get(FILEPROG_BE_CHEATO_BLUEEGGS))? 200 : 100;
+        case ITEM_D_EGGS: {
+            s32 cheato = port_getRomhackMaxEggsCheato();
+            s32 normal = port_getRomhackMaxEggs();
+            sp38 = (fileProgressFlag_get(FILEPROG_BE_CHEATO_BLUEEGGS))
+                ? (cheato >= 0 ? cheato : 200)
+                : (normal >= 0 ? normal : 100);
             break;
+        }
 
-        case ITEM_F_RED_FEATHER:
-            sp38 = (fileProgressFlag_get(FILEPROG_BF_CHEATO_REDFEATHERS))? 100 : 50;
+        case ITEM_F_RED_FEATHER: {
+            s32 cheato = port_getRomhackMaxRedFeathersCheato();
+            s32 normal = port_getRomhackMaxRedFeathers();
+            sp38 = (fileProgressFlag_get(FILEPROG_BF_CHEATO_REDFEATHERS))
+                ? (cheato >= 0 ? cheato : 100)
+                : (normal >= 0 ? normal : 50);
             break;
+        }
 
-        case ITEM_10_GOLD_FEATHER:
-            sp38 = (fileProgressFlag_get(FILEPROG_C0_CHEATO_GOLDFEATHERS))? 20 : 10;
+        case ITEM_10_GOLD_FEATHER: {
+            s32 cheato = port_getRomhackMaxGoldFeathersCheato();
+            s32 normal = port_getRomhackMaxGoldFeathers();
+            sp38 = (fileProgressFlag_get(FILEPROG_C0_CHEATO_GOLDFEATHERS))
+                ? (cheato >= 0 ? cheato : 20)
+                : (normal >= 0 ? normal : 10);
             break;
+        }
 
         default:
             sp38 = 0;
@@ -393,6 +411,10 @@ void itemscore_noteScores_clear(void) {
 //itemscore_noteScores_update
 void func_80346DB4(s32 note_count) {
     s32 level_id;
+    s32 notesMax;
+
+    notesMax = port_getRomhackNotesMax();
+    if (notesMax < 0) { notesMax = 100; }
 
     level_id = level_get();
     if (!func_802E4A08() && (level_id > 0) && (level_id < 0xE)) {
@@ -401,7 +423,7 @@ void func_80346DB4(s32 note_count) {
             if ((level_get() == LEVEL_1_MUMBOS_MOUNTAIN) && (note_count == 50)) {
                 gcdialog_showText(0xF74, 4, NULL, NULL, NULL, NULL);
             }
-            if (note_count == 100) {
+            if (note_count == notesMax) {
                 gcdialog_showText(0xF78, 4, NULL, NULL, NULL, NULL);
             }
             if (note_count == 1) {

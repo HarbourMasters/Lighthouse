@@ -1,6 +1,7 @@
 #include "SaveManager.h"
 #include <libultraship/bridge.h>
 #include "port/ui/cvar_prefixes.h"
+#include "port/GameConfig.h"
 
 #include <nlohmann/json.hpp>
 #include <ship/Context.h>
@@ -19,10 +20,10 @@ extern "C" void item_set(int, int);
 
 // Bottles Bonus variables
 extern "C" uint8_t gCompletedBottlesBonusGames[7];
-extern "C" uint8_t D_8037DCC7;  // "has seen instructions" flag
-extern "C" uint8_t D_8037DCC8;  // "has seen quit lose text" flag
-extern "C" uint8_t D_8037DCC9;  // "has seen timeout lose text" flag
-extern "C" uint8_t D_8037DCCA;  // "has seen secret game discovered" flag
+extern "C" uint8_t D_8037DCC7; // "has seen instructions" flag
+extern "C" uint8_t D_8037DCC8; // "has seen quit lose text" flag
+extern "C" uint8_t D_8037DCC9; // "has seen timeout lose text" flag
+extern "C" uint8_t D_8037DCCA; // "has seen secret game discovered" flag
 extern "C" int32_t D_80385F30[];
 
 // ─── Compact-array JSON formatter ───────────────────────────────────────────
@@ -615,6 +616,12 @@ int SaveManager::WriteBlocks(int file, int offset, void* buffer, int count) {
 // ─── Disk I/O ───────────────────────────────────────────────────────────────
 
 std::string SaveManager::GetSavePath(const std::string& filename) {
+    // Romhack saves go into saves/<romName>/ (e.g. saves/bk-jot/file1.json)
+    // Vanilla saves stay in saves/ (e.g. saves/file1.json)
+    const char* romName = port_getRomhackName();
+    if (romName && romName[0] != '\0') {
+        return Ship::Context::GetPathRelativeToAppDirectory("saves/" + std::string(romName) + "/" + filename);
+    }
     return Ship::Context::GetPathRelativeToAppDirectory("saves/" + filename);
 }
 
@@ -1031,11 +1038,7 @@ void SaveManager::LoadFromDisk() {
             int base = eepromSlot * SAVE_SLOT_SIZE;
 
             JsonToSlot(j, mEeprom + base);
-        } 
-        catch (const std::exception& e)
-        { 
-            SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what()); 
-        }
+        } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what()); }
     }
 
     // Load global data
@@ -1255,10 +1258,10 @@ void SaveManager::RestoreFileEnhancementData(int eepromSlot) {
                         anyCompleted |= gCompletedBottlesBonusGames[k];
                     }
                     if (anyCompleted) {
-                        D_8037DCC7 = 1;  // skip instructions text
-                        D_8037DCC8 = 1;  // skip quit lose text
-                        D_8037DCC9 = 1;  // skip timeout lose text
-                        D_8037DCCA = 1;  // skip "secret game discovered" text
+                        D_8037DCC7 = 1; // skip instructions text
+                        D_8037DCC8 = 1; // skip quit lose text
+                        D_8037DCC9 = 1; // skip timeout lose text
+                        D_8037DCCA = 1; // skip "secret game discovered" text
                     }
                 }
             }
@@ -1267,4 +1270,3 @@ void SaveManager::RestoreFileEnhancementData(int eepromSlot) {
         SPDLOG_ERROR("[save] Failed to restore file enhancement data from {}: {}", path, e.what());
     }
 }
-

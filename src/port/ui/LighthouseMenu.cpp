@@ -1,6 +1,7 @@
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
 #include "port/ResourceHelpers.h"
+#include "port/GameConfig.h"
 #include <ship/window/gui/GuiMenuBar.h>
 #include <ship/window/gui/GuiElement.h>
 #include <variant>
@@ -202,6 +203,8 @@ void LighthouseMenu::InitElement() {
         { DISABLE_FOR_NON_PAL_O2R,
           { [](disabledInfo& info) -> bool { return ResourceMgr_GetDialogLanguageCount() <= 1; },
             "Only available with a PAL o2r (English, French, German)" } },
+        { DISABLE_FOR_ROMHACK,
+          { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
     };
 }
 

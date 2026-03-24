@@ -29,6 +29,7 @@
 #endif
 
 std::string GameExtractor::sStatusText;
+std::string GameExtractor::sLastError;
 std::atomic<int> GameExtractor::sPhase{ 0 };
 
 std::unordered_map<std::string, std::string> mGameList = {
@@ -292,7 +293,8 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
     try {
         Companion::Instance->Init(ExportType::Binary, assetCount, true);
     } catch (const std::exception& e) {
-        SPDLOG_INFO("Failed to process O2R {}", e.what());
+        SPDLOG_ERROR("Failed to process O2R: {}", e.what());
+        sLastError = e.what();
         sStatusText.clear();
         sPhase = 0;
         delete Companion::Instance;

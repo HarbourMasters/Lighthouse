@@ -218,10 +218,23 @@ void CheckAndCreateModFolder() {
     }
 }
 
+static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r" };
+
+static bool AnyRomArchiveExists() {
+    for (const auto& archive : sRomArchives) {
+        if (std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs(archive, "bk"))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void GameEngine::FinishInit() {
-    std::string romPath = Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk");
-    if (std::filesystem::exists(romPath)) {
-        context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
+    for (const auto& archive : sRomArchives) {
+        std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
+        if (std::filesystem::exists(romPath)) {
+            context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
+        }
     }
 
     const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
@@ -349,7 +362,14 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         gui->GetMenu()->Hide();
     }
 
-    OTRVersion romArchiveVersion = DetectOTRVersion("bk.o2r");
+    OTRVersion romArchiveVersion = { INT16_MAX, 0, 0 };
+    for (const auto& archive : sRomArchives) {
+        OTRVersion ver = DetectOTRVersion(archive);
+        if (ver.major != INT16_MAX) {
+            romArchiveVersion = ver;
+            break;
+        }
+    }
 
     bool shouldRegen = !VerifyArchiveVersion(romArchiveVersion) && romArchiveVersion.major != INT16_MAX;
 
@@ -395,9 +415,11 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             });
     } else if (shouldRegen) {
         LighthouseGui::RegisterPopup("Outdated ROM Archives",
-                                     "Your bk.o2r was created with incompatible versions of Lighthouse.\n"
+                                     "Your ROM archives were created with incompatible versions of Lighthouse.\n"
                                      "You will now be redirected to re-extract them.");
-        std::filesystem::remove("bk.o2r");
+        for (const auto& archive : sRomArchives) {
+            std::filesystem::remove(archive);
+        }
     }
 
     std::shared_ptr<BS::thread_pool> threadPool = std::make_shared<BS::thread_pool>(1);
@@ -540,7 +562,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     LighthouseGui::RegisterPopup(
                         "Run Lighthouse", "All files have been processed. Run Lighthouse?", "Yes", "No",
                         [&]() {
-                            if (!std::filesystem::exists(Ship::Context::GetAppDirectoryPath("bk") + "/bk.o2r")) {
+                            if (!AnyRomArchiveExists()) {
                                 extractStep = ES_EXTRACT;
                                 promptStep = PS_FILE_CHECK;
                             } else {
@@ -592,8 +614,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             case ES_EXTRACT: {
                 switch (promptStep) {
                     case PS_FILE_CHECK: {
-                        const bool romO2RExists =
-                            std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk"));
+                        const bool romO2RExists = AnyRomArchiveExists();
 
                         if (!romO2RExists) {
                             LighthouseGui::RegisterPopup(
@@ -652,18 +673,38 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                 break;
             }
             case ES_VERIFY: {
-                const bool romO2RExists =
-                    std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk"));
+                const bool romO2RExists = AnyRomArchiveExists();
 
                 if (!romO2RExists) {
-                    LighthouseGui::RegisterPopup("No ROM Archive",
-                                                 "No ROM O2R file detected. Please generate a ROM O2R and relaunch.",
-                                                 "OK", "", [&]() {
-                                                     threadPool = nullptr;
-                                                     lhFast3dWindow = nullptr;
-                                                     context = nullptr;
-                                                     exit(0);
-                                                 });
+                    if (LighthouseGui::PopupsQueued() == 0) {
+                        std::string errorMsg;
+                        if (!GameExtractor::sLastError.empty()) {
+                            // Insert line breaks for long error messages
+                            std::string wrapped = GameExtractor::sLastError;
+                            const size_t wrapCol = 80;
+                            size_t pos = 0;
+                            while (pos + wrapCol < wrapped.size()) {
+                                size_t breakAt = wrapped.rfind(' ', pos + wrapCol);
+                                if (breakAt == std::string::npos || breakAt <= pos) {
+                                    breakAt = pos + wrapCol;
+                                }
+                                wrapped.insert(breakAt, "\n");
+                                pos = breakAt + 1;
+                            }
+                            errorMsg = "ROM extraction failed:\n\n" + wrapped +
+                                       "\n\nCheck logs/Lighthouse.log for full details.";
+                        } else {
+                            errorMsg = "No ROM O2R file detected.\nPlease generate a ROM O2R and relaunch.";
+                        }
+                        LighthouseGui::RegisterPopup("Extraction Error", errorMsg.c_str(), "OK", "", [&]() {
+                            threadPool = nullptr;
+                            lhFast3dWindow = nullptr;
+                            context = nullptr;
+                            exit(0);
+                        });
+                    }
+                    // Don't set extractDone — keep the loop alive so the popup renders.
+                    continue;
                 }
                 extractDone = true;
                 continue;

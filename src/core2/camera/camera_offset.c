@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/GameConfig.h"
 
 typedef struct{
     s16 unk0;
@@ -192,10 +193,18 @@ s32 func_803226BC(enum map_e map_id){
 }
 
 s32 func_803226E8(enum map_e map_id){
+    int t1, t2;
+    if (port_getRomhackMusic(map_id, &t1, &t2)) {
+        return t1;
+    }
     return D_8036DE80[func_803225E0(map_id)].unk2;
 }
 
 s32 func_80322714(enum map_e map_id){
+    int t1, t2;
+    if (port_getRomhackMusic(map_id, &t1, &t2)) {
+        return t2;
+    }
     return D_8036DE80[func_803225E0(map_id)].unk4;
 }
 

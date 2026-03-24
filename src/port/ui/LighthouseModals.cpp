@@ -30,6 +30,8 @@ void LighthouseModalWindow::DrawElement() {
     if (modals.size() > 0) {
         LighthouseModal curModal = modals.at(0);
         if (!ImGui::IsPopupOpen(curModal.title_.c_str())) {
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             ImGui::OpenPopup(curModal.title_.c_str());
         }
         if (closePopup) {

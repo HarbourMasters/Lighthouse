@@ -3,6 +3,7 @@
 #include "variables.h"
 #include "prop.h"
 #include "actor.h"
+#include "port/GameConfig.h"
 
 extern void func_8028F918(s32);
 extern void func_802D2FB0(Actor *, s32, s32, s32, f32, s32, s32, s32);
@@ -651,6 +652,8 @@ void func_80387730(Actor *this) {
     f32 sp90[3];
     f32 sp84[3];
     s32 i;
+    s32 doorIdx;
+    s32 noteThreshold;
     f32 phi_f20;
     s32 phi_s4;
     s32 sp6C[3];
@@ -686,7 +689,10 @@ void func_80387730(Actor *this) {
         if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (func_803114C4() != 0xF64)) {
             func_802FACA4(0xC);
         }
-        if (itemscore_noteScores_getTotal() >= D_8039347C[this->unkF4_8 - 1]) {
+        doorIdx = this->unkF4_8 - 1;
+        noteThreshold = port_getRomhackNoteDoor(doorIdx);
+        if (noteThreshold < 0) { noteThreshold = D_8039347C[doorIdx]; }
+        if (itemscore_noteScores_getTotal() >= noteThreshold) {
             if (this->marker->unk14_21) {
                 func_8032BC60(this, 5, sp90);
                 func_8032BC60(this, 6, sp84);

@@ -21,8 +21,7 @@ static void auxColorImageCallback(void* oldAddr, void* newAddr) {
     bool needPostReadbackClear = false;
     if (oldIsAux && !newIsAux && sActiveAuxFb >= 0) {
         auto interp = GameEngine_GetInterpreter();
-        if (interp && interp->mRapi &&
-            (uintptr_t)newAddr == (uintptr_t)interp->mRdp->z_buf_address) {
+        if (interp && interp->mRapi && (uintptr_t)newAddr == (uintptr_t)interp->mRdp->z_buf_address) {
             needPostReadbackClear = true;
         }
     }

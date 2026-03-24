@@ -16,7 +16,7 @@ bool cutscene_skipGameOverCutsceneCheck(void);
 bool cutscene_skipIntroCutsceneCheck(void);
 bool cutscene_skipBeachCutsceneCheck(void);
 
-// extern void func_802DC560(s32, s32); // [port] removed — actual signature is (NodeProp*, ActorMarker*), in port_prototypes.h
+#include "port/GameConfig.h"
 
 extern u8 D_8037DCCE[];
 
@@ -1338,11 +1338,17 @@ void warp_smEnterBanjosHouse(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void warp_smExitBanjosHouse(NodeProp *arg0, ActorMarker *arg1) {
-    func_8031CC8C(arg0, 0x112);
+    // [port] BB romhacks can override this warp destination
+    s32 override = port_getRomhackWarpExitBanjosHouse();
+    s32 dest = override >= 0 ? override : 0x112;
+    func_8031CC8C(arg0, dest);
 }
 
 void warp_lairEnterMMLobbyFromSMLevel(NodeProp *arg0, ActorMarker *arg1) {
-    func_8031CC8C(arg0, 0x6912);
+    // [port] BB romhacks can override this warp destination
+    s32 override = port_getRomhackWarpEnterLair();
+    s32 dest = override >= 0 ? override : 0x6912;
+    func_8031CC8C(arg0, dest);
 }
 
 void warp_smExitLair(NodeProp *arg0, ActorMarker *arg1) {
@@ -1478,7 +1484,9 @@ void func_8031FAB4(NodeProp *arg0, ActorMarker *arg1) {
 void warp_lairEnterLairFromSMLevel(NodeProp *arg0, ActorMarker *arg1) {
     if (fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE) != 0) {
         // MM Lobby
-        func_8031CC8C(arg0, 0x6912);
+        // [port] BB romhacks can override this warp destination
+        s32 override = port_getRomhackWarpEnterLair();
+        func_8031CC8C(arg0, override >= 0 ? override : 0x6912);
     } else {
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);
         // Enter Lair Cutscene

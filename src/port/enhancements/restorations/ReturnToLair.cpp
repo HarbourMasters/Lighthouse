@@ -3,6 +3,7 @@
 #include "port/enhancements/events/PortEnhancements.h"
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/GameConfig.h"
 
 #include "include/core2/anctrl.h"
 #include "include/core2/gc/zoombox.h"
@@ -34,9 +35,10 @@ void RegisterReturnToLair_Init() {
 
         menuData = (struct1As*)ev->args;
 
-        if (CVAR) {
+        if (CVAR && !port_isRomhack()) {
             s32 level = level_get();
-            *ev->should = !(level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR && level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
+            *ev->should = !(level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR &&
+                            level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
             if (!*ev->should) {
                 menuData[0].y = 45;
                 menuData[1].y = 75;

@@ -10,6 +10,8 @@ extern void func_80325760(Actor *);
 Actor *chMumbo_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chMumbo_update(Actor *this);
 
+#include "port/GameConfig.h"
+
 /* .data */
 ActorAnimationInfo D_80367490[] = {
     {0, 0.0f}, 
@@ -74,6 +76,11 @@ void chmumbo_func_802D1724(void){
 }
 
 static s32 __transformation_getCost(enum transformation_e trans_id){
+    // [port] BB romhacks can override mumbo token costs
+    s32 override = port_getRomhackMumboCost(trans_id);
+    if (override >= 0) {
+        return override;
+    }
     switch(trans_id){
         case TRANSFORM_2_TERMITE:
             return 5;

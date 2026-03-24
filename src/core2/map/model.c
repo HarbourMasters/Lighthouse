@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/GameConfig.h"
 
 #include "core2/modelRender.h"
 #include "core2/coords.h"
@@ -183,11 +184,29 @@ enum asset_e mapModel_getOpaModelId(void);
 bool mapModel_has_xlu_bin(void);
 
 /* .code */
-static MapModelDescription *_mapModel_mapIdToDescription(enum map_e map_id){
-    MapModelDescription *i_ptr;
+static MapModelDescription sSceneDefOverride;
 
-    for(i_ptr = D_8036ABE0; i_ptr->map_id != 0; i_ptr++){
-        if(map_id == i_ptr->map_id){
+static MapModelDescription *_mapModel_mapIdToDescription(enum map_e map_id){
+    int opa, xlu;
+    short min[3], max[3];
+    float scale;
+    if (port_getRomhackSceneDefFull(map_id, &opa, &xlu, min, max, &scale)) {
+        sSceneDefOverride.map_id = (s16)map_id;
+        sSceneDefOverride.opa_model_id = (s16)opa;
+        sSceneDefOverride.xlu_model_id = (s16)xlu;
+        sSceneDefOverride.unk6[0] = min[0];
+        sSceneDefOverride.unk6[1] = min[1];
+        sSceneDefOverride.unk6[2] = min[2];
+        sSceneDefOverride.unkC[0] = max[0];
+        sSceneDefOverride.unkC[1] = max[1];
+        sSceneDefOverride.unkC[2] = max[2];
+        sSceneDefOverride.scale = scale;
+        return &sSceneDefOverride;
+    }
+
+    MapModelDescription *i_ptr;
+    for (i_ptr = D_8036ABE0; i_ptr->map_id != 0; i_ptr++) {
+        if (map_id == i_ptr->map_id) {
             return i_ptr;
         }
     }

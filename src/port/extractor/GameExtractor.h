@@ -20,6 +20,7 @@ public:
     bool GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<size_t>& totalAssets, std::string appShortName = "");
     void WritePortVersion();
     static std::string sStatusText;
+    static std::string sLastError;
     static std::atomic<int> sPhase; // 0=idle, 1=parsing, 2=exporting, 3=done
 private:
     fs::path mGamePath;

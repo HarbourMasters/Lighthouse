@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/GameConfig.h"
 
 #include "core2/gc/zoombox.h"
 
@@ -302,18 +303,28 @@ void gcpausemenu_80311B44(void) {
 }
 
 void gcpausemenu_getLevelNoteScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
+    s32 override;
     *valPtr = itemscore_noteScores_get(level);
-    *maxPtr = 100;
+    override = port_getRomhackNotesMax();
+    *maxPtr = (override >= 0) ? override : 100;
 }
 
 void gcpausemenu_getLevelJiggyScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
+    s32 override;
     *valPtr = jiggyscore_leveltotal(level);
-    *maxPtr = 10;
+    override = port_getRomhackJiggiesPerWorld();
+    *maxPtr = (override >= 0) ? override : 10;
 }
 
 void gcpausemenu_getLevelHoneycombScore(enum level_e level, s32 *valPtr, s32 *maxPtr) {
+    s32 specialLevel = port_getRomhackSpecialLevel();
+    s32 hcMax = port_getRomhackHoneycombsPerWorld();
+    s32 hcSpecial = port_getRomhackExtraHcStart();
+    if (specialLevel < 0) { specialLevel = LEVEL_B_SPIRAL_MOUNTAIN; }
+    if (hcMax < 0) { hcMax = 2; }
+    if (hcSpecial < 0) { hcSpecial = 6; }
     *valPtr = honeycombscore_get_level_total(level);
-    *maxPtr = (level == LEVEL_B_SPIRAL_MOUNTAIN) ? 6 : 2;
+    *maxPtr = (level == specialLevel) ? hcSpecial : hcMax;
 }
 
 char *gcpausemenu_TimeToA(int time) {
@@ -456,6 +467,7 @@ void gcpausemenu_8031209C(struct1As *arg0, s32 arg1) {
 
 void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
     s32 i;
+    s32 hideCollLvl, hideJigLvl, selLvl;
     switch (next_state) {
         case PAUSE_STATE_0_MENU_INIT:
             gcpausemenu_80311A84();
@@ -525,14 +537,17 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
                 gcpausemenu_printTotals();
             }
 
-            for (i = 0; i < 4; i++) {//L80312420
-                if (D_8036C58C[D_80383010.selection].level_id == 6) {
+            hideCollLvl = port_getRomhackHideCollectiblesLevel();
+            hideJigLvl = port_getRomhackHideJiggiesLevel();
+            selLvl = D_8036C58C[D_80383010.selection].level_id;
+            if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
+            if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
+            for (i = 0; i < 4; i++) {
+                if (selLvl == hideCollLvl) {
                     gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 2)));
-                }
-                else if (D_8036C58C[D_80383010.selection].level_id == 0xB) {
+                } else if (selLvl == hideJigLvl) {
                     gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 1)));
-                }
-                else {
+                } else {
                     gczoombox_highlight(D_80383010.zoombox[i], 1);
                 }
             }
@@ -601,15 +616,17 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
                 gcpausemenu_printTotals();
             }
 
-            for (i = 0; i < 4; i++) {//L803126D8
-                //L80312764
-                if (D_8036C58C[D_80383010.selection].level_id == 6) {
+            hideCollLvl = port_getRomhackHideCollectiblesLevel();
+            hideJigLvl = port_getRomhackHideJiggiesLevel();
+            selLvl = D_8036C58C[D_80383010.selection].level_id;
+            if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
+            if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
+            for (i = 0; i < 4; i++) {
+                if (selLvl == hideCollLvl) {
                     gczoombox_highlight(D_80383010.zoombox[i], !((i == 0) || (i == 2)));
-                }
-                else if (D_8036C58C[D_80383010.selection].level_id == 0xB) {//L80312728
+                } else if (selLvl == hideJigLvl) {
                     gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 1)));
-                }
-                else {
+                } else {
                     gczoombox_highlight(D_80383010.zoombox[i], 1);
                 }
 
@@ -840,7 +857,8 @@ void gcpausemenu_80312E80(struct1As *arg0, s32 arg1) {
 
 void gcpausemenu_printTotalsHeader(s32 page_id) {
     struct1Cs_1 *v0 = D_8036C58C + page_id;
-    print_bold_overlapping(v0->x, D_80383010.unk8, -1.05f, v0->string);
+    const char *name = port_getRomhackLevelName(page_id);
+    print_bold_overlapping(v0->x, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
 }
 
 void gcpausemenu_80312FD0(s32 arg0) {
