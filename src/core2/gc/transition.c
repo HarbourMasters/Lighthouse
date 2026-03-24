@@ -301,7 +301,9 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
             aspectRatio > 1.01f) {
             isJigsawWidescreen = 1;
             jigsawXScale = aspectRatio + 0.1f;
-            transitionScale = 1.0f;
+            // [port] Tiny uniform overscale to eliminate vertex seams between
+            // jigsaw pieces caused by per-bone FP rounding under projection X-scale.
+            transitionScale = 1.005f;
             Mtx* xScaleMtx = (*mptr)++;
             guScale(xScaleMtx, jigsawXScale, 1.0f, 1.0f);
             gSPMatrix((*gdl)++, xScaleMtx, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
