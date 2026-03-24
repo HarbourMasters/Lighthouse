@@ -2020,9 +2020,10 @@ void func_80335128(s32);
 
 // --- src/core2/cutscene/lair.c ---
 s32 cutscenetrigger_update(void);
+void func_8031CC8C(NodeProp *arg0, s32 arg1);
 void func_8031CC40(enum map_e map_id, s32 arg1);
 void func_8031D04C(enum map_e arg0, s32 exit_id);
-void func_8031D06C(s32 arg0, s32 arg1); // [port] s32 — definition is (enum map_e, s32), nodeupdate.c calls as (NodeProp*, ActorMarker*)
+void func_8031D06C(s32 arg0, s32 arg1);
 void func_8031D0C0(NodeProp *arg0, ActorMarker *arg1);
 void func_8031F9E0(void);
 void func_8031F9E8();

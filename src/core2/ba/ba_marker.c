@@ -181,8 +181,8 @@ void __baMarker_resolveMusicNoteCollision(Prop *arg0) {
     if (item_getCount(ITEM_C_NOTE) < notesMax) {
         func_8025A6EC(COMUSIC_9_NOTE_COLLECTED, 16000);
         timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_3_MUSIC_NOTE_TEXT);
-    fxSparkle_musicNote(arg0->unk4);
     }
+    fxSparkle_musicNote(arg0->unk4);
 }
 
 void __baMarker_8028BAB0(enum jiggy_e jiggy_id, s32 arg1, s32 arg2, s32 arg3){
