@@ -24,7 +24,7 @@
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
 // #include "DeveloperTools/HookDebugger.h"
-// #include "DeveloperTools/SaveEditor.h"
+#include "developertools/SaveEditor.h"
 // #include "DeveloperTools/ActorViewer.h"
 // #include "DeveloperTools/CollisionViewer.h"
 // #include "DeveloperTools/EventLog.h"
@@ -40,7 +40,7 @@ std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 std::shared_ptr<LighthouseInputEditorWindow> mInputEditorWindow;
 
 // std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
-// std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 // std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 // std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
 // std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
@@ -108,8 +108,8 @@ void SetupGuiElements() {
     //     std::make_shared<HookDebuggerWindow>("gWindows.HookDebugger", "Hook Debugger", ImVec2(480, 600));
     // gui->AddGuiWindow(mHookDebuggerWindow);
 
-    // mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
-    // gui->AddGuiWindow(mSaveEditorWindow);
+    mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
+    gui->AddGuiWindow(mSaveEditorWindow);
 
     // mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "HUD Editor", ImVec2(480, 600));
     // gui->AddGuiWindow(mHudEditorWindow);
@@ -195,7 +195,7 @@ void Destroy() {
     // mRandoCheckTrackerSettingsWindow = nullptr;
 
     // mHookDebuggerWindow = nullptr;
-    // mSaveEditorWindow = nullptr;
+    mSaveEditorWindow = nullptr;
     // mHudEditorWindow = nullptr;
     // mCosmeticEditorWindow = nullptr;
     // mActorViewerWindow = nullptr;

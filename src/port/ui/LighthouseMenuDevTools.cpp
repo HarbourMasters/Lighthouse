@@ -77,13 +77,13 @@ void LighthouseMenu::AddMenuDevTools() {
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/
 
     // Save Editor
-    /*path.sidebarName = "Save Editor";
+    path.sidebarName = "Save Editor";
     AddSidebarEntry("Dev Tools", path.sidebarName, 1);
     AddWidget(path, "Popout Save Editor", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("SaveEditor"))
         .WindowName("Save Editor")
         .HideInSearch(true)
-        .Options(WindowButtonOptions().Tooltip("Enables the separate Save Editor Window."));*/
+        .Options(WindowButtonOptions().Tooltip("Enables the separate Save Editor Window."));
 
     // Console
     // path.sidebarName = "Console";
