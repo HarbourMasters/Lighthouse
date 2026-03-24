@@ -380,6 +380,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
     GameExtractor extract;
     PromptSteps promptStep = PS_FILE_CHECK;
     std::atomic<bool> extracting = false;
+    bool extractStarted = false;
     std::atomic<size_t> extractCount{ 0 }, totalExtract{ 0 };
 
     std::string installPath = Ship::Context::GetAppBundlePath();
@@ -425,7 +426,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             goto render;
         }
 
-        if (extractStep == ES_EXTRACT && promptStep == PS_FIRST && !extracting) {
+        if (extractStep == ES_EXTRACT && promptStep == PS_FIRST && extractStarted && !extracting) {
             extractStep = ES_VERIFY;
             extractCount = 0;
             totalExtract = 0;
@@ -658,6 +659,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                             continue;
                         }
                         extracting = true;
+                        extractStarted = true;
                         file = extract.GetRomPath();
                         threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
