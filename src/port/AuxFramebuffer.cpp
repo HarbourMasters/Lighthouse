@@ -119,6 +119,9 @@ extern "C" void port_unregisterAuxColorImage(void* cpuAddr) {
 
     auto interpreter = GameEngine_GetInterpreter();
     if (interpreter) {
+        if (interpreter->mRapi) {
+            interpreter->mRapi->DeleteFramebuffer(it->second.fbId);
+        }
         interpreter->mFrameBuffers.erase(it->second.fbId);
     }
     if (sActiveAuxFb == it->second.fbId) {
