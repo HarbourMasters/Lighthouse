@@ -528,7 +528,7 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
         width = width - (ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x);
     }
     ImGui::AlignTextToFramePadding();
-    if (options.alignment == ComponentAlignments::Right && !options.labelPosition == LabelPositions::None) {
+    if (options.alignment == ComponentAlignments::Right && options.labelPosition != LabelPositions::None) {
         ImGui::Text(label, *value);
         if (options.labelPosition == LabelPositions::Above) {
             ImGui::NewLine();
@@ -582,7 +582,7 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
         }
     }
 
-    if (options.alignment == ComponentAlignments::Left && !options.labelPosition == LabelPositions::None) {
+    if (options.alignment == ComponentAlignments::Left && options.labelPosition != LabelPositions::None) {
         if (options.labelPosition == LabelPositions::Near) {
             ImGui::SameLine();
             ImGui::Text(label, *value);
