@@ -102,6 +102,7 @@ void SaveEditor_DrawGeneralTab() {
     if (ImGui::BeginChild("GeneralChild")) {
         ImGui::SeparatorText("Health");
         bool dblHealthUnlocked = fileProgressFlag_get(FILEPROG_B9_DOUBLE_HEALTH);
+        int32_t curLives = item_getCount(ITEM_16_LIFE);
         if (ImGui::BeginTable("PlayerHealth", 2)) {
             ImGui::TableNextColumn();
             int32_t curHealth = item_getCount(ITEM_14_HEALTH);
@@ -141,6 +142,17 @@ void SaveEditor_DrawGeneralTab() {
             } else {
                 fileProgressFlag_set(FILEPROG_B9_DOUBLE_HEALTH, true);
             }
+        }
+        if (UIWidgets::SliderInt("extraLives", &curLives,
+                                 {
+                                     .format = "Lives: %i",
+                                     .min = 0,
+                                     .max = 99,
+                                     .clamp = true,
+                                     .labelPosition = UIWidgets::LabelPositions::None,
+                                     .color = THEME_COLOR,
+                                 })) {
+            item_set(ITEM_16_LIFE, curLives);
         }
 
         ImGui::SeparatorText("Ammo");
