@@ -116,12 +116,11 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         }
 
         if (remapTable) {
+            // [port] Snapshot the manifest before injection
+            const auto snapshot = symbolMap;
             uint32_t remapCount = 0;
             for (const auto& [v10Id, targetId] : *remapTable) {
-                if (symbolMap.find(v10Id) != symbolMap.end()) {
-                    continue; // v1.0 ID already exists in manifest — no conflict
-                }
-                if (auto targetEntry = symbolMap.find(targetId); targetEntry != symbolMap.end()) {
+                if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
                     symbolMap[v10Id] = targetEntry->second;
                     remapCount++;
                 }
@@ -210,7 +209,6 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
         std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
         if (auto result = LoadAndRetainResource(mappedPath, assetId); result != nullptr) {
-            // SPDLOG_INFO("[ResourceManager] Loading '{}'", mappedPath);
             return result;
         } else {
             SPDLOG_WARN("[ResourceManager({})] symbol '{}' found but resource data is NULL", assetId, mappedPath);

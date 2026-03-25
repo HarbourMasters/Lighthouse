@@ -174,7 +174,7 @@ aBKAssetTable:
     192: anim/NipperIdle
     193: anim/LittleBounce
     194: anim/WobblyBounce
-    195: anim/LittleBounce
+    195: anim/ClankerIdle
     196: anim/ClankerMouthOpen
     197: anim/GrabbaAppear
     198: anim/GrabbaHide
@@ -230,8 +230,8 @@ aBKAssetTable:
     251: anim/FlibbitTurning
     252: anim/GobiGivingWater
     253: anim/GobiGettingUp
-    254: anim/WadingBootsAnim
-    255: anim/GobiIdleAnim
+    254: anim/TrunkerShort
+    255: anim/TrunkerGrowing
     256: anim/GobiSpitting
     257: anim/TanktupsHead
     258: anim/TanktupsHeadPounded
@@ -262,7 +262,7 @@ aBKAssetTable:
     289: anim/WalrusBanjoJumping
     290: anim/CrocodileBanjoBiting
     291: anim/CrocodileBanjoGrossedOut
-    292: anim/CrocodileBanjoBiting
+    292: anim/MrVileEating
     293: anim/RedYumblieSpawning
     294: anim/RedYumblieLeaving
     295: anim/RedYumblie
@@ -421,7 +421,7 @@ aBKAssetTable:
     451: anim/CCW/CrackingActorAnim
     452: anim/GruntysBroomstickFlying
     453: anim/GruntyFlying
-    454: anim/Empty01
+    454: anim/CCW/SeasonalVariantAnim
     455: anim/BanjoSleeping
     456: anim/BanjoWakingUp
     457: anim/BedsheetsBanjoSleeping
@@ -490,7 +490,7 @@ aBKAssetTable:
     521: anim/CuckooClock
     522: anim/CuckooClockChiming
     523: anim/GruntyFalling_02
-    524: anim/SoundEmitAnim
+    524: anim/CS/CutsceneAnim_20C
     525: anim/KlungoLeverDown
     526: anim/MachineLeverDown
     527: anim/KlungoLaughing
@@ -582,7 +582,7 @@ aBKAssetTable:
     615: anim/RBB/FinalBossAnim
     616: anim/BigBlueEgg
     617: anim/BigRedFeather
-    618: anim/BigRedFeather
+    618: anim/BigGoldFeather
     619: anim/Brentilda
     620: anim/BrentildaHandsOnHips
     621: anim/Gruntling
@@ -636,7 +636,7 @@ aBKAssetTable:
     669: anim/MelonBabeWalking
     670: anim/BlubberOnJetski
     671: anim/BlubberCheeringOnJetSki
-    672: anim/MMM/PortraitChompaAnim
+    672: anim/Curtains
     673: anim/BanjosHandDroppingJiggy
     674: anim/BanjosHand
     675: anim/BanjosHandTurningJiggy_01
@@ -654,7 +654,7 @@ aBKAssetTable:
     687: anim/MumboSlidingDownTree
     688: anim/MumboOnTree
     689: anim/MumboFallingFromTree
-    690: anim/BottlesEatingCorn
+    690: anim/BottlesEatingWatermelon
     691: anim/MumboHitByCoconuts
     692: anim/MumboShakeHeadSittingDown
     693: anim/MumboJumpingRunning
@@ -665,9 +665,9 @@ aBKAssetTable:
     698: anim/KazooieTalking
     699: anim/MumboRunningAfterMelonBabe
     700: anim/MumboTalking
-    701: anim/Empty01
-    702: anim/Empty01
-    703: anim/Empty01
+    701: anim/BottlesBonusAnim_02
+    702: anim/BottlesBonusAnim_03
+    703: anim/PiranhaAnim
     704: anim/PiranhaDying
     705: anim/BottlesBonusAnim_04
     706: anim/BottlesBonusAnim_05
@@ -2166,7 +2166,7 @@ aBKAssetTable:
     2707: dialog/SpeakerCC_Tooty_01
     2708: dialog/SpeakerD3_SexyGrunty
     2709: dialog/SpeakerCC_Tooty_02
-    2710: dialog/SpeakerCC_Tooty_02
+    2710: dialog/SpeakerCC_Tooty_03
     2711: dialog/SpeakerD4_UglyTooty
     2712: dialog/Speaker84_Mumbo_23
     2713: dialog/Speaker83_Bottles_101
@@ -2924,7 +2924,7 @@ aBKAssetTable:
     3483: midi/CCW_Summer
     3484: midi/CCW_Winter
     3485: midi/RightAnswer
-    3486: midi/Empty01
+    3486: midi/WrongAnswer
     3487: midi/JiggyInsert
     3488: midi/CCW_Fall
     3489: midi/CCW_Hub

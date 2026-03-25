@@ -174,7 +174,7 @@ aBKAssetTable:
     192: anim/NipperIdle
     193: anim/LittleBounce
     194: anim/WobblyBounce
-    195: anim/LittleBounce
+    195: anim/ClankerIdle
     196: anim/ClankerMouthOpen
     197: anim/GrabbaAppear
     198: anim/GrabbaHide
@@ -230,8 +230,8 @@ aBKAssetTable:
     251: anim/FlibbitTurning
     252: anim/GobiGivingWater
     253: anim/GobiGettingUp
-    254: anim/WadingBootsAnim
-    255: anim/GobiIdleAnim
+    254: anim/TrunkerShort
+    255: anim/TrunkerGrowing
     256: anim/GobiSpitting
     257: anim/TanktupsHead
     258: anim/TanktupsHeadPounded
@@ -262,7 +262,7 @@ aBKAssetTable:
     289: anim/WalrusBanjoJumping
     290: anim/CrocodileBanjoBiting
     291: anim/CrocodileBanjoGrossedOut
-    292: anim/CrocodileBanjoBiting
+    292: anim/MrVileEating
     293: anim/RedYumblieSpawning
     294: anim/RedYumblieLeaving
     295: anim/RedYumblie
@@ -421,7 +421,7 @@ aBKAssetTable:
     451: anim/CCW/CrackingActorAnim
     452: anim/GruntysBroomstickFlying
     453: anim/GruntyFlying
-    454: anim/Empty01
+    454: anim/CCW/SeasonalVariantAnim
     455: anim/BanjoSleeping
     456: anim/BanjoWakingUp
     457: anim/BedsheetsBanjoSleeping
@@ -490,7 +490,7 @@ aBKAssetTable:
     521: anim/CuckooClock
     522: anim/CuckooClockChiming
     523: anim/GruntyFalling_02
-    524: anim/SoundEmitAnim
+    524: anim/CS/CutsceneAnim_20C
     525: anim/KlungoLeverDown
     526: anim/MachineLeverDown
     527: anim/KlungoLaughing
@@ -582,7 +582,7 @@ aBKAssetTable:
     615: anim/RBB/FinalBossAnim
     616: anim/BigBlueEgg
     617: anim/BigRedFeather
-    618: anim/BigRedFeather
+    618: anim/BigGoldFeather
     619: anim/Brentilda
     620: anim/BrentildaHandsOnHips
     621: anim/Gruntling
@@ -636,7 +636,7 @@ aBKAssetTable:
     669: anim/MelonBabeWalking
     670: anim/BlubberOnJetski
     671: anim/BlubberCheeringOnJetSki
-    672: anim/MMM/PortraitChompaAnim
+    672: anim/Curtains
     673: anim/BanjosHandDroppingJiggy
     674: anim/BanjosHand
     675: anim/BanjosHandTurningJiggy_01
@@ -654,7 +654,7 @@ aBKAssetTable:
     687: anim/MumboSlidingDownTree
     688: anim/MumboOnTree
     689: anim/MumboFallingFromTree
-    690: anim/BottlesEatingCorn
+    690: anim/BottlesEatingWatermelon
     691: anim/MumboHitByCoconuts
     692: anim/MumboShakeHeadSittingDown
     693: anim/MumboJumpingRunning
@@ -665,9 +665,9 @@ aBKAssetTable:
     698: anim/KazooieTalking
     699: anim/MumboRunningAfterMelonBabe
     700: anim/MumboTalking
-    701: anim/Empty01
-    702: anim/Empty01
-    703: anim/Empty01
+    701: anim/BottlesBonusAnim_02
+    702: anim/BottlesBonusAnim_03
+    703: anim/PiranhaAnim
     704: anim/PiranhaDying
     705: anim/BottlesBonusAnim_04
     706: anim/BottlesBonusAnim_05
@@ -2032,7 +2032,7 @@ aBKAssetTable:
     2574: dialog/Speaker88_Nipper_Intro
     2575: dialog/Speaker88_Nipper_BlueEggs
     2576: dialog/Speaker88_Nipper_Hurt
-    2577: dialog/Speaker83_Bottles_AllMovesLearned
+    2577: dialog/Speaker88_Nipper_HurtPlayer
     2578: dialog/SpeakerCD_BlackSnippet_Intro
     2579: dialog/SpeakerCD_BlackSnippet_Outro
     2580: dialog/SpeakerAA_YumYum
@@ -2165,7 +2165,7 @@ aBKAssetTable:
     2707: dialog/SpeakerCC_Tooty_01
     2708: dialog/SpeakerD3_SexyGrunty
     2709: dialog/SpeakerCC_Tooty_02
-    2710: dialog/SpeakerCC_Tooty_02
+    2710: dialog/SpeakerCC_Tooty_03
     2711: dialog/SpeakerD4_UglyTooty
     2712: dialog/Speaker84_Mumbo_23
     2713: dialog/Speaker83_Bottles_101
@@ -2212,11 +2212,11 @@ aBKAssetTable:
     2754: dialog/Speaker84_Mumbo_34
     2755: dialog/Speaker84_Mumbo_35
     2756: dialog/Speaker84_Mumbo_36
-    2757: dialog/Speaker83_Bottles_85
+    2757: dialog/Speaker83_Bottles_87
     2758: dialog/Speaker83_Bottles_86
     2759: dialog/Speaker06_06_08
-    2760: dialog/Speaker84_Mumbo_24
-    2761: dialog/Speaker84_Mumbo_25
+    2760: dialog/Speaker84_Mumbo_39
+    2761: dialog/Speaker84_Mumbo_40
     2762: dialog/Speaker83_Bottles_105
     2763: dialog/Speaker83_Bottles_106
     2769: dialog/Speaker83_Bottles_110
@@ -2319,8 +2319,8 @@ aBKAssetTable:
     2866: dialog/SpeakerB5_Gruntilda_75
     2867: dialog/SpeakerB5_Gruntilda_76
     2868: dialog/SpeakerB5_Gruntilda_77
-    2869: dialog/SpeakerB5_Gruntilda_69
-    2870: dialog/SpeakerB5_Gruntilda_70
+    2869: dialog/SpeakerB5_Gruntilda_78
+    2870: dialog/SpeakerB5_Gruntilda_79
     2871: dialog/Speaker86_Conga_Safe
     2872: dialog/Speaker86_Conga_Won
     2873: dialog/Speaker86_Conga_EggHurt
@@ -2500,7 +2500,7 @@ aBKAssetTable:
     3051: dialog/Speaker86_Conga_10
     3052: dialog/Speaker85_Chimpy_03
     3053: dialog/SpeakerCB_Brentilda_33
-    3054: dialog/SpeakerD7_Tooty
+    3054: dialog/Speaker87_Blubber_05
     3055: dialog/Speaker88_Nipper_05
     3056: dialog/Speaker89_Clanker_08
     3057: dialog/Speaker8D_Tanktup_04
@@ -2518,14 +2518,14 @@ aBKAssetTable:
     3069: dialog/SpeakerC9_AdultEyrie_03
     3070: dialog/SpeakerC4_Nabnut_07
     3071: dialog/SpeakerD6_Kazooie
-    3072: dialog/Speaker90_Rubee_03
+    3072: dialog/SpeakerB7_Boggy_Oof
     3073: dialog/SpeakerB7_Boggy_RaceIntro_TooBig
-    3074: dialog/Speaker93_Napper_04
-    3075: dialog/SpeakerCE_Loggo_03
-    3076: dialog/SpeakerB2_Snorkel_03
-    3077: dialog/SpeakerC1_GnawtyPng_09
-    3078: dialog/SpeakerC9_AdultEyrie_03
-    3079: dialog/SpeakerC4_Nabnut_07
+    3074: dialog/SpeakerB7_Boggy_RaceIntro_Walrus
+    3075: dialog/SpeakerB7_Boggy_Race_Countdown_Tutorial
+    3076: dialog/SpeakerB7_Boggy_Race_Lost
+    3077: dialog/SpeakerB7_Boggy_Race_TryAgain_Walrus
+    3078: dialog/SpeakerB7_Boggy_Race_Countdown
+    3079: dialog/SpeakerB7_Boggy_Race_Walrus_Won
     3080: dialog/SpeakerB7_Boggy_Race_WheresBanjo
     3081: quizq/Speaker80_FurnaceFunQuiz_001
     3082: quizq/Speaker80_FurnaceFunQuiz_002
@@ -2866,7 +2866,7 @@ aBKAssetTable:
     3426: level/LAIR/Boss_OPA
     3427: level/LAIR/Floor6_CoffinRoom_OPA
     3428: level/LAIR/Floor6_MMMEntrance_OPA
-    3429: level/LAIR/Floor6_CoffinRoom_OPA
+    3429: level/LAIR/Floor6_CoffinRoom_XLU
     3430: level/LAIR/Floor4_OPA
     3431: level/LAIR/Floor4_BGSEntrance_OPA
     3432: level/LAIR/Floor7_OPA
@@ -2932,7 +2932,7 @@ aBKAssetTable:
     3492: midi/CCW_Summer
     3493: midi/CCW_Winter
     3494: midi/RightAnswer
-    3495: midi/Empty01
+    3495: midi/WrongAnswer
     3496: midi/JiggyInsert
     3497: midi/CCW_Fall
     3498: midi/CCW_Hub
