@@ -9,7 +9,7 @@ f32  anim_getDuration(Animation *self);
 void anim_new(Animation *self, bool arg1);
 void anim_setTimer(Animation *self, f32 arg1);
 void anim_80289790(Animation* self, GenFunction_2 arg1); // [port] was void(*)(s32, s32)
-void anim_80289798(Animation *self, s32 arg1);
+void anim_80289798(Animation *self, uintptr_t arg1);
 void anim_setDuration(Animation *self, f32 arg1);
 
 //represents the transformation on a given model bone

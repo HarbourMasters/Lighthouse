@@ -26,7 +26,7 @@ typedef struct AnimMtxList_s{ // [port] added tag for forward declaration
 
 typedef struct animation_s{
     GenFunction_2 matrices;
-    s32     unk4;
+    uintptr_t unk4;
     u8      unk8;
     u8      unk9;
     s16     animcache_index[3];
@@ -69,7 +69,7 @@ AnimCtrl *anctrl_defrag(AnimCtrl *ctrl);
 void anctrl_setIndex(AnimCtrl *ctrl, enum asset_e index);
 Animation *anctrl_getAnimPtr(AnimCtrl *ctrl);
 void func_8028746C(AnimCtrl *ctrl, GenFunction_2 arg1);
-void func_8028748C(AnimCtrl *ctrl, s32 arg1);
+void func_8028748C(AnimCtrl *ctrl, uintptr_t arg1);
 void anctrl_reset(AnimCtrl *ctrl);
 void __anctrl_gotoStart(AnimCtrl *ctrl);
 void _anctrl_start(AnimCtrl * ctrl, char *file, s32 line);

@@ -177,7 +177,7 @@ void anim_80289790(Animation *this, GenFunction_2 arg1){ // [port] was void(*)(s
     this->matrices = arg1;
 }
 
-void anim_80289798(Animation *this, s32 arg1){
+void anim_80289798(Animation *this, uintptr_t arg1){
     this->unk4 = arg1;
 }
 

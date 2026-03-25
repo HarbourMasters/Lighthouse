@@ -160,7 +160,7 @@ void func_8028746C(AnimCtrl *this, GenFunction_2 arg1){ // [port] was void(*)(s3
     anim_80289790(this->animation, arg1);
 }
 
-void func_8028748C(AnimCtrl *this, s32 arg1){
+void func_8028748C(AnimCtrl *this, uintptr_t arg1){
     anim_80289798(this->animation, arg1);
 }
 
