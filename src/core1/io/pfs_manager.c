@@ -186,7 +186,7 @@ void pfsManager_update(void) {
         if (ary < 0) { ary = -ary; }
 
         if (arx > 16 || ary > 16) {
-            u16 dir = (arx >= ary)
+            u16 dir = (arx * 3 >= ary * 2)
                 ? (pfsManagerContPadData[0].button & 0x0003)
                 : (pfsManagerContPadData[0].button & 0x000C);
             if (dir && dir != sLatchDir) {
