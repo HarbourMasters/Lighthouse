@@ -9,7 +9,7 @@ MtxF D_80380880;
 
 /* .code */
 bool func_802EA760(BKModelUnk14List *arg0, s32 arg1, f32 arg2[3], f32 rotation[3], f32 scale, f32 arg5[3], f32 arg6[3], f32 *arg7) {
-    s32 start;
+    uintptr_t start;
     BKModelUnk14_2 *temp_v0;
 
     if (arg1 >= arg0->unk4) {

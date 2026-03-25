@@ -66,7 +66,7 @@ struct {
     Struct_MMM_3D50_0 *unk4;
     u8 unk8;
     BKModel *unkC;
-    s32 unk10;
+    intptr_t unk10;
 } MMM_D_8038C510;
 
 /* .code */
@@ -196,7 +196,7 @@ void func_8038A82C(Struct_MMM_3D50_0 * arg0){
             MMM_func_8038A54C(arg0, 3);
             if( iPtr->unk0[iPtr->unk4] == 0){
                 func_8038A140(5);
-                chTumblar_congratulate(MMM_D_8038C510.unkC, MMM_D_8038C510.unk10);
+                chTumblar_congratulate(MMM_D_8038C510.unkC, (s32)(intptr_t)MMM_D_8038C510.unk10);
                 func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
             }
             else{
@@ -240,7 +240,7 @@ void func_8038A9B4(void){
 
 void func_8038AA30(void *arg0, void *arg1){ // [port] was BKModel*, s32 — polymorphic: also called with Struct_MMM_47D0_0*, Struct68s*
     MMM_D_8038C510.unkC = arg0;
-    MMM_D_8038C510.unk10 = (s32)(intptr_t)arg1; // [port] void* to s32 — N64 stored pointer as s32
+    MMM_D_8038C510.unk10 = (intptr_t)arg1;
 }
 
 void func_8038AA44(void){
@@ -290,7 +290,7 @@ void func_8038AA44(void){
     }//L8038AB7C
 
     if( MMM_D_8038C510.unk8 == 5
-        && chTumblar_isDisappeared(MMM_D_8038C510.unkC, MMM_D_8038C510.unk10)
+        && chTumblar_isDisappeared(MMM_D_8038C510.unkC, (s32)(intptr_t)MMM_D_8038C510.unk10)
     ){
         func_8038A140(6);
     }

@@ -804,7 +804,7 @@ All spawnable actor implementations live here — characters, UI overlays, FX em
 | `crc.c` | Anti-tamper CRC validation |
 | `napper_room.c` | Napper room control (sleep state, dialog) |
 | `minigame_organ.c` | Organ minigame note/key mappings |
-| `minigame_organinput.c` | Organ key-to-button input validation |
+| `minigame_shed.c` | Tumbar's Shed minigame |
 | `ch/flowerpot.c` | Cemetery flowerpot collectible actor |
 | `ch/loggo.c` | Loggo toilet NPC |
 | `ch/motzhand.c` | Motzand piano hand boss |

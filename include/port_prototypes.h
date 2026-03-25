@@ -697,7 +697,7 @@ void func_80389D9C(s32 key_id);
 void maOrgan_update(void);
 void organMinigame_getKeyPosition(s32 key_indx, f32 position[3]);
 
-// --- src/MMM/minigame_organinput.c ---
+// --- src/MMM/minigame_shed.c ---
 void func_8038A994();
 void func_8038A9B4(void);
 void func_8038AA30(void *arg0, void *arg1); // [port] polymorphic: called with BKModel*/Struct_MMM_47D0_0* and s32/Struct68s*
