@@ -46,6 +46,19 @@ std::vector<std::string> abilityNameList = {
     "Wading Boots",  "Dive",      "Talon Trot",  "Turbo Talon",    "Wonderwing",
 };
 
+std::vector<std::string> warpCauldronList = {
+    "Lower Pink Cauldron",
+    "Upper Pink Cauldron",
+    "Lower Green Cauldron",
+    "Upper Green Cauldron",
+    "Lower Red Cauldron",
+    "Upper Red Cauldron",
+    "Unused1",
+    "Unused2",
+    "Lower Yellow Cauldron",
+    "Upper Yellow Cauldron",
+};
+
 std::vector<std::tuple<item_e, std::string, int32_t>> ammoDetailList = {
     { ITEM_D_EGGS, "Blue Eggs", DEFAULT_MAX_EGGS },
     { ITEM_F_RED_FEATHER, "Red Feathers", DEFAULT_MAX_RED_FEATHERS },
@@ -60,40 +73,64 @@ std::unordered_map<int32_t, int32_t> progressToLevelMap = {
     { FILEPROG_39_CCW_OPEN, LEVEL_8_CLICK_CLOCK_WOOD },
 };
 
-void SaveEditor_DrawAbilityUnlocks() {
-    if (ImGui::BeginChild("AbilityUnlockChild")) {
-        for (int i = ABILITY_0_BARGE; i <= ABILITY_12_WONDERWING; i++) {
-            ImGui::PushID(i);
-            bool isUnlocked = ability_isUnlocked((ability_e)i);
-            std::string abilName = "Unlock " + abilityNameList[i];
-            if (UIWidgets::Checkbox(abilName.c_str(), &isUnlocked)) {
-                if (ability_isUnlocked((ability_e)i)) {
-                    ability_setLearned((ability_e)i, false);
-                } else {
-                    ability_setLearned((ability_e)i, true);
-                }
-            }
-            ImGui::PopID();
-        }
-        ImGui::EndChild();
-    }
-}
+void SaveEditor_DrawUnlocks() {
+    if (ImGui::BeginChild("UnlockChild")) {
+        if (ImGui::BeginTable("UnlocksTable", 3, ImGuiTableFlags_SizingFixedSame)) {
+            ImGui::TableNextColumn();
 
-void SaveEditor_DrawWorldUnlocks() {
-    if (ImGui::BeginChild("WorldUnlockChild")) {
-        for (int i = FILEPROG_31_MM_OPEN; i < FILEPROG_39_CCW_OPEN; i++) {
-            ImGui::PushID(i);
-            bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
-            std::string worldName = "Unlock " + worldNameList[progressToLevelMap.at(i) - 1];
-            if (UIWidgets::Checkbox(worldName.c_str(), &isUnlocked)) {
-                if (fileProgressFlag_get((file_progress_e)i)) {
-                    fileProgressFlag_set((file_progress_e)i, false);
-                } else {
-                    fileProgressFlag_set((file_progress_e)i, true);
+            ImGui::SeparatorText("Ability Unlocks");
+            for (int i = ABILITY_0_BARGE; i <= ABILITY_12_WONDERWING; i++) {
+                ImGui::PushID(i);
+                bool isUnlocked = ability_isUnlocked((ability_e)i);
+                std::string abilName = "Unlock " + abilityNameList[i];
+                if (UIWidgets::Checkbox(abilName.c_str(), &isUnlocked)) {
+                    if (ability_isUnlocked((ability_e)i)) {
+                        ability_setLearned((ability_e)i, false);
+                    } else {
+                        ability_setLearned((ability_e)i, true);
+                    }
                 }
+                ImGui::PopID();
             }
-            ImGui::PopID();
+            ImGui::TableNextColumn();
+
+            ImGui::SeparatorText("World Unlocks");
+            for (int i = FILEPROG_31_MM_OPEN; i < FILEPROG_39_CCW_OPEN; i++) {
+                ImGui::PushID(i);
+                bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
+                std::string worldName = "Unlock " + worldNameList[progressToLevelMap.at(i) - 1];
+                if (UIWidgets::Checkbox(worldName.c_str(), &isUnlocked)) {
+                    if (fileProgressFlag_get((file_progress_e)i)) {
+                        fileProgressFlag_set((file_progress_e)i, false);
+                    } else {
+                        fileProgressFlag_set((file_progress_e)i, true);
+                    }
+                }
+                ImGui::PopID();
+            }
+            ImGui::TableNextColumn();
+
+            ImGui::SeparatorText("Cauldron Unlocks");
+            for (int i = FILEPROG_49_PINK_CAULDRON_1_ACTIVE; i <= FILEPROG_52_YELLOW_CAULDRON_2_ACTIVE; i++) {
+                if (i == FILEPROG_4F_UNUSED_CAULDRON_1_ACTIVE || i == FILEPROG_50_UNUSED_CAULDRON_2_ACTIVE) {
+                    continue;
+                }
+
+                ImGui::PushID(i);
+                bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
+                std::string cauldronName = "Unlock " + warpCauldronList[i - FILEPROG_49_PINK_CAULDRON_1_ACTIVE];
+                if (UIWidgets::Checkbox(cauldronName.c_str(), &isUnlocked)) {
+                    if (fileProgressFlag_get((file_progress_e)i)) {
+                        fileProgressFlag_set((file_progress_e)i, false);
+                    } else {
+                        fileProgressFlag_set((file_progress_e)i, true);
+                    }
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
         }
+        
         ImGui::EndChild();
     }
 }
@@ -270,15 +307,11 @@ void SaveEditor_DrawTabBar() {
             SaveEditor_DrawGeneralTab();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("World Unlocks")) {
-            SaveEditor_DrawWorldUnlocks();
+        if (ImGui::BeginTabItem("Unlocks")) {
+            SaveEditor_DrawUnlocks();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Ability Unlocks")) {
-            SaveEditor_DrawAbilityUnlocks();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Progress")) {
+        if (ImGui::BeginTabItem("World Progress")) {
             SaveEditor_DrawProgressTab();
             ImGui::EndTabItem();
         }
