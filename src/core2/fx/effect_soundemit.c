@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802F82F4(s32, f32, f32, f32, f32);
+extern void func_802F82F4(struct3s *, f32, f32, f32, f32);
 
 typedef struct {
     s16 unk0;
@@ -71,7 +71,6 @@ int func_803591A4(Actor *this){
 
 void func_803591E8(Actor *this, s32 next_state){
     ActorLocal_core2_D2180 * local = (ActorLocal_core2_D2180 *) &this->local;
-    s32 sp20;
 
     if(next_state == 2)
         func_802F8C90(func_802F7C38());
@@ -80,10 +79,11 @@ void func_803591E8(Actor *this, s32 next_state){
         func_802F8CB0(func_802F7C38());
 
     if(next_state == 3){
-        sp20 = (s32)(intptr_t)func_802F7C7C(); // [port] struct3s* to s32 — N64 stored pointer as s32
-        func_802F8338((struct3s *)(intptr_t)sp20); // [port] s32 to struct3s*
-        if(local->unk0->unk4 == func_80359110)
-            func_802F82F4(sp20, 5.0f, 30.0f, 5.0f, 30.0f);
+        struct3s *rain = func_802F7C7C();
+        func_802F8338(rain);
+        if(local->unk0->unk4 == func_80359110) {
+            func_802F82F4(rain, 5.0f, 30.0f, 5.0f, 30.0f);
+        }
     }
 
     if(this->state == 3)

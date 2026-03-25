@@ -38,7 +38,7 @@ typedef struct {
 } QuizQuestionBin;
 
 typedef struct{
-    s32 answer_options[4][4]; // first dimension = zoombox index, second dimension = value (0-3), third dimension = answer
+    uintptr_t answer_options[4][4]; // first dimension = zoombox index, second dimension = value (0-3), third dimension = answer
 } QuizQuestionStruct;
 
 typedef struct {
@@ -340,7 +340,7 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
                 zoombox_text_index = zoombox_text_index;
             }
         
-            sD_803830E0->quiz_question.answer_options[zoombox_text_index][sD_803830E0->answer_str_counts[zoombox_text_index]++] = (intptr_t)char_iter; // [port] u8* to s32 — N64 stored pointer as s32
+            sD_803830E0->quiz_question.answer_options[zoombox_text_index][sD_803830E0->answer_str_counts[zoombox_text_index]++] = (uintptr_t)char_iter;
         }
         char_iter += option_text; // SKIP
     }
@@ -353,7 +353,7 @@ void __gcquiz_openZoomboxAndMaximizeWithStringsAt(s32 zoombox_index) {
     gczoombox_setStrings(
         sD_803830E0->zoomboxes[zoombox_index],
         sD_803830E0->answer_str_counts[sD_803830E0->answer_values[zoombox_index]],
-        (char **)sD_803830E0->quiz_question.answer_options[sD_803830E0->answer_values[zoombox_index]] // [port] s32* to char** — N64 stored pointers as s32
+        (char **)sD_803830E0->quiz_question.answer_options[sD_803830E0->answer_values[zoombox_index]]
     );
 }
 
@@ -381,7 +381,7 @@ static void __gcquiz_advanceStateTo(enum gcquiz_state state){
             for(i = 0; i < 4; i++){
                 sD_803830E0->answer_values[i] = -1;
                 for(j = 0; j < 4; j++){
-                    sD_803830E0->quiz_question.answer_options[i][j] = 0; // [port] was NULL — s32 value, not pointer
+                    sD_803830E0->quiz_question.answer_options[i][j] = 0;
                 }
             }
             break;
@@ -389,7 +389,7 @@ static void __gcquiz_advanceStateTo(enum gcquiz_state state){
         case GCQUIZ_STATE_1_SHOW_QUESTION_VIA_ZOOMBOX:
             gczoombox_open(sD_803830E0->zoomboxes[0]);
             gczoombox_maximize(sD_803830E0->zoomboxes[0]);
-            gczoombox_setStrings(sD_803830E0->zoomboxes[0], sD_803830E0->answer_str_counts[0], (char **)sD_803830E0->quiz_question.answer_options[0]); // [port] s32* to char**
+            gczoombox_setStrings(sD_803830E0->zoomboxes[0], sD_803830E0->answer_str_counts[0], (char **)sD_803830E0->quiz_question.answer_options[0]);
             break;
 
         case GCQUIZ_STATE_2_SHOW_PORTRAITS_FOR_QUESTION:
