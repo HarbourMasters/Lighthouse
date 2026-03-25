@@ -1036,7 +1036,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         return 0;
     }
 
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
+        && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
         // Extended draw distance: disable clipping, set huge distance thresholds
         D_80383710 = false;
         D_8038370C = 1e30f;

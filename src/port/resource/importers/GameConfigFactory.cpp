@@ -381,14 +381,14 @@ static void LoadGameConfig() {
     int codeConstCount = 0;
     for (int i = 0; i < 24; i++) {
         // Check each static against its default (-1)
-        const int* vals[] = { &sNewGameMap,  &sStartLevel1,          &sStartLevel2,
-                              &sKnowAllMoves,     &sMumboCostTermite,     &sMumboCostCroc,
-                              &sMumboCostWalrus,   &sMumboCostPumpkin,     &sMumboCostBee,
-                              &sEggsNormalMax,     &sRedFeathersNormalMax, &sGoldFeathersNormalMax,
-                              &sEggsCheatomax,     &sRedFeathersCheatomax, &sGoldFeathersCheatomax,
-                              &sNotesMax,          &sJiggiesPerWorld,      &sHoneycombsPerWorld,
-                              &sExtraHcStart,      &sWarpExitBanjosHouse,  &sWarpEnterLair,
-                              &sSpecialLevel,      &sHideJiggiesLevel,     &sHideCollectiblesLevel };
+        const int* vals[] = { &sNewGameMap,      &sStartLevel1,          &sStartLevel2,
+                              &sKnowAllMoves,    &sMumboCostTermite,     &sMumboCostCroc,
+                              &sMumboCostWalrus, &sMumboCostPumpkin,     &sMumboCostBee,
+                              &sEggsNormalMax,   &sRedFeathersNormalMax, &sGoldFeathersNormalMax,
+                              &sEggsCheatomax,   &sRedFeathersCheatomax, &sGoldFeathersCheatomax,
+                              &sNotesMax,        &sJiggiesPerWorld,      &sHoneycombsPerWorld,
+                              &sExtraHcStart,    &sWarpExitBanjosHouse,  &sWarpEnterLair,
+                              &sSpecialLevel,    &sHideJiggiesLevel,     &sHideCollectiblesLevel };
         if (*vals[i] != -1) {
             codeConstCount++;
         }
@@ -414,9 +414,9 @@ static void LoadGameConfig() {
     SPDLOG_INFO("[GameConfig] Loaded \"{}\" v{}: {} sections, {} code consts, {} scene remaps, "
                 "{} music, {} skybox, {} scene defs, {} level names, {} warps, {} note doors, "
                 "{} jiggy costs, {} return-to-lair",
-                sRomName, version, sectionCount, codeConstCount, sSceneRemaps.size(),
-                sMusicAssign.size(), sSkyboxAssign.size(), sSceneDefs.size(), levelNameCount,
-                sWarpDests.size(), noteDoorCount, jiggyCostCount, sReturnToLair.size());
+                sRomName, version, sectionCount, codeConstCount, sSceneRemaps.size(), sMusicAssign.size(),
+                sSkyboxAssign.size(), sSceneDefs.size(), levelNameCount, sWarpDests.size(), noteDoorCount,
+                jiggyCostCount, sReturnToLair.size());
 }
 
 // All accessors callable from C. Fast path: after first load, vanilla ROMs hit one branch.

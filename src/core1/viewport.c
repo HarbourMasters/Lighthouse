@@ -344,7 +344,8 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
     // [port] Draw distance cutoff — skip when extended draw distance is enabled
-    if (!CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
+        || getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
         if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
             return false;
         }
@@ -363,7 +364,8 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
 
 // viewport_distanceFromPlane ?
 bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
+        && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
         return true; // Extended draw distance: bypass frustum distance check
     }
     f32 delta[3];

@@ -38,7 +38,8 @@ void func_80344124(void){
 }
 
 void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 position[3], f32 scale[3], Gfx **gfx, Mtx **mtx) {
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
+        && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
         D_803858B0 = true; // Extended draw distance: disable sprite distance cull
     }
     f32 sp6C[3];

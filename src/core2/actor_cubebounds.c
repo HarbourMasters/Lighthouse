@@ -439,7 +439,8 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     for(i = 0; i < 3; i++){
         int width = 4;
 
-        if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
+            && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
             width = sCubeList.width[i]; // Extended draw distance: full map
         }
 
