@@ -17,6 +17,9 @@
 #define DEFAULT_MAX_RED_FEATHERS 50
 #define DEFAULT_MAX_GOLD_FEATHERS 10
 
+#define JIGGY_ID_MULTIPLIER(levelId) (1 + (10 * (levelId - 1)))
+#define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
+
 extern "C" {
 bool player_is_present(void);
 s32 item_getCount(enum item_e item);
@@ -32,8 +35,9 @@ void honeycombscore_set(enum honeycomb_e indx, bool val);
 }
 
 std::vector<std::string> worldNameList = {
-    "Mumbo's Mountian", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp", "Freezeezy Peak",
-    "Gobi's Valley",    "Mad Monster Mansion", "Rusty Bucket Bay", "Click Clock Wood",
+    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",
+    "Freezeezy Peak",   "Gruntilda's Lair",    "Gobi's Valley",    "Click Clock Wood",
+    "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
 };
 
 std::vector<std::string> abilityNameList = {
@@ -46,6 +50,14 @@ std::vector<std::tuple<item_e, std::string, int32_t>> ammoDetailList = {
     { ITEM_D_EGGS, "Blue Eggs", DEFAULT_MAX_EGGS },
     { ITEM_F_RED_FEATHER, "Red Feathers", DEFAULT_MAX_RED_FEATHERS },
     { ITEM_10_GOLD_FEATHER, "Gold Feathers", DEFAULT_MAX_GOLD_FEATHERS },
+};
+
+std::unordered_map<int32_t, int32_t> progressToLevelMap = {
+    { FILEPROG_31_MM_OPEN, LEVEL_1_MUMBOS_MOUNTAIN },      { FILEPROG_32_TTC_OPEN, LEVEL_2_TREASURE_TROVE_COVE },
+    { FILEPROG_33_CC_OPEN, LEVEL_3_CLANKERS_CAVERN },      { FILEPROG_34_BGS_OPEN, LEVEL_4_BUBBLEGLOOP_SWAMP },
+    { FILEPROG_35_FP_OPEN, LEVEL_5_FREEZEEZY_PEAK },       { FILEPROG_36_GV_OPEN, LEVEL_7_GOBIS_VALLEY },
+    { FILEPROG_37_MMM_OPEN, LEVEL_A_MAD_MONSTER_MANSION }, { FILEPROG_38_RBB_OPEN, LEVEL_9_RUSTY_BUCKET_BAY },
+    { FILEPROG_39_CCW_OPEN, LEVEL_8_CLICK_CLOCK_WOOD },
 };
 
 void SaveEditor_DrawAbilityUnlocks() {
@@ -72,7 +84,7 @@ void SaveEditor_DrawWorldUnlocks() {
         for (int i = FILEPROG_31_MM_OPEN; i < FILEPROG_39_CCW_OPEN; i++) {
             ImGui::PushID(i);
             bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
-            std::string worldName = "Unlock " + worldNameList[i - FILEPROG_31_MM_OPEN];
+            std::string worldName = "Unlock " + worldNameList[progressToLevelMap.at(i) - 1];
             if (UIWidgets::Checkbox(worldName.c_str(), &isUnlocked)) {
                 if (fileProgressFlag_get((file_progress_e)i)) {
                     fileProgressFlag_set((file_progress_e)i, false);
@@ -176,50 +188,64 @@ void SaveEditor_DrawGeneralTab() {
 
 void SaveEditor_DrawProgressTab() {
     if (ImGui::BeginChild("ProgressChild")) {
-        
-        ImGui::SeparatorText("Mumbo's Mountain");
-        if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
-            ImGui::TableNextColumn();
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        int32_t combId = 1;
+        for (int l = LEVEL_1_MUMBOS_MOUNTAIN; l <= LEVEL_B_SPIRAL_MOUNTAIN; l++) {
+            int32_t jiggyId = JIGGY_ID_MULTIPLIER(l);
 
-            ImGui::Text("Jiggies");
-            ImGui::TableNextColumn();
-            for (int i = JIGGY_01_MM_JINJO; i <= JIGGY_A_MM_CONGA; i++) {
-                std::string labelStr = "##jiggy" + std::to_string(i);
-                bool isCollected = jiggyscore_isCollected((jiggy_e)i);
-                int32_t curJiggyCount = item_getCount(ITEM_26_JIGGY_TOTAL);
+            ImGui::SeparatorText(worldNameList[l - 1].c_str());
+            if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
+                ImGui::TableNextColumn();
 
-                ImGui::SameLine();
-                if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
-                                        { .labelPosition = UIWidgets::LabelPositions::None })) {
-                    if (jiggyscore_isCollected((jiggy_e)i)) {
-                        jiggyscore_setCollected(i, false);
-                        item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount - 1));
-                    } else {
-                        jiggyscore_setCollected(i, true);
-                        item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount + 1));
+                if (l != LEVEL_B_SPIRAL_MOUNTAIN) {
+                    ImGui::Text("Jiggies");
+                    ImGui::TableNextColumn();
+                    for (int i = jiggyId; i <= (jiggyId + 9); i++) {
+                        std::string labelStr = "##jiggy" + std::to_string(i);
+                        bool isCollected = jiggyscore_isCollected((jiggy_e)i);
+                        int32_t curJiggyCount = item_getCount(ITEM_26_JIGGY_TOTAL);
+
+                        ImGui::SameLine();
+                        if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
+                                                { .labelPosition = UIWidgets::LabelPositions::None })) {
+                            if (jiggyscore_isCollected((jiggy_e)i)) {
+                                jiggyscore_setCollected(i, false);
+                                item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount - 1));
+                            } else {
+                                jiggyscore_setCollected(i, true);
+                                item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount + 1));
+                            }
+                        }
+                    }
+                } else {
+                    ImGui::TableNextColumn();
+                }
+
+                ImGui::TableNextColumn();
+                if (l != LEVEL_6_LAIR) {
+                    ImGui::Text("Honeycombs");
+                    ImGui::TableNextColumn();
+                    int32_t maxHoneycombs = l == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
+                    for (int i = 1; i <= (maxHoneycombs - 1); i++) {
+                        std::string labelStr = "##comb" + std::to_string(combId);
+                        bool isCollected = honeycombscore_get((honeycomb_e)combId);
+
+                        ImGui::SameLine();
+                        if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
+                                                { .labelPosition = UIWidgets::LabelPositions::None })) {
+                            if (honeycombscore_get((honeycomb_e)combId)) {
+                                honeycombscore_set((honeycomb_e)combId, false);
+                            } else {
+                                honeycombscore_set((honeycomb_e)combId, true);
+                            }
+                        }
+                        combId++;
                     }
                 }
+                ImGui::EndTable();
             }
-
-            ImGui::TableNextColumn();
-            ImGui::Text("Empty Honeycombs");
-            ImGui::TableNextColumn();
-            for (int i = HONEYCOMB_1_MM_HILL; i <= HONEYCOMB_2_MM_JUJU; i++) {
-                std::string labelStr = "##comb" + std::to_string(i);
-                bool isCollected = honeycombscore_get((honeycomb_e)i);
-
-                ImGui::SameLine();
-                if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
-                                        { .labelPosition = UIWidgets::LabelPositions::None })) {
-                    if (honeycombscore_get((honeycomb_e)i)) {
-                        honeycombscore_set((honeycomb_e)i, false);
-                    } else {
-                        honeycombscore_set((honeycomb_e)i, true);
-                    }
-                }
-            }
-            ImGui::EndTable();
         }
+        ImGui::PopStyleVar(1);
 
         ImGui::EndChild();
     }
