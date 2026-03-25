@@ -128,13 +128,19 @@ struct WorldDef {
 };
 
 static const WorldDef kWorlds[] = {
-    //           lvl  jig_s jig_c  hc_s hc_c  mt_s mt_c  note  time
-    { "MM", 1, 1, 10, 1, 2, 1, 5, true, true },      { "TTC", 2, 11, 10, 3, 2, 6, 10, true, true },
-    { "CC", 3, 21, 10, 5, 2, 16, 5, true, true },    { "BGS", 4, 31, 10, 7, 2, 21, 10, true, true },
-    { "FP", 5, 41, 10, 9, 2, 31, 10, true, true },   { "LAIR", 6, 51, 10, 0, 0, 81, 10, false, true },
-    { "GV", 7, 61, 10, 11, 2, 41, 10, true, true },  { "CCW", 8, 71, 10, 13, 2, 91, 25, true, true },
-    { "RBB", 9, 81, 10, 15, 2, 66, 15, true, true }, { "MMM", 10, 91, 10, 17, 2, 51, 15, true, true },
-    { "SM", 11, 0, 0, 19, 6, 0, 0, false, true },    { "BOSS", 12, 0, 0, 0, 0, 0, 0, false, false },
+    //      lvl  jig_s jig_c  hc_s hc_c  mt_s mt_c  note  time
+    { "SM",   11,  0,  0, 19, 6,  0,  0, false, true  },
+    { "MM",    1,  1, 10,  1, 2,  1,  5, true,  true  },
+    { "TTC",   2, 11, 10,  3, 2,  6, 10, true,  true  },
+    { "CC",    3, 21, 10,  5, 2, 16,  5, true,  true  },
+    { "BGS",   4, 31, 10,  7, 2, 21, 10, true,  true  },
+    { "FP",    5, 41, 10,  9, 2, 31, 10, true,  true  },
+    { "GV",    7, 61, 10, 11, 2, 41, 10, true,  true  },
+    { "MMM",  10, 91, 10, 17, 2, 51, 15, true,  true  },
+    { "RBB",   9, 81, 10, 15, 2, 66, 15, true,  true  },
+    { "CCW",   8, 71, 10, 13, 2, 91, 25, true,  true  },
+    { "LAIR",  6, 51, 10,  0, 0, 81, 10, false, true  },
+    { "FINALE", 12,  0,  0,  0, 0,  0,  0, false, false },
 };
 static constexpr int kWorldCount = sizeof(kWorlds) / sizeof(kWorlds[0]);
 
@@ -239,15 +245,15 @@ static const FlagDef kProgressFlags[] = {
     // ── LAIR: CCW puzzle podium ──
     { 0x53, 1, "CCW_PUZZLE_PODIUM_SWITCH_PRESSED", "LAIR" },
     { 0x54, 1, "CCW_PUZZLE_PODIUM_ACTIVE", "LAIR" },
-    // ── BOSS: Furnace Fun ──
-    { 0x55, 1, "FF_BK_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x56, 1, "FF_PICTURE_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x57, 1, "FF_MUSIC_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x58, 1, "FF_MINIGAME_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x59, 1, "FF_GRUNTY_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x5A, 1, "FF_DEATH_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x5B, 1, "FF_JOKER_SQUARE_INSTRUCTIONS", "BOSS" },
-    { 0x5C, 1, "FF_PATTERN_SET", "BOSS" },
+    // ── FINALE: Furnace Fun ──
+    { 0x55, 1, "FF_BK_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x56, 1, "FF_PICTURE_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x57, 1, "FF_MUSIC_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x58, 1, "FF_MINIGAME_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x59, 1, "FF_GRUNTY_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x5A, 1, "FF_DEATH_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x5B, 1, "FF_JOKER_SQUARE_INSTRUCTIONS", "FINALE" },
+    { 0x5C, 1, "FF_PATTERN_SET", "FINALE" },
     // ── LAIR: puzzle pieces placed (set at puzzle podiums) ──
     { 0x5D, 1, "MM_PUZZLE_PIECES_PLACED", "LAIR" },
     { 0x5E, 2, "TTC_PUZZLE_PIECES_PLACED", "LAIR" },
@@ -307,8 +313,8 @@ static const FlagDef kProgressFlags[] = {
     { 0xA4, 1, "GV_SNS_SARCOPHAGUS_OPEN", "GV" },
     // ── LAIR ──
     { 0xA5, 1, "LAIR_CRYPT_GATE_OPEN", "LAIR" },
-    // ── BOSS ──
-    { 0xA6, 1, "FURNACE_FUN_COMPLETE", "BOSS" },
+    // ── FINALE ──
+    { 0xA6, 1, "FURNACE_FUN_COMPLETE", "FINALE" },
     // ── LAIR ──
     { 0xA7, 1, "NEAR_PUZZLE_PODIUM_TEXT", "LAIR" },
     // ── General ──
@@ -360,11 +366,11 @@ static const FlagDef kProgressFlags[] = {
     { 0xCC, 1, "LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN", "LAIR" },
     { 0xCD, 1, "GRATE_TO_WATER_SWITCH_3_OPEN", "LAIR" },
     { 0xCE, 1, "GRATE_TO_MMM_PUZZLE_OPEN", "LAIR" },
-    // ── BOSS ──
-    { 0xCF, 1, "HAS_ENTERED_FINAL_FIGHT", "BOSS" },
-    { 0xD1, 1, "HAS_ACTIVATED_A_JINJO_STATUE_IN_FINAL_FIGHT", "BOSS" },
-    { 0xD2, 1, "HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT", "BOSS" },
-    { 0xD3, 8, "FF_PATTERN", "BOSS" },
+    // ── FINALE ──
+    { 0xCF, 1, "HAS_ENTERED_FINAL_FIGHT", "FINALE" },
+    { 0xD1, 1, "HAS_ACTIVATED_A_JINJO_STATUE_IN_FINAL_FIGHT", "FINALE" },
+    { 0xD2, 1, "HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT", "FINALE" },
+    { 0xD3, 8, "FF_PATTERN", "FINALE" },
     // ── SM ──
     { 0xDB, 1, "SKIPPED_TUTORIAL", "SM" },
     // ── General ──
@@ -399,8 +405,8 @@ static const FlagDef kProgressFlags[] = {
     { 0xF2, 1, "HEALED_BY_BRENTILDA_10", "LAIR" },
     // ── LAIR ──
     { 0xF3, 1, "MET_DINGPOT", "LAIR" },
-    // ── BOSS ──
-    { 0xF4, 1, "ENTER_FF_CUTSCENE", "BOSS" },
+    // ── FINALE ──
+    { 0xF4, 1, "ENTER_FF_CUTSCENE", "FINALE" },
     // ── LAIR ──
     { 0xF5, 1, "COMPLETED_A_WARP_CAULDRON_SET", "LAIR" },
     { 0xF6, 1, "SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM", "LAIR" },
@@ -409,8 +415,8 @@ static const FlagDef kProgressFlags[] = {
     { 0xF8, 2, "KING_SANDYBUTT_PYRAMID_STATE", "GV" },
     // ── General ──
     { 0xFA, 1, "UNKNOWN_FA", nullptr },
-    // ── BOSS ──
-    { 0xFC, 1, "DEFEAT_GRUNTY", "BOSS" },
+    // ── FINALE ──
+    { 0xFC, 1, "DEFEAT_GRUNTY", "FINALE" },
     // ── Cheats: Sandcastle cheat codes (entered in TTC's sandcastle) ──
     { 0xFD, 2, "BANNED_CHEATCODES_ENTERED", "CHEATS" },
     { 0xFF, 1, "SANDCASTLE_OPEN_DOOR_TWO", "CHEATS" },
