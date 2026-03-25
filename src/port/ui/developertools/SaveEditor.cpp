@@ -130,7 +130,7 @@ void SaveEditor_DrawUnlocks() {
             }
             ImGui::EndTable();
         }
-        
+
         ImGui::EndChild();
     }
 }
@@ -144,7 +144,7 @@ void SaveEditor_DrawGeneralTab() {
             ImGui::TableNextColumn();
             int32_t curHealth = item_getCount(ITEM_14_HEALTH);
             int32_t maxHealth = item_getCount(ITEM_15_HEALTH_TOTAL);
-            
+
             if (UIWidgets::SliderInt("curHealth", &curHealth,
                                      {
                                          .format = "Current: %i",
@@ -193,43 +193,43 @@ void SaveEditor_DrawGeneralTab() {
         }
 
         ImGui::SeparatorText("Ammo");
-            for (auto& [id, name, value] : ammoDetailList) {
-                int32_t curAmmo = item_getCount(id);
-                int32_t cheatoValue = ((id - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS);
-                bool isCheato = fileProgressFlag_get((file_progress_e)cheatoValue);
+        for (auto& [id, name, value] : ammoDetailList) {
+            int32_t curAmmo = item_getCount(id);
+            int32_t cheatoValue = ((id - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS);
+            bool isCheato = fileProgressFlag_get((file_progress_e)cheatoValue);
 
-                ImGui::PushID(id);
-                ImGui::Text(name.c_str());
-                if (ImGui::BeginTable("PlayerAmmo", 2)) {
-                    ImGui::TableNextColumn();
-                    if (UIWidgets::Checkbox("Enable Cheato", &isCheato)) {
-                        if (fileProgressFlag_get((file_progress_e)cheatoValue)) {
-                            fileProgressFlag_set((file_progress_e)cheatoValue, false);
-                            if (item_getCount(id) > value) {
-                                item_set(id, value);
-                            }
-                        } else {
-                            fileProgressFlag_set((file_progress_e)cheatoValue, true);
+            ImGui::PushID(id);
+            ImGui::Text(name.c_str());
+            if (ImGui::BeginTable("PlayerAmmo", 2)) {
+                ImGui::TableNextColumn();
+                if (UIWidgets::Checkbox("Enable Cheato", &isCheato)) {
+                    if (fileProgressFlag_get((file_progress_e)cheatoValue)) {
+                        fileProgressFlag_set((file_progress_e)cheatoValue, false);
+                        if (item_getCount(id) > value) {
+                            item_set(id, value);
                         }
+                    } else {
+                        fileProgressFlag_set((file_progress_e)cheatoValue, true);
                     }
-                    ImGui::TableNextColumn();
-                    if (UIWidgets::SliderInt(
-                            name.c_str(), &curAmmo,
-                            {
-                                .format = "%i",
-                                .min = 0,
-                                .max = fileProgressFlag_get((file_progress_e)cheatoValue) ? (value * 2) : value,
-                                .clamp = true,
-                                .labelPosition = UIWidgets::LabelPositions::None,
-                                .color = THEME_COLOR,
-                            })) {
-                        item_set(id, curAmmo);
-                    }
-                    ImGui::EndTable();
                 }
-                ImGui::Separator();
-                ImGui::PopID();
+                ImGui::TableNextColumn();
+                if (UIWidgets::SliderInt(
+                        name.c_str(), &curAmmo,
+                        {
+                            .format = "%i",
+                            .min = 0,
+                            .max = fileProgressFlag_get((file_progress_e)cheatoValue) ? (value * 2) : value,
+                            .clamp = true,
+                            .labelPosition = UIWidgets::LabelPositions::None,
+                            .color = THEME_COLOR,
+                        })) {
+                    item_set(id, curAmmo);
+                }
+                ImGui::EndTable();
             }
+            ImGui::Separator();
+            ImGui::PopID();
+        }
 
         ImGui::EndChild();
     }
