@@ -59,7 +59,7 @@ void func_8038FF54(Actor *this){
                 anctrl_setStart(this->anctrl, anctrl_getAnimTimer(other->anctrl));
                 anctrl_setDuration(this->anctrl, anctrl_getDuration(other->anctrl));
                 anctrl_setSmoothTransition(this->anctrl, false);
-                anctrl_start(this->anctrl, "chwozzasjig.c", 0x87);
+                anctrl_start(this->anctrl, "wozzasjig.c", 0x87);
                 this->position[0] = other->position[0];
                 this->position[1] = other->position[1];
                 this->position[2] = other->position[2];
