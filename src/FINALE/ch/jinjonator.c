@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "fight.h"
+#include "../fight.h"
 
 extern void func_80324CFC(f32, s32, s32);
 extern void func_802F9E44(s32, f32, f32, f32, f32);

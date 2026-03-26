@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "fight.h"
+#include "../fight.h"
 
 ActorInfo chBossShadow = { MARKER_288_GRUNTY_SHADOW, ACTOR_3AF_GRUNTY_SHADOW, ASSET_3BF_MODEL_PLAYER_SHADOW, 1, NULL, chBossShadow_update, actor_update_func_80326224, chBossShadow_draw, 0, 0, 0.0f, 0 };
 
