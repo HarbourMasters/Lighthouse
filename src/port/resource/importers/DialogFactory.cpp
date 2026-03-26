@@ -190,17 +190,21 @@ ResourceFactoryBinaryBKGruntyQuestionV0::ReadResource(std::shared_ptr<Ship::File
     out.push_back(0x00);
 
     const uint32_t textCount = reader->ReadUInt32();
+
+    std::vector<std::pair<uint8_t, std::string>> texts;
+    for (uint32_t i = 0; i < textCount; i++) {
+        const uint8_t cmd = reader->ReadUByte();
+        const uint32_t len = reader->ReadUInt32();
+        texts.emplace_back(cmd, ReadSizedString(reader, len));
+    }
+
     const uint32_t optionCount = reader->ReadUInt32();
     const uint32_t totalCount = textCount + optionCount;
     out.push_back(static_cast<uint8_t>(totalCount));
 
-    for (uint32_t i = 0; i < textCount; i++) {
-        const uint8_t cmd = reader->ReadUByte();
-        const uint32_t len = reader->ReadUInt32();
-        const auto str = ReadSizedString(reader, len);
-
+    for (const auto& [cmd, str] : texts) {
         out.push_back(cmd);
-        out.push_back(static_cast<uint8_t>(len));
+        out.push_back(static_cast<uint8_t>(str.size()));
         AppendBytes(out, str.data(), str.size());
     }
 

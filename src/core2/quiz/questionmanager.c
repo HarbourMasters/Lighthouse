@@ -294,6 +294,7 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
     quiz_question_bin_unk0 = *(char_iter++); // NEXT
     quiz_question_bin_unk1 = *(char_iter++); // NEXT
     quiz_question_bin_unk2 = *(char_iter++); // NEXT
+
     first_answer_cmd = ((quiz_question_bin_unk1 >= 2) ? __gcquiz_func_80318F60(q_type, q_index, arg2) : 0) + 1;
     // is sound question or quiz_question_bin_unk2 == 0
     if (((quiz_question_bin_unk2 == 0) || (__gcquiz_isSoundQuestion(q_type) != false)) != false) {
@@ -344,6 +345,7 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
         }
         char_iter += option_text; // SKIP
     }
+
     return true;
 }
 
