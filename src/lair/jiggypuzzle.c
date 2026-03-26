@@ -418,7 +418,7 @@ void lair_func_8038F924(Actor *this) {
     s32 sp7C[6]; //buttons
     s32 phi_v1;
     s32 phi_a0;
-    s32 sp6C[2]; //joystick
+    s32 sp6C[3]; //joystick
     f32 sp68;
     s32 sp64;
   

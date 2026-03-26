@@ -29,7 +29,7 @@ f32 D_80381EBC;
 s32 D_80381EC0;
 s32 D_80381EC4;
 char code_78E50_ItemValueString[8];
-struct7s D_80381ED0;
+struct8s D_80381ED0;
 
 /* .code */
 s32 func_802FFDE0(s32 arg0){
@@ -42,7 +42,7 @@ s32 func_802FFE04(void){
     return (5 - v1)*4;
 }
 
-struct7s *fxlifescore_new(s32 item_id){
+struct8s *fxlifescore_new(s32 item_id){
     s32 i;
 
     D_80381EB8 = 1.0f;

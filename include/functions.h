@@ -160,7 +160,7 @@ void fxjinjoscore_update(enum item_e, struct8s *);
 void fxjinjoscore_draw(s32, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxjinjoscore_free(enum item_e, struct8s *);
 
-struct7s *fxlifescore_new(s32);
+struct8s *fxlifescore_new(s32);
 void fxlifescore_update(enum item_e, struct8s *);
 void fxlifescore_draw(enum item_e, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxlifescore_free(s32, struct8s *);

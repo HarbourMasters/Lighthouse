@@ -91,10 +91,16 @@ BKSprite *func_8030A55C(s32 arg0){
 f32 func_8030A590(Prop *arg0){
     if(arg0->unk8_1){
         ModelProp* ModelProp = &arg0->modelProp;
+        if (D_80382390 == NULL || arg0->spriteProp.unk0_31 >= 0x2A2) {
+            return 0.0f;
+        }
         return D_80382390[arg0->spriteProp.unk0_31].unk8;
     }
     else{//L8030A65C
         SpriteProp *spriteProp = &arg0->spriteProp;
+        if (D_80382394 == NULL || spriteProp->unk0_31 >= 0x168) {
+            return 0.0f;
+        }
         return D_80382394[spriteProp->unk0_31].unkC;
     }
 }
@@ -102,10 +108,16 @@ f32 func_8030A590(Prop *arg0){
 void func_8030A5EC(Prop *arg0, f32 arg1){
     if(arg0->unk8_1){
         ModelProp* ModelProp = &arg0->modelProp;
+        if (D_80382390 == NULL || arg0->spriteProp.unk0_31 >= 0x2A2) {
+            return;
+        }
         D_80382390[arg0->spriteProp.unk0_31].unk8 = (f32)ModelProp->unkA*arg1/100.0f;
     }
     else{//L8030A65C
         SpriteProp *spriteProp = &arg0->spriteProp;
+        if (D_80382394 == NULL || spriteProp->unk0_31 >= 0x168) {
+            return;
+        }
         D_80382394[spriteProp->unk0_31].unkC = (f32)spriteProp->unk0_9*arg1/100.0f;
     }
 }

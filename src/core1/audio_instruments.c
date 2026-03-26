@@ -495,7 +495,10 @@ void func_8024FF34(void){
 }
 
 s32 func_80250034(s32 track_id){
-    return D_80275D40[track_id].unk4;
+    if (track_id >= 0 && track_id < 0xB0) {
+        return D_80275D40[track_id].unk4;
+    }
+    return 0;
 }
 
 void func_80250048(s32 track_id, u16 arg1){
