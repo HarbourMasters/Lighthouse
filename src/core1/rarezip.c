@@ -1,6 +1,6 @@
 #include <ultra64.h>
 #include "core1/core1.h"
-#include "port_prototypes.h"
+#include "functions.h"
 
 
 static int _rarezip_uncompress(u8 **arg0, u8 **arg1, struct huft * arg2);
