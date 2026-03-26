@@ -5,6 +5,7 @@
 #include "enums.h"
 
 #include <core2/file.h>
+#include "port/FrameInterpolation.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 
@@ -285,8 +286,13 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     u32 draw_dist;
     f32 draw_dist_f;
     f32 percentage;
+
+    // [port] Record which Mtx buffer range this actor produces for scoped interpolation.
+    FrameInterpolation_ScopeBegin(this, this->actrArrayIdx, *mtx);
+
     if(!this->unk3E_0){
         this->drawFunc(this, gfx, mtx, vtx);
+        FrameInterpolation_ScopeEnd(*mtx);
         return;
     }
     actor =  marker_getActor(this);
@@ -311,6 +317,8 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }//L8032D300
     func_8033A244(30000.0f);
     func_8033A280(1.0f);
+
+    FrameInterpolation_ScopeEnd(*mtx);
 }
 
 void func_8032D330(){
