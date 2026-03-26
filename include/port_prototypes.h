@@ -1621,7 +1621,7 @@ void func_802BC2CC(s32 arg0);
 void func_802BC434(f32 arg0[3], f32 arg1[3], f32 arg2[3]);
 void ncCamera_update(void);
 
-// --- src/core2/camera/camera_offset.c ---
+// --- src/core2/audio_trackmanager.c ---
 int func_80322914(void);
 s32 func_803226E8(enum map_e map_id);
 s32 func_8032274C(void);

@@ -222,13 +222,12 @@ s32 func_80322758(void){
 
 void func_80322764(void){
     D_80383348 = false;
-     D_80383340.unk0 = D_80383340.unk2 = D_80383340.unk4 = 0;
+    D_80383340.unk0 = D_80383340.unk2 = D_80383340.unk4 = 0;
 }
 
 void func_8032278C(s32 arg0, s32 arg1) {
     s32 temp_v0;
     static s32 D_8036E2B4 = 1;
-
 
     D_80383340.unk4 = func_803226BC(map_get());
     D_80383340.unk0 = func_803226E8(map_get());
