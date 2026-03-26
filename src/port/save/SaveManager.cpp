@@ -129,18 +129,12 @@ struct WorldDef {
 
 static const WorldDef kWorlds[] = {
     //      lvl  jig_s jig_c  hc_s hc_c  mt_s mt_c  note  time
-    { "SM",   11,  0,  0, 19, 6,  0,  0, false, true  },
-    { "MM",    1,  1, 10,  1, 2,  1,  5, true,  true  },
-    { "TTC",   2, 11, 10,  3, 2,  6, 10, true,  true  },
-    { "CC",    3, 21, 10,  5, 2, 16,  5, true,  true  },
-    { "BGS",   4, 31, 10,  7, 2, 21, 10, true,  true  },
-    { "FP",    5, 41, 10,  9, 2, 31, 10, true,  true  },
-    { "GV",    7, 61, 10, 11, 2, 41, 10, true,  true  },
-    { "MMM",  10, 91, 10, 17, 2, 51, 15, true,  true  },
-    { "RBB",   9, 81, 10, 15, 2, 66, 15, true,  true  },
-    { "CCW",   8, 71, 10, 13, 2, 91, 25, true,  true  },
-    { "LAIR",  6, 51, 10,  0, 0, 81, 10, false, true  },
-    { "FINALE", 12,  0,  0,  0, 0,  0,  0, false, false },
+    { "SM", 11, 0, 0, 19, 6, 0, 0, false, true },     { "MM", 1, 1, 10, 1, 2, 1, 5, true, true },
+    { "TTC", 2, 11, 10, 3, 2, 6, 10, true, true },    { "CC", 3, 21, 10, 5, 2, 16, 5, true, true },
+    { "BGS", 4, 31, 10, 7, 2, 21, 10, true, true },   { "FP", 5, 41, 10, 9, 2, 31, 10, true, true },
+    { "GV", 7, 61, 10, 11, 2, 41, 10, true, true },   { "MMM", 10, 91, 10, 17, 2, 51, 15, true, true },
+    { "RBB", 9, 81, 10, 15, 2, 66, 15, true, true },  { "CCW", 8, 71, 10, 13, 2, 91, 25, true, true },
+    { "LAIR", 6, 51, 10, 0, 0, 81, 10, false, true }, { "FINALE", 12, 0, 0, 0, 0, 0, 0, false, false },
 };
 static constexpr int kWorldCount = sizeof(kWorlds) / sizeof(kWorlds[0]);
 
