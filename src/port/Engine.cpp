@@ -27,6 +27,7 @@
 #include "2.0L/PR/libaudio.h"
 // #include "port/patches/DisplayListPatch.h"
 #include "port/enhancements/events/PortEnhancements.h"
+#include "libultraship/libultra/AudioDmaRegistry.h"
 
 #include <fast/interpreter.h>
 #include <libultraship/bridge/gfxbridge.h>
@@ -894,6 +895,7 @@ void GameEngine::Destroy() {
     // Flush all resource refs so destructors run while spdlog is still active.
     // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
     ResourceHelpers_ClearRefCache();
+    AudioDma_Clear();
     if (Instance->context && Instance->context->GetResourceManager()) {
         Instance->context->GetResourceManager()->UnloadResources("*");
     }
@@ -1020,6 +1022,7 @@ static void LoadSoundfonts() {
         if (res) {
             start = (uint8_t*)res->GetRawPointer();
             end = start + res->GetPointerSize();
+            AudioDma_Register(start, res->GetPointerSize());
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
@@ -1033,6 +1036,7 @@ static void LoadSoundfonts() {
         auto res = rm->LoadResource(path);
         if (res) {
             start = (uint8_t*)res->GetRawPointer();
+            AudioDma_Register(start, res->GetPointerSize());
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
