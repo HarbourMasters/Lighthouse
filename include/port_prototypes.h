@@ -19,7 +19,7 @@ typedef s32 (*FuncUnk40)(ActorMarker *, s32, f32[3]);
 // POINTER-RETURNING FUNCTIONS (crash without prototypes)
 // ============================================================
 
-// --- core2/camera/camera_interp.c ---
+// --- core2/prop_assetcache.c ---
 BKModelBin *func_8030A4B4(s32 arg0);
 BKSpriteDisplayData *func_8030A4D4(s32 arg0);
 BKSprite *func_8030A55C(s32 arg0);
