@@ -57,11 +57,13 @@ void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void 
             // 4:3: original tiles
             for(y = 0; y < gFramebufferHeight / 32 + 1; y++){
                 for(x = 0; x < gFramebufferWidth / 32 + 1; x++){
+                    s32 tx1 = MIN(0x20*(x + 1) - 1, gFramebufferWidth - 1);
+                    s32 ty1 = MIN(0x20*(y + 1) - 1, gFramebufferHeight - 1);
                     gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(frame_buffer_2), G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, gFramebufferHeight,
-                        0x20*x, 0x20*y, 0x20*(x + 1) - 1, 0x20*(y + 1) - 1,
+                        0x20*x, 0x20*y, tx1, ty1,
                         0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, 0, 0
                     );
-                    gSPScisTextureRectangle((*gfx)++, (0x20*x)*4, (0x20*y)*4, 0x20*(x + 1)*4, (0x20*(y + 1)*4),
+                    gSPScisTextureRectangle((*gfx)++, (0x20*x)*4, (0x20*y)*4, (tx1 + 1)*4, (ty1 + 1)*4,
                         G_TX_RENDERTILE, (0x20*x)<<5, (0x20*y)<<5, 0x400, 0x400
                     );
                 }
@@ -75,12 +77,12 @@ void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void 
                 for(x = 0; x < gFramebufferWidth / 32 + 1; x++){
                     s32 tx0 = 0x20 * x;
                     s32 ty0 = 0x20 * y;
-                    s32 tx1 = 0x20 * (x + 1);
-                    s32 ty1 = 0x20 * (y + 1);
+                    s32 tx1 = MIN(0x20 * (x + 1), gFramebufferWidth);
+                    s32 ty1 = MIN(0x20 * (y + 1), gFramebufferHeight);
                     s32 sx0 = fbHalfW + (tx0 - fbHalfW) * xScale100 / 100;
                     s32 sx1 = fbHalfW + (tx1 - fbHalfW) * xScale100 / 100;
                     s32 tileW = sx1 - sx0;
-                    s32 sScale = (tileW > 0) ? (32 * 0x400 / tileW) : 0x400;
+                    s32 sScale = (tileW > 0) ? ((tx1 - tx0) * 0x400 / tileW) : 0x400;
 
                     gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(frame_buffer_2), G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, gFramebufferHeight,
                         tx0, ty0, tx1 - 1, ty1 - 1,
