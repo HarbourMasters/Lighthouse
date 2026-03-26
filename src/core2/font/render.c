@@ -122,7 +122,7 @@ BKSpriteTextureBlock **func_802E4D8C(BKSprite *sprite) {
     s32 chunk_size;
 
     frame = sprite_getFramePtr(sprite, 0);
-    chunkPtrArray = (BKSpriteTextureBlock **)bk_malloc((frame->chunkCnt + 1)*sizeof(BKSpriteTextureBlock*)); // [port] was *4, pointers are 8 bytes on 64-bit
+    chunkPtrArray = (BKSpriteTextureBlock **)bk_malloc((frame->chunkCnt + 1)*sizeof(BKSpriteTextureBlock*));
     chunk = (BKSpriteTextureBlock *)(frame + 1);
     for (i = 0; i < frame->chunkCnt; i++) {
         chunkPtrArray[i] = chunk;

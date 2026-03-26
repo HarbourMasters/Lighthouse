@@ -16,7 +16,7 @@ extern bool bitfield_isBitSet(s32 *arg0, s32 arg1);
 extern void bitfield_setAll(s32 *arg0, bool arg1);
 extern void func_8032D510(Cube *, Gfx **, Mtx **, Vtx **);
 extern ActorProp *func_803322F0(Cube *, ActorMarker *, f32, s32, s32 *);
-extern BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4); // [port] missing prototype — implicit int return truncates 64-bit pointer
+extern BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
 extern BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 arg2[3], u32 flags);
 extern BKCollisionTri *func_80331638(Cube *cube, f32 volume_p1[3], f32 volume_p2[3], f32 radius, f32 arg2[3], s32, u32 flags);
 
@@ -666,7 +666,7 @@ static BKCollisionTri *__code7AF80_func_80303960(f32 volume_p1[3], f32 volume_p2
     return var_s5;
 }
 
-uintptr_t D_803820B8[0x20]; // [port] was s32[0x20] — stores ActorProp* pointers, truncated on 64-bit
+uintptr_t D_803820B8[0x20];
 u8 pad_80382138[4];
 s32 D_8038213C;
 
@@ -713,7 +713,7 @@ void func_80303C54(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *arg
                 }
             }
             if (phi_s0 != NULL) {
-                D_803820B8[*arg5] = (uintptr_t)phi_s0; // [port] cast ActorProp* to uintptr_t for storage
+                D_803820B8[*arg5] = (uintptr_t)phi_s0;
                 *arg5 += 1;
             }
         }
@@ -724,7 +724,7 @@ Cube *D_80382144;
 s32 D_80382148;
 s16 D_80382150[0x48];
 u32 D_803821E0[0x5B];
-void func_80303D78(ActorMarker *marker, f32 arg1, s32 arg2) { // [port] was UNK_TYPE(s32)
+void func_80303D78(ActorMarker *marker, f32 arg1, s32 arg2) {
     s32 sp6C[3];
     s32 sp60[3];
     s32 sp5C;
@@ -760,7 +760,7 @@ void func_80303F6C(s32 indx, s32 arg1){
 }
 
 ActorProp *func_80303F7C(ActorMarker *arg0, f32 arg1, s32 arg2, s32 arg3) {
-    uintptr_t temp_v1; // [port] was s32 — stores ActorProp* from D_803820B8, truncated on 64-bit
+    uintptr_t temp_v1;
     s32 phi_a0;
     // This matches without a pointer by using a function static, but
     // triggers tricky bss reordering.
@@ -1169,7 +1169,7 @@ s32 func_8030508C(s32 arg0, f32 arg1[3], s32 arg2) {
     return phi_s1;
 }
 
-bool func_8030515C(f32 arg0[3], s32 arg1, f32 *arg2, f32 (*arg3)(f32[3], f32[3])) { // [port] arg2 was s32 — it's a f32* position
+bool func_8030515C(f32 arg0[3], s32 arg1, f32 *arg2, f32 (*arg3)(f32[3], f32[3])) {
     f32 sp50[20][3];
     f32 phi_f20;
     s32 phi_s1;
@@ -1196,11 +1196,11 @@ bool func_8030515C(f32 arg0[3], s32 arg1, f32 *arg2, f32 (*arg3)(f32[3], f32[3])
 
 }
 
-bool func_80305248(f32 arg0[3], s32 arg1, f32 *arg2){ // [port] arg2 was s32
+bool func_80305248(f32 arg0[3], s32 arg1, f32 *arg2){
     return func_8030515C(arg0, arg1, arg2, ml_distanceSquared_vec3f);
 }
 
-bool func_8030526C(f32 arg0[3], s32 arg1, f32 *arg2){ // [port] arg2 was s32
+bool func_8030526C(f32 arg0[3], s32 arg1, f32 *arg2){
     return func_8030515C(arg0, arg1, arg2, ml_vec3f_horizontal_distance_squared_zero_likely);
 }
 
@@ -1922,7 +1922,7 @@ s32 func_80307504(f32 arg0[3], s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     else{
         if( (var_s0->unk10_3 & arg4))
             if( ((var_s0->unk10_3 & 2) || (!(max < var_s0->position[1]) && (min < var_s0->position[1]))))
-                if (ml_vec3w_within_horizontal_distance(sp4C, var_s0->position, var_s0->radius)) // [port] pass array directly (decays to s32*)
+                if (ml_vec3w_within_horizontal_distance(sp4C, var_s0->position, var_s0->radius))
                     return arg2;
     }
 
@@ -1930,7 +1930,7 @@ s32 func_80307504(f32 arg0[3], s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         for(var_s0 = temp_s1->unk8; var_s0 < temp_s1->unk8 + temp_s1->count; var_s0++){
             if (var_s0->unk10_3 & arg4)
                 if (!(max < var_s0->position[1]) && (min < var_s0->position[1]))
-                    if (ml_vec3w_within_horizontal_distance(sp4C, var_s0->position, var_s0->radius)) // [port] pass array directly (decays to s32*)
+                    if (ml_vec3w_within_horizontal_distance(sp4C, var_s0->position, var_s0->radius))
                         return (var_s0 - temp_s1->unk8);
         }
     }
@@ -1938,7 +1938,7 @@ s32 func_80307504(f32 arg0[3], s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         for(var_s0 = temp_s1->unk8; var_s0 < temp_s1->unk8 + temp_s1->count; var_s0++){
             if ((var_s0->unk10_3 & arg4))
                 if(((var_s0->unk10_3 & 2) || (!(max < var_s0->position[1]) && (min < var_s0->position[1]))))
-                    if (ml_vec3w_within_horizontal_distance(sp4C, var_s0->position, var_s0->radius)) // [port] pass array directly (decays to s32*)
+                    if (ml_vec3w_within_horizontal_distance(sp4C, var_s0->position, var_s0->radius))
                         return var_s0 - temp_s1->unk8;
         }
     }
@@ -2423,7 +2423,7 @@ static void __code7AF80_func_80308984(void) {
                     if(D_8036ABAC[i] != -1){
                         temp_s4 = D_8036ABD4;
                         __code7AF80_addCubeIndexToD_80382150(iCube - sCubeList.cubes);
-                        __code7AF80_addCubeIndexToD_80382150(0); // [port] was NULL — function takes s32, not pointer
+                        __code7AF80_addCubeIndexToD_80382150(0);
 
                         for(jCube = sCubeList.cubes; jCube < sCubeList.cubes + sCubeList.cubeCnt; jCube++){
                             for(jNode = jCube->prop1Ptr; jNode < jCube->prop1Ptr + jCube->prop1Cnt; jNode++){

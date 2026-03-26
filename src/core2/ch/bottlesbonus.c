@@ -176,7 +176,7 @@ Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     
     gDPSetTextureFilter((*gfx)++, G_TF_POINT);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp50));
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)sp6C); // [port] was (s32) — truncates pointer on 64-bit
+    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)sp6C);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
 
     modelRender_draw(gfx, mtx, sp60, NULL, D_80368250, sp54, marker_loadModelBin(marker));
@@ -358,7 +358,7 @@ void chBottlesBonus_func_802DD8AC(BoneTransformList *arg0, s32 arg1) {
                     D_8037DEC0[i].unk1C[1] = D_8037DEBC[i].unk1C[1];
                     D_8037DEC0[i].unk1C[2] = D_8037DEBC[i].unk1C[2];
                     vec4f_clone(D_8037DEC0[i].unkC, D_8037DEBC[i].unkC);
-                    chBottlesBonusCursor_func_802DF460(40 + i, chBottlesBonusMarker, (f32 *)D_803681A0); // [port] Struct_core2_560F0_0[] → f32*
+                    chBottlesBonusCursor_func_802DF460(40 + i, chBottlesBonusMarker, (f32 *)D_803681A0);
                     break;
 
                 case 3://L802DDF48
@@ -409,12 +409,12 @@ void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id) {
         func_80311714(1);
     }
     else{
-        timedFunc_set_1(1.25f, (GenFunction_1)func_8034BB08, 0); // [port]
+        timedFunc_set_1(1.25f, (GenFunction_1)func_8034BB08, 0);
     }
 }
 
 void chBottlesBonus_IncrementPuzzle(ActorMarker *caller, enum asset_e text_id, s32 arg2){
-    timedFunc_set_1(0.5f, (GenFunction_1)func_8034BB08, 1); // [port]
+    timedFunc_set_1(0.5f, (GenFunction_1)func_8034BB08, 1);
     chBottlesBonusPuzzleIndex++;
 }
 

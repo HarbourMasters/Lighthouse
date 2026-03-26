@@ -61,7 +61,7 @@ bool func_8028DFF0(s32 arg0, s32 position[3]) {
 
 bool func_8028E060(s32 arg0, s32 *arg1){
     if(arg0 >= 0x80){
-        *arg1 = func_802E4AD4(arg0); // [port] was func_802E4AD4() — decomp pattern, passes camera node index
+        *arg1 = func_802E4AD4(arg0);
         return true;
     }
     else{
@@ -908,7 +908,7 @@ void func_8028FB28(void){
     bacarry_reset_marker();
 }
 
-u32 func_8028FB48(u32 mask){ // [port] was void — MIPS implicit return from func_80294610
+u32 func_8028FB48(u32 mask){
     return func_80294610(mask);
 }
 

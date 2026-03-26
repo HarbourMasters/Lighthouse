@@ -17,7 +17,6 @@ bool AnimTextureListCache_tryGetTextureOffset(s32 list_index, s32 texture_index,
     temp_v0 = (AnimTextureList *)freelist_at(AnimTextureListCache, list_index);
     if (temp_v0->anim_texture_info[texture_index].frame_size != 0) {
         s32 frame = (s32)temp_v0->current_frame[texture_index];
-        // [port] Clamp frame index to valid range — FP drift can produce out-of-range values
         if (frame < 0) frame = 0;
         if (frame >= temp_v0->anim_texture_info[texture_index].frame_cnt)
             frame = temp_v0->anim_texture_info[texture_index].frame_cnt - 1;

@@ -5,11 +5,11 @@
 
 #include <bk_math.h>
 
-extern BKCollisionTri *func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32); // [port] was s32 — returns BKCollisionTri*, truncated on 64-bit
+extern BKCollisionTri *func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32);
 
 extern void func_80244F00(f32[3], f32, f32, s32, s32);
 
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32); // [port] was s32 — returns BKCollisionTri*, truncated on 64-bit
+extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 
 extern void func_80320ED8(ActorMarker *, f32, s32);
 
@@ -29,7 +29,7 @@ typedef struct {
     f32 unk1C[3];
     f32 unk28[3];
     f32 unk34[3];
-    BKCollisionTri *unk40; // [port] was s32 — stores BKCollisionTri* from func_80244E54
+    BKCollisionTri *unk40;
     f32 unk44[3];
     u8 pad50[0x3C];
     s32 unk8C;
@@ -92,16 +92,16 @@ f32 D_803833D8[3];
 bool func_8032BC90(Actor *actor, f32 arg1[3], s32 arg2, s32 arg3) {
     f32 sp44[3];
     bool sp40;
-    BKCollisionTri *phi_v0; // [port] was s32 — stores BKCollisionTri* from func_80320B98/func_80320DB0
+    BKCollisionTri *phi_v0;
     f32 sp30[3];
 
     sp40 = actor->marker->propPtr->unk8_3;
     func_8028E964(sp30);
 
     actor->marker->propPtr->unk8_3 = 0;
-    phi_v0 = func_80320B98(sp30, actor->position, sp44, actor->unk154); // [port] & removed from f32[3] args
-    if (phi_v0 == NULL) { // [port] was == 0
-        phi_v0 = func_80320DB0(actor->position, func_8033229C(actor->marker), sp44, actor->unk154); // [port] & removed from f32[3] arg
+    phi_v0 = func_80320B98(sp30, actor->position, sp44, actor->unk154);
+    if (phi_v0 == NULL) {
+        phi_v0 = func_80320DB0(actor->position, func_8033229C(actor->marker), sp44, actor->unk154);
     }
 
     actor->marker->propPtr->unk8_3 = sp40;
@@ -238,7 +238,7 @@ bool func_8032C2F0(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
     sp6C[0] = arg0->actor_specific_1_f;
     sp6C[1] = 0.0f;
     sp6C[2] = 0.0f;
-    guRotateRPYF(sp20, arg0->roll, 90.0f - arg0->yaw, arg0->pitch); // [port] sp20[0] -> sp20: f32[4][4] decays to f32(*)[4] matching parameter type
+    guRotateRPYF(sp20, arg0->roll, 90.0f - arg0->yaw, arg0->pitch);
     sp60[0] = (sp20[0][0] * sp6C[0]) + (sp20[0][1] * sp6C[1]) + (sp20[0][2] * sp6C[2]);
     sp60[1] = (sp20[1][0] * sp6C[0]) + (sp20[1][1] * sp6C[1]) + (sp20[1][2] * sp6C[2]);
     sp60[2] = (sp20[2][0] * sp6C[0]) + (sp20[2][1] * sp6C[1]) + (sp20[2][2] * sp6C[2]);

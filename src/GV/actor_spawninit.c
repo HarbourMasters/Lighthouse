@@ -272,7 +272,7 @@ void func_8038E648(Actor *this){
 }
 
 void func_8038E914(Actor *this){
-    func_80389F5C(); // [port] decomp passed Actor* but actual def is (void)
+    func_80389F5C();
     if(!this->initialized){
         func_802D3D74(this);
         this->initialized = true;
@@ -440,7 +440,7 @@ void func_8038F004(void){
     func_8025A6EC(SFX_2D_KABOING, 0x7fff);
 }
 
-void func_8038F028(NodeProp *arg0, ActorMarker *arg1, s32 arg2, s32 arg3){ // [port] was UNK_TYPE(s32)
+void func_8038F028(NodeProp *arg0, ActorMarker *arg1, s32 arg2, s32 arg3){
     f32 sp24[3];
     s16 *tmp_v1;
 
@@ -459,11 +459,11 @@ void func_8038F028(NodeProp *arg0, ActorMarker *arg1, s32 arg2, s32 arg3){ // [p
     func_80353580(arg1);
 }
 
-void func_8038F10C(NodeProp *arg0, ActorMarker *arg1){ // [port] was UNK_TYPE(s32)
+void func_8038F10C(NodeProp *arg0, ActorMarker *arg1){
     func_8038F028(arg0, arg1, 0, 1); //JINXY egg flags?
 }
 
-void func_8038F130(NodeProp *arg0, ActorMarker *arg1){ // [port] was UNK_TYPE(s32)
+void func_8038F130(NodeProp *arg0, ActorMarker *arg1){
     func_8038F028(arg0, arg1, 1, 0); //JINXY egg flags?
 }
 

@@ -97,8 +97,8 @@ static void _bnkfPatchBank(ALBank *bank, uintptr_t offset, uintptr_t table)
 
 void alBnkfNew(ALBankFile *file, u8 *table)
 {
-    uintptr_t offset = (uintptr_t) file; // [port] pointer-width offset for patching
-    uintptr_t woffset = (uintptr_t) table; // [port] pointer-width offset for patching
+    uintptr_t offset = (uintptr_t) file;
+    uintptr_t woffset = (uintptr_t) table;
     
     s32 i;
     

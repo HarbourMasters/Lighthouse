@@ -12,7 +12,7 @@ void func_802F7BC0(Gfx **gdl, Mtx **mptr, Vtx **vptr){
         func_802F8A90(D_80381030, gdl, mptr, vptr);
     }
     if(D_80381034){
-        func_802F8110(D_80381034, gdl, mptr, (u32)(uintptr_t)vptr); // [port] Vtx** to u32 — function stores it as opaque handle
+        func_802F8110(D_80381034, gdl, mptr, (u32)(uintptr_t)vptr);
     }
     func_802F962C(gdl, mptr, vptr);
 }

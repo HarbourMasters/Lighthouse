@@ -4,7 +4,7 @@
 
 /* .code */
 void func_80388CF0(void){
-    Struct70s *tmp_s70; // [port]
+    Struct70s *tmp_s70;
     if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
         // [port] Split dereference from null check — &NULL->member is UB
         tmp_s70 = func_8034C528(0x1F2);

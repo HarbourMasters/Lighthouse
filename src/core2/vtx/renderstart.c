@@ -266,7 +266,7 @@ void func_8034E254(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)){
     arg0->unkC = arg1;
 }
 
-void func_8034E25C(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)){ // [port] was void (*)(void), matches unk10 field type
+void func_8034E25C(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)){
     arg0->unk10 = arg1;
 }
 

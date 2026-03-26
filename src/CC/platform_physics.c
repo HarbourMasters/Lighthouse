@@ -12,12 +12,11 @@ extern void func_8030EA54(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4
 extern void func_8031CE28(s32, s32, f32);
 void timed_exitStaticCamera(f32);
 extern BKCollisionTri *func_802E805C(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32[3], u32);
-extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]); // [port] was s32 first param
+extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]);
 extern BKCollisionTri *func_802E9118(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3], s32, s32);
-extern BKCollisionTri *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], f32 *, f32, f32[3], f32, f32[3], s32); // [port] was (s32, f32, s32, f32, s32, s32) — params 4,6,8 are pointers, truncated on 64-bit
-extern int func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]); // [port] was s32 first param
+extern BKCollisionTri *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], f32 *, f32, f32[3], f32, f32[3], s32);
+extern int func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
 
-// [port] Fixed pointer-truncating prototypes (were all s32 first arg)
 extern void boneTransformList_getBoneScale(BoneTransformList *, s32, f32[3]);
 extern void boneTransformList_setBoneScale(BoneTransformList *, s32, f32[3]);
 extern void func_8033A9A8(BoneTransformList *, s32, f32[3]);
@@ -34,12 +33,12 @@ f32 D_80389C24[3] = {4000.0f, 3500.0f, 0.0f};
 
 /* .bss */
 struct {
-    SkeletalAnimation *unk0; // [port] was s32 — stores SkeletalAnimation*
+    SkeletalAnimation *unk0;
     u8 sfxsourceIdx;
     //u8 pad5[0x3];
     f32 unk8;
     f32 unkC[3];
-    Struct83s *unk18; // [port] was s32 — stores Struct83s*
+    Struct83s *unk18;
     BKCollisionList *unk1C;
     u8 unk20;
     u8 unk21;
@@ -59,21 +58,21 @@ struct {
     f32 unk54;
 }D_80389FA0;
 
-BKCollisionTri *__code1F70_func_80388360(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3){ // [port] was s32 params
+BKCollisionTri *__code1F70_func_80388360(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3){
     BKCollisionTri *out_v0;
 
     out_v0 = func_802E805C(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3);
     if(out_v0 && func_8029453C()){
-        func_80340200(D_80389FA0.unk18, D_80389FA0.unk28, 0, 1.0f, 0, out_v0->unk0, D_80389FA0.unk40, arg1); // [port] BKCollisionTri* → s16[3] via first member
+        func_80340200(D_80389FA0.unk18, D_80389FA0.unk28, 0, 1.0f, 0, out_v0->unk0, D_80389FA0.unk40, arg1);
     }
     return out_v0;
 }
 
-void __code1F70_func_80388428(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5){ // [port] was s32 params
+void __code1F70_func_80388428(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5){
     func_802E9118(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3, arg4, arg5);
 }
 
-void func_803884A8(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3){ // [port] was s32 params
+void func_803884A8(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3){
     func_802E9DD8(D_80389FA0.unk1C, D_80389FA0.unk40, D_80389FA0.unk28, 0, 1.0f, arg0, arg1, arg2, arg3);
 }
 
@@ -131,7 +130,7 @@ void CC_func_8038868C(void) {
 
 void CC_func_80388760(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     BKVertexList *tmp_v0;
-    BoneTransformList *s1; // [port] was s32 — truncates 64-bit pointer
+    BoneTransformList *s1;
     f32 spA4[3];
     f32 sp98[3];
     int i;
@@ -212,7 +211,7 @@ void CC_func_80388760(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
-void func_80388B4C(f32 arg0[3]) { // [port] was s32 — pointer truncation
+void func_80388B4C(f32 arg0[3]) {
     func_8034A174(D_80389FA0.unk34, 5, arg0);
 }
 

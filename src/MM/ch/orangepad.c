@@ -6,7 +6,6 @@
 
 /* extern functions */
 void actor_update_func_80326224(Actor *);
-// [port] removed: void func_80329904 — now provided by port_prototypes.h as s32 return
 extern void func_802EFA20(ParticleEmitter *, f32, f32);
 
 /* public functions */

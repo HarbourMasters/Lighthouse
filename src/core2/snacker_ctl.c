@@ -91,12 +91,12 @@ static SnackerCtlState _snackerctl_update_bottles_bonus(void){
         if(__snackerctl_player_within_distance(183.0f, -100.0f, 75.0f)){
             if(chBottlesBonus_getPuzzleIndex() == 6){
                 if(!D_8037DCCC){
-                    func_8028F94C(4, D_80363610); // [port] f32(*)[3] → f32*: D_80363610 is already f32[3]
+                    func_8028F94C(4, D_80363610);
                     gcdialog_showText(SNACKER_BB_DIALOG_1, 0x6, D_80363610, NULL, func_8028A584, NULL);
                 }
             }//L8028A70C
             else if(chBottlesBonus_getPuzzleIndex() == 7){
-                func_8028F94C(4, D_80363610); // [port] f32(*)[3] → f32*: D_80363610 is already f32[3]
+                func_8028F94C(4, D_80363610);
                 gcdialog_showText(ASSET_E35_DIALOG_BOTTLES_BONUS_REMINDER, 0x6, D_80363610, NULL, func_8028A558, NULL);
                 D_8037DCCC = 1;
             }//L8028A764
@@ -106,7 +106,7 @@ static SnackerCtlState _snackerctl_update_bottles_bonus(void){
                     && (((D_8036361C[1] <= sp30[1])? (sp30[1] - D_8036361C[1]) : -(sp30[1] - D_8036361C[1])) < 20.0f)
                 ){
                     if(!D_8037DCCA){
-                        func_8028F94C(4, D_80363610); // [port] f32(*)[3] → f32*: D_80363610 is already f32[3]
+                        func_8028F94C(4, D_80363610);
                         gcdialog_showText(ASSET_E21_DIALOG_BOTTLES_BONUS_DISCOVERED, 6, D_80363610, 0, func_8028A584, NULL);
                         D_8037DCCA = 1;
                     }else{
@@ -116,7 +116,7 @@ static SnackerCtlState _snackerctl_update_bottles_bonus(void){
             }//L8028A86C
             else{
                 if(!D_8037DCCB){
-                    func_8028F94C(4, D_80363610); // [port] f32(*)[3] → f32*: D_80363610 is already f32[3]
+                    func_8028F94C(4, D_80363610);
                     gcdialog_showText(ASSET_E20_DIALOG_BOTTLES_BONUS_NOT_READY, 6, D_80363610, 0, func_8028A558, NULL);
                     D_8037DCCB = 1;
                 }

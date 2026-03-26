@@ -42,8 +42,8 @@ void __cameraNodeType2_setPitchYawRoll(CameraNodeType2 *this, f32 pitch_yaw_roll
 
 void cameraNodeType2_fromFile(File *file_ptr, CameraNodeType2 *this) {
     while(!file_isNextByteExpected(file_ptr, 0)) {
-        if(!file_getNFloats_ifExpected(file_ptr, 1, this->position, 3)) { // [port] &this->position -> this->position: f32[3] decays to f32*
-            file_getNFloats_ifExpected(file_ptr, 2, this->pitchYawRoll, 3); // [port] &this->pitchYawRoll -> this->pitchYawRoll: f32[3] decays to f32*
+        if(!file_getNFloats_ifExpected(file_ptr, 1, this->position, 3)) {
+            file_getNFloats_ifExpected(file_ptr, 2, this->pitchYawRoll, 3);
         }
     }
 }

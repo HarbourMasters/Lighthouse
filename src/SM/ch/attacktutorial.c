@@ -21,7 +21,7 @@ static void __chAttackTutorial_update(Actor *);
 
 /* .data */
 ActorInfo gChAttackTutorial = {
-    MARKER_12B_ATTACK_TUTORIAL, ACTOR_167_ATTACK_TUTORIAL, 0, // [port] was NULL
+    MARKER_12B_ATTACK_TUTORIAL, ACTOR_167_ATTACK_TUTORIAL, 0,
     1, NULL,
     __chAttackTutorial_update, actor_update_func_80326224, func_80325340,
     0, 0, 0.0f, 0
@@ -58,7 +58,7 @@ static s32 __chAttackTutorial_spawnEnemyActor(Actor *this, s32 already_killed_en
           : ACTOR_164_COLLYWOBBLE_THE_CAULIFLOWER_A;
     }
     
-    __spawnQueue_add_2((void (*)(void))__chAttackTutorial_spawnEnemyActorForMarker, (uintptr_t)this->marker, sp1C); // [port] explicit cast
+    __spawnQueue_add_2((void (*)(void))__chAttackTutorial_spawnEnemyActorForMarker, (uintptr_t)this->marker, sp1C);
     
 }
 

@@ -15,7 +15,7 @@ void glcrc_calc_checksum(void *start, void *end, u32 checksum[2]) {
     // CRC1: Iterate forwards over bytes
     for (p = (u8*)start; p < (u8*)end; p++) {
         seed += *p << (shift & 15);
-        tmp = func_8025C29C((u32 *)&seed); // [port] u64* to u32* - only reads low 32 bits
+        tmp = func_8025C29C((u32 *)&seed);
         shift += 7;
         crc1 ^= tmp;
     }
@@ -23,7 +23,7 @@ void glcrc_calc_checksum(void *start, void *end, u32 checksum[2]) {
     // CRC2: Iterate backwards over bytes
     for (p = (u8 *)end - 1; p >= (u8*)start; p--) {
         seed += *p << (shift & 15);
-        tmp = func_8025C29C((u32 *)&seed); // [port] u64* to u32* - only reads low 32 bits
+        tmp = func_8025C29C((u32 *)&seed);
         shift += 3;
         crc2 ^= tmp;
     }

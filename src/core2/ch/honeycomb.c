@@ -2,7 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 
-// [port] removed: extern void func_80329904 — now provided by port_prototypes.h as s32 return
 
 typedef struct{
     enum honeycomb_e uid;
@@ -121,12 +120,12 @@ void chHoneycomb_update(Actor *this){
             marker_setFreeMethod(this->marker, __chHoneycomb_free);
             D_8037DDC8++;
             if(D_8037DDC4 == NULL){
-                D_8037DDC4 = (FREE_LIST(s32) *) freelist_new(sizeof(ActorMarker *), 10); // [port] stores pointers, not s32
+                D_8037DDC4 = (FREE_LIST(s32) *) freelist_new(sizeof(ActorMarker *), 10);
             }
             else if(D_8037DDC8 >= 11){
                 func_802C9D80();
             }
-            tmp_v0 = (ActorMarker **)freelist_next(&D_8037DDC4, (s32*)&local->uid); // [port] honeycomb_e* to s32*
+            tmp_v0 = (ActorMarker **)freelist_next(&D_8037DDC4, (s32*)&local->uid);
             *tmp_v0 = this->marker;
             D_8037DDCC |= 1 << local->uid;
             local->unk4 = D_8037DDD0;

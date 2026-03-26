@@ -6,7 +6,7 @@
 
 #include "core2/gc/zoombox.h"
 
-extern void port_requestReadback(void); // [port]
+extern void port_requestReadback(void);
 
 #ifndef MIN
 #define MIN(s, t) (((s) < t)?(s):(t))
@@ -44,11 +44,9 @@ bool func_802FD2D4(void);
 bool func_802FC3C4(void);
 extern void func_8025A2B0(void);
 extern void func_8025A430(s32, s32, s32);
-// extern void func_802DC528(s32, s32); // [port] removed — (NodeProp*, ActorMarker*) in port_prototypes.h
 extern void func_802F5060(enum asset_e);
 extern void func_802F5188(void);
 extern void func_802FACA4(enum item_e);
-// extern void func_8033BD20(void *); // [port] removed — (void**) in port_prototypes.h
 
 enum gcpausemenu_state_e {
     PAUSE_STATE_0_MENU_INIT,
@@ -97,7 +95,6 @@ struct1As D_8036C4E0[4] = {
     {0.2f, 0.0f, "SAVE AND QUIT",         125, ZOOMBOX_SPRITE_7_TOOTY_1, 0},
 };
 
-// [port] str fields are written to by gcpausemenu_printLevelTotals (strcpy/strcat).
 // String literals are read-only on modern compilers; use mutable char arrays instead.
 static u8 D_8036C520_str0[32] = "cc999 / 999cc";
 static u8 D_8036C520_str1[32] = "cc999 / 999cc";
@@ -669,8 +666,8 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
 
         case PAUSE_STATE_12_SNS_DISPOSE: /* 8B978 80312908 3C128038 */
             D_80383010.selection = D_80383010.page;
-            func_8033BD20((void **)&D_80383010.sns_egg_model); //free // [port]
-            func_8033BD20((void **)&D_80383010.ice_key_model); //free // [port]
+            func_8033BD20((void **)&D_80383010.sns_egg_model); //free
+            func_8033BD20((void **)&D_80383010.ice_key_model); //free
             break;
 
         case PAUSE_STATE_13_EXIT_PAUSE: /* 8B9A8 80312938 3C128038 */
@@ -1421,7 +1418,6 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         func_80315110(gfx, mtx, vtx);
     }
 
-    // [port] Draw selected zoombox last so it renders on top of neighbors.
     // Only applies to main menu — in totals, selection is a page index (0-12),
     // not a zoombox index (0-3).
     if (D_80383010.menu == PAUSE_MENU_0_MAIN) {

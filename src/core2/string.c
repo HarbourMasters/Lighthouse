@@ -153,7 +153,7 @@ char *strtok(char *str, const char *delim){
     if (*delim == *str){
         delim++;
     }
-    return (char *)delim; // [port] discard const
+    return (char *)delim;
 }
 
 void strcpyToTok(char *arg0, char *arg1, char *arg2){

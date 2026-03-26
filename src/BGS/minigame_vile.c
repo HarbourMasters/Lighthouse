@@ -560,7 +560,7 @@ bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[3], f32 yaw
     return false;
 }
 
-void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type){ // [port] was enum chvilegame_piece_type_e — file-local enum; use u32 to match port_prototypes.h
+void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type){
     Actor *this;
     ActorLocal_BGS_3420 *local;
     struct vilegame_piece *temp_v0;

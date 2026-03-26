@@ -539,13 +539,13 @@ s32 func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
 
     //transform type 0
     phi_v0 = func_802EBD3C(arg0, position, rotation, scale, arg4, arg5, arg6);
-    if (phi_v0 != 0) { // [port] was NULL, use 0 for s32
+    if (phi_v0 != 0) {
         return phi_v0;
     }
 
     //transform type 1
     phi_v0 = func_802EC000(arg0, position, rotation, scale, arg4, arg5, arg6);
-    if (phi_v0 != 0) { // [port] was NULL, use 0 for s32
+    if (phi_v0 != 0) {
         return phi_v0;
     }
 

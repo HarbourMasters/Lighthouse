@@ -6,7 +6,6 @@
 
 extern void func_8030DBFC(u32, f32, f32, f32);
 extern bool func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
-// extern void fileProgressFlag_set(enum file_progress_e, bool); // [port] removed — prototype in port_prototypes.h
 extern void sfxsource_set_fade_distances(u8, f32, f32);
 extern void sfxsource_set_position(u8, f32[3]);
 extern void func_8030E2C4(u8);
@@ -417,7 +416,7 @@ void chBeeSwarm_update(Actor *this) {
                 subaddie_set_state(this, 6);
             }
         }
-        chBeeSwarm_802CF1C8(this->unk1C, this->position, this->velocity, this->actor_specific_1_f, 100.0f, 0, spA0); // [port] &spA0 -> spA0: f32[3] decays to f32*
+        chBeeSwarm_802CF1C8(this->unk1C, this->position, this->velocity, this->actor_specific_1_f, 100.0f, 0, spA0);
     }
     if (map_get() == MAP_78_GL_RBB_AND_MMM_PUZZLE) {
         if (this->unk38_31++ == 0x1E) {

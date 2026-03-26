@@ -152,7 +152,7 @@ void viewport_reset(void) {
     mlMtxIdent();
     mlMtxRotYaw(-60.0f);
     mlMtxRotPitch(-90.0f);
-    mlMtxGet((MtxF *)&sViewportDefaultMatrix); // [port] BKMtxF* → MtxF* (structurally equivalent 4x4 float matrices)
+    mlMtxGet((MtxF *)&sViewportDefaultMatrix);
 }
 
 void viewport_debug4(int arg0) {
@@ -239,7 +239,7 @@ void viewport_update(void) {
     mlMtxIdent();
     mlMtxRotYaw(sViewportRotation[1]);
     mlMtxRotPitch(sViewportRotation[0]);
-    mlMtxGet((MtxF *)&sViewportMatrix); // [port] BKMtxF* → MtxF* (structurally equivalent 4x4 float matrices)
+    mlMtxGet((MtxF *)&sViewportMatrix);
 
     sViewportLookbk_vector[0] = 0.0f;
     sViewportLookbk_vector[1] = 0.0f;
@@ -343,7 +343,6 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[1] = (f32) ((cube->y * 1000) + 500) - sViewportPosition[1];
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
-    // [port] Draw distance cutoff — skip when extended draw distance is enabled
     if (!CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
         || getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
         if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f) {
@@ -404,11 +403,11 @@ bool viewport_isPointPlane_3f(f32 arg0, f32 arg1, f32 arg2) {
 }
 
 MtxF *viewport_getMatrix(void) {
-    return (MtxF *)&sViewportMatrix; // [port] BKMtxF* → MtxF*
+    return (MtxF *)&sViewportMatrix;
 }
 
 MtxF *viewport_getDefaultMatrix(void) {
-    return (MtxF *)&sViewportDefaultMatrix; // [port] BKMtxF* → MtxF*
+    return (MtxF *)&sViewportDefaultMatrix;
 }
 
 f32 viewport_getFOVy(void) {

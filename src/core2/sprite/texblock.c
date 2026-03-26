@@ -10,7 +10,7 @@ BKSpriteTextureBlock *D_80384FF0;
 /* .code */
 BKSpriteTextureBlock *func_8033EFB0(Struct84s *arg0, s32 arg1){
     s32 *offset_ptr = &arg0->offset[arg1];
-    uintptr_t mem_ptr; // [port] was s32; uintptr_t to hold 64-bit computed address without truncation
+    uintptr_t mem_ptr;
     if(arg0->offset[arg1] == -1){
         return D_80384FF0;
     }

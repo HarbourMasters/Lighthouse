@@ -2,7 +2,6 @@
 #define _GENERIC_METHODS_H_
 
 typedef void (* GenFunction_0)(void);
-// [port] s32 -> uintptr_t for 64-bit pointer safety
 typedef void (* GenFunction_1)(uintptr_t);
 typedef void (* GenFunction_2)(uintptr_t, uintptr_t);
 typedef void (* GenFunction_3)(uintptr_t, uintptr_t, uintptr_t);

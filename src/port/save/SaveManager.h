@@ -31,7 +31,6 @@ public:
     int ReadBlocks(int file, int offset, void* buffer, int count);
     int WriteBlocks(int file, int offset, void* buffer, int count);
 
-    // [port] Restore enhancement data from per-file JSON
     static void RestoreFileEnhancementData(int eepromSlot);
 
 private:

@@ -32,7 +32,7 @@ void __chSmBottles_talk(Actor *this);
 
 /* .data */
 ActorAnimationInfo chSmBottlesAnimations[6] = {
-    {0,                            0.0f}, // [port] was NULL
+    {0,                            0.0f},
     {ASSET_13A_ANIM_BOTTLES_ENTER, 2000000000.0f},
     {ASSET_13A_ANIM_BOTTLES_ENTER, 4.5f},
     {ASSET_13B_ANIM_BOTTLES_IDLE,  7.0f},

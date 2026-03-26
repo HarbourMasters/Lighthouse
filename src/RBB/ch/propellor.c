@@ -73,7 +73,7 @@ void chPropellor_update(Actor *this){
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = 1;
         this->pitch = randf2(0.0f, 300.0f);
-        func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))func_80389B44); // [port]
+        func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))func_80389B44);
         marker_setFreeMethod(this->marker, __chPropellor_free);
         func_80389B80(this, 1.0f);
         if(this->unk78_13 == 0x1C){

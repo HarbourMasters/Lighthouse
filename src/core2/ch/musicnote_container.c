@@ -156,12 +156,12 @@ void func_802CA1E0(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
         tmp_v1 = (s32)this->yaw;
-        this->unk154 = (uintptr_t)D_80366E64[tmp_v1].unk0; // [port] Struct_Core2_43250_1* to uintptr_t
+        this->unk154 = (uintptr_t)D_80366E64[tmp_v1].unk0;
         reinterpret_cast(s32, this->unkBC[4]) = D_80366E64[tmp_v1].unk4;
         reinterpret_cast(s32, this->unkBC[0]) = 0;
     }
     if(func_8025AEEC() && this->unk154){
-        tmp_v0 = (Struct_Core2_43250_1 *)(uintptr_t)this->unk154 + reinterpret_cast(s32, this->unkBC[0]); // [port] u32 to pointer via uintptr_t
+        tmp_v0 = (Struct_Core2_43250_1 *)(uintptr_t)this->unk154 + reinterpret_cast(s32, this->unkBC[0]);
         phi_a0 = tmp_v0->unk0;
         tmp_f4 = tmp_v0->unk2*0.0078125;
         phi_a2 = tmp_v0->unk3*128.0;

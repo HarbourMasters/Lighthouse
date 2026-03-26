@@ -38,7 +38,7 @@ void ncStaticCamera_update(void){
 }
 
 void __ncStaticCamera_setToNode(s32 camera_node_index){
-    CameraNodeType2 *sp1C; // [port] was UNK_TYPE(s32) — pointer truncation
+    CameraNodeType2 *sp1C;
 
     sp1C = ncCameraNodeList_getCameraNodeType2(camera_node_index);
     cameraNodeType2_getPosition(sp1C, ncStaticCameraPosition);

@@ -6,7 +6,7 @@
 void func_8038FF60(void){}
 
 void func_8038FF68(void){
-    Struct70s *tmp_s70; // [port]
+    Struct70s *tmp_s70;
 
     if(map_get() != MAP_12_GV_GOBIS_VALLEY) return;
 

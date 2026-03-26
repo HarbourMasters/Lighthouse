@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32); // [port] was bool — returns BKCollisionTri*
+extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
 
 typedef struct struct_core2_bd100_0_s{
     f32 unk0;

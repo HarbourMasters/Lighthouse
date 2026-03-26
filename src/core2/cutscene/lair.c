@@ -150,7 +150,7 @@ void func_8031CC60(s32 arg0) {
     func_8031CB50(arg0 >> 8, arg0 & 0xFF, 1);
 }
 
-void func_8031CC8C(NodeProp *arg0, s32 arg1) { // [port] was (s32, s32) — arg0 is NodeProp* cast to s16* for position
+void func_8031CC8C(NodeProp *arg0, s32 arg1) {
     // arg1 = MAP_ID + ENTRY_ID
     f32 vec[3];
     f32 unused[3];
@@ -158,7 +158,7 @@ void func_8031CC8C(NodeProp *arg0, s32 arg1) { // [port] was (s32, s32) — arg0
     if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS)) {
         if (getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
             if (arg0 != NULL) {
-                ml_vec3h_to_vec3f(vec, (s16 *)arg0); // [port] NodeProp starts with s16 x,y,z
+                ml_vec3h_to_vec3f(vec, (s16 *)arg0);
                 func_8031CE70(vec, arg1 >> 8, arg1 & 0xFF);
             } else {
                 func_8031CE70(NULL, arg1 >> 8, arg1 & 0xFF);
@@ -167,7 +167,7 @@ void func_8031CC8C(NodeProp *arg0, s32 arg1) { // [port] was (s32, s32) — arg0
     }
 }
 
-void func_8031CD20(NodeProp *arg0, s32 arg1, s32 arg2) { // [port] was s32 arg0
+void func_8031CD20(NodeProp *arg0, s32 arg1, s32 arg2) {
     func_8031CC8C(arg0, (arg1 << 8) + arg2);
 }
 
@@ -541,7 +541,7 @@ void func_8031DAE0(NodeProp *arg0, ActorMarker *arg1) {
         mapSpecificFlags_set(2, 1);
         func_8025A6EC(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
         func_8028F918(1);
-        timedFunc_set_2(1.8f, (GenFunction_2)&func_8031DAA8, 0x1C, 1); // [port]
+        timedFunc_set_2(1.8f, (GenFunction_2)&func_8031DAA8, 0x1C, 1);
         func_802D6924();
     }
 }
@@ -557,7 +557,7 @@ void warp_mmmEnterMumbosHut(NodeProp *arg0, ActorMarker *arg1) {
 
 void warp_mmmEnterRainBarrel(NodeProp *arg0, ActorMarker *arg1) {
     if (player_getTransformation() == TRANSFORM_3_PUMPKIN) {
-        func_8031CC8C(arg0, (s32)(uintptr_t)arg1 + 0x2F00); // [port] arg1 is actually an integer packed into pointer param on N64
+        func_8031CC8C(arg0, (s32)(uintptr_t)arg1 + 0x2F00);
     }
 }
 
@@ -569,28 +569,28 @@ void func_8031DC10(NodeProp *arg0, ActorMarker *arg1) {
     f32 vec[3];
 
     if (player_getTransformation() == TRANSFORM_3_PUMPKIN) {
-        ml_vec3h_to_vec3f(vec, (s16*)arg0); // [port] NodeProp* to s16* — first member is position
+        ml_vec3h_to_vec3f(vec, (s16*)arg0);
         func_8028F6E4(BS_INTR_2F_LOGGO, vec);
         timedFunc_set_0(0.8f, &func_8031DBE8);
     }
 }
 
 void warp_mmmEnterRainBarrelBottom(NodeProp *arg0, ActorMarker *arg1) {
-    warp_mmmEnterRainBarrel(arg0, (ActorMarker *)(uintptr_t)2); // [port] integer packed into pointer param on N64
+    warp_mmmEnterRainBarrel(arg0, (ActorMarker *)(uintptr_t)2);
 }
 
 void warp_bgsEnterMrVileNostril(NodeProp *arg0, ActorMarker *arg1) {
     if (player_getTransformation() == TRANSFORM_5_CROC) {
-        func_8031CC8C(arg0, (s32)(uintptr_t)arg1 + 0x1000); // [port] arg1 is actually an integer packed into pointer param on N64
+        func_8031CC8C(arg0, (s32)(uintptr_t)arg1 + 0x1000);
     }
 }
 
 void warp_bgsEnterMrVileRightNostril(NodeProp *arg0, ActorMarker *arg1) {
-    warp_bgsEnterMrVileNostril(arg0, (ActorMarker *)(uintptr_t)3); // [port] integer packed into pointer param on N64
+    warp_bgsEnterMrVileNostril(arg0, (ActorMarker *)(uintptr_t)3);
 }
 
 void warp_bgsEnterMrVileLeftNostril(NodeProp *arg0, ActorMarker *arg1) {
-    warp_bgsEnterMrVileNostril(arg0, (ActorMarker *)(uintptr_t)4); // [port] integer packed into pointer param on N64
+    warp_bgsEnterMrVileNostril(arg0, (ActorMarker *)(uintptr_t)4);
 }
 
 void warp_bgsEnterTanktupConditional(NodeProp *arg0, ActorMarker *arg1) {

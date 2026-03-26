@@ -10,7 +10,6 @@ extern void func_802BEA4C(f32[3], f32[3], f32, f32[3]);
 extern void func_802BEBE8(f32[3], f32[3], f32, f32[3]);
 extern void func_802BEAAC(f32[3], f32[3], f32, f32[3], f32[3], f32[3], f32[3]);
 extern NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e, s32[3]);
-// [port] local extern removed — prototype in port_prototypes.h (u32 last param)
 f32 func_802BB938(f32[3], f32[3]);
 f32 func_802BBD48(void);
 f32 func_802BBEA4(f32 arg0[3], f32 arg1[3], f32 arg2, s32 arg3, s32 arg4);
@@ -121,11 +120,11 @@ void func_802BBA84(void) {
     f32 min[3];
     f32 max[3];
 
-    mapModel_getBounds((s32 *)min, (s32 *)max); // [port] f32[3] → s32* — decomp type-punning
+    mapModel_getBounds((s32 *)min, (s32 *)max);
     viewport_getPosition_vec3f(vp_position);
     viewport_getRotation_vec3f(vp_rotation);
     viewport_getLookbk_vector(sp48);
-    D_8037D8CC = (f32) coords_func_8033EAF8((s32*)min, (s32*)max, vp_position, sp48); // [port] f32[] → s32* — decomp type mismatch
+    D_8037D8CC = (f32) coords_func_8033EAF8((s32*)min, (s32*)max, vp_position, sp48);
     D_8037D8CC += 100.0f;
     if (D_8037D8CC < 1000.0f) {
         D_8037D8CC = 1000.0f;
@@ -355,7 +354,7 @@ void func_802BC2CC(s32 arg0) {
     viewport_setPosition_vec3f(D_8037D908);
     viewport_setRotation_vec3f(D_8037D918);
     viewport_update();
-    __spawnQueue_add_2((void (*)(void))func_802BC2A0, (uintptr_t)sp24, (uintptr_t)sp20); // [port]
+    __spawnQueue_add_2((void (*)(void))func_802BC2A0, (uintptr_t)sp24, (uintptr_t)sp20);
     if (ncCameraType == CAMERA_TYPE_2_DYNAMIC) {
         func_802BE720();
         if (sp1C != 0x63) {

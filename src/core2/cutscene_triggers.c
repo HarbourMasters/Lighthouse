@@ -112,7 +112,7 @@ void func_80322318(Struct_core2_9B180_0 * arg0){
 bool func_80322340(s32 arg0) {
     f32 sp1C[3];
 
-    if (nodeProp_findPositionFromActorId(arg0, sp1C)) { // [port] &sp1C -> sp1C: f32[3] decays to f32*
+    if (nodeProp_findPositionFromActorId(arg0, sp1C)) {
         return 1;
     }
     return 0;
@@ -130,7 +130,7 @@ void func_803223AC(void) {
 
     func_80244A98(1);
     for(i_ptr = D_8036DE00; i_ptr != &D_8036DE00[6]; i_ptr++){
-        i_ptr->unk4 = (Struct_core2_9B180_1 *)cubeList_findNodePropByActorIdAndPosition_s32(i_ptr->unk0, NULL); // [port] NodeProp* to Struct_core2_9B180_1*
+        i_ptr->unk4 = (Struct_core2_9B180_1 *)cubeList_findNodePropByActorIdAndPosition_s32(i_ptr->unk0, NULL);
         if(i_ptr->unk4 != 0 && i_ptr->unk8 != NULL){
             i_ptr->unk8(i_ptr);
         }
@@ -148,9 +148,9 @@ void func_803223AC(void) {
 
 void func_80322490(void) {
     Struct_core2_9B180_0 *i_ptr;
-    static s32 introFrameCounter = 0; // [port]
+    static s32 introFrameCounter = 0;
 
-    introFrameCounter++; // [port]
+    introFrameCounter++;
 
     if (D_80383330 != 0) {
         for(i_ptr = D_8036DE00; i_ptr != &D_8036DE00[6]; i_ptr++){

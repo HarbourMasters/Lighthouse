@@ -72,7 +72,6 @@ void WriteNodeProp(std::vector<uint8_t>& out, const BKMapNodeProp& node) {
     AppendValue<int16_t>(out, node.position[1]);
     AppendValue<int16_t>(out, node.position[2]);
 
-    // [port] Pack bitfields in native order to match compiler's layout in NodeProp.
     // NodeProp declares `u16 radius:9; bit6:6; bit0:1;`
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
     // BE: first field at MSB → radius at bits 15-7, bit6 at bits 6-1, bit0 at bit 0
@@ -232,7 +231,6 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
                 break;
         }
 
-        // [port] Type 0 cameras have NO inner data and NO inner 0x00 terminator.
         // Types 1-4 each have a while(!isNextByte(0)) loop that consumes this terminator.
         if (cam.type != 0) {
             out.push_back(0x00);

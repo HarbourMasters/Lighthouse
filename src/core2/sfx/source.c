@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "2.0L/PR/n_libaudio.h"
 
-extern void func_80335394(intptr_t, f32); // [port]
+extern void func_80335394(intptr_t, f32);
 extern f32 sfx_randf2(f32, f32);
 
 #define SFX_SRC_FLAG_0_UNKOWN (1 << 0)
@@ -187,7 +187,7 @@ void func_8030CC90(SfxSource *arg0){
         sfxsource_clearFlag(arg0, SFX_SRC_FLAG_5_UNKOWN);
         func_8030C7F8(arg0, 2);
         if(arg0->unk40){
-            func_8033543C((Struct81s *)func_8030C8F4(arg0->unk40)); // [port] N_AL_Struct81s* → Struct81s* (same underlying struct, different typedef)
+            func_8033543C((Struct81s *)func_8030C8F4(arg0->unk40));
         }
     }
 }
@@ -242,25 +242,25 @@ s32 func_8030CDE4(SfxSource *arg0){
 
 void func_8030CF68(s32 arg0, s32 arg1){
     if(arg0){
-        func_803353F4((intptr_t)func_8030C8F4(arg0), arg1); // [port]
+        func_803353F4((intptr_t)func_8030C8F4(arg0), arg1);
     }
 }
 
 void func_8030CF9C(s32 arg0, s32 arg1){
     if(arg0){
-        func_80335418((intptr_t)func_8030C8F4(arg0), arg1); // [port]
+        func_80335418((intptr_t)func_8030C8F4(arg0), arg1);
     }
 }
 
 void func_8030CFD0(s32 arg0, f32 arg1){
     if(arg0){
-        func_80335394((intptr_t)func_8030C8F4(arg0), arg1); // [port]
+        func_80335394((intptr_t)func_8030C8F4(arg0), arg1);
     }
 }
 
 void func_8030D004(s32 arg0, s32 arg1){
     if(arg0){
-        func_803353BC((intptr_t)func_8030C8F4(arg0), (u16) arg1); // [port]
+        func_803353BC((intptr_t)func_8030C8F4(arg0), (u16) arg1);
     }
 }
 

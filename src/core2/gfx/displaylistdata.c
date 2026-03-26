@@ -3,8 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void port_registerAuxColorImage(void* cpuAddr, unsigned int width, unsigned int height); // [port]
-extern void port_unregisterAuxColorImage(void* cpuAddr); // [port]
+extern void port_registerAuxColorImage(void* cpuAddr, unsigned int width, unsigned int height);
+extern void port_unregisterAuxColorImage(void* cpuAddr);
 
 
 #define TILE_SIZE 32
@@ -68,7 +68,7 @@ void func_8030C1A0(void){
 
 void func_8030C204(void){
     if(D_80382454){
-        port_unregisterAuxColorImage(D_80382450); // [port]
+        port_unregisterAuxColorImage(D_80382450);
         bk_free(D_80382454);
         D_80382454 = NULL;
     }

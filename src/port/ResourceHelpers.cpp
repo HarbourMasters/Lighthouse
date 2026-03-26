@@ -38,7 +38,6 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
     static std::unordered_map<uint32_t, std::string> symbolMap;
 
     std::call_once(mapOnce, [] {
-        // [port] Load the asset ID → o2r path manifest from the archive.
         // Torch writes this as a Blob at "assets/aBKAssetTable".
         // Format: u32 count, then for each entry: u32 assetId, s32 pathLen, char path[pathLen]
         auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource("assets/aBKAssetTable");

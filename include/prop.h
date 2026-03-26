@@ -18,7 +18,7 @@ typedef struct sprite_prop_s{
     u32 unk0_1:0x1;
     u32 unk0_0:0x1;
 #if UINTPTR_MAX > 0xFFFFFFFFu
-    u32 _pad64; // [port] align unk4/flags with ActorProp on 64-bit
+    u32 _pad64;
 #endif
     s16 unk4[3];
     u16 unk8_15: 5;
@@ -42,7 +42,7 @@ typedef struct model_prop_s{
     u8 unk0_15;
     u8 unk0_7;
 #if UINTPTR_MAX > 0xFFFFFFFFu
-    u32 _pad64; // [port] align unk4/flags with ActorProp on 64-bit
+    u32 _pad64;
 #endif
     s16 unk4[3];
     u8 unkA;
@@ -74,7 +74,7 @@ typedef struct actor_prop_s{
             u16 unk8_1:1;
             u16 unk8_0:1;
         };
-        s32 words[ACTORPROP_WORD_BASE + 2]; // [port] was words[3], sized for pointer width
+        s32 words[ACTORPROP_WORD_BASE + 2];
     };
 } ActorProp;
 
@@ -96,7 +96,7 @@ typedef struct actorMarker_s{
     u32         unk14_10:11; //used in ch/jiggy
     Struct6Cs   *unk18;
     MarkerCollisionFunc dieFunc;
-    struct AnimMtxList_s *unk20; // [port] was s32, stores AnimMtxList* (truncates on 64-bit)
+    struct AnimMtxList_s *unk20;
     ActorUpdateFunc actorUpdateFunc;
     s32         unk28;
     u32         actrArrayIdx:11; //unk2C
@@ -123,7 +123,7 @@ typedef struct actorMarker_s{
     struct5Bs * unk44;
     BKModel *   unk48;
     bk_vector(Struct70s) * unk4C;
-    void        *unk50; // [port] was s32, stores pointer from func_803406B0
+    void        *unk50;
     void        (*unk54)(struct actorMarker_s *, struct actorMarker_s *, u16*);
     s32         (*unk58)(struct actorMarker_s *, struct actorMarker_s *);
     s32         unk5C;
@@ -185,7 +185,7 @@ typedef struct actor_s{
     u32  stored_anctrl_playbackType_:3; //anctrlPlaybackType
     u32  unk38_0:1;
     u32 unk3C;
-    void *unk40; // [port] was s32, stores pointer (e.g. Struct25s* in rope_swing)
+    void *unk40;
     u32 unk44_31:8; // sfxsource idx
     u32 modelCacheIndex:10; //modelCacheIndex
     s32 unk44_14:10;
@@ -250,7 +250,7 @@ typedef struct actor_s{
     ActorMarker *unk104;
     Struct62s *unk108;
     // void ( *unk108)(struct actorMarker_s *, s32); //saved from marker->collisionFunc
-    MarkerCollisionFunc unk10C; // [port] was s32, stores marker->collision2Func (function pointer, 64-bit on PC)
+    MarkerCollisionFunc unk10C;
     f32 roll;//110
     f32 sound_timer;
     TUPLE(f32, spawn_position); //0x118
@@ -289,13 +289,13 @@ typedef struct actor_s{
     SkeletalAnimation *unk148;
     void *unk14C[2];
     // void *unk150;
-    uintptr_t unk154; // [port] was u32 — stores Struct_Core2_43250_1* in musicnote_container.c
+    uintptr_t unk154;
     ParticleEmitter *unk158[2];
     void *unk160; //saved marker->unk54
     u8  unk164[0x2];
     u8  unk166;
     s8  pad167[0x1];
-    uintptr_t unk168; //saved marker->unk58 — [port] was s32, but stores function pointer (64 bits on PC)
+    uintptr_t unk168; //saved marker->unk58
     u32  unk16C_31:27; //saved s1->marker->unk5C
     u32  volatile_initialized:1; // the difference between this flag and initialized is that it is reset in actors_appendToSavestate
     u32  unk16C_3:1;
@@ -338,13 +338,13 @@ typedef union prop_s
     ModelProp    modelProp;
     struct{
 #if UINTPTR_MAX > 0xFFFFFFFFu
-        u64 pad0; // [port] 8-byte pad to match ActorProp marker pointer on 64-bit
+        u64 pad0;
 #else
         u32 pad0;
 #endif
         s16 unk4[3];
         // s16 unk6;
-        u16 pad8_15: 10; // [port] was s16 — must match u16 type of adjacent bitfields to pack into same storage unit
+        u16 pad8_15: 10;
         u16 unk8_5: 1;
         u16 unk8_4: 1;
         u16 unk8_3: 1;

@@ -337,13 +337,13 @@ int *m;                 /* maximum lookup bits, returns actual */
   for (; i < 288; i++)          /* make a complete, but wrong code set */
     l[i] = 8;
   bl = 7;
-  huft_build(l, 288, 257, D_80275684, (u16 *)D_802756C4, &tl, &bl); // [port] D_802756C4 is u8[] but function wants u16*
+  huft_build(l, 288, 257, D_80275684, (u16 *)D_802756C4, &tl, &bl);
 
    /* set up distance table */
    for (i = 0; i < 30; i++)      /* make an incomplete code set */
      l[i] = 5;
    bd = 5;
-   huft_build(l, 30, 0, D_802756E4, (u16 *)D_80275720, &td, &bd); // [port] D_80275720 is u8[] but function wants u16*
+   huft_build(l, 30, 0, D_802756E4, (u16 *)D_80275720, &td, &bd);
 
    /* decompress until an end-of-block code */
     inflate_codes(tl, td, bl, bd);
@@ -450,9 +450,9 @@ int *m;                 /* maximum lookup bits, returns actual */
 
    /* build the decoding tables for literal/length and distance codes */
    bl = D_80275764;
-   huft_build(ll, nl, 257, D_80275684, (u16 *)D_802756C4, &tl, &bl); // [port] D_802756C4 is u8[] but function wants u16*
+   huft_build(ll, nl, 257, D_80275684, (u16 *)D_802756C4, &tl, &bl);
    bd = D_80275768;
-   huft_build(ll + nl, nd, 0, D_802756E4, (u16 *)D_80275720, &td, &bd); // [port] D_80275720 is u8[] but function wants u16*
+   huft_build(ll + nl, nd, 0, D_802756E4, (u16 *)D_80275720, &td, &bd);
 
    /* decompress until an end-of-block code */
    inflate_codes(tl, td, bl, bd);

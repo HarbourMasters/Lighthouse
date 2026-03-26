@@ -66,7 +66,7 @@ void func_80390174(ActorMarker *marker, s32 arg1) {
         gcdialog_showText(sp28 + 0xF83, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC);
         return;
     }
-    func_80311174(func_80390084() + 0xFA5, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC, (s32(*)(ActorMarker*,s32,s32))func_80390158); // [port] polymorphic callback
+    func_80311174(func_80390084() + 0xFA5, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC, (s32(*)(ActorMarker*,s32,s32))func_80390158);
 }
 
 void func_8039024C(Actor *this){

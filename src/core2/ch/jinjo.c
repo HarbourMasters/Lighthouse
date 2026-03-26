@@ -4,7 +4,6 @@
 
 extern void subaddie_set_state_with_direction(Actor *, s32, f32 , s32);
 extern f32 func_80309B24(f32*);
-// [port] removed: extern void func_80329904 — now provided by port_prototypes.h as s32 return
 extern void func_8032BB88(Actor *, s32, s32);
 
 void chJinjo_update(Actor *this);

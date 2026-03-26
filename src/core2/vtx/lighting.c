@@ -61,7 +61,7 @@ s32 __codeAC520_pad_func_8033361C() {
         }
     }
 
-    return 0; // [port] was NULL, use 0 for s32
+    return 0;
 }
 
 s32 __codeAC520_pad_func_80333698(s32 index) {
@@ -75,7 +75,7 @@ s32 __codeAC520_pad_func_80333698(s32 index) {
         }
     }
 
-    return 0; // [port] was NULL, use 0 for s32
+    return 0;
 }
 
 void __codeAC520_pad_func_80333734(s32 index, f32 *arg1) {

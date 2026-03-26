@@ -29,7 +29,7 @@ enum ch_blubber_states_e {
 
 /* .data */
 ActorAnimationInfo gChBlubberAnimations[6] = {
-    {0, 0.0f}, // [port] was NULL — u32 field
+    {0, 0.0f},
     {ASSET_B5_ANIM_BLUBBER_WALK, 2.0f},
     {ASSET_B6_ANIM_BLUBBER_CRY, 2.0f},
     {ASSET_B6_ANIM_BLUBBER_CRY, 2.0f},

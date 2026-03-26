@@ -321,7 +321,7 @@ CodeAD110Callback sWarpFunctions[] = {
     warp_mmmEnterLevel, warp_rbbEnterLevel, warp_ccwEnterSpringWhipcrackRoom, warp_ccwEnterSummerWhipcrackRoom,
     warp_ccwEnterAutumnWhipcrackRoom, warp_ccwEnterWinterWhipcrackRoom, warp_mmEnterMumbosHut, warp_mmExitMumbosHut,
     warp_mmEnterTickersTowerLower, warp_mmExitTickersTowerLower, warp_mmEnterTickersTowerUpper, warp_mmExitTickersTowerUpper,
-    warp_csNintendoLogo, (CodeAD110Callback)func_8031D09C, (CodeAD110Callback)func_8031D06C, func_80334430, // [port]
+    warp_csNintendoLogo, (CodeAD110Callback)func_8031D09C, (CodeAD110Callback)func_8031D06C, func_80334430,
     func_80334430, func_80334430, warp_lairEnterCCWPuzzleFromPointingGruntyStatueRoom, warp_lairEnterPointingGruntyStatueFromCCWPuzzleRoom,
     warp_lairEnterCCLobbyFromCCLevel, warp_lairEnterCCLobbyFromCCWPuzzleRoom, warp_lairEnterCCWPuzzleRoomFromCCLobby, warp_lairEnterCCWPuzzleRoomFromTTCLobby,
     warp_lairEnterTTCLobbyFromCCWPuzzleRoom, warp_ccwEnterWinterAcornStorage, warp_ccwEnterAutumnFloodedAttic, warp_ccwEnterWinterFloodedAttic,

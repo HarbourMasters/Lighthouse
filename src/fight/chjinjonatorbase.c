@@ -34,10 +34,10 @@ void chjinjonatorbase_createSmokeParticles(f32 position[3], s32 count) {
 }
 
 void chjinjonatorbase_func_8038E0D4(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    Struct70s *temp_v0 = func_8034C2C4(arg0->marker, arg1); // [port] was s32
+    Struct70s *temp_v0 = func_8034C2C4(arg0->marker, arg1);
 
     if (temp_v0) {
-        func_8034DE60(&temp_v0->type_6D, arg2, arg3, arg4, 1); // [port] Struct70s* to Struct6Ds* via union member
+        func_8034DE60(&temp_v0->type_6D, arg2, arg3, arg4, 1);
     }
 }
 

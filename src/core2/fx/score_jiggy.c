@@ -65,11 +65,11 @@ void jiggyscore_setSpawned(s32 indx, s32 val) {
     u8 *temp_v0_2;
 
     if (val) {
-        temp_v0 = (u8*)((uintptr_t)jiggyscore.D_803832C0 + ((s32)(indx - 1) / 8) + 0xD); // [port] rewritten to avoid int→ptr→int round-trip
+        temp_v0 = (u8*)((uintptr_t)jiggyscore.D_803832C0 + ((s32)(indx - 1) / 8) + 0xD);
         *temp_v0 |= (1 << (indx & 7));
         return;
     }
-    temp_v0_2 = (u8*)((uintptr_t)jiggyscore.D_803832C0 + ((s32)(indx - 1) / 8) + 0xD); // [port] same fix
+    temp_v0_2 = (u8*)((uintptr_t)jiggyscore.D_803832C0 + ((s32)(indx - 1) / 8) + 0xD);
     *temp_v0_2 &=  ~(1 << (indx & 7));
 }
 

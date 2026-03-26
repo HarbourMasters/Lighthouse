@@ -239,7 +239,7 @@ static Actor *__chTreasurehunt_animFunc(ActorMarker *marker, Gfx **gfx, Mtx **mt
     sp40[2] = actor->position[2];
 
     func_8032AA58(actor, sp3C);
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)actor); // [port] Actor * -> uintptr_t
+    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)actor);
     modelRender_draw(gfx, mtx, sp40, sp4C, sp3C, NULL, marker_loadModelBin(marker));
     return actor;
 }

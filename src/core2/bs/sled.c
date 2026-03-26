@@ -4,7 +4,7 @@
 #include "core2/ba/physics.h"
 
 
-extern ActorMarker *func_80296554(void); // [port] added prototype — returns ActorMarker*, not implicit int
+extern ActorMarker *func_80296554(void);
 
 ActorMarker *bssled_gSledMarker;
 

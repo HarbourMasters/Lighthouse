@@ -20,7 +20,7 @@ u8 D_803912B0;
 void RBB_func_8038FA60(ActorMarker *marker){
     Actor *actor = marker_getActor(marker);
     bundle_setYaw(actor->yaw);
-    bundle_spawn_f32(BUNDLE_6_MM_HUT_EXTRA_LIFE, actor->position); // [port] was &actor->position, array already decays to pointer
+    bundle_spawn_f32(BUNDLE_6_MM_HUT_EXTRA_LIFE, actor->position);
 }
 
 void func_8038FA9C(Actor *this, s32 arg1){

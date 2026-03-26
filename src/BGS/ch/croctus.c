@@ -8,7 +8,6 @@ extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void func_803289EC(Actor *, f32, s32);
 extern void func_80326310(Actor *);
 extern void actor_setOpacity(Actor *, s32);
-// [port] removed stale local extern; port_prototypes.h provides the canonical declaration
 extern void func_802BAFE4(s32 arg0);
 
 
@@ -67,7 +66,7 @@ void *func_80387D90(ActorMarker * arg0){
     func_802BAFE4(0x19);
     jiggy_spawn(JIGGY_22_CROCTUS, spawnPos);
     func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
-    return NULL; // [port] MIPS implicit return
+    return NULL;
 }
 
 void func_80387E00(uintptr_t arg0){
@@ -75,7 +74,7 @@ void func_80387E00(uintptr_t arg0){
     Actor * this = marker_getActor(marker);
 
     func_803262E4(this);
-    __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)marker, 0x1E); // [port]
+    __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)marker, 0x1E);
 }
 
 void func_80387E40(ActorMarker * arg0){
@@ -99,7 +98,7 @@ void func_80387E68(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->unkF4_8]);
         timed_setStaticCameraToNode(0.8f, 9);
         func_80324DBC(3.4f, 0xC87, 0xE, NULL, NULL, func_80387E68, NULL);
-        __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)this->marker, 0x46); // [port]
+        __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)this->marker, 0x46);
     }
     else{
         timed_exitStaticCamera(0.0f);
@@ -164,7 +163,7 @@ void func_80387FD4(Actor *this){
                 } else {
                     timedFunc_set_1(0.8f, (GenFunction_1)func_80387D90, (uintptr_t)this->marker);
                 }
-                __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)this->marker, 0x46); // [port]
+                __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)this->marker, 0x46);
             }
         }
     }//L80388348

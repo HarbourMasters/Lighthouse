@@ -24,7 +24,7 @@ typedef struct {
 }Struct_Core1_8C50_s;
 
 void func_80247224(void);
-extern OSMesgQueue *audioManager_getFrameMesgQueue(void); // [port] forward declare to avoid implicit int return
+extern OSMesgQueue *audioManager_getFrameMesgQueue(void);
 
 #define CORE1_8C50_EVENT_DP 4
 #define CORE1_8C50_EVENT_SP 6
@@ -61,8 +61,8 @@ OSTask D_80275950 = {
     NULL, 0,                  /* ucode_boot */
     NULL, SP_UCODE_SIZE,      /* ucode */
     NULL, SP_UCODE_DATA_SIZE, /* ucode_data */
-    (u64 *)(uintptr_t)0x80000400, 0x400,        /* dram_stack */ // [port] N64 address literal
-    (u64 *)(uintptr_t)0x80000800, (u64 *)(uintptr_t)0x8000E800,   /* output_buff */ // [port] N64 address literals
+    (u64 *)(uintptr_t)0x80000400, 0x400,        /* dram_stack */
+    (u64 *)(uintptr_t)0x80000800, (u64 *)(uintptr_t)0x8000E800,   /* output_buff */
     NULL, 0,                  /* data */
     NULL, OS_YIELD_DATA_SIZE, /* yield_data */
 };

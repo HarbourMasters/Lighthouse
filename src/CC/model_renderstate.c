@@ -63,7 +63,7 @@ void func_803878F0(Struct_CC_13C0_1 *arg0, Struct68s *arg1, s32 arg2) {
     arg0->unk4 = 0;
     arg0->unk8 = 0;
     arg0 = arg0;
-    func_80351A14(arg1, (Struct68DrawMethod) func_803877B0); // [port] was (s32) — truncates function pointer on 64-bit
+    func_80351A14(arg1, (Struct68DrawMethod) func_803877B0);
     func_803878AC(arg0, arg1, 0);
 }
 

@@ -101,7 +101,7 @@ void func_80388FD4(Actor *this) {
     ){
         func_802D6264(1.1f, 0x40, this->unk10_12 + 0x3C, 0x2B, D_8038ED10[this->unk10_12].unk3, this->unk10_12 + 0x8B);
         func_80324E38(0.5f, 3);
-        timedFunc_set_2(1.1f, (GenFunction_2)levelSpecificFlags_set, this->unk10_12 + 7, true); // [port]
+        timedFunc_set_2(1.1f, (GenFunction_2)levelSpecificFlags_set, this->unk10_12 + 7, true);
         func_80324E38(5.6f, 0);
     }
 }

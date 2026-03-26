@@ -16,7 +16,7 @@ void func_803525A0(f32 arg0[3]){
     if(func_8033E3F0(0x11, 1) >= 0){
         sp1E = func_8033E8D0();
         sp1F = func_8033E93C();
-        sp18 = (f32*)func_8033E960(); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+        sp18 = (f32*)func_8033E960();
         projectile_setPosition(sp1E, arg0);
         func_80344D94(sp1F, arg0);
         sp18[1] = 0.45f;

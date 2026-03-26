@@ -544,7 +544,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     
     // u8 letter = arg0;
     BKSpriteTextureBlock *sp214;
-    uintptr_t sp210; // [port] was s32, holds pointer
+    uintptr_t sp210;
     s32 sp20C;
     s32 t0;
     s8 t1;
@@ -720,12 +720,12 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         
         sp200 += (D_80380FA0 + (sp1F8 - sp214->x) * 0.5);
         f28 -= sp214->h*0.5;
-        sp210 = (uintptr_t)(sp214 + 1); // [port] BKSpriteTextureBlock* -> uintptr_t
+        sp210 = (uintptr_t)(sp214 + 1);
         while(sp210 % 8){
             sp210++;
         }
         if (sp1F4 == SPRITE_TYPE_RGBA32) {
-            gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_RGBA, G_IM_SIZ_32b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y - 1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD); // [port] NULL→0 for pal (avoids void*→u32 truncation in _SHIFTL)
+            gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_RGBA, G_IM_SIZ_32b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y - 1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else if (sp1F4 == SPRITE_TYPE_IA8) {
             gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_IA, G_IM_SIZ_8b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y - 1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else if (sp1F4 == SPRITE_TYPE_I8) {
@@ -767,7 +767,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             spD0 = sp214->y - 1.0;
             temp_f26 = (f64) sp200 - (f32) gFramebufferWidth * 0.5;
             spC0 = (f64)f28 - (f32)gFramebufferHeight*0.5 -0.5f;
-            gSPVertex((*gfx)++, (uintptr_t)*vtx, 4, 0); // [port] Vtx* -> uintptr_t
+            gSPVertex((*gfx)++, (uintptr_t)*vtx, 4, 0);
             for(iy = 0.0f; iy < 2.0; iy+= 1.0){
                 for(ix = 0.0f; ix < 2.0; ix += 1.0){
                     s32 s = (ix * temp_f24 * 64.0f);
@@ -775,7 +775,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
                     {
                         s32 t = (iy * spD0 * 64.0f);
                         (*vtx)->v.ob[1] = (s16) (s32) ((f64) (spC0 + (spD0 * arg3 * iy)) * -4.0);
-                        (*vtx)->v.ob[2] = -0xA; // [port] was -0x14; Z=-20 at guOrtho far clip plane, gets clipped on PC
+                        (*vtx)->v.ob[2] = -0xA;
                         (*vtx)->v.tc[0] = s;
                         (*vtx)->v.tc[1] = t;
                     }

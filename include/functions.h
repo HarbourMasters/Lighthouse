@@ -382,7 +382,7 @@ void func_80326244(Actor *);
 void func_8032728C(f32[3], f32, s32, int(*)(Actor *));
 
 Actor *actor_spawnWithYaw_f32(enum actor_e actor_id, f32 position[3], s32 yaw);
-Actor *actor_spawnWithYaw_s16(enum actor_e id, s16 (*pos)[3], s32 yaw); // [port] added prototype to fix implicit declaration
+Actor *actor_spawnWithYaw_s16(enum actor_e id, s16 (*pos)[3], s32 yaw);
 int  func_8032863C(AnimCtrl *, f32, f32);
 int  func_80328A2C(Actor *, f32, s32, f32);
 void subaddie_set_state(Actor *, u32);

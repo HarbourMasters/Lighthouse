@@ -128,5 +128,5 @@ void ability_setAllUsed(s32 val){
 
 void ability_getSizeAndPtr(s32 *size, u8 **addr){
     *size = 8;
-    *addr = (u8 *)&abilityprogress_learnedAbilities; // [port] cast s32* to u8* for save serialization
+    *addr = (u8 *)&abilityprogress_learnedAbilities;
 }

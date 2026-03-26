@@ -6,7 +6,6 @@
 extern void func_802BE720(void);
 extern f32 func_8033A244(f32);
 extern void func_8033A280(f32);
-// [port] removed: extern void func_80329904 — now provided by port_prototypes.h as s32 return
 
 typedef struct chjiggy_s{
     u32 unk0;

@@ -16,7 +16,7 @@ struct {
 
 /* .code */
 void func_80387F80(void){
-    func_8034E71C((Struct73s *)func_8034C5AC(0x131), 0x190, 0.0f); // [port] Struct70s union contains Struct73s
+    func_8034E71C((Struct73s *)func_8034C5AC(0x131), 0x190, 0.0f);
 }
 
 void CC_func_80387FB0(void){
@@ -78,7 +78,7 @@ void func_80388104(void){
 void func_8038817C(void){
     f32 sp24[3];
     f32 sp20 = time_getDelta();
-    Struct70s *tmp_v0; // [port] was s32 — stores pointer from func_8034C5AC
+    Struct70s *tmp_v0;
 
     if(D_80389F90.unk0 != 0){
         D_80389F90.unk4 += sp20;
@@ -92,7 +92,7 @@ void func_8038817C(void){
             timed_exitStaticCamera(5.0f);
             tmp_v0 = func_8034C5AC(0x131);
             if(tmp_v0){
-                func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f); // [port] Struct70s union contains Struct73s
+                func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f);
             }
             D_80389F90.unk4 = 0.0f;
         }//L80388264

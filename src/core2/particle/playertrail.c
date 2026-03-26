@@ -651,7 +651,7 @@ void func_8029C304(s32 arg0) {
 
     _player_getPosition(sp1C);
     sp1C[1] = func_80294500();
-    fxRipple_802F3584(arg0, sp1C, (uintptr_t)func_802946CC()); // [port] BKCollisionTri* to uintptr_t
+    fxRipple_802F3584(arg0, sp1C, (uintptr_t)func_802946CC());
 }
 
 void func_8029C348(void) {
@@ -777,7 +777,7 @@ enum bs_e bs_getTypeOfJump(void){
     return BS_5_JUMP;
 }
 
-void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3){ // [port] enum args → s32 to match port_prototypes.h
+void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3){
     baanim_setUpdateType(arg0);
     yaw_setUpdateState(yaw_state);
     func_8029957C(arg2);

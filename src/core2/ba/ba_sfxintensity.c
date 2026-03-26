@@ -61,7 +61,7 @@ void func_80290BC0(s32 arg0){
 
 int func_80290D48(void){
     int camera_node_index;
-    CameraNodeType4 *sp28; // [port] was s32 — pointer truncation on 64-bit
+    CameraNodeType4 *sp28;
     s32 sp24;
     s32 sp20;
     s32 sp1C;

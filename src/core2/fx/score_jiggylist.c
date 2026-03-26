@@ -276,7 +276,7 @@ void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor 
 
     ptr = &jiggylist_list[jiggy_id - 1];
     jiggy_spawn(jiggy_id, position);
-    ptr->unk10.unk14 = (void (*)(struct actor_s *, struct actorMarker_s *))method; // [port]
+    ptr->unk10.unk14 = (void (*)(struct actor_s *, struct actorMarker_s *))method;
     ptr->unk10.unk18 = other_marker;
 }
 
@@ -320,7 +320,7 @@ void func_803333DC(Struct81s *arg0, Actor *arg1) {
         arg0->unk14(arg1, arg0->unk18);
     }
     marker_setFreeMethod(arg1->marker, jiggy_free);
-    jiggy_id = ((ptrdiff_t)((uintptr_t)arg0 - (uintptr_t)&jiggylist_list) / sizeof(Struct_core2_ABC00_0)) + 1; // [port] was 0x2C; struct size differs on 64-bit
+    jiggy_id = ((ptrdiff_t)((uintptr_t)arg0 - (uintptr_t)&jiggylist_list) / sizeof(Struct_core2_ABC00_0)) + 1;
     chjiggy_setJiggyId(arg1, jiggy_id);
     if ((jiggy_id == JIGGY_49_CCW_EYRIE) || (jiggy_id == JIGGY_39_LAIR_MMM_WITCH_SWITCH) || (jiggy_id == JIGGY_3C_LAIR_CCW_WITCH_SWITCH)) {
         arg1->marker->unk40_21 = true;

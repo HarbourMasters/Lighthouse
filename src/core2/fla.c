@@ -69,11 +69,11 @@ void *freelist_next(FLA **this_ptr, s32 *arg1) {
 
 bool freelist_elementIsAlive(FLA *this, s32 index)
 {
-  u8 *tmp_v0 = (u8*)(this + 1); // [port] FLA* to u8*
+  u8 *tmp_v0 = (u8*)(this + 1);
   s16 *i_ptr;
   u8 *new_var;
 
-  new_var = (u8*)(this + 1); // [port] FLA* to u8*
+  new_var = (u8*)(this + 1);
   for (i_ptr = (s16 *) (this + 1); *i_ptr; i_ptr = (s16 *) (((*i_ptr) * this->elem_size) + (new_var = tmp_v0)))
   {
     if ((*i_ptr) == index)

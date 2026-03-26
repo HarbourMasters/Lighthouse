@@ -19,7 +19,7 @@ s32 func_802EE5E0(s32 arg0){
     return arg0;
 }
 
-void func_802EE5E8(void *this){ // [port] void* — callers include sparkleemit.c which passes void*
+void func_802EE5E8(void *this){
     return;
 }
 

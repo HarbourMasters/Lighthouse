@@ -123,7 +123,7 @@ void chstonejinjo_breakOpen(ActorMarker *marker) {
             bossjinjo_wakeup_time = chbossjinjo_getWakeUpTime();
             camera_duration_time = actor_stonejinjo->unk1C[0] + bossjinjo_wakeup_time;
             chfinalboss_getPosition(position_finalboss);
-            func_8028F94C(2, position_finalboss); // [port] f32(*)[3] → f32*: array decays to pointer
+            func_8028F94C(2, position_finalboss);
             chfinalboss_setJinjoStatueActivated(true);
             timed_setStaticCameraToNode(0 * camera_duration_time, camera_node);
             timed_exitStaticCamera(1 * camera_duration_time);

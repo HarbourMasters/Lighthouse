@@ -66,7 +66,7 @@ void func_802F8110(struct3s *this, Gfx **gdl, Mtx **mptr, u32 arg3){
     endPtr = bk_vector_getEnd(this->unk20);
     for(iPtr = startPtr; iPtr < endPtr; iPtr++){
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
-        modelRender_draw(gdl, mptr, iPtr->unk0, 0, 1.0f, 0, this->unk2C); // [port] pass f32[3] position member, not struct4s*
+        modelRender_draw(gdl, mptr, iPtr->unk0, 0, 1.0f, 0, this->unk2C);
         iPtr->unk18 = func_8033A170();
     }
 }
@@ -79,7 +79,7 @@ void func_802F8214(struct3s * this){
     if(this->unk0)
         func_802F9D38(this->unk0);
     bk_vector_free(this->unk20);
-    func_8033BD20((void **)&this->unk2C); // [port] void** → BKModelBin**
+    func_8033BD20((void **)&this->unk2C);
     bk_free(this);
 
 }
@@ -114,12 +114,12 @@ void func_802F8338(struct3s *this){
 }
 
 void func_802F8358(struct3s *this){
-    u32 tmp; // [port] was void*, matches struct3s.unk0 type (u32)
+    u32 tmp;
     func_802F80E8(this, 2);
     if(!(tmp = this->unk0))
         return;
     func_802F9FD0(tmp, 0.0f, 0.0f, 3.0f);
-    this->unk0 = 0; // [port] was NULL, use 0 for u32
+    this->unk0 = 0;
 }
 
 void func_802F83AC(struct3s *arg0) {

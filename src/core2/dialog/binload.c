@@ -3,7 +3,7 @@
 #include "variables.h"
 #include "structs.h"
 
-extern int ResourceMgr_GetDialogLanguageCount(void); // [port]
+extern int ResourceMgr_GetDialogLanguageCount(void);
 
 /* .bss */
 s32 D_80383150;
@@ -18,7 +18,7 @@ s32 code94620_func_8031B5B0(void) {
     return s_dialogBin.unk0;
 }
 
-s32 func_8031B5BC(void){ return ResourceMgr_GetDialogLanguageCount(); } // [port] was hardcoded 1 for US
+s32 func_8031B5BC(void){ return ResourceMgr_GetDialogLanguageCount(); }
 
 void func_8031B5C4(s32 arg0) {
     if ((arg0 >= 0) && (arg0 < func_8031B5BC())) {

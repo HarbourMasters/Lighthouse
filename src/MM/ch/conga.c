@@ -182,7 +182,7 @@ void __chConga_sendOrangeProjectile(ActorMarker *congaMarker){
     congaPtr->unk10_12 -= (congaPtr->unk10_12 && ( conga_state == 7));
     MM_func_80387F44();
     congaPtr->actor_specific_1_f = 2.0f;
-    orangePtr = actor_spawnWithYaw_s32(ACTOR_14_ORANGE_PROJECTILE, &conga_localPtr->orangeSpawnPosition, congaPtr->yaw); // [port] added & for s32(*)[3] param
+    orangePtr = actor_spawnWithYaw_s32(ACTOR_14_ORANGE_PROJECTILE, &conga_localPtr->orangeSpawnPosition, congaPtr->yaw);
 
     if(orangePtr != NULL){
         player_getPosition(plyr.pos);
@@ -214,7 +214,7 @@ void func_803876D0(Actor *this){
     NodeProp *node_prop;
     s32 sp3C;
 
-    this->marker->propPtr->unk8_3 = (timedFuncQueue_is_empty())?1:0; // [port] decomp passed Actor* but actual def is (void)
+    this->marker->propPtr->unk8_3 = (timedFuncQueue_is_empty())?1:0;
     if(!this->initialized){
         ((ActorLocal_Conga *)&this->local)->unkC = 1;
         this->unk16C_0 = 1;
@@ -371,7 +371,7 @@ void func_803876D0(Actor *this){
     if( (this->state == 4 && actor_animationIsAt(this, 0.56f))
         || (this->state == 7 && actor_animationIsAt(this, 0.468f))
     ){
-        func_8034A1B4(this->marker->unk44, 5, (s32 *)this->local); // [port] &this->local is u8(*)[0x80], function expects s32*
+        func_8034A1B4(this->marker->unk44, 5, (s32 *)this->local);
         __spawnQueue_add_1((GenFunction_1)__chConga_sendOrangeProjectile, (uintptr_t)this->marker); //spawn orange
     }
 }

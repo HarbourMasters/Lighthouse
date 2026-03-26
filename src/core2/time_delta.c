@@ -54,7 +54,7 @@ void func_80352CF4(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3) {
     if (func_8033E3F0(7, 1) >= 0) {
         sp1A = func_8033E8D0();
         sp1B = func_8033E93C();
-        sp1C = (f32*)func_8033E960(); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+        sp1C = (f32*)func_8033E960();
         sp1C[0] = arg2;
         sp1C[1] = (arg3 - arg2) / 20.0f;
         projectile_setPosition(sp1A, arg0);
@@ -104,11 +104,11 @@ void func_80352DE4(void) {
     func_80344E18(sp57, 2);
     func_80344E3C(sp57, sp38);
     func_80344D94(sp57, sp44);
-    func_80352CA0(projectile_indx, (f32*)temp_s1); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+    func_80352CA0(projectile_indx, (f32*)temp_s1);
 }
 
 void func_80352F58(void){
-    f32 *sp2C = (f32*)func_8033E960(); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+    f32 *sp2C = (f32*)func_8033E960();
     AnimSprite *sp28 = func_8033E8F4();
     u8 sp27 = func_8033E8D0();
     f32 sp20 = time_getDelta_frames();

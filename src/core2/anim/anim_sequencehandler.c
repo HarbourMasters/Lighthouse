@@ -4,8 +4,8 @@
 #include "variables.h"
 
 extern void anSeq_clear(VLA**);
-extern void anSeq_PushStep_2Arg(VLA**, f32, void *, uintptr_t, uintptr_t); // [port] was s32 first arg — truncates 64-bit pointer
-extern void anSeq_PushStep_3Arg(VLA**, f32, void *, uintptr_t, uintptr_t, uintptr_t); // [port] was s32 first arg — truncates 64-bit pointer
+extern void anSeq_PushStep_2Arg(VLA**, f32, void *, uintptr_t, uintptr_t);
+extern void anSeq_PushStep_3Arg(VLA**, f32, void *, uintptr_t, uintptr_t, uintptr_t);
 bk_vector(AnSeqElement) **anSeq_new(void);
 
 //TODO import from cutscenes/code_0.h
@@ -87,14 +87,14 @@ void func_80361A30(f32 arg0[3], s32 arg1){
     }
 }
 
-void func_80361AB0(uintptr_t marker, uintptr_t arg1){ // [port] was (s32, s32) — receives pointer via anSeq
+void func_80361AB0(uintptr_t marker, uintptr_t arg1){
     Actor *actor;
 
     actor = marker_getActor(reinterpret_cast(ActorMarker *,marker));
     func_80361A30(actor->position, arg1);
 }
 
-void func_80361AE0(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){ // [port] was (s32, s32, s32)
+void func_80361AE0(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){
     Actor *this;
     f32 sp20[3];
     ActorMarker *marker;
@@ -114,7 +114,7 @@ void func_80361AE0(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){ // [port] wa
     func_80361A30(sp20, arg2);
 }
 
-void func_80361B68(uintptr_t arg0, uintptr_t arg1){ // [port] was (s32, s32)
+void func_80361B68(uintptr_t arg0, uintptr_t arg1){
     ActorMarker *marker;
     f32 arg1_f;
     Actor *actor;
@@ -124,7 +124,7 @@ void func_80361B68(uintptr_t arg0, uintptr_t arg1){ // [port] was (s32, s32)
     func_803246F0(actor->unk160, arg1);
 }
 
-void func_80361B98(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){ // [port] was (s32, s32, s32)
+void func_80361B98(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){
     ActorMarker *marker;
     f32 arg1_f;
     Actor *actor;
@@ -134,7 +134,7 @@ void func_80361B98(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){ // [port] wa
     func_80324770(actor->unk160, arg1, arg2);
 }
 
-void func_80361BD0(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){ // [port] was (s32, s32, s32)
+void func_80361BD0(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){
     ActorMarker *marker;
     f32 arg1_f;
     Actor *actor;
@@ -148,33 +148,33 @@ void func_80361BD0(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2){ // [port] wa
     actor->unk124_11 = arg2;
 }
 
-void func_80361C24(VLA **arg0, f32 arg1, ActorMarker * arg2, s32 arg3){ // [port] was s32 arg0; arg3 was f32 in decomp (MIPS ABI passes int bits through $a3 regardless of type, but x64 uses separate int/float registers)
+void func_80361C24(VLA **arg0, f32 arg1, ActorMarker * arg2, s32 arg3){
     anSeq_PushStep_2Arg(arg0, arg1, func_80361B68, (uintptr_t)arg2, (uintptr_t)arg3);
 }
 
-void func_80361C64(VLA **arg0, f32 arg1, ActorMarker * arg2, s32 arg3, s32 arg4){ // [port] was s32 arg0
+void func_80361C64(VLA **arg0, f32 arg1, ActorMarker * arg2, s32 arg3, s32 arg4){
     anSeq_PushStep_3Arg(arg0, arg1, func_80361B98, (uintptr_t)arg2, (uintptr_t)arg3, arg4);
 }
 
-void func_80361CAC(VLA **arg0, f32 arg1, ActorMarker *arg2, f32 arg3){ // [port] was s32 arg0
+void func_80361CAC(VLA **arg0, f32 arg1, ActorMarker *arg2, f32 arg3){
     anSeq_PushStep_3Arg(arg0, arg1, func_80361BD0, (uintptr_t)arg2, (uintptr_t)reinterpret_cast(u32, arg3), 1); // [port] u32 intermediate avoids 8-byte read from 4-byte f32
 }
 
-void func_80361CF4(VLA **arg0, f32 arg1, ActorMarker *arg2, f32 arg3){ // [port] was s32 arg0
+void func_80361CF4(VLA **arg0, f32 arg1, ActorMarker *arg2, f32 arg3){
     anSeq_PushStep_3Arg(arg0, arg1, func_80361BD0, (uintptr_t)arg2, (uintptr_t)reinterpret_cast(u32, arg3), 2); // [port] u32 intermediate avoids 8-byte read from 4-byte f32
 }
 
-void func_80361D3C(VLA **arg0, f32 arg1, s32 arg2, s32 arg3){ // [port] was s32 arg0
+void func_80361D3C(VLA **arg0, f32 arg1, s32 arg2, s32 arg3){
     anSeq_PushStep_2Arg(arg0, arg1, func_80361AB0, (uintptr_t)arg2, (uintptr_t)arg3);
 }
 
-void func_80361D7C(VLA **arg0, f32 arg1, struct ActorMarker *arg2, s32 arg3, u32 arg4){ // [port] was s32 arg0
+void func_80361D7C(VLA **arg0, f32 arg1, struct ActorMarker *arg2, s32 arg3, u32 arg4){
     anSeq_PushStep_3Arg(arg0, arg1, func_80361AE0, (uintptr_t)arg2, arg3, arg4);
 }
 
 void func_80361DC4(Actor *this){
     if(this->unk134){
-        anSeq_free((void **)this->unk134); // [port]
+        anSeq_free((void **)this->unk134);
     }
     this->unk134 = NULL;
 
@@ -218,8 +218,8 @@ void func_80361EE0(Actor *this) {
     if (this->anctrl != NULL && this->unk134 != NULL) {
         sp24 = this->unk108;
         sp28 = anctrl_getIndex(this->anctrl);
-        if (sp28 != (s32)(uintptr_t)this->unk10C) { // [port] cast — unk10C (MarkerCollisionFunc) repurposed as anim index here
-            this->unk10C = (MarkerCollisionFunc)(uintptr_t)sp28; // [port] cast — store s32 anim index in MarkerCollisionFunc field
+        if (sp28 != (s32)(uintptr_t)this->unk10C) {
+            this->unk10C = (MarkerCollisionFunc)(uintptr_t)sp28;
             anSeq_clear(this->unk134);
             for(sp20 = sp24->unk4; sp20->unk4 != NULL; sp20++){
                 if (sp28 == sp20->unk0) {
@@ -228,6 +228,6 @@ void func_80361EE0(Actor *this) {
                 }
             }
         }
-        anSeq_update((void **)this->unk134, this->anctrl); // [port]
+        anSeq_update((void **)this->unk134, this->anctrl);
     }
 }

@@ -246,7 +246,7 @@ void func_802C4768(s32 gamenum){
     sp20[0] = upperTextLine;\
     sp20[1] = lowerTextLine;
     func_8031877C(chGameSelectBottomZoombox);
-    gczoombox_setStrings(chGameSelectBottomZoombox, 2, (char **)sp20); // [port]
+    gczoombox_setStrings(chGameSelectBottomZoombox, 2, (char **)sp20);
     gczoombox_maximize(chGameSelectBottomZoombox);
     gczoombox_resolve_minimize(chGameSelectBottomZoombox);
 }
@@ -275,7 +275,7 @@ void func_802C4AF0(Actor * this){
 
     if(D_8037DD28){
         func_802F9D38(D_8037DD28);
-        D_8037DD28 = 0; // [port] was NULL, use 0 for s32
+        D_8037DD28 = 0;
     }
 
     comusic_8025AB44(COMUSIC_73_GAMEBOY, 0, 4000);
@@ -302,8 +302,8 @@ void func_802C4C14(Actor *this){
     s32 *tmp_a2; //pad70
     s32 pad_6C;
     s32 pad_68;
-    s32 sp5C[6]; // [port] was [3], but controller_copyFaceButtons writes 6 entries
-    f32 sp54[2]; // [port] was scalar, but controller_getJoystick writes f32[2]
+    s32 sp5C[6];
+    f32 sp54[2];
     f32 sp50;
     int i; //sp4C
     struct5Bs *sp48;
@@ -338,7 +338,7 @@ void func_802C4C14(Actor *this){
     else{//L802C4D24
         func_8024E60C(0, sp74);
         controller_copyFaceButtons(0, sp5C);
-        controller_getJoystick(0, sp54); // [port] was &sp54, array decays to f32*
+        controller_getJoystick(0, sp54);
         switch(this->state){
             case 2:
             case 5:
@@ -386,7 +386,7 @@ void func_802C4C14(Actor *this){
                     else{
                         if(D_8037DD28){
                             func_802F9D38(D_8037DD28);
-                            D_8037DD28 = 0; // [port] was NULL, use 0 for s32
+                            D_8037DD28 = 0;
                         }
                     }
                     func_802C4768(sp84);
@@ -410,7 +410,6 @@ void func_802C4C14(Actor *this){
                 case 4://L802C50C8
                     if(anctrl_isStopped(this->anctrl)){
                         chBottlesBonus_func_802DEB80();
-                        // [port] Restore bottles bonus after vanilla reset.
                         // gameFile_load handles the slot lookup and restores both
                         // lives and bottles bonus via port_restoreFileEnhancementData.
                         {
@@ -576,7 +575,7 @@ void func_802C4C14(Actor *this){
         );
         if(this->marker->unk14_21) {
             osViBlack(0);
-            port_setViBlack(0); // [port]
+            port_setViBlack(0);
         }
     }//L802C5734
 }

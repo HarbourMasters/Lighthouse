@@ -216,7 +216,7 @@ void bsbeefly_update(void){
         default:
             break;
         case 0:
-            if(sp24 != D_803649C4) // [port] was &D_803649C4 — array decays to f32*
+            if(sp24 != D_803649C4)
                 D_8037D2C0 = 1;
             break;
         case 1:
@@ -229,7 +229,7 @@ void bsbeefly_update(void){
                 baphysics_set_vertical_velocity(sp44*400.0);
                 func_802A04F0();
             }
-            if(sp24 == D_803649C4){ // [port] was &D_803649C4 — array decays to f32*
+            if(sp24 == D_803649C4){
                 func_802A0724();
                 D_8037D2C0 = 0;
             }

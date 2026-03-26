@@ -153,7 +153,7 @@ extern void chfinalboss_phase5_update(ActorMarker *marker);
 extern void chfinalboss_phase0_endTextCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2);
 extern void chfinalboss_func_8038B780(ActorMarker *marker);
 extern void chfinalboss_phase0_update(ActorMarker *marker);
-extern s32 chfinalboss_func_8038B834(ActorMarker *marker, ActorMarker *other_marker); // [port] was bool — callback for func_803300C0 expects s32
+extern s32 chfinalboss_func_8038B834(ActorMarker *marker, ActorMarker *other_marker);
 extern void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker);
 extern void chfinalboss_collisionActive(ActorMarker *marker, ActorMarker *other_marker);
 extern void chfinalboss_spawnShadow(ActorMarker *marker);

@@ -61,7 +61,7 @@ struct SnsPayload *snspayload_find_payload_in_ram(void)
 {
     struct SnsPayload *payload;
 
-    for (payload = (struct SnsPayload *)(uintptr_t)0x80000000; payload < (struct SnsPayload *)(uintptr_t)0x80400080; payload++) // [port] uintptr_t intermediate cast for 64-bit
+    for (payload = (struct SnsPayload *)(uintptr_t)0x80000000; payload < (struct SnsPayload *)(uintptr_t)0x80400080; payload++)
         if (payload->magic == SNS_HEADER_MAGIC && snspayload_validate(payload))
             return payload;
 

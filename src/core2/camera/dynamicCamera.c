@@ -5,12 +5,12 @@
 
 
 extern bool func_80245314(f32[3], f32[3], f32, f32, u32);
-extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32); // [port] was int — returns BKCollisionTri*
-extern BKCollisionTri *func_8024575C(f32[3], f32[3], f32, f32[3], s32, u32); // [port] was int — returns BKCollisionTri*
+extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
+extern BKCollisionTri *func_8024575C(f32[3], f32[3], f32, f32[3], s32, u32);
 extern f32 func_8028E82C(void);
 extern f32 player_getYaw(void);
 extern f32 func_8028EF88(void);
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32); // [port] was int — returns BKCollisionTri*
+extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 
 typedef struct {
     f32* unk0;
@@ -882,8 +882,8 @@ void func_802BE484(f32 arg0[3], f32 arg1[3]){
     f32 sp48[3];
     f32 sp3C[3];
     f32 sp30[3];
-    BKCollisionTri *sp2C; // [port] was int — truncates 64-bit pointer return from func_80320B98
-    BKCollisionTri *tmp_v0; // [port] was s32 — truncates 64-bit pointer return from func_8024575C
+    BKCollisionTri *sp2C;
+    BKCollisionTri *tmp_v0;
 
     func_802BE258(arg0, 35.0f);
     ml_vec3f_copy(sp48, arg0);

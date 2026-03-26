@@ -161,7 +161,7 @@ typedef struct {
     s32                         sample;
     s32                         lastsam;
     s32                         first;
-    uintptr_t                   memin; // [port] stores table base pointer, needs pointer width
+    uintptr_t                   memin;
 } ALLoadFilter;
 
 void    alLoadNew(ALLoadFilter *f, ALDMANew dma, ALHeap *hp);
@@ -254,7 +254,7 @@ s32     alResampleParam(void *f, s32 paramID, void *param);
 
 typedef struct ALSave_s {
     ALFilter            filter;
-    uintptr_t	       	dramout; // [port] stores buffer pointer, needs pointer width
+    uintptr_t	       	dramout;
     s32                 first;
 } ALSave;
 

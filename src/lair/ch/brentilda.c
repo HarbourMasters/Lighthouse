@@ -188,7 +188,7 @@ void chBrentilda_update(Actor *this) {
             if (func_8028EFC8() && (sp78[FACE_BUTTON(BUTTON_B)] == 1)) {
                 this->unk10_12++;
                 this->unk10_12 %= 3;
-                func_80311174(local->unk0 + this->unk10_12, 0xB, this->position, this->marker, func_8038BADC, NULL, (s32(*)(ActorMarker*,s32,s32))func_8038BA30); // [port] polymorphic callback
+                func_80311174(local->unk0 + this->unk10_12, 0xB, this->position, this->marker, func_8038BADC, NULL, (s32(*)(ActorMarker*,s32,s32))func_8038BA30);
                 subaddie_set_state(this, 2);
                 return;
             }

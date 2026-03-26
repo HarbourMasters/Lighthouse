@@ -17,7 +17,7 @@
  */
 extern void func_80253010(void *dest, void *src, s32 size);
 
-#define chunkSize(s) ((uintptr_t)(s)->next - (uintptr_t)(s) - sizeof(HeapHeader)) // [port] u32 -> uintptr_t for 64-bit pointer safety
+#define chunkSize(s) ((uintptr_t)(s)->next - (uintptr_t)(s) - sizeof(HeapHeader))
 #if VERSION == VERSION_USA_1_0
 #define HEAP_SIZE 0x210520
 #elif VERSION == VERSION_PAL
@@ -99,11 +99,11 @@ void _heap_defragEmptyBlock(EmptyHeapBlock * arg0){
         ((EmptyHeapBlock *)arg0->hdr.next)->next_free->prev_free = ((EmptyHeapBlock *)arg0->hdr.next)->prev_free;
         ((EmptyHeapBlock *)arg0->hdr.next)->prev_free->next_free = ((EmptyHeapBlock *)arg0->hdr.next)->next_free;
         //remove next from block link list
-        arg0->hdr.next->next->prev = (HeapHeader *)arg0; // [port] EmptyHeapBlock* -> HeapHeader*
+        arg0->hdr.next->next->prev = (HeapHeader *)arg0;
         arg0->hdr.next = arg0->hdr.next->next;
     }
     if(arg0->hdr.prev->unkC_7 == HEAP_BLOCK_EMPTY){
-        defrag_ptr = (EmptyHeapBlock *)arg0->hdr.prev; // [port] HeapHeader* -> EmptyHeapBlock*
+        defrag_ptr = (EmptyHeapBlock *)arg0->hdr.prev;
         //remove self from empty block link list
         arg0->next_free->prev_free = arg0->prev_free;
         arg0->prev_free->next_free = arg0->next_free;
@@ -122,7 +122,7 @@ void func_8025456C(EmptyHeapBlock * arg0){
     arg0->hdr.unkC_7 = HEAP_BLOCK_EMPTY;
     arg0->hdr.unusedBytes_C_31 = 0;
     if((u8*)arg0->hdr.next - (u8*)arg0 < 10000){
-        arg0->prev_free = &D_8002D500[0]; // [port] was &D_8002D500 — use element 0 for correct type
+        arg0->prev_free = &D_8002D500[0];
         arg0->next_free = D_8002D500->next_free;
         D_8002D500->next_free->prev_free = arg0;
         D_8002D500->next_free = arg0;
@@ -195,21 +195,21 @@ void heap_init(void){
     D_802765AC = 0;
     D_802765B0.unk0 = false;
     D_8002D500[0].hdr.prev = NULL;
-    D_8002D500[0].hdr.next = (HeapHeader *)&D_8002D500[1]; // [port] EmptyHeapBlock* -> HeapHeader*
+    D_8002D500[0].hdr.next = (HeapHeader *)&D_8002D500[1];
     D_8002D500[0].hdr.unkC_7 = 2;
     D_8002D500[0].hdr.unusedBytes_C_31 = 0;
     D_8002D500[0].prev_free = NULL;
     D_8002D500[0].next_free = &D_8002D500[1];
 
-    D_8002D500[1].hdr.prev = (HeapHeader *)&D_8002D500[0]; // [port] EmptyHeapBlock* -> HeapHeader*
-    D_8002D500[1].hdr.next = (HeapHeader *)&D_8002D500[LAST_HEAP_BLOCK]; // [port] EmptyHeapBlock* -> HeapHeader*
+    D_8002D500[1].hdr.prev = (HeapHeader *)&D_8002D500[0];
+    D_8002D500[1].hdr.next = (HeapHeader *)&D_8002D500[LAST_HEAP_BLOCK];
     D_8002D500[1].hdr.unkC_7 = 0;
     D_8002D500[1].hdr.unusedBytes_C_31 = 0;
     D_8002D500[1].prev_free = &D_8002D500[0];
     D_8002D500[1].next_free = &D_8002D500[LAST_HEAP_BLOCK];
 
-    D_8002D500[LAST_HEAP_BLOCK].hdr.prev = (HeapHeader *)&D_8002D500[1]; // [port] EmptyHeapBlock* -> HeapHeader*
-    D_8002D500[LAST_HEAP_BLOCK].hdr.next = (HeapHeader *)&D_8002D500[LAST_HEAP_BLOCK + 1]; // [port] EmptyHeapBlock* -> HeapHeader*
+    D_8002D500[LAST_HEAP_BLOCK].hdr.prev = (HeapHeader *)&D_8002D500[1];
+    D_8002D500[LAST_HEAP_BLOCK].hdr.next = (HeapHeader *)&D_8002D500[LAST_HEAP_BLOCK + 1];
     D_8002D500[LAST_HEAP_BLOCK].hdr.unkC_7 = 2;
     D_8002D500[LAST_HEAP_BLOCK].hdr.unusedBytes_C_31 = 0;
     D_8002D500[LAST_HEAP_BLOCK].prev_free = &D_8002D500[1];
@@ -251,7 +251,6 @@ u32 heap_get_occupied_size(void){
     return _heap_get_occupied_size();
 }
 
-// [port] Custom heap not used (heap_init commented out), stub heap query functions
 bool func_8025498C(s32 size){
     return true; // always report enough space
 }
@@ -331,7 +330,6 @@ int func_80254BC4(int arg0){
     return false;
 }
 
-// [port] Custom heap is not used (heap_init commented out), stub to report large free size
 // so callers skip cache eviction logic
 void *func_80254BD0(s32 *size, u32 arg1) {
     *size = 0x7FFFFFFF;
@@ -562,7 +560,7 @@ void func_80255200(HeapHeader *block, s32 size){
 void func_80255300(HeapHeader *block, s32 size){
     func_80255200(block, size);
     if(block->next->unkC_7 == HEAP_BLOCK_EMPTY){
-        _heap_sortEmptyBlock((EmptyHeapBlock *)block->next); // [port] HeapHeader* -> EmptyHeapBlock*
+        _heap_sortEmptyBlock((EmptyHeapBlock *)block->next);
     }
 }
 

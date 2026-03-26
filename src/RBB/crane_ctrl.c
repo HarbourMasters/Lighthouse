@@ -28,7 +28,7 @@ void func_80387090(ActorMarker *marker, s32 arg1){
 }
 
 void func_803870BC(s32 arg0, s32 arg1){
-    Struct70s *tmp_s70 = func_8034C528(arg0); // [port] split UB
+    Struct70s *tmp_s70 = func_8034C528(arg0);
     if(tmp_s70){
         Struct6Ds *temp_v0 = &tmp_s70->type_6D;
         func_8034DFB0(temp_v0, D_80390224, D_80390234, (f64)arg1/1000.0);
@@ -36,7 +36,7 @@ void func_803870BC(s32 arg0, s32 arg1){
 }
 
 void func_8038711C(s32 arg0, s32 arg1){
-    Struct70s *tmp_s70; // [port] split UB
+    Struct70s *tmp_s70;
     func_8030E6D4(SFX_90_SWITCH_PRESS);
     tmp_s70 = func_8034C528(arg0);
     if(tmp_s70){

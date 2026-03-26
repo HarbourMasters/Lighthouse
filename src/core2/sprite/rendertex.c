@@ -51,8 +51,8 @@ void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, 
 }
 
 /* .bss */
-BKSpriteFrame *D_80386070; // [port] was s32 — stores BKSpriteFrame*
-BKSpriteFrame *D_80386074; // [port] was s32 — stores BKSpriteFrame*
+BKSpriteFrame *D_80386070;
+BKSpriteFrame *D_80386074;
 s32 D_80386078;
 s32 D_8038607C;
 s32 D_80386080;
@@ -125,9 +125,9 @@ void func_80347FC0(Gfx **gfx, BKSprite *sprite, s32 frame, s32 tmem, s32 rtile, 
 
 void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height, s32 *frame_width, s32 *frame_height, s32 *texture_x, s32 *texture_y, s32 *textureCount) {
     BKSpriteFrame *sprite_frame;
-    uintptr_t palette_addr; // [port] was s32, holds pointer
+    uintptr_t palette_addr;
     BKSpriteTextureBlock *texture_block;
-    uintptr_t timg; // [port] was s32, holds pointer
+    uintptr_t timg;
     s32 sp144;
     s32 var_a0;
     s32 chunk_count;
@@ -149,7 +149,7 @@ void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, 
         gDPLoadTLUT_pal16((*gfx)++, 0, palette_addr);
         spriteRenderHasPalette = true;
         spriteRender1PrimMode = false;
-        D_80386074 = NULL; // [port] was = 0
+        D_80386074 = NULL;
         texture_block = (BKSpriteTextureBlock *)(palette_addr + 0x20);
         D_80386098 = D_8038607C = 0;
     } else if (sprite->type & SPRITE_TYPE_CI8) {
@@ -284,7 +284,7 @@ void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, 
 }
 
 void func_80349AD0(void){
-    D_80386074 = D_80386070 = NULL; // [port] was = 0
+    D_80386074 = D_80386070 = NULL;
     D_80386098 = D_8038607C = 0;
     D_80386094 = D_80386078 = -1;
     spriteRenderHasPalette = false;

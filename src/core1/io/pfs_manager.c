@@ -220,7 +220,7 @@ void pfsManager_update(void) {
         if ((D_802816E0 < 1.0) || (getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE)) {
             s0 = 0;
         }
-        temp_t6 = demo_readInput(pfsManagerContPadData, &sp5C) == 0; // [port] removed & — array decays to OSContPad*
+        temp_t6 = demo_readInput(pfsManagerContPadData, &sp5C) == 0;
         if ((D_802812D0.button & s0) || temp_t6) {
             if (D_802812D0.button & s0) {
                 volatileFlag_set(VOLATILE_FLAG_64, 1);
@@ -229,7 +229,7 @@ void pfsManager_update(void) {
             }
         }
         time_setDeltaReal_frames(sp5C);
-        sDemoViCount = sp5C; // [port] expose to Game.cpp for frame pacing
+        sDemoViCount = sp5C;
     } else {
         sDemoViCount = 0;
     }
@@ -445,7 +445,7 @@ OSContPad *func_8024F3F4(void){
 /* initilizes D_802816E8 message queue */
 void func_8024F400(void) {
     D_80275D38 = true;
-    osCreateMesgQueue(&D_802816E8, D_80281700, 5); // [port] array decays to OSMesg*, not &array
+    osCreateMesgQueue(&D_802816E8, D_80281700, 5);
     osSendMesgPtr(&D_802816E8, NULL, OS_MESG_NOBLOCK);
 }
 

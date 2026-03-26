@@ -23,7 +23,7 @@ void func_802EA3A0(Struct_core2_63410_0 *arg0){
     arg0->unk4 = arg0->unk0;
 }
 
-Struct_core2_63410_2 *func_802EA3AC(Struct_core2_63410_0 *arg0, s32 indx, f32 arg2[3], f32 arg3[3]){ // [port] was s32, returns pointer
+Struct_core2_63410_2 *func_802EA3AC(Struct_core2_63410_0 *arg0, s32 indx, f32 arg2[3], f32 arg3[3]){
     //get elem at indx
     Struct_core2_63410_1 *phi_v1;
 

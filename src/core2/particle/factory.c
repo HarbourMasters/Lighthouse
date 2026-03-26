@@ -3,7 +3,7 @@
 #include "variables.h"
 
 
-extern GenFunction_0 commonParticleType_getInitMethod(enum common_particle_e); // [port] was missing — implicit int return truncated function pointer on 64-bit
+extern GenFunction_0 commonParticleType_getInitMethod(enum common_particle_e);
 extern GenFunction_0 commonParticleType_getFreeMethod(enum common_particle_e);
 extern GenFunction_0 commonParticleType_getUpdateMethod(enum common_particle_e);
 

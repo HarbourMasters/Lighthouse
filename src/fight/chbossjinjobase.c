@@ -36,10 +36,10 @@ void chBossJinjoBase_createSmokeParticles(f32 position[3], s32 count) {
 }
 
 void chBossJinjoBase_func_8038D3DC(Actor *this, s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    Struct70s *tmp = func_8034C2C4(this->marker, arg1); // [port] was s32
+    Struct70s *tmp = func_8034C2C4(this->marker, arg1);
 
     if (tmp) {
-        func_8034DE60(&tmp->type_6D, arg2, arg3, arg4, 1); // [port] Struct70s* to Struct6Ds* via union member
+        func_8034DE60(&tmp->type_6D, arg2, arg3, arg4, 1);
     }
 }
 

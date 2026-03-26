@@ -55,7 +55,7 @@ void func_8038ECD8(Actor *this){
     f32 sp58[3];
     f32 sp4C[3];
     f32 sp40[3];
-    BKCollisionTri *sp3C; // [port] was s32, stores pointer from func_80320B98
+    BKCollisionTri *sp3C;
     f32 sp30[3];
 
     if(jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)){
@@ -129,7 +129,7 @@ void func_8038ECD8(Actor *this){
                         player_getPosition(sp68);
                         sp3C = func_80320B98(D_803935D0, sp68, sp30, 0);
                         if(sp3C){
-                            if(sp3C->flags << 9 < 0) // [port] was *(s32 *)(sp3C + 8)
+                            if(sp3C->flags << 9 < 0)
                                 func_8038EC5C(this);
                         }
                     }

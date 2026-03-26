@@ -41,7 +41,6 @@ s16 D_803692EC[5] = {
     -1
 };
 
-// [port] cast macros for function pointers with varying signatures (enum/s32, struct7s/struct8s/void*)
 #define NF(fn) (ItemPrintNewFn)(fn)
 #define UF(fn) (void (*)(s32, struct8s *))(fn)
 #define DF(fn) (void (*)(enum item_e, struct8s *, Gfx**, Mtx**, Vtx**))(fn)
@@ -270,6 +269,6 @@ void func_802FAFD4(enum item_e item_id, enum sfx_e sfx_id){
     D_80381378[item_id] = sfx_id;
 }
 
-bool func_802FAFE8(enum item_e item_id){ // [port] was void — MIPS implicit return from func_802FCD98
+bool func_802FAFE8(enum item_e item_id){
     return func_802FCD98(D_803692F8[item_id].unk14);
 }

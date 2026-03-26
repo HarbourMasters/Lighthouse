@@ -113,7 +113,6 @@ void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
     s_gpuReadbackW = gpuW;
     s_gpuReadbackH = gpuH;
 
-    // [port] OpenGL returns rows bottom-to-top from the default framebuffer (fb 0),
     // but when rendering to an FBO with invertY=true (mGameFb), the interpreter flips
     // rendering so game-top is at low Y — glReadPixels row 0 is already game-top.
     const char* apiName = interpreter->mRapi->GetName();
@@ -185,7 +184,6 @@ static constexpr double GAME_LOGIC_FRAME_TIME = 1.0 / GAME_LOGIC_FPS;
 void push_frame() {
     GameEngine::Instance->StartFrame();
     mainLoop();
-    // [port] Audio processes after game logic to avoid data race on param lists
     GameEngine::StartAudioFrame();
     GameEngine::EndAudioFrame();
 }

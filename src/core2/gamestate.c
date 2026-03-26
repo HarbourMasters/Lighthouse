@@ -21,7 +21,7 @@ s32 D_80385FE0;
 s32 D_80385FE4;
 s32 D_80385FE8;
 f32 D_80385FEC;
-u8  D_80385FF0[0xE]; // [port] was 0xB, but all access patterns use indices up to 0xD
+u8  D_80385FF0[0xE];
 f32 D_80386000[0xE]; //timescores
 s32 D_80386038;
 
@@ -92,7 +92,6 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
     D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = D_80385F30[ITEM_1C_MUMBO_TOKEN];
     D_80385F30[ITEM_16_LIFE] = MIN(0xFF, D_80385F30[ITEM_16_LIFE]);
 
-    // [port] BB romhacks can override all inventory max capacities
     switch(item){
         case ITEM_D_EGGS: {
             s32 cheato = port_getRomhackMaxEggsCheato();

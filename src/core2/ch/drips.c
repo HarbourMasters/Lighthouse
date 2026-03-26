@@ -4,7 +4,7 @@
 #include "core2/particle.h"
 
 #define _HorzDist3v(v1, v2) ((v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[2]-v2[2])*(v1[2]-v2[2]))
-extern BKCollisionTri *func_8024549C(f32[3], f32); // [port] was int — returns BKCollisionTri*
+extern BKCollisionTri *func_8024549C(f32[3], f32);
 
 typedef struct{
     f32 unk0;
@@ -35,7 +35,7 @@ ParticleSettingsVelocityAccelerationPosition D_80372B00 = {
 
 
 /* .code */
-void func_80359A40(f32 position[3], void *arg1_, s32 cnt){ // [port] void* for prototype compatibility
+void func_80359A40(f32 position[3], void *arg1_, s32 cnt){
     struct_core2_D2AB0 *arg1 = (struct_core2_D2AB0 *)arg1_;
     ParticleEmitter *pCtrl = partEmitMgr_newEmitter(cnt);
     particleEmitter_setSprite(pCtrl, ASSET_70C_SPRITE_RIPPLE);

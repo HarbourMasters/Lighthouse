@@ -4,8 +4,8 @@
 
 #include <bk_math.h>
 
-extern BKCollisionTri *func_80309DBC(f32[3], f32[3], f32, f32[3], s32, s32); // [port] was bool — returns BKCollisionTri*, truncated on 64-bit
-extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, s32); // [port] was bool — returns BKCollisionTri*, truncated on 64-bit
+extern BKCollisionTri *func_80309DBC(f32[3], f32[3], f32, f32[3], s32, s32);
+extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, s32);
 extern f32 func_8033229C(ActorMarker *);
 extern bool func_80309D58(f32[3], s32);
 

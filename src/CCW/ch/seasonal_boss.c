@@ -154,7 +154,7 @@ void func_803897B8(Actor *this, s32 next_state) {
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         if (local->unk0->map_id == MAP_43_CCW_SPRING) {
             gcdialog_showText(0xCD6, 4, NULL, NULL, NULL, NULL);
-            skeletalAnim_setCallback_0(this->unk148, 0.65f, (GenFunction_0)&func_80389798); // [port]
+            skeletalAnim_setCallback_0(this->unk148, 0.65f, (GenFunction_0)&func_80389798);
         }
         if (local->unk0->map_id == MAP_44_CCW_SUMMER) {
             gcdialog_showText(0xCD9, 4, NULL, NULL, NULL, NULL);

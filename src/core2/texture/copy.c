@@ -4,7 +4,7 @@
 #include "variables.h"
 
 extern void gfx_texture_cache_clear(void);
-extern u16 port_sampleHiresReadback(int x, int y); // [port]
+extern u16 port_sampleHiresReadback(int x, int y);
 
 u8 *func_802EA620(BKTextureList *texture_list);
 

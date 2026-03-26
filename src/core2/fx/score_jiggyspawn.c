@@ -2,7 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 
-// [port] removed: extern void func_80329904 — now provided by port_prototypes.h as s32 return
 
 void func_80347B10(Struct81s *arg0){
     Actor *actor;

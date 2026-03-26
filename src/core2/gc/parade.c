@@ -360,7 +360,7 @@ void gcparade_init(void) {
                 camera_setType(1);
                 ncStaticCamera_setToNode(D_803830F0.parade_element->exit);
                 if (D_803830F0.parade_element->unk8 > 0) {
-                    temp_v0 = func_80304FC4((enum actor_e *)D_8036DDAC, (NodeProp **)D_80383100, 0x14); // [port]
+                    temp_v0 = func_80304FC4((enum actor_e *)D_8036DDAC, (NodeProp **)D_80383100, 0x14);
                     for(var_s0 = 0;(var_s0 < temp_v0) && !var_s2; var_s0++ ){
                         if (nodeprop_getRadius(D_80383100[var_s0]) == D_803830F0.parade_element->unk8) {
                             nodeprop_getPosition(D_80383100[var_s0], sp40);

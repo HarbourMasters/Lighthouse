@@ -142,7 +142,7 @@ void func_8038687C(Actor *this) {
         func_803865F4(this, 1);
         return;
     }
-    if ((uintptr_t)local->unk0 == 1) { // [port] was (s32), pointer truncation on 64-bit
+    if ((uintptr_t)local->unk0 == 1) {
         other = actorArray_findActorFromActorId(0x46);
         if(volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
             local->unk0 = NULL;

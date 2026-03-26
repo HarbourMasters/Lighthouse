@@ -156,7 +156,7 @@ Animation *anctrl_getAnimPtr(AnimCtrl *this){
     return this->animation;
 }
 
-void func_8028746C(AnimCtrl *this, GenFunction_2 arg1){ // [port] was void(*)(s32,s32)
+void func_8028746C(AnimCtrl *this, GenFunction_2 arg1){
     anim_80289790(this->animation, arg1);
 }
 

@@ -150,7 +150,7 @@ int overlayManagergetLoadedId(void){
 }
 
 bool overlayManagerisOverlayLoaded(int overlay_id){
-    return overlayMgrLoadedId_port == overlay_id; // [port]
+    return overlayMgrLoadedId_port == overlay_id;
 }
 
 bool overlayManagerload(enum overlay_e overlay_id){
@@ -164,7 +164,7 @@ bool overlayManagerload(enum overlay_e overlay_id){
 }
 
 s32 overlayManagerclearLoadedId(void){
-    overlayMgrLoadedId_port = 0; // [port]
+    overlayMgrLoadedId_port = 0;
 }
 
 void overlayManagerloadCore2(void){

@@ -15,7 +15,6 @@
 #include <crtdbg.h>
 #endif
 
-// [port] Check if any C button has an axis-based mapping (stick mapped to button).
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 
 extern "C" uint64_t GetUnixTimestamp() {

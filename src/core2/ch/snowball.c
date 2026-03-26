@@ -2,7 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 
-// [port] removed: extern void func_80329904 — now provided by port_prototypes.h as s32 return
 extern f32 func_8033229C(ActorMarker *);
 extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32);
 

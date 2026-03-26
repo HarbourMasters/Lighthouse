@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802DB548(ActorMarker *, ActorMarker *); // [port] was (s32, s32), both params are ActorMarker*
+extern void func_802DB548(ActorMarker *, ActorMarker *);
 
 typedef struct {
     f32 unk0;
@@ -25,7 +25,7 @@ typedef struct {
     s16 unk28;
     s16 unk2A;
     f32 unk2C;
-    void (*unk30)(ActorMarker *, ActorMarker *); // [port] was (ActorMarker *, s32), second param is ActorMarker*
+    void (*unk30)(ActorMarker *, ActorMarker *);
     void (*unk34)(ActorMarker *, s32);
     u8 pad38[4];
     f32 unk3C;

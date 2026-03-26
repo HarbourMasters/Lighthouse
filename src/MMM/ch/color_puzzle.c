@@ -136,7 +136,7 @@ void func_8038B790(Struct5Fs *arg0, Struct68s *arg1, f32 arg2) {
 
     func_80351814(arg1, sp2C);
     if (func_803518C0(arg1) != 0) {
-        temp_v0 = func_80389CE8((s32)(intptr_t)arg0, (s32)(intptr_t)arg1, arg0->unk8); // [port] Struct5Fs*/Struct68s* to s32 — MIPS register reuse
+        temp_v0 = func_80389CE8((s32)(intptr_t)arg0, (s32)(intptr_t)arg1, arg0->unk8);
         if (temp_v0 == 0) {
             func_8038B6FC(arg0, arg1);
         }

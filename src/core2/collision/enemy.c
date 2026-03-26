@@ -6,7 +6,7 @@
 extern f32 func_80309B24(f32[3]);
 extern void sfxsource_playSfxAtVolume(u8, f32);
 extern void func_802CC340(Actor *, f32[3]);
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32); // [port] was bool — returns BKCollisionTri*
+extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 
 typedef struct {
     u8 unk0;
@@ -115,7 +115,7 @@ bool func_802CC57C(Actor *this, f32 arg1[3]) {
     f32 sp40[3];
     f32 sp34[3];
     f32 sp28[3];
-    BKCollisionTri *sp24; // [port] was s32 — truncates 64-bit pointer return from func_80309B48
+    BKCollisionTri *sp24;
 
     local = (ActorLocal_Core2_45310 *)&this->local;
     sp40[0] = arg1[0];

@@ -52,7 +52,7 @@ static bool __codeF0_areCrcsValid();
 static u32 *__codeF0_getLearnedAbilitiesAddress(){
     s16 *addr;
     addr = (s16*)ability_hasLearned;
-    return (u32 *)(uintptr_t)((addr[1] << 0x10) + addr[3]); // [port] 64-bit cast
+    return (u32 *)(uintptr_t)((addr[1] << 0x10) + addr[3]);
 }
 
 static void __codeF0_learnAbility(enum ability_e ability){

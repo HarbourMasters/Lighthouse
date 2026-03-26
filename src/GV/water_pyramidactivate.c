@@ -9,7 +9,7 @@ u8 GV_D_80391AD0;
 void func_80390000(s32 arg0){
     Struct73s *tmp_v0;
     Struct6Ds *tmp_v0_2;
-    Struct70s *tmp_s70; // [port]
+    Struct70s *tmp_s70;
 
     GV_D_80391AD0 = arg0;
     if(GV_D_80391AD0 == 1){

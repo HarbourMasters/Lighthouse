@@ -84,7 +84,7 @@ void func_802FB020(struct8s *this, s32 arg1){
     }
 }
 
-s32 func_802FB0D4(void *this_){ // [port] void* — callers pass struct7s*, struct8s*, Struct_core2_79830_0*
+s32 func_802FB0D4(void *this_){
     struct8s *this = (struct8s *)this_;
     return this->unk0;
 }

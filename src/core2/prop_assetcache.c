@@ -4,7 +4,7 @@
 
 
 extern f32 func_8033A244(f32);
-extern void *func_80255888(void *arg0); // [port] missing prototype — returns void*, implicit int truncates on 64-bit
+extern void *func_80255888(void *arg0);
 
 typedef struct{
     BKModelBin *unk0;
@@ -133,7 +133,7 @@ void func_8030A6B0(void){//clear
     }
     for(jPtr = D_80382394; jPtr < &D_80382394[0x168]; jPtr++){
         if(jPtr->unk0){
-            func_8033B338((void **)&jPtr->unk0, &jPtr->unk4); // [port]
+            func_8033B338((void **)&jPtr->unk0, &jPtr->unk4);
         }
     }
     bk_free(D_80382390);
@@ -182,7 +182,7 @@ void func_8030A850(s32 arg0) {
     for(var_s0 = 0; (D_80382394 != NULL) && (var_s0 < ((arg0 == 1) ? 0x28 : 0x167)); var_s0++, D_8036B808 = (D_8036B808 >= 0x167)? 0: D_8036B808 + 1){
         temp_a0_2 = (struct_7AF80_1*)((uintptr_t)D_80382394 + sizeof(struct_7AF80_1)*D_8036B808);
         if ((temp_a0_2->unk0 != 0) && ((temp_a0_2->unk8 < temp_s3) || (arg0 == 3))){
-            func_8033B338((void **)&temp_a0_2->unk0, &temp_a0_2->unk4); // [port]
+            func_8033B338((void **)&temp_a0_2->unk0, &temp_a0_2->unk4);
             if( (arg0 != 1) && (func_80254BC4(1))){
                 return;
             }
@@ -224,7 +224,7 @@ void func_8030ABA4(void) {
     for(phi_s0 = D_80382394; phi_s0 < D_80382394 + 360; phi_s0++){
         if (phi_s0->unk0 != NULL) {
             temp_t7 = phi_s0 - D_80382394;
-            func_8033B338((void **)&phi_s0->unk0, &phi_s0->unk4); // [port]
+            func_8033B338((void **)&phi_s0->unk0, &phi_s0->unk4);
             // [port] original used hardcoded +4 byte offset for unk4 — wrong on 64-bit where pointers are 8 bytes
             phi_s0->unk0 = func_8033B6C4(temp_t7 + 0x572, &phi_s0->unk4);
         }

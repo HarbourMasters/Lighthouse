@@ -8,7 +8,7 @@
 Actor *chvile_draw(ActorMarker*, Gfx **, Mtx **, Vtx **);
 void chvile_update(Actor *);
 void func_8038BB40(ActorMarker *);
-extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32); // [port] was bool — returns BKCollisionTri*, truncated on 64-bit
+extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32);
 
 extern bool chvilegame_find_closest_piece(ActorMarker *, f32[3], f32, f32[3]);
 

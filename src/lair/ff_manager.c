@@ -72,7 +72,6 @@ extern void func_8025A55C(s32, s32, s32);
 
 extern void func_80324CFC(f32, s16, s16);
 
-// extern void *mapModel_getModel(s32); // [port] removed — prototype in port_prototypes.h (BKModel* return type)
 extern void  player_setTransformation(s32); // set transformation
 
 //typedef migrated to "inlcude/core2/code_C9E70.h"
@@ -441,7 +440,7 @@ void *lair_func_8038C5B8(s32 a0)
 
 void lair_func_8038C610(s32 a0)
 {
-    { Struct70s *_tmp = func_8034C528(a0 + 200); func_8034DEB4(&_tmp->type_6D, -3000); } // [port] Struct70s* to Struct6Ds* via union member
+    { Struct70s *_tmp = func_8034C528(a0 + 200); func_8034DEB4(&_tmp->type_6D, -3000); }
 }
 
 void lair_func_8038C640(s32 a0, Struct_lair_5ED0_0 *a1)
@@ -827,7 +826,7 @@ void func_8038D4BC(void)
 
     // restore moves after a delay
     timedFunc_set_1(0.25f,
-        (GenFunction_1)ability_setAllLearned, // [port]
+        (GenFunction_1)ability_setAllLearned,
         D_8037DCB8->unlockedMoves
     );
 
@@ -911,7 +910,7 @@ void func_8038D670(enum FF_Action next_state) {
             func_8028F918(2);
             if (D_8037DCB8->ffQuestionType != FFQT_4_MINIGAME) {
                 func_8038CE00();
-                gcquiz_func_8031A154(D_8037DCB8->ffQuestionType, D_8037DCB8->unkD, D_8037DCB8->unkE, __code5ED0_getQuizQuestionTime(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC), 0, (void (*)(s32, s8))func_8038D3F0); // [port]
+                gcquiz_func_8031A154(D_8037DCB8->ffQuestionType, D_8037DCB8->unkD, D_8037DCB8->unkE, __code5ED0_getQuizQuestionTime(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC), 0, (void (*)(s32, s8))func_8038D3F0);
             } else {
                 func_8038D4BC();
             }

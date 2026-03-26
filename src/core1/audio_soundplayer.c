@@ -48,27 +48,27 @@ void func_80243070(Struct87s *arg0) {
     u32 var_s0;
 
     D_802758CC->maxSounds = (s32) arg0->unk8;
-    D_802758CC->target = 0; // [port] was NULL — s32 field
+    D_802758CC->target = 0;
     D_802758CC->frameTime = 33000;
-    D_802758CC->sndState = alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk0 * sizeof(N_AL_Struct81s)); // [port] struct ALHeap* → ALHeap*
-    alEvtqNew(&D_802758CC->evtq, alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk4 * sizeof(ALEventListItem)), arg0->unk4); // [port] struct ALHeap* → ALHeap*
+    D_802758CC->sndState = alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk0 * sizeof(N_AL_Struct81s));
+    alEvtqNew(&D_802758CC->evtq, alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 1, arg0->unk4 * sizeof(ALEventListItem)), arg0->unk4);
     D_802758C0.unk8 = D_802758CC->sndState;
     for(var_s0 = 1; var_s0 < arg0->unk0; var_s0++){
         var_v0 =  (N_AL_Struct81s *)D_802758CC->sndState;
         temp_a0 = var_s0 + var_v0;
         alLink((ALLink *)temp_a0, (ALLink*)(temp_a0 - 1));
     }
-    D_8027EF14 = alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 2, (s32) arg0->unk10); // [port] struct ALHeap* → ALHeap*
+    D_8027EF14 = alHeapDBAlloc(NULL, 0, (ALHeap *)arg0->unkC, 2, (s32) arg0->unk10);
     for(var_s0 = 0; var_s0 < arg0->unk10; var_s0++){
         D_8027EF14[var_s0] = 0x7FFF;
     }
     D_802758CC->node.next = NULL;
     D_802758CC->node.handler = (ALVoiceHandler)func_8024324C;
     D_802758CC->node.clientData = D_802758CC;
-    n_alSynAddSndPlayer((ALPlayer *)D_802758CC); // [port] N_ALSndPlayer* → ALPlayer* (node is first member)
+    n_alSynAddSndPlayer((ALPlayer *)D_802758CC);
     sp40.type = 0x20;
     alEvtqPostEvent(&D_802758CC->evtq, &sp40, D_802758CC->frameTime);
-    D_802758CC->nextDelta = alEvtqNextEvent(&D_802758CC->evtq, (ALEvent *)&D_802758CC->nextEvent); // [port] N_ALEvent* → ALEvent*
+    D_802758CC->nextDelta = alEvtqNextEvent(&D_802758CC->evtq, (ALEvent *)&D_802758CC->nextEvent);
 }
 
 ALMicroTime func_8024324C(N_ALSndPlayer *arg0)
@@ -81,13 +81,13 @@ ALMicroTime func_8024324C(N_ALSndPlayer *arg0)
     {
       sp3C.type = 0x20;
       alEvtqPostEvent(&new_var->evtq, (ALEvent *) (&sp3C), new_var->frameTime);
-      func_80244190((N_AL_Struct81s *)new_var); // [port] N_ALSndPlayer* → N_AL_Struct81s* (frameTime overlap)
+      func_80244190((N_AL_Struct81s *)new_var);
     }
     else
     {
       func_802432F8(new_var, &arg0->nextEvent);
     }
-    new_var->nextDelta = alEvtqNextEvent(&new_var->evtq, (ALEvent *)&arg0->nextEvent); // [port] N_ALEvent* → ALEvent*
+    new_var->nextDelta = alEvtqNextEvent(&new_var->evtq, (ALEvent *)&arg0->nextEvent);
   }
   while (arg0->nextDelta == 0);
   new_var->curTime += new_var->nextDelta;
@@ -119,11 +119,11 @@ void func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event) {
     N_AL_Struct81s *sp80;
     N_ALEvent sp70;
     s32 var_v1_4;
-    intptr_t sp68; // [port] was s32 — receives void* from func_80244608
+    intptr_t sp68;
     u8 clamped_pan;
 
-    temp_fp = (N_ALSndPlayer *)n_syn->n_sndp; // [port] ALPlayer* → N_ALSndPlayer* (node is first member)
-    var_s5 = (N_ALEvent2 *)event; // [port] N_ALEvent* → N_ALEvent2* (structurally compatible)
+    temp_fp = (N_ALSndPlayer *)n_syn->n_sndp;
+    var_s5 = (N_ALEvent2 *)event;
     sp94 = 1;
     sp90 = 0;
     temp_s0 = NULL;
@@ -133,7 +133,7 @@ void func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event) {
             spB0.msg.generic.data[0].p = temp_s0;
             spB0.type = var_s5->type;
             spB0.msg.generic.data[1].i = var_s5->msg.vol.delta;
-            var_s5 = (N_ALEvent2 *) &spB0; // [port] N_ALEvent* → N_ALEvent2*
+            var_s5 = (N_ALEvent2 *) &spB0;
         }
         temp_s0 = (N_AL_Struct81s*)var_s5->msg.generic.data[0].p;
         temp_s1 = temp_s0->unk8;
@@ -142,7 +142,7 @@ void func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event) {
             return;
         }
         keymap = temp_s1->keyMap;
-        temp_s6 = (N_AL_Struct81s *)temp_s0->node.next; // [port] ALLink* → N_AL_Struct81s*
+        temp_s6 = (N_AL_Struct81s *)temp_s0->node.next;
         switch (var_s5->type) {                         /* irregular */
             case 0x1:
                 if((temp_s0->unk40 != 5) && (temp_s0->unk40 != 4))
@@ -174,7 +174,7 @@ void func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event) {
                                 alEvtqPostEvent(&temp_fp->evtq, (ALEvent *) &sp70, 0x3E8);
                                 n_alSynSetVol(&sp80->voice, 0, 0x3E8);
                             }
-                            sp80 = (N_AL_Struct81s *)sp80->node.prev; // [port] ALLink* → N_AL_Struct81s*
+                            sp80 = (N_AL_Struct81s *)sp80->node.prev;
                         }while(var_s2 && sp80 != NULL);
                         if (!var_s2) {
                             temp_s0->unk38 = 2;
@@ -333,7 +333,7 @@ void func_802432F8(N_ALSndPlayer *sndp, N_ALEvent *event) {
             
             case 0x200:
                 if (temp_s0->unk3F & 0x10) {
-                    sp68 = (intptr_t)func_80244608((ALBank*)var_s5->msg.generic.data[2].p, (s16)var_s5->msg.generic.data[1].i, (struct46s *)temp_s0->unk30); // [port] cast N_AL_Struct81s** -> struct46s* (first member is compatible pointer)
+                    sp68 = (intptr_t)func_80244608((ALBank*)var_s5->msg.generic.data[2].p, (s16)var_s5->msg.generic.data[1].i, (struct46s *)temp_s0->unk30);
                     func_80244978(sp68, AL_SEQP_PROG_EVT, temp_s0->unk34);
                     func_80244978(sp68, AL_SEQ_END_EVT, temp_s0->unk3D);
                     func_80244978(sp68, 0x100, temp_s0->unk3E);
@@ -476,9 +476,9 @@ N_AL_Struct81s *func_8024431C(ALBank *bank, ALSound *sound) {
         D_802758C0.unk8 = (N_AL_Struct81s *) temp_s0->node.next;
         alUnlink((ALLink *)temp_s0);
         if (D_802758C0.unk0 != NULL) {
-            temp_s0->node.next = (ALLink *)D_802758C0.unk0; // [port] N_AL_Struct81s* → ALLink*
+            temp_s0->node.next = (ALLink *)D_802758C0.unk0;
             temp_s0->node.prev = NULL;
-            D_802758C0.unk0->node.prev = (ALLink *)temp_s0; // [port] N_AL_Struct81s* → ALLink*
+            D_802758C0.unk0->node.prev = (ALLink *)temp_s0;
             D_802758C0.unk0 = temp_s0;
         } else {
             temp_s0->node.prev = NULL;
@@ -560,14 +560,14 @@ void func_80244594(N_AL_Struct81s *arg0, u8 arg1){
         arg0->unk36 = arg1;
 }
 
-s32 func_802445AC(void *arg0_){ // [port] void* for prototype compatibility
+s32 func_802445AC(void *arg0_){
     N_AL_Struct81s *arg0 = (N_AL_Struct81s *)arg0_;
     if(arg0 != NULL)
         return arg0->unk40;
     return 0;
 }
 
-bool func_802445C4(void *bank_, s16 arg1){ // [port] void* for prototype compatibility
+bool func_802445C4(void *bank_, s16 arg1){
     ALBank *bank = (ALBank *)bank_;
     ALSound *snd = bank->instArray[0]->soundArray[arg1-1];
     if (snd->envelope->decayTime == -1)
@@ -576,7 +576,7 @@ bool func_802445C4(void *bank_, s16 arg1){ // [port] void* for prototype compati
         return false;
 }
 
-void *func_80244608(void *bank_, s16 arg1, struct46s *arg2) { // [port] void* for prototype compatibility
+void *func_80244608(void *bank_, s16 arg1, struct46s *arg2) {
     ALBank *bank = (ALBank *)bank_;
     ALKeyMap *temp_v0_2;
     ALSound *temp_s2;
@@ -603,7 +603,7 @@ void *func_80244608(void *bank_, s16 arg1, struct46s *arg2) { // [port] void* fo
             temp_v0->unk4C = (s32) (arg1 - 1);
             D_802758CC->target = (intptr_t)temp_v0;
             sp50.type = AL_SEQ_MIDI_EVT;
-            sp50.msg.generic.data[0].p = temp_v0; // [port] was (s32*) hack — pointer truncation
+            sp50.msg.generic.data[0].p = temp_v0;
             var_s4 = temp_s2->keyMap->velocityMax * 0x8235;
             if (temp_v0->unk3F & 0x10) {
                 temp_v0->unk3F &= ~(0x10);
@@ -622,28 +622,28 @@ void *func_80244608(void *bank_, s16 arg1, struct46s *arg2) { // [port] void* fo
 
     if (var_fp != NULL) {
         var_fp->unk3F |= 1;
-        var_fp->unk30 = (N_AL_Struct81s **)arg2; // [port] struct46s * → N_AL_Struct81s ** (first member is compatible pointer)
+        var_fp->unk30 = (N_AL_Struct81s **)arg2;
         if (sp6E != 0) {
             var_fp->unk3F |= 0x10;
             sp40.type = 0x200;
-            sp40.msg.generic.data[0].p = var_fp;       // [port] was (s32*) hack — pointer truncation
+            sp40.msg.generic.data[0].p = var_fp;
             sp40.msg.generic.data[1].i = (intptr_t)sp6E;
-            sp40.msg.generic.data[2].p = bank;         // [port] was (s32*) hack — pointer truncation
+            sp40.msg.generic.data[2].p = bank;
             alEvtqPostEvent(&D_802758CC->evtq, &sp40, sp68);
         }
     }
     if (arg2 != NULL) {
-        arg2->unk0 = var_fp; // [port] was (s32) cast — pointer truncation
+        arg2->unk0 = var_fp;
     }
     return var_fp;
 }
 
-void func_80244814(void *arg0_){ // [port] void* for prototype compatibility
+void func_80244814(void *arg0_){
     N_AL_Struct81s *arg0 = (N_AL_Struct81s *)arg0_;
     ALEvent evt;
 
     evt.type = 0x400;
-    evt.msg.generic.data[0].p = arg0; // [port] was (s32*) hack — pointer truncation
+    evt.msg.generic.data[0].p = arg0;
     if(arg0 != NULL){
         arg0->unk3F &= ~(0x10);
         alEvtqPostEvent(&D_802758CC->evtq, &evt, 0);
@@ -658,7 +658,7 @@ void func_80244860(u8 arg0) {
     mask = osSetIntMask(1U);
     for(var_s0 = D_802758C0.unk0; var_s0 != NULL; var_s0 =  (N_AL_Struct81s *)var_s0->node.next){
         evt.type = 0x400;
-        evt.msg.generic.data[0].p = var_s0; // [port] was (s32) cast — pointer truncation
+        evt.msg.generic.data[0].p = var_s0;
         if ((var_s0->unk3F & arg0) == arg0) {
             var_s0->unk3F &= ~(0x10);
             alEvtqPostEvent(&D_802758CC->evtq, &evt, 0);
@@ -705,7 +705,7 @@ void func_802449E4(u8 arg0, u16 arg1) {
     while(var_s0 != NULL){
         if ((var_s0->unk8->keyMap->keyMin & 0x3F) == arg0) {
             evt.type = 0x800;
-            evt.msg.generic.data[0].p = var_s0; // [port] was (s32*) hack — pointer truncation
+            evt.msg.generic.data[0].p = var_s0;
             alEvtqPostEvent(&D_802758CC->evtq, &evt, 0);
         }
         var_s0 = (N_AL_Struct81s *)var_s0->node.next;

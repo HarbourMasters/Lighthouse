@@ -31,7 +31,7 @@ void func_802E31D0(s32 arg0) {
     temp_v0 = D_8037E8C0.unk14;
     if ((temp_v0 == 0) || (temp_v0 == 3)) {
         framebufferdraw_setBufferIndex(arg0);
-        framebufferdraw_func_80249DE0(0, 0, (s16 *)(intptr_t)D_8037E8C0.unkC, 0, 0); // [port] s32 to s16* — N64 stored pointer as s32
+        framebufferdraw_func_80249DE0(0, 0, (s16 *)(intptr_t)D_8037E8C0.unkC, 0, 0);
         osWritebackDCache(gFramebuffers[arg0], (s32) ((f32) gFramebufferWidth * (f32) gFramebufferHeight * sizeof(s16)));
     }
 }
@@ -101,14 +101,14 @@ void func_802E3524(s32 arg0) {
     // but that thread is #if 0'd on PC. Submit directly to LUS renderer instead,
     // which also enforces SetTargetFps(30) frame limiting.
     Graphics_PushFrame(gfx_begin);
-    Framebuffer_ReadbackGPU(getOtherFramebuffer()); // [port] GPU→CPU readback
+    Framebuffer_ReadbackGPU(getOtherFramebuffer());
     func_80253EA4(gfx_begin, gfx_end);
     func_80254008();
     viMgr_func_8024C1B4();
 }
 
 void func_802E3580(void) {
-    assetcache_release((void *)(intptr_t)D_8037E8C0.unkC); // [port] s32 to void* — N64 stored pointer as s32
+    assetcache_release((void *)(intptr_t)D_8037E8C0.unkC);
     func_802F1884(D_8037E8C0.unk10);
     func_802E5F68();
     comusicPlayer_free();
@@ -143,7 +143,7 @@ void func_802E35D8(void ) {
         }
     } else if (D_8037E8C0.unk14 == 3) {
         sp38 = 0;
-        controller_copyFaceButtons(0, sp40); // [port] was &sp40 — array decays to s32*, not pointer to array
+        controller_copyFaceButtons(0, sp40);
         for(i = 0; i < 6; i++){ 
             if (sp40[i] == 1) {
                 sp38++;

@@ -7,12 +7,12 @@
 //function declarations
 void anim_setIndex(Animation *this, enum asset_e arg1);
 void anim_drawSetup(Animation *this);
-void animationFile_getBoneTransformList(AnimationFile *, f32, BoneTransformList *); // [port] was (s32, f32, s32) - truncates pointers on 64-bit
-void boneTransformList_interpolate(BoneTransformList *, BoneTransformList *, BoneTransformList *, f32); // [port] was (s32, s32, s32, f32)
+void animationFile_getBoneTransformList(AnimationFile *, f32, BoneTransformList *);
+void boneTransformList_interpolate(BoneTransformList *, BoneTransformList *, BoneTransformList *, f32);
 
 //function definitions
 static void __anim_resetTransform(Animation *this, s32 arg1){
-    BoneTransformList *tmp; // [port] was s32* — truncates pointer on 64-bit
+    BoneTransformList *tmp;
     if(animCache_getBoneTransformList(this->animcache_index[arg1], &tmp) == 0){
         boneTransformList_reset(tmp);
     };
@@ -115,7 +115,7 @@ void anim_update(Animation *this){
         __anim_update_doubleBuffer(this);
     }
     if(this->matrices){
-        (*(this->matrices))((uintptr_t)animcache_getCurrentTransform(this), this->unk4); // [port] cast BoneTransformList* -> uintptr_t for GenFunction_2
+        (*(this->matrices))((uintptr_t)animcache_getCurrentTransform(this), this->unk4);
     }
     anim_drawSetup(this);
 }
@@ -173,7 +173,7 @@ void anim_setTimer(Animation *this, f32 arg1){
     this->timer = arg1;
 }
 
-void anim_80289790(Animation *this, GenFunction_2 arg1){ // [port] was void(*)(s32, s32)
+void anim_80289790(Animation *this, GenFunction_2 arg1){
     this->matrices = arg1;
 }
 
@@ -189,7 +189,7 @@ void anim_setDuration(Animation *this, f32 arg1){
     this->duration = arg1;
 }
 
-void anim_802897D4(AnimMtxList **this_ptr, BKAnimationList *arg0, Animation *dst){ // [port] was AnimMtxList *this — caller passes &marker->unk20
+void anim_802897D4(AnimMtxList **this_ptr, BKAnimationList *arg0, Animation *dst){
     animMtxList_setBoned(this_ptr, arg0, animcache_getCurrentTransform(dst));
 }
 

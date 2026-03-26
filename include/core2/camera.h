@@ -6,7 +6,7 @@
 typedef struct {
     s32 type: 24;
     s32 valid: 8;
-    uintptr_t data_ptr; // [port] was s32, stores malloc'd pointer
+    uintptr_t data_ptr;
 } CameraNode;
 
 typedef struct {

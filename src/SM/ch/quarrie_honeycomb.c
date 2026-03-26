@@ -6,7 +6,7 @@ static void __codeBF0_draw(Actor *this);
 
 /* .data */
 ActorInfo gCodeBF0 = {
-    MARKER_134_UNKNOWN, ACTOR_16E_UNKNOWN, 0, // [port] was NULL — s16 field
+    MARKER_134_UNKNOWN, ACTOR_16E_UNKNOWN, 0,
     1, NULL,
     __codeBF0_draw, actor_update_func_80326224, func_80325340,
     2000, 0, 0.0f, 0

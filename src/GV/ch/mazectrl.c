@@ -171,7 +171,7 @@ void chMazeCtrl_update(Actor *this){
 
     player_getPosition(sp3C);
     if(this->state == 1){
-        { Struct70s *tmp_s70 = func_8034C528(0x191); sp38 = tmp_s70 ? &tmp_s70->type_6D : NULL; } // [port] split UB
+        { Struct70s *tmp_s70 = func_8034C528(0x191); sp38 = tmp_s70 ? &tmp_s70->type_6D : NULL; }
         if(sp38 != NULL && func_8034DC80(sp38, sp3C)){
             __chMazeCtrl_setState(this, 2);
         }
@@ -202,7 +202,7 @@ void chMazeCtrl_update(Actor *this){
     }
 
     if(this->state == 4){
-        { Struct70s *tmp_s70 = func_8034C528(0x190); sp30 = tmp_s70 ? &tmp_s70->type_6D : NULL; } // [port] split UB
+        { Struct70s *tmp_s70 = func_8034C528(0x190); sp30 = tmp_s70 ? &tmp_s70->type_6D : NULL; }
         if(sp30 != NULL && func_8034DC78(sp30)){
             __chMazeCtrl_setState(this, 0);
         }

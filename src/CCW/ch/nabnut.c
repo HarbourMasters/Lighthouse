@@ -122,7 +122,7 @@ void chnabnut_update(Actor *this) {
         D_8038F350[2] = this->position[2];
         if (this->state == 0) {
             this->has_met_before = false;
-            local->returned_acorn_count = 0; // [port] was NULL
+            local->returned_acorn_count = 0;
         }
         chnabnut_setState(this, 1);
         if(jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT)) {

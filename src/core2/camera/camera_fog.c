@@ -37,8 +37,8 @@ Struct_core2_37E50_0 *func_802BEDE0(enum map_e map_id){
     u8 *phi_v1_2;
     Struct_core2_37E50_0 *iPtr;
 
-    phi_v1 = (u8 *)&D_80365D60; // [port] cast array-of-struct to u8 *
-    phi_v1_2 = (u8 *)&D_80365D60; // [port] cast array-of-struct to u8 *
+    phi_v1 = (u8 *)&D_80365D60;
+    phi_v1_2 = (u8 *)&D_80365D60;
     for(iPtr = D_80365D60; iPtr->map_id != 0; iPtr++){
         if(map_id == iPtr->map_id){
             return iPtr;
@@ -87,7 +87,7 @@ void func_802BEFB0(void) {
     f32 sp3C[3];
     f32 sp30[3];
     f32 sp24[3];
-    BKCollisionTri *temp_v0; // [port] was Struct5Es* — func_80309B48 returns BKCollisionTri*
+    BKCollisionTri *temp_v0;
 
     if (level_get() == LEVEL_D_CUTSCENE) {
         D_8037DA80.unk8 = 0;
@@ -109,5 +109,5 @@ void func_802BEFB0(void) {
     sp24[1] = sp30[1] - 200.0f;
     sp24[2] = sp30[2];
     temp_v0 = func_80309B48(sp30, sp24, sp3C, 0xF800FF0F);
-    D_8037DA80.unk8 = (temp_v0 != NULL) && (temp_v0->flags & 0x1E0000); // [port] was unk8 — same offset as BKCollisionTri.flags
+    D_8037DA80.unk8 = (temp_v0 != NULL) && (temp_v0->flags & 0x1E0000);
 }

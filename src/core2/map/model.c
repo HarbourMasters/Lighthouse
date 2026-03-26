@@ -6,9 +6,9 @@
 #include "core2/modelRender.h"
 #include "core2/coords.h"
 
-extern BKCollisionTri *func_802E8E88(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], s32, s32); // [port] was UNK_TYPE(s32)
-extern BKCollisionTri *func_802E92AC(BKCollisionList *, BKVertexList *, f32[3], f32, f32[3], s32); // [port] was UNK_TYPE(s32)
-extern s32 func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6); // [port] was s32 params — pointer truncation
+extern BKCollisionTri *func_802E8E88(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], s32, s32);
+extern BKCollisionTri *func_802E92AC(BKCollisionList *, BKVertexList *, f32[3], f32, f32[3], s32);
+extern s32 func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6);
 extern void vtxList_getBounds_s32(BKVertexList *, s32[3], s32[3]);
 extern void func_802F7BC0(Gfx **, Mtx **, Vtx **);
 extern void func_8033A45C(s32, s32);
@@ -163,15 +163,15 @@ MapModelDescription D_8036ABE0[] = {
 
 /* .bss */
 struct {
-    s32 unk0; // [port] was void* — animated texture cache ID (s32 index, not pointer)
-    s32 unk4; // [port] was void* — animated texture cache ID (s32 index, not pointer)
+    s32 unk0;
+    s32 unk4;
     BKCollisionList *collision_opa;
     BKCollisionList *collision_xlu;
     BKModel *model_opa;
     BKModel *model_xlu;
     BKModelBin *model_bin_opa;
     BKModelBin *model_bin_xlu;
-    uintptr_t unk20; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t unk20;
     struct5Bs *unk24;
     MapModelDescription *description;
     u8 env_red;
@@ -248,7 +248,7 @@ f32 func_80308FDC(f32 arg0[3], u32 arg1) {
         sp58[0] += randf2(-1.0f, 1.0f);
         sp58[1] -= (f32) phi_s1;
         sp58[2] += randf2(-1.0f, 1.0f);
-        if (func_80309B48(sp64, sp58, sp70, arg1)) { // [port] & removed from f32[3] args
+        if (func_80309B48(sp64, sp58, sp70, arg1)) {
             return sp58[1];
         }
         phi_s1 += 2000;
@@ -411,7 +411,7 @@ BKModelBin *mapModel_getModelBin(s32 arg0){
     return 0;
 }
 
-void *func_80309794(void){ // [port] was s32 — returns model pointer, truncation on 64-bit
+void *func_80309794(void){
     return (void *)mapModel.unk20;
 }
 
@@ -470,7 +470,7 @@ f32 func_80309B24(f32 arg0[3]){
     return func_80308FDC(arg0, 0xf800ff0f);
 }
 
-BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter) { // [port] was s32 — matches callers and port_prototypes.h
+BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter) {
     BKCollisionTri *opaqueTri;
     BKCollisionTri *transparentTri;
 
@@ -525,7 +525,7 @@ BKCollisionTri *func_80309C74(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flagFil
     return (phi_v0 != NULL) ? phi_v0 : sp2C;
 }
 
-bool func_80309D58(f32 arg0[3], s32 arg1) { // [port] was UNK_TYPE(s32)
+bool func_80309D58(f32 arg0[3], s32 arg1) {
     BKModelUnk14List *temp_v0;
 
     temp_v0 = func_8033A12C(mapModel.model_bin_opa);
@@ -535,7 +535,7 @@ bool func_80309D58(f32 arg0[3], s32 arg1) { // [port] was UNK_TYPE(s32)
     return 0;
 }
 
-BKCollisionTri *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 arg2, f32 arg3[3], s32 arg4, s32 arg5) { // [port] was UNK_TYPE(s32) — returns BKCollisionTri*
+BKCollisionTri *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 arg2, f32 arg3[3], s32 arg4, s32 arg5) {
     BKCollisionTri *sp34;
     BKCollisionTri *temp_v0_2;
 
@@ -555,7 +555,7 @@ BKCollisionTri *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 
     return sp34;
 }
 
-BKCollisionTri *func_80309EB0(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) { // [port] was UNK_TYPE(s32) — returns BKCollisionTri*
+BKCollisionTri *func_80309EB0(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
     BKCollisionTri *sp24;
     BKCollisionTri *temp_v0_2;
 
@@ -657,14 +657,14 @@ void func_8030A078(void) {
         mapModel.unk0 = AnimTextureListCache_newList();
         AnimTextureListCache_at(mapModel.unk0, model_getAnimTextureList(mapModel.model_bin_opa));
     } else {
-        mapModel.unk0 = 0; // [port] was NULL — unk0 is now s32 index, not pointer
+        mapModel.unk0 = 0;
     }
     if ((mapModel.model_bin_xlu != NULL) && (model_getAnimTextureList(mapModel.model_bin_xlu) != 0)) {
         mapModel.unk4 = AnimTextureListCache_newList();
         AnimTextureListCache_at(mapModel.unk4, model_getAnimTextureList(mapModel.model_bin_xlu));
     }
     else{
-        mapModel.unk4 = 0; // [port] was NULL — unk4 is now s32 index, not pointer
+        mapModel.unk4 = 0;
     }
 }
 

@@ -3,7 +3,7 @@
 #include "variables.h"
 
 extern void sfxsource_setSampleRate(u8, s32);
-extern NodeProp *func_803080C8(s32 arg0); // [port] was void* — returns NodeProp*
+extern NodeProp *func_803080C8(s32 arg0);
 extern u32   func_80307E1C(void);
 extern s32   func_80307EA8(s32 arg0, s32 position[3], s32 *arg2, s32 *arg3);
 extern bool func_80323240(struct56s *, f32, f32[3]);
@@ -254,7 +254,6 @@ typedef union{
 }Union_glspline;
 
 #if !(defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-// [port] Convert Union_glspline data from NodeProp LE format to BE u32 values.
 // NodeProp data is serialized field-by-field in LE byte order. Union_glspline
 // overlays the same 20 bytes but interprets them as u32 bitfields with BE bit
 // ordering. After this conversion, the reversed LE bitfield structs above will
@@ -345,7 +344,7 @@ f32 func_80340700(f32 value, f32 min, f32 max) {
          : value;
 }
 
-bool func_80340748(s32 arg0, s32 *arg1, f32 *arg2, f32 arg3[3], s32 arg4, f32 *arg5, f32 *arg6){ // [port] fixed param types to match func_80340760 and callers
+bool func_80340748(s32 arg0, s32 *arg1, f32 *arg2, f32 arg3[3], s32 arg4, f32 *arg5, f32 *arg6){
     return false;
 }
 
@@ -360,7 +359,7 @@ s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, f32 arg3[3], s32 arg4, f32 *ar
     *arg6 = -9999.0f;
     if (arg4 != -1) {
         temp_a0 = temp_t0[arg4];
-        var_v1 = (Union_glspline *)(temp_a0 + 1); // [port] SplineList* to Union_glspline*
+        var_v1 = (Union_glspline *)(temp_a0 + 1);
         temp_v0 = var_v1 + temp_a0->unk0;
         for(var_v1 = var_v1; (var_v1 < temp_v0) && (arg0 != var_v1->t1.unk10.bit31); var_v1++){
             continue;
@@ -383,7 +382,7 @@ s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, f32 arg3[3], s32 arg4, f32 *ar
     for(var_a2 = 0; var_a2 < D_80371E78; var_a2++){
         if (var_a2 != arg4) {
             temp_a0 = temp_t0[var_a2];
-            var_v1 = (Union_glspline *)(temp_a0 + 1); // [port] SplineList* to Union_glspline*
+            var_v1 = (Union_glspline *)(temp_a0 + 1);
             temp_v0 = var_v1 + temp_a0->unk0;
             // [port] bounds-check first; original order read one-past-end before checking pointer
         for(var_v1 = var_v1; (var_v1 < temp_v0) && (arg0 != var_v1->t1.unk10.bit31); var_v1++){
@@ -436,7 +435,7 @@ void func_80340BE4(f32 x, s32 length, s32 stride, s32 width, f32 *arg4, f32 dst[
     f32 f1;
     f32 f2;
     f32 *t0;
-    f32 sp94[4][3]; // [port] was [3][3] — needs 4 rows for Catmull-Rom P0..P3
+    f32 sp94[4][3];
 
     max_interval = length - 1;
 
@@ -642,18 +641,16 @@ void func_803411B0(void){
             for (; var_s2 != 0; a0 = (spD8+a0)->unk0) {
                 if (0);
                 if ((spD8+a0)->unk8_13 == 1) {
-                    temp_v0_16 = (Union_glspline *)func_803080C8(a0); // [port] NodeProp* to Union_glspline*
+                    temp_v0_16 = (Union_glspline *)func_803080C8(a0);
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
                     temp_v0_16->t1.unk8.pad_bit7 = D_80371E78;
 #else
-                    // [port] Write pad_bit7 directly to byte 11 (padB in NodeProp)
                     // since the Union_glspline bitfield layout differs from NodeProp on LE
                     *((u8 *)temp_v0_16 + 11) = (u8)D_80371E78;
 #endif
 
                     memcpy(var_s1_2, temp_v0_16, sizeof(Union_glspline));
 #if !(defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-                    // [port] Convert from NodeProp LE format to BE u32 values
                     // so reversed LE bitfield structs extract correct values
                     glspline_convert_from_nodeprop(var_s1_2);
 #endif
@@ -761,7 +758,7 @@ s32 func_80341C78(s32 arg0[3]) {
     sp4[2] = (f32) arg0[2];
     for(var_v1 = 0; var_v1 < D_80371E78; var_v1++){
         temp_a0 = D_80371E70[var_v1];
-        var_a2 = (f32 *)temp_a0->unk8; // [port] f32(*)[3] to f32*
+        var_a2 = (f32 *)temp_a0->unk8;
         for (var_a3 = 0; var_a3 < temp_a0->unk0; var_a3++) {
             if( (sp4[0] == var_a2[0]) && (sp4[1] == var_a2[1]) && (sp4[2] == var_a2[2])) {
                 return var_v1;
@@ -791,7 +788,7 @@ s32 func_80341D5C(s32 arg0[3], s32 arg1[3])
   {
     new_var = D_80371E70[i];
     a0 = new_var;
-    a2 = (f32 (*)[3])(a0 + 1); // [port] struct56s* to f32(*)[3] — access flexible array data after header
+    a2 = (f32 (*)[3])(a0 + 1);
     for (j = 0; j < new_var->unk0; j++)
     {
       if (((spC[0] == a2[j][0]) && (spC[1] == a2[j][1]) && (spC[2] == a2[j][2])) \
@@ -836,7 +833,7 @@ struct56s *func_80341F64(s32 arg0){
     return D_80371E70[func_80341C78(sp1C)];
 }
 
-f32 func_80341FB0(s32 arg0, f32 arg1, f32 arg2[3], f32 arg3) { // [port] arg2 was s32 — actually f32* passed to func_80323240
+f32 func_80341FB0(s32 arg0, f32 arg1, f32 arg2[3], f32 arg3) {
     f32 sp1C;
 
     if (arg0 == -1) {
@@ -1061,7 +1058,7 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
             }
         }
         if (arg1->t1.unk8.bit10){
-            enum asset_e anim_id; // [port] added variable for sentinel check below
+            enum asset_e anim_id;
             arg0->unk5C = ((f32) arg1->t1.unk8.bit21) / 4;
             anim_id = lookup_getAnimAssetId(arg1->t1.unk8.bit31);
             arg0->anctrl_asset_id = anim_id;
@@ -1179,8 +1176,8 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
             }
         }
         if (arg1->t1.unk4.bit31 != 0){
-            temp_v0_6 = (Struct_glspline_t1 *)(&arg2->spline[0] + arg2->unk0); // [port] Union_glspline* to Struct_glspline_t1*
-            for (sp48 = (Struct_glspline_t1 *)&arg2->spline[0]; (sp48->unk10.bit31 != (arg1->t1.unk4.bit31 ^ 0)) && (sp48 < temp_v0_6); sp48++){ // [port] same cast
+            temp_v0_6 = (Struct_glspline_t1 *)(&arg2->spline[0] + arg2->unk0);
+            for (sp48 = (Struct_glspline_t1 *)&arg2->spline[0]; (sp48->unk10.bit31 != (arg1->t1.unk4.bit31 ^ 0)) && (sp48 < temp_v0_6); sp48++){
                 ;
             }
 
@@ -1359,7 +1356,6 @@ s32 func_80343694(Actor *actor, s32 indx, s32 begin, s32 end, s32 count, s32 str
     if ((D_80371E80 == 1) && (var_v1 == 1)) {
         actor->unk48 = sp48 + 0.00001;
 #if UINTPTR_MAX > 0xFFFFFFFFu
-        // [port] Sync actor position to RESET parametric position.
         // On N64 the position desync during pause is sub-pixel at 240p.
         // On PC at higher resolution the stale position is visible.
         func_80323240(D_80371E70[indx], actor->unk48, actor->position);
@@ -1396,7 +1392,7 @@ s32 func_803438E0(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
                 actor->unk54 = 0.0f;
             }
         }
-        // [port] TODO: Cutscenes can stall due to sfx audio wait, known issue and will be fixed when audio is in later
+
         if ((actor->unk138_3 != 0) && func_802501A0(0, actor->unk138_3 + 0x69, 0)) {
             func_80250170(0, actor->unk138_3 + 0x69, 0);
             actor->unk138_3 = 0;

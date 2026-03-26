@@ -328,7 +328,7 @@ void func_8024F890(u8 arg0, s32 arg1){
         }
         func_8024F764(D_80281720[arg0].index);
         if (arg1 >= 0 && arg1 < 0xB0 && D_802820E0 != NULL) {
-            n_alCSeqNew(&D_80281720[arg0].cseq, (u8 *)D_802820E0[arg1]); // [port] MusicTrack* to u8* for sequence data pointer
+            n_alCSeqNew(&D_80281720[arg0].cseq, (u8 *)D_802820E0[arg1]);
         }
         D_80281720[arg0].cseqp.chanMask = func_80250474(arg0);
         alCSPSetSeq(&D_80281720[arg0].cseqp, &D_80281720[arg0].cseq);
@@ -457,7 +457,7 @@ void func_8024FE44(u8 arg0, f32 arg1, f32 arg2){
     }
 }
 
-s32 func_8024FEEC(u8 arg0) // [port] was void — MIPS implicit return from alCSeqGetTicks
+s32 func_8024FEEC(u8 arg0)
 {
     return alCSeqGetTicks(&D_80281720[arg0].cseq);
 }
@@ -524,7 +524,7 @@ s32 func_802500C0(void){
 }
 
 N_ALCSPlayer *func_802500CC(s32 arg0){
-    return (N_ALCSPlayer *)&D_80281720[arg0].cseqp; // [port] ALCSPlayer to N_ALCSPlayer - structurally compatible N64 audio types
+    return (N_ALCSPlayer *)&D_80281720[arg0].cseqp;
 }
 
 void func_802500F4(s32 arg0){}
@@ -555,7 +555,7 @@ s32 func_802501A0(u8 arg0, s32 arg1, s32 *arg2){
 
 void func_80250200(s32 arg0, s16 chan, s16 arg2, f32 arg3){
     s32 i;
-    ALCSPlayer *sp28; // [port] N_ALCSPlayer* cast to ALCSPlayer* - structurally compatible N64 audio types
+    ALCSPlayer *sp28;
     f32 tmpf;
     s32 mask;
 
@@ -584,7 +584,7 @@ void func_80250200(s32 arg0, s16 chan, s16 arg2, f32 arg3){
 }
 
 void func_80250360(s32 arg0, s32 arg1, f32 arg2){
-    ALCSPlayer * sp24; // [port] N_ALCSPlayer* cast to ALCSPlayer* - structurally compatible N64 audio types
+    ALCSPlayer * sp24;
     s32 i;
     s32 sp1C;
     f32 tempo;
@@ -677,18 +677,18 @@ void func_80250650(void) {
                 D_80282110[i].unk8 = MAX(D_80282110[i].unk8 + D_80282110[i].unkC, D_80282110[i].unk10);
             }
             if (D_80282110[i].chan == -1) {
-                alCSPSetTempo((ALCSPlayer *)csplayer, (s32) D_80282110[i].unk8); // [port] N_ALCSPlayer* to ALCSPlayer* - structurally compatible
+                alCSPSetTempo((ALCSPlayer *)csplayer, (s32) D_80282110[i].unk8);
             } else {
-                func_8025F510((ALCSPlayer *)csplayer,D_80282110[i].chan, D_80282110[i].unk8); // [port] N_ALCSPlayer* to ALCSPlayer*
+                func_8025F510((ALCSPlayer *)csplayer,D_80282110[i].chan, D_80282110[i].unk8);
                 channel = D_80282110[i].chan;
 
                 if (((csplayer->chanMask) & (1 << channel))) {
                     if (D_80282110[i].unk8 == 0.0) {
-                        func_8025F5C0((ALCSPlayer *)csplayer, D_80282110[i].chan); // [port] N_ALCSPlayer* to ALCSPlayer*
+                        func_8025F5C0((ALCSPlayer *)csplayer, D_80282110[i].chan);
                     }
                 } else {
                     if (D_80282110[i].unk8 != 0.0f) {
-                        func_8025F570((ALCSPlayer *)csplayer, D_80282110[i].chan); // [port] N_ALCSPlayer* to ALCSPlayer*
+                        func_8025F570((ALCSPlayer *)csplayer, D_80282110[i].chan);
                     }
                 }
             }

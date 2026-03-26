@@ -1123,7 +1123,6 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
 
     json j = SlotToJson(mEeprom + base);
 
-    // [port] Always save enhancement data to per-file JSON (no CVar gate)
     j["file"]["enhancements"]["lives"] = item_getCount(0x16); // ITEM_16_LIFE
     {
         // Bottles bonus: merge with existing JSON — completions are permanent,
@@ -1218,7 +1217,6 @@ int32_t eeprom_writeBlocks(int32_t file, int32_t offset, void* buffer, int32_t c
     return SaveManager::Instance().WriteBlocks(file, offset, buffer, count);
 }
 
-// [port] Restore per-file enhancement data (lives, bottles bonus) from JSON into game state.
 void port_restoreFileEnhancementData(int eepromSlot) {
     SaveManager::RestoreFileEnhancementData(eepromSlot);
 }

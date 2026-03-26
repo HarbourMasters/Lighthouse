@@ -72,7 +72,7 @@ void ncDynamicCam12_end(void){
     func_802BD840();
 }
 
-void func_802C0FF4(f32 arg0[3]) { // [port] was s32
+void func_802C0FF4(f32 arg0[3]) {
     s32 sp1C;
 
     sp1C = func_802C0190();
@@ -220,11 +220,11 @@ void func_802C169C(NodeProp *arg0, ActorMarker *arg1){
 // sets up dynamic camera for cubes in "area" of arg0
 void func_802C16CC(s32 arg0) {
     f32 player_or_node_position[3];
-    s32 player_position_copy[3]; // [port] was f32[], ml_vec3f_to_vec3w outputs s32[]
+    s32 player_position_copy[3];
     f32 camera_position[3];
     s32 sp38;
     s32 sp34;
-    NodeProp *sp30; // [port] was s16*, cubeList_findNodePropByActorIdAndPosition_s32 returns NodeProp*
+    NodeProp *sp30;
 
     if ((player_movementGroup() != BSGROUP_4_LOOK) && !__is_flying_in_FP()){
         sp38 = func_80334524(arg0);

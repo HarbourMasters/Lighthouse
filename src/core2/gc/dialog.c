@@ -102,7 +102,7 @@ void gcdialog_init(void) {
         g_Dialog.string_list[i] = NULL;
         g_Dialog.string_count[i] = 0;
         g_Dialog.zoombox[i] = NULL;
-        g_Dialog.string_index[i] = 0; // [port] was NULL, use 0 for u8
+        g_Dialog.string_index[i] = 0;
         g_Dialog.string_cmd[i] = -1;
         g_Dialog.string[i] = 0;
         g_Dialog.unk11A[i].unk0_7 = 0;
@@ -653,7 +653,7 @@ int func_803106A4(s32 next_state){
     return (next_state) ? 1 : 0;
 }
 
-void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){ // [port] arg5 was s32 — function pointer
+void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
     s32 i;
     s32 j;
 
@@ -715,7 +715,7 @@ void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(A
     g_Dialog.caller = marker;
     g_Dialog.unk13C = callback;
     g_Dialog.unk140 = arg4;
-    g_Dialog.unk144 = arg5; // [port] was (void*)(uintptr_t)arg5 when arg5 was s32
+    g_Dialog.unk144 = arg5;
     g_Dialog.unk138 = (marker != NULL )? ((marker->unk5C)? marker->unk5C : -1) : 0;
     gcdialog_setState(((func_802E4A08() || volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) && g_Dialog.unk128_3) ? 6 : 1);
     //L803109EC
@@ -731,7 +731,7 @@ void func_80310A5C(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 arg4){
     }
 }
 
-void func_80310B1C(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){ // [port] arg5 was s32 — function pointer
+void func_80310B1C(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
     func_803106BC(text_id, arg1, marker, callback, arg4, arg5);
     if(map_get() == MAP_90_GL_BATTLEMENTS && 0x10ec < text_id){
         func_80310A5C( 3, 4, 0x1e, arg1 & 2, arg1 & 0x80);
@@ -863,12 +863,12 @@ void func_80310D2C(void){
 
 int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, void (*arg4)(ActorMarker *, enum asset_e, s32)){
     func_8025A55C(15000, 300, 2);
-    func_80311174(next_state + 0xe57, 0x84, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker *, s32, s32))arg4); // [port] polymorphic callback type
+    func_80311174(next_state + 0xe57, 0x84, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker *, s32, s32))arg4);
     func_80310A5C(arg2, arg3, arg1, 0, 0);
     return 1;
 }
 
-int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)){ // [port] arg6 was s32 — function pointer
+int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)){
     f32 pad;
     s32 temp_v1;
 

@@ -155,13 +155,13 @@ void func_802C73B0(Actor *actor, ActorLocal_Core2_400F0 *local){
 }
 
 void func_802C7478(Actor *actor){
-    func_802C73B0(actor, (ActorLocal_Core2_400F0 *)&actor->local); // [port] cast to expected pointer type
+    func_802C73B0(actor, (ActorLocal_Core2_400F0 *)&actor->local);
     switch(actor->unk124_5){
         case 2://L802C74C4
-            func_802C70DC(actor, D_803660F0, 1); // [port] was &D_803660F0 — array decays to pointer
+            func_802C70DC(actor, D_803660F0, 1);
             break;
         case 3://L802C74D8
-            func_802C70DC(actor, D_80366240, 0); // [port] was &D_80366240 — array decays to pointer
+            func_802C70DC(actor, D_80366240, 0);
             break;
         case 1://L802C74E4
             break;

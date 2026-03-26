@@ -15,7 +15,7 @@ extern f32 D_803792F0;
 
 void func_8034F6F0(Gfx **gdl, Mtx **mptr, s32 vptr){
     if(D_803720A0.unk0){
-        particleEmitter_draw(D_803720A0.unk0, gdl, mptr, (Vtx **)(intptr_t)vptr); // [port] s32 to Vtx** — N64 stored pointer as s32
+        particleEmitter_draw(D_803720A0.unk0, gdl, mptr, (Vtx **)(intptr_t)vptr);
     }
 }
 
@@ -33,8 +33,8 @@ void func_8034F774(void){
     int s0;
     int s1;
 
-    s0 = nodeProp_findPositionFromActorId(0x2F, sp38); // [port] &sp38 -> sp38: f32[3] decays to f32*
-    s1 = nodeProp_findPositionFromActorId(0x30, sp2C); // [port] &sp2C -> sp2C: f32[3] decays to f32*
+    s0 = nodeProp_findPositionFromActorId(0x2F, sp38);
+    s1 = nodeProp_findPositionFromActorId(0x30, sp2C);
     if( !s0 || !s1){
         D_803720A0.unk0 = NULL;
     }else{

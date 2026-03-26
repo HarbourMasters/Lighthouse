@@ -124,7 +124,7 @@ void func_8038F6A4(Actor *this)
     {
       if (local->unk0[sp44] == 0)
       {
-        __spawnQueue_add_3((GenFunction_3)func_8038F470, (uintptr_t)this->marker, local->unk0[sp44], sp44); // [port] was *((s32*)(&this->marker)) — pointer truncation
+        __spawnQueue_add_3((GenFunction_3)func_8038F470, (uintptr_t)this->marker, local->unk0[sp44], sp44);
       }
     }
 

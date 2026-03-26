@@ -343,9 +343,9 @@ void audioManager_create(void) {
     D_8027D5C0[0].unk0.next = NULL;
     for(i = 0; i < 89; i++){
         alLink((ALLink *)&D_8027D5C0[i+1], (ALLink *)&D_8027D5C0[i]);
-        D_8027D5C0[i].unk10 = (uintptr_t)alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200)); // [port] void * → uintptr_t
+        D_8027D5C0[i].unk10 = (uintptr_t)alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200));
     }
-    D_8027D5C0[i].unk10 = (uintptr_t)alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200)); // [port] void * → uintptr_t
+    D_8027D5C0[i].unk10 = (uintptr_t)alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200));
     for(i = 0; i < 2; i++){
         audioManager.ACMDList[i] = bk_malloc(1200000/FRAMERATE);
     }
@@ -369,7 +369,7 @@ void audioManagerThread_entry(void *arg) {
         osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
         if (audioManager_handleFrameMsg(audioManager.audioInfo[D_8027DCC8 % 3], D_80275848)){
             if(phi_s1 == 0){
-                osRecvMesg(&audioManager.audioReplyMsgQ, (OSMesg *)&D_80275844, OS_MESG_BLOCK); // [port] Struct_1D00_2 ** → OSMesg *
+                osRecvMesg(&audioManager.audioReplyMsgQ, (OSMesg *)&D_80275844, OS_MESG_BLOCK);
                 audioManager_handleDoneMsg(D_80275844->unk4);
                 D_80275848 = D_80275844->unk4;
             }else{
@@ -442,7 +442,7 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
     if(sp34 == 0){
         return 0;
     }else{
-        func_802535A8((Gfx **)audioManager.ACMDList[D_8027DCD0], (Gfx **)sp38, &audioManager.audioReplyMsgQ, &info->unk8); // [port] Acmd * → Gfx **
+        func_802535A8((Gfx **)audioManager.ACMDList[D_8027DCD0], (Gfx **)sp38, &audioManager.audioReplyMsgQ, &info->unk8);
         func_80250650();
         D_8027DCD0 ^= 1;
         return 1;
@@ -458,13 +458,13 @@ void audioManager_handleDoneMsg(AudioInfo *info)
 }
 
 #if VERSION == VERSION_USA_1_0
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) // [port] was s32 addr/return
+uintptr_t func_80240204(uintptr_t addr, s32 len, void *state)
 {
     void *sp44;
-    uintptr_t sp40; // [port] was s32
+    uintptr_t sp40;
     Struct_1D00_3 *phi_s0;
     Struct_1D00_3 *phi_v0;
-    uintptr_t new_var; // [port] was s32
+    uintptr_t new_var;
     Struct_1D00_3 *sp30;
 
     phi_s0 = D_8027D5B0.unk4;
@@ -475,10 +475,10 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) // [port] was s32 
 
         sp30 = phi_s0;
         if ((addr + len) <= new_var) {
-            phi_s0->unkC = (uintptr_t) D_8027DCC8; // [port] was (s32)
+            phi_s0->unkC = (uintptr_t) D_8027DCC8;
             return osVirtualToPhysical((void*)(phi_s0->unk10 + (addr - phi_s0->unk8)));
         }
-        phi_s0 = (Struct_1D00_3 *)phi_s0->unk0.next; // [port] cast ALLink* to container type
+        phi_s0 = (Struct_1D00_3 *)phi_s0->unk0.next;
 
     }
     phi_s0 = D_8027D5B0.unk8;
@@ -487,10 +487,10 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) // [port] was s32 
         func_802483D8();
         return osVirtualToPhysical(D_8027D5B0.unk4);
     }
-    D_8027D5B0.unk8 = (Struct_1D00_3 *)phi_s0->unk0.next; // [port] cast ALLink* to container type
-    alUnlink((ALLink *)phi_s0); // [port] cast to ALLink* (first member)
+    D_8027D5B0.unk8 = (Struct_1D00_3 *)phi_s0->unk0.next;
+    alUnlink((ALLink *)phi_s0);
     if (sp30 != NULL) {
-        alLink((ALLink *)phi_s0, (ALLink *)sp30); // [port] cast to ALLink* (first member)
+        alLink((ALLink *)phi_s0, (ALLink *)sp30);
     } else {
         phi_v0 = D_8027D5B0.unk4;
         if (phi_v0 != NULL) {
@@ -504,36 +504,36 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) // [port] was s32 
             phi_s0->unk0.prev = NULL;
         }
     }
-    sp44 = (void*)phi_s0->unk10; // [port] was implicit u32→void*
+    sp44 = (void*)phi_s0->unk10;
     sp40 = addr & 1;
     addr -= sp40;
     phi_s0->unk8 = addr;
-    phi_s0->unkC = (uintptr_t) D_8027DCC8; // [port] was (s32)
-    osPiStartDma((OSIoMesg *)&D_8027D100[D_8027DCCC++], 1, 0, addr, sp44, 0x200U, &D_8027D008); // [port] cast opaque struct to OSIoMesg*
+    phi_s0->unkC = (uintptr_t) D_8027DCC8;
+    osPiStartDma((OSIoMesg *)&D_8027D100[D_8027DCCC++], 1, 0, addr, sp44, 0x200U, &D_8027D008);
     return osVirtualToPhysical(sp44) + sp40;
 }
 #elif VERSION == VERSION_PAL
 #ifndef NONMATCHING
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state); // [port] was s32
+uintptr_t func_80240204(uintptr_t addr, s32 len, void *state);
 #pragma GLOBAL_ASM("asm/nonmatchings/core1/code_1D00/func_80240204.s")
 #else
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){ // [port] was s32
+uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){
     void *sp44;
-    uintptr_t sp40; // [port] was s32
+    uintptr_t sp40;
     Struct_1D00_3 *phi_s0;
     Struct_1D00_3 *phi_v0;
-    uintptr_t new_var; // [port] was s32
+    uintptr_t new_var;
     Struct_1D00_3 *sp30;
 
     phi_v0 = D_8027D5B0.unk4;
     sp30 = NULL;
-    for(phi_s0 = phi_v0; phi_s0 != NULL; phi_s0 = (Struct_1D00_3 *)phi_s0->unk0.next) { // [port] cast ALLink* to container type
+    for(phi_s0 = phi_v0; phi_s0 != NULL; phi_s0 = (Struct_1D00_3 *)phi_s0->unk0.next) {
         sp40 = (phi_s0->unk8 + 0x270);
         if ((phi_s0->unk8 > addr)) break;
 
         sp30 = phi_s0;
         if ((addr + len) <= sp40) {
-            phi_s0->unkC = (uintptr_t) D_8027DCC8; // [port] was (s32)
+            phi_s0->unkC = (uintptr_t) D_8027DCC8;
             return osVirtualToPhysical((void*)(phi_s0->unk10 + (addr - phi_s0->unk8)));
         }
     }
@@ -541,10 +541,10 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){ // [port] was s32
     if (phi_s0 == NULL) {
         return osVirtualToPhysical(phi_v0);
     }
-    D_8027D5B0.unk8 = (Struct_1D00_3 *)phi_s0->unk0.next; // [port] cast ALLink* to container type
-    alUnlink((ALLink *)phi_s0); // [port] cast to ALLink* (first member)
+    D_8027D5B0.unk8 = (Struct_1D00_3 *)phi_s0->unk0.next;
+    alUnlink((ALLink *)phi_s0);
     if (sp30 != NULL) {
-        alLink((ALLink *)phi_s0, (ALLink *)sp30); // [port] cast to ALLink* (first member)
+        alLink((ALLink *)phi_s0, (ALLink *)sp30);
     } else {
         phi_v0 = D_8027D5B0.unk4;
         if (phi_v0 != NULL) {
@@ -562,9 +562,9 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){ // [port] was s32
     new_var = addr & 1;
     addr = addr - new_var;
     phi_s0->unk8 = addr;
-    phi_s0->unkC = (uintptr_t) D_8027DCC8; // [port] was (s32)
-    sp44 = (void*)phi_s0->unk10; // [port] was implicit u32→void*
-    osPiStartDma((OSIoMesg *)&D_8027D100[D_8027DCCC++], 1, 0, phi_s0->unk8, (void*)phi_s0->unk10, 0x270U, &D_8027D008); // [port] cast opaque struct to OSIoMesg*
+    phi_s0->unkC = (uintptr_t) D_8027DCC8;
+    sp44 = (void*)phi_s0->unk10;
+    osPiStartDma((OSIoMesg *)&D_8027D100[D_8027DCCC++], 1, 0, phi_s0->unk8, (void*)phi_s0->unk10, 0x270U, &D_8027D008);
     return osVirtualToPhysical(sp44) + new_var;
 }
 #endif
@@ -573,7 +573,7 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){ // [port] was s32
 void *func_802403B8(void *state) {
     if (D_8027D5B0.unk0 == 0) {
         D_8027D5B0.unk4 = NULL;
-        D_8027D5B0.unk8 = &D_8027D5C0[0]; // [port] was &array — use &array[0] for correct pointer type
+        D_8027D5B0.unk8 = &D_8027D5C0[0];
         D_8027D5B0.unk0 = 1;
     }
     *(void **)state = &D_8027D5B0;
@@ -609,9 +609,9 @@ void func_802403F0(void) {
         phi_s1 = (Struct_1D00_3 *)phi_s0_2->unk0.next;
         if (phi_s0_2->unkC + 1 < D_8027DCC8) {
             if (phi_s0_2 == D_8027D5B0.unk4) {
-                D_8027D5B0.unk4 = (Struct_1D00_3 *)phi_s0_2->unk0.next; // [port] cast ALLink* to container type
+                D_8027D5B0.unk4 = (Struct_1D00_3 *)phi_s0_2->unk0.next;
             }
-            alUnlink((ALLink *)phi_s0_2); // [port] cast to ALLink* (first member)
+            alUnlink((ALLink *)phi_s0_2);
             if (D_8027D5B0.unk8 != NULL) {
                 alLink(&phi_s0_2->unk0, &D_8027D5B0.unk8->unk0);
             } else {

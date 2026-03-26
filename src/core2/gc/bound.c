@@ -24,7 +24,7 @@ u8 _gcbound_blue; //D_80380902
 
 /* .code */
 void  _gcbound_draw(Gfx** dl, s32 a, s32 r, s32 g, s32 b){
-    gSPDisplayList((*dl)++, D_803688E8); // [port] was &D_803688E8 — array decays to Gfx*
+    gSPDisplayList((*dl)++, D_803688E8);
     gDPSetFogColor((*dl)++, r, g, b, a);
     gSPTextureRectangle((*dl)++, 0,  0, (gFramebufferWidth-1)<<2, (gFramebufferHeight-1)<<2, 0, 0, 0, 0x100, 0x100);
 }

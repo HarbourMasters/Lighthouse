@@ -87,7 +87,6 @@ typedef struct bk_sprite_s{
         u32 bit22 : 2;
         u32 pad_bit20 : 21;
     }unkC;
-    // Lighthouse [port] changed to pointers, may revert, unsure - Proxy
     struct bk_sprite_frame_s* frames[];
 } BKSprite;
 
@@ -176,7 +175,7 @@ typedef struct struct_2_s{
     f32 duration;
     u8 argCount;
     u8 activationFrameDelay;
-    uintptr_t arg0; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t arg0;
     uintptr_t arg1;
     uintptr_t arg2;
     void *funcPtr;
@@ -304,7 +303,7 @@ typedef struct struct_14_s{
     s32 unk14;
     void (*unk18)(struct actorMarker_s *, s32, s32);
     void (*unk1C)(struct actorMarker_s *, s32, s32);
-    s32 (*unk20)(struct actorMarker_s *, s32, s32); // [port] was s32 — holds a function pointer
+    s32 (*unk20)(struct actorMarker_s *, s32, s32);
 }struct14s;
 
 typedef struct struct_15_s{
@@ -389,7 +388,7 @@ typedef struct particle_emitter{
         }spherical;
     } particleVelocityRange_E4;
     f32 unkFC;
-    uintptr_t unk100; // [port] was s32 — stores Struct70s* pointer
+    uintptr_t unk100;
     s16 unk104;
     u8 pad106[0x2];
     f32 unk108;

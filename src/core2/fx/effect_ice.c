@@ -3,7 +3,7 @@
 #include "variables.h"
 
 
-extern BKCollisionTri *func_8024549C(f32 [3], f32); // [port] was int — returns BKCollisionTri*
+extern BKCollisionTri *func_8024549C(f32 [3], f32);
 
 #define _HorzDist3v(v1, v2) ((v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[2]-v2[2])*(v1[2]-v2[2]))
 

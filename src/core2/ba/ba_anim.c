@@ -41,7 +41,7 @@ struct {
     f32 duration_scale; //duration_scale
     u8  scalable_duration; //scalable_duration
 }baAnimScale;
-void (*baAnimModifyFunction)(uintptr_t, uintptr_t); // [port] was (s32, s32) — truncates 64-bit pointers
+void (*baAnimModifyFunction)(uintptr_t, uintptr_t);
 
 /* .code */
 void __baanim_setUpdateType(enum baanim_update_type_e arg0){
@@ -93,33 +93,33 @@ void __baanim_applyBottlesBonus(uintptr_t arg0, uintptr_t arg1) {
     }
     if ((D_8037BF4C & 1)) {//either big hands or big feet
         __baanim_oscillateScale(scale, sp28, 2.0f, 1.0f);
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 6, scale); // [port] uintptr_t to BoneTransformList*
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x14, scale); // [port]
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 6, scale);
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x14, scale);
     }
     if (D_8037BF4C & 2) {//either big hands or big feet
         __baanim_oscillateScale(scale, sp28, 2.0f, 1.0f);
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x10, scale); // [port]
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x1E, scale); // [port]
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x10, scale);
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x1E, scale);
     }
     if (D_8037BF4C & BAANIM_BIGHEAD) {
         __baanim_oscillateScale(scale, sp28, 2.0f, 1.0f);
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x12, scale); // [port]
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x12, scale);
     }
     if (D_8037BF4C & BAANIM_SMALLHEAD) {
         __baanim_oscillateScale(scale, sp28, 0.2f, 0.5f);
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x12, scale); // [port]
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x12, scale);
     }
     if (D_8037BF4C & BAANIM_LONGBODY) {
-        func_8033A968((BoneTransformList *)arg0, 1, D_803635E0); // [port]
+        func_8033A968((BoneTransformList *)arg0, 1, D_803635E0);
     }
     if (D_8037BF4C & BAANIM_BIGKAZOOIEHEAD) {
         __baanim_oscillateScale(scale, sp28, 2.0f, 1.0f);
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x6C, scale); // [port]
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x6C, scale);
     }
     if (D_8037BF4C & BAANIM_BIGWINGS) {
         __baanim_oscillateScale(scale, sp28, 2.0f, 1.0f);
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x64, scale); // [port]
-        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x67, scale); // [port]
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x64, scale);
+        boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x67, scale);
     }
     if (map_get() == MAP_A_TTC_SANDCASTLE) {
         if ((D_8037BF4C & BAANIM_WISHYWASHY) && (player_getTransformation() != TRANSFORM_7_WISHWASHY)) {
@@ -185,7 +185,7 @@ void baanim_setDurationRange(f32 min, f32 max){
     baAnimMaxDuration = max;
 }
 
-void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t)){ // [port] was (s32, s32)
+void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t)){
     baAnimModifyFunction = arg0;
 }
 

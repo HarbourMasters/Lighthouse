@@ -162,13 +162,13 @@ Actor *func_802C8580(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
             s0->unk2C = 2.0f;
             break;
         }//L802C88E0
-        s0->unk3C = NULL; // [port] was = 0
+        s0->unk3C = NULL;
         sp68[0] = (f32)position[0];
         sp68[1] = (f32)position[1];
         sp68[2] = (f32)position[2];
 
         sp68[0] += s0->unk30[0]*3.0f;
-        s0->unk50 = mapModel_getFloorY(sp68); // [port] &sp68 -> sp68: f32[3] decays to f32*
+        s0->unk50 = mapModel_getFloorY(sp68);
 
         s0->unk14[2] = 0.0f;
         s0->unk14[1] = 0.0f;
@@ -178,12 +178,12 @@ Actor *func_802C8580(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
         s0->unk20[1] = randf2(0.05f, 0.4f);
         s0->unk20[2] = randf2(0.05f, 0.4f);
 
-        ml_vec3f_yaw_rotate_copy(s0->unk8, s0->unk8, f24); // [port] & removed: f32[3] decays to f32*
+        ml_vec3f_yaw_rotate_copy(s0->unk8, s0->unk8, f24);
         s0->unk8[0] += actor->position_x;
         s0->unk8[1] += actor->position_y;
         s0->unk8[2] += actor->position_z;
 
-        ml_vec3f_yaw_rotate_copy(s0->unk30, s0->unk30, randf2(15.0f, 90.0f) + f24); // [port] & removed: f32[3] decays to f32*
+        ml_vec3f_yaw_rotate_copy(s0->unk30, s0->unk30, randf2(15.0f, 90.0f) + f24);
     }//L802C8A08
     actor->unk40 = s1;
     marker_setFreeMethod(actor->marker, func_802C83F0);
@@ -283,14 +283,14 @@ void func_802C8C5C(Actor *actor) {
 
             if (phi_s0->unk8[1] <= phi_s0->unk50) {
                 phi_s0->unk0 = 1;
-                phi_s0->unk3C = (ParticleEmitter *)(uintptr_t)func_802EE5E0(1); // [port] s32 to ParticleEmitter* via uintptr_t
-                if (phi_s0->unk3C != NULL) { // [port] was != 0
-                    func_802EE6CC(phi_s0->unk8, (f32 *)sp70, phi_s0->unk40, 1, D_80366330, D_80366334, (s32)D_80366338, (s32)D_8036633C, 1); // [port] s32* D_80366418 reinterpreted as f32[3]
+                phi_s0->unk3C = (ParticleEmitter *)(uintptr_t)func_802EE5E0(1);
+                if (phi_s0->unk3C != NULL) {
+                    func_802EE6CC(phi_s0->unk8, (f32 *)sp70, phi_s0->unk40, 1, D_80366330, D_80366334, (s32)D_80366338, (s32)D_8036633C, 1);
                 }
             }
         }
         if (phi_s0->unk0 == 1) {
-            if (!func_802EE5F0((s32)(intptr_t)phi_s0->unk3C)) { // [port] ParticleEmitter* to s32 — N64 stored pointer as s32
+            if (!func_802EE5F0((s32)(intptr_t)phi_s0->unk3C)) {
                 phi_s0->unk0 = 0;
             }
             phi_s0->unk8[1] -= 2.0f;

@@ -23,8 +23,8 @@
 #define N_AL_DIVIDED            368
 
 typedef struct N_ALLoadFilter_s{
-    ALLink                      node;    // [port] matches N_PVoice layout
-    struct N_ALVoice_s          *vvoice; // [port] alignment with N_PVoice
+    ALLink                      node;
+    struct N_ALVoice_s          *vvoice;
     ADPCM_STATE                 *state;  // == dc_state
     ADPCM_STATE                 *lstate; // == dc_lstate
     ALRawLoop                   loop;    // == dc_loop
@@ -35,7 +35,7 @@ typedef struct N_ALLoadFilter_s{
     s32                         sample;
     s32                         lastsam;
     s32                         first;
-    uintptr_t                   memin; // [port] stores table base pointer, needs pointer width
+    uintptr_t                   memin;
 } N_ALLoadFilter;
 
 typedef struct N_ALResampler_s {
@@ -85,7 +85,7 @@ typedef struct N_PVoice_s {
     s32                         dc_sample;
     s32                         dc_lastsam;
     s32                         dc_first;
-    uintptr_t                   dc_memin; // [port] stores table base pointer, needs pointer width
+    uintptr_t                   dc_memin;
 /** ALResampler *********************************/
     RESAMPLE_STATE      *rs_state;
     f32                 rs_ratio;

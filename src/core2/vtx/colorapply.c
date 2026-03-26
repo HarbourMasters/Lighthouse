@@ -5,7 +5,6 @@
 
 extern void func_8034CB64(Struct70s *, s32, BKModel *, s32);
 extern void func_8034CD30(Struct70s *, s32, BKModel *, s32);
-// [port] func_8034CF74/CF90/CF6C take void* — declared in port_prototypes.h; see normalset.c
 extern void func_8034CF74(void *, s32, BKModel *, s32);
 extern void func_8034D170(Struct70s *, s32, BKModel *, s32);
 extern void func_8034DD74(Struct70s *, s32, BKModel *, s32);
@@ -13,7 +12,6 @@ extern void func_8034E6A8(Struct70s *, s32, BKModel *, s32);
 extern void func_8034EE2C(Struct70s *, s32, BKModel *, s32);
 extern void func_8034F570(Struct70s *, s32, BKModel *, s32);
 extern void func_8034CB9C(Struct70s *, BKModel *, s32);
-// [port] func_8034CF90 takes void*
 extern void func_8034CF90(void *, BKModel *, s32);
 extern void func_8034CD8C(Struct70s *, BKModel *, s32);
 extern void func_8034D048(Struct70s *, BKModel *, s32);
@@ -24,7 +22,6 @@ extern void func_8034EF60(Struct70s *, BKModel *, s32);
 extern void func_8034F5B0(Struct70s *, BKModel *, s32);
 extern void func_8034CB5C(Struct70s *);
 extern void func_8034CD28(Struct70s *);
-// [port] func_8034CF6C takes void*
 extern void func_8034CF6C(void *);
 extern void func_8034D168(Struct70s *);
 extern void func_8034DD48(Struct70s *);
@@ -40,8 +37,8 @@ typedef struct{
 
 /* .data */
 Struct_core2_C4F40_1 D_80371FC0[] = {
-    {(void (*)(Struct70s *, s32, BKModel *, s32))func_8034CF74, (void (*)(Struct70s *, BKModel *, s32))func_8034CF90, (void (*)(Struct70s *))func_8034CF6C}, // [port] cast void* params
-    {(void (*)(Struct70s *, s32, BKModel *, s32))func_8034CF74, func_8034D048, (void (*)(Struct70s *))func_8034CF6C}, // [port] cast void* params
+    {(void (*)(Struct70s *, s32, BKModel *, s32))func_8034CF74, (void (*)(Struct70s *, BKModel *, s32))func_8034CF90, (void (*)(Struct70s *))func_8034CF6C},
+    {(void (*)(Struct70s *, s32, BKModel *, s32))func_8034CF74, func_8034D048, (void (*)(Struct70s *))func_8034CF6C},
     {func_8034D170, func_8034D194, func_8034D168},
     {func_8034DD74, func_8034E26C, func_8034DD48},
     {func_8034E6A8, func_8034E8E4, func_8034E6A0},

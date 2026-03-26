@@ -33,7 +33,6 @@ s16 *assetCacheAssetIdList; //assetCache_indexs
 bk_vector(struct21s) *D_80383CE0[2];
 
 /* .public */
-// [port] removed local 'extern s32 assetcache_release' — conflicts with void prototype in port_prototypes.h
 
 f32  func_8033ABA0(AnimationFile *anim_file, f32 arg1);
 f32  func_8033AC38(AnimationFile *anim_file, AnimationFileElement *arg1, f32 arg2);
@@ -270,7 +269,6 @@ bool func_8033B388(BKSprite **sprite_ptr, BKSpriteDisplayData **arg1){
     return true;
 }
 
-// [port] return type changed from s32 to void to match port_prototypes.h — callers never use the return value
 void assetcache_release(void * arg0){
     // Lighthouse [port] Stubbing for now, not sure if we want this stuff happening...
     return;
@@ -563,7 +561,7 @@ s32 assetCache_getDependencyCount(enum asset_e arg0){
     return 0;
 }
 
-void func_8033BD20(void **arg0){ // [port] void** — callers pass BKModelBin**, BKSprite**, void**
+void func_8033BD20(void **arg0){
     func_8033B020(*arg0);
     *arg0 = NULL;
 }
@@ -576,7 +574,7 @@ void func_8033BD6C(void){
     func_8033B1BC();
 }
 
-bool func_8033BD8C(void* arg0){ // [port] was void — MIPS implicit return from func_8033B0D0
+bool func_8033BD8C(void* arg0){
     return func_8033B0D0(arg0);
 }
 

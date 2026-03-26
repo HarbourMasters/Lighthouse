@@ -4,7 +4,7 @@
 #include <libultra/convert.h>
 #include <libultra/r4300.h>
 
-extern uintptr_t osVirtualToPhysical(void *addr); // [port] needed for K0_TO_PHYS replacement
+extern uintptr_t osVirtualToPhysical(void *addr);
 
 #if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 #ifndef MIN
@@ -49,7 +49,7 @@ Acmd *alAdpcmPull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset, Acmd 
 
     inp = AL_DECODER_IN;
     aLoadADPCM(ptr++, f->bookSize,
-               osVirtualToPhysical(f->table->waveInfo.adpcmWave.book->book)); // [port] was K0_TO_PHYS, truncates 64-bit pointers
+               osVirtualToPhysical(f->table->waveInfo.adpcmWave.book->book));
 
     looped = (outCount + f->sample > f->loop.end) && (f->loop.count != 0);
     if (looped)
@@ -194,8 +194,8 @@ Acmd *alRaw16Pull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset, Acmd 
 {
     Acmd        *ptr = p;
     s32         nbytes;
-    uintptr_t   dramLoc; // [port] was s32, stores DMA address
-    uintptr_t   dramAlign; // [port] was s32
+    uintptr_t   dramLoc;
+    uintptr_t   dramAlign;
     s32         dmemAlign;
     s32         overFlow;
     s32         startZero;
@@ -437,10 +437,10 @@ Acmd *_decodeChunk(Acmd *ptr, ALLoadFilter *f, s32 tsam, s32 nbytes, s16 output,
     }
 
     if (flags & A_LOOP) {
-        aSetLoop(ptr++, osVirtualToPhysical(f->lstate)); // [port] was K0_TO_PHYS
+        aSetLoop(ptr++, osVirtualToPhysical(f->lstate));
     }
 
-    n_aADPCMdec(ptr++, osVirtualToPhysical(f->state), flags, tsam << 1, endAlign, output); // [port] was K0_TO_PHYS
+    n_aADPCMdec(ptr++, osVirtualToPhysical(f->state), flags, tsam << 1, endAlign, output);
 
     f->first = 0;
     return ptr;

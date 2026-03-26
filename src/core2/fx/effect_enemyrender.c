@@ -33,7 +33,7 @@ Actor *func_802DF160(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp38));
     modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)this);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)D_8037E000);
-    modelRender_draw(gfx, mtx, D_80368360, NULL, 1.0f, NULL, marker_loadModelBin(D_8037E000)); // [port] &D_80368360 -> D_80368360: f32[3] decays to f32*
+    modelRender_draw(gfx, mtx, D_80368360, NULL, 1.0f, NULL, marker_loadModelBin(D_8037E000));
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     return this;
 }
@@ -54,7 +54,7 @@ void func_802DF2C4(Actor *this) {
     s32 temp_fp;
     s32 i;
     s32 prev_val;
-    Struct70s *temp_v0; // [port] was s32 — stores Struct70s* from func_8034C2C4
+    Struct70s *temp_v0;
     s32 val;
 
 
@@ -63,7 +63,7 @@ void func_802DF2C4(Actor *this) {
         this->initialized = true;
         actor_collisionOff(this);
         for(i = 0; i < 20; i++){
-            func_8034DFB0(&func_8034C2C4(this->marker, i + 0x190)->type_6D, D_8036837C, D_8036836C, 0.0f); // [port] Struct70s* → Struct6Ds* via union member
+            func_8034DFB0(&func_8034C2C4(this->marker, i + 0x190)->type_6D, D_8036837C, D_8036836C, 0.0f);
         }
         marker_setFreeMethod(this->marker, func_802DF2B4);
     }
@@ -75,11 +75,11 @@ void func_802DF2C4(Actor *this) {
             val = D_8037E008[i];
             switch(val){
                 case true: 
-                    func_8034DFB0(&temp_v0->type_6D, D_8036836C, D_8036837C, 0.05f); // [port] Struct70s* → Struct6Ds* via union member
+                    func_8034DFB0(&temp_v0->type_6D, D_8036836C, D_8036837C, 0.05f);
                     break;
 
                 case false:
-                    func_8034DFB0(&temp_v0->type_6D, D_8036837C, D_8036836C, 0.2f); // [port] Struct70s* → Struct6Ds* via union member
+                    func_8034DFB0(&temp_v0->type_6D, D_8036837C, D_8036836C, 0.2f);
                     break;
             }
         }//L802DF418

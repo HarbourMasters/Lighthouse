@@ -73,8 +73,8 @@ void chMudHut_spawnExplosion(ActorMarker *this){
     Actor *thisActor;
 
     thisActor = marker_getActor(this);
-    thisActor = actor_spawnWithYaw_f32(ACTOR_D_WOOD_DEMOLISHED, thisActor->position, 0); // [port] was NULL, param is s32
-    thisActor = actor_spawnWithYaw_f32(ACTOR_4D_STEAM_2, thisActor->position, 0); // [port] was NULL, param is s32
+    thisActor = actor_spawnWithYaw_f32(ACTOR_D_WOOD_DEMOLISHED, thisActor->position, 0);
+    thisActor = actor_spawnWithYaw_f32(ACTOR_4D_STEAM_2, thisActor->position, 0);
     if(this);
 }
 

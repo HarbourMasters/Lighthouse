@@ -3,7 +3,7 @@
 #include "variables.h"
 #include <ultra64.h>
 
-extern void port_requestReadback(void); // [port]
+extern void port_requestReadback(void);
 
 #include <libultra/convert.h>
 
@@ -96,7 +96,7 @@ void func_802F1FC0(Struct65s *self, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     
     gSPDisplayList((*gfx)++, D_80368AC0);
-    func_80347FC0(gfx, D_80368AB0[1].unk0, 0, 0, 0, 0, 0, 0, 0, &width, &height); // [port] NULL -> 0 for s32 cms/cmt params
+    func_80347FC0(gfx, D_80368AB0[1].unk0, 0, 0, 0, 0, 0, 0, 0, &width, &height);
     port_requestReadback(); // [port] particle reads framebuffer pixels
     temp_addr = &gFramebuffers[getOtherFramebuffer()][spC0*gFramebufferWidth + (spC4 & 0xFFFC)];
     gDPSetTextureImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, temp_addr);
@@ -106,7 +106,7 @@ void func_802F1FC0(Struct65s *self, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     gDPPipeSync((*gfx)++);
     gDPSetTile((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 9, 0x0080, 1, 0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD);
     gDPSetTileSize((*gfx)++, 1, ((3 - (spC4 % 4)) + 1 - 1)<< 2, 0, (((3 - (spC4 % 4)) + 0x20) - 1)<<2, 0x007C);
-    gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0); // [port] Vtx* -> uintptr_t
+    gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0);
     gSP1Quadrangle((*gfx)++, 0, 1, 3, 2, 0);
     func_80349AD0();
     func_80347FC0(gfx, (D_80368AB0 + self->unk22)->unk0, 0, 0, 0, 0, 0, 2, 2, &width, &height);
@@ -394,6 +394,6 @@ void func_802F3300(void) {
     }
 }
 
-uintptr_t func_802F3364(uintptr_t arg0){ // [port] s32 -> uintptr_t for 64-bit pointer safety
+uintptr_t func_802F3364(uintptr_t arg0){
     return arg0;
 }

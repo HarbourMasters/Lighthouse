@@ -17,5 +17,5 @@ void func_803905B0(Actor *this){
         this->volatile_initialized = true;
         actor_collisionOff(this);
     }
-    this->marker->propPtr->unk8_3 = BOOL(func_8038DD14()); // [port] decomp passed Actor* but actual def is (void)
+    this->marker->propPtr->unk8_3 = BOOL(func_8038DD14());
 }

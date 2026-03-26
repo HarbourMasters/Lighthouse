@@ -187,13 +187,13 @@ void fxjinjoscore_draw(s32 arg0, struct8s *arg1, Gfx **gfx, Mtx **mtx, Vtx **vtx
                 }
                 center_x = pos_x - (f32) gFramebufferWidth / 2 + x_offset;
                 center_y = (f32) gFramebufferHeight / 2 + func_802FB0E4(arg1) - 266.0f + 40.0f + y_offset - D_80381E78[jinjo_id];
-                gSPVertex((*gfx)++, (uintptr_t)*vtx, 4, 0); // [port] Vtx* -> uintptr_t
+                gSPVertex((*gfx)++, (uintptr_t)*vtx, 4, 0);
                 // Set up the positions of the four vertices
                 for(i = 0; i < 2; i++){
                     for(j = 0; j  < 2; j++){
                         (*vtx)->v.ob[0] = ((texture_width  * D_80381E54 * j) - (texture_width  * D_80381E54 / 2) + center_x) * 4;
                         (*vtx)->v.ob[1] = ((texture_height * D_80381E54 / 2) - (texture_height * D_80381E54 * i) + center_y) * 4;
-                        (*vtx)->v.ob[2] = -0xA; // [port] was -0x14; Z=-20 at guOrtho far clip plane, gets clipped on PC
+                        (*vtx)->v.ob[2] = -0xA;
                         (*vtx)->v.tc[0] = ((texture_width  - 1) * j) << 6;
                         (*vtx)->v.tc[1] = ((texture_height - 1) * i) << 6;
                         (*vtx)++;

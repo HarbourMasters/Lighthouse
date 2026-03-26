@@ -7,8 +7,8 @@
 #include "model.h"
 #include "core2/camera.h"
 #include "core2/anim/sprite.h"
-#include "core2/ba/anim.h" // [port] needed for enum baanim_update_type_e in baanim_setUpdateType prototype
-#include "core2/nc/camera.h" // [port] needed for enum camera_type_e in camera_setType prototype
+#include "core2/ba/anim.h"
+#include "core2/nc/camera.h"
 // FuncUnk40 defined in core2/sprite_displaydata.h — forward-typedef here to avoid circular include
 #ifndef FUNCUNK40_DEFINED
 #define FUNCUNK40_DEFINED
@@ -106,7 +106,7 @@ BKModelUnk14List *func_8033A12C(BKModelBin *self);
 // --- core2/vtx/colorapply.c ---
 Struct70s *func_8034C344(s32 arg0);
 Struct70s *func_8034C448(s32 arg0);
-Struct70s *func_8034C630(void *arg0); // [port] was s32 — receives pointer on 64-bit
+Struct70s *func_8034C630(void *arg0);
 
 // --- core2/particle/samplerate.c ---
 Struct5Ds *func_802F47D0(void);
@@ -225,7 +225,7 @@ CameraNodeType3 *ncCameraNodeList_getCameraNodeType3(int camera_node_index);
 CameraNodeType4 *ncCameraNodeList_getCameraNodeType4(int camera_node_index);
 
 // ============================================================
-// [port] MISC POINTER-RETURNING + OS + GBI PROTOTYPES
+// MISC POINTER-RETURNING + OS + GBI PROTOTYPES
 // ============================================================
 
 s16 *func_8030C704(void);
@@ -310,8 +310,6 @@ void func_8031CD20(NodeProp *arg0, s32 arg1, s32 arg2);
 void func_80340690(Struct83s *self);
 
 // --- core2/actor_cubebounds.c ---
-// [port] bool-return functions MUST have prototypes: without one, caller assumes int (4 bytes)
-// but bool is 1 byte on MSVC x64 — upper 3 bytes of garbage make false look like true
 bool func_803077FC(f32 arg0[3], s32 *arg1, s32 *arg2, s32 arg3, u32 arg4);
 bool func_80305C30(s32 arg0);
 bool func_80308F54(s32 cube_index);
@@ -321,14 +319,13 @@ s32 func_80306EF4(s32 arg0[3], s32 arg1, s32 arg2);
 s32 func_80307504(f32 arg0[3], s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 // --- core2/actor_cubepropsystem.c ---
-// [port] bool-return: must prototype to avoid int ABI mismatch
 bool func_8032E398(Cube *cube, bool (*arg1)(NodeProp *), bool (*arg2)(Prop *));
 bool func_80330534(Actor *actor);
 bool func_8033056C(Actor *actor);
 bool func_80331158(ActorMarker *arg0, f32 *arg1, f32 *arg2);
 
 // --- core2/ba/ba_lookdir.c ---
-bool func_8028F280(void); // [port] bool-return: called in cube collision handler without prototype
+bool func_8028F280(void);
 
 // --- core2/ba/ba_anim.c ---
 bool baanim_isStopped(void);
@@ -374,8 +371,8 @@ bool ncDynamicCamA_func_802C1EE0(void);
 bool __ncFirstPersonCamera_fullyZoomedIn(void);
 
 // --- core2/collision/funcs.c ---
-void func_80320B24(void *arg0, void *arg1, void *arg2); // [port] Method_Core2_999A0_* → void* (function pointers passed opaquely)
-void func_80320B44(void *arg0, void *arg1, void *arg2, void *arg3); // [port] same
+void func_80320B24(void *arg0, void *arg1, void *arg2);
+void func_80320B44(void *arg0, void *arg1, void *arg2, void *arg3);
 
 // --- core2/collision/climbsurface.c ---
 s32 func_8029453C(void);
@@ -400,7 +397,7 @@ void __spawnQueue_add_0(void (*arg0)(void));
 void __spawnQueue_add_2(void (*arg0)(void), uintptr_t arg1, uintptr_t arg2);
 
 // --- core2/sprite/displaydata.c ---
-void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2); // [port] fixed: FuncUnk40 to match definition
+void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2);
 int func_8033E3F0(enum common_particle_e particle_id, int arg1);
 
 // --- core2/particle/particle.c ---
@@ -476,8 +473,6 @@ void func_8038C408(ActorMarker *marker);
 void func_8038EA90(void);
 
 // --- src/BGS/ch/tanktup.c ---
-// [port] func_8038F570 removed: defined with (s16*) but cutscene/lair.c calls with no args (decomp pattern)
-// [port] func_8028F94C removed: polymorphic calls (chfinalboss.c passes 3 args, definition takes 2)
 void func_8038F51C(Actor *self);
 
 // --- src/BGS/ch/tiptup.c ---
@@ -494,7 +489,7 @@ bool chvilegame_cpu_consume_piece(ActorMarker *marker, f32 position[3]);
 s32 chvilegame_get_piece_count(ActorMarker *marker);
 s32 chvilegame_get_score_difference(ActorMarker *marker);
 s32 func_8038A9E0(ActorMarker *marker);
-void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type); // [port] enum chvilegame_piece_type_e is file-local; use u32 to avoid incomplete-type conflict
+void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type);
 void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker);
 
 // --- src/CC/actor_spawninit.c ---
@@ -550,7 +545,6 @@ void func_8038A09C(f32 arg0[3]);
 void func_8038C398(f32 position[3], enum marker_e marker_id);
 
 // --- src/FP/ch/twinklybox.c ---
-// [port] func_8038DD14 removed: defined as (void) but fp_trigger.c passes Actor* arg (decomp pattern)
 bool func_8038DD34(ActorMarker *marker);
 
 // --- src/FP/ma/slalom.c ---
@@ -616,9 +610,6 @@ void func_803865E8(void);
 void func_803865F8(void);
 void func_80386608(void);
 
-// --- src/GV/crc.c ---
-// [port] func_80389F5C removed: defined as (void) but GV/actor_spawninit.c passes Actor* arg (decomp pattern)
-
 // --- src/GV/gv_helpers.c ---
 s32 func_8038E178(void);
 s32 func_8038E184(void);
@@ -681,9 +672,9 @@ void func_803876C8(ActorMarker *marker, s32 arg1);
 void func_80387720(ActorMarker *marker);
 
 // --- src/MMM/ch/tumblar.c ---
-bool chTumblar_isBanjoAbove(void *arg0, Struct68s *arg1); // [port] arg0 is Struct_MMM_47D0_0* (local to tumblar.c)
-bool chTumblar_isDisappeared(void *arg0, s32 arg1); // [port] arg0 is Struct_MMM_47D0_0* (local to tumblar.c)
-void chTumblar_congratulate(void *arg0, s32 arg1); // [port] arg0 is Struct_MMM_47D0_0* (local to tumblar.c)
+bool chTumblar_isBanjoAbove(void *arg0, Struct68s *arg1);
+bool chTumblar_isDisappeared(void *arg0, s32 arg1);
+void chTumblar_congratulate(void *arg0, s32 arg1);
 void chTumblar_copyPosition(s32 arg0, Struct68s *arg1, f32 arg2[3]);
 void func_8038AC04(void);
 
@@ -700,7 +691,7 @@ void organMinigame_getKeyPosition(s32 key_indx, f32 position[3]);
 // --- src/MMM/minigame_shed.c ---
 void func_8038A994();
 void func_8038A9B4(void);
-void func_8038AA30(void *arg0, void *arg1); // [port] polymorphic: called with BKModel*/Struct_MMM_47D0_0* and s32/Struct68s*
+void func_8038AA30(void *arg0, void *arg1);
 void func_8038AA44(void);
 
 // --- src/MMM/napper_room.c ---
@@ -740,17 +731,11 @@ void codeF0_func_80386540();
 // --- src/SM/model_visibility.c ---
 void func_80388D48(void);
 
-// --- src/SM/version_compat.c ---
-// [port] func_8038AAB0 removed: defined as (void) but gameSelect.c passes args (decomp version mismatch)
-
 // --- src/TTC/actor_spawninit.c ---
 void code26D0_resetSpawnableActorsForTTC(void);
 
 // --- src/TTC/ch/leaky.c ---
 bool chLeaky_eggCollision(ActorMarker *marker);
-
-// --- src/TTC/ch/nipper.c ---
-// [port] chNipper_isInState7 removed: defined with (s16[3]) but cutscene/lair.c calls with no args (decomp pattern)
 
 // --- src/TTC/ch/treasurehunt.c ---
 void chTreasurehunt_resetProgress(void);
@@ -772,7 +757,7 @@ void func_8024F764(s32 arg0);
 void func_8024F7C4(s32 arg0);
 void func_8024F83C(void);
 void func_8024FB8C(void);
-s32 func_8024FEEC(u8 arg0); // [port] MIPS implicit return — wraps alCSeqGetTicks (returns s32)
+s32 func_8024FEEC(u8 arg0);
 void func_8024FF34(void);
 void func_80250170(u8 arg0, s32 arg1, s32 arg2);
 void func_80250650(void);
@@ -800,10 +785,10 @@ void func_8025A9D4(void);
 void func_8025AB00(void);
 
 // --- src/core1/audio_soundplayer.c ---
-bool func_802445C4(void *bank, s16 arg1); // [port] ALBank* -> void* (N64 audio type not in port headers)
-s32 func_802445AC(void *arg0); // [port] N_AL_Struct81s* -> void* (N64 audio type not in port headers)
-void * func_80244608(void *bank, s16 arg1, struct46s *arg2); // [port] ALBank* -> void* (N64 audio type not in port headers)
-void func_80244814(void *arg0); // [port] N_AL_Struct81s* -> void* (N64 audio type not in port headers)
+bool func_802445C4(void *bank, s16 arg1);
+s32 func_802445AC(void *arg0);
+void * func_80244608(void *bank, s16 arg1, struct46s *arg2);
+void func_80244814(void *arg0);
 void func_80244978(intptr_t arg0, s16 type, s32 arg2);
 void func_80244A98(s32 arg0);
 
@@ -813,7 +798,6 @@ void baMotor_80250FC0(void);
 void baMotor_init(void);
 
 // --- src/core1/collision.c ---
-// [port] removed: func_80245524 — polymorphic callers pass intptr_t*, s32* for arg2
 int collisionTri_isHitFromAbove_actor(f32 arg0[3], Actor *arg1, s32 arg2);
 int collisionTri_isHitFromAbove_marker(f32 position[3], ActorMarker *marker, s32 verticalOffset);
 s32 func_8024559C(f32 arg0[3], intptr_t *arg1, f32 *arg2);
@@ -862,7 +846,6 @@ void func_802555C4(void);
 void func_80255A04(void);
 void func_80255A14(void);
 void func_80255ACC(void);
-// [port] deleted memcpy, memmove, and wmemcpy prototypes — conflicts with stdlib/wchar.h
 
 // --- src/core1/mlmtx.c ---
 void func_802515D4(f32 arg0[3][3]);
@@ -917,7 +900,7 @@ bool func_8032A9E4(s32 arg0, s32 arg1, s32 arg2);
 bool func_8032BBE8(Actor *self);
 bool subaddie_playerIsWithinAsymmetricCylinder(Actor *self, s32 radius, s32 d_upper, s32 d_lower);
 bool subaddie_playerIsWithinCylinder(Actor *self, s32 radius, s32 d_y);
-int func_80329210(Actor * arg0, f32 (* arg1)[3]); // [port] fixed truncated function pointer param
+int func_80329210(Actor * arg0, f32 (* arg1)[3]);
 s32 actorArray_actorCount(enum actor_e actor_id);
 s32 func_80326218(void);
 s32 func_8032627C(Actor *self);
@@ -936,7 +919,7 @@ void func_803283BC(void);
 void func_803283D4(void);
 void func_80328CA8(Actor *self, s32 angle);
 void func_803297FC(Actor *arg0, f32 *o1, f32 *o2);
-s32 func_80329904(ActorMarker *arg0, s32 arg1, f32 *arg2); // [port] was void — definition returns s32
+s32 func_80329904(ActorMarker *arg0, s32 arg1, f32 *arg2);
 void func_8032A09C(s32 arg0, ActorListSaveState *arg1);
 void func_8032A5F8(void);
 void func_8032A82C(Actor *arg0, s32 arg1);
@@ -957,7 +940,7 @@ void subaddie_set_state_looped(Actor * self, u32 arg1);
 // --- src/core2/actor_cubebounds.c ---
 bool func_80305248(f32 arg0[3], s32 arg1, f32 *arg2);
 bool func_8030526C(f32 arg0[3], s32 arg1, f32 *arg2);
-bool func_80305290(bool (* arg0)(NodeProp *), bool (* arg1)(Prop *)); // [port] fixed truncated function pointer params
+bool func_80305290(bool (* arg0)(NodeProp *), bool (* arg1)(Prop *));
 bool func_80305344(s32 arg0, u32 *arg1);
 bool func_80305D14(void);
 bool func_80307390(s32 arg0, s32 arg1);
@@ -1002,9 +985,8 @@ s32 codeA5BC0_getNodePropBit6(NodeProp *arg0);
 s32 codeA5BC0_getNodePropUnk8(NodeProp *arg0);
 s32 codeA5BC0_getNodePropUnkA(NodeProp *arg0);
 s32 codeA5BC0_getNodePropUnkC(NodeProp *arg0);
-// [port] removed: codeA5BC0_getPositionAndReturnRadius — polymorphic callers pass NodeProp*, struct_core2_DB010*
 s32 func_8032E49C(Cube *cube, enum actor_e *actor_id_list, NodeProp **node_list, s32 node_list_capacity);
-s32 func_8032E5A8(Cube *cube, s32 arg1, f32 (*arg2)[3], s32 capacity); // [port] fixed truncated function pointer param
+s32 func_8032E5A8(Cube *cube, s32 arg1, f32 (*arg2)[3], s32 capacity);
 s32 func_8032F170(Cube **arg0, void **arg1);
 void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube);
 void codeA5BC0_getActorPosition(ActorProp *prop, s32 dst[3]);
@@ -1025,7 +1007,7 @@ void func_8032F6A4(s32 *pos, ActorMarker * marker, s32 *rot);
 void func_8032FFD4(ActorMarker *self, s32 arg1);
 void func_80330078(ActorMarker *marker, ActorMarker *other_marker, s16 *arg2);
 void func_803300B8(ActorMarker *marker, MarkerCollisionFunc method);
-void func_803300C0(ActorMarker *marker, s32 (*method)(ActorMarker *, ActorMarker *)); // [port] fixed truncated function pointer param
+void func_803300C0(ActorMarker *marker, s32 (*method)(ActorMarker *, ActorMarker *));
 void func_80330208(Cube *cube);
 void func_803303B8(Cube *cube);
 void func_803305AC(void);
@@ -1070,12 +1052,11 @@ void assetcache_update_ptr(void * arg0, void* arg1);
 void func_8033B5FC(void);
 void func_8033B61C(void);
 void func_8033B788(void);
-// [port] removed: func_8033BD20 — polymorphic callers pass BKModelBin**, BKSprite**, void**
 void func_8033BD6C(void);
-bool func_8033BD8C(void* arg0); // [port] MIPS implicit return — wraps func_8033B0D0 (returns bool)
+bool func_8033BD8C(void* arg0);
 
 // --- src/core2/anim/anim_buffer.c ---
-void anim_802897D4(AnimMtxList **this_ptr, BKAnimationList *arg0, Animation *dst); // [port] takes AnimMtxList** — caller passes &marker->unk20
+void anim_802897D4(AnimMtxList **this_ptr, BKAnimationList *arg0, Animation *dst);
 void anim_drawSetup(Animation *self);
 void anim_release(Animation *self);
 void anim_resetNow(Animation *self);
@@ -1085,7 +1066,6 @@ void anim_update(Animation *self);
 
 // --- src/core2/anim/anim_cache.c ---
 bool animCache_inUse(s16 index);
-// [port] removed: animCache_getBoneTransformList — polymorphic callers pass BoneTransformList**, s32**
 s16 animCache_getNew(void);
 void animCache_defrag(void);
 void animCache_flushAll(void);
@@ -1111,7 +1091,6 @@ void AnimTextureListCache_update(void);
 
 // --- src/core2/anim_bonetransformlist.c ---
 void boneTransformList_getBoneScale(BoneTransformList *self, s32 bone_id, f32 scale[3]);
-// [port] removed: boneTransformList_reset — polymorphic callers pass BoneTransformList*, s32*
 void boneTransformList_setBoneScale(BoneTransformList *self, s32 bone_id, f32 scale[3]);
 void func_8033A57C(BoneTransformList *self, s32 bone_id, f32 arg2[4]);
 void func_8033A6B0(BoneTransformList *self, s32 bone_id, f32 arg2[3]);
@@ -1119,9 +1098,9 @@ void func_8033A8F0(BoneTransformList *self, s32 bone_id, f32 arg2[4]);
 void func_8033A968(BoneTransformList *self, s32 bone_id, f32 arg2[3]);
 
 // --- src/core2/anseq.c ---
-void anSeq_free(void **ppAnSeq); // [port] was bk_vector(AnSeqElement)** — internal type, use void*
-void anSeq_setActivationFrameDelay(void **ppAnSeq, s32 arg1); // [port] was bk_vector(AnSeqElement)** — internal type, use void*
-void anSeq_update(void **ppAnSeq, AnimCtrl *pAnCtl); // [port] was bk_vector(AnSeqElement)** — internal type, use void*
+void anSeq_free(void **ppAnSeq);
+void anSeq_setActivationFrameDelay(void **ppAnSeq, s32 arg1);
+void anSeq_update(void **ppAnSeq, AnimCtrl *pAnCtl);
 
 // --- src/core2/audio_sfxinstruments.c ---
 bool func_803354EC(enum sfx_e sfx_id);
@@ -1131,7 +1110,6 @@ intptr_t func_80335354(int uid, struct46s *arg1);
 void func_803353BC(intptr_t arg0, u16 arg1);
 void func_803353F4(intptr_t arg0, s32 arg1);
 void func_80335418(intptr_t arg0, s32 arg1);
-// [port] removed: func_8033543C — polymorphic callers pass Struct81s*, N_AL_Struct81s*
 void sfxInstruments_init(void);
 
 // --- src/core2/ba/ba_anim.c ---
@@ -1140,7 +1118,7 @@ void baAnim_free(void);
 void baAnim_init(void);
 void baAnim_update(void);
 void baanim_80289F30(void);
-void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t)); // [port] fixed truncated function pointer param
+void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
 void baanim_setUpdateType(enum baanim_update_type_e arg0);
 
 // --- src/core2/ba/ba_animcache.c ---
@@ -1341,7 +1319,7 @@ void func_8028F85C(f32 arg0[3]);
 void func_8028FA34(s32, Actor *);
 void func_8028FA74(f32 dst[3]);
 void func_8028FAB0(f32 arg0[3]);
-u32 func_8028FB48(u32 mask); // [port] MIPS implicit return — wraps func_80294610 (returns u32)
+u32 func_8028FB48(u32 mask);
 void func_8028FB68(void);
 void func_8028FC8C(f32 arg0[3]);
 void func_8028FCAC(void);
@@ -1384,7 +1362,7 @@ void baModel_free(void);
 void baModel_getPosition(f32* dst);
 void baModel_reset(void);
 void baModel_setEnvAlpha(s32 alpha);
-void baModel_setPostDraw(void (*draw_func)(Gfx **gfx, Mtx **mtx, Vtx **vtx)); // [port] fixed truncated function pointer param
+void baModel_setPostDraw(void (*draw_func)(Gfx **gfx, Mtx **mtx, Vtx **vtx));
 void baModel_setVisible(s32 arg0);
 void baModel_update(void);
 void baModel_updateModel(void);
@@ -1471,7 +1449,6 @@ void func_80323230(void);
 void func_80323238(void);
 
 // --- src/core2/ba/ba_stick.c ---
-// [port] bastick_getZone removed: defined as (void) but bTrot.c/bWhirl.c pass args (decomp pattern)
 void bastick_lockAtzero(bool arg0);
 void bastick_reset(void);
 void bastick_resetZones(void);
@@ -1808,21 +1785,14 @@ ActorMarker * chBottlesBonusCursor_spawn(void);
 bool chBottlesBonusCursor_isPuzzleCompleted(void);
 f32 * chBottlesBonusCursor_func_802E0664(s32 indx);
 f32 * chBottlesBonusCursor_func_802E068C(s32 indx);
-// [port] chBottlesBonusCursor_func_802E0538 removed: defined with (s32) but bottlesbonus.c:240 calls with no args (decomp pattern)
 s32 chBottlesBonusCursor_func_802E0588(s32 indx);
 s32 chBottlesBonusCursor_func_802E06B4(void);
 s32 chBottlesBonusCursor_getState(void);
 void chBottlesBonusCursor_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
-// [port] removed: chBottlesBonusCursor_func_802DF460 — polymorphic callers pass f32[3], Struct_core2_560F0_0[]
 void chBottlesBonusCursor_lose(void);
 
-// --- src/core2/ch/collectible.c ---
-// [port] removed: chCollectible_collectEgg — polymorphic callers pass Prop*, ActorProp*
-// [port] removed: chCollectible_collectGoldFeather — polymorphic callers pass Prop*, ActorProp*
-// [port] removed: chCollectible_collectRedFeather — polymorphic callers pass Prop*, ActorProp*
-
 // --- src/core2/ch/drips.c ---
-void func_80359A40(f32 position[3], void *arg1, s32 cnt); // [port] struct_core2_D2AB0* -> void* (local type in drips.c)
+void func_80359A40(f32 position[3], void *arg1, s32 cnt);
 
 // --- src/core2/ch/goldfeather.c ---
 void func_802D8BE4(bool gold_feather);
@@ -1877,14 +1847,12 @@ void climbRelease(void);
 void func_80298344(void);
 
 // --- src/core2/collectible/bundle.c ---
-// [port] __bundle_spawnFromFirstActor removed: polymorphic calls (actor_array.c has extern void(s32, Actor*), definition returns Actor*)
 bool func_802C9C14(Actor *actor);
 void bundle_free(void);
 void bundle_reset(void);
 void bundle_update(Actor *actor);
 
 // --- src/core2/collectible/printdraw.c ---
-// [port] removed: func_802FB0D4 — polymorphic callers pass struct8s*, struct7s*, Struct_core2_79830_0*
 void func_802FB020(struct8s *self, s32 arg1);
 void func_802FB104(s32, struct8s *);
 void func_802FB15C(s32 arg0, struct8s * arg1);
@@ -1901,7 +1869,7 @@ void func_802FACA4(enum item_e item_id);
 void func_802FAFAC(enum item_e item_id, enum comusic_e music_id);
 void func_802FAFC0(enum item_e item_id, enum comusic_e music_id);
 void func_802FAFD4(enum item_e item_id, enum sfx_e sfx_id);
-bool func_802FAFE8(enum item_e item_id); // [port] MIPS implicit return — wraps func_802FCD98 (returns bool)
+bool func_802FAFE8(enum item_e item_id);
 void itemPrint_draw(Gfx **gdl, Mtx ** mptr, Vtx **vptr);
 void itemPrint_free(void);
 void itemPrint_init(void);
@@ -1933,7 +1901,7 @@ void func_80294378(s32 arg0);
 void func_8029445C(f32 arg0[3]);
 void func_80294480(f32 arg0[3]);
 void func_802944D0(f32 dst[3]);
-s32 func_80294684(void); // [port] MIPS implicit return — wraps func_8031C5A4 (returns s32)
+s32 func_80294684(void);
 void func_80294750(void);
 
 // --- src/core2/collision/filter.c ---
@@ -1953,7 +1921,6 @@ void func_80351C48(void);
 
 // --- src/core2/collision/funcs.c ---
 bool func_803209F8(f32 arg0[3], f32 arg1[3], f32 *arg2, f32 arg3[3]);
-// func_80320B44: see funcs.c local forward-decl
 void func_80320B7C(void);
 void func_80320B84(void);
 
@@ -2050,8 +2017,8 @@ void demo_load(enum map_e map, s32 demo_id);
 // --- src/core2/dialog/binload.c ---
 bool func_8031B604(u8 *arg0);
 s32 code94620_func_8031B5B0(void);
-s32 func_8031B5BC(void);          // dialog language count
-void func_8031B5C4(s32 arg0);     // set dialog language index
+s32 func_8031B5BC(void);
+void func_8031B5C4(s32 arg0);
 void dialogBin_initialize(void);
 void dialogBin_release(s32 arg0);
 void dialogBin_terminate(void);
@@ -2101,7 +2068,6 @@ bool func_802E4A08(void);
 s32 func_802E4A98(s32 arg0);
 s32 func_802E4AAC(s32 arg0);
 s32 func_802E4AC0(s32 arg0);
-// [port] func_802E4AD4 removed: defined with (s32) but ba_lookdir.c calls with no args (decomp pattern)
 s32 func_802E4AE8(s32 arg0);
 s32 func_802E4AFC(s32 arg0);
 s32 func_802E4B10(s32 arg0);
@@ -2139,7 +2105,6 @@ void func_80345274(f32 arg0[4], f32 arg1[3][3]);
 void func_80345C78(f32 arg0[4], f32 arg1[3]);
 void func_80345CD4(f32 arg0[4], f32 arg1[4]);
 void func_80345D30(f32 arg0[4], f32 arg1[4], f32 arg2[4]);
-// [port] removed: vec4f_clone — polymorphic callers pass f32[4], BoneTransform*
 
 // --- src/core2/fx/effect_eggshatter.c ---
 void eggShatter_defrag(void);
@@ -2180,7 +2145,7 @@ void gcpausemenu_80314AC8(int arg0);
 
 // --- src/core2/fx/ripple.c ---
 void fxRipple_802F3554(s32 arg0, f32 position[3]);
-void fxRipple_802F3584(s32 arg0, f32 position[3], uintptr_t arg2); // [port] was s32 — carries BKCollisionTri*
+void fxRipple_802F3584(s32 arg0, f32 position[3], uintptr_t arg2);
 void fxRipple_free(void);
 void fxRipple_init(void);
 
@@ -2206,7 +2171,7 @@ void jiggyscore_setSpawned(s32, s32);
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
 void func_80332E08(void);
 void func_8033301C(void);
-void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker); // [port] fixed truncated function pointer param
+void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);
 void func_80333388(enum jiggy_e jiggy_id);
 void func_803333DC(Struct81s *arg0, Actor *arg1);
 void jiggylist_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -2259,8 +2224,8 @@ void volatileFlag_clear(void);
 void volatileFlag_restoreAll(void);
 
 // --- src/core2/gc/dialog.c ---
-int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, void (*arg4)(ActorMarker *, enum asset_e, s32)); // [port] fixed truncated function pointer param
-int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)); // [port] arg6 was s32 — holds function pointer
+int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, void (*arg4)(ActorMarker *, enum asset_e, s32));
+int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32));
 int func_803114C4(void);
 int func_803115C4(s32 next_state);
 void func_8030F1D0(void);
@@ -2323,7 +2288,6 @@ bool func_80344040(Actor *self);
 int func_80343D50(Actor *self, s32 arg1, s32 arg2, s32 arg3);
 s32 func_80341C78(s32 arg0[3]);
 s32 func_80341D5C(s32 arg0[3], s32 arg1[3]);
-// [port] removed: func_80341EC4 — polymorphic callers pass f32[3], Actorlocal_Core2_9E370*
 s32 func_80341F2C(s32 arg0);
 s32 func_80343654(Actor *self);
 void func_803411B0(void);
@@ -2366,13 +2330,11 @@ void func_8034B9E4(void);
 void func_8034BA7C(enum map_e map_id, s32 exit_id);
 
 // --- src/core2/map/model.c ---
-// [port] mapModel_getModel removed: conflicts with ff_manager.c local extern (void* vs BKModel* return type)
 bool func_80309D58(f32 arg0[3], s32 arg1);
 bool mapModel_has_xlu_bin(void);
 void func_8030A078(void);
 void mapModel_defrag(void);
 void mapModel_free(void);
-// [port] removed: mapModel_getBounds — polymorphic callers pass s32[3], f32[3]
 void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void mapModel_setEnvColor(s32 r, s32 g, s32 b);
 void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -2401,7 +2363,6 @@ void func_8029A54C(void);
 void func_8029A554(void);
 
 // --- src/core2/model/matrixrotate.c ---
-// [port] func_8033F7F0 removed: defined with 4 args but displaydata.c calls with 1 arg (decomp pattern)
 void func_8033F9C0(void);
 void func_8033FA24(void);
 
@@ -2463,7 +2424,7 @@ void func_8029AF1C(void);
 // --- src/core2/particle/colordefault.c ---
 bool func_802EE5F0(s32 arg0);
 s32 func_802EE5E0(s32 arg0);
-void func_802EE5E8(void *self); // [port] ParticleEmitter* in definition, void* for sparkleemit.c compat
+void func_802EE5E8(void *self);
 void func_802EE63C(void);
 void func_802EE684(void);
 
@@ -2482,9 +2443,9 @@ void commonParticleType_init(void);
 void commonParticleType_set(enum common_particle_e arg0, GenFunction_0 init_method, GenFunction_0 update_method, GenFunction_0 free_method, s32 arg4, s32 arg5);
 
 // --- src/core2/particle/lifescale.c ---
-void func_802F1858(void *arg0, Gfx **gfx, Mtx **mtx, Vtx **vtx); // [port] arg0 is Struct_Core2_6A4B0_2* (local to .c)
-void func_802F1884(void *arg0); // [port] arg0 is Struct_Core2_6A4B0_2* (local to .c)
-void func_802F1934(void *arg0, s32 arg1); // [port] arg0 is Struct_Core2_6A4B0_2* (local to .c)
+void func_802F1858(void *arg0, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void func_802F1884(void *arg0);
+void func_802F1934(void *arg0, s32 arg1);
 
 // --- src/core2/particle/particle.c ---
 int particleEmitter_isDone(ParticleEmitter *self);
@@ -2503,9 +2464,7 @@ void particleEmitter_draw(ParticleEmitter *self, Gfx **gdl, Mtx **mPtr, Vtx **vP
 void particleEmitter_emitUniformLine(ParticleEmitter *self, f32 start[3], f32 end[3], s32 count);
 void particleEmitter_free(ParticleEmitter *self);
 void particleEmitter_func_802EFA78(ParticleEmitter *self, s32 arg1);
-// [port] particleEmitter_manualFree removed: defined with (ParticleEmitter*) but dronevanish.c calls with no args (decomp pattern)
-void particleEmitter_setParticleCallback(ParticleEmitter *self, void (*arg1)(ParticleEmitter *self, f32 pos[3])); // [port] fixed truncated function pointer param
-void particleEmitter_update(ParticleEmitter *self);
+void particleEmitter_setParticleCallback(ParticleEmitter *self, void (*arg1)(ParticleEmitter *self, f32 pos[3]));
 
 // --- src/core2/particle/playertrail.c ---
 bool func_8029BDE8(void);
@@ -2523,7 +2482,6 @@ s32 func_8029CA94(s32 arg0);
 void func_8029B6F0(void);
 void func_8029B890(void);
 void func_8029B930(void);
-// [port] removed: func_8029BC60 — polymorphic callers pass enum asset_e*, s32*
 void func_8029BCAC(enum asset_e *anim_id, f32 *anim_duration);
 void func_8029BCF8(enum asset_e *anim_id, f32 *anim_duration);
 void func_8029BD44(enum asset_e *anim_id, f32 *anim_duration);
@@ -2539,7 +2497,7 @@ void func_8029C5E8(void);
 void func_8029C674(void);
 void func_8029C6D0(void);
 void func_8029C748(void);
-void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3); // [port] enum args → s32 to avoid forward-decl scoping issues with clang
+void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3);
 void func_8029C834(enum map_e map_id, s32 exit_id);
 void func_8029C848(AnimCtrl *arg0);
 void func_8029C984(void);
@@ -2554,9 +2512,9 @@ void func_803541CC(s32 arg0);
 
 // --- src/core2/particle/samplerate.c ---
 void func_802F4798(Struct5Ds *self);
-void func_802F487C(Struct5Ds *self, void (*arg1)(Struct5Ds *, s32)); // [port] fixed truncated function pointer param
+void func_802F487C(Struct5Ds *self, void (*arg1)(Struct5Ds *, s32));
 void func_802F4894(Struct5Ds *self, f32 arg1[3]);
-void func_802F48B4(Struct5Ds *self, void (*arg1)(Struct5Ds *, s32)); // [port] fixed truncated function pointer param
+void func_802F48B4(Struct5Ds *self, void (*arg1)(Struct5Ds *, s32));
 void func_802F48BC(Struct5Ds *self);
 void func_802F48E0(Struct5Ds *self);
 void func_802F4900(Struct5Ds *self, s32 arg1);
@@ -2674,7 +2632,7 @@ void func_802D6924(void);
 void func_802D6948(void);
 
 // --- src/core2/quiz/questionmanager.c ---
-bool gcquiz_func_8031A154(enum ff_question_type_e q_type, s32 q_index, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(s32, s8)); // [port] fixed truncated function pointer param
+bool gcquiz_func_8031A154(enum ff_question_type_e q_type, s32 q_index, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(s32, s8));
 bool gcquiz_isNotInInitialState();
 s32 gcquiz_getLastIndexOfQuestionType(enum ff_question_type_e question_type);
 void gcquiz_defrag();
@@ -2701,14 +2659,11 @@ void roll_reset(void);
 void roll_update(void);
 
 // --- src/core2/savedata.c ---
-// [port] removed: savedata_8033CC98 — polymorphic callers pass u8*, SaveData*
 int savedata_8033CCD0(s32 filenum);
-// [port] removed: savedata_8033CE40 — polymorphic callers pass GlobalSave*, u8*
-s32 savedata_8033CA2C(s32 filenum, void *save_data); // [port] SaveData* -> void* (local type in save.h, not included here)
-s32 savedata_8033CA9C(void *savedata); // [port] SaveData* -> void*
-void saveData_create(void *savedata); // [port] SaveData* -> void*
-void saveData_load(void *savedata); // [port] SaveData* -> void*
-// [port] removed: savedata_clear — polymorphic callers pass u8*, SaveData*
+s32 savedata_8033CA2C(s32 filenum, void *save_data);
+s32 savedata_8033CA9C(void *savedata);
+void saveData_create(void *savedata);
+void saveData_load(void *savedata);
 void savedata_init(void);
 void savedata_update_crc(void *buffer, s32 size);
 
@@ -2744,7 +2699,7 @@ int func_802F9C0C(s32 arg0);
 void func_802F9C48(void);
 void func_802F9CD8(void);
 void func_802F9D38(s32 arg0);
-void func_802F9EC4(s32 arg0, f32 *arg1, s32 arg2, s32 arg3); // [port] arg1 is f32* position
+void func_802F9EC4(s32 arg0, f32 *arg1, s32 arg2, s32 arg3);
 void func_802F9F48(s32 arg0, s32 arg1);
 void func_802FA028(s32 arg0, s32 arg1);
 void func_802FA0B0(s32 arg0, s32 arg1);
@@ -2762,7 +2717,7 @@ void func_8030D86C(void);
 void func_8030D8A8(s32 arg0, s32 arg);
 void func_8030D8DC(void);
 void func_8030DCCC(u8, s32);
-void func_8030DD54(u8 indx, void (*arg1)(u8)); // [port] fixed truncated function pointer param
+void func_8030DD54(u8 indx, void (*arg1)(u8));
 void func_8030DFB4(u8 indx, s32 arg1);
 
 // --- src/core2/sfx/streamctrl.c ---
@@ -2788,7 +2743,6 @@ void func_802FBDFC(void);
 bool func_802FC390(void);
 
 // --- src/core2/spawn_queue.c ---
-// [port] spawnQueue_defrag: prototype at end of file uses void* since FunctionQueue is local to spawn_queue.c
 void spawnQueue_flush(void);
 void spawnQueue_free(void);
 void spawnQueue_func_802C3A18(void);
@@ -2819,7 +2773,7 @@ s32 func_80344C20(BKSpriteDisplayData *self);
 void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 position[3], f32 scale[3], Gfx **gfx, Mtx **mtx);
 void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 position[3], f32 rotation[3], f32 scale[3], Gfx **gfx, Mtx **mtx);
 void func_80344C2C(bool arg0);
-void func_80344C38(void (*method)(ActorMarker *), ActorMarker *marker); // [port] fixed truncated function pointer param + missing param
+void func_80344C38(void (*method)(ActorMarker *), ActorMarker *marker);
 
 // --- src/core2/sprite/rendertex.c ---
 void func_80347FC0(Gfx **gfx, BKSprite *sprite, s32 frame, s32 tmem, s32 rtile, s32 uls, s32 ult, s32 cms, s32 cmt, s32 *width, s32 *height);
@@ -2866,7 +2820,6 @@ void item_setItemsStartCounts(void);
 void item_setMaxCount(s32 item);
 void itemscore_highNoteScores_fromSaveData(u8 *savedata);
 void itemscore_levelReset(enum level_e level);
-// [port] removed: itemscore_timeScores_fromSaveData — polymorphic callers pass u16*, u8*
 void notescore_getSizeAndPtr(s32 *size, void **ptr);
 void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
@@ -2875,7 +2828,6 @@ void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 void func_802FEF48(BKModelBin *model_bin);
 
 // --- src/core2/timed_funcqueue.c ---
-// [port] timedFuncQueue_is_empty removed: defined as (void) but conga.c passes Actor* arg (decomp pattern)
 void func_80324C58(void);
 void timedFuncQueue_defrag(void);
 void timedFuncQueue_flush(void);
@@ -2902,21 +2854,15 @@ void func_802E73C8(f32 arg0[3][3]);
 // --- src/core2/vtx/meshcount.c ---
 bool meshList_meshContainsVtx(BKMeshList * meshList, s32 mesh_id, void *vtx_id);
 
-// --- src/core2/vtx/normalset.c ---
-// [port] removed: func_8034CF6C — polymorphic callers pass Struct72s*, f32*, ActorLocal_core2_560F0*
-// [port] removed: func_8034CF74 — polymorphic callers pass Struct72s*, ActorLocal_core2_560F0*
-// [port] removed: func_8034CF90 — polymorphic callers pass Struct72s*, ActorLocal_core2_560F0*
-
 // --- src/core2/vtx/positionset.c ---
 s32 func_8034F560(Struct76s *arg0);
 
 // --- src/core2/vtx/renderstart.c ---
 bool func_8034DC80(Struct6Ds *arg0, f32 arg1[3]);
 s32 func_8034DC78(Struct6Ds *arg0);
-// [port] removed: func_8034E0FC — polymorphic callers pass Struct6Ds*, Struct70s*
 void func_8034E174(Struct6Ds *arg0);
-void func_8034E254(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)); // [port] fixed truncated function pointer param
-void func_8034E25C(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)); // [port] fixed truncated function pointer param
+void func_8034E254(Struct6Ds *arg0, void (*arg1)(Struct6Ds *));
+void func_8034E25C(Struct6Ds *arg0, void (*arg1)(Struct6Ds *));
 void func_8034E264(Struct6Ds *arg0, s32 arg1);
 
 // --- src/core2/vtx/transform.c ---
@@ -2976,10 +2922,6 @@ void osStopThread(OSThread* t);
 // --- unmapped (definition not found in src/) ---
 s32 osPiReadIo(u32, u32 *);
 
-// ============================================================
-// MISSING PROTOTYPES (clang -Wimplicit-function-declaration)
-// ============================================================
-
 // --- src/core2/ba/ba_stick.c ---
 s32 bastick_getZone(void);
 
@@ -2987,13 +2929,13 @@ s32 bastick_getZone(void);
 void func_8028F94C(s32 arg0, f32 arg1[3]);
 
 // --- src/core2/collectible/printdraw.c ---
-s32 func_802FB0D4(void *self); // [port] void* — callers pass struct7s*, struct8s*, Struct_core2_79830_0*
+s32 func_802FB0D4(void *self);
 
 // --- src/core2/particle/particle.c ---
 void particleEmitter_manualFree(ParticleEmitter *self);
 
 // --- src/core2/anim/anim_bonetransform.c ---
-void func_8033BD20(void **arg0); // [port] callers pass BKModelBin**, BKSprite**, void** — use void**
+void func_8033BD20(void **arg0);
 
 // --- src/core2/timed_funcqueue.c ---
 bool timedFuncQueue_is_empty(void);
@@ -3008,13 +2950,13 @@ Actor *__bundle_spawnFromFirstActor(enum bundle_e bundle_id, Actor *actor);
 bool func_8038DD14(void);
 
 // --- src/SM/version_compat.c ---
-int func_8038AAB0(); // [port] PAL takes 2 args, US stub ignores them — empty parens for C compat with 0-arg calls
+int func_8038AAB0();
 
 // --- src/GV/crc.c ---
 void func_80389F5C(void);
 
 // --- src/BGS/ch/tanktup.c ---
-s32 func_8038F570(); // [port] definition takes s16* but some callers pass no args
+s32 func_8038F570();
 
 // --- src/core1/collision.c ---
 bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3);
@@ -3035,9 +2977,9 @@ void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 s32 func_80341EC4(f32 arg0[3]);
 
 // --- src/core2/vtx/normalset.c ---
-void func_8034CF6C(void *arg0); // [port] canonical is Struct72s*, use void* for compat
-void func_8034CF74(void *arg0, s32 arg1, BKModel *arg2, s32 arg3); // [port] arg0 is Struct72s*
-void func_8034CF90(void *arg0, BKModel *arg1, s32 arg2); // [port] arg0 is Struct72s*
+void func_8034CF6C(void *arg0);
+void func_8034CF74(void *arg0, s32 arg1, BKModel *arg2, s32 arg3);
+void func_8034CF90(void *arg0, BKModel *arg1, s32 arg2);
 
 // --- src/core2/vtx/renderstart.c ---
 void func_8034E0FC(Struct6Ds *arg0, s32 arg1);
@@ -3062,20 +3004,20 @@ bool chCollectible_collectGoldFeather(ActorProp *arg0);
 bool chCollectible_collectRedFeather(ActorProp *arg0);
 
 // --- src/TTC/ch/nipper.c ---
-bool chNipper_isInState7(); // [port] definition takes s16[3] but lair.c calls with no args
+bool chNipper_isInState7();
 
 // --- src/core2/actor_cubepropsystem.c ---
-s32 codeA5BC0_getPositionAndReturnRadius(void *arg0, s32 arg1[3]); // [port] void* — callers pass NodeProp*, struct_core2_DB010*
+s32 codeA5BC0_getPositionAndReturnRadius(void *arg0, s32 arg1[3]);
 
 // --- src/core2/gamestate.c ---
 void itemscore_timeScores_fromSaveData(u16 *savedata);
 
 // --- src/core2/savedata.c ---
-int savedata_8033CE40(void *buffer); // [port] void* — callers pass u8*, GlobalSave*, SaveData*
-int savedata_8033CC98(s32 filenum, void *buffer); // [port] void*
-void savedata_clear(void *savedata); // [port] void*
+int savedata_8033CE40(void *buffer);
+int savedata_8033CC98(s32 filenum, void *buffer);
+void savedata_clear(void *savedata);
 
 // --- src/core2/spawn_queue.c ---
-void spawnQueue_defrag(); // [port] definition takes FunctionQueue* but some callers pass no args
+void spawnQueue_defrag();
 
 #endif // PORT_PROTOTYPES_H

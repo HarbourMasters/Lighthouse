@@ -66,7 +66,7 @@ void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, Bo
     MtxF *i_ptr;
     BKAnimation *s0;
     f32 tmp_f0;
-    f32 sp88[3][3]; // [port] was f32[3] + padding — func_80345274 writes a 3x3 matrix (9 floats)
+    f32 sp88[3][3];
     f32 sp74[4];
     f32 sp68[3];
     f32 sp5C[3];

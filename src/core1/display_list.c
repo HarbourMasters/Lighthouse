@@ -31,7 +31,7 @@ void func_8025357C(void){
     osSendMesgPtr(&D_802831F0, NULL, OS_MESG_BLOCK);
 }
 
-void func_802535A8(Gfx **arg0, Gfx **arg1, void *arg2, void *arg3) { // [port] was UNK_TYPE(s32) — receives pointers
+void func_802535A8(Gfx **arg0, Gfx **arg1, void *arg2, void *arg3) {
     Struct_Core1_15B30 *sp1C;
 
     func_80253550();
@@ -43,7 +43,7 @@ void func_802535A8(Gfx **arg0, Gfx **arg1, void *arg2, void *arg3) { // [port] w
     sp1C->unkC = arg1;
     sp1C->unk10 = arg2;
     sp1C->unk14 = arg3;
-    func_80246670(OS_MESG_PTR(sp1C)); // [port] was bare pointer — wrap for OSMesg union
+    func_80246670(OS_MESG_PTR(sp1C));
 }
 
 
@@ -85,7 +85,7 @@ void scissorBox_SetForGameMode(Gfx **gdl, s32 framebuffer_idx) {
     }
 }
 
-void setupScissorBoxAndFramebuffer(Gfx **gfx, uintptr_t framebuffer_address){ // [port] was s32
+void setupScissorBoxAndFramebuffer(Gfx **gfx, uintptr_t framebuffer_address){
     gSPSegment((*gfx)++, 0x00, 0x00000000);
     gDPSetColorImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, OS_PHYSICAL_TO_K0(framebuffer_address));
     gSPClearGeometryMode((*gfx)++, G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH);
@@ -148,7 +148,7 @@ void func_80253EE4(Gfx **arg0, Gfx **arg1, s32 arg2) {
     sp1C->unk4 = arg2;
     sp1C->unk8 = arg0;
     sp1C->unkC = arg1;
-    func_80246670(OS_MESG_PTR(sp1C)); // [port] was bare pointer — wrap for OSMesg union
+    func_80246670(OS_MESG_PTR(sp1C));
 }
 
 void func_80253F74(Gfx **arg0, Gfx **arg1){
@@ -171,7 +171,7 @@ void func_80253FE8(void){
 }
 
 void func_80254008(void){
-    func_80246670(OS_MESG_32(3)); // [port] was bare int — wrap for OSMesg union
+    func_80246670(OS_MESG_32(3));
 }
 
 void func_80254028(void){
@@ -241,7 +241,7 @@ void func_80254374(s32 arg0) {
     D_802831E8 = (s32) (D_802831E8 + 1) % 20;
     func_8025357C();
     sp1C->unk0 = 7;
-    func_80246670(OS_MESG_PTR(sp1C)); // [port] was bare pointer — wrap for OSMesg union
+    func_80246670(OS_MESG_PTR(sp1C));
 }
 
 void toggleTextureFilterPoint(void){

@@ -5,7 +5,6 @@
 extern void func_802EFA20(ParticleEmitter *, f32, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void func_80328FB0(Actor *, f32);
-// extern void func_803300C0(ActorMarker *, void *); // [port] removed — prototype in port_prototypes.h (typed callback param)
 
 
 typedef struct {
@@ -214,7 +213,7 @@ void chSnowman_update(Actor *this){
         this->marker->propPtr->unk8_3 = 0;
         actor_collisionOn(this);
         marker_setCollisionScripts(this->marker, NULL, NULL, __chSnowman_deathCallback);
-        func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))__chSnowman_func_802E1F70); // [port]
+        func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))__chSnowman_func_802E1F70);
         local->unk9 = 0;
         local->unkA = 1;
         local->unkB = 0;

@@ -7,8 +7,8 @@
 extern BKCollisionTri *func_802E805C(BKCollisionList *arg0, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7[3], s32 arg8);
 extern BKCollisionTri *func_802E9118(BKCollisionList *arg0, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 arg10);
 extern BKCollisionTri *func_802E9DD8(BKCollisionList *arg0, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6, f32 arg7[3], s32 arg8);
-extern bool func_802EA760(BKModelUnk14List *, s32, f32[3], f32[3], f32, f32[3], f32*, f32*); // [port] was s32 return, s32 param6 — param6 is f32[3] pointer, truncated on 64-bit
-extern BKCollisionTri *func_80309DBC(f32[3], f32[3], f32, f32[3], s32, s32); // [port] was bool — returns BKCollisionTri*, truncated on 64-bit
+extern bool func_802EA760(BKModelUnk14List *, s32, f32[3], f32[3], f32, f32[3], f32*, f32*);
+extern BKCollisionTri *func_80309DBC(f32[3], f32[3], f32, f32[3], s32, s32);
 extern BKCollisionList *model_getCollisionList(BKModelBin *);
 extern BKModelUnk14List *func_8033A12C(BKModelBin *);
 void func_80351954(Struct68s *arg);
@@ -44,7 +44,7 @@ Struct_Core2_C9F00_1 D_803725C0[] = {
 void func_80351DE0(Struct6Bs *, Struct68s *);
 extern void chTumblar_init(void *, Struct68s *);
 extern void func_80387940(void *, Struct68s *);
-extern void CC_func_80387960(void *, Struct68s *); // [port] was GV_func_80387960 — overlay address conflict (0x80387960)
+extern void CC_func_80387960(void *, Struct68s *);
 extern void func_80387980(void *, Struct68s *);
 extern void func_803879A0(void *, Struct68s *);
 extern void func_803879C0(void *, Struct68s *);
@@ -56,7 +56,7 @@ extern void func_80351FE0(void *, Struct68s *);
 void func_80351E60(Struct6Bs *, Struct68s *, f32);
 extern void chTumblar_update(void *, Struct68s *, f32);
 extern void func_8038B790(void *, Struct68s *, f32);
-extern void CC_func_80387A40(void *, Struct68s *, f32); // [port] was CCW_func_80387A40 — overlay address conflict (0x80387A40)
+extern void CC_func_80387A40(void *, Struct68s *, f32);
 extern void func_80352114(void *, Struct68s *, f32);
 
 Struct_Core2_C9F00_0 D_803725F4[] = {
@@ -65,8 +65,8 @@ Struct_Core2_C9F00_0 D_803725F4[] = {
     {chTumblar_init, chTumblar_update},
     {         NULL,          NULL}, 
     {         NULL, func_8038B790}, 
-    {func_80387940, CC_func_80387A40},  // [port] was CCW_func_80387A40 — overlay addr 0x80387A40
-    {CC_func_80387960, CC_func_80387A40},  // [port] was GV_func_80387960/CCW_func_80387A40
+    {func_80387940, CC_func_80387A40},
+    {CC_func_80387960, CC_func_80387A40},
     {func_80387980, CC_func_80387A40},
     {func_803879A0, CC_func_80387A40},
     {func_803879C0, CC_func_80387A40},
@@ -107,7 +107,7 @@ Actor *func_80350E90(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
 
     if (temp_s0->unk8 != NULL) {
-        temp_s0->unk8(&temp_s0->local, (struct struct_68_s *)temp_s0, temp_s0->position, temp_s0->unk20, temp_s0->unk2C, temp_v0, gfx, mtx, vtx); // [port]
+        temp_s0->unk8(&temp_s0->local, (struct struct_68_s *)temp_s0, temp_s0->position, temp_s0->unk20, temp_s0->unk2C, temp_v0, gfx, mtx, vtx);
     }
     else {
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
@@ -238,7 +238,7 @@ void func_80351538(Struct68s *arg0){
 bool func_803515EC(NodeProp *arg0) {
     Struct_Core2_C9F00_1 *phi_s0;
     s32 sp48[3];
-    Cube *sp44; // [port] was s32; func_8032F170 writes a Cube* here
+    Cube *sp44;
     ModelProp *sp40;
     s16 temp_v0;
     s16 phi_v0;
@@ -265,7 +265,7 @@ bool func_803515EC(NodeProp *arg0) {
 }
 
 bool func_80351700(Prop * arg0){
-    // [port] was *(u16*)(arg0 + 0xA) — hardcoded offset wrong on 64-bit (Prop grew by 4 bytes)
+
     // N64 offset 0xA = flags u16; bit 1 = unk8_1. Use struct access instead.
     if (arg0->unk8_1) {
         return true;
@@ -274,7 +274,7 @@ bool func_80351700(Prop * arg0){
 }
 
 bool func_80351724(void * arg0){
-    // [port] was *(u16*)(arg0 + 0xA) — hardcoded offset wrong on 64-bit (Prop grew by 4 bytes)
+
     // N64 offset 0xA = flags u16; bit 1 = unk8_1, bit 5 = unk8_5. Use struct access instead.
     Prop *prop = (Prop *)arg0;
     if (prop->unk8_1 && prop->unk8_5) {
@@ -285,7 +285,7 @@ bool func_80351724(void * arg0){
 }
 
 s32 func_80351758_getSfxsourceIndex(Struct68s *arg0) {
-    if (arg0->unk0 == 0) { // [port] was NULL — u8 value, not pointer
+    if (arg0->unk0 == 0) {
         arg0->unk0 = sfxsource_createSfxsourceAndReturnIndex();
     }
 
@@ -324,7 +324,7 @@ s32 func_80351838(f32 position[3], s32 key_flag, s32 arg2) {
     rotation[0] = rotation[1] = rotation[2] = 0.0f;
     sp28 = func_8035126C(position, rotation, 1.0f, 4, key_flag + 0x884);
     func_80351538(sp28);
-    func_8038B5D8((Struct5Fs *)&sp28->local, sp28, key_flag, arg2); // [port]
+    func_8038B5D8((Struct5Fs *)&sp28->local, sp28, key_flag, arg2);
     return sp28 - D_803861B0.unk4;
 }
 
@@ -381,7 +381,7 @@ void func_80351A1C(s32 arg0, s32 arg1) {
     Struct68s *phi_s0;
 
     if (arg0 == 2) {
-        func_80305290(NULL, (bool (*)(Prop *))func_80351724); // [port]
+        func_80305290(NULL, (bool (*)(Prop *))func_80351724);
         func_803518E8();
         func_80351998();
     }

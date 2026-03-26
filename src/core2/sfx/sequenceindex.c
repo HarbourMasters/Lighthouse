@@ -7,7 +7,7 @@ s32 D_80382460;
 
 /* .code */
 void func_8030C740(void){
-    s32 sp1C[3]; // [port] was f32 — nodeprop_findPositionFromActorId writes s32 values
+    s32 sp1C[3];
     D_80382460 = 1;
     if(nodeprop_findPositionFromActorId(0x16, sp1C)){
         D_80382460 = 0;

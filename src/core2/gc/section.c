@@ -182,7 +182,6 @@ MapInfo * func_8030AD00(enum map_e map_id){
 }
 
 enum level_e map_getLevel(enum map_e map){
-    // [port] BB romhacks can reassign maps to different levels via F9CAE0 scene-to-level table
     int remap = port_getRomhackSceneRemap(map);
     if (remap >= 0) {
         return (enum level_e)remap;

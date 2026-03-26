@@ -285,7 +285,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     if(segment != 0){
         gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), 0, 0);
     }else{
-        gSPVertex((*gfx)++, (uintptr_t)sp1B0, 0, 0); // [port] Vtx* -> uintptr_t
+        gSPVertex((*gfx)++, (uintptr_t)sp1B0, 0, 0);
     }
     //for each texture (chunk) in frame
     // sp1B4 = sp1B4;
@@ -295,17 +295,17 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
 
         //load texture block
         if (sprite->type & SPRITE_TYPE_RGBA16) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_RGBA, G_IM_SIZ_16b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0); // [port] NULL->0: pal param is u32, NULL causes pointer truncation warning
+            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_RGBA, G_IM_SIZ_16b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_RGBA32) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_RGBA, G_IM_SIZ_32b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0); // [port] NULL->0
+            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_RGBA, G_IM_SIZ_32b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_CI4) {
-            gDPLoadTextureBlock_4b((*gfx)++, tmem, G_IM_FMT_CI, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0); // [port] NULL->0
+            gDPLoadTextureBlock_4b((*gfx)++, tmem, G_IM_FMT_CI, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_CI8) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0); // [port] NULL->0
+            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         }else if (sprite->type & SPRITE_TYPE_IA8) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0); // [port] NULL->0
+            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_I8) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_I, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0); // [port] NULL->0
+            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_I, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         }
 
         //generate vtx coords for texture
@@ -332,7 +332,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
             if(segment != 0){
                 gSPVertex(sp1B4, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), 16, 0);
             }else{
-                gSPVertex(sp1B4, (uintptr_t)sp1B0, 16, 0); // [port] Vtx* -> uintptr_t
+                gSPVertex(sp1B4, (uintptr_t)sp1B0, 16, 0);
             }
             //start new vtx seg
             sp1B4 = *gfx;
@@ -340,7 +340,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
             if (segment) {
                 gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), 0, 0);
             } else {
-                gSPVertex((*gfx)++, (uintptr_t)sp1B0, 0, 0); // [port] Vtx* -> uintptr_t
+                gSPVertex((*gfx)++, (uintptr_t)sp1B0, 0, 0);
             }
         }
         var_t2 = (BKSpriteTextureBlock *)(tmem + ((size_t) (var_t2->w * var_t2->h) * pixel_size_nibbles / 2));
@@ -355,7 +355,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
             gSPVertex(sp1B4, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), i_vtx, 0);
         }else{
             if(1);
-            gSPVertex(sp1B4, (uintptr_t)sp1B0, i_vtx, 0); // [port] Vtx* -> uintptr_t
+            gSPVertex(sp1B4, (uintptr_t)sp1B0, i_vtx, 0);
         }
     }
     else {
@@ -414,11 +414,11 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_in
     } 
     
     tmem = (u16*)(txtr_ptr + 1);
-    gSPVertex((*gfx)++, (uintptr_t)start_vtx, 12, 0); // [port] Vtx* -> uintptr_t
+    gSPVertex((*gfx)++, (uintptr_t)start_vtx, 12, 0);
 
     i_vtx0 = 0;
     for(var_s1 = 0; var_s1 < size; var_s1++){
-        gDPLoadTextureBlock((*gfx)++, tmem , G_IM_FMT_RGBA, G_IM_SIZ_16b, txtr_ptr->w, 0x1A + ((var_s1 < 2) ? 1 : 0) , 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD); // [port] NULL->0
+        gDPLoadTextureBlock((*gfx)++, tmem , G_IM_FMT_RGBA, G_IM_SIZ_16b, txtr_ptr->w, 0x1A + ((var_s1 < 2) ? 1 : 0) , 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSP2Triangles((*gfx)++, 
             i_vtx0 + 0, i_vtx0 + 1, i_vtx0 + 3, i_vtx0, 
             i_vtx0 + 0, i_vtx0 + 3, i_vtx0 + 2, i_vtx0);

@@ -3,7 +3,6 @@
 #include "variables.h"
 
 extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
-// extern void func_802EE5E8(void *); // [port] removed — in port_prototypes.h
 
 typedef struct{
     s32 unk0;
@@ -44,10 +43,10 @@ ActorInfo D_80367AF8 = {
 void func_802D7420(Actor *this){
     ActorLocal_core2_50490 * local = (ActorLocal_core2_50490 *)&this->local;
 
-    if(local->unk0 != 0){ // [port] was != NULL — unk0 is s32 (particle emitter index)
-        func_802EE5E8((ParticleEmitter *)(uintptr_t)local->unk0); // [port] s32 to ParticleEmitter* via uintptr_t
+    if(local->unk0 != 0){
+        func_802EE5E8((ParticleEmitter *)(uintptr_t)local->unk0);
     }
-    local->unk0 = 0; // [port] was = NULL — unk0 is s32
+    local->unk0 = 0;
 }
 
 Actor *func_802D745C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){

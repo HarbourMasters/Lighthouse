@@ -8,7 +8,7 @@ typedef struct map_savestate_s{
 }MapSavestate;
 
 /* .bss */
-uintptr_t D_8037E650[0x9A]; // [port] was s32, stores malloc'd pointers
+uintptr_t D_8037E650[0x9A];
 
 /* public functions */
 void func_802E3BD0(s32 frame_buffer_indx);
@@ -26,7 +26,7 @@ void mapSavestate_free_all(void){
     int i;
     for(i = 0; i < 0x9A; i++){
         if(D_8037E650[i] != 0){
-            bk_free((void *)D_8037E650[i]); // [port] safe now with uintptr_t array
+            bk_free((void *)D_8037E650[i]);
             D_8037E650[i] = 0;
         }
     }
@@ -66,7 +66,7 @@ void mapSavestate_save(enum map_e map)
     {
       wSize += 4;
       D_8037E650[map] = (uintptr_t) bk_realloc((void *)D_8037E650[map], wSize * new_var);
-      valPtr = (u32 *)(D_8037E650[map] + (wSize * new_var)); // [port] cast uintptr_t arithmetic to u32*
+      valPtr = (u32 *)(D_8037E650[map] + (wSize * new_var));
       valPtr[-1] = 0;
       new_var = 1;
       valPtr[-2] = 0;
@@ -74,13 +74,13 @@ void mapSavestate_save(enum map_e map)
       if (1) if (1) if (1) if (1) if (1) if (1) if (1) ;
       valPtr[-4] = 0;
     }
-    valPtr = (u32 *)D_8037E650[map]; // [port] cast uintptr_t to u32*
+    valPtr = (u32 *)D_8037E650[map];
     valPtr[iBit >> 5] = (reg_s4) ? (valPtr[iBit >> 5] | (1 << (iBit & 0x1f))) : (valPtr[iBit >> 5] & (~((1 ^ 0) << (iBit & 0x1f))));
     iBit++;
     wSize = wSize;
   }
 
-  D_8037E650[map] = (uintptr_t)actors_appendToSavestate((void *)D_8037E650[map], (uintptr_t)(((u32 *) D_8037E650[map]) + (4 * ((iBit + 0x7F) >> 7)))); // [port] cast u32* to uintptr_t
+  D_8037E650[map] = (uintptr_t)actors_appendToSavestate((void *)D_8037E650[map], (uintptr_t)(((u32 *) D_8037E650[map]) + (4 * ((iBit + 0x7F) >> 7))));
 
 }
 
@@ -91,7 +91,7 @@ void mapSavestate_apply(enum map_e map_id) {
     ActorListSaveState *actor_list_ptr;
     u32 bit_value;
 
-    if(D_8037E650[map_id] == 0) // [port] was NULL, use 0 for uintptr_t
+    if(D_8037E650[map_id] == 0)
         return;
 
     flag_ptr = reinterpret_cast(u32*, D_8037E650[map_id]);
@@ -108,9 +108,9 @@ void mapSavestate_apply(enum map_e map_id) {
     }
     func_80308230(0);
 
-    actor_list_ptr = (ActorListSaveState *)((u32 *)D_8037E650[map_id] + (((iBit + (0x80 - 1)) >> 7) * 4)); // [port] was ActorListSaveState* arithmetic — sizeof(ActorListSaveState) differs on 64-bit; use u32* to match save function's byte offset
-    func_8032A09C(0, actor_list_ptr); // [port] arg0 is unused in func_8032A09C; was D_8037E650[map_id] (uintptr_t→s32 truncation)
+    actor_list_ptr = (ActorListSaveState *)((u32 *)D_8037E650[map_id] + (((iBit + (0x80 - 1)) >> 7) * 4));
+    func_8032A09C(0, actor_list_ptr);
     bk_free((void*)D_8037E650[map_id]);
-    D_8037E650[map_id] = 0; // [port] was NULL, use 0 for uintptr_t
+    D_8037E650[map_id] = 0;
 }
 

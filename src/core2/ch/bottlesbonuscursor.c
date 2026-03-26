@@ -147,7 +147,7 @@ void chBottlesBonusCursor_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     this = marker_getActorAndRotation(chBottlesBonusCursorMarker, rotation);
     modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)this);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)chBottlesBonusCursorMarker);
-    modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE); // [port] draw cursor on top of puzzle pieces
+    modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     actor_setOpacity(this, 0xB9);
     viewport_func_8024E030(this->position, D_8037E5C0.unk18);
     sp3C = (this->scale * 650.0f);

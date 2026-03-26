@@ -1675,9 +1675,6 @@ typedef struct {
 /*
  * Generic Gfx Packet
  */
-/* [port] w0/w1 must be pointer-width to match LUS F3DGfx layout.
- * On N64 these were u32; on PC they are uintptr_t (64-bit on x64/aarch64).
- * This ensures decomp GBI macros produce commands the interpreter can read. */
 typedef struct {
 	uintptr_t w0;
 	uintptr_t w1;
@@ -1686,7 +1683,6 @@ typedef struct {
 /*
  * This union is the fundamental type of the display list.
  * It is, by law, exactly 64 bits in size on N64.
- * [port] On PC it is 2*sizeof(uintptr_t) to match the LUS interpreter.
  */
 typedef union {
 	Gwords		words;
@@ -4595,7 +4591,6 @@ void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
 void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
 int ResourceMgr_OTRSigCheck(char* imgData);
 
-// [port] Override gDPSetTextureImage to intercept raw sprite texture pointers.
 // If the address is registered in the sprite texture registry, substitute the
 // OTR resource path so LUS loads it natively (avoiding strncmp crash on raw data).
 void port_gDPSetTextureImage(Gfx* pkt, int fmt, int siz, int width, const void* img);

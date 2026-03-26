@@ -6,8 +6,8 @@
 
 
 extern s32 sprite_getFrameCount(BKSprite *);
-extern void func_80344720(BKSpriteDisplayData *, s32 frame, bool, f32[3], f32[3], f32[3], Gfx **, Mtx **); // [port] was (s32, ...) - truncates pointer on 64-bit
-extern void func_80344424(BKSpriteDisplayData *, s32 frame, bool, f32[3], f32[3], f32, Gfx **, Mtx **); // [port] was (s32, ...) - truncates pointer on 64-bit
+extern void func_80344720(BKSpriteDisplayData *, s32 frame, bool, f32[3], f32[3], f32[3], Gfx **, Mtx **);
+extern void func_80344424(BKSpriteDisplayData *, s32 frame, bool, f32[3], f32[3], f32, Gfx **, Mtx **);
 
 Gfx D_80368940[] = {
     gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH),
@@ -59,12 +59,12 @@ u8 partEmitMgrEnable;
 void func_802EE930(ParticleEmitter *this){
     func_8033B388(&this->sprite_1C, &this->unk34);
     if(this->model_20)
-        func_8033BD20((void **)&this->model_20); // [port]
+        func_8033BD20((void **)&this->model_20);
 }
 
 int func_802EE974(ParticleEmitter *this, f32 (*arg1)[3], f32 (*arg2)[3], f32 (*arg3)[3], s32 arg4){
     if(-100000.0 == this->unk74 && 100000.0 == this->unk78){
-        return (func_80309B48(*arg1, *arg2, *arg3, 0) != NULL); // [port] BKCollisionTri* to int boolean — dereference f32(*)[3] to f32[3]
+        return (func_80309B48(*arg1, *arg2, *arg3, 0) != NULL);
     }
 
     if(100000.0 != this->unk78 && this->unk78 < (*arg2)[1]){
@@ -421,7 +421,7 @@ void particleEmitter_setParticleFramerateRange(ParticleEmitter *this, f32 arg1, 
     this->particleFramerateRange_8C_max = arg2;
 }
 
-void func_802EFAB0(ParticleEmitter *this, uintptr_t arg1, f32 arg2){ // [port] was s32 — carries Struct70s*
+void func_802EFAB0(ParticleEmitter *this, uintptr_t arg1, f32 arg2){
     this->unk100 = arg1;
     this->unk104 = (s16) arg2;
 }
@@ -649,11 +649,11 @@ void particleEmitter_update(ParticleEmitter *this){
                 particle->velocity_50[2] = particle->velocity_50[2] + particle->acceleration[2]*tick;
 
                 if(this->unk100){
-                    particle->position[1] = func_8034E698((Struct73s*)this->unk100) + this->unk104; // [port] unk100 is uintptr_t
+                    particle->position[1] = func_8034E698((Struct73s*)this->unk100) + this->unk104;
                 }//L802F0254
 
                 if( 0.0f != this->unkFC
-                    && !viewport_func_8024DB50(particle->position, this->unkFC) // [port] & removed: f32[3] decays to f32*
+                    && !viewport_func_8024DB50(particle->position, this->unkFC)
                 ){
                     memcpy(particle, --this->pList_end_128, sizeof(Particle));
                 }
@@ -820,7 +820,7 @@ void partEmitMgr_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
 }
 
 ParticleEmitter *partEmitMgr_newEmitter(u32 cnt){
-    partEmitMgr = bk_realloc(partEmitMgr, (++partEmitMgrLength)*sizeof(ParticleEmitter *)); // [port] was *4, pointers are 8 bytes on 64-bit
+    partEmitMgr = bk_realloc(partEmitMgr, (++partEmitMgrLength)*sizeof(ParticleEmitter *));
     partEmitMgr[partEmitMgrLength - 1] = particleEmitter_new(cnt);
     partEmitMgr[partEmitMgrLength - 1]->auto_free = true;
     return partEmitMgr[partEmitMgrLength - 1];
@@ -849,7 +849,7 @@ void particleEmitter_autoFree(ParticleEmitter *this){
 
 ParticleEmitter * partEmitMgr_defragEmitter(ParticleEmitter *this){
     int i;
-    uintptr_t a3; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t a3;
 
     if(this){
         a3 = (uintptr_t)this;

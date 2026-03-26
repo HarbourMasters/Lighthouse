@@ -8,7 +8,6 @@
 
 
 void timedFunc_set_0(f32 time, GenFunction_0 funcPtr);
-// [port] s32 -> uintptr_t for 64-bit pointer safety
 void timedFunc_set_1(f32 time, GenFunction_1 funcPtr, uintptr_t arg0);
 void timedFunc_set_2(f32 time, GenFunction_2 funcPtr, uintptr_t arg0, uintptr_t arg1);
 void timedFunc_set_3(f32 time, GenFunction_3 funcPtr, uintptr_t arg0, uintptr_t arg1, uintptr_t arg2);

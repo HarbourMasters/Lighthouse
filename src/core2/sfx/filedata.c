@@ -65,7 +65,7 @@ void func_802F8FF0(void){
 void func_802F8FFC(void){
     if(D_80369280){
         bk_free(D_80369280->unk1C);
-        func_8033BD20((void **)&D_80369288); // [port]
+        func_8033BD20((void **)&D_80369288);
         bk_free(D_80369280);
         D_80369280 = NULL;
         D_80369284 = 0;
@@ -96,7 +96,7 @@ void func_802F9114(void){
 void func_802F9134(s32 gfx){
     D_80369284 = D_80369284 - 1;
     if(gfx < D_80369284){
-        memcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds)); // [port] was wmemcpy — conflicts with CRT wide-char wmemcpy on Windows
+        memcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
     }
 }
 
@@ -210,7 +210,7 @@ void func_802F962C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         D_80381094 = (Struct_core2_72060_0 *)((uintptr_t)D_80369288 + D_80369288->geo_list_offset_4);
         
         for(phi_s0 = D_80369280->unk1C; phi_s0 < D_80369280->unk1C + D_80369284; phi_s0++) {
-            if ((func_802F989C(gfx, mtx, phi_s0->unk0) == 0) && (phi_s0->unk0[1] < D_8038104C)) { // [port] pass f32[3] position member, not struct4Ds*
+            if ((func_802F989C(gfx, mtx, phi_s0->unk0) == 0) && (phi_s0->unk0[1] < D_8038104C)) {
                 func_802F9134(phi_s0 - D_80369280->unk1C);
                 phi_s0--;
             }
@@ -230,14 +230,14 @@ bool func_802F989C(Gfx **gfx, Mtx **mtx, f32 arg2[3]) {
     ) {
         func_80251B5C(D_80381070[0], D_80381070[1], D_80381070[2]);
         mlMtxApply(*mtx);
-        mlMtx_apply_vec3f_restricted(D_80381080, D_80381094->unkC); // [port] &D_80381080 -> D_80381080: f32[3] decays to f32*
+        mlMtx_apply_vec3f_restricted(D_80381080, D_80381094->unkC);
         func_80251B5C(D_80381080[0], D_80381080[1], D_80381080[2]);
         mlMtx_rotate_yaw_deg(D_80381060[1]);
         mlMtx_rotate_pitch_deg(D_80381060[0]);
         func_80252A38(-(D_80381094->unkC[0]), -(D_80381094->unkC[1]), -(D_80381094->unkC[2]));
         mlMtxApply(*mtx);
         gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPDisplayList((*gfx)++, (Gfx *)osVirtualToPhysical(D_80381090)); // [port] uintptr_t -> Gfx*
+        gSPDisplayList((*gfx)++, (Gfx *)osVirtualToPhysical(D_80381090));
         gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
         return true;
     }

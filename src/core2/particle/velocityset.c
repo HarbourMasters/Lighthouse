@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EFAB0(ParticleEmitter *, uintptr_t, f32); // [port] was s32 — carries Struct70s*
+extern void func_802EFAB0(ParticleEmitter *, uintptr_t, f32);
 
 ParticleEmitter *func_802F4274(f32 arg0[3]);
 
@@ -32,7 +32,7 @@ ParticleEmitter *func_802F4274(f32 arg0[3]) {
     f32 sp2C[3];
     f32 sp28;
     ParticleEmitter *temp_v0;
-    intptr_t sp20; // [port] was s32 — stores Struct70s* from func_8024559C
+    intptr_t sp20;
 
     ml_vec3f_copy(sp2C, arg0);
     func_8024559C(sp2C, &sp20, &sp28);
@@ -47,7 +47,7 @@ ParticleEmitter *func_802F4274(f32 arg0[3]) {
     sp2C[2] += sp44[2];
     temp_v0 = func_802F0EF0(D_80380AA0);
     if (sp20 != 0) {
-        func_802EFAB0(temp_v0, (uintptr_t)sp20, sp2C[1]); // [port] was (s32) — carries Struct70s*
+        func_802EFAB0(temp_v0, (uintptr_t)sp20, sp2C[1]);
     }
     particleEmitter_setSprite(temp_v0, ASSET_42A_UNKNOWN);
     particleEmitter_setAlpha(temp_v0, 0xFF);

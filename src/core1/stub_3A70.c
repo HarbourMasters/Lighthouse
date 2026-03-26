@@ -33,7 +33,7 @@ void func_80241490(Gfx **gfx, Vtx **vtx, s32 arg2[3], s32 arg3[3], s32 arg4[3], 
         gSPSetGeometryMode((*gfx)++, G_ZBUFFER | G_CULL_FRONT);
     }
 
-    gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0); // [port] Vtx* to uintptr_t
+    gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0);
 
     for(i = 0; i < 2; i++){
         for(var_a0 = 0; var_a0 < 2; var_a0++){
@@ -100,7 +100,7 @@ void func_80241928(Gfx** gfx, Vtx** vtx, s32 arg2[3], s32 arg3, s32 arg4[3]) {
     for(var_fp = 0; var_fp < 4; var_fp++){
         gSPDisplayList((*gfx)++, sGfxSublist);
         gSPSetGeometryMode((*gfx)++, G_ZBUFFER);
-        gSPVertex((*gfx)++, (uintptr_t)*vtx, 10, 0); // [port] Vtx* to uintptr_t
+        gSPVertex((*gfx)++, (uintptr_t)*vtx, 10, 0);
         for(var_f26 = 0; var_f26 <= 90; var_f26 += 22.5){
             for(var_s0 = -300; var_s0 < 900; var_s0 += 600){
                 (*vtx)->v.ob[0] = ((ml_sin_deg(var_fp*90 + var_f26) * arg3) + (f32) arg2[0]) - vp_position[0];
@@ -166,7 +166,7 @@ void func_802424D4(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], f32 arg4[3], f3
         viewport_getPosition_vec3f(sp5C);
         gSPDisplayList((*gfx)++, sGfxSublist);
         gSPSetGeometryMode((*gfx)++, G_ZBUFFER);
-        gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0); // [port] Vtx* to uintptr_t
+        gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0);
         for( var_a0 = 0; var_a0 < 2; var_a0++){
             for(var_v0 = -1; var_v0 < 3; var_v0+=2) {
                 (*vtx)->v.ob[0] = (arg3[0] + (var_a0 * sp80[0]) + (var_v0 * sp74[0])) - sp5C[0];
@@ -221,7 +221,7 @@ void func_80242BE8(Gfx **gfx, Vtx **vtx, f32 arg2[2][2][2][3], s32 color[3], s32
         gSPSetGeometryMode((*gfx)++, G_CULL_FRONT);
     }
 
-    gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0); // [port] Vtx* to uintptr_t
+    gSPVertex((*gfx)++, (uintptr_t)*vtx, 8, 0);
 
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 2; j++) {

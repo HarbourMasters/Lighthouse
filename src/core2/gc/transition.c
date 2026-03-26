@@ -8,7 +8,7 @@ void anctrl_setAnimTimer(AnimCtrl*, f32);
 void func_8025AC20(s32, s32, s32, f32, char*, s32);
 extern void port_setViBlack(int active);     // [port] display blanking (black screen after readback)
 extern void port_freezeReadback(int freeze); // [port] freeze gFramebuffers for transition capture
-extern void port_requestReadback(void);      // [port] request GPU→CPU readback for next frame
+extern void port_requestReadback(void);
 
 typedef enum {
     TRANSITION_ID_1_BLACK_IN = 1,
@@ -168,7 +168,7 @@ MapTransitionInfo *_gctranstion_get_map_transition_info(s32 map_indx){
 
 void _gctranstion_changeState(s32 state, TransitionInfo *desc){
     if(s_current_transition.model_ptr != NULL){
-        func_8033BD20((void **)&s_current_transition.model_ptr); // [port]
+        func_8033BD20((void **)&s_current_transition.model_ptr);
     }
 
     if(s_current_transition.anctrl != NULL){
@@ -190,7 +190,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         s_current_transition.model_ptr = assetcache_get(desc->model_index);
 
     //load transistion animation
-    if(desc != NULL && desc->anim_index != 0){ // [port] was NULL, use 0 for s32
+    if(desc != NULL && desc->anim_index != 0){
         s_current_transition.anctrl = anctrl_new(0);
         anctrl_reset(s_current_transition.anctrl);
         anctrl_setIndex(s_current_transition.anctrl, desc->anim_index);
@@ -301,7 +301,6 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
             aspectRatio > 1.01f) {
             isJigsawWidescreen = 1;
             jigsawXScale = aspectRatio + 0.1f;
-            // [port] Tiny uniform overscale to eliminate vertex seams between
             // jigsaw pieces caused by per-bone FP rounding under projection X-scale.
             transitionScale = 1.005f;
             Mtx* xScaleMtx = (*mptr)++;
@@ -395,7 +394,6 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     if(s_current_transition.anctrl != NULL){
         gDPSetTextureFilter((*gdl)++, G_TF_BILERP);
     }
-    // [port] Restore projection after jigsaw X-scale
     if(isJigsawWidescreen){
         Mtx* xScaleUndoMtx = (*mptr)++;
         guScale(xScaleUndoMtx, 1.0f / jigsawXScale, 1.0f, 1.0f);

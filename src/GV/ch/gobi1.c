@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern bool func_802EBA98(BKModelUnk14List *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3]); // [port] was s32 params, fixed pointer types
+extern bool func_802EBA98(BKModelUnk14List *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3]);
 
 typedef struct {
     u8 unk0[2]; // array of sfxsource indexes
@@ -108,7 +108,7 @@ void chGobi1_update(Actor *this){
     s32 sp6C = 0;
     f32 tick; //sp68;
     int i;
-    BKModelUnk14List *tmp_s1; // [port] was s32 — pointer truncation on 64-bit
+    BKModelUnk14List *tmp_s1;
     f32 sp54[3];
     f32 sp48[3];
 

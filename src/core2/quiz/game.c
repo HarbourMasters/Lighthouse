@@ -12,7 +12,6 @@ extern void func_802F9D38(s32);
 extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_802EE2E8(Actor *arg0, s32 arg1, s32 cnt, s32 arg3, f32 arg4, f32 arg5, f32 arg6);
 extern void gcquiz_func_80319EA4(void);
-// extern void fileProgressFlag_set(enum file_progress_e, bool); // [port] removed — prototype in port_prototypes.h
 
 void func_802D3D54(Actor *this);
 void func_802D3DA4(Actor *this);
@@ -825,7 +824,7 @@ void func_802D520C(Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
 void func_802D5260(void) {
     s32 sp3C;
-    Struct70s *sp38; // [port] was s32 — stores Struct70s* from func_8034C528
+    Struct70s *sp38;
     f32 sp34;
     f32 sp28[3];
 
@@ -886,7 +885,7 @@ void func_802D5260(void) {
                      : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
                      : 0];
         }
-        func_8034DEB4(&sp38->type_6D, sp34); // [port] Struct70s* -> Struct6Ds* via union member
+        func_8034DEB4(&sp38->type_6D, sp34);
         player_getPosition(sp28);
         
         fxRipple_802F363C(sp34 + ((sp3C != -1) ? (D_803679E0[sp3C] + ((sp3C == 2) ? (6600.0f < sp28[0]) ? -200 : 0 : 0)) : 0));
@@ -895,11 +894,11 @@ void func_802D5260(void) {
 
 void func_802D5628(void){
     s32 sp7C;
-    Struct70s *sp78; // [port] was s32 — stores Struct70s* from func_8034C528
+    Struct70s *sp78;
     s32 sp74;
-    Struct70s *sp70; // [port] was s32 — stores Struct70s* from func_8034C528
+    Struct70s *sp70;
     s32 sp6C;
-    Struct70s *sp68; // [port] was s32 — stores Struct70s* from func_8034C528
+    Struct70s *sp68;
     s32 sp50[6];
     s32 sp4C;
     static s32 D_803679E8 = 0;
@@ -976,7 +975,7 @@ void func_802D5628(void){
                     sp7C = func_802F9AA8(0x3EC);
                     sp78 = func_8034C528(0x191);
                     if(sp78){
-                        func_8034DE60(&sp78->type_6D, -580.0f, 0.0f, 2.5f, 1); // [port] Struct70s* -> Struct6Ds* via union member
+                        func_8034DE60(&sp78->type_6D, -580.0f, 0.0f, 2.5f, 1);
                     }
                     func_802FA060(sp7C, 20000, 20000, 0.0f);
                     func_802F9F80(sp7C, 0.0f, 2.2f, 0.7f);
@@ -989,7 +988,7 @@ void func_802D5628(void){
                     sp74 = func_802F9AA8(0x3EC);
                     sp70 = func_8034C528(0x191);
                      if(sp70){
-                        func_8034DE60(&sp70->type_6D, 0.0f, 1550.0f, 6.5f, 1); // [port] Struct70s* -> Struct6Ds* via union member
+                        func_8034DE60(&sp70->type_6D, 0.0f, 1550.0f, 6.5f, 1);
                     }
                     func_802FA060(sp74, 20000, 20000, 0.0f);
                     func_802F9F80(sp74, 0.0f, 6.2f, 0.5f);
@@ -1002,7 +1001,7 @@ void func_802D5628(void){
                     sp6C = func_802F9AA8(0x3EC);
                     sp68 = func_8034C528(0x190);
                      if(sp68){
-                        func_8034DE60(&sp68->type_6D, 1200.0f, 1900.0f, 3.0f, 1); // [port] Struct70s* -> Struct6Ds* via union member
+                        func_8034DE60(&sp68->type_6D, 1200.0f, 1900.0f, 3.0f, 1);
                     }
                     func_802FA060(sp6C, 20000, 20000, 0.0f);
                     func_802F9F80(sp6C, 0.0f, 2.7f, 0.5f);
@@ -1046,13 +1045,13 @@ void func_802D5628(void){
         func_802D5178(LEVEL_FLAG_3F_LAIR_UNKNOWN, 0xE2, 0x40, MAP_93_GL_DINGPOT,  0x10, 0xA, ACTOR_2E5_DOOR_OF_GRUNTY,   0x28);
         if(volatileFlag_get(VOLATILE_FLAG_18)){
             if(!fileProgressFlag_get(FILEPROG_99_PAST_50_NOTE_DOOR_TEXT)){
-                func_80311174(0xF75, 0xE, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140); // [port] polymorphic callback
+                func_80311174(0xF75, 0xE, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140);
                 fileProgressFlag_set(FILEPROG_99_PAST_50_NOTE_DOOR_TEXT, true);
                 volatileFlag_set(VOLATILE_FLAG_18, 0);
             }
             else{//L802D5DD8
                 if(!volatileFlag_get(VOLATILE_FLAG_16)){
-                    func_80311174(0xF77, 0x4, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140); // [port] polymorphic callback
+                    func_80311174(0xF77, 0x4, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140);
                     volatileFlag_set(VOLATILE_FLAG_18, 0);
                 }
             }

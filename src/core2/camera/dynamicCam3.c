@@ -44,7 +44,7 @@ void ncDynamicCam3_update(void) {
     sp40[1] = sp30 * 0.77 * mlDiffDegF(mlNormalizeAngle(player_getYaw() + 180.0f), sp4C[1]);
     sp40[1] = func_80259198(sp40[1], sp30 * 300.0f);
     sp4C[1] = mlNormalizeAngle(sp4C[1] + sp40[1]);
-    func_80256E24(sp58, 0.0f, sp4C[1], 0.0f, 0.0f, sp3C); // [port] &sp58 -> sp58: f32[3] decays to f32*
+    func_80256E24(sp58, 0.0f, sp4C[1], 0.0f, 0.0f, sp3C);
     sp70[0] = sp7C[0] + sp58[0];
     sp70[1] = sp64[1];
     sp70[2] = sp7C[2] + sp58[2];

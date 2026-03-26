@@ -52,7 +52,7 @@ void func_80356074(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3){
     projectile_setPosition(sp1A, arg0);
     func_80344D94(sp1B, arg0);
     func_80344E3C(sp1B, arg1);
-    func_80356020(sp1A, (f32*)sp1C); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+    func_80356020(sp1A, (f32*)sp1C);
 }
 
 void func_8035611C(void){
@@ -93,7 +93,7 @@ void func_8035611C(void){
     func_80344E18(sp57, 2);
     func_80344E3C(sp57, sp38);
     func_80344D94(sp57, plyr_pos);
-    func_80356020(projectile_indx, (f32*)sp54); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+    func_80356020(projectile_indx, (f32*)sp54);
 }
 
 void func_803562E8(void){
@@ -110,7 +110,7 @@ void func_803562E8(void){
     else{
         sp24->unk0 += sp24->unk4;
         sp24->unk8 += sp24->unkC;
-        func_80356020(sp1F, (f32*)sp24); // [port] ParticleStruct0s* to f32* — decomp treats struct as float array
+        func_80356020(sp1F, (f32*)sp24);
     }
 }
 

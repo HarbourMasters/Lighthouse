@@ -3,11 +3,10 @@
 #include "variables.h"
 
 extern void func_8028F4B8(f32[3], f32, f32);
-// [port] removed local extern void func_8028F66C(s32) — canonical decl is s32 func_8028F66C(enum bs_interrupt_e) in port_prototypes.h
 extern void func_802D6310(f32, enum map_e, s32, s32, enum file_progress_e);
 extern void func_802EE354(Actor *, s32, s32, s32, f32, f32, f32, f32[3], s32, f32[3]);
 extern void func_80324CFC(f32, enum comusic_e, s32);
-extern void func_8034DF30(Struct70s *, f32[4], f32[4], f32); // [port] was s32, takes Struct70s *
+extern void func_8034DF30(Struct70s *, f32[4], f32[4], f32);
 
 /* .h */
 typedef struct {
@@ -123,7 +122,7 @@ void lair_func_8038A864(Actor *this) {
 }
 
 void func_8038A96C(Actor *this, s32 arg1) {
-    Struct70s *sp5C; // [port] was s32
+    Struct70s *sp5C;
     s32 i;
     f32 sp48[4];
     f32 sp38[4];
@@ -445,7 +444,7 @@ Actor *chWarpCauldron_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
         sp3C[2] = 0;
         sp3C[3] = randi2(40, 80);
         if (globalTimer_getTime() & 1) {
-            func_802EE354(this, 0x3E9, 5, randi2(-10, 90), randf2(0.3f, 0.7f), 0.28f, 0.45f, (f32*)sp3C, 5, NULL); // [port] s32[] → f32*, 0 → NULL
+            func_802EE354(this, 0x3E9, 5, randi2(-10, 90), randf2(0.3f, 0.7f), 0.28f, 0.45f, (f32*)sp3C, 5, NULL);
         }
     }
     return this;

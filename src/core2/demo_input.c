@@ -37,11 +37,10 @@ s32 D_803860DC;//total_inputs
 s32 func_80349EC0(s32 arg0){
     s32 sp1C[3];
 
-    return nodeprop_findPositionFromActorId(arg0 + 0x1CC, sp1C); // [port] was &sp1C — array decays to s32*
+    return nodeprop_findPositionFromActorId(arg0 + 0x1CC, sp1C);
 }
 
 int demo_readInput(OSContPad* arg0, s32* arg1){
-    // [port] Check EOF before indexing to avoid OOB read past the demo buffer.
     int not_eof = D_803860D8 < D_803860DC;
     DemoInput *input_ptr = not_eof ? &D_803860D0[D_803860D8++] : &D_80371EF0;
 #if 0

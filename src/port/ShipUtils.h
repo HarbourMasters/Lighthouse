@@ -18,7 +18,6 @@ void BK_LOG_ERROR(const char* fmt, ...);
 // [port] Start the audio processing thread (called from audioManager_startThread after soundfont patching)
 void port_audioStartThread(void);
 
-// [port] Map enum to human-readable name
 const char* port_mapName(int map_id);
 
 // [port] Update window title with current map ID for debugging
@@ -37,7 +36,6 @@ int port_getViewportWidth(void);
 // (typically 2 for 30fps, higher during original frame drops). Returns 0 outside demos.
 int port_getDemoViCount(void);
 
-// [port] Returns true if any C button (CLeft/CRight/CUp/CDown) is mapped to a
 // stick axis via LUS controller mappings. Used to enable the stick
 // diagonal/rebound filter only when relevant.
 bool port_CButtonIsAxis(void);

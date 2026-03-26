@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8032F64C(f32[3], ActorMarker *); // [port] was s32, pointer truncation
+extern void func_8032F64C(f32[3], ActorMarker *);
 extern void func_80323240(struct56s *, f32, f32[3]);
 extern f32 func_80323F74(struct56s *, f32, f32);
 
@@ -277,7 +277,7 @@ void func_80350250(void) {
                 sp70[0] = -var_s0_2->unk1C * temp_f22;\
                 sp70[1] = 0.0f;\
                 sp70[2] = 0.0f;
-                ml_vec3f_yaw_rotate_copy(sp70, sp70, var_s0_2->unk14); // [port] & removed: f32[3] decays to f32*
+                ml_vec3f_yaw_rotate_copy(sp70, sp70, var_s0_2->unk14);
                 var_s0_2->unk8[0] = var_s0_2->unk8[0] + sp70[0];
                 var_s0_2->unk8[1] = var_s0_2->unk8[1] + sp70[1];
                 var_s0_2->unk8[2] = var_s0_2->unk8[2] + sp70[2];

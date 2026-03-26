@@ -12,10 +12,10 @@ static s32 D_80283384;
 static s32 D_80283388;
 
 void ucode_load(void) {
-    D_80283384 = *(s32 *)(uintptr_t)PHYS_TO_K1(0x04000000) ^ -1; // [port] uintptr_t intermediate cast for 64-bit
+    D_80283384 = *(s32 *)(uintptr_t)PHYS_TO_K1(0x04000000) ^ -1;
     D_80283388 = D_80283384 ? 0x01 : 0x00;
 
-    D_80283380 = *(s32 *)(uintptr_t)PHYS_TO_K1(0x04001000) ^ 0x17D7; // [port] uintptr_t intermediate cast for 64-bit
+    D_80283380 = *(s32 *)(uintptr_t)PHYS_TO_K1(0x04001000) ^ 0x17D7;
     D_80283388 |= D_80283380 ? 0x02 : 0x00;
 
     if (D_80283388 == 0) {

@@ -49,7 +49,7 @@ void func_802AEC70(void){}
 void func_802AEC78(void){
     f32 duration_s;
     f32 target_position[3];
-    enum asset_e anim_id; // [port] matches func_8029BC60 signature
+    enum asset_e anim_id;
     func_8029BC60(&anim_id, &duration_s);
     baanim_playForDuration_loopSmooth((s32)anim_id, duration_s);
     badrone_get_position_and_duration(target_position, &duration_s);

@@ -157,7 +157,7 @@ void func_802FC0D8(void) {
 }
 
 bool func_802FC390(void){
-    s32 *phi_v1 = (s32 *)D_80381560[0]; // [port] struct8s* reinterpreted as s32* to read first field
+    s32 *phi_v1 = (s32 *)D_80381560[0];
     if (D_80369884 == 0)
         return false; 
     return *phi_v1 == 2;

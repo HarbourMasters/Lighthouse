@@ -17,7 +17,7 @@ enum anctrl_playback_e{
     ANIMCTRL_SUBRANGE_LOOP = 4
 };
 
-typedef struct AnimMtxList_s{ // [port] added tag for forward declaration
+typedef struct AnimMtxList_s{
     MtxF mtx_0;
     s32 size_40;
     s32 capacity_44;

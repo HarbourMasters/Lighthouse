@@ -49,7 +49,7 @@ void func_80351FE0(Struct_core2_CB050_0 *arg0, Struct68s *arg1) {
     }
 }
 
-void func_80352114(Struct_core2_CB050_0 *arg0, Struct68s *arg1, f32 arg2) { // [port] was s32 arg1
+void func_80352114(Struct_core2_CB050_0 *arg0, Struct68s *arg1, f32 arg2) {
     f32 sp6C[3];
     f32 player_position[3];
     s32 pad;

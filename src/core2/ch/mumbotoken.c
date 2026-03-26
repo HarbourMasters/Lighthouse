@@ -28,7 +28,7 @@ void chMumboToken_collect(ActorMarker *marker, ActorMarker *other_marker){
     this = marker_getActor(marker);
     mumboscore_set(func_802E0CB0(this), true);
     func_8030E760(0x401, 1.0f, 0x7fff);
-    timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_4_MUMBO_TOKEN_TEXT); // [port]
+    timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_4_MUMBO_TOKEN_TEXT);
     fxSparkle_mumboToken(&marker->propPtr->x);
     item_inc(ITEM_1C_MUMBO_TOKEN);
     marker_despawn(marker);
@@ -72,7 +72,7 @@ void func_802E0B10(Actor *this){
     local = (ActorLocal_MumboToken *)&this->local;
     if(!this->initialized){
         this->initialized = true;
-        if(local->uid == 0){ // [port] was NULL — enum/int value, not pointer
+        if(local->uid == 0){
             if(!this->unk44_2){
                 local->uid = D_8037E610;
             }

@@ -36,7 +36,7 @@ extern ActorInfo D_80372C3C;
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void func_8025AE0C(s32, f32);
 extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
-extern BKCollisionTri *func_80309B48(f32[3], f32[3], f32[3], u32); // [port] was void* — returns BKCollisionTri*
+extern BKCollisionTri *func_80309B48(f32[3], f32[3], f32[3], u32);
 
 void func_802D3D54(Actor *this);
 void func_803888B8(Actor *this);
@@ -203,7 +203,7 @@ f32 MMM_func_80388430(Actor *this, s32 arg1, s32 arg2, f32 arg3) {
     return (arg3 >= 90.0f) ? 90.0f : arg3;
 }
 
-s32 func_80388670(ActorMarker * this_marker, ActorMarker * other_marker){ // [port] was bool — callback passed to func_803300C0 expects s32 return
+s32 func_80388670(ActorMarker * this_marker, ActorMarker * other_marker){
     Actor *this = marker_getActor(this_marker);
     f32 sp20[3];
 

@@ -58,12 +58,12 @@ void chTumblar_copyPosition(s32 arg0, Struct68s *arg1, f32 arg2[3]) {
     func_8035179C_copyPosition(arg1, arg2);
 }
 
-bool chTumblar_isDisappeared(void *arg0_, s32 arg1) { // [port] void* for prototype compatibility
+bool chTumblar_isDisappeared(void *arg0_, s32 arg1) {
     Struct_MMM_47D0_0 *arg0 = (Struct_MMM_47D0_0 *)arg0_;
     return arg0->state == TUMBLAR_STATE_3_DISAPPEARED;
 }
 
-bool chTumblar_isBanjoAbove(void *arg0_, Struct68s *arg1) { // [port] void* for prototype compatibility
+bool chTumblar_isBanjoAbove(void *arg0_, Struct68s *arg1) {
     Struct_MMM_47D0_0 *arg0 = (Struct_MMM_47D0_0 *)arg0_;
     f32 plyr_pos[3];
     f32 position[3];
@@ -125,7 +125,7 @@ void __chTumblar_congratulationTextCallback(ActorMarker *marker, enum asset_e te
     mapSpecificFlags_set(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN, true);
 }
 
-void chTumblar_congratulate(void *arg0_, s32 arg1) { // [port] void* for prototype compatibility
+void chTumblar_congratulate(void *arg0_, s32 arg1) {
     Struct_MMM_47D0_0 *arg0 = (Struct_MMM_47D0_0 *)arg0_;
     gcdialog_showText(ASSET_ADB_DIALOG_UNKNOWN, 4, NULL, arg0->jiggy_marker, __chTumblar_congratulationTextCallback, NULL);
     arg0->state = TUMBLAR_STATE_1_CONGRATULATING;

@@ -17,7 +17,7 @@ void func_8034F1C0(s32 arg0, BKVtxRef *ref, Vtx *dst, void *arg3) {
 
 void func_8034F248(Struct75s arg0){}
 
-void func_8034F250(Struct75s *arg0, s32 arg1, s32 arg2, s32 arg3){ // [port] was UNK_TYPE(s32) — args unused
+void func_8034F250(Struct75s *arg0, s32 arg1, s32 arg2, s32 arg3){
     arg0->unk0 = 0.0f;
 }
 

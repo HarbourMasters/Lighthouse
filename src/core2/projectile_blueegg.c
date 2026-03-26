@@ -4,7 +4,7 @@
 #include "core2/sprite_displaydata.h"
 #include "core2/anim/sprite.h"
 
-extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32); // [port] was void — returns BKCollisionTri*
+extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
 
 extern f32 func_8033EA14(s32);
 extern void func_8033EA40(s32, f32);
@@ -22,7 +22,7 @@ extern ActorMarker *func_8033E840(void);
 extern ActorProp *func_80320EB0(ActorMarker *, f32, s32);
 
 
-void fxegg_collide(ActorMarker *self, ActorMarker *marker, struct5Cs *arg2); // [port] was (s32, ActorMarker*, s32)
+void fxegg_collide(ActorMarker *self, ActorMarker *marker, struct5Cs *arg2);
 
 /* .data */
 AnimSpriteStep D_803726A0[] = {
@@ -166,7 +166,7 @@ void fxegg_head_spawn(void){
 
     marker->unk2C_1 = 1;
     marker->collidable = true;
-    func_803300B8(marker, (MarkerCollisionFunc)fxegg_collide); // [port]
+    func_803300B8(marker, (MarkerCollisionFunc)fxegg_collide);
     func_8033EA40(0, 20.0f);
     func_8033EA40(1, 0.0f);
     func_8033EA40(2, 0.0f);
@@ -274,7 +274,7 @@ void fxegg_ass_spawn(void) {
     sp57 = func_8033E93C();
     func_8033E840()->unk2C_1 = true;
     func_8033E840()->collidable = true;
-    func_803300B8(func_8033E840(), (MarkerCollisionFunc)fxegg_collide); // [port]
+    func_803300B8(func_8033E840(), (MarkerCollisionFunc)fxegg_collide);
     func_8033EA40(1, 0);
     func_8033EA40(0, 20.0f);
     func_8033EA40(2, 0);
@@ -365,7 +365,7 @@ void fxegg_ass_update(void) {
 
 void fxegg_ass_destroy(void){}
 
-void fxegg_collide(ActorMarker *self, ActorMarker *marker, struct5Cs *arg2) { // [port] was (s32, ActorMarker*, s32) — pointer truncation
+void fxegg_collide(ActorMarker *self, ActorMarker *marker, struct5Cs *arg2) {
     Actor *actor;
 
     actor = marker_getActor(marker);

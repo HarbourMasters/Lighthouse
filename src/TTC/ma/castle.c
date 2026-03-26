@@ -25,7 +25,7 @@ typedef struct
 
 typedef struct
 {
-    u8 code[20]; // [port] was u8* — strcpy writes in-place, needs writable storage
+    u8 code[20];
     s16 flagBitMask;
     s16 codeCharacterIdx;
 } CheatCode;
@@ -47,7 +47,7 @@ typedef struct
 static s32 __maCastle_getNumberOfBannedCheatCodesEntered();
 
 /* .data */
-static s32 sSecretCheatCodeRelatedValue = 0; // [port] was NULL — s32 field
+static s32 sSecretCheatCodeRelatedValue = 0;
 
 enum floor_letters_e {
     FLOOR_LETTER_J = 0x70,
@@ -117,7 +117,7 @@ static LetterFloorTile sLetterFloorTiles[] = {
     {0x34, FLOOR_LETTER_H, 0, 0.0f}, 
     {0x36, FLOOR_LETTER_B, 0, 0.0f}, 
     {0x38, FLOOR_LETTER_K, 0, 0.0f}, 
-    {0, 0, 0, 0.0f} // [port] was NULL — s16/u8 fields
+    {0, 0, 0, 0.0f}
 };
 
 static CheatCode sCheatCodes[0xD] = {
@@ -192,7 +192,7 @@ static LetterFloorTile* __maCastle_getFloorTileForMeshId(s32 mesh_id)
 {
     LetterFloorTile *i_ptr;
 
-    for (i_ptr = sLetterFloorTiles; i_ptr->meshId != 0; i_ptr++) // [port] was NULL — s16 comparison
+    for (i_ptr = sLetterFloorTiles; i_ptr->meshId != 0; i_ptr++)
     {
         if (i_ptr->meshId == mesh_id)
         {
@@ -655,7 +655,7 @@ bool maCastle_hasBanjoKazooieCodeBeenEntered(void)
     return NOT(sMapState.banjoKazooieCodeEnteredState < 2);
 }
 
-static s32 sThirdForbiddenSecretCheatCodeIndex = 0; // [port] was NULL — s32 field
+static s32 sThirdForbiddenSecretCheatCodeIndex = 0;
 
 #define VOLATILE_FLAG_CHEAT_OFFSET 0x14
 
@@ -830,7 +830,7 @@ static BannedCheatCodeRange sBannedCheatCodeRanges[4] = {
         VOLATILE_FLAG_7D_SANDCASTLE_RAISE_PIPES_TO_CC + VOLATILE_FLAG_CHEAT_OFFSET,
         VOLATILE_FLAG_93_SANDCASTLE_OPEN_CCW + VOLATILE_FLAG_CHEAT_OFFSET
     },
-    {0, 0} // [port] was NULL — s16 fields (sentinel)
+    {0, 0}
 };
 
 // shows the unlocked stop n swap item in a cutscene, arg3/arg4 might describe state / camera angle or something
@@ -856,7 +856,7 @@ static void __maCastle_resetSecretCheatCodeProgress(void)
 
 static u32 __maCastle_scrambleAddressForSecretCheatCode()
 {
-    uintptr_t addr = (uintptr_t)&sSecretsCheatCodes; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t addr = (uintptr_t)&sSecretsCheatCodes;
     uintptr_t scrambled;
     SecretCheatCode *i_ptr;
     u32 var_a3;
@@ -1101,7 +1101,7 @@ static bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor
     {
         matched_secret_cheat_codes = 0;
         // has entered "CHEAT" and is now entering "actual" cheat code
-        if (*(sSecretsCheatCodes[0].codeCharacterIdx + sSecretsCheatCodes[0].code) == 0) // [port] was NULL — int comparison
+        if (*(sSecretsCheatCodes[0].codeCharacterIdx + sSecretsCheatCodes[0].code) == 0)
         {
             // go through each secret cheat code
             for (var_v1 = 0; (sSecretsCheatCodes + var_v1)->code != NULL; var_v1++)
@@ -1150,7 +1150,7 @@ static bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor
         {
             // is the letter expected at the current cheat codes character index
             if (
-                ((sSecretsCheatCodes + secret_cheat_code_index)->codeCharacterIdx != 0) &&  // [port] was NULL — int comparison
+                ((sSecretsCheatCodes + secret_cheat_code_index)->codeCharacterIdx != 0) &&
                 (floor_tile->letter == (sSecretsCheatCodes + secret_cheat_code_index)->code[(sSecretsCheatCodes + secret_cheat_code_index)->codeCharacterIdx])
             )
             {
@@ -1160,7 +1160,7 @@ static bool __maCastle_isFloorTileValidForSecretCheatCode(LetterFloorTile *floor
                 // check if "next" expected character is zero-terminator, if true then cheat entered successfully
                 if ((sSecretsCheatCodes + secret_cheat_code_index)->code[(sSecretsCheatCodes + secret_cheat_code_index)->codeCharacterIdx] == '\0')
                 {
-                    if ((sSecretsCheatCodes + secret_cheat_code_index)->id != 0) // [port] was NULL — int comparison
+                    if ((sSecretsCheatCodes + secret_cheat_code_index)->id != 0)
                     {
                         __maCastle_checkIfBannedCheatCodeEntered(secret_cheat_code_index);
                     }

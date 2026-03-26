@@ -118,7 +118,7 @@ typedef struct ALLink_s {
 void    alUnlink(ALLink *element);
 void    alLink(ALLink *element, ALLink *after);
 
-typedef uintptr_t (*ALDMAproc)(uintptr_t addr, s32 len, void *state); // [port] was s32 addr/return, stores host pointers
+typedef uintptr_t (*ALDMAproc)(uintptr_t addr, s32 len, void *state);
 typedef ALDMAproc (*ALDMANew)(void *state);
 
 void    alCopy(void *src, void *dest, s32 len);
@@ -626,7 +626,7 @@ typedef struct {
         ALOscEvent      	osc;
         ALUnk18Event        unk18;
         ALUnk_Core1_3A70_Event unk3A70;
-        struct { // [port] generic pointer-width event data for BK sound player
+        struct {
             union { intptr_t i; f32 f; void *p; } data[3];
         } generic;
     } msg;

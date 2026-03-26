@@ -35,7 +35,7 @@ static void __chVegetables_update(Actor*);
 
 /* .data */
 static ActorAnimationInfo sChCarrotAnimations[5] = {
-    {0, 0.0f}, // [port] was NULL — u32 field
+    {0, 0.0f},
     {ASSET_223_ANIM_TOPPER_UNKNOWN, 1000000.0f},
     {ASSET_223_ANIM_TOPPER_UNKNOWN, 1.0f},
     {ASSET_224_ANIM_TOPPER_UNKNOWN, 0.75f},
@@ -55,7 +55,7 @@ ActorInfo gChVegetablesTopperB = {
 };
 
 static ActorAnimationInfo sChOnionAnimations[5] = {
-    {0, 0.0f}, // [port] was NULL — u32 field
+    {0, 0.0f},
     {ASSET_226_ANIM_BAWL_UNKNOWN, 1000000.0f},
     {ASSET_226_ANIM_BAWL_UNKNOWN, 1.0f},
     {ASSET_227_ANIM_BAWL_UNKNOWN, 0.75f},
@@ -75,7 +75,7 @@ ActorInfo gChVegetablesBawlB = {
 };
 
 static ActorAnimationInfo sChCauliflowerAnimations[5] = {
-    {0, 0.0f}, // [port] was NULL — u32 field
+    {0, 0.0f},
     {ASSET_225_ANIM_COLLYWOBBLE_UNKNOWN, 10000000.0f},
     {ASSET_225_ANIM_COLLYWOBBLE_UNKNOWN, 1.0f},
     {ASSET_225_ANIM_COLLYWOBBLE_UNKNOWN, 10000000.0f},

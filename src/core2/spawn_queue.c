@@ -168,7 +168,7 @@ typedef struct function_queue_s{
         void (* func4)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
         void (* func5)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
     };
-    uintptr_t  arg[5]; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t  arg[5];
     s32  arg_cnt;
 }FunctionQueue;
 
@@ -445,7 +445,7 @@ void spawnQueue_free(void){
 void spawnQueue_func_802C39D4(void){
     func_803268B4();
     if(!levelSpecificFlags_validateCRC2()){
-        eeprom_writeBlocks(0, 0, (void *)(uintptr_t)0x80749530, EEPROM_MAXBLOCKS); // [port] MIPS virtual address as void*
+        eeprom_writeBlocks(0, 0, (void *)(uintptr_t)0x80749530, EEPROM_MAXBLOCKS);
     }
 }
 
@@ -494,30 +494,30 @@ void spawnQueue_lock(void){
 }
 
 void __spawnQueue_add_0(void (* arg0)(void)){
-    u32 tmp = __spawnQueue_getMax(); // [port] was hardcoded 15/50
+    u32 tmp = __spawnQueue_getMax();
     if(tmp != spawnQueueLength){
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg_cnt = 0;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_0 entry", tmp); // [port]
+        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_0 entry", tmp);
     }
 }
 
 void __spawnQueue_add_1(GenFunction_1 arg0, uintptr_t arg1){
-    u32 tmp = __spawnQueue_getMax(); // [port] was hardcoded 15/50
+    u32 tmp = __spawnQueue_getMax();
     if(tmp != spawnQueueLength){
         spawnQueue[spawnQueueLength].func0 = (void (*)(void))arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg_cnt = 1;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_1 entry", tmp); // [port]
+        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_1 entry", tmp);
     }
 }
 
 void __spawnQueue_add_2(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2){
-    u32 tmp = __spawnQueue_getMax(); // [port] was hardcoded 15/50
+    u32 tmp = __spawnQueue_getMax();
     if(tmp != spawnQueueLength){
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
@@ -525,12 +525,12 @@ void __spawnQueue_add_2(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2){
         spawnQueue[spawnQueueLength].arg_cnt = 2;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_2 entry", tmp); // [port]
+        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_2 entry", tmp);
     }
 }
 
 void __spawnQueue_add_3(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uintptr_t arg3){
-    u32 tmp = __spawnQueue_getMax(); // [port] was hardcoded 15/50
+    u32 tmp = __spawnQueue_getMax();
     if(tmp != spawnQueueLength){
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
@@ -539,12 +539,12 @@ void __spawnQueue_add_3(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uin
         spawnQueue[spawnQueueLength].arg_cnt = 3;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_3 entry", tmp); // [port]
+        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_3 entry", tmp);
     }
 }
 
 void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4){
-    u32 tmp = __spawnQueue_getMax(); // [port] was hardcoded 15/50
+    u32 tmp = __spawnQueue_getMax();
     if(tmp != spawnQueueLength){
         spawnQueue[spawnQueueLength].func0 = (void (*)(void))arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
@@ -554,12 +554,12 @@ void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uint
         spawnQueue[spawnQueueLength].arg_cnt = 4;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_4 entry", tmp); // [port]
+        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_4 entry", tmp);
     }
 }
 
 void __spawnQueue_add_5(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5){
-    u32 tmp = __spawnQueue_getMax(); // [port] was hardcoded 15/50
+    u32 tmp = __spawnQueue_getMax();
     if(tmp != spawnQueueLength){
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
@@ -570,7 +570,7 @@ void __spawnQueue_add_5(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uin
         spawnQueue[spawnQueueLength].arg_cnt = 5;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_5 entry", tmp); // [port]
+        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_5 entry", tmp);
     }
 }
 
@@ -587,7 +587,7 @@ Actor *spawnQueue_actor_s16(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintpt
     position[0] = reinterpret_cast(s16, x);
     position[1] = reinterpret_cast(s16, y);
     position[2] = reinterpret_cast(s16, z);
-    return actor_spawnWithYaw_s16(reinterpret_cast(enum actor_e, actor_id), &position, 0); // [port] s16* to s16(*)[3]
+    return actor_spawnWithYaw_s16(reinterpret_cast(enum actor_e, actor_id), &position, 0);
 }
 
 Actor *spawnQueue_actor_s32(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintptr_t z) {
@@ -595,7 +595,7 @@ Actor *spawnQueue_actor_s32(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintpt
     position[0] = reinterpret_cast(s32, x);
     position[1] = reinterpret_cast(s32, y);
     position[2] = reinterpret_cast(s32, z);
-    return actor_spawnWithYaw_s32(reinterpret_cast(enum actor_e, actor_id), &position, 0); // [port] s32* to s32(*)[3]
+    return actor_spawnWithYaw_s32(reinterpret_cast(enum actor_e, actor_id), &position, 0);
 }
 
 Actor *spawnQueue_bundle_f32(uintptr_t bundle_id, uintptr_t x, uintptr_t y, uintptr_t z) {
@@ -631,7 +631,7 @@ Actor *spawnQueue_bundle_s32_2(uintptr_t bundle_id, uintptr_t x, uintptr_t y, ui
     return bundle_spawn_s32(bundle_id, position);
 }
 
-void spawnQueue_defrag(void *arg0_) { // [port] void* for prototype compatibility
+void spawnQueue_defrag(void *arg0_) {
     FunctionQueue *arg0 = (FunctionQueue *)arg0_;
     if ((arg0 = spawnQueue) != NULL) {
         spawnQueue = (FunctionQueue *) defrag(spawnQueue);

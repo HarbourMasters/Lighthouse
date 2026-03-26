@@ -78,12 +78,12 @@ void n_alSynNew(ALSynConfig *c)
          * Allocate an effect and set parameters
          */
         n_syn->auxBus->fx = n_alSynAllocFX(0, c, hp);
-        n_syn->mainBus->filter.handler = (N_ALCmdHandler)&n_alFxPull; // [port]
+        n_syn->mainBus->filter.handler = (N_ALCmdHandler)&n_alFxPull;
     } else{
         /*
          * Connect the aux bus to the main bus
          */
-        n_syn->mainBus->filter.handler = (N_ALCmdHandler)&n_alAuxBusPull; // [port]
+        n_syn->mainBus->filter.handler = (N_ALCmdHandler)&n_alAuxBusPull;
     }
     /*
      * Build the physical voice lists

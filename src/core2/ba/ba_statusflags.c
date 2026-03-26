@@ -55,7 +55,7 @@ void func_80323240(struct56s *arg0, f32 arg1, f32 arg2[3]){
     else if(1.0f < arg1)
         arg1 = 1.0f;
 
-    func_80341180(arg1, arg0->unk0, 3, arg0->unk8[0], arg2); // [port] f32(*)[3] -> f32*
+    func_80341180(arg1, arg0->unk0, 3, arg0->unk8[0], arg2);
 }
 
 f32 func_803232AC(f32 *arg0, f32 arg1, f32 arg2, s32 arg3, f32 arg4) {
@@ -69,7 +69,7 @@ f32 func_803232AC(f32 *arg0, f32 arg1, f32 arg2, s32 arg3, f32 arg4) {
         return 0.0f;
     }
     var_f20 = arg1;
-    func_80341180(var_f20, arg3, 3, arg0, sp6C); // [port] &sp6C -> sp6C: f32[3] decays to f32*
+    func_80341180(var_f20, arg3, 3, arg0, sp6C);
     while(var_f20 + arg4 < arg2){
         var_f20 += arg4;
         func_80341180(var_f20, arg3, 3, arg0, sp60);
@@ -92,7 +92,7 @@ f32 func_803233F8(struct56s *arg0) {
     var_f22 = 0.005f;
     var_f24 = 0.0f;
     temp_s0 = arg0->unk0;
-    var_a0 = arg0->unk8[0]; // [port] f32(*)[3] -> f32*
+    var_a0 = arg0->unk8[0];
     do{
         temp_f26 = var_f24;
         var_f24 = func_803232AC(var_a0, 0.0f, 1.0f, temp_s0, var_f22);
@@ -108,7 +108,7 @@ f32 func_803234FC(struct56s *arg0, f32 arg1, f32 arg2) {
     f32 *var_a0;
 
     var_a3 = arg0->unk0;
-    var_a0 = arg0->unk8[0]; // [port] f32(*)[3] -> f32*
+    var_a0 = arg0->unk8[0];
     return func_803232AC(var_a0, arg1, arg2, var_a3, 0.0001f);
 }
 
@@ -118,7 +118,7 @@ f32 func_80323540(struct56s *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 temp_f8;
 
     var_a3 = arg0->unk0;
-    var_a0 = arg0->unk8[0]; // [port] f32(*)[3] -> f32*
+    var_a0 = arg0->unk8[0];
     temp_f8 = (arg2 - arg1) / arg3;
     return func_803232AC(var_a0, arg1, arg2, var_a3, temp_f8);
 }
@@ -130,7 +130,7 @@ f32 func_8032358C(struct56s *arg0, f32 arg1[3]) {
     f32 (*end)[3];
 
     count = arg0->unk0;
-    i_ptr = arg0->unk8; // [port] unk8 is f32(*)[3], no [0] needed for f32(*)[3] target
+    i_ptr = arg0->unk8;
     end = i_ptr + count;
     for( i = 0; i_ptr != end; i_ptr++, i++){
         if( ((*i_ptr)[0] == arg1[0]) && ((*i_ptr)[1] == arg1[1]) && ((*i_ptr)[2] == arg1[2])) {
@@ -148,7 +148,7 @@ f32 func_803237E8(struct56s *arg0) {
     f32 (*end)[3];
 
     count = arg0->unk0;
-    i_ptr = arg0->unk8; // [port] unk8 is f32(*)[3], no [0] needed for f32(*)[3] target
+    i_ptr = arg0->unk8;
     end = i_ptr + count - 1;
     for( i = 0; i_ptr != end; i_ptr++, i++){
         if( ((*i_ptr)[0] == (*end)[0]) && ((*i_ptr)[1] == (*end)[1]) && ((*i_ptr)[2] == (*end)[2])) {
@@ -185,7 +185,7 @@ f32 func_80323A48(f32 arg0[3], s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     }
 
     spB8 = (f64) arg2;
-    func_80341180(spB8, arg1, 3, arg0, spF4); // [port] &spF4 -> spF4
+    func_80341180(spB8, arg1, 3, arg0, spF4);
     // sp78 = (f64) arg3;
 
     do{
@@ -201,8 +201,8 @@ f32 func_80323A48(f32 arg0[3], s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
                     var_f24 = var_f24 - (s32)var_f24;
                     func_80341180(1.0f, arg1, 3, arg0, spDC);
                     ml_vec3f_diff_copy(spD0, spDC, spF4);
-                    func_80341180(arg4, arg1, 3, arg0, spE8); // [port] &spE8 -> spE8
-                    func_80341180(var_f24, arg1, 3, arg0, spDC); // [port] &spDC -> spDC
+                    func_80341180(arg4, arg1, 3, arg0, spE8);
+                    func_80341180(var_f24, arg1, 3, arg0, spDC);
                     ml_vec3f_diff_copy(spC4, spDC, spE8);
                     func_80258CDC(spD0, spC4);
                     var_f22 = var_f26 + gu_sqrtf(spD0[0]*spD0[0] + spD0[1]*spD0[1] + spD0[2]*spD0[2]);
@@ -215,26 +215,26 @@ f32 func_80323A48(f32 arg0[3], s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
             if (arg4 == 1.0) {
                 if (var_f24 < 0.0) {
                     var_f24 = 0;
-                    func_80341180(var_f24, arg1, 3, arg0, spDC); // [port] &spDC -> spDC
-                    var_f22 = var_f26 + ml_vec3f_length(spF4, spDC); // [port] &spF4/&spDC -> spF4/spDC
+                    func_80341180(var_f24, arg1, 3, arg0, spDC);
+                    var_f22 = var_f26 + ml_vec3f_length(spF4, spDC);
                 } else {
-                    func_80341180(var_f24, arg1, 3, arg0, spDC); // [port] &spDC -> spDC
-                    var_f22 = var_f26 + ml_vec3f_length(spF4, spDC); // [port] &spF4/&spDC -> spF4/spDC
+                    func_80341180(var_f24, arg1, 3, arg0, spDC);
+                    var_f22 = var_f26 + ml_vec3f_length(spF4, spDC);
                 }
             } else if (var_f24 < arg4) {
                 var_f24 -= arg4;
                 var_f24 = (var_f24 - (s32)var_f24);
                 var_f24 += 1.0;
-                func_80341180(arg4, arg1, 3, arg0, spDC); // [port] &spDC -> spDC
-                ml_vec3f_diff_copy(spD0, spDC, spF4); // [port] & removed from f32[3] args
-                func_80341180(1.0f, arg1, 3, arg0, spE8); // [port] &spE8 -> spE8
-                func_80341180((f32) var_f24, arg1, 3, arg0, spDC); // [port] &spDC -> spDC
-                ml_vec3f_diff_copy(spC4, spDC, spE8); // [port] & removed from f32[3] args
-                func_80258CDC(spD0, spC4); // [port] & removed from f32[3] args
+                func_80341180(arg4, arg1, 3, arg0, spDC);
+                ml_vec3f_diff_copy(spD0, spDC, spF4);
+                func_80341180(1.0f, arg1, 3, arg0, spE8);
+                func_80341180((f32) var_f24, arg1, 3, arg0, spDC);
+                ml_vec3f_diff_copy(spC4, spDC, spE8);
+                func_80258CDC(spD0, spC4);
                 var_f22 = var_f26 + gu_sqrtf(spD0[0]*spD0[0] + spD0[1]*spD0[1] + spD0[2]*spD0[2]);
             } else {
-                func_80341180(var_f24, arg1, 3, arg0, spDC); // [port] &spDC -> spDC
-                var_f22 = var_f26 + ml_vec3f_length(spF4, spDC); // [port] &spF4/&spDC -> spF4/spDC
+                func_80341180(var_f24, arg1, 3, arg0, spDC);
+                var_f22 = var_f26 + ml_vec3f_length(spF4, spDC);
             }
         }
 
@@ -242,7 +242,7 @@ f32 func_80323A48(f32 arg0[3], s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
         if ((var_f22 < arg3) || sp94) {
             var_f26 = var_f22;
             spB8 = var_f24;
-            ml_vec3f_copy(spF4, spDC); // [port] &spF4/&spDC -> spF4/spDC
+            ml_vec3f_copy(spF4, spDC);
             if (arg4 == 1.0) {
                 if (var_f28 > 0.0) {
                     if (spB8 == arg4) {
@@ -265,7 +265,7 @@ f32 func_80323F74(struct56s * arg0, f32 arg1, f32 arg2) {
     f32 dt, advance, result;
 
     sp2C = arg0->unk0;
-    sp28 = arg0->unk8[0]; // [port] f32(*)[3] -> f32*
+    sp28 = arg0->unk8[0];
     dt = time_getDelta();
     advance = dt * arg2;
     result = func_80323A48(sp28, sp2C, arg1, advance, func_803237E8(arg0));
@@ -292,7 +292,7 @@ f32 func_80324078(struct56s *arg0, f32 arg1, f32 arg2) {
     s32 sp24;
 
     sp24 = arg0->unk0;
-    return func_80323A48(arg0->unk8[0], sp24, arg1, (f32) (arg2 * (1.0/30.0)), func_803237E8(arg0)); // [port] f32(*)[3] -> f32*
+    return func_80323A48(arg0->unk8[0], sp24, arg1, (f32) (arg2 * (1.0/30.0)), func_803237E8(arg0));
 }
 
 f32 func_803240E0(struct56s *arg0, f32 arg1, f32 arg2, bool *arg3) {
@@ -319,7 +319,7 @@ void func_8032417C(struct56s *arg0, f32 arg1, f32 arg2[3], f32 arg3[3]) {
     f32 sp44[3];
 
     sp64 = arg0->unk0;
-    sp60 = arg0->unk8[0]; // [port] f32(*)[3] -> f32*
+    sp60 = arg0->unk8[0];
 
     if ((arg1 + 0.0001) >= 1.0) {
         arg1 -= 0.0001;

@@ -1069,7 +1069,6 @@ void GameEngine::AudioExit() {
     }
 }
 
-// [port] GPU→CPU framebuffer readback — defined in Game.cpp
 void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter);
 extern "C" int port_isViBlack(void);
 

@@ -1,8 +1,8 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 
-extern void port_requestReadback(void); // [port]
-extern BKSpriteTextureBlock *func_8033EFB0(void *, s32); // [port] forward declare to avoid implicit int return
+extern void port_requestReadback(void);
+extern BKSpriteTextureBlock *func_8033EFB0(void *, s32);
 
 #define IA8_I(ia) ((ia) >> 4)
 #define IA8_A(ia) ((ia) & 0xF)
@@ -23,7 +23,7 @@ static s32 sBufferIndex;
 void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled)
 {
     BKSpriteFrame *sprite_frame;
-    uintptr_t palette_offset; // [port] was s32, stores pointer arithmetic
+    uintptr_t palette_offset;
     u16 *palette;
     s32 fb_y;
     s32 fb_x;
@@ -47,18 +47,18 @@ void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
     }
     
     //align palette
-    for(palette_offset = (uintptr_t) (sprite_frame + 1); palette_offset % 8; palette_offset++){ // [port] uintptr_t
+    for(palette_offset = (uintptr_t) (sprite_frame + 1); palette_offset % 8; palette_offset++){
         continue;
     }
-    palette = (u16*)palette_offset; // [port] uintptr_t to pointer
+    palette = (u16*)palette_offset;
     
     chunk = (BKSpriteTextureBlock *) (palette + 16);
     for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
         //align texture
         tmem = (u8 *) (chunk + 1);
-        while (((uintptr_t) tmem) % 8) // [port] was s32
+        while (((uintptr_t) tmem) % 8)
         {
-            tmem = (u8 *)(((uintptr_t) tmem) + 1); // [port] was s32
+            tmem = (u8 *)(((uintptr_t) tmem) + 1);
         }
         
         //copy texture to framebuffer
@@ -78,7 +78,7 @@ void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
                           *pxl_ptr = color1;
                         } else if (!alpha_enabled) {
                           *pxl_ptr = (unsigned long) 1;
-                          palette_offset = (uintptr_t)(u16 *) (sprite_frame + 1); // [port] cast to uintptr_t — THIS IS GARBAGE for correct reg alloc
+                          palette_offset = (uintptr_t)(u16 *) (sprite_frame + 1);
                         }
                         if (palette[indx2] & 1) { 
                             pxl_ptr[1] = palette[indx2];
@@ -110,7 +110,7 @@ void framebufferdraw_draw_CI8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
     BKSpriteFrame *sprite_frame;
     u16 *framebuffer;
     s32 indx;
-    uintptr_t palette_unaligned; // [port] was s32, stores pointer for alignment
+    uintptr_t palette_unaligned;
     D_80275C00++;
     if (D_80275C00 == 0xA) {
         D_80275C00 = 0;
@@ -123,15 +123,15 @@ void framebufferdraw_draw_CI8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
     }
 
     palette = (u16 *) (sprite_frame + 1);
-    for (palette_unaligned = (uintptr_t)palette; ((uintptr_t) palette_unaligned) % 8; palette_unaligned++){ // [port] was (s32) — pointer truncation for alignment check
+    for (palette_unaligned = (uintptr_t)palette; ((uintptr_t) palette_unaligned) % 8; palette_unaligned++){
         ;
     }
-    palette = (u16 *)palette_unaligned; // [port] uintptr_t back to u16*
+    palette = (u16 *)palette_unaligned;
     
     chunk = (BKSpriteTextureBlock *) (palette + 0x100);
     for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++){
-        palette_unaligned = (uintptr_t)(u16 *) (chunk + 1); // [port] store as uintptr_t
-        for (tmem = (u8 *) (chunk + 1); ((uintptr_t) tmem) % 8; tmem++){ // [port] was u16*, s32
+        palette_unaligned = (uintptr_t)(u16 *) (chunk + 1);
+        for (tmem = (u8 *) (chunk + 1); ((uintptr_t) tmem) % 8; tmem++){
             ;
         }
 
@@ -371,7 +371,7 @@ void framebufferdraw_draw_I8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alph
                 txtr_ptr += 1;
             }
         }
-        chunk_ptr = (BKSpriteTextureBlock *) txtr_ptr; // [port] was BKSpriteFrame
+        chunk_ptr = (BKSpriteTextureBlock *) txtr_ptr;
     }
 }
 
@@ -418,7 +418,7 @@ void framebufferdraw_draw_IA8(s32 x, s32 y, BKSprite *sprite, s32 frame, bool al
                 var_t2++;
             }
         }
-        chunk_ptr = (BKSpriteTextureBlock *) var_t2; // [port] was BKSpriteFrame
+        chunk_ptr = (BKSpriteTextureBlock *) var_t2;
     }
 }
 
@@ -456,7 +456,7 @@ void framebufferdraw_draw_RGBA32(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 
             && (chunk_ptr->y >= (-5))) && (chunk_ptr->y < 0x29)
         ) {
             tmem = (u32 *) (1 + chunk_ptr);
-            while (((uintptr_t) tmem) % 8) // [port] was s32
+            while (((uintptr_t) tmem) % 8)
             {
                 tmem++;
             }
@@ -491,7 +491,7 @@ void framebufferdraw_draw_RGBA32(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 
                 }
 
             }
-            chunk_ptr = (BKSpriteTextureBlock *) tmem; // [port] was BKSpriteFrame
+            chunk_ptr = (BKSpriteTextureBlock *) tmem;
         }
     }
 }

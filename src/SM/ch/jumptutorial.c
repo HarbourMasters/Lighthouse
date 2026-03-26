@@ -18,7 +18,7 @@ enum chJumpTutorial_state_e {
 };
 
 ActorInfo gChJumpTutorial = {
-    MARKER_1ED_JUMP_TUTORIAL, ACTOR_3B9_JUMP_TUTORIAL, 0, // [port] was NULL, use 0 for s16 modelId
+    MARKER_1ED_JUMP_TUTORIAL, ACTOR_3B9_JUMP_TUTORIAL, 0,
     1, NULL,
     chJumpTutorial_update, actor_update_func_80326224, func_80325340,
     0, 0, 0.0f, 0
@@ -42,7 +42,7 @@ void __chJumpTutorial_textCallback(ActorMarker *caller, enum asset_e text_id, s3
 void chJumpTutorial_setState(Actor *this, s32 state) {
     switch (state) {
         case JUMP_TUTORIAL_STATE_2_TEACHING://L8038A50C
-            this->sm_4070.dialog_id = 0; // [port] was NULL, use 0 for s32
+            this->sm_4070.dialog_id = 0;
             player_getPosition(this->velocity);
             func_8028F918(0);
 
@@ -140,7 +140,7 @@ void chJumpTutorial_update(Actor *this) {
 
                     gcdialog_showText(dialog_id, 0xe, this->unk1C, this->marker, __chJumpTutorial_textCallback, NULL);
                     mapSpecificFlags_set(SM_SPECIFIC_FLAG_A, false);
-                    this->sm_4070.dialog_id = 0; // [port] was NULL, use 0 for s32
+                    this->sm_4070.dialog_id = 0;
                 }
             }//L8038A828
 

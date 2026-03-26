@@ -76,7 +76,6 @@ void chmumbo_func_802D1724(void){
 }
 
 static s32 __transformation_getCost(enum transformation_e trans_id){
-    // [port] BB romhacks can override mumbo token costs
     s32 override = port_getRomhackMumboCost(trans_id);
     if (override >= 0) {
         return override;

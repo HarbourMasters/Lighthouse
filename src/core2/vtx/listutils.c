@@ -55,7 +55,7 @@ void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3],
 
     if (collision_list->unk12 == 0) {
         D_8037E910.unk190 = &D_8037E910.unk0[0];
-        *(D_8037E910.unk190++) = (BKCollisionGeo *)((uintptr_t)collision_list + sizeof(BKCollisionList)); // [port] was (s32)
+        *(D_8037E910.unk190++) = (BKCollisionGeo *)((uintptr_t)collision_list + sizeof(BKCollisionList));
         *arg3 = &D_8037E910.unk0[0];
         *arg4 = D_8037E910.unk190;
     }
@@ -113,7 +113,7 @@ void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCo
 
     if (collision_list->unk12 == 0) {
         D_8037E910.unk190 = &D_8037E910.unk0[0];
-        *(D_8037E910.unk190++) = (BKCollisionGeo *)((uintptr_t)collision_list + sizeof(BKCollisionList)); // [port] was (s32)
+        *(D_8037E910.unk190++) = (BKCollisionGeo *)((uintptr_t)collision_list + sizeof(BKCollisionList));
         *begin_geo_ptr = &D_8037E910.unk0[0];
         *end_geo_ptr = D_8037E910.unk190;
     }
@@ -180,8 +180,8 @@ s32 func_802E7408(BKCollisionList *collisionList) {
     s32 phi_v1;
 
     phi_v1 = 0;
-    temp_a2 = (BKCollisionTri *)((collisionList->unk10 * 4) + (uintptr_t)collisionList + sizeof(BKCollisionList)); // [port] was (s32)
-    temp_a1 = (BKCollisionTri *)((collisionList->unk14 * 0xC) + (uintptr_t)temp_a2); // [port] was (s32)
+    temp_a2 = (BKCollisionTri *)((collisionList->unk10 * 4) + (uintptr_t)collisionList + sizeof(BKCollisionList));
+    temp_a1 = (BKCollisionTri *)((collisionList->unk14 * 0xC) + (uintptr_t)temp_a2);
     for(phi_a2 = temp_a2; phi_a2 < temp_a1; phi_a2++){
         if(phi_a2->flags & 0x1E0000){
             phi_v1++;
@@ -195,8 +195,8 @@ s32 func_802E7468(BKCollisionList *collisionList){
 }
 
 void collisionList_getTris(BKCollisionList *collision_list, BKCollisionTri **begin_ptr, BKCollisionTri **end_ptr){
-    *begin_ptr = (BKCollisionTri *)((collision_list->unk10 * 4) + (uintptr_t)collision_list + sizeof(BKCollisionList)); // [port] was (s32)
-    *end_ptr = (BKCollisionTri *)((collision_list->unk14 * 0xC) + (uintptr_t)*begin_ptr); // [port] was (s32)
+    *begin_ptr = (BKCollisionTri *)((collision_list->unk10 * 4) + (uintptr_t)collision_list + sizeof(BKCollisionList));
+    *end_ptr = (BKCollisionTri *)((collision_list->unk14 * 0xC) + (uintptr_t)*begin_ptr);
 }
 
 
@@ -408,7 +408,7 @@ BKCollisionTri *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vert
 BKCollisionTri *func_802E805C(BKCollisionList *collision_list, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7[3], u32 arg8){
     f32 sp44[3];
     f32 sp38[3];
-    BKCollisionTri *sp34; // [port] was int — truncates 64-bit pointer return from func_802E76B0
+    BKCollisionTri *sp34;
     int i;
 
     if(!func_802E74A0(arg2, vtxList->global_norm*arg4, arg5, arg6)){
@@ -747,15 +747,15 @@ BKCollisionTri *func_802E9118(BKCollisionList * collision_list, BKVertexList *vt
     }
     mlMtxIdent();
     func_80252CC4(arg2, arg3, arg4, 0);
-    mlMtx_apply_vec3f(sp4C, arg5); // [port] &sp4C -> sp4C: f32[3] decays to f32*
-    mlMtx_apply_vec3f(sp40, arg6); // [port] &sp40 -> sp40: f32[3] decays to f32*
-    sp3C = func_802E8E88(collision_list, vtx_list, sp4C, sp40, arg7 / arg4, arg8, arg9, flagFilter); // [port] & removed from f32[3] args
+    mlMtx_apply_vec3f(sp4C, arg5);
+    mlMtx_apply_vec3f(sp40, arg6);
+    sp3C = func_802E8E88(collision_list, vtx_list, sp4C, sp40, arg7 / arg4, arg8, arg9, flagFilter);
     if (sp3C == NULL) {
         return NULL;
     }
     mlMtxIdent();
     func_80252C08(arg2, arg3, arg4, 0);
-    mlMtx_apply_vec3f(arg6, sp40); // [port] &sp40 -> sp40: f32[3] decays to f32*
+    mlMtx_apply_vec3f(arg6, sp40);
     mlMtxIdent();
     func_80252C08(NULL, arg3, 1.0f, 0);
     mlMtx_apply_vec3f(arg8, arg8);
@@ -985,7 +985,7 @@ BKCollisionTri *func_802E9DD8(BKCollisionList *collisionList, BKVertexList *vtxL
     mlMtxIdent();
     func_80252CC4(posA, rotA, scaleA, NULL);
     mlMtx_apply_vec3f(sp34, posB);
-    sp30 = func_802E92AC(collisionList, vtxList, sp34, radB / scaleA, arg7, arg8); // [port] &sp34 -> sp34: f32[3] decays to f32*
+    sp30 = func_802E92AC(collisionList, vtxList, sp34, radB / scaleA, arg7, arg8);
     if (sp30 == 0) {
         return NULL;
     }

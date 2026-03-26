@@ -132,7 +132,7 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        __spawnQueue_add_2((void (*)(void)) __chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4); // [port] explicit cast
+        __spawnQueue_add_2((void (*)(void)) __chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4);
         __chjujuhitbox_playRubbingSfx(this);
         return;
     }

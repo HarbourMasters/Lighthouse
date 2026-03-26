@@ -317,7 +317,7 @@ void func_802B5350(void){
         if(bsStoredState_getTransformation() != TRANSFORM_1_BANJO)
             func_8029A86C(1);
         else{
-            bacarry_set_marker((ActorMarker *)(intptr_t)baMarker_8028D688()); // [port] s32 to ActorMarker* — N64 stored pointer as s32
+            bacarry_set_marker((ActorMarker *)(intptr_t)baMarker_8028D688());
             bs_setState(BS_3A_CARRY_IDLE);
         }
     }

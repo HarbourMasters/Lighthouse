@@ -2,9 +2,9 @@
 #include "functions.h"
 #include "variables.h"
 
-extern s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList *arg5, f32 arg6[3], f32 arg7, f32 arg8[3]); // [port] was UNK_TYPE(s32) params — pointer truncation
+extern s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList *arg5, f32 arg6[3], f32 arg7, f32 arg8[3]);
 
-Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4_unused); // [port] matched to Struct6Cs.unkC signature
+Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4_unused);
 Actor *func_8038C1F8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_8038C9A0(Actor *this);
 
@@ -59,8 +59,8 @@ s32 D_803920B0[4] =  {0xFF, 0xFF, 0xFF, 0x00};
 
 
 /* .code */
-Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4_unused){ // [port] matched to Struct6Cs.unkC
-    BKModelUnk14List *sp5C = func_8033A12C(marker_loadModelBin(marker)); // [port] was UNK_TYPE(s32) — pointer truncation
+Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4_unused){
+    BKModelUnk14List *sp5C = func_8033A12C(marker_loadModelBin(marker));
     Actor *this = marker_getActor(marker);
     f32 sp4C[3];
     f32 sp40[3];
@@ -75,7 +75,7 @@ Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s3
     sp40[2] = (f32)marker->roll;
     sp3C = this->scale;
     if(animMtxList_len(marker->unk20)){
-        return (Actor *)(intptr_t)func_802EBAE0(sp5C, sp4C, sp40, sp3C, NULL, marker->unk20, arg1, arg2, arg3); // [port] s32 return → Actor *
+        return (Actor *)(intptr_t)func_802EBAE0(sp5C, sp4C, sp40, sp3C, NULL, marker->unk20, arg1, arg2, arg3);
     }
     else{
         return NULL;

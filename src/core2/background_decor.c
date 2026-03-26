@@ -89,7 +89,7 @@ Actor *func_802E0738(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     f32 sp34[3];
     Actor *this;
 
-    this = marker_getActorAndRotation(marker, sp34); // [port] &sp34 -> sp34: f32[3] decays to f32*
+    this = marker_getActorAndRotation(marker, sp34);
     modelRender_preDraw( (GenFunction_1)func_802E0710, (uintptr_t)this);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
     modelRender_draw(gfx, mtx, this->position, sp34, this->scale, NULL, marker_loadModelBin(marker));

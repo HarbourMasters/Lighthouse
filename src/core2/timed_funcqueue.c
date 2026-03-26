@@ -20,7 +20,7 @@ typedef struct timed_function_queue_s{
         GenFunction_5 func5;
         GenFunction_6 func6;
     };
-    uintptr_t  arg[25]; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t  arg[25];
 
 }TimedFunction;
 
@@ -291,7 +291,7 @@ void timedFuncQueue_free(void){
 }
 
 void timedFuncQueue_init(void){
-    D_80383380.ptr = bk_vector_new(sizeof(TimedFunction), 0x10); // [port] was 0x70, now sizeof for 64-bit
+    D_80383380.ptr = bk_vector_new(sizeof(TimedFunction), 0x10);
     D_80383380.time = 0.0f;
 }
 
@@ -327,5 +327,5 @@ void mapSpecificFlags_setTrue(s32 flag){
 }
 
 void timed_mapSpecificFlags_setTrue(f32 time, s32 flag){
-    timedFunc_set_1(time, (GenFunction_1)mapSpecificFlags_setTrue, flag); // [port]
+    timedFunc_set_1(time, (GenFunction_1)mapSpecificFlags_setTrue, flag);
 }

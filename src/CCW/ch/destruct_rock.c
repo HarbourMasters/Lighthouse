@@ -78,7 +78,7 @@ void func_8038D6D8(Actor *this, s32 next_state) {
         FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.9f, 15000);
         func_80324E38(0.0f, 3);
         timed_setStaticCameraToNode(0.5f, 3);
-        timedFunc_set_2(0.5f, (GenFunction_2)levelSpecificFlags_set, LEVEL_FLAG_25_CCW_UNKNOWN, true); // [port]
+        timedFunc_set_2(0.5f, (GenFunction_2)levelSpecificFlags_set, LEVEL_FLAG_25_CCW_UNKNOWN, true);
         timed_exitStaticCamera(4.0f);
         func_80324E38(4.0f, 0);
         local->unk0 = 0.5f;

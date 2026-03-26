@@ -67,7 +67,7 @@ void func_8031A678(Actor *this){
     Struct6Ds *sp2C;
     f32 sp20[3];
 
-    { Struct70s *tmp_s70 = func_8034C528(0x190); sp2C = tmp_s70 ? &tmp_s70->type_6D : NULL; } // [port] split UB
+    { Struct70s *tmp_s70 = func_8034C528(0x190); sp2C = tmp_s70 ? &tmp_s70->type_6D : NULL; }
     switch (this->unk10_12) {
         case MINIGAME_0_BOSS_BOOM_BOX:
             sp20[0] = -2000.0f;
@@ -86,12 +86,12 @@ void func_8031A678(Actor *this){
             break;
 
         case MINIGAME_5_SANDCASTLE:
-            { Struct70s *tmp_s70 = func_8034C528(0x191); sp2C = tmp_s70 ? &tmp_s70->type_6D : NULL; } // [port] split UB
+            { Struct70s *tmp_s70 = func_8034C528(0x191); sp2C = tmp_s70 ? &tmp_s70->type_6D : NULL; }
             if(sp2C) func_8034DEB4(sp2C, -1000.0f);
             break;
 
         case MINIGAME_2_GV_MATCHING:
-            { Struct70s *tmp_s70 = func_8034C528(0x1E7); sp2C = tmp_s70 ? &tmp_s70->type_6D : NULL; } // [port] split UB
+            { Struct70s *tmp_s70 = func_8034C528(0x1E7); sp2C = tmp_s70 ? &tmp_s70->type_6D : NULL; }
             if(sp2C) func_8034DEB4(sp2C, -1000.0f);
             break;
 

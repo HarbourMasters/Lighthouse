@@ -615,7 +615,7 @@ void func_802AD318(void){
 void bscroc_eat_good_init(void){
     baanim_playForDuration_loopSmooth(ASSET_122_ANIM_BSCROC_BITE, 0.25f);
     func_8029C7F4(1,1,1, BA_PHYSICS_NORMAL);
-    baModel_setPostDraw((void (*)(Gfx **, Mtx **, Vtx **))func_802AD2A8); // [port]
+    baModel_setPostDraw((void (*)(Gfx **, Mtx **, Vtx **))func_802AD2A8);
     D_8037D3E8 = assetcache_get(func_80294974());
     D_8037D3F0 = 1.0f;
     D_8037D3F5 = 0;

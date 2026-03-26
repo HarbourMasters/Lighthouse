@@ -10,7 +10,7 @@ static void __chClam_updateFunc(Actor *this);
 
 /* .data */
 ActorAnimationInfo gChClamAnimations[4] = {
-    {0, 0.0f}, // [port] was NULL — u32 field
+    {0, 0.0f},
     {ASSET_AA_ANIM_CLAM_IDLE, 2.0f},
     {ASSET_24_ANIM_CLAM_HOP,  1.0f},
     {ASSET_AB_ANIM_CLAM_EAT,  0.6f}

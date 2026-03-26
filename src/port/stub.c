@@ -114,7 +114,6 @@ void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target) {
     __gSPSegment(value, segNum, target);
 }
 
-// [port] Override gDPSetTextureImage to pass all texture addresses through safely.
 // The OtrSignatureCheck and gfx_check_image_signature in LUS have been patched to
 // handle raw heap pointers without crashing (byte-by-byte check, address filtering).
 // Raw sprite texture data embedded in BKSprite structures passes through as-is;
@@ -179,7 +178,6 @@ void func_80253010(void* dest, void* src, s32 size) {
     memcpy(dest, src, size);
 }
 
-// [port] Stub out native motor calls
 #if 0
 s32 osMotorStop(void* pfs) {
     return 0;

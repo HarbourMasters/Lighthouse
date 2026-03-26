@@ -5,7 +5,7 @@
 #include "bk_math.h"
 
 int collisionTri_isHitFromAbove_actor(f32 arg0[3], Actor *arg1, s32 arg2);
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32); // [port] was bool — returns BKCollisionTri*
+extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 extern bool func_80323240(struct56s *, f32, f32[3]);
 extern BKCollisionTri *func_80320B98(f32[3], f32[3], f32[3], u32);
 extern BKCollisionTri *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
@@ -174,7 +174,7 @@ bool func_80245314(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4) {
     return temp_v0;
 }
 
-bool func_802453A0(f32 arg0[3], f32 arg1[3], u32 arg2){ // [port] arg2 was f32[3] — actually u32 flags passed to func_80320B98
+bool func_802453A0(f32 arg0[3], f32 arg1[3], u32 arg2){
     f32 sp24[3];
     f32 sp18[3];
     ml_vec3f_copy(sp18, arg1);
@@ -185,29 +185,29 @@ f32 func_802453DC(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
     f32 sp24[3];
     f32 phi_f0;
 
-    func_80323240((struct56s *)arg0, arg1, sp24); // [port] arg0 is f32* in decomp but func expects struct56s*
-    if (!func_802453A0(arg2, sp24, (u32)arg3)) { // [port] s32 to u32 flags
+    func_80323240((struct56s *)arg0, arg1, sp24);
+    if (!func_802453A0(arg2, sp24, (u32)arg3)) {
         return arg1;
     }
-    func_80323240((struct56s *)arg0, 1.0f, sp24); // [port] arg0 is f32* in decomp but func expects struct56s*
-    if (!func_802453A0(arg2, sp24, (u32)arg3)) { // [port] s32 to u32 flags
+    func_80323240((struct56s *)arg0, 1.0f, sp24);
+    if (!func_802453A0(arg2, sp24, (u32)arg3)) {
         return 1.0f;
     }
 
-    func_80323240((struct56s *)arg0, 0.0f, sp24); // [port] arg0 is f32* in decomp but func expects struct56s*
-    if (!func_802453A0(arg2, sp24, (u32)arg3)) { // [port] s32 to u32 flags
+    func_80323240((struct56s *)arg0, 0.0f, sp24);
+    if (!func_802453A0(arg2, sp24, (u32)arg3)) {
         return 0.0f;
     }
     return arg1;
 }
 
 //over_water?
-BKCollisionTri *func_8024549C(f32 arg0[3], f32 arg1){ // [port] was int — returns BKCollisionTri* from func_80309B48
+BKCollisionTri *func_8024549C(f32 arg0[3], f32 arg1){
     f32 sp44[3];
     f32 sp38[3];
     f32 sp2C[3];
     f32 sp20[3];
-    BKCollisionTri *sp1C; // [port] was int — stores BKCollisionTri*
+    BKCollisionTri *sp1C;
 
     sp20[0] = sp20[1] = sp20[2] = 0.0f;
     sp20[1] = arg1;
@@ -221,18 +221,18 @@ BKCollisionTri *func_8024549C(f32 arg0[3], f32 arg1){ // [port] was int — retu
     return sp1C;
 }
 
-bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3){ // [port] arg2 was s32* — stores Struct70s* from func_8034C630
-    Struct70s *result = func_8034C630(arg1); // [port] arg1 is void* (BKCollisionTri*), func now takes void* on 64-bit
-    *arg2 = (intptr_t)result; // [port] was s32 — widen to hold pointer
-    if(result == NULL){ // [port] was *arg2 == NULL
+bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3){
+    Struct70s *result = func_8034C630(arg1);
+    *arg2 = (intptr_t)result;
+    if(result == NULL){
         *arg3 = arg0[1];
         return false;
     }
-    *arg3 = arg0[1] - (f32)func_8034E698((Struct73s *)result); // [port] was func_8034E698(*arg2) — result is Struct70s*, func takes Struct73s*
+    *arg3 = arg0[1] - (f32)func_8034E698((Struct73s *)result);
     return true;
 }
 
-s32 func_8024559C(f32 arg0[3], intptr_t *arg1, f32 *arg2){ // [port] arg1 was s32* — stores Struct70s* via func_80245524
+s32 func_8024559C(f32 arg0[3], intptr_t *arg1, f32 *arg2){
     void *var_v0;
     f32 sp18[3];
 
@@ -248,7 +248,7 @@ s32 func_8024559C(f32 arg0[3], intptr_t *arg1, f32 *arg2){ // [port] arg1 was s3
 
 
 
-void func_8024560C(f32 arg0[3], struct0 *arg1, s32 arg2, u8 *arg3, f32 arg4[3]){ // [port] was UNK_TYPE(s32)
+void func_8024560C(f32 arg0[3], struct0 *arg1, s32 arg2, u8 *arg3, f32 arg4[3]){
     f32 sp44[3];
     f32 sp40;
     f32 temp_f12;

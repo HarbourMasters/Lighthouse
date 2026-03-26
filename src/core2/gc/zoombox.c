@@ -452,14 +452,14 @@ void func_80315200(GcZoombox *this){
 
 void func_803152C4(GcZoombox *this){
      if(this->unk100 != NULL){
-          func_8033BD20((void **)&this->unk100); // [port]
+          func_8033BD20((void **)&this->unk100);
           this->unk100 = NULL;
      }
 }
 
 void func_80315300(GcZoombox *this){
      if(this->model != NULL){
-          func_8033BD20((void **)&this->model); // [port]
+          func_8033BD20((void **)&this->model);
           this->model = NULL;
      }
      if(this->anim_ctrl != NULL){
@@ -467,7 +467,7 @@ void func_80315300(GcZoombox *this){
           this->anim_ctrl = NULL;
      }
      if(this->unkF8 != NULL){
-          func_8033BD20((void **)&this->unkF8); // [port]
+          func_8033BD20((void **)&this->unkF8);
           this->unkF8 = NULL;
      }
      func_803152C4(this);
@@ -890,7 +890,7 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
 void func_80316764(GcZoombox *this, s32 arg1) {
     s32 sp38[6];
     f32 phi_f0;
-    s32 sp2C[3]; // [port] was [2] — func_8024E60C/func_8024E640 write s32[3]
+    s32 sp2C[3];
 
     if (!this->unk1A4_10 ) {
         controller_copyFaceButtons(0, sp38);

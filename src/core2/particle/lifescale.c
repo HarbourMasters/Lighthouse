@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void port_requestReadback(void); // [port]
+extern void port_requestReadback(void);
 
 
 
@@ -98,14 +98,14 @@ s16 *func_802F1804(Struct_Core2_6A4B0_2 *arg0, s32 arg1, s32 arg2, s32 arg3, s32
     return (s16*)(arg0->vtx_coord + (arg1 * 2*3) + (arg2 * 2*3*9) + (arg3 * 3) + (arg4));
 }
 
-void func_802F1858(void *arg0_, Gfx **gfx, Mtx **mtx, Vtx **vtx){ // [port] void* for prototype compatibility
+void func_802F1858(void *arg0_, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Struct_Core2_6A4B0_2 *arg0 = (Struct_Core2_6A4B0_2 *)arg0_;
     if(arg0->draw_method != NULL){
         arg0->draw_method(arg0, gfx, mtx, vtx);
     }
 }
 
-void func_802F1884(void *arg0_){ // [port] void* for prototype compatibility
+void func_802F1884(void *arg0_){
     Struct_Core2_6A4B0_2 *arg0 = (Struct_Core2_6A4B0_2 *)arg0_;
     func_802F18B8(arg0);
     bk_free(arg0->vtx_coord);
@@ -130,7 +130,7 @@ Struct_Core2_6A4B0_2 *func_802F18F0(void){
     return self;
 }
 
-void func_802F1934(void *arg0_, s32 arg1){ // [port] void* for prototype compatibility
+void func_802F1934(void *arg0_, s32 arg1){
     Struct_Core2_6A4B0_2 *arg0 = (Struct_Core2_6A4B0_2 *)arg0_;
     func_802F18B8(arg0);
     arg0->tmem_raw_ptr = bk_malloc(gFramebufferWidth*gFramebufferHeight*sizeof(u16) + 0x10);

@@ -85,7 +85,7 @@ void boneTransformList_interpolate(BoneTransformList *this, BoneTransformList *s
             i_xform->unk0[2] = start_xform->unk0[2];
             i_xform->unk0[3] = start_xform->unk0[3];
         } else {
-            func_803458E4(i_xform->unk0, start_xform->unk0, end_xform->unk0, arg3); // [port] BoneTransform* → f32* via first member
+            func_803458E4(i_xform->unk0, start_xform->unk0, end_xform->unk0, arg3);
         }
         i_xform->scale[0] = start_xform->scale[0] + ((end_xform->scale[0] - start_xform->scale[0]) * arg3);
         i_xform->scale[1] = start_xform->scale[1] + ((end_xform->scale[1] - start_xform->scale[1]) * arg3);
@@ -98,7 +98,7 @@ void boneTransformList_interpolate(BoneTransformList *this, BoneTransformList *s
 
 
 void func_8033A8F0(BoneTransformList *this, s32 bone_id, f32 arg2[4]){
-    vec4f_clone((f32 *)&this->ptr[bone_id], arg2); // [port] BoneTransform* → f32*: first member is f32[4]
+    vec4f_clone((f32 *)&this->ptr[bone_id], arg2);
 }
 
 void boneTransformList_setBoneScale(BoneTransformList *this, s32 bone_id, f32 scale[3]) {

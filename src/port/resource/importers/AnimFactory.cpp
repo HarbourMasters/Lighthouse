@@ -43,7 +43,6 @@ ResourceFactoryBinaryBKAnimationV0::ReadResource(std::shared_ptr<Ship::File> fil
         const int16_t transformType = reader->ReadInt16();
         const uint32_t dataCount = reader->ReadUInt32();
 
-        // [port] Pack bitfield to match native compiler layout.
         // Struct declares unk0_15:12 first, unk0_3:4 second.
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
         // BE: first field at MSB → unk0_15 at bits 15:4, unk0_3 at bits 3:0
@@ -63,7 +62,6 @@ ResourceFactoryBinaryBKAnimationV0::ReadResource(std::shared_ptr<Ship::File> fil
             const uint16_t unk13 = reader->ReadUInt16();
             const int16_t unk2 = reader->ReadInt16();
 
-            // [port] Pack bitfield to match native compiler layout.
             // Struct declares unk0_15:1 first, unk0_14:1 second, unk0_13:14 third.
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
             // BE: first field at MSB → unk0_15 at bit 15, unk0_14 at bit 14, unk0_13 at bits 13:0

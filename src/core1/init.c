@@ -7,7 +7,6 @@
 
 #define MAIN_THREAD_STACK_SIZE 0x17F0
 
-extern void ability_setLearned(s32 move, s32 val);
 extern void audioManager_init(void);
 
 #if VERSION == VERSION_PAL
@@ -34,9 +33,6 @@ static bool sDisableInput;
 static u64 sDebugVar_8027BEF0; // never used
 
 extern u8 core2_TEXT_START[];
-
-// Function prototype for enableDebugCheats
-void enableDebugCheats(void);
 
 void func_8023DA20(s32 arg0){
 #if 0
@@ -114,7 +110,6 @@ void core1_init(void) {
 #endif
     // ucode_load();
     setBootMap(getDefaultBootMap());
-    // [port] Nothing to decompress now, Torch does this
     // rarezip_init();
     viMgr_init();
     overlayManagerloadCore2();
@@ -135,9 +130,6 @@ void core1_init(void) {
     D_8027A130 = 0;
     gGlobalTimer = 0;
     func_8023DA9C(3);
-
-    // [port] DEBUG: enable cheats
-    //enableDebugCheats();
 }
 
 void globalTimer_incTimer(void){
@@ -255,21 +247,4 @@ OSThread *mainThread_get(void) {
 
 void disableInput_set(void){
     sDisableInput = true;
-}
-
-void enableDebugCheats(void) {
-    // [port] Unlock all moves
-    {
-        int i;
-        for (i = 0; i <= 0x13; i++)
-            ability_setLearned(i, 1);
-    }
-
-    // [port] Give max eggs, feathers, and tokens
-    {
-        item_setMaxCount(ITEM_D_EGGS);
-        item_setMaxCount(ITEM_F_RED_FEATHER);
-        item_setMaxCount(ITEM_10_GOLD_FEATHER);
-        item_set(ITEM_1C_MUMBO_TOKEN, 25);
-    }
 }

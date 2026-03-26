@@ -37,7 +37,7 @@ void bsegghead_update(void) {
         if (has_eggs)
             D_8037D2F0 = ml_min_w(D_8037D2F0 + 1, 3);
         else 
-            func_80346C10((enum bs_e *)&sp28, -1, 0, ITEM_D_EGGS, 0); // [port] s32* to bs_e*
+            func_80346C10((enum bs_e *)&sp28, -1, 0, ITEM_D_EGGS, 0);
     }
     if (has_eggs) {
         if (anctrl_isAt(aCtrl, 0.1f))

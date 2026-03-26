@@ -5,19 +5,19 @@
 
 #include "core2/anim/sprite.h"
 
-extern u8 func_8033FA84(void); // [port] was s32 — returns u8
-extern u8 func_8035287C(void); // [port] was s32 — returns u8
-extern u8 func_80344CDC(void); // [port] was s32 — returns u8
-extern void func_8032FFEC(ActorMarker *, s32); // [port] was (s32, s32) — first param is ActorMarker* pointer, truncated on 64-bit
-extern void func_80352A38(u8, enum common_particle_e); // [port] was (s32, u32)
-extern void func_8033FFB8(u8, s32); // [port] was (s32, s32)
-extern void projectile_getPosition(u8, f32[3]); // [port] was (s32, f32[3])
+extern u8 func_8033FA84(void);
+extern u8 func_8035287C(void);
+extern u8 func_80344CDC(void);
+extern void func_8032FFEC(ActorMarker *, s32);
+extern void func_80352A38(u8, enum common_particle_e);
+extern void func_8033FFB8(u8, s32);
+extern void projectile_getPosition(u8, f32[3]);
 extern void func_8032F64C(f32[3] , ActorMarker *);
-extern void func_8033FB64(u8); // [port] was s32
+extern void func_8033FB64(u8);
 extern void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-extern void func_803529DC(u8); // [port] was s32
-extern void func_80344D70(u8); // [port] was s32
-extern void func_80352B20(u8); // [port] was s32
+extern void func_803529DC(u8);
+extern void func_80344D70(u8);
+extern void func_80352B20(u8);
 extern ActorMarker * func_8032FBE4(f32 *pos, MarkerDrawFunc arg1, int arg2, enum asset_e model_id);
 
 extern void func_80352614(void);
@@ -102,7 +102,7 @@ s32 func_8033DE44(s32 arg0){
     return D_80371E30[arg0].unk1 & 1;
 }
 
-Actor *func_8033DE60(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){ // [port] restored full MarkerDrawFunc signature
+Actor *func_8033DE60(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     int indx = marker->unk28;
     func_8033F7F0(D_80384490[indx].unk45, gfx, mtx, vtx);
     if(marker);
@@ -181,7 +181,7 @@ s32 func_8033E368(void){
 //commonParticle_new
 int func_8033E3F0(enum common_particle_e particle_id, int arg1){
     f32 sp34[3];
-    uintptr_t a0; // [port] was s32 — reused for u8 indices and AnimSprite* pointer
+    uintptr_t a0;
 
     if(arg1 == 0)
         return -1;
@@ -206,9 +206,9 @@ int func_8033E3F0(enum common_particle_e particle_id, int arg1){
         if(a0){
             func_8033FB64(a0);
         }
-        a0 = (uintptr_t)D_80384490[D_80384FD0].unk34; // [port] AnimSprite* to uintptr_t
+        a0 = (uintptr_t)D_80384490[D_80384FD0].unk34;
         if(a0){
-            animsprite_free((AnimSprite *)a0); // [port] uintptr_t back to AnimSprite*
+            animsprite_free((AnimSprite *)a0);
         }
         a0 = D_80384490[D_80384FD0].unk46;
         if(a0){
@@ -246,7 +246,7 @@ void func_8033E6D4(s32 arg0){
     D_80384490[arg0].unk44 = 0;
 }
 
-void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s32 arg0 — pointer truncation on 64-bit
+void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){
     s32 tmp_v0 = func_8033E368();
     D_80384490[tmp_v0].unk44--;
     D_80384490[tmp_v0].unk38 = arg0;
@@ -254,13 +254,13 @@ void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s
     D_80384490[tmp_v0].unk40 = arg2;
 }
 
-void func_8033E79C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){ // [port] was s32 arg0 — pointer truncation on 64-bit
+void func_8033E79C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){
     D_80384490[D_80384FD0].unk38 = arg0;
     D_80384490[D_80384FD0].unk3C = arg1;
     D_80384490[D_80384FD0].unk40 = arg2;
 }
 
-void func_8033E7CC(ActorMarker *arg0){ // [port] was s32 arg0 — pointer truncation on 64-bit
+void func_8033E7CC(ActorMarker *arg0){
     int i;
     for(i = 0; i < 40; i++){
         if(D_80384490[i].unk44 && arg0 == D_80384490[i].unk38){

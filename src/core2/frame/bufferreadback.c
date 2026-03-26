@@ -8,7 +8,7 @@
 
 extern void func_802F5374(void);
 extern void func_802FA0F8(void);
-extern void port_requestReadback(void); // [port]
+extern void port_requestReadback(void);
 extern void timedFuncQueue_update(void);
 extern void func_80335128(s32);
 extern void func_8025A2B0(void);
@@ -316,7 +316,6 @@ void game_draw(s32 arg0){
     // Lighthouse [Port] not sure if this should be here or after the following block
     Graphics_PushFrame(gfx_start);
 
-    // [port] Read GPU framebuffer back to CPU memory so systems that read gFramebuffers
     // (particles, bottles bonus, screen captures) see actual rendered content.
     Framebuffer_ReadbackGPU(getActiveFramebuffer());
 
@@ -609,7 +608,7 @@ void func_802E48B8(enum game_mode_e mode, s32 arg1){
 s32 game_defrag(void){
     func_802555C4(); //reset defragged flag in memory.c
     if( !level_get() )
-        return 0; // [port] was NULL — s32 return, not pointer
+        return 0;
     
     glspline_defrag();
     animCache_defrag();

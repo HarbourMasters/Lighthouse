@@ -16,7 +16,7 @@ typedef struct {
     u8 arg_count;
     //u8 pad5[0x3];
     void * callback_fn;
-    uintptr_t arg; // [port] s32 -> uintptr_t for 64-bit pointer safety
+    uintptr_t arg;
 }SkeletalAnimationCallback;
 
 typedef struct {

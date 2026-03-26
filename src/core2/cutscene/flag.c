@@ -81,13 +81,13 @@ void func_80334540(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
             partEmitMgr_drawPass1(gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
-            func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr); // [port] Vtx** to s32 — function ignores vptr
+            func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
         }
         func_802D520C(gdl, mptr, vptr);
     } else {
         mapModel_opa_draw(gdl, mptr, vptr);
         func_80322E64(gdl, mptr, vptr);
-        func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr); // [port] Vtx** to s32 — function ignores vptr
+        func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
         player_draw(gdl, mptr, vptr);
         func_80302C94(gdl, mptr, vptr);
         func_8032D3D8(gdl, mptr, vptr);
@@ -294,7 +294,7 @@ void func_80334E1C(s32 arg0) {
     func_80351A1C(D_803835D0.unk0, arg0);
     func_803225B0(D_803835D0.unk0, arg0);
     func_80323098(D_803835D0.unk0, arg0);
-    func_802F0E80((void *)(intptr_t)D_803835D0.unk0, arg0); // [port] s32 to void* — N64 stored pointer as s32
+    func_802F0E80((void *)(intptr_t)D_803835D0.unk0, arg0);
     func_8033EA78(D_803835D0.unk0, arg0);
     D_803835D0.unk0 = arg0;
 }

@@ -17,14 +17,14 @@ enum ch_nipper_states_e {
 
 /* .data */
 ActorAnimationInfo gChNipperAnimations[8] = {
-    {0, 0.0}, // [port] was NULL — u32 field
+    {0, 0.0},
     {ASSET_C0_ANIM_NIPPER_IDLE, 2.0f},
     {ASSET_BD_ANIM_NIPPER_VULNERABLE, 1.5f},
     {ASSET_BF_ANIM_NIPPER_ATTACK, 1.2f},
     {ASSET_BE_ANIM_NIPPER_OW, 1.3f},
     {ASSET_C0_ANIM_NIPPER_IDLE, 2.0f},
     {ASSET_133_ANIM_NIPPER_DIE, 3.0f},
-    {0, 0.0} // [port] was NULL — u32 field
+    {0, 0.0}
 };
 
 ActorInfo gChNipper = { 
@@ -160,7 +160,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     return;
 }
 
-static s32 __chNipper_determineMarkerId(ActorMarker * this_marker, ActorMarker * other_marker){ // [port] was bool — callback passed to func_803300C0 expects s32 return
+static s32 __chNipper_determineMarkerId(ActorMarker * this_marker, ActorMarker * other_marker){
     if(this_marker->unk40_31 == 1){
         this_marker->id = MARKER_16C_NIPPER;
     }

@@ -359,7 +359,7 @@ void func_8035BD48(Actor *this){
                 }
                 else{
                     subaddie_set_state_with_direction(this, 1, 0.01f, 1);
-                    timedFunc_set_2(randf2(5.0f, 10.0f), (GenFunction_2)mapSpecificFlags_set, 3, true); // [port]
+                    timedFunc_set_2(randf2(5.0f, 10.0f), (GenFunction_2)mapSpecificFlags_set, 3, true);
                 }
             }
             break;

@@ -633,7 +633,7 @@ void func_8038A09C(f32 arg0[3]){
     arg0[2] = (f32)D_80392F20[2];
 }
 
-void func_8038A0E4(NodeProp *arg0, ActorMarker *marker){ // [port] was UNK_TYPE(s32) — NodeProp* per code_AD110.c extern
+void func_8038A0E4(NodeProp *arg0, ActorMarker *marker){
     Actor *actor = marker_getActor(marker);
     
     if(actor){
@@ -646,7 +646,7 @@ void func_8038A0E4(NodeProp *arg0, ActorMarker *marker){ // [port] was UNK_TYPE(
     };
 }
 
-void func_8038A150(NodeProp *arg0, ActorMarker *marker){ // [port] was UNK_TYPE(s32) — NodeProp* per code_AD110.c extern
+void func_8038A150(NodeProp *arg0, ActorMarker *marker){
     Actor *actor = marker_getActor(marker);
     
     if(actor && actor->state != 8){
