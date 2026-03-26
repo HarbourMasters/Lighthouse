@@ -24,6 +24,7 @@
 #include "port/enhancements/events/hooks/Events.h"
 
 #include "math.h"
+#include "bk_time.h"
 #include "bs_funcs.h"
 #include "bsint.h"
 #include "generic.h"
@@ -51,6 +52,8 @@ extern f32 fabsf(f32);
 #define bzero(pointer, size) memset(pointer, 0, size)
 #define bcopy(src, dest, size) memcpy(dest, src, size)
 
+f32 cosf(f32);
+
 
 // --- core2/prop_assetcache.c ---
 BKModelBin *func_8030A4B4(s32 arg0);
@@ -74,10 +77,7 @@ BKModelBin *marker_loadModelBin(ActorMarker *marker);
 BKVertexList *func_80330C74(Actor *actor);
 Prop *func_8032F528(void);
 void marker_callCollisionFunc(ActorMarker *, ActorMarker *, enum marker_collision_func_type_e);
-void marker_callCollisionFunc(ActorMarker *, ActorMarker *, enum marker_collision_func_type_e);
 void marker_setActorUpdate2Func(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdate2Func(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdateFunc(ActorMarker *marker, ActorUpdateFunc method);
 void marker_setActorUpdateFunc(ActorMarker *marker, ActorUpdateFunc method);
 void marker_setCollisionScripts(ActorMarker *marker, MarkerCollisionFunc ow_func, MarkerCollisionFunc arg2, MarkerCollisionFunc die_func);
 void marker_setFreeMethod(ActorMarker *, void (*)(Actor *));
@@ -105,20 +105,6 @@ f32  mapModel_getFloorY(f32[3]);
 
 // --- core2/actor_cubepropsystem.c ---
 BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
-ActorMarker *func_8032FBE4(f32 *pos, MarkerDrawFunc arg1, int arg2, enum asset_e model_id);
-ActorMarker *marker_init(s32 *pos, MarkerDrawFunc draw_func, int arg2, int marker_id, int arg4);
-BKModelBin *  func_80330DE4(ActorMarker *marker);
-BKModelBin *marker_loadModelBin(ActorMarker *marker);
-BKVertexList *func_80330C74(Actor *actor);
-Prop *func_8032F528(void);
-void marker_callCollisionFunc(ActorMarker *, ActorMarker *, enum marker_collision_func_type_e);
-void marker_callCollisionFunc(ActorMarker *, ActorMarker *, enum marker_collision_func_type_e);
-void marker_setActorUpdate2Func(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdate2Func(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdateFunc(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdateFunc(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setCollisionScripts(ActorMarker *marker, MarkerCollisionFunc ow_func, MarkerCollisionFunc arg2, MarkerCollisionFunc die_func);
-void marker_setFreeMethod(ActorMarker *, void (*)(Actor *));
 
 // --- core2/misc_updates.c ---
 BKCollisionTri *func_8029463C(void);
@@ -388,58 +374,9 @@ s32 func_80329054(Actor *arg0, s32 arg1); // decomp has s32 arg0 but callers pas
 void subaddie_set_ideal_yaw(Actor *self, int arg1);
 bool subaddie_playerIsWithinSphere(Actor *self, s32 dist);
 Actor *actor_spawnWithYaw_s32(enum actor_e id, s32 (*pos)[3], s32 rot);
-Actor * __actor_spawnWithYaw_s32(enum actor_e id, s32 pos[3], s32 yaw);
-Actor * spawn_child_actor(enum actor_e id, Actor ** parent);
-Actor *actorArray_findActorFromActorId(enum actor_e);
-Actor *actorArray_findClosestActorFromActorId(f32 position[3], enum actor_e actor_id, s32 arg2, f32 *min_distance_ptr);
-Actor *actor_draw(ActorMarker *, Gfx**, Mtx**, Vtx **);
-Actor *actor_drawFullDepth(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-Actor *actor_new(s32 position[3], s32 yaw, ActorInfo *actorInfo, u32 flags);
-Actor *actor_spawnWithYaw_f32(enum actor_e actor_id, f32 position[3], s32 yaw);
-Actor *actor_spawnWithYaw_s16(enum actor_e id, s16 (*pos)[3], s32 yaw);
-Actor *func_80325340(ActorMarker *, Gfx **, Mtx **, Vtx **);
-Actor *func_80325934(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-Actor *func_8032A7AC(Actor *);
-Actor *marker_getActor(ActorMarker *);
-Actor *marker_getActorAndRotation(ActorMarker *marker, f32 rotation[3]);
-Actor *subaddie_getLinkedActor(Actor *);
-ActorMarker *func_8032B16C(enum jiggy_e jiggy_id);
-bool  func_80329078(Actor *, s32, s32);
-bool  func_80329480(Actor *);
-bool subaddie_maybe_set_state_position_direction(Actor *, s32, f32, s32, f32 );
-int  func_8032863C(AnimCtrl *, f32, f32);
-int  func_80328A2C(Actor *, f32, s32, f32);
-int  func_80329030(Actor *, s32);
-int  subaddie_maybe_set_state(Actor *, s32, f32);
-int actor_animationIsAt(Actor*, f32);
-s32  func_80329784(Actor *);
-s32 asset_getFlag(enum asset_e arg0);
-struct5Bs *func_80329934(void);
-void actor_collisionOff(Actor *);
-void actor_collisionOn(Actor *);
-void actor_loopAnimation(Actor *);
-void actor_playAnimationOnce(Actor *);
-void actor_predrawMethod(Actor *);
-void actor_update_func_80326224(Actor *actor);
-void func_80326244(Actor *);
-void func_80326310(Actor *actor); // actor_setBlendStateFadeOut ??
-void func_80328CEC(Actor *, s32, s32, s32);
-void func_80328FB0(Actor *, f32);
-void func_80329878(Actor *, f32);
-void func_8032AA58(Actor *, f32);
-void marker_despawn(ActorMarker *marker);
-void subaddie_set_state(Actor *, u32);
-void subaddie_set_state_forward(Actor *, s32);
-void subaddie_set_state_with_direction(Actor * actor, s32 myAnimId, f32 anim_start_position, s32 direction);
 
 // --- core2/actor_cubebounds.c ---
 bool nodeProp_findPositionFromActorId(enum actor_e actor_id, f32 *arg1);
-Actor * func_803055E0(enum actor_e id, s32 pos[3], s32 arg2, s32 arg3, s32 arg4);
-NodeProp *nodeprop_findByActorIdAndActorPosition(enum actor_e actor_id, Actor *actor_ptr);
-NodeProp *nodeprop_findByActorIdAndPosition_f32(enum actor_e actor_id, f32 position[3]);
-void nodeprop_getPosition(NodeProp *, f32[3]);
-void spawnableActorList_add(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2);
-void spawnableActorList_addIfMapVisited(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2, enum map_e arg3);
 
 // --- core2/ba/ba_lookdir.c ---
 enum bsgroup_e player_movementGroup(void);
@@ -526,43 +463,15 @@ bool nodeprop_findPositionFromActorId(enum actor_e actor_id, s32 *position);
 s32 func_80306D40(s32 arg0);
 s32 func_80306EF4(s32 arg0[3], s32 arg1, s32 arg2);
 s32 func_80307504(f32 arg0[3], s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-Actor * func_803055E0(enum actor_e id, s32 pos[3], s32 arg2, s32 arg3, s32 arg4);
-NodeProp *nodeprop_findByActorIdAndActorPosition(enum actor_e actor_id, Actor *actor_ptr);
-NodeProp *nodeprop_findByActorIdAndPosition_f32(enum actor_e actor_id, f32 position[3]);
-void nodeprop_getPosition(NodeProp *, f32[3]);
-void spawnableActorList_add(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2);
-void spawnableActorList_addIfMapVisited(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2, enum map_e arg3);
 
 // --- core2/actor_cubepropsystem.c ---
 bool func_8032E398(Cube *cube, bool (*arg1)(NodeProp *), bool (*arg2)(Prop *));
 bool func_80330534(Actor *actor);
 bool func_8033056C(Actor *actor);
 bool func_80331158(ActorMarker *arg0, f32 *arg1, f32 *arg2);
-ActorMarker *func_8032FBE4(f32 *pos, MarkerDrawFunc arg1, int arg2, enum asset_e model_id);
-ActorMarker *marker_init(s32 *pos, MarkerDrawFunc draw_func, int arg2, int marker_id, int arg4);
-BKModelBin *  func_80330DE4(ActorMarker *marker);
-BKModelBin *marker_loadModelBin(ActorMarker *marker);
-BKVertexList *func_80330C74(Actor *actor);
-Prop *func_8032F528(void);
-void marker_callCollisionFunc(ActorMarker *, ActorMarker *, enum marker_collision_func_type_e);
-void marker_callCollisionFunc(ActorMarker *, ActorMarker *, enum marker_collision_func_type_e);
-void marker_setActorUpdate2Func(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdate2Func(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdateFunc(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setActorUpdateFunc(ActorMarker *marker, ActorUpdateFunc method);
-void marker_setCollisionScripts(ActorMarker *marker, MarkerCollisionFunc ow_func, MarkerCollisionFunc arg2, MarkerCollisionFunc die_func);
-void marker_setFreeMethod(ActorMarker *, void (*)(Actor *));
 
 // --- core2/ba/ba_lookdir.c ---
 bool func_8028F280(void);
-bool player_setCarryObjectPoseInCylinder(f32[3], f32, f32, enum actor_e actor_id, Actor**);
-u32 player_getTransformation(void);
-void ability_unlock(enum ability_e);
-void func_8028E668(f32[3], f32, f32, f32);
-void func_8028E7EC(f32 arg0[3]);
-void player_getPosition(f32 dst[3]);
-void player_getRotation(f32 *dst);
-void player_setThrowTargetPosition(f32[3]);
 
 // --- core2/ba/ba_anim.c ---
 bool baanim_isStopped(void);
@@ -642,7 +551,6 @@ void func_80293D48(f32, f32);
 
 // --- core2/spline_bezier.c ---
 void func_8034A2A8(struct5Bs *self);
-void func_8034A174(struct5Bs *s5b, s32 indx,f32 dst[3]);
 
 // --- core2/vtxlist.c ---
 void vtxList_free(BKVertexList *vtxList);
@@ -1149,6 +1057,9 @@ void func_80255A04(void);
 void func_80255A14(void);
 void func_80255ACC(void);
 
+// --- core1/ml.c ---
+void func_802596AC(f32 a0[3], f32 a1[3], f32 a2[3], f32 a3[3]);
+
 // --- core1/mlmtx.c ---
 void func_802515D4(f32 arg0[3][3]);
 
@@ -1190,6 +1101,7 @@ void ability_setLearned(s32 move, s32 val);
 void ability_use(s32 arg0);
 
 // --- core2/actor_array.c ---
+void func_8032728C(f32[3], f32, s32, int(*)(Actor *));
 Struct64s* func_8032994C(void);
 bool func_80329140(Actor *self, s32 arg1, s32 arg2);
 bool func_80329260(Actor *self, f32 p1[3]);
@@ -1736,6 +1648,7 @@ void func_80291548(void);
 // --- core2/ba/ba_state.c ---
 void func_80295914(void);
 void func_80295B04(void);
+void func_80295C08(void (* arg0)(void));
 void func_80295C14(void);
 void func_80295D74(void);
 
@@ -3131,6 +3044,7 @@ void func_802FEF48(BKModelBin *model_bin);
 
 // --- core2/timed_funcqueue.c ---
 void func_80324C58(void);
+void func_80324DBC(f32 time, enum asset_e text_id, s32 arg2, f32 position[3], ActorMarker *caller, void (*callback_method_1)(ActorMarker *, enum asset_e, s32), void (*callback_method_2)(ActorMarker *, enum asset_e, s32));
 void timedFuncQueue_defrag(void);
 void timedFuncQueue_flush(void);
 void timedFuncQueue_free(void);
@@ -3462,7 +3376,6 @@ void climbGetBottom(f32 dst[3]);
 void func_802FAD64(enum item_e);
 
 // --- core2/collision/hitboxdata.c ---
-enum marker_collision_func_type_e func_8033D574(struct5Cs *arg0);
 enum marker_collision_func_type_e func_8033D574(struct5Cs *arg0);
 
 // --- core2/fx/airscore.c ---
