@@ -16,7 +16,8 @@ Acmd *n_alSavePull( s32 sampleOffset, Acmd *p)
     aSetBuffer (ptr++, 0, 0, 0, FIXED_SAMPLE<<2);
     aSaveBuffer(ptr++, n_syn->sv_dramout);
 #else
-#include "n_save_add01.c_"
+    n_aInterleave(ptr++);
+    n_aSaveBuffer(ptr++, FIXED_SAMPLE<<2, 0, n_syn->sv_dramout);
 #endif
     return ptr;
 }

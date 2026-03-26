@@ -72,7 +72,7 @@ Acmd *n_alResamplePull(N_PVoice *e, s16 *outp, Acmd *p)
 	aSetBuffer(ptr++, 0, inp , *outp,  FIXED_SAMPLE<<1);
 	aResample(ptr++, e->rs_first, incr, osVirtualToPhysical(e->rs_state));
 #else
-#include "n_resample_add01.c_"
+	n_aResample(ptr++, osVirtualToPhysical(e->rs_state), e->rs_first, incr, inp, 0);
 #endif
 	e->rs_first = 0;
     }
