@@ -2192,7 +2192,7 @@ bool func_803082D8(Cube *arg0, s32 *arg1, bool arg2, bool arg3) {
     bool var_a0;
 
     var_v0 = arg0->prop2Ptr + *arg1;
-    while ((var_v0->markerFlag == 1) && (*arg1 < arg0->prop2Cnt)) {
+    while ((*arg1 < arg0->prop2Cnt) && (var_v0->markerFlag == 1)) {
         (*arg1)++;
         var_v0++;
     }

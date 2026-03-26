@@ -71,12 +71,12 @@ void func_802C83F0(Actor *actor) {
 Actor *func_802C8484(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     Struct25s *temp_s1;
     Struct24s *phi_s0;
-    f32 sp5C;
+    f32 sp5C[3];
     Actor *sp58;
     u32 phi_v1;
     s32 phi_s4;
 
-    sp58 = marker_getActorAndRotation(marker, &sp5C);
+    sp58 = marker_getActorAndRotation(marker, sp5C);
     temp_s1 = sp58->unk40;
     phi_s4 = false;
     for(phi_s0 = temp_s1->begin; phi_s0 < temp_s1->current; phi_s0++){

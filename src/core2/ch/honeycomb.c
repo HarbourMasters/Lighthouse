@@ -121,7 +121,7 @@ void chHoneycomb_update(Actor *this){
             marker_setFreeMethod(this->marker, __chHoneycomb_free);
             D_8037DDC8++;
             if(D_8037DDC4 == NULL){
-                D_8037DDC4 = (FREE_LIST(s32) *) freelist_new(sizeof(s32), 10);
+                D_8037DDC4 = (FREE_LIST(s32) *) freelist_new(sizeof(ActorMarker *), 10); // [port] stores pointers, not s32
             }
             else if(D_8037DDC8 >= 11){
                 func_802C9D80();

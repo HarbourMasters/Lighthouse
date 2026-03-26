@@ -48,7 +48,7 @@ void func_802F7CE0(void){
 
 void func_802F7D30(void){
     D_80381030 = NULL;
-    ((void **)&D_80381030)[1] = NULL;
+    D_80381034 = NULL;
 }
 
 void func_802F7D44(void){

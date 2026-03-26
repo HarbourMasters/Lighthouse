@@ -362,7 +362,7 @@ s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, f32 arg3[3], s32 arg4, f32 *ar
         temp_a0 = temp_t0[arg4];
         var_v1 = (Union_glspline *)(temp_a0 + 1); // [port] SplineList* to Union_glspline*
         temp_v0 = var_v1 + temp_a0->unk0;
-        for(var_v1 = var_v1; (arg0 != var_v1->t1.unk10.bit31) && (var_v1 < temp_v0); var_v1++){
+        for(var_v1 = var_v1; (var_v1 < temp_v0) && (arg0 != var_v1->t1.unk10.bit31); var_v1++){
             continue;
         }
 
@@ -385,7 +385,8 @@ s32 func_80340760(s32 arg0, s32 *arg1, f32 *arg2, f32 arg3[3], s32 arg4, f32 *ar
             temp_a0 = temp_t0[var_a2];
             var_v1 = (Union_glspline *)(temp_a0 + 1); // [port] SplineList* to Union_glspline*
             temp_v0 = var_v1 + temp_a0->unk0;
-            for(var_v1 = var_v1; (arg0 != var_v1->t1.unk10.bit31) && (var_v1 < temp_v0); var_v1++){
+            // [port] bounds-check first; original order read one-past-end before checking pointer
+        for(var_v1 = var_v1; (var_v1 < temp_v0) && (arg0 != var_v1->t1.unk10.bit31); var_v1++){
                 continue;
             }
             if (var_v1 < temp_v0) {

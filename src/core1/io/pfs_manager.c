@@ -57,7 +57,7 @@ OSThread sPfsManagerThread;
 u8 sPfsManagerThreadStack[PFSMANAGER_THREAD_STACK_SIZE];
 f32 D_802816E0;
 OSMesgQueue D_802816E8;
-OSMesg D_80281700[4];
+OSMesg D_80281700[5];
 u8 pad_D_80281710[1];
 
 f32 func_8024E420(s32 arg0, s32 arg1, s32 arg2) {
