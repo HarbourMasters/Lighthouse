@@ -61,7 +61,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "All Honeycomb Extensions", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("AllHoneycombExtensions"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Removes the 3-extension cap, allowing all 24 honeycombs to grant health bars."));
+        .Options(
+            CheckboxOptions().Tooltip("Removes the 3-extension cap, allowing all 24 honeycombs to grant health bars."));
 
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };

@@ -77,6 +77,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
             || (item == ITEM_F_RED_FEATHER && volatileFlag_get(VOLATILE_FLAG_75_SANDCASTLE_INFINITE_RED_FEATHERS))
             || (item == ITEM_10_GOLD_FEATHER && volatileFlag_get(VOLATILE_FLAG_76_SANDCASTLE_INFINITE_GOLD_FEATHERS))
             || (item == ITEM_17_AIR && volatileFlag_get(VOLATILE_FLAG_96_SANDCASTLE_INFINITE_AIR))
+            || (item == ITEM_14_HEALTH && CVarGetInteger(CVAR_DEVELOPER_TOOLS("InfiniteHealth"), 0))
         ){
             diff = 0;
         }

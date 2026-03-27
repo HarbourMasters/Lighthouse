@@ -548,10 +548,11 @@ void chfinalboss_func_8038770C(Actor *actor) {
 }
 
 void chfinalboss_setPhase(ActorMarker *this, enum ch_finalboss_phase_e phase_id)
-{   
+{
+
     Actor *actor = marker_getActor(this);
     ActorLocal_FinalBoss *local = (ActorLocal_FinalBoss *) &actor->local;
-    
+
     local->phase = phase_id;
     chfinalboss_func_8038770C(actor);
     chfinalboss_func_80386600(actor->marker, 0);
@@ -767,6 +768,7 @@ void chfinalboss_func_80388110(ActorMarker *marker, enum asset_e text_id, s32 ar
 }
 
 void chfinalboss_phase1_setState(Actor *this, s32 next_state) {
+
     ActorLocal_FinalBoss *local;
     s32 sp40;
     f32 sp3C;
@@ -1796,12 +1798,6 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
                 chjinjonator_finalAttack(jinjonator_marker);
                 func_8030E6D4(SFX_HEAVY_THUNDERSTORM_01);
                 func_8025A6EC(COMUSIC_A3_JINJONATOR_HITS_GRUNTY_J, 20000);
-#ifdef PORT_FIX
-                // [port] v1.1 fix: set defeated flag here (fireball cutscene)
-                // instead of when eggs hit the Jinjonator base, preventing
-                // the flag from being set if the player dies before the cutscene
-                chfinalboss_setBossDefeated();
-#endif
                 chfinalboss_phase5_setState(this, 0x2B);
                 timed_exitStaticCamera(0.0f);
                 timed_setStaticCameraToNode(0.0f, sp38 + 0xD);
@@ -2073,6 +2069,7 @@ void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker
 }
 
 void chfinalboss_collisionActive(ActorMarker *marker, ActorMarker *other_marker) {
+
     Actor *this = marker_getActor(marker);
     ActorLocal_FinalBoss *local = (ActorLocal_FinalBoss *)&this->local;
 
@@ -2100,6 +2097,7 @@ void chfinalboss_spawnShadow(ActorMarker *marker) {
 }
 
 void chfinalboss_update(Actor *this){
+
     ActorLocal_FinalBoss *local = (ActorLocal_FinalBoss *) &this->local;
     s32 i;
     s32 tmp_s0;
@@ -2226,7 +2224,7 @@ void chfinalboss_spellBarrierInactive() {
     __chFinalBossSpellBarrierActive = false;
 }
 
-void chfinalboss_func_8038C10C(s32 arg0) {
+void chfinalboss_func_8038C10C(uintptr_t arg0) {
     chfinalboss_phase5_setState(marker_getActor((ActorMarker*)(uintptr_t)arg0), 0x28);
 }
 
@@ -2235,6 +2233,7 @@ void chfinalboss_func_8038C138() {
 }
 
 void chfinalboss_setBossDefeated(void) {
+
     Actor *sp4C;
     ActorLocal_FinalBoss *sp48;
     f32 temp_f20;

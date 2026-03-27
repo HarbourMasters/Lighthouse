@@ -62,11 +62,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
         remaining_hits = local->egg_hits[0] + local->egg_hits[1] + local->egg_hits[2] + local->egg_hits[3];
 
         if (remaining_hits <= 0) {
-#ifndef PORT_FIX
-            // [port] v1.0: flag set here (can die before cutscene plays)
-            // v1.1 moved this to the fireball cutscene in chfinalboss.c
             chfinalboss_setBossDefeated();
-#endif
             subaddie_set_state(actor_jinjonatorbase, CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO);
             chstonejinjo_breakOpen(actor_jinjonatorbase->unk100);
         }

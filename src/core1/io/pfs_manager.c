@@ -174,33 +174,47 @@ void pfsManager_update(void) {
     // Poll LUS input directly here each frame instead.
     osContGetReadData(pfsManagerContPadData);
 
-    // [port] Stick C-button filter. When C buttons are mapped to a stick axis,
-    // diagonal tilts and thumbstick rebound cause ghost inputs. Filters to the
-    // dominant axis and latches the direction briefly to absorb rebound.
+    // [port] Right stick to C-button conversion. LUS's axis-to-button mapping causes
+    // flickback when the stick springs back through the opposite threshold. Strip the
+    // LUS C-button bits and generate our own from raw analog values with a circular
+    // deadzone, dominant-axis filter, and direction latch.
     if (port_CButtonIsAxis()) {
         static u16 sLatchDir = 0;
         static s32 sLatchTTL = 0;
-        s32 arx = pfsManagerContPadData[0].right_stick_x;
-        s32 ary = pfsManagerContPadData[0].right_stick_y;
-        if (arx < 0) { arx = -arx; }
-        if (ary < 0) { ary = -ary; }
 
-        if (arx > 16 || ary > 16) {
-            u16 dir = (arx * 3 >= ary * 2)
-                ? (pfsManagerContPadData[0].button & 0x0003)
-                : (pfsManagerContPadData[0].button & 0x000C);
-            if (dir && dir != sLatchDir) {
-                sLatchDir = dir;
-                sLatchTTL = 3;
+        s32 rx = pfsManagerContPadData[0].right_stick_x;
+        s32 ry = pfsManagerContPadData[0].right_stick_y;
+        s32 arx = (rx < 0) ? -rx : rx;
+        s32 ary = (ry < 0) ? -ry : ry;
+
+        // Strip LUS-generated C-button bits
+        pfsManagerContPadData[0].button &= ~0x000F;
+
+        // Circular deadzone (radius 24 out of 127)
+        if (arx * arx + ary * ary > 24 * 24) {
+            u16 dir;
+            if (arx >= ary) {
+                dir = (rx > 0) ? 0x0001 : 0x0002; // CRIGHT or CLEFT
+            } else {
+                dir = (ry > 0) ? 0x0008 : 0x0004; // CUP or CDOWN
             }
+
+            if (dir != sLatchDir) {
+                if (sLatchTTL <= 0) {
+                    sLatchDir = dir;
+                    sLatchTTL = 6;
+                }
+            } else {
+                sLatchTTL = 6;
+            }
+
+            pfsManagerContPadData[0].button |= sLatchDir;
+        } else {
             if (sLatchTTL > 0) {
                 sLatchTTL--;
-                dir = sLatchDir;
+            } else {
+                sLatchDir = 0;
             }
-            pfsManagerContPadData[0].button = (pfsManagerContPadData[0].button & ~0x000F) | dir;
-        } else {
-            sLatchDir = 0;
-            sLatchTTL = 0;
         }
     }
 

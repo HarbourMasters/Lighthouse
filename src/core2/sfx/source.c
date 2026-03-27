@@ -901,7 +901,7 @@ void func_8030E760(enum sfx_e uid, f32 arg1, s32 arg2){
 void sfx_play(enum sfx_e uid, f32 volume, u32 sampleRate, f32 position[3], f32 minFadeDistance, f32 maxFadeDistance, s32 arg6){
     u8 sfxsource;
     f32 player_position[3];
-    
+
     __sfx_getPlayerPositionIfPresent(player_position);
     if( !(maxFadeDistance <= ml_vec3f_distance(player_position, position))
         && levelSpecificFlags_validateCRC2()
