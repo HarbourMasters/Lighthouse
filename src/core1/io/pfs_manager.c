@@ -245,7 +245,10 @@ void pfsManager_update(void) {
         time_setDeltaReal_frames(sp5C);
         sDemoViCount = sp5C;
     } else {
-        sDemoViCount = 0;
+        // [port] Use the VI divisor from cutscene framerate actors so Game.cpp
+        // paces the display correctly for slower cutscenes.
+        s32 viDiv = viMgr_func_8024BFA0();
+        sDemoViCount = (viDiv > 2) ? viDiv : 0;
     }
     sp5C = time_getDeltaReal_frames();
     randf();

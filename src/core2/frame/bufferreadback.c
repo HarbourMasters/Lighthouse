@@ -443,11 +443,19 @@ void func_802E4384(void){
     }
     else{
         func_8033DC18();
-        // [port] Restored original integer-frame timing. The port's Game.cpp runs game logic
-        // at a fixed 30fps timestep, so this quantizes to ~2 VIs matching N64 behavior.
-        // Previously used time_setDeltaReal_sec() which left s_dTimeReal_frames at 0,
-        // breaking dynamicCamera, zoombox, clam.c, and demo playback timing.
-        time_setDeltaReal_frames((s32)(func_8033DC20()*60.0f + 0.5));
+        // [port] Respect the VI divisor set by cutscene framerate actors (0x19-0x1D).
+        // On N64, viMgr_func_8024BFD8 used the divisor to wait for the right number
+        // of VIs per frame. On PC that wait loop is disabled, so cutscenes run at
+        // constant 30fps regardless of what the map specifies.
+        {
+            s32 viDivisor = viMgr_func_8024BFA0();
+            if (viDivisor > 2) {
+                func_8033DC20(); // consume wall-clock to keep last_ticks fresh
+                time_setDeltaReal_frames(viDivisor);
+            } else {
+                time_setDeltaReal_frames((s32)(func_8033DC20()*60.0f + 0.5));
+            }
+        }
     }
     func_8033DC10();
 
