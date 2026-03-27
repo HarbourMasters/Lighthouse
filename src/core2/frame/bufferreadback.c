@@ -130,7 +130,16 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         && D_8037E8E0.unk19 != 6
         && D_8037E8E0.unk19 != 5
     ){
-        gctransition_draw(gdl, mptr, vptr);
+        // [port] On the first frame of a transition, the aux FBO color image
+        // hasn't taken over yet, so the transition model renders to the primary
+        // FBO (full-screen black flash). On N64, the CPU-side framebuffer switch
+        // was immediate. Skip the draw on the first frame but still tick the
+        // internal counter so the transition advances.
+        if (gctransition_getFrameCount() < 1) {
+            gctransition_tickFrameCount();
+        } else {
+            gctransition_draw(gdl, mptr, vptr);
+        }
     }
     
     if( D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS
@@ -168,7 +177,12 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         || D_8037E8E0.unk19 == 6
         || D_8037E8E0.unk19 == 5
     ){
-        gctransition_draw(gdl, mptr, vptr);
+        // [port] Same first-frame skip for the alternate transition draw path.
+        if (D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE && gctransition_getFrameCount() < 1) {
+            gctransition_tickFrameCount();
+        } else {
+            gctransition_draw(gdl, mptr, vptr);
+        }
     }
     finishFrame(gdl);
     osWritebackDCache(m_start, sizeof(Mtx)*( *mptr - m_start));
@@ -462,6 +476,12 @@ void func_802E4384(void){
     D_8037E8E0.unk8 += time_getDelta();
 }
 
+// [port] After an SNS/demo map reload, the first render frame has no aux FBO set
+// up yet, so the scene renders directly to the primary FBO (visible as a black flash).
+// On N64 this was hidden by viBlack. Skip one extra draw frame to let the aux FBO
+// initialize before presenting.
+static s32 sSkipDrawFrames = 0;
+
 bool func_802E4424(void) {
     s32 sp1C;
     u8 temp_v0;
@@ -515,6 +535,7 @@ bool func_802E4424(void) {
             case 12:                                    /* switch 1 */
                 func_8034B8C0(D_8037E8E0.map, D_8037E8E0.exit);
                 func_802E3E7C(GAME_MODE_A_SNS_PICTURE);
+                sSkipDrawFrames = 2; // [port] skip next draws so aux FBO initializes first
                 return false;
 
             case 7:                                     /* switch 1 */
@@ -605,6 +626,13 @@ bool func_802E4424(void) {
     gctransition_update();
     if (func_802E4A08() == 0) {
         func_802F5374();
+    }
+    // [port] After SNS/demo map reload, skip the first draw frame so the aux FBO
+    // can initialize before we present. Without this, the scene renders to the
+    // primary FBO for one frame, causing a visible black flash.
+    if (sSkipDrawFrames > 0) {
+        sSkipDrawFrames--;
+        return false;
     }
     return true;
 }

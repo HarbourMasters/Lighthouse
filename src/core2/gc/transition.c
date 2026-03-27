@@ -203,17 +203,17 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         }
         else{
             osViBlack(1);
-            port_setViBlack(1); // [port] hide screen (readback still runs so gFramebuffers gets the world)
+            port_setViBlack(1); // [port] hide screen (Engine.cpp skips present when set)
             port_requestReadback(); // [port] need readback active for transition capture
             anctrl_setAnimTimer(s_current_transition.anctrl, 0.25f); //set animation timer
         }
-        anctrl_start(s_current_transition.anctrl, "gctransition.c", 0x125); 
+        anctrl_start(s_current_transition.anctrl, "transition.c", 0x125); 
     }
 
     if(state == TRANSITION_STATE_4_FADE_IN){
         if(func_802D4608()==0){
             comusic_playTrack(COMUSIC_4E_IN_TRANSITION);
-            func_8025AC20(COMUSIC_4E_IN_TRANSITION, 0, 1000, 0.4f, "gctransition.c", 0x12d);
+            func_8025AC20(COMUSIC_4E_IN_TRANSITION, 0, 1000, 0.4f, "transition.c", 0x12d);
             func_8025AABC(COMUSIC_4E_IN_TRANSITION);
         }
     }//L8030B67C
@@ -224,7 +224,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         else{
             if(func_802D4608() == 0){
                 comusic_playTrack(COMUSIC_4F_OUT_TRANSITION);
-                func_8025AC20(COMUSIC_4F_OUT_TRANSITION, 0, 1000, 0.2f, "gctransition.c", 0x13a);
+                func_8025AC20(COMUSIC_4F_OUT_TRANSITION, 0, 1000, 0.2f, "transition.c", 0x13a);
                 func_8025AABC(COMUSIC_4F_OUT_TRANSITION);
             }
         }
@@ -422,6 +422,16 @@ int gctransition_done(void){
 
 int gctransition_active(void){
     return s_current_transition.state != TRANSITION_STATE_0_NONE;
+}
+
+// [port] Returns how many draw frames have elapsed since the transition started.
+int gctransition_getFrameCount(void){
+    return s_current_transition.unk0;
+}
+
+// [port] Advance the frame counter without drawing (used to skip first frame).
+void gctransition_tickFrameCount(void){
+    s_current_transition.unk0++;
 }
 
 int gctransition_8030BDC0(void){

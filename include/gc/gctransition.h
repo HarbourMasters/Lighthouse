@@ -7,6 +7,8 @@ void gctransition_8030BD4C(void);
 f32 gctransition_8030BD88(void);
 int gctransition_done(void);
 int gctransition_active(void);
+int gctransition_getFrameCount(void);
+void gctransition_tickFrameCount(void);
 int  gctransition_8030BDC0(void);
 void gctransition_8030BE3C(void);
 void gctransition_8030BE60(void);
