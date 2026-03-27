@@ -97,8 +97,7 @@ void fxhealthscore_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **mt
         gDPPipeSync((*gfx)++);
 
         if (gHealth > i) {
-            if (fileProgressFlag_get(FILEPROG_B9_DOUBLE_HEALTH)
-                && 0 < (gHealth - (f32)(gTotalHealth / 2)) && (gHealth - (f32)(gTotalHealth / 2)) > i) {
+            if (0 < (gHealth - (f32)gTotalHealth) && (gHealth - (f32)gTotalHealth) > i) {
                 if (!is_red_health_initialized) {
                     func_80347FC0(gfx, gSpriteRedHealth, 0, 0, 0, 0, 0, 2, 2, &honeycomb_width, &honeycomb_height);
                     is_red_health_initialized = true;
@@ -161,9 +160,8 @@ void fxhealthscore_update(enum item_e item_id, struct8s *arg1) {
 
     temp_f20 = time_getDelta();
     sp2C = func_802FB0D4(arg1);
-    if (item_getCount(ITEM_15_HEALTH_TOTAL) >= 9
-        && !CVarGetInteger(CVAR_ENHANCEMENT("AllHoneycombExtensions"), 0)) {
-        gTotalHealth = 8;
+    if (fileProgressFlag_get(FILEPROG_B9_DOUBLE_HEALTH)) {
+        gTotalHealth = item_getCount(ITEM_15_HEALTH_TOTAL) / 2;
     } else {
         gTotalHealth = item_getCount(ITEM_15_HEALTH_TOTAL);
     }
