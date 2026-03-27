@@ -54,6 +54,8 @@ static void auxColorImageCallback(void* oldAddr, void* newAddr) {
     const char* apiName = rapi->GetName();
     bool isOpenGL = (apiName && strstr(apiName, "OpenGL") != nullptr);
 
+    // [port] GPU-side copy only — no CPU readback or byte-swap needed.
+    // The game draws from the GPU FB directly via gDPSetTextureImageFB.
     if (isOpenGL) {
         if (aux.curFbW != aux.width || aux.curFbH != aux.height) {
             rapi->UpdateFramebufferParameters(aux.fbId, aux.width, aux.height, 1, true, true, true, false);
@@ -61,7 +63,6 @@ static void auxColorImageCallback(void* oldAddr, void* newAddr) {
             aux.curFbH = aux.height;
         }
         rapi->CopyFramebuffer(aux.fbId, mainFb, 0, 0, srcW, srcH, 0, 0, aux.width, aux.height);
-        rapi->ReadFramebufferToCPU(aux.fbId, aux.width, aux.height, (uint16_t*)oldAddr);
     } else {
         if (aux.curFbW != srcW || aux.curFbH != srcH) {
             rapi->UpdateFramebufferParameters(aux.fbId, srcW, srcH, 1, true, true, true, false);
@@ -69,18 +70,8 @@ static void auxColorImageCallback(void* oldAddr, void* newAddr) {
             aux.curFbH = srcH;
         }
         rapi->CopyFramebuffer(aux.fbId, mainFb, 0, 0, srcW, srcH, 0, 0, srcW, srcH);
-        rapi->ReadFramebufferToCPU(aux.fbId, aux.width, aux.height, (uint16_t*)oldAddr);
     }
 
-    // Byte-swap to big-endian (N64 pixel convention)
-    uint16_t* pixels = (uint16_t*)oldAddr;
-    uint32_t pixelCount = aux.width * aux.height;
-    for (uint32_t i = 0; i < pixelCount; i++) {
-        pixels[i] = (pixels[i] >> 8) | (pixels[i] << 8);
-    }
-
-    // Invalidate texture cache entries within the buffer range
-    interpreter->TextureCacheDeleteRange((const uint8_t*)oldAddr, pixelCount * sizeof(uint16_t));
     sActiveAuxFb = -1;
 
     // Clear GPU depth + color AFTER readback.
@@ -128,4 +119,13 @@ extern "C" void port_unregisterAuxColorImage(void* cpuAddr) {
         sActiveAuxFb = -1;
     }
     sAuxColorImages.erase(it);
+}
+
+extern "C" int port_getAuxFramebufferId(void* cpuAddr) {
+    uintptr_t key = (uintptr_t)cpuAddr;
+    auto it = sAuxColorImages.find(key);
+    if (it == sAuxColorImages.end()) {
+        return -1;
+    }
+    return it->second.fbId;
 }

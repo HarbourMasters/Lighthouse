@@ -5,6 +5,7 @@
 
 extern void port_registerAuxColorImage(void* cpuAddr, unsigned int width, unsigned int height);
 extern void port_unregisterAuxColorImage(void* cpuAddr);
+extern int port_getAuxFramebufferId(void* cpuAddr);
 
 
 #define TILE_SIZE 32
@@ -100,32 +101,31 @@ void func_8030C2D4(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     func_80253640(gdl, gFramebuffers[getActiveFramebuffer()]);
 }
 
-// Draws a 160x128 image pointed to by D_80382450 into the center of the screen
+// Draws the aux framebuffer content into the center of the screen.
+// [port] Uses GPU-side FB directly via gDPSetTextureImageFB instead of CPU readback.
+// Grayscale is applied via LUS grayscale mode (replaces N64's G_IM_FMT_IA reinterpretation).
 void func_8030C33C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    s32 x, y;
-
-    // Set up the rendering state to draw the image
-    gSPDisplayList((*gfx)++, D_8036C450);
-    // Iterate over every tile in the image
-    for (y = 0; y < TILE_COUNT_Y; y++) {
-        for(x = 0; x < TILE_COUNT_X; x++){
-            // Load the current tile from the image
-            gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(D_80382450), G_IM_FMT_IA, G_IM_SIZ_16b, IMAGE_WIDTH, IMAGE_HEIGHT,
-                TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE * (x + 1) - 1, TILE_SIZE * (y + 1) - 1,
-                0,
-                G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP,
-                G_TX_NOMASK, G_TX_NOMASK,
-                G_TX_NOLOD, G_TX_NOLOD);
-            // Draw the tile to the screen at the target position
-            gSPScisTextureRectangle((*gfx)++,
-                (TILE_SIZE * x + HORIZONTAL_MARGIN) * 4,       (TILE_SIZE * y + VERTICAL_MARGIN) * 4,
-                (TILE_SIZE * (x + 1) + HORIZONTAL_MARGIN) * 4, (TILE_SIZE * (y + 1) + VERTICAL_MARGIN) * 4,
-                0,
-                TILE_SIZE * x << 5, TILE_SIZE * y << 5,
-                1 << 10, 1 << 10);
-        }
+    s32 auxFbId = port_getAuxFramebufferId(D_80382450);
+    if (auxFbId < 0) {
+        return; // GPU FB not registered yet
     }
-    // Reset the rendering state
+
+    // Set up rendering state
+    gSPDisplayList((*gfx)++, D_8036C450);
+    // [port] Enable grayscale — on N64 this was achieved by loading RGBA16 as IA16 format.
+    // LUS grayscale mode applies the same effect in the shader.
+    gSPGrayscale((*gfx)++, 1);
+    // Draw the GPU FB directly as a texture, scaled to the picture frame area
+    gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, IMAGE_WIDTH, auxFbId);
+    gDPImageRectangle((*gfx)++,
+        HORIZONTAL_MARGIN << 2, VERTICAL_MARGIN << 2,   // dest x0, y0 (10.2 format)
+        0, 0,                                            // source x0, y0
+        (HORIZONTAL_MARGIN + IMAGE_WIDTH) << 2, (VERTICAL_MARGIN + IMAGE_HEIGHT) << 2, // dest x1, y1
+        IMAGE_WIDTH, IMAGE_HEIGHT,                       // source x1, y1
+        G_TX_RENDERTILE,
+        IMAGE_WIDTH, IMAGE_HEIGHT);                      // source image dimensions
+    gSPGrayscale((*gfx)++, 0);
+    // Reset rendering state
     gSPDisplayList((*gfx)++, D_8036C4A8);
 }
 
