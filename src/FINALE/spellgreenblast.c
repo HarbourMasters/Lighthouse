@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "../fight.h"
+#include "fight.h"
 
 extern Actor *func_80325CAC(ActorMarker *, Gfx **, Mtx **, Vtx**);
 
