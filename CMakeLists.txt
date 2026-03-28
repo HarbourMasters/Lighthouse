@@ -143,7 +143,7 @@ endif()
 
 # Set game compilation version
 set(VERSION us)
-set(USE_NETWORKING OFF)
+set(USE_NETWORKING ON)
 set(SKIP_XCODE_VERSION_CHECK ON)
 
 # Add compile definitions for the target
@@ -415,7 +415,7 @@ else()
     find_package(Ogg REQUIRED)
     find_package(Vorbis REQUIRED)
  	set(ADDITIONAL_LIBRARY_DEPENDENCIES
-        "$<$<BOOL:${USE_NETWORKING}>:SDL2_net::SDL2_net>"
+        "$<$<BOOL:${USE_NETWORKING}>:SDL2_net>"
         "Ogg::ogg"
         "Vorbis::vorbis"
         "Vorbis::vorbisenc"
@@ -432,7 +432,7 @@ if(USE_NETWORKING)
     endif()
     find_package(SDL2_net REQUIRED)
     include_directories(${SDL2_NET_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_net::SDL2_net)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_net)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_NETWORKING)
 endif()
 

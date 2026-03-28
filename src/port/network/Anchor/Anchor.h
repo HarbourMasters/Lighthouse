@@ -2,14 +2,13 @@
 #define NETWORK_ANCHOR_H
 #ifdef __cplusplus
 
-#include "soh/Network/Network.h"
+#include "src/port/network/Network.h"
 #include <libultraship/libultraship.h>
 #include <queue>
 #include <mutex>
 
 extern "C" {
 #include "variables.h"
-#include "z64.h"
 }
 
 void DummyPlayer_Init(Actor* actor, PlayState* play);
