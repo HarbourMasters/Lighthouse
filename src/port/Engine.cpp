@@ -25,7 +25,6 @@
 #include "port/ui/cvar_prefixes.h"
 #include "ui/LighthouseGui.hpp"
 #include "2.0L/PR/libaudio.h"
-// #include "port/patches/DisplayListPatch.h"
 #include "port/enhancements/events/PortEnhancements.h"
 #include "libultraship/libultra/AudioDmaRegistry.h"
 
@@ -1070,7 +1069,6 @@ void GameEngine::AudioExit() {
     }
 }
 
-void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter);
 extern "C" int port_isViBlack(void);
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
@@ -1103,10 +1101,6 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             gui->StartDraw();
             interpreter->StartFrame();
             interpreter->Run(Commands, m);
-            // [port] Only readback on the final (real) frame, not interpolated ones.
-            if (isFinalFrame) {
-                Framebuffer_ReadbackGPU_FromBackbuffer(interpreter);
-            }
             // [port] Emulate N64 osViBlack: skip presentation so the previous
             // frame stays on screen (readback still runs so transitions can capture).
             gui->EndDraw();

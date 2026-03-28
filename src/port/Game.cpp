@@ -69,67 +69,15 @@ extern "C" int port_getPauseFramebufferId(void) {
     return s_pauseFbId;
 }
 
-// [port] Hires readback state for transition tile capture.
-static uint16_t* s_gpuReadbackBuffer = nullptr;
-static uint32_t s_gpuReadbackSize = 0;
-static uint32_t s_gpuReadbackW = 0;
-static uint32_t s_gpuReadbackH = 0;
-static bool s_gpuReadbackFlipY = false;
-
-// [port] On-demand hires readback for transition capture. Called from Engine.cpp
-// after Run() so the GPU frame is guaranteed ready. Only fires when requested
-// via port_requestReadback (transitions, particles). No downsampling — reads at
-// full internal resolution so transition tiles capture detail.
-void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
-    if (s_freezeReadback) return;
-    if (s_readbackRequestFrames <= 0) return;
+// [port] Consumed by the display list builder (bufferreadback.c) to emit
+// gDPReadFB into the DL, populating gFramebuffers at native resolution.
+extern "C" int port_consumeReadbackRequest(void) {
+    if (s_freezeReadback || s_readbackRequestFrames <= 0) return 0;
     s_readbackRequestFrames--;
-    if (!interpreter || !interpreter->mRapi) return;
-
-    int fbId = interpreter->mRendersToFb ? interpreter->mGameFb : 0;
-    uint32_t gpuW = 0, gpuH = 0;
-    interpreter->GetCurDimensions(&gpuW, &gpuH);
-    if (gpuW == 0 || gpuH == 0) return;
-
-    uint32_t neededSize = gpuW * gpuH;
-    if (s_gpuReadbackSize < neededSize) {
-        free(s_gpuReadbackBuffer);
-        s_gpuReadbackBuffer = (uint16_t*)malloc(neededSize * sizeof(uint16_t));
-        s_gpuReadbackSize = neededSize;
-    }
-
-    interpreter->mRapi->ReadFramebufferToCPU(fbId, gpuW, gpuH, s_gpuReadbackBuffer);
-    s_gpuReadbackW = gpuW;
-    s_gpuReadbackH = gpuH;
-
-    const char* apiName = interpreter->mRapi->GetName();
-    bool isOpenGL = (apiName && strstr(apiName, "OpenGL") != nullptr);
-    s_gpuReadbackFlipY = isOpenGL && !interpreter->mRendersToFb;
+    return 1;
 }
 
-// [port] Sample from full-resolution GPU readback for transition tile capture.
-extern "C" uint16_t port_sampleHiresReadback(int fbX, int fbY) {
-    if (!s_gpuReadbackBuffer || s_gpuReadbackW == 0 || s_gpuReadbackH == 0) {
-        return 0;
-    }
-
-    int gpuX = fbX * (int)s_gpuReadbackW / gFramebufferWidth;
-    int gpuY = fbY * (int)s_gpuReadbackH / gFramebufferHeight;
-
-    if (gpuX < 0) gpuX = 0;
-    if (gpuY < 0) gpuY = 0;
-    if (gpuX >= (int)s_gpuReadbackW) gpuX = (int)s_gpuReadbackW - 1;
-    if (gpuY >= (int)s_gpuReadbackH) gpuY = (int)s_gpuReadbackH - 1;
-
-    if (s_gpuReadbackFlipY) {
-        gpuY = (int)s_gpuReadbackH - 1 - gpuY;
-    }
-
-    uint16_t px = s_gpuReadbackBuffer[gpuY * s_gpuReadbackW + gpuX];
-    return (px >> 8) | (px << 8); // byte-swap to BE
-}
-
-// [port] no-op — readback is done in Framebuffer_ReadbackGPU_FromBackbuffer
+// [port] no-op — readback is done via gDPReadFB in the display list
 extern "C" void Framebuffer_ReadbackGPU(int bufferIndex) {
     (void)bufferIndex;
 }

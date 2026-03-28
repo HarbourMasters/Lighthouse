@@ -9,6 +9,10 @@
 extern void func_802F5374(void);
 extern void func_802FA0F8(void);
 extern void port_requestReadback(void);
+extern int port_consumeReadbackRequest(void);
+extern int port_shouldCaptureTransition(void);
+extern void port_readTransitionFbToCpu(Gfx **gfx);
+extern void port_patchTransitionModel(BKModelBin *model_bin);
 extern void timedFuncQueue_update(void);
 extern void func_80335128(s32);
 extern void func_8025A2B0(void);
@@ -120,6 +124,11 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     scissorBox_SetForGameMode(gdl, framebuffer_idx);
     D_8037E8E0.unkC = false;
     func_80334540(gdl, mptr, vptr);
+    // [port] After scene draw, capture the transition GPU FB if active.
+    // Resets FB and copies backbuffer → transition FB (GPU-side, no readback).
+    if (port_shouldCaptureTransition()) {
+        port_readTransitionFbToCpu(gdl);
+    }
     if(!arg4){
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());
@@ -176,6 +185,14 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         || D_8037E8E0.unk19 == 5
     ){
         gctransition_draw(gdl, mptr, vptr);
+    }
+    // [port] Populate gFramebuffers from the GPU via gDPReadFB at native resolution.
+    // Transitions and particles read from gFramebuffers during game logic.
+    // On N64, gFramebuffers was the render target directly; on PC the GPU renders
+    // to its own buffer, so we read it back here when requested.
+    if (port_consumeReadbackRequest()) {
+        gDPReadFB((*gdl)++, 0, (u16 *)gFramebuffers[getActiveFramebuffer()],
+                  0, 0, gFramebufferWidth, gFramebufferHeight, 1);
     }
     finishFrame(gdl);
     osWritebackDCache(m_start, sizeof(Mtx)*( *mptr - m_start));
