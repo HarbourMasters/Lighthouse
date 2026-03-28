@@ -66,7 +66,6 @@ u8* soundfont1tbl_ROM_START = NULL;
 u8* soundfont2ctl_ROM_START = NULL;
 u8* soundfont2ctl_ROM_END = NULL;
 u8* soundfont2tbl_ROM_START = NULL;
-
 }
 
 std::vector<uint8_t*> MemoryPool;

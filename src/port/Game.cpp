@@ -62,9 +62,8 @@ static int s_pauseFbId = -1;
 
 extern "C" int port_getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
-        s_pauseFbId = gfx_create_framebuffer(
-            gFramebufferWidth, gFramebufferHeight,
-            gFramebufferWidth, gFramebufferHeight, 1);
+        s_pauseFbId =
+            gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth, gFramebufferHeight, 1);
     }
     return s_pauseFbId;
 }
@@ -72,7 +71,8 @@ extern "C" int port_getPauseFramebufferId(void) {
 // [port] Consumed by the display list builder (bufferreadback.c) to emit
 // gDPReadFB into the DL, populating gFramebuffers at native resolution.
 extern "C" int port_consumeReadbackRequest(void) {
-    if (s_freezeReadback || s_readbackRequestFrames <= 0) return 0;
+    if (s_freezeReadback || s_readbackRequestFrames <= 0)
+        return 0;
     s_readbackRequestFrames--;
     return 1;
 }
