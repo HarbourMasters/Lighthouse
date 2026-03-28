@@ -1405,7 +1405,6 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
 
     if (D_8036C620 == 1) {
-        port_requestReadback(); // [port] request readback so snapshot has valid data next frame
         func_8033B61C();
         D_8036C620 = 2;
     }

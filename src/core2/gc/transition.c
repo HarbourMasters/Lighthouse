@@ -9,6 +9,7 @@ void func_8025AC20(s32, s32, s32, f32, char*, s32);
 extern void port_setViBlack(int active);     // [port] display blanking (black screen after readback)
 extern void port_freezeReadback(int freeze); // [port] freeze gFramebuffers for transition capture
 extern void port_requestReadback(void);
+extern void port_patchTransitionModel(BKModelBin *model_bin);
 
 typedef enum {
     TRANSITION_ID_1_BLACK_IN = 1,
@@ -203,17 +204,17 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         }
         else{
             osViBlack(1);
-            port_setViBlack(1); // [port] hide screen (readback still runs so gFramebuffers gets the world)
+            port_setViBlack(1); // [port] hide screen (Engine.cpp skips present when set)
             port_requestReadback(); // [port] need readback active for transition capture
             anctrl_setAnimTimer(s_current_transition.anctrl, 0.25f); //set animation timer
         }
-        anctrl_start(s_current_transition.anctrl, "gctransition.c", 0x125); 
+        anctrl_start(s_current_transition.anctrl, "transition.c", 0x125); 
     }
 
     if(state == TRANSITION_STATE_4_FADE_IN){
         if(func_802D4608()==0){
             comusic_playTrack(COMUSIC_4E_IN_TRANSITION);
-            func_8025AC20(COMUSIC_4E_IN_TRANSITION, 0, 1000, 0.4f, "gctransition.c", 0x12d);
+            func_8025AC20(COMUSIC_4E_IN_TRANSITION, 0, 1000, 0.4f, "transition.c", 0x12d);
             func_8025AABC(COMUSIC_4E_IN_TRANSITION);
         }
     }//L8030B67C
@@ -224,7 +225,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         else{
             if(func_802D4608() == 0){
                 comusic_playTrack(COMUSIC_4F_OUT_TRANSITION);
-                func_8025AC20(COMUSIC_4F_OUT_TRANSITION, 0, 1000, 0.2f, "gctransition.c", 0x13a);
+                func_8025AC20(COMUSIC_4F_OUT_TRANSITION, 0, 1000, 0.2f, "transition.c", 0x13a);
                 func_8025AABC(COMUSIC_4F_OUT_TRANSITION);
             }
         }
@@ -285,27 +286,24 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     }
 
-    // [port] Widescreen transition scaling
+    // [port] Widescreen transition scaling.
     f32 transitionScale;
-    s32 isJigsawWidescreen = 0;
-    f32 jigsawXScale = 1.0f;
     {
         s32 vpW = port_getViewportWidth();
         f32 aspectRatio = (f32)vpW / 320.0f;
-        transitionScale = (aspectRatio > 1.01f) ? aspectRatio + 0.1f : 1.0f;
-
-        // [port] Jigsaw uses X-only projection scale to avoid vertical zoom
-        if (s_current_transition.transistion_info != NULL &&
+        s32 isJigsaw = (s_current_transition.transistion_info != NULL &&
             (s_current_transition.transistion_info->uid == 0x10 ||
-             s_current_transition.transistion_info->uid == 0x11) &&
-            aspectRatio > 1.01f) {
-            isJigsawWidescreen = 1;
-            jigsawXScale = aspectRatio + 0.1f;
-            // jigsaw pieces caused by per-bone FP rounding under projection X-scale.
-            transitionScale = 1.005f;
-            Mtx* xScaleMtx = (*mptr)++;
-            guScale(xScaleMtx, jigsawXScale, 1.0f, 1.0f);
+             s_current_transition.transistion_info->uid == 0x11));
+
+        if (isJigsaw && aspectRatio > 1.01f) {
+            // Jigsaw: X-scale projection fills widescreen. UV mapping in
+            // port_patchTransitionModel uses vpW to match.
+            transitionScale = 1.0f;
+            Mtx *xScaleMtx = (*mptr)++;
+            guScale(xScaleMtx, aspectRatio, 1.0f, 1.0f);
             gSPMatrix((*gdl)++, xScaleMtx, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+        } else {
+            transitionScale = (aspectRatio > 1.01f) ? aspectRatio + 0.1f : 1.0f;
         }
     }
 
@@ -394,11 +392,6 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     if(s_current_transition.anctrl != NULL){
         gDPSetTextureFilter((*gdl)++, G_TF_BILERP);
     }
-    if(isJigsawWidescreen){
-        Mtx* xScaleUndoMtx = (*mptr)++;
-        guScale(xScaleUndoMtx, 1.0f / jigsawXScale, 1.0f, 1.0f);
-        gSPMatrix((*gdl)++, xScaleUndoMtx, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    }
     viewport_restoreState();
     viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
     
@@ -422,6 +415,17 @@ int gctransition_done(void){
 
 int gctransition_active(void){
     return s_current_transition.state != TRANSITION_STATE_0_NONE;
+}
+
+// [port] Returns true during the frames when the scene should be captured
+// into the transition framebuffer for the falling jiggy pieces.
+int port_shouldCaptureTransition(void) {
+    if (s_current_transition.transistion_info == NULL) return 0;
+    if (s_current_transition.transistion_info->model_index != ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES) return 0;
+    if (s_current_transition.transistion_info->uid == TRANSITION_ID_10_FALLING_PIECES_IN) {
+        return s_current_transition.substate <= 2;
+    }
+    return s_current_transition.substate == 2;
 }
 
 int gctransition_8030BDC0(void){
@@ -479,6 +483,7 @@ void gctransition_update(void){
                     port_freezeReadback(1); // [port] next draw is black — freeze so gFramebuffers keeps world for substate 3 capture
                     break;
                 case 3:
+                    port_patchTransitionModel(s_current_transition.model_ptr);
                     func_802FEF48(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
                 case 4:
@@ -503,6 +508,7 @@ void gctransition_update(void){
                     break;
                 case 2:
                     func_80335128(0);
+                    port_patchTransitionModel(s_current_transition.model_ptr);
                     func_802FEF48(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
                 

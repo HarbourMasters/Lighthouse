@@ -223,7 +223,10 @@ void gcquiz_init() {
     s32 i;
 
     sD_803830E0 = bk_malloc(sizeof(Struct_Core2_91E10));
-    sD_803830E0->unkC = bk_malloc(0x400);
+    // [port] On N64 this was a bk_malloc'd DMA buffer for code_B3A80_func_8033BDAC.
+    // That path is stubbed in the port; unkC is reassigned to a resource manager
+    // pointer by assetcache_get on the first question load.
+    sD_803830E0->unkC = NULL;
     sD_803830E0->unk16 = 0x14U;
     sD_803830E0->unk17 = 0x1E;
     sD_803830E0->portait_ids[0] = 0;
@@ -240,7 +243,8 @@ void gcquiz_free() {
     s32 i;
 
     if (sD_803830E0 != NULL) {
-        bk_free(sD_803830E0->unkC);
+        // [port] unkC points to resource manager memory after the first question,
+        // not bk_malloc'd memory. Don't bk_free it.
         sD_803830E0->unkC = NULL;
         for(i = 0; i < 4; i++){
             gczoombox_free(sD_803830E0->zoomboxes[i]);
@@ -263,7 +267,7 @@ void gcquiz_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
 // randomize quiz question?
 static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, s32 arg2) {
-    u8 *char_iter; // [port] MIPS char is unsigned; must be u8 for 0x80+ cmd bytes
+    u8 *char_iter;
     enum asset_e quiz_question_index;
     s32 temp_s2;
     s32 str_cnt;
@@ -286,7 +290,10 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
 
     // not in asset cache?
     if (code_B3A80_func_8033BDAC(quiz_question_index, sD_803830E0->unkC, 0x400) == 0) {
-        bk_free(sD_803830E0->unkC);
+        // [port] On N64, assetcache_get returned bk_malloc'd memory so bk_free was
+        // valid. In the port, assetcache_get returns a resource manager pointer that
+        // must not be bk_free'd. The initial bk_malloc(0x400) from gcquiz_init leaks
+        // once on the first question load; subsequent calls just reassign the pointer.
         sD_803830E0->unkC = (QuizQuestionBin *) assetcache_get(quiz_question_index);
     }
 
@@ -294,6 +301,7 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
     quiz_question_bin_unk0 = *(char_iter++); // NEXT
     quiz_question_bin_unk1 = *(char_iter++); // NEXT
     quiz_question_bin_unk2 = *(char_iter++); // NEXT
+
     first_answer_cmd = ((quiz_question_bin_unk1 >= 2) ? __gcquiz_func_80318F60(q_type, q_index, arg2) : 0) + 1;
     // is sound question or quiz_question_bin_unk2 == 0
     if (((quiz_question_bin_unk2 == 0) || (__gcquiz_isSoundQuestion(q_type) != false)) != false) {
@@ -344,6 +352,7 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
         }
         char_iter += option_text; // SKIP
     }
+
     return true;
 }
 

@@ -73,15 +73,34 @@ void func_80253640(Gfx ** gdl, void *arg1){
     zBuffer_set(gdl);
 }
 
+extern s32 port_getAuxGpuFbId(void);
+extern s32 port_getTransitionGpuFbId(void);
+extern int port_shouldCaptureTransition(void);
+
 void scissorBox_SetForGameMode(Gfx **gdl, s32 framebuffer_idx) {
     if(getGameMode() == GAME_MODE_8_BOTTLES_BONUS || getGameMode() == GAME_MODE_A_SNS_PICTURE)
     {
+        // [port] Redirect rendering to GPU-side aux FB via gsSPSetFB.
+        // On N64, gDPSetColorImage pointed to D_80382450 (CPU buffer).
+        // gsSPResetFB is emitted in func_802E39D0 after the scene draw.
+        s32 auxFb = port_getAuxGpuFbId();
+        if (auxFb >= 0) {
+            gsSPSetFB((*gdl)++, auxFb);
+        }
         scissorBox_setSmall();
         func_80253640(gdl, func_8030C704());
     }
     else{
         scissorBox_setDefault();
         func_80253640(gdl, gFramebuffers[framebuffer_idx]);
+        // [port] During transition capture, also redirect rendering to the
+        // transition GPU FB so the scene is captured for jiggy piece textures.
+        if (port_shouldCaptureTransition()) {
+            s32 trFb = port_getTransitionGpuFbId();
+            if (trFb >= 0) {
+                gsSPSetFB((*gdl)++, trFb);
+            }
+        }
     }
 }
 

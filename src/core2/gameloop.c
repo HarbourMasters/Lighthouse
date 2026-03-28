@@ -9,6 +9,10 @@
 extern void func_802F5374(void);
 extern void func_802FA0F8(void);
 extern void port_requestReadback(void);
+extern int port_consumeReadbackRequest(void);
+extern int port_shouldCaptureTransition(void);
+extern void port_readTransitionFbToCpu(Gfx **gfx);
+extern void port_patchTransitionModel(BKModelBin *model_bin);
 extern void timedFuncQueue_update(void);
 extern void func_80335128(s32);
 extern void func_8025A2B0(void);
@@ -120,6 +124,11 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     scissorBox_SetForGameMode(gdl, framebuffer_idx);
     D_8037E8E0.unkC = false;
     func_80334540(gdl, mptr, vptr);
+    // [port] After scene draw, capture the transition GPU FB if active.
+    // Resets FB and copies backbuffer → transition FB (GPU-side, no readback).
+    if (port_shouldCaptureTransition()) {
+        port_readTransitionFbToCpu(gdl);
+    }
     if(!arg4){
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());
@@ -131,6 +140,13 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         && D_8037E8E0.unk19 != 5
     ){
         gctransition_draw(gdl, mptr, vptr);
+    }
+
+    // [port] Return rendering to main FB after scene draw + transitions for
+    // SNS/Bottles modes. Must come AFTER gctransition_draw so the transition
+    // fade renders into the aux FB (visible on the picture), not the main FB.
+    if (D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS || D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) {
+        gsSPResetFB((*gdl)++);
     }
     
     if( D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS
@@ -169,6 +185,14 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         || D_8037E8E0.unk19 == 5
     ){
         gctransition_draw(gdl, mptr, vptr);
+    }
+    // [port] Populate gFramebuffers from the GPU via gDPReadFB at native resolution.
+    // Transitions and particles read from gFramebuffers during game logic.
+    // On N64, gFramebuffers was the render target directly; on PC the GPU renders
+    // to its own buffer, so we read it back here when requested.
+    if (port_consumeReadbackRequest()) {
+        gDPReadFB((*gdl)++, 0, (u16 *)gFramebuffers[getActiveFramebuffer()],
+                  0, 0, gFramebufferWidth, gFramebufferHeight, 1);
     }
     finishFrame(gdl);
     osWritebackDCache(m_start, sizeof(Mtx)*( *mptr - m_start));
@@ -443,16 +467,30 @@ void func_802E4384(void){
     }
     else{
         func_8033DC18();
-        // [port] Restored original integer-frame timing. The port's Game.cpp runs game logic
-        // at a fixed 30fps timestep, so this quantizes to ~2 VIs matching N64 behavior.
-        // Previously used time_setDeltaReal_sec() which left s_dTimeReal_frames at 0,
-        // breaking dynamicCamera, zoombox, clam.c, and demo playback timing.
-        time_setDeltaReal_frames((s32)(func_8033DC20()*60.0f + 0.5));
+        // [port] Respect the VI divisor set by cutscene framerate actors (0x19-0x1D).
+        // On N64, viMgr_func_8024BFD8 used the divisor to wait for the right number
+        // of VIs per frame. On PC that wait loop is disabled, so cutscenes run at
+        // constant 30fps regardless of what the map specifies.
+        {
+            s32 viDivisor = viMgr_func_8024BFA0();
+            if (viDivisor > 2) {
+                func_8033DC20(); // consume wall-clock to keep last_ticks fresh
+                time_setDeltaReal_frames(viDivisor);
+            } else {
+                time_setDeltaReal_frames((s32)(func_8033DC20()*60.0f + 0.5));
+            }
+        }
     }
     func_8033DC10();
 
     D_8037E8E0.unk8 += time_getDelta();
 }
+
+// [port] After an SNS/demo map reload, the first render frame has no aux FBO set
+// up yet, so the scene renders directly to the primary FBO (visible as a black flash).
+// On N64 this was hidden by viBlack. Skip one extra draw frame to let the aux FBO
+// initialize before presenting.
+static s32 sSkipDrawFrames = 0;
 
 bool func_802E4424(void) {
     s32 sp1C;
@@ -507,6 +545,7 @@ bool func_802E4424(void) {
             case 12:                                    /* switch 1 */
                 func_8034B8C0(D_8037E8E0.map, D_8037E8E0.exit);
                 func_802E3E7C(GAME_MODE_A_SNS_PICTURE);
+                sSkipDrawFrames = 2; // [port] skip next draws so aux FBO initializes first
                 return false;
 
             case 7:                                     /* switch 1 */
@@ -548,7 +587,6 @@ bool func_802E4424(void) {
             func_8030C27C();
             /* fallthrough */
         case GAME_MODE_7_ATTRACT_DEMO:
-            port_requestReadback(); // [port] keep gFramebuffers updated for Bottles Bonus/SnS capture
             /* fallthrough */
         case GAME_MODE_9_BANJO_AND_KAZOOIE:
             func_8034BB90();
@@ -597,6 +635,13 @@ bool func_802E4424(void) {
     gctransition_update();
     if (func_802E4A08() == 0) {
         func_802F5374();
+    }
+    // [port] After SNS/demo map reload, skip the first draw frame so the aux FBO
+    // can initialize before we present. Without this, the scene renders to the
+    // primary FBO for one frame, causing a visible black flash.
+    if (sSkipDrawFrames > 0) {
+        sSkipDrawFrames--;
+        return false;
     }
     return true;
 }

@@ -6,6 +6,7 @@
 #include "core2/anim/sprite.h"
 #include <core2/file.h>
 #include "core2/particle.h"
+#include "port/FrameInterpolation.h"
 
 /* .data */
 extern u8 D_80370250 = 0;
@@ -54,7 +55,10 @@ void func_80334540(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
             func_80322E64(gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
+            // [port] Scope the player for identity-based interpolation matching.
+            FrameInterpolation_ScopeBegin((void*)"player", 0, *mptr);
             player_draw(gdl, mptr, vptr);
+            FrameInterpolation_ScopeEnd(*mptr);
         }
         if (game_is_frozen() == 0) {
             func_80302C94(gdl, mptr, vptr);
@@ -88,7 +92,10 @@ void func_80334540(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
         mapModel_opa_draw(gdl, mptr, vptr);
         func_80322E64(gdl, mptr, vptr);
         func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
+        // [port] Scope the player for identity-based interpolation matching.
+        FrameInterpolation_ScopeBegin((void*)"player", 0, *mptr);
         player_draw(gdl, mptr, vptr);
+        FrameInterpolation_ScopeEnd(*mptr);
         func_80302C94(gdl, mptr, vptr);
         func_8032D3D8(gdl, mptr, vptr);
         jiggylist_draw(gdl, mptr, vptr);

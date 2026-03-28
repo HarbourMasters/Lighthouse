@@ -3,6 +3,8 @@
 #include "variables.h"
 
 extern void actor_postdrawMethod(ActorMarker *);
+extern void port_readAuxFbToCpu(Gfx **gfx);
+extern void port_patchPictureModel(BKModelBin *model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from);
 
 void func_802DF2C4(Actor *this);
 
@@ -29,11 +31,14 @@ Actor *func_802DF160(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     this = marker_getActor(D_8037E000);
     sp38 = func_8030C704();
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
-    gDPSetTextureFilter((*gfx)++, G_TF_POINT);
+    gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
+    port_readAuxFbToCpu(gfx);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp38));
     modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)this);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)D_8037E000);
-    modelRender_draw(gfx, mtx, D_80368360, NULL, 1.0f, NULL, marker_loadModelBin(D_8037E000));
+    BKModelBin *model_bin = marker_loadModelBin(D_8037E000);
+    port_patchPictureModel(model_bin, 262, 397, -273, -100, 1);
+    modelRender_draw(gfx, mtx, D_80368360, NULL, 1.0f, NULL, model_bin);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     return this;
 }

@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "../fight.h"
+#include "fight.h"
 
 typedef struct chspellbarrier_s {
     s32 unk0;

@@ -17,6 +17,9 @@
 
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 
+// Furnace Fun active flag
+extern "C" s32 volatileFlag_get(s32);
+
 extern "C" uint64_t GetUnixTimestamp() {
     auto time = std::chrono::system_clock::now();
     auto since_epoch = time.time_since_epoch();
@@ -263,17 +266,19 @@ extern "C" int port_getViewportWidth(void) {
 extern "C" void port_setMapDebugTitle(int map_id) {
     char title[128];
     snprintf(title, sizeof(title), "Lighthouse - %s (0x%02X)", port_mapName(map_id), map_id);
-    SPDLOG_INFO("[port] {}", title);
 #ifdef _WIN32
-    // [port] Update the DXGI/SDL window title for quick visual debugging
+    // Update the DXGI/SDL window title for quick visual debugging
     HWND hwnd = GetActiveWindow();
-    if (hwnd) {
+    // No cheating in Furnace Fun
+    if (hwnd && volatileFlag_get(0)) {
+        SetWindowTextA(hwnd, "Lighthouse - Furnace Fun");
+    } else if (hwnd) {
         SetWindowTextA(hwnd, title);
     }
 #endif
 }
 
-// [port] Returns 0.0–1.0 rumble intensity scale from the ImGui controller config.
+// Returns 0.0–1.0 rumble intensity scale from the ImGui controller config.
 // Uses the average of low/high frequency percentages for the given controller port.
 extern "C" float port_getRumbleScale(void) {
     auto ctx = Ship::Context::GetInstance();

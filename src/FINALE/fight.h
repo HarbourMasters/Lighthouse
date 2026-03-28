@@ -160,7 +160,7 @@ extern void chfinalboss_spawnShadow(ActorMarker *marker);
 extern void chfinalboss_update(Actor *this);
 extern void chfinalboss_getPosition(f32 position[3]);
 extern void chfinalboss_spellBarrierInactive();
-extern void chfinalboss_func_8038C10C(s32 arg0);
+extern void chfinalboss_func_8038C10C(uintptr_t arg0);
 extern void chfinalboss_func_8038C138();
 extern void chfinalboss_setBossDefeated(void);
 extern void chfinalboss_setJinjoStatueActivated(bool state);
