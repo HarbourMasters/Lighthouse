@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <libultra/convert.h>
+#include "port/Engine.h"
 
 Gfx D_8036C630[] =
 {
@@ -36,66 +37,35 @@ s32 D_803830A0;
 
 
 /* .code */
-void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void *frame_buffer_2) {
-    s32 x;
-    s32 y;
+extern int port_getPauseFramebufferId(void);
 
-    // [port] On N64, the RDP copies frame_buffer_2 → frame_buffer_1 via gDPSetColorImage
-    // redirect. On PC, gDPSetColorImage doesn't redirect GPU output to CPU buffers,
-    // so do the copy via CPU.
-    memcpy(frame_buffer_1, frame_buffer_2, gFramebufferWidth * gFramebufferHeight * sizeof(u16));
+void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void *frame_buffer_2) {
+    // [port] GPU-side pause snapshot
+    s32 pauseFb = port_getPauseFramebufferId();
+    bool isCapture = (frame_buffer_1 == zBuffer_get());
 
     gSPDisplayList((*gfx)++, D_8036C630);
-    __gSPInvalidateTexCache((*gfx)++, 0);
-    gDPSetColorImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, OS_PHYSICAL_TO_K0(frame_buffer_1));
-    // [port] Draw tiles to cover the viewport. At widescreen, expand X from center
-    // to fill the full viewport. AdjXForAspectRatio in LUS squeezes X by (4/3)/windowAspect;
-    // we pre-compensate by expanding X by vpW/320.
-    {
-        s32 vpW = port_getViewportWidth();
-        if (vpW <= 320) {
-            // 4:3: original tiles
-            for(y = 0; y < gFramebufferHeight / 32 + 1; y++){
-                for(x = 0; x < gFramebufferWidth / 32 + 1; x++){
-                    s32 tx1 = MIN(0x20*(x + 1) - 1, gFramebufferWidth - 1);
-                    s32 ty1 = MIN(0x20*(y + 1) - 1, gFramebufferHeight - 1);
-                    gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(frame_buffer_2), G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, gFramebufferHeight,
-                        0x20*x, 0x20*y, tx1, ty1,
-                        0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, 0, 0
-                    );
-                    gSPScisTextureRectangle((*gfx)++, (0x20*x)*4, (0x20*y)*4, (tx1 + 1)*4, (ty1 + 1)*4,
-                        G_TX_RENDERTILE, (0x20*x)<<5, (0x20*y)<<5, 0x400, 0x400
-                    );
-                }
-            }
-        } else {
-            // Widescreen: center-relative X expansion
-            s32 fbHalfW = gFramebufferWidth / 2;
-            s32 xScale100 = vpW * 100 / 320;
 
-            for(y = 0; y < gFramebufferHeight / 32 + 1; y++){
-                for(x = 0; x < gFramebufferWidth / 32 + 1; x++){
-                    s32 tx0 = 0x20 * x;
-                    s32 ty0 = 0x20 * y;
-                    s32 tx1 = MIN(0x20 * (x + 1), gFramebufferWidth);
-                    s32 ty1 = MIN(0x20 * (y + 1), gFramebufferHeight);
-                    s32 sx0 = fbHalfW + (tx0 - fbHalfW) * xScale100 / 100;
-                    s32 sx1 = fbHalfW + (tx1 - fbHalfW) * xScale100 / 100;
-                    s32 tileW = sx1 - sx0;
-                    s32 sScale = (tileW > 0) ? ((tx1 - tx0) * 0x400 / tileW) : 0x400;
-
-                    gDPLoadTextureTile((*gfx)++, osVirtualToPhysical(frame_buffer_2), G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, gFramebufferHeight,
-                        tx0, ty0, tx1 - 1, ty1 - 1,
-                        0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, 0, 0
-                    );
-                    gSPWideTextureRectangle((*gfx)++,
-                        sx0 * 4, ty0 * 4, sx1 * 4, ty1 * 4,
-                        G_TX_RENDERTILE, tx0 << 5, ty0 << 5, sScale, 0x400
-                    );
-                }
-            }
-        }
+    if (isCapture) {
+        // First frame: copy the current backbuffer → pause GPU FB
+        gDPCopyFB((*gfx)++, pauseFb, 0, 0, NULL);
     }
+
+    // Draw the saved pause FB as a full-screen background, edge-to-edge in widescreen
+    s32 renderW = (s32)OTRGetGameRenderWidth();
+    s32 renderH = (s32)OTRGetGameRenderHeight();
+    s32 x0 = OTRGetRectDimensionFromLeftEdge(0);
+    s32 x1 = OTRGetRectDimensionFromRightEdge((f32)gFramebufferWidth);
+
+    gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, pauseFb);
+    gDPImageRectangle((*gfx)++,
+        x0 << 2, 0,
+        0, 0,
+        x1 << 2, gFramebufferHeight << 2,
+        renderW, renderH,
+        G_TX_RENDERTILE,
+        renderW, renderH);
+
     gSPDisplayList((*gfx)++, D_8036C690);
     gDPSetColorImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, OS_PHYSICAL_TO_K0(gFramebuffers[getActiveFramebuffer()]));
 }

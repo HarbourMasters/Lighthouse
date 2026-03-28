@@ -1075,6 +1075,9 @@ void GameEngine::AudioExit() {
 
 void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter);
 extern "C" int port_isViBlack(void);
+extern "C" s32 getGameMode(void);
+extern "C" int gctransition_getFrameCount(void);
+extern "C" int gctransition_active(void);
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());

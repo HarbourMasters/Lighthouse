@@ -126,6 +126,12 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         func_802E67C4();
         func_802E5F10(gdl);
     }
+    // [port] Return rendering to main FB after scene draw for SNS/Bottles modes.
+    // gsSPSetFB was emitted in scissorBox_SetForGameMode.
+    if (D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS || D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) {
+        gsSPResetFB((*gdl)++);
+    }
+
     if( D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE
         && D_8037E8E0.unk19 != 6
         && D_8037E8E0.unk19 != 5
@@ -577,7 +583,6 @@ bool func_802E4424(void) {
             func_8030C27C();
             /* fallthrough */
         case GAME_MODE_7_ATTRACT_DEMO:
-            port_requestReadback(); // [port] keep gFramebuffers updated for Bottles Bonus/SnS capture
             /* fallthrough */
         case GAME_MODE_9_BANJO_AND_KAZOOIE:
             func_8034BB90();
