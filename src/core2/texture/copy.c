@@ -4,23 +4,20 @@
 #include "variables.h"
 
 extern void gfx_texture_cache_clear(void);
-extern u16 port_sampleHiresReadback(int x, int y);
 
 u8 *func_802EA620(BKTextureList *texture_list);
 
-// [port] Samples from full-res GPU readback instead of 292x216 gFramebuffers.
 void func_802FEDE0(BKTextureList *texture_list, s32 indx, s32 x_offset, s32 y_offset){
     u16 *sp24;
-    // u16 *frame_buffer_ptr; // [port] replaced by high-res readback sampling
+    u16 *frame_buffer_ptr;
     s32 y;
     s32 x;
 
     sp24 = (u16*)func_802EA620(texture_list) + indx*32*32;
-    // frame_buffer_ptr = gFramebuffers[getActiveFramebuffer()]; // [port] replaced
+    frame_buffer_ptr = gFramebuffers[getActiveFramebuffer()];
     for(y = 0; y < 32; y++){
         for(x = 0; x < 32; x++){
-            // [port] Alpha bit is at position 8 in byte-swapped RGBA16
-            sp24[32*(31 - y) + x] = port_sampleHiresReadback(x_offset + x, y_offset + y) | 0x100;
+            sp24[32*(31 - y) + x] = frame_buffer_ptr[(y_offset + y) * gFramebufferWidth + (x_offset + x)] | 1;
         };
     };
 }

@@ -385,7 +385,7 @@ void chjinjonator_attack(ActorMarker *marker, s32 hit_count, bool mirrored) {
     anctrl_setSmoothTransition(actor_jinjonator->anctrl, 1);
     actor_playAnimationOnce(actor_jinjonator);
 
-    if (&chJinjonatorHitYawValue[hit_count] >= chJinjonatorHitSounds) {
+    if (hit_count >= (s32)(sizeof(chJinjonatorHitYawValue) / sizeof(chJinjonatorHitYawValue[0]))) {
         subaddie_set_state_with_direction(actor_jinjonator, JINJONATOR_STATE_9_FINAL_ATTACK_POWER_UP, 0.001f, 1);
         return;
     }

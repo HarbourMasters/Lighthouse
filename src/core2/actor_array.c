@@ -6,7 +6,7 @@
 
 #include "prop.h"
 
-extern s32 D_80370990; // [port] original frustum result from modelRender_draw
+extern s32 D_80370990;
 extern s32 port_getViewportWidth(void);
 
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
@@ -16,8 +16,8 @@ extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 extern void func_8033A244(f32);
-extern uintptr_t func_802F3364(uintptr_t); // [port] identity function, needs pointer-width types
-extern void *func_802F2AEC(void); // [port] must declare — implicit int return truncates 64-bit pointer
+extern uintptr_t func_802F3364(uintptr_t);
+extern void *func_802F2AEC(void);
 extern void func_802F2C78(Struct64s *);
 extern void func_802F2D8C(Struct64s *);
 
@@ -1677,11 +1677,11 @@ void func_803299B4(Actor *arg0) {
     s32 position[3];
     s32 rotation[3];
 
-    arg0->marker->collisionFunc = (MarkerCollisionFunc)arg0->unk108; // [port] cast — save/restore repurposes Struct62s* field to hold MarkerCollisionFunc
+    arg0->marker->collisionFunc = (MarkerCollisionFunc)arg0->unk108;
     arg0->marker->collision2Func = arg0->unk10C;
-    arg0->marker->dieFunc = (MarkerCollisionFunc)arg0->unk134; // [port] cast — save/restore repurposes bk_vector** field to hold MarkerCollisionFunc
+    arg0->marker->dieFunc = (MarkerCollisionFunc)arg0->unk134;
     arg0->marker->unk54 = arg0->unk160;
-    arg0->marker->unk58 = (s32 (*)(struct actorMarker_s *, struct actorMarker_s *))arg0->unk168; // [port] cast — save/restore repurposes uintptr_t field to hold function pointer
+    arg0->marker->unk58 = (s32 (*)(struct actorMarker_s *, struct actorMarker_s *))arg0->unk168;
     arg0->marker->actorFreeFunc = arg0->backupFreeFunc;
     arg0->marker->unk5C = arg0->unk16C_31;
     arg0->marker->propPtr->unk8_3 = arg0->unkF4_28;

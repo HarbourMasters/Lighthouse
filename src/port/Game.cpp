@@ -57,119 +57,27 @@ extern "C" void port_requestReadback(void) {
     s_readbackRequestFrames = 2;
 }
 
-// [port] GPU readback state — shared between regular readback and high-res tile sampling.
-// The regular readback downsamples to 292x216 for gFramebuffers (used by most decomp code).
-// The full-res buffer is kept so transition tile capture can sample at internal resolution.
-static uint16_t* s_gpuReadbackBuffer = nullptr;
-static uint32_t s_gpuReadbackSize = 0;
-static uint32_t s_gpuReadbackW = 0;
-static uint32_t s_gpuReadbackH = 0;
-static bool s_gpuReadbackFlipY = false;
+// [port] GPU FB for pause menu capture (created once, reused).
+static int s_pauseFbId = -1;
 
-// [port] GPU→CPU framebuffer readback. On N64, CPU/RDP shared physical memory so
-// gFramebuffers always had valid pixel data. On PC, we read the backbuffer after
-// Run() but before EndFrame() (buffer swap) — see the expanded pipeline in Engine.cpp.
-//
-// This function is called from Engine.cpp's RunCommands every frame with the
-// backbuffer still intact. It reads at internal resolution into s_gpuReadbackBuffer,
-// then downsamples to N64 native resolution (292x216) into both gFramebuffers.
-// OpenGL returns bottom-up rows; DX11 returns top-down.
-void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter) {
-    if (s_freezeReadback) {
-        return; // [port] preserve gFramebuffers for transition capture
+extern "C" int port_getPauseFramebufferId(void) {
+    if (s_pauseFbId < 0) {
+        s_pauseFbId =
+            gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth, gFramebufferHeight, 1);
     }
-    if (s_readbackRequestFrames <= 0) {
-        return; // [port] on-demand: skip unless a consumer needs data
-    }
-    s_readbackRequestFrames--;
-    if (!interpreter || !interpreter->mRapi) {
-        return;
-    }
-
-    uint32_t dstW = (uint32_t)gFramebufferWidth;
-    uint32_t dstH = (uint32_t)gFramebufferHeight;
-    if (dstW == 0 || dstH == 0) {
-        return;
-    }
-
-    // When mRendersToFb is true (GUI has menus/letterboxing), game renders to mGameFb
-    // and FB 0 is cleared at the end of Run(). Read from whichever has the frame.
-    int fbId = interpreter->mRendersToFb ? interpreter->mGameFb : 0;
-
-    uint32_t gpuW = 0, gpuH = 0;
-    interpreter->GetCurDimensions(&gpuW, &gpuH);
-    if (gpuW == 0 || gpuH == 0) {
-        return;
-    }
-
-    uint32_t neededSize = gpuW * gpuH;
-    if (s_gpuReadbackSize < neededSize) {
-        free(s_gpuReadbackBuffer);
-        s_gpuReadbackBuffer = (uint16_t*)malloc(neededSize * sizeof(uint16_t));
-        s_gpuReadbackSize = neededSize;
-    }
-
-    interpreter->mRapi->ReadFramebufferToCPU(fbId, gpuW, gpuH, s_gpuReadbackBuffer);
-    s_gpuReadbackW = gpuW;
-    s_gpuReadbackH = gpuH;
-
-    // but when rendering to an FBO with invertY=true (mGameFb), the interpreter flips
-    // rendering so game-top is at low Y — glReadPixels row 0 is already game-top.
-    const char* apiName = interpreter->mRapi->GetName();
-    bool isOpenGL = (apiName && strstr(apiName, "OpenGL") != nullptr);
-    s_gpuReadbackFlipY = isOpenGL && !interpreter->mRendersToFb;
-
-    // Downsample to N64 resolution for gFramebuffers (used by most decomp code).
-    // gpuW x gpuH IS the game viewport (from GetCurDimensions) — just downsample directly.
-    // The tile draw on the display side stretches to fill the viewport.
-    for (int buf = 0; buf < 2; buf++) {
-        uint16_t* dst = gFramebuffers[buf];
-        for (uint32_t y = 0; y < dstH; y++) {
-            uint32_t srcY = s_gpuReadbackFlipY ? (dstH - 1 - y) * gpuH / dstH : y * gpuH / dstH;
-            for (uint32_t x = 0; x < dstW; x++) {
-                uint32_t srcX = x * gpuW / dstW;
-                uint16_t px = s_gpuReadbackBuffer[srcY * gpuW + srcX];
-                // Byte-swap to big-endian (N64 convention).
-                dst[y * dstW + x] = (px >> 8) | (px << 8);
-            }
-        }
-    }
+    return s_pauseFbId;
 }
 
-// [port] Sample from full-resolution GPU readback for transition tile capture.
-// Maps N64 framebuffer coordinates (292x216 space) to GPU internal resolution,
-// so transition tiles capture detail at the actual render resolution instead of
-// being limited to the downsampled 292x216 gFramebuffers.
-extern "C" uint16_t port_sampleHiresReadback(int fbX, int fbY) {
-    if (!s_gpuReadbackBuffer || s_gpuReadbackW == 0 || s_gpuReadbackH == 0) {
+// [port] Consumed by the display list builder (bufferreadback.c) to emit
+// gDPReadFB into the DL, populating gFramebuffers at native resolution.
+extern "C" int port_consumeReadbackRequest(void) {
+    if (s_freezeReadback || s_readbackRequestFrames <= 0)
         return 0;
-    }
-
-    int gpuX = fbX * (int)s_gpuReadbackW / gFramebufferWidth;
-    int gpuY = fbY * (int)s_gpuReadbackH / gFramebufferHeight;
-
-    if (gpuX < 0) {
-        gpuX = 0;
-    }
-    if (gpuY < 0) {
-        gpuY = 0;
-    }
-    if (gpuX >= (int)s_gpuReadbackW) {
-        gpuX = (int)s_gpuReadbackW - 1;
-    }
-    if (gpuY >= (int)s_gpuReadbackH) {
-        gpuY = (int)s_gpuReadbackH - 1;
-    }
-
-    if (s_gpuReadbackFlipY) {
-        gpuY = (int)s_gpuReadbackH - 1 - gpuY;
-    }
-
-    uint16_t px = s_gpuReadbackBuffer[gpuY * s_gpuReadbackW + gpuX];
-    return (px >> 8) | (px << 8); // byte-swap to BE
+    s_readbackRequestFrames--;
+    return 1;
 }
 
-// [port] no-op — readback is done in Framebuffer_ReadbackGPU_FromBackbuffer
+// [port] no-op — readback is done via gDPReadFB in the display list
 extern "C" void Framebuffer_ReadbackGPU(int bufferIndex) {
     (void)bufferIndex;
 }

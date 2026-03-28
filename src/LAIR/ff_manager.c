@@ -59,22 +59,14 @@ extern void func_802FACA4(enum item_e);
 extern void func_8028FA14(enum map_e, s32);
 extern void quizQuestionAskedBitfield_set(u32, int); // ff_isAsked_flag_set
 extern int quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
-
 extern void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
-
 extern void ability_setAllLearned(s32);  // set unlocked moves bitfield
 extern s32  ability_getAllLearned(void); // get unlocked moves bitfield
-
 extern s32  item_getCount(s32); // item count get
 extern void item_adjustByDiffWithoutHud(s32, s32); // item count set
-
 extern void func_8025A55C(s32, s32, s32);
-
 extern void func_80324CFC(f32, s16, s16);
-
 extern void  player_setTransformation(s32); // set transformation
-
-//typedef migrated to "inlcude/core2/code_C9E70.h"
 extern struct FF_StorageStruct *D_8037DCB8; 
 
 /* .data */
@@ -792,7 +784,7 @@ void func_8038D394(void)
     );
 }
 
-void func_8038D3F0(s32 a0, s32 a1)
+void func_8038D3F0(s32 a0, s8 a1)
 {
     if (a1 == -2)
     {

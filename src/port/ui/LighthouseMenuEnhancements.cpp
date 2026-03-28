@@ -53,6 +53,17 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Restores the unused Return to Lair option when in Worlds."));
 
+    // Enhancements -> Gameplay
+    path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "All Honeycomb Extensions", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("AllHoneycombExtensions"))
+        .RaceDisable(false)
+        .Options(
+            CheckboxOptions().Tooltip("Removes the 3-extension cap, allowing all 24 honeycombs to grant health bars."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

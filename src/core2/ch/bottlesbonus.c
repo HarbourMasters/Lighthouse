@@ -52,6 +52,7 @@ extern void item_set(enum item_e, s32);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void viewport_setNearAndFar(f32, f32);
 extern s16 *func_8030C704(void);
+extern void port_patchPictureModel(BKModelBin *model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from);
 
 Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chBottlesBonus_update(Actor *this);
@@ -169,17 +170,21 @@ Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     modelRender_draw(gfx, mtx, sp60, NULL, 1.0f, sp54, chBottlesBonusBookselfModelBin);
     modelRender_draw(gfx, mtx, sp60, NULL, 1.0f, sp54, D_8037DEA8);
 
-    gDPSetTextureFilter((*gfx)++, G_TF_POINT);
+    gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gDPSetColorDither((*gfx)++, G_CD_DISABLE);
     func_802DF160(gfx, mtx, vtx);
     func_80253190(gfx);
-    
-    gDPSetTextureFilter((*gfx)++, G_TF_POINT);
+
+    gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp50));
     modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)sp6C);
     modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
 
-    modelRender_draw(gfx, mtx, sp60, NULL, D_80368250, sp54, marker_loadModelBin(marker));
+    // [port] Patch vertex positions
+    BKModelBin *model_bin = marker_loadModelBin(marker);
+    port_patchPictureModel(model_bin, 260, 398, -273, -100, 1);
+    modelRender_draw(gfx, mtx, sp60, NULL, D_80368250, sp54, model_bin);
+
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gDPSetColorDither((*gfx)++, G_CD_MAGICSQ);
     chBottlesBonusCursor_draw(gfx, mtx, vtx);

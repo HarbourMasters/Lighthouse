@@ -3,9 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void port_registerAuxColorImage(void* cpuAddr, unsigned int width, unsigned int height);
-extern void port_unregisterAuxColorImage(void* cpuAddr);
+int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
+                           unsigned int native_height, unsigned char resize);
 
+s32 sAuxGpuFbId = -1;
 
 #define TILE_SIZE 32
 #define TILE_COUNT_X 5
@@ -43,7 +44,6 @@ Gfx D_8036C4A8[] = {
 s16 *D_80382450;
 void *D_80382454;
 
-
 /* .code */
 void func_8030C160(void){
     func_8024F150();
@@ -56,19 +56,17 @@ void func_8030C180(void){
 void func_8030C1A0(void){
     if(D_80382454 == NULL){
         D_80382454 = D_80382450 = bk_malloc(IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(u16) + 64);
-
         while((uintptr_t)D_80382450 & 0x3F){
             D_80382450++;
         }
-        // [port] Register this buffer as an auxiliary render target so the interpreter
-        // redirects scene rendering into a dedicated FBO and reads it back to CPU.
-        port_registerAuxColorImage(D_80382450, IMAGE_WIDTH, IMAGE_HEIGHT);
+    }
+    if (sAuxGpuFbId < 0) {
+        sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, 0);
     }
 }
 
 void func_8030C204(void){
     if(D_80382454){
-        port_unregisterAuxColorImage(D_80382450);
         bk_free(D_80382454);
         D_80382454 = NULL;
     }
@@ -100,6 +98,7 @@ void func_8030C2D4(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     func_80253640(gdl, gFramebuffers[getActiveFramebuffer()]);
 }
 
+// [port] This function is not called anywhere
 // Draws a 160x128 image pointed to by D_80382450 into the center of the screen
 void func_8030C33C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     s32 x, y;
@@ -128,7 +127,6 @@ void func_8030C33C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     // Reset the rendering state
     gSPDisplayList((*gfx)++, D_8036C4A8);
 }
-
 
 s16 *func_8030C704(void){
     return D_80382450;
