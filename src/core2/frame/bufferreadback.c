@@ -126,26 +126,18 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         func_802E67C4();
         func_802E5F10(gdl);
     }
-    // [port] Return rendering to main FB after scene draw for SNS/Bottles modes.
-    // gsSPSetFB was emitted in scissorBox_SetForGameMode.
-    if (D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS || D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) {
-        gsSPResetFB((*gdl)++);
-    }
-
     if( D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE
         && D_8037E8E0.unk19 != 6
         && D_8037E8E0.unk19 != 5
     ){
-        // [port] On the first frame of a transition, the aux FBO color image
-        // hasn't taken over yet, so the transition model renders to the primary
-        // FBO (full-screen black flash). On N64, the CPU-side framebuffer switch
-        // was immediate. Skip the draw on the first frame but still tick the
-        // internal counter so the transition advances.
-        if (gctransition_getFrameCount() < 1) {
-            gctransition_tickFrameCount();
-        } else {
-            gctransition_draw(gdl, mptr, vptr);
-        }
+        gctransition_draw(gdl, mptr, vptr);
+    }
+
+    // [port] Return rendering to main FB after scene draw + transitions for
+    // SNS/Bottles modes. Must come AFTER gctransition_draw so the transition
+    // fade renders into the aux FB (visible on the picture), not the main FB.
+    if (D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS || D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) {
+        gsSPResetFB((*gdl)++);
     }
     
     if( D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS
@@ -183,12 +175,7 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
         || D_8037E8E0.unk19 == 6
         || D_8037E8E0.unk19 == 5
     ){
-        // [port] Same first-frame skip for the alternate transition draw path.
-        if (D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE && gctransition_getFrameCount() < 1) {
-            gctransition_tickFrameCount();
-        } else {
-            gctransition_draw(gdl, mptr, vptr);
-        }
+        gctransition_draw(gdl, mptr, vptr);
     }
     finishFrame(gdl);
     osWritebackDCache(m_start, sizeof(Mtx)*( *mptr - m_start));

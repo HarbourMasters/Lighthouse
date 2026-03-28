@@ -141,11 +141,6 @@ void globalTimer_decTimer(void){
 }
 
 void mainLoop(void){
-    s32 x, y;
-    s32 r, g, b, a;
-    u16 tmp;
-    u16 rgba;
-    s32 offset;
 
     if((globalTimer_getTime() & 0x7f) == 0x11)
         sns_write_payload_over_heap();

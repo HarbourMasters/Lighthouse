@@ -68,9 +68,6 @@ u8* soundfont2ctl_ROM_START = NULL;
 u8* soundfont2ctl_ROM_END = NULL;
 u8* soundfont2tbl_ROM_START = NULL;
 
-extern s32 getGameMode(void);
-extern int gctransition_getFrameCount(void);
-extern int gctransition_active(void);
 }
 
 std::vector<uint8_t*> MemoryPool;
@@ -1075,9 +1072,6 @@ void GameEngine::AudioExit() {
 
 void Framebuffer_ReadbackGPU_FromBackbuffer(Fast::Interpreter* interpreter);
 extern "C" int port_isViBlack(void);
-extern "C" s32 getGameMode(void);
-extern "C" int gctransition_getFrameCount(void);
-extern "C" int gctransition_active(void);
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
@@ -1114,26 +1108,12 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
                 Framebuffer_ReadbackGPU_FromBackbuffer(interpreter);
             }
             // [port] Emulate N64 osViBlack: skip presentation so the previous
-            // frame stays on screen. Also skip during the first frames of a
-            // transition in SNS/demo modes — the aux FBO hasn't taken over yet
-            // and the primary FBO shows the raw (empty) scene as a black flash.
-            {
-                bool skipPresent = port_isViBlack();
-                if (!skipPresent) {
-                    s32 mode = getGameMode();
-                    if ((mode == 8 || mode == 10)
-                        && gctransition_active()
-                        && gctransition_getFrameCount() <= 2)
-                    {
-                        skipPresent = true;
-                    }
-                }
-                gui->EndDraw();
-                if (skipPresent) {
-                    interpreter->Flush();
-                } else {
-                    interpreter->EndFrame();
-                }
+            // frame stays on screen (readback still runs so transitions can capture).
+            gui->EndDraw();
+            if (port_isViBlack()) {
+                interpreter->Flush();
+            } else {
+                interpreter->EndFrame();
             }
         }
         interpreter->mInterpolationIndex++;

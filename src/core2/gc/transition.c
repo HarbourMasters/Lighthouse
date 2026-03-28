@@ -424,16 +424,6 @@ int gctransition_active(void){
     return s_current_transition.state != TRANSITION_STATE_0_NONE;
 }
 
-// [port] Returns how many draw frames have elapsed since the transition started.
-int gctransition_getFrameCount(void){
-    return s_current_transition.unk0;
-}
-
-// [port] Advance the frame counter without drawing (used to skip first frame).
-void gctransition_tickFrameCount(void){
-    s_current_transition.unk0++;
-}
-
 int gctransition_8030BDC0(void){
     return ( s_current_transition.state == TRANSITION_STATE_3_BLACK_OUT)
     || (( s_current_transition.state == TRANSITION_STATE_1_LOADING) && (s_current_transition.unk0 < 2))
