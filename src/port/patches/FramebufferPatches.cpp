@@ -155,14 +155,14 @@ void port_readTransitionFbToCpu(Gfx** gfx) {
     }
 }
 
-static f32 sTransitionXCompensate;
-
 static void setTransitionVertexTexcoord(Vtx* v) {
-    // Perspective projection: 320/1400 scale, centered on 292x216 (offsets -14, -52)
+    // The transition FB captures the scene with AdjXForAspectRatio applied
+    // (widescreen content in the FB). The projection X-scale and AdjX cancel
+    // on the geometry side, so UVs map 1:1 to the viewport area without
+    // needing widescreen compensation. The -14/-52 offsets align to the
+    // viewport origin within the 320x240 logical framebuffer.
     f32 texelS = (v->v.ob[0] + 700.0f) * 320.0f / 1400.0f - 14.0f;
     f32 texelT = (700.0f - v->v.ob[1]) * 320.0f / 1400.0f - 52.0f;
-    // Widescreen: expand S around center to counter the projection X-scale
-    texelS = (texelS - 146.0f) * sTransitionXCompensate + 146.0f;
     v->v.tc[0] = (s16)(texelS * 64.0f);
     v->v.tc[1] = (s16)(texelT * 64.0f);
 }
@@ -171,9 +171,6 @@ void port_patchTransitionModel(BKModelBin* model_bin) {
     if (model_bin->pad0[0] == 0xBA)
         return;
     model_bin->pad0[0] = 0xBA;
-    sTransitionXCompensate = (f32)port_getViewportWidth() / 320.0f;
-    if (sTransitionXCompensate < 1.01f)
-        sTransitionXCompensate = 1.0f;
     patchModelDL(model_bin, 0x02000000, 0x02028000, sTransitionFbDummy, DEFAULT_FRAMEBUFFER_WIDTH,
                  DEFAULT_FRAMEBUFFER_HEIGHT, setTransitionVertexTexcoord, G_TF_POINT, 0);
 }
