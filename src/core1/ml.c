@@ -1255,8 +1255,9 @@ bool ml_vec3f_within_distance(f32 vec1[3], f32 vec2[3], f32 distance)
 }
 
 bool ml_stub_80259400(f32 x) {
-    // wtf?
-    return *(u32 *)&x == 0x80 || *(u32 *)&x == 0x2A8800;
+    u32 bits;
+    memcpy(&bits, &x, sizeof(bits));
+    return bits == 0x80 || bits == 0x2A8800;
 }
 
 void ml_sub_delta_time(f32 *x) {

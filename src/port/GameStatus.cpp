@@ -18,6 +18,7 @@ int port_getRomhackSpecialLevel(void);
 int port_getRomhackExtraHcStart(void);
 int port_getRomhackHideCollectiblesLevel(void);
 int port_getRomhackHideJiggiesLevel(void);
+const char* port_getRomhackLevelName(int level_index);
 
 // Pause menu level name table (supports romhack string patches via Torch config)
 typedef struct {
@@ -32,7 +33,9 @@ extern "C" const char* port_getLevelName(int map_id) {
     enum level_e level = map_getLevel((enum map_e)map_id);
     for (int i = 0; i < 0xD; i++) {
         if (D_8036C58C[i].level_id == level) {
-            return (const char*)D_8036C58C[i].string;
+            // Check romhack override first
+            const char* rhName = port_getRomhackLevelName(i);
+            return rhName ? rhName : (const char*)D_8036C58C[i].string;
         }
     }
     return port_mapName(map_id);
@@ -70,8 +73,20 @@ extern "C" u16 port_getLevelTime(int map_id) {
     return itemscore_timeScores_get(map_getLevel((enum map_e)map_id));
 }
 
+// Trim leading/trailing whitespace from a string into a static buffer.
+static const char* trimName(const char* name) {
+    static char buf[128];
+    while (*name == ' ') name++;
+    int len = (int)strlen(name);
+    while (len > 0 && name[len - 1] == ' ') len--;
+    if (len >= (int)sizeof(buf)) len = (int)sizeof(buf) - 1;
+    memcpy(buf, name, len);
+    buf[len] = '\0';
+    return buf;
+}
+
 extern "C" void port_setWindowTitle(int map_id) {
-    const char* levelName = port_getLevelName(map_id);
+    const char* levelName = trimName(port_getLevelName(map_id));
     enum level_e level = map_getLevel((enum map_e)map_id);
 
     // Determine which stats to hide (mirrors pause menu totals screen logic)
