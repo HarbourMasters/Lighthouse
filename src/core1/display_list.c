@@ -286,8 +286,8 @@ void toggleTextureFilterPoint(void){
 static void _graphicsCache_growIfNeeded(void **stack0, void **stack1, s32 *capacity, s32 peakUsed, size_t elemSize) {
     if (peakUsed > *capacity * 3 / 4) {
         s32 newCap = peakUsed * 2;
-        free(*stack0);
-        free(*stack1);
+        GameEngine_Free(*stack0);
+        GameEngine_Free(*stack1);
         *stack0 = GameEngine_Malloc(newCap * elemSize);
         *stack1 = GameEngine_Malloc(newCap * elemSize);
         *capacity = newCap;

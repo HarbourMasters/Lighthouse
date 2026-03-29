@@ -96,6 +96,7 @@ int16_t OTRGetRectDimensionFromRightEdgeOverride(float v);
 uint32_t OTRGetGameRenderWidth();
 uint32_t OTRGetGameRenderHeight();
 void* GameEngine_Malloc(size_t size);
+void GameEngine_Free(void* ptr);
 void GameEngine_GetTextureInfo(const char* path, int32_t* width, int32_t* height, float* scale, bool* custom);
 // void gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt);
 uint32_t GameEngine_GetInterpolationFrameCount();
