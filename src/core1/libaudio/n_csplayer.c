@@ -442,7 +442,7 @@ static void __n_CSPHandleMIDIMsg(N_ALCSPlayer *seqp, ALEvent *event)
             seqp->chanMask &= ~(1 << byte2);
             
             //vs NOT being initialied seems weird            
-            for (vstate2 = seqp->vAllocHead; vs != 0; vs = vs->next)
+            for (vstate2 = seqp->vAllocHead; vstate2 != 0; vstate2 = vstate2->next)
     		{
     		    if (vstate2->channel == byte2)
     			    __n_seqpReleaseVoice((ALSeqPlayer*)seqp, (ALVoice *)&vstate2->voice, vstate2->sound->envelope->releaseTime);
