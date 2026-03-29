@@ -117,7 +117,7 @@ void func_80387FD4(Actor *this){
         this->volatile_initialized = true;
         if(bgs_D_803907B8[this->unkF4_8 - 1] == 0){
             bgs_D_803907B8[this->unkF4_8 - 1] = this->marker;
-            for(j = this->unkF4_8; j < 6; j++){
+            for(j = this->unkF4_8; j < 5; j++){
                 if(bgs_D_803907B8[j] != NULL){
                     bgs_D_803907B8[j]->propPtr->unk8_4 = false;
                     actor_setOpacity(marker_getActor(bgs_D_803907B8[j]), 0);

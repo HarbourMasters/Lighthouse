@@ -126,6 +126,7 @@ void scissorBox_setDefault(void);
 void func_80254374(s32 arg0);
 void toggleTextureFilterPoint(void);
 void getGraphicsStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void graphicsCache_reportUsage(Gfx *gfxEnd, Gfx *gfxStart, Mtx *mtxEnd, Mtx *mtxStart, Vtx *vtxEnd, Vtx *vtxStart);
 void dummy_func_80254464(void);
 
 #endif

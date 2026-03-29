@@ -43,11 +43,11 @@ f32   D_80381E54;
 u8    D_80381E58[5];
 f32   D_80381E60[5];
 f32   D_80381E78[5];
-struct7s D_80381E90;
+struct8s D_80381E90;
 
 
 /* .code */
-struct7s *fxjinjoscore_new(enum item_e arg0){
+struct8s *fxjinjoscore_new(enum item_e arg0){
     s32 i;
     s32 red;
     s32 green;

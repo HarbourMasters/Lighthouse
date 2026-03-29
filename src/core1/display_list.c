@@ -12,6 +12,17 @@ s32 gFramebufferHeight = DEFAULT_FRAMEBUFFER_HEIGHT;
 static Mtx *sMtxStack[2];
 static Vtx *sVtxStack[2];
 static s32 sStackSelector;
+
+#define INITIAL_GFX_COUNT 3700
+#define INITIAL_MTX_COUNT 700
+#define INITIAL_VTX_COUNT 430
+
+static s32 sGfxCapacity;
+static s32 sMtxCapacity;
+static s32 sVtxCapacity;
+static s32 sGfxPeakUsed;
+static s32 sMtxPeakUsed;
+static s32 sVtxPeakUsed;
 s32  gTextureFilterPoint;
 Struct_Core1_15B30 D_80283008[20];
 s32 D_802831E8;
@@ -224,12 +235,16 @@ void graphicsCache_release(void) {
 
 void graphicsCache_init(void){
     if(sGfxStack[0] == NULL){
-        sGfxStack[0] = (Gfx *)GameEngine_Malloc(3700 * sizeof(Gfx)); // 3700 dlist commands
-        sGfxStack[1] = (Gfx *)GameEngine_Malloc(3700 * sizeof(Gfx));
-        sMtxStack[0] = (Mtx *)GameEngine_Malloc(700 * sizeof(Mtx)); // 700 matrices
-        sMtxStack[1] = (Mtx *)GameEngine_Malloc(700 * sizeof(Mtx));
-        sVtxStack[0] = (Vtx *)GameEngine_Malloc(430 * sizeof(Vtx)); // 430 vertices
-        sVtxStack[1] = (Vtx *)GameEngine_Malloc(430 * sizeof(Vtx));
+        sGfxCapacity = INITIAL_GFX_COUNT;
+        sMtxCapacity = INITIAL_MTX_COUNT;
+        sVtxCapacity = INITIAL_VTX_COUNT;
+        sGfxPeakUsed = sMtxPeakUsed = sVtxPeakUsed = 0;
+        sGfxStack[0] = (Gfx *)GameEngine_Malloc(sGfxCapacity * sizeof(Gfx));
+        sGfxStack[1] = (Gfx *)GameEngine_Malloc(sGfxCapacity * sizeof(Gfx));
+        sMtxStack[0] = (Mtx *)GameEngine_Malloc(sMtxCapacity * sizeof(Mtx));
+        sMtxStack[1] = (Mtx *)GameEngine_Malloc(sMtxCapacity * sizeof(Mtx));
+        sVtxStack[0] = (Vtx *)GameEngine_Malloc(sVtxCapacity * sizeof(Vtx));
+        sVtxStack[1] = (Vtx *)GameEngine_Malloc(sVtxCapacity * sizeof(Vtx));
         dummy_func_80254464();
     }
     sStackSelector = 0;
@@ -268,7 +283,31 @@ void toggleTextureFilterPoint(void){
     gTextureFilterPoint = ret_val < 1;
 }
 
+static void _graphicsCache_growIfNeeded(void **stack0, void **stack1, s32 *capacity, s32 peakUsed, size_t elemSize) {
+    if (peakUsed > *capacity * 3 / 4) {
+        s32 newCap = peakUsed * 2;
+        free(*stack0);
+        free(*stack1);
+        *stack0 = GameEngine_Malloc(newCap * elemSize);
+        *stack1 = GameEngine_Malloc(newCap * elemSize);
+        *capacity = newCap;
+    }
+}
+
+void graphicsCache_reportUsage(Gfx *gfxEnd, Gfx *gfxStart, Mtx *mtxEnd, Mtx *mtxStart, Vtx *vtxEnd, Vtx *vtxStart) {
+    s32 gfxUsed = (s32)(gfxEnd - gfxStart);
+    s32 mtxUsed = (s32)(mtxEnd - mtxStart);
+    s32 vtxUsed = (s32)(vtxEnd - vtxStart);
+    if (gfxUsed > sGfxPeakUsed) sGfxPeakUsed = gfxUsed;
+    if (mtxUsed > sMtxPeakUsed) sMtxPeakUsed = mtxUsed;
+    if (vtxUsed > sVtxPeakUsed) sVtxPeakUsed = vtxUsed;
+}
+
 void getGraphicsStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx){
+    _graphicsCache_growIfNeeded((void **)&sGfxStack[0], (void **)&sGfxStack[1], &sGfxCapacity, sGfxPeakUsed, sizeof(Gfx));
+    _graphicsCache_growIfNeeded((void **)&sMtxStack[0], (void **)&sMtxStack[1], &sMtxCapacity, sMtxPeakUsed, sizeof(Mtx));
+    _graphicsCache_growIfNeeded((void **)&sVtxStack[0], (void **)&sVtxStack[1], &sVtxCapacity, sVtxPeakUsed, sizeof(Vtx));
+
     sStackSelector = (1 - sStackSelector);
     *gfx = sGfxStack[sStackSelector];
     *mtx = sMtxStack[sStackSelector];

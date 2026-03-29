@@ -17,7 +17,13 @@ void func_802FEDE0(BKTextureList *texture_list, s32 indx, s32 x_offset, s32 y_of
     frame_buffer_ptr = gFramebuffers[getActiveFramebuffer()];
     for(y = 0; y < 32; y++){
         for(x = 0; x < 32; x++){
-            sp24[32*(31 - y) + x] = frame_buffer_ptr[(y_offset + y) * gFramebufferWidth + (x_offset + x)] | 1;
+            s32 fb_x = x_offset + x;
+            s32 fb_y = y_offset + y;
+            if (fb_x >= 0 && fb_x < gFramebufferWidth && fb_y >= 0 && fb_y < gFramebufferHeight) {
+                sp24[32*(31 - y) + x] = frame_buffer_ptr[fb_y * gFramebufferWidth + fb_x] | 1;
+            } else {
+                sp24[32*(31 - y) + x] = 1;
+            }
         };
     };
 }

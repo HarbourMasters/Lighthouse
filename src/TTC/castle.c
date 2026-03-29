@@ -410,7 +410,11 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                     if (cheatcode_ptr->flagBitMask & 0xFFE)
                     {
                         __maCastle_setupCheatCodeTimer(2);
-                        __maCastle_setLetterFloorTileState(letter_floor_tile, 5);
+                        // Only flash orange if the tile wasn't already set green
+                        // by the BANJOKAZOOIE puzzle in an earlier loop iteration.
+                        if (letter_floor_tile->state != 3) {
+                            __maCastle_setLetterFloorTileState(letter_floor_tile, 5);
+                        }
                     }
                     else
                     {

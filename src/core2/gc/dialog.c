@@ -9,7 +9,7 @@ extern void func_803114D0(void );
 extern int func_803114B0(void);
 extern char *dialogBin_get(enum asset_e text_id);
 
-s8 D_8036C4D0[] = {1, 0x1E, 0x14, 0xF, 0xB, 8, 6, 4, 3, 2, -1, -1};
+s8 D_8036C4D0[] = {1, 0x1E, 0x14, 0xF, 0xB, 8, 6, 4, 3, 2, -1, -1, -1};
  
 /* .bss */
 struct {

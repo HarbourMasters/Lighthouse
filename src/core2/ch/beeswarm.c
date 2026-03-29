@@ -230,11 +230,11 @@ void chBeeSwarm_802CF434(Actor *this) {
     s32 phi_s2;
     f32 *temp_s1;
     s32 temp_s2;
-    f32 sp58;
+    f32 sp58[3];
 
     local = (ActorLocal_core2_47BD0 *) &this->local;
     for(phi_s2 = 0, phi_s0 = local->unk8; phi_s2 < local->unk0; phi_s2++){
-        chBeeSwarm_802CF1C8(phi_s0->unk18, phi_s0->unk0, phi_s0->unkC, phi_s0->unk24[2], 150.0f, phi_s0->unk24, &sp58);
+        chBeeSwarm_802CF1C8(phi_s0->unk18, phi_s0->unk0, phi_s0->unkC, phi_s0->unk24[2], 150.0f, phi_s0->unk24, sp58);
         if (ml_vec3f_distance(phi_s0->unk0, phi_s0->unk18) < 50.0f) {
             func_802CEEA4(this, phi_s0);
         }

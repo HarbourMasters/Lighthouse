@@ -3431,7 +3431,7 @@ void fxhoneycarrierscore_free(s32, struct8s *);
 void fxhoneycarrierscore_update(s32, struct8s *);
 
 // --- core2/fx/jinjoscore.c ---
-struct7s *fxjinjoscore_new(enum item_e);
+struct8s *fxjinjoscore_new(enum item_e);
 void fxjinjoscore_draw(s32, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxjinjoscore_free(enum item_e, struct8s *);
 void fxjinjoscore_update(enum item_e, struct8s *);

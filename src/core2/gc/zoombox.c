@@ -1057,10 +1057,10 @@ void func_80316E60(GcZoombox *this){
 
 void func_80316E84(GcZoombox *this, s32 state){
     if(this->unk134 != state){
+        this->unk134 = state;
         if (this->callback != NULL) {
             this->callback(this->portrait_id, state);
         }
-        this->unk134 = state;
     }
 }
 

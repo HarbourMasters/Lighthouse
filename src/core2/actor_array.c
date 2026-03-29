@@ -781,13 +781,19 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     ActorAnimationInfo * sp54;
     s32 i;
     f32 sp44[3];
-    
+
+    // Copy position before any realloc — callers often pass pointers into the
+    // actor array itself, which realloc can free.
+    s32 pos_x = position[0];
+    s32 pos_y = position[1];
+    s32 pos_z = position[2];
+
     if(suBaddieActorArray == NULL){
         suBaddieActorArray = (ActorArray *)bk_malloc(sizeof(ActorArray) + 20*sizeof(Actor));
         suBaddieActorArray->cnt = 0;
         suBaddieActorArray->max_cnt = 20;
     }
-    
+
     if(suBaddieActorArray->cnt + 1 > suBaddieActorArray->max_cnt){
         suBaddieActorArray->max_cnt = suBaddieActorArray->cnt + 5;
         suBaddieActorArray = (ActorArray *)bk_realloc(suBaddieActorArray, sizeof(ActorArray) + suBaddieActorArray->max_cnt*sizeof(Actor));
@@ -800,9 +806,9 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     suLastBaddie->unk10_25 = 0;
     suLastBaddie->unk10_18 = 0;
     suLastBaddie->state = actorInfo->startAnimation;
-    suLastBaddie->position_x = (f32)position[0];
-    suLastBaddie->position_y = (f32)position[1];
-    suLastBaddie->position_z = (f32)position[2];
+    suLastBaddie->position_x = (f32)pos_x;
+    suLastBaddie->position_y = (f32)pos_y;
+    suLastBaddie->position_z = (f32)pos_z;
     suLastBaddie->unkF4_8 = 0;
     suLastBaddie->yaw = (f32) yaw;
     suLastBaddie->yaw_ideal = (f32) yaw;

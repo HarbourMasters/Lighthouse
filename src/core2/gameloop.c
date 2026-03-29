@@ -321,7 +321,9 @@ void game_draw(s32 arg0){
     Gfx *gfx_start;
     Gfx *sp2C;
     Mtx *mtx;
+    Mtx *mtx_start;
     Vtx *vtx;
+    Vtx *vtx_start;
 
     if(arg0) {
         scissorBox_setDefault();
@@ -334,8 +336,12 @@ void game_draw(s32 arg0){
     }
 
     gfx_start = gfx;
+    mtx_start = mtx;
+    vtx_start = vtx;
 
     func_802E39D0(&gfx, &mtx, &vtx, getActiveFramebuffer(), arg0);
+
+    graphicsCache_reportUsage(gfx, gfx_start, mtx, mtx_start, vtx, vtx_start);
 
     // Lighthouse [Port] not sure if this should be here or after the following block
     Graphics_PushFrame(gfx_start);
@@ -467,17 +473,14 @@ void func_802E4384(void){
     }
     else{
         func_8033DC18();
-        // [port] Respect the VI divisor set by cutscene framerate actors (0x19-0x1D).
-        // On N64, viMgr_func_8024BFD8 used the divisor to wait for the right number
-        // of VIs per frame. On PC that wait loop is disabled, so cutscenes run at
-        // constant 30fps regardless of what the map specifies.
+        // [port] Use a fixed 2-VI timestep for normal gameplay.
         {
             s32 viDivisor = viMgr_func_8024BFA0();
+            func_8033DC20(); // always consume wall-clock to keep last_ticks fresh
             if (viDivisor > 2) {
-                func_8033DC20(); // consume wall-clock to keep last_ticks fresh
                 time_setDeltaReal_frames(viDivisor);
             } else {
-                time_setDeltaReal_frames((s32)(func_8033DC20()*60.0f + 0.5));
+                time_setDeltaReal_frames(2);
             }
         }
     }
