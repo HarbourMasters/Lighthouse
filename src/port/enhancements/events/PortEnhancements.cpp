@@ -12,6 +12,9 @@ void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(VanillaBehavior);
+
+    // Register rando events
+    REGISTER_EVENT(OnActorSpawn);
 }
 
 void PortEnhancements_Exit() {

@@ -1297,14 +1297,16 @@ Actor * func_803055E0(enum actor_e arg0, s32 position[3], s32 yaw, s32 arg3, s32
 }
 
 Actor *__actor_spawnWithYaw_s32(enum actor_e arg0, s32 pos[3], s32 rot) {
-  s32 i;
+    CALL_CANCELLABLE_ACTORSPAWN_EVENT(OnActorSpawn, arg0, pos[0], pos[1], pos[2], rot) {
+        s32 i;
 
-  arg0 = (!dummy_func_80320248()) ? (ACTOR_4_BIGBUTT) : (arg0);
-  for (i = 0; i < sSpawnableActorSize; i++) {
-    if (arg0 == sSpawnableActorList[i].infoPtr->actorId) {
-      return sSpawnableActorList[i].spawnFunc(pos, rot, ((0, sSpawnableActorList[i])).infoPtr, sSpawnableActorList[i].unk8);
+        arg0 = (!dummy_func_80320248()) ? (ACTOR_4_BIGBUTT) : (arg0);
+        for (i = 0; i < sSpawnableActorSize; i++) {
+            if (arg0 == sSpawnableActorList[i].infoPtr->actorId) {
+                return sSpawnableActorList[i].spawnFunc(pos, rot, ((0, sSpawnableActorList[i])).infoPtr, sSpawnableActorList[i].unk8);
+            }
+        }
     }
-  }
 
   return NULL;
 }
