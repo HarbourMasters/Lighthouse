@@ -64,6 +64,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(
             CheckboxOptions().Tooltip("Removes the 3-extension cap, allowing all 24 honeycombs to grant health bars."));
 
+    AddWidget(path, "Easier Boggy Races", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("EasierBoggyRaces"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

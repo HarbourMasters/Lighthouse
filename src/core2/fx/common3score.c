@@ -214,7 +214,6 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
         sp50[1] = a1->unk68;
         sp50[2] = 0.0f;
         func_8033A308(sp50);
-        // [port] Use full depth so model self-occlusion works (shadow behind present).
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
         sp68[0] += a1->unk4C;
         if(a1->unk6C == 0.0f){
