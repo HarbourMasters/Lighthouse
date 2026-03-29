@@ -1670,8 +1670,8 @@ aBKAssetTable:
     2197: model/RedBlock
     2198: model/GnawtysBoulderPebble
     2199: model/Light_02
-    2200: model/Rain_01
-    2201: model/Rain_02
+    2200: model/RainParticle
+    2201: model/SnowParticle
     2202: model/RedLeaf
     2203: model/BrownLeaf
     2204: model/GreenLeaf

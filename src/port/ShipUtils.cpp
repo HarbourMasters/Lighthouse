@@ -103,6 +103,13 @@ extern "C" const char* port_mapName(int map_id) {
         case 0x11:
         case 0x47:
             return "Bubblegloop Swamp";
+        // Freezeezy Peak
+        case 0x27:
+        case 0x41:
+        case 0x48:
+        case 0x53:
+        case 0x7F:
+            return "Freezeezy Peak";
         // Gobi's Valley
         case 0x12:
         case 0x13:
@@ -130,13 +137,6 @@ extern "C" const char* port_mapName(int map_id) {
         case 0x30:
         case 0x8D:
             return "Mad Monster Mansion";
-        // Freezeezy Peak
-        case 0x27:
-        case 0x41:
-        case 0x48:
-        case 0x53:
-        case 0x7F:
-            return "Freezeezy Peak";
         // Rusty Bucket Bay
         case 0x31:
         case 0x34:
@@ -261,21 +261,6 @@ extern "C" int port_getViewportWidth(void) {
         return (int)(320.0f * vpAspect / gameAspect);
     }
     return 320;
-}
-
-extern "C" void port_setMapDebugTitle(int map_id) {
-    char title[128];
-    snprintf(title, sizeof(title), "Lighthouse - %s (0x%02X)", port_mapName(map_id), map_id);
-#ifdef _WIN32
-    // Update the DXGI/SDL window title for quick visual debugging
-    HWND hwnd = GetActiveWindow();
-    // No cheating in Furnace Fun
-    if (hwnd && volatileFlag_get(0)) {
-        SetWindowTextA(hwnd, "Lighthouse - Furnace Fun");
-    } else if (hwnd) {
-        SetWindowTextA(hwnd, title);
-    }
-#endif
 }
 
 // Returns 0.0–1.0 rumble intensity scale from the ImGui controller config.

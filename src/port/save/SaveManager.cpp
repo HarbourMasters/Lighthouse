@@ -1007,9 +1007,6 @@ void SaveManager::JsonToSlot(const json& j, uint8_t* slotData) {
         memcpy(slotData + ABILITY_OFFSET, &learned, sizeof(uint32_t));
         memcpy(slotData + ABILITY_OFFSET + 4, &used, sizeof(uint32_t));
     }
-
-    // Recompute checksum
-    savedata_update_crc(slotData, SAVE_SLOT_SIZE);
 }
 
 // ─── Load/Flush ─────────────────────────────────────────────────────────────
@@ -1081,7 +1078,6 @@ void SaveManager::LoadFromDisk() {
             memset(mEeprom + globalBase, 0, GLOBAL_SIZE);
             memcpy(mEeprom + globalBase, &snsRaw, sizeof(uint32_t));
 
-            savedata_update_crc(mEeprom + globalBase, GLOBAL_SIZE);
         } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to load global.json: {}", e.what()); }
     }
 }

@@ -20,9 +20,6 @@ void port_audioStartThread(void);
 
 const char* port_mapName(int map_id);
 
-// [port] Update window title with current map ID for debugging
-void port_setMapDebugTitle(int map_id);
-
 // [port] Get the boot sequence setting (0=Default, 1=Authentic, 2=FileSelect)
 int port_getBootSequence(void);
 

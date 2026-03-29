@@ -70,15 +70,19 @@ s32 endOffset;
 u8 D_80383D18[8];
 
 /* .code */
+// [port] CRC not needed — save data lives on a modern filesystem, not EEPROM.
 void savedata_update_crc(void *buffer, s32 size){
+#if 0
     u32 sp20[2];
     u32 sum;
     glcrc_calc_checksum(buffer, (u8*)buffer + size - 4, sp20);
     sum = sp20[0] ^ sp20[1];
     *(u32*)((u8*)buffer + size - 4) = sum;
+#endif
 }
 
 int _savedata_verify(SaveData *savedata, s32 size){
+#if 0
     u32 result[2]; //sp28
     u32 *crc_ptr;
     u32 expect_crc; //sp20
@@ -87,10 +91,17 @@ int _savedata_verify(SaveData *savedata, s32 size){
     expect_crc = *crc_ptr;
     glcrc_calc_checksum(savedata, crc_ptr, result);
     *crc_ptr = expect_crc;
-    if((result[0]^result[1]) != expect_crc) 
+    if((result[0]^result[1]) != expect_crc)
         return 0x6e382;
     return 0;
+#endif
+    return 0;
 }
+
+#if 0
+void savedata_update_crc(void *buffer, s32 size){ (void)buffer; (void)size; }
+int _savedata_verify(SaveData *savedata, s32 size){ (void)savedata; (void)size; return 0; }
+#endif
 
 void savedata_init(void){ //savedata_init
     s32 jiggy_size;
@@ -344,12 +355,18 @@ s32 savedata_8033CA9C(void *savedata_){
 }
 
 s32 savedata_verify(s32 size, SaveData *savedata){
+#if 0
+    // [port] CRC validation disabled — always passes.
     s32 v1;
 
     v1 = _savedata_verify(savedata, size);
     if(v1)
         v1 = 3;
     return v1;
+#else
+    (void)size; (void)savedata;
+    return 0;
+#endif
 }
 
 void saveData_load(void *savedata_){

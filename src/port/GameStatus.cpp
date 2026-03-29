@@ -1,0 +1,122 @@
+#include "GameStatus.h"
+#include "ShipUtils.h"
+#include <cstdio>
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+extern "C" {
+enum level_e map_getLevel(enum map_e map);
+s32 itemscore_noteScores_get(enum level_e lvl_id);
+s32 jiggyscore_leveltotal(s32 lvl);
+s32 honeycombscore_get_level_total(enum level_e level_id);
+u16 itemscore_timeScores_get(enum level_e level_id);
+int port_getRomhackNotesMax(void);
+int port_getRomhackJiggiesPerWorld(void);
+int port_getRomhackHoneycombsPerWorld(void);
+int port_getRomhackSpecialLevel(void);
+int port_getRomhackExtraHcStart(void);
+int port_getRomhackHideCollectiblesLevel(void);
+int port_getRomhackHideJiggiesLevel(void);
+
+// Pause menu level name table (supports romhack string patches via Torch config)
+typedef struct {
+    s16 level_id;
+    s16 x;
+    u8* string;
+} PauseLevelEntry;
+extern PauseLevelEntry D_8036C58C[0xD];
+}
+
+extern "C" const char* port_getLevelName(int map_id) {
+    enum level_e level = map_getLevel((enum map_e)map_id);
+    for (int i = 0; i < 0xD; i++) {
+        if (D_8036C58C[i].level_id == level) {
+            return (const char*)D_8036C58C[i].string;
+        }
+    }
+    return port_mapName(map_id);
+}
+
+extern "C" void port_getLevelStats(int map_id, s32* noteVal, s32* noteMax, s32* jiggyVal, s32* jiggyMax, s32* hcVal,
+                                   s32* hcMax) {
+    enum level_e level = map_getLevel((enum map_e)map_id);
+
+    *noteVal = itemscore_noteScores_get(level);
+    *jiggyVal = jiggyscore_leveltotal(level);
+    *hcVal = honeycombscore_get_level_total(level);
+
+    int n = port_getRomhackNotesMax();
+    *noteMax = (n >= 0) ? n : 100;
+    int j = port_getRomhackJiggiesPerWorld();
+    *jiggyMax = (j >= 0) ? j : 10;
+
+    int hMax = port_getRomhackHoneycombsPerWorld();
+    if (hMax < 0)
+        hMax = 2;
+    int specialLevel = port_getRomhackSpecialLevel();
+    if (specialLevel < 0)
+        specialLevel = 0xB; // LEVEL_B_SPIRAL_MOUNTAIN
+    if ((int)level == specialLevel) {
+        int hcSpecial = port_getRomhackExtraHcStart();
+        if (hcSpecial < 0)
+            hcSpecial = 6;
+        hMax = hcSpecial;
+    }
+    *hcMax = hMax;
+}
+
+extern "C" u16 port_getLevelTime(int map_id) {
+    return itemscore_timeScores_get(map_getLevel((enum map_e)map_id));
+}
+
+extern "C" void port_setWindowTitle(int map_id) {
+    const char* levelName = port_getLevelName(map_id);
+    enum level_e level = map_getLevel((enum map_e)map_id);
+
+    // Determine which stats to hide (mirrors pause menu totals screen logic)
+    int hideCollLvl = port_getRomhackHideCollectiblesLevel();
+    int hideJigLvl = port_getRomhackHideJiggiesLevel();
+    if (hideCollLvl < 0)
+        hideCollLvl = 0x6; // LEVEL_6_LAIR
+    if (hideJigLvl < 0)
+        hideJigLvl = 0xB; // LEVEL_B_SPIRAL_MOUNTAIN
+
+    // hideCollLvl hides notes + honeycombs, hideJigLvl hides notes + jiggies
+    bool showNotes = ((int)level != hideCollLvl && (int)level != hideJigLvl);
+    bool showJiggies = ((int)level != hideJigLvl);
+    bool showHoneycombs = ((int)level != hideCollLvl);
+
+    s32 noteVal, noteMax, jiggyVal, jiggyMax, hcVal, hcMax;
+    port_getLevelStats(map_id, &noteVal, &noteMax, &jiggyVal, &jiggyMax, &hcVal, &hcMax);
+
+    char noteStr[16], jiggyStr[16], hcStr[16];
+    if (showNotes)
+        snprintf(noteStr, sizeof(noteStr), "%d/%d", noteVal, noteMax);
+    else
+        snprintf(noteStr, sizeof(noteStr), "--");
+    if (showJiggies)
+        snprintf(jiggyStr, sizeof(jiggyStr), "%d/%d", jiggyVal, jiggyMax);
+    else
+        snprintf(jiggyStr, sizeof(jiggyStr), "--");
+    if (showHoneycombs)
+        snprintf(hcStr, sizeof(hcStr), "%d/%d", hcVal, hcMax);
+    else
+        snprintf(hcStr, sizeof(hcStr), "--");
+
+    u16 timeSec = port_getLevelTime(map_id);
+    int hours = timeSec / 3600;
+    int minutes = (timeSec / 60) % 60;
+    int seconds = timeSec % 60;
+
+    char title[256];
+    snprintf(title, sizeof(title), "Lighthouse - %s | Notes: %s | Jiggies: %s | Honeycombs: %s | Time: %02d:%02d:%02d",
+             levelName, noteStr, jiggyStr, hcStr, hours, minutes, seconds);
+
+#ifdef _WIN32
+    HWND hwnd = GetActiveWindow();
+    if (hwnd) {
+        SetWindowTextA(hwnd, title);
+    }
+#endif
+}
