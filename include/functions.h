@@ -108,7 +108,7 @@ f32  mapModel_getFloorY(f32[3]);
 // --- core2/actor_cubepropsystem.c ---
 BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
 
-// --- core2/misc_updates.c ---
+// --- core2/map_list.c ---
 BKCollisionTri *func_8029463C(void);
 BKModelBin *func_802946A8(void);
 BKCollisionTri *func_802946CC(void);
@@ -180,7 +180,7 @@ void subaddie_set_state(Actor *, u32);
 void subaddie_set_state_forward(Actor *, s32);
 void subaddie_set_state_with_direction(Actor * actor, s32 myAnimId, f32 anim_start_position, s32 direction);
 
-// --- core2/glspline.c ---
+// --- core2/spline_pathfollow.c ---
 struct56s *func_80342038(s32 indx);
 struct56s *func_80341EF0(f32 arg0[3]);
 struct56s *func_80341F64(s32 arg0);
@@ -190,7 +190,7 @@ struct56s *func_80343F00(s32 indx, f32 arg1[3]);
 Struct83s *func_803406B0(void);
 Struct83s *func_803406D4(Struct83s *self);
 
-// --- core2/vtxlist.c ---
+// --- core2/vtx/list.c ---
 BKVertexList *vtxList_clone(BKVertexList *vtxList);
 
 // --- core2/spline_bezier.c ---
@@ -228,7 +228,7 @@ ParticleEmitter *func_802F3E98(f32 pos[3], enum asset_e sprite_id);
 ParticleEmitter *func_802F4274(f32 arg0[3]);
 ParticleEmitter *func_802F0EF0(u8 arg0);
 
-// --- core2/collectible/bundle.c ---
+// --- core2/bundle.c ---
 Actor *bundle_spawn_f32(enum bundle_e bundle_id, f32 position[3]);
 Actor *bundle_spawn_s32(enum bundle_e bundle_id, s32 position[3]);
 void bundle_setYaw(f32);
@@ -554,13 +554,13 @@ void func_80293D48(f32, f32);
 // --- core2/spline_bezier.c ---
 void func_8034A2A8(struct5Bs *self);
 
-// --- core2/vtxlist.c ---
+// --- core2/vtx/list.c ---
 void vtxList_free(BKVertexList *vtxList);
 
 // --- core2/ba/ba_model.c / assetcache ---
 void assetcache_release(void *);
 
-// --- core2/glspline.c ---
+// --- core2/spline_pathfollow.c ---
 void func_80343DEC(Actor *self);
 
 // --- core2/model/render.c ---
@@ -622,7 +622,7 @@ void func_802D4A9C(Actor *self, s32 arg1);
 void func_802D4AC0(Actor *self, s32 arg1, enum file_progress_e arg2);
 void func_802D6264(f32, enum map_e, s32, s32, s32, enum file_progress_e);
 
-// --- core2/projectile_blueegg.c ---
+// --- core2/fx/projectile_blueegg.c ---
 void func_80353580(ActorMarker *marker);
 
 // --- core1/audio_musicplayer.c ---
@@ -1249,7 +1249,7 @@ void func_80296CA8(ActorMarker *arg0);
 void func_80296CB4(s32 arg0);
 void func_80296CC0(f32 arg0[3]);
 
-// --- core2/actor_pool48.c ---
+// --- core2/scorequeue/queue_timers.c ---
 bool func_802FCD98(struct8s *arg0);
 
 // --- core2/ambient_fish.c ---
@@ -1306,7 +1306,7 @@ void AnimTextureListCache_freeList(s32 arg0);
 void AnimTextureListCache_init(void);
 void AnimTextureListCache_update(void);
 
-// --- core2/anim_bonetransformlist.c ---
+// --- core2/anim/bonetransformlist.c ---
 void boneTransformList_getBoneScale(BoneTransformList *self, s32 bone_id, f32 scale[3]);
 void boneTransformList_setBoneScale(BoneTransformList *self, s32 bone_id, f32 scale[3]);
 void func_8033A57C(BoneTransformList *self, s32 bone_id, f32 arg2[4]);
@@ -1314,12 +1314,12 @@ void func_8033A6B0(BoneTransformList *self, s32 bone_id, f32 arg2[3]);
 void func_8033A8F0(BoneTransformList *self, s32 bone_id, f32 arg2[4]);
 void func_8033A968(BoneTransformList *self, s32 bone_id, f32 arg2[3]);
 
-// --- core2/anseq.c ---
+// --- core2/anim_sequence.c ---
 void anSeq_free(void **ppAnSeq);
 void anSeq_setActivationFrameDelay(void **ppAnSeq, s32 arg1);
 void anSeq_update(void **ppAnSeq, AnimCtrl *pAnCtl);
 
-// --- core2/audio_sfxinstruments.c ---
+// --- core2/sfx/instruments.c ---
 bool func_803354EC(enum sfx_e sfx_id);
 bool func_80335520(s32 arg0);
 intptr_t func_8033531C(enum sfx_e uid, struct46s *arg1);
@@ -1376,7 +1376,7 @@ void bacarry_reset_marker(void);
 void bacarry_set_marker(ActorMarker *arg0);
 void bacarry_update(void);
 
-// --- core2/ba/ba_drone.c ---
+// --- core2/ba/ba_scripted.c ---
 enum bs_e badrone_802926E8(void);
 enum bs_e badrone_enter(void);
 enum bs_e badrone_look(void);
@@ -1685,26 +1685,26 @@ void func_8029957C(s32 arg0);
 // --- core2/bs/ant.c ---
 int bsant_inSet(s32 move_indx);
 
-// --- core2/bs/bBarge.c ---
+// --- core2/bs/beak_barge.c ---
 s32 bsbbarge_hitboxActive(void);
 
-// --- core2/bs/bFly.c ---
+// --- core2/bs/beak_bomb.c ---
 int bsbfly_bombHitboxActive(void);
 int bsbfly_inSet(enum bs_e arg0);
 
-// --- core2/bs/bLongLeg.c ---
+// --- core2/bs/stilt_stride.c ---
 int bslongleg_inSet(s32 move_indx);
 
-// --- core2/bs/bPeck.c ---
+// --- core2/bs/beak_peck.c ---
 s32 bsbpeck_hitboxActive(void);
 
-// --- core2/bs/bSwim.c ---
+// --- core2/bs/beak_swim.c ---
 bool bsbswim_inSet(enum bs_e move_id);
 
-// --- core2/bs/bTrot.c ---
+// --- core2/bs/talon_trot.c ---
 int bsbtrot_inSet(s32 move_indx);
 
-// --- core2/bs/bbuster.c ---
+// --- core2/bs/beak_buster.c ---
 s32 bsbbuster_hitboxActive(void);
 s32 func_8029FC4C(void);
 void func_802A02B4(s32 arg0);
@@ -1713,7 +1713,7 @@ void func_802A02B4(s32 arg0);
 void func_802A02C0(void);
 void func_802A0340(void);
 
-// --- core2/bs/beeFly.c ---
+// --- core2/bs/bee_fly.c ---
 int bsBeeFly_inSet(s32);
 
 // --- core2/bs/bs_storedstate.c ---
@@ -1739,12 +1739,12 @@ void func_802AD318(void);
 // --- core2/bs/crouch.c ---
 enum bs_e func_802ADCD4(enum bs_e arg0);
 
-// --- core2/bs/drone.c ---
+// --- core2/bs/scripted.c ---
 void bsdrone_end(void);
 void bsdrone_init(void);
 void bsdrone_update(void);
 
-// --- core2/bs/jig.c ---
+// --- core2/bs/jiggy_dance.c ---
 int bsjig_inJiggyJig(enum bs_e state);
 void func_802B0CD8(void);
 
@@ -1816,7 +1816,7 @@ void func_802BC2CC(s32 arg0);
 void func_802BC434(f32 arg0[3], f32 arg1[3], f32 arg2[3]);
 void ncCamera_update(void);
 
-// --- core2/audio_trackmanager.c ---
+// --- core2/sfx/trackmanager.c ---
 int func_80322914(void);
 s32 func_803226E8(enum map_e map_id);
 s32 func_8032274C(void);
@@ -2064,20 +2064,20 @@ void climbClear(void);
 void climbRelease(void);
 void func_80298344(void);
 
-// --- core2/collectible/bundle.c ---
+// --- core2/bundle.c ---
 bool func_802C9C14(Actor *actor);
 void bundle_free(void);
 void bundle_reset(void);
 void bundle_update(Actor *actor);
 
-// --- core2/collectible/printdraw.c ---
+// --- core2/scorequeue/dispatch.c ---
 void func_802FB020(struct8s *self, s32 arg1);
 void func_802FB104(s32, struct8s *);
 void func_802FB15C(s32 arg0, struct8s * arg1);
 void func_802FB194(s32 arg0, struct8s * arg1);
 void func_802FB1CC(void);
 
-// --- core2/collectible/printui.c ---
+// --- core2/scorequeue/manager.c ---
 bool func_802FADD4(enum item_e item_id);
 s32 func_802FAD9C(enum item_e item_id);
 s32 itemPrint_getValue(s32 item_id);
@@ -2248,7 +2248,7 @@ void func_8035644C(enum file_progress_e progress_flag);
 void volatileFlag_setAndTriggerDialog_4(enum volatile_flags_e arg0);
 void volatileFlag_setAndTriggerDialog_E(enum volatile_flags_e arg0);
 
-// --- core2/equipped_items.c ---
+// --- core2/inventory_slots.c ---
 void func_803246F0(u8* self, s32 indx);
 void func_80324700(u8* self);
 void func_80324770(u8* self, s32 indx, s32 value);
@@ -2501,7 +2501,7 @@ void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_80315110(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_803151D0(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
-// --- core2/glspline.c ---
+// --- core2/spline_pathfollow.c ---
 bool func_80344040(Actor *self);
 int func_80343D50(Actor *self, s32 arg1, s32 arg2, s32 arg3);
 s32 func_80341C78(s32 arg0[3]);
@@ -2574,7 +2574,7 @@ void mapSpecificFlags_clearAll(void);
 void mapSpecificFlags_setAll(u32 arg0);
 void mapSpecificFlags_setN(s32 idx, s32 val, s32 n);
 
-// --- core2/misc_updates.c ---
+// --- core2/map_list.c ---
 void func_8029A47C(s32 arg0[3]);
 void func_8029A4D0(void);
 void func_8029A54C(void);
@@ -2806,7 +2806,7 @@ s32 func_8028B120(void);
 void func_8028B6FC(void);
 void func_8028B71C(void);
 
-// --- core2/prop_decoration.c ---
+// --- core2/actor_gameover.c ---
 void func_802DC528(NodeProp *arg0, ActorMarker *arg1);
 void func_802DC560(NodeProp*, ActorMarker*);
 void func_802DC604(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -3091,7 +3091,7 @@ void func_8034C8D8(void);
 void func_8034C97C(void);
 void func_8034C9B0(int arg0);
 
-// --- core2/vtxlist.c ---
+// --- core2/vtx/list.c ---
 s32 vtxList_getVtxCount(BKVertexList *self);
 void vtxList_getCenterAndNorm(BKVertexList *self, f32 center[3], f32 *norm);
 void vtxList_getVtxRange(BKVertexList *self, Vtx **vtx, Vtx **vtx_end);
@@ -3147,7 +3147,7 @@ s32 bastick_getZone(void);
 // --- core2/ba/ba_lookdir.c ---
 void func_8028F94C(s32 arg0, f32 arg1[3]);
 
-// --- core2/collectible/printdraw.c ---
+// --- core2/scorequeue/dispatch.c ---
 s32 func_802FB0D4(void *self);
 
 // --- core2/particle/particle.c ---
@@ -3162,7 +3162,7 @@ bool timedFuncQueue_is_empty(void);
 // --- core2/fx/effect_colordata.c ---
 void vec4f_clone(f32 dst[4], f32 src[4]);
 
-// --- core2/collectible/bundle.c ---
+// --- core2/bundle.c ---
 Actor *__bundle_spawnFromFirstActor(enum bundle_e bundle_id, Actor *actor);
 
 // --- FP/ch/twinklybox.c ---
@@ -3186,13 +3186,13 @@ void func_8029BC60(enum asset_e *anim_id, f32 *anim_duration);
 // --- core2/frame/bufferreadback.c ---
 s32 func_802E4AD4(s32 arg0);
 
-// --- core2/audio_sfxinstruments.c ---
+// --- core2/sfx/instruments.c ---
 void func_8033543C(Struct81s *arg0);
 
 // --- core2/model/matrixrotate.c ---
 void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
-// --- core2/glspline.c ---
+// --- core2/spline_pathfollow.c ---
 s32 func_80341EC4(f32 arg0[3]);
 
 // --- core2/vtx/normalset.c ---
@@ -3210,7 +3210,7 @@ void mapModel_getBounds(s32 min[3], s32 max[3]);
 // --- core2/anim/anim_cache.c ---
 int animCache_getBoneTransformList(s16 index, BoneTransformList **arg1);
 
-// --- core2/anim_bonetransformlist.c ---
+// --- core2/anim/bonetransformlist.c ---
 void boneTransformList_reset(BoneTransformList *self);
 
 // --- core2/ch/bottlesbonuscursor.c ---
@@ -3268,7 +3268,7 @@ void piMgr_read(void *vaddr, s32 devaddr, s32 size);
 void *assetcache_get(enum asset_e assetId);
 void *assetcache_reload(enum asset_e assetId);
 
-// --- core2/audio_trackmanager.c ---
+// --- core2/sfx/trackmanager.c ---
 void func_803228D8(void);
 
 // --- core2/ba/ba_eyeblink.c ---
@@ -3375,7 +3375,7 @@ f32 climbGetBottomY(void);
 f32 climbGetTopY(void);
 void climbGetBottom(f32 dst[3]);
 
-// --- core2/collectible/printui.c ---
+// --- core2/scorequeue/manager.c ---
 void func_802FAD64(enum item_e);
 
 // --- core2/collision/hitboxdata.c ---
@@ -3505,7 +3505,7 @@ void func_802FA060(s32, s32, s32, f32);
 // --- core2/sfx/streamctrl.c ---
 struct3s *func_802F8264(s32 arg0);
 
-// --- core2/time_delta.c ---
+// --- core2/fx/projectile_anim.c ---
 void func_80352CF4(f32 *, f32 *, f32, f32);
 
 // --- core2/timed_funcqueue.c ---
@@ -3516,7 +3516,7 @@ void timed_exitStaticCamera(f32 time);
 void timed_playSfx(f32, enum sfx_e, f32, s32);
 void timed_setStaticCameraToNode(f32, s32);
 
-// --- core2/vla.c ---
+// --- core2/vector.c ---
 VLA *   bk_vector_defrag(VLA *vla);
 VLA *   bk_vector_new(u32 elemSize, u32 cnt);
 s32     bk_vector_getIndex(VLA *vla, void *element);
