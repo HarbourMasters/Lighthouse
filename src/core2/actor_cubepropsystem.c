@@ -1847,9 +1847,6 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
                     spA0[2] = (f32) (var_s1->modelProp.unk0_7 * 2);
                     var_v0 = func_802E805C(temp_s2, model_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.unkA / 100.0, arg1, arg2, arg3, arg4);
                     if (var_v0 != NULL) {
-                        // [port] diagnostic — detect garbage collision tri pointer
-                        if ((uintptr_t)var_v0 > 0x00007FFFFFFFFFFF)
-                            BK_LOG_WARN("col_diag: ModelProp branch bad ptr=%p model_idx=%d model=%p colList=%p", var_v0, var_s1->modelProp.unk0_31, var_s0, temp_s2);
                         var_s6 = var_v0;
                     }
                 }
@@ -1886,9 +1883,6 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
                         }
                     }
                     if (temp_s0_2 != NULL) {
-                        // [port] diagnostic — detect garbage collision tri pointer
-                        if ((uintptr_t)temp_s0_2 > 0x00007FFFFFFFFFFF)
-                            BK_LOG_WARN("col_diag: ActorProp branch bad ptr=%p modelId=%d", temp_s0_2, var_s1->actorProp.marker->modelId);
                         var_s6 = temp_s0_2;
                     }
                 }
@@ -1898,9 +1892,6 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
                 if (var_s1->actorProp.marker->unk18->unk0 != NULL) {
                     var_v0 = var_s1->actorProp.marker->unk18->unk0(var_s1->actorProp.marker, arg1, arg2, arg3, arg4);
                     if (var_v0 != 0) {
-                        // [port] diagnostic — detect garbage collision tri pointer
-                        if ((uintptr_t)var_v0 > 0x00007FFFFFFFFFFF)
-                            BK_LOG_WARN("col_diag: CustomHandler branch bad ptr=%p handler=%p modelId=%d", var_v0, var_s1->actorProp.marker->unk18->unk0, var_s1->actorProp.marker->modelId);
                         var_s6 = var_v0;
                     }
                 }

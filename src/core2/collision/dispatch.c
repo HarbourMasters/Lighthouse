@@ -113,12 +113,6 @@ BKCollisionTri *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 flags) 
     for(var_s0 = &D_80383230.unk0[0]; var_s0 < D_80383230.unk80; var_s0++){
         if (var_s0->unk0 != NULL) {
             temp_v0_2 = var_s0->unk0(arg0, arg1, arg2, flags);
-            // [port] diagnostic — detect garbage collision tri pointer from any handler
-            if (temp_v0_2 != NULL && (uintptr_t)temp_v0_2 > 0x00007FFFFFFFFFFF) {
-                BK_LOG_WARN("col_diag: slot=%d handler=%p returned bad ptr=%p flags=0x%x",
-                    (int)(var_s0 - &D_80383230.unk0[0]), var_s0->unk0, temp_v0_2, flags);
-                temp_v0_2 = NULL; // [port] discard garbage pointer to prevent crash
-            }
             if (temp_v0_2 != NULL) {
                 if (var_s0->unkC != NULL) {
                     D_80383230.unk84 = var_s0->unkC();
