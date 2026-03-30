@@ -229,7 +229,7 @@ void func_8038C8F0(ActorMarker *marker){
     Actor *this;
     Actor *muncher;
     Actor *other;
-    s32 pad;
+    s32 pad = 0;
 
     this = marker_getActor(reinterpret_cast(ActorMarker *, marker));
     other = marker_getActor(this->unk100);

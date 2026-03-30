@@ -286,7 +286,7 @@ void maSlalom_win(void){
 }
 
 void maSlalom_lose(void){
-    Actor *pntBoggy;
+    Actor *pntBoggy = NULL;
     
     func_8028F918(2);
     if(Me.boggyLink)
@@ -310,7 +310,7 @@ void maSlalom_lose(void){
 }
 
 void maSlalom_update(void){
-    Actor *pntBoggy;
+    Actor *pntBoggy = NULL;
     int i;
     f32 f2;
     f32 f0;

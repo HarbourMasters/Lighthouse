@@ -41,7 +41,7 @@ Actor *chBadShad_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     f32 sp44[3];
     f32 sp40;
     Actor *this = marker_getActorAndRotation(marker, sp44);
-    Actor *other;
+    Actor *other = NULL;
     if(this->despawn_flag) 
         return this;
     

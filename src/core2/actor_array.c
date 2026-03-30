@@ -1815,7 +1815,7 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
     Actor *temp_v0_6;
     s32 var_s2;
     Actor **sp60;
-    Actor **sp5C;
+    Actor **sp5C = NULL;
     s32 sp50[3];
     s32 var_s3;
     

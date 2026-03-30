@@ -69,7 +69,7 @@ void func_8038B5D8(Struct5Fs *arg0, Struct68s *arg1, s32 arg2, s32 arg3){
 
 void func_8038B630(Struct5Fs *arg0, Struct68s *arg1){
     u8 phi_s0;
-    u32 pad;
+    u32 pad = 0;
     u32 pad1;
     f32 sp20;
     

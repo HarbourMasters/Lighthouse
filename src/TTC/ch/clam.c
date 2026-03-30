@@ -273,7 +273,7 @@ static void __chClam_attackOther(ActorMarker *this_marker, ActorMarker *other_ma
 static void __chClam_updateFunc(Actor *this){
     ActorProp *sp4C = func_80320EB0(this->marker, 30.0f, 1);
     f32 sp48;
-    s32 sp44;
+    s32 sp44 = 0;
     f32 sp38[3];
 
     if(!this->initialized){

@@ -208,7 +208,7 @@ static void __chAttackTutorial_handleDialog(ActorMarker *marker, enum asset_e te
 }
 
 static void __chAttackTutorial_showDialogText(ActorMarker* marker) {
-    s32 dialog_text;
+    s32 dialog_text = 0;
     bool has_killed_enemy;
     s32 dialog_flag = 0x4;
     

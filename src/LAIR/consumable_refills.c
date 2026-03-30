@@ -53,7 +53,7 @@ void func_803905CC(ActorMarker *marker, ActorMarker *other_marker){
 
 void func_803906A0(Actor *this) {
     s32 phi_s0;
-    s32 phi_s2;
+    s32 phi_s2 = 0;
     s32 phi_s4;
 
     if (!this->initialized) {
