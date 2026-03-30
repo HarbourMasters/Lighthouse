@@ -1,3 +1,4 @@
+// BanjoDecomp: emptyLvl/code_0.c
 unsigned char emptyLvl = 0;
 unsigned char emptyLvlBss[0x20];
 

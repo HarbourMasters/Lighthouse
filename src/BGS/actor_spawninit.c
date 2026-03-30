@@ -1,3 +1,4 @@
+// BanjoDecomp: code_8DF0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

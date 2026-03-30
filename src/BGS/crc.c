@@ -1,3 +1,4 @@
+// BanjoDecomp: crc.c
 #include <ultratypes.h>
 
 //TODO Implement CRC calculation in Makefile(?)

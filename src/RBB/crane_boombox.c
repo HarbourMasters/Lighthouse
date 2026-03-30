@@ -1,3 +1,4 @@
+// BanjoDecomp: code_1570.c
 #include "core2/particle.h"
 #include "functions.h"
 #include "variables.h"

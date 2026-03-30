@@ -1,3 +1,4 @@
+// BanjoDecomp: (core2 origin - unknown exact file)
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

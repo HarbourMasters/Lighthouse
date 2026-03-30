@@ -1,3 +1,4 @@
+// BanjoDecomp: (port-specific, no decomp origin)
 #include "ResourceHelpers.h"
 #include "libultraship/libultra/gbi.h"
 #include "libultraship/libultra/interrupt.h"

@@ -1,3 +1,4 @@
+// BanjoDecomp: n_audio/n_csq.c
 #include "2.0L/PR/n_libaudio.h"
 #include "2.0L/PR/ultraerror.h"
 #include <ultra64.h>

@@ -1,3 +1,4 @@
+// BanjoDecomp: code_15B30.c
 #include "core1/core1.h"
 #include <ultra64.h>
 #include "functions.h"

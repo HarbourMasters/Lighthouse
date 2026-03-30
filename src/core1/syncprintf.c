@@ -1,3 +1,4 @@
+// BanjoDecomp: (unknown decomp origin)
 #include <stdarg.h>
 // Lighthouse [port] These functions aren't used so we can remove these includes
 //#include <rmon.h>

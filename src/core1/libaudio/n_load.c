@@ -1,3 +1,4 @@
+// BanjoDecomp: n_audio/n_load.c
 #include <ultra64.h>
 #include "n_synth.h"
 

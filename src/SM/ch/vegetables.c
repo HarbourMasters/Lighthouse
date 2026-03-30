@@ -1,3 +1,4 @@
+// BanjoDecomp: ch/vegetables.c
 #include "functions.h"
 #include "variables.h"
 #include <ultra64.h>

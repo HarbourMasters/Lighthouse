@@ -1,3 +1,4 @@
+// BanjoDecomp: core1/stub_13640.c
 #include <ultra64.h>
 #include "core1/core1.h"
 

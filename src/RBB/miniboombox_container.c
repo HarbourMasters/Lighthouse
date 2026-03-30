@@ -1,8 +1,9 @@
+// BanjoDecomp: code_9670.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
 
-extern 
+extern
 
 void RBB_func_8038FB84(Actor *this);
 

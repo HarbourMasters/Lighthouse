@@ -1,3 +1,4 @@
+// BanjoDecomp: (core2 origin, not from GV overlay)
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

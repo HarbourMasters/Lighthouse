@@ -1,3 +1,4 @@
+// BanjoDecomp: n_audio/n_adpcm.c
 #include <ultra64.h>
 #include "n_synth.h"
 #include <libultra/convert.h>

@@ -1,3 +1,4 @@
+// BanjoDecomp: chimpystump.c
 /*DONE!!!*/
 #include <ultra64.h>
 #include "functions.h"

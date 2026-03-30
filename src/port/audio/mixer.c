@@ -1,3 +1,4 @@
+// BanjoDecomp: (port-specific, no decomp origin)
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>

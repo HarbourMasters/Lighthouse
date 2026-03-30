@@ -1,3 +1,4 @@
+// BanjoDecomp: fight/chfinalboss.c
 #include "../fight.h"
 #include "functions.h"
 #include "variables.h"

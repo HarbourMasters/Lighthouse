@@ -1,3 +1,4 @@
+// BanjoDecomp: (port-specific, no decomp origin)
 #include <math.h>
 #include <string.h>
 #include "libultraship/libultra/types.h"

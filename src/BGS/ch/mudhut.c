@@ -1,3 +1,4 @@
+// BanjoDecomp: mudhut.c
 #include "core2/statetimer.h"
 #include "functions.h"
 #include "variables.h"

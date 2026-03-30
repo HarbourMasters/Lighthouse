@@ -1,3 +1,4 @@
+// BanjoDecomp: crc.c
 //!!!DONE
 #include <ultra64.h>
 #include "functions.h"

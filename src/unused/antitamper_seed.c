@@ -1,1 +1,2 @@
+// BanjoDecomp: core1/data_1E820.c
 unsigned long long D_80276E70 = 0xAB8D9F7781280783;

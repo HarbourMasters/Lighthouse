@@ -1,3 +1,4 @@
+// BanjoDecomp: conga.c
 #include "functions.h"
 #include "rand.h"
 #include "variables.h"

@@ -1,3 +1,4 @@
+// BanjoDecomp: crc.c
 #include <ultratypes.h>
 
 u32 D_8038C300 = 0x00146061;

@@ -1,3 +1,4 @@
+// BanjoDecomp: code_7FF0.c
 #include "actor.h"
 #include "core1/core1.h"
 #include "functions.h"

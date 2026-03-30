@@ -1,3 +1,4 @@
+// BanjoDecomp: code_1F70.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"

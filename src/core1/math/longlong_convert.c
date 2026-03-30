@@ -1,3 +1,4 @@
+// BanjoDecomp: (unknown decomp origin)
 long long __d_to_ll(double a0)
 {
     return a0;

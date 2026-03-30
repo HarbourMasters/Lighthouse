@@ -1,3 +1,4 @@
+// BanjoDecomp: ucode.c
 #include <ultra64.h>
 //#include <2.0L/PR/rcp.h>
 #include "core1/core1.h"

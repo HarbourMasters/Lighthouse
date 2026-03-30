@@ -1,3 +1,4 @@
+// BanjoDecomp: (unknown decomp origin)
 /* MSVC provides these as compiler intrinsics, so only define them for other compilers */
 #ifndef _MSC_VER
 

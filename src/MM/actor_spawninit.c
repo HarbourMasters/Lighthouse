@@ -1,3 +1,4 @@
+// BanjoDecomp: code_24C0.c
 /*!!!DONE!!!*/
 #include <ultra64.h>
 #include "functions.h"

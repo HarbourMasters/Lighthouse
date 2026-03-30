@@ -1,3 +1,4 @@
+// BanjoDecomp: code_C6C0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

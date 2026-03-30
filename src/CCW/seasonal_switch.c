@@ -1,3 +1,4 @@
+// BanjoDecomp: code_2B00.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

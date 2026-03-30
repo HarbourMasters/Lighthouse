@@ -1,3 +1,4 @@
+// BanjoDecomp: n_audio/n_csplayer.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

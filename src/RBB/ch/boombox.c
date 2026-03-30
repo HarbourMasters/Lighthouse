@@ -1,3 +1,4 @@
+// BanjoDecomp: boombox.c
 #include "core2/particle.h"
 #include "functions.h"
 #include "variables.h"
