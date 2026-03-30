@@ -49,7 +49,7 @@ Actor *chSnowman_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     local = (ActorLocal_chSirSlush *)&actor->local;
     func_8033A45C(1, local->unk9);
     func_8033A45C(2, local->unkA);
-    actor_draw(marker, gfx, mtx, vtx);
+    return actor_draw(marker, gfx, mtx, vtx);
 }
 
 void __chSnowman_spawnSnowball(ActorMarker *marker){

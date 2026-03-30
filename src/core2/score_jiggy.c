@@ -24,6 +24,7 @@ void *jiggyscore_clearAllSpawned(void) {
     for(i = 0; i < 0x0D; i++){
         jiggyscore.D_803832CD[i] = 0;
     }
+    return NULL;
 }
 
 u8* jiggyscore_getPtr(void){

@@ -365,6 +365,7 @@ f32 func_80256C60(f32 vec[3], s32 val)
         vec[i] += vec[i] >= 0 ? tmp : -tmp;
         vec[i] -= (s32)vec[i] % val;
     }
+    return 0.0f;
 }
 
 void func_80256D0C(f32 val1, f32 val2, f32 x, f32 y, f32 z, f32 *dstX, f32 *dstY, f32 *dstZ)
@@ -1340,6 +1341,7 @@ f32 func_80259554(f32 dst[3], f32 vec1[3], f32 vec2[3], f32 vec3[3])
         else
             ml_vec3f_diff_copy(dst, vec1, tmp1);
     }
+    return 0.0f;
 }
 
 void func_802596AC(f32 a0[3], f32 a1[3], f32 a2[3], f32 a3[3])

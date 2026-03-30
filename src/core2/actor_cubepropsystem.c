@@ -1320,6 +1320,7 @@ void func_8032FDDC(f32 rotation[3], ActorMarker *marker) {
 
 int func_8032FFB4(ActorMarker *this, s32 arg1){
     this->id = arg1;
+    return 0;
 }
 
 //marker_setActorArrayIndex

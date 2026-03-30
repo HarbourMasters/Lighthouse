@@ -39,6 +39,7 @@ int func_80298760(s32 arg0){
             break;
         }
     }
+    return 0;
 }
 
 s32 func_802987B4(void){

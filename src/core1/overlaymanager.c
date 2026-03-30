@@ -122,6 +122,7 @@ s32 __overlayManager80251178(void){
 
     return ((sp1C + (u8 *)gFramebuffers) - largest_overlay->ram_end) + sp18;
 #endif
+    return 0;
 }
 
 void __overlayManager802511C4(void){
@@ -165,6 +166,7 @@ bool overlayManagerload(enum overlay_e overlay_id){
 
 s32 overlayManagerclearLoadedId(void){
     overlayMgrLoadedId_port = 0;
+    return 0;
 }
 
 void overlayManagerloadCore2(void){

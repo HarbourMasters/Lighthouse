@@ -238,4 +238,5 @@ void * func_8034C9D4(void){
        D_80372030[iPtr->xform_id].unk4(&iPtr->unk8, iPtr->model, iPtr->unk4);
     }
 
+    return NULL;
 }

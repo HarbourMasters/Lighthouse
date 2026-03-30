@@ -20,6 +20,7 @@ s32 func_8031B9B0(struct0 *this, s32 arg1){
     if(arg1 == 4)
         this->unk5C = 1;
     this->unk5E = arg1;
+    return 0;
 }
 
 struct0 *func_8031B9D8(void){

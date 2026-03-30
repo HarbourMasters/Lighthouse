@@ -474,6 +474,8 @@ option(BUILD_SM64 "Build with Super Mario 64 support" OFF)
 option(BUILD_MK64 "Build with Mario Kart 64 support" OFF)
 option(BUILD_SF64 "Build with Star Fox 64 support" OFF)
 option(BUILD_FZERO "Build with F-Zero X support" OFF)
+option(BUILD_MARIO_ARTIST "Build with Mario Artist support" OFF)
+option(BUILD_NAUDIO "Build with NAudio support" OFF)
 add_subdirectory(Torch)
 target_link_libraries(${PROJECT_NAME} PRIVATE torch "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
 

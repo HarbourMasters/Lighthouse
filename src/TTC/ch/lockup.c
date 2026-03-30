@@ -59,7 +59,7 @@ static Actor *__chLockup_drawFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx
     Actor * actor = marker_getActor(marker);
     func_8033A45C(3, actor->unk38_31);
     func_8033A45C(4, actor->unk38_31);
-    actor_draw(marker, gfx, mtx, vtx);
+    return actor_draw(marker, gfx, mtx, vtx);
 }
 
 static void __chLockup_close(Actor *this){

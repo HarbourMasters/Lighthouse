@@ -59,7 +59,8 @@ static s32 __chAttackTutorial_spawnEnemyActor(Actor *this, s32 already_killed_en
     }
     
     __spawnQueue_add_2((void (*)(void))__chAttackTutorial_spawnEnemyActorForMarker, (uintptr_t)this->marker, sp1C);
-    
+
+    return 0;
 }
 
 static void __chAttackTutorial_advanceMarkToState2(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
