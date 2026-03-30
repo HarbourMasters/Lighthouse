@@ -3169,13 +3169,13 @@ Actor *__bundle_spawnFromFirstActor(enum bundle_e bundle_id, Actor *actor);
 bool func_8038DD14(void);
 
 // --- SM/version_compat.c ---
-int func_8038AAB0();
+int func_8038AAB0(s32 arg0, s32 arg1);
 
 // --- GV/crc.c ---
 void func_80389F5C(void);
 
 // --- BGS/ch/tanktup.c ---
-s32 func_8038F570();
+s32 func_8038F570(s16 *arg0);
 
 // --- core1/collision.c ---
 bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3);
@@ -3223,7 +3223,7 @@ bool chCollectible_collectGoldFeather(ActorProp *arg0);
 bool chCollectible_collectRedFeather(ActorProp *arg0);
 
 // --- TTC/ch/nipper.c ---
-bool chNipper_isInState7();
+bool chNipper_isInState7(s16 arg0[3]);
 
 // --- core2/actor_cubepropsystem.c ---
 s32 codeA5BC0_getPositionAndReturnRadius(void *arg0, s32 arg1[3]);
@@ -3237,7 +3237,7 @@ int savedata_8033CC98(s32 filenum, void *buffer);
 void savedata_clear(void *savedata);
 
 // --- core2/spawn_queue.c ---
-void spawnQueue_defrag();
+void spawnQueue_defrag(void *arg0);
 
 #endif // FUNCTIONS_H
 

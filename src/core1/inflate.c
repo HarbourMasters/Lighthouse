@@ -2,14 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 
-/* static */ int huft_build(b, n, s, d, e, t, m)
-unsigned *b;            /* code lengths in bits (all assumed <= BMAX) */
-unsigned n;             /* number of codes (assumed <= N_MAX) */
-unsigned s;             /* number of simple-valued codes (0..s-1) */
-u16 *d;                 /* list of base values for non-simple codes */
-u16 *e;                 /* list of extra bits for non-simple codes */
-struct huft **t;        /* result: starting table */
-int *m;                 /* maximum lookup bits, returns actual */
+/* static */ int huft_build(unsigned *b, unsigned n, unsigned s, u16 *d, u16 *e, struct huft **t, int *m)
 /* Given a list of code lengths and a maximum table size, make a set of
    tables to decode that set of codes.  Return zero on success, one if
    the given code set is incomplete (the tables are still built in this
