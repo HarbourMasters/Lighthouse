@@ -184,7 +184,7 @@ void func_802546FC(void){
 }
 
 void heap_init(void){
-    bzero(D_8002D500, HEAP_SIZE);
+    bzero(D_8002D500, sizeof(D_8002D500));
     func_802546FC();
     D_80283238.unk40 = &D_80283238.unk0[0];
     heap_occupiedBytes = 0;
