@@ -631,9 +631,9 @@ Actor *spawnQueue_bundle_s32_2(uintptr_t bundle_id, uintptr_t x, uintptr_t y, ui
     return bundle_spawn_s32(bundle_id, position);
 }
 
-void spawnQueue_defrag(void *arg0_) {
-    FunctionQueue *arg0 = (FunctionQueue *)arg0_;
-    if ((arg0 = spawnQueue) != NULL) {
+void spawnQueue_defrag(void) {
+    FunctionQueue *arg0 = spawnQueue;
+    if (arg0 != NULL) {
         spawnQueue = (FunctionQueue *) defrag(spawnQueue);
     }
 }

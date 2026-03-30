@@ -3169,7 +3169,7 @@ Actor *__bundle_spawnFromFirstActor(enum bundle_e bundle_id, Actor *actor);
 bool func_8038DD14(void);
 
 // --- SM/version_compat.c ---
-int func_8038AAB0(s32 arg0, s32 arg1);
+int func_8038AAB0(void);
 
 // --- GV/crc.c ---
 void func_80389F5C(void);
@@ -3237,7 +3237,7 @@ int savedata_8033CC98(s32 filenum, void *buffer);
 void savedata_clear(void *savedata);
 
 // --- core2/spawn_queue.c ---
-void spawnQueue_defrag(void *arg0);
+void spawnQueue_defrag(void);
 
 #endif // FUNCTIONS_H
 

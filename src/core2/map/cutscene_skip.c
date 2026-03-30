@@ -594,13 +594,23 @@ void warp_bgsEnterMrVileLeftNostril(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void warp_bgsEnterTanktupConditional(NodeProp *arg0, ActorMarker *arg1) {
-    if (func_8038F570() != 0) {
+    s16 pos[3];
+
+    pos[0] = arg0->x;
+    pos[1] = arg0->y;
+    pos[2] = arg0->z;
+    if (func_8038F570(pos) != 0) {
         func_8031CC8C(arg0, 0x1101);
     }
 }
 
 void warp_ttcEnterNippersShell(NodeProp *arg0, ActorMarker *arg1) {
-    if (chNipper_isInState7() != 0) {
+    s16 pos[3];
+
+    pos[0] = arg0->x;
+    pos[1] = arg0->y;
+    pos[2] = arg0->z;
+    if (chNipper_isInState7(pos) != 0) {
         func_8031CC8C(arg0, 0x601);
     }
 }

@@ -614,7 +614,7 @@ void func_802C5740(Actor * this){
         D_8037DCF8[0][1] = D_80365E04[0][1];
         D_8037DCF8[0][2] = D_80365E04[0][2];
         D_8037DD30 = 0.75f;
-        D_8037DD34 = func_8038AAB0(&D_80365E04[0], &D_8037DCE8) ? 20.0 : 0.0;
+        D_8037DD34 = func_8038AAB0() ? 20.0 : 0.0;
         actor_collisionOff(this);
         func_8025A6EC(COMUSIC_73_GAMEBOY, 0);
     }//L802C5940
