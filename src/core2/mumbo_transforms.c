@@ -357,7 +357,7 @@ void chMumbo_update(Actor *this) {
                             subaddie_set_state(this, 5);
                         } else {
                             if (this->unk38_31) {
-                                func_8025A6EC(SFX_2B_BULL_MOO_1, 28000);
+                                func_8025A6EC((enum comusic_e)SFX_2B_BULL_MOO_1, 28000);
                                 item_adjustByDiffWithHud(ITEM_1C_MUMBO_TOKEN, -this->unk38_31);
                             }
                             subaddie_set_state(this, 5);

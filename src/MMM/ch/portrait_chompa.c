@@ -106,29 +106,29 @@ void __chChompa_spwanPortrait(ActorMarker *marker) {
 
     switch (this->unkF4_8) {
         case 0x32:
-            portrait_id = ACTOR_382_PORTRAIT_OF_GRUNTY;
+            portrait_id = (enum asset_e)ACTOR_382_PORTRAIT_OF_GRUNTY;
             break;
         case 0x33:
-            portrait_id = ACTOR_384_PORTRAIT_OF_BLACKEYE;
+            portrait_id = (enum asset_e)ACTOR_384_PORTRAIT_OF_BLACKEYE;
             break;
         case 0x34:
-            portrait_id = ACTOR_385_PORTRAIT_OF_TOWER;
+            portrait_id = (enum asset_e)ACTOR_385_PORTRAIT_OF_TOWER;
             break;
         case 0x35:
-            portrait_id = ACTOR_386_PORTRAIT_OF_TREE_AND_MOON;
+            portrait_id = (enum asset_e)ACTOR_386_PORTRAIT_OF_TREE_AND_MOON;
             break;
         case 0x36:
-            portrait_id = ACTOR_387_PORTRAIT_OF_TEEHEE;
+            portrait_id = (enum asset_e)ACTOR_387_PORTRAIT_OF_TEEHEE;
             break;
         case 0x37:
-            portrait_id = ACTOR_388_PORTRAIT_OF_MINION;
+            portrait_id = (enum asset_e)ACTOR_388_PORTRAIT_OF_MINION;
             break;
         default:
-            portrait_id = ACTOR_382_PORTRAIT_OF_GRUNTY;
+            portrait_id = (enum asset_e)ACTOR_382_PORTRAIT_OF_GRUNTY;
             break;
     }
 
-    portrait = spawn_child_actor(portrait_id, &this);
+    portrait = spawn_child_actor((enum actor_e)portrait_id, &this);
     portrait->yaw = this->yaw;
     this->unk100 = portrait->marker;
     portrait->unk10_1 = false;

@@ -512,7 +512,7 @@ enum bswatergroup_e player_getWaterState(void) {
     enum bswatergroup_e state_id;
 
     state_id = bs_getState();
-    if (bsswim_inset(state_id)) {
+    if (bsswim_inset((enum bs_e)state_id)) {
         return BSWATERGROUP_1_SURFACE;
     }
     if (state_id == BS_5_JUMP) {
@@ -521,7 +521,7 @@ enum bswatergroup_e player_getWaterState(void) {
         }
         return BSWATERGROUP_0_NONE;
     }
-    if (bsbswim_inSet(state_id)) {
+    if (bsbswim_inSet((enum bs_e)state_id)) {
         return BSWATERGROUP_2_UNDERWATER;
     }
     return BSWATERGROUP_0_NONE;

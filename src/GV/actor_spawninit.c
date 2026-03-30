@@ -437,7 +437,7 @@ void chKazooieTarget_update(Actor *this){
 }
 
 void func_8038F004(void){
-    func_8025A6EC(SFX_2D_KABOING, 0x7fff);
+    func_8025A6EC((enum comusic_e)SFX_2D_KABOING, 0x7fff);
 }
 
 void func_8038F028(NodeProp *arg0, ActorMarker *arg1, s32 arg2, s32 arg3){

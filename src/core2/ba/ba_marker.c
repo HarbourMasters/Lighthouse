@@ -821,7 +821,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
         marker_callCollisionFunc(playerMarker, marker, plyr_collision_type);
         marker_callCollisionFunc(marker, playerMarker, obj_collision_type);
         if(marker->unk3E_0){
-            func_8032B258(actor, obj_collision_type);
+            func_8032B258(actor, (enum collision_e)obj_collision_type);
         }
     }
     else if(other_prop->unk8_1)//L8028D0B0 //ModelProp
