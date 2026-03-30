@@ -99,7 +99,7 @@ void func_80390D3C(Actor *this, s32 val)
 
 void func_80390E28(Actor *this) {
     ActorLocal_lair_A810 *local;
-    bool sp38;
+    s32 sp38;
     s32 i;
     f32 temp_f0;
 

@@ -268,7 +268,7 @@ bool chBeeSwarm_802CF5E4(Actor *this){
     bool out = 1;
 
     local = (ActorLocal_core2_47BD0 *) &this->local;
-    out = (this->unk100 != NULL) ? out = local->unk24 != this->unk100->unk5C
+    out = (this->unk100 != NULL) ? (local->unk24 != this->unk100->unk5C)
         : 1;
     return out;
 }

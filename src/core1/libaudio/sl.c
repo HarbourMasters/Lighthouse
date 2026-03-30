@@ -14,7 +14,7 @@ void alLink(ALLink *ln, ALLink *to){
 void alUnlink(ALLink *ln){
     if (ln->next)
         ln->next->prev = ln->prev;
-        if (ln->prev)
+    if (ln->prev)
         ln->prev->next = ln->next;
 }
 
