@@ -3123,7 +3123,7 @@ void lair_func_8038CF18(void);
 void lair_func_8038E0B0(void);
 void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v);
 
-// --- LAIR/jiggypuzzle.c ---
+// --- LAIR/ch/jiggypuzzle.c ---
 bool func_8038EAE0(s32 arg0);
 
 // --- port/stub.c ---
