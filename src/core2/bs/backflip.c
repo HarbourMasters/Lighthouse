@@ -76,7 +76,7 @@ void bsbflip_update(void){
             if(bastick_distance() != 0.0f){
                 yaw_setUpdateState(2);
                 func_8029957C(3);
-                if(bastick_distance){ //!!! BUG !!!
+                if((void*)bastick_distance){ //!!! BUG !!! should be bastick_distance()
                     yaw_setIdeal(bastick_getAngleRelativeToBanjo());
                 }
                 yaw_rotateTimed(1.0f);

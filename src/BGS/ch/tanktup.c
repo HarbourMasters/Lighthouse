@@ -151,7 +151,7 @@ void func_8038F6A4(Actor *this)
       subaddie_set_state_with_direction(this, 2, 0.0f, -1);
       local->unk10 = 0;
       sp44 = 0;
-        if(&sp44);
+        (void)&sp44;
       local->unk14 = 1;
       for (; sp44 < 4; sp44++)
       {

@@ -646,7 +646,7 @@ static BKCollisionTri *__code7AF80_func_80303960(f32 volume_p1[3], f32 volume_p2
 
     var_s5 = NULL;
     cube_volumeToIndices(min, max, volume_p1, volume_p2, radius + sCubeList.margin);
-    if(cube_indx);
+    (void)cube_indx;
     for(cube_indx[0] = min[0]; cube_indx[0] <= max[0]; cube_indx[0]++){
         for(cube_indx[1] = min[1]; cube_indx[1] <= max[1]; cube_indx[1]++){
             for(cube_indx[2] = min[2]; cube_indx[2] <= max[2]; cube_indx[2]++){

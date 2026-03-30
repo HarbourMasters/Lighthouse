@@ -49,7 +49,7 @@ void func_80253428(int arg0) {
           var_v0 = (sDepthBuffer.data = var_v0 + 1);
         }
         
-        do { } while ((&D_8000E800 && 1) * 0); //remove this
+        (void)&D_8000E800; // decomp match
     }else{
         sDepthBuffer.data = NULL;
     }

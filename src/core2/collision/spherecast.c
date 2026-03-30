@@ -145,7 +145,7 @@ bool func_8032BD88(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
         var_f22 = MAX(arg0->marker->unk38[1], var_f24 * 1.25);
     }
     else {
-        if (!spBC[i].unk44) {}
+        (void)spBC[i].unk44;
         sp29C = false;
         var_f24 = var_f24 * 0.5;
         var_f22 = arg0->marker->unk38[1];
