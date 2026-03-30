@@ -1,7 +1,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-extern void func_8035644C(s32);
 
 typedef struct {
     enum mumbotoken_e uid;

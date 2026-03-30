@@ -4,7 +4,6 @@
 
 #include "core2/gc/zoombox.h"
 
-extern void item_set(enum item_e, s32);
 extern void func_8025A55C(s32, s32, s32);
 
 enum gcquiz_state {

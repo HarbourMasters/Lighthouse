@@ -13,9 +13,7 @@
 
 f32 func_802FDE60(f32);
 #include "core2/timedfunc.h"
-void item_inc(s32);
 void gcpausemenu_80314AC8(s32);
-void item_set(s32, s32);
 
 
 f32 func_802FB0E4(struct8s *);

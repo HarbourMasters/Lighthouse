@@ -12,8 +12,6 @@ void func_80324E38(f32, s32);
 void timed_setStaticCameraToNode(f32, s32);
 s32 player_setCarryObjectPoseInHorizontalRadius(f32 *, f32, s32, Actor **);
 
-void func_8028FA34(s32, Actor *);
-
 /* public function declarations */
 void chlmonkey_update(Actor *);
 

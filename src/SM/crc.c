@@ -4,8 +4,6 @@
 #include "prop.h"
 #include "actor.h"
 
-int ability_hasLearned(s32);
-
 extern s32 D_80275650;
 
 

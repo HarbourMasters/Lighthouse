@@ -62,11 +62,8 @@ extern int quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
 extern void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
 extern void ability_setAllLearned(s32);  // set unlocked moves bitfield
 extern s32  ability_getAllLearned(void); // get unlocked moves bitfield
-extern s32  item_getCount(s32); // item count get
-extern void item_adjustByDiffWithoutHud(s32, s32); // item count set
 extern void func_8025A55C(s32, s32, s32);
 extern void func_80324CFC(f32, s16, s16);
-extern void  player_setTransformation(s32); // set transformation
 extern struct FF_StorageStruct *D_8037DCB8; 
 
 /* .data */

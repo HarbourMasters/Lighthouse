@@ -48,7 +48,6 @@ typedef struct{
     u8 pad4[4];
 }Struct_core2_560F0_2;
 
-extern void item_set(enum item_e, s32);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void viewport_setNearAndFar(f32, f32);
 extern s16 *func_8030C704(void);

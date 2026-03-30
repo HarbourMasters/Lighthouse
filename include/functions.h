@@ -38,7 +38,9 @@ typedef s32 (*FuncUnk40)(ActorMarker *, s32, f32[3]);
 #endif
 
 extern f32 fabsf(f32);
+#ifdef _MSC_VER
 #pragma intrinsic (fabsf)
+#endif
 
 #define FUNC_8030E624(sfx_e, vol, sample_rate) func_8030E624(\
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11)\
@@ -611,6 +613,7 @@ void particleEmitter_setSpawnPositionRange(ParticleEmitter *, f32, f32, f32, f32
 void particleEmitter_setSprite(ParticleEmitter *, enum asset_e);
 void particleEmitter_setStartingFrameRange(ParticleEmitter *emitter, s32 arg1, s32 arg2);
 void particleEmitter_setStartingScaleRange(ParticleEmitter *, f32, f32);
+void particleEmitter_update(ParticleEmitter *self);
 void particleEmitter_setVelocityAndAccelerationRanges(ParticleEmitter *, ParticleSettingsVelocityAcceleration *);
 
 // --- core2/quiz/game.c ---
@@ -631,7 +634,7 @@ void comusic_playTrack(enum comusic_e);
 void func_8025A6EC(enum comusic_e, s32);
 
 // --- core1/stopnswop.c ---
-bool sns_get_item_state(s32 item, s32 set);
+bool sns_get_item_state(enum StopNSwop_Item item, s32 set);
 
 // --- FP/mapstate/slalom.c ---
 bool maSlalom_isActive(void);
@@ -1088,7 +1091,7 @@ void dummy_func_8025AFB8(void);
 void dummy_func_8025AFC0(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/abilityprogress.c ---
-int ability_hasLearned(s32);
+int ability_hasLearned(enum ability_e);
 int ability_hasUsed(enum ability_e move);
 s32 ability_getAllLearned(void);
 void ability_clearAll(void);
@@ -1530,7 +1533,7 @@ void func_8028F784(bool arg0);
 void func_8028F7C8(bool arg0);
 void func_8028F7F4(s32 arg0, s32 arg1);
 void func_8028F85C(f32 arg0[3]);
-void func_8028FA34(s32, Actor *);
+void func_8028FA34(enum actor_e, Actor *);
 void func_8028FA74(f32 dst[3]);
 void func_8028FAB0(f32 arg0[3]);
 u32 func_8028FB48(u32 mask);
@@ -2205,7 +2208,7 @@ s32 cutscenetrigger_update(void);
 void func_8031CC8C(NodeProp *arg0, s32 arg1);
 void func_8031CC40(enum map_e map_id, s32 arg1);
 void func_8031D04C(enum map_e arg0, s32 exit_id);
-void func_8031D06C(s32 arg0, s32 arg1);
+void func_8031D06C(enum map_e arg0, s32 arg1);
 void func_8031D0C0(NodeProp *arg0, ActorMarker *arg1);
 void func_8031F9E0(void);
 void func_8031F9E8();
@@ -2810,7 +2813,7 @@ void func_802DC604(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/level_transition.c ---
 int func_8032190C(void);
-s32 level_get(void);
+enum level_e level_get(void);
 void func_803216D0(enum map_e map);
 void func_80321854(void);
 void func_80321918(int arg0);

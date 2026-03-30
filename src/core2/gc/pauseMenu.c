@@ -32,7 +32,6 @@ void volatileFlag_set(enum volatile_flags_e, s32);
 f32 func_8024DE1C(f32, f32, f32 *, f32 *);
 void func_80310D2C(void);
 
-s32 level_get(void);
 s32 getGameMode(void);
 
 void func_802DC5B8(void);

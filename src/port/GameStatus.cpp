@@ -1,11 +1,13 @@
 #include "GameStatus.h"
 #include "ShipUtils.h"
 #include <cstdio>
+#include <cstring>
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
 extern "C" {
+#include "enums.h"
 enum level_e map_getLevel(enum map_e map);
 s32 itemscore_noteScores_get(enum level_e lvl_id);
 s32 jiggyscore_leveltotal(s32 lvl);
