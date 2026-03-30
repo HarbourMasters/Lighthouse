@@ -199,7 +199,7 @@ void SaveEditor_DrawGeneralTab() {
             bool isCheato = fileProgressFlag_get((file_progress_e)cheatoValue);
 
             ImGui::PushID(id);
-            ImGui::Text(name.c_str());
+            ImGui::Text("%s", name.c_str());
             if (ImGui::BeginTable("PlayerAmmo", 2)) {
                 ImGui::TableNextColumn();
                 if (UIWidgets::Checkbox("Enable Cheato", &isCheato)) {

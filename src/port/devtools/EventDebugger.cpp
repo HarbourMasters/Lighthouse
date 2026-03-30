@@ -1,5 +1,6 @@
 #include "EventDebugger.h"
 
+#include <cinttypes>
 #include <string>
 #include <version>
 
@@ -19,7 +20,7 @@ const ImVec4 yellow = ImVec4(1, 1, 0, 1);
 const ImVec4 red = ImVec4(1, 0, 0, 1);
 
 void DrawEventCallerInfo(std::string& name, EventRegistration& registry) {
-    ImGui::Text("Total Callers Registered: %d", registry.callers.size());
+    ImGui::Text("Total Callers Registered: %zu", registry.callers.size());
 
     if (ImGui::BeginTable(("Table##" + std::string(name)).c_str(), 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
@@ -40,14 +41,14 @@ void DrawEventCallerInfo(std::string& name, EventRegistration& registry) {
             ImGui::TextWrapped("%s:%d ", caller.path, caller.line);
 
             ImGui::TableNextColumn();
-            ImGui::Text("%llu", caller.count);
+            ImGui::Text("%" PRIu64, caller.count);
         }
         ImGui::EndTable();
     }
 }
 
 void DrawEventListenerInfo(std::string& name, EventRegistration& registry) {
-    ImGui::Text("Total Listeners Registered: %d", registry.listeners.size());
+    ImGui::Text("Total Listeners Registered: %zu", registry.listeners.size());
 
     if (ImGui::BeginTable(("Table##" + std::string(name)).c_str(), 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
