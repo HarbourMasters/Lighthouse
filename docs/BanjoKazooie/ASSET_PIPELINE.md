@@ -7,7 +7,7 @@ This document explains how Banjo-Kazooie asset data flows from ROM to runtime, t
 All assets are mapped by numeric ID in `assets.yml`. The decomp references assets by ID; ResourceHelpers resolves IDs to o2r paths via a manifest blob (`aBKAssetTable`) loaded at startup.
 
 Key ID ranges:
-- Animation assets: IDs up to 0x2AB
+- Animation assets: IDs up to 0x2C9 (713)
 - Model assets: ID + 0x2D1 (721)
 - Sprite assets: ID + 0x572
 
@@ -37,12 +37,16 @@ This pattern applies to NodeProp, Prop, animation file elements, and sprite meta
 Models are the most complex asset. The importer produces a single contiguous blob matching `BKModelBin` layout:
 
 ```
-[Header 0x34 bytes — section offsets]
+[Header 0x30 bytes — section offsets]
 [Geo layout]
 [Texture metadata + contiguous pixel data]
 [Animation list]
 [Collision grid + triangles]
+[Unk14 list]
+[Unk20 list]
 [Effects / mesh lists]
+[Unk28 list]
+[Animated texture list]
 [Vertex list]
 [Display list]
 ```
@@ -90,17 +94,21 @@ NodeProp fields are exported as individual typed values (s16 position, u16 radiu
 
 ### Stage 2: Importer Chunked Serialization
 
-The importer does NOT pass data directly to the decomp. Instead, it reconstructs a **chunked byte stream** that mimics the ROM's format, because the decomp's runtime parser (`cubeList_fromFile` in `actor_cubebounds.c`) reads data sequentially using specific chunk markers:
+The importer does NOT pass data directly to the decomp. Instead, it reconstructs a **chunked byte stream** that mimics the ROM's format, because the decomp's runtime parsers (`cubeList_fromFile` in `actor_cubebounds.c` and `code7AF80_initCubeFromFile` in `actor_cubepropsystem.c`) read data sequentially using specific chunk markers:
 
-| Marker | Meaning |
-|--------|---------|
-| 0x01 | Section boundary |
-| 0x02 | Camera node type |
-| 0x03 | Block start (cube, camera, light) |
-| 0x08 | Prop count follows |
-| 0x09 | Prop data follows |
-| 0x0A | NodeProp count follows |
-| 0x0B | NodeProp data follows |
+| Marker | Meaning | Parsed by |
+|--------|---------|-----------|
+| 0x00 | Terminator | `actor_cubebounds.c` |
+| 0x01 | Section boundary | `actor_cubebounds.c` |
+| 0x02 | Camera node type | `actor_cubebounds.c` |
+| 0x03 | Block start (cube, camera, light) | `actor_cubebounds.c` |
+| 0x04 | Lights section start | `actor_cubebounds.c` |
+| 0x06 | OtherNode count follows | `actor_cubepropsystem.c` |
+| 0x07 | OtherNode data follows | `actor_cubepropsystem.c` |
+| 0x08 | Prop count follows | `actor_cubepropsystem.c` |
+| 0x09 | Prop data follows | `actor_cubepropsystem.c` |
+| 0x0A | NodeProp count follows | `actor_cubepropsystem.c` |
+| 0x0B | NodeProp data follows | `actor_cubepropsystem.c` |
 
 `WriteNodeProp()` repacks individual fields into LE bitfield layout (see Bitfield Repacking above). Props are byte-swapped from BE to native endian.
 
@@ -110,9 +118,9 @@ SM64/SF64/MK64 ports typically have Torch write final native structs that the im
 
 ### Map Data Contents
 
-- **Cubes**: Spatial grid cells (5-bit x/y/z coordinates, 0-31 range), each containing NodeProp and Prop arrays
-- **NodeProps** (20 bytes): Position, radius, yaw, scale, and type-specific flag bitfields. Used for spawn triggers, cameras, glspline paths, and events.
-- **Props** (12 bytes): Union of ActorProp, SpriteProp, ModelProp. Discriminated by flag bits. Contains position and asset references.
+- **Cubes**: Spatial grid cells (signed 5-bit x/y/z coordinates in the runtime struct, extracted as unsigned 0-31 by Torch), each containing NodeProp and Prop arrays
+- **NodeProps** (20 bytes): Position, radius, yaw, scale, and type-specific flag bitfields. Used for spawn triggers, cameras, spline paths (`spline_pathfollow.c`), and events.
+- **Props** (12 bytes serialized, 16 bytes on 64-bit runtime): Union of ActorProp, SpriteProp, ModelProp. Discriminated by flag bits. Contains position and asset references.
 - **Camera Nodes**: Types 0-4 with position, speed, rotation, distance data (see ARCHITECTURE.md)
 - **Lights**: Position, inner/outer fade radii, RGB color
 
@@ -126,14 +134,14 @@ Sprites have a complex per-frame sub-resource structure.
 
 Torch exports the sprite header fields individually:
 - `formatCode` — texture format (CI4, CI8, RGBA16, etc.)
-- `unk4`/`unk6` — display width/height baselines
-- `unk8`/`unkA` — display width/height factors (used for vertex scale in billboard rendering)
+- `unk4`/`unk6` — undocumented display parameters
+- `unk8`/`unkA` — display width/height (used for vertex scale in billboard rendering)
 - `unkC` fields — animation speed, type, direction, flip (4 separate u8s from the original bitfield)
 
 ### Frames
 
 Each frame contains:
-- Header data (9 × s16): x, y, w, h, and chunk layout metadata
+- Header data (9 × s16 from Torch, 10 × s16 in runtime `BKSpriteFrame` which adds `chunkCnt`): x, y, w, h, and chunk layout metadata
 - Chunk position arrays (x, y pairs)
 - Per-frame palette data loaded as `_frameIdx_TLUT` sub-resources (for CI4/CI8 formats)
 - Chunk texture data loaded as `_frameIdx_chunkIdx` sub-resources
@@ -147,7 +155,7 @@ The importer assembles these sub-resources into `BKSpriteFrame` structs with inl
 Torch exports animation data as:
 - Header: start frame, end frame, element count
 - Per element: bone index, transform type (rotation/scale/translation component), keyframe count
-- Per keyframe: spline flags + value (compact s16, divided by 64.0 at runtime for float recovery)
+- Per keyframe: spline flags bitfield (u16) + interpolation value (separate s16, divided by 64.0 at runtime for float recovery)
 
 The importer repacks the per-element and per-keyframe bitfields into LE order:
 ```
@@ -166,4 +174,4 @@ Dialog and quiz assets use a chunked command format:
 - Bottom text box and top text box stored as separate command sequences
 - Quiz questions include answer metadata (correct answer index, category)
 
-The importer serializes these as-is since the decomp's dialog parser expects the exact command byte protocol.
+The importer reconstructs the ROM-format header (version markers and offset tables) and converts Torch's wider types (u32 lengths) back to the compact ROM format (u8 lengths), since the decomp's dialog parser expects the exact command byte protocol.
