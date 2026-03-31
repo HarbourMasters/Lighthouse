@@ -1,12 +1,18 @@
 #ifndef __SAVE_H__
 #define __SAVE_H__
 
+typedef enum {
+    SAVETYPE_VANILLA,
+    SAVETYPE_RANDO,
+} SaveType;
+
 typedef struct {
     bool isRando;
 } RandoSaveData;
 
 typedef struct {
     RandoSaveData randoSaveData;
+    SaveType saveType;
 } ShipSaveData;
 
 typedef struct{
