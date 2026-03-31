@@ -42,6 +42,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Lair Music Continuity", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Audio.LairContinuity"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Maintain music position when moving between Gruntilda's Lair floors that share the same theme."));
 
@@ -140,12 +145,22 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Extra Time For GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Adds 4 extra seconds to the GV water pyramid hatch timer."));
 
     AddWidget(path, "Easier Boggy Races", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("EasierBoggyRaces"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
 
     // Enhancements -> Saving
