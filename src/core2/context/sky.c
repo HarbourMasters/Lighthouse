@@ -64,7 +64,7 @@ static MapSkyInfo sSkyOverride;
 MapSkyInfo * sky_getMapSkyInfo(enum map_e map_id){
     int models[3];
     float scales[3], rotations[3];
-    if (port_getRomhackSkyboxFull(map_id, models, scales, rotations)) {
+    if (port_getRomhackSkyboxFull(map_getLevel(map_id), models, scales, rotations)) {
         sSkyOverride.map = map_id;
         for (int i = 0; i < 3; i++) {
             sSkyOverride.sky_list[i].model_id = (s16)models[i];

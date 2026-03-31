@@ -87,3 +87,4 @@ logs/
 /clang-format.exe
 CLAUDE.md
 /saves
+/build-arm64
