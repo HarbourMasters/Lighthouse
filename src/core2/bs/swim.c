@@ -105,7 +105,7 @@ bool bsswim_inset(enum bs_e state_id){
         ;
 }
 
-void func_802B5774(void) {
+void bsswim_idle_init(void) {
     AnimCtrl *anim_ctrl;
     s32 prev_state;
     f32 transition_duration;
@@ -146,7 +146,7 @@ void func_802B5774(void) {
     bsSwimCurrentAnimation = 0;
 }
 
-void func_802B5950(void) {
+void bsswim_idle_update(void) {
     s32 next_state;
     AnimCtrl *anim_ctrl;
 
@@ -185,11 +185,11 @@ void func_802B5950(void) {
     bs_setState(next_state);
 }
 
-void func_802B5AF8(void){
+void bsswim_idle_end(void){
     func_802B56D4();
 }
 
-void func_802B5B18(void) {
+void bsswim_swim_init(void) {
     AnimCtrl *anim_ctrl;
     f32 anim_duration;
 
@@ -216,7 +216,7 @@ void func_802B5B18(void) {
     baphysics_set_type(BA_PHYSICS_NORMAL);
 }
 
-void func_802B5C40(void) {
+void bsswim_swim_update(void) {
     s32 next_state;
     AnimCtrl *anim_ctrl;
     f32 sp1C[3];
@@ -262,7 +262,7 @@ void func_802B5C40(void) {
     bs_setState(next_state);
 }
 
-void func_802B5E10(void){
+void bsswim_swim_end(void){
     func_802B56D4();
 }
 
@@ -279,7 +279,7 @@ void func_802B5E30(void) {
     }
 }
 
-void func_802B5E8C(void) {
+void bsswim_lookat_init(void) {
     baanim_playForDuration_loopSmooth(0x57, 1.2f);
     func_8029C7F4(1, 3, 3, BA_PHYSICS_NORMAL);
     yaw_setVelocityBounded(500.0f, 5.0f);
@@ -288,7 +288,7 @@ void func_802B5E8C(void) {
     func_802B5E30();
 }
 
-void func_802B5EFC(void) {
+void bsswim_lookat_update(void) {
     enum bs_e next_state;
 
     next_state = 0;
@@ -299,20 +299,20 @@ void func_802B5EFC(void) {
     bs_setState(next_state);
 }
 
-void func_802B5F38(void){
+void bsswim_lookat_end(void){
     func_802B56D4();
 }
 
-void func_802B5F58(void){
+void bsswim_drone_init(void){
     swim_enteredWater();
     bsdrone_init();
 }
 
-void func_802B5F80(void){
+void bsswim_drone_update(void){
     bsdrone_update();
 }
 
-void func_802B5FA0(void){
+void bsswim_drone_end(void){
     bsdrone_end();
     func_802B56D4();
 }

@@ -485,7 +485,7 @@ void func_802A8330(void) {
     }
 }
 
-void func_802A83C0(void) {
+void bsbswim_lookat_init(void) {
     baanim_playForDuration_loopSmooth(0x70, 2.0f);
     func_802A7140();
     baphysics_set_target_velocity(0);
@@ -494,7 +494,7 @@ void func_802A83C0(void) {
     func_802A8330();
 }
 
-void func_802A8410(void) {
+void bsbswim_lookat_update(void) {
     s32 next_state;
 
     next_state = 0;
@@ -506,7 +506,7 @@ void func_802A8410(void) {
 }
 
 
-void func_802A844C(void){
+void bsbswim_lookat_end(void){
     func_802A75B0();
 }
 
@@ -573,16 +573,16 @@ void func_802A872C(void){
     func_802A75B0();
 }
 
-void func_802A874C(void){
+void bsbswim_drone_init(void){
     func_802A744C();
     bsdrone_init();
 }
 
-void func_802A8774(void){
+void bsbswim_drone_update(void){
     bsdrone_update();
 }
 
-void func_802A8794(void){
+void bsbswim_drone_end(void){
     bsdrone_end();
     func_802A75B0();
 }

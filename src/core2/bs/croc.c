@@ -668,7 +668,7 @@ void bscroc_eat_good_end(void){
     func_802ABFBC();
 }
 
-void func_802AD56C(void){
+void bscroc_locked_enter(void){
     baanim_playForDuration_loopSmooth(ASSET_E1_ANIM_BSCROC_IDLE, 1.0f);
     func_8029C7F4(1,1,3, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
@@ -676,7 +676,7 @@ void func_802AD56C(void){
     func_802B3A50();
 }
 
-void func_802AD5C0(void){
+void bscroc_locked_update(void){
     enum bs_e next_state = 0;
     func_802ABE70();
     func_802B3A50();
@@ -689,7 +689,7 @@ void func_802AD5C0(void){
     bs_setState(next_state);
 }
 
-void func_802AD614(void){
+void bscroc_locked_end(void){
     pitch_setIdeal(0.0f);
     roll_setIdeal(0.0f);
     func_8029C748();
