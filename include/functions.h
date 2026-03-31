@@ -2684,7 +2684,7 @@ void particleEmitter_free(ParticleEmitter *self);
 void particleEmitter_func_802EFA78(ParticleEmitter *self, s32 arg1);
 void particleEmitter_setParticleCallback(ParticleEmitter *self, void (*arg1)(ParticleEmitter *self, f32 pos[3]));
 
-// --- core2/particle/playertrail.c ---
+// --- core2/bs/player_spawn.c ---
 bool func_8029BDE8(void);
 enum bs_e bs_getIdleState(void);
 enum bs_e bs_getTypeOfJump(void);
@@ -3180,7 +3180,7 @@ s32 func_8038F570(s16 *arg0);
 // --- core1/collision.c ---
 bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3);
 
-// --- core2/particle/playertrail.c ---
+// --- core2/bs/player_spawn.c ---
 void func_8029BC60(enum asset_e *anim_id, f32 *anim_duration);
 
 // --- core2/frame/bufferreadback.c ---
@@ -3466,7 +3466,7 @@ f32  func_802987E4(void);
 // --- core2/particle/bathroom.c ---
 void func_8029AD28(f32, s32);
 
-// --- core2/particle/playertrail.c ---
+// --- core2/bs/player_spawn.c ---
 ParticleEmitter *func_8029B950(f32[3],f32);
 f32  func_8029B41C(void);
 void func_8029C3E8(f32, f32);

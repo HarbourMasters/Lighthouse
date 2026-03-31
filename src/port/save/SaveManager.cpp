@@ -580,7 +580,14 @@ int SaveManager::WriteBlocks(int file, int offset, void* buffer, int count) {
 
     // Flush the appropriate JSON file
     if (offset == GLOBAL_OFFSET_BLOCK) {
-        FlushGlobalToDisk();
+        // SNS data changed — flush all active save slots so each file gets updated snsItems
+        for (int i = 0; i < SAVE_SLOT_COUNT; i++) {
+            int base = i * SAVE_SLOT_SIZE;
+            uint8_t si = mEeprom[base + 1];
+            if (si >= 1 && si <= 3) {
+                FlushSlotToDisk(si);
+            }
+        }
     } else {
         // Check slotIndex (byte 1) — if 1-3, the slot is live; flush it.
         int slotBase = file * SAVE_SLOT_SIZE;
@@ -1038,48 +1045,41 @@ void SaveManager::LoadFromDisk() {
         } catch (const std::exception& e) { SPDLOG_ERROR("[save] Failed to load {}: {}", path, e.what()); }
     }
 
-    // Load global data
-    std::string globalPath = GetSavePath("global.json");
-    if (fs::exists(globalPath)) {
+    // Load SNS data from per-file JSON.
+    // OR together all files' SNS bits so collecting items on any file persists.
+    uint32_t snsRaw = 0;
+    for (int i = 1; i <= 3; i++) {
+        std::string path = GetSavePath("file" + std::to_string(i) + ".json");
+        if (!fs::exists(path)) continue;
         try {
-            std::ifstream ifs(globalPath);
+            std::ifstream ifs(path);
             json j = json::parse(ifs);
-
-            uint32_t snsRaw = 0;
-            if (j.contains("snsItems")) {
-                const auto& sns = j["snsItems"];
-                if (sns.is_object() && sns.contains("unlocked")) {
-                    // Subtree format (v3+): unlocked/collected
-                    if (sns.contains("unlocked")) {
-                        const auto& u = sns["unlocked"];
-                        for (int i = 0; i < kSnsItemCount; i++) {
-                            auto it = u.find(kSnsUnlocked[i].name);
-                            if (it != u.end() && it->get<int>()) {
-                                snsRaw |= (1u << kSnsUnlocked[i].bit);
-                            }
-                        }
-                    }
-                    if (sns.contains("collected")) {
-                        const auto& c = sns["collected"];
-                        for (int i = 0; i < kSnsItemCount; i++) {
-                            auto it = c.find(kSnsCollected[i].name);
-                            if (it != c.end() && it->get<int>()) {
-                                snsRaw |= (1u << kSnsCollected[i].bit);
-                            }
-                        }
-                    }
-                } else if (sns.is_number()) {
-                    // Legacy raw u32 format (v2)
-                    snsRaw = sns.get<uint32_t>();
+            if (!j.contains("file")) continue;
+            const auto& f = j["file"];
+            if (!f.contains("snsItems")) continue;
+            const auto& sns = f["snsItems"];
+            if (!sns.is_object() || !sns.contains("unlocked")) continue;
+            const auto& u = sns["unlocked"];
+            for (int k = 0; k < kSnsItemCount; k++) {
+                auto it = u.find(kSnsUnlocked[k].name);
+                if (it != u.end() && it->get<int>()) {
+                    snsRaw |= (1u << kSnsUnlocked[k].bit);
                 }
             }
-
-            int globalBase = GLOBAL_OFFSET_BLOCK * EEPROM_BLOCK_SIZE;
-            memset(mEeprom + globalBase, 0, GLOBAL_SIZE);
-            memcpy(mEeprom + globalBase, &snsRaw, sizeof(uint32_t));
-
-        } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to load global.json: {}", e.what()); }
+            if (sns.contains("collected")) {
+                const auto& c = sns["collected"];
+                for (int k = 0; k < kSnsItemCount; k++) {
+                    auto it = c.find(kSnsCollected[k].name);
+                    if (it != c.end() && it->get<int>()) {
+                        snsRaw |= (1u << kSnsCollected[k].bit);
+                    }
+                }
+            }
+        } catch (...) {}
     }
+    int globalBase = GLOBAL_OFFSET_BLOCK * EEPROM_BLOCK_SIZE;
+    memset(mEeprom + globalBase, 0, GLOBAL_SIZE);
+    memcpy(mEeprom + globalBase, &snsRaw, sizeof(uint32_t));
 }
 
 void SaveManager::FlushSlotToDisk(int slotIndex) {
@@ -1114,32 +1114,47 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
     json j = SlotToJson(mEeprom + base);
 
     j["file"]["enhancements"]["lives"] = item_getCount(0x16); // ITEM_16_LIFE
-    {
-        // Bottles bonus: merge with existing JSON — completions are permanent,
-        // a zeroed live array (from init) must not downgrade saved 1s to 0s.
-        std::string existingFilename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
-        std::string existingPath = GetSavePath(existingFilename);
-        json bbArr = json::array();
-        json oldBb;
-        if (fs::exists(existingPath)) {
-            try {
-                std::ifstream ifs(existingPath);
-                auto ej = nlohmann::ordered_json::parse(ifs);
-                if (ej.contains("file") && ej["file"].contains("enhancements") &&
-                    ej["file"]["enhancements"].contains("bottlesBonusCompleted")) {
-                    oldBb = ej["file"]["enhancements"]["bottlesBonusCompleted"];
-                }
-            } catch (...) {}
-        }
-        for (int k = 0; k < 7; k++) {
-            int val = gCompletedBottlesBonusGames[k] ? 1 : 0;
-            if (!val && k < (int)oldBb.size() && oldBb[k].get<int>()) {
-                val = 1;
+
+    // Bottles bonus: merge with existing JSON — completions are permanent,
+    // a zeroed live array (from init) must not downgrade saved 1s to 0s.
+    std::string existingFilename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
+    std::string existingPath = GetSavePath(existingFilename);
+    json bbArr = json::array();
+    json oldBb;
+    if (fs::exists(existingPath)) {
+        try {
+            std::ifstream ifs(existingPath);
+            auto ej = nlohmann::ordered_json::parse(ifs);
+            if (ej.contains("file") && ej["file"].contains("enhancements") &&
+                ej["file"]["enhancements"].contains("bottlesBonusCompleted")) {
+                oldBb = ej["file"]["enhancements"]["bottlesBonusCompleted"];
             }
-            bbArr.push_back(val);
-        }
-        j["file"]["enhancements"]["bottlesBonusCompleted"] = bbArr;
+        } catch (...) {}
     }
+    for (int k = 0; k < 7; k++) {
+        int val = gCompletedBottlesBonusGames[k] ? 1 : 0;
+        if (!val && k < (int)oldBb.size() && oldBb[k].get<int>()) {
+            val = 1;
+        }
+        bbArr.push_back(val);
+    }
+    j["file"]["enhancements"]["bottlesBonusCompleted"] = bbArr;
+
+    // SNS data: read from global EEPROM area and write into per-file JSON
+    int globalBase = GLOBAL_OFFSET_BLOCK * EEPROM_BLOCK_SIZE;
+    uint32_t snsRaw = 0;
+    memcpy(&snsRaw, mEeprom + globalBase, sizeof(uint32_t));
+
+    json sns = json::object();
+    json unlocked = json::object();
+    json collected = json::object();
+    for (int i = 0; i < kSnsItemCount; i++) {
+        unlocked[kSnsUnlocked[i].name] = (snsRaw & (1u << kSnsUnlocked[i].bit)) ? 1 : 0;
+        collected[kSnsCollected[i].name] = (snsRaw & (1u << kSnsCollected[i].bit)) ? 1 : 0;
+    }
+    sns["unlocked"] = unlocked;
+    sns["collected"] = collected;
+    j["file"]["snsItems"] = sns;
 
     std::string filename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
     std::string path = GetSavePath(filename);
@@ -1155,44 +1170,6 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
         }
         fs::rename(tmpPath, path);
     } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to write {}: {}", filename, e.what()); }
-}
-
-void SaveManager::FlushGlobalToDisk() {
-    EnsureDirectory();
-
-    int globalBase = GLOBAL_OFFSET_BLOCK * EEPROM_BLOCK_SIZE;
-
-    uint32_t snsRaw = 0;
-    memcpy(&snsRaw, mEeprom + globalBase, sizeof(uint32_t));
-
-    json j;
-    j["version"] = SAVE_VERSION;
-
-    // Named SNS fields: unlocked/collected subtrees
-    json sns = json::object();
-    json unlocked = json::object();
-    json collected = json::object();
-    for (int i = 0; i < kSnsItemCount; i++) {
-        unlocked[kSnsUnlocked[i].name] = (snsRaw & (1u << kSnsUnlocked[i].bit)) ? 1 : 0;
-        collected[kSnsCollected[i].name] = (snsRaw & (1u << kSnsCollected[i].bit)) ? 1 : 0;
-    }
-    sns["unlocked"] = unlocked;
-    sns["collected"] = collected;
-    j["snsItems"] = sns;
-
-    std::string path = GetSavePath("global.json");
-    std::string tmpPath = path + ".tmp";
-
-    try {
-        std::ofstream ofs(tmpPath);
-        ofs << JsonDumpCompactArrays(j) << std::endl;
-        ofs.close();
-
-        if (fs::exists(path)) {
-            fs::remove(path);
-        }
-        fs::rename(tmpPath, path);
-    } catch (const std::exception& e) { SPDLOG_ERROR("[SaveManager] Failed to write global.json: {}", e.what()); }
 }
 
 // ─── C Bridge ───────────────────────────────────────────────────────────────

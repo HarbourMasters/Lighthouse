@@ -49,17 +49,19 @@ enum mumbotoken_e func_802E0A90(Actor *this){
     }
     else{
         ret = func_80306DBC(id) - 199;
-#ifdef PORT_FIX
         // [port] Fix duplicate mumbo token IDs (from BanjoRecomp)
         // Token in MMM Inside Loggo shares ID 0x3D with another token
-        if (ret == 0x3D && pos[0] == 424 && pos[1] == 170 && pos[2] == 304 && map_id == MAP_8D_MMM_INSIDE_LOGGO) {
-            ret = 0x74; // Swap to unused ID
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.MumboTokenMMM"), 0)) {
+            if (ret == 0x3D && pos[0] == 424 && pos[1] == 170 && pos[2] == 304 && map_id == MAP_8D_MMM_INSIDE_LOGGO) {
+                ret = 0x74; // Swap to unused ID
+            }
         }
         // Token in CCW Spring shares ID 0x5E with another token
-        if (ret == 0x5E && pos[0] == -2649 && pos[1] == 0 && pos[2] == -395 && map_id == MAP_43_CCW_SPRING) {
-            ret = 0x5D; // Swap to unused ID
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.MumboTokenCCW"), 0)) {
+            if (ret == 0x5E && pos[0] == -2649 && pos[1] == 0 && pos[2] == -395 && map_id == MAP_43_CCW_SPRING) {
+                ret = 0x5D; // Swap to unused ID
+            }
         }
-#endif
         return ret;
     }
 }
@@ -71,6 +73,12 @@ void func_802E0B10(Actor *this){
     local = (ActorLocal_MumboToken *)&this->local;
     if(!this->initialized){
         this->initialized = true;
+        // [port] GV Water Pyramid: lower token to ground level after water drains
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.MumboTokenGV"), 0)) {
+            if (map_get() == MAP_15_GV_WATER_PYRAMID && jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
+                this->position[1] = -1430.0f;
+            }
+        }
         if(local->uid == 0){
             if(!this->unk44_2){
                 local->uid = D_8037E610;

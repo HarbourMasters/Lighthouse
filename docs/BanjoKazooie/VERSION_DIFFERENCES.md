@@ -87,9 +87,9 @@ The speed shoes (Turbo Trainers) had a star design on the side in v1.0/PAL. In v
 These changes are in the game code, not the asset data. Since the decomp is based on v1.0, the port currently has v1.0 behavior. Fixes marked with `PORT_FIX` have been applied and are compiled in by default. Others are pending investigation.
 
 Code fixes applied via `#ifdef PORT_FIX`:
-- **Claw swipe before learning** — `src/core2/particle/playertrail.c`: slide check moved before claw check
+- **Claw swipe before learning** — `src/core2/bs/player_spawn.c`: slide check moved before claw check
 - **Grunty defeated flag timing** — `src/fight/chjinjonatorbase.c` + `src/fight/chfinalboss.c`: flag moved from egg-hit to fireball cutscene
-- **Boggy race game over** — `src/core2/particle/playertrail.c`: skip game over when `maSlalom_isActive()`, reload map instead
+- **Boggy race game over** — `src/core2/bs/player_spawn.c`: skip game over when `maSlalom_isActive()`, reload map instead
 - **CCW Spring rock** — `src/CCW/ch/destruct_rock.c`: rock ignores collision callback in Spring
 - **CCW flower softlock** — `src/CCW/ch/seasonal_npc.c`: egg hitbox disabled after `FILEPROG_E3_CCW_FLOWER_SPRING` is set
 - **Pushing/bouncing Grunty** — `src/fight/chfinalboss.c`: collision passive handler returns early in phase 5+

@@ -42,7 +42,6 @@ private:
 
     void LoadFromDisk();
     void FlushSlotToDisk(int slotIndex);
-    void FlushGlobalToDisk();
     void EnsureDirectory();
     std::string GetSavePath(const std::string& filename);
 

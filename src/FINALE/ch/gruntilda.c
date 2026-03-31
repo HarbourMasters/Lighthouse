@@ -2226,6 +2226,11 @@ void chfinalboss_spellBarrierInactive() {
 }
 
 void chfinalboss_func_8038C10C(uintptr_t arg0) {
+    // [port] v1.1 fix: set defeated flag here instead of in setBossDefeated,
+    // since the player can still die between freeing the Jinjonator and this point.
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag"), 0)) {
+        fileProgressFlag_set(FILEPROG_FC_DEFEAT_GRUNTY, true);
+    }
     chfinalboss_phase5_setState(marker_getActor((ActorMarker*)(uintptr_t)arg0), 0x28);
 }
 
@@ -2249,7 +2254,10 @@ void chfinalboss_setBossDefeated(void) {
     temp_f20 = sp34 + chjinjonator_80391234();
     sp40 = chjinjonator_80391240();
     camera_node = 0x14;
-    fileProgressFlag_set(FILEPROG_FC_DEFEAT_GRUNTY, true);
+    // [port] v1.1 fix: flag moved to chfinalboss_func_8038C10C (after Jinjonator attacks)
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag"), 0)) {
+        fileProgressFlag_set(FILEPROG_FC_DEFEAT_GRUNTY, true);
+    }
     if (sp48->mirror_phase5 != 0) {
         camera_node = 0x23;
     }

@@ -3,6 +3,7 @@
 #include "variables.h"
 
 #include "save.h"
+#include "core1/sns.h"
 
 /* .bss */
 SaveData gameFile_saveData[4]; //save_data
@@ -123,6 +124,17 @@ void gameFile_load(s32 gamenum){
     // func_80347AA8 reads D_80386068 to restore lives after map transitions.
     port_restoreFileEnhancementData(filenum);
     D_80386068 = D_80385F30[ITEM_16_LIFE];
+
+    // [port] Unlock Stop N' Swop items as a reward for 100% completion
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"), 0)) {
+        if (jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
+            s32 i;
+            for (i = 1; i < SNS_ITEM_length; i++) {
+                sns_set_item_state(i, SNS_UNLOCKED, true);
+            }
+            sns_update_global_save_data_checksum();
+        }
+    }
 }
 
 void gameFile_save(s32 gamenum){

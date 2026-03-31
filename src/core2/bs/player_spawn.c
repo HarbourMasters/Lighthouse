@@ -303,6 +303,11 @@ void func_8029B62C(void){
 }
 
 void func_8029B6F0(void){
+    // [port] Void-outs don't cost a life, so they should never trigger game over.
+    if(CVarGetInteger(CVAR_ENHANCEMENT("Fixes.VoidOutGameOver"), 0)){
+        func_802E4078(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        return;
+    }
     if(item_empty(ITEM_16_LIFE)){
         func_8029B62C();
     }
@@ -885,8 +890,13 @@ s32 func_8029CA94(s32 arg0){
     if(baflag_isTrue(BA_FLAG_6))
         arg0 = BS_53_TIMEOUT;
 
-    if(baflag_isTrue(BA_FLAG_7_TOUCHING_JIGGY))
-        arg0 = BS_44_JIG_JIGGY;
+    if(baflag_isTrue(BA_FLAG_7_TOUCHING_JIGGY)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"), 0)) {
+            func_8029CCC4();
+        } else {
+            arg0 = BS_44_JIG_JIGGY;
+        }
+    }
 
     if(baflag_isTrue(BA_FLAG_14_LOSE_BOGGY_RACE))
         arg0 = (player_getTransformation() == TRANSFORM_4_WALRUS) ? BS_80_WALRUS_SLED_LOSE : BS_53_TIMEOUT;
