@@ -382,11 +382,11 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
         if (getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
             drawDistLevel = 0;
         }
-        if (drawDistLevel >= 4) {
-            return true;
+        // 4 = no distance limit, keep frustum plane checks active
+        if (drawDistLevel > 0 && drawDistLevel < 4) {
+            static const f32 distanceScale[] = { 1.0f, 1.5f, 2.0f, 3.0f };
+            distance *= distanceScale[drawDistLevel];
         }
-        static const f32 distanceScale[] = { 1.0f, 1.5f, 2.0f, 3.0f };
-        distance *= distanceScale[drawDistLevel];
     }
 
     delta[0] = pos[0] - sViewportPosition[0];

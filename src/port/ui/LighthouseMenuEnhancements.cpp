@@ -60,7 +60,7 @@ void LighthouseMenu::AddMenuEnhancements() {
                          { 1, "25%" },
                          { 2, "50%" },
                          { 3, "75%" },
-                         { 4, "100% (No Culling)" },
+                         { 4, "100%" },
                      })
                      .DefaultIndex(0));
 
