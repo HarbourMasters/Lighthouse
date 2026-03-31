@@ -14,7 +14,11 @@ Many textures are broken into sections and have seams. These seams are built int
 Banjo's shadow texture changes appearance when the GPU texture cache is flushed. In some areas of romhack maps (Jiggies of Time TTC_LOBBY) the shadow renders as a solid dark square instead of a proper circular shadow. Flushing the cache changes the shadow texture, suggesting a cache key collision or stale RDP state at first decode time. Textures can be converted to bmp from bk-jot.o2r/assets.
 
 ### Widescreen cutscene angles
-In widescreen only, some cutscenes will angle the camera in a way that exposes the skybox outside of model geometry bounds. BanjoRecomp solves this by adding pillarboxing in specific scenes that do this. Xbox360 arcade changes the camera position instead. Choose a path.
+In widescreen only, some cutscenes will angle the camera in a way that exposes the skybox outside of model geometry bounds. We want to adjust the camera yaw for the specific nodes that cause this. Known cases:
+- Nintendo intro concert: when Banjo looks at Tooty playing flute, camera needs to angle right.
+- MM Bottles beak buster molehill: static camera during dialogue needs to angle right.
+
+**TODO:** Add a dev tools ImGui debug box that logs static camera position changes (map ID, camera node index, position, rotation). Only log when camera type is CAMERA_TYPE_3_STATIC and when the node changes. Use the logged node indices to build a correction table in `ncStaticCamera_setToNode`.
 
 ### MacOS Lag
 On Metal, framebuffers (falling jiggy transition, pause menu, bottles bonus and sns) have heavy lag. OpenGL path works fine.
