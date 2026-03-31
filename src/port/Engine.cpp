@@ -883,11 +883,33 @@ void GameEngine::Create(int argc, char* argv[]) {
     //#endif
     PortEnhancements_Init();
     ShipInit::InitAll();
+
+    // Stop rumble on any exit path (including direct exit() calls)
+    atexit([]() {
+        if (Instance && Instance->context && Instance->context->GetControlDeck()) {
+            for (int i = 0; i < 4; i++) {
+                auto controller = Instance->context->GetControlDeck()->GetControllerByPort(i);
+                if (controller) {
+                    controller->GetRumble()->StopRumble();
+                }
+            }
+        }
+    });
 }
 
 extern void ResourceHelpers_ClearRefCache();
 
 void GameEngine::Destroy() {
+    // Stop rumble on all controllers before tearing down
+    if (Instance->context && Instance->context->GetControlDeck()) {
+        for (int i = 0; i < 4; i++) {
+            auto controller = Instance->context->GetControlDeck()->GetControllerByPort(i);
+            if (controller) {
+                controller->GetRumble()->StopRumble();
+            }
+        }
+    }
+
     LighthouseGui::Destroy();
     lhFast3dWindow = nullptr;
 
