@@ -180,7 +180,7 @@ void chjiggy_update(Actor *this){
                     func_802C7B8C(this, 0xd, 0xc, 0x1e, 9, 0xb, VOLATILE_FLAG_AF_BGS_MAZE_JIGGY_MISSED);
                     break;
                 case JIGGY_2F_FP_XMAS_TREE://L802C8048
-                    if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_UNKNOWN)) {
+                    if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
                         actor_collisionOn(this);
                     }
                     else {

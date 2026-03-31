@@ -77,7 +77,7 @@ void func_8038FF54(Actor *this){
             sp40[2] = (f32)(s32)sp40[2];
             bundle_setYaw(this->yaw + 90.0f);
             jiggy_spawn(JIGGY_32_FP_WOZZA, sp40);
-            levelSpecificFlags_set(LEVEL_FLAG_26_FP_UNKNOWN, true);
+            levelSpecificFlags_set(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED, true);
             marker_despawn(this->marker);
        }
        else if(this->marker->unk14_21){//L8039016C

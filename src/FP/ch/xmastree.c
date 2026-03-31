@@ -41,7 +41,7 @@ void __chXmasTree_80386EF4(Actor *this, int arg1){
 }
 
 void __chXmasTree_80386F3C(void){
-    levelSpecificFlags_set(LEVEL_FLAG_29_FP_UNKNOWN, true);
+    levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
     func_803228D8();
     volatileFlag_set(VOLATILE_FLAG_E, 1);
     func_802E4078(MAP_53_FP_CHRISTMAS_TREE, 1, 0);
@@ -95,7 +95,7 @@ void chXmasTree_update(Actor *this){
         marker_setFreeMethod(this->marker, __chXmasTree_free);
         if(this->unk44_31 == 0){
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
-            sfxsource_setSfxId(this->unk44_31, SFX_415_UNKNOWN);
+            sfxsource_setSfxId(this->unk44_31, SFX_415_XMAS_LIGHTS_FLICKERING);
             func_8030DD14(this->unk44_31, 3);
             sfxsource_setSampleRate(this->unk44_31, 28000);
         }
@@ -109,7 +109,7 @@ void chXmasTree_update(Actor *this){
 
     this->depth_mode = 1;
 
-    if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE) || levelSpecificFlags_get(LEVEL_FLAG_29_FP_UNKNOWN)) {
+    if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE) || levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
         __chXmasTree_80386EF4(this, 1);
         return;
     }

@@ -105,11 +105,11 @@ void chorangepad_update(Actor *this) {
 
     if (func_80329530(this, 0x28) &&
         !player_movementGroup() &&
-        !mapSpecificFlags_get(MM_SPECIFIC_FLAG_6_UNKNOWN) &&
+        !mapSpecificFlags_get(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS) &&
         closest_actor->state != 3) {
 
         if (gcdialog_showText(0xb3d, 0, NULL, NULL, NULL, NULL)) {
-            mapSpecificFlags_set(MM_SPECIFIC_FLAG_6_UNKNOWN, true);
+            mapSpecificFlags_set(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS, true);
         }
     }
 

@@ -174,7 +174,7 @@ enum bs_e func_802962BC(u32 arg0){
             if(sp1C)
                 return BS_CROC_OW;
             else
-                return BS_CROC_DIE; 
+                return BS_CROC_OW; 
         case TRANSFORM_4_WALRUS: //L8029635C
             if(sp1C)
                 return BS_WALRUS_OW;

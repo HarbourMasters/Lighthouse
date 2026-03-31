@@ -490,7 +490,7 @@ void func_802C4C14(Actor *this){
                                 levelSpecificFlags_set(sp84 + 0x35, 1);
                             }
                             else{//L802C53B4
-                                sfxsource_playHighPriority(SFX_3EA_UNKNOWN);
+                                sfxsource_playHighPriority(SFX_3EA_BANJO_GUH_HUH);
                                 subaddie_set_state(this, 3);
                             }
                         }else{//L802C53D0

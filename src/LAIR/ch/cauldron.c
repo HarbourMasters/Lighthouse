@@ -102,10 +102,10 @@ void func_8038A730(Actor *this, f32 *arg1, enum sfx_e arg2, enum sfx_e arg3, u32
 void lair_func_8038A864(Actor *this) {
     switch (this->state) {
     case 2:
-        func_8038A730(this, D_80393670, SFX_3F_CAULDRON_SQEAK_1, SFX_40_CAULDRON_SQEAK_2, 11000);
+        func_8038A730(this, D_80393670, SFX_3F_CAULDRON_SQUEAK_1, SFX_40_CAULDRON_SQUEAK_2, 11000);
         break;
     case 3:
-        func_8038A730(this, D_80393688, SFX_3F_CAULDRON_SQEAK_1, SFX_40_CAULDRON_SQEAK_2, 11000);
+        func_8038A730(this, D_80393688, SFX_3F_CAULDRON_SQUEAK_1, SFX_40_CAULDRON_SQUEAK_2, 11000);
         break;
     case 5:
         if (actor_animationIsAt(this, 0.5f)) {
@@ -117,7 +117,7 @@ void lair_func_8038A864(Actor *this) {
         }
         break;
     case 4:
-        func_8038A730(this, D_803936A8, SFX_3F_CAULDRON_SQEAK_1, SFX_40_CAULDRON_SQEAK_2, 11000);
+        func_8038A730(this, D_803936A8, SFX_3F_CAULDRON_SQUEAK_1, SFX_40_CAULDRON_SQUEAK_2, 11000);
         break;
     }
 }
@@ -385,7 +385,7 @@ void chWarpCauldron_update(Actor *this) {
 
         case 6: //L8038B64C
             if (func_8038A690(this) && !fileProgressFlag_get(FILEPROG_F3_MET_DINGPOT)) {
-                gcdialog_showText(ASSET_FAD_DIALOG_UNKNOWN, 0xA, this->position, NULL, __chWarpCauldron_dingpotDialogCallback, NULL);
+                gcdialog_showText(ASSET_FAD_DIALOG_DINGPOT_MEET, 0xA, this->position, NULL, __chWarpCauldron_dingpotDialogCallback, NULL);
             }
             this->unk38_0 = true;
 

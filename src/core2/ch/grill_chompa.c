@@ -12,7 +12,7 @@ typedef struct{
 
 /* .data */
 ActorInfo D_80372840 = { 
-    0x29, ACTOR_1CC_GRILL_CHOMPA, ASSET_430_MODEL_GRILL_CHOMPA, 
+    0x29, ACTOR_1CC_GRILLE_CHOMPA, ASSET_430_MODEL_GRILLE_CHOMPA, 
     0, NULL,
     func_80356CCC, NULL, func_80356C50,
     0, 0, 0.0f, 0

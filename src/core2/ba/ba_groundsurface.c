@@ -291,7 +291,7 @@ void func_8029D968(void){
 
                 case MAP_D_BGS_BUBBLEGLOOP_SWAMP://8029DB68
                 case MAP_72_GL_BGS_LOBBY:
-                    func_8035644C(FILEPROG_F_HAS_TOUCHED_PIRAHANA_WATER);
+                    func_8035644C(FILEPROG_F_HAS_TOUCHED_PIRANHA_WATER);
                     break;
 
                 case MAP_3C_RBB_KITCHEN://8029DB78

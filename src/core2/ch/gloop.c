@@ -86,7 +86,7 @@ void chgloop_update(Actor *this){
                     __spawnQueue_add_4((GenFunction_4)chgloop_spawnBubble, reinterpret_cast(s32, sp34[0]), reinterpret_cast(s32, sp34[1]), reinterpret_cast(s32, sp34[2]), reinterpret_cast(s32, this->yaw));
                 }
 
-                func_8030E9C4(SFX_3ED, randf()/2 + 0.6, 32000, this->position, 100.0f, 3000.0f);
+                func_8030E9C4(SFX_3ED_BUBBLE_POP, randf()/2 + 0.6, 32000, this->position, 100.0f, 3000.0f);
             }
             break;
     }//L802D1670

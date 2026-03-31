@@ -95,7 +95,7 @@ int bscroc_inSet(enum bs_e state){
         || state == BS_CROC_JUMP
         || state == BS_61_CROC_FALL
         || state == BS_CROC_OW
-        || state == BS_CROC_DIE
+        || state == BS_CROC_OW
         || state == BS_6E_CROC_BITE
         || state == BS_CROC_EAT_BAD
         || state == BS_70_CROC_EAT_GOOD

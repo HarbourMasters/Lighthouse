@@ -29,7 +29,7 @@ ActorInfo D_803947B0 = { 0x1EB, 0x3B7, 0x48B, 0x1, NULL, lair_func_8038F924, act
 ActorInfo D_803947D4 = { 0x1EB, 0x3BC, 0x538, 0x1, NULL, lair_func_8038F924, actor_update_func_80326224, actor_draw, 0, 0, 0.0f, 0};
 Struct_lair_86F0_0 D_803947F8[0xb] ={
     { 1, 0x1, FILEPROG_5D_MM_PUZZLE_PIECES_PLACED},
-    { 2, 0x2, FILEPROG_5E_TCC_PUZZLE_PIECES_PLACED},
+    { 2, 0x2, FILEPROG_5E_TTC_PUZZLE_PIECES_PLACED},
     { 5, 0x3, FILEPROG_60_CC_PUZZLE_PIECES_PLACED},
     { 7, 0x3, FILEPROG_63_BGS_PUZZLE_PIECES_PLACED},
     { 8, 0x4, FILEPROG_66_FP_PUZZLE_PIECES_PLACED},
@@ -99,7 +99,7 @@ void func_8038EBEC(ActorMarker *marker) {
     if (this->unkF4_8 == 0xA) {
         func_8028F918(0);
         func_8028F918(2);
-        levelSpecificFlags_set(LEVEL_FLAG_3F_LAIR_UNKNOWN, true);
+        levelSpecificFlags_set(LEVEL_FLAG_3F_LAIR_GRUNTY_DOOR_OPEN, true);
         return;
     }
     if (this->unkF4_8 == 0xB) {
@@ -452,7 +452,7 @@ void lair_func_8038F924(Actor *this) {
                 return;
             }
             if (!fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
-                __bundle_spawnFromFirstActor(BUNDLE_20__UNKOWN, this);
+                __bundle_spawnFromFirstActor(BUNDLE_20__UNKNOWN, this);
                 func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
                 func_80324D2C(2.1f, COMUSIC_43_ENTER_LEVEL_GLITTER);
                 func_8030E6D4(SFX_113_PAD_APPEARS);

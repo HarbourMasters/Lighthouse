@@ -364,7 +364,7 @@ void chLevelCollectible_update(Actor *this){
             func_802D83EC(this);
             break;
         case MARKER_36_ORANGE_COLLECTIBLE: //L802D86DC
-            if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEAVED) && map_get() == MAP_2_MM_MUMBOS_MOUNTAIN) {
+            if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT) && map_get() == MAP_2_MM_MUMBOS_MOUNTAIN) {
                 marker_despawn(this->marker);
             }
             break;

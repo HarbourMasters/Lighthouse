@@ -94,7 +94,7 @@ void func_80390BDC(Actor *this) {
         if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)) {
             marker_despawn(this->marker);
         }
-        else if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_UNKNOWN)) {
+        else if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
             func_80390B70(this);
         }
     }

@@ -157,7 +157,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
 
     __chNipper_playDeathAnimation(this);
     this->lifetime_value = 80.0f;
-    gcdialog_showText(ASSET_A10_DIALOG_TTC_NIPPER_HURT, 4, NULL, NULL, NULL, NULL);
+    gcdialog_showText(ASSET_A10_DIALOG_NIPPER_HURT, 4, NULL, NULL, NULL, NULL);
     return;
 }
 

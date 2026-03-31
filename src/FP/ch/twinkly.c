@@ -124,7 +124,7 @@ void func_8038C398(f32 position[3], enum marker_e marker_id){
             break;
         
         case MARKER_202_TWINKLY_ORANGE:
-            sp1C = ASSET_49A_MODLE_TWINKLY_SHARD_ORANGE;
+            sp1C = ASSET_49A_MODEL_TWINKLY_SHARD_ORANGE;
             break;
 
         case MARKER_203_TWINKLY_RED:
@@ -190,7 +190,7 @@ void func_8038C428(Actor *arg0, f32 arg1[3], f32 arg2)
     arg0->velocity[0] = (f32) (var_f22 / temp_f0);
     arg0->velocity[2] = (f32) (var_f24 / temp_f0);
     if (sp7F) {
-        func_8030E878(SFX_3F2_UNKNOWN, randf2(1.2f, 1.3f), 0x7D00U, arg0->position, 1750.0f, 3500.0f);
+        func_8030E878(SFX_3F2_BOING, randf2(1.2f, 1.3f), 0x7D00U, arg0->position, 1750.0f, 3500.0f);
     }
     else {
         func_8030E878(SFX_53_BANJO_HUIII, randf2(1.4f, 1.5f), 0x7D00U, arg0->position, 1750.0f, 3500.0f);

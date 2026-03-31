@@ -242,7 +242,7 @@ void func_8038D51C(ActorMarker *marker){
     
     item_set(ITEM_6_HOURGLASS, false);
     fileProgressFlag_set(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME, true);
-    FUNC_8030E624(SFX_416, 0.8f, 32000);
+    FUNC_8030E624(SFX_416_ELECTRIC_ZAP, 0.8f, 32000);
     func_8028F8F8(7, 0);
     this->unk1C[1] = 1.0f;
     timed_exitStaticCamera(1.7f);

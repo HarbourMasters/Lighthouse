@@ -97,7 +97,7 @@ ActorAnimationInfo chFinalBossAnimationInfo[] = {
     { 0x266, 4.0f}
 };
 
-ActorInfo chFinalBoss = { MARKER_25E_GRUNTILDA_FINAL_BOSS, ACTOR_38B_GRUNTILDA_FINAL_BOSS, ASSET_53D_MODEL_GRUNTILDA_FINAL_BOSS, 1, chFinalBossAnimationInfo, chfinalboss_update, actor_update_func_80326224, chfinalboss_draw, 0, 0, 0.0f, 0 };
+ActorInfo chFinalBoss = { MARKER_25E_GRUNTILDA_FINAL_BOSS_VULNERABLE, ACTOR_38B_GRUNTILDA_FINAL_BOSS, ASSET_53D_MODEL_GRUNTILDA_FINAL_BOSS, 1, chFinalBossAnimationInfo, chfinalboss_update, actor_update_func_80326224, chfinalboss_draw, 0, 0, 0.0f, 0 };
 
 f32 fight_D_80391524[3] = {0.0f, -8.0f, 400.0f};
 f32 D_80391530[3] = {0.0f, -8.0f, 0.0f};
@@ -1959,7 +1959,7 @@ void chfinalboss_func_8038B780(ActorMarker *marker) {
     sp24 = marker_getActor(marker);
     if (!fileProgressFlag_get(FILEPROG_CF_HAS_ENTERED_FINAL_FIGHT)) {
         fileProgressFlag_set(FILEPROG_CF_HAS_ENTERED_FINAL_FIGHT, true);
-        gcdialog_showText(ASSET_10E7_DIALOG_UNKNOWN, 0x2A, sp24->position, sp24->marker, chfinalboss_phase0_endTextCallback, NULL);
+        gcdialog_showText(ASSET_10E7_DIALOG_FINALBOSS_ENTERING_1, 0x2A, sp24->position, sp24->marker, chfinalboss_phase0_endTextCallback, NULL);
     }
     else{
         gcdialog_showText(randi2(0, 5) + 0x10E8, 0x2B, sp24->position, sp24->marker, chfinalboss_phase0_endTextCallback, NULL);
@@ -2007,7 +2007,7 @@ s32 chfinalboss_func_8038B834(ActorMarker *marker, ActorMarker *other_marker) {
             break;
 
         default:
-            marker->id = MARKER_25E_GRUNTILDA_FINAL_BOSS;
+            marker->id = MARKER_25E_GRUNTILDA_FINAL_BOSS_VULNERABLE;
             break;
     }
 

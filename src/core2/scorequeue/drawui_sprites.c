@@ -42,7 +42,7 @@ struct8s D_80369960[] = {
         0, {0}, 0.0f
     },
     {   0, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0.0f,
-        ITEM_10_GOLD_FEATHER, ASSET_6D1_SPRITE_GOLDFEATHTER, 0x2, 0xA,
+        ITEM_10_GOLD_FEATHER, ASSET_6D1_SPRITE_GOLDFEATHER, 0x2, 0xA,
         0.22f, -1.0f, 212.0f, -8.0f,
         0.5f, 25.0f, 0.0f, 1.0f,
         0, {0}, 0.0f

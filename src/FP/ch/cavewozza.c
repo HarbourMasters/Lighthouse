@@ -35,7 +35,7 @@ void func_80390630(Actor *this){
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = false;
         actor_collisionOn(this);
-        this->unk38_31 = jiggyscore_isCollected(JIGGY_32_FP_WOZZA) || levelSpecificFlags_get(LEVEL_FLAG_26_FP_UNKNOWN) ? 0 : 1;
+        this->unk38_31 = jiggyscore_isCollected(JIGGY_32_FP_WOZZA) || levelSpecificFlags_get(LEVEL_FLAG_26_FP_WALRUS_JIGGY_DROPPED) ? 0 : 1;
     }//L80390714
  
     if(this->unk38_31){
@@ -63,22 +63,22 @@ void func_80390630(Actor *this){
                 || actor_animationIsAt(this, 0.92f)
                 
             ){
-                FUNC_8030E8B4(SFX_3F2_UNKNOWN, 0.8f, 24000, this->position, 500, 2000);
+                FUNC_8030E8B4(SFX_3F2_BOING, 0.8f, 24000, this->position, 500, 2000);
             }
         }
 
         if (func_80329530(this, 350)) {
             if (player_getTransformation() == TRANSFORM_4_WALRUS) {
-                if (!levelSpecificFlags_get(LEVEL_FLAG_31_FP_UNKNOWN)) {
-                    if (gcdialog_showText(ASSET_C27_DIALOG_UNKNOWN, 0x23, NULL, NULL, NULL, NULL)) {
-                        levelSpecificFlags_set(LEVEL_FLAG_31_FP_UNKNOWN, true);
+                if (!levelSpecificFlags_get(LEVEL_FLAG_31_FP_WOZZA_WALRUS_TALKED)) {
+                    if (gcdialog_showText(ASSET_C27_DIALOG_WOZZA_CAVE_MEET_AS_WALRUS, 0x23, NULL, NULL, NULL, NULL)) {
+                        levelSpecificFlags_set(LEVEL_FLAG_31_FP_WOZZA_WALRUS_TALKED, true);
                     }
                 }
             }
             else {
-                if (!levelSpecificFlags_get(LEVEL_FLAG_32_FP_UNKNOWN)) {
-                    if (gcdialog_showText(ASSET_C26_DIALOG_UNKNOWN, 0x23, NULL, NULL, NULL, NULL)) {
-                        levelSpecificFlags_set(LEVEL_FLAG_32_FP_UNKNOWN, true);
+                if (!levelSpecificFlags_get(LEVEL_FLAG_31_FP_WOZZA_WALRUS_TALKED)) {
+                    if (gcdialog_showText(ASSET_C26_DIALOG_WOZZA_CAVE_MEET_AS_BEAR, 0x23, NULL, NULL, NULL, NULL)) {
+                        levelSpecificFlags_set(LEVEL_FLAG_31_FP_WOZZA_WALRUS_TALKED, true);
                     }
                 }
             }

@@ -68,7 +68,7 @@ void func_8038E840(f32 position[3], s32 cnt, enum asset_e sprite_id){
 }
 
 void func_8038E940(Actor *this){
-    if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE) || levelSpecificFlags_get(LEVEL_FLAG_29_FP_UNKNOWN)) {
+    if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE) || levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
         this->marker->propPtr->unk8_3 = true;
         this->marker->collidable = false;
         subaddie_set_state_with_direction(this, 3, 0.95f, 0);
@@ -101,7 +101,7 @@ void func_8038E940(Actor *this){
 
             subaddie_set_state_with_direction(this, 3, 0.05f, 1);
             actor_playAnimationOnce(this);
-            FUNC_8030E624(SFX_416, 0.8f, 32000);
+            FUNC_8030E624(SFX_416_ELECTRIC_ZAP, 0.8f, 32000);
             this->marker->collidable = false;
             this->lifetime_value = 0.0f;
             break;

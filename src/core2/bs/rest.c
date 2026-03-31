@@ -101,7 +101,7 @@ void func_802B3D1C(void) {
 
     next_state = 0;
     if (player_inWater() != 0) {
-        next_state = BS_77_SWIM_LOCKED;
+        next_state = BS_77_SWIM_LOOKAT_DRONE;
     }
     if (func_802B3BB0() != 0) {
         next_state = bs_getIdleState();
@@ -127,7 +127,7 @@ void func_802B3DBC(void) {
 
     next_state = 0;
     if (player_inWater() != 0) {
-        next_state = BS_77_SWIM_LOCKED;
+        next_state = BS_77_SWIM_LOOKAT_DRONE;
     }
     if (func_802B3BB0() != 0) {
         next_state = bs_getIdleState();
@@ -155,7 +155,7 @@ void func_802B3E64(void) {
     next_state = 0;
     func_8029C6D0();
     if (player_inWater()) {
-        next_state = BS_77_SWIM_LOCKED;
+        next_state = BS_77_SWIM_LOOKAT_DRONE;
     }
     if (func_802B3BB0()) {
         next_state = bs_getIdleState();

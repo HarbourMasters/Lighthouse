@@ -186,7 +186,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
           {SFX_40B_MUMBO_TALKING_5, 28000, 1.4f}
      }},
      {ASSET_81E_SPRITE_LIVE_BLUE_EGG, 0xF2, 0x06, {
-          {SFX_3F2_UNKNOWN, 32000, 1.1f}
+          {SFX_3F2_BOING, 32000, 1.1f}
      }},
      {ASSET_820_SPRITE_LIVE_RED_FEATHER, 0xEE, 0x06, {
           {SFX_AC_GOLDFEATHER_TALKING, 15000, -2.0f}
@@ -343,7 +343,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
           {SFX_A5_EYRIE_CRY, 20000, 1.0f}
      }},
      {ASSET_7FA_SPRITE_WARP_CAULDRON, 0xED, 0x07, {
-          {SFX_3ED, 20000, 0.8f}
+          {SFX_3ED_BUBBLE_POP, 20000, 0.8f}
      }},
      {ASSET_82E_SPRITE_BRENTILDA, 0xED, 0x05, {
           {SFX_14C_BRENTILDA_TALKING, 16000, 1.2f}
@@ -401,7 +401,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
           {SFX_E9_TOOTY_TALKING_2, 20000, 1.1f},
           {SFX_122_TOOTY_TALKING_3, 22000, 1.0f}}},
      {ASSET_833_SPRITE_DINGPOT, 0xEF, 0x06, {
-          {SFX_3ED, 20000, 0.8f}
+          {SFX_3ED_BUBBLE_POP, 20000, 0.8f}
      }},
      {ASSET_7E7_SPRITE_CROC_BANJO, 0xF0, 0x0A, {
           {SFX_95_BANJO_TALKING, 20000, 1.2f}

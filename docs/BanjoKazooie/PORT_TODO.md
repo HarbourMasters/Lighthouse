@@ -1,5 +1,10 @@
 # PORT TODO
 
+## Decomp code
+
+### Documentation
+The BK decomp at https://gitlab.com/banjo.decomp/banjo-kazooie has received a lot of documentation and corrections since it was taken into Lighthouse. Lighthouse commit history shows ~late 2024 for decomp, which misses a lot of useful documentation adds that came later like enums.h. We should bring more documentation over from decomp.
+
 ## Lighthouse.o2r
 
 ### Add a game selector
@@ -11,7 +16,7 @@ Lighthouse supports romhacks created with Banjo's Backpack, if a config.yml entr
 Many textures are broken into sections and have seams. These seams are built into the models themselves and are a result of the developers not accounting for bilerp filtering. In order to have seamless transitions between bilerp filtered textures, you must duplicate the first row of the previous texture in the next texture. In other words, the textures themselves are missing information due to a developer oversight.
 
 ### Shadow Texture Cache Bug
-Banjo's shadow texture changes appearance when the GPU texture cache is flushed. In some areas of romhack maps (Jiggies of Time TTC_LOBBY) the shadow renders as a solid dark square instead of a proper circular shadow. Flushing the cache changes the shadow texture, suggesting a cache key collision or stale RDP state at first decode time. Textures can be converted to bmp from bk-jot.o2r/assets.
+Banjo's shadow texture changes appearance when the GPU texture cache is flushed. In some areas of romhack maps, the shadow renders as a solid dark square instead of a proper circular shadow. Moving to a nearby location (same map, just a few steps away) causes the shadow to render fine. Flushing the cache changes the shadow texture when it's a square, suggesting a cache key collision or stale RDP state at first decode time. Textures can be converted to bmp from bk-jot.o2r/assets.
 
 ### Widescreen cutscene angles
 In widescreen only, some cutscenes will angle the camera in a way that exposes the skybox outside of model geometry bounds. We want to adjust the camera yaw for the specific nodes that cause this. Known cases:

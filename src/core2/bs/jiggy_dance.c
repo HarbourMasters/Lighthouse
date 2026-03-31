@@ -188,7 +188,7 @@ void bsjig_notedoor_update(void){
     enum bs_e sp1C = 0;
 
     if(baanim_isAt(0.59f) || baanim_isAt(0.84f))
-        basfx_80299CF4(SFX_3EA_UNKNOWN, 1.0f, 30000);
+        basfx_80299CF4(SFX_3EA_BANJO_GUH_HUH, 1.0f, 30000);
 
     if(baanim_isStopped())
         sp1C = BS_1_IDLE;

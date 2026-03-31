@@ -1244,7 +1244,7 @@ void lair_func_8038E0B0(void) {
                             if ((item_getCount(ITEM_27_JOKER_CARD) > 0) && (sp28 < 0x5B)) {
                                 lair_func_8038C640(D_8037DCB8->unk8, D_8037DCB8->unk4);
                                 item_dec(ITEM_27_JOKER_CARD);
-                                func_8030E6D4(SFX_3EA_UNKNOWN);
+                                func_8030E6D4(SFX_3EA_BANJO_GUH_HUH);
                                 volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A9_FF_USED_JOKER);
                                 if (D_8037DCB8->unk8 == 0x1EF) {
                                     func_8038D670(8);

@@ -127,7 +127,7 @@ void chJumpTutorial_update(Actor *this) {
                     mapSpecificFlags_set(SM_SPECIFIC_FLAG_9_ABILITY_FEATHERY_UNLOCKED, false);
                 }//L8038A794
 
-                if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_A)) {
+                if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_A_ABILITY_FLIP_UNLOCKED)) {
                     __chJumpTutorial_setStaticCameraToNode4(this);
                     func_8028F94C(2, this->unk1C);
 
@@ -140,7 +140,7 @@ void chJumpTutorial_update(Actor *this) {
                     }
 
                     gcdialog_showText(dialog_id, 0xe, this->unk1C, this->marker, __chJumpTutorial_textCallback, NULL);
-                    mapSpecificFlags_set(SM_SPECIFIC_FLAG_A, false);
+                    mapSpecificFlags_set(SM_SPECIFIC_FLAG_A_ABILITY_FLIP_UNLOCKED, false);
                     this->sm_4070.dialog_id = 0;
                 }
             }//L8038A828
