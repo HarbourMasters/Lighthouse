@@ -34,6 +34,17 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Skips the jiggy collection dance, collecting the jiggy immediately like underwater pickups."));
 
+    // Enhancements -> Audio
+    path = { "Enhancements", "Audio", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Lair Music Continuity", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Audio.LairContinuity"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Maintain music position when moving between Gruntilda's Lair floors that share the same theme."));
+
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

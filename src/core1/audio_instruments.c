@@ -30,6 +30,31 @@ void func_8024FD28(u8, s16);
 int func_80250074(u8);
 u8 func_8025F4A0(ALCSPlayer *, u8);
 
+// [port] Lair audio continuity: tracks within the same group share enough
+// sequence data that seeking to the same tick position sounds seamless.
+// Group 0 = not a lair track, groups 1-3 = adjacent lair floors.
+static int lairTrackGroup(s32 trackIndex) {
+    switch (trackIndex) {
+        case COMUSIC_1E_GL_MM_VERSION:
+        case COMUSIC_50_GL_TTC_VERSION:
+        case COMUSIC_51_GL_CCW_VERSION:
+            return 1;
+        case COMUSIC_52_GL_BGS_RBB_VERSION:
+        case COMUSIC_53_GL_FP_VERSION_A:
+            return 2;
+        case COMUSIC_54_GL_GV_VERSION:
+        case COMUSIC_59_GL_FP_VERSION_B:
+        case COMUSIC_5D_GL_MMM_VERSION:
+        case COMUSIC_5E_GL_MMM_RBB_VERSION:
+        case COMUSIC_63_GL_FF_VERSION:
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+static s32 sLairSavedTicks[4] = { 0 }; // one per group (index 1-3)
+
 void func_8025F3F0(ALCSPlayer *, f32, f32);
 u16 func_80250474(s32 arg0);
 void func_8024FB8C(void);
@@ -357,6 +382,20 @@ void func_8024FA98(u8 arg0, s32 arg1){
     if(arg1 == sp2C || sp2C == -1){
         func_8024F890(arg0, arg1);
     }else{
+        // [port] Save tick position for lair audio continuity
+        s32 savedTicks = 0;
+        int oldGroup = 0, newGroup = 0;
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Audio.LairContinuity"), 0)) {
+            oldGroup = lairTrackGroup(sp2C);
+            newGroup = lairTrackGroup(arg1);
+            if (oldGroup > 0) {
+                sLairSavedTicks[oldGroup] = alCSeqGetTicks(&D_80281720[arg0].cseq);
+            }
+            if (oldGroup > 0 && newGroup > 0 && oldGroup == newGroup) {
+                savedTicks = sLairSavedTicks[oldGroup];
+            }
+        }
+
         func_8024F890(arg0, -1);
         sp20 = osGetTime();
         while(D_80281720[arg0].cseqp.state != AL_STOPPED){
@@ -364,6 +403,13 @@ void func_8024FA98(u8 arg0, s32 arg1){
         };
         func_8024F7C4(sp2C);
         func_8024F890(arg0, arg1);
+
+        // [port] Seek new track to saved position
+        if (savedTicks > 0) {
+            ALCSeqMarker marker;
+            n_alCSeqNewMarker(&D_80281720[arg0].cseq, &marker, savedTicks);
+            alCSeqSetLoc(&D_80281720[arg0].cseq, &marker);
+        }
     }
 }
 

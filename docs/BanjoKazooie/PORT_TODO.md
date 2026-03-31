@@ -27,10 +27,7 @@ A staple of the Xbox360 Arcade version of the game tracks music notes and jinjos
 ### GAMEPLAY: Other World State Tracking
 An enhancement could also track other world states that get reset such as Clanker being raised above water in Clanker's Cavern, the Sandcastle moat being drained in TTC, etc.
 
-### CUTSCENES: Skip Jiggy Dance
-On collecting a jiggy, Banjo will do a dance. On collecting all 10 in a world, he will do a different dance. An enhancement could skip these dances which stop the player briefly, but we will need to be careful that we don't introduce oddities like https://github.com/BanjoRecomp/BanjoRecomp/issues/229. This could be done by treating all collections like underwater or transformation collections which already skip the dance sequences.
-
-### AUDIO: Gruntilda's Lair Audio
+### TEST: Gruntilda's Lair Audio
 Gruntilda's Lair has several audio tracks that fade to different instruments when in proximity of a world's puzzle podium or entrypoint. Each floor is actually a different audio track due to instrument data, but the beginning bits of each track are the same. An enhancement could track the position of tracks in the Lair and start the next track at the same position, giving the illusion of smooth flow.
 
 ### GENERAL: Save File Conversion
