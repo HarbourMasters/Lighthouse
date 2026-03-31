@@ -129,4 +129,15 @@ void getGraphicsStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void graphicsCache_reportUsage(Gfx *gfxEnd, Gfx *gfxStart, Mtx *mtxEnd, Mtx *mtxStart, Vtx *vtxEnd, Vtx *vtxStart);
 void dummy_func_80254464(void);
 
+/* src/core1/defragmanager.c */
+
+#define DEFRAGMANAGER_THREAD_STACK_SIZE        2048
+#define DEFRAGMANAGER_THREAD_ID                2
+#define DEFRAGMANAGER_THREAD_PRIORITY          10
+#define DEFRAGMANAGER_THREAD_PRIORITY_HIGH     30
+
+void defragManager_init(void);
+void defragManager_free(void);
+void defragManager_setPriority(OSPri pri);
+
 #endif

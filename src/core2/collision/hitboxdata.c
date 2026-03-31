@@ -287,26 +287,26 @@ bool func_8033D410(ActorMarker *arg0, ActorMarker *arg1) {
     return true;
 }
 
-s32 func_8033D564(struct5Cs *arg0){
-    return arg0->unk0_15;
+s32 func_8033D564(CollisionParams *arg0){
+    return arg0->playerInteraction;
 }
 
-enum marker_collision_func_type_e func_8033D574(struct5Cs *arg0){
-    return arg0->unk0_11;
+enum marker_collision_func_type_e func_8033D574(CollisionParams *arg0){
+    return arg0->nextState;
 }
 
-s32 func_8033D584(struct5Cs *arg0){
-    return arg0->unk0_9;
+s32 func_8033D584(CollisionParams *arg0){
+    return arg0->unkBit7;
 }
 
-s32 func_8033D594(struct5Cs *arg0){
-    return arg0->unk0_6;
+s32 func_8033D594(CollisionParams *arg0){
+    return arg0->damageToPlayer;
 }
 
-s32 func_8033D5A4(struct5Cs *arg0){
-    return arg0->unk0_4;
+s32 func_8033D5A4(CollisionParams *arg0){
+    return arg0->hitsToTrigger;
 }
 
-s32 func_8033D5B4(struct5Cs *arg0){
-    return arg0->unk0_1;
+s32 func_8033D5B4(CollisionParams *arg0){
+    return arg0->dropBundleNum;
 }

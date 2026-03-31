@@ -15,7 +15,7 @@ s8 D_8036C4D0[] = {1, 0x1E, 0x14, 0xF, 0xB, 8, 6, 4, 3, 2, -1, -1, -1};
 struct {
     char output[0x100];
     u8 *dialog_bin_ptr;
-    struct13s *string_list[2]; //string ptr
+    BKDialog *string_list[2]; //string ptr
     char *string[2]; //current_string
     u8 string_count[2];   //zoombox string_count
     s8 string_cmd[2]; //current_cmd
@@ -624,7 +624,7 @@ void func_80310574(s32 text_id){
 
     for(i = 0; i < 2; i++){
         g_Dialog.string_count[i] = *(txt++);
-        g_Dialog.string_list[i] = (struct13s *) bk_malloc(g_Dialog.string_count[i]*sizeof(struct13s));
+        g_Dialog.string_list[i] = (BKDialog *) bk_malloc(g_Dialog.string_count[i]*sizeof(BKDialog));
         for(j = 0; j < g_Dialog.string_count[i]; j++){//L803105F0
             ch = *(txt++);
             if(ch > 0 && ch < 0x20){
@@ -1010,7 +1010,7 @@ void gcdialog_defrag(void){
     for(i = 0; i< 2; i++){
         gczoombox_defrag(g_Dialog.zoombox[i]);
         if(g_Dialog.string_list[i]){
-            g_Dialog.string_list[i] = (struct13s *)defrag(g_Dialog.string_list[i]);
+            g_Dialog.string_list[i] = (BKDialog *)defrag(g_Dialog.string_list[i]);
         }
         if(g_Dialog.zoombox[i] != NULL){
             g_Dialog.zoombox[i] = (GcZoombox *)defrag(g_Dialog.zoombox[i]);

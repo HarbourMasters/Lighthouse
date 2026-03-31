@@ -19,7 +19,7 @@ extern void func_8035646C(s32 arg0);
 extern void func_80291634(ActorMarker *, ActorMarker *);
 extern void func_80291610(ActorMarker *, ActorMarker *);
 extern Actor *baModel_80291AAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-extern void baMarker_8028D7B8(s32 arg0, ActorMarker *arg1, struct5Cs *collision_flags);
+extern void baMarker_8028D7B8(s32 arg0, ActorMarker *arg1, CollisionParams *collision_flags);
 extern void func_802EE6CC(f32[3], s32, s32[4], s32, f32, f32, s32,s32,s32);
 extern void func_80320ED8(ActorMarker *, f32, s32);
 extern NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e actor_id, s32 position[3]);
@@ -1025,7 +1025,7 @@ void baMarker_8028D71C(void){
     func_802EE6CC(sp3C, 0, D_80363680, 1, 0.75f, 0.0f, 0x7d, 0xfa, 0);
 }
 
-void baMarker_8028D7B8(s32 arg0, ActorMarker *arg1, struct5Cs *collision_flags){
+void baMarker_8028D7B8(s32 arg0, ActorMarker *arg1, CollisionParams *collision_flags){
     s32 sp24;
     s32 sp20 = func_8033D594(collision_flags);
     s32 sp1C = 0;

@@ -2144,11 +2144,11 @@ void func_80320B84(void);
 
 // --- core2/collision/hitboxdata.c ---
 bool func_8033D410(ActorMarker *arg0, ActorMarker *arg1);
-s32 func_8033D564(struct5Cs *arg0);
-s32 func_8033D584(struct5Cs *arg0);
-s32 func_8033D594(struct5Cs *arg0);
-s32 func_8033D5A4(struct5Cs *arg0);
-s32 func_8033D5B4(struct5Cs *arg0);
+s32 func_8033D564(CollisionParams *arg0);
+s32 func_8033D584(CollisionParams *arg0);
+s32 func_8033D594(CollisionParams *arg0);
+s32 func_8033D5A4(CollisionParams *arg0);
+s32 func_8033D5B4(CollisionParams *arg0);
 void func_8033D2F4(void);
 
 // --- core2/collision/init.c ---
@@ -3379,7 +3379,7 @@ void climbGetBottom(f32 dst[3]);
 void func_802FAD64(enum item_e);
 
 // --- core2/collision/hitboxdata.c ---
-enum marker_collision_func_type_e func_8033D574(struct5Cs *arg0);
+enum marker_collision_func_type_e func_8033D574(CollisionParams *arg0);
 
 // --- core2/fx/airscore.c ---
 struct7s *fxairscore_new(s32);

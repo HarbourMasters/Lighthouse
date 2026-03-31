@@ -274,7 +274,7 @@ typedef struct struct_8_s{
 typedef struct struct_11_s{
     f32 unk0;
     f32 unk4;
-    s32 unk8;
+    s32 volume;
     s32 unkC;
     s16 track_id; //trackId
     s16 unk12;
@@ -290,10 +290,10 @@ typedef struct struct_12_s{
     s32 unk1;
 } struct12s;
 
-typedef struct struct_13_s{
+typedef struct dialog_s {
     s32 cmd;
     u8* str;
-}struct13s;
+} BKDialog;
 
 typedef struct struct_14_s{
     s16 unk0;
@@ -533,21 +533,21 @@ typedef struct {
 // order on LE so each named field maps to the same bit positions.
 typedef struct{
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    u16 unk0_15 : 4; // bits 15-12 (aaaa)
-    u16 unk0_11 : 2; // bits 11-10 (bb)
-    u16 unk0_9  : 3; // bits  9-7  (ccc)
-    u16 unk0_6  : 2; // bits  6-5  (dd)
-    u16 unk0_4  : 3; // bits  4-2  (eee)
-    u16 unk0_1  : 2; // bits  1-0  (ff)
+    u16 playerInteraction : 4; // bits 15-12 (aaaa)
+    u16 nextState : 2;         // bits 11-10 (bb)
+    u16 unkBit7 : 3;           // bits  9-7  (ccc)
+    u16 damageToPlayer : 2;    // bits  6-5  (dd)
+    u16 hitsToTrigger : 3;     // bits  4-2  (eee)
+    u16 dropBundleNum : 2;     // bits  1-0  (ff)
 #else
-    u16 unk0_1  : 2; // bits  1-0  (ff)
-    u16 unk0_4  : 3; // bits  4-2  (eee)
-    u16 unk0_6  : 2; // bits  6-5  (dd)
-    u16 unk0_9  : 3; // bits  9-7  (ccc)
-    u16 unk0_11 : 2; // bits 11-10 (bb)
-    u16 unk0_15 : 4; // bits 15-12 (aaaa)
+    u16 dropBundleNum : 2;     // bits  1-0  (ff)
+    u16 hitsToTrigger : 3;     // bits  4-2  (eee)
+    u16 damageToPlayer : 2;    // bits  6-5  (dd)
+    u16 unkBit7 : 3;           // bits  9-7  (ccc)
+    u16 nextState : 2;         // bits 11-10 (bb)
+    u16 playerInteraction : 4; // bits 15-12 (aaaa)
 #endif
-}struct5Cs;
+}CollisionParams;
 
 typedef struct struct_5d_s{
     s32 unk0;

@@ -568,7 +568,7 @@ void func_8024FF34(void){
         s32 vol = D_80275D40[D_80281720[slot].index].unk4;
         func_8024FD28(slot, (s16)vol);
         CoMusic *cm = &D_80276E30[slot];
-        cm->unk8 = vol;     // prevent comusic from thinking volume is 0
+        cm->volume = vol;     // prevent comusic from thinking volume is 0
         cm->unk12 = 0;      // stop any fade in progress
     }
 

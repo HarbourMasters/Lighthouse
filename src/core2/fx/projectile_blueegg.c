@@ -22,7 +22,7 @@ extern ActorMarker *func_8033E840(void);
 extern ActorProp *func_80320EB0(ActorMarker *, f32, s32);
 
 
-void fxegg_collide(ActorMarker *self, ActorMarker *marker, struct5Cs *arg2);
+void fxegg_collide(ActorMarker *self, ActorMarker *marker, CollisionParams *arg2);
 
 /* .data */
 AnimSpriteStep D_803726A0[] = {
@@ -365,7 +365,7 @@ void fxegg_ass_update(void) {
 
 void fxegg_ass_destroy(void){}
 
-void fxegg_collide(ActorMarker *self, ActorMarker *marker, struct5Cs *arg2) {
+void fxegg_collide(ActorMarker *self, ActorMarker *marker, CollisionParams *arg2) {
     Actor *actor;
 
     actor = marker_getActor(marker);
