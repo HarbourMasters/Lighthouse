@@ -33,10 +33,19 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddSidebarEntry("Enhancements", path.sidebarName, 1);
     path.column = SECTION_COLUMN_1;
 
-    AddWidget(path, "Disable Draw Distance", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables Draw Distance allowing objects to render further."));
+        .Options(ComboboxOptions()
+                     .Tooltip("Extends the draw distance for objects.\nHigher values render more but cost performance.")
+                     .ComboMap({
+                         { 0, "Off" },
+                         { 1, "25%" },
+                         { 2, "50%" },
+                         { 3, "75%" },
+                         { 4, "100% (No Culling)" },
+                     })
+                     .DefaultIndex(0));
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };

@@ -439,9 +439,18 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     for(i = 0; i < 3; i++){
         int width = 4;
 
-        if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
-            && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
-            width = sCubeList.width[i]; // Extended draw distance: full map
+        // [port] Extended draw distance: scale cube iteration width by CVar level.
+        {
+            int drawDistLevel = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
+            if (getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
+                drawDistLevel = 0;
+            }
+            if (drawDistLevel >= 4) {
+                width = sCubeList.width[i];
+            } else if (drawDistLevel > 0) {
+                int extended = 4 + (sCubeList.width[i] - 4) * drawDistLevel / 4;
+                width = (extended < sCubeList.width[i]) ? extended : sCubeList.width[i];
+            }
         }
 
         if(vp_cube_indices[i] - sp44[i] > width){
