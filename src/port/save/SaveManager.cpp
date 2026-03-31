@@ -1113,24 +1113,33 @@ void SaveManager::FlushSlotToDisk(int slotIndex) {
 
     json j = SlotToJson(mEeprom + base);
 
-    j["file"]["enhancements"]["lives"] = item_getCount(0x16); // ITEM_16_LIFE
-
-    // Bottles bonus: merge with existing JSON — completions are permanent,
-    // a zeroed live array (from init) must not downgrade saved 1s to 0s.
+    // Read existing JSON so we can merge without downgrading values.
+    // This prevents early flushes (e.g. global SNS writes before file load)
+    // from clobbering persisted enhancement data with zeroes.
     std::string existingFilename = "file" + std::to_string(SlotToVisualGame(slotIndex)) + ".json";
     std::string existingPath = GetSavePath(existingFilename);
-    json bbArr = json::array();
-    json oldBb;
+    json existingEnh;
     if (fs::exists(existingPath)) {
         try {
             std::ifstream ifs(existingPath);
             auto ej = nlohmann::ordered_json::parse(ifs);
-            if (ej.contains("file") && ej["file"].contains("enhancements") &&
-                ej["file"]["enhancements"].contains("bottlesBonusCompleted")) {
-                oldBb = ej["file"]["enhancements"]["bottlesBonusCompleted"];
+            if (ej.contains("file") && ej["file"].contains("enhancements")) {
+                existingEnh = ej["file"]["enhancements"];
             }
         } catch (...) {}
     }
+
+    // Lives: don't downgrade to zero if the on-disk value is higher.
+    int lives = item_getCount(0x16); // ITEM_16_LIFE
+    if (lives == 0 && existingEnh.contains("lives")) {
+        lives = existingEnh["lives"].get<int>();
+    }
+    j["file"]["enhancements"]["lives"] = lives;
+
+    // Bottles bonus: merge with existing JSON — completions are permanent,
+    // a zeroed live array (from init) must not downgrade saved 1s to 0s.
+    json bbArr = json::array();
+    json oldBb = existingEnh.contains("bottlesBonusCompleted") ? existingEnh["bottlesBonusCompleted"] : json();
     for (int k = 0; k < 7; k++) {
         int val = gCompletedBottlesBonusGames[k] ? 1 : 0;
         if (!val && k < (int)oldBb.size() && oldBb[k].get<int>()) {
