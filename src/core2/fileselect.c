@@ -116,6 +116,8 @@ void gameFile_clear(s32 gamenum){
 extern void port_restoreFileEnhancementData(int eepromSlot);
 extern s32 D_80386068; // [port] lives backup — func_80347AA8 restores from this
 extern s32 D_80385F30[];
+extern void sns_set_item_state(s32 item, s32 set, bool value);
+extern void sns_update_global_save_data_checksum(void);
 
 void gameFile_load(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
