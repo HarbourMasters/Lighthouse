@@ -68,6 +68,12 @@ void LighthouseMenu::AddMenuEnhancements() {
                          { 4, "100%" },
                      })
                      .DefaultIndex(0));
+    
+        AddWidget(path, "Always High Poly Banjo", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Graphics.AlwaysHighPolyBanjo"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Makes Banjo always use the high-polygon model, even in low-detail modes."));
 
     // Enhancements -> Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
