@@ -108,8 +108,8 @@ void __maSlalom_spawnGate(s32 indx, s32 arg1){
     a1->unk38_31 = 1;
     a2->unk38_31 = 1;
 
-    a1->unkF4_8 = indx + 1;
-    a2->unkF4_8 = indx + 1;
+    a1->actorTypeSpecificField = indx + 1;
+    a2->actorTypeSpecificField = indx + 1;
 
     meActiveFlags[indx].marker = a1->marker;
     meDummyFlags[indx].marker = a2->marker;
@@ -408,7 +408,7 @@ void maSlalom_linkActiveFlag(ActorMarker *marker){
     Actor *actor = marker_getActor(marker);
     s32 num;
     
-    num = actor->unkF4_8 - 1;
+    num = actor->actorTypeSpecificField - 1;
     if(num < NUM_GATES){
         meActiveFlags[num].marker = actor->marker;
         meActiveFlags[num].position[0] = actor->position[0];
@@ -422,7 +422,7 @@ void maSlalom_linkDummyFlag(ActorMarker *marker){
     Actor *actor = marker_getActor(marker);
     s32 num;
     
-    num = actor->unkF4_8 - 1;
+    num = actor->actorTypeSpecificField - 1;
     if(num < NUM_GATES){
         meDummyFlags[num].marker = actor->marker;
         meDummyFlags[num].position[0] = actor->position[0];

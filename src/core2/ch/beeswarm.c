@@ -63,7 +63,7 @@ void chBeeSwarm_802CEBA8(Actor *this){
     ActorLocal_core2_47BD0 *local;
 
     local = (ActorLocal_core2_47BD0 *)&this->local;
-    this->unk100 = NULL;
+    this->partnerActor = NULL;
     
     bk_free(local->unk8);
     local->unk8 = NULL;
@@ -268,7 +268,7 @@ bool chBeeSwarm_802CF5E4(Actor *this){
     bool out = 1;
 
     local = (ActorLocal_core2_47BD0 *) &this->local;
-    out = (this->unk100 != NULL) ? (local->unk24 != this->unk100->unk5C)
+    out = (this->partnerActor != NULL) ? (local->unk24 != this->partnerActor->unk5C)
         : 1;
     return out;
 }
@@ -321,19 +321,19 @@ void chBeeSwarm_update(Actor *this) {
     if (!this->initialized) {
         this->initialized = true;
         beehive = actorArray_findClosestActorFromActorId(this->position, ACTOR_12_BEEHIVE, -1, &distance_to_home);
-        this->unk100 = (beehive != NULL) ? beehive->marker : NULL;
+        this->partnerActor = (beehive != NULL) ? beehive->marker : NULL;
         if(500.0f < distance_to_home){
-            this->unk100 = NULL;
+            this->partnerActor = NULL;
         }
         sp78 = 1;
         local->unk18 = (f32) this->position[1];
         
-        local->unkC[0] = ((this->unk100) ? beehive->position : this->position)[0];
-        local->unkC[1] = ((this->unk100) ? beehive->position : this->position)[1];
-        local->unkC[2] = ((this->unk100) ? beehive->position : this->position)[2];
+        local->unkC[0] = ((this->partnerActor) ? beehive->position : this->position)[0];
+        local->unkC[1] = ((this->partnerActor) ? beehive->position : this->position)[1];
+        local->unkC[2] = ((this->partnerActor) ? beehive->position : this->position)[2];
 
         local->unkC[1] += 250.0f;
-        local->unk0 = this->unkF4_8;
+        local->unk0 = this->actorTypeSpecificField;
         this->position[0] = local->unkC[0];
         this->position[1] = local->unkC[1];
         this->position[2] = local->unkC[2];
@@ -360,20 +360,20 @@ void chBeeSwarm_update(Actor *this) {
         if (sp78 == 0) {
             beehive = actorArray_findClosestActorFromActorId(this->position, ACTOR_12_BEEHIVE, -1, &distance_to_home);
             if (beehive != NULL) {
-                this->unk100 = beehive->marker;
+                this->partnerActor = beehive->marker;
             } else {
-                this->unk100 = NULL;
+                this->partnerActor = NULL;
             }
             if (distance_to_home > 500.0f) {
-                this->unk100 = NULL;
+                this->partnerActor = NULL;
             }
         }
-         local->unk24 = (this->unk100 != NULL) ? this->unk100->unk5C : 0;
+         local->unk24 = (this->partnerActor != NULL) ? this->partnerActor->unk5C : 0;
         local->unk5 = 1;
-        if (this->unk100 != NULL) {
+        if (this->partnerActor != NULL) {
             fileProgressFlag_set(FILEPROG_D_BEEHIVE_TEXT, true);
         }
-        subaddie_set_state(this, (this->unk100 != NULL) ? 1 : 2);
+        subaddie_set_state(this, (this->partnerActor != NULL) ? 1 : 2);
         this->lifetime_value = 0.0f;
         chBeeSwarm_802CF040(this);
         this->unk38_0 = volatileFlag_get(VOLATILE_FLAG_1) | volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE);

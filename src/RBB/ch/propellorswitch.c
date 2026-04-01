@@ -99,7 +99,7 @@ void chPropellorSwitch_update(Actor *this){
         this->marker->propPtr->unk8_3 = 1;
         this->marker->actorFreeFunc = chPropellorSwitch_free;
         this->volatile_initialized = true;
-        local->unk0 = &D_80390720[((this->unk78_13 == 2) ? 0:1)];
+        local->unk0 = &D_80390720[((this->secondaryId == 2) ? 0:1)];
         if(local->unk0->unk6 == 0)
             local->unk4 = NULL;
         else

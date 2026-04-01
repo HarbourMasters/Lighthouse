@@ -19,9 +19,9 @@ void chbossjinjobase_spawnStoneJinjo(ActorMarker *marker) {
     Actor *actor_bossjinjobase = marker_getActor(marker);
     Actor *childactor_stonejinjo = spawn_child_actor(ACTOR_3A1_STONE_JINJO, &actor_bossjinjobase);
 
-    childactor_stonejinjo->unkF4_8 = actor_bossjinjobase->unkF4_8;
+    childactor_stonejinjo->actorTypeSpecificField = actor_bossjinjobase->actorTypeSpecificField;
     childactor_stonejinjo->position_y = childactor_stonejinjo->position_y + 172.0f;
-    actor_bossjinjobase->unk100 = childactor_stonejinjo->marker;
+    actor_bossjinjobase->partnerActor = childactor_stonejinjo->marker;
 }
 
 void chBossJinjoBase_createSmokeParticles(f32 position[3], s32 count) {
@@ -53,7 +53,7 @@ void chBossJinjoBase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
 
         if (actor_bossjinjobase->unk38_31 >= 3) {
             subaddie_set_state(actor_bossjinjobase, CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO);
-            chstonejinjo_breakOpen(actor_bossjinjobase->unk100);
+            chstonejinjo_breakOpen(actor_bossjinjobase->partnerActor);
             chBossJinjoBase_func_8038D3DC(actor_bossjinjobase, 0x19A, -100.0f, 0.0f, 1.2f);
             func_80324D54(1.2f, SFX_90_SWITCH_PRESS, 1.0f, 32000, actor_bossjinjobase->position, 1000.0f, 2000.0f);
         }
@@ -118,11 +118,11 @@ void chBossJinjoBase_update(Actor *this) {
     }
     else {
         if(this->state == CHBOSSJINJOBASE_STATE_1_RAISE) {
-            actor_stonejinjo = marker_getActor(this->unk100);
+            actor_stonejinjo = marker_getActor(this->partnerActor);
             y_delta = this->velocity_y * delta_time;
 
             if(this->position_y + y_delta < this->unk1C[1]) {
-                if( !fileProgressFlag_get(FILEPROG_D2_HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT) || this->unkF4_8 == 1) {
+                if( !fileProgressFlag_get(FILEPROG_D2_HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT) || this->actorTypeSpecificField == 1) {
                     func_8030E2C4(this->unk44_31);
                     func_8030E2C4(local->sfxsourceIdx);
                 }

@@ -252,7 +252,7 @@ void chCrab_update(Actor *this) {
     }
 
     if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) != 0) {
-        if (this->unkF4_8 != 1) {
+        if (this->actorTypeSpecificField != 1) {
             marker_despawn(this->marker);
             return;
         }

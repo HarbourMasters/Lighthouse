@@ -165,8 +165,8 @@ void FP_func_8038F758(ActorMarker *marker){
     s32 pad;
     
     jiggy->yaw = this->yaw;
-    this->unk100 = jiggy->marker;
-    jiggy->unk100 = this->marker;
+    this->partnerActor = jiggy->marker;
+    jiggy->partnerActor = this->marker;
 
 }
 

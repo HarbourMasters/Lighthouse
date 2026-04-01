@@ -65,7 +65,7 @@ void chfirefx_update(Actor *this){
         actor_collisionOn(this);
         marker_setCollisionScripts(this->marker, __chfirefx_hiss, NULL, NULL);
         this->unk38_31 = (0.0f != this->yaw) ? 1 : 0;
-        if(this->unkF4_8 != 0x32){
+        if(this->actorTypeSpecificField != 0x32){
             this->unk1C[0] = 1.0f;
             this->unk44_31 = func_8030ED2C(SFX_128_FIRE_CRACKING, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 1.1f);

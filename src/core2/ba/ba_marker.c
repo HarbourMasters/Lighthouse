@@ -407,7 +407,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                      * FILEPROG_51_YELLOW_CAULDRON_1_ACTIVE
                      * FILEPROG_52_YELLOW_CAULDRON_2_ACTIVE
                      */
-                    if(fileProgressFlag_get(((actor->unkF4_8 - 1) ^ 1) + 0x49)){
+                    if(fileProgressFlag_get(((actor->actorTypeSpecificField - 1) ^ 1) + 0x49)){
                         actor->unk10_12 = 2;
                     }
                     else{
@@ -640,7 +640,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     }
                     comusic_playTrack(COMUSIC_88_BIG_SNS_FANFARE);
                     FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 15000);
-                    tmp_v0_2 = 3*(actor->unkF4_8 - 1);
+                    tmp_v0_2 = 3*(actor->actorTypeSpecificField - 1);
                     
                     tmp_f0 = 0.9f;\
                     sp64 = D_80363660;

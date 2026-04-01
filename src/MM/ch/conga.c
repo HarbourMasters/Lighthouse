@@ -100,7 +100,7 @@ void func_8038708C(Actor *this, s32 anim_id){
 }
 
 void func_803870D0(Actor *this, ActorMarker *arg1){
-    marker_getActor(arg1)->unk100 = this->marker;
+    marker_getActor(arg1)->partnerActor = this->marker;
 }
 
 void func_80387100(ActorMarker *this){

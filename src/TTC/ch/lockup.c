@@ -83,7 +83,7 @@ static void __chLockup_updateFunc(Actor *this){
     int i;
 
     if( !this->has_met_before
-        && this->unkF4_8 == 0xA
+        && this->actorTypeSpecificField == 0xA
         && !jiggyscore_isCollected(JIGGY_13_TTC_LOCKUP)
         && func_80329530(this, 320)
         && !func_80329530(this, 160)

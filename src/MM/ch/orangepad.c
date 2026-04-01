@@ -47,8 +47,8 @@ void func_80386444(ActorMarker *marker) {
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
         }
         else {
-            temp_a0 = (closest_orange_pad->unk78_13 == 0x106) ? 0x10
-                    : (closest_orange_pad->unk78_13 == 0x76)  ? 0xf
+            temp_a0 = (closest_orange_pad->secondaryId == 0x106) ? 0x10
+                    : (closest_orange_pad->secondaryId == 0x76)  ? 0xf
                     : 0xe;
 
             func_802BAFE4(temp_a0);
@@ -95,12 +95,12 @@ void chorangepad_update(Actor *this) {
     }//L803867B0
 
     if (!this->volatile_initialized) {
-        this->unk100 = actorArray_findClosestActorFromActorId(this->position, 8, -1, &min_distance)->marker;
+        this->partnerActor = actorArray_findClosestActorFromActorId(this->position, 8, -1, &min_distance)->marker;
         this->volatile_initialized = true;
     }//L803867E0
 
-    if (this->unk100) {
-        closest_actor = marker_getActor(this->unk100);
+    if (this->partnerActor) {
+        closest_actor = marker_getActor(this->partnerActor);
     }
 
     if (func_80329530(this, 0x28) &&

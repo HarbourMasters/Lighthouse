@@ -211,9 +211,9 @@ void func_8038D41C(ActorMarker *marker){
     Actor *actor;
     
     actor = actor_spawnWithYaw_f32(ACTOR_337_TWINKLY_MUNCHER, D_80392354, 170);
-    actor->unk100 = _marker;
+    actor->partnerActor = _marker;
     actor = actor_spawnWithYaw_f32(ACTOR_337_TWINKLY_MUNCHER, D_80392360, 170);
-    actor->unk100 = _marker;
+    actor->partnerActor = _marker;
     if(pad[0]);
 }
 
@@ -234,7 +234,7 @@ void func_8038D474(ActorMarker *marker){
     }
     actor->unk1C[0] += 1.0;
     child = spawn_child_actor(D_8039236C[(s32)actor->unk1C[0]], &actor);
-    child->unk100 = actor->marker;
+    child->partnerActor = actor->marker;
 }
 
 void func_8038D51C(ActorMarker *marker){

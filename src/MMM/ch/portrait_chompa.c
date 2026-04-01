@@ -74,8 +74,8 @@ void chChompa_setState(Actor *this, s32 next_state) {
         skeletalAnim_set(this->unk148, 0x23e, 0.0f, 2.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
 
-        if (this->unk100) {
-            chPortrait_break(this->unk100, tmp + 0.55);
+        if (this->partnerActor) {
+            chPortrait_break(this->partnerActor, tmp + 0.55);
         }
 
         FUNC_8030E624(SFX_3EF, 1.1f, 25000);
@@ -105,7 +105,7 @@ void __chChompa_spwanPortrait(ActorMarker *marker) {
     enum asset_e portrait_id;
     Actor *portrait;
 
-    switch (this->unkF4_8) {
+    switch (this->actorTypeSpecificField) {
         case 0x32:
             portrait_id = (enum asset_e)ACTOR_382_PORTRAIT_OF_GRUNTY;
             break;
@@ -131,7 +131,7 @@ void __chChompa_spwanPortrait(ActorMarker *marker) {
 
     portrait = spawn_child_actor((enum actor_e)portrait_id, &this);
     portrait->yaw = this->yaw;
-    this->unk100 = portrait->marker;
+    this->partnerActor = portrait->marker;
     portrait->unk10_1 = false;
 }
 

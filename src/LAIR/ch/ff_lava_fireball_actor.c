@@ -304,7 +304,7 @@ void func_80391EA8(ActorMarker *marker, ActorMarker *a1, f32 a2[3], f32 f1, f32 
 
     actor->scale = scale;
 
-    actor->unk100 = a1;
+    actor->partnerActor = a1;
 
     *(f32 *)(unk + 0x04) = f2 > 0 ? 0.5 : 0.0;
     *(s32 *)(unk + 0x0C) = (s32)(f2 < 0 ? 2.5 : 1.0);

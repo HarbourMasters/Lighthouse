@@ -39,8 +39,8 @@ int func_8038D920(Actor *this, f32 arg1){
     f32 sp20[3];
     f32 sp1C;
 
-    this->unkF4_8 = 20;
-    sp1C = (f32)(this->unkF4_8 + 25);
+    this->actorTypeSpecificField = 20;
+    sp1C = (f32)(this->actorTypeSpecificField + 25);
     player_getPosition(sp20);
     ml_vec3f_diff_copy(sp2C, this->position, sp20);
     return this->position_y < sp20[1] && sp20[1] <= arg1 && sp2C[0]*sp2C[0] + sp2C[2]*sp2C[2] < sp1C*sp1C;
@@ -63,7 +63,7 @@ Actor *func_8038DA18(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         sp38[1] = this->position_y;
     }
     if(func_8038D920(this, sp38[1])){
-        player_setClimbParams(sp2C, sp38, (f32)this->unkF4_8, 2);
+        player_setClimbParams(sp2C, sp38, (f32)this->actorTypeSpecificField, 2);
     }
 
     return this;

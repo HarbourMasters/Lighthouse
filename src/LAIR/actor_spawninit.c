@@ -220,7 +220,7 @@ void chFloorCobweb_update(Actor *this)
     {
         func_802D3CE8(this);
 
-        if (fileProgressFlag_get(this->unkF4_8 == 1 ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN))
+        if (fileProgressFlag_get(this->actorTypeSpecificField == 1 ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN))
         {
             marker_despawn(this->marker);
             return;
@@ -267,7 +267,7 @@ void lair_func_80386550(Actor *this)
     {
         func_802D3CE8(this);
 
-        if (fileProgressFlag_get(this->unkF4_8 == 1 ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN))
+        if (fileProgressFlag_get(this->actorTypeSpecificField == 1 ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN))
         {
             marker_despawn(this->marker);
             return;
@@ -400,7 +400,7 @@ void func_803867A8(Actor *this) {
 
         this->position_y = this->unk1C[1];
         sp5C[1] = sp5C[2] =0.0f;
-        sp5C[0] = this->unkF4_8*2;
+        sp5C[0] = this->actorTypeSpecificField*2;
         ml_vec3f_yaw_rotate_copy(sp5C, sp5C, this->lifetime_value);
         this->position[0] = this->unk1C[0] + sp5C[0];
         this->position[2] = this->unk1C[2] + sp5C[2];
@@ -413,7 +413,7 @@ void func_803867A8(Actor *this) {
 
                 sp50[1] = this->unk1C[1];
                 sp5C[1] = sp5C[2] = 0.0f;
-                sp5C[0] = this->unkF4_8*2;
+                sp5C[0] = this->actorTypeSpecificField*2;
                 ml_vec3f_yaw_rotate_copy(sp5C, sp5C, phi_f0);
                 sp50[0] = this->unk1C[0] + sp5C[0];
                 sp50[2] = this->unk1C[2] + sp5C[2];
@@ -525,8 +525,8 @@ void func_803870DC(Actor *this) {
     f32 sp64[3];
     s32 temp_s7;
 
-    phi_v1 = fileProgressFlag_get(D_80393454[this->unkF4_8 - 1]) 
-             || (D_80393468[this->unkF4_8 - 1] != 0 && volatileFlag_get(D_80393468[this->unkF4_8 - 1]));
+    phi_v1 = fileProgressFlag_get(D_80393454[this->actorTypeSpecificField - 1]) 
+             || (D_80393468[this->actorTypeSpecificField - 1] != 0 && volatileFlag_get(D_80393468[this->actorTypeSpecificField - 1]));
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
@@ -593,7 +593,7 @@ Actor *lair_func_80387560(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     u32 i;
 
     for (i = 0; i != 10; i++)
-        func_8033A45C(i + 1, actor->unkF4_8 + 1 == i + 2);
+        func_8033A45C(i + 1, actor->actorTypeSpecificField + 1 == i + 2);
 
     return actor_drawFullDepth(marker, gfx, mtx, vtx);
 }
@@ -665,11 +665,11 @@ void func_80387730(Actor *this) {
         this->alpha_124_19 = 0xFF;
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
-        if (fileProgressFlag_get(this->unkF4_8 + FILEPROG_39_CCW_OPEN)) {
+        if (fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN)) {
             marker_despawn(this->marker);
             return;
         }
-        if ((this->unkF4_8 >= 2U) && (this->unkF4_8 < 8U) && volatileFlag_get(D_80393494[this->unkF4_8 - 2])) {
+        if ((this->actorTypeSpecificField >= 2U) && (this->actorTypeSpecificField < 8U) && volatileFlag_get(D_80393494[this->actorTypeSpecificField - 2])) {
             marker_despawn(this->marker);
             return;
         }
@@ -684,12 +684,12 @@ void func_80387730(Actor *this) {
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
     }
-    if (!fileProgressFlag_get(this->unkF4_8 + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
+    if (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
         player_getPosition(spAC);
         if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (func_803114C4() != 0xF64)) {
             func_802FACA4(0xC);
         }
-        doorIdx = this->unkF4_8 - 1;
+        doorIdx = this->actorTypeSpecificField - 1;
         noteThreshold = port_getRomhackNoteDoor(doorIdx);
         if (noteThreshold < 0) { noteThreshold = D_8039347C[doorIdx]; }
         if (itemscore_noteScores_getTotal() >= noteThreshold) {
@@ -717,7 +717,7 @@ void func_80387730(Actor *this) {
                     this->alpha_124_19 -= 7;
                 }
                 if (this->alpha_124_19 == 0) {
-                    fileProgressFlag_set(this->unkF4_8 + FILEPROG_39_CCW_OPEN, true);
+                    fileProgressFlag_set(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN, true);
                     marker_despawn(this->marker);
                     func_8028F918(0);
                     func_8028F66C(BS_INTR_35);
@@ -746,7 +746,7 @@ void func_80387730(Actor *this) {
                     }
                 }
             }
-        } else if ((this->unkF4_8 >= 2) && (ml_vec3f_distance(spAC, this->position) < 290.0f)) {
+        } else if ((this->actorTypeSpecificField >= 2) && (ml_vec3f_distance(spAC, this->position) < 290.0f)) {
             volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_B0_NOT_ENOUGH_NOTES);
         }
     }
@@ -759,7 +759,7 @@ Actor *func_80387DA8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
 {
     // TODO: Think of a better way of doing this, similar to the SM64 one
     #define NUM_NOTE_DOORS (12)
-    #define noteDoorIdx    unkF4_8
+    #define noteDoorIdx    actorTypeSpecificField
     #define opacityTimer   unk1C[1]
 
     Actor *actor;
@@ -810,9 +810,9 @@ void func_80387E94(uintptr_t arg0)
     // Grab the same pointer again for good measure :^)
     actor2 = marker_getActor(marker);
 
-    actorNew->unkF4_20 = actor2->unk78_13;
+    actorNew->unkF4_20 = actor2->secondaryId;
 
-    actor2->unk100 = actorNew->marker;
+    actor2->partnerActor = actorNew->marker;
 
     actorNew->unk1C[0] = 0;
 }
@@ -890,9 +890,9 @@ void func_803880BC(Actor *this)
             actor_collisionOn(this);
         }
 
-        if (this->unk100 != NULL && !fileProgressFlag_get(FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED))
+        if (this->partnerActor != NULL && !fileProgressFlag_get(FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED))
         {
-            Actor *actor = marker_getActor(this->unk100);
+            Actor *actor = marker_getActor(this->partnerActor);
             actor->position_y = this->unk1C[1];
             actor_collisionOn(actor);
         }
@@ -908,9 +908,9 @@ void func_803880BC(Actor *this)
             fileProgressFlag_set(FILEPROG_9B_LAIR_CC_WITCH_SWITCH_EYES_ACTIVE, true);
         }
 
-        if (this->unk100 != NULL)
+        if (this->partnerActor != NULL)
         {
-            Actor *actor = marker_getActor(this->unk100);
+            Actor *actor = marker_getActor(this->partnerActor);
             actor->position_y = this->position_y;
         }
     }

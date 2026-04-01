@@ -66,9 +66,9 @@ void func_80386620(Actor *this){
             D_80390C28[phi_s1 + 1] = D_80390C28[phi_s1 + 2];
             D_80390C28[phi_s1 + 2] = temp_a0;
             temp_v0_3 = marker_getActor(D_80390C28[phi_s1 + 1]);
-            temp_v0_3->unkF4_8 = phi_s1 + 2;
+            temp_v0_3->actorTypeSpecificField = phi_s1 + 2;
             temp_v0_3 = marker_getActor(D_80390C28[phi_s1 + 2]);
-            temp_v0_3->unkF4_8 = phi_s1 + 3;
+            temp_v0_3->actorTypeSpecificField = phi_s1 + 3;
         }
         phi_s1 = (phi_s1 == 2) ? 0 : phi_s1 + 1;
         phi_s2 <<= 1;
@@ -120,13 +120,13 @@ void chAncientOne_update(Actor *this){
         }
     }
     if(!this->initialized){
-        if(D_80390C28[this->unkF4_8 - 1])
+        if(D_80390C28[this->actorTypeSpecificField - 1])
             return;
 
         LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
         this->position_y -= 1100.0f;
-        D_80390C28[this->unkF4_8 - 1] = this->marker;
-        if(this->unkF4_8 != 1){
+        D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
+        if(this->actorTypeSpecificField != 1){
             this->marker->propPtr->unk8_4 = false;
         }
         this->marker->propPtr->unk8_3 = true;
@@ -165,9 +165,9 @@ void chAncientOne_update(Actor *this){
                                 
                                 subaddie_set_state_with_direction(this, 2, 0.0f, 1);
                                 actor_playAnimationOnce(this);
-                                if(this->unkF4_8 < 5){
-                                    D_80390C28[this->unkF4_8]->propPtr->unk8_4 = true;
-                                    func_802BAFE4(GV_D_80390C20[this->unkF4_8 - 1]);
+                                if(this->actorTypeSpecificField < 5){
+                                    D_80390C28[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+                                    func_802BAFE4(GV_D_80390C20[this->actorTypeSpecificField - 1]);
                                     core1_7090_initSfxSource(2, 0x86, 0x7ff8, 0.3f);
                                     timedFunc_set_0(0.45f, func_8038678C);
                                 
@@ -182,7 +182,7 @@ void chAncientOne_update(Actor *this){
                     this->position_y += 18.0;
                     this->position_x += (sp38 & 1) ? 0x17 : -0x17;
                     this->position_z += (sp38 & 2) ? 0xC : -0xC;
-                    if(this->unkF4_8 != 1){
+                    if(this->actorTypeSpecificField != 1){
                         if(sp38 == 6){
                             __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x4C, reinterpret_cast(s32, this->position_x), reinterpret_cast(s32, sp34), reinterpret_cast(s32, this->position_z));
                         }

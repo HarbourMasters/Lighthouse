@@ -34,8 +34,8 @@ static void __chAttackTutorial_spawnEnemyActorForMarker(ActorMarker* marker, enu
     s32 pad;
     Actor *other = spawn_child_actor(enemy_id, &actor);
 
-    actor->unk100 = other->marker;
-    other->unk100 = actor->marker;
+    actor->partnerActor = other->marker;
+    other->partnerActor = actor->marker;
     if (actor->unk10_12 == 3 && actor->unk38_31 == 1) {
         other->unk38_31 = 1;
     } else {

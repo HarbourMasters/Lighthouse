@@ -35,7 +35,7 @@ Actor *chwadingboots_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 void chwadingboots_update(Actor *this){
     s32 sp2C = levelSpecificFlags_get(LEVEL_FLAG_1A_UNKNOWN);
 
-    if (sp2C && this->unkF4_8 != 1) {
+    if (sp2C && this->actorTypeSpecificField != 1) {
         return;
     }
 

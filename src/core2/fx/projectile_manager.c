@@ -103,7 +103,7 @@ s32 func_8033DE44(s32 arg0){
 }
 
 Actor *func_8033DE60(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    int indx = marker->unk28;
+    int indx = marker->commonParticleIndex;
     func_8033F7F0(D_80384490[indx].unk45, gfx, mtx, vtx);
     if(marker);
     return 0;

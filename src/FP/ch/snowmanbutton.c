@@ -79,7 +79,7 @@ void FP_func_80386CF8(Actor *this){
     
     if(!this->initialized){
         this->initialized = true;
-        this->pitch += (f32)(this->unkF4_8 - 1);
+        this->pitch += (f32)(this->actorTypeSpecificField - 1);
     }
     
     if(!this->volatile_initialized){

@@ -43,10 +43,10 @@ void func_8038A8F8(Actor *this){
     }//L8038A968
     player_getPosition(this->velocity);
     sp2C = ml_vec3f_distance(this->velocity, this->position);
-    if(sp2C < (f32) this->unkF4_8)
+    if(sp2C < (f32) this->actorTypeSpecificField)
         func_80388D48();
 
-    if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_10) && sp2C < (f32) this->unkF4_8 && 1780.0f < func_8028E82C()){
+    if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_10) && sp2C < (f32) this->actorTypeSpecificField && 1780.0f < func_8028E82C()){
         if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)
             || (mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_F))
         ){ //L8038AA54

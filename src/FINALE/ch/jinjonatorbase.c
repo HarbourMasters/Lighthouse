@@ -18,9 +18,9 @@ void chjinjonatorbase_spawnStoneJinjo(ActorMarker *marker) {
     Actor *actor_jinjonatorbase = marker_getActor(marker);
     Actor *actor_stonejinjo = spawn_child_actor(ACTOR_3A1_STONE_JINJO, &actor_jinjonatorbase);
 
-    actor_stonejinjo->unkF4_8 = actor_jinjonatorbase->unkF4_8;
+    actor_stonejinjo->actorTypeSpecificField = actor_jinjonatorbase->actorTypeSpecificField;
     actor_stonejinjo->position_y = actor_stonejinjo->position_y + 155.0f;
-    actor_jinjonatorbase->unk100 = actor_stonejinjo->marker;
+    actor_jinjonatorbase->partnerActor = actor_stonejinjo->marker;
 }
 
 void chjinjonatorbase_createSmokeParticles(f32 position[3], s32 count) {
@@ -65,7 +65,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
         if (remaining_hits <= 0) {
             chfinalboss_setBossDefeated();
             subaddie_set_state(actor_jinjonatorbase, CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO);
-            chstonejinjo_breakOpen(actor_jinjonatorbase->unk100);
+            chstonejinjo_breakOpen(actor_jinjonatorbase->partnerActor);
         }
     }
 }
@@ -140,7 +140,7 @@ void chjinjonatorbase_update(Actor *this){
     }
     else {
         if(this->state == CHBOSSJINJOBASE_STATE_1_RAISE) {
-            actor_jinjonator = marker_getActor(this->unk100);
+            actor_jinjonator = marker_getActor(this->partnerActor);
             y_delta = this->velocity_y * delta_time;
 
             if(this->position_y + y_delta < this->unk1C[1]) {

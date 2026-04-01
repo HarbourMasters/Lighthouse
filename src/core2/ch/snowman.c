@@ -157,7 +157,7 @@ bool __chSnowman_isYawNearYawTarget(Actor *this, s32 max_angle_degree){
 
 int __chSnowman_isPlayerInAttackRange(Actor *this, s32 min_distance, s32 max_distance){
     f32 player_position[3];
-    if(this->unkF4_8 == 0x33){
+    if(this->actorTypeSpecificField == 0x33){
         player_getPosition(player_position);
         if( (this->position[1] + 500.0f < player_position[1]) || (player_position[1] < this->position[1] - 500.0f))
             return 0;

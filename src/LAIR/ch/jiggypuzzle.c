@@ -61,8 +61,8 @@ bool func_8038EAE0(s32 arg0) {
 }
 
 s32 func_8038EB24(Actor *this){
-    if (this->unkF4_8 != 0 && this->unkF4_8 < 0xC) {
-        return _puzzleCost(this->unkF4_8 - 1);
+    if (this->actorTypeSpecificField != 0 && this->actorTypeSpecificField < 0xC) {
+        return _puzzleCost(this->actorTypeSpecificField - 1);
     }
     return 0;
 }
@@ -75,7 +75,7 @@ bool func_8038EB58(Actor *this){
 }
 
 s32 func_8038EB84(Actor *this){
-    return this->unkF4_8 + 0x1B;
+    return this->actorTypeSpecificField + 0x1B;
 }
 
 void func_8038EB94(void){
@@ -92,28 +92,28 @@ void func_8038EBEC(ActorMarker *marker) {
     u32 temp_t6;
 
     this = marker_getActor(reinterpret_cast(ActorMarker *, marker));
-    if (this->unkF4_8 < 0xA) {
+    if (this->actorTypeSpecificField < 0xA) {
         levelSpecificFlags_set(func_8038EB84(this), true);
         return;
     }
-    if (this->unkF4_8 == 0xA) {
+    if (this->actorTypeSpecificField == 0xA) {
         func_8028F918(0);
         func_8028F918(2);
         levelSpecificFlags_set(LEVEL_FLAG_3F_LAIR_GRUNTY_DOOR_OPEN, true);
         return;
     }
-    if (this->unkF4_8 == 0xB) {
+    if (this->actorTypeSpecificField == 0xB) {
         timedFunc_set_0(1.5f, func_8038EB94);
         gcpausemenu_80314AC8(0);
     }
 }
 
 void func_8038EC94(ActorMarker *marker, ActorMarker *other_marker){
-    marker->unk3E_1 = true;
+    marker->isBanjoOnTop = true;
 }
 
 bool func_8038ECA8(ActorMarker *marker) {
-    return func_8028F20C() && func_8028FB48(0x08000000) && marker->unk3E_1;
+    return func_8028F20C() && func_8028FB48(0x08000000) && marker->isBanjoOnTop;
 }
 
 s32 func_8038ECFC(Actor *this, s32 arg1){
@@ -125,7 +125,7 @@ s32 func_8038ECFC(Actor *this, s32 arg1){
 
 s32 func_8038ED10(Actor *this, s32 arg1){
     s32 phi_v1;
-    switch (this->unkF4_8){
+    switch (this->actorTypeSpecificField){
         case 7: 
             phi_v1 = (arg1 == 2) ? 0x1a4 : 0x190;
             break;
@@ -149,7 +149,7 @@ s32 func_8038ED10(Actor *this, s32 arg1){
 }
 
 s32 func_8038ED88(Actor *this){
-    switch (this->unkF4_8){
+    switch (this->actorTypeSpecificField){
         case 3:
         case 8:
         case 0xb:
@@ -240,8 +240,8 @@ s32 func_8038F0EC(Actor *this) {
 
     phi_s0 = 0;
     local = (ActorLocal_lair_86F0*)&this->local;
-    rand_seed(this->unkF4_8);
-    if (this->unkF4_8 >= 0xA) {
+    rand_seed(this->actorTypeSpecificField);
+    if (this->actorTypeSpecificField >= 0xA) {
         for(phi_s2 = 0; phi_s2 < local->unk4; phi_s2++){
             sp34 = phi_s2;
             phi_s0 |= (1 << sp34);
@@ -272,7 +272,7 @@ void func_8038F250(Actor *this){
     ActorLocal_lair_86F0 *local;
 
     local = (ActorLocal_lair_86F0*)&this->local;
-    if( (this->unkF4_8 >= 2) 
+    if( (this->actorTypeSpecificField >= 2) 
         && (local->unk4 > 0) 
         && !func_8038EB58(this) 
         && !fileProgressFlag_get(FILEPROG_DF_CAN_REMOVE_ALL_PUZZLE_PIECES)
@@ -280,7 +280,7 @@ void func_8038F250(Actor *this){
         if (gcdialog_showText(0xF7C, 2, NULL, NULL, NULL, NULL)) {
             fileProgressFlag_set(FILEPROG_DF_CAN_REMOVE_ALL_PUZZLE_PIECES, true);
         }
-    } else if ((this->unkF4_8 >= 3) 
+    } else if ((this->actorTypeSpecificField >= 3) 
         && (local->unk4 >= 2) 
         && !func_8038EB58(this)
         && !fileProgressFlag_get(FILEPROG_E0_CAN_PLACE_ALL_PUZZLE_PIECES)
@@ -332,7 +332,7 @@ void func_8038F350(Actor *this, s32 next_state){
                 func_8038F1EC(this, temp_s1, 0);
                 local->unk4--;
                 local->unk0 &= ~(1 << temp_s1);
-                fileProgressFlag_setN(D_803947F8[this->unkF4_8 - 1].progress_flag, local->unk4, D_803947F8[this->unkF4_8 - 1].size_bits);
+                fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, 1);
             }
             break;
@@ -345,7 +345,7 @@ void func_8038F350(Actor *this, s32 next_state){
                 temp_s1 = func_8038F0EC(this);
                 func_8038F1EC(this, temp_s1, 1);
                 local->unk0 |= (1 << temp_s1);
-                fileProgressFlag_setN(D_803947F8[this->unkF4_8 - 1].progress_flag, local->unk4, D_803947F8[this->unkF4_8 - 1].size_bits);
+                fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 func_8038F250(this);
             }
@@ -368,16 +368,16 @@ void func_8038F350(Actor *this, s32 next_state){
                     local->unk0 |= (1 << temp_s1);
                     item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 }
-                fileProgressFlag_setN(D_803947F8[this->unkF4_8 - 1].progress_flag, local->unk4, D_803947F8[this->unkF4_8 - 1].size_bits);
+                fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
                 func_8038F250(this);
             }
             break;
 
         case 7: //L8038F724
         comusic_playTrack(COMUSIC_65_WORLD_OPENING_B);
-        if (this->unkF4_8 == 1) {
+        if (this->actorTypeSpecificField == 1) {
             func_80324DBC(1.0f, 0xF7E, 4, NULL, this->marker, func_8038F0C0, NULL);
-        } else if (this->unkF4_8 == 0xA) {
+        } else if (this->actorTypeSpecificField == 0xA) {
             func_80324DBC(1.0f, 0xFAC, 4, NULL, this->marker, func_8038F0C0, NULL);
         }
         timedFunc_set_1(2.0f, (GenFunction_1) func_8038EBEC, (uintptr_t)this->marker);
@@ -431,8 +431,8 @@ void lair_func_8038F924(Actor *this) {
     }
 
     if (!this->volatile_initialized) {
-        // temp_v0 = &D_803947F8[this->unkF4_8 - 1];
-        sp64 = fileProgressFlag_getN(D_803947F8[this->unkF4_8 - 1].progress_flag, D_803947F8[this->unkF4_8 - 1].size_bits);
+        // temp_v0 = &D_803947F8[this->actorTypeSpecificField - 1];
+        sp64 = fileProgressFlag_getN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
         local->unk0 = 0;
         local->unk4 = 0;
         local->unk8 = (func_8038ECA8(this->marker)) ? 0xff : 1;
@@ -445,7 +445,7 @@ void lair_func_8038F924(Actor *this) {
         marker_setCollisionScripts(this->marker, func_8038EC94, NULL, NULL);
         this->marker->propPtr->unk8_3 = true;
         this->volatile_initialized = true;
-        if (this->unkF4_8 == 9) {
+        if (this->actorTypeSpecificField == 9) {
             this->unk1C[0] = 8.0f;
             if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
                 marker_despawn(this->marker);
@@ -460,7 +460,7 @@ void lair_func_8038F924(Actor *this) {
         }
     }
 
-    if ((this->unkF4_8 == 9) && !fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
+    if ((this->actorTypeSpecificField == 9) && !fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
         this->yaw += this->unk1C[0];
         while(this->yaw >= 360.0f){
             this->yaw -= 360.0f;
@@ -492,12 +492,12 @@ void lair_func_8038F924(Actor *this) {
                 this->has_met_before = true;
             }
             if (func_80329530(this, 300)) {
-                if ((this->unkF4_8 == 0xA) && !fileProgressFlag_get(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM)) {
-                    phi_a0 = (item_getCount(ITEM_26_JIGGY_TOTAL) < D_803947F8[this->unkF4_8 - 1].cost) ? 0xFAB : 0xFC0;
+                if ((this->actorTypeSpecificField == 0xA) && !fileProgressFlag_get(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM)) {
+                    phi_a0 = (item_getCount(ITEM_26_JIGGY_TOTAL) < D_803947F8[this->actorTypeSpecificField - 1].cost) ? 0xFAB : 0xFC0;
                     if (gcdialog_showText(phi_a0, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM, true);
                     }
-                } else if (this->unkF4_8 == 1) {
+                } else if (this->actorTypeSpecificField == 1) {
                     func_8035644C(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT);
                 }
             }
@@ -548,7 +548,7 @@ void lair_func_8038F924(Actor *this) {
         s32 pad;
         f32 sp44[3];
         s32 pad2;
-        this->marker->unk3E_1 = false;
+        this->marker->isBanjoOnTop = false;
         player_getPosition(sp44);
         if (ml_distanceSquared_vec3f(sp44, this->position) < 250000.0f) {
             if (!this->unk38_0) {

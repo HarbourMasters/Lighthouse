@@ -809,7 +809,7 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     suLastBaddie->position_x = (f32)pos_x;
     suLastBaddie->position_y = (f32)pos_y;
     suLastBaddie->position_z = (f32)pos_z;
-    suLastBaddie->unkF4_8 = 0;
+    suLastBaddie->actorTypeSpecificField = 0;
     suLastBaddie->yaw = (f32) yaw;
     suLastBaddie->yaw_ideal = (f32) yaw;
     suLastBaddie->pitch = 0.0f;
@@ -864,10 +864,10 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     suLastBaddie->lifetime_value = 0.0f;
     suLastBaddie->is_bundle = false;
     suLastBaddie->unk104 = NULL;
-    suLastBaddie->unk100 = NULL;
+    suLastBaddie->partnerActor = NULL;
     suLastBaddie->unk158[0] = NULL;
     suLastBaddie->unk158[1] = NULL;
-    suLastBaddie->unk78_13 = 0;
+    suLastBaddie->secondaryId = 0;
     suLastBaddie->unk124_31 = 0;
     suLastBaddie->unkF4_20 = 0;
     suLastBaddie->sound_timer = 0.0f;
@@ -1674,9 +1674,9 @@ Actor *marker_getActor(ActorMarker *this){
 }
 
 Actor *subaddie_getLinkedActor(Actor *this){
-    if(this->unk100 == NULL)
+    if(this->partnerActor == NULL)
         return NULL;
-    return marker_getActor(this->unk100);
+    return marker_getActor(this->partnerActor);
 }
 
 void func_803299B4(Actor *arg0) {
@@ -1772,7 +1772,7 @@ void *actors_appendToSavestate(void * begin, uintptr_t end){
                 s0->volatile_initialized = false;
                 s0->unk44_31 = 0;
                 s0->unk104 = NULL;
-                s0->unk100 = NULL;
+                s0->partnerActor = NULL;
                 s0->unk158[0] = NULL;
                 s0->unk158[1] = NULL;
                 s0->unk138_19 = s1->marker->id;
@@ -1825,14 +1825,14 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
         var_s3 = 0;
         var_s0 = arg1->actor_save_state;
         for(var_s2 = arg1->cnt; var_s2 != 0; var_s2--) {
-            if ((var_s0->unk78_13 != 0) && (var_s3 < var_s0->unk78_13)) {
-                var_s3 = var_s0->unk78_13;
+            if ((var_s0->secondaryId != 0) && (var_s3 < var_s0->secondaryId)) {
+                var_s3 = var_s0->secondaryId;
             }
             var_s0++;
         }
         for(var_s0 = &suBaddieActorArray->data[0]; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
-            if ((var_s0->unk78_13 != 0) && (var_s3 < var_s0->unk78_13)) {
-                var_s3 = var_s0->unk78_13;
+            if ((var_s0->secondaryId != 0) && (var_s3 < var_s0->secondaryId)) {
+                var_s3 = var_s0->secondaryId;
             }
         }
 
@@ -1849,14 +1849,14 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
        
         var_s0 = arg1->actor_save_state;
         for(var_s2 = arg1->cnt; var_s2 != 0; var_s2--) {
-            if (var_s0->unk78_13 != 0) {
-                sp5C[var_s0->unk78_13] = var_s0;
+            if (var_s0->secondaryId != 0) {
+                sp5C[var_s0->secondaryId] = var_s0;
             }
             var_s0++;
         }
         for(var_s0 = &suBaddieActorArray->data[0]; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
-            if ((var_s0->unk78_13 != 0)) {
-                sp60[var_s0->unk78_13] = var_s0;
+            if ((var_s0->secondaryId != 0)) {
+                sp60[var_s0->secondaryId] = var_s0;
             }
         }
 
@@ -1882,7 +1882,7 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
 
         var_s0 = arg1->actor_save_state;
         for(var_s2 = arg1->cnt; var_s2 != 0; var_s2--){
-            if (var_s0->unk78_13 == 0) {
+            if (var_s0->secondaryId == 0) {
                 sp50[0] = (s32) var_s0->position[0];
                 sp50[1] = (s32) var_s0->position[1];
                 sp50[2] = (s32) var_s0->position[2];
@@ -1928,8 +1928,8 @@ void func_8032A6A8(Actor *arg0) {
             if ((arg0->unk44_14 == var_v0->unk44_14) && (arg0 != var_v0)) {
                 var_f2 = var_v0->unk48;
                 if ((var_f2 <= var_f0) && (arg0->unk48 <= var_f2)) {
-                    if (var_v0->unk78_13 != 0) {
-                        arg0->unk124_31 = var_v0->unk78_13;
+                    if (var_v0->secondaryId != 0) {
+                        arg0->unk124_31 = var_v0->secondaryId;
                         var_f0 = var_f2;
                     }
                 }
@@ -1945,7 +1945,7 @@ Actor *func_8032A7AC(Actor *arg0) {
     if (arg0->unk124_31 != 0) {
         if (suBaddieActorArray != NULL) {
             for(var_a0 = &suBaddieActorArray->data[0]; var_a0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_a0++){
-                if (arg0->unk124_31 == var_a0->unk78_13) {
+                if (arg0->unk124_31 == var_a0->secondaryId) {
                     return var_a0;
                 }
             }

@@ -37,7 +37,7 @@ ActorInfo D_80390804 ={MARKER_FC_CROCTUS, ACTOR_1FA_CROCTUS, ASSET_425_MODEL_CRO
 
 /* .code */
 void func_80387C90(Actor *arg0){
-    anctrl_setDuration(arg0->anctrl, 0.4 + 0.9999999999999999 * ((f32)(5 - arg0->unkF4_8) * 0.25));
+    anctrl_setDuration(arg0->anctrl, 0.4 + 0.9999999999999999 * ((f32)(5 - arg0->actorTypeSpecificField) * 0.25));
 }
 
 void func_80387D18(ActorMarker * arg0, u32 arg1){
@@ -47,7 +47,7 @@ void func_80387D18(ActorMarker * arg0, u32 arg1){
     this = marker_getActor(arg0);
     nextActPtr = spawn_child_actor(0x6A, &this);
     nextActPtr->state = 2;
-    nextActPtr->unkF4_8 = 0x8C;
+    nextActPtr->actorTypeSpecificField = 0x8C;
     nextActPtr->lifetime_value = 3.0f;
     nextActPtr->unk38_31 = arg1;
     if(arg0);
@@ -95,8 +95,8 @@ void func_80387E68(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
         subaddie_set_state_with_direction(this, 5, 0.79f, 1);
         func_80326310(this); //did not disappear when moved, after cutscene still there with collision but broken
-        bgs_D_803907B8[this->unkF4_8]->propPtr->unk8_4 = true;
-        timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->unkF4_8]);
+        bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+        timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
         timed_setStaticCameraToNode(0.8f, 9);
         func_80324DBC(3.4f, 0xC87, 0xE, NULL, NULL, func_80387E68, NULL);
         __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)this->marker, 0x46);
@@ -116,16 +116,16 @@ void func_80387FD4(Actor *this){
             return;
         }
         this->volatile_initialized = true;
-        if(bgs_D_803907B8[this->unkF4_8 - 1] == 0){
-            bgs_D_803907B8[this->unkF4_8 - 1] = this->marker;
-            for(j = this->unkF4_8; j < 5; j++){
+        if(bgs_D_803907B8[this->actorTypeSpecificField - 1] == 0){
+            bgs_D_803907B8[this->actorTypeSpecificField - 1] = this->marker;
+            for(j = this->actorTypeSpecificField; j < 5; j++){
                 if(bgs_D_803907B8[j] != NULL){
                     bgs_D_803907B8[j]->propPtr->unk8_4 = false;
                     actor_setOpacity(marker_getActor(bgs_D_803907B8[j]), 0);
                 }
             }//L803880C8
             
-            for( j = this->unkF4_8 - 2; j >= 0 && bgs_D_803907B8[j] == NULL; j--);
+            for( j = this->actorTypeSpecificField - 2; j >= 0 && bgs_D_803907B8[j] == NULL; j--);
 
             
             if(j >= 0){
@@ -142,7 +142,7 @@ void func_80387FD4(Actor *this){
     if(this->unk38_31){
         if ((this->state != 5) && (this->state != 6)) {
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
-            if (this->unkF4_8 == 1) {
+            if (this->actorTypeSpecificField == 1) {
                 func_8028F94C(2, this->position);
                 gcdialog_showText(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0xE, this->position, this->marker, func_80387E68, NULL);
                 subaddie_set_state_with_direction(this, 6, 0.79f, 1);
@@ -152,15 +152,15 @@ void func_80387FD4(Actor *this){
                 func_80324CFC(0.4f, COMUSIC_43_ENTER_LEVEL_GLITTER, 22000);
                 func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
                 subaddie_set_state_with_direction(this, 5, 0.79f, 1);
-                if (this->unkF4_8 == 5) {
+                if (this->actorTypeSpecificField == 5) {
                     timedFunc_set_1(0.9f, (GenFunction_1) func_80387E40, (uintptr_t)this->marker);
                 } else {
                     func_80326310(this);
                 }
-                if (this->unkF4_8 < 5) {
-                    bgs_D_803907B8[this->unkF4_8]->propPtr->unk8_4 = true;
-                    timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->unkF4_8]);
-                    func_802BAFE4(D_803907B0[this->unkF4_8-1]);
+                if (this->actorTypeSpecificField < 5) {
+                    bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+                    timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
+                    func_802BAFE4(D_803907B0[this->actorTypeSpecificField-1]);
                 } else {
                     timedFunc_set_1(0.8f, (GenFunction_1)func_80387D90, (uintptr_t)this->marker);
                 }
@@ -188,7 +188,7 @@ void func_80387FD4(Actor *this){
 
     case 3:// L80388434
         this->lifetime_value += time_getDelta();
-        if( this->lifetime_value >= 0.13 + 0.7/4 * (5 - this->unkF4_8)){
+        if( this->lifetime_value >= 0.13 + 0.7/4 * (5 - this->actorTypeSpecificField)){
             subaddie_set_state_with_direction(this, 4, 0.62f, 1);
             func_80387C90(this);
             this->lifetime_value = 0.0f;
@@ -228,6 +228,6 @@ void BGS_func_803885DC(void){
 Actor *func_8038860C(ActorMarker *this, Gfx** gdl, Mtx ** mptr, Vtx **vtx){
     Actor *thisActor; 
     thisActor = marker_getActor(this);
-    func_8033A45C(1, thisActor->unkF4_8);
+    func_8033A45C(1, thisActor->actorTypeSpecificField);
     return actor_draw(this, gdl, mptr, vtx);
 }

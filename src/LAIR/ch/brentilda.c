@@ -25,7 +25,7 @@ void func_8038BA30(ActorMarker *marker, enum asset_e text_id, s32 arg2){
 
     this = marker_getActor(marker);
     phi_v1 = this->unk10_12*2;
-    volatileFlag_getN(VOLATILE_FLAG_20_BEGIN_CHARACTER_PARADE + this->unkF4_8*6 + phi_v1, 2);
+    volatileFlag_getN(VOLATILE_FLAG_20_BEGIN_CHARACTER_PARADE + this->actorTypeSpecificField*6 + phi_v1, 2);
 }
 
 void lair_func_8038BA88(ActorMarker *marker, enum asset_e text_id, s32 arg2){
@@ -33,7 +33,7 @@ void lair_func_8038BA88(ActorMarker *marker, enum asset_e text_id, s32 arg2){
 
     this = marker_getActor(marker);
     item_set(ITEM_14_HEALTH, item_getCount(ITEM_15_HEALTH_TOTAL));
-    fileProgressFlag_set(this->unkF4_8 - 1 + FILEPROG_E9_HEALED_BY_BRENTILDA_1, true);
+    fileProgressFlag_set(this->actorTypeSpecificField - 1 + FILEPROG_E9_HEALED_BY_BRENTILDA_1, true);
 }
 
 void func_8038BADC(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
@@ -41,7 +41,7 @@ void func_8038BADC(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
 
     this = marker_getActor(marker);
     if (text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2) {
-        if (!fileProgressFlag_get(this->unkF4_8 - 1 + FILEPROG_E9_HEALED_BY_BRENTILDA_1)) {
+        if (!fileProgressFlag_get(this->actorTypeSpecificField - 1 + FILEPROG_E9_HEALED_BY_BRENTILDA_1)) {
             if (item_getCount(ITEM_14_HEALTH) < item_getCount(ITEM_15_HEALTH_TOTAL)) {
                 gcdialog_showText(ASSET_10A2_DIALOG_BRENTILDA_HEAL, 0xF, this->position, this->marker, func_8038BADC, lair_func_8038BA88);
                 return;
@@ -112,7 +112,7 @@ void chBrentilda_update(Actor *this) {
     }
 
     if (!this->volatile_initialized) {
-        local->unk0 = this->unkF4_8*3 + 0x1080;
+        local->unk0 = this->actorTypeSpecificField*3 + 0x1080;
         this->volatile_initialized = true;
     }
 

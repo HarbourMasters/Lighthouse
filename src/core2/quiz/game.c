@@ -186,7 +186,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             func_8030E6D4(SFX_114_BRICKWALL_BREAKING);
             sfxsource_play(SFX_11_WOOD_BREAKING_1, 28000);
             subaddie_set_state_looped(sp2C, 9);
-            fileProgressFlag_set((sp2C->unkF4_8 == 1) ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN, true);
+            fileProgressFlag_set((sp2C->actorTypeSpecificField == 1) ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN, true);
             break;
 
         case 0x107:
@@ -200,7 +200,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             gcsfx_playWithPitch(SFX_129_SWOOSH, (sp2C->scale < 0.45) ? 1.0 : 0.8, 0x7FF8);
             subaddie_set_state_looped(sp2C, 0xC);
             func_802D2FB0(sp2C, 8, -0x3C, 0xC8, 2.0f, 0xFA, 0x3C, 0x64);
-            fileProgressFlag_set((sp2C->unkF4_8== 1) ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN, 1);
+            fileProgressFlag_set((sp2C->actorTypeSpecificField== 1) ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN, 1);
             break;
 
         case MARKER_225_BREAKABLE_WALL_COBWEB:
@@ -414,7 +414,7 @@ Actor *func_802D3F48(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     s32 i;
 
     this = marker_getActor(marker);
-    phi_s2 = this->unkF4_8;
+    phi_s2 = this->actorTypeSpecificField;
     for(i = 0; i < 9; i++){
         func_8033A45C(i + 1, i+1 == phi_s2);
     }
@@ -464,7 +464,7 @@ void func_802D3FD4(Actor *this){
         return;
     }//L802D4134
 
-    this->yaw += (this->unkF4_8 & 1) ? -1.4 : 1.4;
+    this->yaw += (this->actorTypeSpecificField & 1) ? -1.4 : 1.4;
     if(this->yaw < 0.0f){
         this->yaw += 360.0f;
     }
@@ -479,7 +479,7 @@ Actor *func_802D41C4(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     s32 i;
 
     this = marker_getActor(marker);
-    sp2C = this->unkF4_8;
+    sp2C = this->actorTypeSpecificField;
     for(i = 0; i < 6; i++){
         func_8033A45C(i+1, false);
     }
@@ -507,7 +507,7 @@ void func_802D4250(Actor *this){
 bool func_802D42F8(Actor *this) {
     s32 i;
 
-    for(i = 0; D_803679B0[i] != -1 && this->unkF4_8 != D_803679B0[i]; i+=2){
+    for(i = 0; D_803679B0[i] != -1 && this->actorTypeSpecificField != D_803679B0[i]; i+=2){
     }
 
     if (D_803679B0[i] == -1) {
@@ -521,7 +521,7 @@ bool func_802D42F8(Actor *this) {
 
 void func_802D4388(Actor *this){
     func_802D3CE8(this);
-    this->unk38_0 = BOOL(map_get() == MAP_7A_GL_CRYPT || item_getCount(ITEM_1C_MUMBO_TOKEN) >= this->unkF4_8 || func_802D42F8(this));
+    this->unk38_0 = BOOL(map_get() == MAP_7A_GL_CRYPT || item_getCount(ITEM_1C_MUMBO_TOKEN) >= this->actorTypeSpecificField || func_802D42F8(this));
     mapSpecificFlags_set(0x1F, (func_8028F20C() && func_8028FB48(0x78000000)) || player_movementGroup() == BSGROUP_D_TRANSFORMING);
     switch(this->state){
         case 0x12: //L802D4468

@@ -201,7 +201,7 @@ void __chicecube_spawnHalfCubes(ActorMarker *marker){
     for(i = 0; i < 2; i++){//L8035A7FC
         bundle_setYaw((i & 1)? actor->yaw : actor->yaw + 180.0f);
         other = bundle_spawn_f32(BUNDLE_21__ICECUBE_B, sp54);
-        other->unkF4_8 = 1; //don't spawn more
+        other->actorTypeSpecificField = 1; //don't spawn more
         other->scale = randf2(0.5f, 0.6f)*actor->scale;
         actor->yaw = randi2(0, 359);
     }
@@ -223,7 +223,7 @@ void __chicecube_die(ActorMarker *marker, ActorMarker *other_marker){
     actor->velocity[1] = 0.0f;
     func_8035A04C(actor->position, 12, ASSET_505_MODEL_ICECUBE_CHUNK, actor->scale);
     func_8035A228(actor->position, 6, ASSET_700_SPRITE_DUST, actor->scale);
-    if(actor->unkF4_8 != 1){
+    if(actor->actorTypeSpecificField != 1){
         __spawnQueue_add_1((GenFunction_1)__chicecube_spawnHalfCubes, (uintptr_t)actor->marker);
     }
     marker_despawn(actor->marker);
@@ -301,7 +301,7 @@ void chicecube_update(Actor *this){
         case 1: // L8035AC9C
             anctrl_setAnimTimer(this->anctrl, 0.0f);
             if( func_80359DF4(this, 900)
-                || (this->unkF4_8 == 2 && volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
+                || (this->actorTypeSpecificField == 2 && volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
             ){
                 subaddie_set_state_with_direction(this, 2, 0.0001f, 1);
                 actor_playAnimationOnce(this);

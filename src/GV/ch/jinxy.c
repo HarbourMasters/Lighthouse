@@ -60,7 +60,7 @@ void func_8038A2C0(void *this_marker){
     s32 pad;
 
     suSetSpriteScale(shadow, this->scale);
-    this->unk100 = shadow->marker;
+    this->partnerActor = shadow->marker;
 }
 
 void func_8038A314(Actor *this){}
@@ -74,7 +74,7 @@ void func_8038A31C(Actor *this){
         this->velocity[0] = 0.0f;
     }
 
-    if(this->unk100)
+    if(this->partnerActor)
         sp24 = subaddie_getLinkedActor(this);
 
     this->unk1C[1] = this->unk48;
@@ -141,7 +141,7 @@ void func_8038A31C(Actor *this){
     }//L8038A6A4
     this->unk124_11 = 0x3;
     this->pitch = 0.0f;
-    if(this->unk100 && sp24 && this->unk100->id == MARKER_AF_MAGIC_CARPET_SHADOW){
+    if(this->partnerActor && sp24 && this->partnerActor->id == MARKER_AF_MAGIC_CARPET_SHADOW){
         sp24->position_x = this->position_x;
         sp24->position_y = mapModel_getFloorY(this->position) + 60.0f;
         sp24->position_z = this->position_z;

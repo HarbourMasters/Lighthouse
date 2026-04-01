@@ -153,10 +153,10 @@ void func_803868F0(Actor *this){
             local->unk4 = 0;
             local->unk8 = 0;
             local->unkC = 0;
-            local->unk4 = (this->unk78_13 == 0x15)? 0: local->unk4;
-            local->unk4 = (this->unk78_13 == 0x13)? 1: local->unk4;
-            local->unk4 = (this->unk78_13 == 0x14)? 2: local->unk4;
-            local->unk4 = (this->unk78_13 == 0xB)?  3: local->unk4;
+            local->unk4 = (this->secondaryId == 0x15)? 0: local->unk4;
+            local->unk4 = (this->secondaryId == 0x13)? 1: local->unk4;
+            local->unk4 = (this->secondaryId == 0x14)? 2: local->unk4;
+            local->unk4 = (this->secondaryId == 0xB)?  3: local->unk4;
             func_803866F4(this, 1);
         }
         RBB_func_803863F0(this, 0);

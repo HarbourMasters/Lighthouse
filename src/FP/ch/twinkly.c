@@ -233,10 +233,10 @@ void func_8038C8F0(ActorMarker *marker){
     s32 pad = 0;
 
     this = marker_getActor(reinterpret_cast(ActorMarker *, marker));
-    other = marker_getActor(this->unk100);
+    other = marker_getActor(this->partnerActor);
     muncher = actor_spawnWithYaw_f32(ACTOR_337_TWINKLY_MUNCHER, D_80392070, 170);
-    muncher->unk100 = other->marker;
-    muncher->unkF4_8 = 1;
+    muncher->partnerActor = other->marker;
+    muncher->actorTypeSpecificField = 1;
 
     if(pad);
 }
@@ -256,7 +256,7 @@ void func_8038C9A0(Actor *this){
     if(this->marker->id == 0x200){
         sp30 = func_8034C2C4(this->marker, 0x190);
     }
-    other = marker_getActor(this->unk100);
+    other = marker_getActor(this->partnerActor);
 
     if(!this->volatile_initialized){
         this->volatile_initialized = true;

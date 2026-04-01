@@ -486,7 +486,7 @@ void func_80362DC0(f32 arg0[3]){
 void func_80362E94(Actor *this){
     f32 tick = time_getDelta();
 
-    switch(this->unkF4_8){
+    switch(this->actorTypeSpecificField){
         case 0x3: //L80362ED8
             if(viewport_func_8024DB50(this->position, 50.0f) && randf() < 0.2){
                 func_80362084(this->position);
@@ -540,7 +540,7 @@ void func_80362E94(Actor *this){
 
             this->lifetime_value = MAX(0.0, this->lifetime_value - tick);
             if(0.0f == this->lifetime_value){
-                switch(this->unkF4_8){
+                switch(this->actorTypeSpecificField){
                     case 2: //L8036325C
                         func_80361FA0(this->position);
                         break;

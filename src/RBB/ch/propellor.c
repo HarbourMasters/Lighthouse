@@ -77,7 +77,7 @@ void chPropellor_update(Actor *this){
         func_803300C0(this->marker, (s32 (*)(ActorMarker *, ActorMarker *))func_80389B44);
         marker_setFreeMethod(this->marker, __chPropellor_free);
         func_80389B80(this, 1.0f);
-        if(this->unk78_13 == 0x1C){
+        if(this->secondaryId == 0x1C){
             local->unk8 = 0;
             this->position_x = 7625.5f;
             this->position_y = -1950.0f;

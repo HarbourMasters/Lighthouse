@@ -63,7 +63,7 @@ f32 D_803936E4[] = {0.03f, 0.09f, 0.2f, 0.25f, 0.32f, 0.4f, 0.45f, 1.0f};
 
 /* .code */
 bool func_8038A690(Actor *this) {
-    if (this->unkF4_8 != 3) {
+    if (this->actorTypeSpecificField != 3) {
         return subaddie_playerIsWithinCylinder(this, 400, 90);
     }
     else{
@@ -72,11 +72,11 @@ bool func_8038A690(Actor *this) {
 }
 
 enum file_progress_e chWarpCauldron_getFileProgressFlagIndex(Actor *this){
-    return this->unkF4_8 -1 + 0x49;
+    return this->actorTypeSpecificField -1 + 0x49;
 }
 
 enum file_progress_e chWarpCauldron_getPairedFileProgressFlagIndex(Actor *this){
-    return ((this->unkF4_8 - 1) ^ 1) + 0x49;
+    return ((this->actorTypeSpecificField - 1) ^ 1) + 0x49;
 }
 
 void func_8038A704(Actor *this){
@@ -135,8 +135,8 @@ void func_8038A96C(Actor *this, s32 arg1) {
         sp5C = func_8034C2C4(this->marker, 0x1C3);
         if(sp5C != 0){
             for(i = 0; i < 3; i++){
-                sp48[i] = D_803935A8[(((s32)this->unkF4_8 - 1)>>1)][0][i];
-                sp38[i] = D_803935A8[(((s32)this->unkF4_8 - 1)>>1)][1][i];
+                sp48[i] = D_803935A8[(((s32)this->actorTypeSpecificField - 1)>>1)][0][i];
+                sp38[i] = D_803935A8[(((s32)this->actorTypeSpecificField - 1)>>1)][1][i];
 
             }
             sp48[3] = 1.0f;
@@ -153,7 +153,7 @@ void func_8038A96C(Actor *this, s32 arg1) {
 
 void func_8038AB90(Actor *this, s32 arg1, s32 arg2, enum sfx_e sfx_id, f32 sfx_timing) {
     if (arg2 == this->unk10_12) {
-        if (this->unkF4_8 == 7) {
+        if (this->actorTypeSpecificField == 7) {
             func_80324CFC(0.5f, COMUSIC_8C_JINJONATOR_POWERUP, 32000);
             func_80324D2C(7.0f, COMUSIC_8C_JINJONATOR_POWERUP);
         }
@@ -244,11 +244,11 @@ void chWarpCauldron_update(Actor *this) {
             func_8038A96C(this, 2);
             sp50 = true;
             if( ( func_802D677C(-1) != 0 
-                  && (func_802D677C(-1) == D_80393620[this->unkF4_8 - 1].unk0) 
+                  && (func_802D677C(-1) == D_80393620[this->actorTypeSpecificField - 1].unk0) 
                   && (func_802D67AC(-1) == MAP_16_GV_RUBEES_CHAMBER) 
-                  && (func_802D680C(-1) == this->unkF4_8)
+                  && (func_802D680C(-1) == this->actorTypeSpecificField)
                 ) 
-                || (exit_get() == D_80393620[this->unkF4_8 - 1].unk2)
+                || (exit_get() == D_80393620[this->actorTypeSpecificField - 1].unk2)
             ) {
                 func_8028F85C(this->position);
                 this->unk10_12 = 1;
@@ -273,7 +273,7 @@ void chWarpCauldron_update(Actor *this) {
                 subaddie_set_state_forward(this, 2);
                 this->unk38_0 = false;
                 func_8038A96C(this, 1);
-                func_802BAFE4(D_80393620[this->unkF4_8 - 1].unk3);
+                func_802BAFE4(D_80393620[this->actorTypeSpecificField - 1].unk3);
                 func_802D09B8(this, 2);
                 phi_a0 = (fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this)) != 0) ? SFX_107_CAULDRON_ACTIVATION_1 : SFX_108_CAULDRON_ACTIVATION_2;
                 sfxsource_play(phi_a0, 32000);
@@ -281,7 +281,7 @@ void chWarpCauldron_update(Actor *this) {
                     gcdialog_showText(ASSET_F79_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
                 }
                 if (fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))){
-                    switch(this->unkF4_8){
+                    switch(this->actorTypeSpecificField){
                         case 2://L8038B204
                             func_802D6310(2.0f, MAP_6A_GL_TTC_AND_CC_PUZZLE, 0x62, 0x22, 0);
                             break;
@@ -357,8 +357,8 @@ void chWarpCauldron_update(Actor *this) {
                 volatileFlag_set(VOLATILE_FLAG_1E, 0);
                 func_802D677C(0);
                 func_8028FCAC();
-                nodeprop_getPosition(nodeprop_findByActorIdAndActorPosition(D_80393620[this->unkF4_8 - 1].unk6, this), sp54);
-                if (this->unkF4_8 == 7) {
+                nodeprop_getPosition(nodeprop_findByActorIdAndActorPosition(D_80393620[this->actorTypeSpecificField - 1].unk6, this), sp54);
+                if (this->actorTypeSpecificField == 7) {
                     func_8028F66C(BS_INTR_36_DINGPOT);
                     func_802BAFE4(0x82);
                 } else {
@@ -375,11 +375,11 @@ void chWarpCauldron_update(Actor *this) {
             func_8038A96C(this, 3);
             if (actor_animationIsAt(this, 0.99f)) {
                 func_802D6344();
-                func_802D677C(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk0);
+                func_802D677C(D_80393620[((this->actorTypeSpecificField - 1) ^ 1)].unk0);
                 func_802D67AC(0x16);
-                func_802D680C(((this->unkF4_8 - 1) ^ 1) + 1);
-                func_802D683C(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk1);
-                func_8031CC40(D_80393620[((this->unkF4_8 - 1) ^ 1)].unk0, D_80393620[((this->unkF4_8 - 1) ^ 1)].unk2);
+                func_802D680C(((this->actorTypeSpecificField - 1) ^ 1) + 1);
+                func_802D683C(D_80393620[((this->actorTypeSpecificField - 1) ^ 1)].unk1);
+                func_8031CC40(D_80393620[((this->actorTypeSpecificField - 1) ^ 1)].unk0, D_80393620[((this->actorTypeSpecificField - 1) ^ 1)].unk2);
             }
             break;
 

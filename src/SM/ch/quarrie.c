@@ -112,7 +112,7 @@ void SM_func_80386D68(Actor *this){
     func_80386B04(partEmitMgr_newEmitter(0xA), this->position, 0xA, this->scale);
     func_80386C2C(partEmitMgr_newEmitter(0x10), this->position, 0x10, this->scale);
 
-    if (this->unk100 && codeBF0_shouldSpawnQuarrieHoneyComb(this->unk100)) {
+    if (this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor)) {
         func_802CA1CC(HONEYCOMB_18_SM_QUARRIES);
         __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
     }
@@ -143,9 +143,9 @@ void SM_func_80386EF4(Actor *this) {
         if ((temp_t3) == 0) {
             other = actorArray_findActorFromActorId(0x16E);
             if (other != NULL) {
-                this->unk100 = other->marker;
+                this->partnerActor = other->marker;
             } else {
-                this->unk100 = NULL;
+                this->partnerActor = NULL;
             }
             subaddie_set_state(this, 2);
         }

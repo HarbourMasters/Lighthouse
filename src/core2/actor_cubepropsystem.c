@@ -1258,7 +1258,7 @@ ActorMarker * marker_init(s32 *pos, MarkerDrawFunc draw_func, int arg2, int mark
     marker->actrArrayIdx = 0;
     marker->unk14_10 = 0;
     marker->modelId = 0;
-    marker->unk3E_1 = 0;
+    marker->isBanjoOnTop = 0;
     marker->unk14_22 = 0;
     marker->unk14_21 = 0;
     marker->yaw = 0;
@@ -1279,7 +1279,7 @@ ActorMarker * marker_init(s32 *pos, MarkerDrawFunc draw_func, int arg2, int mark
     marker->unk18 = 0;
     marker->actorUpdateFunc = NULL;
     marker->actorFreeFunc = NULL;
-    marker->unk28 = 0;
+    marker->commonParticleIndex = 0;
     marker->actorUpdate2Func = NULL;
     marker->unk38[0] = 0;
     marker->unk38[1] = 0;
@@ -1329,7 +1329,7 @@ void func_8032FFD4(ActorMarker *this, s32 arg1){
 }
 
 void func_8032FFEC(ActorMarker *this, s32 arg1){
-    this->unk28 = arg1;
+    this->commonParticleIndex = arg1;
 }
 
 void marker_callCollisionFunc(ActorMarker *this, ActorMarker *other, enum marker_collision_func_type_e type){
@@ -1428,8 +1428,8 @@ void func_80330208(Cube *cube) {
                 position[2] = (s32) i_prop->z;
                 actor = func_803055E0(i_prop->unk8, position, i_prop->yaw, i_prop->unk10_31, i_prop->unk10_19);
                 if (actor != NULL) {
-                    actor->unk78_13 = i_prop->unk10_31;
-                    actor->unkF4_8 = i_prop->radius;
+                    actor->secondaryId = i_prop->unk10_31;
+                    actor->actorTypeSpecificField = i_prop->radius;
                     suSetSpriteScale(actor, (i_prop->scale != 0) ? ((f32)i_prop->scale * 0.01) : 1.0);
                 }
             }

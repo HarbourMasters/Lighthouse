@@ -206,7 +206,7 @@ void __chLevelCollectible_returnObj(Actor *this) {
 
     local = (s32*)&this->local;
     if( (this->marker->id != MARKER_36_ORANGE_COLLECTIBLE) 
-        || (this->unk78_13 == 0)
+        || (this->secondaryId == 0)
     ) {
         this->position[0] += this->velocity[0];
         this->position[1] += (this->velocity[1] -= 5.0);

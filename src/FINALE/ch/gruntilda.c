@@ -1219,7 +1219,7 @@ void __chfinalboss_spawnStatue(enum ch_bossjinjo_e statue_id) {
         break;
     }
     sp1C->lifetime_value = (statue_id == BOSSJINJO_5_JINJONATOR) ? 5.25f : 1.54f;
-    sp1C->unkF4_8 = statue_id;
+    sp1C->actorTypeSpecificField = statue_id;
 }
 
 void chfinalboss_spawnStatue(s32 statue_id) {
@@ -1230,7 +1230,7 @@ void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
     Actor *actor;
 
     actor = marker_getActor(marker);
-    actor->unk100 = spawn_child_actor(ACTOR_3AB_GRUNTY_SPELL_BARRIER, &actor)->marker;
+    actor->partnerActor = spawn_child_actor(ACTOR_3AB_GRUNTY_SPELL_BARRIER, &actor)->marker;
     __chFinalBossSpellBarrierActive = true;
 }
 
@@ -2185,8 +2185,8 @@ void chfinalboss_update(Actor *this){
     chFinalBossPosition[1] = this->position[1];
     chFinalBossPosition[2] = this->position[2];
 
-    if(this->unk100 != NULL && __chFinalBossSpellBarrierActive){
-        fight_setPositionWithDisplacement(this->unk100, this->position);
+    if(this->partnerActor != NULL && __chFinalBossSpellBarrierActive){
+        fight_setPositionWithDisplacement(this->partnerActor, this->position);
     }
 
     if(__chFinalBossShadowMarker != NULL){

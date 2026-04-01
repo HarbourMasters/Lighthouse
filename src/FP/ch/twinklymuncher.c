@@ -109,10 +109,10 @@ void func_8038E094(Actor *this){
         this->marker->propPtr->unk8_3 = true;
         anctrl_setAnimTimer(this->anctrl, 0.99999f);
         this->lifetime_value = 0.0f;
-        if(this->unkF4_8 == 1){
+        if(this->actorTypeSpecificField == 1){
             func_8038DDC8(this);
         }
-        if(this->unkF4_8 == 2){
+        if(this->actorTypeSpecificField == 2){
             if(volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) && gcparade_8031B4F4() == -2){
                 func_8038DDC8(this);
             }
@@ -122,10 +122,10 @@ void func_8038E094(Actor *this){
             }
         }
     }//L8038E180
-    if(this->unk100){
-        sp38 = marker_getActor(this->unk100);
+    if(this->partnerActor){
+        sp38 = marker_getActor(this->partnerActor);
         if(sp38->unk1C[1] == 1.0f){
-            if(this->unkF4_8 == 1 && !fileProgressFlag_get(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME)){
+            if(this->actorTypeSpecificField == 1 && !fileProgressFlag_get(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME)){
                 if(this->state != 6 && this->state != 7 && 0.0f == this->velocity[0]){
                     timed_setStaticCameraToNode(0.5f, 0xd);
                     gcdialog_showText(ASSET_C15_DIALOG_TWINKLIE_MINIGAME_MISS, 0x2b, this->position, this->marker, func_8038E040, NULL);
