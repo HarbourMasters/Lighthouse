@@ -317,17 +317,19 @@ void __savedata_save_abilities(u8 *savedata){ //savedata_save_abilities
 }
 
 s32 savedata_8033CA2C(s32 filenum, void *save_data_){ // [port] void* for prototype compatibility
-    SaveData *save_data = (SaveData *)save_data_;
-    s32 sp1C;
+    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileLoad, filenum) {
+        SaveData* save_data = (SaveData*)save_data_;
+        s32 sp1C;
 
-    sp1C = eeprom_readBlocks(filenum, 0, save_data, 0xF);
-    if( sp1C 
-        || savedata_verify(0x78, save_data) 
-        || ((u8*)save_data)[baseOffset] != 0x11
-    ){
-        sp1C = 2;
+        sp1C = eeprom_readBlocks(filenum, 0, save_data, 0xF);
+        if (sp1C
+            || savedata_verify(0x78, save_data)
+            || ((u8*)save_data)[baseOffset] != 0x11
+            ) {
+            sp1C = 2;
+        }
+        return sp1C;
     }
-    return sp1C;
 }
 
 s32 savedata_8033CA9C(void *savedata_){ // [port] void* for prototype compatibility
@@ -388,12 +390,14 @@ void saveData_create(void *savedata_){ // [port] void* for prototype compatibili
 }
 
 int savedata_8033CC98(s32 filenum, void *buffer){ // [port] void* for polymorphic callers
-    int out;
-    out = eeprom_writeBlocks(filenum, 0, buffer, 0xF);
-    if(out){
-        out = 1;
+    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, buffer, filenum) {
+        int out;
+        out = eeprom_writeBlocks(filenum, 0, buffer, 0xF);
+        if (out) {
+            out = 1;
+        }
+        return out;
     }
-    return out;
 }
 
 int savedata_8033CCD0(s32 filenum){

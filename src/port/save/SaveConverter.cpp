@@ -1,6 +1,10 @@
+﻿#include "SaveConverter.h"
 #include <nlohmann/json.hpp>
+#include <libultraship/bridge/consolevariablebridge.h>
+#include "port/enhancements/events/hooks/Events.h"
+#include <fstream>
+#include <filesystem>
 
-#include <libultraship/libultra/gbi.h>
 #include "save.h"
 #include "Types.h"
 
@@ -8,28 +12,9 @@ extern "C" {
 extern SaveData gameFile_saveData[4];
 }
 
-#define SAVE_VERSION 1
+#define SAVE_VERSION_NUM 1
 
 using nlohmann::json;
-
-/*
-typedef struct {
-    bool isRando;
-} RandoSaveData;
-
-typedef struct {
-    RandoSaveData randoSaveData;
-} ShipSaveData;
-
-typedef struct{
-    u8 magic;
-    u8 slotIndex; [X]
-    u8 data[0x70];
-    u8 padding[0x2];
-    u32 checksum;
-    ShipSaveData shipSaveData;
-}SaveData;
-*/
 
 static int BitfieldGetBit(const uint8_t* array, int index) {
     return (array[index / 8] & (1 << (index & 7))) ? 1 : 0;
@@ -57,12 +42,40 @@ static void BitfieldSetNBits(uint8_t* array, int startIndex, int set, int length
     }
 }
 
+static int SlotToVisualGame(int slotIndex) {
+    static const int kMap[4] = { 0, 1, 3, 2 };
+    return (slotIndex >= 1 && slotIndex <= 3) ? kMap[slotIndex] : slotIndex;
+}
+static int VisualGameToSlot(int visual) {
+    static const int kMap[4] = { 0, 1, 3, 2 }; // symmetric: same remap
+    return (visual >= 1 && visual <= 3) ? kMap[visual] : visual;
+}
+
+json FindSelectedSaveFile(int32_t filenum) {
+    std::string fileName = "file" + std::to_string(filenum + 1) + ".json";
+    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
+
+    if (!std::filesystem::exists(filePath)) {
+        return json::object();
+    }
+
+    std::ifstream file(filePath);
+    json jsonSave;
+
+    file >> jsonSave;
+    if (!jsonSave.contains("slotIndex")) {
+        return json::object();
+    }
+
+    return jsonSave;
+}
+
 json Convert_SaveDataToJSON(SaveData* saveData) {
     json j;
     j = json::object();
 
     j["slotIndex"] = saveData->slotIndex;
-    j["version"] = SAVE_VERSION;
+    j["version"] = SAVE_VERSION_NUM;
 
     // Abilities
     const uint8_t* abilityData = &saveData->data[ABILITY_OFFSET];
@@ -113,13 +126,13 @@ json Convert_SaveDataToJSON(SaveData* saveData) {
     j["cheats"] = cheats;
 
     // Saved Items
-    const uint8_t* data = &saveData->data[ITEMS_OFFSET];
+    const uint8_t* offsetData = &saveData->data[ITEMS_OFFSET];
     json savedItems = json::object();
-    savedItems["mumboTokens"] = static_cast<int>(data[0]);
-    savedItems["eggs"] = static_cast<int>(data[1]);
-    savedItems["redFeathers"] = static_cast<int>(data[2]);
-    savedItems["goldFeathers"] = static_cast<int>(data[3]);
-    savedItems["jiggyTotal"] = static_cast<int>(data[4]);
+    savedItems["mumboTokens"] = static_cast<int>(offsetData[0]);
+    savedItems["eggs"] = static_cast<int>(offsetData[1]);
+    savedItems["redFeathers"] = static_cast<int>(offsetData[2]);
+    savedItems["goldFeathers"] = static_cast<int>(offsetData[3]);
+    savedItems["jiggyTotal"] = static_cast<int>(offsetData[4]);
 
     j["savedItems"] = savedItems;
 
@@ -219,7 +232,11 @@ json Convert_SaveDataToJSON(SaveData* saveData) {
     json ship = json::object();
     json shipRando = json::object();
 
-    ship["saveType"] = saveData->shipSaveData.saveType;
+    if (saveData->shipSaveData.saveType >= SAVETYPE_MAX || saveData->shipSaveData.saveType < SAVETYPE_VANILLA) {
+        ship["saveType"] = !CVarGetInteger("gRandoSettings.Enabled", 0) ? SAVETYPE_RANDO : SAVETYPE_VANILLA;
+    } else {
+        ship["saveType"] = saveData->shipSaveData.saveType;
+    }
 
     shipRando["isRando"] = static_cast<int>(saveData->shipSaveData.randoSaveData.isRando);
     ship["randoSaveData"] = shipRando;
@@ -229,8 +246,17 @@ json Convert_SaveDataToJSON(SaveData* saveData) {
     return j;
 }
 
-SaveData* Convert_JSONToSaveData(json& j) {
-    SaveData* saveData;
+SaveData* Convert_JSONToSaveData(int32_t fileNum) {
+    json j = FindSelectedSaveFile(fileNum);
+
+    if (j.empty() || !j.contains("slotIndex")) {
+        SaveData* emptySave = new SaveData();
+        memset(emptySave, 0, sizeof(SaveData));
+        return emptySave;
+    }
+
+    SaveData* saveData = new SaveData();
+    memset(saveData, 0, sizeof(SaveData));
 
     saveData->slotIndex = j["slotIndex"];
 
@@ -315,7 +341,6 @@ SaveData* Convert_JSONToSaveData(json& j) {
     uint8_t* honeycombData = &saveData->data[HONEYCOMB_OFFSET];
     uint8_t* jiggyData = &saveData->data[JIGGY_OFFSET];
     uint8_t* tokenData = &saveData->data[MUMBO_OFFSET];
-    uint8_t* progressFlags = &saveData->data[PROGRESS_OFFSET];
     uint8_t* timeData = &saveData->data[TIME_OFFSET];
 
     uint64_t notesPacked = 0;
@@ -410,7 +435,34 @@ SaveData* Convert_JSONToSaveData(json& j) {
 
     // Ship Save Data
     saveData->shipSaveData.saveType = j["ship"]["saveType"];
-    saveData->shipSaveData.randoSaveData.isRando = j["ship"]["randoSaveData"]["isRando"].get<bool>();
+    saveData->shipSaveData.randoSaveData.isRando = j["ship"]["randoSaveData"]["isRando"].get<int>();
 
     return saveData;
+}
+
+void SaveConverter_Init() {
+    REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
+
+        event->cancelled = true;
+        ev->result = (int32_t*)Convert_JSONToSaveData(ev->fileNum);
+    });
+
+    REGISTER_LISTENER(OnSaveFileSave, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnSaveFileSave* ev = (OnSaveFileSave*)event;
+
+        json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer);
+        if (!saveFile.empty()) {
+            std::string fileName = "file" + std::to_string(SlotToVisualGame(ev->fileNum) + 1) + ".json";
+            std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
+
+            std::ofstream outputFile(filePath);
+            if (outputFile.is_open()) {
+                outputFile << saveFile.dump(4);
+                outputFile.close();
+            }
+        }
+
+        event->cancelled = true;
+    });
 }

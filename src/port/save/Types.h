@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SAVE_TYPES_H
+#define SAVE_TYPES_H
 
 // Binary Layout Constants
 // These match the offsets computed by savedata_init() in savedata.c.
@@ -380,3 +381,5 @@ static const FlagDef kProgressFlags[] = {
     { 0x123, 1, "CHEAT_ENTERED", "CHEATS" },
 };
 static constexpr int kProgressFlagCount = sizeof(kProgressFlags) / sizeof(kProgressFlags[0]);
+
+#endif // SAVE_TYPES_H

@@ -599,13 +599,13 @@ int SaveManager::WriteBlocks(int file, int offset, void* buffer, int count) {
                 }
             }
             for (int si = 1; si <= 3; si++) {
-                if (!gameFilePresent[si]) {
-                    std::string path = GetSavePath("file" + std::to_string(SlotToVisualGame(si)) + ".json");
-                    if (fs::exists(path)) {
-                        fs::remove(path);
-                        SPDLOG_INFO("[SaveManager] Deleted {}", path);
-                    }
-                }
+                //if (!gameFilePresent[si]) {
+                //    std::string path = GetSavePath("file" + std::to_string(SlotToVisualGame(si)) + ".json");
+                //    if (fs::exists(path)) {
+                //        fs::remove(path);
+                //        SPDLOG_INFO("[SaveManager] Deleted {}", path);
+                //    }
+                //}
             }
         }
     }

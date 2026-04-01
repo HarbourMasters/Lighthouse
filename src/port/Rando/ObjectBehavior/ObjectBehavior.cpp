@@ -56,6 +56,6 @@ void Rando::ObjectBehavior::Init() {
         //LogOutSpawns(ev->actorId, ev->posX, ev->posY, ev->posZ);
 
         event->cancelled = true;
-        ev->spawnedActor = CustomObject::SpawnRandoObject(ev->actorId, ev->posX, ev->posY, ev->posZ, ev->rot);
+        ev->result = CustomObject::SpawnRandoObject(ev->actorId, ev->posX, ev->posY, ev->posZ, ev->rot);
     })
 }

@@ -4,6 +4,7 @@
 typedef enum {
     SAVETYPE_VANILLA,
     SAVETYPE_RANDO,
+    SAVETYPE_MAX,
 } SaveType;
 
 typedef struct {
