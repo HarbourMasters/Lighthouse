@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "core2/nc/camera.h"
+#include "port/patches/Patches.h"
 
 
 
@@ -48,10 +49,12 @@ void __ncStaticCamera_setToNode(s32 camera_node_index){
 void ncStaticCamera_setToNode(s32 camera_node_index){
     camera_setType(CAMERA_TYPE_3_STATIC);
     __ncStaticCamera_setToNode(camera_node_index);
+    port_camera_setStaticNode(camera_node_index);
 }
 
 void ncStaticCamera_exit(void){
     camera_setType(CAMERA_TYPE_2_DYNAMIC);
+    port_camera_clearStaticNode();
 }
 
 void ncStaticCamera_setPositionAndRotation(f32 arg0[3], f32 arg1[3]){

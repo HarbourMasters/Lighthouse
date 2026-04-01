@@ -68,16 +68,18 @@ int port_getDemoDisplayViCount(int rawViCount) {
 // at the exact frames where the N64 would have stuttered.
 
 static int sConcertStartFrames[] = { 269, 521, 583, 663, 769, 959, 1155, 1182, 1214 };
-static int sConcertDurations[]   = { 4,   4,   4,   4,   4,   4,   4,    4,    4    };
+static int sConcertDurations[] = { 4, 4, 4, 4, 4, 4, 4, 4, 4 };
 
-static int sLairDingpotStartFrames[] = { 258, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000 };
-static int sLairDingpotDurations[]   = { 6,   5,   5,   5,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4 };
+static int sLairDingpotStartFrames[] = {
+    258, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000
+};
+static int sLairDingpotDurations[] = { 6, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
 
 static int sCutsceneCounter = 0;
 static int sCutsceneNextStutter = 0;
 static int sCutsceneLagIndex = 0;
 
-static bool shouldLagCutscene(int *startFrames, int *durations, int count) {
+static bool shouldLagCutscene(int* startFrames, int* durations, int count) {
     if (sCutsceneNextStutter == -1) {
         return false;
     }
@@ -115,14 +117,14 @@ int port_getCutsceneExtraVis(void) {
     switch (map_get()) {
         case MAP_1E_CS_START_NINTENDO:
             if (shouldLagCutscene(sConcertStartFrames, sConcertDurations,
-                    (int)(sizeof(sConcertStartFrames) / sizeof(sConcertStartFrames[0])))) {
+                                  (int)(sizeof(sConcertStartFrames) / sizeof(sConcertStartFrames[0])))) {
                 extra = 1;
             }
             sCutsceneCounter++;
             break;
         case MAP_7B_CS_INTRO_GL_DINGPOT_1:
             if (shouldLagCutscene(sLairDingpotStartFrames, sLairDingpotDurations,
-                    (int)(sizeof(sLairDingpotStartFrames) / sizeof(sLairDingpotStartFrames[0])))) {
+                                  (int)(sizeof(sLairDingpotStartFrames) / sizeof(sLairDingpotStartFrames[0])))) {
                 extra = 1;
             }
             sCutsceneCounter++;

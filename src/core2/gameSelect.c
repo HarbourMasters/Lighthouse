@@ -409,21 +409,9 @@ void func_802C4C14(Actor *this){
                 case 4://L802C50C8
                     if(anctrl_isStopped(this->anctrl)){
                         chBottlesBonus_func_802DEB80();
-                        // gameFile_load handles the slot lookup and restores both
-                        // lives and bottles bonus via port_restoreFileEnhancementData.
-                        {
-                            extern u8 gCompletedBottlesBonusGames[7];
-                            extern s32 chBottlesBonusPuzzleIndex;
-                            s32 _i;
-                            gameFile_load(gSelectedGameNum);
-                            for (_i = 0; _i < 7; _i++) {
-                                if (gCompletedBottlesBonusGames[_i]) {
-                                    chBottlesBonusPuzzleIndex = _i + 1;
-                                }
-                            }
-                        }
+                        gameFile_load(gSelectedGameNum);
+                        port_syncBottlesBonusIndex();
                         if(!gameFile_isNotEmpty(sp84)){
-                            // [port] BB romhacks can override the new-game boot map
                             s32 newGameMap = port_getRomhackNewGameMap();
                             if (newGameMap < 0) {
                                 newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;

@@ -8,6 +8,8 @@
 #include "LighthouseMenu.h"
 #include "LighthouseGui.hpp"
 
+#include "port/patches/Patches.h"
+
 /*  Console Variables are grouped under gAdvancedResolution. (e.g. CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled")
 
     The following cvars are used in Libultraship and can be edited here:
@@ -452,6 +454,10 @@ void RegisterResolutionWidgets() {
         .PreFunc([](WidgetInfo& info) {
             if (mLighthouseMenu->GetDisabledMap().at(DISABLE_FOR_ADVANCED_RESOLUTION_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_ADVANCED_RESOLUTION_OFF);
+            }
+            if (port_camera_isCutsceneAspectActive()) {
+                info.options->disabled = true;
+                info.options->disabledTooltip = "Aspect ratio is locked to 16:9 during cutscenes.";
             }
         })
         .Callback([](WidgetInfo& info) {

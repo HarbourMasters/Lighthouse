@@ -308,7 +308,7 @@ void fxcommon2score_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **m
         // Add extra clearance for timer items when viewport is wider than 4:3.
         f32 wsTimerPad = 0.0f;
         if ((item_id == ITEM_0_HOURGLASS_TIMER || item_id == ITEM_1_SKULL_HOURGLASS_TIMER)
-            && port_getViewportWidth() > 320) {
+            && GameEngine_GetAspectRatio() > 1.34f) {
             wsTimerPad = 10.0f;
         }
         s32 tx = (s32)(func_802FB0DC(arg1) + ws_tx38 + arg1->unk44 + wsTimerPad + sp34);

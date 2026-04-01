@@ -210,12 +210,10 @@ void viMgr_func_8024BFD8(s32 arg0){
 void viMgr_func_8024C1B4(void){
     viMgr_func_8024BFD8(0);
     dummy_func_8025AFB8();
-    port_resetCutsceneTimings();
 }
 
 void viMgr_func_8024C1DC(void){
     viMgr_func_8024BFD8(1);
-    port_resetCutsceneTimings();
 }
 
 void viMgr_func_8024C1FC(OSMesgQueue *mq, OSMesg msg) {

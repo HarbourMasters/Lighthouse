@@ -9,6 +9,7 @@
 #include <libultra/gu.h>
 
 extern void guPerspective(Mtx *, u16*, f32, f32, f32, f32, f32);
+void port_camera_applyWsYawFix(f32 rotation[3]);
 
 #define VIEWPORT_FOVY_DEFAULT (40.0f)
 #define VIEWPORT_STACK_SIZE (8)
@@ -246,6 +247,8 @@ void viewport_update(void) {
     sViewportFrustumPlanes[1][3] = -(sViewportPosition[0]*sViewportFrustumPlanes[1][0] + sViewportPosition[1]*sViewportFrustumPlanes[1][1] + sViewportPosition[2]*sViewportFrustumPlanes[1][2]);
     sViewportFrustumPlanes[2][3] = -(sViewportPosition[0]*sViewportFrustumPlanes[2][0] + sViewportPosition[1]*sViewportFrustumPlanes[2][1] + sViewportPosition[2]*sViewportFrustumPlanes[2][2]);
     sViewportFrustumPlanes[3][3] = -(sViewportPosition[0]*sViewportFrustumPlanes[3][0] + sViewportPosition[1]*sViewportFrustumPlanes[3][1] + sViewportPosition[2]*sViewportFrustumPlanes[3][2]);
+
+    port_camera_applyWsYawFix(sViewportRotation);
 
     mlMtxIdent();
     mlMtxRotYaw(sViewportRotation[1]);

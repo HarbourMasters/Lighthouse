@@ -9,6 +9,8 @@
 #include "port/FrameInterpolation.h"
 #include "port/GameStatus.h"
 
+#include "port/patches/Patches.h"
+
 /* .data */
 extern u8 D_80370250 = 0;
 
@@ -203,6 +205,8 @@ void func_80334910(void) {
 void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2) {
     D_803835D0.unk0 = 3;
     D_803835D0.map_4 = arg0;
+    port_camera_updateCutsceneAspect(arg0);
+    port_resetCutsceneTimings();
     port_setWindowTitle(arg0); // [port] show current world stats in window title
     D_803835D0.unk8 = arg1;
     overlay_init();

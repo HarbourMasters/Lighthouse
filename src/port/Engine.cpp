@@ -26,6 +26,7 @@
 #include "ui/LighthouseGui.hpp"
 #include "2.0L/PR/libaudio.h"
 #include "port/enhancements/events/PortEnhancements.h"
+#include "port/patches/Patches.h"
 #include "libultraship/libultra/AudioDmaRegistry.h"
 
 #include <fast/interpreter.h>
@@ -1089,8 +1090,6 @@ void GameEngine::AudioExit() {
         audio.thread.join();
     }
 }
-
-extern "C" int port_isViBlack(void);
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
