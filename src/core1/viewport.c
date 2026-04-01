@@ -39,7 +39,7 @@ void viewport_moveAlongZAxis(f32 offset) {
 }
 
 f32 viewport_getDistance(f32 arg0[3]) {
-    return ml_vec3f_distance(arg0, sViewportPosition); // [port] implicit MIPS $f0 return
+    return ml_vec3f_distance(arg0, sViewportPosition);
 }
 
 void viewport_getLookbk_vector(f32 arg0[3]) {
@@ -222,8 +222,17 @@ void viewport_unused_pushVpScaleAndTranslation(f32 scale_x, f32 scale_y, f32 tra
 }
 
 void viewport_update(void) {
-    func_80256E24(sViewportFrustumPlanes[0], sViewportRotation[0], sViewportRotation[1], -89.21774f, 0.0f, 45.168514251708984f);
-    func_80256E24(sViewportFrustumPlanes[1], sViewportRotation[0], sViewportRotation[1], 89.21774f, 0.0f, 45.168514251708984f);
+    // [port] Widen the left/right frustum planes for widescreen so objects
+    // at the horizontal edges aren't culled prematurely.
+    f32 frustumX = 89.21774f;
+    f32 frustumZ = 45.168514251708984f;
+    if (port_getViewportWidth() > 320) {
+        static const f32 vanillaAspect = 1.35185182f;
+        f32 aspectScale = sViewportAspect / vanillaAspect;
+        frustumX *= aspectScale * 1.1f;
+    }
+    func_80256E24(sViewportFrustumPlanes[0], sViewportRotation[0], sViewportRotation[1], -frustumX, 0.0f, frustumZ);
+    func_80256E24(sViewportFrustumPlanes[1], sViewportRotation[0], sViewportRotation[1], frustumX, 0.0f, frustumZ);
     func_80256E24(sViewportFrustumPlanes[2], sViewportRotation[0], sViewportRotation[1], 0.0f, 93.9692611694336f, 34.20201110839844f);
     func_80256E24(sViewportFrustumPlanes[3], sViewportRotation[0], sViewportRotation[1], 0.0f, -93.9692611694336f, 34.20201110839844f);
 
