@@ -68,12 +68,11 @@ void LighthouseMenu::AddMenuEnhancements() {
                          { 4, "100%" },
                      })
                      .DefaultIndex(0));
-    
-        AddWidget(path, "Always High Poly Banjo", WIDGET_CVAR_CHECKBOX)
+
+    AddWidget(path, "Always High Poly Banjo", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.AlwaysHighPolyBanjo"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Makes Banjo always use the high-polygon model, even in low-detail modes."));
+        .Options(CheckboxOptions().Tooltip("Makes Banjo always use the high-polygon model, even in low-detail modes."));
 
     // Enhancements -> Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -83,8 +82,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Furnace Fun Game Over Dialog", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.FurnaceFunDialog"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Fixes the skull panel game over warning in Furnace Fun to trigger when you have zero extra lives instead of one."));
+        .Options(CheckboxOptions().Tooltip("Fixes the skull panel game over warning in Furnace Fun to trigger when you "
+                                           "have zero extra lives instead of one."));
 
     AddWidget(path, "Fix Void-Out Game Over", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.VoidOutGameOver"))
@@ -95,26 +94,26 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Mumbo Token: GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.MumboTokenGV"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Lowers the mumbo token in the water pyramid to ground level after the water drains, making it reachable."));
+        .Options(CheckboxOptions().Tooltip("Lowers the mumbo token in the water pyramid to ground level after the "
+                                           "water drains, making it reachable."));
 
     AddWidget(path, "Fix Mumbo Token: MMM Loggo", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.MumboTokenMMM"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Fixes the MMM Inside Loggo token sharing a collection bitfield index with another token, causing one to despawn."));
+        .Options(CheckboxOptions().Tooltip("Fixes the MMM Inside Loggo token sharing a collection bitfield index with "
+                                           "another token, causing one to despawn."));
 
     AddWidget(path, "Fix Mumbo Token: CCW Spring", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.MumboTokenCCW"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Fixes the CCW Spring token sharing a collection bitfield index with another token, causing one to despawn."));
+        .Options(CheckboxOptions().Tooltip("Fixes the CCW Spring token sharing a collection bitfield index with "
+                                           "another token, causing one to despawn."));
 
     AddWidget(path, "Fix Grunty Defeated Flag Placement", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Delays the Grunty Defeated flag until after the Jinjonator attacks, preventing a false win if the player dies before the hit lands."));
+        .Options(CheckboxOptions().Tooltip("Delays the Grunty Defeated flag until after the Jinjonator attacks, "
+                                           "preventing a false win if the player dies before the hit lands."));
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
@@ -139,14 +138,13 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Unlocks all Stop N' Swop items when loading a 100% save file."));
+        .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
     AddWidget(path, "All Honeycomb Extensions", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("AllHoneycombExtensions"))
         .RaceDisable(false)
-        .Options(
-            CheckboxOptions().Tooltip("Removes the 3-extension health cap, allowing all 24 honeycombs to grant health bars."));
+        .Options(CheckboxOptions().Tooltip(
+            "Removes the 3-extension health cap, allowing all 24 honeycombs to grant health bars."));
 
     AddWidget(path, "Extra Time For GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"))
@@ -156,8 +154,7 @@ void LighthouseMenu::AddMenuEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
             }
         })
-        .Options(CheckboxOptions().Tooltip(
-            "Adds 4 extra seconds to the GV water pyramid hatch timer."));
+        .Options(CheckboxOptions().Tooltip("Adds 4 extra seconds to the GV water pyramid hatch timer."));
 
     AddWidget(path, "Easier Boggy Races", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("EasierBoggyRaces"))

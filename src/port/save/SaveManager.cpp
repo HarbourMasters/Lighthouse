@@ -1050,15 +1050,19 @@ void SaveManager::LoadFromDisk() {
     uint32_t snsRaw = 0;
     for (int i = 1; i <= 3; i++) {
         std::string path = GetSavePath("file" + std::to_string(i) + ".json");
-        if (!fs::exists(path)) continue;
+        if (!fs::exists(path))
+            continue;
         try {
             std::ifstream ifs(path);
             json j = json::parse(ifs);
-            if (!j.contains("file")) continue;
+            if (!j.contains("file"))
+                continue;
             const auto& f = j["file"];
-            if (!f.contains("snsItems")) continue;
+            if (!f.contains("snsItems"))
+                continue;
             const auto& sns = f["snsItems"];
-            if (!sns.is_object() || !sns.contains("unlocked")) continue;
+            if (!sns.is_object() || !sns.contains("unlocked"))
+                continue;
             const auto& u = sns["unlocked"];
             for (int k = 0; k < kSnsItemCount; k++) {
                 auto it = u.find(kSnsUnlocked[k].name);
