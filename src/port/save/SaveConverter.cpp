@@ -43,6 +43,20 @@ static int BitfieldGetNBits(const uint8_t* array, int offset, int numBits) {
     return ret;
 }
 
+static void BitfieldSetBit(uint8_t* array, int index, int set) {
+    if (set) {
+        array[index / 8] |= (1 << (index & 7));
+    } else {
+        array[index / 8] &= ~(1 << (index & 7));
+    }
+}
+
+static void BitfieldSetNBits(uint8_t* array, int startIndex, int set, int length) {
+    for (int i = 0; i < length; i++) {
+        BitfieldSetBit(array, startIndex + i, (1 << i) & set);
+    }
+}
+
 json Convert_SaveDataToJSON(SaveData* saveData) {
     json j;
     j = json::object();
@@ -213,4 +227,190 @@ json Convert_SaveDataToJSON(SaveData* saveData) {
     j["ship"] = ship;
 
     return j;
+}
+
+SaveData* Convert_JSONToSaveData(json& j) {
+    SaveData* saveData;
+
+    saveData->slotIndex = j["slotIndex"];
+
+    // Abilities
+    uint32_t learnedIndex = 0;
+    uint32_t usedIndex = 0;
+
+    auto& abilities = j["abilities"];
+    auto& learnedJson = abilities["learned"];
+    auto& usedJson = abilities["used"];
+
+    for (int i = 0; i < kAbilityCount; i++) {
+        const std::string& abilityName = kAbilityNames[i];
+        if (learnedJson.contains(abilityName) && learnedJson[abilityName] == 1) {
+            learnedIndex |= (1u << i);
+        }
+        if (usedJson.contains(abilityName) && usedJson[abilityName] == 1) {
+            usedIndex |= (1u << i);
+        }
+    }
+
+    uint8_t* abilityData = &saveData->data[ABILITY_OFFSET];
+    memcpy(abilityData, &learnedIndex, sizeof(uint32_t));
+    memcpy(abilityData + 4, &usedIndex, sizeof(uint32_t));
+
+    // General Progress Flags
+    uint8_t* progressFlags = &saveData->data[PROGRESS_OFFSET];
+    auto& generalProgress = j["progress"];
+
+    for (int i = 0; i < kProgressFlagCount; i++) {
+        const auto& f = kProgressFlags[i];
+
+        if (f.world != nullptr) {
+            continue;
+        }
+
+        if (generalProgress.contains(f.name)) {
+            uint32_t value = generalProgress[f.name].get<uint32_t>();
+
+            if (f.bitWidth == 1) {
+                BitfieldSetBit(progressFlags, f.bitIndex, value != 0);
+            } else {
+                BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, value);
+            }
+        }
+    }
+
+    // Sandcastle Cheat Flags
+    auto& cheats = j["cheats"];
+
+    for (int i = 0; i < kProgressFlagCount; i++) {
+        const auto& f = kProgressFlags[i];
+
+        if (f.world == nullptr || strcmp(f.world, "CHEATS") != 0) {
+            continue;
+        }
+
+        if (cheats.contains(f.name)) {
+            uint32_t value = cheats[f.name].get<uint32_t>();
+
+            if (f.bitWidth == 1) {
+                // Set single bit (0 or 1)
+                BitfieldSetBit(progressFlags, f.bitIndex, value != 0);
+            } else {
+                // Set multiple bits for specific cheat values
+                BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, value);
+            }
+        }
+    }
+
+    // Saved Items
+    uint8_t* savedItems = &saveData->data[ITEMS_OFFSET];
+
+    savedItems[0] = j["savedItems"]["mumboTokens"];
+    savedItems[1] = j["savedItems"]["eggs"];
+    savedItems[2] = j["savedItems"]["redFeathers"];
+    savedItems[3] = j["savedItems"]["goldFeathers"];
+    savedItems[4] = j["savedItems"]["jiggyTotal"];
+
+
+    // World Progress
+    uint8_t* honeycombData = &saveData->data[HONEYCOMB_OFFSET];
+    uint8_t* jiggyData = &saveData->data[JIGGY_OFFSET];
+    uint8_t* tokenData = &saveData->data[MUMBO_OFFSET];
+    uint8_t* progressFlags = &saveData->data[PROGRESS_OFFSET];
+    uint8_t* timeData = &saveData->data[TIME_OFFSET];
+
+    uint64_t notesPacked = 0;
+    memcpy(&notesPacked, &saveData->data[NOTE_OFFSET], sizeof(uint64_t));
+    int noteScores[9] = {};
+    uint64_t tempPacked = notesPacked;
+    for (int i = 8; i >= 0; i--) {
+        noteScores[i] = static_cast<int>(tempPacked & 0x7F);
+        tempPacked >>= 7;
+    }
+
+    auto& worldsProgress = j["worlds"];
+
+    for (int w = 0; w < kWorldCount; w++) {
+        const auto& wd = kWorlds[w];
+        if (!worldsProgress.contains(wd.name))
+            continue;
+        auto& world = worldsProgress[wd.name];
+
+        // Honeycombs
+        if (wd.honeycombCount > 0 && world.contains("honeycombs")) {
+            for (int i = 0; i < wd.honeycombCount; i++) {
+                int id = wd.honeycombStart + i;
+                if (world["honeycombs"][i] == 1)
+                    honeycombData[(id - 1) / 8] |= (1 << (id & 7));
+                else
+                    honeycombData[(id - 1) / 8] &= ~(1 << (id & 7));
+            }
+        }
+
+        // Jiggies
+        if (wd.jiggyCount > 0 && world.contains("jiggies")) {
+            for (int i = 0; i < wd.jiggyCount; i++) {
+                int id = wd.jiggyStart + i;
+                if (world["jiggies"][i] == 1)
+                    jiggyData[(id - 1) / 8] |= (1 << (id & 7));
+                else
+                    jiggyData[(id - 1) / 8] &= ~(1 << (id & 7));
+            }
+        }
+
+        // Mumbo Tokens
+        if (wd.mumboCount > 0 && world.contains("mumboTokens")) {
+            for (int i = 0; i < wd.mumboCount; i++) {
+                int id = wd.mumboStart + i;
+                if (world["mumboTokens"][i] == 1)
+                    tokenData[(id - 1) / 8] |= (1 << (id & 7));
+                else
+                    tokenData[(id - 1) / 8] &= ~(1 << (id & 7));
+            }
+        }
+
+        // Note Score
+        if (wd.hasNoteScore && world.contains("noteScore")) {
+            for (int i = 0; i < 9; i++) {
+                if (kNoteScoreWorlds[i] == wd.levelId) {
+                    noteScores[i] = world["noteScore"].get<int>();
+                    break;
+                }
+            }
+        }
+
+        // World Progress Flags
+        if (world.contains("progress")) {
+            auto& worldProgress = world["progress"];
+            for (int i = 0; i < kProgressFlagCount; i++) {
+                const auto& f = kProgressFlags[i];
+                if (f.world != nullptr && strcmp(f.world, wd.name) == 0) {
+                    if (worldProgress.contains(f.name)) {
+                        uint32_t val = worldProgress[f.name].get<uint32_t>();
+                        if (f.bitWidth == 1)
+                            BitfieldSetBit(progressFlags, f.bitIndex, val != 0);
+                        else
+                            BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, val);
+                    }
+                }
+            }
+        }
+
+        // Time Score
+        if (wd.hasTimeScore && world.contains("timeScore")) {
+            uint16_t score = static_cast<uint16_t>(world["timeScore"].get<int>());
+            memcpy(timeData + (wd.levelId - 1) * 2, &score, sizeof(uint16_t));
+        }
+    }
+
+    notesPacked = 0;
+    for (int i = 0; i < 9; i++) {
+        notesPacked = (notesPacked << 7) | (noteScores[i] & 0x7F);
+    }
+    memcpy(&saveData->data[NOTE_OFFSET], &notesPacked, sizeof(uint64_t));
+
+    // Ship Save Data
+    saveData->shipSaveData.saveType = j["ship"]["saveType"];
+    saveData->shipSaveData.randoSaveData.isRando = j["ship"]["randoSaveData"]["isRando"].get<bool>();
+
+    return saveData;
 }
