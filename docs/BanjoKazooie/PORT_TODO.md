@@ -7,14 +7,8 @@ Lighthouse supports romhacks created with Banjo's Backpack, if a config.yml entr
 
 ## Vanilla Issues
 
-### Texture Seams
-Many textures are broken into sections and have seams. These seams are built into the models themselves and are a result of the developers not accounting for bilerp filtering. In order to have seamless transitions between bilerp filtered textures, you must duplicate the first row of the previous texture in the next texture. In other words, the textures themselves are missing information due to a developer oversight.
-
-Possible solution paths:
-1. **Torch-side padding** - During asset extraction, detect adjacent texture tiles and duplicate the border row from the neighbor into each tile's edge. Most correct fix but requires knowing adjacency from model UVs/geometry.
-2. **Half-pixel UV inset** - Nudge UVs inward by 0.5 texels at tile boundaries so bilinear never samples the edge. Cheap but may cause slight texture shrinkage.
-3. **Force point sampling on seamed geometry** - Eliminates seams but loses filtering quality.
-4. **Runtime texture stitching** - Combine adjacent tiles into a single larger texture at load time. Most correct visually but complex and breaks the 1:1 asset model.
+### PAL crashes
+PAL o2r has some issues with rendering accent characters which cause flickering in zoombox dialog. There is also a crash to do with speaker sprites.
 
 ### MacOS Lag
 On Metal, framebuffers (falling jiggy transition, pause menu, bottles bonus and sns) have heavy lag. OpenGL path works fine.
@@ -29,6 +23,3 @@ An enhancement could also track other world states that get reset such as Clanke
 
 ### GENERAL: Save File Conversion
 Allow users to drag and drop emulator save files onto the port window to have them converted to the modern json format. Emulator saves will need detection for romhacks and then be sorted into their respective folders.
-
-
-

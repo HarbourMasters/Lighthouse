@@ -2128,97 +2128,97 @@ aBKAssetTable:
     2655: dialog/Speaker00_00_151
     2656: dialog/Speaker00_00_152
     2657: dialog/Speaker00_00_153
-    2658: dialog/Speaker01_01_06
-    2659: dialog/Speaker00_00_154
-    2660: dialog/Speaker01_01_07
-    2661: dialog/Speaker00_00_155
-    2662: dialog/Speaker00_00_156
-    2663: dialog/Speaker00_00_157
-    2664: dialog/Speaker00_00_158
-    2665: dialog/SpeakerE3_E3_01
-    2666: dialog/Speaker00_00_159
-    2667: dialog/Speaker00_00_160
-    2668: dialog/Speaker00_00_161
-    2669: dialog/Speaker00_00_162
-    2670: dialog/Speaker00_00_163
-    2671: dialog/Speaker90_Rubee_Intro
-    2672: dialog/Speaker90_Rubee_FedHistup
-    2673: dialog/Speaker8F_Trunker_Intro
-    2674: dialog/Speaker8F_Trunker_GaveWater
-    2675: dialog/Speaker91_Gobi_Intro
-    2676: dialog/Speaker91_Gobi_GiveReward
-    2677: dialog/Speaker91_Gobi_ByTrunker
-    2678: dialog/Speaker91_Gobi_SpitWater
-    2679: dialog/Speaker91_Gobi_LeavingDesert
-    2680: dialog/Speaker92_Grabba_Intro
-    2681: dialog/Speaker92_Grabba_Outro
-    2682: dialog/Speaker92_Grabba_TooSlow
-    2683: dialog/SpeakerB0_Jinxy_Intro
-    2684: dialog/SpeakerB0_Jinxy_ThatTickles
-    2685: dialog/SpeakerB0_Jinxy_Outro
-    2686: dialog/SpeakerB1_SandEel
-    2687: dialog/SpeakerB3_AncientOne_Intro
-    2688: dialog/SpeakerB3_AncientOne_Outro
-    2689: dialog/SpeakerBB_MumMum_SandybuttsWarning
-    2690: dialog/SpeakerBB_MumMum_SandybuttsTriggered
-    2691: dialog/SpeakerBB_MumMum_SandybuttsWon
-    2692: dialog/Speaker83_Bottles_TeachTurboTrainers
-    2693: dialog/Speaker83_Bottles_UseTurboTrainers
-    2694: dialog/Speaker83_Bottles_AllMovesGV
-    2695: dialog/Speaker83_Bottles_AllMovesGame
-    2696: dialog/SpeakerB5_Gruntilda_GVRaceTaunt
-    2697: dialog/Speaker00_00_164
-    2698: dialog/Speaker00_00_165
-    2699: dialog/Speaker00_00_166
-    2700: dialog/Speaker00_00_167
-    2701: dialog/Speaker00_00_168
-    2702: dialog/Speaker00_00_169
-    2703: dialog/Speaker00_00_170
-    2704: dialog/Speaker01_01_08
-    2705: dialog/Speaker00_00_171
-    2706: dialog/Speaker00_00_172
-    2707: dialog/Speaker00_00_173
-    2708: dialog/Speaker00_00_174
-    2709: dialog/Speaker00_00_175
-    2710: dialog/Speaker00_00_176
-    2711: dialog/Speaker00_00_177
-    2712: dialog/Speaker00_00_178
-    2713: dialog/Speaker00_00_179
-    2714: dialog/Speaker00_00_180
-    2715: dialog/Speaker00_00_181
-    2716: dialog/Speaker00_00_182
-    2717: dialog/Speaker00_00_183
-    2718: dialog/Speaker00_00_184
-    2719: dialog/Speaker00_00_185
-    2720: dialog/Speaker00_00_186
-    2721: dialog/Speaker00_00_187
-    2722: dialog/Speaker00_00_188
-    2723: dialog/Speaker00_00_189
-    2724: dialog/Speaker00_00_190
-    2725: dialog/Speaker00_00_191
-    2726: dialog/Speaker00_00_192
-    2727: dialog/Speaker00_00_193
-    2728: dialog/Speaker00_00_194
-    2729: dialog/Speaker00_00_195
-    2730: dialog/Speaker00_00_196
-    2731: dialog/Speaker00_00_197
-    2732: dialog/Speaker00_00_198
-    2733: dialog/Speaker00_00_199
-    2734: dialog/Speaker00_00_200
-    2735: dialog/Speaker00_00_201
-    2736: dialog/Speaker00_00_202
-    2737: dialog/Speaker00_00_203
-    2738: dialog/Speaker00_00_204
-    2739: dialog/Speaker00_00_205
-    2740: dialog/Speaker00_00_206
-    2741: dialog/Speaker00_00_207
-    2742: dialog/Speaker00_00_208
-    2743: dialog/Speaker00_00_209
-    2744: dialog/Speaker00_00_210
-    2745: dialog/Speaker00_00_211
-    2746: dialog/Speaker00_00_212
-    2747: dialog/Speaker00_00_213
-    2748: dialog/Speaker00_00_214
+    2658: dialog/Speaker83_Bottles_73
+    2659: dialog/Speaker83_Bottles_74
+    2660: dialog/Speaker83_Bottles_75
+    2661: dialog/Speaker83_Bottles_76
+    2662: dialog/Speaker83_Bottles_77
+    2663: dialog/Speaker83_Bottles_78
+    2664: dialog/Speaker83_Bottles_79
+    2665: dialog/Speaker83_Bottles_80
+    2666: dialog/Speaker83_Bottles_81
+    2667: dialog/Speaker83_Bottles_82
+    2668: dialog/Speaker83_Bottles_83
+    2669: dialog/Speaker83_Bottles_84
+    2670: dialog/Speaker83_Bottles_85
+    2671: dialog/Speaker83_Bottles_86
+    2672: dialog/Speaker83_Bottles_87
+    2673: dialog/Speaker83_Bottles_88
+    2674: dialog/Speaker83_Bottles_89
+    2675: dialog/Speaker83_Bottles_90
+    2676: dialog/Speaker83_Bottles_91
+    2677: dialog/Speaker83_Bottles_92
+    2678: dialog/Speaker83_Bottles_93
+    2679: dialog/Speaker83_Bottles_94
+    2680: dialog/Speaker83_Bottles_95
+    2681: dialog/Speaker83_Bottles_96
+    2682: dialog/Speaker83_Bottles_97
+    2683: dialog/Speaker84_Mumbo_20
+    2684: dialog/Speaker81_Kazooie_06
+    2685: dialog/Speaker84_Mumbo_21
+    2686: dialog/Speaker81_Kazooie_07
+    2687: dialog/Speaker84_Mumbo_22
+    2688: dialog/Speaker81_Kazooie_08
+    2689: dialog/SpeakerB5_Gruntilda_17
+    2690: dialog/SpeakerD8_Dingpot_01
+    2691: dialog/SpeakerB5_Gruntilda_18
+    2692: dialog/Speaker83_Bottles_98
+    2693: dialog/Speaker81_Kazooie_09
+    2694: dialog/SpeakerB5_Gruntilda_19
+    2695: dialog/Speaker83_Bottles_99
+    2696: dialog/SpeakerB6_Tooty_01
+    2697: dialog/SpeakerB5_Gruntilda_20
+    2698: dialog/SpeakerB6_Tooty_02
+    2699: dialog/SpeakerB5_Gruntilda_21
+    2700: dialog/Speaker83_Bottles_100
+    2701: dialog/Speaker81_Kazooie_10
+    2702: dialog/Speaker80_Banjo_UnkDialog_01
+    2703: dialog/Speaker81_Kazooie_11
+    2704: dialog/SpeakerB5_Gruntilda_22
+    2705: dialog/SpeakerB5_Gruntilda_23
+    2706: dialog/SpeakerD2_Klungo_01
+    2707: dialog/SpeakerCC_Tooty_01
+    2708: dialog/SpeakerD3_SexyGrunty
+    2709: dialog/SpeakerCC_Tooty_02
+    2710: dialog/SpeakerCC_Tooty_03
+    2711: dialog/SpeakerD4_UglyTooty
+    2712: dialog/Speaker84_Mumbo_23
+    2713: dialog/Speaker83_Bottles_101
+    2714: dialog/Speaker81_Kazooie_12
+    2715: dialog/SpeakerB6_Tooty_03
+    2716: dialog/Speaker81_Kazooie_13
+    2717: dialog/Speaker84_Mumbo_24
+    2718: dialog/Speaker80_Banjo_UnkDialog_02
+    2719: dialog/SpeakerB6_Tooty_04
+    2720: dialog/Speaker81_Kazooie_14
+    2721: dialog/Speaker83_Bottles_102
+    2722: dialog/Speaker81_Kazooie_15
+    2723: dialog/Speaker84_Mumbo_25
+    2724: dialog/Speaker81_Kazooie_16
+    2725: dialog/Speaker84_Mumbo_26
+    2726: dialog/Speaker81_Kazooie_17
+    2727: dialog/Speaker84_Mumbo_27
+    2728: dialog/Speaker80_Banjo_UnkDialog_03
+    2729: dialog/Speaker84_Mumbo_28
+    2730: dialog/Speaker81_Kazooie_18
+    2731: dialog/Speaker84_Mumbo_29
+    2732: dialog/SpeakerB6_Tooty_05
+    2733: dialog/Speaker81_Kazooie_19
+    2734: dialog/SpeakerDA_Gruntilda_01
+    2735: dialog/Speaker81_Kazooie_20
+    2736: dialog/Speaker84_Mumbo_30
+    2737: dialog/Speaker80_Banjo_UnkDialog_04
+    2738: dialog/Speaker84_Mumbo_31
+    2739: dialog/Speaker81_Kazooie_21
+    2740: dialog/Speaker84_Mumbo_32
+    2741: dialog/Speaker80_Banjo_UnkDialog_05
+    2742: dialog/SpeakerDA_Gruntilda_02
+    2743: dialog/SpeakerD2_Klungo_02
+    2744: dialog/SpeakerD2_Klungo_03
+    2745: dialog/SpeakerDA_Gruntilda_03
+    2746: dialog/SpeakerDA_Gruntilda_04
+    2747: dialog/SpeakerDA_Gruntilda_05
+    2748: dialog/SpeakerDA_Gruntilda_06
     2749: dialog/Speaker00_00_215
     2750: dialog/Speaker00_00_216
     2751: dialog/Speaker01_01_09
@@ -2334,8 +2334,8 @@ aBKAssetTable:
     2866: dialog/Speaker00_00_305
     2867: dialog/Speaker00_00_306
     2868: dialog/Speaker02_02_03
-    2873: dialog/Speaker86_Conga_EggHurt
-    2874: dialog/Speaker86_Conga_HitPlayer
+    2873: dialog/SpeakerB5_Gruntilda_78
+    2874: dialog/SpeakerB5_Gruntilda_79
     2875: dialog/Speaker86_Conga_TookJiggy
     2876: dialog/Speaker86_Conga_Intro
     2877: dialog/Speaker86_Conga_HitOrangeTile
@@ -2407,7 +2407,7 @@ aBKAssetTable:
     2943: dialog/Speaker00_00_351
     2944: dialog/Speaker00_00_352
     2945: dialog/Speaker00_00_353
-    2946: dialog/Speaker00_00_354
+    2946: dialog/SpeakerB5_Gruntilda_118
     2947: dialog/Speaker00_00_355
     2948: dialog/Speaker00_00_356
     2949: dialog/Speaker00_00_357
@@ -2527,13 +2527,13 @@ aBKAssetTable:
     3063: dialog/Speaker00_00_460
     3064: dialog/Speaker00_00_461
     3065: dialog/Speaker00_00_462
-    3066: dialog/Speaker00_00_463
-    3067: dialog/Speaker00_00_464
-    3068: dialog/Speaker00_00_465
-    3069: dialog/Speaker00_00_466
-    3070: dialog/Speaker00_00_467
-    3071: dialog/SpeakerB7_Boggy_Intro
-    3072: dialog/SpeakerB7_Boggy_Oof
+    3066: dialog/Speaker93_Napper_04
+    3067: dialog/SpeakerCE_Loggo_03
+    3068: dialog/SpeakerB2_Snorkel_03
+    3069: dialog/SpeakerC1_GnawtyPng_09
+    3070: dialog/SpeakerC9_AdultEyrie_03
+    3071: dialog/SpeakerC4_Nabnut_07
+    3072: dialog/SpeakerD6_Kazooie
     3073: quizq/Speaker80_FurnaceFunQuiz_001
     3074: quizq/Speaker80_FurnaceFunQuiz_002
     3075: quizq/Speaker80_FurnaceFunQuiz_003

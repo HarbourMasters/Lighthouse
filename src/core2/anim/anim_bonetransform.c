@@ -387,6 +387,13 @@ void *assetcache_get(enum asset_e assetId) {
     if (result) {
         assetCacheCurrentSize = (s32)ResourceMgr_GetResourceSize(assetId);
     }
+    if (assetId == 0xDF3) {
+        u8 *p = (u8*)result;
+        BK_LOG_INFO("[assetcache] 0xDF3: ptr=%p size=%d first8=[%02x %02x %02x %02x %02x %02x %02x %02x]",
+            result, assetCacheCurrentSize,
+            p ? p[0] : 0, p ? p[1] : 0, p ? p[2] : 0, p ? p[3] : 0,
+            p ? p[4] : 0, p ? p[5] : 0, p ? p[6] : 0, p ? p[7] : 0);
+    }
     return result;
 }
 
