@@ -222,19 +222,20 @@ void viewport_unused_pushVpScaleAndTranslation(f32 scale_x, f32 scale_y, f32 tra
 }
 
 void viewport_update(void) {
-    // [port] Widen the left/right frustum planes for widescreen so objects
-    // at the horizontal edges aren't culled prematurely.
-    f32 frustumX = 89.21774f;
-    f32 frustumZ = 45.168514251708984f;
-    if (port_getViewportWidth() > 320) {
-        static const f32 vanillaAspect = 1.35185182f;
-        f32 aspectScale = sViewportAspect / vanillaAspect;
-        frustumX *= aspectScale * 1.1f;
-    }
+    // [port] Compute frustum plane normals from the actual FOV and aspect ratio.
+    f32 halfFovYRad = (sViewportFOVy * 0.5f) * (M_PI / 180.0f);
+    f32 halfFovXRad = atanf(tanf(halfFovYRad) * sViewportAspect);
+    // Scale to match the vanilla magnitude (100.0 unnormalized length)
+    f32 mag = sqrtf(89.21774f * 89.21774f + 45.168514f * 45.168514f);
+    f32 frustumX = sinf(halfFovXRad) * mag;
+    f32 frustumZ = cosf(halfFovXRad) * mag;
     func_80256E24(sViewportFrustumPlanes[0], sViewportRotation[0], sViewportRotation[1], -frustumX, 0.0f, frustumZ);
     func_80256E24(sViewportFrustumPlanes[1], sViewportRotation[0], sViewportRotation[1], frustumX, 0.0f, frustumZ);
-    func_80256E24(sViewportFrustumPlanes[2], sViewportRotation[0], sViewportRotation[1], 0.0f, 93.9692611694336f, 34.20201110839844f);
-    func_80256E24(sViewportFrustumPlanes[3], sViewportRotation[0], sViewportRotation[1], 0.0f, -93.9692611694336f, 34.20201110839844f);
+    // [port] Pad top/bottom planes slightly to reduce pop-in during vertical cam movement.
+    f32 frustumY = 93.9692611694336f * 1.15f;
+    f32 frustumZv = 34.20201110839844f;
+    func_80256E24(sViewportFrustumPlanes[2], sViewportRotation[0], sViewportRotation[1], 0.0f, frustumY, frustumZv);
+    func_80256E24(sViewportFrustumPlanes[3], sViewportRotation[0], sViewportRotation[1], 0.0f, -frustumY, frustumZv);
 
     ml_vec3f_normalize(sViewportFrustumPlanes[0]);
     ml_vec3f_normalize(sViewportFrustumPlanes[1]);
