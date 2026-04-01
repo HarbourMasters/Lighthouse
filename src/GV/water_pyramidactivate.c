@@ -30,14 +30,14 @@ void func_80390000(s32 arg0){
         tmp_s70 = func_8034C528(0x190);
         if(tmp_s70){
             tmp_v0_2 = &tmp_s70->type_6D;
-            func_8034DE60(tmp_v0_2, 0.0f, 270.0f, 0.0f, 1);
+            subaddie_positionMoveVertical(tmp_v0_2, 0.0f, 270.0f, 0.0f, 1);
         }
     }//L803900AC
 
     if(GV_D_80391AD0 == 2){
         levelSpecificFlags_set(LEVEL_FLAG_6_GV_UNKNOWN, false);
-        func_803228D8();
-        func_802E4078(MAP_15_GV_WATER_PYRAMID, 1, 0);
+        musicKeepsPlaying();
+        transitionToMap(MAP_15_GV_WATER_PYRAMID, 1, 0);
     }
 }
 

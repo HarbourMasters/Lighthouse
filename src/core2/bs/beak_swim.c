@@ -64,7 +64,7 @@ bool func_802A73BC(void) {
     f32 sp1C;
 
     sp1C = (map_get() == MAP_46_CCW_WINTER) ? 90.0f : 130.0f;
-    return func_80294574() && player_getYPosition() > (func_80294500() - sp1C);
+    return func_80294574() && player_getYPosition() > (floor_getCurrentFloorYPosition() - sp1C);
 }
 
 void func_802A744C(void) {

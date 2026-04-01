@@ -46,7 +46,7 @@ void basfx_updateClockSfxSource(f32 prev_time, f32 current_time){
     f32 f20;
     s32 unks0;
     if(current_time == 0.0f){
-        func_8030E394(basfx_timeUpSfxSource);
+        sfxSource_func_8030E2C4(basfx_timeUpSfxSource);
     } 
     else if(current_time < 1.0) {
         if(1.0 <= prev_time){
@@ -98,13 +98,13 @@ void basfx_802997E8(void){
 }
 
 void basfx_802998D0(u8 indx){
-    func_8030E6A4(SFX_19_BANJO_LANDING_08, D_8037C6CC, 22000);
+    gcsfx_playWithPitch(SFX_19_BANJO_LANDING_08, D_8037C6CC, 22000);
 }
 
 void basfx_reset(void){
     basfx_owSfxIndex = 0;
     basfx_owSfxSource = sfxsource_createSfxsourceAndReturnIndex();
-    func_8030DD14(basfx_owSfxSource, 3);
+    sfxSource_setunk43_7ByIndex(basfx_owSfxSource, 3);
     func_8030DD90(basfx_owSfxSource, 0);
     D_8037C6CC = 1.0f;
     
@@ -112,7 +112,7 @@ void basfx_reset(void){
     sfxsource_setSfxId(D_8037C6C1, SFX_18_BIGBUTT_SLIDE);
     func_8030DD54(D_8037C6C1, basfx_802998D0);
     sfxsource_setSampleRate(D_8037C6C1, 28000);
-    func_8030DD14(D_8037C6C1, 2);
+    sfxSource_setunk43_7ByIndex(D_8037C6C1, 2);
     func_8030DD90(D_8037C6C1, 0);
 
     D_8037C6C2 = sfxsource_createSfxsourceAndReturnIndex();
@@ -123,7 +123,7 @@ void basfx_reset(void){
 
     basfx_timeUpSfxSource = sfxsource_createSfxsourceAndReturnIndex();
     func_8030DD90(basfx_timeUpSfxSource, 0);
-    func_8030DD14(basfx_timeUpSfxSource, 3);
+    sfxSource_setunk43_7ByIndex(basfx_timeUpSfxSource, 3);
     baSfx.sfxsourceIdx = 0;
 }
 
@@ -222,15 +222,15 @@ void basfx_80299E00(void){
 }
 
 void basfx_80299E48(void){
-    func_8030E394(basfx_owSfxSource);
+    sfxSource_func_8030E2C4(basfx_owSfxSource);
 }
 
 void basfx_80299E6C(void){
-    func_8030E394(D_8037C6C2);
+    sfxSource_func_8030E2C4(D_8037C6C2);
 }
 
 void basfx_80299E90(void){
-    func_8030E394(D_8037C6C3);
+    sfxSource_func_8030E2C4(D_8037C6C3);
 }
 
 void basfx_debug(void){}

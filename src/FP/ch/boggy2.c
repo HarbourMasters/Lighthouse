@@ -202,7 +202,7 @@ void func_80388D70(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         case 0xc06:
         case 0xc28:
         case 0xc29://L80388DC4
-            func_8025A6EC(COMUSIC_3A_FP_BOGGY_RACE, 25000);
+            coMusicPlayer_playMusic(COMUSIC_3A_FP_BOGGY_RACE, 25000);
             func_8025A58C(0, 4000);
             core1_ce60_incOrDecCounter(false);
             func_802BE720();

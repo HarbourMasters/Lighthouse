@@ -406,7 +406,7 @@ void func_8025A6CC(enum comusic_e track_id, s32 volume){
     func_8025A5AC(track_id, volume, 0);
 }
 
-void func_8025A6EC(enum comusic_e track_id, s32 volume){
+void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume){
     func_8025A5AC(track_id, volume, 1);
 }
 

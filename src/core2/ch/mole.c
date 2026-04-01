@@ -130,7 +130,7 @@ void func_802D9530(Actor *this){
     actor_playAnimationOnce(this);
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
-    func_8030DD14(this->unk44_31, 2);
+    sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
     sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
     sfxsource_setSampleRate(this->unk44_31, 26000);
     func_8028F918(0);
@@ -235,7 +235,7 @@ int chmole_learnAbility(Actor *this){
         switch(moleTable[this->unkF4_8-9].ability){
             case ABILITY_9_FLIGHT:
             case ABILITY_D_SHOCK_JUMP:
-                func_8030E6A4(SFX_113_PAD_APPEARS, 0.9f, 32000);
+                gcsfx_playWithPitch(SFX_113_PAD_APPEARS, 0.9f, 32000);
                 break;
             case ABILITY_13_1ST_NOTEDOOR:
                 func_802FAD64(ITEM_C_NOTE);
@@ -257,7 +257,7 @@ void func_802D9ADC(Actor *this){
     actor_playAnimationOnce(this);
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
-    func_8030DD14(this->unk44_31, 2);
+    sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
     sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
     sfxsource_setSampleRate(this->unk44_31, 26000);
     chmole_setStaticCamera(this);
@@ -379,8 +379,8 @@ void chmole_update(Actor *this){
     controller_copyFaceButtons(0, sp50); // get face buttons press counters
     switch(this->state){
         case 1://L802D9F70
-            this->yaw_ideal = func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
             if(func_8028F20C() && func_8028F0D4() && !func_8028EC04()){
                 if( this->unkF4_8 == 0x12 
                     && !ability_isUnlocked(moleTable[this->unkF4_8-9].ability)
@@ -404,8 +404,8 @@ void chmole_update(Actor *this){
             break;
         case 2://L802DA0A0
             this->marker->propPtr->unk8_3 = true;
-            this->yaw_ideal = func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
             if( 0.0 < anctrl_getAnimTimer(this->anctrl)
                 && anctrl_getAnimTimer(this->anctrl) < 0.16
             ){
@@ -417,21 +417,21 @@ void chmole_update(Actor *this){
                 this->unk44_31 = 0;
             }
             else if(actor_animationIsAt(this, 0.14f)){//L802DA154
-                FUNC_8030E8B4(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if(actor_animationIsAt(this, 0.4f)){//L802DA188
-                FUNC_8030E8B4(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if(actor_animationIsAt(this, 0.75f)){//L802DA1BC
-                FUNC_8030E8B4(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
             }
             else if(actor_animationIsAt(this, 0.35f)){//L802DA1EC
                 chmole_learnAbility(this);
             }
             break;
         case 3://L802DA210
-            this->yaw_ideal = func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
             if( ( actor_animationIsAt(this, 0.37f)
                   || actor_animationIsAt(this, 0.66f)
                   || actor_animationIsAt(this, 0.85f)

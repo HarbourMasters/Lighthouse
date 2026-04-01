@@ -67,7 +67,7 @@ void __chlmonkey_playRandomNoise(Actor *this) {
 
     if (sNoiseCooldown < 0 && randf() < 0.2) {
         sNoiseCooldown = 6;
-        func_8030E6A4(((random_noise < 0.5) ? SFX_58_CHIMPY_NOISE_1 : SFX_59_CHIMPY_NOISE_2), randf() * 0.25 + 0.85, scaled_noise_volume);
+        gcsfx_playWithPitch(((random_noise < 0.5) ? SFX_58_CHIMPY_NOISE_1 : SFX_59_CHIMPY_NOISE_2), randf() * 0.25 + 0.85, scaled_noise_volume);
     }
 }
 

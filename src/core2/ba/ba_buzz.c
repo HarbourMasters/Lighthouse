@@ -55,7 +55,7 @@ void babuzz_reset(void){
     D_8037C048.sample_rate = D_8037C050.sample_rate = 13000;
     D_8037C048.volume = D_8037C050.volume;
     sfxsource_setSfxId(baBuzzSfxSource, 0x3fa);
-    func_8030DD14(baBuzzSfxSource, 2);
+    sfxSource_setunk43_7ByIndex(baBuzzSfxSource, 2);
     sfxsource_playSfxAtVolume(baBuzzSfxSource, D_8037C048.volume);
     sfxsource_setSampleRate(baBuzzSfxSource, D_8037C048.sample_rate);
     D_8037C058 = 0.0f;

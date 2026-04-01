@@ -291,7 +291,7 @@ s32 func_8033D564(CollisionParams *arg0){
     return arg0->playerInteraction;
 }
 
-enum marker_collision_func_type_e func_8033D574(CollisionParams *arg0){
+enum marker_collision_func_type_e collision_getNextState(CollisionParams *arg0){
     return arg0->nextState;
 }
 

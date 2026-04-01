@@ -166,11 +166,11 @@ Struct5Ds *func_802F47D0(void){
     this->unk1F = 1;
     
     this->unk1C = sfxsource_createSfxsourceAndReturnIndex();
-    func_8030DD14(this->unk1C, 3);
+    sfxSource_setunk43_7ByIndex(this->unk1C, 3);
     func_8030DD90(this->unk1C, 0);
     
     this->unk1D = sfxsource_createSfxsourceAndReturnIndex();
-    func_8030DD14(this->unk1D, 3);
+    sfxSource_setunk43_7ByIndex(this->unk1D, 3);
     func_8030DD90(this->unk1D, 0);
 
     ml_vec3f_clear(this->unk4);

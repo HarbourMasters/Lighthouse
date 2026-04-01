@@ -52,7 +52,7 @@ void func_80389518(Actor *this){
 int func_8038957C(Actor *this){
     f32 f0;
     
-    f0 = this->yaw - func_80329784(this);
+    f0 = this->yaw - subaddie_getYawToPlayer(this);
     if(180.0f <= f0)
         f0 -= 360;
     else if(f0 < -180.0f) 
@@ -74,8 +74,8 @@ void chSarcophagus_update(Actor *this){
             }
             if(func_80329530(this, 500) && func_8038957C(this)){
                 subaddie_set_state_with_direction(this, 2, 0.01f, 1);
-                FUNC_8030E8B4(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
-                FUNC_8030E8B4(SFX_3F6_RUBBING, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_3F6_RUBBING, 1.0f, 32000, this->position, 1250, 2500);
 
             }
             break;
@@ -85,7 +85,7 @@ void chSarcophagus_update(Actor *this){
                 && actor_animationIsAt(this, 0.1f)
                 && !jiggyscore_isCollected(JIGGY_41_GV_MAZE)
             ){
-                func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7fff);
+                coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7fff);
                 this->unk38_31 = 1;
             }
             if(actor_animationIsAt(this, 0.5f)){
@@ -96,8 +96,8 @@ void chSarcophagus_update(Actor *this){
         case 3: //L80389788
             if(!func_80329530(this, 700)){
                 subaddie_set_state_with_direction(this, 4, 0.5f, 1);
-                FUNC_8030E8B4(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
-                FUNC_8030E8B4(SFX_3F6_RUBBING, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_6B_LOCKUP_OPENING, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_3F6_RUBBING, 1.0f, 32000, this->position, 1250, 2500);
             }
             break;
         case 4: //L803897E4
@@ -114,7 +114,7 @@ void chSarcophagus_update(Actor *this){
                 subaddie_set_state_with_direction(this, 1, 0.01f, 1);
             }
             else if(actor_animationIsAt(this, 0.9f)){
-                FUNC_8030E8B4(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_7F_HEAVYDOOR_SLAM, 1.0f, 32000, this->position, 1250, 2500);
             }
             break;
     }//L803898A8
@@ -134,8 +134,8 @@ void chSarcophagus_updateSNS(Actor *this){
                 this->unk1C[0] -= 1.0f;
                 if(this->unk1C[0] == 0.0f){
                     subaddie_set_state_with_direction(this, 5, 0.01f, 1);
-                    FUNC_8030E8B4(SFX_6B_LOCKUP_OPENING, 0.5f, 32000, this->position, 1250, 2500);
-                    FUNC_8030E8B4(SFX_3F6_RUBBING, 0.5f, 32000, this->position, 1250, 2500);
+                    sfx_playFadeShorthandDefault(SFX_6B_LOCKUP_OPENING, 0.5f, 32000, this->position, 1250, 2500);
+                    sfx_playFadeShorthandDefault(SFX_3F6_RUBBING, 0.5f, 32000, this->position, 1250, 2500);
                 }
             }
             else{//L803899C0

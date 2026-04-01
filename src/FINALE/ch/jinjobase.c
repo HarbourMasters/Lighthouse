@@ -40,7 +40,7 @@ void chBossJinjoBase_func_8038D3DC(Actor *this, s32 arg1, f32 arg2, f32 arg3, f3
     Struct70s *tmp = func_8034C2C4(this->marker, arg1);
 
     if (tmp) {
-        func_8034DE60(&tmp->type_6D, arg2, arg3, arg4, 1);
+        subaddie_positionMoveVertical(&tmp->type_6D, arg2, arg3, arg4, 1);
     }
 }
 
@@ -93,12 +93,12 @@ void chBossJinjoBase_update(Actor *this) {
         this->unk38_31 = 0;
         this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
-        func_8030DD14(this->unk44_31, 2);
+        sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
         sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
         sfxsource_setSampleRate(this->unk44_31, 32000);
         local->sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(local->sfxsourceIdx, SFX_405_UNKNOWN);
-        func_8030DD14(local->sfxsourceIdx, 2);
+        sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 2);
         sfxsource_playSfxAtVolume(local->sfxsourceIdx, 0.7f);
         sfxsource_setSampleRate(local->sfxsourceIdx, 12000);
         FUNC_8030E624(SFX_3F6_RUBBING, 0.6f, 20000);

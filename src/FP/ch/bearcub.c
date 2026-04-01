@@ -82,8 +82,8 @@ void func_8038A318(ActorMarker *caller, enum asset_e text_id, s32 arg1){
     if(text_id == 0xc19){
         func_802BAFE4(0x25);
         jiggy_spawn(JIGGY_2E_FP_PRESENTS, FP_D_80391E74);
-        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
-        func_8025A6EC(COMUSIC_5B_FP_IGLOO_HAPPY, 25000);
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
+        coMusicPlayer_playMusic(COMUSIC_5B_FP_IGLOO_HAPPY, 25000);
         func_8025A58C(0, 4000);
         core1_ce60_incOrDecCounter(false);
     }
@@ -129,8 +129,8 @@ void func_8038A384(Actor *this){
          : (sp34 == 2) ? ASSET_C18_DIALOG_BOGGY_KIDS_PRESENT_RECEIVED_2
          : ASSET_C19_DIALOG_BOGGY_KIDS_PRESENT_RECEIVED_3;
 
-    this->yaw_ideal = (f32)func_80329784(this);
-    func_80328FB0(this, 2.0f);
+    this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
+    subaddie_turnToYaw(this, 2.0f);
     func_8028E668(this->position, 100.0f, -10.0f, 100.0f);
 
     switch(this->state){

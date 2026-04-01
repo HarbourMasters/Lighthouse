@@ -35,10 +35,10 @@ void func_802C5A60(Actor *this){
     if(!this->initialized){
         switch(this->marker->id){
             case 0x58:
-                func_8032AA58(this, 0.35f);
+                suSetSpriteScale(this, 0.35f);
                 break;
             case 0x59:
-                func_8032AA58(this, 0.4f);
+                suSetSpriteScale(this, 0.4f);
                 break;
         }
         this->marker->propPtr->unk8_5 = 0.5 < randf();

@@ -170,7 +170,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0x9F:
         case 0xA0:
         case 0xFF:
-            func_8030E540(SFX_82_METAL_BREAK);
+            gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             subaddie_set_state(sp2C, 4);
             break;
 
@@ -190,14 +190,14 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             break;
 
         case 0x107:
-            func_8030E540(SFX_82_METAL_BREAK);
+            gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 0xF, 0x46, 0.8f, 0.7f);
             marker_despawn(arg0);
             break;
 
         case MARKER_224_BREAKABLE_FLOOR_COBWEB:
             comusic_playTrack(COMUSIC_2B_DING_B);
-            func_8030E6A4(SFX_129_SWOOSH, (sp2C->scale < 0.45) ? 1.0 : 0.8, 0x7FF8);
+            gcsfx_playWithPitch(SFX_129_SWOOSH, (sp2C->scale < 0.45) ? 1.0 : 0.8, 0x7FF8);
             subaddie_set_state_looped(sp2C, 0xC);
             func_802D2FB0(sp2C, 8, -0x3C, 0xC8, 2.0f, 0xFA, 0x3C, 0x64);
             fileProgressFlag_set((sp2C->unkF4_8== 1) ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN, 1);
@@ -205,7 +205,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
 
         case MARKER_225_BREAKABLE_WALL_COBWEB:
             comusic_playTrack(COMUSIC_2B_DING_B);
-            func_8030E540(SFX_129_SWOOSH);
+            gcsfx_playAtSampleRate(SFX_129_SWOOSH);
             subaddie_set_state_looped(sp2C, 0xF);
             func_802D2FB0(sp2C, 0xE, -0x3C, 0xC8, 2.0f, 0xFA, 0x3C, 0x64);
             fileProgressFlag_set(FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN, 1);
@@ -235,8 +235,8 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
                 levelSpecificFlags_set(LEVEL_FLAG_38_CCW_UNKNOWN, 1);
             }
             func_802D2FB0(sp2C, 5, -0x28, 0xC8, 0.85f, 0xDC, 0x3C, 0x64);
-            func_8030E540(SFX_D_EGGSHELL_BREAKING);
-            func_8030E540(SFX_11_WOOD_BREAKING_1);
+            gcsfx_playAtSampleRate(SFX_D_EGGSHELL_BREAKING);
+            gcsfx_playAtSampleRate(SFX_11_WOOD_BREAKING_1);
             switch (arg0->id) {
                 case 0x9E:
                     func_802EE278(sp2C, 0xD, 9, 0x82, 0.34f, 1.0f);
@@ -271,28 +271,28 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             break;
 
         case 0x11F:
-            func_8030E540(SFX_D9_WOODEN_CRATE_BREAKING_1);
+            gcsfx_playAtSampleRate(SFX_D9_WOODEN_CRATE_BREAKING_1);
             func_802EE2E8(sp2C, 7, 9, 0x78, 0.43f, 1.3f, 3.0f);
             func_802EE2E8(sp2C, 3, 6, 0x78, 0.43f, 1.3f, 3.0f);
             func_802D317C(arg0, FILEPROG_C5_RAREWARE_BOX_BROKEN);
             break;
 
         case 0x11A:
-            func_8030E540(SFX_82_METAL_BREAK);
+            gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 0xD, 0x32, 0.8f, 0.9f);
             func_802EE278(sp2C, 0xE, 0xD, 0xAA, 0.8f, 0.9f);
             func_802D317C(arg0, FILEPROG_C2_GRATE_TO_RBB_PUZZLE_OPEN);
             break;
 
         case 0x118:
-            func_8030E540(SFX_82_METAL_BREAK);
+            gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 0xD, 0x50, 1.2f, 0.9f);
             func_802EE278(sp2C, 0xE, 0xD, 0xB4, 1.2f, 0.9f);
             func_802D317C(arg0, FILEPROG_CD_GRATE_TO_WATER_SWITCH_3_OPEN);
             break;
 
         case 0x119:
-            func_8030E540(SFX_82_METAL_BREAK);
+            gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 9, 0x50,  1.2f, 0.9f);
             func_802EE278(sp2C, 0xE, 9, 0xAA,  1.2f, 0.9f);
             func_802EE278(sp2C, 0xE, 9, 0x104, 1.2f, 0.9f);
@@ -301,8 +301,8 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
 
         case 0x22D:
         case 0x22E:
-            func_8030E540(SFX_82_METAL_BREAK);
-            func_8030E540(SFX_B6_GLASS_BREAKING_1);
+            gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
+            gcsfx_playAtSampleRate(SFX_B6_GLASS_BREAKING_1);
             func_802EE278(sp2C, 4, 0x23, 0x1E, 0.7f, 0.6f);
             marker_despawn(arg0);
             break;
@@ -315,7 +315,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0x237:
         case 0x238:
         case 0x239:
-            func_8030E540(SFX_13A_GLASS_BREAKING_7);
+            gcsfx_playAtSampleRate(SFX_13A_GLASS_BREAKING_7);
             func_802EE278(sp2C, 4, 0x2D, 0x82, 1.0f, 1.0f);
             if (arg0->id == 0x1F3) {
                 func_802EE278(sp2C, 4, 0x2D, 0x104, 1.0f, 1.0f);
@@ -324,7 +324,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             break;
 
         case 0x11E:
-            func_8030E540(SFX_B6_GLASS_BREAKING_1);
+            gcsfx_playAtSampleRate(SFX_B6_GLASS_BREAKING_1);
             func_802EE278(sp2C, 4, 0x32, 0x50, 1.0f, 1.4f);
             func_802EE278(sp2C, 4, 0x32, 0xA0, 1.0f, 1.4f);
             func_802EE278(sp2C, 4, 0x1E, 0xF0, 0.8f, 1.1f);
@@ -332,7 +332,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             break;
 
         case MARKER_121_GLASS_EYE:
-            func_8030E540(SFX_B6_GLASS_BREAKING_1);
+            gcsfx_playAtSampleRate(SFX_B6_GLASS_BREAKING_1);
             func_802EE2E8(sp2C, 1, 0x32, 0x14, 1.2f, 1.4f, 2.2f);
             func_802EE2E8(sp2C, 1, 0x3C, 0x64, 1.6f, 1.8f, 2.2f);
             func_802EE2E8(sp2C, 1, 0x32, 0xB4, 1.2f, 1.4f, 2.2f);
@@ -348,8 +348,8 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             break;
 
         default:   
-            func_8030E540(SFX_D_EGGSHELL_BREAKING);
-            func_8030E540(SFX_11_WOOD_BREAKING_1);
+            gcsfx_playAtSampleRate(SFX_D_EGGSHELL_BREAKING);
+            gcsfx_playAtSampleRate(SFX_11_WOOD_BREAKING_1);
             marker_despawn(arg0);
             break;
     }
@@ -733,7 +733,7 @@ void func_802D4D3C(enum actor_e arg0, enum actor_e arg1) {
 
     if (nodeProp_findPositionFromActorId(arg1, sp5C)) {
         codeABC00_spawnJiggyAtLocation((enum jiggy_e)arg0, sp5C);
-        func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
         if (arg0 == 0x36) {
             
             sp4C[3] = 200;
@@ -775,8 +775,8 @@ void func_802D4D3C(enum actor_e arg0, enum actor_e arg1) {
 void func_802D5000(enum map_e map_id){
     if(map_getLevel(map_id) != level_get())
         func_802E4A70();
-    func_803228D8();
-    func_802E4078(D_80367684, 0x65, 0);
+    musicKeepsPlaying();
+    transitionToMap(D_80367684, 0x65, 0);
 }
 
 void func_802D5058(enum map_e map_id, s32 arg1, bool arg2) {
@@ -922,7 +922,7 @@ void func_802D5628(void){
                 if(D_803679EC < 2){
                     D_803679EC = 2;
                 }
-                func_8030E6A4(SFX_2_CLAW_SWIPE, MIN(2.0,D_803679F0), 20000);
+                gcsfx_playWithPitch(SFX_2_CLAW_SWIPE, MIN(2.0,D_803679F0), 20000);
                 D_803679F0 += 0.05;
             }
         }
@@ -975,7 +975,7 @@ void func_802D5628(void){
                     sp7C = func_802F9AA8(0x3EC);
                     sp78 = func_8034C528(0x191);
                     if(sp78){
-                        func_8034DE60(&sp78->type_6D, -580.0f, 0.0f, 2.5f, 1);
+                        subaddie_positionMoveVertical(&sp78->type_6D, -580.0f, 0.0f, 2.5f, 1);
                     }
                     func_802FA060(sp7C, 20000, 20000, 0.0f);
                     func_802F9F80(sp7C, 0.0f, 2.2f, 0.7f);
@@ -988,7 +988,7 @@ void func_802D5628(void){
                     sp74 = func_802F9AA8(0x3EC);
                     sp70 = func_8034C528(0x191);
                      if(sp70){
-                        func_8034DE60(&sp70->type_6D, 0.0f, 1550.0f, 6.5f, 1);
+                        subaddie_positionMoveVertical(&sp70->type_6D, 0.0f, 1550.0f, 6.5f, 1);
                     }
                     func_802FA060(sp74, 20000, 20000, 0.0f);
                     func_802F9F80(sp74, 0.0f, 6.2f, 0.5f);
@@ -1001,7 +1001,7 @@ void func_802D5628(void){
                     sp6C = func_802F9AA8(0x3EC);
                     sp68 = func_8034C528(0x190);
                      if(sp68){
-                        func_8034DE60(&sp68->type_6D, 1200.0f, 1900.0f, 3.0f, 1);
+                        subaddie_positionMoveVertical(&sp68->type_6D, 1200.0f, 1900.0f, 3.0f, 1);
                     }
                     func_802FA060(sp6C, 20000, 20000, 0.0f);
                     func_802F9F80(sp6C, 0.0f, 2.7f, 0.5f);
@@ -1134,9 +1134,9 @@ void func_802D6114(void){
         }//L802D6194
         volatileFlag_set(VOLATILE_FLAG_21, 1);
         if(sp24 != 0x1C || !func_8025ADBC(COMUSIC_23_MMM_INSIDE_CHURCH)){
-            func_803228D8();
+            musicKeepsPlaying();
         }
-        func_802E4078(sp24, sp20, 0);
+        transitionToMap(sp24, sp20, 0);
     }
     else{//L802D61DC
         func_80347A14(1);
@@ -1147,8 +1147,8 @@ void func_802D6114(void){
 void func_802D61FC(enum map_e arg0){
     if( map_getLevel(arg0) != map_getLevel(map_get()))
         func_802E4A70();
-    func_803228D8();
-    func_802E4078(D_80367684, 0, 0);
+    musicKeepsPlaying();
+    transitionToMap(D_80367684, 0, 0);
     func_802D6750();
 }
 

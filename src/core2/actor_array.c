@@ -1422,7 +1422,7 @@ f32 func_80328DCC(Actor *this, f32 angle, f32 angle_ideal, s32 arg3) {
     return var_f2;
 }
 
-void func_80328FB0(Actor *this, f32 arg1){
+void subaddie_turnToYaw(Actor *this, f32 arg1){
     this->yaw = func_80328DCC(this, this->yaw, this->yaw_ideal, (s32)arg1);
 }
 
@@ -1610,7 +1610,7 @@ s32 func_8032970C(Actor *this){
     return (s32) DIST_SQ_VEC3F(this->position, sp24);
 }
 
-s32 func_80329784(Actor *this){
+s32 subaddie_getYawToPlayer(Actor *this){
     f32 sp1C[3];
 
     func_8028E964(sp1C);
@@ -1972,7 +1972,7 @@ void func_8032A88C(Actor *arg0) {
 
     sp20 = (Actorlocal_Core2_9E370 *)arg0->local;
     arg0->yaw_ideal = (f32) func_803297C8(arg0, sp20->unk0);
-    func_80328FB0(arg0, 6.0f);
+    subaddie_turnToYaw(arg0, 6.0f);
     func_80329030(arg0, 0);
     if ((((arg0->position[0] - sp20->unk0[0]) * (arg0->position[0] - sp20->unk0[0])) + ((arg0->position[2] - sp20->unk0[2]) * (arg0->position[2] - sp20->unk0[2]))) <= 144.0f) {
         arg0->unk44_14 = sp20->unkE;
@@ -1999,7 +1999,7 @@ bool func_8032A9E4(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 //actor_setScale
-void func_8032AA58(Actor *this, f32 scale){
+void suSetSpriteScale(Actor *this, f32 scale){
     this->scale = scale;
     this->marker->unk14_10 = 0;
 }
@@ -2278,7 +2278,7 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
     sp70 = func_8033D5B4(arg2);
     sp6C = func_8033D584(arg2);
     sp68 = func_8033D5A4(arg2);
-    sp64 = func_8033D574(arg2);
+    sp64 = collision_getNextState(arg2);
     if (((func_80297C6C() != 3) && func_8028F1E0()) || (func_8033D594(arg2) == 0)) {
         if (sp64 == 0) {
             if ((sp68 != 0) || (arg1->id == 0)) {
@@ -2347,7 +2347,7 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
                 marker_callCollisionFunc(arg0, arg1, sp64);
             }
             if ((sp64 != 0) && (sp6C != 0)) {
-                FUNC_8030E8B4(SFX_1D_HITTING_AN_ENEMY_1, 1.0f, 25984, this->position, (s32)((500.0f + func_8033229C(arg0)) * 0.5), (s32)((500.0f + func_8033229C(arg0)) * 5));
+                sfx_playFadeShorthandDefault(SFX_1D_HITTING_AN_ENEMY_1, 1.0f, 25984, this->position, (s32)((500.0f + func_8033229C(arg0)) * 0.5), (s32)((500.0f + func_8033229C(arg0)) * 5));
             }
         }
     }

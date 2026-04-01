@@ -129,7 +129,7 @@ static void __chsnacker_die(ActorMarker *marker, ActorMarker *other){
 
     this = marker_getActor(marker);
     actor_collisionOff(this);
-    FUNC_8030E8B4(SFX_179_GRUNTY_DAMAGE, 0.6f, 32750, this->position, 300, 3000);
+    sfx_playFadeShorthandDefault(SFX_179_GRUNTY_DAMAGE, 0.6f, 32750, this->position, 300, 3000);
     subaddie_set_state_with_direction(this, CH_SNACKER_STATE_9_DEAD, 0.0f, 1);
     actor_playAnimationOnce(this);
 }
@@ -160,7 +160,7 @@ static void __chsnacker_ow(ActorMarker *marker, ActorMarker *other){
     }//L802E10A4
 
     if(this->state == 4){
-        if(func_803294F0(this, 80, func_80329784(this))){
+        if(func_803294F0(this, 80, subaddie_getYawToPlayer(this))){
             func_802E0E88(this);
         }
     }//L802E10E0
@@ -216,7 +216,7 @@ void chsnacker_update(Actor *this) {
             break;
 
         case 2: //802E130C
-            func_80328FB0(this, 3.0f);
+            subaddie_turnToYaw(this, 3.0f);
             func_80328FF0(this, 3.0f);
             func_8032CA80(this, (s_chSnacker_inRbb) ? 15 : 9);
             if (func_80329480(this) != 0) {
@@ -230,7 +230,7 @@ void chsnacker_update(Actor *this) {
             func_803297FC(this, &sp44, &sp40);
             this->yaw_ideal = sp40;
             this->unk6C = func_802E10F0(sp44);
-            func_80328FB0(this, 4.0f);
+            subaddie_turnToYaw(this, 4.0f);
             func_80328FF0(this, 3.0f);
             if (func_80329480(this)) {
                 subaddie_set_state_with_direction(this, 4, 0.0f, 1);
@@ -242,7 +242,7 @@ void chsnacker_update(Actor *this) {
             func_803297FC(this, &sp44, &sp40);
             this->yaw_ideal = sp40;
             this->unk6C = func_802E10F0(sp44);
-            func_80328FB0(this, this->actor_specific_1_f / 2);
+            subaddie_turnToYaw(this, this->actor_specific_1_f / 2);
             func_80328FF0(this, this->actor_specific_1_f / 2);
             this->actor_specific_1_f = MIN(50.0, this->actor_specific_1_f + dt);
             func_8032CA80(this, (s_chSnacker_inRbb) ? 15 : 9);
@@ -250,7 +250,7 @@ void chsnacker_update(Actor *this) {
 
         case CH_SNACKER_STATE_5_EATING: //802E14F8
             if (actor_animationIsAt(this, 0.25f)) {
-                FUNC_8030E8B4(SFX_6D_CROC_BITE, 1.0f, 28000, this->position, 300, 3000);
+                sfx_playFadeShorthandDefault(SFX_6D_CROC_BITE, 1.0f, 28000, this->position, 300, 3000);
             }
             if (actor_animationIsAt(this, 0.99f)) {
                 func_802E0CD0(this);
@@ -374,7 +374,7 @@ void chSnacker_spawn(void) {
     if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) == 0) {
         func_8032BB88(snacker, 5000, 750);
         core1_ce60_incOrDecCounter(false);
-        func_8025A6EC(COMUSIC_34_SNACKER_DANGER, 0);
+        coMusicPlayer_playMusic(COMUSIC_34_SNACKER_DANGER, 0);
         comusic_8025AB44(COMUSIC_34_SNACKER_DANGER, 0x7FFF, 750);
         core1_ce60_incOrDecCounter(true);
     }

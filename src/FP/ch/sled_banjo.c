@@ -59,7 +59,7 @@ void __chScarfSled_func_8038655C(Actor *this){
     this->unk10_12 = false;
     if(!tmp_bool){
         if(tmp != 0){
-            func_8030E6A4(SFX_19_BANJO_LANDING_08, func_8030E200(this->unk44_31), 0x55f0);
+            gcsfx_playWithPitch(SFX_19_BANJO_LANDING_08, func_8030E200(this->unk44_31), 0x55f0);
         }
     }
     else{

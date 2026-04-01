@@ -193,10 +193,10 @@ void chGobiCCW_update(Actor *this) {
         if (skeletalAnim_getAnimId(this->unk148) == ASSET_177_ANIM_GOBI_SLEEP) {
             skeletalAnim_getProgressRange(this->unk148, &sp44, &sp40);
             if ((sp44 < 0.1) && (0.1 <= (f64) sp40)) {
-                FUNC_8030E8B4(SFX_5E_BANJO_PHEWWW, 0.8f, 15000, this->position, 500, 1500);
+                sfx_playFadeShorthandDefault(SFX_5E_BANJO_PHEWWW, 0.8f, 15000, this->position, 500, 1500);
             }
             if ((sp44 < 0.8) && (0.8 <= (f64) sp40)) {
-                FUNC_8030E8B4(SFX_5D_BANJO_RAAOWW, 0.8f, 15000, this->position, 500, 1500);
+                sfx_playFadeShorthandDefault(SFX_5D_BANJO_RAAOWW, 0.8f, 15000, this->position, 500, 1500);
 
             }
         }

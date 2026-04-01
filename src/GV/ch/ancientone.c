@@ -99,7 +99,7 @@ void func_80386850(ActorMarker *caller_marker, enum asset_e text_id, s32 arg2){
     if(text_id == 0xA80){
         subaddie_set_state_with_direction(caller, 2, 0.0f, 1);
         actor_playAnimationOnce(caller);
-        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
         timedFunc_set_0(1.0f, func_803867F4);
     }
 }
@@ -145,7 +145,7 @@ void chAncientOne_update(Actor *this){
                     this->position_y = LOCAL_CH_ANCIENT_ONE(this)->unk1C;
                     if( sp40 == (LOCAL_CH_ANCIENT_ONE(this)->unk4_31 ^ 1)){
                         if((sp44[0]*sp44[0] + sp44[1]*sp44[1] + sp44[2]*sp44[2]) < (f32)LOCAL_CH_ANCIENT_ONE(this)->unk4_30){
-                            func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                             for(sp38= 7; sp38< 0xC && mapSpecificFlags_get(sp38);sp38++);
                             mapSpecificFlags_set(sp38, true);
                             if(sp38== 0xB){

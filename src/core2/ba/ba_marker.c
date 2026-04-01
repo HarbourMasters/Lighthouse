@@ -159,7 +159,7 @@ void __baMarker_8028B9A8(uintptr_t arg0){
     nodeprop_getPosition_s32(tmp_v0, ideal_yaw);
     func_802CA1CC(arg0);
     actor_spawnWithYaw_s32(ACTOR_47_EMPTY_HONEYCOMB, &ideal_yaw, 0);
-    func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+    coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
     
 }
 
@@ -178,7 +178,7 @@ void __baMarker_resolveMusicNoteCollision(Prop *arg0) {
         item_adjustByDiffWithoutHud(ITEM_C_NOTE, 1);
     }
     if (item_getCount(ITEM_C_NOTE) < notesMax) {
-        func_8025A6EC(COMUSIC_9_NOTE_COLLECTED, 16000);
+        coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
         timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_3_MUSIC_NOTE_TEXT);
     }
     fxSparkle_musicNote(arg0->unk4);
@@ -577,7 +577,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     if(sp98 != HONEYCOMB_12_MMM_FLOORBOARD || player_getTransformation() == TRANSFORM_3_PUMPKIN)
                     {
                         honeycombscore_set(sp98, 1);
-                        func_8025A6EC(COMUSIC_17_EMPTY_HONEYCOMB_COLLECTED, 28000);
+                        coMusicPlayer_playMusic(COMUSIC_17_EMPTY_HONEYCOMB_COLLECTED, 28000);
                         timedFunc_set_1(2.0f, (GenFunction_1)func_8035644C, FILEPROG_B_EMPTY_HONEYCOMB_TEXT);
                         item_inc(ITEM_13_EMPTY_HONEYCOMB);
                         if(!(item_getCount(ITEM_13_EMPTY_HONEYCOMB) < 6)){
@@ -590,7 +590,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 break;
 
             case 0x54: //L8028C820
-                func_8025A6EC(COMUSIC_19_LOW_PITCH_FLUTES, 28000);
+                coMusicPlayer_playMusic(COMUSIC_19_LOW_PITCH_FLUTES, 28000);
                 func_803012F8();
                 __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_s16, 0x4E, reinterpret_cast(u32, other_prop->actorProp.x), reinterpret_cast(u32, other_prop->actorProp.y), reinterpret_cast(u32, other_prop->actorProp.z));
                 marker_despawn(marker);
@@ -608,7 +608,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     func_8030E6D4(SFX_126_AUDIENCE_BOOING);
                 }  
 
-                func_8025A6EC(COMUSIC_16_HONEYCOMB_COLLECTED, 28000);
+                coMusicPlayer_playMusic(COMUSIC_16_HONEYCOMB_COLLECTED, 28000);
                 timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, FILEPROG_A_HONEYCOMB_TEXT);
                 item_inc(ITEM_14_HEALTH);
                 fxSparkle_honeycomb(&other_prop->actorProp.x);
@@ -719,7 +719,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A7_FF_FOUND_EXTRALIFE);
                     func_8030E6D4(SFX_127_AUDIENCE_MIXED);
                 }
-                func_8025A6EC(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FFF);
+                coMusicPlayer_playMusic(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FFF);
                 timedFunc_set_1(1.5f, (GenFunction_1)func_8035646C, FILEPROG_C_EXTRA_LIFE_TEXT);
                 fxSparkle_extraLife(&other_prop->actorProp.x);
                 item_inc(ITEM_16_LIFE);
@@ -1044,7 +1044,7 @@ void baMarker_8028D7B8(s32 arg0, ActorMarker *arg1, CollisionParams *collision_f
             }//L8028D884
 
             if(6 < sp24 && sp24 < 0xC){
-                if(!(1 < func_8033D5A4(collision_flags)) || (func_8033D574(collision_flags) != -1 && actor->unk164[func_8033D574(collision_flags)])){
+                if(!(1 < func_8033D5A4(collision_flags)) || (collision_getNextState(collision_flags) != -1 && actor->unk164[collision_getNextState(collision_flags)])){
                     sp1C = 1;
                 }//L8028D8E8
             }//L8028D8E8

@@ -48,7 +48,7 @@ void maSnowButton_update(void){
         case MA_SNOW_BUTTON_STATE_1_ACTIVE:
             if(Me.remainingButtonCount <= 0){
                 Me.state = MA_SNOW_BUTTON_STATE_2_WIN;
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+                coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
                 Me.delay = 0;
             }
             break;

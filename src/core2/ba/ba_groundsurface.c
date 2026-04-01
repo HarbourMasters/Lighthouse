@@ -14,7 +14,7 @@ f32 D_8037D224;
 
 /*.code */
 bool func_8029CFA0(void){
-    return func_80294574() && func_80294500() > player_getYPosition();
+    return func_80294574() && floor_getCurrentFloorYPosition() > player_getYPosition();
 }
 
 void func_8029CFF8(void){
@@ -29,11 +29,11 @@ void func_8029D01C(void){
 
 void func_8029D050(void){
     basfx_80299E48();
-    func_8030E394(D_8037D210);
+    sfxSource_func_8030E2C4(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_14D_BANJO_FREEZING);
     sfxsource_setSampleRate(D_8037D210, 30000);
     sfxsource_playSfxAtVolume(D_8037D210, 1.2f);
-    func_8030DD14(D_8037D210, 3);
+    sfxSource_setunk43_7ByIndex(D_8037D210, 3);
     func_8030E2C4(D_8037D210);
 
     D_8037D211 = 2;
@@ -41,11 +41,11 @@ void func_8029D050(void){
 }
 
 void func_8029D0D8(void) {
-    func_8030E394(D_8037D210);
+    sfxSource_func_8030E2C4(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_B0_SIZZLING_NOISE);
     sfxsource_setSampleRate(D_8037D210, 32000);
     sfxsource_playSfxAtVolume(D_8037D210, randf2(0.7f, 0.8f));
-    func_8030DD14(D_8037D210, 3);
+    sfxSource_setunk43_7ByIndex(D_8037D210, 3);
     func_8030E2C4(D_8037D210);
 }
 
@@ -58,12 +58,12 @@ void func_8029D154(void){
 void func_8029D194(void) {
     __spawnQueue_add_0(&func_8029D154);
     FUNC_8030E624(SFX_A_BANJO_LANDING_05, 1.0f, 28000);
-    func_8030E394(D_8037D210);
+    sfxSource_func_8030E2C4(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_6D_CROC_BITE);
     sfxsource_setSampleRate(D_8037D210, 22000);
-    func_8030DD14(D_8037D210, 3);
+    sfxSource_setunk43_7ByIndex(D_8037D210, 3);
     player_getPosition(D_8037D218);
-    D_8037D218[1] = func_80294500();
+    D_8037D218[1] = floor_getCurrentFloorYPosition();
     D_8037D212 = 4;
     D_8037D224 = 0.0f;
 }
@@ -96,7 +96,7 @@ void func_8029D2F8(void) {
 
     if (D_8037D211 != 0) {
         if ((func_8029CFA0() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(D_8037D210) != 0)) {
-            func_8030E394(D_8037D210);
+            sfxSource_func_8030E2C4(D_8037D210);
             D_8037D211 = 0;
             return;
         }
@@ -107,11 +107,11 @@ void func_8029D2F8(void) {
                 func_8029D050();
             }
             else if (D_8037D211 == 2) {
-                func_8030E394(D_8037D210);
+                sfxSource_func_8030E2C4(D_8037D210);
                 sfxsource_setSfxId(D_8037D210, SFX_134_FREEZING_SHIVER);
                 sfxsource_setSampleRate(D_8037D210, 20000);
                 sfxsource_playSfxAtVolume(D_8037D210, 1.2f);
-                func_8030DD14(D_8037D210, 3);
+                sfxSource_setunk43_7ByIndex(D_8037D210, 3);
                 func_8030E2C4(D_8037D210);
                 D_8037D211 = 2;
                 D_8037D224 = 1.5f;
@@ -129,7 +129,7 @@ void func_8029D448(void) {
         sp1C = time_getDelta();
         temp_a1 = func_8030E1C4(D_8037D210) - (s32) (sp1C * 30000.0);
         if (temp_a1 <= 0) {
-            func_8030E394(D_8037D210);
+            sfxSource_func_8030E2C4(D_8037D210);
             return;
         }
         sfxsource_setSampleRate(D_8037D210, temp_a1);

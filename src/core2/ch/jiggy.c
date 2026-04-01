@@ -56,7 +56,7 @@ enum jiggy_e func_802C7A30(Actor *this){
 
 void func_802C7AB0(ActorMarker * arg0, u32 arg1){
     func_8030E6D4(SFX_30_MAGIC_POOF);
-    func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
+    coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
     mapSpecificFlags_set(arg1, 1);
     marker_despawn(arg0);
 }

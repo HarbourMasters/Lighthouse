@@ -44,7 +44,7 @@ void func_80361FA0(f32 arg0[3]) {
     particleEmitter_setAngularVelocityRange(pCtrl, -200.0f, 200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
     particleEmitter_func_802EF9F8(pCtrl, 0.01f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_2F_ORANGE_SPLAT, 16000);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373334);
     func_802EFC28(pCtrl, &D_80373304);
@@ -128,7 +128,7 @@ void func_80362274(f32 arg0[3]) {
     particleEmitter_setAngularVelocityRange(pCtrl, -400.0f, -200.0f, -400.0f, 400.0f, -400.0f, 400.0f);
     particleEmitter_func_802EF9F8(pCtrl, 0.01f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(pCtrl, 1.0f, 1.3f);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373514);
     func_802EFC28(pCtrl, &D_803734E4);
 }
@@ -148,7 +148,7 @@ void func_8036233C(f32 arg0[3]) {
     particleEmitter_setAngularVelocityRange(pCtrl, -200.0f, 200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
     particleEmitter_func_802EF9F8(pCtrl, 0.01f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(pCtrl, 1.0f, 1.3f);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_8037358C);
     func_802EFC28(pCtrl, &D_8037355C);
 }
@@ -477,7 +477,7 @@ void func_80362DC0(f32 arg0[3]){
     particleEmitter_setAngularVelocityRange(pCtrl, -200.0f, 200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
     particleEmitter_func_802EF9F8(pCtrl, 0.4f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(pCtrl, 1.0f, 1.3f);
     particleEmitter_setDrawMode(pCtrl, 2);
     particleEmitter_setVelocityAccelerationAndPositionRanges(pCtrl, &D_80373D78);
     func_802EFC28(pCtrl, &D_80373D48);

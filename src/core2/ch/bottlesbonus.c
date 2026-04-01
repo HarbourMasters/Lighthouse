@@ -512,7 +512,7 @@ void chBottlesBonus_update(Actor *this) {
         case 1:
             if ((this->lifetime_value > 2.0) && gctransition_done()) {
                 this->lifetime_value = 0.0f;
-                func_8025A6EC(COMUSIC_98_BBONUS_PIECES_SHUFFLE, -1);
+                coMusicPlayer_playMusic(COMUSIC_98_BBONUS_PIECES_SHUFFLE, -1);
                 comusic_8025AB44(COMUSIC_95_BBONUS_A, 0, 2000);
                 func_8025AABC(COMUSIC_95_BBONUS_A);
                 subaddie_set_state_with_direction(this, 2, 0.0f, 1);

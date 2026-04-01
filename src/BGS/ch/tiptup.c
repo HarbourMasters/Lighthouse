@@ -66,11 +66,11 @@ void chTiptup_activateTimer(ActorMarker *this){
 }
 
 void chTiptup_sfxCorrectHit(void){
-    func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+    coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
 }
 
 void chTiptup_sfxIncorrectHit(void){
-    func_8025A6EC(COMUSIC_2C_BUZZER, 28000);
+    coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 28000);
 }
 
 void chTiptup_textEvent(ActorMarker *this, enum asset_e text_id, s32 arg2){
@@ -207,7 +207,7 @@ void chTiptup_setState(Actor *this, s32 arg1){
     }//L80388D8C
     if(this->state == 6){
         if(unqPtr->unkA == 3){
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         }
         func_80324E38(0.5f, 3);
         timed_setStaticCameraToNode(1.5f, 1);

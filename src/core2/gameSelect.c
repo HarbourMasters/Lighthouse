@@ -353,12 +353,12 @@ void func_802C4C14(Actor *this){
                 case 1://L802C4DD0
                     if(randf() < 0.1){
                     // if(randf() < D_80376118){
-                        func_8030E6A4(MIN(2.0f, randf() *3.0f) + 311.0f, 1.0f, 12000);
+                        gcsfx_playWithPitch(MIN(2.0f, randf() *3.0f) + 311.0f, 1.0f, 12000);
                     }
                     break;
                 case 2://L802C4E74
                     if(randf() < 0.03){
-                        func_8030E6A4(0x3ed, randf()*0.3 + 0.7, 15000);
+                        gcsfx_playWithPitch(0x3ed, randf()*0.3 + 0.7, 15000);
                     }
                     break;
             }//L802C4ED4
@@ -398,7 +398,7 @@ void func_802C4C14(Actor *this){
                     ){
                         if(sp5C[FACE_BUTTON(BUTTON_A)] == 1){
                             func_802C4AC8(sp84);
-                            func_8025A6EC(COMUSIC_2B_DING_B, 22000);
+                            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
                         }
                         subaddie_set_state(this, 2);
                         func_8031877C(chGameSelectTopZoombox);
@@ -429,7 +429,7 @@ void func_802C4C14(Actor *this){
                             if (newGameMap < 0) {
                                 newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
                             }
-                            timedFunc_set_3(0.0f, (GenFunction_3)func_802E4078, newGameMap, 0, 1);
+                            timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
                             {
                                 s32 knowAll = port_getRomhackKnowAllMoves();
                                 if (knowAll >= 0) {
@@ -461,7 +461,7 @@ void func_802C4C14(Actor *this){
                             subaddie_set_state(this, 5);
                         }
                         else{//L802C5240
-                            func_8025A6EC(COMUSIC_2C_BUZZER, 22000);
+                            coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
                         }
                     }
                     else if(sp5C[FACE_BUTTON(BUTTON_A)] == 1){//L802C5250
@@ -470,7 +470,7 @@ void func_802C4C14(Actor *this){
                                 switch(sp84){
                                     case 0://L802C52B8
                                         sfxsource_play(SFX_31_BANJO_OHHWAAOOO, 28000);
-                                        func_8030E540(SFX_135_CARTOONY_SPRING);
+                                        gcsfx_playAtSampleRate(SFX_135_CARTOONY_SPRING);
                                         timedFunc_set_2(0.4f, (GenFunction_2)sfxsource_play, SFX_13A_GLASS_BREAKING_7, 0x7fff);
                                         timedFunc_set_2(0.9f, (GenFunction_2)sfxsource_play, SFX_150_PORCELAIN_CRASH, 0x7fff);
                                         timedFunc_set_2(1.0f, (GenFunction_2)sfxsource_play, SFX_151_CAT_MEOW, 0x7fff);
@@ -478,12 +478,12 @@ void func_802C4C14(Actor *this){
                                     case 1://L802C5320
                                         timedFunc_set_2(0.4f, (GenFunction_2)sfxsource_play, SFX_31_BANJO_OHHWAAOOO, 28000);
                                         timedFunc_set_2(0.2f, (GenFunction_2)sfxsource_play, SFX_E_SHOCKSPRING_BOING, 28000);
-                                        func_8030E540(SFX_2D_KABOING);
+                                        gcsfx_playAtSampleRate(SFX_2D_KABOING);
                                         break;
                                     case 2://L802C5364
                                         timedFunc_set_2(0.15f, (GenFunction_2)sfxsource_play, SFX_32_BANJO_EGHEE, 28000);
                                         sfxsource_play(SFX_3F6_RUBBING, 28000);
-                                        func_8030E540(SFX_8F_SNOWBALL_FLYING);
+                                        gcsfx_playAtSampleRate(SFX_8F_SNOWBALL_FLYING);
                                         break;
                                 }//L802C5394
                                 subaddie_set_state(this, 4);
@@ -616,7 +616,7 @@ void func_802C5740(Actor * this){
         D_8037DD30 = 0.75f;
         D_8037DD34 = func_8038AAB0() ? 20.0 : 0.0;
         actor_collisionOff(this);
-        func_8025A6EC(COMUSIC_73_GAMEBOY, 0);
+        coMusicPlayer_playMusic(COMUSIC_73_GAMEBOY, 0);
     }//L802C5940
     if(!func_8038AAB0()){
         if(chGameSelectBottomZoombox)

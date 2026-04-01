@@ -6,7 +6,7 @@
 /* extern functions */
 Actor *func_802D94B4(ActorMarker *, Gfx **, Mtx **, Vtx **);
 void func_8028E668(f32 *, f32, f32, f32);
-void func_80328FB0(Actor *, f32);
+void subaddie_turnToYaw(Actor *, f32);
 void sfxsource_freeSfxsourceByIndex(u8);
 void timed_exitStaticCamera(f32);
 void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
@@ -161,7 +161,7 @@ void __chSmBottles_setState(Actor *this, s32 next_state) {
 
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
             sfxsource_setSfxId(this->unk44_31, 0x3f9);
-            func_8030DD14(this->unk44_31, 2);
+            sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
             sfxsource_setSampleRate(this->unk44_31, 0x6590);
 
@@ -195,7 +195,7 @@ void __chSmBottles_setState(Actor *this, s32 next_state) {
 
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
             sfxsource_setSfxId(this->unk44_31, 0x3f9);
-            func_8030DD14(this->unk44_31, 2);
+            sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
             sfxsource_setSampleRate(this->unk44_31, 0x6590);
 
@@ -489,8 +489,8 @@ void chSmBottles_update(Actor *this) {
 
     switch (this->state) {
         case SM_BOTTLES_STATE_1_UNKNOWN://L80389BAC
-            this->yaw_ideal = (f32) func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
 
             if ((this->unkF4_8 == 1 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) ||
                 (this->unkF4_8 == 8 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)) ||
@@ -534,8 +534,8 @@ void chSmBottles_update(Actor *this) {
             break;
 
         case SM_BOTTLES_STATE_2_UNKNOWN://L80389E2C
-            this->yaw_ideal = func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
 
             if (0.0 < anctrl_getAnimTimer(this->anctrl) && anctrl_getAnimTimer(this->anctrl) < 0.16) {
                 func_8030E2C4(this->unk44_31);
@@ -549,13 +549,13 @@ void chSmBottles_update(Actor *this) {
                 __chSmBottles_setState(this, SM_BOTTLES_STATE_3_UNKNOWN);
             }//L80389EE0
             else if (actor_animationIsAt(this, 0.14f)) {
-                FUNC_8030E8B4(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_C6_SHAKING_MOUTH, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if (actor_animationIsAt(this, 0.4f)) { //L80389F14
-                FUNC_8030E8B4(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_2C_PULLING_NOISE, 1.2f, 24000, this->position, 1250, 2500);
             }
             else if (actor_animationIsAt(this, 0.75f)) {//L80389F48
-                FUNC_8030E8B4(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
             }
             else if (actor_animationIsAt(this, 0.35f)) {//L80389F78
                 if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) {
@@ -565,8 +565,8 @@ void chSmBottles_update(Actor *this) {
             break;
 
         case SM_BOTTLES_STATE_3_UNKNOWN://L80389FAC
-            this->yaw_ideal = func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
 
             if ((actor_animationIsAt(this, 0.37f) ||
                  actor_animationIsAt(this, 0.66f) ||

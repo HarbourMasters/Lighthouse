@@ -171,7 +171,7 @@ void func_8034DDF0(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4
     func_8034DBB8(arg0);
 }
 
-void func_8034DE60(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
+void subaddie_positionMoveVertical(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
     arg0->unk29 = 3;
     arg0->unk4 = arg1;
     arg0->unk44 = 0.0f;
@@ -183,12 +183,12 @@ void func_8034DE60(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
 }
 
 void func_8034DEB4(Struct6Ds *arg0, f32 arg1){
-    func_8034DE60(arg0, arg1, arg1, 0.0f, 1);
+    subaddie_positionMoveVertical(arg0, arg1, arg1, 0.0f, 1);
 }
 
 void func_8034DEE8(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
     func_8034E174(arg0);
-    func_8034DE60(arg0, arg1, arg2, arg3, arg4);
+    subaddie_positionMoveVertical(arg0, arg1, arg2, arg3, arg4);
 }
 
 void func_8034DF30(Struct6Ds *arg0, f32 arg1[4], f32 arg2[4], f32 arg3) {
@@ -256,7 +256,7 @@ void func_8034E1A4(Struct6Ds *arg0, enum sfx_e sfx_id, f32 arg2, f32 arg3){
     arg0->unk20 = arg2;
     arg0->unk24 = arg3;
     sfxsource_setSfxId(arg0->unk0, sfx_id);
-    func_8030DD14(arg0->unk0, 3);
+    sfxSource_setunk43_7ByIndex(arg0->unk0, 3);
     sfxsource_playSfxAtVolume(arg0->unk0, (arg2 +arg3)/2);
     sfxsource_setSampleRate(arg0->unk0, 32000);
     func_8030E2C4(arg0->unk0);

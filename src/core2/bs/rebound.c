@@ -60,7 +60,7 @@ void func_802B360C(void) {
         baphysics_set_target_yaw(sp28);
         baphysics_set_horizontal_velocity(sp28, baphysics_get_target_horizontal_velocity());
         baphysics_set_vertical_velocity(func_802987C4());
-        baphysics_set_gravity(func_802987E4());
+        baphysics_set_gravity(barebound_get_vertical_velocity());
         func_8029C7F4(1, 1, 2, BA_PHYSICS_LOCKED_ROTATION);
         if (func_802987B4() == 2) {
             baphysics_set_type(BA_PHYSICS_AIRBORN);

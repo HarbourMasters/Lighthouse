@@ -66,7 +66,7 @@ void *func_80387D90(ActorMarker * arg0){
     marker->propPtr->unk8_3 = 0;
     func_802BAFE4(0x19);
     jiggy_spawn(JIGGY_22_CROCTUS, spawnPos);
-    func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+    coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
     return NULL;
 }
 
@@ -141,7 +141,7 @@ void func_80387FD4(Actor *this){
 
     if(this->unk38_31){
         if ((this->state != 5) && (this->state != 6)) {
-            func_8025A6EC(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
+            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
             if (this->unkF4_8 == 1) {
                 func_8028F94C(2, this->position);
                 gcdialog_showText(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0xE, this->position, this->marker, func_80387E68, NULL);
@@ -208,7 +208,7 @@ void func_80387FD4(Actor *this){
             && !anctrl_isPlayedForwards(this->anctrl)
             && func_802BB270()
         ){
-            func_8030E6A4(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
+            gcsfx_playWithPitch(SFX_C8_CRUNCH, randf2(0.93f, 1.07f), 22000);
         }
         break;
 

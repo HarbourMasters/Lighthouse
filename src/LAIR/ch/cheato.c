@@ -45,7 +45,7 @@ void func_803900EC(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     func_8028F918(0);
     if (!fileProgressFlag_get(sp1C + FILEPROG_AD_CHEATO_BLUEEGGS_UNLOCKED)) {
         fileProgressFlag_set(sp1C + FILEPROG_AD_CHEATO_BLUEEGGS_UNLOCKED, 1);
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
     }
 }
 
@@ -98,7 +98,7 @@ void func_803902B8(Actor *this) {
     sp58 = ml_vec3f_within_distance(this->position, sp5C, 1750.0f) && !this->has_met_before;
     if (sp58 && !this->unk38_0) {
         func_8032BB88(this, 0, 0x1F4);
-        func_8025A6EC(COMUSIC_79_CHEATO, 0);
+        coMusicPlayer_playMusic(COMUSIC_79_CHEATO, 0);
         comusic_8025AB44(COMUSIC_79_CHEATO, -1, 0x1F4);
     }
     else if (!sp58 && this->unk38_0) {

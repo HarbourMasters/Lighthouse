@@ -307,7 +307,7 @@ void func_8038F350(Actor *this, s32 next_state){
 
         case 2: //L8038F3CC
             func_8038EFD8(this);
-            FUNC_8030E8B4(SFX_112_TINKER_ATTENTION, 1.0f, 32000, this->position, 500, 1000);
+            sfx_playFadeShorthandDefault(SFX_112_TINKER_ATTENTION, 1.0f, 32000, this->position, 500, 1000);
             break;
 
         case 3: //L8038F3F4

@@ -46,7 +46,7 @@ extern f32 fabsf(f32);
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11)\
 )
 
-#define FUNC_8030E8B4(sfx_e, vol, sample_rate, position, e, f) func_8030E8B4(\
+#define sfx_playFadeShorthandDefault(sfx_e, vol, sample_rate, position, e, f) sfx_playFadeShorthand(\
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11), \
     position, \
     _SHIFTL(e, 0, 16) + _SHIFTL(f, 16, 16)\
@@ -160,7 +160,7 @@ int  func_80328A2C(Actor *, f32, s32, f32);
 int  func_80329030(Actor *, s32);
 int  subaddie_maybe_set_state(Actor *, s32, f32);
 int actor_animationIsAt(Actor*, f32);
-s32  func_80329784(Actor *);
+s32  subaddie_getYawToPlayer(Actor *);
 s32 asset_getFlag(enum asset_e arg0);
 struct5Bs *func_80329934(void);
 void actor_collisionOff(Actor *);
@@ -172,9 +172,9 @@ void actor_update_func_80326224(Actor *actor);
 void func_80326244(Actor *);
 void func_80326310(Actor *actor); // actor_setBlendStateFadeOut ??
 void func_80328CEC(Actor *, s32, s32, s32);
-void func_80328FB0(Actor *, f32);
+void subaddie_turnToYaw(Actor *, f32);
 void func_80329878(Actor *, f32);
-void func_8032AA58(Actor *, f32);
+void suSetSpriteScale(Actor *, f32);
 void marker_despawn(ActorMarker *marker);
 void subaddie_set_state(Actor *, u32);
 void subaddie_set_state_forward(Actor *, s32);
@@ -400,7 +400,7 @@ void player_setThrowTargetPosition(f32[3]);
 
 // --- core2/frame/bufferreadback.c ---
 s32 getGameMode(void);
-void func_802E4078(enum map_e map, s32 exit, s32 transition);
+void transitionToMap(enum map_e map, s32 exit, s32 transition);
 
 // --- core2/sfx/source.c ---
 void func_8030DD90(u8 indx, s32 arg1);
@@ -409,24 +409,24 @@ f32  func_8030E200(u8);
 u8   sfxsource_createSfxsourceAndReturnIndex(void);
 u8 func_8030ED2C(enum sfx_e uid, s32 arg1);
 void func_8030DB04(u8, s32, f32 position[3], f32, f32);
-void func_8030DD14(u8, int);
+void sfxSource_setunk43_7ByIndex(u8, int);
 void func_8030DFF0(u8, s32);
 void func_8030E04C(u8, f32, f32, f32);
 void func_8030E0FC(u8, f32, f32, f32);
 void func_8030E2C4(u8);
-void func_8030E394(u8 indx);
+void sfxSource_func_8030E2C4(u8 indx);
 void func_8030E4E4(enum sfx_e uid);
-void func_8030E540(enum sfx_e uid);
+void gcsfx_playAtSampleRate(enum sfx_e uid);
 void func_8030E560(enum sfx_e uid, s32 arg1);
 void func_8030E58C(enum sfx_e uid, f32 arg1);
 void func_8030E5F4(enum sfx_e uid, f32 arg1);
 void func_8030E624(u32);
-void func_8030E6A4(enum sfx_e uid, f32 arg1, s32 arg2);
+void gcsfx_playWithPitch(enum sfx_e uid, f32 arg1, s32 arg2);
 void func_8030E6D4(enum sfx_e uid);
 void func_8030E704(enum sfx_e uid);
 void func_8030E760(enum sfx_e uid, f32 arg1, s32 arg2);
 void func_8030E878(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
-void func_8030E8B4(u32,f32 [3], u32);
+void sfx_playFadeShorthand(u32,f32 [3], u32);
 void func_8030E988(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
 void func_8030E9C4(enum sfx_e uid, f32 arg1, u32 arg2, f32 arg3[3], f32 arg4, f32 arg5);
 void func_8030EAAC(enum sfx_e uid, f32 arg1, s32 arg2, s32 arg3);
@@ -548,7 +548,7 @@ void func_80320B44(void *arg0, void *arg1, void *arg2, void *arg3);
 s32 func_8029453C(void);
 BKCollisionTri *func_802946F0(void);
 f32  func_80294438(void);
-f32  func_80294500(void);
+f32  floor_getCurrentFloorYPosition(void);
 void func_80293D48(f32, f32);
 
 // --- core2/spline_bezier.c ---
@@ -589,7 +589,7 @@ void func_802EFC28(ParticleEmitter *self, ParticleSettingsScaleAndLifetimeDrawMo
 ParticleEmitter *partEmitMgr_defragEmitter(ParticleEmitter *);
 ParticleEmitter *partEmitMgr_newEmitter(u32);
 ParticleEmitter *particleEmitter_new(u32 capacity);
-void func_802EFA20(ParticleEmitter *, f32, f32);
+void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 void func_802EFF50(ParticleEmitter *, f32);
 void particleEmitter_emitInVolume(ParticleEmitter *, f32[3], f32[3], s32);
 void particleEmitter_emitN(ParticleEmitter *, int);
@@ -631,7 +631,7 @@ void func_8025AABC(enum comusic_e track_id);
 void func_8025AEA0(enum comusic_e track_id, s32 arg1);
 void comusic_8025AB44(enum comusic_e comusic_id, s32 arg1, s32 arg2);
 void comusic_playTrack(enum comusic_e);
-void func_8025A6EC(enum comusic_e, s32);
+void coMusicPlayer_playMusic(enum comusic_e, s32);
 
 // --- core1/stopnswop.c ---
 bool sns_get_item_state(enum StopNSwop_Item item, s32 set);
@@ -3269,10 +3269,10 @@ void *assetcache_get(enum asset_e assetId);
 void *assetcache_reload(enum asset_e assetId);
 
 // --- core2/sfx/trackmanager.c ---
-void func_803228D8(void);
+void musicKeepsPlaying(void);
 
 // --- core2/ba/ba_eyeblink.c ---
-void func_80297CCC(f32);
+void baiFrame_startWithValue(f32);
 
 // --- core2/ba/ba_eyes.c ---
 void baeyes_openSingleEye(s32, f32);
@@ -3349,7 +3349,7 @@ s32 bs_getState(void);
 void bs_clearState(void);
 void bs_setState(s32 state_id);
 void bs_updateState(void);
-void func_8029A86C(s32 arg0);
+void bs_setInterruptResponse(s32 arg0);
 
 // --- core2/bs/bs_storedstate.c ---
 f32  bsStoredState_getLongLegTimer(void);
@@ -3379,7 +3379,7 @@ void climbGetBottom(f32 dst[3]);
 void func_802FAD64(enum item_e);
 
 // --- core2/collision/hitboxdata.c ---
-enum marker_collision_func_type_e func_8033D574(CollisionParams *arg0);
+enum marker_collision_func_type_e collision_getNextState(CollisionParams *arg0);
 
 // --- core2/fx/airscore.c ---
 struct7s *fxairscore_new(s32);
@@ -3461,7 +3461,7 @@ void itemscore_timeScores_clear(void);
 // --- core2/level/metadata.c ---
 f32  func_802987C4(void);
 f32  func_802987D4(void);
-f32  func_802987E4(void);
+f32  barebound_get_vertical_velocity(void);
 
 // --- core2/particle/bathroom.c ---
 void func_8029AD28(f32, s32);
@@ -3540,7 +3540,7 @@ void func_8034E7B8(Struct73s *, s32, f32, s32, f32);
 // --- core2/vtx/renderstart.c ---
 void func_8034DC08(Struct6Ds *, f32[3], f32[3], f32, s32);
 void func_8034DDF0(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4);
-void func_8034DE60(Struct6Ds *, f32, f32, f32, s32);
+void subaddie_positionMoveVertical(Struct6Ds *, f32, f32, f32, s32);
 void func_8034DEB4(Struct6Ds *, f32);
 void func_8034DFB0(Struct6Ds *arg0, s32 arg1[4], s32 arg2[4], f32 arg3);
 void func_8034E1A4(Struct6Ds *arg0, enum sfx_e, f32, f32);

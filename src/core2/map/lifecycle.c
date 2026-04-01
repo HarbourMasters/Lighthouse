@@ -126,7 +126,7 @@ s32 exit_get(){
 }
 
 void func_803348D8(s32 arg0) {
-    func_802E4078(D_803835D0.map_4, arg0, 1);
+    transitionToMap(D_803835D0.map_4, arg0, 1);
 }
 
 s32 func_80334904(){

@@ -175,7 +175,7 @@ void GV_func_8038BEA0(Actor *this){
         if(this->unk44_31 == 0){
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
             sfxsource_setSfxId(this->unk44_31, SFX_3EC_CCW_DOOR_OPENING);
-            func_8030DD14(this->unk44_31, 2);
+            sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 0.1f);
             sfxsource_setSampleRate(this->unk44_31, 32000);
         }

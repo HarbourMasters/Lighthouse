@@ -310,7 +310,7 @@ void func_80388BDC(Actor *this) {
             subaddie_set_state(this, 6);
             core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_2_UNKNOWN, false);
-            func_8025A6EC(COMUSIC_4_MMM_CLOCK_VERSION, -1);
+            coMusicPlayer_playMusic(COMUSIC_4_MMM_CLOCK_VERSION, -1);
             func_8025AE0C(2000, 3.0f);
         }
         break;
@@ -320,7 +320,7 @@ void func_80388BDC(Actor *this) {
         if ((this->yaw <= 270.0f) && (this->yaw > 260.0f)) {
             subaddie_set_state(this, 7U);
             this->yaw = 270.0f;
-            func_8030E540(0x7F);
+            gcsfx_playAtSampleRate(0x7F);
             core1_7090_freeSfxSource(0);
             func_802D68F0(0xE);
             item_set(6, 1);
@@ -350,11 +350,11 @@ void func_80388BDC(Actor *this) {
         if ((this->yaw >= 0.0f) && (this->yaw < 10.0f)) {
             subaddie_set_state(this, 1U);
             this->yaw = 0.0f;
-            func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
+            gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_0_UNKNOWN, false);
             core1_7090_freeSfxSource(0);
             if (!this->unk38_31) {
-                func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
+                coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
                 func_8025AE0C(0x7D0, 2.5f);
             }
             this->unk38_31 = 0;

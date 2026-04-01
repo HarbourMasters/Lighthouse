@@ -74,7 +74,7 @@ void func_802E3460(s32 arg0) {
     if (D_8037E8C0.unk14 == 0) {
         D_8037E8C0.unk8 = 0xFF;
         D_8037E8C0.unk0 = 0.0f;
-        func_8025A6EC(COMUSIC_31_GAME_OVER, -1);
+        coMusicPlayer_playMusic(COMUSIC_31_GAME_OVER, -1);
         func_8033DC04();
     }
     else if (D_8037E8C0.unk14 == 1) {

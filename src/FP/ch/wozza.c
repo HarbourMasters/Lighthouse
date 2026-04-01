@@ -52,7 +52,7 @@ Actor *func_8038F210(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 void func_8038F274(void){
     Struct70s *v0 = func_8034C528(0x191);
     if(v0 != NULL){
-        func_8034DE60(&v0->type_6D, 0.0f, -500.0f, 0.2f, 1);
+        subaddie_positionMoveVertical(&v0->type_6D, 0.0f, -500.0f, 0.2f, 1);
     }
 }
 
@@ -126,8 +126,8 @@ void func_8038F560(Actor *this){
 }
 
 void func_8038F598(Actor *this, f32 arg1){
-    this->yaw_ideal = func_80329784(this);
-    func_80328FB0(this, arg1);
+    this->yaw_ideal = subaddie_getYawToPlayer(this);
+    subaddie_turnToYaw(this, arg1);
 }
 
 bool func_8038F5D4(Actor *this, f32 arg1[3], f32 arg2, f32 arg3, s32 arg4){
@@ -135,9 +135,9 @@ bool func_8038F5D4(Actor *this, f32 arg1[3], f32 arg2, f32 arg3, s32 arg4){
 
     sp24 = anctrl_getAnimTimer(this->anctrl);
     this->yaw_ideal = (f32) func_803297C8(this, arg1);
-    func_80328FB0(this, arg3);
+    subaddie_turnToYaw(this, arg3);
     if(actor_animationIsAt(this, 0.9f)){
-        FUNC_8030E8B4(SFX_3F2_BOING, 0.8f, 24000, this->position, 500, 2000);
+        sfx_playFadeShorthandDefault(SFX_3F2_BOING, 0.8f, 24000, this->position, 500, 2000);
     }
     this->actor_specific_1_f = (1.0f- sp24)*arg2;
     func_80329054(this, 2);
@@ -151,7 +151,7 @@ bool FP_func_8038F6C4(Actor *this, f32 arg1[3], f32 arg2){
     s32 dTheta;
 
     subaddie_set_ideal_yaw(this, func_803297C8(this, arg1));
-    func_80328FB0(this, arg2);
+    subaddie_turnToYaw(this, arg2);
     dTheta = this->yaw - this->yaw_ideal;
     if(-arg2 <= dTheta && dTheta <= arg2){
         return true;
@@ -324,7 +324,7 @@ void FP_func_8038F7AC(Actor *this){
                     || actor_animationIsAt(this, 0.28f)
                     || actor_animationIsAt(this, 0.42f)
                 ){
-                    FUNC_8030E8B4(SFX_88_WOZZA_NOISE, 1.0f, 32000, this->position, 500, 2000);
+                    sfx_playFadeShorthandDefault(SFX_88_WOZZA_NOISE, 1.0f, 32000, this->position, 500, 2000);
                 }
             }
             break;

@@ -65,8 +65,8 @@ void __chCrab_touch(ActorMarker *marker, ActorMarker *other){
     Actor *this;
 
     this = marker_getActor(marker);
-    if ((this->state == 4) && func_803294F0(this, 80, func_80329784(this))) {
-        FUNC_8030E8B4(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 28000, this->position, 950, 1900);
+    if ((this->state == 4) && func_803294F0(this, 80, subaddie_getYawToPlayer(this))) {
+        sfx_playFadeShorthandDefault(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 28000, this->position, 950, 1900);
         __chCrab_802CB140(this);
         subaddie_set_state(this, 1);
     }
@@ -80,11 +80,11 @@ void __chCrab_ow(ActorMarker *marker, ActorMarker *other) {
     subaddie_set_state(this, 6);
     actor_playAnimationOnce(this);
     if (marker->id == MARKER_13_SNIPPET) {
-        FUNC_8030E8B4(SFX_6E_VILE_EGH, 2.0f, 26000, this->position, 950, 1900);
+        sfx_playFadeShorthandDefault(SFX_6E_VILE_EGH, 2.0f, 26000, this->position, 950, 1900);
         marker->id = MARKER_16B_SNIPPET_UPSIDEDOWN;
     }
     if (marker->id == MARKER_DD_BLACK_SNIPPET) {
-        FUNC_8030E8B4(SFX_6E_VILE_EGH, 2.0f, 26000, this->position, 950, 1900);
+        sfx_playFadeShorthandDefault(SFX_6E_VILE_EGH, 2.0f, 26000, this->position, 950, 1900);
         marker->id = MARKER_DE_BLACK_SNIPPET_UPSIDEDOWN;
     }
 }
@@ -94,7 +94,7 @@ void __chCrab_particleEmitterSetup(ParticleEmitter *p_ctrl, f32 position[3]) {
     particleEmitter_setDrawMode(p_ctrl, 2);
     particleEmitter_func_802EF9F8(p_ctrl, 0.7f);
     particleEmitter_func_802EFA18(p_ctrl, 5);
-    func_802EFA20(p_ctrl, 0.8f, 1.0f);
+    particleEmitter_func_802EFA20(p_ctrl, 0.8f, 1.0f);
     particleEmitter_setSfx(p_ctrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(p_ctrl, 3.5f, 3.5f);
@@ -175,8 +175,8 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
     this = marker_getActor(marker);
     is_mutant_snippet = this->modelCacheIndex == ACTOR_F5_MUTIE_SNIPPET;
     is_black_snippet = this->modelCacheIndex == ACTOR_F2_BLACK_SNIPPET;
-    FUNC_8030E8B4(SFX_79_TICKER_DEATH, 1.0f, 32750, this->position, 950, 1900);
-    FUNC_8030E8B4(SFX_79_TICKER_DEATH, 1.0f, 28000, this->position, 950, 1900);
+    sfx_playFadeShorthandDefault(SFX_79_TICKER_DEATH, 1.0f, 32750, this->position, 950, 1900);
+    sfx_playFadeShorthandDefault(SFX_79_TICKER_DEATH, 1.0f, 28000, this->position, 950, 1900);
     __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
     this->lifetime_value = 5.0f;
     marker->collidable = false;
@@ -191,7 +191,7 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
             jiggy_spawn_position[0] = 13814.0f;
             jiggy_spawn_position[1] = 3812.0f;
             jiggy_spawn_position[2] = 0.0f;
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
             func_80324DBC(2.25f, ASSET_D33_DIALOG_MUTANT_CRAB_DEFEAT, 0xF, jiggy_spawn_position, NULL, __chCrab_mutantTextCallback, NULL);
         }
     }
@@ -216,10 +216,10 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
 
 void __chCrab_walkSfxUpdate(Actor *this) {
     if (actor_animationIsAt(this, 0.4f)) {
-        FUNC_8030E8B4(SFX_3D_TICKER_WALKING, 0.85f, 15000, this->position, 950, 1900);
+        sfx_playFadeShorthandDefault(SFX_3D_TICKER_WALKING, 0.85f, 15000, this->position, 950, 1900);
     }
     if (actor_animationIsAt(this, 0.9f)) {
-        FUNC_8030E8B4(SFX_3D_TICKER_WALKING, 1.15f, 15000, this->position, 950, 1900);
+        sfx_playFadeShorthandDefault(SFX_3D_TICKER_WALKING, 1.15f, 15000, this->position, 950, 1900);
     }
 }
 
@@ -256,8 +256,8 @@ void chCrab_update(Actor *this) {
             marker_despawn(this->marker);
             return;
         }
-        this->yaw_ideal = (f32) func_80329784(this);
-        func_80328FB0(this, 4.0f);
+        this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
+        subaddie_turnToYaw(this, 4.0f);
         return;
     }
     if( (map_get() == MAP_B_CC_CLANKERS_CAVERN) 
@@ -310,7 +310,7 @@ void chCrab_update(Actor *this) {
             break;
 
         case 2: //L802CBE9C
-            func_80328FB0(this, 1.0f);
+            subaddie_turnToYaw(this, 1.0f);
             if( func_8032CA80(this, (this->modelCacheIndex == ACTOR_F2_BLACK_SNIPPET)? 0xD: 0)
                 && func_80329480(this)
             ) {
@@ -321,8 +321,8 @@ void chCrab_update(Actor *this) {
             break;
 
         case 3: //L802CBF44
-            this->yaw_ideal = (f32) func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
             if (func_80329480(this)) {
                 subaddie_set_state(this, 4);
                 this->actor_specific_1_f = 12.0f;
@@ -330,8 +330,8 @@ void chCrab_update(Actor *this) {
             break;
 
         case 8: //L802CBF9C
-            this->yaw_ideal = func_80329784(this) + 90.0;
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this) + 90.0;
+            subaddie_turnToYaw(this, 4.0f);
             if (func_80329480(this)) {
                 subaddie_set_state(this, 9);
                 this->actor_specific_1_f = 12.0f;
@@ -342,9 +342,9 @@ void chCrab_update(Actor *this) {
 
         case 4: //L802CC024
             if ((globalTimer_getTime() & 0xF) == 9) {
-                this->yaw_ideal = (f32) func_80329784(this);
+                this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
             }
-            func_80328FB0(this, 7.0f);
+            subaddie_turnToYaw(this, 7.0f);
             if (func_8032CA80(this, (this->modelCacheIndex == ACTOR_F2_BLACK_SNIPPET)? 0xD : 0)) {
                 __chCrab_802CB140(this);
             }

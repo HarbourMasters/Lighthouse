@@ -38,7 +38,7 @@ void bsjig_jiggy_init(void){
     if(tmp == 0) //weird if...
         tmp = 0;
     D_8037D4B1 =  tmp;
-    func_8025A6EC(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
+    coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
     func_8029151C(0xC);
     func_8029E070(1);
     func_8030E6D4(SFX_33_BANJO_AHOO);
@@ -114,7 +114,7 @@ void bsjig_jiggy_end(void){
         && bs_getNextState() != BS_34_JIG_NOTEDOOR
     ){
         func_8028F918(2);
-        func_802E4078(MAP_95_CS_END_ALL_100, 0, 1);
+        transitionToMap(MAP_95_CS_END_ALL_100, 0, 1);
     } else {//L802B0DFC
         if( jiggyscore_total() == 2
             && map_get() == MAP_2_MM_MUMBOS_MOUNTAIN
@@ -156,7 +156,7 @@ void bsjig_notedoor_end(void){
         && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)
     ){
         func_8028F918(2);
-        func_802E4078(MAP_95_CS_END_ALL_100, 0, 1);
+        transitionToMap(MAP_95_CS_END_ALL_100, 0, 1);
     }
     func_80298A64();
 }
@@ -177,7 +177,7 @@ void bsjig_notedoor_init(void){
         core1_ce60_incOrDecCounter(false);
         func_8025A2FC(0,0xfa0);
     }
-    func_8025A6EC(COMUSIC_42_NOTEDOOR_OPENING_FANFARE,-1);
+    coMusicPlayer_playMusic(COMUSIC_42_NOTEDOOR_OPENING_FANFARE,-1);
     func_8029151C(0xc);
     func_8029E070(1);
     func_8030E6D4(SFX_33_BANJO_AHOO);

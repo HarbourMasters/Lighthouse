@@ -47,14 +47,14 @@ void func_80390630(Actor *this){
     func_8028E668(this->position, 200.0f, -40.0f, 160.0f);
     
     if(this->state == 1){
-        this->yaw_ideal = (f32)func_80329784(this);
-        func_80328FB0(this, 1.0f);
+        this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
+        subaddie_turnToYaw(this, 1.0f);
 
         if(!func_803114B0()){
             if( actor_animationIsAt(this, 0.09f)
                 || actor_animationIsAt(this, 0.19f)
             ){
-                FUNC_8030E8B4(SFX_88_WOZZA_NOISE, 1.0f, 22000, this->position, 500, 2000);
+                sfx_playFadeShorthandDefault(SFX_88_WOZZA_NOISE, 1.0f, 22000, this->position, 500, 2000);
             }
 
             if( actor_animationIsAt(this, 0.68f)
@@ -63,7 +63,7 @@ void func_80390630(Actor *this){
                 || actor_animationIsAt(this, 0.92f)
                 
             ){
-                FUNC_8030E8B4(SFX_3F2_BOING, 0.8f, 24000, this->position, 500, 2000);
+                sfx_playFadeShorthandDefault(SFX_3F2_BOING, 0.8f, 24000, this->position, 500, 2000);
             }
         }
 

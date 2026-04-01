@@ -82,7 +82,7 @@ void CCW_func_80387A40(Actor *this) {
         local->sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         local->unk18[0] = local->unk18[1] = local->unk18[2] = 0.0f;
         sfxsource_setSfxId(local->sfxsourceIdx, 0x3FA);
-        func_8030DD14(local->sfxsourceIdx, 2);
+        sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 2);
         sfxsource_playSfxAtVolume(local->sfxsourceIdx, 0.9f);
         sfxsource_setSampleRate(local->sfxsourceIdx, 0);
         func_803878A0(this, 1);

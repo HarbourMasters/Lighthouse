@@ -546,7 +546,7 @@ void player_getVelocity(f32 dst[3]){
 
 f32 func_8028EF88(void){
     if(func_80294574()){
-        return func_80294500();
+        return floor_getCurrentFloorYPosition();
     }
     return player_getYPosition();
 }
@@ -859,7 +859,7 @@ void func_8028F974(void){
 void func_8028F994(void){
     D_803636B0 = 1;
     player_getPosition(D_803636B4);
-    func_802E4078(map_get(), 0, 0);
+    transitionToMap(map_get(), 0, 0);
 }
 
 void func_8028F9DC(s32 arg0){

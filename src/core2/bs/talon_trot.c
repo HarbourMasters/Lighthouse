@@ -723,7 +723,7 @@ void bsbtrot_ow_init(void){
     if(func_802987B4() == 2)
         baphysics_set_type(BA_PHYSICS_AIRBORN);
     baphysics_set_vertical_velocity(func_802987C4());
-    baphysics_set_gravity(func_802987E4());
+    baphysics_set_gravity(barebound_get_vertical_velocity());
     baMarker_collisionOff();
     baeyes_close();
 }

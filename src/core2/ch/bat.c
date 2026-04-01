@@ -54,7 +54,7 @@ void chbat_exitRoost(Actor *this){
         subaddie_set_state_with_direction(this, CH_BAT_STATE_EXIT_ROOST, 0.01f, 1);
         actor_playAnimationOnce(this);
         this->actor_specific_1_f = 5.0f;
-        FUNC_8030E8B4(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 0x4e2, 0x9c4);
+        sfx_playFadeShorthandDefault(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 0x4e2, 0x9c4);
     }
 }
 
@@ -244,7 +244,7 @@ bool func_80360198(Actor *this) {
     f64 d_yaw;
     f64 d_yaw_2;
 
-    func_80328FB0(this, 5.0f);
+    subaddie_turnToYaw(this, 5.0f);
     chbat_updateFlyingRoll(this);
     this->actor_specific_1_f += (this->velocity[1] * 0.45) - (0.001 * this->actor_specific_1_f);
     if (this->actor_specific_1_f > 13.0) {
@@ -316,7 +316,7 @@ f32 func_803603AC(Actor *this, s32 arg1, u8 arg2){
 
 int func_803604E8(Actor *this){
     f32 tmp_f0;
-    this->yaw_ideal = (f32) func_80329784(this);
+    this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
     tmp_f0 = func_803603AC(this, 170, 1);
     func_8035FFAC(this, tmp_f0);
     if(!func_80360198(this)){
@@ -336,7 +336,7 @@ bool chbat_updateRoam(Actor *this) {
         func_8035FFAC(this, func_803603AC(this, -110, 2));
     }
     else{
-        func_80328FB0(this, 5.0f); //update yaw
+        subaddie_turnToYaw(this, 5.0f); //update yaw
         chbat_updateFlyingRoll(this);
         if (func_80329480(this) != 0) {
             this->lifetime_value = 0.0f;
@@ -381,7 +381,7 @@ void chBat_dieCollision(ActorMarker *this_marker, ActorMarker *other_marker){
     chBat_fall(this);
     local->cooldown = 0.0f;
     this->marker->collidable = false;
-    FUNC_8030E8B4(SFX_115_BUZZBOMB_DEATH, 1.3f, 26000, this->position, 1250, 2500);
+    sfx_playFadeShorthandDefault(SFX_115_BUZZBOMB_DEATH, 1.3f, 26000, this->position, 1250, 2500);
 }
 
 void chBat_attackCollision(ActorMarker *this_marker, ActorMarker *other_marker){
@@ -436,7 +436,7 @@ void chbat_update(Actor *this){
             else{
                 if(!(globalTimer_getTime() & 0xf)){
                     if(randf() < 0.35){
-                        FUNC_8030E8B4(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 1250, 2500);
+                        sfx_playFadeShorthandDefault(SFX_419_UNKNOWN, 1.0f, 28000, this->position, 1250, 2500);
                     }
                 }
             }//L80360A40
@@ -463,7 +463,7 @@ void chbat_update(Actor *this){
             } else if(chbat_nearHome(this, 1)){
                 chbat_enterRoost(this);
             } else{
-                func_80328FB0(this, 5.0f);
+                subaddie_turnToYaw(this, 5.0f);
                 chBat_updateHeight(this, this->unk1C_y, 2.0f);
                 chbat_updateRollTowardsZero(this);
             }
@@ -484,7 +484,7 @@ void chbat_update(Actor *this){
                 this->position_y =  mapModel_getFloorY(this->position);
                 subaddie_set_state_with_direction(this, CH_BAT_STATE_DIE, 0.01f, 1);
                 actor_playAnimationOnce(this);
-                func_8030E6A4(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200);
+                gcsfx_playWithPitch(SFX_1F_HITTING_AN_ENEMY_3, 1.2f, 32200);
             }
             else{//L80360CC4
                 this->position_y += this->velocity_x * sp34;

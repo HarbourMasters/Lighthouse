@@ -280,7 +280,7 @@ void maSlalom_win(void){
         player_stateTimer_set(STATE_TIMER_3_TURBO_TALON, 2.0f);
     }
     func_8028F918(1);
-    func_8025A6EC(COMUSIC_3B_MINIGAME_VICTORY, 28000);
+    coMusicPlayer_playMusic(COMUSIC_3B_MINIGAME_VICTORY, 28000);
     FP_func_8038AB60(0);
     func_8038ABDC();
     timed_setStaticCameraToNode(0.0f, 1);
@@ -294,7 +294,7 @@ void maSlalom_lose(void){
         pntBoggy = marker_getActor(Me.boggyLink);
     
     pntBoggy->unk38_31 = 1;
-    func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+    coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 28000);
     FP_func_8038AB60(0);
     func_8038ABDC();
     if(!jiggyscore_isCollected(JIGGY_30_FP_BOGGY_2)){

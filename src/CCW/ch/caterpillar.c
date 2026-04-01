@@ -55,7 +55,7 @@ void chcaterpillar_setState(Actor *this, s32 next_state) {
         local->unk24 = 0.0f;
     }
     if (next_state == 4) {
-        func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         marker_despawn(this->marker);
     }
     if (next_state == 5) {
@@ -157,7 +157,7 @@ void chcaterpillar_update(Actor *this){
                 gcdialog_showText(ASSET_CC7_DIALOG_CATERPILLAR_COLLECT, 4, NULL, NULL, NULL, NULL);
                 volatileFlag_set(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR, true);
             }
-            FUNC_8030E8B4(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
+            sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
             marker_despawn(this->marker);
         }
     }//L8038A794

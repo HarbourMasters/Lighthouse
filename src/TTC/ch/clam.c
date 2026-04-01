@@ -137,7 +137,7 @@ static void __chClam_particalEmitterInit(ParticleEmitter *pCtrl, f32 position[3]
     particleEmitter_setPosition(pCtrl, position);
     particleEmitter_func_802EF9F8(pCtrl, 0.7f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    func_802EFA20(pCtrl, 0.8f, 1.0f);
+    particleEmitter_func_802EFA20(pCtrl, 0.8f, 1.0f);
     particleEmitter_setSfx(pCtrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 3.5f, 3.5f);
@@ -371,5 +371,5 @@ static void __chClam_updateFunc(Actor *this){
             }
             break;
     }
-    func_80328FB0(this, 5.0f);
+    subaddie_turnToYaw(this, 5.0f);
 }

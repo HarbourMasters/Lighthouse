@@ -64,7 +64,7 @@ bool cutscene_skipGameOverCutsceneCheck(void) {
             mapSpecificFlags_set(0xC, true);
             func_802DC528(0, 0);
             timedFunc_set_2(11.0f, (GenFunction_2)func_802DC560, 0, 0);
-            timedFunc_set_3(12.0f, (GenFunction_3)func_802E4078, MAP_1F_CS_START_RAREWARE, 0, 1);
+            timedFunc_set_3(12.0f, (GenFunction_3)transitionToMap, MAP_1F_CS_START_RAREWARE, 0, 1);
         } else {
             timedFuncQueue_flush();
         }
@@ -84,7 +84,7 @@ void cutscenetrigger_check(s32 cs_map, s32 arg1, s32 return_map, s32 return_exit
 
     if((condFunc && condFunc()) || mapSpecificFlags_get(arg1)){
         mapSpecificFlags_set(arg1, 0);
-        func_802E4078(return_map, (return_exit == -1)? 0: return_exit, 1);
+        transitionToMap(return_map, (return_exit == -1)? 0: return_exit, 1);
     }
 }
 
@@ -136,7 +136,7 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
             func_802E40E8(1);
             func_802E40C4(0xB);
         } else {
-            func_802E4078(map_id, exit_id, 1);
+            transitionToMap(map_id, exit_id, 1);
         }
         func_80335110(arg2);
     }
@@ -539,7 +539,7 @@ void func_8031DAE0(NodeProp *arg0, ActorMarker *arg1) {
         volatileFlag_set(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED, 1);
         core1_7090_freeSfxSource(0);
         mapSpecificFlags_set(2, 1);
-        func_8025A6EC(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
+        coMusicPlayer_playMusic(COMUSIC_3B_MINIGAME_VICTORY, 0x6D60);
         func_8028F918(1);
         timedFunc_set_2(1.8f, (GenFunction_2)&func_8031DAA8, 0x1C, 1);
         func_802D6924();

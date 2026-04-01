@@ -53,7 +53,7 @@ void func_802ABE70(void){
     if(baflag_isTrue(BA_FLAG_10_TOUCHING_TURBO_TRAINERS) && bs_getState() != BS_17_BTROT_EXIT){
         baflag_clear(BA_FLAG_10_TOUCHING_TURBO_TRAINERS);
         stateTimer_set(STATE_TIMER_3_TURBO_TALON, get_turbo_duration());
-        func_8025A6EC(COMUSIC_8A_GETTING_TURBO_TRAINERS, -1);
+        coMusicPlayer_playMusic(COMUSIC_8A_GETTING_TURBO_TRAINERS, -1);
         func_8029E0DC(1);
     }
 

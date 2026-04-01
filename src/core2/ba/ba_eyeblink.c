@@ -22,10 +22,10 @@ void func_80297C78(void){
 }
 
 void func_80297CA8(void){
-    func_80297CCC(0.6f);
+    baiFrame_startWithValue(0.6f);
 }
 
-void func_80297CCC(f32 value){
+void baiFrame_startWithValue(f32 value){
     stateTimer_set(STATE_TIMER_4_UNKNOWN, value);
     func_80297C60(3);
 }

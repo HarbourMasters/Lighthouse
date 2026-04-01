@@ -96,7 +96,7 @@ void chTumblar_init(Struct_MMM_47D0_0 *arg0, Struct68s *arg1) {
 
     sfxsource_index = func_80351758_getSfxsourceIndex(arg1);
     sfxsource_setSfxId(sfxsource_index, SFX_3EC_CCW_DOOR_OPENING);
-    func_8030DD14(sfxsource_index, 3);
+    sfxSource_setunk43_7ByIndex(sfxsource_index, 3);
     sfxsource_playSfxAtVolume(sfxsource_index, 0.6f);
     sfxsource_setSampleRate(sfxsource_index, 0);
     func_8030E2C4(sfxsource_index);
@@ -230,6 +230,6 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
         arg0->state = TUMBLAR_STATE_2_BREAKING;
         arg0->timer = 0.0f;
         mapSpecificFlags_set(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN, false);
-        FUNC_8030E8B4(SFX_11B_TUMBLAR_DISAPPEARING_1, 1.0f, 30000, position, 500, 2500);
+        sfx_playFadeShorthandDefault(SFX_11B_TUMBLAR_DISAPPEARING_1, 1.0f, 30000, position, 500, 2500);
     }
 }

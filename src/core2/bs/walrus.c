@@ -388,7 +388,7 @@ static void __bswalrus_recoil_init(s32 damage){
     baphysics_set_horizontal_velocity(sp3C, baphysics_get_target_horizontal_velocity());
     func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_vertical_velocity(func_802987C4());
-    baphysics_set_gravity(func_802987E4());
+    baphysics_set_gravity(barebound_get_vertical_velocity());
     baMarker_collisionOff();
     baeyes_close();
     func_802B8110();
@@ -757,7 +757,7 @@ void func_802B9880(void) {
 
 void func_802B98C0(void) {
     if (bs_getInterruptType() == BS_INTR_2B) {
-        func_8029A86C(2);
+        bs_setInterruptResponse(2);
         bs_setState(BS_67_WALRUS_IDLE);
         return;
     }

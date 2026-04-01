@@ -279,7 +279,7 @@ void func_80296590(void){
             
             break;
     }
-    func_8029A86C(1);
+    bs_setInterruptResponse(1);
     bs_setState(0);
 }
 
@@ -523,7 +523,7 @@ void func_80296608(void){
             }
             break;
     }//L80296C0C
-    func_8029A86C(sp2C);
+    bs_setInterruptResponse(sp2C);
     bs_setState(next_state);
 }
 

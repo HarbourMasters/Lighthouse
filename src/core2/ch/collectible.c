@@ -76,7 +76,7 @@ void func_802D8C98(Actor *this, s32 arg1) {
 }
 
 bool chCollectible_collectItem(Actor* actor, enum file_progress_e arg1, enum asset_e dialogId, enum comusic_e sfxId, enum item_e itemId, f32 arg5){
-    func_8025A6EC(sfxId,32000);
+    coMusicPlayer_playMusic(sfxId,32000);
     timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, arg1);
     if(!func_802FADD4(0x1b)){
         item_inc(itemId);
@@ -143,7 +143,7 @@ void chCollectible_update(Actor *this) {
 
     if (!this->initialized) {
         if (this->marker->id != 0x60) {
-            func_8032AA58(this, 0.56f);
+            suSetSpriteScale(this, 0.56f);
         }
         this->unk10_12 = -1;
         this->unk38_0 = (map_get() == MAP_90_GL_BATTLEMENTS);

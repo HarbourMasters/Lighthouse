@@ -84,7 +84,7 @@ static bool __chTreasurehunt_isActiveHitboxBeakBusterHitbox(void) {
             comusic_id = COMUSIC_2D_PUZZLE_SOLVED_FANFARE;
             music_volume = 0x7FFF;
         }
-        func_8025A6EC(comusic_id, music_volume);
+        coMusicPlayer_playMusic(comusic_id, music_volume);
         return true;
     }
     return false;
@@ -239,7 +239,7 @@ static Actor *__chTreasurehunt_animFunc(ActorMarker *marker, Gfx **gfx, Mtx **mt
     sp40[1] = actor->position[1] + sp38;
     sp40[2] = actor->position[2];
 
-    func_8032AA58(actor, sp3C);
+    suSetSpriteScale(actor, sp3C);
     modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)actor);
     modelRender_draw(gfx, mtx, sp40, sp4C, sp3C, NULL, marker_loadModelBin(marker));
     return actor;

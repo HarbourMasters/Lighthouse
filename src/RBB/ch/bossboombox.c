@@ -5,7 +5,7 @@
 
 extern void actor_predrawMethod(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
-extern void func_8030E394(u8);
+extern void sfxSource_func_8030E2C4(u8);
 extern int func_803342AC(f32 (*)[3], f32(*)[3], f32);
 
 
@@ -303,7 +303,7 @@ void RBB_func_8038CC9C(Actor *this, s32 new_state){
 
     if(this->state == 2){
         func_8025A58C(0, 0xfa0);
-        func_8025A6EC(COMUSIC_62_RBB_BOOMBOX, -1);
+        coMusicPlayer_playMusic(COMUSIC_62_RBB_BOOMBOX, -1);
         func_8025AABC(COMUSIC_62_RBB_BOOMBOX);
         skeletalAnim_set(this->unk148, ASSET_146_ANIM_BOSS_BOOMBOX_APPEAR, 0.0f, 2.4f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
@@ -439,7 +439,7 @@ void func_8038D5BC(ActorMarker *marker, ActorMarker *arg1){
     Actor *actor = marker_getActor(marker);
     ActorLocal_RBB_5F80 *local = (ActorLocal_RBB_5F80 *) &actor->local;
 
-    func_8030E6A4(0x3f5, local->unk0->unk10, 0x4e20);
+    gcsfx_playWithPitch(0x3f5, local->unk0->unk10, 0x4e20);
     RBB_func_8038CC9C(actor, 4);
     func_8038C8A8(actor);
 }
@@ -474,8 +474,8 @@ void func_8038D7E8(ActorMarker *marker, s32 arg1){
     Actor *actor = marker_getActor(marker);
     ActorLocal_RBB_5F80 *local = (ActorLocal_RBB_5F80 *) &actor->local;
 
-    FUNC_8030E8B4(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 20000, actor->position, 1000, 2000);
-    func_8030E6A4(SFX_D7_GRABBA_DEATH, local->unk0->unk10, 0x7530);
+    sfx_playFadeShorthandDefault(SFX_1E_HITTING_AN_ENEMY_2, 1.0f, 20000, actor->position, 1000, 2000);
+    gcsfx_playWithPitch(SFX_D7_GRABBA_DEATH, local->unk0->unk10, 0x7530);
     local->unk4 += (arg1) ? 1 : 5;
     if(local->unk4 >= local->unk0->unkC)
         RBB_func_8038CC9C(actor, 5);

@@ -84,7 +84,7 @@ void func_802C60AC(ActorMarker *marker, ActorMarker *other_marker){
     Actor *actor = marker_getActor(marker);
     if( actor->state == 4 
         && 5.0 <= actor->actor_specific_1_f
-        && func_803294F0(actor, 80, func_80329784(actor))
+        && func_803294F0(actor, 80, subaddie_getYawToPlayer(actor))
     ){
         anctrl_setPlaybackType(actor->anctrl, ANIMCTRL_ONCE);
         subaddie_set_state(actor, 5);
@@ -105,8 +105,8 @@ void func_802C61C0(ActorMarker *marker, ActorMarker *other_marker){
         && actor->state != 0xf
     ){
         subaddie_set_state_forward(actor, 0xd);
-        FUNC_8030E8B4(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
-        FUNC_8030E8B4(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
+        sfx_playFadeShorthandDefault(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
+        sfx_playFadeShorthandDefault(SFX_143_BULL_DAMAGE, 1.0f, 16000, actor->position, 0, 2000);
     }
 }
 
@@ -157,7 +157,7 @@ void func_802C6240(Actor *this){
 
         case 0x2: //L802C6494
             func_802C5FF8(this);
-            func_80328FB0(this, 2.0f);
+            subaddie_turnToYaw(this, 2.0f);
             if(!func_80329030(this, 0) && func_80329480(this)){
                 func_80328CEC(this, (s32)this->yaw, 90, 150);
             }//L802C64EC
@@ -178,14 +178,14 @@ void func_802C6240(Actor *this){
 
         case 0x8: //L802C65D0
             func_802C5F44(this);
-            this->yaw_ideal = func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
             if(func_80329480(this))
                 subaddie_set_state(this, 6);
             break;
 
         case 0x3: //L802C6620
-            func_80328FB0(this, 3.0f);
+            subaddie_turnToYaw(this, 3.0f);
             if(! func_80329030(this, 0) && func_80329480(this)){
                 func_80328CEC(this, (s32)this->yaw, 120, 180);
                 subaddie_set_state(this, 2);
@@ -198,7 +198,7 @@ void func_802C6240(Actor *this){
 
         case 0x6: //L802C66D0
             anctrl_setDuration(this->anctrl, D_80366010[6].duration - (3 - this->unk10_12)*0.1085);
-            this->yaw_ideal = (f32)func_80329784(this);
+            this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
             if(!func_803294B4(this, 0x21)){
                 subaddie_set_state(this, 8);
             }
@@ -225,8 +225,8 @@ void func_802C6240(Actor *this){
                 this->actor_specific_1_f = 30.0f;
             }
 
-            this->yaw_ideal = (f32)func_80329784(this);
-            func_80328FB0(this, 9.0f);
+            this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 9.0f);
             if(!func_80329030(this, 0))
                 func_802C5F94(this);
 
@@ -241,7 +241,7 @@ void func_802C6240(Actor *this){
                         tmp_a0 = this->unk44_31;
                     }
                     sfxsource_setSfxId(tmp_a0, SFX_18_BIGBUTT_SLIDE);
-                    func_8030DD14(this->unk44_31, 2);
+                    sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
                     sfxsource_playSfxAtVolume(this->unk44_31, (randf()*0.1 - 0.05) + 1.0);
                     func_8030E2C4(this->unk44_31);
                 }
@@ -253,8 +253,8 @@ void func_802C6240(Actor *this){
 
         case 0x4: //L802C6A14
             if(anctrl_getAnimTimer(this->anctrl) < 0.99){
-                this->yaw_ideal = (f32)func_80329784(this);
-                func_80328FB0(this, 1.0f);
+                this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
+                subaddie_turnToYaw(this, 1.0f);
             }
             func_80329030(this, 0);
             func_8030E2C4(this->unk44_31);

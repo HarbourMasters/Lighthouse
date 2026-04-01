@@ -35,7 +35,7 @@ void func_802DABA0(ParticleEmitter *pCtrl, f32 position[3], f32 scale, enum asse
     particleEmitter_setDrawMode(pCtrl, 2);
     particleEmitter_func_802EF9F8(pCtrl, 0.7f);
     particleEmitter_func_802EFA18(pCtrl, 5);
-    func_802EFA20(pCtrl, 0.8f, 1.0f);
+    particleEmitter_func_802EFA20(pCtrl, 0.8f, 1.0f);
     particleEmitter_setSfx(pCtrl, SFX_1F_HITTING_AN_ENEMY_3, 6000);
     particleEmitter_setStartingScaleRange(pCtrl, scale, scale);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
@@ -194,10 +194,10 @@ void func_802DB3B0(Actor *this) {
 
     local = (ActorLocal_core2_53C10 *)&this->local;
     if (local->unkC_28 && actor_animationIsAt(this, 0.0f)) {
-        FUNC_8030E8B4(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
+        sfx_playFadeShorthandDefault(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
     }
     if (local->unkC_28 && actor_animationIsAt(this, 0.5f)) {
-        FUNC_8030E8B4(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
+        sfx_playFadeShorthandDefault(SFX_8_BANJO_LANDING_04, 1.8f, 8000, this->position, 500, 1500);
     }
 }
 
@@ -207,9 +207,9 @@ void func_802DB440(ActorMarker *marker, ActorMarker *other_marker) {
     this = marker_getActor(marker);
     if( this->state == 7 
         && this->actor_specific_1_f >= 3.0
-        && func_803294F0(this, 0x50, func_80329784(this))
+        && func_803294F0(this, 0x50, subaddie_getYawToPlayer(this))
     ) {
-        FUNC_8030E8B4(SFX_1F_HITTING_AN_ENEMY_3, 1.0f, 20000, this->position, 1250, 2500);
+        sfx_playFadeShorthandDefault(SFX_1F_HITTING_AN_ENEMY_3, 1.0f, 20000, this->position, 1250, 2500);
 
         func_802DAE40(this);
     }
@@ -266,7 +266,7 @@ void func_802DB5A0(Actor *this) {
             break;
 
         case 8://L802DB704
-            func_80328FB0(this, 6.0f);
+            subaddie_turnToYaw(this, 6.0f);
             if (func_80329480(this) != 0) {
                 phi_f14 = anctrl_getAnimTimer(this->anctrl) + 0.0333;
                 if (phi_f14 >= 1.0) {
@@ -279,7 +279,7 @@ void func_802DB5A0(Actor *this) {
             break;
             
         case 2://L802DB790
-            func_80328FB0(this, 2.0f);
+            subaddie_turnToYaw(this, 2.0f);
             func_802DB3B0(this);
             if (this->unk38_31 == 0) {
                 if (!(globalTimer_getTime() & 0xF)) {
@@ -302,8 +302,8 @@ void func_802DB5A0(Actor *this) {
             
         case 6://L802DB8C0
             func_802DB264(this);
-            this->yaw_ideal = (f32) func_80329784(this);
-            func_80328FB0(this, 4.0f);
+            this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 4.0f);
             if (func_80329480(this)) {
                 this->unk10_12 = local->unkC_31;
                 subaddie_set_state(this, 4);
@@ -312,7 +312,7 @@ void func_802DB5A0(Actor *this) {
             break;
             
         case 3://L802DB930
-            func_80328FB0(this, 3.0f);
+            subaddie_turnToYaw(this, 3.0f);
             func_802DB3B0(this);
             if (!(globalTimer_getTime() & 0xF) && (subaddie_maybe_set_state(this, 2, 0.08f))) {
                 func_802DAE10(this);
@@ -325,7 +325,7 @@ void func_802DB5A0(Actor *this) {
             if (this->unk10_12 < local->unkC_31) {
                 anctrl_setDuration(this->anctrl, this->unk18[4].duration - ((local->unkC_31 - this->unk10_12) * 0.1));
             }
-            this->yaw_ideal = (f32) func_80329784(this);
+            this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
             if (!func_803294B4(this, 0x21)) {
                 subaddie_set_state(this, 6);
             }
@@ -350,10 +350,10 @@ void func_802DB5A0(Actor *this) {
         case 7://L802DBB4C
             if (this->unk38_31 == 0) {
                 if ((globalTimer_getTime() & 0xF) == 9) {
-                    this->yaw_ideal = (f32) func_80329784(this);
+                    this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
                 }
             }
-            func_80328FB0(this, (f32)local->unkB);
+            subaddie_turnToYaw(this, (f32)local->unkB);
             func_802DB3B0(this);
             func_802DAFBC(this);
             break;

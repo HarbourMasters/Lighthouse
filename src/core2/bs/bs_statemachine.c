@@ -59,7 +59,7 @@ s32 bs_checkInterrupt(enum bs_interrupt_e arg0){
     return D_8037D170;
 }
 
-void func_8029A86C(s32 arg0){
+void bs_setInterruptResponse(s32 arg0){
     D_8037D170 = arg0;
 }
 

@@ -58,7 +58,7 @@ void func_802D05A0(Actor *this, s32 next_state){
         }
         local->sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(local->sfxsourceIdx, D_80367340[(s32)this->yaw].unk0);
-        func_8030DD14(local->sfxsourceIdx, 3);
+        sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 3);
         func_8030DFF0(local->sfxsourceIdx, 1);
         sfxsource_set_position(local->sfxsourceIdx, this->position);
         sfxsource_set_fade_distances(local->sfxsourceIdx, D_80367340[(s32)this->yaw].unk4*this->scale, D_80367340[(s32)this->yaw].unk6*this->scale);

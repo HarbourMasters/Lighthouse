@@ -383,7 +383,7 @@ void func_803867A8(Actor *this) {
                     this->velocity[0] += 1.0f;
                     if((this->velocity[0] < 0.0f) || (this->velocity[0] > 19.0f)) {
                         this->velocity[0] = 0.0f;
-                        func_8030E6A4(SFX_3F6_RUBBING, 0.5f, this->alpha_124_19*0x25 + 0x3840);
+                        gcsfx_playWithPitch(SFX_3F6_RUBBING, 0.5f, this->alpha_124_19*0x25 + 0x3840);
                     }
                 }
             }
@@ -391,7 +391,7 @@ void func_803867A8(Actor *this) {
             this->velocity[0] += 1.0f;
             if ((this->velocity[0] < 0.0f) || (this->velocity[0] > 19.0f)) {
                 this->velocity[0] = 0.0f;
-                FUNC_8030E8B4(SFX_3F6_RUBBING, 0.5f, 24000, this->position, 100, 2300);
+                sfx_playFadeShorthandDefault(SFX_3F6_RUBBING, 0.5f, 24000, this->position, 100, 2300);
 
             }
         }
@@ -845,7 +845,7 @@ void func_80387F78(Actor *this, enum file_progress_e progress_flag)
                 && fileProgressFlag_get(FILEPROG_9C_LAIR_CC_WITCH_SWITCH_LEFT_EYE_PRESSED)
                 && fileProgressFlag_get(FILEPROG_9D_LAIR_CC_WITCH_SWITCH_RIGHT_EYE_PRESSED))
             {
-                func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+                coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
                 timedFunc_set_0(0.9f, func_80387F1C);
             }
         }
@@ -961,7 +961,7 @@ void func_803882B0(Actor *this)
     if (this->lifetime_value == 0 && this->pitch > 42.f)
     {
         this->lifetime_value = 1.f;
-        func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
     }
 
     if (this->pitch > 90.f)
@@ -975,7 +975,7 @@ void func_803882B0(Actor *this)
 void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s32 a3)
 {
     if (fileProgressFlag_get(progress_flag) == false)
-        func_8030E6A4(sfx, a2, a3);
+        gcsfx_playWithPitch(sfx, a2, a3);
 
     fileProgressFlag_set(progress_flag, true);
 }
@@ -1173,7 +1173,7 @@ void func_80388524(Actor *this) {
                 switch (this->state) {
                     case 0x19: //L80388B34
                         subaddie_set_state_with_direction(this, 0x1A, 0.0f, 1);
-                        func_8025A6EC(JINGLE_END_OF_INTRO, -1);
+                        coMusicPlayer_playMusic(JINGLE_END_OF_INTRO, -1);
                         break;
 
                     case 26: //L80388B54
@@ -1363,7 +1363,7 @@ void func_80388FC8(Actor *this)
             if (this->modelCacheIndex == 0x215)
             {
                 func_802D48B8(this);
-                func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
+                gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
             }
 
             this->lifetime_value = 1.f;
@@ -1429,7 +1429,7 @@ void lair_func_80389204(Actor *this)
             this->position_y = this->unk1C[1];
 
             func_802D48B8(this);
-            func_8030E540(SFX_7F_HEAVYDOOR_SLAM);
+            gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
 
             this->lifetime_value = 1.f;
         }
@@ -1635,7 +1635,7 @@ void func_80389934(Actor *this)
                 subaddie_set_state_forward(this, 0x17);
                 actor_playAnimationOnce(this);
                 FUNC_8030E624(SFX_3F6_RUBBING, 0.6f, 32000);
-                func_8025A6EC(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+                coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
             }
 
             break;

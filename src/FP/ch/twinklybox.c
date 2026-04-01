@@ -177,7 +177,7 @@ void func_8038D294(ActorMarker *marker){
     func_8038CF54(this->position, 12, ASSET_4D4_MODEL_TWINKLY_BOX_PAPER_SHARD);
     func_8038D01C(this->position, 12, ASSET_700_SPRITE_DUST);
     this->velocity[1] = 0.0f;
-    FUNC_8030E8B4(SFX_30_MAGIC_POOF, 1.0f, 32000, this->position, 1000, 3500);
+    sfx_playFadeShorthandDefault(SFX_30_MAGIC_POOF, 1.0f, 32000, this->position, 1000, 3500);
     gcdialog_showText(0xc13, 0, NULL, NULL, NULL, NULL);
 }
 
@@ -264,7 +264,7 @@ void func_8038D5C8(ActorMarker *this_marker, ActorMarker *other_marker){
         func_8028F490(D_8039237C);
         func_8028F8F8(7, 1);
         this->unk1C[1] = 0.0f;
-        func_8025A6EC(COMUSIC_68_TWINKLY_MINIGAME, 25000);
+        coMusicPlayer_playMusic(COMUSIC_68_TWINKLY_MINIGAME, 25000);
         func_8025A58C(0, 4000);
         core1_ce60_incOrDecCounter(false);
         this->unk1C[2] = 428571.0f;
@@ -347,7 +347,7 @@ void func_8038D6C8(Actor *this){
             || actor_animationIsAt(this, 0.63f)
             || actor_animationIsAt(this, 0.81f)
         ){
-            FUNC_8030E8B4(SFX_98_DEAF_THUD, 1.0f, 32000, this->position, 400, 2000);
+            sfx_playFadeShorthandDefault(SFX_98_DEAF_THUD, 1.0f, 32000, this->position, 400, 2000);
         }
         break;
 
@@ -383,7 +383,7 @@ void func_8038D6C8(Actor *this){
         func_8025AEA0(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
         if(item_getCount(ITEM_24_TWINKLY_SCORE) == 0){
             subaddie_set_state_with_direction(this, 1, 0.001f, 1);
-            func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
             func_8038D3D8();
             func_80324E38(0.0f, 3);
             timedFunc_set_1(1.3f, (GenFunction_1)func_8038D51C, (uintptr_t)this->marker);
@@ -398,7 +398,7 @@ void func_8038D6C8(Actor *this){
             actor_playAnimationOnce(this);
             this->unk38_31 = 0;
             item_set(ITEM_6_HOURGLASS, false);
-            func_8025A6EC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+            coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 28000);
             func_8028F8F8(7, false);
             this->unk1C[1] = 1.0f;
             func_8038D3D8();

@@ -550,7 +550,7 @@ void func_803155C8(GcZoombox *this){
         if(this->sfx_count){
             for(i = 0; i < 5; i++){
                 if(func_8030E3FC(this->unk108[i])){
-                    func_8030E394(this->unk108[i]);
+                    sfxSource_func_8030E2C4(this->unk108[i]);
                 }
             }
         }
@@ -713,7 +713,7 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
             
             for(phi_s1 = 0; phi_s1 < 5; phi_s1++){
                 if (func_8030E3FC(this->unk108[phi_s1])) {
-                    func_8030E394(this->unk108[phi_s1]);
+                    sfxSource_func_8030E2C4(this->unk108[phi_s1]);
                 }
             }
             if (this->sfx_count != 1) {
@@ -1270,7 +1270,7 @@ void gczoombox_update(GcZoombox *this){
                     }
                }
                if(this->unk1A4_11 && anctrl_isAt(this->anim_ctrl, 0.9f)){
-                    func_8030E6A4(SFX_CD_PAUSEMENU_LEAVE_SUBMENU, 1.1f, this->unk12E);
+                    gcsfx_playWithPitch(SFX_CD_PAUSEMENU_LEAVE_SUBMENU, 1.1f, this->unk12E);
                }
                if(this->unk1A4_16 && anctrl_isStopped(this->anim_ctrl)){
                     if(this->unk1A4_14){

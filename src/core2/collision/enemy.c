@@ -271,7 +271,7 @@ void func_802CCBF4(Actor *this) {
     local->unk0 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_playSfxAtVolume(local->unk0, 0.9f);
     sfxsource_setSfxId(local->unk0, 0x3FA);
-    func_8030DD14(local->unk0, 2);
+    sfxSource_setunk43_7ByIndex(local->unk0, 2);
     sfxsource_setSampleRate(local->unk0, 0);
 }
 

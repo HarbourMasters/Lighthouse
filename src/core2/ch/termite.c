@@ -63,10 +63,10 @@ void __chTermite_updateWalkSFX(Actor *this) {
                       , 8000.0f, 1000.0f
     );
     if (actor_animationIsAt(this, 0.4f)) {
-        func_8030E6A4(SFX_3D_TICKER_WALKING, 0.85f, (s32) sp20);
+        gcsfx_playWithPitch(SFX_3D_TICKER_WALKING, 0.85f, (s32) sp20);
     }
     if (actor_animationIsAt(this, 0.9f)) {
-        func_8030E6A4(SFX_3D_TICKER_WALKING, 1.15f, (s32) sp20);
+        gcsfx_playWithPitch(SFX_3D_TICKER_WALKING, 1.15f, (s32) sp20);
     }
 }
 
@@ -75,7 +75,7 @@ void __chTermite_setupParticleEmitter(ParticleEmitter *pCtrl, f32 position[3]){
     particleEmitter_setDrawMode(pCtrl, 2);
     particleEmitter_func_802EF9F8(pCtrl, 0.7f);
     particleEmitter_func_802EFA18(pCtrl, 5);
-    func_802EFA20(pCtrl, 0.8f, 1.0f);
+    particleEmitter_func_802EFA20(pCtrl, 0.8f, 1.0f);
     particleEmitter_setSfx(pCtrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(pCtrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(pCtrl, 3.5f, 3.5f);

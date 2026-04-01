@@ -94,7 +94,7 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
         __spawnQueue_add_2((void (*)(void))chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->unk0);
     } else {
         jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
-        func_8025A6EC(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
 }
 

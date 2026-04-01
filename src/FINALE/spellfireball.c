@@ -148,7 +148,7 @@ void chSpellFireball_createExplosionParticles(ActorMarker *marker) {
     position[1] += 120.0f;
 
     if (actor->state != SPELLFIREBALL_STATE_2_DESPAWN) {
-        FUNC_8030E8B4(SFX_148_GRUNTY_SPELL_LANDING, 1.0f, 32000, actor->position, 1000, 3500);
+        sfx_playFadeShorthandDefault(SFX_148_GRUNTY_SPELL_LANDING, 1.0f, 32000, actor->position, 1000, 3500);
         timedFunc_set_0(0.0f, chSpellFireball_func_8038F01C);
         timedFunc_set_0(0.3f, chSpellFireball_func_8038F050);
         actor->unk58_0 = 0;

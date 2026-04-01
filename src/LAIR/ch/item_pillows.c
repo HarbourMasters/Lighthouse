@@ -36,17 +36,17 @@ void func_803905CC(ActorMarker *marker, ActorMarker *other_marker){
     case 0x170:
         item_setMaxCount(ITEM_D_EGGS);
         fxSparkle_giantBlueEgg(&marker->propPtr->x);
-        func_8025A6EC(SFX_EGG_REFILL, -1);
+        coMusicPlayer_playMusic(SFX_EGG_REFILL, -1);
         break;
     case 0x171:
         item_setMaxCount(ITEM_F_RED_FEATHER);
         fxSparkle_giantRedFeather(&marker->propPtr->x);
-        func_8025A6EC(SFX_RED_FEATHER_REFILL, -1);
+        coMusicPlayer_playMusic(SFX_RED_FEATHER_REFILL, -1);
         break;
     case 0x172:
         item_setMaxCount(ITEM_10_GOLD_FEATHER);
         fxSparkle_giantGoldFeather(&marker->propPtr->x);
-        func_8025A6EC(SFX_GOLD_FEATHER_REFILL, -1);
+        coMusicPlayer_playMusic(SFX_GOLD_FEATHER_REFILL, -1);
         break;
     }
     marker->collidable = false;

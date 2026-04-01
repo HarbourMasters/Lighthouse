@@ -1104,10 +1104,10 @@ s32 gcPauseMenu_update(void) {
 
                     if (map_get() == MAP_8E_GL_FURNACE_FUN) {
                         volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, 0);
-                        func_802E4078(MAP_80_GL_FF_ENTRANCE, 2, 1);
+                        transitionToMap(MAP_80_GL_FF_ENTRANCE, 2, 1);
                     }
                     else {
-                        func_802E4078(D_8036C560[level - 1].map, D_8036C560[level - 1].exit, 1);
+                        transitionToMap(D_8036C560[level - 1].map, D_8036C560[level - 1].exit, 1);
                     }
 
                     gcPauseMenu_setState(PAUSE_STATE_13_EXIT_PAUSE);
@@ -1128,7 +1128,7 @@ s32 gcPauseMenu_update(void) {
                     }
                     else {
                         func_802E412C(1, 0);
-                        func_802E4078(MAP_83_CS_GAME_OVER_MACHINE_ROOM, 0, 1);
+                        transitionToMap(MAP_83_CS_GAME_OVER_MACHINE_ROOM, 0, 1);
                         gcPauseMenu_setState(PAUSE_STATE_13_EXIT_PAUSE);
                     }
                     break;
@@ -1321,7 +1321,7 @@ s32 gcPauseMenu_update(void) {
                 if (!D_80383010.unk3_6) {
                     func_802DC560(0, 0);
                     func_802E412C(1, 0);
-                    func_802E4078(MAP_1F_CS_START_RAREWARE, 0, 1);
+                    transitionToMap(MAP_1F_CS_START_RAREWARE, 0, 1);
                     D_80383010.unk3_6 = 1;
                 }
             }
@@ -1597,6 +1597,6 @@ void gcpausemenu_returnToLair(void) {
 
     if (0 < level && level < LEVEL_C_BOSS && D_8036C560[level - 1].map != -1) {
         volatileFlag_set(VOLATILE_FLAG_16, true);
-        func_802E4078(D_8036C560[level - 1].map, D_8036C560[level - 1].exit, 1);
+        transitionToMap(D_8036C560[level - 1].map, D_8036C560[level - 1].exit, 1);
     }
 }

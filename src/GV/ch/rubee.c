@@ -84,7 +84,7 @@ void func_80389B1C(Actor *this){
                 || actor_animationIsAt(this, 0.51f)
                 || actor_animationIsAt(this, 0.57f)
             ){
-                FUNC_8030E8B4(SFX_8_BANJO_LANDING_04, 3.802f, 8000, this->position, 1500, 4500);
+                sfx_playFadeShorthandDefault(SFX_8_BANJO_LANDING_04, 3.802f, 8000, this->position, 1500, 4500);
             }
 
             if( actor_animationIsAt(this, 0.4f)){
@@ -103,7 +103,7 @@ void func_80389B1C(Actor *this){
         case 3: //L80389E14
             if( actor_animationIsAt(this, 0.2f)){
                 func_8025A58C(500, 400);
-                func_8025A6EC(COMUSIC_27_GV_RUBEES_SONG, 28000);
+                coMusicPlayer_playMusic(COMUSIC_27_GV_RUBEES_SONG, 28000);
             }
 
             if( actor_animationIsAt(this, 0.99f)){

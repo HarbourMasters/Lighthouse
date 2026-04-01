@@ -107,7 +107,7 @@ void func_8038C260(f32 position[3], s32 count, enum asset_e model_id){
     particleEmitter_setFade(pCtrl, 0.0f, 0.3f);
     particleEmitter_func_802EF9F8(pCtrl, 0.6f);
     particleEmitter_func_802EFA18(pCtrl, 0);
-    func_802EFA20(pCtrl, 1.0f, 1.3f);
+    particleEmitter_func_802EFA20(pCtrl, 1.0f, 1.3f);
     particleEmitter_setSfx(pCtrl, SFX_7B_ICE_BREAKING_1, 8000);
     particleEmitter_emitN(pCtrl, count);
 }
@@ -280,7 +280,7 @@ void func_8038C9A0(Actor *this){
 
     if(1.0f == other->unk1C[1]){
         func_8038C398(this->position, this->marker->id);
-        FUNC_8030E8B4(SFX_7B_ICE_BREAKING_1, 1.0f, 32000, this->position, 0x6d6, 0xdac);\
+        sfx_playFadeShorthandDefault(SFX_7B_ICE_BREAKING_1, 1.0f, 32000, this->position, 0x6d6, 0xdac);\
         marker_despawn(this->marker);
         return;
     }
@@ -327,7 +327,7 @@ void func_8038C9A0(Actor *this){
                 if(other->unk38_31 != 0){
                     other->unk38_31--;
                 }
-                func_8025A6EC(COMUSIC_2B_DING_B, 28000);
+                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                 marker_despawn(this->marker);
             }
             break;
@@ -349,8 +349,8 @@ void func_8038C9A0(Actor *this){
             break;
 
         case 5:// 8038CE14
-            this->yaw_ideal = (f32)func_80329784(this);
-            func_80328FB0(this, 8.0f);
+            this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 8.0f);
             if(!func_8038C718(this, this->unk1C[1])){
                 this->velocity[1] = randf2(14.0f, 20.0f);
             }

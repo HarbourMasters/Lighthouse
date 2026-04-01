@@ -166,7 +166,7 @@ void func_8038AB90(Actor *this, s32 arg1, s32 arg2, enum sfx_e sfx_id, f32 sfx_t
             if (arg2 == 2) {
                 func_8025A6CC(COMUSIC_3F_MAGIC_CARPET_RISING, 32000);
                 func_80324D2C(2.6f, COMUSIC_3F_MAGIC_CARPET_RISING);
-                func_8030E540(SFX_7C_CHEBOOF);
+                gcsfx_playAtSampleRate(SFX_7C_CHEBOOF);
             }
         }
     }
@@ -351,7 +351,7 @@ void chWarpCauldron_update(Actor *this) {
         case 5: //L8038B48C
             func_8038A96C(this, 3);
             if (actor_animationIsAt(this, 0.01f)) {
-                func_8030E540(SFX_7C_CHEBOOF);
+                gcsfx_playAtSampleRate(SFX_7C_CHEBOOF);
             }
             if (actor_animationIsAt(this, 0.63f)) {
                 volatileFlag_set(VOLATILE_FLAG_1E, 0);
@@ -402,13 +402,13 @@ void chWarpCauldron_update(Actor *this) {
                 func_8038AB90(this, 7, 1, 0, 0.0f);
             }
             func_8038AC7C(this);
-            sp38 = func_80329784(this);
+            sp38 = subaddie_getYawToPlayer(this);
             if( lair_func_8038ADF0(sp38, (s32) this->velocity[0]) 
                 || lair_func_8038ADF0((s32) this->velocity[0], sp38)
             ) {
                 this->yaw_ideal = (f32) sp38;
             }
-            func_80328FB0(this, 3.0f);
+            subaddie_turnToYaw(this, 3.0f);
             if( actor_animationIsAt(this, 0.114f)
                 || actor_animationIsAt(this, 0.217f)
                 || actor_animationIsAt(this, 0.321f)

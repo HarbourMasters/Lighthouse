@@ -97,7 +97,7 @@ void chSnowball_update(Actor *this) {
     s32 i;
 
     if(this->unk38_31 == 0 && func_80329530(this, 500)){
-        FUNC_8030E8B4(SFX_C_TAKING_FLIGHT_LIFTOFF, 0.85f, 32000, this->position, 1250, 2500);
+        sfx_playFadeShorthandDefault(SFX_C_TAKING_FLIGHT_LIFTOFF, 0.85f, 32000, this->position, 1250, 2500);
         this->unk38_31 = 1;
     }
 

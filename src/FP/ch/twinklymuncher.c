@@ -60,8 +60,8 @@ void func_8038DEB8(ActorMarker *this_marker, ActorMarker *other_marker){
     Actor *this = marker_getActor(this_marker);
     if(this->state != 1 && this->state != 5){
         func_8038DE78(this);
-        FUNC_8030E8B4(SFX_87_TANKTUP_OOOHW, 1.6f, 32000, this->position, 1250, 2500);
-        FUNC_8030E8B4(SFX_1D_HITTING_AN_ENEMY_1, 1.0f, 26000, this->position, 1250, 2500);
+        sfx_playFadeShorthandDefault(SFX_87_TANKTUP_OOOHW, 1.6f, 32000, this->position, 1250, 2500);
+        sfx_playFadeShorthandDefault(SFX_1D_HITTING_AN_ENEMY_1, 1.0f, 26000, this->position, 1250, 2500);
     }
 }
 
@@ -174,10 +174,10 @@ void func_8038E094(Actor *this){
             }
             
             if(actor_animationIsAt(this, 0.15f))
-                FUNC_8030E8B4(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 32000, this->position, 1250, 2500);
 
             if(actor_animationIsAt(this, 0.35f))
-                FUNC_8030E8B4(SFX_C4_TWINKLY_MUNCHER_GRR, 1.2f, 32000, this->position, 1250, 2500);
+                sfx_playFadeShorthandDefault(SFX_C4_TWINKLY_MUNCHER_GRR, 1.2f, 32000, this->position, 1250, 2500);
 
             if(actor_animationIsAt(this, 0.97f))
                 func_8038DE08(this);
@@ -198,8 +198,8 @@ void func_8038E094(Actor *this){
             if(sp38 && sp38->marker->id == this->unk38_31){
                 if(actor_animationIsAt(this, 0.23)){
                     func_8038C398(sp38->position, sp38->marker->id);
-                    FUNC_8030E8B4(SFX_110_TWINKLY_DEATH, 1.0f, 32000, this->position, 1250, 2500);
-                    FUNC_8030E8B4(SFX_27_JINJO_HI, 1.6f, 32000, this->position, 1250, 2500);
+                    sfx_playFadeShorthandDefault(SFX_110_TWINKLY_DEATH, 1.0f, 32000, this->position, 1250, 2500);
+                    sfx_playFadeShorthandDefault(SFX_27_JINJO_HI, 1.6f, 32000, this->position, 1250, 2500);
                     func_80324D54(0.35f, SFX_110_TWINKLY_DEATH, 1.0f, 32000, this->position, 1250.0f, 2500.0f);
                     marker_despawn(sp38->marker);
                     if( !mapSpecificFlags_get(0xa) && gcdialog_showText(0xc16, 0, NULL, NULL, NULL, NULL)){
@@ -223,8 +223,8 @@ void func_8038E094(Actor *this){
 
         case 6: //L8038E698
             this->marker->propPtr->unk8_3 = false;
-            this->yaw_ideal = (f32)func_80329784(this);
-            func_80328FB0(this, 12.0f);
+            this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
+            subaddie_turnToYaw(this, 12.0f);
             break;
 
         case 7: //L8038E6D4

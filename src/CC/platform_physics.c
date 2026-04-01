@@ -80,7 +80,7 @@ void func_803884A8(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3){
 void func_80388518(s32 arg0){
     s32 sp24;
     if(D_80389FA0.unk21 == 2){
-        func_8030E394(D_80389FA0.sfxsourceIdx);
+        sfxSource_func_8030E2C4(D_80389FA0.sfxsourceIdx);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.6f, 20000);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.8f, 20000);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.9f, 20000);
@@ -96,7 +96,7 @@ void func_80388518(s32 arg0){
         func_8030DD90(D_80389FA0.sfxsourceIdx, 0);
         sfxsource_playSfxAtVolume(D_80389FA0.sfxsourceIdx, 1.0f);
         sfxsource_setSfxId(D_80389FA0.sfxsourceIdx, SFX_7D_ANCHOR_LIFTING);
-        func_8030DD14(D_80389FA0.sfxsourceIdx, 3);
+        sfxSource_setunk43_7ByIndex(D_80389FA0.sfxsourceIdx, 3);
         sfxsource_setSampleRate(D_80389FA0.sfxsourceIdx, 27000);
         func_8030E2C4(D_80389FA0.sfxsourceIdx);
     }
@@ -310,10 +310,10 @@ void func_80388ED4(s32 arg0){
     f32 sp1C[3];
     func_8034A174(D_80389FA0.unk34, 5, sp1C);
     if(arg0 != 0){
-        FUNC_8030E8B4(SFX_91_METALLIC_SOUND, 0.7f, 32675, sp1C, 100, 6000);
+        sfx_playFadeShorthandDefault(SFX_91_METALLIC_SOUND, 0.7f, 32675, sp1C, 100, 6000);
     }
     else{
-        FUNC_8030E8B4(SFX_82_METAL_BREAK, 0.9f, 24000, sp1C, 100, 6000);
+        sfx_playFadeShorthandDefault(SFX_82_METAL_BREAK, 0.9f, 24000, sp1C, 100, 6000);
     }
     D_80389FA0.unk8 = 1.0f;
 }
@@ -340,11 +340,11 @@ void CC_func_80388F4C(void){
         if(D_80389FA0.unk21 == 3){
             func_8034A174(D_80389FA0.unk34, 5, sp54);
             if(sp60 < sp64){
-                FUNC_8030E8B4(SFX_7E_CREAKY_DOOR_OPENING, 0.6f, 32300, sp54, 1000, 5000);
+                sfx_playFadeShorthandDefault(SFX_7E_CREAKY_DOOR_OPENING, 0.6f, 32300, sp54, 1000, 5000);
             }//L80389058
 
             if(sp64 < 0.3 && 0.3 <= sp60){
-                FUNC_8030E8B4(SFX_7E_CREAKY_DOOR_OPENING, 0.5f, 32300, sp54, 1000, 5000);
+                sfx_playFadeShorthandDefault(SFX_7E_CREAKY_DOOR_OPENING, 0.5f, 32300, sp54, 1000, 5000);
             }
         }//L8038909C
 

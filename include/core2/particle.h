@@ -14,7 +14,7 @@ void particleEmitter_setAlpha(ParticleEmitter *self, s32 alpha);
 void particleEmitter_setSfx(ParticleEmitter *self, enum sfx_e sfx_id, s32 arg2);
 void func_802EFA04(ParticleEmitter *self, f32);
 void particleEmitter_setParticleCallback(ParticleEmitter *self, void (*arg1)(ParticleEmitter *self, f32 pos[3]));
-void func_802EFA20(ParticleEmitter *self, f32, f32);
+void particleEmitter_func_802EFA20(ParticleEmitter *self, f32, f32);
 void func_802EFA34(ParticleEmitter *self, f32);
 void func_802EFA40(ParticleEmitter *self, f32 (*)[3]);
 void particleEmitter_func_802EFA78(ParticleEmitter *self, s32 arg1);

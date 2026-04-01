@@ -442,7 +442,7 @@ s32 func_802944F4(void){
      return D_8037C284;
 }
 
-f32 func_80294500(void){
+f32 floor_getCurrentFloorYPosition(void){
      return func_8031C5E4(D_8037C200);
 }
 

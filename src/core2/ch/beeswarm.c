@@ -274,12 +274,12 @@ bool chBeeSwarm_802CF5E4(Actor *this){
 }
 
 void chBeeSwarm_802CF610(Actor *this, ParticleEmitter *p_ctrl, f32 position[3]) {
-    func_8030E6A4(SFX_66_BIRD_AUUGHH, randf2(1.75f, 1.85f), 15000);
+    gcsfx_playWithPitch(SFX_66_BIRD_AUUGHH, randf2(1.75f, 1.85f), 15000);
     particleEmitter_setPosition(p_ctrl, position);
     particleEmitter_setDrawMode(p_ctrl, 2);
     particleEmitter_func_802EF9F8(p_ctrl, 0.5f);
     particleEmitter_func_802EFA18(p_ctrl, 3);
-    func_802EFA20(p_ctrl, 0.8f, 1.0f);
+    particleEmitter_func_802EFA20(p_ctrl, 0.8f, 1.0f);
     particleEmitter_setSfx(p_ctrl, SFX_1F_HITTING_AN_ENEMY_3, 10000);
     particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
     particleEmitter_setParticleLifeTimeRange(p_ctrl, 2.0f, 2.5f);
@@ -296,7 +296,7 @@ void chBeeSwarm_802CF7CC(Actor *this) {
     if (D_8037DCBC == 0) {
         this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(this->unk44_31, SFX_3FA_HONEYCOMB_TALKING);
-        func_8030DD14(this->unk44_31, 2);
+        sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
         func_8030DD90(this->unk44_31, 2);
         D_8037DCBC = 1;
     }

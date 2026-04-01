@@ -12,7 +12,7 @@ ActorInfo chExtraLife = { MARKER_61_EXTRA_LIFE,  ACTOR_49_EXTRA_LIFE, ASSET_36E_
 
 void chextralife_update(Actor *this){
     if(!this->initialized){
-        func_8032AA58(this, 0.8f);
+        suSetSpriteScale(this, 0.8f);
         this->initialized = true;
         if(volatileFlag_get(VOLATILE_FLAG_1) || volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)){
             marker_despawn(this->marker);

@@ -245,7 +245,7 @@ void bsswim_swim_update(void) {
     if ((func_80294530() != 0) && (can_dive() != 0)) {
         func_802944D0(sp1C);
         if (sp1C[1] < -0.7) {
-            if ((func_80294500() - player_getYPosition()) > 90.0f) {
+            if ((floor_getCurrentFloorYPosition() - player_getYPosition()) > 90.0f) {
                 next_state = BS_30_DIVE_ENTER;
             }
         }
