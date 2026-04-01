@@ -29,10 +29,6 @@ extern s32 gSelectedGameNum;
 // [port] Get the widescreen logical width (320 at 4:3, wider for widescreen)
 int port_getViewportWidth(void);
 
-// [port] Demo frame pacing: returns the N64 VI count for the current demo tick
-// (typically 2 for 30fps, higher during original frame drops). Returns 0 outside demos.
-int port_getDemoViCount(void);
-
 // stick axis via LUS controller mappings. Used to enable the stick
 // diagonal/rebound filter only when relevant.
 bool port_CButtonIsAxis(void);

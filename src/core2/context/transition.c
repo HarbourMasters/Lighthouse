@@ -3,13 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 #include "gc/gctransition.h"
+#include "port/patches/Patches.h"
 
 void anctrl_setAnimTimer(AnimCtrl*, f32);
 void func_8025AC20(s32, s32, s32, f32, char*, s32);
-extern void port_setViBlack(int active);     // [port] display blanking (black screen after readback)
-extern void port_freezeReadback(int freeze); // [port] freeze gFramebuffers for transition capture
-extern void port_requestReadback(void);
-extern void port_patchTransitionModel(BKModelBin *model_bin);
 
 typedef enum {
     TRANSITION_ID_1_BLACK_IN = 1,

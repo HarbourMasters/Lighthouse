@@ -2,8 +2,8 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/patches/Patches.h"
 
-extern void port_requestReadback(void);
 
 
 

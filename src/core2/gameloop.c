@@ -5,14 +5,10 @@
 
 #include "gc/gctransition.h"
 #include "bk_time.h"
+#include "port/patches/Patches.h"
 
 extern void func_802F5374(void);
 extern void func_802FA0F8(void);
-extern void port_requestReadback(void);
-extern int port_consumeReadbackRequest(void);
-extern int port_shouldCaptureTransition(void);
-extern void port_readTransitionFbToCpu(Gfx **gfx);
-extern void port_patchTransitionModel(BKModelBin *model_bin);
 extern void timedFuncQueue_update(void);
 extern void func_80335128(s32);
 extern void func_8025A2B0(void);

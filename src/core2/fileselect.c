@@ -4,6 +4,7 @@
 
 #include "save.h"
 #include "core1/sns.h"
+#include "port/patches/Patches.h"
 
 /* .bss */
 SaveData gameFile_saveData[4]; //save_data
@@ -113,7 +114,6 @@ void gameFile_clear(s32 gamenum){
     savedata_clear(&gameFile_saveData[filenum]);
 }
 
-extern void port_restoreFileEnhancementData(int eepromSlot);
 extern s32 D_80386068; // [port] lives backup — func_80347AA8 restores from this
 extern s32 D_80385F30[];
 extern void sns_set_item_state(s32 item, s32 set, bool value);

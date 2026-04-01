@@ -8,6 +8,7 @@
 #include "core2/quiz_storage.h"
 
 #include "port/GameConfig.h"
+#include "port/patches/Patches.h"
 
 s32 gSelectedGameNum = -1;
 
@@ -32,8 +33,6 @@ extern void controller_getJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);
 extern struct5Bs *func_803097A0(void);
-
-extern void port_setViBlack(int active);
 
 /* .data */
 f32 D_80365DD0[3][3] = {

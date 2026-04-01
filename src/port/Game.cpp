@@ -4,6 +4,7 @@
 #include <fast/interpreter.h>
 #include "Engine.h"
 #include "ShipUtils.h"
+#include "patches/Patches.h"
 
 // [port] timeBeginPeriod(1) improves SDL_Delay precision for no-vsync path.
 // With vsync, sleep is unused since vsync paces the frame budget.
@@ -146,12 +147,8 @@ int SDL_main(int argc, char* argv[]) {
         uint64_t frameEnd = SDL_GetPerformanceCounter();
         double frameDuration = (double)(frameEnd - frameStart) / freq;
 
-        // [port] During demo playback, match the N64's original frame display time.
-        // When the N64 dropped frames (viCount > 2), it displayed that frame longer.
-        // Without this, animations appear to speed up because the larger delta is
-        // applied to a constant-length PC frame.
-        int viCount = port_getDemoViCount();
-        double targetFrameTime = (viCount > 0) ? (viCount / 60.0) : GAME_LOGIC_FRAME_TIME;
+        // [port] Match frame display time to N64's original pacing.
+        double targetFrameTime = port_getTargetFrameTime();
 
         if (frameDuration < targetFrameTime) {
             preciseSleep(targetFrameTime - frameDuration);

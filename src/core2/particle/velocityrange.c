@@ -3,9 +3,9 @@
 #include "variables.h"
 #include <ultra64.h>
 
-extern void port_requestReadback(void);
 
 #include <libultra/convert.h>
+#include "port/patches/Patches.h"
 
 typedef struct {
     s16 unk0;
