@@ -23,38 +23,38 @@ void ability_use(s32 arg0){
         return;
 
     switch(arg0){
-        case 0x0://L80295660 //jump
+        case ABILITY_USED_JUMP:
             // [port] guard with SM check — flags collide with map-specific usage in other worlds (e.g. BGS switches)
             if (map_get() == MAP_1_SM_SPIRAL_MOUNTAIN)
                 mapSpecificFlags_set(8, true);
             sp28 = 1;
             break;
-        case 0x1://L80295674 //flap
+        case ABILITY_USED_FLAP:
             if (map_get() == MAP_1_SM_SPIRAL_MOUNTAIN)
                 mapSpecificFlags_set(9, true);
             sp28 = 1;
             break;
-        case 0x2://L80295688 //bust
+        case ABILITY_USED_FLIP:
             if (map_get() == MAP_1_SM_SPIRAL_MOUNTAIN)
                 mapSpecificFlags_set(0xa, true);
             sp28 = 1;
             break;
-        case 0x3://L8029569C //
+        case ABILITY_USED_SWIM:
             if(map_get() == MAP_1_SM_SPIRAL_MOUNTAIN){
                 sp2C = ASSET_DFC_BOTTLES_UNDERWATER_TUTORIAL;
             }
             break;
-        case 0x4://L802956B8 //
+        case ABILITY_USED_CLIMB:
             if(map_get() == MAP_1_SM_SPIRAL_MOUNTAIN){
                 sp2C = ASSET_E02_DIALOG_BOTTLES_CLIMB_OTHER;
             }
             break;
-        case 0x5://L802956D4 //barge
+        case ABILITY_USED_BEAK_BARGE:
             if(map_get() == MAP_1_SM_SPIRAL_MOUNTAIN){
                 sp2C = ASSET_E05_DIALOG_BOTTLES_KAZOOIE_BARGE;
             }
             break;
-        case 0x6://L802956F0 //slide
+        case ABILITY_USED_SLIDE:
             sp28 = 0;
             if (!ability_isUnlocked(ABILITY_10_TALON_TROT)) {
                 if (map_get() == MAP_2_MM_MUMBOS_MOUNTAIN) {
@@ -68,13 +68,13 @@ void ability_use(s32 arg0){
                 abilityprogress_usedAbilities |= (1 << arg0);
             }
             break;
-        case 0x8://L80295738 //fly
+        case ABILITY_USED_FLY:
             sp2C = ASSET_A26_DIALOG_NEED_RED_FEATHERS_TO_FLY;
             break;
-        case 0x7://L80295740 //egg
-        case 0x9://L80295740 //shock
+        case ABILITY_USED_EGG:
+        case ABILITY_USED_SHOCK:
             break;
-    }//L80295744
+    }
 
     if (sp28) {
         comusic_playTrack(COMUSIC_2B_DING_B);

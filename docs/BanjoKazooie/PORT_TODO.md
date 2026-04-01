@@ -1,10 +1,5 @@
 # PORT TODO
 
-## Decomp code
-
-### Documentation
-The BK decomp at https://gitlab.com/banjo.decomp/banjo-kazooie has received a lot of documentation and corrections since it was taken into Lighthouse. Lighthouse commit history shows ~late 2024 for decomp, which misses a lot of useful documentation adds that came later like enums.h. We should bring more documentation over from decomp.
-
 ## Lighthouse.o2r
 
 ### Add a game selector
