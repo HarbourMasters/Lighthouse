@@ -507,9 +507,16 @@ void LoadFromDisk() {
 void SaveConverter_Init() {
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
-
+        SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);
+        if (loaded && ev->saveBuffer) {
+            loaded->magic = SAVE_MAGIC;
+            memcpy(ev->saveBuffer, loaded, sizeof(SaveData));
+            ev->result = 0; // success
+        } else {
+            ev->result = 2; // error
+        }
+        delete loaded;
         event->cancelled = true;
-        ev->result = (int32_t*)Convert_JSONToSaveData(ev->fileNum);
     });
 
     REGISTER_LISTENER(OnSaveFileSave, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

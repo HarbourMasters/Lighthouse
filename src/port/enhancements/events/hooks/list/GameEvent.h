@@ -13,7 +13,8 @@ DEFINE_EVENT(OnGameFileLoad,
 
 DEFINE_EVENT(OnSaveFileLoad,
 	int32_t fileNum;
-	int32_t* result;
+	void* saveBuffer;
+	int32_t result;
 )
 
 DEFINE_EVENT(OnSaveFileSave,

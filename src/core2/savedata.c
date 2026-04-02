@@ -317,7 +317,7 @@ void __savedata_save_abilities(u8 *savedata){ //savedata_save_abilities
 }
 
 s32 savedata_8033CA2C(s32 filenum, void *save_data_){ // [port] void* for prototype compatibility
-    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileLoad, filenum) {
+    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileLoad, filenum, save_data_, 0) {
         SaveData* save_data = (SaveData*)save_data_;
         s32 sp1C;
 
