@@ -1,6 +1,7 @@
 #ifndef SAVE_TYPES_H
 #define SAVE_TYPES_H
 
+#define SAVE_MAGIC 0x11
 #define SAVE_VERSION 1
 
 #define EEPROM_TOTAL_SIZE 512

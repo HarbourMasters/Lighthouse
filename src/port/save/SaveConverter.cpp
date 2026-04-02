@@ -54,7 +54,7 @@ static int VisualGameToSlot(int visual) {
 }
 
 json FindSelectedSaveFile(int32_t filenum) {
-    std::string fileName = "file" + std::to_string(SlotToVisualGame(filenum) + 1) + ".json";
+    std::string fileName = "file" + std::to_string(SlotToVisualGame(filenum)) + ".json";
     std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
 
     if (!std::filesystem::exists(filePath)) {
@@ -451,20 +451,13 @@ void LoadFromDisk() {
 
     // Load game files (file1.json, file2.json, file3.json)
     for (int i = 1; i <= 3; i++) {
-        json fileCheck = FindSelectedSaveFile(i);
-        if (fileCheck.empty()) {
-            continue;
-        }
+        // int slotIndex = fileCheck["slotIndex"].get<int>();
+        // int eepromSlot = i - 1;
+        // int base = eepromSlot * SAVE_SLOT_SIZE;
 
-        if (!fileCheck.contains("version") || !fileCheck.contains("slotIndex")) {
-            continue;
-        }
-
-        int slotIndex = fileCheck["slotIndex"].get<int>();
-        int eepromSlot = i - 1;
-        int base = eepromSlot * SAVE_SLOT_SIZE;
-
-        //JsonToSlot(j, mEeprom + base);
+        SaveData* loadSave = Convert_JSONToSaveData(i);
+        loadSave->magic = SAVE_MAGIC;
+        gameFile_saveData[i - 1] = *(loadSave);
     }
 
     // Load global data
@@ -552,16 +545,16 @@ void SaveConverter_Init() {
             mLoaded = true;
         }
 
-        int absoluteBlock = ev->file * SAVE_SLOT_BLOCKS + ev->offset;
-        int byteOffset = absoluteBlock * EEPROM_BLOCK_SIZE;
-        int byteCount = ev->count * EEPROM_BLOCK_SIZE;
-        
-        if (byteOffset + byteCount > EEPROM_TOTAL_SIZE) {
-            ev->result = 1;
-        } else {
-            memcpy(ev->buffer, mEeprom + byteOffset, byteCount);
-            ev->result = 0;
-        }
+        // int absoluteBlock = ev->file * SAVE_SLOT_BLOCKS + ev->offset;
+        // int byteOffset = absoluteBlock * EEPROM_BLOCK_SIZE;
+        // int byteCount = ev->count * EEPROM_BLOCK_SIZE;
+        // 
+        // if (byteOffset + byteCount > EEPROM_TOTAL_SIZE) {
+        //     ev->result = 1;
+        // } else {
+        //     memcpy(ev->buffer, mEeprom + byteOffset, byteCount);
+        //     ev->result = 0;
+        // }
 
         event->cancelled = true;
     });
