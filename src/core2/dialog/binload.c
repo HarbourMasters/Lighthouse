@@ -27,7 +27,7 @@ void func_8031B5C4(s32 arg0) {
     D_80383150 = 1;
 }
 
-bool func_8031B604(u8 *arg0) { // [port] MIPS char is unsigned; must be u8 for 0x80+ comparisons
+bool func_8031B604(u8 *arg0) {
     return (arg0[0] == 0xFD) && (arg0[1] == 0x6A);
 }
 
@@ -49,7 +49,7 @@ void dialogBin_update(void){}
 void dialogBin_terminate(void){}
 
 char *dialogBin_get(enum asset_e text_id) {
-    u8 *sp1C; // [port] MIPS char is unsigned; must be u8 for correct offset computation
+    u8 *sp1C;
     char *var_v0;
     s32 var_a0; //offset where text starts (normally 0x3)
 

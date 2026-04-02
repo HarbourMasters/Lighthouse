@@ -41,9 +41,21 @@ f32 D_80365DD0[3][3] = {
     {110.0f, 340.0f, 110.0f},
     {-413.333313f, 353.333313f, -234.305511f}
 };
-u8 *D_80365DF4 = "USE THE CONTROL STICK TO SELECT A GAME.";   
-u8 *D_80365DF8 = "PRESS A TO PLAY THE GAME OR Z TO ERASE IT!";
-u8 *D_80365DFC = "ARE YOU SURE? PRESS A TO CONFIRM, OR B TO CANCEL";
+u8 *D_80365DF4[] = {
+    "USE THE CONTROL STICK TO SELECT A GAME.",
+    "S" "\x62" "LECTIONNEZ UN FICHIER _ L'AIDE DU STICK.",
+    "W[HLE MIT DEM 3D-STICK",
+};
+u8 *D_80365DF8[] = {
+    "PRESS A TO PLAY THE GAME OR Z TO ERASE IT!",
+    "APPUYEZ SUR A POUR JOUER OU SUR Z POUR EFFACER!",
+    "EIN SPIEL AUS. DR]CKE A, UM ZU SPIELEN, ODER DEN Z-TRIGGER, UM DEN SPIELSTAND ZU L\\SCHEN!",
+};
+u8 *D_80365DFC[] = {
+    "ARE YOU SURE? PRESS A TO CONFIRM, OR B TO CANCEL.",
+    "dTES-VOUS SiR? APPUYEZ SUR A POUR CONFIRMER OU SUR B POUR ANNULER.",
+    "SICHER? DR]CKE A, UM ZU BEST[TIGEN, ODER B, UM ZU WIDERRUFEN.",
+};
 s32 D_80365E00 = -1;
 f32 D_80365E04[3][3] = {
     {-435.0f,      278.0f,  -159.0f},
@@ -182,8 +194,15 @@ void *func_802C44EC(f32 arg0[3], f32 arg1[3], f32 arg2) {
 
 void func_802C4768(s32 gamenum){
     u8 * sp20[2];
-    static u8 upperTextLine[0x20];
-    static u8 lowerTextLine[0x20];
+    static u8 upperTextLine[0x40];
+    static u8 lowerTextLine[0x40];
+    static u8 *sGamePrefix[]  = { "GAME ",    "FICHIER ", "SPIEL " };
+    static u8 *sTimeLabel[]   = { ": TIME ",  ": TEMPS ", ": ZEIT " };
+    static u8 *sJigsawLabel[] = { " JIGSAW",  " PI" "\x63" "CE",  " PUZZLETEIL" };
+    static u8 *sJigsawPlural[] = { "S", "S", "E" };
+    static u8 *sNoteLabel[]   = { " NOTE",    " NOTE",    " NOTE" };
+    static u8 *sEmptyLabel[]  = { ": EMPTY",  ": VIDE",   ": LEER" };
+    s32 lang = code94620_func_8031B5B0();
 
     func_8031FBF8();
     D_80365E00 = gamenum;
@@ -191,9 +210,9 @@ void func_802C4768(s32 gamenum){
     if(gameFile_isNotEmpty(gamenum)){
         gameFile_load(gamenum);
         D_8037DCCE[gamenum] = (itemscore_timeScores_get(LEVEL_6_LAIR)) ? 1 : 0;
-    
+
         strcpy(upperTextLine, "");
-        strcat(upperTextLine, "GAME ");
+        strcat(upperTextLine, sGamePrefix[lang]);
         switch(gamenum){
             case 0: //L802C4820
                 strIToA(upperTextLine, 1);
@@ -205,20 +224,20 @@ void func_802C4768(s32 gamenum){
                 strIToA(upperTextLine, 2);
                 break;
         }//L802C4858
-        strcat(upperTextLine, ": TIME ");
+        strcat(upperTextLine, sTimeLabel[lang]);
         strcat(upperTextLine, gcpausemenu_TimeToA(itemscore_timeScores_getTotal()));
         strcat(upperTextLine, ",");
         strcat(upperTextLine, "");
 
         strcpy(lowerTextLine, "");
         strIToA(lowerTextLine, jiggyscore_total());
-        strcat(lowerTextLine, " JIGSAW");
+        strcat(lowerTextLine, sJigsawLabel[lang]);
         if(jiggyscore_total() != 1){
-            strcat(lowerTextLine, "S");
+            strcat(lowerTextLine, sJigsawPlural[lang]);
         }
         strcat(lowerTextLine, ", ");
         strIToA(lowerTextLine, itemscore_noteScores_getTotal());
-        strcat(lowerTextLine, " NOTE");
+        strcat(lowerTextLine, sNoteLabel[lang]);
         if(itemscore_noteScores_getTotal() != 1){
             strcat(lowerTextLine, "S");
         }
@@ -228,7 +247,7 @@ void func_802C4768(s32 gamenum){
     else{
         D_8037DCCE[gamenum] = 0;
         strcpy(upperTextLine, "");
-        strcat(upperTextLine, "GAME ");
+        strcat(upperTextLine, sGamePrefix[lang]);
         switch (gamenum){
             case 0:
                 strIToA(upperTextLine, 1);
@@ -240,7 +259,7 @@ void func_802C4768(s32 gamenum){
                 strIToA(upperTextLine, 2);
                 break;
         }//L802C4A40
-        strcat(upperTextLine, ": EMPTY");
+        strcat(upperTextLine, sEmptyLabel[lang]);
         strcpy(lowerTextLine, "");
     }//L802C4A68
     sp20[0] = upperTextLine;\
@@ -456,7 +475,7 @@ void func_802C4C14(Actor *this){
                     if(sp74[0] == 1){
                         if(gameFile_isNotEmpty(sp84)){
                             func_8031877C(chGameSelectTopZoombox);
-                            func_803183A4(chGameSelectTopZoombox, (&D_80365DFC)[code94620_func_8031B5B0()]);
+                            func_803183A4(chGameSelectTopZoombox, D_80365DFC[code94620_func_8031B5B0()]);
                             D_8037DD2C = 1;
                             subaddie_set_state(this, 5);
                         }
@@ -582,8 +601,8 @@ void func_802C4C14(Actor *this){
 
 void func_802C5740(Actor * this){
     int i = code94620_func_8031B5B0();
-    D_8037DCE0.unk0 = (&D_80365DF4)[i];
-    D_8037DCE0.unk4 = (&D_80365DF8)[i];
+    D_8037DCE0.unk0 = D_80365DF4[i];
+    D_8037DCE0.unk4 = D_80365DF8[i];
 
     if(!this->initialized){
         gameFile_8033CE40();
