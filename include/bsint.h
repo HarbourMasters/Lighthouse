@@ -2,7 +2,8 @@
 #define __BS_INT_H__
 
 #include <ultra64.h>
-#include "functions.h"
+// [port] This shouldn't be here
+// #include "functions.h"
 #include "variables.h"
 
 typedef void (*bsStateMethod)(void);  
