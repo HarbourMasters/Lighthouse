@@ -6,6 +6,9 @@
 #include <windows.h>
 #endif
 
+#include "port/enhancements/events/hooks/list/EngineEvent.h"
+#include "port/ShipInit.hpp"
+
 extern "C" {
 #include "enums.h"
 enum level_e map_getLevel(enum map_e map);
@@ -140,3 +143,12 @@ extern "C" void port_setWindowTitle(int map_id) {
     }
 #endif
 }
+
+void RegisterGameStatus_Init() {
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_LOW, [](IEvent* event) {
+        OnMapLoad* ev = (OnMapLoad*)event;
+        port_setWindowTitle(ev->mapId);
+    });
+}
+
+static RegisterShipInitFunc initFunc(RegisterGameStatus_Init);

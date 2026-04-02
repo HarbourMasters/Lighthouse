@@ -13,6 +13,8 @@ void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(VanillaBehavior);
+    REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(OnFileLoaded);
 
     // Register game events
     REGISTER_EVENT(OnGameLoad);
