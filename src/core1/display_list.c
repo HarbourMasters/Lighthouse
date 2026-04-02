@@ -5,6 +5,7 @@
 #include "port/Engine.h"
 
 #include <libultra/convert.h>
+#include "port/patches/Patches.h"
 
 static Gfx *sGfxStack[2] = { NULL, NULL };
 s32 gFramebufferWidth = DEFAULT_FRAMEBUFFER_WIDTH;
@@ -84,10 +85,6 @@ void func_80253640(Gfx ** gdl, void *arg1){
     gDPSetTexturePersp((*gdl)++, G_TP_PERSP);
     zBuffer_set(gdl);
 }
-
-extern s32 port_getAuxGpuFbId(void);
-extern s32 port_getTransitionGpuFbId(void);
-extern int port_shouldCaptureTransition(void);
 
 void scissorBox_SetForGameMode(Gfx **gdl, s32 framebuffer_idx) {
     if(getGameMode() == GAME_MODE_8_BOTTLES_BONUS || getGameMode() == GAME_MODE_A_SNS_PICTURE)

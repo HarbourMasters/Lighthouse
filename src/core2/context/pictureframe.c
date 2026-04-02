@@ -3,8 +3,7 @@
 #include "variables.h"
 
 extern void actor_postdrawMethod(ActorMarker *);
-extern void port_readAuxFbToCpu(Gfx **gfx);
-extern void port_patchPictureModel(BKModelBin *model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from);
+#include "port/patches/Patches.h"
 
 void func_802DF2C4(Actor *this);
 

@@ -6,6 +6,7 @@
 
 #include <libultra/convert.h>
 #include "port/Engine.h"
+#include "port/patches/Patches.h"
 
 Gfx D_8036C630[] =
 {
@@ -37,8 +38,6 @@ s32 D_803830A0;
 
 
 /* .code */
-extern int port_getPauseFramebufferId(void);
-
 void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void *frame_buffer_2) {
     // [port] GPU-side pause snapshot
     s32 pauseFb = port_getPauseFramebufferId();

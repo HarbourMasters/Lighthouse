@@ -3,7 +3,7 @@
 #include "variables.h"
 #include <ultra64.h>
 
-extern void port_requestReadback(void);
+#include "port/patches/Patches.h"
 
 #include <libultra/convert.h>
 

@@ -11,8 +11,7 @@ s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
 
 void func_80346DB4(s32);
 
-extern void port_restoreFileEnhancementData(int eepromSlot);
-
+#include "port/patches/Patches.h"
 #include "port/GameConfig.h"
 
 /* .bss */

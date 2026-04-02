@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void port_requestReadback(void);
+#include "port/patches/Patches.h"
 
 
 

@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/patches/Patches.h"
 
 extern void func_8025A6CC(enum comusic_e arg0, s32 arg1);
 extern void chBottlesBonusCursor_func_802DF99C(void);
@@ -51,8 +52,6 @@ typedef struct{
 extern void actor_postdrawMethod(ActorMarker *);
 extern void viewport_setNearAndFar(f32, f32);
 extern s16 *func_8030C704(void);
-extern void port_patchPictureModel(BKModelBin *model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from);
-
 Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chBottlesBonus_update(Actor *this);
 

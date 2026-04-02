@@ -5,6 +5,7 @@
 #include "variables.h"
 
 #include "version.h"
+#include "port/patches/Patches.h"
 
 //#include <libultra/pfs.h>
 
@@ -169,8 +170,6 @@ void baMotor_init(void) {
 }
 
 void __baMotor_80250D8C(void){}
-
-extern f32 port_getRumbleScale(void); // [port] 0.0–1.0 from ImGui rumble intensity
 
 void baMotor_80250D94(f32 arg0, f32 arg1, f32 arg2){
     f32 f4;

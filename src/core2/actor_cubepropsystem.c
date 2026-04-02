@@ -6,6 +6,7 @@
 
 #include <core2/file.h>
 #include "port/FrameInterpolation.h"
+#include "port/patches/Patches.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 
@@ -1540,8 +1541,6 @@ void func_803306C8(s32 arg0) {
         }
     }
 }
-
-extern void port_spriteDisplayCache_clear(void);
 
 void func_803308A0(void) {
     s32 i;

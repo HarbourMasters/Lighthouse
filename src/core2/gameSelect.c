@@ -8,6 +8,7 @@
 #include "core2/quiz_storage.h"
 
 #include "port/GameConfig.h"
+#include "port/patches/Patches.h"
 
 s32 gSelectedGameNum = -1;
 
@@ -32,8 +33,6 @@ extern void controller_getJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);
 extern struct5Bs *func_803097A0(void);
-
-extern void port_setViBlack(int active);
 
 /* .data */
 f32 D_80365DD0[3][3] = {
@@ -429,19 +428,8 @@ void func_802C4C14(Actor *this){
                 case 4://L802C50C8
                     if(anctrl_isStopped(this->anctrl)){
                         chBottlesBonus_func_802DEB80();
-                        // gameFile_load handles the slot lookup and restores both
-                        // lives and bottles bonus via port_restoreFileEnhancementData.
-                        {
-                            extern u8 gCompletedBottlesBonusGames[7];
-                            extern s32 chBottlesBonusPuzzleIndex;
-                            s32 _i;
-                            gameFile_load(gSelectedGameNum);
-                            for (_i = 0; _i < 7; _i++) {
-                                if (gCompletedBottlesBonusGames[_i]) {
-                                    chBottlesBonusPuzzleIndex = _i + 1;
-                                }
-                            }
-                        }
+                        gameFile_load(gSelectedGameNum);
+                        port_syncBottlesBonusIndex();
                         if(!gameFile_isNotEmpty(sp84)){
                             // [port] BB romhacks can override the new-game boot map
                             s32 newGameMap = port_getRomhackNewGameMap();

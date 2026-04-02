@@ -5,8 +5,7 @@
 extern void actor_postdrawMethod(ActorMarker *);
 extern void chBottlesBonus_func_802DD080(Gfx **, Mtx **);
 extern void func_80311714(s32);
-extern void port_readAuxFbToCpu(Gfx **gfx);
-extern void port_patchPictureModel(BKModelBin *model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from);
+#include "port/patches/Patches.h"
 
 Actor *func_802DEC00(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802DEE1C(Actor *this);
