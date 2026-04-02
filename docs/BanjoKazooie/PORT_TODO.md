@@ -7,15 +7,6 @@ Lighthouse supports romhacks created with Banjo's Backpack, if a config.yml entr
 
 ## Vanilla Issues
 
-### Lair Continuity Bug
-Exiting the lair out to spiral mountain continues lair music. This is all done in audio_instruments.c
-
-### Aspect 4:3 top/bottom frustum draw distance bug
-In 4:3 mode many things are being culled at 100% draw distance; needs same top/bottom frustum checks as widescreen since we go from 292x216 to 320x240 at 4:3.
-
-### PAL crashes
-PAL o2r has some issues with rendering accent characters which cause flickering in zoombox dialog. There is also a crash to do with speaker sprites.
-
 ### MacOS Lag
 On Metal, framebuffers (falling jiggy transition, pause menu, bottles bonus and sns) have heavy lag. OpenGL path works fine.
 
