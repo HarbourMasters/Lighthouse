@@ -951,6 +951,16 @@ void func_8029CCC4(void){
     if(jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
         func_8028F918(2);
     }
+    // [port] When skipping the jiggy dance:
+    // - Restore camera type (set to 0xC by __baMarker_8028B848 for first/10th jiggy dialog)
+    // - Don't touch the ambience counter or music fade — the jinjo or other spawner
+    //   may have already decremented the counter, and the timed restore would cause
+    //   a double-increment. Just play the jingle and let the spawner handle cleanup.
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"), 0)) {
+        func_80291548();
+        coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
+        return;
+    }
     core1_ce60_incOrDecCounter(false);
     func_8025A55C(0, 4000, 0xC);
     coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
