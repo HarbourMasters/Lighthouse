@@ -8,6 +8,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 
 #include "port/Engine.h"
+#include "port/ui/cvar_prefixes.h"
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipInit.hpp"
 
@@ -20,10 +21,10 @@ enum map_e map_get(void);
 
 // Cutscene aspect lock — force 4:3 during cutscene maps
 
-#define CVAR_AR_ENABLED "gSettings.AdvancedResolution.Enabled"
-#define CVAR_AR_COMBO "gSettings.AdvancedResolution.UIComboItem.AspectRatio"
-#define CVAR_AR_X "gSettings.AdvancedResolution.AspectRatioX"
-#define CVAR_AR_Y "gSettings.AdvancedResolution.AspectRatioY"
+#define CVAR_AR_ENABLED CVAR_SETTING("AdvancedResolution.Enabled")
+#define CVAR_AR_COMBO CVAR_SETTING("AdvancedResolution.UIComboItem.AspectRatio")
+#define CVAR_AR_X CVAR_SETTING("AdvancedResolution.AspectRatioX")
+#define CVAR_AR_Y CVAR_SETTING("AdvancedResolution.AspectRatioY")
 
 static int32_t sCutsceneAspectActive = 0;
 static int32_t sSavedEnabled;
