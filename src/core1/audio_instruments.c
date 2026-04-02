@@ -32,39 +32,8 @@ void func_8024FD28(u8, s16);
 int func_80250074(u8);
 u8 func_8025F4A0(ALCSPlayer *, u8);
 
-// [port] Lair audio continuity: tracks within the same group share enough
-// sequence data that seeking to the same tick position sounds seamless.
-// Group 0 = not a lair track, groups 1-3 = adjacent lair floors.
-static int lairTrackGroup(s32 trackIndex) {
-    switch (trackIndex) {
-        case COMUSIC_1E_GL_MM_VERSION:
-        case COMUSIC_50_GL_TTC_VERSION:
-        case COMUSIC_51_GL_CCW_VERSION:
-            return 1;
-        case COMUSIC_52_GL_BGS_RBB_VERSION:
-        case COMUSIC_53_GL_FP_VERSION_A:
-            return 2;
-        case COMUSIC_54_GL_GV_VERSION:
-        case COMUSIC_59_GL_FP_VERSION_B:
-        case COMUSIC_5D_GL_MMM_VERSION:
-        case COMUSIC_5E_GL_MMM_RBB_VERSION:
-        case COMUSIC_63_GL_FF_VERSION:
-            return 3;
-        default:
-            return 0;
-    }
-}
-
-// Per-group saved tick positions, plus a combined position for cross-group seeks.
-static s32 sLairSavedTicks[4] = { 0 }; // one per group (index 1-3)
-static s32 sLairLastSavedTicks = 0;     // last saved from any group
-static s32 sLairPendingSeek = 0;        // ticks to seek to on next track start
-static u8  sLairPendingSeekSlot = 0xFF; // which slot the seek is for
-
-// [port] Defined after D_80281720 declaration
-s32 lairAudio_consumePendingSeek(ALCSPlayer *player);
-// [port] Returns true if a lair continuity seek is pending (for skipping fade-in)
-int lairAudio_hasPendingSeek(void) { return sLairPendingSeek > 0; }
+// [port] Lair continuity seek functions — declared in Patches.h, defined in LairContinuity.cpp
+#include "port/patches/Patches.h"
 
 void func_8025F3F0(ALCSPlayer *, f32, f32);
 u16 func_80250474(s32 arg0);
@@ -261,17 +230,6 @@ ALBank *     D_80282108;
 structBs     D_80282110[0x20];
 
 /* .code */
-
-// [port] Called from n_csplayer.c AL_SEQP_PLAY_EVT handler.
-s32 lairAudio_consumePendingSeek(ALCSPlayer *player) {
-    if (sLairPendingSeekSlot >= 6) return 0;
-    if (player != &D_80281720[sLairPendingSeekSlot].cseqp) return 0;
-    s32 ticks = sLairPendingSeek;
-    sLairPendingSeek = 0;
-    sLairPendingSeekSlot = 0xFF;
-    return ticks;
-}
-
 void musicInstruments_init(void){
     s32 i;
 
@@ -404,15 +362,9 @@ void func_8024FA98(u8 arg0, s32 arg1){
 
     sp2C = D_80281720[arg0].index;
     if(arg1 == sp2C || sp2C == -1){
-        // [port] Lair audio continuity: the comusic layer stops the old track
-        // (setting index to -1) then starts the new one as a separate call.
-        // Set pending seek so func_8024F890 applies it before alCSPPlay.
-        if (sp2C == -1 && arg1 >= 0 && CVarGetInteger(CVAR_ENHANCEMENT("Audio.LairContinuity"), 0)) {
-            int newGroup = lairTrackGroup(arg1);
-            if (newGroup > 0 && sLairLastSavedTicks > 0) {
-                sLairPendingSeek = sLairSavedTicks[newGroup] ? sLairSavedTicks[newGroup] : sLairLastSavedTicks;
-                sLairPendingSeekSlot = arg0;
-            }
+        // [port] Lair continuity: set up pending seek for lair-to-lair transitions
+        if (sp2C == -1 && arg1 >= 0) {
+            CALL_EVENT(OnMusicTrackStart, arg0, arg1);
         }
         func_8024F890(arg0, arg1);
     }else{
@@ -450,43 +402,13 @@ void func_8024FB8C(void){
 
 }
 
-static s8 sLairDeferredStop = -1; // slot with deferred lair stop, or -1
-
 void func_8024FC1C(u8 arg0, s32 arg1){
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Audio.LairContinuity"), 0)) {
-        // Stop request for a lair track: defer it so music plays through transition
-        if (arg1 == -1) {
-            int group = lairTrackGroup(D_80281720[arg0].index);
-            if (group > 0) {
-                s32 ticks = alCSeqGetTicks(&D_80281720[arg0].cseq);
-                sLairSavedTicks[group] = ticks;
-                sLairLastSavedTicks = ticks;
-                sLairDeferredStop = arg0;
-                return; // keep playing through the transition
-            }
-        }
-        // New lair track request: now execute the deferred stop + normal start
-        if (arg1 >= 0 && sLairDeferredStop == arg0) {
-            int newGroup = lairTrackGroup(arg1);
-            // Re-capture ticks NOW (old track was still playing during transition)
-            int oldGroup = lairTrackGroup(D_80281720[arg0].index);
-            if (oldGroup > 0) {
-                s32 ticks = alCSeqGetTicks(&D_80281720[arg0].cseq);
-                sLairSavedTicks[oldGroup] = ticks;
-                sLairLastSavedTicks = ticks;
-            }
-            sLairDeferredStop = -1;
-            if (newGroup > 0) {
-                sLairPendingSeek = sLairSavedTicks[newGroup] ? sLairSavedTicks[newGroup] : sLairLastSavedTicks;
-                sLairPendingSeekSlot = arg0;
-            }
-            // Execute the deferred stop now, then fall through to start new track
-            D_80281720[arg0].index_cpy = -1;
-            D_80281720[arg0].unk2 = 1;
-            D_80281720[arg0].unk3 = 0;
-            D_80281720[arg0].unk0 = 0;
-        }
-    }
+    // [port] Lair continuity hook — may defer the stop or set up a seek
+    bool should = true;
+    s32 trackArgs[2] = { arg0, arg1 };
+    CALL_EVENT(VanillaBehavior, VB_MUSIC_SET_TRACK, &should, trackArgs);
+    if (!should)
+        return;
     D_80281720[arg0].index_cpy = arg1;
     D_80281720[arg0].unk2 = 1;
     D_80281720[arg0].unk3 = 0;
@@ -561,30 +483,15 @@ s32 func_8024FEEC(u8 arg0)
 void func_8024FF34(void){
     s32 i;
 
-    // [port] While a lair stop is deferred, keep both the hardware volume
-    // and comusic state up so the fade system doesn't trigger func_802599B4.
-    if (sLairDeferredStop >= 0) {
-        u8 slot = (u8)sLairDeferredStop;
-        s32 vol = D_80275D40[D_80281720[slot].index].unk4;
-        func_8024FD28(slot, (s16)vol);
-        CoMusic *cm = &D_80276E30[slot];
-        cm->volume = vol;     // prevent comusic from thinking volume is 0
-        cm->unk12 = 0;      // stop any fade in progress
-    }
+    // [port] Lair continuity: maintain deferred track or clean up on non-lair map
+    CALL_EVENT(OnMusicTick);
 
     for(i = 0; i < 6 ; i++){
         switch(D_80281720[i].cseqp.state){
             case AL_PLAYING://L8024FF94
                 if(D_80281720[i].unk2){
-                    // [port] Capture tick position while still playing, before stop resets it
-                    if (CVarGetInteger(CVAR_ENHANCEMENT("Audio.LairContinuity"), 0)) {
-                        int group = lairTrackGroup(D_80281720[i].index);
-                        s32 ticks = alCSeqGetTicks(&D_80281720[i].cseq);
-                        if (group > 0) {
-                            sLairSavedTicks[group] = ticks;
-                            sLairLastSavedTicks = ticks;
-                        }
-                    }
+                    // [port] Lair continuity: capture tick position before stop
+                    CALL_EVENT(OnMusicPreStop, i);
                     alCSPStop(&(D_80281720[i].cseqp));
 
                     if(D_80281720[i].unk3)

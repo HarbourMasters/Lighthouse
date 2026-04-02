@@ -7,7 +7,7 @@
 #include "version.h"
 
 extern void func_8024FDDC(u8, s32);
-extern int lairAudio_hasPendingSeek(void); // [port]
+#include "port/patches/Patches.h"
 
 void func_8025AE50(s32, f32);
 

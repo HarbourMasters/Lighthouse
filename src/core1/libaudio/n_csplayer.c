@@ -18,7 +18,7 @@ ALSound         *__n_lookupSoundQuick(ALSeqPlayer *, u8, u8, u8);
 void		__n_seqpReleaseVoice(ALSeqPlayer *seqp, ALVoice *voice, ALMicroTime deltaTime);
 char __alCSeqNextDelta(ALCSeq *seq, s32 *pDeltaTicks);
 void func_80250104(ALCSeq *arg0, s32 arg1, s32 arg2);
-s32 lairAudio_consumePendingSeek(ALCSPlayer *player); // [port]
+#include "port/patches/Patches.h"
 
 /*====================================================================
  * csplayer.c

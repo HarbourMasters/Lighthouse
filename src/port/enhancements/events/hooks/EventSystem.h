@@ -83,14 +83,16 @@ typedef struct EventListener {
         body;                                                                     \
     });
 
-#define COND_VB_SHOULD(id, condition, body)           \
-    {                                                 \
-        static ListenerID hookId = 0;                 \
-        UNREGISTER_LISTENER(VanillaBehavior, hookId); \
-        hookId = 0;                                   \
-        if (condition) {                              \
-            hookId = REGISTER_VB_SHOULD(id, body);    \
-        }                                             \
+#define COND_VB_SHOULD(id, condition, body)               \
+    {                                                     \
+        static ListenerID hookId = (ListenerID)-1;        \
+        if (hookId != (ListenerID)-1) {                   \
+            UNREGISTER_LISTENER(VanillaBehavior, hookId); \
+        }                                                 \
+        hookId = (ListenerID)-1;                          \
+        if (condition) {                                  \
+            hookId = REGISTER_VB_SHOULD(id, body);        \
+        }                                                 \
     }
 
 #define REGISTER_EVENT(eventType) eventType##ID = EventSystem_RegisterEvent(#eventType);

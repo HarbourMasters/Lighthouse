@@ -14,6 +14,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(OnMusicTick);
+    REGISTER_EVENT(OnMusicPreStop);
+    REGISTER_EVENT(OnMusicTrackStart);
 
     // Register game events
     REGISTER_EVENT(OnGameLoad);

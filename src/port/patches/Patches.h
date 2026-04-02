@@ -45,6 +45,11 @@ void port_syncBottlesBonusIndex(void);
 
 void port_camera_applyWsYawFix(float rotation[3]);
 
+// Lair Continuity (LairContinuity.cpp)
+
+int32_t lairAudio_consumePendingSeek(void* player);
+int lairAudio_hasPendingSeek(void);
+
 // Input
 
 float port_getRumbleScale(void);
