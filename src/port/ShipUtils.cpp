@@ -17,10 +17,16 @@
 
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 
-// Furnace Fun active flag
-extern "C" s32 volatileFlag_get(s32);
+// Helper for C-style variadic log functions
+static void bk_log_vfmt(spdlog::level::level_enum level, const char* fmt, va_list args) {
+    char buf[512];
+    vsnprintf(buf, sizeof(buf), fmt, args);
+    spdlog::default_logger_raw()->log(spdlog::source_loc{}, level, buf);
+}
 
-extern "C" uint64_t GetUnixTimestamp() {
+extern "C" {
+
+uint64_t GetUnixTimestamp() {
     auto time = std::chrono::system_clock::now();
     auto since_epoch = time.time_since_epoch();
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(since_epoch);
@@ -28,15 +34,31 @@ extern "C" uint64_t GetUnixTimestamp() {
     return now;
 }
 
-extern "C" bool Ship_IsCStringEmpty(const char* str) {
+bool Ship_IsCStringEmpty(const char* str) {
     return str == NULL || str[0] == '\0';
 }
 
-extern "C" void port_audioStartThread(void) {
+// Furnace Fun active flag
+s32 volatileFlag_get(s32);
+
+// Defined in port/AudioAccessors.c
+void port_setMusicSlotStopped(int i);
+
+int gPortResetPending = 0;
+
+void port_audioStartThread(void) {
     GameEngine::AudioStartThread();
 }
 
-extern "C" int port_checkHeap(const char* label) {
+void port_forceStopAllMusic(void) {
+    for (int i = 0; i < 6; i++) {
+        port_setMusicSlotStopped(i);
+    }
+}
+
+// Called to check for heap corruption in debug builds
+// without needing asan
+int port_checkHeap(const char* label) {
 #ifdef _DEBUG
     if (!_CrtCheckMemory()) {
         SPDLOG_ERROR("[port] HEAP CORRUPT at: {}", label);
@@ -46,34 +68,30 @@ extern "C" int port_checkHeap(const char* label) {
     return 1;
 }
 
-static void bk_log_vfmt(spdlog::level::level_enum level, const char* fmt, va_list args) {
-    char buf[512];
-    vsnprintf(buf, sizeof(buf), fmt, args);
-    spdlog::default_logger_raw()->log(spdlog::source_loc{}, level, buf);
-}
-
-extern "C" void BK_LOG_INFO(const char* fmt, ...) {
+// Wrappers to use SPDLOG from C code
+void BK_LOG_INFO(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     bk_log_vfmt(spdlog::level::info, fmt, args);
     va_end(args);
 }
 
-extern "C" void BK_LOG_WARN(const char* fmt, ...) {
+void BK_LOG_WARN(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     bk_log_vfmt(spdlog::level::warn, fmt, args);
     va_end(args);
 }
 
-extern "C" void BK_LOG_ERROR(const char* fmt, ...) {
+void BK_LOG_ERROR(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     bk_log_vfmt(spdlog::level::err, fmt, args);
     va_end(args);
 }
 
-extern "C" const char* port_mapName(int map_id) {
+// Friendly names for Map IDs
+const char* port_mapName(int map_id) {
     switch (map_id) {
         // Spiral Mountain
         case 0x01:
@@ -234,13 +252,11 @@ extern "C" const char* port_mapName(int map_id) {
     }
 }
 
-extern "C" int port_getBootSequence(void) {
+int port_getBootSequence(void) {
     return CVarGetInteger(CVAR_SETTING("BootSequence"), 0);
 }
 
-// Returns 0.0–1.0 rumble intensity scale from the ImGui controller config.
-// Uses the average of low/high frequency percentages for the given controller port.
-extern "C" float port_getRumbleScale(void) {
+float port_getRumbleScale(void) {
     auto ctx = Ship::Context::GetInstance();
     if (!ctx) {
         return 0.5f;
@@ -260,7 +276,7 @@ extern "C" float port_getRumbleScale(void) {
     return 1.0f;
 }
 
-extern "C" bool port_CButtonIsAxis(void) {
+bool port_CButtonIsAxis(void) {
     auto ctx = Ship::Context::GetInstance();
     if (!ctx) {
         return false;
@@ -286,3 +302,5 @@ extern "C" bool port_CButtonIsAxis(void) {
     }
     return false;
 }
+
+} // extern "C"

@@ -239,17 +239,6 @@ ALBank *     D_80282108;
 structBs     D_80282110[0x20];
 
 /* .code */
-
-// [port] Thin accessors for LairContinuity.cpp — avoids decomp header conflicts in C++.
-s32  lc_getSlotIndex(u8 slot)              { return D_80281720[slot].index; }
-void lc_getSlotTicks(u8 slot, s32 *ticks)  { *ticks = alCSeqGetTicks(&D_80281720[slot].cseq); }
-void lc_queueStop(u8 slot)                 { D_80281720[slot].index_cpy = -1; D_80281720[slot].unk2 = 1; D_80281720[slot].unk3 = 0; D_80281720[slot].unk0 = 0; }
-s32  lc_getTrackVolume(s32 trackIndex)     { return (trackIndex >= 0 && trackIndex < 0xB0) ? D_80275D40[trackIndex].unk4 : 0; }
-s32  lc_getDestMapTrack(void)              { return func_803226E8(map_get()); }
-bool lc_isSlotPlayer(u8 slot, void *player){ return player == &D_80281720[slot].cseqp; }
-void lc_setHwVolume(u8 slot, s16 vol)      { func_8024FD28(slot, vol); }
-void lc_setCoMusicAlive(u8 slot, s32 vol)  { D_80276E30[slot].volume = vol; D_80276E30[slot].unk12 = 0; }
-
 void musicInstruments_init(void){
     s32 i;
 
@@ -390,6 +379,7 @@ void func_8024FA98(u8 arg0, s32 arg1){
         func_8024F890(arg0, -1);
         sp20 = osGetTime();
         while(D_80281720[arg0].cseqp.state != AL_STOPPED){
+            if(gPortResetPending){ port_setMusicSlotStopped(arg0); break; }
             osGetTime();
         };
         func_8024F7C4(sp2C);
@@ -411,6 +401,12 @@ void func_8024FB8C(void){
     sp2C = osGetTime();
 
     do{
+        // [port] During a deferred reset, the audio callback may not run,
+        // so force all slots stopped to avoid deadlocking here.
+        if(gPortResetPending){
+            port_forceStopAllMusic();
+            break;
+        }
         allStopped = 0;
         for(i = 0; i < 6; i++){
             if(func_8024FB60(i) != AL_STOPPED)

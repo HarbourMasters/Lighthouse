@@ -93,7 +93,7 @@ static const char* trimName(const char* name) {
 extern "C" void port_setWindowTitle(int map_id) {
     enum level_e level = map_getLevel((enum map_e)map_id);
     const char* levelName;
-    // Override the level name for file select 
+    // Override the level name for file select
     if (map_id == MAP_91_FILE_SELECT)
         levelName = "FILE SELECT";
     else
@@ -144,8 +144,8 @@ extern "C" void port_setWindowTitle(int map_id) {
     }
 
     char title[256];
-    snprintf(title, sizeof(title), "Lighthouse - %s | Notes: %s | Jiggies: %s | Honeycombs: %s | Time: %s",
-             levelName, noteStr, jiggyStr, hcStr, timeStr);
+    snprintf(title, sizeof(title), "Lighthouse - %s | Notes: %s | Jiggies: %s | Honeycombs: %s | Time: %s", levelName,
+             noteStr, jiggyStr, hcStr, timeStr);
 
 #ifdef _WIN32
     HWND hwnd = GetActiveWindow();

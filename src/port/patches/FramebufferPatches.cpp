@@ -16,7 +16,6 @@ int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* model_getDisplayList(BKModelBin* arg0);
 
-
 // Emulate N64's osViBlack on PC. On N64, osViBlack(1) blanked the TV
 // output but the RDP still rendered to framebuffers. On PC, we let the GPU
 // render normally (so readback captures the world), then clear the backbuffer
@@ -81,8 +80,10 @@ int port_getPauseFramebufferId(void) {
 // ---------------------------------------------------------------------------
 
 int port_shouldCaptureTransition(void) {
-    if (!gctransition_isFallingPieces()) return 0;
-    if (gctransition_isFallingPiecesIn()) return gctransition_getSubstate() <= 2;
+    if (!gctransition_isFallingPieces())
+        return 0;
+    if (gctransition_isFallingPiecesIn())
+        return gctransition_getSubstate() <= 2;
     return gctransition_getSubstate() == 2;
 }
 

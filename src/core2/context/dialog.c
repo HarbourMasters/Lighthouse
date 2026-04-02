@@ -4,7 +4,6 @@
 #include "variables.h"
 
 #include "core2/gc/zoombox.h"
-#include "port/ShipUtils.h"
 
 extern void func_803114D0(void );
 extern int func_803114B0(void);
@@ -622,11 +621,9 @@ void func_80310574(s32 text_id){
     s32 len;
 
     txt = g_Dialog.dialog_bin_ptr = dialogBin_get(text_id);
-    BK_LOG_INFO("[dialog] parsing text_id=0x%X, raw ptr=%p", text_id, (void*)txt);
 
     for(i = 0; i < 2; i++){
         g_Dialog.string_count[i] = *(txt++);
-        BK_LOG_INFO("[dialog]   box[%d] string_count=%d", i, g_Dialog.string_count[i]);
         g_Dialog.string_list[i] = (BKDialog *) bk_malloc(g_Dialog.string_count[i]*sizeof(BKDialog));
         for(j = 0; j < g_Dialog.string_count[i]; j++){//L803105F0
             ch = *(txt++);
@@ -641,8 +638,6 @@ void func_80310574(s32 text_id){
             len = *(txt);
             txt++;
             g_Dialog.string_list[i][j].str = txt;
-            BK_LOG_INFO("[dialog]   box[%d][%d] cmd_byte=0x%02X cmd=%d len=%d str=\"%.*s\"",
-                i, j, (u32)ch, _v0, len, len, (char*)txt);
             txt += len;
 
         }
@@ -665,7 +660,6 @@ void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(A
     s32 temp_a2;
 
     func_80310574(text_id);
-    BK_LOG_INFO("[dialog] func_803106BC: text_id=0x%X, arg1=%d, marker=%p", text_id, arg1, (void*)marker);
     g_Dialog.unk12C_29 = 0;
     g_Dialog.unk12C_31 = (g_Dialog.unk12C_25 = g_Dialog.unk12C_29);
     g_Dialog.unk12C_27 = g_Dialog.unk12C_31;
@@ -684,7 +678,6 @@ void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(A
         g_Dialog.unk11A[j].unk0_5 = 0;
         if(g_Dialog.string_list[j][i].cmd >= 0){
             if(!g_Dialog.unk11A[j].unk0_7){
-                BK_LOG_INFO("[dialog]   box[%d] speaker portrait_id=%d (cmd=%d + 0xC)", j, g_Dialog.string_list[j][i].cmd + 0xC, g_Dialog.string_list[j][i].cmd);
                 g_Dialog.zoombox[j] =  gczoombox_new(g_Dialog.unk124[j], g_Dialog.string_list[j][i].cmd + 0xC, 0, func_803106A4(j), (void *)func_8030F754);
                 if( j == 1 ){
                     func_80347A14(0);

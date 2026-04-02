@@ -22,13 +22,13 @@ extern "C" {
 // Thin C accessors in audio_instruments.c — avoids decomp header conflicts.
 extern "C" {
 int32_t lc_getSlotIndex(uint8_t slot);
-void    lc_getSlotTicks(uint8_t slot, int32_t *ticks);
-void    lc_queueStop(uint8_t slot);
-void    lc_setCoMusicAlive(uint8_t slot, int32_t vol);
+void lc_getSlotTicks(uint8_t slot, int32_t* ticks);
+void lc_queueStop(uint8_t slot);
+void lc_setCoMusicAlive(uint8_t slot, int32_t vol);
 int32_t lc_getTrackVolume(int32_t trackIndex);
 int32_t lc_getDestMapTrack(void);
-bool    lc_isSlotPlayer(uint8_t slot, void *player);
-void    lc_setHwVolume(uint8_t slot, int16_t vol);
+bool lc_isSlotPlayer(uint8_t slot, void* player);
+void lc_setHwVolume(uint8_t slot, int16_t vol);
 }
 
 #define CVAR_ENABLED CVarGetInteger(CVAR_ENHANCEMENT("Audio.LairContinuity"), 0)
@@ -55,11 +55,11 @@ static int lairTrackGroup(int32_t trackIndex) {
     }
 }
 
-static int32_t sSavedTicks[4] = {};    // per-group tick positions (index 1-3)
-static int32_t sLastSavedTicks = 0;    // most recent tick from any group
-static int32_t sPendingSeek = 0;       // ticks to seek to on next track start
+static int32_t sSavedTicks[4] = {}; // per-group tick positions (index 1-3)
+static int32_t sLastSavedTicks = 0; // most recent tick from any group
+static int32_t sPendingSeek = 0;    // ticks to seek to on next track start
 static uint8_t sPendingSeekSlot = 0xFF;
-static int8_t  sDeferredStopSlot = -1; // slot with deferred stop, or -1
+static int8_t sDeferredStopSlot = -1; // slot with deferred stop, or -1
 
 static void resetState() {
     sSavedTicks[0] = sSavedTicks[1] = sSavedTicks[2] = sSavedTicks[3] = 0;
@@ -72,7 +72,8 @@ static void resetState() {
 // Called from func_8024FC1C when setting a track index on a hardware slot.
 // Returns true if the call was handled (deferred) and the caller should return early.
 extern "C" bool lairContinuity_onTrackSet(uint8_t slot, int32_t newTrackId) {
-    if (!CVAR_ENABLED) return false;
+    if (!CVAR_ENABLED)
+        return false;
 
     // Stop request for a lair track
     if (newTrackId == -1) {
@@ -118,7 +119,8 @@ extern "C" bool lairContinuity_onTrackSet(uint8_t slot, int32_t newTrackId) {
 
 // Called at the start of func_8024FF34 (per-frame hardware tick).
 extern "C" void lairContinuity_onTick(void) {
-    if (sDeferredStopSlot < 0) return;
+    if (sDeferredStopSlot < 0)
+        return;
 
     // If the current map is no longer a lair map, force-stop the deferred slot.
     if (lairTrackGroup(lc_getDestMapTrack()) == 0) {
@@ -137,7 +139,8 @@ extern "C" void lairContinuity_onTick(void) {
 
 // Called from func_8024FF34 just before alCSPStop when a playing track has unk2 set.
 extern "C" void lairContinuity_onPreStop(int32_t slotIndex) {
-    if (!CVAR_ENABLED || sDeferredStopSlot < 0) return;
+    if (!CVAR_ENABLED || sDeferredStopSlot < 0)
+        return;
     int group = lairTrackGroup(lc_getSlotIndex((uint8_t)slotIndex));
     if (group > 0) {
         int32_t ticks;
@@ -149,7 +152,8 @@ extern "C" void lairContinuity_onPreStop(int32_t slotIndex) {
 
 // Called from func_8024FA98 when starting a new track on a stopped slot.
 extern "C" void lairContinuity_onTrackStart(uint8_t slot, int32_t newTrackId) {
-    if (!CVAR_ENABLED || newTrackId < 0) return;
+    if (!CVAR_ENABLED || newTrackId < 0)
+        return;
     int newGroup = lairTrackGroup(newTrackId);
     if (newGroup > 0 && sLastSavedTicks > 0) {
         sPendingSeek = sSavedTicks[newGroup] ? sSavedTicks[newGroup] : sLastSavedTicks;
@@ -158,9 +162,11 @@ extern "C" void lairContinuity_onTrackStart(uint8_t slot, int32_t newTrackId) {
 }
 
 // Called from n_csplayer.c AL_SEQP_PLAY_EVT handler.
-extern "C" int32_t lairContinuity_consumeSeek(void *player) {
-    if (sPendingSeekSlot >= 6) return 0;
-    if (!lc_isSlotPlayer(sPendingSeekSlot, player)) return 0;
+extern "C" int32_t lairContinuity_consumeSeek(void* player) {
+    if (sPendingSeekSlot >= 6)
+        return 0;
+    if (!lc_isSlotPlayer(sPendingSeekSlot, player))
+        return 0;
     int32_t ticks = sPendingSeek;
     sPendingSeek = 0;
     sPendingSeekSlot = 0xFF;

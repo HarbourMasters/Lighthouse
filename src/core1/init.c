@@ -180,6 +180,7 @@ void mainLoop(void){
     if(D_80275610){
         func_8023DA9C(D_80275610 - 1);
         D_80275610 = 0;
+        gPortResetPending = 0; // [port] clear flag so normal audio spin-waits work again
     }//L8023DE54
 
 // [port] This doesn't break anything, but better safe than sorry
