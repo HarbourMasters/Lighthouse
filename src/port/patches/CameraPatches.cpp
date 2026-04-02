@@ -2,10 +2,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <spdlog/spdlog.h>
 
+#include "port/Engine.h"
+
 extern "C" {
+#include "enums.h"
+#include "bsint.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/Engine.h"
 }
 
 // Force 4:3 during cutscene maps to prevent skybox exposure, then restore

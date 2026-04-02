@@ -470,6 +470,7 @@ option(USE_STANDALONE "Build as a standalone executable" OFF)
 option(BUILD_STORMLIB "Build with StormLib support" OFF)
 
 option(BUILD_BK64 "Build with Banjo-Kazooie support" ON)
+option(BUILD_PM64 "Build with Paper Mario support" OFF)
 option(BUILD_SM64 "Build with Super Mario 64 support" OFF)
 option(BUILD_MK64 "Build with Mario Kart 64 support" OFF)
 option(BUILD_SF64 "Build with Star Fox 64 support" OFF)

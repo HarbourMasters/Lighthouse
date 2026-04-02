@@ -87,7 +87,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
 
         SPDLOG_INFO("Loaded asset manifest from o2r with {} entries", symbolMap.size());
 
-        // [port] If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
+        // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
         // so the decomp's hardcoded IDs resolve transparently.
         // Detection: v1.0 has 3314 assets, v1.1/PAL/JP have 3044-3065.
         // This is done once at boot — no per-lookup cost after this point.
