@@ -1,23 +1,89 @@
-// [port] Framebuffer model patches — aux picture readback, picture/transition
-// model DL patching. Replaces per-tile texture loads with full-buffer loads,
-// remaps vertex UVs, and registers GPU FBs as direct texture sources.
+// Framebuffer patches — vi-black emulation, on-demand readback, pause FB,
+// aux picture readback, picture/transition model DL patching. Replaces per-tile
+// texture loads with full-buffer loads, remaps vertex UVs, and registers GPU FBs
+// as direct texture sources.
 
 #include <libultraship.h>
 
 extern "C" {
 
 #include "core1/core1.h"
+#include "gc/gctransition.h"
 #include "model.h"
 
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
                            unsigned int native_height, unsigned char resize);
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
-int port_getViewportWidth(void);
 BKGfxList* model_getDisplayList(BKModelBin* arg0);
 
-// ---------------------------------------------------------------------------
+// Emulate N64's osViBlack on PC. On N64, osViBlack(1) blanked the TV
+// output but the RDP still rendered to framebuffers. On PC, we let the GPU
+// render normally (so readback captures the world), then clear the backbuffer
+// to black before presenting.
+static bool s_viBlack = false;
+
+// During FADE_IN, the game disables scene drawing one frame before
+// capturing gFramebuffers. Without freezing, the readback would overwrite
+// gFramebuffers with the blank frame. Freezing preserves the world data for
+// the transition capture.
+static bool s_freezeReadback = false;
+
+// On-demand readback
+static int s_readbackRequestFrames = 0;
+
+void port_setViBlack(int active) {
+    s_viBlack = (active != 0);
+}
+
+int port_isViBlack(void) {
+    return s_viBlack ? 1 : 0;
+}
+
+void port_freezeReadback(int freeze) {
+    s_freezeReadback = (freeze != 0);
+}
+
+void port_requestReadback(void) {
+    s_readbackRequestFrames = 2;
+}
+
+// Consumed by the display list builder (bufferreadback.c) to emit
+// gDPReadFB into the DL, populating gFramebuffers at native resolution.
+int port_consumeReadbackRequest(void) {
+    if (s_freezeReadback || s_readbackRequestFrames <= 0)
+        return 0;
+    s_readbackRequestFrames--;
+    return 1;
+}
+
+// No-op — readback is done via gDPReadFB in the display list
+void Framebuffer_ReadbackGPU(int bufferIndex) {
+    (void)bufferIndex;
+}
+
+// Pause menu GPU FB (created once, reused)
+
+static int s_pauseFbId = -1;
+
+int port_getPauseFramebufferId(void) {
+    if (s_pauseFbId < 0) {
+        s_pauseFbId =
+            gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth, gFramebufferHeight, 1);
+    }
+    return s_pauseFbId;
+}
+
+// Transition capture query
+
+int port_shouldCaptureTransition(void) {
+    if (!gctransition_isFallingPieces())
+        return 0;
+    if (gctransition_isFallingPiecesIn())
+        return gctransition_getSubstate() <= 2;
+    return gctransition_getSubstate() == 2;
+}
+
 // DL walking helper
-// ---------------------------------------------------------------------------
 
 // Walk a model's display list, replacing segment-addressed tile loads with a
 // single full-buffer gDPLoadTextureTile and optionally remapping vertex UVs
@@ -72,9 +138,7 @@ static void patchModelDL(BKModelBin* model_bin, uintptr_t seg_start, uintptr_t s
 #define IMAGE_WIDTH (TILE_SIZE * 5)
 #define IMAGE_HEIGHT (TILE_SIZE * 4)
 
-// ---------------------------------------------------------------------------
 // Aux picture FB readback (Bottles Bonus / SNS pictures)
-// ---------------------------------------------------------------------------
 
 extern s16* D_80382450; // aux picture CPU buffer (picturebuffer.c)
 extern s32 sAuxGpuFbId; // aux picture GPU FB id (picturebuffer.c)
@@ -90,9 +154,7 @@ void port_readAuxFbToCpu(Gfx** gfx) {
     }
 }
 
-// ---------------------------------------------------------------------------
 // Picture model patching (Bottles Bonus / SNS pictures)
-// ---------------------------------------------------------------------------
 
 #define TILE_SIZE 32
 #define IMAGE_WIDTH (TILE_SIZE * 5)
@@ -131,9 +193,7 @@ void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 m
                  setPictureVertexTexcoord, G_TF_BILERP, 1);
 }
 
-// ---------------------------------------------------------------------------
 // Transition model patching (falling jiggy pieces)
-// ---------------------------------------------------------------------------
 
 // Dummy address registered as a GPU FB mirror via gfx_register_fb_texture.
 // ImportTexture detects this and uses SelectTextureFb — full GPU resolution.

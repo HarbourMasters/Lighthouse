@@ -361,57 +361,27 @@ bool asset_isCompressed(enum asset_e arg0){ //asset_compressed?
     return (assetSectionRomMetaList[arg0].compFlag & 1) !=0;
 }
 
-// Lighthouse [port] Simple per-sprite display data cache keyed on BKSprite pointer.
-// The original code used assetCacheCurrentIndex which is never updated in the port
-// because assetcache_get() bypasses the ROM-based cache entirely, causing index 0
-// to be reused for every sprite and all sprites to share one BKSpriteDisplayData.
-#define SPRITE_DISPLAY_CACHE_SIZE 256
-typedef struct {
-    BKSprite *sprite;
-    BKSpriteDisplayData *displayData;
-} SpriteDisplayCacheEntry;
-static SpriteDisplayCacheEntry sSpriteDisplayCache[SPRITE_DISPLAY_CACHE_SIZE];
-static s32 sSpriteDisplayCacheCount = 0;
-
-void port_spriteDisplayCache_clear(void) {
-    sSpriteDisplayCacheCount = 0;
-}
-
-static BKSpriteDisplayData *port_getOrCreateDisplayData(BKSprite *sprite) {
-    s32 i;
-    if (sprite == NULL) {
-        return NULL;
-    }
-    for (i = 0; i < sSpriteDisplayCacheCount; i++) {
-        if (sSpriteDisplayCache[i].sprite == sprite) {
-            return sSpriteDisplayCache[i].displayData;
-        }
-    }
-    if (sSpriteDisplayCacheCount < SPRITE_DISPLAY_CACHE_SIZE) {
-        func_803382E4(-1);
-        func_80338308(sprite_getUnk8(sprite), sprite_getUnkA(sprite));
-        BKSpriteDisplayData *dd = func_80344A1C(sprite);
-        sSpriteDisplayCache[sSpriteDisplayCacheCount].sprite = sprite;
-        sSpriteDisplayCache[sSpriteDisplayCacheCount].displayData = dd;
-        sSpriteDisplayCacheCount++;
-        return dd;
-    }
-    // Cache full — fall back to building without caching
-    func_803382E4(-1);
-    func_80338308(sprite_getUnk8(sprite), sprite_getUnkA(sprite));
-    return func_80344A1C(sprite);
-}
+// [port] Sprite display data cache lives in SpritePatches.cpp
+extern BKSpriteDisplayData *port_getOrCreateDisplayData(BKSprite *sprite);
 
 //returns raw sprite(as saved in ROM) and points arg1 to a parsed sprite(?)
 BKSprite *func_8033B6C4(enum asset_e sprite_id, BKSpriteDisplayData **arg1){
     BKSprite *s0;
     s0 = assetcache_get(sprite_id);
+#if 0 // [port] original decomp — assetCacheCurrentIndex is never updated in the port
+    if(D_80383CD4[assetCacheCurrentIndex] == NULL){
+        codeAEDA0_setSpriteDrawMode(-1);
+        func_80338308(sprite_getUnk8(s0), sprite_getUnkA(s0));
+        D_80383CD4[assetCacheCurrentIndex] = func_80344A1C(s0);
+    }
+    *arg1 = D_80383CD4[assetCacheCurrentIndex];
+#else
     if (s0 == NULL) {
-        BK_LOG_WARN("[func_8033B6C4] assetcache_get returned NULL for sprite_id=%d", (int)sprite_id);
         *arg1 = NULL;
         return NULL;
     }
     *arg1 = port_getOrCreateDisplayData(s0);
+#endif
     return s0;
 }
 

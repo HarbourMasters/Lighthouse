@@ -3,13 +3,11 @@
 #include "functions.h"
 #include "variables.h"
 #include "gc/gctransition.h"
+#include "port/patches/Patches.h"
+#include "port/Engine.h"
 
 void anctrl_setAnimTimer(AnimCtrl*, f32);
 void func_8025AC20(s32, s32, s32, f32, char*, s32);
-extern void port_setViBlack(int active);     // [port] display blanking (black screen after readback)
-extern void port_freezeReadback(int freeze); // [port] freeze gFramebuffers for transition capture
-extern void port_requestReadback(void);
-extern void port_patchTransitionModel(BKModelBin *model_bin);
 
 typedef enum {
     TRANSITION_ID_1_BLACK_IN = 1,
@@ -289,8 +287,7 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     // [port] Widescreen transition scaling.
     f32 transitionScale;
     {
-        s32 vpW = port_getViewportWidth();
-        f32 aspectRatio = (f32)vpW / 320.0f;
+        f32 aspectRatio = GameEngine_GetAspectRatio() / (320.0f / 240.0f);
         s32 isJigsaw = (s_current_transition.transistion_info != NULL &&
             (s_current_transition.transistion_info->uid == 0x10 ||
              s_current_transition.transistion_info->uid == 0x11));
@@ -417,15 +414,19 @@ int gctransition_active(void){
     return s_current_transition.state != TRANSITION_STATE_0_NONE;
 }
 
-// [port] Returns true during the frames when the scene should be captured
-// into the transition framebuffer for the falling jiggy pieces.
-int port_shouldCaptureTransition(void) {
+// [port] Accessors for port code in FramebufferPatches.cpp.
+int gctransition_isFallingPieces(void) {
     if (s_current_transition.transistion_info == NULL) return 0;
-    if (s_current_transition.transistion_info->model_index != ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES) return 0;
-    if (s_current_transition.transistion_info->uid == TRANSITION_ID_10_FALLING_PIECES_IN) {
-        return s_current_transition.substate <= 2;
-    }
-    return s_current_transition.substate == 2;
+    return s_current_transition.transistion_info->model_index == ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES;
+}
+
+int gctransition_isFallingPiecesIn(void) {
+    if (s_current_transition.transistion_info == NULL) return 0;
+    return s_current_transition.transistion_info->uid == TRANSITION_ID_10_FALLING_PIECES_IN;
+}
+
+int gctransition_getSubstate(void) {
+    return s_current_transition.substate;
 }
 
 int gctransition_8030BDC0(void){

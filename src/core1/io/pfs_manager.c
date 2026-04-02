@@ -7,13 +7,7 @@
 
 #include "version.h"
 
-// [port] Demo frame pacing — the N64 VI count for the current demo tick.
-// Read by Game.cpp to match display time to the original N64 frame drops.
-static s32 sDemoViCount = 0;
-
-int port_getDemoViCount(void) {
-    return sDemoViCount;
-}
+#include "port/patches/Patches.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 
@@ -246,34 +240,13 @@ void pfsManager_update(void) {
             }
         }
         time_setDeltaReal_frames(sp5C);
-        // [port] On N64, some maps had rendering lag that naturally slowed the tick
-        // rate (e.g., 20fps instead of 30fps). The demo inputs record viCount=2 for
-        // each tick regardless — the lag was in rendering, not game logic. On PC these
-        // maps render at 30fps, so demos finish ~33% faster in real time, cutting off
-        // dialog. Override sDemoViCount (Game.cpp display pacing) to match the N64's
-        // actual frame time, WITHOUT changing the game logic delta.
-        {
-            s32 displayViCount = sp5C;
-            s32 game_mode = getGameMode();
-            if (game_mode == GAME_MODE_8_BOTTLES_BONUS) {
-                displayViCount = 3;
-            } else if (game_mode == GAME_MODE_A_SNS_PICTURE) {
-                switch (map_get()) {
-                    case MAP_7F_FP_WOZZAS_CAVE:
-                    case MAP_92_GV_SNS_CHAMBER:
-                        displayViCount = 3;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            sDemoViCount = displayViCount;
-        }
+        // [port] Override display pacing for maps that ran slow on N64.
+        port_setDemoViCount(port_getDemoDisplayViCount(sp5C));
     } else {
         // [port] Use the VI divisor from cutscene framerate actors so Game.cpp
         // paces the display correctly for slower cutscenes.
         s32 viDiv = viMgr_func_8024BFA0();
-        sDemoViCount = (viDiv > 2) ? viDiv : 0;
+        port_setDemoViCount((viDiv > 2) ? viDiv : 0);
     }
     sp5C = time_getDeltaReal_frames();
     randf();

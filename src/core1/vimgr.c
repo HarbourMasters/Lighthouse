@@ -6,7 +6,7 @@
 #include "version.h"
 #include "libultraship/libultra/rcp.h"
 
-extern void port_setViBlack(int active);
+#include "port/patches/Patches.h"
 
 #define VIMANAGER_THREAD_STACK_SIZE 0x400
 
@@ -160,7 +160,7 @@ void viMgr_func_8024BF94(s32 arg0){
 }
 
 s32 viMgr_func_8024BFA0(void){
-    return D_802808DC;
+    return D_802808DC + port_getCutsceneExtraVis();
 }
 
 void viMgr_func_8024BFAC(void){
