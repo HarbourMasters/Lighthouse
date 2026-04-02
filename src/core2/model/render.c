@@ -937,9 +937,10 @@ void func_80338DCC(Gfx ** gfx, Mtx ** mtx, void *arg2){
         sp20[0] = (f32)cmd->unkE[0] * modelRenderScale;
         sp20[1] = (f32)cmd->unkE[1] * modelRenderScale;
         sp20[2] = (f32)cmd->unkE[2] * modelRenderScale;
-        if(GameEngine_GetAspectRatio() > 1.34f || viewport_isBoundingBoxInFrustum(sp2C, sp20)){
-            func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk14));
-        }
+        // [port] The N64 bounding boxes in CmdD_DRAW_DISTANCE are too conservative
+        // for the port's viewport (292x216 -> 320x240 at 4:3). Extend to all aspect 
+        //ratios since the port always renders at a higher effective resolution.
+        func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk14));
     }
 }
 
