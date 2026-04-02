@@ -94,8 +94,13 @@ static const char* trimName(const char* name) {
 }
 
 extern "C" void port_setWindowTitle(int map_id) {
-    const char* levelName = trimName(port_getLevelName(map_id));
     enum level_e level = map_getLevel((enum map_e)map_id);
+    const char* levelName;
+    // Override the level name for file select
+    if (map_id == MAP_91_FILE_SELECT)
+        levelName = "FILE SELECT";
+    else
+        levelName = trimName(port_getLevelName(map_id));
 
     // Determine which stats to hide (mirrors pause menu totals screen logic)
     int hideCollLvl = port_getRomhackHideCollectiblesLevel();
@@ -105,10 +110,13 @@ extern "C" void port_setWindowTitle(int map_id) {
     if (hideJigLvl < 0)
         hideJigLvl = 0xB; // LEVEL_B_SPIRAL_MOUNTAIN
 
+    // File select and cutscenes have no meaningful stats
+    bool isNonGameplay = (map_id == MAP_91_FILE_SELECT || (int)level == LEVEL_D_CUTSCENE);
+
     // hideCollLvl hides notes + honeycombs, hideJigLvl hides notes + jiggies
-    bool showNotes = ((int)level != hideCollLvl && (int)level != hideJigLvl);
-    bool showJiggies = ((int)level != hideJigLvl);
-    bool showHoneycombs = ((int)level != hideCollLvl);
+    bool showNotes = !isNonGameplay && ((int)level != hideCollLvl && (int)level != hideJigLvl);
+    bool showJiggies = !isNonGameplay && ((int)level != hideJigLvl);
+    bool showHoneycombs = !isNonGameplay && ((int)level != hideCollLvl);
 
     s32 noteVal, noteMax, jiggyVal, jiggyMax, hcVal, hcMax;
     port_getLevelStats(map_id, &noteVal, &noteMax, &jiggyVal, &jiggyMax, &hcVal, &hcMax);
@@ -127,14 +135,20 @@ extern "C" void port_setWindowTitle(int map_id) {
     else
         snprintf(hcStr, sizeof(hcStr), "--");
 
-    u16 timeSec = port_getLevelTime(map_id);
-    int hours = timeSec / 3600;
-    int minutes = (timeSec / 60) % 60;
-    int seconds = timeSec % 60;
+    char timeStr[16];
+    if (!isNonGameplay && showNotes) {
+        u16 timeSec = port_getLevelTime(map_id);
+        int hours = timeSec / 3600;
+        int minutes = (timeSec / 60) % 60;
+        int seconds = timeSec % 60;
+        snprintf(timeStr, sizeof(timeStr), "%02d:%02d:%02d", hours, minutes, seconds);
+    } else {
+        snprintf(timeStr, sizeof(timeStr), "--");
+    }
 
     char title[256];
-    snprintf(title, sizeof(title), "Lighthouse - %s | Notes: %s | Jiggies: %s | Honeycombs: %s | Time: %02d:%02d:%02d",
-             levelName, noteStr, jiggyStr, hcStr, hours, minutes, seconds);
+    snprintf(title, sizeof(title), "Lighthouse - %s | Notes: %s | Jiggies: %s | Honeycombs: %s | Time: %s", levelName,
+             noteStr, jiggyStr, hcStr, timeStr);
 
 #ifdef _WIN32
     HWND hwnd = GetActiveWindow();
