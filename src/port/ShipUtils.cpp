@@ -21,10 +21,21 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-// Furnace Fun active flag
-extern "C" s32 volatileFlag_get(s32);
+// Helper for C-style variadic log functions
+static void bk_log_vfmt(spdlog::level::level_enum level, const char* fmt, va_list args) {
+    char buf[512];
+    vsnprintf(buf, sizeof(buf), fmt, args);
+    spdlog::default_logger_raw()->log(spdlog::source_loc{}, level, buf);
+}
 
-extern "C" uint64_t GetUnixTimestamp() {
+extern "C" {
+
+// Furnace Fun active flag
+s32 volatileFlag_get(s32);
+
+int gPortResetPending = 0;
+
+uint64_t GetUnixTimestamp() {
     auto time = std::chrono::system_clock::now();
     auto since_epoch = time.time_since_epoch();
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(since_epoch);
@@ -32,15 +43,15 @@ extern "C" uint64_t GetUnixTimestamp() {
     return now;
 }
 
-extern "C" bool Ship_IsCStringEmpty(const char* str) {
+bool Ship_IsCStringEmpty(const char* str) {
     return str == NULL || str[0] == '\0';
 }
 
-extern "C" void port_audioStartThread(void) {
+void port_audioStartThread(void) {
     GameEngine::AudioStartThread();
 }
 
-extern "C" int port_checkHeap(const char* label) {
+int port_checkHeap(const char* label) {
 #ifdef _DEBUG
     if (!_CrtCheckMemory()) {
         SPDLOG_ERROR("[port] HEAP CORRUPT at: {}", label);
@@ -50,34 +61,29 @@ extern "C" int port_checkHeap(const char* label) {
     return 1;
 }
 
-static void bk_log_vfmt(spdlog::level::level_enum level, const char* fmt, va_list args) {
-    char buf[512];
-    vsnprintf(buf, sizeof(buf), fmt, args);
-    spdlog::default_logger_raw()->log(spdlog::source_loc{}, level, buf);
-}
-
-extern "C" void BK_LOG_INFO(const char* fmt, ...) {
+// Wrappers to use SPDLOG from C code
+void BK_LOG_INFO(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     bk_log_vfmt(spdlog::level::info, fmt, args);
     va_end(args);
 }
 
-extern "C" void BK_LOG_WARN(const char* fmt, ...) {
+void BK_LOG_WARN(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     bk_log_vfmt(spdlog::level::warn, fmt, args);
     va_end(args);
 }
 
-extern "C" void BK_LOG_ERROR(const char* fmt, ...) {
+void BK_LOG_ERROR(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     bk_log_vfmt(spdlog::level::err, fmt, args);
     va_end(args);
 }
 
-extern "C" const char* port_mapName(int map_id) {
+const char* port_mapName(int map_id) {
     switch (map_id) {
         // Spiral Mountain
         case 0x01:
@@ -238,38 +244,11 @@ extern "C" const char* port_mapName(int map_id) {
     }
 }
 
-extern "C" int port_getBootSequence(void) {
+int port_getBootSequence(void) {
     return CVarGetInteger(CVAR_SETTING("BootSequence"), 0);
 }
 
-extern "C" int port_getViewportWidth(void) {
-    // Returns the logical viewport width based on the actual game viewport aspect ratio.
-    // Uses the interpreter's current dimensions (respects imgui aspect ratio settings).
-    // At 4:3, returns 320. At 16:9, returns ~427.
-    auto ctx = Ship::Context::GetInstance();
-    if (!ctx)
-        return 320;
-    auto fastWnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(ctx->GetWindow());
-    if (!fastWnd)
-        return 320;
-    auto interp = fastWnd->GetInterpreterWeak().lock();
-    if (!interp)
-        return 320;
-    uint32_t w = 0, h = 0;
-    interp->GetCurDimensions(&w, &h);
-    if (h == 0)
-        return 320;
-    float vpAspect = (float)w / (float)h;
-    float gameAspect = 320.0f / 240.0f;
-    if (vpAspect > gameAspect + 0.01f) {
-        return (int)(320.0f * vpAspect / gameAspect);
-    }
-    return 320;
-}
-
-// Returns 0.0–1.0 rumble intensity scale from the ImGui controller config.
-// Uses the average of low/high frequency percentages for the given controller port.
-extern "C" float port_getRumbleScale(void) {
+float port_getRumbleScale(void) {
     auto ctx = Ship::Context::GetInstance();
     if (!ctx) {
         return 0.5f;
@@ -289,7 +268,7 @@ extern "C" float port_getRumbleScale(void) {
     return 1.0f;
 }
 
-extern "C" bool port_CButtonIsAxis(void) {
+bool port_CButtonIsAxis(void) {
     auto ctx = Ship::Context::GetInstance();
     if (!ctx) {
         return false;
@@ -300,7 +279,6 @@ extern "C" bool port_CButtonIsAxis(void) {
         return false;
     }
 
-    // Check if any C button (CLeft, CRight, CUp, CDown) has an axis-direction mapping
     const CONTROLLERBUTTONS_T cButtons[] = { BTN_CLEFT, BTN_CRIGHT, BTN_CUP, BTN_CDOWN };
     for (auto bitmask : cButtons) {
         auto button = controller->GetButton(bitmask);
@@ -315,6 +293,8 @@ extern "C" bool port_CButtonIsAxis(void) {
     }
     return false;
 }
+
+} // extern "C"
 
 json Ship_RetrieveSaveFile(int32_t filenum) {
     std::string fileName = "file" + std::to_string(filenum) + ".json";

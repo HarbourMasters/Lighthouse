@@ -360,6 +360,7 @@ void func_8024FA98(u8 arg0, s32 arg1){
         func_8024F890(arg0, -1);
         sp20 = osGetTime();
         while(D_80281720[arg0].cseqp.state != AL_STOPPED){
+            if(gPortResetPending) break; // [port] avoid deadlock during reset
             osGetTime();
         };
         func_8024F7C4(sp2C);
@@ -381,6 +382,8 @@ void func_8024FB8C(void){
     sp2C = osGetTime();
 
     do{
+        // [port] During reset, audio callback may not run to clear player states
+        if(gPortResetPending) break;
         allStopped = 0;
         for(i = 0; i < 6; i++){
             if(func_8024FB60(i) != AL_STOPPED)

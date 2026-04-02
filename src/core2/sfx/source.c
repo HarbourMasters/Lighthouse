@@ -446,6 +446,11 @@ void func_8030D778(void){
             sfxsource_freeSfxsourceByIndex(i);
     }
     do{
+        // [port] During reset, audio callback may not run to clear busy flags
+        if(gPortResetPending){
+            for(i = 1; i < 35; i++) sfxsources[i].busy = false;
+            break;
+        }
         temp_s1 = 0;
         func_8030D644();
         for(i = 1; i < 35; i++){

@@ -26,6 +26,7 @@
 #include "ui/LighthouseGui.hpp"
 #include "2.0L/PR/libaudio.h"
 #include "port/enhancements/events/PortEnhancements.h"
+#include "port/patches/Patches.h"
 #include "libultraship/libultra/AudioDmaRegistry.h"
 
 #include <fast/interpreter.h>
@@ -50,12 +51,18 @@ std::string assets_path;
 namespace fs = std::filesystem;
 
 extern "C" {
+
+// Reset support
+extern s32 D_80275610;
+int getDefaultBootMap(void);
+void setBootMap(int map_id);
+
 bool prevAltAssets = false;
 // bool gEnableGammaBoost = true;
 
-// [port] Audio synthesis entry point (decomp n_synthesizer.c)
+// Audio synthesis entry point (decomp n_synthesizer.c)
 Acmd* n_alAudioFrame(Acmd* cmdList, s32* cmdLen, s16* outBuf, s32 outLen);
-// [port] DMA cache cleanup (decomp audio_manager.c)
+// DMA cache cleanup (decomp audio_manager.c)
 void func_802403F0(void);
 void func_80250650(void);
 
@@ -141,6 +148,22 @@ GameEngine::GameEngine() {
     this->context->InitControlDeck(controlDeck);
     this->context->InitResourceManager({ assets_path }, {}, 3, true);
     this->context->InitConsole();
+
+    // Register console commands for menu buttons
+    Ship::Context::GetInstance()->GetConsole()->AddCommand(
+        "reset", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
+                      gPortResetPending = 1; // lets audio spin-waits exit immediately
+                      setBootMap(getDefaultBootMap());
+                      D_80275610 = 3 + 1; // deferred: mainLoop picks this up next frame
+                      return 0;
+                  },
+                   "Reset to boot map." });
+    Ship::Context::GetInstance()->GetConsole()->AddCommand(
+        "quit", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
+                     Ship::Context::GetInstance()->GetWindow()->Close();
+                     return 0;
+                 },
+                  "Quit the game." });
 
     lhFast3dWindow = std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({}));
     this->context->InitWindow(lhFast3dWindow);
@@ -1089,8 +1112,6 @@ void GameEngine::AudioExit() {
         audio.thread.join();
     }
 }
-
-extern "C" int port_isViBlack(void);
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
