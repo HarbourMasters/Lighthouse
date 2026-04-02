@@ -12,6 +12,9 @@
 #include <libultra/exception.h>
 #include <libultra/rcp.h>
 
+#include "port/enhancements/events/hooks/Events.h"
+
+#define EEPROM_BLOCK_SIZE 8
 #define DEFAULT_FRAMEBUFFER_WIDTH 292
 #define DEFAULT_FRAMEBUFFER_HEIGHT 216
 
@@ -212,7 +215,31 @@ s32 osAiSetFrequency(u32 frequency) {
     return osViClock / (s32)dacRate;
 }
 
-// [port] eeprom_readBlocks / eeprom_writeBlocks — implemented in src/port/save/SaveManager.cpp
+s32 eeprom_writeBlocks(s32 file, s32 offset, void* buffer, s32 count) {
+    CALL_CANCELLABLE_RETURN_EVENT(OnEepromWrite, file, offset, buffer, count) {
+        s32 address = file + offset;
+        s32 ret;
+
+        func_8024F35C(3);
+        ret = osEepromLongWrite(pfsManager_getFrameReplyQ(), address, buffer, count * EEPROM_BLOCK_SIZE);
+        func_8024F35C(0);
+
+        return ret;
+    }
+}
+
+s32 eeprom_readBlocks(s32 file, s32 offset, void* buffer, s32 count) {
+    CALL_CANCELLABLE_RETURN_EVENT(OnEepromRead) {
+        s32 address = file + offset;
+        s32 ret;
+
+        func_8024F35C(3);
+        ret = osEepromLongRead(pfsManager_getFrameReplyQ(), address, buffer, count * EEPROM_BLOCK_SIZE);
+        func_8024F35C(0);
+
+        return ret;
+    }
+}
 
 u32 func_8025C29C(u32* seed) {
     // Treat as two u32 values (lower and upper half of u64)

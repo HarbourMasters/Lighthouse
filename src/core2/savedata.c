@@ -390,14 +390,12 @@ void saveData_create(void *savedata_){ // [port] void* for prototype compatibili
 }
 
 int savedata_8033CC98(s32 filenum, void *buffer){ // [port] void* for polymorphic callers
-    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, buffer, filenum) {
-        int out;
-        out = eeprom_writeBlocks(filenum, 0, buffer, 0xF);
-        if (out) {
-            out = 1;
-        }
-        return out;
+    int out;
+    out = eeprom_writeBlocks(filenum, 0, buffer, 0xF);
+    if (out) {
+        out = 1;
     }
+    return out;
 }
 
 int savedata_8033CCD0(s32 filenum){

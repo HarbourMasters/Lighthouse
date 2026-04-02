@@ -270,7 +270,7 @@ void func_802C4AF0(Actor * this){
     }
 
     for(i = 0; i < 3; i++){
-        gameFile_8033CFD4(i);
+        //gameFile_8033CFD4(i);
     }
 
     if(D_8037DD28){

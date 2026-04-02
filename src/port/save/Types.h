@@ -1,6 +1,18 @@
 #ifndef SAVE_TYPES_H
 #define SAVE_TYPES_H
 
+#define SAVE_VERSION 1
+
+#define EEPROM_TOTAL_SIZE 512
+#define SAVE_SLOT_BLOCKS 15
+#define SAVE_SLOT_SIZE (SAVE_SLOT_BLOCKS * EEPROM_BLOCK_SIZE) // 120
+#define GLOBAL_OFFSET_BLOCK 0x3C                              // block 60
+#define GLOBAL_BLOCK_COUNT 4
+#define GLOBAL_SIZE (GLOBAL_BLOCK_COUNT * EEPROM_BLOCK_SIZE) // 32
+
+uint8_t mEeprom[EEPROM_TOTAL_SIZE];
+bool mLoaded;
+
 // Binary Layout Constants
 // These match the offsets computed by savedata_init() in savedata.c.
 // SaveData is 120 bytes: magic(1) + slotIndex(1) + data(112) + padding(2) + crc(4)
@@ -381,5 +393,23 @@ static const FlagDef kProgressFlags[] = {
     { 0x123, 1, "CHEAT_ENTERED", "CHEATS" },
 };
 static constexpr int kProgressFlagCount = sizeof(kProgressFlags) / sizeof(kProgressFlags[0]);
+
+struct SnsBitDef {
+    int bit;
+    const char* name;
+};
+
+// Unlocked flags (bits 0-6): item is visible and collectible
+static const SnsBitDef kSnsUnlocked[] = {
+    { 0, "eggYellow" }, { 1, "eggRed" },  { 2, "eggGreen" }, { 3, "eggBlue" },
+    { 4, "eggPink" },   { 5, "eggCyan" }, { 6, "iceKey" },
+};
+
+// Collected flags (bits 7-13): item was picked up
+static const SnsBitDef kSnsCollected[] = {
+    { 7, "eggYellow" }, { 8, "eggRed" },   { 9, "eggGreen" }, { 10, "eggBlue" },
+    { 11, "eggPink" },  { 12, "eggCyan" }, { 13, "iceKey" },
+};
+static constexpr int kSnsItemCount = sizeof(kSnsUnlocked) / sizeof(kSnsUnlocked[0]);
 
 #endif // SAVE_TYPES_H

@@ -10,11 +10,13 @@
 
 extern "C" {
 extern SaveData gameFile_saveData[4];
+void savedata_update_crc(void* buffer, s32 size);
 }
 
-#define SAVE_VERSION_NUM 1
+
 
 using nlohmann::json;
+namespace fs = std::filesystem;
 
 static int BitfieldGetBit(const uint8_t* array, int index) {
     return (array[index / 8] & (1 << (index & 7))) ? 1 : 0;
@@ -52,7 +54,7 @@ static int VisualGameToSlot(int visual) {
 }
 
 json FindSelectedSaveFile(int32_t filenum) {
-    std::string fileName = "file" + std::to_string(filenum + 1) + ".json";
+    std::string fileName = "file" + std::to_string(SlotToVisualGame(filenum) + 1) + ".json";
     std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
 
     if (!std::filesystem::exists(filePath)) {
@@ -70,12 +72,16 @@ json FindSelectedSaveFile(int32_t filenum) {
     return jsonSave;
 }
 
-json Convert_SaveDataToJSON(SaveData* saveData) {
+json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     json j;
     j = json::object();
 
-    j["slotIndex"] = saveData->slotIndex;
-    j["version"] = SAVE_VERSION_NUM;
+    if (saveData == NULL) {
+        return j;
+    }
+
+    j["slotIndex"] = fileNum;
+    j["version"] = SAVE_VERSION;
 
     // Abilities
     const uint8_t* abilityData = &saveData->data[ABILITY_OFFSET];
@@ -440,6 +446,71 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     return saveData;
 }
 
+void LoadFromDisk() {
+    //memset(mEeprom, 0, sizeof(mEeprom));
+
+    // Load game files (file1.json, file2.json, file3.json)
+    for (int i = 1; i <= 3; i++) {
+        json fileCheck = FindSelectedSaveFile(i);
+        if (fileCheck.empty()) {
+            continue;
+        }
+
+        if (!fileCheck.contains("version") || !fileCheck.contains("slotIndex")) {
+            continue;
+        }
+
+        int slotIndex = fileCheck["slotIndex"].get<int>();
+        int eepromSlot = i - 1;
+        int base = eepromSlot * SAVE_SLOT_SIZE;
+
+        //JsonToSlot(j, mEeprom + base);
+    }
+
+    // Load global data
+    std::string globalName = "global.json";
+    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + globalName);
+    if (fs::exists(globalPath)) {
+        std::ifstream ifs(globalPath);
+        json j = json::parse(ifs);
+
+        uint32_t snsRaw = 0;
+        if (j.contains("snsItems")) {
+            const auto& sns = j["snsItems"];
+            if (sns.is_object() && sns.contains("unlocked")) {
+                // Subtree format (v3+): unlocked/collected
+                if (sns.contains("unlocked")) {
+                    const auto& u = sns["unlocked"];
+                    for (int i = 0; i < kSnsItemCount; i++) {
+                        auto it = u.find(kSnsUnlocked[i].name);
+                        if (it != u.end() && it->get<int>()) {
+                            snsRaw |= (1u << kSnsUnlocked[i].bit);
+                        }
+                    }
+                }
+                if (sns.contains("collected")) {
+                    const auto& c = sns["collected"];
+                    for (int i = 0; i < kSnsItemCount; i++) {
+                        auto it = c.find(kSnsCollected[i].name);
+                        if (it != c.end() && it->get<int>()) {
+                            snsRaw |= (1u << kSnsCollected[i].bit);
+                        }
+                    }
+                }
+            } else if (sns.is_number()) {
+                // Legacy raw u32 format (v2)
+                snsRaw = sns.get<uint32_t>();
+            }
+        }
+
+        int globalBase = GLOBAL_OFFSET_BLOCK * EEPROM_BLOCK_SIZE;
+        memset(mEeprom + globalBase, 0, GLOBAL_SIZE);
+        memcpy(mEeprom + globalBase, &snsRaw, sizeof(uint32_t));
+
+        savedata_update_crc(mEeprom + globalBase, GLOBAL_SIZE);
+    }
+}
+
 void SaveConverter_Init() {
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
@@ -451,7 +522,7 @@ void SaveConverter_Init() {
     REGISTER_LISTENER(OnSaveFileSave, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileSave* ev = (OnSaveFileSave*)event;
 
-        json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer);
+        json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer, ev->fileNum);
         if (!saveFile.empty()) {
             std::string fileName = "file" + std::to_string(SlotToVisualGame(ev->fileNum) + 1) + ".json";
             std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
@@ -461,6 +532,35 @@ void SaveConverter_Init() {
                 outputFile << saveFile.dump(4);
                 outputFile.close();
             }
+        }
+
+        event->cancelled = true;
+    });
+
+    REGISTER_LISTENER(OnEepromRead, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnEepromRead* ev = (OnEepromRead*)event;
+
+        event->cancelled = true;
+        ev->result = 0;
+    });
+
+    REGISTER_LISTENER(OnEepromWrite, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnEepromWrite* ev = (OnEepromWrite*)event;
+
+        if (!mLoaded) {
+            LoadFromDisk();
+            mLoaded = true;
+        }
+
+        int absoluteBlock = ev->file * SAVE_SLOT_BLOCKS + ev->offset;
+        int byteOffset = absoluteBlock * EEPROM_BLOCK_SIZE;
+        int byteCount = ev->count * EEPROM_BLOCK_SIZE;
+        
+        if (byteOffset + byteCount > EEPROM_TOTAL_SIZE) {
+            ev->result = 1;
+        } else {
+            memcpy(ev->buffer, mEeprom + byteOffset, byteCount);
+            ev->result = 0;
         }
 
         event->cancelled = true;

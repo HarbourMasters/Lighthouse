@@ -71,40 +71,41 @@ void gameFile_8033CE40(void) {
 }
 
 s32 gameFile_8033CFD4(s32 gamenum){
-    s32 next;
-    s32 filenum;
-    u32 i = 3;
-    s32 eeprom_error;
-    SaveData *save_data;
+        s32 next;
+        s32 filenum;
+        u32 i = 3;
+        s32 eeprom_error;
+        SaveData* save_data;
 
-
-    filenum = D_80383F04;
-    next = gameFile_GameIdToFileIdMap[gamenum];
-    gameFile_GameIdToFileIdMap[gamenum] = D_80383F04;
-    bcopy(&gameFile_saveData[next], &gameFile_saveData[filenum], 0xF*8);
-    save_data = gameFile_saveData + filenum;
-    save_data->slotIndex = gamenum + 1;
-    savedata_update_crc(save_data, sizeof(SaveData));
-    for(eeprom_error = 1; eeprom_error && i > 0; i--){//L8033D070
-        eeprom_error = savedata_8033CC98(filenum, save_data);
-        if(!eeprom_error){
-            __gameFile_8033CE14(gamenum);
+    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, save_data, gamenum) {
+        filenum = D_80383F04;
+        next = gameFile_GameIdToFileIdMap[gamenum];
+        gameFile_GameIdToFileIdMap[gamenum] = D_80383F04;
+        bcopy(&gameFile_saveData[next], &gameFile_saveData[filenum], 0xF * 8);
+        save_data = gameFile_saveData + filenum;
+        save_data->slotIndex = gamenum + 1;
+        savedata_update_crc(save_data, sizeof(SaveData));
+        for (eeprom_error = 1; eeprom_error && i > 0; i--) {//L8033D070
+            eeprom_error = savedata_8033CC98(filenum, save_data);
+            if (!eeprom_error) {
+                __gameFile_8033CE14(gamenum);
+            }
         }
-    }
-    if(!eeprom_error){
-        for(i = 3; i > 0; i--){//L8033D070
-            eeprom_error = savedata_8033CCD0(next);
-            if(!eeprom_error)
-                break;
+        if (!eeprom_error) {
+            for (i = 3; i > 0; i--) {//L8033D070
+                eeprom_error = savedata_8033CCD0(next);
+                if (!eeprom_error)
+                    break;
+            }
         }
+        if (eeprom_error) {
+            gameFile_GameIdToFileIdMap[gamenum] = next;
+        }
+        else {
+            D_80383F04 = next;
+        }
+        return eeprom_error;
     }
-    if(eeprom_error){
-        gameFile_GameIdToFileIdMap[gamenum] = next;
-    }
-    else{
-        D_80383F04 = next;
-    }
-    return eeprom_error;
 }
 
 void gameFile_clear(s32 gamenum){
@@ -122,7 +123,7 @@ void gameFile_load(s32 gamenum){
     saveData_load(&gameFile_saveData[filenum]);
     // [port] Override lives backup and item array with persisted value.
     // func_80347AA8 reads D_80386068 to restore lives after map transitions.
-    port_restoreFileEnhancementData(filenum);
+    // port_restoreFileEnhancementData(filenum);
     D_80386068 = D_80385F30[ITEM_16_LIFE];
 }
 
