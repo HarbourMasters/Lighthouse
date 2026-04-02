@@ -147,7 +147,7 @@ void LighthouseMenu::AddMenuSettings() {
             { LANGUAGE_FRE, "French" },
             { LANGUAGE_GER, "German" },
         };
-        AddWidget(path, "Dialog Language", WIDGET_CVAR_COMBOBOX)
+        AddWidget(path, "Dialog Language\n(Needs map change)", WIDGET_CVAR_COMBOBOX)
             .CVar(CVAR_SETTING("DialogLanguage"))
             .RaceDisable(false)
             .PreFunc([](WidgetInfo& info) {
@@ -159,7 +159,8 @@ void LighthouseMenu::AddMenuSettings() {
                 ResourceMgr_SetDialogLanguage(lang);
             })
             .Options(ComboboxOptions()
-                         .Tooltip("Select dialog language.\nOnly available with PAL o2r (English, French, German).")
+                         .Tooltip("Select dialog language.\nOnly available with PAL o2r (English, French, "
+                                  "German).\nRequires a map change to take effect.")
                          .LabelPosition(LabelPositions::Far)
                          .ComponentAlignment(ComponentAlignments::Right)
                          .ComboMap(languageOptions)
