@@ -11,6 +11,8 @@
 extern "C" {
 extern SaveData gameFile_saveData[4];
 void savedata_update_crc(void* buffer, s32 size);
+s32 item_getCount(enum item_e item);
+u8 gCompletedBottlesBonusGames[7];
 }
 
 using nlohmann::json;
@@ -41,11 +43,6 @@ static void BitfieldSetNBits(uint8_t* array, int startIndex, int set, int length
     for (int i = 0; i < length; i++) {
         BitfieldSetBit(array, startIndex + i, (1 << i) & set);
     }
-}
-
-static int SlotToVisualGame(int slotIndex) {
-    static const int kMap[4] = { 0, 1, 3, 2 };
-    return (slotIndex >= 1 && slotIndex <= 3) ? kMap[slotIndex] : slotIndex;
 }
 
 json FindSelectedSaveFile(int32_t filenum) {
@@ -224,6 +221,16 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
         worlds[wd.name] = world;
     }
     j["worlds"] = worlds;
+
+    // Enhancements
+    int lives = item_getCount(ITEM_16_LIFE);
+    j["enhancements"]["life"] = lives;
+
+    json bonusArray = json::array();
+    for (auto& state : gCompletedBottlesBonusGames) {
+        bonusArray.push_back(state);
+    }
+    j["enhancements"]["bottlesBonusCompleted"] = bonusArray;
 
     // Ship Save Data
     json ship = json::object();
@@ -431,6 +438,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 }
 
 void LoadFromDisk() {
+    uint8_t mEeprom[EEPROM_TOTAL_SIZE];
     for (int i = 1; i <= 3; i++) {
         SaveData* loadSave = Convert_JSONToSaveData(i);
         if (loadSave->slotIndex != 0) {

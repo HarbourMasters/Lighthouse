@@ -123,10 +123,7 @@ extern void sns_update_global_save_data_checksum(void);
 void gameFile_load(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     saveData_load(&gameFile_saveData[filenum]);
-    // [port] Override lives backup and item array with persisted value.
-    // func_80347AA8 reads D_80386068 to restore lives after map transitions.
-    // port_restoreFileEnhancementData(filenum);
-    D_80386068 = D_80385F30[ITEM_16_LIFE];
+    CALL_EVENT(OnGameFileLoad, filenum);
 
     // [port] Unlock Stop N' Swop items as a reward for 100% completion
     if (CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"), 0)) {

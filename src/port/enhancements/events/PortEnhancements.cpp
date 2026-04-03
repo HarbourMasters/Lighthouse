@@ -15,6 +15,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(VanillaBehavior);
 
     // Register game events
+    REGISTER_EVENT(OnGameFileLoad);
+    REGISTER_EVENT(OnGameFileSave);
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnEepromRead);

@@ -1,16 +1,17 @@
 #ifndef SAVE_TYPES_H
 #define SAVE_TYPES_H
+#include <stdint.h>
 
 #define SAVE_MAGIC 0x11
 #define SAVE_VERSION 1
 
 #define EEPROM_TOTAL_SIZE 512
 #define SAVE_SLOT_BLOCKS 15
+#define SAVE_SLOT_SIZE (SAVE_SLOT_BLOCKS * EEPROM_BLOCK_SIZE) // 120
+#define SAVE_SLOT_COUNT 4
 #define GLOBAL_OFFSET_BLOCK 0x3C
 #define GLOBAL_BLOCK_COUNT 4
 #define GLOBAL_SIZE (GLOBAL_BLOCK_COUNT * EEPROM_BLOCK_SIZE)
-
-uint8_t mEeprom[EEPROM_TOTAL_SIZE];
 
 // Binary Layout Constants
 // These match the offsets computed by savedata_init() in savedata.c.
@@ -410,5 +411,10 @@ static const SnsBitDef kSnsCollected[] = {
     { 11, "eggPink" },  { 12, "eggCyan" }, { 13, "iceKey" },
 };
 static constexpr int kSnsItemCount = sizeof(kSnsUnlocked) / sizeof(kSnsUnlocked[0]);
+
+static int SlotToVisualGame(int slotIndex) {
+    static const int kMap[4] = { 0, 1, 3, 2 };
+    return (slotIndex >= 1 && slotIndex <= 3) ? kMap[slotIndex] : slotIndex;
+}
 
 #endif // SAVE_TYPES_H
