@@ -3,8 +3,12 @@
 // Cutscene stutter tables are sourced from BanjoRecomp's analysis:
 // github.com/BanjoRecomp/BanjoRecomp/blob/main/patches/timing_patches.c
 
+#include <libultraship/bridge/consolevariablebridge.h>
+#include "port/ui/cvar_prefixes.h"
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipInit.hpp"
+
+#define CVAR_CUTSCENE_SYNC CVAR_ENHANCEMENT("Fix.CutsceneSync")
 
 extern "C" {
 
@@ -100,6 +104,9 @@ static void resetCutsceneTimings(void) {
 }
 
 int port_getCutsceneExtraVis(void) {
+    if (!CVarGetInteger(CVAR_CUTSCENE_SYNC, 1))
+        return 0;
+
     int extra = 0;
 
     switch (map_get()) {

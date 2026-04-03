@@ -62,6 +62,8 @@ static void updateCutsceneAspect(int32_t mapId) {
 
 // Widescreen yaw fix — per-frame yaw adjustment for certain static cameras in widescreen mode
 
+#define CVAR_WS_CAMERA_FIX CVAR_ENHANCEMENT("Fix.WidescreenCamera")
+
 struct WsYawFix {
     int32_t map;
     int32_t node;
@@ -76,6 +78,8 @@ static constexpr int WS_YAW_FIX_COUNT = sizeof(sWsYawFixes) / sizeof(sWsYawFixes
 static int32_t sLastStaticCameraNode = -1;
 
 extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
+    if (!CVarGetInteger(CVAR_WS_CAMERA_FIX, 1))
+        return;
     if (WS_YAW_FIX_COUNT == 0 || sLastStaticCameraNode < 0) {
         return;
     }
