@@ -21,7 +21,7 @@ void Rando::MiscBehavior::OnFileLoad() {
 
         if (!IS_RANDO) {
             if (!CVarGetInteger("gRandoSettings.Enabled", 0)) {
-                gameFile_saveData[selectedFileNum].shipSaveData.randoSaveData.isRando = true;
+                gameFile_saveData[selectedFileNum].shipSaveData.saveType = SAVETYPE_RANDO;
             }
         }
     });
