@@ -1,4 +1,5 @@
 #include "PortEnhancements.h"
+#include "port/save/SaveConverter.h"
 
 #define INIT_EVENT_IDS
 
@@ -13,8 +14,17 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(VanillaBehavior);
 
+    // Register game events
+    REGISTER_EVENT(OnSaveFileLoad);
+    REGISTER_EVENT(OnSaveFileSave);
+    REGISTER_EVENT(OnEepromRead);
+    REGISTER_EVENT(OnEepromWrite);
+
     // Register rando events
     REGISTER_EVENT(OnActorSpawn);
+    REGISTER_EVENT(OnActorCollision);
+
+    SaveConverter_Init();
 }
 
 void PortEnhancements_Exit() {
