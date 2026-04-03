@@ -95,16 +95,19 @@ extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
 // Event listeners
 
 void RegisterCameraPatches_Init() {
+    // TODO: swap to COND_HOOK when available
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         updateCutsceneAspect(ev->mapId);
     });
 
+    // TODO: swap to COND_HOOK when available
     COND_VB_SHOULD(VB_STATIC_CAMERA_SET, true, {
         if (ev->id != VB_STATIC_CAMERA_SET) return;
         sLastStaticCameraNode = *(int32_t*)args;
     });
 
+    // TODO: swap to COND_HOOK when available
     COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, true, {
         if (ev->id != VB_STATIC_CAMERA_EXIT) return;
         sLastStaticCameraNode = -1;

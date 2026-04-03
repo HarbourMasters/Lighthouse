@@ -145,6 +145,7 @@ extern "C" void port_setWindowTitle(int map_id) {
 }
 
 void RegisterGameStatus_Init() {
+    // TODO: swap to COND_HOOK when available
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_LOW, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         port_setWindowTitle(ev->mapId);

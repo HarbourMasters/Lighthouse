@@ -39,7 +39,6 @@ void port_spriteDisplayCache_clear(void);
 
 // Save (SavePatches.cpp)
 
-void port_restoreFileEnhancementData(int eepromSlot);
 void port_syncBottlesBonusIndex(void);
 
 // Camera (CameraPatches.cpp)
