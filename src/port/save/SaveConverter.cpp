@@ -76,11 +76,7 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     json j;
     j = json::object();
 
-    if (saveData == NULL) {
-        return j;
-    }
-
-    j["slotIndex"] = fileNum;
+    j["slotIndex"] = saveData->slotIndex;
     j["version"] = SAVE_VERSION;
 
     // Abilities
@@ -88,6 +84,8 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     uint32_t learned, used;
     memcpy(&learned, abilityData, sizeof(uint32_t));
     memcpy(&used, abilityData + 4, sizeof(uint32_t));
+    learned = (abilityData[0] << 24) | (abilityData[1] << 16) | (abilityData[2] << 8) | (abilityData[3]);
+    used = (abilityData[4] << 24) | (abilityData[5] << 16) | (abilityData[6] << 8) | (abilityData[7]);
 
     json learnedAbilities = json::object();
     json usedAbilities = json::object();
@@ -238,13 +236,8 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     json ship = json::object();
     json shipRando = json::object();
 
-    if (saveData->shipSaveData.saveType >= SAVETYPE_MAX || saveData->shipSaveData.saveType < SAVETYPE_VANILLA) {
-        ship["saveType"] = !CVarGetInteger("gRandoSettings.Enabled", 0) ? SAVETYPE_RANDO : SAVETYPE_VANILLA;
-    } else {
-        ship["saveType"] = saveData->shipSaveData.saveType;
-    }
-
     shipRando["isRando"] = static_cast<int>(saveData->shipSaveData.randoSaveData.isRando);
+    ship["saveType"] = saveData->shipSaveData.saveType == SAVETYPE_VANILLA ? 0 : 1;
     ship["randoSaveData"] = shipRando;
 
     j["ship"] = ship;
@@ -504,6 +497,10 @@ void LoadFromDisk() {
     }
 }
 
+void Test() {
+    int hi = 0;
+}
+
 void SaveConverter_Init() {
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
@@ -515,6 +512,7 @@ void SaveConverter_Init() {
         } else {
             ev->result = 2; // error
         }
+        Test();
         delete loaded;
         event->cancelled = true;
     });

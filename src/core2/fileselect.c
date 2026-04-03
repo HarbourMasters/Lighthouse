@@ -77,14 +77,15 @@ s32 gameFile_8033CFD4(s32 gamenum){
         s32 eeprom_error;
         SaveData* save_data;
 
-    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, save_data, gamenum) {
-        filenum = D_80383F04;
-        next = gameFile_GameIdToFileIdMap[gamenum];
-        gameFile_GameIdToFileIdMap[gamenum] = D_80383F04;
-        bcopy(&gameFile_saveData[next], &gameFile_saveData[filenum], 0xF * 8);
-        save_data = gameFile_saveData + filenum;
-        save_data->slotIndex = gamenum + 1;
-        savedata_update_crc(save_data, sizeof(SaveData));
+    //CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, save_data, gamenum) {
+    filenum = D_80383F04;
+    next = gameFile_GameIdToFileIdMap[gamenum];
+    gameFile_GameIdToFileIdMap[gamenum] = D_80383F04;
+    bcopy(&gameFile_saveData[next], &gameFile_saveData[filenum], 0xF * 8);
+    save_data = gameFile_saveData + filenum;
+    save_data->slotIndex = gamenum + 1;
+    savedata_update_crc(save_data, sizeof(SaveData));
+        CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, save_data, gamenum) {
         for (eeprom_error = 1; eeprom_error && i > 0; i--) {//L8033D070
             eeprom_error = savedata_8033CC98(filenum, save_data);
             if (!eeprom_error) {
