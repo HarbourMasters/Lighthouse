@@ -3062,16 +3062,16 @@ aBKAssetTable:
     3622: comusic/COMUSIC_AA_BEACH
     3623: comusic/COMUSIC_AB_UNNAMED
     3624: comusic/COMUSIC_AC_GOOD_ENDING
-    3628: sprite/ASSET_E2C_UNNAMED
-    3629: sprite/ASSET_E2D_UNNAMED
-    3630: sprite/ASSET_E2E_UNNAMED
-    3631: sprite/ASSET_E2F_UNNAMED
-    3632: sprite/ASSET_E30_UNNAMED
-    3633: sprite/ASSET_E31_UNNAMED
-    3634: sprite/ASSET_E32_UNNAMED
-    3635: sprite/ASSET_E33_UNNAMED
-    3636: sprite/ASSET_E34_UNNAMED
-    3637: sprite/ASSET_E35_BOTTLES_BONUS_REMINDER
-    3638: sprite/ASSET_E36_BOTTLES_NO_BONUS
-    3639: sprite/ASSET_E37_BOTTLES_STOP_WASTING_TIME_AFTER_FURNACE_FUN
-    3640: sprite/ASSET_E38_CHEATING_ERASE_SAVE_CONFIRMATION
+    3628: sprite/jp_font/KanjiSheet_01
+    3629: sprite/jp_font/KanjiSheet_02
+    3630: sprite/jp_font/KanjiSheet_03
+    3631: sprite/jp_font/KanjiSheet_04
+    3632: sprite/jp_font/KanjiSheet_05
+    3633: sprite/jp_font/KanjiSheet_06
+    3634: sprite/jp_font/KanjiSheet_07
+    3635: sprite/jp_font/KanjiSheet_08
+    3636: sprite/jp_font/KanjiSheet_09
+    3637: sprite/jp_font/KanjiSheet_10
+    3638: sprite/jp_font/KanjiSheet_11
+    3639: sprite/jp_font/KanjiSheet_12
+    3640: sprite/jp_font/KanjiSheet_13
