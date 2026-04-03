@@ -329,7 +329,6 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     savedItems[3] = j["savedItems"]["goldFeathers"];
     savedItems[4] = j["savedItems"]["jiggyTotal"];
 
-
     // World Progress
     uint8_t* honeycombData = &saveData->data[HONEYCOMB_OFFSET];
     uint8_t* jiggyData = &saveData->data[JIGGY_OFFSET];

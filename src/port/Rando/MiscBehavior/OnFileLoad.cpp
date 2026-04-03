@@ -24,7 +24,5 @@ void Rando::MiscBehavior::OnFileLoad() {
                 gameFile_saveData[selectedFileNum].shipSaveData.randoSaveData.isRando = true;
             }
         }
-
-        
     });
 }

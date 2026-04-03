@@ -43,7 +43,6 @@ void Rando::ObjectBehavior::Init() {
             default:
                 break;
         }
-
     })
 
     REGISTER_LISTENER(OnActorSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
@@ -53,7 +52,7 @@ void Rando::ObjectBehavior::Init() {
             return;
         }
 
-        //LogOutSpawns(ev->actorId, ev->posX, ev->posY, ev->posZ);
+        // LogOutSpawns(ev->actorId, ev->posX, ev->posY, ev->posZ);
 
         event->cancelled = true;
         ev->result = CustomObject::SpawnRandoObject(ev->actorId, ev->posX, ev->posY, ev->posZ, ev->rot);

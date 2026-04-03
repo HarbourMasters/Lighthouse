@@ -48,7 +48,7 @@ void RandoHelper_SpawnPosition() {
 void RandoHelper_ObjectSpawner() {
     player_getPosition_s32(playerPosition);
     RandoHelper_SpawnPosition();
-    
+
     ImGui::SeparatorText("Spawn Data");
     if (ImGui::BeginTable("SpawnInfoTable", 3)) {
         ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 75.0f);
@@ -61,13 +61,13 @@ void RandoHelper_ObjectSpawner() {
         ImGui::Text(std::to_string(playerPosition[0]).c_str());
         ImGui::TableNextColumn();
         if (UIWidgets::SliderInt("##offsetX", &spawnOffset[0],
-            UIWidgets::IntSliderOptions()
-            .Color(THEME_COLOR)
-            .Min(0)
-            .Max(200)
-            .DefaultValue(0)
-            .Format("Offset X: %i")
-            .LabelPosition(UIWidgets::LabelPositions::None))) {
+                                 UIWidgets::IntSliderOptions()
+                                     .Color(THEME_COLOR)
+                                     .Min(0)
+                                     .Max(200)
+                                     .DefaultValue(0)
+                                     .Format("Offset X: %i")
+                                     .LabelPosition(UIWidgets::LabelPositions::None))) {
             RandoHelper_SpawnPosition();
         }
         ImGui::TableNextColumn();
@@ -77,13 +77,13 @@ void RandoHelper_ObjectSpawner() {
         ImGui::Text(std::to_string(playerPosition[1]).c_str());
         ImGui::TableNextColumn();
         if (UIWidgets::SliderInt("##offsetY", &spawnOffset[1],
-            UIWidgets::IntSliderOptions()
-            .Color(THEME_COLOR)
-            .Min(0)
-            .Max(200)
-            .DefaultValue(0)
-            .Format("Offset Y: %i")
-            .LabelPosition(UIWidgets::LabelPositions::None))) {
+                                 UIWidgets::IntSliderOptions()
+                                     .Color(THEME_COLOR)
+                                     .Min(0)
+                                     .Max(200)
+                                     .DefaultValue(0)
+                                     .Format("Offset Y: %i")
+                                     .LabelPosition(UIWidgets::LabelPositions::None))) {
             RandoHelper_SpawnPosition();
         }
         ImGui::TableNextColumn();
@@ -93,13 +93,13 @@ void RandoHelper_ObjectSpawner() {
         ImGui::Text(std::to_string(playerPosition[2]).c_str());
         ImGui::TableNextColumn();
         if (UIWidgets::SliderInt("##offsetZ", &spawnOffset[2],
-            UIWidgets::IntSliderOptions()
-            .Color(THEME_COLOR)
-            .Min(0)
-            .Max(200)
-            .DefaultValue(0)
-            .Format("Offset Z: %i")
-            .LabelPosition(UIWidgets::LabelPositions::None))) {
+                                 UIWidgets::IntSliderOptions()
+                                     .Color(THEME_COLOR)
+                                     .Min(0)
+                                     .Max(200)
+                                     .DefaultValue(0)
+                                     .Format("Offset Z: %i")
+                                     .LabelPosition(UIWidgets::LabelPositions::None))) {
             RandoHelper_SpawnPosition();
         }
 

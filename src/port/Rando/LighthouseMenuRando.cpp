@@ -18,18 +18,18 @@ using namespace UIWidgets;
 
 void LighthouseMenu::AddMenuRando() {
 
-// Add Rando Menu
-AddMenuEntry("Rando", CVAR_SETTING("Menu.RandoSidebarSection"));
+    // Add Rando Menu
+    AddMenuEntry("Rando", CVAR_SETTING("Menu.RandoSidebarSection"));
 
-// General
-AddSidebarEntry("Rando", "General", 1);
-WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
+    // General
+    AddSidebarEntry("Rando", "General", 1);
+    WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
 
-AddWidget(path, "Enable Rando", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Enable Rando", WIDGET_SEPARATOR_TEXT);
 
-AddWidget(path, "Enable Rando", WIDGET_CVAR_CHECKBOX)
-    .CVar(CVAR_RANDOMIZER_SETTING("Enable"))
-    .Options(CheckboxOptions().Tooltip("Enables Randomizer on the next new save file."));
+    AddWidget(path, "Enable Rando", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_RANDOMIZER_SETTING("Enable"))
+        .Options(CheckboxOptions().Tooltip("Enables Randomizer on the next new save file."));
 }
 
 } // namespace LighthouseGui
