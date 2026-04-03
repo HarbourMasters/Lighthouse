@@ -12,7 +12,6 @@
 #define GLOBAL_SIZE (GLOBAL_BLOCK_COUNT * EEPROM_BLOCK_SIZE) // 32
 
 uint8_t mEeprom[EEPROM_TOTAL_SIZE];
-bool mLoaded;
 
 // Binary Layout Constants
 // These match the offsets computed by savedata_init() in savedata.c.

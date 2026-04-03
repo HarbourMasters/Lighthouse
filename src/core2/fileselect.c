@@ -71,13 +71,12 @@ void gameFile_8033CE40(void) {
 }
 
 s32 gameFile_8033CFD4(s32 gamenum){
-        s32 next;
-        s32 filenum;
-        u32 i = 3;
-        s32 eeprom_error;
-        SaveData* save_data;
+    s32 next;
+    s32 filenum;
+    u32 i = 3;
+    s32 eeprom_error;
+    SaveData* save_data;
 
-    //CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, save_data, gamenum) {
     filenum = D_80383F04;
     next = gameFile_GameIdToFileIdMap[gamenum];
     gameFile_GameIdToFileIdMap[gamenum] = D_80383F04;

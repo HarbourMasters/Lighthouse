@@ -13,10 +13,9 @@ extern SaveData gameFile_saveData[4];
 void savedata_update_crc(void* buffer, s32 size);
 }
 
-
-
 using nlohmann::json;
 namespace fs = std::filesystem;
+static bool mLoaded = false;
 
 static int BitfieldGetBit(const uint8_t* array, int index) {
     return (array[index / 8] & (1 << (index & 7))) ? 1 : 0;
@@ -48,13 +47,9 @@ static int SlotToVisualGame(int slotIndex) {
     static const int kMap[4] = { 0, 1, 3, 2 };
     return (slotIndex >= 1 && slotIndex <= 3) ? kMap[slotIndex] : slotIndex;
 }
-static int VisualGameToSlot(int visual) {
-    static const int kMap[4] = { 0, 1, 3, 2 }; // symmetric: same remap
-    return (visual >= 1 && visual <= 3) ? kMap[visual] : visual;
-}
 
 json FindSelectedSaveFile(int32_t filenum) {
-    std::string fileName = "file" + std::to_string(SlotToVisualGame(filenum)) + ".json";
+    std::string fileName = "file" + std::to_string(filenum) + ".json";
     std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
 
     if (!std::filesystem::exists(filePath)) {
@@ -250,6 +245,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 
     if (j.empty() || !j.contains("slotIndex")) {
         SaveData* emptySave = new SaveData();
+        emptySave->slotIndex = fileNum;
         memset(emptySave, 0, sizeof(SaveData));
         return emptySave;
     }
@@ -440,16 +436,11 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 }
 
 void LoadFromDisk() {
-    //memset(mEeprom, 0, sizeof(mEeprom));
-
-    // Load game files (file1.json, file2.json, file3.json)
     for (int i = 1; i <= 3; i++) {
-        // int slotIndex = fileCheck["slotIndex"].get<int>();
-        // int eepromSlot = i - 1;
-        // int base = eepromSlot * SAVE_SLOT_SIZE;
-
         SaveData* loadSave = Convert_JSONToSaveData(i);
-        loadSave->magic = SAVE_MAGIC;
+        if (loadSave->slotIndex != 0) {
+            loadSave->magic = SAVE_MAGIC;
+        }
         gameFile_saveData[i - 1] = *(loadSave);
     }
 
@@ -497,22 +488,19 @@ void LoadFromDisk() {
     }
 }
 
-void Test() {
-    int hi = 0;
-}
-
 void SaveConverter_Init() {
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
         SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);
         if (loaded && ev->saveBuffer) {
-            loaded->magic = SAVE_MAGIC;
+            if (loaded->slotIndex != 0) {
+                loaded->magic = SAVE_MAGIC;
+            }
             memcpy(ev->saveBuffer, loaded, sizeof(SaveData));
             ev->result = 0; // success
         } else {
             ev->result = 2; // error
         }
-        Test();
         delete loaded;
         event->cancelled = true;
     });
