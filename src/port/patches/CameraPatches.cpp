@@ -100,14 +100,14 @@ void RegisterCameraPatches_Init() {
         updateCutsceneAspect(ev->mapId);
     });
 
-    REGISTER_LISTENER(VanillaBehavior, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        VanillaBehavior* ev = (VanillaBehavior*)event;
-        if (ev->id == VB_STATIC_CAMERA_SET) {
-            int32_t nodeIndex = *(int32_t*)ev->args;
-            sLastStaticCameraNode = nodeIndex;
-        } else if (ev->id == VB_STATIC_CAMERA_EXIT) {
-            sLastStaticCameraNode = -1;
-        }
+    COND_VB_SHOULD(VB_STATIC_CAMERA_SET, true, {
+        if (ev->id != VB_STATIC_CAMERA_SET) return;
+        sLastStaticCameraNode = *(int32_t*)args;
+    });
+
+    COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, true, {
+        if (ev->id != VB_STATIC_CAMERA_EXIT) return;
+        sLastStaticCameraNode = -1;
     });
 }
 
