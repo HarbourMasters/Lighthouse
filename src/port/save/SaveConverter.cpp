@@ -79,8 +79,6 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     uint32_t learned, used;
     memcpy(&learned, abilityData, sizeof(uint32_t));
     memcpy(&used, abilityData + 4, sizeof(uint32_t));
-    learned = (abilityData[0] << 24) | (abilityData[1] << 16) | (abilityData[2] << 8) | (abilityData[3]);
-    used = (abilityData[4] << 24) | (abilityData[5] << 16) | (abilityData[6] << 8) | (abilityData[7]);
 
     json learnedAbilities = json::object();
     json usedAbilities = json::object();
@@ -537,17 +535,6 @@ void SaveConverter_Init() {
             LoadFromDisk();
             mLoaded = true;
         }
-
-        // int absoluteBlock = ev->file * SAVE_SLOT_BLOCKS + ev->offset;
-        // int byteOffset = absoluteBlock * EEPROM_BLOCK_SIZE;
-        // int byteCount = ev->count * EEPROM_BLOCK_SIZE;
-        // 
-        // if (byteOffset + byteCount > EEPROM_TOTAL_SIZE) {
-        //     ev->result = 1;
-        // } else {
-        //     memcpy(ev->buffer, mEeprom + byteOffset, byteCount);
-        //     ev->result = 0;
-        // }
 
         event->cancelled = true;
     });
