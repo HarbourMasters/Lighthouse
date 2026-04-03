@@ -375,13 +375,12 @@ BKSprite *func_8033B6C4(enum asset_e sprite_id, BKSpriteDisplayData **arg1){
         D_80383CD4[assetCacheCurrentIndex] = func_80344A1C(s0);
     }
     *arg1 = D_80383CD4[assetCacheCurrentIndex];
-#else
+#endif
     if (s0 == NULL) {
         *arg1 = NULL;
         return NULL;
     }
     *arg1 = port_getOrCreateDisplayData(s0);
-#endif
     return s0;
 }
 
