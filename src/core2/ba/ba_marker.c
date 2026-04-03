@@ -111,7 +111,7 @@ void __baMarker_8028B7F4(void){
 void __baMarker_8028B848(void){
     s32 s0 = 0;
     if(map_get() == MAP_69_GL_MM_LOBBY){
-        s0 = ASSET_E57_DIALOG_FIRST_JIGGY;
+        s0 = ASSET_F57_DIALOG_FIRST_JIGGY;
     }
     else if(map_get() == MAP_2_MM_MUMBOS_MOUNTAIN){
         s0 = ASSET_B45_DIALOG_JIGGY_COLLECT_10;
