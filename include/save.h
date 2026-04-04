@@ -2,12 +2,11 @@
 #define __SAVE_H__
 
 typedef enum {
-    SAVETYPE_VANILLA,
-    SAVETYPE_MAX,
-} SaveType;
+    FILE_TYPE_SAVE_VANILLA,
+} FileType;
 
 typedef struct {
-    SaveType saveType;
+    FileType fileType;
 } ShipSaveData;
 
 typedef struct{

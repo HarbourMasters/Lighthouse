@@ -218,7 +218,7 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     json ship = json::object();
     json shipRando = json::object();
 
-    ship["saveType"] = saveData->shipSaveData.saveType == SAVETYPE_VANILLA ? 0 : 1;
+    ship["fileType"] = FILE_TYPE_SAVE_VANILLA;
     ship["randoSaveData"] = shipRando;
 
     j["ship"] = ship;
@@ -414,7 +414,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     memcpy(&saveData->data[NOTE_OFFSET], &notesPacked, sizeof(uint64_t));
 
     // Ship Save Data
-    saveData->shipSaveData.saveType = j["ship"]["saveType"];
+    saveData->shipSaveData.fileType = j["ship"]["fileType"];
 
     return saveData;
 }
