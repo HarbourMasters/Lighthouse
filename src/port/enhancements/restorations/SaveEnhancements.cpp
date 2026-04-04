@@ -29,8 +29,8 @@ namespace fs = std::filesystem;
 #define CVAR_BOTTLES_BONUS CVarGetInteger(CVAR_NAME_BOTTLES_BONUS, 0)
 
 void RegisterRestoreExtraLives_Init() {
-    REGISTER_LISTENER(OnGameFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnGameFileLoad* ev = (OnGameFileLoad*)event;
+    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnGameLoad* ev = (OnGameLoad*)event;
 
         if (!CVAR_EXTRA_LIVES) {
             D_80385F30[ITEM_16_LIFE] = 3;
@@ -52,8 +52,8 @@ void RegisterRestoreExtraLives_Init() {
 }
 
 void RegisterRestoreBottlesBonus_Init() {
-    REGISTER_LISTENER(OnGameFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnGameFileLoad* ev = (OnGameFileLoad*)event;
+    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnGameLoad* ev = (OnGameLoad*)event;
 
         if (!CVAR_BOTTLES_BONUS) {
             return;

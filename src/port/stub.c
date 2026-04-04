@@ -13,10 +13,6 @@
 #include <libultra/exception.h>
 #include <libultra/rcp.h>
 
-#include "port/enhancements/events/hooks/Events.h"
-
-#define EEPROM_BLOCK_SIZE 8
-
 #define DEFAULT_FRAMEBUFFER_WIDTH 292
 #define DEFAULT_FRAMEBUFFER_HEIGHT 216
 
