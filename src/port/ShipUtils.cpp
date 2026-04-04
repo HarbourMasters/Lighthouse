@@ -21,7 +21,6 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-
 // Furnace Fun active flag
 extern "C" s32 volatileFlag_get(s32);
 
