@@ -508,18 +508,4 @@ void SaveManager_Init() {
 
         event->cancelled = true;
     });
-
-    REGISTER_LISTENER(OnEepromRead, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnEepromRead* ev = (OnEepromRead*)event;
-
-        event->cancelled = true;
-        ev->result = 0;
-    });
-
-    REGISTER_LISTENER(OnEepromWrite, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnEepromWrite* ev = (OnEepromWrite*)event;
-
-        event->cancelled = true;
-        ev->result = 0;
-    });
 }

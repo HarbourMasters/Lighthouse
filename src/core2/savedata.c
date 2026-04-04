@@ -328,19 +328,23 @@ void __savedata_save_abilities(u8 *savedata){ //savedata_save_abilities
 }
 
 s32 savedata_8033CA2C(s32 filenum, void *save_data_){
-    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileLoad, filenum, save_data_, 0) {
-        SaveData* save_data = (SaveData*)save_data_;
-        s32 sp1C;
+    CALL_EVENT(OnSaveFileLoad, filenum, save_data_, 0);
+#if 0
+{
+    SaveData* save_data = (SaveData*)save_data_;
+    s32 sp1C;
 
-        sp1C = eeprom_readBlocks(filenum, 0, save_data, 0xF);
-        if (sp1C
-            || savedata_verify(0x78, save_data)
-            || ((u8*)save_data)[baseOffset] != 0x11
-            ) {
-            sp1C = 2;
-        }
-        return sp1C;
+    sp1C = eeprom_readBlocks(filenum, 0, save_data, 0xF);
+    if (sp1C
+        || savedata_verify(0x78, save_data)
+        || ((u8*)save_data)[baseOffset] != 0x11
+        ) {
+        sp1C = 2;
     }
+    return sp1C;
+}
+#endif
+return 0;
 }
 
 s32 savedata_8033CA9C(void *savedata_){

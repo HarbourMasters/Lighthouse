@@ -85,28 +85,32 @@ s32 gameFile_8033CFD4(s32 gamenum){
     save_data = gameFile_saveData + filenum;
     save_data->slotIndex = gamenum + 1;
     savedata_update_crc(save_data, sizeof(SaveData));
-    CALL_CANCELLABLE_RETURN_EVENT(OnSaveFileSave, save_data, gamenum) {
-        for (eeprom_error = 1; eeprom_error && i > 0; i--) {//L8033D070
-            eeprom_error = savedata_8033CC98(filenum, save_data);
-            if (!eeprom_error) {
-                __gameFile_8033CE14(gamenum);
-            }
-        }
+    CALL_EVENT(OnSaveFileSave, save_data, gamenum);
+#if 0
+{
+    for (eeprom_error = 1; eeprom_error && i > 0; i--) {//L8033D070
+        eeprom_error = savedata_8033CC98(filenum, save_data);
         if (!eeprom_error) {
-            for (i = 3; i > 0; i--) {//L8033D070
-                eeprom_error = savedata_8033CCD0(next);
-                if (!eeprom_error)
-                    break;
-            }
+            __gameFile_8033CE14(gamenum);
         }
-        if (eeprom_error) {
-            gameFile_GameIdToFileIdMap[gamenum] = next;
-        }
-        else {
-            D_80383F04 = next;
-        }
-        return eeprom_error;
     }
+    if (!eeprom_error) {
+        for (i = 3; i > 0; i--) {//L8033D070
+            eeprom_error = savedata_8033CCD0(next);
+            if (!eeprom_error)
+                break;
+        }
+    }
+    if (eeprom_error) {
+        gameFile_GameIdToFileIdMap[gamenum] = next;
+    }
+    else {
+        D_80383F04 = next;
+    }
+    return eeprom_error;
+}
+#endif
+return 0;
 }
 
 void gameFile_clear(s32 gamenum){

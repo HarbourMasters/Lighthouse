@@ -202,29 +202,11 @@ s32 osAiSetFrequency(u32 frequency) {
 }
 
 s32 eeprom_writeBlocks(s32 file, s32 offset, void* buffer, s32 count) {
-    CALL_CANCELLABLE_RETURN_EVENT(OnEepromWrite, file, offset, buffer, count) {
-        s32 address = file + offset;
-        s32 ret;
-
-        func_8024F35C(3);
-        ret = osEepromLongWrite(pfsManager_getFrameReplyQ(), address, buffer, count * EEPROM_BLOCK_SIZE);
-        func_8024F35C(0);
-
-        return ret;
-    }
+    return 0;
 }
 
 s32 eeprom_readBlocks(s32 file, s32 offset, void* buffer, s32 count) {
-    CALL_CANCELLABLE_RETURN_EVENT(OnEepromRead) {
-        s32 address = file + offset;
-        s32 ret;
-
-        func_8024F35C(3);
-        ret = osEepromLongRead(pfsManager_getFrameReplyQ(), address, buffer, count * EEPROM_BLOCK_SIZE);
-        func_8024F35C(0);
-
-        return ret;
-    }
+    return 0;
 }
 
 u32 func_8025C29C(u32* seed) {
