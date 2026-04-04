@@ -1,4 +1,4 @@
-﻿#include "SaveConverter.h"
+﻿#include "SaveManager.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/enhancements/events/hooks/Events.h"
@@ -419,7 +419,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     return saveData;
 }
 
-void SaveConverter_LoadAll() {
+void SaveManager_LoadAll() {
     uint8_t mEeprom[EEPROM_TOTAL_SIZE];
     for (int i = 1; i <= 3; i++) {
         SaveData* loadSave = Convert_JSONToSaveData(i);
@@ -473,8 +473,8 @@ void SaveConverter_LoadAll() {
     }
 }
 
-void SaveConverter_Init() {
-    SaveConverter_LoadAll();
+void SaveManager_Init() {
+    SaveManager_LoadAll();
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
         SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);

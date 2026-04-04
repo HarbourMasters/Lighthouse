@@ -1,5 +1,5 @@
 #include "PortEnhancements.h"
-#include "port/save/SaveConverter.h"
+#include "port/save/SaveManager.h"
 
 #define INIT_EVENT_IDS
 
@@ -26,7 +26,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorSpawn);
     REGISTER_EVENT(OnActorCollision);
 
-    SaveConverter_Init();
+    SaveManager_Init();
 }
 
 void PortEnhancements_Exit() {
