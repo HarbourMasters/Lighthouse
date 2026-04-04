@@ -437,7 +437,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     return saveData;
 }
 
-void LoadFromDisk() {
+void SaveConverter_LoadAll() {
     uint8_t mEeprom[EEPROM_TOTAL_SIZE];
     for (int i = 1; i <= 3; i++) {
         SaveData* loadSave = Convert_JSONToSaveData(i);
@@ -492,6 +492,7 @@ void LoadFromDisk() {
 }
 
 void SaveConverter_Init() {
+    SaveConverter_LoadAll();
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
         SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);
@@ -536,11 +537,7 @@ void SaveConverter_Init() {
     REGISTER_LISTENER(OnEepromWrite, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnEepromWrite* ev = (OnEepromWrite*)event;
 
-        if (!mLoaded) {
-            LoadFromDisk();
-            mLoaded = true;
-        }
-
         event->cancelled = true;
+        ev->result = 0;
     });
 }
