@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/enhancements/events/hooks/Events.h"
+#include "port/ShipUtils.h"
 #include <fstream>
 #include <filesystem>
 
@@ -43,25 +44,6 @@ static void BitfieldSetNBits(uint8_t* array, int startIndex, int set, int length
     for (int i = 0; i < length; i++) {
         BitfieldSetBit(array, startIndex + i, (1 << i) & set);
     }
-}
-
-json FindSelectedSaveFile(int32_t filenum) {
-    std::string fileName = "file" + std::to_string(filenum) + ".json";
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
-
-    if (!std::filesystem::exists(filePath)) {
-        return json::object();
-    }
-
-    std::ifstream file(filePath);
-    json jsonSave;
-
-    file >> jsonSave;
-    if (!jsonSave.contains("slotIndex")) {
-        return json::object();
-    }
-
-    return jsonSave;
 }
 
 json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
@@ -245,7 +227,7 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
 }
 
 SaveData* Convert_JSONToSaveData(int32_t fileNum) {
-    json j = FindSelectedSaveFile(fileNum);
+    json j = Ship_RetrieveSaveFile(fileNum);
 
     if (j.empty() || !j.contains("slotIndex")) {
         SaveData* emptySave = new SaveData();

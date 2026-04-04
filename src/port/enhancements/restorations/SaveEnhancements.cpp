@@ -3,6 +3,7 @@
 #include "port/ui/cvar_prefixes.h"
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/ShipUtils.h"
 
 #include <fstream>
 #include <filesystem>
@@ -27,24 +28,12 @@ namespace fs = std::filesystem;
 #define CVAR_EXTRA_LIVES CVarGetInteger(CVAR_NAME_EXTRA_LIVES, 0)
 #define CVAR_BOTTLES_BONUS CVarGetInteger(CVAR_NAME_BOTTLES_BONUS, 0)
 
-json RetrieveSaveFileData(int32_t fileNum) {
-    std::string fileName = "file" + std::to_string(fileNum) + ".json";
-    std::string path = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
-    if (!fs::exists(path)) {
-        return json::object();
-    }
-
-    std::ifstream ifs(path);
-    nlohmann::ordered_json jsonFile = nlohmann::ordered_json::parse(ifs);
-
-    return jsonFile;
-}
-
 void RegisterRestoreExtraLives_Init() {
     REGISTER_LISTENER(OnGameFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnGameFileLoad* ev = (OnGameFileLoad*)event;
 
         if (!CVAR_EXTRA_LIVES) {
+            D_80385F30[ITEM_16_LIFE] = 3;
             return;
         }
 
@@ -52,7 +41,7 @@ void RegisterRestoreExtraLives_Init() {
             return;
         }
 
-        json j = RetrieveSaveFileData(ev->fileNum);
+        json j = Ship_RetrieveSaveFile(ev->fileNum);
 
         if (j.contains("enhancements")) {
             if (j["enhancements"].contains("life")) {
@@ -74,7 +63,7 @@ void RegisterRestoreBottlesBonus_Init() {
             return;
         }
 
-        json j = RetrieveSaveFileData(ev->fileNum);
+        json j = Ship_RetrieveSaveFile(ev->fileNum);
 
         if (j.contains("enhancements")) {
             if (j["enhancements"].contains("bottlesBonusCompleted")) {

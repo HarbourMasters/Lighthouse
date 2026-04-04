@@ -3,6 +3,10 @@
 #include "libultraship/libultra/types.h"
 
 #ifdef __cplusplus
+#include <nlohmann/json.hpp>
+using nlohmann::json;
+json Ship_RetrieveSaveFile(int32_t filenum);
+
 extern "C" {
 #endif
 

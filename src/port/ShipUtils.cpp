@@ -17,6 +17,11 @@
 
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 
+#include <fstream>
+#include <filesystem>
+namespace fs = std::filesystem;
+
+
 // Furnace Fun active flag
 extern "C" s32 volatileFlag_get(s32);
 
@@ -310,4 +315,20 @@ extern "C" bool port_CButtonIsAxis(void) {
         }
     }
     return false;
+}
+
+json Ship_RetrieveSaveFile(int32_t filenum) {
+    std::string fileName = "file" + std::to_string(filenum) + ".json";
+    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
+
+    if (!std::filesystem::exists(filePath)) {
+        return json::object();
+    }
+
+    std::ifstream file(filePath);
+    json jsonSave;
+
+    file >> jsonSave;
+
+    return jsonSave;
 }
