@@ -107,13 +107,15 @@ void RegisterCameraPatches_Init() {
 
     // TODO: swap to COND_HOOK when available
     COND_VB_SHOULD(VB_STATIC_CAMERA_SET, true, {
-        if (ev->id != VB_STATIC_CAMERA_SET) return;
+        if (ev->id != VB_STATIC_CAMERA_SET)
+            return;
         sLastStaticCameraNode = *(int32_t*)args;
     });
 
     // TODO: swap to COND_HOOK when available
     COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, true, {
-        if (ev->id != VB_STATIC_CAMERA_EXIT) return;
+        if (ev->id != VB_STATIC_CAMERA_EXIT)
+            return;
         sLastStaticCameraNode = -1;
     });
 }

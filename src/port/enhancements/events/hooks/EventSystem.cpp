@@ -30,7 +30,7 @@ ListenerID EventSystem::RegisterListener(EventID id, EventCallback callback, Eve
 
         // Sort by priority
         std::sort(registry.listeners.begin(), registry.listeners.end(),
-                  [](const EventListener a, const EventListener b) { return a.priority < b.priority; });
+                  [](const EventListener a, const EventListener b) { return a.priority > b.priority; });
     }
 
     return registry.listeners.size() - 1;

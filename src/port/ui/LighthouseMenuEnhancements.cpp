@@ -118,7 +118,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Cutscene Audio Sync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.CutsceneSync"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Compensates for N64 frame stutters during cutscenes so audio stays in sync."));
+        .Options(
+            CheckboxOptions().Tooltip("Compensates for N64 frame stutters during cutscenes so audio stays in sync."));
 
     AddWidget(path, "Fix Widescreen Camera", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.WidescreenCamera"))
@@ -151,6 +152,8 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
+    // TODO: All Honeycomb Extensions allows 9 honeycomb health bars instead of the 8 cap,
+    // but in 4:3 mode they overlap with the notes sprite in HUD
     AddWidget(path, "All Honeycomb Extensions", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("AllHoneycombExtensions"))
         .RaceDisable(false)

@@ -37,7 +37,7 @@ void port_patchTransitionModel(void* model_bin);
 
 void port_spriteDisplayCache_clear(void);
 
-// Save (SavePatches.cpp)
+// Save (SaveEnhancements.cpp)
 
 void port_syncBottlesBonusIndex(void);
 

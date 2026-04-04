@@ -11,6 +11,8 @@
 #include "Types.h"
 
 extern "C" {
+#include "core1/sns.h"
+
 extern SaveData gameFile_saveData[4];
 void savedata_update_crc(void* buffer, s32 size);
 s32 item_getCount(enum item_e item);
@@ -18,6 +20,7 @@ u8 gCompletedBottlesBonusGames[7];
 }
 
 using nlohmann::json;
+using nlohmann::ordered_json;
 namespace fs = std::filesystem;
 static bool mLoaded = false;
 
@@ -41,13 +44,13 @@ static void BitfieldSetBit(uint8_t* array, int index, int set) {
     }
 }
 
-static void BitfieldSetNBits(uint8_t* array, int startIndex, int set, int length) {
-    for (int i = 0; i < length; i++) {
-        BitfieldSetBit(array, startIndex + i, (1 << i) & set);
+static void BitfieldSetNBits(uint8_t* array, int startIndex, int numBits, int value) {
+    for (int i = 0; i < numBits; i++) {
+        BitfieldSetBit(array, startIndex + i, (1 << i) & value);
     }
 }
 
-std::string CollapsedJSONArray(json jsonFile) {
+std::string CollapsedJSONArray(ordered_json jsonFile) {
     std::string jsonString = jsonFile.dump(4);
     jsonString = std::regex_replace(jsonString, std::regex(R"(\[\s+([01,\s]+?)\s+\])"), "[$1]");
     jsonString = std::regex_replace(jsonString, std::regex(R"(\s+([01]))"), " $1");
@@ -56,9 +59,9 @@ std::string CollapsedJSONArray(json jsonFile) {
     return jsonString;
 }
 
-json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
-    json j;
-    j = json::object();
+ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
+    ordered_json j;
+    j = ordered_json::object();
 
     j["slotIndex"] = saveData->slotIndex;
     j["version"] = SAVE_VERSION;
@@ -69,20 +72,20 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     memcpy(&learned, abilityData, sizeof(uint32_t));
     memcpy(&used, abilityData + 4, sizeof(uint32_t));
 
-    json learnedAbilities = json::object();
-    json usedAbilities = json::object();
+    ordered_json learnedAbilities = ordered_json::object();
+    ordered_json usedAbilities = ordered_json::object();
     for (int i = 0; i < kAbilityCount; i++) {
         learnedAbilities[kAbilityNames[i]] = (learned & (1u << i)) ? 1 : 0;
         usedAbilities[kAbilityNames[i]] = (used & (1u << i)) ? 1 : 0;
     }
-    json abilities = json::object();
+    ordered_json abilities = ordered_json::object();
     abilities["learned"] = learnedAbilities;
     abilities["used"] = usedAbilities;
     j["abilities"] = abilities;
 
     // General Progress Flags
     const uint8_t* progressFlags = &saveData->data[PROGRESS_OFFSET];
-    json general = json::object();
+    ordered_json general = ordered_json::object();
     for (int i = 0; i < kProgressFlagCount; i++) {
         const auto& f = kProgressFlags[i];
         if (f.world != nullptr) {
@@ -97,7 +100,7 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     j["progress"] = general;
 
     // Sandcastle Cheat Flags
-    json cheats = json::object();
+    ordered_json cheats = ordered_json::object();
     for (int i = 0; i < kProgressFlagCount; i++) {
         const auto& f = kProgressFlags[i];
         if (f.world == nullptr || strcmp(f.world, "CHEATS") != 0) {
@@ -113,7 +116,7 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
 
     // Saved Items
     const uint8_t* offsetData = &saveData->data[ITEMS_OFFSET];
-    json savedItems = json::object();
+    ordered_json savedItems = ordered_json::object();
     savedItems["mumboTokens"] = static_cast<int>(offsetData[0]);
     savedItems["eggs"] = static_cast<int>(offsetData[1]);
     savedItems["redFeathers"] = static_cast<int>(offsetData[2]);
@@ -123,10 +126,10 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     j["savedItems"] = savedItems;
 
     // World Progress
-    json worlds = json::object();
+    ordered_json worlds = ordered_json::object();
     for (int w = 0; w < kWorldCount; w++) {
         const auto& wd = kWorlds[w];
-        json world = json::object();
+        ordered_json world = ordered_json::object();
 
         // Honeycombs (array of 0/1)
         if (wd.honeycombCount > 0) {
@@ -185,7 +188,7 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
         }
 
         // Progress flags belonging to this world
-        json worldProgress = json::object();
+        ordered_json worldProgress = ordered_json::object();
         for (int i = 0; i < kProgressFlagCount; i++) {
             const auto& f = kProgressFlags[i];
             if (f.world == nullptr || strcmp(f.world, wd.name) != 0) {
@@ -198,7 +201,13 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
             }
         }
         if (!worldProgress.empty()) {
-            world["progress"] = worldProgress;
+            if (strcmp(wd.name, "BOSS") == 0) {
+                for (auto& [key, val] : worldProgress.items()) {
+                    world[key] = val;
+                }
+            } else {
+                world["progress"] = worldProgress;
+            }
         }
 
         // Time score
@@ -218,15 +227,9 @@ json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     int lives = item_getCount(ITEM_16_LIFE);
     j["enhancements"]["life"] = lives;
 
-    json bonusArray = json::array();
-    for (auto& state : gCompletedBottlesBonusGames) {
-        bonusArray.push_back(state);
-    }
-    j["enhancements"]["bottlesBonusCompleted"] = bonusArray;
-
     // Ship Save Data
-    json ship = json::object();
-    json shipRando = json::object();
+    ordered_json ship = ordered_json::object();
+    ordered_json shipRando = ordered_json::object();
 
     ship["fileType"] = FILE_TYPE_SAVE_VANILLA;
     ship["randoSaveData"] = shipRando;
@@ -393,19 +396,18 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
             }
         }
 
-        // World Progress Flags
-        if (world.contains("progress")) {
-            auto& worldProgress = world["progress"];
-            for (int i = 0; i < kProgressFlagCount; i++) {
-                const auto& f = kProgressFlags[i];
-                if (f.world != nullptr && strcmp(f.world, wd.name) == 0) {
-                    if (worldProgress.contains(f.name)) {
-                        uint32_t val = worldProgress[f.name].get<uint32_t>();
-                        if (f.bitWidth == 1)
-                            BitfieldSetBit(progressFlags, f.bitIndex, val != 0);
-                        else
-                            BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, val);
-                    }
+        // World Progress Flags (BOSS stores flags directly, others use "progress")
+        const auto& src =
+            (strcmp(wd.name, "BOSS") == 0) ? world : (world.contains("progress") ? world["progress"] : world);
+        for (int i = 0; i < kProgressFlagCount; i++) {
+            const auto& f = kProgressFlags[i];
+            if (f.world != nullptr && strcmp(f.world, wd.name) == 0) {
+                if (src.contains(f.name)) {
+                    uint32_t val = src[f.name].get<uint32_t>();
+                    if (f.bitWidth == 1)
+                        BitfieldSetBit(progressFlags, f.bitIndex, val != 0);
+                    else
+                        BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, val);
                 }
             }
         }
@@ -429,8 +431,49 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     return saveData;
 }
 
+static void LoadGlobalData() {
+    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/global.json");
+    if (!fs::exists(globalPath)) {
+        return;
+    }
+    std::ifstream ifs(globalPath);
+    json j = json::parse(ifs);
+
+    gSaveData.snsw = 0;
+    if (j.contains("snsItems")) {
+        const auto& sns = j["snsItems"];
+        if (sns.is_object() && sns.contains("unlocked")) {
+            const auto& u = sns["unlocked"];
+            for (int i = 0; i < kSnsItemCount; i++) {
+                auto it = u.find(kSnsUnlocked[i].name);
+                if (it != u.end() && it->get<int>()) {
+                    gSaveData.snsw |= (1u << kSnsUnlocked[i].bit);
+                }
+            }
+            if (sns.contains("collected")) {
+                const auto& c = sns["collected"];
+                for (int i = 0; i < kSnsItemCount; i++) {
+                    auto it = c.find(kSnsCollected[i].name);
+                    if (it != c.end() && it->get<int>()) {
+                        gSaveData.snsw |= (1u << kSnsCollected[i].bit);
+                    }
+                }
+            }
+        } else if (sns.is_number()) {
+            gSaveData.snsw = sns.get<uint32_t>();
+        }
+    }
+
+    // Bottles Bonus
+    if (j.contains("bottlesBonusCompleted")) {
+        const auto& bb = j["bottlesBonusCompleted"];
+        for (int k = 0; k < 7 && k < (int)bb.size(); k++) {
+            gCompletedBottlesBonusGames[k] = bb[k].get<int>() ? 1 : 0;
+        }
+    }
+}
+
 void SaveManager_LoadAll() {
-    uint8_t mEeprom[EEPROM_TOTAL_SIZE];
     for (int i = 1; i <= 3; i++) {
         SaveData* loadSave = Convert_JSONToSaveData(i);
         if (loadSave->slotIndex != 0) {
@@ -439,52 +482,46 @@ void SaveManager_LoadAll() {
         gameFile_saveData[i - 1] = *(loadSave);
     }
 
-    // Load global data
-    std::string globalName = "global.json";
-    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + globalName);
-    if (fs::exists(globalPath)) {
-        std::ifstream ifs(globalPath);
-        json j = json::parse(ifs);
+    LoadGlobalData();
+}
 
-        uint32_t snsRaw = 0;
-        if (j.contains("snsItems")) {
-            const auto& sns = j["snsItems"];
-            if (sns.is_object() && sns.contains("unlocked")) {
-                // Subtree format (v3+): unlocked/collected
-                if (sns.contains("unlocked")) {
-                    const auto& u = sns["unlocked"];
-                    for (int i = 0; i < kSnsItemCount; i++) {
-                        auto it = u.find(kSnsUnlocked[i].name);
-                        if (it != u.end() && it->get<int>()) {
-                            snsRaw |= (1u << kSnsUnlocked[i].bit);
-                        }
-                    }
-                }
-                if (sns.contains("collected")) {
-                    const auto& c = sns["collected"];
-                    for (int i = 0; i < kSnsItemCount; i++) {
-                        auto it = c.find(kSnsCollected[i].name);
-                        if (it != c.end() && it->get<int>()) {
-                            snsRaw |= (1u << kSnsCollected[i].bit);
-                        }
-                    }
-                }
-            } else if (sns.is_number()) {
-                // Legacy raw u32 format (v2)
-                snsRaw = sns.get<uint32_t>();
-            }
-        }
+static void SaveGlobalData() {
+    ordered_json j = ordered_json::object();
 
-        int globalBase = GLOBAL_OFFSET_BLOCK * EEPROM_BLOCK_SIZE;
-        memset(mEeprom + globalBase, 0, GLOBAL_SIZE);
-        memcpy(mEeprom + globalBase, &snsRaw, sizeof(uint32_t));
+    // SNS items
+    ordered_json unlocked = ordered_json::object();
+    ordered_json collected = ordered_json::object();
+    for (int i = 0; i < kSnsItemCount; i++) {
+        unlocked[kSnsUnlocked[i].name] = (gSaveData.snsw & (1u << kSnsUnlocked[i].bit)) ? 1 : 0;
+        collected[kSnsCollected[i].name] = (gSaveData.snsw & (1u << kSnsCollected[i].bit)) ? 1 : 0;
+    }
+    j["snsItems"]["unlocked"] = unlocked;
+    j["snsItems"]["collected"] = collected;
 
-        savedata_update_crc(mEeprom + globalBase, GLOBAL_SIZE);
+    // Bottles Bonus
+    ordered_json bb = ordered_json::array();
+    for (int i = 0; i < 7; i++) {
+        bb.push_back(gCompletedBottlesBonusGames[i] ? 1 : 0);
+    }
+    j["bottlesBonusCompleted"] = bb;
+
+    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/global.json");
+    std::ofstream ofs(globalPath);
+    if (ofs.is_open()) {
+        ofs << CollapsedJSONArray(j);
+        ofs.close();
     }
 }
 
 void SaveManager_Init() {
     SaveManager_LoadAll();
+
+    // Ensure global.json exists
+    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/global.json");
+    if (!fs::exists(globalPath)) {
+        SaveGlobalData();
+    }
+
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
         SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);
@@ -504,7 +541,7 @@ void SaveManager_Init() {
     REGISTER_LISTENER(OnSaveFileSave, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileSave* ev = (OnSaveFileSave*)event;
 
-        json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer, ev->fileNum);
+        ordered_json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer, ev->fileNum);
         if (!saveFile.empty()) {
             std::string collapsedString = CollapsedJSONArray(saveFile);
 
@@ -518,6 +555,12 @@ void SaveManager_Init() {
             }
         }
 
+        SaveGlobalData();
         event->cancelled = true;
     });
+
+    // Decomp clears global arrays (e.g. gCompletedBottlesBonusGames) just before
+    // gameFile_load fires OnGameLoad. Restore them from global.json here before
+    // other OnGameLoad listeners read them.
+    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_HIGH, [](IEvent* event) { LoadGlobalData(); });
 }
