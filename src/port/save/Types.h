@@ -17,21 +17,21 @@
 // These match the offsets computed by savedata_init() in savedata.c.
 // SaveData is 120 bytes: magic(1) + slotIndex(1) + data(112) + padding(2) + crc(4)
 
-static constexpr int JIGGY_OFFSET = 2;
+static constexpr int JIGGY_OFFSET = 0;
 static constexpr int JIGGY_SIZE = 13; // bit array for 100 jiggies
-static constexpr int HONEYCOMB_OFFSET = 15;
+static constexpr int HONEYCOMB_OFFSET = 13;
 static constexpr int HONEYCOMB_SIZE = 3; // bit array for 24 honeycombs
-static constexpr int MUMBO_OFFSET = 18;
+static constexpr int MUMBO_OFFSET = 16;
 static constexpr int MUMBO_SIZE = 16; // bit array for 125 mumbo tokens
-static constexpr int NOTE_OFFSET = 34;
+static constexpr int NOTE_OFFSET = 32;
 static constexpr int NOTE_SIZE = 8; // packed u64: 9 worlds × 7 bits
-static constexpr int TIME_OFFSET = 42;
+static constexpr int TIME_OFFSET = 40;
 static constexpr int TIME_SIZE = 22; // 11 × u16
-static constexpr int PROGRESS_OFFSET = 64;
+static constexpr int PROGRESS_OFFSET = 62;
 static constexpr int PROGRESS_SIZE = 37; // 296 bits for file_progress_e
-static constexpr int ITEMS_OFFSET = 101;
+static constexpr int ITEMS_OFFSET = 99;
 static constexpr int ITEMS_SIZE = 5; // mumboTokens, eggs, redFeathers, goldFeathers, jiggyTotal
-static constexpr int ABILITY_OFFSET = 106;
+static constexpr int ABILITY_OFFSET = 104;
 static constexpr int ABILITY_SIZE = 8; // learnedAbilities(4) + usedAbilities(4)
 
 // ─── World Collectible Definitions ──────────────────────────────────────────
@@ -412,9 +412,9 @@ static const SnsBitDef kSnsCollected[] = {
 };
 static constexpr int kSnsItemCount = sizeof(kSnsUnlocked) / sizeof(kSnsUnlocked[0]);
 
-static int SlotToVisualGame(int slotIndex) {
-    static const int kMap[4] = { 0, 1, 3, 2 };
-    return (slotIndex >= 1 && slotIndex <= 3) ? kMap[slotIndex] : slotIndex;
+static int SlotToFileIndex(int gameNum) {
+    static const int fileMap[3] = { 1, 3, 2 };
+    return fileMap[gameNum];
 }
 
 #endif // SAVE_TYPES_H

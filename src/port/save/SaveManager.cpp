@@ -5,6 +5,7 @@
 #include "port/ShipUtils.h"
 #include <fstream>
 #include <filesystem>
+#include <regex>
 
 #include "save.h"
 #include "Types.h"
@@ -44,6 +45,15 @@ static void BitfieldSetNBits(uint8_t* array, int startIndex, int set, int length
     for (int i = 0; i < length; i++) {
         BitfieldSetBit(array, startIndex + i, (1 << i) & set);
     }
+}
+
+std::string CollapsedJSONArray(json jsonFile) {
+    std::string jsonString = jsonFile.dump(4);
+    jsonString = std::regex_replace(jsonString, std::regex(R"(\[\s+([01,\s]+?)\s+\])"), "[$1]");
+    jsonString = std::regex_replace(jsonString, std::regex(R"(\s+([01]))"), " $1");
+    jsonString = std::regex_replace(jsonString, std::regex(R"(\s+\])"), "]");
+
+    return jsonString;
 }
 
 json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
@@ -496,12 +506,14 @@ void SaveManager_Init() {
 
         json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer, ev->fileNum);
         if (!saveFile.empty()) {
-            std::string fileName = "file" + std::to_string(SlotToVisualGame(ev->fileNum) + 1) + ".json";
+            std::string collapsedString = CollapsedJSONArray(saveFile);
+
+            std::string fileName = "file" + std::to_string(SlotToFileIndex(ev->fileNum)) + ".json";
             std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
 
             std::ofstream outputFile(filePath);
             if (outputFile.is_open()) {
-                outputFile << saveFile.dump(4);
+                outputFile << collapsedString;
                 outputFile.close();
             }
         }
