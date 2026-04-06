@@ -168,6 +168,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
 
+    AddWidget(path, "Fast Swimming", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.FastSwim"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Hold A+B while underwater to combine Banjo's kick with Kazooie's wing stroke for faster swimming."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);
