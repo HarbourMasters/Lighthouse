@@ -76,10 +76,6 @@ void LighthouseMenu::AddMenuDevTools() {
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/
 
-    AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_DEVELOPER_TOOLS("InfiniteHealth"))
-        .Options(CheckboxOptions().Tooltip("Prevents health from decreasing."));
-
     // Save Editor
     path.sidebarName = "Save Editor";
     AddSidebarEntry("Dev Tools", path.sidebarName, 1);

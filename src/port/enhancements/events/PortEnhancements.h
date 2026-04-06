@@ -9,8 +9,6 @@ void PortEnhancements_Register();
 void PortEnhancements_Init();
 void PortEnhancements_Exit();
 
-void RegisterReturnToLair_Init();
-
 #ifdef __cplusplus
 };
 #endif

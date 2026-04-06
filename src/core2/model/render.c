@@ -7,6 +7,8 @@
 
 #include "libultraship/libultra/gbi.h"
 
+#include "port/patches/Patches.h"
+
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
 extern bool func_802ED420(BKModelUnk20List *arg0, u8 *arg1, u32 arg2);
@@ -1037,8 +1039,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         return 0;
     }
 
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0)
-        && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+    if (port_getDrawDistanceLevel() > 0) {
         // Extended draw distance: disable clipping, set huge distance thresholds
         D_80383710 = false;
         D_8038370C = 1e30f;

@@ -187,6 +187,16 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Saving.PersistExtraLives"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Persists Extra Lives through the save file."));
+
+    // Enhancements -> Cheats
+    path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteHealth"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Prevents health from decreasing."));
 }
 
 } // namespace LighthouseGui

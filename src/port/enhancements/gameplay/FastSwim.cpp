@@ -119,13 +119,11 @@ static void FastSwim_Stop() {
 }
 
 void RegisterFastSwim_Init() {
-    // State detection — toggle fast swim when in DIVE_B with A held
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (!CVAR) {
-            FastSwim_Stop();
-            return;
-        }
+    FastSwim_Stop();
+    gDiveSlowProgress = 0.0f;
 
+    // State detection — toggle fast swim when in DIVE_B with A held
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVAR, [](IEvent* event) {
         bool inDiveB = (bs_getState() == BS_2C_DIVE_B);
         bool aHeld = (bakey_held(BUTTON_A) != 0);
 
@@ -137,21 +135,16 @@ void RegisterFastSwim_Init() {
     });
 
     // Velocity boost — add Banjo's paddle velocity when fast swim is active
-    // TODO: change to COND_VB_SHOULD when listener unregistration is fixed
-    REGISTER_LISTENER(VanillaBehavior, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        auto* ev = reinterpret_cast<VanillaBehavior*>(event);
-        if (ev->id != VB_BEAK_SWIM_VELOCITY_SET) {
-            return;
-        }
+    COND_HOOK(OnBeakSwimVelocitySet, EVENT_PRIORITY_NORMAL, CVAR, [](IEvent* event) {
         if (!gFastSwimActive) {
             return;
         }
-        auto* velocity = reinterpret_cast<f32*>(ev->args);
-        *velocity += 120.0f;
+        auto* ev = reinterpret_cast<OnBeakSwimVelocitySet*>(event);
+        *ev->velocity += 120.0f;
     });
 
     // Cleanup on map transitions
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVAR, [](IEvent* event) {
         FastSwim_Stop();
         gDiveSlowProgress = 0.0f;
     });

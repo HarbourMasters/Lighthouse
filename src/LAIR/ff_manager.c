@@ -1225,8 +1225,9 @@ void lair_func_8038E0B0(void) {
                     if (!fileProgressFlag_get(sp28) && gcdialog_showText(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(sp28, true);
                     }
-                    if ((sp38 == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) ==
-                        (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.FurnaceFunDialog"), 0) ? 0 : 1))) {
+                    s32 ffLifeThreshold = 1;
+                    CALL_EVENT(OnFurnaceFunDialog, &ffLifeThreshold);
+                    if ((sp38 == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) == ffLifeThreshold)) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AB_LAST_LIFE_ON_SKULL);
                     } else if (item_getCount(ITEM_14_HEALTH) == 1) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AA_FF_LOW_HEALTH);

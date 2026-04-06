@@ -36,6 +36,9 @@ typedef enum VBehaviorID {
     VB_INIT_RETURN_TO_LAIR,
     VB_STATIC_CAMERA_SET,
     VB_STATIC_CAMERA_EXIT,
+    VB_GRUNTY_DEFEATED_FLAG_BOSS,
+    VB_SKIP_JIGGY_DANCE,
+    VB_VOID_OUT_GAME_OVER,
 } VBehaviorID;
 
 #ifndef __cplusplus

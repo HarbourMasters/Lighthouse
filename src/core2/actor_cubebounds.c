@@ -7,6 +7,8 @@
 #include "bk_math.h"
 #include "prop.h"
 
+#include "port/patches/Patches.h"
+
 extern void mapModel_getCubeBounds(s32 min[3], s32 max[3]);
 extern f32 func_803243D0(struct56s *arg0, f32 arg1[3]);
 extern s32 *bitfield_new(s32 arg0);
@@ -441,10 +443,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
         // [port] Extended draw distance: scale cube iteration width by CVar level.
         {
-            int drawDistLevel = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
-            if (getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
-                drawDistLevel = 0;
-            }
+            int drawDistLevel = port_getDrawDistanceLevel();
             if (drawDistLevel >= 4) {
                 width = sCubeList.width[i];
             } else if (drawDistLevel > 0) {

@@ -235,7 +235,9 @@ void func_8038E648(Actor *this){
                 subaddie_set_state(this, 6);
                 this->unk38_31 = 600;
                 core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
-                func_802D68F0(CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"), 0) ? 29 : 25);
+                s32 pyramidTimer = 25;
+                CALL_EVENT(OnWaterPyramidTimer, &pyramidTimer);
+                func_802D68F0(pyramidTimer);
                 item_set(ITEM_6_HOURGLASS, 1);
             }
             break;

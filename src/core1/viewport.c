@@ -8,6 +8,8 @@
 #include <libultra/convert.h>
 #include <libultra/gu.h>
 
+#include "port/patches/Patches.h"
+
 extern void guPerspective(Mtx *, u16*, f32, f32, f32, f32, f32);
 
 #define VIEWPORT_FOVY_DEFAULT (40.0f)
@@ -357,10 +359,7 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     {
         // [port] Extended draw distance: scale distance threshold by CVar level.
         // 0 = vanilla (1.6e7), 1-3 = graduated, 4 = no distance cull.
-        int drawDistLevel = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
-        if (getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
-            drawDistLevel = 0;
-        }
+        int drawDistLevel = port_getDrawDistanceLevel();
         static const f32 distSqThresholds[] = { 1.6e7f, 2.5e7f, 4.0e7f, 8.0e7f };
         if (drawDistLevel < 4) {
             if (LENGTH_SQ_VEC3F(rel_pos) > distSqThresholds[drawDistLevel]) {
@@ -388,10 +387,7 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
     // [port] Extended draw distance: scale bounding radius by CVar level.
     // 0 = vanilla, 1-3 = graduated, 4 = bypass all plane checks.
     {
-        int drawDistLevel = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
-        if (getGameMode() == GAME_MODE_7_ATTRACT_DEMO) {
-            drawDistLevel = 0;
-        }
+        int drawDistLevel = port_getDrawDistanceLevel();
         // 4 = no distance limit, keep frustum plane checks active
         if (drawDistLevel > 0 && drawDistLevel < 4) {
             static const f32 distanceScale[] = { 1.0f, 1.5f, 2.0f, 3.0f };

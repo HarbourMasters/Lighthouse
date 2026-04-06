@@ -2,6 +2,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/patches/Patches.h"
+
 /* .bss */
 void *D_8037C5D0;
 
@@ -41,7 +43,7 @@ s32 func_802985F0(void){
                 case MAP_88_CS_SPIRAL_MOUNTAIN_6:
                 case MAP_89_CS_INTRO_BANJOS_HOUSE_2:
                 case MAP_8A_CS_INTRO_BANJOS_HOUSE_3:
-                    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.AlwaysHighPolyBanjo"), 0)) {
+                    if (port_shouldForceHighPolyBanjo()) {
                         return ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY;
                     }
                     return ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY;
@@ -61,7 +63,7 @@ s32 func_802985F0(void){
                 case MAP_45_CCW_AUTUMN:
                 case MAP_46_CCW_WINTER:
                 case MAP_56_UNUSED:
-                    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.AlwaysHighPolyBanjo"), 0)) {
+                    if (port_shouldForceHighPolyBanjo()) {
                         return ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY;
                     }
                     return ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY;

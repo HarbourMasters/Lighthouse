@@ -304,14 +304,14 @@ void func_8029B62C(void){
 
 void func_8029B6F0(void){
     // [port] Void-outs don't cost a life, so they should never trigger game over.
-    if(CVarGetInteger(CVAR_ENHANCEMENT("Fixes.VoidOutGameOver"), 0)){
-        transitionToMap(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
-        return;
-    }
-    if(item_empty(ITEM_16_LIFE)){
-        func_8029B62C();
-    }
-    else{
+    if (EventSystem_Should(VB_VOID_OUT_GAME_OVER, true)) {
+        if(item_empty(ITEM_16_LIFE)){
+            func_8029B62C();
+        }
+        else{
+            transitionToMap(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        }
+    } else {
         transitionToMap(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
     }
 }
@@ -891,10 +891,10 @@ s32 func_8029CA94(s32 arg0){
         arg0 = BS_53_TIMEOUT;
 
     if(baflag_isTrue(BA_FLAG_7_TOUCHING_JIGGY)) {
-        if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"), 0)) {
-            func_8029CCC4();
-        } else {
+        if (EventSystem_Should(VB_SKIP_JIGGY_DANCE, true)) {
             arg0 = BS_44_JIG_JIGGY;
+        } else {
+            func_8029CCC4();
         }
     }
 
@@ -920,12 +920,17 @@ void func_8029CBC4(void){
 }
 
 void func_8029CBF4(void){
+    bool shouldDance = EventSystem_Should(VB_SKIP_JIGGY_DANCE, true);
+
     if(item_getCount(ITEM_E_JIGGY) == 10){
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
             timedFunc_set_3(4.1f, (GenFunction_3)transitionToMap, MAP_95_CS_END_ALL_100, 0, 1);
         }//L8029CC58
-
-        timedFunc_set_0(4.0f, func_8029CBC4);
+        if (shouldDance) {
+            timedFunc_set_0(4.0f, func_8029CBC4);
+        } else {
+            func_8029CBC4();
+        }
         coMusicPlayer_playMusic(COMUSIC_42_NOTEDOOR_OPENING_FANFARE, -1);
     }//L8029CC7C
     else{
@@ -956,9 +961,10 @@ void func_8029CCC4(void){
     // - Don't touch the ambience counter or music fade — the jinjo or other spawner
     //   may have already decremented the counter, and the timed restore would cause
     //   a double-increment. Just play the jingle and let the spawner handle cleanup.
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"), 0)) {
+    if (!EventSystem_Should(VB_SKIP_JIGGY_DANCE, true)) {
         func_80291548();
         coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
+        timedFunc_set_0(4.0f, func_8029CBF4);
         return;
     }
     core1_ce60_incOrDecCounter(false);

@@ -4,6 +4,8 @@
 #include <ultra64.h>
 #include "2.0L/PR/region.h"
 
+#include "port/patches/Patches.h"
+
 
 extern void spriteRender_drawWithSegment(Gfx**, Vtx**, BKSprite *, s32, s32);
 extern void func_80349AD0(void);
@@ -39,8 +41,7 @@ void func_80344124(void){
 
 void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 position[3], f32 scale[3], Gfx **gfx, Mtx **mtx) {
     // [port] Extended draw distance: disable sprite distance cull at 100%.
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0) >= 4
-        && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+    if (port_getDrawDistanceLevel() >= 4) {
         D_803858B0 = true;
     }
     f32 sp6C[3];

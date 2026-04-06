@@ -154,9 +154,11 @@ void func_80322490(void) {
 
     if (D_80383330 != 0) {
         for(i_ptr = D_8036DE00; i_ptr != &D_8036DE00[6]; i_ptr++){
-            // [port] Allow skipping boot logos on MAP_1F when CVar enabled.
+            // [port] Allow skipping boot logos on MAP_1F when enabled.
+            bool skipLogos = false;
+            CALL_EVENT(OnBootLogosCheck, &skipLogos);
             if ((i_ptr->unk4 != 0
-                || (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipBootLogos"), 0)
+                || (skipLogos
                     && i_ptr->unkC == func_80322318
                     && map_get() == MAP_1F_CS_START_RAREWARE
                     && introFrameCounter > 30))

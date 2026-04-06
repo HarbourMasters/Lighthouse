@@ -15,6 +15,16 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
 
+    // Register behavior events
+    REGISTER_EVENT(OnBeakSwimVelocitySet);
+    REGISTER_EVENT(OnBoggyRaceSetSpeed);
+    REGISTER_EVENT(OnBootLogosCheck);
+    REGISTER_EVENT(OnFurnaceFunDialog);
+    REGISTER_EVENT(OnGruntyJinjonatorComplete);
+    REGISTER_EVENT(OnIntroCutsceneCheck);
+    REGISTER_EVENT(OnMumboTokenInit);
+    REGISTER_EVENT(OnWaterPyramidTimer);
+
     // Register game events
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);

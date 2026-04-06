@@ -49,6 +49,20 @@ void port_camera_applyWsYawFix(float rotation[3]);
 
 float port_getRumbleScale(void);
 
+// Graphics (GraphicsPatches.cpp)
+
+int port_getDrawDistanceLevel(void);
+int port_shouldForceHighPolyBanjo(void);
+
+// Fixes (GameFixes.cpp)
+
+int port_fixMumboTokenId(int ret, int pos[3], int map_id);
+int port_shouldAllowAllHoneycombExtensions(void);
+
+// Cheats (Cheats.cpp)
+
+int port_isInfiniteHealth(void);
+
 #ifdef __cplusplus
 }
 #endif

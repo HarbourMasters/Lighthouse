@@ -195,7 +195,7 @@ void func_802A7838(void) {
     if (anctrl_isAt(anim_ctrl, 0.1f)) {
         func_8030EB88(SFX_0_BLOOP, 1.2f, 1.4f);
         D_8037D390 = 600.0f;
-        { bool should = true; CALL_EVENT(VanillaBehavior, VB_BEAK_SWIM_VELOCITY_SET, &should, &D_8037D390); }
+        CALL_EVENT(OnBeakSwimVelocitySet, &D_8037D390);
     }
     if (anctrl_isAt(anim_ctrl, 0.4626f)) {
         anctrl_setDuration(anim_ctrl, 1.0f);

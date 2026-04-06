@@ -340,9 +340,8 @@ void func_803893E4(Actor *this, f32 arg1, u8 arg2){
         sp2C = 1100.0f;
         sp28 = 2.3f;
     }
-    if (CVarGetInteger(CVAR_ENHANCEMENT("EasierBoggyRaces"), 0)) {
-        sp2C *= 0.95f;
-    }
+
+    CALL_EVENT(OnBoggyRaceSetSpeed, &sp2C);
 
     func_80343DEC(this);
     if(this->state == 7){
