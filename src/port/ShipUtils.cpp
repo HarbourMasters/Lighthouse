@@ -1,4 +1,5 @@
 #include "ShipUtils.h"
+#include "save/SaveManager.h"
 #include "Engine.h"
 #include <chrono>
 #include <cstdarg>
@@ -298,7 +299,7 @@ bool port_CButtonIsAxis(void) {
 
 json Ship_RetrieveSaveFile(int32_t filenum) {
     std::string fileName = "file" + std::to_string(filenum) + ".json";
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
+    std::string filePath = SaveManager_GetSavePath(fileName);
 
     if (!std::filesystem::exists(filePath)) {
         return json::object();

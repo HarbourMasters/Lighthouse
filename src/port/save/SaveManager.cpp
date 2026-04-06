@@ -3,6 +3,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipUtils.h"
+#include "port/GameConfig.h"
 #include <fstream>
 #include <filesystem>
 #include <regex>
@@ -23,6 +24,16 @@ using nlohmann::json;
 using nlohmann::ordered_json;
 namespace fs = std::filesystem;
 static bool mLoaded = false;
+
+std::string SaveManager_GetSavePath(const std::string& filename) {
+    const char* romName = port_getRomhackName();
+    if (romName && romName[0] != '\0') {
+        std::string dir = Ship::Context::GetPathRelativeToAppDirectory("saves/" + std::string(romName));
+        fs::create_directories(dir);
+        return dir + "/" + filename;
+    }
+    return Ship::Context::GetPathRelativeToAppDirectory("saves/" + filename);
+}
 
 static int BitfieldGetBit(const uint8_t* array, int index) {
     return (array[index / 8] & (1 << (index & 7))) ? 1 : 0;
@@ -432,7 +443,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 }
 
 static void LoadGlobalData() {
-    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/global.json");
+    std::string globalPath = SaveManager_GetSavePath("global.json");
     if (!fs::exists(globalPath)) {
         return;
     }
@@ -505,7 +516,7 @@ static void SaveGlobalData() {
     }
     j["bottlesBonusCompleted"] = bb;
 
-    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/global.json");
+    std::string globalPath = SaveManager_GetSavePath("global.json");
     std::ofstream ofs(globalPath);
     if (ofs.is_open()) {
         ofs << CollapsedJSONArray(j);
@@ -517,7 +528,7 @@ void SaveManager_Init() {
     SaveManager_LoadAll();
 
     // Ensure global.json exists
-    std::string globalPath = Ship::Context::GetPathRelativeToAppDirectory("saves/global.json");
+    std::string globalPath = SaveManager_GetSavePath("global.json");
     if (!fs::exists(globalPath)) {
         SaveGlobalData();
     }
@@ -546,7 +557,7 @@ void SaveManager_Init() {
             std::string collapsedString = CollapsedJSONArray(saveFile);
 
             std::string fileName = "file" + std::to_string(SlotToFileIndex(ev->fileNum)) + ".json";
-            std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("saves/" + fileName);
+            std::string filePath = SaveManager_GetSavePath(fileName);
 
             std::ofstream outputFile(filePath);
             if (outputFile.is_open()) {
