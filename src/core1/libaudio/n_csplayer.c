@@ -18,7 +18,6 @@ ALSound         *__n_lookupSoundQuick(ALSeqPlayer *, u8, u8, u8);
 void		__n_seqpReleaseVoice(ALSeqPlayer *seqp, ALVoice *voice, ALMicroTime deltaTime);
 char __alCSeqNextDelta(ALCSeq *seq, s32 *pDeltaTicks);
 void func_80250104(ALCSeq *arg0, s32 arg1, s32 arg2);
-s32 lairAudio_consumePendingSeek(ALCSPlayer *player); // [port]
 
 /*====================================================================
  * csplayer.c
@@ -238,25 +237,6 @@ static ALMicroTime __n_CSPVoiceHandler(void *node)
 	    {
 		seqp->state = AL_PLAYING;
         func_80250650();
-        /* [port] Lair audio continuity: fast-forward through the sequence,
-         * processing only channel setup events (ProgramChange, ControlChange)
-         * so instruments and volumes are correct at the seek point. */
-        {
-            s32 seekTicks = lairAudio_consumePendingSeek(seqp);
-            if (seekTicks > 0 && seqp->target != NULL) {
-                N_ALEvent seekEvt;
-                while (seqp->target->lastTicks < (u32)seekTicks) {
-                    n_alCSeqNextEvent(seqp->target, &seekEvt);
-                    if (seekEvt.type == AL_SEQ_END_EVT) break;
-                    if (seekEvt.type == AL_SEQ_MIDI_EVT) {
-                        u8 status = seekEvt.msg.midi.status & 0xF0;
-                        if (status == AL_MIDI_ProgramChange || status == AL_MIDI_ControlChange) {
-                            __n_CSPHandleMIDIMsg((N_ALCSPlayer *)seqp, (ALEvent *)&seekEvt);
-                        }
-                    }
-                }
-            }
-        }
 		__n_CSPPostNextSeqEvent(seqp);	/* seqp must be AL_PLAYING before we call this routine. */
 	    }
 	    break;

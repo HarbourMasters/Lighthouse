@@ -7,7 +7,6 @@
 #include "version.h"
 
 extern void func_8024FDDC(u8, s32);
-extern int lairAudio_hasPendingSeek(void); // [port]
 
 void func_8025AE50(s32, f32);
 
@@ -579,27 +578,13 @@ void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void
         trackPtr->volume = 0;
         trackPtr->unk15 = 0;
         trackPtr->unk4 = 0.0f;
-        // [port] Skip fade-in for lair continuity — start at target volume
-        if (lairAudio_hasPendingSeek()) {
-            s32 vol = func_80250034(comusic_id);
-            func_80259994(trackPtr, vol);
-            func_8024FD28(slot_index, (s16)vol);
-        } else {
-            func_80259994(trackPtr, 0);
-            func_8024FD28(slot_index, 0);
-        }
+        func_80259994(trackPtr, 0);
+        func_8024FD28(slot_index, 0);
     }
     func_80259F7C(trackPtr,&arg1, &arg2, fadeSlot);
     trackPtr->unk0 = arg3;
-    // [port] No fade needed for lair continuity — jump to target volume
-    if (lairAudio_hasPendingSeek()) {
-        trackPtr->unk12 = 0;
-        trackPtr->unkC = arg1;
-        trackPtr->volume = arg1;
-    } else {
-        trackPtr->unk12 = (trackPtr->volume < arg1)? arg2: -arg2;
-        trackPtr->unkC = arg1;
-    }
+    trackPtr->unk12 = (trackPtr->volume < arg1)? arg2: -arg2;
+    trackPtr->unkC = arg1;
     D_80276E34 = 1;
 }
 
