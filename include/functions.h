@@ -38,9 +38,6 @@ typedef s32 (*FuncUnk40)(ActorMarker *, s32, f32[3]);
 #endif
 
 extern f32 fabsf(f32);
-#ifdef _MSC_VER
-#pragma intrinsic (fabsf)
-#endif
 
 #define FUNC_8030E624(sfx_e, vol, sample_rate) func_8030E624(\
     _SHIFTL((vol*1023), 21, 11) + _SHIFTL(sample_rate >> 5, 11, 10) + _SHIFTL(sfx_e, 0, 11)\

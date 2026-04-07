@@ -190,7 +190,7 @@ s32 osMotorStart(void* pfs) {
 
 s32 osAiSetFrequency(u32 frequency) {
     f32 dacRateF = ((f32)osViClock / frequency) + 0.5f;
-    u32 dacRate = dacRateF;
+    u32 dacRate = (u32)dacRateF;
     if (dacRate < 132) {
         return -1;
     }

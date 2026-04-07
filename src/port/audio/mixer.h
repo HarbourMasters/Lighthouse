@@ -19,6 +19,7 @@
 #undef aSetLoop
 #undef aLoadADPCM
 #undef aADPCMdec
+#undef aPoleFilter
 
 void aClearBufferImpl(uint16_t addr, int nbytes);
 void aLoadADPCMImpl(int num_entries_times_16, const int16_t* book_source_addr);

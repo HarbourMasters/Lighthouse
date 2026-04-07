@@ -221,7 +221,7 @@ bool PathTestCleanup(FILE* tfile) {
             std::filesystem::remove("./text.txt");
         if (std::filesystem::exists("./test/"))
             std::filesystem::remove("./test/");
-    } catch (std::filesystem::filesystem_error const& ex) { return false; }
+    } catch (std::filesystem::filesystem_error const&) { return false; }
     return true;
 }
 
@@ -236,7 +236,7 @@ void CheckAndCreateModFolder() {
                 std::ofstream(filePath).close();
             }
         }
-    } catch (std::filesystem::filesystem_error const& ex) {
+    } catch (std::filesystem::filesystem_error const&) {
         // Couldn't make the folder, continue silently
         return;
     }
@@ -494,7 +494,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         std::filesystem::path tempPath;
                         try {
                             tempPath = std::filesystem::canonical(tempVar);
-                        } catch (std::filesystem::filesystem_error const& ex) {
+                        } catch (std::filesystem::filesystem_error const&) {
                             std::string userPath = getenv("USERPROFILE");
                             userPath.append("\\AppData\\Local\\Temp");
                             tempPath = std::filesystem::canonical(userPath);
@@ -524,7 +524,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         bool error = false;
                         try {
                             create_directories(tfolder);
-                        } catch (std::filesystem::filesystem_error const& ex) { error = true; }
+                        } catch (std::filesystem::filesystem_error const&) { error = true; }
                         if (tfile == NULL || error) {
                             LighthouseGui::RegisterPopup(
                                 "Lighthouse Permissions Error",
@@ -615,14 +615,14 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         std::string msg = "Archive for current ROM, " + archive + ", already exists.\nExtract again?";
                         LighthouseGui::RegisterPopup("Confirm Re-extract", msg.c_str(), "Yes", "No", [&]() {
                             extracting = true;
-                            threadPool->submit_task([&]() -> void {
+                            (void)threadPool->submit_task([&]() -> void {
                                 extract.GenerateOTR(extractCount, totalExtract, "bk");
                                 extracting = false;
                             });
                         });
                     } else {
                         extracting = true;
-                        threadPool->submit_task([&]() -> void {
+                        (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
                             extracting = false;
                         });
@@ -685,7 +685,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         extracting = true;
                         extractStarted = true;
                         file = extract.GetRomPath();
-                        threadPool->submit_task([&]() -> void {
+                        (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
                             extracting = false;
                         });
@@ -863,7 +863,7 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
         initData->Path = fontPath;
         std::shared_ptr<Ship::Font> fontData = std::static_pointer_cast<Ship::Font>(
             Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
-        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, fontData->DataSize, size, &config);
+        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
     }
     // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
     float iconFontSize = size * 2.0f / 3.0f;
@@ -1243,7 +1243,7 @@ uint32_t GameEngine::GetInterpolationFPS() {
 }
 
 uint32_t GameEngine::GetInterpolationFrameCount() {
-    return ceil((float)GetInterpolationFPS() / (60.0f / gVIsPerFrame));
+    return static_cast<uint32_t>(ceil((float)GetInterpolationFPS() / (60.0f / gVIsPerFrame)));
 }
 
 extern "C" uint32_t GameEngine_GetInterpolationFrameCount() {
@@ -1420,14 +1420,14 @@ extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
     int32_t gameWidth = interpreter->mCurDimensions.width;
     float hudAspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
     int32_t hudHeight = gameHeight;
-    int32_t hudWidth = hudHeight * hudAspectRatio;
+    int32_t hudWidth = static_cast<int32_t>(hudHeight * hudAspectRatio);
     float hudScreenRatio = (hudWidth / (float)SCREEN_WIDTH);
     float hudCoord = v * hudScreenRatio;
-    float gameOffset = (gameWidth - hudWidth) / 2;
+    float gameOffset = static_cast<float>((gameWidth - hudWidth) / 2);
     float gameCoord = hudCoord + gameOffset;
     float gameScreenRatio = ((float)SCREEN_WIDTH / gameWidth);
     float screenScaledCoord = gameCoord * gameScreenRatio;
-    int32_t screenScaledCoordInt = screenScaledCoord;
+    int32_t screenScaledCoordInt = static_cast<int32_t>(screenScaledCoord);
     return screenScaledCoordInt;
 }
 

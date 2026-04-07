@@ -101,7 +101,7 @@ void guNormalize(f32* x, f32* y, f32* z) {
 
 void guRotateF(float m[4][4], float a, float x, float y, float z) {
     // Lighthouse TODO bring over M_PIf from 2ship
-    static float D_80097F90 = M_PI / 180.0f;
+    static float D_80097F90 = (float)(M_PI / 180.0);
     float sine;
     float cosine;
     float ab;

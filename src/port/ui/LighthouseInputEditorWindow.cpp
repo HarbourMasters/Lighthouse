@@ -62,7 +62,7 @@ void LighthouseInputEditorWindow::UpdateElement() {
         Ship::Context::GetInstance()->GetControlDeck()->BlockGameInput(INPUT_EDITOR_WINDOW_GAME_INPUT_BLOCK_ID);
 
         // continue to block input for a third of a second after getting the mapping
-        mGameInputBlockTimer = ImGui::GetIO().Framerate / 3;
+        mGameInputBlockTimer = static_cast<int32_t>(ImGui::GetIO().Framerate / 3);
 
         if (mMappingInputBlockTimer != INT32_MAX) {
             mMappingInputBlockTimer--;
@@ -83,7 +83,7 @@ void LighthouseInputEditorWindow::UpdateElement() {
         }
 
         if (Ship::Context::GetInstance()->GetWindow()->GetGui()->GamepadNavigationEnabled()) {
-            mMappingInputBlockTimer = ImGui::GetIO().Framerate / 3;
+            mMappingInputBlockTimer = static_cast<int32_t>(ImGui::GetIO().Framerate / 3);
         } else {
             mMappingInputBlockTimer = INT32_MAX;
         }
@@ -893,7 +893,7 @@ void LighthouseInputEditorWindow::DrawRumbleSection(uint8_t port) {
                 mRumbleMappingToTest->StopRumble();
                 mRumbleMappingToTest = nullptr;
             } else {
-                mRumbleTimer = ImGui::GetIO().Framerate;
+                mRumbleTimer = static_cast<int32_t>(ImGui::GetIO().Framerate);
                 mRumbleMappingToTest = mapping;
             }
         }

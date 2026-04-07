@@ -65,7 +65,7 @@ bool operator>(Color_RGBA8 const& l, Color_RGBA8 const& r) noexcept {
 }
 
 uint32_t GetVectorIndexOf(std::vector<std::string>& vector, std::string value) {
-    return std::distance(vector.begin(), std::find(vector.begin(), vector.end(), value));
+    return static_cast<uint32_t>(std::distance(vector.begin(), std::find(vector.begin(), vector.end(), value)));
 }
 
 static bool raceDisableActive = false;
@@ -91,8 +91,8 @@ void Menu::RemoveSidebarSearch() {
     std::erase_if(menuEntries["Settings"].sidebarOrder, [](std::string& name) { return name == "Search"; });
     if (curIndex > searchSidebarIndex) {
         curIndex--;
-    } else if (curIndex >= menuEntries["Settings"].sidebarOrder.size()) {
-        curIndex = menuEntries["Settings"].sidebarOrder.size() - 1;
+    } else if (curIndex >= static_cast<uint32_t>(menuEntries["Settings"].sidebarOrder.size())) {
+        curIndex = static_cast<uint32_t>(menuEntries["Settings"].sidebarOrder.size() - 1);
     }
     CVarSetString(menuEntries["Settings"].sidebarCvar, menuEntries["Settings"].sidebarOrder.at(curIndex).c_str());
 }
@@ -127,10 +127,10 @@ Menu::Menu(const std::string& cVar, const std::string& name, uint8_t searchSideb
 
 void Menu::InitElement() {
     popped = CVarGetInteger(CVAR_SETTING("Menu.Popout"), 0);
-    poppedSize.x = CVarGetInteger(CVAR_SETTING("Menu.PoppedWidth"), 1280);
-    poppedSize.y = CVarGetInteger(CVAR_SETTING("Menu.PoppedHeight"), 800);
-    poppedPos.x = CVarGetInteger(CVAR_SETTING("Menu.PoppedPos.x"), 0);
-    poppedPos.y = CVarGetInteger(CVAR_SETTING("Menu.PoppedPos.y"), 0);
+    poppedSize.x = static_cast<float>(CVarGetInteger(CVAR_SETTING("Menu.PoppedWidth"), 1280));
+    poppedSize.y = static_cast<float>(CVarGetInteger(CVAR_SETTING("Menu.PoppedHeight"), 800));
+    poppedPos.x = static_cast<float>(CVarGetInteger(CVAR_SETTING("Menu.PoppedPos.x"), 0));
+    poppedPos.y = static_cast<float>(CVarGetInteger(CVAR_SETTING("Menu.PoppedPos.y"), 0));
     menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger(CVAR_SETTING("Menu.Theme"), defaultThemeIndex));
 
     UpdateWindowBackendObjects();
@@ -803,7 +803,7 @@ void Menu::DrawElement() {
     pos.y += headerHeight + style.ItemSpacing.y;
     pos.x = centerX - menuSize.x / 2 + (style.ItemSpacing.x * (menuEntries.size() + 1));
     window->DrawList->AddRectFilled(pos, pos + ImVec2{ menuSize.x, 4 }, ImGui::GetColorU32({ 255, 255, 255, 255 }),
-                                    true, style.WindowRounding);
+                                    style.WindowRounding);
     pos.y += style.ItemSpacing.y;
     float sectionHeight = menuSize.y - headerHeight - 4 - style.ItemSpacing.y * 2;
     float columnHeight = sectionHeight - style.ItemSpacing.y * 4;
@@ -853,7 +853,7 @@ void Menu::DrawElement() {
 
     pos = ImVec2{ sectionCenterX + (sidebarWidth / 2), topY } + style.ItemSpacing * 2;
     window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, sectionHeight - style.FramePadding.y * 2 },
-                                    ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
+                                    ImGui::GetColorU32({ 255, 255, 255, 255 }), style.WindowRounding);
     pos.x += 4 + style.ItemSpacing.x;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
     float sectionWidth = menuSize.x - sidebarWidth - 4 - style.ItemSpacing.x * 4;

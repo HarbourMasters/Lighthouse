@@ -44,10 +44,14 @@
  * (NOTE: _SHIFTL(v, 0, 32) won't work, just use an assignment)
  *
  */
+#ifndef _SHIFTL
 #define _SHIFTL(v, s, w)	\
     ((unsigned int) (((unsigned int)(v) & ((0x01 << (w)) - 1)) << (s)))
+#endif
+#ifndef _SHIFTR
 #define _SHIFTR(v, s, w)	\
     ((unsigned int)(((unsigned int)(v) >> (s)) & ((0x01 << (w)) - 1)))
+#endif
 
 #define _SHIFT _SHIFTL	/* old, for compatibility only */
 
@@ -89,8 +93,12 @@
  **************************************************************************/
 
 #define	NUM_SEGMENTS		(16)
+#ifndef SEGMENT_OFFSET
 #define	SEGMENT_OFFSET(a)	((unsigned int)(a) & 0x00ffffff)
+#endif
+#ifndef SEGMENT_NUMBER
 #define	SEGMENT_NUMBER(a)	(((unsigned int)(a) << 4) >> 28)
+#endif
 #define	SEGMENT_ADDR(num, off)	(((num) << 24) + (off))
 
 #ifndef NULL
