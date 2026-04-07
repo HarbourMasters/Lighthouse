@@ -242,7 +242,7 @@ void CheckAndCreateModFolder() {
     }
 }
 
-static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r" };
+static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r", "bk-gm.o2r", "bk-bwdx.o2r" };
 
 static bool AnyRomArchiveExists() {
     for (const auto& archive : sRomArchives) {

@@ -87,3 +87,33 @@ a9f62c403a21ae9d9a1bbf9e92d752fc2cf85c2b:
       code: src/assets
       headers: include/assets
       modding: src/assets
+
+3624bcc9e96918232f4920e5f95bdcc3fed156a6:
+  name: Banjo-Kazooie - Gruntilda's Mask
+  path: assets/yaml/us/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk-gm.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
+
+1f2a71516fb337bc6f7ccdaadb809c94753db534:
+  name: Banjo-Kazooie - The Bear Waker DX
+  path: assets/yaml/us/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk-bwdx.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
