@@ -128,7 +128,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
                      tm.type, tm.width, tm.height, tm.tlutColors, tm.textureDataOffset);
     }
 
-    // [port] Raw texture data blob — full contiguous pixel area from the ROM.
+    // Raw texture data blob — full contiguous pixel area from the ROM.
     // Preserves animated texture frames and unlisted data between textures.
     uint32_t rawTexDataSize = reader->ReadUInt32();
     std::vector<uint8_t> rawTexBlob;
@@ -368,12 +368,6 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
-    // GFX sub-resources are no longer loaded individually — raw N64 DL words
-    // are embedded directly in the model resource and widened at assembly time.
-    // This preserves the original N64 command layout so geo indices remain valid.
-
-    SPDLOG_TRACE("[BKModel] '{}' metadata read complete, assembling buffer...", initData->Path);
-
     // ── Load GEO sub-resource (GeoLayout render tree) ─────────────────────────
     std::shared_ptr<Ship::Blob> geoBlob;
     if (hasGeo) {
@@ -416,7 +410,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         PadTo8(out);
         hdr()->texture_list_offset_8 = static_cast<int16_t>(out.size());
 
-        // [port] Use raw texture blob directly — preserves animated frames and
+        // Use raw texture blob directly — preserves animated frames and
         // all unlisted data. OTEX overlay for alt assets can be added later.
         const uint8_t* blobPtr = rawTexBlob.empty() ? nullptr : rawTexBlob.data();
         uint32_t totalPixSize = rawTexDataSize;
@@ -617,6 +611,79 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
+    // GFX section — widen raw N64 commands (8 bytes each) to native Gfx (16 bytes each).
+    // This preserves the exact N64 command count and indices so geo layout references
+    // (list[cmd->unk8]) remain correct. No OTR markers or expanded commands.
+    if (hasDL && !rawDLWords.empty()) {
+        PadTo8(out);
+        hdr()->gfx_list_offset_C = static_cast<int32_t>(out.size());
+
+        // BKGfxList: s32 dlCount, s32 dlUnkInfo
+        AppendValue<int32_t>(out, static_cast<int32_t>(dlCount));
+        AppendValue<int32_t>(out, static_cast<int32_t>(dlUnkInfo));
+
+        // Widen each N64 command: (u32 w0, u32 w1) → (uintptr_t w0, uintptr_t w1)
+        for (uint32_t i = 0; i < dlCount; i++) {
+            uintptr_t w0 = rawDLWords[i * 2];
+            uintptr_t w1 = rawDLWords[i * 2 + 1];
+
+            // F3DEX opcodes that carry a segmented address in w1.
+            // G_DL byte offsets must be scaled for widened Gfx (16 bytes vs N64's 8).
+            uint8_t opcode = (uint8_t)(w0 >> 24);
+            if (opcode == 0x06 && sizeof(uintptr_t) > 4) { // G_DL
+                if (w1 != 0 && (w1 >> 24) != 0 && w1 <= 0xFFFFFFFF) {
+                    uint32_t seg = (uint32_t)(w1 >> 24);
+                    uint32_t off = (uint32_t)(w1 & 0x00FFFFFF);
+                    off *= (sizeof(Gfx) / 8);
+                    w1 = ((uintptr_t)seg << 24) | (off & 0x00FFFFFF);
+                }
+            }
+            // G_VTX (F3DEX opcode 0x04): w1 is a segmented address into the
+            // vertex buffer. With GBI_FLOATS, sizeof(Vtx) = 24 instead of N64's 16,
+            // so byte offsets must be scaled: new_off = (old_off / 16) * sizeof(Vtx).
+            if (opcode == 0x04 && sizeof(Vtx) != 16) {
+                if (w1 != 0 && (w1 >> 24) != 0 && w1 <= 0xFFFFFFFF) {
+                    uint32_t seg = (uint32_t)(w1 >> 24);
+                    uint32_t off = (uint32_t)(w1 & 0x00FFFFFF);
+                    off = (off / 16) * sizeof(Vtx);
+                    w1 = ((uintptr_t)seg << 24) | (off & 0x00FFFFFF);
+                }
+            }
+
+            // Tag segmented addresses with bit 0 so SegAddr() identifies them.
+            // Only tag opcodes that carry a segmented address in w1. Other commands
+            // (G_SETTILE, G_LOADBLOCK, G_SETCOMBINE, G_SETPRIMCOLOR, etc.) have
+            // literal values in w1 that must NOT be modified.
+            switch (opcode) {
+                case 0x01: // G_MTX
+                case 0x03: // G_MOVEMEM
+                case 0x04: // G_VTX
+                case 0x06: // G_DL
+                case 0xFD: // G_SETTIMG (gDPSetTextureImage)
+                case 0xFE: // G_SETZIMG
+                case 0xFF: // G_SETCIMG
+                    if (w1 != 0 && w1 <= 0xFFFFFFFF && (w1 >> 24) != 0) {
+                        w1 |= 1;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            AppendValue<uintptr_t>(out, w0);
+            AppendValue<uintptr_t>(out, w1);
+        }
+
+        // Append gSPEndDisplayList sentinel. Some BK models don't include
+        // the terminator in dlCount (the N64 game knew chunk sizes from the geo
+        // layout and didn't need it). The port's interpreter walks DLs sequentially
+        // until gSPEndDisplayList, so we must provide one.
+        uintptr_t endW0 = (uintptr_t)0xB8 << 24; // F3DEX G_ENDDL
+        uintptr_t endW1 = 0;
+        AppendValue<uintptr_t>(out, endW0);
+        AppendValue<uintptr_t>(out, endW1);
+    }
+
     // Vertex section
     if (hasVtx) {
         PadTo8(out);
@@ -624,7 +691,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
 
         auto vtxRes = std::static_pointer_cast<Fast::Vertex>(resourceMgr->LoadResourceProcess(initData->Path + "_VTX"));
 
-        // [port] Fast::Vertex resource already holds properly-sized Vtx structs
+        // Fast::Vertex resource already holds properly-sized Vtx structs
         // (with GBI_FLOATS, sizeof(Vtx) = 24, not the N64's 16 bytes).
         if (vtxRes) {
             const size_t resBytes = vtxRes->GetPointerSize();
@@ -652,20 +719,19 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         AppendValue<int16_t>(out, vtxLocalNorm);
         AppendValue<uint16_t>(out, vtxCount);
         AppendValue<int16_t>(out, vtxGlobalNorm);
-        // [port] Pad header to sizeof(BKVertexList) so vtx_18[] aligns correctly.
+
+        // Pad header to sizeof(BKVertexList) so vtx_18[] aligns correctly.
         // BKVertexList has 24 bytes of fields but sizeof may be larger due to
         // flexible array member alignment (Vtx requires 8-byte alignment).
-        {
-            const size_t headerFieldBytes = 24; // 12 s16 fields = 24 bytes
-            const size_t headerSize = sizeof(BKVertexList);
-            if (headerSize > headerFieldBytes) {
-                for (size_t p = 0; p < headerSize - headerFieldBytes; p++)
-                    out.push_back(0);
-            }
+        const size_t headerFieldBytes = 24; // 12 s16 fields = 24 bytes
+        const size_t headerSize = sizeof(BKVertexList);
+        if (headerSize > headerFieldBytes) {
+            for (size_t p = 0; p < headerSize - headerFieldBytes; p++)
+                out.push_back(0);
         }
 
         if (vtxRes) {
-            // [port] Fast::Vertex stores Vtx structs (with GBI_FLOATS, ob[] are
+            // Fast::Vertex stores Vtx structs (with GBI_FLOATS, ob[] are
             // floats, sizeof(Vtx) = 24 not N64's 16). Copy at native stride so
             // the interpreter can index as F3DVtx* (same layout).
             const Vtx* vtxArray = vtxRes->GetPointer();
@@ -673,91 +739,6 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             AppendBytes(out, vtxArray, vtxBytes);
         } else {
             SPDLOG_WARN("[BKModel] _VTX not found: {}", initData->Path);
-        }
-    }
-
-    // GFX section — widen raw N64 commands (8 bytes each) to native Gfx (16 bytes each).
-    // This preserves the exact N64 command count and indices so geo layout references
-    // (list[cmd->unk8]) remain correct. No OTR markers or expanded commands.
-    if (hasDL && !rawDLWords.empty()) {
-        PadTo8(out);
-        hdr()->gfx_list_offset_C = static_cast<int32_t>(out.size());
-
-        // BKGfxList: s32 dlCount, s32 dlUnkInfo
-        AppendValue<int32_t>(out, static_cast<int32_t>(dlCount));
-        AppendValue<int32_t>(out, static_cast<int32_t>(dlUnkInfo));
-
-        // Widen each N64 command: (u32 w0, u32 w1) → (uintptr_t w0, uintptr_t w1)
-        // [port] N64 display lists contain segmented addresses in w1 (e.g. 0x03000000
-        // for segment 3). The interpreter's SegAddr() uses bit 0 to identify segmented
-        // addresses, so we tag them with |= 1 after any offset scaling.
-        // G_DL byte offsets need scaling for the widened Gfx stride (16 vs 8 bytes).
-        for (uint32_t i = 0; i < dlCount; i++) {
-            uintptr_t w0 = rawDLWords[i * 2];
-            uintptr_t w1 = rawDLWords[i * 2 + 1];
-
-            // [port] F3DEX opcodes that carry a segmented address in w1.
-            // G_DL byte offsets must be scaled for widened Gfx (16 bytes vs N64's 8).
-            uint8_t opcode = (uint8_t)(w0 >> 24);
-            if (opcode == 0x06 && sizeof(uintptr_t) > 4) { // G_DL
-                if (w1 != 0 && (w1 >> 24) != 0 && w1 <= 0xFFFFFFFF) {
-                    uint32_t seg = (uint32_t)(w1 >> 24);
-                    uint32_t off = (uint32_t)(w1 & 0x00FFFFFF);
-                    off *= (sizeof(Gfx) / 8);
-                    w1 = ((uintptr_t)seg << 24) | (off & 0x00FFFFFF);
-                }
-            }
-            // [port] G_VTX (F3DEX opcode 0x04): w1 is a segmented address into the
-            // vertex buffer. With GBI_FLOATS, sizeof(Vtx) = 24 instead of N64's 16,
-            // so byte offsets must be scaled: new_off = (old_off / 16) * sizeof(Vtx).
-            if (opcode == 0x04 && sizeof(Vtx) != 16) {
-                if (w1 != 0 && (w1 >> 24) != 0 && w1 <= 0xFFFFFFFF) {
-                    uint32_t seg = (uint32_t)(w1 >> 24);
-                    uint32_t off = (uint32_t)(w1 & 0x00FFFFFF);
-                    off = (off / 16) * sizeof(Vtx);
-                    w1 = ((uintptr_t)seg << 24) | (off & 0x00FFFFFF);
-                }
-            }
-
-            // [port] Tag segmented addresses with bit 0 so SegAddr() identifies them.
-            // Only tag opcodes that carry a segmented address in w1. Other commands
-            // (G_SETTILE, G_LOADBLOCK, G_SETCOMBINE, G_SETPRIMCOLOR, etc.) have
-            // literal values in w1 that must NOT be modified.
-            switch (opcode) {
-                case 0x01: // G_MTX
-                case 0x03: // G_MOVEMEM
-                case 0x04: // G_VTX
-                case 0x06: // G_DL
-                case 0xFD: // G_SETTIMG (gDPSetTextureImage)
-                case 0xFE: // G_SETZIMG
-                case 0xFF: // G_SETCIMG
-                    if (w1 != 0 && w1 <= 0xFFFFFFFF && (w1 >> 24) != 0) {
-                        w1 |= 1;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            AppendValue<uintptr_t>(out, w0);
-            AppendValue<uintptr_t>(out, w1);
-        }
-    }
-
-    // [port] Diagnostic: log final buffer layout for debugging heap corruption
-    {
-        auto* h = hdr();
-        SPDLOG_TRACE("[BKModel] '{}' total={} bytes | geo={} tex={} gfx={} vtx={} anim={} col={} unk14={} unk20={} "
-                     "fx={} unk28={} animTex={}",
-                     initData->Path, out.size(), h->geo_list_offset_4, h->texture_list_offset_8, h->gfx_list_offset_C,
-                     h->vtx_list_offset_10, h->animation_list_offset_18, h->collision_list_offset_1C, h->unk14,
-                     h->unk20, h->effects_list_setup_24, h->unk28, h->animated_texture_list_offset);
-
-        // Warn if texture offset overflowed s16
-        if (texCount > 0 && (h->texture_list_offset_8 <= 0 || h->texture_list_offset_8 > 32000)) {
-            SPDLOG_WARN("[BKModel] '{}' POSSIBLE s16 OVERFLOW: texture_list_offset_8={} (buffer was {} bytes at "
-                        "texture section)",
-                        initData->Path, h->texture_list_offset_8, out.size());
         }
     }
 
