@@ -25,6 +25,7 @@
 #include "port/ui/cvar_prefixes.h"
 #include "ui/LighthouseGui.hpp"
 #include "2.0L/PR/libaudio.h"
+#include "port/save/SaveManager.h"
 #include "port/enhancements/events/PortEnhancements.h"
 #include "port/patches/Patches.h"
 #include "libultraship/libultra/AudioDmaRegistry.h"
@@ -905,6 +906,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     //    osSetTime(0);
     //#endif
     PortEnhancements_Init();
+    SaveManager_Init();
     ShipInit::InitAll();
 
     // Stop rumble on any exit path (including direct exit() calls)

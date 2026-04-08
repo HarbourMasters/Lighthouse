@@ -26,7 +26,7 @@ enum transition_e {
 
 void func_802E3BD0(s32 frame_buffer_indx);
 void func_802E40A8(s32 map, s32 exit);
-void func_802E40C4( s32 arg0);
+void func_802E40C4(s32 arg0);
 void func_802E40D0(s32 map, s32 exit);
 void func_802E40E8(s32 transition);
 bool func_802E4A08(void);
@@ -60,6 +60,10 @@ struct{
     u8 unk1B;
     u8 unk1C;
 } D_8037E8E0;
+
+u8 GetCurrentMap() {
+    return D_8037E8E0.map;
+}
 
 void func_802E3800(void){
     viewport_setPosition_f3(0.0f, 0.0f, 0.0f);

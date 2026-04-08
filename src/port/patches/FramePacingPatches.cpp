@@ -134,8 +134,7 @@ int port_getCutsceneExtraVis(void) {
 } // extern "C"
 
 void RegisterFramePacingPatches_Init() {
-    // TODO: swap to COND_HOOK when available
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         (void)event;
         resetCutsceneTimings();
     });

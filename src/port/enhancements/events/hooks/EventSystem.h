@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 typedef int32_t EventID;
-typedef uint32_t ListenerID;
+typedef int64_t ListenerID;
 
 typedef enum {
     EVENT_PRIORITY_LOW,
@@ -26,10 +26,17 @@ typedef struct EventMetadata {
 } EventMetadata;
 
 typedef struct EventListener {
+    ListenerID id;
     EventPriority priority;
     EventCallback function;
     EventMetadata metadata;
 } EventListener;
+
+typedef enum VBehaviorID {
+    VB_INIT_RETURN_TO_LAIR,
+    VB_STATIC_CAMERA_SET,
+    VB_STATIC_CAMERA_EXIT,
+} VBehaviorID;
 
 #ifndef __cplusplus
 #ifdef INIT_EVENT_IDS
@@ -76,23 +83,6 @@ typedef struct EventListener {
         return eventType##_.result;                                                         \
     }
 
-#define REGISTER_VB_SHOULD(flag, body)                                            \
-    REGISTER_LISTENER(VanillaBehavior, EVENT_PRIORITY_NORMAL, [](IEvent* event) { \
-        VanillaBehavior* ev = (VanillaBehavior*)event;                            \
-        void* args = ev->args;                                                    \
-        body;                                                                     \
-    });
-
-#define COND_VB_SHOULD(id, condition, body)           \
-    {                                                 \
-        static ListenerID hookId = 0;                 \
-        UNREGISTER_LISTENER(VanillaBehavior, hookId); \
-        hookId = 0;                                   \
-        if (condition) {                              \
-            hookId = REGISTER_VB_SHOULD(id, body);    \
-        }                                             \
-    }
-
 #define REGISTER_EVENT(eventType) eventType##ID = EventSystem_RegisterEvent(#eventType);
 
 #define REGISTER_LISTENER(eventType, priority, callback) \
@@ -100,12 +90,59 @@ typedef struct EventListener {
 
 #define UNREGISTER_LISTENER(eventType, listenerId) EventSystem_UnregisterListener(eventType##ID, listenerId);
 
+#define REGISTER_VB_SHOULD(idToCheck, priority, body)                                    \
+    REGISTER_LISTENER(VanillaBehavior, priority, [](IEvent* event) { \
+        auto* ev = reinterpret_cast<VanillaBehavior*>(event);             \
+        if (ev->id == idToCheck) {                                      \
+            bool* should = ev->should;                                      \
+            va_list args;                                                        \
+            va_copy(args, *ev->originalArgs);                                \
+            body;                                                                \
+            va_end(args);                                                        \
+        }                                                                        \
+    })
+
+#define COND_HOOK(eventId, priority, condition, body)                                    \
+    {                                                                          \
+        static ListenerID listenerId = -1;                                     \
+        if (listenerId != -1) {                                                \
+            UNREGISTER_LISTENER(eventId, listenerId);                          \
+            listenerId = -1;                                                   \
+        }                                                                      \
+        if (condition) {                                                       \
+            listenerId = REGISTER_LISTENER(eventId, priority, body); \
+        }                                                                      \
+    }
+#define COND_ID_HOOK(eventId, id, priority, condition, body)                             \
+    {                                                                          \
+        static ListenerID listenerId = -1;                                     \
+        if (listenerId != -1) {                                                \
+            UNREGISTER_LISTENER(eventId, listenerId);                          \
+            listenerId = -1;                                                   \
+        }                                                                      \
+        if (condition) {                                                       \
+            listenerId = REGISTER_LISTENER(eventId, priority, body); \
+        }                                                                      \
+    }
+#define COND_VB_SHOULD(id, priority, condition, body)                     \
+    {                                                           \
+        static ListenerID listenerId = -1;                      \
+        if (listenerId != -1) {                                 \
+            UNREGISTER_LISTENER(VanillaBehavior, listenerId); \
+            listenerId = -1;                                    \
+        }                                                       \
+        if (condition) {                                        \
+            listenerId = REGISTER_VB_SHOULD(id, priority, body);          \
+        }                                                       \
+    }
+
 #ifdef __cplusplus
 #include <vector>
 #include <unordered_map>
 
 struct EventRegistration {
     const char* name;
+    ListenerID NextListenerID = 0;
     std::unordered_map<const char*, EventMetadata> callers;
     std::vector<EventListener> listeners;
 };
@@ -142,6 +179,7 @@ extern ListenerID EventSystem_RegisterListener(EventID id, EventCallback callbac
                                                const char* file, int line);
 extern void EventSystem_UnregisterListener(EventID ev, ListenerID id);
 extern void EventSystem_CallEvent(EventID id, void* event, const char* file, int line, const char* key);
+extern bool EventSystem_Should(VBehaviorID id, uint32_t result, ...);
 #ifdef __cplusplus
 }
 #endif

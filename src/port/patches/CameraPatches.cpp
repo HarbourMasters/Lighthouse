@@ -14,6 +14,7 @@
 
 extern "C" {
 #include "enums.h"
+#include "functions.h"
 #include "variables.h"
 enum level_e map_getLevel(enum map_e map);
 enum map_e map_get(void);
@@ -21,10 +22,11 @@ enum map_e map_get(void);
 
 // Cutscene aspect lock — force 4:3 during cutscene maps
 
-#define CVAR_AR_ENABLED CVAR_SETTING("AdvancedResolution.Enabled")
-#define CVAR_AR_COMBO CVAR_SETTING("AdvancedResolution.UIComboItem.AspectRatio")
-#define CVAR_AR_X CVAR_SETTING("AdvancedResolution.AspectRatioX")
-#define CVAR_AR_Y CVAR_SETTING("AdvancedResolution.AspectRatioY")
+#define CVAR_AR_ENABLED CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled"
+#define CVAR_AR_COMBO CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.AspectRatio"
+#define CVAR_AR_X CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioX"
+#define CVAR_AR_Y CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioY"
+#define CVAR_CUTSCENE_ASPECT CVAR_ENHANCEMENT("Graphics.CutsceneAspect")
 
 static int32_t sCutsceneAspectActive = 0;
 static int32_t sSavedEnabled;
@@ -32,11 +34,19 @@ static int32_t sSavedCombo;
 static float sSavedX;
 static float sSavedY;
 
+static void ResetCutsceneAspect() {
+    CVarSetInteger(CVAR_AR_ENABLED, sSavedEnabled);
+    CVarSetInteger(CVAR_AR_COMBO, sSavedCombo);
+    CVarSetFloat(CVAR_AR_X, sSavedX);
+    CVarSetFloat(CVAR_AR_Y, sSavedY);
+    sCutsceneAspectActive = 0;
+}
+
 static void updateCutsceneAspect(int32_t mapId) {
-    int32_t isCutscene = (map_getLevel((enum map_e)mapId) == LEVEL_D_CUTSCENE);
+    bool isCutscene = (map_getLevel((enum map_e)mapId) == LEVEL_D_CUTSCENE);
 
     if (isCutscene && !sCutsceneAspectActive) {
-        int32_t enabled = CVarGetInteger(CVAR_AR_ENABLED, 0);
+        bool enabled = CVarGetInteger(CVAR_AR_ENABLED, 0);
         float arX = CVarGetFloat(CVAR_AR_X, 0.0f);
         float arY = CVarGetFloat(CVAR_AR_Y, 0.0f);
         float actual = GameEngine_GetAspectRatio();
@@ -51,12 +61,6 @@ static void updateCutsceneAspect(int32_t mapId) {
             CVarSetFloat(CVAR_AR_Y, 3.0f);
             sCutsceneAspectActive = 1;
         }
-    } else if (!isCutscene && sCutsceneAspectActive) {
-        CVarSetInteger(CVAR_AR_ENABLED, sSavedEnabled);
-        CVarSetInteger(CVAR_AR_COMBO, sSavedCombo);
-        CVarSetFloat(CVAR_AR_X, sSavedX);
-        CVarSetFloat(CVAR_AR_Y, sSavedY);
-        sCutsceneAspectActive = 0;
     }
 }
 
@@ -97,27 +101,24 @@ extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
 }
 
 // Event listeners
-
-void RegisterCameraPatches_Init() {
-    // TODO: swap to COND_HOOK when available
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+void RegisterCutsceneAspect() {
+    ResetCutsceneAspect();
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CUTSCENE_ASPECT, 0), [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         updateCutsceneAspect(ev->mapId);
     });
+}
 
-    // TODO: swap to COND_HOOK when available
-    COND_VB_SHOULD(VB_STATIC_CAMERA_SET, true, {
-        if (ev->id != VB_STATIC_CAMERA_SET)
-            return;
-        sLastStaticCameraNode = *(int32_t*)args;
+void RegisterCameraPatches_Init() {
+
+    COND_VB_SHOULD(VB_STATIC_CAMERA_SET, EVENT_PRIORITY_NORMAL, true, {
+        sLastStaticCameraNode = *va_arg(args, int32_t*);
     });
 
-    // TODO: swap to COND_HOOK when available
-    COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, true, {
-        if (ev->id != VB_STATIC_CAMERA_EXIT)
-            return;
+    COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, EVENT_PRIORITY_NORMAL, true, {
         sLastStaticCameraNode = -1;
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCameraPatches_Init);
+static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });
+static RegisterShipInitFunc staticCamInitFunc(RegisterCameraPatches_Init);

@@ -26,20 +26,14 @@ struct1As* menuData;
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterReturnToLair_Init() {
-    REGISTER_LISTENER(VanillaBehavior, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        VanillaBehavior* ev = (VanillaBehavior*)event;
+    COND_VB_SHOULD(VB_INIT_RETURN_TO_LAIR, EVENT_PRIORITY_NORMAL, true, [&](IEvent* event) {
+        menuData = va_arg(args, struct1As*);
 
-        if (ev->id != VB_INIT_RETURN_TO_LAIR) {
-            return;
-        }
-
-        menuData = (struct1As*)ev->args;
-
-        if (CVAR && !port_isRomhack()) {
+        if (!port_isRomhack()) {
             s32 level = level_get();
             *ev->should = !(level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR &&
-                            level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
-            if (!*ev->should) {
+                level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
+            if (!*should) {
                 menuData[0].y = 45;
                 menuData[1].y = 75;
                 menuData[2].y = 105;

@@ -39,9 +39,34 @@ namespace fs = std::filesystem;
 
 #define CVAR_EXTRA_LIVES CVarGetInteger(CVAR_NAME_EXTRA_LIVES, 0)
 #define CVAR_BOTTLES_BONUS CVarGetInteger(CVAR_NAME_BOTTLES_BONUS, 0)
+#define CVAR_STOPNSWOP CVarGetInteger(CVAR_NAME_STOPNSWOP, 0)
+
+// Called from gameSelect.c after gameFile_load() when starting a game.
+extern "C" void port_syncBottlesBonusIndex(void) {
+    extern s32 chBottlesBonusPuzzleIndex;
+
+    for (int i = 0; i < 7; i++) {
+        if (gCompletedBottlesBonusGames[i]) {
+            chBottlesBonusPuzzleIndex = i + 1;
+        }
+    }
+}
+
+void RegisterStopNSwop100_Init() {
+    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_NAME_STOPNSWOP, [](IEvent* event) {
+        if (CVarGetInteger(CVAR_NAME_STOPNSWOP, 0)) {
+            if (jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
+                for (int i = 1; i < SNS_ITEM_length; i++) {
+                    sns_set_item_state(i, SNS_UNLOCKED, true);
+                }
+                sns_update_global_save_data_checksum();
+            }
+        }
+    });
+}
 
 void RegisterRestoreExtraLives_Init() {
-    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_EXTRA_LIVES, [](IEvent* event) {
         OnGameLoad* ev = (OnGameLoad*)event;
 
         if (!CVAR_EXTRA_LIVES) {
@@ -60,15 +85,11 @@ void RegisterRestoreExtraLives_Init() {
                 D_80385F30[ITEM_16_LIFE] = j["enhancements"]["life"].get<int>();
             }
         }
-    })
+        })
 }
 
 void RegisterRestoreBottlesBonus_Init() {
-    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (!CVAR_BOTTLES_BONUS) {
-            return;
-        }
-
+    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_NAME_BOTTLES_BONUS, [](IEvent* event) {
         // Bottles bonus data is loaded from global.json at init.
         // On game load, just set the skip-text flags if any are completed.
         bool anyCompleted = false;
@@ -84,31 +105,7 @@ void RegisterRestoreBottlesBonus_Init() {
             D_8037DCC9 = 1;
             D_8037DCCA = 1;
         }
-    });
-}
-
-// Called from gameSelect.c after gameFile_load() when starting a game.
-extern "C" void port_syncBottlesBonusIndex(void) {
-    extern s32 chBottlesBonusPuzzleIndex;
-
-    for (int i = 0; i < 7; i++) {
-        if (gCompletedBottlesBonusGames[i]) {
-            chBottlesBonusPuzzleIndex = i + 1;
-        }
-    }
-}
-
-void RegisterStopNSwop100_Init() {
-    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (CVarGetInteger(CVAR_NAME_STOPNSWOP, 0)) {
-            if (jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
-                for (int i = 1; i < SNS_ITEM_length; i++) {
-                    sns_set_item_state(i, SNS_UNLOCKED, true);
-                }
-                sns_update_global_save_data_checksum();
-            }
-        }
-    });
+        });
 }
 
 static RegisterShipInitFunc initExtraLivesFunc(RegisterRestoreExtraLives_Init, { CVAR_NAME_EXTRA_LIVES });

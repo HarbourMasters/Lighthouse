@@ -58,6 +58,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Makes Banjo always use the high-polygon model, even in low-detail modes."));
 
+    AddWidget(path, "Original Aspect Ratio In Cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Graphics.CutsceneAspect"))
+        .Options(CheckboxOptions().Tooltip("Force game to show original aspect ratio during cutscenes to avoid seeing "
+                                           "unfinished edges of scene geometry."));
+
     // Enhancements -> Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

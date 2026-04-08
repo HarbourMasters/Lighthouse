@@ -14,39 +14,49 @@ EventID EventSystem::RegisterEvent(const char* name) {
 }
 
 ListenerID EventSystem::RegisterListener(EventID id, EventCallback callback, EventPriority priority, const char* file,
-                                         int line) {
+    int line) {
     if (id == -1) {
         throw std::runtime_error("Trying to register listener for unregistered event");
     }
 
     auto& registry = this->mEventRegistry[id];
 
-    if (std::find_if(registry.listeners.begin(), registry.listeners.end(), [callback](const EventListener listener) {
-            return listener.function == callback;
+    if (std::find_if(registry.listeners.begin(), registry.listeners.end(), [callback](const EventListener& listener) {
+        return listener.function == callback;
         }) != registry.listeners.end()) {
-        return registry.listeners.size() - 1;
-    } else {
-        registry.listeners.push_back({ priority, callback, { file, line, 0 } });
-
-        // Sort by priority
-        std::sort(registry.listeners.begin(), registry.listeners.end(),
-                  [](const EventListener a, const EventListener b) { return a.priority > b.priority; });
+        throw std::runtime_error("Listener already registered");
     }
 
-    return registry.listeners.size() - 1;
+    const EventListener newListener = { registry.NextListenerID++, priority, callback, { file, line, 0 } };
+
+    auto insertIt = std::lower_bound(registry.listeners.begin(), registry.listeners.end(), newListener,
+        [](const EventListener& existingListener, const EventListener& listenerToInsert) {
+            return existingListener.priority < listenerToInsert.priority;
+        });
+
+    registry.listeners.insert(insertIt, newListener);
+
+    return newListener.id;
 }
 
 void EventSystem::UnregisterListener(EventID id, ListenerID listenerId) {
     auto& registry = this->mEventRegistry[id];
 
-    registry.listeners.erase(registry.listeners.begin() + listenerId);
+    auto it = std::find_if(registry.listeners.begin(), registry.listeners.end(),
+        [listenerId](const EventListener& listener) { return listener.id == listenerId; });
+
+    if (it == registry.listeners.end()) {
+        return;
+    }
+
+    registry.listeners.erase(it);
 }
 
 void EventSystem::CallEvent(const EventID id, IEvent* event, const char* file, const int line, const char* key) {
     auto& registry = this->mEventRegistry[id];
 
-    for (auto& [priority, function, _] : registry.listeners) {
-        function(event);
+    for (auto& listener : registry.listeners) {
+        listener.function(event);
     }
 
     auto& info = registry.callers[key];
@@ -74,4 +84,23 @@ extern "C" void EventSystem_UnregisterListener(EventID ev, ListenerID id) {
 
 extern "C" void EventSystem_CallEvent(EventID id, void* event, const char* file, int line, const char* key) {
     EventSystem::Instance->CallEvent(id, static_cast<IEvent*>(event), file, line, key);
+}
+
+extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
+    // Only the external function can use the Variadic Function syntax
+    // To pass the va args to the next caller must be done using va_list and reading the args into it
+    // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
+    // creating a copy of this va_list to avoid incrementing the original pointer between calls
+    va_list args;
+    va_start(args, result);
+
+    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
+    // an int to be permitted to be used in `va_start`, otherwise it is undefined behavior.
+    // Here we downcast back to a bool for our actual hook handlers
+    bool boolResult = static_cast<bool>(result);
+
+    CALL_EVENT(VanillaBehavior, id, &boolResult, &args);
+
+    va_end(args);
+    return boolResult;
 }
