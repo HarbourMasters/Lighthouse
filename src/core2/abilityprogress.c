@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/GameConfig.h"
 
 // [port] These must be contiguous — ability_getSizeAndPtr returns &learned with
 // size 8, expecting used to follow immediately. Separate globals aren't guaranteed
@@ -106,6 +107,9 @@ s32 ability_getAllLearned(void){
 void ability_debug(void){}
 
 void ability_clearAll(void){
+    if (port_isRomhack()) {
+        return;
+    }
     abilityprogress_learnedAbilities = 0;
     abilityprogress_usedAbilities = 0;
 }

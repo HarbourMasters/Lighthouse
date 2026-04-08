@@ -438,9 +438,9 @@ void func_802C4C14(Actor *this){
                             }
                             timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
                             {
-                                s32 knowAll = port_getRomhackKnowAllMoves();
-                                if (knowAll >= 0) {
-                                    ability_setAllLearned(knowAll);
+                                if (port_getRomhackKnowAllMoves() >= 0) {
+                                    ability_setAllLearned(-1);
+                                    ability_setAllUsed(-1);
                                 }
                             }
                         }

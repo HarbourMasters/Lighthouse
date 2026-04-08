@@ -251,11 +251,7 @@ static void LoadGameConfig() {
                             break;
                     }
                     if (target) {
-                        if (key == CCK_KNOW_ALL_MOVES) {
-                            *target = (int)(int16_t)val;
-                        } else {
-                            *target = val;
-                        }
+                        *target = val;
                     }
                 }
                 break;
