@@ -2493,9 +2493,14 @@ static void __code7AF80_func_80308F0C(Cube *cube) {
     s32 indx;
 
     indx = cube - sCubeList.cubes;
-    D_803821E0[indx >> 5] |= 1 << (indx & 0x1F);
+    // [port] Bounds check: romhack maps may exceed the 2912-cube bitfield capacity.
+    if ((u32)(indx >> 5) < 0x5B) {
+        D_803821E0[indx >> 5] |= 1 << (indx & 0x1F);
+    }
 }
 
 bool func_80308F54(s32 cube_index) {
+    // [port] Bounds check: romhack maps may exceed the 2912-cube bitfield capacity.
+    if ((u32)(cube_index >> 5) >= 0x5B) return false;
     return D_803821E0[cube_index >> 5] & (1 << (cube_index & 0x1F));
 }
