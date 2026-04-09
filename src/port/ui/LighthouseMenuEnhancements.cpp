@@ -123,7 +123,6 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     AddWidget(path, "Restore Return to Lair", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Restorations.ReturnToLair"))
-        .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) {
             if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);

@@ -14,7 +14,7 @@ EventID EventSystem::RegisterEvent(const char* name) {
 }
 
 ListenerID EventSystem::RegisterListener(EventID id, EventCallback callback, EventPriority priority, const char* file,
-    int line) {
+                                         int line) {
     if (id == -1) {
         throw std::runtime_error("Trying to register listener for unregistered event");
     }
@@ -22,7 +22,7 @@ ListenerID EventSystem::RegisterListener(EventID id, EventCallback callback, Eve
     auto& registry = this->mEventRegistry[id];
 
     if (std::find_if(registry.listeners.begin(), registry.listeners.end(), [callback](const EventListener& listener) {
-        return listener.function == callback;
+            return listener.function == callback;
         }) != registry.listeners.end()) {
         throw std::runtime_error("Listener already registered");
     }
@@ -30,9 +30,9 @@ ListenerID EventSystem::RegisterListener(EventID id, EventCallback callback, Eve
     const EventListener newListener = { registry.NextListenerID++, priority, callback, { file, line, 0 } };
 
     auto insertIt = std::lower_bound(registry.listeners.begin(), registry.listeners.end(), newListener,
-        [](const EventListener& existingListener, const EventListener& listenerToInsert) {
-            return existingListener.priority < listenerToInsert.priority;
-        });
+                                     [](const EventListener& existingListener, const EventListener& listenerToInsert) {
+                                         return existingListener.priority < listenerToInsert.priority;
+                                     });
 
     registry.listeners.insert(insertIt, newListener);
 
@@ -43,7 +43,7 @@ void EventSystem::UnregisterListener(EventID id, ListenerID listenerId) {
     auto& registry = this->mEventRegistry[id];
 
     auto it = std::find_if(registry.listeners.begin(), registry.listeners.end(),
-        [listenerId](const EventListener& listener) { return listener.id == listenerId; });
+                           [listenerId](const EventListener& listener) { return listener.id == listenerId; });
 
     if (it == registry.listeners.end()) {
         return;

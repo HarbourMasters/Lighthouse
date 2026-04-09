@@ -26,13 +26,13 @@ struct1As* menuData;
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterReturnToLair_Init() {
-    COND_VB_SHOULD(VB_INIT_RETURN_TO_LAIR, EVENT_PRIORITY_NORMAL, true, [&](IEvent* event) {
+    COND_VB_SHOULD(VB_INIT_RETURN_TO_LAIR, EVENT_PRIORITY_NORMAL, true, {
         menuData = va_arg(args, struct1As*);
 
-        if (!port_isRomhack()) {
+        if (CVAR && !port_isRomhack()) {
             s32 level = level_get();
-            *ev->should = !(level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR &&
-                level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
+            *should = !(level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR &&
+                        level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
             if (!*should) {
                 menuData[0].y = 45;
                 menuData[1].y = 75;
@@ -54,6 +54,7 @@ void RegisterReturnToLair_Init() {
                 menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
             }
         } else {
+            // Not in a world level — reset to vanilla layout
             menuData[0].y = 55;
             menuData[1].y = -100;
             menuData[2].y = 90;

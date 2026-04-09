@@ -110,6 +110,8 @@ BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3],
 
 // --- core2/gameloop.c ---
 u8 GetCurrentMap();
+s32 getGameMode(void);
+void transitionToMap(enum map_e map, s32 exit, s32 transition);
 
 // --- core2/map_list.c ---
 BKCollisionTri *func_8029463C(void);
@@ -400,10 +402,6 @@ void func_8028E7EC(f32 arg0[3]);
 void player_getPosition(f32 dst[3]);
 void player_getRotation(f32 *dst);
 void player_setThrowTargetPosition(f32[3]);
-
-// --- core2/frame/bufferreadback.c ---
-s32 getGameMode(void);
-void transitionToMap(enum map_e map, s32 exit, s32 transition);
 
 // --- core2/sfx/source.c ---
 void func_8030DD90(u8 indx, s32 arg1);

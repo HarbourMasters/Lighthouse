@@ -85,7 +85,7 @@ void RegisterRestoreExtraLives_Init() {
                 D_80385F30[ITEM_16_LIFE] = j["enhancements"]["life"].get<int>();
             }
         }
-        })
+    })
 }
 
 void RegisterRestoreBottlesBonus_Init() {
@@ -105,7 +105,7 @@ void RegisterRestoreBottlesBonus_Init() {
             D_8037DCC9 = 1;
             D_8037DCCA = 1;
         }
-        });
+    });
 }
 
 static RegisterShipInitFunc initExtraLivesFunc(RegisterRestoreExtraLives_Init, { CVAR_NAME_EXTRA_LIVES });

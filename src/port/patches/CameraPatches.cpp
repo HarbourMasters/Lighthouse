@@ -111,13 +111,10 @@ void RegisterCutsceneAspect() {
 
 void RegisterCameraPatches_Init() {
 
-    COND_VB_SHOULD(VB_STATIC_CAMERA_SET, EVENT_PRIORITY_NORMAL, true, {
-        sLastStaticCameraNode = *va_arg(args, int32_t*);
-    });
+    COND_VB_SHOULD(VB_STATIC_CAMERA_SET, EVENT_PRIORITY_NORMAL, true,
+                   { sLastStaticCameraNode = *va_arg(args, int32_t*); });
 
-    COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, EVENT_PRIORITY_NORMAL, true, {
-        sLastStaticCameraNode = -1;
-    });
+    COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, EVENT_PRIORITY_NORMAL, true, { sLastStaticCameraNode = -1; });
 }
 
 static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });

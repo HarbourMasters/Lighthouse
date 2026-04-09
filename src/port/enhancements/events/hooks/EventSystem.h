@@ -90,50 +90,50 @@ typedef enum VBehaviorID {
 
 #define UNREGISTER_LISTENER(eventType, listenerId) EventSystem_UnregisterListener(eventType##ID, listenerId);
 
-#define REGISTER_VB_SHOULD(idToCheck, priority, body)                                    \
+#define REGISTER_VB_SHOULD(idToCheck, priority, body)                \
     REGISTER_LISTENER(VanillaBehavior, priority, [](IEvent* event) { \
-        auto* ev = reinterpret_cast<VanillaBehavior*>(event);             \
-        if (ev->id == idToCheck) {                                      \
-            bool* should = ev->should;                                      \
-            va_list args;                                                        \
-            va_copy(args, *ev->originalArgs);                                \
-            body;                                                                \
-            va_end(args);                                                        \
-        }                                                                        \
+        auto* ev = reinterpret_cast<VanillaBehavior*>(event);        \
+        if (ev->id == idToCheck) {                                   \
+            bool* should = ev->should;                               \
+            va_list args;                                            \
+            va_copy(args, *ev->originalArgs);                        \
+            body;                                                    \
+            va_end(args);                                            \
+        }                                                            \
     })
 
-#define COND_HOOK(eventId, priority, condition, body)                                    \
-    {                                                                          \
-        static ListenerID listenerId = -1;                                     \
-        if (listenerId != -1) {                                                \
-            UNREGISTER_LISTENER(eventId, listenerId);                          \
-            listenerId = -1;                                                   \
-        }                                                                      \
-        if (condition) {                                                       \
+#define COND_HOOK(eventId, priority, condition, body)                \
+    {                                                                \
+        static ListenerID listenerId = -1;                           \
+        if (listenerId != -1) {                                      \
+            UNREGISTER_LISTENER(eventId, listenerId);                \
+            listenerId = -1;                                         \
+        }                                                            \
+        if (condition) {                                             \
             listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                                      \
+        }                                                            \
     }
-#define COND_ID_HOOK(eventId, id, priority, condition, body)                             \
-    {                                                                          \
-        static ListenerID listenerId = -1;                                     \
-        if (listenerId != -1) {                                                \
-            UNREGISTER_LISTENER(eventId, listenerId);                          \
-            listenerId = -1;                                                   \
-        }                                                                      \
-        if (condition) {                                                       \
+#define COND_ID_HOOK(eventId, id, priority, condition, body)         \
+    {                                                                \
+        static ListenerID listenerId = -1;                           \
+        if (listenerId != -1) {                                      \
+            UNREGISTER_LISTENER(eventId, listenerId);                \
+            listenerId = -1;                                         \
+        }                                                            \
+        if (condition) {                                             \
             listenerId = REGISTER_LISTENER(eventId, priority, body); \
-        }                                                                      \
+        }                                                            \
     }
-#define COND_VB_SHOULD(id, priority, condition, body)                     \
-    {                                                           \
-        static ListenerID listenerId = -1;                      \
-        if (listenerId != -1) {                                 \
-            UNREGISTER_LISTENER(VanillaBehavior, listenerId); \
-            listenerId = -1;                                    \
-        }                                                       \
-        if (condition) {                                        \
-            listenerId = REGISTER_VB_SHOULD(id, priority, body);          \
-        }                                                       \
+#define COND_VB_SHOULD(id, priority, condition, body)            \
+    {                                                            \
+        static ListenerID listenerId = -1;                       \
+        if (listenerId != -1) {                                  \
+            UNREGISTER_LISTENER(VanillaBehavior, listenerId);    \
+            listenerId = -1;                                     \
+        }                                                        \
+        if (condition) {                                         \
+            listenerId = REGISTER_VB_SHOULD(id, priority, body); \
+        }                                                        \
     }
 
 #ifdef __cplusplus
