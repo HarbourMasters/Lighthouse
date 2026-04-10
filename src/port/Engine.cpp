@@ -1129,7 +1129,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
 
     interpreter->mInterpolationIndex = 0;
 
-    // [port] Expand DrawAndRunGraphicsCommands so we can read the backbuffer between
+    // Expand DrawAndRunGraphicsCommands so we can read the backbuffer between
     // Run() (frame rendered) and EndFrame() (buffer swap). On N64, CPU/RDP shared
     // physical memory so gFramebuffers always had valid pixel data after rendering.
     auto wndBase = Ship::Context::GetInstance()->GetWindow();
@@ -1137,7 +1137,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     size_t frameCount = mtx_replacements.size();
     for (const auto& m : mtx_replacements) {
         bool isFinalFrame = (frameIdx == frameCount - 1);
-        // [port] Bypass IsFrameReady() when interpolation is active — render all
+        // Bypass IsFrameReady() when interpolation is active — render all
         // frames per tick and let vsync pace them.
         if (frameCount > 1 || wndBase->IsFrameReady()) {
             auto gui = wndBase->GetGui();
@@ -1145,14 +1145,16 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             gui->StartDraw();
             interpreter->StartFrame();
             interpreter->Run(Commands, m);
-            // [port] Emulate N64 osViBlack: skip presentation so the previous
-            // frame stays on screen (readback still runs so transitions can capture).
-            gui->EndDraw();
+            // Emulate N64 osViBlack to prevent a flicker when the scene is drawn
+            // for the falling jiggy transition framebuffer capture.
             if (port_isViBlack()) {
-                interpreter->Flush();
-            } else {
-                interpreter->EndFrame();
+                interpreter->mGfxFrameBuffer = 0;
+                auto rapi = interpreter->GetCurrentRenderingAPI();
+                rapi->StartDrawToFramebuffer(0, 1.0f);
+                rapi->ClearFramebuffer(true, false);
             }
+            gui->EndDraw();
+            interpreter->EndFrame();
         }
         interpreter->mInterpolationIndex++;
         frameIdx++;
