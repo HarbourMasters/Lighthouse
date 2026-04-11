@@ -35,6 +35,9 @@ static float sSavedX;
 static float sSavedY;
 
 static void ResetCutsceneAspect() {
+    if (!sCutsceneAspectActive) {
+        return;
+    }
     CVarSetInteger(CVAR_AR_ENABLED, sSavedEnabled);
     CVarSetInteger(CVAR_AR_COMBO, sSavedCombo);
     CVarSetFloat(CVAR_AR_X, sSavedX);
@@ -49,7 +52,10 @@ static void updateCutsceneAspect(int32_t mapId) {
         bool enabled = CVarGetInteger(CVAR_AR_ENABLED, 0);
         float arX = CVarGetFloat(CVAR_AR_X, 0.0f);
         float arY = CVarGetFloat(CVAR_AR_Y, 0.0f);
-        float actual = GameEngine_GetAspectRatio();
+        auto window = Ship::Context::GetInstance()->GetWindow();
+        uint32_t winW = window->GetWidth();
+        uint32_t winH = window->GetHeight();
+        float actual = (winH > 0) ? (float)winW / (float)winH : GameEngine_GetAspectRatio();
         if ((arY > 0.0f && (arX / arY) > (4.0f / 3.0f + 0.01f)) || (!enabled && actual > (4.0f / 3.0f + 0.01f))) {
             sSavedEnabled = CVarGetInteger(CVAR_AR_ENABLED, 0);
             sSavedCombo = CVarGetInteger(CVAR_AR_COMBO, 3);
@@ -61,6 +67,8 @@ static void updateCutsceneAspect(int32_t mapId) {
             CVarSetFloat(CVAR_AR_Y, 3.0f);
             sCutsceneAspectActive = 1;
         }
+    } else if (!isCutscene && sCutsceneAspectActive) {
+        ResetCutsceneAspect();
     }
 }
 
