@@ -13,7 +13,7 @@ DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
 
 DEFINE_EVENT(OnGruntyJinjonatorComplete)
 
-DEFINE_EVENT(OnMumboTokenInit, Actor* actor;)
+DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
 
 DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
 

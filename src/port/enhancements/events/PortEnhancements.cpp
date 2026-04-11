@@ -22,7 +22,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnFurnaceFunDialog);
     REGISTER_EVENT(OnGruntyJinjonatorComplete);
     REGISTER_EVENT(OnIntroCutsceneCheck);
-    REGISTER_EVENT(OnMumboTokenInit);
+    REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnWaterPyramidTimer);
 
     // Register game events

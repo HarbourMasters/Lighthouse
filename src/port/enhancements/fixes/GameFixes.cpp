@@ -64,11 +64,12 @@ void RegisterGruntyDefeatedFlag_Init() {
                    { *should = false; });
 }
 
+// Move this token to the floor when jiggy is collected so it is no longer missable
 void RegisterMumboTokenGV_Init() {
-    COND_HOOK(OnMumboTokenInit, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0), [](IEvent* event) {
-        auto* ev = reinterpret_cast<OnMumboTokenInit*>(event);
+    COND_HOOK(OnMumboTokenUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0), [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnMumboTokenUpdate*>(event);
         if (map_get() == MAP_15_GV_WATER_PYRAMID && jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
-            ev->actor->position[1] = -1430.0f;
+            ev->actor->position[1] = 175.0f;
         }
     });
 }

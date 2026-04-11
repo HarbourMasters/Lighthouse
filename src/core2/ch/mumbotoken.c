@@ -61,9 +61,9 @@ void func_802E0B10(Actor *this){
     f32 sp28[3];
 
     local = (ActorLocal_MumboToken *)&this->local;
+    CALL_EVENT(OnMumboTokenUpdate, this);
     if(!this->initialized){
         this->initialized = true;
-        CALL_EVENT(OnMumboTokenInit, this);
         if(local->uid == 0){
             if(!this->unk44_2){
                 local->uid = D_8037E610;
