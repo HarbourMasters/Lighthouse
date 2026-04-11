@@ -87,7 +87,7 @@ void fxairscore_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **mtx, 
                 gDPSetPrimColor((*gfx)++, 0, 0, 0x00, 0x00, 0x00, 0x78);
             }
             x = func_802FB0E4(arg1);
-            x = OTRGetDimensionFromLeftEdge((-40.0f + x) + D_80381F68[var_s6]) - (f32) gFramebufferWidth / 2;
+            x = ((-40.0f + x) + D_80381F68[var_s6]) - (f32) gFramebufferWidth / 2;
             y = ((78 + (i_part * 15.5)) - ((f32) gFramebufferHeight / 2));
 
             //stagger x position

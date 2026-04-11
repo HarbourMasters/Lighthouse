@@ -191,16 +191,7 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
 
     sp40 = func_802FB0E4(arg1)*a1->unk54 + a1->unk34;
     if(a1->model != NULL && func_802FB0D4(arg1)){
-        // [port] Widescreen HUD anchoring for 3D score items.
-        // Items near screen center (within 30px) stay at native coords;
-        // items further out anchor to the nearest edge.
-        if (fabsf(a1->unk30 - (f32)gFramebufferWidth / 2.0f) < 30.0f) {
-            draw_x = a1->unk30;
-        } else {
-            draw_x = (a1->unk30 < (f32)gFramebufferWidth / 2.0f)
-                ? OTRGetDimensionFromLeftEdge(a1->unk30)
-                : OTRGetDimensionFromRightEdge(a1->unk30);
-        }
+        draw_x = a1->unk30;
         a1->value_string[0] = '\0';
         strIToA(a1->value_string, itemPrint_getValue(item_id));
         print_bold_spaced(draw_x + a1->unk40, sp40 + a1->unk44, a1->value_string);

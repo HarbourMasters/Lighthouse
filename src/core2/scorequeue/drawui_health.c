@@ -110,7 +110,7 @@ void fxhealthscore_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **mt
             gDPSetPrimColor((*gfx)++, 0, 0, 0xFF, 0xFF, 0xFF, 0x78);
         }
 
-        f20 = OTRGetDimensionFromLeftEdge(96.0f + (f32)(i * 13)) - (f32) gFramebufferWidth / 2;
+        f20 = (96.0f + (f32)(i * 13)) - (f32) gFramebufferWidth / 2;
         f14 = (f32) gFramebufferHeight / 2 - func_802FB0E4(arg1) - D_80381F08[s6] - -48.0f;
         f14 = (i & 1) ? f14 + 5.75 : f14 - 5.75;
 
