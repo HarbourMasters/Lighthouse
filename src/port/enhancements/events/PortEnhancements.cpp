@@ -14,6 +14,12 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(OnActorTick);
+    REGISTER_EVENT(OnPropTick);
+    REGISTER_EVENT(OnSpritePropTick);
+
+    // Register behavior events
+    REGISTER_EVENT(OnNametagDraw);
 
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);

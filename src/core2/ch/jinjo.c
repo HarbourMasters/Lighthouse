@@ -92,7 +92,7 @@ void chJinjo_update(Actor * this){
     s32 i;
     int sp50;
     f32 *sp30;
-    
+
     //f32 sp4C; //unused
     f32 sp40[3];
     //s32 sp3C;

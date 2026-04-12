@@ -575,6 +575,8 @@ void func_803268B4(void) {
                             }
                         }
                     }
+                    // [port] Fire one tick event per active actor for port-side features (e.g. nametags).
+                    CALL_EVENT(OnActorTick, actor);
                     actor->unk124_7 = true;
                     actor->unk138_28 = false;
                     if (anim_ctrl != NULL) {
