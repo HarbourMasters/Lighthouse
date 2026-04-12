@@ -59,10 +59,6 @@ int port_shouldForceHighPolyBanjo(void);
 int port_fixMumboTokenId(int ret, int pos[3], int map_id);
 int port_shouldAllowAllHoneycombExtensions(void);
 
-// Cheats (Cheats.cpp)
-
-int port_isInfiniteHealth(void);
-
 #ifdef __cplusplus
 }
 #endif
