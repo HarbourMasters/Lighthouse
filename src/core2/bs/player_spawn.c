@@ -891,7 +891,7 @@ s32 func_8029CA94(s32 arg0){
         arg0 = BS_53_TIMEOUT;
 
     if(baflag_isTrue(BA_FLAG_7_TOUCHING_JIGGY)) {
-        if (EventSystem_Should(VB_SKIP_JIGGY_DANCE, true)) {
+        if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
             arg0 = BS_44_JIG_JIGGY;
         } else {
             func_8029CCC4();
@@ -920,13 +920,11 @@ void func_8029CBC4(void){
 }
 
 void func_8029CBF4(void){
-    bool shouldDance = EventSystem_Should(VB_SKIP_JIGGY_DANCE, true);
-
     if(item_getCount(ITEM_E_JIGGY) == 10){
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
             timedFunc_set_3(4.1f, (GenFunction_3)transitionToMap, MAP_95_CS_END_ALL_100, 0, 1);
         }//L8029CC58
-        if (shouldDance) {
+        if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
             timedFunc_set_0(4.0f, func_8029CBC4);
         } else {
             func_8029CBC4();
@@ -961,7 +959,7 @@ void func_8029CCC4(void){
     // - Don't touch the ambience counter or music fade — the jinjo or other spawner
     //   may have already decremented the counter, and the timed restore would cause
     //   a double-increment. Just play the jingle and let the spawner handle cleanup.
-    if (!EventSystem_Should(VB_SKIP_JIGGY_DANCE, true)) {
+    if (!EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
         func_80291548();
         coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
         timedFunc_set_0(4.0f, func_8029CBF4);

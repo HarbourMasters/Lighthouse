@@ -31,7 +31,7 @@ void RegisterSkipIntroCutscene_Init() {
 }
 
 void RegisterSkipJiggyDance_Init() {
-    COND_VB_SHOULD(VB_SKIP_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0),
+    COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0),
                    { *should = false; });
 }
 
