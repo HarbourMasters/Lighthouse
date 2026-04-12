@@ -27,7 +27,7 @@ static bool mLoaded = false;
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
     const char* romName = port_getRomhackName();
-    if (romName && romName[0] != '\0') {
+    if (!Ship_IsCStringEmpty(romName)) {
         std::string dir = Ship::Context::GetPathRelativeToAppDirectory("saves/" + std::string(romName));
         fs::create_directories(dir);
         return dir + "/" + filename;
