@@ -610,7 +610,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
 
     if(!t0 || print_sInFontFormatMode){
         print_sInFontFormatMode = false;
-        switch(letter){
+        switch((u8)letter){
             case ' '://802F5818
                 *xPtr += ((D_80380AF0) ? D_80369068[D_80380AE8]: D_80369068[D_80380AE8]*0.8) * arg3;
                 break;
