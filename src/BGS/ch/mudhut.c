@@ -50,7 +50,7 @@ void chMudHut_makeWadingBootsRunOutInstantly(void){
 
 void chMudHut_checkBGSChecksums(void){
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 sp1C;
     osPiReadIo(0xD10, &sp1C);
     if(sp1C = (u16)(sp1C-0x400)){

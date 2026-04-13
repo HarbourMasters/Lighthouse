@@ -34,7 +34,7 @@ void MMM_func_8038ABC0(s32 arg0) {
 
 void chTumblar_checkMMMChecksums(void) {
     // Lighthouse TODO is this an anti-piracy check?
-#if 0
+#if ANTI_TAMPER
     if ((*(u32 *) PHYS_TO_K1(0x1D0)) - 0x356BAAAE) {
         MMM_func_8038ABC0(0x820);
     }

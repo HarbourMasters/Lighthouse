@@ -1325,7 +1325,7 @@ void func_8030578C(void){
     Cube *iCube;
 
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
         osPiReadIo(0xE38, &sp40);
         sp40 ^= 0x828A;

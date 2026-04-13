@@ -16,7 +16,7 @@ void MM_makeMumboAlwaysTransformBanjoIntoTermite(void) {
     // [port] Anti-tamper: reads MIPS J-instruction encoding from function pointer,
     // computes jump target via N64 address masking, then patches MIPS opcodes at that
     // address. All of this is N64-specific and would corrupt x64 code.
-#if 0
+#if ANTI_TAMPER
     u32 *temp_v0;
     u32 temp_a0;
 
@@ -35,7 +35,7 @@ void MM_makeMumboAlwaysTransformBanjoIntoTermite(void) {
 
 void MM_func_80387F44(void) {
     // [port] Anti-tamper: reads ROM CRC via osPiReadIo, no ROM on PC.
-#if 0
+#if ANTI_TAMPER
     s32 sp1C;
 
     osPiReadIo(0x578, (u32 *)&sp1C);

@@ -168,7 +168,7 @@ void code13C0_makeCameraFlipAndTilt(void){
 
 void CC_func_80387D4C(void){
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 sp1C;
     u32 tmp_v0;
     osPiReadIo(0x504, &sp1C);

@@ -28,7 +28,7 @@ s32 D_80372808 = 0;
 
 // init bk_boot crc
 void codeCF5F0_initChecksumsVars(void) {
-#if 0
+#if ANTI_TAMPER
     D_803727FC = (s32) boot_bk_boot_ROM_START;
     D_80372800 = 0;
     D_80372804 = -1;
@@ -39,7 +39,7 @@ void codeCF5F0_initChecksumsVars(void) {
 // advance bk_boot crc by one word
 s32 codeCF5F0_areChecksumsValid(void) {
     // Lighthouse TODO what should this actually return?
-#if 0
+#if ANTI_TAMPER
     u32 crc1;
     u32 crc2;
     u8 romBytes[4];

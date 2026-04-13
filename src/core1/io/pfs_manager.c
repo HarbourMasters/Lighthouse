@@ -64,7 +64,7 @@ f32 func_8024E420(s32 arg0, s32 arg1, s32 arg2) {
     // match since code is recompiled, so stick output was always halved (max 0.5
     // instead of 1.0), making it impossible to reach the 0.7 threshold used by
     // gameSelect.c and other input consumers. Bypassed.
-#if 0
+#if ANTI_TAMPER
     if ((D_80379B90.unk4 != D_803727F4) || (D_80379B90.unkC != D_80276574)) {
         phi_f2 = 0.00625f;
     }

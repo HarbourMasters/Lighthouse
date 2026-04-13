@@ -23,7 +23,7 @@ void code3B10_makeRunningShoesRunOutInstantly(void){
 
 void code3B10_checkGVChecksums(void){
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 sp1C;
     osPiReadIo(0x800, &sp1C);
     sp1C <<= 0x10;

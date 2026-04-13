@@ -30,7 +30,7 @@ void __code3040_func_80389430(){
 
 void code3040_func_80389468(void){
     // [port] This crc check makes the ground in TTC slippery
-#if 0
+#if ANTI_TAMPER
     if(sD_8038D6F0.unk4 != D_8038C754 ||  sD_8038D6F0.unkC != D_80276CB0){
         __code3040_func_80389430();
     }
