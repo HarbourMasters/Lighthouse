@@ -28,7 +28,7 @@ s32 D_8036B800 = 0;
 struct_7AF80_0 *D_80382390; //prop models ???
 struct_7AF80_1 *D_80382394; //prop_sprites ???
 
-BKSpriteDisplayData *func_8030A4D4(s32 arg0);
+BKSpriteDisplayData *propModelList_getSpriteDisplayList(s32 arg0);
 
 
 void propModelList_drawModel(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], f32 arg4[3], f32 arg5, s32 arg6, Cube* arg7){
@@ -42,11 +42,11 @@ void propModelList_drawModel(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], f32 a
     modelRender_draw(gfx, mtx, arg3, arg4, arg5, NULL, sp2C);
 }
 
-void func_8030A350(Gfx **gfx, Mtx **mtx, Vtx **Vtx, f32 arg3[3], f32 arg4, s32 arg5, Cube *arg6, s32 arg7, s32 arg8, s32 arg9, s32 argA, s32 argB) {
+void propModelList_drawSprite(Gfx **gfx, Mtx **mtx, Vtx **Vtx, f32 arg3[3], f32 arg4, s32 arg5, Cube *arg6, s32 arg7, s32 arg8, s32 arg9, s32 argA, s32 argB) {
     f32 sp2C[3];
     BKSpriteDisplayData *sp28;
 
-    sp28 = func_8030A4D4(arg5);
+    sp28 = propModelList_getSpriteDisplayList(arg5);
     sp2C[0] = arg4;
     sp2C[1] = arg4;
     sp2C[2] = arg4;
@@ -73,7 +73,7 @@ BKModelBin *propModelList_getModelIfActive(s32 arg0){
     return D_80382390[arg0].unk0;
 }
 
-BKSpriteDisplayData *func_8030A4D4(s32 arg0)
+BKSpriteDisplayData *propModelList_getSpriteDisplayList(s32 arg0)
 {
     
     if (((struct_7AF80_1 *)((uintptr_t)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk0 == 0){
@@ -84,11 +84,11 @@ BKSpriteDisplayData *func_8030A4D4(s32 arg0)
 }
 
 BKSprite *propModelList_getSprite(s32 arg0){
-    func_8030A4D4(arg0);
+    propModelList_getSpriteDisplayList(arg0);
     return D_80382394[arg0].unk0;
 }
 
-f32 func_8030A590(Prop *arg0){
+f32 propModelList_getScale(Prop *arg0){
     if(arg0->unk8_1){
         ModelProp* ModelProp = &arg0->modelProp;
         if (D_80382390 == NULL || arg0->spriteProp.unk0_31 >= 0x2A2) {
@@ -190,7 +190,7 @@ void propModelList_flush(s32 arg0) {
     }
 }
 
-void func_8030AA6C(void) {
+void propModelList_defrag(void) {
     // [port] N64 heap defrag — func_802546E4/func_80255888 assume bk_malloc HeapHeaders.
     // Assets now come from the resource manager; defragging them would corrupt memory.
     BKModelBin *temp_a0;
@@ -214,7 +214,7 @@ void func_8030AA6C(void) {
 #endif
 }
 
-void func_8030ABA4(void) {
+void propModelList_refresh(void) {
     s32 temp_lo;
     s32 temp_t7;
     struct_7AF80_1 *phi_s0;

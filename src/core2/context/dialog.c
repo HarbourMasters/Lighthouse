@@ -144,7 +144,7 @@ static void _gcdialog_freeZoomboxes(void){
     }
 }
 
-void func_8030F078(void){
+void clearDialogStrings(void){
     s32 i;
     s32 j;
     for(i = 0; i <2; i++){
@@ -162,7 +162,7 @@ void func_8030F078(void){
 }
 
 void clearDialog(void){
-   func_8030F078();
+   clearDialogStrings();
    if(g_Dialog.zoombox[1] != NULL && !g_Dialog.unk11A[1].unk0_7){
        func_80347A14(1);
    }
@@ -312,7 +312,7 @@ void gcdialog_setState(s32 next_state){
     
 }
 
-void func_8030F754(GcZoomboxSprite portrait_id, s32 arg1){
+void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
     s32 temp_a0;
     s32 temp_v0;
 
@@ -645,15 +645,15 @@ void loadDialogStrings(s32 text_id){
     }
 }
 
-s32 func_8031068C(s32 next_state){
+s32 getYPositionForZoombox(s32 next_state){
     return (next_state) ? 0 : 0xA0;
 }
 
-int func_803106A4(s32 next_state){
+int isDialogTop(s32 next_state){
     return (next_state) ? 1 : 0;
 }
 
-void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
+void loadAndCreateDialogs(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
     s32 i;
     s32 j;
 
@@ -674,11 +674,11 @@ void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(A
         //L803107C4
         g_Dialog.string[j] = g_Dialog.string_list[j]->str;
         g_Dialog.string_index[j] = 0;
-        g_Dialog.unk124[j] = func_8031068C(j);
+        g_Dialog.unk124[j] = getYPositionForZoombox(j);
         g_Dialog.unk11A[j].unk0_5 = 0;
         if(g_Dialog.string_list[j][i].cmd >= 0){
             if(!g_Dialog.unk11A[j].unk0_7){
-                g_Dialog.zoombox[j] =  gczoombox_new(g_Dialog.unk124[j], g_Dialog.string_list[j][i].cmd + 0xC, 0, func_803106A4(j), (void *)func_8030F754);
+                g_Dialog.zoombox[j] =  gczoombox_new(g_Dialog.unk124[j], g_Dialog.string_list[j][i].cmd + 0xC, 0, isDialogTop(j), (void *)newZoomboxCallback);
                 if( j == 1 ){
                     func_80347A14(0);
                 }
@@ -732,7 +732,7 @@ void func_80310A5C(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 arg4){
 }
 
 void func_80310B1C(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
-    func_803106BC(text_id, arg1, marker, callback, arg4, arg5);
+    loadAndCreateDialogs(text_id, arg1, marker, callback, arg4, arg5);
     if(gsworld_getMap() == MAP_90_GL_BATTLEMENTS && 0x10ec < text_id){
         func_80310A5C( 3, 4, 0x1e, arg1 & 2, arg1 & 0x80);
     }
@@ -943,7 +943,7 @@ int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker 
     return 0;
 }
 
-bool gcdialog_showText(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32)){
+bool gcdialog_showDialog(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32)){
     return gcdialog_showDialogConditional(text_id, arg1, pos, marker, callback, arg5, NULL);
 }
 

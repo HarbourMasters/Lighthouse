@@ -178,7 +178,7 @@ void chTwinklyBox_destroyBox(ActorMarker *marker){
     chTwinklyBox_destroyBoxDust(this->position, 12, ASSET_700_SPRITE_DUST);
     this->velocity[1] = 0.0f;
     sfx_playFadeShorthandDefault(SFX_30_MAGIC_POOF, 1.0f, 32000, this->position, 1000, 3500);
-    gcdialog_showText(0xc13, 0, NULL, NULL, NULL, NULL);
+    gcdialog_showDialog(0xc13, 0, NULL, NULL, NULL, NULL);
 }
 
 void chTwinklyBox_openBox(Actor *this){

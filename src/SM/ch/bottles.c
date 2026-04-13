@@ -242,7 +242,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
 
     if (!mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && chmole_learnedAllSpiralMountainAbilities()) {
         mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
-        gcdialog_showText(ASSET_E12_DIALOG_BOTTLES_LEARNED_TUTORIAL_MOVES, 0xe, actor->position, actor->marker, __chSmBottles_textCallback, NULL);
+        gcdialog_showDialog(ASSET_E12_DIALOG_BOTTLES_LEARNED_TUTORIAL_MOVES, 0xe, actor->position, actor->marker, __chSmBottles_textCallback, NULL);
     }//L8038933C
     else {
         if (!(text_id == ASSET_DF3_DIALOG_BOTTLES_INTRODUCTION || text_id == ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER || text_id == ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT)) {
@@ -254,7 +254,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
                 break;
 
             case ASSET_DF3_DIALOG_BOTTLES_INTRODUCTION: /* 2FB8 803893A8 3C188039 */
-                gcdialog_showText(ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER, 0x8e, actor->position, actor->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
+                gcdialog_showDialog(ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER, 0x8e, actor->position, actor->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
                 break;
 
             case ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER: /* 2FEC 803893DC 9209003B */
@@ -278,7 +278,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
 
             default:
                 if (actor->state != SM_BOTTLES_STATE_5_UNKNOWN) {
-                    gcdialog_showText(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0x4, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0x4, NULL, NULL, NULL, NULL);
                 }
 
                 __chSmBottles_setState(actor, actor->state == SM_BOTTLES_STATE_5_UNKNOWN ? SM_BOTTLES_STATE_1_UNKNOWN : SM_BOTTLES_STATE_4_UNKNOWN);
@@ -396,7 +396,7 @@ void __chSmBottles_talk(Actor *this) {
     }//L80389904
 
     if (text_id) {
-        gcdialog_showText(text_id, text_flags, this->position, this->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
+        gcdialog_showDialog(text_id, text_flags, this->position, this->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
     }
 }
 
@@ -611,7 +611,7 @@ void chSmBottles_update(Actor *this) {
 
                 if (bakey_pressed != -1) {
                     fileProgressFlag_set(FILEPROG_DB_SKIPPED_TUTORIAL, bakey_pressed ? 0 : 1);
-                    gcdialog_showText(bakey_pressed ? ASSET_E07_DIALOG_BOTTLES_UNKNOWN : ASSET_E09_DIALOG_BOTTLES_SKIPPED_TUTORIAL, 0xe, this->position, this->marker, __chSmBottles_textCallback,__chSmBottles_textActions);
+                    gcdialog_showDialog(bakey_pressed ? ASSET_E07_DIALOG_BOTTLES_UNKNOWN : ASSET_E09_DIALOG_BOTTLES_SKIPPED_TUTORIAL, 0xe, this->position, this->marker, __chSmBottles_textCallback,__chSmBottles_textActions);
 
                     if (!bakey_pressed) {
                         __chSmBottles_skipIntroTutorial();
@@ -620,7 +620,7 @@ void chSmBottles_update(Actor *this) {
                     this->unk38_0 = false;
                 }
                 else if (!this->has_met_before && 5.0 < this->lifetime_value) {
-                    gcdialog_showText(ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT, 0x86, this->position, this->marker, __chSmBottles_textCallback, NULL);
+                    gcdialog_showDialog(ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT, 0x86, this->position, this->marker, __chSmBottles_textCallback, NULL);
                     this->has_met_before = true;
                 }
             }

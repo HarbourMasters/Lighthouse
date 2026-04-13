@@ -181,7 +181,7 @@ void chGobi1_update(Actor *this){
             && subaddie_playerIsWithinSphereAndActive(this, 250)
             && !subaddie_playerIsWithinSphereAndActive(this, 80)
             && func_8028F2A0()
-            && gcdialog_showText(0xa73, 0, NULL, NULL, NULL, NULL)
+            && gcdialog_showDialog(0xa73, 0, NULL, NULL, NULL, NULL)
         ){
             this->has_met_before = true;
         }

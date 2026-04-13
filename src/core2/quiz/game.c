@@ -779,7 +779,7 @@ void func_802D5000(enum map_e map_id){
     transitionToMap(D_80367684, 0x65, 0);
 }
 
-void func_802D5058(enum map_e map_id, s32 arg1, bool arg2) {
+void func_getCameraViewFromLevel(enum map_e map_id, s32 arg1, bool arg2) {
     volatileFlag_set(VOLATILE_FLAG_1, 1);
     D_80367684 = map_id;
     D_80367688 = arg1;
@@ -1078,7 +1078,7 @@ void func_802D5628(void){
                         }//L802D5F1C
 
                         if(volatileFlag_get(VOLATILE_FLAG_22)){
-                            if(gcdialog_showText(0xF82, 4, NULL, NULL, NULL, NULL)){
+                            if(gcdialog_showDialog(0xF82, 4, NULL, NULL, NULL, NULL)){
                                 fileProgressFlag_set(FILEPROG_C1_BADDIES_ESCAPE_TEXT, true);
                                 volatileFlag_set(VOLATILE_FLAG_22, 0);
                                 D_8037DE04 = 0.0f;
@@ -1088,7 +1088,7 @@ void func_802D5628(void){
                             }
                         }
                         else{//L802D5FCC
-                            if(gcdialog_showText(D_8037DE00, 0, NULL, NULL, NULL, NULL)){
+                            if(gcdialog_showDialog(D_8037DE00, 0, NULL, NULL, NULL, NULL)){
                                 D_8037DE00++;
                                 if(!(D_8037DE00 < sp4C)){
                                     D_8037DE00 = 0xF86;

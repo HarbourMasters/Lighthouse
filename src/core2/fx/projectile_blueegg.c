@@ -149,7 +149,7 @@ bool fxegg_isCollidingWithPlayer(f32 arg0[3]){
 }
 
 void func_80353580(ActorMarker *marker){
-    func_8033E9A8(marker->commonParticleIndex);
+    commonParticle_freeParticleByIndex(marker->commonParticleIndex);
 }
 
 void fxegg_head_spawn(void){

@@ -108,7 +108,7 @@ void chlmonkey_update(Actor *this) {
                     subaddie_set_state(this, LMONKEY_STATE_4_LEAVING);
 
                     if (!jiggyscore_isCollected(JIGGY_9_MM_CHIMPY)) {
-                        gcdialog_showText(ASSET_B40_DIALOG_CHIMPY_COMPLETE, 0xE, this->position, this->marker, __chlmonkey_complete, NULL);
+                        gcdialog_showDialog(ASSET_B40_DIALOG_CHIMPY_COMPLETE, 0xE, this->position, this->marker, __chlmonkey_complete, NULL);
                     }
                     else {//L803886E8
                         __chlmonkey_complete(this->marker, ASSET_B40_DIALOG_CHIMPY_COMPLETE, -1);
@@ -122,7 +122,7 @@ void chlmonkey_update(Actor *this) {
                         !item_getCount(ITEM_19_ORANGE) &&
                         !this->has_met_before) {
 
-                        gcdialog_showText(ASSET_B3F_DIALOG_CHIMPY_MEET, 0xe, this->position, NULL, NULL, NULL);
+                        gcdialog_showDialog(ASSET_B3F_DIALOG_CHIMPY_MEET, 0xe, this->position, NULL, NULL, NULL);
                         this->has_met_before = true;
                     }//L80388774
 

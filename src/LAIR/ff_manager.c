@@ -775,7 +775,7 @@ void ff_getSoundQuestionSound(void)
 void ff_getPictureQuestionImage(void)
 {
     D_8037DCB8->unk12 = 1;
-    func_802D5058(
+    func_getCameraViewFromLevel(
         D_803945D0[D_8037DCB8->unkC].unk0,
         D_803945D0[D_8037DCB8->unkC].UNK_01,
         D_8037DCB8->unkD >= 9
@@ -1222,7 +1222,7 @@ void lair_func_8038E0B0(void) {
                 code_73640_printItemCount(0x16);
                 if (sp38 != FFTT_0_NIL) {
                     sp28 = sp38 - 1 + FILEPROG_55_FF_BK_SQUARE_INSTRUCTIONS;
-                    if (!fileProgressFlag_get(sp28) && gcdialog_showText(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
+                    if (!fileProgressFlag_get(sp28) && gcdialog_showDialog(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(sp28, true);
                     }
                     s32 ffLifeThreshold = 1;

@@ -539,7 +539,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
                 FP_func_8038AB60(0);
                 if(!player_isDead()){
                     func_8028F918(2);
-                    gcdialog_showText(0xc10, 0x20, NULL, NULL, maSlalom_dialogCallback, NULL);
+                    gcdialog_showDialog(0xc10, 0x20, NULL, NULL, maSlalom_dialogCallback, NULL);
                 }//L8038BD40
                 Me.state = MA_SLALOM_STATE_4_LOSE;
                 break;
@@ -547,7 +547,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
             case 3:
                 if(!Me.hasBeenThreeBehind && !player_isDead()){
                     Me.hasBeenThreeBehind = 1;
-                    gcdialog_showText(0xc0f, 0x20, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(0xc0f, 0x20, NULL, NULL, NULL, NULL);
                 }//L8038BD94
                 func_8025AEA0(0x3a, 0x411aa);
                 break;
@@ -555,7 +555,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
             case 2:
                 if(!Me.hasBeenTwoBehind && !player_isDead()){
                     Me.hasBeenTwoBehind = 1;
-                    gcdialog_showText(0xc0e, 0x20, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(0xc0e, 0x20, NULL, NULL, NULL, NULL);
                 }//L8038BDF0
                 func_8025AEA0(0x3a, 0x493e0);
                 break;

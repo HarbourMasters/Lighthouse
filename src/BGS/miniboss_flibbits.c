@@ -57,10 +57,10 @@ void chFrogMinigame_setState(Actor * arg0, u32 next_state){
         mapSpecificFlags_set(0x10, 1);
         if(!fileProgressFlag_get(FILEPROG_1B_MET_YELLOW_FLIBBITS)){
             fileProgressFlag_set(FILEPROG_1B_MET_YELLOW_FLIBBITS, 1);
-            gcdialog_showText(ASSET_C81_DIALOG_YELLOW_FLIBBITS_MEET, 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
+            gcdialog_showDialog(ASSET_C81_DIALOG_YELLOW_FLIBBITS_MEET, 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
         }else{
             if(!arg0->bgs_6730.unk8){
-                gcdialog_showText(ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0x4, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
+                gcdialog_showDialog(ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0x4, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
             }
             else{
                 __chFrogMinigame_textCallback(arg0->marker, ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0);
@@ -94,7 +94,7 @@ void chFrogMinigame_setState(Actor * arg0, u32 next_state){
     }
 
     if (next_state == 4) {
-        gcdialog_showText(ASSET_C82_DIALOG_YELLOW_FLIBBITS_COMPLETE, 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
+        gcdialog_showDialog(ASSET_C82_DIALOG_YELLOW_FLIBBITS_COMPLETE, 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
     }
 
     if(next_state == 5){

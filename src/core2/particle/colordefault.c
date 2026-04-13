@@ -27,7 +27,7 @@ bool dustEmitter_isActive(s32 arg0){
     return (arg0 < 3) ? !particleEmitter_isDone(pem_getEmitterByIndex(D_80380910[arg0])) : false;
 }
 
-void func_802EE63C(void) {
+void dustEmitter_init(void) {
     s32 i;
 
     for(i = 0; i < 3; i++){
@@ -35,7 +35,7 @@ void func_802EE63C(void) {
     }
 }
 
-void func_802EE684(void) {
+void dustEmitter_free(void) {
     s32 i;
 
     for(i = 0; i < 3; i++){

@@ -139,7 +139,7 @@ void chjujuhitbox_update(Actor *this) {
     }
 
     if (subaddie_playerIsWithinSphereAndActive(this, 0xfa) && !subaddie_playerIsWithinSphereAndActive(this, 0x50) && !player_movementGroup()) {
-        if (!this->has_met_before && gcdialog_showText(ASSET_B44_DIALOG_JUJU_MEET, 0, 0, 0, NULL, NULL)) {
+        if (!this->has_met_before && gcdialog_showDialog(ASSET_B44_DIALOG_JUJU_MEET, 0, 0, 0, NULL, NULL)) {
             this->has_met_before = true;
         }
     }

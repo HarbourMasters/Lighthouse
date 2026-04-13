@@ -61,7 +61,7 @@ static void __chLeaky_updateFunc(Actor *this) {
         && !this->has_met_before
         && subaddie_playerIsWithinSphereAndActive(this, 250) && !subaddie_playerIsWithinSphereAndActive(this, 160)
         && !player_movementGroup() 
-        && gcdialog_showText(ASSET_A1A_DIALOG_LEAKY_FIRST_MEET, 0, NULL, NULL, NULL, NULL)
+        && gcdialog_showDialog(ASSET_A1A_DIALOG_LEAKY_FIRST_MEET, 0, NULL, NULL, NULL, NULL)
     ){
         this->has_met_before = true;
     }
@@ -119,6 +119,6 @@ bool chLeaky_eggCollision(ActorMarker *marker){
 
     levelSpecificFlags_set(2, true);
     levelSpecificFlags_set(5, true);
-    gcdialog_showText(ASSET_A28_DIALOG_LEAKY_DONE, 0x2a, this->position, this->marker, __chLeaky_showDoneText, NULL);
+    gcdialog_showDialog(ASSET_A28_DIALOG_LEAKY_DONE, 0x2a, this->position, this->marker, __chLeaky_showDoneText, NULL);
     return true;
 }

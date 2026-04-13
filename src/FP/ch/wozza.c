@@ -274,7 +274,7 @@ void FP_func_8038F7AC(Actor *this){
             chWozza_checkForPlayer(this);
 
             if(!local->unk30){
-                if(gcdialog_showText(0xc1d, 0x20, NULL, NULL, NULL, NULL)){
+                if(gcdialog_showDialog(0xc1d, 0x20, NULL, NULL, NULL, NULL)){
                     local->unk30 =  true;
                 }
             }
@@ -301,7 +301,7 @@ void FP_func_8038F7AC(Actor *this){
             }
 
             if(subaddie_playerIsWithinSphereAndActive(this, 500) && !this->has_met_before){
-                if(gcdialog_showText(0xc1c, 0xAA, this->position, this->marker, chWozza_textCallback, chWozza_checkCompletion)){
+                if(gcdialog_showDialog(0xc1c, 0xAA, this->position, this->marker, chWozza_textCallback, chWozza_checkCompletion)){
                     timed_setStaticCameraToNode(0.0f, 0x2E);
                     this->has_met_before = true;
                 }

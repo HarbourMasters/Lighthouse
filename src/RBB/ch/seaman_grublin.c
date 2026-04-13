@@ -6,7 +6,7 @@
 
 extern void humanoidBaddie_ow(ActorMarker *, ActorMarker *);
 
-void func_8035D058(Actor *this);
+void chSeamanGrublin_update(Actor *this);
 
 /* .data */
 ActorAnimationInfo D_80372DA0[] = {
@@ -26,12 +26,12 @@ ActorAnimationInfo D_80372DA0[] = {
 ActorInfo D_80372DF8 = {
     MARKER_21A_SEAMAN_GRUBLIN, ACTOR_350_SEAMAN_GRUBLIN, ASSET_49D_MODEL_SEAMAN_GRUBLIN,
     0x1, D_80372DA0, 
-    func_8035D058, actor_update_func_80326224, actor_draw, 
+    chSeamanGrublin_update, actor_update_func_80326224, actor_draw, 
     2500, 0, 1.0f, 0
 };
 
 /* .code */
-void func_8035CF60(ActorMarker * marker, s32 arg1) {
+void chSeamanGrublin_die(ActorMarker * marker, s32 arg1) {
     Actor *actor;
 
     actor = marker_getActor(marker);
@@ -41,7 +41,7 @@ void func_8035CF60(ActorMarker * marker, s32 arg1) {
     actor_collisionOff(actor);
 }
 
-void func_8035CFC4(Actor *this) {
+void chSeamanGrublin_initialize(Actor *this) {
     Humanoid_Baddies_Actor *local;
 
     local = (Humanoid_Baddies_Actor *)&this->local;
@@ -58,13 +58,13 @@ void func_8035CFC4(Actor *this) {
     local->foundPlayerVolume = 1.0f;
     local->unkC_28 = true;
     local->hitFunction = humanoidBaddie_ow;
-    local->dieFunction = func_8035CF60;
+    local->dieFunction = chSeamanGrublin_die;
     local->damageVolume = 1.5f;
 }
 
-void func_8035D058(Actor *this) {
+void chSeamanGrublin_update(Actor *this) {
     if (!this->volatile_initialized) {
-        func_8035CFC4(this);
+        chSeamanGrublin_initialize(this);
     }
     humanoidBaddie_update(this);
     if (this->state == 5) {

@@ -307,8 +307,8 @@ void func_80295C14(void){
     bacarry_update();
     snackerctl_update();
     func_8028B71C();
-    func_8029D968();
     hazards_update();
+    baiFrame_update();
     func_80294E60();
     cameraMode_update();
     func_802919A0();

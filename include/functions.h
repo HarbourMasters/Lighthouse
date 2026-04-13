@@ -56,7 +56,7 @@ f32 cosf(f32);
 
 // --- core2/prop_assetcache.c ---
 BKModelBin *propModelList_getModelIfActive(s32 arg0);
-BKSpriteDisplayData *func_8030A4D4(s32 arg0);
+BKSpriteDisplayData *propModelList_getSpriteDisplayList(s32 arg0);
 BKSprite *propModelList_getSprite(s32 arg0);
 BKModelBin *propModelList_getModel(s32);
 
@@ -442,7 +442,7 @@ bool func_802BB270(void);
 // --- core2/gc/dialog.c ---
 void func_803114D0(void);
 int gcdialog_hasCurrentTextId(void);
-bool gcdialog_showText(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32));
+bool gcdialog_showDialog(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32));
 
 // --- core2/cutscene/lair.c ---
 void func_8031CD20(NodeProp *arg0, s32 arg1, s32 arg2);
@@ -485,7 +485,7 @@ void baanim_setEndAndDuration(f32, f32);
 void baanim_setVelocityMapRanges(f32, f32, f32, f32);
 
 // --- core2/ba/ba_groundsurface.c ---
-bool func_8029CFA0(void);
+bool isOnFloor(void);
 bool isPlayerInHazard(void);
 bool canTakeGroundDamage(void);
 
@@ -570,7 +570,7 @@ void __spawnQueue_add_1(GenFunction_1, uintptr_t);
 void __spawnQueue_add_4(GenFunction_4, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
 // --- core2/sprite/displaydata.c ---
-void func_8033E73C(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2);
+void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2);
 int commonParticle_new(enum common_particle_e particle_id, int arg1);
 
 // --- core2/particle/particle.c ---
@@ -1383,7 +1383,7 @@ void badrone_init(void);
 s32 baiFrame_getState(void);
 void baiFrame_reset(void);
 void baiFrame_start(void);
-void hazards_update(void);
+void baiFrame_update(void);
 
 // --- core2/ba/ba_eyeblink_data.c ---
 void func_80290070(void);
@@ -1420,7 +1420,7 @@ void func_80350CA4(void);
 // --- core2/ba/ba_groundsurface.c ---
 void freeHazardSfxId(void);
 void hazards_reset(void);
-void func_8029D968(void);
+void hazards_update(void);
 
 // --- core2/ba/ba_health.c ---
 s32 func_802903CC(void);
@@ -2138,10 +2138,10 @@ void func_80320B84(void);
 // --- core2/collision/hitboxdata.c ---
 bool func_8033D410(ActorMarker *arg0, ActorMarker *arg1);
 s32 collision_getPlayerInteraction(CollisionParams *arg0);
-s32 func_8033D584(CollisionParams *arg0);
+s32 collision_getUnkBit7(CollisionParams *arg0);
 s32 collision_getDamageToPlayer(CollisionParams *arg0);
 s32 collision_getHitsToTrigger(CollisionParams *arg0);
-s32 func_8033D5B4(CollisionParams *arg0);
+s32 collision_getDropBundleNum(CollisionParams *arg0);
 void func_8033D2F4(void);
 
 // --- core2/collision/init.c ---
@@ -2605,13 +2605,13 @@ void overlay_update(void);
 
 // --- core2/particle/accel.c ---
 u8 pem_newEmitter(s32 cnt);
-void pem_freeDependencies(void);
-void func_802F1104(void);
-void pem_free(u8 arg0);
-void commonParticle_update(void);
-void pem_defragAll(void);
-void func_802F1388(void);
+void pem_freeAll(void);
 void pem_setAllInactive(void);
+void pem_free(u8 arg0);
+void pem_updateAll(void);
+void pem_defragAll(void);
+void pem_freeDependencies(void);
+void pem_initDependencies(void);
 
 // --- core2/particle/bathroom.c ---
 void func_8029ADA8(void);
@@ -2625,8 +2625,8 @@ void func_8029AF1C(void);
 bool dustEmitter_isActive(s32 arg0);
 s32 dustEmitter_returnGiven(s32 arg0);
 void dustEmitter_empty(void *self);
-void func_802EE63C(void);
-void func_802EE684(void);
+void dustEmitter_init(void);
+void dustEmitter_free(void);
 
 // --- core2/particle/emitter1.c ---
 void func_802F3CB0(void);
@@ -2822,7 +2822,7 @@ void func_802D3D74(Actor *self);
 void func_802D48B8(Actor *self);
 void func_802D48F0(void);
 void func_802D4928(Actor *self, s32 arg1, s32 arg2, s32 arg3);
-void func_802D5058(enum map_e map_id, s32 arg1, bool arg2);
+void func_getCameraViewFromLevel(enum map_e map_id, s32 arg1, bool arg2);
 void func_802D520C(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802D5628(void);
 void func_802D6114(void);
@@ -2961,9 +2961,9 @@ s32 func_8033E8AC(void);
 u8 func_8033E93C(void);
 void commonParticle_init(void);
 void commonParticle_freeAllParticles(void);
-void func_8033E1E0(void);
+void commonParticle_update(void);
 void commonParticle_freeParticleByActorMarker(ActorMarker *arg0);
-void func_8033E9A8(s32 arg0);
+void commonParticle_freeParticleByIndex(s32 arg0);
 void commonParticle_stashCurrentIndex(void);
 void commonParticle_applyIndexStash(void);
 void commonParticle_setActive(s32 arg0, s32 arg1);
@@ -3441,9 +3441,9 @@ void itemscore_noteScores_clear(void);
 void itemscore_timeScores_clear(void);
 
 // --- core2/level/metadata.c ---
-f32  func_802987C4(void);
-f32  barebound_get_horizontal_velocity(void);
 f32  barebound_get_vertical_velocity(void);
+f32  barebound_get_horizontal_velocity(void);
+f32  barebound_get_gravity(void);
 
 // --- core2/particle/bathroom.c ---
 void func_8029AD28(f32, s32);

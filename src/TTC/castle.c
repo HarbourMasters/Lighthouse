@@ -1038,7 +1038,7 @@ static void __maCastle_eraseGameplayDialogCallback(ActorMarker *caller, enum ass
     {
         __maCastle_setNumberOfBannedCheatcodesEntered(3);
         __maCastle_checkSecretCheatCodeIndex(sThirdForbiddenSecretCheatCodeIndex);
-        gcdialog_showText(ASSET_FBF_DIALOG_ERASED_SAVE, 0xC, NULL, NULL, NULL, NULL);
+        gcdialog_showDialog(ASSET_FBF_DIALOG_ERASED_SAVE, 0xC, NULL, NULL, NULL, NULL);
         gameFile_clear(gameSelect_getGameNumber());
         gameFile_8033CFD4(gameSelect_getGameNumber());
         gameSelect_setGameNumber(-1);
@@ -1073,11 +1073,11 @@ static void __maCastle_checkIfBannedCheatCodeEntered(s32 secret_cheat_code_index
                         __maCastle_setNumberOfBannedCheatcodesEntered(2);
                         __maCastle_checkSecretCheatCodeIndex(secret_cheat_code_index);
                         __maCastle_resetSecretCheatCodeProgress();
-                        gcdialog_showText(ASSET_FBE_DIALOG_CHEATING_ERASE_SAVE_WARNING, 0xC, NULL, NULL, NULL, NULL);
+                        gcdialog_showDialog(ASSET_FBE_DIALOG_CHEATING_ERASE_SAVE_WARNING, 0xC, NULL, NULL, NULL, NULL);
                         return;
                     case 2:
                         sThirdForbiddenSecretCheatCodeIndex = secret_cheat_code_index;
-                        gcdialog_showText(ASSET_E38_DIALOG_CHEATING_ERASE_SAVE_CONFIRMATION, 0xC, NULL, NULL, __maCastle_eraseGameplayDialogCallback, NULL);
+                        gcdialog_showDialog(ASSET_E38_DIALOG_CHEATING_ERASE_SAVE_CONFIRMATION, 0xC, NULL, NULL, __maCastle_eraseGameplayDialogCallback, NULL);
                         return;
                 }
                 return;

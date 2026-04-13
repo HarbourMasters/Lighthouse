@@ -69,7 +69,6 @@ int chmole_learnedAllLevelAbilities(enum level_e level){
   }
 }
 
-// func_802D9304
 enum asset_e chmole_learnedAllLevelAbilitiesDialog(void){
     // If the player has learned all game abilities, use "learned all abilities" dialog
     // If the player learned all level abilities, use "learned world abilities" dialog
@@ -94,7 +93,6 @@ enum asset_e chmole_learnedAllLevelAbilitiesDialog(void){
     }
 }
 
-// func_802D93EC
 int chmole_learnedAllGameAbilities(void){
     // Checks if the player has learned all non-Spiral Mountain abilities.
     return ability_isUnlocked(ABILITY_6_EGGS)
@@ -157,10 +155,10 @@ void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     if( arg1 == moleTable[actor->actorTypeSpecificField-9].teach_text_id
         && item_getCount(ITEM_14_HEALTH) < item_getCount(ITEM_15_HEALTH_TOTAL)
     ){
-        gcdialog_showText(ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH, 7, 0, actor->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
+        gcdialog_showDialog(ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH, 7, 0, actor->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
     }//L802D9738
     else if(arg1 == moleTable[actor->actorTypeSpecificField-9].teach_text_id || arg1 == ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH){
-        gcdialog_showText(chmole_learnedAllGameAbilities()? 0xa87 : chmole_learnedAllLevelAbilitiesDialog(), 7, 0, actor->marker, chmole_healthRefill, NULL);
+        gcdialog_showDialog(chmole_learnedAllGameAbilities()? 0xa87 : chmole_learnedAllLevelAbilitiesDialog(), 7, 0, actor->marker, chmole_healthRefill, NULL);
     }
     else{//L802D97BC
         if(actor->has_met_before){
@@ -242,7 +240,7 @@ int chmole_learnAbility(Actor *this){
                 break;
         }
     }//L802D9A9C
-    gcdialog_showText(sp2C, sp28, this->position, this->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
+    gcdialog_showDialog(sp2C, sp28, this->position, this->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
     return true;
 }
 
@@ -264,7 +262,6 @@ void func_802D9ADC(Actor *this){
     func_8028F94C(2, this->position);
 }
 
-// func_802D9BD8
 void chmole_Refresher(Actor *this){
     // Plays the scene where Bottles gives the player a refresher on the ability.
     subaddie_set_state(this, 5);
@@ -280,7 +277,6 @@ void chmole_setFacingDirection(Actor *this){
     actor_loopAnimation(this);
 }
 
-// func_802D9C54
 void chmole_spawnMolehill(ActorMarker *marker){
     // Spawns a molehill for the actor
     Actor *actor = marker_getActor(marker);

@@ -31,7 +31,7 @@ Actor *chSnowball_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
     this = actor_draw(marker, gfx, mtx, vtx);
     if (marker->unk14_21 && this->state != 2) {
-        func_8033E73C(marker, 5, func_80329904);
+        commonParticle_add(marker, 5, func_80329904);
         commonParticle_new(0xD, marker->unk14_21);
     }
     return this;

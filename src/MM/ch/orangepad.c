@@ -57,7 +57,7 @@ void handleOrangeCollision(ActorMarker *marker) {
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
 
             if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
-                gcdialog_showText(0xB3B, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(0xB3B, 4, NULL, NULL, NULL, NULL);
             }
         }// L803865D8
 
@@ -108,14 +108,14 @@ void chorangepad_update(Actor *this) {
         !mapSpecificFlags_get(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS) &&
         closest_actor->state != 3) {
 
-        if (gcdialog_showText(0xb3d, 0, NULL, NULL, NULL, NULL)) {
+        if (gcdialog_showDialog(0xb3d, 0, NULL, NULL, NULL, NULL)) {
             mapSpecificFlags_set(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS, true);
         }
     }
 
     if (this->state == 1) {
         if (this->lifetime_value < 72.0f) {
-            func_8033E73C(this->marker, 5, func_80329904);
+            commonParticle_add(this->marker, 5, func_80329904);
             commonParticle_new(9, this->marker->unk14_21);
         }
 

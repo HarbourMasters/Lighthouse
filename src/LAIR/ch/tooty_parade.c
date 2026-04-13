@@ -23,7 +23,7 @@ void __codeC6C0_func_80392AF4(ActorMarker *marker, enum asset_e text_id, s32 arg
 
 void __codeC6C0_func_80392B1C(ActorMarker *marker) {
     func_8028E6EC(0);
-    gcdialog_showText(0x1040, 8, NULL, marker, __codeC6C0_func_80392AB0, __codeC6C0_func_80392AF4);
+    gcdialog_showDialog(0x1040, 8, NULL, marker, __codeC6C0_func_80392AB0, __codeC6C0_func_80392AF4);
 }
 
 void __codeC6C0_updateFunc(Actor *this) {

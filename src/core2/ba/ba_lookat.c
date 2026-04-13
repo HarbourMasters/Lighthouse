@@ -50,7 +50,7 @@ void balookat_set_position(f32 arg0[3]){
     ml_vec3f_copy(D_8037C5F0[D_8037C670-1].unk4, arg0);
 }
 
-void func_80298970(s32 arg0){
+void balookat_update_state(s32 arg0){
     int val = 0;
     switch(arg0){
         case 1:
@@ -87,7 +87,7 @@ void balookat_update(void){
     if(D_8037C670){
         tmp = D_8037C5F0[D_8037C670-1].unk0;
         if(D_8037C671 != tmp){
-            func_80298970(tmp);
+            balookat_update_state(tmp);
         }
     }
 }

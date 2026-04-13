@@ -81,7 +81,7 @@ void func_803906A0(Actor *this) {
         }
         for(phi_s0 = 0; phi_s0 < phi_s2; phi_s0++){
             if (randf() < ((1.0 / (f64) phi_s2) / 15.0)) {
-                func_8033E73C(this->marker, phi_s0 + 5, &func_80329904);
+                commonParticle_add(this->marker, phi_s0 + 5, &func_80329904);
                 commonParticle_new(phi_s4, 1);
             }
         }

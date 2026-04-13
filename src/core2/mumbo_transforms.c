@@ -151,12 +151,12 @@ static void __chMumbo_textCallback(ActorMarker *caller, enum asset_e text_id, s3
     this = marker_getActor(caller);
     switch(text_id){
         case ASSET_D8F_DIALOG_MUMBO_MEET: //L802D1A04
-            gcdialog_showText((this->unk38_0) ? ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS : ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS, 0xe, this->position, this->marker, __chMumbo_textCallback, NULL);
+            gcdialog_showDialog((this->unk38_0) ? ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS : ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS, 0xe, this->position, this->marker, __chMumbo_textCallback, NULL);
             return;
 
         case ASSET_D90_DIALOG_MUMBO_MAGIC_PAID_FOR: //L802D1A40
             fileProgressFlag_set(FILEPROG_12_HAS_TRANSFORMED_BEFORE, true);
-            gcdialog_showText(ASSET_D8F_DIALOG_MUMBO_MEET + D_8037DDF0, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_D8F_DIALOG_MUMBO_MEET + D_8037DDF0, 4, NULL, NULL, NULL, NULL);
             gcpausemenu_80314AC8(1);
             break;
             
@@ -199,16 +199,16 @@ static void __chMumbo_textCallback(ActorMarker *caller, enum asset_e text_id, s3
 
 void chMumbo_func_802D1B8C(Actor *this, enum transformation_e transform_id) {
     if (this->unk10_12 != 0) {
-        gcdialog_showText(fileProgressFlag_getN(FILEPROG_BB_MUMBO_MISTAKE_INDEX, 2) + ASSET_DAF_DIALOG_MUMBO_TREX_MISTAKE, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
+        gcdialog_showDialog(fileProgressFlag_getN(FILEPROG_BB_MUMBO_MISTAKE_INDEX, 2) + ASSET_DAF_DIALOG_MUMBO_TREX_MISTAKE, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
         return;
     }
     if (fileProgressFlag_get(FILEPROG_12_HAS_TRANSFORMED_BEFORE)) {
         if (this->velocity[0] == 0.0f) {
-            gcdialog_showText(transform_id + ASSET_D8F_DIALOG_MUMBO_MEET, 6, this->position, this->marker, __chMumbo_textCallback, NULL);
+            gcdialog_showDialog(transform_id + ASSET_D8F_DIALOG_MUMBO_MEET, 6, this->position, this->marker, __chMumbo_textCallback, NULL);
             return;
         }
         if (gsworld_getMap() == MAP_7A_GL_CRYPT && transform_id == TRANSFORM_3_PUMPKIN && !fileProgressFlag_get(FILEPROG_F7_HAS_TRANSFORMED_IN_CRYPT)) {
-            gcdialog_showText(ASSET_DAD_DIALOG_MUMBO_XFORM_IN_CRYPT, 6, this->position, this->marker, __chMumbo_textCallback, NULL);
+            gcdialog_showDialog(ASSET_DAD_DIALOG_MUMBO_XFORM_IN_CRYPT, 6, this->position, this->marker, __chMumbo_textCallback, NULL);
             fileProgressFlag_set(FILEPROG_F7_HAS_TRANSFORMED_IN_CRYPT, true);
             return;
         }
@@ -216,7 +216,7 @@ void chMumbo_func_802D1B8C(Actor *this, enum transformation_e transform_id) {
         subaddie_set_state(this, 4U);
         return;
     }
-    gcdialog_showText(ASSET_D90_DIALOG_MUMBO_MAGIC_PAID_FOR, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
+    gcdialog_showDialog(ASSET_D90_DIALOG_MUMBO_MAGIC_PAID_FOR, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
 }
 
 void chMumbo_update(Actor *this) {
@@ -289,7 +289,7 @@ void chMumbo_update(Actor *this) {
                     && !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)
                 ) {
                     subaddie_set_state(this, 3);
-                    gcdialog_showText(ASSET_D8F_DIALOG_MUMBO_MEET, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
+                    gcdialog_showDialog(ASSET_D8F_DIALOG_MUMBO_MEET, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
                     fileProgressFlag_set(FILEPROG_11_HAS_MET_MUMBO, true);
                     break;
                 }
@@ -300,7 +300,7 @@ void chMumbo_update(Actor *this) {
                     && this->unk38_0
                 ){
                     subaddie_set_state(this, 3);
-                    gcdialog_showText(ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
+                    gcdialog_showDialog(ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS, 0xE, this->position, this->marker, __chMumbo_textCallback, NULL);
                     fileProgressFlag_set(FILEPROG_DC_HAS_HAD_ENOUGH_TOKENS_BEFORE, true);
                     break;
                 }
@@ -338,7 +338,7 @@ void chMumbo_update(Actor *this) {
                              && randf() < 0.01 
                              && sp48
                         ) {
-                            gcdialog_showText(ASSET_DAE_DIALOG_MUMBO_TREX_START, 6, NULL, this->marker, __chMumbo_textCallback, NULL);
+                            gcdialog_showDialog(ASSET_DAE_DIALOG_MUMBO_TREX_START, 6, NULL, this->marker, __chMumbo_textCallback, NULL);
                             fileProgressFlag_set(FILEPROG_BA_HAS_SEEN_TREX_TEXT, 1);
                             this->has_met_before = true;
                             subaddie_set_state(this, 3);
@@ -367,7 +367,7 @@ void chMumbo_update(Actor *this) {
                         break;
                     }
                     coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
-                    if ((levelSpecificFlags_get(LEVEL_FLAG_3E_UNKNOWN) == false) && (gcdialog_showText(ASSET_DAC_DIALOG_MUMBO_FAIL_TO_BUY, 0, NULL, NULL, NULL, NULL) != 0)) {
+                    if ((levelSpecificFlags_get(LEVEL_FLAG_3E_UNKNOWN) == false) && (gcdialog_showDialog(ASSET_DAC_DIALOG_MUMBO_FAIL_TO_BUY, 0, NULL, NULL, NULL, NULL) != 0)) {
                         levelSpecificFlags_set(LEVEL_FLAG_3E_UNKNOWN, 1);
                     }
                 }
@@ -425,7 +425,7 @@ void chMumbo_update(Actor *this) {
                 }
                 if (this->has_met_before) {
                     subaddie_set_state(this, 3);
-                    gcdialog_showText(ASSET_DAF_DIALOG_MUMBO_TREX_MISTAKE, 6, NULL, this->marker, __chMumbo_textCallback, NULL);
+                    gcdialog_showDialog(ASSET_DAF_DIALOG_MUMBO_TREX_MISTAKE, 6, NULL, this->marker, __chMumbo_textCallback, NULL);
                     break;
                 }
                 gcpausemenu_80314AC8(1);
@@ -442,7 +442,7 @@ void chMumbo_update(Actor *this) {
                     sp48 = chMumbo_withinHorzDistToPlayer(0, -0x6B, 0xBC);
                 }
                 if (sp48 != 0) {
-                    gcdialog_showText(ASSET_DA7_DIALOG_MUMBO_CCW_SUMMER, 7, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_DA7_DIALOG_MUMBO_CCW_SUMMER, 7, NULL, NULL, NULL, NULL);
                     volatileFlag_set(VOLATILE_FLAG_11, true);
                 }
             }
@@ -458,7 +458,7 @@ void chMumbo_update(Actor *this) {
                     sp48 = chMumbo_withinHorzDistToPlayer(0, -0x6B, 0xBC);
                 }
                 if (sp48 != 0) {
-                    gcdialog_showText(ASSET_DA8_DIALOG_MUMBO_CCW_AUTUMN, 7, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_DA8_DIALOG_MUMBO_CCW_AUTUMN, 7, NULL, NULL, NULL, NULL);
                     volatileFlag_set(VOLATILE_FLAG_12, true);
                 }
             }
@@ -519,7 +519,7 @@ void chMumbo_detransformWarn(NodeProp *arg0, ActorMarker *arg1){
     if(D_8037DDF3)
         return;
     
-    gcdialog_showText(fileProgressFlag_getAndSet(FILEPROG_83_MAGIC_GET_WEAK_TEXT, true) ? ASSET_F5C_DIALOG_MUMBO_MAGIC_GET_WEAK_ABREV : ASSET_F5B_DIALOG_MUMBO_MAGIC_GET_WEAK_FULL, 0xe, NULL, NULL, NULL, NULL);
+    gcdialog_showDialog(fileProgressFlag_getAndSet(FILEPROG_83_MAGIC_GET_WEAK_TEXT, true) ? ASSET_F5C_DIALOG_MUMBO_MAGIC_GET_WEAK_ABREV : ASSET_F5B_DIALOG_MUMBO_MAGIC_GET_WEAK_FULL, 0xe, NULL, NULL, NULL, NULL);
 }
 
 void chMumbo_detransformTrigger(NodeProp *arg0, ActorMarker *arg1){
@@ -527,7 +527,7 @@ void chMumbo_detransformTrigger(NodeProp *arg0, ActorMarker *arg1){
     xform = player_getTransformation();
     if(xform == TRANSFORM_1_BANJO || xform  == TRANSFORM_7_WISHWASHY || D_8037DDF1)
         return;
-    gcdialog_showText(fileProgressFlag_getAndSet(FILEPROG_84_MAGIC_ALL_GONE_TEXT, true) ? ASSET_F5E_DIALOG_MUMBO_MAGIC_RUN_OUT_ABREV: ASSET_F5D_DIALOG_MUMBO_MAGIC_RUN_OUT_FULL, 0xe, NULL, NULL, NULL, NULL);
+    gcdialog_showDialog(fileProgressFlag_getAndSet(FILEPROG_84_MAGIC_ALL_GONE_TEXT, true) ? ASSET_F5E_DIALOG_MUMBO_MAGIC_RUN_OUT_ABREV: ASSET_F5D_DIALOG_MUMBO_MAGIC_RUN_OUT_FULL, 0xe, NULL, NULL, NULL, NULL);
     D_8037DDF1++;
     func_8028FB88(TRANSFORM_1_BANJO);
 }

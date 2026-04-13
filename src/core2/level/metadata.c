@@ -46,7 +46,7 @@ s32 barebound_802987B4(void){
     return D_8037C5E0.unk0->unk1;
 }
 
-f32 func_802987C4(void){
+f32 barebound_get_vertical_velocity(void){
     return D_8037C5E0.unk0->unk4[0];
 }
 
@@ -54,6 +54,6 @@ f32 barebound_get_horizontal_velocity(void){
     return D_8037C5E0.unk0->unk4[2];
 }
 
-f32 barebound_get_vertical_velocity(void){
+f32 barebound_get_gravity(void){
     return D_8037C5E0.unk0->unk4[1];
 }

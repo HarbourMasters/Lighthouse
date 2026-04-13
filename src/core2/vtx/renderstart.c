@@ -219,7 +219,7 @@ void func_8034DFB0(Struct6Ds *arg0, s32 arg1[4], s32 arg2[4], f32 arg3) {
     arg0->unk98 = 0.0f;
 }
 
-void func_8034E088(Struct6Ds *arg0, s32 arg1, s32 arg2, f32 arg3){
+void updateStruct6DsOpacity(Struct6Ds *arg0, s32 arg1, s32 arg2, f32 arg3){
     arg0->unk78[0] = arg0->unk78[1] = arg0->unk78[2] = 0.0f;
     arg0->unk88[0] = arg0->unk88[1] = arg0->unk88[2] = 0.0f;
     arg0->unk29 = 5;
@@ -231,7 +231,7 @@ void func_8034E088(Struct6Ds *arg0, s32 arg1, s32 arg2, f32 arg3){
 }
 
 void setStruct6DsOpacity(Struct6Ds *arg0, s32 arg1){
-    func_8034E088(arg0, arg1, arg1, 0.0f);
+    updateStruct6DsOpacity(arg0, arg1, arg1, 0.0f);
 }
 
 void func_8034E120(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){

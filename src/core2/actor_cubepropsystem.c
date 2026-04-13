@@ -26,7 +26,7 @@ extern Cube *func_80308224(void);
 extern Cube *func_8030364C(void);
 extern Cube *cube_atPosition_s32(s32 position[3]);
 
-extern f32 func_8030A590(Prop *);
+extern f32 propModelList_getScale(Prop *);
 extern void propModelList_setScale(Prop *, f32);
 
 Prop *func_80303F7C(s32, f32, s32, s32);
@@ -35,7 +35,7 @@ void func_80305CD8(s32, s32);
 void code_A5BC0_initCubePropActorProp(Cube*);
 ActorMarker * func_80332A60(void);
 extern void func_8032F3D4(s32 [3], ActorMarker *, s32);
-extern void func_8030A350(Gfx **, Mtx **, Vtx **, f32[3], f32, s32, Cube*,s32 ,s32, s32, s32, s32);  
+extern void propModelList_drawSprite(Gfx **, Mtx **, Vtx **, f32[3], f32, s32, Cube*,s32 ,s32, s32, s32, s32);  
 extern void propModelList_drawModel(Gfx **, Mtx **, Vtx **, f32[3], f32[3], f32, s32, Cube*);
 s32 func_8032D9C0(Cube*, Prop*);
 void func_8032F21C(Cube *cube, s32 position[3], ActorMarker *marker, bool arg3);
@@ -413,7 +413,7 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                     );
                 }
                 else{//L8032D72C
-                    func_8030A350( gfx, mtx, vtx,
+                    propModelList_drawSprite( gfx, mtx, vtx,
                         sp94, (f32)iProp->spriteProp.unk0_9/100.0, iProp->spriteProp.unk0_31, cube,
                         iProp->spriteProp.unk0_18, iProp->spriteProp.unk0_15, iProp->spriteProp.unk0_12,
                         iProp->spriteProp.unk0_1, iProp->spriteProp.unk8_15
@@ -1329,7 +1329,7 @@ void func_8032FFD4(ActorMarker *this, s32 arg1){
     this->actrArrayIdx = arg1;
 }
 
-void func_8032FFEC(ActorMarker *this, s32 arg1){
+void marker_setCommonParticleIndex(ActorMarker *this, s32 arg1){
     this->commonParticleIndex = arg1;
 }
 
@@ -2207,7 +2207,7 @@ f32 func_803320BC(ActorProp *prop, f32 (*arg1)(ActorMarker *)) {
 f32 func_80332220(Prop * prop, f32 (*arg1)(Prop *)) {
     f32 phi_f12;
 
-    phi_f12 = func_8030A590(prop);
+    phi_f12 = propModelList_getScale(prop);
     if (phi_f12 == 0.0f) {
         propModelList_setScale(prop, phi_f12 = arg1(prop) * 0.5);
     }

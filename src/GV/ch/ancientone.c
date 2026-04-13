@@ -150,7 +150,7 @@ void chAncientOne_update(Actor *this){
                             mapSpecificFlags_set(sp38, true);
                             if(sp38== 0xB){
                                 if(!jiggyscore_isCollected(JIGGY_46_GV_ANCIENT_ONES)){
-                                    gcdialog_showText(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0xE, NULL, this->marker, func_80386850, NULL);
+                                    gcdialog_showDialog(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0xE, NULL, this->marker, func_80386850, NULL);
                                 }
                                 else{
                                     func_80386850(this->marker, 0xA80, -1);
@@ -159,7 +159,7 @@ void chAncientOne_update(Actor *this){
                             else {   
                                 if(sp38== 7){
                                     if(!jiggyscore_isCollected(JIGGY_46_GV_ANCIENT_ONES)){
-                                        gcdialog_showText(ASSET_A7F_DIALOG_ANCIENT_ONES_MEET, 0x4, NULL, NULL, NULL, NULL);
+                                        gcdialog_showDialog(ASSET_A7F_DIALOG_ANCIENT_ONES_MEET, 0x4, NULL, NULL, NULL, NULL);
                                     }
                                 }
                                 

@@ -19,8 +19,8 @@ s32 gSelectedGameNum = -1;
 void debugScoreStates(void);
 void clearScoreStates(void);
 
-Actor *func_802C4360(ActorMarker *, Gfx **, Mtx **, Vtx **);
-Actor *func_802C4464(ActorMarker *, Gfx **, Mtx **, Vtx **);
+Actor *gameSelect_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);
+Actor *gameSelect_zoomboxDraw(ActorMarker *, Gfx **, Mtx **, Vtx **);
 void gameSelect_update(Actor *this);
 void gameSelect_initAndUpdate(Actor *this);
 
@@ -70,7 +70,7 @@ ActorAnimationInfo D_80365E28[] = {
     {0x24F, 0.6f},  
     {0x24D, 2.0f}
 };
-ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, D_80365E28, gameSelect_initAndUpdate, actor_update_func_80326224, func_802C4464, 0, 0, 0.0f, 0};
+ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, D_80365E28, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365E7C[] = {
     {0x000, 0.0f}, 
@@ -80,7 +80,7 @@ ActorAnimationInfo D_80365E7C[] = {
     {0x252, 0.67f}, 
     {0x250, 4.5f},
 };
-ActorInfo D_80365EAC = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, gameSelect_update, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
+ActorInfo D_80365EAC = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365ED0[] = {
     {0x000, 0.0f},
@@ -90,7 +90,7 @@ ActorAnimationInfo D_80365ED0[] = {
     {0x24C, 1.0f},
     {0x24A, 1.0f}
 };
-ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
+ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
 
 /* .bss */
@@ -128,7 +128,7 @@ f32 D_8037DD34;
 
 
 /* .code */
-Actor *func_802C4360(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *gameSelect_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     s32 sp1C = marker->id - 0xe4;
     func_8033A45C(3, sp1C);
     func_8033A45C(1, 1);
@@ -149,8 +149,8 @@ Actor *func_802C4360(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
-Actor *func_802C4464(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    Actor *ret_val = func_802C4360(marker, gfx, mtx, vtx);
+Actor *gameSelect_zoomboxDraw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+    Actor *ret_val = gameSelect_draw(marker, gfx, mtx, vtx);
     if(chGameSelectBottomZoombox)
         gczoombox_draw(chGameSelectBottomZoombox, gfx, mtx, vtx);
     if(chGameSelectTopZoombox)
@@ -159,12 +159,12 @@ Actor *func_802C4464(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     
 }
 
-void func_802C44D0(s32 arg0, s32 arg1){
+void topZoomboxCallback(s32 arg0, s32 arg1){
     if(arg1 == 3)
         D_8037DD2C = 0;
 }
 
-void *func_802C44EC(f32 arg0[3], f32 arg1[3], f32 arg2) {
+void *calculateGameSelectCameraPosition(f32 arg0[3], f32 arg1[3], f32 arg2) {
     f32 phi_f12;
     f32 sp40[3];
     s32 i;
@@ -191,7 +191,7 @@ void *func_802C44EC(f32 arg0[3], f32 arg1[3], f32 arg2) {
     return &D_8037DCF8[D_8037DD38];
 }
 
-void func_802C4768(s32 gamenum){
+void setGameInformationZoombox(s32 gamenum){
     u8 * sp20[2];
     static u8 upperTextLine[0x40];
     static u8 lowerTextLine[0x40];
@@ -269,12 +269,12 @@ void func_802C4768(s32 gamenum){
     gczoombox_resolve_minimize(chGameSelectBottomZoombox);
 }
 
-void func_802C4AC8(s32 arg0){
+void eraseGame(s32 arg0){
     gameFile_clear(arg0);
-    func_802C4768(arg0);
+    setGameInformationZoombox(arg0);
 }
 
-void func_802C4AF0(Actor * this){
+void gameSelect_free(Actor * this){
     int i;
 
     if(chGameSelectTopZoombox){
@@ -407,7 +407,7 @@ void gameSelect_update(Actor *this){
                             D_8037DD28 = 0;
                         }
                     }
-                    func_802C4768(sp84);
+                    setGameInformationZoombox(sp84);
                     subaddie_set_state(this, 2);
                     break;
                 case 5://L802C5040
@@ -415,7 +415,7 @@ void gameSelect_update(Actor *this){
                         (sp5C[FACE_BUTTON(BUTTON_A)] == 1 || sp5C[FACE_BUTTON(BUTTON_B)] == 1)
                     ){
                         if(sp5C[FACE_BUTTON(BUTTON_A)] == 1){
-                            func_802C4AC8(sp84);
+                            eraseGame(sp84);
                             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
                         }
                         subaddie_set_state(this, 2);
@@ -577,8 +577,8 @@ void gameSelect_update(Actor *this){
             }
         }
         ncStaticCamera_setPositionAndTarget(
-            func_802C44EC(D_80365DD0[D_8037DCE8], D_80365DD0[D_80365E00], D_8037DD30), 
-            func_802C44EC(D_80365E04[D_8037DCE8], D_80365E04[D_80365E00], D_8037DD30)
+            calculateGameSelectCameraPosition(D_80365DD0[D_8037DCE8], D_80365DD0[D_80365E00], D_8037DD30), 
+            calculateGameSelectCameraPosition(D_80365E04[D_8037DCE8], D_80365E04[D_80365E00], D_8037DD30)
         );
         if(this->marker->unk14_21) {
             osViBlack(0);
@@ -601,13 +601,13 @@ void gameSelect_initAndUpdate(Actor * this){
         }//L802C57FC
 
         if(chGameSelectTopZoombox == NULL){
-            chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, func_802C44D0);
+            chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, topZoomboxCallback);
             gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
             gczoombox_open(chGameSelectTopZoombox);
             gczoombox_maximize(chGameSelectTopZoombox);
         }//L802C5860
 
-        marker_setFreeMethod(this->marker, func_802C4AF0);
+        marker_setFreeMethod(this->marker, gameSelect_free);
         D_8037DCEC = 0;
         debugScoreStates();
         clearScoreStates();

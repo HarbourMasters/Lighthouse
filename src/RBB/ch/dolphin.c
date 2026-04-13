@@ -90,7 +90,7 @@ void func_8038B900(Actor *this){
                 && subaddie_playerIsWithinSphereAndActive(this, 0x258)
                 && !player_movementGroup()
             ){
-                gcdialog_showText(0xb9b, 4, 0, 0, 0, 0);
+                gcdialog_showDialog(0xb9b, 4, 0, 0, 0, 0);
                 this->has_met_before = true;
             }
         }

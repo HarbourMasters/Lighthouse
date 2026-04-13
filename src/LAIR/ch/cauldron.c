@@ -184,7 +184,7 @@ void func_8038AC7C(Actor *this) {
         if (35.0 < this->lifetime_value) {
             sp2C = (fileProgressFlag_get(FILEPROG_CF_HAS_ENTERED_FINAL_FIGHT)) ? 0xFB7 : 0xFAE;
             sp28 = (fileProgressFlag_get(FILEPROG_CF_HAS_ENTERED_FINAL_FIGHT)) ? 0xFBC : 0xFB7;
-            if (gcdialog_showText(sp2C + this->unk38_31, 0, NULL, NULL, NULL, NULL)) {
+            if (gcdialog_showDialog(sp2C + this->unk38_31, 0, NULL, NULL, NULL, NULL)) {
                 this->unk38_31++;
                 this->lifetime_value = 0.0f;
                 if (sp2C + this->unk38_31 >= sp28) {
@@ -256,7 +256,7 @@ void chWarpCauldron_update(Actor *this) {
             }
             if (!fileProgressFlag_get(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET) && fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))) {
                 if (func_802D677C(-1) != gsworld_getMap()) {
-                    gcdialog_showText(ASSET_F7A_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_F7A_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
                     fileProgressFlag_set(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET, 1);
                 }
             }
@@ -278,7 +278,7 @@ void chWarpCauldron_update(Actor *this) {
                 phi_a0 = (fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this)) != 0) ? SFX_107_CAULDRON_ACTIVATION_1 : SFX_108_CAULDRON_ACTIVATION_2;
                 sfxsource_play(phi_a0, 32000);
                 if (!fileProgressFlag_get(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET) && !fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))) {
-                    gcdialog_showText(ASSET_F79_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_F79_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
                 }
                 if (fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))){
                     switch(this->actorTypeSpecificField){
@@ -385,7 +385,7 @@ void chWarpCauldron_update(Actor *this) {
 
         case 6: //L8038B64C
             if (func_8038A690(this) && !fileProgressFlag_get(FILEPROG_F3_MET_DINGPOT)) {
-                gcdialog_showText(ASSET_FAD_DIALOG_DINGPOT_MEET, 0xA, this->position, NULL, __chWarpCauldron_dingpotDialogCallback, NULL);
+                gcdialog_showDialog(ASSET_FAD_DIALOG_DINGPOT_MEET, 0xA, this->position, NULL, __chWarpCauldron_dingpotDialogCallback, NULL);
             }
             this->unk38_0 = true;
 

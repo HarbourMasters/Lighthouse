@@ -143,7 +143,7 @@ void chTanktup_update(Actor *this)
     {
       if ((((ml_vec3f_distance(local->unk18, sp48) < 250.0f) && (ml_vec3f_distance(local->unk18, sp48) > 80.0f)) && (!player_movementGroup())) && (player_getTransformation() == TRANSFORM_1_BANJO))
       {
-        gcdialog_showText(0xC7E, 0, 0, 0, 0, 0);
+        gcdialog_showDialog(0xC7E, 0, 0, 0, 0, 0);
         this->has_met_before = true;
       }
     }
@@ -164,7 +164,7 @@ void chTanktup_update(Actor *this)
 
       if ((!this->unk138_23) && (!local->unk14))
       {
-        if (gcdialog_showText(0xC80, 0, 0, 0, 0, 0))
+        if (gcdialog_showDialog(0xC80, 0, 0, 0, 0, 0))
         {
           this->unk138_23 = 1;
         }
@@ -215,7 +215,7 @@ void chTanktup_update(Actor *this)
       func_8028F918(0);
       if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
       {
-        gcdialog_showText(0xC7F, 0xF, this->position, this->marker, func_8038F5E4, 0);
+        gcdialog_showDialog(0xC7F, 0xF, this->position, this->marker, func_8038F5E4, 0);
       }
       else
       {

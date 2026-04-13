@@ -165,7 +165,7 @@ void jiggyShine_init(void) {
     func_80354670(sp57, 0x14);
 }
 
-void func_80354C18(void) {
+void jiggyShine_update(void) {
     ParticleStruct0s* temp_s0;
     s32 pad;
     ActorMarker *sp4C;
@@ -214,7 +214,7 @@ void func_80354C18(void) {
     func_8033FCD8(projectile_indx, 0xC);
 }
 
-void func_80354DC8(void){}
+void jiggyShine_free(void){}
 
 void func_80354DD0(void) {
     ParticleStruct0s* temp_s0;

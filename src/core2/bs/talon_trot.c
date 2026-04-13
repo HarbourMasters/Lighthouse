@@ -722,8 +722,8 @@ void bsbtrot_ow_init(void){
     func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
     if(barebound_802987B4() == 2)
         baphysics_set_type(BA_PHYSICS_AIRBORN);
-    baphysics_set_vertical_velocity(func_802987C4());
-    baphysics_set_gravity(barebound_get_vertical_velocity());
+    baphysics_set_vertical_velocity(barebound_get_vertical_velocity());
+    baphysics_set_gravity(barebound_get_gravity());
     baMarker_collisionOff();
     baeyes_close();
 }

@@ -2275,8 +2275,8 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
     s32 pad;
 
     this = marker_getActor(arg0);
-    sp70 = func_8033D5B4(arg2);
-    sp6C = func_8033D584(arg2);
+    sp70 = collision_getDropBundleNum(arg2);
+    sp6C = collision_getUnkBit7(arg2);
     sp68 = collision_getHitsToTrigger(arg2);
     sp64 = collision_getNextState(arg2);
     if (((baiFrame_getState() != 3) && func_8028F1E0()) || (collision_getDamageToPlayer(arg2) == 0)) {

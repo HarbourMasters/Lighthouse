@@ -160,8 +160,8 @@ void gsworld_free(void) {
     animBinCache_free();
     func_802BC10C();
     ncCameraNodeList_free();
-    func_802F1388();
     pem_freeDependencies();
+    pem_freeAll();
     partEmitMgr_free();
     func_802F7CE0();
     func_8031F9E0();
@@ -241,8 +241,8 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     ncCameraNodeList_init();
     nccamera_init();
     partEmitMgr_init();
-    func_802F1104();
     pem_setAllInactive();
+    pem_initDependencies();
     func_802F7D30();
     propModelList_init();
     lighting_init();
@@ -342,8 +342,8 @@ s32 gsworld_update(void) {
             }
         }
 #endif
-        func_8033E1E0();
         commonParticle_update();
+        pem_updateAll();
         animCache_update();
         animBinCache_update();
         ncCamera_update();

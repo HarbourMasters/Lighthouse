@@ -13,7 +13,7 @@ f32 D_8037D218[3];
 f32 D_8037D224;
 
 /*.code */
-bool func_8029CFA0(void){
+bool isOnFloor(void){
     return floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > player_getYPosition();
 }
 
@@ -27,7 +27,7 @@ void hazards_reset(void){
     D_8037D212 = 0;
 }
 
-void func_8029D050(void){
+void triggerFrozenHazardEffects(void){
     basfx_80299E48();
     sfxSource_triggerCallbackByIndex(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_14D_BANJO_FREEZING);
@@ -40,7 +40,7 @@ void func_8029D050(void){
     D_8037D224 = 1.0f;
 }
 
-void func_8029D0D8(void) {
+void triggerHotHazardEffects(void) {
     sfxSource_triggerCallbackByIndex(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_B0_SIZZLING_NOISE);
     sfxsource_setSampleRate(D_8037D210, 32000);
@@ -49,14 +49,14 @@ void func_8029D0D8(void) {
     sfxSource_func_8030E2C4(D_8037D210);
 }
 
-void func_8029D154(void){
+void spawnPiranhaParticles(void){
     f32 plyr_pos[3];
     player_getPosition(plyr_pos);
     actor_spawnWithYaw_f32(0x188, plyr_pos, (s32)yaw_get());
 }
 
-void func_8029D194(void) {
-    __spawnQueue_add_0(&func_8029D154);
+void triggerSwampHazardEffects(void) {
+    __spawnQueue_add_0(&spawnPiranhaParticles);
     FUNC_8030E624(SFX_A_BANJO_LANDING_05, 1.0f, 28000);
     sfxSource_triggerCallbackByIndex(D_8037D210);
     sfxsource_setSfxId(D_8037D210, SFX_6D_CROC_BITE);
@@ -69,33 +69,33 @@ void func_8029D194(void) {
 }
 
 /* plays ground damage sound effect */
-void func_8029D230(void) {
+void triggerHazardEffects(void) {
     switch (gsworld_getMap()) {
         case MAP_12_GV_GOBIS_VALLEY: //L8029D2C0
         case MAP_31_RBB_RUSTY_BUCKET_BAY: //L8029D2C0
         case MAP_3C_RBB_KITCHEN: //L8029D2C0
         case MAP_6E_GL_GV_LOBBY:
         case MAP_8E_GL_FURNACE_FUN:
-            func_8029D0D8();
+            triggerHotHazardEffects();
             break;
 
         case MAP_27_FP_FREEZEEZY_PEAK: //L8029D2D0
         case MAP_7F_FP_WOZZAS_CAVE:
-            func_8029D050();
+            triggerFrozenHazardEffects();
             break;
 
         case MAP_D_BGS_BUBBLEGLOOP_SWAMP:
         case MAP_72_GL_BGS_LOBBY:
-            func_8029D194();
+            triggerSwampHazardEffects();
             break;
     }
 }
 
-void func_8029D2F8(void) {
+void updateFrozenEffects(void) {
     u8 temp_v0;
 
     if (D_8037D211 != 0) {
-        if ((func_8029CFA0() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(D_8037D210) != 0)) {
+        if ((isOnFloor() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(D_8037D210) != 0)) {
             sfxSource_triggerCallbackByIndex(D_8037D210);
             D_8037D211 = 0;
             return;
@@ -104,7 +104,7 @@ void func_8029D2F8(void) {
         D_8037D224 = ml_max_f(0.0f, D_8037D224 - time_getDelta());
         if (D_8037D224 == 0.0f) {
             if (D_8037D211 == 1) {
-                func_8029D050();
+                triggerFrozenHazardEffects();
             }
             else if (D_8037D211 == 2) {
                 sfxSource_triggerCallbackByIndex(D_8037D210);
@@ -121,7 +121,7 @@ void func_8029D2F8(void) {
 }
 
 
-void func_8029D448(void) {
+void updateBurnSfx(void) {
     f32 sp1C;
     s32 temp_a1;
 
@@ -136,7 +136,7 @@ void func_8029D448(void) {
     }
 }
 
-void func_8029D4D8(void) {
+void updateSwampEffects(void) {
     if (D_8037D212 != 0) {
         D_8037D224 = ml_max_f(0.0f, D_8037D224 - time_getDelta());
         if (!(D_8037D224 > 0.0f)) {
@@ -148,24 +148,24 @@ void func_8029D4D8(void) {
     }
 }
 
-void func_8029D5A4(void){
+void updateHazardEffects(void){
     switch (gsworld_getMap()) {
         case MAP_12_GV_GOBIS_VALLEY:
         case MAP_31_RBB_RUSTY_BUCKET_BAY:
         case MAP_3C_RBB_KITCHEN:
         case MAP_6E_GL_GV_LOBBY:
         case MAP_8E_GL_FURNACE_FUN:
-            func_8029D448();
+            updateBurnSfx();
             break;
 
         case MAP_27_FP_FREEZEEZY_PEAK:
         case MAP_7F_FP_WOZZAS_CAVE:
-            func_8029D2F8();
+            updateFrozenEffects();
             break;
 
         case MAP_D_BGS_BUBBLEGLOOP_SWAMP:
         case MAP_72_GL_BGS_LOBBY:
-            func_8029D4D8();
+            updateSwampEffects();
             break;
     }
 }
@@ -236,13 +236,13 @@ bool canTakeGroundDamage(void){
     return 0;
 }
 
-void func_8029D968(void){
+void hazards_update(void){
     s32 can_take_ground_damage;
     BKCollisionTri *temp_v0;
     s32 sp1C;
     s32 sp18;
     
-    func_8029D5A4();
+    updateHazardEffects();
     if(gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY){
         sp18 = 0;
         sp1C = 0;
@@ -265,7 +265,7 @@ void func_8029D968(void){
     if(can_take_ground_damage){
         if(gsworld_getMap() == MAP_8E_GL_FURNACE_FUN){
             if(bs_checkInterrupt(BS_INTR_13_FF_DEATH_SQUARE)){
-                func_8029D230();
+                triggerHazardEffects();
             }
         }
         else{//L8029DA6C
@@ -273,7 +273,7 @@ void func_8029D968(void){
             if(batimer_isZero(4)){
                 batimer_set(4, 4.0f);
                 if(player_checkHazardInterrupt(0xD)){
-                    func_8029D230();
+                    triggerHazardEffects();
                     baMotor_80250D94(1.0f, 0.5f, 0.4f);
                 }
                 if(item_empty(ITEM_14_HEALTH)){
@@ -310,7 +310,7 @@ void func_8029D968(void){
                     break;
 
                 case MAP_1B_MMM_MAD_MONSTER_MANSION://8029DBA8
-                    if(!func_8029CFA0())
+                    if(!isOnFloor())
                         progressDialog_showDialogMaskZero(FILEPROG_86_HAS_TOUCHED_MMM_THORN_HEDGE);
                     break;
             }

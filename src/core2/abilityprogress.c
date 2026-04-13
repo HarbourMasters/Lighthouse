@@ -82,7 +82,7 @@ void ability_use(s32 arg0){
     }
 
     if (sp2C) {
-        gcdialog_showText(sp2C, 4, NULL, NULL, NULL, 0);
+        gcdialog_showDialog(sp2C, 4, NULL, NULL, NULL, 0);
     }
 
     abilityprogress_usedAbilities |= (1 << arg0);

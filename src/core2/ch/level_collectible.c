@@ -294,7 +294,7 @@ void func_802D83EC(Actor *this) {
     // temp_f20 = D_80376D70;
     for(var_s0 = 0; var_s0 < 10; var_s0++){
         if (randf() < 0.03) {
-            func_8033E73C(this->marker, var_s0 + 5, func_80329904);
+            commonParticle_add(this->marker, var_s0 + 5, func_80329904);
             commonParticle_new(8, this->marker->unk14_21);
         }
     }

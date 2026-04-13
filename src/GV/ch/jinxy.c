@@ -37,7 +37,7 @@ Actor *func_8038A180(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
             && this_marker->unk14_21
             && subaddie_playerIsWithinSphereAndActive(this, 3000)
         ){
-            func_8033E73C(this->marker, 6, func_80329904);
+            commonParticle_add(this->marker, 6, func_80329904);
             commonParticle_new(0xc, this->marker->unk14_21);
         }
     }

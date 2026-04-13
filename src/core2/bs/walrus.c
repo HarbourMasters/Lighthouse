@@ -387,8 +387,8 @@ static void __bswalrus_recoil_init(s32 damage){
     baphysics_set_target_yaw(sp3C);
     baphysics_set_horizontal_velocity(sp3C, baphysics_get_target_horizontal_velocity());
     func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
-    baphysics_set_vertical_velocity(func_802987C4());
-    baphysics_set_gravity(barebound_get_vertical_velocity());
+    baphysics_set_vertical_velocity(barebound_get_vertical_velocity());
+    baphysics_set_gravity(barebound_get_gravity());
     baMarker_collisionOff();
     baeyes_close();
     func_802B8110();

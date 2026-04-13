@@ -128,7 +128,7 @@ void __chTumblar_congratulationTextCallback(ActorMarker *marker, enum asset_e te
 
 void chTumblar_congratulate(void *arg0_, s32 arg1) {
     Struct_MMM_47D0_0 *arg0 = (Struct_MMM_47D0_0 *)arg0_;
-    gcdialog_showText(ASSET_ADB_DIALOG_TUMBLAR_COMPLETE, 4, NULL, arg0->jiggy_marker, __chTumblar_congratulationTextCallback, NULL);
+    gcdialog_showDialog(ASSET_ADB_DIALOG_TUMBLAR_COMPLETE, 4, NULL, arg0->jiggy_marker, __chTumblar_congratulationTextCallback, NULL);
     arg0->state = TUMBLAR_STATE_1_CONGRATULATING;
 }
 
@@ -221,7 +221,7 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
     func_8035179C_copyPosition(arg1, position);
 
     if (!mapSpecificFlags_get(MMM_SPECIFIC_FLAG_0_UNKNOWN) && arg0->state == TUMBLAR_STATE_0_IDLE && ml_vec3f_horizontal_distance_zero_likely(position, plyr_pos) < 250.0f) {
-        if (gcdialog_showText(ASSET_ADA_DIALOG_TUMBLAR_MEET, 0, NULL, NULL, NULL, NULL)) {
+        if (gcdialog_showDialog(ASSET_ADA_DIALOG_TUMBLAR_MEET, 0, NULL, NULL, NULL, NULL)) {
             mapSpecificFlags_set(0, true);
         }
     }
