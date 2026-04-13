@@ -388,7 +388,7 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
     return sp2C;
 }
 
-void func_802F4F64(void){
+void print_free(void){
     s32 i; 
     for(i = 0; i< 5; i++){
         assetcache_release(D_80380AB8[i]);
@@ -442,12 +442,12 @@ void func_802F5060(s32 textureId){
     D_80380B1C = textureId;
 }
 
-void func_802F5188(void){
+void print_resetBoldFontTexture(void){
     func_802F5060(func_802F49C0());
     func_802F5010();
 }
 
-void func_802F51B8(void){
+void print_init(void){
     s32 i, j;
     s32 length;
     int found;
@@ -491,7 +491,7 @@ void func_802F51B8(void){
     D_80380B1C = func_802F49C0();
 }
 
-void func_802F5374(void){
+void print_updateBoldLetterFontDelayedFreeing(void){
     if(D_80380B18 > 0 && --D_80380B18 == 0){
         assetcache_release(D_80380AB8[3]);
         D_80380AB8[3] = 0;
@@ -500,7 +500,7 @@ void func_802F5374(void){
     }
 }
 
-void func_802F53D0(void){
+void print_freeBoldLetterFont(void){
     if(D_80380AB8[3]){
         assetcache_release(D_80380AB8[3]);
         D_80380AB8[3] = NULL;
@@ -982,7 +982,7 @@ void print_dialog_gradient(s32 x, s32 y, u8* string, u8 arg3, u8 arg4){
     }
 }
 
-void func_802F79D0(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
+void print_dialog_gradient2(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
         print_sCurrentPtr->unk4 = arg3;
@@ -1013,7 +1013,7 @@ void func_802F7A2C(s32 arg0) {
     osWritebackDCache(&D_80380B20, D_80380B0C*sizeof(struct23s));
 }
 
-void func_802F7B90(s32 arg0, s32 arg1, s32 arg2){
+void text_setNormalTextColor(s32 arg0, s32 arg1, s32 arg2){
     D_80369078.unk0 = arg0;
     D_80369078.unk1 = arg1;
     D_80369078.unk2 = arg2;

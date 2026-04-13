@@ -7,7 +7,7 @@
 
 extern void func_802DABA0(ParticleEmitter *, f32[3], f32, enum asset_e);
 extern void func_8033A45C(s32, s32);
-extern void func_802DB548(void);
+extern void humanoidBaddie_ow(void);
 
 enum ccw_season_e
 {
@@ -125,7 +125,7 @@ void __chgrublinhood_initialize(Actor *this){
     local->unk10 = 0x29;
     local->unk12 = 25000;
     local->unkC_28 = 1;
-    local->unk30 = func_802DB548;
+    local->unk30 = humanoidBaddie_ow;
     local->unk34 = __chgrublinhood_die;
     local->unk0 = 5.0f;
     local->unk4 = 8.0f;
@@ -183,7 +183,7 @@ void chgrublinhood_update(Actor *this) {
     }
 
     if(local->season < 4){
-        func_802DB5A0(this);
+        humanoidBaddie_update(this);
         if (this->state == 5) {
             if (actor_animationIsAt(this, 0.18f)) {
                 sfx_playFadeShorthandDefault(SFX_2_CLAW_SWIPE, 1.0f, 28000, this->position, 1250, 2500);

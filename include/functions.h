@@ -334,7 +334,7 @@ s16 *func_8030C704(void);
 // --- core2/cutscene/flag.c ---
 enum map_e map_get(void);
 s32 exit_get(void);
-s32 func_80334904(void);
+s32 gsworld_getUnk0(void);
 
 // --- core2/fx/score_jiggy.c ---
 u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
@@ -390,7 +390,7 @@ bool func_8028F20C(void);
 s32 func_8028F66C(enum bs_interrupt_e arg0);
 void func_8028F8F8(s32 arg0, bool arg1);
 void func_8028F918(s32 arg0);
-void func_8028FA14(enum map_e map_id, s32 exit_id);
+void code_7060_setVoidOutLocation(enum map_e map_id, s32 exit_id);
 bool player_setCarryObjectPoseInCylinder(f32[3], f32, f32, enum actor_e actor_id, Actor**);
 u32 player_getTransformation(void);
 void ability_unlock(enum ability_e);
@@ -640,7 +640,7 @@ bool maSlalom_isActive(void);
 // --- FP/ch/boggy2.c ---
 bool func_8038A1A0(ActorMarker *marker);
 
-// func_80389F5C omitted: decomp defines as (void) but callers pass Actor*
+// code3B10_checkGVChecksums omitted: decomp defines as (void) but callers pass Actor*
 
 // --- CC/model_renderstate.c ---
 void CC_func_80387D4C(void);
@@ -681,7 +681,7 @@ void func_8038C3DC(ActorMarker *marker);
 void func_8038C408(ActorMarker *marker);
 
 // --- BGS/ch/mudhut.c ---
-void func_8038EA90(void);
+void chMudHut_checkBGSChecksums(void);
 
 // --- BGS/ch/tanktup.c ---
 void func_8038F51C(Actor *self);
@@ -790,7 +790,7 @@ void func_8039195C(void);
 void func_80391994(void);
 
 // --- GV/actor_spawninit.c ---
-s32 func_8038F4C0(Actor *arg0, s32 arg1);
+s32 code7FF0_getMagicCarpetState(Actor *arg0, s32 arg1);
 void GV_func_8038F154(void);
 
 // --- GV/ch/ancientone.c ---
@@ -887,7 +887,7 @@ bool chTumblar_isBanjoAbove(void *arg0, Struct68s *arg1);
 bool chTumblar_isDisappeared(void *arg0, s32 arg1);
 void chTumblar_congratulate(void *arg0, s32 arg1);
 void chTumblar_copyPosition(s32 arg0, Struct68s *arg1, f32 arg2[3]);
-void func_8038AC04(void);
+void chTumblar_checkMMMChecksums(void);
 
 // --- MMM/minigame_organ.c ---
 int func_80389CE8(s32 arg0, s32 arg1, s32 arg2);
@@ -940,7 +940,7 @@ void SM_resetSpawnableActors();
 void codeF0_func_80386540();
 
 // --- SM/model_visibility.c ---
-void func_80388D48(void);
+void code2900_checkSMChecksums(void);
 
 // --- TTC/actor_spawninit.c ---
 void code26D0_resetSpawnableActorsForTTC(void);
@@ -2081,7 +2081,7 @@ s32 func_802FAD9C(enum item_e item_id);
 s32 itemPrint_getValue(s32 item_id);
 void func_802FA69C(void);
 void func_802FAC3C(void);
-void func_802FACA4(enum item_e item_id);
+void code_73640_printItemCount(enum item_e item_id);
 void func_802FAFAC(enum item_e item_id, enum comusic_e music_id);
 void func_802FAFC0(enum item_e item_id, enum comusic_e music_id);
 void func_802FAFD4(enum item_e item_id, enum sfx_e sfx_id);
@@ -2178,7 +2178,7 @@ void func_803451B0(u8 index, f32 arg1[3]);
 
 // --- core2/crc_bootvalidation.c ---
 void func_80356714(void);
-void func_80356734(void);
+void codeCF5F0_forgetAllAbilitiesExceptClawSwipeIfChecksumsFail(void);
 
 // --- core2/cutscene/animated.c ---
 void func_8035D490(ActorMarker *marker);
@@ -2193,12 +2193,12 @@ void func_802C02D4(f32 arg0[3]);
 
 // --- core2/cutscene/flag.c ---
 s32 func_80334ECC(void);
-s32 func_80335134();
+s32 gsworld_getEnableDraw();
 void func_80334540(Gfx** gdl, Mtx **mptr, Vtx **vptr);
 void func_80334910(void);
 void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2);
-void func_80334E1C(s32);
-void func_80335110(s32);
+void gsworld_setUnk0(s32);
+void gsworld_setEnableUpdate(s32);
 void func_80335128(s32);
 
 // --- core2/cutscene/lair.c ---
@@ -2262,11 +2262,11 @@ void gameFile_load(s32 gamenum);
 void gameFile_save(s32 gamenum);
 
 // --- core2/font/print.c ---
-void func_802F4F64(void);
-void func_802F5188(void);
-void func_802F51B8(void);
-void func_802F53D0(void);
-void func_802F7B90(s32 arg0, s32 arg1, s32 arg2);
+void print_free(void);
+void print_resetBoldFontTexture(void);
+void print_init(void);
+void print_freeBoldLetterFont(void);
+void text_setNormalTextColor(s32 arg0, s32 arg1, s32 arg2);
 void printbuffer_defrag(void);
 void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
@@ -2338,8 +2338,8 @@ void func_802DF270(void);
 void func_802DAC84(ParticleEmitter *pCtrl, Actor *self, enum asset_e model_id);
 void func_802DAD08(ParticleEmitter *pCtrl, Actor *self, enum asset_e model_id);
 void func_802DAD8C(ParticleEmitter *pCtrl, Actor *self, enum asset_e model_id);
-void func_802DB4E0(ActorMarker *marker, s32 arg1);
-void func_802DB5A0(Actor *self);
+void humanoidBaddie_enterInvulnerableState(ActorMarker *marker, s32 arg1);
+void humanoidBaddie_update(Actor *self);
 
 // --- core2/fx/effect_particle.c ---
 void func_802DF090(s32 arg0, s32 arg1);
@@ -2714,7 +2714,7 @@ void func_8029C674(void);
 void func_8029C6D0(void);
 void func_8029C748(void);
 void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3);
-void func_8029C834(enum map_e map_id, s32 exit_id);
+void code_14420_setVoidOutLocation(enum map_e map_id, s32 exit_id);
 void func_8029C848(AnimCtrl *arg0);
 void func_8029C984(void);
 void func_8029CB84(void);
@@ -2859,7 +2859,7 @@ void gcquiz_func_8031A48C(void);
 void gcquiz_init();
 
 // --- core2/quiz/storage.c ---
-void func_80350E00(void);
+void code_C9E70_defrag(void);
 
 // --- core2/rand.c ---
 s32 sfx_randi2(s32 min, s32 max);
@@ -3170,7 +3170,7 @@ bool func_8038DD14(void);
 int func_8038AAB0(void);
 
 // --- GV/crc.c ---
-void func_80389F5C(void);
+void code3B10_checkGVChecksums(void);
 
 // --- BGS/ch/tanktup.c ---
 s32 func_8038F570(s16 *arg0);

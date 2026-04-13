@@ -215,7 +215,7 @@ void func_802DB440(ActorMarker *marker, ActorMarker *other_marker) {
     }
 }
 
-void func_802DB4E0(ActorMarker *marker, s32 arg1){
+void humanoidBaddie_enterInvulnerableState(ActorMarker *marker, s32 arg1){
     Actor * actor = marker_getActor(marker);
     subaddie_set_state_with_direction(actor, 9, 0.0f, 1);
     actor_playAnimationOnce(actor);
@@ -223,7 +223,7 @@ void func_802DB4E0(ActorMarker *marker, s32 arg1){
     actor->lifetime_value = randf2(3.0f, 6.0f);
 }
 
-void func_802DB548(ActorMarker *marker, ActorMarker *other_marker) {
+void humanoidBaddie_ow(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *this;
     ActorLocal_core2_53C10 *local;
 
@@ -233,7 +233,7 @@ void func_802DB548(ActorMarker *marker, ActorMarker *other_marker) {
     func_802DAE40(this);
 }
 
-void func_802DB5A0(Actor *this) {
+void humanoidBaddie_update(Actor *this) {
     ActorLocal_core2_53C10 *local;
     f32 phi_f14;
 

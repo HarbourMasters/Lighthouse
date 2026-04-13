@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-void func_8035D3D8(Actor *this);
+void chMumMum_update(Actor *this);
 extern void func_802DABA0(ParticleEmitter *, f32 position[3], f32 scale, enum asset_e model_id);
 
 typedef struct {
@@ -49,12 +49,12 @@ ActorAnimationInfo D_80372E20[] = {
 ActorInfo D_80372E78 = { 
     MARKER_219_MUMMUM, ACTOR_34F_MUMMUM, ASSET_4C7_MODEL_MUMMUM, 
     0x1, D_80372E20, 
-    func_8035D3D8, actor_update_func_80326224, actor_draw, 
+    chMumMum_update, actor_update_func_80326224, actor_draw, 
     2500, 0, 1.0f, 0
 };
 
 /* .code */
-void func_8035D110(ParticleEmitter *p_emitter, Actor *this, enum asset_e model_id) {
+void chMumMum_deathParticles(ParticleEmitter *p_emitter, Actor *this, enum asset_e model_id) {
     func_802DABA0(p_emitter, this->position, this->scale, model_id);
     particleEmitter_setAccelerationRange(p_emitter, 0.0f, -1800.0f, 0.0f, 0.0f, -1800.0f, 0.0f);
     particleEmitter_setAngularVelocityRange(p_emitter, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
@@ -63,26 +63,26 @@ void func_8035D110(ParticleEmitter *p_emitter, Actor *this, enum asset_e model_i
 }
 
 
-void func_8035D1F0(ActorMarker *arg0, s32 arg1) {
+void chMumMum_die(ActorMarker *arg0, s32 arg1) {
     Actor *this;
 
     this = marker_getActor(arg0);
     func_802DAC84(partEmitMgr_newEmitter(2), this, ASSET_4C9_MODEL_MUMMUM_LEG);
     func_802DAD08(partEmitMgr_newEmitter(1), this, ASSET_4CA_MODEL_MUMMUM_HEAD);
     func_802DAD8C(partEmitMgr_newEmitter(2), this, ASSET_4C8_MODEL_MUMMUM_ARM);
-    func_8035D110(partEmitMgr_newEmitter(1), this, ASSET_4CB_MODEL_MUMMUM_BODY);
+    chMumMum_deathParticles(partEmitMgr_newEmitter(1), this, ASSET_4CB_MODEL_MUMMUM_BODY);
     sfx_playFadeShorthandDefault(SFX_119_FISH_DEATH, 0.8f, 32000, this->position, 1250, 2500);
     __spawnQueue_add_4((GenFunction_4) spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
     marker_despawn(arg0);
 }
 
-void func_8035D2C0(ActorMarker *marker, s32 arg1){
+void chMumMum_setInvulnerableState(ActorMarker *marker, s32 arg1){
     Actor *actor = marker_getActor(marker);
-    func_802DB4E0(marker, arg1);
+    humanoidBaddie_enterInvulnerableState(marker, arg1);
     actor_collisionOn(actor);
 }
 
-void func_8035D2FC(Actor *this) {
+void chMumMum_initialize(Actor *this) {
     ActorLocal_core2_D6180 *local;
     u8 temp_t6;
 
@@ -106,16 +106,16 @@ void func_8035D2FC(Actor *this) {
     local->unk2A = 20000;
     local->unk2C = 1.0f;
     local->unkC_28 = true;
-    local->unk30 = func_8035D2C0;
-    local->unk34 = func_8035D1F0;
+    local->unk30 = chMumMum_setInvulnerableState;
+    local->unk34 = chMumMum_die;
     this->unk154 |= 0x08000000;
 }
 
-void func_8035D3D8(Actor *this) {
+void chMumMum_update(Actor *this) {
     if (!this->volatile_initialized) {
-        func_8035D2FC(this);
+        chMumMum_initialize(this);
     }
-    func_802DB5A0(this);
+    humanoidBaddie_update(this);
     if (this->state == 9) {
         if (this->marker->id != MARKER_298_MUMMUM_BALL) {
             this->marker->id = MARKER_298_MUMMUM_BALL;
@@ -136,7 +136,7 @@ void func_8035D490(ActorMarker *marker){
 
         if (func_80329530(sp1C, 250) != 0) {
             __bundle_spawnFromFirstActor(BUNDLE_1C__HONEYCOMB, sp1C);
-            func_8035D2C0(marker, 0);
+            chMumMum_setInvulnerableState(marker, 0);
         }
     }
 }
@@ -149,7 +149,7 @@ void func_8035D4F0(ActorMarker *marker, s32 arg1){
         if(actor->state != 9){
             if (func_8033F3E8(mapModel_getModel(0), actor->position, 0x190, 0x1A0) == arg1) {
                 __bundle_spawnFromFirstActor(BUNDLE_1C__HONEYCOMB, actor);
-                func_8035D2C0(marker, 0);
+                chMumMum_setInvulnerableState(marker, 0);
             }
         }
     }

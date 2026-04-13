@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-void func_8038B124(Actor *this);
+void chSlappa_update(Actor *this);
 
 /* .data */
 ActorAnimationInfo D_80391040[] ={
@@ -22,7 +22,7 @@ ActorAnimationInfo D_80391040[] ={
 
 ActorInfo D_80391098 = { MARKER_AD_SLAPPA, ACTOR_120_SLAPPA, ASSET_376_MODEL_SLAPPA, 
     0x1, D_80391040, 
-    func_8038B124, actor_update_func_80326224, actor_draw, 
+    chSlappa_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.0f, 0
 };
 s32 D_803910BC[3] = {175, 100, 0};
@@ -144,7 +144,7 @@ void func_8038B0BC(ActorMarker *this_marker, ActorMarker *other_marker){
 }
 
 
-void func_8038B124(Actor *this){
+void chSlappa_update(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         this->unk38_31 = 0;

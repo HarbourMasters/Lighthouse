@@ -36,7 +36,7 @@ void chLongSwampSwitch_jiggySpawn(void){
 }
 
 void chLongSwampSwitch_update(Actor *this){
-    func_8038EA90();
+    chMudHut_checkBGSChecksums();
     if(mapSpecificFlags_get(7)){
         mapSpecificFlags_set(7, 0);
         if(!mapSpecificFlags_get(3) || (item_getCount(0) > 0)){
@@ -79,7 +79,7 @@ void chShortSwampSwitch_jiggySpawn(void){
 }
 
 void chShortSwampSwitch_update(Actor *this){
-    func_8038EA90();
+    chMudHut_checkBGSChecksums();
     if(mapSpecificFlags_get(8)){
         mapSpecificFlags_set(8, 0);
         if(!mapSpecificFlags_get(0xC) || (item_getCount(0) > 0)){

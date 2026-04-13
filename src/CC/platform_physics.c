@@ -329,7 +329,7 @@ void CC_func_80388F4C(void){
     f32 pad[3];
 
     CC_func_80387D4C();
-    if(D_80389FA0.unk21 != 0 && func_80334904() == 2){
+    if(D_80389FA0.unk21 != 0 && gsworld_getUnk0() == 2){
         player_getPosition(sp6C);
         D_80389FA0.unk20 = (ml_vec3f_distance(sp6C, D_80389FA0.unkC) < 200.0f);
 

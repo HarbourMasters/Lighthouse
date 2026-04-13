@@ -789,7 +789,7 @@ void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3){
     baphysics_set_type(arg3);
 }
 
-void func_8029C834(enum map_e map_id, s32 exit_id){
+void code_14420_setVoidOutLocation(enum map_e map_id, s32 exit_id){
     gVoidOutReturnLocation[0] = map_id;
     gVoidOutReturnLocation[1] = exit_id;
 }

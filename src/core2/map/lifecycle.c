@@ -21,7 +21,7 @@ s32 D_803835DC;
 u32 D_803835E0;
 
 /* public */
-void func_80335110(s32);
+void gsworld_setEnableUpdate(s32);
 void func_80335128(s32);
 void func_80335140(enum map_e);
 void func_8033520C(s32);
@@ -128,15 +128,15 @@ void func_803348D8(s32 arg0) {
     transitionToMap(D_803835D0.map_4, arg0, 1);
 }
 
-s32 func_80334904(){
+s32 gsworld_getUnk0(){
     return D_803835D0.unk0;
 }
 
-void func_80334E1C(s32);
+void gsworld_setUnk0(s32);
 
 void func_80334910(void) {
     func_80255A14();
-    func_80334E1C(3);
+    gsworld_setUnk0(3);
     func_8034F734();
     func_803500E8();
     func_80350BC8();
@@ -150,7 +150,7 @@ void func_80334910(void) {
     func_80322F5C();
     func_80341A54();
     spawnQueue_free();
-    func_802F53D0();
+    print_freeBoldLetterFont();
     func_802FAC3C();
     bundle_free();
     func_8033E184();
@@ -205,7 +205,7 @@ void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2) {
     CALL_EVENT(OnMapLoad, arg0);
     D_803835D0.unk8 = arg1;
     overlay_init();
-    func_80335110(1);
+    gsworld_setEnableUpdate(1);
     func_80335128(1);
     func_802D2CB8();
     core1_7090_alloc();
@@ -275,14 +275,14 @@ void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2) {
     func_80255A04();
     func_802D6948();
     if (func_802E4A08() == 0) {
-        func_802F5188();
+        print_resetBoldFontTexture();
     }
     if (arg0 != MAP_1F_CS_START_RAREWARE) {
         func_8024F150();
     }
 }
 
-void func_80334DC0(void) {
+void gsworld_reload(void) {
     func_80334910();
     func_80334B20(D_803835D0.map_4, D_803835D0.unk8, 1);
 }
@@ -291,7 +291,7 @@ void func_80334DF8(void) {
     func_8033520C(D_803835D0.map_4);
 }
 
-void func_80334E1C(s32 arg0) {
+void gsworld_setUnk0(s32 arg0) {
     func_80254008();
     func_802BC21C(D_803835D0.unk0, arg0);
     func_8028F7F4(D_803835D0.unk0, arg0);
@@ -310,7 +310,7 @@ s32 func_80334ECC(void) {
     s32 phi_v1;
     s32 phi_v0;
 
-    func_80356734();
+    codeCF5F0_forgetAllAbilitiesExceptClawSwipeIfChecksumsFail();
     func_802D5628();
     itemPrint_update();
     if (getGameMode() != GAME_MODE_4_PAUSED) {
@@ -382,7 +382,7 @@ s32 func_80334ECC(void) {
     }
 }
 
-void func_80335110(s32 arg0){
+void gsworld_setEnableUpdate(s32 arg0){
     D_803835DC = arg0;
 }
 
@@ -394,7 +394,7 @@ void func_80335128(s32 arg0){
     D_803835E0 = arg0;
 }
 
-s32 func_80335134(){
+s32 gsworld_getEnableDraw(){
     return D_803835E0;
 }
 

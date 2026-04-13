@@ -138,7 +138,7 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
         } else {
             transitionToMap(map_id, exit_id, 1);
         }
-        func_80335110(arg2);
+        gsworld_setEnableUpdate(arg2);
     }
 }
 

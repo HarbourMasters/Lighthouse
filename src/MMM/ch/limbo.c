@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802DB4E0(ActorMarker *, s32);
+extern void humanoidBaddie_enterInvulnerableState(ActorMarker *, s32);
 extern void func_802DABA0(ParticleEmitter *pCtrl, f32 position[3], f32 scale, enum asset_e model_id);
 
 typedef struct {
@@ -102,7 +102,7 @@ static void _chskeleton_init(Actor *this) {
     local->unk2A = 32000;
     local->unk2C = 1.0f;
     local->unkC_28 = true;
-    local->unk30 = func_802DB4E0;
+    local->unk30 = humanoidBaddie_enterInvulnerableState;
     local->unk34 = chskeleton_despawn;
 
 }
@@ -111,5 +111,5 @@ void chskeleton_update(Actor *this){
     if(!this->volatile_initialized){
         _chskeleton_init(this);
     }
-    func_802DB5A0(this);
+    humanoidBaddie_update(this);
 }

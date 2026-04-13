@@ -9,34 +9,34 @@ typedef struct {
     s32 unk8;
 } ActorLocal_CC_3400;
 
-void func_80389900(Actor *this);
+void chCCGrate_update(Actor *this);
 /* .data */
 u8 D_80389E40[] = {3, 3, 2, 0};
 
 ActorInfo D_80389E44 = { 
     0x1A9, 0x28C, 0x435, 
     0, NULL, 
-    func_80389900, NULL, actor_draw, 
+    chCCGrate_update, NULL, actor_draw, 
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_80389E68 = { 
     0x1A9, 0x28D, 0x436, 
     0, NULL, 
-    func_80389900, NULL, actor_draw, 
+    chCCGrate_update, NULL, actor_draw, 
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_80389E8C = { 
     0x1A9, 0x28E, 0x437, 
     0, NULL, 
-    func_80389900, NULL, actor_draw, 
+    chCCGrate_update, NULL, actor_draw, 
     0, 0, 0.0f, 0
 };
 
 
 /* .code */
-void func_803897F0(Actor *this, s32 next_state){
+void chCCGrate_setNextState(Actor *this, s32 next_state){
     ActorLocal_CC_3400 *local = (ActorLocal_CC_3400 *) &this->local;
 
     if(next_state == 3)
@@ -55,20 +55,20 @@ void func_803897F0(Actor *this, s32 next_state){
     this->state = next_state;
 }
 
-void func_80389890(ActorMarker *marker, ActorMarker *other_marker){
+void chCCGrate_ow2(ActorMarker *marker, ActorMarker *other_marker){
     coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
 }
 
-void func_803898BC(ActorMarker *marker, ActorMarker *other_marker){
+void chCCGrate_die(ActorMarker *marker, ActorMarker *other_marker){
     Actor *actor = marker_getActor(marker);
     ActorLocal_CC_3400 *local = (ActorLocal_CC_3400 *) &actor->local;
 
     if(actor->state == 1){
-        func_803897F0(actor, *local->unk0);
+        chCCGrate_setNextState(actor, *local->unk0);
     }
 }
 
-void func_80389900(Actor * this){
+void chCCGrate_update(Actor * this){
     ActorLocal_CC_3400 *local = (ActorLocal_CC_3400 *) &this->local;
     f32 sp20 = time_getDelta();
     
@@ -77,8 +77,8 @@ void func_80389900(Actor * this){
         this->marker->propPtr->unk8_3 = 1;
         local->unk0 = &D_80389E40[this->modelCacheIndex - 0x28C];
         local->unk8 = 0;
-        marker_setCollisionScripts(this->marker, NULL, func_80389890, func_803898BC);
-        func_803897F0(this, 1);
+        marker_setCollisionScripts(this->marker, NULL, chCCGrate_ow2, chCCGrate_die);
+        chCCGrate_setNextState(this, 1);
         if(this->modelCacheIndex == 0x28E && jiggyscore_isSpawned(JIGGY_18_CC_BOLT)){
             marker_despawn(this->marker);
         }
@@ -87,19 +87,19 @@ void func_80389900(Actor * this){
 
     if(this->state == 1){
         if(local->unk8){
-            func_803897F0(this, *local->unk0);
+            chCCGrate_setNextState(this, *local->unk0);
         }
     }//L80389A10
 
     if(this->state == 3){
-        func_803897F0(this, 4);
+        chCCGrate_setNextState(this, 4);
     }
 
     if(this->state == 2){
         local->unk4 += 250.0f*sp20;
         this->position_y += 250.0f*sp20;
         if(250.0f <= local->unk4){
-            func_803897F0(this, 4);
+            chCCGrate_setNextState(this, 4);
         }
     }
 }

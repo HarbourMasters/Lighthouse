@@ -7,13 +7,13 @@ typedef struct {
     f32 unk0;
 } ActorLocal_CCW_7120;
 
-void func_8038D85C(Actor *this);
+void chGnawtyBoulder_update(Actor *this);
 
 /* .data */
 ActorInfo D_8038F640 = {
     0x1BF, 0x2AC, 0x490,
     0x0, NULL,
-    func_8038D85C, NULL, actor_draw,
+    chGnawtyBoulder_update, NULL, actor_draw,
     0, 0, 2.2f, 0
 };
 
@@ -64,7 +64,7 @@ void func_8038D5DC(Actor *this) {
     particleEmitter_emitN(pCtrl, 30);
 }
 
-void func_8038D6D8(Actor *this, s32 next_state) {
+void chGnawtyBoulder_setNextState(Actor *this, s32 next_state) {
     ActorLocal_CCW_7120 *local = (ActorLocal_CCW_7120 *)&this->local;
 
     local->unk0 = 0.0f;
@@ -99,11 +99,11 @@ void func_8038D81C(ActorMarker* marker, ActorMarker *other_marker) {
 #else
     if (actor->state == 1) {
 #endif
-        func_8038D6D8(actor, 2);
+        chGnawtyBoulder_setNextState(actor, 2);
     }
 }
 
-void func_8038D85C(Actor *this) {
+void chGnawtyBoulder_update(Actor *this) {
     ActorLocal_CCW_7120 *local = (ActorLocal_CCW_7120 *)&this->local;
     f32 tick;
 
@@ -112,7 +112,7 @@ void func_8038D85C(Actor *this) {
         this->marker->propPtr->unk8_3 = true;
         this->volatile_initialized = true;
         marker_setCollisionScripts(this->marker, NULL, &func_8038D81C, NULL);
-        func_8038D6D8(this, 1);
+        chGnawtyBoulder_setNextState(this, 1);
 
         if (jiggyscore_isCollected(JIGGY_4B_CCW_GNAWTY) != false) {
             levelSpecificFlags_set(LEVEL_FLAG_25_CCW_UNKNOWN, true);
@@ -125,7 +125,7 @@ void func_8038D85C(Actor *this) {
     } 
     if(this->state == 2){
         if (ml_timer_update(&local->unk0, tick) ) {
-            func_8038D6D8(this, 3);
+            chGnawtyBoulder_setNextState(this, 3);
         }
     }
 }

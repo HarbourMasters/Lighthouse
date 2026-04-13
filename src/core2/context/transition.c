@@ -198,7 +198,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         if(state == TRANSITION_STATE_5_FADE_OUT){
             anctrl_setDirection(s_current_transition.anctrl, 0);
             func_8028F7C8(1); //player_noControl(true)
-            func_80335110(0); //objects_update(false)
+            gsworld_setEnableUpdate(0); //objects_update(false)
         }
         else{
             osViBlack(1);
@@ -230,7 +230,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
     }
     else if(state == TRANSITION_STATE_0_NONE){
         func_80335128(1);
-        func_80335110(1);
+        gsworld_setEnableUpdate(1);
         if(func_8028F070())
             func_8028F7C8(0);
     }
@@ -477,7 +477,7 @@ void gctransition_update(void){
                 case 1:
                     port_requestReadback(); // [port] ensure readback has valid data before freeze
                     func_8028F7C8(1);
-                    func_80335110(0);
+                    gsworld_setEnableUpdate(0);
                     break;
                 case 2:
                     func_80335128(0);

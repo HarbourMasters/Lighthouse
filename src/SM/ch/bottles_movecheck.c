@@ -44,7 +44,7 @@ void func_8038A8F8(Actor *this){
     player_getPosition(this->velocity);
     sp2C = ml_vec3f_distance(this->velocity, this->position);
     if(sp2C < (f32) this->actorTypeSpecificField)
-        func_80388D48();
+        code2900_checkSMChecksums();
 
     if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_10) && sp2C < (f32) this->actorTypeSpecificField && 1780.0f < func_8028E82C()){
         if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)

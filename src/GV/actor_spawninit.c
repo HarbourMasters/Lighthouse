@@ -275,7 +275,7 @@ void func_8038E648(Actor *this){
 }
 
 void func_8038E914(Actor *this){
-    func_80389F5C();
+    code3B10_checkGVChecksums();
     if(!this->initialized){
         func_802D3D74(this);
         this->initialized = true;
@@ -515,7 +515,7 @@ void GV_func_8038F154(void)
     spawnableActorList_add(&D_80391590, actor_new, ACTOR_FLAG_UNKNOWN_10);
 }
 
-s32 func_8038F4C0(Actor *arg0, s32 arg1){
+s32 code7FF0_getMagicCarpetState(Actor *arg0, s32 arg1){
     // Lighthouse TODO is this an anti-piracy check?
     return arg1;
 #if 0

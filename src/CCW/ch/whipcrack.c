@@ -3,10 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
-void func_8038D9E0(Actor *this);
+void chSnoreZ_update(Actor *this);
 
 /* .data */
-ActorInfo D_8038F6F0 = { 0x1C3, 0x30C, 0x4E4, 0x0, NULL, func_8038D9E0, NULL, actor_draw, 0, 0, 0.0f, 0};
+ActorInfo D_8038F6F0 = { 0x1C3, 0x30C, 0x4E4, 0x0, NULL, chSnoreZ_update, NULL, actor_draw, 0, 0, 0.0f, 0};
 
 /* .code */
 void func_8038D960(Actor *this, s32 next_state) {
@@ -20,7 +20,7 @@ void func_8038D960(Actor *this, s32 next_state) {
     this->state = next_state;
 }
 
-void func_8038D9E0(Actor *this) {
+void chSnoreZ_update(Actor *this) {
     f32 sp24;
     f32 sp20;
     ActorMarker *temp_v0;

@@ -3,8 +3,8 @@
 #include "variables.h"
 
 
-void func_802C6240(Actor *);
-Actor *func_802C6E84(ActorMarker *, Gfx **, Mtx **, Vtx **);
+void chbull_update(Actor *);
+Actor *chbull_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);
 /*.data */
 ActorAnimationInfo D_80366010[] ={
     {0x00, 0.0f},
@@ -28,13 +28,13 @@ ActorAnimationInfo D_80366010[] ={
 
 ActorInfo D_80366090 = {0x3, ACTOR_4_BIGBUTT, ASSET_353_MODEL_BIGBUTT, 
     1, D_80366010, 
-    func_802C6240, actor_update_func_80326224, func_802C6E84,
+    chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
 
 ActorInfo D_803660B4 = {0x9, ACTOR_E_SMALL_BULL, ASSET_354_MODEL_SMALL_BULL, 
     1, D_80366010, 
-    func_802C6240, actor_update_func_80326224, func_802C6E84,
+    chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
 
@@ -98,7 +98,7 @@ void func_802C6150(ActorMarker *marker, ActorMarker *other_marker){
     func_8030E878(SFX_2B_BULL_MOO_1, randf2(1.28f, 1.37f), 32000, actor->position, 0.0f, 2000.0f);
 }
 
-void func_802C61C0(ActorMarker *marker, ActorMarker *other_marker){
+void chbigbutt_die(ActorMarker *marker, ActorMarker *other_marker){
     Actor *actor = marker_getActor(marker);
     if( actor->state != 0xd
         && actor->state != 0xe
@@ -111,14 +111,14 @@ void func_802C61C0(ActorMarker *marker, ActorMarker *other_marker){
 }
 
 //chBigbuttUpdate
-void func_802C6240(Actor *this){
+void chbull_update(Actor *this){
     s32 sp2C;
     u8  tmp_a0;
     f32 tmp_f0;
 
 
     if(!this->initialized){
-        this->marker->dieFunc = func_802C61C0;
+        this->marker->dieFunc = chbigbutt_die;
         this->marker->collisionFunc = func_802C60AC;
         this->marker->collision2Func = func_802C6150;
         this->has_met_before = false;
@@ -337,7 +337,7 @@ void func_802C6E3C(s32 arg0, f32 arg1[3]){
     func_80352CF4(sp1C, arg1, 170.0f, 50.0f);
 }
 
-Actor *func_802C6E84(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *chbull_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *actor; //sp4C
     f32 sp40[3];
     

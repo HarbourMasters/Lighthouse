@@ -28,7 +28,7 @@ extern void func_802C71F0(Actor *);
 extern void func_802C74F4(Actor *, s32, f32 );
 extern void warp_lairEnterLairFromSMLevel(s32, s32);
 extern void warp_smExitBanjosHouse(s32, s32);
-extern void func_80335110(s32);
+extern void gsworld_setEnableUpdate(s32);
 extern void controller_getJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);
@@ -454,7 +454,7 @@ void func_802C4C14(Actor *this){
                             else{//L802C5188
                                 timedFunc_set_2(sp44, (GenFunction_2)warp_smExitBanjosHouse, 0, 0);
                             }//L802C51A0
-                            timedFunc_set_1(sp44, (GenFunction_1)func_80335110, 1);
+                            timedFunc_set_1(sp44, (GenFunction_1)gsworld_setEnableUpdate, 1);
                         }//L802C51B8
                         this->state = 6;
                     }

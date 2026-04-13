@@ -52,12 +52,12 @@ enum FF_Action
 
 
 /* .h */
-void func_8038D670(enum FF_Action next_state);// ff_set_state
+void ff_setState(enum FF_Action next_state);// ff_set_state
 void lair_func_8038C6BC(void);
 
 /* extern */
-extern void func_802FACA4(enum item_e);
-extern void func_8028FA14(enum map_e, s32);
+extern void code_73640_printItemCount(enum item_e);
+extern void code_7060_setVoidOutLocation(enum map_e, s32);
 extern void quizQuestionAskedBitfield_set(u32, int); // ff_isAsked_flag_set
 extern int quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
 extern void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
@@ -378,7 +378,7 @@ s16 lair_func_8038C2C0(enum ff_question_type_e type)
 }
 
 // FF: clear isAsked flags for current question type
-void func_8038C2D4(enum ff_question_type_e type)
+void ff_clearAlreadyAskedQuestions(enum ff_question_type_e type)
 {
     s32 i;
 
@@ -575,7 +575,7 @@ void func_8038CE00(void)
     ncStaticCamera_setToNode(0);
 }
 
-void func_8038CE28(void)
+void ff_setup(void)
 {
     s32 i;
 
@@ -651,21 +651,21 @@ void lair_func_8038CF18(void)
     {
         levelSpecificFlags_clear();
         func_8038CE00();
-        func_8038D670(FFA_4_UNK);
+        ff_setState(FFA_4_UNK);
     }
     else
     {
         if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME))
         {
             levelSpecificFlags_clear();
-            func_8038D670(FFA_5_FORGET_MOVES_2);
+            ff_setState(FFA_5_FORGET_MOVES_2);
         }
         else
         {
             if (fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE))
-                func_8038D670(FFA_8_FURNACE_FUN_COMPLETE);
+                ff_setState(FFA_8_FURNACE_FUN_COMPLETE);
             else
-                func_8038D670(FFA_1_UNK);
+                ff_setState(FFA_1_UNK);
         }
     }
 }
@@ -692,7 +692,7 @@ void func_8038D0BC(s32 a0, s32 a1)
 
     if (a1 == 6)
     {
-        func_8038D670(FFA_4_UNK);
+        ff_setState(FFA_4_UNK);
     }
 }
 
@@ -708,7 +708,7 @@ void func_8038D1BC(void)
     func_8025A55C(-1, 500, 9);
 }
 
-void func_8038D1E4(void)
+void ff_getSoundQuestionSound(void)
 {
     f32 cleanupDelay = -1.f;
 
@@ -769,7 +769,7 @@ void func_8038D1E4(void)
     }
 
     if (cleanupDelay > 0.0) // f64
-        timedFunc_set_1(cleanupDelay, (GenFunction_1)func_8038D670, FFA_4_UNK);
+        timedFunc_set_1(cleanupDelay, (GenFunction_1)ff_setState, FFA_4_UNK);
 }
 
 void func_8038D394(void)
@@ -789,16 +789,16 @@ void func_8038D3F0(s32 a0, s8 a1)
         D_8037DCB8->unk12 = 0;
 
         if (D_8037DCB8->ffQuestionType == FFQT_2_SOUND)
-            func_8038D1E4();
+            ff_getSoundQuestionSound();
         else if (D_8037DCB8->ffQuestionType == FFQT_1_PICTURE)
             func_8038D394();
         else
-            func_8038D670(FFA_4_UNK);
+            ff_setState(FFA_4_UNK);
     }
     else
     {
         D_8037DCB8->unkF = a1;
-        func_8038D670(FFA_6_TRIGGER_QUESTION_POST_EFFECTS);
+        ff_setState(FFA_6_TRIGGER_QUESTION_POST_EFFECTS);
     }
 }
 
@@ -809,7 +809,7 @@ void func_8038D48C(void)
     func_802BC280();
 }
 
-void func_8038D4BC(void)
+void ff_setupMinigame(void)
 {
     volatileFlag_set(VOLATILE_FLAG_2_FF_IN_MINIGAME, true);
     func_802E4A70();
@@ -872,7 +872,7 @@ s32 func_8038D60C(s32 a0)
 }
 
 // FF: process ff action
-void func_8038D670(enum FF_Action next_state) {
+void ff_setState(enum FF_Action next_state) {
     s32 pad3C;
     f32 sp30[3];
 
@@ -902,7 +902,7 @@ void func_8038D670(enum FF_Action next_state) {
                 func_8038CE00();
                 gcquiz_func_8031A154(D_8037DCB8->ffQuestionType, D_8037DCB8->unkD, D_8037DCB8->unkE, __code5ED0_getQuizQuestionTime(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC), 0, (void (*)(s32, s8))func_8038D3F0);
             } else {
-                func_8038D4BC();
+                ff_setupMinigame();
             }
             break;
 
@@ -942,7 +942,7 @@ void func_8038D670(enum FF_Action next_state) {
                 D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType]++;
                 if (lair_func_8038C2C0(D_8037DCB8->ffQuestionType) == D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType]) {
                     D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType] = 0;
-                    func_8038C2D4(D_8037DCB8->ffQuestionType);
+                    ff_clearAlreadyAskedQuestions(D_8037DCB8->ffQuestionType);
                 }
                 if (((s32) D_8037DCB8->unk4->unk8 >= 7) && (quizQuestionAskedBitfield_get(func_8038D60C(D_8037DCB8->unk8)) == 0)) {
                     item_adjustByDiffWithHud(ITEM_27_JOKER_CARD, D_8037DCB8->unk4->unk8 - 6);
@@ -1022,7 +1022,7 @@ void func_8038D670(enum FF_Action next_state) {
 }
 
 // FF: get question type
-enum ff_question_type_e func_8038DCD4(enum FF_TileType tile)
+enum ff_question_type_e ff_getQuestionType(enum FF_TileType tile)
 {
     switch (tile)
     {
@@ -1044,7 +1044,7 @@ enum ff_question_type_e func_8038DCD4(enum FF_TileType tile)
 }
 
 // FF: choose level (enum level_e) for picture question (?)
-s32 func_8038DDAC(void)
+s32 ff_getPictureQuestionLevel(void)
 {
     f32 rng = randf();
 
@@ -1054,7 +1054,7 @@ s32 func_8038DDAC(void)
 }
 
 // FF: prepare random unasked question for type
-void func_8038DE34(enum ff_question_type_e type)
+void ff_prepareNextQuestion(enum ff_question_type_e type)
 {
     s32 randQuestionIdx;
     s32 rand;
@@ -1103,7 +1103,7 @@ void func_8038DE34(enum ff_question_type_e type)
             }
             else
             {
-                D_8037DCB8->unkC = func_8038DDAC() + tmp;
+                D_8037DCB8->unkC = ff_getPictureQuestionLevel() + tmp;
                 D_8037DCB8->unkD = D_8037DCB8->unkC / 0xC;
             }
 
@@ -1113,7 +1113,7 @@ void func_8038DE34(enum ff_question_type_e type)
 }
 
 // FF: play timer square sounds
-void func_8038DFBC(void)
+void ff_playTimerTileSounds(void)
 {
     if (D_8037DCB8->UNK_18)
         return;
@@ -1190,7 +1190,7 @@ void lair_func_8038E0B0(void) {
                         break;
 
                     case FFTT_4_MINIGAME://L8038E2E4
-                        func_8038DFBC();
+                        ff_playTimerTileSounds();
                         break;
                 }
                 D_8037DCB8->unk11 = false;
@@ -1202,24 +1202,24 @@ void lair_func_8038E0B0(void) {
         if ((D_8037DCB8->currFfMode >= 2) && (D_8037DCB8->currFfMode < 8) 
             && (item_getCount(ITEM_27_JOKER_CARD) != 0)
         ) {
-            func_802FACA4(ITEM_27_JOKER_CARD);
+            code_73640_printItemCount(ITEM_27_JOKER_CARD);
         }
-        func_8028FA14(MAP_8E_GL_FURNACE_FUN, 2);
+        code_7060_setVoidOutLocation(MAP_8E_GL_FURNACE_FUN, 2);
         switch(D_8037DCB8->currFfMode){
             case 1://L8038E388
                 if(D_8037DCB8->unk8 != 0){
                     func_80347A14(0);
-                    func_8038D670(2);
+                    ff_setState(2);
                 }
                 break;
 
             case 2://L8038E3AC
                 if (D_8037DCB8->unk8 == 0) {
-                    func_8038D670(1);
+                    ff_setState(1);
                     break;
                 }
-                func_802FACA4(0x14);
-                func_802FACA4(0x16);
+                code_73640_printItemCount(0x14);
+                code_73640_printItemCount(0x16);
                 if (sp38 != FFTT_0_NIL) {
                     sp28 = sp38 - 1 + FILEPROG_55_FF_BK_SQUARE_INSTRUCTIONS;
                     if (!fileProgressFlag_get(sp28) && gcdialog_showText(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
@@ -1236,9 +1236,9 @@ void lair_func_8038E0B0(void) {
                         if (func_8028EFEC() && (sp48[FACE_BUTTON(BUTTON_A)] == 1)) {
                             func_803114D0();
                             player_getRotation(D_8037DCB8->playerRotation);
-                            D_8037DCB8->ffQuestionType = func_8038DCD4(sp38);
-                            func_8038DE34(D_8037DCB8->ffQuestionType);
-                            func_8038D670(3);
+                            D_8037DCB8->ffQuestionType = ff_getQuestionType(sp38);
+                            ff_prepareNextQuestion(D_8037DCB8->ffQuestionType);
+                            ff_setState(3);
                             return;
                         }
                         if (func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
@@ -1248,7 +1248,7 @@ void lair_func_8038E0B0(void) {
                                 func_8030E6D4(SFX_3EA_BANJO_GUH_HUH);
                                 volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A9_FF_USED_JOKER);
                                 if (D_8037DCB8->unk8 == 0x1EF) {
-                                    func_8038D670(8);
+                                    ff_setState(8);
                                 }
                             } else {
                                 comusic_playTrack(COMUSIC_2C_BUZZER);
@@ -1268,7 +1268,7 @@ void lair_func_8038E0B0(void) {
                 }
                 if ((D_8037DCB8->unk12 == 0) && func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
                     func_80324C58();
-                    func_8038D670(4);
+                    ff_setState(4);
                 }
                 break;
 
@@ -1285,9 +1285,9 @@ void lair_func_8038E0B0(void) {
                     if (volatileFlag_get(VOLATILE_FLAG_4)) {
                         func_8038E070();
                         D_8037DCB8->unkF = volatileFlag_get(VOLATILE_FLAG_5_FF_MINIGAME_WON);
-                        func_8038D670(6);
+                        ff_setState(6);
                     } else {
-                        func_8038D670(1);
+                        ff_setState(1);
                     }
                     volatileFlag_set(VOLATILE_FLAG_2_FF_IN_MINIGAME, false);
                     volatileFlag_set(VOLATILE_FLAG_4, false);
@@ -1296,17 +1296,17 @@ void lair_func_8038E0B0(void) {
 
             case 6://L8038E6F8
                 if ((D_8037DCB8->unk8 == 0x1EF) && ( D_8037DCB8->unkF == 1)) {
-                    func_8038D670(8);
+                    ff_setState(8);
                 }
                 else{
-                    func_8038D670(2);
+                    ff_setState(2);
                 }
                 break;
 
             case 9://L8038E738
                 if (!func_8025AD7C(0x78)) {
                     mapSpecificFlags_set(6, true);
-                    func_8038D670(0);
+                    ff_setState(0);
                 }
                 break;
         }
@@ -1327,7 +1327,7 @@ void func_8038E7C4(void)
     if (volatileFlag_get(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ))
         return;
 
-    func_8038CE28();
+    ff_setup();
     volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, true);
 }
 

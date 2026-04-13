@@ -687,7 +687,7 @@ void func_80387730(Actor *this) {
     if (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
         player_getPosition(spAC);
         if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (func_803114C4() != 0xF64)) {
-            func_802FACA4(0xC);
+            code_73640_printItemCount(0xC);
         }
         doorIdx = this->actorTypeSpecificField - 1;
         noteThreshold = port_getRomhackNoteDoor(doorIdx);

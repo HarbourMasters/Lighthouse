@@ -555,7 +555,7 @@ void lair_func_8038F924(Actor *this) {
                 itemPrint_reset();
                 this->unk38_0 = true;
             }
-            func_802FACA4(0x2B);
+            code_73640_printItemCount(0x2B);
         }
         else if (this->unk38_0) {
             func_802FAD64(0x2B);

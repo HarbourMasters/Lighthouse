@@ -7,13 +7,13 @@
 #include "bk_time.h"
 #include "port/patches/Patches.h"
 
-extern void func_802F5374(void);
+extern void print_updateBoldLetterFontDelayedFreeing(void);
 extern void func_802FA0F8(void);
 extern void timedFuncQueue_update(void);
 extern void func_80335128(s32);
 extern void func_8025A2B0(void);
 extern void func_8025A430(s32, s32, s32);
-extern void func_80335110(s32);
+extern void gsworld_setEnableUpdate(s32);
 extern void func_8034BB90(void);
 extern void func_8030C27C(void);
 extern void func_80321C34(void);
@@ -83,7 +83,7 @@ void func_802E3854(void){
         mapSavestate_defrag_all();
         gctransition_defrag();
         printbuffer_defrag();
-        func_80350E00();
+        code_C9E70_defrag();
         func_802FA4E0();
         func_8033B5FC();
         timedFuncQueue_defrag();
@@ -160,7 +160,7 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     extern bool gcpausemenu_isCapturing(void);
     bool capturing = gcpausemenu_isCapturing();
 
-    if(!game_is_frozen() && func_80335134() && !capturing){
+    if(!game_is_frozen() && gsworld_getEnableDraw() && !capturing){
         func_8032D474(gdl, mptr, vptr);
     }
 
@@ -236,11 +236,11 @@ void game_setMode(enum game_mode_e next_mode, s32 arg1){
     D_8037E8E0.game_mode = next_mode;
 
     if(next_mode == 2){
-        func_80334E1C(3);
+        gsworld_setUnk0(3);
     }
     else if(next_mode == GAME_MODE_3_NORMAL || func_802E4A08()){
         if(prev_mode != GAME_MODE_4_PAUSED) {
-            func_80334E1C(2);
+            gsworld_setUnk0(2);
         }//L802E3D18
         if(arg1){
             sp20 = false;
@@ -273,7 +273,7 @@ void game_setMode(enum game_mode_e next_mode, s32 arg1){
         D_8037E8E0.unk10 = 0.0f; 
     }
     else if(next_mode == GAME_MODE_4_PAUSED){//L802E3E24
-        func_80335110(0);
+        gsworld_setEnableUpdate(0);
         FUNC_8030E624(SFX_C9_PAUSEMENU_ENTER, 1.1f, 32750);
         pfsManager_update();
         func_8025A430(0, 2000, 3);
@@ -411,7 +411,7 @@ void func_802E4170(void){
     defragManager_free();
     func_802E5F68();
     if(!func_802E4A08())
-        func_802F4F64();
+        print_free();
     timedFuncQueue_free();
     func_802F9C48();
     modelRender_free();
@@ -441,7 +441,7 @@ void func_802E4214(enum map_e map_id){
     func_802F9CD8();
     func_8031B62C();
     if(!func_802E4A08())
-        func_802F51B8();
+        print_init();
     func_802E5F38();
     defragManager_init();
     modelRender_init();
@@ -623,7 +623,7 @@ bool func_802E4424(void) {
         case GAME_MODE_4_PAUSED:                                     /* switch 2 */
             if (gcPauseMenu_update() || cutscenetrigger_update()) {
                 FUNC_8030E624(SFX_C9_PAUSEMENU_ENTER, 0.899316, 32736);
-                func_80335110(1);
+                gsworld_setEnableUpdate(1);
                 func_8025A430(-1, 2000, 3);
                 func_8025A2B0();
                 func_80335128(1);
@@ -637,7 +637,7 @@ bool func_802E4424(void) {
     }
     gctransition_update();
     if (func_802E4A08() == 0) {
-        func_802F5374();
+        print_updateBoldLetterFontDelayedFreeing();
     }
     // [port] After SNS/demo map reload, skip the first draw frame so the aux FBO
     // can initialize before we present. Without this, the scene renders to the
@@ -679,7 +679,7 @@ s32 game_defrag(void){
             func_803894A0();
             break;
         case OVERLAY_D_WITCH:
-            func_80350E00();
+            code_C9E70_defrag();
             break;
     }
     return func_802555D0(); //returns defrag flag in memory.c

@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802DB548(ActorMarker *, ActorMarker *);
+extern void humanoidBaddie_ow(ActorMarker *, ActorMarker *);
 
 typedef struct {
     f32 unk0;
@@ -83,7 +83,7 @@ void func_8035CFC4(Actor *this) {
     local->unk12 = 25000;
     local->unk14 = 1.0f;
     local->unkC_28 = true;
-    local->unk30 = func_802DB548;
+    local->unk30 = humanoidBaddie_ow;
     local->unk34 = func_8035CF60;
     local->unk3C = 1.5f;
 }
@@ -92,7 +92,7 @@ void func_8035D058(Actor *this) {
     if (!this->volatile_initialized) {
         func_8035CFC4(this);
     }
-    func_802DB5A0(this);
+    humanoidBaddie_update(this);
     if (this->state == 5) {
         if (actor_animationIsAt(this, 0.18f) != 0) {
             sfx_playFadeShorthandDefault(SFX_2_CLAW_SWIPE, 1.0f, 28000, this->position, 0x4E2, 0x9C4);
