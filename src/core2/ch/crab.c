@@ -150,7 +150,7 @@ void __chCrab_mutantTextCallback(ActorMarker *caller, enum asset_e text_id, s32 
         func_80324E38(3.0f, 0);
         return;
     }
-    levelSpecificFlags_set(LEVEL_FLAG_E_CC_UNKNOWN, false);
+    levelSpecificFlags_set(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS, false);
 }
 
 s32 __chCrab_802CB76C(ActorMarker *marker, ActorMarker *other) {
@@ -270,7 +270,7 @@ void chCrab_update(Actor *this) {
         if ((this->state != 6) && (this->state != 5)) {
             gcdialog_showText(ASSET_D32_DIALOG_MUTANT_CRAB_MEET, 0xF, this->position, NULL, __chCrab_mutantTextCallback, NULL);
             mapSpecificFlags_set(0, true);
-            levelSpecificFlags_set(LEVEL_FLAG_E_CC_UNKNOWN, true);
+            levelSpecificFlags_set(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS, true);
             this->has_met_before = true;
         }
     }
@@ -288,7 +288,7 @@ void chCrab_update(Actor *this) {
             mapSpecificFlags_set(1, false);
         }
     }
-    if (levelSpecificFlags_get(LEVEL_FLAG_E_CC_UNKNOWN)) {
+    if (levelSpecificFlags_get(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS)) {
         if ((this->state != 8) && (this->state != 9)) {
             subaddie_set_state_with_direction(this, (this->has_met_before) ? 8 : 9, 0.0f, 1);
             this->has_met_before = false;
@@ -304,7 +304,7 @@ void chCrab_update(Actor *this) {
             break;
 
         case 9: //L802CBE6C
-            if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_UNKNOWN)) {
+            if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS)) {
                 subaddie_set_state_with_direction(this, 3, 0.0f, 1);
             }
             break;
@@ -335,7 +335,7 @@ void chCrab_update(Actor *this) {
             if (func_80329480(this)) {
                 subaddie_set_state(this, 9);
                 this->actor_specific_1_f = 12.0f;
-            } else if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_UNKNOWN)) {
+            } else if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS)) {
                 subaddie_set_state_with_direction(this, 3, 0.0f, 1);
             }
             break;

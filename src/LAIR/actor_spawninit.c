@@ -1074,7 +1074,7 @@ void func_80388524(Actor *this) {
                     }
                     break;
 
-                case ACTOR_235_FP_ENTANCE_DOOR: //L803887E0
+                case ACTOR_235_FP_ENTRANCE_DOOR_LEFT: //L803887E0
                     if (!fileProgressFlag_get(FILEPROG_35_FP_OPEN) && func_8038EAE0(5)) {
                         fileProgressFlag_set(FILEPROG_35_FP_OPEN, true);
                     }
@@ -1148,7 +1148,7 @@ void func_80388524(Actor *this) {
                 this->unk1C[1] = this->position[1] + 270.0f;
                 break;
                 
-            case ACTOR_235_FP_ENTANCE_DOOR://L80388A24
+            case ACTOR_235_FP_ENTRANCE_DOOR_LEFT://L80388A24
                     sp30 = actorArray_findActorFromActorId(0x236);
                     if(fileProgressFlag_get(FILEPROG_35_FP_OPEN)){
                         marker_despawn(this->marker);
@@ -1273,7 +1273,7 @@ void func_80388524(Actor *this) {
                 }
                 break;
 
-            case ACTOR_235_FP_ENTANCE_DOOR://L80388F34
+            case ACTOR_235_FP_ENTRANCE_DOOR_LEFT://L80388F34
                 {
                     sp28 = actorArray_findActorFromActorId(0x236);
                     this->unk1C[0] += 3.6;

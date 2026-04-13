@@ -410,7 +410,7 @@ void func_803877A0(uintptr_t arg0) {
 
     sp34 = marker_getActor(reinterpret_cast(ActorMarker *,arg0));
     pCtrl = partEmitMgr_newEmitter(1);
-    particleEmitter_setSprite(pCtrl, ASSET_475_UNKNOWN);
+    particleEmitter_setSprite(pCtrl, ASSET_475_SPRITE_GAME_OVER_HEART);
     particleEmitter_setStartingFrameRange(pCtrl, 1, 6);
     particleEmitter_setRGB(pCtrl, D_8038D584);
     particleEmitter_setAlpha(pCtrl, 0xFF);
