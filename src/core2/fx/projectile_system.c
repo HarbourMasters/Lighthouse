@@ -25,7 +25,7 @@ typedef struct {
 
 void projectile_setRoll(u8 indx, f32 angle);
 f32 projectile_getRoll(u8 indx);
-void func_8033FB64(u8 arg0);
+void projectile_freeByIndex(u8 arg0);
 
 /* .bss */
 Struct_B8860_0s D_80385000[0x32];
@@ -53,8 +53,8 @@ void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         func_80252330(sp30[0], sp30[1], sp30[2]);
         mlMtxApply(*mtx);
         gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        func_803382E4(sp54->unk28_21);
-        func_80338338(sp54->color[0], sp54->color[1],sp54->color[2]);
+        codeAEDA0_setSpriteDrawMode(sp54->unk28_21);
+        codeAEDA0_setPrimaryColorRGB(sp54->color[0], sp54->color[1],sp54->color[2]);
         func_803382FC(sp54->unk27);
         func_80338308(sp54->unk20[0], sp54->unk20[1]);
         func_8033837C(1);
@@ -75,7 +75,7 @@ void func_8033FA24(void){
     int i;
     for(i = 1; i < 0x32; i++){
         if(D_80385000[i].unk28_13){
-            func_8033FB64(i);
+            projectile_freeByIndex(i);
         }
     }
 }
@@ -105,7 +105,7 @@ u8 func_8033FA84(void){
     return 0;
 }
 
-void func_8033FB64(u8 indx){
+void projectile_freeByIndex(u8 indx){
     if(D_80385000[indx].sprite_0){
         assetCache_free(D_80385000[indx].sprite_0);
     }

@@ -2,7 +2,7 @@
 #define BANJO_KAZOOIE_CORE1_MAIN_H
 #include <libultra/thread.h>
 
-void func_8023DA20(s32 arg0);
+void core1_main(s32 arg0);
 void func_8023DA74(void);
 void func_8023DA9C(s32 arg0);
 u32 globalTimer_getTimeMasked(u32 mask);

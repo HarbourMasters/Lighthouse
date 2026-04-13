@@ -164,10 +164,10 @@ void chTermite_update(Actor *this) {
         this->unk16C_0 = true;
         this->volatile_initialized = true;
     }
-    if( map_get() == MAP_C_MM_TICKERS_TOWER 
+    if( gsworld_getMap() == MAP_C_MM_TICKERS_TOWER 
         && !mapSpecificFlags_get(0) 
-        && func_80329530(this, 700) 
-        && !func_80329530(this, 150)
+        && subaddie_playerIsWithinSphereAndActive(this, 700) 
+        && !subaddie_playerIsWithinSphereAndActive(this, 150)
         && player_movementGroup() == BSGROUP_0_NONE
         && player_getTransformation() == TRANSFORM_1_BANJO
     ) {
@@ -177,8 +177,8 @@ void chTermite_update(Actor *this) {
         this->has_met_before = true;
     }
 
-    if( func_80329530(this, 300)
-        && !func_80329530(this, 150) 
+    if( subaddie_playerIsWithinSphereAndActive(this, 300)
+        && !subaddie_playerIsWithinSphereAndActive(this, 150) 
         && player_movementGroup() == BSGROUP_0_NONE
         && player_getTransformation() == TRANSFORM_2_TERMITE
     ) {

@@ -264,7 +264,7 @@ void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             func_8033A45C(1, 0);
             func_8033A45C(2, 1);
         }
-        switch (map_get()) {                          /* irregular */
+        switch (gsworld_getMap()) {                          /* irregular */
         case MAP_88_CS_SPIRAL_MOUNTAIN_6:
             if (mapSpecificFlags_get(0) != 0) {
                 func_8033A45C(1, 1);
@@ -354,7 +354,7 @@ void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         case MAP_93_GL_DINGPOT:
             func_8033A45C(4, 1);
             func_8033A45C(5, 1);
-            func_8033A45C(6, (func_8038EAE0(0xA) || fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)));
+            func_8033A45C(6, (jigsawPicture_isJigsawPictureComplete(0xA) || fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)));
             break;
         }
         func_8033A450(mapModel.unk24);
@@ -375,7 +375,7 @@ void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     s32 temp_a0;
 
     if (mapModel.model_bin_xlu != NULL) {
-        if (map_get() == MAP_1D_MMM_CELLAR) {
+        if (gsworld_getMap() == MAP_1D_MMM_CELLAR) {
             func_8033A45C(1, (actorArray_findActorFromActorId(0x191) != NULL) ? 0 : 1);
         }
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
@@ -609,7 +609,7 @@ void func_8030A078(void) {
     mapModel.env_green = 0xFF;
     mapModel.env_red = 0xFF;
 
-    description = _mapModel_mapIdToDescription(map_get());;
+    description = _mapModel_mapIdToDescription(gsworld_getMap());;
     mapModel.description = description;
     mapModel.scale = (f32) description->scale;
     // [port] Reload map models fresh — on N64 these were always loaded from ROM.

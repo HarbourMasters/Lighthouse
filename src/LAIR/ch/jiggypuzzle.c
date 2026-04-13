@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/GameConfig.h"
-extern void func_8028F3D8(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
+extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void rand_seed(s32);
 extern void func_8034DF30(Struct70s *, f32[3], f32[3], f32);
@@ -55,7 +55,7 @@ static s32 _puzzleCost(s32 index) {
     return (override >= 0) ? override : D_803947F8[index].cost;
 }
 
-bool func_8038EAE0(s32 arg0) {
+bool jigsawPicture_isJigsawPictureComplete(s32 arg0) {
     s32 cost = _puzzleCost(arg0 - 1);
     return fileProgressFlag_getN(D_803947F8[arg0 -1].progress_flag, D_803947F8[arg0 -1].size_bits) == cost;
 }
@@ -218,7 +218,7 @@ void func_8038EFD8(Actor *this) {
     sp24[1] = this->position[1];
     sp24[2] = this->position[2];
     sp24[1] += 50.0f;
-    func_8028F3D8(sp24, ml_vec3f_distance(sp30, sp24) / 150.0, func_8038EF58, this->marker);
+    player_walkToPosition(sp24, ml_vec3f_distance(sp30, sp24) / 150.0, func_8038EF58, this->marker);
 }
 
 void func_8038F078(ActorMarker *marker, enum asset_e text_id, s32 arg2){
@@ -395,7 +395,7 @@ void lair_func_8038F800(Actor *this) {
     for(phi_s0 = 0; phi_s0 < func_8038EB24(this); phi_s0++){
         temp_v0 = func_8034C528(func_8038ED10(this, phi_s0));
         if (temp_v0 != 0) {
-            func_8034E0FC((Struct6Ds *)temp_v0, func_8038ECFC(this, phi_s0) ? 0xff : 0); // [port] Struct70s* layout-compatible with Struct6Ds* here
+            setStruct6DsOpacity((Struct6Ds *)temp_v0, func_8038ECFC(this, phi_s0) ? 0xff : 0); // [port] Struct70s* layout-compatible with Struct6Ds* here
         }
     }
 }
@@ -484,21 +484,21 @@ void lair_func_8038F924(Actor *this) {
         }
     }
     controller_copyFaceButtons(0, sp7C);
-    func_8024E60C(0, sp6C);
+    controller_copySideButtons(0, sp6C);
     func_8038EDBC(this);
     switch(this->state){
         case 1://L8038FCD0
             if (!this->has_met_before && (!func_8028F20C() || !func_8028FB48(0x08000000))) {
                 this->has_met_before = true;
             }
-            if (func_80329530(this, 300)) {
+            if (subaddie_playerIsWithinSphereAndActive(this, 300)) {
                 if ((this->actorTypeSpecificField == 0xA) && !fileProgressFlag_get(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM)) {
                     phi_a0 = (item_getCount(ITEM_26_JIGGY_TOTAL) < D_803947F8[this->actorTypeSpecificField - 1].cost) ? 0xFAB : 0xFC0;
                     if (gcdialog_showText(phi_a0, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM, true);
                     }
                 } else if (this->actorTypeSpecificField == 1) {
-                    func_8035644C(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT);
+                    progressDialog_showDialogMaskZero(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT);
                 }
             }
             if (func_8038ECA8(this->marker) && this->has_met_before && !func_8038EB58(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
@@ -507,7 +507,7 @@ void lair_func_8038F924(Actor *this) {
             break;
 
         case 4: //L8038FE28
-            if ((func_803114C4() != 0xF7C) && (func_803114C4() != 0xF7D)) {
+            if ((gcdialog_getCurrentTextId() != 0xF7C) && (gcdialog_getCurrentTextId() != 0xF7D)) {
                 if (sp7C[FACE_BUTTON(BUTTON_A)] == 1) {
                     lair_func_8038F894(this, 5);
                 } else if (sp7C[FACE_BUTTON(BUTTON_B)] == 1) {

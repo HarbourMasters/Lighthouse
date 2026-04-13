@@ -66,7 +66,7 @@ void func_802D05A0(Actor *this, s32 next_state){
         func_802D0500(this);
         if(-1.0f != D_80367340[(s32)this->yaw].unkC)
             sfxsource_playSfxAtVolume(local->sfxsourceIdx, D_80367340[(s32)this->yaw].unkC);
-        func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_func_8030E2C4(local->sfxsourceIdx);
     }//L802D0780
     this->state = next_state;
 }

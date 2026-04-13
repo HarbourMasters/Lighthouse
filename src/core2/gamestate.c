@@ -175,14 +175,14 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
     return D_80385F30[item];
 }
 
-// func_803463D4
+// item_adjustByDiffWithHud
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
     return item_adjustByDiff(item, diff, 0);
 }
 
-// func_803463F4
+// item_adjustByDiffWithoutHud
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
@@ -193,14 +193,14 @@ void item_set(s32 item, s32 val){
     item_adjustByDiffWithHud(item, val - item_getCount(item));
 }
 
-// func_80346448
+// item_setMaxCount
 void item_setMaxCount(s32 item){
     // Sets the count of an item to the max
     // Used for TTC cheats and Lair refill pillows
     item_adjustByDiffWithHud(item, 9999999);
 }
 
-// func_8034646C
+// item_setItemsStartCounts
 void item_setItemsStartCounts(void){
     // Sets the player initial inventory count
     int i;
@@ -267,8 +267,8 @@ void func_803465E4(void){
     if(D_80385FE8){
         if( ncCamera_getType() != 3 // CAMERA_TYPE_3_STATIC
             && func_8028F070()
-            && map_get() != MAP_33_UNUSED
-            && map_get() != MAP_91_FILE_SELECT
+            && gsworld_getMap() != MAP_33_UNUSED
+            && gsworld_getMap() != MAP_91_FILE_SELECT
         ){
             D_80385FE0 = true;
         }//L80346674
@@ -307,7 +307,7 @@ void func_803465E4(void){
         if(level_get() != LEVEL_2_TREASURE_TROVE_COVE || !levelSpecificFlags_get(LEVEL_FLAG_5_TTC_UNKNOWN)){
             is_underwater = (player_getWaterState() == BSWATERGROUP_2_UNDERWATER);
             is_on_water_surface = (player_getWaterState() == BSWATERGROUP_1_SURFACE);
-            is_in_polluted_or_winter_water = ((level_get() == LEVEL_9_RUSTY_BUCKET_BAY) || (map_get() == MAP_46_CCW_WINTER));
+            is_in_polluted_or_winter_water = ((level_get() == LEVEL_9_RUSTY_BUCKET_BAY) || (gsworld_getMap() == MAP_46_CCW_WINTER));
             if( is_in_polluted_or_winter_water && (is_underwater || is_on_water_surface)){ //L803467EC
                 D_80385FEC = 2.0f;
             }
@@ -344,7 +344,7 @@ void func_803465E4(void){
     ){
         if(sp4C == LEVEL_C_BOSS)
             sp4C = LEVEL_6_LAIR;
-        if(sp4C > 0  && sp4C < 0xC && map_get() != MAP_91_FILE_SELECT){
+        if(sp4C > 0  && sp4C < 0xC && gsworld_getMap() != MAP_91_FILE_SELECT){
             D_80386000[sp4C] = MAX(1.0, MIN(65535.0, D_80386000[sp4C] + time_getDelta()));
         }
     }//L80346B6C

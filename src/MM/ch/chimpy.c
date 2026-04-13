@@ -43,7 +43,7 @@ ActorInfo chlmonkeyInfo = {
 void __chlmonkey_updateBringOrange(Actor **this_ptr) {
     player_setCarryObjectPoseInHorizontalRadius((*this_ptr)->position, 800.0f, ACTOR_29_ORANGE_COLLECTIBLE, this_ptr);
 
-    if (func_80329530(*this_ptr, 345) &&
+    if (subaddie_playerIsWithinSphereAndActive(*this_ptr, 345) &&
         bacarry_get_markerId() == MARKER_36_ORANGE_COLLECTIBLE &&
         player_throwCarriedObject()) {
 
@@ -94,11 +94,11 @@ void chlmonkey_update(Actor *this) {
     actor_collisionOff(this);
     this->marker->propPtr->unk8_3 = 1;
 
-    if (map_get() != MAP_2_MM_MUMBOS_MOUNTAIN) {
+    if (gsworld_getMap() != MAP_2_MM_MUMBOS_MOUNTAIN) {
         func_80343DEC(this);
     }
     else {//L80388630
-        if (func_80329530(this, 700) && !func_803114B0()) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId()) {
             __chlmonkey_playRandomNoise(this);
         }//L8038865C
 
@@ -117,8 +117,8 @@ void chlmonkey_update(Actor *this) {
                 else {
                     __chlmonkey_updateBringOrange(&this);
 
-                    if (func_80329530(this, 345) &&
-                        !func_80329530(this, 150) &&
+                    if (subaddie_playerIsWithinSphereAndActive(this, 345) &&
+                        !subaddie_playerIsWithinSphereAndActive(this, 150) &&
                         !item_getCount(ITEM_19_ORANGE) &&
                         !this->has_met_before) {
 

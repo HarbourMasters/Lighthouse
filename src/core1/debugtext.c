@@ -377,7 +377,7 @@ void func_802483B8(void){
     do{}while(1);
 }
 
-void func_802483D8(void){
+void gcdebugText_pauseThread(void){
     s32 i;
     D_80275BD0 = 1;
     for(i = 30000000; i != 0; i--){}
@@ -431,7 +431,7 @@ void func_8024856C(void) {
 }
 
 
-s32 func_802485BC(void){
+s32 gcdebugText_isThreadLocked(void){
     return D_80275BD0;
 }
 

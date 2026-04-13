@@ -355,7 +355,7 @@ void func_802CCC5C(Actor *this) {
                 }
                 if (phi_f12 > 0.0f) {
                     sfxsource_setSampleRate(local->unk0, (s32) (phi_f12 * 10000.0f));
-                    func_8030E2C4(local->unk0);
+                    sfxSource_func_8030E2C4(local->unk0);
                 }
             }
         }

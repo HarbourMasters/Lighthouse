@@ -11,17 +11,17 @@ void func_80297C60(s32 arg0){
     D_8037C530 = arg0;
 }
 
-s32 func_80297C6C(void){
+s32 baiFrame_getState(void){
     return D_8037C530;
 }
 
-void func_80297C78(void){
+void baiFrame_reset(void){
     D_8037C530 = 0;
     func_80297C60(1);
     stateTimer_clear(STATE_TIMER_4_UNKNOWN);
 }
 
-void func_80297CA8(void){
+void baiFrame_start(void){
     baiFrame_startWithValue(0.6f);
 }
 
@@ -30,7 +30,7 @@ void baiFrame_startWithValue(f32 value){
     func_80297C60(3);
 }
 
-void func_80297CF8(void){
+void hazards_update(void){
     if(stateTimer_isDone(STATE_TIMER_4_UNKNOWN)){
         func_80297C60(1);
     }

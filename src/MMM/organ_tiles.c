@@ -76,12 +76,12 @@ void func_8038B630(Struct5Fs *arg0, Struct68s *arg1){
     
     sp20 = alCents2Ratio(func_80389BBC()*100);
     phi_s0 = func_80351758_getSfxsourceIndex(arg1);
-    sfxSource_func_8030E2C4(phi_s0);
+    sfxSource_triggerCallbackByIndex(phi_s0);
     sfxsource_playSfxAtVolume(phi_s0, sp20);
     sfxsource_setSfxId(phi_s0, 0x3f3);
     sfxSource_setunk43_7ByIndex(phi_s0, 3);
     sfxsource_setSampleRate(phi_s0, 0x7fff);
-    func_8030E2C4(phi_s0);
+    sfxSource_func_8030E2C4(phi_s0);
     arg0->unk14 = 1.5f;
     if(pad);
 

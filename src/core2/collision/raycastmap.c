@@ -338,7 +338,7 @@ void func_80358684(Actor *this) {
         sp78 = (0.0f > sp78) ? 0 : sp78;
         if (sp78 > 0.0f) {
             sfxsource_setSampleRate(local->sfxsourceIdx, (s32) (sp78 * 10000.0f));
-            func_8030E2C4(local->sfxsourceIdx);
+            sfxSource_func_8030E2C4(local->sfxsourceIdx);
         }
     }
     if (this->unk10_25) {

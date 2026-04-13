@@ -80,7 +80,7 @@ void func_803884A8(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3){
 void func_80388518(s32 arg0){
     s32 sp24;
     if(D_80389FA0.unk21 == 2){
-        sfxSource_func_8030E2C4(D_80389FA0.sfxsourceIdx);
+        sfxSource_triggerCallbackByIndex(D_80389FA0.sfxsourceIdx);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.6f, 20000);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.8f, 20000);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.9f, 20000);
@@ -98,7 +98,7 @@ void func_80388518(s32 arg0){
         sfxsource_setSfxId(D_80389FA0.sfxsourceIdx, SFX_7D_ANCHOR_LIFTING);
         sfxSource_setunk43_7ByIndex(D_80389FA0.sfxsourceIdx, 3);
         sfxsource_setSampleRate(D_80389FA0.sfxsourceIdx, 27000);
-        func_8030E2C4(D_80389FA0.sfxsourceIdx);
+        sfxSource_func_8030E2C4(D_80389FA0.sfxsourceIdx);
     }
 
     if(D_80389FA0.unk21 == 3){
@@ -265,7 +265,7 @@ void func_80388CB4(void){
 
 void func_80388D54(void){
     D_80389FA0.unk21 = 0;
-    if(map_get() == MAP_B_CC_CLANKERS_CAVERN){
+    if(gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN){
         D_80389FA0.unk0 = skeletalAnim_new();
         D_80389FA0.sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         D_80389FA0.unk8 = 1.0f;

@@ -239,7 +239,7 @@ void __maSlalom_loseDialogCallback(void){
     timed_exitStaticCamera(0.0f);
     timedFunc_set_0(0.0f, __maSlalom_despawnAllGates);
     timedFunc_set_0(0.0f, __maSlalom_despawnAllBridges);
-    code_7060_setVoidOutLocation(map_get(), 0x11);
+    code_7060_setVoidOutLocation(gsworld_getMap(), 0x11);
     func_8028F66C(BS_INTR_2A);
 }
 
@@ -268,7 +268,7 @@ void maSlalom_dialogCallback(ActorMarker *caller, enum asset_e text_id, s32 arg2
 
         case 0xc10: //8038B358
             func_8038ABDC();
-            code_7060_setVoidOutLocation(map_get(), 0x11);
+            code_7060_setVoidOutLocation(gsworld_getMap(), 0x11);
             func_8028F66C(BS_INTR_2A);
             timedFunc_set_0(0.0f, __maSlalom_clearState);
             break;
@@ -374,7 +374,7 @@ void maSlalom_init(void){
 
     FP_func_8038AB60(0);
 
-    if(map_get() != MAP_27_FP_FREEZEEZY_PEAK || jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3)){
+    if(gsworld_getMap() != MAP_27_FP_FREEZEEZY_PEAK || jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3)){
         Me.state = MA_SLALOM_STATE_0_NONE;
         return;
     }

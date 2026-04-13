@@ -645,7 +645,7 @@ void func_802A4A78(s32 arg0) {
     baphysics_set_target_horizontal_velocity(sp20);
     baphysics_set_target_yaw(sp28);
     baphysics_set_horizontal_velocity(sp28, baphysics_get_target_horizontal_velocity());
-    if ((arg0 == 1) && (map_get() == MAP_90_GL_BATTLEMENTS)) {
+    if ((arg0 == 1) && (gsworld_getMap() == MAP_90_GL_BATTLEMENTS)) {
         yaw_setIdeal(mlNormalizeAngle(sp28));
         yaw_applyIdeal();
     }
@@ -676,7 +676,7 @@ void func_802A4C34(s32 arg0) {
 void func_802A4C88(s32 arg0) {
     baphysics_reset();
     baMarker_collisionOn();
-    func_80297CA8();
+    baiFrame_start();
     func_8029E070(0);
     func_80291548();
     func_802A34C8();
@@ -722,7 +722,7 @@ void func_802A4D90(void) {
     baphysics_set_target_horizontal_velocity(1300.0f);
     baphysics_set_target_yaw(sp34);
     baphysics_set_horizontal_velocity(sp34, baphysics_get_target_horizontal_velocity());
-    if (map_get() == MAP_90_GL_BATTLEMENTS) {
+    if (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) {
         yaw_setIdeal(mlNormalizeAngle(sp34));
         yaw_applyIdeal();
     }
@@ -771,7 +771,7 @@ void func_802A4FC8(void) {
     if (anctrl_isAt(baanim_getAnimCtrlPtr(), 0.1358f) != 0) {
         func_8030EBC8(SFX_2_CLAW_SWIPE, 0.6f, 0.7f, 10000, 12000);
     }
-    if (func_80298850() == 0) {
+    if (balookat_getState() == 0) {
         next_state = BS_24_FLY;
     }
     bs_setState(next_state);

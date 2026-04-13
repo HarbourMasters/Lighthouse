@@ -123,8 +123,8 @@ void chBossJinjoBase_update(Actor *this) {
 
             if(this->position_y + y_delta < this->unk1C[1]) {
                 if( !fileProgressFlag_get(FILEPROG_D2_HAS_SPAWNED_A_JINJO_STATUE_IN_FINAL_FIGHT) || this->actorTypeSpecificField == 1) {
-                    func_8030E2C4(this->unk44_31);
-                    func_8030E2C4(local->sfxsourceIdx);
+                    sfxSource_func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(local->sfxsourceIdx);
                 }
                 
                 position_delta[0] = (rumbling & 1) ? 3.0f : -3.0f;

@@ -162,7 +162,7 @@ int __chSnowman_isPlayerInAttackRange(Actor *this, s32 min_distance, s32 max_dis
         if( (this->position[1] + 500.0f < player_position[1]) || (player_position[1] < this->position[1] - 500.0f))
             return 0;
     }//L802E1F28
-    if(func_80329530(this, max_distance) && !func_80329530(this, min_distance)){
+    if(subaddie_playerIsWithinSphereAndActive(this, max_distance) && !subaddie_playerIsWithinSphereAndActive(this, min_distance)){
         return 1;
     }
     return 0;
@@ -185,7 +185,7 @@ void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
     sfx_playFadeShorthandDefault(SFX_2F_ORANGE_SPLAT, 1.0f, 30000, actor->position, 1500, 4500);
 
     __spawnQueue_add_1((GenFunction_1)__chSnowman_spawnHat, (uintptr_t)actor->marker);
-    if(map_get() == MAP_27_FP_FREEZEEZY_PEAK)
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK)
         maSnowy_decRemaining();
     __chSnowman_spawnSnowballParticles(actor->position, 0xC);
     marker_despawn(actor->marker);
@@ -194,7 +194,7 @@ void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
 int __chSnowman_CCW_playerInProtectedZone(void){
     static f32 ccw_no_attack_zone[3] = {350.0f, 600.0f, 65.0f};
     f32 player_position[3];
-    if(map_get() == MAP_46_CCW_WINTER){
+    if(gsworld_getMap() == MAP_46_CCW_WINTER){
         player_getPosition(player_position);
         if(ml_vec3f_within_horizontal_distance(player_position, ccw_no_attack_zone, 900.0f))
             return 1;
@@ -221,12 +221,12 @@ void chSnowman_update(Actor *this){
         anctrl_setTransitionDuration(this->anctrl, 0.8f);
         anctrl_setAnimTimer(this->anctrl, randf());
         func_8032BC18(this);
-        if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+        if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
             local->unk0 = actorArray_findActorFromActorId(0x336)->marker;
             maSnowy_incTotal();
         }
     }//L802E21D8
-    if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive() || func_8038DD14()){
             actor_collisionOff(this);
             this->unk58_0 = 0;
@@ -249,12 +249,12 @@ void chSnowman_update(Actor *this){
             local->unk9 = false;
             local->unkA = 1;
             __chSnowman_setYawTarget(this, 6.0f);
-            if(!func_80329530(this, 3150)){
+            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
                 __chSnowman_enterDeath(this);
             }
             else if( 
-                map_get() != MAP_27_FP_FREEZEEZY_PEAK
-                || func_8038DD34(local->unk0) == 0
+                gsworld_getMap() != MAP_27_FP_FREEZEEZY_PEAK
+                || preventSnowmanAttack(local->unk0) == 0
                 || fileProgressFlag_get(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME)
             ){//L802E2318
                 if(0.0 < local->unk4){
@@ -277,7 +277,7 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_2_ATTACK://L802E23E8
-            if(!func_80329530(this, 3150)){
+            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
                 __chSnowman_enterDeath(this);
             }//L802E240C
             else if( 
@@ -317,7 +317,7 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_3_DIE://L802E2604
-            if(func_80329530(this, 3150)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 3150)){
                 __chSnowman_enterIdle(this);
             }
             break;

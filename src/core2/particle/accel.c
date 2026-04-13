@@ -10,14 +10,14 @@ typedef struct {
     u32 pad8_20:21;
 } Struct_Core2_69F60_0;
 
-void func_802F1190(u8 arg0);
+void pem_free(u8 arg0);
 
 /* .bss*/
 u8 D_80380930;
 Struct_Core2_69F60_0 D_80380938[16];
 
 /* .code */
-ParticleEmitter *func_802F0EF0(u8 arg0){
+ParticleEmitter *pem_getEmitterByIndex(u8 arg0){
     if(D_80380938[arg0].p_emitter == NULL){
         D_80380930 = arg0;
         D_80380938[arg0].p_emitter = partEmitMgr_newEmitter(D_80380938[arg0].capacity);
@@ -28,7 +28,7 @@ ParticleEmitter *func_802F0EF0(u8 arg0){
     return D_80380938[arg0].p_emitter;
 }
 
-u8 func_802F0F78(s32 cnt){
+u8 pem_newEmitter(s32 cnt){
     int i;
     for(i = 1; i < 16; i++){
         if(D_80380938[i].unk8_31 == 0){
@@ -41,11 +41,11 @@ u8 func_802F0F78(s32 cnt){
     return 0;
 }
 
-void func_802F10A4(void){
+void pem_freeDependencies(void){
     int i;
     for(i = 1; i < 16; i++){
         if(D_80380938[i].unk8_31 != 0){
-            func_802F1190(i);
+            pem_free(i);
         }
     }
 }
@@ -57,14 +57,14 @@ void func_802F1104(void){
     }
 }
 
-void func_802F1190(u8 arg0){
+void pem_free(u8 arg0){
     if(D_80380938[arg0].p_emitter){
         partEmitMgr_freeEmitter(D_80380938[arg0].p_emitter);
     }
     D_80380938[arg0].unk8_31 = 0;
 }
 
-void func_802F11E8(void){
+void commonParticle_update(void){
     int i;
     for(i = 1; i < 16; i++){
         if( D_80380938[i].unk8_31 != 0
@@ -80,7 +80,7 @@ void func_802F11E8(void){
     }
 }
 
-void func_802F1294(void){
+void pem_freeEmitters(void){
     int i;
     for(i = 1; i < 16; i++){
         if( D_80380938[i].unk8_31 != 0
@@ -93,7 +93,7 @@ void func_802F1294(void){
     }
 }
 
-void func_802F1320(void){
+void pem_defragAll(void){
     int i;
     for(i = 1; i < 16; i++){
         if( D_80380938[i].unk8_31 != 0
@@ -115,7 +115,7 @@ void func_802F1388(void){
     func_802F3CB0();
 }
 
-void func_802F13E0(void){
+void pem_setAllInactive(void){
     func_802EDD44();
     fxRipple_init();
     func_802F1EA4();

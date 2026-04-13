@@ -85,7 +85,7 @@ void chfirefx_update(Actor *this){
         }//L803599F4
         if(0.0f != this->unk1C[0]){
             func_8030DB04(this->unk44_31, 7000, this->position, 300.0f, 800.0f);
-            func_8030E2C4(this->unk44_31);
+            sfxSource_func_8030E2C4(this->unk44_31);
         }
     }//L80359A2C
 }

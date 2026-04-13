@@ -394,7 +394,7 @@ void __bspumpkin_bounce_update(void) {
 }
 
 void __bspumpkin_bounce_end(void) {
-    func_80297CA8();
+    baiFrame_start();
     baphysics_reset_gravity();
     baMarker_collisionOn();
     baeyes_open();
@@ -546,7 +546,7 @@ void func_802B34F8(void) {
     next_state = 0;
     func_802B3A50();
     func_8029C6D0();
-    if (func_80298850() == 0) {
+    if (balookat_getState() == 0) {
         next_state = BS_48_PUMPKIN_IDLE;
     }
     bs_setState(next_state);

@@ -266,7 +266,7 @@ s32 func_80344C14(s32 arg0){
     return 0;
 }
 
-s32 func_80344C20(BKSpriteDisplayData *self){
+s32 codeBD100_getSpriteType(BKSpriteDisplayData *self){
     return self->sprite->type;
 }
 

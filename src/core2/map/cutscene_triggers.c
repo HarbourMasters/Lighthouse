@@ -160,7 +160,7 @@ void func_80322490(void) {
             if ((i_ptr->unk4 != 0
                 || (skipLogos
                     && i_ptr->unkC == func_80322318
-                    && map_get() == MAP_1F_CS_START_RAREWARE
+                    && gsworld_getMap() == MAP_1F_CS_START_RAREWARE
                     && introFrameCounter > 30))
                 && i_ptr->unkC != NULL) {
                 i_ptr->unkC(i_ptr);

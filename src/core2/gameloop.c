@@ -10,7 +10,7 @@
 extern void print_updateBoldLetterFontDelayedFreeing(void);
 extern void func_802FA0F8(void);
 extern void timedFuncQueue_update(void);
-extern void func_80335128(s32);
+extern void gsworld_setEnableDraw(s32);
 extern void func_8025A2B0(void);
 extern void func_8025A430(s32, s32, s32);
 extern void gsworld_setEnableUpdate(s32);
@@ -103,13 +103,13 @@ void func_802E38E8(enum map_e map, s32 exit, s32 reset_on_load){
         func_8030AFA0(map);
     }
     func_802FA508();
-    func_80334B20(map, exit, 0);
+    gsworld_set(map, exit, 0);
     func_802E3800();
     func_8033DC10();
 }
 
 void func_802E398C(s32 arg0) {
-    func_80334910();
+    gsworld_free();
     func_8030ED0C();
     comusicPlayer_update();
     if (arg0 != 0) {
@@ -123,7 +123,7 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
 
     scissorBox_SetForGameMode(gdl, framebuffer_idx);
     D_8037E8E0.unkC = false;
-    func_80334540(gdl, mptr, vptr);
+    gsworld_draw(gdl, mptr, vptr);
     // [port] After scene draw, capture the transition GPU FB if active.
     // Resets FB and copies backbuffer → transition FB (GPU-side, no readback).
     if (port_shouldCaptureTransition()) {
@@ -296,9 +296,9 @@ void func_802E3E7C(enum game_mode_e mode){
     sp28 = D_8037E8E0.exit;
     prev_mode = D_8037E8E0.unk0;
     game_setMode(GAME_MODE_2_UNKNOWN, 0);
-    if(!volatileFlag_getAndSet(VOLATILE_FLAG_21, 0) || map_getLevel(map_get()) == map_getLevel(D_8037E8E0.map)){
+    if(!volatileFlag_getAndSet(VOLATILE_FLAG_21, 0) || map_getLevel(gsworld_getMap()) == map_getLevel(D_8037E8E0.map)){
         if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE))
-            mapSavestate_save(map_get());
+            mapSavestate_save(gsworld_getMap());
     }
     func_802E398C(1);
     func_802E38E8(map, sp28, sp34);
@@ -419,7 +419,7 @@ void func_802E4170(void){
     func_802E398C(0);
     func_8030AFD8(0);
     func_80321854();
-    func_8031FBF8();
+    debugScoreStates();
     animCache_free();
     comusicPlayer_free();
     func_8030D8DC();
@@ -580,7 +580,7 @@ bool func_802E4424(void) {
         game_setMode(D_8037E8E0.unk1A - 1, D_8037E8E0.unk1B);
         D_8037E8E0.unk1A = 0;
     }
-    sp1C = func_80334ECC();
+    sp1C = gsworld_update();
     func_80321C34();
     func_8030ED0C();
     comusicPlayer_update();
@@ -626,7 +626,7 @@ bool func_802E4424(void) {
                 gsworld_setEnableUpdate(1);
                 func_8025A430(-1, 2000, 3);
                 func_8025A2B0();
-                func_80335128(1);
+                gsworld_setEnableDraw(1);
                 game_setMode(GAME_MODE_3_NORMAL, 0U);
             }
             break;
@@ -660,7 +660,7 @@ s32 game_defrag(void){
     
     glspline_defrag();
     animCache_defrag();
-    func_802F1320();
+    pem_defragAll();
     ncCameraNodeList_defrag();
     modelRender_defrag();
     func_8028FB68();

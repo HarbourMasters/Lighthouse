@@ -1,4 +1,3 @@
-// BanjoDecomp: scarfsled.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -68,7 +67,7 @@ void __chScarfSled_func_8038655C(Actor *this){
             func_8030E0FC(this->unk44_31, 0.9f, 1.5f, 1.2f);
         }
         this->unk10_12 = true;
-        func_8030E2C4(*((u8*)this + 0x44));
+        sfxSource_func_8030E2C4(*((u8*)this + 0x44));
     }
 }
 

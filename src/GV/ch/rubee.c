@@ -63,7 +63,7 @@ void func_80389B1C(Actor *this){
     anctrl_setTransitionDuration(this->anctrl, 0.15f);
 
     if(this->state == 1 || this->state == 2){
-        if(! this->has_met_before && func_80329530(this, 250) && !func_80329530(this, 0x50)){
+        if(! this->has_met_before && subaddie_playerIsWithinSphereAndActive(this, 250) && !subaddie_playerIsWithinSphereAndActive(this, 0x50)){
             gcdialog_showText(ASSET_A6F_DIALOG_RUBEE_MEET, 0xe, this->position, NULL, NULL, NULL);
             this->has_met_before = true;
             mapSpecificFlags_set(0, true);

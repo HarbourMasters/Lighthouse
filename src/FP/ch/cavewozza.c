@@ -5,7 +5,7 @@
 
 extern void func_8028E668(f32[3], f32, f32, f32);
 
-void func_80390630(Actor *this);
+void chCaveWozza_update(Actor *this);
 
 /* .data */
 extern ActorAnimationInfo D_803926F0[]= {
@@ -15,12 +15,12 @@ extern ActorAnimationInfo D_803926F0[]= {
 
 extern ActorInfo D_80392700 = { MARKER_20F_WOZZA_IN_CAVE, ACTOR_33F_WOZZA_IN_CAVE, ASSET_494_MODEL_WOZZA,
     0x1, D_803926F0,
-    func_80390630, actor_update_func_80326224, actor_draw,
+    chCaveWozza_update, actor_update_func_80326224, actor_draw,
     2500, 0, 1.6f, 0
 };
 
 /* .code */
-void func_80390630(Actor *this){
+void chCaveWozza_update(Actor *this){
     if(volatileFlag_get(VOLATILE_FLAG_C4_WOZZA_HIDE_IN_SNS_PARADE)){
         if(!this->volatile_initialized){
             this->volatile_initialized = true;
@@ -50,7 +50,7 @@ void func_80390630(Actor *this){
         this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
         subaddie_turnToYaw(this, 1.0f);
 
-        if(!func_803114B0()){
+        if(!gcdialog_hasCurrentTextId()){
             if( actor_animationIsAt(this, 0.09f)
                 || actor_animationIsAt(this, 0.19f)
             ){
@@ -67,7 +67,7 @@ void func_80390630(Actor *this){
             }
         }
 
-        if (func_80329530(this, 350)) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 350)) {
             if (player_getTransformation() == TRANSFORM_4_WALRUS) {
                 if (!levelSpecificFlags_get(LEVEL_FLAG_31_FP_WOZZA_WALRUS_TALKED)) {
                     if (gcdialog_showText(ASSET_C27_DIALOG_WOZZA_CAVE_MEET_AS_WALRUS, 0x23, NULL, NULL, NULL, NULL)) {

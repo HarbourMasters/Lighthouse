@@ -99,7 +99,7 @@ void chGrilleChompa_update(Actor *this){
     sp58 = ml_vec3f_distance(this->position, sp5C);
     if( this->state == 1){
         if( sp58 < this->scale*400.0f
-            && (map_get() != MAP_3C_RBB_KITCHEN || this->position_z < sp5C[2])
+            && (gsworld_getMap() != MAP_3C_RBB_KITCHEN || this->position_z < sp5C[2])
         ){
             chGrilleChompa_setNextState(this, 2);
         }

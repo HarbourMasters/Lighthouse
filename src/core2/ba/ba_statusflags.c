@@ -35,7 +35,7 @@ void func_803231E8(void){
 }
 
 void func_8032320C(void){
-    func_8030E2C4(D_80383370);
+    sfxSource_func_8030E2C4(D_80383370);
 }
 
 void func_80323230(void){}

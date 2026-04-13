@@ -164,7 +164,7 @@ void func_8038AB90(Actor *this, s32 arg1, s32 arg2, enum sfx_e sfx_id, f32 sfx_t
         if (sfx_id != SFX_0_BLOOP) {
             timed_playSfx(sfx_timing, sfx_id, 1.0f, 32000);
             if (arg2 == 2) {
-                func_8025A6CC(COMUSIC_3F_MAGIC_CARPET_RISING, 32000);
+                coMusicPlayer_playMusicWeak(COMUSIC_3F_MAGIC_CARPET_RISING, 32000);
                 func_80324D2C(2.6f, COMUSIC_3F_MAGIC_CARPET_RISING);
                 gcsfx_playAtSampleRate(SFX_7C_CHEBOOF);
             }
@@ -176,8 +176,8 @@ void func_8038AC7C(Actor *this) {
     u32 sp28;
 
     if(
-        (func_803114C4() != 0xFAD) 
-        && func_80329530(this, 1200)
+        (gcdialog_getCurrentTextId() != 0xFAD) 
+        && subaddie_playerIsWithinSphereAndActive(this, 1200)
         && !fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)
     ) {
         this->lifetime_value += time_getDelta();
@@ -248,14 +248,14 @@ void chWarpCauldron_update(Actor *this) {
                   && (func_802D67AC(-1) == MAP_16_GV_RUBEES_CHAMBER) 
                   && (func_802D680C(-1) == this->actorTypeSpecificField)
                 ) 
-                || (exit_get() == D_80393620[this->actorTypeSpecificField - 1].unk2)
+                || (gsworld_getExit() == D_80393620[this->actorTypeSpecificField - 1].unk2)
             ) {
                 func_8028F85C(this->position);
                 this->unk10_12 = 1;
                 func_8038AB90(this, 5, 1, 0, 0.0f);
             }
             if (!fileProgressFlag_get(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET) && fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this))) {
-                if (func_802D677C(-1) != map_get()) {
+                if (func_802D677C(-1) != gsworld_getMap()) {
                     gcdialog_showText(ASSET_F7A_DIALOG_UNKNOWN, 4, NULL, NULL, NULL, NULL);
                     fileProgressFlag_set(FILEPROG_F5_COMPLETED_A_WARP_CAULDRON_SET, 1);
                 }
@@ -273,7 +273,7 @@ void chWarpCauldron_update(Actor *this) {
                 subaddie_set_state_forward(this, 2);
                 this->unk38_0 = false;
                 func_8038A96C(this, 1);
-                func_802BAFE4(D_80393620[this->actorTypeSpecificField - 1].unk3);
+                gcStaticCamera_activate(D_80393620[this->actorTypeSpecificField - 1].unk3);
                 func_802D09B8(this, 2);
                 phi_a0 = (fileProgressFlag_get(chWarpCauldron_getPairedFileProgressFlagIndex(this)) != 0) ? SFX_107_CAULDRON_ACTIVATION_1 : SFX_108_CAULDRON_ACTIVATION_2;
                 sfxsource_play(phi_a0, 32000);
@@ -360,7 +360,7 @@ void chWarpCauldron_update(Actor *this) {
                 nodeprop_getPosition(nodeprop_findByActorIdAndActorPosition(D_80393620[this->actorTypeSpecificField - 1].unk6, this), sp54);
                 if (this->actorTypeSpecificField == 7) {
                     func_8028F66C(BS_INTR_36_DINGPOT);
-                    func_802BAFE4(0x82);
+                    gcStaticCamera_activate(0x82);
                 } else {
                     func_8028F4B8(sp54, 1620.0f, -4100.0f);
                 }

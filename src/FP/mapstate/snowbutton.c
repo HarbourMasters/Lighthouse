@@ -25,7 +25,7 @@ static struct {
 
 /* .code */
 void maSnowButton_init(void){
-    if( map_get() != MAP_27_FP_FREEZEEZY_PEAK
+    if( gsworld_getMap() != MAP_27_FP_FREEZEEZY_PEAK
         || jiggyscore_isCollected(JIGGY_2D_FP_SNOWMAN_BUTTONS)
         || jiggyscore_isSpawned(JIGGY_2D_FP_SNOWMAN_BUTTONS)
     ){
@@ -57,7 +57,7 @@ void maSnowButton_update(void){
             if(!(Me.delay < 30)){
 
                 if(Me.jiggySpawnerExists){
-                    func_802BAFE4(0x11);
+                    gcStaticCamera_activate(0x11);
                     jiggy_spawn(JIGGY_2D_FP_SNOWMAN_BUTTONS, Me.spawn_pos);
                     __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM,
                         reinterpret_cast(s32, Me.spawn_pos[0]),

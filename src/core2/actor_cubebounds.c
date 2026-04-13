@@ -870,31 +870,31 @@ void cubeList_init(){
     sSpawnableActorSize = 0;
     sSpawnableActorList = NULL;
 
-    if(map_get() == MAP_21_CC_WITCH_SWITCH_ROOM){
+    if(gsworld_getMap() == MAP_21_CC_WITCH_SWITCH_ROOM){
         sCubeList.margin = 500.0f;
     }
-    else if(map_get() == MAP_12_GV_GOBIS_VALLEY){
+    else if(gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY){
         sCubeList.margin = 500.0f;
     }
-    else if(map_get() == MAP_7F_FP_WOZZAS_CAVE){
+    else if(gsworld_getMap() == MAP_7F_FP_WOZZAS_CAVE){
         sCubeList.margin = 500.0f;
     }
-    else if(map_get() == MAP_D_BGS_BUBBLEGLOOP_SWAMP){
+    else if(gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP){
         sCubeList.margin = 700.0f;
     }
-    else if(map_get() == MAP_7_TTC_TREASURE_TROVE_COVE){
+    else if(gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE){
         sCubeList.margin = 400.0f;
     }
-    else if(map_get() == MAP_16_GV_RUBEES_CHAMBER){
+    else if(gsworld_getMap() == MAP_16_GV_RUBEES_CHAMBER){
         sCubeList.margin = 400.0f;
     }
-    else if(map_get() == MAP_2_MM_MUMBOS_MOUNTAIN){
+    else if(gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN){
         sCubeList.margin = 250.0f;
     }
-    else if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+    else if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         sCubeList.margin = 250.0f;
     }
-    else if(map_get() == MAP_92_GV_SNS_CHAMBER){
+    else if(gsworld_getMap() == MAP_92_GV_SNS_CHAMBER){
         sCubeList.margin = 300.0f;
     }
     else{
@@ -2186,13 +2186,13 @@ Cube *func_80308224(void){
     return D_8036A9DC;
 }
 
-void func_80308230(s32 arg0) {
+void cubeList_sort(s32 arg0) {
     Cube *iCube;
     for(iCube = sCubeList.cubes; iCube < sCubeList.cubes + sCubeList.cubeCnt; iCube++){
         if (arg0 == 0) {
-            func_8032D158(iCube); //sort cube props (dist from viewport)
+            cube_sortRelative(iCube); //sort cube props (dist from viewport)
         } else {
-            func_8032D120(iCube); //sort cube props (dist from origin)
+            cube_sortAbsolute(iCube); //sort cube props (dist from origin)
         }
     }
 }

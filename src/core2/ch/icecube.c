@@ -45,7 +45,7 @@ Actor *chicecube_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 }
 
 int func_80359DF4(Actor *this, s32 arg1){
-    if(func_80329530(this, arg1) && func_803292E0(this))
+    if(subaddie_playerIsWithinSphereAndActive(this, arg1) && func_803292E0(this))
         return 1;
     return 0;
 }
@@ -252,7 +252,7 @@ void chicecube_update(Actor *this){
     f32 sp3C = time_getDelta();
     f32 sp30[3];
 
-    if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive()){
             actor_collisionOff(this);
             this->unk58_0 = false;

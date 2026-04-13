@@ -12,7 +12,7 @@ struct{
 } D_8037C3C0;
 
 /* .code */
-void func_80295DD0(void){
+void babounds_init(void){
     s32 sp24[3];
     s32 sp18[3];
 
@@ -30,7 +30,7 @@ void func_80295DD0(void){
 
 }
 
-void func_80295E74(void){
+void babounds_update(void){
     f32 sp1C[3];
     _player_getPosition(sp1C);
     if(!ml_vec3f_inside_box_vec3f(sp1C, D_8037C3C0.unkC, D_8037C3C0.unk0)){

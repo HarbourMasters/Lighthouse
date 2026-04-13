@@ -148,7 +148,7 @@ void func_8038794C(Actor *this){
                 break;
             }//L80387B38
 
-            if(!this->has_met_before && func_80329530(this, 0x1f4)){
+            if(!this->has_met_before && subaddie_playerIsWithinSphereAndActive(this, 0x1f4)){
                 if(!player_movementGroup() || player_movementGroup() == BSGROUP_8_TROT){
                     if (gcdialog_showText(ASSET_BFF_DIALOG_BOGGY_MEET, 0x2a, this->position, NULL, NULL, NULL)) {
                         for (i = 0; i < 5; i++) {

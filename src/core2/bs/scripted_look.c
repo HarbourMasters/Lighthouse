@@ -75,7 +75,7 @@ void bsDroneLook_update(void) {
 }
 
 void bsDroneLook_end(void) {
-    if (func_80298850() == 0) {
+    if (balookat_getState() == 0) {
         basfx_80299D2C(SFX_12E_CAMERA_ZOOM_MEDIUM, 1.2f, 12000);
     }
     ncDynamicCamera_exitFirstPerson();

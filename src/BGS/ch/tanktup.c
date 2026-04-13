@@ -12,7 +12,7 @@ void timed_exitStaticCamera(f32);
 void func_8028E668(f32[3], f32, f32, f32);
 extern void __spawnQueue_add_3(GenFunction_3, uintptr_t, uintptr_t, uintptr_t);
 
-void func_8038F6A4(Actor *);
+void chTanktup_update(Actor *);
 
 /* .data */
 enum chtanktup_leg_e {
@@ -30,7 +30,7 @@ ActorAnimationInfo BGS_D_80390C20[] = {
 };
 
 ActorInfo chTanktup = {MARKER_6C_TANKTUP, ACTOR_E8_TANKTUP, ASSET_3EE_TANKTUP, 0x01, BGS_D_80390C20,
-    func_8038F6A4, actor_update_func_80326224, actor_draw,
+    chTanktup_update, actor_update_func_80326224, actor_draw,
     0, 0x80, 0.0f, 0
 };
 
@@ -93,7 +93,7 @@ void func_8038F610(Actor *this) {
 void func_8028F94C(s32, f32[3]);
 void func_8028F918(s32);
 
-void func_8038F6A4(Actor *this)
+void chTanktup_update(Actor *this)
 {
   ActorLocal_TanktupBody *local = (ActorLocal_TanktupBody *) (&this->local);
   f32 sp48[3];

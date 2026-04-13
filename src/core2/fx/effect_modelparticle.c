@@ -153,13 +153,13 @@ bool func_802DAFBC(Actor *this) {
 }
 
 void func_802DB220(Actor *this) {
-    if (func_80329530(this, 900) && func_803292E0(this)) {
+    if (subaddie_playerIsWithinSphereAndActive(this, 900) && func_803292E0(this)) {
         subaddie_set_state(this, 6);
     }
 }
 
 void func_802DB264(Actor *this) {
-    if (!func_80329530(this, 900) || !func_803292E0(this)) {
+    if (!subaddie_playerIsWithinSphereAndActive(this, 900) || !func_803292E0(this)) {
         subaddie_set_state(this, 1);
     }
 }
@@ -336,7 +336,7 @@ void humanoidBaddie_update(Actor *this) {
                 }
             }
             if( (this->unk10_12 == 0) 
-                || (this->unk10_12 < local->unkC_31 && func_80329530(this, 0xFA))
+                || (this->unk10_12 < local->unkC_31 && subaddie_playerIsWithinSphereAndActive(this, 0xFA))
             ) {
                 subaddie_set_state(this, 7);
                 this->actor_specific_1_f = (f32) local->unkA;

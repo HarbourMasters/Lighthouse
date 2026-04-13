@@ -230,10 +230,10 @@ s32 print_sDialogFontGlyphCount; // [port] actual glyph count from loaded font s
 void func_802F7A2C(s32 arg0);
 
 //returns map texture assetID for current map;
-enum asset_e func_802F49C0(void){
+enum asset_e print_getCurrentMapBoldFontTexture(void){
     s32 i;
     for(i = 0; D_8036907C[i].mapID != 0 ; i++){
-        if(map_get() == D_8036907C[i].mapID){
+        if(gsworld_getMap() == D_8036907C[i].mapID){
             return D_8036907C[i].assetId;
         }
     }
@@ -242,7 +242,7 @@ enum asset_e func_802F49C0(void){
 
 // this function reassigns the referenced font mask pixel
 // using the texture @ pixel (x,y)
-void func_802F4A24(BKSpriteTextureBlock *texture, u32 *font, s32 x, s32 y) {
+void print_setBoldFontTexturePixel(BKSpriteTextureBlock *texture, u32 *font, s32 x, s32 y) {
     s32 r5;
     s32 g5;
     s32 b5;
@@ -280,7 +280,7 @@ void func_802F4A24(BKSpriteTextureBlock *texture, u32 *font, s32 x, s32 y) {
 }
 
 //this function applies the texture to the font alpha mask.
-void func_802F4B58(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *texture){
+void print_applyTextureToBoldFontLetter(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *texture){
     s32 y_min;
     s32 x_min;
     u32 *pxl;
@@ -293,7 +293,7 @@ void func_802F4B58(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *textur
 
     for(y = y_min; y < alphaMask->h + y_min; y++){
         for(x = x_min; x < alphaMask->w + x_min; x++){
-            func_802F4A24(texture, pxl, x, y);
+            print_setBoldFontTexturePixel(texture, pxl, x, y);
             pxl++;
         }
     }
@@ -301,7 +301,7 @@ void func_802F4B58(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *textur
 }
 
 //This functions seperates the fonts into letters
-FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
+FontLetter *print_getLettersFromFont(BKSprite *alphaMask, BKSprite *textureSprite){
     BKSpriteFrame * font = sprite_getFramePtr(alphaMask, 0);
     BKSpriteTextureBlock *chunkPtr;
     FontLetter * sp2C = bk_malloc((font->chunkCnt + 1)*sizeof(FontLetter));
@@ -348,7 +348,7 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
                         s32 copySize = sizeof(BKSpriteTextureBlock) + chunkSize*4;
                         BKSpriteTextureBlock *copy = bk_malloc(copySize);
                         memcpy(copy, chunkPtr, copySize);
-                        func_802F4B58(copy, (BKSpriteTextureBlock *)(sprite_getFramePtr(textureSprite, 0) + 1));
+                        print_applyTextureToBoldFontLetter(copy, (BKSpriteTextureBlock *)(sprite_getFramePtr(textureSprite, 0) + 1));
                         sp2C[i].unk0 = copy;
                     }
                     chunkDataPtr = (u8*)(chunkPtr + 1);
@@ -402,14 +402,14 @@ void print_free(void){
     print_sPrintBuffer = NULL;
 }
 
-void func_802F5010(void){
+void print_clearPrintBufferStrings(void){
     s32 i;
     for(i = 0; i < 0x20; i++){
         print_sPrintBuffer[i].string = NULL;
     }
 }
 
-void func_802F5060(s32 textureId){
+void print_setBoldFontTexture(s32 textureId){
     s32 tmp_a2;
     // [port] func_802546E4 reads bk_malloc HeapHeader, but assets now come from resource manager.
     // code_B3A80_func_8033BDAC is stubbed (returns 0), so always falls through to assetcache_get.
@@ -432,10 +432,10 @@ void func_802F5060(s32 textureId){
     }//L802F510C
     D_80380AB8[4] = assetcache_get(textureId);
     bk_free(print_sFonts[1]);
-    print_sFonts[1] = func_802F4C3C(D_80380AB8[1], D_80380AB8[4]);
+    print_sFonts[1] = print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
     if(D_80380AB8[3]){
         bk_free(print_sFonts[3]);
-        print_sFonts[3] = func_802F4C3C(D_80380AB8[3], D_80380AB8[4]);
+        print_sFonts[3] = print_getLettersFromFont(D_80380AB8[3], D_80380AB8[4]);
     }
     assetcache_release(D_80380AB8[4]);
     D_80380AB8[4] = NULL;
@@ -443,8 +443,8 @@ void func_802F5060(s32 textureId){
 }
 
 void print_resetBoldFontTexture(void){
-    func_802F5060(func_802F49C0());
-    func_802F5010();
+    print_setBoldFontTexture(print_getCurrentMapBoldFontTexture());
+    print_clearPrintBufferStrings();
 }
 
 void print_init(void){
@@ -468,12 +468,12 @@ void print_init(void){
     func_802F7A2C(3);
     D_80380AB8[0] = assetcache_get(SPRITE_DIALOG_FONT_ALPHAMASK);
     D_80380AB8[1] = assetcache_get(SPRITE_BOLD_FONT_NUMBERS_ALPHAMASK);
-    D_80380AB8[4] = assetcache_get(func_802F49C0());
-    print_sFonts[0] =  func_802F4C3C(D_80380AB8[0], D_80380AB8[4]);
+    D_80380AB8[4] = assetcache_get(print_getCurrentMapBoldFontTexture());
+    print_sFonts[0] =  print_getLettersFromFont(D_80380AB8[0], D_80380AB8[4]);
     print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
-    print_sFonts[1] =  func_802F4C3C(D_80380AB8[1], D_80380AB8[4]);
+    print_sFonts[1] =  print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
     print_sPrintBuffer = bk_malloc(0x20*sizeof(PrintBuffer));
-    func_802F5010();
+    print_clearPrintBufferStrings();
 
     for(i = 0; i < 0x80; i++){//L802F52EC
         found = 0;
@@ -488,7 +488,7 @@ void print_init(void){
     }
     assetcache_release(D_80380AB8[4]);
     D_80380AB8[4] = NULL;
-    D_80380B1C = func_802F49C0();
+    D_80380B1C = print_getCurrentMapBoldFontTexture();
 }
 
 void print_updateBoldLetterFontDelayedFreeing(void){
@@ -522,7 +522,7 @@ void printbuffer_defrag(void){
 }
 
 //returns the pixel data and type for a given letter
-BKSpriteTextureBlock *func_802F5494(s32 letterId, s32 *fontType){
+BKSpriteTextureBlock *print_getBoldFontLetterSprite(s32 letterId, s32 *fontType){
     if(D_80380AE8 != 1 || (D_80380AE8 == 1 && letterId < 0xA)){
         *fontType = D_80380AB8[D_80380AE8]->type;
         return print_sFonts[D_80380AE8][letterId].unk0;
@@ -531,7 +531,7 @@ BKSpriteTextureBlock *func_802F5494(s32 letterId, s32 *fontType){
         if(!D_80380AB8[3]){
             D_80380AB8[3] = assetcache_get(SPRITE_BOLD_FONT_LETTERS_ALPHAMASK);
             D_80380AB8[4] = assetcache_get(D_80380B1C);
-            print_sFonts[3] = func_802F4C3C(D_80380AB8[3], D_80380AB8[4]);
+            print_sFonts[3] = print_getLettersFromFont(D_80380AB8[3], D_80380AB8[4]);
             assetcache_release(D_80380AB8[4]);
             D_80380AB8[4] = NULL;
         }//L802F5568
@@ -542,7 +542,7 @@ BKSpriteTextureBlock *func_802F5494(s32 letterId, s32 *fontType){
 }
 
 //returns the letter's palette
-void *func_802F55A8(u8 arg0){
+void *print_getCurrentFontPalette(u8 arg0){
     return  print_sFonts[D_80380AE8][arg0].unk4;
 }
 
@@ -718,7 +718,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         }
     }
     else{//L802F5C08
-        sp214 = func_802F5494(sp20C, &sp1F4);
+        sp214 = print_getBoldFontLetterSprite(sp20C, &sp1F4);
         if (D_80380B10 != 0) {
                sp200 += randf2(-2.0f, 2.0f);
                f28 += randf2(-2.0f, 2.0f);
@@ -746,7 +746,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         } else if (sp1F4 == SPRITE_TYPE_I4) {
             gDPLoadTextureTile_4b((*gfx)++, sp210, G_IM_FMT_I, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y-1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else if (sp1F4 == SPRITE_TYPE_CI8) {
-            void * pal = func_802F55A8(sp20C);
+            void * pal = print_getCurrentFontPalette(sp20C);
             gDPLoadTLUT_pal256((*gfx)++, pal);
             gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_CI, G_IM_SIZ_8b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y-1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gDPSetTextureLUT((*gfx)++, G_TT_RGBA16);
@@ -807,7 +807,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     }
 }
 
-f32 func_802F6C90(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
+f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
     s32 sp44;
     s32 i;
     bool var_v0;
@@ -851,7 +851,7 @@ f32 func_802F6C90(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
             var_f2 = D_80369068[D_80380AE8];
         }
         else{
-            var_f2 = func_802F5494(sp44, &sp2C)->x;
+            var_f2 = print_getBoldFontLetterSprite(sp44, &sp2C)->x;
         }
     }
     var_f2 += (sp34 - 4);
@@ -898,7 +898,7 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             }
             if ((D_80380AE8 == 1) && ((f64) print_sCurrentPtr->unk10 < 0.0)) {
                 for(j = 0; print_sCurrentPtr->string[j]; j++){
-                    D_80380FA8[j] = func_802F6C90(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10);
+                    D_80380FA8[j] = print_calculateLetterXPos(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10);
                 }
                 while(j >= 0){
                     _x = D_80380FA8[j];
@@ -1019,6 +1019,6 @@ void text_setNormalTextColor(s32 arg0, s32 arg1, s32 arg2){
     D_80369078.unk2 = arg2;
 }
 
-void func_802F7BA8(s32 arg0){
+void text_setNormalTextAlpha(s32 arg0){
     D_80369078.unk3 = arg0;
 }

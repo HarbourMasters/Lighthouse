@@ -1,4 +1,4 @@
-// BanjoDecomp: code_7570.c
+// BanjoDecomp: ch/snore.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -9,7 +9,7 @@ void chSnoreZ_update(Actor *this);
 ActorInfo D_8038F6F0 = { 0x1C3, 0x30C, 0x4E4, 0x0, NULL, chSnoreZ_update, NULL, actor_draw, 0, 0, 0.0f, 0};
 
 /* .code */
-void func_8038D960(Actor *this, s32 next_state) {
+void chSnoreZ_setNextState(Actor *this, s32 next_state) {
     if (next_state == 1) {
         skeletalAnim_set(this->unk148, 0x21C, 0.0f, 6.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
@@ -29,13 +29,13 @@ void chSnoreZ_update(Actor *this) {
         this->volatile_initialized = true;
         this->depth_mode = 2;
         this->marker->unk40_22 = true;
-        func_8038D960(this, 1);
+        chSnoreZ_setNextState(this, 1);
     }
     if (this->state == 1) {
         this = this;
         skeletalAnim_getProgressRange(this->unk148, &sp24, &sp20);
         if ((sp24 < 0.25f) && (sp20 >= 0.25f)) {
-            func_8038D960(this, 2);
+            chSnoreZ_setNextState(this, 2);
         }
     }
 }

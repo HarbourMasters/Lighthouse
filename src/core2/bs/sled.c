@@ -9,7 +9,7 @@ extern ActorMarker *func_80296554(void);
 ActorMarker *bssled_gSledMarker;
 
 /* .code */
-void func_802B3F20(void){
+void __bssled_linkSledMarker(void){
     Actor *sled;
 
     bssled_gSledMarker = func_80296554();
@@ -17,7 +17,7 @@ void func_802B3F20(void){
     sled->unk138_20 = true;
 }
 
-void func_802B3F60(void){
+void __bssled_unlinkSledMarker(void){
     Actor *sled;
     if(bssled_gSledMarker != NULL){
         sled = marker_getActor(bssled_gSledMarker);
@@ -27,7 +27,7 @@ void func_802B3F60(void){
 }
 
 void bssled_init(void){
-    func_802B3F20();
+    __bssled_linkSledMarker();
     baanim_playForDuration_loopSmooth(ASSET_228_ANIM_BANJO_SLED, 1.8f);
     func_8029C7F4(1, 1, 3, BA_PHYSICS_FREEZE);
     baphysics_set_target_horizontal_velocity(0.0f);
@@ -45,14 +45,14 @@ void bssled_update(void){
 void bssled_end(void){
     func_80294A8C(1);
     func_80294378(1);
-    func_802B3F60();
+    __bssled_unlinkSledMarker();
     roll_setIdeal(0.0f);
     pitch_setIdeal(0.0f);
 }
 
 void bssled_interrupt(void){
     if(bs_getInterruptType() == BS_INTR_28){
-        func_802B3F60();
+        __bssled_unlinkSledMarker();
         bs_setInterruptResponse(2);
     }
     else{

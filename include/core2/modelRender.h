@@ -28,7 +28,7 @@ void func_8033A450(struct5Bs *arg0);
 void func_8033A45C(s32 arg0, s32 arg1);
 void func_8033A470(s32 arg0, s32 arg1);
 void modelRender_setTextureList(BKTextureList *textureList);
-void func_8033A494(s32 arg0);
+void modelRender_setAnimatedTexturesCacheId(s32 arg0);
 void func_8033A4A0(enum asset_e modelId, f32 arg1, f32 arg2);
 void modelRender_setVertexList(BKVertexList *vertex_list);
 void modelRender_setDepthMode(enum model_render_depth_mode_e renderMode);

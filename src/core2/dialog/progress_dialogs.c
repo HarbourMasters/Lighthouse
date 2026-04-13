@@ -92,11 +92,11 @@ s32 func_803563B8(enum file_progress_e progress_flag, s32 arg1) {
     }
 }
 
-void func_8035644C(enum file_progress_e progress_flag){
+void progressDialog_showDialogMaskZero(enum file_progress_e progress_flag){
     func_803563B8(progress_flag, 0);
 }
 
-void func_8035646C(enum file_progress_e progress_flag) {
+void progressDialog_showDialogMaskFour(enum file_progress_e progress_flag) {
     func_803563B8(progress_flag, 4);
 }
 

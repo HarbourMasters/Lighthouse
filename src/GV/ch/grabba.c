@@ -50,7 +50,7 @@ void func_8038B988(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     Actor *this = marker_getActor(caller);
     subaddie_set_state_with_direction(this, 5, 0.01f, 1);
     actor_loopAnimation(this);
-    func_802BAFE4(0x13);
+    gcStaticCamera_activate(0x13);
     FUNC_8030E624(SFX_8D_BOGGY_OHWW, 0.9f, 32000);
     timedFunc_set_0(2.5f, func_8038B960);
     D_80391A80 = this->state;
@@ -72,7 +72,7 @@ s32 func_8038BAA4(Actor *jiggy){
     s32 tmp_v0;
     s32 sp18[3];
 
-    map_get();
+    gsworld_getMap();
     sp18[0] = (s32)jiggy->position_x;
     sp18[1] = (s32)jiggy->position_y;
     sp18[2] = (s32)jiggy->position_z;
@@ -85,7 +85,7 @@ s32 func_8038BAA4(Actor *jiggy){
 }
 
 int func_8038BB24(Actor *this){
-    if(func_80329530(this, 1560) && !func_80329530(this, 1380)){
+    if(subaddie_playerIsWithinSphereAndActive(this, 1560) && !subaddie_playerIsWithinSphereAndActive(this, 1380)){
         return true;
     }
     else{
@@ -218,7 +218,7 @@ void GV_func_8038BEA0(Actor *this){
                 }
                 else{
                     if(anctrl_getAnimTimer(this->anctrl) < 0.55){
-                        func_8030E2C4(this->unk44_31);
+                        sfxSource_func_8030E2C4(this->unk44_31);
                         if(randf() < 0.6){
                             func_8038BC7C(this->position, 0xA);
                         }
@@ -236,7 +236,7 @@ void GV_func_8038BEA0(Actor *this){
                     D_80391A80 = this->state;
                     func_802BB3DC(0, 12.0f, 0.92f);
                 }
-                else if(func_80329530(this, 600)){
+                else if(subaddie_playerIsWithinSphereAndActive(this, 600)){
                     if(player_movementGroup() == BSGROUP_6_TURBO_TALON_TRAINERS){
                         this->unk38_31++;
                     }
@@ -264,7 +264,7 @@ void GV_func_8038BEA0(Actor *this){
                 }
                 else{
                     if(0.35 < anctrl_getAnimTimer(this->anctrl)){
-                        func_8030E2C4(this->unk44_31);
+                        sfxSource_func_8030E2C4(this->unk44_31);
                         if(randf() < 0.6){
                             func_8038BC7C(this->position, 5);
                         }
@@ -292,7 +292,7 @@ void GV_func_8038BEA0(Actor *this){
                     func_8038C748();
                 }
                 else{
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                     this->position_y -= 7.0;
                     if(globalTimer_getTime() & 1){
                         sp38[0] = this->position_x;

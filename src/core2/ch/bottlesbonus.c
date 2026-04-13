@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "port/patches/Patches.h"
 
-extern void func_8025A6CC(enum comusic_e arg0, s32 arg1);
+extern void coMusicPlayer_playMusicWeak(enum comusic_e arg0, s32 arg1);
 extern void chBottlesBonusCursor_func_802DF99C(void);
 extern f32 *chBottlesBonusCursor_func_802E05AC(s32);
 extern f32  func_802E4B38(void);
@@ -400,7 +400,7 @@ void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id) {
 
     actor = marker_getActor(chBottlesBonusMarker);
     chBottlesBonusCursor_lose();
-    func_8025A6CC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+    coMusicPlayer_playMusicWeak(COMUSIC_3C_MINIGAME_LOSS, 28000);
     actor->state = 5;
     item_set(ITEM_6_HOURGLASS, false);
     func_802FAD64(0);

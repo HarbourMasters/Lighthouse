@@ -132,7 +132,7 @@ extern s32 chfinalboss_func_8038871C(Actor *arg0, f32 arg1, f32 arg2);
 extern void chfinalboss_phase1_update(ActorMarker *marker);
 extern void chfinalboss_phase2_setState(Actor *this, s32 arg1);
 extern void chfinalboss_phase2_endTextCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2);
-extern void chfinalboss_phase2_update(ActorMarker *marker);
+extern void func_8038938C(ActorMarker *marker);
 extern void __chfinalboss_spawnStatue(enum ch_bossjinjo_e statue_id);
 extern void chfinalboss_spawnStatue(s32 statue_id);
 extern void __chfinalboss_spawnSpellBarrier(ActorMarker *marker);

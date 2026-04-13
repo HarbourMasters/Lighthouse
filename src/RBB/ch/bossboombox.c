@@ -5,7 +5,7 @@
 
 extern void actor_predrawMethod(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
-extern void sfxSource_func_8030E2C4(u8);
+extern void sfxSource_triggerCallbackByIndex(u8);
 extern int func_803342AC(f32 (*)[3], f32(*)[3], f32);
 
 

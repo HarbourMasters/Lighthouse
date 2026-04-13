@@ -179,7 +179,7 @@ void chBrentilda_update(Actor *this) {
         if( (phi_f2 < 300.0) 
             && (player_movementGroup() == BSGROUP_0_NONE) 
             && func_8028F20C()
-            && !func_803114B0()) {
+            && !gcdialog_hasCurrentTextId()) {
             if (!fileProgressFlag_get(FILEPROG_96_MET_BRENTILDA)) {
                 gcdialog_showText(ASSET_10A1_DIALOG_BRENTILDA_MEET, 0xA, this->position, this->marker, func_8038BADC, NULL);
                 fileProgressFlag_set(FILEPROG_96_MET_BRENTILDA, true);
@@ -189,7 +189,7 @@ void chBrentilda_update(Actor *this) {
             if (func_8028EFC8() && (sp78[FACE_BUTTON(BUTTON_B)] == 1)) {
                 this->unk10_12++;
                 this->unk10_12 %= 3;
-                func_80311174(local->unk0 + this->unk10_12, 0xB, this->position, this->marker, func_8038BADC, NULL, (s32(*)(ActorMarker*,s32,s32))func_8038BA30);
+                gcdialog_showDialogConditional(local->unk0 + this->unk10_12, 0xB, this->position, this->marker, func_8038BADC, NULL, (s32(*)(ActorMarker*,s32,s32))func_8038BA30);
                 subaddie_set_state(this, 2);
                 return;
             }

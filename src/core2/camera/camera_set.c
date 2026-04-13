@@ -6,17 +6,17 @@
 #include "core2/anim/sprite.h"
 #include "core2/sprite_displaydata.h"
 
-extern u8 func_8033E8D0(void);
+extern u8 commonParticle_getCurrentProjectileIndex(void);
 
 /* .code */
 void func_803525A0(f32 arg0[3]){
     u8 sp1F;
     u8 sp1E;
     f32 *sp18;
-    if(func_8033E3F0(0x11, 1) >= 0){
-        sp1E = func_8033E8D0();
+    if(commonParticle_new(0x11, 1) >= 0){
+        sp1E = commonParticle_getCurrentProjectileIndex();
         sp1F = func_8033E93C();
-        sp18 = (f32*)func_8033E960();
+        sp18 = (f32*)commonParticle_getCurrentParticle();
         projectile_setPosition(sp1E, arg0);
         func_80344D94(sp1F, arg0);
         sp18[1] = 0.45f;
@@ -35,9 +35,9 @@ void func_8035261C(void) {
     f32 temp_f6;
     s32 temp_f16;
 
-    sp2C = func_8033E960();
-    projectile_indx = func_8033E8D0();
-    sp24 = func_8033E8F4();
+    sp2C = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp24 = commonParticle_getCurrentAnimSprite();
     sp23 = func_8033E93C();
     sp1C = (s32) (randf() * 20.0f + 60.0f);
     sp2C->unk20 = sp1C;
@@ -61,8 +61,8 @@ void func_803526DC(void) {
     f32 temp_f20;
     f32 sp30;
 
-    temp_s0 = func_8033E960();
-    projectile_indx = func_8033E8D0();
+    temp_s0 = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
     sp38 = temp_s0->unk4;
     temp_f20 = temp_s0->unk0;
     sp30 =temp_s0->unk20;
@@ -77,6 +77,6 @@ void func_803526DC(void) {
     temp_f20 += time_getDelta();
     temp_s0->unk0 = temp_f20;
     if (sp38 < temp_f20) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     }
 }

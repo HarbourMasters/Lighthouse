@@ -11,7 +11,7 @@ extern "C" {
 #include "enums.h"
 #include "functions.h"
 
-enum map_e map_get(void);
+enum map_e gsworld_getMap(void);
 }
 
 // Mumbo token duplicate ID fix
@@ -68,7 +68,7 @@ void RegisterGruntyDefeatedFlag_Init() {
 void RegisterMumboTokenGV_Init() {
     COND_HOOK(OnMumboTokenUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOKEN_GV, 0), [](IEvent* event) {
         auto* ev = reinterpret_cast<OnMumboTokenUpdate*>(event);
-        if (map_get() == MAP_15_GV_WATER_PYRAMID && jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
+        if (gsworld_getMap() == MAP_15_GV_WATER_PYRAMID && jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)) {
             ev->actor->position[1] = 175.0f;
         }
     });

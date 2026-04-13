@@ -29,7 +29,7 @@ extern "C" void Graphics_PushFrame(Gfx* data) {
 static constexpr double GAME_LOGIC_FPS = 30.0;
 static constexpr double GAME_LOGIC_FRAME_TIME = 1.0 / GAME_LOGIC_FPS;
 
-extern "C" int map_get(void);
+extern "C" int gsworld_getMap(void);
 extern "C" void port_setWindowTitle(int map_id);
 
 void push_frame() {
@@ -42,7 +42,7 @@ void push_frame() {
     // Refresh window title stats once per second (every 30 game ticks)
     if (++sTitleCounter >= 30) {
         sTitleCounter = 0;
-        port_setWindowTitle(map_get());
+        port_setWindowTitle(gsworld_getMap());
     }
 }
 

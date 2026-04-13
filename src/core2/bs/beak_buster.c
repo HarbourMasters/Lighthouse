@@ -155,7 +155,7 @@ void bsbbuster_update(void){
             break;
         case 3://802A00F0
             D_8037D2B7 = 0;
-            if(func_80297C6C() == 1){
+            if(baiFrame_getState() == 1){
                 baiFrame_startWithValue(0.9f);
             }
             

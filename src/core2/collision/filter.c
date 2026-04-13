@@ -249,7 +249,7 @@ bool func_803515EC(NodeProp *arg0) {
     } else {
         for(phi_s0 = D_803725C0; phi_s0->unk0 != 0; phi_s0++){
             if( (arg0->unk8 == phi_s0->unk0) 
-                && ((phi_s0->unk3 == 0) || (map_get() == phi_s0->unk3))
+                && ((phi_s0->unk3 == 0) || (gsworld_getMap() == phi_s0->unk3))
             ){
                 sp48[0] = (s32) arg0->x;
                 sp48[1] = (s32) arg0->y;
@@ -348,7 +348,7 @@ void func_803518E8(void){
 
 void func_80351954(Struct68s *arg0){
     if(arg0->unk0){
-        sfxSource_func_8030E2C4(arg0->unk0);
+        sfxSource_triggerCallbackByIndex(arg0->unk0);
         sfxsource_freeSfxsourceByIndex(arg0->unk0);
         arg0->unk0 = 0;
     }

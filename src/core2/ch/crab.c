@@ -44,7 +44,7 @@ void __chCrab_802CB078(Actor *this) {
             return;
         }
         else{
-            if( func_80329530(this, 1500) 
+            if( subaddie_playerIsWithinSphereAndActive(this, 1500) 
                 && ( (this->modelCacheIndex == ACTOR_F2_BLACK_SNIPPET) || func_803292E0(this))
             ) {
                 this->actor_specific_1_f = 0.0f;
@@ -182,7 +182,7 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
     marker->collidable = false;
     this->unk138_27 = 1;
     marker_despawn(marker);
-    if( map_get() == MAP_B_CC_CLANKERS_CAVERN
+    if( gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN
         && ml_vec3f_point_within_horizontal_distance(this->position, 13778.0f, 0.0f, 3000.0f)
     ) {
         this->depth_mode =  MODEL_RENDER_DEPTH_COMPARE;
@@ -240,7 +240,7 @@ void chCrab_update(Actor *this) {
         this->has_met_before = false;
         this->volatile_initialized = true;
         anctrl_setTransitionDuration(this->anctrl, 0.25f);
-        if (map_get() == MAP_A_TTC_SANDCASTLE) {
+        if (gsworld_getMap() == MAP_A_TTC_SANDCASTLE) {
             if (!jiggyscore_isCollected(JIGGY_10_TTC_SANDCASTLE)) {
                 mapSpecificFlags_set(1, 0);
             }
@@ -260,11 +260,11 @@ void chCrab_update(Actor *this) {
         subaddie_turnToYaw(this, 4.0f);
         return;
     }
-    if( (map_get() == MAP_B_CC_CLANKERS_CAVERN) 
+    if( (gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN) 
         && !mapSpecificFlags_get(0) 
         && is_mutant_snippet
         && !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
-        && func_80329530(this, 500) && !func_80329530(this, 200)
+        && subaddie_playerIsWithinSphereAndActive(this, 500) && !subaddie_playerIsWithinSphereAndActive(this, 200)
         && !player_movementGroup()
     ) {
         if ((this->state != 6) && (this->state != 5)) {
@@ -274,12 +274,12 @@ void chCrab_update(Actor *this) {
             this->has_met_before = true;
         }
     }
-    if (map_get() == MAP_A_TTC_SANDCASTLE) {
+    if (gsworld_getMap() == MAP_A_TTC_SANDCASTLE) {
         if( !mapSpecificFlags_get(0)
             && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)
             && !volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)
             && !jiggyscore_isCollected(JIGGY_10_TTC_SANDCASTLE)
-            && func_80329530(this, 1600)
+            && subaddie_playerIsWithinSphereAndActive(this, 1600)
         ) {
             gcdialog_showText(0xA12, 4, this->position, NULL, NULL, NULL);
             mapSpecificFlags_set(0, true);

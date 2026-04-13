@@ -27,7 +27,7 @@ Actor *func_80390290(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
     if(this->unk38_31) return this;
 
-    if(func_803114C4() == 0xC1F || func_803114C4() == 0xC1E){
+    if(gcdialog_getCurrentTextId() == 0xC1F || gcdialog_getCurrentTextId() == 0xC1E){
         sp18 = 1;
     }
     func_8033A45C(1, 0);
@@ -74,7 +74,7 @@ void func_80390388(Actor *this){
         this->has_met_before = true;
     }
 
-    if( func_80329530(this, 0xFA) 
+    if( subaddie_playerIsWithinSphereAndActive(this, 0xFA) 
         && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
     ){
         if(0.0f == this->unk1C[0] && func_80390334()){

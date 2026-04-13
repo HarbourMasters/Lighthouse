@@ -11,7 +11,7 @@ extern void func_8024FDDC(u8, s32);
 void func_8025AE50(s32, f32);
 
 bool func_80250074(u8);
-void func_8024FD28(u8, s32);
+void musicTrack_setVolume(u8, s32);
 void func_8024FC1C(u8, s32);
 void func_8025AC20(enum comusic_e, s32, s32, f32, char*, s32);
 void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void *arg4, char *arg5, s32 arg6);
@@ -69,7 +69,7 @@ void func_80259994(CoMusic *this, s32 arg1){
 }
 
 void func_802599B4(CoMusic *this){
-    func_80259994(this, func_80250034(this->track_id));
+    func_80259994(this, gcMusic_getDefaultVolumeForTrack(this->track_id));
     this->track_id = -1;
     this->unk14 = 0;
     this->unk15 = 0;
@@ -163,7 +163,7 @@ void comusicPlayer_update(void) {
                         } else {
                             D_80276E34 = true;
                         }
-                        func_8024FD28(temp_lo, (s16)var_s0->volume);
+                        musicTrack_setVolume(temp_lo, (s16)var_s0->volume);
                     }
                 } else if (var_s0->volume < var_s0->unkC) {
                     if (var_s0->volume == 0) {
@@ -176,7 +176,7 @@ void comusicPlayer_update(void) {
                     } else {
                         D_80276E34 = true;
                     }
-                    func_8024FD28(temp_lo, (s16)var_s0->volume);
+                    musicTrack_setVolume(temp_lo, (s16)var_s0->volume);
                 } else {
                     var_s0->unk12 = 0;
                 }
@@ -219,8 +219,8 @@ void func_80259F7C(CoMusic *self, s32 *arg1, s32 *arg2, s32 *arg3) {
 
     if (var_s2 < 0) {
         temp_v0 = (struct12s *)freelist_at(self->unk18, 1);
-        if (temp_v0->unk0 < func_80250034(self->track_id)) {
-            var_s2 = func_80250034(self->track_id);
+        if (temp_v0->unk0 < gcMusic_getDefaultVolumeForTrack(self->track_id)) {
+            var_s2 = gcMusic_getDefaultVolumeForTrack(self->track_id);
         }
         else{
             var_s2 = temp_v0->unk0;
@@ -255,7 +255,7 @@ void func_8025A104(enum comusic_e arg0, s32 arg1){
     if (arg0 != D_80276E30[0].track_id){
         func_8024FC1C(0, arg0);
     }
-    func_8024FD28(0, (s16)arg1);
+    musicTrack_setVolume(0, (s16)arg1);
     D_80276E30[0].track_id = (s16) arg0;
     D_80276E30[0].volume = arg1;
     D_80276E30[0].unk0 = 0.0f;
@@ -270,7 +270,7 @@ void func_8025A1A8(enum comusic_e  arg0){
     if (arg0 != D_80276E30[0].track_id){
         func_8024FC1C(0, arg0);
         D_80276E30[0].track_id = (s16) arg0;
-        D_80276E30[0].volume = func_80250034(arg0);
+        D_80276E30[0].volume = gcMusic_getDefaultVolumeForTrack(arg0);
         D_80276E30[0].unk0 = 0.0f;
         D_80276E30[0].unk12 = 0;
         D_80276E30[0].unk4 = 0.0f;
@@ -286,7 +286,7 @@ void func_8025A23C(s32 arg0){
     if (arg0 != music->track_id){
         func_8024FC1C(5, arg0);
         music->track_id = (s16) arg0;
-        temp_v0 = func_80250034(arg0);
+        temp_v0 = gcMusic_getDefaultVolumeForTrack(arg0);
         music->volume = temp_v0;
         music->unk12 = 0;
         music->unk15 = 0;
@@ -371,7 +371,7 @@ void func_8025A5AC(enum comusic_e comusic_id, s32 volume, s32 arg2){
     s32 sp20;
 
     if(volume == -1){
-        volume = func_80250034(comusic_id);
+        volume = gcMusic_getDefaultVolumeForTrack(comusic_id);
     }
 
     tmp_a2 = __find_track(comusic_id);
@@ -382,7 +382,7 @@ void func_8025A5AC(enum comusic_e comusic_id, s32 volume, s32 arg2){
     if(tmp_a2->track_id < 0 || arg2){
         switch(comusic_id){
             case COMUSIC_15_EXTRA_LIFE_COLLECTED:
-                if(map_get() == MAP_10_BGS_MR_VILE){
+                if(gsworld_getMap() == MAP_10_BGS_MR_VILE){
                     break;
                 }
             case COMUSIC_3B_MINIGAME_VICTORY:
@@ -396,12 +396,12 @@ void func_8025A5AC(enum comusic_e comusic_id, s32 volume, s32 arg2){
         func_80259994(tmp_a2, volume);
         func_8024FC1C(sp20, comusic_id);
     }
-    func_8024FD28(sp20, (s16) volume);
+    musicTrack_setVolume(sp20, (s16) volume);
     tmp_a2->volume = volume;
 
 }
 
-void func_8025A6CC(enum comusic_e track_id, s32 volume){
+void coMusicPlayer_playMusicWeak(enum comusic_e track_id, s32 volume){
     func_8025A5AC(track_id, volume, 0);
 }
 
@@ -424,7 +424,7 @@ void comusic_playTrack(enum comusic_e track_id){
         trackPtr->unk12 = 0;
         trackPtr->unk4 = 0.0f;
         func_8024FC1C( indx, track_id);
-        func_80259994(trackPtr, trackPtr->volume = func_80250034(track_id));
+        func_80259994(trackPtr, trackPtr->volume = gcMusic_getDefaultVolumeForTrack(track_id));
     }
 
 }
@@ -579,7 +579,7 @@ void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void
         trackPtr->unk15 = 0;
         trackPtr->unk4 = 0.0f;
         func_80259994(trackPtr, 0);
-        func_8024FD28(slot_index, 0);
+        musicTrack_setVolume(slot_index, 0);
     }
     func_80259F7C(trackPtr,&arg1, &arg2, fadeSlot);
     trackPtr->unk0 = arg3;

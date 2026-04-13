@@ -111,7 +111,7 @@ void chjinjonatorbase_update(Actor *this){
         sfxSource_setunk43_7ByIndex(this->unk44_31, 3);
         sfxsource_playSfxAtVolume(this->unk44_31, 1.0f);
         sfxsource_setSampleRate(this->unk44_31, 26000);
-        func_8030E2C4(this->unk44_31);
+        sfxSource_func_8030E2C4(this->unk44_31);
         temp_s0 = func_802F9AA8(0x3EC);
         func_802F9DB8(temp_s0, 0.5f, 0.5f, 0.0f);
         func_802F9EC4(temp_s0, this->position, 5000, 15000);
@@ -145,7 +145,7 @@ void chjinjonatorbase_update(Actor *this){
 
             if(this->position_y + y_delta < this->unk1C[1]) {
                 if (!func_8030E3FC(this->unk44_31)) {
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }
 
                 position_delta[0] = (rumbling & 1) ? 3.0f : -3.0f;
@@ -170,7 +170,7 @@ void chjinjonatorbase_update(Actor *this){
                 subaddie_set_state(this, CHBOSSJINJOBASE_STATE_2_DEFAULT);
 
                 FUNC_8030E624(SFX_7F_HEAVYDOOR_SLAM, 0.8f, 32000);
-                sfxSource_func_8030E2C4(this->unk44_31);
+                sfxSource_triggerCallbackByIndex(this->unk44_31);
                 sfxsource_freeSfxsourceByIndex(this->unk44_31);
                 this->unk44_31 = 0;
 

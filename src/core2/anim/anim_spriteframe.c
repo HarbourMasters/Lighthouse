@@ -62,7 +62,7 @@ void func_8035D65C(Actor *this) {
         this->unk38_31--;
         return;
     }
-    if (func_80329530(this, 500) && player_isSwimming() && func_8035D608(this)) {
+    if (subaddie_playerIsWithinSphereAndActive(this, 500) && player_isSwimming() && func_8035D608(this)) {
         this->actor_specific_1_f = 2.0f;
         subaddie_set_state_with_direction(this, 4, 0.0f, -1);
     }
@@ -129,7 +129,7 @@ void chchumpfish_update(Actor *this) {
         this->initialized = true;
         this->unk138_25 = true;
         this->actor_specific_1_f = 4.0f;
-        LOCAL_D6600(this)->unk4 =(map_get() == MAP_71_GL_STATUE_ROOM) ? 8 : 0xf;
+        LOCAL_D6600(this)->unk4 =(gsworld_getMap() == MAP_71_GL_STATUE_ROOM) ? 8 : 0xf;
         if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)) {
             this->actor_specific_1_f = 0.0f;
             subaddie_set_state_with_direction(this, 1, 0.0f, 1);
@@ -213,7 +213,7 @@ void chchumpfish_update(Actor *this) {
             func_80328CA8(this, (s32) func_8035D590(sp40));
             subaddie_turnToYaw(this, 10.0f);
             func_80328FF0(this, 10.0f);
-            sp38 = func_80329530(this, 0x12C);
+            sp38 = subaddie_playerIsWithinSphereAndActive(this, 0x12C);
             if ((this->state == 5) && sp38) {
                 subaddie_set_state_with_direction(this, 6, 0.0f, -1);
             }

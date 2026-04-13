@@ -97,7 +97,7 @@ void func_8038DB88(Actor *this){
     tmp = this->unk44_31;
     if(tmp){
         if(func_8030E3FC(tmp)){
-            sfxSource_func_8030E2C4(this->unk44_31);
+            sfxSource_triggerCallbackByIndex(this->unk44_31);
         }
         sfxsource_freeSfxsourceByIndex(this->unk44_31);
         this->unk44_31 = 0;
@@ -149,7 +149,7 @@ void func_8038DBDC(Actor *this){
                 if(actor_animationIsAt(this, 0.2f) && this->unk44_31 == 0){
                     this->unk44_31 = func_8030ED2C(0x3F7, 3);
                     this->unk1C[1] = 1.0f;
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }//L8038DE08
                 if(actor_animationIsAt(this, 0.7f)){
                     func_8038DB88(this);
@@ -203,7 +203,7 @@ void func_8038DBDC(Actor *this){
                 if(!this->unk44_31){
                     this->unk44_31 = func_8030ED2C(SFX_2C_PULLING_NOISE, 3);
                     this->unk1C[1] = 1.9f;
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }
             }
             else{//L8038E070

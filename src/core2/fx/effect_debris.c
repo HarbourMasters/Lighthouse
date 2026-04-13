@@ -4,7 +4,7 @@
 
 #include <bk_math.h>
 
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 
 typedef struct struct_24_s{
     s32 unk0;
@@ -61,7 +61,7 @@ void func_802C83F0(Actor *actor) {
             assetcache_release(phi_s0->model_bin);
         }
         if (phi_s0->unk3C != 0) {
-            func_802EE5E8(phi_s0->unk3C);
+            dustEmitter_empty(phi_s0->unk3C);
         }
         phi_s0->unk3C = NULL;
     }
@@ -283,14 +283,14 @@ void func_802C8C5C(Actor *actor) {
 
             if (phi_s0->unk8[1] <= phi_s0->unk50) {
                 phi_s0->unk0 = 1;
-                phi_s0->unk3C = (ParticleEmitter *)(uintptr_t)func_802EE5E0(1);
+                phi_s0->unk3C = (ParticleEmitter *)(uintptr_t)dustEmitter_returnGiven(1);
                 if (phi_s0->unk3C != NULL) {
-                    func_802EE6CC(phi_s0->unk8, (f32 *)sp70, phi_s0->unk40, 1, D_80366330, D_80366334, (s32)D_80366338, (s32)D_8036633C, 1);
+                    dustEmitter_emit(phi_s0->unk8, (f32 *)sp70, phi_s0->unk40, 1, D_80366330, D_80366334, (s32)D_80366338, (s32)D_8036633C, 1);
                 }
             }
         }
         if (phi_s0->unk0 == 1) {
-            if (!func_802EE5F0((s32)(intptr_t)phi_s0->unk3C)) {
+            if (!dustEmitter_isActive((s32)(intptr_t)phi_s0->unk3C)) {
                 phi_s0->unk0 = 0;
             }
             phi_s0->unk8[1] -= 2.0f;

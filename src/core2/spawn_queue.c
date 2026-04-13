@@ -184,7 +184,7 @@ FunctionQueue *spawnQueue = NULL;
 #define SPAWN_QUEUE_GL_SIZE 50
 
 static u32 __spawnQueue_getMax(void) {
-    return (map_get() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
+    return (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
 }
 
 void spawnQueue_malloc(void){

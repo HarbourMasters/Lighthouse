@@ -99,7 +99,7 @@ void chTumblar_init(Struct_MMM_47D0_0 *arg0, Struct68s *arg1) {
     sfxSource_setunk43_7ByIndex(sfxsource_index, 3);
     sfxsource_playSfxAtVolume(sfxsource_index, 0.6f);
     sfxsource_setSampleRate(sfxsource_index, 0);
-    func_8030E2C4(sfxsource_index);
+    sfxSource_func_8030E2C4(sfxsource_index);
 
     func_8035179C_copyPosition(arg1, position);
     distance_to_jiggy = 500.0f;

@@ -16,12 +16,12 @@ s32 gSelectedGameNum = -1;
 #define	ABS(d)		((d) >= 0) ? (d) : -(d)
 #endif
 
-void func_8031FBF8(void);
+void debugScoreStates(void);
 void func_8031FBA0(void);
 
 Actor *func_802C4360(ActorMarker *, Gfx **, Mtx **, Vtx **);
 Actor *func_802C4464(ActorMarker *, Gfx **, Mtx **, Vtx **);
-void func_802C4C14(Actor *this);
+void gameSelect_update(Actor *this);
 void func_802C5740(Actor *this);
 
 extern void func_802C71F0(Actor *);
@@ -80,7 +80,7 @@ ActorAnimationInfo D_80365E7C[] = {
     {0x252, 0.67f}, 
     {0x250, 4.5f},
 };
-ActorInfo D_80365EAC = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, func_802C4C14, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
+ActorInfo D_80365EAC = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, gameSelect_update, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365ED0[] = {
     {0x000, 0.0f},
@@ -90,7 +90,7 @@ ActorAnimationInfo D_80365ED0[] = {
     {0x24C, 1.0f},
     {0x24A, 1.0f}
 };
-ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, func_802C4C14, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
+ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update, actor_update_func_80326224, func_802C4360, 0, 0, 0.0f, 0};
 
 
 /* .bss */
@@ -203,7 +203,7 @@ void func_802C4768(s32 gamenum){
     static u8 *sEmptyLabel[]  = { ": EMPTY",  ": VIDE",   ": LEER" };
     s32 lang = code94620_func_8031B5B0();
 
-    func_8031FBF8();
+    debugScoreStates();
     D_80365E00 = gamenum;
     func_8031FBA0();
     if(gameFile_isNotEmpty(gamenum)){
@@ -301,7 +301,7 @@ void func_802C4AF0(Actor * this){
     func_8025AB00();
 }
 
-void func_802C4BB4(ActorMarker *marker){
+void spawnGameSelectProps(ActorMarker *marker){
     Actor *this;
     s32 sp20;
     Actor *other;
@@ -313,7 +313,7 @@ void func_802C4BB4(ActorMarker *marker){
     other->scale = sp18;
 }
 
-void func_802C4C14(Actor *this){
+void gameSelect_update(Actor *this){
     int sp84;
     int sp80;
     s32 sp74[3];
@@ -337,7 +337,7 @@ void func_802C4C14(Actor *this){
         return;
 
     if(!this->initialized){
-        __spawnQueue_add_1((GenFunction_1)func_802C4BB4, (uintptr_t)this->marker);
+        __spawnQueue_add_1((GenFunction_1)spawnGameSelectProps, (uintptr_t)this->marker);
         func_802C7318(this);
         this->unk130 = func_802C71F0;
         if(sp84 == 0){
@@ -354,7 +354,7 @@ void func_802C4C14(Actor *this){
         }
     }
     else{//L802C4D24
-        func_8024E60C(0, sp74);
+        controller_copySideButtons(0, sp74);
         controller_copyFaceButtons(0, sp5C);
         controller_getJoystick(0, sp54);
         switch(this->state){
@@ -609,7 +609,7 @@ void func_802C5740(Actor * this){
 
         marker_setFreeMethod(this->marker, func_802C4AF0);
         D_8037DCEC = 0;
-        func_8031FBF8();
+        debugScoreStates();
         func_8031FBA0();
         D_8037DCE8 = 0;
         D_80365E00 = 0;
@@ -631,30 +631,30 @@ void func_802C5740(Actor * this){
         if(chGameSelectTopZoombox)
             gczoombox_update(chGameSelectTopZoombox);
     }
-    func_802C4C14(this);
+    gameSelect_update(this);
 }
 
-void func_802C5994(void){
+void gameSelect_saveAndExit(void){
     s32 sp1C = level_get();
-    s32 t6 = map_get() == MAP_83_CS_GAME_OVER_MACHINE_ROOM;
+    s32 t6 = gsworld_getMap() == MAP_83_CS_GAME_OVER_MACHINE_ROOM;
     s32 a1 = (0 < sp1C && sp1C < 0xd);
     if( a1 || t6)
     {
-        if(D_80365E00 != -1 && !func_802E4A08() && map_get() != MAP_91_FILE_SELECT){
+        if(D_80365E00 != -1 && !func_802E4A08() && gsworld_getMap() != MAP_91_FILE_SELECT){
             gameFile_save(D_80365E00);
             gameFile_8033CFD4(D_80365E00);
         }
     }
 }
 
-s32 func_802C5A30(void){
+s32 gameSelect_getGameNumber(void){
     return D_80365E00;
 }
 
-void func_802C5A3C(s32 arg0){
+void gameSelect_setGameNumber(s32 arg0){
     D_80365E00 = arg0;
 }
 
-void func_802C5A48(void){
+void gameSelect_resetGameNumber(void){
     D_80365E00 = -1;
 }

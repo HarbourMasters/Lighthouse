@@ -1,4 +1,4 @@
-// BanjoDecomp: code_7120.c
+// BanjoDecomp: ch/gnawtyboulder.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -95,7 +95,7 @@ void func_8038D81C(ActorMarker* marker, ActorMarker *other_marker) {
     Actor* actor = marker_getActor(marker);
 #ifdef PORT_FIX
     // [port] v1.1 fix: rock is indestructible in Spring (prevents sequence break)
-    if (actor->state == 1 && map_get() != MAP_43_CCW_SPRING) {
+    if (actor->state == 1 && gsworld_getMap() != MAP_43_CCW_SPRING) {
 #else
     if (actor->state == 1) {
 #endif
@@ -118,7 +118,7 @@ void chGnawtyBoulder_update(Actor *this) {
             levelSpecificFlags_set(LEVEL_FLAG_25_CCW_UNKNOWN, true);
         }
 
-        if ((levelSpecificFlags_get(LEVEL_FLAG_25_CCW_UNKNOWN) != false) && (map_get() != MAP_43_CCW_SPRING)) {
+        if ((levelSpecificFlags_get(LEVEL_FLAG_25_CCW_UNKNOWN) != false) && (gsworld_getMap() != MAP_43_CCW_SPRING)) {
             marker_despawn(this->marker);
         }
         return;

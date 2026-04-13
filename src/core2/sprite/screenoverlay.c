@@ -5,7 +5,7 @@
 #include "2.0L/PR/region.h"
 
 void func_803382D8(s32 arg0);
-void func_803382E4(s32 arg0);
+void codeAEDA0_setSpriteDrawMode(s32 arg0);
 void spriteRender_set1Primative(bool boolean);
 void func_803382FC(s32 arg0);
 void func_80338308(s32 arg0, s32 arg1);
@@ -76,7 +76,7 @@ void func_803380F8(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 void func_803381B4(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 
 /* .code */
-void func_80335D30(Gfx **gfx){
+void codeAEDA0_postDrawSprite(Gfx **gfx){
     gDPPipeSync((*gfx)++);
     if (D_80370338[0] == 0) {
         gDPSetColorDither((*gfx)++, G_CD_DISABLE);
@@ -196,7 +196,7 @@ void func_80335D30(Gfx **gfx){
     }
 }
 
-void func_8033687C( Gfx **gfx )
+void codeAEDA0_drawSprite( Gfx **gfx )
  {
      /* Turn off texturing */
      gDPPipeSync((*gfx)++);
@@ -252,7 +252,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     } else if (sprite->type & SPRITE_TYPE_RGBA32){
         pixel_size_nibbles = 8;
     }
-    func_80335D30(gfx);
+    codeAEDA0_postDrawSprite(gfx);
 
     //set to 1Prim if using
     if(D_80383638 || (sprite->type & SPRITE_TYPE_CI8)){
@@ -265,13 +265,13 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     var_t2 = (BKSpriteTextureBlock *)(frame_ptr + 1);
     if (sprite->type & SPRITE_TYPE_CI4) {
         gDPSetTextureLUT((*gfx)++, G_TT_RGBA16);
-        // Palette is at Align8(frame_ptr+1) — matches Sprite.cpp and func_802F4C3C
+        // Palette is at Align8(frame_ptr+1) — matches Sprite.cpp and print_getLettersFromFont
         palette_mem = ((uintptr_t)(frame_ptr + 1) + 7) & ~(uintptr_t)7;
         gDPLoadTLUT_pal16((*gfx)++, 0, palette_mem);
         var_t2 = (BKSpriteTextureBlock *)(palette_mem + 0x20);
     } else if (sprite->type & SPRITE_TYPE_CI8) {
         gDPSetTextureLUT((*gfx)++, G_TT_RGBA16);
-        // Palette is at Align8(frame_ptr+1) — matches Sprite.cpp and func_802F4C3C
+        // Palette is at Align8(frame_ptr+1) — matches Sprite.cpp and print_getLettersFromFont
         palette_mem = ((uintptr_t)(frame_ptr + 1) + 7) & ~(uintptr_t)7;
         gDPLoadTLUT_pal256((*gfx)++, palette_mem);
         var_t2 = (BKSpriteTextureBlock *)(palette_mem + 0x200);
@@ -375,7 +375,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
         gDPPipelineMode((*gfx)++, G_PM_NPRIMITIVE);
     }
     if(sp1B4);
-    func_8033687C(gfx);
+    codeAEDA0_drawSprite(gfx);
 }
 
 void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_index) {
@@ -391,7 +391,7 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_in
     s32 i_vtx0;
     s32 size; 
 
-    func_80335D30(gfx);
+    codeAEDA0_postDrawSprite(gfx);
     txtr_ptr = func_8033EFB0(texture_list, texture_index);
     start_vtx = *vtx;
     temp_lo = (s32) D_80383644 / 3;
@@ -425,7 +425,7 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_in
         tmem += txtr_ptr->w * 0x1A;
         i_vtx0 += 4;
     }
-    func_8033687C(gfx);
+    codeAEDA0_drawSprite(gfx);
 }
 
 void func_80338048(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], Struct84s *arg4, s32 arg5) {
@@ -470,7 +470,7 @@ void func_803381B4(Gfx **gfx, Mtx **mtx, f32 arg2[3]) {
 
 void func_80338270(){
     func_803382D8(0xFF);
-    func_803382E4(0);
+    codeAEDA0_setSpriteDrawMode(0);
     spriteRender_set1Primative(0);
     func_803382FC(0xFF);
     func_80338308(100, 100);
@@ -488,7 +488,7 @@ void func_803382D8(s32 arg0){
     D_80383630 = arg0;
 }
 
-void func_803382E4(s32 arg0){
+void codeAEDA0_setSpriteDrawMode(s32 arg0){
     D_80383634 = arg0;
 }
 
@@ -510,7 +510,7 @@ void func_8033831C(s32 *arg0, s32 *arg1){
     *arg1 = D_80383644;
 }
 
-void func_80338338(s32 r, s32 g, s32 b){
+void codeAEDA0_setPrimaryColorRGB(s32 r, s32 g, s32 b){
     D_80383610 = r;
     D_80383614 = g;
     D_80383618 = b;

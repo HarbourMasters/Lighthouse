@@ -40,7 +40,7 @@ void CC_func_80386920(Actor *this, s32 next_state){
 
     local->unk14 = 0.0f;
     if(this->state == 2 || this->state == 3 || this->state == 4){
-        sfxSource_func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_triggerCallbackByIndex(local->sfxsourceIdx);
     }
 
     if(next_state == 2 || next_state == 3 || next_state == 4){
@@ -49,7 +49,7 @@ void CC_func_80386920(Actor *this, s32 next_state){
         sfxsource_setSfxId(local->sfxsourceIdx, 0x3ec);
         sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 3);
         sfxsource_setSampleRate(local->sfxsourceIdx, 28000);
-        func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_func_8030E2C4(local->sfxsourceIdx);
     }
     
     if(next_state == 2 || next_state == 4){

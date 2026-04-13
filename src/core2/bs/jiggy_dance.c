@@ -117,7 +117,7 @@ void bsjig_jiggy_end(void){
         transitionToMap(MAP_95_CS_END_ALL_100, 0, 1);
     } else {//L802B0DFC
         if( jiggyscore_total() == 2
-            && map_get() == MAP_2_MM_MUMBOS_MOUNTAIN
+            && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN
         ){
             sp2C = 0xb51;
             sp28 = 0xe;
@@ -137,7 +137,7 @@ void bsjig_jiggy_end(void){
             gcdialog_showText(sp2C, sp28, 0, 0, 0, 0);
         }
     }//L802B0EA4
-    func_80298A64();
+    balookat_end();
 }
 
 void bsjig_jiggy_interrupt(void){
@@ -158,7 +158,7 @@ void bsjig_notedoor_end(void){
         func_8028F918(2);
         transitionToMap(MAP_95_CS_END_ALL_100, 0, 1);
     }
-    func_80298A64();
+    balookat_end();
 }
 
 void bsjig_notedoor_init(void){

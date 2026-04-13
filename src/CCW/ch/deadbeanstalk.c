@@ -1,4 +1,4 @@
-// BanjoDecomp: code_21A0.c
+// BanjoDecomp: ch/deadbeanstalk.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -14,7 +14,7 @@ ActorInfo D_8038ECA0 = {
 };
 
 /* .code */
-void func_80388590(Actor *this, s32 next_state){
+void chDeadBeanstalk_setNextState(Actor *this, s32 next_state){
     if(next_state == 1){
         skeletalAnim_set(this->unk148, 0x219, 0.0f, 1.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_4_STOPPED);
@@ -26,7 +26,7 @@ void chDeadBeanstalk_update(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
         if(fileProgressFlag_get(FILEPROG_E5_CCW_FLOWER_AUTUMN)){
-            func_80388590(this, 1);
+            chDeadBeanstalk_setNextState(this, 1);
         }
         else{
             marker_despawn(this->marker);

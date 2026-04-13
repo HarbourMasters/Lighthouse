@@ -516,7 +516,7 @@ void func_8038CC10(void)
     func_8030DD90(D_8037DCB8->UNK_18, 0);
     sfxsource_setSampleRate(D_8037DCB8->UNK_18, 32760);
     sfxsource_playSfxAtVolume(D_8037DCB8->UNK_18, 0.7f);
-    func_8030E2C4(D_8037DCB8->UNK_18);
+    sfxSource_func_8030E2C4(D_8037DCB8->UNK_18);
 }
 
 void lair_func_8038CC9C(void)
@@ -524,7 +524,7 @@ void lair_func_8038CC9C(void)
     if (!D_8037DCB8->UNK_18)
         return;
 
-    sfxSource_func_8030E2C4(D_8037DCB8->UNK_18);
+    sfxSource_triggerCallbackByIndex(D_8037DCB8->UNK_18);
     sfxsource_freeSfxsourceByIndex(D_8037DCB8->UNK_18);
     D_8037DCB8->UNK_18 = 0;
 }
@@ -539,7 +539,7 @@ void func_8038CCEC(void)
 
     gcquiz_free();
     quizQuestionAskedBitfield_free();
-    func_802C5994();
+    gameSelect_saveAndExit();
 }
 
 void lair_func_8038CD48(void)
@@ -609,7 +609,7 @@ void lair_func_8038CF18(void)
 
     struct FF_StorageStruct_48_sub *ptr;
 
-    if (map_get() != MAP_8E_GL_FURNACE_FUN)
+    if (gsworld_getMap() != MAP_8E_GL_FURNACE_FUN)
         return;
 
     D_8037DCB8->unk0 = mapModel_getModel(0);
@@ -772,7 +772,7 @@ void ff_getSoundQuestionSound(void)
         timedFunc_set_1(cleanupDelay, (GenFunction_1)ff_setState, FFA_4_UNK);
 }
 
-void func_8038D394(void)
+void ff_getPictureQuestionImage(void)
 {
     D_8037DCB8->unk12 = 1;
     func_802D5058(
@@ -791,7 +791,7 @@ void func_8038D3F0(s32 a0, s8 a1)
         if (D_8037DCB8->ffQuestionType == FFQT_2_SOUND)
             ff_getSoundQuestionSound();
         else if (D_8037DCB8->ffQuestionType == FFQT_1_PICTURE)
-            func_8038D394();
+            ff_getPictureQuestionImage();
         else
             ff_setState(FFA_4_UNK);
     }
@@ -1141,14 +1141,14 @@ void lair_func_8038E0B0(void) {
     s32 sp38;
     s32 sp28;
 
-    if( (map_get() == MAP_8E_GL_FURNACE_FUN) 
+    if( (gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) 
         && (D_8037DCB8 != NULL) 
         && (D_8037DCB8->unk0 != NULL)
     ){
         gcquiz_func_80319EA4();
         func_8038C9D0();
         controller_copyFaceButtons(0, sp48);
-        func_8024E60C(0, sp3C);
+        controller_copySideButtons(0, sp3C);
         if (D_8037DCB8->currFfMode < 3) {
             player_getPosition(D_8037DCB8->playerPosition);
             temp_v0 = func_8033F3E8(D_8037DCB8->unk0, D_8037DCB8->playerPosition, 0x191, 0x1F0);
@@ -1315,7 +1315,7 @@ void lair_func_8038E0B0(void) {
 
 void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v)
 {
-    if (map_get() != MAP_8E_GL_FURNACE_FUN)
+    if (gsworld_getMap() != MAP_8E_GL_FURNACE_FUN)
         return;
 
     gcquiz_draw(dl, m, v);

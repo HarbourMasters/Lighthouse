@@ -22,14 +22,14 @@ u32 D_803835E0;
 
 /* public */
 void gsworld_setEnableUpdate(s32);
-void func_80335128(s32);
-void func_80335140(enum map_e);
-void func_8033520C(s32);
+void gsworld_setEnableDraw(s32);
+void gsworld_load(enum map_e);
+void gsworld_stub3(s32);
 extern Struct64s *func_8032994C(void);
 extern void func_802F2ED0(Struct64s *, Gfx **, Mtx **, Vtx **);
 
 /* .code */
-void func_80334540(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
+void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
     f32 sp44;
     f32 sp40;
 
@@ -113,18 +113,18 @@ void func_80334540(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
     spawnQueue_lock();
 }
 
-void func_803348B0(s32 arg0, s32 arg1, s32 arg2){
+void gsworld_stub1(s32 arg0, s32 arg1, s32 arg2){
 }
 
-enum map_e map_get(void){
+enum map_e gsworld_getMap(void){
     return D_803835D0.map_4;
 }
 
-s32 exit_get(){
+s32 gsworld_getExit(){
     return D_803835D0.unk8;
 }
 
-void func_803348D8(s32 arg0) {
+void gsworld_transitionToExit(s32 arg0) {
     transitionToMap(D_803835D0.map_4, arg0, 1);
 }
 
@@ -134,7 +134,7 @@ s32 gsworld_getUnk0(){
 
 void gsworld_setUnk0(s32);
 
-void func_80334910(void) {
+void gsworld_free(void) {
     func_80255A14();
     gsworld_setUnk0(3);
     func_8034F734();
@@ -153,7 +153,7 @@ void func_80334910(void) {
     print_freeBoldLetterFont();
     func_802FAC3C();
     bundle_free();
-    func_8033E184();
+    commonParticle_freeAllParticles();
     func_8033FA24();
     func_80344C80();
     animsprite_terminate();
@@ -161,7 +161,7 @@ void func_80334910(void) {
     func_802BC10C();
     ncCameraNodeList_free();
     func_802F1388();
-    func_802F10A4();
+    pem_freeDependencies();
     partEmitMgr_free();
     func_802F7CE0();
     func_8031F9E0();
@@ -169,7 +169,7 @@ void func_80334910(void) {
     cubeList_free();
     func_8031B710();
     mapModel_free();
-    func_8030A6B0();
+    propModelList_free();
     lighting_free();
     sky_free();
     func_8034C8D8();
@@ -199,17 +199,17 @@ void func_80334910(void) {
     animCache_flushAll();
 }
 
-void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2) {
+void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     D_803835D0.unk0 = 3;
     D_803835D0.map_4 = arg0;
     CALL_EVENT(OnMapLoad, arg0);
     D_803835D0.unk8 = arg1;
     overlay_init();
     gsworld_setEnableUpdate(1);
-    func_80335128(1);
+    gsworld_setEnableDraw(1);
     func_802D2CB8();
     core1_7090_alloc();
-    if (map_get() == MAP_8E_GL_FURNACE_FUN) {
+    if (gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) {
         func_8038E7C4();
     }
     if (func_80322914() == 0) {
@@ -239,20 +239,20 @@ void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2) {
     func_80344C50();
     func_8033F9C0();
     ncCameraNodeList_init();
-    func_802BC044();
+    nccamera_init();
     partEmitMgr_init();
     func_802F1104();
-    func_802F13E0();
+    pem_setAllInactive();
     func_802F7D30();
-    func_8030A78C();
+    propModelList_init();
     lighting_init();
     sky_reset();
     func_803343D0();
     cubeList_init();
     func_802FA69C();
-    func_8033DEA0();
+    commonParticle_init();
     if (arg2 == 0) {
-        func_80335140(arg0);
+        gsworld_load(arg0);
     }
     func_80305990(0);
     func_8030C740();
@@ -283,12 +283,12 @@ void func_80334B20(enum map_e arg0, s32 arg1, s32 arg2) {
 }
 
 void gsworld_reload(void) {
-    func_80334910();
-    func_80334B20(D_803835D0.map_4, D_803835D0.unk8, 1);
+    gsworld_free();
+    gsworld_set(D_803835D0.map_4, D_803835D0.unk8, 1);
 }
 
-void func_80334DF8(void) {
-    func_8033520C(D_803835D0.map_4);
+void gsworld_stub2(void) {
+    gsworld_stub3(D_803835D0.map_4);
 }
 
 void gsworld_setUnk0(s32 arg0) {
@@ -302,11 +302,11 @@ void gsworld_setUnk0(s32 arg0) {
     func_803225B0(D_803835D0.unk0, arg0);
     func_80323098(D_803835D0.unk0, arg0);
     func_802F0E80((void *)(intptr_t)D_803835D0.unk0, arg0);
-    func_8033EA78(D_803835D0.unk0, arg0);
+    commonParticle_setActive(D_803835D0.unk0, arg0);
     D_803835D0.unk0 = arg0;
 }
 
-s32 func_80334ECC(void) {
+s32 gsworld_update(void) {
     s32 phi_v1;
     s32 phi_v0;
 
@@ -343,7 +343,7 @@ s32 func_80334ECC(void) {
         }
 #endif
         func_8033E1E0();
-        func_802F11E8();
+        commonParticle_update();
         animCache_update();
         animBinCache_update();
         ncCamera_update();
@@ -352,7 +352,7 @@ s32 func_80334ECC(void) {
         func_803465E4();
         func_8031B790();
         func_8034C9D4();
-        func_8030A850(1);
+        propModelList_flush(1);
         sky_update();
         partEmitMgr_update();
         func_8034F918();
@@ -386,11 +386,11 @@ void gsworld_setEnableUpdate(s32 arg0){
     D_803835DC = arg0;
 }
 
-s32 func_8033511C(){
+s32 gsworld_getEnableUpdate(){
     return D_803835DC;
 }
 
-void func_80335128(s32 arg0){
+void gsworld_setEnableDraw(s32 arg0){
     D_803835E0 = arg0;
 }
 
@@ -398,7 +398,7 @@ s32 gsworld_getEnableDraw(){
     return D_803835E0;
 }
 
-void func_80335140(enum map_e map_id) {
+void gsworld_load(enum map_e map_id) {
     File *fp;
 
     func_80254008();
@@ -422,5 +422,5 @@ void func_80335140(enum map_e map_id) {
     file_close(fp); //file close
 }
 
-void func_8033520C(s32 arg0){
+void gsworld_stub3(s32 arg0){
 }

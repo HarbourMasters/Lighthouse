@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_803255FC(Actor *);
 extern void func_80325760(Actor *);
 
@@ -125,7 +125,7 @@ void chMumbo_func_802D186C(Actor *this) {
 void chMumbo_func_802D18B4(Actor *this) {
     bool player_is_within_range;
 
-    if (map_get() == MAP_7A_GL_CRYPT) {
+    if (gsworld_getMap() == MAP_7A_GL_CRYPT) {
         player_is_within_range = chMumbo_withinHorzDistToPlayer(1107, 0, 188);
     } else {
         player_is_within_range = chMumbo_withinHorzDistToPlayer(0, -107, 188);
@@ -207,7 +207,7 @@ void chMumbo_func_802D1B8C(Actor *this, enum transformation_e transform_id) {
             gcdialog_showText(transform_id + ASSET_D8F_DIALOG_MUMBO_MEET, 6, this->position, this->marker, __chMumbo_textCallback, NULL);
             return;
         }
-        if (map_get() == MAP_7A_GL_CRYPT && transform_id == TRANSFORM_3_PUMPKIN && !fileProgressFlag_get(FILEPROG_F7_HAS_TRANSFORMED_IN_CRYPT)) {
+        if (gsworld_getMap() == MAP_7A_GL_CRYPT && transform_id == TRANSFORM_3_PUMPKIN && !fileProgressFlag_get(FILEPROG_F7_HAS_TRANSFORMED_IN_CRYPT)) {
             gcdialog_showText(ASSET_DAD_DIALOG_MUMBO_XFORM_IN_CRYPT, 6, this->position, this->marker, __chMumbo_textCallback, NULL);
             fileProgressFlag_set(FILEPROG_F7_HAS_TRANSFORMED_IN_CRYPT, true);
             return;
@@ -230,7 +230,7 @@ void chMumbo_update(Actor *this) {
     this->unk130 = func_803255FC;
     if( !volatileFlag_get(VOLATILE_FLAG_1)
         && !volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)
-        && map_get() != MAP_7A_GL_CRYPT) {
+        && gsworld_getMap() != MAP_7A_GL_CRYPT) {
         item_adjustByDiffWithHud(ITEM_1C_MUMBO_TOKEN, 0);
     }
     if(!this->initialized){
@@ -250,7 +250,7 @@ void chMumbo_update(Actor *this) {
         this->unk38_31 = 0;
         if( player_getTransformation() == TRANSFORM_1_BANJO 
             && !fileProgressFlag_get(__bkProgId_from_transformationId(D_8037DDF0)) 
-            && (map_get() != MAP_7A_GL_CRYPT)
+            && (gsworld_getMap() != MAP_7A_GL_CRYPT)
         ){
             this->unk38_31 = __transformation_getCost(D_8037DDF0);
         }
@@ -315,7 +315,7 @@ void chMumbo_update(Actor *this) {
 
         case 4: //L802D20E4
             actor_loopAnimation(this);
-             sp48 = (map_get() == MAP_7A_GL_CRYPT) ? chMumbo_withinHorzDistToPlayer(0x442, 0, 0x3C) :  chMumbo_withinHorzDistToPlayer(0, -0x5A, 0x3C);
+             sp48 = (gsworld_getMap() == MAP_7A_GL_CRYPT) ? chMumbo_withinHorzDistToPlayer(0x442, 0, 0x3C) :  chMumbo_withinHorzDistToPlayer(0, -0x5A, 0x3C);
             if( sp48 
                 && player_movementGroup() == BSGROUP_0_NONE 
                 && func_8028F20C()
@@ -325,15 +325,15 @@ void chMumbo_update(Actor *this) {
                 if(face_buttons[FACE_BUTTON(BUTTON_B)] == 1){
                     if (D_8037DDF0 == TRANSFORM_7_WISHWASHY) {
                         this->unk38_31 = 0;
-                    } else if (player_getTransformation() == TRANSFORM_1_BANJO && !fileProgressFlag_get(__bkProgId_from_transformationId(D_8037DDF0)) && map_get() != MAP_7A_GL_CRYPT){
+                    } else if (player_getTransformation() == TRANSFORM_1_BANJO && !fileProgressFlag_get(__bkProgId_from_transformationId(D_8037DDF0)) && gsworld_getMap() != MAP_7A_GL_CRYPT){
                         this->unk38_31 = __transformation_getCost(D_8037DDF0);
                     }
                     this->unk38_0 =  (D_8037DDF0 == TRANSFORM_7_WISHWASHY) || (item_getCount(ITEM_1C_MUMBO_TOKEN) >= this->unk38_31);
                     if (this->unk38_0) {
-                        sp48 = map_get() != MAP_E_MM_MUMBOS_SKULL;
+                        sp48 = gsworld_getMap() != MAP_E_MM_MUMBOS_SKULL;
                         sp44 = player_getTransformation() == TRANSFORM_1_BANJO;
                         func_8028F94C(2, this->position);
-                        if ( sp44 && map_get() != MAP_7A_GL_CRYPT 
+                        if ( sp44 && gsworld_getMap() != MAP_7A_GL_CRYPT 
                              && !fileProgressFlag_get(FILEPROG_BA_HAS_SEEN_TREX_TEXT) 
                              && randf() < 0.01 
                              && sp48
@@ -344,7 +344,7 @@ void chMumbo_update(Actor *this) {
                             subaddie_set_state(this, 3);
                         } else if (
                             sp44 
-                            && map_get() != MAP_7A_GL_CRYPT  
+                            && gsworld_getMap() != MAP_7A_GL_CRYPT  
                             && !this->unk138_23 
                             && (sp40 = fileProgressFlag_getN(FILEPROG_BB_MUMBO_MISTAKE_INDEX, 2), sp40 < 3) 
                             && randf() < 0.05 
@@ -377,10 +377,10 @@ void chMumbo_update(Actor *this) {
         case 5: //L802D2488
             actor_playAnimationOnce(this);
             if (actor_animationIsAt(this, 0.35f)){
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             if (actor_animationIsAt(this, 0.56f)) {
-                sfxSource_func_8030E2C4(this->unk44_31);
+                sfxSource_triggerCallbackByIndex(this->unk44_31);
             }
             if (actor_animationIsAt(this, 0.57f)) {
                 func_8030E6D4(1);
@@ -436,7 +436,7 @@ void chMumbo_update(Actor *this) {
         case 7: //L802D2704
             chMumbo_func_802D186C(this);
             if (volatileFlag_get(VOLATILE_FLAG_11) == 0) {
-                if (map_get() == MAP_7A_GL_CRYPT) {
+                if (gsworld_getMap() == MAP_7A_GL_CRYPT) {
                     sp48 = chMumbo_withinHorzDistToPlayer(0x453, 0, 0xBC);
                 } else {
                     sp48 = chMumbo_withinHorzDistToPlayer(0, -0x6B, 0xBC);
@@ -452,7 +452,7 @@ void chMumbo_update(Actor *this) {
         case 8: //L802D2790
             chMumbo_func_802D186C(this);
             if (volatileFlag_get(VOLATILE_FLAG_12) == 0) {
-                if (map_get() == MAP_7A_GL_CRYPT) {
+                if (gsworld_getMap() == MAP_7A_GL_CRYPT) {
                     sp48 = chMumbo_withinHorzDistToPlayer(0x453, 0, 0xBC);
                 } else {
                     sp48 = chMumbo_withinHorzDistToPlayer(0, -0x6B, 0xBC);
@@ -503,7 +503,7 @@ Actor *chMumbo_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             || actor_animationIsAt(out, 0.36f)
          ){
             func_8034A174(func_80329934(), 9, sp44);
-            func_802EE6CC(sp44, sp38, D_8036751C, 0, 0.9f, 0.0f, 0x46, 0x14, 0);
+            dustEmitter_emit(sp44, sp38, D_8036751C, 0, 0.9f, 0.0f, 0x46, 0x14, 0);
         }
     }
     return out;

@@ -45,7 +45,7 @@ ChMoleDescription moleTable[] = {
 };
 
 /* .code */
-// func_802D9220
+// chmole_learnedAllLevelAbilities
 int chmole_learnedAllLevelAbilities(enum level_e level){
     // Checks if all of the level's abilities are learned.
     switch (level){
@@ -142,13 +142,13 @@ void func_802D9600(Actor * this){
     this->marker->propPtr->unk8_3 = 0;
 }
 
-// func_802D9658
+// chmole_setStaticCamera
 void chmole_setStaticCamera(Actor *this){
     // Sets the camera to a static camera
     timed_setStaticCameraToNode(0.0f, moleTable[this->actorTypeSpecificField-9].camera_node);
 }
 
-// func_802D9698
+// chmole_healthRefill
 void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     // Refills the player's health upon learning a new ability, if needed
     // Also releases the camera
@@ -178,7 +178,7 @@ void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     }//L802D9820
 }
 
-// func_802D9830
+// chmole_additionalAbilityLearnActions
 void chmole_additionalAbilityLearnActions(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     // Performs actions depending on what move is being learned
     Actor *actor = marker_getActor(marker);
@@ -217,7 +217,7 @@ void chmole_additionalAbilityLearnActions(ActorMarker *marker, enum asset_e arg1
     }
 }
 
-// func_802D997C
+// chmole_learnAbility
 int chmole_learnAbility(Actor *this){
     s32 sp2C;
     s32 sp28 = 0xe;
@@ -273,7 +273,7 @@ void chmole_Refresher(Actor *this){
     chmole_learnAbility(this);
 }
 
-// func_802D9C1C
+// chmole_setFacingDirection
 void chmole_setFacingDirection(Actor *this){
     // Sets the actor to always be facing the player
     subaddie_set_state_with_direction(this, 3, 0.0001f, 1);
@@ -298,7 +298,7 @@ void func_802D9C90(Actor *this){
     }
 }
 
-// func_802D9CBC
+// chmole_startingDialog
 void chmole_startingDialog(Actor *this){
     // If the player knows the ability, use refresher function
     // Otherwise, set player's position and spawn mole
@@ -306,7 +306,7 @@ void chmole_startingDialog(Actor *this){
         chmole_Refresher(this);
     }
     else{
-        if(func_80329530(this, 150)){
+        if(subaddie_playerIsWithinSphereAndActive(this, 150)){
             if(this->unk38_0 == 0)
                 func_8028F45C(9, this->position);
             else
@@ -316,7 +316,7 @@ void chmole_startingDialog(Actor *this){
     }
 }
 
-// func_802D9D60
+// chmole_update
 void chmole_update(Actor *this){
     // Sets up the initial functions and state for the actor
     s32 sp50[6];
@@ -393,7 +393,7 @@ void chmole_update(Actor *this){
                 }
                 else{//L802DA054
                     if( !player_movementGroup() 
-                        && func_80329530(this, 0xFA)
+                        && subaddie_playerIsWithinSphereAndActive(this, 0xFA)
                         && func_8028EFC8()
                         && sp50[FACE_BUTTON(BUTTON_B)] == 1
                     ){
@@ -409,7 +409,7 @@ void chmole_update(Actor *this){
             if( 0.0 < anctrl_getAnimTimer(this->anctrl)
                 && anctrl_getAnimTimer(this->anctrl) < 0.16
             ){
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }//L802DA128
             if(actor_animationIsAt(this, 0.9999f)){
                 chmole_setFacingDirection(this);
@@ -462,7 +462,7 @@ void chmole_update(Actor *this){
             if( 0.35 < anctrl_getAnimTimer(this->anctrl) 
                 &&  anctrl_getAnimTimer(this->anctrl) < 0.9
             ){
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             else if(actor_animationIsAt(this, 0.9999f)){//L802DA45C
                 func_802D9600(this);

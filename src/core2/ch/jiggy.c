@@ -40,7 +40,7 @@ enum jiggy_e func_802C7A30(Actor *this){
     s32 id;
     s32 sp18[3];
     
-    id = map_get();
+    id = gsworld_getMap();
 
     sp18[0] = (s32)this->position[0];
     sp18[1] = (s32)this->position[1]; 
@@ -76,9 +76,9 @@ void func_802C7B8C(Actor *this, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5
         && mapSpecificFlags_get(arg2)
         && item_getCount(ITEM_0_HOURGLASS_TIMER) == 0
     ){
-        func_8028FCC8(1);
+        player_setModelVisible(1);
         actor_collisionOff(this);
-        func_802BAFE4(arg3);
+        gcStaticCamera_activate(arg3);
         volatileFlag_setAndTriggerDialog_0(arg6);
         timedFunc_set_4(0.6f, (GenFunction_4)func_802C7AF8, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2], arg4);
         timedFunc_set_2(0.6f, (GenFunction_2)func_802C7AB0, (uintptr_t)this->marker, arg5);
@@ -128,7 +128,7 @@ void chjiggy_update(Actor *this){
         for(i = 0; i < 4; i++){
             if(randf() < 0.015){
                 func_8033E73C(this->marker, i + 5, func_80329904);
-                func_8033E3F0(8, 1);
+                commonParticle_new(8, 1);
             }
         }
     }//L802C7E44

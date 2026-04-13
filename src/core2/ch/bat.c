@@ -166,13 +166,13 @@ bool chbat_nearPlayer(Actor *this) {
     }
 
     if (this->unk38_31 != 0) {
-        if (func_80329530(this, 0) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 0) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
             return true;
         }
         this->unk38_31--;
         return false;
     }
-    if (func_80329530(this, 800) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
+    if (subaddie_playerIsWithinSphereAndActive(this, 800) && (sp24[1] <= (this->unk1C[1] - 40.0f))) {
         return true;
     }
 

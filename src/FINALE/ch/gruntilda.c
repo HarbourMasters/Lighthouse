@@ -8,8 +8,8 @@
 
 extern void func_8028F4B8(f32[3], f32, f32);
 extern void func_80320ED8(ActorMarker *, f32, s32);
-s32 func_803297C8(Actor*, f32*);
-Actor *func_8032813C();
+s32 subaddie_getYawToPosition(Actor*, f32*);
+Actor *actor_spawnWithYaw_f32();
 extern Actor* func_80329958(ActorMarker *this, s32 arg1);
 extern void func_803298D8();
 extern void func_80324CFC(f32, enum comusic_e, s32);
@@ -321,7 +321,7 @@ bool chfinalboss_func_80386C68(Actor *this, f32 arg1) {
     f32 sp2C[3];
 
     chjinjonator_8039129C(sp2C);
-    this->yaw_ideal = (f32) func_803297C8(this, sp2C);
+    this->yaw_ideal = (f32) subaddie_getYawToPosition(this, sp2C);
     subaddie_turnToYaw(this, arg1);
 
     if ((this->yaw_ideal < ( this->yaw + arg1)) && (( this->yaw - arg1) < this->yaw_ideal)) {
@@ -355,7 +355,7 @@ void chfinalboss_func_80386CF8(Actor *actor) {
 
 void __chfinalboss_dropHealth(ActorMarker *marker) {
     Actor *actor = marker_getActor(marker);
-    bundle_setYaw(func_803297C8(actor, D_803916F4));
+    bundle_setYaw(subaddie_getYawToPosition(actor, D_803916F4));
     bundle_spawn_f32(BUNDLE_14__HONEYCOMB, actor->position);
 }
 
@@ -784,7 +784,7 @@ void chfinalboss_phase1_setState(Actor *this, s32 next_state) {
     chfinalboss_func_80386600(this->marker, 0);
     if (next_state != 9) {
         if (func_8030E3FC(this->unk44_31)) {
-            sfxSource_func_8030E2C4(this->unk44_31);
+            sfxSource_triggerCallbackByIndex(this->unk44_31);
             FUNC_8030E624(SFX_162_MOTOR_RUCKUS, 1.0f, 32000);
 
         }
@@ -863,7 +863,7 @@ void chfinalboss_func_803885DC(Actor *this) {
     s32 sp24 = globalTimer_getTime();
     
     if (func_8030E3FC(this->unk44_31) == 0) {
-        func_8030E2C4(this->unk44_31);
+        sfxSource_func_8030E2C4(this->unk44_31);
     }
     if (((sp24 & 7) == 0) && (randf() < 0.5)) {
         chfinalboss_func_8038856C(this, D_80391728);
@@ -1333,7 +1333,7 @@ void chfinalboss_phase3_update(ActorMarker *marker) {
         }
         break;
     case 23:
-        if (chfinalboss_func_80386BEC(this, 9.0f) && (func_80297C6C() != 3)) {
+        if (chfinalboss_func_80386BEC(this, 9.0f) && (baiFrame_getState() != 3)) {
             chfinalboss_phase3_setState(this, 0x18);
         }
         break;
@@ -1580,7 +1580,7 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             break;
 
         case 29:
-            if ((chfinalboss_func_80386BEC(this, 9.0f)) && (func_80297C6C() != 3) && (sFinalBossJinjoStatueActivated == 0)) {
+            if ((chfinalboss_func_80386BEC(this, 9.0f)) && (baiFrame_getState() != 3) && (sFinalBossJinjoStatueActivated == 0)) {
                 chfinalboss_phase4_setState(this, 0x1E);
             }
             break;
@@ -1651,7 +1651,7 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             }
             if ((sp58 >= 0.4) && (sp58 <= 0.65)) {
                 sfxsource_playSfxAtVolume(this->unk44_31, ((D_803927C0 += 0.005) > 1.99) ? 1.99 : (D_803927C0 += 0.005));
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             if (actor_animationIsAt(this, 0.56f)) {
                 gcsfx_playWithPitch(SFX_C5_TWINKLY_POP, randf2(0.95f, 1.05f), 32000);
@@ -1724,7 +1724,7 @@ void chfinalboss_phase5_setState(Actor *this, s32 next_state) {
                 sfxSource_setunk43_7ByIndex(this->unk44_31, 3);
                 sfxsource_playSfxAtVolume(this->unk44_31, 1.0f);
                 sfxsource_setSampleRate(this->unk44_31, 0x4268);
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             break;
 
@@ -1819,14 +1819,14 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
             break;
 
         case 36:
-            if (chfinalboss_func_80386BEC(this, 9.0f) && (func_80297C6C() != 3)) {
+            if (chfinalboss_func_80386BEC(this, 9.0f) && (baiFrame_getState() != 3)) {
                 chfinalboss_phase5_setState(this, 0x25);
             }
             break;
 
         case 37:
             chfinalboss_func_80386BEC(this, 3.0f);
-            if (func_80297C6C() == 3) {
+            if (baiFrame_getState() == 3) {
                 chfinalboss_phase5_setState(this, 0x24);
                 break;
             }
@@ -1873,7 +1873,7 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
                 sfx_playFadeShorthandDefault(SFX_163_GRUNTY_WILD_SCREAM, 1.0f, 32000, this->position, 5000, 12000);
             }
             if ((0.56 < sp34) && (sp34 < 0.99)) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             if (actor_animationIsAt(this, 0.9999f)) {
                 chfinalboss_phase5_setState(this, 0x27);
@@ -1890,7 +1890,7 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
                     func_802BB3DC(0, 12.0f, 1.0f);
                     v0 = this->unk44_31;
                     if (v0 != 0) {
-                        sfxSource_func_8030E2C4(v0);
+                        sfxSource_triggerCallbackByIndex(v0);
                         sfxsource_freeSfxsourceByIndex(this->unk44_31);
                         this->unk44_31 = 0;
                     }

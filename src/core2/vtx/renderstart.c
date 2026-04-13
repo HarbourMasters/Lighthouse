@@ -230,7 +230,7 @@ void func_8034E088(Struct6Ds *arg0, s32 arg1, s32 arg2, f32 arg3){
     arg0->unk98 = 0.0f;
 }
 
-void func_8034E0FC(Struct6Ds *arg0, s32 arg1){
+void setStruct6DsOpacity(Struct6Ds *arg0, s32 arg1){
     func_8034E088(arg0, arg1, arg1, 0.0f);
 }
 
@@ -259,7 +259,7 @@ void func_8034E1A4(Struct6Ds *arg0, enum sfx_e sfx_id, f32 arg2, f32 arg3){
     sfxSource_setunk43_7ByIndex(arg0->unk0, 3);
     sfxsource_playSfxAtVolume(arg0->unk0, (arg2 +arg3)/2);
     sfxsource_setSampleRate(arg0->unk0, 32000);
-    func_8030E2C4(arg0->unk0);
+    sfxSource_func_8030E2C4(arg0->unk0);
 }
 
 void func_8034E254(Struct6Ds *arg0, void (*arg1)(Struct6Ds *)){
@@ -331,7 +331,7 @@ void func_8034E26C(Struct6Ds *arg0, BKModel *model, s32 mesh_id) {
     if (arg0->unk0 != 0) {
             sp28 = arg0->unk44 / arg0->unk48;
             sp24 = func_8030E200(arg0->unk0);
-            sp20 = func_8030E1C4(arg0->unk0);
+            sp20 = sfxSource_getSampleRate(arg0->unk0);
 
             sp24 += (randf2(-1.0f, 1.0f) * sp2C);
             sp24 = MAX(arg0->unk20, sp24);

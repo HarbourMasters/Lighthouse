@@ -78,7 +78,7 @@ void chtrainers_update(Actor *this){
     switch(this->state){
         case 0://L802CA5A8
             if(func_803296D8(this, 2000) || sp2C){
-                if( func_80329530(this, 0xfa)
+                if( subaddie_playerIsWithinSphereAndActive(this, 0xfa)
                     && !volatileFlag_get(VOLATILE_FLAG_F_HAS_MEET_TURBO_SHOES)
                     && player_getTransformation() == TRANSFORM_1_BANJO
                 ){

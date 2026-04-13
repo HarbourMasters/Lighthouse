@@ -5,7 +5,7 @@
 
 
 f32 func_8028E82C(void);
-void func_8028F3D8(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
+void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 
 // prototypes
 void func_8038A8F8(Actor *this);
@@ -51,7 +51,7 @@ void func_8038A8F8(Actor *this){
             || (mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_F))
         ){ //L8038AA54
             this->yaw_ideal = ml_vec3f_distance(this->velocity, this->unk1C) / 150.0;
-            func_8028F3D8(this->unk1C, this->yaw_ideal, func_8038A8C0, this->marker);
+            player_walkToPosition(this->unk1C, this->yaw_ideal, func_8038A8C0, this->marker);
             mapSpecificFlags_set(SM_SPECIFIC_FLAG_10, true);
         }
     }

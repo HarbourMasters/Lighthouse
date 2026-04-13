@@ -61,7 +61,7 @@ void func_80388C20(Actor *this){
             sfxsource_setSfxId(local->sfxsourceIdx, SFX_9F_GENERATOR_RUNNING);
             sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 3);
             sfxsource_setSampleRate(local->sfxsourceIdx, 0);
-            func_8030E2C4(local->sfxsourceIdx);
+            sfxSource_func_8030E2C4(local->sfxsourceIdx);
         }//L80388CFC
         if(this->state == 0){
             if(this->modelCacheIndex == 0x17B){
