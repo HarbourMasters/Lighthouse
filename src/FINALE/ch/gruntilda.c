@@ -6,8 +6,8 @@
 
 #include <bk_math.h>
 
-extern void func_8028F4B8(f32[3], f32, f32);
-extern void func_80320ED8(ActorMarker *, f32, s32);
+extern bool func_8028F4B8(f32[3], f32, f32);
+extern int func_80320ED8(ActorMarker *, f32, s32);
 s32 subaddie_getYawToPosition(Actor*, f32*);
 Actor *actor_spawnWithYaw_f32();
 extern Actor* func_80329958(ActorMarker *this, s32 arg1);

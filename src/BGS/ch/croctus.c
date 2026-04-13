@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80328748(AnimCtrl *, f32, f32);
+extern s32 func_80328748(AnimCtrl *, f32, f32);
 extern void func_8028F94C(s32, f32[3]);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void func_803289EC(Actor *, f32, s32);

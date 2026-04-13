@@ -1509,7 +1509,7 @@ void func_8031FB6C(NodeProp *arg0, ActorMarker *arg1) {
     func_8031CC8C(arg0, 0x7104);
 }
 
-void func_8031FBA0(void) {
+void clearScoreStates(void) {
     bsStoredState_clear();
     func_8031FFAC();
     item_setItemsStartCounts();

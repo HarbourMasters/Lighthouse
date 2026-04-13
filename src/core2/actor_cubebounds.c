@@ -17,6 +17,7 @@ extern void bitfield_setBit(s32 *arg0, s32 arg1, bool arg2);
 extern bool bitfield_isBitSet(s32 *arg0, s32 arg1);
 extern void bitfield_setAll(s32 *arg0, bool arg1);
 extern void func_8032D510(Cube *, Gfx **, Mtx **, Vtx **);
+// def returns Prop*, but callers here access via the ActorProp union member
 extern ActorProp *func_803322F0(Cube *, ActorMarker *, f32, s32, s32 *);
 extern BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
 extern BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 arg2[3], u32 flags);

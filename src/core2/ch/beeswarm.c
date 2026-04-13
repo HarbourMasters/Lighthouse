@@ -5,7 +5,7 @@
 #include "core2/quiz_storage.h"
 
 extern void func_8030DBFC(u32, f32, f32, f32);
-extern bool func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
+extern BKCollisionTri * func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
 extern void sfxsource_set_fade_distances(u8, f32, f32);
 extern void sfxsource_set_position(u8, f32[3]);
 extern void sfxSource_func_8030E2C4(u8);

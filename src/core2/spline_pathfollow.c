@@ -5,8 +5,8 @@
 extern void sfxsource_setSampleRate(u8, s32);
 extern NodeProp *func_803080C8(s32 arg0);
 extern u32   func_80307E1C(void);
-extern s32   func_80307EA8(s32 arg0, s32 position[3], s32 *arg2, s32 *arg3);
-extern bool func_80323240(struct56s *, f32, f32[3]);
+extern u32 func_80307EA8(s32 arg0, s32 position[3], s32 *arg2, s32 *arg3);
+extern void func_80323240(struct56s *, f32, f32[3]);
 extern f32  func_803234FC(struct56s *, f32, f32);
 extern f32  func_80323540(struct56s *, f32, f32, f32);
 extern f32  func_803237E8(struct56s *);

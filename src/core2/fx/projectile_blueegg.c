@@ -17,7 +17,7 @@ extern void func_80344E18(u8, s32);
 extern void func_80344E3C(u8, f32[3]);
 extern void func_80344EE4(u8, f32, f32);
 extern void func_80354030(f32[3], f32);
-extern bool func_80344EC0(u8);
+extern s32 func_80344EC0(u8);
 extern ActorMarker *func_8033E840(void);
 extern ActorProp *func_80320EB0(ActorMarker *, f32, s32);
 

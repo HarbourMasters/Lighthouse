@@ -7,7 +7,7 @@
 
 int collisionTri_isHitFromAbove_actor(f32 arg0[3], Actor *arg1, s32 arg2);
 extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
-extern bool func_80323240(struct56s *, f32, f32[3]);
+extern void func_80323240(struct56s *, f32, f32[3]);
 extern BKCollisionTri *func_80320B98(f32[3], f32[3], f32[3], u32);
 extern BKCollisionTri *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
 extern f32 floor_getXPosition(struct0*);

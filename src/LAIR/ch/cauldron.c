@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8028F4B8(f32[3], f32, f32);
+extern bool func_8028F4B8(f32[3], f32, f32);
 extern void func_802D6310(f32, enum map_e, s32, s32, enum file_progress_e);
 extern void func_802EE354(Actor *, s32, s32, s32, f32, f32, f32, f32[3], s32, f32[3]);
 extern void func_80324CFC(f32, enum comusic_e, s32);

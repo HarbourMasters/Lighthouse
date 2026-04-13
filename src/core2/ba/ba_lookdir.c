@@ -11,7 +11,7 @@
 
 #include "core2/snackerctl.h"
 
-extern bool player_isInHorizontalRadius(f32[3], f32);
+extern int player_isInHorizontalRadius(f32[3], f32);
 extern bool player_isInVerticalRange(f32[3], f32);
 extern void func_80295A8C(void);
 extern void climbSet(f32[3], f32[3], f32, u32);

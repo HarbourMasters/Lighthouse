@@ -6,7 +6,7 @@
 #include <bk_math.h>
 
 extern f32 mapModel_getFloorY(f32*);
-extern void spawnQueue_bundle_f32(s32, f32, f32, f32);
+extern Actor * spawnQueue_bundle_f32(s32, f32, f32, f32);
 extern void timed_mapSpecificFlags_setTrue(f32 time, enum sm_specific_flags flag);
 extern void subaddie_set_state_with_direction(Actor* , s32, f32, s32);
 

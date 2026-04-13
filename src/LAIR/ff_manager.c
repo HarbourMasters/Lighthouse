@@ -59,7 +59,7 @@ void lair_func_8038C6BC(void);
 extern void code_73640_printItemCount(enum item_e);
 extern void code_7060_setVoidOutLocation(enum map_e, s32);
 extern void quizQuestionAskedBitfield_set(u32, int); // ff_isAsked_flag_set
-extern int quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
+extern bool quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
 extern void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
 extern void ability_setAllLearned(s32);  // set unlocked moves bitfield
 extern s32  ability_getAllLearned(void); // get unlocked moves bitfield

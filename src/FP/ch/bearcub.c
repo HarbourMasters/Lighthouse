@@ -4,7 +4,7 @@
 #include "variables.h"
 
 extern void func_8028E668(f32[3], f32, f32, f32);
-extern s32 player_setCarryObjectPoseInHorizontalRadius(f32[3], f32, s32, Actor **);
+extern bool player_setCarryObjectPoseInHorizontalRadius(f32[3], f32, s32, Actor **);
 
 typedef struct {
     s32 unk0;

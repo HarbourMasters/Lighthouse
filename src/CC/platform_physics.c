@@ -16,7 +16,7 @@ extern BKCollisionTri *func_802E805C(BKCollisionList *, BKVertexList *, f32[3], 
 extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]);
 extern BKCollisionTri *func_802E9118(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3], s32, s32);
 extern BKCollisionTri *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], f32 *, f32, f32[3], f32, f32[3], s32);
-extern int func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
+extern bool func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
 
 extern void boneTransformList_getBoneScale(BoneTransformList *, s32, f32[3]);
 extern void boneTransformList_setBoneScale(BoneTransformList *, s32, f32[3]);

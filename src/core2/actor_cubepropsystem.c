@@ -60,8 +60,8 @@ s32 func_80330974(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 a
 BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 BKModelBin *func_80330DE4(ActorMarker *this);
 
-extern void func_80320EB0(ActorMarker *, f32, s32);
-extern void func_80320ED8(ActorMarker *, f32, s32);
+extern ActorProp * func_80320EB0(ActorMarker *, f32, s32);
+extern int func_80320ED8(ActorMarker *, f32, s32);
 f32 func_8033229C(ActorMarker *marker);
 s32 func_803327A8(s32 arg0);
 void func_8032CD60(Prop *);

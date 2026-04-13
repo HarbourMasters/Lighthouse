@@ -454,7 +454,7 @@ void func_802E4214(enum map_e map_id){
     func_80253FE8();
     time_reset();
     func_8033DC04();
-    func_8031FBA0();
+    clearScoreStates();
     D_8037E8E0.game_mode = GAME_MODE_2_UNKNOWN;
     D_8037E8E0.unk8 = 0.0f;
     time_setDeltaReal_sec(0.0f);

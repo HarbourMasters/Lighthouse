@@ -9,7 +9,7 @@
 
 extern void func_803012F8(void);
 extern void __baMarker_8028BA00(s32);
-extern void spawnQueue_actor_s16(void);
+extern Actor * spawnQueue_actor_s16(void);
 extern void func_802A6388(f32);
 extern f32 chwadingboots_802D6E4C(Actor *);
 extern void set_turbo_duration(f32);
@@ -21,7 +21,7 @@ extern void func_80291610(ActorMarker *, ActorMarker *);
 extern Actor *baModel_80291AAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 extern void baMarker_8028D7B8(s32 arg0, ActorMarker *arg1, CollisionParams *collision_flags);
 extern void dustEmitter_emit(f32[3], s32, s32[4], s32, f32, f32, s32,s32,s32);
-extern void func_80320ED8(ActorMarker *, f32, s32);
+extern int func_80320ED8(ActorMarker *, f32, s32);
 extern NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e actor_id, s32 position[3]);
 
 typedef struct 

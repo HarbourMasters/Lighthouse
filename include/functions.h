@@ -2196,7 +2196,7 @@ void func_8031D0C0(NodeProp *arg0, ActorMarker *arg1);
 void func_8031F9E0(void);
 void func_8031F9E8();
 void func_8031F9F4(s32 arg0);
-void func_8031FBA0(void);
+void clearScoreStates(void);
 void debugScoreStates(void);
 void warp_mmmEnterLoggo(NodeProp *arg0, ActorMarker *arg1);
 

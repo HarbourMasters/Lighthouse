@@ -190,7 +190,7 @@ void chBottlesBonusCursor_func_802DF99C(void){
 
 void chBottlesBonusCursor_freeMethod(Actor *this) {
     debugScoreStates();
-    func_8031FBA0();
+    clearScoreStates();
     if (func_8034BAFC() != -1) {
         gameSelect_setGameNumber(func_8034BAFC());
         gameFile_load(func_8034BAFC());

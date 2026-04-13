@@ -15,7 +15,7 @@ extern void func_802D7124(Actor *, f32);
 extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
-extern void func_8033A244(f32);
+extern f32 func_8033A244(f32);
 extern uintptr_t func_802F3364(uintptr_t);
 extern void *func_802F2AEC(void);
 extern void func_802F2C78(Struct64s *);

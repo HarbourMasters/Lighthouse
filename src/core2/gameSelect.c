@@ -17,7 +17,7 @@ s32 gSelectedGameNum = -1;
 #endif
 
 void debugScoreStates(void);
-void func_8031FBA0(void);
+void clearScoreStates(void);
 
 Actor *func_802C4360(ActorMarker *, Gfx **, Mtx **, Vtx **);
 Actor *func_802C4464(ActorMarker *, Gfx **, Mtx **, Vtx **);
@@ -205,7 +205,7 @@ void func_802C4768(s32 gamenum){
 
     debugScoreStates();
     D_80365E00 = gamenum;
-    func_8031FBA0();
+    clearScoreStates();
     if(gameFile_isNotEmpty(gamenum)){
         gameFile_load(gamenum);
         D_8037DCCE[gamenum] = (itemscore_timeScores_get(LEVEL_6_LAIR)) ? 1 : 0;
@@ -610,7 +610,7 @@ void func_802C5740(Actor * this){
         marker_setFreeMethod(this->marker, func_802C4AF0);
         D_8037DCEC = 0;
         debugScoreStates();
-        func_8031FBA0();
+        clearScoreStates();
         D_8037DCE8 = 0;
         D_80365E00 = 0;
         D_8037DCF8[1][0] = D_80365DD0[0][0];
