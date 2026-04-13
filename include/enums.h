@@ -537,7 +537,7 @@ enum joystick_e{
     JOYSTICK_Y = 0x1
 };
 
-enum map_e
+typedef enum map_e
 {
     MAP_1_SM_SPIRAL_MOUNTAIN = 0x01,
     MAP_2_MM_MUMBOS_MOUNTAIN,
@@ -692,7 +692,7 @@ enum map_e
     MAP_97_CS_END_BEACH_2,
     MAP_98_CS_END_SPIRAL_MOUNTAIN_1,
     MAP_99_CS_END_SPIRAL_MOUNTAIN_2
-};
+} GameMap;
 
 enum comusic_e
 {

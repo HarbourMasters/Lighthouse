@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 DEFINE_EVENT(GameFrameUpdate);
+DEFINE_EVENT(FrameDrawEnd);
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);
 

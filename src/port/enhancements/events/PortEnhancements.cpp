@@ -4,14 +4,17 @@
 #define INIT_EVENT_IDS
 
 #include "port/enhancements/events/hooks/Events.h"
+#include "port/nametag.h"
 
 void PortEnhancements_Init() {
     PortEnhancements_Register();
+    NameTag_RegisterHooks();
 }
 
 void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
+    REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
 
@@ -31,9 +34,13 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
 
+    // Register game events
+    REGISTER_EVENT(MapTransitionEnd);
+
     // Register rando events
     REGISTER_EVENT(OnActorSpawn);
     REGISTER_EVENT(OnActorCollision);
+    REGISTER_EVENT(OnActorDestroy);
 }
 
 void PortEnhancements_Exit() {

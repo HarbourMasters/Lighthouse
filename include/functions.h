@@ -346,6 +346,10 @@ void mapSpecificFlags_set(s32, s32);
 s32 levelSpecificFlags_get(s32 i);
 void levelSpecificFlags_set(s32, s32);
 
+// --- core2/gameloop.c ---
+s32 getGameMode(void);
+void transitionToMap(enum map_e map, s32 exit, s32 transition);
+
 // --- core2/gamestate.c (item system) ---
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);

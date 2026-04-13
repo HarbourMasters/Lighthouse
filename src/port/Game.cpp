@@ -5,6 +5,8 @@
 #include "Engine.h"
 #include "ShipUtils.h"
 #include "patches/Patches.h"
+#include "src/port/enhancements/events/hooks/Events.h"
+#include "src/port/enhancements/events/hooks/EventSystem.h"
 
 #ifdef _WIN32
 #include <windows.h>

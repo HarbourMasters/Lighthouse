@@ -371,6 +371,7 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition){
     func_802E40D0(map, exit);
     func_802E40E8(transition);
     func_802E40C4(1);
+    CALL_EVENT(MapTransitionEnd, map, exit);
 }
 
 void func_802E40A8(s32 map, s32 exit){
