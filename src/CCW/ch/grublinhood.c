@@ -2,12 +2,13 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "actor.h"
 
 
 
 extern void func_802DABA0(ParticleEmitter *, f32[3], f32, enum asset_e);
 extern void func_8033A45C(s32, s32);
-extern void humanoidBaddie_ow(void);
+extern void humanoidBaddie_ow(ActorMarker *, ActorMarker *);
 
 enum ccw_season_e
 {
@@ -16,26 +17,6 @@ enum ccw_season_e
     AUTUMN,
     WINTER
 };
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    u32 unkC_31:3;
-    u32 unkC_28:1;
-    u32 season:28;
-    s16 unk10;
-    s16 unk12;
-    f32 unk14;
-    u8 pad18[0x18];
-    void (*unk30)(void);
-    void (*unk34)(ActorMarker *, s32);
-    u8 pad38[4];
-    f32 unk3C;
-} ActorLocal_CCW_8050;
 
 void chgrublinhood_update(Actor *this);
 Actor *chgrublinhood_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -95,42 +76,42 @@ void __chgrublinhood_die(ActorMarker* marker, s32 arg1) {
 
 Actor *chgrublinhood_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this;
-    ActorLocal_CCW_8050 *local;
+    Humanoid_Baddies_Actor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_CCW_8050 *)&this->local;
-    func_8033A45C(3,  (local->season == SUMMER) ? 1 : 2);
-    func_8033A45C(4,  (local->season == SUMMER) ? 1 : 2);
-    func_8033A45C(5,   (local->season < AUTUMN) ? 1 : 2);
-    func_8033A45C(6,   (local->season < AUTUMN) ? 1 : 2);
-    func_8033A45C(7,   (local->season < AUTUMN) ? 1 : 2);
-    func_8033A45C(8,   (local->season < AUTUMN) ? 1 : 2);
-    func_8033A45C(9,  (local->season == SUMMER) ? 1 : 0);
-    func_8033A45C(10,  (local->season < AUTUMN) ? 0 : (local->season == AUTUMN) ? 1 : 2);
-    func_8033A45C(11,  (local->season < AUTUMN) ? 0 : (local->season == AUTUMN) ? 1 : 2);
-    func_8033A45C(12, (local->season == WINTER) ? 2 : 1);
-    func_8033A45C(13, (local->season == WINTER) ? 1 : 0);
+    local = (Humanoid_Baddies_Actor *)&this->local;
+    func_8033A45C(3,  (local->baddieSpecific == SUMMER) ? 1 : 2);
+    func_8033A45C(4,  (local->baddieSpecific == SUMMER) ? 1 : 2);
+    func_8033A45C(5,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
+    func_8033A45C(6,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
+    func_8033A45C(7,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
+    func_8033A45C(8,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
+    func_8033A45C(9,  (local->baddieSpecific == SUMMER) ? 1 : 0);
+    func_8033A45C(10,  (local->baddieSpecific < AUTUMN) ? 0 : (local->baddieSpecific == AUTUMN) ? 1 : 2);
+    func_8033A45C(11,  (local->baddieSpecific < AUTUMN) ? 0 : (local->baddieSpecific == AUTUMN) ? 1 : 2);
+    func_8033A45C(12, (local->baddieSpecific == WINTER) ? 2 : 1);
+    func_8033A45C(13, (local->baddieSpecific == WINTER) ? 1 : 0);
     func_8033A45C(14,      (this->has_met_before)? false : true);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
 void __chgrublinhood_initialize(Actor *this){
-    ActorLocal_CCW_8050 *local = (ActorLocal_CCW_8050 *)&this->local;
+    Humanoid_Baddies_Actor *local = (Humanoid_Baddies_Actor *)&this->local;
 
     local->unk8 = 6;
     local->unk9 = 0xC;
     local->unkA = 0x10;
     local->unkB = 8;
-    local->unkC_31 = 1;
-    local->unk10 = 0x29;
-    local->unk12 = 25000;
+    local->yaw = 1;
+    local->foundPlayerSfx = 0x29;
+    local->foundPlayerSampleRate = 25000;
     local->unkC_28 = 1;
-    local->unk30 = humanoidBaddie_ow;
-    local->unk34 = __chgrublinhood_die;
+    local->hitFunction = humanoidBaddie_ow;
+    local->dieFunction = __chgrublinhood_die;
     local->unk0 = 5.0f;
     local->unk4 = 8.0f;
-    local->unk14 = 1.0f;
-    local->unk3C = 1.5f;
+    local->foundPlayerVolume = 1.0f;
+    local->damageVolume = 1.5f;
 }
 
 enum ccw_season_e __get_current_season(Actor *this){
@@ -172,17 +153,17 @@ enum ccw_season_e __get_current_season(Actor *this){
 }
 
 void chgrublinhood_update(Actor *this) {
-    ActorLocal_CCW_8050 *local;
+    Humanoid_Baddies_Actor *local;
     f32 temp_a0;
     
-    local = (ActorLocal_CCW_8050 *)&this->local;
+    local = (Humanoid_Baddies_Actor *)&this->local;
 
     if (!this->volatile_initialized) {
         __chgrublinhood_initialize(this);
-        local->season = __get_current_season(this);
+        local->baddieSpecific = __get_current_season(this);
     }
 
-    if(local->season < 4){
+    if(local->baddieSpecific < 4){
         humanoidBaddie_update(this);
         if (this->state == 5) {
             if (actor_animationIsAt(this, 0.18f)) {

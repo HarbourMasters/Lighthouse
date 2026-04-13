@@ -2,35 +2,9 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "actor.h"
 
 extern void humanoidBaddie_ow(ActorMarker *, ActorMarker *);
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    u32 unkC_31:3;
-    u32 unkC_28:1;
-    u32 padC_27:28;
-    s16 unk10;
-    s16 unk12;
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-    s16 unk1E;
-    f32 unk20;
-    f32 unk24;
-    s16 unk28;
-    s16 unk2A;
-    f32 unk2C;
-    void (*unk30)(ActorMarker *, ActorMarker *);
-    void (*unk34)(ActorMarker *, s32);
-    u8 pad38[4];
-    f32 unk3C;
-}ActorLocal_core2_D5FD0;
 
 void func_8035D058(Actor *this);
 
@@ -68,9 +42,9 @@ void func_8035CF60(ActorMarker * marker, s32 arg1) {
 }
 
 void func_8035CFC4(Actor *this) {
-    ActorLocal_core2_D5FD0 *local;
+    Humanoid_Baddies_Actor *local;
 
-    local = (ActorLocal_core2_D5FD0 *)&this->local;
+    local = (Humanoid_Baddies_Actor *)&this->local;
     local->unk0 = 4.0f;
     local->unk4 = 8.0f;
 
@@ -78,14 +52,14 @@ void func_8035CFC4(Actor *this) {
     local->unk9 = 0xA;
     local->unkA = 0xE;
     local->unkB = 9;
-    local->unkC_31 = 1;
-    local->unk10 = 0x11A;
-    local->unk12 = 25000;
-    local->unk14 = 1.0f;
+    local->yaw = 1;
+    local->foundPlayerSfx = 0x11A;
+    local->foundPlayerSampleRate = 25000;
+    local->foundPlayerVolume = 1.0f;
     local->unkC_28 = true;
-    local->unk30 = humanoidBaddie_ow;
-    local->unk34 = func_8035CF60;
-    local->unk3C = 1.5f;
+    local->hitFunction = humanoidBaddie_ow;
+    local->dieFunction = func_8035CF60;
+    local->damageVolume = 1.5f;
 }
 
 void func_8035D058(Actor *this) {

@@ -2,28 +2,9 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "actor.h"
 
 extern void humanoidBaddie_ow(ActorMarker *, ActorMarker *);
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    s8  unk8;
-    s8  unk9;
-    s8  unkA;
-    s8  unkB;
-    u32 unkC_31:3;
-    u32 unkC_28:1;
-    u32 unkC_27:28;
-    s16 unk10;
-    s16 unk12;
-    f32 unk14;
-    u8 pad18[0x18];
-    void (*unk30)(ActorMarker *, ActorMarker *);
-    void (*unk34)(ActorMarker *, ActorMarker *);
-    u8 pad38[0x4];
-    f32 unk3C;
-} ActorLocal_lair_A4A0;
 
 void func_80390AE8(Actor *this);
 
@@ -48,44 +29,44 @@ ActorInfo D_80394A50 = { MARKER_1F1_GRUNTLING_BLACK, ACTOR_3C0_GRUNTLING_BLACK, 
 /* .code */
 void func_80390890(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *this;
-    ActorLocal_lair_A4A0 *local;
+    Humanoid_Baddies_Actor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_lair_A4A0 *)&this->local;
+    local = (Humanoid_Baddies_Actor *)&this->local;
     subaddie_set_state_with_direction(this, 5, 0.0f, 1);
     actor_playAnimationOnce(this);
-    func_8030E878(SFX_C2_GRUBLIN_EGH, local->unkC_27*0.1 + 0.8, 32000, this->position, 1250.0f, 2500.0f);
+    func_8030E878(SFX_C2_GRUBLIN_EGH, local->baddieSpecific*0.1 + 0.8, 32000, this->position, 1250.0f, 2500.0f);
     __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, ACTOR_4C_STEAM, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
     actor_collisionOff(this);
     this->has_met_before = true;
 }
 
 void func_80390994(Actor *this) {
-    ActorLocal_lair_A4A0 *local;
+    Humanoid_Baddies_Actor *local;
 
-    local = (ActorLocal_lair_A4A0 *)&this->local;
-    local->unk0 = 5 - local->unkC_27;
-    local->unk4 = 8 - local->unkC_27 * 2;
-    local->unk8 = 6 - local->unkC_27;
-    local->unk9 = 0xC - local->unkC_27 * 2;
-    local->unkA = 0x10 - (local->unkC_27 * 3);
-    local->unkB = 8 - local->unkC_27;
-    local->unkC_31 = 1;
-    local->unk10 = 0xFB;
-    local->unk12 = 0x7530;
-    local->unk14 = local->unkC_27 * 0.1 + 0.8;
-    local->unk3C = local->unkC_27 * 0.2 + 1.1;
+    local = (Humanoid_Baddies_Actor *)&this->local;
+    local->unk0 = 5 - local->baddieSpecific;
+    local->unk4 = 8 - local->baddieSpecific * 2;
+    local->unk8 = 6 - local->baddieSpecific;
+    local->unk9 = 0xC - local->baddieSpecific * 2;
+    local->unkA = 0x10 - (local->baddieSpecific * 3);
+    local->unkB = 8 - local->baddieSpecific;
+    local->yaw = 1;
+    local->foundPlayerSfx = 0xFB;
+    local->foundPlayerSampleRate = 0x7530;
+    local->foundPlayerVolume = local->baddieSpecific * 0.1 + 0.8;
+    local->damageVolume = local->baddieSpecific * 0.2 + 1.1;
     local->unkC_28 = true;
-    local->unk30 = humanoidBaddie_ow;
-    local->unk34 = func_80390890;
+    local->hitFunction = humanoidBaddie_ow;
+    local->dieFunction = func_80390890;
 }
 
 void func_80390AE8(Actor *this) {
-    ActorLocal_lair_A4A0 *local;
+    Humanoid_Baddies_Actor *local;
 
-    local = (ActorLocal_lair_A4A0 *)&this->local;
+    local = (Humanoid_Baddies_Actor *)&this->local;
     if (!this->volatile_initialized) {
-        local->unkC_27 = (this->modelCacheIndex == 0x367) ? 2
+        local->baddieSpecific = (this->modelCacheIndex == 0x367) ? 2
                        : (this->modelCacheIndex == 0x3bf) ? 1 
                        : 0;
         func_80390994(this);

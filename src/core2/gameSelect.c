@@ -22,7 +22,7 @@ void clearScoreStates(void);
 Actor *func_802C4360(ActorMarker *, Gfx **, Mtx **, Vtx **);
 Actor *func_802C4464(ActorMarker *, Gfx **, Mtx **, Vtx **);
 void gameSelect_update(Actor *this);
-void func_802C5740(Actor *this);
+void gameSelect_initAndUpdate(Actor *this);
 
 extern void func_802C71F0(Actor *);
 extern void func_802C74F4(Actor *, s32, f32 );
@@ -70,7 +70,7 @@ ActorAnimationInfo D_80365E28[] = {
     {0x24F, 0.6f},  
     {0x24D, 2.0f}
 };
-ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, D_80365E28, func_802C5740, actor_update_func_80326224, func_802C4464, 0, 0, 0.0f, 0};
+ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, D_80365E28, gameSelect_initAndUpdate, actor_update_func_80326224, func_802C4464, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365E7C[] = {
     {0x000, 0.0f}, 
@@ -587,7 +587,7 @@ void gameSelect_update(Actor *this){
     }//L802C5734
 }
 
-void func_802C5740(Actor * this){
+void gameSelect_initAndUpdate(Actor * this){
     int i = code94620_func_8031B5B0();
     D_8037DCE0.unk0 = D_80365DF4[i];
     D_8037DCE0.unk4 = D_80365DF8[i];

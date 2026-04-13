@@ -2,34 +2,10 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "actor.h"
 
 void chMumMum_update(Actor *this);
 extern void func_802DABA0(ParticleEmitter *, f32 position[3], f32 scale, enum asset_e model_id);
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    u32 unkC_31:3;
-    u32 unkC_28:1;
-    u32 padC_27:28;
-    s16 unk10;
-    s16 unk12;
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-    s16 unk1E;
-    f32 unk20;
-    f32 unk24;
-    s16 unk28;
-    s16 unk2A;
-    f32 unk2C;
-    void (*unk30)(ActorMarker *, s32);
-    void (*unk34)(ActorMarker *, s32);
-}ActorLocal_core2_D6180;
 
 /* .data */ 
 ActorAnimationInfo D_80372E20[] = {
@@ -83,31 +59,31 @@ void chMumMum_setInvulnerableState(ActorMarker *marker, s32 arg1){
 }
 
 void chMumMum_initialize(Actor *this) {
-    ActorLocal_core2_D6180 *local;
+    Humanoid_Baddies_Actor *local;
     u8 temp_t6;
 
-    local = (ActorLocal_core2_D6180 *)&this->local;
+    local = (Humanoid_Baddies_Actor *)&this->local;
     local->unk0 = 2.0f;
     local->unk4 = 4.0f;
     local->unk8 = 3;
     local->unk9 = 6;
     local->unkA = 8;
     local->unkB = 4;
-    local->unkC_31 = 0;
-    local->unk10 = 0x10C; //SFX_10C_MUMMY_TALKING
-    local->unk12 = 20000;
-    local->unk14 = 1.5f;
-    local->unk18 = 0.2f;
-    local->unk1C = 0x10D; //SFX_10D_ANCIENT_ONE_TALKING
-    local->unk1E = 20000;
-    local->unk20 = 1.9f;
-    local->unk24 = 0.35f;
-    local->unk28 = 0xC5; //SFX_C5_TWINKLY_POP
-    local->unk2A = 20000;
-    local->unk2C = 1.0f;
+    local->yaw = 0;
+    local->foundPlayerSfx = 0x10C; //SFX_10C_MUMMY_TALKING
+    local->foundPlayerSampleRate = 20000;
+    local->foundPlayerVolume = 1.5f;
+    local->enterInvulnerableStateAnimationTimer = 0.2f;
+    local->enterInvulnerableStateSfx = 0x10D; //SFX_10D_ANCIENT_ONE_TALKING
+    local->enterInvulnerableStateSampleRate = 20000;
+    local->enterInvulnerableStateVolume = 1.9f;
+    local->exitInvulnerableStateAnimationTimer = 0.35f;
+    local->exitInvulnerableStateSfx = 0xC5; //SFX_C5_TWINKLY_POP
+    local->exitInvulnerableStateSampleRate = 20000;
+    local->exitInvulnerableStateVolume = 1.0f;
     local->unkC_28 = true;
-    local->unk30 = chMumMum_setInvulnerableState;
-    local->unk34 = chMumMum_die;
+    local->hitFunction = chMumMum_setInvulnerableState;
+    local->dieFunction = chMumMum_die;
     this->unk154 |= 0x08000000;
 }
 
