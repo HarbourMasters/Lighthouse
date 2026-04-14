@@ -26,14 +26,14 @@ ActorAnimationInfo chGrublinHood_animations[] = {
     {0x000, 0.0f},
     {0x243, 4.0f},
     {0x243, 0.7f},
-    {0x245, 0.7f},
+    {ASSET_245_ANIM_GRUBLIN_HOOD_CHASE, 0.7f},
     {0x244, 0.9f},
     {0x246, 1.6f},
-    {0x243, 1.5f},
-    {0x245, 0.5f},
-    {0x243, 1.5f},
-    {0x243, 1e+06f},
-    {0x243, 1e+06f}
+    {ASSET_243_ANIM_GRUBLIN_HOOD_IDLE_WALK, 1.5f},
+    {ASSET_245_ANIM_GRUBLIN_HOOD_CHASE, 0.5f},
+    {ASSET_243_ANIM_GRUBLIN_HOOD_IDLE_WALK, 1.5f},
+    {ASSET_243_ANIM_GRUBLIN_HOOD_IDLE_WALK, 1e+06f},
+    {ASSET_243_ANIM_GRUBLIN_HOOD_IDLE_WALK, 1e+06f}
 };
 
 ActorInfo chGrublinHood = {

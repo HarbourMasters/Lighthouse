@@ -104,7 +104,7 @@ int bscroc_inSet(enum bs_e state){
 }
 
 void bscroc_idle_init(void){
-    baanim_playForDuration_loopSmooth(0xe1, 1.0f);
+    baanim_playForDuration_loopSmooth(ASSET_E1_ANIM_BSCROC_IDLE, 1.0f);
     func_8029C7F4(1,1,1, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     pitch_setAngVel(1000.0f, 12.0f);

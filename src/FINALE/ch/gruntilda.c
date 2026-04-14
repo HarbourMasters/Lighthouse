@@ -1980,15 +1980,15 @@ s32 chfinalboss_func_8038B834(ActorMarker *marker, ActorMarker *other_marker) {
     switch (local->phase) {
         case FINALBOSS_PHASE_1_BROOMSTICK:
             if ((this->state == 6) || (this->state == 7)) {
-                marker->id = 0x260;
+                marker->id = MARKER_260_GRUNTY_PHASE_1_2_MOVING;
             } else {
-                marker->id = 0x25E;
+                marker->id = MARKER_25E_GRUNTILDA_FINAL_BOSS_VULNERABLE;
             }
             break;
 
         case FINALBOSS_PHASE_2_AIR:
             if (local->unkA == 0) {
-                marker->id = 0x260;
+                marker->id = MARKER_260_GRUNTY_PHASE_1_2_MOVING;
             } else {
                 marker->id = 0x281;
             }
@@ -2003,7 +2003,7 @@ s32 chfinalboss_func_8038B834(ActorMarker *marker, ActorMarker *other_marker) {
             break;
 
         case FINALBOSS_PHASE_5_JINJONATOR:
-            marker->id = 0x283;
+            marker->id = MARKER_283_GRUNTY_PHASE_4_5_INVULNERABLE;
             break;
 
         default:

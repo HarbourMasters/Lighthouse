@@ -15,8 +15,8 @@ enum chPortrait_state_e {
 
 ActorAnimationInfo D_8038BE30[] = {
     {0x000, 0.0f},
-    {0x23F, 10000000.0f},
-    {0x23F, 2.0f},
+    {ASSET_23F_ANIM_PORTRAIT_IDLE, 10000000.0f},
+    {ASSET_23F_ANIM_PORTRAIT_IDLE, 2.0f},
 };
 
 ActorInfo D_8038BE48 = {

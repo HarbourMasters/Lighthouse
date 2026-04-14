@@ -29,7 +29,7 @@ ActorAnimationInfo D_80366290[] = {
 };
 
 ActorInfo D_803662A8 = {
-    0x52, ACTOR_46_JIGGY, ASSET_35F_MODEL_JIGGY, 
+    MARKER_52_JIGGY, ACTOR_46_JIGGY, ASSET_35F_MODEL_JIGGY, 
     1, D_80366290, 
     chjiggy_update, chjiggy_update_2, chjiggy_draw,
     0, 0, 0.9f, 0

@@ -171,7 +171,7 @@ void chBrentilda_update(Actor *this) {
             }
             if ((600.0 < phi_f2) && this->unk38_0) {
                 comusic_8025AB44(COMUSIC_7A_BRENTILDA, 0, 0x1F4);
-                func_8025AABC(0x7A);
+                func_8025AABC(COMUSIC_7A_BRENTILDA);
                 func_8032BB88(this, -1, 0x1F4);
                 this->unk38_0 = false;
             }

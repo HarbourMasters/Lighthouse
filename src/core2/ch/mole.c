@@ -335,7 +335,7 @@ void chmole_update(Actor *this){
             this->partnerActor = (other) ? other->marker : NULL;
             if(this->partnerActor){
                 other = subaddie_getLinkedActor(this);
-                if(other && this->partnerActor->id == 0xB8){
+                if(other && this->partnerActor->id == MARKER_B8_MOLEHILL){
                     subaddie_set_state(other, 1);
                 }
             }
@@ -358,7 +358,7 @@ void chmole_update(Actor *this){
         this->marker->propPtr->unk8_3 = false;
         this->marker->collidable = false;
         this->initialized = true;
-        if(this->actorTypeSpecificField == 0x12){
+        if(this->actorTypeSpecificField == CH_MOLE_ID_12_OPEN_NOTEDOORS){
             node_prop = nodeprop_findByActorIdAndActorPosition(0x349, this);
             if(node_prop == NULL){
                 this->velocity[0] = this->position[0];
@@ -378,7 +378,7 @@ void chmole_update(Actor *this){
             this->yaw_ideal = subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 4.0f);
             if(func_8028F20C() && func_8028F0D4() && !func_8028EC04()){
-                if( this->actorTypeSpecificField == 0x12 
+                if( this->actorTypeSpecificField == CH_MOLE_ID_12_OPEN_NOTEDOORS 
                     && !ability_isUnlocked(moleTable[this->actorTypeSpecificField-9].ability)
                     && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
                 ){

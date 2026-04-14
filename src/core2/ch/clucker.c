@@ -175,7 +175,7 @@ void chClucker_update(Actor *this){
 
     if(this->state == 4){
         skeletalAnim_getProgressRange(this->unk148, &sp4C, &sp48);
-        if(skeletalAnim_getAnimId(this->unk148) == 0x185){
+        if(skeletalAnim_getAnimId(this->unk148) == ASSET_185_ANIM_CLUCKER_ATTACK_LONG){
             if(sp4C < 0.58 && 0.58 <= sp48){
                 this->marker->id = MARKER_1D0_CLUCKER_B;
             }

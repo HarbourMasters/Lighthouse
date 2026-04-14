@@ -82,6 +82,6 @@ void bstwirl_update(void){
 }
 
 void bstwirl_end(void){
-    ability_use(0xC);
+    ability_use(ABILITY_USED_TWIRL);
     _bstwirlHitboxActive = false;
 }

@@ -68,7 +68,7 @@ bool func_802B3BB0(void) {
             if (balookat_getState() == 0) {
                 anctrl_reset(anim_ctrl);
                 anctrl_setDirection(anim_ctrl, 0);
-                anctrl_setIndex(anim_ctrl, 0x167);
+                anctrl_setIndex(anim_ctrl, ASSET_167_ANIM_BSREST_MOVE);
                 anctrl_setStart(anim_ctrl, 1.0f);
                 anctrl_setDuration(anim_ctrl, 0.5f);
                 anctrl_setPlaybackType(anim_ctrl, ANIMCTRL_ONCE);

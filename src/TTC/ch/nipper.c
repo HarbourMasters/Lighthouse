@@ -178,7 +178,7 @@ static void __chNipper_ow2Func(ActorMarker * this_marker, ActorMarker *other_mar
         this = marker_getActor(this_marker);
         if( !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_7_NIPPER_FIRST_MEET_TEXT_SHOWN)
             && this->has_met_before
-            && gcdialog_showDialog(0xa0f, 0, NULL, NULL, NULL, NULL)
+            && gcdialog_showDialog(ASSET_A0F_DIALOG_NIPPER_HIT_BY_EGG, 0, NULL, NULL, NULL, NULL)
         ){
             mapSpecificFlags_set(TTC_SPECIFIC_FLAG_7_NIPPER_FIRST_MEET_TEXT_SHOWN, true);
         }
@@ -189,7 +189,7 @@ static void __chNipper_owFunc(ActorMarker * this_marker, ActorMarker *other_mark
     Actor *this = marker_getActor(this_marker);
     if( !this->unk138_23
         && this->has_met_before
-        && gcdialog_showDialog(0xa11, 0, NULL, NULL, NULL, NULL)
+        && gcdialog_showDialog(ASSET_A11_DIALOG_NIPPER_ATTACK, 0, NULL, NULL, NULL, NULL)
     ){
         this->unk138_23 = true;
     }

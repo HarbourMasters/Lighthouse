@@ -733,7 +733,7 @@ void func_80310A5C(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 arg4){
 
 void func_80310B1C(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
     loadAndCreateDialogs(text_id, arg1, marker, callback, arg4, arg5);
-    if(gsworld_getMap() == MAP_90_GL_BATTLEMENTS && 0x10ec < text_id){
+    if(gsworld_getMap() == MAP_90_GL_BATTLEMENTS && ASSET_10EC_DIALOG_FINALBOSS_ENTERING_6 < text_id){
         func_80310A5C( 3, 4, 0x1e, arg1 & 2, arg1 & 0x80);
     }
     else{

@@ -11,16 +11,16 @@ void chGruntling_update(Actor *this);
 /* .data */
 ActorAnimationInfo D_803949B0[] ={
     {0x000, 0.0f},
-    {0x26D, 4.0f},
-    {0x26D, 0.7f},
-    {0x26F, 0.7f},
-    {0x26E, 0.9f},
-    {0x270, 1.6f},
-    {0x26D, 1.5f},
-    {0x26F, 0.5f},
-    {0x26D, 1.5f},
-    {0x26D, 1000000.0f},
-    {0x26D, 1000000.0f},
+    {ASSET_26D_ANIM_GRUNTLING_IDLE, 4.0f},
+    {ASSET_26D_ANIM_GRUNTLING_IDLE, 0.7f},
+    {ASSET_26F_ANIM_GRUNTLING_UNK, 0.7f},
+    {ASSET_26E_ANIM_GRUNTLING_UNK, 0.9f},
+    {ASSET_270_ANIM_GRUNTLING_UNK, 1.6f},
+    {ASSET_26D_ANIM_GRUNTLING_IDLE, 1.5f},
+    {ASSET_26F_ANIM_GRUNTLING_UNK, 0.5f},
+    {ASSET_26D_ANIM_GRUNTLING_IDLE, 1.5f},
+    {ASSET_26D_ANIM_GRUNTLING_IDLE, 1000000.0f},
+    {ASSET_26D_ANIM_GRUNTLING_IDLE, 1000000.0f},
 };
 ActorInfo D_80394A08 = { MARKER_1EA_GRUNTLING_RED,   ACTOR_367_GRUNTLING_RED,   ASSET_54A_MODEL_GRUNTLING_RED,   0x1, D_803949B0, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
 ActorInfo D_80394A2C = { MARKER_295_GRUNTLING_BLUE,  ACTOR_3BF_GRUNTLING_BLUE,  ASSET_561_MODEL_GRUNTLING_BLUE,  0x1, D_803949B0, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
@@ -66,8 +66,8 @@ void chGruntling_update(Actor *this) {
 
     local = (Humanoid_Baddies_Actor *)&this->local;
     if (!this->volatile_initialized) {
-        local->baddieSpecific = (this->modelCacheIndex == 0x367) ? 2
-                       : (this->modelCacheIndex == 0x3bf) ? 1 
+        local->baddieSpecific = (this->modelCacheIndex == ACTOR_367_GRUNTLING_RED) ? 2
+                       : (this->modelCacheIndex == ACTOR_3BF_GRUNTLING_BLUE) ? 1 
                        : 0;
         chGruntling_initialize(this);
     }

@@ -57,14 +57,14 @@ void handleOrangeCollision(ActorMarker *marker) {
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
 
             if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
-                gcdialog_showDialog(0xB3B, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(ASSET_B3B_DIALOG_CONGA_ORANGE_PAD_JIGGY, 4, NULL, NULL, NULL, NULL);
             }
         }// L803865D8
 
         // Emmit sparkles
         p_ctrl = partEmitMgr_newEmitter(30);
         particleEmitter_setPosition(p_ctrl, closest_orange_pad->position);
-        particleEmitter_setModel(p_ctrl, 0x89f);
+        particleEmitter_setModel(p_ctrl, ASSET_89F_MODEL_ORANGE_PARTICLE);
         particleEmitter_setStartingScaleRange(p_ctrl, 0.09f, 0.19f);
         particleEmitter_setFinalScaleRange(p_ctrl, 0.0f, 0.0f);
         particleEmitter_setParticleVelocityRange(p_ctrl, -200.0f, 500.0f, -200.0f, 200.0f, 700.0f, 200.0f);
@@ -108,7 +108,7 @@ void chorangepad_update(Actor *this) {
         !mapSpecificFlags_get(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS) &&
         closest_actor->state != 3) {
 
-        if (gcdialog_showDialog(0xb3d, 0, NULL, NULL, NULL, NULL)) {
+        if (gcdialog_showDialog(ASSET_B3D_DIALOG_CONGA_TOUCH_PAD, 0, NULL, NULL, NULL, NULL)) {
             mapSpecificFlags_set(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS, true);
         }
     }

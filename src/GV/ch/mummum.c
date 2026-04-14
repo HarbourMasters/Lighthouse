@@ -10,16 +10,16 @@ extern void func_802DABA0(ParticleEmitter *, f32 position[3], f32 scale, enum as
 /* .data */ 
 ActorAnimationInfo D_80372E20[] = {
     {0x000, 0},
-    {0x1E9, 4.0f},
-    {0x1E9, 1.4f},
-    {0x1E9, 0.8f},
-    {0x1E9, 0.9f},
-    {0x1EA, 0.7f},
-    {0x1E9, 1.5f},
-    {0x1E9, 0.8f},
-    {0x1E9, 1.5f},
-    {0x1EA, 0.4f},
-    {0x1EB, 0.3f}
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 4.0f},
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 1.4f},
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 0.8f},
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 0.9f},
+    {ASSET_1EA_ANIM_MUM_MUM_CURL_UP, 0.7f},
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 1.5f},
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 0.8f},
+    {ASSET_1E9_ANIM_MUM_MUM_WALK, 1.5f},
+    {ASSET_1EA_ANIM_MUM_MUM_CURL_UP, 0.4f},
+    {ASSET_1EB_ANIM_MUM_MUM_POP_FROM_BALL, 0.3f}
 };
 
 ActorInfo D_80372E78 = { 

@@ -268,7 +268,7 @@ void chTwinklyBox_activateBox(ActorMarker *this_marker, ActorMarker *other_marke
         func_8025A58C(0, 4000);
         core1_ce60_incOrDecCounter(false);
         this->unk1C[2] = 428571.0f;
-        func_8025AEA0(0x68, (s32)this->unk1C[2]);
+        func_8025AEA0(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
         subaddie_set_state_with_direction(this, 3, 0.001f, 1);
         actor_playAnimationOnce(this);
         this->velocity[0] = 1.0f;
@@ -280,7 +280,7 @@ void chTwinklyBox_update(Actor *this){
     bool sp20;
     
     sp24 = time_getDelta();
-    mapSpecificFlags_set(0xd, BOOL(this->state != 1 && this->state != 2));
+    mapSpecificFlags_set(FP_SPECIFIC_FLAG_D_UNKNOWN, BOOL(this->state != 1 && this->state != 2));
     
     if(maSlalom_isActive() || fileProgressFlag_get(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME)){
         this->marker->propPtr->unk8_3 = false;
@@ -422,7 +422,7 @@ void chTwinklyBox_update(Actor *this){
 }
 
 bool func_8038DD14(void){
-    return mapSpecificFlags_get(0xD);
+    return mapSpecificFlags_get(FP_SPECIFIC_FLAG_D_UNKNOWN);
 }
 
 bool preventSnowmanAttack(ActorMarker *marker){

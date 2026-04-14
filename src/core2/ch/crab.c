@@ -281,10 +281,10 @@ void chCrab_update(Actor *this) {
             && !jiggyscore_isCollected(JIGGY_10_TTC_SANDCASTLE)
             && subaddie_playerIsWithinSphereAndActive(this, 1600)
         ) {
-            gcdialog_showDialog(0xA12, 4, this->position, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_A12_DIALOG_BLACK_SNIPPET_SPAWNED, 4, this->position, NULL, NULL, NULL);
             mapSpecificFlags_set(0, true);
         } else if (mapSpecificFlags_get(1)) {
-            gcdialog_showDialog(0xA13, 4, this->position, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_A13_DIALOG_BLACK_SNIPPET_DEFEATED, 4, this->position, NULL, NULL, NULL);
             mapSpecificFlags_set(1, false);
         }
     }
@@ -358,7 +358,7 @@ void chCrab_update(Actor *this) {
                 if (this->marker->id == 0x16B) {
                     this->marker->id = MARKER_13_SNIPPET;
                 }
-                if (this->marker->id == 0xDE) {
+                if (this->marker->id == MARKER_DE_BLACK_SNIPPET_UPSIDEDOWN) {
                     this->marker->id = MARKER_DD_BLACK_SNIPPET;
                 }
             }
