@@ -341,7 +341,7 @@ void game_draw(s32 arg0){
 
     func_802E39D0(&gfx, &mtx, &vtx, getActiveFramebuffer(), arg0);
 
-    graphicsCache_reportUsage(gfx, gfx_start, mtx, mtx_start, vtx, vtx_start);
+    graphicsCache_checkFrame(gfx_start, gfx, mtx_start, mtx, vtx_start, vtx);
 
     // Lighthouse [Port] not sure if this should be here or after the following block
     Graphics_PushFrame(gfx_start);

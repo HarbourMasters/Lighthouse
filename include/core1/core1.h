@@ -121,12 +121,12 @@ void func_80254028(void);
 void drawRectangle2D(Gfx **gfx, s32 x, s32 y, s32 w, s32 h, s32 r, s32 g, s32 b);
 void graphicsCache_release(void);
 void graphicsCache_init(void);
+void graphicsCache_checkFrame(Gfx *gfxStart, Gfx *gfxEnd, Mtx *mtxStart, Mtx *mtxEnd, Vtx *vtxStart, Vtx *vtxEnd);
 void scissorBox_set(s32 left, s32 top, s32 right, s32 bottom);
 void scissorBox_setDefault(void);
 void func_80254374(s32 arg0);
 void toggleTextureFilterPoint(void);
 void getGraphicsStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void graphicsCache_reportUsage(Gfx *gfxEnd, Gfx *gfxStart, Mtx *mtxEnd, Mtx *mtxStart, Vtx *vtxEnd, Vtx *vtxStart);
 void dummy_func_80254464(void);
 
 /* src/core1/defragmanager.c */

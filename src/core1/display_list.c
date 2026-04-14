@@ -15,16 +15,11 @@ static Mtx *sMtxStack[2];
 static Vtx *sVtxStack[2];
 static s32 sStackSelector;
 
-#define INITIAL_GFX_COUNT 3700
-#define INITIAL_MTX_COUNT 700
-#define INITIAL_VTX_COUNT 430
+// [port] Expand DL stack sizes to support draw distance enhancements
+#define GFX_STACK_COUNT 11100
+#define MTX_STACK_COUNT 2100
+#define VTX_STACK_COUNT 1290
 
-static s32 sGfxCapacity;
-static s32 sMtxCapacity;
-static s32 sVtxCapacity;
-static s32 sGfxPeakUsed;
-static s32 sMtxPeakUsed;
-static s32 sVtxPeakUsed;
 s32  gTextureFilterPoint;
 Struct_Core1_15B30 D_80283008[20];
 s32 D_802831E8;
@@ -221,32 +216,48 @@ void drawRectangle2D(Gfx **gfx, s32 x, s32 y, s32 w, s32 h, s32 r, s32 g, s32 b)
 
 void graphicsCache_release(void) {
     if (sGfxStack[0]) {
-        bk_free(sGfxStack[0]);
-        bk_free(sGfxStack[1]);
-        bk_free(sMtxStack[0]);
-        bk_free(sMtxStack[1]);
-        bk_free(sVtxStack[0]);
-        bk_free(sVtxStack[1]);
+        GameEngine_Free(sGfxStack[0]);
+        GameEngine_Free(sGfxStack[1]);
+        GameEngine_Free(sMtxStack[0]);
+        GameEngine_Free(sMtxStack[1]);
+        GameEngine_Free(sVtxStack[0]);
+        GameEngine_Free(sVtxStack[1]);
         sGfxStack[0] = NULL;
     }
 }
 
 void graphicsCache_init(void){
     if(sGfxStack[0] == NULL){
-        sGfxCapacity = INITIAL_GFX_COUNT;
-        sMtxCapacity = INITIAL_MTX_COUNT;
-        sVtxCapacity = INITIAL_VTX_COUNT;
-        sGfxPeakUsed = sMtxPeakUsed = sVtxPeakUsed = 0;
-        sGfxStack[0] = (Gfx *)GameEngine_Malloc(sGfxCapacity * sizeof(Gfx));
-        sGfxStack[1] = (Gfx *)GameEngine_Malloc(sGfxCapacity * sizeof(Gfx));
-        sMtxStack[0] = (Mtx *)GameEngine_Malloc(sMtxCapacity * sizeof(Mtx));
-        sMtxStack[1] = (Mtx *)GameEngine_Malloc(sMtxCapacity * sizeof(Mtx));
-        sVtxStack[0] = (Vtx *)GameEngine_Malloc(sVtxCapacity * sizeof(Vtx));
-        sVtxStack[1] = (Vtx *)GameEngine_Malloc(sVtxCapacity * sizeof(Vtx));
+        sGfxStack[0] = (Gfx *)GameEngine_Malloc(GFX_STACK_COUNT * sizeof(Gfx));
+        sGfxStack[1] = (Gfx *)GameEngine_Malloc(GFX_STACK_COUNT * sizeof(Gfx));
+        sMtxStack[0] = (Mtx *)GameEngine_Malloc(MTX_STACK_COUNT * sizeof(Mtx));
+        sMtxStack[1] = (Mtx *)GameEngine_Malloc(MTX_STACK_COUNT * sizeof(Mtx));
+        sVtxStack[0] = (Vtx *)GameEngine_Malloc(VTX_STACK_COUNT * sizeof(Vtx));
+        sVtxStack[1] = (Vtx *)GameEngine_Malloc(VTX_STACK_COUNT * sizeof(Vtx));
         dummy_func_80254464();
     }
     sStackSelector = 0;
     gTextureFilterPoint = 0;
+}
+
+// [port] Verify the frame's dlist emission fit within the static stack
+// capacities. If it didn't, we've already written past the buffer and
+// corrupted the heap, but logging it loudly (instead of silently deferring
+// to a CRT debug-heap break at the next malloc/free) makes the root cause
+// obvious. Mirrors Shipwright's THGA_IsCrash() canary pattern.
+void graphicsCache_checkFrame(Gfx *gfxStart, Gfx *gfxEnd, Mtx *mtxStart, Mtx *mtxEnd, Vtx *vtxStart, Vtx *vtxEnd) {
+    s32 gfxUsed = (s32)(gfxEnd - gfxStart);
+    s32 mtxUsed = (s32)(mtxEnd - mtxStart);
+    s32 vtxUsed = (s32)(vtxEnd - vtxStart);
+    if (gfxUsed > GFX_STACK_COUNT) {
+        BK_LOG_ERROR("Gfx stack overflow: %d used vs %d capacity", gfxUsed, GFX_STACK_COUNT);
+    }
+    if (mtxUsed > MTX_STACK_COUNT) {
+        BK_LOG_ERROR("Mtx stack overflow: %d used vs %d capacity", mtxUsed, MTX_STACK_COUNT);
+    }
+    if (vtxUsed > VTX_STACK_COUNT) {
+        BK_LOG_ERROR("Vtx stack overflow: %d used vs %d capacity", vtxUsed, VTX_STACK_COUNT);
+    }
 }
 
 void scissorBox_set(s32 left, s32 top, s32 right, s32 bottom) {
@@ -281,31 +292,7 @@ void toggleTextureFilterPoint(void){
     gTextureFilterPoint = ret_val < 1;
 }
 
-static void _graphicsCache_growIfNeeded(void **stack0, void **stack1, s32 *capacity, s32 peakUsed, size_t elemSize) {
-    if (peakUsed > *capacity * 3 / 4) {
-        s32 newCap = peakUsed * 2;
-        GameEngine_Free(*stack0);
-        GameEngine_Free(*stack1);
-        *stack0 = GameEngine_Malloc(newCap * elemSize);
-        *stack1 = GameEngine_Malloc(newCap * elemSize);
-        *capacity = newCap;
-    }
-}
-
-void graphicsCache_reportUsage(Gfx *gfxEnd, Gfx *gfxStart, Mtx *mtxEnd, Mtx *mtxStart, Vtx *vtxEnd, Vtx *vtxStart) {
-    s32 gfxUsed = (s32)(gfxEnd - gfxStart);
-    s32 mtxUsed = (s32)(mtxEnd - mtxStart);
-    s32 vtxUsed = (s32)(vtxEnd - vtxStart);
-    if (gfxUsed > sGfxPeakUsed) sGfxPeakUsed = gfxUsed;
-    if (mtxUsed > sMtxPeakUsed) sMtxPeakUsed = mtxUsed;
-    if (vtxUsed > sVtxPeakUsed) sVtxPeakUsed = vtxUsed;
-}
-
 void getGraphicsStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    _graphicsCache_growIfNeeded((void **)&sGfxStack[0], (void **)&sGfxStack[1], &sGfxCapacity, sGfxPeakUsed, sizeof(Gfx));
-    _graphicsCache_growIfNeeded((void **)&sMtxStack[0], (void **)&sMtxStack[1], &sMtxCapacity, sMtxPeakUsed, sizeof(Mtx));
-    _graphicsCache_growIfNeeded((void **)&sVtxStack[0], (void **)&sVtxStack[1], &sVtxCapacity, sVtxPeakUsed, sizeof(Vtx));
-
     sStackSelector = (1 - sStackSelector);
     *gfx = sGfxStack[sStackSelector];
     *mtx = sMtxStack[sStackSelector];

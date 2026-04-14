@@ -62,7 +62,7 @@ void func_802E329C(s32 arg0, Gfx **gfx_begin, Gfx **gfx_end) {
         func_802F1858(D_8037E8C0.unk10, &gfx, &mtx, &vtx);
     }
     finishFrame(&gfx);
-    graphicsCache_reportUsage(gfx, gfx_start, mtx, mtx_start, vtx, vtx_start);
+    graphicsCache_checkFrame(gfx_start, gfx, mtx_start, mtx, vtx_start, vtx);
     osWritebackDCache(mtx_start, (mtx - mtx_start) * sizeof(Mtx));
     osWritebackDCache(vtx_start, (vtx - vtx_start) * sizeof(Vtx));
     *gfx_begin = gfx_start;
