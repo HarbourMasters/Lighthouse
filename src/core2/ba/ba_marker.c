@@ -826,7 +826,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
     }
     else if(other_prop->unk8_1)//L8028D0B0 //ModelProp
     {
-        tmp2 = other_prop->modelProp.unk0_31 + 0x2D1;
+        tmp2 = other_prop->modelProp.modelId + 0x2D1;
         switch (tmp2)
         {
         case 0x2E8:
@@ -841,30 +841,30 @@ void __baMarker_resolveCollision(Prop *other_prop){
         }
     }
     else{//L8028D10C //SpriteProp
-        tmp3 = other_prop->spriteProp.unk0_31 + 0x572;
+        tmp3 = other_prop->spriteProp.spriteId + 0x572;
         switch (tmp3)
         {
         case 0x6D6: //L8028D144
             if(!__baMarker_8028BC60()){
-                other_prop->spriteProp.unk8_4 = 0;
+                other_prop->spriteProp.isNotFeatherEggOrNote = 0;
                 __baMarker_resolveMusicNoteCollision(other_prop);
             }
             break;
         case 0x6D7: //L8028D16C
             if(!__baMarker_8028BC60()){
-                other_prop->spriteProp.unk8_4 = 0;
+                other_prop->spriteProp.isNotFeatherEggOrNote = 0;
                 chCollectible_collectEgg((ActorProp *)other_prop);
             }
             break;
         case 0x580: //L8028D194
             if(!__baMarker_8028BC60()){
-                other_prop->spriteProp.unk8_4 = 0;
+                other_prop->spriteProp.isNotFeatherEggOrNote = 0;
                 chCollectible_collectRedFeather((ActorProp *)other_prop);
             }
             break;
         case 0x6D1: //L8028D1BC
             if(!__baMarker_8028BC60()){
-                other_prop->spriteProp.unk8_4 = 0;
+                other_prop->spriteProp.isNotFeatherEggOrNote = 0;
                 chCollectible_collectGoldFeather((ActorProp *)other_prop);
             }
             break;

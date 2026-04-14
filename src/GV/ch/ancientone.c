@@ -127,7 +127,7 @@ void chAncientOne_update(Actor *this){
         this->position_y -= 1100.0f;
         D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
         if(this->actorTypeSpecificField != 1){
-            this->marker->propPtr->unk8_4 = false;
+            this->marker->propPtr->isNotFeatherEggOrNote = false;
         }
         this->marker->propPtr->unk8_3 = true;
         actor_collisionOff(this);
@@ -166,7 +166,7 @@ void chAncientOne_update(Actor *this){
                                 subaddie_set_state_with_direction(this, 2, 0.0f, 1);
                                 actor_playAnimationOnce(this);
                                 if(this->actorTypeSpecificField < 5){
-                                    D_80390C28[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+                                    D_80390C28[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
                                     gcStaticCamera_activate(GV_D_80390C20[this->actorTypeSpecificField - 1]);
                                     core1_7090_initSfxSource(2, 0x86, 0x7ff8, 0.3f);
                                     timedFunc_set_0(0.45f, func_8038678C);
@@ -208,7 +208,7 @@ void chAncientOne_update(Actor *this){
                     this->position_y -= 10.0;
                 }
                 else{
-                    this->marker->propPtr->unk8_4 = false;
+                    this->marker->propPtr->isNotFeatherEggOrNote = false;
                 }
                 break;
         }//L80386E60

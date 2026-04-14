@@ -34,10 +34,10 @@ static void __lighting_init(f32 position[3], f32 rotation[3], f32 scale, f32 arg
     sLightingbk_vectorList.unk44 = sLightingbk_vectorList.unk4;
     iPtr = start_ptr;
     for(; iPtr < end_ptr && sLightingbk_vectorList.unk44 < sLightingbk_vectorList.unk48; iPtr++) {
-        if(iPtr->unk34 && ml_vec3f_distance(position, iPtr->position) < iPtr->unk1C + global_norm) {
+        if(iPtr->active && ml_vec3f_distance(position, iPtr->position) < iPtr->fade_radius_max_unscaled + global_norm) {
             mlMtx_apply_vec3f(iPtr->positionCopy, iPtr->position);
-            iPtr->unk20 = iPtr->unk18/scale;
-            iPtr->unk24 = iPtr->unk1C/scale;
+            iPtr->fade_radius_min = iPtr->fade_radius_min_unscaled/scale;
+            iPtr->fade_radius_max = iPtr->fade_radius_max_unscaled/scale;
             *sLightingbk_vectorList.unk44 = iPtr;
             sLightingbk_vectorList.unk44++;
         }
@@ -56,7 +56,7 @@ s32 __codeAC520_pad_func_8033361C() {
     Lighting *iPtr;
 
     for(iPtr = startPtr; iPtr < endPtr; iPtr++) {
-        if(iPtr->unk34) {
+        if(iPtr->active) {
             return (iPtr-startPtr) + 1;
         }
     }
@@ -70,7 +70,7 @@ s32 __codeAC520_pad_func_80333698(s32 index) {
     Lighting *endPtr = bk_vector_getEnd(sLightingbk_vectorList.bk_vector_ptr);
 
     for(++iPtr; iPtr < endPtr; iPtr++) {
-        if(iPtr->unk34) {
+        if(iPtr->active) {
             return (iPtr-startPtr) + 1;
         }
     }
@@ -85,8 +85,8 @@ void __codeAC520_pad_func_80333734(s32 index, f32 *arg1) {
 
 void __codeAC520_pad_func_80333784(s32 index, f32 *arg1) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
-    arg1[0] = v0->unk18;
-    arg1[1] = v0->unk1C;
+    arg1[0] = v0->fade_radius_min_unscaled;
+    arg1[1] = v0->fade_radius_max_unscaled;
 }
 
 void __codeAC520_pad_func_803337C8(s32 index, s32 *arg1) {
@@ -104,21 +104,21 @@ static s32 __lighting_create() {
     Lighting *iPtr;
 
     for(iPtr = beginPtr; iPtr < endPtr; iPtr++) {
-        if(!iPtr->unk34)
+        if(!iPtr->active)
             break;
     }
     if(iPtr == endPtr)
         iPtr = bk_vector_pushBackNew(&sLightingbk_vectorList.bk_vector_ptr);
 
-    iPtr->unk34 = 1;
+    iPtr->active = 1;
     iPtr->rgb[0] = 0xff;
     iPtr->rgb[1] = 0xff;
     iPtr->rgb[2] = 0xff;
     iPtr->position[2] = 0.0f;
     iPtr->position[1] = 0.0f;
     iPtr->position[0] = 0.0f;
-    iPtr->unk18 = 150.0f;
-    iPtr->unk1C = 300.0f;
+    iPtr->fade_radius_min_unscaled = 150.0f;
+    iPtr->fade_radius_max_unscaled = 300.0f;
     return (iPtr - (Lighting *)bk_vector_getBegin(sLightingbk_vectorList.bk_vector_ptr)) + 1;
 }
 
@@ -134,7 +134,7 @@ void lighting_init() {
 
 void func_80333974(s32 index) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
-    v0->unk34 = 0;
+    v0->active = 0;
 }
 
 s32 __codeAC520_pad_func_803339A4(f32 arg0[3]) {
@@ -144,7 +144,7 @@ s32 __codeAC520_pad_func_803339A4(f32 arg0[3]) {
     Lighting *tmp_s0 = NULL;
     
     for(iPtr = beginPtr; iPtr < endPtr; iPtr++) {
-        if(iPtr->unk34) {
+        if(iPtr->active) {
             if(tmp_s0 == NULL || ml_vec3f_distance(arg0, iPtr->position) < ml_vec3f_distance(arg0, tmp_s0->position)) {
                 tmp_s0 = iPtr;
             }
@@ -161,8 +161,8 @@ static void __lighting_setPosition(s32 index , f32 *position) {
 
 static void __lighting_setUnk18AndUnk1C(s32 index , f32 *unk18_and_unk1c) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
-    v0->unk18 = unk18_and_unk1c[0];
-    v0->unk1C = unk18_and_unk1c[1];
+    v0->fade_radius_min_unscaled = unk18_and_unk1c[0];
+    v0->fade_radius_max_unscaled = unk18_and_unk1c[1];
 }
 
 static void __lighting_setRgb(s32 index , s32 *rgb) {
@@ -196,10 +196,10 @@ s32 __codeAC520_pad_func_80333C78(File *arg0) {
     Lighting *iPtr;
 
     for(iPtr = beginPtr; iPtr < endPtr; iPtr++) {
-        if(iPtr->unk34) {
+        if(iPtr->active) {
             file_isNextByteExpected(arg0, 1);
             file_getNFloats_ifExpected(arg0, 2, iPtr->position, 3);
-            file_getNFloats_ifExpected(arg0, 3, &iPtr->unk18, 2);
+            file_getNFloats_ifExpected(arg0, 3, &iPtr->fade_radius_min_unscaled, 2);
             file_getNWords_ifExpected(arg0, 4, iPtr->rgb, 3);
         }
     }
@@ -233,13 +233,13 @@ void codeAC520_func_80333D48(BKVertexList *vertex_list, f32 position[3], f32 rot
         for(struct_ptr_ptr = &sLightingbk_vectorList.unk4[0]; struct_ptr_ptr < sLightingbk_vectorList.unk44;struct_ptr_ptr++) {
             struct_ptr = *struct_ptr_ptr;
             distance_between_vtx_and_lighting_node = ml_vec3f_distance(struct_ptr->positionCopy, vtx_position);
-            if (!(struct_ptr->unk24 <= distance_between_vtx_and_lighting_node)) {
-                if (distance_between_vtx_and_lighting_node <= struct_ptr->unk20) {
+            if (!(struct_ptr->fade_radius_max <= distance_between_vtx_and_lighting_node)) {
+                if (distance_between_vtx_and_lighting_node <= struct_ptr->fade_radius_min) {
                     rgb_modifier[0] = rgb_modifier[0] + struct_ptr->rgb[0];
                     rgb_modifier[1] = rgb_modifier[1] + struct_ptr->rgb[1];
                     rgb_modifier[2] = rgb_modifier[2] + struct_ptr->rgb[2];
                 } else {
-                    distance_between_vtx_and_lighting_node = 1.0f - ((distance_between_vtx_and_lighting_node - struct_ptr->unk20) / (struct_ptr->unk24 - struct_ptr->unk20));
+                    distance_between_vtx_and_lighting_node = 1.0f - ((distance_between_vtx_and_lighting_node - struct_ptr->fade_radius_min) / (struct_ptr->fade_radius_max - struct_ptr->fade_radius_min));
                     rgb_modifier[0] += distance_between_vtx_and_lighting_node * struct_ptr->rgb[0];
                     rgb_modifier[1] += distance_between_vtx_and_lighting_node * struct_ptr->rgb[1];
                     rgb_modifier[2] += distance_between_vtx_and_lighting_node * struct_ptr->rgb[2];

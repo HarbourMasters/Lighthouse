@@ -267,7 +267,7 @@ Actor *fxTouchSparkle_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     }
     func_80344C38(&func_803257A4, marker);
     codeAEDA0_postDrawSprite(gfx);
-    func_80344138(sp3C, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, scale, gfx, mtx);
+    func_80344138(sp3C, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, scale, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
@@ -305,7 +305,7 @@ Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     func_80344C38(&func_803257A4, marker);
     codeAEDA0_postDrawSprite(gfx);
-    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, rotation, scale, gfx, mtx);
+    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
@@ -342,7 +342,7 @@ Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     func_80344C38(&func_803257A4, marker);
     codeAEDA0_postDrawSprite(gfx);
-    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, rotation, scale, gfx, mtx);
+    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     
     codeAEDA0_drawSprite(gfx);
     if (this->unk104 != NULL) {
@@ -555,7 +555,7 @@ void func_803268B4(void) {
             marker = actor->marker;
             anim_ctrl = actor->anctrl;
             temp_s1 = actor->actor_info->unk18;
-            if (marker->propPtr->unk8_4) {
+            if (marker->propPtr->isNotFeatherEggOrNote) {
                 if(sp54){
                     if (  actor->actor_info->unk20 && volatileFlag_get( actor->actor_info->unk20)) {
                         marker_despawn(marker);
@@ -1691,7 +1691,7 @@ void func_803299B4(Actor *arg0) {
     arg0->marker->actorFreeFunc = arg0->backupFreeFunc;
     arg0->marker->unk5C = arg0->unk16C_31;
     arg0->marker->propPtr->unk8_3 = arg0->unkF4_28;
-    arg0->marker->propPtr->unk8_2 = arg0->unkF4_27;
+    arg0->marker->propPtr->isCollisionResolved = arg0->unkF4_27;
     arg0->marker->unk2C_1 = arg0->unkF4_26;
     arg0->marker->collidable = arg0->stored_marker_collidable;
 
@@ -1786,7 +1786,7 @@ void *actors_appendToSavestate(void * begin, uintptr_t end){
                 s0->unkF4_26 = s1->marker->unk2C_1;
                 s0->stored_marker_collidable = s1->marker->collidable;
                 s0->unkF4_28 = s1->marker->propPtr->unk8_3;
-                s0->unkF4_27 = s1->marker->propPtr->unk8_2;
+                s0->unkF4_27 = s1->marker->propPtr->isCollisionResolved;
                 //80329F94
                 if(s0->anctrl){
                     s0->stored_anctrl_index = anctrl_getIndex(s0->anctrl);

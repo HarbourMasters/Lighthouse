@@ -399,7 +399,7 @@ void func_8024FC1C(u8 arg0, s32 arg1){
     D_80281720[arg0].unk2 = 1;
     D_80281720[arg0].unk3 = 0;
     if (arg1 >= 0 && arg1 < 0xB0) {
-        D_80281720[arg0].unk0 =  D_80275D40[arg1].unk4;
+        D_80281720[arg0].unk0 =  D_80275D40[arg1].volume;
     } else {
         D_80281720[arg0].unk0 = 0;
     }
@@ -500,14 +500,14 @@ void func_8024FF34(void){
 
 s32 gcMusic_getDefaultVolumeForTrack(s32 track_id){
     if (track_id >= 0 && track_id < 0xB0) {
-        return D_80275D40[track_id].unk4;
+        return D_80275D40[track_id].volume;
     }
     return 0;
 }
 
 void func_80250048(s32 track_id, u16 arg1){
     if (track_id >= 0 && track_id < 0xB0) {
-        D_80275D40[track_id].unk4 = arg1;
+        D_80275D40[track_id].volume = arg1;
     }
 }
 

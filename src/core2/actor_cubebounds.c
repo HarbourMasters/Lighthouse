@@ -716,7 +716,7 @@ void func_80303C54(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *arg
     while (*arg4 != -1){
         phi_s0 = func_803322F0(cube, marker, arg2, arg3, arg4);
         if (phi_s0 != NULL) {
-            if (phi_s0->unk8_0 && phi_s0->marker->unk58 != NULL) {
+            if (phi_s0->isActorProp && phi_s0->marker->unk58 != NULL) {
                 if (phi_s0->marker->unk58(phi_s0->marker, marker) == 0) {
                     phi_s0 = NULL;
                 }

@@ -8,15 +8,15 @@ extern void *func_80255888(void *arg0);
 
 typedef struct{
     BKModelBin *unk0;
-    s32 unk4;
-    f32 unk8;
+    s32 timestamp;
+    f32 scale;
 }struct_7AF80_0;
 
 typedef struct{
     BKSprite *unk0;
     BKSpriteDisplayData *unk4;
-    s32 unk8;
-    f32 unkC;
+    s32 timestamp;
+    f32 scale;
 }struct_7AF80_1;
 
 BKModelBin *propModelList_getModel(s32 arg0);
@@ -65,7 +65,7 @@ BKModelBin *propModelList_getModel(s32 arg0){
     if(D_80382390[arg0].unk0 == NULL){
         D_80382390[arg0].unk0 = assetcache_get(0x2d1 + arg0);
     }
-    D_80382390[arg0].unk4 = globalTimer_getTime();
+    D_80382390[arg0].timestamp = globalTimer_getTime();
     return D_80382390[arg0].unk0;
 }
 
@@ -79,7 +79,7 @@ BKSpriteDisplayData *propModelList_getSpriteDisplayList(s32 arg0)
     if (((struct_7AF80_1 *)((uintptr_t)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk0 == 0){
         ((struct_7AF80_1 *)((uintptr_t)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk0 = codeB3A80_getSprite(arg0 + 0x572, &((struct_7AF80_1 *)((uintptr_t)D_80382394 + arg0*sizeof(struct_7AF80_1)))->unk4);
     }
-    D_80382394[arg0].unk8 = globalTimer_getTime();
+    D_80382394[arg0].timestamp = globalTimer_getTime();
     return D_80382394[arg0].unk4;
 }
 
@@ -91,34 +91,34 @@ BKSprite *propModelList_getSprite(s32 arg0){
 f32 propModelList_getScale(Prop *arg0){
     if(arg0->unk8_1){
         ModelProp* ModelProp = &arg0->modelProp;
-        if (D_80382390 == NULL || arg0->spriteProp.unk0_31 >= 0x2A2) {
+        if (D_80382390 == NULL || arg0->spriteProp.spriteId >= 0x2A2) {
             return 0.0f;
         }
-        return D_80382390[arg0->spriteProp.unk0_31].unk8;
+        return D_80382390[arg0->spriteProp.spriteId].scale;
     }
     else{//L8030A65C
         SpriteProp *spriteProp = &arg0->spriteProp;
-        if (D_80382394 == NULL || spriteProp->unk0_31 >= 0x168) {
+        if (D_80382394 == NULL || spriteProp->spriteId >= 0x168) {
             return 0.0f;
         }
-        return D_80382394[spriteProp->unk0_31].unkC;
+        return D_80382394[spriteProp->spriteId].scale;
     }
 }
 
 void propModelList_setScale(Prop *arg0, f32 arg1){
     if(arg0->unk8_1){
         ModelProp* ModelProp = &arg0->modelProp;
-        if (D_80382390 == NULL || arg0->spriteProp.unk0_31 >= 0x2A2) {
+        if (D_80382390 == NULL || arg0->spriteProp.spriteId >= 0x2A2) {
             return;
         }
-        D_80382390[arg0->spriteProp.unk0_31].unk8 = (f32)ModelProp->unkA*arg1/100.0f;
+        D_80382390[arg0->spriteProp.spriteId].scale = (f32)ModelProp->scale*arg1/100.0f;
     }
     else{//L8030A65C
         SpriteProp *spriteProp = &arg0->spriteProp;
-        if (D_80382394 == NULL || spriteProp->unk0_31 >= 0x168) {
+        if (D_80382394 == NULL || spriteProp->spriteId >= 0x168) {
             return;
         }
-        D_80382394[spriteProp->unk0_31].unkC = (f32)spriteProp->unk0_9*arg1/100.0f;
+        D_80382394[spriteProp->spriteId].scale = (f32)spriteProp->scale*arg1/100.0f;
     }
 }
 
@@ -151,11 +151,11 @@ void propModelList_init(void){//init
     D_8036B800 = 0;
     for(iPtr = D_80382390; iPtr < &D_80382390[0x2A2]; iPtr++){
         iPtr->unk0 = NULL;
-        iPtr->unk8 = 0.0f;
+        iPtr->scale = 0.0f;
     }
     for(jPtr = D_80382394; jPtr < &D_80382394[0x168]; jPtr++){
         jPtr->unk0 = NULL;
-        jPtr->unkC = 0.0f;
+        jPtr->scale = 0.0f;
     }
 }
 
@@ -170,7 +170,7 @@ void propModelList_flush(s32 arg0) {
     temp_s3 = globalTimer_getTime() - func_80255B08(arg0);
     for(var_s0 = 0; (D_80382390 != NULL) && (var_s0 < ((arg0 == 1) ? 0x28 : 0x2A1)); var_s0++, D_8036B804 = (D_8036B804 >= 0x2A1)? 0: D_8036B804 + 1){
         sp3C = (struct_7AF80_0*)((uintptr_t)D_80382390 + sizeof(struct_7AF80_0)*D_8036B804);
-        if ((sp3C->unk0 != 0) && ((sp3C->unk4 < temp_s3) || (arg0 == 3))){
+        if ((sp3C->unk0 != 0) && ((sp3C->timestamp < temp_s3) || (arg0 == 3))){
             assetcache_release(sp3C->unk0);
             sp3C->unk0 = 0;
             if( (arg0 != 1) && (func_80254BC4(1))){
@@ -181,7 +181,7 @@ void propModelList_flush(s32 arg0) {
 
     for(var_s0 = 0; (D_80382394 != NULL) && (var_s0 < ((arg0 == 1) ? 0x28 : 0x167)); var_s0++, D_8036B808 = (D_8036B808 >= 0x167)? 0: D_8036B808 + 1){
         temp_a0_2 = (struct_7AF80_1*)((uintptr_t)D_80382394 + sizeof(struct_7AF80_1)*D_8036B808);
-        if ((temp_a0_2->unk0 != 0) && ((temp_a0_2->unk8 < temp_s3) || (arg0 == 3))){
+        if ((temp_a0_2->unk0 != 0) && ((temp_a0_2->timestamp < temp_s3) || (arg0 == 3))){
             codeB3A80_releaseSprite((void **)&temp_a0_2->unk0, &temp_a0_2->unk4);
             if( (arg0 != 1) && (func_80254BC4(1))){
                 return;

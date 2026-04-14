@@ -95,7 +95,7 @@ void func_80387E68(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
         subaddie_set_state_with_direction(this, 5, 0.79f, 1);
         func_80326310(this); //did not disappear when moved, after cutscene still there with collision but broken
-        bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+        bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
         timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
         timed_setStaticCameraToNode(0.8f, 9);
         func_80324DBC(3.4f, 0xC87, 0xE, NULL, NULL, func_80387E68, NULL);
@@ -120,7 +120,7 @@ void chCroctus_updat(Actor *this){
             bgs_D_803907B8[this->actorTypeSpecificField - 1] = this->marker;
             for(j = this->actorTypeSpecificField; j < 5; j++){
                 if(bgs_D_803907B8[j] != NULL){
-                    bgs_D_803907B8[j]->propPtr->unk8_4 = false;
+                    bgs_D_803907B8[j]->propPtr->isNotFeatherEggOrNote = false;
                     actor_setOpacity(marker_getActor(bgs_D_803907B8[j]), 0);
                 }
             }//L803880C8
@@ -129,7 +129,7 @@ void chCroctus_updat(Actor *this){
 
             
             if(j >= 0){
-                this->marker->propPtr->unk8_4 = false;
+                this->marker->propPtr->isNotFeatherEggOrNote = false;
                 actor_setOpacity(this, 0);
             }
             this->marker->propPtr->unk8_3 = true;
@@ -158,7 +158,7 @@ void chCroctus_updat(Actor *this){
                     func_80326310(this);
                 }
                 if (this->actorTypeSpecificField < 5) {
-                    bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+                    bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
                     timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
                     gcStaticCamera_activate(D_803907B0[this->actorTypeSpecificField-1]);
                 } else {

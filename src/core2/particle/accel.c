@@ -3,11 +3,11 @@
 #include "variables.h"
 
 typedef struct {
-    f32 unk0;
+    f32 freeTime;
     ParticleEmitter *p_emitter;
-    u32 unk8_31:1;
+    u32 isActive:1;
     u32 capacity:10;
-    u32 pad8_20:21;
+    u32 padding:21;
 } Struct_Core2_69F60_0;
 
 void pem_free(u8 arg0);
@@ -24,15 +24,15 @@ ParticleEmitter *pem_getEmitterByIndex(u8 arg0){
         particleEmitter_manualFree(D_80380938[arg0].p_emitter);
         D_80380930 = 0;
     }
-    D_80380938[arg0].unk0 = 1.0f;
+    D_80380938[arg0].freeTime = 1.0f;
     return D_80380938[arg0].p_emitter;
 }
 
 u8 pem_newEmitter(s32 cnt){
     int i;
     for(i = 1; i < 16; i++){
-        if(D_80380938[i].unk8_31 == 0){
-            D_80380938[i].unk8_31++;
+        if(D_80380938[i].isActive == 0){
+            D_80380938[i].isActive++;
             D_80380938[i].p_emitter = NULL;
             D_80380938[i].capacity = cnt;
             return i;
@@ -44,7 +44,7 @@ u8 pem_newEmitter(s32 cnt){
 void pem_freeAll(void){
     int i;
     for(i = 1; i < 16; i++){
-        if(D_80380938[i].unk8_31 != 0){
+        if(D_80380938[i].isActive != 0){
             pem_free(i);
         }
     }
@@ -53,7 +53,7 @@ void pem_freeAll(void){
 void pem_setAllInactive(void){
     int i;
     for(i = 1; i < 16; i++){
-        D_80380938[i].unk8_31 = 0;
+        D_80380938[i].isActive = 0;
     }
 }
 
@@ -61,18 +61,18 @@ void pem_free(u8 arg0){
     if(D_80380938[arg0].p_emitter){
         partEmitMgr_freeEmitter(D_80380938[arg0].p_emitter);
     }
-    D_80380938[arg0].unk8_31 = 0;
+    D_80380938[arg0].isActive = 0;
 }
 
 void pem_updateAll(void){
     int i;
     for(i = 1; i < 16; i++){
-        if( D_80380938[i].unk8_31 != 0
+        if( D_80380938[i].isActive != 0
             && D_80380938[i].p_emitter != NULL
             && particleEmitter_isDone(D_80380938[i].p_emitter)
         ){
-           D_80380938[i].unk0 -= time_getDelta();
-           if(D_80380938[i].unk0 <= 0.0f){
+           D_80380938[i].freeTime -= time_getDelta();
+           if(D_80380938[i].freeTime <= 0.0f){
                 partEmitMgr_freeEmitter(D_80380938[i].p_emitter);
                 D_80380938[i].p_emitter = NULL;
            }
@@ -83,7 +83,7 @@ void pem_updateAll(void){
 void pem_freeEmitters(void){
     int i;
     for(i = 1; i < 16; i++){
-        if( D_80380938[i].unk8_31 != 0
+        if( D_80380938[i].isActive != 0
             && D_80380938[i].p_emitter != NULL
             && i != D_80380930
         ){
@@ -96,7 +96,7 @@ void pem_freeEmitters(void){
 void pem_defragAll(void){
     int i;
     for(i = 1; i < 16; i++){
-        if( D_80380938[i].unk8_31 != 0
+        if( D_80380938[i].isActive != 0
             && D_80380938[i].p_emitter != NULL
         ){
            D_80380938[i].p_emitter = partEmitMgr_defragEmitter(D_80380938[i].p_emitter);

@@ -9,43 +9,43 @@
 #include "core2/skeletalanim.h"
 
 typedef struct sprite_prop_s{
-    u32 unk0_31:0xC;
+    u32 spriteId:0xC;
     u32 unk0_19:0x1;
-    u32 unk0_18:0x3;
-    u32 unk0_15:0x3;
-    u32 unk0_12:0x3;
-    u32 unk0_9:0x8;
-    u32 unk0_1:0x1;
-    u32 unk0_0:0x1;
+    u32 rgb_remove_red:0x3;
+    u32 rgb_remove_green:0x3;
+    u32 rgb_remove_blue:0x3;
+    u32 scale:0x8;
+    u32 isMirrored:0x1;
+    u32 pad0_0:0x1;
 #if UINTPTR_MAX > 0xFFFFFFFFu
     u32 _pad64;
 #endif
     s16 unk4[3];
-    u16 unk8_15: 5;
+    u16 frame: 5;
     u16 unk8_10: 5;
     u16 unk8_5: 1;
-    u16 unk8_4: 1;
+    u16 isNotFeatherEggOrNote: 1;
     u16 unk8_3: 1;
-    u16 unk8_2: 1;
-    u16 unk8_1:1;
-    u16 unk8_0:1;
+    u16 isCollisionResolved: 1;
+    u16 isModelProp:1;
+    u16 isActorProp:1;
 } SpriteProp;
 
 typedef struct model_prop_s{
     union{
         u16 unk0;
         struct{
-            u16 unk0_31:12;
+            u16 modelId:12;
             u16 pad0_19:4;
         };
     };
-    u8 unk0_15;
-    u8 unk0_7;
+    u8 yaw;
+    u8 roll;
 #if UINTPTR_MAX > 0xFFFFFFFFu
     u32 _pad64;
 #endif
     s16 unk4[3];
-    u8 unkA;
+    u8 scale;
     u8 padB_7 :2;
     u8 unkB_5 :1;
     u8 unkB_4 :1;
@@ -65,14 +65,14 @@ typedef struct actor_prop_s{
             s16 x;
             s16 y;
             s16 z;
-            u16 unk8_15:5;
+            u16 frame:5;
             u16 unk8_10:5;
-            u16 unk8_5:1;
-            u16 unk8_4:1;
+            u16 isMirrored:1;
+            u16 isNotFeatherEggOrNote:1;
             u16 unk8_3:1;
-            u16 unk8_2:1;
-            u16 unk8_1:1;
-            u16 unk8_0:1;
+            u16 isCollisionResolved:1;
+            u16 isModelProp:1;
+            u16 isActorProp:1;
         };
         s32 words[ACTORPROP_WORD_BASE + 2];
     };

@@ -68,7 +68,7 @@ extern void func_80324CFC(f32, s16, s16);
 extern struct FF_StorageStruct *ffStorage; 
 
 /* .data */
-extern Struct_lair_5ED0_0 D_80393760[FF_QNF_CNT - 1] = {
+extern Furnace_Fun_Board D_80393760[FF_QNF_CNT - 1] = {
     {{    0,     0, 0x192,     0}, 1, 0, 0, {0, 0, 0}, 0.0f, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
     {{    0,     0, 0x199,     0}, 2, 0, 0, {0, 0, 0}, 0.0f, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
     {{    0,     0,     0, 0x194}, 0, 0, 0, {0, 0, 0}, 0.0f, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
@@ -401,7 +401,7 @@ bool lair_func_8038C370(enum ff_question_type_e type, s32 questionIdx)
 // i love stupid shit like this. these 3 lines of C compile into 150 lines of asm for type handling
 void func_8038C3A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
 {
-    Struct_lair_5ED0_0 *data = (Struct_lair_5ED0_0 *)a3;
+    Furnace_Fun_Board *data = (Furnace_Fun_Board *)a3;
     a2->v.cn[0] = a1->v.v.cn[0] * data->unk10;
     a2->v.cn[1] = a1->v.v.cn[1] * data->unk10;
     a2->v.cn[2] = a1->v.v.cn[2] * data->unk10;
@@ -409,7 +409,7 @@ void func_8038C3A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
 
 void *lair_func_8038C5B8(s32 a0)
 {
-    Struct_lair_5ED0_0 *ptr;
+    Furnace_Fun_Board *ptr;
 
     s32 v0;
 
@@ -433,13 +433,13 @@ void lair_func_8038C610(s32 a0)
     { Struct70s *_tmp = func_8034C528(a0 + 200); func_8034DEB4(&_tmp->type_6D, -3000); }
 }
 
-void lair_func_8038C640(s32 a0, Struct_lair_5ED0_0 *a1)
+void lair_func_8038C640(s32 a0, Furnace_Fun_Board *a1)
 {
     s32 i;
 
-    for (i = 0; i < ARRLEN(a1->unk0); i++)
-        if (a1->unk0[i])
-            lair_func_8038C610(a1->unk0[i]);
+    for (i = 0; i < ARRLEN(a1->adjacentTiles); i++)
+        if (a1->adjacentTiles[i])
+            lair_func_8038C610(a1->adjacentTiles[i]);
 
     a1->unk9 = 1;
 
@@ -450,7 +450,7 @@ void lair_func_8038C6BC(void)
 {
     s32 s1, s3;
 
-    Struct_lair_5ED0_0 *ptr;
+    Furnace_Fun_Board *ptr;
 
     s3 = 1;
 
@@ -481,7 +481,7 @@ void func_8038C7A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
 
 void func_8038C9D0(void) {
     u8 temp_v0;
-    Struct_lair_5ED0_0 *phi_s0;
+    Furnace_Fun_Board *phi_s0;
     s32 phi_s1;
 
     for(phi_s0 = D_80393760, phi_s1 = 0x191; phi_s1 < 0x1F0; phi_s1++){
@@ -556,8 +556,8 @@ void lair_func_8038CD48(void)
 
     ffStorage->unk0 = NULL;
 
-    gczoombox_free(ffStorage->unk20);
-    ffStorage->unk20 = NULL;
+    gczoombox_free(ffStorage->zoombox);
+    ffStorage->zoombox = NULL;
 
     if (ffStorage->UNK_18)
         lair_func_8038CC9C();
@@ -592,9 +592,9 @@ void ff_setup(void)
     // set joker card count to 0
     item_adjustByDiffWithoutHud(ITEM_27_JOKER_CARD, item_getCount(0x27) * -1);
 
-    ffStorage->unk8     = 0;
-    ffStorage->unk4     = NULL;
-    ffStorage->unk20     = NULL;
+    ffStorage->currentTileId     = 0;
+    ffStorage->currentBoardTile     = NULL;
+    ffStorage->zoombox     = NULL;
     ffStorage->unk14     = 1.f;
     ffStorage->UNK_18     = 0;
     ffStorage->currFfMode = 1;
@@ -679,15 +679,15 @@ void func_8038D0BC(s32 a0, s32 a1)
 {
     if (a1 == 2)
     {
-        func_80318614(ffStorage->unk20, 1);
-        func_803183A4(ffStorage->unk20, "THIS IS A SLIGHTLY LONGER PIECE OF TEXT FOR THE QUIZ DIALOGS!");
+        func_80318614(ffStorage->zoombox, 1);
+        func_803183A4(ffStorage->zoombox, "THIS IS A SLIGHTLY LONGER PIECE OF TEXT FOR THE QUIZ DIALOGS!");
     }
 
     if (a1 == 3)
     {
-        func_80318614(ffStorage->unk20, 0);
-        gczoombox_minimize(ffStorage->unk20);
-        gczoombox_close(ffStorage->unk20);
+        func_80318614(ffStorage->zoombox, 0);
+        gczoombox_minimize(ffStorage->zoombox);
+        gczoombox_close(ffStorage->zoombox);
     }
 
     if (a1 == 6)
@@ -714,15 +714,15 @@ void ff_getSoundQuestionSound(void)
 
     func_8025A55C(0, 500, 9);
 
-    switch (D_80394354[ffStorage->unkC].unk0)
+    switch (D_80394354[ffStorage->questionTypeTableIndex].unk0)
     {
         case 0:
         {
             timed_playSfx(
                 1.f,
-                D_80394354[ffStorage->unkC].unk2,
-                D_80394354[ffStorage->unkC].unk8,
-                D_80394354[ffStorage->unkC].unk4
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk8,
+                D_80394354[ffStorage->questionTypeTableIndex].unk4
             );
 
             cleanupDelay = 2.5f;
@@ -731,14 +731,14 @@ void ff_getSoundQuestionSound(void)
         }
         case 2:
         {
-            ffStorage->unk20 = gczoombox_new(
+            ffStorage->zoombox = gczoombox_new(
                 -100,
-                D_80394354[ffStorage->unkC].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
                 0, 0, func_8038D0BC
             );
-            func_80318614(ffStorage->unk20, 0);
-            gczoombox_open(ffStorage->unk20);
-            gczoombox_maximize(ffStorage->unk20);
+            func_80318614(ffStorage->zoombox, 0);
+            gczoombox_open(ffStorage->zoombox);
+            gczoombox_maximize(ffStorage->zoombox);
 
             break;
         }
@@ -746,11 +746,11 @@ void ff_getSoundQuestionSound(void)
         {
             func_80324CFC(
                 1.f,
-                D_80394354[ffStorage->unkC].unk2,
-                D_80394354[ffStorage->unkC].unk4
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk4
             );
 
-            cleanupDelay = D_80394354[ffStorage->unkC].unk8;
+            cleanupDelay = D_80394354[ffStorage->questionTypeTableIndex].unk8;
 
             break;
         }
@@ -758,11 +758,11 @@ void ff_getSoundQuestionSound(void)
         {
             timedFunc_set_2(
                 0.5f, (GenFunction_2)func_8038D16C,
-                D_80394354[ffStorage->unkC].unk2,
-                D_80394354[ffStorage->unkC].unk4
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk4
             );
 
-            cleanupDelay = D_80394354[ffStorage->unkC].unk8;
+            cleanupDelay = D_80394354[ffStorage->questionTypeTableIndex].unk8;
 
             break;
         }
@@ -776,9 +776,9 @@ void ff_getPictureQuestionImage(void)
 {
     ffStorage->unk12 = 1;
     func_getCameraViewFromLevel(
-        D_803945D0[ffStorage->unkC].unk0,
-        D_803945D0[ffStorage->unkC].UNK_01,
-        ffStorage->unkD >= 9
+        D_803945D0[ffStorage->questionTypeTableIndex].unk0,
+        D_803945D0[ffStorage->questionTypeTableIndex].UNK_01,
+        ffStorage->questionAssetIndex >= 9
     );
 }
 
@@ -823,8 +823,8 @@ void ff_setupMinigame(void)
     // trigger warp after a delay
     timedFunc_set_3(0.25f,
         (GenFunction_3)transitionToMap,
-        D_803945B8[ffStorage->unkC].map,
-        D_803945B8[ffStorage->unkC].exit,
+        D_803945B8[ffStorage->questionTypeTableIndex].map,
+        D_803945B8[ffStorage->questionTypeTableIndex].exit,
         1
     );
 }
@@ -843,7 +843,7 @@ void func_8038D548(s32 a0)
 void func_8038D5A0(void)
 {
     s32 s0;
-    Struct_lair_5ED0_0 *ptr = D_80393760;
+    Furnace_Fun_Board *ptr = D_80393760;
 
     for (s0 = FF_QNF_START; s0 != FF_QNF_END; s0++, ptr++)
     {
@@ -900,7 +900,7 @@ void ff_setState(enum FF_Action next_state) {
             func_8028F918(2);
             if (ffStorage->ffQuestionType != FFQT_4_MINIGAME) {
                 func_8038CE00();
-                gcquiz_func_8031A154(ffStorage->ffQuestionType, ffStorage->unkD, ffStorage->unkE, __code5ED0_getQuizQuestionTime(ffStorage->ffQuestionType, ffStorage->unkC), 0, (void (*)(s32, s8))func_8038D3F0);
+                gcquiz_func_8031A154(ffStorage->ffQuestionType, ffStorage->questionAssetIndex, ffStorage->unkE, __code5ED0_getQuizQuestionTime(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex), 0, (void (*)(s32, s8))func_8038D3F0);
             } else {
                 ff_setupMinigame();
             }
@@ -908,24 +908,24 @@ void ff_setState(enum FF_Action next_state) {
 
         case FFA_4_UNK: //L8038D7CC
             if (ffStorage->ffQuestionType == FFQT_2_SOUND) {
-                switch(D_80394354[ffStorage->unkC].unk0){
+                switch(D_80394354[ffStorage->questionTypeTableIndex].unk0){
                     case 3:
-                        comusic_8025AB44(D_80394354[ffStorage->unkC].unk2, 0, 0x1F4);
-                        func_8025AABC(D_80394354[ffStorage->unkC].unk2);
+                        comusic_8025AB44(D_80394354[ffStorage->questionTypeTableIndex].unk2, 0, 0x1F4);
+                        func_8025AABC(D_80394354[ffStorage->questionTypeTableIndex].unk2);
                         timedFunc_set_0(1.5f, func_8038D1BC);
                         break;
                     case 1: //L8038D870
-                         if (func_8025AD7C(D_80394354[ffStorage->unkC].unk2)) {
-                            comusic_8025AB44(D_80394354[ffStorage->unkC].unk2, 0, 0x1F4);
+                         if (func_8025AD7C(D_80394354[ffStorage->questionTypeTableIndex].unk2)) {
+                            comusic_8025AB44(D_80394354[ffStorage->questionTypeTableIndex].unk2, 0, 0x1F4);
                             timedFunc_set_0(1.5f, func_8038D1BC);
                         } else {
                             func_8025A55C(-1, 0x1F4, 9);
                         }
-                        func_8025AABC(D_80394354[ffStorage->unkC].unk2);
+                        func_8025AABC(D_80394354[ffStorage->questionTypeTableIndex].unk2);
                         break;
                     case 2: //L8038D908
-                        gczoombox_free(ffStorage->unk20);
-                        ffStorage->unk20 = 0;
+                        gczoombox_free(ffStorage->zoombox);
+                        ffStorage->zoombox = 0;
                     default:
                         func_8025A55C(-1, 0x1F4, 9);
                         break;
@@ -937,21 +937,21 @@ void ff_setState(enum FF_Action next_state) {
         case FFA_6_TRIGGER_QUESTION_POST_EFFECTS: //L8038D940
             func_8038D48C();
             if (ffStorage->unkF == 1) {
-                lair_func_8038C640(ffStorage->unk8, ffStorage->unk4);
-                lair_func_8038C338(ffStorage->ffQuestionType, ffStorage->unkC, 1);
+                lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
+                lair_func_8038C338(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex, 1);
                 ffStorage->unk3C[ffStorage->ffQuestionType]++;
                 if (lair_func_8038C2C0(ffStorage->ffQuestionType) == ffStorage->unk3C[ffStorage->ffQuestionType]) {
                     ffStorage->unk3C[ffStorage->ffQuestionType] = 0;
                     ff_clearAlreadyAskedQuestions(ffStorage->ffQuestionType);
                 }
-                if (((s32) ffStorage->unk4->unk8 >= 7) && (quizQuestionAskedBitfield_get(func_8038D60C(ffStorage->unk8)) == 0)) {
-                    item_adjustByDiffWithHud(ITEM_27_JOKER_CARD, ffStorage->unk4->unk8 - 6);
-                    quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->unk8), true);
+                if (((s32) ffStorage->currentBoardTile->tileType >= 7) && (quizQuestionAskedBitfield_get(func_8038D60C(ffStorage->currentTileId)) == 0)) {
+                    item_adjustByDiffWithHud(ITEM_27_JOKER_CARD, ffStorage->currentBoardTile->tileType - 6);
+                    quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->currentTileId), true);
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A8_FF_GOT_JOKER);
                 }
-                if (ffStorage->unk8 != 0x1EF) {
+                if (ffStorage->currentTileId != 0x1EF) {
                     gcsfx_playWithPitch(SFX_126_AUDIENCE_BOOING, 1.0f, 0x7FF8);
-                    if (ffStorage->unk4->unk8 == FFTT_5_GRUNTY) {
+                    if (ffStorage->currentBoardTile->tileType == FFTT_5_GRUNTY) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A2_FF_GRUNTY_ANSWER_RIGHT);
                     }
                     if (volatileFlag_get(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT)) {
@@ -960,7 +960,7 @@ void ff_setState(enum FF_Action next_state) {
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT);
                 }
             } else {
-                if (ffStorage->unk4->unk8 == FFTT_6_SKULL) {
+                if (ffStorage->currentBoardTile->tileType == FFTT_6_SKULL) {
                     gcpausemenu_80314AC8(0);
                     if (func_80305248(sp30, 0x377, ffStorage->playerPosition)) {
                         func_8038D548(1);
@@ -979,9 +979,9 @@ void ff_setState(enum FF_Action next_state) {
                     }
                     func_8030E6D4(SFX_124_AUDIENCE_CHEERING_1);
                 }
-                if (ffStorage->unk4->unk8 >= 7) {
-                    quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->unk8), true);
-                    lair_func_8038C640(ffStorage->unk8, ffStorage->unk4);
+                if (ffStorage->currentBoardTile->tileType >= 7) {
+                    quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->currentTileId), true);
+                    lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                 }
                 if (volatileFlag_get(VOLATILE_FLAG_A3_FF_FIRST_ANSWER_WRONG)) {
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A4_FF_NEXT_ANSWER_WRONG);
@@ -1080,8 +1080,8 @@ void ff_prepareNextQuestion(enum ff_question_type_e type)
         } while (lair_func_8038C370(type, randQuestionIdx));
 
         // Save to storage struct
-        ffStorage->unkC = randQuestionIdx;
-        ffStorage->unkD = ffStorage->unkC;
+        ffStorage->questionTypeTableIndex = randQuestionIdx;
+        ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex;
     }
     else if (type == FFQT_1_PICTURE)
     {
@@ -1089,7 +1089,7 @@ void ff_prepareNextQuestion(enum ff_question_type_e type)
          * Handle picture question (choosing a level, then choosing a pre-set angle within it)
          */
 
-        ffStorage->unkD = ffStorage->unkC;
+        ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex;
 
         do
         {
@@ -1098,17 +1098,17 @@ void ff_prepareNextQuestion(enum ff_question_type_e type)
 
             if (rand == 9)
             {
-                ffStorage->unkC = randi2(0, 10) + tmp;
-                ffStorage->unkD = ffStorage->unkC - tmp + 9;
+                ffStorage->questionTypeTableIndex = randi2(0, 10) + tmp;
+                ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex - tmp + 9;
             }
             else
             {
-                ffStorage->unkC = ff_getPictureQuestionLevel() + tmp;
-                ffStorage->unkD = ffStorage->unkC / 0xC;
+                ffStorage->questionTypeTableIndex = ff_getPictureQuestionLevel() + tmp;
+                ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex / 0xC;
             }
 
             // Try again if question already asked
-        } while (lair_func_8038C370(type, ffStorage->unkC));
+        } while (lair_func_8038C370(type, ffStorage->questionTypeTableIndex));
     }
 }
 
@@ -1152,17 +1152,17 @@ void lair_func_8038E0B0(void) {
         if (ffStorage->currFfMode < 3) {
             player_getPosition(ffStorage->playerPosition);
             temp_v0 = func_8033F3E8(ffStorage->unk0, ffStorage->playerPosition, 0x191, 0x1F0);
-            if ((temp_v0 != ffStorage->unk8) && (ffStorage->unk8 != 0)) {
-                if (ffStorage->unk4->unk9 == 2) {
-                    ffStorage->unk4->unk9 = 0U;
+            if ((temp_v0 != ffStorage->currentTileId) && (ffStorage->currentTileId != 0)) {
+                if (ffStorage->currentBoardTile->unk9 == 2) {
+                    ffStorage->currentBoardTile->unk9 = 0U;
                 }
             }
-            ffStorage->unk8 = temp_v0;
-            ffStorage->unk4 = lair_func_8038C5B8(ffStorage->unk8);
+            ffStorage->currentTileId = temp_v0;
+            ffStorage->currentBoardTile = lair_func_8038C5B8(ffStorage->currentTileId);
         }
-        sp38 = MIN((ffStorage->unk8 != 0) ? ffStorage->unk4->unk8 : -1, FFTT_7_JOKER);
-        if ((ffStorage->unk8 != 0) && (ffStorage->unk4->unk9 == 0) && func_8028F20C()) {
-            ffStorage->unk4->unk9 = 2;
+        sp38 = MIN((ffStorage->currentTileId != 0) ? ffStorage->currentBoardTile->tileType : -1, FFTT_7_JOKER);
+        if ((ffStorage->currentTileId != 0) && (ffStorage->currentBoardTile->unk9 == 0) && func_8028F20C()) {
+            ffStorage->currentBoardTile->unk9 = 2;
             if (ffStorage->unk11) {
                 switch(sp38){
                     case FFTT_6_SKULL://L8038E26C
@@ -1207,14 +1207,14 @@ void lair_func_8038E0B0(void) {
         code_7060_setVoidOutLocation(MAP_8E_GL_FURNACE_FUN, 2);
         switch(ffStorage->currFfMode){
             case 1://L8038E388
-                if(ffStorage->unk8 != 0){
+                if(ffStorage->currentTileId != 0){
                     func_80347A14(0);
                     ff_setState(2);
                 }
                 break;
 
             case 2://L8038E3AC
-                if (ffStorage->unk8 == 0) {
+                if (ffStorage->currentTileId == 0) {
                     ff_setState(1);
                     break;
                 }
@@ -1232,7 +1232,7 @@ void lair_func_8038E0B0(void) {
                     } else if (item_getCount(ITEM_14_HEALTH) == 1) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AA_FF_LOW_HEALTH);
                     }
-                    if ((ffStorage->unk4->unk9 == 2) && (player_movementGroup() == BSGROUP_0_NONE)) {
+                    if ((ffStorage->currentBoardTile->unk9 == 2) && (player_movementGroup() == BSGROUP_0_NONE)) {
                         if (func_8028EFEC() && (sp48[FACE_BUTTON(BUTTON_A)] == 1)) {
                             func_803114D0();
                             player_getRotation(ffStorage->playerRotation);
@@ -1243,11 +1243,11 @@ void lair_func_8038E0B0(void) {
                         }
                         if (func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
                             if ((item_getCount(ITEM_27_JOKER_CARD) > 0) && (sp28 < 0x5B)) {
-                                lair_func_8038C640(ffStorage->unk8, ffStorage->unk4);
+                                lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                                 item_dec(ITEM_27_JOKER_CARD);
                                 func_8030E6D4(SFX_3EA_BANJO_GUH_HUH);
                                 volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A9_FF_USED_JOKER);
-                                if (ffStorage->unk8 == 0x1EF) {
+                                if (ffStorage->currentTileId == 0x1EF) {
                                     ff_setState(8);
                                 }
                             } else {
@@ -1256,15 +1256,15 @@ void lair_func_8038E0B0(void) {
                         }
                     }
                 } else {
-                    if (ffStorage->unk4->unk9 == 2) {
-                        lair_func_8038C640(ffStorage->unk8, ffStorage->unk4);
+                    if (ffStorage->currentBoardTile->unk9 == 2) {
+                        lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                     }
                 }
                 break;
 
             case 3://L8038E5C8
-                if ((ffStorage->ffQuestionType == 2) && D_80394354[ffStorage->unkC].unk0 == 2){
-                    gczoombox_update(ffStorage->unk20);
+                if ((ffStorage->ffQuestionType == 2) && D_80394354[ffStorage->questionTypeTableIndex].unk0 == 2){
+                    gczoombox_update(ffStorage->zoombox);
                 }
                 if ((ffStorage->unk12 == 0) && func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
                     func_80324C58();
@@ -1295,7 +1295,7 @@ void lair_func_8038E0B0(void) {
                 break;
 
             case 6://L8038E6F8
-                if ((ffStorage->unk8 == 0x1EF) && ( ffStorage->unkF == 1)) {
+                if ((ffStorage->currentTileId == 0x1EF) && ( ffStorage->unkF == 1)) {
                     ff_setState(8);
                 }
                 else{
@@ -1319,7 +1319,7 @@ void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v)
         return;
 
     gcquiz_draw(dl, m, v);
-    gczoombox_draw(ffStorage->unk20, dl, m, v);
+    gczoombox_draw(ffStorage->zoombox, dl, m, v);
 }
 
 void func_8038E7C4(void)

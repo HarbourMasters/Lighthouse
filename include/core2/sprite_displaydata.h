@@ -28,9 +28,9 @@ typedef struct particle_struct_0_s{
     ActorMarker *unk38;
     s32 unk3C;
     FuncUnk40 unk40;
-    u8 unk44;
-    u8 unk45;
-    u8 unk46;
+    u8 isInUse;
+    u8 projectileIndex;
+    u8 typeMapIndex;
     u8 unk47;
 } ParticleStruct0s;
 
