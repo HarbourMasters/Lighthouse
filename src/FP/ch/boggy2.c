@@ -47,7 +47,7 @@ ActorAnimationInfo D_80391C80[] = {
     {0x150, 0.6f}
 };
 
-ActorInfo D_80391CE8 = { MARKER_97_BOGGY_2, ACTOR_C8_BOGGY_2, ASSET_38A_MODEL_BOGGY_1, 
+ActorInfo gChBoggySled = { MARKER_97_BOGGY_2, ACTOR_C8_BOGGY_2, ASSET_38A_MODEL_BOGGY_1, 
     0x1, D_80391C80, 
     FP_func_80388F4C, func_803896FC, func_80388740, 
     0, 0, 1.4f, 0

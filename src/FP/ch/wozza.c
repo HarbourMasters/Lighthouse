@@ -15,7 +15,7 @@ Actor *chWozza_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void FP_func_8038F7AC(Actor *this);
 
 /* .data */
-ActorAnimationInfo D_80392520[] ={
+ActorAnimationInfo chWozzaAnimations[] ={
     {0x000, 0.0f},
     {0x1AC, 3.8f},
     {0x1AC, 3.8f},
@@ -31,8 +31,8 @@ ActorAnimationInfo D_80392520[] ={
     {0x1AE, 0.55f}
 };
 
-ActorInfo D_80392588 = { MARKER_20B_WOZZA, ACTOR_1F3_WOZZA, ASSET_494_MODEL_WOZZA, 
-    0x1, D_80392520,
+ActorInfo gChWozza = { MARKER_20B_WOZZA, ACTOR_1F3_WOZZA, ASSET_494_MODEL_WOZZA, 
+    0x1, chWozzaAnimations,
     FP_func_8038F7AC, actor_update_func_80326224, chWozza_draw,
     0, 0, 1.6f, 0
 };

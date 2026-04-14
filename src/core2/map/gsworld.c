@@ -16,9 +16,9 @@ struct {
     s32 unk0;
     s32 map_4;
     s32 unk8;
-}D_803835D0;
+}sGsWorldData;
 s32 D_803835DC;
-u32 D_803835E0;
+u32 sEnableDraw;
 
 /* public */
 void gsworld_setEnableUpdate(s32);
@@ -33,7 +33,7 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
     f32 sp44;
     f32 sp40;
 
-    if (D_803835E0 == 0) {
+    if (sEnableDraw == 0) {
         drawRectangle2D(gdl, 0, 0, gFramebufferWidth, gFramebufferHeight, 0, 0, 0);
         func_802BBD2C(&sp44, &sp40);
         viewport_setNearAndFar(sp44, sp40);
@@ -117,19 +117,19 @@ void gsworld_stub1(s32 arg0, s32 arg1, s32 arg2){
 }
 
 enum map_e gsworld_getMap(void){
-    return D_803835D0.map_4;
+    return sGsWorldData.map_4;
 }
 
 s32 gsworld_getExit(){
-    return D_803835D0.unk8;
+    return sGsWorldData.unk8;
 }
 
 void gsworld_transitionToExit(s32 arg0) {
-    transitionToMap(D_803835D0.map_4, arg0, 1);
+    transitionToMap(sGsWorldData.map_4, arg0, 1);
 }
 
 s32 gsworld_getUnk0(){
-    return D_803835D0.unk0;
+    return sGsWorldData.unk0;
 }
 
 void gsworld_setUnk0(s32);
@@ -189,7 +189,7 @@ void gsworld_free(void) {
     dialogBin_terminate();
     func_802986D0();
     if (func_80322914() == 0) {
-        func_8024F7C4(func_803226E8(D_803835D0.map_4));
+        func_8024F7C4(func_803226E8(sGsWorldData.map_4));
     }
     core1_7090_release();
     AnimTextureListCache_free();
@@ -200,10 +200,10 @@ void gsworld_free(void) {
 }
 
 void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
-    D_803835D0.unk0 = 3;
-    D_803835D0.map_4 = arg0;
+    sGsWorldData.unk0 = 3;
+    sGsWorldData.map_4 = arg0;
     CALL_EVENT(OnMapLoad, arg0);
-    D_803835D0.unk8 = arg1;
+    sGsWorldData.unk8 = arg1;
     overlay_init();
     gsworld_setEnableUpdate(1);
     gsworld_setEnableDraw(1);
@@ -213,7 +213,7 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
         func_8038E7C4();
     }
     if (func_80322914() == 0) {
-        func_8024F764(func_803226E8(D_803835D0.map_4));
+        func_8024F764(func_803226E8(sGsWorldData.map_4));
     }
     func_80320B84();
     AnimTextureListCache_init();
@@ -270,7 +270,7 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     func_80350174();
     gcparade_init();
     func_80351998();
-    func_802BC2CC(D_803835D0.unk8);
+    func_802BC2CC(sGsWorldData.unk8);
     func_802D63D4();
     func_80255A04();
     func_802D6948();
@@ -284,26 +284,26 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
 
 void gsworld_reload(void) {
     gsworld_free();
-    gsworld_set(D_803835D0.map_4, D_803835D0.unk8, 1);
+    gsworld_set(sGsWorldData.map_4, sGsWorldData.unk8, 1);
 }
 
 void gsworld_stub2(void) {
-    gsworld_stub3(D_803835D0.map_4);
+    gsworld_stub3(sGsWorldData.map_4);
 }
 
 void gsworld_setUnk0(s32 arg0) {
     func_80254008();
-    func_802BC21C(D_803835D0.unk0, arg0);
-    func_8028F7F4(D_803835D0.unk0, arg0);
-    func_8030D8A8(D_803835D0.unk0, arg0);
-    func_803045CC(D_803835D0.unk0, arg0);
-    func_80323140(D_803835D0.unk0, arg0);
-    func_80351A1C(D_803835D0.unk0, arg0);
-    func_803225B0(D_803835D0.unk0, arg0);
-    func_80323098(D_803835D0.unk0, arg0);
-    func_802F0E80((void *)(intptr_t)D_803835D0.unk0, arg0);
-    commonParticle_setActive(D_803835D0.unk0, arg0);
-    D_803835D0.unk0 = arg0;
+    func_802BC21C(sGsWorldData.unk0, arg0);
+    func_8028F7F4(sGsWorldData.unk0, arg0);
+    func_8030D8A8(sGsWorldData.unk0, arg0);
+    func_803045CC(sGsWorldData.unk0, arg0);
+    func_80323140(sGsWorldData.unk0, arg0);
+    func_80351A1C(sGsWorldData.unk0, arg0);
+    func_803225B0(sGsWorldData.unk0, arg0);
+    func_80323098(sGsWorldData.unk0, arg0);
+    func_802F0E80((void *)(intptr_t)sGsWorldData.unk0, arg0);
+    commonParticle_setActive(sGsWorldData.unk0, arg0);
+    sGsWorldData.unk0 = arg0;
 }
 
 s32 gsworld_update(void) {
@@ -373,7 +373,7 @@ s32 gsworld_update(void) {
         func_803306C8(1);
         func_8032AD7C(1);
         func_80322490();
-        if (map_getLevel(D_803835D0.map_4) == LEVEL_D_CUTSCENE) {
+        if (map_getLevel(sGsWorldData.map_4) == LEVEL_D_CUTSCENE) {
             func_802C79C4();
         }
         func_8032AABC();
@@ -391,11 +391,11 @@ s32 gsworld_getEnableUpdate(){
 }
 
 void gsworld_setEnableDraw(s32 arg0){
-    D_803835E0 = arg0;
+    sEnableDraw = arg0;
 }
 
 s32 gsworld_getEnableDraw(){
-    return D_803835E0;
+    return sEnableDraw;
 }
 
 void gsworld_load(enum map_e map_id) {

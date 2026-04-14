@@ -62,7 +62,7 @@ f32 D_80365E04[3][3] = {
     {  55.0f,      191.822906f, -905.96875f}
 };
 
-ActorAnimationInfo D_80365E28[] = {
+ActorAnimationInfo banjoGameboyAnimations[] = {
     {0x000, 0.0f},
     {0x24D, 9e+09f},
     {0x24D, 2.0f},  
@@ -70,7 +70,7 @@ ActorAnimationInfo D_80365E28[] = {
     {0x24F, 0.6f},  
     {0x24D, 2.0f}
 };
-ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, D_80365E28, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
+ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, banjoGameboyAnimations, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365E7C[] = {
     {0x000, 0.0f}, 
@@ -96,15 +96,15 @@ ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update,
 /* .bss */
 s32 mm_hut_smash_count;
 u32 CH_TREASUREHUNT_PUZZLE_CURRENT_STEP;
-struct FF_StorageStruct* D_8037DCB8;
-s32 D_8037DCBC;
+struct FF_StorageStruct* ffStorage;
+s32 mmhut_smashCount;
 u8 gCompletedBottlesBonusGames[7]; // bottle bonus puzzle?
 u8 D_8037DCC7;
 u8 D_8037DCC8;
 u8 D_8037DCC9;
 u8 D_8037DCCA;
 u8 D_8037DCCB;
-u8 D_8037DCCC;
+u8 chBottleBonusPuzzleIndex;
 u8 D_8037DCCD;
 u8 D_8037DCCE[3];
 s32 pad_8037DCD4;
@@ -113,12 +113,12 @@ s32 pad_8037DCD8;
 struct {
     u8 *unk0;
     u8 *unk4;
-} D_8037DCE0;
+} selectInstructions;
 s32 D_8037DCE8;
 s32 D_8037DCEC;
 GcZoombox *chGameSelectTopZoombox;
 GcZoombox *chGameSelectBottomZoombox;
-f32 D_8037DCF8[2][3];
+f32 cameraPositions[2][3];
 f32 D_8037DD10[2][3];
 s32 D_8037DD28;
 s32 D_8037DD2C;
@@ -168,27 +168,27 @@ void *calculateGameSelectCameraPosition(f32 arg0[3], f32 arg1[3], f32 arg2) {
     f32 phi_f12;
     f32 sp40[3];
     s32 i;
-    static bool D_8037DD38;
+    static bool dummy_index;
     static f32 D_8037DD3C;
-    static f32 D_8037DD40;
+    static f32 sin_bounciness_half_pi;
 
     arg2 = (arg2 > 0.75) ? 0.75 : arg2;
     sp40[0] = arg1[0] - arg0[0];
     sp40[1] = arg1[1] - arg0[1];
     sp40[2] = arg1[2] - arg0[2];
-    D_8037DD38 = D_8037DD38^1;
+    dummy_index = dummy_index^1;
     phi_f12 = gu_sqrtf(sp40[0]*sp40[0] + sp40[1]*sp40[1] + sp40[2]*sp40[2]);
     if (phi_f12 < 10.0f) {
         phi_f12 = 500.0f;
     }
     D_8037DD3C = 1.0 + (9.0f / gu_sqrtf(phi_f12));
-    D_8037DD40 = sinf(D_8037DD3C*1.5707963267948966);
+    sin_bounciness_half_pi = sinf(D_8037DD3C*1.5707963267948966);
     for(i = 0; i < 3; i++){
-        D_8037DD10[D_8037DD38][i] = arg0[i] + ((arg1[i] - arg0[i])*sinf((((arg2 / 0.75) * 3.1415926535897931) / 2) * D_8037DD3C)) / D_8037DD40;
-        D_8037DCF8[D_8037DD38][i] += (D_8037DD10[D_8037DD38][i] - D_8037DCF8[D_8037DD38][i]) / 5.0;
+        D_8037DD10[dummy_index][i] = arg0[i] + ((arg1[i] - arg0[i])*sinf((((arg2 / 0.75) * 3.1415926535897931) / 2) * D_8037DD3C)) / sin_bounciness_half_pi;
+        cameraPositions[dummy_index][i] += (D_8037DD10[dummy_index][i] - cameraPositions[dummy_index][i]) / 5.0;
 
     }
-    return &D_8037DCF8[D_8037DD38];
+    return &cameraPositions[dummy_index];
 }
 
 void setGameInformationZoombox(s32 gamenum){
@@ -420,7 +420,7 @@ void gameSelect_update(Actor *this){
                         }
                         subaddie_set_state(this, 2);
                         func_8031877C(chGameSelectTopZoombox);
-                        gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
+                        gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
                         D_8037DD34 = 0.0f;
                     }
                     break;
@@ -559,7 +559,7 @@ void gameSelect_update(Actor *this){
                         D_8037DD34 += sp50;
                         if(20.0 < D_8037DD34){
                             func_8031877C(chGameSelectTopZoombox);
-                            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
+                            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
                             D_8037DD34 = 0.0f;
                         }
                     }
@@ -589,8 +589,8 @@ void gameSelect_update(Actor *this){
 
 void gameSelect_initAndUpdate(Actor * this){
     int i = code94620_func_8031B5B0();
-    D_8037DCE0.unk0 = D_80365DF4[i];
-    D_8037DCE0.unk4 = D_80365DF8[i];
+    selectInstructions.unk0 = D_80365DF4[i];
+    selectInstructions.unk4 = D_80365DF8[i];
 
     if(!this->initialized){
         gameFile_8033CE40();
@@ -602,7 +602,7 @@ void gameSelect_initAndUpdate(Actor * this){
 
         if(chGameSelectTopZoombox == NULL){
             chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, topZoomboxCallback);
-            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&D_8037DCE0);
+            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
             gczoombox_open(chGameSelectTopZoombox);
             gczoombox_maximize(chGameSelectTopZoombox);
         }//L802C5860
@@ -613,13 +613,13 @@ void gameSelect_initAndUpdate(Actor * this){
         clearScoreStates();
         D_8037DCE8 = 0;
         D_80365E00 = 0;
-        D_8037DCF8[1][0] = D_80365DD0[0][0];
-        D_8037DCF8[1][1] = D_80365DD0[0][1];
-        D_8037DCF8[1][2] = D_80365DD0[0][2];
+        cameraPositions[1][0] = D_80365DD0[0][0];
+        cameraPositions[1][1] = D_80365DD0[0][1];
+        cameraPositions[1][2] = D_80365DD0[0][2];
 
-        D_8037DCF8[0][0] = D_80365E04[0][0];
-        D_8037DCF8[0][1] = D_80365E04[0][1];
-        D_8037DCF8[0][2] = D_80365E04[0][2];
+        cameraPositions[0][0] = D_80365E04[0][0];
+        cameraPositions[0][1] = D_80365E04[0][1];
+        cameraPositions[0][2] = D_80365E04[0][2];
         D_8037DD30 = 0.75f;
         D_8037DD34 = func_8038AAB0() ? 20.0 : 0.0;
         actor_collisionOff(this);

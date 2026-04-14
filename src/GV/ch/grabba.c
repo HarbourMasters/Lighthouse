@@ -15,7 +15,7 @@ typedef struct {
 void GV_func_8038BEA0(Actor *this);
 
 /* .data */
-ActorAnimationInfo D_80391120[] ={
+ActorAnimationInfo chGrabbaAnimations[] ={
     {0x00, 0.0f},
     {ASSET_C5_ANIM_GRABBA_APPEAR,   8000000.0f},
     {ASSET_C5_ANIM_GRABBA_APPEAR,   1.6f},
@@ -26,7 +26,7 @@ ActorAnimationInfo D_80391120[] ={
 };
 
 ActorInfo D_80391158 = { MARKER_A6_GRABBA, ACTOR_118_GRABBA, ASSET_371_MODEL_GRABBA, 
-    0x1, D_80391120, 
+    0x1, chGrabbaAnimations, 
     GV_func_8038BEA0, actor_update_func_80326224, actor_draw, 
     0, 0, 0.0f, 0
 };

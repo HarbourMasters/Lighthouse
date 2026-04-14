@@ -7,7 +7,7 @@ Actor *chWozzaJiggy_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chWozzaJiggy_update(Actor *this);
 
 /* .data */
-ActorAnimationInfo D_803925C0[] = {
+ActorAnimationInfo chWozzaJiggyAnimations[] = {
     {0x000, 0.0f},
     {0x1AC, 3.8f},
     {0x1AC, 3.8f},
@@ -23,8 +23,8 @@ ActorAnimationInfo D_803925C0[] = {
     {0x1AE, 0.55f}
 };
 
-ActorInfo D_80392628 = { MARKER_20C_WOZZAS_JIGGY, ACTOR_1F4_WOZZAS_JIGGY, ASSET_495_MODEL_WOZZAS_JIGGY,
-    0x1, D_803925C0,
+ActorInfo gWozzaJiggy = { MARKER_20C_WOZZAS_JIGGY, ACTOR_1F4_WOZZAS_JIGGY, ASSET_495_MODEL_WOZZAS_JIGGY,
+    0x1, chWozzaJiggyAnimations,
     chWozzaJiggy_update, actor_update_func_80326224, chWozzaJiggy_draw,
     0, 0, 0.0f, 0
 };

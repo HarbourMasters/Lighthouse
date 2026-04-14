@@ -43,7 +43,7 @@ typedef struct{
 }Struct_6DA30_0_s;
 
 /* .data */
-extern Struct_6DA30_0_s  D_80369000[] = {
+extern Struct_6DA30_0_s  boldFontKernings[] = {
     {'A', 'V', -3, 0},
     {'W', 'A', -3, 0},
     {'V', 'A', -3, 0},
@@ -79,9 +79,9 @@ struct {
     u8 unk1;
     u8 unk2;
     u8 unk3;
-} D_80369078 = {0xFF, 0xFF, 0xFF, 0XFF};
+} normalTextColor = {0xFF, 0xFF, 0xFF, 0XFF};
 
-MapFontTextureMap D_8036907C[] ={
+MapFontTextureMap mapToBoldFontTextureMap[] ={
     {MAP_1_SM_SPIRAL_MOUNTAIN,          SPRITE_BOLD_FONT_BLUE_SPHERE_TEXTURE},
     {MAP_2_MM_MUMBOS_MOUNTAIN,          0x6EF},
     {0x3, 0x6EE},
@@ -181,7 +181,7 @@ MapFontTextureMap D_8036907C[] ={
     0
 };
 
-char D_80369200[] = {
+char boldFontLetters[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     ':',
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -232,9 +232,9 @@ void func_802F7A2C(s32 arg0);
 //returns map texture assetID for current map;
 enum asset_e print_getCurrentMapBoldFontTexture(void){
     s32 i;
-    for(i = 0; D_8036907C[i].mapID != 0 ; i++){
-        if(gsworld_getMap() == D_8036907C[i].mapID){
-            return D_8036907C[i].assetId;
+    for(i = 0; mapToBoldFontTextureMap[i].mapID != 0 ; i++){
+        if(gsworld_getMap() == mapToBoldFontTextureMap[i].mapID){
+            return mapToBoldFontTextureMap[i].assetId;
         }
     }
     return ASSET_708_SPRITE_EGG_PROJECTILE;
@@ -452,7 +452,7 @@ void print_init(void){
     s32 length;
     int found;
 
-    length = strlen(D_80369200);
+    length = strlen(boldFontLetters);
     D_80380AE8 = \
     D_80380AEC = \
     D_80380AF0 = \
@@ -478,7 +478,7 @@ void print_init(void){
     for(i = 0; i < 0x80; i++){//L802F52EC
         found = 0;
         for(j = 0; j < length && !found; j++){//L802F5304
-            if(D_80369200[j] == i){
+            if(boldFontLetters[j] == i){
                 D_80380F20[i] = j;
                 found = 1;
             }//L802F531C
@@ -547,7 +547,7 @@ void *print_getCurrentFontPalette(u8 arg0){
 }
 
 void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    static f32 D_80380FA0;
+    static f32 left_margin;
     
     // u8 letter = arg0;
     BKSpriteTextureBlock *sp214;
@@ -570,7 +570,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     t1 = 0;
 
     if(!D_80380B04 && !letter){
-        D_80380FA0 = 0.0f;
+        left_margin = 0.0f;
     }//L802F563C
 
     switch(D_80380AE8){
@@ -582,9 +582,9 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             break;
         case 1: //L802F56A0
             if((u8)letter < 0x80 && D_80380F20[(u8)letter] >= 0){ // [port] char is signed on MSVC; MIPS char is unsigned
-                for(i = 0; D_80369000[i].unk0 != 0; i++){
-                    if(letter == D_80369000[i].unk1 && D_80380AB0 == D_80369000[i].unk0){
-                        t1 = D_80369000[i].unk3;
+                for(i = 0; boldFontKernings[i].unk0 != 0; i++){
+                    if(letter == boldFontKernings[i].unk1 && D_80380AB0 == boldFontKernings[i].unk0){
+                        t1 = boldFontKernings[i].unk3;
                         break;
                     }
                 }//L802F5710
@@ -725,13 +725,13 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         }
         sp1F8 = (D_80380AF0 != 0) ? D_80369068[D_80380AE8] : sp214->x;
 
-        // temp_f2 = D_80380FA0;
+        // temp_f2 = left_margin;
         // phi_f2 = temp_f2;
-        if (D_80380FA0 == 0.0f) {
-            D_80380FA0 = -sp1F8 * 0.5;
+        if (left_margin == 0.0f) {
+            left_margin = -sp1F8 * 0.5;
         }
         
-        sp200 += (D_80380FA0 + (sp1F8 - sp214->x) * 0.5);
+        sp200 += (left_margin + (sp1F8 - sp214->x) * 0.5);
         f28 -= sp214->h*0.5;
         sp210 = (uintptr_t)(sp214 + 1);
         while(sp210 % 8){
@@ -822,9 +822,9 @@ f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
     if (D_80380AE8 == 1) {
         if (letter < 0x80) {
             if (D_80380F20[letter] >= 0) {
-                for(i = 0; D_80369000[i].unk0 != 0; i++) {
-                    if ((D_80369000[i].unk1 == letter) && (D_80369000[i].unk0 == D_80380AB0)) {
-                        sp34 = D_80369000[i].unk2;
+                for(i = 0; boldFontKernings[i].unk0 != 0; i++) {
+                    if ((boldFontKernings[i].unk1 == letter) && (boldFontKernings[i].unk0 == D_80380AB0)) {
+                        sp34 = boldFontKernings[i].unk2;
                         break;
                     }
                 }
@@ -861,7 +861,7 @@ f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
 }
 
 void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    static f32 D_80380FA8[0x20];
+    static f32 letter_x_coords[0x20];
 
     s32 j;
     f32 _x;
@@ -898,10 +898,10 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             }
             if ((D_80380AE8 == 1) && ((f64) print_sCurrentPtr->unk10 < 0.0)) {
                 for(j = 0; print_sCurrentPtr->string[j]; j++){
-                    D_80380FA8[j] = print_calculateLetterXPos(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10);
+                    letter_x_coords[j] = print_calculateLetterXPos(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10);
                 }
                 while(j >= 0){
-                    _x = D_80380FA8[j];
+                    _x = letter_x_coords[j];
                     _printbuffer_draw_letter(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10, gfx, mtx, vtx);
                     j--;
                 }
@@ -938,10 +938,10 @@ void _printbuffer_push_new(s32 x, s32 y, u8 * string) {
     print_sCurrentPtr->fmtString[0] = (u8)0;
     print_sCurrentPtr->string = string;
     print_sCurrentPtr->unk10 = 1.0f;
-    print_sCurrentPtr->rgba[0] = (u8) D_80369078.unk0;
-    print_sCurrentPtr->rgba[1] = (u8) D_80369078.unk1;
-    print_sCurrentPtr->rgba[2] = (u8) D_80369078.unk2;
-    print_sCurrentPtr->rgba[3] = (u8) D_80369078.unk3;
+    print_sCurrentPtr->rgba[0] = (u8) normalTextColor.unk0;
+    print_sCurrentPtr->rgba[1] = (u8) normalTextColor.unk1;
+    print_sCurrentPtr->rgba[2] = (u8) normalTextColor.unk2;
+    print_sCurrentPtr->rgba[3] = (u8) normalTextColor.unk3;
 }
 
 void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
@@ -1014,11 +1014,11 @@ void func_802F7A2C(s32 arg0) {
 }
 
 void text_setNormalTextColor(s32 arg0, s32 arg1, s32 arg2){
-    D_80369078.unk0 = arg0;
-    D_80369078.unk1 = arg1;
-    D_80369078.unk2 = arg2;
+    normalTextColor.unk0 = arg0;
+    normalTextColor.unk1 = arg1;
+    normalTextColor.unk2 = arg2;
 }
 
 void text_setNormalTextAlpha(s32 arg0){
-    D_80369078.unk3 = arg0;
+    normalTextColor.unk3 = arg0;
 }

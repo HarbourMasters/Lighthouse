@@ -20,7 +20,7 @@ void chCroctus_updat(Actor *this);
 /* .data */
 s16 D_803907B0[4] = {0x15, 0x16, 0x17, 0x18};
 ActorMarker *bgs_D_803907B8[5] = {NULL};
-ActorAnimationInfo D_803907CC[] = {
+ActorAnimationInfo chCroctusAnimations[] = {
     {0x000, 0.0f},
     {0x14B, 3.3e+7f},
     {0x14B, 1.4f},
@@ -29,8 +29,8 @@ ActorAnimationInfo D_803907CC[] = {
     {0x14B, 2.0f},
     {0x14B, 2.0f}
 };
-ActorInfo D_80390804 ={MARKER_FC_CROCTUS, ACTOR_1FA_CROCTUS, ASSET_425_MODEL_CROCTUS,
-    1, D_803907CC,
+ActorInfo gChCroctus ={MARKER_FC_CROCTUS, ACTOR_1FA_CROCTUS, ASSET_425_MODEL_CROCTUS,
+    1, chCroctusAnimations,
     chCroctus_updat, actor_update_func_80326224, chCroctus_draw,
     0, 0, 0.0f, 0
 };

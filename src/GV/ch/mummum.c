@@ -8,7 +8,7 @@ void chMumMum_update(Actor *this);
 extern void func_802DABA0(ParticleEmitter *, f32 position[3], f32 scale, enum asset_e model_id);
 
 /* .data */ 
-ActorAnimationInfo D_80372E20[] = {
+ActorAnimationInfo chMumMumAnimations[] = {
     {0x000, 0},
     {ASSET_1E9_ANIM_MUM_MUM_WALK, 4.0f},
     {ASSET_1E9_ANIM_MUM_MUM_WALK, 1.4f},
@@ -22,9 +22,9 @@ ActorAnimationInfo D_80372E20[] = {
     {ASSET_1EB_ANIM_MUM_MUM_POP_FROM_BALL, 0.3f}
 };
 
-ActorInfo D_80372E78 = { 
+ActorInfo chMumMum = { 
     MARKER_219_MUMMUM, ACTOR_34F_MUMMUM, ASSET_4C7_MODEL_MUMMUM, 
-    0x1, D_80372E20, 
+    0x1, chMumMumAnimations, 
     chMumMum_update, actor_update_func_80326224, actor_draw, 
     2500, 0, 1.0f, 0
 };

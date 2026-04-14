@@ -6,7 +6,7 @@
 void chbull_update(Actor *);
 Actor *chbull_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);
 /*.data */
-ActorAnimationInfo D_80366010[] ={
+ActorAnimationInfo chBullAnimations[] ={
     {0x00, 0.0f},
     {ASSET_33_ANIM_BIGBUTT_EAT,     5.5f},
     {ASSET_36_ANIM_BIGBUTT_WALK,    0.7f},
@@ -27,13 +27,13 @@ ActorAnimationInfo D_80366010[] ={
 
 
 ActorInfo D_80366090 = {0x3, ACTOR_4_BIGBUTT, ASSET_353_MODEL_BIGBUTT, 
-    1, D_80366010, 
+    1, chBullAnimations, 
     chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
 
 ActorInfo D_803660B4 = {0x9, ACTOR_E_SMALL_BULL, ASSET_354_MODEL_SMALL_BULL, 
-    1, D_80366010, 
+    1, chBullAnimations, 
     chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
@@ -197,7 +197,7 @@ void chbull_update(Actor *this){
             break;
 
         case 0x6: //L802C66D0
-            anctrl_setDuration(this->anctrl, D_80366010[6].duration - (3 - this->unk10_12)*0.1085);
+            anctrl_setDuration(this->anctrl, chBullAnimations[6].duration - (3 - this->unk10_12)*0.1085);
             this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
             if(!func_803294B4(this, 0x21)){
                 subaddie_set_state(this, 8);
@@ -273,7 +273,7 @@ void chbull_update(Actor *this){
         case 0x5: //L802C6B28
             actor_playAnimationOnce(this);
             tmp_f0 = anctrl_getAnimTimer(this->anctrl);
-            anctrl_setDuration(this->anctrl, D_80366010[5].duration + ((0.65 < tmp_f0)? (tmp_f0 - 0.65)*16.0 : 0.0));
+            anctrl_setDuration(this->anctrl, chBullAnimations[5].duration + ((0.65 < tmp_f0)? (tmp_f0 - 0.65)*16.0 : 0.0));
             if(actor_animationIsAt(this, 0.95f)){
                 actor_loopAnimation(this);
                 func_802C5F94(this);

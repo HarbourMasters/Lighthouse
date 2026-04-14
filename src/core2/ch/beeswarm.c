@@ -45,7 +45,7 @@ ActorInfo D_80367310 = {
     0, 0, 1.0f, 0
 }; 
 
-extern s32 D_8037DCBC;
+extern s32 mmhut_smashCount;
 
 /* .code */
 void func_802CEB60(Actor *this){
@@ -71,7 +71,7 @@ void chBeeSwarm_802CEBA8(Actor *this){
     assetcache_release(local->unk20);
     local->unk20 = NULL;
 
-    D_8037DCBC = 0;
+    mmhut_smashCount = 0;
 }
 
 Actor *chBeeSwarm_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
@@ -293,12 +293,12 @@ void chBeeSwarm_802CF610(Actor *this, ParticleEmitter *p_ctrl, f32 position[3]) 
 }
 
 void chBeeSwarm_802CF7CC(Actor *this) {
-    if (D_8037DCBC == 0) {
+    if (mmhut_smashCount == 0) {
         this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(this->unk44_31, SFX_3FA_HONEYCOMB_TALKING);
         sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
         func_8030DD90(this->unk44_31, 2);
-        D_8037DCBC = 1;
+        mmhut_smashCount = 1;
     }
 }
 
@@ -385,7 +385,7 @@ void chBeeSwarm_update(Actor *this) {
         if ((u8)this->unk44_31 != 0) {
             sfxsource_freeSfxsourceByIndex(this->unk44_31);
             this->unk44_31 = 0;
-            D_8037DCBC = 0;
+            mmhut_smashCount = 0;
         }
     }
     if (gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK) {

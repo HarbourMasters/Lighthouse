@@ -22,7 +22,7 @@ void    chflotsam_update(Actor *this);
 Actor*  chflotsam_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 /* .data */
-ActorInfo D_80372C80 = { 
+ActorInfo chFlotsam = { 
     MARKER_C9_FLOTSAM, ACTOR_13B_FLOTSAM, ASSET_401_MODEL_FLOTSAM, 
     0, NULL, 
     chflotsam_update, NULL, chflotsam_draw, 

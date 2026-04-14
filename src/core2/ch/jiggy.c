@@ -22,15 +22,15 @@ enum jiggy_e chjiggy_getJiggyId(Actor *this);
 
 
 /* .data */
-ActorAnimationInfo D_80366290[] = {
+ActorAnimationInfo JIGGY_ANIMATIONS[] = {
     {0, 0.0f},
     {0, 0.0f},
     {0, 0.0f}
 };
 
-ActorInfo D_803662A8 = {
+ActorInfo chJiggy = {
     MARKER_52_JIGGY, ACTOR_46_JIGGY, ASSET_35F_MODEL_JIGGY, 
-    1, D_80366290, 
+    1, JIGGY_ANIMATIONS, 
     chjiggy_update, chjiggy_update_2, chjiggy_draw,
     0, 0, 0.9f, 0
 }; 

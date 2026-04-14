@@ -13,7 +13,7 @@ typedef struct {
 }ActorLocal_core2_D7D10;
 
 /* .data */
-ActorAnimationInfo D_80372F80[] = {
+ActorAnimationInfo chGravestoneAnimations[] = {
     {0, 0.0f},
     {ASSET_9A_ANIM_GRAVESTONE_IDLE, 8000000.0f},
     {ASSET_9A_ANIM_GRAVESTONE_IDLE,       1.3f},
@@ -26,14 +26,14 @@ ActorAnimationInfo D_80372F80[] = {
 
 ActorInfo D_80372FC0 = { 
     MARKER_96_GRAVESTONE, ACTOR_C7_GRAVESTONE, ASSET_3C9_MODEL_GRAVESTONE, 
-    0x1, D_80372F80, 
+    0x1, chGravestoneAnimations, 
     chgravestone_update, actor_update_func_80326224, chgravestone_draw, 
     3500, 0, 1.2f, 0
 };
 
 ActorInfo D_80372FE4 = { 
     MARKER_297_GIANT_GRAVESTONE, ACTOR_3C2_GIANT_GRAVESTONE, ASSET_3C9_MODEL_GRAVESTONE, 
-    0x1, D_80372F80, 
+    0x1, chGravestoneAnimations, 
     chgravestone_update, actor_update_func_80326224, chgravestone_draw, 
     14000, 0, 3.2f, 0
 };

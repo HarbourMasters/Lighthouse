@@ -14,7 +14,7 @@ Actor *chClucker_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chClucker_update(Actor *this);
 
 /* .data */
-extern ActorInfo D_80372870 = { 
+extern ActorInfo chClucker = { 
     MARKER_1B2_CLUCKER_A, ACTOR_29F_CLUCKER, ASSET_482_MODEL_CLUCKER, 
     0, NULL, 
     chClucker_update, NULL, chClucker_draw,

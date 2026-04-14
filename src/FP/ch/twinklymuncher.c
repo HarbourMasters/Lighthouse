@@ -20,7 +20,7 @@ extern ActorAnimationInfo D_80392390[] ={
     {ASSET_1AF_ANIM_TWINKLY_MUNCHER_APPEAR, 0.667f}
 };
 
-extern ActorInfo D_803923D0 = { MARKER_205_TWINKLY_MUNCHER, ACTOR_337_TWINKLY_MUNCHER, ASSET_496_MODEL_TWINKLY_MUNCHER, 
+extern ActorInfo gChTwinklyMuncher = { MARKER_205_TWINKLY_MUNCHER, ACTOR_337_TWINKLY_MUNCHER, ASSET_496_MODEL_TWINKLY_MUNCHER, 
     0x1, D_80392390,
     chTwinklyMuncher_update, actor_update_func_80326224, chTwinklyMuncher_draw,
     2500, 0, 1.0f, 0

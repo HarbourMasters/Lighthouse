@@ -24,12 +24,12 @@ extern ActorInfo D_8038BA68;
 extern ActorInfo chMotzhand;
 extern ActorInfo chLoggo;
 extern ActorInfo D_8038BAD0;
-extern ActorInfo D_8038BE48;
-extern ActorInfo D_8038BE6C;
-extern ActorInfo D_8038BE90;
-extern ActorInfo D_8038BEB4;
-extern ActorInfo D_8038BED8;
-extern ActorInfo D_8038BEFC;
+extern ActorInfo chPortraitGrunty;
+extern ActorInfo chPortraitBlackeye;
+extern ActorInfo chPortraitTower;
+extern ActorInfo chPortraitTreeAndMoon;
+extern ActorInfo chPortraitTeeHee;
+extern ActorInfo chPortraitMinion;
 
 extern ActorInfo D_80367E70;
 extern ActorInfo D_80372C3C;
@@ -416,11 +416,11 @@ void MMM_func_803890E0(void){
     spawnableActorList_add(&D_80367E70, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&chLoggo,    actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_8);
     spawnableActorList_add(&D_8038BAD0, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 | ACTOR_FLAG_UNKNOWN_25);
-    spawnableActorList_add(&D_8038BE48, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BE6C, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BE90, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BEB4, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BED8, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BEFC, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitGrunty, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitBlackeye, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitTower, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitTreeAndMoon, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitTeeHee, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitMinion, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
     spawnableActorList_add(&D_80372C3C, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_19);
 }

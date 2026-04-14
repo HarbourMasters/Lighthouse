@@ -8,13 +8,13 @@ extern void func_8028E668(f32[3], f32, f32, f32);
 void chCaveWozza_update(Actor *this);
 
 /* .data */
-extern ActorAnimationInfo D_803926F0[]= {
+extern ActorAnimationInfo chCaveWozzaAnimations[]= {
     {0, 0.0f},
     {ASSET_221_ANIM_WOZZA_IN_CAVE, 5.0f}
 };
 
-extern ActorInfo D_80392700 = { MARKER_20F_WOZZA_IN_CAVE, ACTOR_33F_WOZZA_IN_CAVE, ASSET_494_MODEL_WOZZA,
-    0x1, D_803926F0,
+extern ActorInfo gChWozzaCave = { MARKER_20F_WOZZA_IN_CAVE, ACTOR_33F_WOZZA_IN_CAVE, ASSET_494_MODEL_WOZZA,
+    0x1, chCaveWozzaAnimations,
     chCaveWozza_update, actor_update_func_80326224, actor_draw,
     2500, 0, 1.6f, 0
 };

@@ -15,7 +15,7 @@ void ncFirstPersonCamera_getZoomedInRotation(f32 *);
 
 extern u8  D_8037DCCA;
 extern u8  D_8037DCCB;
-extern u8  D_8037DCCC;
+extern u8  chBottleBonusPuzzleIndex;
 
 /* .data */
 f32 D_80363610[3] = {350.0f, 200.0f, -100.0f};
@@ -90,7 +90,7 @@ static SnackerCtlState _snackerctl_update_bottles_bonus(void){
     if(baflag_isTrue(BA_FLAG_17_FIRST_PERSON_VIEW) && !func_8028F25C()){
         if(__snackerctl_player_within_distance(183.0f, -100.0f, 75.0f)){
             if(chBottlesBonus_getPuzzleIndex() == 6){
-                if(!D_8037DCCC){
+                if(!chBottleBonusPuzzleIndex){
                     func_8028F94C(4, D_80363610);
                     gcdialog_showDialog(SNACKER_BB_DIALOG_1, 0x6, D_80363610, NULL, func_8028A584, NULL);
                 }
@@ -98,7 +98,7 @@ static SnackerCtlState _snackerctl_update_bottles_bonus(void){
             else if(chBottlesBonus_getPuzzleIndex() == 7){
                 func_8028F94C(4, D_80363610);
                 gcdialog_showDialog(ASSET_E35_DIALOG_BOTTLES_BONUS_REMINDER, 0x6, D_80363610, NULL, func_8028A558, NULL);
-                D_8037DCCC = 1;
+                chBottleBonusPuzzleIndex = 1;
             }//L8028A764
             else if(jiggyscore_isCollected(0x10)){
                 ncFirstPersonCamera_getZoomedInRotation(sp30);

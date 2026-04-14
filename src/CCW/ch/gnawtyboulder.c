@@ -10,7 +10,7 @@ typedef struct {
 void chGnawtyBoulder_update(Actor *this);
 
 /* .data */
-ActorInfo D_8038F640 = {
+ActorInfo chGnawtyBoulder = {
     0x1BF, 0x2AC, 0x490,
     0x0, NULL,
     chGnawtyBoulder_update, NULL, actor_draw,
