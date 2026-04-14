@@ -28,16 +28,15 @@ u32 bakey_held(s32);
 f32 time_getDelta(void);
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
 AnimationFile* animBinCache_get(enum asset_e asset_id);
-void animationFile_getBoneTransformList(AnimationFile* anim_file, f32 progress,
-                                        BoneTransformList* bone_transform_list);
+void animationFile_getBoneTransformList(AnimationFile* anim_file, f32 progress, BoneTransformList* bone_transform_list);
 
 // Bone transform accessors
-void func_8033A57C(BoneTransformList* self, s32 bone_id, f32 arg2[4]);  // get rotation
-void func_8033A8F0(BoneTransformList* self, s32 bone_id, f32 arg2[4]);  // set rotation
+void func_8033A57C(BoneTransformList* self, s32 bone_id, f32 arg2[4]); // get rotation
+void func_8033A8F0(BoneTransformList* self, s32 bone_id, f32 arg2[4]); // set rotation
 void boneTransformList_getBoneScale(BoneTransformList* self, s32 bone_id, f32 scale[3]);
 void boneTransformList_setBoneScale(BoneTransformList* self, s32 bone_id, f32 scale[3]);
-void func_8033A6B0(BoneTransformList* self, s32 bone_id, f32 arg2[3]);  // get translation
-void func_8033A968(BoneTransformList* self, s32 bone_id, f32 arg2[3]);  // set translation
+void func_8033A6B0(BoneTransformList* self, s32 bone_id, f32 arg2[3]); // get translation
+void func_8033A968(BoneTransformList* self, s32 bone_id, f32 arg2[3]); // set translation
 
 extern f32 D_8037D390;
 }

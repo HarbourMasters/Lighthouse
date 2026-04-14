@@ -18,9 +18,8 @@ void volatileFlag_set(enum volatile_flags_e index, s32 set);
 // so item_adjustByDiff's existing infinite-item gate handles it.
 void RegisterInfiniteHealth_Init() {
     volatileFlag_set(VOLATILE_FLAG_94_SANDCASTLE_INFINITE_HEALTH, 0);
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_HEALTH, 0), [](IEvent* event) {
-        volatileFlag_set(VOLATILE_FLAG_94_SANDCASTLE_INFINITE_HEALTH, 1);
-    });
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_HEALTH, 0),
+              [](IEvent* event) { volatileFlag_set(VOLATILE_FLAG_94_SANDCASTLE_INFINITE_HEALTH, 1); });
 }
 
 static RegisterShipInitFunc initInfiniteHealthFunc(RegisterInfiniteHealth_Init, { CVAR_INFINITE_HEALTH });

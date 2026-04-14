@@ -242,7 +242,8 @@ void CheckAndCreateModFolder() {
     }
 }
 
-static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r", "bk-gm.o2r", "bk-bwdx.o2r" };
+static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r", "bk-gm.o2r",
+                                                       "bk-bwdx.o2r" };
 
 static bool AnyRomArchiveExists() {
     for (const auto& archive : sRomArchives) {
@@ -863,7 +864,8 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
         initData->Path = fontPath;
         std::shared_ptr<Ship::Font> fontData = std::static_pointer_cast<Ship::Font>(
             Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
-        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
+        font =
+            mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
     }
     // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
     float iconFontSize = size * 2.0f / 3.0f;
