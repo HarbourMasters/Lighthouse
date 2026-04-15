@@ -32,6 +32,7 @@
 
 #include <fast/interpreter.h>
 #include <libultraship/bridge/gfxbridge.h>
+#include <SDL2/SDL.h>
 #include <filesystem>
 #include <fstream>
 #include "FrameInterpolation.h"
@@ -242,7 +243,8 @@ void CheckAndCreateModFolder() {
     }
 }
 
-static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r", "bk-gm.o2r", "bk-bwdx.o2r" };
+static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r", "bk-gm.o2r",
+                                                       "bk-bwdx.o2r" };
 
 static bool AnyRomArchiveExists() {
     for (const auto& archive : sRomArchives) {
@@ -367,7 +369,19 @@ void GameEngine::FinishInit() {
     // Instance->LoadDictionary();
     // Instance->LoadPlayerAnims();
 #if defined(__SWITCH__) || defined(__WIIU__)
-    CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
+    CVarRegisterInteger(CVAR_IMGUI_CONTROLLER_NAV, 1); // always enable controller nav on switch/wii u
+#else
+    // Default controller nav to on when a gamepad is connected at boot. osContInit (which brings up
+    // SDL_INIT_GAMECONTROLLER) runs later in game init, so do it here first — the later init is a
+    // no-op refcount bump.
+    if (!SDL_WasInit(SDL_INIT_GAMECONTROLLER)) {
+        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+    }
+    auto physicalDevices = context->GetControlDeck()->GetConnectedPhysicalDeviceManager();
+    physicalDevices->RefreshConnectedSDLGamepads();
+    if (!physicalDevices->GetConnectedSDLGamepadNames().empty()) {
+        CVarRegisterInteger(CVAR_IMGUI_CONTROLLER_NAV, 1);
+    }
 #endif
 }
 
@@ -863,7 +877,8 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
         initData->Path = fontPath;
         std::shared_ptr<Ship::Font> fontData = std::static_pointer_cast<Ship::Font>(
             Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
-        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
+        font =
+            mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
     }
     // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
     float iconFontSize = size * 2.0f / 3.0f;
@@ -900,11 +915,6 @@ void GameEngine::Create(int argc, char* argv[]) {
     GfxSetNativeDimensions(292, 216);
     instance->RunExtract(argc, argv);
     instance->FinishInit();
-    LighthouseGui::SetupGuiElements();
-    //#if defined(__SWITCH__) || defined(__WIIU__)
-    //    CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
-    //    osSetTime(0);
-    //#endif
     PortEnhancements_Init();
     SaveManager_Init();
     ShipInit::InitAll();
