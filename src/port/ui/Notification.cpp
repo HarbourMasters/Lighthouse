@@ -1,4 +1,5 @@
 #include "Notification.h"
+#include "port/ui/cvar_prefixes.h"
 #include <libultraship/libultraship.h>
 
 namespace Notification {
@@ -14,7 +15,7 @@ void Window::Draw() {
     const float margin = 30.0f;
     const float padding = 10.0f;
 
-    int position = CVarGetInteger("gSettings.Notifications.Position", 3);
+    int position = CVarGetInteger(CVAR_SETTING("Notifications.Position"), 3);
 
     // Top Left
     ImVec2 basePosition;
@@ -35,11 +36,11 @@ void Window::Draw() {
             return;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, CVarGetFloat("gSettings.Notifications.BgOpacity", 0.5f)));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, CVarGetFloat(CVAR_SETTING("Notifications.BgOpacity"), 0.5f)));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f * CVarGetFloat("gSettings.Notifications.Size", 1.8f), 6.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f * CVarGetFloat("gSettings.Notifications.Size", 1.8f), 8.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 6.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 8.0f));
 
     for (size_t index = 0; index < notifications.size(); ++index) {
         auto& notification = notifications[index];
@@ -58,7 +59,7 @@ void Window::Draw() {
                          ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove |
                          ImGuiWindowFlags_NoScrollbar);
 
-        ImGui::SetWindowFontScale(CVarGetFloat("gSettings.Notifications.Size", 1.8f));
+        ImGui::SetWindowFontScale(CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f));
 
         ImVec2 notificationPos;
         float heightOffset = (ImGui::GetWindowSize().y + padding) * index;
@@ -85,7 +86,7 @@ void Window::Draw() {
         if (notification.itemIcon != nullptr) {
             ImGui::Image(
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(notification.itemIcon),
-                ImVec2(22 * CVarGetFloat("gSettings.Notifications.Size", 1.8f), 22 * CVarGetFloat("gSettings.Notifications.Size", 1.8f)));
+                ImVec2(22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f)));
             ImGui::SameLine();
         }
         if (!notification.prefix.empty()) {
@@ -124,7 +125,7 @@ void Window::UpdateElement() {
 void Emit(Options notification) {
     notification.id = nextId++;
     if (notification.remainingTime == 0.0f) {
-        notification.remainingTime = CVarGetFloat("gSettings.Notifications.Duration", 10.0f);
+        notification.remainingTime = CVarGetFloat(CVAR_SETTING("Notifications.Duration"), 10.0f);
     }
     notifications.push_back(notification);
     if (!notification.mute) {
