@@ -370,18 +370,6 @@ void GameEngine::FinishInit() {
     // Instance->LoadPlayerAnims();
 #if defined(__SWITCH__) || defined(__WIIU__)
     CVarRegisterInteger(CVAR_IMGUI_CONTROLLER_NAV, 1); // always enable controller nav on switch/wii u
-#else
-    // Default controller nav to on when a gamepad is connected at boot. osContInit (which brings up
-    // SDL_INIT_GAMECONTROLLER) runs later in game init, so do it here first — the later init is a
-    // no-op refcount bump.
-    if (!SDL_WasInit(SDL_INIT_GAMECONTROLLER)) {
-        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
-    }
-    auto physicalDevices = context->GetControlDeck()->GetConnectedPhysicalDeviceManager();
-    physicalDevices->RefreshConnectedSDLGamepads();
-    if (!physicalDevices->GetConnectedSDLGamepadNames().empty()) {
-        CVarRegisterInteger(CVAR_IMGUI_CONTROLLER_NAV, 1);
-    }
 #endif
 }
 
