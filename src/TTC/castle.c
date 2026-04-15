@@ -442,14 +442,14 @@ static void __maCastle_checkFloorTileForRegularCheatCode(LetterFloorTile *letter
                                 sMapState.unkC = 0.0f;
                                 mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
                                 fileProgressFlag_set(FILEPROG_FA_UNKNOWN, true);
-                                func_8030E2C4(sMapState.doorOpeningSfxSourceIdx);
+                                sfxSource_func_8030E2C4(sMapState.doorOpeningSfxSourceIdx);
                                 __maCastle_setupCheatCodeTimer(2);
                             }
                             // blue eggs & red/gold feathers check
                             else if (var_v0 & 0xE)
                             {
                                 // trigger dialog
-                                func_8035644C((cheatcode_ptr - sCheatCodes) - 1 + FILEPROG_BE_CHEATO_BLUEEGGS);
+                                progressDialog_showDialogMaskZero((cheatcode_ptr - sCheatCodes) - 1 + FILEPROG_BE_CHEATO_BLUEEGGS);
                                 switch ((cheatcode_ptr - sCheatCodes) - 1)
                                 {
                                     default:
@@ -523,7 +523,7 @@ void maCastle_init(void)
     void *sp2C;
     void *sp28;
 
-    if( map_get() == MAP_7_TTC_TREASURE_TROVE_COVE
+    if( gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE
         && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)
     ){
         sp2C = func_8034C5AC(0x12C);
@@ -533,7 +533,7 @@ void maCastle_init(void)
         }
     }
     sMapState.model1 = 0;
-    if (map_get() != MAP_A_TTC_SANDCASTLE)
+    if (gsworld_getMap() != MAP_A_TTC_SANDCASTLE)
     {
         __maCastle_setsecretCheatCodeRelatedValue();
     }
@@ -597,7 +597,7 @@ void maCastle_update(void)
     time_delta = time_getDelta();
     if (__maCastle_getNumberOfBannedCheatCodesEntered() == 3)
     {
-        func_802C5A3C(-1);
+        gameSelect_setGameNumber(-1);
     }
     if (sMapState.model1 != 0)
     {
@@ -647,8 +647,8 @@ void maCastle_update(void)
             if (sMapState.unkC > 4.0f)
             {
                 sMapState.banjoKazooieCodeEnteredState = 3;
-                func_8030E2C4(sMapState.dullCannonShotSfxSourceId);
-                sfxSource_func_8030E2C4(sMapState.doorOpeningSfxSourceIdx);
+                sfxSource_func_8030E2C4(sMapState.dullCannonShotSfxSourceId);
+                sfxSource_triggerCallbackByIndex(sMapState.doorOpeningSfxSourceIdx);
             }
         }
     }
@@ -1038,10 +1038,10 @@ static void __maCastle_eraseGameplayDialogCallback(ActorMarker *caller, enum ass
     {
         __maCastle_setNumberOfBannedCheatcodesEntered(3);
         __maCastle_checkSecretCheatCodeIndex(sThirdForbiddenSecretCheatCodeIndex);
-        gcdialog_showText(ASSET_FBF_DIALOG_ERASED_SAVE, 0xC, NULL, NULL, NULL, NULL);
-        gameFile_clear(func_802C5A30());
-        gameFile_8033CFD4(func_802C5A30());
-        func_802C5A3C(-1);
+        gcdialog_showDialog(ASSET_FBF_DIALOG_ERASED_SAVE, 0xC, NULL, NULL, NULL, NULL);
+        gameFile_clear(gameSelect_getGameNumber());
+        gameFile_8033CFD4(gameSelect_getGameNumber());
+        gameSelect_setGameNumber(-1);
         return;
     }
     __maCastle_resetSecretCheatCodeProgress();
@@ -1073,11 +1073,11 @@ static void __maCastle_checkIfBannedCheatCodeEntered(s32 secret_cheat_code_index
                         __maCastle_setNumberOfBannedCheatcodesEntered(2);
                         __maCastle_checkSecretCheatCodeIndex(secret_cheat_code_index);
                         __maCastle_resetSecretCheatCodeProgress();
-                        gcdialog_showText(ASSET_FBE_DIALOG_CHEATING_ERASE_SAVE_WARNING, 0xC, NULL, NULL, NULL, NULL);
+                        gcdialog_showDialog(ASSET_FBE_DIALOG_CHEATING_ERASE_SAVE_WARNING, 0xC, NULL, NULL, NULL, NULL);
                         return;
                     case 2:
                         sThirdForbiddenSecretCheatCodeIndex = secret_cheat_code_index;
-                        gcdialog_showText(ASSET_E38_DIALOG_CHEATING_ERASE_SAVE_CONFIRMATION, 0xC, NULL, NULL, __maCastle_eraseGameplayDialogCallback, NULL);
+                        gcdialog_showDialog(ASSET_E38_DIALOG_CHEATING_ERASE_SAVE_CONFIRMATION, 0xC, NULL, NULL, __maCastle_eraseGameplayDialogCallback, NULL);
                         return;
                 }
                 return;

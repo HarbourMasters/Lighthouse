@@ -42,19 +42,19 @@ ActorInfo chMudHut = {MARKER_D5_BGS_MUD_HUT, ACTOR_C_MUD_HUT, ASSET_7D8_MODEL_MM
 };
 
 /* .code section */
-void func_8038EA30(void){
+void chMudHut_makeWadingBootsRunOutInstantly(void){
     if((getGameMode() != GAME_MODE_7_ATTRACT_DEMO) && (1.5 < player_stateTimer_get(STATE_TIMER_2_LONGLEG)) ){
         player_stateTimer_set(STATE_TIMER_2_LONGLEG, 1.5);
     }
 }
 
-void func_8038EA90(void){
+void chMudHut_checkBGSChecksums(void){
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 sp1C;
     osPiReadIo(0xD10, &sp1C);
     if(sp1C = (u16)(sp1C-0x400)){
-        func_8038EA30();
+        chMudHut_makeWadingBootsRunOutInstantly();
     }
 #endif
 }
@@ -85,7 +85,7 @@ void chMudHut_update(Actor *this){
     f32 plyrPos[3];
     s32 tmp;
 
-    if(func_80334904() == 2){
+    if(gsworld_getUnk0() == 2){
         if(!this->initialized){
             this->marker->collidable = false;
             this->initialized = true;

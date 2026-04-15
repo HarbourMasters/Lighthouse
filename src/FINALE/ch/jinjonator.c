@@ -133,7 +133,7 @@ void chjinjonator_8039040C(Actor *this) {
     sfxsource_playSfxAtVolume(this->unk44_31, local->sfx_volume);
 
     if (func_8030E3FC(this->unk44_31) == 0)
-        func_8030E2C4(this->unk44_31);
+        sfxSource_func_8030E2C4(this->unk44_31);
 }
 
 void chjinjonator_update(Actor *this){
@@ -153,7 +153,7 @@ void chjinjonator_update(Actor *this){
         this->unk44_31 = func_8030ED2C(SFX_17A_SHIPHORN, 3);
         sfxsource_setSampleRate(this->unk44_31, 25000);
         sfxsource_playSfxAtVolume(this->unk44_31, local->sfx_volume);
-        func_8030E2C4(this->unk44_31);
+        sfxSource_func_8030E2C4(this->unk44_31);
         local->attack_timer = 12;
     }
     
@@ -189,7 +189,7 @@ void chjinjonator_update(Actor *this){
             if (actor_animationIsAt(this, 0.999f)) {
                 subaddie_set_state_with_direction(this, JINJONATOR_STATE_3_MOVE_UPWARD, 0.001f, 1);
                 actor_playAnimationOnce(this);
-                sfxSource_func_8030E2C4(this->unk44_31);
+                sfxSource_triggerCallbackByIndex(this->unk44_31);
                 sfxsource_freeSfxsourceByIndex(this->unk44_31);
                 this->unk44_31 = 0;
                 local->velocity_move_up = (320.0f - this->position_y) * 0.5;
@@ -233,7 +233,7 @@ void chjinjonator_update(Actor *this){
                     this->unk44_31 = func_8030ED2C(0x416, 3);
                     sfxsource_setSampleRate(this->unk44_31, 26000);
                     sfxsource_playSfxAtVolume(this->unk44_31, local->sfx_volume);
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }
 
                 local->boss_claw_sfx_volume = 0.5f;
@@ -255,7 +255,7 @@ void chjinjonator_update(Actor *this){
                     sfx_playFadeShorthandDefault(SFX_135_CARTOONY_SPRING, 1.0f, 32000, this->position, 10000, 16000);
                     func_80324D54(0.1f, SFX_C1_BUZZBOMB_ATTACK, 0.85f, 32000, this->position, 5000.0f, 12000.0f);
                     if((u8)this->unk44_31){
-                        sfxSource_func_8030E2C4(this->unk44_31);
+                        sfxSource_triggerCallbackByIndex(this->unk44_31);
                         sfxsource_freeSfxsourceByIndex(this->unk44_31);
                         this->unk44_31 = 0;
                     }
@@ -332,7 +332,7 @@ void chjinjonator_update(Actor *this){
                 actor_playAnimationOnce(this);
                 func_802BB41C(0);
                 text_id = 0x115e + randi2(0,5);
-                gcdialog_showText(text_id, 0x20, 0, 0, 0, 0);
+                gcdialog_showDialog(text_id, 0x20, 0, 0, 0, 0);
             }
             break;
 

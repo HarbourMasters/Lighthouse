@@ -28,18 +28,18 @@ typedef struct particle_struct_0_s{
     ActorMarker *unk38;
     s32 unk3C;
     FuncUnk40 unk40;
-    u8 unk44;
-    u8 unk45;
-    u8 unk46;
+    u8 isInUse;
+    u8 projectileIndex;
+    u8 typeMapIndex;
     u8 unk47;
 } ParticleStruct0s;
 
-ActorMarker *func_8033E864(void);
+ActorMarker *commonParticle_getCurrentActorMarker(void);
 FuncUnk40 func_8033E888(void);
-u8 func_8033E8D0(void);
-AnimSprite *func_8033E8F4(void);
-ParticleStruct0s *func_8033E960(void);
-void func_8033E984(void);
+u8 commonParticle_getCurrentProjectileIndex(void);
+AnimSprite *commonParticle_getCurrentAnimSprite(void);
+ParticleStruct0s *commonParticle_getCurrentParticle(void);
+void commonParticle_setCurrentInUseFalse(void);
 void projectile_setSprite(u8, enum asset_e);
 void func_8033FC34(u8, s32);
 void projectile_setColor(u8, s32, s32, s32);

@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 typedef struct {
     s32 closed_ticks_counter;
@@ -85,10 +85,10 @@ static void __chLockup_updateFunc(Actor *this){
     if( !this->has_met_before
         && this->actorTypeSpecificField == 0xA
         && !jiggyscore_isCollected(JIGGY_13_TTC_LOCKUP)
-        && func_80329530(this, 320)
-        && !func_80329530(this, 160)
+        && subaddie_playerIsWithinSphereAndActive(this, 320)
+        && !subaddie_playerIsWithinSphereAndActive(this, 160)
         && !player_movementGroup()
-        && gcdialog_showText(ASSET_A15_DIALOG_LOCKUP_SPAWNED, 0, NULL, NULL, NULL, NULL)
+        && gcdialog_showDialog(ASSET_A15_DIALOG_LOCKUP_SPAWNED, 0, NULL, NULL, NULL, NULL)
     ){
         this->has_met_before = true;
     }
@@ -152,7 +152,7 @@ static void __chLockup_updateFunc(Actor *this){
                 __chLockup_close(this);
                 for(i = 5; i < 0xe; i++){
                     func_8034A174(this->marker->unk44, i, this->unk1C);
-                    func_802EE6CC(this->unk1C, sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
+                    dustEmitter_emit(this->unk1C, sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
                 }
             }
             break;

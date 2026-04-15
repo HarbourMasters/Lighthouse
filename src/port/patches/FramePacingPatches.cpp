@@ -15,7 +15,7 @@ extern "C" {
 #include "enums.h"
 
 int getGameMode(void);
-enum map_e map_get(void);
+enum map_e gsworld_getMap(void);
 
 // Demo Display Pacing
 
@@ -44,7 +44,7 @@ int port_getDemoDisplayViCount(int rawViCount) {
     if (game_mode == GAME_MODE_8_BOTTLES_BONUS) {
         displayViCount = 3;
     } else if (game_mode == GAME_MODE_A_SNS_PICTURE) {
-        switch (map_get()) {
+        switch (gsworld_getMap()) {
             case MAP_7F_FP_WOZZAS_CAVE:
             case MAP_92_GV_SNS_CHAMBER:
                 displayViCount = 3;
@@ -109,7 +109,7 @@ int port_getCutsceneExtraVis(void) {
 
     int extra = 0;
 
-    switch (map_get()) {
+    switch (gsworld_getMap()) {
         case MAP_1E_CS_START_NINTENDO:
             if (shouldLagCutscene(sConcertStartFrames, sConcertDurations,
                                   (int)(sizeof(sConcertStartFrames) / sizeof(sConcertStartFrames[0])))) {

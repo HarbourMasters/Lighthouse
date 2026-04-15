@@ -136,8 +136,8 @@ void chbossjinjo_func_8038C79C(Actor *this) {
 
     for (i = 0; i < 4; i++) {
         if (randf() < 0.3) {
-            func_8033E73C(this->marker, i + 5, func_80329904);
-            func_8033E3F0(8, this->marker->unk14_21);
+            commonParticle_add(this->marker, i + 5, func_80329904);
+            commonParticle_new(8, this->marker->unk14_21);
         }
     }
 }
@@ -226,7 +226,7 @@ void chBossJinjo_update(Actor *this){
                 
                 if (actor_animationIsAt(this, 0.1f)) {
                     this->unk44_31 = func_8030ED2C(0x18, 3);
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                     coMusicPlayer_playMusic(COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7fff);
                     sfx_playFadeShorthandDefault(SFX_C7_SHWOOP, 0.8f, 32750, this->position, 300, 2000);
                 }
@@ -249,7 +249,7 @@ void chBossJinjo_update(Actor *this){
                 
                 if (actor_animationIsAt(this, 0.85f)) {
                     if(func_8030E3FC(this->unk44_31)) {
-                        sfxSource_func_8030E2C4(this->unk44_31);
+                        sfxSource_triggerCallbackByIndex(this->unk44_31);
                     }
 
                     sfxsource_playHighPriority(SFX_19_BANJO_LANDING_08);

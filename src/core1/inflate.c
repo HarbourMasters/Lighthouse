@@ -527,7 +527,7 @@ int bk_inflate(void) //int inflate() - renamed to avoid conflict with zlib
    */
    while (D_8027BF28 >= 8) {
      D_8027BF28 -= 8;
-     D_8027BF18--;
+     inflate_inptr--;
    }
 
   /* return success */

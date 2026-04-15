@@ -24,10 +24,10 @@ typedef struct struct_1A_s {
     u8 unkF;
 } struct1As;
 
-extern void func_802C5994(void);
+extern void gameSelect_saveAndExit(void);
 extern void func_802E412C(s32, s32);
 void volatileFlag_set(enum volatile_flags_e, s32);
-f32 func_8024DE1C(f32, f32, f32 *, f32 *);
+f32 viewport_transformCoordinate(f32, f32, f32 *, f32 *);
 void func_80310D2C(void);
 
 s32 getGameMode(void);
@@ -36,14 +36,14 @@ void func_802DC5B8(void);
 void func_802DC560(NodeProp*, ActorMarker*);
 s32 controller_getStartButton(s32 controller_index);
 bool fileProgressFlag_get(enum file_progress_e);
-enum map_e map_get(void);
+enum map_e gsworld_getMap(void);
 bool func_802FD2D4(void);
 bool func_802FC3C4(void);
 extern void func_8025A2B0(void);
 extern void func_8025A430(s32, s32, s32);
-extern void func_802F5060(enum asset_e);
-extern void func_802F5188(void);
-extern void func_802FACA4(enum item_e);
+extern void print_setBoldFontTexture(enum asset_e);
+extern void print_resetBoldFontTexture(void);
+extern void code_73640_printItemCount(enum item_e);
 
 enum gcpausemenu_state_e {
     PAUSE_STATE_0_MENU_INIT,
@@ -236,7 +236,7 @@ void gcpausemenu_free(void) {
         D_80383010.b_button_sprite = NULL;
     }
     gcpausemenu_zoomboxes_free();
-    func_80311650();
+    gcdialog_decrementYPositionModifier();
 }
 
 void gcpausemenu_zoomboxes_initMainMenu(void) {
@@ -266,7 +266,7 @@ void gcpausemenu_80311A84(void) {
 
     itemPrint_reset();
     for (i = 0; i < 7; i++) {
-        func_802FACA4(D_8036C604[i]);
+        code_73640_printItemCount(D_8036C604[i]);
     }
 
     if (func_802FC3C4()) {
@@ -274,7 +274,7 @@ void gcpausemenu_80311A84(void) {
         func_802FAD64(ITEM_12_JINJOS);
     }
     else {
-        func_802FACA4(ITEM_12_JINJOS);
+        code_73640_printItemCount(ITEM_12_JINJOS);
     }
 
     if (func_802FD2D4()) {
@@ -282,7 +282,7 @@ void gcpausemenu_80311A84(void) {
         func_802FAD64(ITEM_16_LIFE);
     }
     else {
-        func_802FACA4(ITEM_16_LIFE);
+        code_73640_printItemCount(ITEM_16_LIFE);
     }
 }
 
@@ -521,7 +521,7 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             gcpausemenu_zoomboxes_initTotalsMenu();
 
             if (D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                func_802F5060(0x6e7);
+                print_setBoldFontTexture(0x6e7);
             }
 
             if (D_80383010.selection) {
@@ -570,7 +570,7 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
 
         case PAUSE_STATE_B_TOTALS_DISPOSE:
             if (D_80383010.selection && D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                func_802F5188();
+                print_resetBoldFontTexture();
             }
 
             gcpausemenu_zoomboxes_free();
@@ -594,13 +594,13 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             D_80383010.unk3_5 = 1;
 
             if (D_80383010.selection && D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                func_802F5188();
+                print_resetBoldFontTexture();
             }
 
             D_80383010.selection = D_80383010.page;
 
             if (D_80383010.selection && D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                func_802F5060(0x6e7);
+                print_setBoldFontTexture(0x6e7);
             }
 
             if (D_80383010.selection) {
@@ -786,7 +786,7 @@ void gcpausemenu_init(void) {
     sp38 = sns_get_item_state(1, 0);
     D_80383010.sns_items = sp38 + sp34 + sp30 + sp2C + sp28 + sp24 + sns_get_item_state(7, 0);
     D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
-    func_80311604();
+    gcdialog_incrementYPositionModifier();
     gcpausemenu_zoomboxes_initMainMenu();
     D_80383010.joystick_sprite = assetcache_get(0x7EB);
     D_80383010.joystick_frame_count = sprite_getFrameCount(D_80383010.joystick_sprite);
@@ -970,7 +970,7 @@ s32 gcPauseMenu_update(void) {
 
     controller_copyFaceButtons(0, face_button);
     controller_getJoystick(0, joystick);
-    func_8024E60C(0, sp60);
+    controller_copySideButtons(0, sp60);
     func_8024E6E0(0, sp50);
     func_80310D2C();
 
@@ -1000,12 +1000,12 @@ s32 gcPauseMenu_update(void) {
 
         case PAUSE_STATE_2_MENU: //open
             if (D_80383010.unk70_31 && !func_802FC3C4()) {
-                func_802FACA4(ITEM_12_JINJOS);
+                code_73640_printItemCount(ITEM_12_JINJOS);
                 D_80383010.unk70_31 = 0;
             }//L8031350C
 
             if (D_80383010.unk70_30 && !func_802FD2D4()) {
-                func_802FACA4(ITEM_16_LIFE);
+                code_73640_printItemCount(ITEM_16_LIFE);
                 D_80383010.unk70_30 = 0;
             }
 
@@ -1099,7 +1099,7 @@ s32 gcPauseMenu_update(void) {
                 case PAUSE_SELECTION_1_EXIT_TO_WITCH_S_LAIR://L80313908 //return to lair
                     volatileFlag_set(VOLATILE_FLAG_16, 1);
 
-                    if (map_get() == MAP_8E_GL_FURNACE_FUN) {
+                    if (gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) {
                         volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, 0);
                         transitionToMap(MAP_80_GL_FF_ENTRANCE, 2, 1);
                     }
@@ -1116,7 +1116,7 @@ s32 gcPauseMenu_update(void) {
                     break;
 
                 case PAUSE_SELECTION_3_SAVE_AND_EXIT://L8031399C
-                    func_802C5994();
+                    gameSelect_saveAndExit();
                     volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, 0);
 
                     if (!fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE) ||
@@ -1341,8 +1341,8 @@ void __gcpausemenu_drawSprite(Gfx **gdl, Mtx **mptr, Vtx **vptr, BKSprite *sprit
     _frame = sprite_getFramePtr(sprite, frame);
     sp2C = _frame->w;
     sp28 = _frame->h;
-    func_803382E4(5);
-    func_80338338(0xFF, 0xFF, 0xFF);
+    codeAEDA0_setSpriteDrawMode(5);
+    codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     func_803382FC(a);
     func_8033837C(0);
     viewport_getPosition_vec3f(sp50);

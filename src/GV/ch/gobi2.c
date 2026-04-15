@@ -202,9 +202,9 @@ void chGobi2_update(Actor *this){
 
     if(this->state == 2){
         if(!this->has_met_before){
-            if(func_80329530(this, 0xFA) && !func_80329530(this, 0x50)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 0xFA) && !subaddie_playerIsWithinSphereAndActive(this, 0x50)){
                 if(func_8028F2A0()){
-                    if(gcdialog_showText(ASSET_A75_DIALOG_GOBI2_MEET, 0, this->position, NULL, NULL, NULL))
+                    if(gcdialog_showDialog(ASSET_A75_DIALOG_GOBI2_MEET, 0, this->position, NULL, NULL, NULL))
                         this->has_met_before = true;
                 }
             }

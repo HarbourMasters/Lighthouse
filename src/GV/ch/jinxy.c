@@ -35,10 +35,10 @@ Actor *func_8038A180(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         if( this->unk54 == 0.0f
             && this->unk48 != this->unk1C[1]
             && this_marker->unk14_21
-            && func_80329530(this, 3000)
+            && subaddie_playerIsWithinSphereAndActive(this, 3000)
         ){
-            func_8033E73C(this->marker, 6, func_80329904);
-            func_8033E3F0(0xc, this->marker->unk14_21);
+            commonParticle_add(this->marker, 6, func_80329904);
+            commonParticle_new(0xc, this->marker->unk14_21);
         }
     }
     return this;
@@ -80,7 +80,7 @@ void func_8038A31C(Actor *this){
     this->unk1C[1] = this->unk48;
     ;
     
-    switch(func_8038F4C0(this, 3))
+    switch(code7FF0_getMagicCarpetState(this, 3))
     {
     case 1: //L8038A3C0
         func_80343DEC(this);

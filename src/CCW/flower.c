@@ -53,13 +53,13 @@ void func_80387F64(Actor *this, s32 next_state){
         skeletalAnim_setBehavior(this->unk148, local->unk0->unk2);
     }
     if (next_state == 2) {
-        if (map_get() == MAP_43_CCW_SPRING) {
+        if (gsworld_getMap() == MAP_43_CCW_SPRING) {
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         }
         fileProgressFlag_set(local->unk0->unk8, true);
         skeletalAnim_set(this->unk148, local->unk0->unk4, 0.0f, 6.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        if (map_get() == MAP_43_CCW_SPRING) {
+        if (gsworld_getMap() == MAP_43_CCW_SPRING) {
             func_80324E38(0.0f, 3);
         }
         timed_setStaticCameraToNode(0.0f, 0);
@@ -71,7 +71,7 @@ void func_80387F64(Actor *this, s32 next_state){
             timedFunc_set_0(6.1f, (GenFunction_0)func_80387F10);
             timedFunc_set_2(8.0f, (GenFunction_2)func_80387F38, (uintptr_t)this->marker, 3);
         } else {
-            if (map_get() == MAP_43_CCW_SPRING) {
+            if (gsworld_getMap() == MAP_43_CCW_SPRING) {
                 timed_exitStaticCamera(7.0f);
                 func_80324E38(7.0f, 0);
             }
@@ -100,9 +100,9 @@ void func_803882A4(ActorMarker* marker, ActorMarker *other_marker) {
 
 #ifdef PORT_FIX
     // [port] v1.1 fix: don't allow re-planting flower in Spring after it's already been planted
-    if (map_get() == MAP_43_CCW_SPRING && actor->state == 1 && !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)) {
+    if (gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == 1 && !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING)) {
 #else
-    if (map_get() == MAP_43_CCW_SPRING && actor->state == 1) {
+    if (gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == 1) {
 #endif
         func_80387F64(actor, 2);
     }
@@ -162,7 +162,7 @@ void func_80388478(Actor *this) {
             }
         }
 
-        if (!fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING) && (map_get() != MAP_43_CCW_SPRING)) {
+        if (!fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING) && (gsworld_getMap() != MAP_43_CCW_SPRING)) {
             marker_despawn(this->marker);
         }
         else{

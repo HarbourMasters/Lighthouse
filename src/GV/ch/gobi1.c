@@ -148,7 +148,7 @@ void chGobi1_update(Actor *this){
             sfxsource_setSfxId(local->unk0[i], SFX_3F9_UNKNOWN);
             sfxSource_setunk43_7ByIndex(local->unk0[i], 3);
             sfxsource_setSampleRate(local->unk0[i], 32000);
-            func_8030E2C4(local->unk0[i]);
+            sfxSource_func_8030E2C4(local->unk0[i]);
         }
     }
 
@@ -178,10 +178,10 @@ void chGobi1_update(Actor *this){
 
     if(this->state == 1 || this->state == 2){
         if( !this->has_met_before
-            && func_80329530(this, 250)
-            && !func_80329530(this, 80)
+            && subaddie_playerIsWithinSphereAndActive(this, 250)
+            && !subaddie_playerIsWithinSphereAndActive(this, 80)
             && func_8028F2A0()
-            && gcdialog_showText(0xa73, 0, NULL, NULL, NULL, NULL)
+            && gcdialog_showDialog(0xa73, 0, NULL, NULL, NULL, NULL)
         ){
             this->has_met_before = true;
         }

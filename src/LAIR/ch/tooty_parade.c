@@ -3,30 +3,30 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8028F3D8(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
+extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 
-void func_80392B6C(Actor *this);
+void __codeC6C0_updateFunc(Actor *this);
 
 /* .data */
-ActorInfo D_80394D20 = { 0x29C, 0x3C9, 0x0, 0x0, NULL, func_80392B6C, actor_update_func_80326224, func_80325340, 0, 0, 0.0f, 0};
+ActorInfo D_80394D20 = { 0x29C, 0x3C9, 0x0, 0x0, NULL, __codeC6C0_updateFunc, actor_update_func_80326224, func_80325340, 0, 0, 0.0f, 0};
 
 /* .code */
-void func_80392AB0(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void __codeC6C0_func_80392AB0(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     comusic_8025AB44(COMUSIC_A9_TOOTY, 0, 2000);
     func_8025AABC(0xA9);
     gcparade_beginFFParade();
 }
 
-void func_80392AF4(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void __codeC6C0_func_80392AF4(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     ncStaticCamera_setToNode(arg2);
 }
 
-void func_80392B1C(ActorMarker *marker) {
+void __codeC6C0_func_80392B1C(ActorMarker *marker) {
     func_8028E6EC(0);
-    gcdialog_showText(0x1040, 8, NULL, marker, func_80392AB0, func_80392AF4);
+    gcdialog_showDialog(0x1040, 8, NULL, marker, __codeC6C0_func_80392AB0, __codeC6C0_func_80392AF4);
 }
 
-void func_80392B6C(Actor *this) {
+void __codeC6C0_updateFunc(Actor *this) {
     NodeProp* phi_a0;
     s32 sp28;
 
@@ -53,6 +53,6 @@ void func_80392B6C(Actor *this) {
         ncStaticCamera_setToNode(0x10);
         func_8028F918(0);
         func_8028F85C(this->position);
-        func_8028F3D8(this->unk1C, (f32) sp28, &func_80392B1C, this->marker);
+        player_walkToPosition(this->unk1C, (f32) sp28, &__codeC6C0_func_80392B1C, this->marker);
     }
 }

@@ -9,7 +9,7 @@ extern void func_8025A788(enum comusic_e, f32, f32);
 extern void func_8031CC40(enum map_e, s32);
 extern void fxRipple_802F363C(f32);
 extern void func_802F9D38(s32);
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_802EE2E8(Actor *arg0, s32 arg1, s32 cnt, s32 arg3, f32 arg4, f32 arg5, f32 arg6);
 extern void gcquiz_func_80319EA4(void);
 
@@ -143,7 +143,7 @@ void func_802D2FB0(Actor *this, s32 arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5
         spA4[1] = randf2(4.0f, 10.0f);
         spA4[0] = randf2(-8.0f, 8.0f);
         spA4[2] = randf2(-8.0f, 8.0f);
-        func_802EE6CC(sp98, spA4, D_803679A0, 1, arg4, 50.0f, arg5, randi2(arg6, arg7), 0);
+        dustEmitter_emit(sp98, spA4, D_803679A0, 1, arg4, 50.0f, arg5, randi2(arg6, arg7), 0);
     }
 }
 
@@ -425,7 +425,7 @@ void func_802D3FD4(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         func_802D3CE8(this);
-        switch(map_get()){
+        switch(gsworld_getMap()){
             case MAP_1D_MMM_CELLAR: //L802D4058
                 if(sns_get_item_state(SNS_ITEM_EGG_CYAN, 1) && !sns_get_item_state(SNS_ITEM_EGG_CYAN, 0)){
                     return;
@@ -521,7 +521,7 @@ bool func_802D42F8(Actor *this) {
 
 void func_802D4388(Actor *this){
     func_802D3CE8(this);
-    this->unk38_0 = BOOL(map_get() == MAP_7A_GL_CRYPT || item_getCount(ITEM_1C_MUMBO_TOKEN) >= this->actorTypeSpecificField || func_802D42F8(this));
+    this->unk38_0 = BOOL(gsworld_getMap() == MAP_7A_GL_CRYPT || item_getCount(ITEM_1C_MUMBO_TOKEN) >= this->actorTypeSpecificField || func_802D42F8(this));
     mapSpecificFlags_set(0x1F, (func_8028F20C() && func_8028FB48(0x78000000)) || player_movementGroup() == BSGROUP_D_TRANSFORMING);
     switch(this->state){
         case 0x12: //L802D4468
@@ -589,7 +589,7 @@ void func_802D4680(Actor *this){
         case 1:
             if(ml_vec3f_horizontal_distance_zero_likely(this->position, sp1C) < 150.0f && func_8028F20C()){
                 if(player_movementGroup() == BSGROUP_0_NONE ||  player_movementGroup() == BSGROUP_8_TROT){
-                    if(map_get() == MAP_8E_GL_FURNACE_FUN){
+                    if(gsworld_getMap() == MAP_8E_GL_FURNACE_FUN){
                         volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, 0);
                         func_802D4614(MAP_80_GL_FF_ENTRANCE);
                     }
@@ -716,7 +716,7 @@ void func_802D4CAC(Actor *this){
 }
 
 void func_802D4CD4(Actor *this){
-    if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive()){
             this->unk58_0 = false;
             return;
@@ -739,27 +739,27 @@ void func_802D4D3C(enum actor_e arg0, enum actor_e arg1) {
             sp4C[3] = 200;
             sp4C[0] = sp4C[1] = sp4C[2] = 180;\
             ml_vec3f_assign(sp40, 0.0f, 0.0f, 0.0f);
-            func_802EE6CC(sp5C, sp40, sp4C, 0, 6.0f, 200.0f, 200, 100, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 6.0f, 200.0f, 200, 100, 0);
 
             sp4C[3] = 230;
             sp4C[0] = sp4C[1] = sp4C[2] = 150;
             ml_vec3f_assign(sp40, 0.0f, 2.0f, 0.0f);
-            func_802EE6CC(sp5C, sp40, sp4C, 0, 2.0f, 90.0f, 50, 33, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 2.0f, 90.0f, 50, 33, 0);
           
             sp4C[3] = 150;
             sp4C[0] = sp4C[1] = sp4C[2] = 230;
             ml_vec3f_assign(sp40, -3.0f, 1.0f, 1.0f);
-            func_802EE6CC(sp5C, sp40, sp4C, 0, 3.5f, 130.0f, 100, 80, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 3.5f, 130.0f, 100, 80, 0);
 
             sp4C[3] = 200;
             sp4C[0] = sp4C[1] = sp4C[2] = 250;
             ml_vec3f_assign(sp40, -1.0f, 3.0f, -3.0f);
-            func_802EE6CC(sp5C, sp40, sp4C, 0, 2.4f, 40.0f, 10, 120, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 2.4f, 40.0f, 10, 120, 0);
             
             sp4C[3] = 130;
             sp4C[0] = sp4C[1] = sp4C[2] = 130;
             ml_vec3f_assign(sp40, 2.0f, -2.0f, 2.0f);
-            func_802EE6CC(sp5C, sp40, sp4C, 0, 4.7f, 180.0f, 20, 160, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 4.7f, 180.0f, 20, 160, 0);
             func_8030E6D4(SFX_1B_EXPLOSION_1);
         }
         else{
@@ -779,7 +779,7 @@ void func_802D5000(enum map_e map_id){
     transitionToMap(D_80367684, 0x65, 0);
 }
 
-void func_802D5058(enum map_e map_id, s32 arg1, bool arg2) {
+void func_getCameraViewFromLevel(enum map_e map_id, s32 arg1, bool arg2) {
     volatileFlag_set(VOLATILE_FLAG_1, 1);
     D_80367684 = map_id;
     D_80367688 = arg1;
@@ -789,7 +789,7 @@ void func_802D5058(enum map_e map_id, s32 arg1, bool arg2) {
         D_8036768C = 0x15;
     }
     D_80367690 = 0;
-    D_80367694 = map_get();
+    D_80367694 = gsworld_getMap();
     D_80367698 = 1;
     D_8036769C = 0;
     D_803676A0 = 0;
@@ -817,7 +817,7 @@ void func_802D5178(s32 arg0, enum file_progress_e arg1, s32 arg2, enum map_e arg
 }
 
 void func_802D520C(Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    if(volatileFlag_get(VOLATILE_FLAG_1) && map_get() != MAP_8E_GL_FURNACE_FUN){
+    if(volatileFlag_get(VOLATILE_FLAG_1) && gsworld_getMap() != MAP_8E_GL_FURNACE_FUN){
         gcquiz_draw(gfx, mtx, vtx);
     }
 }
@@ -828,9 +828,9 @@ void func_802D5260(void) {
     f32 sp34;
     f32 sp28[3];
 
-    sp3C = (map_get() == MAP_76_GL_640_NOTE_DOOR) ? 0
-         : (map_get() == MAP_77_GL_RBB_LOBBY) ? 1
-         : (map_get() == MAP_78_GL_RBB_AND_MMM_PUZZLE) ? 2
+    sp3C = (gsworld_getMap() == MAP_76_GL_640_NOTE_DOOR) ? 0
+         : (gsworld_getMap() == MAP_77_GL_RBB_LOBBY) ? 1
+         : (gsworld_getMap() == MAP_78_GL_RBB_AND_MMM_PUZZLE) ? 2
          : -1;
 
     if (sp3C == -1) {
@@ -905,8 +905,8 @@ void func_802D5628(void){
     static s32 D_803679EC = 0;
     static f32 D_803679F0 = 0.0f;
 
-    if( map_get() != MAP_8E_GL_FURNACE_FUN
-        && map_get() != MAP_80_GL_FF_ENTRANCE
+    if( gsworld_getMap() != MAP_8E_GL_FURNACE_FUN
+        && gsworld_getMap() != MAP_80_GL_FF_ENTRANCE
     ){
         D_803676AC = 0;
     }
@@ -932,7 +932,7 @@ void func_802D5628(void){
             D_803679E8 = 0;
         }
     }//L802D5774
-    if(D_80367684 && map_get() == D_80367684){
+    if(D_80367684 && gsworld_getMap() == D_80367684){
         switch(D_8036768C){
             case 0x1: // L802D57C8
                 if(!D_80367690){
@@ -1011,7 +1011,7 @@ void func_802D5628(void){
 
             case 0x15:// L802D5AB4
             case 0x2d:// L802D5AB4
-                if(D_80367684 && D_80367684 == map_get()){
+                if(D_80367684 && D_80367684 == gsworld_getMap()){
                     gcquiz_func_80319EA4();
                     if(0.0f < D_8037DE08){
                         D_8037DE08 -= time_getDelta();
@@ -1041,17 +1041,17 @@ void func_802D5628(void){
         func_802D5178(LEVEL_FLAG_23_RBB_OPEN, 0x2F, 0x35, MAP_77_GL_RBB_LOBBY, 0xD, 0x5, ACTOR_20F_RBB_ENTRANCE_DOOR, 0xA);
         func_802D5178(LEVEL_FLAG_22_MMM_OPEN, 0x2E, 0x36, MAP_75_GL_MMM_LOBBY, 0xC, 0x6, ACTOR_228_MMM_ENTRANCE_DOOR,    0xA);
         func_802D5178(LEVEL_FLAG_24_CCW_OPEN, 0x30, 0x37, MAP_79_GL_CCW_LOBBY, 0xF, 0xB, ACTOR_234_CCW_ENTRANCE_DOOR, 0xA);
-        func_802D5178(LEVEL_FLAG_20_FP_OPEN, 0x2C, 0x38, MAP_6F_GL_FP_LOBBY, 0x11, 0xA, ACTOR_235_FP_ENTANCE_DOOR,   0xA);
+        func_802D5178(LEVEL_FLAG_20_FP_OPEN, 0x2C, 0x38, MAP_6F_GL_FP_LOBBY, 0x11, 0xA, ACTOR_235_FP_ENTRANCE_DOOR_LEFT,   0xA);
         func_802D5178(LEVEL_FLAG_3F_LAIR_GRUNTY_DOOR_OPEN, 0xE2, 0x40, MAP_93_GL_DINGPOT,  0x10, 0xA, ACTOR_2E5_DOOR_OF_GRUNTY,   0x28);
         if(volatileFlag_get(VOLATILE_FLAG_18)){
             if(!fileProgressFlag_get(FILEPROG_99_PAST_50_NOTE_DOOR_TEXT)){
-                func_80311174(0xF75, 0xE, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140);
+                gcdialog_showDialogConditional(0xF75, 0xE, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140);
                 fileProgressFlag_set(FILEPROG_99_PAST_50_NOTE_DOOR_TEXT, true);
                 volatileFlag_set(VOLATILE_FLAG_18, 0);
             }
             else{//L802D5DD8
                 if(!volatileFlag_get(VOLATILE_FLAG_16)){
-                    func_80311174(0xF77, 0x4, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140);
+                    gcdialog_showDialogConditional(0xF77, 0x4, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))func_802D5140);
                     volatileFlag_set(VOLATILE_FLAG_18, 0);
                 }
             }
@@ -1060,8 +1060,8 @@ void func_802D5628(void){
             if( getGameMode() == GAME_MODE_3_NORMAL
                 || func_802E4A08()
             ){
-                if( map_get() != MAP_8E_GL_FURNACE_FUN
-                    && map_get() != MAP_90_GL_BATTLEMENTS
+                if( gsworld_getMap() != MAP_8E_GL_FURNACE_FUN
+                    && gsworld_getMap() != MAP_90_GL_BATTLEMENTS
                     && !fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)
                 ){
                     D_8037DE04 += time_getDelta();
@@ -1078,7 +1078,7 @@ void func_802D5628(void){
                         }//L802D5F1C
 
                         if(volatileFlag_get(VOLATILE_FLAG_22)){
-                            if(gcdialog_showText(0xF82, 4, NULL, NULL, NULL, NULL)){
+                            if(gcdialog_showDialog(0xF82, 4, NULL, NULL, NULL, NULL)){
                                 fileProgressFlag_set(FILEPROG_C1_BADDIES_ESCAPE_TEXT, true);
                                 volatileFlag_set(VOLATILE_FLAG_22, 0);
                                 D_8037DE04 = 0.0f;
@@ -1088,7 +1088,7 @@ void func_802D5628(void){
                             }
                         }
                         else{//L802D5FCC
-                            if(gcdialog_showText(D_8037DE00, 0, NULL, NULL, NULL, NULL)){
+                            if(gcdialog_showDialog(D_8037DE00, 0, NULL, NULL, NULL, NULL)){
                                 D_8037DE00++;
                                 if(!(D_8037DE00 < sp4C)){
                                     D_8037DE00 = 0xF86;
@@ -1128,8 +1128,8 @@ void func_802D6114(void){
     if(D_8036769C)
         fileProgressFlag_set(D_8036769C, true);
     func_802D6344();
-    if(map_get() != sp24){
-        if(map_getLevel(sp24) != map_getLevel(map_get())){
+    if(gsworld_getMap() != sp24){
+        if(map_getLevel(sp24) != map_getLevel(gsworld_getMap())){
             func_802E4A70();
         }//L802D6194
         volatileFlag_set(VOLATILE_FLAG_21, 1);
@@ -1145,7 +1145,7 @@ void func_802D6114(void){
 }
 
 void func_802D61FC(enum map_e arg0){
-    if( map_getLevel(arg0) != map_getLevel(map_get()))
+    if( map_getLevel(arg0) != map_getLevel(gsworld_getMap()))
         func_802E4A70();
     musicKeepsPlaying();
     transitionToMap(D_80367684, 0, 0);
@@ -1158,7 +1158,7 @@ void func_802D6264(f32 delay, enum map_e map_id, s32 arg2, s32 arg3, s32 arg4, e
     D_8036768C = arg3;
     D_80367690 = 0;
 
-    D_80367694 = map_get();
+    D_80367694 = gsworld_getMap();
     D_80367698 = arg4;
     D_8036769C = arg5;
     D_803676A0 = 0;
@@ -1201,7 +1201,7 @@ void func_802D63D4(void){
     if(D_80367684 == 0)
         return;
 
-    if(map_get() != D_80367684)
+    if(gsworld_getMap() != D_80367684)
         return;
 
     func_80347A14(0);
@@ -1215,7 +1215,7 @@ void func_802D63D4(void){
             func_8028F85C(sp1C);
             break;
         default: //L802D6460
-            func_802BAFE4(D_80367688);
+            gcStaticCamera_activate(D_80367688);
             timedFuncQueue_update();
             volatileFlag_set(VOLATILE_FLAG_BF, 0);
             func_802D6750();
@@ -1225,59 +1225,59 @@ void func_802D63D4(void){
 
 
 void func_802D6494(void){
-    if( (!D_80367684 || (D_80367684 && (map_get() == D_80367684)))
+    if( (!D_80367684 || (D_80367684 && (gsworld_getMap() == D_80367684)))
     ){
         switch(D_803676A0){
             case ACTOR_2E5_DOOR_OF_GRUNTY:
                 break;
             case ACTOR_20E_MM_ENTRANCE_DOOR:// L802D6510
                 FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32000);
-                func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 break;
             case ACTOR_211_TTC_ENTRANCE_CHEST_LID:// L802D6530
                 FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32000);
-                func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 break;
             case ACTOR_212_CC_ENTRANCE_BARS:// L802D6550
-                if(map_get() == MAP_70_GL_CC_LOBBY && !volatileFlag_get(VOLATILE_FLAG_7F_SANDCASTLE_OPEN_CC)){
+                if(gsworld_getMap() == MAP_70_GL_CC_LOBBY && !volatileFlag_get(VOLATILE_FLAG_7F_SANDCASTLE_OPEN_CC)){
                     func_802D4830(actorArray_findActorFromActorId(ACTOR_212_CC_ENTRANCE_BARS), SFX_9A_MECHANICAL_CLOSING, 0.5f);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
             case ACTOR_234_CCW_ENTRANCE_DOOR:// L802D65A0
-                if(map_get() == MAP_79_GL_CCW_LOBBY && !volatileFlag_get(VOLATILE_FLAG_93_SANDCASTLE_OPEN_CCW)){
+                if(gsworld_getMap() == MAP_79_GL_CCW_LOBBY && !volatileFlag_get(VOLATILE_FLAG_93_SANDCASTLE_OPEN_CCW)){
                     func_802D485C(actorArray_findActorFromActorId(ACTOR_234_CCW_ENTRANCE_DOOR), SFX_3EC_CCW_DOOR_OPENING, 0.8f, 15000);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
             case ACTOR_210_BGS_ENTRANCE_DOOR:// L802D65F8
                 if(!volatileFlag_get(VOLATILE_FLAG_84_SANDCASTLE_OPEN_BGS)){
                 FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32000);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
-            case ACTOR_235_FP_ENTANCE_DOOR:// L802D6624
-                if(map_get() == MAP_6F_GL_FP_LOBBY && !volatileFlag_get(VOLATILE_FLAG_8B_SANDCASTLE_OPEN_FP)){
-                    func_802D4830(actorArray_findActorFromActorId(ACTOR_235_FP_ENTANCE_DOOR), SFX_18_BIGBUTT_SLIDE, 0.5f);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+            case ACTOR_235_FP_ENTRANCE_DOOR_LEFT:// L802D6624
+                if(gsworld_getMap() == MAP_6F_GL_FP_LOBBY && !volatileFlag_get(VOLATILE_FLAG_8B_SANDCASTLE_OPEN_FP)){
+                    func_802D4830(actorArray_findActorFromActorId(ACTOR_235_FP_ENTRANCE_DOOR_LEFT), SFX_18_BIGBUTT_SLIDE, 0.5f);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
             case ACTOR_226_GV_ENTRANCE:// L802D6674
-                if(map_get() == MAP_6E_GL_GV_LOBBY && !volatileFlag_get(VOLATILE_FLAG_87_SANDCASTLE_OPEN_GV)){
+                if(gsworld_getMap() == MAP_6E_GL_GV_LOBBY && !volatileFlag_get(VOLATILE_FLAG_87_SANDCASTLE_OPEN_GV)){
                     func_802D485C(actorArray_findActorFromActorId(ACTOR_226_GV_ENTRANCE), SFX_3EC_CCW_DOOR_OPENING, 0.8f, 15000);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
             case ACTOR_228_MMM_ENTRANCE_DOOR:// L802D66CC
                 if(!volatileFlag_get(VOLATILE_FLAG_8C_SANDCASTLE_OPEN_MMM)){
                 FUNC_8030E624(SFX_6B_LOCKUP_OPENING, 0.6f, 32000);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
             case ACTOR_20F_RBB_ENTRANCE_DOOR:// L802D66F8
-                if(map_get() == MAP_77_GL_RBB_LOBBY && !volatileFlag_get(VOLATILE_FLAG_90_SANDCASTLE_OPEN_RBB)){
+                if(gsworld_getMap() == MAP_77_GL_RBB_LOBBY && !volatileFlag_get(VOLATILE_FLAG_90_SANDCASTLE_OPEN_RBB)){
                     func_802D4830(actorArray_findActorFromActorId(ACTOR_20F_RBB_ENTRANCE_DOOR), SFX_9A_MECHANICAL_CLOSING, 0.5f);
-                    func_8025A6CC(COMUSIC_64_WORLD_OPENING_A, 32000);
+                    coMusicPlayer_playMusicWeak(COMUSIC_64_WORLD_OPENING_A, 32000);
                 }
                 break;
         }
@@ -1337,7 +1337,7 @@ int func_802D686C(void){
     if(volatileFlag_get(VOLATILE_FLAG_1E)){
         return false;
     } 
-    return map_get() == D_80367684;
+    return gsworld_getMap() == D_80367684;
 }
 
 int func_802D68B4(void){
@@ -1358,7 +1358,7 @@ void func_802D6924(void){
 
 //update_has_entered_level_flags
 void func_802D6948(void){
-    switch(map_get()){
+    switch(gsworld_getMap()){
         case MAP_2_MM_MUMBOS_MOUNTAIN:
             fileProgressFlag_set(FILEPROG_B0_HAS_ENTERED_MM, true);
             break;

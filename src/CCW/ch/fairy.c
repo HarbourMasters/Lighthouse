@@ -94,7 +94,7 @@ void func_8038CC4C(Actor *this) {
         this->volatile_initialized = true;
         this->has_met_before = false;
         local->unk0 = &D_8038F490[0];
-        while(local->unk0->map_id != 0 && map_get() != local->unk0->map_id){
+        while(local->unk0->map_id != 0 && gsworld_getMap() != local->unk0->map_id){
             local->unk0++;
         }
         func_8038CB40(this, 1);
@@ -121,7 +121,7 @@ void func_8038CC4C(Actor *this) {
         player_getPosition(sp38);
         if (ml_vec3f_distance(this->position, sp38) < 900.0f) {
             if (local->unk0->map_id != MAP_46_CCW_WINTER || func_8028F2FC()) {
-                gcdialog_showText(local->unk0->unk4, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(local->unk0->unk4, 4, NULL, NULL, NULL, NULL);
                 this->has_met_before = true;
             }
         }

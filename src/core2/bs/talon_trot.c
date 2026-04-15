@@ -50,7 +50,7 @@ void func_802A8850(void){
 
 }
 
-f32 func_802A88B0(void){
+f32 bsbtrot_getMaxTargetVelocity(void){
     if(player_isOnDangerousGround())
         return D_80364AA0;
 
@@ -60,7 +60,7 @@ f32 func_802A88B0(void){
     return D_80364A94;
 }
 
-f32 func_802A8900(void){
+f32 bsbtrot_getMinTargetVelocity(void){
 
     if(stateTimer_isActive(STATE_TIMER_3_TURBO_TALON))
         return D_80364A98;
@@ -68,7 +68,7 @@ f32 func_802A8900(void){
     return D_80364A90;
 }
 
-f32 func_802A8934(void){
+f32 bsbtrot_getFastestDuration(void){
     if(player_isOnDangerousGround())
         return D_80364AB8;
 
@@ -78,7 +78,7 @@ f32 func_802A8934(void){
     return D_80364AA8;
 }
 
-f32 func_802A8984(void){
+f32 bsbtrot_getSlowestDuration(void){
     if(player_isOnDangerousGround())
         return D_80364AB4;
 
@@ -88,13 +88,13 @@ f32 func_802A8984(void){
     return D_80364AA4;
 }
 
-void func_802A89D4(void){
+void bsbtrot_walkUpdateTargetVelocity(void){
     f32 sp24 = bastick_getZonePosition();
     if(!bastick_getZone()){
         baphysics_set_target_horizontal_velocity(0.0f);
     }
     else{
-        baphysics_set_target_horizontal_velocity(ml_interpolate_f(sp24, func_802A8900(), func_802A88B0()));
+        baphysics_set_target_horizontal_velocity(ml_interpolate_f(sp24, bsbtrot_getMinTargetVelocity(), bsbtrot_getMaxTargetVelocity()));
     }
 
 }
@@ -271,7 +271,7 @@ enum asset_e func_802A9030(void){
 
 void func_802A9054(void){
     f32 tmp = 1.0f;
-    baanim_setVelocityMapRanges(func_802A8900(), func_802A88B0(), func_802A8984(), func_802A8934());
+    baanim_setVelocityMapRanges(bsbtrot_getMinTargetVelocity(), bsbtrot_getMaxTargetVelocity(), bsbtrot_getSlowestDuration(), bsbtrot_getFastestDuration());
     if(func_8028B394()){
         tmp = ml_map_f(baphysics_get_horizontal_velocity_percentage(), 0.0f, 1.0f, 0.6f, 0.9f);
         baanim_scaleDuration(tmp);
@@ -297,7 +297,7 @@ void bsbtrot_walk_update(void){
     func_802A8AD8();
     _bsbtrot_802A8C98(aCtrl, func_802A9030());
     func_80299628(1);
-    func_802A89D4();
+    bsbtrot_walkUpdateTargetVelocity();
     if(anctrl_isAt(aCtrl, 0.2781f))
         func_802A880C(1);
 
@@ -361,7 +361,7 @@ void bsbtrot_jump_init(void){
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());
 
     baphysics_set_target_yaw(yaw_getIdeal());
-    func_802A89D4();
+    bsbtrot_walkUpdateTargetVelocity();
     baphysics_set_horizontal_velocity(yaw_getIdeal(), baphysics_get_target_horizontal_velocity());
     baphysics_set_vertical_velocity(D_80364ABC);
     baphysics_set_gravity(D_80364AC0);
@@ -380,7 +380,7 @@ void bsbtrot_jump_update(void){
     if(baflag_isTrue(BA_FLAG_F))
         baphysics_reset_horizontal_velocity();
     else
-        func_802A89D4();
+        bsbtrot_walkUpdateTargetVelocity();
 
     baphysics_get_velocity(sp1C);
     if(bakey_released(BUTTON_A) && 0.0f < sp1C[1])
@@ -575,7 +575,7 @@ void bsbtrot_fall_init(void){
     func_802A8A40();
     func_8029C7F4(1,1,3, BA_PHYSICS_AIRBORN);
     baphysics_set_target_yaw(yaw_getIdeal());
-    func_802A89D4();
+    bsbtrot_walkUpdateTargetVelocity();
     baphysics_set_horizontal_velocity(yaw_getIdeal(), baphysics_get_target_horizontal_velocity());
     D_8037D3A4 = 0;
 }
@@ -591,7 +591,7 @@ void bsbtrot_fall_update(void){
     if(baflag_isTrue(BA_FLAG_F))
         baphysics_reset_horizontal_velocity();
     else
-        func_802A89D4();
+        bsbtrot_walkUpdateTargetVelocity();
 
     baphysics_get_velocity(sp1C);
     switch (D_8037D3A4){
@@ -692,7 +692,7 @@ void bsbtrot_unk79_update(void){
     func_8029C6D0();
     func_802A8AD8();
     func_80299628(1);
-    if(!func_80298850())
+    if(!balookat_getState())
         sp1C = BS_15_BTROT_IDLE;
     bs_setState(sp1C);
 }
@@ -708,7 +708,7 @@ void bsbtrot_ow_init(void){
     f32 sp24[3];
 
     func_802A8A40();
-    func_80298760(func_80296560());
+    barebound_set_active(func_80296560());
     baanim_playForDuration_onceSmooth(ASSET_66_ANIM_BSBTROT_OW, 1.1f);
     basfx_playOwSfx(1.0f);
     _player_getPosition(sp30);
@@ -716,21 +716,21 @@ void bsbtrot_ow_init(void){
     func_80257F18(sp24, sp30, &sp3C);
     yaw_setIdeal(mlNormalizeAngle(sp3C + 180.0f));\
     yaw_applyIdeal();
-    baphysics_set_target_horizontal_velocity(func_802987D4());
+    baphysics_set_target_horizontal_velocity(barebound_get_horizontal_velocity());
     baphysics_set_target_yaw(sp3C);
     baphysics_set_horizontal_velocity(sp3C, baphysics_get_target_horizontal_velocity());
     func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
-    if(func_802987B4() == 2)
+    if(barebound_802987B4() == 2)
         baphysics_set_type(BA_PHYSICS_AIRBORN);
-    baphysics_set_vertical_velocity(func_802987C4());
-    baphysics_set_gravity(barebound_get_vertical_velocity());
+    baphysics_set_vertical_velocity(barebound_get_vertical_velocity());
+    baphysics_set_gravity(barebound_get_gravity());
     baMarker_collisionOff();
     baeyes_close();
 }
 
 void bsbtrot_ow_update(void){
     enum bs_e sp1C = 0;
-    if(func_802987B4() == 2)
+    if(barebound_802987B4() == 2)
         func_802B6FA8();
 
     if(baanim_isAt(0.3f))
@@ -749,7 +749,7 @@ void bsbtrot_ow_update(void){
 }
 
 void bsbtrot_ow_end(void){
-    func_80297CA8();
+    baiFrame_start();
     baphysics_reset_gravity();
     baMarker_collisionOn();
     baeyes_open();

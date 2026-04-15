@@ -12,7 +12,7 @@ extern void func_802D3CE8(Actor *);
 extern void func_802D3D54(Actor *);
 extern void func_802D3D74(Actor *this);
 extern void func_802D4830(Actor *, s32, f32);
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
@@ -508,7 +508,7 @@ void func_80386D78(Actor *this) {
         this->scale = 0.0001f;
         this->lifetime_value = 26.0f;
         this->position[1] = this->unk1C[1];
-        func_802BAFE4(0x80);
+        gcStaticCamera_activate(0x80);
         timedFunc_set_0(3.0f, func_80386D40);
     }
 }
@@ -614,7 +614,7 @@ void func_803875F0(Actor * this)
         if (mapSpecificFlags_get(0))
         {
             this->unk1C_y = this->position_y;
-            func_802BAFE4(0x2A);
+            gcStaticCamera_activate(0x2A);
             fileProgressFlag_set(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN, true);
             this->volatile_initialized = true;
             this->unk38_31 = 0x0C;
@@ -686,8 +686,8 @@ void func_80387730(Actor *this) {
     }
     if (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
         player_getPosition(spAC);
-        if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (func_803114C4() != 0xF64)) {
-            func_802FACA4(0xC);
+        if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (gcdialog_getCurrentTextId() != 0xF64)) {
+            code_73640_printItemCount(0xC);
         }
         doorIdx = this->actorTypeSpecificField - 1;
         noteThreshold = port_getRomhackNoteDoor(doorIdx);
@@ -775,13 +775,13 @@ Actor *func_80387DA8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
      * Sets opacity of the "note" symbol
      */
     if (var2)
-        func_8034E0FC(var2, actor->opacityTimer);
+        setStruct6DsOpacity(var2, actor->opacityTimer);
 
     /**
      * Sets opacity of note door numbers
      */
     if (var1)
-        func_8034E0FC(var1, 0xFF - (s32)actor->opacityTimer);
+        setStruct6DsOpacity(var1, 0xFF - (s32)actor->opacityTimer);
 
     /**
      * Hides all note door graphics that don't match this note door's index
@@ -821,7 +821,7 @@ void func_80387F1C(void)
 {
     f32 tmp[3];
 
-    func_802BAFE4(0x7B);
+    gcStaticCamera_activate(0x7B);
 
     if (nodeProp_findPositionFromActorId(400, tmp))
     {
@@ -1010,7 +1010,7 @@ void func_80388524(Actor *this) {
     Actor *sp28;
 
     sp34 = func_802D677C(-1) 
-             && (func_802D677C(-1) == map_get())
+             && (func_802D677C(-1) == gsworld_getMap())
              && (func_802D67AC(-1) >= 8)
              && (func_802D67AC(-1) < 0x12)
              && (func_802D67DC(-1) == this->modelCacheIndex)
@@ -1021,61 +1021,61 @@ void func_80388524(Actor *this) {
         if (!sp34) {
             switch(this->modelCacheIndex){
                 case ACTOR_2E5_DOOR_OF_GRUNTY://L80388630
-                    if (!fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) && func_8038EAE0(0xA)) {
+                    if (!fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) && jigsawPicture_isJigsawPictureComplete(0xA)) {
                         fileProgressFlag_set(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN, true);
                     }
                     break;
 
                 case ACTOR_20E_MM_ENTRANCE_DOOR: //L80388660
-                    if (!fileProgressFlag_get(FILEPROG_31_MM_OPEN) && func_8038EAE0(1)) {
+                    if (!fileProgressFlag_get(FILEPROG_31_MM_OPEN) && jigsawPicture_isJigsawPictureComplete(1)) {
                         fileProgressFlag_set(FILEPROG_31_MM_OPEN, true);
                     }
                     break;
 
                 case ACTOR_226_GV_ENTRANCE: //L80388690
-                    if (!fileProgressFlag_get(FILEPROG_36_GV_OPEN) && func_8038EAE0(6)) {
+                    if (!fileProgressFlag_get(FILEPROG_36_GV_OPEN) && jigsawPicture_isJigsawPictureComplete(6)) {
                         fileProgressFlag_set(FILEPROG_36_GV_OPEN, true);
                     }
                     break;
 
                 case ACTOR_212_CC_ENTRANCE_BARS: //L803886C0
-                    if (!fileProgressFlag_get(FILEPROG_33_CC_OPEN) && func_8038EAE0(3)) {
+                    if (!fileProgressFlag_get(FILEPROG_33_CC_OPEN) && jigsawPicture_isJigsawPictureComplete(3)) {
                         fileProgressFlag_set(FILEPROG_33_CC_OPEN, true);
                     }
                     break;
 
                 case ACTOR_211_TTC_ENTRANCE_CHEST_LID: //L803886F0
-                    if (!fileProgressFlag_get(FILEPROG_32_TTC_OPEN) && func_8038EAE0(2)) {
+                    if (!fileProgressFlag_get(FILEPROG_32_TTC_OPEN) && jigsawPicture_isJigsawPictureComplete(2)) {
                         fileProgressFlag_set(FILEPROG_32_TTC_OPEN, true);
                     }
                     break;
 
                 case ACTOR_210_BGS_ENTRANCE_DOOR: //L80388720
-                    if (!fileProgressFlag_get(FILEPROG_34_BGS_OPEN) && func_8038EAE0(4)) {
+                    if (!fileProgressFlag_get(FILEPROG_34_BGS_OPEN) && jigsawPicture_isJigsawPictureComplete(4)) {
                         fileProgressFlag_set(FILEPROG_34_BGS_OPEN, true);
                     }
                     break;
 
                 case ACTOR_20F_RBB_ENTRANCE_DOOR: //L80388750
-                    if (!fileProgressFlag_get(FILEPROG_38_RBB_OPEN) && func_8038EAE0(8)) {
+                    if (!fileProgressFlag_get(FILEPROG_38_RBB_OPEN) && jigsawPicture_isJigsawPictureComplete(8)) {
                         fileProgressFlag_set(FILEPROG_38_RBB_OPEN, true);
                     }
                     break;
 
                 case ACTOR_228_MMM_ENTRANCE_DOOR: //L80388780
-                    if (!fileProgressFlag_get(FILEPROG_37_MMM_OPEN) && func_8038EAE0(7)) {
+                    if (!fileProgressFlag_get(FILEPROG_37_MMM_OPEN) && jigsawPicture_isJigsawPictureComplete(7)) {
                         fileProgressFlag_set(FILEPROG_37_MMM_OPEN, true);
                     }
                     break;
 
                 case ACTOR_234_CCW_ENTRANCE_DOOR: //L803887B0
-                    if (!fileProgressFlag_get(FILEPROG_39_CCW_OPEN) && func_8038EAE0(9)) {
+                    if (!fileProgressFlag_get(FILEPROG_39_CCW_OPEN) && jigsawPicture_isJigsawPictureComplete(9)) {
                         fileProgressFlag_set(FILEPROG_39_CCW_OPEN, true);
                     }
                     break;
 
-                case ACTOR_235_FP_ENTANCE_DOOR: //L803887E0
-                    if (!fileProgressFlag_get(FILEPROG_35_FP_OPEN) && func_8038EAE0(5)) {
+                case ACTOR_235_FP_ENTRANCE_DOOR_LEFT: //L803887E0
+                    if (!fileProgressFlag_get(FILEPROG_35_FP_OPEN) && jigsawPicture_isJigsawPictureComplete(5)) {
                         fileProgressFlag_set(FILEPROG_35_FP_OPEN, true);
                     }
                     break;
@@ -1148,7 +1148,7 @@ void func_80388524(Actor *this) {
                 this->unk1C[1] = this->position[1] + 270.0f;
                 break;
                 
-            case ACTOR_235_FP_ENTANCE_DOOR://L80388A24
+            case ACTOR_235_FP_ENTRANCE_DOOR_LEFT://L80388A24
                     sp30 = actorArray_findActorFromActorId(0x236);
                     if(fileProgressFlag_get(FILEPROG_35_FP_OPEN)){
                         marker_despawn(this->marker);
@@ -1273,7 +1273,7 @@ void func_80388524(Actor *this) {
                 }
                 break;
 
-            case ACTOR_235_FP_ENTANCE_DOOR://L80388F34
+            case ACTOR_235_FP_ENTRANCE_DOOR_LEFT://L80388F34
                 {
                     sp28 = actorArray_findActorFromActorId(0x236);
                     this->unk1C[0] += 3.6;
@@ -1328,7 +1328,7 @@ void func_80388FC8(Actor *this)
         {
             if (this->modelCacheIndex == 0x215)
             {
-                func_802BAFE4(0x2B);
+                gcStaticCamera_activate(0x2B);
                 if (1);  // oof
             }
 
@@ -1403,7 +1403,7 @@ void lair_func_80389204(Actor *this)
 
         if (mapSpecificFlags_get(2))
         {
-            func_802BAFE4(0x2C);
+            gcStaticCamera_activate(0x2C);
             fileProgressFlag_set(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED, true);
 
             this->volatile_initialized = true;
@@ -1798,7 +1798,7 @@ Actor *func_80389E10(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp90[2] = sp84[2] + ((sp78[2] - sp84[2]) * randf());
             
 
-            func_802EE6CC(sp90, sp6C, D_80393504, 1, 0.3f, 50.0f, 180, randi2(130, 200), 0);
+            dustEmitter_emit(sp90, sp6C, D_80393504, 1, 0.3f, 50.0f, 180, randi2(130, 200), 0);
         };
     }
     return this;

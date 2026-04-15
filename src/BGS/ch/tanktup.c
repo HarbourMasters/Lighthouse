@@ -12,7 +12,7 @@ void timed_exitStaticCamera(f32);
 void func_8028E668(f32[3], f32, f32, f32);
 extern void __spawnQueue_add_3(GenFunction_3, uintptr_t, uintptr_t, uintptr_t);
 
-void func_8038F6A4(Actor *);
+void chTanktup_update(Actor *);
 
 /* .data */
 enum chtanktup_leg_e {
@@ -30,7 +30,7 @@ ActorAnimationInfo BGS_D_80390C20[] = {
 };
 
 ActorInfo chTanktup = {MARKER_6C_TANKTUP, ACTOR_E8_TANKTUP, ASSET_3EE_TANKTUP, 0x01, BGS_D_80390C20,
-    func_8038F6A4, actor_update_func_80326224, actor_draw,
+    chTanktup_update, actor_update_func_80326224, actor_draw,
     0, 0x80, 0.0f, 0
 };
 
@@ -93,7 +93,7 @@ void func_8038F610(Actor *this) {
 void func_8028F94C(s32, f32[3]);
 void func_8028F918(s32);
 
-void func_8038F6A4(Actor *this)
+void chTanktup_update(Actor *this)
 {
   ActorLocal_TanktupBody *local = (ActorLocal_TanktupBody *) (&this->local);
   f32 sp48[3];
@@ -143,7 +143,7 @@ void func_8038F6A4(Actor *this)
     {
       if ((((ml_vec3f_distance(local->unk18, sp48) < 250.0f) && (ml_vec3f_distance(local->unk18, sp48) > 80.0f)) && (!player_movementGroup())) && (player_getTransformation() == TRANSFORM_1_BANJO))
       {
-        gcdialog_showText(0xC7E, 0, 0, 0, 0, 0);
+        gcdialog_showDialog(ASSET_C7E_DIALOG_TANKTUP_MEET, 0, 0, 0, 0, 0);
         this->has_met_before = true;
       }
     }
@@ -164,7 +164,7 @@ void func_8038F6A4(Actor *this)
 
       if ((!this->unk138_23) && (!local->unk14))
       {
-        if (gcdialog_showText(0xC80, 0, 0, 0, 0, 0))
+        if (gcdialog_showDialog(ASSET_C80_DIALOG_TANKTUP_HIT, 0, 0, 0, 0, 0))
         {
           this->unk138_23 = 1;
         }
@@ -215,11 +215,11 @@ void func_8038F6A4(Actor *this)
       func_8028F918(0);
       if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
       {
-        gcdialog_showText(0xC7F, 0xF, this->position, this->marker, func_8038F5E4, 0);
+        gcdialog_showDialog(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0xF, this->position, this->marker, func_8038F5E4, 0);
       }
       else
       {
-        func_8038F5E4(this->marker, 0xC7F, -1);
+        func_8038F5E4(this->marker, ASSET_C7F_DIALOG_TANKTUP_COMPLETE, -1);
       }
     }
       break;

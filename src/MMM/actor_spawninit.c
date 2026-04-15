@@ -24,19 +24,19 @@ extern ActorInfo D_8038BA68;
 extern ActorInfo chMotzhand;
 extern ActorInfo chLoggo;
 extern ActorInfo D_8038BAD0;
-extern ActorInfo D_8038BE48;
-extern ActorInfo D_8038BE6C;
-extern ActorInfo D_8038BE90;
-extern ActorInfo D_8038BEB4;
-extern ActorInfo D_8038BED8;
-extern ActorInfo D_8038BEFC;
+extern ActorInfo chPortraitGrunty;
+extern ActorInfo chPortraitBlackeye;
+extern ActorInfo chPortraitTower;
+extern ActorInfo chPortraitTreeAndMoon;
+extern ActorInfo chPortraitTeeHee;
+extern ActorInfo chPortraitMinion;
 
 extern ActorInfo D_80367E70;
 extern ActorInfo D_80372C3C;
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void func_8025AE0C(s32, f32);
-extern void func_802EE6CC(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern BKCollisionTri *func_80309B48(f32[3], f32[3], f32[3], u32);
 
 void func_802D3D54(Actor *this);
@@ -265,7 +265,7 @@ Actor *func_80388994(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp90[0] = sp84[0] + (sp78[0] - sp84[0]) * randf();
             sp90[1] = sp84[1];
             sp90[2] = sp84[2] + (sp78[2] - sp84[2]) * randf();
-            func_802EE6CC(sp90, sp6C, D_8038BE20, 1, 0.3f, 50.0f, 0xB4, randi2(0x82, 0xC8), 0);
+            dustEmitter_emit(sp90, sp6C, D_8038BE20, 1, 0.3f, 50.0f, 0xB4, randi2(0x82, 0xC8), 0);
         }
     }
     return this;
@@ -306,7 +306,7 @@ void func_80388BDC(Actor *this) {
     case 1:
         this->yaw = 0.0f;
         if(mapSpecificFlags_get(MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
-            func_802BAFE4(0x21);
+            gcStaticCamera_activate(0x21);
             subaddie_set_state(this, 6);
             core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_2_UNKNOWN, false);
@@ -337,9 +337,9 @@ void func_80388BDC(Actor *this) {
             || ((this->unk38_31) && (this->lifetime_value == 0.0f))
         ) {
             if (!this->unk38_31) {
-                func_802BAFE4(0x22);
+                gcStaticCamera_activate(0x22);
             } else {
-                func_802BAFE4(0x23);
+                gcStaticCamera_activate(0x23);
             }
             subaddie_set_state(this, 8);
             core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
@@ -392,7 +392,7 @@ void func_80389060(Actor *this){
 
 void func_803890B8(Actor *this) {
     func_802D3D54(this);
-    func_8038AC04();
+    chTumblar_checkMMMChecksums();
 }
 
 void MMM_func_803890E0(void){
@@ -416,11 +416,11 @@ void MMM_func_803890E0(void){
     spawnableActorList_add(&D_80367E70, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&chLoggo,    actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_8);
     spawnableActorList_add(&D_8038BAD0, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 | ACTOR_FLAG_UNKNOWN_25);
-    spawnableActorList_add(&D_8038BE48, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BE6C, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BE90, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BEB4, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BED8, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
-    spawnableActorList_add(&D_8038BEFC, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitGrunty, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitBlackeye, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitTower, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitTreeAndMoon, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitTeeHee, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
+    spawnableActorList_add(&chPortraitMinion, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
     spawnableActorList_add(&D_80372C3C, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_19);
 }

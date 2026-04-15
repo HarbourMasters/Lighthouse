@@ -52,23 +52,23 @@ enum FF_Action
 
 
 /* .h */
-void func_8038D670(enum FF_Action next_state);// ff_set_state
+void ff_setState(enum FF_Action next_state);// ff_set_state
 void lair_func_8038C6BC(void);
 
 /* extern */
-extern void func_802FACA4(enum item_e);
-extern void func_8028FA14(enum map_e, s32);
+extern void code_73640_printItemCount(enum item_e);
+extern void code_7060_setVoidOutLocation(enum map_e, s32);
 extern void quizQuestionAskedBitfield_set(u32, int); // ff_isAsked_flag_set
-extern int quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
+extern bool quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
 extern void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
 extern void ability_setAllLearned(s32);  // set unlocked moves bitfield
 extern s32  ability_getAllLearned(void); // get unlocked moves bitfield
 extern void func_8025A55C(s32, s32, s32);
 extern void func_80324CFC(f32, s16, s16);
-extern struct FF_StorageStruct *D_8037DCB8; 
+extern struct FF_StorageStruct *ffStorage; 
 
 /* .data */
-extern Struct_lair_5ED0_0 D_80393760[FF_QNF_CNT - 1] = {
+extern Furnace_Fun_Board D_80393760[FF_QNF_CNT - 1] = {
     {{    0,     0, 0x192,     0}, 1, 0, 0, {0, 0, 0}, 0.0f, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
     {{    0,     0, 0x199,     0}, 2, 0, 0, {0, 0, 0}, 0.0f, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
     {{    0,     0,     0, 0x194}, 0, 0, 0, {0, 0, 0}, 0.0f, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
@@ -378,7 +378,7 @@ s16 lair_func_8038C2C0(enum ff_question_type_e type)
 }
 
 // FF: clear isAsked flags for current question type
-void func_8038C2D4(enum ff_question_type_e type)
+void ff_clearAlreadyAskedQuestions(enum ff_question_type_e type)
 {
     s32 i;
 
@@ -401,7 +401,7 @@ bool lair_func_8038C370(enum ff_question_type_e type, s32 questionIdx)
 // i love stupid shit like this. these 3 lines of C compile into 150 lines of asm for type handling
 void func_8038C3A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
 {
-    Struct_lair_5ED0_0 *data = (Struct_lair_5ED0_0 *)a3;
+    Furnace_Fun_Board *data = (Furnace_Fun_Board *)a3;
     a2->v.cn[0] = a1->v.v.cn[0] * data->unk10;
     a2->v.cn[1] = a1->v.v.cn[1] * data->unk10;
     a2->v.cn[2] = a1->v.v.cn[2] * data->unk10;
@@ -409,7 +409,7 @@ void func_8038C3A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
 
 void *lair_func_8038C5B8(s32 a0)
 {
-    Struct_lair_5ED0_0 *ptr;
+    Furnace_Fun_Board *ptr;
 
     s32 v0;
 
@@ -433,13 +433,13 @@ void lair_func_8038C610(s32 a0)
     { Struct70s *_tmp = func_8034C528(a0 + 200); func_8034DEB4(&_tmp->type_6D, -3000); }
 }
 
-void lair_func_8038C640(s32 a0, Struct_lair_5ED0_0 *a1)
+void lair_func_8038C640(s32 a0, Furnace_Fun_Board *a1)
 {
     s32 i;
 
-    for (i = 0; i < ARRLEN(a1->unk0); i++)
-        if (a1->unk0[i])
-            lair_func_8038C610(a1->unk0[i]);
+    for (i = 0; i < ARRLEN(a1->adjacentTiles); i++)
+        if (a1->adjacentTiles[i])
+            lair_func_8038C610(a1->adjacentTiles[i]);
 
     a1->unk9 = 1;
 
@@ -450,7 +450,7 @@ void lair_func_8038C6BC(void)
 {
     s32 s1, s3;
 
-    Struct_lair_5ED0_0 *ptr;
+    Furnace_Fun_Board *ptr;
 
     s3 = 1;
 
@@ -468,20 +468,20 @@ void lair_func_8038C6BC(void)
             ptr->unk10 = 0.45f;
         }
 
-        BKModel_getMeshCenter(D_8037DCB8->unk0, s1, &ptr->unkA);
+        BKModel_getMeshCenter(ffStorage->unk0, s1, &ptr->unkA);
     }
 }
 
 void func_8038C7A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
 {
-    a2->v.cn[0] = a1->v.v.cn[0] * D_8037DCB8->unk14;
-    a2->v.cn[1] = a1->v.v.cn[1] * D_8037DCB8->unk14;
-    a2->v.cn[2] = a1->v.v.cn[2] * D_8037DCB8->unk14;
+    a2->v.cn[0] = a1->v.v.cn[0] * ffStorage->unk14;
+    a2->v.cn[1] = a1->v.v.cn[1] * ffStorage->unk14;
+    a2->v.cn[2] = a1->v.v.cn[2] * ffStorage->unk14;
 }
 
 void func_8038C9D0(void) {
     u8 temp_v0;
-    Struct_lair_5ED0_0 *phi_s0;
+    Furnace_Fun_Board *phi_s0;
     s32 phi_s1;
 
     for(phi_s0 = D_80393760, phi_s1 = 0x191; phi_s1 < 0x1F0; phi_s1++){
@@ -490,61 +490,61 @@ void func_8038C9D0(void) {
         } else if ((phi_s0->unk9 != 0) && (phi_s0->unk10 < 0.95)) {
             phi_s0->unk10 = MIN(phi_s0->unk10 + 0.05, 0.95);
         }
-        BKModel_transformMesh(D_8037DCB8->unk0, phi_s1, (void (*)(s32, BKVtxRef*, Vtx*, void*))func_8038C3A0, (void *) phi_s0);
+        BKModel_transformMesh(ffStorage->unk0, phi_s1, (void (*)(s32, BKVtxRef*, Vtx*, void*))func_8038C3A0, (void *) phi_s0);
         phi_s0++;
     }
 
-    BKModel_transformMesh(D_8037DCB8->unk0, 0x1F1, (void (*)(s32, BKVtxRef*, Vtx*, void*))func_8038C7A0, (void *) phi_s0);
-    if ( !((D_8037DCB8->currFfMode != FFA_3_TRIGGER_QUESTION) && (D_8037DCB8->currFfMode != FFA_4_UNK)) 
-         && (0.5 < D_8037DCB8->unk14)
+    BKModel_transformMesh(ffStorage->unk0, 0x1F1, (void (*)(s32, BKVtxRef*, Vtx*, void*))func_8038C7A0, (void *) phi_s0);
+    if ( !((ffStorage->currFfMode != FFA_3_TRIGGER_QUESTION) && (ffStorage->currFfMode != FFA_4_UNK)) 
+         && (0.5 < ffStorage->unk14)
     ) {
-        D_8037DCB8->unk14 = MAX(D_8037DCB8->unk14 - 0.01 , 0.5);
+        ffStorage->unk14 = MAX(ffStorage->unk14 - 0.01 , 0.5);
     }
-    else if ((D_8037DCB8->currFfMode != FFA_3_TRIGGER_QUESTION) && (D_8037DCB8->currFfMode != FFA_4_UNK) 
-        &&(D_8037DCB8->unk14 < 1.0)
+    else if ((ffStorage->currFfMode != FFA_3_TRIGGER_QUESTION) && (ffStorage->currFfMode != FFA_4_UNK) 
+        &&(ffStorage->unk14 < 1.0)
     ){
-        D_8037DCB8->unk14 = MIN(D_8037DCB8->unk14 + 0.01 , 1.0);
+        ffStorage->unk14 = MIN(ffStorage->unk14 + 0.01 , 1.0);
     }
 }
 
 void func_8038CC10(void)
 {
-    if (D_8037DCB8->UNK_18)
+    if (ffStorage->UNK_18)
         return;
 
-    D_8037DCB8->UNK_18 = func_8030ED2C(0x1C, 3);
-    func_8030DD90(D_8037DCB8->UNK_18, 0);
-    sfxsource_setSampleRate(D_8037DCB8->UNK_18, 32760);
-    sfxsource_playSfxAtVolume(D_8037DCB8->UNK_18, 0.7f);
-    func_8030E2C4(D_8037DCB8->UNK_18);
+    ffStorage->UNK_18 = func_8030ED2C(0x1C, 3);
+    func_8030DD90(ffStorage->UNK_18, 0);
+    sfxsource_setSampleRate(ffStorage->UNK_18, 32760);
+    sfxsource_playSfxAtVolume(ffStorage->UNK_18, 0.7f);
+    sfxSource_func_8030E2C4(ffStorage->UNK_18);
 }
 
 void lair_func_8038CC9C(void)
 {
-    if (!D_8037DCB8->UNK_18)
+    if (!ffStorage->UNK_18)
         return;
 
-    sfxSource_func_8030E2C4(D_8037DCB8->UNK_18);
-    sfxsource_freeSfxsourceByIndex(D_8037DCB8->UNK_18);
-    D_8037DCB8->UNK_18 = 0;
+    sfxSource_triggerCallbackByIndex(ffStorage->UNK_18);
+    sfxsource_freeSfxsourceByIndex(ffStorage->UNK_18);
+    ffStorage->UNK_18 = 0;
 }
 
 void func_8038CCEC(void)
 {
-    bk_free(D_8037DCB8->unk48);
-    D_8037DCB8->unk48 = NULL;
+    bk_free(ffStorage->unk48);
+    ffStorage->unk48 = NULL;
 
-    bk_free(D_8037DCB8);
-    D_8037DCB8 = NULL;
+    bk_free(ffStorage);
+    ffStorage = NULL;
 
     gcquiz_free();
     quizQuestionAskedBitfield_free();
-    func_802C5994();
+    gameSelect_saveAndExit();
 }
 
 void lair_func_8038CD48(void)
 {
-    if (D_8037DCB8 == NULL)
+    if (ffStorage == NULL)
         return;
 
     /**
@@ -552,14 +552,14 @@ void lair_func_8038CD48(void)
      * Sets moves upon entering SM or MM from the Lair, FF asm code stays
      * latent until then
      */
-    ability_setAllLearned(D_8037DCB8->unlockedMoves);
+    ability_setAllLearned(ffStorage->unlockedMoves);
 
-    D_8037DCB8->unk0 = NULL;
+    ffStorage->unk0 = NULL;
 
-    gczoombox_free(D_8037DCB8->unk20);
-    D_8037DCB8->unk20 = NULL;
+    gczoombox_free(ffStorage->zoombox);
+    ffStorage->zoombox = NULL;
 
-    if (D_8037DCB8->UNK_18)
+    if (ffStorage->UNK_18)
         lair_func_8038CC9C();
 
     if (!volatileFlag_get(VOLATILE_FLAG_1) && !volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME))
@@ -575,30 +575,30 @@ void func_8038CE00(void)
     ncStaticCamera_setToNode(0);
 }
 
-void func_8038CE28(void)
+void ff_setup(void)
 {
     s32 i;
 
     gcquiz_init();
-    D_8037DCB8 = bk_malloc(sizeof(struct FF_StorageStruct));
+    ffStorage = bk_malloc(sizeof(struct FF_StorageStruct));
     quizQuestionAskedBitfield_init();
 
     // dump currently unlocked moves to storage
-    D_8037DCB8->unlockedMoves = ability_getAllLearned();
+    ffStorage->unlockedMoves = ability_getAllLearned();
 
-    for (i = 0; i < ARRLEN(D_8037DCB8->unk3C); i++)
-        D_8037DCB8->unk3C[i] = 0;
+    for (i = 0; i < ARRLEN(ffStorage->unk3C); i++)
+        ffStorage->unk3C[i] = 0;
 
     // set joker card count to 0
     item_adjustByDiffWithoutHud(ITEM_27_JOKER_CARD, item_getCount(0x27) * -1);
 
-    D_8037DCB8->unk8     = 0;
-    D_8037DCB8->unk4     = NULL;
-    D_8037DCB8->unk20     = NULL;
-    D_8037DCB8->unk14     = 1.f;
-    D_8037DCB8->UNK_18     = 0;
-    D_8037DCB8->currFfMode = 1;
-    D_8037DCB8->unk48     = bk_malloc(0x90);
+    ffStorage->currentTileId     = 0;
+    ffStorage->currentBoardTile     = NULL;
+    ffStorage->zoombox     = NULL;
+    ffStorage->unk14     = 1.f;
+    ffStorage->UNK_18     = 0;
+    ffStorage->currFfMode = 1;
+    ffStorage->unk48     = bk_malloc(0x90);
 
     gzquiz_initGruntyQuestions();
 }
@@ -609,19 +609,19 @@ void lair_func_8038CF18(void)
 
     struct FF_StorageStruct_48_sub *ptr;
 
-    if (map_get() != MAP_8E_GL_FURNACE_FUN)
+    if (gsworld_getMap() != MAP_8E_GL_FURNACE_FUN)
         return;
 
-    D_8037DCB8->unk0 = mapModel_getModel(0);
-    D_8037DCB8->unk11 = 0;
+    ffStorage->unk0 = mapModel_getModel(0);
+    ffStorage->unk11 = 0;
 
     if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME) && !volatileFlag_get(VOLATILE_FLAG_4))
     {
         quizQuestionAskedBitfield_free();
         quizQuestionAskedBitfield_init();
 
-        for (i = 0; i < ARRLEN(D_8037DCB8->unk3C); i++)
-            D_8037DCB8->unk3C[i] = 0;
+        for (i = 0; i < ARRLEN(ffStorage->unk3C); i++)
+            ffStorage->unk3C[i] = 0;
 
         // set joker card count to 0
         item_adjustByDiffWithoutHud(ITEM_27_JOKER_CARD, item_getCount(ITEM_27_JOKER_CARD) * -1);
@@ -629,10 +629,10 @@ void lair_func_8038CF18(void)
 
     lair_func_8038C6BC();
 
-    ptr = D_8037DCB8->unk48->data;
+    ptr = ffStorage->unk48->data;
 
 #if 0
-    for (i = 0; i < ARRLEN(D_8037DCB8->unk48->data); i++)
+    for (i = 0; i < ARRLEN(ffStorage->unk48->data); i++)
         ptr[i].unk20 = 0;
 #else
     // FIXME: weird
@@ -651,21 +651,21 @@ void lair_func_8038CF18(void)
     {
         levelSpecificFlags_clear();
         func_8038CE00();
-        func_8038D670(FFA_4_UNK);
+        ff_setState(FFA_4_UNK);
     }
     else
     {
         if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME))
         {
             levelSpecificFlags_clear();
-            func_8038D670(FFA_5_FORGET_MOVES_2);
+            ff_setState(FFA_5_FORGET_MOVES_2);
         }
         else
         {
             if (fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE))
-                func_8038D670(FFA_8_FURNACE_FUN_COMPLETE);
+                ff_setState(FFA_8_FURNACE_FUN_COMPLETE);
             else
-                func_8038D670(FFA_1_UNK);
+                ff_setState(FFA_1_UNK);
         }
     }
 }
@@ -679,20 +679,20 @@ void func_8038D0BC(s32 a0, s32 a1)
 {
     if (a1 == 2)
     {
-        func_80318614(D_8037DCB8->unk20, 1);
-        func_803183A4(D_8037DCB8->unk20, "THIS IS A SLIGHTLY LONGER PIECE OF TEXT FOR THE QUIZ DIALOGS!");
+        func_80318614(ffStorage->zoombox, 1);
+        func_803183A4(ffStorage->zoombox, "THIS IS A SLIGHTLY LONGER PIECE OF TEXT FOR THE QUIZ DIALOGS!");
     }
 
     if (a1 == 3)
     {
-        func_80318614(D_8037DCB8->unk20, 0);
-        gczoombox_minimize(D_8037DCB8->unk20);
-        gczoombox_close(D_8037DCB8->unk20);
+        func_80318614(ffStorage->zoombox, 0);
+        gczoombox_minimize(ffStorage->zoombox);
+        gczoombox_close(ffStorage->zoombox);
     }
 
     if (a1 == 6)
     {
-        func_8038D670(FFA_4_UNK);
+        ff_setState(FFA_4_UNK);
     }
 }
 
@@ -708,21 +708,21 @@ void func_8038D1BC(void)
     func_8025A55C(-1, 500, 9);
 }
 
-void func_8038D1E4(void)
+void ff_getSoundQuestionSound(void)
 {
     f32 cleanupDelay = -1.f;
 
     func_8025A55C(0, 500, 9);
 
-    switch (D_80394354[D_8037DCB8->unkC].unk0)
+    switch (D_80394354[ffStorage->questionTypeTableIndex].unk0)
     {
         case 0:
         {
             timed_playSfx(
                 1.f,
-                D_80394354[D_8037DCB8->unkC].unk2,
-                D_80394354[D_8037DCB8->unkC].unk8,
-                D_80394354[D_8037DCB8->unkC].unk4
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk8,
+                D_80394354[ffStorage->questionTypeTableIndex].unk4
             );
 
             cleanupDelay = 2.5f;
@@ -731,14 +731,14 @@ void func_8038D1E4(void)
         }
         case 2:
         {
-            D_8037DCB8->unk20 = gczoombox_new(
+            ffStorage->zoombox = gczoombox_new(
                 -100,
-                D_80394354[D_8037DCB8->unkC].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
                 0, 0, func_8038D0BC
             );
-            func_80318614(D_8037DCB8->unk20, 0);
-            gczoombox_open(D_8037DCB8->unk20);
-            gczoombox_maximize(D_8037DCB8->unk20);
+            func_80318614(ffStorage->zoombox, 0);
+            gczoombox_open(ffStorage->zoombox);
+            gczoombox_maximize(ffStorage->zoombox);
 
             break;
         }
@@ -746,11 +746,11 @@ void func_8038D1E4(void)
         {
             func_80324CFC(
                 1.f,
-                D_80394354[D_8037DCB8->unkC].unk2,
-                D_80394354[D_8037DCB8->unkC].unk4
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk4
             );
 
-            cleanupDelay = D_80394354[D_8037DCB8->unkC].unk8;
+            cleanupDelay = D_80394354[ffStorage->questionTypeTableIndex].unk8;
 
             break;
         }
@@ -758,27 +758,27 @@ void func_8038D1E4(void)
         {
             timedFunc_set_2(
                 0.5f, (GenFunction_2)func_8038D16C,
-                D_80394354[D_8037DCB8->unkC].unk2,
-                D_80394354[D_8037DCB8->unkC].unk4
+                D_80394354[ffStorage->questionTypeTableIndex].unk2,
+                D_80394354[ffStorage->questionTypeTableIndex].unk4
             );
 
-            cleanupDelay = D_80394354[D_8037DCB8->unkC].unk8;
+            cleanupDelay = D_80394354[ffStorage->questionTypeTableIndex].unk8;
 
             break;
         }
     }
 
     if (cleanupDelay > 0.0) // f64
-        timedFunc_set_1(cleanupDelay, (GenFunction_1)func_8038D670, FFA_4_UNK);
+        timedFunc_set_1(cleanupDelay, (GenFunction_1)ff_setState, FFA_4_UNK);
 }
 
-void func_8038D394(void)
+void ff_getPictureQuestionImage(void)
 {
-    D_8037DCB8->unk12 = 1;
-    func_802D5058(
-        D_803945D0[D_8037DCB8->unkC].unk0,
-        D_803945D0[D_8037DCB8->unkC].UNK_01,
-        D_8037DCB8->unkD >= 9
+    ffStorage->unk12 = 1;
+    func_getCameraViewFromLevel(
+        D_803945D0[ffStorage->questionTypeTableIndex].unk0,
+        D_803945D0[ffStorage->questionTypeTableIndex].UNK_01,
+        ffStorage->questionAssetIndex >= 9
     );
 }
 
@@ -786,19 +786,19 @@ void func_8038D3F0(s32 a0, s8 a1)
 {
     if (a1 == -2)
     {
-        D_8037DCB8->unk12 = 0;
+        ffStorage->unk12 = 0;
 
-        if (D_8037DCB8->ffQuestionType == FFQT_2_SOUND)
-            func_8038D1E4();
-        else if (D_8037DCB8->ffQuestionType == FFQT_1_PICTURE)
-            func_8038D394();
+        if (ffStorage->ffQuestionType == FFQT_2_SOUND)
+            ff_getSoundQuestionSound();
+        else if (ffStorage->ffQuestionType == FFQT_1_PICTURE)
+            ff_getPictureQuestionImage();
         else
-            func_8038D670(FFA_4_UNK);
+            ff_setState(FFA_4_UNK);
     }
     else
     {
-        D_8037DCB8->unkF = a1;
-        func_8038D670(FFA_6_TRIGGER_QUESTION_POST_EFFECTS);
+        ffStorage->unkF = a1;
+        ff_setState(FFA_6_TRIGGER_QUESTION_POST_EFFECTS);
     }
 }
 
@@ -809,7 +809,7 @@ void func_8038D48C(void)
     func_802BC280();
 }
 
-void func_8038D4BC(void)
+void ff_setupMinigame(void)
 {
     volatileFlag_set(VOLATILE_FLAG_2_FF_IN_MINIGAME, true);
     func_802E4A70();
@@ -817,14 +817,14 @@ void func_8038D4BC(void)
     // restore moves after a delay
     timedFunc_set_1(0.25f,
         (GenFunction_1)ability_setAllLearned,
-        D_8037DCB8->unlockedMoves
+        ffStorage->unlockedMoves
     );
 
     // trigger warp after a delay
     timedFunc_set_3(0.25f,
         (GenFunction_3)transitionToMap,
-        D_803945B8[D_8037DCB8->unkC].map,
-        D_803945B8[D_8037DCB8->unkC].exit,
+        D_803945B8[ffStorage->questionTypeTableIndex].map,
+        D_803945B8[ffStorage->questionTypeTableIndex].exit,
         1
     );
 }
@@ -843,7 +843,7 @@ void func_8038D548(s32 a0)
 void func_8038D5A0(void)
 {
     s32 s0;
-    Struct_lair_5ED0_0 *ptr = D_80393760;
+    Furnace_Fun_Board *ptr = D_80393760;
 
     for (s0 = FF_QNF_START; s0 != FF_QNF_END; s0++, ptr++)
     {
@@ -872,19 +872,19 @@ s32 func_8038D60C(s32 a0)
 }
 
 // FF: process ff action
-void func_8038D670(enum FF_Action next_state) {
+void ff_setState(enum FF_Action next_state) {
     s32 pad3C;
     f32 sp30[3];
 
     switch(next_state){
         case FFA_1_UNK: //L8038D6A0
-            if ((D_8037DCB8->currFfMode != FFA_5_FORGET_MOVES_2) && (D_8037DCB8->currFfMode != FFA_1_UNK)) {
+            if ((ffStorage->currFfMode != FFA_5_FORGET_MOVES_2) && (ffStorage->currFfMode != FFA_1_UNK)) {
                 func_802FAD64(ITEM_14_HEALTH);
                 func_802FAD64(ITEM_16_LIFE);
             }
             func_802FAD64(ITEM_27_JOKER_CARD);
-            D_8037DCB8->unkF = -2;
-            ability_setAllLearned(D_8037DCB8->unlockedMoves);
+            ffStorage->unkF = -2;
+            ability_setAllLearned(ffStorage->unlockedMoves);
             func_80347A14(1);
             break;
 
@@ -895,37 +895,37 @@ void func_8038D670(enum FF_Action next_state) {
         case FFA_3_TRIGGER_QUESTION: //L8038D720
             func_802FAD64(ITEM_14_HEALTH);
             func_802FAD64(ITEM_16_LIFE);
-            D_8037DCB8->unk12 = 1;
+            ffStorage->unk12 = 1;
             func_8030E6D4(SFX_12C_FF_QUESTION_START);
             func_8028F918(2);
-            if (D_8037DCB8->ffQuestionType != FFQT_4_MINIGAME) {
+            if (ffStorage->ffQuestionType != FFQT_4_MINIGAME) {
                 func_8038CE00();
-                gcquiz_func_8031A154(D_8037DCB8->ffQuestionType, D_8037DCB8->unkD, D_8037DCB8->unkE, __code5ED0_getQuizQuestionTime(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC), 0, (void (*)(s32, s8))func_8038D3F0);
+                gcquiz_func_8031A154(ffStorage->ffQuestionType, ffStorage->questionAssetIndex, ffStorage->unkE, __code5ED0_getQuizQuestionTime(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex), 0, (void (*)(s32, s8))func_8038D3F0);
             } else {
-                func_8038D4BC();
+                ff_setupMinigame();
             }
             break;
 
         case FFA_4_UNK: //L8038D7CC
-            if (D_8037DCB8->ffQuestionType == FFQT_2_SOUND) {
-                switch(D_80394354[D_8037DCB8->unkC].unk0){
+            if (ffStorage->ffQuestionType == FFQT_2_SOUND) {
+                switch(D_80394354[ffStorage->questionTypeTableIndex].unk0){
                     case 3:
-                        comusic_8025AB44(D_80394354[D_8037DCB8->unkC].unk2, 0, 0x1F4);
-                        func_8025AABC(D_80394354[D_8037DCB8->unkC].unk2);
+                        comusic_8025AB44(D_80394354[ffStorage->questionTypeTableIndex].unk2, 0, 0x1F4);
+                        func_8025AABC(D_80394354[ffStorage->questionTypeTableIndex].unk2);
                         timedFunc_set_0(1.5f, func_8038D1BC);
                         break;
                     case 1: //L8038D870
-                         if (func_8025AD7C(D_80394354[D_8037DCB8->unkC].unk2)) {
-                            comusic_8025AB44(D_80394354[D_8037DCB8->unkC].unk2, 0, 0x1F4);
+                         if (func_8025AD7C(D_80394354[ffStorage->questionTypeTableIndex].unk2)) {
+                            comusic_8025AB44(D_80394354[ffStorage->questionTypeTableIndex].unk2, 0, 0x1F4);
                             timedFunc_set_0(1.5f, func_8038D1BC);
                         } else {
                             func_8025A55C(-1, 0x1F4, 9);
                         }
-                        func_8025AABC(D_80394354[D_8037DCB8->unkC].unk2);
+                        func_8025AABC(D_80394354[ffStorage->questionTypeTableIndex].unk2);
                         break;
                     case 2: //L8038D908
-                        gczoombox_free(D_8037DCB8->unk20);
-                        D_8037DCB8->unk20 = 0;
+                        gczoombox_free(ffStorage->zoombox);
+                        ffStorage->zoombox = 0;
                     default:
                         func_8025A55C(-1, 0x1F4, 9);
                         break;
@@ -936,22 +936,22 @@ void func_8038D670(enum FF_Action next_state) {
 
         case FFA_6_TRIGGER_QUESTION_POST_EFFECTS: //L8038D940
             func_8038D48C();
-            if (D_8037DCB8->unkF == 1) {
-                lair_func_8038C640(D_8037DCB8->unk8, D_8037DCB8->unk4);
-                lair_func_8038C338(D_8037DCB8->ffQuestionType, D_8037DCB8->unkC, 1);
-                D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType]++;
-                if (lair_func_8038C2C0(D_8037DCB8->ffQuestionType) == D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType]) {
-                    D_8037DCB8->unk3C[D_8037DCB8->ffQuestionType] = 0;
-                    func_8038C2D4(D_8037DCB8->ffQuestionType);
+            if (ffStorage->unkF == 1) {
+                lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
+                lair_func_8038C338(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex, 1);
+                ffStorage->unk3C[ffStorage->ffQuestionType]++;
+                if (lair_func_8038C2C0(ffStorage->ffQuestionType) == ffStorage->unk3C[ffStorage->ffQuestionType]) {
+                    ffStorage->unk3C[ffStorage->ffQuestionType] = 0;
+                    ff_clearAlreadyAskedQuestions(ffStorage->ffQuestionType);
                 }
-                if (((s32) D_8037DCB8->unk4->unk8 >= 7) && (quizQuestionAskedBitfield_get(func_8038D60C(D_8037DCB8->unk8)) == 0)) {
-                    item_adjustByDiffWithHud(ITEM_27_JOKER_CARD, D_8037DCB8->unk4->unk8 - 6);
-                    quizQuestionAskedBitfield_set(func_8038D60C(D_8037DCB8->unk8), true);
+                if (((s32) ffStorage->currentBoardTile->tileType >= 7) && (quizQuestionAskedBitfield_get(func_8038D60C(ffStorage->currentTileId)) == 0)) {
+                    item_adjustByDiffWithHud(ITEM_27_JOKER_CARD, ffStorage->currentBoardTile->tileType - 6);
+                    quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->currentTileId), true);
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A8_FF_GOT_JOKER);
                 }
-                if (D_8037DCB8->unk8 != 0x1EF) {
+                if (ffStorage->currentTileId != 0x1EF) {
                     gcsfx_playWithPitch(SFX_126_AUDIENCE_BOOING, 1.0f, 0x7FF8);
-                    if (D_8037DCB8->unk4->unk8 == FFTT_5_GRUNTY) {
+                    if (ffStorage->currentBoardTile->tileType == FFTT_5_GRUNTY) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A2_FF_GRUNTY_ANSWER_RIGHT);
                     }
                     if (volatileFlag_get(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT)) {
@@ -960,9 +960,9 @@ void func_8038D670(enum FF_Action next_state) {
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT);
                 }
             } else {
-                if (D_8037DCB8->unk4->unk8 == FFTT_6_SKULL) {
+                if (ffStorage->currentBoardTile->tileType == FFTT_6_SKULL) {
                     gcpausemenu_80314AC8(0);
-                    if (func_80305248(sp30, 0x377, D_8037DCB8->playerPosition)) {
+                    if (func_80305248(sp30, 0x377, ffStorage->playerPosition)) {
                         func_8038D548(1);
                         func_8028F5F8(sp30);
                     } else {
@@ -971,7 +971,7 @@ void func_8038D670(enum FF_Action next_state) {
                     }
                     func_8030E6D4(SFX_125_AUDIENCE_CHEERING_2);
                 } else {
-                    if (D_8037DCB8->unkF != -2) {
+                    if (ffStorage->unkF != -2) {
                         if (item_getCount(ITEM_14_HEALTH) == 1) {
                             func_8038D548(0);
                         }
@@ -979,9 +979,9 @@ void func_8038D670(enum FF_Action next_state) {
                     }
                     func_8030E6D4(SFX_124_AUDIENCE_CHEERING_1);
                 }
-                if (D_8037DCB8->unk4->unk8 >= 7) {
-                    quizQuestionAskedBitfield_set(func_8038D60C(D_8037DCB8->unk8), true);
-                    lair_func_8038C640(D_8037DCB8->unk8, D_8037DCB8->unk4);
+                if (ffStorage->currentBoardTile->tileType >= 7) {
+                    quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->currentTileId), true);
+                    lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                 }
                 if (volatileFlag_get(VOLATILE_FLAG_A3_FF_FIRST_ANSWER_WRONG)) {
                     volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A4_FF_NEXT_ANSWER_WRONG);
@@ -1009,7 +1009,7 @@ void func_8038D670(enum FF_Action next_state) {
                 func_80347A14(0);
             }
             func_8038D5A0();
-            ability_setAllLearned(D_8037DCB8->unlockedMoves);
+            ability_setAllLearned(ffStorage->unlockedMoves);
             func_80347A14(1);
             func_802FAD64(ITEM_27_JOKER_CARD);
             break;
@@ -1017,12 +1017,12 @@ void func_8038D670(enum FF_Action next_state) {
             break;
 
     }
-    D_8037DCB8->currFfMode = next_state;
-    if(D_8037DCB8);
+    ffStorage->currFfMode = next_state;
+    if(ffStorage);
 }
 
 // FF: get question type
-enum ff_question_type_e func_8038DCD4(enum FF_TileType tile)
+enum ff_question_type_e ff_getQuestionType(enum FF_TileType tile)
 {
     switch (tile)
     {
@@ -1044,7 +1044,7 @@ enum ff_question_type_e func_8038DCD4(enum FF_TileType tile)
 }
 
 // FF: choose level (enum level_e) for picture question (?)
-s32 func_8038DDAC(void)
+s32 ff_getPictureQuestionLevel(void)
 {
     f32 rng = randf();
 
@@ -1054,13 +1054,13 @@ s32 func_8038DDAC(void)
 }
 
 // FF: prepare random unasked question for type
-void func_8038DE34(enum ff_question_type_e type)
+void ff_prepareNextQuestion(enum ff_question_type_e type)
 {
     s32 randQuestionIdx;
     s32 rand;
     s32 tmp;
 
-    D_8037DCB8->unkE = -1;
+    ffStorage->unkE = -1;
 
     if (type == FFQT_0_TEXT
      || type == FFQT_3_GRUNTY
@@ -1080,8 +1080,8 @@ void func_8038DE34(enum ff_question_type_e type)
         } while (lair_func_8038C370(type, randQuestionIdx));
 
         // Save to storage struct
-        D_8037DCB8->unkC = randQuestionIdx;
-        D_8037DCB8->unkD = D_8037DCB8->unkC;
+        ffStorage->questionTypeTableIndex = randQuestionIdx;
+        ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex;
     }
     else if (type == FFQT_1_PICTURE)
     {
@@ -1089,7 +1089,7 @@ void func_8038DE34(enum ff_question_type_e type)
          * Handle picture question (choosing a level, then choosing a pre-set angle within it)
          */
 
-        D_8037DCB8->unkD = D_8037DCB8->unkC;
+        ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex;
 
         do
         {
@@ -1098,24 +1098,24 @@ void func_8038DE34(enum ff_question_type_e type)
 
             if (rand == 9)
             {
-                D_8037DCB8->unkC = randi2(0, 10) + tmp;
-                D_8037DCB8->unkD = D_8037DCB8->unkC - tmp + 9;
+                ffStorage->questionTypeTableIndex = randi2(0, 10) + tmp;
+                ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex - tmp + 9;
             }
             else
             {
-                D_8037DCB8->unkC = func_8038DDAC() + tmp;
-                D_8037DCB8->unkD = D_8037DCB8->unkC / 0xC;
+                ffStorage->questionTypeTableIndex = ff_getPictureQuestionLevel() + tmp;
+                ffStorage->questionAssetIndex = ffStorage->questionTypeTableIndex / 0xC;
             }
 
             // Try again if question already asked
-        } while (lair_func_8038C370(type, D_8037DCB8->unkC));
+        } while (lair_func_8038C370(type, ffStorage->questionTypeTableIndex));
     }
 }
 
 // FF: play timer square sounds
-void func_8038DFBC(void)
+void ff_playTimerTileSounds(void)
 {
-    if (D_8037DCB8->UNK_18)
+    if (ffStorage->UNK_18)
         return;
 
     timed_playSfx(0.f,   0x2A, 0.5f, 32760);
@@ -1129,8 +1129,8 @@ void func_8038DFBC(void)
 
 void func_8038E070(void)
 {
-    func_8028F85C(D_8037DCB8->playerPosition);
-    player_setRotation(D_8037DCB8->playerRotation);
+    func_8028F85C(ffStorage->playerPosition);
+    player_setRotation(ffStorage->playerRotation);
     func_8028F918(2);
 }
 
@@ -1141,29 +1141,29 @@ void lair_func_8038E0B0(void) {
     s32 sp38;
     s32 sp28;
 
-    if( (map_get() == MAP_8E_GL_FURNACE_FUN) 
-        && (D_8037DCB8 != NULL) 
-        && (D_8037DCB8->unk0 != NULL)
+    if( (gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) 
+        && (ffStorage != NULL) 
+        && (ffStorage->unk0 != NULL)
     ){
         gcquiz_func_80319EA4();
         func_8038C9D0();
         controller_copyFaceButtons(0, sp48);
-        func_8024E60C(0, sp3C);
-        if (D_8037DCB8->currFfMode < 3) {
-            player_getPosition(D_8037DCB8->playerPosition);
-            temp_v0 = func_8033F3E8(D_8037DCB8->unk0, D_8037DCB8->playerPosition, 0x191, 0x1F0);
-            if ((temp_v0 != D_8037DCB8->unk8) && (D_8037DCB8->unk8 != 0)) {
-                if (D_8037DCB8->unk4->unk9 == 2) {
-                    D_8037DCB8->unk4->unk9 = 0U;
+        controller_copySideButtons(0, sp3C);
+        if (ffStorage->currFfMode < 3) {
+            player_getPosition(ffStorage->playerPosition);
+            temp_v0 = func_8033F3E8(ffStorage->unk0, ffStorage->playerPosition, 0x191, 0x1F0);
+            if ((temp_v0 != ffStorage->currentTileId) && (ffStorage->currentTileId != 0)) {
+                if (ffStorage->currentBoardTile->unk9 == 2) {
+                    ffStorage->currentBoardTile->unk9 = 0U;
                 }
             }
-            D_8037DCB8->unk8 = temp_v0;
-            D_8037DCB8->unk4 = lair_func_8038C5B8(D_8037DCB8->unk8);
+            ffStorage->currentTileId = temp_v0;
+            ffStorage->currentBoardTile = lair_func_8038C5B8(ffStorage->currentTileId);
         }
-        sp38 = MIN((D_8037DCB8->unk8 != 0) ? D_8037DCB8->unk4->unk8 : -1, FFTT_7_JOKER);
-        if ((D_8037DCB8->unk8 != 0) && (D_8037DCB8->unk4->unk9 == 0) && func_8028F20C()) {
-            D_8037DCB8->unk4->unk9 = 2;
-            if (D_8037DCB8->unk11) {
+        sp38 = MIN((ffStorage->currentTileId != 0) ? ffStorage->currentBoardTile->tileType : -1, FFTT_7_JOKER);
+        if ((ffStorage->currentTileId != 0) && (ffStorage->currentBoardTile->unk9 == 0) && func_8028F20C()) {
+            ffStorage->currentBoardTile->unk9 = 2;
+            if (ffStorage->unk11) {
                 switch(sp38){
                     case FFTT_6_SKULL://L8038E26C
                         comusic_playTrack(COMUSIC_7B_STEP_ON_SKULL_TILE);
@@ -1190,39 +1190,39 @@ void lair_func_8038E0B0(void) {
                         break;
 
                     case FFTT_4_MINIGAME://L8038E2E4
-                        func_8038DFBC();
+                        ff_playTimerTileSounds();
                         break;
                 }
-                D_8037DCB8->unk11 = false;
+                ffStorage->unk11 = false;
             }
         } else {
-            D_8037DCB8->unk11 = true;
+            ffStorage->unk11 = true;
         }
         
-        if ((D_8037DCB8->currFfMode >= 2) && (D_8037DCB8->currFfMode < 8) 
+        if ((ffStorage->currFfMode >= 2) && (ffStorage->currFfMode < 8) 
             && (item_getCount(ITEM_27_JOKER_CARD) != 0)
         ) {
-            func_802FACA4(ITEM_27_JOKER_CARD);
+            code_73640_printItemCount(ITEM_27_JOKER_CARD);
         }
-        func_8028FA14(MAP_8E_GL_FURNACE_FUN, 2);
-        switch(D_8037DCB8->currFfMode){
+        code_7060_setVoidOutLocation(MAP_8E_GL_FURNACE_FUN, 2);
+        switch(ffStorage->currFfMode){
             case 1://L8038E388
-                if(D_8037DCB8->unk8 != 0){
+                if(ffStorage->currentTileId != 0){
                     func_80347A14(0);
-                    func_8038D670(2);
+                    ff_setState(2);
                 }
                 break;
 
             case 2://L8038E3AC
-                if (D_8037DCB8->unk8 == 0) {
-                    func_8038D670(1);
+                if (ffStorage->currentTileId == 0) {
+                    ff_setState(1);
                     break;
                 }
-                func_802FACA4(0x14);
-                func_802FACA4(0x16);
+                code_73640_printItemCount(0x14);
+                code_73640_printItemCount(0x16);
                 if (sp38 != FFTT_0_NIL) {
                     sp28 = sp38 - 1 + FILEPROG_55_FF_BK_SQUARE_INSTRUCTIONS;
-                    if (!fileProgressFlag_get(sp28) && gcdialog_showText(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
+                    if (!fileProgressFlag_get(sp28) && gcdialog_showDialog(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(sp28, true);
                     }
                     s32 ffLifeThreshold = 1;
@@ -1232,23 +1232,23 @@ void lair_func_8038E0B0(void) {
                     } else if (item_getCount(ITEM_14_HEALTH) == 1) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AA_FF_LOW_HEALTH);
                     }
-                    if ((D_8037DCB8->unk4->unk9 == 2) && (player_movementGroup() == BSGROUP_0_NONE)) {
+                    if ((ffStorage->currentBoardTile->unk9 == 2) && (player_movementGroup() == BSGROUP_0_NONE)) {
                         if (func_8028EFEC() && (sp48[FACE_BUTTON(BUTTON_A)] == 1)) {
                             func_803114D0();
-                            player_getRotation(D_8037DCB8->playerRotation);
-                            D_8037DCB8->ffQuestionType = func_8038DCD4(sp38);
-                            func_8038DE34(D_8037DCB8->ffQuestionType);
-                            func_8038D670(3);
+                            player_getRotation(ffStorage->playerRotation);
+                            ffStorage->ffQuestionType = ff_getQuestionType(sp38);
+                            ff_prepareNextQuestion(ffStorage->ffQuestionType);
+                            ff_setState(3);
                             return;
                         }
                         if (func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
                             if ((item_getCount(ITEM_27_JOKER_CARD) > 0) && (sp28 < 0x5B)) {
-                                lair_func_8038C640(D_8037DCB8->unk8, D_8037DCB8->unk4);
+                                lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                                 item_dec(ITEM_27_JOKER_CARD);
                                 func_8030E6D4(SFX_3EA_BANJO_GUH_HUH);
                                 volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A9_FF_USED_JOKER);
-                                if (D_8037DCB8->unk8 == 0x1EF) {
-                                    func_8038D670(8);
+                                if (ffStorage->currentTileId == 0x1EF) {
+                                    ff_setState(8);
                                 }
                             } else {
                                 comusic_playTrack(COMUSIC_2C_BUZZER);
@@ -1256,19 +1256,19 @@ void lair_func_8038E0B0(void) {
                         }
                     }
                 } else {
-                    if (D_8037DCB8->unk4->unk9 == 2) {
-                        lair_func_8038C640(D_8037DCB8->unk8, D_8037DCB8->unk4);
+                    if (ffStorage->currentBoardTile->unk9 == 2) {
+                        lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                     }
                 }
                 break;
 
             case 3://L8038E5C8
-                if ((D_8037DCB8->ffQuestionType == 2) && D_80394354[D_8037DCB8->unkC].unk0 == 2){
-                    gczoombox_update(D_8037DCB8->unk20);
+                if ((ffStorage->ffQuestionType == 2) && D_80394354[ffStorage->questionTypeTableIndex].unk0 == 2){
+                    gczoombox_update(ffStorage->zoombox);
                 }
-                if ((D_8037DCB8->unk12 == 0) && func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
+                if ((ffStorage->unk12 == 0) && func_8028EFC8() && (sp48[FACE_BUTTON(BUTTON_B)] == 1)) {
                     func_80324C58();
-                    func_8038D670(4);
+                    ff_setState(4);
                 }
                 break;
 
@@ -1284,10 +1284,10 @@ void lair_func_8038E0B0(void) {
                 if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
                     if (volatileFlag_get(VOLATILE_FLAG_4)) {
                         func_8038E070();
-                        D_8037DCB8->unkF = volatileFlag_get(VOLATILE_FLAG_5_FF_MINIGAME_WON);
-                        func_8038D670(6);
+                        ffStorage->unkF = volatileFlag_get(VOLATILE_FLAG_5_FF_MINIGAME_WON);
+                        ff_setState(6);
                     } else {
-                        func_8038D670(1);
+                        ff_setState(1);
                     }
                     volatileFlag_set(VOLATILE_FLAG_2_FF_IN_MINIGAME, false);
                     volatileFlag_set(VOLATILE_FLAG_4, false);
@@ -1295,18 +1295,18 @@ void lair_func_8038E0B0(void) {
                 break;
 
             case 6://L8038E6F8
-                if ((D_8037DCB8->unk8 == 0x1EF) && ( D_8037DCB8->unkF == 1)) {
-                    func_8038D670(8);
+                if ((ffStorage->currentTileId == 0x1EF) && ( ffStorage->unkF == 1)) {
+                    ff_setState(8);
                 }
                 else{
-                    func_8038D670(2);
+                    ff_setState(2);
                 }
                 break;
 
             case 9://L8038E738
                 if (!func_8025AD7C(0x78)) {
                     mapSpecificFlags_set(6, true);
-                    func_8038D670(0);
+                    ff_setState(0);
                 }
                 break;
         }
@@ -1315,11 +1315,11 @@ void lair_func_8038E0B0(void) {
 
 void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v)
 {
-    if (map_get() != MAP_8E_GL_FURNACE_FUN)
+    if (gsworld_getMap() != MAP_8E_GL_FURNACE_FUN)
         return;
 
     gcquiz_draw(dl, m, v);
-    gczoombox_draw(D_8037DCB8->unk20, dl, m, v);
+    gczoombox_draw(ffStorage->zoombox, dl, m, v);
 }
 
 void func_8038E7C4(void)
@@ -1327,7 +1327,7 @@ void func_8038E7C4(void)
     if (volatileFlag_get(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ))
         return;
 
-    func_8038CE28();
+    ff_setup();
     volatileFlag_set(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ, true);
 }
 
@@ -1336,14 +1336,14 @@ void func_8038E7C4(void)
  */
 s32 func_8038E800(void)
 {
-    struct FF_StorageStruct_48_sub *ptr = D_8037DCB8->unk48->data;
+    struct FF_StorageStruct_48_sub *ptr = ffStorage->unk48->data;
 
 #if 0
     //! doesn't match!
     {
         s32 i, j;
 
-        for (i = 0; i < ARRLEN(D_8037DCB8->unk48->data); i++, ptr++)
+        for (i = 0; i < ARRLEN(ffStorage->unk48->data); i++, ptr++)
         {
             if (ptr->unk20 == 0)
             {
@@ -1450,35 +1450,35 @@ s32 func_8038E800(void)
 
 void func_8038E968(s32 idx)
 {
-    if (D_8037DCB8 != NULL && D_8037DCB8->unk48 != NULL && idx >= 0)
-        D_8037DCB8->unk48->data[idx].unk20 = 0;
+    if (ffStorage != NULL && ffStorage->unk48 != NULL && idx >= 0)
+        ffStorage->unk48->data[idx].unk20 = 0;
 }
 
 void func_8038E9A4(s32 idx, f32 a1[3])
 {
-    if (D_8037DCB8 != NULL && D_8037DCB8->unk48 != NULL && idx >= 0)
+    if (ffStorage != NULL && ffStorage->unk48 != NULL && idx >= 0)
     {
-        D_8037DCB8->unk48->data[idx].unk0[0] = a1[0];
-        D_8037DCB8->unk48->data[idx].unk0[1] = a1[1];
-        D_8037DCB8->unk48->data[idx].unk0[2] = a1[2];
+        ffStorage->unk48->data[idx].unk0[0] = a1[0];
+        ffStorage->unk48->data[idx].unk0[1] = a1[1];
+        ffStorage->unk48->data[idx].unk0[2] = a1[2];
     }
 }
 
 void func_8038EA10(s32 idx, f32 a1[3])
 {
-    if (D_8037DCB8 != NULL && D_8037DCB8->unk48 != NULL && idx >= 0)
+    if (ffStorage != NULL && ffStorage->unk48 != NULL && idx >= 0)
     {
-        D_8037DCB8->unk48->data[idx].unkC = a1[0];
-        D_8037DCB8->unk48->data[idx].UNK_10 = a1[1];
+        ffStorage->unk48->data[idx].unkC = a1[0];
+        ffStorage->unk48->data[idx].UNK_10 = a1[1];
     }
 }
 
 void func_8038EA68(s32 idx, s32 a1[3])
 {
-    if (D_8037DCB8 != NULL && D_8037DCB8->unk48 != NULL && idx >= 0)
+    if (ffStorage != NULL && ffStorage->unk48 != NULL && idx >= 0)
     {
-        D_8037DCB8->unk48->data[idx].unk14[0] = a1[0];
-        D_8037DCB8->unk48->data[idx].unk14[1] = a1[1];
-        D_8037DCB8->unk48->data[idx].unk14[2] = a1[2];
+        ffStorage->unk48->data[idx].unk14[0] = a1[0];
+        ffStorage->unk48->data[idx].unk14[1] = a1[1];
+        ffStorage->unk48->data[idx].unk14[2] = a1[2];
     }
 }

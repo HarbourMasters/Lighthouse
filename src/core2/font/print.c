@@ -17,17 +17,17 @@ typedef struct{
 typedef struct{
     s16 x;
     s16 y;
-    s16 unk4;
-    s16 unk6;
+    s16 topVertexAlpha;
+    s16 bottomVertexAlpha;
     u8 fmtString[8];
-    f32 unk10;
+    f32 scale;
     u8 *string;
     u8 rgba[4];
 } PrintBuffer;
 
 typedef struct font_letter{
-    BKSpriteTextureBlock *unk0;//chunkPtr
-    void *unk4;//palPtr
+    BKSpriteTextureBlock *sprite;//chunkPtr
+    void *palette;//palPtr
 } FontLetter;
 
 typedef struct map_font_texture_map{
@@ -36,14 +36,14 @@ typedef struct map_font_texture_map{
 } MapFontTextureMap;
 
 typedef struct{
-    u8 unk0;
-    u8 unk1;
-    s8 unk2;
-    s8 unk3;
+    u8 firstLetter;
+    u8 secondLetter;
+    s8 xOffset;
+    s8 yOffset;
 }Struct_6DA30_0_s;
 
 /* .data */
-extern Struct_6DA30_0_s  D_80369000[] = {
+extern Struct_6DA30_0_s  boldFontKernings[] = {
     {'A', 'V', -3, 0},
     {'W', 'A', -3, 0},
     {'V', 'A', -3, 0},
@@ -79,109 +79,109 @@ struct {
     u8 unk1;
     u8 unk2;
     u8 unk3;
-} D_80369078 = {0xFF, 0xFF, 0xFF, 0XFF};
+} normalTextColor = {0xFF, 0xFF, 0xFF, 0XFF};
 
-MapFontTextureMap D_8036907C[] ={
-    {MAP_1_SM_SPIRAL_MOUNTAIN,          0x6F0},
+MapFontTextureMap mapToBoldFontTextureMap[] ={
+    {MAP_1_SM_SPIRAL_MOUNTAIN,          SPRITE_BOLD_FONT_BLUE_SPHERE_TEXTURE},
     {MAP_2_MM_MUMBOS_MOUNTAIN,          0x6EF},
     {0x3, 0x6EE},
     {0x4, 0x6EE},
-    {MAP_5_TTC_BLUBBERS_SHIP,           0x6F0},
-    {MAP_6_TTC_NIPPERS_SHELL,           0x6EE},
-    {MAP_7_TTC_TREASURE_TROVE_COVE,     0x6F0},
+    {MAP_5_TTC_BLUBBERS_SHIP,           SPRITE_BOLD_FONT_BLUE_SPHERE_TEXTURE},
+    {MAP_6_TTC_NIPPERS_SHELL,           SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_7_TTC_TREASURE_TROVE_COVE,     SPRITE_BOLD_FONT_BLUE_SPHERE_TEXTURE},
     {0x8, 0x6EE},
     {0x9, 0x6EE},
     {MAP_A_TTC_SANDCASTLE,              0x6F0},
-    {MAP_B_CC_CLANKERS_CAVERN,          0x6EE},
+    {MAP_B_CC_CLANKERS_CAVERN,          SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {MAP_C_MM_TICKERS_TOWER,            0x6EF},
-    {MAP_D_BGS_BUBBLEGLOOP_SWAMP,       0x6EE},
+    {MAP_D_BGS_BUBBLEGLOOP_SWAMP,       SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {MAP_E_MM_MUMBOS_SKULL,             0x6EF},
     {0xF, 0x6EE},
-    {MAP_10_BGS_MR_VILE,                0x6EE},
-    {MAP_11_BGS_TIPTUP,                 0x6EE},
+    {MAP_10_BGS_MR_VILE,                SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_11_BGS_TIPTUP,                 SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {MAP_12_GV_GOBIS_VALLEY,            0x6F0},
-    {MAP_13_GV_MEMORY_GAME,             0x6EE},
-    {MAP_14_GV_SANDYBUTTS_MAZE,         0x6EE},
-    {MAP_15_GV_WATER_PYRAMID,           0x6EE},
-    {MAP_16_GV_RUBEES_CHAMBER,          0x6EE},
+    {MAP_13_GV_MEMORY_GAME,             SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_14_GV_SANDYBUTTS_MAZE,         SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_15_GV_WATER_PYRAMID,           SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_16_GV_RUBEES_CHAMBER,          SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {0x17, 0x6EE},
     {0x18, 0x6EE},
     {0x19, 0x6EE},
-    {MAP_1A_GV_INSIDE_JINXY,            0x6EE},
+    {MAP_1A_GV_INSIDE_JINXY,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {MAP_1B_MMM_MAD_MONSTER_MANSION,    0x6EF},
-    {MAP_21_CC_WITCH_SWITCH_ROOM,       0x6EE},
-    {MAP_22_CC_INSIDE_CLANKER,          0x6EE},
-    {MAP_23_CC_GOLDFEATHER_ROOM,        0x6EE},
+    {MAP_21_CC_WITCH_SWITCH_ROOM,       SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_22_CC_INSIDE_CLANKER,          SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_23_CC_GOLDFEATHER_ROOM,        SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {MAP_24_MMM_TUMBLARS_SHED,          0x6EE},
     {MAP_25_MMM_WELL,                   0x6EE},
     {MAP_26_MMM_NAPPERS_ROOM,           0x6EE},
-    {MAP_28_MMM_EGG_ROOM,               0x6EF},
-    {MAP_29_MMM_NOTE_ROOM,              0x6EF},
-    {MAP_2A_MMM_FEATHER_ROOM,           0x6EF},
-    {MAP_2B_MMM_SECRET_CHURCH_ROOM,     0x6EF},
+    {MAP_28_MMM_EGG_ROOM,               SPRITE_BOLD_FONT_ORANGE_SPHERE_TEXTURE},
+    {MAP_29_MMM_NOTE_ROOM,              SPRITE_BOLD_FONT_ORANGE_SPHERE_TEXTURE},
+    {MAP_2A_MMM_FEATHER_ROOM,           SPRITE_BOLD_FONT_ORANGE_SPHERE_TEXTURE},
+    {MAP_2B_MMM_SECRET_CHURCH_ROOM,     SPRITE_BOLD_FONT_ORANGE_SPHERE_TEXTURE},
     {MAP_2C_MMM_BATHROOM,               0x6EF},
     {MAP_2D_MMM_BEDROOM,                0x6EF},
     {MAP_2E_MMM_HONEYCOMB_ROOM,         0x6EF},
-    {MAP_2F_MMM_WATERDRAIN_BARREL,      0x6EE},
-    {MAP_30_MMM_MUMBOS_SKULL,           0x6EE},
-    {MAP_31_RBB_RUSTY_BUCKET_BAY,       0x6EE},
-    {MAP_32_UNUSED,                     0x6EE},
+    {MAP_2F_MMM_WATERDRAIN_BARREL,      SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_30_MMM_MUMBOS_SKULL,           SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_31_RBB_RUSTY_BUCKET_BAY,       SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_32_UNUSED,                     SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {MAP_33_UNUSED,                     0x6F0},
-    {MAP_34_RBB_ENGINE_ROOM,            0x6EE},
-    {MAP_35_RBB_WAREHOUSE,              0x6EE},
-    {MAP_36_RBB_BOATHOUSE,              0x6EE},
-    {MAP_37_RBB_CONTAINER_1,            0x6EE},
-    {MAP_38_RBB_CONTAINER_3,            0x6EE},
-    {MAP_39_RBB_CREW_CABIN,             0x6EE},
-    {MAP_3A_RBB_BOSS_BOOM_BOX,          0x6EE},
-    {MAP_3B_RBB_STORAGE_ROOM,           0x6EE},
-    {MAP_3C_RBB_KITCHEN,                0x6EE},
-    {MAP_3D_RBB_NAVIGATION_ROOM,        0x6EE},
-    {MAP_3E_RBB_CONTAINER_2,            0x6EE},
-    {MAP_3F_RBB_CAPTAINS_CABIN,         0x6EE},
-    {MAP_41_FP_BOGGYS_IGLOO,            0x6EE},
+    {MAP_34_RBB_ENGINE_ROOM,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_35_RBB_WAREHOUSE,              SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_36_RBB_BOATHOUSE,              SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_37_RBB_CONTAINER_1,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_38_RBB_CONTAINER_3,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_39_RBB_CREW_CABIN,             SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_3A_RBB_BOSS_BOOM_BOX,          SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_3B_RBB_STORAGE_ROOM,           SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_3C_RBB_KITCHEN,                SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_3D_RBB_NAVIGATION_ROOM,        SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_3E_RBB_CONTAINER_2,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_3F_RBB_CAPTAINS_CABIN,         SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_41_FP_BOGGYS_IGLOO,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {0x42, 0x6EE},
-    {MAP_43_CCW_SPRING,                 0x6EE},
-    {MAP_44_CCW_SUMMER,                 0x6EE},
-    {MAP_45_CCW_AUTUMN,                 0x6EE},
-    {MAP_46_CCW_WINTER,                 0x6EE},
-    {MAP_47_BGS_MUMBOS_SKULL,           0x6EE},
-    {MAP_48_FP_MUMBOS_SKULL,            0x6EE},
+    {MAP_43_CCW_SPRING,                 SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_44_CCW_SUMMER,                 SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_45_CCW_AUTUMN,                 SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_46_CCW_WINTER,                 SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_47_BGS_MUMBOS_SKULL,           SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_48_FP_MUMBOS_SKULL,            SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {0x49, 0x6EE},
-    {MAP_4A_CCW_SPRING_MUMBOS_SKULL,    0x6EE},
-    {MAP_4B_CCW_SUMMER_MUMBOS_SKULL,    0x6EE},
-    {MAP_4C_CCW_AUTUMN_MUMBOS_SKULL,    0x6EE},
-    {MAP_4D_CCW_WINTER_MUMBOS_SKULL,    0x6EE},
+    {MAP_4A_CCW_SPRING_MUMBOS_SKULL,    SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_4B_CCW_SUMMER_MUMBOS_SKULL,    SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_4C_CCW_AUTUMN_MUMBOS_SKULL,    SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_4D_CCW_WINTER_MUMBOS_SKULL,    SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {0x4E, 0x6EE},
     {0x4F, 0x6EE},
     {0x50, 0x6EE},
     {0x51, 0x6EE},
     {0x52, 0x6EE},
-    {MAP_53_FP_CHRISTMAS_TREE,          0x6EE},
+    {MAP_53_FP_CHRISTMAS_TREE,          SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     {0x54, 0x6EE},
     {0x55, 0x6EE},
     {0x56, 0x6EE},
     {0x57, 0x6EE},
     {0x58, 0x6EE},
     {0x59, 0x6EE},
-    {MAP_5A_CCW_SUMMER_ZUBBA_HIVE,      0x6EE},
-    {MAP_5B_CCW_SPRING_ZUBBA_HIVE,      0x6EE},
-    {MAP_5C_CCW_AUTUMN_ZUBBA_HIVE,      0x6EE},
-    {MAP_5E_CCW_SPRING_NABNUTS_HOUSE,   0x6EE},
-    {MAP_5F_CCW_SUMMER_NABNUTS_HOUSE,   0x6EE},
-    {MAP_60_CCW_AUTUMN_NABNUTS_HOUSE,   0x6EE},
-    {MAP_61_CCW_WINTER_NABNUTS_HOUSE,   0x6EE},
-    {MAP_62_CCW_WINTER_HONEYCOMB_ROOM,  0x6EE},
-    {MAP_63_CCW_AUTUMN_NABNUTS_WATER_SUPPLY, 0x6EE},
-    {MAP_64_CCW_WINTER_NABNUTS_WATER_SUPPLY, 0x6EE},
-    {MAP_65_CCW_SPRING_WHIPCRACK_ROOM,  0x6EE},
-    {MAP_66_CCW_SUMMER_WHIPCRACK_ROOM,  0x6EE},
-    {MAP_67_CCW_AUTUMN_WHIPCRACK_ROOM,  0x6EE},
-    {MAP_68_CCW_WINTER_WHIPCRACK_ROOM,  0x6EE},
+    {MAP_5A_CCW_SUMMER_ZUBBA_HIVE,      SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_5B_CCW_SPRING_ZUBBA_HIVE,      SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_5C_CCW_AUTUMN_ZUBBA_HIVE,      SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_5E_CCW_SPRING_NABNUTS_HOUSE,   SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_5F_CCW_SUMMER_NABNUTS_HOUSE,   SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_60_CCW_AUTUMN_NABNUTS_HOUSE,   SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_61_CCW_WINTER_NABNUTS_HOUSE,   SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_62_CCW_WINTER_HONEYCOMB_ROOM,  SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_63_CCW_AUTUMN_NABNUTS_WATER_SUPPLY, SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_64_CCW_WINTER_NABNUTS_WATER_SUPPLY, SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_65_CCW_SPRING_WHIPCRACK_ROOM,  SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_66_CCW_SUMMER_WHIPCRACK_ROOM,  SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_67_CCW_AUTUMN_WHIPCRACK_ROOM,  SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
+    {MAP_68_CCW_WINTER_WHIPCRACK_ROOM,  SPRITE_BOLD_FONT_ORANGE_GRADIENT_TEXTURE},
     0
 };
 
-char D_80369200[] = {
+char boldFontLetters[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     ':',
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -230,19 +230,19 @@ s32 print_sDialogFontGlyphCount; // [port] actual glyph count from loaded font s
 void func_802F7A2C(s32 arg0);
 
 //returns map texture assetID for current map;
-enum asset_e func_802F49C0(void){
+enum asset_e print_getCurrentMapBoldFontTexture(void){
     s32 i;
-    for(i = 0; D_8036907C[i].mapID != 0 ; i++){
-        if(map_get() == D_8036907C[i].mapID){
-            return D_8036907C[i].assetId;
+    for(i = 0; mapToBoldFontTextureMap[i].mapID != 0 ; i++){
+        if(gsworld_getMap() == mapToBoldFontTextureMap[i].mapID){
+            return mapToBoldFontTextureMap[i].assetId;
         }
     }
-    return 0x708;
+    return ASSET_708_SPRITE_EGG_PROJECTILE;
 }
 
 // this function reassigns the referenced font mask pixel
 // using the texture @ pixel (x,y)
-void func_802F4A24(BKSpriteTextureBlock *texture, u32 *font, s32 x, s32 y) {
+void print_setBoldFontTexturePixel(BKSpriteTextureBlock *texture, u32 *font, s32 x, s32 y) {
     s32 r5;
     s32 g5;
     s32 b5;
@@ -280,7 +280,7 @@ void func_802F4A24(BKSpriteTextureBlock *texture, u32 *font, s32 x, s32 y) {
 }
 
 //this function applies the texture to the font alpha mask.
-void func_802F4B58(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *texture){
+void print_applyTextureToBoldFontLetter(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *texture){
     s32 y_min;
     s32 x_min;
     u32 *pxl;
@@ -293,7 +293,7 @@ void func_802F4B58(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *textur
 
     for(y = y_min; y < alphaMask->h + y_min; y++){
         for(x = x_min; x < alphaMask->w + x_min; x++){
-            func_802F4A24(texture, pxl, x, y);
+            print_setBoldFontTexturePixel(texture, pxl, x, y);
             pxl++;
         }
     }
@@ -301,7 +301,7 @@ void func_802F4B58(BKSpriteTextureBlock *alphaMask, BKSpriteTextureBlock *textur
 }
 
 //This functions seperates the fonts into letters
-FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
+FontLetter *print_getLettersFromFont(BKSprite *alphaMask, BKSprite *textureSprite){
     BKSpriteFrame * font = sprite_getFramePtr(alphaMask, 0);
     BKSpriteTextureBlock *chunkPtr;
     FontLetter * sp2C = bk_malloc((font->chunkCnt + 1)*sizeof(FontLetter));
@@ -328,8 +328,8 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
                     while((uintptr_t)chunkDataPtr % 8)
                         chunkDataPtr++;
 
-                    sp2C[i].unk0 = chunkPtr;
-                    sp2C[i].unk4 = palDataPtr;
+                    sp2C[i].sprite = chunkPtr;
+                    sp2C[i].palette = palDataPtr;
                     chunkSize = chunkPtr->w*chunkPtr->h;
                     chunkPtr = (BKSpriteTextureBlock *)(chunkDataPtr + chunkSize);
                 }
@@ -348,8 +348,8 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
                         s32 copySize = sizeof(BKSpriteTextureBlock) + chunkSize*4;
                         BKSpriteTextureBlock *copy = bk_malloc(copySize);
                         memcpy(copy, chunkPtr, copySize);
-                        func_802F4B58(copy, (BKSpriteTextureBlock *)(sprite_getFramePtr(textureSprite, 0) + 1));
-                        sp2C[i].unk0 = copy;
+                        print_applyTextureToBoldFontLetter(copy, (BKSpriteTextureBlock *)(sprite_getFramePtr(textureSprite, 0) + 1));
+                        sp2C[i].sprite = copy;
                     }
                     chunkDataPtr = (u8*)(chunkPtr + 1);
                     while((uintptr_t)chunkDataPtr % 8)
@@ -362,7 +362,7 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
             {
                 chunkPtr = (BKSpriteTextureBlock *) (font + 1);
                 for( i = 0; i < font->chunkCnt; i++){
-                    sp2C[i].unk0 = chunkPtr;
+                    sp2C[i].sprite = chunkPtr;
                     chunkDataPtr = (u8*)(chunkPtr + 1);
                     chunkSize = chunkPtr->w*chunkPtr->h;
                     while((uintptr_t)chunkDataPtr % 8)
@@ -376,7 +376,7 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
                 chunkPtr = (BKSpriteTextureBlock *)(font + 1);
                 for( i = 0; i < font->chunkCnt; i++){
                     chunkDataPtr = (u8*)(chunkPtr + 1);
-                    sp2C[i].unk0 = chunkPtr;
+                    sp2C[i].sprite = chunkPtr;
                     chunkSize = chunkPtr->w*chunkPtr->h;
                     while((uintptr_t)chunkDataPtr % 8)
                         chunkDataPtr++;
@@ -388,7 +388,7 @@ FontLetter *func_802F4C3C(BKSprite *alphaMask, BKSprite *textureSprite){
     return sp2C;
 }
 
-void func_802F4F64(void){
+void print_free(void){
     s32 i; 
     for(i = 0; i< 5; i++){
         assetcache_release(D_80380AB8[i]);
@@ -402,14 +402,14 @@ void func_802F4F64(void){
     print_sPrintBuffer = NULL;
 }
 
-void func_802F5010(void){
+void print_clearPrintBufferStrings(void){
     s32 i;
     for(i = 0; i < 0x20; i++){
         print_sPrintBuffer[i].string = NULL;
     }
 }
 
-void func_802F5060(s32 textureId){
+void print_setBoldFontTexture(s32 textureId){
     s32 tmp_a2;
     // [port] func_802546E4 reads bk_malloc HeapHeader, but assets now come from resource manager.
     // code_B3A80_func_8033BDAC is stubbed (returns 0), so always falls through to assetcache_get.
@@ -432,27 +432,27 @@ void func_802F5060(s32 textureId){
     }//L802F510C
     D_80380AB8[4] = assetcache_get(textureId);
     bk_free(print_sFonts[1]);
-    print_sFonts[1] = func_802F4C3C(D_80380AB8[1], D_80380AB8[4]);
+    print_sFonts[1] = print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
     if(D_80380AB8[3]){
         bk_free(print_sFonts[3]);
-        print_sFonts[3] = func_802F4C3C(D_80380AB8[3], D_80380AB8[4]);
+        print_sFonts[3] = print_getLettersFromFont(D_80380AB8[3], D_80380AB8[4]);
     }
     assetcache_release(D_80380AB8[4]);
     D_80380AB8[4] = NULL;
     D_80380B1C = textureId;
 }
 
-void func_802F5188(void){
-    func_802F5060(func_802F49C0());
-    func_802F5010();
+void print_resetBoldFontTexture(void){
+    print_setBoldFontTexture(print_getCurrentMapBoldFontTexture());
+    print_clearPrintBufferStrings();
 }
 
-void func_802F51B8(void){
+void print_init(void){
     s32 i, j;
     s32 length;
     int found;
 
-    length = strlen(D_80369200);
+    length = strlen(boldFontLetters);
     D_80380AE8 = \
     D_80380AEC = \
     D_80380AF0 = \
@@ -468,17 +468,17 @@ void func_802F51B8(void){
     func_802F7A2C(3);
     D_80380AB8[0] = assetcache_get(SPRITE_DIALOG_FONT_ALPHAMASK);
     D_80380AB8[1] = assetcache_get(SPRITE_BOLD_FONT_NUMBERS_ALPHAMASK);
-    D_80380AB8[4] = assetcache_get(func_802F49C0());
-    print_sFonts[0] =  func_802F4C3C(D_80380AB8[0], D_80380AB8[4]);
+    D_80380AB8[4] = assetcache_get(print_getCurrentMapBoldFontTexture());
+    print_sFonts[0] =  print_getLettersFromFont(D_80380AB8[0], D_80380AB8[4]);
     print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
-    print_sFonts[1] =  func_802F4C3C(D_80380AB8[1], D_80380AB8[4]);
+    print_sFonts[1] =  print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
     print_sPrintBuffer = bk_malloc(0x20*sizeof(PrintBuffer));
-    func_802F5010();
+    print_clearPrintBufferStrings();
 
     for(i = 0; i < 0x80; i++){//L802F52EC
         found = 0;
         for(j = 0; j < length && !found; j++){//L802F5304
-            if(D_80369200[j] == i){
+            if(boldFontLetters[j] == i){
                 D_80380F20[i] = j;
                 found = 1;
             }//L802F531C
@@ -488,10 +488,10 @@ void func_802F51B8(void){
     }
     assetcache_release(D_80380AB8[4]);
     D_80380AB8[4] = NULL;
-    D_80380B1C = func_802F49C0();
+    D_80380B1C = print_getCurrentMapBoldFontTexture();
 }
 
-void func_802F5374(void){
+void print_updateBoldLetterFontDelayedFreeing(void){
     if(D_80380B18 > 0 && --D_80380B18 == 0){
         assetcache_release(D_80380AB8[3]);
         D_80380AB8[3] = 0;
@@ -500,7 +500,7 @@ void func_802F5374(void){
     }
 }
 
-void func_802F53D0(void){
+void print_freeBoldLetterFont(void){
     if(D_80380AB8[3]){
         assetcache_release(D_80380AB8[3]);
         D_80380AB8[3] = NULL;
@@ -522,32 +522,32 @@ void printbuffer_defrag(void){
 }
 
 //returns the pixel data and type for a given letter
-BKSpriteTextureBlock *func_802F5494(s32 letterId, s32 *fontType){
+BKSpriteTextureBlock *print_getBoldFontLetterSprite(s32 letterId, s32 *fontType){
     if(D_80380AE8 != 1 || (D_80380AE8 == 1 && letterId < 0xA)){
         *fontType = D_80380AB8[D_80380AE8]->type;
-        return print_sFonts[D_80380AE8][letterId].unk0;
+        return print_sFonts[D_80380AE8][letterId].sprite;
     }
     else{//L802F5510
         if(!D_80380AB8[3]){
             D_80380AB8[3] = assetcache_get(SPRITE_BOLD_FONT_LETTERS_ALPHAMASK);
             D_80380AB8[4] = assetcache_get(D_80380B1C);
-            print_sFonts[3] = func_802F4C3C(D_80380AB8[3], D_80380AB8[4]);
+            print_sFonts[3] = print_getLettersFromFont(D_80380AB8[3], D_80380AB8[4]);
             assetcache_release(D_80380AB8[4]);
             D_80380AB8[4] = NULL;
         }//L802F5568
         D_80380B18 = 5;
         *fontType  = D_80380AB8[3]->type;
-        return print_sFonts[3][letterId-10].unk0;
+        return print_sFonts[3][letterId-10].sprite;
     }
 }
 
 //returns the letter's palette
-void *func_802F55A8(u8 arg0){
-    return  print_sFonts[D_80380AE8][arg0].unk4;
+void *print_getCurrentFontPalette(u8 arg0){
+    return  print_sFonts[D_80380AE8][arg0].palette;
 }
 
 void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    static f32 D_80380FA0;
+    static f32 left_margin;
     
     // u8 letter = arg0;
     BKSpriteTextureBlock *sp214;
@@ -570,7 +570,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     t1 = 0;
 
     if(!D_80380B04 && !letter){
-        D_80380FA0 = 0.0f;
+        left_margin = 0.0f;
     }//L802F563C
 
     switch(D_80380AE8){
@@ -582,9 +582,9 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             break;
         case 1: //L802F56A0
             if((u8)letter < 0x80 && D_80380F20[(u8)letter] >= 0){ // [port] char is signed on MSVC; MIPS char is unsigned
-                for(i = 0; D_80369000[i].unk0 != 0; i++){
-                    if(letter == D_80369000[i].unk1 && D_80380AB0 == D_80369000[i].unk0){
-                        t1 = D_80369000[i].unk3;
+                for(i = 0; boldFontKernings[i].firstLetter != 0; i++){
+                    if(letter == boldFontKernings[i].secondLetter && D_80380AB0 == boldFontKernings[i].firstLetter){
+                        t1 = boldFontKernings[i].yOffset;
                         break;
                     }
                 }//L802F5710
@@ -718,20 +718,20 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         }
     }
     else{//L802F5C08
-        sp214 = func_802F5494(sp20C, &sp1F4);
+        sp214 = print_getBoldFontLetterSprite(sp20C, &sp1F4);
         if (D_80380B10 != 0) {
                sp200 += randf2(-2.0f, 2.0f);
                f28 += randf2(-2.0f, 2.0f);
         }
         sp1F8 = (D_80380AF0 != 0) ? D_80369068[D_80380AE8] : sp214->x;
 
-        // temp_f2 = D_80380FA0;
+        // temp_f2 = left_margin;
         // phi_f2 = temp_f2;
-        if (D_80380FA0 == 0.0f) {
-            D_80380FA0 = -sp1F8 * 0.5;
+        if (left_margin == 0.0f) {
+            left_margin = -sp1F8 * 0.5;
         }
         
-        sp200 += (D_80380FA0 + (sp1F8 - sp214->x) * 0.5);
+        sp200 += (left_margin + (sp1F8 - sp214->x) * 0.5);
         f28 -= sp214->h*0.5;
         sp210 = (uintptr_t)(sp214 + 1);
         while(sp210 % 8){
@@ -746,7 +746,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         } else if (sp1F4 == SPRITE_TYPE_I4) {
             gDPLoadTextureTile_4b((*gfx)++, sp210, G_IM_FMT_I, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y-1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else if (sp1F4 == SPRITE_TYPE_CI8) {
-            void * pal = func_802F55A8(sp20C);
+            void * pal = print_getCurrentFontPalette(sp20C);
             gDPLoadTLUT_pal256((*gfx)++, pal);
             gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_CI, G_IM_SIZ_8b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y-1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gDPSetTextureLUT((*gfx)++, G_TT_RGBA16);
@@ -754,7 +754,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         if (D_80380AF8 != 0) {
             s32 temp_t1;
             s32 phi_a0;
-            temp_t1 = ((print_sCurrentPtr->unk4 - print_sCurrentPtr->y) - D_80380B0C) + 1;
+            temp_t1 = ((print_sCurrentPtr->topVertexAlpha - print_sCurrentPtr->y) - D_80380B0C) + 1;
             phi_a0 =  - MAX(1 - D_80380B0C, MIN(0, temp_t1));
             
             gDPSetTextureImage((*gfx)++, G_IM_FMT_I, G_IM_SIZ_8b, 32, &D_80380B20);
@@ -792,7 +792,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
                         (*vtx)->v.tc[0] = s;
                         (*vtx)->v.tc[1] = t;
                     }
-                    (*vtx)->v.cn[3] =(iy != 0.0f) ? print_sCurrentPtr->unk6 : print_sCurrentPtr->unk4;
+                    (*vtx)->v.cn[3] =(iy != 0.0f) ? print_sCurrentPtr->bottomVertexAlpha : print_sCurrentPtr->topVertexAlpha;
                     
                     (*vtx)++;
                 }    
@@ -807,7 +807,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     }
 }
 
-f32 func_802F6C90(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
+f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
     s32 sp44;
     s32 i;
     bool var_v0;
@@ -822,9 +822,9 @@ f32 func_802F6C90(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
     if (D_80380AE8 == 1) {
         if (letter < 0x80) {
             if (D_80380F20[letter] >= 0) {
-                for(i = 0; D_80369000[i].unk0 != 0; i++) {
-                    if ((D_80369000[i].unk1 == letter) && (D_80369000[i].unk0 == D_80380AB0)) {
-                        sp34 = D_80369000[i].unk2;
+                for(i = 0; boldFontKernings[i].firstLetter != 0; i++) {
+                    if ((boldFontKernings[i].secondLetter == letter) && (boldFontKernings[i].firstLetter == D_80380AB0)) {
+                        sp34 = boldFontKernings[i].xOffset;
                         break;
                     }
                 }
@@ -851,7 +851,7 @@ f32 func_802F6C90(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
             var_f2 = D_80369068[D_80380AE8];
         }
         else{
-            var_f2 = func_802F5494(sp44, &sp2C)->x;
+            var_f2 = print_getBoldFontLetterSprite(sp44, &sp2C)->x;
         }
     }
     var_f2 += (sp34 - 4);
@@ -861,7 +861,7 @@ f32 func_802F6C90(u8 letter, f32* xPtr, f32 *yPtr, f32 arg3){
 }
 
 void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    static f32 D_80380FA8[0x20];
+    static f32 letter_x_coords[0x20];
 
     s32 j;
     f32 _x;
@@ -896,18 +896,18 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                     gDPSetPrimColor((*gfx)++, 0, 0, print_sCurrentPtr->rgba[0], print_sCurrentPtr->rgba[1], print_sCurrentPtr->rgba[2], print_sCurrentPtr->rgba[3]);
                 }
             }
-            if ((D_80380AE8 == 1) && ((f64) print_sCurrentPtr->unk10 < 0.0)) {
+            if ((D_80380AE8 == 1) && ((f64) print_sCurrentPtr->scale < 0.0)) {
                 for(j = 0; print_sCurrentPtr->string[j]; j++){
-                    D_80380FA8[j] = func_802F6C90(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10);
+                    letter_x_coords[j] = print_calculateLetterXPos(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->scale);
                 }
                 while(j >= 0){
-                    _x = D_80380FA8[j];
-                    _printbuffer_draw_letter(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->unk10, gfx, mtx, vtx);
+                    _x = letter_x_coords[j];
+                    _printbuffer_draw_letter(print_sCurrentPtr->string[j], &_x, &_y, -print_sCurrentPtr->scale, gfx, mtx, vtx);
                     j--;
                 }
             } else {
                 for(j = 0; (print_sCurrentPtr->string[j] != 0) || (D_80380B04 != 0); j++){
-                    _printbuffer_draw_letter(print_sCurrentPtr->string[j], &_x, &_y, print_sCurrentPtr->unk10, gfx, mtx, vtx);
+                    _printbuffer_draw_letter(print_sCurrentPtr->string[j], &_x, &_y, print_sCurrentPtr->scale, gfx, mtx, vtx);
                 }
             }
             //toggle off string format modifiers
@@ -937,18 +937,18 @@ void _printbuffer_push_new(s32 x, s32 y, u8 * string) {
     print_sCurrentPtr->y = y;
     print_sCurrentPtr->fmtString[0] = (u8)0;
     print_sCurrentPtr->string = string;
-    print_sCurrentPtr->unk10 = 1.0f;
-    print_sCurrentPtr->rgba[0] = (u8) D_80369078.unk0;
-    print_sCurrentPtr->rgba[1] = (u8) D_80369078.unk1;
-    print_sCurrentPtr->rgba[2] = (u8) D_80369078.unk2;
-    print_sCurrentPtr->rgba[3] = (u8) D_80369078.unk3;
+    print_sCurrentPtr->scale = 1.0f;
+    print_sCurrentPtr->rgba[0] = (u8) normalTextColor.unk0;
+    print_sCurrentPtr->rgba[1] = (u8) normalTextColor.unk1;
+    print_sCurrentPtr->rgba[2] = (u8) normalTextColor.unk2;
+    print_sCurrentPtr->rgba[3] = (u8) normalTextColor.unk3;
 }
 
 void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
         strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "\x72l" : "fl");
-        print_sCurrentPtr->unk10 = arg2;
+        print_sCurrentPtr->scale = arg2;
     }
 }
 
@@ -976,17 +976,17 @@ void print_dialog_w_bg(s32 x, s32 y, u8* string){
 void print_dialog_gradient(s32 x, s32 y, u8* string, u8 arg3, u8 arg4){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        print_sCurrentPtr->unk4 = arg3;
-        print_sCurrentPtr->unk6 = arg4;
+        print_sCurrentPtr->topVertexAlpha = arg3;
+        print_sCurrentPtr->bottomVertexAlpha = arg4;
         strcpy(print_sCurrentPtr->fmtString, "v"); // v is above glyph range, no PAL shift needed
     }
 }
 
-void func_802F79D0(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
+void print_dialog_gradient2(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        print_sCurrentPtr->unk4 = arg3;
-        print_sCurrentPtr->unk6 = arg4;
+        print_sCurrentPtr->topVertexAlpha = arg3;
+        print_sCurrentPtr->bottomVertexAlpha = arg4;
         strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "\x6E\x6Flq" : "delq");
 
     }
@@ -1013,12 +1013,12 @@ void func_802F7A2C(s32 arg0) {
     osWritebackDCache(&D_80380B20, D_80380B0C*sizeof(struct23s));
 }
 
-void func_802F7B90(s32 arg0, s32 arg1, s32 arg2){
-    D_80369078.unk0 = arg0;
-    D_80369078.unk1 = arg1;
-    D_80369078.unk2 = arg2;
+void text_setNormalTextColor(s32 arg0, s32 arg1, s32 arg2){
+    normalTextColor.unk0 = arg0;
+    normalTextColor.unk1 = arg1;
+    normalTextColor.unk2 = arg2;
 }
 
-void func_802F7BA8(s32 arg0){
-    D_80369078.unk3 = arg0;
+void text_setNormalTextAlpha(s32 arg0){
+    normalTextColor.unk3 = arg0;
 }

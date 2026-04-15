@@ -83,7 +83,7 @@ void func_8038C8A0(Actor *this, s32 next_state){
         sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 3);
         sfxsource_playSfxAtVolume(local->sfxsourceIdx, 0.8f);
         sfxsource_setSampleRate(local->sfxsourceIdx, 0);
-        func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_func_8030E2C4(local->sfxsourceIdx);
     }//L8038C9B8
 
     if(next_state == 2){

@@ -9,24 +9,24 @@ typedef struct {
     u8 unk9;
     u8 unkA;
     u8 unkB;
-    u32 unkC_31:3;
+    u32 yaw:3;
     u32 unkC_28:1;
-    u32 padC_27:28;
-    s16 unk10; //sfx_id
-    s16 unk12;
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C; //sfx_id
-    s16 unk1E;
-    f32 unk20;
-    f32 unk24;
-    s16 unk28; //sfx_id
-    s16 unk2A;
-    f32 unk2C;
-    void (*unk30)(ActorMarker *, ActorMarker *);
-    void (*unk34)(ActorMarker *, ActorMarker *);
-    s32 unk38;
-    f32 unk3C;
+    u32 baddieSpecific:28;
+    s16 foundPlayerSfx;
+    s16 foundPlayerSampleRate;
+    f32 foundPlayerVolume;
+    f32 enterInvulnerableStateAnimationTimer;
+    s16 enterInvulnerableStateSfx;
+    s16 enterInvulnerableStateSampleRate;
+    f32 enterInvulnerableStateVolume;
+    f32 exitInvulnerableStateAnimationTimer;
+    s16 exitInvulnerableStateSfx;
+    s16 exitInvulnerableStateSampleRate;
+    f32 exitInvulnerableStateVolume;
+    void (*hitFunction)(ActorMarker *, ActorMarker *);
+    void (*dieFunction)(ActorMarker *, ActorMarker *);
+    s32 globalTimer;
+    f32 damageVolume;
 }ActorLocal_core2_53C10;
 
 /* .code */
@@ -129,14 +129,14 @@ bool func_802DAFBC(Actor *this) {
     if (temp_v0 & 4) {
         func_8032C9E0(sp38);
         sp34 = func_80257248(sp38, this->position);
-        if (((globalTimer_getTime() - local->unk38) == 0x1E) && ((sp34 - this->yaw_ideal < 15.0f) && (sp34 - this->yaw_ideal > -15.0f))) {
+        if (((globalTimer_getTime() - local->globalTimer) == 0x1E) && ((sp34 - this->yaw_ideal < 15.0f) && (sp34 - this->yaw_ideal > -15.0f))) {
             func_802DAF2C(this->position, this->yaw, this->actor_specific_1_f);
         } else {
             func_80328CEC(this, (s32) sp34, 0, 0xF);
         }
         this->unk38_31 = 0x1E;
         this->unk38_0 = true;
-        local->unk38 = globalTimer_getTime();
+        local->globalTimer = globalTimer_getTime();
     } else if (temp_v0 & 8) {
         func_802DAE10(this);
         this->unk38_31 = 0x5A;
@@ -153,13 +153,13 @@ bool func_802DAFBC(Actor *this) {
 }
 
 void func_802DB220(Actor *this) {
-    if (func_80329530(this, 900) && func_803292E0(this)) {
+    if (subaddie_playerIsWithinSphereAndActive(this, 900) && func_803292E0(this)) {
         subaddie_set_state(this, 6);
     }
 }
 
 void func_802DB264(Actor *this) {
-    if (!func_80329530(this, 900) || !func_803292E0(this)) {
+    if (!subaddie_playerIsWithinSphereAndActive(this, 900) || !func_803292E0(this)) {
         subaddie_set_state(this, 1);
     }
 }
@@ -168,15 +168,15 @@ void func_802DB2AC(Actor *this) {
     ActorLocal_core2_53C10 *local;
 
     local = (ActorLocal_core2_53C10 *)&this->local;
-    func_8030E878(local->unk10, local->unk14, local->unk12, this->position, 1250.0f, 2500.0f);
+    func_8030E878(local->foundPlayerSfx, local->foundPlayerVolume, local->foundPlayerSampleRate, this->position, 1250.0f, 2500.0f);
 }
 
 void func_802DB2F8(Actor *this) {
     ActorLocal_core2_53C10 *local;
 
     local = (ActorLocal_core2_53C10 *)&this->local;
-    if (actor_animationIsAt(this, local->unk18)) {
-        func_8030E878(local->unk1C, local->unk20, local->unk1E, this->position, 1250.0f, 2500.0f);
+    if (actor_animationIsAt(this, local->enterInvulnerableStateAnimationTimer)) {
+        func_8030E878(local->enterInvulnerableStateSfx, local->enterInvulnerableStateVolume, local->enterInvulnerableStateSampleRate, this->position, 1250.0f, 2500.0f);
     }
 }
 
@@ -184,8 +184,8 @@ void func_802DB354(Actor *this) {
     ActorLocal_core2_53C10 *local;
 
     local = (ActorLocal_core2_53C10 *)&this->local;
-    if (actor_animationIsAt(this, local->unk24)) {
-        func_8030E878(local->unk28, local->unk2C, local->unk2A, this->position, 1250.0f, 2500.0f);
+    if (actor_animationIsAt(this, local->exitInvulnerableStateAnimationTimer)) {
+        func_8030E878(local->exitInvulnerableStateSfx, local->exitInvulnerableStateVolume, local->exitInvulnerableStateSampleRate, this->position, 1250.0f, 2500.0f);
     }
 }
 
@@ -215,7 +215,7 @@ void func_802DB440(ActorMarker *marker, ActorMarker *other_marker) {
     }
 }
 
-void func_802DB4E0(ActorMarker *marker, s32 arg1){
+void humanoidBaddie_enterInvulnerableState(ActorMarker *marker, s32 arg1){
     Actor * actor = marker_getActor(marker);
     subaddie_set_state_with_direction(actor, 9, 0.0f, 1);
     actor_playAnimationOnce(actor);
@@ -223,27 +223,27 @@ void func_802DB4E0(ActorMarker *marker, s32 arg1){
     actor->lifetime_value = randf2(3.0f, 6.0f);
 }
 
-void func_802DB548(ActorMarker *marker, ActorMarker *other_marker) {
+void humanoidBaddie_ow(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *this;
     ActorLocal_core2_53C10 *local;
 
     this = marker_getActor(marker);
     local = (ActorLocal_core2_53C10 *)&this->local;
-    func_8030E878(SFX_8E_GRUNTLING_DAMAGE, local->unk3C, 32000, this->position, 1250.0f, 2500.0f);
+    func_8030E878(SFX_8E_GRUNTLING_DAMAGE, local->damageVolume, 32000, this->position, 1250.0f, 2500.0f);
     func_802DAE40(this);
 }
 
-void func_802DB5A0(Actor *this) {
+void humanoidBaddie_update(Actor *this) {
     ActorLocal_core2_53C10 *local;
     f32 phi_f14;
 
     local = (ActorLocal_core2_53C10 *)&this->local;
     if (!this->volatile_initialized) {
-        marker_setCollisionScripts(this->marker, &func_802DB440, local->unk30, local->unk34);
+        marker_setCollisionScripts(this->marker, &func_802DB440, local->hitFunction, local->dieFunction);
         this->marker->propPtr->unk8_3 = false;
         this->lifetime_value = 0.0f;
         this->unk124_0 = this->unk138_31 = false;
-        local->unk38 = 0;
+        local->globalTimer = 0;
         this->volatile_initialized = true;
         if (volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) {
             subaddie_set_state(this, 2U);
@@ -305,7 +305,7 @@ void func_802DB5A0(Actor *this) {
             this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 4.0f);
             if (func_80329480(this)) {
-                this->unk10_12 = local->unkC_31;
+                this->unk10_12 = local->yaw;
                 subaddie_set_state(this, 4);
                 func_802DB2AC(this);
             }
@@ -322,8 +322,8 @@ void func_802DB5A0(Actor *this) {
             break;
             
         case 4://L802DB990
-            if (this->unk10_12 < local->unkC_31) {
-                anctrl_setDuration(this->anctrl, this->unk18[4].duration - ((local->unkC_31 - this->unk10_12) * 0.1));
+            if (this->unk10_12 < local->yaw) {
+                anctrl_setDuration(this->anctrl, this->unk18[4].duration - ((local->yaw - this->unk10_12) * 0.1));
             }
             this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
             if (!func_803294B4(this, 0x21)) {
@@ -336,7 +336,7 @@ void func_802DB5A0(Actor *this) {
                 }
             }
             if( (this->unk10_12 == 0) 
-                || (this->unk10_12 < local->unkC_31 && func_80329530(this, 0xFA))
+                || (this->unk10_12 < local->yaw && subaddie_playerIsWithinSphereAndActive(this, 0xFA))
             ) {
                 subaddie_set_state(this, 7);
                 this->actor_specific_1_f = (f32) local->unkA;

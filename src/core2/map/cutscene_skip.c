@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_8028F3D8(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
+extern void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 extern void func_8028F760(s32, f32, f32);
 extern void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2);
 extern void func_8031FFAC(void);
@@ -27,7 +27,7 @@ enum actor_e D_8036DDD0[] = {0, 0x184, 0x185, 0x186, -1};
 u8 D_80383190;
 
 /* .code */
-// func_8031C640
+// cutscene_skipIntroCutsceneCheck
 bool cutscene_skipIntroCutsceneCheck(void) {
     // [port] Skip intro cutscene
     bool skipIntro = false;
@@ -40,7 +40,7 @@ bool cutscene_skipIntroCutsceneCheck(void) {
     return false;
 }
 
-// func_8031C688
+// cutscene_skipEnterLairCutsceneCheck
 bool cutscene_skipEnterLairCutsceneCheck(void) {
     if ((func_8024E698(0) == 1)
         && ((D_8037DCCE[0] != 0)
@@ -79,7 +79,7 @@ bool cutscene_skipBeachCutsceneCheck(void){
 
 //checks is a cutscene can be inturrupted and performs take me there
 void cutscenetrigger_check(s32 cs_map, s32 arg1, s32 return_map, s32 return_exit, bool (* condFunc)(void)){
-    if(map_get() != cs_map)
+    if(gsworld_getMap() != cs_map)
         return;
 
     if((condFunc && condFunc()) || mapSpecificFlags_get(arg1)){
@@ -114,7 +114,7 @@ s32 cutscenetrigger_update(void){
     cutscenetrigger_check(MAP_7C_CS_INTRO_BANJOS_HOUSE_1,   0xC, MAP_1_SM_SPIRAL_MOUNTAIN,      0x12, cutscene_skipIntroCutsceneCheck);
     cutscenetrigger_check(MAP_86_CS_SPIRAL_MOUNTAIN_4,      0xC, MAP_1_SM_SPIRAL_MOUNTAIN,      0x12, cutscene_skipIntroCutsceneCheck);
     cutscenetrigger_check(MAP_89_CS_INTRO_BANJOS_HOUSE_2,   0xC, MAP_1_SM_SPIRAL_MOUNTAIN,      0x12, cutscene_skipIntroCutsceneCheck);
-    if(map_get() == MAP_95_CS_END_ALL_100 && mapSpecificFlags_get(1)){
+    if(gsworld_getMap() == MAP_95_CS_END_ALL_100 && mapSpecificFlags_get(1)){
         func_8034B9E4();
         mapSpecificFlags_set(1, 0);
     }
@@ -125,7 +125,7 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
     s32 sp1C;
 
     if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) && (getGameMode() != GAME_MODE_7_ATTRACT_DEMO)) {
-        sp1C = func_803226E8(map_get());
+        sp1C = func_803226E8(gsworld_getMap());
         if ((func_803226E8(map_id) != sp1C) && (func_80322914() == 0)) {
             func_8025A388(0, 0x4E2);
             func_8025AB00();
@@ -138,7 +138,7 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
         } else {
             transitionToMap(map_id, exit_id, 1);
         }
-        func_80335110(arg2);
+        gsworld_setEnableUpdate(arg2);
     }
 }
 
@@ -186,7 +186,7 @@ void func_8031CD44(enum map_e arg0, s32 arg1, f32 arg2, f32 yaw, s32 arg4) {
     sp30[2] = sp24[2];
     ncDynamicCamera_setUpdateEnabled(0);
     func_8031CB50(arg0, arg1, 1);
-    func_8028F3D8(sp30, 1.0f, NULL, NULL);
+    player_walkToPosition(sp30, 1.0f, NULL, NULL);
 }
 
 void func_8031CE28(s32 arg0, s32 arg1, f32 arg2) {
@@ -219,7 +219,7 @@ void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2) {
                 if (phi_s0->unk8 == 0x184) {
                     ncDynamicCamera_setUpdateEnabled(0);
                     func_8031CB50(arg1, arg2, 1);
-                    func_8028F3D8(sp38, 1.0f, NULL, NULL);
+                    player_walkToPosition(sp38, 1.0f, NULL, NULL);
                 } else if (phi_s0->unk8 == 0x185) {
                     func_8031CD44(arg1, arg2, sp38[1], (f32) phi_s0->yaw, phi_s0->scale);
                 } else {
@@ -1509,7 +1509,7 @@ void func_8031FB6C(NodeProp *arg0, ActorMarker *arg1) {
     func_8031CC8C(arg0, 0x7104);
 }
 
-void func_8031FBA0(void) {
+void clearScoreStates(void) {
     bsStoredState_clear();
     func_8031FFAC();
     item_setItemsStartCounts();
@@ -1520,11 +1520,11 @@ void func_8031FBA0(void) {
     func_802D6344();
 }
 
-void func_8031FBF8(void) {
+void debugScoreStates(void) {
     mumboscore_debug();
     honeycombscore_debug();
     jiggyscore_debug();
     func_803465DC();
     bsStoredState_debug();
-    func_802C5A48();
+    gameSelect_resetGameNumber();
 }

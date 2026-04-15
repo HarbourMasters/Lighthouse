@@ -6,7 +6,7 @@ extern void func_8028F7D4(f32, f32);
 void chLevelCollectible_update(Actor *this);
 extern ActorMarker *func_8028E86C(void);
 extern void timed_mapSpecificFlags_setTrue(f32, s32);
-extern void func_8035646C(s32);
+extern void progressDialog_showDialogMaskFour(s32);
 
 ActorAnimationInfo D_80367B50[] = {
     {0, 0.0f},
@@ -89,7 +89,7 @@ s32 __chLevelCollectible_dialogCallback(ActorMarker *marker, enum asset_e text_i
 
 
 void __chLevelCollectible_callDialog(enum asset_e text_id){
-    func_80311174(text_id, 0, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))__chLevelCollectible_dialogCallback);
+    gcdialog_showDialogConditional(text_id, 0, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker*,s32,s32))__chLevelCollectible_dialogCallback);
 }
 
 void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker) {
@@ -110,14 +110,14 @@ void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker
                     return;
                 }
 
-                func_8035646C(FILEPROG_8_ORANGE_TEXT);
+                progressDialog_showDialogMaskFour(FILEPROG_8_ORANGE_TEXT);
                 func_8030E6D4(SFX_B3_ORANGE_TALKING);
                 dialog_id = 0;
                 break;
                 
             case MARKER_37_GOLD_BULLION:
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 0x7FFF);
-                timedFunc_set_1(0.5f, (GenFunction_1)func_8035646C, FILEPROG_9_GOLD_BULLION_TEXT);
+                timedFunc_set_1(0.5f, (GenFunction_1)progressDialog_showDialogMaskFour, FILEPROG_9_GOLD_BULLION_TEXT);
                 dialog_id = 0;
                 break;
 
@@ -294,8 +294,8 @@ void func_802D83EC(Actor *this) {
     // temp_f20 = D_80376D70;
     for(var_s0 = 0; var_s0 < 10; var_s0++){
         if (randf() < 0.03) {
-            func_8033E73C(this->marker, var_s0 + 5, func_80329904);
-            func_8033E3F0(8, this->marker->unk14_21);
+            commonParticle_add(this->marker, var_s0 + 5, func_80329904);
+            commonParticle_new(8, this->marker->unk14_21);
         }
     }
     this->yaw = this->yaw + time_getDelta() * 25.0f;
@@ -364,7 +364,7 @@ void chLevelCollectible_update(Actor *this){
             func_802D83EC(this);
             break;
         case MARKER_36_ORANGE_COLLECTIBLE: //L802D86DC
-            if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT) && map_get() == MAP_2_MM_MUMBOS_MOUNTAIN) {
+            if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT) && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN) {
                 marker_despawn(this->marker);
             }
             break;

@@ -41,13 +41,13 @@ void bsbflap_init(void) {
 }
 
 void func_802A2790(s32 arg0, f32 arg1, s32 arg2) {
-    sfxSource_func_8030E2C4(D_8037D30C);
+    sfxSource_triggerCallbackByIndex(D_8037D30C);
     sfxsource_setSfxId(D_8037D30C, arg0);
     sfxsource_playSfxAtVolume(D_8037D30C, arg1);
     sfxsource_setSampleRate(D_8037D30C, arg2);
     func_8030DD90(D_8037D30C, 0);
     sfxSource_setunk43_7ByIndex(D_8037D30C, 3);
-    func_8030E2C4(D_8037D30C);
+    sfxSource_func_8030E2C4(D_8037D30C);
 }
 
 void func_802A2810(void) {

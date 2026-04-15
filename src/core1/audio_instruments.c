@@ -26,7 +26,7 @@ extern u8 *soundfont2tbl_ROM_START;
 
 /* dependent functions */
 void func_8024FA98(u8, s32);
-void func_8024FD28(u8, s16);
+void musicTrack_setVolume(u8, s16);
 int func_80250074(u8);
 u8 func_8025F4A0(ALCSPlayer *, u8);
 
@@ -399,7 +399,7 @@ void func_8024FC1C(u8 arg0, s32 arg1){
     D_80281720[arg0].unk2 = 1;
     D_80281720[arg0].unk3 = 0;
     if (arg1 >= 0 && arg1 < 0xB0) {
-        D_80281720[arg0].unk0 =  D_80275D40[arg1].unk4;
+        D_80281720[arg0].unk0 =  D_80275D40[arg1].volume;
     } else {
         D_80281720[arg0].unk0 = 0;
     }
@@ -428,7 +428,7 @@ void func_8024FCE0(u8 arg0, s16 arg1){
 }
 
 //musicTrack_setVolume
-void func_8024FD28(u8 arg0, s16 arg1){
+void musicTrack_setVolume(u8 arg0, s16 arg1){
     D_80281720[arg0].unk0 = arg1;
     alCSPSetVol(&D_80281720[arg0].cseqp, arg1);
     if(D_80281720[arg0].unk3 && arg1){
@@ -489,7 +489,7 @@ void func_8024FF34(void){
                     }
                     D_80281720[i].unk3 = 0;
                     D_80281720[i].unk2 = 0;
-                    func_8024FD28(i, D_80281720[i].unk0);
+                    musicTrack_setVolume(i, D_80281720[i].unk0);
                 }
                 break;
             case AL_STOPPING: //L80250008
@@ -498,16 +498,16 @@ void func_8024FF34(void){
     }
 }
 
-s32 func_80250034(s32 track_id){
+s32 gcMusic_getDefaultVolumeForTrack(s32 track_id){
     if (track_id >= 0 && track_id < 0xB0) {
-        return D_80275D40[track_id].unk4;
+        return D_80275D40[track_id].volume;
     }
     return 0;
 }
 
 void func_80250048(s32 track_id, u16 arg1){
     if (track_id >= 0 && track_id < 0xB0) {
-        D_80275D40[track_id].unk4 = arg1;
+        D_80275D40[track_id].volume = arg1;
     }
 }
 

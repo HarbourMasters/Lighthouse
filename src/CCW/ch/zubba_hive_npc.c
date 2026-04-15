@@ -76,7 +76,7 @@ void CCW_func_80387A40(Actor *this) {
         this->volatile_initialized = true;
         this->marker->actorFreeFunc = CCW_func_80387A20;
         local->unk4 = &D_8038EC00[0];
-        while((local->unk4->unk0 != 0) && (map_get() != local->unk4->unk0)) {
+        while((local->unk4->unk0 != 0) && (gsworld_getMap() != local->unk4->unk0)) {
             local->unk4++;
         }
         local->sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
@@ -119,13 +119,13 @@ void CCW_func_80387A40(Actor *this) {
     func_8030DBFC(local->sfxsourceIdx, 0.8f, 0.9f, 0.05f);
     sfxsource_set_fade_distances(local->sfxsourceIdx, 500.0f, 1500.0f);
     sfxsource_set_position(local->sfxsourceIdx, this->position);
-    func_8030E2C4(local->sfxsourceIdx);
+    sfxSource_func_8030E2C4(local->sfxsourceIdx);
     sfxsource_setSampleRate(local->sfxsourceIdx, 2000.0f + 8000.0f*(LENGTH_VEC3F(local->unk18)/ local->unk8));
     if (!mapSpecificFlags_get(local->unk4->unk2)) {
         player_getPosition(sp44);
         if (sp44[2] > -600.0f) {
             if (!local->unk4->unk3 || !jiggyscore_isCollected(local->unk4->unk3) ) {
-                gcdialog_showText(local->unk4->unk4, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(local->unk4->unk4, 4, NULL, NULL, NULL, NULL);
                 mapSpecificFlags_set(local->unk4->unk2, true);
             }
         }

@@ -11,7 +11,7 @@ extern void func_80244F00(f32[3], f32, f32, s32, s32);
 
 extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 
-extern void func_80320ED8(ActorMarker *, f32, s32);
+extern int func_80320ED8(ActorMarker *, f32, s32);
 
 extern f32 func_8033229C(ActorMarker *marker);
 

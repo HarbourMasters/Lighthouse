@@ -46,10 +46,10 @@ void func_80361870(Actor *this){
         this->volatile_initialized = true;
     }
 
-    if(!this->has_met_before && func_80329530(this, 400) && !func_80329530(this, 50)){
+    if(!this->has_met_before && subaddie_playerIsWithinSphereAndActive(this, 400) && !subaddie_playerIsWithinSphereAndActive(this, 50)){
         if(this->actorTypeSpecificField == 1 && !fileProgressFlag_get(FILEPROG_31_MM_OPEN) && level_get() == LEVEL_6_LAIR){
             text_id = fileProgressFlag_get(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT)? 0xF80 : 0xF7F;
-            if(gcdialog_showText(text_id, 0, 0, 0, 0, 0)){
+            if(gcdialog_showDialog(text_id, 0, 0, 0, 0, 0)){
                 this->has_met_before = true;
             }
         }
@@ -59,7 +59,7 @@ void func_80361870(Actor *this){
                 this->has_met_before = true;
             }
             else{ 
-                if(gcdialog_showText(sp28, 0, 0, 0, 0, 0)){
+                if(gcdialog_showDialog(sp28, 0, 0, 0, 0, 0)){
                     this->has_met_before = true;
                     volatileFlag_set(VOLATILE_FLAG_16, 0);
                 }

@@ -108,7 +108,7 @@ void SM_func_80386D68(Actor *this){
     sfxSource_setunk43_7ByIndex(this->unk44_31, 3);
     sfxsource_setSampleRate(this->unk44_31, 32000);
     sfxsource_playSfxAtVolume(this->unk44_31, (0.01 < (2.0 - this->scale))? (2.0 - this->scale): 0.01);
-    func_8030E2C4(this->unk44_31);
+    sfxSource_func_8030E2C4(this->unk44_31);
     func_80386B04(partEmitMgr_newEmitter(0xA), this->position, 0xA, this->scale);
     func_80386C2C(partEmitMgr_newEmitter(0x10), this->position, 0x10, this->scale);
 

@@ -67,7 +67,7 @@ void bsclaw_update(void){
 }
 
 void bsclaw_end(void){
-    ability_use(0xB);
+    ability_use(ABILITY_USED_CLAW);
     _bsclawHitboxActive = 0;
     func_802915B8();
 

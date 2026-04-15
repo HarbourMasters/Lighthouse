@@ -15,19 +15,19 @@ u32 D_80390F38 = 0x0003031C; //GV.data CRC1 (with this value = 0)
 
 
 /* .code */
-void func_80389F00(void){
+void code3B10_makeRunningShoesRunOutInstantly(void){
     if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO && 2.0f < player_stateTimer_get(STATE_TIMER_3_TURBO_TALON)){
         player_stateTimer_set(STATE_TIMER_3_TURBO_TALON, 2.0f);
     }
 }
 
-void func_80389F5C(void){
+void code3B10_checkGVChecksums(void){
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 sp1C;
     osPiReadIo(0x800, &sp1C);
     sp1C <<= 0x10;
     if(sp1C != 0x10000)
-        func_80389F00();
+        code3B10_makeRunningShoesRunOutInstantly();
 #endif
 }

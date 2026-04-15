@@ -198,7 +198,7 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         if(state == TRANSITION_STATE_5_FADE_OUT){
             anctrl_setDirection(s_current_transition.anctrl, 0);
             func_8028F7C8(1); //player_noControl(true)
-            func_80335110(0); //objects_update(false)
+            gsworld_setEnableUpdate(0); //objects_update(false)
         }
         else{
             osViBlack(1);
@@ -229,8 +229,8 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         }
     }
     else if(state == TRANSITION_STATE_0_NONE){
-        func_80335128(1);
-        func_80335110(1);
+        gsworld_setEnableDraw(1);
+        gsworld_setEnableUpdate(1);
         if(func_8028F070())
             func_8028F7C8(0);
     }
@@ -397,7 +397,7 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
 void gctransition_8030BD4C(void){
     MapTransitionInfo *tmp_10s;
     TransitionInfo *tmp_a1;
-    tmp_10s = _gctranstion_get_map_transition_info(map_get());
+    tmp_10s = _gctranstion_get_map_transition_info(gsworld_getMap());
     tmp_a1 = _gctranstion_8030B400(tmp_10s->in_index);
    _gctranstion_changeState(tmp_a1->state, tmp_a1);
 }
@@ -443,7 +443,7 @@ void gctransition_8030BE3C(void){
 
 void gctransition_8030BE60(void){
     TransitionInfo *tmp_a1;
-    tmp_a1 = _gctranstion_8030B400(_gctranstion_get_map_transition_info(map_get())->out_index);
+    tmp_a1 = _gctranstion_8030B400(_gctranstion_get_map_transition_info(gsworld_getMap())->out_index);
    func_8030C180();
    _gctranstion_changeState(tmp_a1->state, tmp_a1);
 }
@@ -477,10 +477,10 @@ void gctransition_update(void){
                 case 1:
                     port_requestReadback(); // [port] ensure readback has valid data before freeze
                     func_8028F7C8(1);
-                    func_80335110(0);
+                    gsworld_setEnableUpdate(0);
                     break;
                 case 2:
-                    func_80335128(0);
+                    gsworld_setEnableDraw(0);
                     port_freezeReadback(1); // [port] next draw is black — freeze so gFramebuffers keeps world for substate 3 capture
                     break;
                 case 3:
@@ -508,7 +508,7 @@ void gctransition_update(void){
                     port_requestReadback(); // [port] ensure readback has valid data for substate 2 capture
                     break;
                 case 2:
-                    func_80335128(0);
+                    gsworld_setEnableDraw(0);
                     port_patchTransitionModel(s_current_transition.model_ptr);
                     func_802FEF48(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
@@ -537,7 +537,7 @@ void gctransition_update(void){
             func_8030C180();
 
         if(s_current_transition.anctrl != NULL)
-            func_80334ECC();
+            gsworld_update();
     }
     s_current_transition.substate++;
 }

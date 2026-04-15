@@ -5,20 +5,20 @@
 
 extern f32 func_8028EF88(void);
 extern ParticleEmitter *func_802F4094(f32 pos[3], f32 arg1);
-void func_802D8730(Actor *this);
+void chPiranhaWaterParticles_update(Actor *this);
 
 /* .data */
 ActorInfo D_80367C60 = { 
     0x15E, 0x188, 0x0, 
     0, NULL, 
-    func_802D8730, actor_update_func_80326224, func_80325340,
+    chPiranhaWaterParticles_update, actor_update_func_80326224, func_80325340,
     0, 0, 0.0f, 0
 };
 
 s32 D_80367C84[3] = {255, 100, 100};
 
 /* .code */
-void func_802D8730(Actor *this) {
+void chPiranhaWaterParticles_update(Actor *this) {
     f32 dt;
     f32 sp38;
     ParticleEmitter *pCtrl;

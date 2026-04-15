@@ -3,8 +3,8 @@
 #include "variables.h"
 #include "core2/particle.h"
 
-Actor *func_8035ECA0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void func_8035F138(Actor *this);
+Actor *chgravestone_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void chgravestone_update(Actor *this);
 BKModelBin *func_803257B4(ActorMarker *marker);
 extern void actor_postdrawMethod(ActorMarker *);
 
@@ -13,7 +13,7 @@ typedef struct {
 }ActorLocal_core2_D7D10;
 
 /* .data */
-ActorAnimationInfo D_80372F80[] = {
+ActorAnimationInfo chGravestoneAnimations[] = {
     {0, 0.0f},
     {ASSET_9A_ANIM_GRAVESTONE_IDLE, 8000000.0f},
     {ASSET_9A_ANIM_GRAVESTONE_IDLE,       1.3f},
@@ -26,20 +26,20 @@ ActorAnimationInfo D_80372F80[] = {
 
 ActorInfo D_80372FC0 = { 
     MARKER_96_GRAVESTONE, ACTOR_C7_GRAVESTONE, ASSET_3C9_MODEL_GRAVESTONE, 
-    0x1, D_80372F80, 
-    func_8035F138, actor_update_func_80326224, func_8035ECA0, 
+    0x1, chGravestoneAnimations, 
+    chgravestone_update, actor_update_func_80326224, chgravestone_draw, 
     3500, 0, 1.2f, 0
 };
 
 ActorInfo D_80372FE4 = { 
     MARKER_297_GIANT_GRAVESTONE, ACTOR_3C2_GIANT_GRAVESTONE, ASSET_3C9_MODEL_GRAVESTONE, 
-    0x1, D_80372F80, 
-    func_8035F138, actor_update_func_80326224, func_8035ECA0, 
+    0x1, chGravestoneAnimations, 
+    chgravestone_update, actor_update_func_80326224, chgravestone_draw, 
     14000, 0, 3.2f, 0
 };
 
 /* .code */
-Actor *func_8035ECA0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+Actor *chgravestone_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     static f32 D_80373008[3] = {0.0f, 0.0f, 0.0f};
     f32 rotation[3];
     Actor *this;
@@ -122,7 +122,7 @@ void func_8035EF3C(Actor *this) {
     }
 }
 
-void func_8035EF9C(ActorMarker *marker, ActorMarker *other_marker) {
+void chgravestone_die(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *this;
     ActorLocal_core2_D7D10 *local;
 
@@ -138,7 +138,7 @@ void func_8035EF9C(ActorMarker *marker, ActorMarker *other_marker) {
     func_8035EE48(this);
 }
 
-void func_8035F048(ActorMarker *marker, ActorMarker *other_marker) {
+void chgravestone_owFlinch(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *this;
     ActorLocal_core2_D7D10 *local;
 
@@ -154,7 +154,7 @@ void func_8035F048(ActorMarker *marker, ActorMarker *other_marker) {
     func_8035EE48(this);
 }
 
-void func_8035F0E8(ActorMarker *marker, ActorMarker *other_marker) {
+void chgravestone_owNoFlinch(ActorMarker *marker, ActorMarker *other_marker) {
     Actor *this;
     ActorLocal_core2_D7D10 *local;
 
@@ -165,7 +165,7 @@ void func_8035F0E8(ActorMarker *marker, ActorMarker *other_marker) {
     func_8035EE80(this);
 }
 
-void func_8035F138(Actor *this) {
+void chgravestone_update(Actor *this) {
     f32 sp2C;
     ActorLocal_core2_D7D10 *local;
 
@@ -188,7 +188,7 @@ void func_8035F138(Actor *this) {
         case 1: //L8035F20C
             if (!this->volatile_initialized) {
                 this->volatile_initialized = true;
-                marker_setCollisionScripts(this->marker, func_8035F0E8, func_8035F048, func_8035EF9C);
+                marker_setCollisionScripts(this->marker, chgravestone_owNoFlinch, chgravestone_owFlinch, chgravestone_die);
                 local->unk0 = 1;
                 this->unk1C[0] = this->position[0];
                 this->actor_specific_1_f = 0.0f;
@@ -197,12 +197,12 @@ void func_8035F138(Actor *this) {
                 this->velocity[0] = this->yaw;
             }
             anctrl_setAnimTimer(this->anctrl, 0.0f);
-            if (func_80329530(this, (s32) (this->scale * 650.0f)) && func_803292E0(this)) {
+            if (subaddie_playerIsWithinSphereAndActive(this, (s32) (this->scale * 650.0f)) && func_803292E0(this)) {
                 subaddie_set_state(this, 2U);
                 actor_playAnimationOnce(this);
                 this->unk1C[1] = 1.0f;
                 this->unk44_31 = func_8030ED2C(SFX_2C_PULLING_NOISE, 3);
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             break;
 
@@ -224,7 +224,7 @@ void func_8035F138(Actor *this) {
 
         case 3: //L8035F3AC
             func_8035EF3C(this);
-            if (!func_80329530(this, (s32) (this->scale * 1050.0f)) || !func_803292E0(this)) {
+            if (!subaddie_playerIsWithinSphereAndActive(this, (s32) (this->scale * 1050.0f)) || !func_803292E0(this)) {
                 func_8035EEC0(this);
                 break;
             }
@@ -244,7 +244,7 @@ void func_8035F138(Actor *this) {
 
         case 4: //L8035F4FC
             func_8035EF3C(this);
-            if (((f64)this->unk38_31 <= 0.0) && func_80329530(this, (s32) (this->scale * 1050.0f)) && func_803292E0(this)) {
+            if (((f64)this->unk38_31 <= 0.0) && subaddie_playerIsWithinSphereAndActive(this, (s32) (this->scale * 1050.0f)) && func_803292E0(this)) {
                 func_8035EE80(this);
                 break;
             }
@@ -265,7 +265,7 @@ void func_8035F138(Actor *this) {
 
         case 5: //L8035F6F4
             if (actor_animationIsAt(this, 0.36f) != 0) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             if ((this->unk44_31 != 0) && func_8030E3FC(this->unk44_31)) {
                 if (this->unk1C[1] > 1.0) {

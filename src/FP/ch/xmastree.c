@@ -68,9 +68,9 @@ void __chXmasTree_spawnStar(void *marker){
 
 void __chXmasTree_80387038(Actor *this){
     if(func_8030E3FC(this->unk44_31))
-        sfxSource_func_8030E2C4(this->unk44_31);
+        sfxSource_triggerCallbackByIndex(this->unk44_31);
     sfxsource_playSfxAtVolume(this->unk44_31, randf2(0.9f, 1.1f));
-    func_8030E2C4(this->unk44_31);
+    sfxSource_func_8030E2C4(this->unk44_31);
 }
 
 void __chXmasTree_8038709C(Actor *this){
@@ -128,8 +128,8 @@ void chXmasTree_update(Actor *this){
             subaddie_set_state(this, 3);
             this->lifetime_value = 2.0f;
             coMusicPlayer_playMusic(COMUSIC_61_XMAS_TREE_LIGHTS_UP, 28000);
-            func_802BAFE4(0x1A);
-            gcdialog_showText(0xC14, 0, NULL, NULL, NULL, NULL);
+            gcStaticCamera_activate(0x1A);
+            gcdialog_showDialog(0xC14, 0, NULL, NULL, NULL, NULL);
             break;
 
         case 3: // L803872F0
@@ -180,7 +180,7 @@ void chXmasTree_update(Actor *this){
                     if(!maSlalom_isActive()){
                         if(!mapSpecificFlags_get(9) || mapSpecificFlags_get(1)){
                             coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 28000);
-                            func_802BAFE4(0x1a);
+                            gcStaticCamera_activate(0x1a);
                             this->lifetime_value = 2.0f;
                         }
                     }

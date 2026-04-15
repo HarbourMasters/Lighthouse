@@ -239,7 +239,7 @@ void __maSlalom_loseDialogCallback(void){
     timed_exitStaticCamera(0.0f);
     timedFunc_set_0(0.0f, __maSlalom_despawnAllGates);
     timedFunc_set_0(0.0f, __maSlalom_despawnAllBridges);
-    func_8028FA14(map_get(), 0x11);
+    code_7060_setVoidOutLocation(gsworld_getMap(), 0x11);
     func_8028F66C(BS_INTR_2A);
 }
 
@@ -268,7 +268,7 @@ void maSlalom_dialogCallback(ActorMarker *caller, enum asset_e text_id, s32 arg2
 
         case 0xc10: //8038B358
             func_8038ABDC();
-            func_8028FA14(map_get(), 0x11);
+            code_7060_setVoidOutLocation(gsworld_getMap(), 0x11);
             func_8028F66C(BS_INTR_2A);
             timedFunc_set_0(0.0f, __maSlalom_clearState);
             break;
@@ -374,7 +374,7 @@ void maSlalom_init(void){
 
     FP_func_8038AB60(0);
 
-    if(map_get() != MAP_27_FP_FREEZEEZY_PEAK || jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3)){
+    if(gsworld_getMap() != MAP_27_FP_FREEZEEZY_PEAK || jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3)){
         Me.state = MA_SLALOM_STATE_0_NONE;
         return;
     }
@@ -539,7 +539,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
                 FP_func_8038AB60(0);
                 if(!player_isDead()){
                     func_8028F918(2);
-                    gcdialog_showText(0xc10, 0x20, NULL, NULL, maSlalom_dialogCallback, NULL);
+                    gcdialog_showDialog(0xc10, 0x20, NULL, NULL, maSlalom_dialogCallback, NULL);
                 }//L8038BD40
                 Me.state = MA_SLALOM_STATE_4_LOSE;
                 break;
@@ -547,7 +547,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
             case 3:
                 if(!Me.hasBeenThreeBehind && !player_isDead()){
                     Me.hasBeenThreeBehind = 1;
-                    gcdialog_showText(0xc0f, 0x20, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(0xc0f, 0x20, NULL, NULL, NULL, NULL);
                 }//L8038BD94
                 func_8025AEA0(0x3a, 0x411aa);
                 break;
@@ -555,7 +555,7 @@ void maSlalom_setBoggyGate(s32 gate_num){
             case 2:
                 if(!Me.hasBeenTwoBehind && !player_isDead()){
                     Me.hasBeenTwoBehind = 1;
-                    gcdialog_showText(0xc0e, 0x20, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(0xc0e, 0x20, NULL, NULL, NULL, NULL);
                 }//L8038BDF0
                 func_8025AEA0(0x3a, 0x493e0);
                 break;

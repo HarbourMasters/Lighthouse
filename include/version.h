@@ -47,4 +47,7 @@
 #define FRAMERATE 60
 #endif
 
+// [port] Marker only, not used at runtime
+#define ANTI_TAMPER 0
+
 #endif // __BANJO_KAZOOIE_VERSION_H__

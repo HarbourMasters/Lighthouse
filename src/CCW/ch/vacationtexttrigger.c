@@ -1,4 +1,3 @@
-// BanjoDecomp: ch/vacationtexttrigger.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -40,7 +39,7 @@ void chVacationTextTrigger_update(Actor* this) {
 
     // Start dialog if player is within trigger
     if (__playerIsWithinTrigger(0, -107, 188) != 0) {
-        gcdialog_showText(0xDA9, 4, NULL, NULL, NULL, NULL);
+        gcdialog_showDialog(0xDA9, 4, NULL, NULL, NULL, NULL);
         volatileFlag_set(VOLATILE_FLAG_13_HAS_TRIGGERED_MUMBO_VACATION_TEXT, 1);
     }
 }

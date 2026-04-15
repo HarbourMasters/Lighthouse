@@ -44,7 +44,7 @@ void __chCrab_802CB078(Actor *this) {
             return;
         }
         else{
-            if( func_80329530(this, 1500) 
+            if( subaddie_playerIsWithinSphereAndActive(this, 1500) 
                 && ( (this->modelCacheIndex == ACTOR_F2_BLACK_SNIPPET) || func_803292E0(this))
             ) {
                 this->actor_specific_1_f = 0.0f;
@@ -150,7 +150,7 @@ void __chCrab_mutantTextCallback(ActorMarker *caller, enum asset_e text_id, s32 
         func_80324E38(3.0f, 0);
         return;
     }
-    levelSpecificFlags_set(LEVEL_FLAG_E_CC_UNKNOWN, false);
+    levelSpecificFlags_set(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS, false);
 }
 
 s32 __chCrab_802CB76C(ActorMarker *marker, ActorMarker *other) {
@@ -182,7 +182,7 @@ void __chCrab_die(ActorMarker *marker, ActorMarker *other){
     marker->collidable = false;
     this->unk138_27 = 1;
     marker_despawn(marker);
-    if( map_get() == MAP_B_CC_CLANKERS_CAVERN
+    if( gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN
         && ml_vec3f_point_within_horizontal_distance(this->position, 13778.0f, 0.0f, 3000.0f)
     ) {
         this->depth_mode =  MODEL_RENDER_DEPTH_COMPARE;
@@ -240,7 +240,7 @@ void chCrab_update(Actor *this) {
         this->has_met_before = false;
         this->volatile_initialized = true;
         anctrl_setTransitionDuration(this->anctrl, 0.25f);
-        if (map_get() == MAP_A_TTC_SANDCASTLE) {
+        if (gsworld_getMap() == MAP_A_TTC_SANDCASTLE) {
             if (!jiggyscore_isCollected(JIGGY_10_TTC_SANDCASTLE)) {
                 mapSpecificFlags_set(1, 0);
             }
@@ -260,35 +260,35 @@ void chCrab_update(Actor *this) {
         subaddie_turnToYaw(this, 4.0f);
         return;
     }
-    if( (map_get() == MAP_B_CC_CLANKERS_CAVERN) 
+    if( (gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN) 
         && !mapSpecificFlags_get(0) 
         && is_mutant_snippet
         && !jiggyscore_isCollected(JIGGY_16_CC_SNIPPETS)
-        && func_80329530(this, 500) && !func_80329530(this, 200)
+        && subaddie_playerIsWithinSphereAndActive(this, 500) && !subaddie_playerIsWithinSphereAndActive(this, 200)
         && !player_movementGroup()
     ) {
         if ((this->state != 6) && (this->state != 5)) {
-            gcdialog_showText(ASSET_D32_DIALOG_MUTANT_CRAB_MEET, 0xF, this->position, NULL, __chCrab_mutantTextCallback, NULL);
+            gcdialog_showDialog(ASSET_D32_DIALOG_MUTANT_CRAB_MEET, 0xF, this->position, NULL, __chCrab_mutantTextCallback, NULL);
             mapSpecificFlags_set(0, true);
-            levelSpecificFlags_set(LEVEL_FLAG_E_CC_UNKNOWN, true);
+            levelSpecificFlags_set(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS, true);
             this->has_met_before = true;
         }
     }
-    if (map_get() == MAP_A_TTC_SANDCASTLE) {
+    if (gsworld_getMap() == MAP_A_TTC_SANDCASTLE) {
         if( !mapSpecificFlags_get(0)
             && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)
             && !volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)
             && !jiggyscore_isCollected(JIGGY_10_TTC_SANDCASTLE)
-            && func_80329530(this, 1600)
+            && subaddie_playerIsWithinSphereAndActive(this, 1600)
         ) {
-            gcdialog_showText(0xA12, 4, this->position, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_A12_DIALOG_BLACK_SNIPPET_SPAWNED, 4, this->position, NULL, NULL, NULL);
             mapSpecificFlags_set(0, true);
         } else if (mapSpecificFlags_get(1)) {
-            gcdialog_showText(0xA13, 4, this->position, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_A13_DIALOG_BLACK_SNIPPET_DEFEATED, 4, this->position, NULL, NULL, NULL);
             mapSpecificFlags_set(1, false);
         }
     }
-    if (levelSpecificFlags_get(LEVEL_FLAG_E_CC_UNKNOWN)) {
+    if (levelSpecificFlags_get(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS)) {
         if ((this->state != 8) && (this->state != 9)) {
             subaddie_set_state_with_direction(this, (this->has_met_before) ? 8 : 9, 0.0f, 1);
             this->has_met_before = false;
@@ -304,7 +304,7 @@ void chCrab_update(Actor *this) {
             break;
 
         case 9: //L802CBE6C
-            if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_UNKNOWN)) {
+            if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS)) {
                 subaddie_set_state_with_direction(this, 3, 0.0f, 1);
             }
             break;
@@ -335,7 +335,7 @@ void chCrab_update(Actor *this) {
             if (func_80329480(this)) {
                 subaddie_set_state(this, 9);
                 this->actor_specific_1_f = 12.0f;
-            } else if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_UNKNOWN)) {
+            } else if (!levelSpecificFlags_get(LEVEL_FLAG_E_CC_MUTIE_SNIPPETS)) {
                 subaddie_set_state_with_direction(this, 3, 0.0f, 1);
             }
             break;
@@ -358,7 +358,7 @@ void chCrab_update(Actor *this) {
                 if (this->marker->id == 0x16B) {
                     this->marker->id = MARKER_13_SNIPPET;
                 }
-                if (this->marker->id == 0xDE) {
+                if (this->marker->id == MARKER_DE_BLACK_SNIPPET_UPSIDEDOWN) {
                     this->marker->id = MARKER_DD_BLACK_SNIPPET;
                 }
             }

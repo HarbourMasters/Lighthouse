@@ -26,8 +26,8 @@ extern Cube *func_80308224(void);
 extern Cube *func_8030364C(void);
 extern Cube *cube_atPosition_s32(s32 position[3]);
 
-extern f32 func_8030A590(Prop *);
-extern void func_8030A5EC(Prop *, f32);
+extern f32 propModelList_getScale(Prop *);
+extern void propModelList_setScale(Prop *, f32);
 
 Prop *func_80303F7C(s32, f32, s32, s32);
 s32 func_803058C0(f32);
@@ -35,12 +35,12 @@ void func_80305CD8(s32, s32);
 void code_A5BC0_initCubePropActorProp(Cube*);
 ActorMarker * func_80332A60(void);
 extern void func_8032F3D4(s32 [3], ActorMarker *, s32);
-extern void func_8030A350(Gfx **, Mtx **, Vtx **, f32[3], f32, s32, Cube*,s32 ,s32, s32, s32, s32);  
-extern void func_8030A2D0(Gfx **, Mtx **, Vtx **, f32[3], f32[3], f32, s32, Cube*);
+extern void propModelList_drawSprite(Gfx **, Mtx **, Vtx **, f32[3], f32, s32, Cube*,s32 ,s32, s32, s32, s32);  
+extern void propModelList_drawModel(Gfx **, Mtx **, Vtx **, f32[3], f32[3], f32, s32, Cube*);
 s32 func_8032D9C0(Cube*, Prop*);
 void func_8032F21C(Cube *cube, s32 position[3], ActorMarker *marker, bool arg3);
 void func_80332B2C(ActorMarker * arg0);
-BKSprite *func_8030A55C(s32 arg0);
+BKSprite *propModelList_getSprite(s32 arg0);
 
 typedef union{
     struct{
@@ -60,8 +60,8 @@ s32 func_80330974(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 a
 BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
 BKModelBin *func_80330DE4(ActorMarker *this);
 
-extern void func_80320EB0(ActorMarker *, f32, s32);
-extern void func_80320ED8(ActorMarker *, f32, s32);
+extern ActorProp * func_80320EB0(ActorMarker *, f32, s32);
+extern int func_80320ED8(ActorMarker *, f32, s32);
 f32 func_8033229C(ActorMarker *marker);
 s32 func_803327A8(s32 arg0);
 void func_8032CD60(Prop *);
@@ -100,7 +100,7 @@ s32 D_8038355C;
 
 /* .code */
 // This function sorts a cube's props based on distance
-void func_8032CB50(Cube *cube, bool global) {
+void __cube_sort(Cube *cube, bool global) {
     s32 ref_position[3];
     Prop *var_v1;
     Prop *start_prop;
@@ -188,7 +188,7 @@ void func_8032CD60(Prop *prop) {
     // Original: ((u16*)prop)[5] & 1 → markerFlag, ((u16*)prop)[0] >> 4 → unk0_31
     if (prop->markerFlag && prop->actorProp.marker == NULL) return;
     var_v0 = prop->markerFlag ? func_80330F50(prop->actorProp.marker)
-           : func_8030A55C(prop->spriteProp.unk0_31);
+           : propModelList_getSprite(prop->spriteProp.spriteId);
     if ((var_v0 != NULL) && ((var_v0->unkC.bit27 != 0))) {
        sp48 = var_v0->unkC.bit31;
        sp44 = var_v0->unkC.bit27;
@@ -219,7 +219,7 @@ void func_8032CD60(Prop *prop) {
                 sp40 = 1;
                 break;
             case 3:
-                sp40 = prop->spriteProp.unk0_1;
+                sp40 = prop->spriteProp.isMirrored;
                 break;
         }
 
@@ -247,7 +247,7 @@ void func_8032CD60(Prop *prop) {
                         if (prop->markerFlag) {
                             sp3C = prop->unk8_5;
                         } else {
-                            sp3C = prop->spriteProp.unk0_1;
+                            sp3C = prop->spriteProp.isMirrored;
                         }
                       if (1);
                         break;
@@ -262,24 +262,24 @@ void func_8032CD60(Prop *prop) {
 
         var_v1 += (sp34) ? sp40 : -sp40;
         var_v1 = (var_v1 < 0) ? var_v1 +sp38 : var_v1 % sp38;
-        prop->spriteProp.unk8_15 = var_v1;
+        prop->spriteProp.frame = var_v1;
         if (prop->markerFlag) {
             prop->spriteProp.unk8_5 = sp3C;
         }
         else{
-            prop->spriteProp.unk0_1 = sp3C;
+            prop->spriteProp.isMirrored = sp3C;
         }
     }
 }
 
-void func_8032D120(Cube *cube){
+void cube_sortAbsolute(Cube *cube){
     if(cube->prop2Cnt >= 2)
-        func_8032CB50(cube, 1);
+        __cube_sort(cube, 1);
 }
 
-void func_8032D158(Cube *cube){
+void cube_sortRelative(Cube *cube){
     if(cube->prop2Cnt >= 2)
-        func_8032CB50(cube, 0);
+        __cube_sort(cube, 0);
 }
 
 static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
@@ -364,7 +364,7 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
     if(cube->prop2Cnt == 0 ) return;
 
-    func_8032CB50(cube, 0);
+    __cube_sort(cube, 0);
     iOffset = 0;
     for(i = 0; i < cube->prop2Cnt; i++){//L8032D5A0
 
@@ -405,18 +405,18 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                 sp94[2] = (f32)iProp->modelProp.unk4[2];
                 if(iProp->unk8_1){
                     sp88[0] = 0.0f;
-                    sp88[1] = (f32)((s32)iProp->modelProp.unk0_15*2);
-                    sp88[2] = (f32)((s32)iProp->modelProp.unk0_7*2);
-                    func_8030A2D0(gfx, mtx, vtx, 
-                        sp94, sp88, (f32)iProp->modelProp.unkA/100.0,
-                        iProp->modelProp.unk0_31, cube
+                    sp88[1] = (f32)((s32)iProp->modelProp.yaw*2);
+                    sp88[2] = (f32)((s32)iProp->modelProp.roll*2);
+                    propModelList_drawModel(gfx, mtx, vtx, 
+                        sp94, sp88, (f32)iProp->modelProp.scale/100.0,
+                        iProp->modelProp.modelId, cube
                     );
                 }
                 else{//L8032D72C
-                    func_8030A350( gfx, mtx, vtx,
-                        sp94, (f32)iProp->spriteProp.unk0_9/100.0, iProp->spriteProp.unk0_31, cube,
-                        iProp->spriteProp.unk0_18, iProp->spriteProp.unk0_15, iProp->spriteProp.unk0_12,
-                        iProp->spriteProp.unk0_1, iProp->spriteProp.unk8_15
+                    propModelList_drawSprite( gfx, mtx, vtx,
+                        sp94, (f32)iProp->spriteProp.scale/100.0, iProp->spriteProp.spriteId, cube,
+                        iProp->spriteProp.rgb_remove_red, iProp->spriteProp.rgb_remove_green, iProp->spriteProp.rgb_remove_blue,
+                        iProp->spriteProp.isMirrored, iProp->spriteProp.frame
                     );
                 }
             }//L8032D7C4
@@ -458,7 +458,7 @@ s32 func_8032D9C0(Cube *cube, Prop* prop){
 
     sp24 = 0;
     if(cube->prop2Cnt != 0){
-        sp24 = prop->unk8_1; 
+        sp24 = prop->unk8_1;
         if(func_80305D14()){
             func_80305CD8(func_803058C0(prop->unk4[1]), -1);
         }
@@ -521,14 +521,14 @@ SpriteProp *func_8032DCB8(Cube *cube) {
     SpriteProp *sp1C;
 
     sp1C = (SpriteProp *)__codeA5BC0_initProp2Ptr(cube);
-    sp1C->unk8_0 = false;
-    sp1C->unk8_1 = false;
-    sp1C->unk8_15 = 0;
-    sp1C->unk0_1 = 0;
+    sp1C->isActorProp = false;
+    sp1C->isModelProp = false;
+    sp1C->frame = 0;
+    sp1C->isMirrored = 0;
     sp1C->unk8_10 = randf() * 32.0f;
     sp1C->unk8_3 = false;
-    sp1C->unk8_2 = false;
-    sp1C->unk8_4 = true;
+    sp1C->isCollisionResolved = false;
+    sp1C->isNotFeatherEggOrNote = true;
     return sp1C;
 }
 
@@ -546,7 +546,7 @@ void func_8032DDD8(Cube *cube) {
 
 
 void func_8032DE2C(ModelProp *model_prop, enum asset_e sprite_id){
-    model_prop->unk0_31 = sprite_id - 0x2d1;
+    model_prop->modelId = sprite_id - 0x2d1;
 }
 
 void func_8032DE48(ModelProp *model_prop, enum asset_e *model_id_ptr){\
@@ -554,37 +554,37 @@ void func_8032DE48(ModelProp *model_prop, enum asset_e *model_id_ptr){\
 }
 
 void func_8032DE5C(SpriteProp *sprite_prop, enum asset_e sprite_id){
-    sprite_prop->unk0_31 = sprite_id - 0x572;
+    sprite_prop->spriteId = sprite_id - 0x572;
 }
 
 void func_8032DE78(SpriteProp *sprite_prop, enum asset_e *sprite_id_ptr){
-    *sprite_id_ptr = sprite_prop->unk0_31 + 0x572;
+    *sprite_id_ptr = sprite_prop->spriteId + 0x572;
 }
 
 void func_8032DE8C(SpriteProp *sprite_prop, s32 *arg1){
-    *arg1 = sprite_prop->unk0_9;
+    *arg1 = sprite_prop->scale;
 }
 
 void func_8032DEA0(SpriteProp *sprite_prop, s32 *arg1, s32 *arg2, s32 *arg3){
-    *arg1 = sprite_prop->unk0_18;
-    *arg2 = sprite_prop->unk0_15;
-    *arg3 = sprite_prop->unk0_12;
+    *arg1 = sprite_prop->rgb_remove_red;
+    *arg2 = sprite_prop->rgb_remove_green;
+    *arg3 = sprite_prop->rgb_remove_blue;
 }
 
 void func_8032DECC(SpriteProp *sprite_prop, s32 *arg1){
-    *arg1 = ((*(u32*)sprite_prop) << 0x1e) >> 0x1f;//sprite_prop->unk0_0;
+    *arg1 = ((*(u32*)sprite_prop) << 0x1e) >> 0x1f;//sprite_prop->pad0_0;
 }
 
 void func_8032DEE0(SpriteProp *sprite_prop, s32 arg1){
-    sprite_prop->unk0_9 = arg1;
+    sprite_prop->scale = arg1;
 }
 
 void func_8032DEFC(ModelProp *prop_prop, s32 arg1){
-    prop_prop->unkA = arg1;
+    prop_prop->scale = arg1;
 }
 
 void func_8032DF04(ModelProp *prop_prop, s32 *arg1){
-    *arg1 = prop_prop->unkA;
+    *arg1 = prop_prop->scale;
 }
 
 void func_8032DF10(SpriteProp *sprite_prop, bool *arg1){
@@ -592,23 +592,23 @@ void func_8032DF10(SpriteProp *sprite_prop, bool *arg1){
 }
 
 void func_8032DF24(SpriteProp *sprite_prop, bool arg1){
-    sprite_prop->unk0_1 = arg1;
+    sprite_prop->isMirrored = arg1;
 }
 
 void func_8032DF40(ModelProp *prop_prop, s32 arg1, s32 arg2){
-    prop_prop->unk0_15 = arg1;
-    prop_prop->unk0_7 = arg2;
+    prop_prop->yaw = arg1;
+    prop_prop->roll = arg2;
 }
 
 void func_8032DF4C(ModelProp *prop_prop, s32 *arg1, s32 *arg2){
-    *arg1 = prop_prop->unk0_15;
-    *arg2 = prop_prop->unk0_7;
+    *arg1 = prop_prop->yaw;
+    *arg2 = prop_prop->roll;
 }
 
 void func_8032DF60(SpriteProp *sprite_prop, s32 arg1, s32 arg2, s32 arg3){
-    sprite_prop->unk0_18 = arg1;
-    sprite_prop->unk0_15 = arg2;
-    sprite_prop->unk0_12 = arg3;
+    sprite_prop->rgb_remove_red = arg1;
+    sprite_prop->rgb_remove_green = arg2;
+    sprite_prop->rgb_remove_blue = arg3;
 }
 
 void func_8032DFA0(SpriteProp *sprite_prop, bool arg1){
@@ -981,31 +981,31 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                         cube->prop2Ptr[i].actorProp.y = pos[1];
                         cube->prop2Ptr[i].actorProp.z = pos[2];
                         // SpriteProp unk8_10/unk8_15 overlap anonymous pad8_15
-                        cube->prop2Ptr[i].actorProp.unk8_15 = (flags >> 11) & 0x1F;
+                        cube->prop2Ptr[i].actorProp.frame = (flags >> 11) & 0x1F;
                         cube->prop2Ptr[i].actorProp.unk8_10 = (flags >> 6) & 0x1F;
                     } else if (b1) {
                         // ModelProp: word0 = { u16 unk0, u8 unk0_15, u8 unk0_7 }
                         // [port] Set through bitfield accessor, not raw u16, for LE correctness
-                        cube->prop2Ptr[i].modelProp.unk0_31 = (word0 >> 20) & 0xFFF;
+                        cube->prop2Ptr[i].modelProp.modelId = (word0 >> 20) & 0xFFF;
                         cube->prop2Ptr[i].modelProp.pad0_19 = (word0 >> 16) & 0xF;
-                        cube->prop2Ptr[i].modelProp.unk0_15 = (u8)(word0 >> 8);
-                        cube->prop2Ptr[i].modelProp.unk0_7 = (u8)(word0);
+                        cube->prop2Ptr[i].modelProp.yaw = (u8)(word0 >> 8);
+                        cube->prop2Ptr[i].modelProp.roll = (u8)(word0);
                         // ModelProp flags at offset 10-11
-                        cube->prop2Ptr[i].modelProp.unkA = (u8)(flags >> 8);
+                        cube->prop2Ptr[i].modelProp.scale = (u8)(flags >> 8);
                         cube->prop2Ptr[i].modelProp.unkB_5 = (flags >> 5) & 1;
                         cube->prop2Ptr[i].modelProp.unkB_4 = (flags >> 4) & 1;
                     } else {
                         // SpriteProp: word0 is a u32 with bitfields
-                        cube->prop2Ptr[i].spriteProp.unk0_31 = (word0 >> 20) & 0xFFF;
+                        cube->prop2Ptr[i].spriteProp.spriteId = (word0 >> 20) & 0xFFF;
                         cube->prop2Ptr[i].spriteProp.unk0_19 = (word0 >> 19) & 1;
-                        cube->prop2Ptr[i].spriteProp.unk0_18 = (word0 >> 16) & 7;
-                        cube->prop2Ptr[i].spriteProp.unk0_15 = (word0 >> 13) & 7;
-                        cube->prop2Ptr[i].spriteProp.unk0_12 = (word0 >> 10) & 7;
-                        cube->prop2Ptr[i].spriteProp.unk0_9  = (word0 >> 2) & 0xFF;
-                        cube->prop2Ptr[i].spriteProp.unk0_1  = (word0 >> 1) & 1;
-                        cube->prop2Ptr[i].spriteProp.unk0_0  = word0 & 1;
+                        cube->prop2Ptr[i].spriteProp.rgb_remove_red = (word0 >> 16) & 7;
+                        cube->prop2Ptr[i].spriteProp.rgb_remove_green = (word0 >> 13) & 7;
+                        cube->prop2Ptr[i].spriteProp.rgb_remove_blue = (word0 >> 10) & 7;
+                        cube->prop2Ptr[i].spriteProp.scale  = (word0 >> 2) & 0xFF;
+                        cube->prop2Ptr[i].spriteProp.isMirrored  = (word0 >> 1) & 1;
+                        cube->prop2Ptr[i].spriteProp.pad0_0  = word0 & 1;
                         // SpriteProp flags
-                        cube->prop2Ptr[i].spriteProp.unk8_15 = (flags >> 11) & 0x1F;
+                        cube->prop2Ptr[i].spriteProp.frame = (flags >> 11) & 0x1F;
                         cube->prop2Ptr[i].spriteProp.unk8_10 = (flags >> 6) & 0x1F;
                     }
                 }
@@ -1018,7 +1018,7 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                 }
                 if (sp34) {
                     if (!(var_v1_2->markerFlag) && !(var_v1_2->unk8_1)){
-                        temp_v0_5 = var_v1_2->spriteProp.unk0_31 + 0x572;
+                        temp_v0_5 = var_v1_2->spriteProp.spriteId + 0x572;
                         if((temp_v0_5 == 0x580) || (temp_v0_5 == 0x6D1) || (temp_v0_5 == 0x6D6) || (temp_v0_5 == 0x6D7)){
                             var_v1_2->unk8_4 = 0;
                         }
@@ -1130,19 +1130,19 @@ void func_8032F21C(Cube *cube, s32 position[3], ActorMarker *marker, bool arg3) 
     ActorProp *sp1C;
 
     sp1C = &__codeA5BC0_initProp2Ptr(cube)->actorProp;
-    sp1C->unk8_0 = true;
+    sp1C->isActorProp = true;
     sp1C->x = (s16) position[0];
     sp1C->y = (s16) position[1];
     sp1C->z = (s16) position[2];
     sp1C->marker = marker;
-    sp1C->unk8_1 = arg3;
-    sp1C->unk8_15 = 0;
-    sp1C->unk8_5 = false;
+    sp1C->isModelProp = arg3;
+    sp1C->frame = 0;
+    sp1C->isMirrored = false;
 
     sp1C->unk8_10 = (func_802E4A08()) ? 0xF : (u8)(randf() * 32);
     sp1C->unk8_3 = false;
-    sp1C->unk8_2 = false;
-    sp1C->unk8_4 = true;
+    sp1C->isCollisionResolved = false;
+    sp1C->isNotFeatherEggOrNote = true;
     marker->propPtr = sp1C;
     marker->cubePtr = cube;
     if (func_80305D14()) {
@@ -1329,7 +1329,7 @@ void func_8032FFD4(ActorMarker *this, s32 arg1){
     this->actrArrayIdx = arg1;
 }
 
-void func_8032FFEC(ActorMarker *this, s32 arg1){
+void marker_setCommonParticleIndex(ActorMarker *this, s32 arg1){
     this->commonParticleIndex = arg1;
 }
 
@@ -1533,7 +1533,7 @@ void func_803306C8(s32 arg0) {
                 if (!D_8036E7CC);
 
                 var_s0_2 = true;
-                func_8033B338((void **)&var_a2->unk4, &var_a2->unk8);
+                codeB3A80_releaseSprite((void **)&var_a2->unk4, &var_a2->unk8);
             }
             if ((arg0 != 1) && (var_s0_2 == 1) && (func_80254BC4(1))) {
                 return;
@@ -1631,7 +1631,7 @@ BKModelBin *marker_loadModelBin(ActorMarker *this){
         func_8032ACA8(thisActor);
     }
     func_8032AB84(thisActor);
-    if(!this->unk18 && this->propPtr->unk8_1 && modelInfo->modelPtr && func_8033A12C(modelInfo->modelPtr)){
+    if(!this->unk18 && this->propPtr->isModelProp && modelInfo->modelPtr && func_8033A12C(modelInfo->modelPtr)){
         this->unk18 = func_80330B10();
     }
     modelInfo->unk10 = globalTimer_getTime();
@@ -1706,7 +1706,7 @@ BKSpriteDisplayData *func_80330E54(ActorMarker *marker, BKSprite **sprite_ptr) {
     }
     model_cache_ptr = &modelCache[marker_getActor(marker)->modelCacheIndex];
     if (model_cache_ptr->unk4 == 0) {
-        model_cache_ptr->unk4 = func_8033B6C4(marker->modelId, &model_cache_ptr->unk8);
+        model_cache_ptr->unk4 = codeB3A80_getSprite(marker->modelId, &model_cache_ptr->unk8);
     }
     model_cache_ptr->unk10 = globalTimer_getTime();
     if (sprite_ptr != NULL) {
@@ -1768,7 +1768,7 @@ void func_80330FF4(void){
     f32 sp48[3];
     f32 scale[3];
 
-    if(func_80334904() == 1)
+    if(gsworld_getUnk0() == 1)
         return;
     
     if(D_8038341C != NULL){
@@ -1834,17 +1834,17 @@ BKCollisionTri *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u32 a
         if(var_s1);
 
         if (!var_s1->markerFlag && var_s1->unk8_1 && var_s1->unk8_4) { //ModelProp
-            var_s0 = func_8030A4B4(var_s1->modelProp.unk0_31);
-            if ((var_s0 != NULL) || (func_8028F280() && ((var_s0 = func_8030A428(var_s1->modelProp.unk0_31)) != NULL))) {
+            var_s0 = propModelList_getModelIfActive(var_s1->modelProp.modelId);
+            if ((var_s0 != NULL) || (func_8028F280() && ((var_s0 = propModelList_getModel(var_s1->modelProp.modelId)) != NULL))) {
                 temp_s2 = model_getCollisionList(var_s0);
                 if (temp_s2 != 0) {
                     spAC[0] = (f32) var_s1->modelProp.unk4[0];
                     spAC[1] = (f32) var_s1->modelProp.unk4[1];
                     spAC[2] = (f32) var_s1->modelProp.unk4[2];
                     spA0[0] = 0.0f;
-                    spA0[1] = (f32) (var_s1->modelProp.unk0_15 * 2);
-                    spA0[2] = (f32) (var_s1->modelProp.unk0_7 * 2);
-                    var_v0 = func_802E805C(temp_s2, model_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.unkA / 100.0, arg1, arg2, arg3, arg4);
+                    spA0[1] = (f32) (var_s1->modelProp.yaw * 2);
+                    spA0[2] = (f32) (var_s1->modelProp.roll * 2);
+                    var_v0 = func_802E805C(temp_s2, model_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.scale / 100.0, arg1, arg2, arg3, arg4);
                     if (var_v0 != NULL) {
                         var_s6 = var_v0;
                     }
@@ -1928,7 +1928,7 @@ BKCollisionTri *func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3, f3
   {
     if (((!var_s0->markerFlag) && var_s0->unk8_1) && var_s0->unk8_4)
     {
-      model_bin = func_8030A4B4(var_s0->modelProp.unk0_31);
+      model_bin = propModelList_getModelIfActive(var_s0->modelProp.modelId);
       if (model_bin == 0)
       {
         continue;
@@ -1942,11 +1942,11 @@ BKCollisionTri *func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3, f3
       spBC[1] = (f32) var_s0->modelProp.unk4[1];
       spBC[2] = (f32) var_s0->modelProp.unk4[2];
       spB0[0] = 0.0f;
-      spB0[1] = (f32) (var_s0->modelProp.unk0_15 * 2);
+      spB0[1] = (f32) (var_s0->modelProp.yaw * 2);
       new_var = spB0;
-      spB0[2] = (f32) (var_s0->modelProp.unk0_7 * 2);
+      spB0[2] = (f32) (var_s0->modelProp.roll * 2);
       var_v0 = func_802E9118(model_collision_list, model_getVtxList(model_bin), 
-        spBC, new_var, (f32) (((f32) var_s0->modelProp.unkA) / 100.0), 
+        spBC, new_var, (f32) (((f32) var_s0->modelProp.scale) / 100.0), 
         arg1, arg2, arg3, arg4, arg5, flags
     );
       if (var_v0 != 0)
@@ -2030,7 +2030,7 @@ BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 arg3[
         if (((!var_s0->markerFlag) && var_s0->unk8_1) && var_s0->unk8_4)
         {
             mProp = &var_s0->modelProp;
-            new_var = func_8030A4B4(mProp->unk0_31); 
+            new_var = propModelList_getModelIfActive(mProp->modelId); 
             if (1) { } if (1) { } if (1) { }
             model_bin = new_var;
             if (model_bin != 0){
@@ -2040,10 +2040,10 @@ BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 arg3[
                     spAC[1] = (f32) mProp->unk4[1];
                     spAC[2] = (f32) mProp->unk4[2];
                     spA0[0] = 0.0f;
-                    spA0[1] = (f32) (mProp->unk0_15 * 2);
+                    spA0[1] = (f32) (mProp->yaw * 2);
                     model_bin = model_bin;
-                    spA0[2] = (f32) (mProp->unk0_7 * 2);
-                    var_v0 = func_802E9DD8(model_collision_list, model_getVtxList(model_bin), spAC, spA0, ((f32) mProp->unkA) / 100.0, position, radius, arg3, arg4);
+                    spA0[2] = (f32) (mProp->roll * 2);
+                    var_v0 = func_802E9DD8(model_collision_list, model_getVtxList(model_bin), spAC, spA0, ((f32) mProp->scale) / 100.0, position, radius, arg3, arg4);
                     if (var_v0 != 0)
                         var_s7 = var_v0;
                 }
@@ -2114,7 +2114,7 @@ f32 func_80331D20(BKSprite *sprite) {
 
 
 f32 func_80331E34(Prop *arg0){
-    return func_80331D20(func_8030A55C(arg0->spriteProp.unk0_31));
+    return func_80331D20(propModelList_getSprite(arg0->spriteProp.spriteId));
 }
 
 f32 func_80331E64(ActorMarker *marker) {
@@ -2133,11 +2133,11 @@ f32 func_80331E64(ActorMarker *marker) {
 
 
 f32 func_80331F1C(Prop *arg0){
-    // [port] func_8030A428 can return NULL when asset is missing from o2r (N64 ROM always had it)
+    // [port] propModelList_getModel can return NULL when asset is missing from o2r (N64 ROM always had it)
     // D_80382390 array is 0x2A2 elements; out-of-range index → crash after defrag moves the array
-    s32 idx = arg0->modelProp.unk0_31;
+    s32 idx = arg0->modelProp.modelId;
     if (idx < 0 || idx >= 0x2A2) return 0.0f;
-    BKModelBin *model = func_8030A428(idx);
+    BKModelBin *model = propModelList_getModel(idx);
     if (model == NULL) return 0.0f;
     // [port] model_getVtxList offsets into the model blob; if vtx_list_offset is 0 it returns the header itself
     if (model->vtx_list_offset_10 == 0) return 0.0f;
@@ -2207,9 +2207,9 @@ f32 func_803320BC(ActorProp *prop, f32 (*arg1)(ActorMarker *)) {
 f32 func_80332220(Prop * prop, f32 (*arg1)(Prop *)) {
     f32 phi_f12;
 
-    phi_f12 = func_8030A590(prop);
+    phi_f12 = propModelList_getScale(prop);
     if (phi_f12 == 0.0f) {
-        func_8030A5EC(prop, phi_f12 = arg1(prop) * 0.5);
+        propModelList_setScale(prop, phi_f12 = arg1(prop) * 0.5);
     }
     return phi_f12;
 }
@@ -2219,7 +2219,7 @@ f32 func_8033229C(ActorMarker *marker) {
     ActorProp *prop;
 
     prop = marker->propPtr;
-    if (prop->unk8_1) {
+    if (prop->isModelProp) {
         return func_803320BC(prop, func_80331F54);
     }
     else{
@@ -2249,7 +2249,7 @@ Prop *func_803322F0(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *ar
                         if( (phi_s1->actorProp.marker->modelId) 
                             && (func_803327A8(phi_s1->actorProp.marker->modelId) & arg3)
                         ) {
-                            if( phi_s1->actorProp.unk8_1
+                            if( phi_s1->actorProp.isModelProp
                                 && (phi_s1->actorProp.marker->unk18 != NULL)
                                 && (phi_s1->actorProp.marker->unk18->unkC != NULL)
                             ) {
@@ -2263,7 +2263,7 @@ Prop *func_803322F0(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *ar
                             } else{
                                 phi_f24 = func_80332050(phi_s1, marker, 0);
                                 phi_f22 = func_80332050(phi_s1, marker, 2);
-                                if (phi_s1->actorProp.unk8_1) {
+                                if (phi_s1->actorProp.isModelProp) {
                                     phi_f20 = func_80332050(phi_s1, marker, 1);
                                     phi_f2 = func_803320BC((ActorProp *)phi_s1, func_80331F54);
                                 } else {
@@ -2279,7 +2279,7 @@ Prop *func_803322F0(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *ar
                     }
                 }
                 else if (phi_s1->unk8_1) {//ModelProp
-                    if (func_803327A8(phi_s1->modelProp.unk0_31 + 0x2D1) & arg3) {
+                    if (func_803327A8(phi_s1->modelProp.modelId + 0x2D1) & arg3) {
                         phi_f24 = func_80332050(phi_s1, marker, 0);
                         phi_f20 = func_80332050(phi_s1, marker, 1) + func_80332220(phi_s1, &func_80331F1C);
                         phi_f22 = func_80332050(phi_s1, marker, 2);
@@ -2290,7 +2290,7 @@ Prop *func_803322F0(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *ar
                     }
                 }
                 else{
-                    if (func_803327A8(phi_s1->spriteProp.unk0_31 + 0x572) & arg3) {
+                    if (func_803327A8(phi_s1->spriteProp.spriteId + 0x572) & arg3) {
                         phi_f24 = func_80332050(phi_s1, marker, 0);\
                         phi_f20 = func_80332050(phi_s1, marker, 1) + func_80332220(phi_s1, &func_80331E34);\
                         phi_f22 = func_80332050(phi_s1, marker, 2);

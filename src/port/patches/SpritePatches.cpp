@@ -9,7 +9,7 @@ extern "C" {
 #include "structs.h"
 #include "core1/sprite.h"
 
-void func_803382E4(s32 arg0);
+void codeAEDA0_setSpriteDrawMode(s32 arg0);
 void func_80338308(s32 arg0, s32 arg1);
 BKSpriteDisplayData* func_80344A1C(BKSprite* arg0);
 
@@ -38,7 +38,7 @@ BKSpriteDisplayData* port_getOrCreateDisplayData(BKSprite* sprite) {
         }
     }
     if (sSpriteDisplayCacheCount < SPRITE_DISPLAY_CACHE_SIZE) {
-        func_803382E4(-1);
+        codeAEDA0_setSpriteDrawMode(-1);
         func_80338308(sprite_getUnk8(sprite), sprite_getUnkA(sprite));
         BKSpriteDisplayData* dd = func_80344A1C(sprite);
         sSpriteDisplayCache[sSpriteDisplayCacheCount].sprite = sprite;
@@ -46,7 +46,7 @@ BKSpriteDisplayData* port_getOrCreateDisplayData(BKSprite* sprite) {
         sSpriteDisplayCacheCount++;
         return dd;
     }
-    func_803382E4(-1);
+    codeAEDA0_setSpriteDrawMode(-1);
     func_80338308(sprite_getUnk8(sprite), sprite_getUnkA(sprite));
     return func_80344A1C(sprite);
 }

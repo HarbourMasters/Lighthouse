@@ -42,7 +42,7 @@ void __chLoggo_collide(ActorMarker *this_marker, ActorMarker *other_marker) {
     Actor *this = marker_getActor(this_marker);
 
     if ((player_getTransformation() == TRANSFORM_3_PUMPKIN) && !fileProgressFlag_get(FILEPROG_89_ENTERED_LOGGO_AS_PUMPKIN)) {
-        if (gcdialog_showText(ASSET_ADF_DIALOG_ENTER_LOGGO, 0x2B, this->position, this->marker, &__chLoggo_textCallback, 0) != 0) {
+        if (gcdialog_showDialog(ASSET_ADF_DIALOG_ENTER_LOGGO, 0x2B, this->position, this->marker, &__chLoggo_textCallback, 0) != 0) {
             actor_collisionOff(this);
             fileProgressFlag_set(FILEPROG_89_ENTERED_LOGGO_AS_PUMPKIN, true);
         }
@@ -56,7 +56,7 @@ void __chLoggo_collide(ActorMarker *this_marker, ActorMarker *other_marker) {
     }
 
     if ((player_getTransformation() == TRANSFORM_1_BANJO) && !fileProgressFlag_get(FILEPROG_88_TRIED_LOGGO_AS_BEAR)) {
-        if (gcdialog_showText(ASSET_ADE_DIALOG_LOGGO_AS_BEAR, 0x2A, this->position, NULL, NULL, NULL)) {
+        if (gcdialog_showDialog(ASSET_ADE_DIALOG_LOGGO_AS_BEAR, 0x2A, this->position, NULL, NULL, NULL)) {
             fileProgressFlag_set(FILEPROG_88_TRIED_LOGGO_AS_BEAR, true);
         }
     }
@@ -82,7 +82,7 @@ void chLoggo_update(Actor *this) {
         this->lifetime_value = 0.0f;
 
         if (!fileProgressFlag_get(FILEPROG_8A_EXITED_LOGGO) && levelSpecificFlags_get(LEVEL_FLAG_33_MMM_UNKNOWN)) {
-            if (gcdialog_showText(ASSET_AE0_DIALOG_EXIT_LOGGO, 4, NULL, NULL, NULL, NULL)) {
+            if (gcdialog_showDialog(ASSET_AE0_DIALOG_EXIT_LOGGO, 4, NULL, NULL, NULL, NULL)) {
                 fileProgressFlag_set(FILEPROG_8A_EXITED_LOGGO, true);
             }
         }
@@ -90,7 +90,7 @@ void chLoggo_update(Actor *this) {
 
     switch (this->state) {
         case LOGGO_STATE_1_IDLE:
-            sp34 = func_803114B0() ? 12000 : 0;
+            sp34 = gcdialog_hasCurrentTextId() ? 12000 : 0;
 
             if (actor_animationIsAt(this, 0.09f)) {
                 func_8030E878(SFX_109_LOGGO_LID_CLAP, randf2(0.975f, 1.025f), MAX(0, 22000 - sp34), this->position, 400.0f, 1000.0f);

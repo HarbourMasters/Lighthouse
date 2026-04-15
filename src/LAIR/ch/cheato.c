@@ -64,10 +64,10 @@ void func_80390174(ActorMarker *marker, s32 arg1) {
     func_8028F94C(2, this->position);
     if (fileProgressFlag_get(sp28 + FILEPROG_AD_CHEATO_BLUEEGGS_UNLOCKED)) {
         // cheato hint texts
-        gcdialog_showText(sp28 + 0xF83, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC);
+        gcdialog_showDialog(sp28 + 0xF83, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC);
         return;
     }
-    func_80311174(func_80390084() + 0xFA5, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC, (s32(*)(ActorMarker*,s32,s32))func_80390158);
+    gcdialog_showDialogConditional(func_80390084() + 0xFA5, 0xE, this->position, this->marker, func_803900EC, lair_func_803900DC, (s32(*)(ActorMarker*,s32,s32))func_80390158);
 }
 
 void func_8039024C(Actor *this){

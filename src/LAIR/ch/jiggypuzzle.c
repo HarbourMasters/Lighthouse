@@ -3,11 +3,11 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/GameConfig.h"
-extern void func_8028F3D8(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
+extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void rand_seed(s32);
 extern void func_8034DF30(Struct70s *, f32[3], f32[3], f32);
-extern void func_8034E088(Struct70s *, s32, s32, f32);
+extern void updateStruct6DsOpacity(Struct70s *, s32, s32, f32);
 
 typedef struct {
     s32 unk0;
@@ -21,7 +21,7 @@ typedef struct {
     u16 progress_flag; // enum file_progress_e
 }Struct_lair_86F0_0;
 
-void func_8038F350(Actor *this, s32 next_state);
+void jigsawPicture_setState(Actor *this, s32 next_state);
 void lair_func_8038F924(Actor *this);
 
 /* .data */
@@ -55,30 +55,30 @@ static s32 _puzzleCost(s32 index) {
     return (override >= 0) ? override : D_803947F8[index].cost;
 }
 
-bool func_8038EAE0(s32 arg0) {
+bool jigsawPicture_isJigsawPictureComplete(s32 arg0) {
     s32 cost = _puzzleCost(arg0 - 1);
     return fileProgressFlag_getN(D_803947F8[arg0 -1].progress_flag, D_803947F8[arg0 -1].size_bits) == cost;
 }
 
-s32 func_8038EB24(Actor *this){
+s32 getPictureCost(Actor *this){
     if (this->actorTypeSpecificField != 0 && this->actorTypeSpecificField < 0xC) {
         return _puzzleCost(this->actorTypeSpecificField - 1);
     }
     return 0;
 }
 
-bool func_8038EB58(Actor *this){
+bool isPictureComplete(Actor *this){
     ActorLocal_lair_86F0 *local;
 
     local = (ActorLocal_lair_86F0*)&this->local;
-    return func_8038EB24(this) == local->unk4;
+    return getPictureCost(this) == local->unk4;
 }
 
-s32 func_8038EB84(Actor *this){
+s32 getLevelSpecificOpenFlag(Actor *this){
     return this->actorTypeSpecificField + 0x1B;
 }
 
-void func_8038EB94(void){
+void activateDoubleHealth(void){
     func_802FAFD4(ITEM_14_HEALTH, 0x417);
     func_802FAFC0(ITEM_14_HEALTH, COMUSIC_2B_DING_B);
     fileProgressFlag_set(FILEPROG_B9_DOUBLE_HEALTH, true);
@@ -87,13 +87,13 @@ void func_8038EB94(void){
     gcpausemenu_80314AC8(1);
 }
 
-void func_8038EBEC(ActorMarker *marker) {
+void afterPictureComplete(ActorMarker *marker) {
     Actor *this;
     u32 temp_t6;
 
     this = marker_getActor(reinterpret_cast(ActorMarker *, marker));
     if (this->actorTypeSpecificField < 0xA) {
-        levelSpecificFlags_set(func_8038EB84(this), true);
+        levelSpecificFlags_set(getLevelSpecificOpenFlag(this), true);
         return;
     }
     if (this->actorTypeSpecificField == 0xA) {
@@ -103,27 +103,27 @@ void func_8038EBEC(ActorMarker *marker) {
         return;
     }
     if (this->actorTypeSpecificField == 0xB) {
-        timedFunc_set_0(1.5f, func_8038EB94);
+        timedFunc_set_0(1.5f, activateDoubleHealth);
         gcpausemenu_80314AC8(0);
     }
 }
 
-void func_8038EC94(ActorMarker *marker, ActorMarker *other_marker){
+void onJigsawPodiumCollide(ActorMarker *marker, ActorMarker *other_marker){
     marker->isBanjoOnTop = true;
 }
 
-bool func_8038ECA8(ActorMarker *marker) {
+bool isBanjoOnPodium(ActorMarker *marker) {
     return func_8028F20C() && func_8028FB48(0x08000000) && marker->isBanjoOnTop;
 }
 
-s32 func_8038ECFC(Actor *this, s32 arg1){
+s32 isPicturePiecePlaced(Actor *this, s32 arg1){
     ActorLocal_lair_86F0 *local;
 
     local = (ActorLocal_lair_86F0*)&this->local;
     return local->unk0 & (1 << arg1);
 }
 
-s32 func_8038ED10(Actor *this, s32 arg1){
+s32 jiggyPositionToID(Actor *this, s32 arg1){
     s32 phi_v1;
     switch (this->actorTypeSpecificField){
         case 7: 
@@ -148,7 +148,7 @@ s32 func_8038ED10(Actor *this, s32 arg1){
     return phi_v1 + arg1;
 }
 
-s32 func_8038ED88(Actor *this){
+s32 getUnknownJigsawPictureIndex(Actor *this){
     switch (this->actorTypeSpecificField){
         case 3:
         case 8:
@@ -174,10 +174,10 @@ void func_8038EDBC(Actor *this) {
         sp28[0] = 1.0f;
         sp28[1] = 1.0f;
         sp28[2] = 1.0f;
-        if (func_8038ECA8(this->marker) && local->unk8 < 0xFF) {
+        if (isBanjoOnPodium(this->marker) && local->unk8 < 0xFF) {
             local->unk8 = (local->unk8 + 8 < 0xFF) ? local->unk8 + 8 : 0xFF;
         }
-        else if (!func_8038ECA8(this->marker) && (local->unk8 > 0)) {
+        else if (!isBanjoOnPodium(this->marker) && (local->unk8 > 0)) {
             local->unk8 = (local->unk8 - 8 > 0) ? local->unk8 - 8 : 0;
         }
         sp34 = (0xFF - local->unk8) / 255.0;
@@ -195,19 +195,19 @@ void func_8038EDBC(Actor *this) {
 }
 
 
-void func_8038EF58(ActorMarker *marker) {
+void stoodOnPodiumCallback(ActorMarker *marker) {
     f32 sp24[3];
     Actor *this;
 
     this = marker_getActor(marker);
-    func_8034A174(func_803097A0(), func_8038ED88(this), sp24);
+    func_8034A174(func_803097A0(), getUnknownJigsawPictureIndex(this), sp24);
     func_8028E6EC(2);
     func_8028F918(0);
     func_8028F94C(4, sp24);
-    func_8038F350(this, fileProgressFlag_get(FILEPROG_17_HAS_HAD_ENOUGH_JIGSAW_PIECES) ? 4 : 3);
+    jigsawPicture_setState(this, fileProgressFlag_get(FILEPROG_17_HAS_HAD_ENOUGH_JIGSAW_PIECES) ? 4 : 3);
 }
 
-void func_8038EFD8(Actor *this) {
+void walkToPodium(Actor *this) {
     s32 pad3C;
     f32 sp30[3];
     f32 sp24[3];
@@ -218,21 +218,21 @@ void func_8038EFD8(Actor *this) {
     sp24[1] = this->position[1];
     sp24[2] = this->position[2];
     sp24[1] += 50.0f;
-    func_8028F3D8(sp24, ml_vec3f_distance(sp30, sp24) / 150.0, func_8038EF58, this->marker);
+    player_walkToPosition(sp24, ml_vec3f_distance(sp30, sp24) / 150.0, stoodOnPodiumCallback, this->marker);
 }
 
-void func_8038F078(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void bottlesInstructionsCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
-    func_8038F350(this, (text_id == 0xf58) ? 1 : 4);
+    jigsawPicture_setState(this, (text_id == 0xf58) ? 1 : 4);
 }
 
-void func_8038F0C0(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void gruntyLaughCallback(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     func_8030E6D4(SFX_EA_GRUNTY_LAUGH_1);
 }
 
-s32 func_8038F0EC(Actor *this) {
+s32 getPicturePiecePosition(Actor *this) {
     ActorLocal_lair_86F0 *local;
     s32 phi_s0;
     s32 sp34;
@@ -249,7 +249,7 @@ s32 func_8038F0EC(Actor *this) {
     } else {
         for(phi_s2 = 0; phi_s2 < local->unk4; phi_s2++){
             do{
-                sp34 = randi2(0, func_8038EB24(this));
+                sp34 = randi2(0, getPictureCost(this));
             }
             while(1 << sp34 & phi_s0);
             phi_s0 |= 1 << sp34;
@@ -259,39 +259,39 @@ s32 func_8038F0EC(Actor *this) {
 }
 
 
-void func_8038F1EC(Actor *this, s32 arg1, bool arg2) {
+void addOrRemovePieceFromDisplay(Actor *this, s32 arg1, bool arg2) {
     Struct70s *temp_v0;
 
-    temp_v0 = func_8034C528(func_8038ED10(this, arg1));
+    temp_v0 = func_8034C528(jiggyPositionToID(this, arg1));
     if (temp_v0 != 0) {
-        func_8034E088(temp_v0, arg2 ? 0 : 0xff, arg2 ? 0xff : 0, 1.0f);
+        updateStruct6DsOpacity(temp_v0, arg2 ? 0 : 0xff, arg2 ? 0xff : 0, 1.0f);
     }
 }
 
-void func_8038F250(Actor *this){
+void unlockAdditionalActions(Actor *this){
     ActorLocal_lair_86F0 *local;
 
     local = (ActorLocal_lair_86F0*)&this->local;
     if( (this->actorTypeSpecificField >= 2) 
         && (local->unk4 > 0) 
-        && !func_8038EB58(this) 
+        && !isPictureComplete(this) 
         && !fileProgressFlag_get(FILEPROG_DF_CAN_REMOVE_ALL_PUZZLE_PIECES)
     ) {
-        if (gcdialog_showText(0xF7C, 2, NULL, NULL, NULL, NULL)) {
+        if (gcdialog_showDialog(0xF7C, 2, NULL, NULL, NULL, NULL)) {
             fileProgressFlag_set(FILEPROG_DF_CAN_REMOVE_ALL_PUZZLE_PIECES, true);
         }
     } else if ((this->actorTypeSpecificField >= 3) 
         && (local->unk4 >= 2) 
-        && !func_8038EB58(this)
+        && !isPictureComplete(this)
         && !fileProgressFlag_get(FILEPROG_E0_CAN_PLACE_ALL_PUZZLE_PIECES)
     ){
-        if(gcdialog_showText(0xF7D, 2, NULL, NULL, NULL, NULL)) {
+        if(gcdialog_showDialog(0xF7D, 2, NULL, NULL, NULL, NULL)) {
             fileProgressFlag_set(FILEPROG_E0_CAN_PLACE_ALL_PUZZLE_PIECES, true);
         }
     }
 }
 
-void func_8038F350(Actor *this, s32 next_state){
+void jigsawPicture_setState(Actor *this, s32 next_state){
     ActorLocal_lair_86F0 *local;
     f32 sp50[3];
     s32 sp4C;
@@ -299,14 +299,14 @@ void func_8038F350(Actor *this, s32 next_state){
     s32 phi_s0;
 
     local = (ActorLocal_lair_86F0*)&this->local;
-    func_8034A174(func_803097A0(), func_8038ED88(this), sp50);
+    func_8034A174(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
             func_8028F918(0);
             break;
 
         case 2: //L8038F3CC
-            func_8038EFD8(this);
+            walkToPodium(this);
             sfx_playFadeShorthandDefault(SFX_112_TINKER_ATTENTION, 1.0f, 32000, this->position, 500, 1000);
             break;
 
@@ -315,10 +315,10 @@ void func_8038F350(Actor *this, s32 next_state){
             func_803115C4(0xF80);
             func_803115C4(0xF7F);
             if (item_getCount(ITEM_26_JIGGY_TOTAL) > 0) {
-                gcdialog_showText(fileProgressFlag_get(FILEPROG_16_STOOD_ON_JIGSAW_PODIUM) ? 0xF5A : 0xF59, 6, sp50, this->marker, func_8038F078, NULL);
+                gcdialog_showDialog(fileProgressFlag_get(FILEPROG_16_STOOD_ON_JIGSAW_PODIUM) ? 0xF5A : 0xF59, 6, sp50, this->marker, bottlesInstructionsCallback, NULL);
                 fileProgressFlag_set(FILEPROG_17_HAS_HAD_ENOUGH_JIGSAW_PIECES, 1);
             } else {
-                gcdialog_showText(0xF58, 6, sp50, this->marker, func_8038F078, NULL);
+                gcdialog_showDialog(0xF58, 6, sp50, this->marker, bottlesInstructionsCallback, NULL);
             }
             fileProgressFlag_set(FILEPROG_16_STOOD_ON_JIGSAW_PODIUM, 1);
             fileProgressFlag_set(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT, 1);
@@ -328,8 +328,8 @@ void func_8038F350(Actor *this, s32 next_state){
             if (local->unk4 > 0) {
                 comusic_playTrack(SFX_REMOVE_JIGGY);
                 this->lifetime_value = 1.0f;
-                temp_s1 = func_8038F0EC(this);
-                func_8038F1EC(this, temp_s1, 0);
+                temp_s1 = getPicturePiecePosition(this);
+                addOrRemovePieceFromDisplay(this, temp_s1, 0);
                 local->unk4--;
                 local->unk0 &= ~(1 << temp_s1);
                 fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
@@ -338,23 +338,23 @@ void func_8038F350(Actor *this, s32 next_state){
             break;
 
         case 5: //L8038F550
-            if (local->unk4 < func_8038EB24(this)) {
+            if (local->unk4 < getPictureCost(this)) {
                 comusic_playTrack(COMUSIC_67_INSERTING_JIGGY);
                 this->lifetime_value = 1.0f;
                 local->unk4++;
-                temp_s1 = func_8038F0EC(this);
-                func_8038F1EC(this, temp_s1, 1);
+                temp_s1 = getPicturePiecePosition(this);
+                addOrRemovePieceFromDisplay(this, temp_s1, 1);
                 local->unk0 |= (1 << temp_s1);
                 fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
-                func_8038F250(this);
+                unlockAdditionalActions(this);
             }
             break;
 
         case 6: //L8038F604
-            if (local->unk4 < func_8038EB24(this)) {
-                if(item_getCount(ITEM_26_JIGGY_TOTAL) > func_8038EB24(this) - local->unk4){
-                    sp4C = func_8038EB24(this) - local->unk4;
+            if (local->unk4 < getPictureCost(this)) {
+                if(item_getCount(ITEM_26_JIGGY_TOTAL) > getPictureCost(this) - local->unk4){
+                    sp4C = getPictureCost(this) - local->unk4;
                 }
                 else{
                     sp4C = item_getCount(ITEM_26_JIGGY_TOTAL);
@@ -363,24 +363,24 @@ void func_8038F350(Actor *this, s32 next_state){
                 this->lifetime_value = 1.0f;
                 for(phi_s0 = 0; phi_s0 < sp4C; phi_s0++){
                     local->unk4++;
-                    temp_s1 = func_8038F0EC(this);
-                    func_8038F1EC(this, temp_s1, 1);
+                    temp_s1 = getPicturePiecePosition(this);
+                    addOrRemovePieceFromDisplay(this, temp_s1, 1);
                     local->unk0 |= (1 << temp_s1);
                     item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 }
                 fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
-                func_8038F250(this);
+                unlockAdditionalActions(this);
             }
             break;
 
         case 7: //L8038F724
         comusic_playTrack(COMUSIC_65_WORLD_OPENING_B);
         if (this->actorTypeSpecificField == 1) {
-            func_80324DBC(1.0f, 0xF7E, 4, NULL, this->marker, func_8038F0C0, NULL);
+            func_80324DBC(1.0f, 0xF7E, 4, NULL, this->marker, gruntyLaughCallback, NULL);
         } else if (this->actorTypeSpecificField == 0xA) {
-            func_80324DBC(1.0f, 0xFAC, 4, NULL, this->marker, func_8038F0C0, NULL);
+            func_80324DBC(1.0f, 0xFAC, 4, NULL, this->marker, gruntyLaughCallback, NULL);
         }
-        timedFunc_set_1(2.0f, (GenFunction_1) func_8038EBEC, (uintptr_t)this->marker);
+        timedFunc_set_1(2.0f, (GenFunction_1) afterPictureComplete, (uintptr_t)this->marker);
         this->lifetime_value = 3.0f;
             break;
     }
@@ -392,25 +392,25 @@ void lair_func_8038F800(Actor *this) {
     Struct70s *temp_v0;
     s32 phi_s0;
 
-    for(phi_s0 = 0; phi_s0 < func_8038EB24(this); phi_s0++){
-        temp_v0 = func_8034C528(func_8038ED10(this, phi_s0));
+    for(phi_s0 = 0; phi_s0 < getPictureCost(this); phi_s0++){
+        temp_v0 = func_8034C528(jiggyPositionToID(this, phi_s0));
         if (temp_v0 != 0) {
-            func_8034E0FC((Struct6Ds *)temp_v0, func_8038ECFC(this, phi_s0) ? 0xff : 0); // [port] Struct70s* layout-compatible with Struct6Ds* here
+            setStruct6DsOpacity((Struct6Ds *)temp_v0, isPicturePiecePlaced(this, phi_s0) ? 0xff : 0); // [port] Struct70s* layout-compatible with Struct6Ds* here
         }
     }
 }
 
 void lair_func_8038F894(Actor *this, s32 arg1) {
     if (item_getCount(ITEM_26_JIGGY_TOTAL) > 0) {
-        func_8038F350(this, arg1);
+        jigsawPicture_setState(this, arg1);
         return;
     }
     comusic_playTrack(COMUSIC_2C_BUZZER);
     if (fileProgressFlag_get(FILEPROG_DE_USED_ALL_YOUR_PUZZLE_PIECES) != 0) {
-        func_8038F350(this, 1);
+        jigsawPicture_setState(this, 1);
         return;
     }
-    gcdialog_showText(0xFBC, 4, NULL, NULL, NULL, NULL);
+    gcdialog_showDialog(0xFBC, 4, NULL, NULL, NULL, NULL);
     fileProgressFlag_set(FILEPROG_DE_USED_ALL_YOUR_PUZZLE_PIECES, 1);
 }
 
@@ -435,14 +435,14 @@ void lair_func_8038F924(Actor *this) {
         sp64 = fileProgressFlag_getN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
         local->unk0 = 0;
         local->unk4 = 0;
-        local->unk8 = (func_8038ECA8(this->marker)) ? 0xff : 1;
+        local->unk8 = (isBanjoOnPodium(this->marker)) ? 0xff : 1;
         this->has_met_before = true;
         for(phi_v1 = 0; phi_v1 < sp64; phi_v1 ++){
             local->unk4++;
-            local->unk0 |= (1 << func_8038F0EC(this));
+            local->unk0 |= (1 << getPicturePiecePosition(this));
         }
         lair_func_8038F800(this);
-        marker_setCollisionScripts(this->marker, func_8038EC94, NULL, NULL);
+        marker_setCollisionScripts(this->marker, onJigsawPodiumCollide, NULL, NULL);
         this->marker->propPtr->unk8_3 = true;
         this->volatile_initialized = true;
         if (this->actorTypeSpecificField == 9) {
@@ -484,42 +484,42 @@ void lair_func_8038F924(Actor *this) {
         }
     }
     controller_copyFaceButtons(0, sp7C);
-    func_8024E60C(0, sp6C);
+    controller_copySideButtons(0, sp6C);
     func_8038EDBC(this);
     switch(this->state){
         case 1://L8038FCD0
             if (!this->has_met_before && (!func_8028F20C() || !func_8028FB48(0x08000000))) {
                 this->has_met_before = true;
             }
-            if (func_80329530(this, 300)) {
+            if (subaddie_playerIsWithinSphereAndActive(this, 300)) {
                 if ((this->actorTypeSpecificField == 0xA) && !fileProgressFlag_get(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM)) {
                     phi_a0 = (item_getCount(ITEM_26_JIGGY_TOTAL) < D_803947F8[this->actorTypeSpecificField - 1].cost) ? 0xFAB : 0xFC0;
-                    if (gcdialog_showText(phi_a0, 0, NULL, NULL, NULL, NULL)) {
+                    if (gcdialog_showDialog(phi_a0, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM, true);
                     }
                 } else if (this->actorTypeSpecificField == 1) {
-                    func_8035644C(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT);
+                    progressDialog_showDialogMaskZero(FILEPROG_A7_NEAR_PUZZLE_PODIUM_TEXT);
                 }
             }
-            if (func_8038ECA8(this->marker) && this->has_met_before && !func_8038EB58(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
-                func_8038F350(this, 2);
+            if (isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
+                jigsawPicture_setState(this, 2);
             }
             break;
 
         case 4: //L8038FE28
-            if ((func_803114C4() != 0xF7C) && (func_803114C4() != 0xF7D)) {
+            if ((gcdialog_getCurrentTextId() != 0xF7C) && (gcdialog_getCurrentTextId() != 0xF7D)) {
                 if (sp7C[FACE_BUTTON(BUTTON_A)] == 1) {
                     lair_func_8038F894(this, 5);
                 } else if (sp7C[FACE_BUTTON(BUTTON_B)] == 1) {
-                    func_8038F350(this, 1);
+                    jigsawPicture_setState(this, 1);
                 } else if ((sp6C[SIDE_BUTTON(BUTTON_Z)] == 1) && fileProgressFlag_get(FILEPROG_E0_CAN_PLACE_ALL_PUZZLE_PIECES)) {
                     lair_func_8038F894(this, 6);
                 } else if (sp7C[FACE_BUTTON(BUTTON_C_DOWN)] == 1) {
                     if (local->unk4) {
-                        func_8038F350(this, 8);
+                        jigsawPicture_setState(this, 8);
                     } else {
                         comusic_playTrack(COMUSIC_2C_BUZZER);
-                        func_8038F350(this, 1);
+                        jigsawPicture_setState(this, 1);
                     }
                 }
             }
@@ -531,7 +531,7 @@ void lair_func_8038F924(Actor *this) {
             if (this->lifetime_value > 0.0f) {
                 this->lifetime_value -= sp68;
             } else {
-                func_8038F350(this, func_8038EB58(this) ? 7 :4);
+                jigsawPicture_setState(this, isPictureComplete(this) ? 7 :4);
             }
             break;
 
@@ -539,7 +539,7 @@ void lair_func_8038F924(Actor *this) {
             if (this->lifetime_value > 0.0f) {
                 this->lifetime_value -= sp68;
             } else {
-                func_8038F350(this, 1);
+                jigsawPicture_setState(this, 1);
             }
             break;
     }
@@ -555,7 +555,7 @@ void lair_func_8038F924(Actor *this) {
                 itemPrint_reset();
                 this->unk38_0 = true;
             }
-            func_802FACA4(0x2B);
+            code_73640_printItemCount(0x2B);
         }
         else if (this->unk38_0) {
             func_802FAD64(0x2B);

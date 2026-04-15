@@ -29,10 +29,10 @@ void func_803546E8(void) {
     f32 plyr_pos[3];
     f32 sp28[3];
 
-    projectile_indx = func_8033E8D0();
-    sp48 = func_8033E8F4();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp48 = commonParticle_getCurrentAnimSprite();
     sp47 = func_8033E93C();
-    temp_s0 = func_8033E960();
+    temp_s0 = commonParticle_getCurrentParticle();
     player_getPosition(plyr_pos);
 
     temp_s0->unk0 = randf2(-10.0f, 10.0f);
@@ -65,12 +65,12 @@ void func_8035489C(void) {
     f32 playerVelocity[3];
     f32 playerPosition[3];
 
-    temp_s0 = func_8033E960();
-    projectile_indx = func_8033E8D0();
+    temp_s0 = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
     projectile_addRoll(projectile_indx, 7.0f);
     temp_s0->unk20--;
     if (temp_s0->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
         return;
     }
     func_80354670(projectile_indx, temp_s0->unk20);
@@ -89,7 +89,7 @@ void func_8035489C(void) {
 
 void func_80354990(void){}
 
-void func_80354998(void) {
+void jiggyShine_init(void) {
     u8 sp57;
     ActorMarker *sp50;
     AnimSprite *sp4C;
@@ -99,11 +99,11 @@ void func_80354998(void) {
     f32 sp2C[3];
     s32 sp28;
 
-    sp57 = func_8033E8D0();
-    sp50 = func_8033E864();
-    sp4C = func_8033E8F4();
+    sp57 = commonParticle_getCurrentProjectileIndex();
+    sp50 = commonParticle_getCurrentActorMarker();
+    sp4C = commonParticle_getCurrentAnimSprite();
     sp4B = func_8033E93C();
-    temp_s0 = func_8033E960();
+    temp_s0 = commonParticle_getCurrentParticle();
     ml_vec3f_clear(sp38);
     (&temp_s0->unk0)[0] = randf2(-2.0f, 2.0f);
     (&temp_s0->unk0)[1] = 0.0f;
@@ -165,7 +165,7 @@ void func_80354998(void) {
     func_80354670(sp57, 0x14);
 }
 
-void func_80354C18(void) {
+void jiggyShine_update(void) {
     ParticleStruct0s* temp_s0;
     s32 pad;
     ActorMarker *sp4C;
@@ -176,16 +176,16 @@ void func_80354C18(void) {
     f32 sp28[3];
     u8 projectile_indx;
 
-    temp_s0 = func_8033E960();
-    projectile_indx = func_8033E8D0();
-    sp4C = func_8033E864();
+    temp_s0 = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp4C = commonParticle_getCurrentActorMarker();
     sp4B = func_8033E93C();
     sp44 = func_8033E888();
     sp40 = func_8033E8AC();
     projectile_addRoll(projectile_indx, 7.0f);
     temp_s0->unk20--;
     if (temp_s0->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     } else {
         func_80354670(projectile_indx, temp_s0->unk20);
         if (temp_s0->unk20 >= 0x10) {
@@ -214,7 +214,7 @@ void func_80354C18(void) {
     func_8033FCD8(projectile_indx, 0xC);
 }
 
-void func_80354DC8(void){}
+void jiggyShine_free(void){}
 
 void func_80354DD0(void) {
     ParticleStruct0s* temp_s0;
@@ -225,10 +225,10 @@ void func_80354DD0(void) {
     f32 sp2C[3];
     f32 sp20[3];
 
-    projectile_indx = func_8033E8D0();
-    sp40 = func_8033E8F4();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp40 = commonParticle_getCurrentAnimSprite();
     sp3F = func_8033E93C();
-    temp_s0 = func_8033E960();
+    temp_s0 = commonParticle_getCurrentParticle();
     ml_vec3f_clear(sp2C);
     (&temp_s0->unk0)[0] = randf2(-50.0f, 50.0f);
     (&temp_s0->unk0)[1] = randf2(-65.0f, -65.0f);
@@ -257,14 +257,14 @@ void func_80354EEC(void) {
     f32 sp28[3];
     u8 temp_s1;
 
-    temp_s0 = func_8033E960();
-    temp_s1 = func_8033E8D0();
-    sp3C = func_8033E864();
+    temp_s0 = commonParticle_getCurrentParticle();
+    temp_s1 = commonParticle_getCurrentProjectileIndex();
+    sp3C = commonParticle_getCurrentActorMarker();
     sp38 = func_8033E888();
     sp34 = func_8033E8AC();
     temp_s0->unk20--;
     if (temp_s0->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     } else {
         func_80354670(temp_s1, temp_s0->unk20);
         if (temp_s0->unk20 >= 0x10) {
@@ -293,10 +293,10 @@ void func_8035500C(void) {
     f32 sp2C[3];
     f32 sp20[3];
 
-    projectile_indx = func_8033E8D0();
-    sp40 = func_8033E8F4();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp40 = commonParticle_getCurrentAnimSprite();
     sp3F = func_8033E93C();
-    temp_s0 = func_8033E960();
+    temp_s0 = commonParticle_getCurrentParticle();
     ml_vec3f_clear(sp2C);
     (&temp_s0->unk0)[0] = randf2(-40.0f, 40.0f);
     (&temp_s0->unk0)[1] = randf2(-40.0f, 40.0f);
@@ -325,16 +325,16 @@ void func_80355134(void) {
     s32 sp34;
     f32 sp28[3];
 
-    temp_s0 = func_8033E960();
-    temp_s1 = func_8033E8D0();
-    sp3C = func_8033E864();
+    temp_s0 = commonParticle_getCurrentParticle();
+    temp_s1 = commonParticle_getCurrentProjectileIndex();
+    sp3C = commonParticle_getCurrentActorMarker();
     sp38 = func_8033E888();
     sp34 = func_8033E8AC();
     if ((globalTimer_getTime() & 1) == 0) {
         temp_s0->unk20--;
     }
     if (temp_s0->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     } else {
         func_80354670(temp_s1, temp_s0->unk20);
         if (temp_s0->unk20 >= 0x13) {
@@ -364,10 +364,10 @@ void func_8035529C(void) {
     f32 sp34[3];
     f32 sp28[3];
 
-    projectile_indx = func_8033E8D0();
-    sp48 = func_8033E8F4();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp48 = commonParticle_getCurrentAnimSprite();
     sp47 = func_8033E93C();
-    sp40 = func_8033E960();
+    sp40 = commonParticle_getCurrentParticle();
     ml_vec3f_clear(sp34);
     (&sp40->unk0)[0] = randf2(-40.0f, 40.0f);
     (&sp40->unk0)[1] = 0.0f;
@@ -396,16 +396,16 @@ void func_803553E8(void) {
     s32 sp34;
     f32 sp28[3];
 
-    temp_s0 = func_8033E960();
-    temp_s1 = func_8033E8D0();
-    sp3C = func_8033E864();
+    temp_s0 = commonParticle_getCurrentParticle();
+    temp_s1 = commonParticle_getCurrentProjectileIndex();
+    sp3C = commonParticle_getCurrentActorMarker();
     sp38 = func_8033E888();
     sp34 = func_8033E8AC();
     if ((globalTimer_getTime() & 1) == 0) {
         temp_s0->unk20--;
     }
     if (temp_s0->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     } else {
         func_80354670(temp_s1, temp_s0->unk20);
         if (temp_s0->unk20 >= 0xD) {
@@ -436,10 +436,10 @@ void func_80355550(void) {
     f32 sp24[3];
     f32 sp18[3];
 
-    projectile_indx = func_8033E8D0();
-    sp38 = func_8033E8F4();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp38 = commonParticle_getCurrentAnimSprite();
     sp37 = func_8033E93C();
-    sp30 = func_8033E960();
+    sp30 = commonParticle_getCurrentParticle();
     ml_vec3f_clear(sp24);
     (&sp30->unk0)[0] = randf2(-30.0f, 30.0f);
     (&sp30->unk0)[1] = randf2(-30.0f, 30.0f);
@@ -477,14 +477,14 @@ void func_8035570C(void) {
     s32 sp34;
     f32 sp28[3];
 
-    temp_s0 = func_8033E960();
-    temp_s1 = func_8033E8D0();
-    sp3C = func_8033E864();
+    temp_s0 = commonParticle_getCurrentParticle();
+    temp_s1 = commonParticle_getCurrentProjectileIndex();
+    sp3C = commonParticle_getCurrentActorMarker();
     sp38 = func_8033E888();
     sp34 = func_8033E8AC();
     temp_s0->unk20--;
     if (temp_s0->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     } else {
         func_80354670(temp_s1, temp_s0->unk20);
         if (temp_s0->unk20 >= 0x13) {
@@ -519,11 +519,11 @@ void func_80355864(void) {
     f32 sp2C[3];
     f32 sp28;
 
-    sp5F = func_8033E8D0();
-    sp58 = func_8033E8F4();
+    sp5F = commonParticle_getCurrentProjectileIndex();
+    sp58 = commonParticle_getCurrentAnimSprite();
     sp57 = func_8033E93C();
-    sp4C = marker_getActor(func_8033E864());
-    sp48 = func_8033E960();
+    sp4C = marker_getActor(commonParticle_getCurrentActorMarker());
+    sp48 = commonParticle_getCurrentParticle();
     D_803863E4 = (D_803863E4 + 1) % 10;
     sp44 = (D_803863E4 == 0);
     sp38[0] = sp4C->position[0];
@@ -562,9 +562,9 @@ void func_80355B00(void) {
     f32 *sp34;
     f32 sp28[3];
 
-    sp44 = func_8033E960();
-    projectile_indx = func_8033E8D0();
-    pad40 = func_8033E864();
+    sp44 = commonParticle_getCurrentParticle();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    pad40 = commonParticle_getCurrentActorMarker();
     sp38 = marker_getActor(pad40);
     sp34 = bundle_getVelocity(sp38);
     projectile_addRoll(projectile_indx, 7.0f);
@@ -579,7 +579,7 @@ void func_80355B00(void) {
     }
 
     if (sp44->unk20 < 0) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
         return;
     }
     func_80354670(projectile_indx, sp44->unk20);

@@ -47,7 +47,7 @@ void __bscroc_jumpSfx(void){
         bsCrocJumpSfxIndex = 0;
 }
 
-void func_802ABE70(void){
+void __bscroc_update_turbo_talon_trainers(void){
     f32 sp1C = stateTimer_get(STATE_TIMER_3_TURBO_TALON);
     basfx_updateClockSfxSource(stateTimer_getPrevious(STATE_TIMER_3_TURBO_TALON), sp1C);
     if(baflag_isTrue(BA_FLAG_10_TOUCHING_TURBO_TRAINERS) && bs_getState() != BS_17_BTROT_EXIT){
@@ -67,7 +67,7 @@ void func_802ABE70(void){
     }
 }
 
-void func_802ABF54(void){
+void __bscroc_update_velocity(void){
     f32 sp1C = bastick_getZonePosition();
     if(bastick_getZone() == 0){
         baphysics_set_target_horizontal_velocity(0.0f);
@@ -77,7 +77,7 @@ void func_802ABF54(void){
     }
 }
 
-void func_802ABFBC(void){
+void __bscroc_end(void){
     if(!bscroc_inSet(bs_getNextState())){
         bastick_resetZones();
         func_8029E070(0);
@@ -104,7 +104,7 @@ int bscroc_inSet(enum bs_e state){
 }
 
 void bscroc_idle_init(void){
-    baanim_playForDuration_loopSmooth(0xe1, 1.0f);
+    baanim_playForDuration_loopSmooth(ASSET_E1_ANIM_BSCROC_IDLE, 1.0f);
     func_8029C7F4(1,1,1, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     pitch_setAngVel(1000.0f, 12.0f);
@@ -117,7 +117,7 @@ void bscroc_idle_init(void){
 
 void bscroc_idle_update(void){
     enum bs_e next_state = 0;
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     func_80299628(0);
     if(player_shouldFall())
         next_state = BS_61_CROC_FALL;
@@ -140,7 +140,7 @@ void bscroc_idle_update(void){
 }
 
 void bscroc_idle_end(void){
-    func_802ABFBC();
+    __bscroc_end();
     func_802900FC();
 }
 
@@ -154,9 +154,9 @@ void bscroc_walk_init(void){
 void bscroc_walk_update(void){
     enum bs_e next_state = 0;
 
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     func_80299628(0);
-    func_802ABF54();
+    __bscroc_update_velocity();
 
     func_8029AD28(0.1f, 4);
     func_8029AD28(0.6f, 3);
@@ -176,7 +176,7 @@ void bscroc_walk_update(void){
 }
 
 void bscroc_walk_end(void){
-    func_802ABFBC();
+    __bscroc_end();
     func_802900FC();
 }
 
@@ -196,7 +196,7 @@ void bscroc_jump_init(void){
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());
     }
     baphysics_set_target_yaw(yaw_getIdeal());
-    func_802ABF54();
+    __bscroc_update_velocity();
     baphysics_set_horizontal_velocity(yaw_getIdeal(), baphysics_get_target_horizontal_velocity());
     baphysics_set_vertical_velocity(bsCrocInitialJumpVelocity);
     baphysics_set_gravity(bsCrocGravity);
@@ -209,8 +209,8 @@ void bscroc_jump_update(void){
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
     f32 player_velocity[3];
 
-    func_802ABE70();
-    func_802ABF54();
+    __bscroc_update_turbo_talon_trainers();
+    __bscroc_update_velocity();
     baphysics_get_velocity(player_velocity);
     if(bakey_released(BUTTON_A) && 0.0f < player_velocity[1])
         baphysics_reset_gravity();
@@ -267,7 +267,7 @@ void bscroc_jump_update(void){
 
 void bscroc_jump_end(void){
     baphysics_reset_gravity();
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 void bscroc_fall_init(void){
@@ -288,9 +288,9 @@ void bscroc_fall_update(void){
     AnimCtrl * aCtrl = baanim_getAnimCtrlPtr();
     f32 player_velocity[3];
 
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     func_80299628(0);
-    func_802ABF54();
+    __bscroc_update_velocity();
     baphysics_get_velocity(player_velocity);
     
     switch(D_8037D3EC){
@@ -325,7 +325,7 @@ void bscroc_fall_update(void){
 }
 
 void bscroc_fall_end(void){
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 static void __bscroc_recoil_init(s32 damage){
@@ -363,7 +363,7 @@ static void __bscroc_recoil_init(s32 damage){
 
 static void __bscroc_recoil_update(void){
     enum bs_e next_state = 0;
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     if(baanim_isAt(0.5f))
         baeyes_open();
     
@@ -384,11 +384,11 @@ static void __bscroc_recoil_update(void){
 }
 
 void __bscroc_recoil_end(void){
-    func_80297CA8();
+    baiFrame_start();
     baphysics_reset_gravity();
     baMarker_collisionOn();
     baeyes_open();
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 void bscroc_ow_init(void){
@@ -454,7 +454,7 @@ void bscroc_die_init(void){
 
 void bscroc_die_update(void){
     enum bs_e next_state = 0;
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     baphysics_set_target_horizontal_velocity(D_8037D3E0);
     func_80299628(0);
     switch(D_8037D3EC){
@@ -524,7 +524,7 @@ void bscroc_bite_update(void){
     enum bs_e next_state = 0;
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
 
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     func_80299628(0);
     if(anctrl_isAt(aCtrl, 0.99f)){
         switch(++D_8037D3F4){
@@ -558,7 +558,7 @@ void bscroc_bite_update(void){
 
 void bscroc_bite_end(void){
     _bscrocHitboxActive = false;
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 void bscroc_eat_bad_init(void){
@@ -571,7 +571,7 @@ void bscroc_eat_bad_update(void){
     enum bs_e next_state = 0;
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
 
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     func_80299628(0);
     if(anctrl_isAt(aCtrl, 0.3518f)){
         func_8030E58C(SFX_A0_COUGHING, 0.9f);
@@ -593,7 +593,7 @@ void bscroc_eat_bad_update(void){
 }
 
 void bscroc_eat_bad_end(void){
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 
@@ -608,7 +608,7 @@ void func_802AD2A8(Gfx **gdl, Mtx **mPtr, void *arg2){
 
 }
 
-void func_802AD318(void){
+void bscroc_set_ate_wrong_thing(void){
     D_8037D3F5 = 1;
 }
 
@@ -622,7 +622,7 @@ void bscroc_eat_good_init(void){
     D_8037D3F4 = 0;
 }
 
-int func_802AD3A0(void){
+int bscroc_ate_wrong_thing(void){
     return D_8037D3F5;
 }
 
@@ -630,10 +630,10 @@ void bscroc_eat_good_update(void){
     enum bs_e next_state = 0;
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
 
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     D_8037D3F0 = ml_max_f(0.1f, D_8037D3F0 - 0.05);
     func_80299628(0);
-    func_802ABF54();
+    __bscroc_update_velocity();
     if(anctrl_isAt(aCtrl, 0.99f)){
         switch(++D_8037D3F4){
             case 1:
@@ -665,7 +665,7 @@ void bscroc_eat_good_end(void){
     D_8037D3F5 = 0;
     assetcache_release(D_8037D3E8);
     baModel_setPostDraw(0);
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 void bscroc_locked_enter(void){
@@ -678,11 +678,11 @@ void bscroc_locked_enter(void){
 
 void bscroc_locked_update(void){
     enum bs_e next_state = 0;
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     func_802B3A50();
     func_80299628(0);
     func_8029C6D0();
-    if(!func_80298850()){
+    if(!balookat_getState()){
         next_state = BS_5E_CROC_IDLE;
     }
     
@@ -693,7 +693,7 @@ void bscroc_locked_end(void){
     pitch_setIdeal(0.0f);
     roll_setIdeal(0.0f);
     func_8029C748();
-    func_802ABFBC();
+    __bscroc_end();
 }
 
 void bscroc_drone_init(void){
@@ -701,11 +701,11 @@ void bscroc_drone_init(void){
 }
 
 void bscroc_drone_update(void){
-    func_802ABE70();
+    __bscroc_update_turbo_talon_trainers();
     bsdrone_update();
 }
 
 void bscroc_drone_end(void){
     bsdrone_end();
-    func_802ABFBC();
+    __bscroc_end();
 }

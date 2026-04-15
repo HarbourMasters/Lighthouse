@@ -31,10 +31,10 @@ struct{
 }D_8037C5E0;
 
 /*.code*/
-int func_80298760(s32 arg0){
+int barebound_set_active(s32 arg0){
     int i;
-    for(i = 0; D_80364450[i].unk0; i++){
-        if(arg0 == D_80364450[i].unk0){
+    for(i = 0; D_80364450[i].state; i++){
+        if(arg0 == D_80364450[i].state){
             D_8037C5E0.unk0 = D_80364450 + i;
             break;
         }
@@ -42,18 +42,18 @@ int func_80298760(s32 arg0){
     return 0;
 }
 
-s32 func_802987B4(void){
-    return D_8037C5E0.unk0->unk1;
-}
-
-f32 func_802987C4(void){
-    return D_8037C5E0.unk0->unk4[0];
-}
-
-f32 func_802987D4(void){
-    return D_8037C5E0.unk0->unk4[2];
+s32 barebound_802987B4(void){
+    return D_8037C5E0.unk0->lookat;
 }
 
 f32 barebound_get_vertical_velocity(void){
-    return D_8037C5E0.unk0->unk4[1];
+    return D_8037C5E0.unk0->position[0];
+}
+
+f32 barebound_get_horizontal_velocity(void){
+    return D_8037C5E0.unk0->position[2];
+}
+
+f32 barebound_get_gravity(void){
+    return D_8037C5E0.unk0->position[1];
 }

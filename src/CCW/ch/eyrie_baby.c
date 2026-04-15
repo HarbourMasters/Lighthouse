@@ -154,14 +154,14 @@ void func_803897B8(Actor *this, s32 next_state) {
         skeletalAnim_set(this->unk148, local->unk0->unk14, 0.5f, 8.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         if (local->unk0->map_id == MAP_43_CCW_SPRING) {
-            gcdialog_showText(0xCD6, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(0xCD6, 4, NULL, NULL, NULL, NULL);
             skeletalAnim_setCallback_0(this->unk148, 0.65f, (GenFunction_0)&func_80389798);
         }
         if (local->unk0->map_id == MAP_44_CCW_SUMMER) {
-            gcdialog_showText(0xCD9, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(0xCD9, 4, NULL, NULL, NULL, NULL);
         }
         if (local->unk0->map_id == MAP_45_CCW_AUTUMN) {
-            gcdialog_showText(0xCDB, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(0xCDB, 4, NULL, NULL, NULL, NULL);
         }
         local->unk8 = local->unk0->unk18;
     }
@@ -226,7 +226,7 @@ void CCW_func_80389BFC(Actor *this) {
             local->unk4 = 0U;
         }
         local->unk0 = &D_8038F080[0];
-        while(local->unk0->map_id != 0 && map_get() != local->unk0->map_id){
+        while(local->unk0->map_id != 0 && gsworld_getMap() != local->unk0->map_id){
             local->unk0++;
         }
 
@@ -275,7 +275,7 @@ void CCW_func_80389BFC(Actor *this) {
             if ((local->unk0->unkE != 0) && (carriedObj_getActorId() == ACTOR_2A2_CATERPILLAR) && (ml_vec3f_distance(this->position, sp4C) < 1010.0f) && (player_throwCarriedObject() != 0)) {
                 player_setThrowTargetPosition(D_8038FDE0);
                 if ((local->unk0->map_id == MAP_44_CCW_SUMMER) && (local->unk4 == 0)) {
-                    gcdialog_showText(0xCD8, 4, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(0xCD8, 4, NULL, NULL, NULL, NULL);
                 }
                 local->unk4++;
                 if (local->unk4 < local->unk0->unk25) {

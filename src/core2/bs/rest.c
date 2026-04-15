@@ -9,9 +9,9 @@ void func_802B3A50(void) {
     f32 plyr_pos[3];
     f32 sp1C[3];
 
-    if (func_80298850()) {
+    if (balookat_getState()) {
         _player_getPosition(plyr_pos);
-        if (func_80298800(sp1C) && func_80257F18(plyr_pos, sp1C, &sp34)) {
+        if (balookat_try_get_position(sp1C) && func_80257F18(plyr_pos, sp1C, &sp34)) {
             yaw_setIdeal(sp34);
         }
     }
@@ -59,16 +59,16 @@ bool func_802B3BB0(void) {
             if (baanim_isStopped() != 0) {
                 if (anctrl_isPlayedForwards(anim_ctrl) != 0) {
                     baanim_playForDuration_loopSmooth(ASSET_14A_ANIM_BSREST_LISTEN, 11.4f);
-                } else if (func_80298850() == 0) {
+                } else if (balookat_getState() == 0) {
                     sp20 = true;
                 }
             }
             break;
         case ASSET_14A_ANIM_BSREST_LISTEN:
-            if (func_80298850() == 0) {
+            if (balookat_getState() == 0) {
                 anctrl_reset(anim_ctrl);
                 anctrl_setDirection(anim_ctrl, 0);
-                anctrl_setIndex(anim_ctrl, 0x167);
+                anctrl_setIndex(anim_ctrl, ASSET_167_ANIM_BSREST_MOVE);
                 anctrl_setStart(anim_ctrl, 1.0f);
                 anctrl_setDuration(anim_ctrl, 0.5f);
                 anctrl_setPlaybackType(anim_ctrl, ANIMCTRL_ONCE);
@@ -76,7 +76,7 @@ bool func_802B3BB0(void) {
             }
             break;
         default:
-            if (func_80298850() == 0) {
+            if (balookat_getState() == 0) {
                 sp20 = true;
             }
             break;
@@ -160,7 +160,7 @@ void func_802B3E64(void) {
     if (func_802B3BB0()) {
         next_state = bs_getIdleState();
     }
-    if (map_get() == MAP_27_FP_FREEZEEZY_PEAK && baflag_isTrue(BA_FLAG_14_LOSE_BOGGY_RACE)) {
+    if (gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK && baflag_isTrue(BA_FLAG_14_LOSE_BOGGY_RACE)) {
         next_state = func_8029CA94(next_state);
     }
     bs_setState(next_state);

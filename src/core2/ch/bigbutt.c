@@ -3,10 +3,10 @@
 #include "variables.h"
 
 
-void func_802C6240(Actor *);
-Actor *func_802C6E84(ActorMarker *, Gfx **, Mtx **, Vtx **);
+void chbull_update(Actor *);
+Actor *chbull_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);
 /*.data */
-ActorAnimationInfo D_80366010[] ={
+ActorAnimationInfo chBullAnimations[] ={
     {0x00, 0.0f},
     {ASSET_33_ANIM_BIGBUTT_EAT,     5.5f},
     {ASSET_36_ANIM_BIGBUTT_WALK,    0.7f},
@@ -27,14 +27,14 @@ ActorAnimationInfo D_80366010[] ={
 
 
 ActorInfo D_80366090 = {0x3, ACTOR_4_BIGBUTT, ASSET_353_MODEL_BIGBUTT, 
-    1, D_80366010, 
-    func_802C6240, actor_update_func_80326224, func_802C6E84,
+    1, chBullAnimations, 
+    chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
 
 ActorInfo D_803660B4 = {0x9, ACTOR_E_SMALL_BULL, ASSET_354_MODEL_SMALL_BULL, 
-    1, D_80366010, 
-    func_802C6240, actor_update_func_80326224, func_802C6E84,
+    1, chBullAnimations, 
+    chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
 
@@ -51,14 +51,14 @@ void func_802C5EB8(Actor *this){
         this->unk38_31--; 
     }
     else{
-        if(func_80329530(this, 1200) && func_803292E0(this)){
+        if(subaddie_playerIsWithinSphereAndActive(this, 1200) && func_803292E0(this)){
             subaddie_set_state(this, 8);
         }
     }
 }
 
 void func_802C5F44(Actor *this){
-    if(!func_80329530(this, 1200) || !func_803292E0(this)){
+    if(!subaddie_playerIsWithinSphereAndActive(this, 1200) || !func_803292E0(this)){
         subaddie_set_state_with_direction(this, 1, 0.16f, 1);
     }
 }
@@ -98,7 +98,7 @@ void func_802C6150(ActorMarker *marker, ActorMarker *other_marker){
     func_8030E878(SFX_2B_BULL_MOO_1, randf2(1.28f, 1.37f), 32000, actor->position, 0.0f, 2000.0f);
 }
 
-void func_802C61C0(ActorMarker *marker, ActorMarker *other_marker){
+void chbigbutt_die(ActorMarker *marker, ActorMarker *other_marker){
     Actor *actor = marker_getActor(marker);
     if( actor->state != 0xd
         && actor->state != 0xe
@@ -111,14 +111,14 @@ void func_802C61C0(ActorMarker *marker, ActorMarker *other_marker){
 }
 
 //chBigbuttUpdate
-void func_802C6240(Actor *this){
+void chbull_update(Actor *this){
     s32 sp2C;
     u8  tmp_a0;
     f32 tmp_f0;
 
 
     if(!this->initialized){
-        this->marker->dieFunc = func_802C61C0;
+        this->marker->dieFunc = chbigbutt_die;
         this->marker->collisionFunc = func_802C60AC;
         this->marker->collision2Func = func_802C6150;
         this->has_met_before = false;
@@ -197,7 +197,7 @@ void func_802C6240(Actor *this){
             break;
 
         case 0x6: //L802C66D0
-            anctrl_setDuration(this->anctrl, D_80366010[6].duration - (3 - this->unk10_12)*0.1085);
+            anctrl_setDuration(this->anctrl, chBullAnimations[6].duration - (3 - this->unk10_12)*0.1085);
             this->yaw_ideal = (f32)subaddie_getYawToPlayer(this);
             if(!func_803294B4(this, 0x21)){
                 subaddie_set_state(this, 8);
@@ -210,7 +210,7 @@ void func_802C6240(Actor *this){
             if(!func_80329078(this, (s32)this->yaw, 20))
                 func_802C5F94(this);
 
-            if(this->unk10_12 == 0 || (this->unk10_12 < 3 && func_80329530(this, 300))){
+            if(this->unk10_12 == 0 || (this->unk10_12 < 3 && subaddie_playerIsWithinSphereAndActive(this, 300))){
                 subaddie_set_state(this, 9);
                 this->actor_specific_1_f = 13.0f;
             }
@@ -230,7 +230,7 @@ void func_802C6240(Actor *this){
             if(!func_80329030(this, 0))
                 func_802C5F94(this);
 
-            if(func_80329530(this, 320)){
+            if(subaddie_playerIsWithinSphereAndActive(this, 320)){
                 if(func_80329078(this, (s32)this->yaw_ideal,200)){
                     anctrl_setPlaybackType(this->anctrl, ANIMCTRL_ONCE);
                     subaddie_set_state(this, 4);
@@ -243,7 +243,7 @@ void func_802C6240(Actor *this){
                     sfxsource_setSfxId(tmp_a0, SFX_18_BIGBUTT_SLIDE);
                     sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
                     sfxsource_playSfxAtVolume(this->unk44_31, (randf()*0.1 - 0.05) + 1.0);
-                    func_8030E2C4(this->unk44_31);
+                    sfxSource_func_8030E2C4(this->unk44_31);
                 }
                 else{//L802C69FC
                     func_802C5F94(this);
@@ -257,9 +257,9 @@ void func_802C6240(Actor *this){
                 subaddie_turnToYaw(this, 1.0f);
             }
             func_80329030(this, 0);
-            func_8030E2C4(this->unk44_31);
+            sfxSource_func_8030E2C4(this->unk44_31);
             if(0.99 <= anctrl_getAnimTimer(this->anctrl)){
-                func_80329878(this, func_80329530(this, 250)? 0.8: 1.2);
+                func_80329878(this, subaddie_playerIsWithinSphereAndActive(this, 250)? 0.8: 1.2);
                 if (0.0f == this->actor_specific_1_f) {
                     anctrl_setPlaybackType(this->anctrl, ANIMCTRL_LOOP);
                     subaddie_set_state_with_direction(this, 1, 0.65f, 1);
@@ -273,7 +273,7 @@ void func_802C6240(Actor *this){
         case 0x5: //L802C6B28
             actor_playAnimationOnce(this);
             tmp_f0 = anctrl_getAnimTimer(this->anctrl);
-            anctrl_setDuration(this->anctrl, D_80366010[5].duration + ((0.65 < tmp_f0)? (tmp_f0 - 0.65)*16.0 : 0.0));
+            anctrl_setDuration(this->anctrl, chBullAnimations[5].duration + ((0.65 < tmp_f0)? (tmp_f0 - 0.65)*16.0 : 0.0));
             if(actor_animationIsAt(this, 0.95f)){
                 actor_loopAnimation(this);
                 func_802C5F94(this);
@@ -315,8 +315,8 @@ void func_802C6240(Actor *this){
             break;
    }//L802C6D1C
    if(this->state == 0xe){
-        if(this->marker->id != 0x29e)
-            this->marker->id = 0x29e;
+        if(this->marker->id != MARKER_29E_BIGBUTT_KNOCKED_DOWN)
+            this->marker->id = MARKER_29E_BIGBUTT_KNOCKED_DOWN;
    }else{//L802C6D60
         if(this->marker->id != 3)
             this->marker->id = 3;
@@ -337,7 +337,7 @@ void func_802C6E3C(s32 arg0, f32 arg1[3]){
     func_80352CF4(sp1C, arg1, 170.0f, 50.0f);
 }
 
-Actor *func_802C6E84(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *chbull_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *actor; //sp4C
     f32 sp40[3];
     

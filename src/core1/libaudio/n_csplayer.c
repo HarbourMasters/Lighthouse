@@ -9,7 +9,7 @@
 #include "2.0L/PR/ultraerror.h"
 #include <libultra/exception.h>
 
-extern void func_8033F000(const char *, const char *, int);
+extern void __assert(const char *, const char *, int);
 void    n_alSynSetVol( N_ALVoice *v, s16 volume, ALMicroTime t);
 s16             __n_vsVol(ALVoiceState *voice, ALSeqPlayer *seqp);
 ALVoiceState    *__n_lookupVoice(ALSeqPlayer *, u8, u8);

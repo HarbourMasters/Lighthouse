@@ -52,7 +52,7 @@ void chChoirTurtle_setState(Actor *this, s32 next_state) {
     this->state = next_state;
 }
 
-void func_803895D0(ActorMarker *marker, ActorMarker *other_marker){
+void chChoirTurtle_ow2(ActorMarker *marker, ActorMarker *other_marker){
     Actor *this;
 
     this = marker_getActor(marker);
@@ -75,7 +75,7 @@ void chChoirTurtle_update(Actor *this) {
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = true;
-        marker_setCollisionScripts(this->marker, NULL, func_803895D0, NULL);
+        marker_setCollisionScripts(this->marker, NULL, chChoirTurtle_ow2, NULL);
         local->unk0 = 1;
         local->unkC = 0;
         local->tiptup_marker = NULL;

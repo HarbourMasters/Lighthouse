@@ -164,31 +164,31 @@ void chTermite_update(Actor *this) {
         this->unk16C_0 = true;
         this->volatile_initialized = true;
     }
-    if( map_get() == MAP_C_MM_TICKERS_TOWER 
+    if( gsworld_getMap() == MAP_C_MM_TICKERS_TOWER 
         && !mapSpecificFlags_get(0) 
-        && func_80329530(this, 700) 
-        && !func_80329530(this, 150)
+        && subaddie_playerIsWithinSphereAndActive(this, 700) 
+        && !subaddie_playerIsWithinSphereAndActive(this, 150)
         && player_movementGroup() == BSGROUP_0_NONE
         && player_getTransformation() == TRANSFORM_1_BANJO
     ) {
-        gcdialog_showText(ASSET_B43_DIALOG_TERMITE_MEET_AS_BEAR, 7, this->position, this->marker, __chTermite_testCallback, NULL);
+        gcdialog_showDialog(ASSET_B43_DIALOG_TERMITE_MEET_AS_BEAR, 7, this->position, this->marker, __chTermite_testCallback, NULL);
         mapSpecificFlags_set(0, true);
         levelSpecificFlags_set(LEVEL_FLAG_D_MM_UNKNOWN, true);
         this->has_met_before = true;
     }
 
-    if( func_80329530(this, 300)
-        && !func_80329530(this, 150) 
+    if( subaddie_playerIsWithinSphereAndActive(this, 300)
+        && !subaddie_playerIsWithinSphereAndActive(this, 150) 
         && player_movementGroup() == BSGROUP_0_NONE
         && player_getTransformation() == TRANSFORM_2_TERMITE
     ) {
         if (!levelSpecificFlags_get(LEVEL_FLAG_B_MM_UNKNOWN)) {
-            if (gcdialog_showText(ASSET_B41_DIALOG_TERMITE_COOL_SHORTS, 0, NULL, NULL, NULL, NULL)) {
+            if (gcdialog_showDialog(ASSET_B41_DIALOG_TERMITE_COOL_SHORTS, 0, NULL, NULL, NULL, NULL)) {
                 levelSpecificFlags_set(LEVEL_FLAG_B_MM_UNKNOWN, true);
                 this->unk138_23 = true;
             }
         }
-        else if (!levelSpecificFlags_get(LEVEL_FLAG_C_MM_UNKNOWN) && !this->unk138_23 && (gcdialog_showText(ASSET_B42_DIALOG_TERMITE_COOL_BACKPACK, 0, NULL, NULL, NULL, NULL))) {
+        else if (!levelSpecificFlags_get(LEVEL_FLAG_C_MM_UNKNOWN) && !this->unk138_23 && (gcdialog_showDialog(ASSET_B42_DIALOG_TERMITE_COOL_BACKPACK, 0, NULL, NULL, NULL, NULL))) {
             levelSpecificFlags_set(LEVEL_FLAG_C_MM_UNKNOWN, true);
         }
     }

@@ -12,10 +12,10 @@ extern f32 GameEngine_GetAspectRatio(void);
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
 
 extern void func_802D7124(Actor *, f32);
-extern void func_802EE6CC(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
+extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
-extern void func_8033A244(f32);
+extern f32 func_8033A244(f32);
 extern uintptr_t func_802F3364(uintptr_t);
 extern void *func_802F2AEC(void);
 extern void func_802F2C78(Struct64s *);
@@ -38,11 +38,11 @@ void subaddie_set_state_with_direction(Actor * this, s32 arg1, f32 arg2, s32 arg
 void func_8032BB88(Actor *this, s32 arg1, s32 arg2);
 bool subaddie_playerIsWithinSphere(Actor *this, s32 dist);
 extern void func_8033A4A0(enum asset_e mode_id, f32, f32);
-extern void func_80338338(s32, s32, s32);
+extern void codeAEDA0_setPrimaryColorRGB(s32, s32, s32);
 extern void func_803382FC(s32);
-extern void func_803382E4(s32);
-extern void func_8033687C(Gfx **);
-extern void func_80335D30(Gfx **);
+extern void codeAEDA0_setSpriteDrawMode(s32);
+extern void codeAEDA0_drawSprite(Gfx **);
+extern void codeAEDA0_postDrawSprite(Gfx **);
 extern void func_80344138(BKSpriteDisplayData *, s32, s32, f32[3], f32[3], Gfx **, Mtx **);
 extern BKVertexList *vtxList_clone(BKVertexList *vtxList);
 bool func_803296D8(Actor *this, s32 dist);
@@ -237,7 +237,7 @@ Actor *actor_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     return this;
 }
 
-Actor *func_80325934(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+Actor *fxTouchSparkle_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     Actor *this;
     f32 scale[3];
     BKSpriteDisplayData *sp3C;
@@ -256,19 +256,19 @@ Actor *func_80325934(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         this->position[1] -= D_8036E58C[1];
         this->position[2] -= D_8036E58C[2];
     }
-    func_80338338(0xFF, 0xFF, 0xFF);
+    codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     if (this->unk124_11 != 0) {
         func_803382FC(this->alpha_124_19);
-        func_803382E4(0xC);
-    } else if (func_80344C20(sp3C) & 0xB00) {
-        func_803382E4(0xB);
+        codeAEDA0_setSpriteDrawMode(0xC);
+    } else if (codeBD100_getSpriteType(sp3C) & 0xB00) {
+        codeAEDA0_setSpriteDrawMode(0xB);
     } else {
-        func_803382E4(0xE);
+        codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    func_80335D30(gfx);
-    func_80344138(sp3C, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, scale, gfx, mtx);
-    func_8033687C(gfx);
+    codeAEDA0_postDrawSprite(gfx);
+    func_80344138(sp3C, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, scale, gfx, mtx);
+    codeAEDA0_drawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -294,19 +294,19 @@ Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         this->position[1] -= D_8036E58C[1];
         this->position[2] -= D_8036E58C[2];
     }
-    func_80338338(0xFF, 0xFF, 0xFF);
+    codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     if (this->unk124_11 != 0) {
         func_803382FC(this->alpha_124_19);
-        func_803382E4(0xC);
-    } else if (func_80344C20(sp40) & 0xB00) {
-        func_803382E4(0xB);
+        codeAEDA0_setSpriteDrawMode(0xC);
+    } else if (codeBD100_getSpriteType(sp40) & 0xB00) {
+        codeAEDA0_setSpriteDrawMode(0xB);
     } else {
-        func_803382E4(0xE);
+        codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    func_80335D30(gfx);
-    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, rotation, scale, gfx, mtx);
-    func_8033687C(gfx);
+    codeAEDA0_postDrawSprite(gfx);
+    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
+    codeAEDA0_drawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -331,20 +331,20 @@ Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     viewport_getRotation_vec3f(rotation);
     rotation[2] += this->roll;
-    func_80338338(0xFF, 0xFF, 0xFF);
+    codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     if (this->unk124_11 != 0) {
         func_803382FC(this->alpha_124_19);
-        func_803382E4(0xC);
-    } else if ((func_80344C20(sp40) & 0xB00) != 0) {
-        func_803382E4(0xB);
+        codeAEDA0_setSpriteDrawMode(0xC);
+    } else if ((codeBD100_getSpriteType(sp40) & 0xB00) != 0) {
+        codeAEDA0_setSpriteDrawMode(0xB);
     } else {
-        func_803382E4(0xE);
+        codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    func_80335D30(gfx);
-    func_80344720(sp40, marker->propPtr->unk8_15, marker->propPtr->unk8_5, this->position, rotation, scale, gfx, mtx);
+    codeAEDA0_postDrawSprite(gfx);
+    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     
-    func_8033687C(gfx);
+    codeAEDA0_drawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -376,7 +376,7 @@ void func_80325F84(Actor *this){}
 void func_80325F8C(void) {
     suBaddieActorArray = NULL;
     D_8036E568 = func_8034A2C8();
-    D_8036E56C = (void *)(uintptr_t)func_802EE5E0(0x10);
+    D_8036E56C = (void *)(uintptr_t)dustEmitter_returnGiven(0x10);
     D_8036E570 = func_802F2AEC();
     D_8036E574 = 0;
     D_8036E578 = 0;
@@ -408,7 +408,7 @@ void func_80325FE8(Actor *this) {
        marker->actorFreeFunc = NULL;
     }
     if ((uintptr_t)marker->unk44 > 1) { // [port] N64 used (s32)<0 which fails on 64-bit (heap ptrs are positive); unk44 is 0=NULL, 1=flag, or valid ptr
-        func_8033E7CC(marker);
+        commonParticle_freeParticleByActorMarker(marker);
         func_8034A2A8(marker->unk44);
        marker->unk44 = 0;
     }
@@ -447,7 +447,7 @@ void actorArray_free(void) {
     }
     func_8034A2A8(D_8036E568);
     D_8036E568 = NULL;
-    func_802EE5E8(D_8036E56C);
+    dustEmitter_empty(D_8036E56C);
     D_8036E56C = NULL;
     func_802F2C78(D_8036E570);
     D_8036E570 = NULL;
@@ -555,7 +555,7 @@ void func_803268B4(void) {
             marker = actor->marker;
             anim_ctrl = actor->anctrl;
             temp_s1 = actor->actor_info->unk18;
-            if (marker->propPtr->unk8_4) {
+            if (marker->propPtr->isNotFeatherEggOrNote) {
                 if(sp54){
                     if (  actor->actor_info->unk20 && volatileFlag_get( actor->actor_info->unk20)) {
                         marker_despawn(marker);
@@ -616,7 +616,7 @@ void func_803268B4(void) {
         }
     }
     if (D_8036E56C != 0) {
-        func_802EE5F0((uintptr_t)D_8036E56C);
+        dustEmitter_isActive((uintptr_t)D_8036E56C);
     }
     if (D_8036E570 != 0) {
         func_802F2D8C(D_8036E570);
@@ -1548,7 +1548,7 @@ bool func_803294F0(Actor *this, s32 arg1, s32 arg2){
     return ((-arg1 <= v1) && (v1 <= arg1));
 }
 
-bool func_80329530(Actor *this, s32 dist){
+bool subaddie_playerIsWithinSphereAndActive(Actor *this, s32 dist){
     if( func_8028F098() 
         && !volatileFlag_get(VOLATILE_FLAG_BF) 
         && subaddie_playerIsWithinSphere(this, dist)
@@ -1596,7 +1596,7 @@ bool func_803296D8(Actor *this, s32 dist){
         return true;
     }
     else{
-        return func_80329530(this, dist);
+        return subaddie_playerIsWithinSphereAndActive(this, dist);
     }
 }
 
@@ -1617,7 +1617,7 @@ s32 subaddie_getYawToPlayer(Actor *this){
     return (s32)func_80257204(this->position[0], this->position[2], sp1C[0], sp1C[2]);
 }
 
-s32 func_803297C8(Actor *arg0, f32 arg1[3]){
+s32 subaddie_getYawToPosition(Actor *arg0, f32 arg1[3]){
     return (s32)func_80257204(arg0->position[0], arg0->position[2], arg1[0], arg1[2]);
 }
 
@@ -1691,7 +1691,7 @@ void func_803299B4(Actor *arg0) {
     arg0->marker->actorFreeFunc = arg0->backupFreeFunc;
     arg0->marker->unk5C = arg0->unk16C_31;
     arg0->marker->propPtr->unk8_3 = arg0->unkF4_28;
-    arg0->marker->propPtr->unk8_2 = arg0->unkF4_27;
+    arg0->marker->propPtr->isCollisionResolved = arg0->unkF4_27;
     arg0->marker->unk2C_1 = arg0->unkF4_26;
     arg0->marker->collidable = arg0->stored_marker_collidable;
 
@@ -1786,7 +1786,7 @@ void *actors_appendToSavestate(void * begin, uintptr_t end){
                 s0->unkF4_26 = s1->marker->unk2C_1;
                 s0->stored_marker_collidable = s1->marker->collidable;
                 s0->unkF4_28 = s1->marker->propPtr->unk8_3;
-                s0->unkF4_27 = s1->marker->propPtr->unk8_2;
+                s0->unkF4_27 = s1->marker->propPtr->isCollisionResolved;
                 //80329F94
                 if(s0->anctrl){
                     s0->stored_anctrl_index = anctrl_getIndex(s0->anctrl);
@@ -1971,7 +1971,7 @@ void func_8032A88C(Actor *arg0) {
     Actorlocal_Core2_9E370 *sp20;
 
     sp20 = (Actorlocal_Core2_9E370 *)arg0->local;
-    arg0->yaw_ideal = (f32) func_803297C8(arg0, sp20->unk0);
+    arg0->yaw_ideal = (f32) subaddie_getYawToPosition(arg0, sp20->unk0);
     subaddie_turnToYaw(arg0, 6.0f);
     func_80329030(arg0, 0);
     if ((((arg0->position[0] - sp20->unk0[0]) * (arg0->position[0] - sp20->unk0[0])) + ((arg0->position[2] - sp20->unk0[2]) * (arg0->position[2] - sp20->unk0[2]))) <= 144.0f) {
@@ -2234,7 +2234,7 @@ void func_8032B3A0(Actor *this, ActorMarker *arg1) {
         sp54[0] = this->position[0];
         sp54[1] = this->position[1] + func_8033229C(this->marker)*((this->unk16C_0) ? 0.5 : 1.0);
         sp54[2] = this->position[2];
-        func_802EE6CC(sp54, 0, D_8036E5B0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
+        dustEmitter_emit(sp54, 0, D_8036E5B0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
         func_802F3CF8(sp54, !this->unk16C_0, 
             (arg1->id == 1) ? 1 
             : (player_getTransformation() == TRANSFORM_5_CROC) ? 2
@@ -2250,7 +2250,7 @@ void func_8032B4DC(Actor *this, ActorMarker *arg1, s32 arg2) {
 
     if (arg1 != NULL) {
         func_8034A174(this->marker->unk44, arg2, sp3C);
-        func_802EE6CC(sp3C, NULL, D_8036E5C0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
+        dustEmitter_emit(sp3C, NULL, D_8036E5C0, !this->unk16C_0, 0.75f, 0.0f, 125, 250, 0);
         func_802F3CF8(sp3C, !this->unk16C_0, 
             (arg1->id == 1) ? 1 
             : (player_getTransformation() == TRANSFORM_5_CROC) ? 2
@@ -2275,11 +2275,11 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
     s32 pad;
 
     this = marker_getActor(arg0);
-    sp70 = func_8033D5B4(arg2);
-    sp6C = func_8033D584(arg2);
-    sp68 = func_8033D5A4(arg2);
+    sp70 = collision_getDropBundleNum(arg2);
+    sp6C = collision_getUnkBit7(arg2);
+    sp68 = collision_getHitsToTrigger(arg2);
     sp64 = collision_getNextState(arg2);
-    if (((func_80297C6C() != 3) && func_8028F1E0()) || (func_8033D594(arg2) == 0)) {
+    if (((baiFrame_getState() != 3) && func_8028F1E0()) || (collision_getDamageToPlayer(arg2) == 0)) {
         if (sp64 == 0) {
             if ((sp68 != 0) || (arg1->id == 0)) {
                 if (sp68 <= 0) {

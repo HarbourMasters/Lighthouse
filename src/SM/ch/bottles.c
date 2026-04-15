@@ -242,7 +242,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
 
     if (!mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && chmole_learnedAllSpiralMountainAbilities()) {
         mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
-        gcdialog_showText(ASSET_E12_DIALOG_BOTTLES_LEARNED_TUTORIAL_MOVES, 0xe, actor->position, actor->marker, __chSmBottles_textCallback, NULL);
+        gcdialog_showDialog(ASSET_E12_DIALOG_BOTTLES_LEARNED_TUTORIAL_MOVES, 0xe, actor->position, actor->marker, __chSmBottles_textCallback, NULL);
     }//L8038933C
     else {
         if (!(text_id == ASSET_DF3_DIALOG_BOTTLES_INTRODUCTION || text_id == ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER || text_id == ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT)) {
@@ -254,7 +254,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
                 break;
 
             case ASSET_DF3_DIALOG_BOTTLES_INTRODUCTION: /* 2FB8 803893A8 3C188039 */
-                gcdialog_showText(ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER, 0x8e, actor->position, actor->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
+                gcdialog_showDialog(ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER, 0x8e, actor->position, actor->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
                 break;
 
             case ASSET_E1F_DIALOG_BOTTLES_TUTORIAL_OFFER: /* 2FEC 803893DC 9209003B */
@@ -278,7 +278,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
 
             default:
                 if (actor->state != SM_BOTTLES_STATE_5_UNKNOWN) {
-                    gcdialog_showText(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0x4, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0x4, NULL, NULL, NULL, NULL);
                 }
 
                 __chSmBottles_setState(actor, actor->state == SM_BOTTLES_STATE_5_UNKNOWN ? SM_BOTTLES_STATE_1_UNKNOWN : SM_BOTTLES_STATE_4_UNKNOWN);
@@ -396,7 +396,7 @@ void __chSmBottles_talk(Actor *this) {
     }//L80389904
 
     if (text_id) {
-        gcdialog_showText(text_id, text_flags, this->position, this->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
+        gcdialog_showDialog(text_id, text_flags, this->position, this->marker, __chSmBottles_textCallback, __chSmBottles_textActions);
     }
 }
 
@@ -499,7 +499,7 @@ void chSmBottles_update(Actor *this) {
                 if (((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && func_8028F20C()) ||
                     mapSpecificFlags_get(SM_SPECIFIC_FLAG_10)
                 ) {//L80389C8C
-                    if (func_80329530(this, 0x96)) {
+                    if (subaddie_playerIsWithinSphereAndActive(this, 0x96)) {
                         func_8028F45C(9, this->position);
                     }
 
@@ -508,7 +508,7 @@ void chSmBottles_update(Actor *this) {
                 }
             }
             else {//L80389CBC
-                if (!func_80329530(this, 0xfa) || player_movementGroup() || !func_8028F20C() || func_8028EC04()) {
+                if (!subaddie_playerIsWithinSphereAndActive(this, 0xfa) || player_movementGroup() || !func_8028F20C() || func_8028EC04()) {
                     break;
                 }
 
@@ -521,7 +521,7 @@ void chSmBottles_update(Actor *this) {
                                 __chSmBottles_setState(this, SM_BOTTLES_STATE_5_UNKNOWN);
                             }
                             else {
-                                if (func_80329530(this, 0x96) && !sp34) {
+                                if (subaddie_playerIsWithinSphereAndActive(this, 0x96) && !sp34) {
                                     func_8028F45C(9, this->position);
                                 }
 
@@ -538,7 +538,7 @@ void chSmBottles_update(Actor *this) {
             subaddie_turnToYaw(this, 4.0f);
 
             if (0.0 < anctrl_getAnimTimer(this->anctrl) && anctrl_getAnimTimer(this->anctrl) < 0.16) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }//L80389EA0
 
             if (actor_animationIsAt(this, 0.9999f)) {
@@ -600,7 +600,7 @@ void chSmBottles_update(Actor *this) {
             if (this->unk38_0) {
                 this->lifetime_value += time_getDelta();
 
-                if (func_803114C4() != 0xe1d) {
+                if (gcdialog_getCurrentTextId() != 0xe1d) {
                     if (face_buttons[FACE_BUTTON(BUTTON_A)] == true) {
                         bakey_pressed = 1;
                     }
@@ -611,7 +611,7 @@ void chSmBottles_update(Actor *this) {
 
                 if (bakey_pressed != -1) {
                     fileProgressFlag_set(FILEPROG_DB_SKIPPED_TUTORIAL, bakey_pressed ? 0 : 1);
-                    gcdialog_showText(bakey_pressed ? ASSET_E07_DIALOG_BOTTLES_UNKNOWN : ASSET_E09_DIALOG_BOTTLES_SKIPPED_TUTORIAL, 0xe, this->position, this->marker, __chSmBottles_textCallback,__chSmBottles_textActions);
+                    gcdialog_showDialog(bakey_pressed ? ASSET_E07_DIALOG_BOTTLES_UNKNOWN : ASSET_E09_DIALOG_BOTTLES_SKIPPED_TUTORIAL, 0xe, this->position, this->marker, __chSmBottles_textCallback,__chSmBottles_textActions);
 
                     if (!bakey_pressed) {
                         __chSmBottles_skipIntroTutorial();
@@ -620,7 +620,7 @@ void chSmBottles_update(Actor *this) {
                     this->unk38_0 = false;
                 }
                 else if (!this->has_met_before && 5.0 < this->lifetime_value) {
-                    gcdialog_showText(ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT, 0x86, this->position, this->marker, __chSmBottles_textCallback, NULL);
+                    gcdialog_showDialog(ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT, 0x86, this->position, this->marker, __chSmBottles_textCallback, NULL);
                     this->has_met_before = true;
                 }
             }
@@ -628,7 +628,7 @@ void chSmBottles_update(Actor *this) {
 
         case SM_BOTTLES_STATE_4_UNKNOWN: //L8038A31C
             if (0.35 < anctrl_getAnimTimer(this->anctrl) && anctrl_getAnimTimer(this->anctrl) < 0.9) {
-                func_8030E2C4(this->unk44_31);
+                sfxSource_func_8030E2C4(this->unk44_31);
             }
             else if (actor_animationIsAt(this, 0.9999f)) { //L8038A378
                 __chSmBottles_setState(this, SM_BOTTLES_STATE_1_UNKNOWN);

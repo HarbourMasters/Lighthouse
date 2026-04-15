@@ -17,7 +17,7 @@ extern "C" {
 #include "functions.h"
 #include "variables.h"
 enum level_e map_getLevel(enum map_e map);
-enum map_e map_get(void);
+enum map_e gsworld_getMap(void);
 }
 
 // Cutscene aspect lock — force 4:3 during cutscene maps
@@ -98,7 +98,7 @@ extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
     if (GameEngine_GetAspectRatio() <= 1.34f) {
         return;
     }
-    int32_t curMap = (int32_t)map_get();
+    int32_t curMap = (int32_t)gsworld_getMap();
     for (int i = 0; i < WS_YAW_FIX_COUNT; i++) {
         if (curMap == sWsYawFixes[i].map &&
             (sWsYawFixes[i].node == -1 || sLastStaticCameraNode == sWsYawFixes[i].node)) {

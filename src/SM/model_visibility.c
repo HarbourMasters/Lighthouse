@@ -4,7 +4,7 @@
 #include "variables.h"
 
 /* .code */
-void func_80388CF0(void){
+void code2900_moveBridgeOutOfBounds(void){
     Struct70s *tmp_s70;
     if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
         // [port] Split dereference from null check — &NULL->member is UB
@@ -15,11 +15,11 @@ void func_80388CF0(void){
     }
 }
 
-void func_80388D48(void){
+void code2900_checkSMChecksums(void){
     // Lighthouse TODO is this an anti-piracy check?
     #if 0
     if(*(u32*)PHYS_TO_K1(0x200) - PHYS_TO_K1(0xC290000)){
-        func_80388CF0();
+        code2900_moveBridgeOutOfBounds();
     }
 #endif
 }

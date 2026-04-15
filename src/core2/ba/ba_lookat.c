@@ -8,27 +8,27 @@ u8 D_8037C670;
 u8 D_8037C671;
 
 /* .code */
-int func_80298800(f32 arg0[3]){
-    if(!D_8037C5F0[D_8037C670 - 1].unk1)
+int balookat_try_get_position(f32 arg0[3]){
+    if(!D_8037C5F0[D_8037C670 - 1].lookat)
         return 0;
 
-    ml_vec3f_copy(arg0, D_8037C5F0[D_8037C670 - 1].unk4);
+    ml_vec3f_copy(arg0, D_8037C5F0[D_8037C670 - 1].position);
     return 1;
 }
 
-s32 func_80298850(void){
+s32 balookat_getState(void){
     if(!D_8037C670){
         return 0;
     }
-    return D_8037C5F0[D_8037C670 - 1].unk0;
+    return D_8037C5F0[D_8037C670 - 1].state;
 }
 
-void func_8029887C(void){
+void balookat_init(void){
     D_8037C671 = 0;
     D_8037C670 = 0;
 }
 
-void func_80298890(void){
+void balookat_pop(void){
     if(D_8037C670){
         D_8037C670--;
         if(D_8037C670 == 0){
@@ -38,19 +38,19 @@ void func_80298890(void){
     }
 }
 
-void func_802988DC(s32 arg0){
-    D_8037C5F0[D_8037C670].unk0 = arg0;
-    D_8037C5F0[D_8037C670].unk1 = 0;
-    ml_vec3f_clear(D_8037C5F0[D_8037C670].unk4);
+void balookat_push(s32 arg0){
+    D_8037C5F0[D_8037C670].state = arg0;
+    D_8037C5F0[D_8037C670].lookat = 0;
+    ml_vec3f_clear(D_8037C5F0[D_8037C670].position);
     D_8037C670++;
 }
 
-void func_8029892C(f32 arg0[3]){
-    D_8037C5F0[D_8037C670-1].unk1 = 1;
-    ml_vec3f_copy(D_8037C5F0[D_8037C670-1].unk4, arg0);
+void balookat_set_position(f32 arg0[3]){
+    D_8037C5F0[D_8037C670-1].lookat = 1;
+    ml_vec3f_copy(D_8037C5F0[D_8037C670-1].position, arg0);
 }
 
-void func_80298970(s32 arg0){
+void balookat_update_state(s32 arg0){
     int val = 0;
     switch(arg0){
         case 1:
@@ -77,17 +77,17 @@ void func_80298970(s32 arg0){
         D_8037C671 = arg0;
 }
 
-void func_80298A64(void){
+void balookat_end(void){
     if(D_8037C670)
         D_8037C671 = 0;
 }
 
-void func_80298A84(void){
+void balookat_update(void){
     s32 tmp;
     if(D_8037C670){
-        tmp = D_8037C5F0[D_8037C670-1].unk0;
+        tmp = D_8037C5F0[D_8037C670-1].state;
         if(D_8037C671 != tmp){
-            func_80298970(tmp);
+            balookat_update_state(tmp);
         }
     }
 }

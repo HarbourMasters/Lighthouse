@@ -128,7 +128,7 @@ void func_803881AC(Actor *this){
         if(0.0f == this->velocity_x)
             return;
     }else{
-        if(!func_80329530(this, 2000) && !maSlolam_WithinRadiusOfBoggy(this->position, 2000))
+        if(!subaddie_playerIsWithinSphereAndActive(this, 2000) && !maSlolam_WithinRadiusOfBoggy(this->position, 2000))
             return;
         this->marker->collidable = true;
         this->unk124_6 = true;

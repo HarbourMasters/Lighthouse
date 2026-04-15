@@ -15,4 +15,23 @@ f32  func_80351830(Struct68s *arg0);
 
 extern void sfxsource_setSampleRate(u8, s32);
 
+void gsworld_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr);
+void gsworld_stub1(s32 arg0, s32 arg1, s32 arg2);
+enum map_e gsworld_getMap(void);
+s32  gsworld_getExit(void);
+void gsworld_transitionToExit(s32 exit);
+s32  gsworld_getUnk0(void);
+void gsworld_free(void);
+void gsworld_set(enum map_e map, s32 exit, s32 reload);
+void gsworld_reload(void);
+void gsworld_stub2(void);
+void gsworld_setUnk0(s32 value);
+s32  gsworld_update(void);
+void gsworld_setEnableUpdate(s32 value);
+s32  gsworld_getEnableUpdate(void);
+void gsworld_setEnableDraw(s32 value);
+s32  gsworld_getEnableDraw(void);
+void gsworld_load(enum map_e map_id);
+void gsworld_stub3(s32 arg0);
+
 #endif

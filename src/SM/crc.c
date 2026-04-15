@@ -64,7 +64,7 @@ static void __codeF0_learnAbility(enum ability_e ability){
 
 void codeF0_func_80386540(){
     // [port] anti-tamper: MIPS instruction patching + ROM CRC check — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 *learned_abilities_address;
     s32 sp28;
     u32 *addr;
@@ -118,7 +118,7 @@ void __codeF0_pad_func_80386614(u8 *arg0, u8 *arg1, s32 *arg2, s32 *arg3){
 extern u8 crc_ROM_START[];
 
 static bool __codeF0_areRomCrcsCorrect(){
-#if 0
+#if ANTI_TAMPER
     u32 sp24;
 
     if( (osPiReadIo((u32)crc_ROM_START + 8, &sp24), sp24 == D_803FFE00[0])
@@ -135,7 +135,7 @@ static bool __codeF0_areRomCrcsCorrect(){
 }
 
 static bool __codeF0_areCrcsValid(){
-#if 0
+#if ANTI_TAMPER
     if( D_8038B320.unk0 == D_8038AAE0
         && D_8038B320.unk4 == D_8038AAE4 
         && D_8038B320.unkC == D_80275650 

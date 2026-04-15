@@ -360,7 +360,7 @@ void func_802A1A50(void){
 }
 
 void func_802A1B28(void){
-    func_80297CA8();
+    baiFrame_start();
     baphysics_reset_gravity();
     baMarker_collisionOn();
     baeyes_open();
@@ -491,7 +491,7 @@ void func_802A1FC8(void){
     func_802B3A50();
     func_80299628(0);
     func_8029C6D0();
-    if(!func_80298850()){
+    if(!balookat_getState()){
         sp1C = BS_85_BEE_IDLE;
     }
     bs_setState(sp1C);
@@ -509,7 +509,7 @@ void func_802A2054(void){
     func_8025A2FC(-1, 0xFA0);
     core1_ce60_incOrDecCounter(true);
     func_80291548();
-    func_80298A64();
+    balookat_end();
 }
 
 void func_802A2098(void){

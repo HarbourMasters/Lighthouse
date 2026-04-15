@@ -5,7 +5,7 @@
 void chwhipcrack_update(Actor *this);
 
 /* .data */
-ActorInfo D_80373100 = { 
+ActorInfo chWhipcrack = { 
     MARKER_1C5_WHIPCRACK, ACTOR_30F_WHIPCRACK, ASSET_4FD_MODEL_WHIPCRACK, 
     0, NULL, 
     chwhipcrack_update, NULL, actor_draw, 

@@ -17,7 +17,7 @@ extern void func_80344E18(u8, s32);
 extern void func_80344E3C(u8, f32[3]);
 extern void func_80344EE4(u8, f32, f32);
 extern void func_80354030(f32[3], f32);
-extern bool func_80344EC0(u8);
+extern s32 func_80344EC0(u8);
 extern ActorMarker *func_8033E840(void);
 extern ActorProp *func_80320EB0(ActorMarker *, f32, s32);
 
@@ -63,7 +63,7 @@ s32 func_803531C8(u8 projectile_indx, s32 arg1){
     projectile_getPosition(projectile_indx, egg_position);
     marker->unk38[1] = 0x1E;
     prop = func_80320EB0(marker, 30.0f, 1);
-    if(prop != NULL && prop->unk8_0){
+    if(prop != NULL && prop->isActorProp){
         other_marker = prop->marker;
         sp34 =other_marker->id;
         if(!func_8033D410(marker, other_marker)){
@@ -75,59 +75,59 @@ s32 func_803531C8(u8 projectile_indx, s32 arg1){
                         if(0.25 <= temp_f2 && temp_f2 <= 0.75){
                             other_actor->unk38_31 = 1;
                         }
-                        func_8033E984();
+                        commonParticle_setCurrentInUseFalse();
                         fxegg_shatter(projectile_indx);
                     }
                     break;
 
                 case MARKER_33_LEAKY: //L80353350
                     if (collisionTri_isHitFromAbove_marker(egg_position, other_marker, 0x32) && chLeaky_eggCollision(other_marker)) {
-                        func_8033E984();
+                        commonParticle_setCurrentInUseFalse();
                     }
                     break;
 
                 case MARKER_4C_CLANKER_TOKEN_TOOTH_EXT: //L80353384
-                    func_8033E984();
+                    commonParticle_setCurrentInUseFalse();
                     func_803870EC(1);
                     break;
 
                 case MARKER_1AE_ZUBBA: //L8035339C //zubba?
-                    func_8033E984();
+                    commonParticle_setCurrentInUseFalse();
                     fxegg_shatter(projectile_indx);
                     break;
 
                 case MARKER_4D_CLANKER_JIGGY_TOOTH_EXT: //L803533B4
-                    func_8033E984();
+                    commonParticle_setCurrentInUseFalse();
                     func_803870EC(2);
                     break;
 
                 case MARKER_182_RBB_EGG_TOLL: //L803533CC
-                    func_8033E984();
+                    commonParticle_setCurrentInUseFalse();
                     func_8038685C(other_marker);
                     break;
 
                 case MARKER_BB_UNKNOWN: //L803533E4 //"BIG_JINXYHEAD"
                     other_actor = marker_getActor(other_marker);
                     *(s32 *)&other_actor->local = 1;
-                    func_8033E984();
+                    commonParticle_setCurrentInUseFalse();
                     break;
 
                 case MARKER_34_CEMETARY_POT: //L80353400
                     if (collisionTri_isHitFromAbove_marker(egg_position, other_marker, 0x3C) && chFlowerpot_eggCollision(other_marker)) {
-                        func_8033E984();
+                        commonParticle_setCurrentInUseFalse();
                     }
                     break;
 
                 case MARKER_AB_RUBEES_EGG_POT: //L80353434
                     if (collisionTri_isHitFromAbove_marker(egg_position, other_marker, 0x1E) && (func_8038E178() < func_8038E184())) {
-                        func_8033E984();
+                        commonParticle_setCurrentInUseFalse();
                         func_8038E140();
                     }
                     break;
 
                 case MARKER_AE_UNKNOWN: //L80353480 //big_jynxy_head
                     if(func_8038E344(other_marker)){
-                        func_8033E984();
+                        commonParticle_setCurrentInUseFalse();
                         func_8038E2FC(other_marker);
                     }
                     break;
@@ -149,12 +149,12 @@ bool fxegg_isCollidingWithPlayer(f32 arg0[3]){
 }
 
 void func_80353580(ActorMarker *marker){
-    func_8033E9A8(marker->commonParticleIndex);
+    commonParticle_freeParticleByIndex(marker->commonParticleIndex);
 }
 
 void fxegg_head_spawn(void){
-    u8 projectile_indx = func_8033E8D0();
-    AnimSprite *sp78 = func_8033E8F4();
+    u8 projectile_indx = commonParticle_getCurrentProjectileIndex();
+    AnimSprite *sp78 = commonParticle_getCurrentAnimSprite();
     u8 sp77 = func_8033E93C();
     f32 sp68[3];
     f32 sp5C[3];
@@ -211,7 +211,7 @@ void fxegg_head_update(void){
     f32 sp54[3];
     f32 tmp_f20;
     
-    projectile_indx = func_8033E8D0();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
     sp96 = func_8033E93C();
     sp78 = func_8033EA14(1);
     tmp_f24 = func_8033EA14(2);
@@ -220,7 +220,7 @@ void fxegg_head_update(void){
     while(tmp_f24 <= 0.0f){//L80353868
         tmp_f24 += sp6C;
         projectile_getPosition(projectile_indx, sp7C);
-        func_8033E9D4();
+        commonParticle_stashCurrentIndex();
         sp7C[0] += randf2(-8.0f, 8.0f);
         sp7C[1] += randf2(-8.0f, 8.0f);
         sp7C[2] += randf2(-8.0f, 8.0f);
@@ -232,7 +232,7 @@ void fxegg_head_update(void){
         }
         func_803541CC(0x32);
         func_80354030(sp7C, 0.15f);
-        func_8033E9F4();
+        commonParticle_applyIndexStash();
     }//L80353930
     func_8033EA40(2, tmp_f24);
     func_803531C8(projectile_indx, 0);
@@ -243,7 +243,7 @@ void fxegg_head_update(void){
         sp54[0] = (f32)s0->propPtr->x;
         sp54[1] = (f32)s0->propPtr->y;
         sp54[2] = (f32)s0->propPtr->z;
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
         fxegg_shatter(projectile_indx);
     }//L803539D4
     func_80344E3C(sp96, sp88);
@@ -253,7 +253,7 @@ void fxegg_head_update(void){
     sp78 += time_getDelta();
     func_8033EA40(1, sp78);
     if(2.0 < sp78){
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
     }
 }
 
@@ -269,8 +269,8 @@ void fxegg_ass_spawn(void) {
     f32 temp_f2;
     f32 temp_f18;
 
-    projectile_indx = func_8033E8D0();
-    sp58 = func_8033E8F4();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
+    sp58 = commonParticle_getCurrentAnimSprite();
     sp57 = func_8033E93C();
     func_8033E840()->unk2C_1 = true;
     func_8033E840()->collidable = true;
@@ -316,7 +316,7 @@ void fxegg_ass_update(void) {
     f32 sp58;
     f32 var_f22;
 
-    projectile_indx = func_8033E8D0();
+    projectile_indx = commonParticle_getCurrentProjectileIndex();
     sp8E = func_8033E93C();
     sp64 = func_8033EA14(1);
     var_f22 = func_8033EA14(2);
@@ -325,7 +325,7 @@ void fxegg_ass_update(void) {
     while (var_f22 <= 0.0f) {
         var_f22 += sp58;
         projectile_getPosition(projectile_indx, sp68);
-        func_8033E9D4();
+        commonParticle_stashCurrentIndex();
         sp68[0] += randf2(-8.0f, 8.0f);
         sp68[1] += randf2(-8.0f, 8.0f);
         sp68[2] += randf2(-8.0f, 8.0f);
@@ -336,7 +336,7 @@ void fxegg_ass_update(void) {
         }
         func_803541CC(0x32);
         func_80354030(sp68, 0.15);
-        func_8033E9F4();
+        commonParticle_applyIndexStash();
     }
     func_8033EA40(2, var_f22);
     if (func_80344EC0(sp8E)) {
@@ -348,7 +348,7 @@ void fxegg_ass_update(void) {
         projectile_getPosition(projectile_indx, sp80);
         if (fxegg_isCollidingWithPlayer(sp80)) {
             chCollectible_collectEgg(NULL);
-            func_8033E984();
+            commonParticle_setCurrentInUseFalse();
         }
     }
     func_80344E3C(sp8E, sp74);
@@ -358,7 +358,7 @@ void fxegg_ass_update(void) {
     sp64 += time_getDelta();
     func_8033EA40(1, sp64);
     if ((2.8 < sp64) && (func_80344EC0(sp8E) || (sp64 > 3.5))) {
-        func_8033E984();
+        commonParticle_setCurrentInUseFalse();
         fxegg_shatter(projectile_indx);
     }
 }
@@ -369,10 +369,10 @@ void fxegg_collide(ActorMarker *self, ActorMarker *marker, CollisionParams *arg2
     Actor *actor;
 
     actor = marker_getActor(marker);
-    if (func_8033D5A4(arg2) != 0) {
-        func_8033E984();
+    if (collision_getHitsToTrigger(arg2) != 0) {
+        commonParticle_setCurrentInUseFalse();
         if (actor->modelCacheIndex != 0x29D) {
-            fxegg_shatter(func_8033E8D0());
+            fxegg_shatter(commonParticle_getCurrentProjectileIndex());
         }
     }
 }

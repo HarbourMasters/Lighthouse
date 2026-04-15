@@ -9,7 +9,7 @@ void func_8038FF60(void){}
 void func_8038FF68(void){
     Struct70s *tmp_s70;
 
-    if(map_get() != MAP_12_GV_GOBIS_VALLEY) return;
+    if(gsworld_getMap() != MAP_12_GV_GOBIS_VALLEY) return;
 
     // [port] Split dereference from null check — &NULL->member is UB
     if(jiggyscore_isCollected(JIGGY_42_GV_WATER_PYRAMID)){

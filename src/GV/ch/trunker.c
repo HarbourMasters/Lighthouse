@@ -4,19 +4,19 @@
 #include "variables.h"
 
 
-void chTrucker_update(Actor *this);
-Actor *chTrucker_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void chTrunker_update(Actor *this);
+Actor *chTrunker_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 /* .data */
 ActorInfo chTrunker = { 
     MARKER_C0_TRUNKER, ACTOR_132_TRUNKER, ASSET_3DF_MODEL_TRUNKER, 
     0, NULL, 
-    chTrucker_update, NULL, chTrucker_draw, 
+    chTrunker_update, NULL, chTrunker_draw, 
     0, 0x599, 2.0f, 0
 };
 
 /* .code */
-void __chTrucker_setState(Actor *this, s32 next_state){
+void __chTrunker_setState(Actor *this, s32 next_state){
     this->state = next_state;
     if(this->state == 1){
         skeletalAnim_set(this->unk148, ASSET_FE_ANIM_TRUCKER_SHORT, 0.1f, 2.5f);
@@ -34,7 +34,7 @@ void __chTrucker_setState(Actor *this, s32 next_state){
     }
 }
 
-Actor *chTrucker_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *chTrunker_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this = marker_getActor(this_marker);
     f32 sp38[3];
     f32 sp2C[3];
@@ -49,12 +49,12 @@ Actor *chTrucker_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     sp2C[1] = this->yaw + 220.0f;
     sp2C[2] = this->roll;
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
-    modelRender_draw(gfx, mtx, sp38, sp2C, 1.0f, NULL, func_8030A428(3));
+    modelRender_draw(gfx, mtx, sp38, sp2C, 1.0f, NULL, propModelList_getModel(3));
     return this;
 }
 
 
-void chTrucker_update(Actor *this){
+void chTrunker_update(Actor *this){
     ActorMarker *marker = this->marker;
     s32 sp28 = 0;
     if(!this->volatile_initialized){
@@ -63,19 +63,19 @@ void chTrucker_update(Actor *this){
         actor_collisionOff(this);
         mapSpecificFlags_set(0xC, false);
         if(jiggyscore_isSpawned(JIGGY_45_GV_GOBI_2) && !volatileFlag_get(VOLATILE_FLAG_1)){
-            __chTrucker_setState(this, 3);
+            __chTrunker_setState(this, 3);
         }
         else{//L803891CC
-            __chTrucker_setState(this, 1);
+            __chTrunker_setState(this, 1);
         }
     }//L803891D8
     if( this->state == 1
         && !this->has_met_before
-        && func_80329530(this, 250)
-        && !func_80329530(this, 80)
+        && subaddie_playerIsWithinSphereAndActive(this, 250)
+        && !subaddie_playerIsWithinSphereAndActive(this, 80)
         && func_8028F2A0()
     ){
-        gcdialog_showText(ASSET_A71_DIALOG_TRUNKER_MEET, 0xe, this->position, NULL, NULL, NULL);
+        gcdialog_showDialog(ASSET_A71_DIALOG_TRUNKER_MEET, 0xe, this->position, NULL, NULL, NULL);
         this->has_met_before = true;
     }//L80389254
 
@@ -88,5 +88,5 @@ void chTrucker_update(Actor *this){
     }
 
     if(sp28)
-        __chTrucker_setState(this, sp28);
+        __chTrunker_setState(this, sp28);
 }

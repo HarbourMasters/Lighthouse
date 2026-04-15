@@ -87,7 +87,7 @@ void func_803867CC(void){
 
 void func_803867F4(void){
     f32 sp24[3];
-    func_802BAFE4(4);
+    gcStaticCamera_activate(4);
     if(nodeProp_findPositionFromActorId(0x148, sp24)){
         jiggy_spawn(JIGGY_46_GV_ANCIENT_ONES, sp24);
         __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32, 0x4C, reinterpret_cast(s32, sp24[0]), reinterpret_cast(s32, sp24[1]), reinterpret_cast(s32, sp24[2]));
@@ -127,7 +127,7 @@ void chAncientOne_update(Actor *this){
         this->position_y -= 1100.0f;
         D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
         if(this->actorTypeSpecificField != 1){
-            this->marker->propPtr->unk8_4 = false;
+            this->marker->propPtr->isNotFeatherEggOrNote = false;
         }
         this->marker->propPtr->unk8_3 = true;
         actor_collisionOff(this);
@@ -150,7 +150,7 @@ void chAncientOne_update(Actor *this){
                             mapSpecificFlags_set(sp38, true);
                             if(sp38== 0xB){
                                 if(!jiggyscore_isCollected(JIGGY_46_GV_ANCIENT_ONES)){
-                                    gcdialog_showText(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0xE, NULL, this->marker, func_80386850, NULL);
+                                    gcdialog_showDialog(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0xE, NULL, this->marker, func_80386850, NULL);
                                 }
                                 else{
                                     func_80386850(this->marker, 0xA80, -1);
@@ -159,15 +159,15 @@ void chAncientOne_update(Actor *this){
                             else {   
                                 if(sp38== 7){
                                     if(!jiggyscore_isCollected(JIGGY_46_GV_ANCIENT_ONES)){
-                                        gcdialog_showText(ASSET_A7F_DIALOG_ANCIENT_ONES_MEET, 0x4, NULL, NULL, NULL, NULL);
+                                        gcdialog_showDialog(ASSET_A7F_DIALOG_ANCIENT_ONES_MEET, 0x4, NULL, NULL, NULL, NULL);
                                     }
                                 }
                                 
                                 subaddie_set_state_with_direction(this, 2, 0.0f, 1);
                                 actor_playAnimationOnce(this);
                                 if(this->actorTypeSpecificField < 5){
-                                    D_80390C28[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
-                                    func_802BAFE4(GV_D_80390C20[this->actorTypeSpecificField - 1]);
+                                    D_80390C28[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
+                                    gcStaticCamera_activate(GV_D_80390C20[this->actorTypeSpecificField - 1]);
                                     core1_7090_initSfxSource(2, 0x86, 0x7ff8, 0.3f);
                                     timedFunc_set_0(0.45f, func_8038678C);
                                 
@@ -208,7 +208,7 @@ void chAncientOne_update(Actor *this){
                     this->position_y -= 10.0;
                 }
                 else{
-                    this->marker->propPtr->unk8_4 = false;
+                    this->marker->propPtr->isNotFeatherEggOrNote = false;
                 }
                 break;
         }//L80386E60

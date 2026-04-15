@@ -495,9 +495,9 @@ typedef struct{
 }struct4Es;
 
 typedef struct{
-    u8 unk0;
-    u8 unk1;
-    f32 unk4[3];
+    u8 state;
+    u8 lookat;
+    f32 position[3];
 }struct50s;
 
 typedef struct{

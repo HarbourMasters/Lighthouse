@@ -147,7 +147,7 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
     }
 }
 
-void func_80387CC0(void){
+void code13C0_makeCameraFlipAndTilt(void){
     f32 sp1C[3];
     s32 tmp_v0;
     if(getGameMode() == GAME_MODE_7_ATTRACT_DEMO)
@@ -168,13 +168,13 @@ void func_80387CC0(void){
 
 void CC_func_80387D4C(void){
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     u32 sp1C;
     u32 tmp_v0;
     osPiReadIo(0x504, &sp1C);
     sp1C = (sp1C & 0xffff) + 0xffff5BA0;
     if(sp1C){
-        func_80387CC0();
+        code13C0_makeCameraFlipAndTilt();
     }
 #endif
 }

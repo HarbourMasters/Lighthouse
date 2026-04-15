@@ -5,10 +5,9 @@
 #include "core2/ba/physics.h"
 
 
-extern int        func_80258424(f32 vec[3], f32 minX, f32 minY, f32 minZ, f32 maxX, f32 maxY, f32 maxZ);
 extern f32        floor_getXPosition(struct0*);
 extern void       func_8031C5AC(struct0 *, f32 *);
-extern f32        func_8031C5E4(struct0*);
+extern f32        floor_getYPosition(struct0*);
 extern void       func_8031C5FC(struct0 *, f32);
 extern void       func_80244FC0(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4, u32 arg5);
 extern BKCollisionTri *func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32);
@@ -299,7 +298,7 @@ void func_80293F0C(void){
     f32 sp2C[3];
     
     _player_getPosition(sp44);
-    if(map_get() == MAP_34_RBB_ENGINE_ROOM && ml_vec3f_inside_box_f(sp44, -900.0f, -940.0f, 200.0f, 900.0f, 940.0f, 800.0f)){
+    if(gsworld_getMap() == MAP_34_RBB_ENGINE_ROOM && ml_vec3f_inside_box_f(sp44, -900.0f, -940.0f, 200.0f, 900.0f, 940.0f, 800.0f)){
         func_8031C5FC(D_8037C200, 150.0f);
     } else{
         func_8031C608(D_8037C200);
@@ -318,10 +317,10 @@ void func_80293F0C(void){
         case 3:
         case 4:
             _player_getPosition(D_8037C218);
-            func_80298504(D_8037C228);
+            playerPosition_func_80298504(D_8037C228);
             ml_vec3f_diff_copy(D_8037C238, D_8037C218, D_8037C228);
-            if ((D_8037C274 == 3) && func_8031C594(D_8037C200) && (D_8037C218[1] > (func_8031C5E4(D_8037C200) - 70.0f))) {
-                D_8037C218[1] = func_8031C5E4(D_8037C200) - 70.0f;
+            if ((D_8037C274 == 3) && func_8031C594(D_8037C200) && (D_8037C218[1] > (floor_getYPosition(D_8037C200) - 70.0f))) {
+                D_8037C218[1] = floor_getYPosition(D_8037C200) - 70.0f;
                 D_8037C27E = 1;
                 baphysics_set_vertical_velocity(1.0f);
             }
@@ -331,7 +330,7 @@ void func_80293F0C(void){
 
         case 5:
             _player_getPosition(D_8037C218);
-            func_80298504(D_8037C228);
+            playerPosition_func_80298504(D_8037C228);
             func_80293668();
             func_80293440();
             player_setPosition(D_8037C218);
@@ -341,7 +340,7 @@ void func_80293F0C(void){
             break;
     }//L80294148
     if (func_8031C594(D_8037C200)) {
-        D_8037C278 = (D_8037C218[1] < func_8031C5E4(D_8037C200));
+        D_8037C278 = (D_8037C218[1] < floor_getYPosition(D_8037C200));
     }
     ml_vec3f_diff_copy(D_8037C248, D_8037C218, D_8037C228);
     ml_vec3f_diff(D_8037C248, D_8037C238);
@@ -349,7 +348,7 @@ void func_80293F0C(void){
         D_8037C279 = 1;
     }
 
-    if(D_8037C278 && D_8037C218[1] < (func_8031C5E4(D_8037C200) - 70.0f)){
+    if(D_8037C278 && D_8037C218[1] < (floor_getYPosition(D_8037C200) - 70.0f)){
         func_80294384(3);
         if(D_8037C279 && baphysics_get_vertical_velocity() < 0.0f) {
             baphysics_set_vertical_velocity(-1.0f);
@@ -375,7 +374,7 @@ void func_80293F0C(void){
     } else {
         D_8037C280 = 0;
     }
-    func_80298504(sp2C);
+    playerPosition_func_80298504(sp2C);
     _player_getPosition(sp38);
     ml_vec3f_diff_copy(D_8037C268, sp38, sp2C);
     if (D_8037C204) {
@@ -401,7 +400,7 @@ void func_80294390(void) {
 
     sp1C = func_8029463C();
     if (sp1C != 0) {
-        if (func_803246B4(map_get(), ((s32*)sp1C)[2]) == 3) {
+        if (func_803246B4(gsworld_getMap(), ((s32*)sp1C)[2]) == 3) {
             func_80294384(4);
         }
         else{
@@ -443,7 +442,7 @@ s32 func_802944F4(void){
 }
 
 f32 floor_getCurrentFloorYPosition(void){
-     return func_8031C5E4(D_8037C200);
+     return floor_getYPosition(D_8037C200);
 }
 
 s32 func_80294524(void){
@@ -470,7 +469,7 @@ int func_80294560(void){
      return D_8037C280 == 3;
 }
 
-bool func_80294574(void){
+bool floor_isCurrentFloorunk59(void){
      return func_8031C594(D_8037C200);
 }
 

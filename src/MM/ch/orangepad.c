@@ -27,7 +27,7 @@ void __chorangepad_spawnJiggy(s32 x, s32 y, s32 z) {
     jiggy_spawn(JIGGY_8_MM_ORANGE_PADS, pos);
 }
 
-void func_80386444(ActorMarker *marker) {
+void handleOrangeCollision(ActorMarker *marker) {
     f32 distance_to_orange_pad;
     Actor *closest_orange_pad;
     f32 position[3];
@@ -51,20 +51,20 @@ void func_80386444(ActorMarker *marker) {
                     : (closest_orange_pad->secondaryId == 0x76)  ? 0xf
                     : 0xe;
 
-            func_802BAFE4(temp_a0);
+            gcStaticCamera_activate(temp_a0);
             position[1] += 50.0f;
             timedFunc_set_3(0.6f, (GenFunction_3) __chorangepad_spawnJiggy, (s32) position[0], (s32) position[1], (s32) position[2]);
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
 
             if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
-                gcdialog_showText(0xB3B, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(ASSET_B3B_DIALOG_CONGA_ORANGE_PAD_JIGGY, 4, NULL, NULL, NULL, NULL);
             }
         }// L803865D8
 
         // Emmit sparkles
         p_ctrl = partEmitMgr_newEmitter(30);
         particleEmitter_setPosition(p_ctrl, closest_orange_pad->position);
-        particleEmitter_setModel(p_ctrl, 0x89f);
+        particleEmitter_setModel(p_ctrl, ASSET_89F_MODEL_ORANGE_PARTICLE);
         particleEmitter_setStartingScaleRange(p_ctrl, 0.09f, 0.19f);
         particleEmitter_setFinalScaleRange(p_ctrl, 0.0f, 0.0f);
         particleEmitter_setParticleVelocityRange(p_ctrl, -200.0f, 500.0f, -200.0f, 200.0f, 700.0f, 200.0f);
@@ -79,8 +79,8 @@ void func_80386444(ActorMarker *marker) {
     }
 }
 
-void func_80386744(NodeProp *arg0, ActorMarker *arg1) {
-    func_80386444(arg1);
+void chOrangePad_handleOrangeCollision(NodeProp *arg0, ActorMarker *arg1) {
+    handleOrangeCollision(arg1);
 }
 
 void chorangepad_update(Actor *this) {
@@ -103,20 +103,20 @@ void chorangepad_update(Actor *this) {
         closest_actor = marker_getActor(this->partnerActor);
     }
 
-    if (func_80329530(this, 0x28) &&
+    if (subaddie_playerIsWithinSphereAndActive(this, 0x28) &&
         !player_movementGroup() &&
         !mapSpecificFlags_get(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS) &&
         closest_actor->state != 3) {
 
-        if (gcdialog_showText(0xb3d, 0, NULL, NULL, NULL, NULL)) {
+        if (gcdialog_showDialog(ASSET_B3D_DIALOG_CONGA_TOUCH_PAD, 0, NULL, NULL, NULL, NULL)) {
             mapSpecificFlags_set(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS, true);
         }
     }
 
     if (this->state == 1) {
         if (this->lifetime_value < 72.0f) {
-            func_8033E73C(this->marker, 5, func_80329904);
-            func_8033E3F0(9, this->marker->unk14_21);
+            commonParticle_add(this->marker, 5, func_80329904);
+            commonParticle_new(9, this->marker->unk14_21);
         }
 
         this->lifetime_value = MIN(255.0, this->lifetime_value + 7.0);

@@ -24,31 +24,31 @@ typedef struct chgrublin_s{
 
 void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 
-void func_80388A80(Actor *);
+void chGrublin_update(Actor *);
 
 /* .data */
 ActorAnimationInfo chGrublinAnimations[11] = {
     {0, 0.0f},
-    {ASSET_62_ANIM_GRUBLIN_IDLE, 4.0f},
-    {ASSET_62_ANIM_GRUBLIN_IDLE, 0.7f},
-    {ASSET_63_ANIM_GRUBLIN_WALK, 0.7f},
-    {ASSET_64_ANIM_GRUBLIN_JUMP, 0.9f},
+    {ASSET_62_ANIM_GRUBLIN_IDLE_WALK, 4.0f},
+    {ASSET_62_ANIM_GRUBLIN_IDLE_WALK, 0.7f},
+    {ASSET_63_ANIM_GRUBLIN_CHASE, 0.7f},
+    {ASSET_64_ANIM_GRUBLIN_ALERT, 0.9f},
     {ASSET_94_ANIM_GRUBLIN_DIE, 1.0f},
-    {ASSET_62_ANIM_GRUBLIN_IDLE, 1.5f},
-    {ASSET_63_ANIM_GRUBLIN_WALK, 0.5f},
-    {ASSET_62_ANIM_GRUBLIN_IDLE, 1.5f},
-    {ASSET_62_ANIM_GRUBLIN_IDLE, 1000000.0f},
-    {ASSET_62_ANIM_GRUBLIN_IDLE, 1000000.0f}
+    {ASSET_62_ANIM_GRUBLIN_IDLE_WALK, 1.5f},
+    {ASSET_63_ANIM_GRUBLIN_CHASE, 0.5f},
+    {ASSET_62_ANIM_GRUBLIN_IDLE_WALK, 1.5f},
+    {ASSET_62_ANIM_GRUBLIN_IDLE_WALK, 1000000.0f},
+    {ASSET_62_ANIM_GRUBLIN_IDLE_WALK, 1000000.0f}
 };
 
 ActorInfo chgrublinInfo = { MARKER_5_GRUBLIN, ACTOR_6_GRUBLIN, ASSET_3C5_MODEL_GRUBLIN,
     1, chGrublinAnimations,
-    func_80388A80, actor_update_func_80326224, actor_draw,
+    chGrublin_update, actor_update_func_80326224, actor_draw,
     2500, 0, 1.0f, 0
 };
 
 /* .code */
-void func_803889A0(ActorMarker *this, s32 arg1){
+void chGrublin_die(ActorMarker *this, s32 arg1){
     Actor *actorPtr;
 
     actorPtr = marker_getActor(this);
@@ -59,7 +59,7 @@ void func_803889A0(ActorMarker *this, s32 arg1){
     actor_collisionOff(actorPtr);
 }
 
-void func_80388A04(Actor *this){
+void chGrublin_initialize(Actor *this){
     ActorLocal_Grublin *local = (ActorLocal_Grublin *)&this->local;
     local->unk0 = 1.5f;
     local->unk4 = 2.3f;
@@ -72,15 +72,15 @@ void func_80388A04(Actor *this){
     local->unk12 = 25000;
     local->unkC_28 = 1;
     local->unk30 = 0;
-    local->unk34 = func_803889A0;
+    local->unk34 = chGrublin_die;
     local->unk14 = 1.0f;
 }
 
-void func_80388A80(Actor *this) {
+void chGrublin_update(Actor *this) {
     if (!this->volatile_initialized){
-        func_80388A04(this);
+        chGrublin_initialize(this);
     }
-    func_802DB5A0(this);
+    humanoidBaddie_update(this);
     if (this->state == 5) {
         if (actor_animationIsAt(this, 0.18f)) {
             sfx_playFadeShorthandDefault(SFX_2_CLAW_SWIPE, 1.0f, 28000, this->position, 1250, 2500);

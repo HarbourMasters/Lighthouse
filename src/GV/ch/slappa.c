@@ -3,10 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
-void func_8038B124(Actor *this);
+void chSlappa_update(Actor *this);
 
 /* .data */
-ActorAnimationInfo D_80391040[] ={
+ActorAnimationInfo chSlappaAnimations[] ={
     {0x00, 0.0f},
     {0xE9, 800000.0f},
     {0xE9, 0.8f},
@@ -21,8 +21,8 @@ ActorAnimationInfo D_80391040[] ={
 };
 
 ActorInfo D_80391098 = { MARKER_AD_SLAPPA, ACTOR_120_SLAPPA, ASSET_376_MODEL_SLAPPA, 
-    0x1, D_80391040, 
-    func_8038B124, actor_update_func_80326224, actor_draw, 
+    0x1, chSlappaAnimations, 
+    chSlappa_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.0f, 0
 };
 s32 D_803910BC[3] = {175, 100, 0};
@@ -38,7 +38,7 @@ f32 GV_D_80391A70[3];
 
 /* .code */
 void func_8038AB30(ParticleEmitter *pCtrl, f32 position[3], s32 cnt){
-    if(map_get() != MAP_1A_GV_INSIDE_JINXY)
+    if(gsworld_getMap() != MAP_1A_GV_INSIDE_JINXY)
         particleEmitter_setRGB(pCtrl, D_803910BC);
     else
         particleEmitter_setRGB(pCtrl, D_803910C8);
@@ -144,7 +144,7 @@ void func_8038B0BC(ActorMarker *this_marker, ActorMarker *other_marker){
 }
 
 
-void func_8038B124(Actor *this){
+void chSlappa_update(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         this->unk38_31 = 0;
@@ -185,7 +185,7 @@ void func_8038B124(Actor *this){
             }//L8038B33C
 
             if( this->unk1C[1] == 0.0 
-                && func_80329530(this, 0x320)
+                && subaddie_playerIsWithinSphereAndActive(this, 0x320)
                 && func_803292E0(this)
             ){
                 anctrl_setSmoothTransition(this->anctrl, 0);
@@ -208,7 +208,7 @@ void func_8038B124(Actor *this){
             break;
 
         case 2: //L8038B430
-            func_8030E2C4(this->unk44_31);
+            sfxSource_func_8030E2C4(this->unk44_31);
             if(0.98 < anctrl_getAnimTimer(this->anctrl)){
                 func_8038AF10(this);
             }
@@ -219,13 +219,13 @@ void func_8038B124(Actor *this){
             break;
 
         case 3: //L8038B494
-            func_8030E2C4(this->unk44_31);
-            if(func_80329530(this, 175)){
+            sfxSource_func_8030E2C4(this->unk44_31);
+            if(subaddie_playerIsWithinSphereAndActive(this, 175)){
                 subaddie_set_state_with_direction(this, 4, 0.00001f, 1);
                 actor_loopAnimation(this);
                 this->unk1C[0] = 1.0f;
             }
-            else if(!func_80329530(this, 1100) || !func_8038AF78(this, 8.0f, 16.0f)){
+            else if(!subaddie_playerIsWithinSphereAndActive(this, 1100) || !func_8038AF78(this, 8.0f, 16.0f)){
                 subaddie_set_state_with_direction(this, 8, 0.00001f, 1);
                 actor_playAnimationOnce(this);
                 this->unk1C[0] = 1.0f;

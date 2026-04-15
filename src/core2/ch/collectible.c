@@ -77,7 +77,7 @@ void func_802D8C98(Actor *this, s32 arg1) {
 
 bool chCollectible_collectItem(Actor* actor, enum file_progress_e arg1, enum asset_e dialogId, enum comusic_e sfxId, enum item_e itemId, f32 arg5){
     coMusicPlayer_playMusic(sfxId,32000);
-    timedFunc_set_1(0.75f, (GenFunction_1)func_8035644C, arg1);
+    timedFunc_set_1(0.75f, (GenFunction_1)progressDialog_showDialogMaskZero, arg1);
     if(!func_802FADD4(0x1b)){
         item_inc(itemId);
     } else {
@@ -96,7 +96,7 @@ s32 chCollectible_collectEgg(ActorProp *arg0){
     Actor *actPtr = NULL;
     if(arg0 != NULL){
         fxSparkle_blueEgg(&arg0->x);
-        if(arg0->unk8_0)
+        if(arg0->isActorProp)
             actPtr = marker_getActor(arg0->marker);
     }
     return chCollectible_collectItem(actPtr, FILEPROG_5_BLUE_EGG_TEXT, 0xD9E, COMUSIC_C_EGG_COLLECTED, 0xD, 2.0f);
@@ -105,7 +105,7 @@ s32 chCollectible_collectEgg(ActorProp *arg0){
 bool chCollectible_collectRedFeather(ActorProp *arg0){
     Actor *actPtr = NULL;
     fxSparkle_redFeather(&arg0->x);
-    if(arg0->unk8_0)
+    if(arg0->isActorProp)
         actPtr = marker_getActor(arg0->marker);
     return chCollectible_collectItem(actPtr, FILEPROG_6_RED_FEATHER_TEXT, 0xD9F, COMUSIC_B_RED_FEATHER_COLLECTED, 0xF, 4.0f);
 }
@@ -113,7 +113,7 @@ bool chCollectible_collectRedFeather(ActorProp *arg0){
 bool chCollectible_collectGoldFeather(ActorProp *arg0){
     Actor *actPtr = NULL;
     fxSparkle_goldFeather(&arg0->x);
-    if(arg0->unk8_0)
+    if(arg0->isActorProp)
         actPtr = marker_getActor(arg0->marker);
     return chCollectible_collectItem(actPtr, FILEPROG_7_GOLD_FEATHER_TEXT, 0xDA0, COMUSIC_14_GOLD_FEATHER_COLLECTED, ITEM_10_GOLD_FEATHER, 6.0f);
 }
@@ -130,7 +130,7 @@ Actor *chCollectible_draw(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3){
                 actor_setOpacity(thisActor, thisActor->actor_specific_1_f);
             }
         }
-        return func_80325934(this, gdl, mptr, arg3);
+        return fxTouchSparkle_draw(this, gdl, mptr, arg3);
     }
     return thisActor;
 }
@@ -146,7 +146,7 @@ void chCollectible_update(Actor *this) {
             suSetSpriteScale(this, 0.56f);
         }
         this->unk10_12 = -1;
-        this->unk38_0 = (map_get() == MAP_90_GL_BATTLEMENTS);
+        this->unk38_0 = (gsworld_getMap() == MAP_90_GL_BATTLEMENTS);
         this->actor_specific_1_f = this->unk38_0 ? 0.0f : 255.0f;
         this->initialized = true;
     }

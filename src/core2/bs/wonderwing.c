@@ -46,7 +46,7 @@ static void __bsbwhirl_end(void){
 }
 
 static void __bsbwhirl_spawnSparkle(void){
-    func_8033E3F0(2,1);
+    commonParticle_new(2,1);
 }
 
 enum bs_e func_802AA510(enum bs_e arg0){
@@ -294,7 +294,7 @@ void func_802AAE08(void){
     enum bs_e sp1C =0;
     __bsbwhirl_spawnSparkle();
     func_8029C6D0();
-    if(!func_80298850())
+    if(!balookat_getState())
         sp1C = BS_1B_WONDERWING_IDLE;
     
     bs_setState(sp1C);

@@ -9,7 +9,7 @@
 #include "bk_time.h"
 
 extern void func_80344090(BKSpriteDisplayData *self, s32 frame, Gfx **gfx);
-BKSprite *func_8033B6C4(enum asset_e sprite_id, BKSpriteDisplayData **arg1);
+BKSprite *codeB3A80_getSprite(enum asset_e sprite_id, BKSpriteDisplayData **arg1);
 
 typedef struct struct_18_s{
     s16 sfx_id; /* enum sfx_e */
@@ -427,7 +427,7 @@ s32 D_8036D924[] = { 70, 35, 18, 9, 4, 2, 1};
 char D_803830B0[0x30];
 
 void sfxsource_freeSfxsourceByIndex(u8);
-void func_80338338(s32, s32, s32);
+void codeAEDA0_setPrimaryColorRGB(s32, s32, s32);
 void func_803382FC(s32);
 
 /* .code */
@@ -550,7 +550,7 @@ void func_803155C8(GcZoombox *this){
         if(this->sfx_count){
             for(i = 0; i < 5; i++){
                 if(func_8030E3FC(this->unk108[i])){
-                    sfxSource_func_8030E2C4(this->unk108[i]);
+                    sfxSource_triggerCallbackByIndex(this->unk108[i]);
                 }
             }
         }
@@ -713,7 +713,7 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
             
             for(phi_s1 = 0; phi_s1 < 5; phi_s1++){
                 if (func_8030E3FC(this->unk108[phi_s1])) {
-                    sfxSource_func_8030E2C4(this->unk108[phi_s1]);
+                    sfxSource_triggerCallbackByIndex(this->unk108[phi_s1]);
                 }
             }
             if (this->sfx_count != 1) {
@@ -758,7 +758,7 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
             phi_a0 = (this->unk124[current_sfx] - phi_s1_3 < 0)? 0 : this->unk124[current_sfx] - phi_s1_3;
             phi_a1 = (this->unk124[current_sfx] - phi_s2 < 0)  ? 0 : this->unk124[current_sfx] - phi_s2;
             sfxsource_setSampleRate(this->unk108[current_sfx], randi2(phi_a0, phi_a1));
-            func_8030E2C4(this->unk108[current_sfx]);
+            sfxSource_func_8030E2C4(this->unk108[current_sfx]);
         }
     }
 }
@@ -796,10 +796,10 @@ void gczoombox_func_803160A8(GcZoombox *this) {
 }
 
 void func_803162B4(GcZoombox *this){
-     func_802F7B90(this->unk168, this->unk168, this->unk168);
+     text_setNormalTextColor(this->unk168, this->unk168, this->unk168);
      if(this->unk1A4_30){
           if(this->unk1A4_17){
-               func_802F79D0(this->unk16A, this->unk16C, this->unk0, this->unk166, -1);
+               print_dialog_gradient2(this->unk16A, this->unk16C, this->unk0, this->unk166, -1);
           }
           else if(this->unk1A4_15){
                print_bold_spaced(this->unk16A, this->unk16C, this->unk0);
@@ -814,7 +814,7 @@ void func_803162B4(GcZoombox *this){
                print_dialog(this->unk16A, this->unk16E, this->unk30);
           }
      }
-     func_802F7B90(0xff, 0xff, 0xff);
+     text_setNormalTextColor(0xff, 0xff, 0xff);
 }
 
 void func_803163A8(GcZoombox *this, Gfx **gfx, Mtx **mtx) {
@@ -846,10 +846,10 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     if (this->portrait_id == ZOOMBOX_SPRITE_46_TUMBLAR) {
         arg6 = 0.75f;
     }
-    func_80338338(0xFF, 0xFF, 0xFF);
+    codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     func_803382FC(this->unk168 * arg6);
-    func_803382E4(5);
-    func_80335D30(gfx);
+    codeAEDA0_setSpriteDrawMode(5);
+    codeAEDA0_postDrawSprite(gfx);
     viewport_setRenderViewportAndOrthoMatrix(gfx, mtx);
     mlMtxIdent();
     if (this->unk1A4_24) {
@@ -867,7 +867,7 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_LOAD | G_MTX_MODELVIEW);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     func_80344090(arg5, this->unk186, gfx);
-    func_8033687C(gfx);
+    codeAEDA0_drawSprite(gfx);
     viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
 }
 
@@ -878,7 +878,7 @@ void func_80316764(GcZoombox *this, s32 arg1) {
 
     if (!this->unk1A4_10 ) {
         controller_copyFaceButtons(0, sp38);
-        func_8024E60C(0, sp2C);
+        controller_copySideButtons(0, sp2C);
         phi_f0 = time_getDelta();
     } else {
         pfsManager_getFirstControllerFaceButtonState(0, sp38);
@@ -1064,7 +1064,7 @@ void gczoombox_update(GcZoombox *this){
 
      if( !this->unk1A4_10 ){
           controller_copyFaceButtons(0, sp58);
-          func_8024E60C(0, sp4C);
+          controller_copySideButtons(0, sp4C);
           tmp_f0 = time_getDelta();
      }
      else{
@@ -1337,9 +1337,9 @@ void gczoombox_update(GcZoombox *this){
 }
 
 void __gczoombox_load_sprite(GcZoombox *this, GcZoomboxSprite portrait_id){
-     this->unkF8 = func_8033B6C4(D_8036C6C0[portrait_id].spite_id, &this->unkFC);
+     this->unkF8 = codeB3A80_getSprite(D_8036C6C0[portrait_id].spite_id, &this->unkFC);
      this->frame_count = this->unkF8->frameCnt;
-     func_803382E4(-1);
+     codeAEDA0_setSpriteDrawMode(-1);
      
      func_80338308(sprite_getUnk8(this->unkF8), sprite_getUnkA(this->unkF8));
 }

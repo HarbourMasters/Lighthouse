@@ -26,39 +26,39 @@ void ability_use(s32 arg0){
     switch(arg0){
         case ABILITY_USED_JUMP:
             // [port] guard with SM check — flags collide with map-specific usage in other worlds (e.g. BGS switches)
-            if (map_get() == MAP_1_SM_SPIRAL_MOUNTAIN)
+            if (gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN)
                 mapSpecificFlags_set(8, true);
             sp28 = 1;
             break;
         case ABILITY_USED_FLAP:
-            if (map_get() == MAP_1_SM_SPIRAL_MOUNTAIN)
+            if (gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN)
                 mapSpecificFlags_set(9, true);
             sp28 = 1;
             break;
         case ABILITY_USED_FLIP:
-            if (map_get() == MAP_1_SM_SPIRAL_MOUNTAIN)
+            if (gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN)
                 mapSpecificFlags_set(0xa, true);
             sp28 = 1;
             break;
         case ABILITY_USED_SWIM:
-            if(map_get() == MAP_1_SM_SPIRAL_MOUNTAIN){
+            if(gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN){
                 sp2C = ASSET_DFC_BOTTLES_UNDERWATER_TUTORIAL;
             }
             break;
         case ABILITY_USED_CLIMB:
-            if(map_get() == MAP_1_SM_SPIRAL_MOUNTAIN){
+            if(gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN){
                 sp2C = ASSET_E02_DIALOG_BOTTLES_CLIMB_OTHER;
             }
             break;
         case ABILITY_USED_BEAK_BARGE:
-            if(map_get() == MAP_1_SM_SPIRAL_MOUNTAIN){
+            if(gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN){
                 sp2C = ASSET_E05_DIALOG_BOTTLES_KAZOOIE_BARGE;
             }
             break;
         case ABILITY_USED_SLIDE:
             sp28 = 0;
             if (!ability_isUnlocked(ABILITY_10_TALON_TROT)) {
-                if (map_get() == MAP_2_MM_MUMBOS_MOUNTAIN) {
+                if (gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN) {
                     sp2C = ASSET_B4D_DIALOG_BOTTLES_MM_SLIP_ON_HILL;
                 }
                 else {
@@ -82,7 +82,7 @@ void ability_use(s32 arg0){
     }
 
     if (sp2C) {
-        gcdialog_showText(sp2C, 4, NULL, NULL, NULL, 0);
+        gcdialog_showDialog(sp2C, 4, NULL, NULL, NULL, 0);
     }
 
     abilityprogress_usedAbilities |= (1 << arg0);

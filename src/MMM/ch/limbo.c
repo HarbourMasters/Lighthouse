@@ -2,34 +2,10 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "actor.h"
 
-extern void func_802DB4E0(ActorMarker *, s32);
+extern void humanoidBaddie_enterInvulnerableState(ActorMarker *, s32);
 extern void func_802DABA0(ParticleEmitter *pCtrl, f32 position[3], f32 scale, enum asset_e model_id);
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    u32 unkC_31:3;
-    u32 unkC_28:1;
-    u32 padC_27:28;
-    s16 unk10;
-    s16 unk12;
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-    s16 unk1E;
-    f32 unk20;
-    f32 unk24;
-    s16 unk28;
-    s16 unk2A;
-    f32 unk2C;
-    void (*unk30)(ActorMarker *, s32);
-    void (*unk34)(ActorMarker *, s32);
-}ActorLocal_Skeleton;
 
 void chskeleton_update(Actor *this);
 
@@ -79,9 +55,9 @@ void chskeleton_despawn(ActorMarker *marker, s32 arg1) {
 }
 
 static void _chskeleton_init(Actor *this) {
-    ActorLocal_Skeleton *local;
+    Humanoid_Baddies_Actor *local;
 
-    local = (ActorLocal_Skeleton *)&this->local;
+    local = (Humanoid_Baddies_Actor *)&this->local;
 
     local->unk0 = 3.0f;
     local->unk4 = 6.0f;
@@ -89,21 +65,21 @@ static void _chskeleton_init(Actor *this) {
     local->unk9 = 8;
     local->unkA = 0xA;
     local->unkB = 7;
-    local->unkC_31 = 1;
-    local->unk10 = 0x10C;
-    local->unk12 = 20000;
-    local->unk14 = 1.7f;
-    local->unk18 = 0.2f;
-    local->unk1C = 0x117;
-    local->unk1E = 32000;
-    local->unk20 = 1.0f;
-    local->unk24 = 0.35f;
-    local->unk28 = 0x118;
-    local->unk2A = 32000;
-    local->unk2C = 1.0f;
+    local->yaw = 1;
+    local->foundPlayerSfx = 0x10C;
+    local->foundPlayerSampleRate = 20000;
+    local->foundPlayerVolume = 1.7f;
+    local->enterInvulnerableStateAnimationTimer = 0.2f;
+    local->enterInvulnerableStateSfx = 0x117;
+    local->enterInvulnerableStateSampleRate = 32000;
+    local->enterInvulnerableStateVolume = 1.0f;
+    local->exitInvulnerableStateAnimationTimer = 0.35f;
+    local->exitInvulnerableStateSfx = 0x118;
+    local->exitInvulnerableStateSampleRate = 32000;
+    local->exitInvulnerableStateVolume = 1.0f;
     local->unkC_28 = true;
-    local->unk30 = func_802DB4E0;
-    local->unk34 = chskeleton_despawn;
+    local->hitFunction = humanoidBaddie_enterInvulnerableState;
+    local->dieFunction = chskeleton_despawn;
 
 }
 
@@ -111,5 +87,5 @@ void chskeleton_update(Actor *this){
     if(!this->volatile_initialized){
         _chskeleton_init(this);
     }
-    func_802DB5A0(this);
+    humanoidBaddie_update(this);
 }

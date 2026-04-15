@@ -5,10 +5,10 @@
 #include "core2/quiz_storage.h"
 
 extern void func_8030DBFC(u32, f32, f32, f32);
-extern bool func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
+extern BKCollisionTri * func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
 extern void sfxsource_set_fade_distances(u8, f32, f32);
 extern void sfxsource_set_position(u8, f32[3]);
-extern void func_8030E2C4(u8);
+extern void sfxSource_func_8030E2C4(u8);
 extern void sfxsource_setSampleRate(u8, s32);
 
 typedef struct{
@@ -45,7 +45,7 @@ ActorInfo D_80367310 = {
     0, 0, 1.0f, 0
 }; 
 
-extern s32 D_8037DCBC;
+extern s32 mmhut_smashCount;
 
 /* .code */
 void func_802CEB60(Actor *this){
@@ -71,7 +71,7 @@ void chBeeSwarm_802CEBA8(Actor *this){
     assetcache_release(local->unk20);
     local->unk20 = NULL;
 
-    D_8037DCBC = 0;
+    mmhut_smashCount = 0;
 }
 
 Actor *chBeeSwarm_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
@@ -244,7 +244,7 @@ void chBeeSwarm_802CF434(Actor *this) {
 
 void chBeeSwarm_802CF518(Actor *this) {
     if( func_803292E0(this) 
-        && func_80329530(this, 900) 
+        && subaddie_playerIsWithinSphereAndActive(this, 900) 
         && player_getWaterState() == BSWATERGROUP_0_NONE 
         && player_getTransformation() != TRANSFORM_6_BEE
     ) {
@@ -256,7 +256,7 @@ void chBeeSwarm_802CF57C(Actor *this) {
     ActorLocal_core2_47BD0 *local;
 
     local = (ActorLocal_core2_47BD0 *) &this->local;
-    if (!func_803292E0(this) || !func_80329530(this, 900) || player_getWaterState() != BSWATERGROUP_0_NONE) {
+    if (!func_803292E0(this) || !subaddie_playerIsWithinSphereAndActive(this, 900) || player_getWaterState() != BSWATERGROUP_0_NONE) {
         subaddie_set_state(this, 5);
         func_802CEF54(this, local->unkC, 100.0f);
     }
@@ -293,12 +293,12 @@ void chBeeSwarm_802CF610(Actor *this, ParticleEmitter *p_ctrl, f32 position[3]) 
 }
 
 void chBeeSwarm_802CF7CC(Actor *this) {
-    if (D_8037DCBC == 0) {
+    if (mmhut_smashCount == 0) {
         this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
         sfxsource_setSfxId(this->unk44_31, SFX_3FA_HONEYCOMB_TALKING);
         sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
         func_8030DD90(this->unk44_31, 2);
-        D_8037DCBC = 1;
+        mmhut_smashCount = 1;
     }
 }
 
@@ -385,10 +385,10 @@ void chBeeSwarm_update(Actor *this) {
         if ((u8)this->unk44_31 != 0) {
             sfxsource_freeSfxsourceByIndex(this->unk44_31);
             this->unk44_31 = 0;
-            D_8037DCBC = 0;
+            mmhut_smashCount = 0;
         }
     }
-    if (map_get() == MAP_27_FP_FREEZEEZY_PEAK) {
+    if (gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK) {
         if (maSlalom_isActive()) {
             this->unk58_0 = false;
             return;
@@ -418,7 +418,7 @@ void chBeeSwarm_update(Actor *this) {
         }
         chBeeSwarm_802CF1C8(this->unk1C, this->position, this->velocity, this->actor_specific_1_f, 100.0f, 0, spA0);
     }
-    if (map_get() == MAP_78_GL_RBB_AND_MMM_PUZZLE) {
+    if (gsworld_getMap() == MAP_78_GL_RBB_AND_MMM_PUZZLE) {
         if (this->unk38_31++ == 0x1E) {
             this->unk38_31 = 0;
             next_position[0] = this->position[0];
@@ -446,7 +446,7 @@ void chBeeSwarm_update(Actor *this) {
         if (!fileProgressFlag_get(FILEPROG_8F_MET_BEE_INFESTED_BEEHIVE) && subaddie_playerIsWithinCylinder(this, 250, 300) 
             && ((player_movementGroup() == BSGROUP_0_NONE) || (player_movementGroup() == BSGROUP_8_TROT)) 
             && (player_getTransformation() == TRANSFORM_1_BANJO) 
-            && (gcdialog_showText(0xDA6, 0, NULL, NULL, NULL, NULL) != 0)
+            && (gcdialog_showDialog(0xDA6, 0, NULL, NULL, NULL, NULL) != 0)
         ) {
             fileProgressFlag_set(FILEPROG_8F_MET_BEE_INFESTED_BEEHIVE, true);
         }
@@ -479,7 +479,7 @@ void chBeeSwarm_update(Actor *this) {
         spB4[1] += 50.0f;
         this->lifetime_value += dt;
         if ((this->lifetime_value - 0.5 > 0.0) && (local->unk0 > 0) && (player_movementGroup() != BSGROUP_3_WONDERWING)) {
-            func_8028F504(0xD);
+            player_checkHazardInterrupt(0xD);
             this->lifetime_value -= 0.5;
         }
         if ((this->lifetime_value > 0.2) && (player_movementGroup() == BSGROUP_3_WONDERWING)) {
@@ -532,7 +532,7 @@ void chBeeSwarm_update(Actor *this) {
         chBeeSwarm_802CF434(this);
     }
     local->unk5 = 0;
-    if ((local->unk0 > 0) && func_80329530(this, 1500) && !this->unk38_0) {
+    if ((local->unk0 > 0) && subaddie_playerIsWithinSphereAndActive(this, 1500) && !this->unk38_0) {
         if (this->unk44_31 == 0) {
             chBeeSwarm_802CF7CC(this);
         }
@@ -544,7 +544,7 @@ void chBeeSwarm_update(Actor *this) {
             );
             sfxsource_set_fade_distances(this->unk44_31, 500.0f, 1500.0f);
             sfxsource_set_position(this->unk44_31, this->position);
-            func_8030E2C4(this->unk44_31);
+            sfxSource_func_8030E2C4(this->unk44_31);
             sfxsource_setSampleRate(this->unk44_31, (s32)(((gu_sqrtf(this->velocity[0] * this->velocity[0] + this->velocity[1] * this->velocity[1] + this->velocity[2] * this->velocity[2]) / this->actor_specific_1_f) * 8000.0f) + 2000.0f));
         }
     }

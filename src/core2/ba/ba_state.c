@@ -186,7 +186,7 @@ void func_80295914(void){
     D_80363820 = 1;
     D_8037C3B0 = NULL;
     update_void_return_Location();
-    func_802983F0();
+    playerPosition_init();
     snackerctl_reset();
     func_80291910();
     badrone_init();
@@ -199,13 +199,13 @@ void func_80295914(void){
     bainput_reset();
     bsList_clearAll();
     bs_clearState();
-    func_80295DD0();
+    babounds_init();
     func_80296C30();
     baphysics_init();
-    func_80297C78();
+    baiFrame_reset();
     pitch_reset();
     climbClear();
-    func_8029887C();
+    balookat_init();
     roll_reset();
     func_802992F0();
     func_80294DD8();
@@ -225,7 +225,7 @@ void func_80295914(void){
     basfx_reset();
     func_8029A4D0();
     func_8029ADCC();
-    func_8029D01C();
+    hazards_reset();
     func_802958A0();
 }
 
@@ -268,7 +268,7 @@ void func_80295B04(void){
     basfx_free();
     func_8029A54C();
     func_8029ADA8();
-    func_8029CFF8();
+    freeHazardSfxId();
     D_80363820 = 0;
 }
 
@@ -278,7 +278,7 @@ void func_80295C08(void (* arg0)(void)){
 
 void func_80295C14(void){
     func_802964B8();
-    func_80298A84();
+    balookat_update();
     stateTimer_update();
     func_8029E100();
     pfsManager_update();//controller_update
@@ -288,7 +288,7 @@ void func_80295C14(void){
     bainput_update(); //dive_cooldown_update
     bs_updateState();
     baphysics_update();
-    func_8029858C();
+    playerPosition_applyOffset();
     bafalldamage_update();
     func_80293F0C();
     pitch_update();
@@ -302,13 +302,13 @@ void func_80295C14(void){
     eggShatter_update();
     baeyes_update();
     baModel_update();
-    func_8029842C();
+    playerPosition_func_8029842C();
     baMarker_update();
     bacarry_update();
     snackerctl_update();
     func_8028B71C();
-    func_8029D968();
-    func_80297CF8();
+    hazards_update();
+    baiFrame_update();
     func_80294E60();
     cameraMode_update();
     func_802919A0();
@@ -317,7 +317,7 @@ void func_80295C14(void){
         D_8037C3B0 = NULL;
     }
     basfx_update();
-    func_80295E74();//voidOut_update
+    babounds_update();//voidOut_update
 }
 
 void func_80295D74(void){

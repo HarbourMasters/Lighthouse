@@ -179,7 +179,7 @@ void viMgr_func_8024BFD8(s32 arg0){
     static s32 D_80280E90;
     
     osSetThreadPri(NULL, 0x7f);
-    defragManager_setPriority(0x1E);
+    defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY_HIGH);
     defragManager_80240874();
     if(arg0){
         osRecvMesg(&sMesgQueue2, NULL, OS_MESG_BLOCK);
@@ -203,7 +203,7 @@ void viMgr_func_8024BFD8(s32 arg0){
     D_802808D8 = 0;
     defragManager_802408B0();
     osSetThreadPri(NULL, 0x14);
-    defragManager_setPriority(0xA);
+    defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY);
 #endif
 }
 
@@ -241,7 +241,7 @@ void viMgr_entry(void *arg0){
         D_802808D8++;
         if(D_802808D8 == 420){
 #if VERSION == VERSION_USA_1_0
-            func_802485BC();
+            gcdebugText_isThreadLocked();
 #endif
         }
         osSendMesgPtr(&sMesgQueue3, NULL, OS_MESG_NOBLOCK);

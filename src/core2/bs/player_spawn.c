@@ -358,7 +358,7 @@ void func_8029B890(void){
             func_8029B62C();
             return;
         }
-        gcdialog_showText(0xf81, 7, NULL, NULL, func_8029B85C, NULL);
+        gcdialog_showDialog(0xf81, 7, NULL, NULL, func_8029B85C, NULL);
         fileProgressFlag_set(FILEPROG_A8_HAS_DIED, true);
     }
     else{
@@ -616,7 +616,7 @@ void func_8029C0D0(void) {
     ParticleEmitter *p_ctrl;
     f32 sp34;
 
-    if (func_80294574()) {
+    if (floor_isCurrentFloorunk59()) {
         _player_getPosition(sp3C);
         sp3C[1] = sp34 = floor_getCurrentFloorYPosition();
         p_ctrl = func_802F4094(sp3C, 35.0f);
@@ -637,7 +637,7 @@ void func_8029C0D0(void) {
 
 void func_8029C22C(void) {
 
-    if(func_80294574() && floor_getCurrentFloorYPosition() > player_getYPosition())
+    if(floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > player_getYPosition())
         return;
 
     D_80364620 = D_80364620 ? false : true;
@@ -696,7 +696,7 @@ void func_8029C4E4(bool arg0) {
     f32 sp38;
     ParticleEmitter *sp34;
 
-    if (func_80294574()) {
+    if (floor_isCurrentFloorunk59()) {
         if (arg0) {
             baModel_80292260(sp3C);
         } else {
@@ -723,8 +723,8 @@ void update_void_return_Location(void) {
 
     level_id = level_get();
     if ((level_id == 0) || (level_id == LEVEL_6_LAIR)) {
-        map_id = map_get();
-        exit_id = exit_get();
+        map_id = gsworld_getMap();
+        exit_id = gsworld_getExit();
     } else {
         map_id = level_get_main_map(level_id);
         exit_id = level_get_main_exit(level_id);
@@ -737,7 +737,7 @@ void func_8029C674(void) {
     f32 sp1C[3];
 
     D_8037D1E8 = false;
-    if (func_80298850() == BSGROUP_4_LOOK) {
+    if (balookat_getState() == BSGROUP_4_LOOK) {
         D_8037D1E8 = true;
         baflag_set(BA_FLAG_17_FIRST_PERSON_VIEW);
         ncDynamicCamera_enterFirstPerson();
@@ -752,11 +752,11 @@ void func_8029C6D0(void) {
     f32 sp24[3];
     f32 sp18[3];
 
-    if (func_80298850() == 4 && D_8037D1E8) {
+    if (balookat_getState() == 4 && D_8037D1E8) {
         func_8028E9C4(5, sp18);
         ncFirstPersonCamera_setZoomedOutPosition(sp18);
         func_8028E9C4(5, sp30);
-        func_80298800(sp24);
+        balookat_try_get_position(sp24);
         func_802BC434(sp3C, sp24, sp30);
         ncFirstPersonCamera_setZoomedOutRotation(sp3C);
     }
@@ -789,7 +789,7 @@ void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3){
     baphysics_set_type(arg3);
 }
 
-void func_8029C834(enum map_e map_id, s32 exit_id){
+void code_14420_setVoidOutLocation(enum map_e map_id, s32 exit_id){
     gVoidOutReturnLocation[0] = map_id;
     gVoidOutReturnLocation[1] = exit_id;
 }

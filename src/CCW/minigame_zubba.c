@@ -46,9 +46,9 @@ void func_803865F4(Actor *this, s32 next_state) {
     local->unkC = 0.0f;
     if (next_state == 2) {
         if (!volatileFlag_getAndSet(VOLATILE_FLAG_B5, 1)) {
-            gcdialog_showText(0xCE2, 4, NULL, this->marker, func_803865C4, NULL);
+            gcdialog_showDialog(0xCE2, 4, NULL, this->marker, func_803865C4, NULL);
         } else {
-            gcdialog_showText(0xCE3, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(0xCE3, 4, NULL, NULL, NULL, NULL);
             func_803865F4(this, 3);
             return;
         }
@@ -66,7 +66,7 @@ void func_803865F4(Actor *this, s32 next_state) {
             volatileFlag_set(VOLATILE_FLAG_3, 0);
             volatileFlag_set(VOLATILE_FLAG_5_FF_MINIGAME_WON, 1);
         } else {
-            gcdialog_showText(0xCE4, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(0xCE4, 4, NULL, NULL, NULL, NULL);
             func_8025A58C(-1, 400);
             comusic_8025AB44(COMUSIC_4B_CCW_ZUBBA_FIGHT, 0, 400);
             func_8025AABC(COMUSIC_4B_CCW_ZUBBA_FIGHT);
@@ -206,7 +206,7 @@ void func_8038687C(Actor *this) {
             item_set(ITEM_6_HOURGLASS, 1);
             item_set(ITEM_0_HOURGLASS_TIMER, 1800 - 1);
             func_803865F4(this, 3);
-        } else if ((local->unk0 != NULL) && (map_get() == MAP_5A_CCW_SUMMER_ZUBBA_HIVE)) {
+        } else if ((local->unk0 != NULL) && (gsworld_getMap() == MAP_5A_CCW_SUMMER_ZUBBA_HIVE)) {
             player_getPosition(sp40);
             if ((ml_vec3f_distance(this->position, sp40) < 300.0f) && (player_getTransformation() == TRANSFORM_1_BANJO)) {
                 func_803865F4(this, 2);

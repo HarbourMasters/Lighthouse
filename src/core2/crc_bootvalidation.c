@@ -27,8 +27,8 @@ s32 D_80372804 = 0;
 s32 D_80372808 = 0;
 
 // init bk_boot crc
-void func_80356580(void) {
-#if 0
+void codeCF5F0_initChecksumsVars(void) {
+#if ANTI_TAMPER
     D_803727FC = (s32) boot_bk_boot_ROM_START;
     D_80372800 = 0;
     D_80372804 = -1;
@@ -37,9 +37,9 @@ void func_80356580(void) {
 }
 
 // advance bk_boot crc by one word
-s32 func_803565BC(void) {
+s32 codeCF5F0_areChecksumsValid(void) {
     // Lighthouse TODO what should this actually return?
-#if 0
+#if ANTI_TAMPER
     u32 crc1;
     u32 crc2;
     u8 romBytes[4];
@@ -81,12 +81,12 @@ s32 func_803565BC(void) {
 }
 
 void func_80356714(void) {
-    func_80356580();
+    codeCF5F0_initChecksumsVars();
 }
 
-void func_80356734(void) {
-    func_803565BC();
-    if (func_803565BC() == 0) {
+void codeCF5F0_forgetAllAbilitiesExceptClawSwipeIfChecksumsFail(void) {
+    codeCF5F0_areChecksumsValid();
+    if (codeCF5F0_areChecksumsValid() == 0) {
         ability_setAllLearned(0x10);
     }
 }

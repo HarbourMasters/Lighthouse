@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "port/patches/Patches.h"
 
-extern void func_8025A6CC(enum comusic_e arg0, s32 arg1);
+extern void coMusicPlayer_playMusicWeak(enum comusic_e arg0, s32 arg1);
 extern void chBottlesBonusCursor_func_802DF99C(void);
 extern f32 *chBottlesBonusCursor_func_802E05AC(s32);
 extern f32  func_802E4B38(void);
@@ -25,7 +25,7 @@ extern u8 D_8037DCC8;
 extern u8 D_8037DCC9;
 extern u8 D_8037DCCA;
 extern u8 D_8037DCCB;
-extern u8 D_8037DCCC;
+extern u8 chBottleBonusPuzzleIndex;
 
 typedef struct {
     f32 unk0;
@@ -115,7 +115,7 @@ f32 D_8037DF18[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
 s32 chBottlesBonusPuzzleIndex;
 f32 D_8037DF70[3];
 f32 D_8037DF80[3];
-s32 D_8037DF90[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
+s32 gCompletedBottleBonusGames[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
 
 /* .code */
 void chBottlesBonus_func_802DD080(Gfx **gfx, Mtx **mtx) {
@@ -400,7 +400,7 @@ void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id) {
 
     actor = marker_getActor(chBottlesBonusMarker);
     chBottlesBonusCursor_lose();
-    func_8025A6CC(COMUSIC_3C_MINIGAME_LOSS, 28000);
+    coMusicPlayer_playMusicWeak(COMUSIC_3C_MINIGAME_LOSS, 28000);
     actor->state = 5;
     item_set(ITEM_6_HOURGLASS, false);
     func_802FAD64(0);
@@ -408,7 +408,7 @@ void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id) {
         *arg0 = 1;
         timedFunc_set_0(2.0f, chBottlesBonusCursor_func_802DF99C);
         func_80311714(0);
-        gcdialog_showText(text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_func_802DE224, NULL);
+        gcdialog_showDialog(text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_func_802DE224, NULL);
         func_80311714(1);
     }
     else{
@@ -427,7 +427,7 @@ void chBottlesBonus_completedPuzzle(void) {
     actor = marker_getActor(chBottlesBonusMarker);
     gCompletedBottlesBonusGames[chBottlesBonusPuzzleIndex] = true;
     func_80311714(0);
-    gcdialog_showText(D_803681A0[chBottlesBonusPuzzleIndex + 1].text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_IncrementPuzzle, NULL);
+    gcdialog_showDialog(D_803681A0[chBottlesBonusPuzzleIndex + 1].text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_IncrementPuzzle, NULL);
     func_80311714(1);
 }
 
@@ -486,15 +486,15 @@ void chBottlesBonus_update(Actor *this) {
     sp48 = chBottlesBonusCursor_func_802E06B4() - 1;
     cursor_state = chBottlesBonusCursor_getState();
     for(phi_s0_2 = 0; phi_s0_2 < CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT; phi_s0_2++){
-        sp40 = D_8037DF90[phi_s0_2];
+        sp40 = gCompletedBottleBonusGames[phi_s0_2];
         temp_v0_2 = &func_8034C2C4(this->marker, phi_s0_2 + 0x190)->type_6D;
         if ((phi_s0_2 == sp48) && (cursor_state == 1) && !chBottlesBonusCursor_func_802E0538(phi_s0_2)) {
-            D_8037DF90[phi_s0_2] = true;
+            gCompletedBottleBonusGames[phi_s0_2] = true;
         } else {
-            D_8037DF90[phi_s0_2] = false;
+            gCompletedBottleBonusGames[phi_s0_2] = false;
         }
-        if (sp40 != D_8037DF90[phi_s0_2]) {
-            switch(D_8037DF90[phi_s0_2]){
+        if (sp40 != gCompletedBottleBonusGames[phi_s0_2]) {
+            switch(gCompletedBottleBonusGames[phi_s0_2]){
                 case true:
                     func_8034DFB0(temp_v0_2, D_803682A4, D_803682B4, 0.1f);
                     break;
@@ -524,7 +524,7 @@ void chBottlesBonus_update(Actor *this) {
                 func_8025A7DC(COMUSIC_98_BBONUS_PIECES_SHUFFLE);
                 if (D_8037DCC7 == 0) {
                     func_80311714(0);
-                    gcdialog_showText(ASSET_E24_DIALOG_UNKNOWN, 0x87, this->position, chBottlesBonusMarker, chBottlesBonus_startTimer, NULL);
+                    gcdialog_showDialog(ASSET_E24_DIALOG_UNKNOWN, 0x87, this->position, chBottlesBonusMarker, chBottlesBonus_startTimer, NULL);
                     func_80311714(1);
                     D_8037DCC7 = 1;
                 }
@@ -610,7 +610,7 @@ void chBottlesBonus_func_802DEB80(void) {
     D_8037DCC9 = 0;
     D_8037DCCA = 0;
     D_8037DCCB = 0;
-    D_8037DCCC = 0;
+    chBottleBonusPuzzleIndex = 0;
 
     chBottlesBonusPuzzleIndex = 0;
 }

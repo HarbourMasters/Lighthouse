@@ -86,7 +86,7 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
         }
 
         if (!levelSpecificFlags_get(LEVEL_FLAG_16_GV_UNKNOWN)) {
-            gcdialog_showText(ASSET_A82_DIALOG_SANDYBUTT_START_MAZE, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_A82_DIALOG_SANDYBUTT_START_MAZE, 4, NULL, NULL, NULL, NULL);
             levelSpecificFlags_set(LEVEL_FLAG_16_GV_UNKNOWN, true);
         }
     }//L8038F794
@@ -136,7 +136,7 @@ void __chMazeCtrl_setState(Actor *this, s32 next_state){
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
         
         if(!levelSpecificFlags_get(LEVEL_FLAG_17_GV_UNKNOWN)){
-            gcdialog_showText(ASSET_A83_DIALOG_SANDYBUTT_DONE, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_A83_DIALOG_SANDYBUTT_DONE, 4, NULL, NULL, NULL, NULL);
             levelSpecificFlags_set(LEVEL_FLAG_17_GV_UNKNOWN, true);
         }
     }
@@ -179,7 +179,7 @@ void chMazeCtrl_update(Actor *this){
 
         if (!levelSpecificFlags_get(LEVEL_FLAG_15_GV_UNKNOWN)
             && ml_timer_update(&local->unk8, sp34)
-            && gcdialog_showText(ASSET_A81_DIALOG_SANDYBUTT_ENTER, 0, NULL, NULL, NULL, NULL)
+            && gcdialog_showDialog(ASSET_A81_DIALOG_SANDYBUTT_ENTER, 0, NULL, NULL, NULL, NULL)
         ) {
             levelSpecificFlags_set(LEVEL_FLAG_15_GV_UNKNOWN, true);
         }

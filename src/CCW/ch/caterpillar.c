@@ -98,7 +98,7 @@ void chcaterpillar_update(Actor *this){
             chcaterpillar_setState(this, 2);
         }
         else{//L8038A408
-            map_id = map_get();
+            map_id = gsworld_getMap();
             if ( !fileProgressFlag_get(FILEPROG_E6_SPRING_EYRIE_HATCHED)
                  || ( map_id == MAP_45_CCW_AUTUMN && !fileProgressFlag_get(FILEPROG_E7_SUMMER_EYRIE_FED))
             ) {
@@ -154,7 +154,7 @@ void chcaterpillar_update(Actor *this){
         if(ml_vec3f_distance(this->position, sp74) < 50.0f){
             func_8028F030(ACTOR_2A2_CATERPILLAR);
             if(!volatileFlag_get(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR)){
-                gcdialog_showText(ASSET_CC7_DIALOG_CATERPILLAR_COLLECT, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(ASSET_CC7_DIALOG_CATERPILLAR_COLLECT, 4, NULL, NULL, NULL, NULL);
                 volatileFlag_set(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR, true);
             }
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);

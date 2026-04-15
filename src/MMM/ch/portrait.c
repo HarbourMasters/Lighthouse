@@ -13,50 +13,50 @@ enum chPortrait_state_e {
     PORTRAIT_STATE_2_BROKEN
 };
 
-ActorAnimationInfo D_8038BE30[] = {
+ActorAnimationInfo chPortraitAnimations[] = {
     {0x000, 0.0f},
-    {0x23F, 10000000.0f},
-    {0x23F, 2.0f},
+    {ASSET_23F_ANIM_PORTRAIT_IDLE, 10000000.0f},
+    {ASSET_23F_ANIM_PORTRAIT_IDLE, 2.0f},
 };
 
-ActorInfo D_8038BE48 = {
+ActorInfo chPortraitGrunty = {
     MARKER_255_PORTRAIT_OF_GRUNTY, ACTOR_382_PORTRAIT_OF_GRUNTY, ASSET_522_MODEL_PORTRAIT_OF_GRUNTY,
-    0x1, D_8038BE30,
+    0x1, chPortraitAnimations,
     chPortrait_update, actor_update_func_80326224, chPortrait_draw,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_8038BE6C = {
+ActorInfo chPortraitBlackeye = {
     MARKER_257_PORTRAIT_OF_BLACKEYE, ACTOR_384_PORTRAIT_OF_BLACKEYE, ASSET_527_MODEL_PORTRAIT_OF_BLACKEYE,
-    0x1, D_8038BE30,
+    0x1, chPortraitAnimations,
     chPortrait_update, actor_update_func_80326224, chPortrait_draw,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_8038BE90 = {
+ActorInfo chPortraitTower = {
     MARKER_258_PORTRAIT_OF_TOWER, ACTOR_385_PORTRAIT_OF_TOWER, ASSET_528_MODEL_PORTRAIT_OF_TOWER,
-    0x1, D_8038BE30,
+    0x1, chPortraitAnimations,
     chPortrait_update, actor_update_func_80326224, chPortrait_draw,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_8038BEB4 = {
+ActorInfo chPortraitTreeAndMoon = {
     MARKER_259_PORTRAIT_OF_TREE_AND_MOON, ACTOR_386_PORTRAIT_OF_TREE_AND_MOON, ASSET_529_MODEL_PORTRAIT_OF_TREE_AND_MOON,
-    0x1, D_8038BE30,
+    0x1, chPortraitAnimations,
     chPortrait_update, actor_update_func_80326224, chPortrait_draw,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_8038BED8 = {
+ActorInfo chPortraitTeeHee = {
     MARKER_25A_PORTRAIT_OF_TEEHEE, ACTOR_387_PORTRAIT_OF_TEEHEE, ASSET_52A_MODEL_PORTRAIT_OF_TEEHEE,
-    0x1, D_8038BE30,
+    0x1, chPortraitAnimations,
     chPortrait_update, actor_update_func_80326224, chPortrait_draw,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_8038BEFC = {
+ActorInfo chPortraitMinion = {
     MARKER_25B_PORTRAIT_OF_MINION, ACTOR_388_PORTRAIT_OF_MINION, ASSET_52B_MODEL_PORTRAIT_OF_MINION,
-    0x1, D_8038BE30,
+    0x1, chPortraitAnimations,
     chPortrait_update, actor_update_func_80326224, chPortrait_draw,
     0, 0, 0.0f, 0
 };

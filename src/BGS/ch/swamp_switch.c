@@ -36,7 +36,7 @@ void chLongSwampSwitch_jiggySpawn(void){
 }
 
 void chLongSwampSwitch_update(Actor *this){
-    func_8038EA90();
+    chMudHut_checkBGSChecksums();
     if(mapSpecificFlags_get(7)){
         mapSpecificFlags_set(7, 0);
         if(!mapSpecificFlags_get(3) || (item_getCount(0) > 0)){
@@ -55,7 +55,7 @@ void chLongSwampSwitch_update(Actor *this){
     }
     if( this->velocity_x == 0.0f && mapSpecificFlags_get(1)){
         this->velocity_x = 1.0f;
-        func_802BAFE4(0xc);
+        gcStaticCamera_activate(0xc);
         timedFunc_set_0(1.2f, chLongSwampSwitch_jiggySpawn);
     } //L8038EFB4
     if( this->velocity_x != 0.0f && !mapSpecificFlags_get(3) && func_802BB270()){
@@ -79,7 +79,7 @@ void chShortSwampSwitch_jiggySpawn(void){
 }
 
 void chShortSwampSwitch_update(Actor *this){
-    func_8038EA90();
+    chMudHut_checkBGSChecksums();
     if(mapSpecificFlags_get(8)){
         mapSpecificFlags_set(8, 0);
         if(!mapSpecificFlags_get(0xC) || (item_getCount(0) > 0)){
@@ -98,7 +98,7 @@ void chShortSwampSwitch_update(Actor *this){
     }
     if( this->velocity_x == 0.0f && mapSpecificFlags_get(0xA)){
         this->velocity_x = 1.0f;
-        func_802BAFE4(0x1D);
+        gcStaticCamera_activate(0x1D);
         timedFunc_set_0(1.2f, chShortSwampSwitch_jiggySpawn);
     } //L8038EFB4
     if( this->velocity_x != 0.0f && !mapSpecificFlags_get(0xC) && func_802BB270()){

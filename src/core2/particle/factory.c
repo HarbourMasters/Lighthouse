@@ -17,16 +17,16 @@ typedef struct {
 /* .bss */
 Struct_Core2_CB610_0 D_803861C0[40];
 
-void func_80352830(void){
+void commonParticleTypeMap_freeAll(void){
     s32 i;
     for(i = 1; i < 40; i++){
         D_803861C0[i].occupied = false;
     }
 }
 
-void func_80352874(void){ return; }
+void commonParticleTypeMap_unused(void){ return; }
 
-u8 func_8035287C(void){
+u8 commonParticleTypeMap_findFree(void){
     s32 i;
     for(i = 1; i < 40; i++){
         if(!D_803861C0[i].occupied){
@@ -40,14 +40,14 @@ u8 func_8035287C(void){
     return 0;
 }
 
-void func_803529DC(u8 arg0) {
+void commonParticleTypeMap_freeByIndex(u8 arg0) {
     if (commonParticleType_getFreeMethod(D_803861C0[arg0].unk1) != NULL) {
         commonParticleType_getFreeMethod(D_803861C0[arg0].unk1)();
     }
     D_803861C0[arg0].occupied = 0;
 }
 
-void func_80352A38(u8 arg0, enum common_particle_e arg1){
+void commonParticleTypeMap_advanceParticleType(u8 arg0, enum common_particle_e arg1){
     void (*funcPtr)(void);
     if(arg1){
         D_803861C0[arg0].unk2 = arg1;
@@ -67,19 +67,19 @@ void func_80352A38(u8 arg0, enum common_particle_e arg1){
     }
 }
 
-s32 func_80352ACC(u8 arg0){
+s32 commonParticleTypeMap_getPreviousType(u8 arg0){
     return D_803861C0[arg0].unk0;
 }
 
-s32 func_80352AE8(u8 arg0){
+s32 commonParticleTypeMap_getCurrentType(u8 arg0){
     return D_803861C0[arg0].unk1;
 }
 
-s32 func_80352B04(u8 arg0){
+s32 commonParticleTypeMap_getNextType(u8 arg0){
     return D_803861C0[arg0].unk2;
 }
 
-void func_80352B20(u8 arg0) {
+void commonParticleTypeMap_updateByIndex(u8 arg0) {
     if (commonParticleType_getUpdateMethod(D_803861C0[arg0].unk1) != NULL) {
         commonParticleType_getUpdateMethod(D_803861C0[arg0].unk1)();
     }

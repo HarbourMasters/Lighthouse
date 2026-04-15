@@ -33,8 +33,8 @@ Actor *func_8038A7A0(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         && this_marker->unk14_21
         && this->unk48 != this->unk1C[2]
     ){
-        func_8033E73C(this->marker, 5, func_80329904);
-        func_8033E3F0(0xa, this->marker->unk14_21);
+        commonParticle_add(this->marker, 5, func_80329904);
+        commonParticle_new(0xa, this->marker->unk14_21);
         this->unk38_31++;
     }
     

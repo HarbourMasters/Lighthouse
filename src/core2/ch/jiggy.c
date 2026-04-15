@@ -13,34 +13,34 @@ typedef struct chjiggy_s{
 } ActorLocal_Jiggy;
 
 Actor *spawnQueue_actor_s32(f32, f32, f32);
-void func_802C7AF8(u32 x, u32 y, u32 z, u32 arg3);
+void spawnJiggyDestroyedEffects(u32 x, u32 y, u32 z, u32 arg3);
 Actor *chjiggy_draw(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3);
-void func_802C7D98(Actor * arg0);
+void chjiggy_update_2(Actor * arg0);
 void chjiggy_update(Actor *this);
 enum jiggy_e chjiggy_getJiggyId(Actor *this);
 
 
 
 /* .data */
-ActorAnimationInfo D_80366290[] = {
+ActorAnimationInfo JIGGY_ANIMATIONS[] = {
     {0, 0.0f},
     {0, 0.0f},
     {0, 0.0f}
 };
 
-ActorInfo D_803662A8 = {
-    0x52, ACTOR_46_JIGGY, ASSET_35F_MODEL_JIGGY, 
-    1, D_80366290, 
-    chjiggy_update, func_802C7D98, chjiggy_draw,
+ActorInfo chJiggy = {
+    MARKER_52_JIGGY, ACTOR_46_JIGGY, ASSET_35F_MODEL_JIGGY, 
+    1, JIGGY_ANIMATIONS, 
+    chjiggy_update, chjiggy_update_2, chjiggy_draw,
     0, 0, 0.9f, 0
 }; 
 
 /* .code */
-enum jiggy_e func_802C7A30(Actor *this){
+enum jiggy_e getJiggyId(Actor *this){
     s32 id;
     s32 sp18[3];
     
-    id = map_get();
+    id = gsworld_getMap();
 
     sp18[0] = (s32)this->position[0];
     sp18[1] = (s32)this->position[1]; 
@@ -54,36 +54,36 @@ enum jiggy_e func_802C7A30(Actor *this){
     }
 }
 
-void func_802C7AB0(ActorMarker * arg0, u32 arg1){
+void playJiggyDestroyedSoundsAndReset(ActorMarker * arg0, u32 arg1){
     func_8030E6D4(SFX_30_MAGIC_POOF);
     coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 0x7FF8);
     mapSpecificFlags_set(arg1, 1);
     marker_despawn(arg0);
 }
 
-void func_802C7AF8(u32 x, u32 y, u32 z, u32 arg3){
+void spawnJiggyDestroyedEffects(u32 x, u32 y, u32 z, u32 arg3){
     __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_s32, ACTOR_4C_STEAM, x, y, z);
     __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_s32, ACTOR_14F_DESTROYED_JIGGY, x, y, z);
     mapSpecificFlags_set(arg3, 1);
 }
 
-void func_802C7B6C(u32 arg0){
+void resetFlag(u32 arg0){
     mapSpecificFlags_set(arg0, 0);
 }
 
-void func_802C7B8C(Actor *this, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, enum volatile_flags_e arg6){
+void destroyJiggy(Actor *this, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, enum volatile_flags_e arg6){
     if( !mapSpecificFlags_get(arg1)
         && mapSpecificFlags_get(arg2)
         && item_getCount(ITEM_0_HOURGLASS_TIMER) == 0
     ){
-        func_8028FCC8(1);
+        player_setModelVisible(1);
         actor_collisionOff(this);
-        func_802BAFE4(arg3);
+        gcStaticCamera_activate(arg3);
         volatileFlag_setAndTriggerDialog_0(arg6);
-        timedFunc_set_4(0.6f, (GenFunction_4)func_802C7AF8, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2], arg4);
-        timedFunc_set_2(0.6f, (GenFunction_2)func_802C7AB0, (uintptr_t)this->marker, arg5);
+        timedFunc_set_4(0.6f, (GenFunction_4)spawnJiggyDestroyedEffects, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2], arg4);
+        timedFunc_set_2(0.6f, (GenFunction_2)playJiggyDestroyedSoundsAndReset, (uintptr_t)this->marker, arg5);
         timedFunc_set_0(1.0f, (GenFunction_0)func_802BE720);
-        timedFunc_set_1(3.9f, (GenFunction_1)func_802C7B6C, arg4);
+        timedFunc_set_1(3.9f, (GenFunction_1)resetFlag, arg4);
         mapSpecificFlags_set(arg1, 1);
     }
 }
@@ -114,7 +114,7 @@ Actor *chjiggy_draw(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3){
     return thisActor;
 }
 
-void func_802C7D98(Actor * arg0){
+void chjiggy_update_2(Actor * arg0){
     func_80343DEC(arg0);
     chjiggy_updateRotation(arg0);
 }
@@ -127,8 +127,8 @@ void chjiggy_update(Actor *this){
     if(this->marker->unk14_21){
         for(i = 0; i < 4; i++){
             if(randf() < 0.015){
-                func_8033E73C(this->marker, i + 5, func_80329904);
-                func_8033E3F0(8, 1);
+                commonParticle_add(this->marker, i + 5, func_80329904);
+                commonParticle_new(8, 1);
             }
         }
     }//L802C7E44
@@ -136,7 +136,7 @@ void chjiggy_update(Actor *this){
         case 1: //L802C7E68
             local->unk0 = 0;
             if(local->index == 0)
-                local->index = func_802C7A30(this);
+                local->index = getJiggyId(this);
             
             if(jiggyscore_isCollected(local->index)){
                 marker_despawn(this->marker);
@@ -174,10 +174,10 @@ void chjiggy_update(Actor *this){
             chjiggy_updateRotation(this);
             switch(chjiggy_getJiggyId(this)){
                 case JIGGY_20_BGS_ELEVATED_WALKWAY: //L802C7FE8
-                    func_802C7B8C(this, 4, 3, 0xD, 5, 2, VOLATILE_FLAG_AE_BGS_WALKWAY_JIGGY_MISSED);
+                    destroyJiggy(this, 4, 3, 0xD, 5, 2, VOLATILE_FLAG_AE_BGS_WALKWAY_JIGGY_MISSED);
                     break;
                 case JIGGY_25_BGS_MAZE://L802C8018
-                    func_802C7B8C(this, 0xd, 0xc, 0x1e, 9, 0xb, VOLATILE_FLAG_AF_BGS_MAZE_JIGGY_MISSED);
+                    destroyJiggy(this, 0xd, 0xc, 0x1e, 9, 0xb, VOLATILE_FLAG_AF_BGS_MAZE_JIGGY_MISSED);
                     break;
                 case JIGGY_2F_FP_XMAS_TREE://L802C8048
                     if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {

@@ -1,9 +1,9 @@
 // BanjoDecomp: code_7FF0.c
-#include "actor.h"
+#include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include <ultra64.h>
+#include "actor.h"
 
 #include <libultra/r4300.h>
 
@@ -194,7 +194,7 @@ void func_8038E4DC(Actor *this){
     }
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
-        if(exit_get() == 3){
+        if(gsworld_getExit() == 3){
             if(0.65 < this->unk48 && this->unk48 < 0.95){
                 func_80343E20(0x6a, 0x7ff8, 0.32842f, 0x34);
             }
@@ -218,7 +218,7 @@ void func_8038E4DC(Actor *this){
     else{
         if(!mapSpecificFlags_get(4)){
             mapSpecificFlags_set(4, true);
-            func_802BAFE4(1);
+            gcStaticCamera_activate(1);
         }
     }
 }
@@ -231,7 +231,7 @@ void func_8038E648(Actor *this){
         case 1: //L8038E690
             this->pitch = 0.0f;
             if(mapSpecificFlags_get(5)){
-                func_802BAFE4(2);
+                gcStaticCamera_activate(2);
                 subaddie_set_state(this, 6);
                 core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
                 s32 pyramidTimer = 25;
@@ -275,7 +275,7 @@ void func_8038E648(Actor *this){
 }
 
 void func_8038E914(Actor *this){
-    func_80389F5C();
+    code3B10_checkGVChecksums();
     if(!this->initialized){
         func_802D3D74(this);
         this->initialized = true;
@@ -296,7 +296,7 @@ void func_8038E97C(Actor *this){
 
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
-        if(exit_get() == 7){
+        if(gsworld_getExit() == 7){
             this->position_z += 117.0;
             this->position_y += 130.0;
             this->unk38_31 = 30;
@@ -333,7 +333,7 @@ void chKazooieDoor_update(Actor *this){
         case 1: //L8038EB98
             if(mapSpecificFlags_get(6)){
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
-                func_802BAFE4(3);
+                gcStaticCamera_activate(3);
                 subaddie_set_state(this, 6);
                 core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
                 this->unk1C[1] = this->position_y + 210.0f;
@@ -515,10 +515,10 @@ void GV_func_8038F154(void)
     spawnableActorList_add(&D_80391590, actor_new, ACTOR_FLAG_UNKNOWN_10);
 }
 
-s32 func_8038F4C0(Actor *arg0, s32 arg1){
+s32 code7FF0_getMagicCarpetState(Actor *arg0, s32 arg1){
     // Lighthouse TODO is this an anti-piracy check?
     return arg1;
-#if 0
+#if ANTI_TAMPER
     if( getGameMode() != GAME_MODE_7_ATTRACT_DEMO 
         && (0xDBF4E829 + *(s32*)PHYS_TO_K1(0x284))
     ){

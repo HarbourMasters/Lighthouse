@@ -13,7 +13,7 @@ typedef struct {
 
 #define LOCAL_D6600(actor) ((ActorLocal_core2_D6600*)&actor->local)
 
-void func_8035DA1C(Actor *this);
+void chchumpfish_update(Actor *this);
 
 /* .data */
 ActorAnimationInfo D_80372EA0[] = {
@@ -30,7 +30,7 @@ ActorAnimationInfo D_80372EA0[] = {
 ActorInfo D_80372EE0 = { 
     MARKER_69_CHUMP_FISH, ACTOR_A_CHUMP_FISH, ASSET_36B_CHUMP_FISH, 
     0x2, D_80372EA0, 
-    func_8035DA1C, actor_update_func_80326224, actor_draw, 
+    chchumpfish_update, actor_update_func_80326224, actor_draw, 
     3000, 0, 0.0f, 0
 };
 
@@ -62,7 +62,7 @@ void func_8035D65C(Actor *this) {
         this->unk38_31--;
         return;
     }
-    if (func_80329530(this, 500) && player_isSwimming() && func_8035D608(this)) {
+    if (subaddie_playerIsWithinSphereAndActive(this, 500) && player_isSwimming() && func_8035D608(this)) {
         this->actor_specific_1_f = 2.0f;
         subaddie_set_state_with_direction(this, 4, 0.0f, -1);
     }
@@ -83,7 +83,7 @@ void func_8035D7CC(Actor *this) {
     func_80328CA8(this, (s32) func_8035D590(randf2(-45.0f, 45.0f) + (360.0f - this->pitch)));
 }
 
-void func_8035D88C(ActorMarker *marker, ActorMarker *other_marker){
+void chchumpfish_die(ActorMarker *marker, ActorMarker *other_marker){
     Actor *this;
 
     this = marker_getActor(marker);
@@ -93,7 +93,7 @@ void func_8035D88C(ActorMarker *marker, ActorMarker *other_marker){
     actor_collisionOff(this);
 }
 
-void func_8035D8F0(ActorMarker *marker, ActorMarker *other_marker){
+void chchumpfish_ow(ActorMarker *marker, ActorMarker *other_marker){
     Actor *this;
 
     this = marker_getActor(marker);
@@ -119,7 +119,7 @@ void func_8035D95C(ActorMarker *marker) {
     }
 }
 
-void func_8035DA1C(Actor *this) {
+void chchumpfish_update(Actor *this) {
     f32 sp44;
     f32 sp40;
     s32 sp3C;
@@ -129,13 +129,13 @@ void func_8035DA1C(Actor *this) {
         this->initialized = true;
         this->unk138_25 = true;
         this->actor_specific_1_f = 4.0f;
-        LOCAL_D6600(this)->unk4 =(map_get() == MAP_71_GL_STATUE_ROOM) ? 8 : 0xf;
+        LOCAL_D6600(this)->unk4 =(gsworld_getMap() == MAP_71_GL_STATUE_ROOM) ? 8 : 0xf;
         if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)) {
             this->actor_specific_1_f = 0.0f;
             subaddie_set_state_with_direction(this, 1, 0.0f, 1);
         }
         func_8032CA80(this, LOCAL_D6600(this)->unk4);
-        marker_setCollisionScripts(this->marker, func_8035D8F0, NULL, func_8035D88C);
+        marker_setCollisionScripts(this->marker, chchumpfish_ow, NULL, chchumpfish_die);
     }
 
     this->marker->id = MARKER_69_CHUMP_FISH;
@@ -213,7 +213,7 @@ void func_8035DA1C(Actor *this) {
             func_80328CA8(this, (s32) func_8035D590(sp40));
             subaddie_turnToYaw(this, 10.0f);
             func_80328FF0(this, 10.0f);
-            sp38 = func_80329530(this, 0x12C);
+            sp38 = subaddie_playerIsWithinSphereAndActive(this, 0x12C);
             if ((this->state == 5) && sp38) {
                 subaddie_set_state_with_direction(this, 6, 0.0f, -1);
             }

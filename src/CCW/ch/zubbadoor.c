@@ -1,4 +1,4 @@
-// BanjoDecomp: code_0.c
+// BanjoDecomp: ch/zubbadoor.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -18,9 +18,9 @@ void CCW_func_803863F0(Actor *this, s32 next_state){
     this->state = next_state;
 }
 
-void func_80386468(ActorMarker* marker, ActorMarker *arg1) {
+void chZubbaDoor_die(ActorMarker* marker, ActorMarker *arg1) {
     Actor* actor = marker_getActor(marker);
-    if (actor->state == 1 && map_get() == MAP_44_CCW_SUMMER) {
+    if (actor->state == 1 && gsworld_getMap() == MAP_44_CCW_SUMMER) {
         CCW_func_803863F0(actor, 2);
     }
 }
@@ -29,7 +29,7 @@ void func_803864B8(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = true;
-        marker_setCollisionScripts(this->marker, NULL, NULL, func_80386468);
+        marker_setCollisionScripts(this->marker, NULL, NULL, chZubbaDoor_die);
         CCW_func_803863F0(this, 1);
 
         if (levelSpecificFlags_get(LEVEL_FLAG_10_CCW_BREAK_ZUBBA_DOOR)) {

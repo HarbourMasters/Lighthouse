@@ -34,7 +34,7 @@ void chShrapnel_func_802D0A38(Actor *this){
         this->unk38_31--;
     }
     else{
-        if(func_80329530(this, 600) && func_803292E0(this)){
+        if(subaddie_playerIsWithinSphereAndActive(this, 600) && func_803292E0(this)){
             this->actor_specific_1_f = 0.0f;
             subaddie_set_state_with_direction(this, 2, 0.0f, 1);
         }
@@ -50,7 +50,7 @@ void chShrapnel_func_802D0AB8(Actor *this) {
 
 void chShrapnel_spawnExplodeActor(uintptr_t arg0){
     Actor *this = reinterpret_cast(Actor *, arg0);
-    actor_spawnWithYaw_f32(0xF3, this->unk1C, 0);
+    actor_spawnWithYaw_f32(ACTOR_F3_EXPLOSION_RIPPLE, this->unk1C, 0);
 }
 
 void chShrapnel_emitExplosion(Actor *this) {

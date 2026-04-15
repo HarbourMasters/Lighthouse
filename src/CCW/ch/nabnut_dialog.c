@@ -57,7 +57,7 @@ void func_8038D368(Actor *this) {
         this->volatile_initialized = true;
         this->has_met_before = false;
         local->unk0 = D_8038F600;
-        while (local->unk0->map != 0 && map_get() != local->unk0->map) {
+        while (local->unk0->map != 0 && gsworld_getMap() != local->unk0->map) {
             local->unk0++;
         }
 
@@ -72,10 +72,10 @@ void func_8038D368(Actor *this) {
         player_getPosition(plyr_pos);
         if (ml_vec3f_distance(this->position, plyr_pos) < 600.0f) {
             if (!jiggyscore_isCollected(JIGGY_4B_CCW_GNAWTY)) {
-                gcdialog_showText(local->unk0->unk2, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(local->unk0->unk2, 4, NULL, NULL, NULL, NULL);
             } else {
                 if (local->unk0->unk4) {
-                    gcdialog_showText(local->unk0->unk4, 4, NULL, NULL, NULL, NULL);
+                    gcdialog_showDialog(local->unk0->unk4, 4, NULL, NULL, NULL, NULL);
                 }
             }
             this->has_met_before = true;

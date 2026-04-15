@@ -6,7 +6,7 @@
 #include "core2/gc/zoombox.h"
 
 extern void func_803114D0(void );
-extern int func_803114B0(void);
+extern int gcdialog_hasCurrentTextId(void);
 extern char *dialogBin_get(enum asset_e text_id);
 
 s8 D_8036C4D0[] = {1, 0x1E, 0x14, 0xF, 0xB, 8, 6, 4, 3, 2, -1, -1, -1};
@@ -144,7 +144,7 @@ static void _gcdialog_freeZoomboxes(void){
     }
 }
 
-void func_8030F078(void){
+void clearDialogStrings(void){
     s32 i;
     s32 j;
     for(i = 0; i <2; i++){
@@ -161,8 +161,8 @@ void func_8030F078(void){
     g_Dialog.dialog_bin_ptr = NULL;
 }
 
-void func_8030F130(void){
-   func_8030F078();
+void clearDialog(void){
+   clearDialogStrings();
    if(g_Dialog.zoombox[1] != NULL && !g_Dialog.unk11A[1].unk0_7){
        func_80347A14(1);
    }
@@ -179,15 +179,15 @@ void func_8030F130(void){
 }
 
 void func_8030F1D0(void){
-    if(func_803114B0()){
+    if(gcdialog_hasCurrentTextId()){
         func_8025A55C(-1, 300, 2);
     }
     func_803114D0();
-    func_8030F130();
+    clearDialog();
     g_Dialog.state = 0;
 }
 
-void func_8030F218(char *next_state, char *arg1, char *arg2, bool arg3, bool arg4) {
+void replaceText(char *next_state, char *arg1, char *arg2, bool arg3, bool arg4) {
     s32 var_v0;
     s32 i;
     s32 j;
@@ -234,7 +234,7 @@ void func_8030F338(void){
             }
     }//L8030F3E8
     func_8025A55C(-1, 0x12c, 2);
-    func_8030F130();
+    clearDialog();
 }
 
 void gcdialog_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
@@ -312,7 +312,7 @@ void gcdialog_setState(s32 next_state){
     
 }
 
-void func_8030F754(GcZoomboxSprite portrait_id, s32 arg1){
+void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
     s32 temp_a0;
     s32 temp_v0;
 
@@ -378,7 +378,7 @@ void gcdialog_update(void) {
         func_8024E640(0, controller_side_buttons);
     } else {
         controller_copyFaceButtons(0, controller_face_buttons);
-        func_8024E60C(0, controller_side_buttons);
+        controller_copySideButtons(0, controller_side_buttons);
     }
 
     switch (g_Dialog.state) {
@@ -503,7 +503,7 @@ void gcdialog_update(void) {
                                 strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] + ret + 1)->str);
                                 strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
 
-                                func_8030F218(
+                                replaceText(
                                         g_Dialog.output,
                                         CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str,
                                         CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] + ret + 1)->str,
@@ -532,7 +532,7 @@ void gcdialog_update(void) {
                             strlen(D_80382FF8);
                             strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
 
-                            func_8030F218(
+                            replaceText(
                                     g_Dialog.output,
                                     CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str,
                                     D_80382FF8,
@@ -612,7 +612,7 @@ void gcdialog_update(void) {
 }
 
 //parses text asset into seperate strings
-void func_80310574(s32 text_id){
+void loadDialogStrings(s32 text_id){
     s32 i;
     s32 j;
     u8 *txt;
@@ -645,21 +645,21 @@ void func_80310574(s32 text_id){
     }
 }
 
-s32 func_8031068C(s32 next_state){
+s32 getYPositionForZoombox(s32 next_state){
     return (next_state) ? 0 : 0xA0;
 }
 
-int func_803106A4(s32 next_state){
+int isDialogTop(s32 next_state){
     return (next_state) ? 1 : 0;
 }
 
-void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
+void loadAndCreateDialogs(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
     s32 i;
     s32 j;
 
     s32 temp_a2;
 
-    func_80310574(text_id);
+    loadDialogStrings(text_id);
     g_Dialog.unk12C_29 = 0;
     g_Dialog.unk12C_31 = (g_Dialog.unk12C_25 = g_Dialog.unk12C_29);
     g_Dialog.unk12C_27 = g_Dialog.unk12C_31;
@@ -674,11 +674,11 @@ void func_803106BC(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(A
         //L803107C4
         g_Dialog.string[j] = g_Dialog.string_list[j]->str;
         g_Dialog.string_index[j] = 0;
-        g_Dialog.unk124[j] = func_8031068C(j);
+        g_Dialog.unk124[j] = getYPositionForZoombox(j);
         g_Dialog.unk11A[j].unk0_5 = 0;
         if(g_Dialog.string_list[j][i].cmd >= 0){
             if(!g_Dialog.unk11A[j].unk0_7){
-                g_Dialog.zoombox[j] =  gczoombox_new(g_Dialog.unk124[j], g_Dialog.string_list[j][i].cmd + 0xC, 0, func_803106A4(j), (void *)func_8030F754);
+                g_Dialog.zoombox[j] =  gczoombox_new(g_Dialog.unk124[j], g_Dialog.string_list[j][i].cmd + 0xC, 0, isDialogTop(j), (void *)newZoomboxCallback);
                 if( j == 1 ){
                     func_80347A14(0);
                 }
@@ -732,8 +732,8 @@ void func_80310A5C(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 arg4){
 }
 
 void func_80310B1C(s32 text_id, s32 arg1, ActorMarker *marker, void(*callback)(ActorMarker *, s32, s32), void(*arg4)(ActorMarker *, s32, s32), s32(*arg5)(ActorMarker *, s32, s32)){
-    func_803106BC(text_id, arg1, marker, callback, arg4, arg5);
-    if(map_get() == MAP_90_GL_BATTLEMENTS && 0x10ec < text_id){
+    loadAndCreateDialogs(text_id, arg1, marker, callback, arg4, arg5);
+    if(gsworld_getMap() == MAP_90_GL_BATTLEMENTS && ASSET_10EC_DIALOG_FINALBOSS_ENTERING_6 < text_id){
         func_80310A5C( 3, 4, 0x1e, arg1 & 2, arg1 & 0x80);
     }
     else{
@@ -745,7 +745,7 @@ void func_80310BB4(s32 next_state, s32 arg1, s32 arg2){
     func_80310A5C(arg1, arg2, next_state, g_Dialog.unk128_31 & 2, g_Dialog.unk128_31 & 0x80);
 }
 
-void func_80310BFC(void){
+void updateDialogYPositions(void){
     s32 ch;
     if(g_Dialog.unk128_4){
         g_Dialog.unk132++;
@@ -783,13 +783,13 @@ void func_80310D2C(void){
     struct14s * sp24;
     
     if(g_Dialog.unk128_5)
-        func_80310BFC();
+        updateDialogYPositions();
 
     if(getGameMode() == GAME_MODE_3_NORMAL || func_802E4A08()){
         if(g_Dialog.unk128_5)
             return;
 
-        if(!func_803114B0() && (s32)(g_Dialog.unk12C_15) > 0){
+        if(!gcdialog_hasCurrentTextId() && (s32)(g_Dialog.unk12C_15) > 0){
             
             sp24 = g_Dialog.unk148 + g_Dialog.unk12C_11;
             func_80310B1C(sp24->unk0,sp24->unk2, sp24->unk10, sp24->unk18, sp24->unk1C, sp24->unk20);
@@ -825,14 +825,14 @@ void func_80310D2C(void){
                 //L80310FF0
             if(func_802FADD4(0)){
                 if(item_getCount(ITEM_6_HOURGLASS) != 0)
-                    func_802FACA4(0x28);
+                    code_73640_printItemCount(0x28);
                 else
                     func_802FAD64(ITEM_0_HOURGLASS_TIMER);
             }
             else {
                 if(func_802FADD4(3)){
                     if(item_getCount(ITEM_3_PROPELLOR_TIMER) != 0){
-                        func_802FACA4(0x28);
+                        code_73640_printItemCount(0x28);
                     }
                     else{
                         func_802FAD64(ITEM_3_PROPELLOR_TIMER);
@@ -841,10 +841,10 @@ void func_80310D2C(void){
             }
             //L80311068
             if(func_802FBE04())
-                func_802FACA4(0x2A);
+                code_73640_printItemCount(0x2A);
 
             if(func_802FC390()){
-                func_802FACA4(0x29);
+                code_73640_printItemCount(0x29);
             }
         } 
         else{//L803110A0
@@ -863,19 +863,19 @@ void func_80310D2C(void){
 
 int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, void (*arg4)(ActorMarker *, enum asset_e, s32)){
     func_8025A55C(15000, 300, 2);
-    func_80311174(next_state + 0xe57, 0x84, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker *, s32, s32))arg4);
+    gcdialog_showDialogConditional(next_state + 0xe57, 0x84, NULL, NULL, NULL, NULL, (s32(*)(ActorMarker *, s32, s32))arg4);
     func_80310A5C(arg2, arg3, arg1, 0, 0);
     return 1;
 }
 
-int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)){
+int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32)){
     f32 pad;
     s32 temp_v1;
 
     if(volatileFlag_get(VOLATILE_FLAG_1) || func_802D686C())
         return 0;
 
-    if(!func_803114B0()){
+    if(!gcdialog_hasCurrentTextId()){
         func_80310B1C(text_id, arg1, marker, (void *)callback, (void *)arg5, arg6);
         if(arg1 & 8){
             if(!(func_802E4A08() || volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) || !g_Dialog.unk128_3){//L80311214
@@ -943,22 +943,22 @@ int func_80311174(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*ca
     return 0;
 }
 
-bool gcdialog_showText(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32)){
-    return func_80311174(text_id, arg1, pos, marker, callback, arg5, NULL);
+bool gcdialog_showDialog(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32)){
+    return gcdialog_showDialogConditional(text_id, arg1, pos, marker, callback, arg5, NULL);
 }
 
-int func_803114B0(void){
+int gcdialog_hasCurrentTextId(void){
     return (g_Dialog.unk130 + 1) != 0;
 }
 
-int func_803114C4(void){
+int gcdialog_getCurrentTextId(void){
     return g_Dialog.unk130;
 }
 
 void func_803114D0(void){
     s32 i;
 
-    if(func_803114B0()){
+    if(gcdialog_hasCurrentTextId()){
         gcdialog_setState(6);
     }else{
         if(g_Dialog.state != 6){
@@ -980,7 +980,7 @@ void func_803114D0(void){
 }
 
 int func_803115C4(s32 next_state){
-    if(func_803114C4() != next_state){
+    if(gcdialog_getCurrentTextId() != next_state){
         return 0;
     }else{
         gcdialog_setState(6);
@@ -988,16 +988,16 @@ int func_803115C4(s32 next_state){
     }
 }
 
-void func_80311604(void){
-    if(func_803114B0()){
+void gcdialog_incrementYPositionModifier(void){
+    if(gcdialog_hasCurrentTextId()){
         g_Dialog.unk128_5 = 1;
         g_Dialog.unk128_4 = 0;
         g_Dialog.unk132++;
     }
 }
 
-void func_80311650(void){
-    if(func_803114B0()){
+void gcdialog_decrementYPositionModifier(void){
+    if(gcdialog_hasCurrentTextId()){
         g_Dialog.unk128_5 = 1;
         g_Dialog.unk128_4 = 1;
         g_Dialog.unk132--;

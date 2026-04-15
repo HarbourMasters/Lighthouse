@@ -121,7 +121,7 @@ void __baanim_applyBottlesBonus(uintptr_t arg0, uintptr_t arg1) {
         boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x64, scale);
         boneTransformList_setBoneScale((BoneTransformList *)arg0, 0x67, scale);
     }
-    if (map_get() == MAP_A_TTC_SANDCASTLE) {
+    if (gsworld_getMap() == MAP_A_TTC_SANDCASTLE) {
         if ((D_8037BF4C & BAANIM_WISHYWASHY) && (player_getTransformation() != TRANSFORM_7_WISHWASHY)) {
             func_8028FB88(TRANSFORM_7_WISHWASHY);
         }

@@ -17,6 +17,7 @@ extern void bitfield_setBit(s32 *arg0, s32 arg1, bool arg2);
 extern bool bitfield_isBitSet(s32 *arg0, s32 arg1);
 extern void bitfield_setAll(s32 *arg0, bool arg1);
 extern void func_8032D510(Cube *, Gfx **, Mtx **, Vtx **);
+// def returns Prop*, but callers here access via the ActorProp union member
 extern ActorProp *func_803322F0(Cube *, ActorMarker *, f32, s32, s32 *);
 extern BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
 extern BKCollisionTri *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 arg2[3], u32 flags);
@@ -715,7 +716,7 @@ void func_80303C54(Cube *cube, ActorMarker *marker, f32 arg2, s32 arg3, s32 *arg
     while (*arg4 != -1){
         phi_s0 = func_803322F0(cube, marker, arg2, arg3, arg4);
         if (phi_s0 != NULL) {
-            if (phi_s0->unk8_0 && phi_s0->marker->unk58 != NULL) {
+            if (phi_s0->isActorProp && phi_s0->marker->unk58 != NULL) {
                 if (phi_s0->marker->unk58(phi_s0->marker, marker) == 0) {
                     phi_s0 = NULL;
                 }
@@ -870,31 +871,31 @@ void cubeList_init(){
     sSpawnableActorSize = 0;
     sSpawnableActorList = NULL;
 
-    if(map_get() == MAP_21_CC_WITCH_SWITCH_ROOM){
+    if(gsworld_getMap() == MAP_21_CC_WITCH_SWITCH_ROOM){
         sCubeList.margin = 500.0f;
     }
-    else if(map_get() == MAP_12_GV_GOBIS_VALLEY){
+    else if(gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY){
         sCubeList.margin = 500.0f;
     }
-    else if(map_get() == MAP_7F_FP_WOZZAS_CAVE){
+    else if(gsworld_getMap() == MAP_7F_FP_WOZZAS_CAVE){
         sCubeList.margin = 500.0f;
     }
-    else if(map_get() == MAP_D_BGS_BUBBLEGLOOP_SWAMP){
+    else if(gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP){
         sCubeList.margin = 700.0f;
     }
-    else if(map_get() == MAP_7_TTC_TREASURE_TROVE_COVE){
+    else if(gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE){
         sCubeList.margin = 400.0f;
     }
-    else if(map_get() == MAP_16_GV_RUBEES_CHAMBER){
+    else if(gsworld_getMap() == MAP_16_GV_RUBEES_CHAMBER){
         sCubeList.margin = 400.0f;
     }
-    else if(map_get() == MAP_2_MM_MUMBOS_MOUNTAIN){
+    else if(gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN){
         sCubeList.margin = 250.0f;
     }
-    else if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+    else if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         sCubeList.margin = 250.0f;
     }
-    else if(map_get() == MAP_92_GV_SNS_CHAMBER){
+    else if(gsworld_getMap() == MAP_92_GV_SNS_CHAMBER){
         sCubeList.margin = 300.0f;
     }
     else{
@@ -1325,7 +1326,7 @@ void func_8030578C(void){
     Cube *iCube;
 
     // [port] anti-tamper: ROM CRC check via osPiReadIo — not applicable on PC
-#if 0
+#if ANTI_TAMPER
     if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
         osPiReadIo(0xE38, &sp40);
         sp40 ^= 0x828A;
@@ -2186,13 +2187,13 @@ Cube *func_80308224(void){
     return D_8036A9DC;
 }
 
-void func_80308230(s32 arg0) {
+void cubeList_sort(s32 arg0) {
     Cube *iCube;
     for(iCube = sCubeList.cubes; iCube < sCubeList.cubes + sCubeList.cubeCnt; iCube++){
         if (arg0 == 0) {
-            func_8032D158(iCube); //sort cube props (dist from viewport)
+            cube_sortRelative(iCube); //sort cube props (dist from viewport)
         } else {
-            func_8032D120(iCube); //sort cube props (dist from origin)
+            cube_sortAbsolute(iCube); //sort cube props (dist from origin)
         }
     }
 }

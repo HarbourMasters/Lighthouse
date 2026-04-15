@@ -21,12 +21,12 @@ typedef struct {
     f32 unk14;
 } ActorLocal_CC_530;
 
-void func_80386B28(Actor* this);
+void chClankerKey_update(Actor* this);
 
 /* .data */
 ActorInfo D_80389AD0 = {
     MARKER_4A_CC_KEY, ACTOR_3C_CC_KEY, ASSET_429_MODEL_CC_KEY, 0, NULL,
-    func_80386B28, actor_update_func_80326224, actor_draw,
+    chClankerKey_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
 
@@ -40,7 +40,7 @@ void CC_func_80386920(Actor *this, s32 next_state){
 
     local->unk14 = 0.0f;
     if(this->state == 2 || this->state == 3 || this->state == 4){
-        sfxSource_func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_triggerCallbackByIndex(local->sfxsourceIdx);
     }
 
     if(next_state == 2 || next_state == 3 || next_state == 4){
@@ -49,7 +49,7 @@ void CC_func_80386920(Actor *this, s32 next_state){
         sfxsource_setSfxId(local->sfxsourceIdx, 0x3ec);
         sfxSource_setunk43_7ByIndex(local->sfxsourceIdx, 3);
         sfxsource_setSampleRate(local->sfxsourceIdx, 28000);
-        func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_func_8030E2C4(local->sfxsourceIdx);
     }
     
     if(next_state == 2 || next_state == 4){
@@ -83,7 +83,7 @@ void func_80386AF8(Actor *arg0) {
     sfxsource_freeSfxsourceByIndex(local->sfxsourceIdx);
 }
 
-void func_80386B28(Actor *this){
+void chClankerKey_update(Actor *this){
     ActorMarker *marker = this->marker;
     f32 sp58[3];
     ActorLocal_CC_530 * local = (ActorLocal_CC_530 *)&this->local;

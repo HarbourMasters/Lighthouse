@@ -212,7 +212,7 @@ void func_802FAC3C(void){
 }
 
 
-void func_802FACA4(enum item_e item_id){
+void code_73640_printItemCount(enum item_e item_id){
     if(func_802FB0D4(D_803692F8[item_id].unk14) == 2 || item_id < 6 || item_id == ITEM_17_AIR ){
         itemPrintValues[item_id] += ((f32)item_getCount(item_id) - itemPrintValues[item_id] )*0.7;
     }
@@ -243,7 +243,7 @@ void itemPrint_init(void){
         D_80381428[i] = assetcache_get(D_803692E0[i]);
     }
     for(i = 0; D_803692EC[i] != -1; i++){
-        D_80381450[i] = func_8033B6C4(D_803692EC[i], &sp40);
+        D_80381450[i] = codeB3A80_getSprite(D_803692EC[i], &sp40);
     }
 }
 

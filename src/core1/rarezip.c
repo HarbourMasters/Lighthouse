@@ -54,9 +54,9 @@ s32 D_80275768 = 6; //dbits
 struct huft D_803FBE00;
 struct huft *D_8027BF00;
 u8 pad_8027BF08[0x8];
-u8 *D_8027BF10; //inbuf
+u8 *inflate_huft; //inbuf
 u8 *D_8027BF14; //slide
-u32 D_8027BF18; //inptr
+u32 inflate_inptr; //inptr
 u32 D_8027BF1C; //wp
 struct huft *D_8027BF20; //unk
 u32 D_8027BF24; //bb
@@ -90,12 +90,12 @@ void func_8023E0E8(void){
 }
 
 static int _rarezip_inflate(u8 * src, u8 * dst, struct huft * arg2){
-    D_8027BF10 = src;
+    inflate_huft = src;
     D_8027BF14 = dst;
     D_8027BF20 = arg2;
-    D_8027BF10 += COMP_HEADER_SIZE;
+    inflate_huft += COMP_HEADER_SIZE;
     D_8027BF1C = 0;
-    D_8027BF18 = 0;
+    inflate_inptr = 0;
     bk_inflate();
     return D_8027BF1C;
 }
@@ -105,6 +105,6 @@ static int _rarezip_uncompress(u8 **srcPtr, u8 **dstPtr, struct huft * arg2){
     result = _rarezip_inflate(*srcPtr, *dstPtr, arg2);
     *dstPtr = *dstPtr + D_8027BF1C;
     *dstPtr = ((uintptr_t)*dstPtr & 0xF) ? (u8 *) (((uintptr_t)*dstPtr & ~(uintptr_t)0xF) + 0x10): *dstPtr;
-    *srcPtr = *srcPtr + D_8027BF18 + COMP_HEADER_SIZE;
+    *srcPtr = *srcPtr + inflate_inptr + COMP_HEADER_SIZE;
     return result;
 }

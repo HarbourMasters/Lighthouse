@@ -11,7 +11,7 @@
 
 #include "core2/snackerctl.h"
 
-extern bool player_isInHorizontalRadius(f32[3], f32);
+extern int player_isInHorizontalRadius(f32[3], f32);
 extern bool player_isInVerticalRange(f32[3], f32);
 extern void func_80295A8C(void);
 extern void climbSet(f32[3], f32[3], f32, u32);
@@ -116,7 +116,7 @@ void func_8028E0F0(s32 arg0, s32 arg1[3]) {
     }
 
     D_80363690 = 0;
-    switch (map_get()) {
+    switch (gsworld_getMap()) {
         case MAP_27_FP_FREEZEEZY_PEAK:
             if (arg0 == 0xD) {
                 baflag_set(BA_FLAG_16_FLYING);
@@ -186,7 +186,7 @@ void func_8028E4B0(void) {
     D_8037BFBA = true;
     D_8037BFB9 = false;
     func_80295914();
-    sp20 = exit_get();
+    sp20 = gsworld_getExit();
     D_8037BFB8 = 0;
     player_setPosition(D_803636C0);
     if (volatileFlag_get(VOLATILE_FLAG_E) || func_802D686C() || (sp20 == 0x65)){
@@ -247,7 +247,7 @@ void func_8028E6EC(s32 arg0){
 }
 
 void func_8028E71C(void) {
-    if (D_8037BFB8 && !D_8037BFB9 && func_80334904() == 2) {
+    if (D_8037BFB8 && !D_8037BFB9 && gsworld_getUnk0() == 2) {
         func_80295C14();
     }
 }
@@ -358,7 +358,7 @@ void func_8028E9C4(s32 arg0, f32 arg1[3]) {
             _player_getPosition(arg1);
             switch(bsStoredState_getTransformation()){
                 case TRANSFORM_3_PUMPKIN: //L8028EA68
-                    if(map_get() == MAP_1B_MMM_MAD_MONSTER_MANSION){
+                    if(gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION){
                         arg1[1] += 100.0f;
                     }
                     else{
@@ -418,7 +418,7 @@ f32 player_getPitch(void){
 }
 
 int func_8028EC04(void){
-    return func_80298850();
+    return balookat_getState();
 }
 
 void player_getRotation(f32 *dst){
@@ -495,7 +495,7 @@ enum bsgroup_e player_movementGroup(void) {
 
         case BS_6E_CROC_BITE://L8028EE38
         case BS_70_CROC_EAT_GOOD://L8028EE38
-            if(func_802AD3A0())
+            if(bscroc_ate_wrong_thing())
                 return BSGROUP_0_NONE;
             return BSGROUP_7_CROC_ATTACK;
 
@@ -545,7 +545,7 @@ void player_getVelocity(f32 dst[3]){
 }
 
 f32 func_8028EF88(void){
-    if(func_80294574()){
+    if(floor_isCurrentFloorunk59()){
         return floor_getCurrentFloorYPosition();
     }
     return player_getYPosition();
@@ -680,7 +680,7 @@ void ability_unlock(enum ability_e uid){
     ability_setLearned(uid, true);
 }
 
-void func_8028F3D8(f32 arg0[3], f32 arg1, void(*arg2)(ActorMarker *), ActorMarker *arg3){
+void player_walkToPosition(f32 arg0[3], f32 arg1, void(*arg2)(ActorMarker *), ActorMarker *arg3){
     bs_setState(badrone_goto(arg0, arg1, arg2, arg3));
 }
 
@@ -712,7 +712,7 @@ bool func_8028F4B8(f32 arg0[3], f32 arg1, f32 arg2) {
     return bs_checkInterrupt(BS_INTR_2D) == 2;
 }
 
-bool func_8028F504(s32 arg0) {
+bool player_checkHazardInterrupt(s32 arg0) {
     func_80296CB4(arg0);
     return bs_checkInterrupt(BS_INTR_1F) == 2;
 }
@@ -817,7 +817,7 @@ void func_8028F800(s32 arg0[3]){
 }
 
 void func_8028F85C(f32 arg0[3]){
-    func_80298464(arg0);
+    playerPosition_func_80298464(arg0);
     func_80293F0C();
     snackerctl_update();
     func_8028B71C();
@@ -840,16 +840,16 @@ void func_8028F8F8(s32 arg0, bool arg1){
 
 void func_8028F918(s32 arg0){
     if(arg0 == 0){
-        func_80298890();
+        balookat_pop();
     }
     else{
-        func_802988DC(arg0);
+        balookat_push(arg0);
     }
 }
 
 void func_8028F94C(s32 arg0, f32 arg1[3]){
-    func_802988DC(arg0);
-    func_8029892C(arg1);
+    balookat_push(arg0);
+    balookat_set_position(arg1);
 }
 
 void func_8028F974(void){
@@ -859,7 +859,7 @@ void func_8028F974(void){
 void func_8028F994(void){
     D_803636B0 = 1;
     player_getPosition(D_803636B4);
-    transitionToMap(map_get(), 0, 0);
+    transitionToMap(gsworld_getMap(), 0, 0);
 }
 
 void func_8028F9DC(s32 arg0){
@@ -868,8 +868,8 @@ void func_8028F9DC(s32 arg0){
     player_getRotation(D_803636A4);
 }
 
-void func_8028FA14(enum map_e map_id, s32 exit_id){
-    func_8029C834(map_id, exit_id);
+void code_7060_setVoidOutLocation(enum map_e map_id, s32 exit_id){
+    code_14420_setVoidOutLocation(map_id, exit_id);
 }
 
 void func_8028FA34(enum actor_e arg0, Actor *arg1){
@@ -885,7 +885,7 @@ void func_8028FA74(f32 dst[3]){
     f32 sp18[3];
 
     _player_getPosition(plyr_pos);
-    func_80298540(sp18);
+    playerPosition_getOffset(sp18);
     ml_vec3f_add(dst, plyr_pos, sp18);
 }
 
@@ -895,7 +895,7 @@ void func_8028FAB0(f32 arg0[3]){
 
     _player_getPosition(plyr_pos);
     ml_vec3f_diff_copy(diff, arg0, plyr_pos);
-    func_80298564(diff);
+    playerPosition_setOffset(diff);
 }
 
 void player_setIdealRotation(f32 rotation[3]){
@@ -925,7 +925,7 @@ bool func_8028FB88(enum transformation_e xform_id) {
 }
 
 bool func_8028FBD4(f32 arg0[3]) {
-    if (func_803114B0() || player_movementGroup()) {
+    if (gcdialog_hasCurrentTextId() || player_movementGroup()) {
         return false;
     }
     if (arg0 != NULL) {
@@ -943,7 +943,7 @@ bool player_throwCarriedObject(void){
 }
 
 void func_8028FC8C(f32 arg0[3]){
-    func_8029892C(arg0);
+    balookat_set_position(arg0);
 }
 
 void func_8028FCAC(void){
@@ -955,7 +955,7 @@ void func_8028FCBC(void){
 }
 
 //player_setModelVisibile
-void func_8028FCC8(bool arg0){
+void player_setModelVisible(bool arg0){
     baModel_setVisible(arg0);
 }
 

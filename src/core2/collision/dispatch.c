@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80303F7C(ActorMarker *, f32, s32, s32);
+extern ActorProp * func_80303F7C(ActorMarker *, f32, s32, s32);
 extern ActorProp *func_80303FE4(ActorMarker *, f32, s32);
 
 typedef BKCollisionTri * (*Method_Core2_999A0_0)(f32[3], f32[3], f32[3], u32);

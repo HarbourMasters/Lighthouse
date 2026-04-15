@@ -337,7 +337,7 @@ static void __bsant_recoil_update(void){
 }
 
 static void __bsant_recoil_end(void){
-    func_80297CA8();
+    baiFrame_start();
     baphysics_reset_gravity();
     baMarker_collisionOn();
     baeyes_open();
@@ -463,7 +463,7 @@ void func_8029F3F4(void){
     func_802B3A50();
     func_80299628(0);
     func_8029C6D0();
-    if(!func_80298850())
+    if(!balookat_getState())
        sp1C = BS_35_ANT_IDLE;
 
     bs_setState(sp1C);

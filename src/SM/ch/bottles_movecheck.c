@@ -5,14 +5,14 @@
 
 
 f32 func_8028E82C(void);
-void func_8028F3D8(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
+void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 
 // prototypes
 void func_8038A8F8(Actor *this);
 
 /* .data */
 ActorInfo gCode44D0  = { 
-    MARKER_1F0_SM_UNKNOWN, ACTOR_3BD_SM_UNKNOWN, 0,
+    MARKER_1F0_SM_BRIDGE_CHECKSUM_TRIGGER, ACTOR_3BD_SM_BRIDGE_CHECKSUM_TRIGGER, 0,
     0, NULL, func_8038A8F8, actor_update_func_80326224, func_80325340,
     0, 0, 0.0f, 0
 };
@@ -44,14 +44,14 @@ void func_8038A8F8(Actor *this){
     player_getPosition(this->velocity);
     sp2C = ml_vec3f_distance(this->velocity, this->position);
     if(sp2C < (f32) this->actorTypeSpecificField)
-        func_80388D48();
+        code2900_checkSMChecksums();
 
     if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_10) && sp2C < (f32) this->actorTypeSpecificField && 1780.0f < func_8028E82C()){
         if( !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)
             || (mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_F))
         ){ //L8038AA54
             this->yaw_ideal = ml_vec3f_distance(this->velocity, this->unk1C) / 150.0;
-            func_8028F3D8(this->unk1C, this->yaw_ideal, func_8038A8C0, this->marker);
+            player_walkToPosition(this->unk1C, this->yaw_ideal, func_8038A8C0, this->marker);
             mapSpecificFlags_set(SM_SPECIFIC_FLAG_10, true);
         }
     }

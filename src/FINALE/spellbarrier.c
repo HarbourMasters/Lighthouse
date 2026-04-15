@@ -31,11 +31,11 @@ void chspellbarrier_collisionPassive(ActorMarker *this, ActorMarker *other) {
     local->unk4 = 0;
 
     if (func_8030E3FC(local->sfxsourceIdx) == 0) {
-        func_8030E2C4(local->sfxsourceIdx);
+        sfxSource_func_8030E2C4(local->sfxsourceIdx);
     }
 
     if (func_8030E3FC(actor_spellbarrier->unk44_31) == 0) {
-        func_8030E2C4(actor_spellbarrier->unk44_31);
+        sfxSource_func_8030E2C4(actor_spellbarrier->unk44_31);
     }
 }
 

@@ -1,4 +1,4 @@
-// BanjoDecomp: code_BF0.c
+// BanjoDecomp: ch/clankertoothext.c
 #include "functions.h"
 #include "variables.h"
 #include <ultra64.h>
@@ -11,20 +11,20 @@ typedef struct{
     f32 unk8;
 }ActorLocal_CC_BF0;
 
-void func_803870F8(Actor *this);
+void chClankerTooth_update(Actor *this);
 
 /* .data */
 extern ActorInfo D_80389B00 = {
     MARKER_4C_CLANKER_TOKEN_TOOTH_EXT, ACTOR_44_CLANKER_TOKEN_TOOTH_EXTERIOR, ASSET_309_MODEL_CLANKER_TOKEN_TOOTH_EXTERIOR, 
     0, NULL,
-    func_803870F8, actor_update_func_80326224, actor_draw,
+    chClankerTooth_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
 
 extern ActorInfo D_80389B24 = {
     MARKER_4D_CLANKER_JIGGY_TOOTH_EXT, ACTOR_45_CLANKER_JIGGY_TOOTH_EXTERIOR, ASSET_30A_MODEL_CLANKER_JIGGY_TOOTH_EXTERIOR, 
     0, NULL,
-    func_803870F8, actor_update_func_80326224, actor_draw,
+    chClankerTooth_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
 
@@ -65,7 +65,7 @@ void func_803870EC(s32 arg0) {
     D_80389F80 = arg0;
 }
 
-void func_803870F8(Actor *this){
+void chClankerTooth_update(Actor *this){
     ActorMarker *marker = this->marker;
     f32 sp70[3];
     ActorLocal_CC_BF0 *local = (ActorLocal_CC_BF0 *)&this->local;
@@ -130,7 +130,7 @@ void func_803870F8(Actor *this){
     else if(this->state == 2 && 1.0f <= local->unk8){
         flagCnt = levelSpecificFlags_get(LEVEL_FLAG_0_CC_TOKEN_TOOTH_OPEN) + levelSpecificFlags_get(LEVEL_FLAG_1_CC_JIGGY_TOOTH_OPEN);
         if(!jiggyscore_isCollected(JIGGY_1B_CC_TOOTH)){
-            gcdialog_showText((local->unk0 == 1)? ((flagCnt == 0)? 0xd30 : 0xd31) : ((flagCnt == 0)? 0xd2e : 0xd2f), 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog((local->unk0 == 1)? ((flagCnt == 0)? 0xd30 : 0xd31) : ((flagCnt == 0)? 0xd2e : 0xd2f), 4, NULL, NULL, NULL, NULL);
         }
         CC_func_80386FE0(this, 3);
     }//L80387474

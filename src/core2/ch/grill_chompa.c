@@ -3,8 +3,8 @@
 #include "variables.h"
 
 /* public */
-Actor *func_80356C50(ActorMarker *, Gfx **, Mtx **, Vtx **);
-void func_80356CCC(Actor *);
+Actor *chGrilleChompa_draw(ActorMarker *, Gfx **, Mtx **, Vtx **);
+void chGrilleChompa_update(Actor *);
 
 typedef struct{
     f32 unk0;
@@ -14,12 +14,12 @@ typedef struct{
 ActorInfo D_80372840 = { 
     0x29, ACTOR_1CC_GRILLE_CHOMPA, ASSET_430_MODEL_GRILLE_CHOMPA, 
     0, NULL,
-    func_80356CCC, NULL, func_80356C50,
+    chGrilleChompa_update, NULL, chGrilleChompa_draw,
     0, 0, 0.0f, 0
 };
 
 /* .code */
-void func_803569F0(Actor *this, s32 next_state){
+void chGrilleChompa_setNextState(Actor *this, s32 next_state){
     ActorLocal_Core2_CFA60 *local = (ActorLocal_Core2_CFA60 *)&this->local;
 
     this->marker->id = 0x1cf;
@@ -63,10 +63,10 @@ void func_80356BF4(ActorMarker *marker, ActorMarker *other_marker){
 }
 
 void func_80356C24(ActorMarker *marker, ActorMarker *other_marker){
-   func_803569F0(marker_getActor(marker), 5);
+   chGrilleChompa_setNextState(marker_getActor(marker), 5);
 }
 
-Actor *func_80356C50(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *chGrilleChompa_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *actor = marker_getActor(marker);
     if(actor->state == 0){
         return actor;
@@ -78,7 +78,7 @@ Actor *func_80356C50(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     
 }
 
-void func_80356CCC(Actor *this){
+void chGrilleChompa_update(Actor *this){
     f32 sp5C[3];
     f32 sp58;
     ActorLocal_Core2_CFA60 *local = (ActorLocal_Core2_CFA60 *)&this->local;
@@ -93,15 +93,15 @@ void func_80356CCC(Actor *this){
         this->volatile_initialized = true;
         this->unk16C_0 = 1;
         marker_setCollisionScripts(this->marker, NULL, func_80356BF4, func_80356C24);
-        func_803569F0(this, (this->state < 5)? 1 : 6);
+        chGrilleChompa_setNextState(this, (this->state < 5)? 1 : 6);
     }//L80356D48
     player_getPosition(sp5C);
     sp58 = ml_vec3f_distance(this->position, sp5C);
     if( this->state == 1){
         if( sp58 < this->scale*400.0f
-            && (map_get() != MAP_3C_RBB_KITCHEN || this->position_z < sp5C[2])
+            && (gsworld_getMap() != MAP_3C_RBB_KITCHEN || this->position_z < sp5C[2])
         ){
-            func_803569F0(this, 2);
+            chGrilleChompa_setNextState(this, 2);
         }
     }//L80356DCC
     if(this->state == 2){
@@ -109,15 +109,15 @@ void func_80356CCC(Actor *this){
             local->unk0 -= sp50;
         }
         else if(sp58 < this->scale*300.0f){
-            func_803569F0(this, 3);
+            chGrilleChompa_setNextState(this, 3);
         }
         else if(this->scale*500.0f < sp58){
-            func_803569F0(this, 1);
+            chGrilleChompa_setNextState(this, 1);
         }
     }//L80356E88
     if(this->state == 3){
         if(ml_timer_update(&local->unk0, sp50)){
-            func_803569F0(this, 4);
+            chGrilleChompa_setNextState(this, 4);
         }
     }//L80356EAC
     if(this->state == 4){
@@ -138,7 +138,7 @@ void func_80356CCC(Actor *this){
             func_8030E760(SFX_2_CLAW_SWIPE, 1.0f, 32000);
         }
         if(skeletalAnim_getLoopCount(this->unk148) > 0){
-            func_803569F0(this, 2);
+            chGrilleChompa_setNextState(this, 2);
         }
     }//L80357078
     if(this->state == 5){
@@ -150,7 +150,7 @@ void func_80356CCC(Actor *this){
             func_8030E760(SFX_A_BANJO_LANDING_05, 0.8f, 32000);
         }
         if(skeletalAnim_getLoopCount(this->unk148) > 0){
-            func_803569F0(this, 6);
+            chGrilleChompa_setNextState(this, 6);
         }
     }//L8035713C
 }

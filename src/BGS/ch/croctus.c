@@ -3,24 +3,24 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_80328748(AnimCtrl *, f32, f32);
+extern s32 func_80328748(AnimCtrl *, f32, f32);
 extern void func_8028F94C(s32, f32[3]);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void func_803289EC(Actor *, f32, s32);
 extern void func_80326310(Actor *);
 extern void actor_setOpacity(Actor *, s32);
-extern void func_802BAFE4(s32 arg0);
+extern void gcStaticCamera_activate(s32 arg0);
 
 
 
 void func_80387D18(ActorMarker *, u32);
-Actor *func_8038860C(ActorMarker *, Gfx**, Mtx **, Vtx**);
-void func_80387FD4(Actor *this);
+Actor *chCroctus_draw(ActorMarker *, Gfx**, Mtx **, Vtx**);
+void chCroctus_updat(Actor *this);
 
 /* .data */
 s16 D_803907B0[4] = {0x15, 0x16, 0x17, 0x18};
 ActorMarker *bgs_D_803907B8[5] = {NULL};
-ActorAnimationInfo D_803907CC[] = {
+ActorAnimationInfo chCroctusAnimations[] = {
     {0x000, 0.0f},
     {0x14B, 3.3e+7f},
     {0x14B, 1.4f},
@@ -29,9 +29,9 @@ ActorAnimationInfo D_803907CC[] = {
     {0x14B, 2.0f},
     {0x14B, 2.0f}
 };
-ActorInfo D_80390804 ={MARKER_FC_CROCTUS, ACTOR_1FA_CROCTUS, ASSET_425_MODEL_CROCTUS,
-    1, D_803907CC,
-    func_80387FD4, actor_update_func_80326224, func_8038860C,
+ActorInfo gChCroctus ={MARKER_FC_CROCTUS, ACTOR_1FA_CROCTUS, ASSET_425_MODEL_CROCTUS,
+    1, chCroctusAnimations,
+    chCroctus_updat, actor_update_func_80326224, chCroctus_draw,
     0, 0, 0.0f, 0
 };
 
@@ -53,7 +53,7 @@ void func_80387D18(ActorMarker * arg0, u32 arg1){
     if(arg0);
 }
 
-void *func_80387D90(ActorMarker * arg0){
+void *chCroctus_jiggySpawn(ActorMarker * arg0){
     ActorMarker *marker;
     Actor* this;
     f32 spawnPos[3];
@@ -64,7 +64,7 @@ void *func_80387D90(ActorMarker * arg0){
     spawnPos[1] = this->position_y;
     spawnPos[2] = this->position_z;
     marker->propPtr->unk8_3 = 0;
-    func_802BAFE4(0x19);
+    gcStaticCamera_activate(0x19);
     jiggy_spawn(JIGGY_22_CROCTUS, spawnPos);
     coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
     return NULL;
@@ -95,7 +95,7 @@ void func_80387E68(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         func_80324D2C(4.5f, COMUSIC_43_ENTER_LEVEL_GLITTER);
         subaddie_set_state_with_direction(this, 5, 0.79f, 1);
         func_80326310(this); //did not disappear when moved, after cutscene still there with collision but broken
-        bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+        bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
         timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
         timed_setStaticCameraToNode(0.8f, 9);
         func_80324DBC(3.4f, 0xC87, 0xE, NULL, NULL, func_80387E68, NULL);
@@ -107,7 +107,7 @@ void func_80387E68(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     }
 }
 
-void func_80387FD4(Actor *this){
+void chCroctus_updat(Actor *this){
     int j;
 
     if(!this->volatile_initialized){
@@ -120,7 +120,7 @@ void func_80387FD4(Actor *this){
             bgs_D_803907B8[this->actorTypeSpecificField - 1] = this->marker;
             for(j = this->actorTypeSpecificField; j < 5; j++){
                 if(bgs_D_803907B8[j] != NULL){
-                    bgs_D_803907B8[j]->propPtr->unk8_4 = false;
+                    bgs_D_803907B8[j]->propPtr->isNotFeatherEggOrNote = false;
                     actor_setOpacity(marker_getActor(bgs_D_803907B8[j]), 0);
                 }
             }//L803880C8
@@ -129,7 +129,7 @@ void func_80387FD4(Actor *this){
 
             
             if(j >= 0){
-                this->marker->propPtr->unk8_4 = false;
+                this->marker->propPtr->isNotFeatherEggOrNote = false;
                 actor_setOpacity(this, 0);
             }
             this->marker->propPtr->unk8_3 = true;
@@ -144,7 +144,7 @@ void func_80387FD4(Actor *this){
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
             if (this->actorTypeSpecificField == 1) {
                 func_8028F94C(2, this->position);
-                gcdialog_showText(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0xE, this->position, this->marker, func_80387E68, NULL);
+                gcdialog_showDialog(ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0xE, this->position, this->marker, func_80387E68, NULL);
                 subaddie_set_state_with_direction(this, 6, 0.79f, 1);
             } else {
                 timed_playSfx(0.4f, SFX_C9_PAUSEMENU_ENTER, 1.0f, 32000); //0.4f
@@ -158,11 +158,11 @@ void func_80387FD4(Actor *this){
                     func_80326310(this);
                 }
                 if (this->actorTypeSpecificField < 5) {
-                    bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->unk8_4 = true;
+                    bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
                     timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
-                    func_802BAFE4(D_803907B0[this->actorTypeSpecificField-1]);
+                    gcStaticCamera_activate(D_803907B0[this->actorTypeSpecificField-1]);
                 } else {
-                    timedFunc_set_1(0.8f, (GenFunction_1)func_80387D90, (uintptr_t)this->marker);
+                    timedFunc_set_1(0.8f, (GenFunction_1)chCroctus_jiggySpawn, (uintptr_t)this->marker);
                 }
                 __spawnQueue_add_2((void (*)(void))func_80387D18, (uintptr_t)this->marker, 0x46);
             }
@@ -225,7 +225,7 @@ void BGS_func_803885DC(void){
         bgs_D_803907B8[i] = 0;
 }
 
-Actor *func_8038860C(ActorMarker *this, Gfx** gdl, Mtx ** mptr, Vtx **vtx){
+Actor *chCroctus_draw(ActorMarker *this, Gfx** gdl, Mtx ** mptr, Vtx **vtx){
     Actor *thisActor; 
     thisActor = marker_getActor(this);
     func_8033A45C(1, thisActor->actorTypeSpecificField);

@@ -10,7 +10,7 @@ Actor *chicecube_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 
 /* .data */
-ActorAnimationInfo D_80372B50[] = {
+ActorAnimationInfo chIcecubeAnimations[] = {
     {0x000, 0.0f},
     {ASSET_233_ANIM_ICECUBE, 999999.0f},
     {ASSET_233_ANIM_ICECUBE, 1.2f},
@@ -21,14 +21,14 @@ ActorAnimationInfo D_80372B50[] = {
 
 ActorInfo D_80372B80 = {
     MARKER_250_ICECUBE_A, ACTOR_37D_ICECUBE_A, ASSET_504_MODEL_ICECUBE, 
-    1, D_80372B50, 
+    1, chIcecubeAnimations, 
     chicecube_update, actor_update_func_80326224, chicecube_draw,
     0, 0, 0.0f, 0
 }; 
 
 ActorInfo D_80372BA4 = {
     MARKER_25F_ICECUBE_B, ACTOR_3A0_ICECUBE_B, ASSET_504_MODEL_ICECUBE, 
-    1, D_80372B50, 
+    1, chIcecubeAnimations, 
     chicecube_update, actor_update_func_80326224, chicecube_draw,
     0, 0, 0.0f, 0
 }; 
@@ -45,7 +45,7 @@ Actor *chicecube_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 }
 
 int func_80359DF4(Actor *this, s32 arg1){
-    if(func_80329530(this, arg1) && func_803292E0(this))
+    if(subaddie_playerIsWithinSphereAndActive(this, arg1) && func_803292E0(this))
         return 1;
     return 0;
 }
@@ -252,7 +252,7 @@ void chicecube_update(Actor *this){
     f32 sp3C = time_getDelta();
     f32 sp30[3];
 
-    if(map_get() == MAP_27_FP_FREEZEEZY_PEAK){
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive()){
             actor_collisionOff(this);
             this->unk58_0 = false;

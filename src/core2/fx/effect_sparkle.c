@@ -17,14 +17,14 @@ s32 D_80365F30[] = {
 ActorInfo D_80365F60 = {
     0x58, 0x4E, ASSET_7DE_SPRITE_SHOE_SPARKLES,
     0, NULL,
-    func_802C5A60, actor_update_func_80326224, func_80325934,
+    func_802C5A60, actor_update_func_80326224, fxTouchSparkle_draw,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_80365F84 = {
     0x59, 0x4F, ASSET_7DE_SPRITE_SHOE_SPARKLES,
     0, NULL,
-    func_802C5A60, actor_update_func_80326224, func_80325934,
+    func_802C5A60, actor_update_func_80326224, fxTouchSparkle_draw,
     0, 0, 0.0f, 0
 };
 
@@ -41,12 +41,12 @@ void func_802C5A60(Actor *this){
                 suSetSpriteScale(this, 0.4f);
                 break;
         }
-        this->marker->propPtr->unk8_5 = 0.5 < randf();
+        this->marker->propPtr->isMirrored = 0.5 < randf();
         this->position_y += 100.0*this->scale;
         actor_collisionOff(this);
         this->initialized = true;
     }//L802C5B60
-    this->marker->propPtr->unk8_15 = D_80365F30[local->unk0];
+    this->marker->propPtr->frame = D_80365F30[local->unk0];
     local->unk0++;
     if(local->unk0 >= 0xC)
         marker_despawn(this->marker);

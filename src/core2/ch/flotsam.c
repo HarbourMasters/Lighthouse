@@ -18,14 +18,14 @@ typedef struct {
 }ActorLocal_Core2_D50F0;
 
 
-void    func_8035C8F4(Actor *this);
-Actor*  func_8035C71C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void    chflotsam_update(Actor *this);
+Actor*  chflotsam_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 /* .data */
-ActorInfo D_80372C80 = { 
+ActorInfo chFlotsam = { 
     MARKER_C9_FLOTSAM, ACTOR_13B_FLOTSAM, ASSET_401_MODEL_FLOTSAM, 
     0, NULL, 
-    func_8035C8F4, NULL, func_8035C71C, 
+    chflotsam_update, NULL, chflotsam_draw, 
     0, 0, 1.0f, 0
 };
 
@@ -44,7 +44,7 @@ ParticleSettingsVelocityAccelerationPosition D_80372CCC = {
 };
 
 /* .code */
-void func_8035C080(Actor *this, s32 next_state){
+void chflotsam_setNextState(Actor *this, s32 next_state){
     f32 i;
     ActorLocal_Core2_D50F0 *local = (ActorLocal_Core2_D50F0 *)&this->local; //sp60
     f32 sp64[3];
@@ -147,11 +147,11 @@ void func_8035C080(Actor *this, s32 next_state){
         }
         else if(next_state == 3){//L8035C4C0
             if(ml_vec3f_distance(local->unk28, this->position) < 10.0f){
-                func_8035C080(this, 1);
+                chflotsam_setNextState(this, 1);
                 return;
             }
             else{
-                func_8035C080(this, 4);
+                chflotsam_setNextState(this, 4);
                 return;
             }
         }
@@ -162,7 +162,7 @@ void func_8035C080(Actor *this, s32 next_state){
             next_state = 5;
         }
         else if(next_state == 7){//L8035C540
-            func_8035C080(this, 4);
+            chflotsam_setNextState(this, 4);
             return;
         }
     }//L8035C560
@@ -191,17 +191,17 @@ void func_8035C080(Actor *this, s32 next_state){
 
 }
 
-void func_8035C6C4(ActorMarker *this_marker, ActorMarker *other_marker){
+void chflotsam_ow(ActorMarker *this_marker, ActorMarker *other_marker){
     Actor *this = marker_getActor(this_marker);
-    func_8035C080(this, 6);
+    chflotsam_setNextState(this, 6);
 }
 
-void func_8035C6F0(ActorMarker *this_marker, ActorMarker *other_marker){
+void chflotsam_die(ActorMarker *this_marker, ActorMarker *other_marker){
     Actor *this = marker_getActor(this_marker);
-    func_8035C080(this, 8);
+    chflotsam_setNextState(this, 8);
 }
 
-Actor*  func_8035C71C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor*  chflotsam_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this = marker_getActor(marker); //sp64
     ActorLocal_Core2_D50F0 *local = (ActorLocal_Core2_D50F0 *)&this->local; //sp60
     BoneTransformList *sp5C;
@@ -249,7 +249,7 @@ void func_8035C8C8(Actor *this){
         particleEmitter_free(local->pCtrl_8);
 }
 
-void func_8035C8F4(Actor *this){
+void chflotsam_update(Actor *this){
     f32 plyr_pos[3];
     f32 sp40[3];
     f32 sp3C;
@@ -260,7 +260,7 @@ void func_8035C8F4(Actor *this){
     if(this->state == 0){
         this->marker->unk14_21 = false;
         this->marker->actorFreeFunc = func_8035C8C8;
-        marker_setCollisionScripts(this->marker, func_8035C6C4, func_8035C6C4, func_8035C6F0);
+        marker_setCollisionScripts(this->marker, chflotsam_ow, chflotsam_ow, chflotsam_die);
         local->unk4 = mapModel_getFloorY(this->position);
         local->pCtrl_8 = NULL;
         local->unk34[0] = this->yaw;
@@ -268,7 +268,7 @@ void func_8035C8F4(Actor *this){
         local->unk28[0] = this->position_x;
         local->unk28[1] = this->position_y;
         local->unk28[2] = this->position_z;
-        func_8035C080(this, 1);
+        chflotsam_setNextState(this, 1);
     }//L8035C9AC
 
     player_getPosition(plyr_pos);
@@ -285,7 +285,7 @@ void func_8035C8F4(Actor *this){
             && func_80329210(this, &plyr_pos)
             && plyr_pos[1] < this->position_y + 100.0f
         ){
-            func_8035C080(this, 3);
+            chflotsam_setNextState(this, 3);
         }
     }//L8035CA80
 
@@ -298,29 +298,29 @@ void func_8035C8F4(Actor *this){
         this->yaw = local->unk0*(local->unk34[2] - local->unk34[1]) + local->unk34[1];
         if(skeletalAnim_getLoopCount(this->unk148) > 0){
             if(ml_vec3f_distance(this->position, local->unk28) < 10.0f){
-                func_8035C080(this, 1);
+                chflotsam_setNextState(this, 1);
             }
             else if(local->unkC > 0){//L8035CB8C
                 local->unkC--;
                 if(local->unkC > 0){
-                    func_8035C080(this, 7);
+                    chflotsam_setNextState(this, 7);
                 }
                 else{
-                    func_8035C080(this, 2);
+                    chflotsam_setNextState(this, 2);
                 }
             }
             else{
-                func_8035C080(this, 2);
+                chflotsam_setNextState(this, 2);
             }
         }
     }//L8035CBD4
 
     if(this->state == 2){
         if(sp3C < 800.0f){
-            func_8035C080(this, 3);
+            chflotsam_setNextState(this, 3);
         }
         else{
-            func_8035C080(this, 4);
+            chflotsam_setNextState(this, 4);
         }
     }//L8035CC38
 

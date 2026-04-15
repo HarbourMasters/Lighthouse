@@ -19,7 +19,7 @@ void Sprite::BuildSpriteStructure() {
 
         if (!frameData.paletteData.empty()) {
             // Palette must be at Align8(sizeof(BKSpriteFrame)) = offset 24.
-            // func_802F4C3C aligns (frame_ptr+1) to 8 before reading palette,
+            // print_getLettersFromFont aligns (frame_ptr+1) to 8 before reading palette,
             // and spriteRender_drawWithSegment does the same.
             frameSize = Align8(frameSize);
             frameSize += frameData.paletteData.size();
@@ -74,7 +74,7 @@ void Sprite::BuildSpriteStructure() {
         offset += sizeof(BKSpriteFrame);
 
         // Write palette at Align8(sizeof(BKSpriteFrame)) = offset 24.
-        // Both func_802F4C3C and spriteRender_drawWithSegment walk (frame_ptr+1)
+        // Both print_getLettersFromFont and spriteRender_drawWithSegment walk (frame_ptr+1)
         // up to the next 8-byte alignment before reading the palette.
         if (!frameData.paletteData.empty()) {
             offset = Align8(offset);
@@ -101,7 +101,7 @@ void Sprite::BuildSpriteStructure() {
             // The fast3d interpreter reads RGBA5551 as BE when processing
             // gDPLoadTextureBlock, so the data must remain as-is.
             // Decomp code that reads this data directly as u16* (e.g. font
-            // system in print.c func_802F4A24) must do a BE byte-read instead.
+            // system in print.c print_setBoldFontTexturePixel) must do a BE byte-read instead.
             offset += chunkData.textureData.size();
         }
 

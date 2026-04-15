@@ -66,7 +66,7 @@ void func_80386ACC(ActorMarker *this_marker, ActorMarker *other_marker){
     Actor *this = marker_getActor(this_marker);
 
     if(!this->has_met_before){
-        if(gcdialog_showText(0xad8, 0, NULL, NULL, NULL, NULL)){
+        if(gcdialog_showDialog(0xad8, 0, NULL, NULL, NULL, NULL)){
             this->has_met_before = true;
         }
     }
@@ -204,7 +204,7 @@ void chnapper_update(Actor *this){
         }
 
         if(sp70 < 0.35 && 0.35 <= sp74){
-            if(!func_803114B0()){
+            if(!gcdialog_hasCurrentTextId()){
                 gcsfx_playWithPitch(SFX_3F5_UNKNOWN, randf2(0.9f, 1.1f), 0x7fff);
             }
         }

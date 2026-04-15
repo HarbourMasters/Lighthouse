@@ -16,7 +16,7 @@ void func_80351AD0(Struct68s *arg0, enum asset_e model_id);
 typedef struct {
     s16 unk0;
     u8 unk2;
-    u8 unk3;
+    u8 mapId;
 }Struct_Core2_C9F00_1;
 
 typedef struct {
@@ -211,9 +211,9 @@ void func_803513EC(ModelProp *arg0, s32 arg1) {
     sp3C[1] = (f32) arg0->unk4[1];
     sp3C[2] = (f32) arg0->unk4[2];
     sp2C[0] = 0.0f;
-    sp2C[1] = (f32) (arg0->unk0_15 * 2);
-    sp2C[2] = (f32) (arg0->unk0_7 * 2);
-    func_8035126C(sp3C, sp2C, (f32) (arg0->unkA / 100.0), arg1, arg0->unk0_31 + 0x2D1);
+    sp2C[1] = (f32) (arg0->yaw * 2);
+    sp2C[2] = (f32) (arg0->roll * 2);
+    func_8035126C(sp3C, sp2C, (f32) (arg0->scale / 100.0), arg1, arg0->modelId + 0x2D1);
 }
 
 
@@ -249,7 +249,7 @@ bool func_803515EC(NodeProp *arg0) {
     } else {
         for(phi_s0 = D_803725C0; phi_s0->unk0 != 0; phi_s0++){
             if( (arg0->unk8 == phi_s0->unk0) 
-                && ((phi_s0->unk3 == 0) || (map_get() == phi_s0->unk3))
+                && ((phi_s0->mapId == 0) || (gsworld_getMap() == phi_s0->mapId))
             ){
                 sp48[0] = (s32) arg0->x;
                 sp48[1] = (s32) arg0->y;
@@ -278,8 +278,8 @@ bool func_80351724(void * arg0){
     // N64 offset 0xA = flags u16; bit 1 = unk8_1, bit 5 = unk8_5. Use struct access instead.
     Prop *prop = (Prop *)arg0;
     if (prop->unk8_1 && prop->unk8_5) {
-        prop->actorProp.unk8_5 = false;
-        prop->actorProp.unk8_4 = true;
+        prop->actorProp.isMirrored = false;
+        prop->actorProp.isNotFeatherEggOrNote = true;
     }
     return true;
 }
@@ -348,7 +348,7 @@ void func_803518E8(void){
 
 void func_80351954(Struct68s *arg0){
     if(arg0->unk0){
-        sfxSource_func_8030E2C4(arg0->unk0);
+        sfxSource_triggerCallbackByIndex(arg0->unk0);
         sfxsource_freeSfxsourceByIndex(arg0->unk0);
         arg0->unk0 = 0;
     }

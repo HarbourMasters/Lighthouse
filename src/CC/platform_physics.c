@@ -16,7 +16,7 @@ extern BKCollisionTri *func_802E805C(BKCollisionList *, BKVertexList *, f32[3], 
 extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]);
 extern BKCollisionTri *func_802E9118(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3], s32, s32);
 extern BKCollisionTri *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], f32 *, f32, f32[3], f32, f32[3], s32);
-extern int func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
+extern bool func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
 
 extern void boneTransformList_getBoneScale(BoneTransformList *, s32, f32[3]);
 extern void boneTransformList_setBoneScale(BoneTransformList *, s32, f32[3]);
@@ -80,7 +80,7 @@ void func_803884A8(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3){
 void func_80388518(s32 arg0){
     s32 sp24;
     if(D_80389FA0.unk21 == 2){
-        sfxSource_func_8030E2C4(D_80389FA0.sfxsourceIdx);
+        sfxSource_triggerCallbackByIndex(D_80389FA0.sfxsourceIdx);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.6f, 20000);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.8f, 20000);
         func_8030E760(SFX_7F_HEAVYDOOR_SLAM, 0.9f, 20000);
@@ -98,7 +98,7 @@ void func_80388518(s32 arg0){
         sfxsource_setSfxId(D_80389FA0.sfxsourceIdx, SFX_7D_ANCHOR_LIFTING);
         sfxSource_setunk43_7ByIndex(D_80389FA0.sfxsourceIdx, 3);
         sfxsource_setSampleRate(D_80389FA0.sfxsourceIdx, 27000);
-        func_8030E2C4(D_80389FA0.sfxsourceIdx);
+        sfxSource_func_8030E2C4(D_80389FA0.sfxsourceIdx);
     }
 
     if(D_80389FA0.unk21 == 3){
@@ -265,7 +265,7 @@ void func_80388CB4(void){
 
 void func_80388D54(void){
     D_80389FA0.unk21 = 0;
-    if(map_get() == MAP_B_CC_CLANKERS_CAVERN){
+    if(gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN){
         D_80389FA0.unk0 = skeletalAnim_new();
         D_80389FA0.sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();
         D_80389FA0.unk8 = 1.0f;
@@ -329,7 +329,7 @@ void CC_func_80388F4C(void){
     f32 pad[3];
 
     CC_func_80387D4C();
-    if(D_80389FA0.unk21 != 0 && func_80334904() == 2){
+    if(D_80389FA0.unk21 != 0 && gsworld_getUnk0() == 2){
         player_getPosition(sp6C);
         D_80389FA0.unk20 = (ml_vec3f_distance(sp6C, D_80389FA0.unkC) < 200.0f);
 
@@ -362,7 +362,7 @@ void CC_func_80388F4C(void){
             if(D_80389FA0.unk20 && skeletalAnim_getAnimId(D_80389FA0.unk0) != ASSET_C4_ANIM_CLANKER_BITE){
                 skeletalAnim_set(D_80389FA0.unk0, ASSET_C4_ANIM_CLANKER_BITE, 1.0f, 10.0f);
                 if(!D_80389FA0.unk48){
-                    gcdialog_showText(ASSET_D2B_DIALOG_CLANKER_MEET, 0xE, D_80389FA0.unk28, NULL, NULL, NULL);
+                    gcdialog_showDialog(ASSET_D2B_DIALOG_CLANKER_MEET, 0xE, D_80389FA0.unk28, NULL, NULL, NULL);
                     D_80389FA0.unk48 = true;
                 }
             }//L8038918C

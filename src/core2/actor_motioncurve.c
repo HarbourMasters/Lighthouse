@@ -294,7 +294,7 @@ void func_80296608(void){
     current_state = bs_getState();
     switch(bs_getInterruptType()){
         case BS_INTR_18_CROC_ATE_WRONG: //L80296654
-            func_802AD318();
+            bscroc_set_ate_wrong_thing();
             sp2C = 2;
             break;
         case BS_INTR_A:  //L8029666C
@@ -382,7 +382,7 @@ void func_80296608(void){
             sp2C = 2;
             break;
         case BS_INTR_1F: //L80296868
-            if(func_80297C6C() != 3 && baMarker_isCollidable()){
+            if(baiFrame_getState() != 3 && baMarker_isCollidable()){
         case BS_INTR_31: //L8029688C
                 func_802960C4(2);
                 item_dec(ITEM_14_HEALTH);
@@ -391,7 +391,7 @@ void func_80296608(void){
             }
             break;
         case BS_INTR_21: //L802968B4
-            if(func_80297C6C() != 3){
+            if(baiFrame_getState() != 3){
         case BS_INTR_33: //L802968C8
                 func_802960C4(0);
                 item_dec(ITEM_14_HEALTH);
@@ -400,7 +400,7 @@ void func_80296608(void){
             }
             break;
         case BS_INTR_20: //L802968F0
-            if(func_80297C6C() != 3){
+            if(baiFrame_getState() != 3){
                 func_802960C4(1);
                 item_dec(ITEM_14_HEALTH);
                 next_state = func_802962BC(0);
@@ -439,7 +439,7 @@ void func_80296608(void){
             sp1C = player_getTransformation();
             sp1C = !((sp1C == TRANSFORM_1_BANJO) || (sp1C == TRANSFORM_7_WISHWASHY));
             if( 
-                !func_80298850() 
+                !balookat_getState() 
                 && !sp1C 
                 && !baflag_isTrue(BA_FLAG_F)
                 && !player_isStable()
