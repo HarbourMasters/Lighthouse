@@ -2,10 +2,6 @@
 #define NAMETAG_H
 
 #include <libultraship/color.h>
-#include <libultraship/libultra.h>
-#include "include/prop.h"
-
-using Actor = actor_s;
 
 typedef struct {
     const char* tag;       // Tag identifier to filter/remove multiple tags
@@ -20,6 +16,7 @@ void NameTag_RegisterHooks();
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include "include/prop.h"
 
 // Registers a name tag to an actor with additional options applied
 void NameTag_RegisterForActorWithOptions(Actor* actor, const char* text, NameTagOptions options);

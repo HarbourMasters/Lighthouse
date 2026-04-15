@@ -1,352 +1,163 @@
-#include "nametag.h"
-#include <libultraship/bridge.h>
 #include <vector>
-#include <algorithm>
-// #include "soh/frame_interpolation.h"
-// #include "soh/Enhancements/custom-message/CustomMessageInterfaceAddon.h"
-#include "src/port/enhancements/events/hooks/EventSystem.h"
-#include "src/port/enhancements/events/hooks/Events.h"
-#include "src/port/ShipUtils.h"
+#include <string>
+
+#include "ShipInit.hpp"
+#include "port/ui/Menu.h"
+#include "port/enhancements/events/hooks/Events.h"
+#include "port/ui/cvar_prefixes.h"
+#include <ship/window/gui/GuiWindow.h>
+#include "nametag.h"
 
 extern "C" {
-// #include "z64.h"
-// #include "macros.h"
-#include "src/port/ui/cvar_prefixes.h"
-#include "functions.h"
-#include "variables.h"
+    bool viewport_func_8024E030(float pos[3], float* screenOut);
+    extern int gFramebufferWidth;
+    extern int gFramebufferHeight;
 }
 
-typedef struct {
-    Actor* actor;
-    std::string text;          // Original text
-    std::string processedText; // Text filtered for supported font textures
-    const char* tag;           // Tag identifier
-    Color_RGBA8 textColor;     // Text color override. Global color is used if alpha is 0
-    int16_t height;            // Textbox height
-    int16_t width;             // Textbox width
-    int16_t yOffset;           // Addition Y offset
-    uint8_t noZBuffer;         // Allow rendering over geometry
-    Mtx* mtx;                  // Allocated Mtx for rendering
-    Vtx* vtx;                  // Allocated Vtx for rendering
-} NameTag;
+struct NametagTableEntry {
+    int32_t assetId;
+    const char* label;
+    float yOffset;
+};
 
-static std::vector<NameTag> nameTags;
-static std::vector<Gfx> nameTagDl;
-static bool sMirrorWorldActive = false;
+// Asset-id  nametag lookup. Add entries here to tag new actors, markered
+// props, or static sprite props  all three dispatch paths converge on this
+// single table by looking up the model/sprite asset.
+constexpr NametagTableEntry sNametagTable[] = {
+    { ASSET_350_MODEL_TERMITE,      "Termite",       150.0f },
+    { ASSET_3C5_MODEL_GRUBLIN,      "Grublin",       150.0f },
+    { ASSET_353_MODEL_BIGBUTT,      "BigButt",       150.0f },
+    { ASSET_3C0_MODEL_JINJO_BLUE,   "Blue Jinjo",    150.0f },
+    { ASSET_3C2_MODEL_JINJO_GREEN,  "Green Jinjo",   150.0f },
+    { ASSET_3BC_MODEL_JINJO_ORANGE, "Orange Jinjo",  150.0f },
+    { ASSET_3C1_MODEL_JINJO_PINK,   "Pink Jinjo",    150.0f },
+    { ASSET_3BB_MODEL_JINJO_YELLOW, "Yellow Jinjo",  150.0f },
+    { ASSET_6D6_SPRITE_MUSIC_NOTE,  "Note",           80.0f },
+    { ASSET_41A_SPRITE_MUMBO_TOKEN, "Mumbo Token",    80.0f },
+};
 
-void NameTag_RegisterHooks();
-
-void FreeNameTag(NameTag* nameTag) {
-    if (nameTag->vtx != nullptr) {
-        free(nameTag->vtx);
-        nameTag->vtx = nullptr;
+const NametagTableEntry* LookupNametag(int32_t assetId) {
+    for (const auto& entry : sNametagTable) {
+        if (entry.assetId == assetId) {
+            return &entry;
+        }
     }
-    if (nameTag->mtx != nullptr) {
-        free(nameTag->mtx);
-        nameTag->mtx = nullptr;
-    }
+    return nullptr;
 }
 
-void DrawNameTag(const NameTag* nameTag) {
-    if (nameTag->actor == nullptr || nameTag->actor->marker->drawFunc == nullptr || //!nameTag->actor->marker->isDrawn ||
-        nameTag->vtx == nullptr || nameTag->mtx == nullptr) {
-        return;
-    }
+struct NametagEntry {
+    float pos[3];
+    std::string text;
+};
+std::vector<NametagEntry> sNametagQueue;
 
-    s32 dist = func_8032970C(nameTag->actor);
-    // Name tag is too far away to meaningfully read, don't bother rendering it
-    if (dist > 440000) {
-        return;
-    }
+namespace LighthouseGui {
+    class NametagOverlay : public Ship::GuiWindow {
+    public:
+        using GuiWindow::GuiWindow;
+        void InitElement() override {}
+        void UpdateElement() override {}
+        void DrawElement() override {}
+        void Draw() override {
+            ImDrawList* drawList = ImGui::GetForegroundDrawList();
+            ImVec2 vpSize = ImGui::GetMainViewport()->Size;
+            ImVec2 vpPos = ImGui::GetMainViewport()->Pos;
+            float scaleX = vpSize.x / static_cast<float>(gFramebufferWidth);
+            float scaleY = vpSize.y / static_cast<float>(gFramebufferHeight);
 
-    // Fade out name tags that are far away
-    float alpha = 1.0f;
-    if (dist > 360000) {
-        alpha = (440000 - dist) / 80000.0f;
-    }
+            const ImU32 bgColor = IM_COL32(0, 0, 0, 200);
+            const ImU32 borderColor = IM_COL32(64, 128, 255, 255);
+            const ImU32 textColor = IM_COL32(255, 255, 255, 255);
+            const ImVec2 padding(6.0f, 3.0f);
 
-    float scale = 75.0f / 100.f;
-
-    size_t numChar = nameTag->processedText.length();
-    // No text to render
-    if (numChar == 0) {
-        return;
-    }
-
-    Color_RGBA8 textboxColor = { 0, 0, 0, 80 };
-    Color_RGBA8 textColor = { 255, 255, 255, 255 };
-
-    if (CVarGetInteger(CVAR_COSMETIC("HUD.NameTagActorBackground.Changed"), 0)) {
-        textboxColor = CVarGetColor(CVAR_COSMETIC("HUD.NameTagActorBackground.Value"), textboxColor);
-    }
-    if (CVarGetInteger(CVAR_COSMETIC("HUD.NameTagActorText.Changed"), 0)) {
-        textColor = CVarGetColor(CVAR_COSMETIC("HUD.NameTagActorText.Value"), textColor);
-    }
-
-    //FrameInterpolation_RecordOpenChild(nameTag->actor, 0);
-
-    // Prefer the highest between world position and focus position if targetable
-    float posY = nameTag->actor->position_y;
-    //if (nameTag->actor->flags & ACTOR_FLAG_ATTENTION_ENABLED) {
-    //    posY = std::max(posY, nameTag->actor->focus.pos.y);
-    //}
-
-    posY += nameTag->yOffset + 16;
-
-    // Set position, billboard effect, scale (with mirror mode), then center nametag
-    //Matrix_Translate(nameTag->actor->world.pos.x, posY, nameTag->actor->world.pos.z, MTXMODE_NEW);
-    //Matrix_ReplaceRotation(&play->billboardMtxF);
-    //Matrix_Scale(scale * (sMirrorWorldActive ? -1.0f : 1.0f), -scale, 1.0f, MTXMODE_APPLY);
-    //Matrix_Translate(-(float)nameTag->width / 2, -nameTag->height, 0, MTXMODE_APPLY);
-    //Matrix_ToMtx(nameTag->mtx, (char*)__FILE__, __LINE__);
-
-    //nameTagDl.push_back(gsSPMatrix(nameTag->mtx, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW));
-
-    //// textbox
-    //nameTagDl.push_back(gsSPVertex(nameTag->vtx, 4, 0));
-    //nameTagDl.push_back(gsDPSetPrimColor(0, 0, textboxColor.r, textboxColor.g, textboxColor.b, textboxColor.a * alpha));
-
-    // Multi-instruction macro, need to insert all to the dl buffer
-    //Gfx textboxTexture[] = { gsDPLoadTextureBlock_4b(gDefaultMessageBackgroundTex, G_IM_FMT_I, 128, 64, 0, G_TX_MIRROR,
-    //                                                 G_TX_NOMIRROR, 7, 0, G_TX_NOLOD, G_TX_NOLOD) };
-    //nameTagDl.insert(nameTagDl.end(), std::begin(textboxTexture), std::end(textboxTexture));
-
-    //nameTagDl.push_back(gsSP1Quadrangle(0, 2, 3, 1, 0));
-
-    // text
-    //if (nameTag->textColor.a == 0) {
-    //    nameTagDl.push_back(gsDPSetPrimColor(0, 0, textColor.r, textColor.g, textColor.b, textColor.a * alpha));
-    //} else {
-    //    nameTagDl.push_back(gsDPSetPrimColor(0, 0, nameTag->textColor.r, nameTag->textColor.g, nameTag->textColor.b,
-    //                                         nameTag->textColor.a * alpha));
-    //}
-
-    //print_dialog(nameTag->actor->position_x, posY, (u8*)nameTag->tag);
-
-    //for (size_t i = 0, vtxGroup = 0; i < numChar; i++) {
-    //    // A maximum of 64 Vtx can be loaded at once by gSPVertex, or basically 16 characters
-    //    // handle loading groups of 16 chars at a time until there are no more left to load
-    //    if (i % 16 == 0) {
-    //        size_t numVtxToLoad = std::min<size_t>(numChar - i, 16) * 4;
-    //        nameTagDl.push_back(gsSPVertex(&(nameTag->vtx)[4 + (vtxGroup * 16 * 4)], numVtxToLoad, 0));
-    //        vtxGroup++;
-    //    }
-
-    //    uintptr_t texture = (uintptr_t)Ship_GetCharFontTexture(nameTag->processedText[i]);
-    //    int16_t vertexStart = 4 * (i % 16);
-
-    //    // Multi-instruction macro, need to insert all to the dl buffer
-    //    Gfx charTexture[] = { gsDPLoadTextureBlock_4b(texture, G_IM_FMT_I, FONT_CHAR_TEX_WIDTH, FONT_CHAR_TEX_HEIGHT, 0,
-    //                                                  G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP,
-    //                                                  G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD) };
-    //    nameTagDl.insert(nameTagDl.end(), std::begin(charTexture), std::end(charTexture));
-
-    //    nameTagDl.push_back(gsSP1Quadrangle(vertexStart, vertexStart + 2, vertexStart + 3, vertexStart + 1, 0));
-    //}
-
-    //nameTagDl.push_back(gsSPPopMatrix(G_MTX_MODELVIEW));
-
-    //FrameInterpolation_RecordCloseChild();
-}
-
-// Draw all the name tags by leveraging a system heap buffer for majority of the graphics commands
-void DrawNameTags() {
-    if (/*gPlayState == nullptr ||*/ nameTags.size() == 0) {
-        return;
-    }
-
-    //nameTagDl.clear();
-
-    //OPEN_DISPS(gPlayState->state.gfxCtx);
-
-    //// Setup before rendering name tags
-    //POLY_XLU_DISP = Gfx_SetupDL_39(POLY_XLU_DISP);
-
-    //nameTagDl.push_back(gsDPSetAlphaCompare(G_AC_NONE));
-    //nameTagDl.push_back(
-    //    gsDPSetCombineLERP(0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0));
-
-    bool zbufferEnabled = false;
-
-    // Add all the name tags
-    for (const auto& nameTag : nameTags) {
-        // Toggle ZBuffer mode based on last state and next tag
-        /*if (zbufferEnabled == nameTag.noZBuffer) {
-            if (nameTag.noZBuffer) {
-                nameTagDl.push_back(gsSPClearGeometryMode(G_ZBUFFER));
-                zbufferEnabled = false;
-            } else {
-                nameTagDl.push_back(gsSPSetGeometryMode(G_ZBUFFER));
-                zbufferEnabled = true;
+            for (const auto& entry : sNametagQueue) {
+                float pos[3] = { entry.pos[0], entry.pos[1], entry.pos[2] };
+                float screen[2];
+                if (viewport_func_8024E030(pos, screen)) {
+                    ImVec2 textSize = ImGui::CalcTextSize(entry.text.c_str());
+                    ImVec2 anchor(vpPos.x + screen[0] * scaleX, vpPos.y + screen[1] * scaleY);
+                    ImVec2 textTL(anchor.x - textSize.x * 0.5f, anchor.y - textSize.y * 0.5f);
+                    ImVec2 boxTL(textTL.x - padding.x, textTL.y - padding.y);
+                    ImVec2 boxBR(textTL.x + textSize.x + padding.x, textTL.y + textSize.y + padding.y);
+                    drawList->AddRectFilled(boxTL, boxBR, bgColor, 3.0f);
+                    drawList->AddRect(boxTL, boxBR, borderColor, 3.0f, 0, 1.5f);
+                    drawList->AddText(textTL, textColor, entry.text.c_str());
+                }
             }
-        }*/
-
-        DrawNameTag(&nameTag);
-    }
-
-    // End the display list buffer
-    //nameTagDl.push_back(gsSPEndDisplayList());
-
-    //gSPDisplayList(POLY_XLU_DISP++, nameTagDl.data());
-
-    //CLOSE_DISPS(gPlayState->state.gfxCtx);
-}
-
-void UpdateNameTags(IEvent* event) {
-    // Leveraging ZBuffer above allows the name tags to be obscured by OPA surfaces based on depth.
-    // However, XLU surfaces do not calculate depth with regards to other XLU surfaces.
-    // With multiple name tags, a tag can only obscure other tags based on draw order.
-    // Here we sort the tags so that actors further away from the camera are ordered first.
-    //std::sort(nameTags.begin(), nameTags.end(), [](NameTag a, NameTag b) {
-    //    if (a.actor == nullptr || b.actor == nullptr) {
-    //        return true;
-    //    }
-
-    //    f32 aDistToCamera = Actor_WorldDistXZToPoint(a.actor, &gPlayState->mainCamera.eye);
-    //    f32 bDistToCamera = Actor_WorldDistXZToPoint(b.actor, &gPlayState->mainCamera.eye);
-
-    //    return aDistToCamera > bDistToCamera;
-    //});
-
-    if (getGameMode() == GAME_MODE_3_NORMAL) {
-        DrawNameTags();
-    }
-
-    // sMirrorWorldActive = CVarGetInteger(CVAR_ENHANCEMENT("MirroredWorld"), 0);
-}
-
-extern "C" void NameTag_RegisterForActorWithOptions(Actor* actor, const char* text, NameTagOptions options) {
-    std::string processedText = std::string(/*Interface_ReplaceSpecialCharacters((char*)text*/ text);
-
-    // Strip out unsupported characters
-    // 172 is max supported texture for the in-game font system,
-    // and filter anything less than a space but not the newline or nul characters
-    processedText.erase(
-        std::remove_if(processedText.begin(), processedText.end(),
-                       [](const char& c) { return (uint8_t)c > 172 || (c < ' ' && c != '\n' && c != '\0'); }),
-        processedText.end());
-
-    size_t numChar = processedText.length();
-    int16_t numLines = 1;
-    int16_t offsetX = 0;
-    int16_t maxOffsetX = 0;
-
-    // 4 vertex per character plus one extra group of 4 for the textbox
-    Vtx* vertices = (Vtx*)calloc(sizeof(Vtx[4]), numChar + 1);
-
-    // Set all the char vtx first to get the total size for the textbox
-    //for (size_t i = 0; i < numChar; i++) {
-    //    if (processedText[i] == '\n') {
-    //        offsetX = 0;
-    //        numLines++;
-    //    }
-
-    //    int16_t charWidth = (int16_t)(Ship_GetCharFontWidth(processedText[i]));
-
-    //    Ship_CreateQuadVertexGroup(&(vertices)[(i + 1) * 4], offsetX, (numLines - 1) * 16, charWidth, 16, 0);
-    //    offsetX += charWidth;
-
-    //    if (offsetX > maxOffsetX) {
-    //        maxOffsetX = offsetX;
-    //    }
-    //}
-
-    // Vtx for textbox, add +/- 4 in all directions
-    int16_t height = (numLines * 16) + 8;
-    int16_t width = maxOffsetX + 8;
-    //Ship_CreateQuadVertexGroup(vertices, -4, -4, width, height, 0);
-
-    // Update the texture coordinates to consume the full textbox texture size (including mirror region)
-    vertices[1].v.tc[0] = 256 << 5;
-    vertices[2].v.tc[1] = 64 << 5;
-    vertices[3].v.tc[0] = 256 << 5;
-    vertices[3].v.tc[1] = 64 << 5;
-
-    NameTag nameTag;
-    nameTag.actor = actor;
-    nameTag.text = std::string(text);
-    nameTag.processedText = processedText;
-    nameTag.tag = options.tag;
-    nameTag.textColor = options.textColor;
-    nameTag.height = height;
-    nameTag.width = width;
-    nameTag.yOffset = options.yOffset;
-    nameTag.noZBuffer = options.noZBuffer;
-    nameTag.mtx = new Mtx();
-    nameTag.vtx = vertices;
-
-    nameTags.push_back(nameTag);
-
-    NameTag_RegisterHooks();
-}
-
-extern "C" void NameTag_RegisterForActor(Actor* actor, const char* text) {
-    NameTag_RegisterForActorWithOptions(actor, text, {});
-}
-
-extern "C" void NameTag_RemoveAllForActor(Actor* actor) {
-    for (auto it = nameTags.begin(); it != nameTags.end();) {
-        if (it->actor == actor) {
-            FreeNameTag(&(*it));
-            it = nameTags.erase(it);
-        } else {
-            it++;
         }
-    }
+    };
+} // namespace LighthouseGui
 
-    NameTag_RegisterHooks();
-}
+void RegisterNametagListener_Init() {
+    // Clear the queue at the start of each game tick.
+    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_HIGH, [](IEvent* event) {
+        sNametagQueue.clear();
+        });
 
-extern "C" void NameTag_RemoveAllByTag(const char* tag) {
-    for (auto it = nameTags.begin(); it != nameTags.end();) {
-        if (it->tag != nullptr && strcmp(it->tag, tag) == 0) {
-            FreeNameTag(&(*it));
-            it = nameTags.erase(it);
-        } else {
-            it++;
+    REGISTER_LISTENER(OnActorTick, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnActorTick*>(event);
+        if (ev->actor == nullptr || ev->actor->actor_info == nullptr) {
+            return;
         }
-    }
+        const NametagTableEntry* entry = LookupNametag(ev->actor->actor_info->modelId);
+        if (entry == nullptr) {
+            return;
+        }
+        CALL_EVENT(OnNametagDraw, ev->actor, entry->label, entry->yOffset);
+        });
 
-    NameTag_RegisterHooks();
+    REGISTER_LISTENER(OnPropTick, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnPropTick*>(event);
+        if (ev->marker == nullptr || ev->position == nullptr) {
+            return;
+        }
+        const NametagTableEntry* entry = LookupNametag(ev->marker->modelId);
+        if (entry == nullptr) {
+            return;
+        }
+        NametagEntry queued;
+        queued.pos[0] = ev->position[0];
+        queued.pos[1] = ev->position[1] + entry->yOffset;
+        queued.pos[2] = ev->position[2];
+        queued.text = entry->label;
+        sNametagQueue.push_back(std::move(queued));
+        });
+
+    REGISTER_LISTENER(OnSpritePropTick, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnSpritePropTick*>(event);
+        if (ev->position == nullptr) {
+            return;
+        }
+        const NametagTableEntry* entry = LookupNametag(ev->assetId);
+        if (entry == nullptr) {
+            return;
+        }
+        NametagEntry queued;
+        queued.pos[0] = ev->position[0];
+        queued.pos[1] = ev->position[1] + entry->yOffset;
+        queued.pos[2] = ev->position[2];
+        queued.text = entry->label;
+        sNametagQueue.push_back(std::move(queued));
+        });
+
+    REGISTER_LISTENER(OnNametagDraw, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnNametagDraw*>(event);
+        if (ev->actor == nullptr || ev->label == nullptr) {
+            return;
+        }
+        NametagEntry entry;
+        entry.pos[0] = ev->actor->position[0];
+        entry.pos[1] = ev->actor->position[1] + ev->yOffset;
+        entry.pos[2] = ev->actor->position[2];
+        entry.text = ev->label;
+        sNametagQueue.push_back(std::move(entry));
+        });
 }
 
-void RemoveAllNameTags(IEvent* event) {
-    for (auto& nameTag : nameTags) {
-        FreeNameTag(&nameTag);
-    }
-
-    nameTags.clear();
-
-    NameTag_RegisterHooks();
-}
-
-void RegisterNameTag(IEvent* event) {
-    OnActorSpawn* ev = (OnActorSpawn*) event;
-    //if (ev->spawnedActor != nullptr && ev->spawnedActor->actor_info->actorId == ACTOR_51_MUSIC_NOTE) {
-
-        NameTag_RegisterForActor(ev->spawnedActor, "Note x");
-    //}
-}
-
-void NameTag_RegisterHooks() {
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, UpdateNameTags);
-    REGISTER_LISTENER(OnActorDestroy, EVENT_PRIORITY_HIGH, [](IEvent* event) {
-        OnActorDestroy* ev = (OnActorDestroy*)event;
-
-        NameTag_RemoveAllForActor(ev->actor);
+static RegisterMenuInitFunc menuInitFunc([]() {
+    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto overlay = std::make_shared<LighthouseGui::NametagOverlay>(CVAR_PREFIX_WINDOW ".NametagOverlay", "Nametag Overlay");
+    gui->AddGuiWindow(overlay);
+    overlay->Show();
     });
-    REGISTER_LISTENER(MapTransitionEnd, EVENT_PRIORITY_HIGH, RemoveAllNameTags);
-    REGISTER_LISTENER(OnActorSpawn, EVENT_PRIORITY_NORMAL, RegisterNameTag);
-    //GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnGameFrameUpdate>(gameStatUpdateHookID);
-    //GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayDrawEnd>(drawHookID);
-    //GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayDestroy>(playDestroyHookID);
-    //GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorDestroy>(actorDestroyHookID);
-    //gameStatUpdateHookID = 0;
-    //drawHookID = 0;
-    //playDestroyHookID = 0;
-    //actorDestroyHookID = 0;
-    //sRegisteredHooks = false;
-
-    // Render name tags at the end of the Play World drawing
-    //drawHookID = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayDrawEnd>(DrawNameTags);
-}
+static RegisterShipInitFunc initFunc(RegisterNametagListener_Init, {});

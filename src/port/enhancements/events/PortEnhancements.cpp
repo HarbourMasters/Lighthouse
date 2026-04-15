@@ -8,7 +8,6 @@
 
 void PortEnhancements_Init() {
     PortEnhancements_Register();
-    NameTag_RegisterHooks();
 }
 
 void PortEnhancements_Register() {
@@ -17,6 +16,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(OnActorTick);
+    REGISTER_EVENT(OnPropTick);
+    REGISTER_EVENT(OnSpritePropTick);
 
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);
@@ -27,6 +29,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnWaterPyramidTimer);
+    REGISTER_EVENT(OnNametagDraw);
 
     // Register game events
     REGISTER_EVENT(OnGameLoad);
