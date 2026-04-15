@@ -1,5 +1,6 @@
 ﻿#include "SaveManager.h"
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipUtils.h"
@@ -27,12 +28,15 @@ static bool mLoaded = false;
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
     const char* romName = port_getRomhackName();
-    if (!Ship_IsCStringEmpty(romName)) {
-        std::string dir = Ship::Context::GetPathRelativeToAppDirectory("saves/" + std::string(romName));
-        fs::create_directories(dir);
-        return dir + "/" + filename;
+    std::string dir = Ship_IsCStringEmpty(romName)
+                          ? Ship::Context::GetPathRelativeToAppDirectory("saves")
+                          : Ship::Context::GetPathRelativeToAppDirectory("saves/" + std::string(romName));
+    std::error_code ec;
+    fs::create_directories(dir, ec);
+    if (ec) {
+        SPDLOG_ERROR("SaveManager: failed to create save directory \"{}\": {}", dir, ec.message());
     }
-    return Ship::Context::GetPathRelativeToAppDirectory("saves/" + filename);
+    return dir + "/" + filename;
 }
 
 static int BitfieldGetBit(const uint8_t* array, int index) {
@@ -521,6 +525,8 @@ static void SaveGlobalData() {
     if (ofs.is_open()) {
         ofs << CollapsedJSONArray(j);
         ofs.close();
+    } else {
+        SPDLOG_ERROR("SaveManager: failed to open global save file \"{}\" for writing", globalPath);
     }
 }
 
@@ -563,6 +569,8 @@ void SaveManager_Init() {
             if (outputFile.is_open()) {
                 outputFile << collapsedString;
                 outputFile.close();
+            } else {
+                SPDLOG_ERROR("SaveManager: failed to open save file \"{}\" for writing", filePath);
             }
         }
 
