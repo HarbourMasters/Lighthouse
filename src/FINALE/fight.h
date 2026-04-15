@@ -113,7 +113,7 @@ extern void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2
 extern void chfinalboss_func_803872F8(Actor *arg0);
 extern s32 chfinalboss_func_80387340(Actor *this, f32 arg1);
 extern void chfinalboss_func_803873DC(Actor *actor, f32 arg1, f32 arg2);
-extern bool chfinalboss_func_80387470(Actor *this, f32 arg1[3], f32 v_max, f32 arg3, f32 arg4, f32 arg5, f32 arg6);
+extern bool chfinalboss_flyTo(Actor *this, f32 arg1[3], f32 v_max, f32 arg3, f32 arg4, f32 arg5, f32 arg6);
 extern void chfinalboss_func_8038770C(Actor *actor);
 extern void chfinalboss_setPhase(ActorMarker *this, enum ch_finalboss_phase_e phase_id);
 extern void chfinalboss_func_80387ACC(Actor *arg0, f32 arg1);

@@ -26,13 +26,13 @@ ActorAnimationInfo chBullAnimations[] ={
 };
 
 
-ActorInfo D_80366090 = {0x3, ACTOR_4_BIGBUTT, ASSET_353_MODEL_BIGBUTT, 
+ActorInfo chBigbutt = {0x3, ACTOR_4_BIGBUTT, ASSET_353_MODEL_BIGBUTT, 
     1, chBullAnimations, 
     chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0
 }; 
 
-ActorInfo D_803660B4 = {0x9, ACTOR_E_SMALL_BULL, ASSET_354_MODEL_SMALL_BULL, 
+ActorInfo chSmallBull = {0x9, ACTOR_E_SMALL_BULL, ASSET_354_MODEL_SMALL_BULL, 
     1, chBullAnimations, 
     chbull_update, actor_update_func_80326224, chbull_draw,
     3200, 0, 0.0f, 0

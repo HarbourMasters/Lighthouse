@@ -14,6 +14,11 @@
 #include "core1/core1.h"
 #include "core2/core2.h"
 #include "core2/camera.h"
+#include "core2/abilityprogress.h"
+#include "core2/commonParticle.h"
+#include "core2/dustemitter.h"
+#include "core2/particleemittermanager.h"
+#include "core2/staticcamera.h"
 #include "core2/anim/sprite.h"
 #include "core2/ba/anim.h"
 #include "core2/ba/timer.h"
@@ -31,7 +36,7 @@
 
 #include <libultraship/bridge.h>
 
-// FuncUnk40 defined in core2/sprite_displaydata.h — forward-typedef here to avoid circular include
+// FuncUnk40 defined in core2/commonParticle.h — forward-typedef here to avoid circular include
 #ifndef FUNCUNK40_DEFINED
 #define FUNCUNK40_DEFINED
 typedef s32 (*FuncUnk40)(ActorMarker *, s32, f32[3]);
@@ -228,7 +233,6 @@ ParticleEmitter *func_802EDD8C(f32 pos[3], f32 xz_range, f32 arg2);
 ParticleEmitter *func_802F1EC8(f32 *position);
 ParticleEmitter *func_802F3E98(f32 pos[3], enum asset_e sprite_id);
 ParticleEmitter *func_802F4274(f32 arg0[3]);
-ParticleEmitter *pem_getEmitterByIndex(u8 arg0);
 
 // --- core2/bundle.c ---
 Actor *bundle_spawn_f32(enum bundle_e bundle_id, f32 position[3]);
@@ -618,7 +622,7 @@ void func_802D6264(f32, enum map_e, s32, s32, s32, enum file_progress_e);
 // --- core2/fx/projectile_blueegg.c ---
 void func_80353580(ActorMarker *marker);
 
-// --- core1/audio_musicplayer.c ---
+// --- core1/musicplayer.c ---
 void func_8025A58C(u32 arg0, u32 arg1);
 void func_8025AABC(enum comusic_e track_id);
 void func_8025AEA0(enum comusic_e track_id, s32 arg1);
@@ -659,7 +663,7 @@ void BGS_func_8038F1E0(void);
 // --- BGS/ch/croctus.c ---
 void BGS_func_803885DC(void);
 
-// --- BGS/miniboss_flibbits.c ---
+// --- BGS/ch/frogminigame.c ---
 void BGS_func_8038CED0(void);
 void func_8038CE88(void);
 void func_8038CEA0(void);
@@ -915,7 +919,7 @@ void RBB_func_80386C48(void);
 // --- RBB/ch/eggtoll1.c ---
 void func_8038685C(ActorMarker *marker);
 
-// --- RBB/whistlectrl.c ---
+// --- RBB/ch/whistlectrl.c ---
 s32 chWhistleCtrl_newEvent(Actor *self, s32 whistle_id, Actor *other);
 
 // --- RBB/miniboombox_container.c ---
@@ -932,7 +936,7 @@ bool codeBF0_shouldSpawnQuarrieHoneyComb(ActorMarker *marker);
 
 // --- SM/crc.c ---
 void SM_resetSpawnableActors();
-void codeF0_func_80386540();
+void codeF0_breakAbilitiesIfChecksumsFail();
 
 // --- SM/model_visibility.c ---
 void code2900_checkSMChecksums(void);
@@ -943,11 +947,11 @@ void code26D0_resetSpawnableActorsForTTC(void);
 // --- TTC/ch/leaky.c ---
 bool chLeaky_eggCollision(ActorMarker *marker);
 
-// --- TTC/treasurehunt.c ---
+// --- TTC/ch/treasurehunt.c ---
 void chTreasurehunt_resetProgress(void);
 
 // --- TTC/crc.c ---
-void code3040_func_80389468(void);
+void code3040_checkTTCChecksums(void);
 
 // --- TTC/castle.c ---
 bool maCastle_hasBanjoKazooieCodeBeenEntered(void);
@@ -969,7 +973,7 @@ void func_80250170(u8 arg0, s32 arg1, s32 arg2);
 void func_80250650(void);
 void musicInstruments_init(void);
 
-// --- core1/audio_musicplayer.c ---
+// --- core1/musicplayer.c ---
 int func_8025AEEC(void);
 s32 comusic_active_track_count(void);
 s32 func_8025ADD4(enum comusic_e id);
@@ -1028,7 +1032,7 @@ void func_80247560(void);
 void func_802476DC(void);
 void func_802476EC(Gfx **gfx);
 
-// --- core1/gu/gu_mtx.c ---
+// --- core1/math/mlmtx.c ---
 void _guMtxF2L(float mf[4][4], Mtx *m);
 
 // --- core1/inflate.c ---
@@ -1987,7 +1991,7 @@ s32 chBottlesBonus_getState(void);
 void chBottlesBonus_func_802DD158(Gfx **gfx, Mtx** mtx);
 void chBottlesBonus_func_802DEA74(s32 arg0);
 void chBottlesBonus_func_802DEA8C(s32 arg0, s32 arg1);
-void chBottlesBonus_func_802DEB80(void);
+void chBottlesBonus_resetCompleted(void);
 void chBottlesBonus_lose(u8 *arg0, enum asset_e text_id);
 void chBottlesBonus_spawn(s32 arg0, s32 arg1);
 
@@ -2603,16 +2607,6 @@ void func_80323098(s32 arg0, s32 arg1);
 void overlay_init(void);
 void overlay_update(void);
 
-// --- core2/particle/accel.c ---
-u8 pem_newEmitter(s32 cnt);
-void pem_freeAll(void);
-void pem_setAllInactive(void);
-void pem_free(u8 arg0);
-void pem_updateAll(void);
-void pem_defragAll(void);
-void pem_freeDependencies(void);
-void pem_initDependencies(void);
-
 // --- core2/particle/bathroom.c ---
 void func_8029ADA8(void);
 void func_8029ADCC(void);
@@ -2624,7 +2618,6 @@ void func_8029AF1C(void);
 // --- core2/particle/colordefault.c ---
 bool dustEmitter_isActive(s32 arg0);
 s32 dustEmitter_returnGiven(s32 arg0);
-void dustEmitter_empty(void *self);
 void dustEmitter_init(void);
 void dustEmitter_free(void);
 
@@ -2832,7 +2825,7 @@ void func_802D6924(void);
 void func_802D6948(void);
 
 // --- core2/quiz/questionmanager.c ---
-bool gcquiz_func_8031A154(enum ff_question_type_e q_type, s32 q_index, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(s32, s8));
+bool gcquiz_showQuestion(enum ff_question_type_e q_type, s32 q_index, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(s32, s8));
 bool gcquiz_isNotInInitialState();
 s32 gcquiz_getLastIndexOfQuestionType(enum ff_question_type_e question_type);
 void gcquiz_defrag();
@@ -3047,7 +3040,7 @@ void func_8034C21C(ActorMarker *marker);
 // --- core2/vtx/lighting.c ---
 void lighting_free();
 void lighting_init();
-void lightingbk_vectorList_fromFile(File *file_ptr);
+void lightingVectorList_fromFile(File *file_ptr);
 
 // --- core2/vtx/listutils.c ---
 void func_802E73C8(f32 arg0[3][3]);
@@ -3101,11 +3094,11 @@ s32 func_8038E800(void);
 void func_8038E7C4(void);
 void func_8038E968(s32 idx);
 void lair_func_8038CD48(void);
-void lair_func_8038CF18(void);
+void ff_init(void);
 void lair_func_8038E0B0(void);
 void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v);
 
-// --- LAIR/ch/jiggypuzzle.c ---
+// --- LAIR/jigsawpicture.c ---
 bool jigsawPicture_isJigsawPictureComplete(s32 arg0);
 
 // --- port/stub.c ---
@@ -3231,7 +3224,7 @@ f32 func_8038A6B8(ActorMarker *);
 void baMotor_80250D94(f32, f32, f32);
 void baMotor_80250E94(f32, f32, f32, f32, f32, f32);
 
-// --- core1/io/pfs_manager.c ---
+// --- core1/io/pfsmanager.c ---
 OSContPad *func_8024F3F4(void);
 OSMesgQueue *pfsManager_getFrameReplyQ(void);
 void controller_copyFaceButtons(s32, s32 [6]);

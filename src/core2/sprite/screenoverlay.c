@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 #include <ultra64.h>
-#include "2.0L/PR/region.h"
+#include <PR/region.h>
 
 void func_803382D8(s32 arg0);
 void codeAEDA0_setSpriteDrawMode(s32 arg0);

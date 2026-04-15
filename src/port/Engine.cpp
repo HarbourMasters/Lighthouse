@@ -24,7 +24,7 @@
 #include "build.h"
 #include "port/ui/cvar_prefixes.h"
 #include "ui/LighthouseGui.hpp"
-#include "2.0L/PR/libaudio.h"
+#include <PR/libaudio.h>
 #include "port/save/SaveManager.h"
 #include "port/enhancements/events/PortEnhancements.h"
 #include "port/patches/Patches.h"

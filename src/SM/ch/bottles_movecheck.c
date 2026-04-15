@@ -11,7 +11,7 @@ void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 void func_8038A8F8(Actor *this);
 
 /* .data */
-ActorInfo gCode44D0  = { 
+ActorInfo gSmBridgeChecksumTrigger  = { 
     MARKER_1F0_SM_BRIDGE_CHECKSUM_TRIGGER, ACTOR_3BD_SM_BRIDGE_CHECKSUM_TRIGGER, 0,
     0, NULL, func_8038A8F8, actor_update_func_80326224, func_80325340,
     0, 0, 0.0f, 0

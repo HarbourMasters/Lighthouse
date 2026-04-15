@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "2.0L/PR/n_libaudio.h"
+#include <n_audio/PR/n_libaudio.h>
 
 extern ALBank *music_get_sound_bank(void);
 extern OSIoMesg *func_802405D0(void);

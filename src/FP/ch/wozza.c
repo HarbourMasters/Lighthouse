@@ -12,7 +12,7 @@ typedef struct {
 } ActorLocal_Wozza;
 
 Actor *chWozza_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void FP_func_8038F7AC(Actor *this);
+void chWozza_update(Actor *this);
 
 /* .data */
 ActorAnimationInfo chWozzaAnimations[] ={
@@ -33,7 +33,7 @@ ActorAnimationInfo chWozzaAnimations[] ={
 
 ActorInfo gChWozza = { MARKER_20B_WOZZA, ACTOR_1F3_WOZZA, ASSET_494_MODEL_WOZZA, 
     0x1, chWozzaAnimations,
-    FP_func_8038F7AC, actor_update_func_80326224, chWozza_draw,
+    chWozza_update, actor_update_func_80326224, chWozza_draw,
     0, 0, 1.6f, 0
 };
 
@@ -147,7 +147,7 @@ bool chWozza_retreatToCaveAnimation(Actor *this, f32 arg1[3], f32 arg2, f32 arg3
 
 }
 
-bool FP_func_8038F6C4(Actor *this, f32 arg1[3], f32 arg2){
+bool chWozza_rotate(Actor *this, f32 arg1[3], f32 arg2){
     s32 dTheta;
 
     subaddie_set_ideal_yaw(this, subaddie_getYawToPosition(this, arg1));
@@ -159,7 +159,7 @@ bool FP_func_8038F6C4(Actor *this, f32 arg1[3], f32 arg2){
     return false;
 }
 
-void FP_func_8038F758(ActorMarker *marker){
+void chWozza_spawnJiggy(ActorMarker *marker){
     Actor *this = marker_getActor(reinterpret_cast(ActorMarker *, marker));
     Actor *jiggy = spawn_child_actor(ACTOR_1F4_WOZZAS_JIGGY, &this);
     s32 pad;
@@ -170,7 +170,7 @@ void FP_func_8038F758(ActorMarker *marker){
 
 }
 
-void FP_func_8038F7AC(Actor *this){
+void chWozza_update(Actor *this){
     ActorLocal_Wozza * local = (ActorLocal_Wozza *)&this->local;
 
     if(volatileFlag_get(VOLATILE_FLAG_C4_WOZZA_HIDE_IN_SNS_PARADE)){
@@ -205,7 +205,7 @@ void FP_func_8038F7AC(Actor *this){
             this->position[0] = local->unkC[0];\
             this->position[1] = local->unkC[1];\
             this->position[2] = local->unkC[2];
-            __spawnQueue_add_1((GenFunction_1)FP_func_8038F758, (uintptr_t)this->marker);
+            __spawnQueue_add_1((GenFunction_1)chWozza_spawnJiggy, (uintptr_t)this->marker);
             local->unk30 = false;
         }
     }//L8038F910
@@ -259,7 +259,7 @@ void FP_func_8038F7AC(Actor *this){
             break;
 
         case 5: //L8038FB50
-            FP_func_8038F6C4(this, local->unk18, 1.0f);
+            chWozza_rotate(this, local->unk18, 1.0f);
             if(0.97 < anctrl_getAnimTimer(this->anctrl)){
                 subaddie_set_state_with_direction(this, 6, 0.02f, 1);
                 actor_loopAnimation(this);
@@ -267,7 +267,7 @@ void FP_func_8038F7AC(Actor *this){
             break;
 
         case 6: //L8038FBA8
-            FP_func_8038F6C4(this, local->unk18, 1.0f);
+            chWozza_rotate(this, local->unk18, 1.0f);
             if( subaddie_playerIsWithinSphereAndActive(this, 1700) ) break;
             if( player_movementGroup() == BSGROUP_A_FLYING )    break;
             
@@ -281,7 +281,7 @@ void FP_func_8038F7AC(Actor *this){
             break;
 
         case 7: //L8038FC30
-            if(!FP_func_8038F6C4(this, local->unkC, 4.5f)) 
+            if(!chWozza_rotate(this, local->unkC, 4.5f))
                 break;
 
             if(subaddie_playerIsWithinSphereAndActive(this, 1000) || player_movementGroup() == BSGROUP_A_FLYING){
@@ -309,7 +309,7 @@ void FP_func_8038F7AC(Actor *this){
             }//L8038FD40
 
             if(mapSpecificFlags_get(8)){
-                if(FP_func_8038F6C4(this, D_803925AC, 9.0f)){
+                if(chWozza_rotate(this, D_803925AC, 9.0f)){
                     subaddie_set_state_with_direction(this, 9, 0.02f, 1);
                     actor_playAnimationOnce(this);
                 }
@@ -330,7 +330,7 @@ void FP_func_8038F7AC(Actor *this){
             break;
 
         case 9: //L8038FE14
-            FP_func_8038F6C4(this, D_803925AC, 9.0f);
+            chWozza_rotate(this, D_803925AC, 9.0f);
             if(0.97 < anctrl_getAnimTimer(this->anctrl)){
                 subaddie_set_state_with_direction(this, 10, 0.02f, 1);
                 actor_loopAnimation(this);

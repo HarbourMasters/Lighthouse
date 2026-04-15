@@ -78,18 +78,18 @@ s32 __codeAC520_pad_func_80333698(s32 index) {
     return 0;
 }
 
-void __codeAC520_pad_func_80333734(s32 index, f32 *arg1) {
+void gclights_getPosition(s32 index, f32 *arg1) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
     TUPLE_COPY(arg1, v0->position)
 }
 
-void __codeAC520_pad_func_80333784(s32 index, f32 *arg1) {
+void gclights_getRadii(s32 index, f32 *arg1) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
     arg1[0] = v0->fade_radius_min_unscaled;
     arg1[1] = v0->fade_radius_max_unscaled;
 }
 
-void __codeAC520_pad_func_803337C8(s32 index, s32 *arg1) {
+void gclights_getRgb(s32 index, s32 *arg1) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
     TUPLE_COPY(arg1, v0->rgb)
 }
@@ -170,7 +170,7 @@ static void __lighting_setRgb(s32 index , s32 *rgb) {
     TUPLE_COPY(v0->rgb, rgb);
 }
 
-void lightingbk_vectorList_fromFile(File *file_ptr) {
+void lightingVectorList_fromFile(File *file_ptr) {
     f32 position[3];
     f32 unk18_and_unk1c[2];
     s32 rgb[3];
@@ -207,7 +207,7 @@ s32 __codeAC520_pad_func_80333C78(File *arg0) {
     return file_isNextByteExpected(arg0, 0);
 }
 
-void codeAC520_func_80333D48(BKVertexList *vertex_list, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *ref_vertex_list) {
+void gclights_recolor_vertices(BKVertexList *vertex_list, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *ref_vertex_list) {
     static s32 sBlackRgb[3] = {0, 0, 0};
     Vtx *i_ptr;
     Vtx *end_ptr;

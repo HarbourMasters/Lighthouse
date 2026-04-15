@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 #include <ultra64.h>
-#include "2.0L/PR/region.h"
+#include <PR/region.h>
 
 #include "port/patches/Patches.h"
 

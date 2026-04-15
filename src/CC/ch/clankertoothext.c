@@ -32,7 +32,7 @@ extern ActorInfo D_80389B24 = {
 u8 D_80389F80;
 
 /* .code */
-void CC_func_80386FE0(Actor *this, s32 next_state){
+void chClankerTooth_setNextState(Actor *this, s32 next_state){
     ActorLocal_CC_BF0 *local = (ActorLocal_CC_BF0 *)&this->local;
     s32 prev_state = this->state;
     this->state = next_state;
@@ -85,9 +85,9 @@ void chClankerTooth_update(Actor *this){
         this->roll = 0.0f;
         local->unk0 = (marker->modelId == 0x309) ? 1 : 2;
         local->egg_count = 0;
-        CC_func_80386FE0(this, 1);
+        chClankerTooth_setNextState(this, 1);
         if(levelSpecificFlags_get((local->unk0 == 1)? LEVEL_FLAG_0_CC_TOKEN_TOOTH_OPEN: LEVEL_FLAG_1_CC_JIGGY_TOOTH_OPEN)){
-            CC_func_80386FE0(this, 3);
+            chClankerTooth_setNextState(this, 3);
         }
     }//L803871D8
     player_getPosition(sp70);
@@ -122,7 +122,7 @@ void chClankerTooth_update(Actor *this){
         D_80389F80 = 0;
         local->egg_count++;
         if(local->egg_count == 3){
-            CC_func_80386FE0(this, 2);
+            chClankerTooth_setNextState(this, 2);
         }else{
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         }
@@ -132,7 +132,7 @@ void chClankerTooth_update(Actor *this){
         if(!jiggyscore_isCollected(JIGGY_1B_CC_TOOTH)){
             gcdialog_showDialog((local->unk0 == 1)? ((flagCnt == 0)? 0xd30 : 0xd31) : ((flagCnt == 0)? 0xd2e : 0xd2f), 4, NULL, NULL, NULL, NULL);
         }
-        CC_func_80386FE0(this, 3);
+        chClankerTooth_setNextState(this, 3);
     }//L80387474
 
     if(this->state == 3){

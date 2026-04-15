@@ -18,7 +18,7 @@ void subaddie_turnToYaw(Actor *, f32);
 void subaddie_set_state_with_direction(Actor*, s32, f32, s32);
 void bundle_setYaw(f32);
 void timed_exitStaticCamera(f32);
-void MM_func_80387F44(void);
+void MM_checkMMChecksums(void);
 
 void chConga_update(Actor *);
 
@@ -45,7 +45,7 @@ ActorAnimationInfo chCongaAnimations[9] = {
     {ASSET_52_ANIM_CONGA_OW, 1.0f}
 };
 
-ActorInfo chcongaInfo = { MARKER_7_CONGA, ACTOR_8_CONGA, ASSET_35C_MODEL_CONGA,
+ActorInfo chCongaInfo = { MARKER_7_CONGA, ACTOR_8_CONGA, ASSET_35C_MODEL_CONGA,
     1, chCongaAnimations,
     chConga_update, actor_update_func_80326224, actor_draw,
     0, 0x333, 0.0f, 0
@@ -181,7 +181,7 @@ void __chConga_sendOrangeProjectile(ActorMarker *congaMarker){
     f32 simulated_velocity_y;
 
     congaPtr->unk10_12 -= (congaPtr->unk10_12 && ( conga_state == 7));
-    MM_func_80387F44();
+    MM_checkMMChecksums();
     congaPtr->actor_specific_1_f = 2.0f;
     orangePtr = actor_spawnWithYaw_s32(ACTOR_14_ORANGE_PROJECTILE, &conga_localPtr->orangeSpawnPosition, congaPtr->yaw);
 

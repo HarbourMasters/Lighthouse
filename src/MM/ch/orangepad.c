@@ -13,7 +13,7 @@ extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 void chorangepad_update(Actor *);
 
 /* .data */
-ActorInfo chorangepadInfo = {
+ActorInfo chOrangePadInfo = {
     MARKER_66_ORANGE_PAD, ACTOR_57_ORANGE_PAD, ASSET_2EB_MODEL_ORANGE_PAD,
     0, NULL,
     chorangepad_update, actor_update_func_80326224, actor_draw,

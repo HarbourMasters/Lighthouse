@@ -37,8 +37,8 @@ extern u16 D_80275740[];
 extern s32 D_80275764; //lbits
 extern s32 D_80275768; //dbits
 
-extern struct huft *D_8027BF00;
-extern u8 *inflate_huft; //inbuf
+extern struct huft *inflate_huft;
+extern u8 *inflate_inbuf; //inbuf
 extern u8 *D_8027BF14; //slide
 extern u32 inflate_inptr; //inptr
 extern u32 D_8027BF1C; //wp
@@ -55,7 +55,7 @@ extern u32 D_8027BF34; //hufts
 #endif                     /*  at least 32K for zip's deflate method */
 
 //#define get_byte()  (inflate_inptr < insize ? inbuf[inflate_inptr++] : fill_inbuf(0))
-#define get_byte()  (inflate_huft[inflate_inptr++])
+#define get_byte()  (inflate_inbuf[inflate_inptr++])
 
 #ifdef CRYPT
   uch cc;

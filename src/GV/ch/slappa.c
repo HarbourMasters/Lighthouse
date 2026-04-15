@@ -20,7 +20,7 @@ ActorAnimationInfo chSlappaAnimations[] ={
     {0xEE, 1.4f}
 };
 
-ActorInfo D_80391098 = { MARKER_AD_SLAPPA, ACTOR_120_SLAPPA, ASSET_376_MODEL_SLAPPA, 
+ActorInfo chSlappa = { MARKER_AD_SLAPPA, ACTOR_120_SLAPPA, ASSET_376_MODEL_SLAPPA, 
     0x1, chSlappaAnimations, 
     chSlappa_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.0f, 0

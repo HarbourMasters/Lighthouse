@@ -20,14 +20,14 @@ typedef struct {
     f32 unk28;
 }ActorLocal_Yellow_Flibbit;
 
-Actor *chYellowFlibbit_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx** vtx);
-void BGS_func_8038E034(Actor *this);
+Actor *gChYellowFlibbit_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx** vtx);
+void gChYellowFlibbit_update(Actor *this);
 
 /* .data */
-ActorInfo BGS_D_80390AE0 = {
+ActorInfo gChYellowFlibbit = {
     MARKER_C5_FLIBBIT_YELLOW, ACTOR_137_FLIBBIT_YELLOW, ASSET_385_MODEL_FLIBBIT_YELLOW,
     0, NULL, 
-    BGS_func_8038E034, NULL, chYellowFlibbit_draw,
+    gChYellowFlibbit_update, NULL, gChYellowFlibbit_draw,
     0, 0, 1.0f, 0
 };
 s32 D_80390B04[3] = {0xFF, 0xB3, 0};
@@ -187,7 +187,7 @@ bool func_8038D930(Actor *this) {
     return var_v1;
 }
 
-void chYellowFlibbit_setState(Actor *this, s32 next_state) {
+void gChYellowFlibbit_setState(Actor *this, s32 next_state) {
     ActorLocal_Yellow_Flibbit *local;
 
     local = (ActorLocal_Yellow_Flibbit *)&this->local;
@@ -218,12 +218,12 @@ void chYellowFlibbit_setState(Actor *this, s32 next_state) {
     }
     if (next_state == 5) {
         if (mapSpecificFlags_get(0x10)) {
-            chYellowFlibbit_setState(this, 4);
+            gChYellowFlibbit_setState(this, 4);
             return;
         }
         if (!func_8038D930(this)){
             if ((this->state != 6)) {
-                chYellowFlibbit_setState(this, 6);
+                gChYellowFlibbit_setState(this, 6);
             }
             return;
         }
@@ -272,7 +272,7 @@ void func_8038DD9C(ActorMarker *marker, ActorMarker *other_marker){
 
     this = marker_getActor(marker);
     if(this->state < 9){
-        chYellowFlibbit_setState(this, 7);
+        gChYellowFlibbit_setState(this, 7);
     }
 }
 
@@ -281,7 +281,7 @@ void func_8038DDDC(ActorMarker *marker, ActorMarker *other_marker){
 
     this = marker_getActor(marker);
     if(this->state < 9){
-        chYellowFlibbit_setState(this, 8);
+        gChYellowFlibbit_setState(this, 8);
     }
 }
 
@@ -290,11 +290,11 @@ void func_8038DE1C(ActorMarker *marker, ActorMarker *other_marker){
 
     this = marker_getActor(marker);
     if(this->state < 9){
-        chYellowFlibbit_setState(this, 9);
+        gChYellowFlibbit_setState(this, 9);
     }
 }
 
-Actor *chYellowFlibbit_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+Actor *gChYellowFlibbit_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     Actor *this;
     ActorLocal_Yellow_Flibbit *local;
     s32 var_s0;
@@ -328,7 +328,7 @@ Actor *chYellowFlibbit_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx
     return this;
 }
 
-void BGS_func_8038E034(Actor *this) {
+void gChYellowFlibbit_update(Actor *this) {
     f32 spB4[3];
     f32 spA8[3];
     f32 spA4;
@@ -360,7 +360,7 @@ void BGS_func_8038E034(Actor *this) {
         local->unk10[0] = (s16) (s32) this->position[0];
         local->unk10[1] = (s16) (s32) this->position[1];
         local->unk10[2] = (s16) (s32) this->position[2];
-        chYellowFlibbit_setState(this, 1);
+        gChYellowFlibbit_setState(this, 1);
         if (jiggyscore_isSpawned(JIGGY_24_BGS_FLIBBITS) != 0) {
             marker_despawn(this->marker);
         }
@@ -387,7 +387,7 @@ void BGS_func_8038E034(Actor *this) {
 
     if(this->state == 1){
         if(mapSpecificFlags_getClear(0x12)){
-            chYellowFlibbit_setState(this, 2);
+            gChYellowFlibbit_setState(this, 2);
             return;
         }
 
@@ -399,22 +399,22 @@ void BGS_func_8038E034(Actor *this) {
 
     if(this->state == 2){
         if(ml_timer_update(&local->unk1C, sp9C)){
-            chYellowFlibbit_setState(this, 3);
+            gChYellowFlibbit_setState(this, 3);
         }
     }
 
     if(this->state == 3){
          if (func_80329210(this, &spB4)) {
-                chYellowFlibbit_setState(this, 5);
+                gChYellowFlibbit_setState(this, 5);
             } else {
-                chYellowFlibbit_setState(this, 1);
+                gChYellowFlibbit_setState(this, 1);
             }
     }
 
 
     if(this->state == 4){
         if(!mapSpecificFlags_get(0x10))
-            chYellowFlibbit_setState(this, 5);
+            gChYellowFlibbit_setState(this, 5);
     }
 
     if (this->state == 5) {
@@ -427,9 +427,9 @@ void BGS_func_8038E034(Actor *this) {
             sp7C[1] = (f32) local->unk10[1];
             sp7C[2] = (f32) local->unk10[2];
             if (ml_vec3f_distance(this->position, sp7C) < 30.0f) {
-                chYellowFlibbit_setState(this, 1);
+                gChYellowFlibbit_setState(this, 1);
             } else {
-                chYellowFlibbit_setState(this, 5);
+                gChYellowFlibbit_setState(this, 5);
             }
         } else {
 
@@ -459,16 +459,16 @@ void BGS_func_8038E034(Actor *this) {
         func_80258A4C(this->position, this->yaw - 90.0f, spB4, &sp5C, &sp58, &sp54);
         this->yaw += sp54 * 90.0f * sp9C;
         if ((-0.4 <= sp54) && (sp54 <= 0.4) && ((f64) randf() > 0.5)) {
-            chYellowFlibbit_setState(this, 5);
+            gChYellowFlibbit_setState(this, 5);
         }
         if ((sp58 < 0.0f) && (randf() > 0.5)) {
-            chYellowFlibbit_setState(this, 5);
+            gChYellowFlibbit_setState(this, 5);
         }
     }
 
     if(this->state == 7 || this->state == 8){
         if(ml_timer_update(&local->unk1C, sp9C)){
-            chYellowFlibbit_setState(this, 6);
+            gChYellowFlibbit_setState(this, 6);
         }
     }
 
@@ -487,13 +487,13 @@ void BGS_func_8038E034(Actor *this) {
         local->unk18 -= 3000.0f*sp9C;
         if(this->position_y  < mapModel_getFloorY(this->position)){
             this->position_y  = mapModel_getFloorY(this->position);
-            chYellowFlibbit_setState(this, 10);
+            gChYellowFlibbit_setState(this, 10);
         }
     }
 
     if(this->state == 10){
         if(skeletalAnim_getLoopCount(this->unk148) > 0){
-            chYellowFlibbit_setState(this, 11);
+            gChYellowFlibbit_setState(this, 11);
         }
     }
 }

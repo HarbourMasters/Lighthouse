@@ -190,6 +190,7 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/properties.h.in ${CMAKE_CURRENT_SOUR
 include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/lib/libultra/include"
     "${PROJECT_SOURCE_DIR}/src"
 )
 
@@ -209,6 +210,8 @@ file(GLOB_RECURSE ALL_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/libultra/**/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/libultra/**/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/**/*"
 )
 

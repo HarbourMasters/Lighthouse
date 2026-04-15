@@ -10,20 +10,20 @@ extern ActorInfo D_80367FE0;
 
 extern ActorInfo chScarfSled;
 extern ActorInfo chRaceSled;
-extern ActorInfo FP_D_80391AB0;
+extern ActorInfo gSnowmanButton;
 extern ActorInfo chXmasTree;
 extern ActorInfo D_80391BB0;
 extern ActorInfo D_80391C18;
 extern ActorInfo D_80391C58;
 extern ActorInfo gChBoggySled;
 extern ActorInfo gChCubMoggy;
-extern ActorInfo FP_D_80391E2C;
+extern ActorInfo gChCubSoggy;
 extern ActorInfo gChCubGroggy;
 extern ActorInfo gChTwinklyBlue;
 extern ActorInfo gChTwinklyGreen;
 extern ActorInfo gChTwinklyOrange;
 extern ActorInfo gChTwinklyRed;
-extern ActorInfo D_803920E8;
+extern ActorInfo gChTwinklyBox;
 extern ActorInfo gChTwinklyMuncher;
 extern ActorInfo D_80392420;
 extern ActorInfo D_80392470;
@@ -155,19 +155,19 @@ void func_803912EC(Actor *this){
 
 void FP_func_80391324(void)
 {
-      spawnableActorList_add(&FP_D_80391AB0, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10);
+      spawnableActorList_add(&gSnowmanButton, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10);
       spawnableActorList_add(&D_80391BB0, actor_new, ACTOR_FLAG_UNKNOWN_1 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5);
       spawnableActorList_add(&D_80391C18, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_19 | ACTOR_FLAG_UNKNOWN_20);
       spawnableActorList_add(&D_80391C58, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_19 | ACTOR_FLAG_UNKNOWN_20);
       spawnableActorList_add(&gChBoggySled, actor_new, ACTOR_FLAG_UNKNOWN_1 | ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_17);
       spawnableActorList_add(&gChCubMoggy, actor_new, ACTOR_FLAG_UNKNOWN_8);
-      spawnableActorList_add(&FP_D_80391E2C, actor_new, ACTOR_FLAG_UNKNOWN_8);
+      spawnableActorList_add(&gChCubSoggy, actor_new, ACTOR_FLAG_UNKNOWN_8);
       spawnableActorList_add(&gChCubGroggy, actor_new, ACTOR_FLAG_UNKNOWN_8);
       spawnableActorList_add(&gChTwinklyBlue, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17);
       spawnableActorList_add(&gChTwinklyGreen, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17);
       spawnableActorList_add(&gChTwinklyOrange, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17);
       spawnableActorList_add(&gChTwinklyRed, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_17);
-      spawnableActorList_add(&D_803920E8, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_10);
+      spawnableActorList_add(&gChTwinklyBox, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_10);
       spawnableActorList_add(&gChTwinklyMuncher, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_24);
       spawnableActorList_add(&chXmasTree, actor_new, ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_17);
       spawnableActorList_add(&D_80392420, actor_new, ACTOR_FLAG_UNKNOWN_2);

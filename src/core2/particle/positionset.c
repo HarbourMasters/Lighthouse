@@ -3,7 +3,7 @@
 #include "variables.h"
 
 #include "core2/anim/sprite.h"
-#include "core2/sprite_displaydata.h"
+#include "core2/commonParticle.h"
 
 struct{
     s32 unk0;

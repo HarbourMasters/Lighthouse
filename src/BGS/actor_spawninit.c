@@ -14,12 +14,12 @@ extern ActorInfo chPinkEggSmall;
 extern ActorInfo chPinkEggSmallest;
 extern ActorInfo chMudHut;
 extern ActorInfo chTanktup;
-extern ActorInfo D_80390C88;
-extern ActorInfo D_80390CC8;
-extern ActorInfo D_80390D08;
-extern ActorInfo D_80390D48;
+extern ActorInfo gChTanktupLegFrontLeft;
+extern ActorInfo gChTanktupLegBackLeft;
+extern ActorInfo gChTanktupLegFrontRight;
+extern ActorInfo gChTanktupLegBackRight;
 extern ActorInfo chFrogMinigame;
-extern ActorInfo BGS_D_80390AE0;
+extern ActorInfo gChYellowFlibbit;
 extern ActorInfo D_80390960;
 extern ActorInfo gChYumblie;
 extern ActorInfo gChVile;
@@ -45,12 +45,12 @@ void BGS_func_8038F1E0(void){//bgs_updateSpawnableActors
     spawnableActorList_add(&chPinkEggSmallest, actor_new, ACTOR_FLAG_UNKNOWN_10); //pink_egg_smallest
     spawnableActorList_add(&chMudHut, actor_new, ACTOR_FLAG_NONE); //mudhut_top
     spawnableActorList_add(&chTanktup, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_3);//tanktup
-    spawnableActorList_add(&D_80390C88, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
-    spawnableActorList_add(&D_80390CC8, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
-    spawnableActorList_add(&D_80390D08, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
-    spawnableActorList_add(&D_80390D48, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
+    spawnableActorList_add(&gChTanktupLegFrontLeft, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
+    spawnableActorList_add(&gChTanktupLegBackLeft, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
+    spawnableActorList_add(&gChTanktupLegFrontRight, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
+    spawnableActorList_add(&gChTanktupLegBackRight, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
     spawnableActorList_add(&chFrogMinigame, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_0);
-    spawnableActorList_add(&BGS_D_80390AE0, actor_new, ACTOR_FLAG_UNKNOWN_25 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_0); //yellow_flibbit
+    spawnableActorList_add(&gChYellowFlibbit, actor_new, ACTOR_FLAG_UNKNOWN_25 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_0); //yellow_flibbit
     spawnableActorList_add(&D_80390960, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&gChYumblie, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_7); //yumblie
     spawnableActorList_add(&gChVile, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_1); //mr. vile

@@ -6,7 +6,7 @@
 extern void func_80324CD8(f32);
 extern Actor *actor_spawnWithYaw_f32(enum actor_e, f32[3], s32);
 
-Actor *FP_func_8038CED0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+Actor *chTwinklyBox_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chTwinklyBox_update(Actor *this);
 
 /* .data */
@@ -18,14 +18,14 @@ ActorAnimationInfo D_803920C0[] ={
     {0x16D, 0.8f}
 };
 
-ActorInfo D_803920E8 = { 0x204, 0x336, 0x442,
+ActorInfo gChTwinklyBox = { 0x204, 0x336, 0x442,
     0x1, D_803920C0,
-    chTwinklyBox_update, actor_update_func_80326224, FP_func_8038CED0,
+    chTwinklyBox_update, actor_update_func_80326224, chTwinklyBox_draw,
     0, 0, 0.0f, 0
 };
 
 /* .code */
-Actor *FP_func_8038CED0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
+Actor *chTwinklyBox_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this = marker_getActor(marker);
     if( maSlalom_isActive() || fileProgressFlag_get(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME) ){
         if(0.0f == this->velocity[1])

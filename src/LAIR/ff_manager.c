@@ -372,7 +372,7 @@ extern struct {
 
 /* .code */
 // FF: get total number of questions per type
-s16 lair_func_8038C2C0(enum ff_question_type_e type)
+s16 ff_getNumOfQuestionType(enum ff_question_type_e type)
 {
     return FF_QuestionTypeInfoArr[type].totalQuestionCount;
 }
@@ -387,13 +387,13 @@ void ff_clearAlreadyAskedQuestions(enum ff_question_type_e type)
 }
 
 // FF: set isAsked flag for type and question
-void lair_func_8038C338(enum ff_question_type_e type, s32 questionIdx, int val)
+void ff_setQuestionAsAskedAlready(enum ff_question_type_e type, s32 questionIdx, int val)
 {
     quizQuestionAskedBitfield_set(FF_QuestionTypeInfoArr[type].startingFlagIdx + questionIdx, val);
 }
 
 // FF: get isAsked flag for type and question
-bool lair_func_8038C370(enum ff_question_type_e type, s32 questionIdx)
+bool ff_hasQuestionBeenAskedAlready(enum ff_question_type_e type, s32 questionIdx)
 {
     return quizQuestionAskedBitfield_get(FF_QuestionTypeInfoArr[type].startingFlagIdx + questionIdx);
 }
@@ -407,7 +407,7 @@ void func_8038C3A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
     a2->v.cn[2] = a1->v.v.cn[2] * data->unk10;
 }
 
-void *lair_func_8038C5B8(s32 a0)
+void *ff_getCurrentBoardTile(s32 a0)
 {
     Furnace_Fun_Board *ptr;
 
@@ -603,7 +603,7 @@ void ff_setup(void)
     gzquiz_initGruntyQuestions();
 }
 
-void lair_func_8038CF18(void)
+void ff_init(void)
 {
     s32 i;
 
@@ -900,7 +900,7 @@ void ff_setState(enum FF_Action next_state) {
             func_8028F918(2);
             if (ffStorage->ffQuestionType != FFQT_4_MINIGAME) {
                 func_8038CE00();
-                gcquiz_func_8031A154(ffStorage->ffQuestionType, ffStorage->questionAssetIndex, ffStorage->unkE, __code5ED0_getQuizQuestionTime(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex), 0, (void (*)(s32, s8))func_8038D3F0);
+                gcquiz_showQuestion(ffStorage->ffQuestionType, ffStorage->questionAssetIndex, ffStorage->unkE, __code5ED0_getQuizQuestionTime(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex), 0, (void (*)(s32, s8))func_8038D3F0);
             } else {
                 ff_setupMinigame();
             }
@@ -938,9 +938,9 @@ void ff_setState(enum FF_Action next_state) {
             func_8038D48C();
             if (ffStorage->unkF == 1) {
                 lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
-                lair_func_8038C338(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex, 1);
+                ff_setQuestionAsAskedAlready(ffStorage->ffQuestionType, ffStorage->questionTypeTableIndex, 1);
                 ffStorage->unk3C[ffStorage->ffQuestionType]++;
-                if (lair_func_8038C2C0(ffStorage->ffQuestionType) == ffStorage->unk3C[ffStorage->ffQuestionType]) {
+                if (ff_getNumOfQuestionType(ffStorage->ffQuestionType) == ffStorage->unk3C[ffStorage->ffQuestionType]) {
                     ffStorage->unk3C[ffStorage->ffQuestionType] = 0;
                     ff_clearAlreadyAskedQuestions(ffStorage->ffQuestionType);
                 }
@@ -1074,10 +1074,10 @@ void ff_prepareNextQuestion(enum ff_question_type_e type)
         do
         {
             // Generate random question index in the valid range for the type
-            randQuestionIdx = randi2(0, lair_func_8038C2C0(type));
+            randQuestionIdx = randi2(0, ff_getNumOfQuestionType(type));
 
             // Try again if question already asked
-        } while (lair_func_8038C370(type, randQuestionIdx));
+        } while (ff_hasQuestionBeenAskedAlready(type, randQuestionIdx));
 
         // Save to storage struct
         ffStorage->questionTypeTableIndex = randQuestionIdx;
@@ -1108,7 +1108,7 @@ void ff_prepareNextQuestion(enum ff_question_type_e type)
             }
 
             // Try again if question already asked
-        } while (lair_func_8038C370(type, ffStorage->questionTypeTableIndex));
+        } while (ff_hasQuestionBeenAskedAlready(type, ffStorage->questionTypeTableIndex));
     }
 }
 
@@ -1158,7 +1158,7 @@ void lair_func_8038E0B0(void) {
                 }
             }
             ffStorage->currentTileId = temp_v0;
-            ffStorage->currentBoardTile = lair_func_8038C5B8(ffStorage->currentTileId);
+            ffStorage->currentBoardTile = ff_getCurrentBoardTile(ffStorage->currentTileId);
         }
         sp38 = MIN((ffStorage->currentTileId != 0) ? ffStorage->currentBoardTile->tileType : -1, FFTT_7_JOKER);
         if ((ffStorage->currentTileId != 0) && (ffStorage->currentBoardTile->unk9 == 0) && func_8028F20C()) {

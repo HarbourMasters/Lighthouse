@@ -1,7 +1,7 @@
 #ifndef __N_AUDIO_INT__
 #define __N_AUDIO_INT__
 #include <ultra64.h>
-#include <2.0L/PR/n_libaudio.h>
+#include <n_audio/PR/n_libaudio.h>
 #include "synthInternals.h"
 #include <n_abi.h>
 

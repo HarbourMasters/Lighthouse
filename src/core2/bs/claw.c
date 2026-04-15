@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "core2/abilityprogress.h"
 #include "core2/ba/physics.h"
 
 

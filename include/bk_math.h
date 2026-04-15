@@ -1,3 +1,12 @@
+/**
+ * BK math helpers (vector/tuple macros).
+ *
+ * [port] Named bk_math.h rather than math.h to avoid shadowing the system
+ * <math.h> on modern toolchains — Lighthouse's CMake adds include/ to -I, so
+ * a local math.h would be picked up ahead of the C standard header (which we
+ * need for sqrtf). Upstream decomp calls this file math.h because N64/libultra
+ * has no system <math.h> to collide with.
+ */
 #ifndef __BANJO_KAZOOIE_MATH_H__
 #define __BANJO_KAZOOIE_MATH_H__
 #include <math.h>

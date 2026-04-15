@@ -3,8 +3,8 @@
 // typedef u32 OSIntMask; and u32 isn't defined before that.
 
 #include "libultraship/libultra/types.h"
-//#include "2.0L/PR/os_system.h"
-#include "2.0L/PR/ucode.h"
+//#include <PR/os_system.h>
+#include <PR/ucode.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "libultraship/libultra/rcp.h"

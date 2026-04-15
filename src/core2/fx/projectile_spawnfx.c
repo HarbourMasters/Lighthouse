@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "core2/sprite_displaydata.h"
+#include "core2/commonParticle.h"
 #include "core2/anim/sprite.h"
 
 extern f64 D_80379470;

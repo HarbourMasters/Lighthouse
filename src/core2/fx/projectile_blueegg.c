@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "core2/sprite_displaydata.h"
+#include "core2/commonParticle.h"
 #include "core2/anim/sprite.h"
 
 extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32);

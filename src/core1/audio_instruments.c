@@ -5,7 +5,7 @@
 #include "variables.h"
 
 #include "music.h"
-#include "2.0L/PR/n_libaudio.h"
+#include <n_audio/PR/n_libaudio.h>
 
 #include "version.h"
 
