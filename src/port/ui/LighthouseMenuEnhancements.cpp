@@ -190,13 +190,93 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Cheats
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
+
+    // Column 1: Stats & Consumables
+
+    // Stats Section
+    AddWidget(path, "Player Stats", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteHealth"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Prevents health from decreasing."));
+
+    AddWidget(path, "Infinite Air", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteAir"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Prevents air from decreasing while underwater."));
+
+    AddWidget(path, "Infinite Lives", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteLives"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Keeps lives at 9 (max displayable)."));
+
+    // Consumables Section
+    AddWidget(path, "Consumables", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Infinite Eggs", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteEggs"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Refills eggs to your current max capacity when below max."));
+
+    AddWidget(path, "Infinite Red Feathers", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteRedFeathers"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Refills red feathers to your current max capacity when below max."));
+
+    AddWidget(path, "Infinite Gold Feathers", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteGoldFeathers"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Refills gold feathers to your current max capacity when below max."));
+
+    AddWidget(path, "Infinite Boots & Sneakers", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteTimers"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Wading Boots and Turbo Talon Sneakers timers never expire."));
+
+    // Column 2: Movement & Transformations
+    path.column = SECTION_COLUMN_2;
+
+    // Movement Section
+    AddWidget(path, "Movement", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Hold L to Levitate", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.Levitate"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Hold L to levitate upward with gravity disabled."));
+
+    AddWidget(path, "D-pad Talon Trot Cycling", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.TalonTrotCycle"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("While in Talon Trot: D-pad Right cycles forward (Normal→Boots→Sneakers), D-pad Left cycles backward."));
+
+    // Transformations Section
+    AddWidget(path, "Transformations", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.FastTransform"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Speeds up Mumbo transformation animation by 3x."));
+
+    AddWidget(path, "D-pad Cycle Transform", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.CycleTransform"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Press D-pad Up/Down to cycle through transformation forms.\nUp: Forward (Banjo→Mumbo→...→Wishy→Banjo), Down: Backward."));
+
+    AddWidget(path, "No Mumbo Untransform", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.NoMumboUntransform"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Disables Mumbo untransforming you when going too far and skips his warning dialog."));
+
+    // Time & Events Section
+    AddWidget(path, "Time & Events", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Freeze All Timers", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.FreezeTimers"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Freezes all timers including minigames, races, and challenge timers."));
 }
 
 } // namespace LighthouseGui
