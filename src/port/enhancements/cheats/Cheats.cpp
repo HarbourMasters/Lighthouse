@@ -57,6 +57,7 @@ enum map_e gsworld_getMap(void);
 #define CVAR_FREEZE_TIMERS CVAR_ENHANCEMENT("Cheats.FreezeTimers")
 #define CVAR_NO_MUMBO_UNTRANSFORM CVAR_ENHANCEMENT("Cheats.NoMumboUntransform")
 #define CVAR_CYCLE_TRANSFORM CVAR_ENHANCEMENT("Cheats.CycleTransform")
+#define CVAR_FAST_TRANSFORM CVAR_ENHANCEMENT("Cheats.FastTransform")
 
 // ============================================================================
 // INFINITE ITEMS / STATS
@@ -277,8 +278,6 @@ void RegisterCycleTransform_Init() {
 }
 
 // Fast Transformation — speeds up Mumbo transformation animation by 3x
-#define CVAR_FAST_TRANSFORM CVAR_ENHANCEMENT("Cheats.FastTransform")
-
 void RegisterFastTransform_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), [](IEvent* event) {
         // Check if currently transforming
