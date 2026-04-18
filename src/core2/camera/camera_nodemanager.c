@@ -4,6 +4,7 @@
 #include "variables.h"
 #include "core2/nc/camera.h"
 #include "core2/coords.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 extern Actor *func_80328230(enum actor_e, f32[3], f32[3]);
 extern void func_802BEA4C(f32[3], f32[3], f32, f32[3]);
@@ -149,6 +150,12 @@ void func_802BBA84(void) {
 }
 
 void camera_setType(enum camera_type_e camera_type) {
+    // [port] Type change = camera cut (cutscene start/end, static-cam
+    // activation, etc.). Drop the prev tree so the next sub-frame doesn't
+    // lerp across the snap.
+    if (camera_type != ncCameraType) {
+        FrameInterpolation_DontInterpolateCamera();
+    }
     switch (ncCameraType) {
         case CAMERA_TYPE_3_STATIC:
             ncStaticCamera_end();

@@ -3,6 +3,7 @@
 #include <ultra64.h>
 
 #include <bk_math.h>
+#include "port/interpolation/FrameInterpolation.h"
 
 extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 
@@ -81,8 +82,12 @@ Actor *func_802C8484(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     phi_s4 = false;
     for(phi_s0 = temp_s1->begin; phi_s0 < temp_s1->current; phi_s0++){
         if ((phi_s0->unk0 != 0) && (phi_s0->model_bin != NULL)) {
+            // [port] Stable scope per piece. Expiry shrinks the range
+            // and would smear survivors across positions otherwise.
+            FrameInterpolation_RecordOpenChild("debris", (uintptr_t)(phi_s0 - temp_s1->begin));
             modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
             modelRender_draw(gfx, mtx, phi_s0->unk8, phi_s0->unk14, phi_s0->unk2C / 10.0f, NULL, phi_s0->model_bin);
+            FrameInterpolation_RecordCloseChild();
             phi_s4 = true;
         }
     }

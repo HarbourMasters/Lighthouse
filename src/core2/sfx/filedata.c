@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/interpolation/FrameInterpolation.h"
+
 typedef struct {
     u8 pad0[0xC];
     f32 unkC[3];
@@ -210,10 +212,18 @@ void func_802F962C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         D_80381094 = (Struct_core2_72060_0 *)((uintptr_t)D_80369288 + D_80369288->geo_list_offset);
         
         for(phi_s0 = D_80369280->unk1C; phi_s0 < D_80369280->unk1C + D_80369284; phi_s0++) {
+            // [port] Scope keyed on position — array shrinks below the
+            // height threshold and frustum culls inside func_802F989C, so
+            // index-based pairing would mismatch surviving items.
+            FrameInterpolation_RecordOpenChildHash3("grass_item",
+                FrameInterpolation_FloatBits(phi_s0->unk0[0]),
+                FrameInterpolation_FloatBits(phi_s0->unk0[1]),
+                FrameInterpolation_FloatBits(phi_s0->unk0[2]));
             if ((func_802F989C(gfx, mtx, phi_s0->unk0) == 0) && (phi_s0->unk0[1] < D_8038104C)) {
                 func_802F9134(phi_s0 - D_80369280->unk1C);
                 phi_s0--;
             }
+            FrameInterpolation_RecordCloseChild();
         }
     }
 }

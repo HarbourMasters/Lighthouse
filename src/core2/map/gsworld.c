@@ -6,7 +6,7 @@
 #include "core2/anim/sprite.h"
 #include <core2/file.h>
 #include "core2/particle.h"
-#include "port/FrameInterpolation.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 /* .data */
 extern u8 D_80370250 = 0;
@@ -53,26 +53,31 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
     //     eeprom_writeBlocks(0, 0, 0x80BC7230, EEPROM_MAXBLOCKS);
     // }
     spawnQueue_unlock();
+    FrameInterpolation_RecordOpenChild("sky", 0);
     sky_draw(gdl, mptr, vptr);
+    FrameInterpolation_RecordCloseChild();
     func_802BBD2C(&sp44, &sp40);
     viewport_setNearAndFar(sp44, sp40);
     viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
     if (mapModel_has_xlu_bin() != 0) {
+        FrameInterpolation_RecordOpenChild("map_opa", 0);
         mapModel_opa_draw(gdl, mptr, vptr);
+        FrameInterpolation_RecordCloseChild();
         if (game_is_frozen() == 0) {
             leveloverlay_drawCallback(gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
-            // [port] Scope the player for identity-based interpolation matching.
-            FrameInterpolation_ScopeBegin((void*)"player", 0, *mptr);
+            FrameInterpolation_RecordOpenChild("player", 0);
             player_draw(gdl, mptr, vptr);
-            FrameInterpolation_ScopeEnd(*mptr);
+            FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
             func_80302C94(gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
+            FrameInterpolation_RecordOpenChild("jiggylist", 0);
             jiggylist_draw(gdl, mptr, vptr);
+            FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
             func_803500D8(gdl, mptr, vptr);
@@ -81,36 +86,47 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
             func_802F2ED0(func_8032994C(), gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
+            FrameInterpolation_RecordOpenChild("part_pass0", 0);
             partEmitMgr_drawPass0(gdl, mptr, vptr);
+            FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
+            FrameInterpolation_RecordOpenChild("map_xlu", 0);
             mapModel_xlu_draw(gdl, mptr, vptr);
+            FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
             func_8032D3D8(gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
+            FrameInterpolation_RecordOpenChild("part_pass1", 0);
             partEmitMgr_drawPass1(gdl, mptr, vptr);
+            FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
             func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
         }
         func_802D520C(gdl, mptr, vptr);
     } else {
+        FrameInterpolation_RecordOpenChild("map_opa", 0);
         mapModel_opa_draw(gdl, mptr, vptr);
+        FrameInterpolation_RecordCloseChild();
         leveloverlay_drawCallback(gdl, mptr, vptr);
         func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
-        // [port] Scope the player for identity-based interpolation matching.
-        FrameInterpolation_ScopeBegin((void*)"player", 0, *mptr);
+        FrameInterpolation_RecordOpenChild("player", 0);
         player_draw(gdl, mptr, vptr);
-        FrameInterpolation_ScopeEnd(*mptr);
+        FrameInterpolation_RecordCloseChild();
         func_80302C94(gdl, mptr, vptr);
         func_8032D3D8(gdl, mptr, vptr);
+        FrameInterpolation_RecordOpenChild("jiggylist", 0);
         jiggylist_draw(gdl, mptr, vptr);
+        FrameInterpolation_RecordCloseChild();
         func_803500D8(gdl, mptr, vptr);
         func_802F2ED0(func_8032994C(), gdl, mptr, vptr);
         func_802D520C(gdl, mptr, vptr);
+        FrameInterpolation_RecordOpenChild("part_draw", 0);
         partEmitMgr_draw(gdl, mptr, vptr);
+        FrameInterpolation_RecordCloseChild();
     }
     if (game_is_frozen() == 0) {
         func_80350818(gdl, mptr, vptr);
@@ -211,6 +227,9 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     sGsWorldData.unk0 = 3;
     sGsWorldData.map_4 = arg0;
     CALL_EVENT(OnMapLoad, arg0);
+    // [port] Drop the prev tree; the next sub-frame would otherwise lerp
+    // the old map's geometry against the new one's.
+    FrameInterpolation_DontInterpolateCamera();
     sGsWorldData.unk8 = arg1;
     leveloverlay_init();
     gsworld_setEnableUpdate(1);

@@ -9,6 +9,7 @@
 #include <libultra/gu.h>
 
 #include "port/patches/Patches.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 extern void guPerspective(Mtx *, u16*, f32, f32, f32, f32, f32);
 
@@ -112,14 +113,25 @@ void viewport_setRenderPerspectiveMatrix(Gfx **gfx, Mtx **mtx, f32 near, f32 far
 
     port_viewport_applyMirror(gfx, mtx);
 
+    // [port] Capture each rotation's Mtx* + raw angle so interpolation can
+    // angle-lerp and rebuild clean matrices — a matrix lerp on fast spins
+    // folds these into non-rotations.
+    Mtx* rollMtx = *mtx;
     guRotate(*mtx, -sViewportRotation[2], 0.0f, 0.0f, -1.0f);
     gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
 
+    Mtx* pitchMtx = *mtx;
     guRotate(*mtx, -sViewportRotation[0], 1.0f, 0.0f, 0.0f);
     gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
 
+    Mtx* yawMtx = *mtx;
     guRotate(*mtx, -sViewportRotation[1], 0.0f, 1.0f, 0.0f);
     gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+
+    FrameInterpolation_RecordCameraProjectionRotation(rollMtx, -sViewportRotation[2], pitchMtx, -sViewportRotation[0],
+                                                      yawMtx, -sViewportRotation[1]);
+    // [port] Feeds the cut-detection heuristic in Interpolate().
+    FrameInterpolation_RecordCameraPosition(sViewportPosition);
 
     guTranslate(*mtx, 0.0f, 0.0f, 0.0f);
     gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);

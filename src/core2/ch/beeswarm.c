@@ -3,6 +3,7 @@
 #include "variables.h"
 
 #include "core2/quiz_storage.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 extern void func_8030DBFC(u32, f32, f32, f32);
 extern BKCollisionTriangle * func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
@@ -87,6 +88,9 @@ Actor *chBeeSwarm_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     local = (ActorLocal_core2_47BD0 *)&this->local;
     phi_fp = marker_loadModelBin(marker);
     for(phi_s2 = 0, phi_s0 = local->unk8; phi_s2 < local->unk0; phi_s2++){
+        // [port] Stable scope per bee; swarm count varies so flat index
+        // pairing would smear bees across positions on spawn/despawn.
+        FrameInterpolation_RecordOpenChild("bee", (uintptr_t)phi_s2);
         sp80[0] = 0.0f;
         sp80[1] = phi_s0->unk24[1] - 90.0f;
         sp80[2] = 0.0f;
@@ -107,6 +111,7 @@ Actor *chBeeSwarm_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
             local->unk5 |= modelRender_func_8033A170();
         }
         phi_s0++;
+        FrameInterpolation_RecordCloseChild();
     }
     return this;
 }

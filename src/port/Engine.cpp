@@ -36,8 +36,8 @@
 #include <SDL2/SDL.h>
 #include <filesystem>
 #include <fstream>
-#include "FrameInterpolation.h"
 #include <libultraship/libultraship.h>
+#include "interpolation/FrameInterpolation.h"
 
 #ifdef __SWITCH__
 #include <port/switch/SwitchImpl.h>
@@ -1190,7 +1190,7 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     int fps = target_fps;
     int original_fps = 60 / gVIsPerFrame;
 
-    if (target_fps == 20 || original_fps > target_fps) {
+    if (target_fps == 30 || original_fps > target_fps) {
         fps = original_fps;
     }
 
@@ -1201,13 +1201,15 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // time_base = fps * original_fps (one second)
     int next_original_frame = fps;
 
-    // [port] Scan the display list for matrices and record for interpolation
-    FrameInterpolation_RecordFrame(commands);
-
+    // For each sub-frame, ask FrameInterpolation for the interpolated matrices.
+    // An empty map means "use the DL's matrices unchanged" — correct for the
+    // final step (t == 1.0, exactly the current frame) and as a fallback when
+    // interpolation can't run (first tick, topology change, camera cut).
     while (time + original_fps <= next_original_frame) {
         time += original_fps;
         if (time != next_original_frame) {
-            mtx_replacements.push_back(FrameInterpolation_Interpolate((float)time / next_original_frame));
+            float t = (float)time / (float)next_original_frame;
+            mtx_replacements.push_back(FrameInterpolation_Interpolate(t));
         } else {
             mtx_replacements.emplace_back();
         }
@@ -1234,16 +1236,16 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {
-    if (CVarGetInteger("gMatchRefreshRate", 0)) {
+    if (CVarGetInteger(CVAR_SETTING("MatchRefreshRate"), 0)) {
         return Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
 
-    } else if (CVarGetInteger("gVsyncEnabled", 1) ||
+    } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
                !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
         return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
-                                  CVarGetInteger("gInterpolationFPS", 60));
+                                  CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60));
     }
 
-    return CVarGetInteger("gInterpolationFPS", 60);
+    return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60);
 }
 
 uint32_t GameEngine::GetInterpolationFrameCount() {

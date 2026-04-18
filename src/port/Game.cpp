@@ -6,6 +6,7 @@
 #include "ShipUtils.h"
 #include "patches/Patches.h"
 #include "src/port/enhancements/events/hooks/Events.h"
+#include "interpolation/FrameInterpolation.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -36,7 +37,9 @@ extern "C" void port_setWindowTitle(int map_id);
 void push_frame() {
     static int sTitleCounter = 0;
     GameEngine::Instance->StartFrame();
+    FrameInterpolation_StartRecord();
     mainLoop();
+    FrameInterpolation_StopRecord();
     GameEngine::StartAudioFrame();
     GameEngine::EndAudioFrame();
 

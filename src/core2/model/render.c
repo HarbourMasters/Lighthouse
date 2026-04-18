@@ -8,6 +8,7 @@
 #include "libultraship/libultra/gbi.h"
 
 #include "port/patches/Patches.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -790,6 +791,11 @@ void modelRender_geoCmd_TEXWRAP(Gfx **gfx, Mtx **mtx, void *arg2){
 void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd2 *cmd = (GeoCmd2 *)arg2;
 
+    // [port] Stable per-bone scope. Without it, any op-count shift in the
+    // geo walk mis-pairs every subsequent bone — Banjo ends up half in
+    // one pose and half in another on the affected sub-frame. Nested
+    // bones nest their scopes via the recursive walk below.
+    FrameInterpolation_RecordOpenChild("bone", (uintptr_t)(u8)cmd->unk9);
     if(D_8038371C){
         mlMtx_push_multiplied_2(&D_80383BF8, animMtxList_get(D_8038371C, cmd->unk9));
         if(D_80370990){
@@ -806,7 +812,8 @@ void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, void *arg2){
             gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
         }
     }
-}   
+    FrameInterpolation_RecordCloseChild();
+}
 
 //cmd3_LOAD_DL
 void modelRender_geoCmd_LOADDL(Gfx **gfx, Mtx **mtx, void *arg2){
@@ -830,9 +837,13 @@ void modelRender_geoCmd_SKINNING(Gfx **gfx, Mtx **mtx, void *arg2){
 
     if(D_80370990){
         for(i = 1; cmd->unk8[i]; i++){
+            // [port] Per-cluster scope; i binds to the same deformation
+            // region across frames.
+            FrameInterpolation_RecordOpenChild("skin", (uintptr_t)i);
             mlMtxApply(*mtx);
             gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList((*gfx)++, (Gfx *)osVirtualToPhysical(modelRenderDisplayList->list + cmd->unk8[i]));
+            FrameInterpolation_RecordCloseChild();
         }
     }
 }

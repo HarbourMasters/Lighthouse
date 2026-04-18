@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/interpolation/FrameInterpolation.h"
+
 
 typedef struct {
     f32 unk0;
@@ -153,6 +155,8 @@ void func_80350818(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                 spC4[1] = sp90[1] - temp_s1->unk4[1];
                 spC4[2] = sp90[2] - temp_s1->unk4[2];
                 for(i = 0; temp_s2->unk4[i].unk0 != 0.0f; i++){
+                    // [port] Stable scope per gradient segment.
+                    FrameInterpolation_RecordOpenChild("fall_trail", (uintptr_t)i);
                     spB8[0] = (spDC[0] + temp_s1->unk4[0]) + (temp_s2->unk4[i].unk0 * spC4[0]);
                     spB8[1] = (spDC[1] + temp_s1->unk4[1]) + (temp_s2->unk4[i].unk0 * spC4[1]);
                     spB8[2] = (spDC[2] + temp_s1->unk4[2]) + (temp_s2->unk4[i].unk0 * spC4[2]);
@@ -163,6 +167,7 @@ void func_80350818(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                     sp80[3] *= var_f22;
                     modelRender_setPrimAndEnvColors(sp80, D_803725A8);
                     modelRender_draw(gfx, mtx, spB8, spD0, temp_s2->unk4[i].unk14*0.25, NULL, D_80386170.unk8);
+                    FrameInterpolation_RecordCloseChild();
                 }
             }
         }

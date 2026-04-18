@@ -5,8 +5,8 @@
 #include "enums.h"
 
 #include <core2/file.h>
-#include "port/FrameInterpolation.h"
 #include "port/patches/Patches.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 
@@ -310,12 +310,11 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     f32 draw_dist_f;
     f32 percentage;
 
-    // [port] Record which Mtx buffer range this actor produces for scoped interpolation.
-    FrameInterpolation_ScopeBegin(this, this->actrArrayIdx, *mtx);
+    FrameInterpolation_RecordOpenChild(this, this->actrArrayIdx);
 
     if(!this->unk3E_0){
         this->drawFunc(this, gfx, mtx, vtx);
-        FrameInterpolation_ScopeEnd(*mtx);
+        FrameInterpolation_RecordCloseChild();
         return;
     }
     actor =  marker_getActor(this);
@@ -341,7 +340,7 @@ static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     modelRender_func_8033A244(30000.0f);
     modelRender_func_8033A280(1.0f);
 
-    FrameInterpolation_ScopeEnd(*mtx);
+    FrameInterpolation_RecordCloseChild();
 }
 
 void func_8032D330(){
@@ -429,15 +428,28 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                 sp94[1] = (f32)iProp->modelProp.unk4[1];
                 sp94[2] = (f32)iProp->modelProp.unk4[2];
                 if(iProp->unk8_1){
+                    // [port] __cube_sort reorders prop2Ptr per frame, so
+                    // slot index is useless for pairing. Hash (modelId, pos)
+                    // — those are fixed by the map's prop data.
+                    FrameInterpolation_RecordOpenChildHash3("prop_model",
+                        iProp->modelProp.modelId,
+                        ((uint64_t)(u16)iProp->modelProp.unk4[0] << 32) | (u16)iProp->modelProp.unk4[1],
+                        (u16)iProp->modelProp.unk4[2]);
                     sp88[0] = 0.0f;
                     sp88[1] = (f32)((s32)iProp->modelProp.yaw*2);
                     sp88[2] = (f32)((s32)iProp->modelProp.roll*2);
-                    propModelList_drawModel(gfx, mtx, vtx, 
+                    propModelList_drawModel(gfx, mtx, vtx,
                         sp94, sp88, (f32)iProp->modelProp.scale/100.0,
                         iProp->modelProp.modelId, cube
                     );
+                    FrameInterpolation_RecordCloseChild();
                 }
                 else{//L8032D72C
+                    // [port] Same story as prop_model above.
+                    FrameInterpolation_RecordOpenChildHash3("prop_sprite",
+                        iProp->spriteProp.spriteId,
+                        ((uint64_t)(u16)iProp->spriteProp.unk4[0] << 32) | (u16)iProp->spriteProp.unk4[1],
+                        (u16)iProp->spriteProp.unk4[2]);
                     // [port] Fire one tick event per static sprite prop. Asset id
                     // is the raw sprite index offset (+ 0x572 is the asset base).
                     CALL_EVENT(OnSpritePropTick, (s32)iProp->spriteProp.spriteId + 0x572, sp94);
@@ -446,6 +458,7 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                         iProp->spriteProp.rgb_remove_red, iProp->spriteProp.rgb_remove_green, iProp->spriteProp.rgb_remove_blue,
                         iProp->spriteProp.isMirrored, iProp->spriteProp.frame
                     );
+                    FrameInterpolation_RecordCloseChild();
                 }
             }//L8032D7C4
         }

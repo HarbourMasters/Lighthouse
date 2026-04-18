@@ -6,6 +6,7 @@
 #include "variables.h"
 
 #include "version.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 void _guRotateF(f32 mf[4][4], f32, f32, f32, f32);
 f32 func_80263FF0(f32);
@@ -49,6 +50,7 @@ MtxF *mlMtx_get_stack_pointer(void){
 
 void mlMtxApply(Mtx *mPtr){
     _guMtxF2L(s_mtx_stack->mf, mPtr); // [port] pass mf[4][4] member, not MtxF*
+    FrameInterpolation_RecordMatrixToMtx(mPtr, s_mtx_stack->mf);
 }
 
 void func_802514BC(MtxF *arg0) {
@@ -219,6 +221,7 @@ void mlMtx_push_multiplied_2(MtxF * l_mtx, MtxF * r_mtx) {
         }
     }
     s_mtx_stack = (dst + 0);
+    FrameInterpolation_RecordMatrixMult(l_mtx->mf, r_mtx->mf);
 }
 
 //mlMtx
@@ -233,7 +236,8 @@ void mlMtxIdent(void){
         v0[4] = 0.0f;
         v0 += 5;
     }
-    v0[0] = 1.0f; 
+    v0[0] = 1.0f;
+    FrameInterpolation_RecordMatrixIdent();
 }
 
 void func_80251B5C(f32 x, f32 y, f32 z){
@@ -256,6 +260,7 @@ void mlMtxSet(MtxF* arg0) {
             *dst++ = *src++;
         }
     }
+    FrameInterpolation_RecordMatrixSet(arg0->mf);
 }
 
 void mlMtxRotate(f32 a, f32 x, f32 y, f32 z) {
@@ -269,6 +274,7 @@ void mlMtxRotPitch(f32 arg0) {
     f32 var_f10;
     f32 var_f18;
 
+    FrameInterpolation_RecordMatrixRotPitch(arg0);
     if (arg0 != 0.0f) {
         arg0 *= D_80276578;
         sin = sinf(arg0);
@@ -297,6 +303,7 @@ void mlMtxRotYaw(f32 arg0) {
     f32 var_f18;
     s32 i;
 
+    FrameInterpolation_RecordMatrixRotYaw(arg0);
     if (arg0 != 0.0f) {
         arg0 *= BAD_DTOR;
         sin = sinf(arg0);
@@ -310,12 +317,13 @@ void mlMtxRotYaw(f32 arg0) {
     }
 }
 
-void mlMtxRotRoll(f32 arg0) {  
+void mlMtxRotRoll(f32 arg0) {
     f32 cos;
     f32 sin;
     f32 var_f10;
     f32 var_f18;
 
+    FrameInterpolation_RecordMatrixRotRoll(arg0);
     if (arg0 != 0.0f) {
         arg0 *= D_8027657C;
         sin = sinf(arg0);
@@ -387,6 +395,7 @@ void mlMtxRotatePYR(f32 pitch, f32 yaw, f32 roll){
 
 void mlMtxScale_xyz(f32 x, f32 y, f32 z){
     int i;
+    FrameInterpolation_RecordMatrixScale(x, y, z);
     for(i = 0; i < 3; i++){
         s_mtx_stack->mf[0][i] *= x;
         s_mtx_stack->mf[1][i] *= y;
@@ -396,6 +405,7 @@ void mlMtxScale_xyz(f32 x, f32 y, f32 z){
 
 void mlMtxScale(f32 scale){
     int i;
+    FrameInterpolation_RecordMatrixScale(scale, scale, scale);
     for(i = 0; i < 3; i++){
         s_mtx_stack->mf[0][i] *= scale;
         s_mtx_stack->mf[1][i] *= scale;
@@ -510,6 +520,7 @@ void mlMtxTranslate(f32 x, f32 y, f32 z) {
     f32 phi_f16;
     s32 phi_v1;
 
+    FrameInterpolation_RecordMatrixTranslate(x, y, z);
     for(phi_v1 = 0; phi_v1 < 3; phi_v1++){
         phi_f18 = s_mtx_stack->mf[0][phi_v1] * x;
         phi_f16 = s_mtx_stack->mf[1][phi_v1] * y;
@@ -527,7 +538,7 @@ void func_80252A38(f32 x, f32 y, f32 z) {
 
 void func_80252AF0(f32 arg0[3], f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3]) {
     f32 sp1C[3];
-    
+
     if (arg1 != NULL) {
         sp1C[0] = arg1[0] - arg0[0];
         sp1C[1] = arg1[1] - arg0[1];

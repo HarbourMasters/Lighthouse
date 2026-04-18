@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Engine.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 #include "bk_time.h"
 
@@ -120,6 +121,9 @@ void fxhoneycarrierscore_draw(s32 arg0, struct8s *arg1, Gfx **arg2, Mtx **arg3, 
         viewport_setRenderViewportAndOrthoMatrix(arg2, arg3);
         gSPDisplayList((*arg2)++, D_8036A030);
         for(sp134 = 0; sp134 < ((sp118)? ((D_8036A014 != 0) ? 2 : 1) : 6); sp134++){
+            // [port] Loop count toggles 1/2/6 with HUD state, so index-
+            // based pairing mismatches without a stable per-icon scope.
+            FrameInterpolation_RecordOpenChild("honey_icon", (uintptr_t)sp134);
             sp110 = D_8036A018[sp134] * -0x3C;
             gDPPipeSync((*arg2)++);
             if (sp118) {
@@ -167,6 +171,7 @@ void fxhoneycarrierscore_draw(s32 arg0, struct8s *arg1, Gfx **arg2, Mtx **arg3, 
                     }
             }
             gSP1Quadrangle((*arg2)++, 0, 1, 3, 2, 0);
+            FrameInterpolation_RecordCloseChild();
         }
         gDPPipeSync((*arg2)++);
         gDPSetTextureLUT((*arg2)++, G_TT_NONE);

@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/interpolation/FrameInterpolation.h"
+
 /* .code */
 void func_802F7EB0(struct3s *this){
     f32 plyrPos[3]; //sp74
@@ -65,9 +67,12 @@ void func_802F8110(struct3s *this, Gfx **gdl, Mtx **mptr, u32 arg3){
     startPtr = bk_vector_getBegin(this->unk20);
     endPtr = bk_vector_getEnd(this->unk20);
     for(iPtr = startPtr; iPtr < endPtr; iPtr++){
+        // [port] Per-entry stable scope — vector count varies, indices shift.
+        FrameInterpolation_RecordOpenChild("streamctrl", (uintptr_t)(iPtr - startPtr));
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
         modelRender_draw(gdl, mptr, iPtr->unk0, 0, 1.0f, 0, this->unk2C);
         iPtr->unk18 = modelRender_func_8033A170();
+        FrameInterpolation_RecordCloseChild();
     }
 }
 

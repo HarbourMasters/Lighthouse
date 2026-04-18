@@ -4,6 +4,8 @@
 #include "variables.h"
 #include "core2/particle.h"
 
+#include "port/interpolation/FrameInterpolation.h"
+
 
 extern s32 sprite_getFrameCount(BKSprite *);
 extern void func_80344720(BKSpriteDisplayData *, s32 frame, bool, f32[3], f32[3], f32[3], Gfx **, Mtx **);
@@ -162,7 +164,19 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
         return;
 
     if(this->model_20 != NULL){
+        // [port] Stable scope per emitter + per particle. Slot index plus
+        // a coarse age bucket: two consecutive frames of the same particle
+        // land in the same bucket, so they pair. When expiry swaps a new
+        // particle into the slot its age resets to ~0 — different bucket,
+        // no false pair with the dead particle. Spawn-field hashing alone
+        // failed for sparkles (shared emitter, zero-width scale/lifetime
+        // ranges → every particle had the same hash → visible flashing).
+        FrameInterpolation_RecordOpenChild("part_emit", FrameInterpolation_GetId(this));
         for(iPtr = this->pList_start_124; iPtr < this->pList_end_128; iPtr++){
+            FrameInterpolation_RecordOpenChildHash3("part",
+                (uint64_t)(uintptr_t)(iPtr - this->pList_start_124),
+                (uint64_t)(iPtr->age_48 * 2.0f),
+                0);
             position[0] = iPtr->position[0] + this->unk4[0];
             position[1] = iPtr->position[1] + this->unk4[1];
             position[2] = iPtr->position[2] + this->unk4[2];
@@ -171,7 +185,9 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
             }//L802EEF5C
             modelRender_setDepthMode((this->draw_mode & PART_EMIT_NO_DEPTH)? MODEL_RENDER_DEPTH_NONE : MODEL_RENDER_DEPTH_FULL);
             modelRender_draw(gfx, mtx, position, iPtr->rotation, iPtr->scale, NULL, this->model_20);
+            FrameInterpolation_RecordCloseChild();
         }
+        FrameInterpolation_RecordCloseChild();
         return;
     }
     
@@ -201,7 +217,13 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
         flat_rotation[0] = 90.0f;
         flat_rotation[1] = 0.0f;
         flat_rotation[2] = 0.0f;
+        // [port] Same slot+age-bucket identity as the model branch above.
+        FrameInterpolation_RecordOpenChild("part_emit", FrameInterpolation_GetId(this));
         for(iPtr = this->pList_start_124; iPtr < this->pList_end_128; iPtr++){
+            FrameInterpolation_RecordOpenChildHash3("part",
+                (uint64_t)(uintptr_t)(iPtr - this->pList_start_124),
+                (uint64_t)(iPtr->age_48 * 2.0f),
+                0);
             gDPSetPrimColor((*gfx)++, 0, 0, this->rgb[0], this->rgb[1], this->rgb[2], iPtr->fade*this->alpha);
             position[0] = iPtr->position[0] + this->unk4[0];
             position[1] = iPtr->position[1] + this->unk4[1];
@@ -220,7 +242,9 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
             else{
                 func_80344424(this->unk34, (s32)iPtr->frame, 0, position, scale, iPtr->rotation[2], gfx, mtx);
             }//L802EF324
+            FrameInterpolation_RecordCloseChild();
         }//L802EF338
+        FrameInterpolation_RecordCloseChild();
         if( this->rgb[0] != 0xff || this->rgb[1] != 0xff || this->rgb[2] != 0xff || this->alpha != 0xff 
         ){
             codeAEDA0_drawSprite(gfx);
@@ -284,12 +308,16 @@ int particleEmitter_isDone(ParticleEmitter *this){
 }
 
 void particleEmitter_free(ParticleEmitter *this){
+    // [port] Drop the id so the next emitter at this address gets a fresh
+    // one and doesn't inherit this one's pairing.
+    FrameInterpolation_UnregisterId(this);
     func_802EE930(this);
     bk_free(this);
 }
 
 ParticleEmitter * particleEmitter_new(u32 capacity){
     ParticleEmitter *this = bk_malloc(capacity*sizeof(Particle) + sizeof(ParticleEmitter));
+    FrameInterpolation_RegisterId(this);
     f32 sp40[3];
     
     this->auto_free = 0;

@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/GameConfig.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 #include "core2/gc/zoombox.h"
 
@@ -1474,6 +1475,8 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         sp7C = time_getDelta();
         for (i = 1; i < 7; i++) {
             if (sns_get_item_state(i, 0)) {
+                // [port] Stable scope per egg slot.
+                FrameInterpolation_RecordOpenChild("sns_egg", (uintptr_t)i);
                 D_80383010.unk3E[i] += (f32) D_80383010.unk4C[i] * sp7C;
                 if (D_80383010.unk3E[i] > 360.0) {
                     D_80383010.unk3E[i] -= 360.0;
@@ -1514,6 +1517,7 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                 modelRender_draw(gfx, mtx, sp98, sp8C, 0.8f, sp80, D_80383010.sns_egg_model);
                 viewport_restoreState();
                 viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
+                FrameInterpolation_RecordCloseChild();
             }
         }
         if (sns_get_item_state(7, 0)) {

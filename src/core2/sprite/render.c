@@ -5,6 +5,7 @@
 #include <PR/region.h>
 
 #include "port/patches/Patches.h"
+#include "port/interpolation/FrameInterpolation.h"
 
 
 extern void spriteRender_drawWithSegment(Gfx**, Vtx**, BKSprite *, s32, s32);
@@ -56,6 +57,7 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     f32 sp38;
     f32 sp34;
 
+    FrameInterpolation_RecordOpenChild("sprite_viewport", (uintptr_t)self);
     viewport_getPosition_vec3f(sp6C);
     viewport_getLookbk_vector(sp60);
     sp50[0] = position[0] - sp6C[0];
@@ -64,6 +66,7 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     temp_f14 = sp60[0]*sp50[0] + sp60[1]*sp50[1] + sp60[2]*sp50[2];
     if ((temp_f14 < 0.0f) || (20000.0f < temp_f14)) {
         func_80344124();
+    FrameInterpolation_RecordCloseChild();
         return;
     }
     if (scale != NULL) {
@@ -81,17 +84,32 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     var_f2_2 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
     if ((3000.0f < temp_f14) && ((var_f2_2 / temp_f14) < D_80371ECC) && !D_803858B0) {
         func_80344124();
+    FrameInterpolation_RecordCloseChild();
         return;
     }
     if (D_80371EC0.unk0 != NULL) {
         D_80371EC0.unk0(D_80371EC0.unk4);
     }
+    // [port] Record the raw inputs so replay can angle-lerp them against
+    // the projection — without this, billboards buzz against the moving
+    // camera. NoInterpolate hides the ToMtx from the generic lerp so only
+    // the rebuilt matrix writes to *mtx.
+    {
+        f32 camRot[3];
+        f32 scl[3];
+        scl[0] = sp3C; scl[1] = sp38; scl[2] = sp34;
+        viewport_getRotation_vec3f(camRot);
+        FrameInterpolation_RecordSpriteDraw(FI_SPRITE_KIND_BILLBOARD, *mtx, sp50, scl, camRot[1], camRot[0], 0.0f,
+                                            NULL, (int)mirrored);
+    }
+    FrameInterpolation_NoInterpolatePush();
     mlMtxSet(viewport_getMatrix());
     func_80252330(sp50[0], sp50[1], sp50[2]);
     if ((scale != NULL) || mirrored) {
         mlMtxScale_xyz((mirrored) ? -scale[0] : scale[0], sp38, sp34);
     }
     mlMtxApply(*mtx);
+    FrameInterpolation_NoInterpolatePop();
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     temp_a3 = (BKSpriteFrameDisplayData *)((uintptr_t)self + sizeof(BKSpriteDisplayData) + frame*sizeof(BKSpriteFrameDisplayData));
     gSPSegment((*gfx)++, 1, osVirtualToPhysical(temp_a3->vtx));
@@ -99,6 +117,7 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     func_80349AD0();
     func_80344124();
+    FrameInterpolation_RecordCloseChild();
 }
 
 void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 position[3], f32 scale[3], f32 rotation, Gfx **gfx, Mtx **mtx) {
@@ -114,6 +133,7 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     f32 sp38;
     f32 sp34;
 
+    FrameInterpolation_RecordOpenChild("sprite_viewport_rot", (uintptr_t)arg0);
     viewport_getPosition_vec3f(sp6C);
     viewport_getLookbk_vector(sp60);
     sp50[0] = position[0] - sp6C[0];
@@ -122,6 +142,7 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     sp5C = sp60[0]*sp50[0] + sp60[1]*sp50[1] + sp60[2]*sp50[2];
     if ((sp5C < 0.0f) || (20000.0f < sp5C)) {
         func_80344124();
+    FrameInterpolation_RecordCloseChild();
         return;
     }
     if (scale != NULL) {
@@ -139,12 +160,23 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     var_f2_2 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
     if ((3000.0f < sp5C) && ((var_f2_2 / sp5C) < D_80371ECC) && !D_803858B0) {
         func_80344124();
+    FrameInterpolation_RecordCloseChild();
         return;
     }
 
     if (D_80371EC0.unk0 != NULL) {
         D_80371EC0.unk0(D_80371EC0.unk4);
     }
+    // [port] Same as path 1, plus the extra spriteRoll this path applies.
+    {
+        f32 camRot[3];
+        f32 scl[3];
+        scl[0] = sp3C; scl[1] = sp38; scl[2] = sp34;
+        viewport_getRotation_vec3f(camRot);
+        FrameInterpolation_RecordSpriteDraw(FI_SPRITE_KIND_BILLBOARD_ROLL, *mtx, sp50, scl, camRot[1], camRot[0],
+                                            rotation, NULL, (int)mirrored);
+    }
+    FrameInterpolation_NoInterpolatePush();
     mlMtxSet(viewport_getMatrix());
     mlMtxRotatePYR(0.0f, 0.0f, rotation);
     func_80252330(sp50[0], sp50[1], sp50[2]);
@@ -152,6 +184,7 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
         mlMtxScale_xyz((mirrored) ? -scale[0] : scale[0], sp38, sp34);
     }
     mlMtxApply(*mtx);
+    FrameInterpolation_NoInterpolatePop();
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     temp_a3 = (BKSpriteFrameDisplayData *)((uintptr_t)arg0 + sizeof(BKSpriteDisplayData) + frame*sizeof(BKSpriteFrameDisplayData));
     gSPSegment((*gfx)++, 1, osVirtualToPhysical(temp_a3->vtx));
@@ -159,6 +192,7 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     func_80349AD0();
     func_80344124();
+    FrameInterpolation_RecordCloseChild();
 }
 
 
@@ -172,6 +206,9 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     f32 var_f14;
     BKSpriteFrameDisplayData *temp_a3;
 
+    // [port] FULL path — music notes, jiggies, anything fully rotated by
+    // the caller rather than billboarded against the camera.
+    FrameInterpolation_RecordOpenChild("sprite_3d", (uintptr_t)arg0);
     viewport_getPosition_vec3f(sp5C);
     viewport_getLookbk_vector(sp50);
     sp40[0] = position[0] - sp5C[0];
@@ -180,6 +217,7 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     sp4C = sp50[0]*sp40[0] + sp50[1]*sp40[1] + sp50[2]*sp40[2];
     if ((sp4C < 0.0f) || (20000.0f < sp4C)) {
         func_80344124();
+        FrameInterpolation_RecordCloseChild();
         return;
     }
 
@@ -188,17 +226,24 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     var_f14 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
     if ((3000.0f < sp4C) && ((var_f14 / sp4C) < D_80371ECC) && !D_803858B0) {
         func_80344124();
+        FrameInterpolation_RecordCloseChild();
         return;
     }
 
     if (D_80371EC0.unk0 != NULL) {
         D_80371EC0.unk0(D_80371EC0.unk4);
     }
+    // [port] Record raw inputs + suppress the ToMtx; replay builds the
+    // rotation matrix fresh each sub-frame.
+    FrameInterpolation_RecordSpriteDraw(FI_SPRITE_KIND_FULL, *mtx, sp40, scale, 0.0f, 0.0f, 0.0f, rotation,
+                                        (int)mirrored);
+    FrameInterpolation_NoInterpolatePush();
     mlMtxIdent();
     func_80252330(sp40[0], sp40[1], sp40[2]);
     mlMtxRotatePYR(rotation[0], rotation[1], rotation[2]);
     mlMtxScale_xyz((mirrored) ? -scale[0] : scale[0], scale[1], scale[2]);
     mlMtxApply(*mtx);
+    FrameInterpolation_NoInterpolatePop();
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     temp_a3 = (BKSpriteFrameDisplayData *)((uintptr_t)arg0 + sizeof(BKSpriteDisplayData) + frame*sizeof(BKSpriteFrameDisplayData));
     gSPSegment((*gfx)++, 1, osVirtualToPhysical(temp_a3->vtx));
@@ -206,6 +251,7 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     func_80349AD0();
     func_80344124();
+    FrameInterpolation_RecordCloseChild();
 }
 
 

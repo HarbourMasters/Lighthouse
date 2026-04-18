@@ -784,11 +784,13 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     s32 i;
     f32 sp44[3];
 
-    // Copy position before any realloc — callers often pass pointers into the
-    // actor array itself, which realloc can free.
+    // [port] Copy position up front. Callers pass a pointer into 
+    //actor-local data that lives in the actor array, and the realloc 
+    // below moves the array — `position` would dangle.
     s32 pos_x = position[0];
     s32 pos_y = position[1];
     s32 pos_z = position[2];
+    s32 pos_copy[3] = { pos_x, pos_y, pos_z };
 
     if(suBaddieActorArray == NULL){
         suBaddieActorArray = (ActorArray *)bk_malloc(sizeof(ActorArray) + 20*sizeof(Actor));
@@ -836,7 +838,7 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     suLastBaddie->unk124_6 = 1;
     suLastBaddie->modelCacheIndex = actorInfo->actorId;
     suLastBaddie->unk44_2 = func_80326C18();
-    suLastBaddie->marker = marker_init(position, actorInfo->draw_func, (asset_getFlag(actorInfo->modelId) == 1) ? 0 : 1, actorInfo->markerId, (flags & 0x400) ? 1 : 0);
+    suLastBaddie->marker = marker_init(pos_copy, actorInfo->draw_func, (asset_getFlag(actorInfo->modelId) == 1) ? 0 : 1, actorInfo->markerId, (flags & 0x400) ? 1 : 0);
     suLastBaddie->marker->unk3E_0 = 1;
     suLastBaddie->unk138_28 = 1;
     suLastBaddie->unk10_3 = -1;
