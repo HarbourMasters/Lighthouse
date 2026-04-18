@@ -24,16 +24,11 @@ struct NametagTableEntry {
 
 // Asset-id -> nametag lookup. Shared across the actor / prop / sprite-prop paths.
 constexpr NametagTableEntry sNametagTable[] = {
-    { ASSET_350_MODEL_TERMITE,      "Termite",       150.0f },
-    { ASSET_3C5_MODEL_GRUBLIN,      "Grublin",       150.0f },
-    { ASSET_353_MODEL_BIGBUTT,      "BigButt",       150.0f },
-    { ASSET_3C0_MODEL_JINJO_BLUE,   "Blue Jinjo",    150.0f },
-    { ASSET_3C2_MODEL_JINJO_GREEN,  "Green Jinjo",   150.0f },
-    { ASSET_3BC_MODEL_JINJO_ORANGE, "Orange Jinjo",  150.0f },
-    { ASSET_3C1_MODEL_JINJO_PINK,   "Pink Jinjo",    150.0f },
-    { ASSET_3BB_MODEL_JINJO_YELLOW, "Yellow Jinjo",  150.0f },
-    { ASSET_6D6_SPRITE_MUSIC_NOTE,  "Note",           80.0f },
-    { ASSET_41A_SPRITE_MUMBO_TOKEN, "Mumbo Token",    80.0f },
+    { ASSET_350_MODEL_TERMITE, "Termite", 150.0f },         { ASSET_3C5_MODEL_GRUBLIN, "Grublin", 150.0f },
+    { ASSET_353_MODEL_BIGBUTT, "BigButt", 150.0f },         { ASSET_3C0_MODEL_JINJO_BLUE, "Blue Jinjo", 150.0f },
+    { ASSET_3C2_MODEL_JINJO_GREEN, "Green Jinjo", 150.0f }, { ASSET_3BC_MODEL_JINJO_ORANGE, "Orange Jinjo", 150.0f },
+    { ASSET_3C1_MODEL_JINJO_PINK, "Pink Jinjo", 150.0f },   { ASSET_3BB_MODEL_JINJO_YELLOW, "Yellow Jinjo", 150.0f },
+    { ASSET_6D6_SPRITE_MUSIC_NOTE, "Note", 80.0f },         { ASSET_41A_SPRITE_MUMBO_TOKEN, "Mumbo Token", 80.0f },
 };
 
 const NametagTableEntry* LookupNametag(int32_t assetId) {
@@ -50,9 +45,7 @@ void InitNametagBindings() {
     Nametag::SetNativeFramebufferSize(&gFramebufferWidth, &gFramebufferHeight);
     Nametag::RegisterOverlay();
 
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_HIGH, [](IEvent* event) {
-        Nametag::Clear();
-    });
+    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_HIGH, [](IEvent* event) { Nametag::Clear(); });
 
     // Forwards through OnNametagDraw so non-dispatched actors can register too.
     REGISTER_LISTENER(OnActorTick, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

@@ -14,17 +14,17 @@
 namespace {
 
 // Tag appearance
-constexpr ImU32 kBgColor     = IM_COL32(0, 0, 0, 200);
+constexpr ImU32 kBgColor = IM_COL32(0, 0, 0, 200);
 constexpr ImU32 kBorderColor = IM_COL32(64, 128, 255, 255);
-constexpr ImU32 kTextColor   = IM_COL32(255, 255, 255, 255);
-constexpr float kPaddingX    = 6.0f;
-constexpr float kPaddingY    = 3.0f;
+constexpr ImU32 kTextColor = IM_COL32(255, 255, 255, 255);
+constexpr float kPaddingX = 6.0f;
+constexpr float kPaddingY = 3.0f;
 constexpr float kCornerRadius = 3.0f;
 constexpr float kBorderThickness = 1.5f;
 
 // Aspect ratios. kGameAspect is what AdjXForAspectRatio preserves in-FB.
 // kLowResAspect is the aspect Gui::DrawGame enforces under CVAR_LOW_RES_MODE==1.
-constexpr float kGameAspect   = 4.0f / 3.0f;
+constexpr float kGameAspect = 4.0f / 3.0f;
 constexpr float kLowResAspect = 320.0f / 240.0f;
 
 struct Entry {
@@ -73,17 +73,19 @@ int16_t ComputeIntegerScaleFactor(const std::shared_ptr<Fast::Interpreter>& inte
             factor = static_cast<int16_t>(gvp.width / curW);
         }
     }
-    factor += static_cast<int16_t>(
-        CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0));
+    factor += static_cast<int16_t>(CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0));
     return factor < 1 ? 1 : factor;
 }
 
 class NametagOverlay : public Ship::GuiWindow {
 public:
     using GuiWindow::GuiWindow;
-    void InitElement() override {}
-    void UpdateElement() override {}
-    void DrawElement() override {}
+    void InitElement() override {
+    }
+    void UpdateElement() override {
+    }
+    void DrawElement() override {
+    }
     void Draw() override {
         // Suppress the overlay while the menu is up so tags don't cover menu items.
         auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
