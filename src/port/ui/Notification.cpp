@@ -36,11 +36,14 @@ void Window::Draw() {
             return;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, CVarGetFloat(CVAR_SETTING("Notifications.BgOpacity"), 0.5f)));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,
+                          ImVec4(0, 0, 0, CVarGetFloat(CVAR_SETTING("Notifications.BgOpacity"), 0.5f)));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 6.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 8.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
+                        ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 6.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
+                        ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 8.0f));
 
     for (size_t index = 0; index < notifications.size(); ++index) {
         auto& notification = notifications[index];
@@ -84,9 +87,9 @@ void Window::Draw() {
         ImGui::AlignTextToFramePadding();
 
         if (notification.itemIcon != nullptr) {
-            ImGui::Image(
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(notification.itemIcon),
-                ImVec2(22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f)));
+            ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(notification.itemIcon),
+                         ImVec2(22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f),
+                                22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f)));
             ImGui::SameLine();
         }
         if (!notification.prefix.empty()) {

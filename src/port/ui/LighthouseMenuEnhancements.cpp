@@ -250,7 +250,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "D-pad Talon Trot Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.TalonTrotCycle"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("While in Talon Trot: D-pad Right cycles forward (Normal→Boots→Sneakers), D-pad Left cycles backward."));
+        .Options(CheckboxOptions().Tooltip(
+            "While in Talon Trot: D-pad Right cycles forward (Normal→Boots→Sneakers), D-pad Left cycles backward."));
 
     // Transformations Section
     AddWidget(path, "Transformations", WIDGET_SEPARATOR_TEXT);
@@ -263,12 +264,14 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "D-pad Cycle Transform", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.CycleTransform"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Press D-pad Up/Down to cycle through transformation forms.\nUp: Forward (Banjo→Mumbo→...→Wishy→Banjo), Down: Backward."));
+        .Options(CheckboxOptions().Tooltip("Press D-pad Up/Down to cycle through transformation forms.\nUp: Forward "
+                                           "(Banjo→Mumbo→...→Wishy→Banjo), Down: Backward."));
 
     AddWidget(path, "No Mumbo Untransform", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.NoMumboUntransform"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables Mumbo untransforming you when going too far and skips his warning dialog."));
+        .Options(CheckboxOptions().Tooltip(
+            "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
 
     // Time & Events Section
     AddWidget(path, "Time & Events", WIDGET_SEPARATOR_TEXT);
