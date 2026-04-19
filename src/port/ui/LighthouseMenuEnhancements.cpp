@@ -232,7 +232,7 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Refills gold feathers to your current max capacity when below max."));
 
     AddWidget(path, "Infinite Boots & Sneakers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteTimers"))
+        .CVar(CVAR_ENHANCEMENT("Cheats.InfiniteBootsSneakers"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Wading Boots and Turbo Talon Sneakers timers never expire."));
 
@@ -273,13 +273,6 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
 
-    // Time & Events Section
-    AddWidget(path, "Time & Events", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Freeze All Timers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Cheats.FreezeTimers"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Freezes all timers including minigames, races, and challenge timers."));
 }
 
 } // namespace LighthouseGui

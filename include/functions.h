@@ -2548,6 +2548,9 @@ void mapSavestate_free_all(void);
 void mapSavestate_init(void);
 void mapSavestate_save(enum map_e map);
 
+// --- core2/map/gsworld.c ---
+enum map_e gsworld_getMap(void);
+
 // --- core2/map/specificflags.c ---
 s32 mapSpecificFlags_validateCRC1(void);
 u32 mapSpecificFlags_getAll(void);
@@ -3289,6 +3292,8 @@ void baModel_80292158(f32);
 
 // --- core2/ba/ba_physics.c ---
 f32  get_slope_timer(void);
+void baphysics_reset_gravity(void);
+void baphysics_set_gravity(f32 gravity);
 
 // --- core2/ba/ba_position.c ---
 f32 player_getYPosition(void);

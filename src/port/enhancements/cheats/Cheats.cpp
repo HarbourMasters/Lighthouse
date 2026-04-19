@@ -11,34 +11,15 @@ extern "C" {
 #include "enums.h"
 #include "core2/statetimer.h"
 #include "bs_funcs.h"
-void volatileFlag_set(enum volatile_flags_e index, s32 set);
-void item_setMaxCount(s32 item);
-void item_set(s32 item, s32 val);
-s32 item_getCount(enum item_e item);
-s32 port_getRomhackMaxEggs(void);
-s32 port_getRomhackMaxRedFeathers(void);
-s32 port_getRomhackMaxGoldFeathers(void);
-int bakey_pressed(s32 button);
-int bakey_released(s32 button);
-u32 bakey_held(s32 button);
-s32 bs_getState(void);
-void bs_setState(s32 state_id);
-int bsbtrot_inSet(enum bs_e state);
-int bslongleg_inSet(s32 move_indx);
-enum transformation_e player_getTransformation(void);
-bool func_8028FB88(enum transformation_e xform_id);
-void player_getPosition(f32 dst[3]);
-void player_setPosition(f32 arg0[3]);
-void batimer_set(s32 timer_id, f32 duration);
-f32 batimer_get(s32 timer_id);
+#include "functions.h"
+
 s32 batimer_decrement(s32 timer_id);
 void batimer_incrementBy(s32 id, f32 inc_value_sec);
-s32 baflag_isTrue(s32 flag);
+void batimer_set(s32 timer_id, f32 duration);
 f32 time_getDelta(void);
-s32 getGameMode(void);
-void baphysics_set_gravity(f32 gravity);
-void baphysics_reset_gravity(void);
-enum map_e gsworld_getMap(void);
+s32 port_getRomhackMaxEggs(void);
+s32 port_getRomhackMaxGoldFeathers(void);
+s32 port_getRomhackMaxRedFeathers(void);
 }
 
 // ============================================================================
@@ -51,10 +32,9 @@ enum map_e gsworld_getMap(void);
 #define CVAR_INFINITE_EGGS CVAR_ENHANCEMENT("Cheats.InfiniteEggs")
 #define CVAR_INFINITE_RED_FEATHERS CVAR_ENHANCEMENT("Cheats.InfiniteRedFeathers")
 #define CVAR_INFINITE_GOLD_FEATHERS CVAR_ENHANCEMENT("Cheats.InfiniteGoldFeathers")
-#define CVAR_INFINITE_TIMERS CVAR_ENHANCEMENT("Cheats.InfiniteTimers")
+#define CVAR_INFINITE_BOOTS_SNEAKERS CVAR_ENHANCEMENT("Cheats.InfiniteBootsSneakers")
 #define CVAR_TALON_TROT_CYCLE CVAR_ENHANCEMENT("Cheats.TalonTrotCycle")
 #define CVAR_LEVITATE CVAR_ENHANCEMENT("Cheats.Levitate")
-#define CVAR_FREEZE_TIMERS CVAR_ENHANCEMENT("Cheats.FreezeTimers")
 #define CVAR_NO_MUMBO_UNTRANSFORM CVAR_ENHANCEMENT("Cheats.NoMumboUntransform")
 #define CVAR_CYCLE_TRANSFORM CVAR_ENHANCEMENT("Cheats.CycleTransform")
 #define CVAR_FAST_TRANSFORM CVAR_ENHANCEMENT("Cheats.FastTransform")
@@ -143,13 +123,14 @@ void RegisterInfiniteGoldFeathers_Init() {
 // TIMERS & ABILITIES
 // ============================================================================
 
-// Infinite Boots & Sneakers timers — keeps timers from expiring
-void RegisterInfiniteTimers_Init() {
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_TIMERS, 0), [](IEvent* event) {
-        // Keep timers infinite when active
+// Infinite Boots & Sneakers — Keeps boots and sneakers from expiring
+void RegisterBootsAndSneakersTimer_Init() {
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_BOOTS_SNEAKERS, 0), [](IEvent* event) {
+        // STATE_TIMER_2_LONGLEG - Trot Shoes (boots)
         if (stateTimer_isActive(STATE_TIMER_2_LONGLEG)) {
             stateTimer_set(STATE_TIMER_2_LONGLEG, 999.0f);
         }
+        // STATE_TIMER_3_TURBO_TALON - Sneakers
         if (stateTimer_isActive(STATE_TIMER_3_TURBO_TALON)) {
             stateTimer_set(STATE_TIMER_3_TURBO_TALON, 999.0f);
         }
@@ -207,6 +188,7 @@ void RegisterTalonTrotCycle_Init() {
 
 // Levitate — Hold L to float upward with gravity disabled
 void RegisterLevitate_Init() {
+    static bool levitateActive = false;
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_LEVITATE, 0), [](IEvent* event) {
         if (bakey_held(BUTTON_L)) {
             baphysics_set_gravity(0.0f);
@@ -214,34 +196,12 @@ void RegisterLevitate_Init() {
             player_getPosition(pos);
             pos[1] += 20.0f;
             player_setPosition(pos);
+            levitateActive = true;
         } else {
-            baphysics_reset_gravity();
-        }
-    });
-}
-
-// ============================================================================
-// TIME & EVENTS CHEATS
-// ============================================================================
-
-// Freeze All Timers — Prevents all timers from decrementing (minigames, races, etc.)
-void RegisterFreezeTimers_Init() {
-    static bool timersFrozen = false;
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FREEZE_TIMERS, 0), [](IEvent* event) {
-        // Keep all state timers (boots, sneakers, etc.) from decreasing
-        for (s32 i = 0; i < 7; i++) {
-            if (stateTimer_isActive((enum state_timer_e)i)) {
-                f32 current = stateTimer_get((enum state_timer_e)i);
-                if (current < 999.0f) {
-                    stateTimer_set((enum state_timer_e)i, 999.0f);
-                }
-            }
-        }
-        // Keep all ba timers (action timers) from decreasing
-        for (s32 i = 0; i < 8; i++) {
-            f32 current = batimer_get(i);
-            if (current > 0.0f && current < 999.0f) {
-                batimer_incrementBy(i, 999.0f - current);
+            // Only reset gravity once when L is released, not every frame
+            if (levitateActive) {
+                baphysics_reset_gravity();
+                levitateActive = false;
             }
         }
     });
@@ -318,10 +278,9 @@ static RegisterShipInitFunc initInfiniteRedFeathersFunc(RegisterInfiniteRedFeath
                                                         { CVAR_INFINITE_RED_FEATHERS });
 static RegisterShipInitFunc initInfiniteGoldFeathersFunc(RegisterInfiniteGoldFeathers_Init,
                                                          { CVAR_INFINITE_GOLD_FEATHERS });
-static RegisterShipInitFunc initInfiniteTimersFunc(RegisterInfiniteTimers_Init, { CVAR_INFINITE_TIMERS });
+static RegisterShipInitFunc initBootsAndSneakersTimerFunc(RegisterBootsAndSneakersTimer_Init, { CVAR_INFINITE_BOOTS_SNEAKERS });
 static RegisterShipInitFunc initBootCycleFunc(RegisterTalonTrotCycle_Init, { CVAR_TALON_TROT_CYCLE });
 static RegisterShipInitFunc initLevitateFunc(RegisterLevitate_Init, { CVAR_LEVITATE });
-static RegisterShipInitFunc initFreezeTimersFunc(RegisterFreezeTimers_Init, { CVAR_FREEZE_TIMERS });
 static RegisterShipInitFunc initCycleTransformFunc(RegisterCycleTransform_Init, { CVAR_CYCLE_TRANSFORM });
 static RegisterShipInitFunc initFastTransformFunc(RegisterFastTransform_Init, { CVAR_FAST_TRANSFORM });
 static RegisterShipInitFunc initNoMumboUntransformFunc(RegisterNoMumboUntransform_Init, { CVAR_NO_MUMBO_UNTRANSFORM });
