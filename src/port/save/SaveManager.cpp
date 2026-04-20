@@ -550,7 +550,7 @@ void SaveManager_Init() {
             ev->result = 2; // empty/missing — let decomp treat as scratch slot
         }
         delete loaded;
-        event->cancelled = true;
+        event->Cancelled = true;
     });
 
     REGISTER_LISTENER(OnSaveFileSave, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
@@ -573,7 +573,7 @@ void SaveManager_Init() {
         }
 
         SaveGlobalData();
-        event->cancelled = true;
+        event->Cancelled = true;
     });
 
     // Decomp clears global arrays (e.g. gCompletedBottlesBonusGames) just before

@@ -8,19 +8,20 @@
 #include "port/ui/UIWidgets.hpp"
 #include "port/ui/cvar_prefixes.h"
 #include <ship/utils/StringHelper.h>
-#include "port/enhancements/events/hooks/EventSystem.h"
+#include <ship/events/EventSystem.h>
+#include <ship/Context.h>
 
 #define THEME_COLOR UIWidgets::Colors::Orange
 
-static bool hookOptCollapseAll; // A bool that will collapse all hook group once
-static bool hookOptExpandAll;   // A bool that will expand all hook group once
+static bool hookOptCollapseAll;
+static bool hookOptExpandAll;
 
 const ImVec4 grey = ImVec4(0.75, 0.75, 0.75, 1);
 const ImVec4 yellow = ImVec4(1, 1, 0, 1);
 const ImVec4 red = ImVec4(1, 0, 0, 1);
 
-void DrawEventCallerInfo(std::string& name, EventRegistration& registry) {
-    ImGui::Text("Total Callers Registered: %zu", registry.callers.size());
+void DrawEventCallerInfo(std::string& name, Ship::EventRegistration& registry) {
+    ImGui::Text("Total Callers Registered: %zu", registry.Callers.size());
 
     if (ImGui::BeginTable(("Table##" + std::string(name)).c_str(), 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
@@ -31,24 +32,24 @@ void DrawEventCallerInfo(std::string& name, EventRegistration& registry) {
         ImGui::TableHeadersRow();
 
         int i = 0;
-        for (auto& [_, caller] : registry.callers) {
+        for (auto& [_, caller] : registry.Callers) {
             ImGui::TableNextRow();
 
             ImGui::TableNextColumn();
             ImGui::Text("%d", i++);
 
             ImGui::TableNextColumn();
-            ImGui::TextWrapped("%s:%d ", caller.path, caller.line);
+            ImGui::TextWrapped("%s:%d ", caller.Path, caller.Line);
 
             ImGui::TableNextColumn();
-            ImGui::Text("%" PRIu64, caller.count);
+            ImGui::Text("%" PRIu64, caller.Count);
         }
         ImGui::EndTable();
     }
 }
 
-void DrawEventListenerInfo(std::string& name, EventRegistration& registry) {
-    ImGui::Text("Total Listeners Registered: %zu", registry.listeners.size());
+void DrawEventListenerInfo(std::string& name, Ship::EventRegistration& registry) {
+    ImGui::Text("Total Listeners Registered: %zu", registry.Listeners.size());
 
     if (ImGui::BeginTable(("Table##" + std::string(name)).c_str(), 4,
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
@@ -59,17 +60,17 @@ void DrawEventListenerInfo(std::string& name, EventRegistration& registry) {
         ImGui::TableHeadersRow();
 
         int i = 0;
-        for (auto& listener : registry.listeners) {
+        for (auto& listener : registry.Listeners) {
             ImGui::TableNextRow();
 
             ImGui::TableNextColumn();
             ImGui::Text("%d", i++);
 
             ImGui::TableNextColumn();
-            ImGui::TextWrapped("%s:%d ", listener.metadata.path, listener.metadata.line);
+            ImGui::TextWrapped("%s:%d ", listener.Metadata.Path, listener.Metadata.Line);
 
             ImGui::TableNextColumn();
-            switch (listener.priority) {
+            switch (listener.Priority) {
                 case EVENT_PRIORITY_LOW:
                     ImGui::TextColored(grey, "Low");
                     break;
@@ -87,7 +88,7 @@ void DrawEventListenerInfo(std::string& name, EventRegistration& registry) {
 
 void EventDebuggerWindow::DrawElement() {
     bool collapseLogic = false;
-    auto events = EventSystem::Instance->GetEventRegistrations();
+    auto events = Ship::Context::GetInstance()->GetEventSystem()->GetEventRegistrations();
     bool doingCollapseOrExpand = hookOptExpandAll || hookOptCollapseAll;
 
     ImGui::BeginDisabled(CVarGetInteger(CVAR_SETTING("DisableChanges"), 0));
@@ -106,7 +107,7 @@ void EventDebuggerWindow::DrawElement() {
     ImGui::PushFont(GameEngine::Instance->fontMonoLarger);
 
     for (auto& [id, registry] : events) {
-        auto name = StringHelper::Sprintf("%s (ID: %d) [%d]", registry.name, id, registry.listeners.size());
+        auto name = StringHelper::Sprintf("%s (ID: %d) [%d]", registry.Name, id, registry.Listeners.size());
 
         if (doingCollapseOrExpand) {
             if (hookOptExpandAll) {

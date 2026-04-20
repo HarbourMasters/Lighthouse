@@ -1,9 +1,6 @@
 #pragma once
 
-#include "port/enhancements/events/hooks/EventSystem.h"
-#include "include/enums.h"
-#include "include/prop.h"
-#include <stdarg.h>
+#include <libultraship/bridge/eventsbridge.h>
 
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
 

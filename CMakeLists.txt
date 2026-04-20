@@ -718,7 +718,7 @@ ExternalProject_Add(TorchExternal
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/Torch -DENABLE_ASAN=${ENABLE_ASAN}
 )
 ExternalProject_Get_Property(TorchExternal install_dir)
-if (MSVC)
+if (CMAKE_CONFIGURATION_TYPES)
   set(TORCH_EXECUTABLE ${install_dir}/src/TorchExternal-build/$<CONFIGURATION>/torch)
 else()
   set(TORCH_EXECUTABLE ${install_dir}/src/TorchExternal-build/torch)
@@ -735,7 +735,10 @@ add_custom_target(
     GeneratePortO2R
     DEPENDS TorchExternal
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND ${TORCH_EXECUTABLE} pack port lighthouse.o2r o2r
+    COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/port_staging"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/port" "${CMAKE_BINARY_DIR}/port_staging"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/libultraship/src/fast/shaders" "${CMAKE_BINARY_DIR}/port_staging/shaders"
+    COMMAND ${TORCH_EXECUTABLE} pack "${CMAKE_BINARY_DIR}/port_staging" lighthouse.o2r o2r
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/lighthouse.o2r" "${CMAKE_BINARY_DIR}/lighthouse.o2r"
 )
 

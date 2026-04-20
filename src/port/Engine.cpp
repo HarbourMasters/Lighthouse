@@ -29,7 +29,6 @@
 #include "port/enhancements/events/PortEnhancements.h"
 #include "port/patches/Patches.h"
 #include "libultraship/libultra/AudioDmaRegistry.h"
-#include "src/port/enhancements/events/hooks/EventSystem.h"
 #include "src/port/enhancements/events/hooks/Events.h"
 
 #include <fast/interpreter.h>
@@ -312,6 +311,7 @@ void GameEngine::FinishInit() {
     context->InitGfxDebugger();
     context->InitFileDropMgr();
     context->InitCrashHandler();
+    context->InitEventSystem();
 
     this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
 

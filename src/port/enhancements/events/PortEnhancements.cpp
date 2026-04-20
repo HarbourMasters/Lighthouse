@@ -1,6 +1,8 @@
 #include "PortEnhancements.h"
 #include "port/save/SaveManager.h"
 
+#include <stdarg.h>
+
 #define INIT_EVENT_IDS
 
 #include "port/enhancements/events/hooks/Events.h"
@@ -49,4 +51,23 @@ void PortEnhancements_Register() {
 
 void PortEnhancements_Exit() {
     // @port TODO
+}
+
+extern "C" bool EventSystem_Should(VBehaviorID id, uint32_t result, ...) {
+    // Only the external function can use the Variadic Function syntax.
+    // To pass the va args to the next caller must be done using va_list and reading the args into it.
+    // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
+    // creating a copy of this va_list to avoid incrementing the original pointer between calls.
+    va_list args;
+    va_start(args, result);
+
+    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
+    // an int to be permitted to be used in va_start, otherwise it is undefined behavior.
+    // Here we downcast back to a bool for our actual hook handlers.
+    bool boolResult = static_cast<bool>(result);
+
+    CALL_EVENT(VanillaBehavior, id, &boolResult, &args);
+
+    va_end(args);
+    return boolResult;
 }

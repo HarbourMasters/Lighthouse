@@ -1,7 +1,6 @@
 #pragma once
 
-#include "port/enhancements/events/hooks/EventSystem.h"
-#include <stdarg.h>
+#include <libultraship/bridge/eventsbridge.h>
 
 #include "prop.h"
 
