@@ -1,34 +1,21 @@
-#ifndef NAMETAG_H
-#define NAMETAG_H
+#pragma once
 
-#include <libultraship/color.h>
+// Portable nametag overlay. Draws world-space labels via an ImGui foreground
+// draw list; port-specific wiring lives in a companion bindings file.
 
-typedef struct {
-    const char* tag;       // Tag identifier to filter/remove multiple tags
-    int16_t yOffset;       // Additional Y offset to apply for the name tag
-    Color_RGBA8 textColor; // Text color override. Global color is used if alpha is 0
-    uint8_t noZBuffer;     // Allow rendering over geometry
-} NameTagOptions;
+#include <cstdint>
 
-// Register required hooks for nametags on startup
-void NameTag_RegisterHooks();
+namespace Nametag {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "include/prop.h"
+	// World -> native-framebuffer-pixel projector. Writes (screen[0], screen[1])
+	// and returns true if the point is in front of the camera.
+	using ProjectFn = bool (*)(float pos[3], float* screen);
 
-// Registers a name tag to an actor with additional options applied
-void NameTag_RegisterForActorWithOptions(Actor* actor, const char* text, NameTagOptions options);
-// Registers a name tag to an actor. Multiple name tags can exist for the same actor
-void NameTag_RegisterForActor(Actor* actor, const char* text);
-// Remove all name tags registered to a specific actor
-void NameTag_RemoveAllForActor(Actor* actor);
-// Remove all name tags that share the same tag identifier
-void NameTag_RemoveAllByTag(const char* tag);
+	void SetProjectFn(ProjectFn fn);
+	void SetNativeFramebufferSize(const int* width, const int* height);
+	void RegisterOverlay();
 
-#ifdef __cplusplus
-}
-#endif
+	void Clear();
+	void Push(float x, float y, float z, const char* label);
 
-#endif // NAMETAG_H
+} // namespace Nametag
