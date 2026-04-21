@@ -36,6 +36,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnGameSave);
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
+    REGISTER_EVENT(OnPropInit);
 
     // Register game events
     REGISTER_EVENT(MapTransitionEnd);

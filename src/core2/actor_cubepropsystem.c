@@ -1014,6 +1014,8 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                         cube->prop2Ptr[i].spriteProp.frame = (flags >> 11) & 0x1F;
                         cube->prop2Ptr[i].spriteProp.unk8_10 = (flags >> 6) & 0x1F;
                     }
+                    //Prop* ptr = cube->prop2Ptr + i * sizeof(Prop);
+                    CALL_EVENT(OnPropInit, &cube->prop2Ptr[i]);
                 }
             }
         }
