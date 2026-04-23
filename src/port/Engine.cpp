@@ -908,6 +908,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     PortEnhancements_Init();
     SaveManager_Init();
     ShipInit::InitAll();
+    ShipInit::Init("BOOT");
 
     // Stop rumble on any exit path (including direct exit() calls)
     atexit([]() {

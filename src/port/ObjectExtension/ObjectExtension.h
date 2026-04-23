@@ -27,14 +27,14 @@
  * (or with the returned pointer from Get()).
  */
 class ObjectExtension {
-  public:
+public:
     using Id = uint32_t;
 
     static constexpr Id InvalidId = std::numeric_limits<Id>::max();
 
     // Registers type T to be used as an object extension
     template <typename T> class Register {
-      public:
+    public:
         Register() {
             Id = ObjectExtension::GetInstance().RegisterId();
         }
@@ -88,7 +88,7 @@ class ObjectExtension {
     // Removes all data from an object
     void Free(const void* object);
 
-  private:
+private:
     ObjectExtension() = default;
 
     // Returns the next free object extension Id
