@@ -13,10 +13,6 @@ extern "C" {
 #include "bs_funcs.h"
 #include "functions.h"
 
-s32 batimer_decrement(s32 timer_id);
-void batimer_incrementBy(s32 id, f32 inc_value_sec);
-void batimer_set(s32 timer_id, f32 duration);
-f32 time_getDelta(void);
 s32 port_getRomhackMaxEggs(void);
 s32 port_getRomhackMaxGoldFeathers(void);
 s32 port_getRomhackMaxRedFeathers(void);
