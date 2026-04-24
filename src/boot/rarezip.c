@@ -54,9 +54,9 @@ s32 D_80275768 = 6; //dbits
 struct huft D_803FBE00;
 struct huft *inflate_huft;
 u8 pad_8027BF08[0x8];
-u8 *inflate_inbuf; //inbuf
+u8 *inflate_inbuf;
 u8 *D_8027BF14; //slide
-u32 inflate_inptr; //inptr
+u32 inflate_inptr;
 u32 D_8027BF1C; //wp
 struct huft *D_8027BF20; //unk
 u32 D_8027BF24; //bb
