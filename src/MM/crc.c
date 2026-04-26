@@ -33,7 +33,7 @@ void MM_makeMumboAlwaysTransformBanjoIntoTermite(void) {
 #endif
 }
 
-void MM_func_80387F44(void) {
+void MM_checkMMChecksums(void) {
     // [port] Anti-tamper: reads ROM CRC via osPiReadIo, no ROM on PC.
 #if ANTI_TAMPER
     s32 sp1C;

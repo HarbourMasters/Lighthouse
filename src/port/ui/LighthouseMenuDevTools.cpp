@@ -72,6 +72,9 @@ void LighthouseMenu::AddMenuDevTools() {
         .Options(CheckboxOptions().Tooltip(
             "Enables the Gfx trace mode, which will output information about the Gfx commands being run."));
 #endif
+    AddWidget(path, "Nametag Distance", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_DEVELOPER_TOOLS("NametagDist"))
+        .Options(FloatSliderOptions().DefaultValue(3000.0f).Min(1000.0f).Max(10000.0f).Step(10.0f));
     /*AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/

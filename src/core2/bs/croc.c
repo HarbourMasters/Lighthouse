@@ -31,7 +31,7 @@ void *D_8037D3E8;
 u8 D_8037D3EC;
 f32 D_8037D3F0;
 u8 D_8037D3F4;
-u8 D_8037D3F5;
+u8 s_ate_wrong;
 
 /* .code */
 f32 __bscroc_getMaxVelocity(void){
@@ -609,7 +609,7 @@ void func_802AD2A8(Gfx **gdl, Mtx **mPtr, void *arg2){
 }
 
 void bscroc_set_ate_wrong_thing(void){
-    D_8037D3F5 = 1;
+    s_ate_wrong = 1;
 }
 
 void bscroc_eat_good_init(void){
@@ -618,12 +618,12 @@ void bscroc_eat_good_init(void){
     baModel_setPostDraw((void (*)(Gfx **, Mtx **, Vtx **))func_802AD2A8);
     D_8037D3E8 = assetcache_get(func_80294974());
     D_8037D3F0 = 1.0f;
-    D_8037D3F5 = 0;
+    s_ate_wrong = 0;
     D_8037D3F4 = 0;
 }
 
 int bscroc_ate_wrong_thing(void){
-    return D_8037D3F5;
+    return s_ate_wrong;
 }
 
 void bscroc_eat_good_update(void){
@@ -644,7 +644,7 @@ void bscroc_eat_good_update(void){
                 anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
                 break;
             case 3:
-                if(D_8037D3F5)
+                if(s_ate_wrong)
                     next_state = BS_CROC_EAT_BAD;
                 else
                     next_state = BS_5E_CROC_IDLE;
@@ -662,7 +662,7 @@ void bscroc_eat_good_update(void){
 }
 
 void bscroc_eat_good_end(void){
-    D_8037D3F5 = 0;
+    s_ate_wrong = 0;
     assetcache_release(D_8037D3E8);
     baModel_setPostDraw(0);
     __bscroc_end();

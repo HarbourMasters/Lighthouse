@@ -600,7 +600,7 @@ Actor *chBottlesBonus_new(s32 position[3], s32 yaw, ActorInfo *actor_info, u32 f
     return actor_new(position, yaw, actor_info, flags);
 }
 
-void chBottlesBonus_func_802DEB80(void) {
+void chBottlesBonus_resetCompleted(void) {
     int i;
     for(i = 0; i < 7; i++){
         gCompletedBottlesBonusGames[i] = 0;

@@ -414,7 +414,7 @@ void gsworld_load(enum map_e map_id) {
         } else if (file_isNextByteExpected(fp, 3)) {
             ncCameraNodeList_fromFile(fp);
         } else if (file_isNextByteExpected(fp, 4)) {
-            lightingbk_vectorList_fromFile(fp);
+            lightingVectorList_fromFile(fp);
         } else {
             break; // [port] unrecognized tag, avoid infinite loop
         }

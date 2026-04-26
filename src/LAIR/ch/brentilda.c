@@ -28,7 +28,7 @@ void func_8038BA30(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     volatileFlag_getN(VOLATILE_FLAG_20_BEGIN_CHARACTER_PARADE + this->actorTypeSpecificField*6 + phi_v1, 2);
 }
 
-void lair_func_8038BA88(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void healDuoToFull(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
@@ -43,7 +43,7 @@ void func_8038BADC(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
     if (text_id == ((ActorLocal_lair_5640 *)&this->local)->unk0 + 2) {
         if (!fileProgressFlag_get(this->actorTypeSpecificField - 1 + FILEPROG_E9_HEALED_BY_BRENTILDA_1)) {
             if (item_getCount(ITEM_14_HEALTH) < item_getCount(ITEM_15_HEALTH_TOTAL)) {
-                gcdialog_showDialog(ASSET_10A2_DIALOG_BRENTILDA_HEAL, 0xF, this->position, this->marker, func_8038BADC, lair_func_8038BA88);
+                gcdialog_showDialog(ASSET_10A2_DIALOG_BRENTILDA_HEAL, 0xF, this->position, this->marker, func_8038BADC, healDuoToFull);
                 return;
             }
         }

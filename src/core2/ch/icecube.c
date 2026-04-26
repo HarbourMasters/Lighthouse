@@ -19,14 +19,14 @@ ActorAnimationInfo chIcecubeAnimations[] = {
     {ASSET_233_ANIM_ICECUBE, 1.2f}
 };
 
-ActorInfo D_80372B80 = {
+ActorInfo chIcecubeA = {
     MARKER_250_ICECUBE_A, ACTOR_37D_ICECUBE_A, ASSET_504_MODEL_ICECUBE, 
     1, chIcecubeAnimations, 
     chicecube_update, actor_update_func_80326224, chicecube_draw,
     0, 0, 0.0f, 0
 }; 
 
-ActorInfo D_80372BA4 = {
+ActorInfo chIcecubeB = {
     MARKER_25F_ICECUBE_B, ACTOR_3A0_ICECUBE_B, ASSET_504_MODEL_ICECUBE, 
     1, chIcecubeAnimations, 
     chicecube_update, actor_update_func_80326224, chicecube_draw,

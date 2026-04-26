@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "version.h"
 #include <ultra64.h>
-#include "2.0L/PR/region.h"
+#include <PR/region.h>
 
 /*
  *  Every chunk of allocated memory is prefixed with a HeapHeader.

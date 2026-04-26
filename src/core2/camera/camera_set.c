@@ -4,7 +4,7 @@
 
 
 #include "core2/anim/sprite.h"
-#include "core2/sprite_displaydata.h"
+#include "core2/commonParticle.h"
 
 extern u8 commonParticle_getCurrentProjectileIndex(void);
 

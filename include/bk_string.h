@@ -1,3 +1,13 @@
+/**
+ * BK custom string functions (strFToA, strcatc, strToUpper, etc.).
+ *
+ * [port] Named bk_string.h rather than core2/string.h to avoid shadowing the
+ * system <string.h> on modern toolchains — Lighthouse's CMake adds include/
+ * to -I, so a local string.h would be picked up ahead of the C standard
+ * header (which we need for memcpy/memset/strcmp etc.). Upstream decomp calls
+ * this file core2/string.h because N64/libultra has no system <string.h> to
+ * collide with.
+ */
 #ifndef BK_STRING_H
 #define BK_STRING_H
 

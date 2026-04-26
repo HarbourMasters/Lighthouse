@@ -427,7 +427,7 @@ void gameSelect_update(Actor *this){
                 case 3://L802C50C8
                 case 4://L802C50C8
                     if(anctrl_isStopped(this->anctrl)){
-                        chBottlesBonus_func_802DEB80();
+                        chBottlesBonus_resetCompleted();
                         gameFile_load(gSelectedGameNum);
                         port_syncBottlesBonusIndex();
                         if(!gameFile_isNotEmpty(sp84)){

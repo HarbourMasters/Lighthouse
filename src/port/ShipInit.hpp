@@ -31,7 +31,9 @@ struct RegisterShipInitFunc {
     RegisterShipInitFunc(std::function<void()> initFunc, const std::set<std::string>& updatePaths = {}) {
         auto& shipInitFuncs = ShipInit::GetAll();
 
-        shipInitFuncs["*"].push_back(initFunc);
+        if (!updatePaths.contains("BOOT")) {
+            shipInitFuncs["*"].push_back(initFunc);
+        }
 
         for (const auto& path : updatePaths) {
             shipInitFuncs[path].push_back(initFunc);

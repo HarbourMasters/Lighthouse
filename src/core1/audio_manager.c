@@ -4,9 +4,9 @@
 #include "functions.h"
 #include "variables.h"
 #include "version.h"
-//#include "2.0L/PR/sched.h"
-#include "2.0L/PR/n_libaudio.h"
-//#include "2.0L/PR/os_system.h"
+//#include "PR/sched.h"
+#include "n_audio/PR/n_libaudio.h"
+//#include "PR/os_system.h"
 #include "port/ShipUtils.h"
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code

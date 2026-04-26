@@ -1,4 +1,4 @@
-#include "core2/sprite_displaydata.h"
+#include "core2/commonParticle.h"
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

@@ -26,7 +26,7 @@ typedef struct {
 } Struct_MMM_47D0_0;
 
 /* .code */
-void MMM_func_8038ABC0(s32 arg0) {
+void chTumblar_makeBanjoForgetAbilities(s32 arg0) {
     if (getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
         ability_setAllLearned(ability_getAllLearned() & ~arg0);
     }
@@ -36,7 +36,7 @@ void chTumblar_checkMMMChecksums(void) {
     // Lighthouse TODO is this an anti-piracy check?
 #if ANTI_TAMPER
     if ((*(u32 *) PHYS_TO_K1(0x1D0)) - 0x356BAAAE) {
-        MMM_func_8038ABC0(0x820);
+        chTumblar_makeBanjoForgetAbilities(0x820);
     }
 #endif
 }

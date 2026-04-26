@@ -829,8 +829,6 @@ typedef struct{
     void *unk18;
 }struct86s;
 
-struct ALHeap;
-
 typedef struct {
     s32 unk0; //sound state cnt
     s32 unk4;

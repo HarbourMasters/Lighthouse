@@ -2,7 +2,7 @@
 #define MUSIC_H
 #include <ultra64.h>
 #include "structs.h"
-#include "2.0L/PR/libaudio.h"
+#include <PR/libaudio.h>
 
 typedef struct struct_B_s{
     s32 unk0;

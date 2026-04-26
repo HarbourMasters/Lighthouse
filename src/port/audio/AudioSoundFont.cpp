@@ -17,7 +17,7 @@
 
 extern "C" {
 #include <ultra64.h>
-#include "2.0L/PR/libaudio.h"
+#include <PR/libaudio.h>
 
 // Read big-endian values from byte buffer (no-op on native BE systems)
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__

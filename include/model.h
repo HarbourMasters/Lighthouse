@@ -211,5 +211,5 @@ void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 arg2[3]);
 void BKModel_getMeshCoordRange(BKModel *model, s32 mesh_id, s16 min[3], s16 max[3]);
 BKMesh *meshList_getMesh(BKMeshList *meshList, s32 mesh_id);
 s32 meshList_getVtxCount(BKMeshList *meshList);
-void codeAC520_func_80333D48(BKVertexList *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *arg5);
+void gclights_recolor_vertices(BKVertexList *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *arg5);
 #endif

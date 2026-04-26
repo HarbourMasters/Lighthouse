@@ -22,17 +22,17 @@ struct {
 } sD_8038D6F0;
 
 /* .code */
-void __code3040_func_80389430(){
+void __code3040_makeBanjoAlwaysSlippery(){
     if(getGameMode() != GAME_MODE_7_ATTRACT_DEMO){
         func_8029CF48(2, 1, 0.0f);
     }
 }
 
-void code3040_func_80389468(void){
+void code3040_checkTTCChecksums(void){
     // [port] This crc check makes the ground in TTC slippery
 #if ANTI_TAMPER
     if(sD_8038D6F0.unk4 != D_8038C754 ||  sD_8038D6F0.unkC != D_80276CB0){
-        __code3040_func_80389430();
+        __code3040_makeBanjoAlwaysSlippery();
     }
 #endif
 }

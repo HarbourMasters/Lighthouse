@@ -8,17 +8,17 @@
 
 void defragThread_entry(void *arg);
 
-OSMesgQueue D_8027E120;
-OSMesg      D_8027E138;
-OSMesgQueue D_8027E140;
-OSMesg      D_8027E158;
+OSMesgQueue sDefragThreadResumeSyncQueue;
+OSMesg      sDefragThreadResumeSyncMesg;
+OSMesgQueue sDefragThreadPauseSyncQueue;
+OSMesg      sDefragThreadPauseSyncMesg;
 OSThread    sDefragThread;
 u8          sDefragThreadStack[0x800];
 
 /* .code */
 void defragManager_init(void){
-    osCreateMesgQueue(&D_8027E120, &D_8027E138, 1);
-    osCreateMesgQueue(&D_8027E140, &D_8027E158, 1);
+    osCreateMesgQueue(&sDefragThreadResumeSyncQueue, &sDefragThreadResumeSyncMesg, 1);
+    osCreateMesgQueue(&sDefragThreadPauseSyncQueue, &sDefragThreadPauseSyncMesg, 1);
     osCreateThread(&sDefragThread, 2, defragThread_entry, NULL, sDefragThreadStack + DEFRAG_THREAD_STACK_SIZE, 10);
     osStartThread(&sDefragThread);
 }
@@ -30,13 +30,13 @@ void defragManager_free(void){
 
 void defragManager_80240874(void){
     if(func_8023E000() == 3){
-        osSendMesgPtr(&D_8027E120, NULL, OS_MESG_BLOCK);
+        osSendMesgPtr(&sDefragThreadResumeSyncQueue, NULL, OS_MESG_BLOCK);
     }
 }
 
 void defragManager_802408B0(void){
     if(func_8023E000() == 3){
-        osSendMesgPtr(&D_8027E140, NULL, OS_MESG_BLOCK);
+        osSendMesgPtr(&sDefragThreadPauseSyncQueue, NULL, OS_MESG_BLOCK);
     }
 }
 
@@ -49,12 +49,12 @@ void defragManager_setPriority(OSPri pri){
 void defragThread_entry(void *arg) {
     int tmp_v0;
     do{
-        osRecvMesg(&D_8027E120, NULL, OS_MESG_BLOCK);
-        if(!D_8027E140.validCount){
+        osRecvMesg(&sDefragThreadResumeSyncQueue, NULL, OS_MESG_BLOCK);
+        if(!sDefragThreadPauseSyncQueue.validCount){
             do{
                 tmp_v0 = game_defrag();
-            }while(!D_8027E140.validCount && tmp_v0);
+            }while(!sDefragThreadPauseSyncQueue.validCount && tmp_v0);
         }
-        osRecvMesg(&D_8027E140, NULL, OS_MESG_BLOCK);
+        osRecvMesg(&sDefragThreadPauseSyncQueue, NULL, OS_MESG_BLOCK);
     }while(1);
 }

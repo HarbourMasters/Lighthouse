@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "core2/abilityprogress.h"
 #include "port/GameConfig.h"
 
 // [port] These must be contiguous — ability_getSizeAndPtr returns &learned with

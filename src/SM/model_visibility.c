@@ -16,8 +16,7 @@ void code2900_moveBridgeOutOfBounds(void){
 }
 
 void code2900_checkSMChecksums(void){
-    // Lighthouse TODO is this an anti-piracy check?
-    #if 0
+#if ANTI_TAMPER
     if(*(u32*)PHYS_TO_K1(0x200) - PHYS_TO_K1(0xC290000)){
         code2900_moveBridgeOutOfBounds();
     }

@@ -537,7 +537,7 @@ enum joystick_e{
     JOYSTICK_Y = 0x1
 };
 
-enum map_e
+typedef enum map_e
 {
     MAP_1_SM_SPIRAL_MOUNTAIN = 0x01,
     MAP_2_MM_MUMBOS_MOUNTAIN,
@@ -692,7 +692,7 @@ enum map_e
     MAP_97_CS_END_BEACH_2,
     MAP_98_CS_END_SPIRAL_MOUNTAIN_1,
     MAP_99_CS_END_SPIRAL_MOUNTAIN_2
-};
+} GameMap;
 
 enum comusic_e
 {
@@ -5943,42 +5943,6 @@ enum ba_rebound_id{
     BA_REBOUND_E_UNK,
     BA_REBOUND_F_UNK,
     BA_REBOUND_10_UNK
-};
-
-enum common_particle_e {
-    COMMON_PARTICLE_1_EGG_HEAD = 1,
-    COMMON_PARTICLE_2 = 2,
-    COMMON_PARTICLE_3 = 3,
-    COMMON_PARTICLE_4_EGG_ASS = 4,
-    COMMON_PARTICLE_5 = 5,
-    COMMON_PARTICLE_6 = 6,
-    COMMON_PARTICLE_7 = 7,
-    COMMON_PARTICLE_8_JIGGY_SHINE = 8,
-    COMMON_PARTICLE_9 = 9,
-    COMMON_PARTICLE_A = 10,
-    COMMON_PARTICLE_B = 11,
-    COMMON_PARTICLE_C = 12,
-    COMMON_PARTICLE_D = 13,
-    COMMON_PARTICLE_E = 14,
-    COMMON_PARTICLE_F = 15,
-    COMMON_PARTICLE_10 = 16,
-    COMMON_PARTICLE_11 = 17
-};
-
-enum ability_used {
-    ABILITY_USED_JUMP = 0x0,
-    ABILITY_USED_FLAP = 0x1,
-    ABILITY_USED_FLIP = 0x2,
-    ABILITY_USED_SWIM = 0x3,
-    ABILITY_USED_CLIMB = 0x4,
-    ABILITY_USED_BEAK_BARGE = 0x5,
-    ABILITY_USED_SLIDE = 0x6,
-    ABILITY_USED_EGG = 0x7,
-    ABILITY_USED_FLY = 0x8,
-    ABILITY_USED_SHOCK = 0x9,
-    ABILITY_USED_PECK = 0xA,
-    ABILITY_USED_CLAW = 0xB,
-    ABILITY_USED_TWIRL = 0xC
 };
 
 enum font_sprite_assets_e {

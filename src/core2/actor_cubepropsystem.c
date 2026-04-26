@@ -386,6 +386,9 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
             if(iProp->markerFlag){//actorProp;
                 // [port] marker is NULL until actor spawns
                 if(iProp->actorProp.marker != NULL){
+                    // [port] Fire one tick event per static prop for port-side features (e.g. nametags).
+                    f32 propPos[3] = { (f32)iProp->actorProp.x, (f32)iProp->actorProp.y, (f32)iProp->actorProp.z };
+                    CALL_EVENT(OnPropTick, iProp->actorProp.marker, propPos);
                     if(iProp->actorProp.marker->unk40_22){
                         markerPtr = (ActorMarker **)bk_vector_pushBackNew(&D_80383550);
                         *markerPtr = iProp->actorProp.marker;
@@ -413,6 +416,9 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                     );
                 }
                 else{//L8032D72C
+                    // [port] Fire one tick event per static sprite prop. Asset id
+                    // is the raw sprite index offset (+ 0x572 is the asset base).
+                    CALL_EVENT(OnSpritePropTick, (s32)iProp->spriteProp.spriteId + 0x572, sp94);
                     propModelList_drawSprite( gfx, mtx, vtx,
                         sp94, (f32)iProp->spriteProp.scale/100.0, iProp->spriteProp.spriteId, cube,
                         iProp->spriteProp.rgb_remove_red, iProp->spriteProp.rgb_remove_green, iProp->spriteProp.rgb_remove_blue,
@@ -1008,6 +1014,8 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                         cube->prop2Ptr[i].spriteProp.frame = (flags >> 11) & 0x1F;
                         cube->prop2Ptr[i].spriteProp.unk8_10 = (flags >> 6) & 0x1F;
                     }
+                    //Prop* ptr = cube->prop2Ptr + i * sizeof(Prop);
+                    CALL_EVENT(OnPropInit, &cube->prop2Ptr[i]);
                 }
             }
         }

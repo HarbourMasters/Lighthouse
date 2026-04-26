@@ -22,9 +22,9 @@ ActorAnimationInfo chGruntlingAnimations[] ={
     {ASSET_26D_ANIM_GRUNTLING_IDLE, 1000000.0f},
     {ASSET_26D_ANIM_GRUNTLING_IDLE, 1000000.0f},
 };
-ActorInfo D_80394A08 = { MARKER_1EA_GRUNTLING_RED,   ACTOR_367_GRUNTLING_RED,   ASSET_54A_MODEL_GRUNTLING_RED,   0x1, chGruntlingAnimations, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
-ActorInfo D_80394A2C = { MARKER_295_GRUNTLING_BLUE,  ACTOR_3BF_GRUNTLING_BLUE,  ASSET_561_MODEL_GRUNTLING_BLUE,  0x1, chGruntlingAnimations, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
-ActorInfo D_80394A50 = { MARKER_1F1_GRUNTLING_BLACK, ACTOR_3C0_GRUNTLING_BLACK, ASSET_562_MODEL_GRUNTLING_BLACK, 0x1, chGruntlingAnimations, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
+ActorInfo chGruntlingRed = { MARKER_1EA_GRUNTLING_RED,   ACTOR_367_GRUNTLING_RED,   ASSET_54A_MODEL_GRUNTLING_RED,   0x1, chGruntlingAnimations, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
+ActorInfo chGruntlingBlue = { MARKER_295_GRUNTLING_BLUE,  ACTOR_3BF_GRUNTLING_BLUE,  ASSET_561_MODEL_GRUNTLING_BLUE,  0x1, chGruntlingAnimations, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
+ActorInfo chGruntlingBlack = { MARKER_1F1_GRUNTLING_BLACK, ACTOR_3C0_GRUNTLING_BLACK, ASSET_562_MODEL_GRUNTLING_BLACK, 0x1, chGruntlingAnimations, chGruntling_update, actor_update_func_80326224, actor_draw, 2500, 0, 1.0f, 0};
 
 /* .code */
 void chGruntling_die(ActorMarker *marker, ActorMarker *other_marker) {

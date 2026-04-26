@@ -17,7 +17,7 @@ enum chorange_state_e {
     ORANGE_STATE_2_LANDED
 };
 
-ActorInfo chorangeInfo = {
+ActorInfo chOrangeInfo = {
     MARKER_C_ORANGE_PROJECTILE, ACTOR_14_ORANGE_PROJECTILE, ASSET_2D2_MODEL_ORANGE,
     1, NULL,
     chorange_update, actor_update_func_80326224, chorange_draw,
