@@ -64,6 +64,12 @@ void port_viewport_applyMirror(Gfx **gfx, Mtx **mtx);
 void port_mirror_markCapture(void);
 int port_mirror_shouldFlipPauseBg(void);
 
+// Mirror per-model exclusion (counter-mirror text-bearing objects)
+void port_mirror_setExclude(void);
+void port_mirror_clearExclude(void);
+int port_mirror_bakeCounterScale(void);
+void port_mirror_patchTextActors(void);
+
 // Fixes (GameFixes.cpp)
 
 int port_fixMumboTokenId(int ret, int pos[3], int map_id);

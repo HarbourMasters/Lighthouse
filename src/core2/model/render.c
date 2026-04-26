@@ -1282,6 +1282,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     if(D_803837B0.unk0){
         mlMtxRotatePYR(D_803837B0.unk4[0], D_803837B0.unk4[1], D_803837B0.unk4[2]);
     }
+    // [port] Mirror mode: bake counter-mirror into modelview for text-bearing models
+    int _mirror_excluded = port_mirror_bakeCounterScale();
     mlMtxGet(&D_80383BF8);
 
     mlMtxApply(*mtx);
@@ -1299,7 +1301,11 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 
 
 
+    // [port] Mirror mode: counter-mirror text-bearing models so text reads correctly
+    if (_mirror_excluded) gSPClearExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     func_80339124(gfx, mtx, (BKGeoList *)((u8 *)model_bin + model_bin->geo_list_offset_4));
+    // [port] Mirror mode: restore culling inversion
+    if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
 
     if(modelRenderCallback.post_method != NULL){
