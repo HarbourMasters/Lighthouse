@@ -63,6 +63,22 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Force game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
 
+    // Enhancements -> Modes
+    path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Mirrored World", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Modes.MirroredWorld.Mode"))
+        .Callback([](WidgetInfo& info) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.Mode"), 0)) {
+                CVarSetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 1);
+            } else {
+                CVarClear(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"));
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally. Inverts left/right controls to match."));
+
     // Enhancements -> Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

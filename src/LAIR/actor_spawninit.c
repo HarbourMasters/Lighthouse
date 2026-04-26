@@ -5,6 +5,7 @@
 #include "prop.h"
 #include "actor.h"
 #include "port/GameConfig.h"
+#include "port/patches/Patches.h"
 
 extern void func_8028F918(s32);
 extern void func_802D2FB0(Actor *, s32, s32, s32, f32, s32, s32, s32);

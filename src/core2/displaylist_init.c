@@ -57,13 +57,17 @@ void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void 
     s32 x1 = OTRGetRectDimensionFromRightEdge((f32)gFramebufferWidth);
 
     gDPSetTextureImageFB((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, pauseFb);
-    gDPImageRectangle((*gfx)++,
-        x0 << 2, 0,
-        0, 0,
-        x1 << 2, gFramebufferHeight << 2,
-        renderW, renderH,
-        G_TX_RENDERTILE,
-        renderW, renderH);
+    {
+        int16_t uls = port_mirror_shouldFlipPauseBg() ? renderW : 0;
+        int16_t lrs = port_mirror_shouldFlipPauseBg() ? 0 : renderW;
+        gDPImageRectangle((*gfx)++,
+            x0 << 2, 0,
+            uls, 0,
+            x1 << 2, gFramebufferHeight << 2,
+            lrs, renderH,
+            G_TX_RENDERTILE,
+            renderW, renderH);
+    }
 
     gSPDisplayList((*gfx)++, D_8036C690);
     gDPSetColorImage((*gfx)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gFramebufferWidth, OS_PHYSICAL_TO_K0(gFramebuffers[getActiveFramebuffer()]));
@@ -73,6 +77,7 @@ void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     gsworld_setEnableDraw(0);
     D_803830A0 = 2;
     func_80314BB0(gfx, mtx, vtx, zBuffer_get(), gFramebuffers[getActiveFramebuffer()]);
+    port_mirror_markCapture();
 }
 
 void func_80315110(Gfx **gfx, Mtx **mtx, Vtx **vtx){

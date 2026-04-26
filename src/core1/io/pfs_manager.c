@@ -215,6 +215,8 @@ void pfsManager_update(void) {
         }
     }
 
+    if (port_mirror_active()) pfsManagerContPadData[0].stick_x = -pfsManagerContPadData[0].stick_x;
+
     D_802812D0.stick_x = pfsManagerContPadData[0].stick_x;
     D_802812D0.stick_y = pfsManagerContPadData[0].stick_y;
     D_802812D0.button = pfsManagerContPadData[0].button;

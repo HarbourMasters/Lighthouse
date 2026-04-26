@@ -54,6 +54,16 @@ float port_getRumbleScale(void);
 int port_getDrawDistanceLevel(void);
 int port_shouldForceHighPolyBanjo(void);
 
+// Mirror (MirrorPatches.cpp)
+
+int port_mirror_active(void);
+void port_mirror_beginScene(void);
+void port_mirror_endScene(void);
+void port_mirror_undoProjection(Gfx **gfx, Mtx **mtx);
+void port_viewport_applyMirror(Gfx **gfx, Mtx **mtx);
+void port_mirror_markCapture(void);
+int port_mirror_shouldFlipPauseBg(void);
+
 // Fixes (GameFixes.cpp)
 
 int port_fixMumboTokenId(int ret, int pos[3], int map_id);
