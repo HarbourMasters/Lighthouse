@@ -329,8 +329,9 @@ void __savedata_save_abilities(u8 *savedata){ //savedata_save_abilities
 
 s32 savedata_8033CA2C(s32 filenum, void *save_data_){
     CALL_EVENT(OnSaveFileLoad, filenum, save_data_, 0);
+    return OnSaveFileLoad_.result;
+
 #if 0
-{
     SaveData* save_data = (SaveData*)save_data_;
     s32 sp1C;
 
@@ -342,9 +343,7 @@ s32 savedata_8033CA2C(s32 filenum, void *save_data_){
         sp1C = 2;
     }
     return sp1C;
-}
 #endif
-return 0;
 }
 
 s32 savedata_8033CA9C(void *savedata_){

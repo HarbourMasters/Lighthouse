@@ -412,6 +412,9 @@ static const SnsBitDef kSnsCollected[] = {
 };
 static constexpr int kSnsItemCount = sizeof(kSnsUnlocked) / sizeof(kSnsUnlocked[0]);
 
+// Maps internal gamenum (0..2) to the user-facing file number (1..3).
+// Banjo-Kazooie's title screen displays slots in the order Game 1 | Game 3 | Game 2,
+// so internal gamenum 0/1/2 corresponds to displayed Game 1/3/2.
 static int SlotToFileIndex(int gameNum) {
     static const int fileMap[3] = { 1, 3, 2 };
     return fileMap[gameNum];

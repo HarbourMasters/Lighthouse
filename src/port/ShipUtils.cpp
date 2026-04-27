@@ -1,5 +1,6 @@
 #include "ShipUtils.h"
 #include "save/SaveManager.h"
+#include "save/Types.h"
 #include "Engine.h"
 #include <chrono>
 #include <cstdarg>
@@ -298,7 +299,10 @@ bool port_CButtonIsAxis(void) {
 } // extern "C"
 
 json Ship_RetrieveSaveFile(int32_t filenum) {
-    std::string fileName = "file" + std::to_string(filenum) + ".json";
+    if (filenum < 0 || filenum > 2) {
+        return json::object();
+    }
+    std::string fileName = "file" + std::to_string(SlotToFileIndex(filenum)) + ".json";
     std::string filePath = SaveManager_GetSavePath(fileName);
 
     if (!std::filesystem::exists(filePath)) {

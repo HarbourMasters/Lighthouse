@@ -78,7 +78,6 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     ordered_json j;
     j = ordered_json::object();
 
-    j["slotIndex"] = saveData->slotIndex;
     j["version"] = SAVE_VERSION;
 
     // Abilities
@@ -257,9 +256,8 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
 SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     json j = Ship_RetrieveSaveFile(fileNum);
 
-    if (j.empty() || !j.contains("slotIndex")) {
+    if (j.empty()) {
         SaveData* emptySave = new SaveData();
-        emptySave->slotIndex = fileNum;
         memset(emptySave, 0, sizeof(SaveData));
         return emptySave;
     }
@@ -267,7 +265,8 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
     SaveData* saveData = new SaveData();
     memset(saveData, 0, sizeof(SaveData));
 
-    saveData->slotIndex = j["slotIndex"];
+    // fileNum is the decomp 0..2 file index; slotIndex is 1-based.
+    saveData->slotIndex = fileNum + 1;
 
     // Abilities
     uint32_t learnedIndex = 0;
@@ -489,12 +488,13 @@ static void LoadGlobalData() {
 }
 
 void SaveManager_LoadAll() {
-    for (int i = 1; i <= 3; i++) {
+    for (int i = 0; i < 3; i++) {
         SaveData* loadSave = Convert_JSONToSaveData(i);
         if (loadSave->slotIndex != 0) {
             loadSave->magic = SAVE_MAGIC;
         }
-        gameFile_saveData[i - 1] = *(loadSave);
+        gameFile_saveData[i] = *(loadSave);
+        delete loadSave;
     }
 
     LoadGlobalData();
@@ -542,14 +542,12 @@ void SaveManager_Init() {
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
         SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);
-        if (loaded && ev->saveBuffer) {
-            if (loaded->slotIndex != 0) {
-                loaded->magic = SAVE_MAGIC;
-            }
+        if (loaded && ev->saveBuffer && loaded->slotIndex != 0) {
+            loaded->magic = SAVE_MAGIC;
             memcpy(ev->saveBuffer, loaded, sizeof(SaveData));
             ev->result = 0; // success
         } else {
-            ev->result = 2; // error
+            ev->result = 2; // empty/missing — let decomp treat as scratch slot
         }
         delete loaded;
         event->cancelled = true;

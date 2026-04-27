@@ -73,8 +73,8 @@ void gameFile_8033CE40(void) {
 s32 gameFile_8033CFD4(s32 gamenum){
     s32 next;
     s32 filenum;
-    u32 i = 3;
-    s32 eeprom_error;
+    // u32 i = 3;           // Only used in #if 0 code below
+    // s32 eeprom_error;    // Only used in #if 0 code below
     SaveData *save_data;
 
     filenum = D_80383F04;
