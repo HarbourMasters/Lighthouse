@@ -1318,7 +1318,8 @@ s32 gcPauseMenu_update(void) {
                 if (!D_80383010.unk3_6) {
                     func_802DC560(0, 0);
                     func_802E412C(1, 0);
-                    transitionToMap(MAP_1F_CS_START_RAREWARE, 0, 1);
+                    // [port] Honor BootSequence so Save & Quit lands at the same place as a fresh boot.
+                    transitionToMap(getDefaultBootMap(), 0, 1);
                     D_80383010.unk3_6 = 1;
                 }
             }
