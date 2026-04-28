@@ -10,9 +10,10 @@ soundfont1ctl:
   symbol: soundfont1ctl
 
 soundfont1tbl:
-  type: BLOB
+  type: BK64:SOUNDFONT_TBL
   offset: 0xDB8E90
-  size: 0x10EA00
+  ctl_offset: 0xDA80A0
+  ctl_size: 0x10DF0
   symbol: soundfont1tbl
 
 soundfont2ctl:
@@ -22,8 +23,9 @@ soundfont2ctl:
   symbol: soundfont2ctl
 
 soundfont2tbl:
-  type: BLOB
+  type: BK64:SOUNDFONT_TBL
   offset: 0xED1840
-  size: 0x6B3F0
+  ctl_offset: 0xEC7890
+  ctl_size: 0x9FB0
   symbol: soundfont2tbl
 
