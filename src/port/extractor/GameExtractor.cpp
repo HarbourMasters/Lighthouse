@@ -23,6 +23,7 @@
 
 #ifndef __SWITCH__
 #include "Companion.h"
+#include "factories/bk64/ConfigFactory.h"
 
 #if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
 #include "portable-file-dialogs.h"
@@ -251,6 +252,9 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         if (fs::exists(configPath)) {
             YAML::Node config = YAML::LoadFile(configPath.generic_string());
             std::string hash = Companion::CalculateHash(this->mGameData);
+            if (!config[hash]) {
+                BK64::TrySynthesizeRomConfig(config, hash, this->mGamePath, this->mGameData);
+            }
             auto rom = config[hash];
             if (rom && rom["path"]) {
                 auto assetDir = (fs::path(assets_path) / rom["path"].as<std::string>()).generic_string();
@@ -263,6 +267,9 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
                         continue;
                     }
                     if (path.find("config.yml") != std::string::npos) {
+                        continue;
+                    }
+                    if (path.find("hashes.yaml") != std::string::npos) {
                         continue;
                     }
                     YAML::Node root = YAML::LoadFile(path);
@@ -280,6 +287,29 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
                         }
                     }
                 }
+
+                // Adjust progress bar calculation if extracting a romhack
+                if (BK64::IsRomhack(this->mGameData)) {
+                    auto hashesPath = fs::path(assetDir) / "hashes.yaml";
+                    if (fs::exists(hashesPath)) {
+                        size_t baselineCount = 0;
+                        try {
+                            YAML::Node hashesRoot = YAML::LoadFile(hashesPath.generic_string());
+                            YAML::Node hashesMap = hashesRoot["hashes"];
+                            if (hashesMap && hashesMap.IsMap()) {
+                                baselineCount = hashesMap.size();
+                            }
+                        } catch (const std::exception& e) {
+                            SPDLOG_WARN("Failed to read hashes.yaml for progress count: {}", e.what());
+                        }
+                        if (baselineCount > 0 && baselineCount <= totalAssets) {
+                            size_t modified = BK64::CountModifiedSlots(this->mGameData, hashesPath);
+                            totalAssets = totalAssets - baselineCount + modified;
+                            SPDLOG_INFO("Romhack progress sizing: {} baseline entries replaced with {} modified slots",
+                                        baselineCount, modified);
+                        }
+                    }
+                }
             }
         }
     } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
@@ -287,9 +317,12 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
     sPhase = 1; // Parsing phase
     delete Companion::Instance;
     Companion::Instance = new Companion(this->mGameData, ArchiveType::O2R, false, assets_path, game_path);
+    Companion::Instance->SetRomPath(this->mGamePath);
     Companion::Instance->SetAssetTotal(&totalAssets);
     Companion::Instance->SetPhaseCallback([](int phase) { sPhase = phase; });
-    this->WritePortVersion();
+    if (!BK64::IsRomhack(this->mGameData)) {
+        this->WritePortVersion();
+    }
     try {
         Companion::Instance->Init(ExportType::Binary, assetCount, true);
     } catch (const std::exception& e) {

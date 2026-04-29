@@ -3,6 +3,7 @@
 #include "ship/window/gui/Fonts.h"
 #include "ship/window/gui/resource/Font.h"
 #include "extractor/GameExtractor.h"
+#include "ui/LighthouseModMenuWindow.h"
 #include <libultraship/controller/controldeck/ControlDeck.h>
 #include "ship/controller/controldevice/controller/mapping/ControllerDefaultMappings.h"
 
@@ -246,10 +247,16 @@ void CheckAndCreateModFolder() {
     }
 }
 
-static const std::vector<std::string> sRomArchives = { "bk.o2r", "bk-jot.o2r", "bk-n64.o2r", "bk-gm.o2r",
-                                                       "bk-bwdx.o2r" };
+static const std::vector<std::string> sRomArchives = { "bk.o2r" };
 
 static bool AnyRomArchiveExists() {
+    // Mod Menu "Generate Mod from ROM" sets this CVar then exits. On next
+    // boot we pretend no archive exists so the existing extractor flow runs
+    // (file picker -> RunStandalone -> GenerateOTR). The CVar is cleared
+    // once extraction completes successfully.
+    if (CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0)) {
+        return false;
+    }
     for (const auto& archive : sRomArchives) {
         if (std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs(archive, "bk"))) {
             return true;
@@ -267,33 +274,25 @@ void GameEngine::FinishInit() {
     }
 
     const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
+    if (!patches_path.empty() && !std::filesystem::exists(patches_path)) {
+        std::filesystem::create_directories(patches_path);
+    }
 
-    if (!patches_path.empty()) {
-        if (!std::filesystem::exists(patches_path)) {
-            std::filesystem::create_directories(patches_path);
-        }
+    // Load enabled mod o2rs into the ArchiveManager.
+    // Note: pre-extract conflict disable lives in the PS_FILE_CHECK popup
+    // callback (RunExtract phase) — by the time FinishInit runs the
+    // extraction has already completed and Mod.PendingExtract is cleared.
+    UpdateModFiles(/*init=*/true);
 
-        if (std::filesystem::is_directory(patches_path)) {
-            for (const auto& p : std::filesystem::recursive_directory_iterator(patches_path)) {
-                const auto ext = p.path().extension().string();
-                if (StringHelper::IEquals(ext, ".otr") || StringHelper::IEquals(ext, ".o2r")) {
-                    Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                        p.path().generic_string());
-                }
-
-                if (StringHelper::IEquals(ext, ".zip")) {
-                    SPDLOG_WARN("Zip files should be only used for development purposes, not for distribution");
-                    Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                        p.path().generic_string());
-                }
-            }
-
-            for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
-                if (p.is_directory()) {
-                    SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
-                    Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                        p.path().generic_string());
-                }
+    // Loose mod directories (development convenience — a folder of unpacked
+    // assets used as an overlay). Not subject to the enable/disable CVar
+    // because they don't represent installable packages.
+    if (!patches_path.empty() && std::filesystem::is_directory(patches_path)) {
+        for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
+            if (p.is_directory()) {
+                SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
+                Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+                    p.path().generic_string());
             }
         }
     }
@@ -369,6 +368,9 @@ void GameEngine::FinishInit() {
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     LighthouseGui::SetupGuiElements();
+    // If UpdateModFiles(true) above quarantined conflicting romhack overlays,
+    // surface that to the user now that the modal window is alive.
+    MaybeShowModConflictPopup();
     Instance->AudioInit();
     AdaptiveFps_Configure(30); // BK ticks at 30 Hz
     // Instance->LoadDictionary();
@@ -631,6 +633,10 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         extracting = true;
                         (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
+                            // Clear the Mod Menu's pending-extract gate so a
+                            // subsequent boot won't re-run the file picker.
+                            CVarClear(CVAR_SETTING("Mod.PendingExtract"));
+                            CVarSave();
                             extracting = false;
                         });
                     }
@@ -650,9 +656,25 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         const bool romO2RExists = AnyRomArchiveExists();
 
                         if (!romO2RExists) {
+                            const bool pendingExtract =
+                                CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0) != 0;
+                            const char* title =
+                                pendingExtract ? "Generate Romhack Mod" : "No O2R Files";
+                            const char* body = pendingExtract
+                                                   ? "Select a romhack ROM to extract as a mod.\n"
+                                                     "The generated o2r will be placed in the mods folder.\n"
+                                                   : "No O2R files found. Generate one now?";
                             LighthouseGui::RegisterPopup(
-                                "No O2R Files", "No O2R files found. Generate one now?", "Yes", "No",
-                                [&]() { promptStep = PS_LOCAL; },
+                                title, body, "Yes", "No",
+                                [&]() {
+                                    // Now that the user has confirmed, pre-disable any romhack
+                                    // overlays already in mods/ so the freshly-extracted mod
+                                    // boots cleanly afterward. Done here (before the file
+                                    // picker) rather than in FinishInit because FinishInit
+                                    // runs after the extractor flow completes — too late.
+                                    DisableConflictingModsForPendingExtract();
+                                    promptStep = PS_LOCAL;
+                                },
                                 [&]() {
                                     threadPool = nullptr;
                                     lhFast3dWindow = nullptr;
@@ -694,6 +716,10 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         file = extract.GetRomPath();
                         (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
+                            // Clear the Mod Menu's pending-extract gate so a
+                            // subsequent boot won't re-run the file picker.
+                            CVarClear(CVAR_SETTING("Mod.PendingExtract"));
+                            CVarSave();
                             extracting = false;
                         });
                         continue;

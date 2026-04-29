@@ -455,6 +455,30 @@ void LighthouseMenu::AddMenuSettings() {
     // Mod Menu
     path.sidebarName = "Mod Menu";
     AddSidebarEntry("Settings", path.sidebarName, 1);
+
+    AddWidget(path, "Generate Mod from ROM", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            LighthouseGui::mModalWindow->RegisterPopup(
+                "Generate Mod from ROM",
+                "Lighthouse will exit. On the next launch, you will be prompted\n"
+                "to select a romhack ROM to extract as a mod overlay. Your\n"
+                "existing bk.o2r will be preserved and the generated mod o2r\n"
+                "will be loaded alongside it.\n\n"
+                "Please relaunch Lighthouse manually after it exits.",
+                "Exit", "Cancel",
+                []() {
+                    CVarSetInteger(CVAR_SETTING("Mod.PendingExtract"), 1);
+                    CVarSave();
+                    exit(0);
+                },
+                nullptr);
+        })
+        .Options(ButtonOptions()
+                     .Size(Sizes::Inline)
+                     .Tooltip("Exits Lighthouse and arms the next launch to prompt for a romhack ROM to extract "
+                              "as a slim mod overlay. Relaunch manually after exit."));
+
     AddWidget(path, "Popout Mod Menu Window", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("ModMenu"))
         .WindowName("Mod Menu")
