@@ -49,7 +49,8 @@ public:
     static void AudioExit();
     void FinishInit();
     void RunExtract(int argc, char* argv[]);
-    static void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements);
+    static void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
+                            size_t frameCount);
     static void Destroy();
     static uint32_t GetInterpolationFPS();
     static uint32_t GetInterpolationFrameCount();

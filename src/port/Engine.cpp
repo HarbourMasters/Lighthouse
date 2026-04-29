@@ -34,6 +34,7 @@
 #include <fast/interpreter.h>
 #include <libultraship/bridge/gfxbridge.h>
 #include <SDL2/SDL.h>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <libultraship/libultraship.h>
@@ -1116,7 +1117,63 @@ void GameEngine::AudioExit() {
     }
 }
 
-void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
+// Adaptive interpolation FPS cap. The LUS interpreter re-runs the entire DL
+// once per sub-frame (~93% of ProcessGfxCommands wall-clock on busy scenes),
+// so naive MRR (4-5 sub-frames per 30 Hz tick) blows the 33 ms tick budget
+// and the game stalls. We EMA per-sub-frame render cost over a 1s window
+// and clamp the effective FPS so all sub-frames fit in 80% of one tick.
+// Floor is 30 (the game's native rate).
+namespace {
+using Clock = std::chrono::steady_clock;
+
+constexpr double kTickBudgetUs = 33000.0; // 1000 ms / 30 Hz
+constexpr double kBudgetSafety = 0.80;
+constexpr double kEmaAlpha = 0.5;
+constexpr int kMinFps = 30;
+
+struct AdaptiveState {
+    double emaPerSubFrameUs = 0.0;
+    long long winRunNs = 0;
+    int winSubFrames = 0;
+    Clock::time_point winStart = Clock::now();
+};
+AdaptiveState gAdaptive;
+
+inline long long NsSince(Clock::time_point t0) {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - t0).count();
+}
+
+uint32_t AdaptiveCapFps(uint32_t userTarget) {
+    if (gAdaptive.emaPerSubFrameUs <= 0.0) {
+        return userTarget;
+    }
+    double maxSubPerTick = (kTickBudgetUs * kBudgetSafety) / gAdaptive.emaPerSubFrameUs;
+    if (maxSubPerTick < 1.0) {
+        return kMinFps;
+    }
+    uint32_t maxFps = (uint32_t)(maxSubPerTick * 30.0);
+    return std::min(userTarget, maxFps < kMinFps ? (uint32_t)kMinFps : maxFps);
+}
+
+void AdaptiveSampleSubFrame(long long runNs) {
+    gAdaptive.winRunNs += runNs;
+    gAdaptive.winSubFrames++;
+    auto now = Clock::now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(now - gAdaptive.winStart).count() < 1) {
+        return;
+    }
+    double sample = (double)gAdaptive.winRunNs / gAdaptive.winSubFrames / 1000.0;
+    gAdaptive.emaPerSubFrameUs = gAdaptive.emaPerSubFrameUs == 0.0
+                                     ? sample
+                                     : kEmaAlpha * sample + (1.0 - kEmaAlpha) * gAdaptive.emaPerSubFrameUs;
+    gAdaptive.winRunNs = 0;
+    gAdaptive.winSubFrames = 0;
+    gAdaptive.winStart = now;
+}
+} // namespace
+
+void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
+                             size_t frameCount) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
 
     if (wnd == nullptr) {
@@ -1134,9 +1191,8 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     // Run() (frame rendered) and EndFrame() (buffer swap). On N64, CPU/RDP shared
     // physical memory so gFramebuffers always had valid pixel data after rendering.
     auto wndBase = Ship::Context::GetInstance()->GetWindow();
-    size_t frameIdx = 0;
-    size_t frameCount = mtx_replacements.size();
-    for (const auto& m : mtx_replacements) {
+    for (size_t frameIdx = 0; frameIdx < frameCount; frameIdx++) {
+        const auto& m = mtx_replacements[frameIdx];
         bool isFinalFrame = (frameIdx == frameCount - 1);
         // Bypass IsFrameReady() when interpolation is active — render all
         // frames per tick and let vsync pace them.
@@ -1145,7 +1201,9 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             wndBase->GetMouseStateManager()->StartFrame();
             gui->StartDraw();
             interpreter->StartFrame();
+            auto runT0 = Clock::now();
             interpreter->Run(Commands, m);
+            AdaptiveSampleSubFrame(NsSince(runT0));
             // Emulate N64 osViBlack to prevent a flicker when the scene is drawn
             // for the falling jiggy transition framebuffer capture.
             if (port_isViBlack()) {
@@ -1159,7 +1217,6 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             CALL_EVENT(FrameDrawEnd);
         }
         interpreter->mInterpolationIndex++;
-        frameIdx++;
     }
 
     bool curAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
@@ -1182,8 +1239,11 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // }
     wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
 
-    std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-    int target_fps = GameEngine::Instance->GetInterpolationFPS();
+    // Persistent across frames so each map's bucket array survives.
+    // Interpolate clears entries but keeps the buckets, saving thousands
+    // of node allocations per tick at high refresh rates.
+    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
+    int target_fps = (int)AdaptiveCapFps((uint32_t)GameEngine::Instance->GetInterpolationFPS());
     static int last_fps;
     static int last_update_rate;
     static int time;
@@ -1198,38 +1258,42 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
         time = 0;
     }
 
-    // time_base = fps * original_fps (one second)
     int next_original_frame = fps;
 
-    // For each sub-frame, ask FrameInterpolation for the interpolated matrices.
-    // An empty map means "use the DL's matrices unchanged" — correct for the
-    // final step (t == 1.0, exactly the current frame) and as a fallback when
-    // interpolation can't run (first tick, topology change, camera cut).
+    // An empty map tells the interpreter to use the DL's matrices as-is —
+    // the canonical curr-tick frame at t == 1.0.
+    size_t activeFrames = 0;
     while (time + original_fps <= next_original_frame) {
         time += original_fps;
-        if (time != next_original_frame) {
-            float t = (float)time / (float)next_original_frame;
-            mtx_replacements.push_back(FrameInterpolation_Interpolate(t));
-        } else {
+        if (activeFrames >= mtx_replacements.size()) {
             mtx_replacements.emplace_back();
         }
+        if (time != next_original_frame) {
+            float t = (float)time / (float)next_original_frame;
+            FrameInterpolation_Interpolate(t, mtx_replacements[activeFrames]);
+        } else {
+            mtx_replacements[activeFrames].clear();
+        }
+        activeFrames++;
     }
 
     time -= fps;
 
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);
-        wnd->SetMaximumFrameLatency(
-            2); // [port] Hardcoded: CVarGetInteger crashes due to heap corruption in debug builds
+        // Hardcoded: CVarGetInteger crashes due to heap corruption in debug builds.
+        wnd->SetMaximumFrameLatency(2);
     }
 
-    // When the gfx debugger is active, only run with the final mtx
     if (GfxDebuggerIsDebugging()) {
-        mtx_replacements.clear();
-        mtx_replacements.emplace_back();
+        if (mtx_replacements.empty()) {
+            mtx_replacements.emplace_back();
+        }
+        mtx_replacements[0].clear();
+        activeFrames = 1;
     }
 
-    RunCommands(commands, mtx_replacements);
+    RunCommands(commands, mtx_replacements, activeFrames);
 
     last_fps = fps;
     last_update_rate = gVIsPerFrame;
@@ -1245,7 +1309,7 @@ uint32_t GameEngine::GetInterpolationFPS() {
                                   CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60));
     }
 
-    return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60);
+    return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 30);
 }
 
 uint32_t GameEngine::GetInterpolationFrameCount() {
