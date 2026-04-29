@@ -206,7 +206,7 @@ Actor*  chflotsam_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     ActorLocal_Core2_D50F0 *local = (ActorLocal_Core2_D50F0 *)&this->local; //sp60
     BoneTransformList *sp5C;
     s32 pad58;
-    f32 sp4C[3];
+    f32 sp4C[4]; // quaternion: passed to func_80345C78 which writes 4 floats
     f32 sp40[3];
     f32 sp34[3];
     f32 sp28[3];

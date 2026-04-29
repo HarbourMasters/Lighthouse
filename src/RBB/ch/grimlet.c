@@ -49,7 +49,7 @@ Actor *func_8038846C(ActorMarker * marker, Gfx **gdl, Mtx **mptr, Vtx **vtx){
     ActorLocal_RBB_1FC0 *local = (ActorLocal_RBB_1FC0 *) &actor->local;
     BoneTransformList *sp5C;
     f32 pad58;
-    f32 sp4C[3];
+    f32 sp4C[4]; // quaternion: func_80345C78 writes 4 floats
     f32 sp40[3];
     f32 sp34[3];
     

@@ -34,7 +34,7 @@ void func_8038E060(BoneTransformList *arg0, ActorMarker *marker){
     Actor *this;
     f32 sp28[3];
     s32 pad24;
-    f32 sp18[3];
+    f32 sp18[4]; // quaternion: func_80345C78 writes 4 floats
     
     this = marker_getActor(marker);
     if(arg0){
