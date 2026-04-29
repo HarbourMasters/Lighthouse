@@ -38,6 +38,7 @@
 #include <filesystem>
 #include <fstream>
 #include <libultraship/libultraship.h>
+#include "interpolation/AdaptiveFps.h"
 #include "interpolation/FrameInterpolation.h"
 
 #ifdef __SWITCH__
@@ -369,6 +370,7 @@ void GameEngine::FinishInit() {
 
     LighthouseGui::SetupGuiElements();
     Instance->AudioInit();
+    AdaptiveFps_Configure(30); // BK ticks at 30 Hz
     // Instance->LoadDictionary();
     // Instance->LoadPlayerAnims();
 #if defined(__SWITCH__) || defined(__WIIU__)
@@ -1117,58 +1119,12 @@ void GameEngine::AudioExit() {
     }
 }
 
-// Adaptive interpolation FPS cap. The LUS interpreter re-runs the entire DL
-// once per sub-frame (~93% of ProcessGfxCommands wall-clock on busy scenes),
-// so naive MRR (4-5 sub-frames per 30 Hz tick) blows the 33 ms tick budget
-// and the game stalls. We EMA per-sub-frame render cost over a 1s window
-// and clamp the effective FPS so all sub-frames fit in 80% of one tick.
-// Floor is 30 (the game's native rate).
+// Local timer helper for the per-sub-frame measurement we feed into
+// AdaptiveFps_Sample.
 namespace {
 using Clock = std::chrono::steady_clock;
-
-constexpr double kTickBudgetUs = 33000.0; // 1000 ms / 30 Hz
-constexpr double kBudgetSafety = 0.80;
-constexpr double kEmaAlpha = 0.5;
-constexpr int kMinFps = 30;
-
-struct AdaptiveState {
-    double emaPerSubFrameUs = 0.0;
-    long long winRunNs = 0;
-    int winSubFrames = 0;
-    Clock::time_point winStart = Clock::now();
-};
-AdaptiveState gAdaptive;
-
 inline long long NsSince(Clock::time_point t0) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - t0).count();
-}
-
-uint32_t AdaptiveCapFps(uint32_t userTarget) {
-    if (gAdaptive.emaPerSubFrameUs <= 0.0) {
-        return userTarget;
-    }
-    double maxSubPerTick = (kTickBudgetUs * kBudgetSafety) / gAdaptive.emaPerSubFrameUs;
-    if (maxSubPerTick < 1.0) {
-        return kMinFps;
-    }
-    uint32_t maxFps = (uint32_t)(maxSubPerTick * 30.0);
-    return std::min(userTarget, maxFps < kMinFps ? (uint32_t)kMinFps : maxFps);
-}
-
-void AdaptiveSampleSubFrame(long long runNs) {
-    gAdaptive.winRunNs += runNs;
-    gAdaptive.winSubFrames++;
-    auto now = Clock::now();
-    if (std::chrono::duration_cast<std::chrono::seconds>(now - gAdaptive.winStart).count() < 1) {
-        return;
-    }
-    double sample = (double)gAdaptive.winRunNs / gAdaptive.winSubFrames / 1000.0;
-    gAdaptive.emaPerSubFrameUs = gAdaptive.emaPerSubFrameUs == 0.0
-                                     ? sample
-                                     : kEmaAlpha * sample + (1.0 - kEmaAlpha) * gAdaptive.emaPerSubFrameUs;
-    gAdaptive.winRunNs = 0;
-    gAdaptive.winSubFrames = 0;
-    gAdaptive.winStart = now;
 }
 } // namespace
 
@@ -1203,7 +1159,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             interpreter->StartFrame();
             auto runT0 = Clock::now();
             interpreter->Run(Commands, m);
-            AdaptiveSampleSubFrame(NsSince(runT0));
+            AdaptiveFps_Sample(NsSince(runT0));
             // Emulate N64 osViBlack to prevent a flicker when the scene is drawn
             // for the falling jiggy transition framebuffer capture.
             if (port_isViBlack()) {
@@ -1243,7 +1199,7 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // Interpolate clears entries but keeps the buckets, saving thousands
     // of node allocations per tick at high refresh rates.
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-    int target_fps = (int)AdaptiveCapFps((uint32_t)GameEngine::Instance->GetInterpolationFPS());
+    int target_fps = (int)AdaptiveFps_Cap((uint32_t)GameEngine::Instance->GetInterpolationFPS());
     static int last_fps;
     static int last_update_rate;
     static int time;
