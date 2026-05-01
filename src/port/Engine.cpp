@@ -455,6 +455,25 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
 
     std::shared_ptr<BS::thread_pool> threadPool = std::make_shared<BS::thread_pool>(1);
     while (!extractDone) {
+        if (GameExtractor::sCustomCodePromptRequested.load()) {
+            GameExtractor::sCustomCodePromptRequested = false;
+            LighthouseGui::RegisterPopup(
+                "Custom Code Romhack Detected",
+                "This romhack ships custom code.\n"
+                "Lighthouse cannot extract this code, so expected\n"
+                "behavior will be missing or broken when playing.\n"
+                "\n"
+                "Continue extraction anyway?",
+                "Continue", "Cancel",
+                []() {
+                    GameExtractor::sCustomCodePromptResult = 1;
+                    GameExtractor::sCustomCodePromptActive = false;
+                },
+                []() {
+                    GameExtractor::sCustomCodePromptResult = 0;
+                    GameExtractor::sCustomCodePromptActive = false;
+                });
+        }
         if (LighthouseGui::PopupsQueued() > 0 || extracting) {
             goto render;
         }
@@ -791,10 +810,11 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         gui->StartDraw();
         lhFast3dWindow->StartFrame();
         lhFast3dWindow->RunGuiOnly();
-        if (extracting && !ImGui::IsPopupOpen("ROM Extraction")) {
+        const bool showExtractPopup = extracting && !GameExtractor::sCustomCodePromptActive.load();
+        if (showExtractPopup && !ImGui::IsPopupOpen("ROM Extraction")) {
             ImGui::OpenPopup("ROM Extraction");
         }
-        if (extracting) {
+        if (showExtractPopup) {
             ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
             auto color = UIWidgets::ColorValues.at(THEME_COLOR);

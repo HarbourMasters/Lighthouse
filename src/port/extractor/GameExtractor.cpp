@@ -6,9 +6,12 @@
 #endif
 #include "port/build.h"
 #include "GameExtractor.h"
+#include <atomic>
+#include <chrono>
 #include <cstdio>
-#include <unordered_map>
 #include <fstream>
+#include <thread>
+#include <unordered_map>
 
 #include "ship/Context.h"
 #include "spdlog/spdlog.h"
@@ -32,6 +35,9 @@
 std::string GameExtractor::sStatusText;
 std::string GameExtractor::sLastError;
 std::atomic<int> GameExtractor::sPhase{ 0 };
+std::atomic<bool> GameExtractor::sCustomCodePromptRequested{ false };
+std::atomic<bool> GameExtractor::sCustomCodePromptActive{ false };
+std::atomic<int> GameExtractor::sCustomCodePromptResult{ -1 };
 
 std::unordered_map<std::string, std::string> mGameList = {
     { "1fe1632098865f639e22c11b9a81ee8f29c75d7a", "Banjo-Kazooie (U) (V1.0)" },
@@ -313,6 +319,24 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
             }
         }
     } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
+
+    // Detect non-BB custom MIPS code injection
+    if (BK64::HasCustomCodeBlob(this->mGameData)) {
+        SPDLOG_WARN("[GameExtractor] Custom MIPS code detected in ROM; prompting user before extraction.");
+        sCustomCodePromptResult = -1;
+        sCustomCodePromptActive = true;
+        sCustomCodePromptRequested = true;
+        while (sCustomCodePromptResult.load() == -1) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        }
+        if (sCustomCodePromptResult.load() == 0) {
+            SPDLOG_INFO("[GameExtractor] User cancelled extraction at custom-code prompt.");
+            sLastError = "Extraction cancelled by user (custom-code romhack warning).";
+            sStatusText.clear();
+            sPhase = 0;
+            return false;
+        }
+    }
 
     sPhase = 1; // Parsing phase
     delete Companion::Instance;
