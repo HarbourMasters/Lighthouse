@@ -356,8 +356,7 @@ void func_80254C98(void){
 }
 
 void *bk_malloc(size_t size){
-    // Lighthouse [port] Use standard malloc function
-    return malloc(size);
+    return calloc(1, size);
 #if 0
     u32 capacity;
     EmptyHeapBlock *v1;
