@@ -1141,7 +1141,6 @@ void func_803283D4(void);
 void func_80328CA8(Actor *self, s32 angle);
 void func_803297FC(Actor *arg0, f32 *o1, f32 *o2);
 s32 func_80329904(ActorMarker *arg0, s32 arg1, f32 *arg2);
-void func_8032A09C(s32 arg0, ActorListSaveState *arg1);
 void func_8032A5F8(void);
 void func_8032A82C(Actor *arg0, s32 arg1);
 void func_8032A95C(Actor *arg0, s32 arg1, s32 arg2);
@@ -1173,7 +1172,6 @@ s32 func_80306DBC(s32 arg0);
 s32 func_80306DDC(s32 *position);
 s32 func_80307164(s32 arg0[3]);
 s32 func_80307258(f32 arg0[3], s32 arg1, s32 arg2);
-s32 func_803083B0(s32 arg0);
 s32 nodeprop_getRadius(NodeProp *arg0);
 s32 nodeprop_getScale(NodeProp *nodeProp);
 u32 nodeprop_getYaw(NodeProp *nodeProp);
@@ -1195,7 +1193,6 @@ void func_803065E4(s32 arg0, s32 position[3], s32 radius, s32 arg3, s32 arg4);
 void func_8030688C(s32 arg0, s32 position[3], s32 radius, s32 arg3);
 void func_80306AA8(s32 arg0, s32 position[3], s32 radius);
 void func_80307CA0(ActorMarker *marker);
-void cubeList_sort(s32 arg0);
 void nodeprop_getPosition_s32(NodeProp *nodeProp, s32 dst[3]);
 void spawnableActorList_free(void);
 void spawnableActorList_new(void);
@@ -2558,22 +2555,15 @@ void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/map/savestate.c ---
 int game_is_frozen(void);
-void mapSavestate_apply(enum map_e map_id);
-void mapSavestate_defrag_all(void);
-void mapSavestate_free_all(void);
-void mapSavestate_init(void);
-void mapSavestate_save(enum map_e map);
 
 // --- core2/map/gsworld.c ---
 enum map_e gsworld_getMap(void);
 
 // --- core2/map/specificflags.c ---
 s32 mapSpecificFlags_validateCRC1(void);
-u32 mapSpecificFlags_getAll(void);
 u32 mapSpecificFlags_getClear(s32 i);
 u32 mapSpecificFlags_getN(s32 idx, s32 n);
 void mapSpecificFlags_clearAll(void);
-void mapSpecificFlags_setAll(u32 arg0);
 void mapSpecificFlags_setN(s32 idx, s32 val, s32 n);
 
 // --- core2/map_list.c ---

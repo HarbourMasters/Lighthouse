@@ -412,7 +412,7 @@ typedef struct actor_array{
 #pragma pack(push, 4)
 typedef struct {
     u32 cnt;
-    Actor actor_save_state[];
+    Actor data[];
 }ActorListSaveState;
 #pragma pack(pop)
 
