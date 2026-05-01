@@ -292,7 +292,7 @@ void gsworld_stub2(void) {
 }
 
 void gsworld_setUnk0(s32 arg0) {
-    func_80254008();
+    core1_15B30_sendMesg3ToRenderThread();
     func_802BC21C(sGsWorldData.unk0, arg0);
     func_8028F7F4(sGsWorldData.unk0, arg0);
     func_8030D8A8(sGsWorldData.unk0, arg0);
@@ -401,7 +401,7 @@ s32 gsworld_getEnableDraw(){
 void gsworld_load(enum map_e map_id) {
     File *fp;
 
-    func_80254008();
+    core1_15B30_sendMesg3ToRenderThread();
     fp = file_openMap(map_id); //LevelSetupFile_Open
     if (fp == NULL) {
         return; // [port] safety: file_openMap can return NULL

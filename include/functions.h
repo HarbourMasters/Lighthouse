@@ -1032,13 +1032,6 @@ void gcdebugText_pauseThread(void);
 void defragManager_free(void);
 void defragManager_init(void);
 
-// --- core1/graphics_thread.c ---
-void func_80246670(OSMesg arg0);
-void func_80247380(void);
-void func_80247560(void);
-void func_802476DC(void);
-void func_802476EC(Gfx **gfx);
-
 // --- core1/math/mlmtx.c ---
 void _guMtxF2L(float mf[4][4], Mtx *m);
 
@@ -3240,9 +3233,6 @@ void *bk_realloc(void* ptr, size_t size);
 void bk_free(void*);
 void *defrag(void *);
 void *defrag_asset(void *);
-
-// --- core1/pimanager.c ---
-void piMgr_read(void *vaddr, s32 devaddr, s32 size);
 
 // --- core2/anim/anim_bonetransform.c ---
 void *assetcache_get(enum asset_e assetId);

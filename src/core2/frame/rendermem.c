@@ -61,7 +61,7 @@ void func_802E329C(s32 arg0, Gfx **gfx_begin, Gfx **gfx_end) {
         viewport_setRenderViewportAndPerspectiveMatrix(&gfx, &mtx);
         func_802F1858(D_8037E8C0.unk10, &gfx, &mtx, &vtx);
     }
-    finishFrame(&gfx);
+    core1_15B30_finishDList(&gfx);
     graphicsCache_checkFrame(gfx_start, gfx, mtx_start, mtx, vtx_start, vtx);
     osWritebackDCache(mtx_start, (mtx - mtx_start) * sizeof(Mtx));
     osWritebackDCache(vtx_start, (vtx - vtx_start) * sizeof(Vtx));
@@ -98,13 +98,13 @@ void func_802E3524(s32 arg0) {
 
     func_802E31D0(getOtherFramebuffer());
     func_802E329C(getOtherFramebuffer(), &gfx_begin, &gfx_end);
-    // [port] Original N64 submitted DL via message queue to RSP thread (func_802473B4),
+    // [port] Original N64 submitted DL via message queue to RSP thread (thread5_entry),
     // but that thread is #if 0'd on PC. Submit directly to LUS renderer instead,
     // which also enforces SetTargetFps(30) frame limiting.
     Graphics_PushFrame(gfx_begin);
     Framebuffer_ReadbackGPU(getOtherFramebuffer());
-    func_80253EA4(gfx_begin, gfx_end);
-    func_80254008();
+    core1_15B30_addF3DEXTaskData_0(gfx_begin, gfx_end);
+    core1_15B30_sendMesg3ToRenderThread();
     viMgr_func_8024C1B4();
 }
 
