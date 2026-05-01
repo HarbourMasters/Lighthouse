@@ -1,10 +1,27 @@
 #ifndef __CORE_2_H__
 #define __CORE_2_H__
 
+#include "bool.h"
 #include "core2/timedfunc.h"
 #include "gc/gc.h"
 #include "core2/print.h"
 #include "core2/anctrl.h"
+
+void code35520_getDistanceVectors(s32 id, s32 *vec11, s32 *vec12, s32 *vec13, s32 *vec21, s32 *vec22, s32 *vec23, s32 *vec31, s32 *vec32, s32 *vec33);
+void code35520_selectTable(void);
+
+void leveloverlay_drawCallback(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+enum overlay_e leveloverlay_getOverlayFromLevel(enum level_e lvl);
+void leveloverlay_releaseCallback(bool flag);
+void leveloverlay_initCallback(bool flag);
+void leveloverlay_releaseCallback_NotFP(void);
+void leveloverlay_releaseCallback_OnlyFP(void);
+void leveloverlay_initCallback_OnlyFP(void);
+void leveloverlay_initCallback_NotFP(void);
+void leveloverlay_debug(void);
+void leveloverlay_init(void);
+void leveloverlay_unk14Callback(s32 arg0, s32 arg1);
+void leveloverlay_updateCallback(void);
 
 void actors_applyFromSavestate(void *savestate_ptr, ActorListSaveState *savestate_actorlist_ptr);
 

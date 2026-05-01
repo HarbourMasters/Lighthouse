@@ -1,6 +1,7 @@
 #ifndef BANJO_KAZOOIE_CORE1_MAIN_H
 #define BANJO_KAZOOIE_CORE1_MAIN_H
 #include <libultra/thread.h>
+#include "enums.h"
 
 void core1_main(s32 arg0);
 void func_8023DA74(void);

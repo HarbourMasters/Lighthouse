@@ -1,181 +1,141 @@
-// BanjoDecomp: overlaymanager.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
 
-typedef struct struct_2a_s{
-    char *name;
-    u8* ram_start;
-    u8* ram_end;
-    u8* unkC; //uncompressed_rom_range_start
-    u8* unk10; //uncompressed_rom_range_end
-    u8* code_start;
-    u8* code_end;
-    u8* data_start;
-    u8* data_end;
-    u8* bss_start;
-    u8* bss_end;
-} OverlayAddressMap;
-
 #if 0
-
-#define SEGMENT_EXTERNS(segname) \
-    extern u8 segname##_VRAM[]; \
-    extern u8 segname##_VRAM_END[]; \
-    extern u8 segname##_ROM_START[]; \
-    extern u8 segname##_ROM_END[]; \
-    extern u8 segname##_TEXT_START[]; \
-    extern u8 segname##_TEXT_END[]; \
-    extern u8 segname##_DATA_START[]; \
-    extern u8 segname##_DATA_END[]; \
-    extern u8 segname##_RODATA_START[]; \
-    extern u8 segname##_RODATA_END[]; \
-    extern u8 segname##_BSS_START[]; \
-    extern u8 segname##_BSS_END[]
-
-SEGMENT_EXTERNS(core2);
-SEGMENT_EXTERNS(emptyLvl);
-SEGMENT_EXTERNS(CC);
-SEGMENT_EXTERNS(MMM);
-SEGMENT_EXTERNS(GV);
-SEGMENT_EXTERNS(TTC);
-SEGMENT_EXTERNS(MM);
-SEGMENT_EXTERNS(BGS);
-SEGMENT_EXTERNS(RBB);
-SEGMENT_EXTERNS(FP);
-SEGMENT_EXTERNS(CCW);
-SEGMENT_EXTERNS(SM);
-SEGMENT_EXTERNS(cutscenes);
-SEGMENT_EXTERNS(lair);
-SEGMENT_EXTERNS(fight);
-
-#define SEGMENT_ENTRY(segname, realname) \
-    {#realname, segname##_VRAM, segname##_VRAM_END, segname##_ROM_START, segname##_ROM_END, segname##_TEXT_START, segname##_TEXT_END, segname##_DATA_START, segname##_RODATA_END, segname##_BSS_START, segname##_BSS_END}
-
-#define DUMMY_SEGMENT_ENTRY(segname, realname) \
-    {#realname, segname##_VRAM, segname##_VRAM_END, segname##_ROM_START, segname##_ROM_END, NULL, NULL, NULL, NULL, NULL, NULL}
-
 /* .data */
-static OverlayAddressMap overlayAddressMap[] = {
-    SEGMENT_ENTRY(core2, gs),
-    DUMMY_SEGMENT_ENTRY(emptyLvl, coshow),
-    SEGMENT_ENTRY(CC, whale),
-    SEGMENT_ENTRY(MMM, haunted),
-    SEGMENT_ENTRY(GV, desert),
-    SEGMENT_ENTRY(TTC, beach),
-    SEGMENT_ENTRY(MM, jungle),
-    SEGMENT_ENTRY(BGS, swamp),
-    SEGMENT_ENTRY(RBB, ship),
-    SEGMENT_ENTRY(FP, snow),
-    SEGMENT_ENTRY(CCW, tree),
-    SEGMENT_ENTRY(SM, training),
-    SEGMENT_ENTRY(cutscenes, intro),
-    SEGMENT_ENTRY(lair, witch),
-    SEGMENT_ENTRY(fight, battle),
+static struct overlay_address_map_s sOverlayAdressMap[] = {
+    MAKE_SEGMENT_ENTRY(core2, gs),
+    MAKE_DUMMY_SEGMENT_ENTRY(emptyLvl, coshow),
+    MAKE_SEGMENT_ENTRY(CC, whale),
+    MAKE_SEGMENT_ENTRY(MMM, haunted),
+    MAKE_SEGMENT_ENTRY(GV, desert),
+    MAKE_SEGMENT_ENTRY(TTC, beach),
+    MAKE_SEGMENT_ENTRY(MM, jungle),
+    MAKE_SEGMENT_ENTRY(BGS, swamp),
+    MAKE_SEGMENT_ENTRY(RBB, ship),
+    MAKE_SEGMENT_ENTRY(FP, snow),
+    MAKE_SEGMENT_ENTRY(CCW, tree),
+    MAKE_SEGMENT_ENTRY(SM, training),
+    MAKE_SEGMENT_ENTRY(cutscenes, intro),
+    MAKE_SEGMENT_ENTRY(lair, witch),
+    MAKE_SEGMENT_ENTRY(fight, battle),
 };
-static s32 overlayCount = sizeof(overlayAddressMap) / sizeof(overlayAddressMap[0]);
 
-/* .bss */
-enum overlay_e overlayMgrLoadedId;
-
-
-void overlayManagerdebug(void);
+static s32 sNumOverlays = sizeof(sOverlayAdressMap) / sizeof(sOverlayAdressMap[0]);
 #endif
+
 // [port] On PC all overlay code is statically linked — no dynamic loading needed.
 // We just track which overlay ID is "loaded" so overlay_init() can find the right
 // function table entry.
-static enum overlay_e overlayMgrLoadedId_port = 0;
+static enum overlay_e sLoadedOverlay = OVERLAY_0_CORE2;
 
 /* .code */
-OverlayAddressMap *__overlayManagergetLargetOverlayAddressMap(void){
+static struct overlay_address_map_s *__overlayManager_getLargestOverlayAdressMap(void) {
 #if 0
-    //returns OverlayAddressMap ptr with largest RAM size
     int i;
-    OverlayAddressMap * largest_overlay;
+    struct overlay_address_map_s *largest_overlay = &sOverlayAdressMap[1];
 
-    largest_overlay = &overlayAddressMap[1];
-    for(i = 1; i < overlayCount; i++){
-        if(largest_overlay->ram_end - largest_overlay->ram_start < (u32)(overlayAddressMap[i].ram_end - overlayAddressMap[i].ram_start)){
-            largest_overlay = &overlayAddressMap[i];
+    for (i = 1; i < sNumOverlays; i++) {
+        if (largest_overlay->ram_end - largest_overlay->ram_start < (u32)(sOverlayAdressMap[i].ram_end - sOverlayAdressMap[i].ram_start)) {
+            largest_overlay = &sOverlayAdressMap[i];
         }
     }
     return largest_overlay;
 #endif
+    return NULL;
+}
+
+// returns always 0
+static s32 __overlayManager_stub1(void) {
     return 0;
 }
 
-s32 __overlayManager80251170(void){
-    return 0;
-}
-
-s32 __overlayManager80251178(void){
+static s32 __overlayManager_getUknownSize(void) {
 #if 0
-    int sp24;
-    OverlayAddressMap *largest_overlay;
+    int unused;
+    struct overlay_address_map_s *largest_overlay;
     s32 sp1C;
     s32 sp18;
-    
 
-    largest_overlay = __overlayManagergetLargetOverlayAddressMap();
+    largest_overlay = __overlayManager_getLargestOverlayAdressMap();
     sp18 = func_802546DC();
-    sp1C = __overlayManager80251170();
+    sp1C = __overlayManager_stub1();
 
-    return ((sp1C + (u8 *)gFramebuffers) - largest_overlay->ram_end) + sp18;
+    return (u8 *) gFramebuffers + sp1C - largest_overlay->ram_end + sp18;
 #endif
     return 0;
 }
 
-void __overlayManager802511C4(void){
+static void __overlayManager802511C4(void) {
 #if 0
     s32 sp24;
-    int sp20;
-    int sp1C;
-    int heap_size;
+    s32 sp20;
+    s32 sp1C;
+    s32 heap_size;
     u32 tmp_v0;
 
-    sp24 = __overlayManager80251178();
+    sp24 = __overlayManager_getUknownSize();
     heap_size = heap_get_size();
     sp20 = func_802546DC();
     sp1C = heap_size - sp20;
 
-    if(sp24 < 0){
-        overlayManagerdebug();
+    if (sp24 < 0) {
+        overlayManager_debug();
         tmp_v0 = sp1C + sp24;
-        while( tmp_v0 & 0xF){tmp_v0--;}
+        while (tmp_v0 & 0xF) { tmp_v0--; }
     }
 #endif
 }
 
-int overlayManagergetLoadedId(void){
-    return overlayMgrLoadedId_port; // [port] return tracked overlay ID
+enum overlay_e overlayManager_getLoadedID(void) {
+    return sLoadedOverlay;
 }
 
-bool overlayManagerisOverlayLoaded(int overlay_id){
-    return overlayMgrLoadedId_port == overlay_id;
+bool overlayManager_isOverlayLoaded(enum overlay_e id) {
+    return sLoadedOverlay == id;
 }
 
-bool overlayManagerload(enum overlay_e overlay_id){
+bool overlayManager_load(enum overlay_e id) {
     // [port] On PC, all overlay code is statically linked. Just track the ID.
-    if (overlay_id == 0)
+    if (id == OVERLAY_0_CORE2)
         return false;
-    if (overlay_id == overlayMgrLoadedId_port)
+    if (id == sLoadedOverlay)
         return false;
-    overlayMgrLoadedId_port = overlay_id;
+
+    sLoadedOverlay = id;
+#if 0
+    {
+        s32 rom_addr = (s32)(sOverlayAdressMap + id);
+        overlay_load(
+            id,
+            ((struct overlay_address_map_s *)rom_addr)->ram_start,
+            ((struct overlay_address_map_s *)rom_addr)->ram_end,
+            ((struct overlay_address_map_s *)rom_addr)->rom_start,
+            ((struct overlay_address_map_s *)rom_addr)->rom_end,
+            ((struct overlay_address_map_s *)rom_addr)->code_start,
+            ((struct overlay_address_map_s *)rom_addr)->code_end,
+            ((struct overlay_address_map_s *)rom_addr)->data_start,
+            ((struct overlay_address_map_s *)rom_addr)->data_end,
+            ((struct overlay_address_map_s *)rom_addr)->bss_start,
+            ((struct overlay_address_map_s *)rom_addr)->bss_end
+        );
+    }
+#endif
     return true;
 }
 
-s32 overlayManagerclearLoadedId(void){
-    overlayMgrLoadedId_port = 0;
-    return 0;
+void overlayManager_clearLoadedId(void) {
+    sLoadedOverlay = OVERLAY_0_CORE2;
 }
 
-void overlayManagerloadCore2(void){
+void overlayManager_loadCore2(void) {
+    overlayManager_clearLoadedId();
 #if 0
-    overlayManagerclearLoadedId();
-    overlay_load(0, 
+    overlay_load(0,
         core2_VRAM, core2_VRAM_END,
-        core2_ROM_START, core2_ROM_END,
+        (u32) core2_ROM_START, (u32) core2_ROM_END,
         core2_TEXT_START, core2_TEXT_END,
         core2_DATA_START, core2_RODATA_END,
         core2_BSS_START, core2_BSS_END
@@ -184,4 +144,4 @@ void overlayManagerloadCore2(void){
 #endif
 }
 
-void overlayManagerdebug(void){}
+void overlayManager_debug(void) {}

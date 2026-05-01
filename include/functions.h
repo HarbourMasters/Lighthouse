@@ -1064,9 +1064,7 @@ void func_802596AC(f32 a0[3], f32 a1[3], f32 a2[3], f32 a3[3]);
 void func_802515D4(f32 arg0[3][3]);
 
 // --- core1/overlaymanager.c ---
-bool overlayManagerload(enum overlay_e overlay_id);
-int overlayManagergetLoadedId(void);
-void overlayManagerloadCore2(void);
+// overlayManager_* functions are declared in core1/core1.h
 
 // --- core1/sns.c ---
 void snspayload_finalise_outgoing_payload(struct SnsPayload *payload);
@@ -2502,8 +2500,7 @@ void func_80341A54(void);
 void glspline_defrag(void);
 
 // --- core2/level/lightconfig.c ---
-void func_802BC538(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4, s32 *arg5, s32 *arg6, s32 *arg7, s32 *arg8, s32 *arg9);
-void func_802BC5CC(void);
+// code35520_getDistanceVectors and code35520_selectTable are declared in core2/core2.h
 
 // --- core2/level/metadata.c ---
 int barebound_set_active(s32 arg0);
@@ -2594,16 +2591,7 @@ void func_802D2CB8(void);
 void func_802D2CDC(void);
 
 // --- core2/overlay.c ---
-enum overlay_e level_to_overlay(enum level_e lvl);
-void func_80322E64(Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void func_80322F5C(void);
-void func_80322F7C(void);
-void func_80322F9C(void);
-void func_80322FBC(void);
-void func_80322FDC(void);
-void func_80323098(s32 arg0, s32 arg1);
-void overlay_init(void);
-void overlay_update(void);
+// leveloverlay_* functions are declared in core2/core2.h
 
 // --- core2/particle/bathroom.c ---
 void func_8029ADA8(void);
@@ -3102,7 +3090,6 @@ bool jigsawPicture_isJigsawPictureComplete(s32 arg0);
 // --- port/stub.c ---
 s32 osContSetCh(u8 ch);
 u32 __osGetSR(void);
-void func_80253010(void* dest, void* src, s32 size);
 void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
 void osDestroyThread(OSThread* thread);
 void osDpSetStatus(u32 data);
@@ -3211,6 +3198,10 @@ void savedata_clear(void *savedata);
 
 // --- core2/spawn_queue.c ---
 void spawnQueue_defrag(void);
+
+void bkmemcpy64(void *dest, void *src, s32 size); // handwritten assembly code that performs an optimized 8 byte memcpy
+void bkmemset64(void *dest, s32 value, s32 size); // handwritten assembly code that performs an optimized 8 byte memset
+u32 bkGetSR(void); // handwritten assembly code that replicates the __osGetSR function
 
 #endif // FUNCTIONS_H
 

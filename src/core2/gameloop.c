@@ -678,7 +678,7 @@ s32 game_defrag(void){
     gcdialog_defrag();
     if(D_8037E8E0.game_mode == GAME_MODE_4_PAUSED)
         gcpausemenu_defrag();
-    switch(overlayManagergetLoadedId()){
+    switch(overlayManager_getLoadedID()){
         case OVERLAY_2_WHALE:
             func_803894A0();
             break;

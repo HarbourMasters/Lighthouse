@@ -459,7 +459,7 @@ void thread5_handlePreNMIEvent(void) {
 }
 
 void thread5_checkAndExecutePreNMI(void) {
-    if (!(__osGetSR() & SR_IBIT5)) {
+    if (!(bkGetSR() & SR_IBIT5)) {
         thread5_handlePreNMIEvent();
     }
 }

@@ -139,7 +139,7 @@ void func_802F1934(void *arg0_, s32 arg1){
         arg0->tmem_ptr = (u16*)((uintptr_t)arg0->tmem_ptr + 1);
     }
     port_requestReadback(); // [port] particle copies framebuffer pixels
-    func_80253010(arg0->tmem_ptr, gFramebuffers[arg1], gFramebufferWidth*gFramebufferHeight*sizeof(u16));
+    bkmemcpy64(arg0->tmem_ptr, gFramebuffers[arg1], gFramebufferWidth*gFramebufferHeight*sizeof(u16));
     osWritebackDCacheAll();
 }
 

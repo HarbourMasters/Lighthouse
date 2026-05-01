@@ -113,7 +113,7 @@ void core1_init(void) {
     setBootMap(getDefaultBootMap());
     // rarezip_init();
     viMgr_init();
-    overlayManagerloadCore2();
+    overlayManager_loadCore2();
     sDebugVar_8027BEF0 = sDebugVar_8027A538;
     // [port] Irrelevant and replaced with system malloc
     // heap_init();

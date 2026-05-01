@@ -42,6 +42,58 @@ OSMesgQueue * audioManager_getFrameMesgQueue(void);
 void piMgr_read(void *vaddr, s32 devaddr, s32 size);
 
 
+/* src/core1/overlay.c */
+
+void overlay_load(
+    s32 id,
+    u8 *ram_start, u8 *ram_end,
+    u32 rom_start, u32 rom_end,
+    u8 *code_start, u8 *code_end,
+    u8 *data_start, u8 *data_end,
+    u8 *bss_start, u8 *bss_end
+);
+
+
+/* src/core1/overlaymanager.c */
+
+#define MAKE_OVERLAY_SEGMENT_EXTERNS(segname) \
+    extern u8 segname##_VRAM[]; \
+    extern u8 segname##_VRAM_END[]; \
+    extern u8 segname##_ROM_START[]; \
+    extern u8 segname##_ROM_END[]; \
+    extern u8 segname##_TEXT_START[]; \
+    extern u8 segname##_TEXT_END[]; \
+    extern u8 segname##_DATA_START[]; \
+    extern u8 segname##_DATA_END[]; \
+    extern u8 segname##_RODATA_START[]; \
+    extern u8 segname##_RODATA_END[]; \
+    extern u8 segname##_BSS_START[]; \
+    extern u8 segname##_BSS_END[];
+
+#define MAKE_SEGMENT_ENTRY(segname, realname) \
+    {#realname, segname##_VRAM, segname##_VRAM_END, (u32) segname##_ROM_START, (u32) segname##_ROM_END, segname##_TEXT_START, segname##_TEXT_END, segname##_DATA_START, segname##_RODATA_END, segname##_BSS_START, segname##_BSS_END}
+
+#define MAKE_DUMMY_SEGMENT_ENTRY(segname, realname) \
+    {#realname, segname##_VRAM, segname##_VRAM_END, (u32) segname##_ROM_START, (u32) segname##_ROM_END, NULL, NULL, NULL, NULL, NULL, NULL}
+
+struct overlay_address_map_s {
+    char *name;
+    u8 *ram_start, *ram_end;
+    u32 rom_start;
+    u32 rom_end;
+    u8 *code_start, *code_end;
+    u8 *data_start, *data_end;
+    u8 *bss_start, *bss_end;
+};
+
+enum overlay_e overlayManager_getLoadedID(void);
+bool overlayManager_isOverlayLoaded(enum overlay_e id);
+bool overlayManager_load(enum overlay_e id);
+void overlayManager_clearLoadedId(void);
+void overlayManager_loadCore2(void);
+void overlayManager_debug(void);
+
+
 /* src/core1/code_7090.c */
 
 void core1_7090_alloc(void);

@@ -154,6 +154,9 @@ u32 __osGetSR(void) {
 }
 void __osSetSR(u32 value) {
 }
+u32 bkGetSR(void) {
+    return 0;
+}
 OSYieldResult osSpTaskYielded(OSTask* task) {
     return 0;
 }
@@ -174,9 +177,12 @@ OSIntMask osSetIntMask(OSIntMask a) {
 void __osError(s16 error_code, s16 num_args, ...) {
 }
 
-// [port] This is bcopy/memcpy from the N64 OS. Implement as memcpy.
-void func_80253010(void* dest, void* src, s32 size) {
+// [port] These mirror BK's handwritten 8-byte-aligned memcpy/memset assembly. Implement as plain memcpy/memset.
+void bkmemcpy64(void *dest, void *src, s32 size) {
     memcpy(dest, src, size);
+}
+void bkmemset64(void *dest, s32 value, s32 size) {
+    memset(dest, value, size);
 }
 
 #if 0
