@@ -4,12 +4,12 @@
 
 #ifdef __cplusplus
 class LighthouseModMenuWindow : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override;
     void DrawElement() override;
-    void UpdateElement() override {};
+    void UpdateElement() override{};
 };
 
 // Public so Engine.cpp can drive an initial scan before the GUI window

@@ -70,33 +70,70 @@ If you're building a romhack with BB and want it to work on Lighthouse:
 
 See [BACKPACKCODE.md](BACKPACKCODE.md) for the technical details of how extraction works.
 
-## Unsupported: Romhacks with Custom MIPS Code Injection
+## Romhacks with Custom MIPS Code Injection
 
-Romhacks built with tools that go beyond BB's data-only patching — i.e., that inject custom MIPS code into the ROM — are **not supported** and will appear partially broken on Lighthouse. Telltale symptoms include scripted scenes that play on N64 but do nothing on the port (custom title pages, story sequences, novel cutscenes), and per-frame logic that reacts to input on certain maps but not others.
-
-### Why this happens
-
-BB-style romhacks only modify named data fields (scene remaps, warp destinations, music, item caps, etc.) which Torch extracts into `aGameConfig` and the port honors at runtime. Lighthouse can faithfully reproduce that behavior because the underlying engine code path is the same as vanilla.
-
-A custom-code romhack additionally relocates a chunk of MIPS code into a high-RAM region (e.g., `0x80780000+` on N64), then patches one or more `jal` instructions inside vanilla functions to dispatch into that custom code each frame. The injected code typically:
+Some romhacks go beyond BB's data-only patching by injecting custom MIPS code into the ROM. The injected code typically:
 
 - Maintains its own per-frame state machine (page index, input edge detection, etc.)
 - Calls vanilla engine functions like `gcdialog_showDialog` directly
 - Sometimes hooks into draw/update functions to render custom UI
 
-Lighthouse runs the decompiled C source — not the original MIPS — so the patched `jal` is gone, the custom code is never loaded, and the romhack's scripted behavior is silently absent.
+Lighthouse runs the decompiled C source — not the original MIPS — so the patched `jal` is gone, the custom code is never loaded, and the romhack's scripted behavior is silently absent **until a hand-port is contributed**.
 
-### Diagnosing it
+### How Lighthouse handles them
+
+Lighthouse's strategy is **detect, anchor, and accept hand-ports**:
+
+1. **Detect.** During extraction, Torch's `DetectCustomCodeBlob` scans the high-ROM region for a BKZIP-compressed payload that decompresses into something looking like MIPS code. The detector requires:
+   - A blob at ROM offset >= `0x3F00000` with BKZIP magic `0x11 0x72`.
+   - Decompressed size in `[0x4000, 0x100000]` (16 KB to 1 MB).
+   - A MIPS function prologue (`27 BD FF xx`) within the first `0x100` decompressed bytes.
+   - At least 4 internal `jal` instructions whose targets land in RAM `[0x80700000, 0x80800000)` — the high-RAM region where injected code is loaded. The window is intentionally wider than the lips/Mr.Patcher convention's `0x80780000` start address because some hacks (e.g. Corrupted Jiggies) load lower.
+2. **Warn.** If the detector fires, the user gets a popup before extraction explaining that this romhack ships custom code and may behave differently on the port.
+3. **Anchor.** Torch SHA1-hashes the **decompressed** blob and emits a `CUSTOM_CODE` section in `aGameConfig` (binary section type 11, payload = `u32 ramBase + u8 hash[20]`). The hash is stable across asset-only updates and unaffected by file renames; it's the only reliable identifier for "this exact custom code."
+4. **Accept hand-ports.** Lighthouse exposes the hash via `port_getRomhackCustomCodeHash`, looks it up in [`src/port/resource/importers/RomhackTable.h`](../../src/port/resource/importers/RomhackTable.h), and returns a stable identifier via `port_getRomhackIdentifier`. Hand-port modules gate their listeners on that identifier.
+
+### Hand-port workflow
+
+To add a hand-port for a custom-code romhack:
+
+1. **Extract** the romhack with a Torch build that emits the `CUSTOM_CODE` section. Look for this line in `logs/Extractor.log`:
+2. **Add a row** to `RomhackTable.h`:
+   ```cpp
+   { "<sha1 hex from log>", "<ShortIdentifier>" },
+   ```
+   Pick a short identifier — used in CVar names, log lines, and hand-port directory naming. Multiple hashes can map to the same identifier when a hack ships several variants of the same code (e.g. Gruntch and Santa's Village ship the same blob).
+3. **Reverse-engineer** the blob. Disassemble the decompressed payload (e.g. with capstone-mips, IDA, or Ghidra against the BK decomp's symbol map) to understand what the injected code does. The Gruntch worked example below is a complete instance.
+4. **Reimplement** the logic as port-side C using the engine's [event/hook system](../Lighthouse/EVENTS.md). Listeners gate on:
+   ```cpp
+   const char* id = port_getRomhackIdentifier();
+   if (id == nullptr || std::strcmp(id, "<Identifier>") != 0) return;
+   ```
+   Optionally combined with a user CVar `Mod.Romhack.<Identifier>.Enabled` so a player can disable a misbehaving hand-port.
+
+### Known custom-code romhacks
+
+These are the hacks in our local corpus that ship custom MIPS code, with the SHA1 anchor each will produce when extracted with the current Torch:
+
+| Romhack | SHA1 anchor | Blob size | Hand-port status |
+|---|---|---|---|
+| Cut-Throat Coast | `13f4fa8a180fe5775a606486effbafeb58862d26` | 67 KB | none |
+| How the Gruntch Stole Christmas | `bed22dd8ef931228fbc94f006dfc718a4d4f6f8c` | 105 KB | none (worked example below) |
+| Santa's Village | `bed22dd8ef931228fbc94f006dfc718a4d4f6f8c` | 105 KB | shares Gruntch's blob — single hand-port covers both |
+| Snow Glow Village | `23596c2858283b847e9e0ff44785e35110002fc7` | 93 KB | none |
+| The Corrupted Jiggies | `9e20be78496d66f2e5f7930022a0fee769753488` | 197 KB | none |
+
+Other romhacks (Banjo-Dreamie, Jiggies of Time, Nostalgia 64, Gruntilda's Mask, Grunty's Mansion, New Horizons, NightBear Before Christmas, Bear Waker DX) are **data-only** — they use BB's overlay relocation but don't inject custom code, so they need no hand-port.
+
+### Worked example: Gruntch
 
 A confirmed example is *How the Gruntch Stole Christmas*. On N64, stick-right on the title page advances story pages; on the port, stick-right does nothing. Live RAM inspection of the running N64 ROM showed:
 
 - A vanilla function (`gcdialog_showDialog`) being invoked with arguments that no decompiled caller produces.
-- A 128 KB code blob loaded at `0x80780000` containing the page-flip handler and a thin wrapper that translates flag bits into the engine's dialog API.
+- A 105 KB code blob loaded at `0x80780000+` containing the page-flip handler and a thin wrapper that translates flag bits into the engine's dialog API.
 - A `jal 0x807813A0` patched into the vanilla per-frame draw function, dispatching into that blob every frame.
 
-Equivalent symptoms in other romhacks generally point to the same pattern.
-
-#### Reconstructed wrapper (gruntch example)
+#### Reconstructed wrapper
 
 Disassembling the captured blob gave the wrapper at `0x807801E0` that the gruntch hack uses to drive dialog calls. It takes a text id and a 4-bit flag word, decodes the flags into a `gcdialog_showDialog` arg1, optionally toggles a file-progress flag across the call, and forwards a position pointer:
 
@@ -182,9 +219,6 @@ Note that the romhack never uses the `b2` (FILEPROG_1E side-channel) path in any
 
 ### What we won't do
 
-- Run an interpreter for arbitrary MIPS code blobs. Out of scope and would be fragile per romhack.
-- Detect specific romhacks by hash and bake in custom Lighthouse-side reimplementations of their scripted scenes.
-
-### What romhack authors can do
-
-If your hack relies on custom MIPS code, port the equivalent logic into Lighthouse's enhancement/event hook system and gate it behind your romhack's name. This requires a Lighthouse source contribution — there's no data-only path from a custom-code romhack to a working port build.
+- Run a MIPS interpreter or partial dynamic recompiler to execute the blob inside Lighthouse. Out of scope and would be fragile per romhack.
+- Auto-translate the blob to C with `mips-to-c`/`m2c` and link it in. Output quality is per-blob and the 32→64-bit pointer-width audit is manual anyway.
+- Detect specific romhacks by ROM-file SHA1 (filename-derived) and fork engine behavior on that basis. The custom-code blob hash is the only stable per-hack anchor.

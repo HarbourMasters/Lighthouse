@@ -40,6 +40,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnPropInit);
+    REGISTER_EVENT(OnWarpResolveDest);
 
     // Register game events
     REGISTER_EVENT(MapTransitionEnd);

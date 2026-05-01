@@ -163,7 +163,8 @@ static bool DetectAndQuarantineGameConfigConflicts() {
     }
 
     for (const auto& name : withConfig) {
-        SPDLOG_WARN("[ModMenu] Quarantining '{}' due to aGameConfig conflict (multiple romhack overlays enabled)", name);
+        SPDLOG_WARN("[ModMenu] Quarantining '{}' due to aGameConfig conflict (multiple romhack overlays enabled)",
+                    name);
         auto it = std::find(enabledModFiles.begin(), enabledModFiles.end(), name);
         if (it != enabledModFiles.end()) {
             enabledModFiles.erase(it);
@@ -459,8 +460,8 @@ static void RegisterModMenuWidgets() {
             auto options = std::static_pointer_cast<UIWidgets::CheckboxOptions>(info.options);
             options->disabled = editing;
         });
-    LighthouseGui::mLighthouseMenu->AddSearchWidget({ enableModsWidget, "Settings", "Mod Menu", "Top",
-                                                     "alternate assets" });
+    LighthouseGui::mLighthouseMenu->AddSearchWidget(
+        { enableModsWidget, "Settings", "Mod Menu", "Top", "alternate assets" });
 
     tabHotkeyWidget = { .name = "Mods Tab Hotkey", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
     tabHotkeyWidget.CVar(CVAR_SETTING("Mods.AlternateAssetsHotkey"))
@@ -479,11 +480,10 @@ void MaybeShowModConflictPopup() {
     if (sQuarantinedConflicts.empty()) {
         return;
     }
-    std::string body =
-        "Multiple romhack mods were enabled, each carrying their own game config.\n"
-        "Loading more than one would cause problems, so all of them have been\n"
-        "disabled for this session.\n\n"
-        "The disabled romhacks are:\n";
+    std::string body = "Multiple romhack mods were enabled, each carrying their own game config.\n"
+                       "Loading more than one would cause problems, so all of them have been\n"
+                       "disabled for this session.\n\n"
+                       "The disabled romhacks are:\n";
     for (const auto& name : sQuarantinedConflicts) {
         body += "  - " + name + "\n";
     }

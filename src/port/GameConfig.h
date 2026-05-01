@@ -20,6 +20,8 @@ int port_getRomhackSceneDef(int scene_id, int* out_opa, int* out_xlu);
 int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_xlu, short out_min[3], short out_max[3],
                                 float* out_scale);
 int port_getRomhackNewGameMap(void);
+int port_getRomhackStartLevel1(void);
+int port_getRomhackStartLevel2(void);
 int port_getRomhackMumboCost(int transform_id);
 int port_getRomhackWarpExitBanjosHouse(void);
 int port_getRomhackWarpEnterLair(void);
@@ -41,6 +43,9 @@ int port_getRomhackNoteDoor(int door_index);
 int port_getRomhackJiggyPuzzleCost(int puzzle_index);
 const char* port_getRomhackLevelName(int level_index);
 int port_getRomhackWarpDest(int warp_index);
+bool port_getRomhackCustomCodeHash(char out_hex[41]);
+bool port_getRomhackRomHash(char out_hex[41]);
+const char* port_getRomhackIdentifier(void);
 
 #ifdef __cplusplus
 }

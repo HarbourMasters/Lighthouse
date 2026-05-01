@@ -203,6 +203,7 @@ typedef enum PromptSteps {
     PS_FILE_CHECK,
     PS_LOCAL,
     PS_FIRST,
+    PS_SECOND,
     PS_DUPE,
     PS_WAIT,
     PS_NONE,
@@ -479,7 +480,8 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         }
 
         if (extractStep == ES_EXTRACT && promptStep == PS_FIRST && extractStarted && !extracting) {
-            extractStep = ES_VERIFY;
+            promptStep = PS_SECOND;
+            extractStarted = false;
             extractCount = 0;
             totalExtract = 0;
         }
@@ -675,14 +677,11 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         const bool romO2RExists = AnyRomArchiveExists();
 
                         if (!romO2RExists) {
-                            const bool pendingExtract =
-                                CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0) != 0;
-                            const char* title =
-                                pendingExtract ? "Generate Romhack Mod" : "No O2R Files";
-                            const char* body = pendingExtract
-                                                   ? "Select a romhack ROM to extract as a mod.\n"
-                                                     "The generated o2r will be placed in the mods folder.\n"
-                                                   : "No O2R files found. Generate one now?";
+                            const bool pendingExtract = CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0) != 0;
+                            const char* title = pendingExtract ? "Generate Romhack Mod" : "No O2R Files";
+                            const char* body = pendingExtract ? "Select a romhack ROM to extract as a mod.\n"
+                                                                "The generated o2r will be placed in the mods folder.\n"
+                                                              : "No O2R files found. Generate one now?";
                             LighthouseGui::RegisterPopup(
                                 title, body, "Yes", "No",
                                 [&]() {
@@ -741,6 +740,30 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                             CVarSave();
                             extracting = false;
                         });
+                        continue;
+                    }
+                    case PS_SECOND: {
+                        promptStep = PS_WAIT;
+                        LighthouseGui::RegisterPopup(
+                            "Extraction Complete", "ROM extracted. Extract another?", "Yes", "No",
+                            [&]() {
+                                if (!extract.SelectGameFromUI()) {
+                                    extractStep = ES_VERIFY;
+                                    promptStep = PS_FIRST;
+                                    return;
+                                }
+                                extracting = true;
+                                extractStarted = true;
+                                file = extract.GetRomPath();
+                                promptStep = PS_FIRST;
+                                (void)threadPool->submit_task([&]() -> void {
+                                    extract.GenerateOTR(extractCount, totalExtract, "bk");
+                                    CVarClear(CVAR_SETTING("Mod.PendingExtract"));
+                                    CVarSave();
+                                    extracting = false;
+                                });
+                            },
+                            [&]() { extractStep = ES_VERIFY; });
                         continue;
                     }
                     default:
