@@ -119,6 +119,12 @@ s16  D_8036ABC0[] = {0x268, 0x26A, 0x26C, 0x26E, 0x270, 0x272, 0x274, 0x276, 0x2
 // used to index D_80382150
 s16  D_8036ABD4 = 0;
 
+#define CUBE_DIMENSIONS_START_INDICATOR   0x01
+#define CUBE_UNK_INDICATOR                0x02
+#define CUBE_START_INDICATOR              0x03
+#define CUBE_SEPARATOR_INDICATOR          0x01
+#define CUBE_SECTION_END_INDICATOR        0x00
+
 /* .bss */
 struct {
     Cube *cubes;
@@ -911,12 +917,12 @@ void func_803045D8(){}
 
 static void __code7AF80_initCubeFromFile(Cube *cube, File* file_ptr) {
     s32 pad[3];
-    while(!file_isNextByteExpected(file_ptr, 1)) {
-        if (file_getNWords_ifExpected(file_ptr, 0, pad, 3)) {
+    while(!file_isNextByteExpected(file_ptr, CUBE_SEPARATOR_INDICATOR)) {
+        if (file_getNWords_ifExpected(file_ptr, CUBE_SECTION_END_INDICATOR, pad, 3)) {
             file_getNWords(file_ptr, pad, 3);
-        } else if (file_getNWords_ifExpected(file_ptr, 2, pad, 3)) {
+        } else if (file_getNWords_ifExpected(file_ptr, CUBE_UNK_INDICATOR, pad, 3)) {
             break; // [port] tag 2: data consumed, exit inner loop (matches original N64 semantics)
-        } else if (file_isNextByteExpected(file_ptr, 3)) {
+        } else if (file_isNextByteExpected(file_ptr, CUBE_START_INDICATOR)) {
             code7AF80_initCubeFromFile(file_ptr, cube);
         } else {
             break; // [port] unhandled tag, avoid infinite loop
@@ -931,7 +937,7 @@ void cubeList_fromFile(File *file_ptr) {
     Cube *cube;
     NodeProp *iPtr;
 
-    file_getNWords_ifExpected(file_ptr, 1, cube_position_from, 3);
+    file_getNWords_ifExpected(file_ptr, CUBE_DIMENSIONS_START_INDICATOR, cube_position_from, 3);
     file_getNWords(file_ptr, cube_position_to, 3);
     for(cube_position[0] = cube_position_from[0]; cube_position[0] <= cube_position_to[0]; cube_position[0]++){
         for(cube_position[1] = cube_position_from[1]; cube_position[1] <= cube_position_to[1]; cube_position[1]++){
@@ -940,7 +946,7 @@ void cubeList_fromFile(File *file_ptr) {
             }
         }
     }
-    file_isNextByteExpected(file_ptr, 0);
+    file_isNextByteExpected(file_ptr, CUBE_SECTION_END_INDICATOR);
     bitfield_setAll(D_8036A9E0, 0);
     for(cube_position[0] = cube_position_from[0]; cube_position[0] <= cube_position_to[0]; cube_position[0]++){
         for(cube_position[1] = cube_position_from[1]; cube_position[1] <= cube_position_to[1]; cube_position[1]++){
@@ -2198,24 +2204,27 @@ void cubeList_sort(bool absolute_positon) {
 
 // Reads or writes the unk8_4 (isNotFeatherEggOrNote) flag of the given prop2 ID and advances ID.
 // Returns the previous flag value.
-bool cube_getOrSetProp2Flag(Cube *this, s32 *prop_id, bool set_flag, bool value) {
+bool cube_getOrSetProp2Flag(Cube *this_cube, s32 *prop2_index, bool set_flag, bool value) {
+    // Notes
+    // * set_flag is 'SOME_NUM >= 1'
+    // * value is 'SOME_NUM & 1'
     Prop *prop;
     bool old_value;
 
-    prop = this->prop2Ptr + *prop_id;
+    prop = this_cube->prop2Ptr + *prop2_index;
 
-    while ((*prop_id < this->prop2Cnt) && (prop->markerFlag == 1)) {
-        (*prop_id)++;
+    while ((*prop2_index < this_cube->prop2Cnt) && (prop->markerFlag == 1)) {
+        (*prop2_index)++;
         prop++;
     }
 
-    if (*prop_id >= this->prop2Cnt) {
-        *prop_id = 0;
+    if (*prop2_index >= this_cube->prop2Cnt) {
+        *prop2_index = 0;
         return false;
     }
 
     old_value = prop->unk8_4;
-    (*prop_id)++;
+    (*prop2_index)++;
 
     if (set_flag) {
         prop->unk8_4 = value;

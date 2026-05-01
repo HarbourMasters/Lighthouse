@@ -77,6 +77,28 @@ ModelCache *modelCache = NULL; //D_8036E7C0 //model pointer array pointer
 u8 *D_8036E7C4 = NULL;
 ActorMarker *D_8036E7C8 = NULL;
 
+enum Prop1Category {
+    PROP_1_CATEGORY_0_UNK,
+    PROP_1_CATEGORY_1_UNK,
+    PROP_1_CATEGORY_2_WARP_OR_TRIGGER,
+    PROP_1_CATEGORY_3_CAMERA_CONTROLLER,
+    PROP_1_CATEGORY_4_UNK,
+    PROP_1_CATEGORY_5_UNK,
+    PROP_1_CATEGORY_6_ACTOR,
+    PROP_1_CATEGORY_7_ENEMY_BOUNDARY,
+    PROP_1_CATEGORY_8_PATH,
+    PROP_1_CATEGORY_9_CAMERA_TRIGGER,
+    PROP_1_CATEGORY_A_FLAG
+};
+
+#define CUBE_PROP_1_INDICATOR                     0x0A
+#define CUBE_PROP_1_OTHER_INDICATOR               0x06
+#define CUBE_DIVIDER_INDICATOR                    0x01
+#define CUBE_PROP_1_LIST_START_INDICATOR          0x0B
+#define CUBE_PROP_1_OTHER_LIST_START_INDICATOR    0x07
+#define CUBE_PROP_1_LIST_END_INDICATOR            0x08
+#define CUBE_PROP_2_LIST_START_INDICATOR          0x09
+
 /* .bss */
 s32 D_803833F0[3];
 s32 D_803833FC;
@@ -688,7 +710,7 @@ bool __codeA5BC0_pad_func_8032E178(Cube *arg0, s32 *arg1, s32 arg2) {
             if( ((node_ptr->bit0 == true)
                     || ((node_ptr->bit0 == false) && (node_ptr->unk10_6 == true))
                 ) 
-                && (node_ptr->bit6 == 6) 
+                && (node_ptr->bit6 == PROP_1_CATEGORY_6_ACTOR) 
                 && (arg2 == node_ptr->unk8)
             ) {
                 *arg1 = node_ptr->radius;
@@ -708,7 +730,7 @@ NodeProp *cube_findNodePropByActorId(Cube *cube, enum actor_e actor_id) {
             if( ( (i_ptr->bit0 == true) 
                   || ( (i_ptr->bit0 == false) && (i_ptr->unk10_6 == true))
                 )
-                && (i_ptr->bit6 == 6) 
+                && (i_ptr->bit6 == PROP_1_CATEGORY_6_ACTOR) 
                 && (actor_id == i_ptr->unk8)
             ) {
                 return i_ptr;
@@ -729,7 +751,7 @@ bool func_8032E2D4(Cube *arg0, s32 arg1[3], s32 arg2) {
             if( ((var_v1->bit0 == true)
                     || ((var_v1->bit0 == false) && (var_v1->unk10_6 == true))
                 ) 
-                && (var_v1->bit6 == 6) 
+                && (var_v1->bit6 == PROP_1_CATEGORY_6_ACTOR) 
                 && (arg2 == var_v1->unk8)
             ) {
                 arg1[0] = var_v1->x;
@@ -788,7 +810,7 @@ s32 func_8032E49C(Cube *cube, enum actor_e *actor_id_list, NodeProp **node_list,
             i_node = cube->prop1Ptr;
             end_node = cube->prop1Ptr + cube->prop1Cnt;
             while((i_node < end_node) && (found_cnt < node_list_capacity)) {
-                if (((i_node->bit0 == true) || ((i_node->bit0 == false) && (i_node->unk10_6 == true))) && (i_node->bit6 == 6)) {
+                if (((i_node->bit0 == true) || ((i_node->bit0 == false) && (i_node->unk10_6 == true))) && (i_node->bit6 == PROP_1_CATEGORY_6_ACTOR)) {
                     i_actor = actor_id_list;
                     for(i_actor = actor_id_list; *i_actor != -1; i_actor++){
                         if (i_node->unk8 == *i_actor) {
@@ -818,7 +840,7 @@ s32 func_8032E5A8(Cube *cube, s32 arg1, f32 (*arg2)[3], s32 capacity) {
                 if( ( (i_node->bit0 == true) 
                       || ((i_node->bit0 == false) && (i_node->unk10_6 == true))
                     ) 
-                    && (i_node->bit6 == 6) && (arg1 == i_node->unk8)
+                    && (i_node->bit6 == PROP_1_CATEGORY_6_ACTOR) && (arg1 == i_node->unk8)
                 ) {
                     arg2[count][0] = (f32) i_node->x;
                     arg2[count][1] = (f32) i_node->y;
@@ -844,7 +866,7 @@ bool func_8032E6CC(Cube *cube, s32 *arg1, s32 arg2) {
                 if( ( (i_node->bit0 == true) 
                       || ((i_node->bit0 == false) && (i_node->unk10_6 == true))
                     ) 
-                    && (i_node->bit6 == 6) && (arg2 == i_node->unk8)
+                    && (i_node->bit6 == PROP_1_CATEGORY_6_ACTOR) && (arg2 == i_node->unk8)
                 ) {
                     *arg1 = i_node->yaw;
                     return true;
@@ -874,11 +896,11 @@ static void __codeA5BC0_initPropPointerForCube(NodeProp *node, Cube *cube, s32 c
     cube_ptr_idx = cnt - 1;
     for(i = 0; i < cnt; i++){
         iPtr = node + i;
-        if( (iPtr->bit6 == 6) 
-            || (iPtr->bit6 == 8)
-            || (iPtr->bit6 == 7) 
-            || (iPtr->bit6 == 9) 
-            || (iPtr->bit6 == 0xA) 
+        if( (iPtr->bit6 == PROP_1_CATEGORY_6_ACTOR) 
+            || (iPtr->bit6 == PROP_1_CATEGORY_8_PATH)
+            || (iPtr->bit6 == PROP_1_CATEGORY_7_ENEMY_BOUNDARY) 
+            || (iPtr->bit6 == PROP_1_CATEGORY_9_CAMERA_TRIGGER) 
+            || (iPtr->bit6 == PROP_1_CATEGORY_A_FLAG) 
             || (iPtr->bit0 == 1)
         ){
             memcpy(&cube->prop1Ptr[cube_ptr_idx], &node[i], sizeof(NodeProp));
@@ -909,17 +931,17 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
     s32 temp_v0_5;
 
     cube_free(cube);
-    if (file_getByte_ifExpected(file_ptr, 0xA, &cube1_count)) {
+    if (file_getByte_ifExpected(file_ptr, CUBE_PROP_1_INDICATOR, &cube1_count)) {
         __codeA5BC0_freeCube1Pointer(cube, cube1_count);
         cube->prop1Ptr = (NodeProp*) bk_malloc(cube1_count * sizeof(NodeProp));
         node_prop_ptr = (NodeProp*) bk_malloc(cube1_count * sizeof(NodeProp));
-        file_getNBytes_ifExpected(file_ptr, 0xB, (u8*)node_prop_ptr, cube->prop1Cnt * sizeof(NodeProp));
+        file_getNBytes_ifExpected(file_ptr, CUBE_PROP_1_LIST_START_INDICATOR, (u8*)node_prop_ptr, cube->prop1Cnt * sizeof(NodeProp));
         __codeA5BC0_initPropPointerForCube(node_prop_ptr, cube, cube1_count);
-    } else if (file_getByte_ifExpected(file_ptr, 6, &cube1_count)) {
+    } else if (file_getByte_ifExpected(file_ptr, CUBE_PROP_1_OTHER_INDICATOR, &cube1_count)) {
         __codeA5BC0_freeCube1Pointer(cube, cube1_count);
         cube->prop1Ptr = (NodeProp*) bk_malloc(cube1_count * sizeof(OtherNode));
         node_prop_ptr = (NodeProp*) bk_malloc(cube1_count * sizeof(OtherNode));
-        file_getNBytes_ifExpected(file_ptr, 7, (u8*)node_prop_ptr, cube->prop1Cnt * sizeof(OtherNode));
+        file_getNBytes_ifExpected(file_ptr, CUBE_PROP_1_OTHER_LIST_START_INDICATOR, (u8*)node_prop_ptr, cube->prop1Cnt * sizeof(OtherNode));
         for(other_prop_ptr = (OtherNode*)node_prop_ptr; other_prop_ptr < (OtherNode*)&node_prop_ptr[cube1_count]; other_prop_ptr++){
             if(other_prop_ptr->unk4_0 && !other_prop_ptr->unkC_0){
                 other_prop_ptr->unk4_17 = 0;
@@ -929,7 +951,7 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
         __codeA5BC0_initPropPointerForCube(node_prop_ptr, cube, cube1_count);
     }
 
-    if (file_getByte_ifExpected(file_ptr, 8, &sp47)) {
+    if (file_getByte_ifExpected(file_ptr, CUBE_PROP_1_LIST_END_INDICATOR, &sp47)) {
         sp34 = volatileFlag_get(VOLATILE_FLAG_1) +  volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME) + volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE);
         
         if ((sp34) && gcparade_8031B4CC()) {
@@ -947,7 +969,7 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
         // compiler handles platform-native bitfield placement. This follows
         // the Shipwright/libultraship pattern: never memcpy raw bytes into
         // bitfield structs across endianness boundaries.
-        if (file_isNextByteExpected(file_ptr, 9)) {
+        if (file_isNextByteExpected(file_ptr, CUBE_PROP_2_LIST_START_INDICATOR)) {
             s32 i;
             memset(cube->prop2Ptr, 0, sp47 * sizeof(Prop));
             for (i = 0; i < sp47; i++) {
@@ -1431,7 +1453,7 @@ void func_80330208(Cube *cube) {
         end_prop = cube->prop1Ptr + cube->prop1Cnt;
         func_80326C24(1);
         while(i_prop < end_prop){
-            if (i_prop->bit6 == 6) {
+            if (i_prop->bit6 == PROP_1_CATEGORY_6_ACTOR) {
                 position[0] = (s32) i_prop->x;
                 position[1] = (s32) i_prop->y;
                 position[2] = (s32) i_prop->z;
@@ -1458,17 +1480,17 @@ void func_803303B8(Cube *cube) {
         current_node_ptr = cube->prop1Ptr;
         last_node_prop_ptr = cube->prop1Ptr + cube->prop1Cnt;
         while (current_node_ptr < last_node_prop_ptr) {
-            if (current_node_ptr->bit6 == 7) {
+            if (current_node_ptr->bit6 == PROP_1_CATEGORY_7_ENEMY_BOUNDARY) {
                 position[0] = (s32) current_node_ptr->x;
                 position[1] = (s32) current_node_ptr->y;
                 position[2] = (s32) current_node_ptr->z;
                 func_803065E4(current_node_ptr->unk8, position, current_node_ptr->radius, current_node_ptr->unk10_31, current_node_ptr->pad10_7);
-            } else if (current_node_ptr->bit6 == 9) {
+            } else if (current_node_ptr->bit6 == PROP_1_CATEGORY_9_CAMERA_TRIGGER) {
                 position[0] = (s32) current_node_ptr->x;
                 position[1] = (s32) current_node_ptr->y;
                 position[2] = (s32) current_node_ptr->z;
                 func_8030688C(current_node_ptr->unk8, position, current_node_ptr->radius, current_node_ptr->unk10_0);
-            } else if (current_node_ptr->bit6 == 0xA) {
+            } else if (current_node_ptr->bit6 == PROP_1_CATEGORY_A_FLAG) {
                 position[0] = (s32) current_node_ptr->x;
                 position[1] = (s32) current_node_ptr->y;
                 position[2] = (s32) current_node_ptr->z;

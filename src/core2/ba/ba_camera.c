@@ -61,7 +61,7 @@ void func_80290BC0(s32 arg0){
 
 int func_80290D48(void){
     int camera_node_index;
-    CameraNodeType4 *sp28;
+    RandomCameraNode *sp28;
     s32 sp24;
     s32 sp20;
     s32 sp1C;
@@ -76,12 +76,12 @@ int func_80290D48(void){
     sp1C = bs_getState();
     switch(ncCameraNodeList_getNodeType(camera_node_index)){
         case 4:
-            sp28 = ncCameraNodeList_getCameraNodeType4(camera_node_index);
+            sp28 = ncCameraNodeList_getRandomCameraNode(camera_node_index);
             sp24 = code33250_func_802BA234(sp28);
             func_80290BC0(sp24);
             return false;
         case 3: //L80290DD8
-            if(bsBeeFly_inSet(sp1C) && !code33310_func_802BA4D0(ncCameraNodeList_getCameraNodeType3(camera_node_index))){
+            if(bsBeeFly_inSet(sp1C) && !code33310_func_802BA4D0(ncCameraNodeList_getZoomCameraNode(camera_node_index))){
                 return false;
             }
             ncDynamicCamera_setState(0x11);
@@ -89,7 +89,7 @@ int func_80290D48(void){
             func_80291488(0x9);
             return true;
         case 1://L80290E28
-            if(bsBeeFly_inSet(sp1C) && !code336F0_func_802BA89C(ncCameraNodeList_getCameraNodeType1(camera_node_index))){
+            if(bsBeeFly_inSet(sp1C) && !code336F0_func_802BA89C(ncCameraNodeList_getPivotCameraNode(camera_node_index))){
                 return false;
             }
             ncDynamicCamera_setState(0x8);

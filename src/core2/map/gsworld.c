@@ -20,6 +20,14 @@ struct {
 s32 D_803835DC;
 u32 sEnableDraw;
 
+enum gsWorldStartIndicators {
+    GS_WORLD_START_INDICATOR_0_END,
+    GS_WORLD_START_INDICATOR_1_CUBES,
+    GS_WORLD_START_INDICATOR_2_UNUSED,
+    GS_WORLD_START_INDICATOR_3_CAMERAS,
+    GS_WORLD_START_INDICATOR_4_LIGHTING
+};
+
 /* public */
 void gsworld_setEnableUpdate(s32);
 void gsworld_setEnableDraw(s32);
@@ -406,14 +414,14 @@ void gsworld_load(enum map_e map_id) {
     if (fp == NULL) {
         return; // [port] safety: file_openMap can return NULL
     }
-    while (file_isNextByteExpected(fp, 0) == 0) {
-        if (file_isNextByteExpected(fp, 2)) {
-            // tag 2: skip
-        } else if (file_isNextByteExpected(fp, 1)) {
+    while (file_isNextByteExpected(fp, GS_WORLD_START_INDICATOR_0_END) == 0) {
+        if (file_isNextByteExpected(fp, GS_WORLD_START_INDICATOR_2_UNUSED)) {
+            /* NO OP */
+        } else if (file_isNextByteExpected(fp, GS_WORLD_START_INDICATOR_1_CUBES)) {
             cubeList_fromFile(fp);
-        } else if (file_isNextByteExpected(fp, 3)) {
+        } else if (file_isNextByteExpected(fp, GS_WORLD_START_INDICATOR_3_CAMERAS)) {
             ncCameraNodeList_fromFile(fp);
-        } else if (file_isNextByteExpected(fp, 4)) {
+        } else if (file_isNextByteExpected(fp, GS_WORLD_START_INDICATOR_4_LIGHTING)) {
             lightingVectorList_fromFile(fp);
         } else {
             break; // [port] unrecognized tag, avoid infinite loop

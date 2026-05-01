@@ -11,7 +11,13 @@ static void __lighting_init(f32 position[3], f32 rotation[3], f32 scale, f32[3],
 
 void lighting_free();
 void lighting_init();
-#define NUM_LIGHTING_ELEM 0x10
+#define NUM_LIGHTING_ELEM            0x10
+
+#define LIGHTING_START_INDICATOR        1
+#define LIGHTING_POSITION_INDICATOR     2
+#define LIGHTING_FADE_RADII_INDICATOR   3
+#define LIGHTING_RGB_INDICATOR          4
+#define LIGHTING_LIST_END_INDICATOR     0
 
 /* .bss */
 struct {
@@ -111,9 +117,9 @@ static s32 __lighting_create() {
         iPtr = bk_vector_pushBackNew(&sLightingbk_vectorList.bk_vector_ptr);
 
     iPtr->active = 1;
-    iPtr->rgb[0] = 0xff;
-    iPtr->rgb[1] = 0xff;
-    iPtr->rgb[2] = 0xff;
+    iPtr->red   = 0xff;
+    iPtr->green = 0xff;
+    iPtr->blue  = 0xff;
     iPtr->position[2] = 0.0f;
     iPtr->position[1] = 0.0f;
     iPtr->position[0] = 0.0f;
@@ -176,11 +182,11 @@ void lightingVectorList_fromFile(File *file_ptr) {
     s32 rgb[3];
     s32 lighting_ptr;
     __lighting_freeAndInit();
-    while(!file_isNextByteExpected(file_ptr, 0)) {
-        if( file_isNextByteExpected(file_ptr, 1)
-            && file_getNFloats_ifExpected(file_ptr, 2, position, 3)
-            && file_getNFloats_ifExpected(file_ptr, 3, unk18_and_unk1c, 2)
-            && file_getNWords_ifExpected(file_ptr, 4, rgb, 3)
+    while(!file_isNextByteExpected(file_ptr, LIGHTING_LIST_END_INDICATOR)) {
+        if( file_isNextByteExpected(file_ptr, LIGHTING_START_INDICATOR)
+            && file_getNFloats_ifExpected(file_ptr, LIGHTING_POSITION_INDICATOR, position, 3)
+            && file_getNFloats_ifExpected(file_ptr, LIGHTING_FADE_RADII_INDICATOR, unk18_and_unk1c, 2)
+            && file_getNWords_ifExpected(file_ptr, LIGHTING_RGB_INDICATOR, rgb, 3)
         ) {
             lighting_ptr = __lighting_create();
             __lighting_setPosition(lighting_ptr, position);
@@ -190,7 +196,7 @@ void lightingVectorList_fromFile(File *file_ptr) {
     }
 }
 
-s32 __codeAC520_pad_func_80333C78(File *arg0) {
+s32 __gclights_unused_func_80333C78(File *arg0) {
     Lighting *beginPtr = bk_vector_getBegin(sLightingbk_vectorList.bk_vector_ptr);
     Lighting *endPtr = bk_vector_getEnd(sLightingbk_vectorList.bk_vector_ptr);
     Lighting *iPtr;
@@ -235,14 +241,14 @@ void gclights_recolor_vertices(BKVertexList *vertex_list, f32 position[3], f32 r
             distance_between_vtx_and_lighting_node = ml_vec3f_distance(struct_ptr->positionCopy, vtx_position);
             if (!(struct_ptr->fade_radius_max <= distance_between_vtx_and_lighting_node)) {
                 if (distance_between_vtx_and_lighting_node <= struct_ptr->fade_radius_min) {
-                    rgb_modifier[0] = rgb_modifier[0] + struct_ptr->rgb[0];
-                    rgb_modifier[1] = rgb_modifier[1] + struct_ptr->rgb[1];
-                    rgb_modifier[2] = rgb_modifier[2] + struct_ptr->rgb[2];
+                    rgb_modifier[0] += struct_ptr->red;
+                    rgb_modifier[1] += struct_ptr->green;
+                    rgb_modifier[2] += struct_ptr->blue;
                 } else {
                     distance_between_vtx_and_lighting_node = 1.0f - ((distance_between_vtx_and_lighting_node - struct_ptr->fade_radius_min) / (struct_ptr->fade_radius_max - struct_ptr->fade_radius_min));
-                    rgb_modifier[0] += distance_between_vtx_and_lighting_node * struct_ptr->rgb[0];
-                    rgb_modifier[1] += distance_between_vtx_and_lighting_node * struct_ptr->rgb[1];
-                    rgb_modifier[2] += distance_between_vtx_and_lighting_node * struct_ptr->rgb[2];
+                    rgb_modifier[0] += distance_between_vtx_and_lighting_node * struct_ptr->red;
+                    rgb_modifier[1] += distance_between_vtx_and_lighting_node * struct_ptr->green;
+                    rgb_modifier[2] += distance_between_vtx_and_lighting_node * struct_ptr->blue;
                 }
             }
         }

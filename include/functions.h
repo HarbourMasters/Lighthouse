@@ -327,10 +327,10 @@ NodeProp *cube_findNodePropByActorId(Cube *cube, enum actor_e actor_id);
 AnimTexture *model_getAnimTextureList(BKModelBin *);
 
 // --- core2/camera/cameranodelist.c ---
-CameraNodeType1 *ncCameraNodeList_getCameraNodeType1(int camera_node_index);
-CameraNodeType2 *ncCameraNodeList_getCameraNodeType2(int camera_node_index);
-CameraNodeType3 *ncCameraNodeList_getCameraNodeType3(int camera_node_index);
-CameraNodeType4 *ncCameraNodeList_getCameraNodeType4(int camera_node_index);
+PivotCameraNode *ncCameraNodeList_getPivotCameraNode(int camera_node_index);
+StaticCameraNode *ncCameraNodeList_getStaticCameraNode(int camera_node_index);
+ZoomCameraNode *ncCameraNodeList_getZoomCameraNode(int camera_node_index);
+RandomCameraNode *ncCameraNodeList_getRandomCameraNode(int camera_node_index);
 
 // MISC POINTER-RETURNING + OS + GBI PROTOTYPES
 
@@ -1828,17 +1828,17 @@ void func_802BE940(void);
 void func_803525A0(f32 arg0[3]);
 
 // --- core2/camera/cameranode_type1.c ---
-bool code336F0_func_802BA87C(CameraNodeType1 *self);
-bool code336F0_func_802BA89C(CameraNodeType1 *self);
-bool code336F0_func_802BA8BC(CameraNodeType1 *self);
-void code336F0_func_802BA7D8(CameraNodeType1 *self, f32 arg1[3]);
+bool code336F0_func_802BA87C(PivotCameraNode *self);
+bool code336F0_func_802BA89C(PivotCameraNode *self);
+bool code336F0_func_802BA8BC(PivotCameraNode *self);
+void code336F0_func_802BA7D8(PivotCameraNode *self, f32 arg1[3]);
 
 // --- core2/camera/cameranode_type3.c ---
-bool code33310_func_802BA4D0(CameraNodeType3 *self);
-bool code33310_func_802BA4F0(CameraNodeType3 *self);
+bool code33310_func_802BA4D0(ZoomCameraNode *self);
+bool code33310_func_802BA4F0(ZoomCameraNode *self);
 
 // --- core2/camera/cameranode_type4.c ---
-s32 code33250_func_802BA234(CameraNodeType4 *self);
+s32 code33250_func_802BA234(RandomCameraNode *self);
 
 // --- core2/camera/cameranodelist.c ---
 s32 ncCameraNodeList_getNodeType(int camera_node_index);
