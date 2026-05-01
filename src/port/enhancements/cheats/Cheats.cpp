@@ -121,16 +121,17 @@ void RegisterInfiniteGoldFeathers_Init() {
 
 // Infinite Boots & Sneakers — Keeps boots and sneakers from expiring
 void RegisterBootsAndSneakersTimer_Init() {
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_BOOTS_SNEAKERS, 0), [](IEvent* event) {
-        // STATE_TIMER_2_LONGLEG - Trot Shoes (boots)
-        if (stateTimer_isActive(STATE_TIMER_2_LONGLEG)) {
-            stateTimer_set(STATE_TIMER_2_LONGLEG, 999.0f);
-        }
-        // STATE_TIMER_3_TURBO_TALON - Sneakers
-        if (stateTimer_isActive(STATE_TIMER_3_TURBO_TALON)) {
-            stateTimer_set(STATE_TIMER_3_TURBO_TALON, 999.0f);
-        }
-    });
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_BOOTS_SNEAKERS, 0),
+              [](IEvent* event) {
+                  // STATE_TIMER_2_LONGLEG - Trot Shoes (boots)
+                  if (stateTimer_isActive(STATE_TIMER_2_LONGLEG)) {
+                      stateTimer_set(STATE_TIMER_2_LONGLEG, 999.0f);
+                  }
+                  // STATE_TIMER_3_TURBO_TALON - Sneakers
+                  if (stateTimer_isActive(STATE_TIMER_3_TURBO_TALON)) {
+                      stateTimer_set(STATE_TIMER_3_TURBO_TALON, 999.0f);
+                  }
+              });
 }
 
 // D-pad Talon Trot Cycling — toggle between Normal <-> Boots <-> Sneakers with D-pad
@@ -274,7 +275,8 @@ static RegisterShipInitFunc initInfiniteRedFeathersFunc(RegisterInfiniteRedFeath
                                                         { CVAR_INFINITE_RED_FEATHERS });
 static RegisterShipInitFunc initInfiniteGoldFeathersFunc(RegisterInfiniteGoldFeathers_Init,
                                                          { CVAR_INFINITE_GOLD_FEATHERS });
-static RegisterShipInitFunc initBootsAndSneakersTimerFunc(RegisterBootsAndSneakersTimer_Init, { CVAR_INFINITE_BOOTS_SNEAKERS });
+static RegisterShipInitFunc initBootsAndSneakersTimerFunc(RegisterBootsAndSneakersTimer_Init,
+                                                          { CVAR_INFINITE_BOOTS_SNEAKERS });
 static RegisterShipInitFunc initBootCycleFunc(RegisterTalonTrotCycle_Init, { CVAR_TALON_TROT_CYCLE });
 static RegisterShipInitFunc initLevitateFunc(RegisterLevitate_Init, { CVAR_LEVITATE });
 static RegisterShipInitFunc initCycleTransformFunc(RegisterCycleTransform_Init, { CVAR_CYCLE_TRANSFORM });

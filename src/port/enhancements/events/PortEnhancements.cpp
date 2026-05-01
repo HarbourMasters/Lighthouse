@@ -18,6 +18,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);

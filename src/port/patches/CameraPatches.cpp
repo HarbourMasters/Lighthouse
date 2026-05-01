@@ -20,6 +20,17 @@ enum level_e map_getLevel(enum map_e map);
 enum map_e gsworld_getMap(void);
 }
 
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+extern "C" {
+extern float sViewportFOVy;
+extern float sViewportAspect;
+}
+
 // Cutscene aspect lock — force 4:3 during cutscene maps
 
 #define CVAR_AR_ENABLED CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled"
@@ -123,6 +134,27 @@ void RegisterCameraPatches_Init() {
                    { sLastStaticCameraNode = *va_arg(args, int32_t*); });
 
     COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, EVENT_PRIORITY_NORMAL, true, { sLastStaticCameraNode = -1; });
+
+    // Bigger frustum — widen the side planes from the actual FOV and aspect
+    // ratio, and pad the top/bottom planes to mask vertical cam pop-in.
+    // Bail in replayed-input modes (attract demo, Bottles bonus, SnS picture):
+    // those recordings are deterministic against the vanilla cull set, and any
+    // frustum change shifts which actors tick and desyncs the playback.
+    REGISTER_LISTENER(ViewportFrustumUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        s32 mode = getGameMode();
+        if (mode == GAME_MODE_7_ATTRACT_DEMO || mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE) {
+            return;
+        }
+        auto* ev = (ViewportFrustumUpdate*)event;
+        // Vanilla side-plane length (sqrt(89.21774^2 + 45.168514^2) ~= 100). Recompute
+        // the X component from the actual horizontal half-FOV; leave the literal Z
+        // at the original 45.168514251708984 in viewport.c — the plane normal is
+        // re-normalized after construction, so widening just X tilts the plane outward.
+        float halfFovYRad = (sViewportFOVy * 0.5f) * (float)(M_PI / 180.0);
+        float halfFovXRad = std::atan(std::tan(halfFovYRad) * sViewportAspect);
+        *ev->frustumX = std::sin(halfFovXRad) * 100.0f;
+        *ev->frustumY = 93.9692611694336f * 1.15f;
+    });
 }
 
 static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });
