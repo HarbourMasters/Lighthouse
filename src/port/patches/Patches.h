@@ -59,8 +59,8 @@ int port_shouldForceHighPolyBanjo(void);
 int port_mirror_active(void);
 void port_mirror_beginScene(void);
 void port_mirror_endScene(void);
-void port_mirror_undoProjection(Gfx **gfx, Mtx **mtx);
-void port_viewport_applyMirror(Gfx **gfx, Mtx **mtx);
+void port_mirror_undoProjection(Gfx** gfx, Mtx** mtx);
+void port_viewport_applyMirror(Gfx** gfx, Mtx** mtx);
 void port_mirror_markCapture(void);
 int port_mirror_shouldFlipPauseBg(void);
 
