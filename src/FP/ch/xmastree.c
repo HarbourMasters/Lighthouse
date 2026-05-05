@@ -44,7 +44,7 @@ void __chXmasTree_80386F3C(void){
     levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
     musicKeepsPlaying();
     volatileFlag_set(VOLATILE_FLAG_E, 1);
-    transitionToMap(MAP_53_FP_CHRISTMAS_TREE, 1, 0);
+    transitionToMap(MAP_53_FP_CHRISTMAS_TREE, WARP_FP_CHRISTMAS_TREE_1_ENTRANCE, 0);
 }
 
 void __chXmasTree_80386F84(Actor * this){

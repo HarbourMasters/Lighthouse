@@ -407,7 +407,7 @@ void func_8031D628(NodeProp *arg0, ActorMarker *arg1) {
     if (actor) {
         marker_despawn(actor->marker);
     }
-    func_8031CB50(MAP_7_TTC_TREASURE_TROVE_COVE, 0xC, 0);
+    func_8031CB50(MAP_7_TTC_TREASURE_TROVE_COVE, WARP_TTC_C_LIGHTHOUSE_BOTTOM, 0);
 }
 
 void warp_mmmEnterDiningRoomDoor(NodeProp *arg0, ActorMarker *arg1) {
@@ -565,7 +565,7 @@ void warp_mmmEnterRainBarrel(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void func_8031DBE8(void) {
-    func_8031CB50(MAP_2F_MMM_WATERDRAIN_BARREL, 1, 1);
+    func_8031CB50(MAP_2F_MMM_WATERDRAIN_BARREL, WARP_MMM_DRAINPIPE_1_TOP_ENTRANCE, 1);
 }
 
 void func_8031DC10(NodeProp *arg0, ActorMarker *arg1) {
@@ -743,7 +743,7 @@ void warp_rbbExitBossBoomBoxRoom(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void warp_rbbEnterBossBoomBoxRoom(NodeProp *arg0, ActorMarker *arg1) {
-    func_8031CB50(MAP_3A_RBB_BOSS_BOOM_BOX, 1, 0);
+    func_8031CB50(MAP_3A_RBB_BOSS_BOOM_BOX, WARP_RBB_BOSS_1_ENTRANCE, 0);
 }
 
 void func_8031E204(NodeProp *node, s32 arg1, s32 arg2){
