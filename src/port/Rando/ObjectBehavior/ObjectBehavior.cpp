@@ -160,7 +160,7 @@ void Rando::ObjectBehavior::Init() {
         CustomObject::InitializeSpawnQueue();
 
         if (nextActorSaveState) {
-            event->cancelled = true;
+            event->Cancelled = true;
             ev->result = CustomObject::GetCustomActor(randoCheckId);
             nextActorSaveState = false;
             return;
@@ -169,11 +169,11 @@ void Rando::ObjectBehavior::Init() {
 
         switch (ev->actorId) {
             case ACTOR_12C_MOLEHILL:
-                event->cancelled = true;
+                event->Cancelled = true;
                 ev->result = CustomObject::GetCustomActor(randoCheckId);
                 break;
             default:
-                event->cancelled = true;
+                event->Cancelled = true;
                 ev->result = NULL;
                 break;
         }
@@ -252,7 +252,7 @@ void Rando::ObjectBehavior::Init() {
 
         if (randoItemId != RI_UNKNOWN) {
             if (randoItemId == RI_MUSIC_NOTE) {
-                event->cancelled = true;
+                event->Cancelled = true;
             }
             CustomObject::ObjectCollected(ev->propId);
             SendCollisionNotification(randoItemId);
