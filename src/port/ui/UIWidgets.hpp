@@ -54,6 +54,7 @@ enum Colors {
     Green,
     DarkGreen,
     LightBlue,
+    SkyBlue,
     Blue,
     DarkBlue,
     Indigo,
@@ -85,7 +86,7 @@ const std::unordered_map<Colors, ImVec4> ColorValues = {
     { Colors::Brown, ImVec4(0.37f, 0.18f, 0.0f, 1.0f) },    { Colors::LightGray, ImVec4(0.75f, 0.75f, 0.75f, 1.0f) },
     { Colors::Gray, ImVec4(0.45f, 0.45f, 0.45f, 1.0f) },    { Colors::DarkGray, ImVec4(0.15f, 0.15f, 0.15f, 1.0f) },
     { Colors::Black, ImVec4(0.0f, 0.0f, 0.0f, 1.0f) },      { Colors::White, ImVec4(1.0f, 1.0f, 1.0f, 1.0f) },
-    { Colors::NoColor, ImVec4(0.0f, 0.0f, 0.0f, 0.0f) },
+    { Colors::NoColor, ImVec4(0.0f, 0.0f, 0.0f, 0.0f) },    { Colors::SkyBlue, ImVec4(0.00f, 0.75f, 1.00f, 1.00f) },
 };
 
 namespace Sizes {

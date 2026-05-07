@@ -1315,9 +1315,9 @@ Actor *__actor_spawnWithYaw_s32(enum actor_e arg0, s32 pos[3], s32 rot) {
                 return sSpawnableActorList[i].spawnFunc(pos, rot, ((0, sSpawnableActorList[i])).infoPtr, sSpawnableActorList[i].unk8);
             }
         }
-    }
 
-  return NULL;
+        return NULL;
+    }
 }
 
 void func_8030578C(void){

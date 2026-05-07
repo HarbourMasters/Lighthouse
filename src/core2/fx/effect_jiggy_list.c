@@ -245,18 +245,20 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
     Struct_core2_ABC00_0 *temp_v0;
 
     jiggy_id = ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) ? JIGGY_A_MM_CONGA : jiggy_id;
-    temp_v0 = &jiggylist_list[jiggy_id - 1];
-    if (jiggylist_list[jiggy_id - 1].unk10.marker == NULL) {
-        temp_v0->unk10.position[0] = pos[0];
-        temp_v0->unk10.position[1] = pos[1];
-        temp_v0->unk10.position[2] = pos[2];
-        temp_v0->init(&temp_v0->unk10);
-        jiggyscore_setSpawned(jiggy_id, true);
-        if (!jiggyscore_isCollected(jiggy_id) && (jiggy_id != JIGGY_3E_GV_GRABBA) && (jiggy_id != JIGGY_0B_TTC_JINJO)) {
-            core1_ce60_incOrDecCounter(false);
-            func_8025A55C(0, 4000, 5);
-            coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
-            timedFunc_set_0(3.5f, func_80332BB0);
+    if (!EventSystem_Should(VB_OVERRIDE_JIGGY_SPAWN, false, jiggy_id, pos)) {
+        temp_v0 = &jiggylist_list[jiggy_id - 1];
+        if (jiggylist_list[jiggy_id - 1].unk10.marker == NULL) {
+            temp_v0->unk10.position[0] = pos[0];
+            temp_v0->unk10.position[1] = pos[1];
+            temp_v0->unk10.position[2] = pos[2];
+            temp_v0->init(&temp_v0->unk10);
+            jiggyscore_setSpawned(jiggy_id, true);
+            if (!jiggyscore_isCollected(jiggy_id) && (jiggy_id != JIGGY_3E_GV_GRABBA) && (jiggy_id != JIGGY_0B_TTC_JINJO)) {
+                core1_ce60_incOrDecCounter(false);
+                func_8025A55C(0, 4000, 5);
+                coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+                timedFunc_set_0(3.5f, func_80332BB0);
+            }
         }
     }
 }

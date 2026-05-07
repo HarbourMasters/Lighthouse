@@ -144,39 +144,42 @@ Actor *__bundle_spawnWithFirstActor(enum bundle_e bundle_id, f32 position[3], Ac
         }
 
         //L802C9114
-        actor = (i == 0 && firstActor) ? firstActor : actor_spawnWithYaw_f32(bundle_info->actor_id, position, 0);
-        actor->is_bundle = true;
-        
-        bundle = (Bundle *) &actor->unkBC;
-        bundle->index = bundle_id;
-        bundle->state = BUNDLE_STATE_1_MOVING;
-        bundle->unk6 = 1;
-        ml_vec3f_copy(bundle->position, actor->position);
-        ml_vec3f_copy(actor->position, bundle->position);
+        if (!EventSystem_Should(VB_OVERRIDE_BUNDLE_SPAWN, false, bundle_id, bundle_info, i, position, &actor)) {
+            actor = (i == 0 && firstActor) ? firstActor : actor_spawnWithYaw_f32(bundle_info->actor_id, position, 0);
+            //}
+            actor->is_bundle = true;
 
-        if (gBundle_randomVelocity != 1.0f) {
-            bundle->velocity[0] = bundle_info->velocity_x * gBundle_randomVelocity;
-            bundle->velocity[1] = bundle_info->velocity_y + randf2(0.0f, bundle_info->randomVelocity_y);
-            bundle->velocity[2] = bundle_info->velocity_z * gBundle_randomVelocity;
-            gBundle_randomVelocity = 1.0f;
-        }
-        else {//L802C91CC
-            bundle->velocity[0] = bundle_info->velocity_x + randf2(0.0f, bundle_info->randomVelocity_x);
-            bundle->velocity[1] = bundle_info->velocity_y + randf2(0.0f, bundle_info->randomVelocity_y);
-            bundle->velocity[2] = bundle_info->velocity_z + randf2(0.0f, bundle_info->randomVelocity_z);
-        }//L802C9210
+            bundle = (Bundle*)&actor->unkBC;
+            bundle->index = bundle_id;
+            bundle->state = BUNDLE_STATE_1_MOVING;
+            bundle->unk6 = 1;
+            ml_vec3f_copy(bundle->position, actor->position);
+            ml_vec3f_copy(actor->position, bundle->position);
 
-        ml_vec3f_yaw_rotate_copy(bundle->velocity, bundle->velocity, gBundle_yaw);
-        bundle->yaw_speed = D_80366C4C *= -1;
-        actor->yaw = bundle->yaw = (bundle_info->flags & 0x20) ? bundle_info->yaw : randf2(0.0f, 360.0f);
-        bundle->elapsed_time = 0.0f;
-        bundle->unk2C = 0;
-        bundle->unk2D = 1;
-        bundle->flags = bundle_info->flags;
-        bundle->unk2E = (bundle_info->flags & 0x1) ? (0.5 < randf()) : 0;
+            if (gBundle_randomVelocity != 1.0f) {
+                bundle->velocity[0] = bundle_info->velocity_x * gBundle_randomVelocity;
+                bundle->velocity[1] = bundle_info->velocity_y + randf2(0.0f, bundle_info->randomVelocity_y);
+                bundle->velocity[2] = bundle_info->velocity_z * gBundle_randomVelocity;
+                gBundle_randomVelocity = 1.0f;
+            }
+            else {//L802C91CC
+                bundle->velocity[0] = bundle_info->velocity_x + randf2(0.0f, bundle_info->randomVelocity_x);
+                bundle->velocity[1] = bundle_info->velocity_y + randf2(0.0f, bundle_info->randomVelocity_y);
+                bundle->velocity[2] = bundle_info->velocity_z + randf2(0.0f, bundle_info->randomVelocity_z);
+            }//L802C9210
 
-        if (bundle_info->flags & 0x200) {
-            actor->unk5C = bundle->position[1];
+            ml_vec3f_yaw_rotate_copy(bundle->velocity, bundle->velocity, gBundle_yaw);
+            bundle->yaw_speed = D_80366C4C *= -1;
+            actor->yaw = bundle->yaw = (bundle_info->flags & 0x20) ? bundle_info->yaw : randf2(0.0f, 360.0f);
+            bundle->elapsed_time = 0.0f;
+            bundle->unk2C = 0;
+            bundle->unk2D = 1;
+            bundle->flags = bundle_info->flags;
+            bundle->unk2E = (bundle_info->flags & 0x1) ? (0.5 < randf()) : 0;
+
+            if (bundle_info->flags & 0x200) {
+                actor->unk5C = bundle->position[1];
+            }
         }
     }//L802C92E8
 

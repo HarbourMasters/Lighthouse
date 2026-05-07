@@ -1,5 +1,7 @@
 #include "PortEnhancements.h"
 #include "port/save/SaveManager.h"
+#include "port/rando/Rando.h"
+#include "port/ShipUtils.h"
 
 #include <stdarg.h>
 
@@ -43,11 +45,17 @@ void PortEnhancements_Register() {
 
     // Register game events
     REGISTER_EVENT(MapTransitionEnd);
+    REGISTER_EVENT(OnWarpDispatch);
+    REGISTER_EVENT(OnSetJiggyList);
 
     // Register rando events
+    REGISTER_EVENT(OnSaveLoad);
     REGISTER_EVENT(OnActorSpawn);
+    REGISTER_EVENT(OnActorSaveState);
     REGISTER_EVENT(OnActorCollision);
     REGISTER_EVENT(OnActorDestroy);
+
+    Rando::Init();
 }
 
 void PortEnhancements_Exit() {

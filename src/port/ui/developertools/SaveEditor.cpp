@@ -275,7 +275,7 @@ void SaveEditor_DrawProgressTab() {
                     ImGui::Text("Honeycombs");
                     ImGui::TableNextColumn();
                     int32_t maxHoneycombs = l == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
-                    for (int i = 1; i <= (maxHoneycombs - 1); i++) {
+                    for (int i = 1; i <= (maxHoneycombs); i++) {
                         std::string labelStr = "##comb" + std::to_string(combId);
                         bool isCollected = honeycombscore_get((honeycomb_e)combId);
 

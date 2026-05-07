@@ -75,7 +75,7 @@ void chmumbo_func_802D1724(void){
     D_8037DDF0 = func_802D16AC();
 }
 
-static s32 __transformation_getCost(enum transformation_e trans_id){
+s32 __transformation_getCost(enum transformation_e trans_id){
     s32 override = port_getRomhackMumboCost(trans_id);
     if (override >= 0) {
         return override;

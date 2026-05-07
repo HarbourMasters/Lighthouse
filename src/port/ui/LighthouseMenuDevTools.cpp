@@ -88,6 +88,15 @@ void LighthouseMenu::AddMenuDevTools() {
         .HideInSearch(true)
         .Options(WindowButtonOptions().Tooltip("Enables the separate Save Editor Window."));
 
+    // Rando Helper (TEMPORARY)
+    path.sidebarName = "Rando Helper";
+    AddSidebarEntry("Dev Tools", path.sidebarName, 1);
+    AddWidget(path, "Popout Rando Helper", WIDGET_WINDOW_BUTTON)
+        .CVar(CVAR_WINDOW("RandoHelper"))
+        .WindowName("Rando Helper")
+        .HideInSearch(true)
+        .Options(WindowButtonOptions().Tooltip("Enables the separate Rando Helper Window."));
+
     // Console
     // path.sidebarName = "Console";
     // AddSidebarEntry("Dev Tools", path.sidebarName, 1);

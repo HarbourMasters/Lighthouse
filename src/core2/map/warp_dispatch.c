@@ -561,6 +561,7 @@ void func_80334448(NodeProp *arg0, ActorMarker *arg1) {
                 // [port] BB romhacks remap warp destinations via BKCF config
                 warpIdx = codeA5BC0_getNodePropUnk8(arg0);
                 warpDest = port_getRomhackWarpDest(warpIdx);
+                CALL_EVENT(OnWarpDispatch, warpIdx, warpDest);
                 if (warpDest >= 0) {
                     func_8031CC8C(arg0, warpDest);
                 } else {

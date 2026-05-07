@@ -19,12 +19,14 @@
 // #include "Enhancements/Trackers/DisplayOverlay.h"
 // #include "Enhancements/Trackers//TimeSplits/Timesplits.h"
 // #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
+#include "port/Rando/CheckTracker/CheckTracker.h"
 
 #include "Notification.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
 // #include "DeveloperTools/HookDebugger.h"
 #include "developertools/SaveEditor.h"
+#include "developertools/RandoHelper.h"
 // #include "DeveloperTools/ActorViewer.h"
 // #include "DeveloperTools/CollisionViewer.h"
 // #include "DeveloperTools/EventLog.h"
@@ -41,6 +43,7 @@ std::shared_ptr<LighthouseInputEditorWindow> mInputEditorWindow;
 
 // std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+std::shared_ptr<RandoHelperWindow> mRandoHelperWindow;
 // std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 // std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
 // std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
@@ -51,8 +54,8 @@ std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 // std::shared_ptr<AudioEditor> mAudioEditorWindow;
 std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 std::shared_ptr<Notification::Window> mNotificationWindow;
-// std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
-// std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
+std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
+std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
 // std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 // std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 // std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
@@ -111,6 +114,9 @@ void SetupGuiElements() {
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
 
+    mRandoHelperWindow = std::make_shared<RandoHelperWindow>("gWindows.RandoHelper", "Rando Helper", ImVec2(480, 600));
+    gui->AddGuiWindow(mRandoHelperWindow);
+
     // mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "HUD Editor", ImVec2(480, 600));
     // gui->AddGuiWindow(mHudEditorWindow);
 
@@ -159,13 +165,13 @@ void SetupGuiElements() {
     gui->AddGuiWindow(mNotificationWindow);
     mNotificationWindow->Show();
 
-    // mRandoCheckTrackerWindow = std::make_shared<Rando::CheckTracker::CheckTrackerWindow>(
-    //     "gWindows.CheckTracker", "Check Tracker", ImVec2(375, 460));
-    // gui->AddGuiWindow(mRandoCheckTrackerWindow);
+    mRandoCheckTrackerWindow = std::make_shared<Rando::CheckTracker::CheckTrackerWindow>(
+        "gWindows.CheckTracker", "Check Tracker", ImVec2(375, 460));
+    gui->AddGuiWindow(mRandoCheckTrackerWindow);
 
-    // mRandoCheckTrackerSettingsWindow = std::make_shared<Rando::CheckTracker::SettingsWindow>(
-    //     "gWindows.CheckTrackerSettings", "Check Tracker Settings");
-    // gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
+    mRandoCheckTrackerSettingsWindow = std::make_shared<Rando::CheckTracker::SettingsWindow>(
+        "gWindows.CheckTrackerSettings", "Check Tracker Settings");
+    gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
 
     mInputViewer = std::make_shared<InputViewer>("gWindows.InputViewer", "Input Viewer");
     gui->AddGuiWindow(mInputViewer);
@@ -191,11 +197,12 @@ void Destroy() {
     // mCollisionViewerWindow = nullptr;
     // mEventLogWindow = nullptr;
     mNotificationWindow = nullptr;
-    // mRandoCheckTrackerWindow = nullptr;
-    // mRandoCheckTrackerSettingsWindow = nullptr;
+    mRandoCheckTrackerWindow = nullptr;
+    mRandoCheckTrackerSettingsWindow = nullptr;
 
     // mHookDebuggerWindow = nullptr;
     mSaveEditorWindow = nullptr;
+    mRandoHelperWindow = nullptr;
     // mHudEditorWindow = nullptr;
     // mCosmeticEditorWindow = nullptr;
     // mActorViewerWindow = nullptr;

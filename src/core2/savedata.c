@@ -385,6 +385,7 @@ void saveData_load(void *savedata_){
     __savedata_load_timeScores((u8*)savedata);
     func_8033C4E4((u8*)savedata);
     __savedata_load_abilities((u8*)savedata);
+    CALL_EVENT(OnSaveLoad, savedata);
     for(i = 0; D_80370A20[i].unk0 != -1; i++){
         volatileFlag_set(D_80370A20[i].unk0, fileProgressFlag_get(D_80370A20[i].unk2));
     }

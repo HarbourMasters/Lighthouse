@@ -267,6 +267,7 @@ bool func_8030AF58(enum map_e arg0) {
 
 void func_8030AFA0(enum map_e arg0){
     s32 level = map_getLevel(arg0);
+    CALL_EVENT(OnSetJiggyList, level);
     if(level > 0 && level < LEVEL_C_BOSS){
         jiggylist_set_level(arg0);
     }

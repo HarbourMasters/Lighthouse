@@ -1891,6 +1891,7 @@ void func_8032A09C(s32 arg0, ActorListSaveState *arg1) {
                 sp50[1] = (s32) var_s0->position[1];
                 sp50[2] = (s32) var_s0->position[2];
                 pad = var_s0->yaw;
+                CALL_EVENT(OnActorSaveState); // Needed for Rando to avoid double spawning Actors
                 temp_v0_6 = actor_spawnWithYaw_s32(var_s0->modelCacheIndex, &sp50, pad);
                 actor_copy(var_s0, temp_v0_6);
                 func_80329B68(temp_v0_6);
