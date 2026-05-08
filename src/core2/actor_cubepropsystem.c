@@ -89,7 +89,11 @@ s32 D_8038340C;
 f32 D_80383410[3];
 ActorMarker *D_8038341C;
 BKCollisionTri *D_80383420;
-u8  D_80383428[0x1C];
+// u8  D_80383428[0x1C];
+// [port] Expand the marker pool for rando shuffling
+#define MARKER_POOL_SIZE 0x1C0
+#define MARKER_BITMAP_BYTES (MARKER_POOL_SIZE / 8)
+u8  D_80383428[MARKER_BITMAP_BYTES];
 s32 D_80383444;
 int D_80383448;
 s32 D_80383450[0x40];
@@ -2385,13 +2389,13 @@ void func_8033297C(void){
 void func_803329AC(void){
     s32 i;
     
-    D_8036E7C8 = (ActorMarker *)bk_malloc(0xE0*sizeof(ActorMarker));
+    D_8036E7C8 = (ActorMarker *)bk_malloc(MARKER_POOL_SIZE * sizeof(ActorMarker));
 
-    for( i = 0; i < 0x1C; i++){
+    for( i = 0; i < MARKER_BITMAP_BYTES; i++){
         D_80383428[i] = 0;
     }
        
-    for(i =0; i<0xE0; i++){
+    for(i =0; i<MARKER_POOL_SIZE; i++){
         D_8036E7C8[i].unk5C = 0;
     }
 }
@@ -2409,8 +2413,8 @@ ActorMarker * func_80332A60(void){
     int tmp_a2;
     ActorMarker *marker;
 
-    for(i = 0; i < 0x1C && D_80383428[i] == 0xff; i++);
-    if(i == 0x1C)
+    for(i = 0; i < MARKER_BITMAP_BYTES && D_80383428[i] == 0xff; i++);
+    if(i == MARKER_BITMAP_BYTES)
         return NULL;
 
     tmp_a2 = 0x80;
