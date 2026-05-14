@@ -160,7 +160,7 @@ endif()
 
 # Set game compilation version
 set(VERSION us)
-set(USE_NETWORKING OFF)
+option(USE_NETWORKING "Enable networking features" OFF)
 set(SKIP_XCODE_VERSION_CHECK ON)
 
 # Add compile definitions for the target
@@ -466,7 +466,7 @@ if(USE_NETWORKING)
     endif()
     find_package(SDL2_net REQUIRED)
     include_directories(${SDL2_NET_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_net::SDL2_net)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_net)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_NETWORKING)
 endif()
 
