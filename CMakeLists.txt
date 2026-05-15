@@ -344,6 +344,15 @@ include_directories(
   ${dr_libs_SOURCE_DIR}
 )
 
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/config.yml ${CMAKE_BINARY_DIR}/config.yml
+    )
+endif()
+
 add_subdirectory(libultraship ${CMAKE_CURRENT_SOURCE_DIR}/libultraship)
 add_dependencies(${PROJECT_NAME} libultraship)
 target_link_libraries(${PROJECT_NAME} PRIVATE libultraship)
