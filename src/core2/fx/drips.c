@@ -4,7 +4,7 @@
 #include "core2/particle.h"
 
 #define _HorzDist3v(v1, v2) ((v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[2]-v2[2])*(v1[2]-v2[2]))
-extern BKCollisionTri *func_8024549C(f32[3], f32);
+extern BKCollisionTriangle *func_8024549C(f32[3], f32);
 
 typedef struct{
     f32 unk0;

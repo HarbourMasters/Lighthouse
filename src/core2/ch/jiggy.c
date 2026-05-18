@@ -4,8 +4,8 @@
 #include "enums.h"
 
 extern void func_802BE720(void);
-extern f32 func_8033A244(f32);
-extern void func_8033A280(f32);
+extern f32 modelRender_func_8033A244(f32);
+extern void modelRender_func_8033A280(f32);
 
 typedef struct chjiggy_s{
     u32 unk0;
@@ -106,8 +106,8 @@ Actor *chjiggy_draw(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3){
     if(!local->unk0){
         jiggyId = chjiggy_getJiggyId(thisActor);
         if((jiggyId == JIGGY_1C_CC_RINGS) || (jiggyId == JIGGY_1D_CC_SLOW_SAWBLADES)){
-            func_8033A280(10.0f);
-            func_8033A244(30000.0f);
+            modelRender_func_8033A280(10.0f);
+            modelRender_func_8033A244(30000.0f);
         }
         thisActor = actor_draw(this, gdl, mptr, arg3);
     }

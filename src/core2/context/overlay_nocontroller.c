@@ -38,8 +38,8 @@ Actor *chOverlayNoController_draw(ActorMarker *marker, Gfx **gdl, Mtx **mptr, Vt
     
 
     actor = marker_getActor(marker);
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod,  (uintptr_t)actor);
-    modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
+    modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod,  (void *)actor);
+    modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
     viewport_backupState();
     {sp58[0] = 0.0f; sp58[1] = 0.0f; sp58[2] = 1312.5f;};
     {sp4C[0] = 0.0f; sp4C[1] = 0.0f; sp4C[2] = 0.0f;};

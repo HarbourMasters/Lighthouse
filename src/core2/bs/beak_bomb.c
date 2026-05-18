@@ -203,7 +203,7 @@ void bsbfly_init(void){
 void bsbfly_update(void){
     enum bs_e sp54 = 0;
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
-    BKCollisionTri *sp4C;
+    BKCollisionTriangle *sp4C;
     f32 sp40[3];
     f32 sp3C;
     f32 sp38;
@@ -365,7 +365,7 @@ s32 func_802A40E0(void){
 void func_802A411C(void) {
     s32 next_state;
     AnimCtrl *sp58;
-    BKCollisionTri *phi_v0;
+    BKCollisionTriangle *phi_v0;
     f32 sp48[3];
     s32 sp44;
     s32 sp40;

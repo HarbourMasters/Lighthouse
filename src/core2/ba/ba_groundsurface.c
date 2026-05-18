@@ -238,7 +238,7 @@ bool canTakeGroundDamage(void){
 
 void hazards_update(void){
     s32 can_take_ground_damage;
-    BKCollisionTri *temp_v0;
+    BKCollisionTriangle *temp_v0;
     s32 sp1C;
     s32 sp18;
     

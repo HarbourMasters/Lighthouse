@@ -60,7 +60,7 @@ extern void code_73640_printItemCount(enum item_e);
 extern void code_7060_setVoidOutLocation(enum map_e, s32);
 extern void quizQuestionAskedBitfield_set(u32, int); // ff_isAsked_flag_set
 extern bool quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
-extern void BKModel_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
+extern void model_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
 extern void ability_setAllLearned(s32);  // set unlocked moves bitfield
 extern s32  ability_getAllLearned(void); // get unlocked moves bitfield
 extern void func_8025A55C(s32, s32, s32);
@@ -399,7 +399,7 @@ bool ff_hasQuestionBeenAskedAlready(enum ff_question_type_e type, s32 questionId
 }
 
 // i love stupid shit like this. these 3 lines of C compile into 150 lines of asm for type handling
-void func_8038C3A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
+void func_8038C3A0(u32 a0, BKModelVtxRef *a1, Vtx *a2, void *a3)
 {
     Furnace_Fun_Board *data = (Furnace_Fun_Board *)a3;
     a2->v.cn[0] = a1->v.v.cn[0] * data->unk10;
@@ -468,11 +468,11 @@ void lair_func_8038C6BC(void)
             ptr->unk10 = 0.45f;
         }
 
-        BKModel_getMeshCenter(ffStorage->unk0, s1, &ptr->unkA);
+        model_getMeshCenter(ffStorage->unk0, s1, &ptr->unkA);
     }
 }
 
-void func_8038C7A0(u32 a0, BKVtxRef *a1, Vtx *a2, void *a3)
+void func_8038C7A0(u32 a0, BKModelVtxRef *a1, Vtx *a2, void *a3)
 {
     a2->v.cn[0] = a1->v.v.cn[0] * ffStorage->unk14;
     a2->v.cn[1] = a1->v.v.cn[1] * ffStorage->unk14;
@@ -490,11 +490,11 @@ void func_8038C9D0(void) {
         } else if ((phi_s0->unk9 != 0) && (phi_s0->unk10 < 0.95)) {
             phi_s0->unk10 = MIN(phi_s0->unk10 + 0.05, 0.95);
         }
-        BKModel_transformMesh(ffStorage->unk0, phi_s1, (void (*)(s32, BKVtxRef*, Vtx*, void*))func_8038C3A0, (void *) phi_s0);
+        model_transformMesh(ffStorage->unk0, phi_s1, (void (*)(s32, BKModelVtxRef*, Vtx*, void*))func_8038C3A0, (void *) phi_s0);
         phi_s0++;
     }
 
-    BKModel_transformMesh(ffStorage->unk0, 0x1F1, (void (*)(s32, BKVtxRef*, Vtx*, void*))func_8038C7A0, (void *) phi_s0);
+    model_transformMesh(ffStorage->unk0, 0x1F1, (void (*)(s32, BKModelVtxRef*, Vtx*, void*))func_8038C7A0, (void *) phi_s0);
     if ( !((ffStorage->currFfMode != FFA_3_TRIGGER_QUESTION) && (ffStorage->currFfMode != FFA_4_UNK)) 
          && (0.5 < ffStorage->unk14)
     ) {
@@ -1151,7 +1151,7 @@ void lair_func_8038E0B0(void) {
         controller_copySideButtons(0, sp3C);
         if (ffStorage->currFfMode < 3) {
             player_getPosition(ffStorage->playerPosition);
-            temp_v0 = func_8033F3E8(ffStorage->unk0, ffStorage->playerPosition, 0x191, 0x1F0);
+            temp_v0 = model_func_8033F3E8(ffStorage->unk0, ffStorage->playerPosition, 0x191, 0x1F0);
             if ((temp_v0 != ffStorage->currentTileId) && (ffStorage->currentTileId != 0)) {
                 if (ffStorage->currentBoardTile->unk9 == 2) {
                     ffStorage->currentBoardTile->unk9 = 0U;

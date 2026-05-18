@@ -14,7 +14,7 @@ extern "C" {
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
                            unsigned int native_height, unsigned char resize);
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
-BKGfxList* model_getDisplayList(BKModelBin* arg0);
+BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
 
 // Emulate N64's osViBlack on PC. On N64, osViBlack(1) blanked the TV
 // output but the RDP still rendered to framebuffers. On PC, we let the GPU
@@ -92,10 +92,10 @@ static void patchModelDL(BKModelBin* model_bin, uintptr_t seg_start, uintptr_t s
                          s32 tex_h, void (*set_uv)(Vtx* v),
                          s32 force_filter,      // -1 = don't touch
                          s32 uv_only_in_tile) { // only remap UVs after a matched G_SETTIMG
-    BKGfxList* gfx_list = model_getDisplayList(model_bin);
-    Vtx* vtx_list = model_getVtxList(model_bin)->vtx_18;
+    BKGfxList* gfx_list = modelbin_getGfxList(model_bin);
+    Vtx* vtx_list = modelbin_getVtxList(model_bin)->vertices;
     Gfx* cur_gfx = &gfx_list->list[0];
-    Gfx* end_gfx = &gfx_list->list[*(s32*)&gfx_list->pad0[0]];
+    Gfx* end_gfx = &gfx_list->list[(s32)gfx_list->size];
     s32 in_tile = 0;
 
     while (cur_gfx < end_gfx) {
@@ -181,9 +181,9 @@ static void setPictureVertexTexcoord(Vtx* v) {
 }
 
 void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 min_z, s32 max_z, u32 from) {
-    if (model_bin->pad0[0] == 0xBA)
+    if (((u8*)model_bin)[0] == 0xBA)
         return;
-    model_bin->pad0[0] = 0xBA;
+    ((u8*)model_bin)[0] = 0xBA;
     sPicFrom = from;
     sPicMinXY = min_xy;
     sPicMaxXY = max_xy;
@@ -228,9 +228,9 @@ static void setTransitionVertexTexcoord(Vtx* v) {
 }
 
 void port_patchTransitionModel(BKModelBin* model_bin) {
-    if (model_bin->pad0[0] == 0xBA)
+    if (((u8*)model_bin)[0] == 0xBA)
         return;
-    model_bin->pad0[0] = 0xBA;
+    ((u8*)model_bin)[0] = 0xBA;
     patchModelDL(model_bin, 0x02000000, 0x02028000, sTransitionFbDummy, DEFAULT_FRAMEBUFFER_WIDTH,
                  DEFAULT_FRAMEBUFFER_HEIGHT, setTransitionVertexTexcoord, G_TF_POINT, 0);
 }

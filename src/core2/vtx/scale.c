@@ -3,7 +3,7 @@
 #include "variables.h"
 #include "model.h"
 
-void func_8034EC50(s32 arg0, BKVtxRef *ref, Vtx *dst, void *arg3) {
+void func_8034EC50(s32 arg0, BKModelVtxRef *ref, Vtx *dst, void *arg3) {
     Struct77s *data = (Struct77s *)arg3;
     f32 tmp0;
     f32 tmp1;
@@ -30,7 +30,7 @@ void func_8034EE2C(Struct77s *arg0, s32 arg1, BKModel *arg2, s32 arg3) {
     s16 sp28[3];
     s16 sp20[3];
 
-    BKModel_getMeshCoordRange(arg2, arg3, sp28, sp20);
+    model_getMeshCoordRange(arg2, arg3, sp28, sp20);
     arg0->unk0 = 1.0f;
     arg0->unk4 = 0.0f;
     arg0->unk8 = 0.0f;
@@ -59,5 +59,5 @@ void func_8034EF60(Struct77s *arg0, BKModel *arg1, s32 arg2) {
     sp2C[1] = ((50.0f * sinf(arg0->unk2C * 0.5 * BAD_PI)) + (cosf(arg0->unk2C * 0.22 * BAD_PI) * 100.0f)) * 0.8;
     arg0->unk28[0] = (sp2C[0] >= 0.0) ? (sp2C[0] + 0.5) : (sp2C[0] - 0.5);
     arg0->unk28[1] = (sp2C[1] >= 0.0) ? (sp2C[1] + 0.5) : (sp2C[1] - 0.5);
-    BKModel_transformMesh(arg1, arg2, func_8034EC50, (void *) arg0);
+    model_transformMesh(arg1, arg2, func_8034EC50, (void *) arg0);
 }

@@ -10,7 +10,7 @@ extern f32 *chBottlesBonusCursor_func_802E05AC(s32);
 extern f32  func_802E4B38(void);
 extern void func_8033A8F0(BoneTransformList *, s32, f32[4]);
 extern f32  time_func_8033DDB8(void);
-BKAnimationList *model_getAnimationList(BKModelBin *arg0);
+BKAnimationList *modelbin_getAnimationList(BKModelBin *arg0);
 extern void func_8034BB08(s32);
 extern void func_803458E4(f32[4], f32[4], f32[4], f32);
 
@@ -175,8 +175,8 @@ Actor *chBottlesBonus_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
 
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp50));
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t)sp6C);
-    modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
+    modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod, (void *)sp6C);
+    modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
 
     // [port] Patch vertex positions
     BKModelBin *model_bin = marker_loadModelBin(marker);
@@ -230,10 +230,10 @@ f32 *chBottlesBonus_func_802DD584(s32 arg0){
 
     // temp_f0 = D_80376F48;
     sizeof(BKAnimationList);
-    temp_v1 = (BKAnimation*)(model_getAnimationList(marker_loadModelBin(chBottlesBonusMarker)) + 1);
-    D_8037DF70[0] = temp_v1[5 + arg0].unk0[0] * 0.01;
-    D_8037DF70[1] = temp_v1[5 + arg0].unk0[1] * 0.01;
-    D_8037DF70[2] = temp_v1[5 + arg0].unk0[2] * 0.01;
+    temp_v1 = (BKAnimation*)(modelbin_getAnimationList(marker_loadModelBin(chBottlesBonusMarker)) + 1);
+    D_8037DF70[0] = temp_v1[5 + arg0].translation[0] * 0.01;
+    D_8037DF70[1] = temp_v1[5 + arg0].translation[1] * 0.01;
+    D_8037DF70[2] = temp_v1[5 + arg0].translation[2] * 0.01;
     return D_8037DF70;
 }
 
@@ -470,7 +470,7 @@ void chBottlesBonus_update(Actor *this) {
             D_8037DEA8 = assetcache_get(0x471);
         }
         if (D_8037DEAC == NULL) {
-            D_8037DEAC = func_8033F5F8((BKMeshList *)func_8033A0B0(chBottlesBonusBookselfModelBin), model_getVtxList(chBottlesBonusBookselfModelBin));
+            D_8037DEAC = meshList_createModel((BKMeshList *)modelbin_getMeshList(chBottlesBonusBookselfModelBin), modelbin_getVtxList(chBottlesBonusBookselfModelBin));
             func_8034CF74(local, 0, D_8037DEAC, 0xF0);
         }
         func_8028746C(this->anctrl, (GenFunction_2)chBottlesBonus_func_802DD8AC);

@@ -192,7 +192,7 @@ void func_80350CA4(void) {
     f32 sp3C[3];
     f32 sp30[3];
     f32 sp24[3];
-    BKCollisionTri *var_v0;
+    BKCollisionTriangle *var_v0;
 
     if (D_80386170.unk4 != NULL) {
         viewport_getPosition_vec3f(sp54);

@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern bool func_802EBA98(BKModelUnk14List *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3]);
+extern bool bkmodelunk14list_func_802EBA98(BKModelUnk14List *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3]);
 
 typedef struct {
     u8 unk0[2]; // array of sfxsource indexes
@@ -204,11 +204,11 @@ void chGobi1_update(Actor *this){
 
     if(this->state == 4){
         actor_update_func_80326224(this);
-        tmp_s1 = func_8033A12C(marker_loadModelBin(this->marker));
+        tmp_s1 = modelbin_getUnk14List(marker_loadModelBin(this->marker));
         if(tmp_s1){
             player_getPosition(sp54);
             sp54[1] += 50.0f;
-            if(func_802EBA98(tmp_s1, this->position, 0, 1.0f, 0, sp54, 40.0f, sp48)){
+            if(bkmodelunk14list_func_802EBA98(tmp_s1, this->position, 0, 1.0f, 0, sp54, 40.0f, sp48)){
                 func_8028F428(2, this->marker);
             }
         }

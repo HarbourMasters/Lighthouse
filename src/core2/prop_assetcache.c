@@ -3,7 +3,7 @@
 #include "variables.h"
 
 
-extern f32 func_8033A244(f32);
+extern f32 modelRender_func_8033A244(f32);
 extern void *func_80255888(void *arg0);
 
 typedef struct{
@@ -35,10 +35,10 @@ void propModelList_drawModel(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], f32 a
     BKModelBin * sp2C;
     
     sp2C = propModelList_getModel(arg6);
-    func_8033A244(3700.0f);
-    func_8033A28C(1);
+    modelRender_func_8033A244(3700.0f);
+    modelRender_func_8033A28C(1);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
-    func_8033A1FC();
+    modelRender_func_8033A1FC();
     modelRender_draw(gfx, mtx, arg3, arg4, arg5, NULL, sp2C);
 }
 

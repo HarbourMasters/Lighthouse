@@ -89,7 +89,7 @@ void marker_setFreeMethod(ActorMarker *, void (*)(Actor *));
 // --- core2/actor_cubebounds.c ---
 NodeProp *cubeList_findNodePropByActorIdAndPosition_s32(enum actor_e actor_id, s32 position[3]);
 NodeProp *func_80305510(s32 arg0);
-BKCollisionTri *func_80303800(f32 volume_p1[3], f32 volume_p2[3], f32 arg2[3], u32 arg3);
+BKCollisionTriangle *func_80303800(f32 volume_p1[3], f32 volume_p2[3], f32 arg2[3], u32 arg3);
 NodeProp *nodeprop_findByActorIdAndPosition_s16(enum actor_e actor_id, s16 *position);
 Actor * func_803055E0(enum actor_e id, s32 pos[3], s32 arg2, s32 arg3, s32 arg4);
 NodeProp *nodeprop_findByActorIdAndActorPosition(enum actor_e actor_id, Actor *actor_ptr);
@@ -99,16 +99,16 @@ void spawnableActorList_add(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorIn
 void spawnableActorList_addIfMapVisited(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2, enum map_e arg3);
 
 // --- core2/map/model.c ---
-BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
-// NOTE: func_802E76B0, func_802E805C, func_802E8E88, func_802E9118,
-// func_802E92AC, func_802E9DD8 return BKCollisionTri* but have conflicting
+BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
+// NOTE: func_802E76B0, collisionList_func_802E805C, func_802E8E88, func_802E9118,
+// func_802E92AC, func_802E9DD8 return BKCollisionTriangle* but have conflicting
 // local externs (bool/s32/void) in decomp source files. Files that need
 // the pointer type already have correct local externs.
-BKCollisionTri *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
+BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
 f32  mapModel_getFloorY(f32[3]);
 
 // --- core2/actor_cubepropsystem.c ---
-BKCollisionTri *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
+BKCollisionTriangle *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
 
 // --- core2/gameloop.c ---
 u8 GetCurrentMap();
@@ -119,28 +119,28 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition);
 f32 time_getDelta(void);
 
 // --- core2/map_list.c ---
-BKCollisionTri *func_8029463C(void);
+BKCollisionTriangle *func_8029463C(void);
 BKModelBin *func_802946A8(void);
-BKCollisionTri *func_802946CC(void);
+BKCollisionTriangle *func_802946CC(void);
 
 // --- core2/collision/raycast.c ---
-BKCollisionTri *func_8031BABC(f32 *arg0, f32 arg1, f32 arg2, u32 arg3, struct86s *arg4);
-BKCollisionTri *func_8031BBA0(f32 *self, f32 arg1, f32 arg2, u32 arg3, struct86s *arg4);
-BKCollisionTri *func_8031C5EC(struct0 *self);
-BKCollisionTri *func_8031C5F4(struct0 *self);
+BKCollisionTriangle *func_8031BABC(f32 *arg0, f32 arg1, f32 arg2, u32 arg3, struct86s *arg4);
+BKCollisionTriangle *func_8031BBA0(f32 *self, f32 arg1, f32 arg2, u32 arg3, struct86s *arg4);
+BKCollisionTriangle *func_8031C5EC(struct0 *self);
+BKCollisionTriangle *func_8031C5F4(struct0 *self);
 BKModelBin *func_8031C5DC(struct0 *self);
 struct0 *func_8031B9D8(void);
 
 // --- core2/collision/funcs.c ---
-BKCollisionTri *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3);
-// func_80320C94, func_80320DB0 return BKCollisionTri* but
+BKCollisionTriangle *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3);
+// func_80320C94, func_80320DB0 return BKCollisionTriangle* but
 // have conflicting local externs (bool/s32/int) in decomp source files.
 void *func_803209EC(void);
 
 // --- core1/collision.c ---
-BKCollisionTri *func_80244E54(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3, f32 arg4, f32 arg5);
-BKCollisionTri *func_8024575C(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
-BKCollisionTri *func_802457C4(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, f32 arg4[3], s32 arg5, u32 arg6);
+BKCollisionTriangle *func_80244E54(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3, f32 arg4, f32 arg5);
+BKCollisionTriangle *func_8024575C(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
+BKCollisionTriangle *func_802457C4(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, f32 arg4[3], s32 arg5, u32 arg6);
 
 // --- core2/actor_array.c ---
 BKModelBin *func_803257B4(ActorMarker *marker);
@@ -172,7 +172,7 @@ int  subaddie_maybe_set_state(Actor *, s32, f32);
 int actor_animationIsAt(Actor*, f32);
 s32  subaddie_getYawToPlayer(Actor *);
 s32 asset_getFlag(enum asset_e arg0);
-struct5Bs *func_80329934(void);
+Vec3fArray *func_80329934(void);
 void actor_collisionOff(Actor *);
 void actor_collisionOn(Actor *);
 void actor_loopAnimation(Actor *);
@@ -201,19 +201,13 @@ Struct83s *func_803406B0(void);
 Struct83s *func_803406D4(Struct83s *self);
 
 // --- core2/vtx/list.c ---
-BKVertexList *vtxList_clone(BKVertexList *vtxList);
 
 // --- core2/spline_bezier.c ---
-struct5Bs *func_8034A2C8(void);
-struct5Bs *func_8034A348(struct5Bs *self);
-void func_8034A174(struct5Bs *s5b, s32 indx,f32 dst[3]);
 
 // --- core2/map/model.c ---
-struct5Bs *func_803097A0(void);
-BKCollisionList *model_getCollisionList(BKModelBin *arg0);
+Vec3fArray *func_803097A0(void);
 
 // --- core2/model/render.c ---
-BKModelUnk14List *func_8033A12C(BKModelBin *self);
 
 // --- core2/vtx/colorapply.c ---
 Struct70s *func_8034C344(s32 arg0);
@@ -270,13 +264,6 @@ u8 *func_8032479C(void);
 #ifndef _BONE_TRANSFORMATION_H_
 typedef struct bone_transform_list_s BoneTransformList;
 #endif
-MtxF *animMtxList_get(AnimMtxList *self, s32 arg1);
-AnimMtxList *animMtxList_new(void);
-void animMtxList_free(AnimMtxList *self);
-s32 animMtxList_len(AnimMtxList *self);
-void animMtxList_setBoneless(AnimMtxList **this_ptr, BKAnimationList *anim_list);
-void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, BoneTransformList *arg2);
-AnimMtxList *animMtxList_defrag(AnimMtxList *self);
 
 // FLOAT-RETURNING FUNCTIONS
 
@@ -324,7 +311,6 @@ f32 player_getYaw(void);
 // These return pointers but are commonly listed with utility functions.
 // Only functions that return pointers or have no conflicting local externs.
 NodeProp *cube_findNodePropByActorId(Cube *cube, enum actor_e actor_id);
-AnimTexture *model_getAnimTextureList(BKModelBin *);
 
 // --- core2/camera/cameranodelist.c ---
 PivotCameraNode *ncCameraNodeList_getPivotCameraNode(int camera_node_index);
@@ -550,16 +536,14 @@ void func_80320B44(void *arg0, void *arg1, void *arg2, void *arg3);
 
 // --- core2/collision/climbsurface.c ---
 s32 func_8029453C(void);
-BKCollisionTri *func_802946F0(void);
+BKCollisionTriangle *func_802946F0(void);
 f32  func_80294438(void);
 f32  floor_getCurrentFloorYPosition(void);
 void func_80293D48(f32, f32);
 
 // --- core2/spline_bezier.c ---
-void func_8034A2A8(struct5Bs *self);
 
 // --- core2/vtx/list.c ---
-void vtxList_free(BKVertexList *vtxList);
 
 // --- core2/ba/ba_model.c / assetcache ---
 void assetcache_release(void *);
@@ -568,9 +552,6 @@ void assetcache_release(void *);
 void func_80343DEC(Actor *self);
 
 // --- core2/model/render.c ---
-s32 func_8033A0F0(s32 arg0);
-BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation[3], f32 scale, f32*arg5, BKModelBin* model_bin);
-void func_8033A280(f32);
 
 // --- core2/spawn_queue.c ---
 void __spawnQueue_add_0(void (*arg0)(void));
@@ -1018,7 +999,7 @@ void baMotor_init(void);
 int collisionTri_isHitFromAbove_actor(f32 arg0[3], Actor *arg1, s32 arg2);
 int collisionTri_isHitFromAbove_marker(f32 position[3], ActorMarker *marker, s32 verticalOffset);
 s32 func_8024559C(f32 arg0[3], intptr_t *arg1, f32 *arg2);
-void collisionTri_copy(BKCollisionTri *dst, BKCollisionTri *src);
+void collisionTri_copy(BKCollisionTriangle *dst, BKCollisionTriangle *src);
 void func_802450DC(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3]);
 void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3], s32 arg5);
 
@@ -1292,7 +1273,7 @@ void func_80361EE0(Actor *self);
 // --- core2/anim/anim_texturecache.c ---
 bool AnimTextureListCache_tryGetTextureOffset(s32 list_index, s32 texture_index, s32 *current_frame);
 s32 AnimTextureListCache_newList(void);
-void AnimTextureListCache_at(s32 arg0, AnimTexture arg1[4]);
+void AnimTextureListCache_setAnimTextureList(s32 arg0, BKAnimTextureList *bk_anim_texture_list);
 void AnimTextureListCache_free(void);
 void AnimTextureListCache_freeList(s32 arg0);
 void AnimTextureListCache_init(void);
@@ -2567,23 +2548,15 @@ void func_8033F9C0(void);
 void func_8033FA24(void);
 
 // --- core2/model/meshbounds.c ---
-s32 func_8033F3C0(BKModel *model, f32 position[3]);
-s32 func_8033F3E8(BKModel *model, f32 position[3], s32 min_id, s32 max_id);
 void func_8033F738(ActorMarker *arg0);
 void func_8033F784(ActorMarker *arg0);
 void func_8033F7A4(ActorMarker *arg0, BKVertexList *arg1);
 
 // --- core2/model/render.c ---
-s32 func_8033A170(void);
-void func_8033A1FC(void);
-void func_8033A25C(bool arg0);
-void func_8033A28C(bool arg0);
-void modelRender_free(void);
-void modelRender_init(void);
 void modelRender_setBoneTransformList(BoneTransformList *arg0);
 
 // --- core2/model/rendernormal.c ---
-void func_802E6BD0(BKModelUnk28List *arg0, BKVertexList *arg1, AnimMtxList *mtx_list);
+void animVerticesList_transform(BKAnimVerticesList *arg0, BKVertexList *arg1, AnimMtxList *mtx_list);
 
 // --- core2/mumbo_transforms.c ---
 void chmumbo_func_802D1724(void);
@@ -2931,9 +2904,6 @@ void spawnQueue_reset(void);
 void spawnQueue_unlock(void);
 
 // --- core2/spline_bezier.c ---
-void func_8034A130(struct5Bs *self);
-void func_8034A1B4(struct5Bs *self, s32 indx, s32 dst[3]);
-void func_8034A308(struct5Bs *self, s32 indx, f32 arg2[3]);
 
 // --- core2/sprite/displaydata.c ---
 s32 func_8033E8AC(void);
@@ -3004,7 +2974,6 @@ void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 
 // --- core2/texture/copy.c ---
-void func_802FEF48(BKModelBin *model_bin);
 
 // --- core2/timed_funcqueue.c ---
 void func_80324C58(void);
@@ -3031,9 +3000,6 @@ void lightingVectorList_fromFile(File *file_ptr);
 // --- core2/vtx/listutils.c ---
 void func_802E73C8(f32 arg0[3][3]);
 
-// --- core2/vtx/meshcount.c ---
-bool meshList_meshContainsVtx(BKMeshList * meshList, s32 mesh_id, void *vtx_id);
-
 // --- core2/vtx/positionset.c ---
 s32 func_8034F560(Struct76s *arg0);
 
@@ -3053,10 +3019,6 @@ void func_8034C97C(void);
 void func_8034C9B0(int arg0);
 
 // --- core2/vtx/list.c ---
-s32 vtxList_getVtxCount(BKVertexList *self);
-void vtxList_getCenterAndNorm(BKVertexList *self, f32 center[3], f32 *norm);
-void vtxList_getVtxRange(BKVertexList *self, Vtx **vtx, Vtx **vtx_end);
-void vtxList_recolor(BKVertexList *self, s32 arg1[3]);
 
 // --- core2/yaw.c ---
 void yaw_init(void);

@@ -4,7 +4,7 @@
 #include "core2/commonParticle.h"
 #include "core2/anim/sprite.h"
 
-extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
+extern BKCollisionTriangle *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
 
 extern f32 func_8033EA14(s32);
 extern void func_8033EA40(s32, f32);

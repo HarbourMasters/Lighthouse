@@ -372,7 +372,7 @@ void chConga_update(Actor *this){
     if( (this->state == 4 && actor_animationIsAt(this, 0.56f))
         || (this->state == 7 && actor_animationIsAt(this, 0.468f))
     ){
-        func_8034A1B4(this->marker->unk44, 5, (s32 *)this->local);
+        vec3fArray_get_vec3i(this->marker->unk44, 5, (s32 *)this->local);
         __spawnQueue_add_1((GenFunction_1)__chConga_sendOrangeProjectile, (uintptr_t)this->marker); //spawn orange
     }
 }

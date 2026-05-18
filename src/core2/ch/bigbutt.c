@@ -324,7 +324,7 @@ void chbull_update(Actor *this){
 }
 
 void func_802C6DA0(s32 arg0, f32 arg1[3], f32 arg2[3]){
-    func_8034A174(func_80329934(), arg0, arg2);
+    vec3fArray_get_vec3f(func_80329934(), arg0, arg2);
     arg2[0] = (arg2[0] - arg1[0])*0.2;
     arg2[1] = (arg2[1] - arg1[1])*0.2;
     arg2[2] = (arg2[2] - arg1[2])*0.2;
@@ -333,7 +333,7 @@ void func_802C6DA0(s32 arg0, f32 arg1[3], f32 arg2[3]){
 
 void func_802C6E3C(s32 arg0, f32 arg1[3]){
     f32 sp1C[3];
-    func_8034A174(func_80329934(), arg0, sp1C);
+    vec3fArray_get_vec3f(func_80329934(), arg0, sp1C);
     func_80352CF4(sp1C, arg1, 170.0f, 50.0f);
 }
 
@@ -352,7 +352,7 @@ Actor *chbull_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         switch(actor->state){
             case 6:
                 if(actor_animationIsAt(actor, 0.65f)){
-                    func_8034A174(func_80329934(), 9, sp40);
+                    vec3fArray_get_vec3f(func_80329934(), 9, sp40);
                     func_80352CF4(sp40, sp34, 60.0f, 50.0f);
                 }
                 break;
@@ -373,7 +373,7 @@ Actor *chbull_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                     && (globalTimer_getTime()& 0xe) == 8
                     && randf() < 0.6
                 ){
-                    func_8034A174(func_80329934(),5, sp40);
+                    vec3fArray_get_vec3f(func_80329934(),5, sp40);
                     func_802C6DA0(6, sp40, sp28);
                     func_802C6DA0(7, sp40, sp1C);
                     func_80352CF4(sp40, sp28, 200.0f, 50.0f);

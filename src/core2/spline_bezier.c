@@ -6,48 +6,48 @@
 
 #define CORE2_C31A0_VEC_COUNT 0x21
 
-void func_8034A130(struct5Bs *this) {
+void vec3fArray_clearValues(Vec3fArray *this) {
     f32(*iPtr)[3];
 
-    for (iPtr = this->unk0; iPtr < this->unk4; iPtr++) {
+    for (iPtr = this->begin_ptr; iPtr < this->end_ptr; iPtr++) {
         (*iPtr)[0] = (*iPtr)[1] = (*iPtr)[2] = 0.0f;
     }
 }
 
-void func_8034A174(struct5Bs *this, s32 indx, f32 dst[3]) {
-    TUPLE_COPY(dst, this->unk0[indx])
+void vec3fArray_get_vec3f(Vec3fArray *this, s32 indx, f32 dst[3]) {
+    TUPLE_COPY(dst, this->begin_ptr[indx])
 }
 
-void func_8034A1B4(struct5Bs *this, s32 indx, s32 dst[3]) {
-    TUPLE_COPY(dst, this->unk0[indx])
+void vec3fArray_get_vec3i(Vec3fArray *this, s32 indx, s32 dst[3]) {
+    TUPLE_COPY(dst, this->begin_ptr[indx])
 }
 
-void func_8034A214(struct5Bs *this, s32 indx1, s32 indx2, f32 dst[3]) {
-    TUPLE_DIFF_COPY(dst, this->unk0[indx2], this->unk0[indx1])
+void vec3fArray_getDirectionVector(Vec3fArray *this, s32 indx1, s32 indx2, f32 dst[3]) {
+    TUPLE_DIFF_COPY(dst, this->begin_ptr[indx2], this->begin_ptr[indx1])
     ml_vec3f_normalize(dst);
 }
 
-void func_8034A2A8(struct5Bs *this) {
+void vec3fArray_free(Vec3fArray *this) {
     bk_free(this);
 }
 
-struct5Bs *func_8034A2C8(void) {
-    struct5Bs *this = (struct5Bs *) bk_malloc(sizeof(struct5Bs) + sizeof(f32[3]) * CORE2_C31A0_VEC_COUNT);
-    this->unk0 = (f32(*)[3])((uintptr_t) this + sizeof(struct5Bs));
-    this->unk4 = (f32(*)[3])((uintptr_t) this->unk0 + sizeof(f32[3]) * CORE2_C31A0_VEC_COUNT);
-    func_8034A130(this);
+Vec3fArray *vec3fArray_new(void) {
+    Vec3fArray *this = (Vec3fArray *) bk_malloc(sizeof(Vec3fArray) + sizeof(f32[3]) * CORE2_C31A0_VEC_COUNT);
+    this->begin_ptr = (f32(*)[3])((uintptr_t) this + sizeof(Vec3fArray));
+    this->end_ptr = (f32(*)[3])((uintptr_t) this->begin_ptr + sizeof(f32[3]) * CORE2_C31A0_VEC_COUNT);
+    vec3fArray_clearValues(this);
     return this;
 }
 
-void func_8034A308(struct5Bs *this, s32 indx, f32 arg2[3]) {
-    TUPLE_COPY(this->unk0[indx], arg2)
+void vec3fArray_set_vec3f(Vec3fArray *this, s32 indx, f32 arg2[3]) {
+    TUPLE_COPY(this->begin_ptr[indx], arg2)
 }
 
-struct5Bs *func_8034A348(struct5Bs *this) {
+Vec3fArray *vec3fArray_defrag(Vec3fArray *this) {
     if (this) {
-        this = (struct5Bs *) defrag(this);
-        this->unk0 = (f32(*)[3])(((uintptr_t) this + sizeof(struct5Bs)));
-        this->unk4 = (f32(*)[3])((uintptr_t) this->unk0 + sizeof(f32[3]) * CORE2_C31A0_VEC_COUNT);
+        this = (Vec3fArray *) defrag(this);
+        this->begin_ptr = (f32(*)[3])(((uintptr_t) this + sizeof(Vec3fArray)));
+        this->end_ptr = (f32(*)[3])((uintptr_t) this->begin_ptr + sizeof(f32[3]) * CORE2_C31A0_VEC_COUNT);
     }
 
     return this;

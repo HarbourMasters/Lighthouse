@@ -8,7 +8,7 @@ typedef struct struct_core2_C8360_0{
 }struct_core2_C8360_0;
 
 /* .code */
-void func_8034F2F0(s32 arg0, BKVtxRef *ref, Vtx *dst, void *arg3) {
+void func_8034F2F0(s32 arg0, BKModelVtxRef *ref, Vtx *dst, void *arg3) {
     struct_core2_C8360_0 *data = (struct_core2_C8360_0 *)arg3;
     s32 temp_f4;
     s32 i;
@@ -34,5 +34,5 @@ void func_8034F398(f32 *arg0, BKModel *arg1, s32 arg2) {
     } else {
         *arg0 = 0.0f;
     }
-    BKModel_transformMesh(arg1, arg2, func_8034F2F0, (void *) arg0);
+    model_transformMesh(arg1, arg2, func_8034F2F0, (void *) arg0);
 }

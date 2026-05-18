@@ -26,8 +26,8 @@ f32 sViewportUnused1; // debug?
 f32 sViewportFrustumPlanes[4][4];
 Vp sViewportStack[VIEWPORT_STACK_SIZE];
 int sViewportUnused2; // debug?
-BKMtxF sViewportMatrix;
-BKMtxF sViewportDefaultMatrix;
+MtxF sViewportMatrix;
+MtxF sViewportDefaultMatrix;
 s32 sViewportStackIndex;
 
 void viewport_moveAlongZAxis(f32 offset) {
@@ -488,7 +488,7 @@ f32 sViewportBackupPosition[3];
 f32 sViewportBackupRotation[3];
 f32 sViewportBackupFrustumPlanes[4][4];
 f32 sViewportBackupLookbk_vector[3];
-BKMtxF sViewportBackupMatrix;
+MtxF sViewportBackupMatrix;
 
 // ??
 bool viewport_func_8024E030(f32 pos[3], f32 *arg1)
@@ -538,7 +538,7 @@ void viewport_backupState(void) {
 
     for(i = 0; i < 4; i++){
         for(j = 0; j < 4; j++){
-            sViewportBackupMatrix.m[i][j] = sViewportMatrix.m[i][j];
+            sViewportBackupMatrix.mf[i][j] = sViewportMatrix.mf[i][j];
         }
     }
 }
@@ -553,7 +553,7 @@ void viewport_restoreState(void) {
 
     for(i = 0; i < 4; i++){
         for(j = 0; j < 4; j++){
-            sViewportMatrix.m[i][j] = sViewportBackupMatrix.m[i][j];
+            sViewportMatrix.mf[i][j] = sViewportBackupMatrix.mf[i][j];
         }
     }
 }

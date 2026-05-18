@@ -4,6 +4,7 @@
 #include <ultra64.h>
 #include "model.h"
 #include "core2/vla.h"
+#include "core2/fla.h"
 #include "enums.h"
 #include "bool.h"
 
@@ -16,14 +17,6 @@ struct struct_68_s;
 #define MERGE(a, b) a ## b
 
 #define UNK_TYPE(t) t
-
-#if 0
-typedef struct{
-    f32 x;
-    f32 y;
-    f32 z;
-} vec3f;
-#endif
 
 #define TUPLE(t, n) union{\
     struct{ t n##_x; t n##_y; t n##_z; };\
@@ -44,34 +37,6 @@ typedef struct{
 }
 
 #define KEY_VALUE_PAIR(T1, T2) struct { T1 key; T2 value; }
-
-typedef struct freelist_s{
-    s16 elem_size;
-    s16 elem_cnt;
-    u8 unk4[];
-}FLA;
-
-#define FREE_LIST(T) struct freelist_s
-//^defined to keep element type with sla
-
-/* Freelist function declarations - required for 64-bit pointer safety */
-void freelist_clear(FLA *fla);
-void *freelist_at(FLA *fla, s32 indx);
-s32 freelist_size(FLA *fla);
-void *freelist_freeListPtr(FLA *fla);
-void *freelist_next(FLA **fla_ptr, s32 *arg1);
-bool freelist_elementIsAlive(FLA *fla, s32 index);
-void freelist_free(FLA *fla);
-FLA *freelist_new(s32 size, s32 cnt);
-void freelist_freeElement(FLA *fla, s32 indx);
-FLA *freelist_defrag(FLA *fla);
-
-typedef struct {
-    f32 m[4][4];
-#if 0
-} MtxF;
-#endif
-} BKMtxF;
 
 typedef struct bk_sprite_s{
     s16 frameCnt;
@@ -142,8 +107,8 @@ typedef struct portrait_info_s{
 
 typedef struct struct_0_s{ //floor
     void *  model;
-    BKCollisionTri unk4;
-    BKCollisionTri unk10;
+    BKCollisionTriangle unk4;
+    BKCollisionTriangle unk10;
     f32     unk1C[3];
     f32     unk28[3];
     f32     normX;
@@ -520,13 +485,6 @@ typedef struct{
     f32 unk8[0][3];
 } struct56s;
 
-
-
-typedef struct {
-    f32 (*unk0)[3];
-    f32 (*unk4)[3];
-}struct5Bs;
-
 // [port] Bitfield packed as (aaaa bbcc cdde eeff) from MSB to LSB.
 // N64 MIPS (BE) allocates the first declared field at the MSB;
 // x86/ARM (LE) allocates it at the LSB.  Reverse the declaration
@@ -650,9 +608,9 @@ typedef struct {
 } Struct6Bs;
 
 typedef struct{
-    BKCollisionTri * (* unk0)(struct actorMarker_s *, f32[3], f32[3], f32[3], s32);
-    BKCollisionTri *(* unk4)(struct actorMarker_s *, f32[3], f32[3], f32, f32[3], s32, u32);
-    BKCollisionTri *(* unk8)(struct actorMarker_s *, f32[3], f32, f32[3], s32);
+    BKCollisionTriangle * (* unk0)(struct actorMarker_s *, f32[3], f32[3], f32[3], s32);
+    BKCollisionTriangle *(* unk4)(struct actorMarker_s *, f32[3], f32[3], f32, f32[3], s32, u32);
+    BKCollisionTriangle *(* unk8)(struct actorMarker_s *, f32[3], f32, f32[3], s32);
     s32 (* unkC)(struct actorMarker_s *, f32[3], f32, f32[3], s32);
 } Struct6Cs;
 

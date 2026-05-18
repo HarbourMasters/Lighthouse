@@ -2,10 +2,16 @@
 #define __CORE_2_H__
 
 #include "bool.h"
+#include "core2/animmtxlist.h"
 #include "core2/timedfunc.h"
 #include "gc/gc.h"
 #include "core2/print.h"
 #include "core2/anctrl.h"
+#include "core2/modelRender.h"
+#include "core2/code_C31A0.h"
+#include "core2/animtexturecache.h"
+#include "core2/fla.h"
+#include "model.h"
 
 void code35520_getDistanceVectors(s32 id, s32 *vec11, s32 *vec12, s32 *vec13, s32 *vec21, s32 *vec22, s32 *vec23, s32 *vec31, s32 *vec32, s32 *vec33);
 void code35520_selectTable(void);

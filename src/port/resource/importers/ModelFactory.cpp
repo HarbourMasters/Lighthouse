@@ -381,34 +381,34 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // ── Assemble contiguous BKModelBin buffer ─────────────────────────────────
     //
     // Layout (each section padded to 8-byte alignment):
-    //   [  0 ] BKModelBin header (zero-init, geo_typ_A set)
-    //   [ GL ] GeoLayout command tree                          → geo_list_offset_4
-    //   [ T  ] BKTextureList + BKTextureHeader[] + pixel data  → texture_list_offset_8
-    //   [ A  ] BKAnimationList + BKAnimation[]                 → animation_list_offset_18
-    //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           → collision_list_offset_1C
+    //   [  0 ] BKModelBin header (zero-init, geo_type set)
+    //   [ GL ] GeoLayout command tree                          → geo_list_offset
+    //   [ T  ] BKTextureList + BKTextureInfo[] + pixel data    → texture_list_offset
+    //   [ A  ] BKAnimationList + BKAnimation[]                 → animation_list_offset
+    //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           → collision_list_offset
     //   [ 14 ] BKModelUnk14List + entries                      → unk14
-    //   [ 20 ] BKModelUnk20List + entries                      → unk20
-    //   [ E  ] effect count (s16) + effects                    → effects_list_setup_24
-    //   [ 28 ] BKModelUnk28List + entries                      → unk28
+    //   [ 20 ] BKCameraAreaList + entries                      → unk20
+    //   [ E  ] effect count (s16) + effects                    → mesh_list_offset
+    //   [ 28 ] BKAnimVerticesList + entries                    → unk28
     //   [ AT ] AnimTexture[4]                                  → animated_texture_list_offset
-    //   [ V  ] BKVertexList header + Vtx[]                     → vtx_list_offset_10
-    //   [ G  ] BKGfxList header + Gfx[]                        → gfx_list_offset_C
+    //   [ V  ] BKVertexList header + Vtx[]                     → vtx_list_offset
+    //   [ G  ] BKGfxList header + Gfx[]                        → gfx_list_offset
 
     auto out = std::vector<uint8_t>(sizeof(BKModelBin), 0);
     auto hdr = [&]() -> BKModelBin* { return reinterpret_cast<BKModelBin*>(out.data()); };
-    hdr()->geo_typ_A = static_cast<int16_t>(geoType);
+    hdr()->geo_type = static_cast<int16_t>(geoType);
 
     // GeoLayout section
     if (geoBlob && !geoBlob->Data.empty()) {
         PadTo8(out);
-        hdr()->geo_list_offset_4 = static_cast<int32_t>(out.size());
+        hdr()->geo_list_offset = static_cast<int32_t>(out.size());
         AppendBytes(out, geoBlob->Data.data(), geoBlob->Data.size());
     }
 
     // Texture section
     if (texCount > 0) {
         PadTo8(out);
-        hdr()->texture_list_offset_8 = static_cast<int16_t>(out.size());
+        hdr()->texture_list_offset = static_cast<int16_t>(out.size());
 
         // Use raw texture blob directly — preserves animated frames and
         // all unlisted data. OTEX overlay for alt assets can be added later.
@@ -421,7 +421,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         AppendValue<uint8_t>(out, 0);
         AppendValue<uint8_t>(out, 0);
 
-        // BKTextureHeader[] (16 bytes each) — use original ROM offsets
+        // BKTextureInfo[] (16 bytes each) — use original ROM offsets
         for (uint16_t i = 0; i < texCount; i++) {
             const auto& tm = texMetas[i];
             AppendValue<int32_t>(out, static_cast<int32_t>(tm.textureDataOffset));
@@ -447,7 +447,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Animation section
     if (hasAnim) {
         PadTo8(out);
-        hdr()->animation_list_offset_18 = static_cast<int32_t>(out.size());
+        hdr()->animation_list_offset = static_cast<int32_t>(out.size());
 
         // BKAnimationList: f32 scalingFactor, s16 boneCount, u8 pad[2], BKAnimation[]
         AppendValue<float>(out, animScale);
@@ -466,7 +466,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Collision section
     if (hasCol) {
         PadTo8(out);
-        hdr()->collision_list_offset_1C = static_cast<int32_t>(out.size());
+        hdr()->collision_list_offset = static_cast<int32_t>(out.size());
 
         // BKCollisionList header (24 bytes)
         AppendValue<int16_t>(out, colMin[0]);
@@ -499,7 +499,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Unk14 section
     if (hasUnk14) {
         PadTo8(out);
-        hdr()->unk14 = static_cast<int32_t>(out.size());
+        hdr()->unk14_list_offset = static_cast<int32_t>(out.size());
 
         AppendValue<int16_t>(out, u14c0);
         AppendValue<int16_t>(out, u14c1);
@@ -550,7 +550,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Unk20 section
     if (hasUnk20) {
         PadTo8(out);
-        hdr()->unk20 = static_cast<int32_t>(out.size());
+        hdr()->camera_area_list_offset = static_cast<int32_t>(out.size());
 
         AppendValue<uint8_t>(out, u20count);
         AppendValue<uint8_t>(out, 0);
@@ -569,7 +569,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Effects section (only when effects were successfully parsed and non-empty)
     if (hasEffects && !effects.empty()) {
         PadTo8(out);
-        hdr()->effects_list_setup_24 = static_cast<int32_t>(out.size());
+        hdr()->mesh_list_offset = static_cast<int32_t>(out.size());
 
         AppendValue<int16_t>(out, static_cast<int16_t>(effects.size()));
         for (const auto& fx : effects) {
@@ -583,7 +583,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Unk28 section
     if (hasUnk28) {
         PadTo8(out);
-        hdr()->unk28 = static_cast<int32_t>(out.size());
+        hdr()->anim_vertices_list_offset = static_cast<int32_t>(out.size());
 
         AppendValue<int16_t>(out, u28count);
         AppendValue<uint8_t>(out, 0);
@@ -616,7 +616,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // (list[cmd->unk8]) remain correct. No OTR markers or expanded commands.
     if (hasDL && !rawDLWords.empty()) {
         PadTo8(out);
-        hdr()->gfx_list_offset_C = static_cast<int32_t>(out.size());
+        hdr()->gfx_list_offset = static_cast<int32_t>(out.size());
 
         // BKGfxList: s32 dlCount, s32 dlUnkInfo
         AppendValue<int32_t>(out, static_cast<int32_t>(dlCount));
@@ -687,7 +687,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     // Vertex section
     if (hasVtx) {
         PadTo8(out);
-        hdr()->vtx_list_offset_10 = static_cast<int32_t>(out.size());
+        hdr()->vtx_list_offset = static_cast<int32_t>(out.size());
 
         auto vtxRes = std::static_pointer_cast<Fast::Vertex>(resourceMgr->LoadResourceProcess(initData->Path + "_VTX"));
 

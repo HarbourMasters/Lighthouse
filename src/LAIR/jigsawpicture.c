@@ -200,7 +200,7 @@ void stoodOnPodiumCallback(ActorMarker *marker) {
     Actor *this;
 
     this = marker_getActor(marker);
-    func_8034A174(func_803097A0(), getUnknownJigsawPictureIndex(this), sp24);
+    vec3fArray_get_vec3f(func_803097A0(), getUnknownJigsawPictureIndex(this), sp24);
     func_8028E6EC(2);
     func_8028F918(0);
     func_8028F94C(4, sp24);
@@ -299,7 +299,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
     s32 phi_s0;
 
     local = (ActorLocal_lair_86F0*)&this->local;
-    func_8034A174(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
+    vec3fArray_get_vec3f(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
             func_8028F918(0);

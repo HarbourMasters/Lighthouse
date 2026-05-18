@@ -133,8 +133,8 @@ void sky_reset(void){
         gcSky.model_bins[i] = NULL;
         if(gcSky.sky_info->sky_list[i].model_id){
             gcSky.model_bins[i] = assetcache_get(gcSky.sky_info->sky_list[i].model_id);
-            if(func_8033A0B0(gcSky.model_bins[i])){
-                gcSky.model[i] = func_8033F5F8((BKMeshList *)func_8033A0B0(gcSky.model_bins[i]), model_getVtxList( gcSky.model_bins[i]));
+            if(modelbin_getMeshList(gcSky.model_bins[i])){
+                gcSky.model[i] = meshList_createModel((BKMeshList *)modelbin_getMeshList(gcSky.model_bins[i]), modelbin_getVtxList( gcSky.model_bins[i]));
                 func_8034C6DC(gcSky.model[i]);
             }
         }

@@ -87,7 +87,7 @@ void func_802BEFB0(void) {
     f32 sp3C[3];
     f32 sp30[3];
     f32 sp24[3];
-    BKCollisionTri *temp_v0;
+    BKCollisionTriangle *temp_v0;
 
     if (level_get() == LEVEL_D_CUTSCENE) {
         D_8037DA80.unk8 = 0;

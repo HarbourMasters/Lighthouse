@@ -32,7 +32,7 @@ extern void gsworld_setEnableUpdate(s32);
 extern void controller_getJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);
-extern struct5Bs *func_803097A0(void);
+extern Vec3fArray *func_803097A0(void);
 
 /* .data */
 f32 D_80365DD0[3][3] = {
@@ -324,7 +324,7 @@ void gameSelect_update(Actor *this){
     f32 sp54[2];
     f32 sp50;
     int i; //sp4C
-    struct5Bs *sp48;
+    Vec3fArray *sp48;
     f32 sp44;
     s32 tmp_a2_2;
     f32 sp34[3];
@@ -572,7 +572,7 @@ void gameSelect_update(Actor *this){
         sp48 = func_803097A0();
         if(this->marker->unk14_21){
             for(i = 0; i < 3; i++){
-                func_8034A174(sp48, i+5, sp34);
+                vec3fArray_get_vec3f(sp48, i+5, sp34);
                 ml_vec3f_copy(D_80365DD0[i], sp34);
             }
         }

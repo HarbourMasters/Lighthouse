@@ -11,14 +11,14 @@ void animMtxList_setBoneless(AnimMtxList **this_ptr, BKAnimationList *anim_list)
     MtxF *i_ptr;
 
     this = *this_ptr;
-    if(this->capacity_44 < anim_list->cnt_4){
-        this = (AnimMtxList *)bk_realloc(this, anim_list->cnt_4 * sizeof(Mtx) + sizeof(AnimMtxList));
-        this->capacity_44 = anim_list->cnt_4;
+    if(this->capacity < anim_list->count){
+        this = (AnimMtxList *)bk_realloc(this, anim_list->count * sizeof(Mtx) + sizeof(AnimMtxList));
+        this->capacity = anim_list->count;
         (*this_ptr) = this;
     }
 
-    this->size_40 = anim_list->cnt_4;
-    end_ptr = (MtxF *)(this->size_40*sizeof(MtxF) + (uintptr_t)this +sizeof(AnimMtxList));
+    this->size = anim_list->count;
+    end_ptr = (MtxF *)(this->size*sizeof(MtxF) + (uintptr_t)this +sizeof(AnimMtxList));
     mlMtxIdent();
     for(i_ptr = this->data; i_ptr < end_ptr; i_ptr++){
         mlMtxGet(i_ptr);
@@ -27,12 +27,12 @@ void animMtxList_setBoneless(AnimMtxList **this_ptr, BKAnimationList *anim_list)
 
 MtxF *animMtxList_get(AnimMtxList *this, s32 arg1){
     if (arg1 == -1){
-        return &this->mtx_0;
+        return &this->default_matrix;
     }
     // [port] bounds check - on N64 this never happens but corrupt data can cause OOB
-    if (arg1 < 0 || arg1 >= this->size_40) {
-        BK_LOG_WARN("[port] animMtxList_get: OOB index %d (size=%d)", arg1, this->size_40);
-        return &this->mtx_0; // fallback to identity
+    if (arg1 < 0 || arg1 >= this->size) {
+        BK_LOG_WARN("[port] animMtxList_get: OOB index %d (size=%d)", arg1, this->size);
+        return &this->default_matrix; // fallback to identity
     }
     return &this->data[arg1];
 
@@ -44,16 +44,16 @@ void animMtxList_free(AnimMtxList *this){
 
 AnimMtxList *animMtxList_new(void){
     AnimMtxList *this = bk_malloc(sizeof(AnimMtxList));
-    this->size_40 = 0;
-    this->capacity_44 = 0;
+    this->size = 0;
+    this->capacity = 0;
     mlMtxIdent();
-    mlMtxGet(&this->mtx_0);
+    mlMtxGet(&this->default_matrix);
     return this;
 }
 
-s32 animMtxList_len(AnimMtxList* this){
+s32 animMtxList_getLength(AnimMtxList* this){
     if(this)
-        return this->size_40;
+        return this->size;
     return 1;
 }
 
@@ -73,16 +73,16 @@ void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, Bo
 
     //resize animation matrices
     this = *this_ptr;
-    if(this->capacity_44 < anim_list->cnt_4){
-        this = (AnimMtxList *)bk_realloc(this, anim_list->cnt_4 * sizeof(Mtx) + sizeof(AnimMtxList));
-        this->capacity_44 = anim_list->cnt_4;
+    if(this->capacity < anim_list->count){
+        this = (AnimMtxList *)bk_realloc(this, anim_list->count * sizeof(Mtx) + sizeof(AnimMtxList));
+        this->capacity = anim_list->count;
         (*this_ptr) = this;
     }
 
-    this->size_40 = anim_list->cnt_4;
+    this->size = anim_list->count;
     start_ptr = this->data;
-    end_ptr = &start_ptr[this->size_40];
-    s0 = anim_list->anim;
+    end_ptr = &start_ptr[this->size];
+    s0 = anim_list->animations;
 
     for(i_ptr = start_ptr; i_ptr < end_ptr; s0++, i_ptr++){
         func_8033A5B8(arg2, s0->bone_id, sp74, sp68, sp5C);
@@ -92,7 +92,7 @@ void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, Bo
         else if(s0->mtx_id + 1 != i_ptr - start_ptr)
             mlMtxSet(&start_ptr[s0->mtx_id]);
         tmp_f0 = anim_list->unk0;
-        mlMtxTranslate(s0->unk0[0] + tmp_f0*sp5C[0], s0->unk0[1] + tmp_f0*sp5C[1], s0->unk0[2] + tmp_f0*sp5C[2] );
+        mlMtxTranslate(s0->translation[0] + tmp_f0*sp5C[0], s0->translation[1] + tmp_f0*sp5C[1], s0->translation[2] + tmp_f0*sp5C[2] );
 
         if(!vec4f_isZero(sp74)){
             func_80345274(sp74, sp88);
@@ -100,7 +100,7 @@ void animMtxList_setBoned(AnimMtxList **this_ptr, BKAnimationList *anim_list, Bo
         }
 
         mlMtxScale_xyz(sp68[0], sp68[1], sp68[2]);
-        mlMtxTranslate(-s0->unk0[0], -s0->unk0[1], -s0->unk0[2]);
+        mlMtxTranslate(-s0->translation[0], -s0->translation[1], -s0->translation[2]);
         mlMtxGet(i_ptr);
 
     }

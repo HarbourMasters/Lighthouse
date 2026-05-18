@@ -154,7 +154,7 @@ Struct70s *func_8034C630(void *arg0){
 
     for(iPtr = bk_vector_getBegin(D_80386140.unk4); iPtr < endPtr; iPtr++){
         if( (iPtr->xform_id == 3)
-            && meshList_meshContainsVtx(BKModel_getMeshList(iPtr->model), iPtr->unk4, arg0)
+            && meshList_meshContainsVtx(model_getMeshList(iPtr->model), iPtr->unk4, arg0)
         ){
             return &iPtr->unk8;
         }
@@ -166,41 +166,41 @@ void func_8034C6DC(BKModel *arg0){
     BKMeshList * sp2C;
     s32 i;
     BKMesh * s1;
-    sp2C = BKModel_getMeshList(arg0);
-    if (sp2C == NULL || sp2C->meshCount_0 <= 0) return;
+    sp2C = model_getMeshList(arg0);
+    if (sp2C == NULL || sp2C->count <= 0) return;
     s1 = (BKMesh *)(sp2C + 1);
-    for(i = 0; i < sp2C->meshCount_0; i++){
-        if(s1->uid_0 >= 0x65 && s1->uid_0 < 0xC8){
-            func_8034C3D0(arg0, s1->uid_0, 1, s1->uid_0 - 0x64);
+    for(i = 0; i < sp2C->count; i++){
+        if(s1->uid >= 0x65 && s1->uid < 0xC8){
+            func_8034C3D0(arg0, s1->uid, 1, s1->uid - 0x64);
         }
-        else if(s1->uid_0 >= 0xc8 && s1->uid_0 < 0x12c){
-            func_8034C3D0(arg0, s1->uid_0, 0, s1->uid_0 - 0xc8);
+        else if(s1->uid >= 0xc8 && s1->uid < 0x12c){
+            func_8034C3D0(arg0, s1->uid, 0, s1->uid - 0xc8);
         }
-        else if(s1->uid_0 >= 0x12c && s1->uid_0 < 0x190){
-            func_8034C3D0(arg0, s1->uid_0, 3, s1->uid_0 - 0x12c);
+        else if(s1->uid >= 0x12c && s1->uid < 0x190){
+            func_8034C3D0(arg0, s1->uid, 3, s1->uid - 0x12c);
         }
-        else if(s1->uid_0 >= 0x190 && s1->uid_0 < 0x1F4){
-            func_8034C3D0(arg0, s1->uid_0, 2, s1->uid_0 - 0x190);
+        else if(s1->uid >= 0x190 && s1->uid < 0x1F4){
+            func_8034C3D0(arg0, s1->uid, 2, s1->uid - 0x190);
         }
-        else if(s1->uid_0 >= 0x1F4 && s1->uid_0 < 0x258){
-            func_8034C3D0(arg0, s1->uid_0, 4, s1->uid_0 - 0x1F4);
+        else if(s1->uid >= 0x1F4 && s1->uid < 0x258){
+            func_8034C3D0(arg0, s1->uid, 4, s1->uid - 0x1F4);
         }
-        else if(s1->uid_0 >= 0x258 && s1->uid_0 < 0x2bc){
-            func_8034C3D0(arg0, s1->uid_0, 2, s1->uid_0 - 0x258);
+        else if(s1->uid >= 0x258 && s1->uid < 0x2bc){
+            func_8034C3D0(arg0, s1->uid, 2, s1->uid - 0x258);
         }
-        else if(s1->uid_0 >= 0x2bc && s1->uid_0 < 0x320){
-            func_8034C3D0(arg0, s1->uid_0, 5, s1->uid_0 - 0x2bc);
+        else if(s1->uid >= 0x2bc && s1->uid < 0x320){
+            func_8034C3D0(arg0, s1->uid, 5, s1->uid - 0x2bc);
         }
-        else if(s1->uid_0 >= 0x320 && s1->uid_0 < 0x384){
-            func_8034C3D0(arg0, s1->uid_0, 6, s1->uid_0 - 0x320);
+        else if(s1->uid >= 0x320 && s1->uid < 0x384){
+            func_8034C3D0(arg0, s1->uid, 6, s1->uid - 0x320);
         }
-        else if(s1->uid_0 >= 0x384 && s1->uid_0 < 0x3e8){
-            func_8034C3D0(arg0, s1->uid_0, 8, s1->uid_0 - 0x384);
+        else if(s1->uid >= 0x384 && s1->uid < 0x3e8){
+            func_8034C3D0(arg0, s1->uid, 8, s1->uid - 0x384);
         }
-        else if(s1->uid_0 >= 0x3e8 && s1->uid_0 < 0x44c){
-            func_8034C3D0(arg0, s1->uid_0, 7, s1->uid_0 - 0x3e8);
+        else if(s1->uid >= 0x3e8 && s1->uid < 0x44c){
+            func_8034C3D0(arg0, s1->uid, 7, s1->uid - 0x3e8);
         }
-        s1 = (BKMesh *)((uintptr_t)s1 + s1->vtxCount_2 * sizeof(s16) + sizeof(BKMesh));
+        s1 = (BKMesh *)((uintptr_t)s1 + s1->vtx_count * sizeof(s16) + sizeof(BKMesh));
     }
 }
 

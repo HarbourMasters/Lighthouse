@@ -2,13 +2,13 @@
 #include "functions.h"
 #include "variables.h"
 extern void mlMtx_apply_f3(f32[3], f32, f32, f32);
-extern  s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 arg6[3], f32 arg7, f32 arg8[3]);
+extern  s32 bkmodelunk14list_func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 arg6[3], f32 arg7, f32 arg8[3]);
 extern MtxF *animMtxList_get(AnimMtxList *this, s32 arg1);
 /* .bss */
 MtxF D_80380880;
 
 /* .code */
-bool func_802EA760(BKModelUnk14List *arg0, s32 arg1, f32 arg2[3], f32 rotation[3], f32 scale, f32 arg5[3], f32 arg6[3], f32 *arg7) {
+bool bkmodelunk14list_func_802EA760(BKModelUnk14List *arg0, s32 arg1, f32 arg2[3], f32 rotation[3], f32 scale, f32 arg5[3], f32 arg6[3], f32 *arg7) {
     uintptr_t start;
     BKModelUnk14_2 *temp_v0;
 
@@ -29,7 +29,7 @@ bool func_802EA760(BKModelUnk14List *arg0, s32 arg1, f32 arg2[3], f32 rotation[3
     return true;
 }
 
-s32 func_802EA864(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6) {
+s32 bkmodelunk14list_func_802EA864(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6) {
     BKModelUnk14_0 *start_ptr;
     f32 spB0[3];
     f32 spA4[3];
@@ -77,7 +77,7 @@ s32 func_802EA864(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     return 0;
 }
 
-s32 func_802EAB34(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6){
+s32 bkmodelunk14list_func_802EAB34(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6){
     BKModelUnk14_1 *iPtr;
     f32 spA0[3];
     f32 sp94[3];
@@ -117,7 +117,7 @@ s32 func_802EAB34(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     return 0;
 }
 
-s32 func_802EAD5C(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6) {
+s32 bkmodelunk14list_func_802EAD5C(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6) {
     BKModelUnk14_0 *t0_ptr;
     BKModelUnk14_1 *t1_ptr;
     f32 sp5C[3];
@@ -151,7 +151,7 @@ s32 func_802EAD5C(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     return 0;
 }
 
-s32 func_802EAED4(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList *arg5, f32 arg6[3], f32 arg7) {
+s32 bkmodelunk14list_func_802EAED4(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList *arg5, f32 arg6[3], f32 arg7) {
     f32 spF4[3];
     f32 spE8[3];
     f32 spDC[3];
@@ -240,7 +240,7 @@ s32 func_802EAED4(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     return 0;
 }
 
-s32 func_802EB458(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 arg6[3], f32 arg7)
+s32 bkmodelunk14list_func_802EB458(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 arg6[3], f32 arg7)
 {
     BKModelUnk14_0 *ptr_t0;
     f32 spB8[3];
@@ -311,7 +311,7 @@ s32 func_802EB458(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     return 0;
 }
 
-s32 func_802EB8A0(BKModelUnk14List *arg0, f32 *position, f32 *rotation, f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 *arg6, f32 arg7) {
+s32 bkmodelunk14list_func_802EB8A0(BKModelUnk14List *arg0, f32 *position, f32 *rotation, f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 *arg6, f32 arg7) {
     BKModelUnk14_0 *t0_ptr;
     BKModelUnk14_1 *t1_ptr;
     f32 sp74[3];
@@ -351,11 +351,11 @@ s32 func_802EB8A0(BKModelUnk14List *arg0, f32 *position, f32 *rotation, f32 scal
     return 0;
 }
 
-bool func_802EBA98(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6, f32 arg7[3]){
-    return func_802EBAE0(arg0, arg1, rotation, scale, arg4, NULL, arg5, arg6, arg7);
+bool bkmodelunk14list_func_802EBA98(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], f32 arg6, f32 arg7[3]){
+    return bkmodelunk14list_func_802EBAE0(arg0, arg1, rotation, scale, arg4, NULL, arg5, arg6, arg7);
 }
 
-s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 arg6[3], f32 arg7, f32 arg8[3])
+s32 bkmodelunk14list_func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList* arg5, f32 arg6[3], f32 arg7, f32 arg8[3])
 {
   f32 sp3C[3];
   f32 temp_f0;
@@ -373,27 +373,27 @@ s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
     mlMtxIdent();
     func_80252C08(position, rotation, scale, arg4);
     mlMtxGet(&D_80380880);
-    phi_v0 = func_802EB8A0(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
+    phi_v0 = bkmodelunk14list_func_802EB8A0(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
     if (phi_v0 == 0)
     {
-      phi_v0 = func_802EAED4(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
+      phi_v0 = bkmodelunk14list_func_802EAED4(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
     }
     if (phi_v0 == 0)
     {
         if(1);
-        phi_v0 = func_802EB458(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
+        phi_v0 = bkmodelunk14list_func_802EB458(arg0, position, rotation, scale, arg4, arg5, arg6, arg7);
     }
   }
   else
   {
-    phi_v0 = func_802EAD5C(arg0, position, rotation, scale, arg4, arg6, arg7);
+    phi_v0 = bkmodelunk14list_func_802EAD5C(arg0, position, rotation, scale, arg4, arg6, arg7);
     if (phi_v0 == 0)
     {
-      phi_v0 = func_802EA864(arg0, position, rotation, scale, arg4, arg6, arg7);
+      phi_v0 = bkmodelunk14list_func_802EA864(arg0, position, rotation, scale, arg4, arg6, arg7);
     }
     if (phi_v0 == 0)
     {
-      phi_v0 = func_802EAB34(arg0, position, rotation, scale, arg4, arg6, arg7);
+      phi_v0 = bkmodelunk14list_func_802EAB34(arg0, position, rotation, scale, arg4, arg6, arg7);
     }
   }
   if (phi_v0 != 0)
@@ -405,7 +405,7 @@ s32 func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 
   return phi_v0;
 }
 
-s32 func_802EBD3C(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6)
+s32 bkmodelunk14list_func_802EBD3C(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6)
 {
     s32 i;
     f32 i_position[3];
@@ -465,7 +465,7 @@ s32 func_802EBD3C(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scal
     return 0;
 }
 
-s32 func_802EC000(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6){
+s32 bkmodelunk14list_func_802EC000(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6){
     BKModelUnk14_1 *i_ptr;
     f32 sp90[3];
     f32 sp84[3];
@@ -504,7 +504,7 @@ s32 func_802EC000(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scal
     return 0;
 }
 
-s32 func_802EC238(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6){
+s32 bkmodelunk14list_func_802EC238(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6){
     BKModelUnk14_0 *t0_ptr;
     BKModelUnk14_1 *t1_ptr;
     f32 sp54[3];
@@ -534,21 +534,21 @@ s32 func_802EC238(BKModelUnk14List *arg0, f32 arg1[3], f32 rotation[3], f32 scal
     return 0U;
 }
 
-s32 func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6) {
+s32 bkmodelunk14list_func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6) {
     s32 phi_v0;
 
     //transform type 0
-    phi_v0 = func_802EBD3C(arg0, position, rotation, scale, arg4, arg5, arg6);
+    phi_v0 = bkmodelunk14list_func_802EBD3C(arg0, position, rotation, scale, arg4, arg5, arg6);
     if (phi_v0 != 0) {
         return phi_v0;
     }
 
     //transform type 1
-    phi_v0 = func_802EC000(arg0, position, rotation, scale, arg4, arg5, arg6);
+    phi_v0 = bkmodelunk14list_func_802EC000(arg0, position, rotation, scale, arg4, arg5, arg6);
     if (phi_v0 != 0) {
         return phi_v0;
     }
 
     //transform type 2
-    return func_802EC238(arg0, position, rotation, scale, arg4, arg5, arg6);
+    return bkmodelunk14list_func_802EC238(arg0, position, rotation, scale, arg4, arg5, arg6);
 }

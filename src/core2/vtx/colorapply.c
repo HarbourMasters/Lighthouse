@@ -85,33 +85,33 @@ void func_8034BFF8(ActorMarker *marker) {
 
     if (marker->unk48 != NULL) {
         marker->unk4C = bk_vector_new(sizeof(Struct6Es), 0);
-        sp2C = BKModel_getMeshList(marker->unk48);
+        sp2C = model_getMeshList(marker->unk48);
         phi_s1 = (BKMesh *)(sp2C + 1);
-        for(phi_s2 = 0; phi_s2 < sp2C->meshCount_0; phi_s2++){
-            if ((phi_s1->uid_0 >= 0x65) && (phi_s1->uid_0 < 0xC8)) {
-                func_8034BED0(marker, phi_s1->uid_0, 2, phi_s1->uid_0 - 0x64);
-            } else if ((phi_s1->uid_0 >= 0xC8) && (phi_s1->uid_0 < 0x12C)) {
+        for(phi_s2 = 0; phi_s2 < sp2C->count; phi_s2++){
+            if ((phi_s1->uid >= 0x65) && (phi_s1->uid < 0xC8)) {
+                func_8034BED0(marker, phi_s1->uid, 2, phi_s1->uid - 0x64);
+            } else if ((phi_s1->uid >= 0xC8) && (phi_s1->uid < 0x12C)) {
                 if (func_802E4A08()) {
-                    func_8034BED0(marker, phi_s1->uid_0, 1, phi_s1->uid_0 - 0xC8);
+                    func_8034BED0(marker, phi_s1->uid, 1, phi_s1->uid - 0xC8);
                 } else {
-                    func_8034BED0(marker, phi_s1->uid_0, 0, phi_s1->uid_0 - 0xC8);
+                    func_8034BED0(marker, phi_s1->uid, 0, phi_s1->uid - 0xC8);
                 }
-            } else if ((phi_s1->uid_0 >= 0x12C) && (phi_s1->uid_0 < 0x190)) {
-                func_8034BED0(marker, phi_s1->uid_0, 4, phi_s1->uid_0 - 0x12C);
-            } else if ((phi_s1->uid_0 >= 0x190) && (phi_s1->uid_0 < 0x1F4)) {
-                func_8034BED0(marker, phi_s1->uid_0, 3, phi_s1->uid_0 - 0x190);
-            } else if ((phi_s1->uid_0 >= 0x1F4) && (phi_s1->uid_0 < 0x258)) {
-                func_8034BED0(marker, phi_s1->uid_0, 5, phi_s1->uid_0 - 0x1F4);
-            } else if ((phi_s1->uid_0 >= 0x258) && (phi_s1->uid_0 < 0x2BC)) {
-                func_8034BED0(marker, phi_s1->uid_0, 3, phi_s1->uid_0 - 0x258);
-            } else if ((phi_s1->uid_0 >= 0x2BC) && (phi_s1->uid_0 < 0x320)) {
-                func_8034BED0(marker, phi_s1->uid_0, 6, phi_s1->uid_0 - 0x2BC);
-            } else if ((phi_s1->uid_0 >= 0x320) && (phi_s1->uid_0 < 0x384)) {
-                func_8034BED0(marker, phi_s1->uid_0, 7, phi_s1->uid_0 - 0x320);
-            } else if ((phi_s1->uid_0 >= 0x384) && (phi_s1->uid_0 < 0x3E8)) {
-                func_8034BED0(marker, phi_s1->uid_0, 8, phi_s1->uid_0 - 0x384);
+            } else if ((phi_s1->uid >= 0x12C) && (phi_s1->uid < 0x190)) {
+                func_8034BED0(marker, phi_s1->uid, 4, phi_s1->uid - 0x12C);
+            } else if ((phi_s1->uid >= 0x190) && (phi_s1->uid < 0x1F4)) {
+                func_8034BED0(marker, phi_s1->uid, 3, phi_s1->uid - 0x190);
+            } else if ((phi_s1->uid >= 0x1F4) && (phi_s1->uid < 0x258)) {
+                func_8034BED0(marker, phi_s1->uid, 5, phi_s1->uid - 0x1F4);
+            } else if ((phi_s1->uid >= 0x258) && (phi_s1->uid < 0x2BC)) {
+                func_8034BED0(marker, phi_s1->uid, 3, phi_s1->uid - 0x258);
+            } else if ((phi_s1->uid >= 0x2BC) && (phi_s1->uid < 0x320)) {
+                func_8034BED0(marker, phi_s1->uid, 6, phi_s1->uid - 0x2BC);
+            } else if ((phi_s1->uid >= 0x320) && (phi_s1->uid < 0x384)) {
+                func_8034BED0(marker, phi_s1->uid, 7, phi_s1->uid - 0x320);
+            } else if ((phi_s1->uid >= 0x384) && (phi_s1->uid < 0x3E8)) {
+                func_8034BED0(marker, phi_s1->uid, 8, phi_s1->uid - 0x384);
             }
-            phi_s1 = (BKMesh *)((uintptr_t)phi_s1 + phi_s1->vtxCount_2*sizeof(s16) + sizeof(BKMesh));
+            phi_s1 = (BKMesh *)((uintptr_t)phi_s1 + phi_s1->vtx_count*sizeof(s16) + sizeof(BKMesh));
         }
     }
 }

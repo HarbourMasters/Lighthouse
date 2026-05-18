@@ -151,7 +151,7 @@ static void __chLockup_updateFunc(Actor *this){
             if(this->marker->unk14_21 && actor_animationIsAt(this, 0.99f)){
                 __chLockup_close(this);
                 for(i = 5; i < 0xe; i++){
-                    func_8034A174(this->marker->unk44, i, this->unk1C);
+                    vec3fArray_get_vec3f(this->marker->unk44, i, this->unk1C);
                     dustEmitter_emit(this->unk1C, sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
                 }
             }

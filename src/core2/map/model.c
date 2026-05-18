@@ -6,17 +6,17 @@
 #include "core2/modelRender.h"
 #include "core2/coords.h"
 
-extern BKCollisionTri *func_802E8E88(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], s32, s32);
-extern BKCollisionTri *func_802E92AC(BKCollisionList *, BKVertexList *, f32[3], f32, f32[3], s32);
-extern s32 func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6);
+extern BKCollisionTriangle *func_802E8E88(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], s32, s32);
+extern BKCollisionTriangle *func_802E92AC(BKCollisionList *, BKVertexList *, f32[3], f32, f32[3], s32);
+extern s32 bkmodelunk14list_func_802EC394(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], f32 arg5[3], s32 arg6);
 extern void vtxList_getBounds_s32(BKVertexList *, s32[3], s32[3]);
 extern void func_802F7BC0(Gfx **, Mtx **, Vtx **);
 extern void func_8033A45C(s32, s32);
-extern struct5Bs *func_8034A348(struct5Bs *this);
-extern struct5Bs *func_8034A2C8(void);
+extern Vec3fArray *vec3fArray_defrag(Vec3fArray *this);
+extern Vec3fArray *vec3fArray_new(void);
 extern void func_8034C6DC(BKModel *arg0);
 
-BKCollisionTri *func_80309B48(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3) ;
+BKCollisionTriangle *func_80309B48(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3) ;
 
 typedef struct {
     s16 map_id; //enum map_e
@@ -172,7 +172,7 @@ struct {
     BKModelBin *model_bin_opa;
     BKModelBin *model_bin_xlu;
     uintptr_t unk20;
-    struct5Bs *unk24;
+    Vec3fArray *unk24;
     MapModelDescription *description;
     u8 env_red;
     u8 env_green;
@@ -357,7 +357,7 @@ void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             func_8033A45C(6, (jigsawPicture_isJigsawPictureComplete(0xA) || fileProgressFlag_get(FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)));
             break;
         }
-        func_8033A450(mapModel.unk24);
+        modelRender_setRefPoints(mapModel.unk24);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
         temp_a0 = mapModel.unk0;
         if (temp_a0 != 0) {
@@ -415,13 +415,13 @@ void *func_80309794(void){
     return (void *)mapModel.unk20;
 }
 
-struct5Bs *func_803097A0(void){
+Vec3fArray *func_803097A0(void){
     return mapModel.unk24;
 }
 
 
 void mapModel_getCubeBounds(s32 min[3], s32 max[3]) {
-    vtxList_getBounds_s32(model_getVtxList(mapModel.model_bin_opa), min, max);
+    vtxList_getBounds_s32(modelbin_getVtxList(mapModel.model_bin_opa), min, max);
     coords_scale(min, max, 1000);
     min[0] = min[0] + mapModel.description->unk6[0];
     min[1] = min[1] + mapModel.description->unk6[1];
@@ -434,7 +434,7 @@ void mapModel_getCubeBounds(s32 min[3], s32 max[3]) {
 void mapModel_getOpaBounds(s32 min[3], s32 max[3]) {
     s32 i;
 
-    vtxList_getBounds_s32(model_getVtxList(mapModel.model_bin_opa), min, max);
+    vtxList_getBounds_s32(modelbin_getVtxList(mapModel.model_bin_opa), min, max);
     for(i = 0; i < 3; i++){
         min[i] *= mapModel.scale;
         max[i] *= mapModel.scale;
@@ -446,14 +446,14 @@ void mapModel_getBounds(s32 min[3], s32 max[3]) {
     s32 xlu_min[3];
     s32 xlu_max[3];
 
-    vtxList_getBounds_s32(model_getVtxList(mapModel.model_bin_opa), min, max);
+    vtxList_getBounds_s32(modelbin_getVtxList(mapModel.model_bin_opa), min, max);
     for(i = 0; i < 3; i++){
         min[i] *= mapModel.scale;
         max[i] *= mapModel.scale;
     }
 
     if (mapModel.model_bin_xlu != NULL) {
-        vtxList_getBounds_s32(model_getVtxList(mapModel.model_bin_xlu), xlu_min, xlu_max);
+        vtxList_getBounds_s32(modelbin_getVtxList(mapModel.model_bin_xlu), xlu_min, xlu_max);
         for(j = 0; j < 3; j++){
             if(xlu_min[j] < min[j]){
                 min[j] = xlu_min[j];
@@ -470,9 +470,9 @@ f32 func_80309B24(f32 arg0[3]){
     return func_80308FDC(arg0, 0xf800ff0f);
 }
 
-BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter) {
-    BKCollisionTri *opaqueTri;
-    BKCollisionTri *transparentTri;
+BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter) {
+    BKCollisionTriangle *opaqueTri;
+    BKCollisionTriangle *transparentTri;
 
     mapModel.unk20 = 0;
     if (mapModel.collision_xlu != NULL) {
@@ -480,10 +480,10 @@ BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u
             opaqueTri = NULL;
         }
         else {
-            opaqueTri = func_802E76B0(mapModel.collision_opa, model_getVtxList(mapModel.model_bin_opa), startPoint, endPoint, arg2, flagFilter);
+            opaqueTri = func_802E76B0(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), startPoint, endPoint, arg2, flagFilter);
         }
 
-        transparentTri = func_802E76B0(mapModel.collision_xlu, model_getVtxList(mapModel.model_bin_xlu), startPoint, endPoint, arg2, flagFilter);
+        transparentTri = func_802E76B0(mapModel.collision_xlu, modelbin_getVtxList(mapModel.model_bin_xlu), startPoint, endPoint, arg2, flagFilter);
 
         if (transparentTri != NULL) {
             mapModel.unk20 = (uintptr_t) mapModel.model_bin_xlu;
@@ -497,7 +497,7 @@ BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u
         return opaqueTri;
     }
     else{
-        opaqueTri = func_802E76B0(mapModel.collision_opa, model_getVtxList(mapModel.model_bin_opa), startPoint, endPoint, arg2, flagFilter);
+        opaqueTri = func_802E76B0(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), startPoint, endPoint, arg2, flagFilter);
         if (opaqueTri != NULL) {
             mapModel.unk20 = (uintptr_t) mapModel.model_bin_opa;
         }
@@ -506,11 +506,11 @@ BKCollisionTri *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u
     return opaqueTri;
 }
 
-BKCollisionTri *func_80309C74(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flagFilter, BKModelBin **arg4) {
-    BKCollisionTri *sp2C;
-    BKCollisionTri *phi_v0;
+BKCollisionTriangle *func_80309C74(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flagFilter, BKModelBin **arg4) {
+    BKCollisionTriangle *sp2C;
+    BKCollisionTriangle *phi_v0;
 
-    sp2C = func_802E76B0(mapModel.collision_opa, model_getVtxList(mapModel.model_bin_opa), arg0, arg1, arg2, flagFilter);
+    sp2C = func_802E76B0(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), arg0, arg1, arg2, flagFilter);
     if (sp2C != NULL) {
         *arg4 = mapModel.model_bin_opa;
     }
@@ -518,7 +518,7 @@ BKCollisionTri *func_80309C74(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flagFil
         return sp2C;
     }
 
-    phi_v0 = func_802E76B0(mapModel.collision_xlu, model_getVtxList(mapModel.model_bin_xlu), arg0, arg1, arg2, flagFilter);
+    phi_v0 = func_802E76B0(mapModel.collision_xlu, modelbin_getVtxList(mapModel.model_bin_xlu), arg0, arg1, arg2, flagFilter);
     if (phi_v0 != 0) {
         *arg4 = mapModel.model_bin_xlu;
     }
@@ -528,26 +528,26 @@ BKCollisionTri *func_80309C74(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flagFil
 bool func_80309D58(f32 arg0[3], s32 arg1) {
     BKModelUnk14List *temp_v0;
 
-    temp_v0 = func_8033A12C(mapModel.model_bin_opa);
+    temp_v0 = modelbin_getUnk14List(mapModel.model_bin_opa);
     if (temp_v0 != NULL) {
-        return func_802EC394(temp_v0, NULL, NULL, 1.0f, NULL, arg0, arg1);
+        return bkmodelunk14list_func_802EC394(temp_v0, NULL, NULL, 1.0f, NULL, arg0, arg1);
     }
     return 0;
 }
 
-BKCollisionTri *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 arg2, f32 arg3[3], s32 arg4, s32 arg5) {
-    BKCollisionTri *sp34;
-    BKCollisionTri *temp_v0_2;
+BKCollisionTriangle *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 arg2, f32 arg3[3], s32 arg4, s32 arg5) {
+    BKCollisionTriangle *sp34;
+    BKCollisionTriangle *temp_v0_2;
 
     mapModel.unk20 = 0;
-    sp34 = func_802E8E88(mapModel.collision_opa, model_getVtxList(mapModel.model_bin_opa), currentPosition, next_position, arg2, arg3, arg4, arg5);
+    sp34 = func_802E8E88(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), currentPosition, next_position, arg2, arg3, arg4, arg5);
     if (sp34 != NULL) {
         mapModel.unk20 = (uintptr_t) mapModel.model_bin_opa;
     }
     if (mapModel.collision_xlu == 0) {
         return sp34;
     }
-    temp_v0_2 = func_802E8E88(mapModel.collision_xlu, model_getVtxList(mapModel.model_bin_xlu), currentPosition, next_position, arg2, arg3, arg4, arg5);
+    temp_v0_2 = func_802E8E88(mapModel.collision_xlu, modelbin_getVtxList(mapModel.model_bin_xlu), currentPosition, next_position, arg2, arg3, arg4, arg5);
     if (temp_v0_2 != NULL) {
         mapModel.unk20 = (uintptr_t) mapModel.model_bin_xlu;
         return temp_v0_2;
@@ -555,15 +555,15 @@ BKCollisionTri *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 
     return sp34;
 }
 
-BKCollisionTri *func_80309EB0(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
-    BKCollisionTri *sp24;
-    BKCollisionTri *temp_v0_2;
+BKCollisionTriangle *func_80309EB0(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
+    BKCollisionTriangle *sp24;
+    BKCollisionTriangle *temp_v0_2;
 
-    sp24 = func_802E92AC(mapModel.collision_opa, model_getVtxList(mapModel.model_bin_opa), arg0, arg1, arg2, arg3);
+    sp24 = func_802E92AC(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), arg0, arg1, arg2, arg3);
     if (mapModel.collision_xlu == 0) {
         return sp24;
     }
-    temp_v0_2 = func_802E92AC(mapModel.collision_xlu, model_getVtxList(mapModel.model_bin_xlu), arg0, arg1, arg2, arg3);
+    temp_v0_2 = func_802E92AC(mapModel.collision_xlu, modelbin_getVtxList(mapModel.model_bin_xlu), arg0, arg1, arg2, arg3);
     return (temp_v0_2 != NULL) ? temp_v0_2 : sp24;
 }
 
@@ -594,7 +594,7 @@ void mapModel_free(void){
     if(mapModel.model_xlu)
         model_free(mapModel.model_xlu);
 
-    func_8034A2A8(mapModel.unk24);
+    vec3fArray_free(mapModel.unk24);
 }
 
 enum asset_e mapModel_getOpaModelId(void){
@@ -602,7 +602,7 @@ enum asset_e mapModel_getOpaModelId(void){
 }
 
 void func_8030A078(void) {
-    BKEffectsList *sp24;
+    BKMeshList *sp24;
     MapModelDescription *description;
 
     mapModel.env_blue = 0xFF;
@@ -616,18 +616,18 @@ void func_8030A078(void) {
     // The resource cache preserves vertex data modified by mesh transforms,
     // causing displacements to stack across map loads.
     mapModel.model_bin_opa = (BKModelBin *)assetcache_reload(mapModel.description->opa_model_id);
-    mapModel.collision_opa = model_getCollisionList(mapModel.model_bin_opa);
+    mapModel.collision_opa = modelbin_getCollisionList(mapModel.model_bin_opa);
     mapModel.unk20 = 0;
     if (mapModel.description->xlu_model_id != 0) {
         mapModel.model_bin_xlu = (BKModelBin *)assetcache_reload(mapModel.description->xlu_model_id);
-        mapModel.collision_xlu = model_getCollisionList(mapModel.model_bin_xlu);
+        mapModel.collision_xlu = modelbin_getCollisionList(mapModel.model_bin_xlu);
     } else {
         mapModel.model_bin_xlu = NULL;
         mapModel.collision_xlu = NULL;
     }
-    sp24 = func_8033A0B0(mapModel.model_bin_opa);
+    sp24 = modelbin_getMeshList(mapModel.model_bin_opa);
     if (sp24 != NULL) {
-        mapModel.model_opa = func_8033F5F8((BKMeshList *)sp24, model_getVtxList(mapModel.model_bin_opa));
+        mapModel.model_opa = meshList_createModel((BKMeshList *)sp24, modelbin_getVtxList(mapModel.model_bin_opa));
     } else {
         mapModel.model_opa = NULL;
     }
@@ -636,32 +636,32 @@ void func_8030A078(void) {
     }
 
     if (mapModel.model_bin_xlu != NULL) {
-        sp24 = func_8033A0B0(mapModel.model_bin_xlu);
+        sp24 = modelbin_getMeshList(mapModel.model_bin_xlu);
     }
     else{
         sp24 = NULL;
     }
     
     if (sp24 != NULL) {
-        mapModel.model_xlu = func_8033F5F8((BKMeshList *)sp24, model_getVtxList(mapModel.model_bin_xlu));
+        mapModel.model_xlu = meshList_createModel((BKMeshList *)sp24, modelbin_getVtxList(mapModel.model_bin_xlu));
     } else {
         mapModel.model_xlu = 0;
     }
     if (mapModel.model_xlu != NULL) {
         func_8034C6DC(mapModel.model_xlu);
     }
-    mapModel.unk24 = func_8034A2C8();
+    mapModel.unk24 = vec3fArray_new();
     func_80320B44(func_80309B48, func_80309DBC, func_80309EB0, func_80309794);
 
-    if (( mapModel.model_bin_opa != NULL) && (model_getAnimTextureList( mapModel.model_bin_opa) != NULL)) {
+    if (( mapModel.model_bin_opa != NULL) && (modelbin_getAnimTextureList( mapModel.model_bin_opa) != NULL)) {
         mapModel.unk0 = AnimTextureListCache_newList();
-        AnimTextureListCache_at(mapModel.unk0, model_getAnimTextureList(mapModel.model_bin_opa));
+        AnimTextureListCache_setAnimTextureList(mapModel.unk0, modelbin_getAnimTextureList(mapModel.model_bin_opa));
     } else {
         mapModel.unk0 = 0;
     }
-    if ((mapModel.model_bin_xlu != NULL) && (model_getAnimTextureList(mapModel.model_bin_xlu) != 0)) {
+    if ((mapModel.model_bin_xlu != NULL) && (modelbin_getAnimTextureList(mapModel.model_bin_xlu) != 0)) {
         mapModel.unk4 = AnimTextureListCache_newList();
-        AnimTextureListCache_at(mapModel.unk4, model_getAnimTextureList(mapModel.model_bin_xlu));
+        AnimTextureListCache_setAnimTextureList(mapModel.unk4, modelbin_getAnimTextureList(mapModel.model_bin_xlu));
     }
     else{
         mapModel.unk4 = 0;
@@ -676,6 +676,6 @@ void mapModel_setEnvColor(s32 r, s32 g, s32 b){
 
 void mapModel_defrag(void){
     if(mapModel.unk24 != NULL){
-        mapModel.unk24 = func_8034A348(mapModel.unk24);
+        mapModel.unk24 = vec3fArray_defrag(mapModel.unk24);
     }
 }

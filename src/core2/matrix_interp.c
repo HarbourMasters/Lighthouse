@@ -11,7 +11,7 @@
        |   |   |   |
       [2] [3] [0] [1]
 */
-f32 func_8034A9D0(f32 arg0[4], f32 arg1) {
+f32 core2_C3A40_getIntensity(f32 arg0[4], f32 arg1) {
     if (arg0[1] <= arg1) {
         return 0.0f;
     }
@@ -28,7 +28,7 @@ f32 func_8034A9D0(f32 arg0[4], f32 arg1) {
 }
 
 
-void func_8034AA70(f32 arg0[4]){
+void core2_C3A40_getDefaultValues(f32 arg0[4]){
     arg0[1] = 10000.0f;
     arg0[0] = 4000.0f;
     arg0[3] = 2000.0f;

@@ -9,7 +9,7 @@
 Actor *chvile_draw(ActorMarker*, Gfx **, Mtx **, Vtx **);
 void chvile_update(Actor *);
 void func_8038BB40(ActorMarker *);
-extern BKCollisionTri *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32);
+extern BKCollisionTriangle *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32);
 
 extern bool chvilegame_find_closest_piece(ActorMarker *, f32[3], f32, f32[3]);
 
@@ -237,7 +237,7 @@ Actor *chvile_draw(ActorMarker *marker, Gfx **gfx, Mtx** mtx, Vtx **vtx){
         (local->unk14 > 0.0f) 
         && (this->marker->unk14_21)
     ) {
-        func_8034A174(func_80329934(), 5, position);
+        vec3fArray_get_vec3f(func_80329934(), 5, position);
         position[1] -= 30.0f;
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
         modelRender_draw(gfx, mtx, position, 0, local->unk14, 0, local->unk4);

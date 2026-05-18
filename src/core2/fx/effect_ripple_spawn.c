@@ -3,7 +3,7 @@
 #include "variables.h"
 #include "core2/particle.h"
 
-extern BKCollisionTri *func_8024549C(f32[3], f32);
+extern BKCollisionTriangle *func_8024549C(f32[3], f32);
 extern void func_802EFAB0(ParticleEmitter *, uintptr_t, f32);
 extern void func_802F0EAC(ParticleEmitter *, f32);
 extern ParticleEmitter *pem_getEmitterByIndex(u8);

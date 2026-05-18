@@ -3,7 +3,7 @@
 #include "variables.h"
 #include "model.h"
 
-void func_8034CE90(s32 arg0, BKVtxRef *arg1, Vtx *arg2, void *arg3){
+void func_8034CE90(s32 arg0, BKModelVtxRef *arg1, Vtx *arg2, void *arg3){
     Struct72s *data = (Struct72s *)arg3;
     s32 i;
 
@@ -26,7 +26,7 @@ void func_8034CF90(void *arg0_, BKModel *arg1, s32 arg2) {
     arg0->unk0 += randf2(-0.04f, 0.04f);
     arg0->unk0 = (arg0->unk0 > 1.0f) ? 1.0f : arg0->unk0;
     arg0->unk0 = (arg0->unk0 < 0.8) ? 0.8 : arg0->unk0;
-    BKModel_transformMesh(arg1, arg2, func_8034CE90, (void *) arg0);
+    model_transformMesh(arg1, arg2, func_8034CE90, (void *) arg0);
 }
 
 void func_8034D048(Struct72s *arg0, BKModel *arg1, s32 arg2) {
@@ -34,5 +34,5 @@ void func_8034D048(Struct72s *arg0, BKModel *arg1, s32 arg2) {
     arg0->unk0 += (osGetCount() & 0x1F) / 387.5;
     arg0->unk0 =  (arg0->unk0 > 1.0f) ? 1.0f : arg0->unk0;
     arg0->unk0 =  (arg0->unk0 < 0.8) ? 0.8 : arg0->unk0;
-    BKModel_transformMesh(arg1, arg2, func_8034CE90, (void *) arg0);
+    model_transformMesh(arg1, arg2, func_8034CE90, (void *) arg0);
 }

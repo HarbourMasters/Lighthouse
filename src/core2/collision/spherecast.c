@@ -5,11 +5,11 @@
 
 #include <bk_math.h>
 
-extern BKCollisionTri *func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32);
+extern BKCollisionTriangle *func_80244E54(f32[3], f32[3], f32 [3], u32, f32, f32);
 
 extern void func_80244F00(f32[3], f32, f32, s32, s32);
 
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
+extern BKCollisionTriangle *func_80320DB0(f32[3], f32, f32[3], u32);
 
 extern int func_80320ED8(ActorMarker *, f32, s32);
 
@@ -17,7 +17,7 @@ extern f32 func_8033229C(ActorMarker *marker);
 
 extern f32 func_80309B24(f32 [3]);
 
-extern BKCollisionTri *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
+extern BKCollisionTriangle *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
 
 /* .h */
 typedef bool (*method_core2_A4D00_0)(Actor *, f32[3], s32, s32);
@@ -25,11 +25,11 @@ typedef bool (*method_core2_A4D00_0)(Actor *, f32[3], s32, s32);
 typedef struct {
     f32 unk0[3];
     f32 unkC[3];
-    BKCollisionTri *unk18;
+    BKCollisionTriangle *unk18;
     f32 unk1C[3];
     f32 unk28[3];
     f32 unk34[3];
-    BKCollisionTri *unk40;
+    BKCollisionTriangle *unk40;
     f32 unk44[3];
     u8 pad50[0x3C];
     s32 unk8C;
@@ -92,7 +92,7 @@ f32 D_803833D8[3];
 bool func_8032BC90(Actor *actor, f32 arg1[3], s32 arg2, s32 arg3) {
     f32 sp44[3];
     bool sp40;
-    BKCollisionTri *phi_v0;
+    BKCollisionTriangle *phi_v0;
     f32 sp30[3];
 
     sp40 = actor->marker->propPtr->unk8_3;

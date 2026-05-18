@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
+extern BKCollisionTriangle *func_80320DB0(f32[3], f32, f32[3], u32);
 
 /* .h */
 Actor *func_80358344(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);

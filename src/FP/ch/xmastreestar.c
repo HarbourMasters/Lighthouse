@@ -56,7 +56,7 @@ void chXmasTreeStar_update(Actor *this){
     f32 sp58[3];
     f32 sp4C[3];
     f32 sp40[3];
-    BKCollisionTri *sp3C;
+    BKCollisionTriangle *sp3C;
     f32 sp30[3];
 
     if(jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)){
@@ -76,8 +76,8 @@ void chXmasTreeStar_update(Actor *this){
 
     local->unk19 = 0;
     if(!local->unk1A && this->marker->unk14_21){
-        func_8034A174(this->marker->unk44, 5, sp58);
-        func_8034A174(this->marker->unk44, 6, sp4C);
+        vec3fArray_get_vec3f(this->marker->unk44, 5, sp58);
+        vec3fArray_get_vec3f(this->marker->unk44, 6, sp4C);
         local->unk0[0] = sp58[0] - sp4C[0];
         local->unk0[1] = sp58[1] - sp4C[1];
         local->unk0[2] = sp58[2] - sp4C[2];

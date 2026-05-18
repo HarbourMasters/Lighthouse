@@ -5,7 +5,7 @@
 
 #include <bk_math.h>
 
-extern f32 func_8034A9D0(f32[4], f32);
+extern f32 core2_C3A40_getIntensity(f32[4], f32);
 
 /*.bss */
 struct {
@@ -18,7 +18,7 @@ struct {
 
 /* .code */
 Vtx *vtxList_getVertices(BKVertexList *vtxList){
-    return &vtxList->vtx_18[0];
+    return &vtxList->vertices[0];
 }
 
 void vtxList_getBounds_s32(BKVertexList *vtxList, s32 min[3], s32 max[3]){
@@ -132,7 +132,7 @@ void func_802EC680(BKVertexList *self, s32 arg1, f32 arg2[3], f32 arg3[3]) {
 }
 
 void vtxList_getVtxRange(BKVertexList *this, Vtx **vtx, Vtx **vtx_end){
-    *vtx = &this->vtx_18[0];
+    *vtx = &this->vertices[0];
     *vtx_end = &(*vtx)[this->count];
 }
 
@@ -169,15 +169,15 @@ BKVertexList *vtxList_clone(BKVertexList *vtxList){
     return out_v0;
 }
 
-void vtxList_copyColors(BKVertexList *dst, BKVertexList *src) {
+void vtxList_copyColorsFrom(BKVertexList *dst, BKVertexList *src) {
     Vtx *start_ptr;
     Vtx *end_ptr;
     Vtx *i_ptr;
     Vtx *src_ptr;
     s32 i;
 
-    src_ptr = &src->vtx_18[0];
-    start_ptr = &dst->vtx_18[0];
+    src_ptr = &src->vertices[0];
+    start_ptr = &dst->vertices[0];
     end_ptr = start_ptr + dst->count;
     for(i_ptr = start_ptr; i_ptr < end_ptr; i_ptr++, src_ptr++){
             i_ptr->v.cn[0] = src_ptr->v.cn[0];
@@ -188,16 +188,16 @@ void vtxList_copyColors(BKVertexList *dst, BKVertexList *src) {
     osWritebackDCache(start_ptr, ((s32)(end_ptr - start_ptr)) * sizeof(Vtx));
 }
 
-void vtxList_tint(BKVertexList *dst, s32 target_color[3], f32 amount, BKVertexList *src) {
+void vtxList_tintColorsFrom(BKVertexList *dst, s32 target_color[3], f32 amount, BKVertexList *src) {
     Vtx *start_ptr;
     Vtx *end_ptr;
     Vtx *i_ptr;
     Vtx *src_ptr;
     s32 i;
 
-    start_ptr = &dst->vtx_18[0];
+    start_ptr = &dst->vertices[0];
     end_ptr = start_ptr + dst->count;
-    for(i_ptr = start_ptr, src_ptr = &src->vtx_18[0]; i_ptr < end_ptr; i_ptr++, src_ptr++){
+    for(i_ptr = start_ptr, src_ptr = &src->vertices[0]; i_ptr < end_ptr; i_ptr++, src_ptr++){
         for(i = 0; i < 3; i++){
             i_ptr->v.cn[i] = src_ptr->v.cn[i] + (target_color[i] - src_ptr->v.cn[i]) * amount;
         }
@@ -214,7 +214,7 @@ void vtxList_tint(BKVertexList *dst, s32 target_color[3], f32 amount, BKVertexLi
  * @param rotation vertexlist world rotation
  * @param arg4 Step function definition 
  */
-void func_802ECBD4(BKVertexList *dst, BKVertexList *src, f32 position[3], f32 rotation[3], f32 arg4[4]) {
+void vtxList_func_802ECBD4(BKVertexList *dst, BKVertexList *src, f32 position[3], f32 rotation[3], f32 arg4[4]) {
     f32 vp_position[3];
     f32 vp_look[3];
     Vtx *dst_vtx;
@@ -241,7 +241,7 @@ void func_802ECBD4(BKVertexList *dst, BKVertexList *src, f32 position[3], f32 ro
     for(dst_vtx = start_vtx, src_vtx = (Vtx *)(src + 1); dst_vtx < end_vtx; dst_vtx++, src_vtx++){
             TUPLE_DIFF_COPY(sp4C, dst_vtx->v.ob, vp_position);
             temp_f0 = TUPLE_DOT_PRODUCT(vp_look, sp4C);
-            temp_f0 = func_8034A9D0(arg4, temp_f0);
+            temp_f0 = core2_C3A40_getIntensity(arg4, temp_f0);
             for(i = 0; i < 3; i++){
                 dst_vtx->v.cn[i] = temp_f0*src_vtx->v.cn[i];
             }
@@ -255,7 +255,7 @@ void vtxList_randColors(BKVertexList *self) {
     Vtx *i_ptr;
     s32 i;
 
-    start_ptr = &self->vtx_18[0];
+    start_ptr = &self->vertices[0];
     end_ptr = start_ptr + self->count;
     for(i_ptr = start_ptr; i_ptr < end_ptr; i_ptr++){
         for(i = 0; i < 3; i++){
@@ -273,7 +273,7 @@ void vtxList_randWalkColor(BKVertexList *self) {
     s32 i;
     s32 phi_s0;
 
-    start_ptr = &self->vtx_18[0];
+    start_ptr = &self->vertices[0];
     end_ptr = start_ptr + self->count;
     for(i_ptr = start_ptr; i_ptr < end_ptr; i_ptr++){
         for(i = 0; i < 3; i++){
@@ -294,7 +294,7 @@ void vtxList_recolor(BKVertexList *self, s32 arg1[3]) {
     s32 i;
     s32 phi_s0;
 
-    start_ptr = &self->vtx_18[0];
+    start_ptr = &self->vertices[0];
     end_ptr = start_ptr + self->count;
     for(i_ptr = start_ptr; i_ptr < end_ptr; i_ptr++){
         for(i = 0; i < 3; i++){
@@ -304,17 +304,17 @@ void vtxList_recolor(BKVertexList *self, s32 arg1[3]) {
     osWritebackDCache(start_ptr, ((s32)(end_ptr - start_ptr)) * sizeof(Vtx));
 }
 
-void func_802ED108(f32 arg0[3]){
+void vtxList_func_802ED108(f32 arg0[3]){
     arg0[0] = D_803808C0.unk20[0];
     arg0[1] = D_803808C0.unk20[1];
     arg0[2] = D_803808C0.unk20[2];
 }
 
-s32 func_802ED12C(void){
+s32 vtxList_func_802ED12C(void){
     return  D_803808C0.unk0;
 }
 
-void func_802ED138(f32 arg0[3], f32 arg1[3], f32 arg2){
+void vtxList_func_802ED138(f32 arg0[3], f32 arg1[3], f32 arg2){
     D_803808C0.unk0 = 0;
     D_803808C0.unk10[0] = arg0[0];
     D_803808C0.unk10[1] = arg0[1];
@@ -327,7 +327,7 @@ void func_802ED138(f32 arg0[3], f32 arg1[3], f32 arg2){
     D_803808C0.unk1C = arg2;
 }
 
-void func_802ED180(BKVertexList *self, f32 arg1[3], f32 arg2[3], f32 arg3, f32 arg4[3]) {
+void vtxList_func_802ED180(BKVertexList *self, f32 arg1[3], f32 arg2[3], f32 arg3, f32 arg4[3]) {
     Vtx *phi_s0;
     f32 sp88[3];
     f32 sp7C[3];

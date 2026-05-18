@@ -14,7 +14,7 @@ extern f64 D_80379220;
 extern f64 D_80379228;
 
 /* .code */
-void func_8034D240(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3) {
+void func_8034D240(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3) {
     Struct6Ds *data = (Struct6Ds *)arg3;
     f32 temp_f0;
 
@@ -25,7 +25,7 @@ void func_8034D240(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3) {
     dst->v.cn[3] = (data->unk50[3] + temp_f0 * (data->unk60[3] - data->unk50[3])) * src->v.v.cn[3];
 }
 
-void func_8034D554(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
+void func_8034D554(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3){
     Struct6Ds *data = (Struct6Ds *)arg3;
     f32 temp_f0;
     f32 sp18[3];
@@ -38,7 +38,7 @@ void func_8034D554(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
     dst->v.ob[2] = (s16)(src->v.v.ob[2] + sp18[2]);
 }
 
-void func_8034D634(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
+void func_8034D634(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3){
     Struct6Ds *data = (Struct6Ds *)arg3;
     f32 temp_f0;
     f32 sp18[3];
@@ -50,13 +50,13 @@ void func_8034D634(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
     dst->v.ob[2] = (s16)(src->v.v.ob[2] + sp18[2]);
 }
 
-void func_8034D700(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
+void func_8034D700(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3){
     Struct6Ds *data = (Struct6Ds *)arg3;
     s16 disp = (s16)(s32)(data->unk4 + ((data->unk44 / data->unk48) * (data->unk8 - data->unk4))); // [port] u16→s16: ob[1] is s16, u16 wraps negative displacements
     dst->v.ob[1] = src->v.v.ob[1] + disp;
 }
 
-void func_8034D740(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
+void func_8034D740(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3){
     Struct6Ds *data = (Struct6Ds *)arg3;
     f32 temp_f0;
     f32 temp_f12;
@@ -71,7 +71,7 @@ void func_8034D740(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3){
     dst->v.cn[3] = (((data->unk94 - data->unk84) * temp_f0) + data->unk84);
 }
 
-void func_8034D9C8(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3) {
+void func_8034D9C8(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3) {
     Struct6Ds *data = (Struct6Ds *)arg3;
     f32 temp_f0;
 
@@ -79,7 +79,7 @@ void func_8034D9C8(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3) {
     dst->v.cn[3] = (((data->unk94 - data->unk84) * temp_f0) + data->unk84);
 }
 
-void func_8034DA7C(s32 mesh_id, BKVtxRef *src, Vtx *dst, void *arg3)  {
+void func_8034DA7C(s32 mesh_id, BKModelVtxRef *src, Vtx *dst, void *arg3)  {
     Struct6Ds *data = (Struct6Ds *)arg3;
     f32 sp24[3];
     f32 sp18[3];
@@ -153,7 +153,7 @@ void func_8034DD74(Struct6Ds *arg0, s32 arg1, BKModel *model, s32 mesh_id) {
     arg0->unk98 = 0.0f;
     arg0->unk44 = 0.0f;
     arg0->unk48 = 0.0f;
-    BKModel_getMeshCoordRange(model, mesh_id, arg0->unk14, arg0->unk1A);
+    model_getMeshCoordRange(model, mesh_id, arg0->unk14, arg0->unk1A);
 }
 
 void func_8034DDF0(Struct6Ds *arg0, f32 arg1[3], f32 arg2[3], f32 arg3, s32 arg4){
@@ -289,7 +289,7 @@ void func_8034E26C(Struct6Ds *arg0, BKModel *model, s32 mesh_id) {
                 arg0->unk28 = 2;
             }
         }
-        BKModel_transformMesh(model, mesh_id, func_8034D240, (void *) arg0);
+        model_transformMesh(model, mesh_id, func_8034D240, (void *) arg0);
         if (arg0->unk28 != 0) {
             arg0->unk28--;
             if (arg0->unk28 == 0) {
@@ -308,9 +308,9 @@ void func_8034E26C(Struct6Ds *arg0, BKModel *model, s32 mesh_id) {
         }
 
         if (arg0->unk29 == 5) {
-            BKModel_transformMesh(model, mesh_id, func_8034D9C8, (void *) arg0);
+            model_transformMesh(model, mesh_id, func_8034D9C8, (void *) arg0);
         } else {
-            BKModel_transformMesh(model, mesh_id, func_8034D740, (void *) arg0);
+            model_transformMesh(model, mesh_id, func_8034D740, (void *) arg0);
         }
 
         if (arg0->unk28 != 0) {
@@ -348,16 +348,16 @@ void func_8034E26C(Struct6Ds *arg0, BKModel *model, s32 mesh_id) {
     }
     switch (arg0->unk29) {
         case 1:
-            BKModel_transformMesh(model, mesh_id, func_8034D554, (void *) arg0);
+            model_transformMesh(model, mesh_id, func_8034D554, (void *) arg0);
             break;
         case 2:
-            BKModel_transformMesh(model, mesh_id, func_8034D634, (void *) arg0);
+            model_transformMesh(model, mesh_id, func_8034D634, (void *) arg0);
             break;
         case 3:
-            BKModel_transformMesh(model, mesh_id, func_8034D700, (void *) arg0);
+            model_transformMesh(model, mesh_id, func_8034D700, (void *) arg0);
             break;
         case 4:
-            BKModel_transformMesh(model, mesh_id, func_8034DA7C, (void *) arg0);
+            model_transformMesh(model, mesh_id, func_8034DA7C, (void *) arg0);
             break;
     }
     if (arg0->unk48 <= arg0->unk44) {

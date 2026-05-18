@@ -13,21 +13,21 @@ typedef struct {
     f32 edgeAB[3]; 
     f32 edgeAC[3]; 
     f32 normal[3];
-    BKCollisionTri *tri_ptr;
+    BKCollisionTriangle *tri_ptr;
     f32 tri_coord[3][3];
 }Struct_core2_5FD90_0;
 
 
 /* .bss */
 struct { 
-    BKCollisionGeo *unk0[100];
-    BKCollisionGeo **unk190;
+    BKCollisionGeometry *unk0[100];
+    BKCollisionGeometry **unk190;
 }D_8037E910;
 f32 D_8037EAA8[3][3];
 Struct_core2_5FD90_0 D_8037EAD0[100];
 
 /* .code */
-void func_802E6D20(BKCollisionTri *arg0, BKVertexList *vtx_list) {
+void collisionTriangle_func_802E6D20(BKCollisionTriangle *arg0, BKVertexList *vtx_list) {
     Vtx *vtx;
     Vtx *i_vtx;
     s32 i;
@@ -46,7 +46,7 @@ void func_802E6D20(BKCollisionTri *arg0, BKVertexList *vtx_list) {
     
 }
 
-void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3], f32 arg2[3], BKCollisionGeo ***arg3, BKCollisionGeo ***arg4) {
+void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3], f32 arg2[3], BKCollisionGeometry ***arg3, BKCollisionGeometry ***arg4) {
     s32 sp3C[3];
     s32 sp30[3];
 
@@ -55,7 +55,7 @@ void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3],
 
     if (collision_list->unk12 == 0) {
         D_8037E910.unk190 = &D_8037E910.unk0[0];
-        *(D_8037E910.unk190++) = (BKCollisionGeo *)((uintptr_t)collision_list + sizeof(BKCollisionList));
+        *(D_8037E910.unk190++) = (BKCollisionGeometry *)((uintptr_t)collision_list + sizeof(BKCollisionList));
         *arg3 = &D_8037E910.unk0[0];
         *arg4 = D_8037E910.unk190;
     }
@@ -95,7 +95,7 @@ void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3],
         for(z = sp3C[2]; z <= sp30[2]; z++){
             for(y = sp3C[1]; y <= sp30[1]; y++){
                 for(x = sp3C[0]; x <= sp30[0]; x++){
-                    *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeo *)(collision_list + 1))  + x + (y * collision_list->unkC);
+                    *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeometry *)(collision_list + 1))  + x + (y * collision_list->unkC);
                 }
             }
         }
@@ -104,7 +104,7 @@ void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3],
     }
 }
 
-void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCollisionGeo ***begin_geo_ptr, BKCollisionGeo ***end_geo_ptr) {
+void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCollisionGeometry ***begin_geo_ptr, BKCollisionGeometry ***end_geo_ptr) {
     s32 sp3C[3];
     s32 sp30[3];
 
@@ -113,7 +113,7 @@ void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCo
 
     if (collision_list->unk12 == 0) {
         D_8037E910.unk190 = &D_8037E910.unk0[0];
-        *(D_8037E910.unk190++) = (BKCollisionGeo *)((uintptr_t)collision_list + sizeof(BKCollisionList));
+        *(D_8037E910.unk190++) = (BKCollisionGeometry *)((uintptr_t)collision_list + sizeof(BKCollisionList));
         *begin_geo_ptr = &D_8037E910.unk0[0];
         *end_geo_ptr = D_8037E910.unk190;
     }
@@ -154,7 +154,7 @@ void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCo
         for(z = sp3C[2]; z <= sp30[2]; z++){
             for(y = sp3C[1]; y <= sp30[1]; y++){
                 for(x = sp3C[0]; x <= sp30[0]; x++){
-                    *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeo *)(collision_list + 1))  + x + (y * collision_list->unkC);
+                    *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeometry *)(collision_list + 1))  + x + (y * collision_list->unkC);
                 }
             }
         }
@@ -174,14 +174,14 @@ void func_802E73C8(f32 arg0[3][3]) {
 }
 
 s32 func_802E7408(BKCollisionList *collisionList) {
-    BKCollisionTri *temp_a1;
-    BKCollisionTri *temp_a2;
-    BKCollisionTri *phi_a2;
+    BKCollisionTriangle *temp_a1;
+    BKCollisionTriangle *temp_a2;
+    BKCollisionTriangle *phi_a2;
     s32 phi_v1;
 
     phi_v1 = 0;
-    temp_a2 = (BKCollisionTri *)((collisionList->unk10 * 4) + (uintptr_t)collisionList + sizeof(BKCollisionList));
-    temp_a1 = (BKCollisionTri *)((collisionList->unk14 * 0xC) + (uintptr_t)temp_a2);
+    temp_a2 = (BKCollisionTriangle *)((collisionList->unk10 * 4) + (uintptr_t)collisionList + sizeof(BKCollisionList));
+    temp_a1 = (BKCollisionTriangle *)((collisionList->unk14 * 0xC) + (uintptr_t)temp_a2);
     for(phi_a2 = temp_a2; phi_a2 < temp_a1; phi_a2++){
         if(phi_a2->flags & 0x1E0000){
             phi_v1++;
@@ -194,9 +194,9 @@ s32 func_802E7468(BKCollisionList *collisionList){
     return collisionList->unk14;
 }
 
-void collisionList_getTris(BKCollisionList *collision_list, BKCollisionTri **begin_ptr, BKCollisionTri **end_ptr){
-    *begin_ptr = (BKCollisionTri *)((collision_list->unk10 * 4) + (uintptr_t)collision_list + sizeof(BKCollisionList));
-    *end_ptr = (BKCollisionTri *)((collision_list->unk14 * 0xC) + (uintptr_t)*begin_ptr);
+void collisionList_getTris(BKCollisionList *collision_list, BKCollisionTriangle **begin_ptr, BKCollisionTriangle **end_ptr){
+    *begin_ptr = (BKCollisionTriangle *)((collision_list->unk10 * 4) + (uintptr_t)collision_list + sizeof(BKCollisionList));
+    *end_ptr = (BKCollisionTriangle *)((collision_list->unk14 * 0xC) + (uintptr_t)*begin_ptr);
 }
 
 
@@ -243,16 +243,16 @@ void calculateBoundsAndDirection(f32 startPoint[3], f32 endPoint[3], s32 minBoun
     directionbk_vector[2] = (endPoint[2] - startPoint[2]);
 }
 
-BKCollisionTri *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter) {
+BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter) {
     s32 i;
     s32 j;
-    BKCollisionGeo **start_geo;
-    BKCollisionGeo **i_geo;
-    BKCollisionGeo **end_geo;
-    BKCollisionTri *start_tri;
-    BKCollisionGeo *temp_v1;
-    BKCollisionTri *end_tri;
-    BKCollisionTri *i_tri;
+    BKCollisionGeometry **start_geo;
+    BKCollisionGeometry **i_geo;
+    BKCollisionGeometry **end_geo;
+    BKCollisionTriangle *start_tri;
+    BKCollisionGeometry *temp_v1;
+    BKCollisionTriangle *end_tri;
+    BKCollisionTriangle *i_tri;
     Vtx *vtx_pool;
     Vtx *sp164[3];
     s32 min_bounds[3];
@@ -280,7 +280,7 @@ BKCollisionTri *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vert
     s32 phi_a0_2;
     f32 pad;
     f32 sp90[3][3];
-    BKCollisionTri *result_collision;
+    BKCollisionTriangle *result_collision;
 
     result_collision = NULL;
     temp_f20 = (f32) vertexList->global_norm;
@@ -292,7 +292,7 @@ BKCollisionTri *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vert
     }
     func_802E70FC(collisionList, min_bounds, max_bounds, &start_geo, &end_geo);
     for(i_geo = start_geo; i_geo < end_geo; i_geo++){
-        start_tri = (BKCollisionTri *)((BKCollisionGeo *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
+        start_tri = (BKCollisionTriangle *)((BKCollisionGeometry *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
         end_tri = start_tri + (*i_geo)->tri_count;
         for(i_tri = start_tri; i_tri < end_tri; i_tri++){
             vtx_pool = (Vtx*)(vertexList + 1);
@@ -401,14 +401,14 @@ BKCollisionTri *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vert
 
         }
     }
-    func_802E6D20(result_collision, vertexList);
+    collisionTriangle_func_802E6D20(result_collision, vertexList);
     return result_collision;
 }
 
-BKCollisionTri *func_802E805C(BKCollisionList *collision_list, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7[3], u32 arg8){
+BKCollisionTriangle *collisionList_func_802E805C(BKCollisionList *collision_list, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7[3], u32 arg8){
     f32 sp44[3];
     f32 sp38[3];
-    BKCollisionTri *sp34;
+    BKCollisionTriangle *sp34;
     int i;
 
     if(!func_802E74A0(arg2, vtxList->global_norm*arg4, arg5, arg6)){
@@ -445,15 +445,15 @@ BKCollisionTri *func_802E805C(BKCollisionList *collision_list, BKVertexList *vtx
 }
 
 s32 func_802E81CC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 p1[3], f32 p2[3], f32 velocity[3], f32 margin, s32 flagFilter, Struct_core2_5FD90_0 **activeTriStartPtr, Struct_core2_5FD90_0 **activeTriEndPtr) {
-    BKCollisionGeo **start_geo;
-    BKCollisionGeo **i_geo;
-    BKCollisionGeo **end_geo;
+    BKCollisionGeometry **start_geo;
+    BKCollisionGeometry **i_geo;
+    BKCollisionGeometry **end_geo;
     f32 spC0[3];
-    BKCollisionTri *start_tri;
-    BKCollisionTri *end_tri;
+    BKCollisionTriangle *start_tri;
+    BKCollisionTriangle *end_tri;
     f32 min[3];
     f32 max[3];
-    BKCollisionTri *i_tri;
+    BKCollisionTriangle *i_tri;
     Vtx *vertex_pool;
     Vtx *i_vtx;
     s32 i;
@@ -475,7 +475,7 @@ s32 func_802E81CC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 
     vertex_pool = vtxList_getVertices(vertexList);
     var_s2 = D_8037EAD0;
     for(i_geo = start_geo; i_geo < end_geo; i_geo++){
-        start_tri = (BKCollisionTri *)((BKCollisionGeo *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
+        start_tri = (BKCollisionTriangle *)((BKCollisionGeometry *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
         end_tri = start_tri + (*i_geo)->tri_count;
         for(i_tri = start_tri; i_tri < end_tri; i_tri++){
             if (!(i_tri->flags & flagFilter)) {
@@ -672,7 +672,7 @@ Struct_core2_5FD90_0 *func_802E879C(Struct_core2_5FD90_0 *startTri, Struct_core2
     return spD0;
 }
 
-BKCollisionTri *func_802E8E88(BKCollisionList *collision_list, BKVertexList *vtx_list, f32 p1[3], f32 p2[3], f32 radius, f32 arg5[3], s32 arg6, s32 flagFilter){
+BKCollisionTriangle *func_802E8E88(BKCollisionList *collision_list, BKVertexList *vtx_list, f32 p1[3], f32 p2[3], f32 radius, f32 arg5[3], s32 arg6, s32 flagFilter){
     Struct_core2_5FD90_0 * start_active_tri;
     Struct_core2_5FD90_0 * end_active_tri;
     f32 spB4[3];
@@ -732,14 +732,14 @@ BKCollisionTri *func_802E8E88(BKCollisionList *collision_list, BKVertexList *vtx
         return NULL;
     }
     ml_vec3f_normalize(arg5);
-    func_802E6D20(phi_s5->tri_ptr, vtx_list);
+    collisionTriangle_func_802E6D20(phi_s5->tri_ptr, vtx_list);
     return phi_s5->tri_ptr;
 }
 
-BKCollisionTri *func_802E9118(BKCollisionList * collision_list, BKVertexList *vtx_list, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 flagFilter) {
+BKCollisionTriangle *func_802E9118(BKCollisionList * collision_list, BKVertexList *vtx_list, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 flagFilter) {
     f32 sp4C[3];
     f32 sp40[3];
-    BKCollisionTri *sp3C;
+    BKCollisionTriangle *sp3C;
     s32 i;
 
     if (((f32)vtx_list->global_norm * arg4) <= (ml_vec3f_distance(arg6, arg2) - arg7)) {
@@ -767,23 +767,23 @@ BKCollisionTri *func_802E9118(BKCollisionList * collision_list, BKVertexList *vt
     return sp3C;
 }
 
-BKCollisionTri *func_802E92AC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 position[3], f32 radius, f32 arg4[3], s32 flagFilter) {
-    BKCollisionGeo **start_geo;
-    BKCollisionGeo **i_geo;
-    BKCollisionGeo **end_geo;
+BKCollisionTriangle *func_802E92AC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 position[3], f32 radius, f32 arg4[3], s32 flagFilter) {
+    BKCollisionGeometry **start_geo;
+    BKCollisionGeometry **i_geo;
+    BKCollisionGeometry **end_geo;
     s32 i;
     s32 j;
     f32 min[3];
     f32 max[3];
-    BKCollisionTri *start_tri;
-    BKCollisionTri *i_tri;
-    BKCollisionTri *end_tri;
+    BKCollisionTriangle *start_tri;
+    BKCollisionTriangle *i_tri;
+    BKCollisionTriangle *end_tri;
     f32 tri_vtx_coord[3][3];
     Vtx *vtx_pool;
     Vtx *i_vtx;
     f32 min_coord[3];
     f32 max_coord[3];
-    BKCollisionGeo *temp_a2;
+    BKCollisionGeometry *temp_a2;
     f32 tri_edge[3][3];
     f32 sp138[3][3];
     f32 temp_f0_10;
@@ -801,7 +801,7 @@ BKCollisionTri *func_802E92AC(BKCollisionList *collisionList, BKVertexList *vert
     f32 spE4[3];
     f32 projected_position[3];
     f32 temp_f8;
-    BKCollisionTri *spD0;
+    BKCollisionTriangle *spD0;
     s32 var_a2;
     s32 var_v1_2;
 
@@ -825,7 +825,7 @@ BKCollisionTri *func_802E92AC(BKCollisionList *collisionList, BKVertexList *vert
     for(i_geo = start_geo; i_geo < end_geo; i_geo++){
 
         //iterate over each triangle in collision geometry
-        start_tri = (BKCollisionTri *)((BKCollisionGeo *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
+        start_tri = (BKCollisionTriangle *)((BKCollisionGeometry *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
         end_tri = start_tri + (*i_geo)->tri_count;
         for(i_tri = start_tri; i_tri < end_tri; i_tri++){
             //filter tri
@@ -969,13 +969,13 @@ BKCollisionTri *func_802E92AC(BKCollisionList *collisionList, BKVertexList *vert
     if (spD0 != NULL) {
         ml_vec3f_normalize_copy(arg4, spE4);
     }
-    func_802E6D20(spD0, vertexList);
+    collisionTriangle_func_802E6D20(spD0, vertexList);
     return spD0;
 }
 
-BKCollisionTri *func_802E9DD8(BKCollisionList *collisionList, BKVertexList *vtxList, f32 posA[3], f32 *rotA, f32 scaleA, f32 posB[3], f32 radB, f32 arg7[3], s32 arg8) {
+BKCollisionTriangle *func_802E9DD8(BKCollisionList *collisionList, BKVertexList *vtxList, f32 posA[3], f32 *rotA, f32 scaleA, f32 posB[3], f32 radB, f32 arg7[3], s32 arg8) {
     f32 sp34[3];
-    BKCollisionTri *sp30;
+    BKCollisionTriangle *sp30;
     s32 i;
 
     // check if (sphere around vtx's) <= ((distance between origins) - (radius of B))

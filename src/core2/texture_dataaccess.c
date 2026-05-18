@@ -4,66 +4,66 @@
 
 
 //textureList_getDataPtr
-u8 *func_802EA620(BKTextureList *this){
-    return (u8*)this + this->cnt_4*sizeof(BKTextureHeader) + sizeof(BKTextureList);
+u8 *textureList_getDataPtr(BKTextureList *this){
+    return (u8*)this + this->count*sizeof(BKTextureInfo) + sizeof(BKTextureList);
 }
 
-s32 texture_getPixelBitSize(BKTextureHeader *this){
-    if(this->type_4 & 1){
+s32 textureInfo_getBitDepth(BKTextureInfo *this){
+    if(this->type & 1){
         return 4;
     }
 
-    if(this->type_4 & 2){
+    if(this->type & 2){
         return 8;
     }
 
-    if(this->type_4 & 4){
+    if(this->type & 4){
         return 0x10;
     }
 
-    if(this->type_4 & 8){
+    if(this->type & 8){
         return 0x20;
     }
     return 0;
 }
 
-s32 func_802EA684(BKTextureHeader *this){
-    return this->type_4;
+s32 textureInfo_getType(BKTextureInfo *this){
+    return this->type;
 }
 
-s32 texture_getPaletteSize(BKTextureHeader *this){
-    if(this->type_4 & 1){
+s32 textureInfo_getPaletteSize(BKTextureInfo *this){
+    if(this->type & 1){
         return 0x20;
     }
 
-    if(this->type_4 & 2){
+    if(this->type & 2){
         return 0x200;
     }
 
-    if(this->type_4 & 4){
+    if(this->type & 4){
         return 0;
     }
 
-    if(this->type_4 & 8){
+    if(this->type & 8){
         return 0;
     }
     return 0;
 }
 
 // texture_getOffset
-s32 func_802EA6DC(BKTextureHeader *this){
-    return this->offset_0;
+s32 func_802EA6DC(BKTextureInfo *this){
+    return this->offset;
 }
 
 //texture_getSize
-s32 func_802EA6E4(BKTextureHeader *this){
-    s32 palette_size = texture_getPaletteSize(this);
-    s32 pixel_size = texture_getPixelBitSize(this);
+s32 func_802EA6E4(BKTextureInfo *this){
+    s32 palette_size = textureInfo_getPaletteSize(this);
+    s32 pixel_size = textureInfo_getBitDepth(this);
 
-    return (s32)pixel_size*this->width_8*this->height_9/8  + palette_size;
+    return (s32)pixel_size*this->width*this->height/8  + palette_size;
 }
 
 //textureList_getTexture
-BKTextureHeader *func_802EA748(BKTextureList *arg0, s32 indx){
-    return (BKTextureHeader *)(arg0 +1) + indx;
+BKTextureInfo *func_802EA748(BKTextureList *arg0, s32 indx){
+    return (BKTextureInfo *)(arg0 +1) + indx;
 }

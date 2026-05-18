@@ -70,10 +70,10 @@ Actor *chGobiRock_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx
     sp3C[0] = this->pitch;
     sp3C[1] = this->yaw;
     sp3C[2] = this->roll;
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod, (uintptr_t) this);
-    func_8033A450(func_80329934());
+    modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod, (void *)this);
+    modelRender_setRefPoints(func_80329934());
     modelRender_draw(gfx, mtx, this->position, sp3C, 1.0f, NULL,marker_loadModelBin(this_marker));
-    func_8034A174(func_80329934(), 5, local->unk0);
+    vec3fArray_get_vec3f(func_80329934(), 5, local->unk0);
     return this;
     
 }

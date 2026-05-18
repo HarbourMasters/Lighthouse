@@ -204,11 +204,11 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
         sp50[0] = 0.0f;
         sp50[1] = a1->unk68;
         sp50[2] = 0.0f;
-        func_8033A308(sp50);
+        modelRender_func_8033A308(sp50);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
         sp68[0] += a1->unk4C;
         if(a1->unk6C == 0.0f){
-            a1->unk6C = 1.1*(vtxList_getGlobalNorm(model_getVtxList(a1->model)) * a1->unk3C);
+            a1->unk6C = 1.1*(vtxList_getGlobalNorm(modelbin_getVtxList(a1->model)) * a1->unk3C);
         }
         func_80253208(gfx, draw_x - a1->unk6C, sp40 - a1->unk6C, 2*a1->unk6C, 2*a1->unk6C, gFramebuffers[getActiveFramebuffer()]);
         if(a1->anim_ctrl != NULL){

@@ -37,7 +37,7 @@ extern ActorInfo D_80372C3C;
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void func_8025AE0C(s32, f32);
 extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
-extern BKCollisionTri *func_80309B48(f32[3], f32[3], f32[3], u32);
+extern BKCollisionTriangle *func_80309B48(f32[3], f32[3], f32[3], u32);
 
 void func_802D3D54(Actor *this);
 void func_803888B8(Actor *this);
@@ -257,8 +257,8 @@ Actor *func_80388994(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
     this = actor_drawFullDepth(marker, gfx, mtx, vtx);
     if (marker->unk14_21 && (this->lifetime_value != 0.0f)) {
-        func_8034A174(marker->unk44, 5, sp84);
-        func_8034A174(marker->unk44, 6, sp78);
+        vec3fArray_get_vec3f(marker->unk44, 5, sp84);
+        vec3fArray_get_vec3f(marker->unk44, 6, sp78);
         for(i = 0;  i < 8; i++){
             sp6C[0] = sp6C[2] = 0.0f;
             sp6C[1] = randf2(5.0f, 20.0f);

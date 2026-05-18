@@ -72,8 +72,8 @@ Actor *func_802DEC00(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     port_readAuxFbToCpu(gfx);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp48));
-    modelRender_preDraw((GenFunction_1)actor_predrawMethod,  (uintptr_t)this);
-    modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
+    modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod,  (void *)this);
+    modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     {
         BKModelBin *model_bin = marker_loadModelBin(marker);

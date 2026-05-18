@@ -5,15 +5,15 @@
 
 extern void gfx_texture_cache_clear(void);
 
-u8 *func_802EA620(BKTextureList *texture_list);
+u8 *textureList_getDataPtr(BKTextureList *texture_list);
 
-void func_802FEDE0(BKTextureList *texture_list, s32 indx, s32 x_offset, s32 y_offset){
+void model_copyFramebufferBlockToTexture(BKTextureList *texture_list, s32 indx, s32 x_offset, s32 y_offset){
     u16 *sp24;
     u16 *frame_buffer_ptr;
     s32 y;
     s32 x;
 
-    sp24 = (u16*)func_802EA620(texture_list) + indx*32*32;
+    sp24 = (u16*)textureList_getDataPtr(texture_list) + indx*32*32;
     frame_buffer_ptr = gFramebuffers[getActiveFramebuffer()];
     for(y = 0; y < 32; y++){
         for(x = 0; x < 32; x++){
@@ -29,16 +29,16 @@ void func_802FEDE0(BKTextureList *texture_list, s32 indx, s32 x_offset, s32 y_of
 }
 
 //framebuffer_to_model_texture
-void func_802FEF48(BKModelBin *model_bin){
+void model_copyFramebufferToTextures(BKModelBin *model_bin){
     BKTextureList *texture_list;
     s32 x, y;
 
-    texture_list = model_getTextureList(model_bin);
+    texture_list = modelbin_getTextureList(model_bin);
     osInvalDCache((void *)gFramebuffers[getActiveFramebuffer()], gFramebufferWidth * gFramebufferHeight*2);
 
     for(y = 0; y < 8; y++){
         for(x = 0; x < 10; x++){
-            func_802FEDE0(texture_list, 10*y + x, 32*x + (gFramebufferWidth - 10*32)/2, (s32)32*y + (gFramebufferHeight - 8*32)/2);
+            model_copyFramebufferBlockToTexture(texture_list, 10*y + x, 32*x + (gFramebufferWidth - 10*32)/2, (s32)32*y + (gFramebufferHeight - 8*32)/2);
         }
     };
 

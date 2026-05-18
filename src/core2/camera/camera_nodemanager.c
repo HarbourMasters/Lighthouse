@@ -204,7 +204,7 @@ f32 func_802BBEA4(f32 arg0[3], f32 arg1[3], f32 arg2, s32 arg3, s32 arg4) {
     f32 sp4C[3];
     f32 phi_f2;
     f32 sp3C[3];
-    BKCollisionTri *sp38;
+    BKCollisionTriangle *sp38;
     s32 i;
 
     if (arg3 == 0) {

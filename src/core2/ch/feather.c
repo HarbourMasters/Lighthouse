@@ -54,7 +54,7 @@ Actor *func_802CA7BC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     rotation[1] = this->yaw;
     rotation[2] = this->roll;
     sp44 = ml_map_f(sp54[1] - sp40, 0.0f, 300.0f, 0.43f, 0.28f);
-    modelRender_preDraw((GenFunction_1)func_802CA790, (uintptr_t)this);
+    modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)func_802CA790, (void *)this);
     modelRender_draw(gfx, mtx, this->position, rotation, sp44, NULL, marker_loadModelBin(marker));
     return this;
 }

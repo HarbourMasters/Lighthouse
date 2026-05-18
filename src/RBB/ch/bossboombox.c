@@ -463,8 +463,8 @@ Actor *func_8038D638(ActorMarker *marker, Gfx **gdl, Mtx ** mptr, Vtx **arg3){
         func_8033A45C(6, (actor->state == 4)? 2: 1);
         func_8033A45C(7, (actor->state == 4)? 2: 1);
     }
-    modelRender_preDraw( (GenFunction_1)actor_predrawMethod, (uintptr_t)actor);
-    modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
+    modelRender_setPreDrawCallback( (model_render_pre_draw_callback_f)actor_predrawMethod, (void *)actor);
+    modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
     modelRender_draw(gdl, mptr, actor->position, sp3C, actor->scale, NULL, marker_loadModelBin(marker));
     
     return actor;

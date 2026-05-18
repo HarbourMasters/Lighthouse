@@ -119,7 +119,7 @@ void func_8038A2B8(void){
     }
 }
 
-void MMM_func_8038A2F0(s32 mesh_id, BKVtxRef *ref_vert, Vtx* vert, void *arg3) {
+void MMM_func_8038A2F0(s32 mesh_id, BKModelVtxRef *ref_vert, Vtx* vert, void *arg3) {
     Struct_MMM_3D50_0 *data = (Struct_MMM_3D50_0 *)arg3;
     f32 temp_f2;
 
@@ -147,7 +147,7 @@ void MMM_func_8038A54C(Struct_MMM_3D50_0 *arg0, s32 arg1){
     }
 }
 
-void func_8038A58C(s32 mesh_id, BKVtxRef *ref_vert, Vtx* vert, void *arg3){
+void func_8038A58C(s32 mesh_id, BKModelVtxRef *ref_vert, Vtx* vert, void *arg3){
     Struct_MMM_3D50_0 *data = (Struct_MMM_3D50_0 *)arg3;
     f32 temp_f12;
 
@@ -170,10 +170,10 @@ void func_8038A750(void){
     for(v1 = &D_8038C1F0[0]; v1->unk0 != 0; v1++){
         v1->unk4 += f20;
         if(v1->unk3 == 1){
-            BKModel_transformMesh(MMM_D_8038C510.unk0, v1->unk0, MMM_func_8038A2F0, (void *)v1);
+            model_transformMesh(MMM_D_8038C510.unk0, v1->unk0, MMM_func_8038A2F0, (void *)v1);
         }
         else if(v1->unk3 == 3){
-            BKModel_transformMesh(MMM_D_8038C510.unk0, v1->unk0, func_8038A58C, (void *)v1);
+            model_transformMesh(MMM_D_8038C510.unk0, v1->unk0, func_8038A58C, (void *)v1);
         }
     }
 }
@@ -273,7 +273,7 @@ void func_8038AA44(void){
             && chTumblar_isBanjoAbove(MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10)
         ){
             chTumblar_copyPosition((s32)(intptr_t)MMM_D_8038C510.unkC, (Struct68s *)(intptr_t)MMM_D_8038C510.unk10, sp28);
-            tmp_v0 = func_8033F3C0(MMM_D_8038C510.unk0, sp28);
+            tmp_v0 = model_func_8033F3C0(MMM_D_8038C510.unk0, sp28);
             if(tmp_v0){
                 sp24 = func_8038A26C(tmp_v0);
                 if( sp24 

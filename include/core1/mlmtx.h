@@ -1,6 +1,8 @@
 #ifndef BANJO_KAZOOIE_CORE1_MLMTX_H
 #define BANJO_KAZOOIE_CORE1_MLMTX_H
 
+#include <ultra64.h>
+
 void mlMtxGet(MtxF *dst);
 MtxF *mlMtx_get_stack_pointer(void);
 void mlMtxApply(Mtx *mPtr);

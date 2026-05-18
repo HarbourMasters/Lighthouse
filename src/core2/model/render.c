@@ -11,8 +11,8 @@
 
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
-extern bool func_802ED420(BKModelUnk20List *arg0, u8 *arg1, u32 arg2);
-extern void func_802ED52C(BKModelUnk20List *, f32[3], f32);
+extern bool cameraAreaList_searchForEntryInBounds(BKCameraAreaList *this, u8 *id, u32 count);
+extern void cameraAreaList_updateInBoundsFlag(BKCameraAreaList *, f32[3], f32);
 extern void mlMtxRotatePYR(f32, f32, f32);
 extern void assetCache_free(void *);
 extern AnimMtxList *animMtxList_new();
@@ -25,7 +25,7 @@ typedef struct{
     Actor *unk4;
 } Struct_Core2_B1400_1;
 
-typedef void (*GeoListFunc)(Gfx **, Mtx **, void *);
+typedef void (*BKGeoCmdFunc)(Gfx **, Mtx **, void *);
 
 typedef struct {
     s32 cmd_0;
@@ -136,23 +136,23 @@ typedef struct {
 
 
 
-void func_803384A8(Gfx **, Mtx **, void *);
-void func_803385BC(Gfx **, Mtx **, void *);
-void func_803387F8(Gfx **, Mtx **, void *);
-void func_80338904(Gfx **, Mtx **, void *);
-void func_80338498(Gfx **, Mtx **, void *);
-void func_80338970(Gfx **, Mtx **, void *);
-void func_80338AC4(Gfx **, Mtx **, void *);
-void func_80338AE8(Gfx **, Mtx **, void *);
-void func_80338498(Gfx **, Mtx **, void *);
-void func_8033878C(Gfx **, Mtx **, void *);
-void func_80338B50(Gfx **, Mtx **, void *);
-void func_80338BFC(Gfx **, Mtx **, void *);
-void func_80338CD0(Gfx **, Mtx **, void *);
-void func_80338DCC(Gfx **, Mtx **, void *);
-void func_80338EB8(Gfx **, Mtx **, void *);
-void func_8033909C(Gfx **, Mtx **, void *);
-void func_80339124(Gfx **, Mtx **, BKGeoList *);
+void modelRender_geoCmd_Unk0(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_SORT(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_BONE(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_LOADDL(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_NOP(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_SKINNING(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_CALL(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_LOADDL2(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_NOP(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_TEXWRAP(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_LOD(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_REFPOINT(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_SELECTOR(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_DRAWDIST(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_UnkE(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_CAMERA(Gfx **, Mtx **, void *);
+void modelRender_executeGeoCmds(Gfx **, Mtx **, BKGeoCmd *);
 void func_8033A45C(s32 arg0, s32 arg1);
 
 // Sets up 2 cycle mode
@@ -569,24 +569,24 @@ Gfx mipMapWrapDL[] =
 
 s32 D_80370990 = 0;
 
-GeoListFunc D_80370994[] = {
-    func_803384A8,
-    func_803385BC,
-    func_803387F8,
-    func_80338904,
-    func_80338498, //empty_4
-    func_80338970,
-    func_80338AC4,
-    func_80338AE8,
-    func_80338B50,
-    func_80338498, //empty_9
-    func_80338BFC,
-    func_80338498, //empty_B
-    func_80338CD0,
-    func_80338DCC,
-    func_80338EB8,
-    func_8033909C,
-    func_8033878C
+BKGeoCmdFunc sGeoCmdList[] = {
+    modelRender_geoCmd_Unk0,
+    modelRender_geoCmd_SORT,
+    modelRender_geoCmd_BONE,
+    modelRender_geoCmd_LOADDL,
+    modelRender_geoCmd_NOP, //empty_4
+    modelRender_geoCmd_SKINNING,
+    modelRender_geoCmd_CALL,
+    modelRender_geoCmd_LOADDL2,
+    modelRender_geoCmd_LOD,
+    modelRender_geoCmd_NOP, //empty_9
+    modelRender_geoCmd_REFPOINT,
+    modelRender_geoCmd_NOP, //empty_B
+    modelRender_geoCmd_SELECTOR,
+    modelRender_geoCmd_DRAWDIST,
+    modelRender_geoCmd_UnkE,
+    modelRender_geoCmd_CAMERA,
+    modelRender_geoCmd_TEXWRAP
 };
 
 enum model_render_color_mode_e{
@@ -597,7 +597,7 @@ enum model_render_color_mode_e{
 };
 
 /* .bss */
-struct5Bs *D_80383650;
+Vec3fArray *modelRenderRefPoints;
 s32  D_80383658[0x2A];
 BoneTransformList *modelRenderBoneTransformList;
 bool D_80383704;
@@ -610,7 +610,7 @@ AnimMtxList *            D_8038371C;
 static BKTextureList * modelRenderTextureList;
 s32                    modelRenderAnimatedTexturesCacheId;
 static BKVertexList *  modelRendervertexList;
-BKModelUnk20List *     D_8038372C;
+BKCameraAreaList *     modelRenderCameraAreaList;
 AnimMtxList *            modelRenderAnimMtxList;
 f32                    modelRenderScale;
 
@@ -628,10 +628,10 @@ struct{
 } D_80383758;
 
 struct{
-    GenFunction_1 pre_method;
-    uintptr_t pre_arg;
-    GenFunction_1 post_method;
-    uintptr_t post_arg;
+    model_render_pre_draw_callback_f pre_draw;
+    void *pre_draw_arg;
+    model_render_post_draw_callback_f post_draw;
+    void *post_draw_arg;
 } modelRenderCallback;
 
 s32 modelRenderDynEnvColor[4];
@@ -648,7 +648,7 @@ struct {
     f32 unk4;
     f32 unk8;
     u8 padC[0x4];
-} D_803837C8; 
+} sSecondaryModelData; 
 
 static enum model_render_depth_mode_e modelRenderDepthMode;
 
@@ -667,7 +667,7 @@ f32 D_80383C64;
 f32 D_80383C68[3];
 f32 D_80383C78[3];
 f32 D_80383C88[3];
-f32 D_80383C98[3];
+f32 transformed_pos[3];
 
 /* .code */
 void modelRender_reset(void){
@@ -677,17 +677,17 @@ void modelRender_reset(void){
     D_8038370C = 1.0f;
     D_80383710 = false;
     modelRenderColorMode = COLOR_MODE_STATIC_OPAQUE;
-    D_80383650 = 0;
+    modelRenderRefPoints = 0;
     modelRenderDisplayList = NULL;
     D_8038371C = NULL;
     modelRenderTextureList = NULL;
     modelRenderAnimatedTexturesCacheId = 0;
     modelRendervertexList = NULL;
-    D_8038372C = 0;
-    modelRenderCallback.pre_method = NULL;
-    modelRenderCallback.post_method = NULL;
+    modelRenderCameraAreaList = 0;
+    modelRenderCallback.pre_draw = NULL;
+    modelRenderCallback.post_draw = NULL;
     D_803837B0.unk0 = 0;
-    D_803837C8.model_id = 0;
+    sSecondaryModelData.model_id = 0;
     modelRenderDepthMode = MODEL_RENDER_DEPTH_NONE;
     func_8033A45C(1,1);
     func_8033A45C(2,0);
@@ -699,12 +699,12 @@ void modelRender_reset(void){
 }
 
 //empty cmd, 
-void func_80338498(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_NOP(Gfx **gfx, Mtx **mtx, void *arg2){
     return;
 }
 
 //cmd0_???
-void func_803384A8(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd0 *cmd = (GeoCmd0 *)arg2;
     f32 sp30[3];
 
@@ -719,14 +719,14 @@ void func_803384A8(Gfx **gfx, Mtx **mtx, void *arg2){
         mlMtxTranslate(-cmd->unkC[0], -cmd->unkC[1], -cmd->unkC[2]);
         mlMtxApply(*mtx);
         gSPMatrix((*gfx)++, (*mtx)++, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk8));
+        modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));
         mlMtxPop();
         gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
     }
 }
 
 //cmd1_SORT
-void func_803385BC(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd1 *cmd = (GeoCmd1 *)arg2;
     f32 f14;
     s32 tmp_v0;
@@ -743,13 +743,13 @@ void func_803385BC(Gfx **gfx, Mtx **mtx, void *arg2){
     if(cmd->unk20 & 1){
         if(0.0f <= f14 && (tmp_v0 = cmd->unk24)){
             D_80383C64 = f14;
-            func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + tmp_v0));
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + tmp_v0));
         }
         else{
             D_80383C64 = f14;
             if(f14 < 0.0f){
                 if(cmd->unk22)
-                    func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk22));
+                    modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk22));
             }
         }
     }
@@ -757,23 +757,23 @@ void func_803385BC(Gfx **gfx, Mtx **mtx, void *arg2){
         D_80383C64 = f14;
         if(0.0f <= f14){
             if(cmd->unk22)
-                func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk22));
+                modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk22));
 
             if(cmd->unk24)
-                func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk24));
+                modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk24));
         }
         else{
             if(cmd->unk24)
-                func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk24));
+                modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk24));
 
             if(cmd->unk22)
-                func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk22));
+                modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk22));
         }
     }
 }
 
 //cmd10_???
-void func_8033878C(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_TEXWRAP(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd10 *cmd = (GeoCmd10 *)arg2;
 
     switch(cmd->unk8){
@@ -787,7 +787,7 @@ void func_8033878C(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //cmd2_BONE
-void func_803387F8(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd2 *cmd = (GeoCmd2 *)arg2;
 
     if(D_8038371C){
@@ -798,7 +798,7 @@ void func_803387F8(Gfx **gfx, Mtx **mtx, void *arg2){
         }
     }
     if(cmd->unk8){
-        func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk8));
+        modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));
     }
     if(D_8038371C){
         mlMtxPop();
@@ -809,7 +809,7 @@ void func_803387F8(Gfx **gfx, Mtx **mtx, void *arg2){
 }   
 
 //cmd3_LOAD_DL
-void func_80338904(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_LOADDL(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd3 *cmd = (GeoCmd3 *)arg2;
     Gfx *vptr;
 
@@ -820,7 +820,7 @@ void func_80338904(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //Cmd5_SKINNING
-void func_80338970(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_SKINNING(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd5 *cmd = (GeoCmd5 *)arg2;
     int i;
 
@@ -838,38 +838,38 @@ void func_80338970(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //Cmd6_???
-void func_80338AC4(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_CALL(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd6 *cmd = (GeoCmd6 *)arg2;
-    func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk8));
+    modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));
 }
 
 //Cmd7_LOAD_DL???
-void func_80338AE8(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_LOADDL2(Gfx **gfx, Mtx **mtx, void *arg2){
     if(D_80370990){
         gSPDisplayList((*gfx)++, (Gfx *)osVirtualToPhysical(modelRenderDisplayList->list + ((GeoCmd7*)arg2)->unkA));
     }
 }
 
 //Cmd8_LOD
-void func_80338B50(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmd8 *cmd = (GeoCmd8 *)arg2;
     f32 dist;
     
     if(cmd->subgeo_offset_1C){
-        mlMtx_apply_vec3f(D_80383C98, cmd->unk10);
-        dist = gu_sqrtf(D_80383C98[0]*D_80383C98[0] + D_80383C98[1]*D_80383C98[1] + D_80383C98[2]*D_80383C98[2]);
+        mlMtx_apply_vec3f(transformed_pos, cmd->unk10);
+        dist = gu_sqrtf(transformed_pos[0]*transformed_pos[0] + transformed_pos[1]*transformed_pos[1] + transformed_pos[2]*transformed_pos[2]);
         if(cmd->min_C < dist && dist <= cmd->max_8){
-            func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->subgeo_offset_1C));
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->subgeo_offset_1C));
         }
     }
 }
 
 //CmdA_REFERENCE_POINT
-void func_80338BFC(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_REFPOINT(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmdA *cmd = (GeoCmdA *)arg2;
     f32 sp20[3];
 
-    if(D_80383650){
+    if(modelRenderRefPoints){
         if(D_8038371C){
             mlMtx_push_multiplied_2(&D_80383BF8, animMtxList_get(D_8038371C, cmd->unkA));
             mlMtx_apply_vec3f(sp20, cmd->unkC);
@@ -881,12 +881,12 @@ void func_80338BFC(Gfx **gfx, Mtx **mtx, void *arg2){
         sp20[0] += modelRenderCameraPosition[0];
         sp20[1] += modelRenderCameraPosition[1];
         sp20[2] += modelRenderCameraPosition[2];
-        func_8034A308(D_80383650, cmd->unk8, sp20);
+        vec3fArray_set_vec3f(modelRenderRefPoints, cmd->unk8, sp20);
     }
 }
 
 //CmdC_SELECTOR
-void func_80338CD0(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_SELECTOR(Gfx **gfx, Mtx **mtx, void *arg2){
     GeoCmdC *cmd = (GeoCmdC *) arg2;
     uintptr_t sub_cmd;
     s32 indx;
@@ -907,7 +907,7 @@ void func_80338CD0(Gfx **gfx, Mtx **mtx, void *arg2){
             s0 = cmd->unkC;
             sub_cmd = (uintptr_t)cmd;
             sub_cmd += *(s32*)(s0 + (indx - 1));
-            func_80339124(gfx, mtx, (BKGeoList*)sub_cmd);
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)sub_cmd);
         }
     } else {
         s1 = indx * (-1);
@@ -917,7 +917,7 @@ void func_80338CD0(Gfx **gfx, Mtx **mtx, void *arg2){
             {
                 sub_cmd = (uintptr_t)cmd;
                 sub_cmd += s0[0];
-                func_80339124(gfx, mtx, (BKGeoList*)sub_cmd);
+                modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)sub_cmd);
             }
             s1 >>= 1;
             s0++;
@@ -927,7 +927,7 @@ void func_80338CD0(Gfx **gfx, Mtx **mtx, void *arg2){
 
 //CmdD_DRAW_DISTANCE
 extern f32 GameEngine_GetAspectRatio(void);
-void func_80338DCC(Gfx ** gfx, Mtx ** mtx, void *arg2){
+void modelRender_geoCmd_DRAWDIST(Gfx ** gfx, Mtx ** mtx, void *arg2){
     f32 sp2C[3];
     f32 sp20[3];
     GeoCmdD * cmd = (GeoCmdD *)arg2;
@@ -941,12 +941,12 @@ void func_80338DCC(Gfx ** gfx, Mtx ** mtx, void *arg2){
         // [port] The N64 bounding boxes in CmdD_DRAW_DISTANCE are too conservative
         // for the port's viewport (292x216 -> 320x240 at 4:3). Extend to all aspect
         //ratios since the port always renders at a higher effective resolution.
-        func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk14));
+        modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk14));
     }
 }
 
 //cmdE_???
-void func_80338EB8(Gfx ** gfx, Mtx ** mtx, void *arg2){
+void modelRender_geoCmd_UnkE(Gfx ** gfx, Mtx ** mtx, void *arg2){
     f32 sp34[3];
     f32 sp30;
     GeoCmdE * cmd = (GeoCmdE *)arg2;
@@ -957,7 +957,7 @@ void func_80338EB8(Gfx ** gfx, Mtx ** mtx, void *arg2){
         sp34[2] = (f32)cmd->unk8[2] * modelRenderScale;
         sp30 = (f32)cmd->unkE*modelRenderScale;
         if(viewport_func_8024DB50(sp34, sp30) && cmd->unk10){
-            func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk10));
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk10));
         }
     }
     else{
@@ -979,7 +979,7 @@ void func_80338EB8(Gfx ** gfx, Mtx ** mtx, void *arg2){
         sp34[1] += modelRenderCameraPosition[1];
         sp34[2] += modelRenderCameraPosition[2];
         if(viewport_func_8024DB50(sp34, sp30) && cmd->unk10){
-            func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk10));
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk10));
         }
 
     }
@@ -987,31 +987,31 @@ void func_80338EB8(Gfx ** gfx, Mtx ** mtx, void *arg2){
 }
 
 //cmdF_??? (processes model_setup offset_0x20)
-void func_8033909C(Gfx ** gfx, Mtx ** mtx, void *arg2){
+void modelRender_geoCmd_CAMERA(Gfx ** gfx, Mtx ** mtx, void *arg2){
     GeoCmdF *cmd = (GeoCmdF *)arg2;
-    int tmp_v0 = func_802ED420(D_8038372C, cmd->unkC, cmd->unkA);
+    int tmp_v0 = cameraAreaList_searchForEntryInBounds(modelRenderCameraAreaList, cmd->unkC, cmd->unkA);
     if( (!tmp_v0 && (cmd->unkB & 1))
         || (tmp_v0 && (cmd->unkB & 2))
     ){
         if(cmd->unk8 != 0)
-            func_80339124(gfx, mtx, (BKGeoList*)((u8*)cmd + cmd->unk8));
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));
     }
 
 }
 
 //render_GeoList
-void func_80339124(Gfx ** gfx, Mtx ** mtx, BKGeoList *geo_list){
+void modelRender_executeGeoCmds(Gfx ** gfx, Mtx ** mtx, BKGeoCmd *geo_list){
     do{
         // [port] bounds check geo command to prevent null function pointer crash
-        if (geo_list->cmd_0 < 0 || geo_list->cmd_0 >= (s32)(sizeof(D_80370994)/sizeof(D_80370994[0]))) {
-            if(geo_list->size_4 == 0) return;
-            geo_list = (BKGeoList*)((u8*)geo_list + geo_list->size_4);
+        if ((s32)geo_list->cmd < 0 || (s32)geo_list->cmd >= (s32)(sizeof(sGeoCmdList)/sizeof(sGeoCmdList[0]))) {
+            if(geo_list->next_offset == 0) return;
+            geo_list = (BKGeoCmd*)((u8*)geo_list + geo_list->next_offset);
             continue;
         }
-        D_80370994[geo_list->cmd_0](gfx, mtx, geo_list);
-        if(geo_list->size_4 == 0)
+        sGeoCmdList[geo_list->cmd](gfx, mtx, geo_list);
+        if(geo_list->next_offset == 0)
             return;
-        geo_list = (BKGeoList*)((u8*)geo_list + geo_list->size_4);
+        geo_list = (BKGeoCmd*)((u8*)geo_list + geo_list->next_offset);
     }while(1);
 }
 
@@ -1030,8 +1030,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     f32 tmp_f0;
     f32 padB8;
     
-    if( (!model_bin && !D_803837C8.model_id)
-        || (model_bin && D_803837C8.model_id)
+    if( (!model_bin && !sSecondaryModelData.model_id)
+        || (model_bin && sSecondaryModelData.model_id)
     ){
 
         modelRender_reset();
@@ -1096,13 +1096,13 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
 
     if(model_bin){
-        verts = modelRendervertexList ? modelRendervertexList : (BKVertexList *)((uintptr_t)model_bin + model_bin->vtx_list_offset_10);
+        verts = modelRendervertexList ? modelRendervertexList : (BKVertexList *)((uintptr_t)model_bin + model_bin->vtx_list_offset);
         spD0 = verts->global_norm;
         spD4 = verts->local_norm;
     }
     else{
-        spD0 = D_803837C8.unk8;
-        spD4 = D_803837C8.unk4;
+        spD0 = sSecondaryModelData.unk8;
+        spD4 = sSecondaryModelData.unk4;
     }
     camera_focus_distance = gu_sqrtf(camera_focus[0]*camera_focus[0] + camera_focus[1]*camera_focus[1] + camera_focus[2]*camera_focus[2]);
     if( 4000.0f <= camera_focus_distance && spD4*scale*D_8038370C*50.0f < D_80383708){
@@ -1120,18 +1120,18 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         return 0;
     }
 
-    if(modelRenderCallback.pre_method != NULL){
-        modelRenderCallback.pre_method(modelRenderCallback.pre_arg);
+    if(modelRenderCallback.pre_draw != NULL){
+        modelRenderCallback.pre_draw(modelRenderCallback.pre_draw_arg);
     }
     func_80349AD0();
     if(model_bin == NULL){
-        model_bin = assetcache_get(D_803837C8.model_id);
+        model_bin = assetcache_get(sSecondaryModelData.model_id);
     }
     modelRenderModelBin = model_bin;
-    modelRenderDisplayList = modelRenderDisplayList ? modelRenderDisplayList : (BKGfxList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->gfx_list_offset_C);
-    modelRenderTextureList = modelRenderTextureList ? modelRenderTextureList : (BKTextureList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->texture_list_offset_8);
-    modelRendervertexList = modelRendervertexList ? modelRendervertexList : (BKVertexList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->vtx_list_offset_10);
-    D_8038372C = (modelRenderModelBin->unk20 == 0) ? NULL : (BKModelUnk20List *)((uintptr_t)model_bin + (uintptr_t)(u32)model_bin->unk20);
+    modelRenderDisplayList = modelRenderDisplayList ? modelRenderDisplayList : (BKGfxList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->gfx_list_offset);
+    modelRenderTextureList = modelRenderTextureList ? modelRenderTextureList : (BKTextureList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->texture_list_offset);
+    modelRendervertexList = modelRendervertexList ? modelRendervertexList : (BKVertexList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->vtx_list_offset);
+    modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == 0) ? NULL : (BKCameraAreaList *)((uintptr_t)model_bin + (uintptr_t)(u32)model_bin->camera_area_list_offset);
 
     if(D_80383710){
         tmp_f0 = D_80383708 - 500.0f;
@@ -1153,8 +1153,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
 
     // Set up segments 1 and 2 to point to vertices and textures respectively
-    gSPSegment((*gfx)++, 0x01, osVirtualToPhysical((void *)&modelRendervertexList->vtx_18));
-    uintptr_t base_tex = (uintptr_t)&modelRenderTextureList->tex_8[modelRenderTextureList->cnt_4];
+    gSPSegment((*gfx)++, 0x01, osVirtualToPhysical((void *)&modelRendervertexList->vertices));
+    uintptr_t base_tex = (uintptr_t)&modelRenderTextureList->texture_infos[modelRenderTextureList->count];
     gSPSegment((*gfx)++, 0x02, osVirtualToPhysical((void *)base_tex));
 
 
@@ -1165,7 +1165,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 
         for(i_segment = 0; i_segment < 4; i_segment++){
             if(AnimTextureListCache_tryGetTextureOffset(modelRenderAnimatedTexturesCacheId, i_segment, &texture_offset)){
-                uintptr_t base = (uintptr_t)&modelRenderTextureList->tex_8[modelRenderTextureList->cnt_4];
+                uintptr_t base = (uintptr_t)&modelRenderTextureList->texture_infos[modelRenderTextureList->count];
                 gSPSegment((*gfx)++, 15 - i_segment, osVirtualToPhysical((void *)(base + (uintptr_t)texture_offset)));
             }
         }
@@ -1231,11 +1231,11 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         gSPSegment((*gfx)++, 0x03, osVirtualToPhysical(rendermode_table_xlu));
     }
 
-    if(modelRenderModelBin->geo_typ_A & 2){ //trilinear mipmapping
+    if(modelRenderModelBin->geo_type & 2){ //trilinear mipmapping
         gSPDisplayList((*gfx)++, mipMapWrapDL);
     }
 
-    if(modelRenderModelBin->geo_typ_A & 4){ //env mapping
+    if(modelRenderModelBin->geo_type & 4){ //env mapping
         if(0.0f == camera_focus[2]){
             camera_focus[2] = -0.1f;
         }
@@ -1250,25 +1250,25 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
             D_803837E0.cur_lookat = D_803837E0.lookat_buffer;
     }
 
-    if(D_8038371C && !modelRenderModelBin->animation_list_offset_18){
+    if(D_8038371C && !modelRenderModelBin->animation_list_offset){
         D_8038371C = 0;
     }
-    else if(D_8038371C == 0 && modelRenderModelBin->animation_list_offset_18){
+    else if(D_8038371C == 0 && modelRenderModelBin->animation_list_offset){
         if(modelRenderBoneTransformList == NULL){
-            animMtxList_setBoneless(&modelRenderAnimMtxList, (BKAnimationList*)((u8*)model_bin + (uintptr_t)(u32)model_bin->animation_list_offset_18));
+            animMtxList_setBoneless(&modelRenderAnimMtxList, (BKAnimationList*)((u8*)model_bin + (uintptr_t)(u32)model_bin->animation_list_offset));
         }
         else{
-            animMtxList_setBoned(&modelRenderAnimMtxList, (BKAnimationList*)((u8*)model_bin + (uintptr_t)(u32)model_bin->animation_list_offset_18), modelRenderBoneTransformList);
+            animMtxList_setBoned(&modelRenderAnimMtxList, (BKAnimationList*)((u8*)model_bin + (uintptr_t)(u32)model_bin->animation_list_offset), modelRenderBoneTransformList);
         }
         D_8038371C = modelRenderAnimMtxList;
     }
 
-    if(D_8038372C){
-        func_802ED52C(D_8038372C, modelRenderCameraPosition, scale);
+    if(modelRenderCameraAreaList){
+        cameraAreaList_updateInBoundsFlag(modelRenderCameraAreaList, modelRenderCameraPosition, scale);
     }
 
-    if(model_bin->unk28 != 0 && D_8038371C != NULL){
-        func_802E6BD0((BKModelUnk28List *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->unk28), modelRendervertexList, D_8038371C);
+    if(model_bin->anim_vertices_list_offset != 0 && D_8038371C != NULL){
+        animVerticesList_transform((BKAnimVerticesList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->anim_vertices_list_offset), modelRendervertexList, D_8038371C);
     }
 
     mlMtxIdent();
@@ -1303,16 +1303,16 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 
     // [port] Mirror mode: counter-mirror text-bearing models so text reads correctly
     if (_mirror_excluded) gSPClearExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
-    func_80339124(gfx, mtx, (BKGeoList *)((u8 *)model_bin + model_bin->geo_list_offset_4));
+    modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd *)((u8 *)model_bin + model_bin->geo_list_offset));
     // [port] Mirror mode: restore culling inversion
     if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
 
-    if(modelRenderCallback.post_method != NULL){
-        modelRenderCallback.post_method(modelRenderCallback.post_arg);
+    if(modelRenderCallback.post_draw != NULL){
+        modelRenderCallback.post_draw(modelRenderCallback.post_draw_arg);
     }
 
-    if(D_803837C8.model_id){
+    if(sSecondaryModelData.model_id){
         assetCache_free(model_bin);
     }
 
@@ -1321,81 +1321,81 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     return model_bin;
 }
 
-BKModelUnk28List *func_8033A048(BKModelBin *arg0){
-    if(arg0->unk28 == 0)
+BKAnimVerticesList *modelbin_getAnimVerticesList(BKModelBin *arg0){
+    if(arg0->anim_vertices_list_offset == 0)
         return NULL;
-    return (BKModelUnk28List *)((u8*)arg0 + arg0->unk28);
+    return (BKAnimVerticesList *)((u8*)arg0 + arg0->anim_vertices_list_offset);
 }
 
 BoneTransformList *modelRender_getBoneTransformList(void){
     return modelRenderBoneTransformList;
 }
 
-s32 func_8033A070(BKModelBin *arg0){
-    return arg0->geo_typ_A;
+s32 modelbin_getGeoType(BKModelBin *arg0){
+    return arg0->geo_type;
 }
 
-BKGfxList *model_getDisplayList(BKModelBin *arg0){
-    return (BKGfxList *)((u8*)arg0 + arg0->gfx_list_offset_C);
+BKGfxList *modelbin_getGfxList(BKModelBin *arg0){
+    return (BKGfxList *)((u8*)arg0 + arg0->gfx_list_offset);
 }
 
-BKCollisionList *model_getCollisionList(BKModelBin *arg0){
+BKCollisionList *modelbin_getCollisionList(BKModelBin *arg0){
     if(arg0 == NULL)
         return NULL;
     
-    if(arg0->collision_list_offset_1C == 0)
+    if(arg0->collision_list_offset == 0)
         return NULL;
 
-    return (BKCollisionList *)((u8*)arg0 + arg0->collision_list_offset_1C);
+    return (BKCollisionList *)((u8*)arg0 + arg0->collision_list_offset);
 }
 
-BKEffectsList *func_8033A0B0(BKModelBin *arg0){
-    if(arg0->effects_list_setup_24 == 0)
+BKMeshList *modelbin_getMeshList(BKModelBin *arg0){
+    if(arg0->mesh_list_offset == 0)
         return NULL;
 
-    return (BKEffectsList *)((u8*)arg0 + arg0->effects_list_setup_24);
+    return (BKMeshList *)((u8*)arg0 + arg0->mesh_list_offset);
 }
 
-f32 func_8033A0CC(UNK_TYPE(void *) arg0){
+f32 modelbin_getUnk34(UNK_TYPE(void *) arg0){
     return *(f32 *)((u8*)arg0 + 0x34);
 }
 
-BKAnimationList *model_getAnimationList(BKModelBin *arg0){
-    if(arg0->animation_list_offset_18 == 0)
+BKAnimationList *modelbin_getAnimationList(BKModelBin *arg0){
+    if(arg0->animation_list_offset == 0)
         return NULL;
 
-    return (BKAnimationList *)((u8*)arg0 + arg0->animation_list_offset_18);
+    return (BKAnimationList *)((u8*)arg0 + arg0->animation_list_offset);
 }
 
-s32 func_8033A0F0(s32 arg0){
+s32 modelRender_func_8033A0F0(s32 arg0){
     return D_80383658[arg0];
 }
 
-BKTextureList *model_getTextureList(BKModelBin *model_bin){
-    return (BKTextureList *)((u8*)model_bin + model_bin->texture_list_offset_8);
+BKTextureList *modelbin_getTextureList(BKModelBin *model_bin){
+    return (BKTextureList *)((u8*)model_bin + model_bin->texture_list_offset);
 }
 
-AnimTexture *model_getAnimTextureList(BKModelBin *model_bin){
+BKAnimTextureList *modelbin_getAnimTextureList(BKModelBin *model_bin){
     if(model_bin->animated_texture_list_offset == 0)
         return NULL;
-    return (void*)((u8*)model_bin + model_bin->animated_texture_list_offset);
+    return (BKAnimTextureList *)((u8*)model_bin + model_bin->animated_texture_list_offset);
 }
 
-BKModelUnk14List *func_8033A12C(BKModelBin *this){
-    if(this->unk14 == 0)
+BKModelUnk14List *modelbin_getUnk14List(BKModelBin *this){
+    if(this->unk14_list_offset == 0)
         return 0;
-    return (BKModelUnk14List *)((u8*)this + this->unk14);
+    return (BKModelUnk14List *)((u8*)this + this->unk14_list_offset);
 }
 
-BKVertexList *model_getVtxList(BKModelBin *arg0){
-    return (BKVertexList *)((u8*)arg0 + arg0->vtx_list_offset_10);
+BKVertexList *modelbin_getVtxList(BKModelBin *arg0){
+    return (BKVertexList *)((u8*)arg0 + arg0->vtx_list_offset);
 }
 
-BKModelUnk20List *func_8033A154(BKModelBin *arg0){
-    return (arg0->unk20 == 0) ? NULL : (BKModelUnk20List *)((u8*)arg0 + arg0->unk20);
+BKCameraAreaList *modelbin_getCameraAreaList(BKModelBin *arg0){
+    return (arg0->camera_area_list_offset == 0) ? NULL : (BKCameraAreaList *)((u8*)arg0 + arg0->camera_area_list_offset);
 }
 
-s32 func_8033A170(void){
+bool modelRender_func_8033A170(void){
     return D_80370990;
 }
 
@@ -1413,7 +1413,7 @@ void modelRender_init(void){
     modelRenderAnimMtxList = animMtxList_new();
 }
 
-void func_8033A1FC(void){
+void modelRender_func_8033A1FC(void){
     s32 i;
     for(i = 0; i < 0x2A; i++){
         D_80383658[i] = 0;
@@ -1424,25 +1424,25 @@ void modelRender_setBoneTransformList(BoneTransformList *arg0){
     modelRenderBoneTransformList = arg0;
 }
 
-f32 func_8033A244(f32 arg0){
+f32 modelRender_func_8033A244(f32 arg0){
     f32 out = D_80383708;
     D_80383708 = arg0;
     return out;
 }
 
-void func_8033A25C(bool arg0){
+void modelRender_func_8033A25C(bool arg0){
     D_80383704 = BOOL(arg0);
 }  
 
-void func_8033A280(f32 arg0){
+void modelRender_func_8033A280(f32 arg0){
     D_8038370C = arg0;
 }
 
-void func_8033A28C(bool arg0){
+void modelRender_func_8033A28C(bool arg0){
     D_80383710 = arg0;
 }
 
-void func_8033A298(bool arg0){
+void modelRender_func_8033A298(bool arg0){
     D_80383758.unk18 = arg0;
     if(arg0){
         viewport_getPosition_vec3f(D_80383758.unk0);
@@ -1453,24 +1453,24 @@ void func_8033A298(bool arg0){
 /* moderRender_preDraw() sets a generic 1 argument function that will
  * be called immediately prior to the model being drawn
  */
-void modelRender_preDraw(GenFunction_1 func, uintptr_t arg){
-    modelRenderCallback.pre_method = func;
-    modelRenderCallback.pre_arg = arg;
+void modelRender_setPreDrawCallback(model_render_pre_draw_callback_f func, void *arg){
+    modelRenderCallback.pre_draw = func;
+    modelRenderCallback.pre_draw_arg = arg;
 }
 
 /* moderRender_postDraw() sets a generic 1 argument function that will
  * be called immediately after to the model has been drawn
  */
-void modelRender_postDraw(GenFunction_1 func, uintptr_t arg){
-    modelRenderCallback.post_method = func;
-    modelRenderCallback.post_arg = arg;
+void modelRender_setPostDrawCallback(model_render_post_draw_callback_f func, void *arg){
+    modelRenderCallback.post_draw = func;
+    modelRenderCallback.post_draw_arg = arg;
 }
 
 void modelRender_setDisplayList(BKGfxList *gfx_list){
     modelRenderDisplayList = gfx_list;
 }
 
-void func_8033A308(f32 arg0[3]){
+void modelRender_func_8033A308(f32 arg0[3]){
     D_803837B0.unk0 = true;
     D_803837B0.unk4[0] = arg0[0];
     D_803837B0.unk4[1] = arg0[1];
@@ -1510,19 +1510,19 @@ void modelRender_setAlpha(s32 a){
     }
 }
 
-void func_8033A444(AnimMtxList *arg0){
+void modelRender_func_8033A444(AnimMtxList *arg0){
     D_8038371C = arg0;
 }
 
-void func_8033A450(struct5Bs *arg0){
-    D_80383650 = arg0;
+void modelRender_setRefPoints(Vec3fArray *arg0){
+    modelRenderRefPoints = arg0;
 }
 
 void func_8033A45C(s32 arg0, s32 arg1){
     D_80383658[arg0] = arg1;
 }
 
-void func_8033A470(s32 arg0, s32 arg1){
+void modelRender_func_8033A470(s32 arg0, s32 arg1){
     D_80383658[arg0] = -arg1;
 }
 
@@ -1534,10 +1534,10 @@ void modelRender_setAnimatedTexturesCacheId(s32 arg0){
     modelRenderAnimatedTexturesCacheId = arg0;
 }
 
-void func_8033A4A0(enum asset_e modelId, f32 arg1, f32 arg2){
-    D_803837C8.model_id = modelId;
-    D_803837C8.unk4 = arg1;
-    D_803837C8.unk8 = arg2;
+void modelRender_setSecondaryModel(enum asset_e modelId, f32 arg1, f32 arg2){
+    sSecondaryModelData.model_id = modelId;
+    sSecondaryModelData.unk4 = arg1;
+    sSecondaryModelData.unk8 = arg2;
 }
 
 void modelRender_setVertexList(BKVertexList *vertexList){

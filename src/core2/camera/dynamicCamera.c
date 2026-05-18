@@ -5,12 +5,12 @@
 
 
 extern bool func_80245314(f32[3], f32[3], f32, f32, u32);
-extern BKCollisionTri *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
-extern BKCollisionTri *func_8024575C(f32[3], f32[3], f32, f32[3], s32, u32);
+extern BKCollisionTriangle *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
+extern BKCollisionTriangle *func_8024575C(f32[3], f32[3], f32, f32[3], s32, u32);
 extern f32 func_8028E82C(void);
 extern f32 player_getYaw(void);
 extern f32 func_8028EF88(void);
-extern BKCollisionTri *func_80320DB0(f32[3], f32, f32[3], u32);
+extern BKCollisionTriangle *func_80320DB0(f32[3], f32, f32[3], u32);
 
 typedef struct {
     f32* unk0;
@@ -882,8 +882,8 @@ void func_802BE484(f32 arg0[3], f32 arg1[3]){
     f32 sp48[3];
     f32 sp3C[3];
     f32 sp30[3];
-    BKCollisionTri *sp2C;
-    BKCollisionTri *tmp_v0;
+    BKCollisionTriangle *sp2C;
+    BKCollisionTriangle *tmp_v0;
 
     func_802BE258(arg0, 35.0f);
     ml_vec3f_copy(sp48, arg0);

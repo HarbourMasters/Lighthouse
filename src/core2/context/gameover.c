@@ -30,8 +30,8 @@ Actor *func_802DC320(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     f32 sp34[3];
 
     this = marker_getActor(marker);
-    modelRender_preDraw( (GenFunction_1)actor_predrawMethod, (uintptr_t)this);
-    modelRender_postDraw((GenFunction_1)actor_postdrawMethod, (uintptr_t)marker);
+    modelRender_setPreDrawCallback( (model_render_pre_draw_callback_f)actor_predrawMethod, (void *)this);
+    modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
     viewport_backupState();
     vp_position[0] = 0.0f;
     vp_position[1] = 0.0f;

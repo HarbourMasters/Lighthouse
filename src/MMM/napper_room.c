@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-BKCollisionTri * func_80309B48(f32[3], f32[3], f32[3], u32);
+BKCollisionTriangle * func_80309B48(f32[3], f32[3], f32[3], u32);
 
 /* .bss */
 struct{
@@ -71,7 +71,7 @@ void func_8038966C(void){
     f32 sp48[3];
     f32 sp3C[3];
     f32 sp30[3];
-    BKCollisionTri *tmp_v0;
+    BKCollisionTriangle *tmp_v0;
 
     if(MMM_D_8038C4E0.unk1 == 0) return;
 

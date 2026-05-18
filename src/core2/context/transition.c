@@ -485,7 +485,7 @@ void gctransition_update(void){
                     break;
                 case 3:
                     port_patchTransitionModel(s_current_transition.model_ptr);
-                    func_802FEF48(s_current_transition.model_ptr); //framebuffer to model texture list
+                    model_copyFramebufferToTextures(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
                 case 4:
                     osViBlack(0);
@@ -510,7 +510,7 @@ void gctransition_update(void){
                 case 2:
                     gsworld_setEnableDraw(0);
                     port_patchTransitionModel(s_current_transition.model_ptr);
-                    func_802FEF48(s_current_transition.model_ptr); //framebuffer to model texture list
+                    model_copyFramebufferToTextures(s_current_transition.model_ptr); //framebuffer to model texture list
                     break;
                 
             }

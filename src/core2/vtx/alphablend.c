@@ -4,7 +4,7 @@
 #include "model.h"
 
 /* .code */
-void func_8034E660(s32 arg0, BKVtxRef *src, Vtx *dst, void *arg3) {
+void func_8034E660(s32 arg0, BKModelVtxRef *src, Vtx *dst, void *arg3) {
     Struct73s *data = (Struct73s *)arg3;
     dst->v.ob[1] = src->v.v.ob[1] + data->dy;
     dst->v.tc[0] = src->v.v.tc[0] + data->d_tc[0];
@@ -41,7 +41,7 @@ void func_8034E71C(Struct73s *arg0, s32 arg1, f32 arg2) {
     if (arg2 == 0.0f) {
         arg0->dy = arg1;
         sp18 = func_8034C4F0((Struct70s *)arg0);
-        BKModel_transformMesh(sp18, func_8034C50C((Struct70s *)arg0), func_8034E660, (void *) arg0);
+        model_transformMesh(sp18, func_8034C50C((Struct70s *)arg0), func_8034E660, (void *) arg0);
     }
 }
 
@@ -106,5 +106,5 @@ void func_8034E8E4(Struct73s *arg0, BKModel *arg1, s32 arg2) {
     sp28 = ((arg0->unk14 < arg0->unk1C) ? arg0->unkC + ((arg0->unk14 / arg0->unk1C) * (arg0->unkE - arg0->unkC)) : arg0->unkE);
     sp28 += sp2C;
     arg0->dy = (sp28 >= 0.0) ? sp28 + 0.5 : sp28 - 0.5;
-    BKModel_transformMesh(arg1, arg2, func_8034E660, (void *) arg0);
+    model_transformMesh(arg1, arg2, func_8034E660, (void *) arg0);
 }
