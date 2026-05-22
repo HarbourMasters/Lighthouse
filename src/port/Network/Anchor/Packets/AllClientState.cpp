@@ -1,9 +1,9 @@
-#include "soh/Network/Anchor/Anchor.h"
-#include "soh/Network/Anchor/JsonConversions.hpp"
+#include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-#include "soh/OTRGlobals.h"
-#include "soh/Notification/Notification.h"
+#include "port/Engine.h"
+#include "port/ui/Notification.h"
 
 /**
  * ALL_CLIENT_STATE
@@ -14,7 +14,7 @@
  */
 
 void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
-    std::vector<AnchorClient> newClients = payload["state"].get<std::vector<AnchorClient>>();
+    std::vector<AnchorClient> newClients = payload["state"].get<std::vector<AnchorClient >>();
     bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
     // add new clients

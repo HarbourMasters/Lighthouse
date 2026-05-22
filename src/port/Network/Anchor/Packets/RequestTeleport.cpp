@@ -1,7 +1,7 @@
-#include "soh/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-#include "soh/Enhancements/game-interactor/GameInteractor.h"
+//#include "soh/Enhancements/game-interactor/GameInteractor.h"
 
 /**
  * REQUEST_TELEPORT
@@ -66,26 +66,26 @@ bool Anchor::CanTeleportTo(uint32_t clientId) {
         return false;
     }
 
-    // Problematic scenes for teleporting
-    if (client.sceneNum == SCENE_ID_MAX || client.sceneNum == SCENE_GROTTOS || client.sceneNum == SCENE_MARKET_DAY ||
-        client.sceneNum == SCENE_MARKET_NIGHT || client.sceneNum == SCENE_MARKET_RUINS ||
-        client.sceneNum == SCENE_MARKET_ENTRANCE_DAY || client.sceneNum == SCENE_MARKET_ENTRANCE_NIGHT ||
-        client.sceneNum == SCENE_MARKET_ENTRANCE_RUINS || client.sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_DAY ||
-        client.sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_NIGHT ||
-        client.sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_RUINS || client.sceneNum == SCENE_BACK_ALLEY_DAY ||
-        client.sceneNum == SCENE_BACK_ALLEY_NIGHT) {
-        return false;
-    }
+    //// Problematic scenes for teleporting
+    //if (client.sceneNum == SCENE_ID_MAX || client.sceneNum == SCENE_GROTTOS || client.sceneNum == SCENE_MARKET_DAY ||
+    //    client.sceneNum == SCENE_MARKET_NIGHT || client.sceneNum == SCENE_MARKET_RUINS ||
+    //    client.sceneNum == SCENE_MARKET_ENTRANCE_DAY || client.sceneNum == SCENE_MARKET_ENTRANCE_NIGHT ||
+    //    client.sceneNum == SCENE_MARKET_ENTRANCE_RUINS || client.sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_DAY ||
+    //    client.sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_NIGHT ||
+    //    client.sceneNum == SCENE_TEMPLE_OF_TIME_EXTERIOR_RUINS || client.sceneNum == SCENE_BACK_ALLEY_DAY ||
+    //    client.sceneNum == SCENE_BACK_ALLEY_NIGHT) {
+    //    return false;
+    //}
 
-    // Child can't teleport to Ganon's Castle exterior
-    if (client.sceneNum == SCENE_OUTSIDE_GANONS_CASTLE && gSaveContext.linkAge == LINK_AGE_CHILD) {
-        return false;
-    }
+    //// Child can't teleport to Ganon's Castle exterior
+    //if (client.sceneNum == SCENE_OUTSIDE_GANONS_CASTLE && gSaveContext.linkAge == LINK_AGE_CHILD) {
+    //    return false;
+    //}
 
-    // Adult can't teleport to Hyrule Castle exterior
-    if (client.sceneNum == SCENE_HYRULE_CASTLE && gSaveContext.linkAge == LINK_AGE_ADULT) {
-        return false;
-    }
+    //// Adult can't teleport to Hyrule Castle exterior
+    //if (client.sceneNum == SCENE_HYRULE_CASTLE && gSaveContext.linkAge == LINK_AGE_ADULT) {
+    //    return false;
+    //}
 
     return true;
 }

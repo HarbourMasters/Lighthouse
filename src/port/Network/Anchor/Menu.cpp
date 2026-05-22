@@ -1,11 +1,11 @@
 #include "Anchor.h"
 #include <libultraship/libultraship.h>
-#include "soh/SohGui/SohGui.hpp"
-#include "soh/SohGui/SohMenu.h"
-#include "soh/util.h"
+#include "port/ui/LighthouseGui.hpp"
+#include "port/ui/LighthouseMenu.h"
+#include "port/ShipUtils.h"
 
-namespace SohGui {
-extern std::shared_ptr<SohMenu> mSohMenu;
+namespace LighthouseGui {
+extern std::shared_ptr<LighthouseMenu> mSohMenu;
 extern std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
 } // namespace SohGui
 
@@ -14,15 +14,15 @@ static std::vector<const char*> teleportModes = { "None", "Team Only", "All" };
 static std::vector<const char*> showLocationsModes = { "None", "Team Only", "All" };
 
 void AnchorMainMenu(WidgetInfo& info) {
-    auto anchor = Anchor::Instance;
+    auto anchor = Anchor::GetInstance();
 
     std::string host = CVarGetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org");
     uint16_t port = CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383);
     std::string anchorTeamId = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     std::string anchorRoomId = CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "");
     std::string anchorName = CVarGetString(CVAR_REMOTE_ANCHOR("Name"), "");
-    bool isFormValid = !SohUtils::IsStringEmpty(host) && port > 1024 && port < 65535 &&
-                       !SohUtils::IsStringEmpty(anchorRoomId) && !SohUtils::IsStringEmpty(anchorName);
+    /*bool isFormValid = !ShipUtils::IsStringEmpty(host) && port > 1024 && port < 65535 &&
+                       !SohUtils::IsStringEmpty(anchorRoomId) && !SohUtils::IsStringEmpty(anchorName);*/
 
     ImGui::SeparatorText("Connection Settings");
 
@@ -98,7 +98,7 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::Spacing();
 
-    ImGui::BeginDisabled(!isFormValid);
+    //ImGui::BeginDisabled(!isFormValid);
     const char* buttonLabel = anchor->isEnabled ? "Disable" : "Enable";
     UIWidgets::PushStyleButton(anchor->isEnabled ? UIWidgets::ColorValues.at(UIWidgets::Colors::Red)
                                                  : UIWidgets::ColorValues.at(UIWidgets::Colors::Green));
@@ -138,11 +138,11 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::SameLine();
 
-    UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), SohGui::mAnchorRoomWindow);
+    //UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), SohGui::mAnchorRoomWindow);
 
     ImGui::Spacing();
 
-    bool hideLocations = Anchor::Instance->roomState.showLocationsMode == 0;
+    bool hideLocations = Anchor::GetInstance()->roomState.showLocationsMode == 0;
     ImGui::BeginDisabled(hideLocations);
     UIWidgets::CVarCheckbox(
         "Show Other Players on Minimap", CVAR_REMOTE_ANCHOR("ShowOtherPlayersOnMinimap"),
@@ -157,13 +157,13 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::Spacing();
 
-    if (!SohGui::mAnchorRoomWindow->IsVisible()) {
+    /*if (!SohGui::mAnchorRoomWindow->IsVisible()) {
         SohGui::mAnchorRoomWindow->DrawElement();
-    }
+    }*/
 }
 
 void AnchorAdminMenu(WidgetInfo& info) {
-    auto anchor = Anchor::Instance;
+    auto anchor = Anchor::GetInstance();
     bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
     if (!anchor->isEnabled || !anchor->isConnected || anchor->roomState.ownerClientId != anchor->ownClientId ||
@@ -176,7 +176,7 @@ void AnchorAdminMenu(WidgetInfo& info) {
     UIWidgets::PushStyleButton(THEME_COLOR);
     if (ImGui::Button("Clear All Team State")) {
         std::set<std::string> teams;
-        for (auto& [clientId, client] : Anchor::Instance->clients) {
+        for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
             teams.insert(client.teamId);
         }
         for (auto& team : teams) {
@@ -214,7 +214,7 @@ void AnchorAdminMenu(WidgetInfo& info) {
 }
 
 void AnchorInstructionsMenu(WidgetInfo& info) {
-    auto anchor = Anchor::Instance;
+    auto anchor = Anchor::GetInstance();
 
     ImGui::SeparatorText("Usage Instructions");
 

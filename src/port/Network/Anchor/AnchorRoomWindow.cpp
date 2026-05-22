@@ -1,14 +1,14 @@
 #include "Anchor.h"
-#include "soh/OTRGlobals.h"
+#include "port/Engine.h"
 
 extern "C" {
 #include "variables.h"
 #include "functions.h"
-extern PlayState* gPlayState;
+//extern PlayState* gPlayState;
 }
 
 void AnchorRoomWindow::Draw() {
-    if (!IsVisible() || !Anchor::Instance->isConnected) {
+    if (!IsVisible() || !Anchor::GetInstance()->isConnected) {
         return;
     }
 
@@ -38,7 +38,7 @@ void AnchorRoomWindow::DrawElement() {
 
     if (isGlobalRoom) {
         u32 activeClients = 0;
-        for (auto& [clientId, client] : Anchor::Instance->clients) {
+        for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
             if (client.online) {
                 activeClients++;
             }
@@ -49,7 +49,7 @@ void AnchorRoomWindow::DrawElement() {
 
     // First build a list of teams
     std::set<std::string> teams;
-    for (auto& [clientId, client] : Anchor::Instance->clients) {
+    for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
         teams.insert(client.teamId);
     }
 
@@ -58,14 +58,14 @@ void AnchorRoomWindow::DrawElement() {
             ImGui::SeparatorText(team.c_str());
         }
         bool isOwnTeam = team == CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
-        for (auto& [clientId, client] : Anchor::Instance->clients) {
+        for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
             if (client.teamId != team) {
                 continue;
             }
 
             ImGui::PushID(clientId);
 
-            if (client.clientId == Anchor::Instance->roomState.ownerClientId) {
+            if (client.clientId == Anchor::GetInstance()->roomState.ownerClientId) {
                 ImGui::TextColored(ImVec4(1, 1, 0, 1), "%s", ICON_FA_GAVEL);
                 ImGui::SameLine();
             }
@@ -80,21 +80,21 @@ void AnchorRoomWindow::DrawElement() {
                 ImGui::Text("%s", client.name.c_str());
             }
 
-            if (Anchor::Instance->roomState.showLocationsMode == 2 ||
-                (Anchor::Instance->roomState.showLocationsMode == 1 && isOwnTeam)) {
-                if ((client.self ? Anchor::Instance->IsSaveLoaded() : client.isSaveLoaded)) {
+            if (Anchor::GetInstance()->roomState.showLocationsMode == 2 ||
+                (Anchor::GetInstance()->roomState.showLocationsMode == 1 && isOwnTeam)) {
+                if ((client.self ? Anchor::GetInstance()->IsSaveLoaded() : client.isSaveLoaded)) {
                     ImGui::SameLine();
                     ImGui::TextColored(
                         ImVec4(1, 1, 1, 0.5f), "- %s",
-                        SohUtils::GetSceneName(client.self ? gPlayState->sceneNum : client.sceneNum).c_str());
+                        /*SohUtils::GetSceneName(client.self ? gPlayState->sceneNum : client.sceneNum).c_str()*/"");
                 }
             }
 
-            if (Anchor::Instance->CanTeleportTo(client.clientId)) {
+            if (Anchor::GetInstance()->CanTeleportTo(client.clientId)) {
                 ImGui::SameLine();
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
                 if (ImGui::Button(ICON_FA_LOCATION_ARROW, ImVec2(20.0f, 20.0f))) {
-                    Anchor::Instance->SendPacket_RequestTeleport(client.clientId);
+                    Anchor::GetInstance()->SendPacket_RequestTeleport(client.clientId);
                 }
                 ImGui::PopStyleVar();
             }
@@ -110,8 +110,8 @@ void AnchorRoomWindow::DrawElement() {
                     ImGui::EndTooltip();
                 }
             }
-            uint32_t seed = IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : 0;
-            if (client.isSaveLoaded && Anchor::Instance->IsSaveLoaded() && client.seed != seed && client.online &&
+            uint32_t seed = /*IS_RANDO ? Rando::Context::GetInstance()->GetSeed() :*/ 0;
+            if (client.isSaveLoaded && Anchor::GetInstance()->IsSaveLoaded() && client.seed != seed && client.online &&
                 !client.self) {
                 ImGui::SameLine();
                 ImGui::TextColored(ImVec4(1, 0, 0, 1), ICON_FA_EXCLAMATION_TRIANGLE);

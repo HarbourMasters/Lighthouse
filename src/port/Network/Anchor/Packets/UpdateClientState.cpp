@@ -1,12 +1,12 @@
-#include "soh/Network/Anchor/Anchor.h"
-#include "soh/Network/Anchor/JsonConversions.hpp"
+#include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-#include "soh/OTRGlobals.h"
+//#include "soh/OTRGlobals.h"
 
 extern "C" {
 #include "variables.h"
-extern PlayState* gPlayState;
+//extern PlayState* gPlayState;
 }
 
 /**
@@ -28,7 +28,7 @@ nlohmann::json Anchor::PrepClientState() {
     payload["teamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["online"] = true;
 
-    if (IsSaveLoaded()) {
+    /*if (IsSaveLoaded()) {
         payload["seed"] = IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : 0;
         payload["isSaveLoaded"] = true;
         payload["isGameComplete"] = gSaveContext.ship.stats.gameComplete;
@@ -42,7 +42,7 @@ nlohmann::json Anchor::PrepClientState() {
         payload["sceneNum"] = SCENE_ID_MAX;
         payload["curRoomNum"] = -1;
         payload["entranceIndex"] = 0x00;
-    }
+    }*/
 
     return payload;
 }

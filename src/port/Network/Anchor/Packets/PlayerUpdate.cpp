@@ -1,12 +1,12 @@
-#include "soh/Network/Anchor/Anchor.h"
-#include "soh/Network/Anchor/JsonConversions.hpp"
+#include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
 extern "C" {
 #include "macros.h"
 #include "variables.h"
-extern PlayState* gPlayState;
+//extern PlayState* gPlayState;
 }
 
 /**
@@ -25,7 +25,7 @@ void Anchor::SendPacket_PlayerUpdate() {
     }
 
     uint32_t currentPlayerCount = 0;
-    for (auto& [clientId, client] : clients) {
+    /*for (auto& [clientId, client] : clients) {
         if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
             currentPlayerCount++;
         }
@@ -74,45 +74,45 @@ void Anchor::SendPacket_PlayerUpdate() {
             payload["targetClientId"] = clientId;
             SendJsonToRemote(payload);
         }
-    }
+    }*/
 }
 
 void Anchor::HandlePacket_PlayerUpdate(nlohmann::json payload) {
     uint32_t clientId = payload["clientId"].get<uint32_t>();
 
-    if (clients.contains(clientId)) {
-        auto& client = clients[clientId];
+    //if (clients.contains(clientId)) {
+    //    auto& client = clients[clientId];
 
-        if (client.linkAge != payload.value("linkAge", (s32)LINK_AGE_ADULT)) {
-            shouldRefreshActors = true;
-        }
+    //    if (client.linkAge != payload.value("linkAge", (s32)LINK_AGE_ADULT)) {
+    //        shouldRefreshActors = true;
+    //    }
 
-        client.sceneNum = payload.value("sceneNum", (s16)SCENE_ID_MAX);
-        client.entranceIndex = payload.value("entranceIndex", (s32)0);
-        client.linkAge = payload.value("linkAge", (s32)LINK_AGE_ADULT);
-        client.posRot = payload.value("posRot", PosRot{ 0 });
-        std::vector<int> jointArray = payload.value("jointTable", std::vector<int>{});
-        jointArray.resize(24 * 3); // Ensure it has enough elements, in case of missing data
-        for (int i = 0; i < 24; i++) {
-            client.jointTable[i].x = jointArray[i * 3];
-            client.jointTable[i].y = jointArray[i * 3 + 1];
-            client.jointTable[i].z = jointArray[i * 3 + 2];
-        }
-        client.movementFlags = payload.value("movementFlags", (u8)0);
-        client.prevTransl = payload.value("prevTransl", Vec3s{ 0 });
-        client.upperLimbRot = payload.value("upperLimbRot", Vec3s{ 0 });
-        client.currentBoots = payload.value("currentBoots", (s8)0);
-        client.currentShield = payload.value("currentShield", (s8)0);
-        client.currentTunic = payload.value("currentTunic", (s8)0);
-        client.stateFlags1 = payload.value("stateFlags1", (u32)0);
-        client.stateFlags2 = payload.value("stateFlags2", (u32)0);
-        client.buttonItem0 = payload.value("buttonItem0", (u8)0);
-        client.itemAction = payload.value("itemAction", (s8)0);
-        client.heldItemAction = payload.value("heldItemAction", (s8)0);
-        client.modelGroup = payload.value("modelGroup", (u8)0);
-        client.invincibilityTimer = payload.value("invincibilityTimer", (s8)0);
-        client.unk_862 = payload.value("unk_862", (s16)0);
-        client.unk_85C = payload.value("unk_85C", (f32)0);
-        client.actionVar1 = payload.value("actionVar1", (s8)0);
-    }
+    //    client.sceneNum = payload.value("sceneNum", (s16)SCENE_ID_MAX);
+    //    client.entranceIndex = payload.value("entranceIndex", (s32)0);
+    //    client.linkAge = payload.value("linkAge", (s32)LINK_AGE_ADULT);
+    //    client.posRot = payload.value("posRot", PosRot{ 0 });
+    //    std::vector<int> jointArray = payload.value("jointTable", std::vector<int>{});
+    //    jointArray.resize(24 * 3); // Ensure it has enough elements, in case of missing data
+    //    for (int i = 0; i < 24; i++) {
+    //        client.jointTable[i].x = jointArray[i * 3];
+    //        client.jointTable[i].y = jointArray[i * 3 + 1];
+    //        client.jointTable[i].z = jointArray[i * 3 + 2];
+    //    }
+    //    client.movementFlags = payload.value("movementFlags", (u8)0);
+    //    client.prevTransl = payload.value("prevTransl", Vec3s{ 0 });
+    //    client.upperLimbRot = payload.value("upperLimbRot", Vec3s{ 0 });
+    //    client.currentBoots = payload.value("currentBoots", (s8)0);
+    //    client.currentShield = payload.value("currentShield", (s8)0);
+    //    client.currentTunic = payload.value("currentTunic", (s8)0);
+    //    client.stateFlags1 = payload.value("stateFlags1", (u32)0);
+    //    client.stateFlags2 = payload.value("stateFlags2", (u32)0);
+    //    client.buttonItem0 = payload.value("buttonItem0", (u8)0);
+    //    client.itemAction = payload.value("itemAction", (s8)0);
+    //    client.heldItemAction = payload.value("heldItemAction", (s8)0);
+    //    client.modelGroup = payload.value("modelGroup", (u8)0);
+    //    client.invincibilityTimer = payload.value("invincibilityTimer", (s8)0);
+    //    client.unk_862 = payload.value("unk_862", (s16)0);
+    //    client.unk_85C = payload.value("unk_85C", (f32)0);
+    //    client.actionVar1 = payload.value("actionVar1", (s8)0);
+    //}
 }

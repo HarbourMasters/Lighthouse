@@ -1760,7 +1760,7 @@ enum mumbotoken_e
     MUMBOTOKEN_73_CCW_WINTER_SIR_SLUSH_BETWEEN_BIG_FLOWER_AND_MUMBOS_SKULL
 };
 
-enum actor_e
+typedef enum actor_e
 {
     ACTOR_1_UNKNOWN         = 0x1,
     ACTOR_2_UNKNOWN,
@@ -2390,7 +2390,7 @@ enum actor_e
     ACTOR_3C9_FURNACE_FUN_PICK_PRICE,
     ACTOR_3CA_ROCK_TRAPPING_GRUNTY = 0x3CA,
     ACTOR_3CB_UNKNOWN
-};
+} ActorID;
 
 enum bundle_e {
     BUNDLE_0_MM_HUT_MUSIC_NOTE,
@@ -2763,8 +2763,9 @@ enum game_mode_e
     GAME_MODE_A_SNS_PICTURE
 };
 
-enum asset_e
+typedef enum asset_e
 {
+    ASSET_0_NONE = 0,
     ASSET_1_ANIM_BSCROUCH_ENTER = 0x1,
     ASSET_2_ANIM_BSWALK_CREEP = 0x2,
     ASSET_3_ANIM_BSWALK = 0x3,
@@ -5280,7 +5281,7 @@ enum asset_e
     ASSET_1513_MODEL_CS_KLUNGOS_LAB_XLU = 0x1513,
     ASSET_1514_MODEL_GL_FF_ENTRANCE_XLU = 0x1514,
     ASSET_1515_MODEL_GL_BATTLEMENTS_XLU
-};
+} AssetID;
 
 enum overlay_e {
     OVERLAY_0_CORE2,

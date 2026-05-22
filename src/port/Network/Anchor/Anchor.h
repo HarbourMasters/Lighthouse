@@ -9,13 +9,16 @@
 
 extern "C" {
 #include "variables.h"
-#include "z64.h"
+#include "prop.h"
+//#include "z64.h"
 }
 
-void DummyPlayer_Init(Actor* actor, PlayState* play);
-void DummyPlayer_Update(Actor* actor, PlayState* play);
-void DummyPlayer_Draw(Actor* actor, PlayState* play);
-void DummyPlayer_Destroy(Actor* actor, PlayState* play);
+//void DummyPlayer_Init(Actor* actor, PlayState* play);
+//void DummyPlayer_Update(Actor* actor, PlayState* play);
+//void DummyPlayer_Draw(Actor* actor, PlayState* play);
+//void DummyPlayer_Destroy(Actor* actor, PlayState* play);
+
+#define CVAR_REMOTE_ANCHOR(cvar) "gRemote.Anchor." cvar
 
 typedef struct {
     uint32_t clientId;
@@ -34,11 +37,11 @@ typedef struct {
 
     // Only available in PLAYER_UPDATE packets
     s32 linkAge;
-    PosRot posRot;
-    Vec3s jointTable[24];
-    u8 movementFlags;
-    Vec3s prevTransl;
-    Vec3s upperLimbRot;
+    //PosRot posRot;
+    //Vec3s jointTable[24];
+    //u8 movementFlags;
+    //Vec3s prevTransl;
+    //Vec3s upperLimbRot;
     s8 currentBoots;
     s8 currentShield;
     s8 currentTunic;
@@ -57,7 +60,7 @@ typedef struct {
     s8 ocarinaBend;
 
     // Ptr to the dummy player
-    Player* player;
+    //Player* player;
 } AnchorClient;
 
 typedef struct {
@@ -137,7 +140,6 @@ class Anchor : public Network {
     inline static const std::string UPDATE_ROOM_STATE = "UPDATE_ROOM_STATE";
     inline static const std::string UPDATE_TEAM_STATE = "UPDATE_TEAM_STATE";
 
-    static Anchor* Instance;
     std::map<uint32_t, AnchorClient> clients;
     RoomState roomState;
 
@@ -165,7 +167,7 @@ class Anchor : public Network {
     void SendPacket_PlayerUpdate();
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);
-    void SendPacket_SetCheckStatus(RandomizerCheck rc);
+    void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);
     void SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag);
     void SendPacket_TeleportTo(u32 clientId);
     void SendPacket_UnsetFlag(s16 sceneNum, s16 flagType, s16 flag);
@@ -174,6 +176,8 @@ class Anchor : public Network {
     void SendPacket_UpdateDungeonItems();
     void SendPacket_UpdateRoomState();
     void SendPacket_UpdateTeamState();
+
+    static Anchor* GetInstance();
 };
 
 typedef enum {

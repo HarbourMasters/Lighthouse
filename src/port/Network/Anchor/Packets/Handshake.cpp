@@ -1,8 +1,8 @@
-#include "soh/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-#include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "soh/OTRGlobals.h"
+//#include "soh/Enhancements/game-interactor/GameInteractor.h"
+//#include "soh/OTRGlobals.h"
 
 /**
  * HANDSHAKE

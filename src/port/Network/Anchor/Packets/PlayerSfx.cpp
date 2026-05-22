@@ -1,5 +1,5 @@
-#include "soh/Network/Anchor/Anchor.h"
-#include "soh/Network/Anchor/JsonConversions.hpp"
+#include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
@@ -7,7 +7,7 @@ extern "C" {
 #include "macros.h"
 #include "functions.h"
 #include "variables.h"
-extern PlayState* gPlayState;
+//extern PlayState* gPlayState;
 }
 
 /**
@@ -27,21 +27,21 @@ void Anchor::SendPacket_PlayerSfx(u16 sfxId) {
     payload["sfxId"] = sfxId;
     payload["quiet"] = true;
 
-    for (auto& [clientId, client] : clients) {
-        if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
-            payload["targetClientId"] = clientId;
-            SendJsonToRemote(payload);
-        }
-    }
+    //for (auto& [clientId, client] : clients) {
+    //    if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
+    //        payload["targetClientId"] = clientId;
+    //        SendJsonToRemote(payload);
+    //    }
+    //}
 }
 
 void Anchor::HandlePacket_PlayerSfx(nlohmann::json payload) {
-    uint32_t clientId = payload.at("clientId").get<uint32_t>();
-    u16 sfxId = payload.at("sfxId").get<u16>();
+    //uint32_t clientId = payload.at("clientId").get<uint32_t>();
+    //u16 sfxId = payload.at("sfxId").get<u16>();
 
-    if (!clients.contains(clientId) || !clients[clientId].player) {
-        return;
-    }
+    //if (!clients.contains(clientId) || !clients[clientId].player) {
+    //    return;
+    //}
 
-    Player_PlaySfx((Actor*)clients[clientId].player, sfxId);
+    //Player_PlaySfx((Actor*)clients[clientId].player, sfxId);
 }
