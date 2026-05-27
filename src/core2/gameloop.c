@@ -125,6 +125,7 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     D_8037E8E0.unkC = false;
     port_mirror_beginScene();
     gsworld_draw(gdl, mptr, vptr);
+    CALL_EVENT(OnWorldDraw, gdl, mptr, vptr);
     port_mirror_endScene();
     port_mirror_undoProjection(gdl, mptr);
     // [port] After scene draw, capture the transition GPU FB if active.

@@ -14,3 +14,5 @@ DEFINE_EVENT(OnActorTick, Actor* actor;);
 DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);
 DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
 DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
+
+DEFINE_EVENT(OnWorldDraw, Gfx **gfx; Mtx **mtx; Vtx **vtx;);

@@ -476,7 +476,7 @@ enum level_flags_e
     LEVEL_FLAG_3F_LAIR_GRUNTY_DOOR_OPEN
 };
 
-enum transformation_e
+typedef enum transformation_e
 {
     unknown,
     TRANSFORM_1_BANJO,
@@ -486,7 +486,7 @@ enum transformation_e
     TRANSFORM_5_CROC,
     TRANSFORM_6_BEE,
     TRANSFORM_7_WISHWASHY
-};
+} Transformation;
 
 enum ability_e
 {
