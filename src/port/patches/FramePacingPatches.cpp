@@ -29,14 +29,6 @@ void port_setDemoViCount(int viCount) {
     sDemoViCount = viCount;
 }
 
-double port_getTargetFrameTime(void) {
-    static const double GAME_LOGIC_FRAME_TIME = 1.0 / 30.0;
-    if (sDemoViCount > 0) {
-        return sDemoViCount / 60.0;
-    }
-    return GAME_LOGIC_FRAME_TIME;
-}
-
 int port_getDemoDisplayViCount(int rawViCount) {
     int displayViCount = rawViCount;
     int game_mode = getGameMode();

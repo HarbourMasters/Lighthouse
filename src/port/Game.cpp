@@ -20,22 +20,21 @@ extern "C" {
 #include "core1/main.h"
 }
 
+// Tracks whether mainLoop actually fed the renderer this iteration.
+// BK's gameloop conditionally skips game_draw during scene transitions.
+static bool sFrameRendered = false;
+
 extern "C" void Graphics_PushFrame(Gfx* data) {
+    sFrameRendered = true;
     GameEngine::ProcessGfxCommands(data);
 }
-
-// [port] BK game logic runs at 30fps (N64: 2 VI per game frame at 60Hz).
-// The main loop must tick at exactly 30fps regardless of render rate.
-// Without this, gGlobalTimer increments too fast, time_getDelta() returns
-// tiny values, and all tick-based timing (animations, cutscenes, AI) breaks.
-static constexpr double GAME_LOGIC_FPS = 30.0;
-static constexpr double GAME_LOGIC_FRAME_TIME = 1.0 / GAME_LOGIC_FPS;
 
 extern "C" int gsworld_getMap(void);
 extern "C" void port_setWindowTitle(int map_id);
 
 void push_frame() {
     static int sTitleCounter = 0;
+    sFrameRendered = false;
     GameEngine::Instance->StartFrame();
     FrameInterpolation_StartRecord();
     mainLoop();
@@ -48,32 +47,16 @@ void push_frame() {
         sTitleCounter = 0;
         port_setWindowTitle(gsworld_getMap());
     }
+
+    if (!sFrameRendered) {
+        SDL_Delay(33);
+    }
 }
 
 /* Rename SDL_main to main for SDL compatibility */
 #ifdef __GNUC__
 #define SDL_main main
 #endif
-
-// [port] Precise sleep: SDL_Delay for the bulk, then spin-wait the remainder.
-static void preciseSleep(double seconds) {
-    if (seconds <= 0) {
-        return;
-    }
-    double freq = (double)SDL_GetPerformanceFrequency();
-    uint64_t target = SDL_GetPerformanceCounter() + (uint64_t)(seconds * freq);
-
-    // Sleep the bulk (leave 1.5ms margin for spin)
-    double sleepMs = (seconds * 1000.0) - 1.5;
-    if (sleepMs > 0.5) {
-        SDL_Delay((uint32_t)sleepMs);
-    }
-
-    // Spin-wait the remainder for precise timing
-    while (SDL_GetPerformanceCounter() < target) {
-        // busy-wait
-    }
-}
 
 int SDL_main(int argc, char* argv[]) {
 #ifdef _WIN32
@@ -82,19 +65,8 @@ int SDL_main(int argc, char* argv[]) {
     GameEngine::Create(argc, argv);
     core1_init();
 
-    double freq = (double)SDL_GetPerformanceFrequency();
-
     while (WindowIsRunning()) {
-        uint64_t frameStart = SDL_GetPerformanceCounter();
         push_frame();
-        uint64_t frameEnd = SDL_GetPerformanceCounter();
-        double frameDuration = (double)(frameEnd - frameStart) / freq;
-
-        double targetFrameTime = port_getTargetFrameTime();
-
-        if (frameDuration < targetFrameTime) {
-            preciseSleep(targetFrameTime - frameDuration);
-        }
     }
 #ifdef _WIN32
     timeEndPeriod(1);

@@ -1200,40 +1200,52 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // of node allocations per tick at high refresh rates.
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = (int)AdaptiveFps_Cap((uint32_t)GameEngine::Instance->GetInterpolationFPS());
-    static int last_fps;
-    static int last_update_rate;
-    static int time;
-    int fps = target_fps;
-    int original_fps = 60 / gVIsPerFrame;
 
-    if (target_fps == 30 || original_fps > target_fps) {
-        fps = original_fps;
+    // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
+    // replay and cutscene stutter raise it for slow N64 frames.
+    int viPerTick = port_getDemoViCount();
+    if (viPerTick <= 0) {
+        viPerTick = gVIsPerFrame + port_getCutsceneExtraVis();
+    }
+    if (viPerTick < gVIsPerFrame) {
+        viPerTick = gVIsPerFrame;
     }
 
-    if (last_fps != fps || last_update_rate != gVIsPerFrame) {
-        time = 0;
+    int effective_logic_fps = 60 / viPerTick;
+    if (effective_logic_fps < 1) {
+        effective_logic_fps = 1;
     }
 
-    int next_original_frame = fps;
+    // Subframes per tick: integer count. floor(target_fps / eff), min 1. This
+    // guarantees an integer count even when target_fps isn't a multiple of
+    // eff (the fractional-ratio jitter at target=30 / VI=3).
+    int subframesPerTick = target_fps / effective_logic_fps;
+    if (subframesPerTick < 1) {
+        subframesPerTick = 1;
+    }
 
-    // An empty map tells the interpreter to use the DL's matrices as-is —
-    // the canonical curr-tick frame at t == 1.0.
+    // paceFps drives DXGI's per-present wait so that subframes * 1/paceFps =
+    // viPerTick/60 wall (= game time per tick). When viPerTick == gVIsPerFrame
+    // and target_fps is a multiple of eff, paceFps == target_fps and stays
+    // constant. Otherwise it varies per tick to keep wall == game.
+    int fps = subframesPerTick * effective_logic_fps;
+
+    // Emit exactly subframesPerTick sub-frames with t values evenly spaced.
+    // No accumulator carry: each tick is independent so VI changes don't
+    // misalign leftover state.
+    if ((int)mtx_replacements.size() < subframesPerTick) {
+        mtx_replacements.resize(subframesPerTick);
+    }
     size_t activeFrames = 0;
-    while (time + original_fps <= next_original_frame) {
-        time += original_fps;
-        if (activeFrames >= mtx_replacements.size()) {
-            mtx_replacements.emplace_back();
-        }
-        if (time != next_original_frame) {
-            float t = (float)time / (float)next_original_frame;
+    for (int i = 1; i <= subframesPerTick; i++) {
+        if (i < subframesPerTick) {
+            float t = (float)i / (float)subframesPerTick;
             FrameInterpolation_Interpolate(t, mtx_replacements[activeFrames]);
         } else {
             mtx_replacements[activeFrames].clear();
         }
         activeFrames++;
     }
-
-    time -= fps;
 
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);
@@ -1250,9 +1262,6 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     }
 
     RunCommands(commands, mtx_replacements, activeFrames);
-
-    last_fps = fps;
-    last_update_rate = gVIsPerFrame;
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {
