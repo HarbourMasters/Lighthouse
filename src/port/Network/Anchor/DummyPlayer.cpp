@@ -10,67 +10,7 @@ extern "C" {
 #include "bk_math.h"
 #include "port/patches/Patches.h"
 
-typedef enum player_model_direction_e {
-    PLAYER_MODEL_DIR_NONE = 0,
-    PLAYER_MODEL_DIR_BANJO = 1,
-    PLAYER_MODEL_DIR_KAZOOIE = 2,
-    PLAYER_MODEL_DIR_GLOBAL = 3
-} PlayerModelDirection;
-
-void dummy_80292048(s32, f32, f32, f32);
-void dummy_setDirection(enum player_model_direction_e arg0);
-void dummy_setScale(f32);
-void dummy_setYDisplacement(f32);
-void dummy_8029217C(f32);
-void dummy_setVisible(s32 arg0);
-
-void func_80254008(void);
-void assetcache_release(void *); //assetcache_free
-void func_8033A280(f32);
-
-//extern s32 osCicId;
-
-/* .data */
-struct5Bs *dummy_D_80363780 = NULL;
-
-/* .bss */
-BKModelBin *dummyBin; //dummyPtr
-AssetID dummyId; //dummy asset_id
-u8  dummyEnvAlpha;
-PlayerModelDirection dummyDirection;
-u8  dummyIsVisible;
-f32 dummyScale;
-f32 dummyPitch;
-f32 dummyRoll;
-f32 dummyYaw;
-f32 dummyPosition[3];
-ActorMarker *dummyMarker;
-f32 dummy_D_8037C100[3];
-f32 dummy_D_8037C110[3];
-f32 dummyDisplacement[3];
-void (*dummyPostDrawMethod)(Gfx **gfx, Mtx **mtx, Vtx **vtx);
-f32 dummy_D_8037C130[2][4];
-struct {
-    u8 unk0;
-    f32 unk4[3]; 
-} dummy_D_8037C150;
-
-f32 dummy_D_8037D230;
-u8  dummy_D_8037D234;
-u8  dummy_D_8037D235;
-u8  dummy_D_8037D236;
-u8  dummy_D_8037D237;
-u8  dummy_D_8037D238;
-u8  dummy_D_8037D239;
-u8  dummy_D_8037D23A;
-f32 dummy_D_8037D23C;
-f32 dummy_D_8037D240;
-Transformation  dummy_transformation;
-
-//public
-void dummy_set(enum asset_e asset_id);
-
-static void _dummy_updateModelYaw(void){
+void _dummy_updateModelYaw(void){
     //switch(dummyDirection){
     //case PLAYER_MODEL_DIR_KAZOOIE:
     //    dummyYaw = mlNormalizeAngle(yaw_get() + 180.0f);
@@ -83,15 +23,15 @@ static void _dummy_updateModelYaw(void){
     //}
 }
 
-void dummy_setTransformation(Transformation transform) {
+void DummyPlayer::dummy_setTransformation(Transformation transform) {
     dummy_transformation = transform;
 }
 
-void dummy_getPosition(f32 arg0[3]){
+void DummyPlayer::dummy_getPosition(f32 arg0[3]){
     ml_vec3f_copy(arg0, dummyPosition);
 }
 
-//void dummy_getPosition(f32* dst){
+//void DummyPlayer::dummy_getPosition(f32* dst){
 //    f32 tmp1[3];
 //    f32 tmp2[3];
 //    dummy_80291A50(5,tmp1);
@@ -100,11 +40,11 @@ void dummy_getPosition(f32 arg0[3]){
 //    ml_vec3f_scale(dst, 0.5);
 //}
 
-void dummy_setPoisition(f32 pos[3]) {
+void DummyPlayer::dummy_setPoisition(f32 pos[3]) {
     ml_vec3f_copy(dummyPosition, pos);
 }
 
-void dummy_80291A50(s32 arg0, f32 dst[3]){
+void DummyPlayer::dummy_80291A50(s32 arg0, f32 dst[3]){
     func_8034A174(dummy_D_80363780, arg0, dst);
     if(ml_isZero_vec3f(dst)){
         dummy_getPosition(dst);
@@ -119,9 +59,9 @@ static void _dummy_preDraw(int arg0){
     //baMarker_get()->unk14_21 = 1;
 }
 
-void dummy_func_8029DBF0(void){
+void DummyPlayer::dummy_func_8029DBF0(void){
     s32 temp_s0;
-    switch(baModel_getModelId()){
+    switch(dummy_getModelId()){
     case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY: //L8029DC24
     case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY: //L8029DC24
         temp_s0 = (s32) ml_interpolate_f(dummy_D_8037D23C, 1.0f, 8.0f);
@@ -150,7 +90,7 @@ void dummy_func_8029DBF0(void){
     }
 }
 
-void func_8029DD6C(void) {
+void DummyPlayer::func_8029DD6C(void) {
     s32 temp_s0; // [port] must hold values > 1 for geo selector branches
 
     func_8033A1FC();
@@ -202,19 +142,19 @@ void func_8029DD6C(void) {
     dummy_func_8029DBF0();
 }
 
-void dummy_setPitch(f32 pitch) {
+void DummyPlayer::dummy_setPitch(f32 pitch) {
     dummyPitch = pitch;
 }
 
-void dummy_setRoll(f32 roll) {
+void DummyPlayer::dummy_setRoll(f32 roll) {
     dummyRoll = roll;
 }
 
-void dummy_setYaw(f32 yaw) {
+void DummyPlayer::dummy_setYaw(f32 yaw) {
     dummyYaw = yaw;
 }
 
-void dummy_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
+void DummyPlayer::Draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     f32 rotation[3];
     s32 env_color[3];
     f32 plyr_pos[3]; //sp44
@@ -223,7 +163,7 @@ void dummy_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     if(!dummyIsVisible)
         return;
 
-    _dummy_updateModelYaw();
+    //_dummy_updateModelYaw();
     dummy_getPosition(plyr_pos);
     plyr_pos[1] += 2.0f;
     ml_vec3f_assign(rotation, dummyPitch, dummyYaw, dummyRoll);
@@ -243,7 +183,7 @@ void dummy_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
         func_8029DD6C();
         modelRender_setEnvColor(env_color[0], env_color[1], env_color[2], dummyEnvAlpha);
         func_8033A280(2.0f);
-        modelRender_preDraw((GenFunction_1)_dummy_preDraw, 0);
+        //modelRender_preDraw((GenFunction_1)_dummy_preDraw, 0);
         func_8033A450(dummy_D_80363780);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
         if(dummy_D_8037C150.unk0){
@@ -260,7 +200,7 @@ void dummy_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
-s32 dummy_func_802985F0(void){
+s32 DummyPlayer::dummy_func_802985F0(void){
     switch(dummy_transformation)
     {
     case TRANSFORM_2_TERMITE: //80298624
@@ -284,11 +224,11 @@ s32 dummy_func_802985F0(void){
     }
 }
 
-void dummy_updateModel(void){
+void DummyPlayer::dummy_updateModel(void){
     dummy_set(static_cast<AssetID>(dummy_func_802985F0()));
 }
 
-void dummy_reset(void){
+void DummyPlayer::dummy_reset(void){
     f32 plyr_pos[3];
     int i;
     for(i = 0; i < 2 ; i++){
@@ -321,7 +261,7 @@ void dummy_reset(void){
     );
 }
 
-void dummy_free(void){
+void DummyPlayer::dummy_free(void){
     assetcache_release(dummyBin);
     dummyBin = NULL;
     dummyId = ASSET_0_NONE;
@@ -329,7 +269,11 @@ void dummy_free(void){
     dummy_D_80363780 = NULL;
 }
 
-//void dummy_update(void){
+void DummyPlayer::dummy_update(void){
+    f32 pos[3];
+    player_getPosition(pos);
+    pos[0] += 30;
+    dummy_setPoisition(pos);
 //    f32 sp1C;
 //    f32 temp_f0;
 //
@@ -352,21 +296,21 @@ void dummy_free(void){
 //            baMarker_get()->unk14_21 = 0;
 //        }
 //    }
-//}
+}
 
-BKModelBin *dummy_getModelBin(void){
+BKModelBin* DummyPlayer::dummy_getModelBin(void){
     return dummyBin;
 }
 
-AssetID dummy_getModelId(void){
+AssetID DummyPlayer::dummy_getModelId(void){
     return dummyId;
 }
 
-void dummy_setEnvAlpha(s32 alpha){
+void DummyPlayer::dummy_setEnvAlpha(s32 alpha){
     dummyEnvAlpha = alpha;
 }
 
-void dummy_set(enum asset_e asset_id){
+void DummyPlayer::dummy_set(enum asset_e asset_id){
     if(asset_id != dummyId){
         if(dummyBin){
             func_80254008();
@@ -379,17 +323,17 @@ void dummy_set(enum asset_e asset_id){
     }
 }
 
-void dummy_80292048(s32 arg0, f32 arg1, f32 arg2, f32 arg3){
+void DummyPlayer::dummy_80292048(s32 arg0, f32 arg1, f32 arg2, f32 arg3){
     dummy_D_8037C130[arg0][2] = arg1;
     dummy_D_8037C130[arg0][3] = arg2;
     dummy_D_8037C130[arg0][1] = arg3;
 }
 
-void dummy_80292078(s32 arg0, f32 arg1){
+void DummyPlayer::dummy_80292078(s32 arg0, f32 arg1){
     dummy_D_8037C130[arg0][0] = arg1; 
 }
 
-void dummy_setDirection(enum player_model_direction_e direction){
+void DummyPlayer::dummy_setDirection(enum player_model_direction_e direction){
     //if(direction != dummyDirection){
     //    if(direction == PLAYER_MODEL_DIR_KAZOOIE || PLAYER_MODEL_DIR_KAZOOIE == dummyDirection){
     //        //flip model
@@ -400,66 +344,62 @@ void dummy_setDirection(enum player_model_direction_e direction){
     dummyDirection = direction;
 }
 
-void dummy_setScale(f32 scale){
+void DummyPlayer::dummy_setScale(f32 scale){
     //if(osCicId + -6103){
     //    scale = scale*0.25;
     //}
     dummyScale = scale;
 }
 
-void dummy_setYaw(f32 angleDegrees){
-    dummyYaw = mlNormalizeAngle(angleDegrees);
-}
-
-void dummy_80292158(f32 arg0){
+void DummyPlayer::dummy_80292158(f32 arg0){
     dummy_D_8037C100[1] = arg0;
     dummy_8029217C(arg0);
 }
 
-void dummy_8029217C(f32 arg0){
+void DummyPlayer::dummy_8029217C(f32 arg0){
     dummy_D_8037C110[1] = arg0;
 }
 
-void dummy_setPostDraw(void (*draw_func)(Gfx **gfx, Mtx **mtx, Vtx **vtx)){
+void DummyPlayer::dummy_setPostDraw(void (*draw_func)(Gfx **gfx, Mtx **mtx, Vtx **vtx)){
     dummyPostDrawMethod = draw_func;
 }
 
-void dummy_setDisplacement(f32 arg0[3]){
+void DummyPlayer::dummy_setDisplacement(f32 arg0[3]){
     ml_vec3f_copy(dummyDisplacement, arg0);
 }
 
-void dummy_setYDisplacement(f32 arg0){
+void DummyPlayer::dummy_setYDisplacement(f32 arg0){
     dummyDisplacement[1] = arg0;
 }
 
-void dummy_setVisible(s32 arg0){
+void DummyPlayer::dummy_setVisible(s32 arg0){
     dummyIsVisible = arg0;
 }
 
-void dummy_802921D4(f32 arg0[3]){
+void DummyPlayer::dummy_802921D4(f32 arg0[3]){
     if(player_getWaterState() == BSWATERGROUP_0_NONE){
         dummy_D_8037C150.unk0 = 1;
         TUPLE_COPY(dummy_D_8037C150.unk4, arg0)
     }
 }
 
-f32 dummy_getYaw(void){
+f32 DummyPlayer::dummy_getYaw(void) {
     return dummyYaw;
 }
 
-f32 dummy_80292230(void){
+f32 DummyPlayer::dummy_80292230(void){
     return dummy_D_8037C100[1];
 }
 
-void dummy_8029223C(f32 arg0[3]){
+void DummyPlayer::dummy_8029223C(f32 arg0[3]){
     dummy_80291A50(8, arg0);
 }
 
-void dummy_80292260(f32 arg0[3]){
+void DummyPlayer::dummy_80292260(f32 arg0[3]){
     dummy_80291A50(7, arg0);
 }
 
-void dummy_80292284(f32 arg0[3], s32 arg1){
+void DummyPlayer::dummy_80292284(f32 arg0[3], s32 arg1){
     f32 sp44[3];
     f32 sp38[3];
 
@@ -505,15 +445,15 @@ void dummy_80292284(f32 arg0[3], s32 arg1){
     }
 }
 
-void dummy_802924B8(f32 arg0[3]){
+void DummyPlayer::dummy_802924B8(f32 arg0[3]){
     dummy_80291A50(0xA, arg0);
 }
 
-PlayerModelDirection dummy_getDirection(void){
+PlayerModelDirection DummyPlayer::dummy_getDirection(void){
     return dummyDirection;
 }
 
-void dummy_802924E8(f32 arg0[3]){
+void DummyPlayer::dummy_802924E8(f32 arg0[3]){
     switch(player_getTransformation()){
     case TRANSFORM_5_CROC:
         dummy_80291A50(5, arg0);
@@ -527,19 +467,19 @@ void dummy_802924E8(f32 arg0[3]){
     }
 }
 
-s32 dummy_isVisible(void){
+s32 DummyPlayer::dummy_isVisible(void){
     return dummyIsVisible;
 }
 
-void dummy_80292554(f32 arg0[3]){
+void DummyPlayer::dummy_80292554(f32 arg0[3]){
     dummy_80291A50(0x9, arg0);
 }
 
-void dummy_80292578(f32 arg0[3]){
+void DummyPlayer::dummy_80292578(f32 arg0[3]){
     dummy_80291A50(0xA, arg0);
 }
 
-void dummy_defrag(void){
+void DummyPlayer::dummy_defrag(void){
     if(dummy_D_80363780){
         dummy_D_80363780 = func_8034A348(dummy_D_80363780);
     }

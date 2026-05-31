@@ -5,11 +5,16 @@
 #include "core2/code_C31A0.h"
 #include "core2/animmtxlist.h"
 #include "model.h"
+#include "generic.h"
 
-enum model_render_depth_mode_e {
-    MODEL_RENDER_DEPTH_NONE,
-    MODEL_RENDER_DEPTH_FULL,
-    MODEL_RENDER_DEPTH_COMPARE
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum model_render_depth_mode_e{
+    MODEL_RENDER_DEPTH_NONE    = 0,
+    MODEL_RENDER_DEPTH_FULL    = 1,
+    MODEL_RENDER_DEPTH_COMPARE = 2
 };
 
 typedef void (*model_render_pre_draw_callback_f)(void *arg);
@@ -44,4 +49,9 @@ void modelRender_setSecondaryModel(enum asset_e model_id, f32 distance_from_cent
 void modelRender_setVertexList(BKVertexList *vertex_list);
 void modelRender_setDepthMode(enum model_render_depth_mode_e mode);
 void modelRender_defrag(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

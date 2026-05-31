@@ -1,45 +1,44 @@
 #include "Engine.h"
-#include "ship/utils/StringHelper.h"
-#include "ship/window/gui/Fonts.h"
-#include "ship/window/gui/resource/Font.h"
-#include "extractor/GameExtractor.h"
-#include <libultraship/controller/controldeck/ControlDeck.h>
-#include "ship/controller/controldevice/controller/mapping/ControllerDefaultMappings.h"
+#include <filesystem>
+#include <fstream>
+#include "PR/libaudio.h"
+#include <libultraship/libultraship.h>
 
 #include <fast/Fast3dWindow.h>
+#include <fast/interpreter.h>
 #include "fast/resource/ResourceType.h"
 #include <fast/resource/factory/DisplayListFactory.h>
 #include <fast/resource/factory/TextureFactory.h>
 #include <fast/resource/factory/MatrixFactory.h>
 #include <fast/resource/factory/VertexFactory.h>
+#include <libultraship/bridge/gfxbridge.h>
+#include <libultraship/controller/controldeck/ControlDeck.h>
+#include <libultraship/libultra/AudioDmaRegistry.h>
+#include <SDL2/SDL.h>
+#include <ship/controller/controldevice/controller/mapping/ControllerDefaultMappings.h>
 #include <ship/resource/factory/BlobFactory.h>
 #include <ship/resource/type/Blob.h>
+#include <ship/utils/StringHelper.h>
+#include <ship/window/gui/Fonts.h>
+#include <ship/window/gui/resource/Font.h>
+
+#include "audio/GameAudio.h"
+#include "build.h"
+#include "extractor/GameExtractor.h"
+#include "FrameInterpolation.h"
+#include "Network/Anchor/Anchor.h"
+#include "port/enhancements/events/PortEnhancements.h"
+#include "port/patches/Patches.h"
+#include "port/save/SaveManager.h"
+#include "port/ui/cvar_prefixes.h"
 #include "resource/importers/AnimFactory.h"
 #include "resource/importers/DemoInputFactory.h"
 #include "resource/importers/DialogFactory.h"
 #include "resource/importers/MapFactory.h"
 #include "resource/importers/ModelFactory.h"
 #include "resource/importers/SpriteFactory.h"
-#include "audio/GameAudio.h"
-#include "build.h"
-#include "port/ui/cvar_prefixes.h"
-#include "ui/LighthouseGui.hpp"
-#include <PR/libaudio.h>
-#include "port/save/SaveManager.h"
-#include "port/enhancements/events/PortEnhancements.h"
-#include "port/patches/Patches.h"
-#include "libultraship/libultra/AudioDmaRegistry.h"
 #include "src/port/enhancements/events/hooks/Events.h"
-
-#include <fast/interpreter.h>
-#include <libultraship/bridge/gfxbridge.h>
-#include <SDL2/SDL.h>
-#include <chrono>
-#include <filesystem>
-#include <fstream>
-#include <libultraship/libultraship.h>
-#include "interpolation/AdaptiveFps.h"
-#include "interpolation/FrameInterpolation.h"
+#include "ui/LighthouseGui.hpp"
 
 #ifdef __SWITCH__
 #include <port/switch/SwitchImpl.h>
@@ -59,8 +58,6 @@ extern "C" {
 
 // Reset support
 extern s32 D_80275610;
-int getDefaultBootMap(void);
-void setBootMap(int map_id);
 
 bool prevAltAssets = false;
 // bool gEnableGammaBoost = true;
@@ -909,6 +906,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     instance->RunExtract(argc, argv);
     instance->FinishInit();
     PortEnhancements_Init();
+    Anchor::Init();
     SaveManager_Init();
     ShipInit::InitAll();
     ShipInit::Init("BOOT");

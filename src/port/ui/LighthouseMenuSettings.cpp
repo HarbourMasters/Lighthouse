@@ -1,4 +1,5 @@
 #include "LighthouseMenu.h"
+#include "port/build.h"
 #include "port/Engine.h"
 #include "Notification.h"
 #include "LighthouseInputEditorWindow.h"

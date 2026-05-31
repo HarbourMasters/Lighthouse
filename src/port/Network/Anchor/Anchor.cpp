@@ -15,6 +15,11 @@ extern "C" {
 
 static Anchor* Instance;
 
+void Anchor::Init() {
+    Instance = new Anchor();
+    Instance->RegisterHooks();
+}
+
 Anchor* Anchor::GetInstance() {
     return Instance;
 }
@@ -186,11 +191,11 @@ void Anchor::ProcessIncomingPacketQueue() {
 
 // MARK: - Misc/Helpers
 
-// Kills all existing anchor actors and respawns them with the new client data
-
 struct DummyPlayerClientId {
-    uint32_t clientId = 0;
+    uint32_t clientId;
 };
+
+// Kills all existing anchor actors and respawns them with the new client data
 static ObjectExtension::Register<DummyPlayerClientId> DummyPlayerClientIdRegister;
 
 uint32_t Anchor::GetDummyPlayerClientId(const Actor* actor) {
@@ -200,6 +205,38 @@ uint32_t Anchor::GetDummyPlayerClientId(const Actor* actor) {
 
 void Anchor::SetDummyPlayerClientId(const Actor* actor, uint32_t clientId) {
     ObjectExtension::GetInstance().Set<DummyPlayerClientId>(actor, DummyPlayerClientId{ clientId });
+}
+
+void Anchor::DrawDummies(OnWorldDraw* event) {
+    for (const auto& [id, dummy] : dummies) {
+        dummy->Draw(event->gfx, event->mtx, event->vtx);
+    }
+}
+
+void Anchor::ClearDummies() {
+    for (const auto& [id, dummy] : dummies) {
+        dummy->dummy_free();
+        delete dummy;
+    }
+    dummies.clear();
+}
+
+void Anchor::UpdateDummies() {
+    for (const auto& [id, dummy] : dummies) {
+        dummy->dummy_update();
+    }
+}
+
+void Anchor::RemoveDummy(uint32_t clientId) {
+    if (dummies.contains(clientId)) {
+        dummies.at(clientId)->dummy_free();
+        delete dummies.at(clientId);
+        dummies.erase(clientId);
+    }
+}
+
+void Anchor::RegisterDummy(DummyPlayer* dummy, uint32_t clientID) {
+    dummies.emplace(clientID, dummy);
 }
 
 void Anchor::RefreshClientActors() {

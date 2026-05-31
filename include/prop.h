@@ -10,6 +10,10 @@
 #include "core2/skeletalanim.h"
 #include "core2/code_C31A0.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct sprite_prop_s{
     u32 spriteId:0xC;
     u32 unk0_19:0x1;
@@ -417,5 +421,9 @@ typedef struct {
     Actor data[];
 }ActorListSaveState;
 #pragma pack(pop)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

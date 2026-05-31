@@ -1,0 +1,107 @@
+#pragma once
+extern "C" {
+#include "functions.h"
+#include "variables.h"
+}
+
+typedef enum player_model_direction_e {
+    PLAYER_MODEL_DIR_NONE = 0,
+    PLAYER_MODEL_DIR_BANJO = 1,
+    PLAYER_MODEL_DIR_KAZOOIE = 2,
+    PLAYER_MODEL_DIR_GLOBAL = 3
+} PlayerModelDirection;
+
+class DummyPlayer {
+  public:
+    //void dummy_getPosition(f32* dst);
+    //void dummy_update(void);
+    Actor *dummy_80291AAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+    AssetID dummy_getModelId(void);
+    BKModelBin *dummy_getModelBin(void);
+    PlayerModelDirection dummy_getDirection(void);
+    f32 dummy_80292230(void);
+    f32 dummy_getYaw(void);
+    s32 dummy_func_802985F0(void);
+    s32 dummy_isVisible(void);
+    void Draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+    void _dummy_preDraw(int arg0);
+    void _dummy_updateModelYaw(void);
+    void dummy_80291A50(s32 arg0, f32 dst[3]);
+    void dummy_80292048(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
+    void dummy_80292078(s32 arg0, f32 arg1);
+    void dummy_80292158(f32 arg0);
+    void dummy_8029217C(f32 arg0);
+    void dummy_802921D4(f32 arg0[3]);
+    void dummy_8029223C(f32 arg0[3]);
+    void dummy_80292260(f32 arg0[3]);
+    void dummy_80292284(f32 arg0[3], s32 arg1);
+    void dummy_802924B8(f32 arg0[3]);
+    void dummy_802924E8(f32 arg0[3]);
+    void dummy_80292554(f32 arg0[3]);
+    void dummy_80292578(f32 arg0[3]);
+    void dummy_defrag(void);
+    void dummy_free(void);
+    void dummy_func_8029DBF0(void);
+    void dummy_getPosition(f32 arg0[3]);
+    void dummy_reset(void);
+    void dummy_set(enum asset_e asset_id);
+    void dummy_setDirection(enum player_model_direction_e direction);
+    void dummy_setDisplacement(f32 arg0[3]);
+    void dummy_setEnvAlpha(s32 alpha);
+    void dummy_setPitch(f32 pitch);
+    void dummy_setPoisition(f32 pos[3]);
+    void dummy_setPostDraw(void (*draw_func)(Gfx **gfx, Mtx **mtx, Vtx **vtx));
+    void dummy_setRoll(f32 roll);
+    void dummy_setScale(f32 scale);
+    void dummy_setTransformation(Transformation transform);
+    void dummy_setVisible(s32 arg0);
+    void dummy_setYDisplacement(f32 arg0);
+    void dummy_setYaw(f32 yaw);
+    void dummy_update(void);
+    void dummy_updateModel(void);
+    //void func_80254008(void);
+    void func_8029DD6C(void);
+    //void func_8033A280(f32);
+
+  private:
+    uint32_t PlayerID;
+
+    //extern s32 osCicId;
+
+    /* .data */
+    struct5Bs *dummy_D_80363780 = NULL;
+
+    /* .bss */
+    BKModelBin *dummyBin; //dummyPtr
+    AssetID dummyId; //dummy asset_id
+    u8  dummyEnvAlpha;
+    PlayerModelDirection dummyDirection;
+    u8  dummyIsVisible;
+    f32 dummyScale;
+    f32 dummyPitch;
+    f32 dummyRoll;
+    f32 dummyYaw;
+    f32 dummyPosition[3];
+    ActorMarker *dummyMarker;
+    f32 dummy_D_8037C100[3];
+    f32 dummy_D_8037C110[3];
+    f32 dummyDisplacement[3];
+    void (*dummyPostDrawMethod)(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+    f32 dummy_D_8037C130[2][4];
+    struct {
+        u8 unk0;
+        f32 unk4[3]; 
+    } dummy_D_8037C150;
+
+    f32 dummy_D_8037D230;
+    u8  dummy_D_8037D234;
+    u8  dummy_D_8037D235;
+    u8  dummy_D_8037D236;
+    u8  dummy_D_8037D237;
+    u8  dummy_D_8037D238;
+    u8  dummy_D_8037D239;
+    u8  dummy_D_8037D23A;
+    f32 dummy_D_8037D23C;
+    f32 dummy_D_8037D240;
+    Transformation  dummy_transformation;
+};

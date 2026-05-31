@@ -9,9 +9,4 @@
 
 extern f32  climbPoleBottom[3];
 extern f32  climbPoleTop[3];
-
-extern const char gBuildVersion[];
-extern const char gGitBranch[];
-extern const char gGitCommitHash[];
-extern u8 gGitCommitTag[];
 #endif

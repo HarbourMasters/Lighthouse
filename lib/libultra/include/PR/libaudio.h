@@ -29,7 +29,7 @@
 #ifndef __LIB_AUDIO__
 #define __LIB_AUDIO__
 
-#ifdef _LANGUAGE_C_PLUS_PLUS
+#if defined(_C_PLUS_PLUS) || defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -965,7 +965,7 @@ s32             alSndpGetState(ALSndPlayer *sndp);
 #ifndef _FINALROM
 void alParseAbiCL(Acmd *cmdList, u32 nbytes);
 #endif
-#ifdef _LANGUAGE_C_PLUS_PLUS
+#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus)
 }
 #endif
 

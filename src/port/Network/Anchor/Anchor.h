@@ -1,16 +1,19 @@
-#ifndef NETWORK_ANCHOR_H
-#define NETWORK_ANCHOR_H
+#pragma once
 #ifdef __cplusplus
 
-#include "port/Network/Network.h"
-#include <libultraship/libultraship.h>
-#include <queue>
 #include <mutex>
+#include <queue>
+#include <map>
+#include <libultraship/libultraship.h>
+#include "port/enhancements/events/hooks/Events.h"
+#include "port/Network/Anchor/DummyPlayer.h"
+#include "port/Network/Network.h"
+#include "port/build.h"
 
 extern "C" {
-#include "variables.h"
 #include "prop.h"
-//#include "z64.h"
+#include "variables.h"
+    //#include "z64.h"
 }
 
 //void DummyPlayer_Init(Actor* actor, PlayState* play);
@@ -82,12 +85,18 @@ class Anchor : public Network {
     std::mutex incomingPacketQueueMutex;
     std::queue<nlohmann::json> outgoingPacketQueue;
     std::mutex outgoingPacketQueueMutex;
+    std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();
     void RegisterHooks();
     void RefreshClientActors();
     void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
+    void DrawDummies(OnWorldDraw* event);
+    void ClearDummies();
+    void RegisterDummy(DummyPlayer* dummy, uint32_t clientID);
+    void UpdateDummies();
+    void RemoveDummy(uint32_t clientId);
 
     void HandlePacket_AllClientState(nlohmann::json payload);
     void HandlePacket_ConsumeAdultTradeItem(nlohmann::json payload);
@@ -178,6 +187,7 @@ class Anchor : public Network {
     void SendPacket_UpdateTeamState();
 
     static Anchor* GetInstance();
+    static void Init();
 };
 
 typedef enum {
@@ -188,7 +198,7 @@ typedef enum {
 } DummyPlayerDamageResponseType;
 
 class AnchorRoomWindow : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override{};
@@ -198,4 +208,3 @@ class AnchorRoomWindow : public Ship::GuiWindow {
 };
 
 #endif // __cplusplus
-#endif // NETWORK_ANCHOR_H
