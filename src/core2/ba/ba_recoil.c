@@ -146,13 +146,13 @@ void func_80294BDC(void) {
             }
         }
         if (gsworld_getMap() == MAP_C_MM_TICKERS_TOWER) {
-#ifdef PORT_FIX
             // [port] v1.1 fix: instant slide on all slopes in termite mound
             // (v1.0 doubled the rate, v1.1 makes it immediate)
-            sp28 = 100.0f;
-#else
-            sp28 *= 2.0;
-#endif
+            if (EventSystem_Should(VB_TERMITE_MOUND_SLOPES, true)) {
+                sp28 *= 2.0;
+            } else {
+                sp28 = 100.0f;
+            }
         }
         if ((sp24 & 0x50) && !player_inWater()) {
             D_8037C2E4 = ml_min_f((sp28 * sp30) + D_8037C2E4, 1.0f);

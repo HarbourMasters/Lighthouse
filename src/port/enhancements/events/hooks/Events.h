@@ -13,6 +13,12 @@ typedef enum VBehaviorID {
     VB_GRUNTY_DEFEATED_FLAG_BOSS,
     VB_PLAY_JIGGY_DANCE,
     VB_VOID_OUT_GAME_OVER,
+    VB_CCW_GNAWTY_SPRING_ROCK,
+    VB_CCW_FLOWER_REPLANT,
+    VB_TERMITE_MOUND_SLOPES,
+    VB_CLAW_SWIPE_SLIDE,
+    VB_BOGGY_RACE_GAME_OVER,
+    VB_JINJO_CHARGE_SOUND,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

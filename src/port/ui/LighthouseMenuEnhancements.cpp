@@ -120,6 +120,37 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Delays the Grunty Defeated flag until after the Jinjonator attacks, "
                                            "preventing a false win if the player dies before the hit lands."));
 
+    AddWidget(path, "Fix CCW Gnawty Rock (Spring)", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.GnawtySpringRock"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Makes Gnawty's rock indestructible in CCW Spring."));
+
+    AddWidget(path, "Fix CCW Flower Replant Softlock", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.CCWFlowerReplant"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Prevents re-planting the CCW Spring flower after it's already planted."));
+
+    AddWidget(path, "Fix Termite Mound Slopes", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Makes slopes in the Mumbo's Mountain termite mound slide instantly."));
+
+    AddWidget(path, "Fix Early Claw Swipe During Slide", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.ClawSwipeSlide"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Prevents a claw swipe from triggering mid-slide."));
+
+    AddWidget(path, "Fix Boggy Race Game Over", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Losing Boggy's race with no extra lives reloads the race instead of "
+                                           "triggering a game over."));
+
+    AddWidget(path, "Fix Grunty Jinjo Charge Sound", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.JinjoChargeSound"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Stops the Jinjo charge-up sound the instant it hits Grunty."));
+
     AddWidget(path, "Fix Cutscene Audio Sync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.CutsceneSync"))
         .RaceDisable(false)

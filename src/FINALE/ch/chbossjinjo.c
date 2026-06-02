@@ -280,11 +280,11 @@ void chBossJinjo_update(Actor *this){
             break; 
 
         case BOSSJINJO_STATE_5_HIT:
-#ifdef PORT_FIX
             // [port] v1.1 fix: stop charge-up sound when Jinjo hits Grunty
             // (prevents infinite sound loop if hit before timed stop fires)
-            func_80324D2C(0.0f, SFX_JINJO_STATUE_POWERUP);
-#endif
+            if (!EventSystem_Should(VB_JINJO_CHARGE_SOUND, true)) {
+                func_80324D2C(0.0f, SFX_JINJO_STATUE_POWERUP);
+            }
             chfinalboss_getPosition(position_finalboss);
             position_finalboss[1] += 100.0f;
             chfinalboss_flyTo(this, position_finalboss, 1200.0f, 3840.0f, 200.0f, 2500.0f, 70.0f);

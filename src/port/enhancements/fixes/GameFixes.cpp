@@ -40,6 +40,12 @@ extern "C" int port_shouldAllowAllHoneycombExtensions(void) {
 #define CVAR_FF_DIALOG CVAR_ENHANCEMENT("Fixes.FurnaceFunDialog")
 #define CVAR_GRUNTY_FLAG CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag")
 #define CVAR_TOKEN_GV CVAR_ENHANCEMENT("Fixes.MumboTokenGV")
+#define CVAR_GNAWTY_ROCK CVAR_ENHANCEMENT("Fixes.GnawtySpringRock")
+#define CVAR_FLOWER_REPLANT CVAR_ENHANCEMENT("Fixes.CCWFlowerReplant")
+#define CVAR_TERMITE_SLOPES CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes")
+#define CVAR_CLAW_SLIDE CVAR_ENHANCEMENT("Fixes.ClawSwipeSlide")
+#define CVAR_BOGGY_RACE CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver")
+#define CVAR_JINJO_SOUND CVAR_ENHANCEMENT("Fixes.JinjoChargeSound")
 
 void RegisterVoidOutGameOver_Init() {
     COND_VB_SHOULD(VB_VOID_OUT_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_VOID_OUT, 0),
@@ -74,7 +80,49 @@ void RegisterMumboTokenGV_Init() {
     });
 }
 
+// CCW Gnawty rock: indestructible in Spring (v1.1).
+void RegisterGnawtySpringRock_Init() {
+    COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_GNAWTY_ROCK, 0),
+                   { *should = false; });
+}
+
+// CCW flower: prevent the re-plant softlock (v1.1).
+void RegisterCCWFlowerReplant_Init() {
+    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FLOWER_REPLANT, 0),
+                   { *should = false; });
+}
+
+// Termite mound: instant slide on slopes (v1.1).
+void RegisterTermiteMoundSlopes_Init() {
+    COND_VB_SHOULD(VB_TERMITE_MOUND_SLOPES, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TERMITE_SLOPES, 0),
+                   { *should = false; });
+}
+
+// Claw swipe: suppress claw during a slide (v1.1).
+void RegisterClawSwipeSlide_Init() {
+    COND_VB_SHOULD(VB_CLAW_SWIPE_SLIDE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CLAW_SLIDE, 0),
+                   { *should = false; });
+}
+
+// Boggy race: reload instead of game over at 0 lives (v1.1).
+void RegisterBoggyRaceGameOver_Init() {
+    COND_VB_SHOULD(VB_BOGGY_RACE_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_BOGGY_RACE, 0),
+                   { *should = false; });
+}
+
+// Grunty fight: stop the Jinjo charge-up sound on hit (v1.1).
+void RegisterJinjoChargeSound_Init() {
+    COND_VB_SHOULD(VB_JINJO_CHARGE_SOUND, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_JINJO_SOUND, 0),
+                   { *should = false; });
+}
+
 static RegisterShipInitFunc initVoidOutFunc(RegisterVoidOutGameOver_Init, { CVAR_VOID_OUT });
 static RegisterShipInitFunc initFurnaceFunDialogFunc(RegisterFurnaceFunDialog_Init, { CVAR_FF_DIALOG });
 static RegisterShipInitFunc initGruntyDefeatedFlagFunc(RegisterGruntyDefeatedFlag_Init, { CVAR_GRUNTY_FLAG });
 static RegisterShipInitFunc initMumboTokenGVFunc(RegisterMumboTokenGV_Init, { CVAR_TOKEN_GV });
+static RegisterShipInitFunc initGnawtySpringRockFunc(RegisterGnawtySpringRock_Init, { CVAR_GNAWTY_ROCK });
+static RegisterShipInitFunc initCCWFlowerReplantFunc(RegisterCCWFlowerReplant_Init, { CVAR_FLOWER_REPLANT });
+static RegisterShipInitFunc initTermiteMoundSlopesFunc(RegisterTermiteMoundSlopes_Init, { CVAR_TERMITE_SLOPES });
+static RegisterShipInitFunc initClawSwipeSlideFunc(RegisterClawSwipeSlide_Init, { CVAR_CLAW_SLIDE });
+static RegisterShipInitFunc initBoggyRaceGameOverFunc(RegisterBoggyRaceGameOver_Init, { CVAR_BOGGY_RACE });
+static RegisterShipInitFunc initJinjoChargeSoundFunc(RegisterJinjoChargeSound_Init, { CVAR_JINJO_SOUND });
