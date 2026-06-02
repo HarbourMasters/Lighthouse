@@ -84,5 +84,8 @@ int SDL_main(int argc, char* argv[]) {
     timeEndPeriod(1);
 #endif
     GameEngine::Instance->Destroy();
+    // If a mod-menu action asked to relaunch (to rebind the mod set), re-exec
+    // now that everything is torn down.
+    GameEngine::RelaunchIfRequested(argc, argv);
     return 0;
 }

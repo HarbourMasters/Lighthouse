@@ -22,6 +22,7 @@
 #include "Menu.h"
 #include "MenuTypes.h"
 #include "UIWidgets.hpp"
+#include "port/Engine.h"
 #include "port/extractor/GameExtractor.h"
 
 std::vector<std::string> enabledModFiles;
@@ -411,13 +412,15 @@ void LighthouseModMenuWindow::DrawElement() {
                                          });
         }
         ImGui::SameLine();
-        if (UIWidgets::Button("Apply & Close",
+        if (UIWidgets::Button("Apply & Restart",
                               UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline).Color(THEME_COLOR))) {
             LighthouseGui::RegisterPopup(
-                "Apply & Close", "Application currently requires a restart. Save the mod info and close Lighthouse?",
-                "Close", "Cancel", []() {
+                "Apply & Restart",
+                "Applying mods requires a restart. Save the mod list and relaunch Lighthouse now?", "Restart", "Cancel",
+                []() {
                     SetEnabledModsCVarValue();
                     Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+                    GameEngine::RequestRelaunch();
                     Ship::Context::GetInstance()->GetWindow()->Close();
                 });
         }
@@ -635,8 +638,13 @@ void DrawInlineModExtraction() {
         LighthouseGui::RegisterPopup(
             "Mod Installed",
             "The romhack mod was extracted into your mods folder.\n"
-            "Lighthouse will now close so it loads on the next launch.",
-            "Exit", "", []() { Ship::Context::GetInstance()->GetWindow()->Close(); }, nullptr);
+            "Lighthouse will now restart to load it.",
+            "Restart", "",
+            []() {
+                GameEngine::RequestRelaunch();
+                Ship::Context::GetInstance()->GetWindow()->Close();
+            },
+            nullptr);
     } else if (result == 2) {
         sInlineResult = -1;
         std::string body = GameExtractor::sLastError.empty()

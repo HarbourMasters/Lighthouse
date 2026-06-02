@@ -38,6 +38,11 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#if defined(__linux__) || defined(__APPLE__)
+#include <unistd.h>
+#include <cerrno>
+#include <cstring>
+#endif
 #include <libultraship/libultraship.h>
 #include "interpolation/AdaptiveFps.h"
 #include "interpolation/FrameInterpolation.h"
@@ -1035,6 +1040,32 @@ void GameEngine::RenderGuiFrame() const {
     lhFast3dWindow->RunGuiOnly();
     gui->EndDraw();
     lhFast3dWindow->EndFrame();
+}
+
+bool GameEngine::sRelaunchRequested = false;
+
+void GameEngine::RelaunchIfRequested(int argc, char* argv[]) {
+    if (!sRelaunchRequested) {
+        return;
+    }
+    // Called from SDL_main after Destroy()
+#ifdef _WIN32
+    wchar_t exePath[MAX_PATH];
+    if (GetModuleFileNameW(nullptr, exePath, MAX_PATH) > 0) {
+        STARTUPINFOW si{};
+        si.cb = sizeof(si);
+        PROCESS_INFORMATION pi{};
+        if (CreateProcessW(exePath, nullptr, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi)) {
+            CloseHandle(pi.hThread);
+            CloseHandle(pi.hProcess);
+        } else {
+            SPDLOG_ERROR("Relaunch failed: CreateProcess error {}", GetLastError());
+        }
+    }
+#elif defined(__linux__) || defined(__APPLE__)
+    execv(argv[0], argv);
+    SPDLOG_ERROR("Relaunch failed: execv error {}", strerror(errno));
+#endif
 }
 
 #if 0
