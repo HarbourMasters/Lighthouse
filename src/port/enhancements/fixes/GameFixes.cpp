@@ -3,6 +3,7 @@
 // Port functions and event listeners for various bug fixes and corrections.
 
 #include <libultraship/bridge.h>
+#include <cstring>
 #include "port/ui/cvar_prefixes.h"
 #include "port/enhancements/events/hooks/Events.h"
 #include "port/ShipInit.hpp"
@@ -34,6 +35,22 @@ extern "C" int port_fixMumboTokenId(int ret, int pos[3], int map_id) {
 // Honeycomb health cap removal
 extern "C" int port_shouldAllowAllHoneycombExtensions(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("AllHoneycombExtensions"), 0);
+}
+
+// Spelling: "Congo" -> "Conga"
+extern "C" void port_fixCongaDialog(int textId, char* text) {
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Fixes.CongaText"), 0)) {
+        return;
+    }
+    if (textId != ASSET_B3E_DIALOG_CONGA_MEET_AS_TERMITE || text == NULL) {
+        return;
+    }
+    for (int i = 0; i < 120; i++) {
+        if (memcmp(text + i, "CONGO", 5) == 0) {
+            text[i + 4] = 'A';
+            break;
+        }
+    }
 }
 
 #define CVAR_VOID_OUT CVAR_ENHANCEMENT("Fixes.VoidOutGameOver")
