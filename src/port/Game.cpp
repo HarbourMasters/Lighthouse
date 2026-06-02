@@ -4,6 +4,7 @@
 #include <fast/interpreter.h>
 #include "Engine.h"
 #include "ShipUtils.h"
+#include "ui/LighthouseModMenuWindow.h"
 #include "patches/Patches.h"
 #include "src/port/enhancements/events/hooks/Events.h"
 #include "interpolation/FrameInterpolation.h"
@@ -35,6 +36,17 @@ extern "C" void port_setWindowTitle(int map_id);
 void push_frame() {
     static int sTitleCounter = 0;
     sFrameRendered = false;
+
+    // While an inline mod extraction runs on its worker thread, freeze the game
+    // and render only the GUI so the progress modal stays live and the extractor
+    // gets the machine instead of fighting a full-speed game loop. The delay
+    // keeps the otherwise-idle main thread from busy-spinning a core.
+    if (IsInlineModExtractionBusy()) {
+        GameEngine::Instance->RenderGuiFrame();
+        SDL_Delay(16);
+        return;
+    }
+
     GameEngine::Instance->StartFrame();
     FrameInterpolation_StartRecord();
     mainLoop();

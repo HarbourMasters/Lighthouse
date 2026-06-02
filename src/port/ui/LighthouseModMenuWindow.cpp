@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <algorithm>
 #include <cctype>
+#include <memory>
+#include <thread>
 
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge/consolevariablebridge.h>
@@ -20,6 +22,7 @@
 #include "Menu.h"
 #include "MenuTypes.h"
 #include "UIWidgets.hpp"
+#include "port/extractor/GameExtractor.h"
 
 std::vector<std::string> enabledModFiles;
 std::vector<std::string> disabledModFiles;
@@ -34,6 +37,12 @@ extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 
 static WidgetInfo enableModsWidget;
 static WidgetInfo tabHotkeyWidget;
+
+static std::atomic<bool> sInlineExtracting{ false };
+static std::atomic<int> sInlineResult{ -1 }; // -1 idle, 0 running, 1 success, 2 failure
+static std::atomic<size_t> sInlineCount{ 0 };
+static std::atomic<size_t> sInlineTotal{ 0 };
+static std::string sInlineFile;
 
 #define CVAR_ENABLED_MODS_NAME CVAR_SETTING("EnabledMods")
 #define CVAR_ENABLED_MODS_DEFAULT ""
@@ -492,23 +501,27 @@ void MaybeShowModConflictPopup() {
     sQuarantinedConflicts.clear();
 }
 
-void DisableConflictingModsForPendingExtract() {
-    int pending = CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0);
-    SPDLOG_INFO("[ModMenu] DisableConflictingModsForPendingExtract: PendingExtract={}", pending);
-    if (!pending) {
-        return;
-    }
+void SetSoleEnabledRomhack(const std::string& keepBasename) {
     const std::string modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods");
     if (modsPath.empty() || !std::filesystem::is_directory(modsPath)) {
         SPDLOG_WARN("[ModMenu] modsPath empty or not a directory: '{}'", modsPath);
         return;
     }
-    SPDLOG_INFO("[ModMenu] modsPath='{}', initial enabled='{}', disabled='{}'", modsPath,
+    SPDLOG_INFO("[ModMenu] modsPath='{}', keep='{}', initial enabled='{}', disabled='{}'", modsPath, keepBasename,
                 CVarGetString(CVAR_SETTING("EnabledMods"), ""), CVarGetString(CVAR_SETTING("DisabledMods"), ""));
 
     auto enabled = GetEnabledModsFromCVar();
     auto disabled = GetDisabledModsFromCVar();
     bool changed = false;
+
+    auto eraseFrom = [&](std::vector<std::string>& v, const std::string& name) {
+        auto it = std::find(v.begin(), v.end(), name);
+        if (it != v.end()) {
+            v.erase(it);
+            return true;
+        }
+        return false;
+    };
 
     for (const auto& entry : std::filesystem::recursive_directory_iterator(
              modsPath, std::filesystem::directory_options::follow_directory_symlink)) {
@@ -520,14 +533,26 @@ void DisableConflictingModsForPendingExtract() {
             continue;
 
         std::string basename = entry.path().stem().string();
-        auto it = std::find(enabled.begin(), enabled.end(), basename);
-        if (it != enabled.end()) {
-            enabled.erase(it);
+        if (basename == keepBasename) {
+            // The file we just generated: make sure it's enabled (covers the
+            // in-place re-extract case where its name was already on the list).
+            bool wasDisabled = eraseFrom(disabled, basename);
+            if (std::find(enabled.begin(), enabled.end(), basename) == enabled.end()) {
+                enabled.push_back(basename);
+                changed = true;
+            } else if (wasDisabled) {
+                changed = true;
+            }
+            if (wasDisabled) {
+                SPDLOG_INFO("[ModMenu] Keeping freshly-generated romhack overlay '{}' enabled", basename);
+            }
+        } else if (eraseFrom(enabled, basename)) {
+            // A different romhack overlay: disable it so the new one is the
+            // sole enabled aGameConfig carrier.
             if (std::find(disabled.begin(), disabled.end(), basename) == disabled.end()) {
                 disabled.push_back(basename);
             }
-            SPDLOG_INFO("[ModMenu] Pre-extract: disabling existing romhack overlay '{}' so the freshly-generated mod "
-                        "boots cleanly",
+            SPDLOG_INFO("[ModMenu] Disabling existing romhack overlay '{}' so the freshly-generated mod boots cleanly",
                         basename);
             changed = true;
         }
@@ -552,4 +577,139 @@ void DisableConflictingModsForPendingExtract() {
         CVarSetString(CVAR_SETTING("DisabledMods"), d.c_str());
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
+}
+
+bool IsInlineModExtractionBusy() {
+    return sInlineExtracting.load();
+}
+
+void RequestInlineModExtraction() {
+    if (sInlineExtracting.load()) {
+        return;
+    }
+    auto extractor = std::make_unique<GameExtractor>();
+    if (!extractor->SelectGameFromUI()) {
+        return;
+    }
+    sInlineFile = extractor->GetRomPath();
+    sInlineCount = 0;
+    sInlineTotal = 0;
+    sInlineResult = 0;
+    sInlineExtracting = true;
+    std::thread([ex = std::move(extractor)]() mutable {
+        const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
+        sInlineResult = ok ? 1 : 2;
+        sInlineExtracting = false;
+    }).detach();
+}
+
+void DrawInlineModExtraction() {
+    if (GameExtractor::sCustomCodePromptRequested.exchange(false)) {
+        LighthouseGui::RegisterPopup(
+            "Custom Code Romhack Detected",
+            "This romhack ships custom code.\n"
+            "Lighthouse cannot extract this code, so expected\n"
+            "behavior will be missing or broken when playing.\n"
+            "\n"
+            "Continue extraction anyway?",
+            "Continue", "Cancel",
+            []() {
+                GameExtractor::sCustomCodePromptResult = 1;
+                GameExtractor::sCustomCodePromptActive = false;
+            },
+            []() {
+                GameExtractor::sCustomCodePromptResult = 0;
+                GameExtractor::sCustomCodePromptActive = false;
+            });
+    }
+
+    // Completion handling.
+    const int result = sInlineResult.load();
+    if (result == 1) {
+        sInlineResult = -1;
+        // Make the freshly-generated romhack the sole enabled overlay so the
+        // boot-time aGameConfig conflict check doesn't quarantine it.
+        const std::string keep = std::filesystem::path(GameExtractor::sLastOutputPath).stem().string();
+        SetSoleEnabledRomhack(keep);
+        Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+        LighthouseGui::RegisterPopup(
+            "Mod Installed",
+            "The romhack mod was extracted into your mods folder.\n"
+            "Lighthouse will now close so it loads on the next launch.",
+            "Exit", "", []() { Ship::Context::GetInstance()->GetWindow()->Close(); }, nullptr);
+    } else if (result == 2) {
+        sInlineResult = -1;
+        std::string body = GameExtractor::sLastError.empty()
+                               ? "Extraction failed. Check logs/Lighthouse.log for details."
+                               : ("Extraction failed:\n\n" + GameExtractor::sLastError);
+        LighthouseGui::RegisterPopup("Extraction Failed", body, "OK", "", nullptr, nullptr);
+    }
+
+    const bool wantProgress = sInlineExtracting.load() && !GameExtractor::sCustomCodePromptActive.load();
+    if (wantProgress && !ImGui::IsPopupOpen("ROM Extraction")) {
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::OpenPopup("ROM Extraction");
+    }
+    if (!ImGui::IsPopupOpen("ROM Extraction")) {
+        return;
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
+    auto color = UIWidgets::ColorValues.at(THEME_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(color.x, color.y, color.z, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(color.x, color.y, color.z, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
+    if (ImGui::BeginPopupModal("ROM Extraction", NULL,
+                               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
+                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                                   ImGuiWindowFlags_NoSavedSettings)) {
+        if (!wantProgress) {
+            ImGui::CloseCurrentPopup();
+        } else {
+            const int phase = GameExtractor::sPhase;
+            float progress = phase == 3 ? 100.0f
+                                        : (sInlineTotal > 0 ? (float)sInlineCount / (float)sInlineTotal : 0.0f) * 100.0f;
+            if (progress > 100.0f) {
+                progress = 100.0f;
+            }
+
+            const auto filename = std::filesystem::path(sInlineFile).filename().string();
+            if (phase == 3) {
+                ImGui::Text("Done!");
+            } else if (phase >= 1) {
+                ImGui::Text("Processing %s... (Step %d/2)", filename.c_str(), phase);
+                if (Companion::Instance != nullptr && !Companion::Instance->GetCurrentAssetName().empty()) {
+                    auto assetName = Companion::Instance->GetCurrentAssetName();
+                    const float maxWidth = 600.0f - ImGui::GetStyle().WindowPadding.x * 2;
+                    if (ImGui::CalcTextSize(assetName.c_str()).x > maxWidth) {
+                        const std::string ellipsis = "...";
+                        const float ellipsisWidth = ImGui::CalcTextSize(ellipsis.c_str()).x;
+                        while (assetName.size() > 3 &&
+                               ImGui::CalcTextSize(assetName.c_str()).x > maxWidth - ellipsisWidth) {
+                            assetName.pop_back();
+                        }
+                        assetName += ellipsis;
+                    }
+                    ImGui::Text("%s", assetName.c_str());
+                }
+            } else {
+                ImGui::Text("Starting up...");
+            }
+
+            std::string overlay;
+            if (sInlineTotal > 0 && sInlineCount > 0) {
+                overlay = std::to_string((int)progress) + "%";
+            } else if (phase >= 1) {
+                overlay = "Reading ROM, please wait...";
+            } else {
+                overlay = "Starting up...";
+            }
+            ImGui::ProgressBar(progress / 100.0f, ImVec2(600.0f, 50.0f), overlay.c_str());
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(2);
 }

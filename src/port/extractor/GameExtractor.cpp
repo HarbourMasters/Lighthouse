@@ -34,6 +34,7 @@
 
 std::string GameExtractor::sStatusText;
 std::string GameExtractor::sLastError;
+std::string GameExtractor::sLastOutputPath;
 std::atomic<int> GameExtractor::sPhase{ 0 };
 std::atomic<bool> GameExtractor::sCustomCodePromptRequested{ false };
 std::atomic<bool> GameExtractor::sCustomCodePromptActive{ false };
@@ -358,6 +359,10 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         Companion::Instance = nullptr;
         return false;
     }
+
+    // Record the produced archive path before tearing Companion down, so the
+    // inline Mod Menu flow can enable exactly this file by name.
+    sLastOutputPath = Companion::Instance->GetOutputPath();
 
     sPhase = 3;
     sStatusText = "Cleaning up...";

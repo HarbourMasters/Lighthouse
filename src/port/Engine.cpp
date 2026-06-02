@@ -251,13 +251,6 @@ void CheckAndCreateModFolder() {
 static const std::vector<std::string> sRomArchives = { "bk.o2r" };
 
 static bool AnyRomArchiveExists() {
-    // Mod Menu "Generate Mod from ROM" sets this CVar then exits. On next
-    // boot we pretend no archive exists so the existing extractor flow runs
-    // (file picker -> RunStandalone -> GenerateOTR). The CVar is cleared
-    // once extraction completes successfully.
-    if (CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0)) {
-        return false;
-    }
     for (const auto& archive : sRomArchives) {
         if (std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs(archive, "bk"))) {
             return true;
@@ -279,10 +272,9 @@ void GameEngine::FinishInit() {
         std::filesystem::create_directories(patches_path);
     }
 
-    // Load enabled mod o2rs into the ArchiveManager.
-    // Note: pre-extract conflict disable lives in the PS_FILE_CHECK popup
-    // callback (RunExtract phase) — by the time FinishInit runs the
-    // extraction has already completed and Mod.PendingExtract is cleared.
+    // Load enabled mod o2rs into the ArchiveManager. Inline romhack extraction
+    // (Mod Menu) already disabled any conflicting overlays before it closed the
+    // app, so the freshly-generated mod auto-enables here as a newcomer.
     UpdateModFiles(/*init=*/true);
 
     // Loose mod directories (development convenience — a folder of unpacked
@@ -654,10 +646,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         extracting = true;
                         (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
-                            // Clear the Mod Menu's pending-extract gate so a
-                            // subsequent boot won't re-run the file picker.
-                            CVarClear(CVAR_SETTING("Mod.PendingExtract"));
-                            CVarSave();
                             extracting = false;
                         });
                     }
@@ -677,22 +665,9 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         const bool romO2RExists = AnyRomArchiveExists();
 
                         if (!romO2RExists) {
-                            const bool pendingExtract = CVarGetInteger(CVAR_SETTING("Mod.PendingExtract"), 0) != 0;
-                            const char* title = pendingExtract ? "Generate Romhack Mod" : "No O2R Files";
-                            const char* body = pendingExtract ? "Select a romhack ROM to extract as a mod.\n"
-                                                                "The generated o2r will be placed in the mods folder.\n"
-                                                              : "No O2R files found. Generate one now?";
                             LighthouseGui::RegisterPopup(
-                                title, body, "Yes", "No",
-                                [&]() {
-                                    // Now that the user has confirmed, pre-disable any romhack
-                                    // overlays already in mods/ so the freshly-extracted mod
-                                    // boots cleanly afterward. Done here (before the file
-                                    // picker) rather than in FinishInit because FinishInit
-                                    // runs after the extractor flow completes — too late.
-                                    DisableConflictingModsForPendingExtract();
-                                    promptStep = PS_LOCAL;
-                                },
+                                "No O2R Files", "No O2R files found. Generate one now?", "Yes", "No",
+                                [&]() { promptStep = PS_LOCAL; },
                                 [&]() {
                                     threadPool = nullptr;
                                     lhFast3dWindow = nullptr;
@@ -734,10 +709,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         file = extract.GetRomPath();
                         (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
-                            // Clear the Mod Menu's pending-extract gate so a
-                            // subsequent boot won't re-run the file picker.
-                            CVarClear(CVAR_SETTING("Mod.PendingExtract"));
-                            CVarSave();
                             extracting = false;
                         });
                         continue;
@@ -758,8 +729,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                                 promptStep = PS_FIRST;
                                 (void)threadPool->submit_task([&]() -> void {
                                     extract.GenerateOTR(extractCount, totalExtract, "bk");
-                                    CVarClear(CVAR_SETTING("Mod.PendingExtract"));
-                                    CVarSave();
                                     extracting = false;
                                 });
                             },
@@ -1049,6 +1018,23 @@ void GameEngine::StartFrame() const {
         default:
             break;
     }
+}
+
+void GameEngine::RenderGuiFrame() const {
+    if (lhFast3dWindow == nullptr) {
+        return;
+    }
+    // Pump window events so the modal stays interactive and the window can close.
+    lhFast3dWindow->HandleEvents();
+    if (!lhFast3dWindow->IsFrameReady()) {
+        return;
+    }
+    auto gui = lhFast3dWindow->GetGui();
+    gui->StartDraw();
+    lhFast3dWindow->StartFrame();
+    lhFast3dWindow->RunGuiOnly();
+    gui->EndDraw();
+    lhFast3dWindow->EndFrame();
 }
 
 #if 0

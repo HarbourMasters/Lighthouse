@@ -3,6 +3,7 @@
 #include "Notification.h"
 #include "LighthouseInputEditorWindow.h"
 #include "LighthouseModals.h"
+#include "LighthouseModMenuWindow.h"
 //#include <soh/GameVersions.h>
 #include "port/ResourceHelpers.h"
 #include "UIWidgets.hpp"
@@ -461,23 +462,16 @@ void LighthouseMenu::AddMenuSettings() {
         .Callback([](WidgetInfo& info) {
             LighthouseGui::mModalWindow->RegisterPopup(
                 "Generate Mod from ROM",
-                "Lighthouse will exit. On the next launch, you will be prompted\n"
-                "to select a romhack ROM to extract as a mod overlay. Your\n"
-                "existing bk.o2r will be preserved and the generated mod o2r\n"
-                "will be loaded alongside it.\n\n"
-                "Please relaunch Lighthouse manually after it exits.",
-                "Exit", "Cancel",
-                []() {
-                    CVarSetInteger(CVAR_SETTING("Mod.PendingExtract"), 1);
-                    CVarSave();
-                    exit(0);
-                },
-                nullptr);
+                "Select a romhack ROM to extract as a mod overlay. Torch will\n"
+                "generate a slim mod o2r in your mods folder alongside the\n"
+                "existing bk.o2r. Lighthouse closes when extraction finishes so\n"
+                "the mod loads on the next launch.",
+                "Select ROM", "Cancel", []() { RequestInlineModExtraction(); }, nullptr);
         })
         .Options(ButtonOptions()
                      .Size(Sizes::Inline)
-                     .Tooltip("Exits Lighthouse and arms the next launch to prompt for a romhack ROM to extract "
-                              "as a slim mod overlay. Relaunch manually after exit."));
+                     .Tooltip("Pick a romhack ROM and extract it as a slim mod overlay into the mods folder. "
+                              "Lighthouse closes afterward so the mod loads on the next launch."));
 
     AddWidget(path, "Popout Mod Menu Window", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("ModMenu"))

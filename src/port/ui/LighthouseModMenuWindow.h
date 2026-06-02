@@ -26,11 +26,23 @@ void DisableMod(std::string file);
 // modal window is initialized (i.e. after LighthouseGui::SetupGuiElements).
 void MaybeShowModConflictPopup();
 
-// When Mod.PendingExtract is set (the user clicked "Generate Mod from ROM"
-// and the next boot is about to extract a romhack), move every existing mod
-// o2r that carries assets/aGameConfig from the enabled CVar list to the
-// disabled list. Run once at boot before UpdateModFiles(true) so the
-// freshly-extracted romhack ends up the sole enabled overlay (auto-enabled
-// as a newcomer the boot after that). No-op if Mod.PendingExtract is unset.
-void DisableConflictingModsForPendingExtract();
+// Ensure the mod o2r named `keepBasename` is the only enabled overlay carrying
+// assets/aGameConfig. Called right after an inline extraction succeeds so the
+// boot-time conflict check doesn't quarantine the freshly-generated romhack.
+void SetSoleEnabledRomhack(const std::string& keepBasename);
+
+// Mod Menu "Generate Mod from ROM" button. Opens a ROM picker, extracts a slim
+// mod o2r into the mods folder on a worker thread, then closes Lighthouse so
+// the new archive loads at boot. Mirrors Starship's GenAssetFile menu flow.
+void RequestInlineModExtraction();
+
+// Per-frame driver for RequestInlineModExtraction: renders the progress modal,
+// services the custom-code prompt, and raises the completion popup. Called every
+// frame from the always-visible modal window.
+void DrawInlineModExtraction();
+
+// True while an inline extraction worker thread is running. The main loop uses
+// this to freeze the game and render GUI-only frames so the extractor isn't
+// fighting a live 60fps game for the machine.
+bool IsInlineModExtractionBusy();
 #endif

@@ -4,6 +4,7 @@
 #include <string>
 #include "UIWidgets.hpp"
 #include "LighthouseGui.hpp"
+#include "LighthouseModMenuWindow.h"
 
 struct LighthouseModal {
     std::string title_;
@@ -27,6 +28,8 @@ void LighthouseModalWindow::Draw() {
 }
 
 void LighthouseModalWindow::DrawElement() {
+    DrawInlineModExtraction();
+
     if (modals.size() > 0) {
         LighthouseModal curModal = modals.at(0);
         if (!ImGui::IsPopupOpen(curModal.title_.c_str())) {

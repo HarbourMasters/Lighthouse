@@ -21,6 +21,10 @@ public:
     void WritePortVersion();
     static std::string sStatusText;
     static std::string sLastError;
+    // Full path of the o2r produced by the last successful GenerateOTR (e.g.
+    // <dest>/mods/<slug>.o2r). The inline Mod Menu flow reads this to enable
+    // exactly the file it just generated, regardless of its name.
+    static std::string sLastOutputPath;
     static std::atomic<int> sPhase; // 0=idle, 1=parsing, 2=exporting, 3=done
 
     // Custom-code prompt: extraction worker raises sCustomCodePromptRequested
