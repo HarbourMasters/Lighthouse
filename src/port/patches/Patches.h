@@ -73,6 +73,7 @@ void port_mirror_patchTextActors(void);
 
 int port_fixMumboTokenId(int ret, int pos[3], int map_id);
 int port_shouldAllowAllHoneycombExtensions(void);
+int port_yumYumDropAllowed(int actorId, int maxOnGround);
 void port_fixCongaDialog(int textId, char* text);
 
 // Localization (LocalizedText.cpp)

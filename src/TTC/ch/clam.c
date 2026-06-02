@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "bk_math.h"
+#include "port/patches/Patches.h"
 
 extern Actor *spawnQueue_bundle_f32(s32, s32, s32, s32);
 extern ActorProp * func_80320EB0(ActorMarker *, f32, s32);
@@ -242,12 +243,6 @@ static void __chClam_playerDropsItem(enum bundle_e bundle_id, enum item_e item_i
     item_dec(item_id);
 }
 
-// [port] Track total items dropped on ground to prevent spawn overflow crash.
-// Resets on map reload (static in overlay code). Conservative — if player picks up
-// dropped items the counter doesn't decrement, but that just means fewer future drops.
-static s32 s_droppedEggs = 0;
-static s32 s_droppedFeathers = 0;
-
 static void __chClam_attackOther(ActorMarker *this_marker, ActorMarker *other_marker){
 
     if(baiFrame_getState() == 3) return;
@@ -256,18 +251,14 @@ static void __chClam_attackOther(ActorMarker *this_marker, ActorMarker *other_ma
         mapSpecificFlags_set(TTC_SPECIFIC_FLAG_5_CLAM_FIRST_MEET_TEXT_SHOWN, true);
     }
 
-    if (item_getCount(ITEM_D_EGGS) != 0) {
-        if (s_droppedEggs < 8) {
-            __chClam_playerDropsItem(BUNDLE_E_YUMYUM_BLUE_EGG, ITEM_D_EGGS);
-            s_droppedEggs++;
-        }
+    // [port] Match JP: only drop while fewer than 8 eggs / 5 red feathers are on the
+    // ground at once, preventing the spawn-overflow crash.
+    if (item_getCount(ITEM_D_EGGS) != 0 && port_yumYumDropAllowed(ACTOR_52_BLUE_EGG, 8)) {
+        __chClam_playerDropsItem(BUNDLE_E_YUMYUM_BLUE_EGG, ITEM_D_EGGS);
     }
 
-    if (item_getCount(ITEM_F_RED_FEATHER) != 0) {
-        if (s_droppedFeathers < 5) {
-            __chClam_playerDropsItem(BUNDLE_F_YUMYUM_RED_FEATHER, ITEM_F_RED_FEATHER);
-            s_droppedFeathers++;
-        }
+    if (item_getCount(ITEM_F_RED_FEATHER) != 0 && port_yumYumDropAllowed(ACTOR_129_RED_FEATHER, 5)) {
+        __chClam_playerDropsItem(BUNDLE_F_YUMYUM_RED_FEATHER, ITEM_F_RED_FEATHER);
     }
 }
 

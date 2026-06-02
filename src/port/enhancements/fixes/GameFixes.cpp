@@ -37,6 +37,12 @@ extern "C" int port_shouldAllowAllHoneycombExtensions(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("AllHoneycombExtensions"), 0);
 }
 
+// Yum-Yum overflow crash: cap dropped collectibles to JP's limit of N on the ground
+// at once. Always on (a crash guard, not a toggle). Counts live actors.
+extern "C" int port_yumYumDropAllowed(int actorId, int maxOnGround) {
+    return actorArray_actorCount((enum actor_e) actorId) < maxOnGround;
+}
+
 // Spelling: "Congo" -> "Conga"
 extern "C" void port_fixCongaDialog(int textId, char* text) {
     if (!CVarGetInteger(CVAR_ENHANCEMENT("Fixes.CongaText"), 0)) {
