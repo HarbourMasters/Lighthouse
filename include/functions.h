@@ -145,7 +145,7 @@ BKCollisionTriangle *func_802457C4(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3,
 // --- core2/actor_array.c ---
 BKModelBin *func_803257B4(ActorMarker *marker);
 Actor *actorArray_findActorFromMarkerId(enum marker_e marker_id);
-void *actors_appendToSavestate(void *begin, uintptr_t end);
+void *actors_appendToSavestate(void *begin, void *end);
 Actor * __actor_spawnWithYaw_s32(enum actor_e id, s32 pos[3], s32 yaw);
 Actor * spawn_child_actor(enum actor_e id, Actor ** parent);
 Actor *actorArray_findActorFromActorId(enum actor_e);

@@ -26,7 +26,6 @@ typedef struct{
     Actor *unk4;
 } Struct_Core2_B1400_1;
 
-typedef void (*BKGeoCmdFunc)(Gfx **, Mtx **, void *);
 
 typedef struct {
     s32 cmd_0;
@@ -137,22 +136,22 @@ typedef struct {
 
 
 
-void modelRender_geoCmd_Unk0(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_SORT(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_BONE(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_LOADDL(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_NOP(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_SKINNING(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_CALL(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_LOADDL2(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_NOP(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_TEXWRAP(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_LOD(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_REFPOINT(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_SELECTOR(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_DRAWDIST(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_UnkE(Gfx **, Mtx **, void *);
-void modelRender_geoCmd_CAMERA(Gfx **, Mtx **, void *);
+void modelRender_geoCmd_Unk0(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_SORT(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_BONE(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_LOADDL(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_NOP(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_SKINNING(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_CALL(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_LOADDL2(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_NOP(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_TEXWRAP(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_LOD(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_REFPOINT(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_SELECTOR(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_DRAWDIST(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_UnkE(Gfx **, Mtx **, struct bk_geo_cmd_s *);
+void modelRender_geoCmd_CAMERA(Gfx **, Mtx **, struct bk_geo_cmd_s *);
 void modelRender_executeGeoCmds(Gfx **, Mtx **, BKGeoCmd *);
 void func_8033A45C(s32 arg0, s32 arg1);
 
@@ -700,12 +699,12 @@ void modelRender_reset(void){
 }
 
 //empty cmd, 
-void modelRender_geoCmd_NOP(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_NOP(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     return;
 }
 
 //cmd0_???
-void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd0 *cmd = (GeoCmd0 *)arg2;
     f32 sp30[3];
 
@@ -727,7 +726,7 @@ void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //cmd1_SORT
-void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd1 *cmd = (GeoCmd1 *)arg2;
     f32 f14;
     s32 tmp_v0;
@@ -774,7 +773,7 @@ void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //cmd10_???
-void modelRender_geoCmd_TEXWRAP(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_TEXWRAP(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd10 *cmd = (GeoCmd10 *)arg2;
 
     switch(cmd->unk8){
@@ -788,7 +787,7 @@ void modelRender_geoCmd_TEXWRAP(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //cmd2_BONE
-void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd2 *cmd = (GeoCmd2 *)arg2;
 
     // [port] Stable per-bone scope. Without it, any op-count shift in the
@@ -816,7 +815,7 @@ void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //cmd3_LOAD_DL
-void modelRender_geoCmd_LOADDL(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_LOADDL(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd3 *cmd = (GeoCmd3 *)arg2;
     Gfx *vptr;
 
@@ -827,7 +826,7 @@ void modelRender_geoCmd_LOADDL(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //Cmd5_SKINNING
-void modelRender_geoCmd_SKINNING(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_SKINNING(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd5 *cmd = (GeoCmd5 *)arg2;
     int i;
 
@@ -849,20 +848,20 @@ void modelRender_geoCmd_SKINNING(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //Cmd6_???
-void modelRender_geoCmd_CALL(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_CALL(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd6 *cmd = (GeoCmd6 *)arg2;
     modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));
 }
 
 //Cmd7_LOAD_DL???
-void modelRender_geoCmd_LOADDL2(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_LOADDL2(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     if(D_80370990){
         gSPDisplayList((*gfx)++, (Gfx *)osVirtualToPhysical(modelRenderDisplayList->list + ((GeoCmd7*)arg2)->unkA));
     }
 }
 
 //Cmd8_LOD
-void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd8 *cmd = (GeoCmd8 *)arg2;
     f32 dist;
     
@@ -876,7 +875,7 @@ void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //CmdA_REFERENCE_POINT
-void modelRender_geoCmd_REFPOINT(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_REFPOINT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmdA *cmd = (GeoCmdA *)arg2;
     f32 sp20[3];
 
@@ -897,7 +896,7 @@ void modelRender_geoCmd_REFPOINT(Gfx **gfx, Mtx **mtx, void *arg2){
 }
 
 //CmdC_SELECTOR
-void modelRender_geoCmd_SELECTOR(Gfx **gfx, Mtx **mtx, void *arg2){
+void modelRender_geoCmd_SELECTOR(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmdC *cmd = (GeoCmdC *) arg2;
     uintptr_t sub_cmd;
     s32 indx;
@@ -938,7 +937,7 @@ void modelRender_geoCmd_SELECTOR(Gfx **gfx, Mtx **mtx, void *arg2){
 
 //CmdD_DRAW_DISTANCE
 extern f32 GameEngine_GetAspectRatio(void);
-void modelRender_geoCmd_DRAWDIST(Gfx ** gfx, Mtx ** mtx, void *arg2){
+void modelRender_geoCmd_DRAWDIST(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *arg2){
     f32 sp2C[3];
     f32 sp20[3];
     GeoCmdD * cmd = (GeoCmdD *)arg2;
@@ -957,7 +956,7 @@ void modelRender_geoCmd_DRAWDIST(Gfx ** gfx, Mtx ** mtx, void *arg2){
 }
 
 //cmdE_???
-void modelRender_geoCmd_UnkE(Gfx ** gfx, Mtx ** mtx, void *arg2){
+void modelRender_geoCmd_UnkE(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *arg2){
     f32 sp34[3];
     f32 sp30;
     GeoCmdE * cmd = (GeoCmdE *)arg2;
@@ -998,7 +997,7 @@ void modelRender_geoCmd_UnkE(Gfx ** gfx, Mtx ** mtx, void *arg2){
 }
 
 //cmdF_??? (processes model_setup offset_0x20)
-void modelRender_geoCmd_CAMERA(Gfx ** gfx, Mtx ** mtx, void *arg2){
+void modelRender_geoCmd_CAMERA(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *arg2){
     GeoCmdF *cmd = (GeoCmdF *)arg2;
     int tmp_v0 = cameraAreaList_searchForEntryInBounds(modelRenderCameraAreaList, cmd->unkC, cmd->unkA);
     if( (!tmp_v0 && (cmd->unkB & 1))
@@ -1342,7 +1341,7 @@ BoneTransformList *modelRender_getBoneTransformList(void){
     return modelRenderBoneTransformList;
 }
 
-s32 modelbin_getGeoType(BKModelBin *arg0){
+BkGeoType modelbin_getGeoType(BKModelBin *arg0){
     return arg0->geo_type;
 }
 
@@ -1367,7 +1366,7 @@ BKMeshList *modelbin_getMeshList(BKModelBin *arg0){
     return (BKMeshList *)((u8*)arg0 + arg0->mesh_list_offset);
 }
 
-f32 modelbin_getUnk34(UNK_TYPE(void *) arg0){
+f32 modelbin_getUnk34(BKModelBin *arg0){
     return *(f32 *)((u8*)arg0 + 0x34);
 }
 

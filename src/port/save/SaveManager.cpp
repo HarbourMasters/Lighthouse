@@ -18,7 +18,7 @@ extern "C" {
 extern SaveData gameFile_saveData[4];
 void savedata_update_crc(void* buffer, s32 size);
 s32 item_getCount(enum item_e item);
-u8 gCompletedBottlesBonusGames[7];
+extern u8 gCompletedBottlesBonusGames[7];
 }
 
 using nlohmann::json;

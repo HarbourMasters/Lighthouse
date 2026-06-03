@@ -444,7 +444,7 @@ BKCameraAreaList *modelbin_getCameraAreaList(BKModelBin *self);
 
 void model_copyFramebufferToTextures(BKModelBin *self);
 
-void *textureList_getDataPtr(BKTextureList *self);
+u8 *textureList_getDataPtr(BKTextureList *self);
 BKTextureInfo *textureList_getTextureInfo(BKTextureList *self, s32 index);
 s32 textureInfo_getBitDepth(BKTextureInfo *self);
 s32 textureInfo_getType(BKTextureInfo *self);
