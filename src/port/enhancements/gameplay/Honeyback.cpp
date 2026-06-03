@@ -10,6 +10,7 @@
 extern "C" {
 #include "enums.h"
 #include "functions.h"
+#include "gc/gctransition.h"
 }
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.Honeyback")
@@ -27,7 +28,8 @@ static int sRegenTimer = 0;
 
 void RegisterHoneyback_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent* event) {
-        if (honeycombscore_get_total() < ALL_HONEYCOMBS) {
+        if (getGameMode() != GAME_MODE_3_NORMAL || gctransition_active() || gcdialog_hasCurrentTextId() ||
+            honeycombscore_get_total() < ALL_HONEYCOMBS) {
             sPrevHealth = -1;
             sDamageDelay = 0;
             sRegenTimer = 0;
