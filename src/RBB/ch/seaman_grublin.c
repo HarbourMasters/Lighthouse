@@ -58,7 +58,7 @@ void chSeamanGrublin_initialize(Actor *this) {
     local->foundPlayerVolume = 1.0f;
     local->unkC_28 = true;
     local->hitFunction = humanoidBaddie_ow;
-    local->dieFunction = chSeamanGrublin_die;
+    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) chSeamanGrublin_die;
     local->damageVolume = 1.5f;
 }
 

@@ -12,7 +12,6 @@ extern f32 GameEngine_GetAspectRatio(void);
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
 
 extern void func_802D7124(Actor *, f32);
-extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 extern f32 modelRender_func_8033A244(f32);

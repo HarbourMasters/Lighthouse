@@ -123,7 +123,7 @@ typedef ALDMAproc (*ALDMANew)(void *state);
 
 void    alCopy(void *src, void *dest, s32 len);
 
-typedef struct {
+typedef struct ALHeap {
     u8          *base;
     u8          *cur;
     s32         len;

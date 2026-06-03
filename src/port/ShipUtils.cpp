@@ -14,7 +14,7 @@
 #include <windows.h>
 #endif
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_MSC_VER)
 #include <crtdbg.h>
 #endif
 
@@ -55,7 +55,7 @@ void port_audioStartThread(void) {
 }
 
 int port_checkHeap(const char* label) {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_MSC_VER)
     if (!_CrtCheckMemory()) {
         SPDLOG_ERROR("[port] HEAP CORRUPT at: {}", label);
         return 0;

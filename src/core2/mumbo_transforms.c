@@ -2,7 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_803255FC(Actor *);
 extern void func_80325760(Actor *);
 

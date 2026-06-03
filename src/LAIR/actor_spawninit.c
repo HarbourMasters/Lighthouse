@@ -13,7 +13,6 @@ extern void func_802D3CE8(Actor *);
 extern void func_802D3D54(Actor *);
 extern void func_802D3D74(Actor *this);
 extern void func_802D4830(Actor *, s32, f32);
-extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);

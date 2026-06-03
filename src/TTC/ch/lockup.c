@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 typedef struct {
     s32 closed_ticks_counter;
@@ -152,7 +151,7 @@ static void __chLockup_updateFunc(Actor *this){
                 __chLockup_close(this);
                 for(i = 5; i < 0xe; i++){
                     vec3fArray_get_vec3f(this->marker->unk44, i, this->unk1C);
-                    dustEmitter_emit(this->unk1C, sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
+                    dustEmitter_emit(this->unk1C, (f32 *)sLockup_CloseVelocity, sLockup_CloseColor, 1, 0.4f, 50.0f, 0xb4, 0xa0, 0);
                 }
             }
             break;

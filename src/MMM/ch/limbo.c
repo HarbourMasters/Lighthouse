@@ -78,8 +78,8 @@ static void _chskeleton_init(Actor *this) {
     local->exitInvulnerableStateSampleRate = 32000;
     local->exitInvulnerableStateVolume = 1.0f;
     local->unkC_28 = true;
-    local->hitFunction = humanoidBaddie_enterInvulnerableState;
-    local->dieFunction = chskeleton_despawn;
+    local->hitFunction = (void (*)(ActorMarker *, ActorMarker *)) humanoidBaddie_enterInvulnerableState;
+    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) chskeleton_despawn;
 
 }
 

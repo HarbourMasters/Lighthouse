@@ -5,7 +5,6 @@
 #include <bk_math.h>
 #include "port/interpolation/FrameInterpolation.h"
 
-extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 
 typedef struct struct_24_s{
     s32 unk0;

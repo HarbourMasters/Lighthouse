@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void dustEmitter_emit(f32[3], s32[4], s32[4], s32, f32, f32, s32, s32, s32);
 
 
 void chSarcophagus_update(Actor *this);
@@ -44,7 +43,7 @@ void GV_func_803894B0(Actor *this){
 }
 
 void func_80389518(Actor *this){
-    dustEmitter_emit(this->unk1C, D_80390E88, D_80390E78, 0, 
+    dustEmitter_emit(this->unk1C, (f32 *)D_80390E88, D_80390E78, 0, 
         0.55f, 50.0f, 0xDC, 0x168, 0
     );
 }

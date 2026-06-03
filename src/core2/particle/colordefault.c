@@ -19,7 +19,7 @@ s32 dustEmitter_returnGiven(s32 arg0){
     return arg0;
 }
 
-void dustEmitter_empty(void *this){
+void dustEmitter_empty(ParticleEmitter *this){
     return;
 }
 
@@ -43,7 +43,7 @@ void dustEmitter_free(void) {
     }
 }
 
-void dustEmitter_emit(f32 position[3], f32 velocity[3], s32 color[4], s32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+void dustEmitter_emit(f32 position[3], f32 velocity[3], s32 color[4], bool arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, enum dust_emitter_type_e arg8) {
     s32 pad54;
     s32 pad50;
     s32 pad4C;

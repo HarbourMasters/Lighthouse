@@ -82,8 +82,8 @@ void chMumMum_initialize(Actor *this) {
     local->exitInvulnerableStateSampleRate = 20000;
     local->exitInvulnerableStateVolume = 1.0f;
     local->unkC_28 = true;
-    local->hitFunction = chMumMum_setInvulnerableState;
-    local->dieFunction = chMumMum_die;
+    local->hitFunction = (void (*)(ActorMarker *, ActorMarker *)) chMumMum_setInvulnerableState;
+    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) chMumMum_die;
     this->unk154 |= 0x08000000;
 }
 

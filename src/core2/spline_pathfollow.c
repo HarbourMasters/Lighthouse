@@ -1496,6 +1496,6 @@ void glspline_defrag(void) {
     }
 }
 
-bool func_80344040(Actor *this){
-    return func_80323240(D_80371E70[this->unk44_14], this->unk48, this->position);
+void func_80344040(Actor *this){
+    func_80323240(D_80371E70[this->unk44_14], this->unk48, this->position);
 }

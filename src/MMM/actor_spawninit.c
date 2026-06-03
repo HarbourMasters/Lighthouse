@@ -36,7 +36,6 @@ extern ActorInfo D_80372C3C;
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void func_8025AE0C(s32, f32);
-extern void dustEmitter_emit(f32[3], f32[3], s32[4], s32, f32, f32, s32, s32, s32);
 extern BKCollisionTriangle *func_80309B48(f32[3], f32[3], f32[3], u32);
 
 void func_802D3D54(Actor *this);

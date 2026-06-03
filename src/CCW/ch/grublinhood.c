@@ -107,7 +107,7 @@ void __chgrublinhood_initialize(Actor *this){
     local->foundPlayerSampleRate = 25000;
     local->unkC_28 = 1;
     local->hitFunction = humanoidBaddie_ow;
-    local->dieFunction = __chgrublinhood_die;
+    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) __chgrublinhood_die;
     local->unk0 = 5.0f;
     local->unk4 = 8.0f;
     local->foundPlayerVolume = 1.0f;

@@ -14,7 +14,7 @@
 #include <string>
 #include <unordered_map>
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_MSC_VER)
 #include <crtdbg.h>
 #endif
 
