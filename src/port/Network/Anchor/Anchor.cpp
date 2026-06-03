@@ -221,6 +221,10 @@ void Anchor::ClearDummies() {
     dummies.clear();
 }
 
+std::unordered_map<uint32_t, DummyPlayer*>* Anchor::GetDummies() {
+    return &dummies;
+}
+
 void Anchor::UpdateDummies() {
     for (const auto& [id, dummy] : dummies) {
         dummy->dummy_update();

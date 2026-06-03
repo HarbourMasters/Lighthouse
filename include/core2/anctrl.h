@@ -10,12 +10,12 @@
 #define anctrl_start(ctrl, file, line) _anctrl_start(ctrl, __FILE__, __LINE__)
 #endif
 
-enum anctrl_playback_e{
+typedef enum anctrl_playback_e{
     ANIMCTRL_ONCE = 1,
     ANIMCTRL_LOOP = 2,
     ANIMCTRL_STOPPED = 3,
     ANIMCTRL_SUBRANGE_LOOP = 4
-};
+} AnimControl;
 
 typedef struct animation_s{
     GenFunction_2 matrices;
@@ -65,7 +65,7 @@ void func_8028746C(AnimCtrl *ctrl, GenFunction_2 arg1);
 void func_8028748C(AnimCtrl *ctrl, uintptr_t arg1);
 void anctrl_reset(AnimCtrl *ctrl);
 void __anctrl_gotoStart(AnimCtrl *ctrl);
-void _anctrl_start(AnimCtrl * ctrl, char *file, s32 line);
+void _anctrl_start(AnimCtrl * ctrl, const char *file, s32 line);
 void anctrl_setAnimTimer(AnimCtrl *ctrl, f32 timer);
 void anctrl_setPlaybackType(AnimCtrl *ctrl, enum anctrl_playback_e arg1);
 void anctrl_setDirection(AnimCtrl *ctrl, s32 arg1);

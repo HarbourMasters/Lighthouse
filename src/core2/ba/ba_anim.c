@@ -185,6 +185,26 @@ void baanim_setDurationRange(f32 min, f32 max){
     baAnimMaxDuration = max;
 }
 
+void baanim_getDurationRange(f32 *min, f32 *max){
+    *min = baAnimMinDuration;
+    *max = baAnimMaxDuration;
+}
+
+void baanim_getVelocityMapRanges(f32 *vel_min, f32 *vel_max, f32 *dur_min, f32 *dur_max){
+    *vel_min = baAnimScale.velocity_min;
+    *vel_max = baAnimScale.velocity_max;
+    *dur_min = baAnimScale.duration_min;
+    *dur_max = baAnimScale.duration_max;
+}
+
+f32 baanim_getDurationScale(void){
+    return baAnimScale.duration_scale;
+}
+
+bool baanim_isScalableDuration(void){
+    return baAnimScale.scalable_duration;
+}
+
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t)){
     baAnimModifyFunction = arg0;
 }
@@ -261,6 +281,8 @@ void baanim_playForDuration_loopStartingAt(enum asset_e anim_id, f32 duration, f
 
 void baanim_playForDuration_once(enum asset_e anim_id, f32 duration){
     anctrl_reset(playerAnimCtrl);
+    // [port] smooth should be off, isn't in decomp
+    anctrl_setSmoothTransition(playerAnimCtrl, false);
     anctrl_setIndex(playerAnimCtrl, anim_id);
     anctrl_setDuration(playerAnimCtrl, duration);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
@@ -278,7 +300,8 @@ void baanim_playForDuration_onceStartingAt(enum asset_e anim_id, f32 duration, f
 
 void baanim_playForDuration_onceSmooth(enum asset_e anim_id, f32 duration){
     anctrl_reset(playerAnimCtrl);
-    anctrl_setSmoothTransition(playerAnimCtrl, false);
+    // [port] possible decomp/src bug? smooth should be on here, and off above
+    // anctrl_setSmoothTransition(playerAnimCtrl, false);
     anctrl_setIndex(playerAnimCtrl, anim_id);
     anctrl_setDuration(playerAnimCtrl, duration);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
@@ -298,10 +321,29 @@ void baanim_playForDuration_onceSmoothStartingAt(enum asset_e anim_id, f32 durat
 void baanim_setEnd(f32 end_position){
     anctrl_setSubRange(playerAnimCtrl, 0.0f, end_position);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
+    // Caller (e.g. bsbarge_update) sets duration via anctrl_setDuration before
+    // calling this, so reading it back here captures the correct value.
+    CALL_EVENT(OnPlayerAnimSubRangeChange,
+        anctrl_getDuration(playerAnimCtrl),
+        end_position);
 }
 
 void baanim_setEndAndDuration(f32 end_position, f32 duration){
     anctrl_setSubRange(playerAnimCtrl, 0.0f, end_position);
     anctrl_setDuration(playerAnimCtrl, duration);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
+    CALL_EVENT(OnPlayerAnimSubRangeChange, duration, end_position);
+}
+
+void baanim_onCtrlStart(AnimCtrl* ctrl) {
+    if (ctrl == playerAnimCtrl) {
+        //AnimControl type = anctrl_getPlaybackType(ctrl);
+        //if (type == ANIMCTRL_STOPPED) return; // freeze-frame calls, not real animation starts
+        CALL_EVENT(OnPlayerAnimChange,
+            anctrl_getIndex(ctrl),
+            anctrl_getDuration(ctrl),
+            anctrl_getPlaybackType(ctrl),
+            ctrl->start,
+            ctrl->smooth_transition);
+    }
 }

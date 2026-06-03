@@ -32,8 +32,11 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnGruntyJinjonatorComplete);
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMumboTokenUpdate);
-    REGISTER_EVENT(OnWaterPyramidTimer);
     REGISTER_EVENT(OnNametagDraw);
+    REGISTER_EVENT(OnPlayerAnimChange);
+    REGISTER_EVENT(OnPlayerAnimReset);
+    REGISTER_EVENT(OnPlayerAnimSubRangeChange);
+    REGISTER_EVENT(OnWaterPyramidTimer);
 
     // Register game events
     REGISTER_EVENT(OnGameLoad);

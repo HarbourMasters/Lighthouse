@@ -55,8 +55,6 @@ void func_8029DBF0(void){
     }
 }
 
-
-
 void func_8029DD6C(void) {
     s32 temp_s0; // [port] must hold values > 1 for geo selector branches
 
@@ -146,6 +144,7 @@ void func_8029DFF8(void) {
     func_8029E0DC(0);
     func_8029E0F4(0);
     func_8029E0E8(0);
+    CALL_EVENT(OnPlayerAnimReset);
 }
 
 void func_8029E058(bool arg0){

@@ -23,6 +23,8 @@ void _dummy_updateModelYaw(void){
     //}
 }
 
+DummyPlayer::DummyPlayer() {};
+
 void DummyPlayer::dummy_setTransformation(Transformation transform) {
     dummy_transformation = transform;
 }
@@ -90,6 +92,17 @@ void DummyPlayer::dummy_func_8029DBF0(void){
     }
 }
 
+AnimCtrl* DummyPlayer::dummy_getAnimCtrl() {
+    return dummyAnimCtrl;
+}
+
+void DummyPlayer::dummy_setEyeState(bool squint, bool wink, bool isHat) {
+    dummy_D_8037D235 = squint;
+    dummy_D_8037D236 = wink;
+    dummy_D_8037D230 = 1.0f;
+    dummy_D_8037D234 = isHat;
+}
+
 void DummyPlayer::func_8029DD6C(void) {
     s32 temp_s0; // [port] must hold values > 1 for geo selector branches
 
@@ -154,11 +167,15 @@ void DummyPlayer::dummy_setYaw(f32 yaw) {
     dummyYaw = yaw;
 }
 
+//void DummyPlayer::dummyPlayer_setEnvColor(s32 r, s32 g, s32 b) {
+//
+//}
+
 void DummyPlayer::Draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     f32 rotation[3];
-    s32 env_color[3];
     f32 plyr_pos[3]; //sp44
     f32 sp38[3];
+    s32 env_color[3];
 
     if(!dummyIsVisible)
         return;
@@ -179,7 +196,7 @@ void DummyPlayer::Draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
         sp38[2] += dummyDisplacement[2];
 
     if(dummyBin){
-        //baanim_80289F30();
+        anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
         func_8029DD6C();
         modelRender_setEnvColor(env_color[0], env_color[1], env_color[2], dummyEnvAlpha);
         func_8033A280(2.0f);
@@ -259,21 +276,88 @@ void DummyPlayer::dummy_reset(void){
         reinterpret_cast(s32, plyr_pos[1]), 
         reinterpret_cast(s32, plyr_pos[2])
     );
+    dummyAnim_init();
+    dummyAnim_reset();
 }
 
-void DummyPlayer::dummy_free(void){
+void DummyPlayer::dummy_free(void) {
     assetcache_release(dummyBin);
     dummyBin = NULL;
     dummyId = ASSET_0_NONE;
     func_8034A2A8(dummy_D_80363780);
     dummy_D_80363780 = NULL;
+    dummyAnim_free();
 }
 
-void DummyPlayer::dummy_update(void){
+void DummyPlayer::dummyAnim_reset() {
+    dummy_D_8037D230 = 0;
+    dummy_D_8037D234 = 0;
+    dummy_D_8037D238 = 0;
+    dummy_D_8037D236 = 0;
+    dummy_D_8037D235 = 0;
+    dummy_D_8037D23C = 0.0f;
+    dummy_D_8037D240 = 0.0f;
+    dummy_D_8037D237 = 0;
+    dummy_D_8037D239 = 0;
+    dummy_D_8037D23A = 0;
+}
+
+void DummyPlayer::dummy_update(void) {
     f32 pos[3];
     player_getPosition(pos);
-    pos[0] += 30;
+    pos[0] += 100;
     dummy_setPoisition(pos);
+    dummy_setTransformation((Transformation)player_getTransformation());
+    // Mirror model direction and apply the same yaw flip as _baModel_updateModelYaw:
+    // PLAYER_MODEL_DIR_KAZOOIE adds 180° so Kazooie faces the direction of travel.
+    {
+        PlayerModelDirection dir = (PlayerModelDirection)baModel_getDirection();
+        dummy_setDirection(dir);
+        if (dir == PLAYER_MODEL_DIR_KAZOOIE) {
+            dummy_setYaw(mlNormalizeAngle(player_getYaw() + 180.0f));
+        } else if (dir != PLAYER_MODEL_DIR_GLOBAL) {
+            dummy_setYaw(player_getYaw());
+        }
+        // PLAYER_MODEL_DIR_GLOBAL: yaw is set externally, don't overwrite it.
+    }
+    dummy_setRoll(roll_get());
+    dummy_setPitch(pitch_get());
+    // Mirror anim velocity-scale state from the local player.
+    // For a real remote player these come from network packets instead.
+    dummyAnimState = baanim_getUpdateType();
+    baphysics_get_velocity(dummyVelocity);
+    baanim_getVelocityMapRanges(
+        &dummyAnimScale.velocity_min, &dummyAnimScale.velocity_max,
+        &dummyAnimScale.duration_min, &dummyAnimScale.duration_max);
+    dummyAnimScale.duration_scale   = baanim_getDurationScale();
+    dummyAnimScale.scalable_duration = baanim_isScalableDuration();
+    baanim_getDurationRange(&dummyAnimMinDuration, &dummyAnimMaxDuration);
+
+    // For non-velocity-scaled states, mirror the player's live animation duration
+    // directly each frame. This covers moves like feathery flap where the BS state
+    // calls anctrl_setDuration on playerAnimCtrl each tick to step through a
+    // slowdown table — no anctrl_start fires, so no event captures these changes.
+    // Velocity-scaled states (walk/run) skip this: dummyAnim_update derives their
+    // duration from velocity instead.
+    // For real networking, send anctrl_getDuration(playerAnimCtrl) in the
+    // per-tick PlayerUpdate packet and call dummyAnim_setLiveDuration() here.
+    if (dummyAnimState != BAANIM_UPDATE_2_SCALE_HORZ &&
+        dummyAnimState != BAANIM_UPDATE_3_SCALE_VERT) {
+        anctrl_setDuration(dummyAnimCtrl, anctrl_getDuration(baanim_getAnimCtrlPtr()));
+    }
+
+    // Mirror animstate so Kazooie geometry selectors match the local player.
+    // D_8037D238 is read by func_8033A45C(1/9/C/F, ...) inside func_8029DD6C to
+    // show or hide Kazooie's model parts. Without this, Kazooie stays invisible
+    // even while her animations play. The other fields control eye/mouth state.
+    dummy_D_8037D238 = func_8029DFBC(); // Kazooie visibility (Kazooie popped out)
+    dummy_D_8037D235 = func_8029DFA4(); // squint
+    dummy_D_8037D236 = func_8029DFB0(); // wink
+    dummy_D_8037D237 = func_8029DFE0(); // mouth
+    dummy_D_8037D239 = func_8029DFEC(); // mouth 2
+    dummy_D_8037D23C = func_8029DFC8(); // eye blend upper
+    dummy_D_8037D240 = func_8029DFD4(); // eye blend lower
+    dummyAnim_update();
 //    f32 sp1C;
 //    f32 temp_f0;
 //
@@ -454,7 +538,7 @@ PlayerModelDirection DummyPlayer::dummy_getDirection(void){
 }
 
 void DummyPlayer::dummy_802924E8(f32 arg0[3]){
-    switch(player_getTransformation()){
+    switch(dummy_transformation){
     case TRANSFORM_5_CROC:
         dummy_80291A50(5, arg0);
         break;
@@ -483,4 +567,115 @@ void DummyPlayer::dummy_defrag(void){
     if(dummy_D_80363780){
         dummy_D_80363780 = func_8034A348(dummy_D_80363780);
     }
+}
+
+// anim
+
+void DummyPlayer::dummyAnim_init(void){
+    dummyAnimCtrl = anctrl_new(1);
+    func_80287784(dummyAnimCtrl, 0);
+    anctrl_setSmoothTransition(dummyAnimCtrl, false);
+    //func_8028746C(dummyAnimCtrl, __baanim_applyBottlesBonus);
+    //AnimModifyFunction = NULL;
+    anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
+    dummyAnimState = BAANIM_UPDATE_0_NONE;
+    //__baanim_setUpdateType(BAANIM_UPDATE_1_NORMAL);
+    dummyAnimMinDuration = 0.01f;
+    dummyAnimMaxDuration = 100.0f;
+    dummyAnimScale.velocity_min = 0.0f;
+    dummyAnimScale.velocity_max = 1000.0f;
+    dummyAnimScale.duration_min = 0.1f;
+    dummyAnimScale.duration_max = 10.0f;
+    dummyAnimScale.scalable_duration = false;
+    dummyAnimScale.scalable_duration = 0;
+    dummyAnimScale.duration_scale = 1.0f;
+}
+
+void DummyPlayer::dummyAnim_free(void){
+    anctrl_free(dummyAnimCtrl);
+}
+
+void DummyPlayer::dummyAnim_update(void){
+    f32 horiz_speed;
+    f32 temp;
+    f32 scale;
+
+    // Apply velocity-scaled duration using this dummy's own state and velocity,
+    // mirroring the logic in __baanim_update_scaleToHorizontalVelocity /
+    // __baanim_update_scaleToVerticalVelocity in ba_anim.c.
+    // For the local clone, dummyVelocity is populated from baphysics each frame.
+    // For a real remote player it comes from network packets.
+    switch(dummyAnimState) {
+        case BAANIM_UPDATE_2_SCALE_HORZ:
+            scale = (dummyAnimScale.scalable_duration != 0) ? dummyAnimScale.duration_scale : 1.0f;
+            horiz_speed = gu_sqrtf(dummyVelocity[0]*dummyVelocity[0] + dummyVelocity[2]*dummyVelocity[2]);
+            temp = ml_mapRange_f(horiz_speed,
+                dummyAnimScale.velocity_min, dummyAnimScale.velocity_max,
+                dummyAnimScale.duration_min * scale, dummyAnimScale.duration_max * scale);
+            anctrl_setDuration(dummyAnimCtrl, ml_clamp_f(temp, dummyAnimMinDuration, dummyAnimMaxDuration));
+            break;
+        case BAANIM_UPDATE_3_SCALE_VERT:
+            temp = ml_mapRange_f(mlAbsF(dummyVelocity[1]),
+                dummyAnimScale.velocity_min, dummyAnimScale.velocity_max,
+                dummyAnimScale.duration_min, dummyAnimScale.duration_max);
+            anctrl_setDuration(dummyAnimCtrl, ml_clamp_f(temp, dummyAnimMinDuration, dummyAnimMaxDuration));
+            break;
+        default:
+            break;
+    }
+    anctrl_update(dummyAnimCtrl);
+}
+
+void DummyPlayer::dummyAnim_setUpdateType(s32 state) {
+    dummyAnimState = state;
+}
+
+void DummyPlayer::dummyAnim_setVelocity(f32 vel[3]) {
+    ml_vec3f_copy(dummyVelocity, vel);
+}
+
+void DummyPlayer::dummyAnim_setVelocityMapRanges(f32 vel_min, f32 vel_max, f32 dur_min, f32 dur_max) {
+    dummyAnimScale.velocity_min = vel_min;
+    dummyAnimScale.velocity_max = vel_max;
+    dummyAnimScale.duration_min = dur_min;
+    dummyAnimScale.duration_max = dur_max;
+    dummyAnimScale.scalable_duration = false;
+}
+
+void DummyPlayer::dummyAnim_setScalableDuration(f32 scale) {
+    dummyAnimScale.duration_scale = scale;
+    dummyAnimScale.scalable_duration = true;
+}
+
+void DummyPlayer::dummyAnim_setDurationRange(f32 min, f32 max) {
+    dummyAnimMinDuration = min;
+    dummyAnimMaxDuration = max;
+}
+
+void DummyPlayer::dummyAnim_setEndAndDuration(f32 end_position, f32 duration) {
+    anctrl_setSubRange(dummyAnimCtrl, 0.0f, end_position);
+    anctrl_setDuration(dummyAnimCtrl, duration);
+    anctrl_setPlaybackType(dummyAnimCtrl, ANIMCTRL_ONCE);
+    // Note: do NOT call anctrl_start here — the animation should continue from
+    // its current timer position, matching the player who also doesn't restart.
+}
+
+void DummyPlayer::dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth){
+    anctrl_reset(dummyAnimCtrl);
+    anctrl_setSmoothTransition(dummyAnimCtrl, smooth);
+    anctrl_setIndex(dummyAnimCtrl, anim_id);
+    anctrl_setDuration(dummyAnimCtrl, duration);
+    if (start_position >= 0) {
+        anctrl_setStart(dummyAnimCtrl, start_position);
+    }
+    anctrl_setPlaybackType(dummyAnimCtrl, control);
+    anctrl_start(dummyAnimCtrl, "DummyPlayer.cpp", 564);
+}
+
+bool DummyPlayer::dummyAnim_isAnimID(enum asset_e anim_id){
+    return anctrl_getIndex(dummyAnimCtrl) == anim_id;
+}
+
+bool DummyPlayer::dummyAnim_isStopped(void){
+    return anctrl_isStopped(dummyAnimCtrl);
 }

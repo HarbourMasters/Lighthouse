@@ -2,6 +2,7 @@
 #define _PLAYER_MODEL_H_
 
 typedef enum player_model_direction_e {
+    PLAYER_MODEL_DIR_NONE = 0,
     PLAYER_MODEL_DIR_BANJO = 1,
     PLAYER_MODEL_DIR_KAZOOIE = 2,
     PLAYER_MODEL_DIR_GLOBAL = 3

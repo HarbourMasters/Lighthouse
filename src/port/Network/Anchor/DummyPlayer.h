@@ -1,18 +1,13 @@
 #pragma once
 extern "C" {
 #include "functions.h"
+#include "core2/ba/model.h"
 #include "variables.h"
 }
 
-typedef enum player_model_direction_e {
-    PLAYER_MODEL_DIR_NONE = 0,
-    PLAYER_MODEL_DIR_BANJO = 1,
-    PLAYER_MODEL_DIR_KAZOOIE = 2,
-    PLAYER_MODEL_DIR_GLOBAL = 3
-} PlayerModelDirection;
-
 class DummyPlayer {
   public:
+    DummyPlayer();
     //void dummy_getPosition(f32* dst);
     //void dummy_update(void);
     Actor *dummy_80291AAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -41,6 +36,7 @@ class DummyPlayer {
     void dummy_80292578(f32 arg0[3]);
     void dummy_defrag(void);
     void dummy_free(void);
+    void dummyAnim_reset();
     void dummy_func_8029DBF0(void);
     void dummy_getPosition(f32 arg0[3]);
     void dummy_reset(void);
@@ -62,6 +58,23 @@ class DummyPlayer {
     //void func_80254008(void);
     void func_8029DD6C(void);
     //void func_8033A280(f32);
+    // anim
+    void dummyAnim_init(void);
+    void dummyAnim_free(void);
+    void dummyAnim_update(void);
+    void dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth);
+    bool dummyAnim_isAnimID(enum asset_e anim_id);
+    bool dummyAnim_isStopped(void);
+    // anim scale — set by network packets; mirrored from local player for clone test
+    void dummyAnim_setUpdateType(s32 state);
+    void dummyAnim_setVelocity(f32 vel[3]);
+    void dummyAnim_setVelocityMapRanges(f32 vel_min, f32 vel_max, f32 dur_min, f32 dur_max);
+    void dummyAnim_setScalableDuration(f32 scale);
+    void dummyAnim_setDurationRange(f32 min, f32 max);
+    void dummyAnim_setEndAndDuration(f32 end_position, f32 duration);
+    // eye/mouth
+    void dummy_setEyeState(bool squint, bool wink, bool isHat);
+    AnimCtrl* dummy_getAnimCtrl();
 
   private:
     uint32_t PlayerID;
@@ -75,6 +88,7 @@ class DummyPlayer {
     BKModelBin *dummyBin; //dummyPtr
     AssetID dummyId; //dummy asset_id
     u8  dummyEnvAlpha;
+    f32 dummyEnvColor[3];
     PlayerModelDirection dummyDirection;
     u8  dummyIsVisible;
     f32 dummyScale;
@@ -82,6 +96,19 @@ class DummyPlayer {
     f32 dummyRoll;
     f32 dummyYaw;
     f32 dummyPosition[3];
+    s32 dummyAnimState;
+    f32 dummyAnimMinDuration;
+    f32 dummyAnimMaxDuration;
+    struct {
+        f32 velocity_min; //velocity_min
+        f32 velocity_max; //velocity_max
+        f32 duration_min; //duration_min
+        f32 duration_max; //duration_max
+        f32 duration_scale; //duration_scale
+        u8  scalable_duration; //scalable_duration
+    } dummyAnimScale;
+    AnimCtrl* dummyAnimCtrl;
+    f32 dummyVelocity[3];
     ActorMarker *dummyMarker;
     f32 dummy_D_8037C100[3];
     f32 dummy_D_8037C110[3];

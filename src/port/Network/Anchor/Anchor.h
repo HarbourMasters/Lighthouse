@@ -21,8 +21,6 @@ extern "C" {
 //void DummyPlayer_Draw(Actor* actor, PlayState* play);
 //void DummyPlayer_Destroy(Actor* actor, PlayState* play);
 
-#define CVAR_REMOTE_ANCHOR(cvar) "gRemote.Anchor." cvar
-
 typedef struct {
     uint32_t clientId;
     std::string name;
@@ -95,6 +93,7 @@ class Anchor : public Network {
     void DrawDummies(OnWorldDraw* event);
     void ClearDummies();
     void RegisterDummy(DummyPlayer* dummy, uint32_t clientID);
+    std::unordered_map<uint32_t, DummyPlayer*>* GetDummies();
     void UpdateDummies();
     void RemoveDummy(uint32_t clientId);
 

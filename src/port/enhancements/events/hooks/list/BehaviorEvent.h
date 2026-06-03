@@ -2,20 +2,24 @@
 
 #include <libultraship/bridge/eventsbridge.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "prop.h"
 
+#ifdef __cplusplus
+}
+#endif
+
 DEFINE_EVENT(OnBeakSwimVelocitySet, f32* velocity;)
-
 DEFINE_EVENT(OnBoggyRaceSetSpeed, f32* speed;)
-
-DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
-
-DEFINE_EVENT(OnGruntyJinjonatorComplete)
-
-DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
-
-DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
-
 DEFINE_EVENT(OnBootLogosCheck, bool* skipLogos;)
-
+DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
+DEFINE_EVENT(OnGruntyJinjonatorComplete)
 DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)
+DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
+DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position; bool smooth;)
+DEFINE_EVENT(OnPlayerAnimReset)
+DEFINE_EVENT(OnPlayerAnimSubRangeChange, f32 duration; f32 end_position;)
+DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)

@@ -493,6 +493,10 @@ f32  func_8029DFD4(void);
 void func_8029E090(bool, f32);
 void func_8029E0C4(f32);
 void func_8029E0D0(f32);
+bool func_8029DFBC(void);
+bool func_8029DFA4(void);
+bool func_8029DFB0(void);
+bool func_8029DFEC(void);
 
 // --- core2/ba/ba_carriedobj.c ---
 bool player_setCarryObjectPose(enum actor_e actor_id, Actor **arg1);
@@ -544,9 +548,6 @@ void func_80293D48(f32, f32);
 // --- core2/spline_bezier.c ---
 
 // --- core2/vtx/list.c ---
-
-// --- core2/ba/ba_model.c / assetcache ---
-void assetcache_release(void *);
 
 // --- core2/spline_pathfollow.c ---
 void func_80343DEC(Actor *self);
@@ -1308,6 +1309,7 @@ void baAnim_free(void);
 void baAnim_init(void);
 void baAnim_update(void);
 void baanim_80289F30(void);
+enum baanim_update_type_e baanim_getUpdateType(void);
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
 void baanim_setUpdateType(enum baanim_update_type_e arg0);
 
@@ -1537,6 +1539,7 @@ void baMarker_setCarriedObject(enum actor_e actor_id);
 void baMarker_update(void);
 
 // --- core2/ba/ba_model.c ---
+void assetcache_release(void *);
 enum asset_e baModel_getModelId(void);
 s32 baModel_isVisible(void);
 void baModel_8029223C(f32 arg0[3]);
@@ -1549,6 +1552,7 @@ void baModel_80292578(f32 arg0[3]);
 void baModel_defrag(void);
 void baModel_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void baModel_free(void);
+enum player_model_direction_e baModel_getDirection(void);
 void baModel_getPosition(f32* dst);
 void baModel_reset(void);
 void baModel_setEnvAlpha(s32 alpha);
@@ -3166,9 +3170,6 @@ void bkmemcpy64(void *dest, void *src, s32 size); // handwritten assembly code t
 void bkmemset64(void *dest, s32 value, s32 size); // handwritten assembly code that performs an optimized 8 byte memset
 u32 bkGetSR(void); // handwritten assembly code that replicates the __osGetSR function
 
-#endif // FUNCTIONS_H
-
-
 // --- RBB/ch/engineparts.c ---
 f32 func_8038A6B8(ActorMarker *);
 
@@ -3231,6 +3232,7 @@ void baModel_80292158(f32);
 
 // --- core2/ba/ba_physics.c ---
 f32  get_slope_timer(void);
+void baphysics_get_velocity(f32 dst[3]);
 void baphysics_reset_gravity(void);
 void baphysics_set_gravity(f32 gravity);
 
@@ -3493,3 +3495,5 @@ float gu_sqrtf(float val);
 void _guMtxIdentF_80245D44(float mf[4][4]); //static should NOT be here
 void func_80241304(Mtx *m, float x, float y, float z);
 BKModelBin *  marker_loadModelBin(ActorMarker *marker);
+
+#endif // FUNCTIONS_H

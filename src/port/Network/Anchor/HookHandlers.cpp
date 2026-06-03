@@ -73,6 +73,27 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->ProcessIncomingPacketQueue();
         Anchor::GetInstance()->UpdateDummies();
     });
+
+    COND_HOOK(OnPlayerAnimReset, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        if (Anchor::GetInstance()->GetDummies()->size() > 0) {
+            Anchor::GetInstance()->GetDummies()->at(0)->dummyAnim_reset();
+        }
+    });
+
+    COND_HOOK(OnPlayerAnimChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        if (Anchor::GetInstance()->GetDummies()->size() > 0) {
+            OnPlayerAnimChange* ev = reinterpret_cast<OnPlayerAnimChange*>(event);
+            auto dummy = Anchor::GetInstance()->GetDummies()->at(0);
+            dummy->dummyAnim_playForDuration(ev->anim_id, ev->duration, ev->control, ev->start_position, ev->smooth);
+        }
+    });
+
+    COND_HOOK(OnPlayerAnimSubRangeChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        if (Anchor::GetInstance()->GetDummies()->size() > 0) {
+            OnPlayerAnimSubRangeChange* ev = reinterpret_cast<OnPlayerAnimSubRangeChange*>(event);
+            Anchor::GetInstance()->GetDummies()->at(0)->dummyAnim_setEndAndDuration(ev->end_position, ev->duration);
+        }
+    });
 //
 //    COND_HOOK(OnPlayerSfx, isConnected, [&](u16 sfxId) { SendPacket_PlayerSfx(sfxId); });
 //    COND_HOOK(OnOcarinaNote, isConnected,

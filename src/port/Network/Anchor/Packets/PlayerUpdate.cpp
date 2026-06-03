@@ -24,57 +24,57 @@ void Anchor::SendPacket_PlayerUpdate() {
         return;
     }
 
-    uint32_t currentPlayerCount = 0;
-    /*for (auto& [clientId, client] : clients) {
-        if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
-            currentPlayerCount++;
-        }
-    }
-    if (currentPlayerCount == 0) {
-        return;
-    }
+    //uint32_t currentPlayerCount = 0;
+    //for (auto& [clientId, client] : clients) {
+    //    if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
+    //        currentPlayerCount++;
+    //    }
+    //}
+    //if (currentPlayerCount == 0) {
+    //    return;
+    //}
 
-    Player* player = GET_PLAYER(gPlayState);
+    //Player* player = GET_PLAYER(gPlayState);
     nlohmann::json payload;
 
-    payload["type"] = PLAYER_UPDATE;
-    payload["sceneNum"] = gPlayState->sceneNum;
-    payload["entranceIndex"] = gSaveContext.entranceIndex;
-    payload["linkAge"] = gSaveContext.linkAge;
-    payload["posRot"]["pos"] = player->actor.world.pos;
-    payload["posRot"]["rot"] = player->actor.shape.rot;
-    std::vector<int> jointArray;
-    for (size_t i = 0; i < 24; i++) {
-        Vec3s joint = player->skelAnime.jointTable[i];
-        jointArray.push_back(joint.x);
-        jointArray.push_back(joint.y);
-        jointArray.push_back(joint.z);
-    }
-    payload["prevTransl"] = player->skelAnime.prevTransl;
-    payload["movementFlags"] = player->skelAnime.movementFlags;
-    payload["jointTable"] = jointArray;
-    payload["upperLimbRot"] = player->upperLimbRot;
-    payload["currentBoots"] = player->currentBoots;
-    payload["currentShield"] = player->currentShield;
-    payload["currentTunic"] = player->currentTunic;
-    payload["stateFlags1"] = player->stateFlags1;
-    payload["stateFlags2"] = player->stateFlags2 & ~PLAYER_STATE2_DISABLE_DRAW;
-    payload["buttonItem0"] = gSaveContext.equips.buttonItems[0];
-    payload["itemAction"] = player->itemAction;
-    payload["heldItemAction"] = player->heldItemAction;
-    payload["modelGroup"] = player->modelGroup;
-    payload["invincibilityTimer"] = player->invincibilityTimer;
-    payload["unk_862"] = player->unk_862;
-    payload["unk_85C"] = player->unk_85C;
-    payload["actionVar1"] = player->av1.actionVar1;
-    payload["quiet"] = true;
+    //payload["type"] = PLAYER_UPDATE;
+    //payload["sceneNum"] = gPlayState->sceneNum;
+    //payload["entranceIndex"] = gSaveContext.entranceIndex;
+    //payload["linkAge"] = gSaveContext.linkAge;
+    //payload["posRot"]["pos"] = player->actor.world.pos;
+    //payload["posRot"]["rot"] = player->actor.shape.rot;
+    //std::vector<int> jointArray;
+    //for (size_t i = 0; i < 24; i++) {
+    //    Vec3s joint = player->skelAnime.jointTable[i];
+    //    jointArray.push_back(joint.x);
+    //    jointArray.push_back(joint.y);
+    //    jointArray.push_back(joint.z);
+    //}
+    //payload["prevTransl"] = player->skelAnime.prevTransl;
+    //payload["movementFlags"] = player->skelAnime.movementFlags;
+    //payload["jointTable"] = jointArray;
+    //payload["upperLimbRot"] = player->upperLimbRot;
+    //payload["currentBoots"] = player->currentBoots;
+    //payload["currentShield"] = player->currentShield;
+    //payload["currentTunic"] = player->currentTunic;
+    //payload["stateFlags1"] = player->stateFlags1;
+    //payload["stateFlags2"] = player->stateFlags2 & ~PLAYER_STATE2_DISABLE_DRAW;
+    //payload["buttonItem0"] = gSaveContext.equips.buttonItems[0];
+    //payload["itemAction"] = player->itemAction;
+    //payload["heldItemAction"] = player->heldItemAction;
+    //payload["modelGroup"] = player->modelGroup;
+    //payload["invincibilityTimer"] = player->invincibilityTimer;
+    //payload["unk_862"] = player->unk_862;
+    //payload["unk_85C"] = player->unk_85C;
+    //payload["actionVar1"] = player->av1.actionVar1;
+    //payload["quiet"] = true;
 
-    for (auto& [clientId, client] : clients) {
-        if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
-            payload["targetClientId"] = clientId;
-            SendJsonToRemote(payload);
-        }
-    }*/
+    //for (auto& [clientId, client] : clients) {
+    //    if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
+    //        payload["targetClientId"] = clientId;
+    //        SendJsonToRemote(payload);
+    //    }
+    //}
 }
 
 void Anchor::HandlePacket_PlayerUpdate(nlohmann::json payload) {
