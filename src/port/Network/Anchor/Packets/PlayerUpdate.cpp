@@ -19,6 +19,14 @@ extern "C" {
  * Note: This packet is sent _a lot_, so please do not include any unnecessary data in it
  */
 
+void Anchor::SendPacket_PlayerSubRangeChange(f32 duration, f32 end) {
+
+}
+
+void Anchor::SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth) {
+
+}
+
 void Anchor::SendPacket_PlayerUpdate() {
     if (!IsSaveLoaded()) {
         return;

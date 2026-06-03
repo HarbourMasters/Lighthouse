@@ -5,7 +5,7 @@
 #include "port/ShipUtils.h"
 
 namespace LighthouseGui {
-extern std::shared_ptr<LighthouseMenu> mSohMenu;
+extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 extern std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
 } // namespace SohGui
 
@@ -243,17 +243,17 @@ void AnchorInstructionsMenu(WidgetInfo& info) {
         "the same randomizer seed, while players on different teams can use different seeds.");
 }
 
-#ifdef ENABLE_REMOTE_CONTROL
+#ifdef USE_NETWORKING
 void RegisterAnchorMenu() {
     WidgetPath path = { "Network", "Anchor", SECTION_COLUMN_1 };
-    SohGui::mSohMenu->AddWidget(path, "AnchorMainMenu", WIDGET_CUSTOM)
+    LighthouseGui::mLighthouseMenu->AddWidget(path, "AnchorMainMenu", WIDGET_CUSTOM)
         .CustomFunction(AnchorMainMenu)
         .HideInSearch(true);
     path.column = SECTION_COLUMN_2;
-    SohGui::mSohMenu->AddWidget(path, "AnchorAdminMenu", WIDGET_CUSTOM)
+    LighthouseGui::mLighthouseMenu->AddWidget(path, "AnchorAdminMenu", WIDGET_CUSTOM)
         .CustomFunction(AnchorAdminMenu)
         .HideInSearch(true);
-    SohGui::mSohMenu->AddWidget(path, "AnchorInstructionsMenu", WIDGET_CUSTOM)
+    LighthouseGui::mLighthouseMenu->AddWidget(path, "AnchorInstructionsMenu", WIDGET_CUSTOM)
         .CustomFunction(AnchorInstructionsMenu)
         .HideInSearch(true);
 }

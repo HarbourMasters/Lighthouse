@@ -5,7 +5,7 @@
 // MARK: - Public
 
 void Network::Enable(const char* host, uint16_t port) {
-#ifdef ENABLE_REMOTE_CONTROL
+#ifdef USE_NETWORKING
     if (isEnabled) {
         return;
     }
@@ -50,7 +50,7 @@ void Network::ProcessOutgoingPackets() {
 }
 
 void Network::SendDataToRemote(const char* payload) {
-#ifdef ENABLE_REMOTE_CONTROL
+#ifdef USE_NETWORKING
     SPDLOG_DEBUG("[Network] Sending data: {}", payload);
     SDLNet_TCP_Send(networkSocket, payload, strlen(payload) + 1);
 #endif
@@ -63,7 +63,7 @@ void Network::SendJsonToRemote(nlohmann::json payload) {
 // MARK: - Private
 
 void Network::ReceiveFromServer() {
-#ifdef ENABLE_REMOTE_CONTROL
+#ifdef USE_NETWORKING
     while (isEnabled) {
         while (!isConnected && isEnabled) {
             SPDLOG_TRACE("[Network] Attempting to make connection to server...");

@@ -81,18 +81,13 @@ void Anchor::RegisterHooks() {
     });
 
     COND_HOOK(OnPlayerAnimChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        if (Anchor::GetInstance()->GetDummies()->size() > 0) {
-            OnPlayerAnimChange* ev = reinterpret_cast<OnPlayerAnimChange*>(event);
-            auto dummy = Anchor::GetInstance()->GetDummies()->at(0);
-            dummy->dummyAnim_playForDuration(ev->anim_id, ev->duration, ev->control, ev->start_position, ev->smooth);
-        }
+        OnPlayerAnimChange* ev = reinterpret_cast<OnPlayerAnimChange*>(event);
+        Anchor::GetInstance()->SendPacket_PlayerAnimChange(ev->anim_id, ev->duration, ev->control, ev->start_position, ev->smooth);
     });
 
     COND_HOOK(OnPlayerAnimSubRangeChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        if (Anchor::GetInstance()->GetDummies()->size() > 0) {
-            OnPlayerAnimSubRangeChange* ev = reinterpret_cast<OnPlayerAnimSubRangeChange*>(event);
-            Anchor::GetInstance()->GetDummies()->at(0)->dummyAnim_setEndAndDuration(ev->end_position, ev->duration);
-        }
+        OnPlayerAnimSubRangeChange* ev = reinterpret_cast<OnPlayerAnimSubRangeChange*>(event);
+        Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
     });
 //
 //    COND_HOOK(OnPlayerSfx, isConnected, [&](u16 sfxId) { SendPacket_PlayerSfx(sfxId); });

@@ -2749,7 +2749,7 @@ enum anctrl_direction_e
     mvmt_dir_forwards = 1
 };
 
-enum game_mode_e
+typedef enum game_mode_e
 {
     GAME_MODE_1_UNKNOWN = 1,
     GAME_MODE_2_UNKNOWN,
@@ -2761,7 +2761,7 @@ enum game_mode_e
     GAME_MODE_8_BOTTLES_BONUS,
     GAME_MODE_9_BANJO_AND_KAZOOIE,
     GAME_MODE_A_SNS_PICTURE
-};
+} GameMode;
 
 typedef enum asset_e
 {

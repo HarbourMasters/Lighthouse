@@ -9,8 +9,10 @@
 #include "port/ui/LighthouseGui.hpp"
 #include "port/ui/cvar_prefixes.h"
 
+extern "C" {
 #include "enums.h"
 #include "prop.h"
+}
 
 #define DEFAULT_MAX_HEALTH 8
 #define DEFAULT_MAX_EGGS 100

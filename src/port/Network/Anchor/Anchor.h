@@ -24,7 +24,7 @@ extern "C" {
 typedef struct {
     uint32_t clientId;
     std::string name;
-    Color_RGB8 color;
+    //Color_RGB8 color;
     std::string clientVersion;
     std::string teamId;
     bool online;
@@ -32,36 +32,10 @@ typedef struct {
     uint32_t seed;
     bool isSaveLoaded;
     bool isGameComplete;
-    s16 sceneNum;
-    s8 curRoomNum;
+    GameMap mapId;
     s32 entranceIndex;
 
-    // Only available in PLAYER_UPDATE packets
-    s32 linkAge;
-    //PosRot posRot;
-    //Vec3s jointTable[24];
-    //u8 movementFlags;
-    //Vec3s prevTransl;
-    //Vec3s upperLimbRot;
-    s8 currentBoots;
-    s8 currentShield;
-    s8 currentTunic;
-    u32 stateFlags1;
-    u32 stateFlags2;
-    u8 buttonItem0;
-    s8 itemAction;
-    s8 heldItemAction;
-    u8 modelGroup;
-    s8 invincibilityTimer;
-    f32 unk_85C;
-    s16 unk_862;
-    s8 actionVar1;
-    u8 ocarinaNote;
-    f32 ocarinaModulator;
-    s8 ocarinaBend;
-
-    // Ptr to the dummy player
-    //Player* player;
+    DummyPlayer* dummy;
 } AnchorClient;
 
 typedef struct {
@@ -171,7 +145,9 @@ class Anchor : public Network {
     void SendPacket_GiveItem(u16 modId, s16 getItemId);
     void SendPacket_Handshake();
     void SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend);
+    void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth);
     void SendPacket_PlayerSfx(u16 sfxId);
+    void SendPacket_PlayerSubRangeChange(f32 duration, f32 end);
     void SendPacket_PlayerUpdate();
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);

@@ -724,6 +724,7 @@ ExternalProject_Add(TorchExternal
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/Torch
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/Torch -DENABLE_ASAN=${ENABLE_ASAN}
 )
+set_target_properties(TorchExternal PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 ExternalProject_Get_Property(TorchExternal install_dir)
 if (CMAKE_CONFIGURATION_TYPES)
   set(TORCH_EXECUTABLE ${install_dir}/src/TorchExternal-build/$<CONFIGURATION>/torch)

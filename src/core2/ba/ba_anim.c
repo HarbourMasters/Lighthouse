@@ -321,8 +321,6 @@ void baanim_playForDuration_onceSmoothStartingAt(enum asset_e anim_id, f32 durat
 void baanim_setEnd(f32 end_position){
     anctrl_setSubRange(playerAnimCtrl, 0.0f, end_position);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
-    // Caller (e.g. bsbarge_update) sets duration via anctrl_setDuration before
-    // calling this, so reading it back here captures the correct value.
     CALL_EVENT(OnPlayerAnimSubRangeChange,
         anctrl_getDuration(playerAnimCtrl),
         end_position);
@@ -337,8 +335,6 @@ void baanim_setEndAndDuration(f32 end_position, f32 duration){
 
 void baanim_onCtrlStart(AnimCtrl* ctrl) {
     if (ctrl == playerAnimCtrl) {
-        //AnimControl type = anctrl_getPlaybackType(ctrl);
-        //if (type == ANIMCTRL_STOPPED) return; // freeze-frame calls, not real animation starts
         CALL_EVENT(OnPlayerAnimChange,
             anctrl_getIndex(ctrl),
             anctrl_getDuration(ctrl),

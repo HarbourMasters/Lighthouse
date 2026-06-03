@@ -62,15 +62,15 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json payload) {
         AnchorClient client = payload["state"].get<AnchorClient>();
         clients[clientId].clientId = clientId;
         clients[clientId].name = client.name;
-        clients[clientId].color = client.color;
+        //clients[clientId].color = client.color;
         clients[clientId].clientVersion = client.clientVersion;
         clients[clientId].teamId = client.teamId;
         clients[clientId].online = client.online;
         clients[clientId].seed = client.seed;
         clients[clientId].isSaveLoaded = client.isSaveLoaded;
         clients[clientId].isGameComplete = client.isGameComplete;
-        clients[clientId].sceneNum = client.sceneNum;
-        clients[clientId].curRoomNum = client.curRoomNum;
+        clients[clientId].mapId = client.mapId;
+        //clients[clientId].curRoomNum = client.curRoomNum;
         clients[clientId].entranceIndex = client.entranceIndex;
     }
 }

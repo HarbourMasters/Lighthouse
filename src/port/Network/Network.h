@@ -3,14 +3,14 @@
 #ifdef __cplusplus
 
 #include <thread>
-#ifdef ENABLE_REMOTE_CONTROL
+#ifdef USE_NETWORKING
 #include <SDL2/SDL_net.h>
 #endif
 #include <nlohmann/json.hpp>
 
 class Network {
   private:
-#ifdef ENABLE_REMOTE_CONTROL
+#ifdef USE_NETWORKING
     IPaddress networkAddress;
     TCPsocket networkSocket;
 #endif

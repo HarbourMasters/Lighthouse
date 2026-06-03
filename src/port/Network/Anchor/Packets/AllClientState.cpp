@@ -19,13 +19,13 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
 
     // add new clients
     for (auto& client : newClients) {
-        if (client.self) {
+        /*if (client.self) {
             ownClientId = client.clientId;
             CVarSetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), ownClientId);
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
             clients[client.clientId].self = true;
-        } else {
-            clients[client.clientId].self = false;
+        } else {*/
+            //clients[client.clientId].self = false;
             if (clients.contains(client.clientId)) {
                 if (clients[client.clientId].online != client.online && !isGlobalRoom) {
                     Notification::Emit({
@@ -39,18 +39,18 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
                     .message = "Connected",
                 });
             }
-        }
+        //}
 
         clients[client.clientId].clientId = client.clientId;
         clients[client.clientId].name = client.name;
-        clients[client.clientId].color = client.color;
+        //clients[client.clientId].color = client.color;
         clients[client.clientId].clientVersion = client.clientVersion;
         clients[client.clientId].teamId = client.teamId;
         clients[client.clientId].online = client.online;
         clients[client.clientId].seed = client.seed;
         clients[client.clientId].isSaveLoaded = client.isSaveLoaded;
         clients[client.clientId].isGameComplete = client.isGameComplete;
-        clients[client.clientId].sceneNum = client.sceneNum;
+        clients[client.clientId].mapId = client.mapId;
         clients[client.clientId].entranceIndex = client.entranceIndex;
     }
 

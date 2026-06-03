@@ -276,6 +276,7 @@ void Anchor::RefreshClientActors() {
 }
 
 bool Anchor::IsSaveLoaded() {
+    getGameMode() == GAME_MODE_3_NORMAL || getGameMode() == GAME_MODE_4_PAUSED;
    /* if (gPlayState == nullptr) {
         return false;
     }
