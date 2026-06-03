@@ -14,7 +14,7 @@ int port_getDrawDistanceLevel(void) {
     return level;
 }
 
-int port_shouldForceHighPolyBanjo(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Graphics.AlwaysHighPolyBanjo"), 0);
+int port_shouldDisableLOD(void) {
+    return CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableLOD"), 0);
 }
 }

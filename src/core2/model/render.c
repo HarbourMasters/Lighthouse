@@ -864,10 +864,14 @@ void modelRender_geoCmd_LOADDL2(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2)
 void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd8 *cmd = (GeoCmd8 *)arg2;
     f32 dist;
-    
+
     if(cmd->subgeo_offset_1C){
-        mlMtx_apply_vec3f(transformed_pos, cmd->unk10);
-        dist = gu_sqrtf(transformed_pos[0]*transformed_pos[0] + transformed_pos[1]*transformed_pos[1] + transformed_pos[2]*transformed_pos[2]);
+        if(port_shouldDisableLOD()){
+            dist = 1.0f;
+        } else {
+            mlMtx_apply_vec3f(transformed_pos, cmd->unk10);
+            dist = gu_sqrtf(transformed_pos[0]*transformed_pos[0] + transformed_pos[1]*transformed_pos[1] + transformed_pos[2]*transformed_pos[2]);
+        }
         if(cmd->min_C < dist && dist <= cmd->max_8){
             modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->subgeo_offset_1C));
         }

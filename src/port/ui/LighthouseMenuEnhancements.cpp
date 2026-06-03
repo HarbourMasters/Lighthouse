@@ -53,14 +53,15 @@ void LighthouseMenu::AddMenuEnhancements() {
                      })
                      .DefaultIndex(0));
 
-    AddWidget(path, "Always High Poly Banjo", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Graphics.AlwaysHighPolyBanjo"))
+    AddWidget(path, "Disable LOD", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Graphics.DisableLOD"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Makes Banjo always use the high-polygon model, even in low-detail modes."));
+        .Options(CheckboxOptions().Tooltip(
+            "Forces maximum model detail everywhere."));
 
     AddWidget(path, "Original Aspect Ratio In Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.CutsceneAspect"))
-        .Options(CheckboxOptions().Tooltip("Force game to show original aspect ratio during cutscenes to avoid seeing "
+        .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
 
     // Enhancements -> Modes

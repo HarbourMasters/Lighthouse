@@ -215,7 +215,7 @@ s32 DummyPlayer::dummy_func_802985F0(void) {
             return ASSET_356_MODEL_BANJO_WISHYWASHY;
         case TRANSFORM_1_BANJO: // 80298654
         default:
-            if (port_shouldForceHighPolyBanjo()) {
+            if (port_shouldDisableLOD()) {
                 return ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY;
             }
             return ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY;

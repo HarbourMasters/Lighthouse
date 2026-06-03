@@ -51,7 +51,7 @@ float port_getRumbleScale(void);
 // Graphics (GraphicsPatches.cpp)
 
 int port_getDrawDistanceLevel(void);
-int port_shouldForceHighPolyBanjo(void);
+int port_shouldDisableLOD(void);
 
 // Mirror (MirrorPatches.cpp)
 
