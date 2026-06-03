@@ -86,9 +86,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
    // sp20;
 
     sp34 = ((fileProgressFlag_get(FILEPROG_B9_DOUBLE_HEALTH))? 2 : 1);
-    D_80385F30[ITEM_15_HEALTH_TOTAL] = port_shouldAllowAllHoneycombExtensions()
-        ? MIN(sp34*9, D_80385F30[ITEM_15_HEALTH_TOTAL])
-        : MIN(sp34*8, D_80385F30[ITEM_15_HEALTH_TOTAL]);
+    D_80385F30[ITEM_15_HEALTH_TOTAL] = MIN(sp34*8, D_80385F30[ITEM_15_HEALTH_TOTAL]);
     D_80385F30[ITEM_14_HEALTH]= MIN(D_80385F30[ITEM_15_HEALTH_TOTAL], D_80385F30[ITEM_14_HEALTH]);
     D_80385F30[ITEM_17_AIR] = MIN(3600, D_80385F30[ITEM_17_AIR]);
     D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = D_80385F30[ITEM_1C_MUMBO_TOKEN];
@@ -560,13 +558,9 @@ void func_8034789C(void) {
     sp1C = honeycombscore_get_total();
     D_80385F30[ITEM_13_EMPTY_HONEYCOMB] = sp1C % 6;
     if (fileProgressFlag_get(FILEPROG_B9_DOUBLE_HEALTH)) {
-        D_80385F30[ITEM_15_HEALTH_TOTAL] = port_shouldAllowAllHoneycombExtensions()
-            ? 18
-            : 16;
+        D_80385F30[ITEM_15_HEALTH_TOTAL] = 16;
     } else {
-        D_80385F30[ITEM_15_HEALTH_TOTAL] = port_shouldAllowAllHoneycombExtensions()
-            ? 5 + (sp1C / 6)
-            : 5 + MIN(3, (sp1C / 6));
+        D_80385F30[ITEM_15_HEALTH_TOTAL] = 5 + MIN(3, (sp1C / 6));
     }
     if (volatileFlag_get(VOLATILE_FLAG_94_SANDCASTLE_INFINITE_HEALTH)) {
         temp_v0 = D_80385F30[ITEM_15_HEALTH_TOTAL];

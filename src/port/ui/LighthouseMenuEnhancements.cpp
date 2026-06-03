@@ -193,13 +193,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
-    // TODO: All Honeycomb Extensions allows 9 honeycomb health bars instead of the 8 cap,
-    // but in 4:3 mode they overlap with the notes sprite in HUD
-    AddWidget(path, "All Honeycomb Extensions", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("AllHoneycombExtensions"))
+    AddWidget(path, "Honeyback Health Regen", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.Honeyback"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
-            "Removes the 3-extension health cap, allowing all 24 honeycombs to grant health bars."));
+            "Backports Banjo-Tooie's Honeyback: once all 24 empty honeycombs are collected, your health "
+            "slowly refills one honeycomb at a time after a short pause when you stop taking damage."));
 
     AddWidget(path, "Extra Time For GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"))

@@ -32,11 +32,6 @@ extern "C" int port_fixMumboTokenId(int ret, int pos[3], int map_id) {
     return ret;
 }
 
-// Honeycomb health cap removal
-extern "C" int port_shouldAllowAllHoneycombExtensions(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("AllHoneycombExtensions"), 0);
-}
-
 // Yum-Yum overflow crash: cap dropped collectibles to JP's limit of N on the ground
 // at once. Always on (a crash guard, not a toggle). Counts live actors.
 extern "C" int port_yumYumDropAllowed(int actorId, int maxOnGround) {
