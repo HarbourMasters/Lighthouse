@@ -2020,11 +2020,6 @@ void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker
 
     this = marker_getActor(marker);
     local = (ActorLocal_FinalBoss *)&this->local;
-#ifdef PORT_FIX
-    // [port] v1.1 fix: don't process hits in phase 5+ (prevents pushing defeated Grunty)
-    // Collision still fires (player bounces off), but Grunty ignores the hit.
-    if (local->phase >= 5) return;
-#endif
     switch (local->phase) {
     case 1:
         if (local->hits == 0) {
