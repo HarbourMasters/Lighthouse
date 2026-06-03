@@ -56,8 +56,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Disable LOD", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.DisableLOD"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Forces maximum model detail everywhere."));
+        .Options(CheckboxOptions().Tooltip("Forces maximum model detail everywhere."));
 
     AddWidget(path, "Original Aspect Ratio In Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.CutsceneAspect"))

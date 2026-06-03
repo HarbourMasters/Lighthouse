@@ -35,7 +35,7 @@ extern "C" int port_fixMumboTokenId(int ret, int pos[3], int map_id) {
 // Yum-Yum overflow crash: cap dropped collectibles to JP's limit of N on the ground
 // at once. Always on (a crash guard, not a toggle). Counts live actors.
 extern "C" int port_yumYumDropAllowed(int actorId, int maxOnGround) {
-    return actorArray_actorCount((enum actor_e) actorId) < maxOnGround;
+    return actorArray_actorCount((enum actor_e)actorId) < maxOnGround;
 }
 
 // Spelling: "Congo" -> "Conga"
