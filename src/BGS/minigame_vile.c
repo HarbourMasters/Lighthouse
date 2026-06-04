@@ -581,7 +581,11 @@ void chvilegame_free(Actor *this){
     ActorLocal_BGS_3420 *local;
 
     local = (ActorLocal_BGS_3420 *)&this->local;
+    // [port] Teardown ordering hazard: if Mr Vile is freed before this controller, its skeletal
+    // anim (unk148) is already NULL and func_8038A068(this, 0) -> skeletalAnim_set crashes. Skip it.
+#if 0
     func_8038A068(this, 0);
+#endif
     bk_vector_free(local->game_pieces);
     assetcache_release(local->grumblie_model_bin);
 }
