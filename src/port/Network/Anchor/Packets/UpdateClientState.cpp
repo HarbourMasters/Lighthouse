@@ -28,21 +28,19 @@ nlohmann::json Anchor::PrepClientState() {
     payload["teamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["online"] = true;
 
-    /*if (IsSaveLoaded()) {
-        payload["seed"] = IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : 0;
+    if (IsSaveLoaded()) {
+        payload["seed"] = /*IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : */0;
         payload["isSaveLoaded"] = true;
-        payload["isGameComplete"] = gSaveContext.ship.stats.gameComplete;
-        payload["sceneNum"] = gPlayState->sceneNum;
-        payload["curRoomNum"] = gPlayState->roomCtx.curRoom.num;
-        payload["entranceIndex"] = gSaveContext.entranceIndex;
+        payload["isGameComplete"] = false;
+        payload["map"] = gsworld_getMap();
+        payload["exit"] = gsworld_getExit();
     } else {
         payload["seed"] = 0;
         payload["isSaveLoaded"] = false;
         payload["isGameComplete"] = false;
-        payload["sceneNum"] = SCENE_ID_MAX;
-        payload["curRoomNum"] = -1;
-        payload["entranceIndex"] = 0x00;
-    }*/
+        payload["map"] = -1;
+        payload["exit"] = 0x00;
+    }
 
     return payload;
 }

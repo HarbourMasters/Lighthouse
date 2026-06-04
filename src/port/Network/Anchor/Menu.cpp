@@ -21,8 +21,8 @@ void AnchorMainMenu(WidgetInfo& info) {
     std::string anchorTeamId = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     std::string anchorRoomId = CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "");
     std::string anchorName = CVarGetString(CVAR_REMOTE_ANCHOR("Name"), "");
-    /*bool isFormValid = !ShipUtils::IsStringEmpty(host) && port > 1024 && port < 65535 &&
-                       !SohUtils::IsStringEmpty(anchorRoomId) && !SohUtils::IsStringEmpty(anchorName);*/
+    bool isFormValid = !host.empty() && port > 1024 && port < 65535 &&
+                       !anchorRoomId.empty() && !anchorName.empty();
 
     ImGui::SeparatorText("Connection Settings");
 
@@ -98,7 +98,7 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::Spacing();
 
-    //ImGui::BeginDisabled(!isFormValid);
+    ImGui::BeginDisabled(!isFormValid);
     const char* buttonLabel = anchor->isEnabled ? "Disable" : "Enable";
     UIWidgets::PushStyleButton(anchor->isEnabled ? UIWidgets::ColorValues.at(UIWidgets::Colors::Red)
                                                  : UIWidgets::ColorValues.at(UIWidgets::Colors::Green));

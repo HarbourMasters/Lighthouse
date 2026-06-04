@@ -14,7 +14,7 @@
 void Anchor::SendPacket_Handshake() {
     nlohmann::json payload;
     payload["type"] = HANDSHAKE;
-    payload["roomId"] = CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "");
+    payload["roomId"] = "LH" + std::string(CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
     payload["roomState"] = PrepRoomState();
     payload["clientState"] = PrepClientState();
 

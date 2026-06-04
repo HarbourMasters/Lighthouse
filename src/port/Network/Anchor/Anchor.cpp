@@ -248,35 +248,11 @@ void Anchor::RefreshClientActors() {
         return;
     }
 
-    //Actor* actor = gPlayState->actorCtx.actorLists[ACTORCAT_NPC].head;
-
-    //while (actor != NULL) {
-    //    if (actor->id == ACTOR_EN_OE2 && actor->update == DummyPlayer_Update) {
-    //        NameTag_RemoveAllForActor(actor);
-    //        Actor_Kill(actor);
-    //    }
-    //    actor = actor->next;
-    //}
-
-    //for (auto& [clientId, client] : clients) {
-    //    if (!client.online || client.self) {
-    //        continue;
-    //    }
-
-    //    spawningDummyPlayerForClientId = clientId;
-    //    // We are using a hook `ShouldActorInit` to override the init/update/draw/destroy functions of the Player we
-    //    // spawn We quickly store a mapping of "index" to clientId, then within the init function we use this to get the
-    //    // clientId and store it on player->zTargetActiveTimer (unused s32 for the dummy) for convenience
-    //    auto dummy =
-    //        Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_PLAYER, client.posRot.pos.x, client.posRot.pos.y,
-    //                    client.posRot.pos.z, client.posRot.rot.x, client.posRot.rot.y, client.posRot.rot.z, 0);
-    //    client.player = (Player*)dummy;
-    //}
     spawningDummyPlayerForClientId = 0;
 }
 
 bool Anchor::IsSaveLoaded() {
-    getGameMode() == GAME_MODE_3_NORMAL || getGameMode() == GAME_MODE_4_PAUSED;
+    return getGameMode() == GAME_MODE_3_NORMAL || getGameMode() == GAME_MODE_4_PAUSED;
    /* if (gPlayState == nullptr) {
         return false;
     }
@@ -293,5 +269,5 @@ bool Anchor::IsSaveLoaded() {
         return false;
     }*/
 
-    return true;
+    //return true;
 }

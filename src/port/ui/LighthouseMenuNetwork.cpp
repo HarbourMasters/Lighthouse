@@ -29,8 +29,7 @@ void LighthouseMenu::AddMenuNetwork() {
         .Options(UIWidgets::TextOptions().Color(UIWidgets::Colors::Orange));
     return;
 #endif
-
-    AddSidebarEntry("Network", path.sidebarName, 2);
+    AddSidebarEntry("Network", "Anchor", 2);
 }
 
 } // namespace LighthouseGui

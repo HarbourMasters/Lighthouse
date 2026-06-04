@@ -318,6 +318,10 @@ void GameEngine::FinishInit() {
     lhFast3dWindow->SetMaximumFrameLatency(1);
     lhFast3dWindow->SetRendererUCode(ucode_f3d);
 
+#ifdef USE_NETWORKING
+    SDLNet_Init();
+#endif
+
     auto loader = context->GetResourceManager()->GetResourceLoader();
     loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinarySpriteV0>(),
                                     RESOURCE_FORMAT_BINARY, "Sprite",
@@ -921,6 +925,9 @@ void GameEngine::Create(int argc, char* argv[]) {
                 }
             }
         }
+#ifdef USE_NETWORKING
+        SDLNet_Quit();
+#endif
     });
 }
 

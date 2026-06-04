@@ -32,8 +32,8 @@ typedef struct {
     uint32_t seed;
     bool isSaveLoaded;
     bool isGameComplete;
-    GameMap mapId;
-    s32 entranceIndex;
+    GameMap map;
+    s32 exit;
 
     DummyPlayer* dummy;
 } AnchorClient;
