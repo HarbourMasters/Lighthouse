@@ -123,6 +123,19 @@ int port_getCutsceneExtraVis(void) {
     return extra;
 }
 
+int port_getInterpolationFpsCap(void) {
+    if (!CVarGetInteger(CVAR_CUTSCENE_SYNC, 1))
+        return 0;
+
+    switch (gsworld_getMap()) {
+        // [port] Cap concert to 30 fps
+        case MAP_1E_CS_START_NINTENDO:
+            return 30;
+        default:
+            return 0;
+    }
+}
+
 } // extern "C"
 
 void RegisterFramePacingPatches_Init() {

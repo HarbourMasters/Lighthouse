@@ -1293,6 +1293,12 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = (int)AdaptiveFps_Cap((uint32_t)GameEngine::Instance->GetInterpolationFPS());
 
+    // [port] Some music-synced cutscenes cap interpolation at native 30
+    int fpsCap = port_getInterpolationFpsCap();
+    if (fpsCap > 0 && target_fps > fpsCap) {
+        target_fps = fpsCap;
+    }
+
     // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
     // replay and cutscene stutter raise it for slow N64 frames.
     int viPerTick = port_getDemoViCount();

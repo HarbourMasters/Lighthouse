@@ -13,6 +13,7 @@ int port_getDemoViCount(void);
 void port_setDemoViCount(int viCount);
 int port_getDemoDisplayViCount(int rawViCount);
 int port_getCutsceneExtraVis(void);
+int port_getInterpolationFpsCap(void);
 
 // Framebuffer (FramebufferPatches.cpp)
 
