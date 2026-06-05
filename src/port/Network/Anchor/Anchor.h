@@ -66,13 +66,13 @@ class Anchor : public Network {
     void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
     void DrawDummies(OnWorldDraw* event);
     void ClearDummies();
+    void PopulateDummies();
     void RegisterDummy(DummyPlayer* dummy, uint32_t clientID);
     std::unordered_map<uint32_t, DummyPlayer*>* GetDummies();
     void UpdateDummies();
     void RemoveDummy(uint32_t clientId);
 
     void HandlePacket_AllClientState(nlohmann::json payload);
-    void HandlePacket_ConsumeAdultTradeItem(nlohmann::json payload);
     void HandlePacket_DamagePlayer(nlohmann::json payload);
     void HandlePacket_DisableAnchor(nlohmann::json payload);
     void HandlePacket_EntranceDiscovered(nlohmann::json payload);

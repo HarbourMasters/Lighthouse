@@ -221,6 +221,14 @@ void Anchor::ClearDummies() {
     dummies.clear();
 }
 
+void Anchor::PopulateDummies() {
+    for (const auto& [clientId, client] : clients) {
+        if (client.map == gsworld_getMap()) {
+            RegisterDummy(client.dummy, clientId);
+        }
+    }
+}
+
 std::unordered_map<uint32_t, DummyPlayer*>* Anchor::GetDummies() {
     return &dummies;
 }
@@ -233,8 +241,6 @@ void Anchor::UpdateDummies() {
 
 void Anchor::RemoveDummy(uint32_t clientId) {
     if (dummies.contains(clientId)) {
-        dummies.at(clientId)->dummy_free();
-        delete dummies.at(clientId);
         dummies.erase(clientId);
     }
 }

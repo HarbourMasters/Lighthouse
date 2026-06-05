@@ -29,6 +29,10 @@ void DummyPlayer::dummy_setTransformation(Transformation transform) {
     dummy_transformation = transform;
 }
 
+Transformation DummyPlayer::dummy_getTransformation() {
+    return dummy_transformation;
+}
+
 void DummyPlayer::dummy_getPosition(f32 arg0[3]){
     ml_vec3f_copy(arg0, dummyPosition);
 }
@@ -318,13 +322,12 @@ void DummyPlayer::dummy_update(void) {
         } else if (dir != PLAYER_MODEL_DIR_GLOBAL) {
             dummy_setYaw(player_getYaw());
         }
-        // PLAYER_MODEL_DIR_GLOBAL: yaw is set externally, don't overwrite it.
     }
     dummy_setRoll(roll_get());
     dummy_setPitch(pitch_get());
     // Mirror anim velocity-scale state from the local player.
     // For a real remote player these come from network packets instead.
-    dummyAnimState = baanim_getUpdateType();
+    dummyAnimUpdateType = baanim_getUpdateType();
     baphysics_get_velocity(dummyVelocity);
     baanim_getVelocityMapRanges(
         &dummyAnimScale.velocity_min, &dummyAnimScale.velocity_max,
@@ -341,8 +344,8 @@ void DummyPlayer::dummy_update(void) {
     // duration from velocity instead.
     // For real networking, send anctrl_getDuration(playerAnimCtrl) in the
     // per-tick PlayerUpdate packet and call dummyAnim_setLiveDuration() here.
-    if (dummyAnimState != BAANIM_UPDATE_2_SCALE_HORZ &&
-        dummyAnimState != BAANIM_UPDATE_3_SCALE_VERT) {
+    if (dummyAnimUpdateType != BAANIM_UPDATE_2_SCALE_HORZ &&
+        dummyAnimUpdateType != BAANIM_UPDATE_3_SCALE_VERT) {
         anctrl_setDuration(dummyAnimCtrl, anctrl_getDuration(baanim_getAnimCtrlPtr()));
     }
 
@@ -578,7 +581,7 @@ void DummyPlayer::dummyAnim_init(void){
     //func_8028746C(dummyAnimCtrl, __baanim_applyBottlesBonus);
     //AnimModifyFunction = NULL;
     anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
-    dummyAnimState = BAANIM_UPDATE_0_NONE;
+    dummyAnimUpdateType = BAANIM_UPDATE_0_NONE;
     //__baanim_setUpdateType(BAANIM_UPDATE_1_NORMAL);
     dummyAnimMinDuration = 0.01f;
     dummyAnimMaxDuration = 100.0f;
@@ -605,7 +608,7 @@ void DummyPlayer::dummyAnim_update(void){
     // __baanim_update_scaleToVerticalVelocity in ba_anim.c.
     // For the local clone, dummyVelocity is populated from baphysics each frame.
     // For a real remote player it comes from network packets.
-    switch(dummyAnimState) {
+    switch(dummyAnimUpdateType) {
         case BAANIM_UPDATE_2_SCALE_HORZ:
             scale = (dummyAnimScale.scalable_duration != 0) ? dummyAnimScale.duration_scale : 1.0f;
             horiz_speed = gu_sqrtf(dummyVelocity[0]*dummyVelocity[0] + dummyVelocity[2]*dummyVelocity[2]);
@@ -627,7 +630,7 @@ void DummyPlayer::dummyAnim_update(void){
 }
 
 void DummyPlayer::dummyAnim_setUpdateType(s32 state) {
-    dummyAnimState = state;
+    dummyAnimUpdateType = state;
 }
 
 void DummyPlayer::dummyAnim_setVelocity(f32 vel[3]) {

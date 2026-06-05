@@ -26,9 +26,7 @@ void Anchor::RegisterHooks() {
     COND_HOOK(MapTransitionEnd, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         Anchor::GetInstance()->ClearDummies();
         // Test: spawn one dummy at player pos + X offset
-        DummyPlayer* dummy = new DummyPlayer();
-        dummy->dummy_reset();
-        Anchor::GetInstance()->RegisterDummy(dummy, 0);
+        Anchor::GetInstance()->PopulateDummies();
     });
 
     COND_HOOK(OnWorldDraw, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
@@ -75,9 +73,7 @@ void Anchor::RegisterHooks() {
     });
 
     COND_HOOK(OnPlayerAnimReset, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        if (Anchor::GetInstance()->GetDummies()->size() > 0) {
-            Anchor::GetInstance()->GetDummies()->at(0)->dummyAnim_reset();
-        }
+        SendPacket_PlayerAnimReset();
     });
 
     COND_HOOK(OnPlayerAnimChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {

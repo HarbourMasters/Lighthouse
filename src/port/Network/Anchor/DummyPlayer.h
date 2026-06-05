@@ -50,6 +50,7 @@ class DummyPlayer {
     void dummy_setRoll(f32 roll);
     void dummy_setScale(f32 scale);
     void dummy_setTransformation(Transformation transform);
+    Transformation dummy_getTransformation();
     void dummy_setVisible(s32 arg0);
     void dummy_setYDisplacement(f32 arg0);
     void dummy_setYaw(f32 yaw);
@@ -96,7 +97,7 @@ class DummyPlayer {
     f32 dummyRoll;
     f32 dummyYaw;
     f32 dummyPosition[3];
-    s32 dummyAnimState;
+    AnimUpdateType dummyAnimUpdateType;
     f32 dummyAnimMinDuration;
     f32 dummyAnimMaxDuration;
     struct {
