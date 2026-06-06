@@ -86,6 +86,7 @@ static void updateCutsceneAspect(int32_t mapId) {
 // Widescreen yaw fix — per-frame yaw adjustment for certain static cameras in widescreen mode
 
 #define CVAR_WS_CAMERA_FIX CVAR_ENHANCEMENT("Fix.WidescreenCamera")
+#define CVAR_CENTER_SFX CVAR_ENHANCEMENT("Fixes.CenterSfx")
 
 struct WsYawFix {
     int32_t map;
@@ -120,6 +121,19 @@ extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
 }
 
 // Event listeners
+
+// Center the pan for the looping SFX — TeeHee (0x3F4) and Sir Slush (0x3F5). On N64 these play
+// hard-panned by camera angle (which the port reproduces faithfully), but isolated almost entirely
+// in one channel they can read as a thin "bleating" warble. When enabled, this gate makes source.c
+// skip the camera-relative pan (func_8030CDE4) and center these two sounds (0x40). Opt-in/default off.
+void RegisterCenterSfx_Init() {
+    COND_VB_SHOULD(VB_POSITIONAL_SFX_PAN, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CENTER_SFX, 0), {
+        int16_t uid = *va_arg(args, int16_t*);
+        if (uid == 0x3F4 || uid == 0x3F5)
+            *should = false;
+    });
+}
+
 void RegisterCutsceneAspect() {
     ResetCutsceneAspect();
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CUTSCENE_ASPECT, 0), [](IEvent* event) {
@@ -158,5 +172,6 @@ void RegisterCameraPatches_Init() {
     });
 }
 
+static RegisterShipInitFunc centerSfxInitFunc(RegisterCenterSfx_Init, { CVAR_CENTER_SFX });
 static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });
 static RegisterShipInitFunc staticCamInitFunc(RegisterCameraPatches_Init);

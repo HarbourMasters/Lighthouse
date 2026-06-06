@@ -304,7 +304,8 @@ s32 func_8030D10C(u8 indx){
             if(tmp_v0 < 100)
                 sp24 = 1;
             func_8030D004(ptr->unk40, func_8030D038(ptr, tmp_v0));
-            func_8030CF9C(ptr->unk40, func_8030CDE4(ptr));
+            func_8030CF9C(ptr->unk40,
+                          EventSystem_Should(VB_POSITIONAL_SFX_PAN, true, &ptr->sfx_uid) ? func_8030CDE4(ptr) : 0x40);
         }else{//L8030D288
             if(sfxsource_isFlagSet(ptr, SFX_SRC_FLAG_3_UNKOWN)){
                 tmp_v0 = func_8030D038(ptr, ptr->sample_rate);

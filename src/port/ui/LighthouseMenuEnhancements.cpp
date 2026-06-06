@@ -168,6 +168,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Adjusts static camera angles in widescreen to prevent skybox "
                                            "exposure at the edges of the screen."));
 
+    AddWidget(path, "Center Enemy SFX", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.CenterSfx"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Centers the TeeHee and Sir Slush sound effects so they sound similar to N64 at distance."));
+
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);
