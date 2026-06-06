@@ -31,6 +31,7 @@ extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language inde
 // Dialog language state — detected at boot from o2r version
 static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
 static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
+static bool sIsJapanese = false;     // true when a JP o2r is loaded
 
 namespace {
 const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
@@ -104,6 +105,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             if (symbolMap.find(3628) != symbolMap.end()) {
                 remapTable = &sV10toJPRemap;
                 versionName = "JP";
+                sIsJapanese = true;
             } else {
                 remapTable = &sV10toPALRemap;
                 versionName = "PAL";
@@ -135,6 +137,10 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
 
 extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
+}
+
+extern "C" int ResourceMgr_IsJapanese(void) {
+    return sIsJapanese ? 1 : 0;
 }
 
 extern "C" int ResourceMgr_GetDialogLanguage(void) {
