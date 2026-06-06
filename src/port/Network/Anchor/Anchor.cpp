@@ -154,6 +154,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_OcarinaSfx(payload);
             else if (packetType == PLAYER_ANIM)
                 HandlePacket_PlayerAnimChange(payload);
+            else if (packetType == PLAYER_SUBRANGE)
+                HandlePacket_PlayerSubRangeChange(payload);
             else if (packetType == PLAYER_UPDATE)
                 HandlePacket_PlayerUpdate(payload);
             else if (packetType == PLAYER_SFX)
@@ -216,10 +218,6 @@ void Anchor::DrawDummies(OnWorldDraw* event) {
 }
 
 void Anchor::ClearDummies() {
-    for (const auto& [id, dummy] : dummies) {
-        dummy->dummy_free();
-        delete dummy;
-    }
     dummies.clear();
 }
 

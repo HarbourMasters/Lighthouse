@@ -112,6 +112,7 @@ private:
     AnimCtrl* dummyAnimCtrl;
     f32 dummyVelocity[3];
     ActorMarker *dummyMarker;
+    Actor *dummyActor;
     f32 dummy_D_8037C100[3];
     f32 dummy_D_8037C110[3];
     f32 dummyDisplacement[3];

@@ -5,6 +5,7 @@ extern "C" {
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+void func_802D729C(Actor *actor, f32 arg1);
 }
 
 #include "bk_math.h"
@@ -274,17 +275,22 @@ void DummyPlayer::dummy_reset(void){
     if(!func_8028ADB4())
         dummy_updateModel();
     dummy_getPosition(plyr_pos);
-    __spawnQueue_add_4((GenFunction_4)spawnQueue_actor_f32,
-        ACTOR_17_PLAYER_SHADOW, 
-        reinterpret_cast(s32, plyr_pos[0]), 
-        reinterpret_cast(s32, plyr_pos[1]), 
-        reinterpret_cast(s32, plyr_pos[2])
-    );
+    dummyActor = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, plyr_pos, 0);
     dummyAnim_init();
     dummyAnim_reset();
 }
 
 void DummyPlayer::dummy_free(void) {
+    if (dummyActor) {
+        if (dummyActor->unk104) {
+            Actor *shadow = marker_getActor(dummyActor->unk104);
+            shadow->unk104 = NULL;
+            shadow->despawn_flag = true;
+            dummyActor->unk104 = NULL;
+        }
+        marker_despawn(dummyActor->marker);
+        dummyActor = NULL;
+    }
     assetcache_release(dummyBin);
     dummyBin = NULL;
     dummyId = ASSET_0_NONE;
@@ -361,6 +367,14 @@ void DummyPlayer::dummy_update(void) {
     //dummy_modelEyeBlendUpper = func_8029DFC8(); // eye blend upper
     //dummy_modelEyeBlendLower = func_8029DFD4(); // eye blend lower
     dummyAnim_update();
+
+    if (dummyActor && !dummyActor->despawn_flag) {
+        dummyActor->position[0] = dummyPosition[0];
+        dummyActor->position[1] = dummyPosition[1];
+        dummyActor->position[2] = dummyPosition[2];
+        func_802D729C(dummyActor, 1.0f);
+    }
+
 //    f32 sp1C;
 //    f32 temp_f0;
 //

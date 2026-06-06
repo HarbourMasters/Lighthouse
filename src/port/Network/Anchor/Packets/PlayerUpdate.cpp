@@ -30,7 +30,27 @@ void Anchor::SendToCurrentMapPlayers(nlohmann::json& payload) {
 }
 
 void Anchor::SendPacket_PlayerSubRangeChange(f32 duration, f32 end) {
+    if (!IsSaveLoaded() || GetCurrentMapPlayers() == 0) {
+        return;
+    }
 
+    nlohmann::json payload;
+    payload["type"] = PLAYER_SUBRANGE;
+    payload["duration"] = duration;
+    payload["end"] = end;
+
+    SendToCurrentMapPlayers(payload);
+}
+
+void Anchor::HandlePacket_PlayerSubRangeChange(nlohmann::json& payload) {
+    uint32_t clientId = payload["clientId"].get<uint32_t>();
+
+    if (clients.contains(clientId)) {
+        auto& client = clients[clientId];
+        client.dummy->dummyAnim_setEndAndDuration(
+            payload.value("end", 1.0f),
+            payload.value("duration", 0.0f));
+    }
 }
 
 void Anchor::HandlePacket_PlayerAnimChange(nlohmann::json& payload) {
