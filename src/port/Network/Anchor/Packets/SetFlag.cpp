@@ -32,7 +32,7 @@ void Anchor::SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag) {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_SetFlag(nlohmann::json payload) {
+void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }

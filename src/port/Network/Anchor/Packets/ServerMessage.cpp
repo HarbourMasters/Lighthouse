@@ -8,7 +8,7 @@
  * SERVER_MESSAGE
  */
 
-void Anchor::HandlePacket_ServerMessage(nlohmann::json payload) {
+void Anchor::HandlePacket_ServerMessage(nlohmann::json& payload) {
     Notification::Emit({
         .prefix = "Server:",
         .prefixColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f),

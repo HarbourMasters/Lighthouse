@@ -37,7 +37,7 @@ void Anchor::SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend) {
     //}
 }
 
-void Anchor::HandlePacket_OcarinaSfx(nlohmann::json payload) {
+void Anchor::HandlePacket_OcarinaSfx(nlohmann::json& payload) {
     uint32_t clientId = payload.at("clientId").get<uint32_t>();
     uint8_t note = payload.at("note").get<uint8_t>();
     float modulator = payload.at("modulator").get<float>();

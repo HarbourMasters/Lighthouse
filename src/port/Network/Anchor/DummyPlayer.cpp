@@ -70,12 +70,12 @@ void DummyPlayer::dummy_func_8029DBF0(void){
     switch(dummy_getModelId()){
     case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY: //L8029DC24
     case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY: //L8029DC24
-        temp_s0 = (s32) ml_interpolate_f(dummy_D_8037D23C, 1.0f, 8.0f);
+        temp_s0 = (s32) ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 8.0f);
         func_8033A45C(0x1B, temp_s0);
         func_8033A45C(0x1D, temp_s0);
         func_8033A45C(0x1F, temp_s0);
         func_8033A45C(0x21, temp_s0);
-        temp_s0 = (s32) ml_interpolate_f(dummy_D_8037D240, 1.0f, 8.0f);
+        temp_s0 = (s32) ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 8.0f);
         func_8033A45C(0x1A, temp_s0);
         func_8033A45C(0x1C, temp_s0);
         func_8033A45C(0x1E, temp_s0);
@@ -86,12 +86,12 @@ void DummyPlayer::dummy_func_8029DBF0(void){
     case ASSET_359_MODEL_BANJO_WALRUS: //L8029DCCC
     case ASSET_36F_MODEL_BANJO_PUMPKIN: //L8029DCCC
     case ASSET_374_MODEL_BANJO_CROC: //L8029DCCC
-        func_8033A45C(0x1B, (s32) ml_interpolate_f(dummy_D_8037D23C, 1.0f, 6.0f));
-        func_8033A45C(0x1A, (s32) ml_interpolate_f(dummy_D_8037D240, 1.0f, 6.0f));
+        func_8033A45C(0x1B, (s32) ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 6.0f));
+        func_8033A45C(0x1A, (s32) ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 6.0f));
         break;
 
     case ASSET_356_MODEL_BANJO_WISHYWASHY: //L8029DD2C
-        func_8033A45C(1, (s32) ml_interpolate_f(dummy_D_8037D240, 1.0f, 4.0f));
+        func_8033A45C(1, (s32) ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 4.0f));
         break;
     }
 }
@@ -101,8 +101,8 @@ AnimCtrl* DummyPlayer::dummy_getAnimCtrl() {
 }
 
 void DummyPlayer::dummy_setEyeState(bool squint, bool wink, bool isHat) {
-    dummy_D_8037D235 = squint;
-    dummy_D_8037D236 = wink;
+    dummy_modelSquint = squint;
+    dummy_modelWink = wink;
     dummy_D_8037D230 = 1.0f;
     dummy_D_8037D234 = isHat;
 }
@@ -114,19 +114,19 @@ void DummyPlayer::func_8029DD6C(void) {
     switch (dummy_getModelId()) {
     case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
     case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
-        func_8033A45C(1, dummy_D_8037D238);
-        func_8033A45C(9, dummy_D_8037D238);
-        func_8033A45C(0xC, dummy_D_8037D238);
-        func_8033A45C(0xF, dummy_D_8037D238);
-        func_8033A45C(2, dummy_D_8037D236);
-        func_8033A45C(0xA, dummy_D_8037D236);
-        func_8033A45C(0xD, dummy_D_8037D236);
-        func_8033A45C(0x10, dummy_D_8037D236);
-        func_8033A45C(8, dummy_D_8037D235);
-        func_8033A45C(0xB, dummy_D_8037D235);
-        func_8033A45C(0xE, dummy_D_8037D235);
-        func_8033A45C(0x11, dummy_D_8037D235);
-        temp_s0 = dummy_D_8037D237 + 1;
+        func_8033A45C(1, dummy_kazooieVisible);
+        func_8033A45C(9, dummy_kazooieVisible);
+        func_8033A45C(0xC, dummy_kazooieVisible);
+        func_8033A45C(0xF, dummy_kazooieVisible);
+        func_8033A45C(2, dummy_modelWink);
+        func_8033A45C(0xA, dummy_modelWink);
+        func_8033A45C(0xD, dummy_modelWink);
+        func_8033A45C(0x10, dummy_modelWink);
+        func_8033A45C(8, dummy_modelSquint);
+        func_8033A45C(0xB, dummy_modelSquint);
+        func_8033A45C(0xE, dummy_modelSquint);
+        func_8033A45C(0x11, dummy_modelSquint);
+        temp_s0 = dummy_modelMouth1 + 1;
         func_8033A45C(0x12, temp_s0);
         func_8033A45C(0x14, temp_s0);
         func_8033A45C(0x16, temp_s0);
@@ -135,7 +135,7 @@ void DummyPlayer::func_8029DD6C(void) {
         func_8033A45C(0x15, temp_s0);
         func_8033A45C(0x17, temp_s0);
         func_8033A45C(0x19, temp_s0);
-        temp_s0 = dummy_D_8037D239 + 1;
+        temp_s0 = dummy_modelMouth2 + 1;
         func_8033A45C(0x22, temp_s0);
         func_8033A45C(0x24, temp_s0);
         func_8033A45C(0x26, temp_s0);
@@ -149,7 +149,7 @@ void DummyPlayer::func_8029DD6C(void) {
         func_8033A45C(3, dummy_D_8037D23A);
         break;
     case ASSET_374_MODEL_BANJO_CROC:
-        temp_s0 = dummy_D_8037D237 + 1;
+        temp_s0 = dummy_modelMouth1 + 1;
         func_8033A45C(4, temp_s0);
         func_8033A45C(5, temp_s0);
         func_8033A45C(6, temp_s0);
@@ -296,70 +296,70 @@ void DummyPlayer::dummy_free(void) {
 void DummyPlayer::dummyAnim_reset() {
     dummy_D_8037D230 = 0;
     dummy_D_8037D234 = 0;
-    dummy_D_8037D238 = 0;
-    dummy_D_8037D236 = 0;
-    dummy_D_8037D235 = 0;
-    dummy_D_8037D23C = 0.0f;
-    dummy_D_8037D240 = 0.0f;
-    dummy_D_8037D237 = 0;
-    dummy_D_8037D239 = 0;
+    dummy_kazooieVisible = 0;
+    dummy_modelWink = 0;
+    dummy_modelSquint = 0;
+    dummy_modelEyeBlendUpper = 0.0f;
+    dummy_modelEyeBlendLower = 0.0f;
+    dummy_modelMouth1 = 0;
+    dummy_modelMouth2 = 0;
     dummy_D_8037D23A = 0;
 }
 
 void DummyPlayer::dummy_update(void) {
-    f32 pos[3];
-    player_getPosition(pos);
-    pos[0] += 100;
-    dummy_setPoisition(pos);
-    dummy_setTransformation((Transformation)player_getTransformation());
-    // Mirror model direction and apply the same yaw flip as _baModel_updateModelYaw:
-    // PLAYER_MODEL_DIR_KAZOOIE adds 180° so Kazooie faces the direction of travel.
-    {
-        PlayerModelDirection dir = (PlayerModelDirection)baModel_getDirection();
-        dummy_setDirection(dir);
-        if (dir == PLAYER_MODEL_DIR_KAZOOIE) {
-            dummy_setYaw(mlNormalizeAngle(player_getYaw() + 180.0f));
-        } else if (dir != PLAYER_MODEL_DIR_GLOBAL) {
-            dummy_setYaw(player_getYaw());
-        }
-    }
-    dummy_setRoll(roll_get());
-    dummy_setPitch(pitch_get());
-    // Mirror anim velocity-scale state from the local player.
-    // For a real remote player these come from network packets instead.
-    dummyAnimUpdateType = baanim_getUpdateType();
-    baphysics_get_velocity(dummyVelocity);
-    baanim_getVelocityMapRanges(
-        &dummyAnimScale.velocity_min, &dummyAnimScale.velocity_max,
-        &dummyAnimScale.duration_min, &dummyAnimScale.duration_max);
-    dummyAnimScale.duration_scale   = baanim_getDurationScale();
-    dummyAnimScale.scalable_duration = baanim_isScalableDuration();
-    baanim_getDurationRange(&dummyAnimMinDuration, &dummyAnimMaxDuration);
+    //f32 pos[3];
+    //player_getPosition(pos);
+    //pos[0] += 100;
+    //dummy_setPoisition(pos);
+    //dummy_setTransformation((Transformation)player_getTransformation());
+    //// Mirror model direction and apply the same yaw flip as _baModel_updateModelYaw:
+    //// PLAYER_MODEL_DIR_KAZOOIE adds 180° so Kazooie faces the direction of travel.
+    //{
+    //    PlayerModelDirection dir = baModel_getDirection();
+    //    dummy_setDirection(dir);
+    //    if (dir == PLAYER_MODEL_DIR_KAZOOIE) {
+    //        dummy_setYaw(mlNormalizeAngle(player_getYaw() + 180.0f));
+    //    } else if (dir != PLAYER_MODEL_DIR_GLOBAL) {
+    //        dummy_setYaw(player_getYaw());
+    //    }
+    //}
+    //dummy_setRoll(roll_get());
+    //dummy_setPitch(pitch_get());
+    //// Mirror anim velocity-scale state from the local player.
+    //// For a real remote player these come from network packets instead.
+    //dummyAnimUpdateType = baanim_getUpdateType();
+    //baphysics_get_velocity(dummyVelocity);
+    //baanim_getVelocityMapRanges(
+    //    &dummyAnimScale.velocity_min, &dummyAnimScale.velocity_max,
+    //    &dummyAnimScale.duration_min, &dummyAnimScale.duration_max);
+    //dummyAnimScale.duration_scale   = baanim_getDurationScale();
+    //dummyAnimScale.scalable_duration = baanim_isScalableDuration();
+    //baanim_getDurationRange(&dummyAnimMinDuration, &dummyAnimMaxDuration);
 
-    // For non-velocity-scaled states, mirror the player's live animation duration
-    // directly each frame. This covers moves like feathery flap where the BS state
-    // calls anctrl_setDuration on playerAnimCtrl each tick to step through a
-    // slowdown table — no anctrl_start fires, so no event captures these changes.
-    // Velocity-scaled states (walk/run) skip this: dummyAnim_update derives their
-    // duration from velocity instead.
-    // For real networking, send anctrl_getDuration(playerAnimCtrl) in the
-    // per-tick PlayerUpdate packet and call dummyAnim_setLiveDuration() here.
-    if (dummyAnimUpdateType != BAANIM_UPDATE_2_SCALE_HORZ &&
-        dummyAnimUpdateType != BAANIM_UPDATE_3_SCALE_VERT) {
-        anctrl_setDuration(dummyAnimCtrl, anctrl_getDuration(baanim_getAnimCtrlPtr()));
-    }
+    //// For non-velocity-scaled states, mirror the player's live animation duration
+    //// directly each frame. This covers moves like feathery flap where the BS state
+    //// calls anctrl_setDuration on playerAnimCtrl each tick to step through a
+    //// slowdown table — no anctrl_start fires, so no event captures these changes.
+    //// Velocity-scaled states (walk/run) skip this: dummyAnim_update derives their
+    //// duration from velocity instead.
+    //// For real networking, send anctrl_getDuration(playerAnimCtrl) in the
+    //// per-tick PlayerUpdate packet and call dummyAnim_setLiveDuration() here.
+    //if (dummyAnimUpdateType != BAANIM_UPDATE_2_SCALE_HORZ &&
+    //    dummyAnimUpdateType != BAANIM_UPDATE_3_SCALE_VERT) {
+    //    anctrl_setDuration(dummyAnimCtrl, anctrl_getDuration(baanim_getAnimCtrlPtr()));
+    //}
 
-    // Mirror animstate so Kazooie geometry selectors match the local player.
-    // D_8037D238 is read by func_8033A45C(1/9/C/F, ...) inside func_8029DD6C to
-    // show or hide Kazooie's model parts. Without this, Kazooie stays invisible
-    // even while her animations play. The other fields control eye/mouth state.
-    dummy_D_8037D238 = func_8029DFBC(); // Kazooie visibility (Kazooie popped out)
-    dummy_D_8037D235 = func_8029DFA4(); // squint
-    dummy_D_8037D236 = func_8029DFB0(); // wink
-    dummy_D_8037D237 = func_8029DFE0(); // mouth
-    dummy_D_8037D239 = func_8029DFEC(); // mouth 2
-    dummy_D_8037D23C = func_8029DFC8(); // eye blend upper
-    dummy_D_8037D240 = func_8029DFD4(); // eye blend lower
+    //// Mirror animstate so Kazooie geometry selectors match the local player.
+    //// D_8037D238 is read by func_8033A45C(1/9/C/F, ...) inside func_8029DD6C to
+    //// show or hide Kazooie's model parts. Without this, Kazooie stays invisible
+    //// even while her animations play. The other fields control eye/mouth state.
+    //dummy_kazooieVisible = func_8029DFBC(); // Kazooie visibility (Kazooie popped out)
+    //dummy_modelSquint = func_8029DFA4(); // squint
+    //dummy_modelWink = func_8029DFB0(); // wink
+    //dummy_modelMouth1 = func_8029DFE0(); // mouth
+    //dummy_modelMouth2 = func_8029DFEC(); // mouth 2
+    //dummy_modelEyeBlendUpper = func_8029DFC8(); // eye blend upper
+    //dummy_modelEyeBlendLower = func_8029DFD4(); // eye blend lower
     dummyAnim_update();
 //    f32 sp1C;
 //    f32 temp_f0;
@@ -421,13 +421,6 @@ void DummyPlayer::dummy_80292078(s32 arg0, f32 arg1){
 }
 
 void DummyPlayer::dummy_setDirection(enum player_model_direction_e direction){
-    //if(direction != dummyDirection){
-    //    if(direction == PLAYER_MODEL_DIR_KAZOOIE || PLAYER_MODEL_DIR_KAZOOIE == dummyDirection){
-    //        //flip model
-    //        yaw_setIdeal(mlNormalizeAngle(yaw_get() + 180.0f));
-    //        yaw_applyIdeal();
-    //    }
-    //}
     dummyDirection = direction;
 }
 
@@ -629,8 +622,18 @@ void DummyPlayer::dummyAnim_update(void){
     anctrl_update(dummyAnimCtrl);
 }
 
+void DummyPlayer::setModelSubStates(bool kazooie, bool squint, bool wink, bool mouth1, bool mouth2, f32 eyeBlendUpper, f32 eyeBlendLower) {
+    dummy_kazooieVisible = kazooie;
+    dummy_modelSquint = squint;
+    dummy_modelWink = wink;
+    dummy_modelMouth1 = mouth1;
+    dummy_modelMouth2 = mouth2;
+    dummy_modelEyeBlendUpper = eyeBlendUpper;
+    dummy_modelEyeBlendLower = eyeBlendLower;
+}
+
 void DummyPlayer::dummyAnim_setUpdateType(s32 state) {
-    dummyAnimUpdateType = state;
+    dummyAnimUpdateType = static_cast<AnimUpdateType>(state);
 }
 
 void DummyPlayer::dummyAnim_setVelocity(f32 vel[3]) {
@@ -645,9 +648,9 @@ void DummyPlayer::dummyAnim_setVelocityMapRanges(f32 vel_min, f32 vel_max, f32 d
     dummyAnimScale.scalable_duration = false;
 }
 
-void DummyPlayer::dummyAnim_setScalableDuration(f32 scale) {
+void DummyPlayer::dummyAnim_setScalableDuration(f32 scale, bool scalable) {
     dummyAnimScale.duration_scale = scale;
-    dummyAnimScale.scalable_duration = true;
+    dummyAnimScale.scalable_duration = scalable;
 }
 
 void DummyPlayer::dummyAnim_setDurationRange(f32 min, f32 max) {
@@ -663,14 +666,14 @@ void DummyPlayer::dummyAnim_setEndAndDuration(f32 end_position, f32 duration) {
     // its current timer position, matching the player who also doesn't restart.
 }
 
-void DummyPlayer::dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth){
+void DummyPlayer::dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, f32 subrange_end, bool smooth){
     anctrl_reset(dummyAnimCtrl);
     anctrl_setSmoothTransition(dummyAnimCtrl, smooth);
     anctrl_setIndex(dummyAnimCtrl, anim_id);
     anctrl_setDuration(dummyAnimCtrl, duration);
-    if (start_position >= 0) {
-        anctrl_setStart(dummyAnimCtrl, start_position);
-    }
+    f32 sub_start = (start_position >= 0.0f) ? start_position : 0.0f;
+    anctrl_setSubRange(dummyAnimCtrl, sub_start, subrange_end);
+    anctrl_setStart(dummyAnimCtrl, sub_start);
     anctrl_setPlaybackType(dummyAnimCtrl, control);
     anctrl_start(dummyAnimCtrl, "DummyPlayer.cpp", 564);
 }

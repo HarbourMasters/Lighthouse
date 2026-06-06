@@ -72,27 +72,28 @@ class Anchor : public Network {
     void UpdateDummies();
     void RemoveDummy(uint32_t clientId);
 
-    void HandlePacket_AllClientState(nlohmann::json payload);
-    void HandlePacket_DamagePlayer(nlohmann::json payload);
-    void HandlePacket_DisableAnchor(nlohmann::json payload);
-    void HandlePacket_EntranceDiscovered(nlohmann::json payload);
-    void HandlePacket_GameComplete(nlohmann::json payload);
-    void HandlePacket_GiveItem(nlohmann::json payload);
-    void HandlePacket_OcarinaSfx(nlohmann::json payload);
-    void HandlePacket_PlayerSfx(nlohmann::json payload);
-    void HandlePacket_PlayerUpdate(nlohmann::json payload);
-    void HandlePacket_RequestTeamState(nlohmann::json payload);
-    void HandlePacket_RequestTeleport(nlohmann::json payload);
-    void HandlePacket_ServerMessage(nlohmann::json payload);
-    void HandlePacket_SetCheckStatus(nlohmann::json payload);
-    void HandlePacket_SetFlag(nlohmann::json payload);
-    void HandlePacket_TeleportTo(nlohmann::json payload);
-    void HandlePacket_UnsetFlag(nlohmann::json payload);
-    void HandlePacket_UpdateBeansCount(nlohmann::json payload);
-    void HandlePacket_UpdateClientState(nlohmann::json payload);
-    void HandlePacket_UpdateDungeonItems(nlohmann::json payload);
-    void HandlePacket_UpdateRoomState(nlohmann::json payload);
-    void HandlePacket_UpdateTeamState(nlohmann::json payload);
+    void HandlePacket_AllClientState(nlohmann::json& payload);
+    void HandlePacket_DamagePlayer(nlohmann::json& payload);
+    void HandlePacket_DisableAnchor(nlohmann::json& payload);
+    void HandlePacket_EntranceDiscovered(nlohmann::json& payload);
+    void HandlePacket_GameComplete(nlohmann::json& payload);
+    void HandlePacket_GiveItem(nlohmann::json& payload);
+    void HandlePacket_OcarinaSfx(nlohmann::json& payload);
+    void HandlePacket_PlayerSfx(nlohmann::json& payload);
+    void HandlePacket_PlayerAnimChange(nlohmann::json& payload);
+    void HandlePacket_PlayerUpdate(nlohmann::json& payload);
+    void HandlePacket_RequestTeamState(nlohmann::json& payload);
+    void HandlePacket_RequestTeleport(nlohmann::json& payload);
+    void HandlePacket_ServerMessage(nlohmann::json& payload);
+    void HandlePacket_SetCheckStatus(nlohmann::json& payload);
+    void HandlePacket_SetFlag(nlohmann::json& payload);
+    void HandlePacket_TeleportTo(nlohmann::json& payload);
+    void HandlePacket_UnsetFlag(nlohmann::json& payload);
+    void HandlePacket_UpdateBeansCount(nlohmann::json& payload);
+    void HandlePacket_UpdateClientState(nlohmann::json& payload);
+    void HandlePacket_UpdateDungeonItems(nlohmann::json& payload);
+    void HandlePacket_UpdateRoomState(nlohmann::json& payload);
+    void HandlePacket_UpdateTeamState(nlohmann::json& payload);
 
   public:
     uint32_t ownClientId;
@@ -107,8 +108,10 @@ class Anchor : public Network {
     inline static const std::string GIVE_ITEM = "GIVE_ITEM";
     inline static const std::string HANDSHAKE = "HANDSHAKE";
     inline static const std::string OCARINA_SFX = "OCARINA_SFX";
+    inline static const std::string PLAYER_ANIM = "PLAYER_ANIM";
     inline static const std::string PLAYER_SFX = "PLAYER_SFX";
     inline static const std::string PLAYER_UPDATE = "PLAYER_UPDATE";
+    inline static const std::string PLAYER_UPDATE_FULL = "PLAYER_UPDATE_FULL";
     inline static const std::string REQUEST_TEAM_STATE = "REQUEST_TEAM_STATE";
     inline static const std::string REQUEST_TELEPORT = "REQUEST_TELEPORT";
     inline static const std::string SERVER_MESSAGE = "SERVER_MESSAGE";
@@ -137,6 +140,12 @@ class Anchor : public Network {
     bool IsSaveLoaded();
     bool CanTeleportTo(uint32_t clientId);
     uint32_t GetDummyPlayerClientId(const Actor* actor);
+    bool GetCurrentMapPlayers();
+
+    void PrepDirectionPayload(nlohmann::json& payload);
+    void PrepTransformationPayload(nlohmann::json& payload);
+    void PrepAnimStatePayload(nlohmann::json& payload);
+    void PrepAnimSubRangePayload(nlohmann::json& payload);
 
     void SendPacket_ClearTeamState(std::string teamId);
     void SendPacket_DamagePlayer(u32 clientId, u8 damageEffect, u8 damage);
@@ -145,10 +154,11 @@ class Anchor : public Network {
     void SendPacket_GiveItem(u16 modId, s16 getItemId);
     void SendPacket_Handshake();
     void SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend);
-    void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth);
+    void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, f32 subrange_end, bool smooth);
+    void SendPacket_PlayerAnimReset();
     void SendPacket_PlayerSfx(u16 sfxId);
     void SendPacket_PlayerSubRangeChange(f32 duration, f32 end);
-    void SendPacket_PlayerUpdate();
+    void SendPacket_PlayerUpdate(bool full = false);
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);
     void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);
@@ -160,6 +170,7 @@ class Anchor : public Network {
     void SendPacket_UpdateDungeonItems();
     void SendPacket_UpdateRoomState();
     void SendPacket_UpdateTeamState();
+    void SendToCurrentMapPlayers(nlohmann::json& payload);
 
     static Anchor* GetInstance();
     static void Init();

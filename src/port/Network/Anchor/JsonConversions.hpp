@@ -52,19 +52,17 @@ inline void to_json(json& j, const Color_RGB8& color) {
 //}
 
 inline void from_json(const json& j, AnchorClient& client) {
-    //client.clientId = j.value("clientId", (u32)0);
-    //client.name = j.value("name", "???");
-    //client.color = j.value("color", Color_RGB8{ 255, 255, 255 });
-    //client.clientVersion = j.value("clientVersion", "???");
-    //client.teamId = j.value("teamId", "default");
-    //client.online = j.value("online", false);
-    //client.seed = j.value("seed", (u32)0);
-    //client.isSaveLoaded = j.value("isSaveLoaded", false);
-    //client.isGameComplete = j.value("isGameComplete", false);
-    //client.sceneNum = j.value("sceneNum", (s16)SCENE_ID_MAX);
-    //client.curRoomNum = j.value("curRoomNum", (s8)-1);
-    //client.entranceIndex = j.value("entranceIndex", (s32)0);
-    //client.self = j.value("self", false);
+    client.clientId = j.value("clientId", (u32)0);
+    client.name = j.value("name", "???");
+    client.clientVersion = j.value("clientVersion", "???");
+    client.teamId = j.value("teamId", "default");
+    client.online = j.value("online", false);
+    client.seed = j.value("seed", (u32)0);
+    client.isSaveLoaded = j.value("isSaveLoaded", false);
+    client.isGameComplete = j.value("isGameComplete", false);
+    client.map = j.value("map", MAP_0_NONE);
+    client.exit = j.value("exit", (s32)0);
+    client.self = j.value("self", false);
 }
 
 //inline void to_json(json& j, const Inventory& inventory) {

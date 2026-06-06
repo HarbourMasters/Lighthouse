@@ -28,7 +28,7 @@ void Anchor::SendPacket_RequestTeamState() {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_RequestTeamState(nlohmann::json payload) {
+void Anchor::HandlePacket_RequestTeamState(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }

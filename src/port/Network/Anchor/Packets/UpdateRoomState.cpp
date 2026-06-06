@@ -42,7 +42,7 @@ void Anchor::SendPacket_UpdateRoomState() {
     Network::SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_UpdateRoomState(nlohmann::json payload) {
+void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     if (!payload.contains("state")) {
         return;
     }

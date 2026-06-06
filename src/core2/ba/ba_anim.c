@@ -340,6 +340,7 @@ void baanim_onCtrlStart(AnimCtrl* ctrl) {
             anctrl_getDuration(ctrl),
             anctrl_getPlaybackType(ctrl),
             ctrl->start,
+            ctrl->subrange_end,
             ctrl->smooth_transition);
     }
 }

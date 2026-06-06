@@ -6,7 +6,7 @@ extern "C" {
 }
 
 class DummyPlayer {
-  public:
+public:
     DummyPlayer();
     //void dummy_getPosition(f32* dst);
     //void dummy_update(void);
@@ -63,21 +63,22 @@ class DummyPlayer {
     void dummyAnim_init(void);
     void dummyAnim_free(void);
     void dummyAnim_update(void);
-    void dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, bool smooth);
+    void dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, f32 subrange_end, bool smooth);
     bool dummyAnim_isAnimID(enum asset_e anim_id);
     bool dummyAnim_isStopped(void);
     // anim scale — set by network packets; mirrored from local player for clone test
     void dummyAnim_setUpdateType(s32 state);
     void dummyAnim_setVelocity(f32 vel[3]);
     void dummyAnim_setVelocityMapRanges(f32 vel_min, f32 vel_max, f32 dur_min, f32 dur_max);
-    void dummyAnim_setScalableDuration(f32 scale);
+    void dummyAnim_setScalableDuration(f32 scale, bool scalable);
     void dummyAnim_setDurationRange(f32 min, f32 max);
     void dummyAnim_setEndAndDuration(f32 end_position, f32 duration);
+    void setModelSubStates(bool kazooie, bool squint, bool wink, bool mouth1, bool mouth2, f32 eyeBlendUpper, f32 eyeBlendLower);
     // eye/mouth
     void dummy_setEyeState(bool squint, bool wink, bool isHat);
     AnimCtrl* dummy_getAnimCtrl();
 
-  private:
+private:
     uint32_t PlayerID;
 
     //extern s32 osCicId;
@@ -123,13 +124,13 @@ class DummyPlayer {
 
     f32 dummy_D_8037D230;
     u8  dummy_D_8037D234;
-    u8  dummy_D_8037D235;
-    u8  dummy_D_8037D236;
-    u8  dummy_D_8037D237;
-    u8  dummy_D_8037D238;
-    u8  dummy_D_8037D239;
+    u8  dummy_modelSquint;
+    u8  dummy_modelWink;
+    u8  dummy_modelMouth1;
+    u8  dummy_kazooieVisible;
+    u8  dummy_modelMouth2;
     u8  dummy_D_8037D23A;
-    f32 dummy_D_8037D23C;
-    f32 dummy_D_8037D240;
+    f32 dummy_modelEyeBlendUpper;
+    f32 dummy_modelEyeBlendLower;
     Transformation  dummy_transformation;
 };

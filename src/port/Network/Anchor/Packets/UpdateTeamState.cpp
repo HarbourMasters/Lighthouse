@@ -117,7 +117,7 @@ void Anchor::SendPacket_ClearTeamState(std::string teamId) {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_UpdateTeamState(nlohmann::json payload) {
+void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     if (!roomState.syncItemsAndFlags) {
         return;
     }

@@ -27,7 +27,7 @@ void Anchor::SendPacket_UpdateDungeonItems() {
     //SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_UpdateDungeonItems(nlohmann::json payload) {
+void Anchor::HandlePacket_UpdateDungeonItems(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }

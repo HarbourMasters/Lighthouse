@@ -152,6 +152,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_GiveItem(payload);
             else if (packetType == OCARINA_SFX)
                 HandlePacket_OcarinaSfx(payload);
+            else if (packetType == PLAYER_ANIM)
+                HandlePacket_PlayerAnimChange(payload);
             else if (packetType == PLAYER_UPDATE)
                 HandlePacket_PlayerUpdate(payload);
             else if (packetType == PLAYER_SFX)
@@ -223,7 +225,7 @@ void Anchor::ClearDummies() {
 
 void Anchor::PopulateDummies() {
     for (const auto& [clientId, client] : clients) {
-        if (client.map == gsworld_getMap()) {
+        if (client.map == gsworld_getMap() && !client.self && !dummies.contains(clientId) && client.online) {
             RegisterDummy(client.dummy, clientId);
         }
     }
@@ -250,15 +252,19 @@ void Anchor::RegisterDummy(DummyPlayer* dummy, uint32_t clientID) {
 }
 
 void Anchor::RefreshClientActors() {
-    if (!IsSaveLoaded()) {
+    if (!IsSaveLoaded() || !shouldRefreshActors) {
         return;
     }
+
+    shouldRefreshActors = false;
+
 
     spawningDummyPlayerForClientId = 0;
 }
 
 bool Anchor::IsSaveLoaded() {
-    return getGameMode() == GAME_MODE_3_NORMAL || getGameMode() == GAME_MODE_4_PAUSED;
+    auto map = gsworld_getMap();
+    return map != MAP_1E_CS_START_NINTENDO && map != MAP_1F_CS_START_RAREWARE && map != MAP_91_FILE_SELECT;
    /* if (gPlayState == nullptr) {
         return false;
     }

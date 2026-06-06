@@ -68,22 +68,25 @@ void Anchor::RegisterHooks() {
 //    });
 //
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        static bool sendUpdate = true;
+        Anchor::GetInstance()->SendPacket_PlayerUpdate();
         Anchor::GetInstance()->ProcessIncomingPacketQueue();
+        Anchor::GetInstance()->RefreshClientActors();
         Anchor::GetInstance()->UpdateDummies();
     });
 
     COND_HOOK(OnPlayerAnimReset, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        SendPacket_PlayerAnimReset();
+        Anchor::GetInstance()->SendPacket_PlayerAnimReset();
     });
 
     COND_HOOK(OnPlayerAnimChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         OnPlayerAnimChange* ev = reinterpret_cast<OnPlayerAnimChange*>(event);
-        Anchor::GetInstance()->SendPacket_PlayerAnimChange(ev->anim_id, ev->duration, ev->control, ev->start_position, ev->smooth);
+        Anchor::GetInstance()->SendPacket_PlayerAnimChange(ev->anim_id, ev->duration, ev->control, ev->start_position, ev->subrange_end, ev->smooth);
     });
 
     COND_HOOK(OnPlayerAnimSubRangeChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         OnPlayerAnimSubRangeChange* ev = reinterpret_cast<OnPlayerAnimSubRangeChange*>(event);
-        Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
+        //Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
     });
 //
 //    COND_HOOK(OnPlayerSfx, isConnected, [&](u16 sfxId) { SendPacket_PlayerSfx(sfxId); });

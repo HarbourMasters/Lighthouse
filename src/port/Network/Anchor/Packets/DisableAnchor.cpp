@@ -9,6 +9,6 @@
  * No current use, potentially will be used for a future feature.
  */
 
-void Anchor::HandlePacket_DisableAnchor(nlohmann::json payload) {
+void Anchor::HandlePacket_DisableAnchor(nlohmann::json& payload) {
     Disable();
 }

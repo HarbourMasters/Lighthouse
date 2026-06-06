@@ -31,7 +31,7 @@ void Anchor::SendPacket_SetCheckStatus(/*RandomizerCheck rc*/) {
 //    SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_SetCheckStatus(nlohmann::json payload) {
+void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
 //    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
 //        return;
 //    }

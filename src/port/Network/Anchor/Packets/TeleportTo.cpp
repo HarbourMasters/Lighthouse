@@ -32,7 +32,7 @@ void Anchor::SendPacket_TeleportTo(uint32_t clientId) {
     SendJsonToRemote(payload);*/
 }
 
-void Anchor::HandlePacket_TeleportTo(nlohmann::json payload) {
+void Anchor::HandlePacket_TeleportTo(nlohmann::json& payload) {
     if (!IsSaveLoaded()) {
         return;
     }

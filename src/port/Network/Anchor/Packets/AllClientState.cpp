@@ -13,19 +13,19 @@
  * The server itself sends this packet to all clients when a client connects or disconnects
  */
 
-void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
+void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     std::vector<AnchorClient> newClients = payload["state"].get<std::vector<AnchorClient >>();
-    bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
+    bool isGlobalRoom = (std::string("lh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
     // add new clients
     for (auto& client : newClients) {
-        /*if (client.self) {
+        if (client.self) {
             ownClientId = client.clientId;
             CVarSetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), ownClientId);
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
             clients[client.clientId].self = true;
-        } else {*/
-            //clients[client.clientId].self = false;
+        } else {
+            clients[client.clientId].self = false;
             if (clients.contains(client.clientId)) {
                 if (clients[client.clientId].online != client.online && !isGlobalRoom) {
                     Notification::Emit({
@@ -39,19 +39,22 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
                     .message = "Connected",
                 });
             }
-        //}
+            if (client.dummy == nullptr && !client.self) {
+                clients[client.clientId].dummy = new DummyPlayer();
+                clients[client.clientId].dummy->dummy_reset();
+            }
+        }
 
         clients[client.clientId].clientId = client.clientId;
         clients[client.clientId].name = client.name;
-        //clients[client.clientId].color = client.color;
         clients[client.clientId].clientVersion = client.clientVersion;
         clients[client.clientId].teamId = client.teamId;
         clients[client.clientId].online = client.online;
         clients[client.clientId].seed = client.seed;
         clients[client.clientId].isSaveLoaded = client.isSaveLoaded;
         clients[client.clientId].isGameComplete = client.isGameComplete;
-        clients[client.clientId].mapId = client.mapId;
-        clients[client.clientId].entranceIndex = client.entranceIndex;
+        clients[client.clientId].map = client.map;
+        clients[client.clientId].exit = client.exit;
     }
 
     // remove clients that are no longer in the list
@@ -64,8 +67,15 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
     }
     // (separate loop to avoid iterator invalidation)
     for (auto& clientId : clientsToRemove) {
+        if (dummies.contains(clientId)) {
+            dummies.erase(clientId);
+        }
+        if (clients.at(clientId).dummy != nullptr) {
+            clients.at(clientId).dummy->dummy_free();
+            free(clients.at(clientId).dummy);
+        }
         clients.erase(clientId);
     }
 
-    shouldRefreshActors = true;
+    PopulateDummies();
 }

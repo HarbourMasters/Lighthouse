@@ -29,7 +29,7 @@ void Anchor::SendPacket_UpdateBeansCount() {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_UpdateBeansCount(nlohmann::json payload) {
+void Anchor::HandlePacket_UpdateBeansCount(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }

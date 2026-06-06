@@ -23,7 +23,7 @@ void Anchor::SendPacket_EntranceDiscovered(u16 entranceIndex) {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_EntranceDiscovered(nlohmann::json payload) {
+void Anchor::HandlePacket_EntranceDiscovered(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }

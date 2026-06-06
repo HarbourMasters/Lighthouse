@@ -44,7 +44,7 @@ void Anchor::SendPacket_GiveItem(u16 modId, s16 getItemId) {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
+void Anchor::HandlePacket_GiveItem(nlohmann::json& payload) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }

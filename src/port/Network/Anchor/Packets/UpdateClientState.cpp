@@ -23,7 +23,6 @@ extern "C" {
 nlohmann::json Anchor::PrepClientState() {
     nlohmann::json payload;
     payload["name"] = CVarGetString(CVAR_REMOTE_ANCHOR("Name"), "");
-    payload["color"] = CVarGetColor24(CVAR_REMOTE_ANCHOR("Color.Value"), { 100, 255, 100 });
     payload["clientVersion"] = clientVersion;
     payload["teamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["online"] = true;
@@ -53,7 +52,7 @@ void Anchor::SendPacket_UpdateClientState() {
     SendJsonToRemote(payload);
 }
 
-void Anchor::HandlePacket_UpdateClientState(nlohmann::json payload) {
+void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
     uint32_t clientId = payload.at("clientId").get<uint32_t>();
 
     if (clients.contains(clientId)) {
@@ -67,8 +66,7 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json payload) {
         clients[clientId].seed = client.seed;
         clients[clientId].isSaveLoaded = client.isSaveLoaded;
         clients[clientId].isGameComplete = client.isGameComplete;
-        clients[clientId].mapId = client.mapId;
-        //clients[clientId].curRoomNum = client.curRoomNum;
-        clients[clientId].entranceIndex = client.entranceIndex;
+        clients[clientId].map = client.map;
+        clients[clientId].exit = client.exit;
     }
 }
