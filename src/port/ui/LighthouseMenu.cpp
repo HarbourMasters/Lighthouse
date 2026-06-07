@@ -1,5 +1,6 @@
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
+#include <fast/Fast3dWindow.h>
 #include "port/ResourceHelpers.h"
 #include "port/GameConfig.h"
 #include <ship/window/gui/GuiMenuBar.h>
@@ -154,13 +155,13 @@ void LighthouseMenu::InitElement() {
         { DISABLE_FOR_NOT_DIRECTX,
           { [](disabledInfo& info) -> bool {
                return Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() !=
-                      Ship::WindowBackend::FAST3D_DXGI_DX11;
+                      Fast::WindowBackend::FAST3D_DXGI_DX11;
            },
             "Available Only on DirectX" } },
         { DISABLE_FOR_DIRECTX,
           { [](disabledInfo& info) -> bool {
                return Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
-                      Ship::WindowBackend::FAST3D_DXGI_DX11;
+                      Fast::WindowBackend::FAST3D_DXGI_DX11;
            },
             "Not Available on DirectX" } },
         { DISABLE_FOR_MATCH_REFRESH_RATE_ON,
