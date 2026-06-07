@@ -275,6 +275,7 @@ void gcparade_textCallback(ActorMarker *caller, enum asset_e text_id, s32 arg2){
 void gcparade_print(s32 index){
     ParadeInfo *v0 = D_803830F0.parade_element;
     print_bold_overlapping(v0->x, D_803830F0.y_position, -1.2f, v0->str);
+    CALL_EVENT(OnParadeNameDraw, (const char *) v0->str, D_803830F0.y_position);
 }
 
 void gcparade_update(void) {

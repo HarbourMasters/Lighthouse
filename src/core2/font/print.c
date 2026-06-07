@@ -8,7 +8,7 @@ extern int ResourceMgr_IsJapanese(void);
 // [port] PAL font has 75 glyphs (0x21-0x6B), overlapping NTSC control codes b,d,e,f,h,j.
 // When PAL, fmtStrings use shifted codes above the glyph range.
 #define PRINT_PAL (ResourceMgr_GetDialogLanguageCount() > 1)
-// [port] JP uses font index 2 (sprite 1770, 256 I4 glyphs) for kana/kanji dialog text.
+// [port] JP uses font index 2 (sprite 1770, 256 I4 glyphs) for dialog text.
 // Dialog strings begin with "\xFD\x6A" (escape + 'j') which switches to font index 2.
 #define PRINT_JP (ResourceMgr_IsJapanese())
 

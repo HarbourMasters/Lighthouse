@@ -22,6 +22,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);
+    REGISTER_EVENT(LocalizeUiString);
+    REGISTER_EVENT(OnParadeNameDraw);
+    REGISTER_EVENT(OnFileSelectInfoBuild);
 
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);

@@ -2,6 +2,7 @@
 #include "../type/Sprite.h"
 #include "spdlog/spdlog.h"
 #include <libultraship/libultraship.h>
+#include <algorithm>
 
 namespace Factories {
 std::shared_ptr<Ship::IResource>
@@ -159,8 +160,55 @@ ResourceFactoryBinarySpriteV0::ReadResource(std::shared_ptr<Ship::File> file,
             chunkData.textureData.resize(texture->ImageDataSize);
             std::memcpy(chunkData.textureData.data(), texture->ImageData, texture->ImageDataSize);
 
-            frameData.chunks.push_back(std::move(chunkData));
+            // RGBA32 rows must be padded to a multiple of 4 pixels
+            if (formatCode == 0x800 && texture->Width % 4 != 0 && texture->Width > 0 && texture->Height > 0) {
+                const int32_t paddedW = (texture->Width + 3) & ~3;
+                std::vector<uint8_t> padded(static_cast<size_t>(paddedW) * texture->Height * 4, 0);
+                for (int32_t row = 0; row < texture->Height; row++) {
+                    std::memcpy(padded.data() + static_cast<size_t>(row) * paddedW * 4,
+                                chunkData.textureData.data() + static_cast<size_t>(row) * texture->Width * 4,
+                                static_cast<size_t>(texture->Width) * 4);
+                }
+                chunkData.textureData = std::move(padded);
+                chunkData.header.w = static_cast<int16_t>(paddedW);
+            }
+
+            // Split oversized chunks
+            const int32_t cw = chunkData.header.w;
+            const int32_t ch = chunkData.header.h;
+            const size_t texels = static_cast<size_t>(cw) * static_cast<size_t>(ch);
+            if (cw > 0 && ch > 0 && texels > 4096) {
+                const size_t bpp = chunkData.textureData.size() / texels;
+                int32_t stripRows = 4096 / cw;
+                if (stripRows < 2) {
+                    stripRows = 2;
+                }
+                const int32_t stride = stripRows - 1;
+                const size_t rowBytes = static_cast<size_t>(cw) * bpp;
+                int32_t startRow = 0;
+                while (startRow < ch) {
+                    const int32_t hs = std::min(stripRows, ch - startRow);
+                    SpriteFrameData::ChunkData strip;
+                    strip.header = chunkData.header;
+                    strip.header.y = static_cast<int16_t>(chunkData.header.y + startRow);
+                    strip.header.h = static_cast<int16_t>(hs);
+                    strip.textureData.assign(chunkData.textureData.begin() + static_cast<size_t>(startRow) * rowBytes,
+                                             chunkData.textureData.begin() +
+                                                 static_cast<size_t>(startRow + hs) * rowBytes);
+                    frameData.chunks.push_back(std::move(strip));
+                    if (startRow + hs >= ch) {
+                        break;
+                    }
+                    startRow += stride;
+                }
+            } else {
+                frameData.chunks.push_back(std::move(chunkData));
+            }
         }
+
+        // Chunk splitting (and any failed chunk loads) can change the chunk count from the
+        // value declared in the manifest; make the frame header reflect what was actually built.
+        frameData.frameHeader.chunkCnt = static_cast<uint16_t>(frameData.chunks.size());
 
         // SPDLOG_INFO("  Frame {} final size: {}x{} with {} chunks loaded",
         //            frameIdx, frameData.frameHeader.w, frameData.frameHeader.h, frameData.chunks.size());

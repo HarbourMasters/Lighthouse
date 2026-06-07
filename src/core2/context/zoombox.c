@@ -589,6 +589,11 @@ static int __get_str_print_len(u8 *arg0, s32 len){
 
 static s32 _gczoombox_findLineBreak(char *string, s32 line_length){
      s32 i;
+     // [port] JP (func_8031ba04): a font-2 string (0xFD 0x6A prefix) is already pre-split to fit, 
+     // so it is never auto-wrapped.
+     if((u8)string[0] == 0xFD && (u8)string[1] == 0x6A){
+          return gczoombox_strlen(string);
+     }
      for(i = gczoombox_strlen(string); (line_length < (__get_str_print_len(string, i)) || (' ' != string[i] )); i--);
      return i;
 }
@@ -1101,8 +1106,10 @@ void gczoombox_update(GcZoombox *this){
                }
                this->unk15C = gczoombox_strlen(this->unk160);
                if(this->unk15C >= 24){
-                    this->unk15C = _gczoombox_findLineBreak(this->unk160, 24);
-                    this->unk15D = 1;
+                    s32 lineBreak = _gczoombox_findLineBreak(this->unk160, 24);
+                    // [port] JP returns a "continues" flag
+                    this->unk15D = (lineBreak < this->unk15C);
+                    this->unk15C = lineBreak;
                }
                else{
                     this->unk15D = 0;
