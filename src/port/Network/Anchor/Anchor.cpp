@@ -9,7 +9,7 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 // MARK: - Overrides
@@ -222,7 +222,8 @@ void Anchor::SetDummyPlayerClientId(const Actor* actor, uint32_t clientId) {
 }
 
 void Anchor::DrawDummies(OnPlayerDraw* event) {
-    if (!isConnected) return;
+    if (!isConnected)
+        return;
     for (const auto& [id, dummy] : dummies) {
         FrameInterpolation_RecordOpenChild(clients[id].name.c_str(), 0);
         dummy->Draw(event->gfx, event->mtx, event->vtx);
@@ -259,13 +260,13 @@ void Anchor::UpdateDummies() {
 }
 
 void Anchor::OnActorDestroyed(Actor* actor) {
-    //for (auto& [clientId, client] : clients) {
-    //    if (client.dummy != nullptr && client.dummy->getDummyActor() == actor) {
-    //        client.dummy->dummy_detachActor();
-    //        RemoveDummy(clientId);
-    //        return;
-    //    }
-    //}
+    // for (auto& [clientId, client] : clients) {
+    //     if (client.dummy != nullptr && client.dummy->getDummyActor() == actor) {
+    //         client.dummy->dummy_detachActor();
+    //         RemoveDummy(clientId);
+    //         return;
+    //     }
+    // }
 }
 
 void Anchor::RemoveDummy(uint32_t clientId) {
@@ -279,11 +280,12 @@ void Anchor::RegisterDummy(DummyPlayer* dummy, uint32_t clientID) {
 }
 
 void Anchor::EvaluateDummyForClient(uint32_t clientId) {
-    if (!clients.contains(clientId)) return;
+    if (!clients.contains(clientId))
+        return;
     AnchorClient& client = clients[clientId];
-    if (client.dummy == nullptr) return;
-    bool shouldBeActive = IsSaveLoaded() && client.online && !client.self &&
-                          client.map == gsworld_getMap();
+    if (client.dummy == nullptr)
+        return;
+    bool shouldBeActive = IsSaveLoaded() && client.online && !client.self && client.map == gsworld_getMap();
     bool isActive = dummies.contains(clientId);
 
     if (shouldBeActive && !isActive) {
@@ -301,28 +303,27 @@ void Anchor::RefreshClientActors() {
 
     shouldRefreshActors = false;
 
-
     spawningDummyPlayerForClientId = 0;
 }
 
 bool Anchor::IsSaveLoaded() {
     auto map = gsworld_getMap();
     return map != MAP_1E_CS_START_NINTENDO && map != MAP_1F_CS_START_RAREWARE && map != MAP_91_FILE_SELECT;
-   /* if (gPlayState == nullptr) {
-        return false;
-    }
+    /* if (gPlayState == nullptr) {
+         return false;
+     }
 
-    if (GET_PLAYER(gPlayState) == nullptr) {
-        return false;
-    }
+     if (GET_PLAYER(gPlayState) == nullptr) {
+         return false;
+     }
 
-    if (gSaveContext.fileNum < 0 || gSaveContext.fileNum > 2) {
-        return false;
-    }
+     if (gSaveContext.fileNum < 0 || gSaveContext.fileNum > 2) {
+         return false;
+     }
 
-    if (gSaveContext.gameMode != GAMEMODE_NORMAL) {
-        return false;
-    }*/
+     if (gSaveContext.gameMode != GAMEMODE_NORMAL) {
+         return false;
+     }*/
 
-    //return true;
+    // return true;
 }

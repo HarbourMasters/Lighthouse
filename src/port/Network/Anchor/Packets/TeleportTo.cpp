@@ -6,7 +6,7 @@
 
 extern "C" {
 #include "macros.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 /**
@@ -37,23 +37,23 @@ void Anchor::HandlePacket_TeleportTo(nlohmann::json& payload) {
         return;
     }
 
-    //s32 entranceIndex = payload.at("entranceIndex").get<s32>();
-    //s8 roomIndex = payload.at("roomIndex").get<s8>();
-    //PosRot posRot = payload.at("posRot").get<PosRot>();
+    // s32 entranceIndex = payload.at("entranceIndex").get<s32>();
+    // s8 roomIndex = payload.at("roomIndex").get<s8>();
+    // PosRot posRot = payload.at("posRot").get<PosRot>();
 
-    //gPlayState->nextEntranceIndex = entranceIndex;
-    //gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-    //gPlayState->transitionType = TRANS_TYPE_INSTANT;
-    //gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex = entranceIndex;
-    //gSaveContext.respawn[RESPAWN_MODE_DOWN].roomIndex = roomIndex;
-    //gSaveContext.respawn[RESPAWN_MODE_DOWN].pos = posRot.pos;
-    //gSaveContext.respawn[RESPAWN_MODE_DOWN].yaw = posRot.rot.y;
-    //gSaveContext.respawn[RESPAWN_MODE_DOWN].playerParams = 0xDFF;
-    //gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
-    //gSaveContext.respawnFlag = 1;
-    //static HOOK_ID hookId = 0;
-    //hookId = REGISTER_VB_SHOULD(VB_INFLICT_VOID_DAMAGE, {
-    //    *should = false;
-    //    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnVanillaBehavior>(hookId);
-    //});
+    // gPlayState->nextEntranceIndex = entranceIndex;
+    // gPlayState->transitionTrigger = TRANS_TRIGGER_START;
+    // gPlayState->transitionType = TRANS_TYPE_INSTANT;
+    // gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex = entranceIndex;
+    // gSaveContext.respawn[RESPAWN_MODE_DOWN].roomIndex = roomIndex;
+    // gSaveContext.respawn[RESPAWN_MODE_DOWN].pos = posRot.pos;
+    // gSaveContext.respawn[RESPAWN_MODE_DOWN].yaw = posRot.rot.y;
+    // gSaveContext.respawn[RESPAWN_MODE_DOWN].playerParams = 0xDFF;
+    // gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
+    // gSaveContext.respawnFlag = 1;
+    // static HOOK_ID hookId = 0;
+    // hookId = REGISTER_VB_SHOULD(VB_INFLICT_VOID_DAMAGE, {
+    //     *should = false;
+    //     GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnVanillaBehavior>(hookId);
+    // });
 }

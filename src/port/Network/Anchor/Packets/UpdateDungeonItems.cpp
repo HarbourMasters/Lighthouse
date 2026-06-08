@@ -16,15 +16,15 @@ void Anchor::SendPacket_UpdateDungeonItems() {
         return;
     }
 
-    //nlohmann::json payload;
-    //payload["type"] = UPDATE_DUNGEON_ITEMS;
-    //payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
-    //payload["addToQueue"] = true;
-    //payload["mapIndex"] = gSaveContext.mapIndex;
-    //payload["dungeonItems"] = gSaveContext.inventory.dungeonItems[gSaveContext.mapIndex];
-    //payload["dungeonKeys"] = gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex];
+    // nlohmann::json payload;
+    // payload["type"] = UPDATE_DUNGEON_ITEMS;
+    // payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    // payload["addToQueue"] = true;
+    // payload["mapIndex"] = gSaveContext.mapIndex;
+    // payload["dungeonItems"] = gSaveContext.inventory.dungeonItems[gSaveContext.mapIndex];
+    // payload["dungeonKeys"] = gSaveContext.inventory.dungeonKeys[gSaveContext.mapIndex];
 
-    //SendJsonToRemote(payload);
+    // SendJsonToRemote(payload);
 }
 
 void Anchor::HandlePacket_UpdateDungeonItems(nlohmann::json& payload) {
@@ -32,7 +32,7 @@ void Anchor::HandlePacket_UpdateDungeonItems(nlohmann::json& payload) {
         return;
     }
 
-    //u16 mapIndex = payload.at("mapIndex").get<u16>();
-    //gSaveContext.inventory.dungeonItems[mapIndex] = payload.at("dungeonItems").get<u8>();
-    //gSaveContext.inventory.dungeonKeys[mapIndex] = payload.at("dungeonKeys").get<s8>();
+    // u16 mapIndex = payload.at("mapIndex").get<u16>();
+    // gSaveContext.inventory.dungeonItems[mapIndex] = payload.at("dungeonItems").get<u8>();
+    // gSaveContext.inventory.dungeonKeys[mapIndex] = payload.at("dungeonKeys").get<s8>();
 }

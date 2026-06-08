@@ -7,7 +7,7 @@
 extern "C" {
 #include "functions.h"
 //#include "soh/Enhancements/randomizer/ShuffleTradeItems.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 /**
@@ -41,11 +41,11 @@ void Anchor::HandlePacket_UnsetFlag(nlohmann::json& payload) {
     s16 flagType = payload.at("flagType").get<s16>();
     s16 flag = payload.at("flag").get<s16>();
 
-    //if (sceneNum == SCENE_ID_MAX) {
-    //    auto effect = new GameInteractionEffect::UnsetFlag();
-    //    effect->parameters[0] = flagType;
-    //    effect->parameters[1] = flag;
-    //    effect->Apply();
+    // if (sceneNum == SCENE_ID_MAX) {
+    //     auto effect = new GameInteractionEffect::UnsetFlag();
+    //     effect->parameters[0] = flagType;
+    //     effect->parameters[1] = flag;
+    //     effect->Apply();
 
     //    // Special case: If an adult trade item flag is unset, replace the item if the player has it equipped
     //    if (flagType == FLAG_RANDOMIZER_INF &&

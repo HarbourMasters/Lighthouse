@@ -6,7 +6,7 @@ extern "C" {
 #include "macros.h"
 #include "functions.h"
 #include "variables.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 extern f32 D_80130F28;
 }
 
@@ -29,12 +29,12 @@ void Anchor::SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend) {
     payload["bend"] = bend;
     payload["quiet"] = true;
 
-    //for (auto& [clientId, client] : clients) {
-    //    if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
-    //        payload["targetClientId"] = clientId;
-    //        SendJsonToRemote(payload);
-    //    }
-    //}
+    // for (auto& [clientId, client] : clients) {
+    //     if (client.sceneNum == gPlayState->sceneNum && client.online && client.isSaveLoaded && !client.self) {
+    //         payload["targetClientId"] = clientId;
+    //         SendJsonToRemote(payload);
+    //     }
+    // }
 }
 
 void Anchor::HandlePacket_OcarinaSfx(nlohmann::json& payload) {
@@ -60,5 +60,5 @@ void Anchor::HandlePacket_OcarinaSfx(nlohmann::json& payload) {
         Audio_StopSfxById(NA_SE_OC_OCARINA);
     }*/
 
-    //client.ocarinaNote = note;
+    // client.ocarinaNote = note;
 }

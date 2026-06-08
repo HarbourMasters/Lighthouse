@@ -6,7 +6,7 @@
 
 extern "C" {
 #include "variables.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 /**

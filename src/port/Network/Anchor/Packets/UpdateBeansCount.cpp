@@ -23,8 +23,8 @@ void Anchor::SendPacket_UpdateBeansCount() {
     payload["type"] = UPDATE_BEANS_COUNT;
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["addToQueue"] = true;
-    //payload["amount"] = AMMO(ITEM_BEAN);
-    //payload["amountBought"] = BEANS_BOUGHT;
+    // payload["amount"] = AMMO(ITEM_BEAN);
+    // payload["amountBought"] = BEANS_BOUGHT;
 
     SendJsonToRemote(payload);
 }
@@ -34,6 +34,6 @@ void Anchor::HandlePacket_UpdateBeansCount(nlohmann::json& payload) {
         return;
     }
 
-    //AMMO(ITEM_BEAN) = payload.at("amount").get<s8>();
-    //BEANS_BOUGHT = payload.at("amountBought").get<s8>();
+    // AMMO(ITEM_BEAN) = payload.at("amount").get<s8>();
+    // BEANS_BOUGHT = payload.at("amountBought").get<s8>();
 }

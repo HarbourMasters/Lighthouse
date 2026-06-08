@@ -13,18 +13,18 @@
 extern "C" {
 #include "prop.h"
 #include "variables.h"
-    //#include "z64.h"
+//#include "z64.h"
 }
 
-//void DummyPlayer_Init(Actor* actor, PlayState* play);
-//void DummyPlayer_Update(Actor* actor, PlayState* play);
-//void DummyPlayer_Draw(Actor* actor, PlayState* play);
-//void DummyPlayer_Destroy(Actor* actor, PlayState* play);
+// void DummyPlayer_Init(Actor* actor, PlayState* play);
+// void DummyPlayer_Update(Actor* actor, PlayState* play);
+// void DummyPlayer_Draw(Actor* actor, PlayState* play);
+// void DummyPlayer_Destroy(Actor* actor, PlayState* play);
 
 typedef struct {
     uint32_t clientId;
     std::string name;
-    //Color_RGB8 color;
+    // Color_RGB8 color;
     std::string clientVersion;
     std::string teamId;
     bool online;
@@ -47,7 +47,7 @@ typedef struct {
 } RoomState;
 
 class Anchor : public Network {
-  private:
+private:
     uint32_t spawningDummyPlayerForClientId = 0;
     bool shouldRefreshActors = false;
     bool justLoadedSave = false;
@@ -99,7 +99,7 @@ class Anchor : public Network {
     void HandlePacket_UpdateRoomState(nlohmann::json& payload);
     void HandlePacket_UpdateTeamState(nlohmann::json& payload);
 
-  public:
+public:
     uint32_t ownClientId;
     inline static const std::string clientVersion = (char*)gGitCommitHash;
 
@@ -161,7 +161,8 @@ class Anchor : public Network {
     void SendPacket_Handshake();
     void SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend);
     void SendPacket_MapLoad(GameMap map, s32 exit);
-    void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, f32 subrange_end, bool smooth);
+    void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position,
+                                     f32 subrange_end, bool smooth);
     void SendPacket_PlayerAnimReset();
     void SendPacket_PlayerSfx(u16 sfxId);
     void SendPacket_PlayerSubRangeChange(f32 duration, f32 end);

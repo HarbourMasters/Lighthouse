@@ -7,7 +7,7 @@
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 extern std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
-} // namespace SohGui
+} // namespace LighthouseGui
 
 static const char* pvpModes[3] = { "Off", "On", "On + Friendly Fire" };
 static std::vector<const char*> teleportModes = { "None", "Team Only", "All" };
@@ -21,8 +21,7 @@ void AnchorMainMenu(WidgetInfo& info) {
     std::string anchorTeamId = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     std::string anchorRoomId = CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "");
     std::string anchorName = CVarGetString(CVAR_REMOTE_ANCHOR("Name"), "");
-    bool isFormValid = !host.empty() && port > 1024 && port < 65535 &&
-                       !anchorRoomId.empty() && !anchorName.empty();
+    bool isFormValid = !host.empty() && port > 1024 && port < 65535 && !anchorRoomId.empty() && !anchorName.empty();
 
     ImGui::SeparatorText("Connection Settings");
 
@@ -138,7 +137,7 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::SameLine();
 
-    //UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), SohGui::mAnchorRoomWindow);
+    // UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), SohGui::mAnchorRoomWindow);
 
     ImGui::Spacing();
 

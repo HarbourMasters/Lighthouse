@@ -178,10 +178,10 @@ void __osError(s16 error_code, s16 num_args, ...) {
 }
 
 // [port] These mirror BK's handwritten 8-byte-aligned memcpy/memset assembly. Implement as plain memcpy/memset.
-void bkmemcpy64(void *dest, void *src, s32 size) {
+void bkmemcpy64(void* dest, void* src, s32 size) {
     memcpy(dest, src, size);
 }
-void bkmemset64(void *dest, s32 value, s32 size) {
+void bkmemset64(void* dest, s32 value, s32 size) {
     memset(dest, value, size);
 }
 

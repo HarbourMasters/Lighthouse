@@ -6,7 +6,7 @@
 
 extern "C" {
 #include "variables.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 /**
@@ -28,7 +28,7 @@ nlohmann::json Anchor::PrepClientState() {
     payload["online"] = true;
 
     if (IsSaveLoaded()) {
-        payload["seed"] = /*IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : */0;
+        payload["seed"] = /*IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : */ 0;
         payload["isSaveLoaded"] = true;
         payload["isGameComplete"] = false;
         payload["map"] = gsworld_getMap();
@@ -59,7 +59,7 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         AnchorClient client = payload["state"].get<AnchorClient>();
         clients[clientId].clientId = clientId;
         clients[clientId].name = client.name;
-        //clients[clientId].color = client.color;
+        // clients[clientId].color = client.color;
         clients[clientId].clientVersion = client.clientVersion;
         clients[clientId].teamId = client.teamId;
         clients[clientId].online = client.online;

@@ -7,7 +7,7 @@
 extern "C" {
 #include "functions.h"
 
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 /**
@@ -41,11 +41,11 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     s16 flagType = payload.at("flagType").get<s16>();
     s16 flag = payload.at("flag").get<s16>();
 
-    //if (sceneNum == SCENE_ID_MAX) {
-    //    auto effect = new GameInteractionEffect::SetFlag();
-    //    effect->parameters[0] = flagType;
-    //    effect->parameters[1] = flag;
-    //    effect->Apply();
+    // if (sceneNum == SCENE_ID_MAX) {
+    //     auto effect = new GameInteractionEffect::SetFlag();
+    //     effect->parameters[0] = flagType;
+    //     effect->parameters[1] = flag;
+    //     effect->Apply();
 
     //    // Special case: If King Zora moved, and the player has Ruto's Letter, convert it to an empty bottle
     //    if (flagType == FLAG_EVENT_CHECK_INF && flag == EVENTCHKINF_KING_ZORA_MOVED &&

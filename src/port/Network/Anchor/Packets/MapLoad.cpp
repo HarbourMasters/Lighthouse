@@ -24,12 +24,13 @@ void Anchor::SendPacket_MapLoad(GameMap map, s32 exit) {
 
 void Anchor::HandlePacket_MapLoad(nlohmann::json& payload) {
     uint32_t clientId = payload.at("clientId").get<uint32_t>();
-    if (!clients.contains(clientId)) return;
+    if (!clients.contains(clientId))
+        return;
 
     clients[clientId].map = payload.at("map").get<GameMap>();
     clients[clientId].exit = payload.at("exit").get<s32>();
     clients[clientId].isSaveLoaded = clients[clientId].map != MAP_1E_CS_START_NINTENDO &&
-        clients[clientId].map != MAP_1F_CS_START_RAREWARE &&
-        clients[clientId].map != MAP_91_FILE_SELECT;
+                                     clients[clientId].map != MAP_1F_CS_START_RAREWARE &&
+                                     clients[clientId].map != MAP_91_FILE_SELECT;
     EvaluateDummyForClient(clientId);
 }

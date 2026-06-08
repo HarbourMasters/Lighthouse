@@ -4,7 +4,7 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
-//extern PlayState* gPlayState;
+// extern PlayState* gPlayState;
 }
 
 void AnchorRoomWindow::Draw() {
@@ -86,7 +86,7 @@ void AnchorRoomWindow::DrawElement() {
                     ImGui::SameLine();
                     ImGui::TextColored(
                         ImVec4(1, 1, 1, 0.5f), "- %s",
-                        /*SohUtils::GetSceneName(client.self ? gPlayState->sceneNum : client.sceneNum).c_str()*/"");
+                        /*SohUtils::GetSceneName(client.self ? gPlayState->sceneNum : client.sceneNum).c_str()*/ "");
                 }
             }
 

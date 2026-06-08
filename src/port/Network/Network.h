@@ -9,7 +9,7 @@
 #include <nlohmann/json.hpp>
 
 class Network {
-  private:
+private:
 #ifdef USE_NETWORKING
     IPaddress networkAddress;
     TCPsocket networkSocket;
@@ -21,7 +21,7 @@ class Network {
     void HandleRemoteData(char payload[512]);
     void HandleRemoteJson(std::string payload);
 
-  public:
+public:
     bool isEnabled;
     bool isConnected;
 
