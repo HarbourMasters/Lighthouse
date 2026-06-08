@@ -64,7 +64,7 @@ BKSpriteDisplayData* port_getOrCreateDisplayData(BKSprite* sprite) {
 
 BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
     // Reload (not assetcache_get) so the cached, already-baked buffer isn't filled twice.
-    BKSprite* banner = (BKSprite*) ResourceMgr_ReloadByAssetId((uint32_t) bannerAssetId);
+    BKSprite* banner = (BKSprite*)ResourceMgr_ReloadByAssetId((uint32_t)bannerAssetId);
     if (banner == NULL) {
         return NULL;
     }
@@ -79,53 +79,53 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
         fillId = SPRITE_JP_BOLD_FONT_FILL_TEXTURE; // sheet 13: default banner fill
     }
 
-    BKSprite* fill = (BKSprite*) assetcache_get((enum asset_e) fillId);
+    BKSprite* fill = (BKSprite*)assetcache_get((enum asset_e)fillId);
     if (fill == NULL) {
         return banner;
     }
 
     BKSpriteFrame* bannerFrame = sprite_getFramePtr(banner, 0);
-    BKSpriteTextureBlock* fillChunk = (BKSpriteTextureBlock*) (sprite_getFramePtr(fill, 0) + 1);
-    const u8* fillData = (const u8*) (((uintptr_t) (fillChunk + 1) + 7) & ~(uintptr_t) 7);
+    BKSpriteTextureBlock* fillChunk = (BKSpriteTextureBlock*)(sprite_getFramePtr(fill, 0) + 1);
+    const u8* fillData = (const u8*)(((uintptr_t)(fillChunk + 1) + 7) & ~(uintptr_t)7);
 
-    BKSpriteTextureBlock* tb = (BKSpriteTextureBlock*) (bannerFrame + 1);
+    BKSpriteTextureBlock* tb = (BKSpriteTextureBlock*)(bannerFrame + 1);
     for (s32 chunkIdx = 0; chunkIdx < bannerFrame->chunkCnt; chunkIdx++) {
         const s32 cw = tb->w;
         const s32 ch = tb->h;
         const s32 baseX = tb->x;
         const s32 baseY = tb->y;
-        u8* px = (u8*) (((uintptr_t) (tb + 1) + 7) & ~(uintptr_t) 7);
+        u8* px = (u8*)(((uintptr_t)(tb + 1) + 7) & ~(uintptr_t)7);
 
         for (s32 y = 0; y < ch; y++) {
             for (s32 x = 0; x < cw; x++) {
                 const s32 gx = baseX + x; // banner-global coords (strips stack via baseY)
                 const s32 gy = baseY + y;
                 // JP 0x802f41e4 mapping: fillX = (fillW - chunkW/2)/2 + gx*0.5; fillY = gy.
-                s32 fx = (s32) (((f32) fillChunk->w - (f32) cw * 0.5f) * 0.5f + (f32) gx * 0.5f);
+                s32 fx = (s32)(((f32)fillChunk->w - (f32)cw * 0.5f) * 0.5f + (f32)gx * 0.5f);
                 s32 fy = gy;
                 fx = (fx < 0) ? 0 : ((fx > fillChunk->w - 1) ? fillChunk->w - 1 : fx);
                 fy = (fy < 0) ? 0 : ((fy > fillChunk->h - 1) ? fillChunk->h - 1 : fy);
 
                 const u8* fpx = fillData + (fx + fy * fillChunk->w) * 2; // RGBA16, N64 big-endian
-                const u16 pixel = (u16) ((fpx[0] << 8) | fpx[1]);
+                const u16 pixel = (u16)((fpx[0] << 8) | fpx[1]);
                 s32 r5 = (pixel >> 11) & 0x1F;
                 s32 g5 = (pixel >> 6) & 0x1F;
                 s32 b5 = (pixel >> 1) & 0x1F;
 
                 u8* maskPx = px + (x + y * cw) * 4;
                 const s32 intensity = maskPx[2]; // mask byte[2] = intensity
-                const u8 alpha = maskPx[3];       // mask byte[3] = alpha
+                const u8 alpha = maskPx[3];      // mask byte[3] = alpha
                 r5 *= (intensity / 0x1F);
                 g5 *= (intensity / 0x1F);
                 b5 *= (intensity / 0x1F);
-                maskPx[0] = (u8) r5;
-                maskPx[1] = (u8) g5;
-                maskPx[2] = (u8) b5;
+                maskPx[0] = (u8)r5;
+                maskPx[1] = (u8)g5;
+                maskPx[2] = (u8)b5;
                 maskPx[3] = alpha;
             }
         }
 
-        tb = (BKSpriteTextureBlock*) (px + (size_t) cw * ch * 4);
+        tb = (BKSpriteTextureBlock*)(px + (size_t)cw * ch * 4);
     }
 
     assetcache_release(fill);
@@ -184,7 +184,7 @@ BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, 
         bh *= fit;
     }
     *outX = gFramebufferWidth * 0.5f - bw * 0.5f;
-    *outY = (f32) headerY - bh * 0.5f;
+    *outY = (f32)headerY - bh * 0.5f;
     *outW = bw;
     *outH = bh;
     return sPauseBanner;

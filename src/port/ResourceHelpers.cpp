@@ -113,7 +113,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         if (sIsJapanese) {
             constexpr uint32_t kJpBannerNativeBase = 0xE2C;
             constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_JP_WORLD_NAME_TOTAL
-            constexpr uint32_t kJpBannerCount = 13;          // 0xE2C..0xE38
+            constexpr uint32_t kJpBannerCount = 13;         // 0xE2C..0xE38
             for (uint32_t i = 0; i < kJpBannerCount; i++) {
                 auto it = symbolMap.find(kJpBannerNativeBase + i);
                 if (it != symbolMap.end()) {
