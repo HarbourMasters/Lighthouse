@@ -134,10 +134,6 @@ static const LocalizedUiString sUiStrings[] = {
       (const u8*) "SICHER?" },
     { "A - YES, B - NO", (const u8*) "\xfd\x6a\x1a\x3e\xd3\xbb\x0f\x1b\x3e\xbb\xbb\xbd", (const u8*) "A - OUI, B - NON",
       (const u8*) "A - JA, B - NEIN" },
-    // File-select instructions and erase confirm are NOT here: the JP cart pre-splits each into two
-    // short lines (each with its own font-2 escape) and hands all of them to the zoombox at once,
-    // rather than relying on the auto-wrap that the US/PAL single strings use. See the JP file-select
-    // setters below. (US/PAL keep using the decomp's gameSelect.c arrays, which auto-wrap normally.)
 };
 
 static const u8* getLocalizedUiString(const char* english) {
@@ -255,6 +251,68 @@ extern "C" int port_setJpFileSelectEraseConfirm(void* zoombox) {
     static char* lines[2] = { (char*) sJpFileSelectErase0, (char*) sJpFileSelectErase1 };
     gczoombox_setStrings(zoombox, 2, lines);
     return 1;
+}
+
+// Character Parade
+struct PortParadeInfo {
+    uint8_t map;
+    int8_t exit;
+    int16_t x;
+    const char* str;
+    int8_t unk8;
+};
+extern "C" {
+extern PortParadeInfo D_8036D9A0[]; // US Furnace-Fun parade (27 entries)
+extern PortParadeInfo D_8036DAE4[]; // US final parade (58 entries)
+}
+static PortParadeInfo sJpParade0[28];
+static PortParadeInfo sJpParade1[57];
+static bool sJpParadesBuilt = false;
+
+static void buildJpParades() {
+    for (int i = 0; i < 20; i++) {
+        sJpParade0[i] = D_8036D9A0[i];
+    }
+    sJpParade0[20] = { 0x1C, 5, 90, "MOTZAND", 0 }; // MAP_1C_MMM_CHURCH, after RUBEE AND TOOTS
+    for (int i = 20; i < 27; i++) {
+        sJpParade0[i + 1] = D_8036D9A0[i];
+    }
+    int j = 0;
+    for (int i = 0; i < 58; i++) {
+        if (i == 39) { // US final-parade MOTZAND, removed in JP
+            continue;
+        }
+        sJpParade1[j++] = D_8036DAE4[i];
+    }
+}
+
+// Swap the active parade table for its JP variant
+extern "C" void port_localizeParade(int paradeId, void** table, uint8_t* count) {
+    if (!ResourceMgr_IsJapanese()) {
+        return;
+    }
+    if (!sJpParadesBuilt) {
+        buildJpParades();
+        sJpParadesBuilt = true;
+    }
+    if (paradeId == 0) {
+        *table = sJpParade0;
+        *count = 28;
+    } else {
+        *table = sJpParade1;
+        *count = 57;
+    }
+}
+
+// Furnace-Fun parade credit-dialog id
+extern "C" int port_paradeDialogId(int indx) {
+    if (!ResourceMgr_IsJapanese() || indx <= 19) {
+        return 0x11AF + indx;
+    }
+    if (indx == 20) {
+        return 0x11CA; // MOTZAND credit -> JP native 3073
+    }
+    return 0x11AF + indx - 1;
 }
 
 // Event listeners

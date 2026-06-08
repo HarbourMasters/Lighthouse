@@ -74,6 +74,11 @@ void port_mirror_patchTextActors(void);
 int port_fixMumboTokenId(int ret, int pos[3], int map_id);
 int port_shouldAllowAllHoneycombExtensions(void);
 
+// Localization (LocalizedText.cpp)
+
+void port_localizeParade(int paradeId, void** table, uint8_t* count);
+int port_paradeDialogId(int indx);
+
 #ifdef __cplusplus
 }
 #endif
