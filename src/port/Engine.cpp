@@ -369,6 +369,8 @@ void GameEngine::FinishInit() {
     // If UpdateModFiles(true) above quarantined conflicting romhack overlays,
     // surface that to the user now that the modal window is alive.
     MaybeShowModConflictPopup();
+    // Likewise if it refused romhack overlays due to a non-v1.0 base.
+    MaybeShowRomhackBaseMismatchPopup();
     Instance->AudioInit();
     AdaptiveFps_Configure(30); // BK ticks at 30 Hz
     // Instance->LoadDictionary();

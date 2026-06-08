@@ -28,7 +28,7 @@ extern "C" uint16_t ResourceMgr_LoadTexWidthByName(char* texPath);
 extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
 extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
 
-// [port] Dialog language state — detected at boot from o2r version
+// Dialog language state — detected at boot from o2r version
 static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
 static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
 
@@ -87,7 +87,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
 
         SPDLOG_INFO("Loaded asset manifest from o2r with {} entries", symbolMap.size());
 
-        // [port] If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
+        // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
         // so the decomp's hardcoded IDs resolve transparently.
         // Detection: v1.0 has 3314 assets, v1.1/PAL/JP have 3044-3065.
         // This is done once at boot — no per-lookup cost after this point.
@@ -158,7 +158,7 @@ std::shared_ptr<Ship::IResource> GetResourceByName(const char* path) {
     }
 }
 
-// [port] Keep shared_ptr references alive so raw pointers from GetResourceRawPointer
+// Keep shared_ptr references alive so raw pointers from GetResourceRawPointer
 // don't become dangling when the resource manager evicts entries from its cache.
 static std::unordered_map<uint32_t, std::shared_ptr<Ship::IResource>> sResourceRefCache;
 
@@ -171,7 +171,7 @@ static char* LoadAndRetainResource(const std::string& path, uint32_t assetId) {
     return nullptr;
 }
 
-// [port] Reload an asset, evicting any cached version first.
+// Reload an asset, evicting any cached version first.
 // Used for map models whose vertex data gets modified at runtime.
 extern "C" char* ResourceMgr_ReloadByAssetId(uint32_t assetId) {
     std::shared_ptr<Ship::IResource> oldRef;
@@ -225,7 +225,7 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
     return nullptr;
 }
 
-// [port] Returns the data size of a previously loaded resource (from the ref cache).
+// Returns the data size of a previously loaded resource (from the ref cache).
 // Used by decomp code that depends on assetCacheCurrentSize (e.g. demo_load).
 extern "C" size_t ResourceMgr_GetResourceSize(uint32_t assetId) {
     if (auto it = sResourceRefCache.find(assetId); it != sResourceRefCache.end()) {
@@ -234,7 +234,7 @@ extern "C" size_t ResourceMgr_GetResourceSize(uint32_t assetId) {
     return 0;
 }
 
-// [port] On N64, sprites and models were raw binary blobs that could be type-punned.
+// On N64, sprites and models were raw binary blobs that could be type-punned.
 // On PC, they're separate resource types from different importers. Actors with sprite
 // assets can be spawned as "model" props (unk8_1=1), causing collision code to call
 // marker_loadModelBin which reinterprets sprite data as BKModelBin. This helper lets

@@ -45,6 +45,9 @@ static std::atomic<size_t> sInlineCount{ 0 };
 static std::atomic<size_t> sInlineTotal{ 0 };
 static std::string sInlineFile;
 
+static std::vector<std::string> sQuarantinedConflicts;
+static std::vector<std::string> sRomhackBaseMismatch;
+
 #define CVAR_ENABLED_MODS_NAME CVAR_SETTING("EnabledMods")
 #define CVAR_ENABLED_MODS_DEFAULT ""
 #define CVAR_ENABLED_MODS_VALUE CVarGetString(CVAR_ENABLED_MODS_NAME, CVAR_ENABLED_MODS_DEFAULT)
@@ -134,15 +137,10 @@ std::shared_ptr<Ship::ArchiveManager> GetArchiveManager() {
 }
 
 bool IsValidExtension(std::string extension) {
-    // Only .o2r is supported. .otr is intentionally excluded — Lighthouse
-    // doesn't ship that legacy format. .zip is excluded because mods are
-    // commonly distributed as zips containing nested o2rs.
     return StringHelper::IEquals(extension, ".o2r");
 }
 
-// Returns true if the o2r archive at archivePath contains a member named
-// `assets/aGameConfig`. Used by the conflict resolver to detect overlays
-// that would clash on the BB game-config blob.
+// Ensure the archive being loaded is a BK o2r
 static bool ArchiveHasGameConfig(const std::filesystem::path& archivePath) {
     int err = 0;
     zip_t* z = zip_open(archivePath.string().c_str(), ZIP_RDONLY, &err);
@@ -154,8 +152,46 @@ static bool ArchiveHasGameConfig(const std::filesystem::path& archivePath) {
     return found;
 }
 
-// Prevent multiple aGameConfig files from loading.
-static std::vector<std::string> sQuarantinedConflicts;
+// Prevent multiple aGameConfig files from loading
+// and warn if the base o2r is incompatible
+static bool BaseIsRomhackCompatible() {
+    std::string basePath = Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk");
+    if (basePath.empty() || !std::filesystem::exists(basePath)) {
+        return true; // can't determine version
+    }
+    int err = 0;
+    zip_t* z = zip_open(basePath.c_str(), ZIP_RDONLY, &err);
+    if (z == nullptr) {
+        return true;
+    }
+    bool compatible = true;
+    zip_int64_t idx = zip_name_locate(z, "assets/aBKAssetTable", 0);
+    if (idx >= 0) {
+        if (zip_file_t* f = zip_fopen_index(z, idx, 0)) {
+            constexpr size_t kCountOffset = 0x40 + 4;
+            uint8_t buf[kCountOffset + 4];
+            size_t got = 0;
+            while (got < sizeof(buf)) {
+                zip_int64_t n = zip_fread(f, buf + got, sizeof(buf) - got);
+                if (n <= 0) {
+                    break;
+                }
+                got += static_cast<size_t>(n);
+            }
+            if (got == sizeof(buf)) {
+                const uint8_t* p = buf + kCountOffset;
+                uint32_t count = static_cast<uint32_t>(p[0]) | (static_cast<uint32_t>(p[1]) << 8) |
+                                 (static_cast<uint32_t>(p[2]) << 16) | (static_cast<uint32_t>(p[3]) << 24);
+                if (count >= 3030 && count <= 3080) { // v1.1 / PAL / JP
+                    compatible = false;
+                }
+            }
+            zip_fclose(f);
+        }
+    }
+    zip_close(z);
+    return compatible;
+}
 
 static bool DetectAndQuarantineGameConfigConflicts() {
     std::vector<std::string> withConfig;
@@ -257,11 +293,32 @@ void UpdateModFiles(bool init, bool reset) {
             AfterModChange();
 
             if (init) {
+                const bool baseCompatible = BaseIsRomhackCompatible();
                 for (const std::string& mod : enabledModFiles) {
                     auto it = filePaths.find(mod);
                     if (it == filePaths.end())
                         continue;
+                    if (!baseCompatible && ArchiveHasGameConfig(it->second)) {
+                        SPDLOG_WARN("[ModMenu] Refusing romhack overlay '{}' — base bk.o2r is not US v1.0; "
+                                    "romhacks require a v1.0 base.",
+                                    mod);
+                        sRomhackBaseMismatch.push_back(mod);
+                        continue;
+                    }
                     GetArchiveManager()->AddArchive(it->second.generic_string());
+                }
+                // Persist-disable the refused romhacks so the mod list reflects
+                // reality on the next boot.
+                for (const auto& mod : sRomhackBaseMismatch) {
+                    auto eit = std::find(enabledModFiles.begin(), enabledModFiles.end(), mod);
+                    if (eit != enabledModFiles.end()) {
+                        enabledModFiles.erase(eit);
+                        disabledModFiles.push_back(mod);
+                    }
+                }
+                if (!sRomhackBaseMismatch.empty()) {
+                    AfterModChange();
+                    changed = true;
                 }
             }
         }
@@ -504,6 +561,21 @@ void MaybeShowModConflictPopup() {
     sQuarantinedConflicts.clear();
 }
 
+void MaybeShowRomhackBaseMismatchPopup() {
+    if (sRomhackBaseMismatch.empty()) {
+        return;
+    }
+    std::string body = "One or more romhack mods were disabled because your base game data\n"
+                       "(bk.o2r) is not the US v1.0 version. Romhacks are built from US v1.0 ROMs.\n"
+                       "To play romhacks, re-extract bk.o2r from a US v1.0 ROM.\n\n"
+                       "Disabled romhacks:\n";
+    for (const auto& name : sRomhackBaseMismatch) {
+        body += "  - " + name + "\n";
+    }
+    LighthouseGui::RegisterPopup("Romhack Requires US v1.0", body, "OK", "", nullptr, nullptr);
+    sRomhackBaseMismatch.clear();
+}
+
 void SetSoleEnabledRomhack(const std::string& keepBasename) {
     const std::string modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods");
     if (modsPath.empty() || !std::filesystem::is_directory(modsPath)) {
@@ -635,16 +707,28 @@ void DrawInlineModExtraction() {
         const std::string keep = std::filesystem::path(GameExtractor::sLastOutputPath).stem().string();
         SetSoleEnabledRomhack(keep);
         Ship::Context::GetInstance()->GetConsoleVariables()->Save();
-        LighthouseGui::RegisterPopup(
-            "Mod Installed",
-            "The romhack mod was extracted into your mods folder.\n"
-            "Lighthouse will now restart to load it.",
-            "Restart", "",
-            []() {
-                GameEngine::RequestRelaunch();
-                Ship::Context::GetInstance()->GetWindow()->Close();
-            },
-            nullptr);
+        if (!BaseIsRomhackCompatible()) {
+            LighthouseGui::RegisterPopup(
+                "Romhack Requires US v1.0",
+                "The romhack mod was extracted into your mods folder, but your\n"
+                "base game data (bk.o2r) is not the US v1.0 version.\n\n"
+                "Romhacks are built from US v1.0 ROMs and will not play correctly\n"
+                "on a v1.1/PAL/JP base. Re-extract bk.o2r from a US v1.0 ROM,\n"
+                "then enable this mod from Settings -> Mod Menu.",
+                "OK", "", nullptr, nullptr);
+        } else {
+            LighthouseGui::RegisterPopup(
+                "Mod Installed",
+                "The romhack mod was extracted into your mods folder.\n"
+                "Lighthouse needs to restart to load it.\n\n"
+                "Restart now?",
+                "Restart", "Later",
+                []() {
+                    GameEngine::RequestRelaunch();
+                    Ship::Context::GetInstance()->GetWindow()->Close();
+                },
+                nullptr);
+        }
     } else if (result == 2) {
         sInlineResult = -1;
         std::string body = GameExtractor::sLastError.empty()
