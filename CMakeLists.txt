@@ -185,6 +185,9 @@ endif()
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c.in ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c @ONLY)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/properties.h.in ${CMAKE_CURRENT_SOURCE_DIR}/properties.h @ONLY)
 
+set(Header_Files "resource.h")
+source_group("include" FILES ${Header_Files})
+
 # Include directories
 include_directories(
     "${PROJECT_SOURCE_DIR}"
@@ -214,6 +217,8 @@ file(GLOB_RECURSE ALL_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/include/**/*"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*"
 )
+
+list(APPEND ALL_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resource.rc)
 
 
 # Create source groups that match the real file directory paths
