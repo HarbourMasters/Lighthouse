@@ -8,8 +8,6 @@ extern "C" {
 class DummyPlayer {
 public:
     DummyPlayer();
-    // void dummy_getPosition(f32* dst);
-    // void dummy_update(void);
     Actor* dummy_80291AAC(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx);
     AssetID dummy_getModelId(void);
     BKModelBin* dummy_getModelBin(void);
@@ -29,7 +27,6 @@ public:
     void dummy_802921D4(f32 arg0[3]);
     void dummy_8029223C(f32 arg0[3]);
     void dummy_80292260(f32 arg0[3]);
-    void dummy_80292284(f32 arg0[3], s32 arg1);
     void dummy_802924B8(f32 arg0[3]);
     void dummy_802924E8(f32 arg0[3]);
     void dummy_80292554(f32 arg0[3]);
@@ -106,12 +103,12 @@ private:
     f32 dummyAnimMinDuration;
     f32 dummyAnimMaxDuration;
     struct {
-        f32 velocity_min;     // velocity_min
-        f32 velocity_max;     // velocity_max
-        f32 duration_min;     // duration_min
-        f32 duration_max;     // duration_max
-        f32 duration_scale;   // duration_scale
-        u8 scalable_duration; // scalable_duration
+        f32 velocity_min;
+        f32 velocity_max;
+        f32 duration_min;
+        f32 duration_max;
+        f32 duration_scale;
+        u8 scalable_duration;
     } dummyAnimScale;
     AnimCtrl* dummyAnimCtrl = nullptr;
     f32 dummyVelocity[3];

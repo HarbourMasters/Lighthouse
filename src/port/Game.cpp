@@ -1,18 +1,20 @@
-#include <libultraship.h>
-#include <cstring>
-
-#include <fast/interpreter.h>
 #include "Engine.h"
-#include "ShipUtils.h"
-#include "patches/Patches.h"
-#include "src/port/enhancements/events/hooks/Events.h"
-#include "interpolation/FrameInterpolation.h"
-
+#include <cstring>
+#include <fast/interpreter.h>
+#include <libultraship.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <timeapi.h>
 #pragma comment(lib, "winmm.lib")
 #endif
+#include <SDL2/SDL.h>
+
+#include "GameStatus.h"
+#include "interpolation/FrameInterpolation.h"
+#include "Network/Anchor/Anchor.h"
+#include "patches/Patches.h"
+#include "ShipUtils.h"
+#include "src/port/enhancements/events/hooks/Events.h"
 
 extern "C" {
 #include "enums.h"
@@ -28,9 +30,6 @@ extern "C" void Graphics_PushFrame(Gfx* data) {
     sFrameRendered = true;
     GameEngine::ProcessGfxCommands(data);
 }
-
-extern "C" int gsworld_getMap(void);
-extern "C" void port_setWindowTitle(int map_id);
 
 void push_frame() {
     static int sTitleCounter = 0;
@@ -68,6 +67,10 @@ int SDL_main(int argc, char* argv[]) {
     while (WindowIsRunning()) {
         push_frame();
     }
+#ifdef USE_NETWORKING
+    Anchor::GetInstance()->Disable();
+    SDLNet_Quit();
+#endif
 #ifdef _WIN32
     timeEndPeriod(1);
 #endif

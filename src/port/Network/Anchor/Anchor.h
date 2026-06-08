@@ -81,7 +81,6 @@ private:
     void HandlePacket_GameComplete(nlohmann::json& payload);
     void HandlePacket_GiveItem(nlohmann::json& payload);
     void HandlePacket_MapLoad(nlohmann::json& payload);
-    void HandlePacket_OcarinaSfx(nlohmann::json& payload);
     void HandlePacket_PlayerSfx(nlohmann::json& payload);
     void HandlePacket_PlayerAnimChange(nlohmann::json& payload);
     void HandlePacket_PlayerSubRangeChange(nlohmann::json& payload);
@@ -93,9 +92,7 @@ private:
     void HandlePacket_SetFlag(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
-    void HandlePacket_UpdateBeansCount(nlohmann::json& payload);
     void HandlePacket_UpdateClientState(nlohmann::json& payload);
-    void HandlePacket_UpdateDungeonItems(nlohmann::json& payload);
     void HandlePacket_UpdateRoomState(nlohmann::json& payload);
     void HandlePacket_UpdateTeamState(nlohmann::json& payload);
 
@@ -112,7 +109,6 @@ public:
     inline static const std::string GIVE_ITEM = "GIVE_ITEM";
     inline static const std::string HANDSHAKE = "HANDSHAKE";
     inline static const std::string MAP_LOAD = "MAP_LOAD";
-    inline static const std::string OCARINA_SFX = "OCARINA_SFX";
     inline static const std::string PLAYER_ANIM = "PLAYER_ANIM";
     inline static const std::string PLAYER_SFX = "PLAYER_SFX";
     inline static const std::string PLAYER_SUBRANGE = "PLAYER_SUBRANGE";
@@ -125,9 +121,7 @@ public:
     inline static const std::string SET_FLAG = "SET_FLAG";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
-    inline static const std::string UPDATE_BEANS_COUNT = "UPDATE_BEANS_COUNT";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
-    inline static const std::string UPDATE_DUNGEON_ITEMS = "UPDATE_DUNGEON_ITEMS";
     inline static const std::string UPDATE_ROOM_STATE = "UPDATE_ROOM_STATE";
     inline static const std::string UPDATE_TEAM_STATE = "UPDATE_TEAM_STATE";
 
@@ -159,7 +153,6 @@ public:
     void SendPacket_GameComplete();
     void SendPacket_GiveItem(u16 modId, s16 getItemId);
     void SendPacket_Handshake();
-    void SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend);
     void SendPacket_MapLoad(GameMap map, s32 exit);
     void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position,
                                      f32 subrange_end, bool smooth);
@@ -173,9 +166,7 @@ public:
     void SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag);
     void SendPacket_TeleportTo(u32 clientId);
     void SendPacket_UnsetFlag(s16 sceneNum, s16 flagType, s16 flag);
-    void SendPacket_UpdateBeansCount();
     void SendPacket_UpdateClientState();
-    void SendPacket_UpdateDungeonItems();
     void SendPacket_UpdateRoomState();
     void SendPacket_UpdateTeamState();
     void OnActorDestroyed(Actor* actor);

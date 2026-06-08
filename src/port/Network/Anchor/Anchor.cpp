@@ -158,8 +158,6 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_GameComplete(payload);
             else if (packetType == GIVE_ITEM)
                 HandlePacket_GiveItem(payload);
-            else if (packetType == OCARINA_SFX)
-                HandlePacket_OcarinaSfx(payload);
             else if (packetType == PLAYER_ANIM)
                 HandlePacket_PlayerAnimChange(payload);
             else if (packetType == PLAYER_SUBRANGE)
@@ -184,16 +182,12 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_TeleportTo(payload);
             else if (packetType == UNSET_FLAG)
                 HandlePacket_UnsetFlag(payload);
-            else if (packetType == UPDATE_BEANS_COUNT)
-                HandlePacket_UpdateBeansCount(payload);
             else if (packetType == MAP_LOAD)
                 HandlePacket_MapLoad(payload);
             else if (packetType == UPDATE_CLIENT_STATE)
                 HandlePacket_UpdateClientState(payload);
             else if (packetType == UPDATE_ROOM_STATE)
                 HandlePacket_UpdateRoomState(payload);
-            else if (packetType == UPDATE_DUNGEON_ITEMS)
-                HandlePacket_UpdateDungeonItems(payload);
         } catch (const std::exception& e) {
             SPDLOG_ERROR("[Anchor] Exception while processing incoming packet {}", e.what());
             SPDLOG_ERROR("[Anchor] Packet: {}", payload.dump());

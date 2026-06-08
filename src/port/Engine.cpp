@@ -927,9 +927,6 @@ void GameEngine::Create(int argc, char* argv[]) {
                 }
             }
         }
-#ifdef USE_NETWORKING
-        SDLNet_Quit();
-#endif
     });
 }
 

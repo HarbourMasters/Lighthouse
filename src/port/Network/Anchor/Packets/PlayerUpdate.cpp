@@ -7,7 +7,6 @@ extern "C" {
 #include "functions.h"
 #include "macros.h"
 #include "variables.h"
-// extern PlayState* gPlayState;
 }
 
 /**
@@ -102,12 +101,12 @@ void Anchor::SendPacket_PlayerUpdate(bool full) {
     }
 
     f32 pos[3];
-    f32 velocity_min;     // velocity_min
-    f32 velocity_max;     // velocity_max
-    f32 duration_min;     // duration_min
-    f32 duration_max;     // duration_max
-    f32 duration_scale;   // duration_scale
-    u8 scalable_duration; // scalable_duration
+    f32 velocity_min;
+    f32 velocity_max;
+    f32 duration_min;
+    f32 duration_max;
+    f32 duration_scale;
+    u8 scalable_duration;
     f32 velocity[3];
     f32 animMinDuration;
     f32 animMaxDuration;
@@ -160,10 +159,6 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
         if (client.self) {
             return;
         }
-
-        // if (client.dummy->dummy_getTransformation() != payload.value("transform", TRANSFORM_1_BANJO)) {
-        //     shouldRefreshActors = true;
-        // }
 
         client.map = payload.value("map", MAP_0_UNKNOWN);
         client.exit = payload.value("exit", (s32)0);

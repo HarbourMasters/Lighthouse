@@ -11,19 +11,6 @@ void func_802D729C(Actor* actor, f32 arg1);
 #include "bk_math.h"
 #include "port/patches/Patches.h"
 
-void _dummy_updateModelYaw(void) {
-    // switch(dummyDirection){
-    // case PLAYER_MODEL_DIR_KAZOOIE:
-    //     dummyYaw = mlNormalizeAngle(yaw_get() + 180.0f);
-    //     break;
-    // default:
-    //     dummyYaw = yaw_get();
-    //     break;
-    // case PLAYER_MODEL_DIR_GLOBAL:
-    //     break;
-    // }
-}
-
 DummyPlayer::DummyPlayer(){};
 
 void DummyPlayer::dummy_setTransformation(Transformation transform) {
@@ -37,15 +24,6 @@ Transformation DummyPlayer::dummy_getTransformation() {
 void DummyPlayer::dummy_getPosition(f32 arg0[3]) {
     ml_vec3f_copy(arg0, dummyPosition);
 }
-
-// void DummyPlayer::dummy_getPosition(f32* dst){
-//     f32 tmp1[3];
-//     f32 tmp2[3];
-//     dummy_80291A50(5,tmp1);
-//     dummy_80291A50(6,tmp2);
-//     ml_vec3f_add(dst, tmp1, tmp2);
-//     ml_vec3f_scale(dst, 0.5);
-// }
 
 void DummyPlayer::dummy_setPoisition(f32 pos[3]) {
     ml_vec3f_copy(dummyPosition, pos);
@@ -263,10 +241,6 @@ void DummyPlayer::dummy_reset(void) {
 
     f32 plyr_pos[3];
     int i;
-    for (i = 0; i < 2; i++) {
-        /*dummy_80292048(i, 0.0f, 0.0f, 0.0f);
-        dummy_80292078(i, 0.0f);*/
-    }
     dummyEnvAlpha = 0xFF;
     dummyBin = NULL;
     dummyId = ASSET_0_NONE;
@@ -285,7 +259,6 @@ void DummyPlayer::dummy_reset(void) {
     if (!func_8028ADB4())
         dummy_updateModel();
     dummy_getPosition(plyr_pos);
-    // dummyActor = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, plyr_pos, 0);
     dummyAnim_init();
     dummyAnim_reset();
 }
@@ -336,59 +309,6 @@ void DummyPlayer::dummyAnim_reset() {
 }
 
 void DummyPlayer::dummy_update(void) {
-    // f32 pos[3];
-    // player_getPosition(pos);
-    // pos[0] += 100;
-    // dummy_setPoisition(pos);
-    // dummy_setTransformation((Transformation)player_getTransformation());
-    //// Mirror model direction and apply the same yaw flip as _baModel_updateModelYaw:
-    //// PLAYER_MODEL_DIR_KAZOOIE adds 180° so Kazooie faces the direction of travel.
-    //{
-    //    PlayerModelDirection dir = baModel_getDirection();
-    //    dummy_setDirection(dir);
-    //    if (dir == PLAYER_MODEL_DIR_KAZOOIE) {
-    //        dummy_setYaw(mlNormalizeAngle(player_getYaw() + 180.0f));
-    //    } else if (dir != PLAYER_MODEL_DIR_GLOBAL) {
-    //        dummy_setYaw(player_getYaw());
-    //    }
-    //}
-    // dummy_setRoll(roll_get());
-    // dummy_setPitch(pitch_get());
-    //// Mirror anim velocity-scale state from the local player.
-    //// For a real remote player these come from network packets instead.
-    // dummyAnimUpdateType = baanim_getUpdateType();
-    // baphysics_get_velocity(dummyVelocity);
-    // baanim_getVelocityMapRanges(
-    //     &dummyAnimScale.velocity_min, &dummyAnimScale.velocity_max,
-    //     &dummyAnimScale.duration_min, &dummyAnimScale.duration_max);
-    // dummyAnimScale.duration_scale   = baanim_getDurationScale();
-    // dummyAnimScale.scalable_duration = baanim_isScalableDuration();
-    // baanim_getDurationRange(&dummyAnimMinDuration, &dummyAnimMaxDuration);
-
-    //// For non-velocity-scaled states, mirror the player's live animation duration
-    //// directly each frame. This covers moves like feathery flap where the BS state
-    //// calls anctrl_setDuration on playerAnimCtrl each tick to step through a
-    //// slowdown table — no anctrl_start fires, so no event captures these changes.
-    //// Velocity-scaled states (walk/run) skip this: dummyAnim_update derives their
-    //// duration from velocity instead.
-    //// For real networking, send anctrl_getDuration(playerAnimCtrl) in the
-    //// per-tick PlayerUpdate packet and call dummyAnim_setLiveDuration() here.
-    // if (dummyAnimUpdateType != BAANIM_UPDATE_2_SCALE_HORZ &&
-    //     dummyAnimUpdateType != BAANIM_UPDATE_3_SCALE_VERT) {
-    //     anctrl_setDuration(dummyAnimCtrl, anctrl_getDuration(baanim_getAnimCtrlPtr()));
-    // }
-
-    //// Mirror animstate so Kazooie geometry selectors match the local player.
-    //// D_8037D238 is read by func_8033A45C(1/9/C/F, ...) inside func_8029DD6C to
-    //// show or hide Kazooie's model parts. Without this, Kazooie stays invisible
-    //// even while her animations play. The other fields control eye/mouth state.
-    // dummy_kazooieVisible = func_8029DFBC(); // Kazooie visibility (Kazooie popped out)
-    // dummy_modelSquint = func_8029DFA4(); // squint
-    // dummy_modelWink = func_8029DFB0(); // wink
-    // dummy_modelMouth1 = func_8029DFE0(); // mouth
-    // dummy_modelMouth2 = func_8029DFEC(); // mouth 2
-    // dummy_modelEyeBlendUpper = func_8029DFC8(); // eye blend upper
-    // dummy_modelEyeBlendLower = func_8029DFD4(); // eye blend lower
     dummyAnim_update();
 
     // if (dummyActor && !dummyActor->despawn_flag) {
@@ -397,29 +317,6 @@ void DummyPlayer::dummy_update(void) {
     //     dummyActor->position[2] = dummyPosition[2];
     //     func_802D729C(dummyActor, 1.0f);
     // }
-
-    //    f32 sp1C;
-    //    f32 temp_f0;
-    //
-    //    sp1C = dummy_D_8037C110[1] - dummy_D_8037C100[1];
-    //    temp_f0 = mlAbsF(sp1C);
-    //    if( temp_f0 < 0.01){
-    //        dummy_D_8037C100[1] = dummy_D_8037C110[1];
-    //    }
-    //    else{
-    //        if(5.0f < temp_f0){
-    //            temp_f0 = 1.0f;
-    //        }
-    //        if(0.0f < sp1C){
-    //            dummy_D_8037C100[1] += temp_f0;
-    //        }
-    //        else{
-    //            dummy_D_8037C100[1] -= temp_f0;
-    //        }
-    //        {//L80291F7C
-    //            baMarker_get()->unk14_21 = 0;
-    //        }
-    //    }
 }
 
 BKModelBin* DummyPlayer::dummy_getModelBin(void) {
@@ -462,9 +359,6 @@ void DummyPlayer::dummy_setDirection(enum player_model_direction_e direction) {
 }
 
 void DummyPlayer::dummy_setScale(f32 scale) {
-    // if(osCicId + -6103){
-    //     scale = scale*0.25;
-    // }
     dummyScale = scale;
 }
 
@@ -514,52 +408,6 @@ void DummyPlayer::dummy_8029223C(f32 arg0[3]) {
 
 void DummyPlayer::dummy_80292260(f32 arg0[3]) {
     dummy_80291A50(7, arg0);
-}
-
-void DummyPlayer::dummy_80292284(f32 arg0[3], s32 arg1) {
-    f32 sp44[3];
-    f32 sp38[3];
-
-    if (dummyMarker->unk14_21 && dummyIsVisible) {
-        switch (dummy_getModelId()) {
-            case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
-            case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
-            case ASSET_34F_MODEL_BANJO_TERMITE: // 802922E8
-            case ASSET_359_MODEL_BANJO_WALRUS:  // 802922E8
-            case ASSET_362_MODEL_BANJO_BEE:
-            case ASSET_36F_MODEL_BANJO_PUMPKIN:
-            case ASSET_374_MODEL_BANJO_CROC:
-                vec3fArray_get_vec3f(dummy_D_80363780, arg1 + 1, arg0);
-                if (ml_isZero_vec3f(arg0)) {
-                    dummy_getPosition(arg0);
-                }
-
-                arg0[1] += dummy_D_8037C130[arg1][0];
-                if (dummy_D_8037C130[arg1][1] != 0.0f) {
-                    func_80256E24(sp44, dummy_D_8037C130[arg1][2],
-                                  mlNormalizeAngle(yaw_get() + dummy_D_8037C130[arg1][3]), 0.0f, 0.0f,
-                                  dummy_D_8037C130[arg1][1]);
-                    arg0[0] += sp44[0];
-                    arg0[1] += sp44[1];
-                    arg0[2] += sp44[2];
-                }
-                // baphysics_get_position_change(sp38);
-                arg0[0] = arg0[0] + sp38[0];
-                arg0[1] = arg0[1] + sp38[1];
-                arg0[2] = arg0[2] + sp38[2];
-                break;
-            default: ////80292400
-                dummy_getPosition(arg0);
-                break;
-        }
-    } else { // L80292410
-        dummy_getPosition(arg0);
-        if (arg1) {
-            arg0[1] += 33.0f;
-        } else {
-            arg0[1] += 75.0f;
-        }
-    }
 }
 
 void DummyPlayer::dummy_802924B8(f32 arg0[3]) {
@@ -636,8 +484,6 @@ void DummyPlayer::dummyAnim_update(void) {
     // Apply velocity-scaled duration using this dummy's own state and velocity,
     // mirroring the logic in __baanim_update_scaleToHorizontalVelocity /
     // __baanim_update_scaleToVerticalVelocity in ba_anim.c.
-    // For the local clone, dummyVelocity is populated from baphysics each frame.
-    // For a real remote player it comes from network packets.
     switch (dummyAnimUpdateType) {
         case BAANIM_UPDATE_2_SCALE_HORZ:
             scale = (dummyAnimScale.scalable_duration != 0) ? dummyAnimScale.duration_scale : 1.0f;
@@ -700,8 +546,6 @@ void DummyPlayer::dummyAnim_setEndAndDuration(f32 end_position, f32 duration) {
     anctrl_setSubRange(dummyAnimCtrl, 0.0f, end_position);
     anctrl_setDuration(dummyAnimCtrl, duration);
     anctrl_setPlaybackType(dummyAnimCtrl, ANIMCTRL_ONCE);
-    // Note: do NOT call anctrl_start here — the animation should continue from
-    // its current timer position, matching the player who also doesn't restart.
 }
 
 void DummyPlayer::dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position,
