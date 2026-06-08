@@ -70,6 +70,7 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
             FrameInterpolation_RecordOpenChild("player", 0);
             player_draw(gdl, mptr, vptr);
             FrameInterpolation_RecordCloseChild();
+            CALL_EVENT(OnPlayerDraw, gdl, mptr, vptr);
         }
         if (game_is_frozen() == 0) {
             func_80302C94(gdl, mptr, vptr);
@@ -116,6 +117,7 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
         FrameInterpolation_RecordOpenChild("player", 0);
         player_draw(gdl, mptr, vptr);
         FrameInterpolation_RecordCloseChild();
+        CALL_EVENT(OnPlayerDraw, gdl, mptr, vptr);
         func_80302C94(gdl, mptr, vptr);
         func_8032D3D8(gdl, mptr, vptr);
         FrameInterpolation_RecordOpenChild("jiggylist", 0);
@@ -225,8 +227,8 @@ void gsworld_free(void) {
 
 void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     sGsWorldData.unk0 = 3;
+    CALL_EVENT(OnMapLoad, sGsWorldData.map_4, arg0, arg1);
     sGsWorldData.map_4 = arg0;
-    CALL_EVENT(OnMapLoad, arg0);
     // [port] Drop the prev tree; the next sub-frame would otherwise lerp
     // the old map's geometry against the new one's.
     FrameInterpolation_DontInterpolateCamera();

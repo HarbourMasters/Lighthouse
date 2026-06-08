@@ -60,7 +60,7 @@ inline void from_json(const json& j, AnchorClient& client) {
     client.seed = j.value("seed", (u32)0);
     client.isSaveLoaded = j.value("isSaveLoaded", false);
     client.isGameComplete = j.value("isGameComplete", false);
-    client.map = j.value("map", MAP_0_NONE);
+    client.map = j.value("map", MAP_0_UNKNOWN);
     client.exit = j.value("exit", (s32)0);
     client.self = j.value("self", false);
 }

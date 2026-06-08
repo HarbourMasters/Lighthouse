@@ -17,8 +17,12 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     std::vector<AnchorClient> newClients = payload["state"].get<std::vector<AnchorClient >>();
     bool isGlobalRoom = (std::string("lh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
+    std::vector<uint32_t> clientsToRemove;
     // add new clients
     for (auto& client : newClients) {
+        if (!client.online && clients.contains(client.clientId)) {
+            clientsToRemove.push_back(client.clientId);
+        }
         if (client.self) {
             ownClientId = client.clientId;
             CVarSetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), ownClientId);
@@ -39,7 +43,7 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
                     .message = "Connected",
                 });
             }
-            if (client.dummy == nullptr && !client.self) {
+            if (clients[client.clientId].dummy == nullptr && !client.self) {
                 clients[client.clientId].dummy = new DummyPlayer();
                 clients[client.clientId].dummy->dummy_reset();
             }
@@ -58,7 +62,6 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     }
 
     // remove clients that are no longer in the list
-    std::vector<uint32_t> clientsToRemove;
     for (auto& [clientId, client] : clients) {
         if (std::find_if(newClients.begin(), newClients.end(),
                          [clientId](AnchorClient& c) { return c.clientId == clientId; }) == newClients.end()) {
@@ -78,4 +81,5 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     }
 
     PopulateDummies();
+    SendPacket_PlayerUpdate(true);
 }

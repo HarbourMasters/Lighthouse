@@ -124,7 +124,7 @@ void RegisterCutsceneAspect() {
     ResetCutsceneAspect();
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CUTSCENE_ASPECT, 0), [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
-        updateCutsceneAspect(ev->mapId);
+        updateCutsceneAspect(ev->nextMap);
     });
 }
 

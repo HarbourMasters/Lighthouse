@@ -23,15 +23,26 @@ void Anchor::RegisterHooks() {
     //    }
     //});
  
-    COND_HOOK(MapTransitionEnd, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnMapLoad*>(event);
+        if (ev->prevMap == MAP_91_FILE_SELECT &&
+            ev->nextMap != MAP_1E_CS_START_NINTENDO &&
+            ev->nextMap != MAP_1F_CS_START_RAREWARE) {
+            Anchor::GetInstance()->SendPacket_UpdateClientState();
+        }
         Anchor::GetInstance()->ClearDummies();
-        // Test: spawn one dummy at player pos + X offset
         Anchor::GetInstance()->PopulateDummies();
+        Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
+        //Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
     });
 
-    COND_HOOK(OnWorldDraw, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        auto drawEv = reinterpret_cast<OnWorldDraw*>(event);
-        Anchor::GetInstance()->DrawDummies(drawEv);
+    COND_HOOK(OnReset, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        Anchor::GetInstance()->SendPacket_MapLoad((GameMap)getDefaultBootMap(), gsworld_getExit());
+    });
+
+    COND_HOOK(OnPlayerDraw, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        auto drawEv = reinterpret_cast<OnPlayerDraw*>(event);
+        Anchor::GetInstance()->DrawDummies(reinterpret_cast<OnPlayerDraw*>(drawEv));
     });
 //
 //    COND_HOOK(OnPresentFileSelect, isConnected, [&]() { SendPacket_UpdateClientState(); });
@@ -86,7 +97,12 @@ void Anchor::RegisterHooks() {
 
     COND_HOOK(OnPlayerAnimSubRangeChange, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         OnPlayerAnimSubRangeChange* ev = reinterpret_cast<OnPlayerAnimSubRangeChange*>(event);
-        //Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
+        Anchor::GetInstance()->SendPacket_PlayerSubRangeChange(ev->duration, ev->end_position);
+    });
+
+    COND_HOOK(OnActorDestroy, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        OnActorDestroy* ev = reinterpret_cast<OnActorDestroy*>(event);
+        Anchor::GetInstance()->OnActorDestroyed(ev->actor);
     });
 //
 //    COND_HOOK(OnPlayerSfx, isConnected, [&](u16 sfxId) { SendPacket_PlayerSfx(sfxId); });

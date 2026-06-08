@@ -32,8 +32,8 @@ typedef struct {
     uint32_t seed;
     bool isSaveLoaded;
     bool isGameComplete;
-    GameMap map;
-    s32 exit;
+    GameMap map, prevMap;
+    s32 exit, prevExit;
 
     DummyPlayer* dummy;
 } AnchorClient;
@@ -64,7 +64,7 @@ class Anchor : public Network {
     void RegisterHooks();
     void RefreshClientActors();
     void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
-    void DrawDummies(OnWorldDraw* event);
+    void DrawDummies(OnPlayerDraw* event);
     void ClearDummies();
     void PopulateDummies();
     void RegisterDummy(DummyPlayer* dummy, uint32_t clientID);
@@ -72,12 +72,15 @@ class Anchor : public Network {
     void UpdateDummies();
     void RemoveDummy(uint32_t clientId);
 
+    void EvaluateDummyForClient(uint32_t clientId);
+
     void HandlePacket_AllClientState(nlohmann::json& payload);
     void HandlePacket_DamagePlayer(nlohmann::json& payload);
     void HandlePacket_DisableAnchor(nlohmann::json& payload);
     void HandlePacket_EntranceDiscovered(nlohmann::json& payload);
     void HandlePacket_GameComplete(nlohmann::json& payload);
     void HandlePacket_GiveItem(nlohmann::json& payload);
+    void HandlePacket_MapLoad(nlohmann::json& payload);
     void HandlePacket_OcarinaSfx(nlohmann::json& payload);
     void HandlePacket_PlayerSfx(nlohmann::json& payload);
     void HandlePacket_PlayerAnimChange(nlohmann::json& payload);
@@ -108,6 +111,7 @@ class Anchor : public Network {
     inline static const std::string GAME_COMPLETE = "GAME_COMPLETE";
     inline static const std::string GIVE_ITEM = "GIVE_ITEM";
     inline static const std::string HANDSHAKE = "HANDSHAKE";
+    inline static const std::string MAP_LOAD = "MAP_LOAD";
     inline static const std::string OCARINA_SFX = "OCARINA_SFX";
     inline static const std::string PLAYER_ANIM = "PLAYER_ANIM";
     inline static const std::string PLAYER_SFX = "PLAYER_SFX";
@@ -156,6 +160,7 @@ class Anchor : public Network {
     void SendPacket_GiveItem(u16 modId, s16 getItemId);
     void SendPacket_Handshake();
     void SendPacket_OcarinaSfx(uint8_t note, float modulator, int8_t bend);
+    void SendPacket_MapLoad(GameMap map, s32 exit);
     void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, f32 subrange_end, bool smooth);
     void SendPacket_PlayerAnimReset();
     void SendPacket_PlayerSfx(u16 sfxId);
@@ -172,6 +177,7 @@ class Anchor : public Network {
     void SendPacket_UpdateDungeonItems();
     void SendPacket_UpdateRoomState();
     void SendPacket_UpdateTeamState();
+    void OnActorDestroyed(Actor* actor);
     void SendToCurrentMapPlayers(nlohmann::json& payload);
 
     static Anchor* GetInstance();

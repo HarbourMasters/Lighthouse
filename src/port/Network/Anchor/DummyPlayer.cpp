@@ -52,7 +52,7 @@ void DummyPlayer::dummy_setPoisition(f32 pos[3]) {
 }
 
 void DummyPlayer::dummy_80291A50(s32 arg0, f32 dst[3]){
-    func_8034A174(dummy_D_80363780, arg0, dst);
+    vec3fArray_get_vec3f(dummy_D_80363780, arg0, dst);
     if(ml_isZero_vec3f(dst)){
         dummy_getPosition(dst);
     }
@@ -111,7 +111,7 @@ void DummyPlayer::dummy_setEyeState(bool squint, bool wink, bool isHat) {
 void DummyPlayer::func_8029DD6C(void) {
     s32 temp_s0; // [port] must hold values > 1 for geo selector branches
 
-    func_8033A1FC();
+    modelRender_func_8033A1FC();
     switch (dummy_getModelId()) {
     case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
     case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
@@ -204,9 +204,9 @@ void DummyPlayer::Draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
         anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
         func_8029DD6C();
         modelRender_setEnvColor(env_color[0], env_color[1], env_color[2], dummyEnvAlpha);
-        func_8033A280(2.0f);
+        modelRender_func_8033A280(2.0f);
         //modelRender_preDraw((GenFunction_1)_dummy_preDraw, 0);
-        func_8033A450(dummy_D_80363780);
+        modelRender_setRefPoints(dummy_D_80363780);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
         if(dummy_D_8037C150.unk0){
             dummy_D_8037C150.unk0 = 0;
@@ -251,6 +251,18 @@ void DummyPlayer::dummy_updateModel(void){
 }
 
 void DummyPlayer::dummy_reset(void){
+    // Clear stale actor reference — the game engine owns actor lifetime and may have
+    // already freed it (e.g. after a map transition). Don't dereference the old pointer.
+    //dummyActor = NULL;
+    if (dummyAnimCtrl) {
+        dummyAnim_free();
+        dummyAnimCtrl = NULL;
+    }
+    if (dummy_D_80363780) {
+        vec3fArray_free(dummy_D_80363780);
+        dummy_D_80363780 = NULL;
+    }
+
     f32 plyr_pos[3];
     int i;
     for(i = 0; i < 2 ; i++){
@@ -261,8 +273,8 @@ void DummyPlayer::dummy_reset(void){
     dummyBin = NULL;
     dummyId = ASSET_0_NONE;
     dummyPostDrawMethod = NULL;
-    dummy_D_80363780 = func_8034A2C8();
-    func_8034A130(dummy_D_80363780);
+    dummy_D_80363780 = vec3fArray_new();
+    vec3fArray_clearValues(dummy_D_80363780);
     ml_vec3f_clear(dummy_D_8037C100);
     ml_vec3f_clear(dummy_D_8037C110);
     ml_vec3f_clear(dummyDisplacement);
@@ -275,28 +287,41 @@ void DummyPlayer::dummy_reset(void){
     if(!func_8028ADB4())
         dummy_updateModel();
     dummy_getPosition(plyr_pos);
-    dummyActor = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, plyr_pos, 0);
+    //dummyActor = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, plyr_pos, 0);
     dummyAnim_init();
     dummyAnim_reset();
 }
 
+void DummyPlayer::dummy_detachActor(void) {
+    //dummyActor = nullptr;
+}
+
 void DummyPlayer::dummy_free(void) {
-    if (dummyActor) {
+    /*if (dummyActor) {
         if (dummyActor->unk104) {
             Actor *shadow = marker_getActor(dummyActor->unk104);
             shadow->unk104 = NULL;
             shadow->despawn_flag = true;
             dummyActor->unk104 = NULL;
         }
-        marker_despawn(dummyActor->marker);
+        if (dummyActor->marker) {
+            marker_despawn(dummyActor->marker);
+        }
         dummyActor = NULL;
+    }*/
+    if (dummyBin) {
+        assetcache_release(dummyBin);
+        dummyBin = NULL;
     }
-    assetcache_release(dummyBin);
-    dummyBin = NULL;
     dummyId = ASSET_0_NONE;
-    func_8034A2A8(dummy_D_80363780);
-    dummy_D_80363780 = NULL;
-    dummyAnim_free();
+    if (dummy_D_80363780) {
+        vec3fArray_free(dummy_D_80363780);
+        dummy_D_80363780 = NULL;
+    }
+    if (dummyAnimCtrl) {
+        dummyAnim_free();
+        dummyAnimCtrl = NULL;
+    }
 }
 
 void DummyPlayer::dummyAnim_reset() {
@@ -368,12 +393,12 @@ void DummyPlayer::dummy_update(void) {
     //dummy_modelEyeBlendLower = func_8029DFD4(); // eye blend lower
     dummyAnim_update();
 
-    if (dummyActor && !dummyActor->despawn_flag) {
-        dummyActor->position[0] = dummyPosition[0];
-        dummyActor->position[1] = dummyPosition[1];
-        dummyActor->position[2] = dummyPosition[2];
-        func_802D729C(dummyActor, 1.0f);
-    }
+    //if (dummyActor && !dummyActor->despawn_flag) {
+    //    dummyActor->position[0] = dummyPosition[0];
+    //    dummyActor->position[1] = dummyPosition[1];
+    //    dummyActor->position[2] = dummyPosition[2];
+    //    func_802D729C(dummyActor, 1.0f);
+    //}
 
 //    f32 sp1C;
 //    f32 temp_f0;
@@ -414,7 +439,7 @@ void DummyPlayer::dummy_setEnvAlpha(s32 alpha){
 void DummyPlayer::dummy_set(enum asset_e asset_id){
     if(asset_id != dummyId){
         if(dummyBin){
-            func_80254008();
+            core1_15B30_sendMesg3ToRenderThread();
             assetcache_release(dummyBin);
             dummyBin = NULL;
         }
@@ -506,7 +531,7 @@ void DummyPlayer::dummy_80292284(f32 arg0[3], s32 arg1){
         case ASSET_362_MODEL_BANJO_BEE:
         case ASSET_36F_MODEL_BANJO_PUMPKIN:
         case ASSET_374_MODEL_BANJO_CROC:
-            func_8034A174(dummy_D_80363780, arg1 + 1, arg0);
+            vec3fArray_get_vec3f(dummy_D_80363780, arg1 + 1, arg0);
             if(ml_isZero_vec3f(arg0)){
                 dummy_getPosition(arg0);
             }
@@ -575,7 +600,7 @@ void DummyPlayer::dummy_80292578(f32 arg0[3]){
 
 void DummyPlayer::dummy_defrag(void){
     if(dummy_D_80363780){
-        dummy_D_80363780 = func_8034A348(dummy_D_80363780);
+        dummy_D_80363780 = vec3fArray_defrag(dummy_D_80363780);
     }
 }
 
@@ -673,6 +698,7 @@ void DummyPlayer::dummyAnim_setDurationRange(f32 min, f32 max) {
 }
 
 void DummyPlayer::dummyAnim_setEndAndDuration(f32 end_position, f32 duration) {
+    if (!dummyAnimCtrl) return;
     anctrl_setSubRange(dummyAnimCtrl, 0.0f, end_position);
     anctrl_setDuration(dummyAnimCtrl, duration);
     anctrl_setPlaybackType(dummyAnimCtrl, ANIMCTRL_ONCE);
@@ -681,6 +707,7 @@ void DummyPlayer::dummyAnim_setEndAndDuration(f32 end_position, f32 duration) {
 }
 
 void DummyPlayer::dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimControl control, f32 start_position, f32 subrange_end, bool smooth){
+    if (!dummyAnimCtrl) return;
     anctrl_reset(dummyAnimCtrl);
     anctrl_setSmoothTransition(dummyAnimCtrl, smooth);
     anctrl_setIndex(dummyAnimCtrl, anim_id);
@@ -693,9 +720,11 @@ void DummyPlayer::dummyAnim_playForDuration(AssetID anim_id, f32 duration, AnimC
 }
 
 bool DummyPlayer::dummyAnim_isAnimID(enum asset_e anim_id){
+    if (!dummyAnimCtrl) return false;
     return anctrl_getIndex(dummyAnimCtrl) == anim_id;
 }
 
 bool DummyPlayer::dummyAnim_isStopped(void){
+    if (!dummyAnimCtrl) return true;
     return anctrl_isStopped(dummyAnimCtrl);
 }

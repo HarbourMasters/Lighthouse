@@ -539,7 +539,7 @@ enum joystick_e{
 
 typedef enum map_e
 {
-    MAP_0_NONE,
+    MAP_0_UNKNOWN,
     MAP_1_SM_SPIRAL_MOUNTAIN = 0x01,
     MAP_2_MM_MUMBOS_MOUNTAIN,
     MAP_3_UNUSED,

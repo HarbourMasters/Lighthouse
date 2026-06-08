@@ -23,6 +23,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);
     REGISTER_EVENT(OnWorldDraw);
+    REGISTER_EVENT(OnPlayerDraw);
 
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);
@@ -45,8 +46,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnPropInit);
 
-    // Register game events
-    REGISTER_EVENT(MapTransitionEnd);
+    REGISTER_EVENT(OnReset);
 
     // Register rando events
     REGISTER_EVENT(OnActorSpawn);

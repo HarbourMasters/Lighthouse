@@ -25,7 +25,8 @@
 #include "audio/GameAudio.h"
 #include "build.h"
 #include "extractor/GameExtractor.h"
-#include "FrameInterpolation.h"
+#include "interpolation/AdaptiveFps.h"
+#include "interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
 #include "port/enhancements/events/PortEnhancements.h"
 #include "port/patches/Patches.h"
@@ -157,6 +158,7 @@ GameEngine::GameEngine() {
                       gPortResetPending = 1; // lets audio spin-waits exit immediately
                       setBootMap(getDefaultBootMap());
                       D_80275610 = 3 + 1; // deferred: mainLoop picks this up next frame
+                      CALL_EVENT(OnReset);
                       return 0;
                   },
                    "Reset to boot map." });

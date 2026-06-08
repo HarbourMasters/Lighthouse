@@ -3,6 +3,7 @@
 #include <libultraship/libultraship.h>
 #include "port/Engine.h"
 #include "port/nametag.h"
+#include "port/interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
 
 extern "C" {
@@ -34,6 +35,13 @@ void Anchor::Enable() {
 void Anchor::Disable() {
     Network::Disable();
 
+    dummies.clear();
+    for (auto& [clientId, client] : clients) {
+        if (client.dummy != nullptr) {
+            client.dummy->dummy_free();
+            free(client.dummy);
+        }
+    }
     clients.clear();
     RefreshClientActors();
 }
@@ -178,6 +186,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_UnsetFlag(payload);
             else if (packetType == UPDATE_BEANS_COUNT)
                 HandlePacket_UpdateBeansCount(payload);
+            else if (packetType == MAP_LOAD)
+                HandlePacket_MapLoad(payload);
             else if (packetType == UPDATE_CLIENT_STATE)
                 HandlePacket_UpdateClientState(payload);
             else if (packetType == UPDATE_ROOM_STATE)
@@ -211,19 +221,26 @@ void Anchor::SetDummyPlayerClientId(const Actor* actor, uint32_t clientId) {
     ObjectExtension::GetInstance().Set<DummyPlayerClientId>(actor, DummyPlayerClientId{ clientId });
 }
 
-void Anchor::DrawDummies(OnWorldDraw* event) {
+void Anchor::DrawDummies(OnPlayerDraw* event) {
+    if (!isConnected) return;
     for (const auto& [id, dummy] : dummies) {
+        FrameInterpolation_RecordOpenChild(clients[id].name.c_str(), 0);
         dummy->Draw(event->gfx, event->mtx, event->vtx);
+        FrameInterpolation_RecordCloseChild();
     }
 }
 
 void Anchor::ClearDummies() {
+    for (auto& [id, dummy] : dummies) {
+        dummy->dummy_detachActor();
+    }
     dummies.clear();
 }
 
 void Anchor::PopulateDummies() {
     for (const auto& [clientId, client] : clients) {
         if (client.map == gsworld_getMap() && !client.self && !dummies.contains(clientId) && client.online) {
+            client.dummy->dummy_reset();
             RegisterDummy(client.dummy, clientId);
         }
     }
@@ -234,9 +251,21 @@ std::unordered_map<uint32_t, DummyPlayer*>* Anchor::GetDummies() {
 }
 
 void Anchor::UpdateDummies() {
-    for (const auto& [id, dummy] : dummies) {
-        dummy->dummy_update();
+    if (IsSaveLoaded() && isConnected) {
+        for (const auto& [id, dummy] : dummies) {
+            dummy->dummy_update();
+        }
     }
+}
+
+void Anchor::OnActorDestroyed(Actor* actor) {
+    //for (auto& [clientId, client] : clients) {
+    //    if (client.dummy != nullptr && client.dummy->getDummyActor() == actor) {
+    //        client.dummy->dummy_detachActor();
+    //        RemoveDummy(clientId);
+    //        return;
+    //    }
+    //}
 }
 
 void Anchor::RemoveDummy(uint32_t clientId) {
@@ -247,6 +276,22 @@ void Anchor::RemoveDummy(uint32_t clientId) {
 
 void Anchor::RegisterDummy(DummyPlayer* dummy, uint32_t clientID) {
     dummies.emplace(clientID, dummy);
+}
+
+void Anchor::EvaluateDummyForClient(uint32_t clientId) {
+    if (!clients.contains(clientId)) return;
+    AnchorClient& client = clients[clientId];
+    if (client.dummy == nullptr) return;
+    bool shouldBeActive = IsSaveLoaded() && client.online && !client.self &&
+                          client.map == gsworld_getMap();
+    bool isActive = dummies.contains(clientId);
+
+    if (shouldBeActive && !isActive) {
+        client.dummy->dummy_reset();
+        RegisterDummy(client.dummy, clientId);
+    } else if (!shouldBeActive && isActive) {
+        RemoveDummy(clientId);
+    }
 }
 
 void Anchor::RefreshClientActors() {

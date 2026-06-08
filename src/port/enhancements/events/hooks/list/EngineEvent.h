@@ -15,7 +15,7 @@ extern "C" {
 DEFINE_EVENT(GameFrameUpdate);
 DEFINE_EVENT(FrameDrawEnd);
 
-DEFINE_EVENT(OnMapLoad, int32_t mapId;);
+DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 
@@ -25,3 +25,6 @@ DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
 DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
 
 DEFINE_EVENT(OnWorldDraw, Gfx **gfx; Mtx **mtx; Vtx **vtx;);
+DEFINE_EVENT(OnPlayerDraw, Gfx **gfx; Mtx **mtx; Vtx **vtx;);
+
+DEFINE_EVENT(OnReset);

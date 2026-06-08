@@ -68,5 +68,6 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         clients[clientId].isGameComplete = client.isGameComplete;
         clients[clientId].map = client.map;
         clients[clientId].exit = client.exit;
+        EvaluateDummyForClient(clientId);
     }
 }

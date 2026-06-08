@@ -151,6 +151,10 @@ void Anchor::SendPacket_PlayerUpdate(bool full) {
     payload["modelEyeBlendLower"] = func_8029DFD4(); // eye blend lower
 
 
+    if (full) {
+        payload["anim_id"] = anctrl_getIndex(baanim_getAnimCtrlPtr());
+        payload["anim_control"] = anctrl_getPlaybackType(baanim_getAnimCtrlPtr());
+    }
     payload["type"] = full ? PLAYER_UPDATE_FULL : PLAYER_UPDATE;
 
     SendToCurrentMapPlayers(payload);
@@ -169,7 +173,7 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
         //    shouldRefreshActors = true;
         //}
 
-        client.map = payload.value("map", MAP_0_NONE);
+        client.map = payload.value("map", MAP_0_UNKNOWN);
         client.exit = payload.value("exit", (s32)0);
         std::vector<f32> pos = payload["pos"].get<std::vector<f32>>();
         client.dummy->dummy_setPoisition(pos.data());
@@ -199,6 +203,15 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
 
         client.dummy->dummy_getAnimCtrl()->animation_duration = payload.value("duration", 0.0f);
         anctrl_setSubRange(client.dummy->dummy_getAnimCtrl(), 0.0f, payload.value("subrange_end", 1.0f));
+        if (payload.value("type", PLAYER_UPDATE) == PLAYER_UPDATE_FULL && payload.contains("anim_id")) {
+            client.dummy->dummyAnim_playForDuration(
+                (AssetID)payload.value("anim_id", (int)ASSET_0_NONE),
+                payload.value("duration", 0.0f),
+                (AnimControl)payload.value("anim_control", (int)ANIMCTRL_LOOP),
+                0.0f,
+                payload.value("subrange_end", 1.0f),
+                false);
+        }
         client.dummy->setModelSubStates(
             payload.value("kazooieVisible", false),
             payload.value("modelSquint", false),

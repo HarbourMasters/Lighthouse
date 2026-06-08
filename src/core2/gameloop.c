@@ -292,6 +292,7 @@ void func_802E3E7C(enum game_mode_e mode){
     s32 map;
     s32 sp28;
     s32 prev_mode;
+    s32 prev_map;
 
     core1_15B30_sendMesg3ToRenderThread();
     sp34 = D_8037E8E0.unk18;
@@ -305,12 +306,14 @@ void func_802E3E7C(enum game_mode_e mode){
             mapSavestate_save(gsworld_getMap());
     }
     func_802E398C(1);
+    prev_map = gsworld_getMap();
     func_802E38E8(map, sp28, sp34);
     mapSavestate_apply(map);
     D_8037E8E0.unk0 = prev_mode;
     game_setMode(mode, sp30);
     jiggylist_map_actors();
     func_80346CA8();
+    CALL_EVENT(OnMapLoad, prev_map, map, sp28);
 }
 
 s32 func_802E3F80(void){
@@ -375,7 +378,6 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition){
     func_802E40D0(map, exit);
     func_802E40E8(transition);
     func_802E40C4(1);
-    CALL_EVENT(MapTransitionEnd, map, exit);
 }
 
 void func_802E40A8(s32 map, s32 exit){

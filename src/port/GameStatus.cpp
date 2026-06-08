@@ -161,7 +161,7 @@ extern "C" void port_setWindowTitle(int map_id) {
 void RegisterGameStatus_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_LOW, true, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
-        port_setWindowTitle(ev->mapId);
+        port_setWindowTitle(ev->nextMap);
     });
 }
 

@@ -35,6 +35,7 @@ public:
     void dummy_80292554(f32 arg0[3]);
     void dummy_80292578(f32 arg0[3]);
     void dummy_defrag(void);
+    void dummy_detachActor(void);
     void dummy_free(void);
     void dummyAnim_reset();
     void dummy_func_8029DBF0(void);
@@ -58,7 +59,7 @@ public:
     void dummy_updateModel(void);
     //void func_80254008(void);
     void func_8029DD6C(void);
-    //void func_8033A280(f32);
+    //void modelRender_func_8033A280(f32);
     // anim
     void dummyAnim_init(void);
     void dummyAnim_free(void);
@@ -77,6 +78,7 @@ public:
     // eye/mouth
     void dummy_setEyeState(bool squint, bool wink, bool isHat);
     AnimCtrl* dummy_getAnimCtrl();
+    //Actor* getDummyActor() const { return dummyActor; }
 
 private:
     uint32_t PlayerID;
@@ -84,10 +86,10 @@ private:
     //extern s32 osCicId;
 
     /* .data */
-    struct5Bs *dummy_D_80363780 = NULL;
+    Vec3fArray *dummy_D_80363780 = NULL;
 
     /* .bss */
-    BKModelBin *dummyBin; //dummyPtr
+    BKModelBin *dummyBin = nullptr; //dummyPtr
     AssetID dummyId; //dummy asset_id
     u8  dummyEnvAlpha;
     f32 dummyEnvColor[3];
@@ -109,10 +111,10 @@ private:
         f32 duration_scale; //duration_scale
         u8  scalable_duration; //scalable_duration
     } dummyAnimScale;
-    AnimCtrl* dummyAnimCtrl;
+    AnimCtrl* dummyAnimCtrl = nullptr;
     f32 dummyVelocity[3];
     ActorMarker *dummyMarker;
-    Actor *dummyActor;
+    Actor *dummyActor = nullptr;
     f32 dummy_D_8037C100[3];
     f32 dummy_D_8037C110[3];
     f32 dummyDisplacement[3];
