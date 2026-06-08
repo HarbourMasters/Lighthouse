@@ -44,6 +44,8 @@ typedef struct {
     u8 showLocationsMode; // 0 = none, 1 = team, 2 = all
     u8 teleportMode;      // 0 = off, 1 = team, 2 = all
     u8 syncItemsAndFlags; // 0 = off, 1 = on
+    bool isRomhack;
+    std::string romhackName;
 } RoomState;
 
 class Anchor : public Network {
