@@ -6,7 +6,7 @@
 #include "core2/ba/physics.h"
 
 void baModel_80292048(s32, f32, f32, f32);
-void anctrl_start(AnimCtrl *, char *, s32);
+//void anctrl_start(AnimCtrl *, char *, s32);
 
 /* .data */
 f32 D_80364A60 = -1400.0f;

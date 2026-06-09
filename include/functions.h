@@ -21,6 +21,7 @@
 #include "core2/staticcamera.h"
 #include "core2/anim/sprite.h"
 #include "core2/ba/anim.h"
+#include "core2/ba/model.h"
 #include "core2/ba/timer.h"
 #include "core2/nc/camera.h"
 

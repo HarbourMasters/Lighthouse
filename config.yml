@@ -42,3 +42,18 @@ bb359a75941df74bf7290212c89fbc6e2c5601fe:
       code: src/assets
       headers: include/assets
       modding: src/assets
+
+90726d7e7cd5bf6cdfd38f45c9acbf4d45bd9fd8:
+  name: Banjo-Kazooie (JP)
+  path: assets/yaml/jp/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: ERROR
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets

@@ -5,7 +5,7 @@
 #include "core2/ba/physics.h"
 
 void yaw_setVelocityBounded(f32, f32);
-void anctrl_start(AnimCtrl *, char*, s32);
+//void anctrl_start(AnimCtrl *, char*, s32);
 
 /* .bss */
 u8 D_8037D2F0;
