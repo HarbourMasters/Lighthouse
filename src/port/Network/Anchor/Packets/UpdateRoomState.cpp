@@ -21,19 +21,19 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["ownerClientId"] = ownClientId;
     bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
-    //if (isGlobalRoom) {
-    //    // Global room uses hardcoded settings
-    //    payload["pvpMode"] = 0;
-    //    payload["showLocationsMode"] = 0;
-    //    payload["teleportMode"] = 0;
-    //    payload["syncItemsAndFlags"] = 0;
-    //} else {
-        payload["pvpMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.PvpMode"), 1);
-        payload["showLocationsMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShowLocationsMode"), 1);
-        payload["teleportMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.TeleportMode"), 1);
-        payload["syncItemsAndFlags"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.SyncItemsAndFlags"), 1);
-        payload["isRomHack"] = port_isRomhack();
-        payload["romhackName"] = port_isRomhack() ? port_getRomhackName() : "Vanilla";
+    // if (isGlobalRoom) {
+    //     // Global room uses hardcoded settings
+    //     payload["pvpMode"] = 0;
+    //     payload["showLocationsMode"] = 0;
+    //     payload["teleportMode"] = 0;
+    //     payload["syncItemsAndFlags"] = 0;
+    // } else {
+    payload["pvpMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.PvpMode"), 1);
+    payload["showLocationsMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShowLocationsMode"), 1);
+    payload["teleportMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.TeleportMode"), 1);
+    payload["syncItemsAndFlags"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.SyncItemsAndFlags"), 1);
+    payload["isRomHack"] = port_isRomhack();
+    payload["romhackName"] = port_isRomhack() ? port_getRomhackName() : "Vanilla";
     //}
 
     return payload;
@@ -61,9 +61,12 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
         } else if (!port_isRomhack() && roomState.isRomhack) {
             msg += " - The server has a romhack enabled, but your game is vanilla.";
         } else {
-            msg += " - You have the \"" + std::string(port_getRomhackName()) + "\" hack enabled,\n    but the server is using \"" + roomState.romhackName + "\"";
+            msg += " - You have the \"" + std::string(port_getRomhackName()) +
+                   "\" hack enabled,\n    but the server is using \"" +
+                   roomState.romhackName + "\"";
         }
-        msg += "\n\nAnchor has been disabled. Please enable or disable the appropriate\nmod(s) in the Mod Menu and reconnect, or enter a new room name.";
+        msg += "\n\nAnchor has been disabled. Please enable or disable the appropriate\n"
+               "mod(s) in the Mod Menu and reconnect, or enter a new room name.";
         LighthouseGui::RegisterPopup("Incompatible Romhack State", msg);
     }
 

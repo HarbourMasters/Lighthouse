@@ -472,9 +472,8 @@ void LighthouseModMenuWindow::DrawElement() {
         if (UIWidgets::Button("Apply & Restart",
                               UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline).Color(THEME_COLOR))) {
             LighthouseGui::RegisterPopup(
-                "Apply & Restart",
-                "Applying mods requires a restart. Save the mod list and relaunch Lighthouse now?", "Restart", "Cancel",
-                []() {
+                "Apply & Restart", "Applying mods requires a restart. Save the mod list and relaunch Lighthouse now?",
+                "Restart", "Cancel", []() {
                     SetEnabledModsCVarValue();
                     Ship::Context::GetInstance()->GetConsoleVariables()->Save();
                     GameEngine::RequestRelaunch();
@@ -708,14 +707,13 @@ void DrawInlineModExtraction() {
         SetSoleEnabledRomhack(keep);
         Ship::Context::GetInstance()->GetConsoleVariables()->Save();
         if (!BaseIsRomhackCompatible()) {
-            LighthouseGui::RegisterPopup(
-                "Romhack Requires US v1.0",
-                "The romhack mod was extracted into your mods folder, but your\n"
-                "base game data (bk.o2r) is not the US v1.0 version.\n\n"
-                "Romhacks are built from US v1.0 ROMs and will not play correctly\n"
-                "on a v1.1/PAL/JP base. Re-extract bk.o2r from a US v1.0 ROM,\n"
-                "then enable this mod from Settings -> Mod Menu.",
-                "OK", "", nullptr, nullptr);
+            LighthouseGui::RegisterPopup("Romhack Requires US v1.0",
+                                         "The romhack mod was extracted into your mods folder, but your\n"
+                                         "base game data (bk.o2r) is not the US v1.0 version.\n\n"
+                                         "Romhacks are built from US v1.0 ROMs and will not play correctly\n"
+                                         "on a v1.1/PAL/JP base. Re-extract bk.o2r from a US v1.0 ROM,\n"
+                                         "then enable this mod from Settings -> Mod Menu.",
+                                         "OK", "", nullptr, nullptr);
         } else {
             LighthouseGui::RegisterPopup(
                 "Mod Installed",
@@ -754,15 +752,14 @@ void DrawInlineModExtraction() {
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(color.x, color.y, color.z, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
     if (ImGui::BeginPopupModal("ROM Extraction", NULL,
-                               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
-                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-                                   ImGuiWindowFlags_NoSavedSettings)) {
+                               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                   ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings)) {
         if (!wantProgress) {
             ImGui::CloseCurrentPopup();
         } else {
             const int phase = GameExtractor::sPhase;
-            float progress = phase == 3 ? 100.0f
-                                        : (sInlineTotal > 0 ? (float)sInlineCount / (float)sInlineTotal : 0.0f) * 100.0f;
+            float progress =
+                phase == 3 ? 100.0f : (sInlineTotal > 0 ? (float)sInlineCount / (float)sInlineTotal : 0.0f) * 100.0f;
             if (progress > 100.0f) {
                 progress = 100.0f;
             }
