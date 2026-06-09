@@ -49,6 +49,18 @@ public:
     static void AudioExit();
     void FinishInit();
     void RunExtract(int argc, char* argv[]);
+    // Render a GUI-only frame (no game tick). Used to keep the ImGui progress
+    // modal live while an inline mod extraction runs on a worker thread.
+    void RenderGuiFrame() const;
+
+    // Mod changes only bind at process start, so applying them needs a full
+    // relaunch rather than the soft in-game reset. UI requests it, then closes
+    // the window; the main loop re-execs the app after teardown completes.
+    static bool sRelaunchRequested;
+    static void RequestRelaunch() {
+        sRelaunchRequested = true;
+    }
+    static void RelaunchIfRequested(int argc, char* argv[]);
     static void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
                             size_t frameCount);
     static void Destroy();

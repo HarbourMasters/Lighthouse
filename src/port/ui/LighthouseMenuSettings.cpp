@@ -4,6 +4,7 @@
 #include "Notification.h"
 #include "LighthouseInputEditorWindow.h"
 #include "LighthouseModals.h"
+#include "LighthouseModMenuWindow.h"
 //#include <soh/GameVersions.h>
 #include "port/ResourceHelpers.h"
 #include "UIWidgets.hpp"
@@ -456,6 +457,23 @@ void LighthouseMenu::AddMenuSettings() {
     // Mod Menu
     path.sidebarName = "Mod Menu";
     AddSidebarEntry("Settings", path.sidebarName, 1);
+
+    AddWidget(path, "Generate Mod from ROM", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            LighthouseGui::mModalWindow->RegisterPopup(
+                "Generate Mod from ROM",
+                "Select a romhack ROM to extract as a mod overlay. Torch will\n"
+                "generate a slim mod o2r in your mods folder alongside the\n"
+                "existing bk.o2r. Lighthouse closes when extraction finishes so\n"
+                "the mod loads on the next launch.",
+                "Select ROM", "Cancel", []() { RequestInlineModExtraction(); }, nullptr);
+        })
+        .Options(ButtonOptions()
+                     .Size(Sizes::Inline)
+                     .Tooltip("Pick a romhack ROM and extract it as a slim mod overlay into the mods folder. "
+                              "Lighthouse closes afterward so the mod loads on the next launch."));
+
     AddWidget(path, "Popout Mod Menu Window", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("ModMenu"))
         .WindowName("Mod Menu")

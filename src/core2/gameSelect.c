@@ -10,6 +10,9 @@
 #include "port/GameConfig.h"
 #include "port/patches/Patches.h"
 
+extern s32 port_setJpFileSelectInstructions(GcZoombox *zoombox);
+extern s32 port_setJpFileSelectEraseConfirm(GcZoombox *zoombox);
+
 s32 gSelectedGameNum = -1;
 
 #ifndef ABS
@@ -261,6 +264,9 @@ void setGameInformationZoombox(s32 gamenum){
         strcat(upperTextLine, sEmptyLabel[lang]);
         strcpy(lowerTextLine, "");
     }//L802C4A68
+
+    // [port] JP rebuilds these lines in its own layout
+    CALL_EVENT(OnFileSelectInfoBuild, gamenum, (char *) upperTextLine, (char *) lowerTextLine);
     sp20[0] = upperTextLine;\
     sp20[1] = lowerTextLine;
     func_8031877C(chGameSelectBottomZoombox);
@@ -420,7 +426,9 @@ void gameSelect_update(Actor *this){
                         }
                         subaddie_set_state(this, 2);
                         func_8031877C(chGameSelectTopZoombox);
-                        gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+                        if(!port_setJpFileSelectInstructions(chGameSelectTopZoombox)){
+                            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+                        }
                         D_8037DD34 = 0.0f;
                     }
                     break;
@@ -463,7 +471,9 @@ void gameSelect_update(Actor *this){
                     if(sp74[0] == 1){
                         if(gameFile_isNotEmpty(sp84)){
                             func_8031877C(chGameSelectTopZoombox);
-                            func_803183A4(chGameSelectTopZoombox, D_80365DFC[code94620_func_8031B5B0()]);
+                            if(!port_setJpFileSelectEraseConfirm(chGameSelectTopZoombox)){
+                                func_803183A4(chGameSelectTopZoombox, D_80365DFC[code94620_func_8031B5B0()]);
+                            }
                             D_8037DD2C = 1;
                             subaddie_set_state(this, 5);
                         }
@@ -559,7 +569,9 @@ void gameSelect_update(Actor *this){
                         D_8037DD34 += sp50;
                         if(20.0 < D_8037DD34){
                             func_8031877C(chGameSelectTopZoombox);
-                            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+                            if(!port_setJpFileSelectInstructions(chGameSelectTopZoombox)){
+                                gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+                            }
                             D_8037DD34 = 0.0f;
                         }
                     }
@@ -602,7 +614,9 @@ void gameSelect_initAndUpdate(Actor * this){
 
         if(chGameSelectTopZoombox == NULL){
             chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, topZoomboxCallback);
-            gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+            if(!port_setJpFileSelectInstructions(chGameSelectTopZoombox)){
+                gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
+            }
             gczoombox_open(chGameSelectTopZoombox);
             gczoombox_maximize(chGameSelectTopZoombox);
         }//L802C5860

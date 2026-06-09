@@ -6,9 +6,12 @@
 #endif
 #include "port/build.h"
 #include "GameExtractor.h"
+#include <atomic>
+#include <chrono>
 #include <cstdio>
-#include <unordered_map>
 #include <fstream>
+#include <thread>
+#include <unordered_map>
 
 #include "ship/Context.h"
 #include "spdlog/spdlog.h"
@@ -23,6 +26,7 @@
 
 #ifndef __SWITCH__
 #include "Companion.h"
+#include "factories/bk64/ConfigFactory.h"
 
 #if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
 #include "portable-file-dialogs.h"
@@ -30,7 +34,11 @@
 
 std::string GameExtractor::sStatusText;
 std::string GameExtractor::sLastError;
+std::string GameExtractor::sLastOutputPath;
 std::atomic<int> GameExtractor::sPhase{ 0 };
+std::atomic<bool> GameExtractor::sCustomCodePromptRequested{ false };
+std::atomic<bool> GameExtractor::sCustomCodePromptActive{ false };
+std::atomic<int> GameExtractor::sCustomCodePromptResult{ -1 };
 
 std::unordered_map<std::string, std::string> mGameList = {
     { "1fe1632098865f639e22c11b9a81ee8f29c75d7a", "Banjo-Kazooie (U) (V1.0)" },
@@ -251,6 +259,9 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         if (fs::exists(configPath)) {
             YAML::Node config = YAML::LoadFile(configPath.generic_string());
             std::string hash = Companion::CalculateHash(this->mGameData);
+            if (!config[hash]) {
+                BK64::TrySynthesizeRomConfig(config, hash, this->mGamePath, this->mGameData);
+            }
             auto rom = config[hash];
             if (rom && rom["path"]) {
                 auto assetDir = (fs::path(assets_path) / rom["path"].as<std::string>()).generic_string();
@@ -263,6 +274,9 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
                         continue;
                     }
                     if (path.find("config.yml") != std::string::npos) {
+                        continue;
+                    }
+                    if (path.find("hashes.yaml") != std::string::npos) {
                         continue;
                     }
                     YAML::Node root = YAML::LoadFile(path);
@@ -280,16 +294,60 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
                         }
                     }
                 }
+
+                // Adjust progress bar calculation if extracting a romhack
+                if (BK64::IsRomhack(this->mGameData)) {
+                    auto hashesPath = fs::path(assetDir) / "hashes.yaml";
+                    if (fs::exists(hashesPath)) {
+                        size_t baselineCount = 0;
+                        try {
+                            YAML::Node hashesRoot = YAML::LoadFile(hashesPath.generic_string());
+                            YAML::Node hashesMap = hashesRoot["hashes"];
+                            if (hashesMap && hashesMap.IsMap()) {
+                                baselineCount = hashesMap.size();
+                            }
+                        } catch (const std::exception& e) {
+                            SPDLOG_WARN("Failed to read hashes.yaml for progress count: {}", e.what());
+                        }
+                        if (baselineCount > 0 && baselineCount <= totalAssets) {
+                            size_t modified = BK64::CountModifiedSlots(this->mGameData, hashesPath);
+                            totalAssets = totalAssets - baselineCount + modified;
+                            SPDLOG_INFO("Romhack progress sizing: {} baseline entries replaced with {} modified slots",
+                                        baselineCount, modified);
+                        }
+                    }
+                }
             }
         }
     } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
 
+    // Detect non-BB custom MIPS code injection
+    if (BK64::HasCustomCodeBlob(this->mGameData)) {
+        SPDLOG_WARN("[GameExtractor] Custom MIPS code detected in ROM; prompting user before extraction.");
+        sCustomCodePromptResult = -1;
+        sCustomCodePromptActive = true;
+        sCustomCodePromptRequested = true;
+        while (sCustomCodePromptResult.load() == -1) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        }
+        if (sCustomCodePromptResult.load() == 0) {
+            SPDLOG_INFO("[GameExtractor] User cancelled extraction at custom-code prompt.");
+            sLastError = "Extraction cancelled by user (custom-code romhack warning).";
+            sStatusText.clear();
+            sPhase = 0;
+            return false;
+        }
+    }
+
     sPhase = 1; // Parsing phase
     delete Companion::Instance;
     Companion::Instance = new Companion(this->mGameData, ArchiveType::O2R, false, assets_path, game_path);
+    Companion::Instance->SetRomPath(this->mGamePath);
     Companion::Instance->SetAssetTotal(&totalAssets);
     Companion::Instance->SetPhaseCallback([](int phase) { sPhase = phase; });
-    this->WritePortVersion();
+    if (!BK64::IsRomhack(this->mGameData)) {
+        this->WritePortVersion();
+    }
     try {
         Companion::Instance->Init(ExportType::Binary, assetCount, true);
     } catch (const std::exception& e) {
@@ -301,6 +359,10 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         Companion::Instance = nullptr;
         return false;
     }
+
+    // Record the produced archive path before tearing Companion down, so the
+    // inline Mod Menu flow can enable exactly this file by name.
+    sLastOutputPath = Companion::Instance->GetOutputPath();
 
     sPhase = 3;
     sStatusText = "Cleaning up...";

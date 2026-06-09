@@ -4,9 +4,13 @@
 #include "variables.h"
 
 extern int ResourceMgr_GetDialogLanguageCount(void);
+extern int ResourceMgr_IsJapanese(void);
 // [port] PAL font has 75 glyphs (0x21-0x6B), overlapping NTSC control codes b,d,e,f,h,j.
 // When PAL, fmtStrings use shifted codes above the glyph range.
 #define PRINT_PAL (ResourceMgr_GetDialogLanguageCount() > 1)
+// [port] JP uses font index 2 (sprite 1770, 256 I4 glyphs) for dialog text.
+// Dialog strings begin with "\xFD\x6A" (escape + 'j') which switches to font index 2.
+#define PRINT_JP (ResourceMgr_IsJapanese())
 
 
 
@@ -472,6 +476,11 @@ void print_init(void){
     print_sFonts[0] =  print_getLettersFromFont(D_80380AB8[0], D_80380AB8[4]);
     print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
     print_sFonts[1] =  print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
+    if (PRINT_JP) {
+        // [port] JP font index 2 = the Japanese dialog font (sprite 1770, 256 I4 glyphs).
+        D_80380AB8[2] = assetcache_get(SPRITE_JP_DIALOG_FONT_ALPHAMASK);
+        print_sFonts[2] = print_getLettersFromFont(D_80380AB8[2], D_80380AB8[4]);
+    }
     print_sPrintBuffer = bk_malloc(0x20*sizeof(PrintBuffer));
     print_clearPrintBufferStrings();
 
@@ -595,11 +604,18 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             }//L802F5738
             break;
         case 2: //L802F5740
-            sp20C = letter;
+            sp20C = (u8)letter;
             if(D_80380B04){
                 t0 = 1;
                 sp20C += (D_80380B04 << 8) - 0x100;
                 D_80380B04 = 0;
+            }
+            else if(PRINT_JP){
+                if(sp20C > 0 && sp20C != 0xFD && sp20C != 0x0F){
+                    t0 = 1;
+                    if(sp20C == 0x36)
+                        sp20C = 0xFD;
+                }
             }
             else{//L802F5764
                 if(sp20C > 0 && sp20C < 0xfD)
@@ -611,6 +627,10 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     if(!t0 || print_sInFontFormatMode){
         print_sInFontFormatMode = false;
         switch((u8)letter){
+            case '\x0F': // [port] JP font-2 word space; no-op for US/PAL
+                if(!PRINT_JP)
+                    break;
+                // fallthrough
             case ' '://802F5818
                 *xPtr += ((D_80380AF0) ? D_80369068[D_80380AE8]: D_80369068[D_80380AE8]*0.8) * arg3;
                 break;

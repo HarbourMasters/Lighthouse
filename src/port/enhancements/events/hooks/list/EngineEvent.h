@@ -23,8 +23,9 @@ DEFINE_EVENT(OnActorTick, Actor* actor;);
 DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);
 DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
 DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
-
+DEFINE_EVENT(LocalizeUiString, const char** str;);
+DEFINE_EVENT(OnParadeNameDraw, const char* name; int32_t yPosition;);
+DEFINE_EVENT(OnFileSelectInfoBuild, int32_t gamenum; char* upper; char* lower;);
 DEFINE_EVENT(OnWorldDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
-
 DEFINE_EVENT(OnReset);

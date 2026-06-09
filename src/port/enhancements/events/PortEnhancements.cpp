@@ -22,6 +22,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);
+    REGISTER_EVENT(LocalizeUiString);
+    REGISTER_EVENT(OnParadeNameDraw);
+    REGISTER_EVENT(OnFileSelectInfoBuild);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);
 
@@ -45,6 +48,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnPropInit);
+    REGISTER_EVENT(OnWarpResolveDest);
 
     REGISTER_EVENT(OnReset);
 

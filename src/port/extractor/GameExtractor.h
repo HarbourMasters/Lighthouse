@@ -21,7 +21,20 @@ public:
     void WritePortVersion();
     static std::string sStatusText;
     static std::string sLastError;
+    // Full path of the o2r produced by the last successful GenerateOTR (e.g.
+    // <dest>/mods/<slug>.o2r). The inline Mod Menu flow reads this to enable
+    // exactly the file it just generated, regardless of its name.
+    static std::string sLastOutputPath;
     static std::atomic<int> sPhase; // 0=idle, 1=parsing, 2=exporting, 3=done
+
+    // Custom-code prompt: extraction worker raises sCustomCodePromptRequested
+    // when it detects an injected MIPS blob in the ROM and pauses, waiting for
+    // a user decision. The main loop notices the request, registers a popup on
+    // its own thread, and writes the result back to sCustomCodePromptResult
+    // (0 = cancel, 1 = continue) which unblocks the worker.
+    static std::atomic<bool> sCustomCodePromptRequested;
+    static std::atomic<bool> sCustomCodePromptActive;
+    static std::atomic<int> sCustomCodePromptResult; // -1 = pending, 0 = cancel, 1 = continue
 private:
     fs::path mGamePath;
     std::vector<uint8_t> mGameData;

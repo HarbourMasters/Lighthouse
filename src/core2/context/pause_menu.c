@@ -46,6 +46,11 @@ extern void print_setBoldFontTexture(enum asset_e);
 extern void print_resetBoldFontTexture(void);
 extern void code_73640_printItemCount(enum item_e);
 
+// [port] JP pause-menu world-name banner
+extern s32 port_pauseBannerUpdate(s32 page_id);
+extern BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH);
+extern void port_pauseBannerFree(void);
+
 enum gcpausemenu_state_e {
     PAUSE_STATE_0_MENU_INIT,
     PAUSE_STATE_1_MENU_OPENING,
@@ -237,6 +242,7 @@ void gcpausemenu_free(void) {
         D_80383010.b_button_sprite = NULL;
     }
     gcpausemenu_zoomboxes_free();
+    port_pauseBannerFree(); // [port]
     gcdialog_decrementYPositionModifier();
 }
 
@@ -812,7 +818,9 @@ s32 gcpausemenu_80312D78(struct1As *arg0, s32 arg1) {
     for (var_s2 = 0; var_s2 < arg1; var_s2++) {
         if (arg0[var_s2].delay <= D_80383010.unkC) {
             if (!arg0[var_s2].unkF) {
-                var_v0 = BOOL(func_803183A4(D_80383010.zoombox[var_s2], arg0[var_s2].str));
+                const char *label = (const char *) arg0[var_s2].str;
+                CALL_EVENT(LocalizeUiString, &label);
+                var_v0 = BOOL(func_803183A4(D_80383010.zoombox[var_s2], (u8 *) label));
                 arg0[var_s2].unkF = var_v0;
                 if (arg0[var_s2].unkF) {
                     gczoombox_open(D_80383010.zoombox[var_s2]);
@@ -852,6 +860,10 @@ void gcpausemenu_80312E80(struct1As *arg0, s32 arg1) {
 void gcpausemenu_printTotalsHeader(s32 page_id) {
     struct1Cs_1 *v0 = D_8036C58C + page_id;
     const char *name = port_getRomhackLevelName(page_id);
+    // [port] JP draws a pre-rendered world-name banner here instead of the bold-font name.
+    if (port_pauseBannerUpdate(page_id)) {
+        return;
+    }
     print_bold_overlapping(v0->x, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
 }
 
@@ -1140,7 +1152,9 @@ s32 gcPauseMenu_update(void) {
                 }
                 D_80383010.unk3_6 ^= 1;
                 gczoombox_maximize(D_80383010.zoombox[D_80383010.selection]);
-                if (D_8036C4E0[D_80383010.selection].unkF = func_803183A4(D_80383010.zoombox[D_80383010.selection], (D_80383010.unk3_6) ? "ARE YOU SURE?" : "A - YES, B - NO")) {
+                const char *confirm = (D_80383010.unk3_6) ? "ARE YOU SURE?" : "A - YES, B - NO";
+                CALL_EVENT(LocalizeUiString, &confirm);
+                if (D_8036C4E0[D_80383010.selection].unkF = func_803183A4(D_80383010.zoombox[D_80383010.selection], (u8 *) confirm)) {
                     D_80383010.unkC = 0.0;
                 }
             }//L80313AF4
@@ -1426,6 +1440,14 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     } else {
         for (i = 0; i < 4; i++) {
             gczoombox_draw(D_80383010.zoombox[i], gfx, mtx, vtx);
+        }
+        {
+            // [port] JP world-name title banner
+            f32 bx, by, bw, bh;
+            BKSprite *banner = port_pauseBannerGetDraw(D_80383010.unk8, &bx, &by, &bw, &bh);
+            if (banner != NULL) {
+                __gcpausemenu_drawSprite(gfx, mtx, vtx, banner, 0, bx, by, bw, bh, 0xFF);
+            }
         }
     }
 

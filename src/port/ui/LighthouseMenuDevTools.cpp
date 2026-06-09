@@ -75,6 +75,9 @@ void LighthouseMenu::AddMenuDevTools() {
     AddWidget(path, "Nametag Distance", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_DEVELOPER_TOOLS("NametagDist"))
         .Options(FloatSliderOptions().DefaultValue(3000.0f).Min(1000.0f).Max(10000.0f).Step(10.0f));
+    AddWidget(path, "Trigger Furnace Fun Parade", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("TriggerFFParade"))
+        .Options(CheckboxOptions().Tooltip("On entering normal gameplay, starts the Furnace Fun character parade."));
     /*AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/

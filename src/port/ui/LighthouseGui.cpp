@@ -23,6 +23,7 @@
 #include "Notification.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
+#include "LighthouseModMenuWindow.h"
 // #include "DeveloperTools/HookDebugger.h"
 #include "developertools/SaveEditor.h"
 // #include "DeveloperTools/ActorViewer.h"
@@ -38,6 +39,7 @@ std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
 std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 std::shared_ptr<LighthouseInputEditorWindow> mInputEditorWindow;
+std::shared_ptr<LighthouseModMenuWindow> mModMenuWindow;
 
 // std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
@@ -103,6 +105,9 @@ void SetupGuiElements() {
     mInputEditorWindow =
         std::make_shared<LighthouseInputEditorWindow>(CVAR_WINDOW("ControllerConfiguration"), "Configure Controller");
     gui->AddGuiWindow(mInputEditorWindow);
+
+    mModMenuWindow = std::make_shared<LighthouseModMenuWindow>(CVAR_WINDOW("ModMenu"), "Mod Menu");
+    gui->AddGuiWindow(mModMenuWindow);
 
     // mHookDebuggerWindow =
     //     std::make_shared<HookDebuggerWindow>("gWindows.HookDebugger", "Hook Debugger", ImVec2(480, 600));

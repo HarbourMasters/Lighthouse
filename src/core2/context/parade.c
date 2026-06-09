@@ -3,6 +3,7 @@
 #include "variables.h"
 
 #include "core2/snackerctl.h"
+#include "port/patches/Patches.h"
 
 
 extern void func_8028F918(s32);
@@ -197,6 +198,7 @@ void gcparade_setState(enum parade_state_e next_state) {
             D_803830F0.indx = 0;
             D_803830F0.parade_id = PARADE_0_POST_FURNACE_FUN;
             D_803830F0.count = 0x1B;
+            port_localizeParade(0, (void**) &D_803830F0.parade_element, &D_803830F0.count);
             comusic_playTrack(COMUSIC_8E_CREDITS);
             next_state = PARADE_STATE_3_WARP;
             gcparade_8031AC8C();
@@ -207,6 +209,7 @@ void gcparade_setState(enum parade_state_e next_state) {
             D_803830F0.indx = 0;
             D_803830F0.parade_id = PARADE_1_POST_GRUNTY_BATTLE;
             D_803830F0.count = 0x3A;
+            port_localizeParade(1, (void**) &D_803830F0.parade_element, &D_803830F0.count);
             func_8025A55C(0, 0x1388, 0xB);
             func_8025AB00();
             comusic_playTrack(COMUSIC_8E_CREDITS);
@@ -275,6 +278,7 @@ void gcparade_textCallback(ActorMarker *caller, enum asset_e text_id, s32 arg2){
 void gcparade_print(s32 index){
     ParadeInfo *v0 = D_803830F0.parade_element;
     print_bold_overlapping(v0->x, D_803830F0.y_position, -1.2f, v0->str);
+    CALL_EVENT(OnParadeNameDraw, (const char *) v0->str, D_803830F0.y_position);
 }
 
 void gcparade_update(void) {
@@ -296,7 +300,7 @@ void gcparade_update(void) {
                             if (D_803830F0.parade_element->exit >= 0) 
                                 sp34 = 0xA8;
                             timedFunc_set_1(1.0f, (GenFunction_1)func_80311714, 0);
-                            func_80324DBC(1.0f, D_803830F0.indx + 0x11AF, sp34, NULL, NULL, gcparade_textCallback, NULL);
+                            func_80324DBC(1.0f, port_paradeDialogId(D_803830F0.indx), sp34, NULL, NULL, gcparade_textCallback, NULL);
                             timedFunc_set_1(1.0f, (GenFunction_1)func_80311714, 1);
                         } else if (D_803830F0.parade_element->exit >= 0) {
                             func_8028F918(2);

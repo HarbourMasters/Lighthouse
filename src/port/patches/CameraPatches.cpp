@@ -142,7 +142,8 @@ void RegisterCameraPatches_Init() {
     // frustum change shifts which actors tick and desyncs the playback.
     REGISTER_LISTENER(ViewportFrustumUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         s32 mode = getGameMode();
-        if (mode == GAME_MODE_7_ATTRACT_DEMO || mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE) {
+        if (mode == GAME_MODE_7_ATTRACT_DEMO || mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE ||
+            GAME_MODE_9_BANJO_AND_KAZOOIE) {
             return;
         }
         auto* ev = (ViewportFrustumUpdate*)event;

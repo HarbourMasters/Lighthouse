@@ -28,9 +28,10 @@ extern "C" uint16_t ResourceMgr_LoadTexWidthByName(char* texPath);
 extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
 extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
 
-// [port] Dialog language state — detected at boot from o2r version
+// Dialog language state — detected at boot from o2r version
 static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
 static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
+static bool sIsJapanese = false;     // true when a JP o2r is loaded
 
 namespace {
 const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
@@ -85,47 +86,52 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             symbolMap[assetId] = std::move(path);
         }
 
-        SPDLOG_INFO("Loaded asset manifest from o2r with {} entries", symbolMap.size());
-
-        // [port] If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
+        // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
         // so the decomp's hardcoded IDs resolve transparently.
-        // Detection: v1.0 has 3314 assets, v1.1/PAL/JP have 3044-3065.
-        // This is done once at boot — no per-lookup cost after this point.
         const std::unordered_map<uint32_t, uint32_t>* remapTable = nullptr;
-        const char* versionName = nullptr;
 
         if (symbolMap.size() >= 3030 && symbolMap.size() <= 3050) {
             remapTable = &sV10toV11Remap;
-            versionName = "v1.1";
+            SPDLOG_INFO("Loaded v1.1 o2r with {} entries", symbolMap.size());
         } else if (symbolMap.size() >= 3051 && symbolMap.size() <= 3080) {
             // PAL (3059) and JP (3065) both fall here.
-            // Try JP first — if JP-specific IDs exist in manifest, use JP table.
             // JP has mode 7 entries at IDs 3628+; PAL does not.
             if (symbolMap.find(3628) != symbolMap.end()) {
                 remapTable = &sV10toJPRemap;
-                versionName = "JP";
+                sIsJapanese = true;
+                SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
             } else {
                 remapTable = &sV10toPALRemap;
-                versionName = "PAL";
                 sDialogLanguageCount = 3; // EN, FR, DE
                 sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
                 func_8031B5C4(sDialogLanguage); // Initialize decomp language index
-                SPDLOG_INFO("[ResourceHelpers] PAL detected, dialog language CVar = {}", sDialogLanguage);
+                SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
+            }
+        }
+
+        // [port] Relocate the JP world-name banners
+        if (sIsJapanese) {
+            constexpr uint32_t kJpBannerNativeBase = 0xE2C;
+            constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_JP_WORLD_NAME_TOTAL
+            constexpr uint32_t kJpBannerCount = 13;         // 0xE2C..0xE38
+            for (uint32_t i = 0; i < kJpBannerCount; i++) {
+                auto it = symbolMap.find(kJpBannerNativeBase + i);
+                if (it != symbolMap.end()) {
+                    std::string path = std::move(it->second);
+                    symbolMap.erase(kJpBannerNativeBase + i);
+                    symbolMap[kJpBannerAliasBase + i] = std::move(path);
+                }
             }
         }
 
         if (remapTable) {
             // [port] Snapshot the manifest before injection
             const auto snapshot = symbolMap;
-            uint32_t remapCount = 0;
             for (const auto& [v10Id, targetId] : *remapTable) {
                 if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
                     symbolMap[v10Id] = targetEntry->second;
-                    remapCount++;
                 }
             }
-            SPDLOG_INFO("[ResourceHelpers] Detected {} o2r — injected {} v1.0 ID aliases into symbol map", versionName,
-                        remapCount);
         }
     });
 
@@ -135,6 +141,10 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
 
 extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
+}
+
+extern "C" int ResourceMgr_IsJapanese(void) {
+    return sIsJapanese ? 1 : 0;
 }
 
 extern "C" int ResourceMgr_GetDialogLanguage(void) {
@@ -158,7 +168,7 @@ std::shared_ptr<Ship::IResource> GetResourceByName(const char* path) {
     }
 }
 
-// [port] Keep shared_ptr references alive so raw pointers from GetResourceRawPointer
+// Keep shared_ptr references alive so raw pointers from GetResourceRawPointer
 // don't become dangling when the resource manager evicts entries from its cache.
 static std::unordered_map<uint32_t, std::shared_ptr<Ship::IResource>> sResourceRefCache;
 
@@ -171,7 +181,7 @@ static char* LoadAndRetainResource(const std::string& path, uint32_t assetId) {
     return nullptr;
 }
 
-// [port] Reload an asset, evicting any cached version first.
+// Reload an asset, evicting any cached version first.
 // Used for map models whose vertex data gets modified at runtime.
 extern "C" char* ResourceMgr_ReloadByAssetId(uint32_t assetId) {
     std::shared_ptr<Ship::IResource> oldRef;
@@ -225,7 +235,7 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
     return nullptr;
 }
 
-// [port] Returns the data size of a previously loaded resource (from the ref cache).
+// Returns the data size of a previously loaded resource (from the ref cache).
 // Used by decomp code that depends on assetCacheCurrentSize (e.g. demo_load).
 extern "C" size_t ResourceMgr_GetResourceSize(uint32_t assetId) {
     if (auto it = sResourceRefCache.find(assetId); it != sResourceRefCache.end()) {
@@ -234,7 +244,7 @@ extern "C" size_t ResourceMgr_GetResourceSize(uint32_t assetId) {
     return 0;
 }
 
-// [port] On N64, sprites and models were raw binary blobs that could be type-punned.
+// On N64, sprites and models were raw binary blobs that could be type-punned.
 // On PC, they're separate resource types from different importers. Actors with sprite
 // assets can be spawned as "model" props (unk8_1=1), causing collision code to call
 // marker_loadModelBin which reinterprets sprite data as BKModelBin. This helper lets

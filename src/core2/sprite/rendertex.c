@@ -268,7 +268,7 @@ void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, 
             D_80386098 = (s32) D_80386098 >> 1;
         }
     } else if (sprite->type & SPRITE_TYPE_CI4) {
-        rare_gDPLoadMultiBlock_4b((*gfx)++, timg, tmem, rtile, G_IM_FMT_RGBA, *width, *height, uls, ult, 0, cms, cmt, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+        rare_gDPLoadMultiBlock_4b((*gfx)++, timg, tmem, rtile, G_IM_FMT_CI, *width, *height, uls, ult, 0, cms, cmt, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
         D_8038607C = D_8038607C >> 4;
     } else if (sprite->type & SPRITE_TYPE_CI8) {
         rare_gDPLoadMultiBlock((*gfx)++, timg, tmem, rtile, G_IM_FMT_CI, G_IM_SIZ_8b, *width, *height, uls, ult, 0, cms, cmt, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);

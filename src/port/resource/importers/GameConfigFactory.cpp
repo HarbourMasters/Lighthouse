@@ -1,4 +1,5 @@
 #include "port/GameConfig.h"
+#include "RomhackTable.h"
 
 #include <unordered_map>
 #include <string>
@@ -57,6 +58,16 @@ static int sJiggyCosts[11] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 static char* sLevelNames[13] = {};
 static std::unordered_map<int, int> sWarpDests;
 static std::string sRomName;
+
+// Custom-code anchor — populated by the CUSTOM_CODE section. Empty when the
+// loaded romhack has no detectable injected MIPS code.
+static std::string sCustomCodeHashHex;
+static uint32_t sCustomCodeRamBase = 0;
+
+// ROM SHA1 — populated by the ROM_HASH section. Always emitted by Torch for
+// any romhack; serves as the fallback identifier when no custom-code blob is
+// present (data-only hacks).
+static std::string sRomHashHex;
 
 static constexpr uint32_t GAMECONFIG_MAGIC = 0x46434B42;
 
@@ -372,6 +383,54 @@ static void LoadGameConfig() {
                 }
                 break;
 
+            case 11: // CUSTOM_CODE — single entry: u32 ramBase + u8 hash[20]
+                if (entryCount >= 1 && pos + 24 <= size) {
+                    sCustomCodeRamBase = readLE32(data + pos);
+                    char hex[41];
+                    for (int i = 0; i < 20; i++) {
+                        std::snprintf(hex + i * 2, 3, "%02x", data[pos + 4 + i]);
+                    }
+                    sCustomCodeHashHex.assign(hex, 40);
+                    if (Lighthouse::LookupRomhackIdentifier(sCustomCodeHashHex.c_str()) == nullptr) {
+                        // Hash isn't in RomhackTable.h yet — Lighthouse can detect
+                        // this hack ships custom code but doesn't know which one.
+                        // Log the SHA1 so a hand-port author can pick it up.
+                        SPDLOG_WARN("[GameConfig] Custom-code SHA1 {} is not identified! This romhack's "
+                                    "scripted behavior will be absent until a hand-port is added "
+                                    "(ramBase=0x{:08X}).",
+                                    sCustomCodeHashHex, sCustomCodeRamBase);
+                    }
+                    // Known identifiers are surfaced in the summary log line below.
+
+                    pos += 24;
+                    // Skip any additional entries (forward-compat).
+                    for (uint16_t e = 1; e < entryCount && pos + 24 <= size; e++) {
+                        pos += 24;
+                    }
+                } else {
+                    SPDLOG_WARN("[GameConfig] CUSTOM_CODE section malformed, skipping");
+                    pos += entryCount * 24;
+                }
+                break;
+
+            case 12: // ROM_HASH — single entry: u8 hash[20]
+                if (entryCount >= 1 && pos + 20 <= size) {
+                    char hex[41];
+                    for (int i = 0; i < 20; i++) {
+                        std::snprintf(hex + i * 2, 3, "%02x", data[pos + i]);
+                    }
+                    sRomHashHex.assign(hex, 40);
+                    pos += 20;
+                    // Skip any additional entries (forward-compat).
+                    for (uint16_t e = 1; e < entryCount && pos + 20 <= size; e++) {
+                        pos += 20;
+                    }
+                } else {
+                    SPDLOG_WARN("[GameConfig] ROM_HASH section malformed, skipping");
+                    pos += entryCount * 20;
+                }
+                break;
+
             default:
                 SPDLOG_WARN("[GameConfig] Unknown section type {}, aborting parse", secType);
                 return;
@@ -411,12 +470,17 @@ static void LoadGameConfig() {
             jiggyCostCount++;
         }
     }
-    SPDLOG_INFO("[GameConfig] Loaded \"{}\" v{}: {} sections, {} code consts, {} scene remaps, "
-                "{} music, {} skybox, {} scene defs, {} level names, {} warps, {} note doors, "
-                "{} jiggy costs, {} return-to-lair",
-                sRomName, version, sectionCount, codeConstCount, sSceneRemaps.size(), sMusicAssign.size(),
-                sSkyboxAssign.size(), sSceneDefs.size(), levelNameCount, sWarpDests.size(), noteDoorCount,
-                jiggyCostCount, sReturnToLair.size());
+    if (sCustomCodeHashHex.empty()) {
+        // Data-only romhack — BB patches only, no injected MIPS to identify.
+        // Fall back to the o2r-derived name for visibility.
+        SPDLOG_INFO("[GameConfig] Loaded romhack: {}", sRomName.empty() ? "<unnamed>" : sRomName);
+    } else if (const char* id = Lighthouse::LookupRomhackIdentifier(sCustomCodeHashHex.c_str())) {
+        SPDLOG_INFO("[GameConfig] Loaded romhack: {}", id);
+    } else {
+        // Custom code present but the SHA1 is not in RomhackTable.h. The
+        // separate warn earlier in this function already surfaced the hash.
+        SPDLOG_INFO("[GameConfig] Loaded romhack: unidentified custom-code");
+    }
 }
 
 // All accessors callable from C. Fast path: after first load, vanilla ROMs hit one branch.
@@ -448,6 +512,44 @@ extern "C" bool port_isRomhack(void) {
 extern "C" const char* port_getRomhackName(void) {
     LoadGameConfig();
     return sRomName.empty() ? "" : sRomName.c_str();
+}
+
+extern "C" bool port_getRomhackCustomCodeHash(char out_hex[41]) {
+    LoadGameConfig();
+    if (sCustomCodeHashHex.empty()) {
+        return false;
+    }
+    std::memcpy(out_hex, sCustomCodeHashHex.c_str(), 40);
+    out_hex[40] = '\0';
+    return true;
+}
+
+extern "C" bool port_getRomhackRomHash(char out_hex[41]) {
+    LoadGameConfig();
+    if (sRomHashHex.empty()) {
+        return false;
+    }
+    std::memcpy(out_hex, sRomHashHex.c_str(), 40);
+    out_hex[40] = '\0';
+    return true;
+}
+
+extern "C" const char* port_getRomhackIdentifier(void) {
+    LoadGameConfig();
+    // Custom-code blob hash takes precedence — for hacks that ship MIPS code,
+    // the blob hash is the most reliable signal of "what code is running" and
+    // multiple ROM versions may share one blob.
+    if (!sCustomCodeHashHex.empty()) {
+        if (const char* id = Lighthouse::LookupRomhackIdentifier(sCustomCodeHashHex.c_str())) {
+            return id;
+        }
+    }
+    // Fall back to the ROM SHA1 for data-only hacks (e.g. Banjo-Dreamie) and
+    // for custom-code hacks whose blob hash isn't yet in RomhackTable.h.
+    if (!sRomHashHex.empty()) {
+        return Lighthouse::LookupRomhackIdentifier(sRomHashHex.c_str());
+    }
+    return nullptr;
 }
 
 extern "C" int port_getRomhackSceneRemap(int map_id) {
@@ -529,6 +631,14 @@ extern "C" int port_getRomhackSceneDefFull(int scene_id, int* out_opa, int* out_
 extern "C" int port_getRomhackNewGameMap(void) {
     ROMHACK_GUARD_INT;
     return sNewGameMap;
+}
+extern "C" int port_getRomhackStartLevel1(void) {
+    ROMHACK_GUARD_INT;
+    return sStartLevel1;
+}
+extern "C" int port_getRomhackStartLevel2(void) {
+    ROMHACK_GUARD_INT;
+    return sStartLevel2;
 }
 extern "C" int port_getRomhackMaxEggs(void) {
     ROMHACK_GUARD_INT;

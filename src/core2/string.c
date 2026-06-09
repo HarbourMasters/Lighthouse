@@ -146,6 +146,7 @@ s32 strcmpToTok(char *str1, char* str2, char* str3){
     return 0;
 }
 
+#if 0
 char *strtok(char *str, const char *delim){
     while (*delim != '\0' && *delim != *str){
         delim++;
@@ -155,6 +156,7 @@ char *strtok(char *str, const char *delim){
     }
     return (char *)delim;
 }
+#endif
 
 void strcpyToTok(char *arg0, char *arg1, char *arg2){
     while ((*arg2 != '\0') && (*arg2 != *arg0)){
