@@ -5,10 +5,11 @@
                   : (GameEngine_OTRSigCheck((const char*)path) ? ResourceGetDataByName((const char*)path) : path))
 #define LOAD_ASSET_RAW(path) ResourceGetDataByName((const char*)path)
 
-// TODO: Use correct hashes for BK
 typedef enum {
-    // BK_VER_US_10 = 0xFFFFFFFF,
+    BK_VER_US_10 = 0x0693BFA4,
     BK_VER_US_11 = 0xAC5975CD,
+    BK_VER_PAL = 0xB1CC3F73,
+    BK_VER_JP = 0x20D56851,
 } BKVersion;
 
 #ifdef __cplusplus
@@ -73,6 +74,7 @@ public:
     static int ShowYesNoBox(const char* title, const char* box);
     static void ShowMessage(const char* title, const char* message, SDL_MessageBoxFlags type = SDL_MESSAGEBOX_ERROR);
     static bool HasVersion(BKVersion ver);
+    static std::vector<BKVersion> GetAvailableVersions();
 };
 
 Fast::Interpreter* GameEngine_GetInterpreter();

@@ -1,5 +1,6 @@
 #include "BaseGameVersion.h"
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <zip.h>
@@ -9,21 +10,54 @@
 
 namespace Lighthouse {
 
-BaseGameVersion ClassifyAssetCount(uint32_t assetCount) {
-    if (assetCount >= 3030 && assetCount <= 3050) {
-        return BaseGameVersion::USV11;
+namespace {
+
+bool ReadStampedCrc(const std::string& archivePath, uint32_t& outCrc) {
+    int err = 0;
+    zip_t* z = zip_open(archivePath.c_str(), ZIP_RDONLY, &err);
+    if (z == nullptr) {
+        return false;
     }
-    if (assetCount >= 3051 && assetCount <= 3080) {
-        return BaseGameVersion::Localized; // PAL (3059) or JP (3065)
+
+    bool ok = false;
+    if (zip_int64_t idx = zip_name_locate(z, "version", 0); idx >= 0) {
+        if (zip_file_t* f = zip_fopen_index(z, idx, 0)) {
+            uint8_t buf[5] = {};
+            if (zip_fread(f, buf, sizeof(buf)) == static_cast<zip_int64_t>(sizeof(buf))) {
+                const bool big = buf[0] != 0;
+                outCrc = big ? (static_cast<uint32_t>(buf[1]) << 24 | static_cast<uint32_t>(buf[2]) << 16 |
+                                static_cast<uint32_t>(buf[3]) << 8 | static_cast<uint32_t>(buf[4]))
+                             : (static_cast<uint32_t>(buf[4]) << 24 | static_cast<uint32_t>(buf[3]) << 16 |
+                                static_cast<uint32_t>(buf[2]) << 8 | static_cast<uint32_t>(buf[1]));
+                ok = true;
+            }
+            zip_fclose(f);
+        }
     }
-    if (assetCount >= 3300) {
-        return BaseGameVersion::USV10; // ~3314
-    }
-    return BaseGameVersion::Unknown;
+
+    zip_close(z);
+    return ok;
 }
 
-BaseGameVersion GetBaseGameVersion() {
-    static BaseGameVersion sVersion = BaseGameVersion::Unknown;
+BKVersion ClassifyCrc(uint32_t crc) {
+    switch (crc) {
+        case BK_VER_US_11:
+            return BK_VER_US_11;
+        case BK_VER_PAL:
+            return BK_VER_PAL;
+        case BK_VER_JP:
+            return BK_VER_JP;
+        case BK_VER_US_10:
+        default:
+            // Vanilla v1.0, a v1.0-based romhack, or an unknown dump.
+            return BK_VER_US_10;
+    }
+}
+
+} // namespace
+
+BKVersion GetBaseVersion() {
+    static BKVersion sVersion = BK_VER_US_10;
     static bool sResolved = false;
     if (sResolved) {
         return sVersion;
@@ -31,48 +65,21 @@ BaseGameVersion GetBaseGameVersion() {
 
     std::string basePath = Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk");
     if (basePath.empty() || !std::filesystem::exists(basePath)) {
-        return sVersion; // can't determine yet — retry on the next call
+        return sVersion; // not extracted yet — retry on the next call
     }
-    int err = 0;
-    zip_t* z = zip_open(basePath.c_str(), ZIP_RDONLY, &err);
-    if (z == nullptr) {
-        return sVersion;
+
+    uint32_t crc = 0;
+    if (ReadStampedCrc(basePath, crc)) {
+        sVersion = ClassifyCrc(crc);
+        sResolved = true;
+        SPDLOG_INFO("[BaseGameVersion] base bk.o2r CRC 0x{:08X} -> BKVersion 0x{:08X}", crc,
+                    static_cast<uint32_t>(sVersion));
     }
-    zip_int64_t idx = zip_name_locate(z, "assets/aBKAssetTable", 0);
-    if (idx >= 0) {
-        if (zip_file_t* f = zip_fopen_index(z, idx, 0)) {
-            // aBKAssetTable is a LUS Blob: a 0x40-byte resource header, then a
-            // u32 blob size, then the table payload whose first u32 is the entry
-            // count. So the count lives at 0x44 in the raw archive entry.
-            constexpr size_t kCountOffset = 0x40 + 4;
-            uint8_t buf[kCountOffset + 4];
-            size_t got = 0;
-            while (got < sizeof(buf)) {
-                zip_int64_t n = zip_fread(f, buf + got, sizeof(buf) - got);
-                if (n <= 0) {
-                    break;
-                }
-                got += static_cast<size_t>(n);
-            }
-            if (got == sizeof(buf)) {
-                const uint8_t* p = buf + kCountOffset;
-                uint32_t count = static_cast<uint32_t>(p[0]) | (static_cast<uint32_t>(p[1]) << 8) |
-                                 (static_cast<uint32_t>(p[2]) << 16) | (static_cast<uint32_t>(p[3]) << 24);
-                sVersion = ClassifyAssetCount(count);
-                sResolved = true;
-                SPDLOG_INFO("[BaseGameVersion] Base bk.o2r has {} assets (version class {})", count,
-                            static_cast<int>(sVersion));
-            }
-            zip_fclose(f);
-        }
-    }
-    zip_close(z);
     return sVersion;
 }
 
 bool BaseGameSupportsRomhacks() {
-    BaseGameVersion v = GetBaseGameVersion();
-    return v != BaseGameVersion::USV11 && v != BaseGameVersion::Localized;
+    return GetBaseVersion() == BK_VER_US_10;
 }
 
 } // namespace Lighthouse

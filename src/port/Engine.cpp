@@ -1377,6 +1377,18 @@ extern "C" bool GameEngine_HasVersion(BKVersion ver) {
     return GameEngine::HasVersion(ver);
 }
 
+std::vector<BKVersion> GameEngine::GetAvailableVersions() {
+    static constexpr BKVersion kKnown[] = { BK_VER_US_10, BK_VER_US_11, BK_VER_PAL, BK_VER_JP };
+    auto loaded = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions();
+    std::vector<BKVersion> present;
+    for (BKVersion ver : kKnown) {
+        if (std::find(loaded.begin(), loaded.end(), static_cast<uint32_t>(ver)) != loaded.end()) {
+            present.push_back(ver);
+        }
+    }
+    return present;
+}
+
 extern "C" uint32_t GameEngine_GetSampleRate() {
     auto player = Ship::Context::GetRawInstance()->GetAudio()->GetAudioPlayer();
     if (player == nullptr) {

@@ -87,33 +87,30 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             symbolMap[assetId] = std::move(path);
         }
 
-        // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
-        // so the decomp's hardcoded IDs resolve transparently. The version
-        // thresholds live in BaseGameVersion.cpp (Lighthouse::ClassifyAssetCount).
+        // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases so
+        // the decomp's hardcoded IDs resolve transparently.
         const std::unordered_map<uint32_t, uint32_t>* remapTable = nullptr;
 
-        switch (Lighthouse::ClassifyAssetCount(static_cast<uint32_t>(symbolMap.size()))) {
-            case Lighthouse::BaseGameVersion::USV11:
+        switch (Lighthouse::GetBaseVersion()) {
+            case BK_VER_US_11:
                 remapTable = &sV10toV11Remap;
                 SPDLOG_INFO("Loaded v1.1 o2r with {} entries", symbolMap.size());
                 break;
-            case Lighthouse::BaseGameVersion::Localized:
-                // PAL and JP share an entry-count range; the JP build is the one
-                // with mode 7 entries at IDs 3628+.
-                if (symbolMap.find(3628) != symbolMap.end()) {
-                    remapTable = &sV10toJPRemap;
-                    sIsJapanese = true;
-                    SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
-                } else {
-                    remapTable = &sV10toPALRemap;
-                    sDialogLanguageCount = 3; // EN, FR, DE
-                    sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
-                    func_8031B5C4(sDialogLanguage); // Initialize decomp language index
-                    SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
-                }
+            case BK_VER_PAL:
+                remapTable = &sV10toPALRemap;
+                sDialogLanguageCount = 3; // EN, FR, DE
+                sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
+                func_8031B5C4(sDialogLanguage); // Initialize decomp language index
+                SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
                 break;
+            case BK_VER_JP:
+                remapTable = &sV10toJPRemap;
+                sIsJapanese = true;
+                SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
+                break;
+            case BK_VER_US_10:
             default:
-                // US v1.0 (or unrecognized): decomp IDs are already correct.
+                // v1.0 or a v1.0-based romhack: decomp IDs are already correct.
                 break;
         }
 
