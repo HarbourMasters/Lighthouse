@@ -5,7 +5,7 @@
 #include "variables.h"
 
 #include "version.h"
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 //#include <libultra/pfs.h>
 

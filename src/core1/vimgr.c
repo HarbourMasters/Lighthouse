@@ -6,7 +6,7 @@
 #include "version.h"
 #include "libultraship/libultra/rcp.h"
 
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 #define VIMANAGER_THREAD_STACK_SIZE 0x400
 

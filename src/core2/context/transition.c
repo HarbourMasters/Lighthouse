@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "gc/gctransition.h"
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 #include "port/Engine.h"
 
 void anctrl_setAnimTimer(AnimCtrl*, f32);

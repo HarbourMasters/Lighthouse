@@ -1,6 +1,6 @@
 #include <ultra64.h>
 #include "n_synth.h"
-#include "port/audio/mixer.h"
+#include "port/Audio/mixer.h"
 
 Acmd *n_alMainBusPull(s32 sampleOffset, Acmd *p);
 

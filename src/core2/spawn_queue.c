@@ -6,7 +6,7 @@
 #include "prop.h"
 #include "functions.h"
 #include "core2/ch/snacker.h"
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 
 void spawnQueue_unlock(void);
 void spawnQueue_lock(void);

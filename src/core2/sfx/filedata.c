@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 typedef struct {
     u8 pad0[0xC];

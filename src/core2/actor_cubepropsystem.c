@@ -5,8 +5,8 @@
 #include "enums.h"
 
 #include <core2/file.h>
-#include "port/patches/Patches.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Patches/Patches.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 

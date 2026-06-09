@@ -17,7 +17,7 @@ bool cutscene_skipGameOverCutsceneCheck(void);
 bool cutscene_skipIntroCutsceneCheck(void);
 bool cutscene_skipBeachCutsceneCheck(void);
 
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 
 extern u8 D_8037DCCE[];
 

@@ -4,7 +4,7 @@
 #include <ultra64.h>
 
 #include <bk_math.h>
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #define _SQ3(x, y, z)  (((x) * (x)) + ((y) * (y)) + ((z) * (z)))
 

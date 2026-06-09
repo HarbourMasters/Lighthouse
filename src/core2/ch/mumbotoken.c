@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 typedef struct {
     enum mumbotoken_e uid;

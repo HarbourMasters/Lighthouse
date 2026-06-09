@@ -7,7 +7,7 @@
 
 #include "version.h"
 
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 

@@ -6,7 +6,7 @@
 #include "variables.h"
 
 #include "version.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 void _guRotateF(f32 mf[4][4], f32, f32, f32, f32);
 f32 func_80263FF0(f32);

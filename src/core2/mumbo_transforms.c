@@ -9,7 +9,7 @@ extern void func_80325760(Actor *);
 Actor *chMumbo_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chMumbo_update(Actor *this);
 
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 
 /* .data */
 ActorAnimationInfo D_80367490[] = {

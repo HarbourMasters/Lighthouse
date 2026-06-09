@@ -5,7 +5,7 @@
 
 #include "gc/gctransition.h"
 #include "bk_time.h"
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 extern void print_updateBoldLetterFontDelayedFreeing(void);
 extern void func_802FA0F8(void);

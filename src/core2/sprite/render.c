@@ -4,8 +4,8 @@
 #include <ultra64.h>
 #include <PR/region.h>
 
-#include "port/patches/Patches.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Patches/Patches.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 
 extern void spriteRender_drawWithSegment(Gfx**, Vtx**, BKSprite *, s32, s32);

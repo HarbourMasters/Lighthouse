@@ -3,7 +3,7 @@
 #include "variables.h"
 
 #include "core2/quiz_storage.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 extern void func_8030DBFC(u32, f32, f32, f32);
 extern BKCollisionTriangle * func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);

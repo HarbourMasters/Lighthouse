@@ -2,7 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 
 extern void func_8034C6DC(BKModel *arg0);
 

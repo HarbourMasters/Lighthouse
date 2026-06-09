@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 
 #include "core2/modelRender.h"
 #include "core2/coords.h"

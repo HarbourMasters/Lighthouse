@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 /* .bss */
 void *D_8037C5D0;

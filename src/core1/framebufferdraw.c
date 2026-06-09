@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 extern BKSpriteTextureBlock *func_8033EFB0(void *, s32);
 
 #define IA8_I(ia) ((ia) >> 4)

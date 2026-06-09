@@ -3,7 +3,7 @@
 #include "variables.h"
 
 extern void actor_postdrawMethod(ActorMarker *);
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 void func_802DF2C4(Actor *this);
 

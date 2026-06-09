@@ -1,15 +1,15 @@
 #include "ShipUtils.h"
-#include "save/SaveManager.h"
-#include "save/Types.h"
+#include "Save/SaveManager.h"
+#include "Save/Types.h"
 #include "Engine.h"
-#include "GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
 #include <fast/Fast3dWindow.h>
-#include "ui/cvar_prefixes.h"
+#include "UI/cvar_prefixes.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif

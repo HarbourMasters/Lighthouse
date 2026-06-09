@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 
 typedef struct {
     s16 level_id;

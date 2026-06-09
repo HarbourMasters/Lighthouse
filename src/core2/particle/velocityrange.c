@@ -3,7 +3,7 @@
 #include "variables.h"
 #include <ultra64.h>
 
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 #include <libultra/convert.h>
 

@@ -8,8 +8,8 @@
 #include <libultra/convert.h>
 #include <libultra/gu.h>
 
-#include "port/patches/Patches.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Patches/Patches.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 extern void guPerspective(Mtx *, u16*, f32, f32, f32, f32, f32);
 

@@ -6,7 +6,7 @@
 #include "libultraship/bridge/resourcebridge.h"
 #include "libultraship/libultraship.h"
 #include "ship/Context.h"
-#include "ui/cvar_prefixes.h"
+#include "UI/cvar_prefixes.h"
 #include <spdlog/spdlog.h>
 #include <algorithm>
 #include <cstring>
@@ -18,7 +18,8 @@
 #include <crtdbg.h>
 #endif
 
-#include "AssetVersionRemap.h"
+#include "GameVersion/AssetVersionRemap.h"
+#include "GameVersion/BaseGameVersion.h"
 
 extern "C" {
 #include "enums.h"
@@ -87,29 +88,36 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         }
 
         // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases
-        // so the decomp's hardcoded IDs resolve transparently.
+        // so the decomp's hardcoded IDs resolve transparently. The version
+        // thresholds live in BaseGameVersion.cpp (Lighthouse::ClassifyAssetCount).
         const std::unordered_map<uint32_t, uint32_t>* remapTable = nullptr;
 
-        if (symbolMap.size() >= 3030 && symbolMap.size() <= 3050) {
-            remapTable = &sV10toV11Remap;
-            SPDLOG_INFO("Loaded v1.1 o2r with {} entries", symbolMap.size());
-        } else if (symbolMap.size() >= 3051 && symbolMap.size() <= 3080) {
-            // PAL (3059) and JP (3065) both fall here.
-            // JP has mode 7 entries at IDs 3628+; PAL does not.
-            if (symbolMap.find(3628) != symbolMap.end()) {
-                remapTable = &sV10toJPRemap;
-                sIsJapanese = true;
-                SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
-            } else {
-                remapTable = &sV10toPALRemap;
-                sDialogLanguageCount = 3; // EN, FR, DE
-                sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
-                func_8031B5C4(sDialogLanguage); // Initialize decomp language index
-                SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
-            }
+        switch (Lighthouse::ClassifyAssetCount(static_cast<uint32_t>(symbolMap.size()))) {
+            case Lighthouse::BaseGameVersion::USV11:
+                remapTable = &sV10toV11Remap;
+                SPDLOG_INFO("Loaded v1.1 o2r with {} entries", symbolMap.size());
+                break;
+            case Lighthouse::BaseGameVersion::Localized:
+                // PAL and JP share an entry-count range; the JP build is the one
+                // with mode 7 entries at IDs 3628+.
+                if (symbolMap.find(3628) != symbolMap.end()) {
+                    remapTable = &sV10toJPRemap;
+                    sIsJapanese = true;
+                    SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
+                } else {
+                    remapTable = &sV10toPALRemap;
+                    sDialogLanguageCount = 3; // EN, FR, DE
+                    sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
+                    func_8031B5C4(sDialogLanguage); // Initialize decomp language index
+                    SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
+                }
+                break;
+            default:
+                // US v1.0 (or unrecognized): decomp IDs are already correct.
+                break;
         }
 
-        // [port] Relocate the JP world-name banners
+        // Relocate the JP world-name banners
         if (sIsJapanese) {
             constexpr uint32_t kJpBannerNativeBase = 0xE2C;
             constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_JP_WORLD_NAME_TOTAL
@@ -125,7 +133,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         }
 
         if (remapTable) {
-            // [port] Snapshot the manifest before injection
+            // Snapshot the manifest before injection
             const auto snapshot = symbolMap;
             for (const auto& [v10Id, targetId] : *remapTable) {
                 if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {

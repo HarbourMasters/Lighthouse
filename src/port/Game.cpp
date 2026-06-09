@@ -13,12 +13,12 @@
 #include <SDL2/SDL.h>
 
 #include "GameStatus.h"
-#include "interpolation/FrameInterpolation.h"
+#include "Interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
-#include "patches/Patches.h"
+#include "Patches/Patches.h"
 #include "ShipUtils.h"
 #include "src/port/enhancements/events/hooks/Events.h"
-#include "ui/LighthouseModMenuWindow.h"
+#include "UI/LighthouseModMenuWindow.h"
 
 extern "C" {
 #include "enums.h"

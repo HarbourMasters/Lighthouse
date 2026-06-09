@@ -6,7 +6,7 @@
 #include "core2/anim/sprite.h"
 #include <core2/file.h>
 #include "core2/particle.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 /* .data */
 extern u8 D_80370250 = 0;

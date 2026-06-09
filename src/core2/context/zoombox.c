@@ -5,7 +5,7 @@
 #include "variables.h"
 #include "core2/gc/zoombox.h"
 #include "port/Engine.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #include "bk_time.h"
 

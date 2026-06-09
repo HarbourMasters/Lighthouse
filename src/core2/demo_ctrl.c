@@ -5,7 +5,7 @@
 extern void actor_postdrawMethod(ActorMarker *);
 extern void chBottlesBonus_func_802DD080(Gfx **, Mtx **);
 extern void func_80311714(s32);
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 Actor *func_802DEC00(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802DEE1C(Actor *this);

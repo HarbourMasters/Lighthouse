@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void rand_seed(s32);

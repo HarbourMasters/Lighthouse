@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 /* .code */
 void func_802F7EB0(struct3s *this){

@@ -1,5 +1,5 @@
 #include "Anchor.h"
-#include "port/nametag.h"
+#include "port/Nametag/Nametag.h"
 
 extern "C" {
 #include <ultra64.h>
@@ -9,7 +9,7 @@ void func_802D729C(Actor* actor, f32 arg1);
 }
 
 #include "bk_math.h"
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 DummyPlayer::DummyPlayer(){};
 

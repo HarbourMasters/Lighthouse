@@ -7,8 +7,8 @@
 #include "core2/gc/zoombox.h"
 #include "core2/quiz_storage.h"
 
-#include "port/GameConfig.h"
-#include "port/patches/Patches.h"
+#include "port/Romhack/RomhackConfig.h"
+#include "port/Patches/Patches.h"
 
 extern s32 port_setJpFileSelectInstructions(GcZoombox *zoombox);
 extern s32 port_setJpFileSelectEraseConfirm(GcZoombox *zoombox);

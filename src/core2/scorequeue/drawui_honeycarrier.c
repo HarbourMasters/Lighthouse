@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Engine.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #include "bk_time.h"
 

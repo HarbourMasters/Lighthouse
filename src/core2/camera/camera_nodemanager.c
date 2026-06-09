@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "core2/nc/camera.h"
 #include "core2/coords.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 extern Actor *func_80328230(enum actor_e, f32[3], f32[3]);
 extern void func_802BEA4C(f32[3], f32[3], f32, f32[3]);

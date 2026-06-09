@@ -6,7 +6,7 @@
 #include <windows.h>
 #endif
 
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
 extern "C" {

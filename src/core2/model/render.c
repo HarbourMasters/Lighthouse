@@ -7,8 +7,8 @@
 
 #include "libultraship/libultra/gbi.h"
 
-#include "port/patches/Patches.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Patches/Patches.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 

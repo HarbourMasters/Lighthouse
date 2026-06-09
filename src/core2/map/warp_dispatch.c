@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/GameConfig.h"
+#include "port/Romhack/RomhackConfig.h"
 //these funtions include references to overlay functions
 extern void func_802DC528(NodeProp*, ActorMarker*);
 extern void func_802DC560(NodeProp*, ActorMarker*);

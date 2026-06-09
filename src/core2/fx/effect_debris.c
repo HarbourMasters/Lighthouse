@@ -3,7 +3,7 @@
 #include <ultra64.h>
 
 #include <bk_math.h>
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 
 typedef struct struct_24_s{

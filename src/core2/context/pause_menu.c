@@ -2,8 +2,8 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "port/GameConfig.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Romhack/RomhackConfig.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #include "core2/gc/zoombox.h"
 
@@ -766,7 +766,7 @@ s32 gcpausemenu_initLargestPageIndex(void) {
 }
 
 #include <stdio.h>
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 bool gcpausemenu_initReturnToLair(void) {
     return EventSystem_Should(VB_INIT_RETURN_TO_LAIR, false, &D_8036C4E0);
 }

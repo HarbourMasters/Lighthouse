@@ -11,8 +11,8 @@ s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
 
 void func_80346DB4(s32);
 
-#include "port/patches/Patches.h"
-#include "port/GameConfig.h"
+#include "port/Patches/Patches.h"
+#include "port/Romhack/RomhackConfig.h"
 
 /* .bss */
 s32 D_80385F30[0x2C];

@@ -4,7 +4,7 @@
 #include "variables.h"
 #include "core2/particle.h"
 
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 
 extern s32 sprite_getFrameCount(BKSprite *);

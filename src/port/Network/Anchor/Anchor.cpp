@@ -2,8 +2,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/Engine.h"
-#include "port/nametag.h"
-#include "port/interpolation/FrameInterpolation.h"
+#include "port/Nametag/Nametag.h"
+#include "port/Interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
 
 extern "C" {

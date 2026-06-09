@@ -2,9 +2,10 @@
 #include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-#include "port/GameConfig.h"
-#include "port/ui/LighthouseGui.hpp"
-#include "port/ui/LighthouseModals.h"
+#include "port/Romhack/RomhackConfig.h"
+#include "port/Romhack/RomhackCompat.h"
+#include "port/UI/LighthouseGui.hpp"
+#include "port/UI/LighthouseModals.h"
 //#include "soh/OTRGlobals.h"
 
 extern "C" {
@@ -33,7 +34,7 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["teleportMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.TeleportMode"), 1);
     payload["syncItemsAndFlags"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.SyncItemsAndFlags"), 1);
     payload["isRomHack"] = port_isRomhack();
-    payload["romhackName"] = port_isRomhack() ? port_getRomhackName() : "Vanilla";
+    payload["romhackName"] = Lighthouse::CurrentRomhackLabel();
     //}
 
     return payload;
@@ -53,18 +54,12 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     }
     roomState.isRomhack = payload["state"]["isRomHack"].get<bool>();
     roomState.romhackName = payload["state"]["romhackName"].get<std::string>();
-    if (roomState.romhackName != (port_isRomhack() ? port_getRomhackName() : "Vanilla")) {
+    const std::string localLabel = Lighthouse::CurrentRomhackLabel();
+    if (roomState.romhackName != localLabel) {
         Disable();
         std::string msg = "There's a romhack mismatch between your client and the server:\n\n";
-        if (port_isRomhack() && !roomState.isRomhack) {
-            msg += " - You have a romhack enabled, but the server is vanilla.";
-        } else if (!port_isRomhack() && roomState.isRomhack) {
-            msg += " - The server has a romhack enabled, but your game is vanilla.";
-        } else {
-            msg += " - You have the \"" + std::string(port_getRomhackName()) +
-                   "\" hack enabled,\n    but the server is using \"" +
-                   roomState.romhackName + "\"";
-        }
+        msg += Lighthouse::DescribeRomhackMismatch(port_isRomhack(), localLabel, roomState.isRomhack,
+                                                   roomState.romhackName);
         msg += "\n\nAnchor has been disabled. Please enable or disable the appropriate\n"
                "mod(s) in the Mod Menu and reconnect, or enter a new room name.";
         LighthouseGui::RegisterPopup("Incompatible Romhack State", msg);

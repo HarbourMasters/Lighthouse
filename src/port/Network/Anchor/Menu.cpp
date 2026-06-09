@@ -1,7 +1,7 @@
 #include "Anchor.h"
 #include <libultraship/libultraship.h>
-#include "port/ui/LighthouseGui.hpp"
-#include "port/ui/LighthouseMenu.h"
+#include "port/UI/LighthouseGui.hpp"
+#include "port/UI/LighthouseMenu.h"
 #include "port/ShipUtils.h"
 
 namespace LighthouseGui {

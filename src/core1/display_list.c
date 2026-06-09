@@ -5,7 +5,7 @@
 #include "port/Engine.h"
 
 #include <libultra/convert.h>
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 static Gfx *sGfxStack[2] = { NULL, NULL };
 s32 gFramebufferWidth = DEFAULT_FRAMEBUFFER_WIDTH;

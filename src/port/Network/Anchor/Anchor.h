@@ -5,7 +5,7 @@
 #include <queue>
 #include <map>
 #include <libultraship/libultraship.h>
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Network/Anchor/DummyPlayer.h"
 #include "port/Network/Network.h"
 #include "port/build.h"

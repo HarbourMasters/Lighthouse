@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 //#include "soh/Enhancements/game-interactor/GameInteractor.h"
-#include "port/ui/Notification.h"
+#include "port/UI/Notification.h"
 //#include "soh/Enhancements/randomizer/randomizer.h"
 //#include "soh/SohGui/ImGuiUtils.h"
 //#include "soh/Enhancements/item-tables/ItemTableManager.h"
