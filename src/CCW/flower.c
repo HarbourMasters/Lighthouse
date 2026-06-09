@@ -99,9 +99,9 @@ void func_803882A4(ActorMarker* marker, ActorMarker *other_marker) {
     Actor* actor = marker_getActor(marker);
 
     // [port] v1.1 fix: don't allow re-planting flower in Spring after it's already been planted
-    if (gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == 1 &&
-        (!fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING) ||
-         EventSystem_Should(VB_CCW_FLOWER_REPLANT, true))) {
+    if (EventSystem_Should(VB_CCW_FLOWER_REPLANT,
+                           gsworld_getMap() == MAP_43_CCW_SPRING && actor->state == 1 &&
+                               !fileProgressFlag_get(FILEPROG_E3_CCW_FLOWER_SPRING))) {
         func_80387F64(actor, 2);
     }
 }

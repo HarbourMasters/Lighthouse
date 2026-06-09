@@ -125,9 +125,9 @@ extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
 // Center the pan for the looping SFX — TeeHee (0x3F4) and Sir Slush (0x3F5). On N64 these play
 // hard-panned by camera angle (which the port reproduces faithfully), but isolated almost entirely
 // in one channel they can read as a thin "bleating" warble. When enabled, this gate makes source.c
-// skip the camera-relative pan (func_8030CDE4) and center these two sounds (0x40). Opt-in/default off.
+// skip the camera-relative pan (func_8030CDE4) and center these two sounds (0x40). Default on.
 void RegisterCenterSfx_Init() {
-    COND_VB_SHOULD(VB_POSITIONAL_SFX_PAN, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CENTER_SFX, 0), {
+    COND_VB_SHOULD(VB_POSITIONAL_SFX_PAN, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CENTER_SFX, 1), {
         int16_t uid = *va_arg(args, int16_t*);
         if (uid == 0x3F4 || uid == 0x3F5)
             *should = false;

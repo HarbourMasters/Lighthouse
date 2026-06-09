@@ -128,7 +128,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix CCW Flower Replant Softlock", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CCWFlowerReplant"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Prevents re-planting the CCW Spring flower after it's already planted."));
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Prevents re-planting the CCW Spring flower after it's already planted."));
 
     AddWidget(path, "Fix Termite Mound Slopes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes"))
@@ -143,8 +144,9 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Boggy Race Game Over", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Losing Boggy's race with no extra lives reloads the race instead of "
-                                           "triggering a game over."));
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Losing Boggy's race with no extra lives reloads the race instead of "
+            "triggering a game over."));
 
     AddWidget(path, "Fix Grunty Jinjo Charge Sound", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.JinjoChargeSound"))
@@ -171,7 +173,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Center Enemy SFX", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CenterSfx"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
             "Centers the TeeHee and Sir Slush sound effects so they sound similar to N64 at distance."));
 
     // Enhancements -> Restorations

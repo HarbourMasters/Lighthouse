@@ -95,7 +95,7 @@ void func_8038D81C(ActorMarker* marker, ActorMarker *other_marker) {
     Actor* actor = marker_getActor(marker);
     if (actor->state == 1) {
         // [port] v1.1 fix: rock is indestructible in Spring (prevents sequence break)
-        if (gsworld_getMap() != MAP_43_CCW_SPRING || EventSystem_Should(VB_CCW_GNAWTY_SPRING_ROCK, true)) {
+        if (EventSystem_Should(VB_CCW_GNAWTY_SPRING_ROCK, gsworld_getMap() != MAP_43_CCW_SPRING)) {
             chGnawtyBoulder_setNextState(actor, 2);
         }
     }

@@ -100,14 +100,14 @@ void RegisterMumboTokenGV_Init() {
 
 // CCW Gnawty rock: indestructible in Spring (v1.1).
 void RegisterGnawtySpringRock_Init() {
-    COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_GNAWTY_ROCK, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL, !CVarGetInteger(CVAR_GNAWTY_ROCK, 0),
+                   { *should = true; });
 }
 
-// CCW flower: prevent the re-plant softlock (v1.1).
+// CCW flower: prevent the re-plant softlock (v1.1). Default on to prevent softlock.
 void RegisterCCWFlowerReplant_Init() {
-    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FLOWER_REPLANT, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_CCW_FLOWER_REPLANT, EVENT_PRIORITY_NORMAL, !CVarGetInteger(CVAR_FLOWER_REPLANT, 1),
+                   { *should = true; });
 }
 
 // Termite mound: instant slide on slopes (v1.1).
@@ -124,7 +124,7 @@ void RegisterClawSwipeSlide_Init() {
 
 // Boggy race: reload instead of game over at 0 lives (v1.1).
 void RegisterBoggyRaceGameOver_Init() {
-    COND_VB_SHOULD(VB_BOGGY_RACE_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_BOGGY_RACE, 0),
+    COND_VB_SHOULD(VB_BOGGY_RACE_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_BOGGY_RACE, 1),
                    { *should = false; });
 }
 
