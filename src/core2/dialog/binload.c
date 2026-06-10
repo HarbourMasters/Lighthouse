@@ -63,7 +63,7 @@ char *dialogBin_get(enum asset_e text_id) {
     if(sp1C);
     var_v0 = s_dialogBin.ptr + var_a0;
     s_dialogBin.index = text_id;
-    port_fixCongaDialog(text_id, var_v0);
+    CALL_EVENT(OnDialogLoaded, text_id, var_v0);
     return var_v0;
 }
 

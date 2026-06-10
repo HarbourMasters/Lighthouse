@@ -19,6 +19,7 @@ DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
 DEFINE_EVENT(OnGruntyJinjonatorComplete)
 DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)
 DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
+DEFINE_EVENT(OnMumboTokenIdResolve, s32* tokenId; s32* position; s32 mapId;)
 DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position;
              f32 subrange_end; bool smooth;)
 DEFINE_EVENT(OnPlayerAnimReset)

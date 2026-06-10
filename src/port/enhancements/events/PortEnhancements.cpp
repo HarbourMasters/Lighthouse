@@ -18,6 +18,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(FrameDrawEnd);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
@@ -36,6 +37,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnGruntyJinjonatorComplete);
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMumboTokenUpdate);
+    REGISTER_EVENT(OnMumboTokenIdResolve);
     REGISTER_EVENT(OnNametagDraw);
     REGISTER_EVENT(OnPlayerAnimChange);
     REGISTER_EVENT(OnPlayerAnimReset);

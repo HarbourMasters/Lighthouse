@@ -253,11 +253,11 @@ static void __chClam_attackOther(ActorMarker *this_marker, ActorMarker *other_ma
 
     // [port] Match JP: only drop while fewer than 8 eggs / 5 red feathers are on the
     // ground at once, preventing the spawn-overflow crash.
-    if (item_getCount(ITEM_D_EGGS) != 0 && port_yumYumDropAllowed(ACTOR_52_BLUE_EGG, 8)) {
+    if (item_getCount(ITEM_D_EGGS) != 0 && EventSystem_Should(VB_YUMYUM_DROP, true, ACTOR_52_BLUE_EGG, 8)) {
         __chClam_playerDropsItem(BUNDLE_E_YUMYUM_BLUE_EGG, ITEM_D_EGGS);
     }
 
-    if (item_getCount(ITEM_F_RED_FEATHER) != 0 && port_yumYumDropAllowed(ACTOR_129_RED_FEATHER, 5)) {
+    if (item_getCount(ITEM_F_RED_FEATHER) != 0 && EventSystem_Should(VB_YUMYUM_DROP, true, ACTOR_129_RED_FEATHER, 5)) {
         __chClam_playerDropsItem(BUNDLE_F_YUMYUM_RED_FEATHER, ITEM_F_RED_FEATHER);
     }
 }

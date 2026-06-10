@@ -70,12 +70,6 @@ void port_mirror_clearExclude(void);
 int port_mirror_bakeCounterScale(void);
 void port_mirror_patchTextActors(void);
 
-// Fixes (GameFixes.cpp)
-
-int port_fixMumboTokenId(int ret, int pos[3], int map_id);
-int port_yumYumDropAllowed(int actorId, int maxOnGround);
-void port_fixCongaDialog(int textId, char* text);
-
 // Localization (LocalizedText.cpp)
 
 void port_localizeParade(int paradeId, void** table, uint8_t* count);

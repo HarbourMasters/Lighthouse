@@ -20,6 +20,7 @@ typedef enum VBehaviorID {
     VB_BOGGY_RACE_GAME_OVER,
     VB_JINJO_CHARGE_SOUND,
     VB_POSITIONAL_SFX_PAN,
+    VB_YUMYUM_DROP,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

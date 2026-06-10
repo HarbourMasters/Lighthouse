@@ -17,6 +17,8 @@ DEFINE_EVENT(FrameDrawEnd);
 
 DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 
+DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
+
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 
 DEFINE_EVENT(OnActorTick, Actor* actor;);
