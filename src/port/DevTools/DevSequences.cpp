@@ -13,13 +13,13 @@ extern "C" {
 #include "enums.h"
 void gcparade_beginFFParade(void);
 void gcparade_beginFinalParade(void);
-void func_8034BA7C(enum map_e map_id, int exit_id);  // warp (B&K demo uses MAP_1, exit 93)
-void func_8034B968(void);  // start the attract demo selected by D_80386110 (sets transition + D_80386114)
-extern int D_80386110;     // attract-demo cycle index
-void func_8025A55C(int, int, int);                   // fade the active music track
-void func_8025AB00(void);                            // finalize/stop the main music track
+void func_8034BA7C(enum map_e map_id, int exit_id); // warp (B&K demo uses MAP_1, exit 93)
+void func_8034B968(void);          // start the attract demo selected by D_80386110 (sets transition + D_80386114)
+extern int D_80386110;             // attract-demo cycle index
+void func_8025A55C(int, int, int); // fade the active music track
+void func_8025AB00(void);          // finalize/stop the main music track
 enum level_e level_get(void);
-int gctransition_8030BDC0(void);                     // nonzero while a scene transition is active
+int gctransition_8030BDC0(void); // nonzero while a scene transition is active
 int getGameMode(void);
 void func_80324DBC(float time, int text_id, int arg2, float* position, void* caller, void* cb1, void* cb2);
 void timedFunc_set_1(float time, void (*func)(int), int arg); // queue a 1-arg delayed call
@@ -37,7 +37,6 @@ void RequestSequence(int seq) {
 
 void RegisterDevSequences_Init() {
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
-
         if (sPending == SEQ_NONE || gctransition_8030BDC0()) {
             return;
         }

@@ -180,8 +180,7 @@ void LighthouseMenu::AddMenuSettings() {
         .RaceDisable(false)
         .Callback([](WidgetInfo& info) {
             LighthouseGui::mModalWindow->RegisterPopup(
-                "Add Language Pack from ROM",
-                "Select any Banjo-Kazooie ROM whose language you want to add.\n",
+                "Add Language Pack from ROM", "Select any Banjo-Kazooie ROM whose language you want to add.\n",
                 "Select ROM", "Cancel", []() { RequestInlineLanguagePackExtraction(); }, nullptr);
         })
         .Options(ButtonOptions()

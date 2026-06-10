@@ -12,7 +12,7 @@ typedef unsigned char u8;
 extern "C" {
 int ResourceMgr_IsJapanese(void);
 int ResourceMgr_GetDialogLanguageCount(void); // 1 = US, 3 = PAL (EN/FR/DE)
-int ResourceMgr_GetDialogLanguage(void); // PAL only: 0=English, 1=French, 2=German
+int ResourceMgr_GetDialogLanguage(void);      // PAL only: 0=English, 1=French, 2=German
 int ResourceMgr_GetLanguageGeneration(void);
 int ResourceMgr_IsAssetRepointed(uint32_t assetId);
 
@@ -24,14 +24,14 @@ char* gcpausemenu_TimeToA(int time);
 void print_dialog(int x, int y, u8* string);
 int gczoombox_setStrings(void* zb, int str_cnt, char** str_ptrs);
 void setGameInformationZoombox(int gamenum); // decomp: (re)assemble the file info zoombox
-extern void* chGameSelectTopZoombox; // GcZoombox*
-extern u8* D_80365DF4[];             // top instruction line 0, indexed by language
-extern u8* D_80365DF8[];             // top instruction line 1, indexed by language
-int code94620_func_8031B5B0(void);   // current dialog-language index (0=EN,1=FR,2=DE)
-int func_8031877C(void* zoombox);    // clear a zoombox's strings before re-setting
+extern void* chGameSelectTopZoombox;         // GcZoombox*
+extern u8* D_80365DF4[];                     // top instruction line 0, indexed by language
+extern u8* D_80365DF8[];                     // top instruction line 1, indexed by language
+int code94620_func_8031B5B0(void);           // current dialog-language index (0=EN,1=FR,2=DE)
+int func_8031877C(void* zoombox);            // clear a zoombox's strings before re-setting
 
 // Print font internals
-extern void* D_80380AB8[]; // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
+extern void* D_80380AB8[];   // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
 extern void* print_sFonts[]; // FontLetter*[4]: decoded glyph tables per slot
 void* print_getLettersFromFont(void* alphaMask, void* textureSprite);
 int print_getCurrentMapBoldFontTexture(void);
@@ -466,8 +466,8 @@ static void RegisterLocalizedText() {
     // skips its English ones (promptId 0 = controls, 1 = erase confirm).
     REGISTER_LISTENER(LocalizeFileSelectPrompt, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (LocalizeFileSelectPrompt*)event;
-        bool done = (ev->promptId == 1) ? SetJpFileSelectEraseConfirm(ev->zoombox)
-                                        : SetJpFileSelectInstructions(ev->zoombox);
+        bool done =
+            (ev->promptId == 1) ? SetJpFileSelectEraseConfirm(ev->zoombox) : SetJpFileSelectInstructions(ev->zoombox);
         if (done) {
             ev->Event.Cancelled = true;
         }

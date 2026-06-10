@@ -27,11 +27,11 @@ namespace {
 enum LanguageScript { SCRIPT_LATIN = 0, SCRIPT_JP = 1 };
 
 struct LanguageEntry {
-    std::string name;       // display name (from region defaults or pack langinfo)
-    Ship::Archive* source;  // base game's own dialog if nullptr; else the pack
-    int index;              // dialog index within the source's multi-language blob
-    int count;              // number of languages packed in the source's blobs
-    int script;             // LanguageScript: drives the JP font/sprite path
+    std::string name;      // display name (from region defaults or pack langinfo)
+    Ship::Archive* source; // base game's own dialog if nullptr; else the pack
+    int index;             // dialog index within the source's multi-language blob
+    int count;             // number of languages packed in the source's blobs
+    int script;            // LanguageScript: drives the JP font/sprite path
 };
 
 std::vector<LanguageEntry> sLanguages;
@@ -84,9 +84,7 @@ bool AssetHexFromPath(const std::string& path, uint32_t& out) {
     try {
         out = static_cast<uint32_t>(std::stoul(path.substr(a, e - a), nullptr, 16));
         return true;
-    } catch (...) {
-        return false;
-    }
+    } catch (...) { return false; }
 }
 
 // True if the archive contains an asset whose id hex matches `hex`.

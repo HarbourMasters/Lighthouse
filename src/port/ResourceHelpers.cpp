@@ -182,7 +182,7 @@ static std::unordered_map<uint32_t, std::shared_ptr<Ship::IResource>> sResourceR
 static std::unordered_map<uint32_t, std::string> sDialogOverride;
 
 // Bumped on every language change. This is the single "language changed" signal:
-// the localization layer reads it to drive every live reaction: font slot, model 
+// the localization layer reads it to drive every live reaction: font slot, model
 // re-fetch, file-select rebuild, etc
 static int sLanguageGeneration = 0;
 
