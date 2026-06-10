@@ -266,7 +266,7 @@ void UpdateModFiles(bool init, bool reset) {
                     if (it == filePaths.end())
                         continue;
                     if (!baseCompatible && ArchiveHasGameConfig(it->second)) {
-                        SPDLOG_WARN("[ModMenu] Refusing romhack overlay '{}' — base bk.o2r is not US v1.0; "
+                        SPDLOG_WARN("[ModMenu] Refusing romhack overlay '{}': base bk.o2r is not US v1.0; "
                                     "romhacks require a v1.0 base.",
                                     mod);
                         sRomhackBaseMismatch.push_back(mod);

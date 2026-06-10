@@ -19,6 +19,7 @@
 #include "port/ResourceHelpers.h"
 #include "port/GameVersion/AssetVersionRemap.h"
 #include "port/GameVersion/BaseGameVersion.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/UI/cvar_prefixes.h"
 
 namespace Lighthouse {
@@ -236,9 +237,10 @@ void RescanLanguages() {
             break;
     }
 
-    // Pack languages from each loaded archive's binary langinfo.
-    auto am = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
-    if (auto archives = am->GetArchives()) {
+    // Don't allow languages in romhacks
+    if (port_isRomhack()) {
+    } else if (auto archives =
+                   Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetArchives()) {
         for (const auto& archive : *archives) {
             if (!archive) {
                 continue;
