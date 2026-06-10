@@ -15,6 +15,8 @@ enum level_e level_get(void);
 int volatileFlag_get(enum volatile_flags_e index);
 int func_8028F070(void);
 void gcparade_beginFFParade(void);
+void func_8025A55C(int, int, int);
+void func_8025AB00(void);
 }
 
 #define CVAR_SKIP_BOOT_LOGOS CVAR_ENHANCEMENT("Cutscenes.SkipBootLogos")
@@ -50,6 +52,8 @@ void RegisterTriggerFFParade_Init() {
             volatileFlag_get(VOLATILE_FLAG_20_BEGIN_CHARACTER_PARADE)) {
             return;
         }
+        func_8025A55C(0, 0x1388, 0xB);
+        func_8025AB00();
         gcparade_beginFFParade();
     });
 }
