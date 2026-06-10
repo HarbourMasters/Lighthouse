@@ -431,7 +431,6 @@ if(USE_NETWORKING)
     endif()
     find_package(SDL2_net REQUIRED)
     include_directories(${SDL2_NET_INCLUDE_DIRS})
-    #target_link_libraries(${PROJECT_NAME} PRIVATE SDL2_net::SDL2_net-static)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_NETWORKING)
 endif()
 
