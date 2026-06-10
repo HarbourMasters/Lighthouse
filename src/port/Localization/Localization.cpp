@@ -11,6 +11,7 @@ typedef unsigned char u8;
 
 extern "C" {
 int ResourceMgr_IsJapanese(void);
+int ResourceMgr_GetDialogLanguageCount(void); // 1 = US, 3 = PAL (EN/FR/DE)
 int ResourceMgr_GetDialogLanguage(void); // PAL only: 0=English, 1=French, 2=German
 int ResourceMgr_GetLanguageGeneration(void);
 int ResourceMgr_IsAssetRepointed(uint32_t assetId);
@@ -326,41 +327,45 @@ extern "C" {
 extern PortParadeInfo D_8036D9A0[]; // US Furnace-Fun parade (27 entries)
 extern PortParadeInfo D_8036DAE4[]; // US final parade (58 entries)
 }
-static PortParadeInfo sJpParade0[28];
-static PortParadeInfo sJpParade1[57];
-static bool sJpParadesBuilt = false;
+static PortParadeInfo sPalJpParade0[28];
+static PortParadeInfo sPalJpParade1[57];
+static bool sPalJpParadesBuilt = false;
 
-static void buildJpParades() {
+// JP and PAL both move Motzand into the Furnace-Fun parade (parade 0, after RUBEE
+// AND TOOTS) and drop it from the post-Grunty parade (parade 1).
+static void buildPalJpParades() {
     for (int i = 0; i < 20; i++) {
-        sJpParade0[i] = D_8036D9A0[i];
+        sPalJpParade0[i] = D_8036D9A0[i];
     }
-    sJpParade0[20] = { 0x1C, 5, 90, "MOTZAND", 0 }; // MAP_1C_MMM_CHURCH, after RUBEE AND TOOTS
+    sPalJpParade0[20] = { 0x1C, 5, 90, "MOTZAND", 0 }; // MAP_1C_MMM_CHURCH, after RUBEE AND TOOTS
     for (int i = 20; i < 27; i++) {
-        sJpParade0[i + 1] = D_8036D9A0[i];
+        sPalJpParade0[i + 1] = D_8036D9A0[i];
     }
     int j = 0;
     for (int i = 0; i < 58; i++) {
-        if (i == 39) { // US final-parade MOTZAND, removed in JP
+        if (i == 39) { // US final-parade MOTZAND, moved to the Furnace-Fun parade above
             continue;
         }
-        sJpParade1[j++] = D_8036DAE4[i];
+        sPalJpParade1[j++] = D_8036DAE4[i];
     }
 }
 
-// Swap the active parade table for its JP variant
+// Swap the active parade table for the PAL/JP variant. JP (Japanese script) and
+// PAL (EN-UK/FR/DE, language count > 1) both move Motzand; US (English, count 1)
+// keeps the vanilla table.
 static void LocalizeParadeTable(int paradeId, void** table, uint8_t* count) {
-    if (!ResourceMgr_IsJapanese()) {
+    if (!ResourceMgr_IsJapanese() && ResourceMgr_GetDialogLanguageCount() <= 1) {
         return;
     }
-    if (!sJpParadesBuilt) {
-        buildJpParades();
-        sJpParadesBuilt = true;
+    if (!sPalJpParadesBuilt) {
+        buildPalJpParades();
+        sPalJpParadesBuilt = true;
     }
     if (paradeId == 0) {
-        *table = sJpParade0;
+        *table = sPalJpParade0;
         *count = 28;
     } else {
-        *table = sJpParade1;
+        *table = sPalJpParade1;
         *count = 57;
     }
 }
@@ -501,12 +506,14 @@ static void RegisterLocalizedText() {
         LocalizeParadeTable(ev->paradeId, ev->table, ev->count);
     });
 
-    // JP: the kana Furnace-Fun parade drops a credit, shifting later credit-dialog
-    // ids by one (with MOTZAND remapped to its native id).
+    // JP and PAL both insert Motzand into the Furnace-Fun parade at index 20, which
+    // shifts the later credit-dialog ids by one. 0x11CA re-points to each version's
+    // Motzand credit (JP native 3073 / PAL native 3065) via the dialog override.
     REGISTER_LISTENER(ParadeCreditDialogId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ParadeCreditDialogId*)event;
-        if (!ResourceMgr_IsJapanese() || ev->index <= 19 || ev->dialogId == nullptr) {
-            return; 
+        if ((!ResourceMgr_IsJapanese() && ResourceMgr_GetDialogLanguageCount() <= 1) || ev->index <= 19 ||
+            ev->dialogId == nullptr) {
+            return;
         }
         *ev->dialogId = (ev->index == 20) ? 0x11CA : (0x11AF + ev->index - 1);
     });

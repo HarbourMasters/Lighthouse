@@ -157,8 +157,10 @@ void LighthouseMenu::AddMenuSettings() {
             if (!opts->comboMap.empty() && opts->comboMap.find(cur) == opts->comboMap.end()) {
                 CVarSetInteger(CVAR_SETTING("DialogLanguage"), opts->comboMap.begin()->first);
             }
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_NON_PAL_O2R).active)
-                info.activeDisables.push_back(DISABLE_FOR_NON_PAL_O2R);
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_SINGLE_LANGUAGE).active)
+                info.activeDisables.push_back(DISABLE_FOR_SINGLE_LANGUAGE);
+            if (mLighthouseMenu->disabledMap.at(DISABLE_DURING_PARADE).active)
+                info.activeDisables.push_back(DISABLE_DURING_PARADE);
         })
         .Callback([](WidgetInfo& info) {
             int32_t key = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);

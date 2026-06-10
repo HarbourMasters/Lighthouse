@@ -70,6 +70,10 @@ void port_mirror_clearExclude(void);
 int port_mirror_bakeCounterScale(void);
 void port_mirror_patchTextActors(void);
 
+// Volatile flag checks
+
+int port_isInCharacterParade(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -15,6 +15,11 @@ extern "C" {
 enum map_e gsworld_getMap(void);
 }
 
+// Check if in parade
+extern "C" int port_isInCharacterParade(void) {
+    return volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE) != 0;
+}
+
 #define CVAR_VOID_OUT CVAR_ENHANCEMENT("Fixes.VoidOutGameOver")
 #define CVAR_FF_DIALOG CVAR_ENHANCEMENT("Fixes.FurnaceFunDialog")
 #define CVAR_GRUNTY_FLAG CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag")

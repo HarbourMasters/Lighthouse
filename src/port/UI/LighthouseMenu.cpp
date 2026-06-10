@@ -4,6 +4,7 @@
 #include "port/ResourceHelpers.h"
 #include "port/Localization/Language.h"
 #include "port/Romhack/RomhackConfig.h"
+#include "port/Patches/Patches.h"
 #include <ship/window/gui/GuiMenuBar.h>
 #include <ship/window/gui/GuiElement.h>
 #include <variant>
@@ -203,9 +204,12 @@ void LighthouseMenu::InitElement() {
                       CVarGetInteger(CVAR_DEVELOPER_TOOLS("BootToDebugWarpScreen"), 0);
            },
             "\"Boot To Debug Warp Screen\" Enabled (see Dev Tools -> General)" } },
-        { DISABLE_FOR_NON_PAL_O2R,
+        { DISABLE_FOR_SINGLE_LANGUAGE,
           { [](disabledInfo& info) -> bool { return Lighthouse::GetAvailableLanguageCount() <= 1; },
             "Only one language available. Add a language pack to enable more." } },
+        { DISABLE_DURING_PARADE,
+          { [](disabledInfo& info) -> bool { return port_isInCharacterParade(); },
+            "Not available during the character parade." } },
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
     };
