@@ -7,6 +7,7 @@
 #include "LighthouseModMenuWindow.h"
 //#include <soh/GameVersions.h>
 #include "port/ResourceHelpers.h"
+#include "port/Localization/Language.h"
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
@@ -143,31 +144,47 @@ void LighthouseMenu::AddMenuSettings() {
                               "File Select: Skip to file select menu"));
 
     AddWidget(path, "Languages", WIDGET_SEPARATOR_TEXT);
-    {
-        static const std::unordered_map<int32_t, const char*> languageOptions = {
-            { LANGUAGE_ENG, "English" },
-            { LANGUAGE_FRE, "French" },
-            { LANGUAGE_GER, "German" },
-        };
-        AddWidget(path, "Dialog Language\n(Needs map change)", WIDGET_CVAR_COMBOBOX)
-            .CVar(CVAR_SETTING("DialogLanguage"))
-            .RaceDisable(false)
-            .PreFunc([](WidgetInfo& info) {
-                if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_NON_PAL_O2R).active)
-                    info.activeDisables.push_back(DISABLE_FOR_NON_PAL_O2R);
-            })
-            .Callback([](WidgetInfo& info) {
-                int lang = CVarGetInteger(CVAR_SETTING("DialogLanguage"), LANGUAGE_ENG);
-                ResourceMgr_SetDialogLanguage(lang);
-            })
-            .Options(ComboboxOptions()
-                         .Tooltip("Select dialog language.\nOnly available with PAL o2r (English, French, "
-                                  "German).\nRequires a map change to take effect.")
-                         .LabelPosition(LabelPositions::Far)
-                         .ComponentAlignment(ComponentAlignments::Right)
-                         .ComboMap(languageOptions)
-                         .DefaultIndex(LANGUAGE_ENG));
-    }
+    AddWidget(path, "Dialog Language", WIDGET_CVAR_COMBOBOX)
+        .CVar(CVAR_SETTING("DialogLanguage"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            auto opts = std::static_pointer_cast<ComboboxOptions>(info.options);
+            opts->comboMap.clear();
+            for (const auto& [key, name] : Lighthouse::GetLanguageComboEntries()) {
+                opts->comboMap[key] = name;
+            }
+            int32_t cur = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
+            if (!opts->comboMap.empty() && opts->comboMap.find(cur) == opts->comboMap.end()) {
+                CVarSetInteger(CVAR_SETTING("DialogLanguage"), opts->comboMap.begin()->first);
+            }
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_NON_PAL_O2R).active)
+                info.activeDisables.push_back(DISABLE_FOR_NON_PAL_O2R);
+        })
+        .Callback([](WidgetInfo& info) {
+            int32_t key = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
+            for (const auto& name : Lighthouse::GetAvailableLanguageNames()) {
+                if (Lighthouse::LanguageKey(name) == key) {
+                    Lighthouse::SetActiveLanguage(name);
+                    break;
+                }
+            }
+        })
+        .Options(ComboboxOptions()
+                     .Tooltip("Select the in-game dialog language. Add more languages with the "
+                              "\"Add Language Pack from ROM\" button.")
+                     .LabelPosition(LabelPositions::Far)
+                     .ComponentAlignment(ComponentAlignments::Right));
+    AddWidget(path, "Add Language Pack from ROM", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            LighthouseGui::mModalWindow->RegisterPopup(
+                "Add Language Pack from ROM",
+                "Select any Banjo-Kazooie ROM whose language you want to add.\n",
+                "Select ROM", "Cancel", []() { RequestInlineLanguagePackExtraction(); }, nullptr);
+        })
+        .Options(ButtonOptions()
+                     .Size(Sizes::Inline)
+                     .Tooltip("Pick a Banjo-Kazooie ROM and extract only its dialog into a slim language pack."));
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
 #if defined(_WIN32) || defined(__APPLE__) || defined(ESPEAK)
     AddWidget(path, "Text to Speech", WIDGET_CVAR_CHECKBOX)

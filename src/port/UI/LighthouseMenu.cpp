@@ -2,6 +2,7 @@
 #include "LighthouseInputEditorWindow.h"
 #include <fast/Fast3dWindow.h>
 #include "port/ResourceHelpers.h"
+#include "port/Localization/Language.h"
 #include "port/Romhack/RomhackConfig.h"
 #include <ship/window/gui/GuiMenuBar.h>
 #include <ship/window/gui/GuiElement.h>
@@ -203,8 +204,8 @@ void LighthouseMenu::InitElement() {
            },
             "\"Boot To Debug Warp Screen\" Enabled (see Dev Tools -> General)" } },
         { DISABLE_FOR_NON_PAL_O2R,
-          { [](disabledInfo& info) -> bool { return ResourceMgr_GetDialogLanguageCount() <= 1; },
-            "Only available with a PAL o2r (English, French, German)" } },
+          { [](disabledInfo& info) -> bool { return Lighthouse::GetAvailableLanguageCount() <= 1; },
+            "Only one language available. Add a language pack to enable more." } },
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
     };

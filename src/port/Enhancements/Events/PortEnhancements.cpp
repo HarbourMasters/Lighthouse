@@ -19,6 +19,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnDialogLoaded);
+    REGISTER_EVENT(OnModelLoad);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
@@ -26,6 +27,11 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(LocalizeUiString);
     REGISTER_EVENT(OnParadeNameDraw);
     REGISTER_EVENT(OnFileSelectInfoBuild);
+    REGISTER_EVENT(LocalizeFileSelectPrompt);
+    REGISTER_EVENT(OnFileSelectLanguageRefresh);
+    REGISTER_EVENT(LocalizeParade);
+    REGISTER_EVENT(ParadeCreditDialogId);
+    REGISTER_EVENT(ResolveBoldFontSlot);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);
 

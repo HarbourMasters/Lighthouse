@@ -19,6 +19,7 @@ DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 
 DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
 
+DEFINE_EVENT(OnModelLoad, s32 modelId; void* modelInfo; s32* reload;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 
 DEFINE_EVENT(OnActorTick, Actor* actor;);
@@ -28,6 +29,11 @@ DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
 DEFINE_EVENT(LocalizeUiString, const char** str;);
 DEFINE_EVENT(OnParadeNameDraw, const char* name; int32_t yPosition;);
 DEFINE_EVENT(OnFileSelectInfoBuild, int32_t gamenum; char* upper; char* lower;);
+DEFINE_EVENT(LocalizeFileSelectPrompt, int32_t promptId; void* zoombox;);
+DEFINE_EVENT(OnFileSelectLanguageRefresh, int32_t gamenum; int32_t isSelected;);
+DEFINE_EVENT(LocalizeParade, int32_t paradeId; void** table; uint8_t* count;);
+DEFINE_EVENT(ParadeCreditDialogId, int32_t index; int32_t* dialogId;);
+DEFINE_EVENT(ResolveBoldFontSlot, int32_t* slot; int32_t* letterId;);
 DEFINE_EVENT(OnWorldDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnReset);

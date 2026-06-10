@@ -70,11 +70,6 @@ void port_mirror_clearExclude(void);
 int port_mirror_bakeCounterScale(void);
 void port_mirror_patchTextActors(void);
 
-// Localization (LocalizedText.cpp)
-
-void port_localizeParade(int paradeId, void** table, uint8_t* count);
-int port_paradeDialogId(int indx);
-
 #ifdef __cplusplus
 }
 #endif

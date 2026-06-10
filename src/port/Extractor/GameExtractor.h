@@ -15,10 +15,14 @@ public:
     void SetSearchPath(const std::string& path);
     void GetRoms(std::vector<std::string>& roms);
     std::string GetRomPath();
+    std::string GetRegionSlug() const;
     bool GenerateOTR(std::string appShortName = "");
     bool GenerateOTR(std::atomic<size_t>& assetCount, std::string appShortName = "");
     bool GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<size_t>& totalAssets, std::string appShortName = "");
     void WritePortVersion();
+    void SetDialogPack(bool enabled) {
+        mDialogPack = enabled;
+    }
     static std::string sStatusText;
     static std::string sLastError;
     // Full path of the o2r produced by the last successful GenerateOTR (e.g.
@@ -39,4 +43,5 @@ private:
     fs::path mGamePath;
     std::vector<uint8_t> mGameData;
     std::string mSearchPath;
+    bool mDialogPack = false;
 };

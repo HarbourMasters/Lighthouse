@@ -1,5 +1,8 @@
 
 #include "ship/resource/ResourceManager.h"
+#include "ship/resource/archive/Archive.h"
+#include "ship/resource/archive/ArchiveManager.h"
+#include "ship/resource/File.h"
 #include "ship/resource/type/Blob.h"
 #include "fast/resource/ResourceType.h"
 #include "fast/resource/type/DisplayList.h"
@@ -98,14 +101,10 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                 break;
             case BK_VER_PAL:
                 remapTable = &sV10toPALRemap;
-                sDialogLanguageCount = 3; // EN, FR, DE
-                sDialogLanguage = CVarGetInteger(CVAR_SETTING("DialogLanguage"), 0);
-                func_8031B5C4(sDialogLanguage); // Initialize decomp language index
                 SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
                 break;
             case BK_VER_JP:
                 remapTable = &sV10toJPRemap;
-                sIsJapanese = true;
                 SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
                 break;
             case BK_VER_US_10:
@@ -114,8 +113,9 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                 break;
         }
 
-        // Relocate the JP world-name banners
-        if (sIsJapanese) {
+        // Relocate the JP world-name banners to their 0x1600 aliases for a JP
+        // base (a JP pack does this re-point at language-select time instead).
+        if (Lighthouse::GetBaseVersion() == BK_VER_JP) {
             constexpr uint32_t kJpBannerNativeBase = 0xE2C;
             constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_JP_WORLD_NAME_TOTAL
             constexpr uint32_t kJpBannerCount = 13;         // 0xE2C..0xE38
@@ -177,6 +177,39 @@ std::shared_ptr<Ship::IResource> GetResourceByName(const char* path) {
 // don't become dangling when the resource manager evicts entries from its cache.
 static std::unordered_map<uint32_t, std::shared_ptr<Ship::IResource>> sResourceRefCache;
 
+// Active dialog re-point: maps base (v1.0) dialog asset IDs to an alternate
+// source archive's paths (a loaded language pack).
+static std::unordered_map<uint32_t, std::string> sDialogOverride;
+
+// Bumped on every language change. This is the single "language changed" signal:
+// the localization layer reads it to drive every live reaction: font slot, model 
+// re-fetch, file-select rebuild, etc
+static int sLanguageGeneration = 0;
+
+extern "C" int ResourceMgr_GetLanguageGeneration(void) {
+    return sLanguageGeneration;
+}
+
+// 1 if the active language re-points this asset id (i.e. it resolves to a language
+// pack rather than the base game). Used by the model reload to know which models
+// must track the language.
+extern "C" int ResourceMgr_IsAssetRepointed(uint32_t assetId) {
+    return sDialogOverride.find(assetId) != sDialogOverride.end() ? 1 : 0;
+}
+
+// Resolve an asset id to its o2r path: the active language override wins for
+// re-pointed dialog ids, otherwise the base manifest.
+static std::string ResolveAssetPath(uint32_t assetId) {
+    if (auto ov = sDialogOverride.find(assetId); ov != sDialogOverride.end()) {
+        return ov->second;
+    }
+    const auto& symbolMap = GetAssetSymbolMap();
+    if (auto entry = symbolMap.find(assetId); entry != symbolMap.end()) {
+        return entry->second;
+    }
+    return std::string();
+}
+
 static char* LoadAndRetainResource(const std::string& path, uint32_t assetId) {
     auto res = GetResourceByName(path.c_str());
     if (res && res->GetRawPointer() != nullptr) {
@@ -195,9 +228,8 @@ extern "C" char* ResourceMgr_ReloadByAssetId(uint32_t assetId) {
         sResourceRefCache.erase(it);
     }
 
-    const auto& symbolMap = GetAssetSymbolMap();
-    if (const auto entry = symbolMap.find(assetId); entry != symbolMap.end()) {
-        auto mappedPath = entry->second;
+    std::string mappedPath = ResolveAssetPath(assetId);
+    if (!mappedPath.empty()) {
         std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
         // Unload from LUS cache so it re-reads from the o2r
@@ -221,22 +253,17 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
         sResourceRefCache.erase(it);
     }
 
-    const auto& symbolMap = GetAssetSymbolMap();
-    if (const auto entry = symbolMap.find(assetId); entry != symbolMap.end()) {
-        auto mappedPath = entry->second;
-        std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
-
-        if (auto result = LoadAndRetainResource(mappedPath, assetId); result != nullptr) {
-            return result;
-        } else {
-            SPDLOG_WARN("[ResourceManager({})] symbol '{}' found but resource data is NULL", assetId, mappedPath);
-            return nullptr;
-        }
-    } else {
+    std::string mappedPath = ResolveAssetPath(assetId);
+    if (mappedPath.empty()) {
         SPDLOG_WARN("[ResourceManager({})] not found in symbol map", assetId);
         return nullptr;
     }
+    std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
+    if (auto result = LoadAndRetainResource(mappedPath, assetId); result != nullptr) {
+        return result;
+    }
+    SPDLOG_WARN("[ResourceManager({})] symbol '{}' found but resource data is NULL", assetId, mappedPath);
     return nullptr;
 }
 
@@ -296,4 +323,20 @@ extern "C" Mtx* ResourceMgr_LoadMtxByName(char* path) {
 // Release all retained resource refs so destructors fire before spdlog shutdown
 void ResourceHelpers_ClearRefCache() {
     sResourceRefCache.clear();
+}
+
+void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
+                                   int dialogCount, int dialogIndex) {
+    for (const auto& [id, path] : sDialogOverride) {
+        sResourceRefCache.erase(id);
+    }
+    sDialogOverride = std::move(dialogOverride);
+    for (const auto& [id, path] : sDialogOverride) {
+        sResourceRefCache.erase(id);
+    }
+    ++sLanguageGeneration; // invalidates re-pointed models on their next draw
+    sIsJapanese = isJapanese;
+    sDialogLanguageCount = dialogCount;
+    sDialogLanguage = dialogIndex; // keep ResourceMgr_GetDialogLanguage() in sync
+    func_8031B5C4(dialogIndex);    // clamps against sDialogLanguageCount
 }

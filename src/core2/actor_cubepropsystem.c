@@ -1657,7 +1657,18 @@ BKModelBin *marker_loadModelBin(ActorMarker *this){
         return NULL;
 
     thisActor = marker_getActor(this);
-    if((modelInfo = &modelCache[thisActor->modelCacheIndex])->modelPtr == NULL){
+    modelInfo = &modelCache[thisActor->modelCacheIndex];
+
+    // [port] Let the language system invalidate a re-pointed model so it
+    // re-fetches the active language's version (live swap on the next draw).
+    s32 reload = 0;
+    CALL_EVENT(OnModelLoad, this->modelId, modelInfo, &reload);
+    if (reload && modelInfo->modelPtr != NULL) {
+        assetcache_release(modelInfo->modelPtr);
+        modelInfo->modelPtr = NULL;
+    }
+
+    if(modelInfo->modelPtr == NULL){
         model = assetcache_get(this->modelId);
         // [port] On N64, sprites and models were raw binary blobs that could be type-punned.
         // On PC, SpriteFactory produces BKSprite structs, not BKModelBin. Don't cache sprite

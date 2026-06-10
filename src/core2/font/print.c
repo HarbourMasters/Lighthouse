@@ -533,8 +533,12 @@ void printbuffer_defrag(void){
 //returns the pixel data and type for a given letter
 BKSpriteTextureBlock *print_getBoldFontLetterSprite(s32 letterId, s32 *fontType){
     if(D_80380AE8 != 1 || (D_80380AE8 == 1 && letterId < 0xA)){
-        *fontType = D_80380AB8[D_80380AE8]->type;
-        return print_sFonts[D_80380AE8][letterId].sprite;
+        s32 slot = D_80380AE8;
+        // [port] Let the language system remap the slot/letter (e.g. fall back to
+        // the base font if the JP font slot is momentarily unloaded mid-swap).
+        CALL_EVENT(ResolveBoldFontSlot, &slot, &letterId);
+        *fontType = D_80380AB8[slot]->type;
+        return print_sFonts[slot][letterId].sprite;
     }
     else{//L802F5510
         if(!D_80380AB8[3]){

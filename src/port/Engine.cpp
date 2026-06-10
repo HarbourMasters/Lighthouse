@@ -38,6 +38,8 @@
 #include "port/Patches/Patches.h"
 #include "port/Save/SaveManager.h"
 #include "port/UI/cvar_prefixes.h"
+#include "ResourceHelpers.h"
+#include "Localization/Language.h"
 #include "Resource/Importers/AnimFactory.h"
 #include "Resource/Importers/DemoInputFactory.h"
 #include "Resource/Importers/DialogFactory.h"
@@ -286,7 +288,23 @@ void GameEngine::FinishInit() {
     if (!patches_path.empty() && std::filesystem::is_directory(patches_path)) {
         for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
             if (p.is_directory()) {
+                // Language packs live in mods/lang and are loaded separately
+                // below, not as loose mod-directory overlays.
+                if (p.path().filename() == "lang") {
+                    continue;
+                }
                 SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
+                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+                    p.path().generic_string());
+            }
+        }
+    }
+
+    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
+    if (!lang_path.empty() && std::filesystem::is_directory(lang_path)) {
+        for (const auto& p : std::filesystem::directory_iterator(lang_path)) {
+            if (p.is_regular_file() && p.path().extension() == ".o2r") {
+                SPDLOG_INFO("Loading language pack: {}", p.path().generic_string());
                 Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
                     p.path().generic_string());
             }
@@ -365,6 +383,9 @@ void GameEngine::FinishInit() {
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
+
+    // Build the dialog-language list from the base region plus any loaded packs.
+    Lighthouse::RescanLanguages();
 
     LighthouseGui::SetupGuiElements();
     // If UpdateModFiles(true) above quarantined conflicting romhack overlays,

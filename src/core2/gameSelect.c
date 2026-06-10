@@ -10,8 +10,6 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Patches/Patches.h"
 
-extern s32 port_setJpFileSelectInstructions(GcZoombox *zoombox);
-extern s32 port_setJpFileSelectEraseConfirm(GcZoombox *zoombox);
 
 s32 gSelectedGameNum = -1;
 
@@ -342,6 +340,10 @@ void gameSelect_update(Actor *this){
     if(chGameSelectBottomZoombox == NULL)
         return;
 
+    // [port] Let the localization layer rebuild the info zoombox live when the
+    // language changed (it gates on the language generation + the selected slot).
+    CALL_EVENT(OnFileSelectLanguageRefresh, sp84, sp80);
+
     if(!this->initialized){
         __spawnQueue_add_1((GenFunction_1)spawnGameSelectProps, (uintptr_t)this->marker);
         func_802C7318(this);
@@ -426,7 +428,7 @@ void gameSelect_update(Actor *this){
                         }
                         subaddie_set_state(this, 2);
                         func_8031877C(chGameSelectTopZoombox);
-                        if(!port_setJpFileSelectInstructions(chGameSelectTopZoombox)){
+                        CALL_CANCELLABLE_EVENT(LocalizeFileSelectPrompt, 0, chGameSelectTopZoombox) {
                             gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
                         }
                         D_8037DD34 = 0.0f;
@@ -471,7 +473,7 @@ void gameSelect_update(Actor *this){
                     if(sp74[0] == 1){
                         if(gameFile_isNotEmpty(sp84)){
                             func_8031877C(chGameSelectTopZoombox);
-                            if(!port_setJpFileSelectEraseConfirm(chGameSelectTopZoombox)){
+                            CALL_CANCELLABLE_EVENT(LocalizeFileSelectPrompt, 1, chGameSelectTopZoombox) {
                                 func_803183A4(chGameSelectTopZoombox, D_80365DFC[code94620_func_8031B5B0()]);
                             }
                             D_8037DD2C = 1;
@@ -569,7 +571,7 @@ void gameSelect_update(Actor *this){
                         D_8037DD34 += sp50;
                         if(20.0 < D_8037DD34){
                             func_8031877C(chGameSelectTopZoombox);
-                            if(!port_setJpFileSelectInstructions(chGameSelectTopZoombox)){
+                            CALL_CANCELLABLE_EVENT(LocalizeFileSelectPrompt, 0, chGameSelectTopZoombox) {
                                 gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
                             }
                             D_8037DD34 = 0.0f;
@@ -614,7 +616,7 @@ void gameSelect_initAndUpdate(Actor * this){
 
         if(chGameSelectTopZoombox == NULL){
             chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, topZoomboxCallback);
-            if(!port_setJpFileSelectInstructions(chGameSelectTopZoombox)){
+            CALL_CANCELLABLE_EVENT(LocalizeFileSelectPrompt, 0, chGameSelectTopZoombox) {
                 gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
             }
             gczoombox_open(chGameSelectTopZoombox);

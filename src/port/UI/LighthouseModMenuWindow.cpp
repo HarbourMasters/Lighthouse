@@ -25,6 +25,8 @@
 #include "port/Engine.h"
 #include "port/Extractor/GameExtractor.h"
 #include "port/GameVersion/BaseGameVersion.h"
+#include "port/ResourceHelpers.h"
+#include "port/Localization/Language.h"
 
 std::vector<std::string> enabledModFiles;
 std::vector<std::string> disabledModFiles;
@@ -45,6 +47,7 @@ static std::atomic<int> sInlineResult{ -1 }; // -1 idle, 0 running, 1 success, 2
 static std::atomic<size_t> sInlineCount{ 0 };
 static std::atomic<size_t> sInlineTotal{ 0 };
 static std::string sInlineFile;
+static std::atomic<bool> sInlineLangPack{ false };
 
 static std::vector<std::string> sQuarantinedConflicts;
 static std::vector<std::string> sRomhackBaseMismatch;
@@ -200,6 +203,10 @@ void UpdateModFiles(bool init, bool reset) {
             for (const std::filesystem::directory_entry& p : std::filesystem::recursive_directory_iterator(
                      modsPath, std::filesystem::directory_options::follow_directory_symlink)) {
                 if (p.is_directory()) {
+                    continue;
+                }
+                // Ignore language packs, they aren't mods.
+                if (p.path().parent_path().filename() == "lang") {
                     continue;
                 }
                 std::string filename =
@@ -629,6 +636,65 @@ void RequestInlineModExtraction() {
     sInlineCount = 0;
     sInlineTotal = 0;
     sInlineResult = 0;
+    sInlineLangPack = false;
+    sInlineExtracting = true;
+    std::thread([ex = std::move(extractor)]() mutable {
+        const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
+        sInlineResult = ok ? 1 : 2;
+        sInlineExtracting = false;
+    }).detach();
+}
+
+static std::string BaseRegionSlug() {
+    switch (Lighthouse::GetBaseVersion()) {
+        case BK_VER_PAL:
+            return "pal";
+        case BK_VER_JP:
+            return "jp";
+        case BK_VER_US_10:
+        case BK_VER_US_11:
+        default:
+            return "us";
+    }
+}
+
+void RequestInlineLanguagePackExtraction() {
+    if (sInlineExtracting.load()) {
+        return;
+    }
+    auto extractor = std::make_unique<GameExtractor>();
+    if (!extractor->SelectGameFromUI()) {
+        return;
+    }
+
+    // Refuse a pack when we already have it as bk.o2r.
+    const std::string region = extractor->GetRegionSlug();
+    if (region.empty()) {
+        LighthouseGui::RegisterPopup("Unrecognized ROM",
+                                     "That file isn't a recognized Banjo-Kazooie ROM, so no\n"
+                                     "language pack could be made from it.",
+                                     "OK", "", nullptr, nullptr);
+        return;
+    }
+    if (region == BaseRegionSlug()) {
+        LighthouseGui::RegisterPopup("Already Have This Language",
+                                     "Your base game data (bk.o2r) already provides this region's\n"
+                                     "dialog, so there's no need to add it as a language pack.",
+                                     "OK", "", nullptr, nullptr);
+        return;
+    }
+    // Re-extracting a region overwrites its existing pack (e.g. to refresh it
+    // after an update), so a pre-existing mods/lang/bk<region>.o2r is fine.
+    const std::string langDir = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
+    std::error_code ec;
+    std::filesystem::create_directories(langDir, ec);
+
+    extractor->SetDialogPack(true);
+    sInlineFile = extractor->GetRomPath();
+    sInlineCount = 0;
+    sInlineTotal = 0;
+    sInlineResult = 0;
+    sInlineLangPack = true;
     sInlineExtracting = true;
     std::thread([ex = std::move(extractor)]() mutable {
         const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
@@ -659,7 +725,22 @@ void DrawInlineModExtraction() {
 
     // Completion handling.
     const int result = sInlineResult.load();
-    if (result == 1) {
+    if (result == 1 && sInlineLangPack.exchange(false)) {
+        sInlineResult = -1;
+        // A language pack is an additive archive (no game re-init like a romhack),
+        // so a freshly-extracted pack always loads live: register it and rescan.
+        const std::string packPath = GameExtractor::sLastOutputPath;
+        if (!packPath.empty() && GetArchiveManager()->AddArchive(packPath) == nullptr) {
+            // Shouldn't happen for an o2r we just wrote; if it does, the pack is
+            // still in mods/lang and loads on the next launch.
+            SPDLOG_WARN("[Lang] Pack '{}' didn't register live; it will load on the next launch.", packPath);
+        }
+        Lighthouse::RescanLanguages();
+        LighthouseGui::RegisterPopup("Language Pack Added",
+                                     "The language pack was added and is ready to use.\n"
+                                     "Pick it from Settings -> General -> Languages.",
+                                     "OK", "", nullptr, nullptr);
+    } else if (result == 1) {
         sInlineResult = -1;
         // Make the freshly-generated romhack the sole enabled overlay so the
         // boot-time aGameConfig conflict check doesn't quarantine it.

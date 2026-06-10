@@ -193,29 +193,31 @@ void gcparade_8031AC8C(void) {
 
 void gcparade_setState(enum parade_state_e next_state) {
     switch (next_state) {
-        case PARADE_STATE_1_INIT_FF_PARADE: //parade 0 init
+        case PARADE_STATE_1_INIT_FF_PARADE: { //parade 0 init
             D_803830F0.parade_element = D_8036D9A0;
             D_803830F0.indx = 0;
             D_803830F0.parade_id = PARADE_0_POST_FURNACE_FUN;
             D_803830F0.count = 0x1B;
-            port_localizeParade(0, (void**) &D_803830F0.parade_element, &D_803830F0.count);
+            CALL_EVENT(LocalizeParade, 0, (void**) &D_803830F0.parade_element, &D_803830F0.count);
             comusic_playTrack(COMUSIC_8E_CREDITS);
             next_state = PARADE_STATE_3_WARP;
             gcparade_8031AC8C();
             break;
-        case PARADE_STATE_2_INIT_FINAL_PARADE: //parade 1 init
+        }
+        case PARADE_STATE_2_INIT_FINAL_PARADE: { //parade 1 init
             volatileFlag_set(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE, true);
             D_803830F0.parade_element = D_8036DAE4;
             D_803830F0.indx = 0;
             D_803830F0.parade_id = PARADE_1_POST_GRUNTY_BATTLE;
             D_803830F0.count = 0x3A;
-            port_localizeParade(1, (void**) &D_803830F0.parade_element, &D_803830F0.count);
+            CALL_EVENT(LocalizeParade, 1, (void**) &D_803830F0.parade_element, &D_803830F0.count);
             func_8025A55C(0, 0x1388, 0xB);
             func_8025AB00();
             comusic_playTrack(COMUSIC_8E_CREDITS);
             next_state = PARADE_STATE_3_WARP;
             gcparade_8031AC8C();
             break;
+        }
         case PARADE_STATE_3_WARP:
             musicKeepsPlaying();
             if (map_getLevel(D_803830F0.parade_element->map) != level_get()) {
@@ -296,11 +298,13 @@ void gcparade_update(void) {
                 if (D_803830F0.unk5 == 0) {
                     if (gsworld_getMap() == D_803830F0.parade_element->map) {
                         if (D_803830F0.parade_id == 0) {
+                            s32 paradeDialogId = 0x11AF + D_803830F0.indx; // vanilla credit id
                             sp34 = 0xA0;
-                            if (D_803830F0.parade_element->exit >= 0) 
+                            if (D_803830F0.parade_element->exit >= 0)
                                 sp34 = 0xA8;
                             timedFunc_set_1(1.0f, (GenFunction_1)func_80311714, 0);
-                            func_80324DBC(1.0f, port_paradeDialogId(D_803830F0.indx), sp34, NULL, NULL, gcparade_textCallback, NULL);
+                            CALL_EVENT(ParadeCreditDialogId, D_803830F0.indx, &paradeDialogId);
+                            func_80324DBC(1.0f, paradeDialogId, sp34, NULL, NULL, gcparade_textCallback, NULL);
                             timedFunc_set_1(1.0f, (GenFunction_1)func_80311714, 1);
                         } else if (D_803830F0.parade_element->exit >= 0) {
                             func_8028F918(2);

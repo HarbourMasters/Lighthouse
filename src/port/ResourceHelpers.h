@@ -2,6 +2,8 @@
 #define RESOURCE_HELPERS_H
 
 #ifdef __cplusplus
+#include <string>
+#include <unordered_map>
 //#include "ResourceManager.h"
 #include "ship/Context.h"
 
@@ -18,6 +20,8 @@ int ResourceMgr_GetDialogLanguageCount(void);
 int ResourceMgr_IsJapanese(void);
 int ResourceMgr_GetDialogLanguage(void);
 void ResourceMgr_SetDialogLanguage(int lang);
+int ResourceMgr_GetLanguageGeneration(void);
+int ResourceMgr_IsAssetRepointed(uint32_t assetId);
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 char* ResourceMgr_LoadTexOrDListByName(const char* filePath);
 char* ResourceMgr_LoadIfDListByName(const char* filePath);
@@ -26,6 +30,9 @@ Mtx* ResourceMgr_LoadMtxByName(char* path);
 
 #ifdef __cplusplus
 }
+
+void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
+                                   int dialogCount, int dialogIndex);
 #endif
 
 #endif

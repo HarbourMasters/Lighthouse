@@ -236,6 +236,24 @@ std::string GameExtractor::GetRomPath() {
     return mGamePath.generic_string();
 }
 
+std::string GameExtractor::GetRegionSlug() const {
+    if (mGameData.empty()) {
+        return "";
+    }
+    auto cart = std::make_unique<N64::Cartridge>(this->mGameData);
+    cart->Initialize();
+    switch (cart->GetCountry()) {
+        case N64::CountryCode::NorthAmerica:
+            return "us";
+        case N64::CountryCode::Europe:
+            return "pal";
+        case N64::CountryCode::Japan:
+            return "jp";
+        default:
+            return "";
+    }
+}
+
 bool GameExtractor::GenerateOTR(std::string appShortName) {
     std::atomic<size_t> assetCount{ 0 };
     return GenerateOTR(assetCount, appShortName);
@@ -345,6 +363,7 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
     Companion::Instance->SetRomPath(this->mGamePath);
     Companion::Instance->SetAssetTotal(&totalAssets);
     Companion::Instance->SetPhaseCallback([](int phase) { sPhase = phase; });
+    Companion::Instance->GetConfig().dialogPack = this->mDialogPack;
     if (!BK64::IsRomhack(this->mGameData)) {
         this->WritePortVersion();
     }

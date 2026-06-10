@@ -41,6 +41,11 @@ void SetSoleEnabledRomhack(const std::string& keepBasename);
 // the new archive loads at boot. Mirrors Starship's GenAssetFile menu flow.
 void RequestInlineModExtraction();
 
+// Mod Menu "Add Language Pack from ROM" button. Same flow as
+// RequestInlineModExtraction, but runs Torch in dialog-pack mode so the result
+// is a slim regional dialog overlay (mods/bk<region>.o2r) rather than a romhack.
+void RequestInlineLanguagePackExtraction();
+
 // Per-frame driver for RequestInlineModExtraction: renders the progress modal,
 // services the custom-code prompt, and raises the completion popup. Called every
 // frame from the always-visible modal window.
