@@ -5,6 +5,7 @@
 #include "LighthouseModals.h"
 //#include <soh/GameVersions.h>
 #include "port/ResourceHelpers.h"
+#include "port/DevTools/DevSequences.h"
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
@@ -75,12 +76,43 @@ void LighthouseMenu::AddMenuDevTools() {
     AddWidget(path, "Nametag Distance", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_DEVELOPER_TOOLS("NametagDist"))
         .Options(FloatSliderOptions().DefaultValue(3000.0f).Min(1000.0f).Max(10000.0f).Step(10.0f));
-    AddWidget(path, "Trigger Furnace Fun Parade", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_DEVELOPER_TOOLS("TriggerFFParade"))
-        .Options(CheckboxOptions().Tooltip("On entering normal gameplay, starts the Furnace Fun character parade."));
     /*AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/
+
+    // Sequences (dev: jump straight to a parade or demo)
+    using namespace Lighthouse::DevTools;
+    path.sidebarName = "Sequences";
+    AddSidebarEntry("Dev Tools", "Sequences", 1);
+
+    AddWidget(path, "Parades", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Furnace Fun Parade", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestSequence(SEQ_PARADE_FF); })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-Furnace-Fun character parade."));
+    AddWidget(path, "Final Parade", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestSequence(SEQ_PARADE_FINAL); })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-Grunty end-credits parade."));
+
+    AddWidget(path, "Demos", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Spiral Mountain Ending Sequence", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestSequence(SEQ_MODE9_BK); })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-parade demo."));
+
+    AddWidget(path, "Attract Demos", WIDGET_SEPARATOR_TEXT);
+    // Demo index = slot in the decomp attract table (D_80371F00); 4 and 9 are the
+    // Rareware-logo cutscenes, intentionally skipped.
+    static const struct {
+        const char* name;
+        int demo;
+    } kAttractDemos[] = {
+        { "Mumbo's Mountain", 0 }, { "Inside Clanker", 1 }, { "Bubblegloop Swamp", 2 }, { "MMM Church", 3 },
+        { "Nipper's Shell", 5 },   { "CCW Winter", 6 },     { "RBB Engine Room", 7 },   { "Gobi's Valley", 8 },
+    };
+    for (const auto& d : kAttractDemos) {
+        AddWidget(path, fmt::format("{}", d.name), WIDGET_BUTTON)
+            .Callback([demo = d.demo](WidgetInfo&) { RequestSequence(SEQ_ATTRACT_BASE + demo); })
+            .Options(ButtonOptions().Size(Sizes::Inline));
+    }
 
     // Save Editor
     path.sidebarName = "Save Editor";

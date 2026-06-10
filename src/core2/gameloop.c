@@ -483,16 +483,15 @@ void func_802E4384(void){
     else{
         func_8033DC18();
         // [port] Use a fixed 2-VI timestep for normal gameplay.
-        {
-            s32 viDivisor = viMgr_func_8024BFA0();
-            func_8033DC20(); // always consume wall-clock to keep last_ticks fresh
-            if (viDivisor > 2) {
-                time_setDeltaReal_frames(viDivisor);
-            } else {
-                time_setDeltaReal_frames(2);
-            }
+        s32 viDivisor = viMgr_func_8024BFA0();
+        func_8033DC20(); // always consume wall-clock to keep last_ticks fresh
+        if (viDivisor > 2) {
+            time_setDeltaReal_frames(viDivisor);
+        } else {
+            time_setDeltaReal_frames(2);
         }
     }
+
     func_8033DC10();
 
     D_8037E8E0.unk8 += time_getDelta();

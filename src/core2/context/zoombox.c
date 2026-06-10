@@ -1393,6 +1393,10 @@ void __gczoombox_load_sfx(GcZoombox *this, GcZoomboxSprite portrait_id){
                     //L80317E48
                }
                this->prev_sfx = randi2(0,this->sfx_count);
+               // [port] This mode needs a rand sync like many other places
+               if(getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE){
+                    rand_sync_to_sfx_rand();
+               }
           }
      }
 }

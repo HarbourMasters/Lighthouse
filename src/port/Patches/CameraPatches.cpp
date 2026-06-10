@@ -146,8 +146,8 @@ void RegisterCameraPatches_Init() {
 
     COND_VB_SHOULD(VB_STATIC_CAMERA_SET, EVENT_PRIORITY_NORMAL, true,
                    { sLastStaticCameraNode = *va_arg(args, int32_t*); });
-
     COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, EVENT_PRIORITY_NORMAL, true, { sLastStaticCameraNode = -1; });
+    COND_VB_SHOULD(VB_CAMERA_LIVE_ASPECT, EVENT_PRIORITY_NORMAL, true, { *should = false; });
 
     // Bigger frustum — widen the side planes from the actual FOV and aspect
     // ratio, and pad the top/bottom planes to mask vertical cam pop-in.
