@@ -446,7 +446,9 @@ void func_802E4214(enum map_e map_id){
     func_80322764();
     timedFuncQueue_init();
     func_802F9CD8();
-    func_8031B62C();
+    if (EventSystem_Should(VB_RESET_DIALOG_LANGUAGE, true)) {
+        func_8031B62C();
+    }
     if(!func_802E4A08())
         print_init();
     func_802E5F38();

@@ -517,6 +517,11 @@ static void RegisterLocalizedText() {
         }
         *ev->dialogId = (ev->index == 20) ? 0x11CA : (0x11AF + ev->index - 1);
     });
+
+    // The port owns the dialog-language index (driven by the language picker). The
+    // decomp's game-init reset (func_8031B62C) would zero it on parade/mode warps and
+    // revert the user's selection to the base language, so skip it.
+    COND_VB_SHOULD(VB_RESET_DIALOG_LANGUAGE, EVENT_PRIORITY_NORMAL, true, { *should = false; });
 }
 
 static RegisterShipInitFunc localizedTextInitFunc(RegisterLocalizedText);

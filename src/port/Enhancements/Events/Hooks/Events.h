@@ -21,6 +21,7 @@ typedef enum VBehaviorID {
     VB_JINJO_CHARGE_SOUND,
     VB_POSITIONAL_SFX_PAN,
     VB_YUMYUM_DROP,
+    VB_RESET_DIALOG_LANGUAGE,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);
