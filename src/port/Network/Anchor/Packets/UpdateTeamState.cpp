@@ -45,7 +45,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     //// The commented out code below is an attempt at sending the entire randomizer seed over, in hopes that a player
     //// doesn't have to generate the seed themselves Currently it doesn't work :)
     // if (IS_RANDO) {
-    //     auto randoContext = Rando::Context::GetInstance();
+    //     auto randoContext = Rando::Context::GetRawInstance();
 
     //    payload["state"]["rando"] = json::object();
     //    payload["state"]["rando"]["itemLocations"] = json::array();
@@ -221,7 +221,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     //    player
     //    // doesn't have to generate the seed themselves Currently it doesn't work :)
     //    if (IS_RANDO && payload["state"].contains("rando")) {
-    //        auto randoContext = Rando::Context::GetInstance();
+    //        auto randoContext = Rando::Context::GetRawInstance();
 
     //        for (int i = 0; i < RC_MAX; i++) {
     //            auto itemLocation = payload["state"]["rando"].at("itemLocations").at(i);

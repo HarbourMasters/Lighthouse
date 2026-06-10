@@ -2,6 +2,7 @@
 #include "../type/Sprite.h"
 #include "spdlog/spdlog.h"
 #include <libultraship/libultraship.h>
+#include <fast/resource/type/Texture.h>
 #include <algorithm>
 
 namespace Factories {
@@ -117,7 +118,7 @@ ResourceFactoryBinarySpriteV0::ReadResource(std::shared_ptr<Ship::File> file,
         if (formatCode == 0x1 || formatCode == 0x4) { // CI4 or CI8
             std::string tlutPath = initData->Path + "_" + std::to_string(frameIdx) + "_TLUT";
             auto tlutTexture = std::static_pointer_cast<Fast::Texture>(
-                Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(tlutPath));
+                Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(tlutPath));
 
             if (tlutTexture && tlutTexture->ImageData) {
                 frameData.paletteData.resize(tlutTexture->ImageDataSize);
@@ -137,7 +138,7 @@ ResourceFactoryBinarySpriteV0::ReadResource(std::shared_ptr<Ship::File> file,
 
             std::string chunkPath = initData->Path + "_" + std::to_string(frameIdx) + "_" + std::to_string(chunkIdx);
             auto texture = std::static_pointer_cast<Fast::Texture>(
-                Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(chunkPath));
+                Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(chunkPath));
 
             if (!texture || !texture->ImageData) {
                 // SPDLOG_ERROR("Failed to load texture chunk: {}", chunkPath);

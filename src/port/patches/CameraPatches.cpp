@@ -63,7 +63,7 @@ static void updateCutsceneAspect(int32_t mapId) {
         bool enabled = CVarGetInteger(CVAR_AR_ENABLED, 0);
         float arX = CVarGetFloat(CVAR_AR_X, 0.0f);
         float arY = CVarGetFloat(CVAR_AR_Y, 0.0f);
-        auto window = Ship::Context::GetInstance()->GetWindow();
+        auto window = Ship::Context::GetRawInstance()->GetWindow();
         uint32_t winW = window->GetWidth();
         uint32_t winH = window->GetHeight();
         float actual = (winH > 0) ? (float)winW / (float)winH : GameEngine_GetAspectRatio();

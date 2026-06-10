@@ -110,7 +110,7 @@ void AnchorRoomWindow::DrawElement() {
                     ImGui::EndTooltip();
                 }
             }
-            uint32_t seed = /*IS_RANDO ? Rando::Context::GetInstance()->GetSeed() :*/ 0;
+            uint32_t seed = /*IS_RANDO ? Rando::Context::GetRawInstance()->GetSeed() :*/ 0;
             if (client.isSaveLoaded && Anchor::GetInstance()->IsSaveLoaded() && client.seed != seed && client.online &&
                 !client.self) {
                 ImGui::SameLine();

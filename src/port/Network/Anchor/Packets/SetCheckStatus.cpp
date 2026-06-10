@@ -17,7 +17,7 @@ void Anchor::SendPacket_SetCheckStatus(/*RandomizerCheck rc*/) {
     //        return;
     //    }
     //
-    //    auto randoContext = Rando::Context::GetInstance();
+    //    auto randoContext = Rando::Context::GetRawInstance();
     //
     //    nlohmann::json payload;
     //    payload["type"] = SET_CHECK_STATUS;
@@ -36,7 +36,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     //        return;
     //    }
     //
-    //    auto randoContext = Rando::Context::GetInstance();
+    //    auto randoContext = Rando::Context::GetRawInstance();
     //
     //    RandomizerCheck rc = payload.at("rc").get<RandomizerCheck>();
     //    RandomizerCheckStatus status = payload.at("status").get<RandomizerCheckStatus>();

@@ -70,7 +70,7 @@ UIWidgets::Colors GetMenuThemeColor() {
 }
 
 void SetupMenu() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
     mLighthouseMenu = std::make_shared<LighthouseGui::LighthouseMenu>(CVAR_WINDOW("Menu"), "Port Menu");
     gui->SetMenu(mLighthouseMenu);
 
@@ -80,7 +80,7 @@ void SetupMenu() {
 }
 
 void SetupGuiElements() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
 
     auto& style = ImGui::GetStyle();
     style.FramePadding = ImVec2(4.0f, 6.0f);
@@ -184,7 +184,7 @@ void SetupGuiElements() {
 }
 
 void Destroy() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
 
     gui->RemoveAllGuiWindows();
     mLighthouseMenu = nullptr;

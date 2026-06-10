@@ -160,7 +160,7 @@ GameEngine::GameEngine() {
     this->context->InitConsole();
 
     // Register console commands for menu buttons
-    Ship::Context::GetInstance()->GetConsole()->AddCommand(
+    Ship::Context::GetRawInstance()->GetConsole()->AddCommand(
         "reset", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
                       gPortResetPending = 1; // lets audio spin-waits exit immediately
                       setBootMap(getDefaultBootMap());
@@ -169,9 +169,9 @@ GameEngine::GameEngine() {
                       return 0;
                   },
                    "Reset to boot map." });
-    Ship::Context::GetInstance()->GetConsole()->AddCommand(
+    Ship::Context::GetRawInstance()->GetConsole()->AddCommand(
         "quit", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
-                     Ship::Context::GetInstance()->GetWindow()->Close();
+                     Ship::Context::GetRawInstance()->GetWindow()->Close();
                      return 0;
                  },
                   "Quit the game." });
@@ -208,8 +208,6 @@ typedef enum PromptSteps {
     PS_FILE_CHECK,
     PS_LOCAL,
     PS_FIRST,
-    PS_SECOND,
-    PS_DUPE,
     PS_WAIT,
     PS_NONE,
 } PromptSteps;
@@ -289,7 +287,7 @@ void GameEngine::FinishInit() {
         for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
             if (p.is_directory()) {
                 SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
-                Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
                     p.path().generic_string());
             }
         }
@@ -303,7 +301,7 @@ void GameEngine::FinishInit() {
     auto logLevel =
         static_cast<spdlog::level::level_enum>(CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
     context->InitLogging(logLevel, logLevel);
-    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+    Ship::Context::GetRawInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
     SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
                 (char*)gGitCommitHash);
 
@@ -482,7 +480,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         }
 
         if (extractStep == ES_EXTRACT && promptStep == PS_FIRST && extractStarted && !extracting) {
-            promptStep = PS_SECOND;
+            extractStep = ES_VERIFY;
             extractStarted = false;
             extractCount = 0;
             totalExtract = 0;
@@ -723,28 +721,6 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         });
                         continue;
                     }
-                    case PS_SECOND: {
-                        promptStep = PS_WAIT;
-                        LighthouseGui::RegisterPopup(
-                            "Extraction Complete", "ROM extracted. Extract another?", "Yes", "No",
-                            [&]() {
-                                if (!extract.SelectGameFromUI()) {
-                                    extractStep = ES_VERIFY;
-                                    promptStep = PS_FIRST;
-                                    return;
-                                }
-                                extracting = true;
-                                extractStarted = true;
-                                file = extract.GetRomPath();
-                                promptStep = PS_FIRST;
-                                (void)threadPool->submit_task([&]() -> void {
-                                    extract.GenerateOTR(extractCount, totalExtract, "bk");
-                                    extracting = false;
-                                });
-                            },
-                            [&]() { extractStep = ES_VERIFY; });
-                        continue;
-                    }
                     default:
                         break;
                 }
@@ -917,7 +893,7 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
         initData->ResourceVersion = 0;
         initData->Path = fontPath;
         std::shared_ptr<Ship::Font> fontData = std::static_pointer_cast<Ship::Font>(
-            Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
+            Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
         font =
             mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
     }
@@ -1157,7 +1133,7 @@ void GameEngine::EndAudioFrame() {
 
 // [port] Load soundfont BLOBs from OTR and set ROM symbol pointers
 static void LoadSoundfonts() {
-    auto rm = Ship::Context::GetInstance()->GetResourceManager();
+    auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
 
     auto loadBlob = [&rm](const char* path, uint8_t*& start, uint8_t*& end) {
         auto res = rm->LoadResource(path);
@@ -1222,7 +1198,7 @@ inline long long NsSince(Clock::time_point t0) {
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
                              size_t frameCount) {
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
 
     if (wnd == nullptr) {
         return;
@@ -1238,7 +1214,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     // Expand DrawAndRunGraphicsCommands so we can read the backbuffer between
     // Run() (frame rendered) and EndFrame() (buffer swap). On N64, CPU/RDP shared
     // physical memory so gFramebuffers always had valid pixel data after rendering.
-    auto wndBase = Ship::Context::GetInstance()->GetWindow();
+    auto wndBase = Ship::Context::GetRawInstance()->GetWindow();
     for (size_t frameIdx = 0; frameIdx < frameCount; frameIdx++) {
         const auto& m = mtx_replacements[frameIdx];
         bool isFinalFrame = (frameIdx == frameCount - 1);
@@ -1270,13 +1246,13 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     bool curAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     if (prevAltAssets != curAltAssets) {
         prevAltAssets = curAltAssets;
-        Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
+        Ship::Context::GetRawInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
         gfx_texture_cache_clear();
     }
 }
 
 void GameEngine::ProcessGfxCommands(Gfx* commands) {
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
 
     if (wnd == nullptr) {
         return;
@@ -1358,11 +1334,11 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
 
 uint32_t GameEngine::GetInterpolationFPS() {
     if (CVarGetInteger(CVAR_SETTING("MatchRefreshRate"), 0)) {
-        return Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
+        return Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate();
 
     } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
-               !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
-        return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
+               !Ship::Context::GetRawInstance()->GetWindow()->CanDisableVerticalSync()) {
+        return std::min<uint32_t>(Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate(),
                                   CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60));
     }
 
@@ -1387,7 +1363,7 @@ void GameEngine::ShowMessage(const char* title, const char* message, SDL_Message
 }
 
 bool GameEngine::HasVersion(BKVersion ver) {
-    auto versions = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions();
+    auto versions = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions();
     return std::find(versions.begin(), versions.end(), ver) != versions.end();
 }
 
@@ -1396,7 +1372,7 @@ extern "C" bool GameEngine_HasVersion(BKVersion ver) {
 }
 
 extern "C" uint32_t GameEngine_GetSampleRate() {
-    auto player = Ship::Context::GetInstance()->GetAudio()->GetAudioPlayer();
+    auto player = Ship::Context::GetRawInstance()->GetAudio()->GetAudioPlayer();
     if (player == nullptr) {
         return 0;
     }
@@ -1411,7 +1387,7 @@ extern "C" uint32_t GameEngine_GetSampleRate() {
 // End
 
 Fast::Interpreter* GameEngine_GetInterpreter() {
-    return std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow())
+    return std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow())
         ->GetInterpreterWeak()
         .lock()
         .get();
@@ -1442,7 +1418,7 @@ extern "C" void GameEngine_GetTextureInfo(const char* path, int32_t* width, int3
         return;
     }
     std::shared_ptr<Fast::Texture> tex = std::static_pointer_cast<Fast::Texture>(
-        Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path));
+        Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(path));
     *width = tex->Width;
     *height = tex->Height;
     *scale = tex->VPixelScale;

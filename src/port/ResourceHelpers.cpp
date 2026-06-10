@@ -41,7 +41,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
     std::call_once(mapOnce, [] {
         // Torch writes this as a Blob at "assets/aBKAssetTable".
         // Format: u32 count, then for each entry: u32 assetId, s32 pathLen, char path[pathLen]
-        auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource("assets/aBKAssetTable");
+        auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource("assets/aBKAssetTable");
         if (!res) {
             SPDLOG_ERROR("Failed to load asset manifest from o2r");
             return;
@@ -161,7 +161,7 @@ extern "C" void ResourceMgr_SetDialogLanguage(int lang) {
 
 std::shared_ptr<Ship::IResource> GetResourceByName(const char* path) {
     try {
-        return Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+        return Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[ResourceHelpers] GetResourceByName('{}') exception: {}", path, e.what());
         return nullptr;
@@ -196,7 +196,7 @@ extern "C" char* ResourceMgr_ReloadByAssetId(uint32_t assetId) {
         std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
         // Unload from LUS cache so it re-reads from the o2r
-        Ship::Context::GetInstance()->GetResourceManager()->UnloadResource(mappedPath);
+        Ship::Context::GetRawInstance()->GetResourceManager()->UnloadResource(mappedPath);
 
         if (auto result = LoadAndRetainResource(mappedPath, assetId); result != nullptr) {
             return result;

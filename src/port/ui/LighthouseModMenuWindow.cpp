@@ -76,7 +76,7 @@ static std::string JoinModList(const std::vector<std::string>& list) {
 void SetEnabledModsCVarValue() {
     CVarSetString(CVAR_ENABLED_MODS_NAME, JoinModList(enabledModFiles).c_str());
     CVarSetString(CVAR_DISABLED_MODS_NAME, JoinModList(disabledModFiles).c_str());
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 void AfterModChange() {
@@ -133,7 +133,7 @@ std::vector<std::string>& GetModFiles(bool enabled) {
 }
 
 std::shared_ptr<Ship::ArchiveManager> GetArchiveManager() {
-    return Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager();
+    return Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
 }
 
 bool IsValidExtension(std::string extension) {
@@ -475,9 +475,9 @@ void LighthouseModMenuWindow::DrawElement() {
                 "Apply & Restart", "Applying mods requires a restart. Save the mod list and relaunch Lighthouse now?",
                 "Restart", "Cancel", []() {
                     SetEnabledModsCVarValue();
-                    Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+                    Ship::Context::GetRawInstance()->GetConsoleVariables()->Save();
                     GameEngine::RequestRelaunch();
-                    Ship::Context::GetInstance()->GetWindow()->Close();
+                    Ship::Context::GetRawInstance()->GetWindow()->Close();
                 });
         }
     }
@@ -649,7 +649,7 @@ void SetSoleEnabledRomhack(const std::string& keepBasename) {
         }
         CVarSetString(CVAR_SETTING("EnabledMods"), e.c_str());
         CVarSetString(CVAR_SETTING("DisabledMods"), d.c_str());
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
 }
 
@@ -705,7 +705,7 @@ void DrawInlineModExtraction() {
         // boot-time aGameConfig conflict check doesn't quarantine it.
         const std::string keep = std::filesystem::path(GameExtractor::sLastOutputPath).stem().string();
         SetSoleEnabledRomhack(keep);
-        Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+        Ship::Context::GetRawInstance()->GetConsoleVariables()->Save();
         if (!BaseIsRomhackCompatible()) {
             LighthouseGui::RegisterPopup("Romhack Requires US v1.0",
                                          "The romhack mod was extracted into your mods folder, but your\n"
@@ -723,7 +723,7 @@ void DrawInlineModExtraction() {
                 "Restart", "Later",
                 []() {
                     GameEngine::RequestRelaunch();
-                    Ship::Context::GetInstance()->GetWindow()->Close();
+                    Ship::Context::GetRawInstance()->GetWindow()->Close();
                 },
                 nullptr);
         }

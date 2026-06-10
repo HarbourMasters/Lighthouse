@@ -90,7 +90,7 @@ public:
     }
     void Draw() override {
         // Suppress the overlay while the menu is up so tags don't cover menu items.
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         if (gui && gui->GetMenuOrMenubarVisible()) {
             return;
         }
@@ -105,7 +105,7 @@ public:
         // as: Main Game window -> game image rect (resolution-mode dependent) ->
         // 4:3 inset. IgnoreAspectCorrection stretches the FB non-uniformly and is
         // handled as a separate branch.
-        auto fastWnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+        auto fastWnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
         auto interp = fastWnd ? fastWnd->GetInterpreterWeak().lock() : nullptr;
         if (interp == nullptr) {
             return;
@@ -205,7 +205,7 @@ void SetNativeFramebufferSize(const int* width, const int* height) {
 }
 
 void RegisterOverlay() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
     auto overlay = std::make_shared<NametagOverlay>(CVAR_WINDOW("NametagOverlay"), "Nametag Overlay");
     gui->AddGuiWindow(overlay);
     overlay->Show();

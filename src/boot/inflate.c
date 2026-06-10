@@ -308,7 +308,7 @@
   return 0;
 }
 
-/* static */ int inflate_fixed(void)
+/* static */ int bk_inflate_fixed(void)
 /* decompress an inflated type 1 (fixed Huffman codes) block.  We should
    either replace this with a custom decoder, or at least precompute the
    Huffman tables. */
@@ -490,7 +490,7 @@
    if (t == 0)
      return inflate_stored();
    if (t == 1)
-     return inflate_fixed();
+     return bk_inflate_fixed();
 
 
   /* bad block type */

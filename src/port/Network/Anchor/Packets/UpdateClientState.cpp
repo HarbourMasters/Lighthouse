@@ -28,7 +28,7 @@ nlohmann::json Anchor::PrepClientState() {
     payload["online"] = true;
 
     if (IsSaveLoaded()) {
-        payload["seed"] = /*IS_RANDO ? Rando::Context::GetInstance()->GetSeed() : */ 0;
+        payload["seed"] = /*IS_RANDO ? Rando::Context::GetRawInstance()->GetSeed() : */ 0;
         payload["isSaveLoaded"] = true;
         payload["isGameComplete"] = false;
         payload["map"] = gsworld_getMap();

@@ -111,7 +111,7 @@ static void LoadGameConfig() {
     }
     sGameConfigLoaded = true;
 
-    auto rm = Ship::Context::GetInstance()->GetResourceManager();
+    auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
     auto archive = rm->GetArchiveManager();
 
     auto res = archive->LoadFile("assets/aGameConfig");

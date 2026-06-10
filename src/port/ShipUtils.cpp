@@ -256,7 +256,7 @@ int port_getBootSequence(void) {
 }
 
 float port_getRumbleScale(void) {
-    auto ctx = Ship::Context::GetInstance();
+    auto ctx = Ship::Context::GetRawInstance();
     if (!ctx) {
         return 0.5f;
     }
@@ -276,7 +276,7 @@ float port_getRumbleScale(void) {
 }
 
 bool port_CButtonIsAxis(void) {
-    auto ctx = Ship::Context::GetInstance();
+    auto ctx = Ship::Context::GetRawInstance();
     if (!ctx) {
         return false;
     }

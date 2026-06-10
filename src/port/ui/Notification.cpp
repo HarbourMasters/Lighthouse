@@ -88,7 +88,7 @@ void Window::Draw() {
         ImGui::AlignTextToFramePadding();
 
         if (notification.itemIcon != nullptr) {
-            ImGui::Image(std::static_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetInstance()->GetWindow()->GetGui())
+            ImGui::Image(std::static_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
                              ->GetTextureByName(notification.itemIcon),
                          ImVec2(22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f),
                                 22 * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f)));

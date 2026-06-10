@@ -36,7 +36,7 @@ public:
     ImFont* fontMonoLarger;
     ImFont* fontMonoLargest;
 
-    std::shared_ptr<Ship::Context> context;
+    Ship::Context* context;
 
     GameEngine();
     void StartFrame() const;

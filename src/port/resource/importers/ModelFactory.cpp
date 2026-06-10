@@ -46,7 +46,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     }
 
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
-    auto resourceMgr = Ship::Context::GetInstance()->GetResourceManager();
+    auto resourceMgr = Ship::Context::GetRawInstance()->GetResourceManager();
 
     // ── Read metadata written by ModelBinaryExporter::Export ────────────────
 

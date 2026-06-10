@@ -88,7 +88,7 @@ void DrawEventListenerInfo(std::string& name, Ship::EventRegistration& registry)
 
 void EventDebuggerWindow::DrawElement() {
     bool collapseLogic = false;
-    auto events = Ship::Context::GetInstance()->GetEventSystem()->GetEventRegistrations();
+    auto events = Ship::Context::GetRawInstance()->GetEventSystem()->GetEventRegistrations();
     bool doingCollapseOrExpand = hookOptExpandAll || hookOptCollapseAll;
 
     ImGui::BeginDisabled(CVarGetInteger(CVAR_SETTING("DisableChanges"), 0));
