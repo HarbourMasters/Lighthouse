@@ -49,6 +49,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnPlayerAnimReset);
     REGISTER_EVENT(OnPlayerAnimSubRangeChange);
     REGISTER_EVENT(OnWaterPyramidTimer);
+    REGISTER_EVENT(OnVileHoleStateChange);
+    REGISTER_EVENT(OnVileGameStateChange);
 
     // Register game events
     REGISTER_EVENT(OnGameLoad);

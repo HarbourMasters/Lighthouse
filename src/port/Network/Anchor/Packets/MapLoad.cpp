@@ -1,4 +1,5 @@
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/Authority.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
@@ -33,4 +34,5 @@ void Anchor::HandlePacket_MapLoad(nlohmann::json& payload) {
                                      clients[clientId].map != MAP_1F_CS_START_RAREWARE &&
                                      clients[clientId].map != MAP_91_FILE_SELECT;
     EvaluateDummyForClient(clientId);
+    Authority_OnPeerMapLoad(clientId, clients[clientId].map);
 }

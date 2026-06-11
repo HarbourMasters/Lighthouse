@@ -4,6 +4,7 @@
 #include "variables.h"
 
 #include "prop.h"
+#include "port/enhancements/events/hooks/Events.h"
 extern void actor_predrawMethod(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
 extern f32 randf (void);
@@ -28,6 +29,9 @@ typedef struct chyumblie_s{
 void chyumblie_set_state(Actor*, enum chyumblie_state_e);
 void chyumblie_update(Actor *);
 Actor *chyumblie_draw(ActorMarker *this, Gfx **gfx, Mtx** mtx, Vtx **vtx);
+
+// [port] Anchor: while applying network state, overrides the random piece type roll.
+static s32 sNetForcedPieceType = -1;
 
 /* .data */
 ActorInfo gChYumblie = {MARKER_C7_YUMBLIE, ACTOR_139_YUMBLIE, ASSET_3F6_MODEL_YUMBLIE, 0x00, NULL,
@@ -65,7 +69,7 @@ void chyumblie_set_state(Actor* this, enum chyumblie_state_e next_state){
      
     if(next_state == 2){
         this->yaw = randf2(0.0f, 360.0f);
-        s0->unk4 = func_8038B160(this);
+        s0->unk4 = (sNetForcedPieceType >= 0) ? (u8)sNetForcedPieceType : func_8038B160(this);
         chvilegame_new_piece(s0->game_marker, this->marker, this->position, s0->unk4);
         skeletalAnim_set(this->unk148, (s0->unk4)? ASSET_128_ANIM_GRUMBLIE_APPEAR : ASSET_125_ANIM_YUMBLIE_APPEAR, 0.0f, 1.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
@@ -92,6 +96,8 @@ void chyumblie_set_state(Actor* this, enum chyumblie_state_e next_state){
         func_8030E878((s0->unk4)? SFX_C4_TWINKLY_MUNCHER_GRR: SFX_C3_HEGH, 1.4f, 32000, this->position, 500.0f, 3000.0f);
     }
     this->state = next_state;
+    // [port] Anchor: the minigame authority broadcasts hole state changes from this event
+    CALL_EVENT(OnVileHoleStateChange, this->marker, this->position, next_state, s0->unk4);
 }
 
 bool chyumblie_is_edible(ActorMarker * arg0){
@@ -142,6 +148,31 @@ bool func_8038B684(ActorMarker * arg0){
     return false;
 }
 
+// [port] Anchor sync entry points.
+// Drives this yumblie from an authoritative packet, forcing the piece type instead of
+// rolling it locally.
+void chyumblie_netApplyState(Actor *this, s32 state, s32 piece_type){
+    ActorLocal_Yumblie *local = (ActorLocal_Yumblie *)&this->local;
+    f32 dist;
+
+    // A packet can arrive before this actor's first update tick has resolved the
+    // controller marker that chyumblie_set_state relies on.
+    if(local->game_marker == NULL){
+        local->game_marker = actorArray_findClosestActorFromActorId(this->position, ACTOR_138_VILE_GAME_CTRL, -1, &dist)->marker;
+    }
+    sNetForcedPieceType = piece_type;
+    chyumblie_set_state(this, state);
+    sNetForcedPieceType = -1;
+}
+
+// Reads state + piece type for snapshot gathering.
+s32 chyumblie_netGetState(Actor *this, s32 *piece_type){
+    ActorLocal_Yumblie *local = (ActorLocal_Yumblie *)&this->local;
+
+    *piece_type = local->unk4;
+    return this->state;
+}
+
 void chyumblie_update(Actor *this){
     ActorLocal_Yumblie *s0;
     f32 sp50;
@@ -167,7 +198,7 @@ void chyumblie_update(Actor *this){
     sp50 = skeletalAnim_getProgress(this->unk148);
     if(this->state == YUMBLIE_STATE_1_UNDER_GROUND){
         if(ml_timer_update(&s0->unk8, sp4C)){
-            if(mapSpecificFlags_get(6) && (12 > chvilegame_get_piece_count(s0->game_marker))){
+            if(EventSystem_Should(VB_VILE_YUMBLIE_EMERGE, mapSpecificFlags_get(6) && (12 > chvilegame_get_piece_count(s0->game_marker)))){
                 chyumblie_set_state(this, YUMBLIE_STATE_2_APPEAR);
             }
             else{
@@ -198,7 +229,7 @@ void chyumblie_update(Actor *this){
 
     }
     if(this->state == YUMBLIE_STATE_3_ABOVE_GROUND){
-        if( ml_timer_update(&s0->unk8,sp4C) || !mapSpecificFlags_get(6) ){
+        if( EventSystem_Should(VB_VILE_YUMBLIE_HIDE, ml_timer_update(&s0->unk8,sp4C) || !mapSpecificFlags_get(6)) ){
             chyumblie_set_state(this,YUMBLIE_STATE_4_DISAPPEAR);
         }
     }

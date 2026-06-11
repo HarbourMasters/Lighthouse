@@ -23,6 +23,13 @@ typedef enum VBehaviorID {
     VB_POSITIONAL_SFX_PAN,
     VB_YUMYUM_DROP,
     VB_RESET_DIALOG_LANGUAGE,
+    // Mr. Vile minigame (Anchor authority gating): cancelled on clients following a
+    // remote authority so local random logic yields to network state.
+    VB_VILE_YUMBLIE_EMERGE,    // yumblie wants to pop out of its hole
+    VB_VILE_YUMBLIE_HIDE,      // yumblie's above-ground timer wants it to hide
+    VB_VILE_PLAYER_EAT_PIECE,  // local player chomped an edible piece; args: f32* piece position
+    VB_VILE_GAME_UPDATE,       // minigame controller vanilla state machine update
+    VB_VILE_CPU_AI,            // Mr. Vile AI + movement integration
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

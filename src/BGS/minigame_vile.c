@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "bk_math.h"
 #include "variables.h"
+#include "port/enhancements/events/hooks/Events.h"
+#include "port/Network/Anchor/VileSync.h"
 
 extern f32 *chVile_getPostion(ActorMarker *);
 extern void bundle_setRandomVelocity(f32);
@@ -407,6 +409,8 @@ void func_8038A068(Actor *this, s32 next_state) {
         func_8038C384(local->vile_marker);
     }
     this->state = next_state;
+    // [port] Anchor: authority claim/release and round lifecycle react to this event
+    CALL_EVENT(OnVileGameStateChange, next_state);
 }
 
 void chvilegame_player_consume_piece(Actor *this) {
@@ -425,6 +429,10 @@ void chvilegame_player_consume_piece(Actor *this) {
         sp44[1] = 0.0f;
         for(i_ptr = begin; i_ptr < end; i_ptr++){
             if ((ml_vec3f_distance(i_ptr->position, sp44) < 65.25) && chyumblie_is_edible(i_ptr->marker)) {
+                // [port] Anchor: followers route the chomp to the authority as an eat request
+                if (!EventSystem_Should(VB_VILE_PLAYER_EAT_PIECE, true, i_ptr->position)) {
+                    return;
+                }
                 is_correct_type = ((local->current_type != YUMBLIE) && (i_ptr->type != YUMBLIE)) || (((local->current_type == YUMBLIE) && i_ptr->type == YUMBLIE));
                 if (is_correct_type) {
                     local->player_score++;
@@ -645,6 +653,24 @@ void chvilegame_update(Actor *this) {
     if (local->vile_marker == NULL) {
         local->vile_marker = actorArray_findClosestActorFromActorId(this->position, 0x13A, -1, &sp4C)->marker;
     }
+    // [port] Anchor: followers are driven by snapshots; only local chomp detection (for
+    // eat requests) and HUD mirroring run here.
+    if (!EventSystem_Should(VB_VILE_GAME_UPDATE, true)) {
+        if ((this->state == 5) && (local->unkC != 7)) {
+            chvilegame_player_consume_piece(this);
+            if (local->type_change_timer > 3.5) {
+                if (local->current_type != 0) {
+                    item_adjustByDiffWithHud(ITEM_1D_GRUMBLIE, false);
+                } else {
+                    item_adjustByDiffWithHud(ITEM_1E_YUMBLIE, false);
+                }
+            }
+            ml_timer_update(&local->type_change_timer, sp50);
+            item_set(ITEM_1A_PLAYER_VILE_SCORE, local->player_score);
+            item_set(ITEM_1B_VILE_VILE_SCORE, local->vile_score);
+        }
+        return;
+    }
     if (this->state == 1) {
         if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
             if (volatileFlag_get(VOLATILE_FLAG_3)) {
@@ -705,4 +731,111 @@ void chvilegame_update(Actor *this) {
     if ((this->state == 7) && (BGS_func_8038C338(local->vile_marker) != 0)) {
         func_8038A068(this, 1);
     }
+}
+
+// [port] Anchor sync entry points.
+
+// Fills a snapshot from the live controller. Only the stable states (idle, playing, and
+// the round-end results) are broadcast; dialog states cannot be reconstructed remotely.
+bool chvilegame_netGather(Actor *this, VileGameSnapshot *dst){
+    ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
+
+    switch (this->state) {
+        case 1:   // idle
+        case 5:   // playing
+        case 6:   // round lost
+        case 8:   // round won
+        case 9:   // final round won (jiggy)
+        case 0xA: // extra challenge won
+            break;
+        default:
+            return false;
+    }
+    dst->gameState = this->state;
+    dst->round = local->unkC;
+    dst->maxRound = local->unkD;
+    dst->currentType = local->current_type;
+    dst->typeChangeTimer = local->type_change_timer;
+    dst->playerScore = local->player_score;
+    dst->vileScore = local->vile_score;
+    dst->hourglassRemaining = item_getCount(ITEM_0_HOURGLASS_TIMER);
+    return true;
+}
+
+// Forces the controller to match an authoritative snapshot (followers + late joiners).
+// Mirrors the state-5 side effects of func_8038A068 without the dialog/round bookkeeping.
+void chvilegame_netApply(Actor *this, const VileGameSnapshot *src){
+    ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
+    s32 drift;
+
+    local->unkC = src->round;
+    local->unkD = src->maxRound;
+    local->current_type = src->currentType;
+    local->type_change_timer = src->typeChangeTimer;
+    local->player_score = src->playerScore;
+    local->vile_score = src->vileScore;
+    item_set(ITEM_1A_PLAYER_VILE_SCORE, local->player_score);
+    item_set(ITEM_1B_VILE_VILE_SCORE, local->vile_score);
+
+    if (this->state != src->gameState) {
+        if (src->gameState == 5) {
+            item_set(ITEM_0_HOURGLASS_TIMER, src->hourglassRemaining);
+            item_set(ITEM_6_HOURGLASS, true);
+            mapSpecificFlags_set(6, true);
+            if (local->vile_marker != NULL) {
+                func_8038C3DC(local->vile_marker);
+            }
+            func_8025A58C(0, 4000);
+            timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_55_BGS_MR_VILE, 28000);
+        } else {
+            item_set(ITEM_6_HOURGLASS, false);
+            mapSpecificFlags_set(6, false);
+            // Round-end result presentation, mirroring func_8038A068's timed callbacks
+            // (dialogs and the static camera stay on the authority).
+            if (src->gameState == 6) {
+                timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3C_MINIGAME_LOSS, 28000);
+                timedFunc_set_0(4.0f, (GenFunction_0)func_8038A044);
+            } else if ((src->gameState == 8) || (src->gameState == 9) || (src->gameState == 0xA)) {
+                timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
+                timedFunc_set_0(3.0f, (GenFunction_0)func_8038A044);
+            } else {
+                func_8025A58C(-1, 400);
+            }
+        }
+        this->state = src->gameState;
+    } else if (this->state == 5) {
+        // tolerance band: only snap the hourglass when drift would be noticeable
+        drift = item_getCount(ITEM_0_HOURGLASS_TIMER) - src->hourglassRemaining;
+        if ((drift > 15) || (drift < -15)) {
+            item_set(ITEM_0_HOURGLASS_TIMER, src->hourglassRemaining);
+        }
+    }
+}
+
+// Authority-side: consume the piece at position on behalf of a remote player. Mirrors
+// chvilegame_player_consume_piece without reading the local player's mouth position.
+// position[1] must be 0 to match piece positions (see chvilegame_new_piece).
+bool chvilegame_netConsumeRemote(Actor *this, f32 position[3]){
+    ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
+    bool is_correct_type;
+    struct vilegame_piece *begin;
+    struct vilegame_piece *end;
+    struct vilegame_piece *i_ptr;
+
+    if (this->state != 5) {
+        return false;
+    }
+    begin = (struct vilegame_piece *)bk_vector_getBegin(local->game_pieces);
+    end = (struct vilegame_piece *)bk_vector_getEnd(local->game_pieces);
+    for(i_ptr = begin; i_ptr < end; i_ptr++){
+        if ((ml_vec3f_distance(i_ptr->position, position) < 65.25) && chyumblie_is_edible(i_ptr->marker)) {
+            is_correct_type = ((local->current_type != YUMBLIE) && (i_ptr->type != YUMBLIE)) || (((local->current_type == YUMBLIE) && i_ptr->type == YUMBLIE));
+            if (is_correct_type) {
+                local->player_score++;
+            }
+            func_8038B684(i_ptr->marker);
+            return true;
+        }
+    }
+    return false;
 }

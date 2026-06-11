@@ -5,6 +5,7 @@
 
 #include "prop.h"
 #include "core2/modelRender.h"
+#include "port/enhancements/events/hooks/Events.h"
 
 Actor *chvile_draw(ActorMarker*, Gfx **, Mtx **, Vtx **);
 void chvile_update(Actor *);
@@ -351,6 +352,14 @@ void chvile_update(Actor *this) {
     if (local->game_marker == NULL) {
         local->game_marker = actorArray_findClosestActorFromActorId(this->position, 0x138, -1, &sp90)->marker;
     }
+    // [port] Anchor: followers receive Mr. Vile's transform/anim from the network; keep
+    // only his body collision running locally.
+    if (!EventSystem_Should(VB_VILE_CPU_AI, true)) {
+        if (this->state != 4) {
+            func_8028E668(this->position, 100.0f, -50.0f, 120.0f);
+        }
+        return;
+    }
     player_getPosition(player_position);
     sp90 = ml_vec3f_distance(this->position, player_position);
     if (sp90 <= 300.0f) {
@@ -446,4 +455,26 @@ void chvile_update(Actor *this) {
     if (this->state != 4) {
         func_8028E668(this->position, 100.0f, -50.0f, 120.0f);
     }
+}
+
+// [port] Anchor sync entry points.
+// Applies a streamed transform + anim mode from the minigame authority.
+void chvile_netApplyUpdate(Actor *this, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode){
+    ActorLocal_MrVile *local = (ActorLocal_MrVile *)&this->local;
+
+    this->position[0] = position[0];
+    this->position[1] = position[1];
+    this->position[2] = position[2];
+    this->pitch = pitch;
+    this->yaw = yaw;
+    this->roll = roll;
+    if (local->unkC != anim_mode) {
+        BGS_func_8038BBA0(this, anim_mode);
+    }
+}
+
+s32 chvile_netGetAnimMode(Actor *this){
+    ActorLocal_MrVile *local = (ActorLocal_MrVile *)&this->local;
+
+    return local->unkC;
 }

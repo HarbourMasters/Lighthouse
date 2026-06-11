@@ -1,4 +1,5 @@
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/Authority.h"
 #include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
@@ -69,5 +70,11 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         clients[clientId].map = client.map;
         clients[clientId].exit = client.exit;
         EvaluateDummyForClient(clientId);
+        Authority_OnClientStateChanged(clientId, client.online, client.map);
+        if (client.online) {
+            // Covers clients (re)connecting while already in an activity's map: rebroadcast
+            // any claim of ours so they don't briefly act as their own authority.
+            Authority_OnPeerMapLoad(clientId, client.map);
+        }
     }
 }

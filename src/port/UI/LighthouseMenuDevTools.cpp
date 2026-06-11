@@ -123,6 +123,15 @@ void LighthouseMenu::AddMenuDevTools() {
         .HideInSearch(true)
         .Options(WindowButtonOptions().Tooltip("Enables the separate Save Editor Window."));
 
+    // Warps
+    path.sidebarName = "Warps";
+    AddSidebarEntry("Dev Tools", path.sidebarName, 1);
+    AddWidget(path, "Popout Warps", WIDGET_WINDOW_BUTTON)
+        .CVar(CVAR_WINDOW("Warps"))
+        .WindowName("Warps")
+        .HideInSearch(true)
+        .Options(WindowButtonOptions().Tooltip("Enables the separate Warps Window."));
+
     // Console
     // path.sidebarName = "Console";
     // AddSidebarEntry("Dev Tools", path.sidebarName, 1);

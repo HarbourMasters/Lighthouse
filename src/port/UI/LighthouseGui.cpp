@@ -26,6 +26,7 @@
 #include "LighthouseModMenuWindow.h"
 // #include "DeveloperTools/HookDebugger.h"
 #include "DeveloperTools/SaveEditor.h"
+#include "DeveloperTools/Warps.h"
 // #include "DeveloperTools/ActorViewer.h"
 // #include "DeveloperTools/CollisionViewer.h"
 // #include "DeveloperTools/EventLog.h"
@@ -43,6 +44,7 @@ std::shared_ptr<LighthouseModMenuWindow> mModMenuWindow;
 
 // std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+std::shared_ptr<WarpsWindow> mWarpsWindow;
 // std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 // std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
 // std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
@@ -115,6 +117,9 @@ void SetupGuiElements() {
 
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
+
+    mWarpsWindow = std::make_shared<WarpsWindow>("gWindows.Warps", "Warps", ImVec2(480, 600));
+    gui->AddGuiWindow(mWarpsWindow);
 
     // mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "HUD Editor", ImVec2(480, 600));
     // gui->AddGuiWindow(mHudEditorWindow);
@@ -201,6 +206,7 @@ void Destroy() {
 
     // mHookDebuggerWindow = nullptr;
     mSaveEditorWindow = nullptr;
+    mWarpsWindow = nullptr;
     // mHudEditorWindow = nullptr;
     // mCosmeticEditorWindow = nullptr;
     // mActorViewerWindow = nullptr;

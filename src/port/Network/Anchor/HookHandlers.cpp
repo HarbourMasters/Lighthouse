@@ -1,4 +1,6 @@
 #include "Anchor.h"
+#include "Authority.h"
+#include "VileSync.h"
 #include <libultraship/libultraship.h>
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
@@ -9,6 +11,40 @@ extern "C" {
 
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
+s32 chvile_netGetAnimMode(Actor* actor);
+}
+
+// True when a remote client owns the Mr. Vile minigame (our local logic must follow).
+static bool Anchor_IsVileFollower() {
+    return !NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
+}
+
+// True when we are the live, connected authority for the Mr. Vile minigame.
+static bool Anchor_IsVileAuthority() {
+    return Anchor::GetInstance()->isConnected && NetAuthority_IsClaimed(NET_ACTIVITY_VILE_MINIGAME) &&
+           NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
+}
+
+// Authority-side per-frame work: stream Mr. Vile's transform and broadcast the periodic
+// snapshot while the minigame is claimed.
+static void Anchor_UpdateVileSync() {
+    if (!Anchor_IsVileAuthority() || gsworld_getMap() != MAP_10_BGS_MR_VILE) {
+        return;
+    }
+
+    f32 origin[3] = { 0.0f, 0.0f, 0.0f };
+    f32 dist;
+    Actor* vile = actorArray_findClosestActorFromActorId(origin, ACTOR_13A_MR_VILE, -1, &dist);
+    if (vile != nullptr) {
+        Anchor::GetInstance()->SendPacket_VileUpdate(vile->position, vile->pitch, vile->yaw, vile->roll,
+                                                     (u8)chvile_netGetAnimMode(vile));
+    }
+
+    static u32 sSnapshotTimer = 0;
+    if (++sSnapshotTimer >= 60) {
+        sSnapshotTimer = 0;
+        Anchor::GetInstance()->SendPacket_VileGameState();
+    }
 }
 
 void Anchor::RegisterHooks() {
@@ -31,6 +67,7 @@ void Anchor::RegisterHooks() {
         }
         Anchor::GetInstance()->ClearDummies();
         Anchor::GetInstance()->PopulateDummies();
+        Authority_OnSelfMapChanged(ev->nextMap);
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
     });
@@ -50,7 +87,84 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->ProcessIncomingPacketQueue();
         Anchor::GetInstance()->RefreshClientActors();
         Anchor::GetInstance()->UpdateDummies();
+        Anchor_UpdateVileSync();
     });
+
+    // #region Mr. Vile minigame sync
+
+    // Authority lifecycle: the client whose controller leaves idle claims the minigame;
+    // returning to idle (or the player declining) releases it.
+    COND_HOOK(OnVileGameStateChange, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnVileGameStateChange*>(event);
+        if (!Anchor::GetInstance()->isConnected || gsworld_getMap() != MAP_10_BGS_MR_VILE) {
+            return;
+        }
+        if (ev->state >= 2) {
+            NetAuthority_Claim(NET_ACTIVITY_VILE_MINIGAME);
+            // Push the transition immediately (round start, round end with its result
+            // jingle) instead of waiting for the next periodic snapshot. Gather rejects
+            // the non-broadcast states, so this is a no-op for dialog transitions.
+            if (Anchor_IsVileAuthority()) {
+                Anchor::GetInstance()->SendPacket_VileGameState();
+            }
+        } else {
+            NetAuthority_Release(NET_ACTIVITY_VILE_MINIGAME);
+        }
+    });
+
+    // Authority broadcasts hole state changes (appear/hide/eaten).
+    COND_HOOK(OnVileHoleStateChange, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnVileHoleStateChange*>(event);
+        if (!Anchor_IsVileAuthority()) {
+            return;
+        }
+        if (ev->state != 2 && ev->state != 4 && ev->state != 5) {
+            return;
+        }
+        VileHoleId hole = VileHoles_IdFromPosition(ev->position[0], ev->position[2]);
+        if (hole == VILE_HOLE_NONE) {
+            return;
+        }
+        Anchor::GetInstance()->SendPacket_VileHoleState((u8)hole, (u8)ev->state, (u8)ev->pieceType,
+                                                        VILE_EATER_MR_VILE);
+    });
+
+    // Followers: suppress local random logic; network state drives these instead.
+    COND_VB_SHOULD(VB_VILE_YUMBLIE_EMERGE, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsVileFollower()) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_VILE_YUMBLIE_HIDE, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsVileFollower()) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_VILE_GAME_UPDATE, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsVileFollower()) {
+            *should = false;
+        }
+    });
+    COND_VB_SHOULD(VB_VILE_CPU_AI, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsVileFollower()) {
+            *should = false;
+        }
+    });
+
+    // Followers: a local chomp becomes an eat request; the authority validates and the
+    // resulting eaten state comes back as a VILE_HOLE_STATE packet.
+    COND_VB_SHOULD(VB_VILE_PLAYER_EAT_PIECE, EVENT_PRIORITY_NORMAL, true, {
+        if (Anchor_IsVileFollower()) {
+            f32* piecePos = va_arg(args, f32*);
+            VileHoleId hole = VileHoles_IdFromPosition(piecePos[0], piecePos[2]);
+            if (hole != VILE_HOLE_NONE) {
+                Anchor::GetInstance()->SendPacket_VileEatRequest((u8)hole);
+            }
+            *should = false;
+        }
+    });
+
+    // #endregion
 
     COND_HOOK(OnPlayerAnimReset, EVENT_PRIORITY_HIGH, true,
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_PlayerAnimReset(); });

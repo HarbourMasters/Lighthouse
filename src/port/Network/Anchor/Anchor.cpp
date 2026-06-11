@@ -1,4 +1,5 @@
 #include "Anchor.h"
+#include "Authority.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/Engine.h"
@@ -35,6 +36,7 @@ void Anchor::Enable() {
 void Anchor::Disable() {
     Network::Disable();
 
+    Authority_Reset();
     dummies.clear();
     for (auto& [clientId, client] : clients) {
         if (client.dummy != nullptr) {
@@ -56,6 +58,7 @@ void Anchor::OnConnected() {
 }
 
 void Anchor::OnDisconnected() {
+    Authority_Reset();
     RegisterHooks();
 }
 
@@ -148,6 +151,8 @@ void Anchor::ProcessIncomingPacketQueue() {
             // packetType here is a string so we can't use a switch statement
             if (packetType == ALL_CLIENT_STATE)
                 HandlePacket_AllClientState(payload);
+            else if (packetType == AUTHORITY_STATE)
+                HandlePacket_AuthorityState(payload);
             else if (packetType == DAMAGE_PLAYER)
                 HandlePacket_DamagePlayer(payload);
             else if (packetType == DISABLE_ANCHOR)
@@ -188,6 +193,14 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_UpdateClientState(payload);
             else if (packetType == UPDATE_ROOM_STATE)
                 HandlePacket_UpdateRoomState(payload);
+            else if (packetType == VILE_EAT_REQUEST)
+                HandlePacket_VileEatRequest(payload);
+            else if (packetType == VILE_GAME_STATE)
+                HandlePacket_VileGameState(payload);
+            else if (packetType == VILE_HOLE_STATE)
+                HandlePacket_VileHoleState(payload);
+            else if (packetType == VILE_UPDATE)
+                HandlePacket_VileUpdate(payload);
         } catch (const std::exception& e) {
             SPDLOG_ERROR("[Anchor] Exception while processing incoming packet {}", e.what());
             SPDLOG_ERROR("[Anchor] Packet: {}", payload.dump());
