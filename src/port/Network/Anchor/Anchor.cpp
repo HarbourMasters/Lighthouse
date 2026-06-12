@@ -167,6 +167,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_PlayerAnimChange(payload);
             else if (packetType == PLAYER_SUBRANGE)
                 HandlePacket_PlayerSubRangeChange(payload);
+            else if (packetType == PLAYER_TRANSFORM)
+                HandlePacket_PlayerTransformChange(payload);
             else if (packetType == PLAYER_UPDATE)
                 HandlePacket_PlayerUpdate(payload);
             else if (packetType == PLAYER_SFX)

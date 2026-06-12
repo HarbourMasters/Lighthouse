@@ -23,6 +23,7 @@ DEFINE_EVENT(OnMumboTokenIdResolve, s32* tokenId; s32* position; s32 mapId;)
 DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position;
              f32 subrange_end; bool smooth;)
 DEFINE_EVENT(OnPlayerAnimReset)
+DEFINE_EVENT(OnPlayerTransformChange, Transformation tf_id;)
 DEFINE_EVENT(OnPlayerAnimSubRangeChange, f32 duration; f32 end_position;)
 DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
 // Mr. Vile minigame (Anchor sync). Fired only on the client actually running the local

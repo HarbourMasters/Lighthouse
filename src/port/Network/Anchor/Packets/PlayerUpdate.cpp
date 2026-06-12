@@ -41,12 +41,33 @@ void Anchor::SendPacket_PlayerSubRangeChange(f32 duration, f32 end) {
     SendToCurrentMapPlayers(payload);
 }
 
+void Anchor::SendPacket_PlayerTransformChange(Transformation tf_id) {
+    if (!IsSaveLoaded()) {
+        return;
+    }
+
+    nlohmann::json payload;
+    payload["type"] = PLAYER_TRANSFORM;
+    payload["id"] = tf_id;
+    SendJsonToRemote(payload);
+}
+
 void Anchor::HandlePacket_PlayerSubRangeChange(nlohmann::json& payload) {
     uint32_t clientId = payload["clientId"].get<uint32_t>();
 
     if (clients.contains(clientId)) {
         auto& client = clients[clientId];
         client.dummy->dummyAnim_setEndAndDuration(payload.value("end", 1.0f), payload.value("duration", 0.0f));
+    }
+}
+
+void Anchor::HandlePacket_PlayerTransformChange(nlohmann::json& payload) {
+    uint32_t clientId = payload["clientId"].get<uint32_t>();
+
+    if (clients.contains(clientId)) {
+        auto& client = clients[clientId];
+        client.dummy->dummy_setTransformation(payload.value("id", TRANSFORM_1_BANJO));
+        client.dummy->dummy_updateModel();
     }
 }
 

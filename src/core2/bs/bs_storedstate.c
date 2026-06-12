@@ -46,6 +46,7 @@ void bsStoredState_clearTimers(void){
 
 void player_setTransformation(enum transformation_e xform_id){
     bsStoredState.transformation = xform_id;
+    CALL_EVENT(OnPlayerTransformChange, xform_id);
 }
 
 void bsStoredState_setLongLegTimer(f32 arg0){

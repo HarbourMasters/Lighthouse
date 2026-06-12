@@ -90,6 +90,11 @@ void Anchor::RegisterHooks() {
         Anchor_UpdateVileSync();
     });
 
+    COND_HOOK(OnPlayerTransformChange, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnPlayerTransformChange*>(event);
+        Anchor::GetInstance()->SendPacket_PlayerTransformChange(ev->tf_id);
+    });
+
     // #region Mr. Vile minigame sync
 
     // Authority lifecycle: the client whose controller leaves idle claims the minigame;

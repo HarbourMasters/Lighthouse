@@ -46,6 +46,32 @@ static const std::vector<int32_t> mapIdList = {
     MAP_90_GL_BATTLEMENTS,
 };
 
+// Curated quick-warp destinations, presented as a single combobox.
+struct CuratedWarp {
+    const char* label;
+    enum map_e map;
+    int32_t exit;
+};
+
+static const std::vector<CuratedWarp> curatedWarps = {
+    { "Mumbo's Mountain - Warp Pad", MAP_2_MM_MUMBOS_MOUNTAIN, 5 },
+    // Exit 2 matches the Furnace Fun minigame warp table entry for this map
+    { "Mr. Vile's Chamber", MAP_10_BGS_MR_VILE, 2 },
+    // Click Clock Wood hub spawn points (exits 0, 5, 6 and 8-20 are omitted)
+    { "Click Clock Wood - Spring", MAP_40_CCW_HUB, 2 },
+    { "Click Clock Wood - Summer Exit", MAP_40_CCW_HUB, 3 },
+    { "Click Clock Wood - Fall Exit", MAP_40_CCW_HUB, 4 },
+    { "Click Clock Wood - Winter Exit", MAP_40_CCW_HUB, 1 },
+    { "Click Clock Wood - Entrance Pad", MAP_40_CCW_HUB, 7 },
+    // Each season's start (exit 1 of the season map, matching warp_ccwEnter*)
+    { "Click Clock Wood - Spring Start", MAP_43_CCW_SPRING, 1 },
+    { "Click Clock Wood - Summer Start", MAP_44_CCW_SUMMER, 1 },
+    { "Click Clock Wood - Autumn Start", MAP_45_CCW_AUTUMN, 1 },
+    { "Click Clock Wood - Winter Start", MAP_46_CCW_WINTER, 1 },
+};
+
+static int32_t curatedWarpId = 0;
+
 void DrawWarpList() {
     ImGui::SeparatorText("Custom Warp Selector");
     UIWidgets::Combobox("Map Select", &mapId, mapNames, { .color = THEME_COLOR });
@@ -63,12 +89,17 @@ void DrawWarpList() {
     }
 
     ImGui::SeparatorText("Common Locations");
-    if (UIWidgets::Button("Mumbo's Mountain Warp Pad", { .color = THEME_COLOR })) {
-        func_8031D04C(MAP_2_MM_MUMBOS_MOUNTAIN, 5);
-    }
-    if (UIWidgets::Button("Mr. Vile's Chamber", { .color = THEME_COLOR })) {
-        // Exit 2 matches the Furnace Fun minigame warp table entry for this map
-        func_8031D04C(MAP_10_BGS_MR_VILE, 2);
+    static const std::vector<const char*> curatedWarpNames = [] {
+        std::vector<const char*> names;
+        for (const CuratedWarp& warp : curatedWarps) {
+            names.push_back(warp.label);
+        }
+        return names;
+    }();
+    UIWidgets::Combobox("Quick Warp", &curatedWarpId, curatedWarpNames, { .color = THEME_COLOR });
+    if (UIWidgets::Button("Warp to Selected Location", { .color = THEME_COLOR })) {
+        const CuratedWarp& warp = curatedWarps[curatedWarpId];
+        func_8031D04C(warp.map, warp.exit);
     }
 }
 

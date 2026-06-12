@@ -87,6 +87,7 @@ private:
     void HandlePacket_PlayerSfx(nlohmann::json& payload);
     void HandlePacket_PlayerAnimChange(nlohmann::json& payload);
     void HandlePacket_PlayerSubRangeChange(nlohmann::json& payload);
+    void HandlePacket_PlayerTransformChange(nlohmann::json& payload);
     void HandlePacket_PlayerUpdate(nlohmann::json& payload);
     void HandlePacket_RequestTeamState(nlohmann::json& payload);
     void HandlePacket_RequestTeleport(nlohmann::json& payload);
@@ -120,6 +121,7 @@ public:
     inline static const std::string PLAYER_ANIM = "PLAYER_ANIM";
     inline static const std::string PLAYER_SFX = "PLAYER_SFX";
     inline static const std::string PLAYER_SUBRANGE = "PLAYER_SUBRANGE";
+    inline static const std::string PLAYER_TRANSFORM = "PLAYER_TRANSFORM";
     inline static const std::string PLAYER_UPDATE = "PLAYER_UPDATE";
     inline static const std::string PLAYER_UPDATE_FULL = "PLAYER_UPDATE_FULL";
     inline static const std::string REQUEST_TEAM_STATE = "REQUEST_TEAM_STATE";
@@ -172,6 +174,7 @@ public:
     void SendPacket_PlayerAnimReset();
     void SendPacket_PlayerSfx(u16 sfxId);
     void SendPacket_PlayerSubRangeChange(f32 duration, f32 end);
+    void SendPacket_PlayerTransformChange(Transformation tf_id);
     void SendPacket_PlayerUpdate(bool full = false);
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);
