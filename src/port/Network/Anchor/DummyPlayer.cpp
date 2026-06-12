@@ -256,8 +256,11 @@ void DummyPlayer::dummy_reset(void) {
     dummy_setScale(1.0f);
     dummyDirection = PLAYER_MODEL_DIR_NONE;
     dummy_setDirection(PLAYER_MODEL_DIR_BANJO);
-    if (!func_8028ADB4())
-        dummy_updateModel();
+    // Always load the model. The local player's model loader skips this during the
+    // level-intro flythrough (func_8028ADB4) and re-runs it when the intro ends, but
+    // nothing re-runs model setup for dummies — gating here left the dummy permanently
+    // invisible whenever it was registered while entering a level from the lair.
+    dummy_updateModel();
     dummy_getPosition(plyr_pos);
     dummyAnim_init();
     dummyAnim_reset();

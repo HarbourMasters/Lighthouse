@@ -247,9 +247,12 @@ void Anchor::ClearDummies() {
     dummies.clear();
 }
 
-void Anchor::PopulateDummies() {
+// Takes the map explicitly rather than reading gsworld_getMap(): during the
+// OnMapLoad event the new map hasn't been committed yet, so gsworld_getMap()
+// still reports the map being left.
+void Anchor::PopulateDummies(GameMap map) {
     for (const auto& [clientId, client] : clients) {
-        if (client.map == gsworld_getMap() && !client.self && !dummies.contains(clientId) && client.online) {
+        if (client.map == map && !client.self && !dummies.contains(clientId) && client.online) {
             client.dummy->dummy_reset();
             RegisterDummy(client.dummy, clientId);
         }

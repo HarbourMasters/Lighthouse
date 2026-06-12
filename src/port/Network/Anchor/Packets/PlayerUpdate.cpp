@@ -183,6 +183,10 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
 
         client.map = payload.value("map", MAP_0_UNKNOWN);
         client.exit = payload.value("exit", (s32)0);
+        // Self-heal: a missed MAP_LOAD (e.g. it arrived while we were still in the
+        // previous map) would otherwise leave this client's dummy unregistered
+        // forever, since single-map levels produce no further map loads.
+        EvaluateDummyForClient(clientId);
         std::vector<f32> pos = payload["pos"].get<std::vector<f32>>();
         client.dummy->dummy_setPoisition(pos.data());
         std::vector<f32> rot = payload["rot"].get<std::vector<f32>>();

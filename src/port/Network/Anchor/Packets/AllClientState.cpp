@@ -6,6 +6,10 @@
 #include "port/Engine.h"
 #include "port/UI/Notification.h"
 
+extern "C" {
+#include "functions.h"
+}
+
 /**
  * ALL_CLIENT_STATE
  *
@@ -83,6 +87,6 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
         clients.erase(clientId);
     }
 
-    PopulateDummies();
+    PopulateDummies((GameMap)gsworld_getMap());
     SendPacket_PlayerUpdate(true);
 }

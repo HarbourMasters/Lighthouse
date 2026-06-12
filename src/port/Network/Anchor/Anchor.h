@@ -68,7 +68,7 @@ private:
     void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
     void DrawDummies(OnPlayerDraw* event);
     void ClearDummies();
-    void PopulateDummies();
+    void PopulateDummies(GameMap map);
     void RegisterDummy(DummyPlayer* dummy, uint32_t clientID);
     std::unordered_map<uint32_t, DummyPlayer*>* GetDummies();
     void UpdateDummies();

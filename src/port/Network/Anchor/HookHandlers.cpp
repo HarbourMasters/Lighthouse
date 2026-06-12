@@ -66,7 +66,7 @@ void Anchor::RegisterHooks() {
             Anchor::GetInstance()->SendPacket_UpdateClientState();
         }
         Anchor::GetInstance()->ClearDummies();
-        Anchor::GetInstance()->PopulateDummies();
+        Anchor::GetInstance()->PopulateDummies((GameMap)ev->nextMap);
         Authority_OnSelfMapChanged(ev->nextMap);
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
