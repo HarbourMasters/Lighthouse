@@ -66,8 +66,16 @@ void VileSync_ResetSeq(void);
 void VileSync_ApplyHoleState(int32_t holeId, int32_t holeState, int32_t pieceType, uint32_t eaterClientId);
 
 // Authority-side: a remote player requests to eat the piece at holeId. Validate and,
-// on success, consume the piece and broadcast the resulting hole state.
-void VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId);
+// on success, consume the piece (broadcasting the resulting hole state) and report the
+// eaten piece's type plus whether it matched the required type, so the caller can send
+// an eat-result confirmation back to the requester. Returns false (touching nothing) on
+// non-authority clients or when there is no edible piece at the hole.
+bool VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId, int32_t* outPieceType,
+                               int32_t* outCorrectType);
+
+// Requester-side: replay the local croc's eat feedback (chomp animation + chomp SFX,
+// plus the wrong-type reaction) once the authority confirms the eat succeeded.
+void VileSync_PlayLocalEatFeedback(int32_t pieceType, int32_t correctType);
 
 // Apply a streamed Mr. Vile transform + anim mode (BGS_func_8038BBA0 modes 101-104).
 void VileSync_ApplyVileUpdate(const float position[3], float pitch, float yaw, float roll, uint8_t animMode);

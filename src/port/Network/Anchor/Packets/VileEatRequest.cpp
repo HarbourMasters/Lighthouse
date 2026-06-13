@@ -41,7 +41,14 @@ void Anchor::HandlePacket_VileEatRequest(nlohmann::json& payload) {
         return;
     }
 
-    // Only the authority acts on eat requests; VileSync_HandleEatRequest is a no-op on
-    // non-authority clients.
-    VileSync_HandleEatRequest(holeId, payload.at("clientId").get<uint32_t>());
+    // Only the authority acts on eat requests; VileSync_HandleEatRequest returns false
+    // (touching nothing) on non-authority clients.
+    uint32_t eaterClientId = payload.at("clientId").get<uint32_t>();
+    s32 pieceType = 0;
+    s32 correctType = 0;
+    if (VileSync_HandleEatRequest(holeId, eaterClientId, &pieceType, &correctType)) {
+        // Confirm the successful eat back to the requester so it replays its croc's eat
+        // feedback (the piece removal already rides the eaten VILE_HOLE_STATE broadcast).
+        SendPacket_VileEatResult(eaterClientId, (u8)pieceType, (u8)correctType);
+    }
 }

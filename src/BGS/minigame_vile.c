@@ -815,7 +815,10 @@ void chvilegame_netApply(Actor *this, const VileGameSnapshot *src){
 // Authority-side: consume the piece at position on behalf of a remote player. Mirrors
 // chvilegame_player_consume_piece without reading the local player's mouth position.
 // position[1] must be 0 to match piece positions (see chvilegame_new_piece).
-bool chvilegame_netConsumeRemote(Actor *this, f32 position[3]){
+// On success, reports the consumed piece's type and whether it matched the required
+// type so the requesting client can replay the croc's eat feedback (see
+// chvilegame_netPlayEatFeedback).
+bool chvilegame_netConsumeRemote(Actor *this, f32 position[3], s32 *out_piece_type, s32 *out_correct_type){
     ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
     bool is_correct_type;
     struct vilegame_piece *begin;
@@ -833,9 +836,27 @@ bool chvilegame_netConsumeRemote(Actor *this, f32 position[3]){
             if (is_correct_type) {
                 local->player_score++;
             }
+            if (out_piece_type != NULL) {
+                *out_piece_type = i_ptr->type;
+            }
+            if (out_correct_type != NULL) {
+                *out_correct_type = is_correct_type;
+            }
             func_8038B684(i_ptr->marker);
             return true;
         }
     }
     return false;
+}
+
+// Replays the local player's eat feedback after the minigame authority confirms a
+// remote eat request: the croc chomp animation (which carries the chomp SFX) plus
+// the wrong-type reaction when the eaten piece didn't match the required type. The
+// score and piece removal are authority-driven and arrive separately; this is the
+// cosmetic half of chvilegame_player_consume_piece that the follower otherwise skips.
+void chvilegame_netPlayEatFeedback(s32 piece_type, s32 correct_type){
+    func_8028F6B8(BS_INTR_17, (piece_type != YUMBLIE) ? ASSET_3F7_MODEL_GRUMBLIE : ASSET_3F6_MODEL_YUMBLIE);
+    if (!correct_type) {
+        func_8028F66C(BS_INTR_18_CROC_ATE_WRONG);
+    }
 }

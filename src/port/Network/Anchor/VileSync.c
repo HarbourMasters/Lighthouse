@@ -13,7 +13,8 @@ extern void chvile_netApplyUpdate(Actor *actor, const f32 position[3], f32 pitch
 extern s32 chvile_netGetAnimMode(Actor *actor);
 extern bool chvilegame_netGather(Actor *actor, VileGameSnapshot *dst);
 extern void chvilegame_netApply(Actor *actor, const VileGameSnapshot *src);
-extern bool chvilegame_netConsumeRemote(Actor *actor, f32 position[3]);
+extern bool chvilegame_netConsumeRemote(Actor *actor, f32 position[3], s32 *out_piece_type, s32 *out_correct_type);
+extern void chvilegame_netPlayEatFeedback(s32 piece_type, s32 correct_type);
 
 static uint32_t sOutgoingSeq = 0;
 static uint32_t sLastAcceptedSeq = 0;
@@ -82,26 +83,35 @@ void VileSync_ApplyHoleState(int32_t holeId, int32_t holeState, int32_t pieceTyp
     chyumblie_netApplyState(yumblie, holeState, pieceType);
 }
 
-void VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId) {
+bool VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId, int32_t *outPieceType,
+                               int32_t *outCorrectType) {
     const float *holePos;
     Actor *controller;
     f32 pos[3];
 
     (void)eaterClientId;
     if (!VileSync_IsLiveAuthority()) {
-        return;
+        return false;
     }
     holePos = VileHoles_GetPosition(holeId);
     controller = VileSync_FindActor(ACTOR_138_VILE_GAME_CTRL);
     if (holePos == NULL || controller == NULL) {
-        return;
+        return false;
     }
     pos[0] = holePos[0];
     pos[1] = 0.0f; // piece positions are stored with y = 0 (see chvilegame_new_piece)
     pos[2] = holePos[1];
-    // A successful consume broadcasts itself: the eaten state change fires
-    // OnVileHoleStateChange on this (authority) client.
-    chvilegame_netConsumeRemote(controller, pos);
+    // A successful consume broadcasts the eaten hole state itself (the state change
+    // fires OnVileHoleStateChange on this authority client); the piece type / correctness
+    // are reported back so the caller can confirm the eat to the requester.
+    return chvilegame_netConsumeRemote(controller, pos, outPieceType, outCorrectType);
+}
+
+void VileSync_PlayLocalEatFeedback(int32_t pieceType, int32_t correctType) {
+    if (gsworld_getMap() != MAP_10_BGS_MR_VILE) {
+        return;
+    }
+    chvilegame_netPlayEatFeedback(pieceType, correctType);
 }
 
 void VileSync_ApplyVileUpdate(const float position[3], float pitch, float yaw, float roll, uint8_t animMode) {

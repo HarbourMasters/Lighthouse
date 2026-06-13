@@ -197,6 +197,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_UpdateRoomState(payload);
             else if (packetType == VILE_EAT_REQUEST)
                 HandlePacket_VileEatRequest(payload);
+            else if (packetType == VILE_EAT_RESULT)
+                HandlePacket_VileEatResult(payload);
             else if (packetType == VILE_GAME_STATE)
                 HandlePacket_VileGameState(payload);
             else if (packetType == VILE_HOLE_STATE)

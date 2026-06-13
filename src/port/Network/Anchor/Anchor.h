@@ -100,6 +100,7 @@ private:
     void HandlePacket_UpdateRoomState(nlohmann::json& payload);
     void HandlePacket_UpdateTeamState(nlohmann::json& payload);
     void HandlePacket_VileEatRequest(nlohmann::json& payload);
+    void HandlePacket_VileEatResult(nlohmann::json& payload);
     void HandlePacket_VileGameState(nlohmann::json& payload);
     void HandlePacket_VileHoleState(nlohmann::json& payload);
     void HandlePacket_VileUpdate(nlohmann::json& payload);
@@ -135,6 +136,7 @@ public:
     inline static const std::string UPDATE_ROOM_STATE = "UPDATE_ROOM_STATE";
     inline static const std::string UPDATE_TEAM_STATE = "UPDATE_TEAM_STATE";
     inline static const std::string VILE_EAT_REQUEST = "VILE_EAT_REQUEST";
+    inline static const std::string VILE_EAT_RESULT = "VILE_EAT_RESULT";
     inline static const std::string VILE_GAME_STATE = "VILE_GAME_STATE";
     inline static const std::string VILE_HOLE_STATE = "VILE_HOLE_STATE";
     inline static const std::string VILE_UPDATE = "VILE_UPDATE";
@@ -186,6 +188,7 @@ public:
     void SendPacket_UpdateRoomState();
     void SendPacket_UpdateTeamState();
     void SendPacket_VileEatRequest(u8 holeId);
+    void SendPacket_VileEatResult(u32 eaterClientId, u8 pieceType, u8 correctType);
     void SendPacket_VileGameState();
     void SendPacket_VileHoleState(u8 holeId, u8 holeState, u8 pieceType, u32 eaterClientId);
     void SendPacket_VileUpdate(const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 animMode);
