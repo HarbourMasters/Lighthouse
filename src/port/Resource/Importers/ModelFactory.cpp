@@ -5,6 +5,10 @@
 #include <fast/resource/type/Vertex.h>
 #include <fast/resource/type/Texture.h>
 
+#include "port/Resource/Alt/AltPathPool.h"
+
+#include <string>
+
 extern "C" {
 #include "model.h"
 }
@@ -627,9 +631,18 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             uintptr_t w0 = rawDLWords[i * 2];
             uintptr_t w1 = rawDLWords[i * 2 + 1];
 
+            uint8_t opcode = (uint8_t)(w0 >> 24);
+
+            if (opcode == 0xFD && (uint32_t)((w1 >> 24) & 0xFF) == 0xFF) {
+                const uint32_t texIndex = (uint32_t)(w1 & 0x00FFFFFF);
+                w1 = (uintptr_t)InternAltPath("__OTR__" + initData->Path + "_tex_" + std::to_string(texIndex));
+                AppendValue<uintptr_t>(out, w0);
+                AppendValue<uintptr_t>(out, w1);
+                continue;
+            }
+
             // F3DEX opcodes that carry a segmented address in w1.
             // G_DL byte offsets must be scaled for widened Gfx (16 bytes vs N64's 8).
-            uint8_t opcode = (uint8_t)(w0 >> 24);
             if (opcode == 0x06 && sizeof(uintptr_t) > 4) { // G_DL
                 if (w1 != 0 && (w1 >> 24) != 0 && w1 <= 0xFFFFFFFF) {
                     uint32_t seg = (uint32_t)(w1 >> 24);
