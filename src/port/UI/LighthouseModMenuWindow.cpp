@@ -484,7 +484,7 @@ void LighthouseModMenuWindow::InitElement() {
 
 static void RegisterModMenuWidgets() {
     enableModsWidget = { .name = "Enable Mods", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-    enableModsWidget.CVar(CVAR_SETTING("AltAssets"))
+    enableModsWidget.CVar("gEnhancements.Mods.AlternateAssets")
         .RaceDisable(false)
         .Options(UIWidgets::CheckboxOptions()
                      .DisabledTooltip("Temporarily disabled while editing mods list.")
