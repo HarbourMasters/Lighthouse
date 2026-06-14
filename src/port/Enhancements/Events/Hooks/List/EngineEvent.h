@@ -28,6 +28,7 @@ DEFINE_EVENT(OnSpritePropTick, int32_t assetId; float* position;);
 DEFINE_EVENT(OnNametagDraw, Actor* actor; const char* label; float yOffset;);
 DEFINE_EVENT(LocalizeUiString, const char** str;);
 DEFINE_EVENT(OnParadeNameDraw, const char* name; int32_t yPosition;);
+DEFINE_EVENT(OnJinjoHeadDraw, s32 jinjoId;);
 DEFINE_EVENT(ResolveSpriteHdPath, const void* chunkAddr; const char** path;);
 DEFINE_EVENT(OnFileSelectInfoBuild, int32_t gamenum; char* upper; char* lower;);
 DEFINE_EVENT(LocalizeFileSelectPrompt, int32_t promptId; void* zoombox;);

@@ -34,7 +34,35 @@ namespace {
 std::unordered_map<const void*, const char*> sChunkPaths;
 std::mutex sMutex;
 
+thread_local int sColorVariant = -1;
+const char* const kJinjoColors[] = { "BLUE", "GREEN", "ORANGE", "PURPLE", "YELLOW" };
+std::unordered_map<std::string, const char*> sVariantCache;
+
+const char* resolveColorVariant(const char* base, int variant) {
+    if (variant < 0 || variant >= (int)(sizeof(kJinjoColors) / sizeof(kJinjoColors[0]))) {
+        return nullptr;
+    }
+    std::string candidate = std::string(base) + "_" + kJinjoColors[variant];
+    auto it = sVariantCache.find(candidate);
+    if (it != sVariantCache.end()) {
+        return it->second;
+    }
+
+    const char* result = nullptr;
+    if (candidate.rfind("__OTR__", 0) == 0) {
+        std::string altFile = "alt/" + candidate.substr(7);
+        if (Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->HasFile(altFile)) {
+            result = InternAltPath(candidate);
+        }
+    }
+    sVariantCache.emplace(std::move(candidate), result);
+    return result;
+}
+
 const char* resolvePath(const void* chunkAddr) {
+    const int variant = sColorVariant;
+    sColorVariant = -1;
+
     if (chunkAddr == nullptr) {
         return nullptr;
     }
@@ -45,6 +73,12 @@ const char* resolvePath(const void* chunkAddr) {
     auto it = sChunkPaths.find(chunkAddr);
     if (it == sChunkPaths.end()) {
         return nullptr;
+    }
+    if (variant >= 0) {
+        const char* colored = resolveColorVariant(it->second, variant);
+        if (colored != nullptr) {
+            return colored;
+        }
     }
     return it->second;
 }
@@ -85,6 +119,11 @@ static void RegisterSpriteAltAssets() {
     REGISTER_LISTENER(ResolveSpriteHdPath, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ResolveSpriteHdPath*) event;
         *ev->path = resolvePath(ev->chunkAddr);
+    });
+
+    REGISTER_LISTENER(OnJinjoHeadDraw, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnJinjoHeadDraw*) event;
+        sColorVariant = ev->jinjoId;
     });
 }
 

@@ -36,6 +36,7 @@ void PortEnhancements_Register() {
 
     // Register draw events
     REGISTER_EVENT(OnParadeNameDraw);
+    REGISTER_EVENT(OnJinjoHeadDraw);
     REGISTER_EVENT(ResolveSpriteHdPath);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);

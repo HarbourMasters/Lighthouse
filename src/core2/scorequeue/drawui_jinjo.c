@@ -164,6 +164,7 @@ void fxjinjoscore_draw(s32 arg0, struct8s *arg1, Gfx **gfx, Mtx **mtx, Vtx **vtx
         sprite = D_80381E40[jinjo_id];
         jinjo_collected = (D_80381E58[jinjo_id] != 0) ? 1 : 0;
         if (sprite != NULL) {
+            CALL_EVENT(OnJinjoHeadDraw, jinjo_id);
             func_80347FC0(gfx, sprite, (s32) D_80381E60[jinjo_id], 0, 0, 0, 0, 2, 2, &texture_width, &texture_height);
             // Load the palette for the corresponding jinjo color
             gDPLoadTLUT_pal16((*gfx)++, 0, D_80381620[(s32)D_80381E60[jinjo_id]][jinjo_id]);
