@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 #include <libultraship/libultraship.h>
 #include <ship/resource/Resource.h>
@@ -20,11 +21,12 @@ inline size_t Align8(size_t offset) {
 // Store frame data with palette and texture chunks
 struct SpriteFrameData {
     BKSpriteFrame frameHeader;
-    std::vector<uint8_t> paletteData; // For CI4/CI8 formats
+    std::vector<uint8_t> paletteData;
 
     struct ChunkData {
         BKSpriteTextureBlock header;
         std::vector<uint8_t> textureData;
+        std::string resPath;
     };
     std::vector<ChunkData> chunks;
 };
@@ -36,13 +38,15 @@ public:
     Sprite() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
 
+    ~Sprite() override;
+
     BKSprite* GetPointer();
     size_t GetPointerSize();
 
     // Build the sprite structure with direct pointers
     void BuildSpriteStructure();
 
-    // Modern storage (separate components)
+    // Modern storage
     int16_t frameCount;
     int16_t formatType;
     int16_t headerUnk4;
@@ -57,7 +61,7 @@ public:
     std::vector<SpriteFrameData> frames;
 
 private:
-    // Single contiguous buffer: BKSprite header + frame pointers + all frame data
     std::unique_ptr<uint8_t[]> mSpriteHeader;
+    std::vector<const void*> mRegisteredChunks;
 };
 } // namespace Factories

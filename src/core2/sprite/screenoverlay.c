@@ -234,7 +234,9 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     Vtx *vtx_start; //sp184
     s32 temp_ra;
     s32 iy;
-    
+    const char *hdPath;
+    u8 *img;
+
     vtx_start = *vtx;
 
     //get pize size in nibs
@@ -292,20 +294,23 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     for(sp1BC = 0; sp1BC < frame_ptr->chunkCnt; sp1BC++){
         temp_ra = var_t2->h;
         tmem = (u8*)(((uintptr_t)(var_t2 + 1) + 7) & ~(uintptr_t)7); //align (64-bit safe)
+        hdPath = NULL;
+        CALL_EVENT(ResolveSpriteHdPath, var_t2, &hdPath);
+        img = hdPath ? (u8*)hdPath : tmem;
 
         //load texture block
         if (sprite->type & SPRITE_TYPE_RGBA16) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_RGBA, G_IM_SIZ_16b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadTextureBlock((*gfx)++, img, G_IM_FMT_RGBA, G_IM_SIZ_16b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_RGBA32) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_RGBA, G_IM_SIZ_32b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadTextureBlock((*gfx)++, img, G_IM_FMT_RGBA, G_IM_SIZ_32b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_CI4) {
-            gDPLoadTextureBlock_4b((*gfx)++, tmem, G_IM_FMT_CI, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadTextureBlock_4b((*gfx)++, img, G_IM_FMT_CI, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_CI8) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadTextureBlock((*gfx)++, img, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         }else if (sprite->type & SPRITE_TYPE_IA8) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadTextureBlock((*gfx)++, img, G_IM_FMT_CI, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         } else if (sprite->type & SPRITE_TYPE_I8) {
-            gDPLoadTextureBlock((*gfx)++, tmem, G_IM_FMT_I, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadTextureBlock((*gfx)++, img, G_IM_FMT_I, G_IM_SIZ_8b, var_t2->w, temp_ra, 0, 0, 0, 0, 0, 0, 0);
         }
 
         //generate vtx coords for texture

@@ -118,15 +118,12 @@ ResourceFactoryBinarySpriteV0::ReadResource(std::shared_ptr<Ship::File> file,
         if (formatCode == 0x1 || formatCode == 0x4) { // CI4 or CI8
             std::string tlutPath = initData->Path + "_" + std::to_string(frameIdx) + "_TLUT";
             auto tlutTexture = std::static_pointer_cast<Fast::Texture>(
-                Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(tlutPath));
+                Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(tlutPath, true));
 
             if (tlutTexture && tlutTexture->ImageData) {
                 frameData.paletteData.resize(tlutTexture->ImageDataSize);
                 std::memcpy(frameData.paletteData.data(), tlutTexture->ImageData, tlutTexture->ImageDataSize);
-                // SPDLOG_INFO("  Loaded TLUT: {} bytes", tlutTexture->ImageDataSize);
             } else {
-                // SPDLOG_WARN("Failed to load TLUT for frame {}: {}", frameIdx, tlutPath);
-                // Allocate empty palette as fallback
                 size_t paletteSize = (formatCode == 0x1) ? 32 : 512; // CI4: 16 colors, CI8: 256 colors
                 frameData.paletteData.resize(paletteSize);
             }
@@ -138,7 +135,7 @@ ResourceFactoryBinarySpriteV0::ReadResource(std::shared_ptr<Ship::File> file,
 
             std::string chunkPath = initData->Path + "_" + std::to_string(frameIdx) + "_" + std::to_string(chunkIdx);
             auto texture = std::static_pointer_cast<Fast::Texture>(
-                Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(chunkPath));
+                Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(chunkPath, true));
 
             if (!texture || !texture->ImageData) {
                 // SPDLOG_ERROR("Failed to load texture chunk: {}", chunkPath);
@@ -156,6 +153,7 @@ ResourceFactoryBinarySpriteV0::ReadResource(std::shared_ptr<Ship::File> file,
             }
             chunkData.header.w = texture->Width;
             chunkData.header.h = texture->Height;
+            chunkData.resPath = "__OTR__" + chunkPath;
 
             // Copy texture data
             chunkData.textureData.resize(texture->ImageDataSize);

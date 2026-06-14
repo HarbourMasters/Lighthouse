@@ -25,13 +25,18 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);
     REGISTER_EVENT(LocalizeUiString);
-    REGISTER_EVENT(OnParadeNameDraw);
     REGISTER_EVENT(OnFileSelectInfoBuild);
+
+    // Register localization events
     REGISTER_EVENT(LocalizeFileSelectPrompt);
     REGISTER_EVENT(OnFileSelectLanguageRefresh);
     REGISTER_EVENT(LocalizeParade);
     REGISTER_EVENT(ParadeCreditDialogId);
     REGISTER_EVENT(ResolveBoldFontSlot);
+
+    // Register draw events
+    REGISTER_EVENT(OnParadeNameDraw);
+    REGISTER_EVENT(ResolveSpriteHdPath);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);
 

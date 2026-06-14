@@ -1,7 +1,18 @@
 #include "Sprite.h"
 #include <cstring>
 
+extern "C" {
+void port_spriteAltRegisterChunk(const void* chunkAddr, const char* path);
+void port_spriteAltUnregisterChunk(const void* chunkAddr);
+}
+
 namespace Factories {
+
+Sprite::~Sprite() {
+    for (const void* addr : mRegisteredChunks) {
+        port_spriteAltUnregisterChunk(addr);
+    }
+}
 
 void Sprite::BuildSpriteStructure() {
     // SPDLOG_INFO("=== Building Sprite Structure ===");
@@ -92,6 +103,12 @@ void Sprite::BuildSpriteStructure() {
             BKSpriteTextureBlock* chunk = reinterpret_cast<BKSpriteTextureBlock*>(framePtr + offset);
             *chunk = chunkData.header;
             offset += sizeof(BKSpriteTextureBlock);
+
+            // Register the HD resource path (if any) for this chunk
+            if (!chunkData.resPath.empty()) {
+                port_spriteAltRegisterChunk(chunk, chunkData.resPath.c_str());
+                mRegisteredChunks.push_back(chunk);
+            }
 
             // Write texture data
             offset = Align8(offset);

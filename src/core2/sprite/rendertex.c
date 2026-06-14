@@ -192,6 +192,12 @@ void func_80348044(Gfx **gfx, BKSprite* sprite, s32 frame, s32 tmem, s32 rtile, 
     *height = (s32) texture_block->h;
     for(timg = (uintptr_t)(texture_block + 1); timg % 8; timg++);
 
+    const char* hdPath = NULL;
+    CALL_EVENT(ResolveSpriteHdPath, texture_block, &hdPath);
+    if (hdPath != NULL) {
+        timg = (uintptr_t)hdPath;
+    }
+
     if (sp144 == 0) {
         D_8038608C = *width;
         D_80386090 = *height;

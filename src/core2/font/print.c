@@ -761,6 +761,14 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         while(sp210 % 8){
             sp210++;
         }
+
+        // [port] Resolve alt bold fonts
+        const char* hdPath = NULL;
+        CALL_EVENT(ResolveSpriteHdPath, sp214, &hdPath);
+        if (hdPath != NULL) {
+            sp210 = (uintptr_t)hdPath;
+        }
+
         if (sp1F4 == SPRITE_TYPE_RGBA32) {
             gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_RGBA, G_IM_SIZ_32b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y - 1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else if (sp1F4 == SPRITE_TYPE_IA8) {
