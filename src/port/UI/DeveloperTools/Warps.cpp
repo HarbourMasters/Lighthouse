@@ -15,19 +15,9 @@ static int32_t mapId = 0;
 static int32_t exitId = 0;
 
 static const char* mapNames[] = {
-    "Mumbo's Mountain",
-    "Treasure Trove Cove",
-    "Clanker's Cavern",
-    "Bubblegloop Swamp",
-    "Freezeezy Peak",
-    "Gobi's Valley",
-    "Click Clock Wood",
-    "Rusty Bucket Bay",
-    "Mad Monster Mansion",
-    "Spiral Mountain",
-    "Cutscene",
-    "Gruntilda's Lair",
-    "Boss Arena",
+    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",   "Freezeezy Peak",
+    "Gobi's Valley",    "Click Clock Wood",    "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
+    "Cutscene",         "Gruntilda's Lair",    "Boss Arena",
 };
 
 static const std::vector<int32_t> mapIdList = {

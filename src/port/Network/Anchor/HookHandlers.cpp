@@ -130,8 +130,7 @@ void Anchor::RegisterHooks() {
         if (hole == VILE_HOLE_NONE) {
             return;
         }
-        Anchor::GetInstance()->SendPacket_VileHoleState((u8)hole, (u8)ev->state, (u8)ev->pieceType,
-                                                        VILE_EATER_MR_VILE);
+        Anchor::GetInstance()->SendPacket_VileHoleState((u8)hole, (u8)ev->state, (u8)ev->pieceType, VILE_EATER_MR_VILE);
     });
 
     // Followers: suppress local random logic; network state drives these instead.

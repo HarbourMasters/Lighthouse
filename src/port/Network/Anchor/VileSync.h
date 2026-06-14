@@ -57,23 +57,15 @@ bool VileSync_AcceptIncomingSeq(uint32_t seq);
 // Reset both counters; call on map load / authority change.
 void VileSync_ResetSeq(void);
 
-// --- Application layer -------------------------------------------------------------
-// Implemented game-side (hook step). Packet handlers call these; send hooks gather
-// through these.
-
 // Drive the yumblie actor at holeId into holeState with the given piece type.
 // eaterClientId is only meaningful for the eaten state (VILE_EATER_MR_VILE = Mr. Vile).
 void VileSync_ApplyHoleState(int32_t holeId, int32_t holeState, int32_t pieceType, uint32_t eaterClientId);
 
-// Authority-side: a remote player requests to eat the piece at holeId. Validate and,
-// on success, consume the piece (broadcasting the resulting hole state) and report the
-// eaten piece's type plus whether it matched the required type, so the caller can send
-// an eat-result confirmation back to the requester. Returns false (touching nothing) on
-// non-authority clients or when there is no edible piece at the hole.
-bool VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId, int32_t* outPieceType,
-                               int32_t* outCorrectType);
+// Authority-side: Validate a remote client's request to eat a yumblie/grumblie, and report back
+// whether it's allowed, as well as whether it matches the required type.
+bool VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId, int32_t* outPieceType, int32_t* outCorrectType);
 
-// Requester-side: replay the local croc's eat feedback (chomp animation + chomp SFX,
+// Requester-side: Replay the local croc's eat feedback (chomp animation + chomp SFX,
 // plus the wrong-type reaction) once the authority confirms the eat succeeded.
 void VileSync_PlayLocalEatFeedback(int32_t pieceType, int32_t correctType);
 

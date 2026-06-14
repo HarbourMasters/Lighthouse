@@ -41,7 +41,7 @@ void Anchor::SendPacket_PlayerSubRangeChange(f32 duration, f32 end) {
     SendToCurrentMapPlayers(payload);
 }
 
-void Anchor::SendPacket_PlayerTransformChange(Transformation tf_id) {
+void Anchor::SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId) {
     if (!IsSaveLoaded()) {
         return;
     }
@@ -49,6 +49,9 @@ void Anchor::SendPacket_PlayerTransformChange(Transformation tf_id) {
     nlohmann::json payload;
     payload["type"] = PLAYER_TRANSFORM;
     payload["id"] = tf_id;
+    if (targetClientId != 0) {
+        payload["targetClientId"] = targetClientId;
+    }
     SendJsonToRemote(payload);
 }
 
@@ -116,8 +119,11 @@ bool Anchor::GetCurrentMapPlayers() {
     return currentPlayerCount;
 }
 
-void Anchor::SendPacket_PlayerUpdate(bool full) {
-    if (!IsSaveLoaded() || GetCurrentMapPlayers() == 0) {
+void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
+    // A targeted update is a join-time snapshot for one specific client, so it bypasses
+    // the "is anyone else in my map?" gate — the recipient was just added and may be the
+    // only other player here.
+    if (!IsSaveLoaded() || (targetClientId == 0 && GetCurrentMapPlayers() == 0)) {
         return;
     }
 
@@ -169,7 +175,12 @@ void Anchor::SendPacket_PlayerUpdate(bool full) {
     }
     payload["type"] = full ? PLAYER_UPDATE_FULL : PLAYER_UPDATE;
 
-    SendToCurrentMapPlayers(payload);
+    if (targetClientId != 0) {
+        payload["targetClientId"] = targetClientId;
+        SendJsonToRemote(payload);
+    } else {
+        SendToCurrentMapPlayers(payload);
+    }
 }
 
 void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {

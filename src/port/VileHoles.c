@@ -20,10 +20,10 @@ const float gVileHolePositions[VILE_HOLE_COUNT][2] = {
     { 403.0f, 296.0f },  // VILE_HOLE_X403_Z296
     { 799.0f, 298.0f },  // VILE_HOLE_X799_Z298
     // Row z = 0
-    { -596.0f, -2.0f },  // VILE_HOLE_XN596_ZN2
-    { -197.0f, 0.0f },   // VILE_HOLE_XN197_Z0
-    { 202.0f, 0.0f },    // VILE_HOLE_X202_Z0
-    { 605.0f, -8.0f },   // VILE_HOLE_X605_ZN8
+    { -596.0f, -2.0f }, // VILE_HOLE_XN596_ZN2
+    { -197.0f, 0.0f },  // VILE_HOLE_XN197_Z0
+    { 202.0f, 0.0f },   // VILE_HOLE_X202_Z0
+    { 605.0f, -8.0f },  // VILE_HOLE_X605_ZN8
     // Row z = -300
     { -794.0f, -298.0f }, // VILE_HOLE_XN794_ZN298
     { -398.0f, -295.0f }, // VILE_HOLE_XN398_ZN295

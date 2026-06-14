@@ -176,8 +176,10 @@ public:
     void SendPacket_PlayerAnimReset();
     void SendPacket_PlayerSfx(u16 sfxId);
     void SendPacket_PlayerSubRangeChange(f32 duration, f32 end);
-    void SendPacket_PlayerTransformChange(Transformation tf_id);
-    void SendPacket_PlayerUpdate(bool full = false);
+    // targetClientId 0 = broadcast/all current-map players; nonzero = send only to that
+    // client (used to hand a late arrival our current state directly).
+    void SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId = 0);
+    void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);
     void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);

@@ -35,4 +35,11 @@ void Anchor::HandlePacket_MapLoad(nlohmann::json& payload) {
                                      clients[clientId].map != MAP_91_FILE_SELECT;
     EvaluateDummyForClient(clientId);
     Authority_OnPeerMapLoad(clientId, clients[clientId].map);
+
+    // Handle instances where map-specific updates aren't captured by other clients, causing transformations
+    // and animation states to be desynced until updated again while the client is in the map.
+    if (IsSaveLoaded() && !clients[clientId].self && clients[clientId].map == (GameMap)gsworld_getMap()) {
+        SendPacket_PlayerTransformChange((Transformation)player_getTransformation(), clientId);
+        SendPacket_PlayerUpdate(true, clientId);
+    }
 }
