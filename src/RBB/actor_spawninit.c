@@ -6,6 +6,8 @@
 #include "prop.h"
 #include "actor.h"
 
+#include "port/Patches/Patches.h"
+
 
 extern ActorInfo D_80390D20;
 extern ActorInfo D_80390050;
@@ -146,7 +148,9 @@ void func_80386A7C(Actor *this){
     sp28 = func_80386A30(this->position);
     temp_v0 = func_80386A30(viewport);
     this->unk38_0 = 0;
-    if(viewport[0] + 8000.0f < this->position_x || this->position_x < viewport[0] - 8000.0f)
+    // [port] Extend the bespoke distance cull with draw distance; quadrant occlusion below stays.
+    f32 cull = 8000.0f * port_drawDistanceMul();
+    if(viewport[0] + cull < this->position_x || this->position_x < viewport[0] - cull)
         return;
         
     if( !(  (sp28 ^ temp_v0) & 2

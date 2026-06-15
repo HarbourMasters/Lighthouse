@@ -17,6 +17,18 @@ int port_getDrawDistanceLevel(void) {
     return level;
 }
 
+float port_drawDistanceMul(void) {
+    int lvl = port_getDrawDistanceLevel();
+    if (lvl >= 4) {
+        return 1e9f;
+    }
+    if (lvl > 0) {
+        static const float scale[] = { 1.0f, 1.25f, 1.5811f, 2.2361f };
+        return scale[lvl];
+    }
+    return 1.0f;
+}
+
 void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist) {
     int lvl = port_getDrawDistanceLevel();
     if (lvl >= 4) {
