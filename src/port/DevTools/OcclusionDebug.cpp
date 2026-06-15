@@ -12,17 +12,23 @@
 #include <spdlog/spdlog.h>
 
 #include "port/UI/cvar_prefixes.h"
+#include "port/Patches/GeoCull.h"
+#include "port/ShipInit.hpp"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern "C" {
-#include "functions.h" // gsworld_getMap
+#include "functions.h" // gsworld_getMap, mapModel_getModelBin
 }
+
+// mapModel_getModelBin returns BKModelBin*; the debugger only compares it as an opaque
+// pointer, so reinterpret to const void* at the call sites.
 
 #define CVAR_OCCLUSION_ACTIVE CVAR_DEVELOPER_TOOLS("OcclusionDebug.Active")
 
 namespace {
 
-constexpr int kParts = 2; // 0 = opaque, 1 = translucent
-const char* kPartNames[kParts] = { "OPA", "XLU" };
+constexpr int kParts = 3; // 0 = opaque map model, 1 = translucent map model, 2 = other
+const char* kPartNames[kParts] = { "OPA", "XLU", "?" };
 
 const char* CmdTypeName(int type) {
     switch (type) {
@@ -34,8 +40,7 @@ const char* CmdTypeName(int type) {
 }
 
 // Each command is keyed by (model part, byte offset within the model bin). The offset is
-// fixed per asset, so it never shifts when force-drawing reveals more geometry — unlike a
-// traversal-order index.
+// fixed per asset, so it never shifts when force-drawing reveals more geometry.
 struct Key {
     int part;
     int offset;
@@ -50,18 +55,26 @@ struct CullCmdRecord {
     unsigned char areaIds[12]; // CAMERA only
     int detail0;               // CAMERA: flags (unkB); LOD: min distance
     int detail1;               // LOD: max distance
-    int drawnVanilla;          // would the unmodified gate draw this command on its last visit?
+    int drawnVanilla;
     bool seenThisFrame;
 };
 
 std::mutex sMutex;
 std::map<Key, CullCmdRecord> sRecorded; // accumulated across frames, cleared on map change
-std::set<Key> sForceDraw;                 // commands the dev pinned to always draw
-bool sForceAll = false;                   // momentary: draw every command (enumerate the whole tree)
-int sCurrentPart = 0;
+std::set<Key> sForceDraw;
+bool sForceAll = false;
 int sRecordedMap = -1;
 
-// Kind-specific one-line description for the Detail column.
+int PartForBin(const void* bin) {
+    if (bin == (const void*)mapModel_getModelBin(0)) {
+        return 0;
+    }
+    if (bin == (const void*)mapModel_getModelBin(1)) {
+        return 1;
+    }
+    return 2;
+}
+
 std::string DetailString(const CullCmdRecord& rec) {
     if (rec.type == OCCLUSION_CMD_CAMERA) {
         std::string ids;
@@ -84,51 +97,53 @@ std::string DetailString(const CullCmdRecord& rec) {
     return "";
 }
 
-} // namespace
+// OnGeoCull listener: record the command and apply the developer's force-draw choices.
+void OnGeoCull_Record(IEvent* event) {
+    auto* ev = reinterpret_cast<OnGeoCull*>(event);
 
-extern "C" int OcclusionDebug_IsActive(void) {
-    return CVarGetInteger(CVAR_OCCLUSION_ACTIVE, 0);
-}
-
-extern "C" void OcclusionDebug_BeginPart(int part) {
-    if (!OcclusionDebug_IsActive() || part < 0 || part >= kParts) {
-        return;
-    }
-    if (part == 0) {
-        // Opaque is drawn first each frame.
-        std::lock_guard<std::mutex> lock(sMutex);
-        int map = (int)gsworld_getMap();
-        if (map != sRecordedMap) {
-            // New map: the offsets belong to a different model, so start over.
-            sRecorded.clear();
-            sForceDraw.clear();
-            sRecordedMap = map;
-        }
-        for (auto& [key, rec] : sRecorded) {
-            rec.seenThisFrame = false;
-        }
-    }
-    sCurrentPart = part;
-}
-
-extern "C" int OcclusionDebug_OnCullCmd(int type, int offset, int drawnVanilla, const unsigned char* areaIds,
-                                        int areaCount, int detail0, int detail1) {
-    Key key{ sCurrentPart, offset };
+    Key key{ PartForBin(ev->modelBin), ev->offset };
 
     std::lock_guard<std::mutex> lock(sMutex);
     CullCmdRecord& rec = sRecorded[key];
-    rec.type = type;
-    rec.areaCount = (areaCount > 12) ? 12 : (areaCount < 0 ? 0 : areaCount);
+    rec.type = ev->type;
+    rec.areaCount = (ev->areaCount > 12) ? 12 : (ev->areaCount < 0 ? 0 : ev->areaCount);
     for (int i = 0; i < 12; i++) {
-        rec.areaIds[i] = (i < rec.areaCount && areaIds != nullptr) ? areaIds[i] : 0;
+        rec.areaIds[i] = (i < rec.areaCount && ev->areaIds != nullptr) ? ev->areaIds[i] : 0;
     }
-    rec.detail0 = detail0;
-    rec.detail1 = detail1;
-    rec.drawnVanilla = drawnVanilla;
+    rec.detail0 = ev->detail0;
+    rec.detail1 = ev->detail1;
+    rec.drawnVanilla = ev->drawnVanilla;
     rec.seenThisFrame = true;
 
-    return (sForceAll || sForceDraw.count(key)) ? 1 : 0;
+    if (sForceAll || sForceDraw.count(key)) {
+        *ev->forceDraw = true;
+    }
 }
+
+// Per game tick: clear "seen this frame" flags and reset on map change.
+void OnFrame_Reset(IEvent*) {
+    std::lock_guard<std::mutex> lock(sMutex);
+    int map = (int)gsworld_getMap();
+    if (map != sRecordedMap) {
+        sRecorded.clear();
+        sForceDraw.clear();
+        sRecordedMap = map;
+    }
+    for (auto& [key, rec] : sRecorded) {
+        rec.seenThisFrame = false;
+    }
+}
+
+} // namespace
+
+void RegisterOcclusionDebug_Init() {
+    bool active = CVarGetInteger(CVAR_OCCLUSION_ACTIVE, 0);
+    GeoCull_SetConsumer(GEOCULL_CONSUMER_DEBUG, active);
+    COND_HOOK(OnGeoCull, EVENT_PRIORITY_NORMAL, active, OnGeoCull_Record);
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, active, OnFrame_Reset);
+}
+
+static RegisterShipInitFunc sInitOcclusionDebug(RegisterOcclusionDebug_Init, { CVAR_OCCLUSION_ACTIVE });
 
 void OcclusionDebugWindow::DrawElement() {
     bool active = CVarGetInteger(CVAR_OCCLUSION_ACTIVE, 0);
@@ -136,12 +151,11 @@ void OcclusionDebugWindow::DrawElement() {
         CVarSetInteger(CVAR_OCCLUSION_ACTIVE, active);
         Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
-    ImGui::TextWrapped("Flip 'Force draw all' on for a moment to walk the whole camera-area tree and populate the list "
-                       "(the screen will look broken — that is expected), then turn it off and tick 'Force Draw' on "
+    ImGui::TextWrapped("Flip 'Force draw all' on for a moment to walk every cull command and populate the list (the "
+                       "screen will look broken — that is expected), then turn it off and tick 'Force Draw' on "
                        "individual rows to find the chunk(s) that reveal the target scenery. Offsets are stable, so the "
                        "list never shifts. Dump the chosen set to the log when done.");
 
-    // Snapshot under the lock; render outside it.
     struct Row {
         Key key;
         CullCmdRecord rec;
@@ -187,14 +201,12 @@ void OcclusionDebugWindow::DrawElement() {
                 if (k.part < 0 || k.part >= kParts) {
                     continue;
                 }
+                char buf[16];
+                snprintf(buf, sizeof(buf), "0x%X", k.offset);
                 if (!parts[k.part].empty()) {
                     parts[k.part] += ", ";
                 }
-                parts[k.part] += "0x" + [](int v) {
-                    char buf[16];
-                    snprintf(buf, sizeof(buf), "%X", v);
-                    return std::string(buf);
-                }(k.offset);
+                parts[k.part] += buf;
             }
         }
         SPDLOG_INFO("[OcclusionDebug] map 0x{:X}: OPA {{{}}} XLU {{{}}}", mapId, parts[0], parts[1]);
@@ -227,7 +239,6 @@ void OcclusionDebugWindow::DrawElement() {
             ImGui::TextWrapped("%s", DetailString(row.rec).c_str());
 
             ImGui::TableNextColumn();
-            // Grey out commands not visited this frame (their parent branch wasn't walked).
             if (!row.rec.seenThisFrame) {
                 ImGui::TextDisabled("--");
             } else {

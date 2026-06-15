@@ -9,7 +9,7 @@
 
 #include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
-#include "port/DevTools/OcclusionDebug.h"
+#include "port/Patches/GeoCull.h"
 
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -875,13 +875,7 @@ void modelRender_geoCmd_LOD(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
             dist = gu_sqrtf(transformed_pos[0]*transformed_pos[0] + transformed_pos[1]*transformed_pos[1] + transformed_pos[2]*transformed_pos[2]);
         }
         draw = (cmd->min_C < dist && dist <= cmd->max_8);
-        // [port] Occlusion debugger: record + allow force-draw of this LOD band.
-        if (OcclusionDebug_IsActive()) {
-            s32 offset = (s32)((u8*)cmd - (u8*)modelRenderModelBin);
-            if (OcclusionDebug_OnCullCmd(OCCLUSION_CMD_LOD, offset, draw, NULL, 0, (s32)cmd->min_C, (s32)cmd->max_8)) {
-                draw = 1;
-            }
-        }
+        draw = port_geoCullDraw(OCCLUSION_CMD_LOD, cmd, modelRenderModelBin, draw, NULL, 0, (s32)cmd->min_C, (s32)cmd->max_8);
         if(draw){
             modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->subgeo_offset_1C));
         }
@@ -981,13 +975,8 @@ void modelRender_geoCmd_UnkE(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *arg2){
         sp34[1] = (f32)cmd->unk8[1] * modelRenderScale;
         sp34[2] = (f32)cmd->unk8[2] * modelRenderScale;
         sp30 = (f32)cmd->unkE*modelRenderScale;
-        draw = viewport_func_8024DB50(sp34, sp30) && cmd->unk10;
-        if (OcclusionDebug_IsActive()) {
-            s32 offset = (s32)((u8*)cmd - (u8*)modelRenderModelBin);
-            if (OcclusionDebug_OnCullCmd(OCCLUSION_CMD_UNKE, offset, draw, NULL, 0, 0, 0) && cmd->unk10) {
-                draw = 1;
-            }
-        }
+        draw = (viewport_func_8024DB50(sp34, sp30) && cmd->unk10) ? 1 : 0;
+        draw = port_geoCullDraw(OCCLUSION_CMD_UNKE, cmd, modelRenderModelBin, draw, NULL, 0, 0, 0) && cmd->unk10;
         if(draw){
             modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk10));
         }
@@ -1011,13 +1000,8 @@ void modelRender_geoCmd_UnkE(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *arg2){
         sp34[0] += modelRenderCameraPosition[0];
         sp34[1] += modelRenderCameraPosition[1];
         sp34[2] += modelRenderCameraPosition[2];
-        draw = viewport_func_8024DB50(sp34, sp30) && cmd->unk10;
-        if (OcclusionDebug_IsActive()) {
-            s32 offset = (s32)((u8*)cmd - (u8*)modelRenderModelBin);
-            if (OcclusionDebug_OnCullCmd(OCCLUSION_CMD_UNKE, offset, draw, NULL, 0, 0, 0) && cmd->unk10) {
-                draw = 1;
-            }
-        }
+        draw = (viewport_func_8024DB50(sp34, sp30) && cmd->unk10) ? 1 : 0;
+        draw = port_geoCullDraw(OCCLUSION_CMD_UNKE, cmd, modelRenderModelBin, draw, NULL, 0, 0, 0) && cmd->unk10;
         if(draw){
             modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk10));
         }
@@ -1031,14 +1015,7 @@ void modelRender_geoCmd_CAMERA(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *arg2
     GeoCmdF *cmd = (GeoCmdF *)arg2;
     int tmp_v0 = cameraAreaList_searchForEntryInBounds(modelRenderCameraAreaList, cmd->unkC, cmd->unkA);
     int draw = (!tmp_v0 && (cmd->unkB & 1)) || (tmp_v0 && (cmd->unkB & 2));
-    // [port] Occlusion debugger: record this command (keyed by its byte offset within the
-    // model bin, which is stable per asset) and allow it to be force-drawn.
-    if (OcclusionDebug_IsActive()) {
-        s32 offset = (s32)((u8*)cmd - (u8*)modelRenderModelBin);
-        if (OcclusionDebug_OnCullCmd(OCCLUSION_CMD_CAMERA, offset, draw, cmd->unkC, cmd->unkA, cmd->unkB, 0)) {
-            draw = 1;
-        }
-    }
+    draw = port_geoCullDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw, cmd->unkC, cmd->unkA, cmd->unkB, 0);
     if (draw) {
         if(cmd->unk8 != 0)
             modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));

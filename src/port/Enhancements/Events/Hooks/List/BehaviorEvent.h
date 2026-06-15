@@ -26,6 +26,12 @@ DEFINE_EVENT(OnPlayerAnimReset)
 DEFINE_EVENT(OnPlayerTransformChange, Transformation tf_id;)
 DEFINE_EVENT(OnPlayerAnimSubRangeChange, f32 duration; f32 end_position;)
 DEFINE_EVENT(OnWaterPyramidTimer, s32* timer;)
+// Fired per conditional geometry-cull command in the map model (camera-area portal, LOD
+// band, frustum sphere). Listeners may set *forceDraw to draw a chunk the vanilla gate
+// would skip. `type` is OCCLUSION_CMD_* (see GeoCull.h); `offset` is the command's byte
+// offset within `modelBin` (a stable per-asset key). areaIds/areaCount apply to CAMERA.
+DEFINE_EVENT(OnGeoCull, s32 type; s32 offset; const void* modelBin; const u8* areaIds; s32 areaCount; s32 detail0;
+             s32 detail1; s32 drawnVanilla; bool* forceDraw;)
 // Mr. Vile minigame (Anchor sync). Fired only on the client actually running the local
 // logic; followers have the originating code paths suppressed via VB_VILE_* behaviors.
 DEFINE_EVENT(OnVileHoleStateChange, ActorMarker* marker; f32 * position; s32 state; s32 pieceType;)

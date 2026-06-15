@@ -99,15 +99,6 @@ void nodeprop_getPosition(NodeProp *, f32[3]);
 void spawnableActorList_add(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2);
 void spawnableActorList_addIfMapVisited(ActorInfo *arg0, Actor *(*arg1)(s32[3], s32, ActorInfo *, u32), u32 arg2, enum map_e arg3);
 
-// --- core2/map/model.c ---
-BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
-// NOTE: func_802E76B0, collisionList_func_802E805C, func_802E8E88, func_802E9118,
-// func_802E92AC, func_802E9DD8 return BKCollisionTriangle* but have conflicting
-// local externs (bool/s32/void) in decomp source files. Files that need
-// the pointer type already have correct local externs.
-BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
-f32  mapModel_getFloorY(f32[3]);
-
 // --- core2/actor_cubepropsystem.c ---
 BKCollisionTriangle *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg3[3], u32 arg4);
 
@@ -204,9 +195,6 @@ Struct83s *func_803406D4(Struct83s *self);
 // --- core2/vtx/list.c ---
 
 // --- core2/spline_bezier.c ---
-
-// --- core2/map/model.c ---
-Vec3fArray *func_803097A0(void);
 
 // --- core2/model/render.c ---
 
@@ -2520,11 +2508,22 @@ void func_8034B9E4(void);
 void func_8034BA7C(enum map_e map_id, s32 exit_id);
 
 // --- core2/map/model.c ---
+// NOTE: func_802E76B0, collisionList_func_802E805C, func_802E8E88, func_802E9118,
+// func_802E92AC, func_802E9DD8 return BKCollisionTriangle* but have conflicting
+// local externs (bool/s32/void) in decomp source files. Files that need
+// the pointer type already have correct local externs.
+BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
+Vec3fArray *func_803097A0(void);
+BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
 bool func_80309D58(f32 arg0[3], s32 arg1);
 bool mapModel_has_xlu_bin(void);
 void func_8030A078(void);
 void mapModel_defrag(void);
 void mapModel_free(void);
+void mapModel_getBounds(s32 min[3], s32 max[3]);
+f32  mapModel_getFloorY(f32[3]);
+BKModel *mapModel_getModel(s32 arg0);
+BKModelBin *mapModel_getModelBin(s32 arg0);
 void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void mapModel_setEnvColor(s32 r, s32 g, s32 b);
 void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -3130,10 +3129,6 @@ void func_8034CF90(void *arg0, BKModel *arg1, s32 arg2);
 
 // --- core2/vtx/renderstart.c ---
 void setStruct6DsOpacity(Struct6Ds *arg0, s32 arg1);
-
-// --- core2/map/model.c ---
-BKModel *mapModel_getModel(s32 arg0);
-void mapModel_getBounds(s32 min[3], s32 max[3]);
 
 // --- core2/anim/anim_cache.c ---
 int animCache_getBoneTransformList(s16 index, BoneTransformList **arg1);

@@ -40,6 +40,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoggyRaceSetSpeed);
     REGISTER_EVENT(OnBootLogosCheck);
     REGISTER_EVENT(OnFurnaceFunDialog);
+    REGISTER_EVENT(OnGeoCull);
     REGISTER_EVENT(OnGruntyJinjonatorComplete);
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMumboTokenUpdate);
