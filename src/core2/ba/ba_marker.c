@@ -117,10 +117,16 @@ void __baMarker_8028B848(void){
     }
 
     if(s0){
-        if(player_getTransformation() ==  TRANSFORM_1_BANJO){
-            __baMarker_8028B7F4();
+        if(EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)){
+            if(player_getTransformation() ==  TRANSFORM_1_BANJO){
+                __baMarker_8028B7F4();
+            }
+            gcdialog_showDialog(s0, 0x2A, NULL, NULL, NULL, 0);
         }
-        gcdialog_showDialog(s0, 0x2A, NULL, NULL, NULL, 0);
+        else{
+            // [port] Tooie jiggy collect
+            gcdialog_showDialog(s0, 0x22, NULL, NULL, NULL, 0);
+        }
     }
 }
 

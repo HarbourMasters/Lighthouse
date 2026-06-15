@@ -59,10 +59,13 @@ enum bs_e func_80295EE0(enum bs_e arg0){
     if(sp28){
         func_8029CDA0();
     }
-    else{ 
+    else{
         baflag_set(BA_FLAG_7_TOUCHING_JIGGY);
-        if(sp2C){
+        if(sp2C || !EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)){
             func_8029CCC4();
+            if(!sp2C){
+                CALL_EVENT(OnTooieJiggyCollect, D_8037C3E0.unk8);
+            }
         }
         else{
             ml_vec3f_to_vec3h(sp20, D_8037C3E0.unk8);
