@@ -117,12 +117,12 @@ const char* RegisteredChunkPath(const void* chunkAddr) {
 
 static void RegisterSpriteAltAssets() {
     REGISTER_LISTENER(ResolveSpriteHdPath, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        auto* ev = (ResolveSpriteHdPath*) event;
+        auto* ev = (ResolveSpriteHdPath*)event;
         *ev->path = resolvePath(ev->chunkAddr);
     });
 
     REGISTER_LISTENER(OnJinjoHeadDraw, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        auto* ev = (OnJinjoHeadDraw*) event;
+        auto* ev = (OnJinjoHeadDraw*)event;
         sColorVariant = ev->jinjoId;
     });
 }

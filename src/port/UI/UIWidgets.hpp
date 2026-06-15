@@ -688,7 +688,9 @@ bool Combobox(const char* label, T* value, const std::unordered_map<T, const cha
     }
 
     ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo(invisibleLabel, comboMap.at(*value), options.flags)) {
+    auto previewIt = comboMap.find(*value);
+    const char* previewLabel = previewIt != comboMap.end() ? previewIt->second : "";
+    if (ImGui::BeginCombo(invisibleLabel, previewLabel, options.flags)) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
         for (const auto& pair : comboMap) {
             if (strlen(pair.second) > 1) {

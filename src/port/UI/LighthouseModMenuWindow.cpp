@@ -1,10 +1,12 @@
 #include <map>
+#include <set>
 #include <vector>
 #include <filesystem>
 #include <algorithm>
 #include <cctype>
 #include <memory>
 #include <thread>
+#include <functional>
 
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge/consolevariablebridge.h>
@@ -34,6 +36,18 @@ std::vector<std::string> unsupportedFiles;
 std::map<std::string, std::filesystem::path> filePaths;
 static int dragSourceIndex = -1;
 static int dragTargetIndex = -1;
+
+enum class ModCategory {
+    Base,
+    Romhack,
+    Scoped,
+    Shared,
+};
+
+// Category for each discovered mod (keyed by basename, mirroring filePaths), plus
+// the owning romhack basename for Scoped mods. Rebuilt every UpdateModFiles().
+std::map<std::string, ModCategory> modCategory;
+std::map<std::string, std::string> modScopeHack;
 
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
@@ -65,6 +79,12 @@ static std::vector<std::string> sRomhackBaseMismatch;
 // it is also an ASCII character
 // improving portability
 #define SEPARATOR "|"
+
+// Romhacks and universally shared mods get special folders
+// The lang folder is skipped in scans
+#define ROMHACKS_DIR "~romhacks"
+#define SHARED_DIR "shared"
+#define LANG_DIR "lang"
 
 static std::string JoinModList(const std::vector<std::string>& list) {
     std::string s;
@@ -156,13 +176,88 @@ static bool ArchiveHasGameConfig(const std::filesystem::path& archivePath) {
     return found;
 }
 
+static bool IsReservedModPath(const std::filesystem::path& modsRoot, const std::filesystem::path& file) {
+    std::error_code ec;
+    std::filesystem::path rel = std::filesystem::relative(file, modsRoot, ec);
+    if (ec) {
+        return false;
+    }
+    auto it = rel.begin();
+    return it != rel.end() && it->generic_string() == LANG_DIR;
+}
+
+static ModCategory CategorizeMod(const std::filesystem::path& modsRoot, const std::filesystem::path& file,
+                                 bool isOverlay, const std::set<std::string>& hackNames, std::string& outScopeHack) {
+    outScopeHack.clear();
+    if (isOverlay) {
+        return ModCategory::Romhack;
+    }
+    std::error_code ec;
+    std::filesystem::path rel = std::filesystem::relative(file, modsRoot, ec);
+    if (ec) {
+        return ModCategory::Base;
+    }
+    std::vector<std::string> parts;
+    for (const auto& comp : rel) {
+        parts.push_back(comp.generic_string());
+    }
+
+    if (parts.size() >= 2 && parts[0] == SHARED_DIR) {
+        return ModCategory::Shared;
+    }
+    if (parts.size() >= 2 && hackNames.count(parts[0]) > 0) {
+        outScopeHack = parts[0];
+        return ModCategory::Scoped;
+    }
+    return ModCategory::Base;
+}
+
+// True if `name` is a discovered romhack overlay (an .o2r carrying an
+// aGameConfig). Single source of truth for "is this a romhack", reused by the
+// active-hack lookup, the Romhack Menu filter, the scoped-folder check, and the
+// conflict quarantine. Valid after the UpdateModFiles() scan populates modCategory.
+static bool IsRomhackOverlay(const std::string& name) {
+    auto it = modCategory.find(name);
+    return it != modCategory.end() && it->second == ModCategory::Romhack;
+}
+
+static std::string GetActiveHack() {
+    for (const auto& mod : enabledModFiles) {
+        if (IsRomhackOverlay(mod)) {
+            return mod;
+        }
+    }
+    return "";
+}
+
+static bool ShownInModMenu(const std::string& name, const std::string& activeHack) {
+    auto it = modCategory.find(name);
+    if (it == modCategory.end()) {
+        return false;
+    }
+    switch (it->second) {
+        case ModCategory::Romhack:
+            return false;
+        case ModCategory::Base:
+            return activeHack.empty();
+        case ModCategory::Shared:
+            return true;
+        case ModCategory::Scoped:
+            return !activeHack.empty() && modScopeHack[name] == activeHack;
+    }
+    return false;
+}
+
+bool IsScopedModFolderName(const std::string& topLevelName) {
+    // A top-level mods/<name>/ folder is a scoped bucket when it shares a name
+    // with a romhack overlay.
+    return IsRomhackOverlay(topLevelName);
+}
+
 static bool DetectAndQuarantineGameConfigConflicts() {
     std::vector<std::string> withConfig;
     for (const auto& name : enabledModFiles) {
-        auto it = filePaths.find(name);
-        if (it == filePaths.end())
-            continue;
-        if (ArchiveHasGameConfig(it->second)) {
+        if (IsRomhackOverlay(name)) {
             withConfig.push_back(name);
         }
     }
@@ -194,35 +289,52 @@ void UpdateModFiles(bool init, bool reset) {
     }
     unsupportedFiles.clear();
     filePaths.clear();
+    modCategory.clear();
+    modScopeHack.clear();
     bool changed = false;
     std::string modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods");
     std::map<std::string, std::string> tempMods;
     if (modsPath.length() > 0 && std::filesystem::exists(modsPath)) {
         std::vector<std::filesystem::path> enabledFiles;
         if (std::filesystem::is_directory(modsPath)) {
+            std::vector<std::filesystem::path> candidates;
+            std::set<std::string> hackNames;
+            std::set<std::string> overlayPaths;
             for (const std::filesystem::directory_entry& p : std::filesystem::recursive_directory_iterator(
                      modsPath, std::filesystem::directory_options::follow_directory_symlink)) {
                 if (p.is_directory()) {
                     continue;
                 }
-                // Ignore language packs, they aren't mods.
-                if (p.path().parent_path().filename() == "lang") {
+                if (!IsValidExtension(p.path().extension().generic_string())) {
                     continue;
                 }
-                std::string filename =
-                    p.path().filename().generic_string().substr(0, p.path().filename().generic_string().rfind("."));
-                std::string extension = p.path().extension().generic_string();
-                if (!IsValidExtension(extension)) {
+                // Skip reserved folders (e.g. mods/lang/ language packs) — they
+                // aren't user-toggleable mods and must not appear in either menu.
+                if (IsReservedModPath(modsPath, p.path())) {
                     continue;
                 }
+                candidates.push_back(p.path());
+                if (ArchiveHasGameConfig(p.path())) {
+                    hackNames.insert(p.path().stem().generic_string());
+                    overlayPaths.insert(p.path().generic_string());
+                }
+            }
+
+            for (const std::filesystem::path& path : candidates) {
+                std::string filename = path.stem().generic_string();
+                std::string scopeHack;
+                bool isOverlay = overlayPaths.count(path.generic_string()) > 0;
+                ModCategory category = CategorizeMod(modsPath, path, isOverlay, hackNames, scopeHack);
+                modCategory[filename] = category;
+                modScopeHack[filename] = scopeHack;
                 bool enabled =
                     std::find(enabledModFiles.begin(), enabledModFiles.end(), filename) != enabledModFiles.end();
                 bool userDisabled =
                     std::find(disabledModFiles.begin(), disabledModFiles.end(), filename) != disabledModFiles.end();
                 if (!enabled && !userDisabled) {
-                    tempMods.emplace(p.path().lexically_normal().generic_string(), filename);
+                    tempMods.emplace(path.lexically_normal().generic_string(), filename);
                 }
-                filePaths.emplace(filename, p.path());
+                filePaths.emplace(filename, path);
             }
             if (tempMods.size() > 0) {
                 changed = true;
@@ -261,19 +373,42 @@ void UpdateModFiles(bool init, bool reset) {
 
             if (init) {
                 const bool baseCompatible = Lighthouse::BaseGameSupportsRomhacks();
-                for (const std::string& mod : enabledModFiles) {
-                    auto it = filePaths.find(mod);
-                    if (it == filePaths.end())
-                        continue;
-                    if (!baseCompatible && ArchiveHasGameConfig(it->second)) {
-                        SPDLOG_WARN("[ModMenu] Refusing romhack overlay '{}': base bk.o2r is not US v1.0; "
-                                    "romhacks require a v1.0 base.",
-                                    mod);
-                        sRomhackBaseMismatch.push_back(mod);
-                        continue;
-                    }
-                    GetArchiveManager()->AddArchive(it->second.generic_string());
+                const std::string activeHack = GetActiveHack();
+
+                if (!activeHack.empty()) {
+                    std::error_code ec;
+                    std::filesystem::create_directories(std::filesystem::path(modsPath) / activeHack, ec);
                 }
+
+                auto loadCategory = [&](ModCategory want) {
+                    for (const std::string& mod : enabledModFiles) {
+                        auto cit = modCategory.find(mod);
+                        if (cit == modCategory.end() || cit->second != want)
+                            continue;
+                        auto it = filePaths.find(mod);
+                        if (it == filePaths.end())
+                            continue;
+                        if (want == ModCategory::Scoped && modScopeHack[mod] != activeHack)
+                            continue;
+                        if (want == ModCategory::Romhack && !baseCompatible) {
+                            SPDLOG_WARN("[ModMenu] Refusing romhack overlay '{}': base bk.o2r is not US v1.0; "
+                                        "romhacks require a v1.0 base.",
+                                        mod);
+                            sRomhackBaseMismatch.push_back(mod);
+                            continue;
+                        }
+                        SPDLOG_INFO("[ModMenu] Loading mod '{}'", it->second.generic_string());
+                        GetArchiveManager()->AddArchive(it->second.generic_string());
+                    }
+                };
+
+                if (activeHack.empty()) {
+                    loadCategory(ModCategory::Base);
+                }
+                loadCategory(ModCategory::Romhack);
+                loadCategory(ModCategory::Scoped);
+                loadCategory(ModCategory::Shared);
+
                 // Persist-disable the refused romhacks so the mod list reflects
                 // reality on the next boot.
                 for (const auto& mod : sRomhackBaseMismatch) {
@@ -324,17 +459,29 @@ static void DrawModInfo(std::string file) {
     ImGui::Text("%s", file.c_str());
 }
 
-static void DrawMods(bool enabled) {
+using ModFilter = std::function<bool(const std::string&)>;
+
+static void DrawMods(bool enabled, const ModFilter& shown) {
     std::vector<std::string>& selectedModFiles = GetModFiles(enabled);
-    if (selectedModFiles.empty()) {
+
+    std::vector<size_t> visible;
+    for (size_t i = 0; i < selectedModFiles.size(); i++) {
+        if (shown(selectedModFiles[i])) {
+            visible.push_back(i);
+        }
+    }
+    if (visible.empty()) {
         return;
     }
 
     bool madeAnyChange = false;
-    int switchFromIndex = -1;
-    int switchToIndex = -1;
+    size_t switchFromIndex = 0;
+    size_t switchToIndex = 0;
 
-    for (size_t i = selectedModFiles.size() - 1; i != SIZE_MAX; i--) {
+    // Highest priority (largest real index) draws at the top, matching the
+    // "top overrides bottom" rule.
+    for (size_t vpos = visible.size() - 1; vpos != SIZE_MAX; vpos--) {
+        size_t i = visible[vpos];
         std::string file = selectedModFiles[i];
         if (enabled) {
             ImGui::BeginGroup();
@@ -352,31 +499,34 @@ static void DrawMods(bool enabled) {
         }
 
         if (enabled) {
+            const bool atTop = (vpos == visible.size() - 1);
+            const bool atBottom = (vpos == 0);
+
             ImGui::SameLine();
-            if (i == selectedModFiles.size() - 1) {
+            if (atTop) {
                 ImGui::BeginDisabled();
             }
             if (UIWidgets::StateButton((file + "_up").c_str(), ICON_FA_ARROW_UP, ImVec2(25, 25),
                                        UIWidgets::ButtonOptions().Color(THEME_COLOR))) {
                 madeAnyChange = true;
                 switchFromIndex = i;
-                switchToIndex = i + 1;
+                switchToIndex = visible[vpos + 1];
             }
-            if (i == selectedModFiles.size() - 1) {
+            if (atTop) {
                 ImGui::EndDisabled();
             }
 
             ImGui::SameLine();
-            if (i == 0) {
+            if (atBottom) {
                 ImGui::BeginDisabled();
             }
             if (UIWidgets::StateButton((file + "_down").c_str(), ICON_FA_ARROW_DOWN, ImVec2(25, 25),
                                        UIWidgets::ButtonOptions().Color(THEME_COLOR))) {
                 madeAnyChange = true;
                 switchFromIndex = i;
-                switchToIndex = i - 1;
+                switchToIndex = visible[vpos - 1];
             }
-            if (i == 0) {
+            if (atBottom) {
                 ImGui::EndDisabled();
             }
         }
@@ -384,7 +534,7 @@ static void DrawMods(bool enabled) {
         DrawModInfo(filePaths.at(file).filename().generic_string());
         if (enabled) {
             ImGui::EndGroup();
-            ModsHandleDragAndDrop(selectedModFiles, i, file);
+            ModsHandleDragAndDrop(selectedModFiles, (int)i, file);
         }
     }
 
@@ -400,19 +550,7 @@ static void DrawMods(bool enabled) {
 
 static bool editing = false;
 
-void LighthouseModMenuWindow::DrawElement() {
-    LighthouseGui::mLighthouseMenu->MenuDrawItem(enableModsWidget, 200,
-                                                 static_cast<UIWidgets::Colors>(LighthouseGui::GetMenuThemeColor()));
-    ImGui::SameLine();
-    LighthouseGui::mLighthouseMenu->MenuDrawItem(tabHotkeyWidget, 200,
-                                                 static_cast<UIWidgets::Colors>(LighthouseGui::GetMenuThemeColor()));
-
-    ImGui::TextColored(
-        UIWidgets::ColorValues.at(UIWidgets::Colors::Yellow),
-        "Mods are currently not reloaded at runtime. Close and re-open Lighthouse for the changes to take effect.\n"
-        "Drag ordering for the enabled list is available.\nMod priority is top to bottom. They override mods listed "
-        "below them.");
-
+static void DrawModManager(const char* tableId, const ModFilter& shown) {
     auto editOpts = UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline).Color(THEME_COLOR);
     editOpts.Disabled(editing);
     editOpts.DisabledTooltip("Already editing...");
@@ -428,10 +566,17 @@ void LighthouseModMenuWindow::DrawElement() {
         ImGui::SameLine();
         if (UIWidgets::Button("Clear List", UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline))) {
             LighthouseGui::RegisterPopup("Clear List",
-                                         "Clear the current mod list and force a rebuild on next boot.\nClick Apply & "
-                                         "Close to save this change.",
-                                         "Clear", "Cancel", []() {
-                                             enabledModFiles.clear();
+                                         "Disable every mod shown in this list and force a rebuild on next boot.\n"
+                                         "Click Apply & Restart to save this change.",
+                                         "Clear", "Cancel", [shown]() {
+                                             for (auto it = enabledModFiles.begin(); it != enabledModFiles.end();) {
+                                                 if (shown(*it)) {
+                                                     disabledModFiles.push_back(*it);
+                                                     it = enabledModFiles.erase(it);
+                                                 } else {
+                                                     ++it;
+                                                 }
+                                             }
                                              AfterModChange();
                                          });
         }
@@ -449,7 +594,7 @@ void LighthouseModMenuWindow::DrawElement() {
         }
     }
     ImGui::BeginDisabled(!editing);
-    if (ImGui::BeginTable("tableMods", 2, ImGuiTableFlags_BordersH | ImGuiTableFlags_BordersV)) {
+    if (ImGui::BeginTable(tableId, 2, ImGuiTableFlags_BordersH | ImGuiTableFlags_BordersV)) {
         ImGui::TableSetupColumn("Enabled Mods", ImGuiTableColumnFlags_WidthStretch, 200.0f);
         ImGui::TableSetupColumn("Disabled Mods", ImGuiTableColumnFlags_WidthStretch, 200.0f);
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -460,7 +605,7 @@ void LighthouseModMenuWindow::DrawElement() {
         ImGui::TableNextColumn();
 
         if (ImGui::BeginChild("Enabled Mods", ImVec2(0, -8))) {
-            DrawMods(true);
+            DrawMods(true, shown);
 
             ImGui::EndChild();
         }
@@ -468,7 +613,7 @@ void LighthouseModMenuWindow::DrawElement() {
         ImGui::TableNextColumn();
 
         if (ImGui::BeginChild("Disabled Mods", ImVec2(0, -8))) {
-            DrawMods(false);
+            DrawMods(false, shown);
 
             ImGui::EndChild();
         }
@@ -476,6 +621,40 @@ void LighthouseModMenuWindow::DrawElement() {
         ImGui::EndTable();
     }
     ImGui::EndDisabled();
+}
+
+void LighthouseModMenuWindow::DrawElement() {
+    LighthouseGui::mLighthouseMenu->MenuDrawItem(enableModsWidget, 200,
+                                                 static_cast<UIWidgets::Colors>(LighthouseGui::GetMenuThemeColor()));
+    ImGui::SameLine();
+    LighthouseGui::mLighthouseMenu->MenuDrawItem(tabHotkeyWidget, 200,
+                                                 static_cast<UIWidgets::Colors>(LighthouseGui::GetMenuThemeColor()));
+
+    const std::string activeHack = GetActiveHack();
+    if (activeHack.empty()) {
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Cyan),
+                           "No romhack active. Displaying mods compatible with base game.");
+    } else {
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Cyan),
+                           "Displaying eligible mods for mods/~romhacks/%s.o2r.", activeHack.c_str());
+    }
+
+    ImGui::TextColored(
+        UIWidgets::ColorValues.at(UIWidgets::Colors::Yellow),
+        "Mods are currently not reloaded at runtime. Close and re-open Lighthouse for the changes to take effect.\n"
+        "Drag ordering for the enabled list is available.\nMod priority is top to bottom. They override mods listed "
+        "below them.");
+
+    DrawModManager("tableMods", [activeHack](const std::string& name) { return ShownInModMenu(name, activeHack); });
+}
+
+void LighthouseRomhackMenuWindow::DrawElement() {
+    ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Yellow),
+                       "Enable one romhack here, then use the Mod Menu to manage that hack's mods.\n"
+                       "Romhack overlays live in mods/~romhacks/. Changes require a restart, and only one\n"
+                       "romhack can be active at a time.");
+
+    DrawModManager("tableRomhacks", [](const std::string& name) { return IsRomhackOverlay(name); });
 }
 
 void LighthouseModMenuWindow::InitElement() {
@@ -522,7 +701,7 @@ void MaybeShowModConflictPopup() {
     for (const auto& name : sQuarantinedConflicts) {
         body += "  - " + name + "\n";
     }
-    body += "\nOpen Settings -> Mod Menu, click Edit, and enable exactly one before relaunching.";
+    body += "\nOpen Settings -> Romhack Menu, click Edit, and enable exactly one before relaunching.";
     LighthouseGui::RegisterPopup("Romhack Mod Conflict", body, "OK", "", nullptr, nullptr);
     sQuarantinedConflicts.clear();
 }
@@ -645,19 +824,6 @@ void RequestInlineModExtraction() {
     }).detach();
 }
 
-static std::string BaseRegionSlug() {
-    switch (Lighthouse::GetBaseVersion()) {
-        case BK_VER_PAL:
-            return "pal";
-        case BK_VER_JP:
-            return "jp";
-        case BK_VER_US_10:
-        case BK_VER_US_11:
-        default:
-            return "us";
-    }
-}
-
 void RequestInlineLanguagePackExtraction() {
     if (sInlineExtracting.load()) {
         return;
@@ -676,7 +842,7 @@ void RequestInlineLanguagePackExtraction() {
                                      "OK", "", nullptr, nullptr);
         return;
     }
-    if (region == BaseRegionSlug()) {
+    if (region == Lighthouse::BaseRegionSlug()) {
         LighthouseGui::RegisterPopup("Already Have This Language",
                                      "Your base game data (bk.o2r) already provides this region's\n"
                                      "dialog, so there's no need to add it as a language pack.",
@@ -742,6 +908,23 @@ void DrawInlineModExtraction() {
                                      "OK", "", nullptr, nullptr);
     } else if (result == 1) {
         sInlineResult = -1;
+        try {
+            std::filesystem::path produced(GameExtractor::sLastOutputPath);
+            if (std::filesystem::exists(produced) && ArchiveHasGameConfig(produced)) {
+                std::filesystem::path dest = produced.parent_path() / ROMHACKS_DIR / produced.filename();
+                if (produced != dest) {
+                    std::filesystem::create_directories(dest.parent_path());
+                    std::error_code rec;
+                    std::filesystem::remove(dest, rec); // replace a prior overlay of the same name
+                    std::filesystem::rename(produced, dest);
+                    GameExtractor::sLastOutputPath = dest.generic_string();
+                    SPDLOG_INFO("[ModMenu] Moved romhack overlay '{}' into {}/", produced.filename().generic_string(),
+                                ROMHACKS_DIR);
+                }
+            }
+        } catch (const std::filesystem::filesystem_error& e) {
+            SPDLOG_WARN("[ModMenu] Could not relocate romhack overlay into {}/: {}", ROMHACKS_DIR, e.what());
+        }
         // Make the freshly-generated romhack the sole enabled overlay so the
         // boot-time aGameConfig conflict check doesn't quarantine it.
         const std::string keep = std::filesystem::path(GameExtractor::sLastOutputPath).stem().string();
@@ -753,7 +936,7 @@ void DrawInlineModExtraction() {
                                          "base game data (bk.o2r) is not the US v1.0 version.\n\n"
                                          "Romhacks are built from US v1.0 ROMs and will not play correctly\n"
                                          "on a v1.1/PAL/JP base. Re-extract bk.o2r from a US v1.0 ROM,\n"
-                                         "then enable this mod from Settings -> Mod Menu.",
+                                         "then enable this mod from Settings -> Romhack Menu.",
                                          "OK", "", nullptr, nullptr);
         } else {
             LighthouseGui::RegisterPopup(

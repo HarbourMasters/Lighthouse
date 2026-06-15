@@ -215,8 +215,7 @@ void SetActiveLanguage(const std::string& name) {
     // Hand the computed language to the resource layer
     const size_t repointed = dialogOverride.size();
     ResourceHelpers_ApplyLanguage(std::move(dialogOverride), entry->script == SCRIPT_JP, entry->count, entry->index);
-    SPDLOG_INFO("[Lang] Active language '{}' (index {}, script {}, {} ids re-pointed)", name, entry->index,
-                entry->script, repointed);
+    SPDLOG_INFO("[Lang] Active language '{}' ({} ids re-pointed)", name, repointed);
 }
 
 void RescanLanguages() {

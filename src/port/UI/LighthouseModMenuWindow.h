@@ -12,10 +12,29 @@ public:
     void UpdateElement() override{};
 };
 
+// The Romhack Menu reuses the Mod Menu's enable/disable manager, but scoped to
+// romhack overlays (the .o2r files carrying an aGameConfig under mods/~romhacks/).
+// Enabling one here changes the Mod Menu's context to that hack's scoped/shared
+// mods. Shares the underlying enabled/disabled lists with the Mod Menu.
+class LighthouseRomhackMenuWindow : public Ship::GuiWindow {
+public:
+    using GuiWindow::GuiWindow;
+
+    void InitElement() override{};
+    void DrawElement() override;
+    void UpdateElement() override{};
+};
+
 // Public so Engine.cpp can drive an initial scan before the GUI window
 // initializes (so enabled mods are present in the ArchiveManager when the
 // resource manager wakes up).
 void UpdateModFiles(bool init = false, bool reset = false);
+
+// True if `topLevelName` (a directory directly under mods/) is a romhack's
+// scoped mod folder, i.e. it matches a discovered romhack overlay's basename.
+// The loose-mod-directory loader uses this to skip scoped folders, which are
+// handled by the mod scan instead. Valid only after UpdateModFiles() has run.
+bool IsScopedModFolderName(const std::string& topLevelName);
 
 void EnableMod(std::string file);
 void DisableMod(std::string file);

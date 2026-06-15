@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "../Engine.h" // BKVersion
 
 namespace Lighthouse {
@@ -9,5 +11,8 @@ BKVersion GetBaseVersion();
 
 // Romhacks are generally only supported by US 1.0
 bool BaseGameSupportsRomhacks();
+
+// Region slug of the loaded base game
+std::string BaseRegionSlug();
 
 } // namespace Lighthouse

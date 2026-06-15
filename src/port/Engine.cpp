@@ -245,6 +245,8 @@ void CheckAndCreateModFolder() {
             std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
             if (std::filesystem::create_directories(modsPath)) {
                 std::ofstream(filePath).close();
+                std::filesystem::create_directories(modsPath + "/~romhacks"); // BK romhacks go here
+                std::filesystem::create_directories(modsPath + "/shared"); // Mods usable by everything go here
             }
         }
     } catch (std::filesystem::filesystem_error const&) {
@@ -288,9 +290,10 @@ void GameEngine::FinishInit() {
     if (!patches_path.empty() && std::filesystem::is_directory(patches_path)) {
         for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
             if (p.is_directory()) {
-                // Language packs live in mods/lang and are loaded separately
-                // below, not as loose mod-directory overlays.
-                if (p.path().filename() == "lang") {
+                // Ignore folders handled by the Mod Menu loader
+                const std::string dirName = p.path().filename().generic_string();
+                if (dirName == "~romhacks" || dirName == "shared" || dirName == "lang" ||
+                    IsScopedModFolderName(dirName)) {
                     continue;
                 }
                 SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());

@@ -82,4 +82,17 @@ bool BaseGameSupportsRomhacks() {
     return GetBaseVersion() == BK_VER_US_10;
 }
 
+std::string BaseRegionSlug() {
+    switch (GetBaseVersion()) {
+        case BK_VER_PAL:
+            return "pal";
+        case BK_VER_JP:
+            return "jp";
+        case BK_VER_US_10:
+        case BK_VER_US_11:
+        default:
+            return "us";
+    }
+}
+
 } // namespace Lighthouse

@@ -40,6 +40,7 @@ std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 std::shared_ptr<LighthouseInputEditorWindow> mInputEditorWindow;
 std::shared_ptr<LighthouseModMenuWindow> mModMenuWindow;
+std::shared_ptr<LighthouseRomhackMenuWindow> mRomhackMenuWindow;
 
 // std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
@@ -108,6 +109,9 @@ void SetupGuiElements() {
 
     mModMenuWindow = std::make_shared<LighthouseModMenuWindow>(CVAR_WINDOW("ModMenu"), "Mod Menu");
     gui->AddGuiWindow(mModMenuWindow);
+
+    mRomhackMenuWindow = std::make_shared<LighthouseRomhackMenuWindow>(CVAR_WINDOW("RomhackMenu"), "Romhack Menu");
+    gui->AddGuiWindow(mRomhackMenuWindow);
 
     // mHookDebuggerWindow =
     //     std::make_shared<HookDebuggerWindow>("gWindows.HookDebugger", "Hook Debugger", ImVec2(480, 600));
