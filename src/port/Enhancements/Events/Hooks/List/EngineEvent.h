@@ -21,6 +21,7 @@ DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
 
 DEFINE_EVENT(OnModelLoad, s32 modelId; void* modelInfo; s32 * reload;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
+DEFINE_EVENT(DrawDistanceCubeWidth, int32_t mapWidth; int32_t* width;);
 
 DEFINE_EVENT(OnActorTick, Actor* actor;);
 DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);

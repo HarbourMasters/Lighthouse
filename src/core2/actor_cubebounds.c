@@ -446,18 +446,9 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
 
     for(i = 0; i < 3; i++){
+        // [port] Extended draw distance: per-level cube iteration width.
         int width = 4;
-
-        // [port] Extended draw distance: scale cube iteration width by CVar level.
-        {
-            int drawDistLevel = port_getDrawDistanceLevel();
-            if (drawDistLevel >= 4) {
-                width = sCubeList.width[i];
-            } else if (drawDistLevel > 0) {
-                int extended = 4 + (sCubeList.width[i] - 4) * drawDistLevel / 4;
-                width = (extended < sCubeList.width[i]) ? extended : sCubeList.width[i];
-            }
-        }
+        CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);
 
         if(vp_cube_indices[i] - sp44[i] > width){
             sp44[i] = vp_cube_indices[i] - width;

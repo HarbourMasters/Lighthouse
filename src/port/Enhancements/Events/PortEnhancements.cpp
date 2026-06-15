@@ -21,6 +21,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnModelLoad);
     REGISTER_EVENT(ViewportFrustumUpdate);
+    REGISTER_EVENT(DrawDistanceCubeWidth);
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
     REGISTER_EVENT(OnSpritePropTick);

@@ -41,10 +41,6 @@ void func_80344124(void){
 }
 
 void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 position[3], f32 scale[3], Gfx **gfx, Mtx **mtx) {
-    // [port] Extended draw distance: disable sprite distance cull at 100%.
-    if (port_getDrawDistanceLevel() >= 4) {
-        D_803858B0 = true;
-    }
     f32 sp6C[3];
     f32 sp60[3];
     f32 temp_f14;
@@ -82,7 +78,7 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     temp_f0 = sp3C * self->sprite->unk8;
     temp_f12 = sp38 * self->sprite->unkA;
     var_f2_2 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
-    if ((3000.0f < temp_f14) && ((var_f2_2 / temp_f14) < D_80371ECC) && !D_803858B0) {
+    if (port_spriteSizeCulled(temp_f14, var_f2_2, D_80371ECC, D_803858B0)) {
         func_80344124();
     FrameInterpolation_RecordCloseChild();
         return;
@@ -94,14 +90,12 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     // the projection — without this, billboards buzz against the moving
     // camera. NoInterpolate hides the ToMtx from the generic lerp so only
     // the rebuilt matrix writes to *mtx.
-    {
-        f32 camRot[3];
-        f32 scl[3];
-        scl[0] = sp3C; scl[1] = sp38; scl[2] = sp34;
-        viewport_getRotation_vec3f(camRot);
-        FrameInterpolation_RecordSpriteDraw(FI_SPRITE_KIND_BILLBOARD, *mtx, sp50, scl, camRot[1], camRot[0], 0.0f,
-                                            NULL, (int)mirrored);
-    }
+    f32 camRot[3];
+    f32 scl[3];
+    scl[0] = sp3C; scl[1] = sp38; scl[2] = sp34;
+    viewport_getRotation_vec3f(camRot);
+    FrameInterpolation_RecordSpriteDraw(FI_SPRITE_KIND_BILLBOARD, *mtx, sp50, scl, camRot[1], camRot[0], 0.0f,
+                                        NULL, (int)mirrored);
     FrameInterpolation_NoInterpolatePush();
     mlMtxSet(viewport_getMatrix());
     func_80252330(sp50[0], sp50[1], sp50[2]);
@@ -158,7 +152,7 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     temp_f0 = sp3C * arg0->sprite->unk8;
     temp_f12 = sp38 * arg0->sprite->unkA;
     var_f2_2 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
-    if ((3000.0f < sp5C) && ((var_f2_2 / sp5C) < D_80371ECC) && !D_803858B0) {
+    if (port_spriteSizeCulled(sp5C, var_f2_2, D_80371ECC, D_803858B0)) {
         func_80344124();
     FrameInterpolation_RecordCloseChild();
         return;
@@ -224,7 +218,7 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     temp_f0 = scale[0] * arg0->sprite->unk8;
     temp_f12 = scale[1] * arg0->sprite->unkA;
     var_f14 = (temp_f12 <= temp_f0) ? temp_f0 : temp_f12;
-    if ((3000.0f < sp4C) && ((var_f14 / sp4C) < D_80371ECC) && !D_803858B0) {
+    if (port_spriteSizeCulled(sp4C, var_f14, D_80371ECC, D_803858B0)) {
         func_80344124();
         FrameInterpolation_RecordCloseChild();
         return;

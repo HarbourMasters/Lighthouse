@@ -53,6 +53,8 @@ float port_getRumbleScale(void);
 
 int port_getDrawDistanceLevel(void);
 int port_shouldDisableLOD(void);
+void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist);
+int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
 
 // Mirror (MirrorPatches.cpp)
 

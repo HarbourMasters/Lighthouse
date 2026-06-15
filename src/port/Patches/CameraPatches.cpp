@@ -161,13 +161,17 @@ void RegisterCameraPatches_Init() {
             return;
         }
         auto* ev = (ViewportFrustumUpdate*)event;
-        // Vanilla side-plane length (sqrt(89.21774^2 + 45.168514^2) ~= 100). Recompute
-        // the X component from the actual horizontal half-FOV; leave the literal Z
-        // at the original 45.168514251708984 in viewport.c — the plane normal is
-        // re-normalized after construction, so widening just X tilts the plane outward.
+        // Widen the side planes to the actual render aspect, floored at 4:3 so we never 
+        // cull tighter than vanilla.
+        const float kFrustumZ = 45.168514251708984f; // must match the literal in viewport.c
+        const float kMargin = 1.10f;                  // ~10% wider than the exact FOV
+        float aspect = GameEngine_GetAspectRatio();
+        if (aspect < sViewportAspect) {
+            aspect = sViewportAspect;
+        }
         float halfFovYRad = (sViewportFOVy * 0.5f) * (float)(M_PI / 180.0);
-        float halfFovXRad = std::atan(std::tan(halfFovYRad) * sViewportAspect);
-        *ev->frustumX = std::sin(halfFovXRad) * 100.0f;
+        float halfFovXRad = std::atan(std::tan(halfFovYRad) * aspect * kMargin);
+        *ev->frustumX = kFrustumZ / std::tan(halfFovXRad);
         *ev->frustumY = 93.9692611694336f * 1.15f;
     });
 }
