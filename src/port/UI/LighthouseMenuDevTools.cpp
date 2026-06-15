@@ -149,6 +149,16 @@ void LighthouseMenu::AddMenuDevTools() {
         .HideInSearch(true)
         .Options(WindowButtonOptions().Tooltip("Enables the separate Event Debugger Window."));
 
+    path.sidebarName = "Occlusion Debugger";
+    AddSidebarEntry("Dev Tools", path.sidebarName, 1);
+    AddWidget(path, "Popout Occlusion Debugger", WIDGET_WINDOW_BUTTON)
+        .CVar(CVAR_WINDOW("OcclusionDebug"))
+        .WindowName("Occlusion Debugger")
+        .HideInSearch(true)
+        .Options(WindowButtonOptions().Tooltip(
+            "Enumerates the current map's camera-area (portal occlusion) geometry and lets you force-draw individual "
+            "chunks to find what to add to a per-map draw allowlist."));
+
     // path.sidebarName = "Object Viewer";
     // AddSidebarEntry("Dev Tools", path.sidebarName, 1);
     // AddWidget(path, "Popout Object Viewer", WIDGET_WINDOW_BUTTON)

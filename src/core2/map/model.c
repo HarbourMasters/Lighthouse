@@ -2,6 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Romhack/RomhackConfig.h"
+#include "port/DevTools/OcclusionDebug.h"
 
 #include "core2/modelRender.h"
 #include "core2/coords.h"
@@ -364,6 +365,7 @@ void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             modelRender_setAnimatedTexturesCacheId(temp_a0);
         }
         modelRender_setEnvColor(mapModel.env_red, mapModel.env_green, mapModel.env_blue, 0xFF);
+        OcclusionDebug_BeginPart(0);
         modelRender_draw(gfx, mtx, NULL, NULL, mapModel.description->scale, NULL, mapModel.model_bin_opa);
         if (!mapModel_has_xlu_bin()) {
             func_802F7BC0(gfx, mtx, vtx);
@@ -384,6 +386,7 @@ void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             modelRender_setAnimatedTexturesCacheId(temp_a0);
         }
         modelRender_setEnvColor(mapModel.env_red, mapModel.env_green, mapModel.env_blue, 0xFF);
+        OcclusionDebug_BeginPart(1);
         modelRender_draw(gfx, mtx, NULL, NULL, mapModel.description->scale, NULL, mapModel.model_bin_xlu);
         func_802F7BC0(gfx, mtx, vtx);
     }
