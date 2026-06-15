@@ -50,9 +50,14 @@ void push_frame() {
     }
 
     GameEngine::Instance->StartFrame();
-    FrameInterpolation_StartRecord();
+    const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
+    if (recordInterpolation) {
+        FrameInterpolation_StartRecord();
+    }
     mainLoop();
-    FrameInterpolation_StopRecord();
+    if (recordInterpolation) {
+        FrameInterpolation_StopRecord();
+    }
     GameEngine::StartAudioFrame();
     GameEngine::EndAudioFrame();
 

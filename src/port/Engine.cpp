@@ -1272,6 +1272,10 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     }
 }
 
+bool GameEngine::IsInterpolationEnabled() {
+    return (int)GetInterpolationFPS() > 60 / gVIsPerFrame;
+}
+
 void GameEngine::ProcessGfxCommands(Gfx* commands) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
 
