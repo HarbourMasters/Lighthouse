@@ -28,11 +28,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Press Start to Skip Intro Cutscenes."));
 
-    AddWidget(path, "Skip Jiggy Dance", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"))
+    AddWidget(path, "Tooie Jiggy Animation", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.TooieJiggyAnimation"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
-            "Skips the jiggy collection dance, collecting the jiggy immediately like underwater pickups."));
+            "Replaces the jiggy collection dance with a Banjo-Tooie style animation."));
 
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
