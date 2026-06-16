@@ -8,6 +8,8 @@
 
 typedef enum VBehaviorID {
     VB_INIT_RETURN_TO_LAIR,
+    VB_PAUSE_MENU_PORTRAIT_DEPTH,
+    VB_ZOOMBOX_TEXT_ADJUST, // text scale (shrink pause text) + X nudge (JP kana clearance)
     VB_STATIC_CAMERA_SET,
     VB_STATIC_CAMERA_EXIT,
     VB_CAMERA_LIVE_ASPECT,

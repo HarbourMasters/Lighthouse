@@ -6,6 +6,7 @@
 #include "core2/gc/zoombox.h"
 #include "port/Engine.h"
 #include "port/Interpolation/FrameInterpolation.h"
+#include "port/Patches/Patches.h"
 
 #include "bk_time.h"
 
@@ -802,6 +803,10 @@ void gczoombox_func_803160A8(GcZoombox *this) {
 }
 
 void func_803162B4(GcZoombox *this){
+     f32 textScale = 1.0f;
+     s32 textXOfs = 0;
+     EventSystem_Should(VB_ZOOMBOX_TEXT_ADJUST, false, this->unk198, &textScale, &textXOfs);
+     this->unk16A += textXOfs;
      text_setNormalTextColor(this->unk168, this->unk168, this->unk168);
      if(this->unk1A4_30){
           if(this->unk1A4_17){
@@ -812,6 +817,7 @@ void func_803162B4(GcZoombox *this){
           }else{
                print_dialog(this->unk16A, this->unk16C, this->unk0);
           }
+          port_setPrintScale(textScale);
      }
      if(this->unk1A4_29){
           if(this->unk1A4_15){
@@ -819,8 +825,10 @@ void func_803162B4(GcZoombox *this){
           }else{
                print_dialog(this->unk16A, this->unk16E, this->unk30);
           }
+          port_setPrintScale(textScale);
      }
      text_setNormalTextColor(0xff, 0xff, 0xff);
+     this->unk16A -= textXOfs;
 }
 
 void func_803163A8(GcZoombox *this, Gfx **gfx, Mtx **mtx) {

@@ -93,7 +93,7 @@ enum gcpausemenu_menu_e {
 /* .data */
 struct1As D_8036C4E0[4] = {
     {0.0f, 0.0f, "RETURN TO GAME",         55, ZOOMBOX_SPRITE_4_BANJO_1, 0},
-    {0.3f, 0.0f, "EXIT TO LAIR",          -100, ZOOMBOX_SPRITE_5_GRUNTILDA_2, 0},
+    {0.3f, 0.0f, "GO TO GRUNTY'S LAIR",  -100, ZOOMBOX_SPRITE_5_GRUNTILDA_2, 0}, // was "EXIT TO WITCH'S LAIR"
     {0.1f, 0.0f, "VIEW TOTALS",            90, ZOOMBOX_SPRITE_6_JIGGY_1, 0},
     {0.2f, 0.0f, "SAVE AND QUIT",         125, ZOOMBOX_SPRITE_7_TOOTY_1, 0},
 };
@@ -1012,6 +1012,11 @@ s32 gcPauseMenu_update(void) {
             break;
 
         case PAUSE_STATE_2_MENU: //open
+            if (port_pauseMenuNeedsRefresh()) {
+                D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
+                port_pauseMenuRebuild();
+                break;
+            }
             if (D_80383010.unk70_31 && !func_802FC3C4()) {
                 code_73640_printItemCount(ITEM_12_JINJOS);
                 D_80383010.unk70_31 = 0;
@@ -1432,9 +1437,11 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     // Only applies to main menu — in totals, selection is a page index (0-12),
     // not a zoombox index (0-3).
     if (D_80383010.menu == PAUSE_MENU_0_MAIN) {
+        bool should = EventSystem_Should(VB_PAUSE_MENU_PORTRAIT_DEPTH, true);
         for (i = 0; i < 4; i++) {
-            if (i != D_80383010.selection)
-                gczoombox_draw(D_80383010.zoombox[i], gfx, mtx, vtx);
+            s32 idx = should ? i : (3 - i);
+            if (idx != D_80383010.selection)
+                gczoombox_draw(D_80383010.zoombox[idx], gfx, mtx, vtx);
         }
         gczoombox_draw(D_80383010.zoombox[D_80383010.selection], gfx, mtx, vtx);
     } else {

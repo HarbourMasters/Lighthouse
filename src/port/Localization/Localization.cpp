@@ -4,8 +4,10 @@
 #include <unordered_set>
 
 #include <libultraship/libultraship.h>
+#include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/UI/cvar_prefixes.h"
 
 typedef unsigned char u8;
 
@@ -27,6 +29,7 @@ void setGameInformationZoombox(int gamenum); // decomp: (re)assemble the file in
 extern void* chGameSelectTopZoombox;         // GcZoombox*
 extern u8* D_80365DF4[];                     // top instruction line 0, indexed by language
 extern u8* D_80365DF8[];                     // top instruction line 1, indexed by language
+extern u8* D_80365DFC[];                     // erase-confirm prompt, indexed by language
 int code94620_func_8031B5B0(void);           // current dialog-language index (0=EN,1=FR,2=DE)
 int func_8031877C(void* zoombox);            // clear a zoombox's strings before re-setting
 
@@ -76,6 +79,60 @@ std::unordered_map<const void*, int> sModelInfoGen;
 std::unordered_set<uint32_t> sEverRepointedModels;
 
 } // namespace
+
+// Decomp pause-menu rebuild hooks
+extern "C" {
+void gcpausemenu_zoomboxes_free(void);
+void gcpausemenu_zoomboxes_initMainMenu(void);
+void gcPauseMenu_setState(int state); // enum gcpausemenu_state_e
+}
+
+extern "C" int port_pauseMenuNeedsRefresh(void) {
+    static int sGen = 0;
+    static int sLair = 0;
+    static bool sInit = false;
+    int gen = ResourceMgr_GetLanguageGeneration();
+    int lair = CVarGetInteger(CVAR_ENHANCEMENT("Restorations.ReturnToLair"), 0);
+    if (!sInit) {
+        sInit = true;
+        sGen = gen;
+        sLair = lair;
+        return 0;
+    }
+    if (gen == sGen && lair == sLair) {
+        return 0;
+    }
+    sGen = gen;
+    sLair = lair;
+    return 1;
+}
+
+// [port] Rebuild the main pause-menu option zoomboxes and replay the open animation, so they
+// re-localize / re-evaluate cleanly (re-setting a live box's string would reveal it as a 2nd line).
+// The caller re-evaluates the Return to Lair option (a decomp bitfield) first, before the recreate.
+extern "C" void port_pauseMenuRebuild(void) {
+    gcpausemenu_zoomboxes_free();
+    gcpausemenu_zoomboxes_initMainMenu();
+    gcPauseMenu_setState(1); // PAUSE_STATE_1_MENU_OPENING
+}
+
+// [port] Minimal view of PrintBuffer (src/core2/font/print.c)
+struct PrintBufferView {
+    int16_t x, y, topVertexAlpha, bottomVertexAlpha;
+    uint8_t fmtString[8];
+    float scale;
+    uint8_t* string;
+    uint8_t rgba[4];
+};
+extern "C" PrintBufferView* print_sCurrentPtr;
+
+// [port] Override the scale of the most-recently pushed print entry (e.g. right after print_dialog),
+// so callers can shrink/grow buffered text without a dedicated scaled print variant. No-op if none.
+extern "C" void port_setPrintScale(float scale) {
+    if (print_sCurrentPtr != nullptr) {
+        print_sCurrentPtr->scale = scale;
+    }
+}
 
 // JP parade subtitles
 struct ParadeKana {
@@ -184,6 +241,8 @@ static const LocalizedUiString sUiStrings[] = {
     // Pause menu
     { "RETURN TO GAME", (const u8*)"\xfd\x6a\x7f\x3b\x70\xcf\xdc\xf4\xe2", (const u8*)"CONTINUER",
       (const u8*)"ZUR]CK ZUM SPIEL" },
+    { "GO TO GRUNTY'S LAIR", (const u8*)"\xfd\x6a\x7e\x76\x4f\x60\x78\x86\xd2\xcd\xe1\xf3\xd6",
+      (const u8*)"REPAIRE DE GRUNTY", (const u8*)"ZU GRUNTYS VERLIES" },
     { "VIEW TOTALS", (const u8*)"\xfd\x6a\x63\x3b\x5f\x78\xb8\xd9\xe2", (const u8*)"STATISTIQUES",
       (const u8*)"STATISTIK" },
     { "SAVE AND QUIT", (const u8*)"\xfd\x6a\x5d\x3b\x8d\xc5\xcc\xbe\xe5\xe2", (const u8*)"SAUVER ET QUITTER",
@@ -372,6 +431,14 @@ static void LocalizeParadeTable(int paradeId, void** table, uint8_t* count) {
 
 // Event listeners
 static void RegisterLocalizedText() {
+    // File select, translations taken direct from PAL
+    D_80365DF4[1] = (u8*)"S" "\x62" "LECTIONNEZ UN FICHIER _ L'AIDE DU STICK.";
+    D_80365DF4[2] = (u8*)"W[HLE MIT DEM 3D-STICK";
+    D_80365DF8[1] = (u8*)"APPUYEZ SUR A POUR JOUER OU SUR Z POUR EFFACER!";
+    D_80365DF8[2] = (u8*)"EIN SPIEL AUS. DR]CKE A, UM ZU SPIELEN, ODER DEN Z-TRIGGER, UM DEN SPIELSTAND ZU L\\SCHEN!";
+    D_80365DFC[1] = (u8*)"dTES-VOUS SiR? APPUYEZ SUR A POUR CONFIRMER OU SUR B POUR ANNULER.";
+    D_80365DFC[2] = (u8*)"SICHER? DR]CKE A, UM ZU BEST[TIGEN, ODER B, UM ZU WIDERRUFEN.";
+
     // Drive the JP dialog-font slot off the language generation, at a safe
     // between-frames point: load slot 2 when Japanese becomes active, and on
     // switch away defer the free a few frames so in-flight JP strings finish.
@@ -522,6 +589,16 @@ static void RegisterLocalizedText() {
     // decomp's game-init reset (func_8031B62C) would zero it on parade/mode warps and
     // revert the user's selection to the base language, so skip it.
     COND_VB_SHOULD(VB_RESET_DIALOG_LANGUAGE, EVENT_PRIORITY_NORMAL, true, { *should = false; });
+
+    // JP: nudge the pause-menu zoombox text a few px right so the wider kana clear the portrait.
+    COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, true, {
+        double boxScale = va_arg(args, double);
+        va_arg(args, float*);
+        int* xOfs = va_arg(args, int*);
+        if (xOfs != nullptr && boxScale < 1.0 && ResourceMgr_IsJapanese()) {
+            *xOfs = 4;
+        }
+    });
 }
 
 static RegisterShipInitFunc localizedTextInitFunc(RegisterLocalizedText);
