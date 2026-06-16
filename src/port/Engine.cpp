@@ -327,7 +327,7 @@ void GameEngine::FinishInit() {
     context->InitCrashHandler();
     context->InitEventSystem();
 
-    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
+    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 3800 });
 
     lhFast3dWindow->SetTargetFps(60);
     lhFast3dWindow->SetMaximumFrameLatency(1);
