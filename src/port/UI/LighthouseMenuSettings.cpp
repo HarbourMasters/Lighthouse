@@ -351,6 +351,14 @@ void LighthouseMenu::AddMenuSettings() {
         .CVar(CVAR_SETTING("MatchRefreshRate"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Matches interpolation value to the refresh rate of your display."));
+    AddWidget(path, "Adaptive FPS", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_SETTING("AdaptiveFPS"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions()
+                     .Tooltip("Automatically lowers interpolation FPS in demanding scenes so the game logic never "
+                              "stalls, then restores it when the scene clears. Disable to always target your "
+                              "requested FPS, which may stutter on heavy scenes or weaker hardware.")
+                     .DefaultValue(true));
     AddWidget(path, "Renderer API (Needs reload)", WIDGET_VIDEO_BACKEND).RaceDisable(false);
     AddWidget(path, "Enable Vsync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_VSYNC_ENABLED)

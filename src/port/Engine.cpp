@@ -1292,7 +1292,10 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // Interpolate clears entries but keeps the buckets, saving thousands
     // of node allocations per tick at high refresh rates.
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-    int target_fps = (int)AdaptiveFps_Cap((uint32_t)GameEngine::Instance->GetInterpolationFPS());
+    int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
+    if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
+        target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
+    }
 
     // [port] Some music-synced cutscenes cap interpolation at native 30
     int fpsCap = port_getInterpolationFpsCap();
