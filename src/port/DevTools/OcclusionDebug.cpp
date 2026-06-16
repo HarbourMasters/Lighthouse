@@ -32,10 +32,14 @@ const char* kPartNames[kParts] = { "OPA", "XLU", "?" };
 
 const char* CmdTypeName(int type) {
     switch (type) {
-        case OCCLUSION_CMD_CAMERA: return "CAMERA";
-        case OCCLUSION_CMD_LOD: return "LOD";
-        case OCCLUSION_CMD_UNKE: return "UnkE";
-        default: return "?";
+        case OCCLUSION_CMD_CAMERA:
+            return "CAMERA";
+        case OCCLUSION_CMD_LOD:
+            return "LOD";
+        case OCCLUSION_CMD_UNKE:
+            return "UnkE";
+        default:
+            return "?";
     }
 }
 
@@ -84,8 +88,8 @@ std::string DetailString(const CullCmdRecord& rec) {
             }
             ids += std::to_string((int)rec.areaIds[i]);
         }
-        const char* branch = (rec.detail0 & 1) ? ((rec.detail0 & 2) ? "in+out" : "outside")
-                                               : ((rec.detail0 & 2) ? "inside" : "-");
+        const char* branch =
+            (rec.detail0 & 1) ? ((rec.detail0 & 2) ? "in+out" : "outside") : ((rec.detail0 & 2) ? "inside" : "-");
         return "areas {" + ids + "} " + branch;
     }
     if (rec.type == OCCLUSION_CMD_LOD) {
@@ -151,10 +155,11 @@ void OcclusionDebugWindow::DrawElement() {
         CVarSetInteger(CVAR_OCCLUSION_ACTIVE, active);
         Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
-    ImGui::TextWrapped("Flip 'Force draw all' on for a moment to walk every cull command and populate the list (the "
-                       "screen will look broken — that is expected), then turn it off and tick 'Force Draw' on "
-                       "individual rows to find the chunk(s) that reveal the target scenery. Offsets are stable, so the "
-                       "list never shifts. Dump the chosen set to the log when done.");
+    ImGui::TextWrapped(
+        "Flip 'Force draw all' on for a moment to walk every cull command and populate the list (the "
+        "screen will look broken — that is expected), then turn it off and tick 'Force Draw' on "
+        "individual rows to find the chunk(s) that reveal the target scenery. Offsets are stable, so the "
+        "list never shifts. Dump the chosen set to the log when done.");
 
     struct Row {
         Key key;

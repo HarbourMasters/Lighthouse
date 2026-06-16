@@ -8,6 +8,7 @@
 #include "version.h"
 
 #include "port/Patches/Patches.h"
+#include "port/Enhancements/Camera/FreeLookCamera.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 
@@ -151,6 +152,17 @@ void controller_getJoystick(s32 controller_index, f32 dst[2]){
     }
 }
 
+// [port] Raw right-stick analog values, normalized to [-1, 1]. Positive Y is
+// "up", matching the left stick's forward convention.
+void controller_getRightStick(s32 controller_index, f32 dst[2]){
+    dst[0] = (f32)pfsManagerContPadData[controller_index].right_stick_x / 127.0f;
+    dst[1] = (f32)pfsManagerContPadData[controller_index].right_stick_y / 127.0f;
+    if(dst[0] < -1.0f) dst[0] = -1.0f;
+    if(dst[0] >  1.0f) dst[0] =  1.0f;
+    if(dst[1] < -1.0f) dst[1] = -1.0f;
+    if(dst[1] >  1.0f) dst[1] =  1.0f;
+}
+
 void pfsManager_update(void) {
     int j;
     int i;
@@ -184,33 +196,51 @@ void pfsManager_update(void) {
         s32 arx = (rx < 0) ? -rx : rx;
         s32 ary = (ry < 0) ? -ry : ry;
 
-        // Strip LUS-generated C-button bits
-        pfsManagerContPadData[0].button &= ~0x000F;
-
-        // Circular deadzone (radius 24 out of 127)
-        if (arx * arx + ary * ary > 24 * 24) {
-            u16 dir;
-            if (arx >= ary) {
-                dir = (rx > 0) ? 0x0001 : 0x0002; // CRIGHT or CLEFT
-            } else {
-                dir = (ry > 0) ? 0x0008 : 0x0004; // CUP or CDOWN
+        // While Free Look owns the right stick, it reads the raw analog itself, so
+        // strip only the C-button bits the stick would generate (otherwise holding
+        // the stick leaks through as continuous C-up/C-down = runaway zoom). Any
+        // physical C-button presses are preserved so they can still exit Free Look.
+        if (port_freeLook_isEnabled()) {
+            u16 stickBits = 0;
+            if (arx * arx + ary * ary > 24 * 24) {
+                if (arx >= ary) {
+                    stickBits = (rx > 0) ? 0x0001 : 0x0002; // CRIGHT or CLEFT
+                } else {
+                    stickBits = (ry > 0) ? 0x0008 : 0x0004; // CUP or CDOWN
+                }
             }
+            pfsManagerContPadData[0].button &= ~stickBits;
+            sLatchDir = 0;
+            sLatchTTL = 0;
+        } else {
+            // Strip LUS-generated C-button bits
+            pfsManagerContPadData[0].button &= ~0x000F;
 
-            if (dir != sLatchDir) {
-                if (sLatchTTL <= 0) {
-                    sLatchDir = dir;
+            // Circular deadzone (radius 24 out of 127)
+            if (arx * arx + ary * ary > 24 * 24) {
+                u16 dir;
+                if (arx >= ary) {
+                    dir = (rx > 0) ? 0x0001 : 0x0002; // CRIGHT or CLEFT
+                } else {
+                    dir = (ry > 0) ? 0x0008 : 0x0004; // CUP or CDOWN
+                }
+
+                if (dir != sLatchDir) {
+                    if (sLatchTTL <= 0) {
+                        sLatchDir = dir;
+                        sLatchTTL = 6;
+                    }
+                } else {
                     sLatchTTL = 6;
                 }
-            } else {
-                sLatchTTL = 6;
-            }
 
-            pfsManagerContPadData[0].button |= sLatchDir;
-        } else {
-            if (sLatchTTL > 0) {
-                sLatchTTL--;
+                pfsManagerContPadData[0].button |= sLatchDir;
             } else {
-                sLatchDir = 0;
+                if (sLatchTTL > 0) {
+                    sLatchTTL--;
+                } else {
+                    sLatchDir = 0;
+                }
             }
         }
     }

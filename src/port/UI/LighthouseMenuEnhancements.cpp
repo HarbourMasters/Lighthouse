@@ -15,7 +15,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Cutscenes
     WidgetPath path = { "Enhancements", "Cutscenes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Allow Start to Skip Boot Logos", WIDGET_CVAR_CHECKBOX)
@@ -36,7 +36,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_COMBOBOX)
@@ -63,9 +63,63 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
 
+    // Enhancements -> Camera
+    path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Free Look (Right Stick)", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.Enabled"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Use the right stick to freely orbit the camera around Banjo (yaw and pitch). "
+            "The camera holds its angle until you use a C-button camera control, which returns "
+            "to the normal camera. While enabled, the right stick no longer acts as the C-buttons."));
+
+    AddWidget(path, "Free Look Yaw Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.YawSensitivity"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(0.25f).Max(3.0f).DefaultValue(1.0f).Step(0.1f).Format("%.1f").Tooltip(
+            "Horizontal (left/right) free look speed."));
+
+    AddWidget(path, "Free Look Pitch Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.PitchSensitivity"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(0.25f).Max(3.0f).DefaultValue(1.0f).Step(0.1f).Format("%.1f").Tooltip(
+            "Vertical (up/down) free look speed."));
+
+    AddWidget(path, "Free Look Invert X", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.InvertX"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Inverts the horizontal free look direction."));
+
+    AddWidget(path, "Free Look Invert Y", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.InvertY"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Inverts the vertical free look direction."));
+
+    AddWidget(path, "Free Look Smoothing", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.SmoothRate"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(8.0f).Max(60.0f).DefaultValue(40.0f).Step(1.0f).Format("%.0f").Tooltip(
+            "How quickly the camera settles when sliding along geometry. "
+            "Lower is smoother but floatier; higher is snappier but can hitch on walls."));
+
+    AddWidget(path, "Free Look Min Distance", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MinDistance"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(50.0f).Max(500.0f).DefaultValue(120.0f).Step(1.0f).Format("%.0f").Tooltip(
+            "Closest the camera may sit from Banjo when entering free look."));
+
+    AddWidget(path, "Free Look Max Distance", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MaxDistance"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(200.0f).Max(1500.0f).DefaultValue(1200.0f).Step(1.0f).Format("%.0f").Tooltip(
+            "Farthest the camera may sit from Banjo when entering free look."));
+
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Mirrored World", WIDGET_CVAR_CHECKBOX)
@@ -81,7 +135,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Fix Furnace Fun Game Over Dialog", WIDGET_CVAR_CHECKBOX)
@@ -178,7 +232,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Restore Return to Lair", WIDGET_CVAR_CHECKBOX)
@@ -192,7 +246,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Gameplay
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)

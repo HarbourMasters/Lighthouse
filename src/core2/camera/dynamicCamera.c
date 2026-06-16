@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Camera/FreeLookCamera.h"
 
 
 extern bool func_80245314(f32[3], f32[3], f32, f32, u32);
@@ -353,6 +354,10 @@ void ncDynamicCamera_update(void){
 
         case 0x13:// L802BD05C
             ncDynamicCam13_update();
+            break;
+
+        case FREELOOK_CAM_STATE: // [port] right-stick free look
+            port_freeLookCamera_update();
             break;
     }//// L802BD064
     ml_vec3f_copy(sp24, cameraPosition);

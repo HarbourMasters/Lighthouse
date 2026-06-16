@@ -2,6 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "core2/ba/timer.h"
+#include "port/Enhancements/Camera/FreeLookCamera.h"
 
 void func_80291488(s32 arg0);
 void func_802914CC(s32 arg0);
@@ -154,6 +155,14 @@ void func_8029103C(void){
 int func_8029105C(s32 arg0){
     if(balookat_getState())
         return false;
+
+    // [port] Right-stick free look. When it owns the frame (entering or held)
+    // we consume it so the follow camera isn't reset; a C-button camera control
+    // makes it hand the frame back so the vanilla swivel/zoom below runs. The ba
+    // camera mode is left untouched so we keep coming back through this handler.
+    if(port_freeLook_handle()){
+        return true;
+    }
 
     if(bainput_should_rotate_camera_left() && ncDynamicCamA_func_802C1DB0(-45.0f)){
         func_80291488(arg0);
