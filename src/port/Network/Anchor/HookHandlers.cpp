@@ -81,8 +81,7 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->DrawDummies(reinterpret_cast<OnPlayerDraw*>(drawEv));
     });
 
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        static bool sendUpdate = true;
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_HIGH, isConnected, [](IEvent* event) {
         Anchor::GetInstance()->SendPacket_PlayerUpdate();
         Anchor::GetInstance()->ProcessIncomingPacketQueue();
         Anchor::GetInstance()->RefreshClientActors();
