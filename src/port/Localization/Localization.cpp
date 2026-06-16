@@ -432,7 +432,9 @@ static void LocalizeParadeTable(int paradeId, void** table, uint8_t* count) {
 // Event listeners
 static void RegisterLocalizedText() {
     // File select, translations taken direct from PAL
-    D_80365DF4[1] = (u8*)"S" "\x62" "LECTIONNEZ UN FICHIER _ L'AIDE DU STICK.";
+    D_80365DF4[1] = (u8*)"S"
+                         "\x62"
+                         "LECTIONNEZ UN FICHIER _ L'AIDE DU STICK.";
     D_80365DF4[2] = (u8*)"W[HLE MIT DEM 3D-STICK";
     D_80365DF8[1] = (u8*)"APPUYEZ SUR A POUR JOUER OU SUR Z POUR EFFACER!";
     D_80365DF8[2] = (u8*)"EIN SPIEL AUS. DR]CKE A, UM ZU SPIELEN, ODER DEN Z-TRIGGER, UM DEN SPIELSTAND ZU L\\SCHEN!";

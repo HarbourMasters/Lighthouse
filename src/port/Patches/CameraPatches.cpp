@@ -161,10 +161,10 @@ void RegisterCameraPatches_Init() {
             return;
         }
         auto* ev = (ViewportFrustumUpdate*)event;
-        // Widen the side planes to the actual render aspect, floored at 4:3 so we never 
+        // Widen the side planes to the actual render aspect, floored at 4:3 so we never
         // cull tighter than vanilla.
         const float kFrustumZ = 45.168514251708984f; // must match the literal in viewport.c
-        const float kMargin = 1.10f;                  // ~10% wider than the exact FOV
+        const float kMargin = 1.10f;                 // ~10% wider than the exact FOV
         float aspect = GameEngine_GetAspectRatio();
         if (aspect < sViewportAspect) {
             aspect = sViewportAspect;

@@ -66,9 +66,7 @@ void RegisterReturnToLair_Init() {
         }
     });
 
-    COND_VB_SHOULD(VB_PAUSE_MENU_PORTRAIT_DEPTH, EVENT_PRIORITY_NORMAL, CVAR, {
-        *should = false;
-    });
+    COND_VB_SHOULD(VB_PAUSE_MENU_PORTRAIT_DEPTH, EVENT_PRIORITY_NORMAL, CVAR, { *should = false; });
 
     // Shrink the pause-menu zoombox text so the longer string fits at the vanilla box scale.
     // Only sub-1.0 boxes (the pause menus) are touched; the box scale arrives as the first vararg.
