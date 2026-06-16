@@ -121,7 +121,7 @@
 
 #else // PLATFORM_N64
 
-#include "port/audio/mixer.h"
+#include "port/Audio/mixer.h"
 
 #define n_aNoop(pkt, outp, b, c) aDisable(pkt, outp, b, c);
 #define n_aADPCMdec(pkt, s, f, c, a, d) aADPCMdec(pkt, s, f, c, a, d);

@@ -17,7 +17,7 @@
 #include "Network/Anchor/Anchor.h"
 #include "Patches/Patches.h"
 #include "ShipUtils.h"
-#include "src/port/enhancements/events/hooks/Events.h"
+#include "src/port/Enhancements/Events/Hooks/Events.h"
 #include "UI/LighthouseModMenuWindow.h"
 
 extern "C" {

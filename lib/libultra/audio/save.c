@@ -1,6 +1,6 @@
 #include <ultra64.h>
 #include "synthInternals.h"
-#include "port/audio/mixer.h"
+#include "port/Audio/mixer.h"
 
 #if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 Acmd *alSavePull(void *filter, s16 *outp, s32 outCount, s32 sampleOffset,

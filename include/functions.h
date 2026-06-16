@@ -26,8 +26,8 @@
 #include "core2/nc/camera.h"
 
 #include "port/ShipUtils.h"
-#include "port/ui/cvar_prefixes.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/UI/cvar_prefixes.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "math.h"
 #include "bk_time.h"

@@ -1,4 +1,4 @@
-#include "nametag.h"
+#include "Nametag.h"
 
 #include <algorithm>
 #include <memory>
@@ -10,7 +10,7 @@
 #include <imgui.h>
 #include <ship/window/gui/GuiWindow.h>
 #include <fast/Fast3dWindow.h>
-#include "port/ui/cvar_prefixes.h"
+#include "port/UI/cvar_prefixes.h"
 #include "port/ShipInit.hpp"
 
 namespace {
@@ -128,7 +128,7 @@ public:
         const float fbH = std::max(1.0f, static_cast<float>(interp->mCurDimensions.height));
         const float fbAspect = (lowResMode == 1) ? kLowResAspect : (fbW / fbH);
 
-        // Game image rect — where Gui::DrawGame blits the framebuffer.
+        // Game image rect ï¿½ where Gui::DrawGame blits the framebuffer.
         float gameRectW, gameRectH;
         if (lowResMode == 1) {
             gameRectH = mgH;

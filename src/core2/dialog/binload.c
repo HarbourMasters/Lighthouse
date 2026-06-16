@@ -2,7 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "structs.h"
-#include "port/patches/Patches.h"
+#include "port/Patches/Patches.h"
 
 extern int ResourceMgr_GetDialogLanguageCount(void);
 

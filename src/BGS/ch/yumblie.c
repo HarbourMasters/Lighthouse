@@ -4,7 +4,7 @@
 #include "variables.h"
 
 #include "prop.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 extern void actor_predrawMethod(Actor *);
 extern void actor_postdrawMethod(ActorMarker *);
 extern f32 randf (void);

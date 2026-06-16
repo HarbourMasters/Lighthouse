@@ -46,7 +46,7 @@
 #include "Resource/Importers/MapFactory.h"
 #include "Resource/Importers/ModelFactory.h"
 #include "Resource/Importers/SpriteFactory.h"
-#include "src/port/enhancements/events/hooks/Events.h"
+#include "src/port/Enhancements/Events/Hooks/Events.h"
 #include "UI/LighthouseGui.hpp"
 #include "UI/LighthouseModMenuWindow.h"
 

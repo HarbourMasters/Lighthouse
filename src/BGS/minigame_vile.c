@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "bk_math.h"
 #include "variables.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Network/Anchor/VileSync.h"
 
 extern f32 *chVile_getPostion(ActorMarker *);

@@ -13,7 +13,7 @@ extern u32 vol_num, vol_cnt, vol_max, vol_min;
 #endif
 
 #define EQPOWER_LENGTH 128
-#include "port/audio/mixer.h"
+#include "port/Audio/mixer.h"
 
 #if 0 // [port] Not used with N_MICRO=1; BK uses n_* filter chain
 static s16 eqpower[ EQPOWER_LENGTH ] = {

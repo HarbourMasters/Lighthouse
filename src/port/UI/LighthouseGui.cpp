@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include "UIWidgets.hpp"
-#include "src/port/devtools/EventDebugger.h"
+#include "src/port/DevTools/EventDebugger.h"
 #include "src/port/DevTools/OcclusionDebug.h"
 
 #ifdef __APPLE__

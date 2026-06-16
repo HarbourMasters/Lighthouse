@@ -1,9 +1,9 @@
 #include "Warps.h"
-#include "port/ui/UIWidgets.hpp"
+#include "port/UI/UIWidgets.hpp"
 
 #include <imgui.h>
 #include <libultraship/libultraship.h>
-#include "port/ui/LighthouseGui.hpp"
+#include "port/UI/LighthouseGui.hpp"
 
 #include "enums.h"
 

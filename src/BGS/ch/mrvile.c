@@ -5,7 +5,7 @@
 
 #include "prop.h"
 #include "core2/modelRender.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 Actor *chvile_draw(ActorMarker*, Gfx **, Mtx **, Vtx **);
 void chvile_update(Actor *);
