@@ -54,7 +54,7 @@ void RegisterReturnToLair_Init() {
                 menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
             }
         } else {
-            // Not in a world level — reset to vanilla layout
+            *should = true;
             menuData[0].y = 55;
             menuData[1].y = -100;
             menuData[2].y = 90;
