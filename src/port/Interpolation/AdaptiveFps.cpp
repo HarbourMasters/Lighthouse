@@ -9,60 +9,57 @@ using Clock = std::chrono::steady_clock;
 
 // Tuning knobs
 
-// Fraction of the tick budget we allow once the peak is trusted. Raise
-// toward 1.0 if the cap clamps below your refresh rate in scenes that
-// look fine. Lower if you see audio stutter or the game itself slows.
+// How much of each update's time we'll spend drawing once things are steady.
+// Raise toward 1.0 if FPS dips in scenes that look fine; lower if it stutters.
 constexpr double kSafetySteady = 0.95;
 
-// Fraction used while the cap is reacting to a transition. Lower if
-// transitions into busy areas still pile up; raise if the cap drops
-// further than necessary at the start of every busy scene.
+// Same, but used the moment a scene gets busier (more cautious). Lower if busy
+// scenes still hitch; raise if FPS drops more than needed when they start.
 constexpr double kSafetyRising = 0.75;
 
-// Multiplier on the running peak that defines a "transition". Lower
-// (e.g. 1.10) makes the cap more reactive at the cost of tripping on
-// normal noise; raise (e.g. 1.30) to ignore minor spikes and only
-// react to large jumps.
+// How much busier a scene must get to count as "getting busy". Lower reacts
+// sooner but trips on normal noise; raise to ignore small bumps.
 constexpr double kRisingThreshold = 1.20;
 
-// How many windows to stay in the rising-safety mode after a trip.
-// Raise if the safety factor visibly oscillates in noisy steady scenes;
-// lower if recovery to full speed feels sluggish after a transition.
+// How long to stay cautious after a scene gets busy. Raise if FPS wobbles in
+// steady scenes; lower if it feels slow to speed back up.
 constexpr int kRisingHoldWindows = 3;
 
-// Sample window length. Shorter = the cap recovers faster after a busy
-// area passes but is noisier; longer = smoother but slower to react.
+// How often measurements are averaged. Shorter reacts quicker but is jumpier;
+// longer is steadier but slower to react.
 constexpr auto kSampleWindow = std::chrono::milliseconds(200);
 
-// EMA weight on the latest window's mean. 1.0 = no smoothing; 0.0 =
-// EMA never updates. Affects the floor of the cap calculation.
+// How much each new measurement counts vs. past ones when averaging.
+// 1.0 = only the latest; 0.0 = never changes.
 constexpr double kEmaAlpha = 0.5;
 
-// Multiplier on the peak that defines a single-sample "spike". Lower
-// makes the cap react harder to outliers; raise to ignore them.
+// How much busier one frame must be than usual to count as a spike. Lower
+// reacts harder to one-off heavy frames; raise to ignore them.
 constexpr double kSpikeFactor = 1.25;
 
-// How much weight a spike sample contributes to the peak (rest stays
-// from the previous peak). 1.0 = spike replaces peak instantly (twitchy
-// to one-off outliers); 0.0 = ignore spikes (defeats the purpose). 0.5
-// is a balance: sustained transitions still escalate over a few samples.
+// How strongly a spike pulls the estimate up. 1.0 = snap to it instantly;
+// 0.0 = ignore spikes. 0.5 lets a sustained busy scene ramp up over a few frames.
 constexpr double kSpikeBlend = 0.5;
 
-// Per-window decay of the peak toward the window's max. 0 = peak sticks
-// forever; 1 = peak collapses to the latest window. Raise for snappier
-// recovery from one-off spikes; lower if scenes with intermittent heavy
-// frames cause the cap to bounce up too eagerly.
+// How quickly the busy estimate eases back down each averaging period. 0 =
+// never; 1 = drop to the latest right away. Higher recovers FPS faster.
 constexpr double kPeakDecay = 0.40;
 
-// Set this to the default game logic tick rate.
+// How fast the reserved game-update time follows the latest tick: jump up
+// quickly when a scene gets busy, ease back down slowly when it calms.
+constexpr double kLogicRiseAlpha = 0.5;
+constexpr double kLogicFallAlpha = 0.1;
+
+// Default game update rate (times per second) if none is given.
 constexpr uint32_t kDefaultTickHz = 30;
 
 struct State {
     uint32_t tickHz = kDefaultTickHz;
     double tickBudgetUs = 1'000'000.0 / kDefaultTickHz;
-    double emaPerSubFrameUs = 0.0;  // EMA of the per-window mean.
-    double peakPerSubFrameUs = 0.0; // Cap-driving busiest recent sub-frame.
-    long long winRunNs = 0;         // Rolling window accumulators.
+    double emaPerSubFrameUs = 0.0;  // Average time to draw one frame.
+    double peakPerSubFrameUs = 0.0; // Busiest recent frame; the cap is based on this.
+    double envLogicUs = 0.0;        // Reserved game-update time per tick.
+    long long winRunNs = 0;         // Totals for the current measurement period.
     int winSubFrames = 0;
     double winMaxUs = 0.0;
     Clock::time_point winStart = Clock::now();
@@ -88,6 +85,7 @@ void AdaptiveFps_Configure(uint32_t tickHz) {
     s.tickBudgetUs = 1'000'000.0 / tickHz;
     s.emaPerSubFrameUs = 0.0;
     s.peakPerSubFrameUs = 0.0;
+    s.envLogicUs = 0.0;
     s.winRunNs = 0;
     s.winSubFrames = 0;
     s.winMaxUs = 0.0;
@@ -98,13 +96,19 @@ void AdaptiveFps_Configure(uint32_t tickHz) {
 
 uint32_t AdaptiveFps_Cap(uint32_t userTarget) {
     auto& s = state();
-    // Cap on the peak rather than the mean: we render every sub-frame we
-    // commit to (no frameskip), so the budget has to fit the busiest one.
+    // Base the cap on the busiest recent frame, not the average: every frame we
+    // promise gets drawn, so the time has to fit the worst one.
     double costUs = std::max(s.peakPerSubFrameUs, s.emaPerSubFrameUs);
     if (costUs <= 0.0) {
         return userTarget;
     }
-    double maxSubPerTick = (s.tickBudgetUs * s.safety) / costUs;
+    // Set aside the time the game spent updating, then share what's left among
+    // interpolated frames so a busy scene can't overshoot the tick's budget.
+    double renderBudgetUs = s.tickBudgetUs - s.envLogicUs;
+    if (renderBudgetUs <= 0.0) {
+        return s.tickHz;
+    }
+    double maxSubPerTick = (renderBudgetUs * s.safety) / costUs;
     if (maxSubPerTick < 1.0) {
         return s.tickHz;
     }
@@ -113,6 +117,21 @@ uint32_t AdaptiveFps_Cap(uint32_t userTarget) {
         maxFps = s.tickHz;
     }
     return std::min(userTarget, maxFps);
+}
+
+void AdaptiveFps_SampleTick(long long logicNs) {
+    auto& s = state();
+    double us = (double)logicNs / 1000.0;
+    if (us < 0.0) {
+        return;
+    }
+    if (s.envLogicUs == 0.0) {
+        s.envLogicUs = us;
+    } else {
+        // Rise fast when the scene gets busier, fall slow when it calms.
+        double alpha = us > s.envLogicUs ? kLogicRiseAlpha : kLogicFallAlpha;
+        s.envLogicUs = alpha * us + (1.0 - alpha) * s.envLogicUs;
+    }
 }
 
 void AdaptiveFps_Sample(long long runNs) {
@@ -125,9 +144,8 @@ void AdaptiveFps_Sample(long long runNs) {
         s.winMaxUs = sampleUs;
     }
 
-    // Hot reaction: a single sub-frame far busier than the running peak
-    // immediately raises the peak (blended) and arms the rising-safety
-    // hold so the next Cap() call already reflects the new reality.
+    // If one frame is suddenly much busier than usual, bump the estimate up
+    // right away and stay cautious, so the next cap already reflects it.
     if (s.peakPerSubFrameUs == 0.0) {
         s.peakPerSubFrameUs = sampleUs;
         s.safety = kSafetyRising;
@@ -143,8 +161,8 @@ void AdaptiveFps_Sample(long long runNs) {
         return;
     }
 
-    // Window close: refresh the EMA, decide whether the scene is still
-    // transitioning, and decay the peak toward the latest window's max.
+    // End of a measurement period: refresh the average, decide whether the
+    // scene is still getting busier, and ease the busy estimate back down.
     double mean = (double)s.winRunNs / s.winSubFrames / 1000.0;
     s.emaPerSubFrameUs = s.emaPerSubFrameUs == 0.0 ? mean : kEmaAlpha * mean + (1.0 - kEmaAlpha) * s.emaPerSubFrameUs;
 

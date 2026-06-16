@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <filesystem>
+#include <chrono>
 
 #include <fast/interpreter.h>
 #include <libultraship.h>
@@ -13,6 +14,7 @@
 #include <SDL2/SDL.h>
 
 #include "GameStatus.h"
+#include "Interpolation/AdaptiveFps.h"
 #include "Interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
 #include "Patches/Patches.h"
@@ -30,7 +32,17 @@ extern "C" {
 // BK's gameloop conditionally skips game_draw during scene transitions.
 static bool sFrameRendered = false;
 
+// Start of this tick. The gap until drawing begins is how long the game spent
+// updating; Adaptive FPS uses it to budget how many interpolated frames fit.
+static std::chrono::steady_clock::time_point sTickStart;
+
 extern "C" void Graphics_PushFrame(Gfx* data) {
+    // Only measure the first draw of the tick.
+    if (!sFrameRendered) {
+        auto logicNs =
+            std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - sTickStart).count();
+        AdaptiveFps_SampleTick((long long)logicNs);
+    }
     sFrameRendered = true;
     GameEngine::ProcessGfxCommands(data);
 }
@@ -49,6 +61,7 @@ void push_frame() {
         return;
     }
 
+    sTickStart = std::chrono::steady_clock::now();
     GameEngine::Instance->StartFrame();
     const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
     if (recordInterpolation) {
