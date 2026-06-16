@@ -4,12 +4,15 @@
 #include "port/ShipInit.hpp"
 #include "port/Patches/GeoCull.h"
 
+static int sDrawDistanceLevel = 0;
+static int sDisableLOD = 0;
+
 extern "C" {
 #include "enums.h"
 #include "functions.h"
 
 int port_getDrawDistanceLevel(void) {
-    int level = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
+    int level = sDrawDistanceLevel;
     int mode = getGameMode();
     if (mode == GAME_MODE_7_ATTRACT_DEMO || mode == GAME_MODE_9_BANJO_AND_KAZOOIE) {
         level = 0;
@@ -59,7 +62,7 @@ int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disa
 }
 
 int port_shouldDisableLOD(void) {
-    return CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableLOD"), 0);
+    return sDisableLOD;
 }
 }
 
@@ -111,3 +114,12 @@ static void RegisterDrawDistanceGraphics_Init() {
 }
 
 static RegisterShipInitFunc drawDistanceGraphicsInit(RegisterDrawDistanceGraphics_Init);
+
+static void RefreshDrawDistanceCVars() {
+    sDrawDistanceLevel = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
+    sDisableLOD = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableLOD"), 0);
+}
+
+static RegisterShipInitFunc drawDistanceCVarCache(RefreshDrawDistanceCVars,
+                                                  { CVAR_ENHANCEMENT("Graphics.DrawDistance"),
+                                                    CVAR_ENHANCEMENT("Graphics.DisableLOD") });
