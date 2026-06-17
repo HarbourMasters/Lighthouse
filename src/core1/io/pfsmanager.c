@@ -8,7 +8,6 @@
 #include "version.h"
 
 #include "port/Patches/Patches.h"
-#include "port/Enhancements/Camera/FreeLookCamera.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 
@@ -183,67 +182,10 @@ void pfsManager_update(void) {
     // Poll LUS input directly here each frame instead.
     osContGetReadData(pfsManagerContPadData);
 
-    // [port] Right stick to C-button conversion. LUS's axis-to-button mapping causes
-    // flickback when the stick springs back through the opposite threshold. Strip the
-    // LUS C-button bits and generate our own from raw analog values with a circular
-    // deadzone, dominant-axis filter, and direction latch.
-    if (port_CButtonIsAxis()) {
-        static u16 sLatchDir = 0;
-        static s32 sLatchTTL = 0;
-
-        s32 rx = pfsManagerContPadData[0].right_stick_x;
-        s32 ry = pfsManagerContPadData[0].right_stick_y;
-        s32 arx = (rx < 0) ? -rx : rx;
-        s32 ary = (ry < 0) ? -ry : ry;
-
-        // While Free Look owns the right stick, it reads the raw analog itself, so
-        // strip only the C-button bits the stick would generate (otherwise holding
-        // the stick leaks through as continuous C-up/C-down = runaway zoom). Any
-        // physical C-button presses are preserved so they can still exit Free Look.
-        if (port_freeLook_isEnabled()) {
-            u16 stickBits = 0;
-            if (arx * arx + ary * ary > 24 * 24) {
-                if (arx >= ary) {
-                    stickBits = (rx > 0) ? 0x0001 : 0x0002; // CRIGHT or CLEFT
-                } else {
-                    stickBits = (ry > 0) ? 0x0008 : 0x0004; // CUP or CDOWN
-                }
-            }
-            pfsManagerContPadData[0].button &= ~stickBits;
-            sLatchDir = 0;
-            sLatchTTL = 0;
-        } else {
-            // Strip LUS-generated C-button bits
-            pfsManagerContPadData[0].button &= ~0x000F;
-
-            // Circular deadzone (radius 24 out of 127)
-            if (arx * arx + ary * ary > 24 * 24) {
-                u16 dir;
-                if (arx >= ary) {
-                    dir = (rx > 0) ? 0x0001 : 0x0002; // CRIGHT or CLEFT
-                } else {
-                    dir = (ry > 0) ? 0x0008 : 0x0004; // CUP or CDOWN
-                }
-
-                if (dir != sLatchDir) {
-                    if (sLatchTTL <= 0) {
-                        sLatchDir = dir;
-                        sLatchTTL = 6;
-                    }
-                } else {
-                    sLatchTTL = 6;
-                }
-
-                pfsManagerContPadData[0].button |= sLatchDir;
-            } else {
-                if (sLatchTTL > 0) {
-                    sLatchTTL--;
-                } else {
-                    sLatchDir = 0;
-                }
-            }
-        }
-    }
+    // [port] Control-scheme input shaping: right stick -> C-button conversion,
+    // Free Look right-stick handling, and the Modern-scheme Talon Trot combo.
+    // Implemented in Enhancements/ControlSchemes.cpp.
+    port_shapeControllerInput(&pfsManagerContPadData[0]);
 
     if (port_mirror_active()) pfsManagerContPadData[0].stick_x = -pfsManagerContPadData[0].stick_x;
 

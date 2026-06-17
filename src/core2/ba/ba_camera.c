@@ -3,6 +3,7 @@
 #include "variables.h"
 #include "core2/ba/timer.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
+#include "port/Controller/ModernCamera.h"
 
 void func_80291488(s32 arg0);
 void func_802914CC(s32 arg0);
@@ -119,10 +120,12 @@ int func_80290E8C(void){
 }
 
 void func_80290F14(void){
-    if( !balookat_getState() 
+    port_modernCamera_handleZoom();
+    if( !balookat_getState()
         && player_movementGroup() != BSGROUP_4_LOOK
         && batimer_get(7) == 0.0f
         && bainput_should_zoom_out_camera()
+        && !port_camera_suppressVanillaZoom()
     ){
         switch(D_8037C061){
             case 1://L80290FA4
@@ -161,6 +164,11 @@ int func_8029105C(s32 arg0){
     // makes it hand the frame back so the vanilla swivel/zoom below runs. The ba
     // camera mode is left untouched so we keep coming back through this handler.
     if(port_freeLook_handle()){
+        return true;
+    }
+
+    // [port] Modern scheme: right stick = smooth continuous yaw.
+    if(port_modernCamera_handleYaw()){
         return true;
     }
 

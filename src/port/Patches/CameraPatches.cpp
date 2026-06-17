@@ -11,6 +11,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/ShipUtils.h"
 
 extern "C" {
 #include "enums.h"
@@ -155,9 +156,7 @@ void RegisterCameraPatches_Init() {
     // those recordings are deterministic against the vanilla cull set, and any
     // frustum change shifts which actors tick and desyncs the playback.
     REGISTER_LISTENER(ViewportFrustumUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        s32 mode = getGameMode();
-        if (mode == GAME_MODE_7_ATTRACT_DEMO || mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE ||
-            mode == GAME_MODE_9_BANJO_AND_KAZOOIE) {
+        if (IsDemoMode()) {
             return;
         }
         auto* ev = (ViewportFrustumUpdate*)event;

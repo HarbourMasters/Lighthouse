@@ -2,6 +2,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/ShipUtils.h"
 #include "port/Patches/GeoCull.h"
 
 static int sDrawDistanceLevel = 0;
@@ -12,9 +13,8 @@ extern "C" {
 #include "functions.h"
 
 int port_getDrawDistanceLevel(void) {
-    int level = sDrawDistanceLevel;
-    int mode = getGameMode();
-    if (mode == GAME_MODE_7_ATTRACT_DEMO || mode == GAME_MODE_9_BANJO_AND_KAZOOIE) {
+    int level = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
+    if (IsDemoMode()) {
         level = 0;
     }
     return level;

@@ -6,6 +6,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/ShipUtils.h"
 
 extern "C" {
 #include "enums.h"
@@ -58,7 +59,7 @@ void RegisterInfiniteAir_Init() {
 void RegisterInfiniteLives_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_LIVES, 0), [](IEvent* event) {
         // Only refill during actual gameplay (not in file select or demo mode)
-        if (gsworld_getMap() != MAP_91_FILE_SELECT && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+        if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
             if (item_getCount(ITEM_16_LIFE) < 9) {
                 item_set(ITEM_16_LIFE, 9);
             }
@@ -70,7 +71,7 @@ void RegisterInfiniteLives_Init() {
 void RegisterInfiniteEggs_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_EGGS, 0), [](IEvent* event) {
         // Only refill during actual gameplay (not in file select or demo mode)
-        if (gsworld_getMap() != MAP_91_FILE_SELECT && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+        if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
             s32 currentCount = item_getCount(ITEM_D_EGGS);
             s32 maxCount = port_getRomhackMaxEggs();
             if (maxCount < 0)
@@ -86,7 +87,7 @@ void RegisterInfiniteEggs_Init() {
 void RegisterInfiniteRedFeathers_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_RED_FEATHERS, 0), [](IEvent* event) {
         // Only refill during actual gameplay (not in file select or demo mode)
-        if (gsworld_getMap() != MAP_91_FILE_SELECT && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+        if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
             s32 currentCount = item_getCount(ITEM_F_RED_FEATHER);
             s32 maxCount = port_getRomhackMaxRedFeathers();
             if (maxCount < 0)
@@ -103,7 +104,7 @@ void RegisterInfiniteGoldFeathers_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_INFINITE_GOLD_FEATHERS, 0),
               [](IEvent* event) {
                   // Only refill during actual gameplay (not in file select or demo mode)
-                  if (gsworld_getMap() != MAP_91_FILE_SELECT && getGameMode() != GAME_MODE_7_ATTRACT_DEMO) {
+                  if (gsworld_getMap() != MAP_91_FILE_SELECT && !IsDemoMode()) {
                       s32 currentCount = item_getCount(ITEM_10_GOLD_FEATHER);
                       s32 maxCount = port_getRomhackMaxGoldFeathers();
                       if (maxCount < 0)
