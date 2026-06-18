@@ -483,22 +483,6 @@ void LighthouseMenu::AddMenuSettings() {
     path.sidebarName = "Romhack Menu";
     AddSidebarEntry("Settings", path.sidebarName, 1);
 
-    AddWidget(path, "Generate Romhack from ROM", WIDGET_BUTTON)
-        .RaceDisable(false)
-        .Callback([](WidgetInfo& info) {
-            LighthouseGui::mModalWindow->RegisterPopup(
-                "Generate Romhack from ROM",
-                "Select a romhack ROM to extract as a mod overlay. Torch will\n"
-                "generate a slim mod o2r in your mods/~romhacks/ folder alongside\n"
-                "the existing bk.o2r. Lighthouse closes when extraction finishes so\n"
-                "the mod loads on the next launch.",
-                "Select ROM", "Cancel", []() { RequestInlineModExtraction(); }, nullptr);
-        })
-        .Options(ButtonOptions()
-                     .Size(Sizes::Inline)
-                     .Tooltip("Pick a romhack ROM and extract it as a slim mod overlay into the mods/~romhacks/ "
-                              "folder. Lighthouse closes afterward so the mod loads on the next launch."));
-
     AddWidget(path, "Popout Romhack Menu Window", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("RomhackMenu"))
         .WindowName("Romhack Menu")

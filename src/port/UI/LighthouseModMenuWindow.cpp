@@ -55,6 +55,7 @@ extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 
 static WidgetInfo enableModsWidget;
 static WidgetInfo tabHotkeyWidget;
+static WidgetInfo generateRomhackWidget;
 
 static std::atomic<bool> sInlineExtracting{ false };
 static std::atomic<int> sInlineResult{ -1 }; // -1 idle, 0 running, 1 success, 2 failure
@@ -649,6 +650,9 @@ void LighthouseModMenuWindow::DrawElement() {
 }
 
 void LighthouseRomhackMenuWindow::DrawElement() {
+    LighthouseGui::mLighthouseMenu->MenuDrawItem(generateRomhackWidget, 200,
+                                                 static_cast<UIWidgets::Colors>(LighthouseGui::GetMenuThemeColor()));
+
     ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Yellow),
                        "Enable one romhack here, then use the Mod Menu to manage that hack's mods.\n"
                        "Romhack overlays live in mods/~romhacks/. Changes require a restart, and only one\n"
@@ -663,7 +667,7 @@ void LighthouseModMenuWindow::InitElement() {
 
 static void RegisterModMenuWidgets() {
     enableModsWidget = { .name = "Enable Mods", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-    enableModsWidget.CVar("gEnhancements.Mods.AlternateAssets")
+    enableModsWidget.CVar(CVAR_SETTING("Mods.AlternateAssets"))
         .RaceDisable(false)
         .Options(UIWidgets::CheckboxOptions()
                      .DisabledTooltip("Temporarily disabled while editing mods list.")
@@ -686,6 +690,24 @@ static void RegisterModMenuWidgets() {
                      .DefaultValue(true));
     LighthouseGui::mLighthouseMenu->AddSearchWidget(
         { tabHotkeyWidget, "Settings", "Mod Menu", "Top", "alternate assets tab hotkey" });
+
+    generateRomhackWidget = { .name = "Generate Romhack from ROM", .type = WidgetType::WIDGET_BUTTON };
+    generateRomhackWidget.RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            LighthouseGui::RegisterPopup(
+                "Generate Romhack from ROM",
+                "Select a romhack ROM to extract as a mod overlay. Torch will\n"
+                "generate a slim mod o2r in your mods/~romhacks/ folder alongside\n"
+                "the existing bk.o2r. Lighthouse closes when extraction finishes so\n"
+                "the mod loads on the next launch.",
+                "Select ROM", "Cancel", []() { RequestInlineModExtraction(); }, nullptr);
+        })
+        .Options(UIWidgets::ButtonOptions()
+                     .Size(UIWidgets::Sizes::Inline)
+                     .Tooltip("Pick a romhack ROM and extract it as a slim mod overlay into the mods/~romhacks/ "
+                              "folder. Lighthouse closes afterward so the mod loads on the next launch."));
+    LighthouseGui::mLighthouseMenu->AddSearchWidget(
+        { generateRomhackWidget, "Settings", "Romhack Menu", "Top", "generate romhack rom extract overlay" });
 }
 
 static RegisterMenuInitFunc menuInitFunc(RegisterModMenuWidgets);

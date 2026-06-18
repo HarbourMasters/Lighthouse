@@ -246,7 +246,7 @@ void CheckAndCreateModFolder() {
             if (std::filesystem::create_directories(modsPath)) {
                 std::ofstream(filePath).close();
                 std::filesystem::create_directories(modsPath + "/~romhacks"); // BK romhacks go here
-                std::filesystem::create_directories(modsPath + "/shared"); // Mods usable by everything go here
+                std::filesystem::create_directories(modsPath + "/shared");    // Mods usable by everything go here
             }
         }
     } catch (std::filesystem::filesystem_error const&) {
@@ -384,7 +384,7 @@ void GameEngine::FinishInit() {
 
     loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
-    prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 1);
+    prevAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     // Build the dialog-language list from the base region plus any loaded packs.
@@ -1018,8 +1018,8 @@ void GameEngine::StartFrame() const {
     switch (dwScancode) {
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            CVarSetInteger("gEnhancements.Mods.AlternateAssets",
-                           !CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
+            CVarSetInteger(CVAR_SETTING("Mods.AlternateAssets"),
+                           !CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 0));
             break;
         }
         case KbScancode::LUS_KB_F4: {
@@ -1267,7 +1267,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
         interpreter->mInterpolationIndex++;
     }
 
-    bool curAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
+    bool curAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 0);
     if (prevAltAssets != curAltAssets) {
         prevAltAssets = curAltAssets;
         Ship::Context::GetRawInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
