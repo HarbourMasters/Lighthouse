@@ -73,8 +73,14 @@ void RegisterReturnToLair_Init() {
     COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, CVAR, {
         double boxScale = va_arg(args, double);
         f32* outScale = va_arg(args, f32*);
-        if (boxScale < 1.0 && outScale != nullptr) {
-            *outScale = 0.85f;
+        int* xOfs = va_arg(args, int*);
+        if (boxScale < 1.0) {
+            if (outScale != nullptr) {
+                *outScale = 0.85f;
+            }
+            if (xOfs != nullptr) {
+                *xOfs += 4;
+            }
         }
     });
 }

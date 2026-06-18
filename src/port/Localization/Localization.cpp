@@ -241,8 +241,8 @@ static const LocalizedUiString sUiStrings[] = {
     // Pause menu
     { "RETURN TO GAME", (const u8*)"\xfd\x6a\x7f\x3b\x70\xcf\xdc\xf4\xe2", (const u8*)"CONTINUER",
       (const u8*)"ZUR]CK ZUM SPIEL" },
-    { "GO TO GRUNTY'S LAIR", (const u8*)"\xfd\x6a\x7e\x76\x4f\x60\x78\x86\xd2\xcd\xe1\xf3\xd6",
-      (const u8*)"REPAIRE DE GRUNTY", (const u8*)"ZU GRUNTYS VERLIES" },
+    { "EXIT TO WITCH'S LAIR", (const u8*)"\xfd\x6a\x6e\x82\x4d\xd2\xcd\xe1\xf3\xd6\xcf\xdc\xf4\xe2",
+      (const u8*)"ANTRE DE LA SORCI\x63RE", (const u8*)"ZUR HEXENH\\HLE" },
     { "VIEW TOTALS", (const u8*)"\xfd\x6a\x63\x3b\x5f\x78\xb8\xd9\xe2", (const u8*)"STATISTIQUES",
       (const u8*)"STATISTIK" },
     { "SAVE AND QUIT", (const u8*)"\xfd\x6a\x5d\x3b\x8d\xc5\xcc\xbe\xe5\xe2", (const u8*)"SAUVER ET QUITTER",
@@ -598,7 +598,7 @@ static void RegisterLocalizedText() {
         va_arg(args, float*);
         int* xOfs = va_arg(args, int*);
         if (xOfs != nullptr && boxScale < 1.0 && ResourceMgr_IsJapanese()) {
-            *xOfs = 4;
+            *xOfs += 4;
         }
     });
 }
