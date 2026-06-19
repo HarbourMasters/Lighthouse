@@ -292,6 +292,23 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Hold A+B while underwater to combine Banjo's kick with Kazooie's wing stroke for faster swimming."));
 
+    AddWidget(path, "Note Collection Retention", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.NoteRetention"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Notes you've already collected stay collected and don't respawn when you revisit a level. "
+            "Collection is always tracked; this toggle controls whether collected notes are skipped on "
+            "load. Note-door totals still use the vanilla per-level high score."));
+
+    AddWidget(path, "Jinjo Collection Retention", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.JinjoRetention"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Jinjos you've already collected stay collected across visits instead of resetting each time "
+            "you enter a level, so you no longer need all five in one go. Collection is always tracked; "
+            "this toggle controls whether collected jinjos are skipped on load and your progress is "
+            "restored."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);

@@ -18,12 +18,12 @@ void actor_collisionOff(Actor*);
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue
 
 void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
-	if (!IS_RANDO && !OPTION_ENABLED) {
-		return;
-	}
-    
+    if (!IS_RANDO && !OPTION_ENABLED) {
+        return;
+    }
+
     RandoCheckId randoCheckId = RC_UNKNOWN;
-	
+
     if (item_getCount(ITEM_0_HOURGLASS_TIMER) == 0) {
         switch (switchActorId) {
             case ACTOR_14E_BGS_ELEVATED_WALKWAY_SWITCH:

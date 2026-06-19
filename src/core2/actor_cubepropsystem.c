@@ -1012,7 +1012,14 @@ void code7AF80_initCubeFromFile(File *file_ptr, Cube *cube) {
                 memcpy(&pos[1], raw + 6, 2);
                 memcpy(&pos[2], raw + 8, 2);
                 memcpy(&flags, raw + 10, 2);
-                if (!EventSystem_Should(VB_OVERRIDE_PROP_SPAWN, false, pos)) {
+                // [port] Expose the sprite asset id (or -1 for marker/model props) so
+                // override handlers can identify props by type (e.g. music notes) without
+                // relying on position, which differs in romhacks.
+                s32 propSpriteAsset = -1;
+                if (!(flags & 1) && !((flags >> 1) & 1)) {
+                    propSpriteAsset = ((s32)((word0 >> 20) & 0xFFF)) + 0x572;
+                }
+                if (!EventSystem_Should(VB_OVERRIDE_PROP_SPAWN, false, pos, propSpriteAsset)) {
                 // Extract flag bits using N64 BE bit positions within the u16
                     {
                         bool mf = flags & 1;            // markerFlag (BE bit 0)

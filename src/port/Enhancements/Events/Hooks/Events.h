@@ -33,6 +33,9 @@ typedef enum VBehaviorID {
     VB_BUNDLE_SPAWN_SET_ACTOR_DATA,
     VB_NAPPER_SET_JIGGY_POSITION,
     VB_RESET_DIALOG_LANGUAGE,
+    // Cancellable at the single dialog choke point (gcdialog_showDialogConditional).
+    // Listeners receive the dialog's text_id; returning should=true suppresses the popup.
+    VB_OVERRIDE_DIALOG_SHOW,
     // Mr. Vile minigame (Anchor authority gating): cancelled on clients following a
     // remote authority so local random logic yields to network state.
     VB_VILE_YUMBLIE_EMERGE,

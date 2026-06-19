@@ -30,11 +30,11 @@ std::vector<std::string> worldNameList = {
     "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
 };
 
-std::vector<std::string> abilityNameList = {
-    "Beak Barge",    "Beak Bomb", "Beak Buster", "Camera Control", "Claw Swipe",  "Climb", "Eggs",
-    "Feathery Flap", "Flap Flip", "Flight",      "Jump Higher",    "Ratatat Rap", "Roll",  "Shock Jump",
-    "Wading Boots",  "Dive",      "Talon Trot",  "Turbo Talon",    "Wonderwing",  "Note Door"
-};
+std::vector<std::string> abilityNameList = { "Beak Barge", "Beak Bomb",   "Beak Buster",  "Camera Control",
+                                             "Claw Swipe", "Climb",       "Eggs",         "Feathery Flap",
+                                             "Flap Flip",  "Flight",      "Jump Higher",  "Ratatat Rap",
+                                             "Roll",       "Shock Jump",  "Wading Boots", "Dive",
+                                             "Talon Trot", "Turbo Talon", "Wonderwing",   "Note Door" };
 
 // Helper for C-style variadic log functions
 static void bk_log_vfmt(spdlog::level::level_enum level, const char* fmt, va_list args) {

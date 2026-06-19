@@ -315,9 +315,9 @@ void GameplayTools_ObjectSpawner() {
         for (auto& [jinjoId, jinjoData] : jinjoDataMap) {
             bool isChecked = std::get<2>(jinjoData);
             if (UIWidgets::Checkbox(std::get<0>(jinjoData), &isChecked,
-                UIWidgets::CheckboxOptions()
-                .Color(std::get<1>(jinjoData))
-                .LabelPosition(UIWidgets::LabelPositions::None))) {
+                                    UIWidgets::CheckboxOptions()
+                                        .Color(std::get<1>(jinjoData))
+                                        .LabelPosition(UIWidgets::LabelPositions::None))) {
                 GameplayTools_UpdateJinjoCheckboxes(jinjoId);
             }
             ImGui::SameLine();
@@ -336,14 +336,14 @@ void GameplayTools_ObjectSpawner() {
         jiggyText += ": " + std::to_string(selectedJiggy);
 
         UIWidgets::SliderInt("##jiggyIndex", &selectedJiggy,
-                                 UIWidgets::IntSliderOptions()
-                                     .Color(THEME_COLOR)
-                                     .Min(JIGGY_01_MM_JINJO)
-                                     .Max(JIGGY_64_MMM_LOGGO)
-                                     .DefaultValue(JIGGY_01_MM_JINJO)
-                                     .Format(jiggyText.c_str())
-                                     .LabelPosition(UIWidgets::LabelPositions::None));
-        
+                             UIWidgets::IntSliderOptions()
+                                 .Color(THEME_COLOR)
+                                 .Min(JIGGY_01_MM_JINJO)
+                                 .Max(JIGGY_64_MMM_LOGGO)
+                                 .DefaultValue(JIGGY_01_MM_JINJO)
+                                 .Format(jiggyText.c_str())
+                                 .LabelPosition(UIWidgets::LabelPositions::None));
+
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Spawn Honeycomb", { .color = THEME_COLOR })) {
             Actor* newActor = actor_new(spawnPosition, 0, &actorInfoMap.at(ACTOR_47_EMPTY_HONEYCOMB).first,
@@ -467,7 +467,7 @@ void DrawMonitoringTools() {
                     ImGui::TableNextColumn();
                     ImGui::PopID();
                 }
-                
+
                 mapIndex++;
             }
             ImGui::EndTable();
@@ -483,7 +483,7 @@ void DrawRandoFlagEditor() {
             ImGui::PushID(f);
             bool flagState = RANDO_SAVE_FLAGS[f].flagState;
             if (UIWidgets::Checkbox(Rando::StaticData::Flags[(RandoInf)f].name, &flagState)) {
-                    CALL_EVENT(SetRandoInfFlag, (RandoInf)f, !RANDO_SAVE_FLAGS[f].flagState);
+                CALL_EVENT(SetRandoInfFlag, (RandoInf)f, !RANDO_SAVE_FLAGS[f].flagState);
             }
             ImGui::PopID();
         }

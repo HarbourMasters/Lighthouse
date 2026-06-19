@@ -126,7 +126,8 @@ void SetupGuiElements() {
     mWarpsWindow = std::make_shared<WarpsWindow>("gWindows.Warps", "Warps", ImVec2(480, 600));
     gui->AddGuiWindow(mWarpsWindow);
 
-    mGameplayToolsWindow = std::make_shared<GameplayToolsWindow>("gWindows.GameplayTools", "Gameplay Tools", ImVec2(480, 600));
+    mGameplayToolsWindow =
+        std::make_shared<GameplayToolsWindow>("gWindows.GameplayTools", "Gameplay Tools", ImVec2(480, 600));
     gui->AddGuiWindow(mGameplayToolsWindow);
 
     // mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "HUD Editor", ImVec2(480, 600));

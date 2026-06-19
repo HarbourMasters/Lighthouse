@@ -5,6 +5,7 @@
 #include "actor.h"
 
 #include "prop.h"
+#include "port/Enhancements/NoteRetention/NoteRetention.h"
 
 extern s32 D_80370990;
 extern f32 GameEngine_GetAspectRatio(void);
@@ -432,6 +433,10 @@ void func_80325FE8(Actor *this) {
 
 void actorArray_free(void) {
     Actor *var_s0;
+
+    // [port] Note retention: every note actor is about to be freed, so drop our
+    // live-actor tracking (markers are being released here).
+    port_noteRetention_onActorsFreed();
 
     if (suBaddieActorArray != NULL) {
         for(var_s0 = suBaddieActorArray->data; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){

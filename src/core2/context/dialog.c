@@ -875,6 +875,9 @@ int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker 
     if(volatileFlag_get(VOLATILE_FLAG_1) || func_802D686C())
         return 0;
 
+    if(EventSystem_Should(VB_OVERRIDE_DIALOG_SHOW, false, text_id))
+        return 0;
+
     if(!gcdialog_hasCurrentTextId()){
         func_80310B1C(text_id, arg1, marker, (void *)callback, (void *)arg5, arg6);
         if(arg1 & 8){

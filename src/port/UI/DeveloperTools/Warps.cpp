@@ -62,7 +62,7 @@ static const std::vector<CuratedWarp> curatedWarps = {
 
 static int32_t curatedWarpId = 0;
 
-void DrawWarpList() {
+static void DrawWarpList() {
     ImGui::SeparatorText("Custom Warp Selector");
     UIWidgets::Combobox("Map Select", &mapId, mapNames, { .color = THEME_COLOR });
     UIWidgets::SliderInt("Exit ID", &exitId,

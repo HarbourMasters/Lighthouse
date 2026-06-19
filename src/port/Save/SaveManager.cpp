@@ -298,6 +298,37 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
 
     ship["fileType"] = static_cast<int>(saveData->shipSaveData.fileType);
 
+    // Note retention (all files): sparse per-map collected bitfields.
+    ordered_json noteRetention = ordered_json::object();
+    for (int m = 0; m < NOTE_RETENTION_MAP_SLOTS; m++) {
+        bool any = false;
+        for (int b = 0; b < NOTE_RETENTION_BYTES_PER_MAP; b++) {
+            if (saveData->shipSaveData.noteRetention.collected[m][b]) {
+                any = true;
+                break;
+            }
+        }
+        if (!any) {
+            continue;
+        }
+        ordered_json bytes = ordered_json::array();
+        for (int b = 0; b < NOTE_RETENTION_BYTES_PER_MAP; b++) {
+            bytes.push_back(saveData->shipSaveData.noteRetention.collected[m][b]);
+        }
+        noteRetention[std::to_string(m)] = bytes;
+    }
+    ship["noteRetention"] = noteRetention;
+
+    // Jinjo retention (all files): sparse per-level collected colour bitmasks.
+    ordered_json jinjoRetention = ordered_json::object();
+    for (int l = 0; l < JINJO_RETENTION_LEVEL_SLOTS; l++) {
+        if (!saveData->shipSaveData.jinjoRetention.collected[l]) {
+            continue;
+        }
+        jinjoRetention[std::to_string(l)] = saveData->shipSaveData.jinjoRetention.collected[l];
+    }
+    ship["jinjoRetention"] = jinjoRetention;
+
     if (saveData->shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
         Rando::Logic::GenerateSaveData(saveData);
         shipRando["seedId"] = saveData->shipSaveData.randoSaveData.seedId;
@@ -519,6 +550,38 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 
     // Ship Save Data
     saveData->shipSaveData.fileType = j["ship"]["fileType"];
+
+    // Note retention (all files): clear then load sparse per-map bitfields.
+    for (int m = 0; m < NOTE_RETENTION_MAP_SLOTS; m++) {
+        for (int b = 0; b < NOTE_RETENTION_BYTES_PER_MAP; b++) {
+            saveData->shipSaveData.noteRetention.collected[m][b] = 0;
+        }
+    }
+    if (j.contains("ship") && j["ship"].contains("noteRetention")) {
+        for (auto& [key, bytes] : j["ship"]["noteRetention"].items()) {
+            int m = std::stoi(key);
+            if (m < 0 || m >= NOTE_RETENTION_MAP_SLOTS) {
+                continue;
+            }
+            for (int b = 0; b < NOTE_RETENTION_BYTES_PER_MAP && b < (int)bytes.size(); b++) {
+                saveData->shipSaveData.noteRetention.collected[m][b] = bytes[b].get<uint8_t>();
+            }
+        }
+    }
+
+    // Jinjo retention (all files): clear then load sparse per-level bitmasks.
+    for (int l = 0; l < JINJO_RETENTION_LEVEL_SLOTS; l++) {
+        saveData->shipSaveData.jinjoRetention.collected[l] = 0;
+    }
+    if (j.contains("ship") && j["ship"].contains("jinjoRetention")) {
+        for (auto& [key, bits] : j["ship"]["jinjoRetention"].items()) {
+            int l = std::stoi(key);
+            if (l < 0 || l >= JINJO_RETENTION_LEVEL_SLOTS) {
+                continue;
+            }
+            saveData->shipSaveData.jinjoRetention.collected[l] = bits.get<uint8_t>();
+        }
+    }
 
     if (j["ship"]["fileType"].get<int>() == FILE_TYPE_SAVE_RANDO) {
         json rando = j["ship"]["rando"];

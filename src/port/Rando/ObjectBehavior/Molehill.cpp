@@ -173,7 +173,7 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
 
     COND_VB_SHOULD(VB_OVERRIDE_BOTTLES_TEXT_CALLBACK, EVENT_PRIORITY_NORMAL, true, {
         Actor* molehillActor = va_arg(args, Actor*);
-        
+
         if (!IS_RANDO && !OPTION_ENABLED) {
             return;
         }
@@ -190,7 +190,7 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
         if (!IS_RANDO && !OPTION_ENABLED) {
             return;
         }
-        
+
         if (CheckBridgeState()) {
             *should = true;
         }
