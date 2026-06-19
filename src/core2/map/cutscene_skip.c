@@ -31,9 +31,7 @@ u8 D_80383190;
 // cutscene_skipIntroCutsceneCheck
 bool cutscene_skipIntroCutsceneCheck(void) {
     // [port] Skip intro cutscene
-    bool skipIntro = false;
-    CALL_EVENT(OnIntroCutsceneCheck, &skipIntro);
-    if (skipIntro && func_8024E698(0) == 1) { return true; }
+    if (!EventSystem_Should(VB_PLAY_INTRO_CUTSCENE, true) && func_8024E698(0) == 1) { return true; }
 
     if ((func_8024E698(0) == 1) && (gameFile_anyNonEmpty() != 0)) {
         return true;

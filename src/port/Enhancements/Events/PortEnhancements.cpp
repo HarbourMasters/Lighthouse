@@ -47,11 +47,9 @@ void PortEnhancements_Register() {
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);
     REGISTER_EVENT(OnBoggyRaceSetSpeed);
-    REGISTER_EVENT(OnBootLogosCheck);
     REGISTER_EVENT(OnFurnaceFunDialog);
     REGISTER_EVENT(OnGeoCull);
     REGISTER_EVENT(OnGruntyJinjonatorComplete);
-    REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
     REGISTER_EVENT(OnNametagDraw);

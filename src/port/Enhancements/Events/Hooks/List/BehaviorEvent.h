@@ -14,10 +14,8 @@ extern "C" {
 
 DEFINE_EVENT(OnBeakSwimVelocitySet, f32* velocity;)
 DEFINE_EVENT(OnBoggyRaceSetSpeed, f32* speed;)
-DEFINE_EVENT(OnBootLogosCheck, bool* skipLogos;)
 DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
 DEFINE_EVENT(OnGruntyJinjonatorComplete)
-DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)
 DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
 DEFINE_EVENT(OnMumboTokenIdResolve, s32* tokenId; s32 * position; s32 mapId;)
 DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position;
