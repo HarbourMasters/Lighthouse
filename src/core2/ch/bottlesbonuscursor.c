@@ -4,6 +4,7 @@
 #include "variables.h"
 
 #include "bk_time.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #ifndef ABS
 #define	ABS(d)		((d) >= 0) ? (d) : -(d)
@@ -156,7 +157,9 @@ void chBottlesBonusCursor_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         (s32)sp3C, (s32)sp3C,
         gFramebuffers[getActiveFramebuffer()]
     );
+    FrameInterpolation_RecordOpenChild("bbonus_cursor", 0);
     modelRender_draw(gfx, mtx, this->position, rotation, this->scale, NULL, marker_loadModelBin(chBottlesBonusCursorMarker));
+    FrameInterpolation_RecordCloseChild();
     viewport_func_8024E030(this->position, D_8037E5C0.unk10);
     if (this->state == 1) {
         D_8037E5C0.unk10[0] -= 24.0f;

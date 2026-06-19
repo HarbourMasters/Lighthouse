@@ -12,8 +12,8 @@ extern Gfx D_803688E8[] = {
     gsDPSetCycleType(G_CYC_1CYCLE),
     gsDPPipelineMode(G_PM_NPRIMITIVE),
     gsDPSetAlphaCompare(G_AC_NONE),
-    gsDPSetCombineLERP(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    gsDPSetRenderMode(IM_RD | CVG_DST_SAVE | ZMODE_OPA | FORCE_BL | GBL_c1(G_BL_CLR_FOG, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1MA), IM_RD | CVG_DST_SAVE | ZMODE_OPA | FORCE_BL | G_RM_NOOP2),
+    gsDPSetCombineMode(G_CC_PRIMITIVE, G_CC_PRIMITIVE),
+    gsDPSetRenderMode(IM_RD | CVG_DST_SAVE | ZMODE_OPA | FORCE_BL | GBL_c1(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA), IM_RD | CVG_DST_SAVE | ZMODE_OPA | FORCE_BL | G_RM_NOOP2),
     gsSPEndDisplayList(),
 }; //_gcBoundDisplayList
 
@@ -25,8 +25,9 @@ u8 _gcbound_blue; //D_80380902
 /* .code */
 void  _gcbound_draw(Gfx** dl, s32 a, s32 r, s32 g, s32 b){
     gSPDisplayList((*dl)++, D_803688E8);
-    gDPSetFogColor((*dl)++, r, g, b, a);
-    gSPTextureRectangle((*dl)++, 0,  0, (gFramebufferWidth-1)<<2, (gFramebufferHeight-1)<<2, 0, 0, 0, 0x100, 0x100);
+    gDPSetPrimColor((*dl)++, 0, 0, r, g, b, a);
+    // [port] Overscan past the 4:3 native bounds so the fade still fills the screen
+    gSPWideTextureRectangle((*dl)++, -1024, -1024, 2048, 2048, 0, 0, 0, 0x100, 0x100);
 }
 
 void gcbound_draw(Gfx** dl){

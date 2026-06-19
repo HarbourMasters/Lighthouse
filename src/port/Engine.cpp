@@ -1485,32 +1485,35 @@ extern "C" float OTRGetHUDAspectRatio() {
     return ((float)CVarGetInteger("gHUDAspectRatio.X", 1) / (float)CVarGetInteger("gHUDAspectRatio.Y", 1));
 }
 
+static float OTRWidescreenHalfHeight() {
+    auto interpreter = GameEngine_GetInterpreter();
+    return interpreter->mNativeDimensions.width * 3.0f / 4.0f / 2.0f;
+}
+
 extern "C" float OTRGetDimensionFromLeftEdge(float v) {
     auto interpreter = GameEngine_GetInterpreter();
     return (interpreter->mNativeDimensions.width / 2 -
-            interpreter->mNativeDimensions.height / 2 * interpreter->mCurDimensions.aspect_ratio + (v));
+            OTRWidescreenHalfHeight() * interpreter->mCurDimensions.aspect_ratio + (v));
 }
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
     auto interpreter = GameEngine_GetInterpreter();
     return (interpreter->mNativeDimensions.width / 2 +
-            interpreter->mNativeDimensions.height / 2 * interpreter->mCurDimensions.aspect_ratio -
+            OTRWidescreenHalfHeight() * interpreter->mCurDimensions.aspect_ratio -
             (interpreter->mNativeDimensions.width - v));
 }
 
 extern "C" float OTRGetDimensionFromLeftEdgeForcedAspect(float v, float aspectRatio) {
     auto interpreter = GameEngine_GetInterpreter();
     return (interpreter->mNativeDimensions.width / 2 -
-            interpreter->mNativeDimensions.height / 2 *
-                (aspectRatio > 0 ? aspectRatio : interpreter->mCurDimensions.aspect_ratio) +
+            OTRWidescreenHalfHeight() * (aspectRatio > 0 ? aspectRatio : interpreter->mCurDimensions.aspect_ratio) +
             (v));
 }
 
 extern "C" float OTRGetDimensionFromRightEdgeForcedAspect(float v, float aspectRatio) {
     auto interpreter = GameEngine_GetInterpreter();
     return (interpreter->mNativeDimensions.width / 2 +
-            interpreter->mNativeDimensions.height / 2 *
-                (aspectRatio > 0 ? aspectRatio : interpreter->mCurDimensions.aspect_ratio) -
+            OTRWidescreenHalfHeight() * (aspectRatio > 0 ? aspectRatio : interpreter->mCurDimensions.aspect_ratio) -
             (interpreter->mNativeDimensions.width - v));
 }
 
