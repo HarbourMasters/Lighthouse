@@ -22,6 +22,7 @@
 // #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
 
 #include "Notification.h"
+#include "port/Enhancements/Gameplay/EggAim.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
 #include "LighthouseModMenuWindow.h"
@@ -66,6 +67,7 @@ std::shared_ptr<Notification::Window> mNotificationWindow;
 // std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
 std::shared_ptr<InputViewer> mInputViewer;
 std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
+std::shared_ptr<EggAimCrosshairWindow> mEggAimCrosshair;
 std::shared_ptr<LighthouseModalWindow> mModalWindow;
 std::shared_ptr<EventDebuggerWindow> mEventDebuggerWindow;
 std::shared_ptr<OcclusionDebugWindow> mOcclusionDebugWindow;
@@ -175,6 +177,10 @@ void SetupGuiElements() {
     gui->AddGuiWindow(mNotificationWindow);
     mNotificationWindow->Show();
 
+    mEggAimCrosshair = std::make_shared<EggAimCrosshairWindow>("gWindows.EggAimCrosshair", "Egg Aim Crosshair");
+    gui->AddGuiWindow(mEggAimCrosshair);
+    mEggAimCrosshair->Show();
+
     // mRandoCheckTrackerWindow = std::make_shared<Rando::CheckTracker::CheckTrackerWindow>(
     //     "gWindows.CheckTracker", "Check Tracker", ImVec2(375, 460));
     // gui->AddGuiWindow(mRandoCheckTrackerWindow);
@@ -226,6 +232,7 @@ void Destroy() {
     // mItemTrackerSettingsWindow = nullptr;
     mInputViewer = nullptr;
     mInputViewerSettings = nullptr;
+    mEggAimCrosshair = nullptr;
     mEventDebuggerWindow = nullptr;
     mOcclusionDebugWindow = nullptr;
 }

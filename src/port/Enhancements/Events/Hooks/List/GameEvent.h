@@ -16,3 +16,5 @@ typedef enum WarpId {
 } WarpId;
 
 DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;);
+DEFINE_EVENT(EggHeadSpawn, float* pitch; float* spawnHeight; float* minVerticalVelocity; float* yawBias;
+             int32_t * flattenTrajectory;);

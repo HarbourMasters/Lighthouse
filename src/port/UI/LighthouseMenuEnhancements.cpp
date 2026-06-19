@@ -287,6 +287,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Hold A+B while underwater to combine Banjo's kick with Kazooie's wing stroke for faster swimming."));
 
+    AddWidget(path, "First-Person Egg Aim", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.EggAim"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Backports Banjo-Tooie's Egg Aim to fire eggs while in first-person camera view."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);
