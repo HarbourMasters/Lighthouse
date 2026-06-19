@@ -164,6 +164,16 @@ void fxegg_head_spawn(void){
     ActorMarker *marker = func_8033E840();
     f32 tmp_f8 = 20.0f;
 
+    // [port] Egg-head spawn parameters. Defaults reproduce vanilla behavior;
+    // listeners (EggAim first-person firing) may override them via EggHeadSpawn.
+    f32 pitch = 0.0f;
+    f32 spawnHeight = 80.0f;
+    f32 minVerticalVelocity = 0.0f;
+    f32 yawBias = 4.0f;
+    s32 flattenTrajectory = 1;
+
+    CALL_EVENT(EggHeadSpawn, &pitch, &spawnHeight, &minVerticalVelocity, &yawBias, &flattenTrajectory);
+
     marker->unk2C_1 = 1;
     marker->collidable = true;
     func_803300B8(marker, (MarkerCollisionFunc)fxegg_collide);
@@ -171,10 +181,10 @@ void fxegg_head_spawn(void){
     func_8033EA40(1, 0.0f);
     func_8033EA40(2, 0.0f);
     _player_getPosition(sp50);
-    sp50[1] += 80.0f;
+    sp50[1] += spawnHeight;
     ml_vec3f_copy(sp68, sp50);
     player_getRotation(sp44);
-    func_80256E24(sp5C, 0.0f, sp44[1], 0.0f, 0.0f, 70.0f);
+    func_80256E24(sp5C, pitch, sp44[1], 0.0f, 0.0f, 70.0f);
     sp50[0] += sp5C[0];
     sp50[1] += sp5C[1];
     sp50[2] += sp5C[2];
@@ -190,11 +200,13 @@ void fxegg_head_spawn(void){
     animsprite_loop(sp78);
 
     func_80344E18(sp77, 1);
-    func_80344EE4(sp77, 0.0f, 0.0f);
+    func_80344EE4(sp77, 0.0f, minVerticalVelocity);
     func_80344D94(sp77, sp50);
-    sp44[1] += 4.0;
-    func_80256E24(sp5C, 0.0f, sp44[1], 0.0f, 0.0f, 800.0f);
-    sp5C[1] = 0.0f;
+    sp44[1] += yawBias;
+    func_80256E24(sp5C, pitch, sp44[1], 0.0f, 0.0f, 800.0f);
+    if (flattenTrajectory) {
+        sp5C[1] = 0.0f;
+    }
     func_80344E3C(sp77, sp5C);
 }
 
