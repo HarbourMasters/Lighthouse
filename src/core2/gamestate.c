@@ -82,6 +82,11 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
         }
     }
 
+    // [port] Difficulty scale
+    if(item == ITEM_14_HEALTH && diff < 0){
+        diff = -port_scalePlayerDamage(-diff);
+    }
+
     sp28 =  D_80385F30[item] =  MAX(0, D_80385F30[item] + diff);
    // sp20;
 

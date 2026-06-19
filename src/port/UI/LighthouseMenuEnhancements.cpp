@@ -249,6 +249,19 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddSidebarEntry("Enhancements", path.sidebarName, 3);
     path.column = SECTION_COLUMN_1;
 
+    AddWidget(path, "Difficulty", WIDGET_CVAR_COMBOBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.Difficulty"))
+        .RaceDisable(false)
+        .Options(ComboboxOptions()
+                     .Tooltip("Scales the damage taken from enemies and hazards.")
+                     .ComboMap({
+                         { 1, "Normal" },
+                         { 2, "Hard" },
+                         { 3, "Brutal" },
+                         { 4, "One-Hit" },
+                     })
+                     .DefaultIndex(1));
+
     AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"))
         .RaceDisable(false)

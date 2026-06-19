@@ -49,6 +49,10 @@ void port_camera_applyWsYawFix(float rotation[3]);
 
 float port_getRumbleScale(void);
 
+// Gameplay
+
+int port_scalePlayerDamage(int damage);
+
 // Graphics (GraphicsPatches.cpp)
 
 int port_getDrawDistanceLevel(void);
