@@ -36,12 +36,14 @@ void chfinalboss_setPhase(ActorMarker* marker, int phase);
 void code_7060_setVoidOutLocation(int map_id, int exit_id);
 void func_8028F784(int lock);
 void func_80324E38(float time, int mode);
+void game_setMode(int next_mode, int arg1);
 
 // Final boss — loadout grant
 void ability_setAllLearned(int val);
 void ability_setAllUsed(int val);
 int item_getCount(int item);
 void item_adjustByDiffWithoutHud(int item, int diff);
+void honeycombscore_set(int indx, int val);
 void fileProgressFlag_set(int index, int set);
 
 // Phase 3
@@ -155,6 +157,9 @@ static void GrantFullLoadout() {
     MaxItemQuiet(ITEM_D_EGGS);
     MaxItemQuiet(ITEM_F_RED_FEATHER);
     MaxItemQuiet(ITEM_10_GOLD_FEATHER);
+    for (int i = 1; i <= 24; i++) {
+        honeycombscore_set(i, 1);
+    }
 }
 
 // Reposition Grunty
@@ -170,7 +175,10 @@ static bool ApplyPhase(int phase) {
         return false;
     }
 
-    // Enable input, camera control, and set voidout location
+    if (getGameMode() != GAME_MODE_3_NORMAL) {
+        game_setMode(GAME_MODE_3_NORMAL, 1);
+    }
+
     func_8028F784(0);
     func_80324E38(0.0f, 0);
     code_7060_setVoidOutLocation(MAP_90_GL_BATTLEMENTS, WARP_GL_TOWER_5_ENTRANCE);
