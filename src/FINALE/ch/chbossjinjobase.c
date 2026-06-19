@@ -85,6 +85,12 @@ void chBossJinjoBase_update(Actor *this) {
     marker_loadModelBin(this->marker);
 
     if (!this->volatile_initialized) {
+    // [port] Zero the marker's skinning list
+    if (EventSystem_Should(VB_VOID_OUT_GAME_OVER, true)) {
+        if (this->marker->unk20) {
+            this->marker->unk20 = 0;
+        }
+    }
         this->volatile_initialized = true;
         marker_setCollisionScripts(this->marker, NULL, chBossJinjoBase_getHitByEgg, NULL);
         marker_setFreeMethod(this->marker, chBossJinjoBase_free);

@@ -212,6 +212,11 @@ void LighthouseMenu::AddMenuEnhancements() {
             "Losing Boggy's race with no extra lives reloads the race instead of "
             "triggering a game over."));
 
+    AddWidget(path, "Fix Jinjo Statue Softlock", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.JinjoStatueHitbox"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Prevents the Jinjo statues from losing their egg hitboxes in the final battle."));
+
     AddWidget(path, "Fix Grunty Jinjo Charge Sound", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.JinjoChargeSound"))
         .RaceDisable(false)

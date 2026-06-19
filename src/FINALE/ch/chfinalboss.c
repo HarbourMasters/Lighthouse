@@ -563,9 +563,11 @@ void chfinalboss_setPhase(ActorMarker *this, enum ch_finalboss_phase_e phase_id)
     {
         case FINALBOSS_PHASE_0_INTRO:
             subaddie_set_state_with_direction(actor, 1, 0.0001f, 1);
-            timed_setStaticCameraToNode(0.0f, 0);
-            timed_exitStaticCamera(2.0f);
-            timed_setStaticCameraToNode(2.0f, 1);
+            if (EventSystem_Should(VB_FINALBOSS_ENTERING_DIALOG, true)) {
+                timed_setStaticCameraToNode(0.0f, 0);
+                timed_exitStaticCamera(2.0f);
+                timed_setStaticCameraToNode(2.0f, 1);
+            }
             timedFunc_set_1(2.0f, (GenFunction_1)chfinalboss_func_8038B780, (uintptr_t)actor->marker);
             break;
 
@@ -1957,6 +1959,10 @@ void chfinalboss_func_8038B780(ActorMarker *marker) {
     Actor *sp24;
 
     sp24 = marker_getActor(marker);
+    // [port] Dev tools suppress the entering dialog when warping straight into a phase.
+    if (!EventSystem_Should(VB_FINALBOSS_ENTERING_DIALOG, true)) {
+        return;
+    }
     if (!fileProgressFlag_get(FILEPROG_CF_HAS_ENTERED_FINAL_FIGHT)) {
         fileProgressFlag_set(FILEPROG_CF_HAS_ENTERED_FINAL_FIGHT, true);
         gcdialog_showDialog(ASSET_10E7_DIALOG_FINALBOSS_ENTERING_1, 0x2A, sp24->position, sp24->marker, chfinalboss_phase0_endTextCallback, NULL);

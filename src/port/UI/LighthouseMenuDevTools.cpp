@@ -5,7 +5,7 @@
 #include "LighthouseModals.h"
 //#include <soh/GameVersions.h>
 #include "port/ResourceHelpers.h"
-#include "port/DevTools/DevSequences.h"
+#include "port/DevTools/Sequences.h"
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
@@ -89,7 +89,7 @@ void LighthouseMenu::AddMenuDevTools() {
     // Sequences (dev: jump straight to a parade or demo)
     using namespace Lighthouse::DevTools;
     path.sidebarName = "Sequences";
-    AddSidebarEntry("Dev Tools", "Sequences", 1);
+    AddSidebarEntry("Dev Tools", "Sequences", 2);
 
     AddWidget(path, "Parades", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Furnace Fun Parade", WIDGET_BUTTON)
@@ -117,6 +117,26 @@ void LighthouseMenu::AddMenuDevTools() {
     for (const auto& d : kAttractDemos) {
         AddWidget(path, fmt::format("{}", d.name), WIDGET_BUTTON)
             .Callback([demo = d.demo](WidgetInfo&) { RequestSequence(SEQ_ATTRACT_BASE + demo); })
+            .Options(ButtonOptions().Size(Sizes::Inline));
+    }
+
+    // Final Boss
+    path.column = SECTION_COLUMN_2;
+
+    AddWidget(path, "Final Boss", WIDGET_SEPARATOR_TEXT);
+    static const struct {
+        const char* name;
+        int phase;
+    } kBossPhases[] = {
+        { "Phase 1: Broomstick", 1 },
+        { "Phase 2: Spells", 2 },
+        { "Phase 3: Flight", 3 },
+        { "Phase 4: Jinjo Statues", 4 },
+        { "Phase 5: Jinjonator", 5 },
+    };
+    for (const auto& p : kBossPhases) {
+        AddWidget(path, p.name, WIDGET_BUTTON)
+            .Callback([phase = p.phase](WidgetInfo&) { RequestFinalBossPhase(phase); })
             .Options(ButtonOptions().Size(Sizes::Inline));
     }
 
