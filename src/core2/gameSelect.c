@@ -441,13 +441,18 @@ void gameSelect_update(Actor *this){
                         gameFile_load(gSelectedGameNum);
                         port_syncBottlesBonusIndex();
                         if(!gameFile_isNotEmpty(sp84)){
-                            // [port] BB romhacks can override the new-game boot map
-                            s32 newGameMap = port_getRomhackNewGameMap();
-                            if (newGameMap < 0) {
-                                newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
-                            }
-                            timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
-                            {
+                            s32 skipIntro = 0;
+                            CALL_EVENT(OnNewGame, &skipIntro);
+                            if (skipIntro) {
+                                timedFunc_set_2(0.0f, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
+                                timedFunc_set_1(0.0f, (GenFunction_1)gsworld_setEnableUpdate, 1);
+                            } else {
+                                // [port] BB romhacks can override the new-game boot map
+                                s32 newGameMap = port_getRomhackNewGameMap();
+                                if (newGameMap < 0) {
+                                    newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
+                                }
+                                timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
                                 if (port_getRomhackKnowAllMoves() >= 0) {
                                     ability_setAllLearned(-1);
                                     ability_setAllUsed(-1);

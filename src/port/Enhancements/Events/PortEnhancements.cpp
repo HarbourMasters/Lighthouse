@@ -69,6 +69,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnPropInit);
     REGISTER_EVENT(OnWarpResolveDest);
+    REGISTER_EVENT(OnNewGame);
 
     REGISTER_EVENT(OnReset);
 
