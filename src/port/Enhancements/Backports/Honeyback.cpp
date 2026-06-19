@@ -13,7 +13,7 @@ extern "C" {
 #include "gc/gctransition.h"
 }
 
-#define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.Honeyback")
+#define CVAR_NAME CVAR_ENHANCEMENT("Backports.Honeyback")
 
 // GameFrameUpdate fires once per 30 Hz game tick.
 static const int TICKS_PER_SECOND = 30;

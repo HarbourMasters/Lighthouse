@@ -22,7 +22,7 @@
 // #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
 
 #include "Notification.h"
-#include "port/Enhancements/Gameplay/EggAim.h"
+#include "port/Enhancements/Backports/EggAim.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
 #include "LighthouseModMenuWindow.h"

@@ -53,7 +53,7 @@ static f32 gDiveSlowProgress = 0.0f;
 static f32 gDiveSlowDuration = 0.75f; // Matches BS_39_DIVE_A playback duration
 static BoneTransformList* gSecondaryBones = nullptr;
 
-#define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.FastSwim")
+#define CVAR_NAME CVAR_ENHANCEMENT("Backports.FastSwim")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Bone modification callback — chains after Bottles Bonus via baanim_setModifyMethod.

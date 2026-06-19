@@ -20,7 +20,7 @@ extern "C" {
 #include "core2/abilityprogress.h"
 }
 
-#define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.EggAim")
+#define CVAR_NAME CVAR_ENHANCEMENT("Backports.EggAim")
 
 namespace {
 
@@ -294,10 +294,6 @@ int sOverlayShown = 0;
 
 } // namespace
 
-// While a first-person shot is in flight, steer the egg-head spawn along the
-// camera pitch from a higher origin, allow it to travel downward, and drop the
-// vanilla upward yaw bias / trajectory flattening. Registered once; self-gates
-// on the CVar and the firing state so ordinary C-down egg shots are untouched.
 void RegisterEggAimSpawn_Init() {
     REGISTER_LISTENER(EggHeadSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         if (!CVarGetInteger(CVAR_NAME, 0) || sFiring == 0) {

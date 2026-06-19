@@ -28,12 +28,6 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Press Start to Skip Intro Cutscenes."));
 
-    AddWidget(path, "Tooie Jiggy Animation", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Cutscenes.TooieJiggyAnimation"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Replaces the jiggy collection dance with a Banjo-Tooie style animation."));
-
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 3);
@@ -254,13 +248,6 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
-    AddWidget(path, "Honeyback Health Regen", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.Honeyback"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Backports Banjo-Tooie's Honeyback: once all 24 empty honeycombs are collected, your health "
-            "slowly refills one honeycomb at a time after a short pause when you stop taking damage."));
-
     AddWidget(path, "Extra Time For GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"))
         .RaceDisable(false)
@@ -281,14 +268,32 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
 
+    // Enhancements -> Tooie Backports
+    path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Tooie Jiggy Animation", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Backports.JiggyAnimation"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Replaces the jiggy collection dance with a Banjo-Tooie style animation."));
+
+    AddWidget(path, "Honeyback Health Regen", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Backports.Honeyback"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Backports Banjo-Tooie's Honeyback: once all 24 empty honeycombs are collected, your health "
+            "slowly refills one honeycomb at a time after a short pause when you stop taking damage."));
+
     AddWidget(path, "Fast Swimming", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.FastSwim"))
+        .CVar(CVAR_ENHANCEMENT("Backports.FastSwim"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
             "Hold A+B while underwater to combine Banjo's kick with Kazooie's wing stroke for faster swimming."));
 
     AddWidget(path, "First-Person Egg Aim", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.EggAim"))
+        .CVar(CVAR_ENHANCEMENT("Backports.EggAim"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
             "Backports Banjo-Tooie's Egg Aim to fire eggs while in first-person camera view."));

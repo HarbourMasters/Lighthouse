@@ -18,7 +18,7 @@ ParticleEmitter* __fxSparkle_create(s16 position[3], f32 height, enum asset_e sp
 f32 player_getYaw(void);
 }
 
-#define CVAR_TOOIE_JIGGY_DANCE CVAR_ENHANCEMENT("Cutscenes.TooieJiggyAnimation")
+#define CVAR_TOOIE_JIGGY_DANCE CVAR_ENHANCEMENT("Backports.JiggyAnimation")
 
 namespace {
 
