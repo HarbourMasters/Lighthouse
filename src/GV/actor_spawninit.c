@@ -516,8 +516,6 @@ void GV_func_8038F154(void)
 }
 
 s32 code7FF0_getMagicCarpetState(Actor *arg0, s32 arg1){
-    // Lighthouse TODO is this an anti-piracy check?
-    return arg1;
 #if ANTI_TAMPER
     if( getGameMode() != GAME_MODE_7_ATTRACT_DEMO 
         && (0xDBF4E829 + *(s32*)PHYS_TO_K1(0x284))
@@ -528,4 +526,5 @@ s32 code7FF0_getMagicCarpetState(Actor *arg0, s32 arg1){
         return arg0->state;
     }
 #endif
+    return arg0->state;
 }
