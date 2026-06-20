@@ -1,8 +1,7 @@
 // Sequences
 //
 // Dev-menu tools: jump straight into an attract demo or character parade, and warp into the
-// Gruntilda battle / drop it into any phase with a full loadout. A button records a pending
-// request that a GameFrameUpdate hook applies on the game thread.
+// Gruntilda battle / drop into any phase with a full loadout.
 
 #include "Sequences.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
@@ -48,8 +47,8 @@ void fileProgressFlag_set(int index, int set);
 
 // Phase 3
 void chfinalboss_phase2_endTextCallback(ActorMarker* marker, int text_id, int arg2);
-int gcdialog_showDialog(int text_id, int arg1, float* pos, ActorMarker* marker,
-                        void (*cb)(ActorMarker*, int, int), void (*endCb)(ActorMarker*, int, int));
+int gcdialog_showDialog(int text_id, int arg1, float* pos, ActorMarker* marker, void (*cb)(ActorMarker*, int, int),
+                        void (*endCb)(ActorMarker*, int, int));
 extern ActorMarker* __chFinalBossFlightPadMarker;
 
 // Phase 4
@@ -66,35 +65,18 @@ void chfinalboss_phase4_setState(Actor* actor, int state);
 namespace Lighthouse {
 namespace DevTools {
 
+// Installs the GameFrameUpdate driver if it isn't already running (see Registration, below).
+static void EnsureDriver();
+
 // Sequences
 
+// Only set for the Spiral Mountain ending, which needs a post-warp dialog handed off to the driver.
 static int sPending = SEQ_NONE;
 
 void RequestSequence(int seq) {
-    sPending = seq;
-}
-
-static void TickSequences() {
-    if (sPending == SEQ_NONE || gctransition_8030BDC0()) {
+    if (gctransition_8030BDC0() || level_get() <= 0) {
         return;
     }
-
-    if (sPending == SEQ_MODE9_DIALOG) {
-        if (getGameMode() != GAME_MODE_9_BANJO_AND_KAZOOIE) {
-            return;
-        }
-        timedFunc_set_1(1.0f, func_80311714, 0);
-        func_80324DBC(1.0f, 0x11C9, 0xA0, nullptr, nullptr, nullptr, nullptr);
-        timedFunc_set_1(1.0f, func_80311714, 1);
-        sPending = SEQ_NONE;
-        return;
-    }
-
-    if (level_get() <= 0) {
-        return;
-    }
-    const int seq = sPending;
-    sPending = SEQ_NONE;
 
     func_8025A55C(0, 0x1388, 0xB);
     func_8025AB00();
@@ -109,12 +91,28 @@ static void TickSequences() {
         case SEQ_MODE9_BK:
             func_8034BA7C(MAP_1_SM_SPIRAL_MOUNTAIN, 93);
             sPending = SEQ_MODE9_DIALOG;
+            EnsureDriver();
             break;
         default:
             D_80386110 = seq - SEQ_ATTRACT_BASE;
             func_8034B968();
             break;
     }
+}
+
+// Spiral Mountain ending: the warp above clears the timed-func queue, so the closing dialog can only
+// be queued once the new map has loaded and entered Mode 9. The driver polls for that.
+static void TickSequences() {
+    if (sPending != SEQ_MODE9_DIALOG || gctransition_8030BDC0()) {
+        return;
+    }
+    if (getGameMode() != GAME_MODE_9_BANJO_AND_KAZOOIE) {
+        return;
+    }
+    timedFunc_set_1(1.0f, func_80311714, 0);
+    func_80324DBC(1.0f, 0x11C9, 0xA0, nullptr, nullptr, nullptr, nullptr);
+    timedFunc_set_1(1.0f, func_80311714, 1);
+    sPending = SEQ_NONE;
 }
 
 // Final Boss
@@ -226,6 +224,7 @@ void RequestFinalBossPhase(int phase) {
     if (gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
         sPendingWarp = true;
     }
+    EnsureDriver();
 }
 
 static void TickFinalBoss() {
@@ -264,20 +263,31 @@ static void TickFinalBoss() {
 
 // Registration
 
+#define SEQUENCES_DRIVER_PATH "Lighthouse.DevTools.Sequences"
+
+static bool DriverNeeded() {
+    return sPending == SEQ_MODE9_DIALOG || sPendingPhase >= 0 || sPendingWarp || sGrantFrames > 0 ||
+           sSuppressDialogFrames > 0;
+}
+
 void RegisterSequences_Init() {
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, DriverNeeded(), [](IEvent*) {
         TickSequences();
         TickFinalBoss();
     });
 
-    REGISTER_VB_SHOULD(VB_FINALBOSS_ENTERING_DIALOG, EVENT_PRIORITY_NORMAL, {
+    COND_VB_SHOULD(VB_FINALBOSS_ENTERING_DIALOG, EVENT_PRIORITY_NORMAL, DriverNeeded(), {
         if (sPendingPhase >= 0 || sSuppressDialogFrames > 0) {
             *should = false;
         }
     });
 }
 
+static void EnsureDriver() {
+    ShipInit::Init(SEQUENCES_DRIVER_PATH);
+}
+
 } // namespace DevTools
 } // namespace Lighthouse
 
-static RegisterShipInitFunc sequencesInit(Lighthouse::DevTools::RegisterSequences_Init);
+static RegisterShipInitFunc sequencesInit(Lighthouse::DevTools::RegisterSequences_Init, { SEQUENCES_DRIVER_PATH });
