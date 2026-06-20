@@ -142,16 +142,24 @@ void func_8031FFAC(void) {
     func_8031FEC0();
 }
 
-void fileProgressFlag_set(enum file_progress_e index, s32 set) {
+void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent) {
     bitfield_set_bit(gFileProgressFlags.unk8, index, set);
     func_8031FC40();
     func_8031FEC0();
+    if (triggerEvent) {
+        CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_FILE_PROGRESS, index, set ? 1 : 0, 1);
+    }
+}
+
+void fileProgressFlag_set(enum file_progress_e index, s32 set) {
+    fileProgressFlag_setEx(index, set, 1);
 }
 
 void fileProgressFlag_setN(enum file_progress_e startIndex, s32 set, s32 length) {
     bitfield_set_n_bits(gFileProgressFlags.unk8, startIndex, set, length);
     func_8031FC40();
     func_8031FEC0();
+    CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_FILE_PROGRESS, startIndex, set, length);
 }
 
 void fileProgressFlag_getSizeAndPtr(s32 *size, u8 **addr) {
@@ -297,16 +305,29 @@ void volatileFlag_clear(void) {
     func_803203A0();
 }
 
-void volatileFlag_set(enum volatile_flags_e index, s32 set) {
+void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent) {
     bitfield_set_bit(gVolatileFlags.unk8, index, set);
     func_803202D0();
     func_803203A0();
+    if (triggerEvent) {
+        CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_VOLATILE, index, set ? 1 : 0, 1);
+    }
+}
+
+void volatileFlag_set(enum volatile_flags_e index, s32 set) {
+    volatileFlag_setEx(index, set, 1);
 }
 
 void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length) {
     bitfield_set_n_bits(gVolatileFlags.unk8, startIndex, set, length);
     func_803202D0();
     func_803203A0();
+    CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_VOLATILE, startIndex, set, length);
+}
+
+void volatileFlag_getSizeAndPtr(s32 *size, u8 **addr) {
+    *size = 0x19;
+    *addr = gVolatileFlags.unk8;
 }
 
 s32 func_8032056C(void) {

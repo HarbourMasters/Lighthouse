@@ -337,6 +337,11 @@ s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
 
 // --- core2/game_complete.c ---
+// Identifies which flag bitfield an OnGameFlagSet event / Anchor flag packet targets.
+enum AnchorFlagSpace {
+    ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
+    ANCHOR_FLAGSPACE_VOLATILE = 1,
+};
 bool fileProgressFlag_get(enum file_progress_e index);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);
 s32 volatileFlag_get(enum volatile_flags_e index);
@@ -345,6 +350,10 @@ s32 volatileFlag_getN(enum volatile_flags_e index, s32 numBits);
 void fileProgressFlag_setN(enum file_progress_e, s32, s32);
 void volatileFlag_set(enum volatile_flags_e index, s32 set);
 void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length);
+// *_setEx: triggerEvent controls whether OnGameFlagSet fires; Anchor passes 0 when
+// applying a remote change so it isn't re-broadcast.
+void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
+void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
 // --- core2/dialog/progress_dialogs.c ---
 void volatileFlag_setAndTriggerDialog_0(enum volatile_flags_e arg0);
@@ -2397,6 +2406,7 @@ s32 func_80320708(void);
 void bitfield_set_bit(u8 *array, s32 index, s32 set);
 void bitfield_set_n_bits(u8 *array, s32 startIndex, s32 set, s32 length);
 void fileProgressFlag_getSizeAndPtr(s32 *size, u8 **addr);
+void volatileFlag_getSizeAndPtr(s32 *size, u8 **addr);
 void fileProgressFlag_set(enum file_progress_e index, s32 set);
 void volatileFlag_backupAll(void);
 void volatileFlag_clear(void);

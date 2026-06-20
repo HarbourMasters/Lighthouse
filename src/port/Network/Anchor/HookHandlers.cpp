@@ -4,6 +4,7 @@
 #include <libultraship/libultraship.h>
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
+#include <unordered_set>
 
 extern "C" {
 #include "variables.h"
@@ -45,6 +46,14 @@ static void Anchor_UpdateVileSync() {
         sSnapshotTimer = 0;
         Anchor::GetInstance()->SendPacket_VileGameState();
     }
+}
+
+// Volatile flags broadcast individually unless listed here (high-churn / per-frame).
+static bool Anchor_ShouldBroadcastVolatileFlag(s32 index) {
+    static const std::unordered_set<s32> syncList = {
+        // Add volatile flags to allow here
+    };
+    return syncList.contains(index);
 }
 
 void Anchor::RegisterHooks() {
@@ -188,29 +197,43 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->OnActorDestroyed(ev->actor);
     });
 
+    // #region Flag sync
+
+    // Broadcast individual flag changes (both spaces). Remote applies use the *_setEx
+    // setters with triggerEvent=0, so this never fires for them (no echo).
+    COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<OnGameFlagSet*>(event);
+        for (s32 i = 0; i < ev->length; i++) {
+            s32 index = ev->index + i;
+            s32 bit;
+            if (ev->flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
+                if (!Anchor_ShouldBroadcastVolatileFlag(index)) {
+                    continue;
+                }
+                bit = volatileFlag_get((enum volatile_flags_e)index);
+            } else {
+                bit = fileProgressFlag_get((enum file_progress_e)index);
+            }
+            if (bit) {
+                anchor->SendPacket_SetFlag((u8)ev->flagSpace, (s16)index);
+            } else {
+                anchor->SendPacket_UnsetFlag((u8)ev->flagSpace, (s16)index);
+            }
+        }
+    });
+
+    // Push the full flag state to teammates on save.
+    COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        Anchor::GetInstance()->SendPacket_UpdateTeamState();
+    });
+
+    // #endregion
+
     //    COND_HOOK(OnPlayerSfx, isConnected, [&](u16 sfxId) { SendPacket_PlayerSfx(sfxId); });
-    //    COND_HOOK(OnOcarinaNote, isConnected,
-    //              [&](uint8_t note, float modulator, int8_t bend) { SendPacket_OcarinaSfx(note, modulator, bend); });
-    //
-    //    COND_HOOK(OnLoadGame, isConnected, [&](s16 fileNum) { justLoadedSave = true; });
-    //
-    //    COND_HOOK(OnSaveFile, isConnected, [&](s16 fileNum, int sectionID) {
-    //        if (sectionID == 0) {
-    //            SendPacket_UpdateTeamState();
-    //        }
-    //    });
-    //
-    //    COND_HOOK(OnFlagSet, isConnected,
-    //              [&](s16 flagType, s16 flag) { SendPacket_SetFlag(SCENE_ID_MAX, flagType, flag); });
-    //
-    //    COND_HOOK(OnFlagUnset, isConnected,
-    //              [&](s16 flagType, s16 flag) { SendPacket_UnsetFlag(SCENE_ID_MAX, flagType, flag); });
-    //
-    //    COND_HOOK(OnSceneFlagSet, isConnected,
-    //              [&](s16 sceneNum, s16 flagType, s16 flag) { SendPacket_SetFlag(sceneNum, flagType, flag); });
-    //
-    //    COND_HOOK(OnSceneFlagUnset, isConnected,
-    //              [&](s16 sceneNum, s16 flagType, s16 flag) { SendPacket_UnsetFlag(sceneNum, flagType, flag); });
     //
     //    COND_HOOK(OnRandoSetCheckStatus, isConnected, [&](RandomizerCheck rc, RandomizerCheckStatus status) {
     //        if (!isHandlingUpdateTeamState) {

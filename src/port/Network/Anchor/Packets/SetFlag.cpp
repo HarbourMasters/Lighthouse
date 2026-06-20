@@ -1,22 +1,18 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/Enhancements/game-interactor/GameInteractor.h"
-//#include "soh/OTRGlobals.h"
 
 extern "C" {
 #include "functions.h"
-
-// extern PlayState* gPlayState;
 }
 
 /**
  * SET_FLAG
  *
- * Fired when a flag is set in the save context
+ * Fired when a flag bit is set (raised) in either flag space.
  */
 
-void Anchor::SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag) {
+void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -25,8 +21,7 @@ void Anchor::SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag) {
     payload["type"] = SET_FLAG;
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["addToQueue"] = true;
-    payload["sceneNum"] = sceneNum;
-    payload["flagType"] = flagType;
+    payload["flagSpace"] = flagSpace;
     payload["flag"] = flag;
 
     SendJsonToRemote(payload);
@@ -37,37 +32,12 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
         return;
     }
 
-    s16 sceneNum = payload.at("sceneNum").get<s16>();
-    s16 flagType = payload.at("flagType").get<s16>();
+    u8 flagSpace = payload.at("flagSpace").get<u8>();
     s16 flag = payload.at("flag").get<s16>();
 
-    // if (sceneNum == SCENE_ID_MAX) {
-    //     auto effect = new GameInteractionEffect::SetFlag();
-    //     effect->parameters[0] = flagType;
-    //     effect->parameters[1] = flag;
-    //     effect->Apply();
-
-    //    // Special case: If King Zora moved, and the player has Ruto's Letter, convert it to an empty bottle
-    //    if (flagType == FLAG_EVENT_CHECK_INF && flag == EVENTCHKINF_KING_ZORA_MOVED &&
-    //        Inventory_HasSpecificBottle(ITEM_LETTER_RUTO)) {
-    //        Inventory_ReplaceItem(gPlayState, ITEM_LETTER_RUTO, ITEM_BOTTLE);
-    //    }
-    //} else {
-    //    // Special case: Ignore water temple water level flags, stored at 0x1C, 0x1D, 0x1E.
-    //    if (sceneNum == SCENE_WATER_TEMPLE && flagType == FLAG_SCENE_SWITCH &&
-    //        (flag == 0x1C || flag == 0x1D || flag == 0x1E)) {
-    //        return;
-    //    }
-
-    //    // Special case: Ignore forest temple elevator flag, stored at 0x1B.
-    //    if (sceneNum == SCENE_FOREST_TEMPLE && flagType == FLAG_SCENE_SWITCH && flag == 0x1B) {
-    //        return;
-    //    }
-
-    //    auto effect = new GameInteractionEffect::SetSceneFlag();
-    //    effect->parameters[0] = sceneNum;
-    //    effect->parameters[1] = flagType;
-    //    effect->parameters[2] = flag;
-    //    effect->Apply();
-    //}
+    if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
+        volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
+    } else {
+        fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
+    }
 }

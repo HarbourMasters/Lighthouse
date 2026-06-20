@@ -183,9 +183,9 @@ public:
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);
     void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);
-    void SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag);
+    void SendPacket_SetFlag(u8 flagSpace, s16 flag);
     void SendPacket_TeleportTo(u32 clientId);
-    void SendPacket_UnsetFlag(s16 sceneNum, s16 flagType, s16 flag);
+    void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();
     void SendPacket_UpdateRoomState();
     void SendPacket_UpdateTeamState();

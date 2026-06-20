@@ -2,25 +2,23 @@
 #include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/OTRGlobals.h"
 #include "port/UI/Notification.h"
+#include <algorithm>
+#include <vector>
 
 extern "C" {
 #include "variables.h"
-// extern PlayState* gPlayState;
+#include "functions.h"
 }
 
 /**
  * UPDATE_TEAM_STATE
  *
- * Pushes the current save state to the server for other teammates to use.
+ * Pushes our full flag state to the server for teammates. Fires when the server passes
+ * on a REQUEST_TEAM_STATE packet, or when this client saves the game.
  *
- * Fires when the server passes on a REQUEST_TEAM_STATE packet, or when this client saves the game
- *
- * When sending this packet we will assume that the team queue has been emptied for this client, so the queue
- * stored in the server will be cleared.
- *
- * When receiving this packet, if there is items in the team queue, we will play them back in order.
+ * Sending assumes the team queue has been drained for this client, so we clear it.
+ * Receiving replays any queued packets in order after applying the state.
  */
 
 void Anchor::SendPacket_UpdateTeamState() {
@@ -28,84 +26,19 @@ void Anchor::SendPacket_UpdateTeamState() {
         return;
     }
 
-    // json payload;
-    // payload["type"] = UPDATE_TEAM_STATE;
-    // payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    s32 fpSize;
+    u8* fpAddr;
+    fileProgressFlag_getSizeAndPtr(&fpSize, &fpAddr);
 
-    //// Assume the team queue has been emptied, so clear it
-    // payload["queue"] = json::array();
+    json payload;
+    payload["type"] = UPDATE_TEAM_STATE;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    payload["queue"] = json::array();
+    payload["state"]["fileProgressFlags"] = std::vector<u8>(fpAddr, fpAddr + fpSize);
+    // Volatile flags intentionally not sent — no consumer yet (furnace-fun sync later).
+    // The receive path still applies them if a "volatileFlags" array is present.
 
-    // payload["state"] = gSaveContext;
-    //// manually update current scene flags
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4] = gPlayState->actorCtx.flags.chest;
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4 + 1] = gPlayState->actorCtx.flags.swch;
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4 + 2] = gPlayState->actorCtx.flags.clear;
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4 + 3] = gPlayState->actorCtx.flags.collect;
-
-    //// The commented out code below is an attempt at sending the entire randomizer seed over, in hopes that a player
-    //// doesn't have to generate the seed themselves Currently it doesn't work :)
-    // if (IS_RANDO) {
-    //     auto randoContext = Rando::Context::GetRawInstance();
-
-    //    payload["state"]["rando"] = json::object();
-    //    payload["state"]["rando"]["itemLocations"] = json::array();
-    //    for (int i = 0; i < RC_MAX; i++) {
-    //        payload["state"]["rando"]["itemLocations"][i] = json::array();
-    //        // payload["state"]["rando"]["itemLocations"][i]["rgID"] =
-    //        // randoContext->GetItemLocation(i)->GetPlacedRandomizerGet();
-    //        payload["state"]["rando"]["itemLocations"][i][0] = randoContext->GetItemLocation(i)->GetCheckStatus();
-    //        payload["state"]["rando"]["itemLocations"][i][1] = (u8)randoContext->GetItemLocation(i)->GetIsSkipped();
-
-    // if (randoContext->GetItemLocation(i)->GetPlacedRandomizerGet() == RG_ICE_TRAP) {
-    //     payload["state"]["rando"]["itemLocations"][i]["fakeRgID"] =
-    //     randoContext->GetItemOverride(i).LooksLike();
-    //     payload["state"]["rando"]["itemLocations"][i]["trickName"] = json::object();
-    //     payload["state"]["rando"]["itemLocations"][i]["trickName"]["english"] =
-    //     randoContext->GetItemOverride(i).GetTrickName().GetEnglish();
-    //     payload["state"]["rando"]["itemLocations"][i]["trickName"]["french"] =
-    //     randoContext->GetItemOverride(i).GetTrickName().GetFrench();
-    // }
-    // if (randoContext->GetItemLocation(i)->HasCustomPrice()) {
-    //     payload["state"]["rando"]["itemLocations"][i]["price"] =
-    //     randoContext->GetItemLocation(i)->GetPrice();
-    // }
-    //}
-
-    // auto entranceCtx = randoContext->GetEntranceShuffler();
-    // for (int i = 0; i < ENTRANCE_OVERRIDES_MAX_COUNT; i++) {
-    //     payload["state"]["rando"]["entrances"][i] = json::object();
-    //     payload["state"]["rando"]["entrances"][i]["type"] = entranceCtx->entranceOverrides[i].type;
-    //     payload["state"]["rando"]["entrances"][i]["index"] = entranceCtx->entranceOverrides[i].index;
-    //     payload["state"]["rando"]["entrances"][i]["destination"] = entranceCtx->entranceOverrides[i].destination;
-    //     payload["state"]["rando"]["entrances"][i]["override"] = entranceCtx->entranceOverrides[i].override;
-    //     payload["state"]["rando"]["entrances"][i]["overrideDestination"] =
-    //     entranceCtx->entranceOverrides[i].overrideDestination;
-    // }
-
-    // payload["state"]["rando"]["seed"] = json::array();
-    // for (int i = 0; i < randoContext->hashIconIndexes.size(); i++) {
-    //     payload["state"]["rando"]["seed"][i] = randoContext->hashIconIndexes[i];
-    // }
-    // payload["state"]["rando"]["inputSeed"] = randoContext->GetSeedString();
-    // payload["state"]["rando"]["finalSeed"] = randoContext->GetSeed();
-
-    // payload["state"]["rando"]["randoSettings"] = json::array();
-    // for (int i = 0; i < RSK_MAX; i++) {
-    //     payload["state"]["rando"]["randoSettings"][i] =
-    //     randoContext->GetOption((RandomizerSettingKey(i))).GetSelectedOptionIndex();
-    // }
-
-    // payload["state"]["rando"]["masterQuestDungeonCount"] = randoContext->GetDungeons()->CountMQ();
-    // payload["state"]["rando"]["masterQuestDungeons"] = json::array();
-    // for (int i = 0; i < randoContext->GetDungeons()->GetDungeonListSize(); i++) {
-    //     payload["state"]["rando"]["masterQuestDungeons"][i] = randoContext->GetDungeon(i)->IsMQ();
-    // }
-    // for (int i = 0; i < randoContext->GetTrials()->GetTrialListSize(); i++) {
-    //     payload["state"]["rando"]["requiredTrials"][i] = randoContext->GetTrial(i)->IsRequired();
-    // }
-    /*}
-
-    SendJsonToRemote(payload);*/
+    SendJsonToRemote(payload);
 }
 
 void Anchor::SendPacket_ClearTeamState(std::string teamId) {
@@ -117,188 +50,48 @@ void Anchor::SendPacket_ClearTeamState(std::string teamId) {
     SendJsonToRemote(payload);
 }
 
+// Copies up to the local bitfield's size from the JSON byte array into addr.
+static void ApplyFlagBytes(nlohmann::json& bytes, u8* addr, s32 size) {
+    s32 count = std::min(size, (s32)bytes.size());
+    for (s32 i = 0; i < count; i++) {
+        addr[i] = bytes[i].get<u8>();
+    }
+}
+
 void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     if (!roomState.syncItemsAndFlags) {
         return;
     }
 
     isHandlingUpdateTeamState = true;
-    // This can happen in between file select and the game starting, so we can't use this check, but we need to ensure
-    // we be careful to wrap PlayState usage in this check
-    //
-    // if (!IsSaveLoaded()) {
-    //     return;
-    // }
 
-    // if (payload.contains("state")) {
-    //     SaveContext loadedData = payload["state"].get<SaveContext>();
+    if (payload.contains("state")) {
+        auto& state = payload["state"];
+        // Direct byte copy into the bitfields — bypasses the setters, so no OnGameFlagSet.
+        if (state.contains("fileProgressFlags")) {
+            s32 size;
+            u8* addr;
+            fileProgressFlag_getSizeAndPtr(&size, &addr);
+            ApplyFlagBytes(state["fileProgressFlags"], addr, size);
+        }
+        if (state.contains("volatileFlags")) {
+            s32 size;
+            u8* addr;
+            volatileFlag_getSizeAndPtr(&size, &addr);
+            ApplyFlagBytes(state["volatileFlags"], addr, size);
+        }
 
-    //    gSaveContext.healthCapacity = loadedData.healthCapacity;
-    //    gSaveContext.magicLevel = loadedData.magicLevel;
-    //    gSaveContext.magicCapacity = gSaveContext.magic = loadedData.magicCapacity;
-    //    gSaveContext.isMagicAcquired = loadedData.isMagicAcquired;
-    //    gSaveContext.isDoubleMagicAcquired = loadedData.isDoubleMagicAcquired;
-    //    gSaveContext.isDoubleDefenseAcquired = loadedData.isDoubleDefenseAcquired;
-    //    gSaveContext.bgsFlag = loadedData.bgsFlag;
-    //    gSaveContext.swordHealth = loadedData.swordHealth;
-    //    gSaveContext.ship.quest = loadedData.ship.quest;
+        Notification::Emit({
+            .message = "Save updated from team",
+        });
+    }
 
-    //    for (int i = 0; i < 124; i++) {
-    //        if (i == SCENE_WATER_TEMPLE) {
-    //            // Keep water temple water level flags
-    //            u32 mask = (1 << 0x1C) | (1 << 0x1D) | (1 << 0x1E);
-    //            loadedData.sceneFlags[i].swch =
-    //                (loadedData.sceneFlags[i].swch & ~mask) | (gSaveContext.sceneFlags[i].swch & mask);
-    //        }
+    if (payload.contains("queue")) {
+        std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
+        for (auto& item : payload["queue"]) {
+            incomingPacketQueue.push(nlohmann::json::parse(item.get<std::string>()));
+        }
+    }
 
-    //        if (i == SCENE_FOREST_TEMPLE) {
-    //            // Keep forest temple elevator flag
-    //            u32 mask = (1 << 0x1B);
-    //            loadedData.sceneFlags[i].swch =
-    //                (loadedData.sceneFlags[i].swch & ~mask) | (gSaveContext.sceneFlags[i].swch & mask);
-    //        }
-
-    //        gSaveContext.sceneFlags[i] = loadedData.sceneFlags[i];
-    //        if (IsSaveLoaded() && gPlayState->sceneNum == i) {
-    //            gPlayState->actorCtx.flags.chest = loadedData.sceneFlags[i].chest;
-    //            gPlayState->actorCtx.flags.swch = loadedData.sceneFlags[i].swch;
-    //            gPlayState->actorCtx.flags.clear = loadedData.sceneFlags[i].clear;
-    //            gPlayState->actorCtx.flags.collect = loadedData.sceneFlags[i].collect;
-    //        }
-    //    }
-
-    //    for (int i = 0; i < 14; i++) {
-    //        gSaveContext.eventChkInf[i] = loadedData.eventChkInf[i];
-    //    }
-
-    //    for (int i = 0; i < 4; i++) {
-    //        gSaveContext.itemGetInf[i] = loadedData.itemGetInf[i];
-    //    }
-
-    //    // Skip last row of infTable, don't want to sync swordless flag
-    //    for (int i = 0; i < 29; i++) {
-    //        gSaveContext.infTable[i] = loadedData.infTable[i];
-    //    }
-
-    //    for (int i = 0; i < ceil((RAND_INF_MAX + 15) / 16); i++) {
-    //        gSaveContext.ship.randomizerInf[i] = loadedData.ship.randomizerInf[i];
-    //    }
-
-    //    for (int i = 0; i < 6; i++) {
-    //        gSaveContext.gsFlags[i] = loadedData.gsFlags[i];
-    //    }
-
-    //    gSaveContext.ship.stats.firstInput = loadedData.ship.stats.firstInput;
-    //    gSaveContext.ship.stats.fileCreatedAt = loadedData.ship.stats.fileCreatedAt;
-
-    //    // Restore master sword state
-    //    // Disabling this for now, not really sure I understand why I did this in the past
-    //    // u8 hasMasterSword = CHECK_OWNED_EQUIP(EQUIP_TYPE_SWORD, 1);
-    //    // if (hasMasterSword) {
-    //    //     loadedData.inventory.equipment |= 0x2;
-    //    // } else {
-    //    //     loadedData.inventory.equipment &= ~0x2;
-    //    // }
-
-    //    // Restore bottle contents (unless it's ruto's letter)
-    //    for (int i = 0; i < 4; i++) {
-    //        if (gSaveContext.inventory.items[SLOT_BOTTLE_1 + i] != ITEM_NONE &&
-    //            gSaveContext.inventory.items[SLOT_BOTTLE_1 + i] != ITEM_LETTER_RUTO) {
-    //            loadedData.inventory.items[SLOT_BOTTLE_1 + i] = gSaveContext.inventory.items[SLOT_BOTTLE_1 + i];
-    //        }
-    //    }
-
-    //    // Restore ammo if it's non-zero, unless it's beans
-    //    for (int i = 0; i < ARRAY_COUNT(gSaveContext.inventory.ammo); i++) {
-    //        if (gSaveContext.inventory.ammo[i] != 0 && i != SLOT(ITEM_BEAN) && i != SLOT(ITEM_BEAN + 1)) {
-    //            loadedData.inventory.ammo[i] = gSaveContext.inventory.ammo[i];
-    //        }
-    //    }
-
-    //    gSaveContext.inventory = loadedData.inventory;
-
-    //    // The commented out code below is an attempt at sending the entire randomizer seed over, in hopes that a
-    //    player
-    //    // doesn't have to generate the seed themselves Currently it doesn't work :)
-    //    if (IS_RANDO && payload["state"].contains("rando")) {
-    //        auto randoContext = Rando::Context::GetRawInstance();
-
-    //        for (int i = 0; i < RC_MAX; i++) {
-    //            auto itemLocation = payload["state"]["rando"].at("itemLocations").at(i);
-    //            // randoContext->GetItemLocation(i)->RefPlacedItem() =
-    //            // itemLocation.at("rgID").get<RandomizerGet>();
-    //            OTRGlobals::Instance->gRandoContext->GetItemLocation(i)->SetCheckStatus(
-    //                itemLocation.at(0).get<RandomizerCheckStatus>());
-    //            OTRGlobals::Instance->gRandoContext->GetItemLocation(i)->SetIsSkipped(itemLocation.at(1).get<u8>());
-
-    //            // if (itemLocation.contains("fakeRgID")) {
-    //            //     randoContext->overrides.emplace(static_cast<RandomizerCheck>(i),
-    //            //     Rando::ItemOverride(static_cast<RandomizerCheck>(i),
-    //            //     itemLocation.at("fakeRgID").get<RandomizerGet>()));
-    //            //     randoContext->GetItemOverride(i).GetTrickName().english =
-    //            //     itemLocation.at("trickName").at("english").get<std::string>();
-    //            //     randoContext->GetItemOverride(i).GetTrickName().french =
-    //            //     itemLocation.at("trickName").at("french").get<std::string>();
-    //            // }
-    //            // if (itemLocation.contains("price")) {
-    //            //     u16 price = itemLocation.at("price"].get<u16>();
-    //            //     if (price > 0) {
-    //            //         randoContext->GetItemLocation(i)->SetCustomPrice(price);
-    //            //     }
-    //            // }
-    //        }
-
-    //        // auto entranceCtx = randoContext->GetEntranceShuffler();
-    //        // for (int i = 0; i < ENTRANCE_OVERRIDES_MAX_COUNT; i++) {
-    //        //     entranceCtx->entranceOverrides[i].type =
-    //        //     payload["state"]["rando"]["entrances"][i]["type"].get<u16>();
-    //        entranceCtx->entranceOverrides[i].index
-    //        //     = payload["state"]["rando"]["entrances"][i]["index"].get<s16>();
-    //        //     entranceCtx->entranceOverrides[i].destination =
-    //        //     payload["state"]["rando"]["entrances"][i]["destination"].get<s16>();
-    //        //     entranceCtx->entranceOverrides[i].override =
-    //        //     payload["state"]["rando"]["entrances"][i]["override"].get<s16>();
-    //        //     entranceCtx->entranceOverrides[i].overrideDestination =
-    //        //     payload["state"]["rando"]["entrances"][i]["overrideDestination"].get<s16>();
-    //        // }
-
-    //        // for (int i = 0; i < randoContext->hashIconIndexes.size(); i++) {
-    //        //     randoContext->hashIconIndexes[i] = payload["state"]["rando"]["seed"][i].get<u8>();
-    //        // }
-    //        // randoContext->GetSettings()->SetSeedString(payload["state"]["rando"]["inputSeed"].get<std::string>());
-    //        // randoContext->GetSettings()->SetSeed(payload["state"]["rando"]["finalSeed"].get<u32>());
-
-    //        // for (int i = 0; i < RSK_MAX; i++) {
-    //        //
-    //        randoContext->GetOption(RandomizerSettingKey(i)).SetSelectedIndex(payload["state"]["rando"]["randoSettings"][i].get<u8>());
-    //        // }
-
-    //        // randoContext->GetDungeons()->ClearAllMQ();
-    //        // for (int i = 0; i < randoContext->GetDungeons()->GetDungeonListSize(); i++) {
-    //        //     if (payload["state"]["rando"]["masterQuestDungeons"][i].get<bool>()) {
-    //        //         randoContext->GetDungeon(i)->SetMQ();
-    //        //     }
-    //        // }
-
-    //        // randoContext->GetTrials()->SkipAll();
-    //        // for (int i = 0; i < randoContext->GetTrials()->GetTrialListSize(); i++) {
-    //        //     if (payload["state"]["rando"]["requiredTrials"][i].get<bool>()) {
-    //        //         randoContext->GetTrial(i)->SetAsRequired();
-    //        //     }
-    //        // }
-    //    }
-
-    //    Notification::Emit({
-    //        .message = "Save updated from team",
-    //    });
-    //}
-
-    // if (payload.contains("queue")) {
-    //     std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
-    //     for (auto& item : payload["queue"]) {
-    //         nlohmann::json itemPayload = nlohmann::json::parse(item.get<std::string>());
-    //         incomingPacketQueue.push(itemPayload);
-    //     }
-    // }
-    // isHandlingUpdateTeamState = false;
+    isHandlingUpdateTeamState = false;
 }
