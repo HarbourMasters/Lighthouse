@@ -53,14 +53,12 @@ extern "C" void port_syncBottlesBonusIndex(void) {
 }
 
 void RegisterStopNSwop100_Init() {
-    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_NAME_STOPNSWOP, [](IEvent* event) {
-        if (CVarGetInteger(CVAR_NAME_STOPNSWOP, 0)) {
-            if (jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
-                for (int i = 1; i < SNS_ITEM_length; i++) {
-                    sns_set_item_state(i, SNS_UNLOCKED, true);
-                }
-                sns_update_global_save_data_checksum();
+    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_STOPNSWOP, [](IEvent* event) {
+        if (jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
+            for (int i = 1; i < SNS_ITEM_length; i++) {
+                sns_set_item_state(i, SNS_UNLOCKED, true);
             }
+            sns_update_global_save_data_checksum();
         }
     });
 }
@@ -68,11 +66,6 @@ void RegisterStopNSwop100_Init() {
 void RegisterRestoreExtraLives_Init() {
     COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_EXTRA_LIVES, [](IEvent* event) {
         OnGameLoad* ev = (OnGameLoad*)event;
-
-        if (!CVAR_EXTRA_LIVES) {
-            D_80385F30[ITEM_16_LIFE] = 3;
-            return;
-        }
 
         if (ev->fileNum < 0 || ev->fileNum >= SAVE_SLOT_COUNT) {
             return;
@@ -89,7 +82,7 @@ void RegisterRestoreExtraLives_Init() {
 }
 
 void RegisterRestoreBottlesBonus_Init() {
-    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_NAME_BOTTLES_BONUS, [](IEvent* event) {
+    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_BOTTLES_BONUS, [](IEvent* event) {
         // Bottles bonus data is loaded from global.json at init.
         // On game load, just set the skip-text flags if any are completed.
         bool anyCompleted = false;

@@ -24,8 +24,8 @@ constexpr ability_e kSpiralMountainAbilities[] = {
 } // namespace
 
 void RegisterSkipSMTutorial_Init() {
-    REGISTER_LISTENER(OnNewGame, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (!CVarGetInteger(CVAR_NAME, 0) || port_isRomhack()) {
+    COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent* event) {
+        if (port_isRomhack()) {
             return;
         }
         auto* ev = reinterpret_cast<OnNewGame*>(event);
@@ -48,4 +48,4 @@ void RegisterSkipSMTutorial_Init() {
     });
 }
 
-static RegisterShipInitFunc skipIntroInitFunc(RegisterSkipSMTutorial_Init);
+static RegisterShipInitFunc skipIntroInitFunc(RegisterSkipSMTutorial_Init, { CVAR_NAME });
