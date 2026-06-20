@@ -10,3 +10,4 @@ extern "C" int port_scalePlayerDamage(int damage) {
         return 9999;
     }
     return damage * (mode < 1 ? 1 : mode);
+}
