@@ -91,11 +91,23 @@ void Anchor::RegisterHooks() {
     });
 
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_HIGH, isConnected, [](IEvent* event) {
-        Anchor::GetInstance()->SendPacket_PlayerUpdate();
-        Anchor::GetInstance()->ProcessIncomingPacketQueue();
-        Anchor::GetInstance()->RefreshClientActors();
-        Anchor::GetInstance()->UpdateDummies();
+        auto* anchor = Anchor::GetInstance();
+        anchor->SendPacket_PlayerUpdate();
+        anchor->ProcessIncomingPacketQueue();
+        anchor->RefreshClientActors();
+        anchor->UpdateDummies();
         Anchor_UpdateVileSync();
+
+        // Pull team state once per loaded-save session. OnMapLoad is too early — gsworld
+        // flips the map after the event, so IsSaveLoaded() is still false there.
+        if (anchor->isConnected && anchor->IsSaveLoaded()) {
+            if (!anchor->hasRequestedTeamState) {
+                anchor->SendPacket_RequestTeamState();
+                anchor->hasRequestedTeamState = true;
+            }
+        } else {
+            anchor->hasRequestedTeamState = false;
+        }
     });
 
     COND_HOOK(OnPlayerTransformChange, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {

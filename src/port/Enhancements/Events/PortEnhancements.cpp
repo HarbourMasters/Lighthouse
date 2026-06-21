@@ -68,6 +68,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnVileGameStateChange);
 
     // Register game events
+    REGISTER_EVENT(OnGameFlagSet);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
     REGISTER_EVENT(OnSaveFileLoad);

@@ -143,10 +143,11 @@ void func_8031FFAC(void) {
 }
 
 void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent) {
+    s32 changed = bitfield_get_bit(gFileProgressFlags.unk8, index) != (set ? 1 : 0);
     bitfield_set_bit(gFileProgressFlags.unk8, index, set);
     func_8031FC40();
     func_8031FEC0();
-    if (triggerEvent) {
+    if (triggerEvent && changed) {
         CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_FILE_PROGRESS, index, set ? 1 : 0, 1);
     }
 }
@@ -306,10 +307,11 @@ void volatileFlag_clear(void) {
 }
 
 void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent) {
+    s32 changed = bitfield_get_bit(gVolatileFlags.unk8, index) != (set ? 1 : 0);
     bitfield_set_bit(gVolatileFlags.unk8, index, set);
     func_803202D0();
     func_803203A0();
-    if (triggerEvent) {
+    if (triggerEvent && changed) {
         CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_VOLATILE, index, set ? 1 : 0, 1);
     }
 }

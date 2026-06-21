@@ -55,6 +55,8 @@ private:
     bool justLoadedSave = false;
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
+    // One-shot guard: request team state once per loaded-save session (reset at file select).
+    bool hasRequestedTeamState = false;
     std::queue<nlohmann::json> incomingPacketQueue;
     std::mutex incomingPacketQueueMutex;
     std::queue<nlohmann::json> outgoingPacketQueue;

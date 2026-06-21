@@ -54,6 +54,7 @@ void Anchor::OnConnected() {
 
     if (IsSaveLoaded()) {
         SendPacket_RequestTeamState();
+        hasRequestedTeamState = true;
     }
 }
 

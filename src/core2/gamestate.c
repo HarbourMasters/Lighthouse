@@ -472,6 +472,12 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
     }
 }
 
+// Raw per-level note-score array, for Anchor team-state sync (vs. the packed u64 above).
+void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
+    *size = 0xE;
+    *addr = D_80385FF0;
+}
+
 void itemscore_noteScoress_maxAll(void) {
     s32 i;
 

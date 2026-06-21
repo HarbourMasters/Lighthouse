@@ -2985,6 +2985,7 @@ void item_setMaxCount(s32 item);
 void itemscore_highNoteScores_fromSaveData(u8 *savedata);
 void itemscore_levelReset(enum level_e level);
 void notescore_getSizeAndPtr(s32 *size, void **ptr);
+void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr);
 void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 
