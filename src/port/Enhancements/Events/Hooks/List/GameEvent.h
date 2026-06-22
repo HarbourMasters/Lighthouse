@@ -1,0 +1,31 @@
+#pragma once
+
+#include <libultraship/bridge/eventsbridge.h>
+
+DEFINE_EVENT(OnActorDestroy, Actor* actor;);
+DEFINE_EVENT(OnGameSave, int32_t fileNum;)
+DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
+// flagSpace = AnchorFlagSpace; length = 1 for single sets, bit count for setN.
+DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int32_t length;)
+// Fired after any item count change; count is the resulting absolute value.
+DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
+// Fired when a collectible is picked up. kind = AnchorCollectibleSpace.
+DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
+// Fired when a jiggy actor is spawned (witch switch, minigame reward, etc.).
+DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
+DEFINE_EVENT(OnPropInit, Prop* propPtr;);
+DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)
+DEFINE_EVENT(OnSaveFileSave, void* saveBuffer; int32_t fileNum; int32_t * result;)
+// Identifies which warp_* dispatcher is firing OnWarpResolveDest. Keep values
+// stable so listener case statements keep matching across refactors.
+typedef enum WarpId {
+    WARP_ID_SM_EXIT_BANJOS_HOUSE = 1,
+    WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL = 2,
+} WarpId;
+
+DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;);
+DEFINE_EVENT(OnNewGame, int32_t* skipIntro;);
+DEFINE_EVENT(EggHeadSpawn, float* pitch; float* spawnHeight; float* minVerticalVelocity; float* yawBias;
+             int32_t * flattenTrajectory;);
+
+DEFINE_EVENT(OnGetLevelSpecificFlag, int32_t flagId; int32_t result;);

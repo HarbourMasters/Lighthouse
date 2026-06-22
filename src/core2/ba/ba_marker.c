@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Romhack/RomhackConfig.h"
+#include "port/Enhancements/NoteRetention/NoteRetention.h"
 #include "core2/ba/physics.h"
 #include "version.h"
 #include "prop.h"
@@ -555,6 +556,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     || (player_isStable() && !(3600.0f < ml_distanceSquared_vec3f(actor->position, spA0)))
                     ) {
                     jiggyscore_setCollected(jiggy_id, true);
+                    CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_JIGGY, jiggy_id);
                     item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, 1);
                     if (jiggy_id == JIGGY_20_BGS_ELEVATED_WALKWAY || jiggy_id == JIGGY_25_BGS_MAZE) {
                         func_802D6924();
@@ -585,6 +587,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 if (sp98 != HONEYCOMB_12_MMM_FLOORBOARD || player_getTransformation() == TRANSFORM_3_PUMPKIN)
                 {
                     honeycombscore_set(sp98, 1);
+                    CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_HONEYCOMB, sp98);
                     coMusicPlayer_playMusic(COMUSIC_17_EMPTY_HONEYCOMB_COLLECTED, 28000);
                     timedFunc_set_1(2.0f, (GenFunction_1)progressDialog_showDialogMaskZero, FILEPROG_B_EMPTY_HONEYCOMB_TEXT);
                     item_inc(ITEM_13_EMPTY_HONEYCOMB);
@@ -700,6 +703,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     return;
 
                 __baMarker_resolveMusicNoteCollision(other_prop);
+                port_noteRetention_onLocalNoteCollected(marker);
                 marker_despawn(marker);
                 break;
 

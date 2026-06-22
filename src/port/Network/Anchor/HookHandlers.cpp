@@ -51,9 +51,33 @@ static void Anchor_UpdateVileSync() {
 // Volatile flags broadcast individually unless listed here (high-churn / per-frame).
 static bool Anchor_ShouldBroadcastVolatileFlag(s32 index) {
     static const std::unordered_set<s32> syncList = {
-        // Add volatile flags to allow here
+        VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM,
+        VOLATILE_FLAG_B7_WITCH_SWITCH_PRESSED_MMM,
+        VOLATILE_FLAG_B8_WITCH_SWITCH_PRESSED_TTC,
+        VOLATILE_FLAG_B9_WITCH_SWITCH_PRESSED_RBB,
+        VOLATILE_FLAG_BA_WITCH_SWITCH_PRESSED_CCW,
+        VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP,
+        VOLATILE_FLAG_BC_WITCH_SWITCH_PRESSED_CC,
+        VOLATILE_FLAG_BD_WITCH_SWITCH_PRESSED_BGS,
+        VOLATILE_FLAG_BE_WITCH_SWITCH_PRESSED_GV,
     };
     return syncList.contains(index);
+}
+
+// Which spendable item counts sync in realtime. Mumbo tokens + jiggy total always; eggs and
+// feathers only when the room shares consumables.
+static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
+    switch (item) {
+        case ITEM_1C_MUMBO_TOKEN:
+        case ITEM_26_JIGGY_TOTAL:
+            return true;
+        case ITEM_D_EGGS:
+        case ITEM_F_RED_FEATHER:
+        case ITEM_10_GOLD_FEATHER:
+            return room.shareConsumables != 0;
+        default:
+            return false;
+    }
 }
 
 void Anchor::RegisterHooks() {
@@ -236,6 +260,39 @@ void Anchor::RegisterHooks() {
                 anchor->SendPacket_UnsetFlag((u8)ev->flagSpace, (s16)index);
             }
         }
+    });
+
+    // Realtime spendable item counts (absolute). Remote applies use item_setEx(triggerEvent=0),
+    // so this never fires for them (no echo).
+    COND_HOOK(OnItemCountChanged, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<OnItemCountChanged*>(event);
+        if (Anchor_ShouldSyncItemCount(ev->item, anchor->roomState)) {
+            anchor->SendPacket_SetItemCount((s16)ev->item, ev->count);
+        }
+    });
+
+    // Realtime collectible pickups (jiggy/honeycomb/Mumbo token) for live despawn + bit credit.
+    COND_HOOK(OnCollectibleCollected, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<OnCollectibleCollected*>(event);
+        anchor->SendPacket_CollectItem((u8)ev->kind, (s16)ev->id);
+    });
+
+    // Realtime jiggy spawns (witch switch, minigame reward) for same-map teammates.
+    COND_HOOK(OnJiggySpawned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<OnJiggySpawned*>(event);
+        anchor->SendPacket_SpawnJiggy((s16)ev->jiggyId, ev->x, ev->y, ev->z);
     });
 
     // Push the full flag state to teammates on save.

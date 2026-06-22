@@ -69,6 +69,9 @@ void PortEnhancements_Register() {
 
     // Register game events
     REGISTER_EVENT(OnGameFlagSet);
+    REGISTER_EVENT(OnItemCountChanged);
+    REGISTER_EVENT(OnCollectibleCollected);
+    REGISTER_EVENT(OnJiggySpawned);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
     REGISTER_EVENT(OnSaveFileLoad);

@@ -53,7 +53,7 @@ s32 item_getCount(enum item_e item){
 }
 
 // func_80345FB4
-s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
+s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
     // Modifies the count of an item by the diff
     // no_hud determines whether the HUD pops up during the adjustment
     s32 oldVal;
@@ -175,6 +175,9 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
             D_80385F30[ITEM_2B_UNKNOWN] += diff;
             break;
     }
+    if (triggerEvent) {
+        CALL_EVENT(OnItemCountChanged, item, D_80385F30[item]);
+    }
     return D_80385F30[item];
 }
 
@@ -182,18 +185,24 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
-    return item_adjustByDiff(item, diff, 0);
+    return item_adjustByDiff(item, diff, 0, 1);
 }
 
 // item_adjustByDiffWithoutHud
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
-    item_adjustByDiff(item, diff, 1);
+    item_adjustByDiff(item, diff, 1, 1);
+}
+
+// item_setEx: triggerEvent controls whether OnItemCountChanged fires; Anchor passes 0 when
+// applying a remote count so it isn't re-broadcast.
+void item_setEx(s32 item, s32 val, s32 triggerEvent){
+    item_adjustByDiff(item, val - item_getCount(item), 0, triggerEvent);
 }
 
 void item_set(s32 item, s32 val){
-    item_adjustByDiffWithHud(item, val - item_getCount(item));
+    item_setEx(item, val, 1);
 }
 
 // item_setMaxCount
@@ -476,6 +485,14 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
     *size = 0xE;
     *addr = D_80385FF0;
+}
+
+// Max-merge a level's note high score (no side effects). Used by Anchor to bump the total
+// for a remote note pickup in a level the player isn't currently in.
+void itemscore_noteScores_setLevel(enum level_e level, s32 score) {
+    if (level >= 0 && level < 0xE && score > D_80385FF0[level]) {
+        D_80385FF0[level] = score;
+    }
 }
 
 void itemscore_noteScoress_maxAll(void) {

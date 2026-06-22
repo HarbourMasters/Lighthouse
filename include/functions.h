@@ -154,6 +154,8 @@ Actor *marker_getActor(ActorMarker *);
 Actor *marker_getActorAndRotation(ActorMarker *marker, f32 rotation[3]);
 Actor *subaddie_getLinkedActor(Actor *);
 ActorMarker *func_8032B16C(enum jiggy_e jiggy_id);
+ActorMarker *actorArray_findHoneycombMarkerById(enum honeycomb_e id);
+ActorMarker *actorArray_findMumboTokenMarkerById(enum mumbotoken_e id);
 bool  func_80329078(Actor *, s32, s32);
 bool  func_80329480(Actor *);
 bool subaddie_maybe_set_state_position_direction(Actor *, s32, f32, s32, f32 );
@@ -335,12 +337,21 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition);
 // --- core2/gamestate.c (item system) ---
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
+void item_setEx(s32 item, s32 val, s32 triggerEvent);
 
 // --- core2/game_complete.c ---
 // Identifies which flag bitfield an OnGameFlagSet event / Anchor flag packet targets.
 enum AnchorFlagSpace {
     ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
     ANCHOR_FLAGSPACE_VOLATILE = 1,
+};
+// Identifies which collectible an OnCollectibleCollected event / COLLECT_ITEM packet targets.
+enum AnchorCollectibleSpace {
+    ANCHOR_COLLECTIBLE_JIGGY = 0,
+    ANCHOR_COLLECTIBLE_HONEYCOMB = 1,
+    ANCHOR_COLLECTIBLE_MUMBO = 2,
+    ANCHOR_COLLECTIBLE_NOTE = 3,  // id = noteIndex, map = mapId
+    ANCHOR_COLLECTIBLE_JINJO = 4, // id = jinjo colour bit, level derived from map
 };
 bool fileProgressFlag_get(enum file_progress_e index);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);
@@ -1997,6 +2008,7 @@ void func_802D8BE4(bool gold_feather);
 
 // --- core2/ch/honeycomb.c ---
 enum honeycomb_e func_802CA1C4(Actor *self);
+enum mumbotoken_e func_802E0CB0(Actor *self);
 void func_802CA1CC(enum honeycomb_e id);
 
 // --- core2/ch/jiggy.c ---
@@ -2357,6 +2369,7 @@ void jiggyscore_setSpawned(s32, s32);
 
 // --- core2/fx/score_jiggylist.c ---
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
+void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e, f32[3], s32 triggerEvent);
 void func_80332E08(void);
 void func_8033301C(void);
 void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);
@@ -2986,6 +2999,7 @@ void itemscore_highNoteScores_fromSaveData(u8 *savedata);
 void itemscore_levelReset(enum level_e level);
 void notescore_getSizeAndPtr(s32 *size, void **ptr);
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr);
+void itemscore_noteScores_setLevel(enum level_e level, s32 score);
 void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 

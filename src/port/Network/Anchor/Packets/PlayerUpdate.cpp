@@ -174,6 +174,7 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
         payload["anim_control"] = anctrl_getPlaybackType(baanim_getAnimCtrlPtr());
     }
     payload["type"] = full ? PLAYER_UPDATE_FULL : PLAYER_UPDATE;
+    payload["quiet"] = true; // [temp] suppress per-frame player-update log spam while debugging
 
     if (targetClientId != 0) {
         payload["targetClientId"] = targetClientId;

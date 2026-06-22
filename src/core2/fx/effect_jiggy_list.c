@@ -253,6 +253,7 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
             temp_v0->unk10.position[2] = pos[2];
             temp_v0->init(&temp_v0->unk10);
             jiggyscore_setSpawned(jiggy_id, true);
+            CALL_EVENT(OnJiggySpawned, jiggy_id, pos[0], pos[1], pos[2]);
             if (!jiggyscore_isCollected(jiggy_id) && (jiggy_id != JIGGY_3E_GV_GRABBA) && (jiggy_id != JIGGY_0B_TTC_JINJO)) {
                 core1_ce60_incOrDecCounter(false);
                 func_8025A55C(0, 4000, 5);
@@ -263,7 +264,7 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
     }
 }
 
-void codeABC00_spawnJiggyAtLocation(enum jiggy_e jiggy_id, f32 location[3]) {
+void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e jiggy_id, f32 location[3], s32 triggerEvent) {
     jiggy_id = ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) ? JIGGY_A_MM_CONGA : jiggy_id;
 
     jiggylist_list[jiggy_id - 1].unk10.position[0] = location[0];
@@ -271,6 +272,13 @@ void codeABC00_spawnJiggyAtLocation(enum jiggy_e jiggy_id, f32 location[3]) {
     jiggylist_list[jiggy_id - 1].unk10.position[2] = location[2];
     jiggylist_list[jiggy_id - 1].init(&jiggylist_list[jiggy_id - 1].unk10);
     jiggyscore_setSpawned(jiggy_id, true);
+    if (triggerEvent) {
+        CALL_EVENT(OnJiggySpawned, jiggy_id, location[0], location[1], location[2]);
+    }
+}
+
+void codeABC00_spawnJiggyAtLocation(enum jiggy_e jiggy_id, f32 location[3]) {
+    codeABC00_spawnJiggyAtLocationEx(jiggy_id, location, 1);
 }
 
 void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker) {

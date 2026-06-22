@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
 
 extern void subaddie_set_state_with_direction(Actor *, s32, f32 , s32);
 extern f32 func_80309B24(f32*);
@@ -52,6 +53,7 @@ void __chJinjo_802CDBA8(ActorMarker *this, ActorMarker *other){
         if (!EventSystem_Should(VB_UPDATE_JINJO_HUD, false, actorPtr->position)) {
             if (item_adjustByDiffWithHud(ITEM_12_JINJOS, 1 << ((this->id + 6) & 0x1F)) == 0x1f) // [port] MIPS SLL uses low 5 bits; mask to avoid UB
                 localPtr->unk4 = 1;
+            port_jinjoRetention_onLocalJinjoCollected(this->id);
         }
         actor_loopAnimation(actorPtr);
         this->collidable = false;

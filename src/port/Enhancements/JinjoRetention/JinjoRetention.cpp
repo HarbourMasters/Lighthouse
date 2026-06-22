@@ -35,7 +35,10 @@ extern "C" {
 }
 
 #define CVAR_JINJO_RETENTION CVAR_ENHANCEMENT("Gameplay.JinjoRetention")
-#define CVAR_VALUE CVarGetInteger(CVAR_JINJO_RETENTION, 0)
+// Anchor forces retention on while connected, separate from the user's CVar so their setting is
+// preserved. CVAR_VALUE / applyEnabled() — and thus every COND_HOOK gate — respect it.
+static bool sForcedByAnchor = false;
+#define CVAR_VALUE (CVarGetInteger(CVAR_JINJO_RETENTION, 0) != 0 || sForcedByAnchor)
 
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 
@@ -65,12 +68,29 @@ bool systemActive() {
 }
 
 bool applyEnabled() {
-    return CVarGetInteger(CVAR_JINJO_RETENTION, 0) != 0;
+    return CVAR_VALUE;
+}
+
+// Anchor sets this on connect/disconnect. Re-runs the init so the COND_HOOK gates re-evaluate.
+extern "C" void port_jinjoRetention_setForced(int32_t forced) {
+    sForcedByAnchor = forced != 0;
+    ShipInit::Init(CVAR_JINJO_RETENTION);
 }
 
 JinjoRetentionSaveData* store() {
     int32_t slot = activeSlot();
     return slot >= 0 ? &gameFile_saveData[slot].shipSaveData.jinjoRetention : nullptr;
+}
+
+extern "C" void port_jinjoRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) {
+    JinjoRetentionSaveData* s = store();
+    if (s == nullptr) {
+        *size = 0;
+        *addr = nullptr;
+        return;
+    }
+    *size = (int32_t)sizeof(JinjoRetentionSaveData);
+    *addr = (uint8_t*)s;
 }
 
 bool levelInRange(int32_t level) {
@@ -112,6 +132,58 @@ u8 jinjoBitFromActor(int32_t actorId) {
     }
 }
 
+int32_t jinjoActorFromBit(u8 bit) {
+    switch (bit) {
+        case 1 << 0: return ACTOR_60_JINJO_BLUE;
+        case 1 << 1: return ACTOR_62_JINJO_GREEN;
+        case 1 << 2: return ACTOR_5F_JINJO_ORANGE;
+        case 1 << 3: return ACTOR_61_JINJO_PINK;
+        case 1 << 4: return ACTOR_5E_JINJO_YELLOW;
+        default: return 0;
+    }
+}
+
+// Apply a teammate's jinjo pickup: record the colour bit for the collector's level; if we're
+// in the same map, update the HUD count and despawn our copy of that jinjo.
+extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap) {
+    int32_t level = map_getLevel((enum map_e)map);
+    JinjoRetentionSaveData* s = store();
+    if (s != nullptr && levelInRange(level)) {
+        s->collected[level] |= (u8)bit;
+    }
+    if (sameMap) {
+        item_set(ITEM_12_JINJOS, collectedBits(level));
+        int32_t actorId = jinjoActorFromBit((u8)bit);
+        if (actorId != 0) {
+            Actor* a = actorArray_findActorFromActorId((enum actor_e)actorId);
+            if (a != nullptr && a->marker != nullptr) {
+                marker_despawn(a->marker);
+            }
+        }
+    }
+}
+
+// Called from the jinjo's actual pickup (__chJinjo_802CDBA8), not broad-phase collision, so
+// retention records and the network broadcast fire only on a real collection.
+extern "C" void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId) {
+    if (!applyEnabled() || !systemActive()) {
+        return;
+    }
+    u8 bit = jinjoBitFromMarker(markerId);
+    if (bit == 0) {
+        return;
+    }
+    int32_t level = level_get();
+    JinjoRetentionSaveData* s = store();
+    bool wasSet = (s != nullptr) && levelInRange(level) && ((s->collected[level] & bit) != 0);
+    if (s != nullptr && levelInRange(level)) {
+        s->collected[level] |= bit;
+    }
+    if (!wasSet) {
+        CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_JINJO, bit);
+    }
+}
+
 // Whether retention should seed/suppress jinjos for this level. False when retention is
 // off, and false in the stranded-jiggy case so the jinjos respawn and the jiggy is still
 // earnable. Seeding and suppression both gate on this so ITEM_12_JINJOS stays consistent.
@@ -126,27 +198,9 @@ bool retentionActiveForLevel(int32_t level) {
 }
 
 void RegisterJinjoRetention_Init() {
-    // Record collection. Don't cancel: vanilla still updates ITEM_12_JINJOS / spawns the
-    // jiggy and despawns the jinjo.
-    COND_HOOK(OnActorCollision, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
-        OnActorCollision* ev = (OnActorCollision*)event;
-        if (!systemActive() || !ev->propId->markerFlag) {
-            return;
-        }
-        ActorMarker* marker = ev->propId->actorProp.marker;
-        if (marker == nullptr) {
-            return;
-        }
-        u8 bit = jinjoBitFromMarker(marker->id);
-        if (bit == 0) {
-            return;
-        }
-        int32_t level = level_get();
-        JinjoRetentionSaveData* s = store();
-        if (s != nullptr && levelInRange(level)) {
-            s->collected[level] |= bit;
-        }
-    });
+    // Collection is recorded in port_jinjoRetention_onLocalJinjoCollected, called from the
+    // jinjo's real pickup — not here on broad-phase OnActorCollision (which fires on mere
+    // proximity, before/without an actual collection).
 
     // Seed ITEM_12_JINJOS from the saved bits so prior progress carries across visits and
     // the HUD reflects it. Mirrors note retention's OnSetJiggyList seeding.

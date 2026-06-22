@@ -6,6 +6,8 @@
 #include "port/Nametag/Nametag.h"
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
+#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
 
 extern "C" {
 #include "variables.h"
@@ -52,6 +54,11 @@ void Anchor::OnConnected() {
     SendPacket_Handshake();
     RegisterHooks();
 
+    // Realtime note/jinjo collection sync depends on those retention systems running, so force
+    // them on while connected — without touching the user's CVar (their setting is preserved).
+    port_noteRetention_setForced(1);
+    port_jinjoRetention_setForced(1);
+
     if (IsSaveLoaded()) {
         SendPacket_RequestTeamState();
         hasRequestedTeamState = true;
@@ -61,6 +68,9 @@ void Anchor::OnConnected() {
 void Anchor::OnDisconnected() {
     Authority_Reset();
     RegisterHooks();
+
+    port_noteRetention_setForced(0);
+    port_jinjoRetention_setForced(0);
 }
 
 void Anchor::ProcessOutgoingPackets() {
@@ -188,6 +198,12 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_SetCheckStatus(payload);
             else if (packetType == SET_FLAG)
                 HandlePacket_SetFlag(payload);
+            else if (packetType == ITEM_COUNT)
+                HandlePacket_SetItemCount(payload);
+            else if (packetType == COLLECT_ITEM)
+                HandlePacket_CollectItem(payload);
+            else if (packetType == JIGGY_SPAWN)
+                HandlePacket_SpawnJiggy(payload);
             else if (packetType == TELEPORT_TO)
                 HandlePacket_TeleportTo(payload);
             else if (packetType == UNSET_FLAG)

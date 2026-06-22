@@ -44,6 +44,7 @@ typedef struct {
     u8 showLocationsMode; // 0 = none, 1 = team, 2 = all
     u8 teleportMode;      // 0 = off, 1 = team, 2 = all
     u8 syncItemsAndFlags; // 0 = off, 1 = on
+    u8 shareConsumables;  // 0 = off, 1 = on — share egg/feather counts in team state
     bool isRomhack;
     std::string romhackName;
 } RoomState;
@@ -96,6 +97,9 @@ private:
     void HandlePacket_ServerMessage(nlohmann::json& payload);
     void HandlePacket_SetCheckStatus(nlohmann::json& payload);
     void HandlePacket_SetFlag(nlohmann::json& payload);
+    void HandlePacket_SetItemCount(nlohmann::json& payload);
+    void HandlePacket_CollectItem(nlohmann::json& payload);
+    void HandlePacket_SpawnJiggy(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
     void HandlePacket_UpdateClientState(nlohmann::json& payload);
@@ -132,6 +136,9 @@ public:
     inline static const std::string SERVER_MESSAGE = "SERVER_MESSAGE";
     inline static const std::string SET_CHECK_STATUS = "SET_CHECK_STATUS";
     inline static const std::string SET_FLAG = "SET_FLAG";
+    inline static const std::string ITEM_COUNT = "ITEM_COUNT";
+    inline static const std::string COLLECT_ITEM = "COLLECT_ITEM";
+    inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
@@ -186,6 +193,9 @@ public:
     void SendPacket_RequestTeleport(u32 clientId);
     void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);
+    void SendPacket_SetItemCount(s16 item, s32 count);
+    void SendPacket_CollectItem(u8 kind, s16 id);
+    void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(u32 clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();

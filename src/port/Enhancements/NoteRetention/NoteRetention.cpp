@@ -46,7 +46,10 @@ extern ActorInfo sumusicNote;
 namespace {
 
 #define CVAR_NOTE_RETENTION CVAR_ENHANCEMENT("Gameplay.NoteRetention")
-#define CVAR_VALUE CVarGetInteger(CVAR_NOTE_RETENTION, 0)
+// Anchor forces retention on while connected, separate from the user's CVar so their setting is
+// preserved. CVAR_VALUE / applyEnabled() — and thus every COND_HOOK gate — respect it.
+static bool sForcedByAnchor = false;
+#define CVAR_VALUE (CVarGetInteger(CVAR_NOTE_RETENTION, 0) != 0 || sForcedByAnchor)
 
 // The note sprite asset id passed through VB_OVERRIDE_PROP_SPAWN identifies notes.
 constexpr s32 kNoteSpriteAsset = ASSET_6D6_SPRITE_MUSIC_NOTE;
@@ -127,7 +130,7 @@ bool systemActive() {
 }
 
 bool applyEnabled() {
-    return CVarGetInteger(CVAR_NOTE_RETENTION, 0) != 0;
+    return CVAR_VALUE;
 }
 
 NoteRetentionSaveData* store() {
@@ -185,6 +188,77 @@ int32_t countCollectedForLevel(int32_t levelId) {
 
 } // namespace
 
+extern "C" void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) {
+    NoteRetentionSaveData* s = store();
+    if (s == nullptr) {
+        *size = 0;
+        *addr = nullptr;
+        return;
+    }
+    *size = (int32_t)sizeof(NoteRetentionSaveData);
+    *addr = (uint8_t*)s;
+}
+
+// Called from the note's actual pickup (ba_marker MARKER_5F_MUSIC_NOTE case, past the
+// narrow-phase check), not broad-phase collision — so retention records and the network
+// broadcast fire only on a real collection.
+extern "C" void port_noteRetention_onLocalNoteCollected(void* markerPtr) {
+    if (!applyEnabled() || !systemActive()) {
+        return;
+    }
+    ActorMarker* marker = (ActorMarker*)markerPtr;
+    if (marker == nullptr || marker->id != MARKER_5F_MUSIC_NOTE) {
+        return;
+    }
+    int32_t mapId;
+    int32_t noteIndex;
+    NoteRetentionData* data = ObjectExtension::GetInstance().Get<NoteRetentionData>(marker);
+    if (data != nullptr) {
+        mapId = data->mapId;
+        noteIndex = data->noteIndex;
+        ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
+    } else if (NoteLocal* nl = bundleNoteLocal(marker_getActor(marker))) {
+        mapId = nl->mapId;
+        noteIndex = nl->noteIndex;
+        nl->magic = 0; // consumed
+    } else {
+        return; // not one of ours
+    }
+    bool wasCollected = isCollected(mapId, noteIndex);
+    setCollected(mapId, noteIndex);
+    activeNoteSet.erase(noteKey(mapId, noteIndex));
+    if (!wasCollected) {
+        CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_NOTE, noteIndex);
+    }
+}
+
+// Apply a teammate's note pickup: record the bit; if we're in the same map, credit the count
+// (high score follows) and despawn our copy of the note.
+extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap) {
+    bool already = isCollected(mapId, noteIndex);
+    setCollected(mapId, noteIndex);
+    if (sameMap) {
+        if (!already) {
+            item_inc(ITEM_C_NOTE); // live count + high score (func_80346DB4) + pause-menu total
+        }
+        // Erase before despawning: marker_despawn fires OnActorDestroy, whose hook erases
+        // this same key from activeNoteSet — which would invalidate the iterator.
+        auto it = activeNoteSet.find(noteKey(mapId, noteIndex));
+        if (it != activeNoteSet.end()) {
+            ActorMarker* m = it->second;
+            activeNoteSet.erase(it);
+            if (m != nullptr) {
+                marker_despawn(m);
+            }
+        }
+    } else if (!already) {
+        // Out of the note's level: can't touch the live ITEM_C_NOTE (that's our current level),
+        // but still bump that level's note high score so pause-menu totals reflect the pickup.
+        int32_t level = map_getLevel((enum map_e)mapId);
+        itemscore_noteScores_setLevel((enum level_e)level, countCollectedForLevel(level));
+    }
+}
+
 // Called from gsworld_load (the single entry that parses a map's cubes) before any
 // cube is read. This is the reliable once-per-parse-pass signal -- it fires on every
 // map load AND on intra-level warps/sub-area transitions that re-parse the cubes,
@@ -206,6 +280,12 @@ extern "C" void port_noteRetention_onActorsFreed(void) {
     }
     activeNoteSet.clear();
     noteActorQueue.clear();
+}
+
+// Anchor sets this on connect/disconnect. Re-runs the init so the COND_HOOK gates re-evaluate.
+extern "C" void port_noteRetention_setForced(int32_t forced) {
+    sForcedByAnchor = forced != 0;
+    ShipInit::Init(CVAR_NOTE_RETENTION);
 }
 
 void RegisterNoteRetention_Init() {
@@ -334,33 +414,9 @@ void RegisterNoteRetention_Init() {
         event->Cancelled = true;
     });
 
-    // Record collection. Don't cancel: vanilla still increments ITEM_C_NOTE and despawns.
-    COND_HOOK(OnActorCollision, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
-        OnActorCollision* ev = (OnActorCollision*)event;
-        if (!systemActive() || !ev->propId->markerFlag) {
-            return;
-        }
-        ActorMarker* marker = ev->propId->actorProp.marker;
-        if (marker == nullptr || marker->id != MARKER_5F_MUSIC_NOTE) {
-            return;
-        }
-        int32_t mapId;
-        int32_t noteIndex;
-        NoteRetentionData* data = ObjectExtension::GetInstance().Get<NoteRetentionData>(marker);
-        if (data != nullptr) {
-            mapId = data->mapId;
-            noteIndex = data->noteIndex;
-            ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
-        } else if (NoteLocal* nl = bundleNoteLocal(marker_getActor(marker))) {
-            mapId = nl->mapId;
-            noteIndex = nl->noteIndex;
-            nl->magic = 0; // consumed
-        } else {
-            return; // not one of ours
-        }
-        setCollected(mapId, noteIndex);
-        activeNoteSet.erase(noteKey(mapId, noteIndex));
-    });
+    // Collection is recorded in port_noteRetention_onLocalNoteCollected, called from the note's
+    // real pickup — not here on broad-phase OnActorCollision (which fires on mere proximity,
+    // before/without an actual collection).
 
     // Seed the level's note counter from collected notes so totals stay reachable.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
@@ -422,4 +478,4 @@ void RegisterNoteRetention_Init() {
     });
 }
 
-static RegisterShipInitFunc initNoteRetention(RegisterNoteRetention_Init);
+static RegisterShipInitFunc initNoteRetention(RegisterNoteRetention_Init, { CVAR_NOTE_RETENTION });

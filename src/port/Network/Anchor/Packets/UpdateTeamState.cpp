@@ -3,6 +3,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/UI/Notification.h"
+#include "port/enhancements/NoteRetention/NoteRetention.h"
+#include "port/enhancements/JinjoRetention/JinjoRetention.h"
 #include <algorithm>
 #include <vector>
 
@@ -43,6 +45,15 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["honeycombs"] = ScoreBytes(honeycombscore_getSizeAndPtr);
     payload["state"]["mumboTokens"] = ScoreBytes(mumboscore_getSizeAndPtr);
     payload["state"]["noteScores"] = ScoreBytes(itemscore_noteScores_getSizeAndPtr);
+    payload["state"]["noteRetention"] = ScoreBytes(port_noteRetention_getSizeAndPtr);
+    payload["state"]["jinjoRetention"] = ScoreBytes(port_jinjoRetention_getSizeAndPtr);
+    payload["state"]["savedItems"] = ScoreBytes(saveditem_getSizeAndPtr);
+    payload["state"]["abilities"] = ScoreBytes(ability_getSizeAndPtr);
+    // Time scores use a (s32*, void**) accessor, so pack inline rather than via ScoreBytes.
+    s32 tsSize;
+    void* tsAddr;
+    timeScores_getSizeAndPtr(&tsSize, &tsAddr);
+    payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
     // Volatile flags intentionally not sent — no consumer yet (furnace-fun sync later).
     // The receive path still applies them if a "volatileFlags" array is present.
 
@@ -100,6 +111,18 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         if (state.contains("noteScores")) {
             ApplyTeamBytes(state["noteScores"], itemscore_noteScores_getSizeAndPtr);
         }
+        // Per-level/per-map retention sets (which notes/jinjos are already collected). Takes
+        // effect on the next map load — already-spawned notes/jinjos aren't retroactively
+        // despawned here (that's the realtime collection-packet feature's job).
+        if (state.contains("noteRetention")) {
+            ApplyTeamBytes(state["noteRetention"], port_noteRetention_getSizeAndPtr);
+        }
+        if (state.contains("jinjoRetention")) {
+            ApplyTeamBytes(state["jinjoRetention"], port_jinjoRetention_getSizeAndPtr);
+        }
+        if (state.contains("abilities")) {
+            ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);
+        }
 
         // The overwrites above bypass the setters, so recompute the cached HUD counts the
         // same way the save-load path does (jiggy/honeycomb/mumbo refreshers). Guarded
@@ -113,6 +136,42 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             }
             if (state.contains("mumboTokens")) {
                 func_80347984();
+            }
+
+            // Saved item counts. Mumbo tokens [0] and jiggy total [4] always sync; eggs [1]
+            // / red [2] / gold [3] feathers only when the room shares consumables. Seed from
+            // current local counts so ungated fields are preserved, then run the load-path
+            // restorer to push the result into the runtime counts + HUD.
+            if (state.contains("savedItems")) {
+                auto& incoming = state["savedItems"];
+                s32 size;
+                u8* addr;
+                saveditem_getSizeAndPtr(&size, &addr); // rebuilds the array from live counts
+                u8 buf[5];
+                for (s32 i = 0; i < 5; i++) {
+                    buf[i] = (i < size) ? addr[i] : 0;
+                }
+                if (incoming.size() >= 5) {
+                    buf[0] = incoming[0].get<u8>();
+                    buf[4] = incoming[4].get<u8>();
+                    if (roomState.shareConsumables) {
+                        buf[1] = incoming[1].get<u8>();
+                        buf[2] = incoming[2].get<u8>();
+                        buf[3] = incoming[3].get<u8>();
+                    }
+                    func_803479C0(buf);
+                }
+            }
+
+            // Per-level best times (truncated u16 each); copy into an aligned buffer first.
+            if (state.contains("timeScores")) {
+                auto incoming = state["timeScores"].get<std::vector<u8>>();
+                u16 ts[0xB] = { 0 };
+                size_t n = std::min(incoming.size(), sizeof(ts));
+                for (size_t i = 0; i < n; i++) {
+                    ((u8*)ts)[i] = incoming[i];
+                }
+                itemscore_timeScores_fromSaveData(ts);
             }
         }
 
