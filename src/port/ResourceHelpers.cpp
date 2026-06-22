@@ -117,7 +117,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         // base (a JP pack does this re-point at language-select time instead).
         if (Lighthouse::GetBaseVersion() == BK_VER_JP) {
             constexpr uint32_t kJpBannerNativeBase = 0xE2C;
-            constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_JP_WORLD_NAME_TOTAL
+            constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_WORLD_NAME_TOTAL
             constexpr uint32_t kJpBannerCount = 13;         // 0xE2C..0xE38
             for (uint32_t i = 0; i < kJpBannerCount; i++) {
                 auto it = symbolMap.find(kJpBannerNativeBase + i);

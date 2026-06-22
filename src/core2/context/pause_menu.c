@@ -862,7 +862,8 @@ void gcpausemenu_80312E80(struct1As *arg0, s32 arg1) {
 void gcpausemenu_printTotalsHeader(s32 page_id) {
     struct1Cs_1 *v0 = D_8036C58C + page_id;
     const char *name = port_getRomhackLevelName(page_id);
-    // [port] JP draws a pre-rendered world-name banner here instead of the bold-font name.
+    // [port] If a pre-rendered world-name banner exists (JP, or a language pack that ships one),
+    // draw it here instead of the bold-font name.
     if (port_pauseBannerUpdate(page_id)) {
         return;
     }
@@ -1451,7 +1452,7 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             gczoombox_draw(D_80383010.zoombox[i], gfx, mtx, vtx);
         }
         {
-            // [port] JP world-name title banner
+            // [port] World-name title banner (JP, or a language pack that ships one)
             f32 bx, by, bw, bh;
             BKSprite *banner = port_pauseBannerGetDraw(D_80383010.unk8, &bx, &by, &bw, &bh);
             if (banner != NULL) {

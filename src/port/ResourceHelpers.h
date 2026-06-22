@@ -22,6 +22,8 @@ int ResourceMgr_GetDialogLanguage(void);
 void ResourceMgr_SetDialogLanguage(int lang);
 int ResourceMgr_GetLanguageGeneration(void);
 int ResourceMgr_IsAssetRepointed(uint32_t assetId);
+const char* ResourceMgr_GetLangString(const char* english);
+int ResourceMgr_HasLangStrings(void);
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 char* ResourceMgr_LoadTexOrDListByName(const char* filePath);
 char* ResourceMgr_LoadIfDListByName(const char* filePath);
