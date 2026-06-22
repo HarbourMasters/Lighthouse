@@ -64,6 +64,15 @@ static bool Anchor_ShouldBroadcastVolatileFlag(s32 index) {
     return syncList.contains(index);
 }
 
+// Curated exclude-list for scoped (level/map) flags that shouldn't broadcast — e.g. flags with
+// per-client consume semantics not covered by getClear. Keyed (space << 16) | index. Empty.
+static bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
+    static const std::unordered_set<s32> excluded = {
+        // Add ((ANCHOR_FLAGSPACE_MAP_SPECIFIC << 16) | index) entries here as needed.
+    };
+    return excluded.contains((space << 16) | index);
+}
+
 // Which spendable item counts sync in realtime. Mumbo tokens + jiggy total always; eggs and
 // feathers only when the room shares consumables.
 static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
@@ -103,6 +112,14 @@ void Anchor::RegisterHooks() {
         Authority_OnSelfMapChanged(ev->nextMap);
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
+
+        // Entry-sync: pull current level/map scoped flags from teammates already there.
+        auto* anchor = Anchor::GetInstance();
+        if (anchor->isConnected && anchor->roomState.syncItemsAndFlags &&
+            ev->nextMap != MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
+            ev->nextMap != MAP_1F_CS_START_RAREWARE) {
+            anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
+        }
     });
 
     COND_HOOK(OnReset, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
@@ -245,6 +262,22 @@ void Anchor::RegisterHooks() {
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
         for (s32 i = 0; i < ev->length; i++) {
             s32 index = ev->index + i;
+            // Transient level/map flags: scoped to same-level/same-map teammates, not queued.
+            if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
+                if (Anchor_ScopedFlagExcluded(ev->flagSpace, index)) {
+                    continue;
+                }
+                anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index, (u8)(levelSpecificFlags_get(index) ? 1 : 0));
+                continue;
+            }
+            if (ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
+                if (Anchor_ScopedFlagExcluded(ev->flagSpace, index)) {
+                    continue;
+                }
+                anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index, (u8)(mapSpecificFlags_get(index) ? 1 : 0));
+                continue;
+            }
+            // Persistent flags: team-wide, queued for offline teammates.
             s32 bit;
             if (ev->flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
                 if (!Anchor_ShouldBroadcastVolatileFlag(index)) {

@@ -98,6 +98,9 @@ private:
     void HandlePacket_SetCheckStatus(nlohmann::json& payload);
     void HandlePacket_SetFlag(nlohmann::json& payload);
     void HandlePacket_SetItemCount(nlohmann::json& payload);
+    void HandlePacket_ScopedFlag(nlohmann::json& payload);
+    void HandlePacket_RequestScopedState(nlohmann::json& payload);
+    void HandlePacket_ScopedState(nlohmann::json& payload);
     void HandlePacket_CollectItem(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
@@ -137,6 +140,9 @@ public:
     inline static const std::string SET_CHECK_STATUS = "SET_CHECK_STATUS";
     inline static const std::string SET_FLAG = "SET_FLAG";
     inline static const std::string ITEM_COUNT = "ITEM_COUNT";
+    inline static const std::string SCOPED_FLAG = "SCOPED_FLAG";
+    inline static const std::string REQUEST_SCOPED_STATE = "REQUEST_SCOPED_STATE";
+    inline static const std::string SCOPED_STATE = "SCOPED_STATE";
     inline static const std::string COLLECT_ITEM = "COLLECT_ITEM";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
@@ -194,6 +200,8 @@ public:
     void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);
     void SendPacket_SetItemCount(s16 item, s32 count);
+    void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
+    void SendPacket_RequestScopedState(GameMap map);
     void SendPacket_CollectItem(u8 kind, s16 id);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(u32 clientId);
@@ -208,6 +216,7 @@ public:
     void SendPacket_VileUpdate(const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 animMode);
     void OnActorDestroyed(Actor* actor);
     void SendToCurrentMapPlayers(nlohmann::json& payload);
+    void SendToCurrentLevelPlayers(nlohmann::json& payload);
 
     static Anchor* GetInstance();
     static void Init();

@@ -28,6 +28,17 @@ void Anchor::SendToCurrentMapPlayers(nlohmann::json& payload) {
     }
 }
 
+void Anchor::SendToCurrentLevelPlayers(nlohmann::json& payload) {
+    enum level_e myLevel = map_getLevel(gsworld_getMap());
+    for (auto& [clientId, client] : clients) {
+        if (client.online && client.isSaveLoaded && !client.self &&
+            map_getLevel((enum map_e)client.map) == myLevel) {
+            payload["targetClientId"] = clientId;
+            SendJsonToRemote(payload);
+        }
+    }
+}
+
 void Anchor::SendPacket_PlayerSubRangeChange(f32 duration, f32 end) {
     if (!IsSaveLoaded() || GetCurrentMapPlayers() == 0) {
         return;

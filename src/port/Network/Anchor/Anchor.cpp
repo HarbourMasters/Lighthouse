@@ -200,6 +200,12 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_SetFlag(payload);
             else if (packetType == ITEM_COUNT)
                 HandlePacket_SetItemCount(payload);
+            else if (packetType == SCOPED_FLAG)
+                HandlePacket_ScopedFlag(payload);
+            else if (packetType == REQUEST_SCOPED_STATE)
+                HandlePacket_RequestScopedState(payload);
+            else if (packetType == SCOPED_STATE)
+                HandlePacket_ScopedState(payload);
             else if (packetType == COLLECT_ITEM)
                 HandlePacket_CollectItem(payload);
             else if (packetType == JIGGY_SPAWN)

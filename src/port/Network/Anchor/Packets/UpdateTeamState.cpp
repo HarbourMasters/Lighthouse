@@ -54,8 +54,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     void* tsAddr;
     timeScores_getSizeAndPtr(&tsSize, &tsAddr);
     payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
-    // Volatile flags intentionally not sent — no consumer yet (furnace-fun sync later).
-    // The receive path still applies them if a "volatileFlags" array is present.
+    payload["state"]["volatileFlags"] = ScoreBytes(volatileFlag_getSizeAndPtr);
 
     SendJsonToRemote(payload);
 }

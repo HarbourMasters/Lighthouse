@@ -325,10 +325,13 @@ bool honeycombscore_get(enum honeycomb_e indx);
 // --- core2/map/specificflags.c ---
 s32 mapSpecificFlags_get(s32 i);
 void mapSpecificFlags_set(s32, s32);
+void mapSpecificFlags_setEx(s32 i, s32 val, s32 triggerEvent);
 
 // --- core2/level/specificflags.c ---
 s32 levelSpecificFlags_get(s32 i);
 void levelSpecificFlags_set(s32, s32);
+void levelSpecificFlags_setEx(s32 index, s32 val, s32 triggerEvent);
+void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 
 // --- core2/gameloop.c ---
 s32 getGameMode(void);
@@ -344,6 +347,8 @@ void item_setEx(s32 item, s32 val, s32 triggerEvent);
 enum AnchorFlagSpace {
     ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
     ANCHOR_FLAGSPACE_VOLATILE = 1,
+    ANCHOR_FLAGSPACE_LEVEL_SPECIFIC = 2, // transient per-level; ctx = level id
+    ANCHOR_FLAGSPACE_MAP_SPECIFIC = 3,   // transient per-map; ctx = map id
 };
 // Identifies which collectible an OnCollectibleCollected event / COLLECT_ITEM packet targets.
 enum AnchorCollectibleSpace {
