@@ -314,6 +314,12 @@ static RegisterShipInitFunc eggAimSpawnInitFunc(RegisterEggAimSpawn_Init);
 
 void RegisterEggAim_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent*) {
+        if (getGameMode() != GAME_MODE_3_NORMAL) {
+            sOverlayShown = 0;
+            sFiring = 0;
+            return;
+        }
+
         if (!can_egg()) {
             return;
         }
