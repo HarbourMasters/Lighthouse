@@ -3,8 +3,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/UI/Notification.h"
-#include "port/enhancements/NoteRetention/NoteRetention.h"
-#include "port/enhancements/JinjoRetention/JinjoRetention.h"
+#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
 #include <algorithm>
 #include <vector>
 

@@ -7,7 +7,7 @@
 // To add a new quirk:
 //   1. Make sure the romhack has an entry in RomhackTable.h.
 //   2. Find the engine event the quirk should hook (or define a new one in
-//      src/port/enhancements/events/hooks/list/).
+//      src/port/Enhancements/Events/Eooks/List/).
 //   3. Add a REGISTER_LISTENER block below, gated on
 //      port_getRomhackIdentifier() returning the matching name.
 //   4. Wire the registration into RegisterRomhackQuirks_Init().

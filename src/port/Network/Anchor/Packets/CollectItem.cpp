@@ -1,8 +1,8 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-#include "port/enhancements/NoteRetention/NoteRetention.h"
-#include "port/enhancements/JinjoRetention/JinjoRetention.h"
+#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
 
 extern "C" {
 #include "functions.h"
