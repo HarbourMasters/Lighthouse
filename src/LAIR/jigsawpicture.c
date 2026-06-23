@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Romhack/RomhackConfig.h"
+#include "port/Network/Anchor/JigsawPedestal.h"
 extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void rand_seed(s32);
@@ -23,6 +24,11 @@ typedef struct {
 
 void jigsawPicture_setState(Actor *this, s32 next_state);
 void updateJigsawPictureActor(Actor *this);
+
+// Pedestal id we last played the "busy" buzzer for; re-armed when the player steps off, so a
+// blocked podium buzzes once per approach rather than every frame. Only one local player engages
+// one podium at a time, so a single value suffices.
+static s32 sBuzzedPedestalField = 0;
 
 /* .data */
 ActorInfo JIGSAW_PICTURE_ACTOR = { 0x1EB, 0x3B7, 0x48B, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, actor_draw, 0, 0, 0.0f, 0};
@@ -302,6 +308,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
     vec3fArray_get_vec3f(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
+            port_jigsawPedestal_release(this->actorTypeSpecificField); // disengage frees the lock
             func_8028F918(0);
             break;
 
@@ -486,6 +493,11 @@ void updateJigsawPictureActor(Actor *this) {
     controller_copyFaceButtons(0, sp7C);
     controller_copySideButtons(0, sp6C);
     func_8038EDBC(this);
+    // Lost the lock mid-interaction (tie-break or peer claim) -> disengage this frame.
+    if (this->state != 1 && !port_jigsawPedestal_isSelf(this->actorTypeSpecificField)) {
+        jigsawPicture_setState(this, 1);
+        return;
+    }
     switch(this->state){
         case 1://L8038FCD0
             if (!this->has_met_before && (!func_8028F20C() || !func_8028FB48(0x08000000))) {
@@ -502,7 +514,16 @@ void updateJigsawPictureActor(Actor *this) {
                 }
             }
             if (isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
-                jigsawPicture_setState(this, 2);
+                // Only engage if we hold the per-pedestal lock; otherwise buzz once (a teammate
+                // is already using this podium).
+                if (port_jigsawPedestal_tryClaim(this->actorTypeSpecificField)) {
+                    jigsawPicture_setState(this, 2);
+                } else if (sBuzzedPedestalField != this->actorTypeSpecificField) {
+                    comusic_playTrack(COMUSIC_2C_BUZZER);
+                    sBuzzedPedestalField = this->actorTypeSpecificField;
+                }
+            } else if (sBuzzedPedestalField == this->actorTypeSpecificField) {
+                sBuzzedPedestalField = 0; // stepped off -> re-arm the buzzer
             }
             break;
 

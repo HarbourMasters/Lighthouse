@@ -208,6 +208,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_ScopedState(payload);
             else if (packetType == COLLECT_ITEM)
                 HandlePacket_CollectItem(payload);
+            else if (packetType == PEDESTAL_OWNER)
+                HandlePacket_PedestalOwner(payload);
             else if (packetType == JIGGY_SPAWN)
                 HandlePacket_SpawnJiggy(payload);
             else if (packetType == TELEPORT_TO)

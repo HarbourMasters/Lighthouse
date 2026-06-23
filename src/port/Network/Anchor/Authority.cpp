@@ -1,5 +1,6 @@
 #include "port/Network/Anchor/Authority.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Network/Anchor/VileSync.h"
 #include <libultraship/libultraship.h>
 
@@ -116,6 +117,9 @@ void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool c
 }
 
 void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map) {
+    if (!online) {
+        JigsawPedestal_ClearClient(clientId); // an offline peer can't hold a pedestal
+    }
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         ActivityState& state = sActivities[i];
         if (state.claimed && state.owner == clientId && (!online || map != sActivityMap[i])) {
@@ -125,6 +129,7 @@ void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map)
 }
 
 void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
+    JigsawPedestal_ClearClient(clientId); // peer entered a new map -> left any pedestal it held
     Anchor* anchor = Anchor::GetInstance();
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         ActivityState& state = sActivities[i];
@@ -142,6 +147,7 @@ void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
 }
 
 void Authority_OnSelfMapChanged(int32_t map) {
+    JigsawPedestal_ReleaseAllSelf(); // we left the Lair map -> drop our pedestal claims
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr) {
         return;
@@ -155,6 +161,7 @@ void Authority_OnSelfMapChanged(int32_t map) {
 }
 
 void Authority_Reset() {
+    JigsawPedestal_Reset();
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         Authority_ClearClaim((NetworkActivityId)i);
     }

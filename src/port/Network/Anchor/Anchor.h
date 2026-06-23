@@ -102,6 +102,7 @@ private:
     void HandlePacket_RequestScopedState(nlohmann::json& payload);
     void HandlePacket_ScopedState(nlohmann::json& payload);
     void HandlePacket_CollectItem(nlohmann::json& payload);
+    void HandlePacket_PedestalOwner(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
@@ -144,6 +145,7 @@ public:
     inline static const std::string REQUEST_SCOPED_STATE = "REQUEST_SCOPED_STATE";
     inline static const std::string SCOPED_STATE = "SCOPED_STATE";
     inline static const std::string COLLECT_ITEM = "COLLECT_ITEM";
+    inline static const std::string PEDESTAL_OWNER = "PEDESTAL_OWNER";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
@@ -203,6 +205,7 @@ public:
     void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
     void SendPacket_RequestScopedState(GameMap map);
     void SendPacket_CollectItem(u8 kind, s16 id);
+    void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(u32 clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
