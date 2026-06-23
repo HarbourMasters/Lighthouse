@@ -291,15 +291,19 @@ void func_8024F764(s32 arg0){//music track load
 
 void func_8024F7C4(s32 arg0){
     s32 i;
+    port_lockAudio();
     if(D_802820E0[arg0] != NULL){
         i = 0;
         for(i = 0; i != 6; i++){
-            if(D_80281720[i].index == arg0)
+            if(D_80281720[i].index == arg0){
+                port_unlockAudio();
                 return;
+            }
         }
         assetcache_release(D_802820E0[arg0]);
         D_802820E0[arg0] = 0;
     }
+    port_unlockAudio();
 }
 
 void func_8024F83C(void){
