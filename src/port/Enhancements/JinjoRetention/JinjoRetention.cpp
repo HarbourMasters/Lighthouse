@@ -38,7 +38,7 @@ extern "C" {
 // Anchor forces retention on while connected, separate from the user's CVar so their setting is
 // preserved. CVAR_VALUE / applyEnabled() — and thus every COND_HOOK gate — respect it.
 static bool sForcedByAnchor = false;
-#define CVAR_VALUE (CVarGetInteger(CVAR_JINJO_RETENTION, 0) != 0 || sForcedByAnchor)
+#define CVAR_VALUE (CVarGetInteger(CVAR_JINJO_RETENTION, 0) || sForcedByAnchor)
 
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 

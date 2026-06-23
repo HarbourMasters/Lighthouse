@@ -49,7 +49,7 @@ namespace {
 // Anchor forces retention on while connected, separate from the user's CVar so their setting is
 // preserved. CVAR_VALUE / applyEnabled() — and thus every COND_HOOK gate — respect it.
 static bool sForcedByAnchor = false;
-#define CVAR_VALUE (CVarGetInteger(CVAR_NOTE_RETENTION, 0) != 0 || sForcedByAnchor)
+#define CVAR_VALUE (CVarGetInteger(CVAR_NOTE_RETENTION, 0) || sForcedByAnchor)
 
 // The note sprite asset id passed through VB_OVERRIDE_PROP_SPAWN identifies notes.
 constexpr s32 kNoteSpriteAsset = ASSET_6D6_SPRITE_MUSIC_NOTE;
@@ -289,7 +289,7 @@ extern "C" void port_noteRetention_setForced(int32_t forced) {
 }
 
 void RegisterNoteRetention_Init() {
-    COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
         s16* spawnPosition = va_arg(args, s16*);
         s32 spriteAsset = va_arg(args, s32);
 
