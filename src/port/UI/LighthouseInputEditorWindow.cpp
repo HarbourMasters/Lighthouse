@@ -1332,6 +1332,7 @@ void LighthouseInputEditorWindow::DrawClearAllButton(uint8_t portIndex) {
         if (ImGui::Button("Cancel")) {
             ImGui::CloseCurrentPopup();
         }
+        ImGui::SetItemDefaultFocus();
         if (ImGui::Button("Clear All")) {
             Ship::Context::GetRawInstance()->GetControlDeck()->GetControllerByPort(portIndex)->ClearAllMappings();
             ImGui::CloseCurrentPopup();
@@ -1437,6 +1438,7 @@ void LighthouseInputEditorWindow::DrawSetDefaultsButton(uint8_t portIndex) {
                 shouldClose = true;
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::SetItemDefaultFocus();
             if (ImGui::Button("Set defaults")) {
                 Ship::Context::GetRawInstance()
                     ->GetControlDeck()
@@ -1467,6 +1469,7 @@ void LighthouseInputEditorWindow::DrawSetDefaultsButton(uint8_t portIndex) {
                 shouldClose = true;
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::SetItemDefaultFocus();
             if (ImGui::Button("Set defaults")) {
                 Ship::Context::GetRawInstance()
                     ->GetControlDeck()

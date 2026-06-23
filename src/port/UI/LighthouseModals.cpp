@@ -55,6 +55,7 @@ void LighthouseModalWindow::DrawElement() {
                 ImGui::CloseCurrentPopup();
                 modals.erase(modals.begin());
             }
+            ImGui::SetItemDefaultFocus();
             UIWidgets::PopStyleButton();
             if (curModal.button2_ != "") {
                 ImGui::SameLine();
