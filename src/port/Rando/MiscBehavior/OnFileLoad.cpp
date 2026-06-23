@@ -1,9 +1,9 @@
 #include "MiscBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "port/enhancements/events/hooks/Events.h"
-#include "port/ui/Notification.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/UI/Notification.h"
 
-#include "port/save/Types.h"
+#include "port/Save/Types.h"
 
 #include "port/Rando/Logic/Logic.h"
 // #include "port/Rando/Spoiler/Spoiler.h"

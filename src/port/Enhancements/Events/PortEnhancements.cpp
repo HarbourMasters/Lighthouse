@@ -1,6 +1,6 @@
 #include "PortEnhancements.h"
-#include "port/save/SaveManager.h"
-#include "port/rando/Rando.h"
+#include "port/Save/SaveManager.h"
+#include "port/Rando/Rando.h"
 #include "port/ShipUtils.h"
 
 #include <stdarg.h>

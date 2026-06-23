@@ -1,10 +1,10 @@
 #include "Logic.h"
-#include "port/ui/Notification.h"
+#include "port/UI/Notification.h"
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "port/ui/cvar_prefixes.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/UI/cvar_prefixes.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
-#include "port/save/Types.h"
+#include "port/Save/Types.h"
 
 extern "C" {
 void ability_setLearned(s32 move, s32 val);

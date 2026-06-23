@@ -1,12 +1,14 @@
-#include "port/ui/LighthouseMenu.h"
+#include "port/UI/LighthouseMenu.h"
 #include "port/Engine.h"
-#include "port/ui/Notification.h"
-#include "port/ui/LighthouseModals.h"
+#include "port/UI/Notification.h"
+#include "port/UI/LighthouseModals.h"
 #include "port/ResourceHelpers.h"
-#include "port/ui/UIWidgets.hpp"
+#include "port/UI/UIWidgets.hpp"
 
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/Logic/Logic.h"
+
+#include <spdlog/fmt/fmt.h>
 
 extern "C" {
 #include "variables.h"
@@ -168,7 +170,7 @@ void LighthouseMenu::AddMenuRando() {
             ImGui::TableNextColumn();
 
             for (auto& [abilityId, abilityInfo] : abilityLoadoutMap) {
-                abilityToolTip = std::format("Start with {} unlocked.", abilityInfo.first);
+                abilityToolTip = fmt::format("Start with {} unlocked.", abilityInfo.first);
                 defaultValue =
                     abilityId == ABILITY_A_HOLD_A_JUMP_HIGHER || abilityId == ABILITY_13_1ST_NOTEDOOR ? true : false;
 
@@ -213,7 +215,7 @@ void LighthouseMenu::AddMenuRando() {
             ImGui::TableNextColumn();
 
             for (auto& [itemId, itemInfo] : itemLoadoutMap) {
-                itemToolTip = std::format("Start with max {}.", itemInfo.first);
+                itemToolTip = fmt::format("Start with max {}.", itemInfo.first);
 
                 UIWidgets::CVarCheckbox(itemInfo.first, itemInfo.second,
                                         UIWidgets::CheckboxOptions().Color(WIDGET_COLOR).Tooltip(itemToolTip.c_str()));

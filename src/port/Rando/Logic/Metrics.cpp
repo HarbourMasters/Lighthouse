@@ -1,5 +1,5 @@
 #include "Logic.h"
-#include "port/ui/UIWidgets.hpp"
+#include "port/UI/UIWidgets.hpp"
 #include <imgui.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/ShipUtils.h"
@@ -14,7 +14,7 @@ std::vector<std::string> learnedAbilities;
 std::vector<std::string> regionAccessList;
 std::vector<std::string> eventAccessList;
 
-#define WIDGET_TEXT_COLOR(color) UIWidgets::ColorValues.at(UIWidgets::Colors::##color)
+#define WIDGET_TEXT_COLOR(color) UIWidgets::ColorValues.at(UIWidgets::Colors::color)
 
 bool metricsInitialized = false;
 

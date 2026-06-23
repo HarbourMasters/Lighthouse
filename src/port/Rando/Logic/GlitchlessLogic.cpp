@@ -1,6 +1,6 @@
 #include "Logic.h"
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "port/ui/Notification.h"
+#include "port/UI/Notification.h"
 
 extern "C" f32 itemPrintValues[0x2C];
 

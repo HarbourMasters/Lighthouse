@@ -1,9 +1,9 @@
 #include "ObjectBehavior.h"
-#include "port/ui/UIWidgets.hpp"
+#include "port/UI/UIWidgets.hpp"
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "port/ui/Notification.h"
+#include "port/UI/Notification.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
 #define WIDGET_TEXT_COLOR(id) UIWidgets::ColorValues.at(id)
@@ -79,7 +79,7 @@ void LogOutSpawns(int32_t actorId, int16_t posX, int16_t posY, int16_t posZ) {
 
 void LogOutCollision(int32_t actorId, int16_t posX, int16_t posY, int16_t posZ) {
     std::string locationStr = std::to_string(posX) + ", " + std::to_string(posY) + ", " + std::to_string(posZ);
-    BK_LOG_INFO("Collect ID: %i | Position: %s", actorId, locationStr);
+    BK_LOG_INFO("Collect ID: %i | Position: %s", actorId, locationStr.c_str());
 }
 
 bool IsActorWhitelisted(int32_t actorId) {

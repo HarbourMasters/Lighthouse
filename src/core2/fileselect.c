@@ -127,7 +127,7 @@ void gameFile_load(s32 gamenum){
 void gameFile_save(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     saveData_create(&gameFile_saveData[filenum]);
-    CALL_EVENT(OnGameSave, &gameFile_saveData[filenum]);
+    CALL_EVENT(OnGameSave, filenum);
 }
 
 bool gameFile_isNotEmpty(s32 gamenum){

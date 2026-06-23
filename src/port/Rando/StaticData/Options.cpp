@@ -1,5 +1,7 @@
 #include "StaticData.h"
 
+#include <cstring>
+
 namespace Rando {
 
 namespace StaticData {

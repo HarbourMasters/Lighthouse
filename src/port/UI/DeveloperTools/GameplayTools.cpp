@@ -2,17 +2,17 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
-#include "port/ui/UIWidgets.hpp"
-#include "port/ui/Notification.h"
+#include "port/UI/UIWidgets.hpp"
+#include "port/UI/Notification.h"
 #include "port/ShipUtils.h"
 
 #include <string>
 #include <imgui.h>
 #include <libultraship/libultraship.h>
-#include "port/ui/LighthouseGui.hpp"
-#include "port/ui/cvar_prefixes.h"
+#include "port/UI/LighthouseGui.hpp"
+#include "port/UI/cvar_prefixes.h"
 
 #include "enums.h"
 #include "prop.h"

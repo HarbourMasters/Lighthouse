@@ -1,7 +1,7 @@
 #include "ObjectBehavior.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "spdlog/spdlog.h"
 

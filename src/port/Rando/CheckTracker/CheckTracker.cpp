@@ -1,7 +1,7 @@
 #include "CheckTracker.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/ShipUtils.h"
-#include "port/ui/UIWidgets.hpp"
+#include "port/UI/UIWidgets.hpp"
 #include <cstring>
 
 #define DEFAULT_LOGIC_COLOR \

@@ -439,7 +439,7 @@ int savedata_8033CE40(void *buffer){
 }
 
 void savedata_clear(void *savedata_){
-    CALL_CANCELLABLE_RETURN_EVENT(OnSaveClear, savedata_) {
+    CALL_CANCELLABLE_EVENT(OnSaveClear, savedata_) {
         u8* savedata = (u8*)savedata_;
         int i;
         for (i = 0; i < sizeof(SaveData); i++) {

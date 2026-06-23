@@ -1,7 +1,7 @@
 #include "CustomObject.h"
 #include "port/Rando/Rando.h"
 #include "port/ShipUtils.h"
-#include "port/save/Types.h"
+#include "port/Save/Types.h"
 #include <map>
 
 #include "save.h"
@@ -38,8 +38,8 @@ extern "C" {
 extern SaveData gameFile_saveData[4];
 extern u8 D_80385FF0[0xE];
 void ml_vec3f_copy(f32 dst[3], f32 src[3]);
-f32 gBundle_randomVelocity;
-f32 gBundle_yaw;
+extern f32 gBundle_randomVelocity;
+extern f32 gBundle_yaw;
 f32 randf2(f32 min, f32 max);
 f32 randf(void);
 void ml_vec3f_yaw_rotate_copy(f32 dst[3], f32 src[3], f32 yaw);

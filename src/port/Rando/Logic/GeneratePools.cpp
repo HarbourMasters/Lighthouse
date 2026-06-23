@@ -1,7 +1,7 @@
 #include "Logic.h"
 // #include "port/Rando/Spoiler/Spoiler.h"
-#include "port/ui/Notification.h"
-#include "port/ui/cvar_prefixes.h"
+#include "port/UI/Notification.h"
+#include "port/UI/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <sstream>
 #include <random>

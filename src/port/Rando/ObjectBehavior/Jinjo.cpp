@@ -3,10 +3,10 @@
 #include "port/Rando/CustomObject/CustomObject.h"
 
 #include <libultraship/bridge.h>
-#include "port/ui/cvar_prefixes.h"
+#include "port/UI/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "port/enhancements/events/PortEnhancements.h"
-#include "port/enhancements/events/hooks/Events.h"
+#include "port/Enhancements/Events/PortEnhancements.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern "C" {
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff);
