@@ -565,7 +565,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                         }
                     }
 
-                    if (func_8025AD7C(COMUSIC_30_5TH_JINJO_COLLECTED)) {
+                    if (func_8025AD7C(COMUSIC_30_5TH_JINJO_COLLECTED) && EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
                         __baMarker_8028B8DC();
                     }
                     if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {

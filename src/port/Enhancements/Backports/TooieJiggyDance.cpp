@@ -101,6 +101,10 @@ void clearOrbit() {
     }
 }
 
+void forgetOrbit() {
+    sMarker = nullptr;
+}
+
 void emitSparkle(f32 x, f32 y, f32 z) {
     s16 sp[3] = { (s16)x, (s16)y, (s16)z };
     ParticleEmitter* e = __fxSparkle_create(sp, 0.0f, (enum asset_e)0x70F);
@@ -269,6 +273,8 @@ void RegisterTooieJiggyDance_Init() {
               [](IEvent*) { spawnOrbit(); });
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0),
               [](IEvent*) { updateOrbit(); });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0),
+              [](IEvent*) { forgetOrbit(); });
 }
 
 static RegisterShipInitFunc initTooieJiggyDance(RegisterTooieJiggyDance_Init, { CVAR_TOOIE_JIGGY_DANCE });
