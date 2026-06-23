@@ -46,7 +46,7 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         Actor* refActor = va_arg(args, Actor*);
 
         if (refActor == NULL) {
-            *should = false;
+            *should = true;
         }
     })
 

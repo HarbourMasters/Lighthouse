@@ -6,7 +6,6 @@
 
 bool ShouldOverrideSpawn(RandoCheckId randoCheckId);
 bool CheckEnemyOverlapPosition(int32_t pos[3]);
-void LogOutSpawns(int32_t actorId, int16_t posX, int16_t posY, int16_t posZ);
 int32_t GetJinjoActorMarkerId(actor_e actorId);
 extern std::vector<RandoCheckId> enemyKillOverlapList;
 

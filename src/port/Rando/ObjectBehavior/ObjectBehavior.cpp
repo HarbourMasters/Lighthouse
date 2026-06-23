@@ -72,16 +72,6 @@ std::vector<RandoCheckId> enemyKillOverlapList = {
 
 bool nextActorSaveState = false;
 
-void LogOutSpawns(int32_t actorId, int16_t posX, int16_t posY, int16_t posZ) {
-    std::string locationStr = std::to_string(posX) + ", " + std::to_string(posY) + ", " + std::to_string(posZ);
-    BK_LOG_INFO("Actor ID: %i | Position: %s", actorId, locationStr.c_str());
-}
-
-void LogOutCollision(int32_t actorId, int16_t posX, int16_t posY, int16_t posZ) {
-    std::string locationStr = std::to_string(posX) + ", " + std::to_string(posY) + ", " + std::to_string(posZ);
-    BK_LOG_INFO("Collect ID: %i | Position: %s", actorId, locationStr.c_str());
-}
-
 bool IsActorWhitelisted(int32_t actorId) {
     for (auto& entry : actorSpawnWhitelist) {
         if (entry == actorId) {

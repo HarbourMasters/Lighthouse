@@ -74,7 +74,7 @@ s32 spriteRender1PrimMode;
 void func_80347DF0(Struct81s *arg0){
     Actor *actor;
     actor = bundle_spawn_f32(arg0->actor_id, arg0->position);
-    if (!EventSystem_Should(VB_BUNDLE_SPAWN_SET_ACTOR_DATA, true, actor)) {
+    if (!EventSystem_Should(VB_BUNDLE_SPAWN_SET_ACTOR_DATA, false, actor)) {
         actor->unk54 = 3.0f;
         func_803333DC(arg0, actor);
     }

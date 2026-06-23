@@ -99,6 +99,10 @@ void GenerateShufflePool(SaveData* saveData) {
         Rando::Logic::GenerateNoLogicPool(itemPool, abilityItemPool);
     }
 
+    if (checkPool.size() != itemPool.size()) {
+        return;
+    }
+
     for (int i = 0; i < checkPool.size(); i++) {
         RandoSaveCheck randoShuffleEntry = {
             .name = Rando::StaticData::Checks[checkPool[i]].name,

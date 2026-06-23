@@ -1324,15 +1324,5 @@ RandoCheckId GetCheckByAbilityId(int32_t abilityId) {
     return RC_UNKNOWN;
 }
 
-RandoCheckId GetCheckByName(const char* checkName) {
-    for (auto& [randoCheckId, randoStaticCheck] : Checks) {
-        if (std::string_view(randoStaticCheck.name) == std::string_view(checkName)) {
-            return randoCheckId;
-        }
-    }
-
-    return RC_UNKNOWN;
-}
-
 } // namespace StaticData
 } // namespace Rando

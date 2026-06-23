@@ -38,7 +38,6 @@ RandoCheckId GetCheckByHoneycombId(honeycomb_e honeycombId);
 RandoCheckId GetCheckByJiggyId(int32_t jiggyId);
 RandoCheckId GetJinjoJiggyCheckByLevelId(int16_t levelId);
 RandoCheckId GetCheckByAbilityId(int32_t abilityId);
-RandoCheckId GetCheckByName(const char* checkName);
 
 extern std::map<RandoCheckId, RandoStaticCheck> Checks;
 extern std::map<RandoCheckId, std::tuple<int32_t, int32_t, int32_t>> multiSpawnCheckMap;
@@ -78,8 +77,6 @@ struct RandoStaticOption {
 
 extern std::map<RandoOptionId, RandoStaticOption> Options;
 
-RandoOptionId GetOptionIdFromName(const char* name);
-
 struct RandoStaticFlag {
     RandoInf randoFlagId;
     const char* name;
@@ -87,8 +84,6 @@ struct RandoStaticFlag {
 };
 
 extern std::map<RandoInf, RandoStaticFlag> Flags;
-
-RandoInf GetFlagIdFromName(const char* name);
 
 void ModifyRandoInfFlagState(RandoCheckId randoCheckId);
 

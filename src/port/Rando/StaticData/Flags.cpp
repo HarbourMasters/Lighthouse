@@ -23,15 +23,6 @@ std::map<RandoInf, RandoStaticFlag> Flags = {
 };
 // clang-format on
 
-RandoInf GetFlagIdFromName(const char* name) {
-    for (auto& [randoInf, randoStaticFlag] : Flags) {
-        if (strcmp(name, randoStaticFlag.name) == 0) {
-            return randoInf;
-        }
-    }
-    return RANDO_INF_MAX;
-}
-
 } // namespace StaticData
 
 } // namespace Rando

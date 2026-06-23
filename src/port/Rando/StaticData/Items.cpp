@@ -42,14 +42,5 @@ RandoItemId GetRandoItemByActorId(actor_e actorId) {
     return RI_UNKNOWN;
 }
 
-// RandoItemId GetShuffledRandoItem(RandoCheckId randoCheckId) {
-//     for (auto& entry : Rando::Logic::shuffledPool) {
-//         if (entry.randoCheckId == randoCheckId) {
-//             return entry.randoItemId;
-//         }
-//     }
-//     return RI_UNKNOWN;
-// }
-
 } // namespace StaticData
 } // namespace Rando

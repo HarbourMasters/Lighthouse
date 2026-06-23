@@ -26,15 +26,6 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
 };
 // clang-format on
 
-RandoOptionId GetOptionIdFromName(const char* name) {
-    for (auto& [randoOptionId, randoStaticOption] : Options) {
-        if (strcmp(name, randoStaticOption.name) == 0) {
-            return randoOptionId;
-        }
-    }
-    return RO_MAX;
-}
-
 } // namespace StaticData
 
 } // namespace Rando
