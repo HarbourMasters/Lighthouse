@@ -77,6 +77,8 @@ Acmd* n_alAudioFrame(Acmd* cmdList, s32* cmdLen, s16* outBuf, s32 outLen);
 // DMA cache cleanup (decomp audio_manager.c)
 void func_802403F0(void);
 void func_80250650(void);
+// Game mode helper
+bool func_802E4A08(void);
 
 // Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
 u8* soundfont1ctl_ROM_START = NULL;
@@ -1296,14 +1298,19 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // of node allocations per tick at high refresh rates.
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-    if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
-        target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
-    }
 
-    // Some music-synced cutscenes cap interpolation at native 30
-    int fpsCap = port_getInterpolationFpsCap();
-    if (fpsCap > 0 && target_fps > fpsCap) {
-        target_fps = fpsCap;
+    // Demo/replay modes render at the native rate
+    const bool replayMode = func_802E4A08();
+    if (!replayMode) {
+        if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
+            target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
+        }
+
+        // Some music-synced cutscenes cap interpolation at native 30
+        int fpsCap = port_getInterpolationFpsCap();
+        if (fpsCap > 0 && target_fps > fpsCap) {
+            target_fps = fpsCap;
+        }
     }
 
     // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
@@ -1326,6 +1333,11 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // eff (the fractional-ratio jitter at target=30 / VI=3).
     int subframesPerTick = target_fps / effective_logic_fps;
     if (subframesPerTick < 1) {
+        subframesPerTick = 1;
+    }
+
+    // Replay modes never interpolate: one render per tick, held to viPerTick/60 by the floor.
+    if (replayMode) {
         subframesPerTick = 1;
     }
 

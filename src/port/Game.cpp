@@ -26,6 +26,8 @@ extern "C" {
 #include "enums.h"
 #include "core1/core1.h"
 #include "core1/main.h"
+// Non-interactive demo/playback modes (attract demo, file playback, etc.) -- decomp gameloop.c
+bool func_802E4A08(void);
 }
 
 // Tracks whether mainLoop actually fed the renderer this iteration.
@@ -63,7 +65,8 @@ void push_frame() {
 
     sTickStart = std::chrono::steady_clock::now();
     GameEngine::Instance->StartFrame();
-    const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
+    // Demo/playback modes render at native rate with no interpolation, so skip recording it.
+    const bool recordInterpolation = GameEngine::IsInterpolationEnabled() && !func_802E4A08();
     if (recordInterpolation) {
         FrameInterpolation_StartRecord();
     }
