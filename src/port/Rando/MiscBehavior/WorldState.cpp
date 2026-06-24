@@ -53,8 +53,13 @@ void Rando::StaticData::ModifyRandoInfFlagState(RandoCheckId randoCheckId) {
 }
 
 void Rando::MiscBehavior::InitWorldStateBehavior() {
-    COND_HOOK(SetRandoInfFlag, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+    REGISTER_LISTENER(SetRandoInfFlag, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         SetRandoInfFlag* ev = (SetRandoInfFlag*)event;
+
+        if (!IS_RANDO) {
+            return;
+        }
+
         RandoInf flagId = (RandoInf)ev->flagId;
 
         if (flagId < RANDO_INF_UNKNOWN && flagId > RANDO_INF_MAX) {
@@ -64,8 +69,13 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         RANDO_SAVE_FLAGS[(RandoInf)flagId].flagState = ev->flagState;
     })
 
-    COND_HOOK(OnGetLevelSpecificFlag, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+    REGISTER_LISTENER(OnGetLevelSpecificFlag, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnGetLevelSpecificFlag* ev = (OnGetLevelSpecificFlag*)event;
+
+        if (!IS_RANDO) {
+            return;
+        }
+
         map_e currentMap = gsworld_getMap();
 
         switch (ev->flagId) {
@@ -81,8 +91,13 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         }
     })
 
-    COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+    REGISTER_LISTENER(OnActorSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnActorSpawn* ev = (OnActorSpawn*)event;
+
+        if (!IS_RANDO) {
+            return;
+        }
+
         map_e currentMap = gsworld_getMap();
         level_e currentLevel = map_getLevel(currentMap);
 
@@ -123,8 +138,12 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         }
     })
 
-    COND_HOOK(OnIsJiggyScoreCollected, EVENT_PRIORITY_NORMAL, IS_RANDO && JIGGY_OPTION_ENABLED, [](IEvent* event) {
+    REGISTER_LISTENER(OnIsJiggyScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsJiggyScoreCollected* ev = (OnIsJiggyScoreCollected*)event;
+
+        if (!IS_RANDO && !JIGGY_OPTION_ENABLED) {
+            return;
+        }
 
         if (getGameMode() == GAME_MODE_4_PAUSED) {
             return;
@@ -169,8 +188,13 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         }
     })
 
-    COND_HOOK(OnIsJiggyScoreSpawned, EVENT_PRIORITY_NORMAL, IS_RANDO && JIGGY_OPTION_ENABLED, [](IEvent* event) {
+    REGISTER_LISTENER(OnIsJiggyScoreSpawned, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsJiggyScoreSpawned* ev = (OnIsJiggyScoreSpawned*)event;
+
+        if (!IS_RANDO && !JIGGY_OPTION_ENABLED) {
+            return;
+        }
+
         RandoCheckId randoCheckId = Rando::StaticData::GetCheckByJiggyId(ev->jiggyId);
 
         if (randoCheckId != RC_UNKNOWN) {
@@ -185,52 +209,58 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         }
     })
 
-    COND_HOOK(OnIsHoneycombScoreCollected, EVENT_PRIORITY_NORMAL, IS_RANDO && EMPTY_HONEYCOMB_OPTION_ENABLED,
-              [](IEvent* event) {
-                  OnIsHoneycombScoreCollected* ev = (OnIsHoneycombScoreCollected*)event;
+    REGISTER_LISTENER(OnIsHoneycombScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnIsHoneycombScoreCollected* ev = (OnIsHoneycombScoreCollected*)event;
 
-                  if (getGameMode() == GAME_MODE_4_PAUSED) {
-                      return;
-                  }
+        if (!IS_RANDO && !EMPTY_HONEYCOMB_OPTION_ENABLED) {
+            return;
+        }
 
-                  for (auto& saveCheck : RANDO_SAVE_CHECKS) {
-                      if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType !=
-                          RCTYPE_EMPTY_HONEYCOMB) {
-                          continue;
-                      }
+        if (getGameMode() == GAME_MODE_4_PAUSED) {
+            return;
+        }
 
-                      if (saveCheck.randoCollectionId == ev->honeycombId) {
-                          event->Cancelled = true;
+        for (auto& saveCheck : RANDO_SAVE_CHECKS) {
+            if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType !=
+                RCTYPE_EMPTY_HONEYCOMB) {
+                continue;
+            }
 
-                          if (ev->honeycombId == HONEYCOMB_17_SM_COLLIWOBBLE) {
-                              ev->result = false;
-                          } else {
-                              ev->result = saveCheck.obtained;
-                          }
+            if (saveCheck.randoCollectionId == ev->honeycombId) {
+                event->Cancelled = true;
 
-                          break;
-                      }
-                  }
-              })
+                if (ev->honeycombId == HONEYCOMB_17_SM_COLLIWOBBLE) {
+                    ev->result = false;
+                } else {
+                    ev->result = saveCheck.obtained;
+                }
 
-    COND_HOOK(OnIsMumboTokenScoreCollected, EVENT_PRIORITY_NORMAL, IS_RANDO && MUMBO_TOKENS_OPTION_ENABLED,
-              [](IEvent* event) {
-                  OnIsMumboTokenScoreCollected* ev = (OnIsMumboTokenScoreCollected*)event;
+                break;
+            }
+        }
+    })
 
-                  if (getGameMode() == GAME_MODE_4_PAUSED) {
-                      return;
-                  }
+    REGISTER_LISTENER(OnIsMumboTokenScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnIsMumboTokenScoreCollected* ev = (OnIsMumboTokenScoreCollected*)event;
 
-                  for (auto& saveCheck : RANDO_SAVE_CHECKS) {
-                      if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType != RCTYPE_MUMBO_TOKEN) {
-                          continue;
-                      }
+        if (!IS_RANDO && !MUMBO_TOKENS_OPTION_ENABLED) {
+            return;
+        }
 
-                      if (saveCheck.randoCollectionId == ev->tokenId) {
-                          event->Cancelled = true;
-                          ev->result = saveCheck.obtained;
-                          break;
-                      }
-                  }
-              })
+        if (getGameMode() == GAME_MODE_4_PAUSED) {
+            return;
+        }
+
+        for (auto& saveCheck : RANDO_SAVE_CHECKS) {
+            if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType != RCTYPE_MUMBO_TOKEN) {
+                continue;
+            }
+
+            if (saveCheck.randoCollectionId == ev->tokenId) {
+                event->Cancelled = true;
+                ev->result = saveCheck.obtained;
+                break;
+            }
+        }
+    })
 }

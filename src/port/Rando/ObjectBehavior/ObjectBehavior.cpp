@@ -109,7 +109,7 @@ int32_t GetJinjoActorMarkerId(actor_e actorId) {
 Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId) {
     Actor* start;
     Actor* end;
-    Actor* baddieActor;
+    Actor* baddieActor = NULL;
 
     if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
         start = suBaddieActorArray->data;
@@ -423,17 +423,23 @@ void Rando::ObjectBehavior::Init() {
 
     COND_HOOK(OnFindActorMarkerFromJiggyId, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnFindActorMarkerFromJiggyId* ev = (OnFindActorMarkerFromJiggyId*)event;
+        RandoCheckId randoCheckId = RC_UNKNOWN;
 
         switch (ev->jiggyId) {
             case JIGGY_3E_GV_GRABBA:
-                ev->result = FindActorByRandoCheckId(RC_GV_JIGGY_GRABBA)->marker;
+                randoCheckId = RC_GV_JIGGY_GRABBA;
                 break;
             default:
                 return;
         }
 
-        if (ev->result != NULL) {
+        if (randoCheckId == RC_UNKNOWN) {
+            return;
+        }
+
+        if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
             event->Cancelled = true;
+            ev->result = FindActorByRandoCheckId(randoCheckId)->marker;
         }
     })
 
