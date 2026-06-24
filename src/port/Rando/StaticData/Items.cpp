@@ -21,6 +21,7 @@ namespace StaticData {
 std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_UNKNOWN,          "",     "Unknown",          RITYPE_UNKNOWN,         ACTOR_1_UNKNOWN),
     RI(RI_EMPTY_HONEYCOMB,  "an",   "Empty Honeycomb",  RITYPE_EMPTY_HONEYCOMB, ACTOR_47_EMPTY_HONEYCOMB),
+    RI(RI_EXTRA_LIFE,       "an",   "Extra Life",       RITYPE_EXTRA_LIFE,      ACTOR_49_EXTRA_LIFE),
     RI(RI_JIGGY,            "a",    "Jiggy",            RITYPE_JIGGY,           ACTOR_46_JIGGY),
     RI(RI_JINJO_BLUE,       "a",    "Blue Jinjo",       RITYPE_JINJO,           ACTOR_60_JINJO_BLUE),
     RI(RI_JINJO_GREEN,      "a",    "Green Jinjo",      RITYPE_JINJO,           ACTOR_62_JINJO_GREEN),
