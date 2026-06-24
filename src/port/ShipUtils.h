@@ -19,6 +19,7 @@ extern std::vector<std::string> abilityNameList;
 
 void TableCellCenteredText(const char* text);
 uint32_t Ship_Hash(std::string str);
+std::string port_FormatTimeDisplay(uint32_t value);
 
 extern "C" {
 #endif

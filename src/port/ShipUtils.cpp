@@ -58,6 +58,15 @@ extern uint32_t Ship_Hash(std::string str) {
     return hval;
 }
 
+extern std::string port_FormatTimeDisplay(uint32_t value) {
+    uint32_t sec = value / 10;
+    uint32_t hh = sec / 3600;
+    uint32_t mm = (sec - hh * 3600) / 60;
+    uint32_t ss = sec - hh * 3600 - mm * 60;
+    uint32_t ds = value % 10;
+    return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
+}
+
 extern "C" {
 
 #include "enums.h" // game_mode_e

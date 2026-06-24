@@ -11,3 +11,9 @@ typedef enum {
     LANGUAGE_FRE,
     LANGUAGE_GER,
 } LanguageType;
+
+typedef enum {
+    TIMER_DISPLAY_NONE,
+    TIMER_DISPLAY_RTA,
+    TIMER_DISPLAY_IGT,
+} TimerDisplayOptions;

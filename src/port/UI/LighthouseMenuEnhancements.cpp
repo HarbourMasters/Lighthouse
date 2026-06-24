@@ -452,6 +452,15 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
             "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
+
+    path = { "Enhancements", "Trackers", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.DisplayOverlay")
+        .WindowName("Display Overlay");
 }
 
 } // namespace LighthouseGui
