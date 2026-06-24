@@ -15,7 +15,7 @@ void item_inc(enum item_e item);
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
 
 void Rando::ObjectBehavior::InitMusicNoteBehavior() {
-    COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
         int32_t currentNotes = 0;
 
