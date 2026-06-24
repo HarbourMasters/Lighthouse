@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Romhack/RomhackConfig.h"
-#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 #include "core2/ba/physics.h"
 #include "version.h"
 #include "prop.h"

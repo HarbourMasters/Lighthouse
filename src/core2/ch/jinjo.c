@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern void subaddie_set_state_with_direction(Actor *, s32, f32 , s32);
 extern f32 func_80309B24(f32*);

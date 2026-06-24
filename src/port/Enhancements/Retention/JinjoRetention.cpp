@@ -20,12 +20,12 @@
 #include <libultraship/bridge.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 
-#include "port/UI/cvar_prefixes.h"
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 #include "port/Rando/Rando.h"
+#include "port/Rando/CustomObject/CustomObject.h"
 
 extern "C" {
 #include "enums.h"
@@ -34,40 +34,18 @@ extern "C" {
 #include "functions.h"
 }
 
-#define CVAR_JINJO_RETENTION CVAR_ENHANCEMENT("Gameplay.JinjoRetention")
 // Anchor forces retention on while connected, separate from the user's CVar so their setting is
 // preserved. CVAR_VALUE / applyEnabled() — and thus every COND_HOOK gate — respect it.
 static bool sForcedByAnchor = false;
+#define CVAR_JINJO_RETENTION CVAR_ENHANCEMENT("Gameplay.JinjoRetention")
 #define CVAR_VALUE (CVarGetInteger(CVAR_JINJO_RETENTION, 0) || sForcedByAnchor)
 
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 
-// gameFile_saveData index of the live save slot for the current game, or -1.
-int32_t activeSlot() {
-    if (selectedFileNum == DEFAULT_FILE_NUM || selectedFileNum < 0 || selectedFileNum >= 4) {
-        return -1;
-    }
-    return (int32_t)selectedFileNum;
-}
+using retention::activeSlot;
+using retention::systemActive;
 
-// Don't run during demos, Bottles bonus games, or rando files.
-bool systemActive() {
-    int32_t slot = activeSlot();
-    if (slot < 0 || gameFile_saveData[slot].shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
-        return false;
-    }
-    switch (getGameMode()) {
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-        case GAME_MODE_A_SNS_PICTURE:
-            return false;
-        default:
-            return true;
-    }
-}
-
-bool applyEnabled() {
+static bool applyEnabled() {
     return CVAR_VALUE;
 }
 
@@ -77,7 +55,7 @@ extern "C" void port_jinjoRetention_setForced(int32_t forced) {
     ShipInit::Init(CVAR_JINJO_RETENTION);
 }
 
-JinjoRetentionSaveData* store() {
+static JinjoRetentionSaveData* store() {
     int32_t slot = activeSlot();
     return slot >= 0 ? &gameFile_saveData[slot].shipSaveData.jinjoRetention : nullptr;
 }
@@ -93,16 +71,16 @@ extern "C" void port_jinjoRetention_getSizeAndPtr(int32_t* size, uint8_t** addr)
     *addr = (uint8_t*)s;
 }
 
-bool levelInRange(int32_t level) {
+static bool levelInRange(int32_t level) {
     return level > 0 && level < JINJO_RETENTION_LEVEL_SLOTS;
 }
 
-u8 collectedBits(int32_t level) {
+static u8 collectedBits(int32_t level) {
     JinjoRetentionSaveData* s = store();
     return (s != nullptr && levelInRange(level)) ? s->collected[level] : 0;
 }
 
-u8 jinjoBitFromMarker(int32_t markerId) {
+static u8 jinjoBitFromMarker(int32_t markerId) {
     switch (markerId) {
         case MARKER_5A_JINJO_BLUE:
         case MARKER_5B_JINJO_GREEN:
@@ -115,7 +93,7 @@ u8 jinjoBitFromMarker(int32_t markerId) {
     }
 }
 
-u8 jinjoBitFromActor(int32_t actorId) {
+static u8 jinjoBitFromActor(int32_t actorId) {
     switch (actorId) {
         case ACTOR_60_JINJO_BLUE:
             return 1 << 0;
@@ -132,7 +110,7 @@ u8 jinjoBitFromActor(int32_t actorId) {
     }
 }
 
-int32_t jinjoActorFromBit(u8 bit) {
+static int32_t jinjoActorFromBit(u8 bit) {
     switch (bit) {
         case 1 << 0: return ACTOR_60_JINJO_BLUE;
         case 1 << 1: return ACTOR_62_JINJO_GREEN;
@@ -187,7 +165,7 @@ extern "C" void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId) {
 // Whether retention should seed/suppress jinjos for this level. False when retention is
 // off, and false in the stranded-jiggy case so the jinjos respawn and the jiggy is still
 // earnable. Seeding and suppression both gate on this so ITEM_12_JINJOS stays consistent.
-bool retentionActiveForLevel(int32_t level) {
+static bool retentionActiveForLevel(int32_t level) {
     if (!applyEnabled() || !levelInRange(level)) {
         return false;
     }
@@ -243,6 +221,27 @@ void RegisterJinjoRetention_Init() {
         if (buf != nullptr && live != nullptr && &buf->shipSaveData.jinjoRetention != live) {
             buf->shipSaveData.jinjoRetention = *live;
         }
+    });
+
+    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
+        (void)va_arg(args, int);
+        BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
+        (void)va_arg(args, s32);
+        (void)va_arg(args, f32*);
+        (void)va_arg(args, Actor**);
+
+        if (!systemActive() || bundleInfo == nullptr) {
+            return;
+        }
+        u8 bit = jinjoBitFromActor(bundleInfo->actor_id);
+        if (bit == 0) {
+            return;
+        }
+        int32_t level = level_get();
+        if (!retentionActiveForLevel(level) || !(collectedBits(level) & bit)) {
+            return;
+        }
+        *should = true;
     });
 }
 

@@ -26,7 +26,7 @@
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
@@ -100,34 +100,8 @@ int64_t noteKey(int32_t mapId, int32_t noteIndex) {
     return ((int64_t)mapId << 32) | (uint32_t)noteIndex;
 }
 
-// Active slot is wobbly
-int32_t activeSlot() {
-    if (selectedFileNum == DEFAULT_FILE_NUM || selectedFileNum < 0 || selectedFileNum >= 4) {
-        return -1;
-    }
-    return (int32_t)selectedFileNum;
-}
-
-bool fileValid() {
-    return activeSlot() >= 0;
-}
-
-// Don't run during demos, Bottles bonus games, or rando files
-bool systemActive() {
-    int32_t slot = activeSlot();
-    if (slot < 0 || gameFile_saveData[slot].shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
-        return false;
-    }
-    switch (getGameMode()) {
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-        case GAME_MODE_A_SNS_PICTURE:
-            return false;
-        default:
-            return true;
-    }
-}
+using retention::activeSlot;
+using retention::systemActive;
 
 bool applyEnabled() {
     return CVAR_VALUE;

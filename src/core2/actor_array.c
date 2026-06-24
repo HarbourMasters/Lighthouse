@@ -5,7 +5,7 @@
 #include "actor.h"
 
 #include "prop.h"
-#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern s32 D_80370990;
 extern f32 GameEngine_GetAspectRatio(void);

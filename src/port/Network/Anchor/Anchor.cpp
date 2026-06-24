@@ -6,8 +6,7 @@
 #include "port/Nametag/Nametag.h"
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/ObjectExtension/ObjectExtension.h"
-#include "port/Enhancements/NoteRetention/NoteRetention.h"
-#include "port/Enhancements/JinjoRetention/JinjoRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern "C" {
 #include "variables.h"

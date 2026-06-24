@@ -7,7 +7,7 @@
 #include <core2/file.h>
 #include "core2/particle.h"
 #include "port/Interpolation/FrameInterpolation.h"
-#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 /* .data */
 extern u8 D_80370250 = 0;
