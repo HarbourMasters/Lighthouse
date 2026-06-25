@@ -58,7 +58,15 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_HONEYCOMB:
             if (!honeycombscore_get((enum honeycomb_e)id)) {
                 honeycombscore_set((enum honeycomb_e)id, 1);
-                func_80347958(); // recompute empty-honeycomb count + health
+                // Mirror the local pickup (ba_marker.c) so the empty-honeycomb carrier HUD
+                // animates and every 6th honeycomb plays the health-upgrade sequence. The carrier
+                // drives ITEM_15_HEALTH_TOTAL / ITEM_14_HEALTH itself, so we don't recompute here.
+                // NOTE: the >= 6 case calls gcpausemenu_80314AC8(0), which locks input until the
+                // carrier releases it ~1.5s later (handled the same way for the local collector).
+                item_inc(ITEM_13_EMPTY_HONEYCOMB);
+                if (!(item_getCount(ITEM_13_EMPTY_HONEYCOMB) < 6)) {
+                    gcpausemenu_80314AC8(0);
+                }
             }
             if (sameMap) {
                 ActorMarker* m = actorArray_findHoneycombMarkerById((enum honeycomb_e)id);
