@@ -49,6 +49,10 @@ typedef struct {
     std::string romhackName;
 } RoomState;
 
+// True for scoped (level/map) flags with per-client consume semantics that must not sync.
+// Defined in HookHandlers.cpp; used by the realtime broadcast and the entry-sync (ScopedState).
+bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
+
 class Anchor : public Network {
 private:
     uint32_t spawningDummyPlayerForClientId = 0;

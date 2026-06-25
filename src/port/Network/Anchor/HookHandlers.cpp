@@ -64,11 +64,18 @@ static bool Anchor_ShouldBroadcastVolatileFlag(s32 index) {
     return syncList.contains(index);
 }
 
-// Curated exclude-list for scoped (level/map) flags that shouldn't broadcast — e.g. flags with
-// per-client consume semantics not covered by getClear. Keyed (space << 16) | index. Empty.
-static bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
+// Curated exclude-list for scoped (level/map) flags that shouldn't broadcast — flags with
+// per-client consume semantics not covered by getClear. Keyed (space << 16) | index. Applied to
+// both the realtime broadcast (below) and the entry-sync (ScopedState.cpp), so these flags stay
+// strictly local to each client.
+bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     static const std::unordered_set<s32> excluded = {
-        // Add ((ANCHOR_FLAGSPACE_MAP_SPECIFIC << 16) | index) entries here as needed.
+        // One-shot cutscene triggers: each client plays its own cutscene when it personally
+        // completes the puzzle, so sharing the flag replays the cutscene for teammates who
+        // already saw it. Persistent completion is tracked separately (LEVEL_FLAG_2 for TTC's
+        // drained water, FILEPROG_13 for FP's twinkly minigame), which still syncs.
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_5_TTC_UNKNOWN,            // TTC sandcastle drain
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, // FP xmas-tree ice shatter
     };
     return excluded.contains((space << 16) | index);
 }

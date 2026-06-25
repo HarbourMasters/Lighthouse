@@ -43,13 +43,26 @@ void Anchor::HandlePacket_RequestScopedState(nlohmann::json& payload) {
         s32 size;
         u8* addr;
         levelSpecificFlags_getSizeAndPtr(&size, &addr);
+        // Strip excluded (local-only) level flags so they don't re-arm a teammate on entry.
+        std::vector<u8> levelFlags(addr, addr + size);
+        for (s32 idx = 0; idx < size * 8; idx++) {
+            if (Anchor_ScopedFlagExcluded(ANCHOR_FLAGSPACE_LEVEL_SPECIFIC, idx)) {
+                levelFlags[idx >> 3] &= ~(1 << (idx & 7));
+            }
+        }
         response["level"] = reqLevel;
-        response["levelFlags"] = std::vector<u8>(addr, addr + size);
+        response["levelFlags"] = levelFlags;
         any = true;
     }
     if ((s32)gsworld_getMap() == reqMap) {
+        u32 mapFlags = (u32)mapSpecificFlags_getAll();
+        for (s32 idx = 0; idx < 32; idx++) {
+            if (Anchor_ScopedFlagExcluded(ANCHOR_FLAGSPACE_MAP_SPECIFIC, idx)) {
+                mapFlags &= ~(1u << idx);
+            }
+        }
         response["map"] = reqMap;
-        response["mapFlags"] = (u32)mapSpecificFlags_getAll();
+        response["mapFlags"] = mapFlags;
         any = true;
     }
 
