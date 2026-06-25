@@ -2,6 +2,7 @@
 #include "port/UI/enhancementTypes.h"
 #include "port/ShipUtils.h"
 #include <spdlog/fmt/fmt.h>
+#include "fast/Fast3dGui.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <libultraship/include/libultraship/libultra/gbi.h>
 #include <ship/Context.h>
@@ -53,7 +54,7 @@ int64_t DisplayOverlay_GetTotalInGameTime() {
     return totalTime;
 }
 
-void DisplayOverlayWindow::DrawElement() {
+void DisplayOverlayWindow::Draw() {
     if (!IsVisible() || gsworld_getMap() == MAP_91_FILE_SELECT) {
         return;
     }
@@ -76,8 +77,14 @@ void DisplayOverlayWindow::DrawElement() {
                      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
     ImGui::SetWindowFontScale(windowScale);
 
+    // auto gui = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui());
+    // ImTextureID textureId = gui->GetTextureByName("Music Note");
+    // ImGui::Image(textureId,
+    //              ImVec2(16.0f * windowScale, 16.0f * windowScale));
+    // ImGui::SameLine(0, 10.0f);
+
     uint64_t timeToDisplay = DisplayOverlay_GetTotalInGameTime();
-    std::string timerStr = port_FormatTimeDisplay(timeToDisplay / 100);
+    std::string timerStr = port_FormatTimeDisplay(timeToDisplay * 10);
     ImGui::Text(timerStr.c_str());
     // DrawInGameTimer(timeToDisplay / 100);
 	

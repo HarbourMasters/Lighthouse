@@ -10,6 +10,7 @@
 #include <libultraship/libultraship.h>
 #include <fast/Fast3dWindow.h>
 #include "UI/cvar_prefixes.h"
+#include "fast/Fast3dGui.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -63,8 +64,7 @@ extern std::string port_FormatTimeDisplay(uint32_t value) {
     uint32_t hh = sec / 3600;
     uint32_t mm = (sec - hh * 3600) / 60;
     uint32_t ss = sec - hh * 3600 - mm * 60;
-    uint32_t ds = value % 10;
-    return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
+    return fmt::format("{}:{:0>2}:{:0>2}", hh, mm, ss);
 }
 
 extern "C" {
@@ -399,12 +399,13 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input) {
     return result;
 }
 
-// std::array<const char*, 1> miscellaneousTextures = {
-//     "assets/sprite/Talk_GreenJinjo"
+// std::vector <std::pair<std::string, std::string>> miscellaneousTextures = {
+//     { "Music Note", "assets/sprite/ASSET_7D9_NOTE_3_0" },
 // };
-//
+// 
 // void LoadGuiTextures() {
+//     auto gui = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui());
 //     for (const auto entry : miscellaneousTextures) {
-//         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
+//         gui->LoadGuiTexture(entry.first, entry.second, ImVec4(1, 0, 0, 1));
 //     }
 // }

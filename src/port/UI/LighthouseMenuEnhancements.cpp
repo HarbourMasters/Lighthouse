@@ -458,9 +458,21 @@ void LighthouseMenu::AddMenuEnhancements() {
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
+    AddWidget(path, "Toggle Gameplay Timer", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.DisplayOverlay")
         .WindowName("Display Overlay");
+    AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
+        .CVar("gDisplayOverlay.Background")
+        .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
+    AddWidget(path, "Scale: %.1fx", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gDisplayOverlay.Scale")
+        .Options(FloatSliderOptions()
+                     .Tooltip("Adjust the Scale for the Display Overlay window.")
+                     .Min(1.0f)
+                     .Max(5.0f)
+                     .DefaultValue(1.0f)
+                     .Format("%.1f")
+                     .Step(0.1f));
 }
 
 } // namespace LighthouseGui

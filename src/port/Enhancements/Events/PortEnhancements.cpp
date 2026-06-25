@@ -12,6 +12,7 @@
 
 void PortEnhancements_Init() {
     PortEnhancements_Register();
+    //LoadGuiTextures();
 }
 
 void PortEnhancements_Register() {
