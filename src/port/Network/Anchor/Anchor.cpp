@@ -199,6 +199,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_SetFlag(payload);
             else if (packetType == ITEM_COUNT)
                 HandlePacket_SetItemCount(payload);
+            else if (packetType == SET_ABILITY)
+                HandlePacket_SetAbility(payload);
             else if (packetType == SCOPED_FLAG)
                 HandlePacket_ScopedFlag(payload);
             else if (packetType == REQUEST_SCOPED_STATE)

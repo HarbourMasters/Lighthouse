@@ -315,6 +315,17 @@ void Anchor::RegisterHooks() {
         }
     });
 
+    // Realtime learned-move sync. Remote applies use ability_setLearnedEx(triggerEvent=0),
+    // so this never fires for them (no echo).
+    COND_HOOK(OnAbilityLearned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<OnAbilityLearned*>(event);
+        anchor->SendPacket_SetAbility((s16)ev->move, (u8)ev->value);
+    });
+
     // Realtime collectible pickups (jiggy/honeycomb/Mumbo token) for live despawn + bit credit.
     COND_HOOK(OnCollectibleCollected, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();

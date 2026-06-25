@@ -1092,6 +1092,7 @@ void ability_setAllLearned(s32 val);
 void ability_setAllUsed(s32 val);
 void ability_setHasUsed(enum ability_e move);
 void ability_setLearned(s32 move, s32 val);
+void ability_setLearnedEx(s32 move, s32 val, s32 triggerEvent);
 void ability_use(s32 arg0);
 
 // --- core2/actor_array.c ---

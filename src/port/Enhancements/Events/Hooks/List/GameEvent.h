@@ -11,6 +11,8 @@ DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int
 DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
 // Fired when a collectible is picked up. kind = AnchorCollectibleSpace.
 DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
+// Fired when a move's learned state changes. move = ability_e; value = 1 learned, 0 cleared.
+DEFINE_EVENT(OnAbilityLearned, int32_t move; int32_t value;)
 // Fired when a jiggy actor is spawned (witch switch, minigame reward, etc.).
 DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
 DEFINE_EVENT(OnPropInit, Prop* propPtr;);
