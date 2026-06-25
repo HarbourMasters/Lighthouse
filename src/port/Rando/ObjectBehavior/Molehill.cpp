@@ -186,7 +186,8 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
         }
     })
 
-    COND_VB_SHOULD(VB_OVERRIDE_SM_BRIDGE_STATE, EVENT_PRIORITY_NORMAL, true, {
+    COND_HOOK(OnCheckSpiralMountainAbilities, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+        OnCheckSpiralMountainAbilities* ev = (OnCheckSpiralMountainAbilities*)event;
         if (!IS_RANDO && !OPTION_ENABLED) {
             return;
         }
@@ -197,7 +198,8 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
 
         if (CheckBridgeState()) {
             mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
-            *should = true;
+            event->Cancelled = true;
+            ev->result = true;
         }
     })
 }

@@ -473,7 +473,7 @@ void chmole_update(Actor *this){
 
 int chmole_learnedAllSpiralMountainAbilities(void){
     // Checks if the player has learned all of the Spiral Mountain abilities.
-    if (!EventSystem_Should(VB_OVERRIDE_SM_BRIDGE_STATE, false)) {
+    CALL_CANCELLABLE_RETURN_EVENT(OnCheckSpiralMountainAbilities) {
         return ability_isUnlocked(ABILITY_F_DIVE)
             && ability_isUnlocked(ABILITY_4_CLAW_SWIPE)
             && ability_isUnlocked(ABILITY_C_ROLL)
