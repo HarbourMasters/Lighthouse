@@ -978,6 +978,7 @@ void GameEngine::Create(int argc, char* argv[]) {
 }
 
 extern void ResourceHelpers_ClearRefCache();
+void ReleaseSoundfonts();
 
 void GameEngine::Destroy() {
     // Stop rumble on all controllers before tearing down
@@ -995,14 +996,15 @@ void GameEngine::Destroy() {
 
     // Flush all resource refs so destructors run while spdlog is still active.
     // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
+    AudioExit();
     ResourceHelpers_ClearRefCache();
     AudioDma_Clear();
+    ReleaseSoundfonts();
     if (Instance->context && Instance->context->GetResourceManager()) {
         Instance->context->GetResourceManager()->UnloadResources("*");
     }
     Instance->context = nullptr;
     // PortEnhancements_Exit();
-    AudioExit();
     for (auto ptr : MemoryPool) {
         free(ptr);
     }
@@ -1158,9 +1160,16 @@ void GameEngine::EndAudioFrame() {
     // No-op: audio generation is decoupled from the game frame.
 }
 
+static std::vector<std::shared_ptr<Ship::IResource>> sSoundfontResources;
+
+void ReleaseSoundfonts() {
+    sSoundfontResources.clear();
+}
+
 // Load soundfont BLOBs from OTR and set ROM symbol pointers
 static void LoadSoundfonts() {
     auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
+    sSoundfontResources.clear();
 
     auto loadBlob = [&rm](const char* path, uint8_t*& start, uint8_t*& end) {
         auto res = rm->LoadResource(path);
@@ -1168,6 +1177,7 @@ static void LoadSoundfonts() {
             start = (uint8_t*)res->GetRawPointer();
             end = start + res->GetPointerSize();
             AudioDma_Register(start, res->GetPointerSize());
+            sSoundfontResources.push_back(res);
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
@@ -1182,6 +1192,7 @@ static void LoadSoundfonts() {
         if (res) {
             start = (uint8_t*)res->GetRawPointer();
             AudioDma_Register(start, res->GetPointerSize());
+            sSoundfontResources.push_back(res);
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
