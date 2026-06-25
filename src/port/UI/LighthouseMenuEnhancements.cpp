@@ -116,18 +116,6 @@ void LighthouseMenu::AddMenuEnhancements() {
             "How quickly the camera settles when sliding along geometry. "
             "Lower is smoother but floatier; higher is snappier but can hitch on walls."));
 
-    AddWidget(path, "Free Look Min Distance", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MinDistance"))
-        .RaceDisable(false)
-        .Options(FloatSliderOptions().Min(50.0f).Max(500.0f).DefaultValue(120.0f).Step(1.0f).Format("%.0f").Tooltip(
-            "Closest the camera may sit from Banjo when entering free look."));
-
-    AddWidget(path, "Free Look Max Distance", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MaxDistance"))
-        .RaceDisable(false)
-        .Options(FloatSliderOptions().Min(200.0f).Max(1500.0f).DefaultValue(1200.0f).Step(1.0f).Format("%.0f").Tooltip(
-            "Farthest the camera may sit from Banjo when entering free look."));
-
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 3);

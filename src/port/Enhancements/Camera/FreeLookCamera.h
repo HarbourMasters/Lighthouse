@@ -12,8 +12,10 @@
 // hand the frame back; dynamicCamera's update loop calls
 // port_freeLookCamera_update() to actually move the camera each frame.
 //
-// Behavior: controls yaw + pitch, holds its angle indefinitely, and returns
-// to the normal camera as soon as the player uses a C-button camera control.
+// Behavior: controls yaw + pitch and holds its angle indefinitely. Distance
+// tracks the vanilla zoom level (shared with the modern-scheme camera), so the
+// zoom controls re-zoom in place. Returns to the normal camera when the player
+// rotates or enters first-person via a C-button camera control.
 
 #define FREELOOK_CAM_STATE 0x14
 

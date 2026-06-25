@@ -1,25 +1,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
-#include <cmath>
 
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
+#include "port/Enhancements/Camera/OrbitCameraCore.h"
 
-// Vanilla camera / math / input entry points (decomp C API).
+// Vanilla camera / input entry points (decomp C API).
 extern "C" {
-void ncDynamicCamera_getPosition(float dst[3]);
-void ncDynamicCamera_setPosition(float src[3]);
-void ncDynamicCamera_setRotation(float src[3]);
 int ncDynamicCamera_getState(void);
-void ncDynamicCamera_setState(int state);
 
-void func_802C02D4(float center[3]);                                                 // camera focus/orbit center
-void func_80256E24(float dst[3], float pitch, float yaw, float x, float y, float z); // spherical -> offset
-int func_8025801C(float vec[3], float* yaw);                                         // vector -> yaw (degrees)
-void func_802BC434(float rotOut[3], float fromPos[3], float targetPos[3]);           // look-at rotation
-int func_802BE60C(void);                                                             // swept camera collision + slide
-
-float ml_acosf(float x);
-float mlNormalizeAngle(float deg);
 float time_getDelta(void);
 float gu_sqrtf(float x);
 
@@ -27,7 +15,6 @@ void controller_getRightStick(int controller_index, float dst[2]);
 
 int bainput_should_rotate_camera_left(void);
 int bainput_should_rotate_camera_right(void);
-int bainput_should_zoom_out_camera(void);
 int bainput_should_look_first_person_camera(void);
 }
 
@@ -38,8 +25,6 @@ namespace {
 #define CVAR_FREELOOK_INVERT_X CVAR_ENHANCEMENT("Camera.FreeLook.InvertX")
 #define CVAR_FREELOOK_INVERT_Y CVAR_ENHANCEMENT("Camera.FreeLook.InvertY")
 #define CVAR_FREELOOK_SMOOTH_RATE CVAR_ENHANCEMENT("Camera.FreeLook.SmoothRate")
-#define CVAR_FREELOOK_MIN_DISTANCE CVAR_ENHANCEMENT("Camera.FreeLook.MinDistance")
-#define CVAR_FREELOOK_MAX_DISTANCE CVAR_ENHANCEMENT("Camera.FreeLook.MaxDistance")
 
 // Tuning
 constexpr float deadzone = 0.15f;
@@ -52,20 +37,11 @@ constexpr float maxPitch = 40.0f;  // low, looking up at the player
 
 // position smoothing rate (1/sec); higher = snappier
 constexpr float defaultSmoothRate = 40.0f;
-constexpr float defaultMinDistance = 120.0f;
-constexpr float defaultMaxDistance = 1200.0f;
 
-bool isActive = false;
-bool justEntered = false;
-float yaw = 0.0f;
-float pitch = 0.0f;
-float distance = 300.0f;
-float smoothPos[3] = { 0.0f, 0.0f, 0.0f };
-bool isSmoothValid = false;
-
-float clampf(float v, float lo, float hi) {
-    return v < lo ? lo : (v > hi ? hi : v);
-}
+// Pitch-enabled orbit on the shared core. Distance tracks the vanilla zoom level
+// (same as the modern-scheme camera) so the normal follow distances are honored.
+OrbitCamera sFreeLook = { /*stateId*/ FREELOOK_CAM_STATE, /*allowPitch*/ 1,
+                          /*minPitch*/ minPitch, /*maxPitch*/ maxPitch, /*smoothRate*/ defaultSmoothRate };
 
 // Right stick with a radial deadzone, rescaled so motion ramps from 0 at the
 // deadzone edge to 1 at full deflection.
@@ -86,41 +62,12 @@ float readStick(float out[2]) {
     return scaled;
 }
 
+// Explicit camera commands hand the frame back to the normal camera. Zoom is not
+// one of them: it adjusts the vanilla zoom level, which free look tracks, so the
+// player can re-zoom without dropping out of free look.
 bool cButtonCameraControl() {
     return bainput_should_rotate_camera_left() || bainput_should_rotate_camera_right() ||
-           bainput_should_zoom_out_camera() || bainput_should_look_first_person_camera();
-}
-
-void captureFromCurrentCamera() {
-    float camPos[3];
-    float center[3];
-    ncDynamicCamera_getPosition(camPos);
-    func_802C02D4(center);
-
-    float diff[3] = { camPos[0] - center[0], camPos[1] - center[1], camPos[2] - center[2] };
-    float dist = gu_sqrtf(diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2]);
-    float minDist = CVarGetFloat(CVAR_FREELOOK_MIN_DISTANCE, defaultMinDistance);
-    float maxDist = CVarGetFloat(CVAR_FREELOOK_MAX_DISTANCE, defaultMaxDistance);
-    if (maxDist < minDist) {
-        maxDist = minDist;
-    }
-    distance = clampf(dist, minDist, maxDist);
-
-    yaw = 0.0f;
-    func_8025801C(diff, &yaw);
-    float sinPitch = clampf(-diff[1] / dist, -1.0f, 1.0f);
-    float pitchMag = ml_acosf(sinPitch);
-    pitch = clampf(sinPitch < 0.0f ? -pitchMag : pitchMag, minPitch, maxPitch);
-
-    justEntered = true;
-    isSmoothValid = false;
-}
-
-void exitFreeLook() {
-    isActive = false;
-    if (ncDynamicCamera_getState() == FREELOOK_CAM_STATE) {
-        ncDynamicCamera_setState(0xB); // hand back to the normal follow camera
-    }
+           bainput_should_look_first_person_camera();
 }
 
 } // namespace
@@ -131,21 +78,21 @@ extern "C" int port_freeLook_isEnabled(void) {
 
 extern "C" int port_freeLook_handle(void) {
     if (!port_freeLook_isEnabled()) {
-        if (isActive) {
-            exitFreeLook();
+        if (sFreeLook.active) {
+            OrbitCamera_Exit(&sFreeLook);
         }
         return 0;
     }
 
     int state = ncDynamicCamera_getState();
 
-    if (isActive) {
+    if (sFreeLook.active) {
         if (state != FREELOOK_CAM_STATE) {
-            isActive = false;
+            sFreeLook.active = 0;
             return 0;
         }
         if (cButtonCameraControl()) {
-            exitFreeLook();
+            OrbitCamera_Exit(&sFreeLook);
             return 0;
         }
         return 1; // hold the angle; consume the frame
@@ -162,9 +109,7 @@ extern "C" int port_freeLook_handle(void) {
 
     float stick[2];
     if (readStick(stick) >= enterThreshold) {
-        captureFromCurrentCamera();
-        isActive = true;
-        ncDynamicCamera_setState(FREELOOK_CAM_STATE);
+        OrbitCamera_Enter(&sFreeLook);
         return 1;
     }
 
@@ -172,12 +117,12 @@ extern "C" int port_freeLook_handle(void) {
 }
 
 extern "C" void port_freeLookCamera_update(void) {
-    float center[3];
-    func_802C02D4(center);
-
     float dt = time_getDelta();
+    sFreeLook.smoothRate = CVarGetFloat(CVAR_FREELOOK_SMOOTH_RATE, defaultSmoothRate);
 
-    if (!justEntered) {
+    float yawDelta = 0.0f;
+    float pitchDelta = 0.0f;
+    if (!sFreeLook.justEntered) {
         float stick[2];
         readStick(stick);
 
@@ -186,43 +131,10 @@ extern "C" void port_freeLookCamera_update(void) {
         bool invertX = CVarGetInteger(CVAR_FREELOOK_INVERT_X, 0) != 0;
         bool invertY = CVarGetInteger(CVAR_FREELOOK_INVERT_Y, 0) != 0;
 
-        float yawStep = (invertX ? -stick[0] : stick[0]) * horizontalSpeed * yawSens * dt;
-        yaw = mlNormalizeAngle(yaw + yawStep);
+        yawDelta = (invertX ? -stick[0] : stick[0]) * horizontalSpeed * yawSens * dt;
         // Default: push up -> camera rises and looks down (overhead). InvertY flips it.
-        float pitchStep = (invertY ? stick[1] : -stick[1]) * verticalSpeed * pitchSens * dt;
-        pitch = clampf(pitch + pitchStep, minPitch, maxPitch);
+        pitchDelta = (invertY ? stick[1] : -stick[1]) * verticalSpeed * pitchSens * dt;
     }
-    justEntered = false;
 
-    float offset[3];
-    func_80256E24(offset, pitch, yaw, 0.0f, 0.0f, distance);
-
-    float pos[3] = { center[0] + offset[0], center[1] + offset[1], center[2] + offset[2] };
-    ncDynamicCamera_setPosition(pos);
-
-    // Follow geometry collision like the normal camera does
-    func_802BE60C();
-
-    float resolved[3];
-    ncDynamicCamera_getPosition(resolved);
-
-    if (!isSmoothValid) {
-        smoothPos[0] = resolved[0];
-        smoothPos[1] = resolved[1];
-        smoothPos[2] = resolved[2];
-        isSmoothValid = true;
-    } else {
-        // Smooth the resolved position to prevent hitching on edges.
-        float smoothRate = CVarGetFloat(CVAR_FREELOOK_SMOOTH_RATE, defaultSmoothRate);
-        float f = clampf(smoothRate * dt, 0.0f, 1.0f);
-        smoothPos[0] += (resolved[0] - smoothPos[0]) * f;
-        smoothPos[1] += (resolved[1] - smoothPos[1]) * f;
-        smoothPos[2] += (resolved[2] - smoothPos[2]) * f;
-    }
-    ncDynamicCamera_setPosition(smoothPos);
-
-    // Aim back at the player from the smoothed position
-    float rot[3];
-    func_802BC434(rot, center, smoothPos);
-    ncDynamicCamera_setRotation(rot);
+    OrbitCamera_Update(&sFreeLook, yawDelta, pitchDelta);
 }
