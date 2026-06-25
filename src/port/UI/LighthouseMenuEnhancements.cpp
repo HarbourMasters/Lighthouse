@@ -217,6 +217,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Stops the Jinjo charge-up sound the instant it hits Grunty."));
 
+    AddWidget(path, "Fix Bouncing Grunty", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.GruntyBounce"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Stops Wonderwing from launching Grunty off her platform in the final battle."));
+
     AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CongaText"))
         .RaceDisable(false)
