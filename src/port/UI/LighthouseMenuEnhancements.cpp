@@ -145,8 +145,13 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
+
+    // Column 1: Progression
+
+    // Game Over Section
+    AddWidget(path, "Game Over", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Fix Furnace Fun Game Over Dialog", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.FurnaceFunDialog"))
@@ -159,6 +164,16 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
             "Prevents a game over when voiding out with zero extra lives, since void-outs don't cost a life."));
+
+    AddWidget(path, "Fix Boggy Race Game Over", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Losing Boggy's race with no extra lives reloads the race instead of "
+            "triggering a game over."));
+
+    // Missable Collectibles Section
+    AddWidget(path, "Missable Collectibles", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Fix Mumbo Token: GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.MumboTokenGV"))
@@ -178,22 +193,25 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Fixes the CCW Spring token sharing a collection bitfield index with "
                                            "another token, causing one to despawn."));
 
-    AddWidget(path, "Fix Grunty Defeated Flag Placement", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Delays the Grunty Defeated flag until after the Jinjonator attacks, "
-                                           "preventing a false win if the player dies before the hit lands."));
-
-    AddWidget(path, "Fix CCW Gnawty Rock (Spring)", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.GnawtySpringRock"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Makes Gnawty's rock indestructible in CCW Spring."));
+    // Softlocks Section
+    AddWidget(path, "Softlocks", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Fix CCW Flower Replant Softlock", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CCWFlowerReplant"))
         .RaceDisable(false)
         .Options(CheckboxOptions().DefaultValue(true).Tooltip(
             "Prevents re-planting the CCW Spring flower after it's already planted."));
+
+    // Column 2: Behavior & Presentation
+    path.column = SECTION_COLUMN_2;
+
+    // Gameplay Behavior Section
+    AddWidget(path, "Gameplay Behavior", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Fix CCW Gnawty Rock (Spring)", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.GnawtySpringRock"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Makes Gnawty's rock indestructible in CCW Spring."));
 
     AddWidget(path, "Fix Termite Mound Slopes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes"))
@@ -205,17 +223,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Prevents a claw swipe from triggering mid-slide."));
 
-    AddWidget(path, "Fix Boggy Race Game Over", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver"))
+    AddWidget(path, "Fix Grunty Defeated Flag Placement", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.GruntyDefeatedFlag"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
-            "Losing Boggy's race with no extra lives reloads the race instead of "
-            "triggering a game over."));
-
-    AddWidget(path, "Fix Grunty Jinjo Charge Sound", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.JinjoChargeSound"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Stops the Jinjo charge-up sound the instant it hits Grunty."));
+        .Options(CheckboxOptions().Tooltip("Delays the Grunty Defeated flag until after the Jinjonator attacks, "
+                                           "preventing a false win if the player dies before the hit lands."));
 
     AddWidget(path, "Fix Bouncing Grunty", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.GruntyBounce"))
@@ -223,10 +235,13 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().DefaultValue(true).Tooltip(
             "Stops Wonderwing from launching Grunty off her platform in the final battle."));
 
-    AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.CongaText"))
+    // Audio Section
+    AddWidget(path, "Audio", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Fix Grunty Jinjo Charge Sound", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.JinjoChargeSound"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Corrects a spelling error when meeting Conga as a termite."));
+        .Options(CheckboxOptions().Tooltip("Stops the Jinjo charge-up sound the instant it hits Grunty."));
 
     AddWidget(path, "Fix Cutscene Audio Sync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.CutsceneSync"))
@@ -234,17 +249,25 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(
             CheckboxOptions().Tooltip("Compensates for N64 frame stutters during cutscenes so audio stays in sync."));
 
+    AddWidget(path, "Center Enemy SFX", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.CenterSfx"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Centers the TeeHee and Sir Slush sound effects so they sound similar to N64 at distance."));
+
+    // Visual Section
+    AddWidget(path, "Visual", WIDGET_SEPARATOR_TEXT);
+
     AddWidget(path, "Fix Widescreen Camera", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.WidescreenCamera"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Adjusts static camera angles in widescreen to prevent skybox "
                                            "exposure at the edges of the screen."));
 
-    AddWidget(path, "Center Enemy SFX", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.CenterSfx"))
+    AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.CongaText"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
-            "Centers the TeeHee and Sir Slush sound effects so they sound similar to N64 at distance."));
+        .Options(CheckboxOptions().Tooltip("Corrects a spelling error when meeting Conga as a termite."));
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
