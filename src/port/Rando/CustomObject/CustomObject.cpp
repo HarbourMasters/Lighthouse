@@ -266,7 +266,6 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
         case RI_JIGGY:
             if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"), 0)) {
                 fxSparkle_musicNote(sparklePos);
-                coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
             }
             break;
         case RI_JINJO_BLUE:

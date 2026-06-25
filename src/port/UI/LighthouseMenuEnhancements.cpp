@@ -37,7 +37,8 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
-            "Skips the jiggy collection dance, collecting the jiggy immediately like underwater pickups."));
+            "Skips the jiggy collection dance, collecting the jiggy immediately. "
+            "Takes priority over the Tooie Jiggy Animation backport."));
 
     AddWidget(path, "Skip Clucker Cutscene", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipCluckerCutscene"))
@@ -316,7 +317,9 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Tooie Jiggy Animation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Backports.JiggyAnimation"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Replaces the jiggy collection dance with a Banjo-Tooie style animation."));
+        .Options(CheckboxOptions().Tooltip(
+            "Replaces the jiggy collection dance with a Banjo-Tooie style animation. Has no effect while "
+            "Skip Jiggy Dance (under Cutscenes) is on."));
 
     AddWidget(path, "Honeyback Health Regen", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Backports.Honeyback"))
