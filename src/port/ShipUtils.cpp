@@ -23,6 +23,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
+int32_t gSelectedFileNum = 0;
+
 std::vector<std::string> worldNameList = {
     "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",
     "Freezeezy Peak",   "Gruntilda's Lair",    "Gobi's Valley",    "Click Clock Wood",

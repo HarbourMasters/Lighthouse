@@ -8,6 +8,7 @@
 #include <ship/Context.h>
 #include <ship/window/Window.h>
 
+#include "save.h"
 #include "enums.h"
 
 extern "C" {
@@ -16,42 +17,25 @@ enum level_e map_getLevel(enum map_e map);
 u16 itemscore_timeScores_get(enum level_e level_id);
 
 uint64_t GetUnixTimestamp();
+extern SaveData gameFile_saveData[4];
 }
 
 float windowScale = 1.0f;
 ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);
 static constexpr ImVec4 tintColor = {};
 
-// void DrawInGameTimer(uint32_t timer, ImVec4 color = ImVec4(1, 1, 1, 1)) {
-//     float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
-// 
-//     std::string timerStr = port_FormatTimeDisplay(timer);
-//     uint16_t textureIndex = 0;
-//     for (const auto c : timerStr) {
-//         if (c == ':' || c == '.') {
-//             textureIndex = 10;
-//         } else {
-//             textureIndex = c - '0';
-//         }
-//         if (c == '.') {
-//             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (8.0f * windowScale));
-//             ImGui::Image(Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetTextureByName(digitList[textureIndex]),
-//                          ImVec2(8.0f * windowScale, 8.0f * windowScale), ImVec2(0, 0.5f), ImVec2(1, 1), color,
-//                          tintColor);
-//         } else {
-//             ImGui::Image(Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetTextureByName(digitList[textureIndex]),
-//                          ImVec2(8.0f * windowScale, 16.0f * windowScale), ImVec2(0, 0), ImVec2(1, 1), color, tintColor);
-//         }
-//         ImGui::SameLine(0, 0);
-//     }
-// }
+static const std::vector<const char*> timerDisplayOptions = {
+    "Display Off",  // TIMER_DISPLAY_NONE
+    "Real-Time",    // TIMER_DISPLAY_RTA
+    "In-Game Time", // TIMER_DISPLAY_IGT
+};
 
 int64_t DisplayOverlay_GetTotalInGameTime() {
     int64_t totalTime = 0;
     for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i < LEVEL_D_CUTSCENE; i++) {
         totalTime += itemscore_timeScores_get((level_e)i);
     }
-    return totalTime;
+    return totalTime * 10;
 }
 
 void DisplayOverlayWindow::Draw() {
@@ -59,10 +43,10 @@ void DisplayOverlayWindow::Draw() {
         return;
     }
 
-    // int displayOverlay = CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, 0);
-    // if (displayOverlay == TIMER_DISPLAY_NONE) {
-    //     return;
-    // }
+    int displayOverlay = CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, 0);
+    if (displayOverlay == TIMER_DISPLAY_NONE) {
+        return;
+    }
 	
 	float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
     ImVec4 windowBG = !CVarGetInteger("gDisplayOverlay.Background", 0) ? ImVec4(0, 0, 0, 0.5f) : ImVec4(0, 0, 0, 0);
@@ -77,16 +61,19 @@ void DisplayOverlayWindow::Draw() {
                      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
     ImGui::SetWindowFontScale(windowScale);
 
-    // auto gui = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui());
-    // ImTextureID textureId = gui->GetTextureByName("Music Note");
-    // ImGui::Image(textureId,
-    //              ImVec2(16.0f * windowScale, 16.0f * windowScale));
-    // ImGui::SameLine(0, 10.0f);
-
-    uint64_t timeToDisplay = DisplayOverlay_GetTotalInGameTime();
-    std::string timerStr = port_FormatTimeDisplay(timeToDisplay * 10);
+    uint64_t timeToDisplay = 0;
+    switch (displayOverlay) {
+        case TIMER_DISPLAY_RTA:
+            timeToDisplay = ((GetUnixTimestamp() - gameFile_saveData[gSelectedFileNum].shipSaveData.fileCreatedAt) / 100);
+            break;
+        case TIMER_DISPLAY_IGT:
+            timeToDisplay = DisplayOverlay_GetTotalInGameTime();
+            break;
+        default:
+            break;
+    }
+    std::string timerStr = port_FormatTimeDisplay(timeToDisplay);
     ImGui::Text(timerStr.c_str());
-    // DrawInGameTimer(timeToDisplay / 100);
 	
 	ImGui::End();
 

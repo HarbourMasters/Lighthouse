@@ -1,4 +1,5 @@
 #include "LighthouseMenu.h"
+#include "port/Enhancements/Trackers/DisplayOverlay.h"
 
 #define CVAR_INT_SHIP_INIT(cvar, val) \
     CVarSetInteger(cvar, val);        \
@@ -458,9 +459,31 @@ void LighthouseMenu::AddMenuEnhancements() {
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Toggle Gameplay Timer", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.DisplayOverlay")
-        .WindowName("Display Overlay");
+    // AddWidget(path, "Toggle Gameplay Timer", WIDGET_WINDOW_BUTTON)
+    //     .CVar("gWindows.DisplayOverlay")
+    //     .WindowName("Display Overlay");
+    AddWidget(path, "Time Display", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        int32_t currentIndex = CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, TIMER_DISPLAY_NONE);
+        const char* widgetLabel = timerDisplayOptions[currentIndex];
+
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+        UIWidgets::PushStyleCombobox(WIDGET_COLOR);
+        if (ImGui::BeginCombo("##gameplayTimerMode", widgetLabel)) {
+            for (int i = 0; i < timerDisplayOptions.size(); i++) {
+                const bool isSelected = (currentIndex == i);
+
+                if (ImGui::Selectable(timerDisplayOptions[i], isSelected)) {
+                    CVarSetInteger(CVAR_DISPLAY_OVERLAY_MODE, i);
+                }
+
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        UIWidgets::PopStyleCombobox();
+    });
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
         .CVar("gDisplayOverlay.Background")
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));

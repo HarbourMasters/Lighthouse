@@ -8,6 +8,7 @@ void LoadGuiTextures();
 #ifdef __cplusplus
 #include <nlohmann/json.hpp>
 #define WIDGET_COLOR UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5))
+extern int32_t gSelectedFileNum;
 
 using nlohmann::json;
 json Ship_RetrieveSaveFile(int32_t filenum);

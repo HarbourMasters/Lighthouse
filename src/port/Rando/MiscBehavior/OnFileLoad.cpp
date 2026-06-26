@@ -38,6 +38,7 @@ void Rando::MiscBehavior::OnFileLoad() {
             Rando::Logic::GenerateShufflePool(saveData);
             Rando::Logic::GrantStartingLoadout();
             saveData->shipSaveData.fileType = FILE_TYPE_SAVE_RANDO;
+            saveData->shipSaveData.fileCreatedAt = GetUnixTimestamp();
             CALL_EVENT(InitRandoEvents);
         }
     });
