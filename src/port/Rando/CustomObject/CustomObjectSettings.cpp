@@ -56,6 +56,7 @@ std::map<RandoCheckId, BundlePhysics> customActorPhysicsMap = {
     { RC_MM_JIGGY_CONGA,                            { 350.0f, 275.0f, 0, 0, 0, 0, 0, 0x1 } },
     { RC_MM_JIGGY_JUJU,                             { 0, 300.0f, 0, 0, 10.0f, 0, 0, 0x1 } },
     { RC_MM_NOTE_HUT_BUNDLE_1,                      { 125.0f, 725.0f, 125.0f, 0, 0, 0, 0, 0x1 } },
+    { RC_MM_EXTRA_LIFE_HUT,                         { 125.0f, 725.0f, 125.0f, 0, 0, 0, 0, 0x1 } },
 };
 // clang-format on
 
@@ -143,7 +144,7 @@ void ApplyCustomActorPhysics(RandoCheckId randoCheckId, Actor* actor, bool isJin
     BundlePhysics physicsData;
 
     if ((randoCheckId >= RC_MM_NOTE_HUT_BUNDLE_1 && randoCheckId <= RC_MM_NOTE_HUT_BUNDLE_5) ||
-        randoCheckId == RC_MM_JINJO_GREEN || randoCheckId == RC_MM_JIGGY_HUTS) {
+        randoCheckId == RC_MM_JINJO_GREEN || randoCheckId == RC_MM_JIGGY_HUTS || randoCheckId == RC_MM_EXTRA_LIFE_HUT) {
         physicsData = GetPhysicsByCheckId(RC_MM_NOTE_HUT_BUNDLE_1);
     } else {
         physicsData = isJinjoJiggy ? jinjoJiggySpawnPhysics : GetPhysicsByCheckId(randoCheckId);
