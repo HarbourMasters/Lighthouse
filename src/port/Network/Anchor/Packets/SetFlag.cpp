@@ -6,6 +6,8 @@ extern "C" {
 #include "functions.h"
 }
 
+#include "port/Patches/Patches.h"
+
 /**
  * SET_FLAG
  *
@@ -39,5 +41,9 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
         volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
     } else {
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
+        // If a teammate opened a note door, animate + despawn that same door live if it's
+        // spawned in our map (matched by the unique open flag, so a different door elsewhere
+        // is never affected).
+        port_notedoor_remoteOpen(flag);
     }
 }

@@ -87,6 +87,13 @@ void port_mirror_patchTextActors(void);
 
 int port_isInCharacterParade(void);
 
+// Note doors (defined in LAIR/actor_spawninit.c)
+
+// Animate + despawn the specific note door whose open flag was just received over the
+// network, if it is spawned in the current map. progressFlag is the FILEPROG_*_NOTE_DOOR_*
+// open flag. No-op for non-note-door flags or when that door isn't present.
+void port_notedoor_remoteOpen(int32_t progressFlag);
+
 #ifdef __cplusplus
 }
 #endif

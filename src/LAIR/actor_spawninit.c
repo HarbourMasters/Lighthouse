@@ -17,6 +17,7 @@ extern void func_80324CFC(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void func_8033A45C(s32, s32);
+extern ActorArray *suBaddieActorArray;
 
 
 
@@ -658,6 +659,7 @@ void func_80387730(Actor *this) {
     s32 phi_s4;
     s32 sp6C[3];
     f32 sp60[3];
+    s32 forceOpen;
 
     func_802D3D74(this);
     if (!this->volatile_initialized) {
@@ -684,15 +686,22 @@ void func_80387730(Actor *this) {
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
     }
-    if (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR)) {
+    // Anchor remote open: a teammate opened this exact door, flagged via unk1C[0] by
+    // port_notedoor_remoteOpen. When set, the normal fade-out below runs regardless of our
+    // own note count / proximity (forceOpen), reusing the same animation rather than a copy,
+    // and skips the local player's door-opening camera / BS interrupt and the flag set (the
+    // packet already set it) so the remote event never hijacks our character.
+    forceOpen = (this->unk1C[0] != 0.0f);
+    if (forceOpen ||
+        (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR))) {
         player_getPosition(spAC);
-        if ((ml_vec3f_distance(spAC, this->position) < 500.0f) && (gcdialog_getCurrentTextId() != 0xF64)) {
+        if (!forceOpen && (ml_vec3f_distance(spAC, this->position) < 500.0f) && (gcdialog_getCurrentTextId() != 0xF64)) {
             code_73640_printItemCount(0xC);
         }
         doorIdx = this->actorTypeSpecificField - 1;
         noteThreshold = port_getRomhackNoteDoor(doorIdx);
         if (noteThreshold < 0) { noteThreshold = D_8039347C[doorIdx]; }
-        if (itemscore_noteScores_getTotal() >= noteThreshold) {
+        if (forceOpen || itemscore_noteScores_getTotal() >= noteThreshold) {
             if (this->marker->unk14_21) {
                 func_8032BC60(this, 5, sp90);
                 func_8032BC60(this, 6, sp84);
@@ -705,11 +714,13 @@ void func_80387730(Actor *this) {
                 phi_f20 = 290.0f;
             }
             sp9C[1] = this->position[1];
-            if ((ml_vec3f_distance(spAC, sp9C) < phi_f20) || (this->alpha_124_19 != 0xFF)) {
+            if (forceOpen || (ml_vec3f_distance(spAC, sp9C) < phi_f20) || (this->alpha_124_19 != 0xFF)) {
                 if (this->alpha_124_19 == 0xFF) {
                     func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 32700);
                     func_80324D2C(2.4f, COMUSIC_43_ENTER_LEVEL_GLITTER);
-                    func_8028F918(2);
+                    if (!forceOpen) {
+                        func_8028F918(2);
+                    }
                 }
                 if (this->alpha_124_19 < 7U) {
                     this->alpha_124_19 = 0;
@@ -717,10 +728,14 @@ void func_80387730(Actor *this) {
                     this->alpha_124_19 -= 7;
                 }
                 if (this->alpha_124_19 == 0) {
-                    fileProgressFlag_set(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN, true);
+                    if (!forceOpen) {
+                        fileProgressFlag_set(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN, true);
+                    }
                     marker_despawn(this->marker);
-                    func_8028F918(0);
-                    func_8028F66C(BS_INTR_35);
+                    if (!forceOpen) {
+                        func_8028F918(0);
+                        func_8028F66C(BS_INTR_35);
+                    }
                     return;
                 }
                 if (this->marker->unk14_21) {
@@ -748,6 +763,32 @@ void func_80387730(Actor *this) {
             }
         } else if ((this->actorTypeSpecificField >= 2) && (ml_vec3f_distance(spAC, this->position) < 290.0f)) {
             volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_B0_NOT_ENOUGH_NOTES);
+        }
+    }
+}
+
+// Anchor: a teammate opened a note door. If THIS exact door (identified by its unique open
+// flag, not just "a note door") is spawned in our current map, start its dissolve animation
+// so it goes away live. Each door has a distinct actorTypeSpecificField (open flag = field +
+// FILEPROG_39_CCW_OPEN), so a door opened in one lair area never animates a different door a
+// remote player happens to be standing near. No-op when that door isn't spawned here.
+void port_notedoor_remoteOpen(s32 progressFlag) {
+    s32 field;
+    s32 i;
+
+    if (progressFlag < FILEPROG_3A_NOTE_DOOR_50_OPEN || progressFlag > FILEPROG_45_NOTE_DOOR_882_OPEN) {
+        return;
+    }
+    if (suBaddieActorArray == NULL) {
+        return;
+    }
+    field = progressFlag - FILEPROG_39_CCW_OPEN;
+    for (i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        if (actor->marker != NULL && actor->modelCacheIndex == ACTOR_203_NOTE_DOOR &&
+            actor->actorTypeSpecificField == field) {
+            actor->unk1C[0] = 1.0f; // handled by func_80387730 on the next update
+            return;
         }
     }
 }
