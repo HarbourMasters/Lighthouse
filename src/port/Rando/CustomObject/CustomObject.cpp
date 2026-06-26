@@ -43,6 +43,7 @@ extern ActorInfo chJiggy;
 extern ActorInfo D_80366C80;
 extern ActorInfo D_803685A0;
 extern ActorInfo sumusicNote;
+extern ActorInfo chExtraLife;
 
 extern ActorInfo D_80366CA4;
 extern ActorInfo D_80367D00;
