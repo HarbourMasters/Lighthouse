@@ -30,8 +30,6 @@ int bainput_should_rotate_camera_right(void);
 int bainput_should_look_first_person_camera(void);
 
 void controller_getRightStick(int controller_index, float dst[2]);
-
-void FrameInterpolation_DontInterpolateCamera(void);
 }
 
 #include "enums.h" // BS_CROUCH
@@ -48,7 +46,6 @@ constexpr float kYawEnter = 0.3f;
 constexpr float kYawSpeed = 160.0f;
 constexpr float kZoomOn = 0.49f;
 constexpr float kZoomOff = 0.21f;
-constexpr float kYawSnapDegrees = 4.0f;
 constexpr float kPosSmoothRate = 40.0f;
 
 // Flat (pitch-locked) orbit on the shared core.
@@ -132,9 +129,6 @@ extern "C" void port_modernCamera_update(void) {
         float y;
         ReadStickNorm(x, y);
         yawDelta = -YawInput(x) * kYawSpeed * dt;
-        if (yawDelta > kYawSnapDegrees || yawDelta < -kYawSnapDegrees) {
-            FrameInterpolation_DontInterpolateCamera();
-        }
     }
 
     OrbitCamera_Update(&sModern, yawDelta, 0.0f);
