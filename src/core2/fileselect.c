@@ -114,24 +114,32 @@ return 0;
 }
 
 void gameFile_clear(s32 gamenum){
-    s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
+    s32 filenum;
+    if (gamenum < 0) return;
+    filenum = gameFile_GameIdToFileIdMap[gamenum];
     savedata_clear(&gameFile_saveData[filenum]);
 }
 
 void gameFile_load(s32 gamenum){
-    s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
+    s32 filenum;
+    if (gamenum < 0) return;
+    filenum = gameFile_GameIdToFileIdMap[gamenum];
     CALL_EVENT(OnGameLoad, filenum);
     saveData_load(&gameFile_saveData[filenum]);
 }
 
 void gameFile_save(s32 gamenum){
-    s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
+    s32 filenum;
+    if (gamenum < 0) return;
+    filenum = gameFile_GameIdToFileIdMap[gamenum];
     saveData_create(&gameFile_saveData[filenum]);
     CALL_EVENT(OnGameSave, filenum);
 }
 
 bool gameFile_isNotEmpty(s32 gamenum){
-    s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
+    s32 filenum;
+    if (gamenum < 0) return false;
+    filenum = gameFile_GameIdToFileIdMap[gamenum];
     return gameFile_saveData[filenum].magic != 0;
 }
 

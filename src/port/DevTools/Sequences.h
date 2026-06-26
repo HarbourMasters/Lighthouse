@@ -3,7 +3,7 @@
 namespace Lighthouse {
 namespace DevTools {
 
-enum DevSequenceId {
+enum SequenceId {
     SEQ_NONE = 0,
     SEQ_PARADE_FF,
     SEQ_PARADE_FINAL,
@@ -14,6 +14,7 @@ enum DevSequenceId {
 
 constexpr int ATTRACT_DEMO_COUNT = 10;
 void RequestSequence(int seq);
+void RequestFinalBossPhase(int phase);
 
 } // namespace DevTools
 } // namespace Lighthouse

@@ -31,6 +31,7 @@ extern "C" int port_isInCharacterParade(void) {
 #define CVAR_TERMITE_SLOPES CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes")
 #define CVAR_CLAW_SLIDE CVAR_ENHANCEMENT("Fixes.ClawSwipeSlide")
 #define CVAR_BOGGY_RACE CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver")
+#define CVAR_JINJOSTATUE_HITBOX CVAR_ENHANCEMENT("Fixes.JinjoStatueHitbox")
 #define CVAR_JINJO_SOUND CVAR_ENHANCEMENT("Fixes.JinjoChargeSound")
 #define CVAR_GRUNTY_BOUNCE CVAR_ENHANCEMENT("Fixes.GruntyBounce")
 #define CVAR_CONGA_TEXT CVAR_ENHANCEMENT("Fixes.CongaText")
@@ -45,6 +46,14 @@ void RegisterFurnaceFunDialog_Init() {
         auto* ev = reinterpret_cast<OnFurnaceFunDialog*>(event);
         *ev->lifeThreshold = 0;
     });
+}
+
+// When firing eggs into the final fight's jinjo statues while they spawn, a jinjo actor can leak its skinning list
+// into a still-spawning statue base, causing the statue to carry a flag that disables its hitbox for eggs.
+// In speedrunning this is called the "Jinjo Statue Softlock" glitch.
+void RegisterJinjoStatueSoftlockFix_Init() {
+    COND_VB_SHOULD(VB_JINJOSTATUE_HITBOX, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_JINJOSTATUE_HITBOX, 0),
+                    { *should = false; })
 }
 
 // v1.1 fix: defeated flag is moved from chfinalboss_setBossDefeated to the

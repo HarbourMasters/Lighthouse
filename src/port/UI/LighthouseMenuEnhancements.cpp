@@ -227,6 +227,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     // Audio Section
     AddWidget(path, "Audio", WIDGET_SEPARATOR_TEXT);
 
+    AddWidget(path, "Fix Jinjo Statue Softlock", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.JinjoStatueHitbox"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Prevents the Jinjo statues from losing their egg hitboxes in the final battle."));
+
     AddWidget(path, "Fix Grunty Jinjo Charge Sound", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.JinjoChargeSound"))
         .RaceDisable(false)
