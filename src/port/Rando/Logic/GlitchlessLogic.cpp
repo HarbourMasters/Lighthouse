@@ -173,18 +173,18 @@ int32_t GetRandomItemIndexS(std::vector<std::tuple<actor_e, int32_t, RandoCheckI
     return availableIndex[randomItem];
 }
 
-int32_t GetCheckPoolJinjoJiggyIndexByLevelId(int16_t levelId) {
-    for (int i = 0; i < Rando::Logic::checkPool.size(); i++) {
-        Rando::StaticData::RandoStaticCheck randoStaticCheck = Rando::StaticData::Checks[Rando::Logic::checkPool[i]];
+int32_t GetCheckPoolJinjoJiggyIndexByLevelId(int16_t levelId, std::vector<RandoCheckId>& checkPool) {
+    for (int i = 0; i < checkPool.size(); i++) {
+        Rando::StaticData::RandoStaticCheck randoStaticCheck = Rando::StaticData::Checks[checkPool[i]];
 
         if (randoStaticCheck.randoCheckType != RCTYPE_JIGGY) {
             continue;
         }
 
         if ((randoStaticCheck.collectionId == (10 * levelId) - 9) &&
-            (reachableChecks[Rando::Logic::checkPool[i]].canAccess &&
-             !reachableChecks[Rando::Logic::checkPool[i]].isFilled)) {
-            return i;
+            (reachableChecks[checkPool[i]].canAccess &&
+             !reachableChecks[checkPool[i]].isFilled)) {
+            return checkPool[i];
         }
     }
 
@@ -279,6 +279,10 @@ void SetPlacedItem(int32_t checkIndex, int32_t itemIndex, PlacedItemCounts& plac
                    std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& pool) {
     if (checkIndex < 0 || itemIndex < 0) {
         return;
+    }
+
+    if (checkIndex == 1074) {
+        int32_t hi = 0;
     }
 
     placedCheckItems[checkIndex] = {
@@ -552,7 +556,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
 
                         UpdateJinjoChecks(selectedJinjos);
 
-                        checkIndex = GetCheckPoolJinjoJiggyIndexByLevelId(selectedLevel);
+                        checkIndex = GetCheckPoolJinjoJiggyIndexByLevelId(selectedLevel, checkPool);
                         itemPoolIndex = GetRandomItemIndexS(itemPool, ACTOR_46_JIGGY);
 
                         SetPlacedItem(checkIndex, itemPoolIndex, placedItems, placedCheckItems, itemPool);
