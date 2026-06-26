@@ -149,6 +149,8 @@ void Anchor::RegisterHooks() {
         // Pull team state once per loaded-save session. OnMapLoad is too early — gsworld
         // flips the map after the event, so IsSaveLoaded() is still false there.
         if (anchor->isConnected && anchor->IsSaveLoaded()) {
+            // Spawn any jiggies a teammate spawned in this map while we were elsewhere.
+            anchor->FlushPendingJiggySpawns();
             if (!anchor->hasRequestedTeamState) {
                 anchor->SendPacket_RequestTeamState();
                 anchor->hasRequestedTeamState = true;

@@ -4,6 +4,8 @@
 #include <mutex>
 #include <queue>
 #include <map>
+#include <unordered_map>
+#include <vector>
 #include <libultraship/libultraship.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Network/Anchor/DummyPlayer.h"
@@ -67,6 +69,19 @@ private:
     std::queue<nlohmann::json> outgoingPacketQueue;
     std::mutex outgoingPacketQueueMutex;
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
+
+    // Jiggy spawns received for a map we aren't currently in. Applied when we enter that map,
+    // so a teammate who spawned a jiggy (e.g. a minigame reward) while we were elsewhere — or
+    // before we joined (delivered via the queued replay) — still gets it, without needing
+    // anyone to be standing in that map.
+    struct PendingJiggySpawn {
+        int16_t jiggyId;
+        float x;
+        float y;
+        float z;
+    };
+    std::unordered_map<int32_t, std::vector<PendingJiggySpawn>> pendingJiggySpawns;
+    void FlushPendingJiggySpawns();
 
     nlohmann::json PrepClientState();
     nlohmann::json PrepRoomState();
