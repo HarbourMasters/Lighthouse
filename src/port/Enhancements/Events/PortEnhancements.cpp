@@ -23,6 +23,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnModelLoad);
     REGISTER_EVENT(ViewportFrustumUpdate);
+    REGISTER_EVENT(OnTransitionModelScale);
+    REGISTER_EVENT(OnTransitionStateUpdate);
     REGISTER_EVENT(DrawDistanceCubeWidth);
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);

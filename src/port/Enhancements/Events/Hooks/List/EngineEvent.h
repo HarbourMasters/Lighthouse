@@ -21,6 +21,8 @@ DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
 
 DEFINE_EVENT(OnModelLoad, s32 modelId; void* modelInfo; s32 * reload;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
+DEFINE_EVENT(OnTransitionModelScale, Gfx** gfx; Mtx * *mtx; s32 uid; f32* scale;);
+DEFINE_EVENT(OnTransitionStateUpdate, s32 modelId; s32 uid; s32 substate;);
 DEFINE_EVENT(DrawDistanceCubeWidth, int32_t mapWidth; int32_t * width;);
 
 DEFINE_EVENT(OnActorTick, Actor* actor;);
