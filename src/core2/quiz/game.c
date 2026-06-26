@@ -367,6 +367,68 @@ void func_802D3CE8(Actor *this){
     }
 }
 
+extern ActorArray *suBaddieActorArray;
+
+// Anchor: lair breakables persist a "broken" fileProgress flag but only check it at spawn,
+// so a teammate breaking one over the network leaves it standing for us until a map reload.
+// This maps each broken flag to the breakable's marker (the same id func_802D31AC switches
+// on) so we can replay the real break when the flag arrives.
+//
+// fieldSel disambiguates the two markers that serve two objects via
+// `actorTypeSpecificField == 1 ? flagA : flagB`: 0 = any, 1 = field==1 (flagA), 2 = field!=1
+// (flagB). So a breakable in one part of the lair never breaks a different one elsewhere.
+typedef struct {
+    s16 flag;
+    s16 markerId;
+    s8  fieldSel;
+} LairBreakable;
+
+static const LairBreakable D_lairBreakables[] = {
+    { FILEPROG_A5_LAIR_CRYPT_GATE_OPEN,                   0x17D,                            0 },
+    { FILEPROG_C2_GRATE_TO_RBB_PUZZLE_OPEN,              0x11A,                            0 },
+    { FILEPROG_C3_ICE_BALL_TO_CHEATO_BROKEN,             0x11E,                            0 },
+    { FILEPROG_C4_STATUE_EYE_BROKEN,                      MARKER_121_GLASS_EYE,             0 },
+    { FILEPROG_C5_RAREWARE_BOX_BROKEN,                    0x11F,                            0 },
+    { FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN,   MARKER_109_BREAKABLE_BRICK_WALL,  1 },
+    { FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN, MARKER_109_BREAKABLE_BRICK_WALL,  2 },
+    { FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN, MARKER_225_BREAKABLE_WALL_COBWEB, 0 },
+    { FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN,      MARKER_224_BREAKABLE_FLOOR_COBWEB, 1 },
+    { FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN, MARKER_224_BREAKABLE_FLOOR_COBWEB, 2 },
+    { FILEPROG_CD_GRATE_TO_WATER_SWITCH_3_OPEN,          0x118,                            0 },
+    { FILEPROG_CE_GRATE_TO_MMM_PUZZLE_OPEN,             0x119,                            0 },
+};
+
+void port_breakable_remoteBreak(s32 progressFlag) {
+    s32 i;
+    s16 markerId = -1;
+    s8 fieldSel = 0;
+
+    for (i = 0; i < (s32) (sizeof(D_lairBreakables) / sizeof(D_lairBreakables[0])); i++) {
+        if (D_lairBreakables[i].flag == progressFlag) {
+            markerId = D_lairBreakables[i].markerId;
+            fieldSel = D_lairBreakables[i].fieldSel;
+            break;
+        }
+    }
+    if (markerId < 0 || suBaddieActorArray == NULL) {
+        return;
+    }
+    for (i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        if (actor->marker == NULL || actor->marker->id != markerId) {
+            continue;
+        }
+        if ((fieldSel == 1 && actor->actorTypeSpecificField != 1) ||
+            (fieldSel == 2 && actor->actorTypeSpecificField == 1)) {
+            continue;
+        }
+        // The flag is already set (the packet applied it before calling us), so the
+        // fileProgressFlag_set inside is a no-op and won't re-broadcast.
+        func_802D31AC(actor->marker, NULL);
+        return;
+    }
+}
+
 void func_802D3D54(Actor *this){
     func_802D3CE8(this);
 }

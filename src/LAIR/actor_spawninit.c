@@ -217,11 +217,29 @@ s32 D_80393504[4] = {0x87, 0x87, 0x87, 0xB4};
 //chcobweb
 void chFloorCobweb_update(Actor *this)
 {
+    enum file_progress_e brokenFlag = (this->actorTypeSpecificField == 1)
+                                          ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN
+                                          : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN;
+
     if(!this->initialized)
     {
         func_802D3CE8(this);
 
-        if (fileProgressFlag_get(this->actorTypeSpecificField == 1 ? FILEPROG_CB_LAIR_COBWEB_OVER_FLIGHTPAD_BROKEN : FILEPROG_CC_LAIR_COBWEB_OVER_GREEN_CAULDRON_BROKEN))
+        if (fileProgressFlag_get(brokenFlag))
+        {
+            marker_despawn(this->marker);
+            return;
+        }
+    }
+
+    // [port] Map savestates restore actors between a level's scenes from a snapshot that keeps
+    // `initialized` true, so the spawn-time check above is skipped on a scene return. Re-check
+    // on `volatile_initialized` (which the restore DOES reset, same as the warp cauldron) so a
+    // web a teammate broke over the network while we were elsewhere stays gone.
+    if (!this->volatile_initialized)
+    {
+        this->volatile_initialized = true;
+        if (fileProgressFlag_get(brokenFlag))
         {
             marker_despawn(this->marker);
             return;
@@ -252,6 +270,17 @@ void chWallCobweb_update(Actor *this)
         }
     }
 
+    // [port] Re-check on scene-return restore (see chFloorCobweb_update).
+    if (!this->volatile_initialized)
+    {
+        this->volatile_initialized = true;
+        if (fileProgressFlag_get(FILEPROG_CA_COBWEB_BLOCKING_PURPLE_CAULDRON_BROKEN))
+        {
+            marker_despawn(this->marker);
+            return;
+        }
+    }
+
     if (this->state == 0xF)
     {
         if (actor_animationIsAt(this, 0.9f))
@@ -264,11 +293,26 @@ void chWallCobweb_update(Actor *this)
 
 void lair_func_80386550(Actor *this)
 {
+    enum file_progress_e brokenFlag = (this->actorTypeSpecificField == 1)
+                                          ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN
+                                          : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN;
+
     if (!this->initialized)
     {
         func_802D3CE8(this);
 
-        if (fileProgressFlag_get(this->actorTypeSpecificField == 1 ? FILEPROG_C8_LAIR_BRICKWALL_TO_WADINGBOOTS_BROKEN : FILEPROG_C9_LAIR_BRICKWALL_TO_SHOCKJUMP_PAD_BROKEN))
+        if (fileProgressFlag_get(brokenFlag))
+        {
+            marker_despawn(this->marker);
+            return;
+        }
+    }
+
+    // [port] Re-check on scene-return restore (see chFloorCobweb_update).
+    if (!this->volatile_initialized)
+    {
+        this->volatile_initialized = true;
+        if (fileProgressFlag_get(brokenFlag))
         {
             marker_despawn(this->marker);
             return;
@@ -1850,6 +1894,16 @@ void func_80389FA8(Actor *this, enum file_progress_e flag)
     if (!this->initialized)
     {
         func_802D3D54(this);
+
+        if (fileProgressFlag_get(flag))
+            marker_despawn(this->marker);
+    }
+
+    // [port] Re-check on scene-return restore (see chFloorCobweb_update). Covers the ice ball
+    // to Cheato, the RBB grate, the statue eye, and the rareware box, which all share this init.
+    if (!this->volatile_initialized)
+    {
+        this->volatile_initialized = true;
 
         if (fileProgressFlag_get(flag))
             marker_despawn(this->marker);

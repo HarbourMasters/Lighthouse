@@ -94,6 +94,13 @@ int port_isInCharacterParade(void);
 // open flag. No-op for non-note-door flags or when that door isn't present.
 void port_notedoor_remoteOpen(int32_t progressFlag);
 
+// Breakable lair objects (cobwebs, brickwalls, ice ball, grates, statue eye, rareware box,
+// crypt gate). Replay the break (effect + despawn) for the object whose "broken" flag was
+// just received over the network, if it's spawned in the current map. progressFlag is the
+// FILEPROG_* broken/open flag. No-op for unknown flags or when that object isn't present.
+// Defined in core2/quiz/game.c, next to the shared collision-die handler it reuses.
+void port_breakable_remoteBreak(int32_t progressFlag);
+
 #ifdef __cplusplus
 }
 #endif

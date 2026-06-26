@@ -37,13 +37,16 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     u8 flagSpace = payload.at("flagSpace").get<u8>();
     s16 flag = payload.at("flag").get<s16>();
 
+    SPDLOG_INFO("[Anchor][flagdiag] received SetFlag space={} flag={:#x}", flagSpace, flag);
+
     if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
         volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
     } else {
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        // If a teammate opened a note door, animate + despawn that same door live if it's
-        // spawned in our map (matched by the unique open flag, so a different door elsewhere
-        // is never affected).
+        // If a teammate opened a note door or broke a lair object (cobweb, brickwall, ice
+        // ball, grate, etc.), replay that effect live if the matching actor is spawned in our
+        // map. Both match on the unique flag, so an object elsewhere is never affected.
         port_notedoor_remoteOpen(flag);
+        port_breakable_remoteBreak(flag);
     }
 }

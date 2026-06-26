@@ -294,6 +294,7 @@ void Anchor::RegisterHooks() {
             } else {
                 bit = fileProgressFlag_get((enum file_progress_e)index);
             }
+            SPDLOG_INFO("[Anchor][flagdiag] broadcast space={} index={:#x} bit={}", ev->flagSpace, index, bit);
             if (bit) {
                 anchor->SendPacket_SetFlag((u8)ev->flagSpace, (s16)index);
             } else {
