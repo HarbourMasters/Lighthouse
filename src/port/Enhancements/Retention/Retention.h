@@ -43,6 +43,39 @@ void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId);
 // Force retention on/off regardless of the user CVar (Anchor uses this while connected).
 void port_jinjoRetention_setForced(int32_t forced);
 
+// --- CCW carried-collectible live-despawn sync (worms for Eyrie, acorns for Nabnut) ---
+//
+// Each is a shared pool: the carried count (ITEM_22 / ITEM_23) is delta-synced via the COLLECT_ITEM
+// packet so any player can spend what anyone collects. This gives each world object a stable
+// identity — a hash of its FIXED SPAWN POSITION (from prop data, identical on every client and
+// independent of spawn/update order) — so a pickup despawns it on every client. The picked-up set
+// persists for the session (cleared on save load) so it also suppresses the object on a later visit
+// (cross-map). `kind` is an ANCHOR_COLLECTIBLE_WORM / _ACORN value; marker is an ActorMarker*
+// (void* to keep this header engine-type-free).
+
+// Single map-load entry point (currently a no-op; identity/state aren't per-map).
+void port_carriedSync_beginMapLoad(int32_t mapId);
+
+// Register an active world object at init, attaching its spawn-position identity to the marker.
+// Pass the spawn position (truncated to ints). *suppress is set non-zero if a teammate already
+// collected this object — the caller should not present it.
+void port_carriedSync_register(int32_t kind, void* marker, int32_t x, int32_t y, int32_t z,
+                               int32_t* suppress);
+
+// Record + broadcast a local pickup (marks the object collected and fires the COLLECT_ITEM).
+void port_carriedSync_onLocalCollect(int32_t kind, void* marker);
+
+// Broadcast a local spend (feeding Eyrie/Nabnut): a -1 to the shared pool, no object identity.
+void port_carriedSync_onLocalSpend(int32_t kind);
+
+// Apply a teammate's pickup (the COLLECT_ITEM id is the spawn-position hash): mark it collected so
+// our matching object despawns itself via consumeRemoteDespawn and a later visit suppresses it.
+void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId, int32_t id, int32_t sameMap);
+
+// True if this object's spawn position was collected by a teammate (caller should despawn it).
+// Pull-based, so the sync never dereferences a marker the engine may have already freed.
+int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker);
+
 #ifdef __cplusplus
 }
 

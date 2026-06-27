@@ -91,7 +91,11 @@ static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
     switch (item) {
         case ITEM_1C_MUMBO_TOKEN:
         case ITEM_26_JIGGY_TOTAL:
-            return true;
+        // CCW carried collectibles (ITEM_22 worms, ITEM_23 acorns) are intentionally NOT synced
+        // here. They're a shared pool mutated concurrently (one player collects while another
+        // feeds), and absolute last-writer-wins drops one of a simultaneous +1/-1. Instead the
+        // COLLECT_ITEM packet carries the delta: +1 on collect (id >= 0) and -1 on spend (id < 0),
+        // which compose correctly. See CollectItem.cpp.
         case ITEM_D_EGGS:
         case ITEM_F_RED_FEATHER:
         case ITEM_10_GOLD_FEATHER:
@@ -341,7 +345,7 @@ void Anchor::RegisterHooks() {
             return;
         }
         auto ev = reinterpret_cast<OnCollectibleCollected*>(event);
-        anchor->SendPacket_CollectItem((u8)ev->kind, (s16)ev->id);
+        anchor->SendPacket_CollectItem((u8)ev->kind, (s32)ev->id);
     });
 
     // Realtime jiggy spawns (witch switch, minigame reward) for same-map teammates.

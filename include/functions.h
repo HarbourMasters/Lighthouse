@@ -357,6 +357,8 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_MUMBO = 2,
     ANCHOR_COLLECTIBLE_NOTE = 3,  // id = noteIndex, map = mapId
     ANCHOR_COLLECTIBLE_JINJO = 4, // id = jinjo colour bit, level derived from map
+    ANCHOR_COLLECTIBLE_WORM = 5,  // CCW caterpillar; id = per-map worm index, map = mapId (despawn only)
+    ANCHOR_COLLECTIBLE_ACORN = 6, // CCW acorn; id = per-map acorn index, map = mapId (despawn only)
 };
 bool fileProgressFlag_get(enum file_progress_e index);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);

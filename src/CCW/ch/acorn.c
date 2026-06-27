@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern ActorMarker *func_8028E86C(void);
 
@@ -69,20 +70,44 @@ void func_8038C7A8(Actor *this) {
 
     sp4C = (func_8028E86C() == this->marker);
     if (this->state == 0) {
-        CCW_func_8038C6A0(this, sp4C ? 2 : 1);
+        if (sp4C) {
+            CCW_func_8038C6A0(this, 2);
+        } else {
+            // [port] Register this active world acorn for networked live-despawn, keyed by its fixed
+            // spawn position (captured now, before it can be carried). If a teammate already grabbed
+            // it, don't present it.
+            s32 acornSuppress;
+            port_carriedSync_register(ANCHOR_COLLECTIBLE_ACORN, this->marker, (s32)this->position[0],
+                                      (s32)this->position[1], (s32)this->position[2], &acornSuppress);
+            if (acornSuppress) {
+                CCW_func_8038C6A0(this, 5);
+                return;
+            }
+            CCW_func_8038C6A0(this, 1);
+        }
     }
 
     if (this->state == 1) {
+        // [port] A teammate grabbed this acorn — despawn it here so it vanishes on every client.
+        if (port_carriedSync_consumeRemoteDespawn(ANCHOR_COLLECTIBLE_ACORN, this->marker)) {
+            CCW_func_8038C6A0(this, 5);
+            return;
+        }
         player_getPosition(sp38);
         if (ml_vec3f_distance(this->position, sp38) < 50.0f) {
             func_8028F030(0x2A9);
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 500, 2500);
+            // [port] Broadcast the pickup so this acorn despawns on teammates too (the shared count
+            // rides the ITEM_23_ACORNS item-count sync via func_8028F030's item_inc).
+            port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_ACORN, this->marker);
             CCW_func_8038C6A0(this, 5);
         }
     }
     if (this->state == 2) {
         if (this->unk138_21) {
             func_8028F010(0x2A9);
+            // [port] Spending an acorn (given to Nabnut) — sync the -1 to the shared pool.
+            port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_ACORN);
             CCW_func_8038C6A0(this, 3);
         } else if (!sp4C) {
             func_8028F050(0x2A9);

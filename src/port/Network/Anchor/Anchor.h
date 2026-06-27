@@ -226,7 +226,7 @@ public:
     void SendPacket_SetAbility(s16 move, u8 value);
     void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
     void SendPacket_RequestScopedState(GameMap map);
-    void SendPacket_CollectItem(u8 kind, s16 id);
+    void SendPacket_CollectItem(u8 kind, s32 id);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(u32 clientId);

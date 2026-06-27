@@ -16,7 +16,7 @@ extern "C" {
  * counts directly.
  */
 
-void Anchor::SendPacket_CollectItem(u8 kind, s16 id) {
+void Anchor::SendPacket_CollectItem(u8 kind, s32 id) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -38,7 +38,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
     }
 
     u8 kind = payload.at("kind").get<u8>();
-    s16 id = payload.at("id").get<s16>();
+    s32 id = payload.at("id").get<s32>();
     s32 map = payload.at("map").get<s32>();
     bool sameMap = (s32)gsworld_getMap() == map;
 
@@ -92,5 +92,22 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_JINJO:
             port_jinjoRetention_applyRemoteCollect(map, id, sameMap ? 1 : 0);
             break;
+        case ANCHOR_COLLECTIBLE_WORM:
+        case ANCHOR_COLLECTIBLE_ACORN: {
+            // Shared-pool carried collectible. The count is delta-synced through this packet so a
+            // concurrent collect and feed compose instead of clobbering: id >= 0 is a pickup (+1,
+            // plus a per-map index whose worm/acorn we despawn); id < 0 is a spend (-1). The delta
+            // applies regardless of map (the pool is the shared inventory count); only the despawn
+            // is gated on being in the collector's map. triggerEvent stays on but won't echo —
+            // ITEM_22/23 aren't in Anchor_ShouldSyncItemCount. The count clamps at 0.
+            enum item_e item = (kind == ANCHOR_COLLECTIBLE_WORM) ? ITEM_22_CATERPILLAR : ITEM_23_ACORNS;
+            if (id < 0) {
+                item_adjustByDiffWithHud(item, -1);
+            } else {
+                item_adjustByDiffWithHud(item, 1);
+                port_carriedSync_applyRemoteCollect(kind, map, id, sameMap ? 1 : 0);
+            }
+            break;
+        }
     }
 }

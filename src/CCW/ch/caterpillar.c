@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern ActorMarker *func_8028E86C(void);
 extern void func_8028F7D4(f32, f32);
@@ -104,12 +105,27 @@ void chcaterpillar_update(Actor *this){
             ) {
                 chcaterpillar_setState(this, 5);
             } else {
+                // [port] Register this active worm for networked live-despawn, keyed by its fixed
+                // spawn position (captured now, before it starts crawling). If a teammate already
+                // grabbed it, don't present it.
+                s32 wormSuppress;
+                port_carriedSync_register(ANCHOR_COLLECTIBLE_WORM, this->marker, (s32)this->position[0],
+                                          (s32)this->position[1], (s32)this->position[2], &wormSuppress);
+                if (wormSuppress) {
+                    marker_despawn(this->marker);
+                    return;
+                }
                 chcaterpillar_setState(this, 1);
             }//L8038A45C
         }
     }//L8038A45C
 
     if(this->state == 1){
+        // [port] A teammate grabbed this worm — despawn it here so it vanishes on every client.
+        if(port_carriedSync_consumeRemoteDespawn(ANCHOR_COLLECTIBLE_WORM, this->marker)){
+            marker_despawn(this->marker);
+            return;
+        }
         skeletalAnim_getProgressRange(this->unk148, &sp64, &sp60);
         player_getPosition(sp74);
         if(ml_vec3f_distance(this->position, local->unk0) < 10.0f){
@@ -158,6 +174,9 @@ void chcaterpillar_update(Actor *this){
                 volatileFlag_set(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR, true);
             }
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
+            // [port] Broadcast the pickup so this worm despawns on teammates too (the shared count
+            // itself rides the ITEM_22_CATERPILLAR item-count sync via func_8028F030's item_inc).
+            port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_WORM, this->marker);
             marker_despawn(this->marker);
         }
     }//L8038A794
@@ -165,6 +184,8 @@ void chcaterpillar_update(Actor *this){
     if(this->state == 2){
         if(this->unk138_21){
             func_8028F010(ACTOR_2A2_CATERPILLAR);
+            // [port] Spending a worm (thrown at Eyrie) — sync the -1 to the shared pool.
+            port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_WORM);
             chcaterpillar_setState(this, 3);
         }
         else if(!sp8C){
