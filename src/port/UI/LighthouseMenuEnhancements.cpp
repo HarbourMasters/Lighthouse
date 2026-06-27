@@ -238,12 +238,6 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(
             CheckboxOptions().Tooltip("Compensates for N64 frame stutters during cutscenes so audio stays in sync."));
 
-    AddWidget(path, "Center Enemy SFX", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fixes.CenterSfx"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
-            "Centers the TeeHee and Sir Slush sound effects so they sound similar to N64 at distance."));
-
     // Visual Section
     AddWidget(path, "Visual", WIDGET_SEPARATOR_TEXT);
 
