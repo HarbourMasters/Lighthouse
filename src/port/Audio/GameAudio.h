@@ -1,22 +1,18 @@
 #pragma once
 #include <thread>
-#include <condition_variable>
+#include <atomic>
+
 static struct AudioState {
     std::thread thread;
-    std::condition_variable cv_to_thread, cv_from_thread;
-    std::mutex mutex;
-    bool running = false;
-    bool processing = false;
+    std::atomic<bool> running{ false };
+    std::atomic<bool> ready{ false };
 
     void shutdown() {
         if (thread.joinable()) {
-            {
-                std::lock_guard<std::mutex> lock(mutex);
-                running = false;
-            }
-            cv_to_thread.notify_all();
+            running = false;
             thread.join();
         }
+        ready = false;
     }
 
     ~AudioState() {

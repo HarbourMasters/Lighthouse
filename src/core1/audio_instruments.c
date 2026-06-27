@@ -10,6 +10,7 @@
 #include "version.h"
 
 #include <libultra/exception.h>
+#include "port/Patches/Patches.h"
 
 extern void func_8025F570(ALCSPlayer *, u8);
 extern void func_8025F510(ALCSPlayer *, u8, u8);
@@ -290,15 +291,19 @@ void func_8024F764(s32 arg0){//music track load
 
 void func_8024F7C4(s32 arg0){
     s32 i;
+    port_lockAudio();
     if(D_802820E0[arg0] != NULL){
         i = 0;
         for(i = 0; i != 6; i++){
-            if(D_80281720[i].index == arg0)
+            if(D_80281720[i].index == arg0){
+                port_unlockAudio();
                 return;
+            }
         }
         assetcache_release(D_802820E0[arg0]);
         D_802820E0[arg0] = 0;
     }
+    port_unlockAudio();
 }
 
 void func_8024F83C(void){
@@ -310,6 +315,10 @@ void func_8024F83C(void){
 
 void func_8024F890(u8 arg0, s32 arg1){
     s32 i;
+    // [port] This function directly mutates the sequence player's target (n_alCSeqNew) and
+    // chanMask while the free-running audio worker reads them in n_alAudioFrame. Unlike
+    // the rest of the audio code, it has no osSetIntMask bracket. Guard it with the audio lock.
+    port_lockAudio();
     if(arg1 == -1){
         if(arg1 != D_80281720[arg0].index) {
             alCSPStop(&D_80281720[arg0].cseqp);
@@ -342,6 +351,7 @@ void func_8024F890(u8 arg0, s32 arg1){
             func_8025F3F0(&D_80281720[arg0].cseqp, D_80281720[arg0].unk17C, D_80281720[arg0].unk180);
         }
     }
+    port_unlockAudio();
 }
 
 s32 func_8024FA6C(u8 arg0){

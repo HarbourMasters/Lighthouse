@@ -15,14 +15,10 @@ void item_inc(enum item_e item);
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
 
 void Rando::ObjectBehavior::InitMusicNoteBehavior() {
-    REGISTER_LISTENER(OnSetJiggyList, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
-
-        if (!IS_RANDO && !OPTION_ENABLED) {
-            return;
-        }
-
         int32_t currentNotes = 0;
+
         for (auto& pool : Rando::Logic::shuffledPool) {
             if (Rando::StaticData::Checks[pool.shuffledCheckId].worldId != ev->levelId) {
                 continue;

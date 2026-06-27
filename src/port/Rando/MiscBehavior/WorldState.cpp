@@ -55,11 +55,12 @@ void Rando::StaticData::ModifyRandoInfFlagState(RandoCheckId randoCheckId) {
 void Rando::MiscBehavior::InitWorldStateBehavior() {
     REGISTER_LISTENER(SetRandoInfFlag, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         SetRandoInfFlag* ev = (SetRandoInfFlag*)event;
-        RandoInf flagId = (RandoInf)ev->flagId;
 
         if (!IS_RANDO) {
             return;
         }
+
+        RandoInf flagId = (RandoInf)ev->flagId;
 
         if (flagId < RANDO_INF_UNKNOWN && flagId > RANDO_INF_MAX) {
             return;
@@ -75,7 +76,6 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
             return;
         }
 
-        level_e currentLevel = map_getLevel(gsworld_getMap());
         map_e currentMap = gsworld_getMap();
 
         switch (ev->flagId) {
@@ -98,10 +98,10 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
             return;
         }
 
-        map_e mapId = gsworld_getMap();
-        level_e levelId = map_getLevel(mapId);
+        map_e currentMap = gsworld_getMap();
+        level_e currentLevel = map_getLevel(currentMap);
 
-        switch (levelId) {
+        switch (currentLevel) {
             case LEVEL_1_MUMBOS_MOUNTAIN:
                 if (RANDO_SAVE_CHECKS[RC_MM_JIGGY_CHIMPY].obtained) {
                     if (ev->actorId == ACTOR_F_CHIMPY) {
@@ -117,7 +117,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
                                      RANDO_SAVE_CHECKS[RC_MM_JIGGY_CHIMPY].obtained);
                 break;
             case LEVEL_3_CLANKERS_CAVERN:
-                if (mapId == MAP_22_CC_INSIDE_CLANKER &&
+                if (currentMap == MAP_22_CC_INSIDE_CLANKER &&
                     RANDO_SAVE_FLAGS[RANDO_INF_MINIGAME_RINGS_COMPLETED].flagState) {
                     func_8034E71C((Struct73s*)func_8034C5AC(0x131), 0x190, 12.0f);
                 }
@@ -141,11 +141,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
     REGISTER_LISTENER(OnIsJiggyScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsJiggyScoreCollected* ev = (OnIsJiggyScoreCollected*)event;
 
-        if (!IS_RANDO) {
-            return;
-        }
-
-        if (!JIGGY_OPTION_ENABLED) {
+        if (!IS_RANDO && !JIGGY_OPTION_ENABLED) {
             return;
         }
 
@@ -187,7 +183,6 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
 
                 event->Cancelled = true;
                 ev->result = randoSaveCheck.obtained;
-                // SPDLOG_INFO("Jiggy {} result is {}", std::to_string(ev->jiggyId), std::to_string(ev->result));
                 break;
             }
         }
@@ -196,15 +191,12 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
     REGISTER_LISTENER(OnIsJiggyScoreSpawned, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsJiggyScoreSpawned* ev = (OnIsJiggyScoreSpawned*)event;
 
-        if (!IS_RANDO) {
-            return;
-        }
-
-        if (!JIGGY_OPTION_ENABLED) {
+        if (!IS_RANDO && !JIGGY_OPTION_ENABLED) {
             return;
         }
 
         RandoCheckId randoCheckId = Rando::StaticData::GetCheckByJiggyId(ev->jiggyId);
+
         if (randoCheckId != RC_UNKNOWN) {
             event->Cancelled = true;
             if (randoCheckId == RC_MMM_JIGGY_TUMBLARS_PUZZLE) {
@@ -220,11 +212,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
     REGISTER_LISTENER(OnIsHoneycombScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsHoneycombScoreCollected* ev = (OnIsHoneycombScoreCollected*)event;
 
-        if (!IS_RANDO) {
-            return;
-        }
-
-        if (!EMPTY_HONEYCOMB_OPTION_ENABLED) {
+        if (!IS_RANDO && !EMPTY_HONEYCOMB_OPTION_ENABLED) {
             return;
         }
 
@@ -233,7 +221,8 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         }
 
         for (auto& saveCheck : RANDO_SAVE_CHECKS) {
-            if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType != RCTYPE_EMPTY_HONEYCOMB) {
+            if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType !=
+                RCTYPE_EMPTY_HONEYCOMB) {
                 continue;
             }
 
@@ -254,11 +243,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
     REGISTER_LISTENER(OnIsMumboTokenScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsMumboTokenScoreCollected* ev = (OnIsMumboTokenScoreCollected*)event;
 
-        if (!IS_RANDO) {
-            return;
-        }
-
-        if (!MUMBO_TOKENS_OPTION_ENABLED) {
+        if (!IS_RANDO && !MUMBO_TOKENS_OPTION_ENABLED) {
             return;
         }
 

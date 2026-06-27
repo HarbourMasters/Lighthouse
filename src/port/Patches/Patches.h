@@ -87,6 +87,16 @@ void port_mirror_patchTextActors(void);
 
 int port_isInCharacterParade(void);
 
+// Audio engine lock
+
+void port_lockAudio(void);
+void port_unlockAudio(void);
+void port_audioIntMaskEnter(void);
+void port_audioIntMaskExit(void);
+
+// Attract-demo audio hold
+
+void port_beginDemoAudioHold(void);
 // Note doors (defined in LAIR/actor_spawninit.c)
 
 // Animate + despawn the specific note door whose open flag was just received over the

@@ -76,6 +76,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         // drained water, FILEPROG_13 for FP's twinkly minigame), which still syncs.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_5_TTC_UNKNOWN,            // TTC sandcastle drain
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, // FP xmas-tree ice shatter
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_30_RBB_UNKNOWN,           // RBB anchor/Snorkel chain cutscene
+        // GV water-pyramid rise: transient cross-map cutscene handoff. Must stay local or it yanks a
+        // teammate into the rise cutscene + map warp; the raised state is reapplied live from
+        // JIGGY_42 in water_pyramidrot.c instead.
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_6_GV_UNKNOWN,
     };
     return excluded.contains((space << 16) | index);
 }

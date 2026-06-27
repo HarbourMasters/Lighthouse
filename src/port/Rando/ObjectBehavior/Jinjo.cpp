@@ -15,12 +15,8 @@ s32 item_adjustByDiffWithHud(enum item_e item, s32 diff);
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JINJOS].optionValue
 
 void Rando::ObjectBehavior::InitJinjoBehavior() {
-    REGISTER_LISTENER(OnSetJiggyList, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
-
-        if (!IS_RANDO && !OPTION_ENABLED) {
-            return;
-        }
 
         for (auto& pool : Rando::Logic::shuffledPool) {
             if (!pool.obtained) {
@@ -39,23 +35,7 @@ void Rando::ObjectBehavior::InitJinjoBehavior() {
         }
     })
 
-    COND_VB_SHOULD(VB_UPDATE_JINJO_HUD, EVENT_PRIORITY_NORMAL, OPTION_ENABLED, {
-        f32* position = va_arg(args, f32*);
+    COND_VB_SHOULD(VB_UPDATE_JINJO_HUD, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, { *should = true; })
 
-        if (!IS_RANDO && !OPTION_ENABLED) {
-            return;
-        }
-
-        *should = true;
-    })
-
-    COND_VB_SHOULD(VB_SET_JINJO_COUNT, EVENT_PRIORITY_NORMAL, OPTION_ENABLED, {
-        f32* position = va_arg(args, f32*);
-
-        if (!IS_RANDO && !OPTION_ENABLED) {
-            return;
-        }
-
-        *should = true;
-    })
+    COND_VB_SHOULD(VB_SET_JINJO_COUNT, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, { *should = true; })
 }

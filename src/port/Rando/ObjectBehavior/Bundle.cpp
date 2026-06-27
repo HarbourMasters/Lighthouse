@@ -32,15 +32,8 @@ void Rando::ObjectBehavior::DespawnCollectedBundles() {
 }
 
 void Rando::ObjectBehavior::InitBundleBehavior() {
-    REGISTER_LISTENER(ClearBundleDespawnQueue, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        ClearBundleDespawnQueue* ev = (ClearBundleDespawnQueue*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
-
-        bundleDespawnQueue.clear();
-    })
+    COND_HOOK(ClearBundleDespawnQueue, EVENT_PRIORITY_NORMAL, IS_RANDO,
+              [](IEvent* event) { bundleDespawnQueue.clear(); })
 
     COND_VB_SHOULD(VB_BUNDLE_SPAWN_SET_ACTOR_DATA, EVENT_PRIORITY_NORMAL, IS_RANDO, {
         Actor* refActor = va_arg(args, Actor*);
@@ -50,19 +43,15 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         }
     })
 
-    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, true, {
+    COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, IS_RANDO, {
         bundle_e bundleId = (bundle_e)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
         s32 bundleCount = va_arg(args, s32);
         f32* position = va_arg(args, f32*);
         Actor** actor = va_arg(args, Actor**);
 
-        if (!IS_RANDO) {
-            return;
-        }
-
-        map_e mapId = gsworld_getMap();
-        level_e levelId = map_getLevel(mapId);
+        map_e currentMap = gsworld_getMap();
+        level_e currentLevel = map_getLevel(currentMap);
 
         int32_t spawnPosition[3];
         spawnPosition[0] = (int32_t)position[0];
@@ -71,7 +60,8 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
 
         SPDLOG_INFO("Bundle Spawn: {}", std::to_string(bundleId));
 
-        if (bundleId == BUNDLE_16__HONEYCOMB && (mapId == MAP_43_CCW_SPRING || mapId == MAP_B_CC_CLANKERS_CAVERN)) {
+        if (bundleId == BUNDLE_16__HONEYCOMB &&
+            (currentMap == MAP_43_CCW_SPRING || currentMap == MAP_B_CC_CLANKERS_CAVERN)) {
             if (CheckEnemyOverlapPosition(spawnPosition)) {
                 *should = false;
                 return;
@@ -81,7 +71,7 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         RandoCheckId randoCheckId = RC_UNKNOWN;
         applyCustomPhysics = false;
 
-        switch (levelId) {
+        switch (currentLevel) {
             case LEVEL_1_MUMBOS_MOUNTAIN:
                 switch (bundleId) {
                     case BUNDLE_0_MM_HUT_MUSIC_NOTE:

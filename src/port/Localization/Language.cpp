@@ -38,6 +38,13 @@ struct LanguageEntry {
 std::vector<LanguageEntry> sLanguages;
 std::string sActiveLanguage;
 
+// Localized UI-string tables (key = English, value = translation), keyed by language
+// name; one table per pack, shared by its languages. sActiveLangStrings points at the
+// selected language's table.
+using StringMap = std::unordered_map<std::string, std::string>;
+std::unordered_map<std::string, std::shared_ptr<StringMap>> sLangStringsByName;
+std::shared_ptr<StringMap> sActiveLangStrings;
+
 // One parsed langinfo entry: display name, dialog index, script.
 struct LangInfoEntry {
     std::string name;
@@ -45,8 +52,10 @@ struct LangInfoEntry {
     int script;
 };
 
-// Parse a pack's binary langinfo
-std::vector<LangInfoEntry> ParseLangInfo(const char* data, size_t size) {
+// Parse a pack's binary langinfo. The optional out-map receives the localized-string
+// table appended after the languages.
+std::vector<LangInfoEntry> ParseLangInfo(const char* data, size_t size,
+                                         std::unordered_map<std::string, std::string>* strings = nullptr) {
     std::vector<LangInfoEntry> out;
     size_t pos = 0;
     auto getU32 = [&](uint32_t& v) -> bool {
@@ -57,17 +66,40 @@ std::vector<LangInfoEntry> ParseLangInfo(const char* data, size_t size) {
         pos += 4;
         return true;
     };
+    auto getStr = [&](std::string& s) -> bool {
+        uint32_t len = 0;
+        if (!getU32(len) || pos + len > size) {
+            return false;
+        }
+        s.assign(data + pos, len);
+        pos += len;
+        return true;
+    };
     uint32_t version = 0, count = 0;
     if (!getU32(version) || version != 1 || !getU32(count)) {
         return out; // unknown/old format — ignore (pack must be re-extracted)
     }
     for (uint32_t i = 0; i < count; i++) {
-        uint32_t index = 0, script = 0, len = 0;
-        if (!getU32(index) || !getU32(script) || !getU32(len) || pos + len > size) {
+        uint32_t index = 0, script = 0;
+        std::string name;
+        if (!getU32(index) || !getU32(script) || !getStr(name)) {
             break;
         }
-        out.push_back({ std::string(data + pos, len), static_cast<int>(index), static_cast<int>(script) });
-        pos += len;
+        out.push_back({ std::move(name), static_cast<int>(index), static_cast<int>(script) });
+    }
+    // Appended localized-string table (key = English, value = translation). EOF here
+    // just means the pack carries no overrides.
+    if (strings != nullptr) {
+        uint32_t scount = 0;
+        if (getU32(scount)) {
+            for (uint32_t i = 0; i < scount; i++) {
+                std::string key, val;
+                if (!getStr(key) || !getStr(val)) {
+                    break;
+                }
+                (*strings)[std::move(key)] = std::move(val);
+            }
+        }
     }
     return out;
 }
@@ -141,6 +173,26 @@ std::string GetActiveLanguage() {
     return sActiveLanguage;
 }
 
+// Localize a hardcoded UI string: returns the active pack's translation of `english`,
+// or `english` itself when the pack doesn't override it (or no pack is active). The
+// returned pointer is valid until the language changes; callers pass string literals.
+extern "C" const char* ResourceMgr_GetLangString(const char* english) {
+    if (english != nullptr && sActiveLangStrings != nullptr) {
+        auto it = sActiveLangStrings->find(english);
+        if (it != sActiveLangStrings->end() && !it->second.empty()) {
+            return it->second.c_str();
+        }
+    }
+    return english;
+}
+
+// True when the active language is a pack that carries UI-string overrides. Lets the port
+// rebuild variable-formatted lines (the file-select info box) only for such packs, leaving
+// the base game's own (English / PAL FR-DE) assembly untouched.
+extern "C" int ResourceMgr_HasLangStrings(void) {
+    return (sActiveLangStrings != nullptr && !sActiveLangStrings->empty()) ? 1 : 0;
+}
+
 int GetAvailableLanguageCount() {
     return static_cast<int>(sLanguages.size());
 }
@@ -161,6 +213,11 @@ void SetActiveLanguage(const std::string& name) {
     }
     sActiveLanguage = name;
     CVarSetInteger(CVAR_SETTING("DialogLanguage"), LanguageKey(name));
+    if (auto it = sLangStringsByName.find(name); it != sLangStringsByName.end()) {
+        sActiveLangStrings = it->second;
+    } else {
+        sActiveLangStrings = nullptr;
+    }
 
     std::unordered_map<uint32_t, std::string> dialogOverride;
     if (entry->source != nullptr) {
@@ -220,6 +277,7 @@ void SetActiveLanguage(const std::string& name) {
 
 void RescanLanguages() {
     sLanguages.clear();
+    sLangStringsByName.clear();
 
     // Base language(s) inferred from the base game's region.
     switch (GetBaseVersion()) {
@@ -250,7 +308,8 @@ void RescanLanguages() {
             }
             const char* data = file->Buffer->data() + file->BufferOffset;
             const size_t size = file->Buffer->size() - file->BufferOffset;
-            auto langs = ParseLangInfo(data, size);
+            auto packStrings = std::make_shared<StringMap>();
+            auto langs = ParseLangInfo(data, size, packStrings.get());
             const int cnt = static_cast<int>(langs.size());
             for (const auto& le : langs) {
                 if (FindLanguage(le.name) != nullptr) {
@@ -264,6 +323,9 @@ void RescanLanguages() {
                     continue;
                 }
                 sLanguages.push_back({ le.name, archive.get(), le.index, cnt, le.script });
+                if (!packStrings->empty()) {
+                    sLangStringsByName[le.name] = packStrings;
+                }
             }
         }
     }

@@ -170,9 +170,6 @@ int osStopTimer(void* t) {
 
 void osDpSetStatus(u32 data) {
 }
-OSIntMask osSetIntMask(OSIntMask a) {
-    return 0;
-}
 
 void __osError(s16 error_code, s16 num_args, ...) {
 }

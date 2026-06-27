@@ -105,7 +105,7 @@ int32_t GetJinjoActorMarkerId(actor_e actorId) {
 Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId) {
     Actor* start;
     Actor* end;
-    Actor* baddieActor;
+    Actor* baddieActor = NULL;
 
     if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
         start = suBaddieActorArray->data;
@@ -214,16 +214,12 @@ void Rando::ObjectBehavior::Init() {
 
     UpdateJunkList();
 
-    REGISTER_LISTENER(OnActorSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnActorSpawn* ev = (OnActorSpawn*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
+        map_e currentMap = gsworld_getMap();
 
         CustomObject::FlushRandoSpawnQueue();
         DespawnCollectedBundles();
-        map_e currentMap = gsworld_getMap();
 
         if (currentMap == MAP_12_GV_GOBIS_VALLEY) {
             if (ev->actorId == ACTOR_118_GRABBA) {
@@ -262,12 +258,8 @@ void Rando::ObjectBehavior::Init() {
         ev->result = randoCustomActor;
     })
 
-    REGISTER_LISTENER(OnSaveActorSaveState, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnSaveActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnSaveActorSaveState* ev = (OnSaveActorSaveState*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
 
         if (!IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex)) {
             return;
@@ -278,12 +270,8 @@ void Rando::ObjectBehavior::Init() {
               { ev->actor->marker->propPtr->x, ev->actor->marker->propPtr->y, ev->actor->marker->propPtr->z } });
     })
 
-    REGISTER_LISTENER(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
 
         isSaveState = true;
         if (!IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex)) {
@@ -324,14 +312,10 @@ void Rando::ObjectBehavior::Init() {
         event->Cancelled = true;
     })
 
-    REGISTER_LISTENER(OnActorCollision, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnActorCollision, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnActorCollision* ev = (OnActorCollision*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
-
         RandoItemId randoItemId = RI_UNKNOWN;
+
         if (ev->propId->markerFlag) {
             Actor* markerActor = marker_getActor(ev->propId->actorProp.marker);
 
@@ -382,39 +366,28 @@ void Rando::ObjectBehavior::Init() {
         }
     })
 
-    REGISTER_LISTENER(OnSetJiggyList, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnSetJiggyList* ev = (OnSetJiggyList*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
-
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         CustomObject::ClearRandoActorListEX();
         CALL_EVENT(ClearBundleDespawnQueue);
         Rando::Logic::RefreshReachableRegions();
     })
 
-    REGISTER_LISTENER(OnFindActorFromActorId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnFindActorFromActorId, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnFindActorFromActorId* ev = (OnFindActorFromActorId*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
-
         RandoCheckId randoCheckId = RC_UNKNOWN;
+        map_e currentMap = gsworld_getMap();
         ev->result = NULL;
-        map_e mapId = gsworld_getMap();
 
         switch (ev->actorId) {
             case ACTOR_46_JIGGY:
-                if (mapId == MAP_26_MMM_NAPPERS_ROOM) {
+                if (currentMap == MAP_26_MMM_NAPPERS_ROOM) {
                     randoCheckId = RC_MMM_JIGGY_MANSION_TABLE;
-                } else if (mapId == MAP_5A_CCW_SUMMER_ZUBBA_HIVE || mapId == MAP_5B_CCW_SPRING_ZUBBA_HIVE) {
+                } else if (currentMap == MAP_5A_CCW_SUMMER_ZUBBA_HIVE || currentMap == MAP_5B_CCW_SPRING_ZUBBA_HIVE) {
                     randoCheckId = RC_CCW_JIGGY_ZUBBAS;
                 }
                 break;
             default:
-                if (mapId == MAP_D_BGS_BUBBLEGLOOP_SWAMP) {
+                if (currentMap == MAP_D_BGS_BUBBLEGLOOP_SWAMP) {
                     if (CustomObject::CheckSpawnedIdList(RC_BGS_JIGGY_ELEVATED_WALKWAY)) {
                         randoCheckId = RC_BGS_JIGGY_ELEVATED_WALKWAY;
                     } else if (CustomObject::CheckSpawnedIdList(RC_BGS_JIGGY_MAZE)) {
@@ -435,40 +408,37 @@ void Rando::ObjectBehavior::Init() {
         }
     })
 
-    REGISTER_LISTENER(OnFindActorMarkerFromJiggyId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnFindActorMarkerFromJiggyId, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnFindActorMarkerFromJiggyId* ev = (OnFindActorMarkerFromJiggyId*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
+        RandoCheckId randoCheckId = RC_UNKNOWN;
 
         switch (ev->jiggyId) {
             case JIGGY_3E_GV_GRABBA:
-                ev->result = FindActorByRandoCheckId(RC_GV_JIGGY_GRABBA)->marker;
+                randoCheckId = RC_GV_JIGGY_GRABBA;
                 break;
             default:
                 return;
         }
 
-        if (ev->result != NULL) {
-            event->Cancelled = true;
-        }
-    })
-
-    REGISTER_LISTENER(OnFindClosestActorFromActorId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnFindClosestActorFromActorId* ev = (OnFindClosestActorFromActorId*)event;
-
-        if (!IS_RANDO) {
+        if (randoCheckId == RC_UNKNOWN) {
             return;
         }
 
+        if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
+            event->Cancelled = true;
+            ev->result = FindActorByRandoCheckId(randoCheckId)->marker;
+        }
+    })
+
+    COND_HOOK(OnFindClosestActorFromActorId, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+        OnFindClosestActorFromActorId* ev = (OnFindClosestActorFromActorId*)event;
         RandoCheckId randoCheckId = RC_UNKNOWN;
+        map_e currentMap = gsworld_getMap();
         ev->result = NULL;
-        map_e mapId = gsworld_getMap();
 
         switch (ev->actorId) {
             case ACTOR_46_JIGGY:
-                if (mapId == MAP_24_MMM_TUMBLARS_SHED) {
+                if (currentMap == MAP_24_MMM_TUMBLARS_SHED) {
                     randoCheckId = RC_MMM_JIGGY_TUMBLARS_PUZZLE;
                 }
                 break;
@@ -487,12 +457,8 @@ void Rando::ObjectBehavior::Init() {
         }
     })
 
-    REGISTER_LISTENER(OnActorTick, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+    COND_HOOK(OnActorTick, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnActorTick* ev = (OnActorTick*)event;
-
-        if (!IS_RANDO) {
-            return;
-        }
 
         switch (ev->actor->actor_info->actorId) {
             case ACTOR_12E_GOBI_1:

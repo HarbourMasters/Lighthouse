@@ -24,6 +24,9 @@ enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
 extern s32 gFramebufferWidth;
 
+extern BKSprite* D_80380AB8[];          // font alphamask sprites ([0] = dialog font)
+extern s32 print_sDialogFontGlyphCount; // reachable glyph count: byte range 0x21 .. 0x21+count-1
+
 #define SPRITE_DISPLAY_CACHE_SIZE 256
 
 typedef struct {
@@ -36,6 +39,15 @@ static s32 sSpriteDisplayCacheCount = 0;
 
 void port_spriteDisplayCache_clear(void) {
     sSpriteDisplayCacheCount = 0;
+}
+
+// Recompute the dialog-font glyph count from the currently loaded slot-0 sprite. print_init
+// sets this once from the base font, but a language pack can swap in an extended dialog font
+// (more glyphs than the base 62) at runtime.
+void port_refreshDialogFontGlyphCount(void) {
+    if (D_80380AB8[0] != NULL) {
+        print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
+    }
 }
 
 BKSpriteDisplayData* port_getOrCreateDisplayData(BKSprite* sprite) {
@@ -76,10 +88,15 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
         fillId = print_getCurrentMapBoldFontTexture();
     }
     if (fillId == ASSET_708_SPRITE_EGG_PROJECTILE) {
-        fillId = SPRITE_JP_BOLD_FONT_FILL_TEXTURE; // sheet 13: default banner fill
+        fillId = SPRITE_BOLD_FONT_FILL_TEXTURE; // sheet 13: default banner fill (JP)
     }
 
     BKSprite* fill = (BKSprite*)assetcache_get((enum asset_e)fillId);
+    if (fill == NULL && fillId == SPRITE_BOLD_FONT_FILL_TEXTURE) {
+        // Fallback if not using JP base
+        fillId = ASSET_708_SPRITE_EGG_PROJECTILE;
+        fill = (BKSprite*)assetcache_get((enum asset_e)fillId);
+    }
     if (fill == NULL) {
         return banner;
     }
@@ -132,16 +149,17 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
     return banner;
 }
 
-// JP pause menu banner
+// World-name pause-menu banner (JP ships these natively; a language pack can re-point them too)
 static BKSprite* sPauseBanner = NULL;
 static s32 sPauseBannerPage = -1;
 static s32 sPauseBannerAlpha = 0;
 #define PAUSE_BANNER_LAST_PAGE 11
 
 s32 port_pauseBannerUpdate(s32 page_id) {
-    if (!ResourceMgr_IsJapanese()) {
-        return 0;
-    }
+    // Draw a pre-rendered world-name banner when one exists for this page. The JP cart
+    // ships them, and a language pack can supply its own; if none resolves,
+    // port_loadFilledBanner returns NULL below and the caller falls back to drawing the
+    // world name as bold-font text.
     s32 page = page_id;
     if (page < 0 || page > PAUSE_BANNER_LAST_PAGE) {
         page = -1;
@@ -155,7 +173,7 @@ s32 port_pauseBannerUpdate(s32 page_id) {
         sPauseBannerAlpha = 0;
         if (page >= 0) {
             s32 fillId = (page != 0 && page == gcpausemenu_levelToMenuPage(level_get())) ? 0x6e7 : -1;
-            sPauseBanner = port_loadFilledBanner(SPRITE_JP_WORLD_NAME_TOTAL + page, fillId);
+            sPauseBanner = port_loadFilledBanner(SPRITE_WORLD_NAME_TOTAL + page, fillId);
         }
     }
     if (sPauseBannerAlpha < 100) {
@@ -168,7 +186,7 @@ s32 port_pauseBannerUpdate(s32 page_id) {
 }
 
 BKSprite* port_pauseBannerGetDraw(s32 headerY, f32* outX, f32* outY, f32* outW, f32* outH) {
-    if (!ResourceMgr_IsJapanese() || sPauseBanner == NULL) {
+    if (sPauseBanner == NULL) {
         return NULL;
     }
     BKSpriteFrame* bf = sprite_getFramePtr(sPauseBanner, 0);

@@ -19,15 +19,6 @@ const char* logicModes[2] = {
     "No Logic",
 };
 
-std::map<int32_t, const char*> logicModeMap = {
-    { RO_LOGIC_GLITCHLESS, "Glitchless" },
-    { RO_LOGIC_NO_LOGIC, "No Logic" },
-};
-std::map<const char*, int32_t> logicModeMapa = {
-    { "Glitchless", RO_LOGIC_GLITCHLESS },
-    { "No Logic", RO_LOGIC_NO_LOGIC },
-};
-
 namespace LighthouseGui {
 
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;

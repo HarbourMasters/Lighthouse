@@ -211,10 +211,21 @@ extern "C" void port_noteRetention_onLocalNoteCollected(void* markerPtr) {
 extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap) {
     bool already = isCollected(mapId, noteIndex);
     setCollected(mapId, noteIndex);
-    if (sameMap) {
-        if (!already) {
-            item_inc(ITEM_C_NOTE); // live count + high score (func_80346DB4) + pause-menu total
+    if (!already) {
+        // ITEM_C_NOTE is the current level's note count, not a per-map count. Credit it live for
+        // anyone in the same level — sub-areas are distinct maps, so a teammate collecting in
+        // another sub-area must still tick our HUD. item_inc also bumps this level's note high
+        // score (func_80346DB4) and the pause-menu total.
+        int32_t level = map_getLevel((enum map_e)mapId);
+        if (level == (int32_t)level_get()) {
+            item_inc(ITEM_C_NOTE);
+        } else {
+            // Different level entirely: can't touch the live ITEM_C_NOTE (that's our current
+            // level), but still bump that level's note high score so pause totals reflect it.
+            itemscore_noteScores_setLevel((enum level_e)level, countCollectedForLevel(level));
         }
+    }
+    if (sameMap) {
         // Erase before despawning: marker_despawn fires OnActorDestroy, whose hook erases
         // this same key from activeNoteSet — which would invalidate the iterator.
         auto it = activeNoteSet.find(noteKey(mapId, noteIndex));
@@ -225,11 +236,6 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
                 marker_despawn(m);
             }
         }
-    } else if (!already) {
-        // Out of the note's level: can't touch the live ITEM_C_NOTE (that's our current level),
-        // but still bump that level's note high score so pause-menu totals reflect the pickup.
-        int32_t level = map_getLevel((enum map_e)mapId);
-        itemscore_noteScores_setLevel((enum level_e)level, countCollectedForLevel(level));
     }
 }
 

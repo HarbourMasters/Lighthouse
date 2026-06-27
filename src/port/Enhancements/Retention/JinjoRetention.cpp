@@ -129,8 +129,13 @@ extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit,
     if (s != nullptr && levelInRange(level)) {
         s->collected[level] |= (u8)bit;
     }
-    if (sameMap) {
+    // ITEM_12_JINJOS is the current level's jinjo set, not a per-map count. Refresh the HUD for
+    // anyone in the same level — sub-areas are distinct maps, so a teammate collecting in another
+    // sub-area must still update our count, even though only the same map has a live actor to despawn.
+    if (level == (int32_t)level_get()) {
         item_set(ITEM_12_JINJOS, collectedBits(level));
+    }
+    if (sameMap) {
         int32_t actorId = jinjoActorFromBit((u8)bit);
         if (actorId != 0) {
             Actor* a = actorArray_findActorFromActorId((enum actor_e)actorId);

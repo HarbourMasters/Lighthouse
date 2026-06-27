@@ -77,8 +77,10 @@ Acmd* n_alAudioFrame(Acmd* cmdList, s32* cmdLen, s16* outBuf, s32 outLen);
 // DMA cache cleanup (decomp audio_manager.c)
 void func_802403F0(void);
 void func_80250650(void);
+// Game mode helper
+bool func_802E4A08(void);
 
-// [port] Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
+// Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
 u8* soundfont1ctl_ROM_START = NULL;
 u8* soundfont1ctl_ROM_END = NULL;
 u8* soundfont1tbl_ROM_START = NULL;
@@ -330,7 +332,7 @@ void GameEngine::FinishInit() {
     context->InitCrashHandler();
     context->InitEventSystem();
 
-    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 3800 });
+    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
 
     lhFast3dWindow->SetTargetFps(60);
     lhFast3dWindow->SetMaximumFrameLatency(1);
@@ -952,7 +954,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     const auto instance = Instance = new GameEngine();
     // instance->AudioInit();
     // DisplayListPatch::Run();
-    // [port] BK renders at 292x216, not the standard 320x240.
+    // BK renders at 292x216, not the standard 320x240.
     GfxSetNativeDimensions(292, 216);
     instance->RunExtract(argc, argv);
     instance->FinishInit();
@@ -1091,71 +1093,72 @@ extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
     return SAMPLES_PER_FRAME;
 }
 
-// [port] 2 VIs per game frame (30fps)
+// 2 VIs per game frame (30fps)
 #define gVIsPerFrame 2
 
-// [port] 736 samples per audio update (44000/60, aligned to 184-sample boundary)
+// 736 samples per audio update (44000/60, aligned to 184-sample boundary)
 #define AlFrameSize 736
+
+// Attract-demo audio hold
+static std::atomic<bool> sHoldAudio{ false };
+static constexpr int kDemoAudioHoldFrames = 2; // frames to stay held after the load
+static int sHoldFramesRemaining = 0;           // game-thread countdown
+
+extern "C" void port_beginDemoAudioHold(void) {
+    if (kDemoAudioHoldFrames <= 0) {
+        return;
+    }
+    sHoldFramesRemaining = kDemoAudioHoldFrames;
+    sHoldAudio.store(true);
+}
 
 void GameEngine::HandleAudioThread() {
     int16_t audioBuffer[AlFrameSize * 2];
     Acmd cmdList[0x800];
 
+    // Free-run: continuously keep the backend queue topped up, real-time paced and
+    // decoupled from the game frame, so a long game frame can't starve the device.
     while (audio.running) {
-        {
-            std::unique_lock<std::mutex> lock(audio.mutex);
-            while (!audio.processing && audio.running) {
-                audio.cv_to_thread.wait(lock);
-            }
-            if (!audio.running) {
-                break;
+        if (audio.ready) {
+            while (audio.running && AudioPlayerBuffered() < AudioPlayerGetDesiredBuffered()) {
+                int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
+
+                memset(audioBuffer, 0, samplesToGen);
+
+                // While held, leave the buffer as silence and do NOT advance the engine.
+                if (!sHoldAudio) {
+                    int32_t cmdLen = 0;
+                    // Lock only the engine work; the volume scale and backend submit touch
+                    // worker-local / backend state, not the synth.
+                    port_lockAudio();
+                    func_802403F0();
+                    n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
+                    func_80250650();
+                    port_unlockAudio();
+
+                    float master_vol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 100) / 100.0f;
+                    for (u32 i = 0; i < AlFrameSize * 2; i++) {
+                        audioBuffer[i] = static_cast<s16>(audioBuffer[i] * master_vol);
+                    }
+                }
+                AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
             }
         }
-
-        // [port] generate audio chunks until backend buffer is full
-        while (AudioPlayerBuffered() < AudioPlayerGetDesiredBuffered()) {
-            int32_t cmdLen = 0;
-            int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
-
-            memset(audioBuffer, 0, samplesToGen);
-
-            func_802403F0(); // [port] recycle stale DMA cache entries
-            n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
-            func_80250650(); // [port] process channel volume/tempo fades (originally in audioManager_handleFrameMsg)
-            float master_vol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 100) / 100.0f;
-
-            for (u32 i = 0; i < AlFrameSize * 2; i++) {
-                audioBuffer[i] = static_cast<s16>(audioBuffer[i] * master_vol);
-            }
-            AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
-        }
-
-        {
-            std::unique_lock<std::mutex> lock(audio.mutex);
-            audio.processing = false;
-        }
-        audio.cv_from_thread.notify_one();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
 }
 
 void GameEngine::StartAudioFrame() {
-    {
-        std::unique_lock<std::mutex> Lock(audio.mutex);
-        audio.processing = true;
-    }
-    audio.cv_to_thread.notify_one();
+    // Worker free-runs now; this only marks the engine initialized (first call is after
+    // audio init, once the game loop is running).
+    audio.ready = true;
 }
 
 void GameEngine::EndAudioFrame() {
-    {
-        std::unique_lock<std::mutex> Lock(audio.mutex);
-        while (audio.processing) {
-            audio.cv_from_thread.wait(Lock);
-        }
-    }
+    // No-op: audio generation is decoupled from the game frame.
 }
 
-// [port] Load soundfont BLOBs from OTR and set ROM symbol pointers
+// Load soundfont BLOBs from OTR and set ROM symbol pointers
 static void LoadSoundfonts() {
     auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
 
@@ -1196,16 +1199,15 @@ void GameEngine::AudioStartThread() {
     if (!audio.running) {
         audio.running = true;
         audio.thread = std::thread(HandleAudioThread);
+#ifdef _WIN32
+        SetThreadPriority(audio.thread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+#endif
     }
 }
 
 void GameEngine::AudioExit() {
-    {
-        std::unique_lock lock(audio.mutex);
-        audio.running = false;
-    }
-    audio.cv_to_thread.notify_all();
-    // Wait until the audio thread quit
+    // Free-run worker checks `running` each loop (~every 2 ms), so just clear it and join.
+    audio.running = false;
     if (audio.thread.joinable()) {
         audio.thread.join();
     }
@@ -1296,14 +1298,19 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // of node allocations per tick at high refresh rates.
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-    if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
-        target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
-    }
 
-    // [port] Some music-synced cutscenes cap interpolation at native 30
-    int fpsCap = port_getInterpolationFpsCap();
-    if (fpsCap > 0 && target_fps > fpsCap) {
-        target_fps = fpsCap;
+    // Demo/replay modes render at the native rate
+    const bool replayMode = func_802E4A08();
+    if (!replayMode) {
+        if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
+            target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
+        }
+
+        // Some music-synced cutscenes cap interpolation at native 30
+        int fpsCap = port_getInterpolationFpsCap();
+        if (fpsCap > 0 && target_fps > fpsCap) {
+            target_fps = fpsCap;
+        }
     }
 
     // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
@@ -1326,6 +1333,11 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // eff (the fractional-ratio jitter at target=30 / VI=3).
     int subframesPerTick = target_fps / effective_logic_fps;
     if (subframesPerTick < 1) {
+        subframesPerTick = 1;
+    }
+
+    // Replay modes never interpolate: one render per tick, held to viPerTick/60 by the floor.
+    if (replayMode) {
         subframesPerTick = 1;
     }
 
@@ -1367,6 +1379,11 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     }
 
     RunCommands(commands, mtx_replacements, activeFrames);
+
+    // [port] Release the demo audio hold after kDemoAudioHoldFrames rendered frames.
+    if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
+        sHoldAudio.store(false);
+    }
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {

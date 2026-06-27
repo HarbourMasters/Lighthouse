@@ -549,6 +549,9 @@ bool func_802E4424(void) {
                 return false;
 
             case 6:                                     /* switch 1 */
+                // [port] Hold audio across the attract-demo load so its jingle starts fresh once
+                // the demo is on screen instead of playing (and drifting) through the cold freeze.
+                port_beginDemoAudioHold();
                 func_8034B8C0(D_8037E8E0.map, D_8037E8E0.exit);
                 func_802E3E7C(GAME_MODE_7_ATTRACT_DEMO);
                 return false;
