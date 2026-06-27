@@ -228,10 +228,9 @@ Result ExportToRecompBin(const std::string& dstPath, int slot) {
 }
 
 Result PickAndImport(int slot) {
-    auto selection = pfd::open_file("Select a save to import", ".",
-                                    { "Save files (*.srm *.bin *.eep *.sav)", "*.srm *.bin *.eep *.sav",
-                                      "All Files", "*" })
-                         .result();
+    // We can't predict the file extension a save will come in, and we already validate later in the chain
+    // Trust the user to pick the correct file
+    auto selection = pfd::open_file("Select a save to import", ".", { "All Files", "*" }).result();
     if (selection.empty()) {
         return {};
     }
