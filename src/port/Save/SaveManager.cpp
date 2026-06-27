@@ -4,7 +4,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipUtils.h"
-#include "port/Romhack/RomhackConfig.h"
+#include "port/UI/LighthouseModMenuWindow.h"
 #include <fstream>
 #include <filesystem>
 #include <regex>
@@ -29,10 +29,10 @@ namespace fs = std::filesystem;
 static bool mLoaded = false;
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
-    const char* romName = port_getRomhackName();
-    std::string dir = Ship_IsCStringEmpty(romName)
+    std::string romName = GetActiveRomhackBasename();
+    std::string dir = romName.empty()
                           ? Ship::Context::GetPathRelativeToAppDirectory("saves")
-                          : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + std::string(romName));
+                          : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + romName);
     std::error_code ec;
     fs::create_directories(dir, ec);
     if (ec) {

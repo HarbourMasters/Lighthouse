@@ -231,6 +231,10 @@ static std::string GetActiveHack() {
     return "";
 }
 
+std::string GetActiveRomhackBasename() {
+    return GetActiveHack();
+}
+
 static bool ShownInModMenu(const std::string& name, const std::string& activeHack) {
     auto it = modCategory.find(name);
     if (it == modCategory.end()) {
