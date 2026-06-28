@@ -301,6 +301,17 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
+    AddWidget(path, "Disable Snacker Spawn", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.DisableSnackerSpawn"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Prevents Snacker the shark from spawning in Treasure Trove Cove and Rusty Bucket Bay."));
+
     AddWidget(path, "Extra Time For GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"))
         .RaceDisable(false)
