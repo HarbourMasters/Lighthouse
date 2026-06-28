@@ -14,6 +14,7 @@ extern "C" {
 
 DEFINE_EVENT(OnBeakSwimVelocitySet, f32* velocity;)
 DEFINE_EVENT(OnBoggyRaceSetSpeed, f32* speed;)
+DEFINE_EVENT(OnMrVileSetSpeed, f32* speed;)
 DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
 DEFINE_EVENT(OnGruntyJinjonatorComplete)
 DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)

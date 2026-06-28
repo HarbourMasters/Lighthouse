@@ -128,10 +128,8 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     CALL_EVENT(OnWorldDraw, gdl, mptr, vptr);
     port_mirror_endScene();
     port_mirror_undoProjection(gdl, mptr);
-    // [port] After scene draw, capture the transition GPU FB if active.
-    // Resets FB and copies backbuffer → transition FB (GPU-side, no readback).
     if (port_shouldCaptureTransition()) {
-        port_readTransitionFbToCpu(gdl);
+        port_captureTransitionFb(gdl);
     }
     if(!arg4){
         func_802E67AC();

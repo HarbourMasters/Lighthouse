@@ -70,6 +70,15 @@ std::unordered_map<int32_t, int32_t> progressToLevelMap = {
     { FILEPROG_39_CCW_OPEN, LEVEL_8_CLICK_CLOCK_WOOD },
 };
 
+std::vector<level_e> levelOrder = {
+    LEVEL_B_SPIRAL_MOUNTAIN,     LEVEL_6_LAIR,
+    LEVEL_1_MUMBOS_MOUNTAIN,     LEVEL_2_TREASURE_TROVE_COVE,
+    LEVEL_3_CLANKERS_CAVERN,     LEVEL_4_BUBBLEGLOOP_SWAMP,
+    LEVEL_5_FREEZEEZY_PEAK,      LEVEL_7_GOBIS_VALLEY,
+    LEVEL_A_MAD_MONSTER_MANSION, LEVEL_9_RUSTY_BUCKET_BAY,
+    LEVEL_8_CLICK_CLOCK_WOOD,
+};
+
 bool SaveEditor_IsJiggyCollected(jiggy_e jiggyId) {
     return (jiggyscore.D_803832C0[(jiggyId - 1) / 8] & (1 << (jiggyId & 7))) != 0;
 }
@@ -200,7 +209,9 @@ void SaveEditor_DrawGeneralTab() {
         ImGui::SeparatorText("Ammo");
         for (auto& [id, name, value] : ammoDetailList) {
             int32_t curAmmo = item_getCount(id);
-            int32_t cheatoValue = ((id - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS);
+            int32_t cheatoValue =
+                (id >= ITEM_F_RED_FEATHER ? (((id - 1) - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS) :
+                                            (id - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS);
             bool isCheato = fileProgressFlag_get((file_progress_e)cheatoValue);
 
             ImGui::PushID(id);
@@ -243,15 +254,19 @@ void SaveEditor_DrawGeneralTab() {
 void SaveEditor_DrawProgressTab() {
     if (ImGui::BeginChild("ProgressChild")) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        int32_t combId = 1;
-        for (int l = LEVEL_1_MUMBOS_MOUNTAIN; l <= LEVEL_B_SPIRAL_MOUNTAIN; l++) {
-            int32_t jiggyId = JIGGY_ID_MULTIPLIER(l);
+        for (auto& level : levelOrder) {
+            int32_t jiggyId = JIGGY_ID_MULTIPLIER(level);
+            int32_t combId = HONEYCOMB_ID_MULTIPLIER(level);
 
-            ImGui::SeparatorText(worldNameList[l - 1].c_str());
+            if (level > LEVEL_6_LAIR) {
+                combId = HONEYCOMB_ID_MULTIPLIER(level - 1);
+            }
+
+            ImGui::SeparatorText(worldNameList[level - 1].c_str());
             if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
                 ImGui::TableNextColumn();
 
-                if (l != LEVEL_B_SPIRAL_MOUNTAIN) {
+                if (level != LEVEL_B_SPIRAL_MOUNTAIN) {
                     ImGui::Text("Jiggies");
                     ImGui::TableNextColumn();
                     for (int i = jiggyId; i <= (jiggyId + 9); i++) {
@@ -276,10 +291,10 @@ void SaveEditor_DrawProgressTab() {
                 }
 
                 ImGui::TableNextColumn();
-                if (l != LEVEL_6_LAIR) {
+                if (level != LEVEL_6_LAIR) {
                     ImGui::Text("Honeycombs");
                     ImGui::TableNextColumn();
-                    int32_t maxHoneycombs = l == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
+                    int32_t maxHoneycombs = level == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
                     for (int i = 1; i <= (maxHoneycombs); i++) {
                         std::string labelStr = "##comb" + std::to_string(combId);
                         bool isCollected = SaveEditor_IsHoneycombCollected((honeycomb_e)combId);

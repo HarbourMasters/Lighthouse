@@ -37,6 +37,7 @@ typedef struct {
 
 typedef struct {
     FileType fileType;
+    uint64_t fileCreatedAt;
     RandoSaveData randoSaveData;
     NoteRetentionSaveData noteRetention;
     JinjoRetentionSaveData jinjoRetention;

@@ -14,9 +14,4 @@ void gctransition_8030BEA4(s32 arg0);
 void gctransition_update(void);
 void gctransition_reset(void);
 
-// [port] Accessors for FramebufferPatches.cpp
-int gctransition_isFallingPieces(void);
-int gctransition_isFallingPiecesIn(void);
-int gctransition_getSubstate(void);
-
 #endif

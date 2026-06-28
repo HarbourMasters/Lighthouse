@@ -32,6 +32,7 @@ extern "C" int port_isInCharacterParade(void) {
 #define CVAR_CLAW_SLIDE CVAR_ENHANCEMENT("Fixes.ClawSwipeSlide")
 #define CVAR_BOGGY_RACE CVAR_ENHANCEMENT("Fixes.BoggyRaceGameOver")
 #define CVAR_JINJO_SOUND CVAR_ENHANCEMENT("Fixes.JinjoChargeSound")
+#define CVAR_GRUNTY_BOUNCE CVAR_ENHANCEMENT("Fixes.GruntyBounce")
 #define CVAR_CONGA_TEXT CVAR_ENHANCEMENT("Fixes.CongaText")
 
 void RegisterVoidOutGameOver_Init() {
@@ -103,6 +104,16 @@ void RegisterJinjoChargeSound_Init() {
                    { *should = false; });
 }
 
+// Grunty fight: don't let Grunty bounce when hit with wonderwing (v1.1)
+void RegisterGruntyBounce_Init() {
+    COND_VB_SHOULD(VB_ENEMY_BECOME_BUNDLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_GRUNTY_BOUNCE, 1), {
+        int actorId = va_arg(args, int);
+        if (actorId == ACTOR_38B_GRUNTILDA_FINAL_BOSS) {
+            *should = false;
+        }
+    });
+}
+
 // Yum-Yum overflow crash guard: cap dropped collectibles to JP's on-ground limit. Always on
 // (structural crash fix, not a toggle); varargs carry (actorId, maxOnGround) from the decomp.
 void RegisterYumYumDrop_Init() {
@@ -157,6 +168,7 @@ static RegisterShipInitFunc initTermiteMoundSlopesFunc(RegisterTermiteMoundSlope
 static RegisterShipInitFunc initClawSwipeSlideFunc(RegisterClawSwipeSlide_Init, { CVAR_CLAW_SLIDE });
 static RegisterShipInitFunc initBoggyRaceGameOverFunc(RegisterBoggyRaceGameOver_Init, { CVAR_BOGGY_RACE });
 static RegisterShipInitFunc initJinjoChargeSoundFunc(RegisterJinjoChargeSound_Init, { CVAR_JINJO_SOUND });
+static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CVAR_GRUNTY_BOUNCE });
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
 static RegisterShipInitFunc initMumboTokenIdResolveFunc(RegisterMumboTokenIdResolve_Init,

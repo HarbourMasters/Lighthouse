@@ -268,81 +268,8 @@ static bool AnyRomArchiveExists() {
     return false;
 }
 
-void GameEngine::FinishInit() {
-    for (const auto& archive : sRomArchives) {
-        std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
-        if (std::filesystem::exists(romPath)) {
-            context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
-        }
-    }
-
-    const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
-    if (!patches_path.empty() && !std::filesystem::exists(patches_path)) {
-        std::filesystem::create_directories(patches_path);
-    }
-
-    // Load enabled mod o2rs into the ArchiveManager. Inline romhack extraction
-    // (Mod Menu) already disabled any conflicting overlays before it closed the
-    // app, so the freshly-generated mod auto-enables here as a newcomer.
-    UpdateModFiles(/*init=*/true);
-
-    // Loose mod directories (development convenience — a folder of unpacked
-    // assets used as an overlay). Not subject to the enable/disable CVar
-    // because they don't represent installable packages.
-    if (!patches_path.empty() && std::filesystem::is_directory(patches_path)) {
-        for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
-            if (p.is_directory()) {
-                // Ignore folders handled by the Mod Menu loader
-                const std::string dirName = p.path().filename().generic_string();
-                if (dirName == "~romhacks" || dirName == "shared" || dirName == "lang" ||
-                    IsScopedModFolderName(dirName)) {
-                    continue;
-                }
-                SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
-                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                    p.path().generic_string());
-            }
-        }
-    }
-
-    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
-    if (!lang_path.empty() && std::filesystem::is_directory(lang_path)) {
-        for (const auto& p : std::filesystem::directory_iterator(lang_path)) {
-            if (p.is_regular_file() && p.path().extension() == ".o2r") {
-                SPDLOG_INFO("Loading language pack: {}", p.path().generic_string());
-                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                    p.path().generic_string());
-            }
-        }
-    }
-
-#if (_DEBUG)
-    auto defaultLogLevel = spdlog::level::debug;
-#else
-    auto defaultLogLevel = spdlog::level::info;
-#endif
-    auto logLevel =
-        static_cast<spdlog::level::level_enum>(CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
-    context->InitLogging(logLevel, logLevel);
-    Ship::Context::GetRawInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
-    SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
-                (char*)gGitCommitHash);
-
-    context->InitFileDropMgr();
-    context->InitCrashHandler();
-    context->InitEventSystem();
-
-    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
-
-    lhFast3dWindow->SetTargetFps(60);
-    lhFast3dWindow->SetMaximumFrameLatency(1);
-    lhFast3dWindow->SetRendererUCode(ucode_f3d);
-
-#ifdef USE_NETWORKING
-    SDLNet_Init();
-#endif
-
-    auto loader = context->GetResourceManager()->GetResourceLoader();
+// Register every resource factory the game's asset types need.
+static void RegisterResourceFactories(const std::shared_ptr<Ship::ResourceLoader>& loader) {
     loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinarySpriteV0>(),
                                     RESOURCE_FORMAT_BINARY, "Sprite",
                                     static_cast<uint32_t>(Torch::ResourceType::BKSprite), 0);
@@ -386,6 +313,89 @@ void GameEngine::FinishInit() {
 
     loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
+}
+
+// Loose mod directories (development convenience — a folder of unpacked assets
+// used as an overlay). Not subject to the enable/disable CVar because they don't
+// represent installable packages. Folders owned by the Mod Menu loader are skipped.
+static void LoadLooseModDirectories(const std::string& patches_path) {
+    if (patches_path.empty() || !std::filesystem::is_directory(patches_path)) {
+        return;
+    }
+    for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
+        if (!p.is_directory()) {
+            continue;
+        }
+        const std::string dirName = p.path().filename().generic_string();
+        if (dirName == "~romhacks" || dirName == "shared" || dirName == "lang" || IsScopedModFolderName(dirName)) {
+            continue;
+        }
+        SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
+        Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+            p.path().generic_string());
+    }
+}
+
+// Load every .o2r language pack from mods/lang into the ArchiveManager.
+static void LoadLanguagePacks() {
+    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
+    if (lang_path.empty() || !std::filesystem::is_directory(lang_path)) {
+        return;
+    }
+    for (const auto& p : std::filesystem::directory_iterator(lang_path)) {
+        if (p.is_regular_file() && p.path().extension() == ".o2r") {
+            SPDLOG_INFO("Loading language pack: {}", p.path().generic_string());
+            Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+                p.path().generic_string());
+        }
+    }
+}
+
+void GameEngine::FinishInit() {
+    for (const auto& archive : sRomArchives) {
+        std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
+        if (std::filesystem::exists(romPath)) {
+            context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
+        }
+    }
+
+    const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
+    if (!patches_path.empty() && !std::filesystem::exists(patches_path)) {
+        std::filesystem::create_directories(patches_path);
+    }
+
+    // Load enabled mod o2rs into the ArchiveManager.
+    UpdateModFiles(true);
+    LoadLooseModDirectories(patches_path);
+    LoadLanguagePacks();
+
+#if (_DEBUG)
+    auto defaultLogLevel = spdlog::level::debug;
+#else
+    auto defaultLogLevel = spdlog::level::info;
+#endif
+    auto logLevel =
+        static_cast<spdlog::level::level_enum>(CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
+    context->InitLogging(logLevel, logLevel);
+    Ship::Context::GetRawInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+    SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
+                (char*)gGitCommitHash);
+
+    context->InitFileDropMgr();
+    context->InitCrashHandler();
+    context->InitEventSystem();
+
+    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
+
+    lhFast3dWindow->SetTargetFps(60);
+    lhFast3dWindow->SetMaximumFrameLatency(1);
+    lhFast3dWindow->SetRendererUCode(ucode_f3d);
+
+#ifdef USE_NETWORKING
+    SDLNet_Init();
+#endif
+
+    RegisterResourceFactories(context->GetResourceManager()->GetResourceLoader());
     prevAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
@@ -528,12 +538,12 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     msg = "\x1b[4;2HPlease re-extract it from the download.\n"
                           "\x1b[6;2HPress the Home button to exit...";
 #elif defined(__WIIU__)
-                    msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download\nto your "
+                    msg = "Please extract the lighthouse.o2r from the Lighthouse download\nto your "
                           "folder.\n\nPress "
                           "and hold the power\n"
                           "button to shutdown...";
 #else
-                    msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download to your "
+                    msg = "Please extract the lighthouse.o2r from the Lighthouse download to your "
                           "folder.\n\nExiting...";
 #endif
                     std::string title =
@@ -978,6 +988,7 @@ void GameEngine::Create(int argc, char* argv[]) {
 }
 
 extern void ResourceHelpers_ClearRefCache();
+void ReleaseSoundfonts();
 
 void GameEngine::Destroy() {
     // Stop rumble on all controllers before tearing down
@@ -995,14 +1006,15 @@ void GameEngine::Destroy() {
 
     // Flush all resource refs so destructors run while spdlog is still active.
     // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
+    AudioExit();
     ResourceHelpers_ClearRefCache();
     AudioDma_Clear();
+    ReleaseSoundfonts();
     if (Instance->context && Instance->context->GetResourceManager()) {
         Instance->context->GetResourceManager()->UnloadResources("*");
     }
     Instance->context = nullptr;
     // PortEnhancements_Exit();
-    AudioExit();
     for (auto ptr : MemoryPool) {
         free(ptr);
     }
@@ -1158,9 +1170,16 @@ void GameEngine::EndAudioFrame() {
     // No-op: audio generation is decoupled from the game frame.
 }
 
+static std::vector<std::shared_ptr<Ship::IResource>> sSoundfontResources;
+
+void ReleaseSoundfonts() {
+    sSoundfontResources.clear();
+}
+
 // Load soundfont BLOBs from OTR and set ROM symbol pointers
 static void LoadSoundfonts() {
     auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
+    sSoundfontResources.clear();
 
     auto loadBlob = [&rm](const char* path, uint8_t*& start, uint8_t*& end) {
         auto res = rm->LoadResource(path);
@@ -1168,6 +1187,7 @@ static void LoadSoundfonts() {
             start = (uint8_t*)res->GetRawPointer();
             end = start + res->GetPointerSize();
             AudioDma_Register(start, res->GetPointerSize());
+            sSoundfontResources.push_back(res);
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
@@ -1182,6 +1202,7 @@ static void LoadSoundfonts() {
         if (res) {
             start = (uint8_t*)res->GetRawPointer();
             AudioDma_Register(start, res->GetPointerSize());
+            sSoundfontResources.push_back(res);
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
@@ -1281,22 +1302,16 @@ bool GameEngine::IsInterpolationEnabled() {
     return (int)GetInterpolationFPS() > 60 / gVIsPerFrame;
 }
 
-void GameEngine::ProcessGfxCommands(Gfx* commands) {
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
+// How many interpolated sub-frames to render this tick, plus the present-pacing
+// fps that keeps wall-clock time aligned with the game's VI cadence. Pure policy
+// derived from the interpolation target, adaptive cap, and demo/cutscene state.
+namespace {
+struct SubframePacing {
+    int subframes; // renders to emit this tick (>= 1)
+    int fps;       // target present fps for this tick
+};
 
-    if (wnd == nullptr) {
-        return;
-    }
-
-    // if(gEnableGammaBoost) {
-    //     wnd->EnableSRGBMode();
-    // }
-    wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
-
-    // Persistent across frames so each map's bucket array survives.
-    // Interpolate clears entries but keeps the buckets, saving thousands
-    // of node allocations per tick at high refresh rates.
-    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
+SubframePacing ComputeSubframePacing() {
     int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
 
     // Demo/replay modes render at the native rate
@@ -1346,6 +1361,31 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // and target_fps is a multiple of eff, paceFps == target_fps and stays
     // constant. Otherwise it varies per tick to keep wall == game.
     int fps = subframesPerTick * effective_logic_fps;
+
+    return { subframesPerTick, fps };
+}
+} // namespace
+
+void GameEngine::ProcessGfxCommands(Gfx* commands) {
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
+
+    if (wnd == nullptr) {
+        return;
+    }
+
+    // if(gEnableGammaBoost) {
+    //     wnd->EnableSRGBMode();
+    // }
+    wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
+
+    // Persistent across frames so each map's bucket array survives.
+    // Interpolate clears entries but keeps the buckets, saving thousands
+    // of node allocations per tick at high refresh rates.
+    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
+
+    const SubframePacing pacing = ComputeSubframePacing();
+    const int subframesPerTick = pacing.subframes;
+    const int fps = pacing.fps;
 
     // Emit exactly subframesPerTick sub-frames with t values evenly spaced.
     // No accumulator carry: each tick is independent so VI changes don't

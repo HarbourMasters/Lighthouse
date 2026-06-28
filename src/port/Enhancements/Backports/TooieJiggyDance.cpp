@@ -19,6 +19,7 @@ f32 player_getYaw(void);
 }
 
 #define CVAR_TOOIE_JIGGY_DANCE CVAR_ENHANCEMENT("Backports.JiggyAnimation")
+#define CVAR_SKIP_JIGGY_DANCE CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance")
 
 namespace {
 
@@ -99,6 +100,10 @@ void clearOrbit() {
         marker_despawn((ActorMarker*)sMarker);
         sMarker = nullptr;
     }
+}
+
+void forgetOrbit() {
+    sMarker = nullptr;
 }
 
 void emitSparkle(f32 x, f32 y, f32 z) {
@@ -259,16 +264,18 @@ void updateOrbit() {
 
 } // namespace
 
-void RegisterTooieJiggyDance_Init() {
+void RegisterJiggyCollect_Init() {
     clearOrbit();
+    const bool skip = CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0);
+    const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0);
+    const bool playOrbit = tooie && !skip;
 
-    COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, { *should = false; });
 
-    COND_HOOK(OnTooieJiggyCollect, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0),
-              [](IEvent*) { spawnOrbit(); });
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0),
-              [](IEvent*) { updateOrbit(); });
+    COND_HOOK(OnTooieJiggyCollect, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { spawnOrbit(); });
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { updateOrbit(); });
+    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { forgetOrbit(); });
 }
 
-static RegisterShipInitFunc initTooieJiggyDance(RegisterTooieJiggyDance_Init, { CVAR_TOOIE_JIGGY_DANCE });
+static RegisterShipInitFunc initJiggyCollect(RegisterJiggyCollect_Init,
+                                             { CVAR_TOOIE_JIGGY_DANCE, CVAR_SKIP_JIGGY_DANCE });

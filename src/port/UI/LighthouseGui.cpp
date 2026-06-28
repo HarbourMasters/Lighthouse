@@ -17,7 +17,7 @@
 
 // #include "Enhancements/Trackers/ItemTracker/ItemTracker.h"
 // #include "Enhancements/Trackers/ItemTracker/ItemTrackerSettings.h"
-// #include "Enhancements/Trackers/DisplayOverlay.h"
+#include "port/Enhancements/Trackers/DisplayOverlay.h"
 // #include "Enhancements/Trackers//TimeSplits/Timesplits.h"
 // #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
@@ -65,7 +65,7 @@ std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindo
 std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
 // std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 // std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
-// std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
+std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 // std::shared_ptr<TimesplitsWindow> mTimesplitsWindow;
 // std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
 std::shared_ptr<InputViewer> mInputViewer;
@@ -170,8 +170,8 @@ void SetupGuiElements() {
     //                                                                          400));
     // gui->AddGuiWindow(mItemTrackerSettingsWindow);
 
-    // mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
-    // gui->AddGuiWindow(mDisplayOverlayWindow);
+    mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
+    gui->AddGuiWindow(mDisplayOverlayWindow);
 
     // mTimesplitsWindow = std::make_shared<TimesplitsWindow>("gWindows.Timesplits", "Time Splits Window");
     // gui->AddGuiWindow(mTimesplitsWindow);
@@ -237,6 +237,7 @@ void Destroy() {
     // mAudioEditorWindow = nullptr;
     // mItemTrackerWindow = nullptr;
     // mItemTrackerSettingsWindow = nullptr;
+    mDisplayOverlayWindow = nullptr;
     mInputViewer = nullptr;
     mInputViewerSettings = nullptr;
     mEggAimCrosshair = nullptr;

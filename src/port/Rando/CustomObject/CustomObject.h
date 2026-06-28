@@ -51,7 +51,7 @@ public:
     static Actor* ShouldCreateCustomActorEX(RandoCheckId randoCheckId, int32_t position[3], bool isProp,
                                             Actor* refActor = nullptr);
     static void ResolveCustomActorCollisionEX(RandoCheckId randoCheckId);
-    static void CheckObtainedEX(RandoCheckId randoCheckId);
+    static void CheckObtainedEX(RandoCheckId randoCheckId, bool isInit = false);
     static void ObjectCollectedEX(Prop* prop);
 };
 

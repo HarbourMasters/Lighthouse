@@ -441,24 +441,38 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     }
     sBWasHeld = bHeld;
 
-    // Pocket: tip-toe
-    //  Simulate lightly touching the analog stick
+    // Pocket: Talon Trot (LT + RT) and tip-toe (RT)
+    //  LT crouches. While crouched, an RT press injects C-Left to start the Talon Trot.
+    //  RT on its own (no crouch) lightly touches the analog stick for a tip-toe.
     static bool sTipToe = false;
     static bool sPrevR2 = false;
     if (CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_POCKET) {
         bool r2 = false;
+        bool l2 = false;
         auto ctx = Ship::Context::GetRawInstance();
         auto controlDeck = ctx != nullptr ? ctx->GetControlDeck() : nullptr;
         auto deviceManager = controlDeck != nullptr ? controlDeck->GetConnectedPhysicalDeviceManager() : nullptr;
         if (deviceManager != nullptr) {
             for (auto& [instanceId, gamepad] : deviceManager->GetConnectedSDLGamepadsForPort(0)) {
-                if (gamepad != nullptr && SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 8000) {
+                if (gamepad == nullptr) {
+                    continue;
+                }
+                if (SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 8000) {
                     r2 = true;
+                }
+                if (SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 8000) {
+                    l2 = true;
                 }
             }
         }
 
-        if (CVarGetInteger(CVAR_SETTING("Controls.PocketTipToeHold"), 0) != 0) {
+        if (l2) {
+            // Crouching: RT is the Talon Trot trigger, not tip-toe.
+            if (crouched && r2 && !sPrevR2) {
+                pad->button |= BTN_CLEFT; // C-Left while crouched starts the Talon Trot
+            }
+            sTipToe = false;
+        } else if (CVarGetInteger(CVAR_SETTING("Controls.PocketTipToeHold"), 0) != 0) {
             sTipToe = r2; // hold mode
         } else if (r2 && !sPrevR2) {
             sTipToe = !sTipToe; // tap toggles

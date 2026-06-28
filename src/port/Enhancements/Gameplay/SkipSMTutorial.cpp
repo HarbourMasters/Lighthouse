@@ -7,6 +7,7 @@
 extern "C" {
 #include "enums.h"
 #include "functions.h"
+#include "core2/abilityprogress.h"
 }
 
 extern "C" float D_80386000[];
@@ -21,6 +22,12 @@ constexpr ability_e kSpiralMountainAbilities[] = {
     ABILITY_7_FEATHERY_FLAP, ABILITY_8_FLAP_FLIP,  ABILITY_5_CLIMB,
 };
 
+constexpr ability_used kSpiralMountainUsedMoves[] = {
+    ABILITY_USED_JUMP,  ABILITY_USED_FLAP,       ABILITY_USED_FLIP,
+    ABILITY_USED_SWIM,  ABILITY_USED_CLIMB,      ABILITY_USED_BEAK_BARGE,
+    ABILITY_USED_PECK,  ABILITY_USED_CLAW,       ABILITY_USED_TWIRL,
+};
+
 } // namespace
 
 void RegisterSkipSMTutorial_Init() {
@@ -32,7 +39,10 @@ void RegisterSkipSMTutorial_Init() {
 
         for (ability_e ability : kSpiralMountainAbilities) {
             ability_unlock(ability);
-            ability_setHasUsed(ability);
+        }
+
+        for (ability_used move : kSpiralMountainUsedMoves) {
+            ability_setHasUsed(static_cast<ability_e>(move));
         }
 
         for (int honeycomb = HONEYCOMB_13_SM_STUMP; honeycomb <= HONEYCOMB_18_SM_QUARRIES; honeycomb++) {

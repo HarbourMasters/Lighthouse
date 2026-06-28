@@ -97,14 +97,6 @@ void scissorBox_SetForGameMode(Gfx **gdl, s32 framebuffer_idx) {
     else{
         scissorBox_setDefault();
         func_80253640(gdl, gFramebuffers[framebuffer_idx]);
-        // [port] During transition capture, also redirect rendering to the
-        // transition GPU FB so the scene is captured for jiggy piece textures.
-        if (port_shouldCaptureTransition()) {
-            s32 trFb = port_getTransitionGpuFbId();
-            if (trFb >= 0) {
-                gsSPSetFB((*gdl)++, trFb);
-            }
-        }
     }
 }
 
