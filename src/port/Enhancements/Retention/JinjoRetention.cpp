@@ -80,6 +80,18 @@ static u8 collectedBits(int32_t level) {
     return (s != nullptr && levelInRange(level)) ? s->collected[level] : 0;
 }
 
+static void setCollectedBits(int32_t level, u8 bits) {
+    JinjoRetentionSaveData* s = store();
+    if (s != nullptr && levelInRange(level)) {
+        s->collected[level] = bits;
+    }
+}
+
+// The level's jinjo jiggy (the "all five jinjos" reward).
+static enum jiggy_e jinjoJiggy(int32_t level) {
+    return (enum jiggy_e)(10 * level - 9);
+}
+
 static u8 jinjoBitFromMarker(int32_t markerId) {
     switch (markerId) {
         case MARKER_5A_JINJO_BLUE:
@@ -174,7 +186,12 @@ static bool retentionActiveForLevel(int32_t level) {
     if (!applyEnabled() || !levelInRange(level)) {
         return false;
     }
-    if (collectedBits(level) == kAllJinjos && !jiggyscore_isCollected((enum jiggy_e)(10 * level - 9))) {
+    // Stranded-jiggy: all jinjos recorded but the jiggy is neither collected nor currently spawned,
+    // so it can only be re-earned by re-collecting the jinjos — keep retention off so they respawn.
+    // If the jiggy IS already spawned (e.g. a teammate spawned it), keep retention on: the jinjos
+    // stay suppressed and the player just collects the available jiggy.
+    if (collectedBits(level) == kAllJinjos && !jiggyscore_isCollected(jinjoJiggy(level)) &&
+        !jiggyscore_isSpawned(jinjoJiggy(level))) {
         return false;
     }
     return true;
@@ -189,7 +206,25 @@ void RegisterJinjoRetention_Init() {
     // the HUD reflects it. Mirrors note retention's OnSetJiggyList seeding.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
-        if (!systemActive() || !retentionActiveForLevel(ev->levelId)) {
+        if (!systemActive() || !applyEnabled() || !levelInRange(ev->levelId)) {
+            return;
+        }
+        int32_t level = ev->levelId;
+        // [port] Reconcile the recorded jinjo bits with the jiggy's actual state on entry:
+        if (jiggyscore_isCollected(jinjoJiggy(level))) {
+            // Jiggy earned — force all five recorded so no jinjo respawns (covers a jiggy collected
+            // with the record out of sync, e.g. a teammate finished it).
+            if (collectedBits(level) != kAllJinjos) {
+                setCollectedBits(level, kAllJinjos);
+            }
+        } else if (collectedBits(level) == kAllJinjos && !jiggyscore_isSpawned(jinjoJiggy(level))) {
+            // Orphaned: all jinjos recorded but the jiggy is neither collected nor spawned, so it must
+            // be re-earned. The frozen 0x1F record meant re-collected jinjos never persisted; clear it
+            // so they respawn fresh and re-collecting accumulates + persists (re-spawning the jiggy on
+            // the fifth). The spawned check leaves a jiggy a teammate already spawned alone.
+            setCollectedBits(level, 0);
+        }
+        if (!retentionActiveForLevel(level)) {
             return;
         }
         u8 bits = collectedBits(ev->levelId);
