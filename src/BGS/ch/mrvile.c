@@ -394,6 +394,7 @@ void chvile_update(Actor *this) {
                 local->unk10 = 450.0f;
             }
             local->unk10 *= D_80390A94[func_8038A9E0(local->game_marker)];
+            CALL_EVENT(OnMrVileSetSpeed, &local->unk10);
         }
         if (func_8038A9E0(local->game_marker) < 7) {
             func_80258A4C(this->position, this->yaw - 90.0f, local->target_position, &sp70, &sp6C, &sp68);

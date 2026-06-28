@@ -320,6 +320,16 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
 
+    AddWidget(path, "Easier Mr Vile", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("EasierMrVile"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
+
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 3);
