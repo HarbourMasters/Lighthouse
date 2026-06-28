@@ -93,14 +93,28 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             port_jinjoRetention_applyRemoteCollect(map, id, sameMap ? 1 : 0);
             break;
         case ANCHOR_COLLECTIBLE_WORM:
-        case ANCHOR_COLLECTIBLE_ACORN: {
-            // Shared-pool carried collectible. The count is delta-synced through this packet so a
-            // concurrent collect and feed compose instead of clobbering: id >= 0 is a pickup (+1,
-            // plus a per-map index whose worm/acorn we despawn); id < 0 is a spend (-1). The delta
-            // applies regardless of map (the pool is the shared inventory count); only the despawn
-            // is gated on being in the collector's map. triggerEvent stays on but won't echo —
-            // ITEM_22/23 aren't in Anchor_ShouldSyncItemCount. The count clamps at 0.
-            enum item_e item = (kind == ANCHOR_COLLECTIBLE_WORM) ? ITEM_22_CATERPILLAR : ITEM_23_ACORNS;
+        case ANCHOR_COLLECTIBLE_ACORN:
+        case ANCHOR_COLLECTIBLE_PRESENT_BLUE:
+        case ANCHOR_COLLECTIBLE_PRESENT_GREEN:
+        case ANCHOR_COLLECTIBLE_PRESENT_RED:
+        case ANCHOR_COLLECTIBLE_GOLD:
+        case ANCHOR_COLLECTIBLE_ORANGE: {
+            // Shared-pool carried collectible (CCW worms/acorns, FP presents, TTC gold). The count
+            // is delta-synced through this packet so a concurrent collect and spend compose instead
+            // of clobbering: id >= 0 is a pickup (+1, plus a spawn-position hash whose world object
+            // we despawn); id < 0 is a spend (-1). The delta applies regardless of map (the pool is
+            // the shared inventory count); only the despawn is gated on the collector's map. The
+            // item isn't in Anchor_ShouldSyncItemCount, so the +/-1 won't echo. Count clamps at 0.
+            enum item_e item;
+            switch (kind) {
+                case ANCHOR_COLLECTIBLE_WORM:          item = ITEM_22_CATERPILLAR;  break;
+                case ANCHOR_COLLECTIBLE_ACORN:         item = ITEM_23_ACORNS;       break;
+                case ANCHOR_COLLECTIBLE_PRESENT_BLUE:  item = ITEM_20_BLUE_PRESENT;  break;
+                case ANCHOR_COLLECTIBLE_PRESENT_GREEN: item = ITEM_1F_GREEN_PRESENT; break;
+                case ANCHOR_COLLECTIBLE_PRESENT_RED:   item = ITEM_21_RED_PRESENT;   break;
+                case ANCHOR_COLLECTIBLE_ORANGE:        item = ITEM_19_ORANGE;        break;
+                default:                               item = ITEM_18_GOLD_BULLIONS; break;
+            }
             if (id < 0) {
                 item_adjustByDiffWithHud(item, -1);
             } else {

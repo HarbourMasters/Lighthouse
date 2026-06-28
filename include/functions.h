@@ -357,8 +357,15 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_MUMBO = 2,
     ANCHOR_COLLECTIBLE_NOTE = 3,  // id = noteIndex, map = mapId
     ANCHOR_COLLECTIBLE_JINJO = 4, // id = jinjo colour bit, level derived from map
-    ANCHOR_COLLECTIBLE_WORM = 5,  // CCW caterpillar; id = per-map worm index, map = mapId (despawn only)
-    ANCHOR_COLLECTIBLE_ACORN = 6, // CCW acorn; id = per-map acorn index, map = mapId (despawn only)
+    ANCHOR_COLLECTIBLE_WORM = 5,  // CCW caterpillar; id = spawn-position hash, map = mapId
+    ANCHOR_COLLECTIBLE_ACORN = 6, // CCW acorn; id = spawn-position hash, map = mapId
+    // Carried collectibles sharing core2/ch/level_collectible.c. Same shared-pool framework as
+    // worms/acorns: id = spawn-position hash (collect, >= 0) or -1 (spend), map = mapId.
+    ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,  // FP blue present
+    ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8, // FP green present
+    ANCHOR_COLLECTIBLE_PRESENT_RED = 9,   // FP red present
+    ANCHOR_COLLECTIBLE_GOLD = 10,         // TTC gold bullion (Blubber)
+    ANCHOR_COLLECTIBLE_ORANGE = 11,       // MM orange (Chimpy)
 };
 bool fileProgressFlag_get(enum file_progress_e index);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);

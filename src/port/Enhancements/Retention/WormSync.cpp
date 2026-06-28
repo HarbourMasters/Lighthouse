@@ -53,6 +53,16 @@ int32_t slotForKind(int32_t kind) {
             return 0;
         case ANCHOR_COLLECTIBLE_ACORN:
             return 1;
+        case ANCHOR_COLLECTIBLE_PRESENT_BLUE:
+            return 2;
+        case ANCHOR_COLLECTIBLE_PRESENT_GREEN:
+            return 3;
+        case ANCHOR_COLLECTIBLE_PRESENT_RED:
+            return 4;
+        case ANCHOR_COLLECTIBLE_GOLD:
+            return 5;
+        case ANCHOR_COLLECTIBLE_ORANGE:
+            return 6;
         default:
             return -1;
     }

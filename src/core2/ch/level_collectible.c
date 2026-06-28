@@ -1,10 +1,27 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern void func_8028F7D4(f32, f32);
 void chLevelCollectible_update(Actor *this);
 extern ActorMarker *func_8028E86C(void);
+
+// [port] Anchor: FP presents and TTC gold are carried collectibles sharing this actor, so they ride
+// the same shared-pool framework as CCW worms/acorns (carriedSync): a shared count synced via the
+// COLLECT_ITEM packet (so anyone can return what anyone collects), and per-object live despawn keyed
+// by spawn position. Maps the world-collectible marker to its ANCHOR_COLLECTIBLE_* kind, or -1 for
+// the ones not synced this way (e.g. MM's orange).
+static s32 levelCollectible_syncKind(s32 markerId) {
+    switch (markerId) {
+        case MARKER_36_ORANGE_COLLECTIBLE:         return ANCHOR_COLLECTIBLE_ORANGE;
+        case MARKER_37_GOLD_BULLION:               return ANCHOR_COLLECTIBLE_GOLD;
+        case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:  return ANCHOR_COLLECTIBLE_PRESENT_BLUE;
+        case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE: return ANCHOR_COLLECTIBLE_PRESENT_GREEN;
+        case MARKER_1FF_RED_PRESENT_COLLECTIBLE:   return ANCHOR_COLLECTIBLE_PRESENT_RED;
+        default:                                   return -1;
+    }
+}
 extern void timed_mapSpecificFlags_setTrue(f32, s32);
 extern void progressDialog_showDialogMaskFour(s32);
 
@@ -149,6 +166,14 @@ void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker
             timedFunc_set_1(0.5f, (GenFunction_1)__chLevelCollectible_callDialog, dialog_id);
         }
         func_8028F030(this->modelCacheIndex);
+        {
+            // [port] Broadcast the pickup so this world object despawns on teammates too; the shared
+            // count rides the ITEM_* item-count delta via func_8028F030's item_inc.
+            s32 kind = levelCollectible_syncKind(marker->id);
+            if (kind >= 0) {
+                port_carriedSync_onLocalCollect(kind, marker);
+            }
+        }
         marker_despawn(marker);
     }
 }
@@ -172,6 +197,13 @@ void func_802D7DE8(ActorMarker *marker, f32 arg1[3]) {
         }
     }
     func_8028F010(this->modelCacheIndex);
+    {
+        // [port] Spending it (returning to Blubber / the snowman) — sync the -1 to the shared pool.
+        s32 kind = levelCollectible_syncKind(marker->id);
+        if (kind >= 0) {
+            port_carriedSync_onLocalSpend(kind);
+        }
+    }
     subaddie_set_state(this, 4);
     var_f12 = this->position[1];
     var_f14 = 28.0f;
@@ -329,8 +361,33 @@ void chLevelCollectible_update(Actor *this){
         if(this->unk138_22){
             func_8028F7D4(0.0f, 0.0f);
             subaddie_set_state(this, 3);
+        } else {
+            // [port] Register the world collectible (not the carried instance) for networked live
+            // despawn, keyed by its fixed spawn position. If a teammate already grabbed it this
+            // session, don't present it.
+            s32 kind = levelCollectible_syncKind(this->marker->id);
+            if (kind >= 0) {
+                s32 suppress;
+                port_carriedSync_register(kind, this->marker, (s32)this->position[0],
+                                          (s32)this->position[1], (s32)this->position[2], &suppress);
+                if (suppress) {
+                    marker_despawn(this->marker);
+                    return;
+                }
+            }
         }
     }//L802D85DC
+
+    // [port] A teammate grabbed this world collectible — despawn it here so it vanishes on every
+    // client. Only the world instance (not the carried one) was registered, so this is a no-op for
+    // carried/thrown copies.
+    if (!this->unk138_22) {
+        s32 kind = levelCollectible_syncKind(this->marker->id);
+        if (kind >= 0 && port_carriedSync_consumeRemoteDespawn(kind, this->marker)) {
+            marker_despawn(this->marker);
+            return;
+        }
+    }
 
     switch(this->state){
         case 5:// 802D8604
