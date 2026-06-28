@@ -559,18 +559,14 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     if (jiggy_id == JIGGY_20_BGS_ELEVATED_WALKWAY || jiggy_id == JIGGY_25_BGS_MAZE) {
                         func_802D6924();
                     }
-                    if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
-                        if (jiggyscore_total() < 3) {
-                            __baMarker_8028B848();
-                        }
+                    if (jiggyscore_total() < 3) {
+                        __baMarker_8028B848();
                     }
 
-                    if (func_8025AD7C(COMUSIC_30_5TH_JINJO_COLLECTED)) {
+                    if (func_8025AD7C(COMUSIC_30_5TH_JINJO_COLLECTED) && EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
                         __baMarker_8028B8DC();
                     }
-                    if (EventSystem_Should(VB_PLAY_JIGGY_DANCE, true)) {
-                       __spawnQueue_add_4((GenFunction_4)__baMarker_8028B904, reinterpret_cast(u32, other_prop->actorProp.x), reinterpret_cast(u32, other_prop->actorProp.y), reinterpret_cast(u32, other_prop->actorProp.z), jiggy_id);
-                    }
+                    __spawnQueue_add_4((GenFunction_4)__baMarker_8028B904, reinterpret_cast(u32, other_prop->actorProp.x), reinterpret_cast(u32, other_prop->actorProp.y), reinterpret_cast(u32, other_prop->actorProp.z), jiggy_id);
                     marker_despawn(marker);
                 }
             }

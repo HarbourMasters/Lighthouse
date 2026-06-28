@@ -356,6 +356,23 @@ void Rando::ObjectBehavior::Init() {
                         event->Cancelled = true;
                     }
                     break;
+                case MARKER_265_WORLD_EXIT_PAD:
+                    for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i < LEVEL_A_MAD_MONSTER_MANSION; i++) {
+                        if (Rando::Logic::ShouldSpawnJinjoJiggy(i)) {
+                            RandoCheckId randoCheckId = Rando::StaticData::GetJinjoJiggyCheckByLevelId(i);
+                            if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
+                                continue;
+                            }
+
+                            int32_t checkSpawnPos[3];
+                            checkSpawnPos[0] = (int32_t)markerActor->position_x;
+                            checkSpawnPos[1] = (int32_t)markerActor->position_y + 200;
+                            checkSpawnPos[2] = (int32_t)markerActor->position_z;
+
+                            CustomObject::AddPropToSpawnQueueEX(checkSpawnPos, randoCheckId);
+                        }
+                    }
+                    break;
                 default:
                     return;
             }

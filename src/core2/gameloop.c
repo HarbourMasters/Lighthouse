@@ -128,10 +128,8 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     CALL_EVENT(OnWorldDraw, gdl, mptr, vptr);
     port_mirror_endScene();
     port_mirror_undoProjection(gdl, mptr);
-    // [port] After scene draw, capture the transition GPU FB if active.
-    // Resets FB and copies backbuffer → transition FB (GPU-side, no readback).
     if (port_shouldCaptureTransition()) {
-        port_readTransitionFbToCpu(gdl);
+        port_captureTransitionFb(gdl);
     }
     if(!arg4){
         func_802E67AC();
@@ -549,6 +547,9 @@ bool func_802E4424(void) {
                 return false;
 
             case 6:                                     /* switch 1 */
+                // [port] Hold audio across the attract-demo load so its jingle starts fresh once
+                // the demo is on screen instead of playing (and drifting) through the cold freeze.
+                port_beginDemoAudioHold();
                 func_8034B8C0(D_8037E8E0.map, D_8037E8E0.exit);
                 func_802E3E7C(GAME_MODE_7_ATTRACT_DEMO);
                 return false;

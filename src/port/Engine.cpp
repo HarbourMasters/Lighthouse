@@ -77,8 +77,10 @@ Acmd* n_alAudioFrame(Acmd* cmdList, s32* cmdLen, s16* outBuf, s32 outLen);
 // DMA cache cleanup (decomp audio_manager.c)
 void func_802403F0(void);
 void func_80250650(void);
+// Game mode helper
+bool func_802E4A08(void);
 
-// [port] Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
+// Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
 u8* soundfont1ctl_ROM_START = NULL;
 u8* soundfont1ctl_ROM_END = NULL;
 u8* soundfont1tbl_ROM_START = NULL;
@@ -266,81 +268,8 @@ static bool AnyRomArchiveExists() {
     return false;
 }
 
-void GameEngine::FinishInit() {
-    for (const auto& archive : sRomArchives) {
-        std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
-        if (std::filesystem::exists(romPath)) {
-            context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
-        }
-    }
-
-    const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
-    if (!patches_path.empty() && !std::filesystem::exists(patches_path)) {
-        std::filesystem::create_directories(patches_path);
-    }
-
-    // Load enabled mod o2rs into the ArchiveManager. Inline romhack extraction
-    // (Mod Menu) already disabled any conflicting overlays before it closed the
-    // app, so the freshly-generated mod auto-enables here as a newcomer.
-    UpdateModFiles(/*init=*/true);
-
-    // Loose mod directories (development convenience — a folder of unpacked
-    // assets used as an overlay). Not subject to the enable/disable CVar
-    // because they don't represent installable packages.
-    if (!patches_path.empty() && std::filesystem::is_directory(patches_path)) {
-        for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
-            if (p.is_directory()) {
-                // Ignore folders handled by the Mod Menu loader
-                const std::string dirName = p.path().filename().generic_string();
-                if (dirName == "~romhacks" || dirName == "shared" || dirName == "lang" ||
-                    IsScopedModFolderName(dirName)) {
-                    continue;
-                }
-                SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
-                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                    p.path().generic_string());
-            }
-        }
-    }
-
-    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
-    if (!lang_path.empty() && std::filesystem::is_directory(lang_path)) {
-        for (const auto& p : std::filesystem::directory_iterator(lang_path)) {
-            if (p.is_regular_file() && p.path().extension() == ".o2r") {
-                SPDLOG_INFO("Loading language pack: {}", p.path().generic_string());
-                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                    p.path().generic_string());
-            }
-        }
-    }
-
-#if (_DEBUG)
-    auto defaultLogLevel = spdlog::level::debug;
-#else
-    auto defaultLogLevel = spdlog::level::info;
-#endif
-    auto logLevel =
-        static_cast<spdlog::level::level_enum>(CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
-    context->InitLogging(logLevel, logLevel);
-    Ship::Context::GetRawInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
-    SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
-                (char*)gGitCommitHash);
-
-    context->InitFileDropMgr();
-    context->InitCrashHandler();
-    context->InitEventSystem();
-
-    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 3800 });
-
-    lhFast3dWindow->SetTargetFps(60);
-    lhFast3dWindow->SetMaximumFrameLatency(1);
-    lhFast3dWindow->SetRendererUCode(ucode_f3d);
-
-#ifdef USE_NETWORKING
-    SDLNet_Init();
-#endif
-
-    auto loader = context->GetResourceManager()->GetResourceLoader();
+// Register every resource factory the game's asset types need.
+static void RegisterResourceFactories(const std::shared_ptr<Ship::ResourceLoader>& loader) {
     loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinarySpriteV0>(),
                                     RESOURCE_FORMAT_BINARY, "Sprite",
                                     static_cast<uint32_t>(Torch::ResourceType::BKSprite), 0);
@@ -384,6 +313,89 @@ void GameEngine::FinishInit() {
 
     loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
+}
+
+// Loose mod directories (development convenience — a folder of unpacked assets
+// used as an overlay). Not subject to the enable/disable CVar because they don't
+// represent installable packages. Folders owned by the Mod Menu loader are skipped.
+static void LoadLooseModDirectories(const std::string& patches_path) {
+    if (patches_path.empty() || !std::filesystem::is_directory(patches_path)) {
+        return;
+    }
+    for (const auto& p : std::filesystem::directory_iterator(patches_path)) {
+        if (!p.is_directory()) {
+            continue;
+        }
+        const std::string dirName = p.path().filename().generic_string();
+        if (dirName == "~romhacks" || dirName == "shared" || dirName == "lang" || IsScopedModFolderName(dirName)) {
+            continue;
+        }
+        SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
+        Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+            p.path().generic_string());
+    }
+}
+
+// Load every .o2r language pack from mods/lang into the ArchiveManager.
+static void LoadLanguagePacks() {
+    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
+    if (lang_path.empty() || !std::filesystem::is_directory(lang_path)) {
+        return;
+    }
+    for (const auto& p : std::filesystem::directory_iterator(lang_path)) {
+        if (p.is_regular_file() && p.path().extension() == ".o2r") {
+            SPDLOG_INFO("Loading language pack: {}", p.path().generic_string());
+            Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+                p.path().generic_string());
+        }
+    }
+}
+
+void GameEngine::FinishInit() {
+    for (const auto& archive : sRomArchives) {
+        std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
+        if (std::filesystem::exists(romPath)) {
+            context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
+        }
+    }
+
+    const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
+    if (!patches_path.empty() && !std::filesystem::exists(patches_path)) {
+        std::filesystem::create_directories(patches_path);
+    }
+
+    // Load enabled mod o2rs into the ArchiveManager.
+    UpdateModFiles(true);
+    LoadLooseModDirectories(patches_path);
+    LoadLanguagePacks();
+
+#if (_DEBUG)
+    auto defaultLogLevel = spdlog::level::debug;
+#else
+    auto defaultLogLevel = spdlog::level::info;
+#endif
+    auto logLevel =
+        static_cast<spdlog::level::level_enum>(CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
+    context->InitLogging(logLevel, logLevel);
+    Ship::Context::GetRawInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+    SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
+                (char*)gGitCommitHash);
+
+    context->InitFileDropMgr();
+    context->InitCrashHandler();
+    context->InitEventSystem();
+
+    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
+
+    lhFast3dWindow->SetTargetFps(60);
+    lhFast3dWindow->SetMaximumFrameLatency(1);
+    lhFast3dWindow->SetRendererUCode(ucode_f3d);
+
+#ifdef USE_NETWORKING
+    SDLNet_Init();
+#endif
+
+    RegisterResourceFactories(context->GetResourceManager()->GetResourceLoader());
     prevAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
@@ -526,12 +538,12 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     msg = "\x1b[4;2HPlease re-extract it from the download.\n"
                           "\x1b[6;2HPress the Home button to exit...";
 #elif defined(__WIIU__)
-                    msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download\nto your "
+                    msg = "Please extract the lighthouse.o2r from the Lighthouse download\nto your "
                           "folder.\n\nPress "
                           "and hold the power\n"
                           "button to shutdown...";
 #else
-                    msg = "Please extract the lighthouse.o2r from the Ship of Harkinian download to your "
+                    msg = "Please extract the lighthouse.o2r from the Lighthouse download to your "
                           "folder.\n\nExiting...";
 #endif
                     std::string title =
@@ -952,7 +964,7 @@ void GameEngine::Create(int argc, char* argv[]) {
     const auto instance = Instance = new GameEngine();
     // instance->AudioInit();
     // DisplayListPatch::Run();
-    // [port] BK renders at 292x216, not the standard 320x240.
+    // BK renders at 292x216, not the standard 320x240.
     GfxSetNativeDimensions(292, 216);
     instance->RunExtract(argc, argv);
     instance->FinishInit();
@@ -976,6 +988,7 @@ void GameEngine::Create(int argc, char* argv[]) {
 }
 
 extern void ResourceHelpers_ClearRefCache();
+void ReleaseSoundfonts();
 
 void GameEngine::Destroy() {
     // Stop rumble on all controllers before tearing down
@@ -993,14 +1006,15 @@ void GameEngine::Destroy() {
 
     // Flush all resource refs so destructors run while spdlog is still active.
     // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
+    AudioExit();
     ResourceHelpers_ClearRefCache();
     AudioDma_Clear();
+    ReleaseSoundfonts();
     if (Instance->context && Instance->context->GetResourceManager()) {
         Instance->context->GetResourceManager()->UnloadResources("*");
     }
     Instance->context = nullptr;
     // PortEnhancements_Exit();
-    AudioExit();
     for (auto ptr : MemoryPool) {
         free(ptr);
     }
@@ -1091,73 +1105,81 @@ extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
     return SAMPLES_PER_FRAME;
 }
 
-// [port] 2 VIs per game frame (30fps)
+// 2 VIs per game frame (30fps)
 #define gVIsPerFrame 2
 
-// [port] 736 samples per audio update (44000/60, aligned to 184-sample boundary)
+// 736 samples per audio update (44000/60, aligned to 184-sample boundary)
 #define AlFrameSize 736
+
+// Attract-demo audio hold
+static std::atomic<bool> sHoldAudio{ false };
+static constexpr int kDemoAudioHoldFrames = 2; // frames to stay held after the load
+static int sHoldFramesRemaining = 0;           // game-thread countdown
+
+extern "C" void port_beginDemoAudioHold(void) {
+    if (kDemoAudioHoldFrames <= 0) {
+        return;
+    }
+    sHoldFramesRemaining = kDemoAudioHoldFrames;
+    sHoldAudio.store(true);
+}
 
 void GameEngine::HandleAudioThread() {
     int16_t audioBuffer[AlFrameSize * 2];
     Acmd cmdList[0x800];
 
+    // Free-run: continuously keep the backend queue topped up, real-time paced and
+    // decoupled from the game frame, so a long game frame can't starve the device.
     while (audio.running) {
-        {
-            std::unique_lock<std::mutex> lock(audio.mutex);
-            while (!audio.processing && audio.running) {
-                audio.cv_to_thread.wait(lock);
-            }
-            if (!audio.running) {
-                break;
+        if (audio.ready) {
+            while (audio.running && AudioPlayerBuffered() < AudioPlayerGetDesiredBuffered()) {
+                int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
+
+                memset(audioBuffer, 0, samplesToGen);
+
+                // While held, leave the buffer as silence and do NOT advance the engine.
+                if (!sHoldAudio) {
+                    int32_t cmdLen = 0;
+                    // Lock only the engine work; the volume scale and backend submit touch
+                    // worker-local / backend state, not the synth.
+                    port_lockAudio();
+                    func_802403F0();
+                    n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
+                    func_80250650();
+                    port_unlockAudio();
+
+                    float master_vol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 100) / 100.0f;
+                    for (u32 i = 0; i < AlFrameSize * 2; i++) {
+                        audioBuffer[i] = static_cast<s16>(audioBuffer[i] * master_vol);
+                    }
+                }
+                AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
             }
         }
-
-        // [port] generate audio chunks until backend buffer is full
-        while (AudioPlayerBuffered() < AudioPlayerGetDesiredBuffered()) {
-            int32_t cmdLen = 0;
-            int samplesToGen = AlFrameSize * 2 * sizeof(int16_t);
-
-            memset(audioBuffer, 0, samplesToGen);
-
-            func_802403F0(); // [port] recycle stale DMA cache entries
-            n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
-            func_80250650(); // [port] process channel volume/tempo fades (originally in audioManager_handleFrameMsg)
-            float master_vol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 100) / 100.0f;
-
-            for (u32 i = 0; i < AlFrameSize * 2; i++) {
-                audioBuffer[i] = static_cast<s16>(audioBuffer[i] * master_vol);
-            }
-            AudioPlayerPlayFrame((uint8_t*)audioBuffer, samplesToGen);
-        }
-
-        {
-            std::unique_lock<std::mutex> lock(audio.mutex);
-            audio.processing = false;
-        }
-        audio.cv_from_thread.notify_one();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
 }
 
 void GameEngine::StartAudioFrame() {
-    {
-        std::unique_lock<std::mutex> Lock(audio.mutex);
-        audio.processing = true;
-    }
-    audio.cv_to_thread.notify_one();
+    // Worker free-runs now; this only marks the engine initialized (first call is after
+    // audio init, once the game loop is running).
+    audio.ready = true;
 }
 
 void GameEngine::EndAudioFrame() {
-    {
-        std::unique_lock<std::mutex> Lock(audio.mutex);
-        while (audio.processing) {
-            audio.cv_from_thread.wait(Lock);
-        }
-    }
+    // No-op: audio generation is decoupled from the game frame.
 }
 
-// [port] Load soundfont BLOBs from OTR and set ROM symbol pointers
+static std::vector<std::shared_ptr<Ship::IResource>> sSoundfontResources;
+
+void ReleaseSoundfonts() {
+    sSoundfontResources.clear();
+}
+
+// Load soundfont BLOBs from OTR and set ROM symbol pointers
 static void LoadSoundfonts() {
     auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
+    sSoundfontResources.clear();
 
     auto loadBlob = [&rm](const char* path, uint8_t*& start, uint8_t*& end) {
         auto res = rm->LoadResource(path);
@@ -1165,6 +1187,7 @@ static void LoadSoundfonts() {
             start = (uint8_t*)res->GetRawPointer();
             end = start + res->GetPointerSize();
             AudioDma_Register(start, res->GetPointerSize());
+            sSoundfontResources.push_back(res);
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
@@ -1179,6 +1202,7 @@ static void LoadSoundfonts() {
         if (res) {
             start = (uint8_t*)res->GetRawPointer();
             AudioDma_Register(start, res->GetPointerSize());
+            sSoundfontResources.push_back(res);
         } else {
             SPDLOG_ERROR("[Audio] Failed to load soundfont '{}'", path);
         }
@@ -1196,16 +1220,15 @@ void GameEngine::AudioStartThread() {
     if (!audio.running) {
         audio.running = true;
         audio.thread = std::thread(HandleAudioThread);
+#ifdef _WIN32
+        SetThreadPriority(audio.thread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+#endif
     }
 }
 
 void GameEngine::AudioExit() {
-    {
-        std::unique_lock lock(audio.mutex);
-        audio.running = false;
-    }
-    audio.cv_to_thread.notify_all();
-    // Wait until the audio thread quit
+    // Free-run worker checks `running` each loop (~every 2 ms), so just clear it and join.
+    audio.running = false;
     if (audio.thread.joinable()) {
         audio.thread.join();
     }
@@ -1279,31 +1302,30 @@ bool GameEngine::IsInterpolationEnabled() {
     return (int)GetInterpolationFPS() > 60 / gVIsPerFrame;
 }
 
-void GameEngine::ProcessGfxCommands(Gfx* commands) {
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
+// How many interpolated sub-frames to render this tick, plus the present-pacing
+// fps that keeps wall-clock time aligned with the game's VI cadence. Pure policy
+// derived from the interpolation target, adaptive cap, and demo/cutscene state.
+namespace {
+struct SubframePacing {
+    int subframes; // renders to emit this tick (>= 1)
+    int fps;       // target present fps for this tick
+};
 
-    if (wnd == nullptr) {
-        return;
-    }
-
-    // if(gEnableGammaBoost) {
-    //     wnd->EnableSRGBMode();
-    // }
-    wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
-
-    // Persistent across frames so each map's bucket array survives.
-    // Interpolate clears entries but keeps the buckets, saving thousands
-    // of node allocations per tick at high refresh rates.
-    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
+SubframePacing ComputeSubframePacing() {
     int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-    if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
-        target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
-    }
 
-    // [port] Some music-synced cutscenes cap interpolation at native 30
-    int fpsCap = port_getInterpolationFpsCap();
-    if (fpsCap > 0 && target_fps > fpsCap) {
-        target_fps = fpsCap;
+    // Demo/replay modes render at the native rate
+    const bool replayMode = func_802E4A08();
+    if (!replayMode) {
+        if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
+            target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
+        }
+
+        // Some music-synced cutscenes cap interpolation at native 30
+        int fpsCap = port_getInterpolationFpsCap();
+        if (fpsCap > 0 && target_fps > fpsCap) {
+            target_fps = fpsCap;
+        }
     }
 
     // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
@@ -1329,11 +1351,41 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
         subframesPerTick = 1;
     }
 
+    // Replay modes never interpolate: one render per tick, held to viPerTick/60 by the floor.
+    if (replayMode) {
+        subframesPerTick = 1;
+    }
+
     // paceFps drives DXGI's per-present wait so that subframes * 1/paceFps =
     // viPerTick/60 wall (= game time per tick). When viPerTick == gVIsPerFrame
     // and target_fps is a multiple of eff, paceFps == target_fps and stays
     // constant. Otherwise it varies per tick to keep wall == game.
     int fps = subframesPerTick * effective_logic_fps;
+
+    return { subframesPerTick, fps };
+}
+} // namespace
+
+void GameEngine::ProcessGfxCommands(Gfx* commands) {
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
+
+    if (wnd == nullptr) {
+        return;
+    }
+
+    // if(gEnableGammaBoost) {
+    //     wnd->EnableSRGBMode();
+    // }
+    wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
+
+    // Persistent across frames so each map's bucket array survives.
+    // Interpolate clears entries but keeps the buckets, saving thousands
+    // of node allocations per tick at high refresh rates.
+    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
+
+    const SubframePacing pacing = ComputeSubframePacing();
+    const int subframesPerTick = pacing.subframes;
+    const int fps = pacing.fps;
 
     // Emit exactly subframesPerTick sub-frames with t values evenly spaced.
     // No accumulator carry: each tick is independent so VI changes don't
@@ -1367,6 +1419,11 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     }
 
     RunCommands(commands, mtx_replacements, activeFrames);
+
+    // [port] Release the demo audio hold after kDemoAudioHoldFrames rendered frames.
+    if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
+        sHoldAudio.store(false);
+    }
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {

@@ -8,19 +8,12 @@
 extern "C" {
 
 #include "core1/core1.h"
-#include "gc/gctransition.h"
 #include "model.h"
 
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
-                           unsigned int native_height, unsigned char resize);
+                           unsigned int native_height, unsigned char resize, unsigned char force_fixed_aspect);
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
-
-// Emulate N64's osViBlack on PC. On N64, osViBlack(1) blanked the TV
-// output but the RDP still rendered to framebuffers. On PC, we let the GPU
-// render normally (so readback captures the world), then clear the backbuffer
-// to black before presenting.
-static bool s_viBlack = false;
 
 // During FADE_IN, the game disables scene drawing one frame before
 // capturing gFramebuffers. Without freezing, the readback would overwrite
@@ -30,14 +23,6 @@ static bool s_freezeReadback = false;
 
 // On-demand readback
 static int s_readbackRequestFrames = 0;
-
-void port_setViBlack(int active) {
-    s_viBlack = (active != 0);
-}
-
-int port_isViBlack(void) {
-    return s_viBlack ? 1 : 0;
-}
 
 void port_freezeReadback(int freeze) {
     s_freezeReadback = (freeze != 0);
@@ -67,20 +52,10 @@ static int s_pauseFbId = -1;
 
 int port_getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
-        s_pauseFbId =
-            gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth, gFramebufferHeight, 1);
+        s_pauseFbId = gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth,
+                                             gFramebufferHeight, 1, 0);
     }
     return s_pauseFbId;
-}
-
-// Transition capture query
-
-int port_shouldCaptureTransition(void) {
-    if (!gctransition_isFallingPieces())
-        return 0;
-    if (gctransition_isFallingPiecesIn())
-        return gctransition_getSubstate() <= 2;
-    return gctransition_getSubstate() == 2;
 }
 
 // DL walking helper
@@ -203,15 +178,19 @@ static s32 sTransitionGpuFbId = -1;
 s32 port_getTransitionGpuFbId(void) {
     if (sTransitionGpuFbId < 0) {
         sTransitionGpuFbId = gfx_create_framebuffer(DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT,
-                                                    DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1);
+                                                    DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1, 0);
         gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
     }
     return sTransitionGpuFbId;
 }
 
-void port_readTransitionFbToCpu(Gfx** gfx) {
-    if (sTransitionGpuFbId >= 0) {
-        gsSPResetFB((*gfx)++);
+// Capture the finished scene for the falling-jiggy piece textures by blitting the
+// main framebuffer into the transition FB (same technique as the pause snapshot).
+// Called after the scene draw.
+void port_captureTransitionFb(Gfx** gfx) {
+    s32 trFb = port_getTransitionGpuFbId(); // create + register on first use
+    if (trFb >= 0) {
+        gDPCopyFB((*gfx)++, trFb, 0, 0, NULL); // copy main FB -> transition FB
     }
 }
 

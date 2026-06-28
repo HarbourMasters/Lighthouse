@@ -1,4 +1,7 @@
-// BanjoDecomp: (port-specific, no decomp origin)
+// N64 nualstl (naudio / "libmus") RSP-audio software HLE
+// Sourced from https://github.com/perfect-dark-pc-port/perfect_dark/blob/port/port/src/mixer.c
+// which (per its first audio commit) took the mixer from sm64-port and adapted it to PD's naudio.
+
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
@@ -524,7 +527,7 @@ void aEnvMixerImpl(uint8_t flags, ENVMIX_STATE state, int16_t rvol) {
         int16_t volwet;
     }* savedstate = (void*)state;
 
-    rspa.vol[1] = rvol; // why the fuck is this here?
+    rspa.vol[1] = rvol;
 
     // naudio uses a linear envelope
     // TODO: sse/neon
@@ -537,6 +540,14 @@ void aEnvMixerImpl(uint8_t flags, ENVMIX_STATE state, int16_t rvol) {
             t[i] = rspa.vol[i] << 16;
             rate[i] = rspa.rate[i] >> 3;
             tgt[i] = rspa.target[i] << 16;
+            // Lighthouse-custom de-zipper
+            int32_t span = tgt[i] - t[i];
+            int32_t subFrameRate = span / nsamples; // rate that reaches the target in exactly one sub-frame
+            int slowRamp = (span > 0 && rate[i] > 0 && rate[i] <= subFrameRate) ||
+                           (span < 0 && rate[i] < 0 && rate[i] >= subFrameRate);
+            if (!slowRamp) {
+                rate[i] = subFrameRate;
+            }
         }
         voldry = rspa.vol_dry;
         volwet = rspa.vol_wet;
@@ -686,6 +697,7 @@ void aSetVolumeImpl(uint8_t flags, int16_t v, int16_t t, int16_t r) {
     }
 }
 
+// Lighthouse-custom
 void aPoleFilterImpl(uint8_t flags, uint16_t gain, uint8_t dmem_shift, void* state) {
     // dmem_shift is the buffer address >> 8
     uint16_t dmem_addr = dmem_shift << 8;

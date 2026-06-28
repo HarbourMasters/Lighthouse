@@ -4,7 +4,7 @@
 #include "variables.h"
 
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
-                           unsigned int native_height, unsigned char resize);
+                           unsigned int native_height, unsigned char resize, unsigned char force_fixed_aspect);
 
 s32 sAuxGpuFbId = -1;
 
@@ -61,7 +61,7 @@ void func_8030C1A0(void){
         }
     }
     if (sAuxGpuFbId < 0) {
-        sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, 0);
+        sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, 0, 0);
     }
 }
 

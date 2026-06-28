@@ -40,21 +40,29 @@ extern float sViewportAspect;
 #define CVAR_AR_Y CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioY"
 #define CVAR_CUTSCENE_ASPECT CVAR_ENHANCEMENT("Graphics.CutsceneAspect")
 
+#define CVAR_CSA_BAK_ACTIVE CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Active")
+#define CVAR_CSA_BAK_ENABLED CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Enabled")
+#define CVAR_CSA_BAK_COMBO CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Combo")
+#define CVAR_CSA_BAK_X CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.X")
+#define CVAR_CSA_BAK_Y CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Y")
+
 static int32_t sCutsceneAspectActive = 0;
-static int32_t sSavedEnabled;
-static int32_t sSavedCombo;
-static float sSavedX;
-static float sSavedY;
+
+// Restore the user's Advanced Resolution settings from the persisted backup and clear the flag.
+static void restoreCutsceneAspectBackup() {
+    CVarSetInteger(CVAR_AR_ENABLED, CVarGetInteger(CVAR_CSA_BAK_ENABLED, 0));
+    CVarSetInteger(CVAR_AR_COMBO, CVarGetInteger(CVAR_CSA_BAK_COMBO, 3));
+    CVarSetFloat(CVAR_AR_X, CVarGetFloat(CVAR_CSA_BAK_X, 16.0f));
+    CVarSetFloat(CVAR_AR_Y, CVarGetFloat(CVAR_CSA_BAK_Y, 9.0f));
+    CVarClear(CVAR_CSA_BAK_ACTIVE);
+    sCutsceneAspectActive = 0;
+}
 
 static void ResetCutsceneAspect() {
     if (!sCutsceneAspectActive) {
         return;
     }
-    CVarSetInteger(CVAR_AR_ENABLED, sSavedEnabled);
-    CVarSetInteger(CVAR_AR_COMBO, sSavedCombo);
-    CVarSetFloat(CVAR_AR_X, sSavedX);
-    CVarSetFloat(CVAR_AR_Y, sSavedY);
-    sCutsceneAspectActive = 0;
+    restoreCutsceneAspectBackup();
 }
 
 static void updateCutsceneAspect(int32_t mapId) {
@@ -69,10 +77,11 @@ static void updateCutsceneAspect(int32_t mapId) {
         uint32_t winH = window->GetHeight();
         float actual = (winH > 0) ? (float)winW / (float)winH : GameEngine_GetAspectRatio();
         if ((arY > 0.0f && (arX / arY) > (4.0f / 3.0f + 0.01f)) || (!enabled && actual > (4.0f / 3.0f + 0.01f))) {
-            sSavedEnabled = CVarGetInteger(CVAR_AR_ENABLED, 0);
-            sSavedCombo = CVarGetInteger(CVAR_AR_COMBO, 3);
-            sSavedX = CVarGetFloat(CVAR_AR_X, 16.0f);
-            sSavedY = CVarGetFloat(CVAR_AR_Y, 9.0f);
+            CVarSetInteger(CVAR_CSA_BAK_ENABLED, CVarGetInteger(CVAR_AR_ENABLED, 0));
+            CVarSetInteger(CVAR_CSA_BAK_COMBO, CVarGetInteger(CVAR_AR_COMBO, 3));
+            CVarSetFloat(CVAR_CSA_BAK_X, CVarGetFloat(CVAR_AR_X, 16.0f));
+            CVarSetFloat(CVAR_CSA_BAK_Y, CVarGetFloat(CVAR_AR_Y, 9.0f));
+            CVarSetInteger(CVAR_CSA_BAK_ACTIVE, 1);
             CVarSetInteger(CVAR_AR_ENABLED, 1);
             CVarSetInteger(CVAR_AR_COMBO, 2);
             CVarSetFloat(CVAR_AR_X, 4.0f);
@@ -87,7 +96,6 @@ static void updateCutsceneAspect(int32_t mapId) {
 // Widescreen yaw fix — per-frame yaw adjustment for certain static cameras in widescreen mode
 
 #define CVAR_WS_CAMERA_FIX CVAR_ENHANCEMENT("Fix.WidescreenCamera")
-#define CVAR_CENTER_SFX CVAR_ENHANCEMENT("Fixes.CenterSfx")
 
 struct WsYawFix {
     int32_t map;
@@ -123,20 +131,13 @@ extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
 
 // Event listeners
 
-// Center the pan for the looping SFX — TeeHee (0x3F4) and Sir Slush (0x3F5). On N64 these play
-// hard-panned by camera angle (which the port reproduces faithfully), but isolated almost entirely
-// in one channel they can read as a thin "bleating" warble. When enabled, this gate makes source.c
-// skip the camera-relative pan (func_8030CDE4) and center these two sounds (0x40). Default on.
-void RegisterCenterSfx_Init() {
-    COND_VB_SHOULD(VB_POSITIONAL_SFX_PAN, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CENTER_SFX, 1), {
-        int16_t uid = *va_arg(args, int16_t*);
-        if (uid == 0x3F4 || uid == 0x3F5)
-            *should = false;
-    });
-}
-
 void RegisterCutsceneAspect() {
-    ResetCutsceneAspect();
+    // Boot-time self-heal: if a previous session crashed or quit during a cutscene, the persisted
+    // gAdvancedResolution cvars may still hold the forced 4:3. Restore the user's real settings from
+    // the backup before anything reads them. This runs from the init process, not a per-frame listener.
+    if (CVarGetInteger(CVAR_CSA_BAK_ACTIVE, 0)) {
+        restoreCutsceneAspectBackup();
+    }
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CUTSCENE_ASPECT, 0), [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         updateCutsceneAspect(ev->nextMap);
@@ -175,6 +176,5 @@ void RegisterCameraPatches_Init() {
     });
 }
 
-static RegisterShipInitFunc centerSfxInitFunc(RegisterCenterSfx_Init, { CVAR_CENTER_SFX });
 static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });
 static RegisterShipInitFunc staticCamInitFunc(RegisterCameraPatches_Init);

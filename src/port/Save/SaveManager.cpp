@@ -32,7 +32,7 @@ std::string SaveManager_GetSavePath(const std::string& filename) {
     const char* romName = port_getRomhackName();
     std::string dir = Ship_IsCStringEmpty(romName)
                           ? Ship::Context::GetPathRelativeToAppDirectory("saves")
-                          : Ship::Context::GetPathRelativeToAppDirectory("saves/" + std::string(romName));
+                          : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + std::string(romName));
     std::error_code ec;
     fs::create_directories(dir, ec);
     if (ec) {

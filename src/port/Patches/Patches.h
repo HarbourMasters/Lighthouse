@@ -36,7 +36,7 @@ void port_readAuxFbToCpu(void* gfx_ptr);
 void port_patchPictureModel(void* model_bin, int32_t min_xy, int32_t max_xy, int32_t min_z, int32_t max_z,
                             uint32_t from);
 int32_t port_getTransitionGpuFbId(void);
-void port_readTransitionFbToCpu(void* gfx_ptr);
+void port_captureTransitionFb(void* gfx_ptr);
 void port_patchTransitionModel(void* model_bin);
 
 // Sprite Display Cache (SpritePatches.cpp)
@@ -86,6 +86,17 @@ void port_mirror_patchTextActors(void);
 // Volatile flag checks
 
 int port_isInCharacterParade(void);
+
+// Audio engine lock
+
+void port_lockAudio(void);
+void port_unlockAudio(void);
+void port_audioIntMaskEnter(void);
+void port_audioIntMaskExit(void);
+
+// Attract-demo audio hold
+
+void port_beginDemoAudioHold(void);
 
 #ifdef __cplusplus
 }

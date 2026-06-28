@@ -9,6 +9,7 @@
 #include "port/ResourceHelpers.h"
 #include "port/Controller/ControlSchemes.h"
 #include "port/Localization/Language.h"
+#include "port/Save/SaveConverter.h"
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
@@ -66,6 +67,13 @@ static const std::unordered_map<int32_t, const char*> bootSequenceLabels = {
     { BOOTSEQUENCE_DEFAULT, "Default" },
     { BOOTSEQUENCE_AUTHENTIC, "Authentic" },
     { BOOTSEQUENCE_FILESELECT, "File Select" },
+};
+
+static const std::unordered_map<int32_t, const char*> saveConvertSlotLabels = {
+    { SaveConverter::kSlotAll, "All games" },
+    { 1, "Game 1" },
+    { 2, "Game 2" },
+    { 3, "Game 3" },
 };
 
 static int32_t sAppliedControlScheme = -1;
@@ -151,6 +159,57 @@ void LighthouseMenu::AddMenuSettings() {
                               "Default: LUS logo -> N64 logo\n"
                               "Authentic: N64 logo only\n"
                               "File Select: Skip to file select menu"));
+
+    AddWidget(path, "Save Conversion", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Save Slot", WIDGET_CVAR_COMBOBOX)
+        .CVar(CVAR_SETTING("SaveConvertSlot"))
+        .RaceDisable(false)
+        .Options(ComboboxOptions()
+                     .DefaultIndex(SaveConverter::kSlotAll)
+                     .ComboMap(saveConvertSlotLabels)
+                     .Tooltip("Which game the Import and Export buttons act on. \"All games\" covers every "
+                              "slot."));
+    AddWidget(path, "Import Save File", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            int slot = CVarGetInteger(CVAR_SETTING("SaveConvertSlot"), SaveConverter::kSlotAll);
+            std::string target = slot == SaveConverter::kSlotAll ? "your saves" : ("Game " + std::to_string(slot));
+            LighthouseGui::mModalWindow->RegisterPopup(
+                "Import Save",
+                "This overwrites " + target +
+                    " for the game you're playing with a save imported from another platform. "
+                    "It can't be undone.\n\n"
+                    "Make sure you're playing the same game or romhack as the save you're importing.",
+                "Select Save", "Cancel",
+                [slot]() {
+                    SaveConverter::Result r = SaveConverter::PickAndImport(slot);
+                    if (r.message.empty()) {
+                        return; // cancelled
+                    }
+                    LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Import Complete" : "Save Import Failed",
+                                                               r.message, "OK", "", nullptr, nullptr);
+                },
+                nullptr);
+        })
+        .Options(ButtonOptions().Tooltip(
+            "Import a save from another platform into the game you're playing. Works for the base game "
+            "and romhacks, using whichever you currently have loaded.\n\n"
+            "This overwrites your existing saves. Stop 'n' Swop items aren't carried over."));
+    AddWidget(path, "Export Save File", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            int slot = CVarGetInteger(CVAR_SETTING("SaveConvertSlot"), SaveConverter::kSlotAll);
+            SaveConverter::Result r = SaveConverter::PickAndExport(slot);
+            if (r.message.empty()) {
+                return; // cancelled
+            }
+            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed",
+                                                       r.message, "OK", "", nullptr, nullptr);
+        })
+        .Options(ButtonOptions().Tooltip(
+            "Export the save for the game you're playing to a Banjo: Recompiled file. Use the slot above "
+            "to pick a single game, or All for every slot.\n\n"
+            "Stop 'n' Swop items aren't carried over."));
 
     AddWidget(path, "Languages", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Dialog Language", WIDGET_CVAR_COMBOBOX)

@@ -170,9 +170,6 @@ int osStopTimer(void* t) {
 
 void osDpSetStatus(u32 data) {
 }
-OSIntMask osSetIntMask(OSIntMask a) {
-    return 0;
-}
 
 void __osError(s16 error_code, s16 num_args, ...) {
 }
@@ -209,15 +206,6 @@ s32 eeprom_writeBlocks(s32 file, s32 offset, void* buffer, s32 count) {
 
 s32 eeprom_readBlocks(s32 file, s32 offset, void* buffer, s32 count) {
     return 0;
-}
-
-u32 func_8025C29C(u32* seed) {
-    // Treat as two u32 values (lower and upper half of u64)
-    u32 result = seed[0] ^ seed[1];
-    // Simple transformation to update seed
-    seed[0] = (seed[0] >> 1) ^ seed[1];
-    seed[1] = (seed[1] << 1) ^ seed[0];
-    return result;
 }
 
 /* BSD memory functions */

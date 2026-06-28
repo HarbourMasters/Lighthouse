@@ -202,7 +202,6 @@ void _gctranstion_changeState(s32 state, TransitionInfo *desc){
         }
         else{
             osViBlack(1);
-            port_setViBlack(1); // [port] hide screen (Engine.cpp skips present when set)
             port_requestReadback(); // [port] need readback active for transition capture
             anctrl_setAnimTimer(s_current_transition.anctrl, 0.25f); //set animation timer
         }
@@ -284,25 +283,11 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     }
 
-    // [port] Widescreen transition scaling.
-    f32 transitionScale;
-    {
-        f32 aspectRatio = GameEngine_GetAspectRatio() / (320.0f / 240.0f);
-        s32 isJigsaw = (s_current_transition.transistion_info != NULL &&
-            (s_current_transition.transistion_info->uid == 0x10 ||
-             s_current_transition.transistion_info->uid == 0x11));
-
-        if (isJigsaw && aspectRatio > 1.01f) {
-            // Jigsaw: X-scale projection fills widescreen. UV mapping in
-            // port_patchTransitionModel uses vpW to match.
-            transitionScale = 1.0f;
-            Mtx *xScaleMtx = (*mptr)++;
-            guScale(xScaleMtx, aspectRatio, 1.0f, 1.0f);
-            gSPMatrix((*gdl)++, xScaleMtx, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-        } else {
-            transitionScale = (aspectRatio > 1.01f) ? aspectRatio + 0.1f : 1.0f;
-        }
-    }
+    // [port] Widescreen transition scaling is applied by the port listener
+    f32 transitionScale = 1.0f;
+    CALL_EVENT(OnTransitionModelScale, gdl, mptr,
+               s_current_transition.transistion_info != NULL ? s_current_transition.transistion_info->uid : 0,
+               &transitionScale);
 
     //complex animation (from animation bin file)
     if(s_current_transition.state == 1 || s_current_transition.state == 6){
@@ -414,21 +399,6 @@ int gctransition_active(void){
     return s_current_transition.state != TRANSITION_STATE_0_NONE;
 }
 
-// [port] Accessors for port code in FramebufferPatches.cpp.
-int gctransition_isFallingPieces(void) {
-    if (s_current_transition.transistion_info == NULL) return 0;
-    return s_current_transition.transistion_info->model_index == ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES;
-}
-
-int gctransition_isFallingPiecesIn(void) {
-    if (s_current_transition.transistion_info == NULL) return 0;
-    return s_current_transition.transistion_info->uid == TRANSITION_ID_10_FALLING_PIECES_IN;
-}
-
-int gctransition_getSubstate(void) {
-    return s_current_transition.substate;
-}
-
 int gctransition_8030BDC0(void){
     return ( s_current_transition.state == TRANSITION_STATE_3_BLACK_OUT)
     || (( s_current_transition.state == TRANSITION_STATE_1_LOADING) && (s_current_transition.unk0 < 2))
@@ -467,7 +437,7 @@ void gctransition_update(void){
     dt = time_getDelta();
     if(s_current_transition.transistion_info == NULL)
         return;
-    
+
     if(s_current_transition.anctrl != NULL){
         anctrl_update(s_current_transition.anctrl);
         if(s_current_transition.state == TRANSITION_STATE_4_FADE_IN){
@@ -489,7 +459,6 @@ void gctransition_update(void){
                     break;
                 case 4:
                     osViBlack(0);
-                    port_setViBlack(0);     // [port] show screen again
                     port_freezeReadback(0); // [port] resume readback
                     break;
                 default:
@@ -540,4 +509,9 @@ void gctransition_update(void){
             gsworld_update();
     }
     s_current_transition.substate++;
+    if (s_current_transition.transistion_info != NULL &&
+        s_current_transition.transistion_info->model_index == ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES) {
+        CALL_EVENT(OnTransitionStateUpdate, s_current_transition.transistion_info->model_index,
+                   s_current_transition.transistion_info->uid, s_current_transition.substate);
+    }
 }

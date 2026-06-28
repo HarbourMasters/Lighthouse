@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
+#include "port/Controller/ModernCamera.h"
 
 
 extern bool func_80245314(f32[3], f32[3], f32, f32, u32);
@@ -358,6 +359,10 @@ void ncDynamicCamera_update(void){
 
         case FREELOOK_CAM_STATE: // [port] right-stick free look
             port_freeLookCamera_update();
+            break;
+
+        case MODERN_ORBIT_CAM_STATE: // [port] modern scheme right-stick yaw orbit
+            port_modernCamera_update();
             break;
     }//// L802BD064
     ml_vec3f_copy(sp24, cameraPosition);
