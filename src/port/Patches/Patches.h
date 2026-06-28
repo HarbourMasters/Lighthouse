@@ -111,6 +111,33 @@ void port_notedoor_remoteOpen(int32_t progressFlag);
 // Defined in core2/quiz/game.c, next to the shared collision-die handler it reuses.
 void port_breakable_remoteBreak(int32_t progressFlag);
 
+// Non-persistent breakables (glass windows etc.) that break + despawn with no synced flag. The
+// break is broadcast by spawn position (these objects are static, so their position is identical
+// on every client), and replayed on teammates in the same map. Defined in core2/quiz/game.c.
+// broadcastBreak is C->C++ (sends the packet); remoteBreakAt is C++->C (replays the break).
+void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
+void port_breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
+
+// In-memory (never saved) record of which non-persistent breakables the team has broken this
+// session, so the object stays broken on (re)load — checked at spawn. Keyed by (map, marker,
+// spawn position); cleared on save load. Defined in port BreakObject.cpp.
+int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
+
+// RBB egg-toll paths (bridges that extend in stages as eggs are paid). The extension stage is
+// actor-local with no flag, so it's synced explicitly: onAdvance records + broadcasts a stage,
+// getStage restores it at spawn (temporary in-memory persistence), remoteApply extends the matching
+// toll live. Tolls are identified by their stable secondaryId. onAdvance/getStage are in
+// EggToll.cpp; remoteApply is in RBB/ch/eggtoll1.c.
+void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
+int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
+void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
+
+// RBB jiggy-cage crane: a transient timed minigame (no flag, not persisted). The lower (stage 2)
+// and raise (stage 4) are broadcast to same-map teammates and replayed silently (no camera /
+// hourglass). broadcast is in JiggyCrane.cpp; remoteApply is in RBB/crane_jiggycage.c.
+void port_jiggyCrane_broadcast(int32_t stage);
+void port_jiggyCrane_remoteApply(int32_t stage);
+
 #ifdef __cplusplus
 }
 #endif

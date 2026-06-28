@@ -209,6 +209,12 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_ScopedState(payload);
             else if (packetType == COLLECT_ITEM)
                 HandlePacket_CollectItem(payload);
+            else if (packetType == BREAK_OBJECT)
+                HandlePacket_BreakObject(payload);
+            else if (packetType == EGG_TOLL)
+                HandlePacket_EggToll(payload);
+            else if (packetType == JIGGY_CRANE)
+                HandlePacket_JiggyCrane(payload);
             else if (packetType == PEDESTAL_OWNER)
                 HandlePacket_PedestalOwner(payload);
             else if (packetType == JIGGY_SPAWN)

@@ -124,6 +124,26 @@ extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId,
     sCollected.insert({ slot, mapId, id });
 }
 
+// Snapshot/restore for the authoritative team-state sync (UpdateTeamState.cpp). Flat [slot, mapId,
+// hash] tuples. Restore overwrites — a client adopting team state takes that session's set. This
+// covers which worms/acorns are already collected; the carried *count* (ITEM_22/23) is delta-synced
+// separately through the COLLECT_ITEM packet.
+std::vector<int32_t> port_carriedSync_snapshotCollected() {
+    std::vector<int32_t> flat;
+    flat.reserve(sCollected.size() * 3);
+    for (const auto& e : sCollected) {
+        flat.insert(flat.end(), e.begin(), e.end());
+    }
+    return flat;
+}
+
+void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat) {
+    sCollected.clear();
+    for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
+        sCollected.insert({ flat[i], flat[i + 1], flat[i + 2] });
+    }
+}
+
 extern "C" int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker) {
     int32_t slot = slotForKind(kind);
     if (slot < 0) {

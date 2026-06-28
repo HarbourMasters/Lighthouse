@@ -243,4 +243,14 @@ void RBB_func_803882F4(Actor *this){
             func_803881E8(this, 1);
         }
     }
+    // [port] Live: a teammate opening the boss-boombox entrance sets LEVEL_FLAG_2D, which syncs to
+    // same-level teammates. If we're still waiting (state 1), snap to the opened state rather than
+    // waiting for a reload. Gated on state 1 so it never cuts off the local player's own crane
+    // cutscene (which sets the flag while in state 2).
+    else if (this->state == 1 && levelSpecificFlags_get(LEVEL_FLAG_2D_RBB_UNKNOWN)) {
+        func_80387AC0();
+        RBB_func_80387960(0.0f);
+        func_80387B24();
+        func_803881E8(this, 3);
+    }
 }

@@ -373,10 +373,12 @@ void func_80389004(Actor *this){
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-
-        if (levelSpecificFlags_get(LEVEL_FLAG_2E_MMM_UNKNOWN)) {
-            marker_despawn(this->marker);
-        }
+    }
+    // [port] Despawn when broken, checked live rather than only at spawn: a teammate breaking the
+    // window sets LEVEL_FLAG_2E_MMM, which syncs to same-level teammates, so ours vanishes to match
+    // immediately instead of only on the next reload. (Also covers arriving already-broken.)
+    if (levelSpecificFlags_get(LEVEL_FLAG_2E_MMM_UNKNOWN)) {
+        marker_despawn(this->marker);
     }
 }
 

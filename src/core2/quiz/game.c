@@ -159,6 +159,13 @@ void func_802D317C(ActorMarker *marker, enum file_progress_e prog_flag_id) {
     marker_despawn(marker);
 }
 
+// [port] Anchor: broadcast a non-persistent breakable's break (glass windows etc. that despawn
+// with no synced flag) so it replays on same-map teammates. sApplyingRemoteBreak guards the
+// shared break handler so a replayed break doesn't echo back out. Defined in port BreakObject.cpp.
+extern void port_breakable_broadcastBreak(s32 markerId, s32 x, s32 y, s32 z);
+extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
+static s32 sApplyingRemoteBreak = 0;
+
 // collision die function for several objects in Lair
 void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
     Actor *sp2C;
@@ -303,6 +310,8 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             gcsfx_playAtSampleRate(SFX_B6_GLASS_BREAKING_1);
             func_802EE278(sp2C, 4, 0x23, 0x1E, 0.7f, 0.6f);
+            if (!sApplyingRemoteBreak)
+                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 
@@ -319,6 +328,8 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             if (arg0->id == 0x1F3) {
                 func_802EE278(sp2C, 4, 0x2D, 0x104, 1.0f, 1.0f);
             }
+            if (!sApplyingRemoteBreak)
+                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 
@@ -364,6 +375,13 @@ void func_802D3CE8(Actor *this){
         marker_setCollisionScripts(this->marker, NULL, func_802D3138, func_802D31AC);
         this->marker->propPtr->unk8_3 = true;
         this->initialized = true;
+        // [port] Temporary-persistence: if a teammate broke this object earlier this session,
+        // despawn it on (re)spawn so it stays broken. Only the recorded breakables (glass windows)
+        // ever match; everything else is a no-op. In-memory only, never touches the save.
+        if (port_breakable_isBroken((s32)gsworld_getMap(), this->marker->id, (s32)this->position[0],
+                                    (s32)this->position[1], (s32)this->position[2])) {
+            marker_despawn(this->marker);
+        }
     }
 }
 
@@ -425,6 +443,30 @@ void port_breakable_remoteBreak(s32 progressFlag) {
         // The flag is already set (the packet applied it before calling us), so the
         // fileProgressFlag_set inside is a no-op and won't re-broadcast.
         func_802D31AC(actor->marker, NULL);
+        return;
+    }
+}
+
+// Replay a teammate's break of a non-persistent breakable (glass window etc.). These set no flag,
+// so they're matched by (marker id, spawn position) — the objects are static, so position is the
+// same on every client. The guard stops the replayed break from re-broadcasting.
+void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
+    s32 i;
+
+    if (suBaddieActorArray == NULL) {
+        return;
+    }
+    for (i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        if (actor->marker == NULL || actor->marker->id != markerId) {
+            continue;
+        }
+        if ((s32)actor->position[0] != x || (s32)actor->position[1] != y || (s32)actor->position[2] != z) {
+            continue;
+        }
+        sApplyingRemoteBreak = 1;
+        func_802D31AC(actor->marker, NULL);
+        sApplyingRemoteBreak = 0;
         return;
     }
 }

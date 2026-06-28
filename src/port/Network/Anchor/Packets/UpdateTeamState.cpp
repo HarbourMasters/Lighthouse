@@ -12,6 +12,16 @@ extern "C" {
 #include "functions.h"
 }
 
+// In-memory session sets that aren't part of the save but should still ride team state (so a
+// joining client adopts which non-persistent breakables are broken and which worms/acorns are
+// collected). Flat int tuples; defined in the respective port modules.
+extern std::vector<int32_t> port_breakable_snapshotBroken();
+extern void port_breakable_restoreBroken(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_carriedSync_snapshotCollected();
+extern void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_eggToll_snapshot();
+extern void port_eggToll_restore(const std::vector<int32_t>& flat);
+
 /**
  * UPDATE_TEAM_STATE
  *
@@ -54,6 +64,10 @@ void Anchor::SendPacket_UpdateTeamState() {
     timeScores_getSizeAndPtr(&tsSize, &tsAddr);
     payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
     payload["state"]["volatileFlags"] = ScoreBytes(volatileFlag_getSizeAndPtr);
+    // In-memory session sets (never saved): broken non-persistent objects + collected worms/acorns.
+    payload["state"]["brokenObjects"] = port_breakable_snapshotBroken();
+    payload["state"]["carriedCollected"] = port_carriedSync_snapshotCollected();
+    payload["state"]["eggTolls"] = port_eggToll_snapshot();
 
     SendJsonToRemote(payload);
 }
@@ -120,6 +134,18 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         }
         if (state.contains("abilities")) {
             ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);
+        }
+        // In-memory session sets (never saved). Adopt the team's set; takes effect on the next map
+        // load — already-spawned objects aren't retroactively removed here (the realtime
+        // BREAK_OBJECT / COLLECT_ITEM packets handle live).
+        if (state.contains("brokenObjects")) {
+            port_breakable_restoreBroken(state["brokenObjects"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("carriedCollected")) {
+            port_carriedSync_restoreCollected(state["carriedCollected"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("eggTolls")) {
+            port_eggToll_restore(state["eggTolls"].get<std::vector<int32_t>>());
         }
 
         // The overwrites above bypass the setters, so recompute the cached HUD counts the

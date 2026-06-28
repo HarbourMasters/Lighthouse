@@ -84,10 +84,12 @@ void func_8038DAB0(Actor *this){
     if(!this->initialized){
         func_802D3CE8(this);
         this->initialized = true;
-
-        if (levelSpecificFlags_get(LEVEL_FLAG_38_CCW_UNKNOWN)) {
-            marker_despawn(this->marker);
-        }
+    }
+    // [port] Despawn when broken, checked live rather than only at spawn: a teammate breaking it
+    // sets LEVEL_FLAG_38_CCW, which syncs to same-level teammates, so ours vanishes to match
+    // immediately instead of only on the next reload. (Also covers arriving already-broken.)
+    if (levelSpecificFlags_get(LEVEL_FLAG_38_CCW_UNKNOWN)) {
+        marker_despawn(this->marker);
     }
 }
 

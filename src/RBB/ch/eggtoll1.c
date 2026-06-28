@@ -5,6 +5,14 @@
 
 extern void timed_exitStaticCamera(f32);
 
+// [port] Anchor: egg-toll path (bridge) extension is actor-local state (unk8 = stage) with no flag,
+// so sync it explicitly. onAdvance records + broadcasts a stage; getStage restores it at spawn
+// (temporary in-memory persistence). Tolls are identified by their stable secondaryId. Defined in
+// port EggToll.cpp; remoteApply (below) is the C side that extends the matching toll.
+extern void port_eggToll_onAdvance(s32 map, s32 secondaryId, s32 stage);
+extern s32 port_eggToll_getStage(s32 map, s32 secondaryId);
+extern ActorArray *suBaddieActorArray;
+
 /* typedefs and declarations */
 typedef struct {
     s32 unk0;
@@ -44,6 +52,16 @@ Struct_RBB_0_1 D_80390074[4] = {
 };
 
 /* .code */
+// [port] Cumulative egg count that corresponds to a given extension stage, matching the thresholds
+// func_8038685C checks (stage 1 = unk1, stage 2 = unk1 + unk2). Used to keep the egg counter (unk0)
+// consistent with a synced/restored stage so a later local payment doesn't mis-trigger an advance.
+static s32 eggToll_countForStage(s32 tollIdx, s32 stage) {
+    s32 count = 0;
+    if (stage >= 1) count += D_80390074[tollIdx].unk1;
+    if (stage >= 2) count += D_80390074[tollIdx].unk2;
+    return count;
+}
+
 void RBB_func_803863F0(Actor *actor, s32 arg1){
     ActorLocal_RBB_0 * local = (ActorLocal_RBB_0 *) &actor->local;
     void *temp_a0;
@@ -112,6 +130,8 @@ void func_803866F4(Actor *this, s32 arg1){
     }
     if(arg1 == 3){
         local->unk8++;
+        // [port] Broadcast the new extension stage so teammates' matching toll extends too.
+        port_eggToll_onAdvance((s32)gsworld_getMap(), this->secondaryId, local->unk8);
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         func_80324E38(0.0f, 3);
         timedFunc_set_2(0.5f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
@@ -157,6 +177,11 @@ void func_803868F0(Actor *this){
             local->unk4 = (this->secondaryId == 0x13)? 1: local->unk4;
             local->unk4 = (this->secondaryId == 0x14)? 2: local->unk4;
             local->unk4 = (this->secondaryId == 0xB)?  3: local->unk4;
+            // [port] Restore this toll's synced extension stage (temporary in-memory persistence)
+            // so a teammate's progress shows on (re)load; RBB_func_803863F0(this, 0) below snaps to it.
+            // Keep the egg counter consistent with the restored stage.
+            local->unk8 = port_eggToll_getStage((s32)gsworld_getMap(), this->secondaryId);
+            local->unk0 = eggToll_countForStage(local->unk4, local->unk8);
             func_803866F4(this, 1);
         }
         RBB_func_803863F0(this, 0);
@@ -166,5 +191,34 @@ void func_803868F0(Actor *this){
             func_803866F4(this, 1);
         }
 
+    }
+}
+
+// [port] Apply a teammate's toll advance: find the matching toll (by stable secondaryId) and extend
+// it to the new stage, animated — no camera pan / fanfare, which belong to the player who paid.
+void port_eggToll_remoteApply(s32 map, s32 secondaryId, s32 stage) {
+    s32 i;
+    (void)map;
+
+    if (suBaddieActorArray == NULL) {
+        return;
+    }
+    for (i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        ActorLocal_RBB_0 *local;
+        if (actor->marker == NULL || actor->marker->id != MARKER_182_RBB_EGG_TOLL) {
+            continue;
+        }
+        if (actor->secondaryId != secondaryId) {
+            continue;
+        }
+        local = (ActorLocal_RBB_0 *) &actor->local;
+        if (stage > local->unk8) {
+            local->unk8 = stage;
+            local->unk0 = eggToll_countForStage(local->unk4, stage);
+            RBB_func_803863F0(actor, 1);
+            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+        }
+        return;
     }
 }
