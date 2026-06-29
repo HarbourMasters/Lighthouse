@@ -16,7 +16,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Cutscenes
     WidgetPath path = { "Enhancements", "Cutscenes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Allow Start to Skip Boot Logos", WIDGET_CVAR_CHECKBOX)
@@ -48,7 +48,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_COMBOBOX)
@@ -77,7 +77,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Camera
     path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Free Look (Right Stick)", WIDGET_CVAR_CHECKBOX)
@@ -119,7 +119,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Mirrored World", WIDGET_CVAR_CHECKBOX)
@@ -255,7 +255,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Restore Return to Lair", WIDGET_CVAR_CHECKBOX)
@@ -269,7 +269,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Gameplay
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Difficulty", WIDGET_CVAR_COMBOBOX)
@@ -344,7 +344,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Tooie Jiggy Animation", WIDGET_CVAR_CHECKBOX)
