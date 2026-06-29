@@ -3,10 +3,15 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 typedef struct chpinkegg_s{
     u32 unk0;
     u32 unk4;
 } ActorLocal_PinkEgg;
+
+// [port] Anchor: set while replaying a teammate's egg break so it isn't re-broadcast.
+static s32 sPinkEggRemote = 0;
 
 Actor *chPinkEgg_draw(ActorMarker *this, Gfx ** gdl, Mtx** mptr, Vtx **vtx);
 void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker);
@@ -90,9 +95,17 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     actor_playAnimationOnce(thisActor);
     this->collidable = false;
     thisActor->unk124_6 = 0;
-    if(D_803906C4[(tmp = (ActorLocal_PinkEgg *) &thisActor->local)->unk0] != 0){
+    tmp = (ActorLocal_PinkEgg *) &thisActor->local;
+    // [port] Anchor: record + broadcast this layer's break so each teammate's chain advances too.
+    // Guarded so the polled replay (chPinkEgg_update) doesn't re-broadcast.
+    if(!sPinkEggRemote){
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->unk0);
+    }
+    if(D_803906C4[tmp->unk0] != 0){
         __spawnQueue_add_2((void (*)(void))chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->unk0);
-    } else {
+    } else if(!jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)){
+        // Gate so two clients finishing the chain don't each spawn a jiggy (the other gets it via
+        // the JIGGY_SPAWN packet).
         jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
@@ -103,6 +116,24 @@ void chPinkEgg_update(Actor *this){
         this->marker->propPtr->unk8_3 = 1;
         marker_setCollisionScripts(this->marker, NULL, NULL, chPinkEgg_collision);
         this->initialized = true;
+    }
+
+    // [port] Anchor: if the team already finished the chain (JIGGY_21 spawned), don't sit here as a
+    // whole egg — despawn so the puzzle reads as done. State 3 is an egg mid-break; let it finish.
+    if(jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG) && this->state != 3){
+        marker_despawn(this->marker);
+        return;
+    }
+
+    // [port] Anchor live + temp-persist: replay teammates' layer breaks. If this layer's break bit
+    // is set and we haven't broken yet, break it now — which spawns the next layer, whose bit then
+    // triggers the same next frame, catching the chain up to the team's progress.
+    if((port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg *)&this->local)->unk0))
+        && this->state != 3){
+        sPinkEggRemote = 1;
+        chPinkEgg_collision(this->marker, NULL);
+        sPinkEggRemote = 0;
+        return;
     }
 
     switch(this->state){

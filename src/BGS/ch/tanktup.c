@@ -5,6 +5,8 @@
 
 #include "prop.h"
 
+#include "port/Patches/Patches.h"
+
 void timed_exitStaticCamera(f32);
 
 #include "core2/timedfunc.h"
@@ -121,6 +123,18 @@ void chTanktup_update(Actor *this)
     this->marker->propPtr->unk8_3 = 1;
     actor_collisionOff(this);
     this->scale = 1.0f;
+    // [port] Anchor temp-persist: adopt the team's already-pulled-in legs so the leg actors below
+    // spawn already retracted (the loop only spawns legs whose unk0 is still 0). In-memory only.
+    {
+      s32 legBits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
+      for (sp44 = 0; sp44 < 4; sp44++)
+      {
+        if (legBits & (1 << sp44))
+        {
+          local->unk0[sp44] = 1;
+        }
+      }
+    }
     for (sp44 = 0; sp44 < 4; sp44++)
     {
       if (local->unk0[sp44] == 0)
@@ -133,6 +147,15 @@ void chTanktup_update(Actor *this)
     {
       ;
     }
+  }
+  // [port] Anchor: if the team already completed Tanktup (JIGGY_26 spawned) but our body is still
+  // idle — e.g. we arrived after it happened, or restored all four legs at spawn without anyone
+  // hitting the last one locally — raise the head so it matches the jiggy. The state-3 cutscene
+  // below is proximity-gated, so this won't yank a far player.
+  if (this->state == 1 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
+  {
+    subaddie_set_state_with_direction(this, 3, 0.0f, -1);
+    actor_playAnimationOnce(this);
   }
   switch (this->state)
   {
@@ -194,7 +217,17 @@ void chTanktup_update(Actor *this)
       break;
 
     case 3:
-      if (actor_animationIsAt(this, 0.1f) != 0)
+    {
+      // [port] Anchor: the head-raise can be driven by a teammate's leg/synced completion, so gate
+      // the camera cutscene + completion dialog on local-player proximity — a player across the
+      // swamp who wasn't involved isn't yanked, but the head still animates up for everyone. The
+      // jiggy is gated on !spawned so two finishers don't each spawn one (the other gets it via the
+      // JIGGY_SPAWN packet).
+      f32 pp[3];
+      s32 near;
+      player_getPosition(pp);
+      near = ml_vec3f_distance(local->unk18, pp) < 700.0f;
+      if (actor_animationIsAt(this, 0.1f) != 0 && near)
     {
       timed_setStaticCameraToNode(0.0f, 0xD);
     }
@@ -202,7 +235,7 @@ void chTanktup_update(Actor *this)
     {
       func_8030E624(0x797FF885U);
     }
-      if (actor_animationIsAt(this, 0.4f) != 0)
+      if (actor_animationIsAt(this, 0.4f) != 0 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP) == 0)
     {
       f32 sp34[3];
       vec3fArray_get_vec3f(this->marker->unk44, 6, sp34);
@@ -210,7 +243,7 @@ void chTanktup_update(Actor *this)
       sp34[1] -= 125.0f;
       jiggy_spawn(JIGGY_26_BGS_TANKTUP, sp34);
     }
-      if (actor_animationIsAt(this, 0.9f) != 0)
+      if (actor_animationIsAt(this, 0.9f) != 0 && near)
     {
       func_8028F918(0);
       if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
@@ -221,6 +254,7 @@ void chTanktup_update(Actor *this)
       {
         func_8038F5E4(this->marker, ASSET_C7F_DIALOG_TANKTUP_COMPLETE, -1);
       }
+    }
     }
       break;
 

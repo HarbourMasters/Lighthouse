@@ -213,6 +213,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_BreakObject(payload);
             else if (packetType == EGG_TOLL)
                 HandlePacket_EggToll(payload);
+            else if (packetType == PUZZLE_STEP)
+                HandlePacket_PuzzleStep(payload);
             else if (packetType == JIGGY_CRANE)
                 HandlePacket_JiggyCrane(payload);
             else if (packetType == PEDESTAL_OWNER)

@@ -138,6 +138,17 @@ void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
 int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
 void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 
+// Generic multi-step puzzle sync (live + temp-persist + team-state) for puzzles whose progress is
+// actor-local with no flag (BGS Tanktup legs, croctus feed chain, nested pink eggs). Each sub-step
+// is a bit; progress is an OR-merged bitmask keyed by (current map, puzzleId). orBits records +
+// broadcasts a newly-done step; get returns the current mask so an actor can replay teammates'
+// steps it hasn't applied. Defined in port PuzzleStep.cpp.
+#define ANCHOR_PUZZLE_BGS_TANKTUP 1
+#define ANCHOR_PUZZLE_BGS_CROCTUS 2
+#define ANCHOR_PUZZLE_BGS_PINKEGG 3
+void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
+int32_t port_puzzleStep_get(int32_t puzzleId);
+
 // RBB jiggy-cage crane: a transient timed minigame (no flag, not persisted). The lower (stage 2)
 // and raise (stage 4) are broadcast to same-map teammates and replayed silently (no camera /
 // hourglass). broadcast is in JiggyCrane.cpp; remoteApply is in RBB/crane_jiggycage.c.
