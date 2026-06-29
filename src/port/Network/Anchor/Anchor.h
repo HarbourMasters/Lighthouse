@@ -233,7 +233,7 @@ public:
     void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
     void SendPacket_RequestScopedState(GameMap map);
     void SendPacket_CollectItem(u8 kind, s32 id);
-    void SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map);
+    void SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, bool replay = true);
     void SendPacket_EggToll(s16 secondaryId, s32 stage, s32 map);
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);

@@ -330,6 +330,13 @@ void CC_func_80388F4C(void){
 
     CC_func_80387D4C();
     if(D_80389FA0.unk21 != 0 && gsworld_getUnk0() == 2){
+        // [port] Anchor live re-eval: a teammate raised Clanker (JIGGY_17 spawned via the synced
+        // JIGGY_SPAWN packet). We only checked at map init, so play the physical raise now. We do
+        // NOT call CC_func_8038868C (the camera cutscene), which would yank a player who never
+        // turned the key; func_80388EA4 only starts the raise when Clanker is still lowered.
+        if(D_80389FA0.unk21 == 1 && jiggyscore_isSpawned(JIGGY_17_CC_CLANKER_RAISED)){
+            func_80388EA4();
+        }
         player_getPosition(sp6C);
         D_80389FA0.unk20 = (ml_vec3f_distance(sp6C, D_80389FA0.unkC) < 200.0f);
 

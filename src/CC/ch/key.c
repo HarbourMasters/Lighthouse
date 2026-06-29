@@ -117,6 +117,13 @@ void chClankerKey_update(Actor *this){
         }
     }
     else{//L80386C40
+        // [port] Anchor live re-eval: a teammate raised Clanker (JIGGY_17 spawned via the synced
+        // JIGGY_SPAWN packet). We only checked at init, so snap the key to its finished state
+        // instead of leaving it un-turned. State 4 is the local raise sequence (camera cutscene),
+        // which we never trigger remotely; gating on state 1 keeps a local turn-in-progress intact.
+        if(this->state == 1 && jiggyscore_isSpawned(JIGGY_17_CC_CLANKER_RAISED)){
+            CC_func_80386920(this, 5);
+        }
         local->unk14 += tick;
         player_getPosition(sp58);
         if(local->unk1 && ! local->unk2){

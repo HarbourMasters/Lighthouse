@@ -55,7 +55,7 @@ void port_breakable_restoreBroken(const std::vector<int32_t>& flat) {
     }
 }
 
-void Anchor::SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map) {
+void Anchor::SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, bool replay) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -69,6 +69,10 @@ void Anchor::SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map) 
     payload["y"] = y;
     payload["z"] = z;
     payload["map"] = map;
+    // replay=false: the object replays its own break by polling the broken set each frame (CC
+    // grates run a break/rise state machine that func_802D31AC can't reproduce), so we only want
+    // the receiver to record it, not invoke the generic remote-break handler.
+    payload["replay"] = replay;
 
     SendJsonToRemote(payload);
 }
@@ -83,12 +87,14 @@ void Anchor::HandlePacket_BreakObject(nlohmann::json& payload) {
     s32 y = payload.at("y").get<s32>();
     s32 z = payload.at("z").get<s32>();
     s32 map = payload.at("map").get<s32>();
+    bool replay = payload.contains("replay") ? payload.at("replay").get<bool>() : true;
 
     // Remember it for the session regardless of where we are (so it despawns at spawn when we
     // next load that map)...
     sBroken.insert({ map, markerId, x, y, z });
-    // ...and replay the real break live if we're currently in that map.
-    if ((s32)gsworld_getMap() == map) {
+    // ...and replay the real break live if we're currently in that map. Self-polled breakables
+    // (replay=false) skip this — they notice the recorded break on their next update themselves.
+    if (replay && (s32)gsworld_getMap() == map) {
         port_breakable_remoteBreakAt(markerId, x, y, z);
     }
 }
@@ -99,6 +105,15 @@ extern "C" void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32
     s32 map = (s32)gsworld_getMap();
     sBroken.insert({ map, markerId, x, y, z });
     Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map);
+}
+
+// Same as broadcastBreak but for objects that replay their own break by polling port_breakable_isBroken
+// each update (CC grates), so the receiver records the break without running the generic remote-break
+// handler. Persistence + team-state still ride the shared broken set.
+extern "C" void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z) {
+    s32 map = (s32)gsworld_getMap();
+    sBroken.insert({ map, markerId, x, y, z });
+    Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map, false);
 }
 
 void RegisterBreakObject_Init() {

@@ -118,6 +118,12 @@ void port_breakable_remoteBreak(int32_t progressFlag);
 void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
 void port_breakable_remoteBreakAt(int32_t markerId, int32_t x, int32_t y, int32_t z);
 
+// Variant of broadcastBreak for breakables that replay their own break by polling
+// port_breakable_isBroken each update (CC grates, whose break/rise state machine the generic
+// handler can't reproduce). Records + broadcasts the break but tells the receiver not to invoke
+// the generic remote-break handler. Defined in port BreakObject.cpp.
+void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z);
+
 // In-memory (never saved) record of which non-persistent breakables the team has broken this
 // session, so the object stays broken on (re)load — checked at spawn. Keyed by (map, marker,
 // spawn position); cleared on save load. Defined in port BreakObject.cpp.

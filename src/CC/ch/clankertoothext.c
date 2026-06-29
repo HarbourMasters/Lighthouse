@@ -90,6 +90,12 @@ void chClankerTooth_update(Actor *this){
             chClankerTooth_setNextState(this, 3);
         }
     }//L803871D8
+    // [port] Anchor live re-eval: a teammate fed this tooth its 3 eggs (its level flag synced)
+    // after we already initialized closed — snap to the open/warp state. setNextState(3) only
+    // re-sets the flag when coming from state 2 (the local open animation), so this won't loop.
+    if(this->state == 1 && levelSpecificFlags_get((local->unk0 == 1)? LEVEL_FLAG_0_CC_TOKEN_TOOTH_OPEN: LEVEL_FLAG_1_CC_JIGGY_TOOTH_OPEN)){
+        chClankerTooth_setNextState(this, 3);
+    }
     player_getPosition(sp70);
     local->unk8 += sp68;
     if(this->state == 2){

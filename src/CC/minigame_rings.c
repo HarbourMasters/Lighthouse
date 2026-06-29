@@ -82,6 +82,15 @@ void func_8038817C(void){
     Struct70s *tmp_v0;
 
     if(D_80389F90.unk0 != 0){
+        // [port] Anchor live: a teammate completed the rings (JIGGY_1C spawned via the synced
+        // JIGGY_SPAWN packet). Tear our in-progress run down so the rings vanish and the hourglass
+        // stops, instead of running a redundant minigame for an already-awarded jiggy.
+        if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS)){
+            func_80387FE8();
+            func_80387F80();
+            D_80389F90.unk0 = 0;
+            return;
+        }
         D_80389F90.unk4 += sp20;
         player_getPosition(sp24);
         if(ml_timer_update(&D_80389F90.unk8, sp20)){

@@ -3,6 +3,13 @@
 #include "functions.h"
 #include "variables.h"
 
+// [port] Anchor grate sync. The grates break/rise on collision with no flag of their own, so the
+// open is recorded + broadcast by (marker, spawn position) through the shared non-persistent
+// breakable set and replayed by each grate polling that set on its own update — letting it run its
+// real break/rise state machine (which the generic remote-break handler can't reproduce).
+extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
+extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
+
 typedef struct {
     u8 *unk0;
     f32 unk4;
@@ -65,6 +72,9 @@ void chCCGrate_die(ActorMarker *marker, ActorMarker *other_marker){
 
     if(actor->state == 1){
         chCCGrate_setNextState(actor, *local->unk0);
+        // [port] Anchor: record + broadcast the open so teammates' matching grate opens too.
+        port_breakable_recordBreak((s32)actor->marker->id, (s32)actor->position[0],
+                                   (s32)actor->position[1], (s32)actor->position[2]);
     }
 }
 
@@ -82,11 +92,22 @@ void chCCGrate_update(Actor * this){
         if(this->modelCacheIndex == 0x28E && jiggyscore_isSpawned(JIGGY_18_CC_BOLT)){
             marker_despawn(this->marker);
         }
+        // [port] Anchor temporary persistence: if a teammate already opened this grate this
+        // session, despawn it on (re)load so it stays open. In-memory only, never touches the save.
+        else if(port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+                                        (s32)this->position[0], (s32)this->position[1],
+                                        (s32)this->position[2])){
+            marker_despawn(this->marker);
+        }
         return;
     }//L803899D4
 
     if(this->state == 1){
-        if(local->unk8){
+        // [port] Anchor live re-eval: a teammate opened this grate (recorded in the shared broken
+        // set). Run our own break/rise now so it opens live, not just on reload.
+        if(local->unk8 || port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+                                                  (s32)this->position[0], (s32)this->position[1],
+                                                  (s32)this->position[2])){
             chCCGrate_setNextState(this, *local->unk0);
         }
     }//L80389A10
