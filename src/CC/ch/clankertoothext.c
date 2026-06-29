@@ -5,6 +5,8 @@
 
 #include <bk_math.h>
 
+#include "port/Patches/Patches.h"
+
 typedef struct{
     s32 unk0;
     s32 egg_count;
@@ -90,11 +92,22 @@ void chClankerTooth_update(Actor *this){
             chClankerTooth_setNextState(this, 3);
         }
     }//L803871D8
-    // [port] Anchor live re-eval: a teammate fed this tooth its 3 eggs (its level flag synced)
-    // after we already initialized closed — snap to the open/warp state. setNextState(3) only
-    // re-sets the flag when coming from state 2 (the local open animation), so this won't loop.
-    if(this->state == 1 && levelSpecificFlags_get((local->unk0 == 1)? LEVEL_FLAG_0_CC_TOKEN_TOOTH_OPEN: LEVEL_FLAG_1_CC_JIGGY_TOOTH_OPEN)){
-        chClankerTooth_setNextState(this, 3);
+    // [port] Anchor PUZZLE_STEP: the 3 eggs each tooth needs are synced as a shared count so the
+    // team can feed it together (bits 0-2 for the token tooth, 3-5 for the jiggy tooth). Catch our
+    // egg_count up to the team's count, replaying each ding/open. The completion still sets the
+    // level flag (state 3) that drives the interior tooth + saves, so persistence is unchanged.
+    if(this->state == 1){
+        s32 base = (local->unk0 - 1) * 3;
+        s32 bits = (port_puzzleStep_get(ANCHOR_PUZZLE_CC_CLANKER_TEETH) >> base) & 0x7;
+        s32 shared = (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
+        while(this->state == 1 && local->egg_count < shared){
+            local->egg_count++;
+            if(local->egg_count == 3){
+                chClankerTooth_setNextState(this, 2);
+            }else{
+                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+            }
+        }
     }
     player_getPosition(sp70);
     local->unk8 += sp68;
@@ -127,6 +140,10 @@ void chClankerTooth_update(Actor *this){
     if(this->state == 1 && D_80389F80 == local->unk0){
         D_80389F80 = 0;
         local->egg_count++;
+        // [port] Anchor: broadcast this tooth's cumulative egg progress (a prefix of bits in its
+        // 3-bit range), so teammates' teeth catch up via the poll above.
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_CC_CLANKER_TEETH,
+                               ((1 << local->egg_count) - 1) << ((local->unk0 - 1) * 3));
         if(local->egg_count == 3){
             chClankerTooth_setNextState(this, 2);
         }else{
