@@ -46,13 +46,16 @@ void func_80314BB0(Gfx **gfx, Mtx **mtx, Vtx **vtx, void * frame_buffer_1, void 
     gSPDisplayList((*gfx)++, D_8036C630);
 
     if (isCapture) {
-        // First frame: copy the current backbuffer → pause GPU FB
+        // First frame: size the pause FB to the current render res (only changes on a
+        // resolution/aspect toggle between pauses), then copy the backbuffer into it.
+        pauseFb = port_capturePauseFramebuffer();
         gDPCopyFB((*gfx)++, pauseFb, 0, 0, NULL);
     }
 
     // Draw the saved pause FB as a full-screen background, edge-to-edge in widescreen
-    s32 renderW = (s32)OTRGetGameRenderWidth();
-    s32 renderH = (s32)OTRGetGameRenderHeight();
+    s32 renderW;
+    s32 renderH;
+    port_getPauseFramebufferSize(&renderW, &renderH);
     s32 x0 = OTRGetRectDimensionFromLeftEdge(0);
     s32 x1 = OTRGetRectDimensionFromRightEdge((f32)gFramebufferWidth);
 
