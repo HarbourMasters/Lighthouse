@@ -1035,7 +1035,13 @@ void func_803882B0(Actor *this)
         this->lifetime_value = 0;
     }
 
-    if (this->pitch == 90.f || !volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP))
+    // [port] Anchor: the cubby/advent door opens off the transient VOLATILE_FLAG_BB, set when the FP
+    // witch switch is pressed. That flag doesn't reliably reach a teammate already in the lair, so
+    // also honor the persistent FILEPROG_47 (witch switch pressed), which syncs team-wide and queues
+    // for offline teammates — so the cubby opens live for a lair player when anyone presses it.
+    if (this->pitch == 90.f
+        || !(volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)
+             || fileProgressFlag_get(FILEPROG_47_FP_WITCH_SWITCH_JIGGY_PRESSED)))
         return;
 
     if (this->pitch == 0)

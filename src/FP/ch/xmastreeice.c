@@ -3,6 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
+typedef struct {
+    u8 initShatter; // [port] took the warped-in cutscene path at init; suppresses the live shatter
+} ActorLocal_XmasTreeIce;
+
 Actor *chXmasTreeIce_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chXmasTreeIce_update(Actor *this);
 
@@ -85,6 +89,7 @@ void chXmasTreeIce_initiateShatter(Actor *this){
 }
 
 void chXmasTreeIce_update(Actor *this) {
+    ActorLocal_XmasTreeIce *local = (ActorLocal_XmasTreeIce *)&this->local;
     this->marker->propPtr->unk8_3 = true;
     actor_collisionOff(this);
 
@@ -95,7 +100,15 @@ void chXmasTreeIce_update(Actor *this) {
             marker_despawn(this->marker);
         }
         else if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
+            local->initShatter = 1;
             chXmasTreeIce_initiateShatter(this);
         }
+    }
+    // [port] Anchor live: a teammate completed the star (LEVEL_FLAG_29 syncs as a level flag) while
+    // we were already inside the tree, so our ice never re-checked. Shatter it in place here, with
+    // no camera/warp cutscene (we weren't the one warped in), so the jiggy is revealed for us too.
+    else if (!local->initShatter && this->unk38_31 == 0
+             && levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
+        chXmasTreeIce_shatterIce(this->marker);
     }
 }
