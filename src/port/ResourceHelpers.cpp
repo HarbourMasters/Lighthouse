@@ -16,10 +16,13 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 #if defined(_DEBUG) && defined(_MSC_VER)
 #include <crtdbg.h>
 #endif
+
+#include "Resource/AssetTrace.h"
 
 #include "GameVersion/AssetVersionRemap.h"
 #include "GameVersion/BaseGameVersion.h"
@@ -38,6 +41,8 @@ static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
 static bool sIsJapanese = false;     // true when a JP o2r is loaded
 
 namespace {
+std::unordered_set<uint32_t> sEmptyAssetSlots;
+
 const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
     static std::once_flag mapOnce;
     static std::unordered_map<uint32_t, std::string> symbolMap;
@@ -87,7 +92,12 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             std::string path(reinterpret_cast<const char*>(data + pos), static_cast<size_t>(pathLen));
             pos += static_cast<size_t>(pathLen);
 
-            symbolMap[assetId] = std::move(path);
+            // pathLen == 0 marks an intentionally-empty ROM slot.
+            if (path.empty()) {
+                sEmptyAssetSlots.insert(assetId);
+            } else {
+                symbolMap[assetId] = std::move(path);
+            }
         }
 
         // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases so
@@ -136,11 +146,24 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                 if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
                     symbolMap[v10Id] = targetEntry->second;
                 }
+                // An empty slot on the native id stays empty under its v1.0 alias,
+                // so the decomp's hardcoded v1.0 id resolves to a silent NULL too.
+                if (sEmptyAssetSlots.count(targetId)) {
+                    sEmptyAssetSlots.insert(v10Id);
+                }
             }
         }
     });
 
     return symbolMap;
+}
+
+// True when assetId names a ROM slot that exists in the asset table but was never
+// backed with data. Such a lookup is expected to return NULL (the game tolerates
+// it, exactly as on N64) and must not be logged as a bad asset.
+bool IsKnownEmptyAssetSlot(uint32_t assetId) {
+    GetAssetSymbolMap(); // ensure the manifest (and empty-slot set) is parsed
+    return sEmptyAssetSlots.count(assetId) != 0;
 }
 } // namespace
 
@@ -255,7 +278,11 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
 
     std::string mappedPath = ResolveAssetPath(assetId);
     if (mappedPath.empty()) {
-        SPDLOG_WARN("[ResourceManager({})] not found in symbol map", assetId);
+        // A reserved-but-empty ROM slot resolves to nothing by design (the game
+        // tolerates it, as on N64); only a genuinely-missing asset is worth tracing.
+        if (!IsKnownEmptyAssetSlot(assetId)) {
+            port_traceBadAssetId(assetId);
+        }
         return nullptr;
     }
     std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
