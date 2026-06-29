@@ -57,8 +57,8 @@ constexpr int kBoldLettersFontAssetId = 0x6EC; // SPRITE_BOLD_FONT_LETTERS_ALPHA
 constexpr int kJpFontFreeDelayFrames = 5;      // grace frames before freeing slot 2
 int sFontLanguageGen = 0;
 int sJpFontFreeDelay = 0;
-bool sDialogFontOverridden = false;            // slot 0 currently holds a pack's glyph sheet
-bool sBoldFontOverridden = false;              // bold-letters font currently holds a pack's glyph sheet
+bool sDialogFontOverridden = false; // slot 0 currently holds a pack's glyph sheet
+bool sBoldFontOverridden = false;   // bold-letters font currently holds a pack's glyph sheet
 
 void FreeJpFontSlot() {
     if (print_sFonts[2] != nullptr) {
@@ -157,7 +157,6 @@ extern "C" void port_setPrintScale(float scale) {
         print_sCurrentPtr->scale = scale;
     }
 }
-
 
 // JP parade subtitles
 struct ParadeKana {

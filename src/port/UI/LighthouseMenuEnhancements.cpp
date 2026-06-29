@@ -37,9 +37,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Skip Jiggy Dance", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Skips the jiggy collection dance, collecting the jiggy immediately. "
-            "Takes priority over the Tooie Jiggy Animation backport."));
+        .Options(CheckboxOptions().Tooltip("Skips the jiggy collection dance, collecting the jiggy immediately. "
+                                           "Takes priority over the Tooie Jiggy Animation backport."));
 
     AddWidget(path, "Skip Clucker Cutscene", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipCluckerCutscene"))
@@ -340,7 +339,8 @@ void LighthouseMenu::AddMenuEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
             }
         })
-        .Options(CheckboxOptions().Tooltip("Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
+        .Options(CheckboxOptions().Tooltip(
+            "Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
 
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };

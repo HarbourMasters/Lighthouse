@@ -5,11 +5,11 @@
 extern const std::vector<const char*> timerDisplayOptions;
 
 class DisplayOverlayWindow : public Ship::GuiWindow {
-  public:
+public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override;
-    void DrawElement() override {};
+    void DrawElement() override{};
     void Draw() override;
     void UpdateElement() override{};
 };

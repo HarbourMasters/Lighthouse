@@ -52,8 +52,8 @@ static int s_pauseFbId = -1;
 
 int port_getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
-        s_pauseFbId = gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth,
-                                             gFramebufferHeight, 1, 0);
+        s_pauseFbId =
+            gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth, gFramebufferHeight, 1, 0);
     }
     return s_pauseFbId;
 }

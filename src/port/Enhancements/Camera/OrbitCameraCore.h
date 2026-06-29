@@ -19,10 +19,10 @@ extern "C" {
 
 typedef struct {
     // // Config (set by the owner)
-    int stateId;     // dynamic camera state this orbit runs as
-    int allowPitch;  // 1: stick Y drives pitch and feeds the vertical offset.
-                     // 0: pitch is locked flat and height tracks the vanilla target.
-    float minPitch;  // pitch clamp, degrees (only used when allowPitch)
+    int stateId;    // dynamic camera state this orbit runs as
+    int allowPitch; // 1: stick Y drives pitch and feeds the vertical offset.
+                    // 0: pitch is locked flat and height tracks the vanilla target.
+    float minPitch; // pitch clamp, degrees (only used when allowPitch)
     float maxPitch;
     float smoothRate; // position smoothing rate, 1/sec
 
@@ -30,10 +30,12 @@ typedef struct {
     int active;
     int justEntered;
     int smoothValid;
+    int aimValid; // aimCenterY has been seeded
     float yaw;
     float pitch;
     float distance;   // spherical radius; tracks the vanilla zoom-level target
     float height;     // absolute Y, only used when !allowPitch
+    float aimCenterY; // smoothed Y of the look-at target (de-steps stairs)
     float smoothPos[3];
 } OrbitCamera;
 

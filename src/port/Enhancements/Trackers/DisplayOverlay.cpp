@@ -47,8 +47,8 @@ void DisplayOverlayWindow::Draw() {
     if (displayOverlay == TIMER_DISPLAY_NONE) {
         return;
     }
-	
-	float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
+
+    float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
     ImVec4 windowBG = !CVarGetInteger("gDisplayOverlay.Background", 0) ? ImVec4(0, 0, 0, 0.5f) : ImVec4(0, 0, 0, 0);
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, windowBG);
@@ -64,7 +64,8 @@ void DisplayOverlayWindow::Draw() {
     uint64_t timeToDisplay = 0;
     switch (displayOverlay) {
         case TIMER_DISPLAY_RTA:
-            timeToDisplay = ((GetUnixTimestamp() - gameFile_saveData[gSelectedFileNum].shipSaveData.fileCreatedAt) / 100);
+            timeToDisplay =
+                ((GetUnixTimestamp() - gameFile_saveData[gSelectedFileNum].shipSaveData.fileCreatedAt) / 100);
             break;
         case TIMER_DISPLAY_IGT:
             timeToDisplay = DisplayOverlay_GetTotalInGameTime();
@@ -74,8 +75,8 @@ void DisplayOverlayWindow::Draw() {
     }
     std::string timerStr = port_FormatTimeDisplay(timeToDisplay);
     ImGui::Text(timerStr.c_str());
-	
-	ImGui::End();
+
+    ImGui::End();
 
     ImGui::PopStyleVar(1);
     ImGui::PopStyleColor(2);

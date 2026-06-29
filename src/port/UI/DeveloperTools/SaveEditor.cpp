@@ -209,9 +209,8 @@ void SaveEditor_DrawGeneralTab() {
         ImGui::SeparatorText("Ammo");
         for (auto& [id, name, value] : ammoDetailList) {
             int32_t curAmmo = item_getCount(id);
-            int32_t cheatoValue =
-                (id >= ITEM_F_RED_FEATHER ? (((id - 1) - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS) :
-                                            (id - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS);
+            int32_t cheatoValue = (id >= ITEM_F_RED_FEATHER ? (((id - 1) - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS)
+                                                            : (id - ITEM_D_EGGS) + FILEPROG_BE_CHEATO_BLUEEGGS);
             bool isCheato = fileProgressFlag_get((file_progress_e)cheatoValue);
 
             ImGui::PushID(id);

@@ -203,8 +203,8 @@ void LighthouseMenu::AddMenuSettings() {
             if (r.message.empty()) {
                 return; // cancelled
             }
-            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed",
-                                                       r.message, "OK", "", nullptr, nullptr);
+            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed", r.message,
+                                                       "OK", "", nullptr, nullptr);
         })
         .Options(ButtonOptions().Tooltip(
             "Export the save for the game you're playing to a Banjo: Recompiled file. Use the slot above "

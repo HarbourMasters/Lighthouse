@@ -30,9 +30,8 @@ static bool mLoaded = false;
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
     std::string romName = GetActiveRomhackBasename();
-    std::string dir = romName.empty()
-                          ? Ship::Context::GetPathRelativeToAppDirectory("saves")
-                          : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + romName);
+    std::string dir = romName.empty() ? Ship::Context::GetPathRelativeToAppDirectory("saves")
+                                      : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + romName);
     std::error_code ec;
     fs::create_directories(dir, ec);
     if (ec) {
@@ -757,7 +756,7 @@ void SaveManager_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveLoad* ev = (OnSaveLoad*)event;
         SaveData* saveData = (SaveData*)ev->saveData;
-    
+
         if (saveData->magic == 0) {
             saveData->shipSaveData.fileCreatedAt = GetUnixTimestamp();
         }
