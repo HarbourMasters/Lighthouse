@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "port/build.h"
 #include "UIWidgets.hpp"
 #include "port/Engine.h"
 #include "cvar_prefixes.h"
@@ -10,6 +11,7 @@
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
 #include <tuple>
+#include <format>
 
 std::vector<ImVec2> windowTypeSizes = { {} };
 
@@ -748,7 +750,19 @@ void Menu::DrawElement() {
         ImGui::PopStyleColor();
     }
     ImGui::EndChild();
-    ImGui::SameLine(menuSize.x - (buttonSize.x * 3) - (style.ItemSpacing.x * 2));
+    ImGui::SameLine(menuSize.x - (buttonSize.x * 4.25f) - (style.ItemSpacing.x * 2));
+    UIWidgets::ButtonOptions options4 = {};
+    std::string option4Tooltip =
+        std::format("About Lighthouse \n"
+                    "- Version: {}\n"
+                    "- Branch:  {}\n"
+                    "- Commit:  {}",
+                    std::string_view(gBuildVersion), std::string_view(gGitBranch), std::string_view(gGitCommitHash));
+    options4.color = UIWidgets::Colors::Gray;
+    options4.size = UIWidgets::Sizes::Inline;
+    options4.tooltip = option4Tooltip.c_str();
+    if (UIWidgets::Button(ICON_FA_QUESTION_CIRCLE, options4)) {}
+    ImGui::SameLine();
     UIWidgets::ButtonOptions options3 = {};
     options3.color = UIWidgets::Colors::Red;
     options3.size = UIWidgets::Sizes::Inline;
