@@ -133,6 +133,25 @@ void chHoneycomb_update(Actor *this){
         }
     }//L802CA098
 
+    // [port] Anchor: switch-revealed honeycombs (GV cactus, RBB boat house) are placed but gated by
+    // their switch's map flag. That flag syncs, but the honeycomb only checked it implicitly, so it
+    // never appeared live for a teammate. Re-check the flag every frame: hide (no collision/draw)
+    // until the switch is pressed, show once it is — so a teammate's press reveals it here too.
+    {
+        s32 gateFlag = -1;
+        if(local->uid == HONEYCOMB_B_GV_CACTUS) gateFlag = 0xd;
+        else if(local->uid == HONEYCOMB_F_RBB_BOAT_HOUSE) gateFlag = 0;
+        if(gateFlag >= 0){
+            if(!mapSpecificFlags_get(gateFlag)){
+                this->unk58_0 = false;
+                actor_collisionOff(this);
+                return;
+            }
+            this->unk58_0 = true;
+            actor_collisionOn(this);
+        }
+    }
+
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive()){
             this->unk58_0 = false;

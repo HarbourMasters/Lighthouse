@@ -7,6 +7,8 @@
 
 #include <libultra/r4300.h>
 
+#include "port/Patches/Patches.h"
+
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void func_802D3D54(Actor *this);
 extern void func_802D3D74(Actor *this);
@@ -175,6 +177,19 @@ void func_8038E430(Actor *this){
 
 void func_8038E460(Actor *this){//banjo_door
     func_802D3D74(this);
+    // [port] Anchor temp-persist: the door's open state is the transient map flag 0x10, set by
+    // curing Jinxy's plugged nose (carpet2.c). It syncs live, but resets on reload — and a teammate
+    // can't cure Jinxy themselves — so persist it (in-memory + team-state, 1-bit puzzle) and
+    // re-assert it here so the door stays open. On the restore path, also set flag 2 to suppress
+    // the one-time "Jinxy helped" dialog (the live curer already showed it; it syncs to teammates).
+    if(mapSpecificFlags_get(0x10)){
+        if(!(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1)){
+            port_puzzleStep_orBits(ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
+        }
+    } else if(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1){
+        mapSpecificFlags_set(0x10, true);
+        mapSpecificFlags_set(2, true);
+    }
     if(mapSpecificFlags_get(0x10)){
         func_8038E430(this);
         if(!mapSpecificFlags_get(2)){

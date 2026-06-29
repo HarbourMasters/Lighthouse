@@ -148,6 +148,9 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 #define ANCHOR_PUZZLE_BGS_PINKEGG 3
 // CC clanker teeth: bits 0-2 = token tooth (unk0 1) egg count, bits 3-5 = jiggy tooth (unk0 2).
 #define ANCHOR_PUZZLE_CC_CLANKER_TEETH 4
+// GV Jinxy/Banjo door: 1 bit. Cured Jinxy opens the door via a transient map flag; this persists
+// it (in-memory + team-state) so it stays open across reloads for a teammate who can't cure Jinxy.
+#define ANCHOR_PUZZLE_GV_JINXY_DOOR 5
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 

@@ -134,6 +134,27 @@ void chAncientOne_update(Actor *this){
         func_80386620(this);
     }
     else{//L803869B4
+        // [port] Anchor live: a teammate completed the Ancient Ones (JIGGY_46 spawned, which syncs
+        // via the JIGGY_SPAWN packet). Despawn live so the puzzle clears for us too.
+        if(jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
+            marker_despawn(this->marker);
+            return;
+        }
+        // [port] Anchor force-advance: progress is the count of map flags 7-11 set (rings passed),
+        // which already sync. Each client's ring order is randomized, so rather than mirror a
+        // specific ring we sink any of our rings the team has already cleared (field <= count) and
+        // activate the next, with no camera/dialog — catching our sequence up to the shared progress.
+        {
+            s32 fc = 0, fi;
+            for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
+            if(this->state == 1 && this->actorTypeSpecificField <= fc){
+                subaddie_set_state_with_direction(this, 2, 0.0f, 1);
+                actor_playAnimationOnce(this);
+                if(this->actorTypeSpecificField < 5 && D_80390C28[this->actorTypeSpecificField]){
+                    D_80390C28[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
+                }
+            }
+        }
         switch(this->state){
             case 1: //L803869E4
                 player_getPosition(sp44);
