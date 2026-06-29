@@ -494,9 +494,6 @@ void LighthouseMenu::AddMenuEnhancements() {
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
-    // AddWidget(path, "Toggle Gameplay Timer", WIDGET_WINDOW_BUTTON)
-    //     .CVar("gWindows.DisplayOverlay")
-    //     .WindowName("Display Overlay");
     AddWidget(path, "Time Display", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         int32_t currentIndex = CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, TIMER_DISPLAY_NONE);
         const char* widgetLabel = timerDisplayOptions[currentIndex];
