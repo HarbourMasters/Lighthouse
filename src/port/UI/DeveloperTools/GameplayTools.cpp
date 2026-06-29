@@ -364,7 +364,7 @@ void GameplayTools_ObjectSpawner() {
                              UIWidgets::IntSliderOptions()
                                  .Color(THEME_COLOR)
                                  .Min(HONEYCOMB_1_MM_HILL)
-                                 .Max(JIGGY_64_MMM_LOGGO)
+                                 .Max(HONEYCOMB_18_SM_QUARRIES)
                                  .DefaultValue(HONEYCOMB_1_MM_HILL)
                                  .Format(honeycombText.c_str())
                                  .LabelPosition(UIWidgets::LabelPositions::None));
