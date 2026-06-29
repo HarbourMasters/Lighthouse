@@ -178,6 +178,11 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0xFF:
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             subaddie_set_state(sp2C, 4);
+            // [port] Anchor: MMM barrels topple + despawn with no flag. Broadcast + temp-persist the
+            // break (the breakable init checks port_breakable_isBroken), and a same-map teammate
+            // replays the topple via this same handler.
+            if (!sApplyingRemoteBreak)
+                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             break;
 
         case 0x17D:
@@ -273,6 +278,12 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
                     func_802EE278(sp2C, 7, 0x19, 0x82, 0.17f, 0.8f);
                     break;
             }
+            // [port] Anchor: these MMM/CCW windows break + despawn; most carry no flag of their own
+            // (only 0x9D/0xE7 set LEVEL_FLAG_2E, 0x263 sets LEVEL_FLAG_38). Broadcast + temp-persist
+            // the break for all of them (the breakable init checks port_breakable_isBroken), and a
+            // same-map teammate replays it here — so every window vanishes live and stays broken.
+            if (!sApplyingRemoteBreak)
+                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 
