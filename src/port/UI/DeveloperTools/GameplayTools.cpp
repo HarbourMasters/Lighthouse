@@ -114,6 +114,10 @@ std::map<map_e, std::pair<const char*, int32_t>> commonWarpMap = {
     { MAP_1B_MMM_MAD_MONSTER_MANSION, { "Mad Monster Mansion Warp Pad", 20 } },
     { MAP_31_RBB_RUSTY_BUCKET_BAY, { "Rusty Bucket Bay Warp Pad", 16 } },
     { MAP_40_CCW_HUB, { "Click Clock Wood Warp Pad", 7 } },
+    { MAP_43_CCW_SPRING, { "Click Clock Wood - Spring", 1 } },
+    { MAP_44_CCW_SUMMER, { "Click Clock Wood - Summer", 1 } },
+    { MAP_45_CCW_AUTUMN, { "Click Clock Wood - Autumn", 1 } },
+    { MAP_46_CCW_WINTER, { "Click Clock Wood - Winter", 1 } },
 };
 
 // clang-format off
