@@ -50,20 +50,6 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
-    AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_COMBOBOX)
-        .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
-        .RaceDisable(false)
-        .Options(ComboboxOptions()
-                     .Tooltip("Extends the draw distance for objects.\nHigher values render more but cost performance.")
-                     .ComboMap({
-                         { 0, "Off" },
-                         { 1, "25%" },
-                         { 2, "50%" },
-                         { 3, "75%" },
-                         { 4, "100%" },
-                     })
-                     .DefaultIndex(0));
-
     AddWidget(path, "Disable LOD", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.DisableLOD"))
         .RaceDisable(false)
@@ -73,6 +59,18 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Graphics.CutsceneAspect"))
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
+
+    AddWidget(path, "Extended Draw Distance: %dx", WIDGET_CVAR_SLIDER_INT)
+        .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
+        .RaceDisable(false)
+        .Options(IntSliderOptions()
+                     .Min(1)
+                     .Max(6)
+                     .DefaultValue(1)
+                     .ShowButtons(true)
+                     .Format("")
+                     .Tooltip("Multiplies the draw distance for objects.\n"
+                              "Higher values render more but cost performance."));
 
     // Enhancements -> Camera
     path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
