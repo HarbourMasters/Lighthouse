@@ -216,6 +216,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
 
     const bool modern = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN;
     const bool crouched = (bs_getState() == BS_CROUCH);
+    const bool eggPooping = (bs_getState() == BS_A_EGG_ASS);
 
     int32_t rx = pad->right_stick_x;
     int32_t ry = pad->right_stick_y;
@@ -223,7 +224,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     int32_t ary = (ry < 0) ? -ry : ry;
 
     if (modern) {
-        if (!crouched) {
+        if (!crouched && !eggPooping) {
             pad->button &= ~BTN_CDOWN;
         }
 
@@ -418,7 +419,8 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     static bool sBWasHeld = false;
     const int32_t kBHoldFrames = 12; // ~0.2s before a standing press counts as a hold
     bool bHeld = (pad->button & BTN_CDOWN) != 0;
-    if (CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_POCKET && !crouched) {
+    if (CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_POCKET && !crouched &&
+        !eggPooping) {
         pad->button &= ~BTN_CDOWN;
         if (bHeld) {
             if (sBHeldFrames < kBHoldFrames) {
