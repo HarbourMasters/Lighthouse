@@ -160,6 +160,7 @@ void LighthouseMenu::AddMenuSettings() {
                               "Authentic: N64 logo only\n"
                               "File Select: Skip to file select menu"));
 
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Save Conversion", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Save Slot", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("SaveConvertSlot"))
@@ -203,8 +204,8 @@ void LighthouseMenu::AddMenuSettings() {
             if (r.message.empty()) {
                 return; // cancelled
             }
-            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed",
-                                                       r.message, "OK", "", nullptr, nullptr);
+            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed", r.message,
+                                                       "OK", "", nullptr, nullptr);
         })
         .Options(ButtonOptions().Tooltip(
             "Export the save for the game you're playing to a Banjo: Recompiled file. Use the slot above "
@@ -287,21 +288,6 @@ void LighthouseMenu::AddMenuSettings() {
                      .LabelPosition(LabelPositions::Far));
     //.Callback([](WidgetInfo& info) { GameEngine::Instance->ScaleImGui(); });
 
-    // General - About
-    path.column = SECTION_COLUMN_2;
-
-    AddWidget(path, "About", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Lighthouse", WIDGET_TEXT);
-    if (gGitCommitTag[0] != 0) {
-        AddWidget(path, gBuildVersion, WIDGET_TEXT);
-    } else {
-        AddWidget(path, ("Branch: " + std::string(gGitBranch)), WIDGET_TEXT);
-        AddWidget(path, ("Commit: " + std::string(gGitCommitHash)), WIDGET_TEXT);
-    }
-    // for (uint32_t i = 0; i < ResourceMgr_GetNumGameVersions(); i++) {
-    //     AddWidget(path, GetGameVersionString(i), WIDGET_TEXT);
-    // }
-
     // Audio Settings
     path.sidebarName = "Audio";
     path.column = SECTION_COLUMN_1;
@@ -350,7 +336,7 @@ void LighthouseMenu::AddMenuSettings() {
                           "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
                           "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
     path.sidebarName = "Graphics";
-    AddSidebarEntry("Settings", "Graphics", 3);
+    AddSidebarEntry("Settings", "Graphics", 2);
     AddWidget(path, "Graphics Options", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Fullscreen", WIDGET_BUTTON)
         .RaceDisable(false)
@@ -463,6 +449,8 @@ void LighthouseMenu::AddMenuSettings() {
     path.sidebarName = "Controls";
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Controls", 2);
+
+    AddWidget(path, "Controller Bindings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Clear Devices", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
             LighthouseGui::mModalWindow->RegisterPopup(
@@ -478,6 +466,15 @@ void LighthouseMenu::AddMenuSettings() {
                 nullptr);
         })
         .Options(ButtonOptions().Size(Sizes::Inline));
+    AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
+        .CVar(CVAR_WINDOW("ControllerConfiguration"))
+        .RaceDisable(false)
+        .WindowName("Configure Controller")
+        .HideInSearch(true)
+        .Options(WindowButtonOptions().Tooltip("Enables the separate Bindings Window."));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Additional Control Settings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Control Scheme", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("Controls.Scheme"))
         .RaceDisable(false)
@@ -522,13 +519,6 @@ void LighthouseMenu::AddMenuSettings() {
         .Options(CheckboxOptions().Tooltip("Pocket scheme only. The R2 button slows movement to a tip-toe walk.\n"
                                            "Off: tap R2 to toggle tip-toe on/off.\nOn: tip-toe only "
                                            "while R2 is held."));
-    AddWidget(path, "Controller Bindings", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
-        .CVar(CVAR_WINDOW("ControllerConfiguration"))
-        .RaceDisable(false)
-        .WindowName("Configure Controller")
-        .HideInSearch(true)
-        .Options(WindowButtonOptions().Tooltip("Enables the separate Bindings Window."));
 
     // Input Viewer
     path.sidebarName = "Input Viewer";

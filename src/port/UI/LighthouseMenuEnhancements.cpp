@@ -16,7 +16,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Cutscenes
     WidgetPath path = { "Enhancements", "Cutscenes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Allow Start to Skip Boot Logos", WIDGET_CVAR_CHECKBOX)
@@ -37,9 +37,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Skip Jiggy Dance", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Skips the jiggy collection dance, collecting the jiggy immediately. "
-            "Takes priority over the Tooie Jiggy Animation backport."));
+        .Options(CheckboxOptions().Tooltip("Skips the jiggy collection dance, collecting the jiggy immediately. "
+                                           "Takes priority over the Tooie Jiggy Animation backport."));
 
     AddWidget(path, "Skip Clucker Cutscene", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipCluckerCutscene"))
@@ -48,7 +47,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_COMBOBOX)
@@ -77,7 +76,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Camera
     path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Free Look (Right Stick)", WIDGET_CVAR_CHECKBOX)
@@ -119,7 +118,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Mirrored World", WIDGET_CVAR_CHECKBOX)
@@ -255,7 +254,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Restore Return to Lair", WIDGET_CVAR_CHECKBOX)
@@ -269,7 +268,7 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     // Enhancements -> Gameplay
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Difficulty", WIDGET_CVAR_COMBOBOX)
@@ -301,6 +300,17 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
+    AddWidget(path, "Disable Snacker Spawn", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.DisableSnackerSpawn"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Prevents Snacker the shark from spawning in Treasure Trove Cove and Rusty Bucket Bay."));
+
     AddWidget(path, "Extra Time For GV Water Pyramid", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.WaterPyramidTimer"))
         .RaceDisable(false)
@@ -329,11 +339,12 @@ void LighthouseMenu::AddMenuEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
             }
         })
-        .Options(CheckboxOptions().Tooltip("Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
+        .Options(CheckboxOptions().Tooltip(
+            "Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
 
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 3);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Tooie Jiggy Animation", WIDGET_CVAR_CHECKBOX)
@@ -356,6 +367,27 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Hold A+B while underwater to combine Banjo's kick with Kazooie's wing stroke for faster swimming."));
 
+    AddWidget(path, "First-Person Egg Aim", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Backports.EggAim"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Backports Banjo-Tooie's Egg Aim to fire eggs while in first-person camera view."));
+
+    // Enhancements -> Saving
+    path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Persist Bottles Bonus", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Saving.PersistBottlesBonus"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Persists Bottle Bonus progress through the save file."));
+
+    AddWidget(path, "Persist Extra Lives", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Saving.PersistExtraLives"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Persists Extra Lives through the save file."));
+
     AddWidget(path, "Note Collection Retention", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.NoteRetention"))
         .RaceDisable(false)
@@ -372,26 +404,6 @@ void LighthouseMenu::AddMenuEnhancements() {
             "you enter a level, so you no longer need all five in one go. Collection is always tracked; "
             "this toggle controls whether collected jinjos are skipped on load and your progress is "
             "restored."));
-
-    AddWidget(path, "First-Person Egg Aim", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Backports.EggAim"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Backports Banjo-Tooie's Egg Aim to fire eggs while in first-person camera view."));
-
-    // Enhancements -> Saving
-    path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
-    path.column = SECTION_COLUMN_1;
-
-    AddWidget(path, "Persist Bottles Bonus", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Saving.PersistBottlesBonus"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Persists Bottle Bonus progress through the save file."));
-    AddWidget(path, "Persist Extra Lives", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Saving.PersistExtraLives"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Persists Extra Lives through the save file."));
 
     // Enhancements -> Cheats
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
@@ -483,9 +495,6 @@ void LighthouseMenu::AddMenuEnhancements() {
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
-    // AddWidget(path, "Toggle Gameplay Timer", WIDGET_WINDOW_BUTTON)
-    //     .CVar("gWindows.DisplayOverlay")
-    //     .WindowName("Display Overlay");
     AddWidget(path, "Time Display", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         int32_t currentIndex = CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, TIMER_DISPLAY_NONE);
         const char* widgetLabel = timerDisplayOptions[currentIndex];

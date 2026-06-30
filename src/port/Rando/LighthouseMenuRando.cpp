@@ -96,7 +96,7 @@ void LighthouseMenu::AddMenuRando() {
 
     AddWidget(path, "Seed Metrics", WIDGET_SEPARATOR_TEXT);
 
-    AddWidget(path, "Metrics", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawSeedMetrics(); });
+    AddWidget(path, "Metrics", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawSeedMetrics(); }).HideInSearch(true);
 
     // Rando - Shuffle Options
     AddSidebarEntry("Rando", "Shuffle Options", 1);
@@ -251,7 +251,8 @@ void LighthouseMenu::AddMenuRando() {
     AddSidebarEntry("Rando", path.sidebarName, 1);
     AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.CheckTrackerSettings")
-        .WindowName("Check Tracker Settings");
+        .WindowName("Check Tracker Settings")
+        .HideInSearch(true);
 }
 
 } // namespace LighthouseGui

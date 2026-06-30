@@ -404,7 +404,7 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input) {
 // std::vector <std::pair<std::string, std::string>> miscellaneousTextures = {
 //     { "Music Note", "assets/sprite/ASSET_7D9_NOTE_3_0" },
 // };
-// 
+//
 // void LoadGuiTextures() {
 //     auto gui = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui());
 //     for (const auto entry : miscellaneousTextures) {

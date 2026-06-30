@@ -41,12 +41,12 @@ void SwapU64(uint8_t* p) {
 // Swap a slot's multi-byte data[] fields between N64 and host order (its own inverse).
 // Offsets are relative to data[0], two bytes into the slot (after magic + slotIndex).
 void SwapSlotEndianness(uint8_t* data) {
-    SwapU64(&data[NOTE_OFFSET]);                          // packed note scores (u64)
-    for (int i = 0; i < 11; i++) {                        // 11 world time scores (u16)
+    SwapU64(&data[NOTE_OFFSET]);   // packed note scores (u64)
+    for (int i = 0; i < 11; i++) { // 11 world time scores (u16)
         SwapU16(&data[TIME_OFFSET + i * 2]);
     }
-    SwapU32(&data[ABILITY_OFFSET]);                       // learned abilities (u32)
-    SwapU32(&data[ABILITY_OFFSET + 4]);                   // used abilities (u32)
+    SwapU32(&data[ABILITY_OFFSET]);     // learned abilities (u32)
+    SwapU32(&data[ABILITY_OFFSET + 4]); // used abilities (u32)
 }
 
 // Convert one raw EEPROM slot to a Lighthouse save and write it to game file 1-3,
@@ -121,9 +121,9 @@ bool ExportFileToSlot(uint8_t* buffer, int fileNum) {
     std::memcpy(slot, sd, SAVE_SLOT_SIZE); // magic..checksum (first 120 bytes)
     delete sd;
 
-    slot[0] = SAVE_MAGIC;                            // magic; slot[1] keeps Convert's slotIndex
+    slot[0] = SAVE_MAGIC;                                    // magic; slot[1] keeps Convert's slotIndex
     slot[SAVE_SLOT_SIZE - 6] = slot[SAVE_SLOT_SIZE - 5] = 0; // padding before the checksum
-    SwapSlotEndianness(slot + 2);                    // host -> N64 big-endian
+    SwapSlotEndianness(slot + 2);                            // host -> N64 big-endian
     StoreChecksumBE(&slot[SAVE_SLOT_SIZE - 4], slot, slot + SAVE_SLOT_SIZE - 4);
 
     std::memcpy(buffer + (size_t)fileNum * SAVE_SLOT_SIZE, slot, SAVE_SLOT_SIZE);
@@ -238,8 +238,7 @@ Result PickAndImport(int slot) {
 }
 
 Result PickAndExport(int slot) {
-    auto dest = pfd::save_file("Export save", "bk.n64.us.1.0.bin",
-                               { "Save files (*.bin)", "*.bin", "All Files", "*" })
+    auto dest = pfd::save_file("Export save", "bk.n64.us.1.0.bin", { "Save files (*.bin)", "*.bin", "All Files", "*" })
                     .result();
     if (dest.empty()) {
         return {};

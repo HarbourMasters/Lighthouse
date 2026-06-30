@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
+#include "port/Patches/Patches.h"
 #include "variables.h"
 #include "port/Engine.h"
 
@@ -191,7 +192,7 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
 
     sp40 = func_802FB0E4(arg1)*a1->unk54 + a1->unk34;
     if(a1->model != NULL && func_802FB0D4(arg1)){
-        draw_x = a1->unk30;
+        draw_x = a1->unk30 + port_hudOrthoShift(a1->unk30);
         a1->value_string[0] = '\0';
         strIToA(a1->value_string, itemPrint_getValue(item_id));
         print_bold_spaced(draw_x + a1->unk40, sp40 + a1->unk44, a1->value_string);

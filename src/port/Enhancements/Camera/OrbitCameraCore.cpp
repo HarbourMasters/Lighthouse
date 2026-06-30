@@ -15,8 +15,8 @@ void func_80256E24(float dst[3], float pitch, float yaw, float x, float y, float
 int func_8025801C(float vec[3], float* yaw);                                         // vector -> yaw (degrees)
 void func_802BC434(float rotOut[3], float fromPos[3], float targetPos[3]);           // look-at rotation
 int func_802BE60C(void);                                                             // swept camera collision + slide
-float func_802BD8D4(void);                                                           // target orbit distance (zoom level)
-float func_802BD51C(void);                                                           // target camera height
+float func_802BD8D4(void); // target orbit distance (zoom level)
+float func_802BD51C(void); // target camera height
 
 float ml_acosf(float x);
 float mlNormalizeAngle(float deg);
@@ -32,6 +32,11 @@ constexpr float kDistanceRate = 8.0f;
 // whose Y lerp is target*dt*2, so the camera stays mostly put during a jump
 // (Banjo rises in frame) instead of choppily chasing the parabola up and down.
 constexpr float kHeightRate = 2.0f;
+// 1/sec; how fast the look-at target's Y chases its raw value. The orbit center
+// Y is derived from the floor height under the player, which snaps up in discrete
+// steps on stairs; smoothing it de-steps the aim pitch the way the vanilla camera's
+// rotation tracker (func_802BD904) does, without adding lag to the stick-driven yaw.
+constexpr float kAimHeightRate = 8.0f;
 
 float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
@@ -64,6 +69,7 @@ extern "C" void OrbitCamera_Capture(OrbitCamera* c) {
 
     c->justEntered = 1;
     c->smoothValid = 0;
+    c->aimValid = 0;
 }
 
 extern "C" void OrbitCamera_Enter(OrbitCamera* c) {
@@ -133,8 +139,19 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     }
     ncDynamicCamera_setPosition(c->smoothPos);
 
-    // Aim back at the player from the smoothed position.
+    // Aim back at the player from the smoothed position. Smooth only the target's
+    // Y: the orbit center Y steps with the floor height under the player.
+    // X/Z follow the player directly so horizontal aim stays responsive.
+    if (!c->aimValid) {
+        c->aimCenterY = center[1];
+        c->aimValid = 1;
+    } else {
+        float aimTrack = clampf(kAimHeightRate * dt, 0.0f, 1.0f);
+        c->aimCenterY += (center[1] - c->aimCenterY) * aimTrack;
+    }
+    float aimCenter[3] = { center[0], c->aimCenterY, center[2] };
+
     float rot[3];
-    func_802BC434(rot, center, c->smoothPos);
+    func_802BC434(rot, aimCenter, c->smoothPos);
     ncDynamicCamera_setRotation(rot);
 }

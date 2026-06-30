@@ -192,7 +192,7 @@ source_group("include" FILES ${Header_Files})
 include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/include"
-    "${PROJECT_SOURCE_DIR}/lib/libultra/include"
+    "${PROJECT_SOURCE_DIR}/lib/ultralib/include"
     "${PROJECT_SOURCE_DIR}/src"
 )
 
@@ -212,8 +212,8 @@ file(GLOB_RECURSE ALL_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/libultra/**/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/libultra/**/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/ultralib/**/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/ultralib/**/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/**/*"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*"
 )
