@@ -128,7 +128,7 @@ extern "C" void port_modernCamera_update(void) {
         float x;
         float y;
         ReadStickNorm(x, y);
-        yawDelta = -YawInput(x) * kYawSpeed * dt;
+        yawDelta = YawInput(x) * kYawSpeed * dt * port_cameraInvertXSign();
     }
 
     OrbitCamera_Update(&sModern, yawDelta, 0.0f);
@@ -196,4 +196,12 @@ extern "C" void port_modernCamera_handleZoom(void) {
     if (adown < kZoomOff) {
         sArmed = true;
     }
+}
+
+extern "C" float port_cameraInvertXSign(void) {
+    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertX"), 0) ? -1.0f : 1.0f;
+}
+
+extern "C" float port_cameraInvertYSign(void) {
+    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertY"), 0) ? -1.0f : 1.0f;
 }

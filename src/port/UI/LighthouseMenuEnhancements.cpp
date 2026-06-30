@@ -75,7 +75,27 @@ void LighthouseMenu::AddMenuEnhancements() {
     // Enhancements -> Camera
     path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
+
     path.column = SECTION_COLUMN_1;
+
+    // General Camera Settings
+    AddWidget(path, "Camera Settings", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Invert Camera X", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.InvertX"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Inverts horizontal camera."));
+
+    AddWidget(path, "Invert Camera Y", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.InvertY"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Inverts vertical camera in first-person."));
+
+    path.column = SECTION_COLUMN_2;
+
+    // Free Look Camera
+    AddWidget(path, "Free Look Camera", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Free Look (Right Stick)", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.Enabled"))
