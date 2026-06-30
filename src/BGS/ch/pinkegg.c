@@ -10,9 +10,6 @@ typedef struct chpinkegg_s{
     u32 unk4;
 } ActorLocal_PinkEgg;
 
-// [port] Anchor: set while replaying a teammate's egg break so it isn't re-broadcast.
-static s32 sPinkEggRemote = 0;
-
 Actor *chPinkEgg_draw(ActorMarker *this, Gfx ** gdl, Mtx** mptr, Vtx **vtx);
 void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker);
 void chPinkEgg_update(Actor *this);
@@ -97,10 +94,9 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     thisActor->unk124_6 = 0;
     tmp = (ActorLocal_PinkEgg *) &thisActor->local;
     // [port] Anchor: record + broadcast this layer's break so each teammate's chain advances too.
-    // Guarded so the polled replay (chPinkEgg_update) doesn't re-broadcast.
-    if(!sPinkEggRemote){
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->unk0);
-    }
+    // orBits is idempotent by bitmask, so the polled replay (chPinkEgg_update) re-running this for
+    // an already-set bit doesn't re-broadcast — no guard flag needed.
+    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->unk0);
     if(D_803906C4[tmp->unk0] != 0){
         __spawnQueue_add_2((void (*)(void))chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->unk0);
     } else if(!jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)){
@@ -130,9 +126,7 @@ void chPinkEgg_update(Actor *this){
     // triggers the same next frame, catching the chain up to the team's progress.
     if((port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg *)&this->local)->unk0))
         && this->state != 3){
-        sPinkEggRemote = 1;
         chPinkEgg_collision(this->marker, NULL);
-        sPinkEggRemote = 0;
         return;
     }
 

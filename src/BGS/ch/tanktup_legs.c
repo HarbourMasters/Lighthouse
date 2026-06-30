@@ -5,9 +5,6 @@
 
 #include "port/Patches/Patches.h"
 
-// [port] Anchor: set while replaying a teammate's leg pull-in so it isn't re-broadcast.
-static s32 sTanktupLegRemote = 0;
-
 void timed_exitStaticCamera(f32);
 void func_8028E668(f32[3], f32, f32, f32);
 
@@ -82,10 +79,9 @@ void BGS_func_8038FB84(ActorMarker *this, ActorMarker *other_marker){
     func_8038F51C(thisActor);
     this->collidable = false;
     // [port] Anchor: record + broadcast this leg's hit so each teammate's leg retracts and their
-    // Tanktup reacts. Guarded so the polled replay doesn't re-broadcast.
-    if(!sTanktupLegRemote){
-        port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12);
-    }
+    // Tanktup reacts. orBits is idempotent by bitmask, so the polled replay below (which re-runs
+    // this for an already-set bit) won't re-broadcast — no guard flag needed.
+    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12);
 }
 
 void chTanktupLeg_update(Actor *this){
@@ -96,12 +92,10 @@ void chTanktupLeg_update(Actor *this){
     }
     // [port] Anchor live: a teammate beak-busted this leg (its bit synced). Replay the pull-in so
     // it retracts here and the body reacts (func_8038F51C). collidable goes false on hit, so this
-    // fires once. Guarded so the replay doesn't re-broadcast.
+    // fires once; the re-broadcast inside is a no-op (orBits is idempotent on an already-set bit).
     if(this->state == 1 && this->marker->collidable
         && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << this->unk10_12))){
-        sTanktupLegRemote = 1;
         BGS_func_8038FB84(this->marker, NULL);
-        sTanktupLegRemote = 0;
     }
     if(this->state == 2){
         if(anctrl_isAt(this->anctrl, 0.65f)){

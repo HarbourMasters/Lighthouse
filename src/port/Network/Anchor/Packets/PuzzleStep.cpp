@@ -41,8 +41,17 @@ extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
 
 extern "C" void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits) {
     int32_t map = (int32_t)gsworld_getMap();
-    sBits[{ map, puzzleId }] |= bits;
-    Anchor::GetInstance()->SendPacket_PuzzleStep(puzzleId, sBits[{ map, puzzleId }], map);
+    std::array<int32_t, 2> key = { map, puzzleId };
+    int32_t before = sBits.count(key) ? sBits[key] : 0;
+    int32_t after = before | bits;
+    // Idempotent by identity: the bitmask is the registration. If these bits are already set (we're
+    // replaying a teammate's step we already recorded, by re-running the same local break/feed path),
+    // nothing changed, so don't re-broadcast. No "am I replaying" guard flag is needed for dedup.
+    if (after == before) {
+        return;
+    }
+    sBits[key] = after;
+    Anchor::GetInstance()->SendPacket_PuzzleStep(puzzleId, after, map);
 }
 
 void Anchor::SendPacket_PuzzleStep(s32 puzzleId, s32 bits, s32 map) {

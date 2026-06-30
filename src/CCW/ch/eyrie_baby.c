@@ -285,8 +285,13 @@ void CCW_func_80389BFC(Actor *this) {
                 }
             }
         }
-        if (fileProgressFlag_get(local->unk0->unk4)) {
-            func_803897B8(this, local->unk0->unkC);
+        if (this->state == 1 && fileProgressFlag_get(local->unk0->unk4)) {
+            // [port] Anchor: spring hatches through this path locally, so keep its cutscene. In the
+            // worm-feeding seasons the local feeder reaches state 2 via the throw above and leaves
+            // state 1 — so still being in state 1 here means a teammate's fed flag synced. Drop
+            // straight to the grown/sleeping state instead of the eat cutscene + blocking dialog we
+            // weren't part of (which would otherwise stall the sleeping state from showing).
+            func_803897B8(this, (local->unk0->map_id == MAP_43_CCW_SPRING) ? local->unk0->unkC : 4);
         }
     }
     if ((this->state == 2) && (skeletalAnim_getLoopCount(this->unk148) > 0)) {

@@ -454,10 +454,23 @@ void updateJigsawPictureActor(Actor *this) {
         this->volatile_initialized = true;
         if (this->actorTypeSpecificField == 9) {
             this->unk1C[0] = 8.0f;
-            if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
-                marker_despawn(this->marker);
-                return;
-            }
+            // [port] Anchor: don't despawn when the switch (FILEPROG_53) isn't pressed yet. The
+            // picture pieces are invisible until placed and the pad isn't spawned until 53, so the
+            // podium stays effectively absent — but present, so it can appear live when a teammate's
+            // switch press syncs, instead of only on reload. unk1C[1] latches the pad-appear below.
+            this->unk1C[1] = 0.0f;
+        }
+    }
+
+    // [port] Anchor: the field-9 (CCW) podium is gated by the switch's FILEPROG_53. Stay dormant (no
+    // pad, no puzzle interaction) until it's set, then run the pad-appear once — covering both
+    // arriving already-pressed and a teammate pressing the switch live while we're in the lair.
+    if (this->actorTypeSpecificField == 9) {
+        if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
+            return;
+        }
+        if (this->unk1C[1] == 0.0f) {
+            this->unk1C[1] = 1.0f;
             if (!fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
                 __bundle_spawnFromFirstActor(BUNDLE_20__UNKNOWN, this);
                 func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);

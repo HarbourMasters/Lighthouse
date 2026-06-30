@@ -103,6 +103,13 @@ void Anchor::HandlePacket_BreakObject(nlohmann::json& payload) {
 // break too (so it persists for us on revisit) and broadcasts it to the team.
 extern "C" void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z) {
     s32 map = (s32)gsworld_getMap();
+    // Idempotent by identity: the broken set is the registration that dedupes. If this object is
+    // already recorded (we're replaying a teammate's break we recorded on receipt, or a deferred
+    // break fires after the first), don't re-broadcast. Callers therefore never need an
+    // "am I replaying" guard flag — the set, not a global bool, prevents the echo.
+    if (sBroken.count({ map, markerId, x, y, z }) != 0) {
+        return;
+    }
     sBroken.insert({ map, markerId, x, y, z });
     Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map);
 }
@@ -112,6 +119,9 @@ extern "C" void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32
 // handler. Persistence + team-state still ride the shared broken set.
 extern "C" void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t z) {
     s32 map = (s32)gsworld_getMap();
+    if (sBroken.count({ map, markerId, x, y, z }) != 0) {
+        return;
+    }
     sBroken.insert({ map, markerId, x, y, z });
     Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map, false);
 }

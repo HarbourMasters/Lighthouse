@@ -160,11 +160,11 @@ void func_802D317C(ActorMarker *marker, enum file_progress_e prog_flag_id) {
 }
 
 // [port] Anchor: broadcast a non-persistent breakable's break (glass windows etc. that despawn
-// with no synced flag) so it replays on same-map teammates. sApplyingRemoteBreak guards the
-// shared break handler so a replayed break doesn't echo back out. Defined in port BreakObject.cpp.
+// with no synced flag) so it replays on same-map teammates. broadcastBreak is idempotent against
+// the broken set, so a replayed break (which we recorded on receipt before replaying) doesn't echo
+// back out — no guard flag is needed in this shared handler. Defined in port BreakObject.cpp.
 extern void port_breakable_broadcastBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
-static s32 sApplyingRemoteBreak = 0;
 
 // collision die function for several objects in Lair
 void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
@@ -181,8 +181,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             // [port] Anchor: MMM barrels topple + despawn with no flag. Broadcast + temp-persist the
             // break (the breakable init checks port_breakable_isBroken), and a same-map teammate
             // replays the topple via this same handler.
-            if (!sApplyingRemoteBreak)
-                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
+            port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             break;
 
         case 0x17D:
@@ -282,8 +281,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             // (only 0x9D/0xE7 set LEVEL_FLAG_2E, 0x263 sets LEVEL_FLAG_38). Broadcast + temp-persist
             // the break for all of them (the breakable init checks port_breakable_isBroken), and a
             // same-map teammate replays it here — so every window vanishes live and stays broken.
-            if (!sApplyingRemoteBreak)
-                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
+            port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 
@@ -321,8 +319,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             gcsfx_playAtSampleRate(SFX_B6_GLASS_BREAKING_1);
             func_802EE278(sp2C, 4, 0x23, 0x1E, 0.7f, 0.6f);
-            if (!sApplyingRemoteBreak)
-                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
+            port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 
@@ -339,8 +336,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
             if (arg0->id == 0x1F3) {
                 func_802EE278(sp2C, 4, 0x2D, 0x104, 1.0f, 1.0f);
             }
-            if (!sApplyingRemoteBreak)
-                port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
+            port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 
@@ -460,7 +456,8 @@ void port_breakable_remoteBreak(s32 progressFlag) {
 
 // Replay a teammate's break of a non-persistent breakable (glass window etc.). These set no flag,
 // so they're matched by (marker id, spawn position) — the objects are static, so position is the
-// same on every client. The guard stops the replayed break from re-broadcasting.
+// same on every client. The packet recorded the break in the broken set before calling us, so the
+// broadcastBreak inside the handler is idempotent and won't echo — no guard flag needed.
 void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     s32 i;
 
@@ -475,9 +472,7 @@ void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
         if ((s32)actor->position[0] != x || (s32)actor->position[1] != y || (s32)actor->position[2] != z) {
             continue;
         }
-        sApplyingRemoteBreak = 1;
         func_802D31AC(actor->marker, NULL);
-        sApplyingRemoteBreak = 0;
         return;
     }
 }
