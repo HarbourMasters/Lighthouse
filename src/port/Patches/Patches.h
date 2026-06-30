@@ -154,6 +154,14 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 
+// MM/BGS huts: break + dropped-bundle sync with temporary persistence. record stores + broadcasts
+// the (spawn position -> bundle index) a hut dropped (idempotent, first smasher wins); get returns
+// the recorded index for a hut at this position, or -1. The hut actor breaks + drops live for a
+// teammate, and restores broken (re-dropping only non-tracked loot) on reload. Defined in
+// port HutSmash.cpp.
+void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
+int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
+
 // RBB jiggy-cage crane: a transient timed minigame (no flag, not persisted). The lower (stage 2)
 // and raise (stage 4) are broadcast to same-map teammates and replayed silently (no camera /
 // hourglass). broadcast is in JiggyCrane.cpp; remoteApply is in RBB/crane_jiggycage.c.

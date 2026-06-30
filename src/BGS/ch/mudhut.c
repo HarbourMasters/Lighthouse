@@ -6,6 +6,8 @@
 
 #include <bk_math.h>
 
+#include "port/Patches/Patches.h"
+
 /* TODO move declarations to respective headers*/
 extern void player_stateTimer_set(enum state_timer_e, f32);
 extern f32 player_stateTimer_get(enum state_timer_e);
@@ -79,8 +81,39 @@ void chMudHut_spawnExplosion(ActorMarker *this){
     if(this);
 }
 
+// [port] Anchor: the hut's drop is keyed by position; tmp 2 is the note (tracked), tmp 5 the jiggy
+// (rides JIGGY_SPAWN — never dropped here), the rest are shockspring pads (non-tracked). fullBundle=1
+// (a teammate's live smash) drops everything but the jiggy; fullBundle=0 (restored broken on reload)
+// drops only the non-tracked pads — the note is left to its own collection/spawn sync.
+static void chMudHut_dropRecordedBundle(Actor *this, s32 tmp, s32 fullBundle){
+    f32 pos[3];
+    if(tmp < 0 || tmp >= 5){
+        return; // jiggy (or out of range): handled by JIGGY_SPAWN, not the hut
+    }
+    if(!fullBundle && tmp == 2){
+        return; // note: spawn live but skip on reload
+    }
+    pos[0] = this->position_x;
+    pos[1] = this->position_y + 130.0f;
+    pos[2] = this->position_z;
+    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_80390B50[tmp], reinterpret_cast(s32, pos[0]), reinterpret_cast(s32, pos[1]), reinterpret_cast(s32, pos[2]));
+}
+
+// [port] Anchor: replay a teammate's smash live — break visual + the full drop.
+static void chMudHut_replaySmash(Actor *this, s32 tmp){
+    sfx_playFadeShorthandDefault(SFX_5B_HEAVY_STUFF_FALLING, 1.0f, 28000, this->position, 0x12C, 0xBB8);
+    subaddie_set_state(this, 2);
+    this->marker->propPtr->unk8_3 = 0;
+    actor_playAnimationOnce(this);
+    if(tmp == 5){
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+    }
+    __spawnQueue_add_1((GenFunction_1)chMudHut_spawnExplosion, (uintptr_t)this->marker);
+    chMudHut_dropRecordedBundle(this, tmp, 1);
+}
+
 void chMudHut_update(Actor *this){
-    
+
     f32 diffPos[3];
     f32 plyrPos[3];
     s32 tmp;
@@ -89,6 +122,15 @@ void chMudHut_update(Actor *this){
         if(!this->initialized){
             this->marker->collidable = false;
             this->initialized = true;
+            // [port] Anchor temp-persist: this hut was already smashed this session (a teammate's, or
+            // ours on an earlier visit). Restore it broken and re-drop only its non-tracked loot.
+            tmp = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+            if(tmp >= 0){
+                this->state = 3;
+                this->marker->propPtr->unk8_3 = 0;
+                chMudHut_dropRecordedBundle(this, tmp, 0);
+                return;
+            }
         }
 
         switch(this->state){
@@ -98,8 +140,8 @@ void chMudHut_update(Actor *this){
                 diffPos[0] = plyrPos[0] - this->position_x;
                 diffPos[1] = plyrPos[1] - this->position_y;
                 diffPos[2] = plyrPos[2] - this->position_z;
-                if( (150.0f < diffPos[1]) 
-                    && (player_getActiveHitbox(this->marker) == HITBOX_1_BEAK_BUSTER) 
+                if( (150.0f < diffPos[1])
+                    && (player_getActiveHitbox(this->marker) == HITBOX_1_BEAK_BUSTER)
                     && (func_8028F20C())
                     && (LENGTH_VEC3F(diffPos) < 350.f)
                 ){
@@ -123,6 +165,15 @@ void chMudHut_update(Actor *this){
                     }
                     else {
                         jiggy_spawn(JIGGY_23_BGS_HUTS, diffPos);
+                    }
+                    // [port] Anchor: record + broadcast the smash so teammates break this same hut.
+                    port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, tmp);
+                }
+                else {
+                    // [port] Anchor live: a teammate smashed this hut — break it + drop the full bundle.
+                    tmp = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+                    if(tmp >= 0){
+                        chMudHut_replaySmash(this, tmp);
                     }
                 }
                 break;

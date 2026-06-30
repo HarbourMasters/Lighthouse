@@ -81,6 +81,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         // teammate into the rise cutscene + map warp; the raised state is reapplied live from
         // JIGGY_42 in water_pyramidrot.c instead.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_6_GV_UNKNOWN,
+        // MM Chimpy: returning the orange sets this, which drives Chimpy's camera cutscene (it
+        // spawns JIGGY_9). Shared, it replays the cutscene for a teammate on map entry. JIGGY_9
+        // syncs on its own via JIGGY_SPAWN, so the teammate's Chimpy walks off silently off the
+        // jiggy instead (lmonkey.c) — no flag share needed.
+        (ANCHOR_FLAGSPACE_MAP_SPECIFIC << 16) | MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED,
     };
     return excluded.contains((space << 16) | index);
 }

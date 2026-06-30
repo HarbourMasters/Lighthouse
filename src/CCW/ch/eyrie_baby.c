@@ -286,11 +286,13 @@ void CCW_func_80389BFC(Actor *this) {
             }
         }
         if (this->state == 1 && fileProgressFlag_get(local->unk0->unk4)) {
-            // [port] Anchor: spring hatches through this path locally, so keep its cutscene. In the
-            // worm-feeding seasons the local feeder reaches state 2 via the throw above and leaves
-            // state 1 — so still being in state 1 here means a teammate's fed flag synced. Drop
-            // straight to the grown/sleeping state instead of the eat cutscene + blocking dialog we
-            // weren't part of (which would otherwise stall the sleeping state from showing).
+            // [port] Anchor: in summer/fall, feeding the required worms makes the eyrie fall asleep
+            // until the next season — that's state 4 (the looping sleep anim + drifting feathers,
+            // which init also drops a fed eyrie straight into). The local feeder reaches it via the
+            // throw (state 2 -> 3 yawn -> 4) and leaves state 1, so still being in state 1 here means
+            // a teammate's fed flag synced: go straight to the sleeping state, skipping the eat
+            // cutscene + blocking "complete" dialog we weren't part of. Spring instead hatches
+            // through this path locally, so keep its cutscene (unkC).
             func_803897B8(this, (local->unk0->map_id == MAP_43_CCW_SPRING) ? local->unk0->unkC : 4);
         }
     }

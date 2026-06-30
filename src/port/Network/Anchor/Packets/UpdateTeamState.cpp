@@ -23,6 +23,10 @@ extern std::vector<int32_t> port_eggToll_snapshot();
 extern void port_eggToll_restore(const std::vector<int32_t>& flat);
 extern std::vector<int32_t> port_puzzleStep_snapshot();
 extern void port_puzzleStep_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_jiggySpawn_snapshot();
+extern void port_jiggySpawn_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_hutSmash_snapshot();
+extern void port_hutSmash_restore(const std::vector<int32_t>& flat);
 
 /**
  * UPDATE_TEAM_STATE
@@ -71,6 +75,8 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["carriedCollected"] = port_carriedSync_snapshotCollected();
     payload["state"]["eggTolls"] = port_eggToll_snapshot();
     payload["state"]["puzzleSteps"] = port_puzzleStep_snapshot();
+    payload["state"]["spawnedJiggies"] = port_jiggySpawn_snapshot();
+    payload["state"]["huts"] = port_hutSmash_snapshot();
 
     SendJsonToRemote(payload);
 }
@@ -152,6 +158,12 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         }
         if (state.contains("puzzleSteps")) {
             port_puzzleStep_restore(state["puzzleSteps"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("spawnedJiggies")) {
+            port_jiggySpawn_restore(state["spawnedJiggies"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("huts")) {
+            port_hutSmash_restore(state["huts"].get<std::vector<int32_t>>());
         }
 
         // The overwrites above bypass the setters, so recompute the cached HUD counts the

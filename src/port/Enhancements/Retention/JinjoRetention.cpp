@@ -34,6 +34,10 @@ extern "C" {
 #include "functions.h"
 }
 
+// True if a teammate (or we) dynamically spawned this jiggy this session and it isn't collected — so
+// it will (re)appear from the team's spawned-jiggy record on map entry. Defined in SpawnJiggy.cpp.
+extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
+
 // Anchor forces retention on while connected, separate from the user's CVar so their setting is
 // preserved. CVAR_VALUE / applyEnabled() — and thus every COND_HOOK gate — respect it.
 static bool sForcedByAnchor = false;
@@ -188,10 +192,11 @@ static bool retentionActiveForLevel(int32_t level) {
     }
     // Stranded-jiggy: all jinjos recorded but the jiggy is neither collected nor currently spawned,
     // so it can only be re-earned by re-collecting the jinjos — keep retention off so they respawn.
-    // If the jiggy IS already spawned (e.g. a teammate spawned it), keep retention on: the jinjos
-    // stay suppressed and the player just collects the available jiggy.
+    // If the jiggy IS already spawned, or a teammate spawned it this session (it'll re-appear from the
+    // team's spawned-jiggy record on entry, even if it hasn't this frame yet), keep retention on: the
+    // jinjos stay suppressed and the player just collects the available jiggy.
     if (collectedBits(level) == kAllJinjos && !jiggyscore_isCollected(jinjoJiggy(level)) &&
-        !jiggyscore_isSpawned(jinjoJiggy(level))) {
+        !jiggyscore_isSpawned(jinjoJiggy(level)) && !port_jiggySpawn_isRecorded(jinjoJiggy(level))) {
         return false;
     }
     return true;
@@ -217,11 +222,14 @@ void RegisterJinjoRetention_Init() {
             if (collectedBits(level) != kAllJinjos) {
                 setCollectedBits(level, kAllJinjos);
             }
-        } else if (collectedBits(level) == kAllJinjos && !jiggyscore_isSpawned(jinjoJiggy(level))) {
+        } else if (collectedBits(level) == kAllJinjos && !jiggyscore_isSpawned(jinjoJiggy(level)) &&
+                   !port_jiggySpawn_isRecorded(jinjoJiggy(level))) {
             // Orphaned: all jinjos recorded but the jiggy is neither collected nor spawned, so it must
             // be re-earned. The frozen 0x1F record meant re-collected jinjos never persisted; clear it
             // so they respawn fresh and re-collecting accumulates + persists (re-spawning the jiggy on
-            // the fifth). The spawned check leaves a jiggy a teammate already spawned alone.
+            // the fifth). The spawned/recorded checks leave a jiggy a teammate spawned this session
+            // alone — it re-appears from the team's spawned-jiggy record on entry rather than being
+            // wrongly treated as stranded (which would clear the jinjos before it respawns).
             setCollectedBits(level, 0);
         }
         if (!retentionActiveForLevel(level)) {

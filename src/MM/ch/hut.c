@@ -8,6 +8,8 @@
 
 #include <bk_math.h>
 
+#include "port/Patches/Patches.h"
+
 /* extern function declarations */
 
 void bundle_setYaw(f32);
@@ -52,18 +54,49 @@ void __chhut_spawnExplosion(ActorMarker *this) {
     if (this);
 }
 
-void chhut_update(Actor *this) {
-    static enum bundle_e D_803898D8[6] = {
-        BUNDLE_0_MM_HUT_MUSIC_NOTE,
-        BUNDLE_1_MM_HUT_BLUE_EGG,
-        BUNDLE_2_MM_HUT_GRUBLIN,
-        BUNDLE_3_MM_HUT_JINJO_GREEN,
-        BUNDLE_6_MM_HUT_EXTRA_LIFE,
-        BUNDLE_4_MM_HUT_JIGGY
-    };
+// [port] Anchor: the bundle a hut drops, indexed by the global smash-order counter recorded at the
+// smash (the count isn't shared, so the index travels in the HUT_SMASH record). Indices 0 (note) and
+// 3 (green jinjo) are tracked collectibles (their own retention/sync), and 5 is the jiggy (rides
+// JIGGY_SPAWN — never dropped here); 1/2/4 (blue egg / grublin / extra life) are non-tracked.
+static enum bundle_e mm_hut_bundles[6] = {
+    BUNDLE_0_MM_HUT_MUSIC_NOTE,
+    BUNDLE_1_MM_HUT_BLUE_EGG,
+    BUNDLE_2_MM_HUT_GRUBLIN,
+    BUNDLE_3_MM_HUT_JINJO_GREEN,
+    BUNDLE_6_MM_HUT_EXTRA_LIFE,
+    BUNDLE_4_MM_HUT_JIGGY
+};
 
+// Drop a recorded hut's bundle. fullBundle=1 (a teammate's live smash) drops everything but the
+// jiggy; fullBundle=0 (restored broken on reload) drops only the non-tracked loot.
+static void chhut_dropRecordedBundle(Actor *this, s32 loot, s32 fullBundle) {
+    f32 pos[3];
+    if (loot < 0 || loot >= 5) {
+        return; // jiggy / out of range: JIGGY_SPAWN handles it
+    }
+    if (!fullBundle && (loot == 0 || loot == 3)) {
+        return; // note / jinjo: spawn live but skip on reload (their own systems re-appear them)
+    }
+    pos[0] = this->position_x;
+    pos[1] = this->position_y + 125.0f;
+    pos[2] = this->position_z;
+    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[loot], *(s32 *)(&pos[0]), *(s32 *)(&pos[1]), *(s32 *)(&pos[2]));
+}
+
+// Replay a teammate's smash live: break visual + full drop.
+static void chhut_replaySmash(Actor *this, s32 loot) {
+    sfxsource_playHighPriority(SFX_5B_HEAVY_STUFF_FALLING);
+    subaddie_set_state(this, HUT_STATE_1_DAMAGED);
+    actor_playAnimationOnce(this);
+    __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
+    bundle_setYaw(this->yaw);
+    chhut_dropRecordedBundle(this, loot, 1);
+}
+
+void chhut_update(Actor *this) {
     f32 diff_pos[3];
     f32 plyr_pos[3];
+    s32 loot;
 
     if (gsworld_getUnk0() != 2) {
         return;
@@ -72,6 +105,15 @@ void chhut_update(Actor *this) {
     if (!this->initialized) {
         this->marker->collidable = false;
         this->initialized = true;
+        // [port] Anchor temp-persist: this hut was already smashed this session (a teammate's, or
+        // ours on an earlier visit). Restore it broken and re-drop only its non-tracked loot.
+        loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+        if (loot >= 0) {
+            chhut_dropRecordedBundle(this, loot, 0);
+            subaddie_set_state(this, HUT_STATE_2_DESTROYED);
+            this->position_y -= 160.0f;
+            return;
+        }
     }
 
     switch (this->state) {
@@ -98,13 +140,24 @@ void chhut_update(Actor *this) {
                 bundle_setYaw(this->yaw);
 
                 if (mm_hut_smash_count < 5) {
-                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_803898D8[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
+                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
                 else {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);
                 }
 
+                // [port] Anchor: record + broadcast the smash (with the bundle index, since the count
+                // isn't shared) so teammates break this same hut and get the same drop.
+                port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, mm_hut_smash_count);
+
                 mm_hut_smash_count = (mm_hut_smash_count + 1) % 6;
+            }
+            else {
+                // [port] Anchor live: a teammate smashed this hut — break it + drop the full bundle.
+                loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+                if (loot >= 0) {
+                    chhut_replaySmash(this, loot);
+                }
             }
             break;
 

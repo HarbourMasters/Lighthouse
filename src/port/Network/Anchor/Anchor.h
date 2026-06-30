@@ -70,17 +70,9 @@ private:
     std::mutex outgoingPacketQueueMutex;
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
-    // Jiggy spawns received for a map we aren't currently in. Applied when we enter that map,
-    // so a teammate who spawned a jiggy (e.g. a minigame reward) while we were elsewhere — or
-    // before we joined (delivered via the queued replay) — still gets it, without needing
-    // anyone to be standing in that map.
-    struct PendingJiggySpawn {
-        int16_t jiggyId;
-        float x;
-        float y;
-        float z;
-    };
-    std::unordered_map<int32_t, std::vector<PendingJiggySpawn>> pendingJiggySpawns;
+    // Re-applies the team's dynamically-spawned-jiggy record (SpawnJiggy.cpp) for the map we're in,
+    // so a jiggy a teammate spawned (minigame reward, jinjo fifth, etc.) appears for us — live, on
+    // re-entry, and for late joiners. The record itself lives as file state in SpawnJiggy.cpp.
     void FlushPendingJiggySpawns();
 
     nlohmann::json PrepClientState();
@@ -125,6 +117,7 @@ private:
     void HandlePacket_BreakObject(nlohmann::json& payload);
     void HandlePacket_EggToll(nlohmann::json& payload);
     void HandlePacket_PuzzleStep(nlohmann::json& payload);
+    void HandlePacket_HutSmash(nlohmann::json& payload);
     void HandlePacket_JiggyCrane(nlohmann::json& payload);
     void HandlePacket_PedestalOwner(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
@@ -173,6 +166,7 @@ public:
     inline static const std::string BREAK_OBJECT = "BREAK_OBJECT";
     inline static const std::string EGG_TOLL = "EGG_TOLL";
     inline static const std::string PUZZLE_STEP = "PUZZLE_STEP";
+    inline static const std::string HUT_SMASH = "HUT_SMASH";
     inline static const std::string JIGGY_CRANE = "JIGGY_CRANE";
     inline static const std::string PEDESTAL_OWNER = "PEDESTAL_OWNER";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
@@ -238,6 +232,7 @@ public:
     void SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, bool replay = true);
     void SendPacket_EggToll(s16 secondaryId, s32 stage, s32 map);
     void SendPacket_PuzzleStep(s32 puzzleId, s32 bits, s32 map);
+    void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
