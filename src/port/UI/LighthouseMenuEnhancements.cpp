@@ -120,7 +120,7 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Camera.Follow"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
-            "The camera will always follow Banjo and Kazooie, as if the player is holding R."));
+            "The camera will always follow Banjo and Kazooie when available, without requiring the player to hold R"));
 
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
