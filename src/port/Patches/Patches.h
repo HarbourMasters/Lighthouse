@@ -156,6 +156,8 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // GV Jinxy/Banjo door: 1 bit. Cured Jinxy opens the door via a transient map flag; this persists
 // it (in-memory + team-state) so it stays open across reloads for a teammate who can't cure Jinxy.
 #define ANCHOR_PUZZLE_GV_JINXY_DOOR 5
+// MM Juju totem: bits 0-3 = a prefix of how many of the 4 segments have been knocked off.
+#define ANCHOR_PUZZLE_MM_JUJU 6
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 

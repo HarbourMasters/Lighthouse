@@ -9,6 +9,14 @@
 void actor_update_func_80326224(Actor *);
 extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 
+// [port] Anchor: the orange pads are a multi-step puzzle (light every pad -> jiggy). Pads share a
+// marker and have no per-pad index, so they're synced by spawn position through the shared
+// non-persistent breakable set (live + temp-persist + team-state), the same position-keyed flow the
+// BGS grave pots use. recordBreak records + broadcasts a lit pad; each pad polls isBroken to light
+// to match. The jiggy itself rides JIGGY_SPAWN.
+extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
+extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
+
 /* public functions */
 void chorangepad_update(Actor *);
 
@@ -42,6 +50,8 @@ void handleOrangeCollision(ActorMarker *marker) {
 
     if (closest_orange_pad && !(500.0f < distance_to_orange_pad)) {
         closest_orange_pad->state = 1;
+        // [port] Anchor: record + broadcast this pad's lighting so teammates' pad lights to match.
+        port_breakable_recordBreak((s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2]);
 
         if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, 1, &distance_to_orange_pad)) {
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
@@ -101,6 +111,15 @@ void chorangepad_update(Actor *this) {
 
     if (this->partnerActor) {
         closest_actor = marker_getActor(this->partnerActor);
+    }
+
+    // [port] Anchor live + temp-persist: a teammate lit this pad (recorded by position). Light it
+    // here too so it lights/fades to match and stays done across a re-entry. Lighting it advances
+    // the shared "all pads lit" check (synced pads count for everyone); the jiggy rides JIGGY_SPAWN.
+    if (this->state != 1
+        && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+                                   (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {
+        this->state = 1;
     }
 
     if (subaddie_playerIsWithinSphereAndActive(this, 0x28) &&
