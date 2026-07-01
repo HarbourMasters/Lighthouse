@@ -426,6 +426,7 @@ void chBottlesBonus_completedPuzzle(void) {
 
     actor = marker_getActor(chBottlesBonusMarker);
     gCompletedBottlesBonusGames[chBottlesBonusPuzzleIndex] = true;
+    CALL_EVENT(OnBottlesBonusComplete, chBottlesBonusPuzzleIndex);
     func_80311714(0);
     gcdialog_showDialog(D_803681A0[chBottlesBonusPuzzleIndex + 1].text_id, 0x86, actor->position, chBottlesBonusMarker, chBottlesBonus_IncrementPuzzle, NULL);
     func_80311714(1);
