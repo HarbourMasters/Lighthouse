@@ -221,8 +221,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         }
 
         for (auto& saveCheck : RANDO_SAVE_CHECKS) {
-            if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType !=
-                RCTYPE_EMPTY_HONEYCOMB) {
+            if (Rando::StaticData::Checks[saveCheck.shuffledCheckId].randoCheckType != RCTYPE_EMPTY_HONEYCOMB) {
                 continue;
             }
 

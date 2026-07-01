@@ -128,11 +128,8 @@ void LighthouseMenu::AddMenuDevTools() {
         const char* name;
         int phase;
     } kBossPhases[] = {
-        { "Phase 1: Broomstick", 1 },
-        { "Phase 2: Spells", 2 },
-        { "Phase 3: Flight", 3 },
-        { "Phase 4: Jinjo Statues", 4 },
-        { "Phase 5: Jinjonator", 5 },
+        { "Phase 1: Broomstick", 1 },    { "Phase 2: Spells", 2 },     { "Phase 3: Flight", 3 },
+        { "Phase 4: Jinjo Statues", 4 }, { "Phase 5: Jinjonator", 5 },
     };
     for (const auto& p : kBossPhases) {
         AddWidget(path, p.name, WIDGET_BUTTON)

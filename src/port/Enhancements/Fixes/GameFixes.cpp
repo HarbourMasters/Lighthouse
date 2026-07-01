@@ -52,7 +52,7 @@ void RegisterFurnaceFunDialog_Init() {
 // In speedrunning this is called the "Jinjo Statue Softlock" glitch.
 void RegisterJinjoStatueSoftlockFix_Init() {
     COND_VB_SHOULD(VB_JINJOSTATUE_HITBOX, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_JINJOSTATUE_HITBOX, 0),
-                    { *should = false; })
+                   { *should = false; })
 }
 
 // v1.1 fix: defeated flag is moved from chfinalboss_setBossDefeated to the
