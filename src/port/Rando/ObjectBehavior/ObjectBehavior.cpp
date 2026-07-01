@@ -173,7 +173,8 @@ void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
         if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
             prefix = "You learned";
             message = abilityNameList[randoSaveCheck.randoCollectionId].c_str();
-        } else if (randoSaveCheck.randoItemId == RI_STOP_N_SWOP_EGG || randoSaveCheck.randoItemId == RI_STOP_N_SWOP_KEY) {
+        } else if (randoSaveCheck.randoItemId == RI_STOP_N_SWOP_EGG ||
+                   randoSaveCheck.randoItemId == RI_STOP_N_SWOP_KEY) {
             int32_t totalsnsItems = Rando::Logic::GetTotalSnsItemsCollected();
             prefix = "You collected ";
             prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
@@ -190,12 +191,13 @@ void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
             message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
         }
 
-        Notification::Emit({ .prefix = prefix,
-                             .prefixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
-                             .message = message,
-                             .messageColor = itemColor,
-                             .suffix = suffix,
-                             .suffixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
+        Notification::Emit({
+            .prefix = prefix,
+            .prefixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
+            .message = message,
+            .messageColor = itemColor,
+            .suffix = suffix,
+            .suffixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
         });
     }
 };

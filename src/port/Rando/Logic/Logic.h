@@ -153,7 +153,7 @@ inline int32_t GetTotalSnsItemsCollected() {
     }
 
     return snsCount;
-} 
+}
 
 // Regions
 inline std::string LogicString(std::string condition) {

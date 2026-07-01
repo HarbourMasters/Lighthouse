@@ -96,7 +96,9 @@ void LighthouseMenu::AddMenuRando() {
 
     AddWidget(path, "Seed Metrics", WIDGET_SEPARATOR_TEXT);
 
-    AddWidget(path, "Metrics", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawSeedMetrics(); }).HideInSearch(true);
+    AddWidget(path, "Metrics", WIDGET_CUSTOM)
+        .CustomFunction([](WidgetInfo& info) { DrawSeedMetrics(); })
+        .HideInSearch(true);
 
     // Rando - Shuffle Options
     AddSidebarEntry("Rando", "Shuffle Options", 2);
