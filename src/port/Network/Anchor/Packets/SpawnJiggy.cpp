@@ -97,11 +97,12 @@ void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
         return;
     }
 
-    // In the jiggy's map and no actor in the world yet: spawn it live. We gate on the actor's
-    // presence (func_8032B16C), NOT jiggyscore_isSpawned — the spawned *bit* can already be set
-    // (it syncs via the score) while no actor exists, which would otherwise skip the real spawn.
-    // triggerEvent = 0: silent, no re-broadcast.
-    if ((s32)gsworld_getMap() == map && func_8032B16C((enum jiggy_e)jiggyId) == NULL) {
+    // In the jiggy's map and nothing spawned yet: spawn it live. We gate on the jiggylist slot
+    // (jiggylist_hasSpawnedObject), NOT jiggyscore_isSpawned (the spawned *bit* syncs via the score,
+    // so it's set on us before we've spawned anything) and NOT func_8032B16C (which only finds the
+    // final jiggy actor, returning NULL through the whole falling-bundle pop — which would restack a
+    // new bundle every frame). triggerEvent = 0: silent, no re-broadcast.
+    if ((s32)gsworld_getMap() == map && !jiggylist_hasSpawnedObject((enum jiggy_e)jiggyId)) {
         f32 pos[3] = { x, y, z };
         codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)jiggyId, pos, 0);
     }
@@ -123,9 +124,10 @@ void Anchor::FlushPendingJiggySpawns() {
             list.erase(list.begin() + i);
             continue;
         }
-        // Spawn if no jiggy actor is in the world (gate on actor presence, not the spawned bit,
-        // which may already be set via the synced score while no actor exists — see HandlePacket).
-        if (func_8032B16C((enum jiggy_e)pj.jiggyId) == NULL) {
+        // Spawn only if nothing is spawned for this jiggy yet (gate on the jiggylist slot, which is
+        // live from the start of the falling-bundle pop — not func_8032B16C/the spawned bit, either
+        // of which would restack a new bundle every frame while one is still popping — see HandlePacket).
+        if (!jiggylist_hasSpawnedObject((enum jiggy_e)pj.jiggyId)) {
             f32 pos[3] = { pj.x, pj.y, pj.z };
             codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)pj.jiggyId, pos, 0);
         }

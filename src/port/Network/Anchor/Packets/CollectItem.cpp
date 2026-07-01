@@ -115,10 +115,17 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                 case ANCHOR_COLLECTIBLE_ORANGE:        item = ITEM_19_ORANGE;        break;
                 default:                               item = ITEM_18_GOLD_BULLIONS; break;
             }
-            if (id < 0) {
-                item_adjustByDiffWithHud(item, -1);
+            // [port] The orange is MM-local (carried to Chimpy in that map). Sync its shared count
+            // everywhere as usual, but don't pop the HUD for a teammate who isn't in that map
+            // (sameMap) — only the in-map players should see Chimpy's orange count change.
+            bool noHud = (kind == ANCHOR_COLLECTIBLE_ORANGE) && !sameMap;
+            s32 delta = (id < 0) ? -1 : 1;
+            if (noHud) {
+                item_adjustByDiffWithoutHud(item, delta);
             } else {
-                item_adjustByDiffWithHud(item, 1);
+                item_adjustByDiffWithHud(item, delta);
+            }
+            if (id >= 0) {
                 port_carriedSync_applyRemoteCollect(kind, map, id, sameMap ? 1 : 0);
             }
             break;

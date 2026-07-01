@@ -264,6 +264,19 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
     }
 }
 
+// [port] Anchor: does this jiggy currently have a live spawned object in the world? True from the
+// moment jiggy_spawn/codeABC00 links the jiggylist slot — so it covers the falling-bundle pop phase,
+// not just the released MARKER_52_JIGGY actor. The re-spawn flush must gate on this: func_8032B16C
+// only finds the final jiggy actor (NULL during the bundle pop) and jiggyscore_isSpawned is the synced
+// bit (true on a remote before it has spawned anything locally), so gating on either restacks a fresh
+// bundle every frame while one is still popping.
+s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id) {
+    if ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) {
+        return 0;
+    }
+    return jiggylist_list[jiggy_id - 1].unk10.marker != NULL;
+}
+
 void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e jiggy_id, f32 location[3], s32 triggerEvent) {
     jiggy_id = ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) ? JIGGY_A_MM_CONGA : jiggy_id;
 
