@@ -91,6 +91,12 @@ void SetSpiralMountainFlags() {
     mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
 }
 
+// CALL_EVENT expands to a braced initializer whose commas don't survive being passed through the
+// COND_HOOK macro wrapper, so fire it from a plain function the listener calls instead.
+static void MarkBridgeRepairedDialogComplete() {
+    CALL_EVENT(SetRandoInfFlag, RANDO_INF_BRIDGE_REPAIRED_DIALOG_COMPLETE, true);
+}
+
 void Rando::ObjectBehavior::InitMolehillBehavior() {
     COND_VB_SHOULD(VB_OVERRIDE_MOLEHILL_ABILITY, EVENT_PRIORITY_NORMAL, true, {
         Actor* molehillActor = va_arg(args, Actor*);
@@ -190,7 +196,7 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
         if (CheckBridgeState()) {
             mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
             if (!RANDO_SAVE_FLAGS[RANDO_INF_BRIDGE_REPAIRED_DIALOG_COMPLETE].flagState) {
-                CALL_EVENT(SetRandoInfFlag, RANDO_INF_BRIDGE_REPAIRED_DIALOG_COMPLETE, true);
+                MarkBridgeRepairedDialogComplete();
             }
             event->Cancelled = true;
             ev->result = true;
