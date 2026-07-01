@@ -11,7 +11,6 @@
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
 #include <tuple>
-#include <format>
 
 std::vector<ImVec2> windowTypeSizes = { {} };
 
@@ -757,7 +756,7 @@ void Menu::DrawElement() {
     ImGui::SameLine(menuSize.x - (buttonSize.x * 4.25f) - (style.ItemSpacing.x * 2));
     UIWidgets::ButtonOptions options4 = {};
     std::string option4Tooltip =
-        std::format("About Lighthouse \n"
+        fmt::format("About Lighthouse \n"
                     "- Version: {}\n"
                     "- Branch:  {}\n"
                     "- Commit:  {}",

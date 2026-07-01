@@ -240,6 +240,12 @@ bool CheckEnemyOverlapPosition(int32_t pos[3]) {
     return enemyOverlap;
 }
 
+// CALL_EVENT expands to a braced initializer whose commas don't survive being passed through the
+// COND_HOOK macro wrapper, so fire it from a plain function the listener calls instead.
+static void FireClearBundleDespawnQueue() {
+    CALL_EVENT(ClearBundleDespawnQueue);
+}
+
 // Entry point for the module, run once on game boot
 void Rando::ObjectBehavior::Init() {
     InitBundleBehavior();
@@ -434,7 +440,7 @@ void Rando::ObjectBehavior::Init() {
 
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         CustomObject::ClearRandoActorListEX();
-        CALL_EVENT(ClearBundleDespawnQueue);
+        FireClearBundleDespawnQueue();
         Rando::Logic::RefreshReachableRegions();
     })
 
