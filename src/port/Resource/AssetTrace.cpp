@@ -80,8 +80,7 @@ void port_traceBadAssetId(uint32_t assetId) {
 
         if (SymFromAddr(proc, addr, &symDisp, sym)) {
             if (SymGetLineFromAddr64(proc, addr, &lineDisp, &line)) {
-                SPDLOG_WARN("    #{:02} {}+0x{:x}  ({}:{})", i, sym->Name, symDisp, line.FileName,
-                            line.LineNumber);
+                SPDLOG_WARN("    #{:02} {}+0x{:x}  ({}:{})", i, sym->Name, symDisp, line.FileName, line.LineNumber);
             } else {
                 SPDLOG_WARN("    #{:02} {}+0x{:x}", i, sym->Name, symDisp);
             }
@@ -109,7 +108,6 @@ void port_traceBadAssetId(uint32_t assetId) {
         raise(SIGTRAP);
     }
 #else
-    SPDLOG_WARN("[AssetTrace] invalid asset id {} (backtrace unavailable on this platform)",
-                assetId);
+    SPDLOG_WARN("[AssetTrace] invalid asset id {} (backtrace unavailable on this platform)", assetId);
 #endif
 }
