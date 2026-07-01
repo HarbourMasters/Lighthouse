@@ -162,6 +162,10 @@ Actor* CustomObject::SpawnCustomActorEX(RandoCheckId randoCheckId, int32_t posit
 }
 
 void CustomObject::FlushRandoSpawnQueue() {
+    if (gsworld_getMap() == MAP_91_FILE_SELECT) {
+        return;
+    }
+
     if (randoActorQueue.empty()) {
         return;
     }
@@ -268,7 +272,6 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
         case RI_JIGGY:
             if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipJiggyDance"), 0)) {
                 fxSparkle_musicNote(sparklePos);
-                coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
             }
             break;
         case RI_JINJO_BLUE:
@@ -310,14 +313,16 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
     }
 }
 
-void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId) {
+void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
     for (auto& pool : Rando::Logic::shuffledPool) {
         if (pool.randoCheckId == randoCheckId && !pool.obtained) {
             pool.obtained = true;
             shouldRemoveEX = true;
             RANDO_SAVE_CHECKS[pool.randoCheckId].obtained = true;
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
-            Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
+            if (!isInit) {
+                Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
+            }
             Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
             Rando::Logic::RefreshReachableRegions();
             break;

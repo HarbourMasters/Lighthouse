@@ -4,7 +4,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipUtils.h"
-#include "port/Romhack/RomhackConfig.h"
+#include "port/UI/LighthouseModMenuWindow.h"
 #include <fstream>
 #include <filesystem>
 #include <regex>
@@ -29,10 +29,9 @@ namespace fs = std::filesystem;
 static bool mLoaded = false;
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
-    const char* romName = port_getRomhackName();
-    std::string dir = Ship_IsCStringEmpty(romName)
-                          ? Ship::Context::GetPathRelativeToAppDirectory("saves")
-                          : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + std::string(romName));
+    std::string romName = GetActiveRomhackBasename();
+    std::string dir = romName.empty() ? Ship::Context::GetPathRelativeToAppDirectory("saves")
+                                      : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + romName);
     std::error_code ec;
     fs::create_directories(dir, ec);
     if (ec) {
@@ -297,6 +296,7 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     ordered_json shipRando = ordered_json::object();
 
     ship["fileType"] = static_cast<int>(saveData->shipSaveData.fileType);
+    ship["fileCreatedAt"] = static_cast<int>(saveData->shipSaveData.fileCreatedAt);
 
     // Note retention (all files): sparse per-map collected bitfields.
     ordered_json noteRetention = ordered_json::object();
@@ -550,6 +550,7 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 
     // Ship Save Data
     saveData->shipSaveData.fileType = j["ship"]["fileType"];
+    saveData->shipSaveData.fileCreatedAt = j["ship"]["fileCreatedAt"];
 
     // Note retention (all files): clear then load sparse per-map bitfields.
     for (int m = 0; m < NOTE_RETENTION_MAP_SLOTS; m++) {
@@ -745,6 +746,20 @@ void SaveManager_Init() {
         saveData->shipSaveData = ship;
 
         event->Cancelled = true;
+    });
+
+    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnGameLoad* ev = (OnGameLoad*)event;
+        gSelectedFileNum = ev->fileNum;
+    });
+
+    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnSaveLoad* ev = (OnSaveLoad*)event;
+        SaveData* saveData = (SaveData*)ev->saveData;
+
+        if (saveData->magic == 0) {
+            saveData->shipSaveData.fileCreatedAt = GetUnixTimestamp();
+        }
     });
 
     // Decomp clears global arrays (e.g. gCompletedBottlesBonusGames) just before

@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
+#include "port/Patches/Patches.h"
 #include "variables.h"
 #include "port/Engine.h"
 #include "port/Interpolation/FrameInterpolation.h"
@@ -145,7 +146,7 @@ void fxhoneycarrierscore_draw(s32 arg0, struct8s *arg1, Gfx **arg2, Mtx **arg3, 
                     }
                 }
             }
-            sp128 = 244.0f - (f32) gFramebufferWidth / 2;
+            sp128 = 244.0f - (f32) gFramebufferWidth / 2 + port_hudOrthoShift(244.0f);
             sp124 = func_802FB0E4(arg1) + ((f32) gFramebufferHeight / 2) - 246.0f;
             guTranslate(*arg3, sp128 * 4.0f, sp124 * 4.0f, 0.0f);
             gSPMatrix((*arg2)++, OS_K0_TO_PHYSICAL((*arg3)++), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);

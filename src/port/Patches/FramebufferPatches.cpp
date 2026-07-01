@@ -8,19 +8,14 @@
 extern "C" {
 
 #include "core1/core1.h"
-#include "gc/gctransition.h"
 #include "model.h"
 
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
-                           unsigned int native_height, unsigned char resize);
+                           unsigned int native_height, unsigned char resize, unsigned char force_fixed_aspect);
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
-
-// Emulate N64's osViBlack on PC. On N64, osViBlack(1) blanked the TV
-// output but the RDP still rendered to framebuffers. On PC, we let the GPU
-// render normally (so readback captures the world), then clear the backbuffer
-// to black before presenting.
-static bool s_viBlack = false;
+unsigned int OTRGetGameRenderWidth(void);
+unsigned int OTRGetGameRenderHeight(void);
 
 // During FADE_IN, the game disables scene drawing one frame before
 // capturing gFramebuffers. Without freezing, the readback would overwrite
@@ -30,14 +25,6 @@ static bool s_freezeReadback = false;
 
 // On-demand readback
 static int s_readbackRequestFrames = 0;
-
-void port_setViBlack(int active) {
-    s_viBlack = (active != 0);
-}
-
-int port_isViBlack(void) {
-    return s_viBlack ? 1 : 0;
-}
 
 void port_freezeReadback(int freeze) {
     s_freezeReadback = (freeze != 0);
@@ -61,26 +48,80 @@ void Framebuffer_ReadbackGPU(int bufferIndex) {
     (void)bufferIndex;
 }
 
-// Pause menu GPU FB (created once, reused)
+// Pause menu GPU FB.
 
 static int s_pauseFbId = -1;
+static int s_pauseFbW = 0;
+static int s_pauseFbH = 0;
+
+static void currentRenderSize(int* w, int* h) {
+    *w = (int)OTRGetGameRenderWidth();
+    *h = (int)OTRGetGameRenderHeight();
+    if (*w < 1) {
+        *w = gFramebufferWidth;
+    }
+    if (*h < 1) {
+        *h = gFramebufferHeight;
+    }
+}
 
 int port_getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
-        s_pauseFbId =
-            gfx_create_framebuffer(gFramebufferWidth, gFramebufferHeight, gFramebufferWidth, gFramebufferHeight, 1);
+        currentRenderSize(&s_pauseFbW, &s_pauseFbH);
+        s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
     }
     return s_pauseFbId;
 }
 
-// Transition capture query
+// Capture-frame entry point: ensure the FB matches the current render resolution before the
+// snapshot copy, recreating it only when the resolution actually changed since the last
+// capture. Recreating leaks the previous FB id (there is no destroy API), but this fires only
+// on a real resolution change at pause entry, not every pause, so it is bounded and rare.
+int port_capturePauseFramebuffer(void) {
+    int w;
+    int h;
+    currentRenderSize(&w, &h);
+    if (s_pauseFbId < 0 || w != s_pauseFbW || h != s_pauseFbH) {
+        s_pauseFbW = w;
+        s_pauseFbH = h;
+        s_pauseFbId = gfx_create_framebuffer(w, h, w, h, 0, 0);
+    }
+    return s_pauseFbId;
+}
 
-int port_shouldCaptureTransition(void) {
-    if (!gctransition_isFallingPieces())
+void port_getPauseFramebufferSize(int* w, int* h) {
+    *w = s_pauseFbW;
+    *h = s_pauseFbH;
+}
+
+static int s_recapLastW = 0;
+static int s_recapLastH = 0;
+static int s_recapStable = 0;
+
+int port_pauseConsumeRecaptureRequest(void) {
+    if (s_pauseFbId < 0 || s_pauseFbW < 1 || s_pauseFbH < 1) {
         return 0;
-    if (gctransition_isFallingPiecesIn())
-        return gctransition_getSubstate() <= 2;
-    return gctransition_getSubstate() == 2;
+    }
+    int w;
+    int h;
+    currentRenderSize(&w, &h);
+    if (w != s_recapLastW || h != s_recapLastH) {
+        s_recapLastW = w;
+        s_recapLastH = h;
+        s_recapStable = 0;
+        return 0;
+    }
+    if (s_recapStable < 4) {
+        s_recapStable++;
+        return 0;
+    }
+    float capAspect = (float)s_pauseFbW / (float)s_pauseFbH;
+    float curAspect = (float)w / (float)h;
+    float d = curAspect - capAspect;
+    if (d < 0.0f) {
+        d = -d;
+    }
+    return (d > 0.02f) ? 1 : 0;
 }
 
 // DL walking helper
@@ -203,15 +244,19 @@ static s32 sTransitionGpuFbId = -1;
 s32 port_getTransitionGpuFbId(void) {
     if (sTransitionGpuFbId < 0) {
         sTransitionGpuFbId = gfx_create_framebuffer(DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT,
-                                                    DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1);
+                                                    DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1, 0);
         gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
     }
     return sTransitionGpuFbId;
 }
 
-void port_readTransitionFbToCpu(Gfx** gfx) {
-    if (sTransitionGpuFbId >= 0) {
-        gsSPResetFB((*gfx)++);
+// Capture the finished scene for the falling-jiggy piece textures by blitting the
+// main framebuffer into the transition FB (same technique as the pause snapshot).
+// Called after the scene draw.
+void port_captureTransitionFb(Gfx** gfx) {
+    s32 trFb = port_getTransitionGpuFbId(); // create + register on first use
+    if (trFb >= 0) {
+        gDPCopyFB((*gfx)++, trFb, 0, 0, NULL); // copy main FB -> transition FB
     }
 }
 

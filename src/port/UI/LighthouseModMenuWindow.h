@@ -36,6 +36,10 @@ void UpdateModFiles(bool init = false, bool reset = false);
 // handled by the mod scan instead. Valid only after UpdateModFiles() has run.
 bool IsScopedModFolderName(const std::string& topLevelName);
 
+// Filename stem of the currently active romhack overlay (the enabled .o2r
+// carrying an aGameConfig), or "" if none is active.
+std::string GetActiveRomhackBasename();
+
 void EnableMod(std::string file);
 void DisableMod(std::string file);
 

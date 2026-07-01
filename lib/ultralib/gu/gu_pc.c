@@ -1,11 +1,16 @@
-// BanjoDecomp: (port-specific, no decomp origin)
+// PC reimplementations of libultra's `gu` (graphics utility) library. 
+
 #include <math.h>
 #include <string.h>
 #include "libultraship/libultra/types.h"
 
+f32 gu_sqrtf(f32 f) {
+    return sqrtf(f);
+}
+
 void guMtxF2L(float mf[4][4], Mtx* m) {
 #ifdef GBI_FLOATS
-    // [port] With GBI_FLOATS, Mtx is MtxF (float[4][4]) — just copy
+    // With GBI_FLOATS, Mtx is MtxF (float[4][4]); just copy
     memcpy(m->mf, mf, sizeof(float) * 16);
 #else
     unsigned int r, c;
@@ -26,7 +31,7 @@ void guMtxF2L(float mf[4][4], Mtx* m) {
 
 void guMtxL2F(float mf[4][4], Mtx* m) {
 #ifdef GBI_FLOATS
-    // [port] With GBI_FLOATS, Mtx is MtxF (float[4][4]) — just copy
+    // With GBI_FLOATS, Mtx is MtxF (float[4][4]); just copy
     memcpy(mf, m->mf, sizeof(float) * 16);
 #else
     unsigned int r, c;

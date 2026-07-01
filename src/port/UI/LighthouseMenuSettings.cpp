@@ -9,6 +9,7 @@
 #include "port/ResourceHelpers.h"
 #include "port/Controller/ControlSchemes.h"
 #include "port/Localization/Language.h"
+#include "port/Save/SaveConverter.h"
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
@@ -66,6 +67,13 @@ static const std::unordered_map<int32_t, const char*> bootSequenceLabels = {
     { BOOTSEQUENCE_DEFAULT, "Default" },
     { BOOTSEQUENCE_AUTHENTIC, "Authentic" },
     { BOOTSEQUENCE_FILESELECT, "File Select" },
+};
+
+static const std::unordered_map<int32_t, const char*> saveConvertSlotLabels = {
+    { SaveConverter::kSlotAll, "All games" },
+    { 1, "Game 1" },
+    { 2, "Game 2" },
+    { 3, "Game 3" },
 };
 
 static int32_t sAppliedControlScheme = -1;
@@ -152,6 +160,58 @@ void LighthouseMenu::AddMenuSettings() {
                               "Authentic: N64 logo only\n"
                               "File Select: Skip to file select menu"));
 
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Save Conversion", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Save Slot", WIDGET_CVAR_COMBOBOX)
+        .CVar(CVAR_SETTING("SaveConvertSlot"))
+        .RaceDisable(false)
+        .Options(ComboboxOptions()
+                     .DefaultIndex(SaveConverter::kSlotAll)
+                     .ComboMap(saveConvertSlotLabels)
+                     .Tooltip("Which game the Import and Export buttons act on. \"All games\" covers every "
+                              "slot."));
+    AddWidget(path, "Import Save File", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            int slot = CVarGetInteger(CVAR_SETTING("SaveConvertSlot"), SaveConverter::kSlotAll);
+            std::string target = slot == SaveConverter::kSlotAll ? "your saves" : ("Game " + std::to_string(slot));
+            LighthouseGui::mModalWindow->RegisterPopup(
+                "Import Save",
+                "This overwrites " + target +
+                    " for the game you're playing with a save imported from another platform. "
+                    "It can't be undone.\n\n"
+                    "Make sure you're playing the same game or romhack as the save you're importing.",
+                "Select Save", "Cancel",
+                [slot]() {
+                    SaveConverter::Result r = SaveConverter::PickAndImport(slot);
+                    if (r.message.empty()) {
+                        return; // cancelled
+                    }
+                    LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Import Complete" : "Save Import Failed",
+                                                               r.message, "OK", "", nullptr, nullptr);
+                },
+                nullptr);
+        })
+        .Options(ButtonOptions().Tooltip(
+            "Import a save from another platform into the game you're playing. Works for the base game "
+            "and romhacks, using whichever you currently have loaded.\n\n"
+            "This overwrites your existing saves. Stop 'n' Swop items aren't carried over."));
+    AddWidget(path, "Export Save File", WIDGET_BUTTON)
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            int slot = CVarGetInteger(CVAR_SETTING("SaveConvertSlot"), SaveConverter::kSlotAll);
+            SaveConverter::Result r = SaveConverter::PickAndExport(slot);
+            if (r.message.empty()) {
+                return; // cancelled
+            }
+            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed", r.message,
+                                                       "OK", "", nullptr, nullptr);
+        })
+        .Options(ButtonOptions().Tooltip(
+            "Export the save for the game you're playing to a Banjo: Recompiled file. Use the slot above "
+            "to pick a single game, or All for every slot.\n\n"
+            "Stop 'n' Swop items aren't carried over."));
+
     AddWidget(path, "Languages", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Dialog Language", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("DialogLanguage"))
@@ -228,21 +288,6 @@ void LighthouseMenu::AddMenuSettings() {
                      .LabelPosition(LabelPositions::Far));
     //.Callback([](WidgetInfo& info) { GameEngine::Instance->ScaleImGui(); });
 
-    // General - About
-    path.column = SECTION_COLUMN_2;
-
-    AddWidget(path, "About", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Lighthouse", WIDGET_TEXT);
-    if (gGitCommitTag[0] != 0) {
-        AddWidget(path, gBuildVersion, WIDGET_TEXT);
-    } else {
-        AddWidget(path, ("Branch: " + std::string(gGitBranch)), WIDGET_TEXT);
-        AddWidget(path, ("Commit: " + std::string(gGitCommitHash)), WIDGET_TEXT);
-    }
-    // for (uint32_t i = 0; i < ResourceMgr_GetNumGameVersions(); i++) {
-    //     AddWidget(path, GetGameVersionString(i), WIDGET_TEXT);
-    // }
-
     // Audio Settings
     path.sidebarName = "Audio";
     path.column = SECTION_COLUMN_1;
@@ -291,7 +336,7 @@ void LighthouseMenu::AddMenuSettings() {
                           "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
                           "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
     path.sidebarName = "Graphics";
-    AddSidebarEntry("Settings", "Graphics", 3);
+    AddSidebarEntry("Settings", "Graphics", 2);
     AddWidget(path, "Graphics Options", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Fullscreen", WIDGET_BUTTON)
         .RaceDisable(false)
@@ -404,6 +449,8 @@ void LighthouseMenu::AddMenuSettings() {
     path.sidebarName = "Controls";
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Controls", 2);
+
+    AddWidget(path, "Controller Bindings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Clear Devices", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
             LighthouseGui::mModalWindow->RegisterPopup(
@@ -419,6 +466,15 @@ void LighthouseMenu::AddMenuSettings() {
                 nullptr);
         })
         .Options(ButtonOptions().Size(Sizes::Inline));
+    AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
+        .CVar(CVAR_WINDOW("ControllerConfiguration"))
+        .RaceDisable(false)
+        .WindowName("Configure Controller")
+        .HideInSearch(true)
+        .Options(WindowButtonOptions().Tooltip("Enables the separate Bindings Window."));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Additional Control Settings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Control Scheme", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("Controls.Scheme"))
         .RaceDisable(false)
@@ -463,13 +519,6 @@ void LighthouseMenu::AddMenuSettings() {
         .Options(CheckboxOptions().Tooltip("Pocket scheme only. The R2 button slows movement to a tip-toe walk.\n"
                                            "Off: tap R2 to toggle tip-toe on/off.\nOn: tip-toe only "
                                            "while R2 is held."));
-    AddWidget(path, "Controller Bindings", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
-        .CVar(CVAR_WINDOW("ControllerConfiguration"))
-        .RaceDisable(false)
-        .WindowName("Configure Controller")
-        .HideInSearch(true)
-        .Options(WindowButtonOptions().Tooltip("Enables the separate Bindings Window."));
 
     // Input Viewer
     path.sidebarName = "Input Viewer";

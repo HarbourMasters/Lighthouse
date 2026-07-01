@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "port/build.h"
 #include "UIWidgets.hpp"
 #include "port/Engine.h"
 #include "cvar_prefixes.h"
@@ -10,6 +11,7 @@
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
 #include <tuple>
+#include <format>
 
 std::vector<ImVec2> windowTypeSizes = { {} };
 
@@ -193,9 +195,9 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
     int searchCount = 0;
     std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(), ::tolower);
     menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '), menuSearchText.end());
-    ImGui::SetNextWindowSizeConstraints({ ImGui::GetContentRegionAvail().x / 2, 0 },
-                                        { ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y });
-    if (ImGui::BeginChild("Search Results Col 1", { ImGui::GetContentRegionAvail().x / 2, 0 },
+    ImGui::SetNextWindowSizeConstraints({ ImGui::GetContentRegionAvail().x, 0 },
+                                        { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
+    if (ImGui::BeginChild("Search Results Col 1", { ImGui::GetContentRegionAvail().x, 0 },
                           ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoTitleBar)) {
         for (auto& menuLabel : menuOrder) {
             auto& menuEntry = menuEntries.at(menuLabel);
@@ -645,6 +647,10 @@ void Menu::DrawElement() {
     ImGui::PushFont(GameEngine::Instance->fontStandardLargest);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
     std::string headerIndex = CVarGetString(headerCvar, "Settings");
+    if (!menuEntries.contains(headerIndex)) {
+        headerIndex = menuOrder.empty() ? "Settings" : menuOrder.front();
+        CVarSetString(headerCvar, headerIndex.c_str());
+    }
     ImVec2 pos = window->DC.CursorPos;
     float centerX = pos.x + windowWidth / 2 - (style.ItemSpacing.x * (menuEntries.size() + 1));
     std::vector<ImVec2> headerSizes;
@@ -748,7 +754,19 @@ void Menu::DrawElement() {
         ImGui::PopStyleColor();
     }
     ImGui::EndChild();
-    ImGui::SameLine(menuSize.x - (buttonSize.x * 3) - (style.ItemSpacing.x * 2));
+    ImGui::SameLine(menuSize.x - (buttonSize.x * 4.25f) - (style.ItemSpacing.x * 2));
+    UIWidgets::ButtonOptions options4 = {};
+    std::string option4Tooltip =
+        std::format("About Lighthouse \n"
+                    "- Version: {}\n"
+                    "- Branch:  {}\n"
+                    "- Commit:  {}",
+                    std::string_view(gBuildVersion), std::string_view(gGitBranch), std::string_view(gGitCommitHash));
+    options4.color = UIWidgets::Colors::Gray;
+    options4.size = UIWidgets::Sizes::Inline;
+    options4.tooltip = option4Tooltip.c_str();
+    if (UIWidgets::Button(ICON_FA_QUESTION_CIRCLE, options4)) {}
+    ImGui::SameLine();
     UIWidgets::ButtonOptions options3 = {};
     options3.color = UIWidgets::Colors::Red;
     options3.size = UIWidgets::Sizes::Inline;
@@ -812,7 +830,7 @@ void Menu::DrawElement() {
     ImGui::SetNextWindowPos(pos + style.ItemSpacing * 2);
 
     // Increase sidebar width on larger screens to accomodate people scaling their menus.
-    float sidebarWidth = 200 - style.ItemSpacing.x;
+    float sidebarWidth = 245 - style.ItemSpacing.x;
     if (menuSize.x > 1600) {
         sidebarWidth = menuSize.x * 0.15f;
     }

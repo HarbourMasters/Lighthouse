@@ -17,7 +17,7 @@
 
 // #include "Enhancements/Trackers/ItemTracker/ItemTracker.h"
 // #include "Enhancements/Trackers/ItemTracker/ItemTrackerSettings.h"
-// #include "Enhancements/Trackers/DisplayOverlay.h"
+#include "port/Enhancements/Trackers/DisplayOverlay.h"
 // #include "Enhancements/Trackers//TimeSplits/Timesplits.h"
 // #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
@@ -29,7 +29,6 @@
 #include "LighthouseModMenuWindow.h"
 // #include "DeveloperTools/HookDebugger.h"
 #include "DeveloperTools/SaveEditor.h"
-#include "DeveloperTools/Warps.h"
 #include "DeveloperTools/GameplayTools.h"
 // #include "DeveloperTools/ActorViewer.h"
 // #include "DeveloperTools/CollisionViewer.h"
@@ -49,7 +48,6 @@ std::shared_ptr<LighthouseRomhackMenuWindow> mRomhackMenuWindow;
 
 // std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
-std::shared_ptr<WarpsWindow> mWarpsWindow;
 std::shared_ptr<GameplayToolsWindow> mGameplayToolsWindow;
 // std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 // std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
@@ -65,7 +63,7 @@ std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindo
 std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
 // std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 // std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
-// std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
+std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 // std::shared_ptr<TimesplitsWindow> mTimesplitsWindow;
 // std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
 std::shared_ptr<InputViewer> mInputViewer;
@@ -129,9 +127,6 @@ void SetupGuiElements() {
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
 
-    mWarpsWindow = std::make_shared<WarpsWindow>("gWindows.Warps", "Warps", ImVec2(480, 600));
-    gui->AddGuiWindow(mWarpsWindow);
-
     mGameplayToolsWindow =
         std::make_shared<GameplayToolsWindow>("gWindows.GameplayTools", "Gameplay Tools", ImVec2(480, 600));
     gui->AddGuiWindow(mGameplayToolsWindow);
@@ -170,8 +165,8 @@ void SetupGuiElements() {
     //                                                                          400));
     // gui->AddGuiWindow(mItemTrackerSettingsWindow);
 
-    // mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
-    // gui->AddGuiWindow(mDisplayOverlayWindow);
+    mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
+    gui->AddGuiWindow(mDisplayOverlayWindow);
 
     // mTimesplitsWindow = std::make_shared<TimesplitsWindow>("gWindows.Timesplits", "Time Splits Window");
     // gui->AddGuiWindow(mTimesplitsWindow);
@@ -227,7 +222,6 @@ void Destroy() {
 
     // mHookDebuggerWindow = nullptr;
     mSaveEditorWindow = nullptr;
-    mWarpsWindow = nullptr;
     mGameplayToolsWindow = nullptr;
     // mHudEditorWindow = nullptr;
     // mCosmeticEditorWindow = nullptr;
@@ -237,6 +231,7 @@ void Destroy() {
     // mAudioEditorWindow = nullptr;
     // mItemTrackerWindow = nullptr;
     // mItemTrackerSettingsWindow = nullptr;
+    mDisplayOverlayWindow = nullptr;
     mInputViewer = nullptr;
     mInputViewerSettings = nullptr;
     mEggAimCrosshair = nullptr;

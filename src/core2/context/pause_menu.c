@@ -1434,6 +1434,13 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         D_8036C620 = 0;
     }
     else {
+        // [port] Aspect changed while paused (e.g. an advanced-resolution toggle): re-enable
+        // world draw and re-run the capture sequence so the frozen background re-frames to the
+        // new aspect instead of showing a stretched snapshot.
+        if (port_pauseConsumeRecaptureRequest()) {
+            gsworld_setEnableDraw(1);
+            D_8036C620 = 1;
+        }
         func_80315110(gfx, mtx, vtx);
     }
 

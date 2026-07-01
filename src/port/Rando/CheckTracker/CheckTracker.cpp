@@ -336,100 +336,103 @@ void SettingsWindow::DrawElement() {
 
         ImGui::TableNextColumn();
         ImGui::SeparatorText("Window Settings");
-        UIWidgets::CVarCheckbox("Only Show Current Level", CVAR_NAME_SHOW_CURRENT_LEVEL);
-        UIWidgets::CVarCheckbox("Dim Out of Logic Checks", CVAR_NAME_SHOW_LOGIC);
-        UIWidgets::CVarCheckbox("Hide Completed Worlds", CVAR_NAME_HIDE_COMPLETED_WORLD);
-        UIWidgets::CVarCheckbox("Hide Collected Checks", CVAR_NAME_HIDE_COLLECTED);
-        UIWidgets::CVarCheckbox("Hide Skipped Checks", CVAR_NAME_HIDE_SKIPPED);
-        UIWidgets::CVarCheckbox("Display Total Collected Checks", CVAR_NAME_SHOW_COLLECTED_CHECKS);
-        UIWidgets::CVarCheckbox("Display Total World Checks", CVAR_NAME_SHOW_WORLD_CHECKS);
+        if (ImGui::BeginChild("WindowSettingsChild")) {
+            UIWidgets::CVarCheckbox("Only Show Current Level", CVAR_NAME_SHOW_CURRENT_LEVEL);
+            UIWidgets::CVarCheckbox("Dim Out of Logic Checks", CVAR_NAME_SHOW_LOGIC);
+            UIWidgets::CVarCheckbox("Hide Completed Worlds", CVAR_NAME_HIDE_COMPLETED_WORLD);
+            UIWidgets::CVarCheckbox("Hide Collected Checks", CVAR_NAME_HIDE_COLLECTED);
+            UIWidgets::CVarCheckbox("Hide Skipped Checks", CVAR_NAME_HIDE_SKIPPED);
+            UIWidgets::CVarCheckbox("Display Total Collected Checks", CVAR_NAME_SHOW_COLLECTED_CHECKS);
+            UIWidgets::CVarCheckbox("Display Total World Checks", CVAR_NAME_SHOW_WORLD_CHECKS);
 
-        ImGui::BeginDisabled(!CVAR_SHOW_COLLECTED_CHECKS);
-        UIWidgets::CVarCheckbox("Separate Total Collected Checks", CVAR_NAME_SEPARATE_COLLECTED_CHECKS);
-        ImGui::EndDisabled();
-        ImGui::BeginDisabled(!CVAR_SHOW_SEPARATE_COLLECTED_CHECKS || !CVAR_SHOW_COLLECTED_CHECKS);
-        if (UIWidgets::CVarSliderFloat("  ", CVAR_NAME_COLLECTED_CHECKS_OPACITY,
-                                       {
-                                           .format = "Opacity: %.1f",
-                                           .step = 0.01f,
-                                           .min = 0.0f,
-                                           .max = 1.0f,
-                                           .defaultValue = 0.5f,
-                                           .labelPosition = UIWidgets::LabelPositions::None,
-                                           .color = WIDGET_COLOR,
-                                       })) {
-            collectedChecksBG.w = CVAR_COLLECTED_CHECKS_OPACITY;
-        }
-
-        if (UIWidgets::CVarSliderFloat("    ", CVAR_NAME_COLLECTED_CHECKS_SCALE,
-                                       {
-                                           .format = "Scale: %.1f",
-                                           .step = 0.10f,
-                                           .min = 0.7f,
-                                           .max = 2.5f,
-                                           .defaultValue = 1.0f,
-                                           .labelPosition = UIWidgets::LabelPositions::None,
-                                           .color = WIDGET_COLOR,
-                                       })) {
-            collectedChecksScale = CVAR_COLLECTED_CHECKS_SCALE;
-        }
-
-        ImGui::EndDisabled();
-
-        UIWidgets::CVarCheckbox("Toggle Floating Window", CVAR_NAME_ENABLE_FLOATING_WINDOW);
-
-        if (UIWidgets::Button(
-                "Expand/Collapse All Levels",
-                UIWidgets::ButtonOptions{}.Color(WIDGET_COLOR).Size(ImVec2(ImGui::GetContentRegionAvail().x, 0)))) {
-            expandToggle = !expandToggle;
-        }
-
-        if (UIWidgets::CVarSliderFloat("", CVAR_NAME_CHECK_TRACKER_OPACITY,
-                                       {
-                                           .format = "Opacity: %.1f",
-                                           .step = 0.01f,
-                                           .min = 0.0f,
-                                           .max = 1.0f,
-                                           .defaultValue = 0.5f,
-                                           .labelPosition = UIWidgets::LabelPositions::None,
-                                           .color = WIDGET_COLOR,
-                                       })) {
-            checkTrackerBG.w = CVAR_CHECK_TRACKER_OPACITY;
-        }
-
-        if (UIWidgets::CVarSliderFloat(" ", CVAR_NAME_CHECK_TRACKER_SCALE,
-                                       {
-                                           .format = "Scale: %.1f",
-                                           .step = 0.10f,
-                                           .min = 0.7f,
-                                           .max = 2.5f,
-                                           .defaultValue = 1.0f,
-                                           .labelPosition = UIWidgets::LabelPositions::None,
-                                           .color = WIDGET_COLOR,
-                                       })) {
-            checkTrackerScale = CVAR_CHECK_TRACKER_SCALE;
-        }
-
-        int16_t checkColorIndex = 0;
-        for (auto& [cvar, color, label] : defaultCheckColorList) {
-            std::string cvarText = cvar;
-            cvarText += ".Value";
-            std::string colorText = label;
-            colorText += " Color";
-            std::string widgetLabel = "##";
-            widgetLabel += std::to_string(checkColorIndex);
-
-            ImGui::PushID(checkColorIndex);
-            UIWidgets::CVarColorPicker(widgetLabel.c_str(), cvar, color, true);
-            ImGui::SameLine();
-            if (UIWidgets::Button(ICON_FA_REFRESH, { .size = ImVec2(32.0f, 32.0f), .color = WIDGET_COLOR })) {
-                CVarSetColor(cvarText.c_str(), color);
-                Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            ImGui::BeginDisabled(!CVAR_SHOW_COLLECTED_CHECKS);
+            UIWidgets::CVarCheckbox("Separate Total Collected Checks", CVAR_NAME_SEPARATE_COLLECTED_CHECKS);
+            ImGui::EndDisabled();
+            ImGui::BeginDisabled(!CVAR_SHOW_SEPARATE_COLLECTED_CHECKS || !CVAR_SHOW_COLLECTED_CHECKS);
+            if (UIWidgets::CVarSliderFloat("  ", CVAR_NAME_COLLECTED_CHECKS_OPACITY,
+                                           {
+                                               .format = "Opacity: %.1f",
+                                               .step = 0.01f,
+                                               .min = 0.0f,
+                                               .max = 1.0f,
+                                               .defaultValue = 0.5f,
+                                               .labelPosition = UIWidgets::LabelPositions::None,
+                                               .color = WIDGET_COLOR,
+                                           })) {
+                collectedChecksBG.w = CVAR_COLLECTED_CHECKS_OPACITY;
             }
-            ImGui::SameLine();
-            ImGui::Text(colorText.c_str());
-            ImGui::PopID();
-            checkColorIndex++;
+
+            if (UIWidgets::CVarSliderFloat("    ", CVAR_NAME_COLLECTED_CHECKS_SCALE,
+                                           {
+                                               .format = "Scale: %.1f",
+                                               .step = 0.10f,
+                                               .min = 0.7f,
+                                               .max = 2.5f,
+                                               .defaultValue = 1.0f,
+                                               .labelPosition = UIWidgets::LabelPositions::None,
+                                               .color = WIDGET_COLOR,
+                                           })) {
+                collectedChecksScale = CVAR_COLLECTED_CHECKS_SCALE;
+            }
+
+            ImGui::EndDisabled();
+
+            UIWidgets::CVarCheckbox("Toggle Floating Window", CVAR_NAME_ENABLE_FLOATING_WINDOW);
+
+            if (UIWidgets::Button(
+                    "Expand/Collapse All Levels",
+                    UIWidgets::ButtonOptions{}.Color(WIDGET_COLOR).Size(ImVec2(ImGui::GetContentRegionAvail().x, 0)))) {
+                expandToggle = !expandToggle;
+            }
+
+            if (UIWidgets::CVarSliderFloat("", CVAR_NAME_CHECK_TRACKER_OPACITY,
+                                           {
+                                               .format = "Opacity: %.1f",
+                                               .step = 0.01f,
+                                               .min = 0.0f,
+                                               .max = 1.0f,
+                                               .defaultValue = 0.5f,
+                                               .labelPosition = UIWidgets::LabelPositions::None,
+                                               .color = WIDGET_COLOR,
+                                           })) {
+                checkTrackerBG.w = CVAR_CHECK_TRACKER_OPACITY;
+            }
+
+            if (UIWidgets::CVarSliderFloat(" ", CVAR_NAME_CHECK_TRACKER_SCALE,
+                                           {
+                                               .format = "Scale: %.1f",
+                                               .step = 0.10f,
+                                               .min = 0.7f,
+                                               .max = 2.5f,
+                                               .defaultValue = 1.0f,
+                                               .labelPosition = UIWidgets::LabelPositions::None,
+                                               .color = WIDGET_COLOR,
+                                           })) {
+                checkTrackerScale = CVAR_CHECK_TRACKER_SCALE;
+            }
+
+            int16_t checkColorIndex = 0;
+            for (auto& [cvar, color, label] : defaultCheckColorList) {
+                std::string cvarText = cvar;
+                cvarText += ".Value";
+                std::string colorText = label;
+                colorText += " Color";
+                std::string widgetLabel = "##";
+                widgetLabel += std::to_string(checkColorIndex);
+
+                ImGui::PushID(checkColorIndex);
+                UIWidgets::CVarColorPicker(widgetLabel.c_str(), cvar, color, true);
+                ImGui::SameLine();
+                if (UIWidgets::Button(ICON_FA_REFRESH, { .size = ImVec2(32.0f, 32.0f), .color = WIDGET_COLOR })) {
+                    CVarSetColor(cvarText.c_str(), color);
+                    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+                }
+                ImGui::SameLine();
+                ImGui::Text(colorText.c_str());
+                ImGui::PopID();
+                checkColorIndex++;
+            }
+            ImGui::EndChild();
         }
         ImGui::EndTable();
     }

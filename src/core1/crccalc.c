@@ -2,8 +2,19 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 
-// transform seed (in mips3 file)
-u32 func_8025C29C(u32 *seed); // TODO: This function does not exist in source code, why does it work?
+// The decomp links this from the ROM's mips3 segment; recovered here by 
+// disassembling core1 and verified against real save/global checksums. 
+// Updates the 64-bit seed in place and returns its low word.
+u32 func_8025C29C(u32 *seed) {
+    u64 s = *(u64*)seed;
+    u64 a2 = (s << 63) >> 31;
+    u64 a1 = (s << 31) >> 32;
+    u64 a3 = (s << 44) >> 32;
+    a2 = (a2 | a1) ^ a3;
+    a3 = ((a2 >> 20) & 0xfff) ^ a2;
+    *(u64*)seed = a3;
+    return (u32)a3;
+}
 
 void glcrc_calc_checksum(void *start, void *end, u32 checksum[2]) {
     u8 *p;

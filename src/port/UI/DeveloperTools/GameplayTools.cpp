@@ -24,17 +24,11 @@ void player_getPosition(f32 dst[3]);
 void player_getPosition_s32(s32 arg0[3]);
 enum map_e gsworld_getMap(void);
 Actor* actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags);
-Actor* actor_spawnWithYaw_s32(enum actor_e id, s32 (*pos)[3], s32 rot);
 void func_8031D04C(enum map_e arg0, s32 exit_id);
 
 void item_set(s32 item, s32 val);
-void item_setMaxCount(s32 item);
 void ability_setAllLearned(s32 val);
 void ability_setAllUsed(s32 val);
-
-void jiggyscore_setCollected(s32 indx, s32 val);
-void honeycombscore_set(enum honeycomb_e indx, bool val);
-void mumboscore_set(enum mumbotoken_e indx, bool val);
 
 s32 mapSpecificFlags_get(s32 i);
 void mapSpecificFlags_set(s32 i, s32 val);
@@ -114,6 +108,10 @@ std::map<map_e, std::pair<const char*, int32_t>> commonWarpMap = {
     { MAP_1B_MMM_MAD_MONSTER_MANSION, { "Mad Monster Mansion Warp Pad", 20 } },
     { MAP_31_RBB_RUSTY_BUCKET_BAY, { "Rusty Bucket Bay Warp Pad", 16 } },
     { MAP_40_CCW_HUB, { "Click Clock Wood Warp Pad", 7 } },
+    { MAP_43_CCW_SPRING, { "Click Clock Wood - Spring", 1 } },
+    { MAP_44_CCW_SUMMER, { "Click Clock Wood - Summer", 1 } },
+    { MAP_45_CCW_AUTUMN, { "Click Clock Wood - Autumn", 1 } },
+    { MAP_46_CCW_WINTER, { "Click Clock Wood - Winter", 1 } },
 };
 
 // clang-format off
@@ -199,46 +197,6 @@ void GameplayTools_UpdateJinjoCheckboxes(actor_e selectedJinjoId) {
 void GameplayTools_SpawnPosition() {
     for (int i = 0; i < 2; i++) {
         spawnPosition[i] = playerPosition[i] + spawnOffset[i];
-    }
-}
-
-void GameplayTools_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
-    if (randoSaveCheck.obtained) {
-        CustomObject::CheckObtainedEX(randoSaveCheck.randoCheckId);
-    }
-
-    for (auto& pool : Rando::Logic::shuffledPool) {
-        if (pool.randoCheckId == randoSaveCheck.randoCheckId) {
-            pool.isShuffled = randoSaveCheck.isShuffled;
-            pool.obtained = randoSaveCheck.obtained;
-            pool.skipped = randoSaveCheck.skipped;
-            break;
-        }
-    }
-
-    int32_t itemIncr = randoSaveCheck.obtained ? 1 : -1;
-
-    switch (randoSaveCheck.randoItemId) {
-        case RI_JIGGY:
-            jiggyscore_setCollected(randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
-            item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, itemIncr);
-            break;
-        case RI_EMPTY_HONEYCOMB:
-            honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
-            break;
-        case RI_MOLEHILL:
-            if (randoSaveCheck.obtained) {
-                ability_unlock((ability_e)randoSaveCheck.randoCollectionId);
-            } else {
-                ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, 0);
-            }
-            break;
-        case RI_MUMBO_TOKEN:
-            mumboscore_set((mumbotoken_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
-            item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, itemIncr);
-            break;
-        default:
-            break;
     }
 }
 
@@ -360,7 +318,7 @@ void GameplayTools_ObjectSpawner() {
                              UIWidgets::IntSliderOptions()
                                  .Color(THEME_COLOR)
                                  .Min(HONEYCOMB_1_MM_HILL)
-                                 .Max(JIGGY_64_MMM_LOGGO)
+                                 .Max(HONEYCOMB_18_SM_QUARRIES)
                                  .DefaultValue(HONEYCOMB_1_MM_HILL)
                                  .Format(honeycombText.c_str())
                                  .LabelPosition(UIWidgets::LabelPositions::None));
@@ -476,108 +434,6 @@ void DrawMonitoringTools() {
     }
 }
 
-void DrawRandoFlagEditor() {
-    ImGui::SeparatorText("Rando INF Flags");
-    if (ImGui::BeginChild("RandoFlagChild")) {
-        for (int f = RANDO_INF_UNKNOWN; f < RANDO_INF_MAX; f++) {
-            ImGui::PushID(f);
-            bool flagState = RANDO_SAVE_FLAGS[f].flagState;
-            if (UIWidgets::Checkbox(Rando::StaticData::Flags[(RandoInf)f].name, &flagState)) {
-                CALL_EVENT(SetRandoInfFlag, (RandoInf)f, !RANDO_SAVE_FLAGS[f].flagState);
-            }
-            ImGui::PopID();
-        }
-        ImGui::EndChild();
-    }
-}
-
-void DrawRandoCheckEditor() {
-    if (Rando::Logic::shuffledPool.empty()) {
-        ImGui::Text("No Rando Save Data");
-    } else {
-        if (ImGui::BeginChild("RandoToolsChild", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
-            if (ImGui::BeginTable("RandoSaveEditorTable", 6)) {
-                ImGui::TableSetupColumn("shuffled", ImGuiTableColumnFlags_WidthFixed, 34.0f);
-                ImGui::TableSetupColumn("obtained", ImGuiTableColumnFlags_WidthFixed, 34.0f);
-                ImGui::TableSetupColumn("skipped", ImGuiTableColumnFlags_WidthFixed, 34.0f);
-                ImGui::TableSetupColumn("checkName", ImGuiTableColumnFlags_WidthStretch, 3.5f);
-                ImGui::TableSetupColumn("itemName", ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                ImGui::TableSetupColumn("collectionId", ImGuiTableColumnFlags_WidthStretch, 0.5f);
-                ImGui::TableNextColumn();
-
-                for (auto& check : RANDO_SAVE_CHECKS) {
-                    ImGui::PushID(check.randoCheckId);
-                    bool isChanged = false;
-                    bool isShuffled = check.isShuffled;
-                    bool obtained = check.obtained;
-                    bool skipped = check.skipped;
-
-                    if (UIWidgets::Checkbox(
-                            "isShuffled", &isShuffled,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
-                        RANDO_SAVE_CHECKS[check.randoCheckId].isShuffled = !check.isShuffled;
-                        isChanged = true;
-                    }
-                    ImGui::TableNextColumn();
-                    if (UIWidgets::Checkbox(
-                            "obtained", &obtained,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
-                        RANDO_SAVE_CHECKS[check.randoCheckId].obtained = !check.obtained;
-                        isChanged = true;
-                    }
-                    ImGui::TableNextColumn();
-                    if (UIWidgets::Checkbox(
-                            "skipped", &skipped,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
-                        RANDO_SAVE_CHECKS[check.randoCheckId].skipped = !check.skipped;
-                        isChanged = true;
-                    }
-
-                    if (isChanged) {
-                        GameplayTools_UpdateCheckTracker(check);
-                    }
-                    ImGui::TableNextColumn();
-
-                    std::string checkName = Rando::StaticData::Checks[check.randoCheckId].name;
-                    ImGui::TextWrapped(checkName.c_str());
-                    ImGui::TableNextColumn();
-
-                    if (check.randoItemId == RI_MOLEHILL) {
-                        TableCellCenteredText(abilityNameList[check.randoCollectionId].c_str());
-                    } else {
-                        TableCellCenteredText(Rando::StaticData::Items[check.randoItemId].name);
-                    }
-                    ImGui::TableNextColumn();
-
-                    if (Rando::StaticData::Checks[check.shuffledCheckId].randoCheckType != RCTYPE_JINJO &&
-                        Rando::StaticData::Checks[check.shuffledCheckId].randoCheckType != RCTYPE_MUSIC_NOTE) {
-                        TableCellCenteredText(std::to_string(check.randoCollectionId).c_str());
-                    }
-                    ImGui::TableNextColumn();
-
-                    ImGui::PopID();
-                }
-                ImGui::EndTable();
-            }
-            ImGui::EndChild();
-        }
-    }
-}
-
-void DrawRandoTabBar() {
-    if (ImGui::BeginTabBar("RandoTabBar")) {
-        if (ImGui::BeginTabItem("Flag Editor")) {
-            DrawRandoFlagEditor();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Check Editor")) {
-            DrawRandoCheckEditor();
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-}
-
 void GameplayTools_DrawTabBar() {
     UIWidgets::PushStyleTabs(THEME_COLOR);
     if (ImGui::BeginTabBar("GameplayToolsTabBar")) {
@@ -596,12 +452,6 @@ void GameplayTools_DrawTabBar() {
         if (ImGui::BeginTabItem("Monitoring")) {
             DrawMonitoringTools();
             ImGui::EndTabItem();
-        }
-        if (IS_RANDO) {
-            if (ImGui::BeginTabItem("Rando Save Editor")) {
-                DrawRandoTabBar();
-                ImGui::EndTabItem();
-            }
         }
         ImGui::EndTabBar();
     }

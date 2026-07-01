@@ -29,6 +29,9 @@ void port_freezeReadback(int freeze);
 void port_requestReadback(void);
 int port_consumeReadbackRequest(void);
 int port_getPauseFramebufferId(void);
+int port_capturePauseFramebuffer(void);
+void port_getPauseFramebufferSize(int* w, int* h);
+int port_pauseConsumeRecaptureRequest(void);
 int port_shouldCaptureTransition(void);
 
 int32_t port_getAuxGpuFbId(void);
@@ -36,7 +39,7 @@ void port_readAuxFbToCpu(void* gfx_ptr);
 void port_patchPictureModel(void* model_bin, int32_t min_xy, int32_t max_xy, int32_t min_z, int32_t max_z,
                             uint32_t from);
 int32_t port_getTransitionGpuFbId(void);
-void port_readTransitionFbToCpu(void* gfx_ptr);
+void port_captureTransitionFb(void* gfx_ptr);
 void port_patchTransitionModel(void* model_bin);
 
 // Sprite Display Cache (SpritePatches.cpp)
@@ -66,6 +69,8 @@ int port_shouldDisableLOD(void);
 float port_drawDistanceMul(void);
 void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist);
 int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
+float port_hudOrthoShift(float refX);
+void port_drawLivesCount(Gfx** gfx, Mtx** mtx, Vtx** vtx, char* str, float baseX, float screenY);
 
 // Mirror (MirrorPatches.cpp)
 

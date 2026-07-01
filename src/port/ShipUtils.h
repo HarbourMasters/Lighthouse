@@ -8,6 +8,7 @@ void LoadGuiTextures();
 #ifdef __cplusplus
 #include <nlohmann/json.hpp>
 #define WIDGET_COLOR UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5))
+extern int32_t gSelectedFileNum;
 
 using nlohmann::json;
 json Ship_RetrieveSaveFile(int32_t filenum);
@@ -19,6 +20,7 @@ extern std::vector<std::string> abilityNameList;
 
 void TableCellCenteredText(const char* text);
 uint32_t Ship_Hash(std::string str);
+std::string port_FormatTimeDisplay(uint32_t value);
 
 extern "C" {
 #endif
