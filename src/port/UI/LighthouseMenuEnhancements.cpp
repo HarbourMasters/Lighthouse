@@ -63,14 +63,9 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Extended Draw Distance: %dx", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
         .RaceDisable(false)
-        .Options(IntSliderOptions()
-                     .Min(1)
-                     .Max(6)
-                     .DefaultValue(1)
-                     .ShowButtons(true)
-                     .Format("")
-                     .Tooltip("Multiplies the draw distance for objects.\n"
-                              "Higher values render more but cost performance."));
+        .Options(IntSliderOptions().Min(1).Max(6).DefaultValue(1).ShowButtons(true).Format("").Tooltip(
+            "Multiplies the draw distance for objects.\n"
+            "Higher values render more but cost performance."));
 
     // Enhancements -> Camera
     path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
@@ -84,8 +79,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Invert Camera X", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.InvertX"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Inverts horizontal camera."));
+        .Options(CheckboxOptions().Tooltip("Inverts horizontal camera."));
 
     AddWidget(path, "Invert Camera Y", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.InvertY"))

@@ -197,8 +197,8 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
     menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '), menuSearchText.end());
     ImGui::SetNextWindowSizeConstraints({ ImGui::GetContentRegionAvail().x, 0 },
                                         { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
-    if (ImGui::BeginChild("Search Results Col 1", { ImGui::GetContentRegionAvail().x, 0 },
-                          ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoTitleBar)) {
+    if (ImGui::BeginChild("Search Results Col 1", { ImGui::GetContentRegionAvail().x, 0 }, ImGuiChildFlags_AutoResizeY,
+                          ImGuiWindowFlags_NoTitleBar)) {
         for (auto& menuLabel : menuOrder) {
             auto& menuEntry = menuEntries.at(menuLabel);
             for (auto& sidebarLabel : menuEntry.sidebarOrder) {

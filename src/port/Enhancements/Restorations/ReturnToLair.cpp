@@ -36,8 +36,8 @@ void RegisterReturnToLair_Init() {
             // The enter-lair cutscene flag is what flips the save's start map to the Lair, so it
             // doubles as "the player has reached the Lair at least once".
             bool beenToLair = fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE);
-            bool validWorld = level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR &&
-                              D_8036C560[level - 1].map != -1;
+            bool validWorld =
+                level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR && D_8036C560[level - 1].map != -1;
             // Spiral Mountain has a valid Lair warp entry, but only offer the option there once the
             // Lair has actually been visited.
             bool showOption = validWorld && (!isSpiralMountain || beenToLair);
@@ -52,8 +52,7 @@ void RegisterReturnToLair_Init() {
                 menuData[3].delay = 0.3f;
                 menuData[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_2;
                 // From Spiral Mountain you head forward to the Lair rather than exiting back to it.
-                menuData[1].str =
-                    isSpiralMountain ? (u8*)"GO TO GRUNTY'S LAIR" : (u8*)"EXIT TO WITCH'S LAIR";
+                menuData[1].str = isSpiralMountain ? (u8*)"GO TO GRUNTY'S LAIR" : (u8*)"EXIT TO WITCH'S LAIR";
             } else {
                 // Option hidden — reset to vanilla layout
                 menuData[0].y = 55;
