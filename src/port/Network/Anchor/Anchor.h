@@ -222,7 +222,7 @@ public:
     void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
     void SendPacket_RequestTeamState();
     void SendPacket_RequestTeleport(u32 clientId);
-    void SendPacket_SetCheckStatus(/*RandomizerCheck rc*/);
+    void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);
     void SendPacket_SetItemCount(s16 item, s32 count);
     void SendPacket_SetAbility(s16 move, u8 value);

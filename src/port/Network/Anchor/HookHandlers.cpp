@@ -353,6 +353,41 @@ void Anchor::RegisterHooks() {
         anchor->SendPacket_CollectItem((u8)ev->kind, (s32)ev->id);
     });
 
+    // Realtime shuffled-check obtainment. Teammates mark the check obtained (deriving its
+    // rando_inf flags) and live-despawn their copy of the object. Fired only for real collects
+    // (CheckObtainedEX passes isInit for save-load re-application and remote applies), so this
+    // never echoes.
+    COND_HOOK(OnRandoCheckObtained, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<OnRandoCheckObtained*>(event);
+        anchor->SendPacket_SetCheckStatus((s32)ev->randoCheckId, (s32)ev->map);
+    });
+
+    // Rando save flags that aren't derived from a check (currently only the MM bridge-repair
+    // dialog flag) ride SET_FLAG under ANCHOR_FLAGSPACE_RANDO_INF. Check-derived RANDO_INF flags
+    // are recomputed by each client via ModifyRandoInfFlagState, so they're deliberately excluded
+    // here. Remote applies set the save array directly (no SetRandoInfFlag event), so no echo.
+    COND_HOOK(SetRandoInfFlag, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
+            return;
+        }
+        auto ev = reinterpret_cast<SetRandoInfFlag*>(event);
+        if (!ev->flagState) {
+            return;
+        }
+        switch (ev->flagId) {
+            case RANDO_INF_BRIDGE_REPAIRED_DIALOG_COMPLETE:
+                anchor->SendPacket_SetFlag((u8)ANCHOR_FLAGSPACE_RANDO_INF, (s16)ev->flagId);
+                break;
+            default:
+                break;
+        }
+    });
+
     // Realtime jiggy spawns (witch switch, minigame reward) for same-map teammates.
     COND_HOOK(OnJiggySpawned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();

@@ -349,6 +349,7 @@ enum AnchorFlagSpace {
     ANCHOR_FLAGSPACE_VOLATILE = 1,
     ANCHOR_FLAGSPACE_LEVEL_SPECIFIC = 2, // transient per-level; ctx = level id
     ANCHOR_FLAGSPACE_MAP_SPECIFIC = 3,   // transient per-map; ctx = map id
+    ANCHOR_FLAGSPACE_RANDO_INF = 4,      // rando RANDO_INF_* save flags not derivable from checks
 };
 // Identifies which collectible an OnCollectibleCollected event / COLLECT_ITEM packet targets.
 enum AnchorCollectibleSpace {

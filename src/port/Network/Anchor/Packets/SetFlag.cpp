@@ -7,6 +7,7 @@ extern "C" {
 }
 
 #include "port/Patches/Patches.h"
+#include "port/Rando/Rando.h"
 
 /**
  * SET_FLAG
@@ -39,7 +40,15 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
 
     SPDLOG_INFO("[Anchor][flagdiag] received SetFlag space={} flag={:#x}", flagSpace, flag);
 
-    if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
+    if (flagSpace == ANCHOR_FLAGSPACE_RANDO_INF) {
+        // Non-derived rando save flag (currently only the MM bridge-repair dialog flag). Set the
+        // save array directly rather than via SetRandoInfFlag so applying it doesn't re-fire the
+        // event and echo back onto the wire. Check-derived RANDO_INF flags never come through
+        // here — they ride SET_CHECK_STATUS and are recomputed by ModifyRandoInfFlagState.
+        if (flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
+            RANDO_SAVE_FLAGS[flag].flagState = 1;
+        }
+    } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
         volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
     } else {
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);

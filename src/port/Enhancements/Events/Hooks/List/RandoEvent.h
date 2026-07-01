@@ -46,6 +46,11 @@ DEFINE_EVENT(OnIsJiggyScoreSpawned, int32_t jiggyId; int32_t result;)
 
 DEFINE_EVENT(SetRandoInfFlag, int32_t flagId; int32_t flagState;)
 
+// Fired when a shuffled rando check is first obtained (the single funnel in
+// CustomObject::CheckObtainedEX). Anchor broadcasts this so teammates mark the check
+// obtained, derive its rando_inf flags, and live-despawn their copy of the object.
+DEFINE_EVENT(OnRandoCheckObtained, int32_t randoCheckId; int32_t map;)
+
 DEFINE_EVENT(OnIsHoneycombScoreCollected, int32_t honeycombId; int32_t result;)
 
 DEFINE_EVENT(ClearBundleDespawnQueue);
