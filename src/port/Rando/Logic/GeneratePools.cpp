@@ -81,6 +81,11 @@ void GenerateShufflePool(SaveData* saveData) {
             continue;
         }
 
+        if (randoStaticCheck.randoCheckType == RCTYPE_STOP_N_SWOP &&
+            CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_STOP_N_SWOP].cvar, 0) == RO_GENERIC_OFF) {
+            continue;
+        }
+
         checkPool.push_back(randoCheckId);
         itemPool.push_back({ (actor_e)randoStaticCheck.actorId, randoStaticCheck.collectionId, randoCheckId });
     }

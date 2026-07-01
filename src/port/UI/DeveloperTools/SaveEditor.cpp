@@ -404,7 +404,7 @@ void DrawRandoCheckEditor() {
 
                 for (auto& check : RANDO_SAVE_CHECKS) {
                     if (!rcFilter.PassFilter(check.name) &&
-                        !rcFilter.PassFilter(Rando::StaticData::Items[check.randoItemId].spoilerName)) {
+                        !rcFilter.PassFilter(Rando::StaticData::Items[check.randoItemId].name)) {
                         continue;
                     }
 

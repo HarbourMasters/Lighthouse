@@ -424,43 +424,45 @@ void func_802D3FD4(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         func_802D3CE8(this);
-        switch(gsworld_getMap()){
+        if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false)) {
+            switch (gsworld_getMap()) {
             case MAP_1D_MMM_CELLAR: //L802D4058
-                if(sns_get_item_state(SNS_ITEM_EGG_CYAN, 1) && !sns_get_item_state(SNS_ITEM_EGG_CYAN, 0)){
+                if (sns_get_item_state(SNS_ITEM_EGG_CYAN, 1) && !sns_get_item_state(SNS_ITEM_EGG_CYAN, 0)) {
                     return;
                 }
                 break;
 
             case MAP_61_CCW_WINTER_NABNUTS_HOUSE://L802D4080
-                if(sns_get_item_state(SNS_ITEM_EGG_YELLOW, 1) && !sns_get_item_state(SNS_ITEM_EGG_YELLOW, 0)){
+                if (sns_get_item_state(SNS_ITEM_EGG_YELLOW, 1) && !sns_get_item_state(SNS_ITEM_EGG_YELLOW, 0)) {
                     return;
                 }
                 break;
 
             case MAP_2C_MMM_BATHROOM: //L802D40A8
-                if(sns_get_item_state(SNS_ITEM_EGG_GREEN, 1) && !sns_get_item_state(SNS_ITEM_EGG_GREEN, 0)){
+                if (sns_get_item_state(SNS_ITEM_EGG_GREEN, 1) && !sns_get_item_state(SNS_ITEM_EGG_GREEN, 0)) {
                     return;
                 }
                 break;
 
             case MAP_3F_RBB_CAPTAINS_CABIN: //L802D40D0
-                if(sns_get_item_state(SNS_ITEM_EGG_RED, 1) && !sns_get_item_state(SNS_ITEM_EGG_RED, 0)){
+                if (sns_get_item_state(SNS_ITEM_EGG_RED, 1) && !sns_get_item_state(SNS_ITEM_EGG_RED, 0)) {
                     return;
                 }
                 break;
 
             case MAP_92_GV_SNS_CHAMBER:
-                if(!sns_get_item_state(SNS_ITEM_EGG_BLUE, 0))
+                if (!sns_get_item_state(SNS_ITEM_EGG_BLUE, 0))
                     return;
                 break;
 
             case MAP_8F_TTC_SHARKFOOD_ISLAND: //L802D4110
-                if(!sns_get_item_state(SNS_ITEM_EGG_PINK, 0))
+                if (!sns_get_item_state(SNS_ITEM_EGG_PINK, 0))
                     return;
                 break;
-        }//L802D4124
-        marker_despawn(this->marker);
-        return;
+            }//L802D4124
+            marker_despawn(this->marker);
+            return;
+        }
     }//L802D4134
 
     this->yaw += (this->actorTypeSpecificField & 1) ? -1.4 : 1.4;

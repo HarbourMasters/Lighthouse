@@ -139,6 +139,22 @@ inline bool ShouldSpawnJinjoJiggy(int16_t levelId) {
     return shouldSpawn;
 }
 
+inline int32_t GetTotalSnsItemsCollected() {
+    int32_t snsCount = 0;
+
+    for (auto& pool : Rando::Logic::shuffledPool) {
+        if (!pool.obtained) {
+            continue;
+        }
+
+        if (pool.randoItemId == RI_STOP_N_SWOP_EGG || pool.randoItemId == RI_STOP_N_SWOP_KEY) {
+            snsCount++;
+        }
+    }
+
+    return snsCount;
+}
+
 // Regions
 inline std::string LogicString(std::string condition) {
     if (condition == "true")

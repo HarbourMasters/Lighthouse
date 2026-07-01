@@ -182,9 +182,9 @@ int32_t GetCheckPoolJinjoJiggyIndexByLevelId(int16_t levelId, std::vector<RandoC
         }
 
         if ((randoStaticCheck.collectionId == (10 * levelId) - 9) &&
-            (reachableChecks[checkPool[i]].canAccess &&
-             !reachableChecks[checkPool[i]].isFilled)) {
-            return checkPool[i];
+            (reachableChecks[Rando::Logic::checkPool[i]].canAccess &&
+             !reachableChecks[Rando::Logic::checkPool[i]].isFilled)) {
+            return Rando::Logic::checkPool[i];
         }
     }
 

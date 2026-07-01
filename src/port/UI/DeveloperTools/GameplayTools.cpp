@@ -17,8 +17,10 @@
 #include "enums.h"
 #include "prop.h"
 #include "actor.h"
+#include "include/core1/sns.h"
 
 extern "C" {
+void sns_set_item_state(enum StopNSwop_Item item, s32 set, s32 state);
 void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]);
 void player_getPosition(f32 dst[3]);
 void player_getPosition_s32(s32 arg0[3]);
@@ -63,6 +65,7 @@ int32_t mapId = 0;
 int32_t exitId = 0;
 
 actor_e selectedJinjo = ACTOR_60_JINJO_BLUE;
+int32_t selectedSnsItem = SNS_ITEM_EGG_YELLOW;
 int32_t selectedJiggy = JIGGY_01_MM_JINJO;
 int32_t selectedHoneycomb = HONEYCOMB_1_MM_HILL;
 int32_t selectedToken = MUMBOTOKEN_01_MM_STUMP_NEAR_CONGA;
@@ -95,6 +98,15 @@ std::map<actor_e, std::tuple<const char*, UIWidgets::Colors, bool>> jinjoDataMap
     { ACTOR_60_JINJO_BLUE, { "Blue Jinjo", UIWidgets::Colors::SkyBlue, false } },
     { ACTOR_61_JINJO_PINK, { "Pink Jinjo", UIWidgets::Colors::Pink, false } },
     { ACTOR_62_JINJO_GREEN, { "Green Jinjo", UIWidgets::Colors::Green, false } },
+};
+
+std::map<StopNSwop_Item, std::tuple<const char*, UIWidgets::Colors, bool>> snsDataMap = {
+    { SNS_ITEM_EGG_YELLOW, { "SNS Yellow Egg", UIWidgets::Colors::Yellow, false } },
+    { SNS_ITEM_EGG_RED, { "SNS Red Egg", UIWidgets::Colors::Red, false } },
+    { SNS_ITEM_EGG_GREEN, { "SNS Green Egg", UIWidgets::Colors::Green, false } },
+    { SNS_ITEM_EGG_BLUE, { "SNS Blue Egg", UIWidgets::Colors::Blue, false } },
+    { SNS_ITEM_EGG_PINK, { "SNS Pink Egg", UIWidgets::Colors::Pink, false } },
+    { SNS_ITEM_EGG_CYAN, { "SNS Cyan Egg", UIWidgets::Colors::Cyan, false } },
 };
 
 std::map<map_e, std::pair<const char*, int32_t>> commonWarpMap = {
@@ -194,6 +206,17 @@ void GameplayTools_UpdateJinjoCheckboxes(actor_e selectedJinjoId) {
     }
 }
 
+void GameplayTools_UpdateSnsCheckboxes(StopNSwop_Item selectedSnsId) {
+    selectedSnsItem = selectedSnsId;
+    for (auto& [snsId, snsData] : snsDataMap) {
+        if (snsId == selectedSnsId) {
+            std::get<2>(snsData) = true;
+        } else {
+            std::get<2>(snsData) = false;
+        }
+    }
+}
+
 void GameplayTools_SpawnPosition() {
     for (int i = 0; i < 2; i++) {
         spawnPosition[i] = playerPosition[i] + spawnOffset[i];
@@ -237,7 +260,7 @@ void GameplayTools_ObjectSpawner() {
                                  UIWidgets::IntSliderOptions()
                                      .Color(THEME_COLOR)
                                      .Min(0)
-                                     .Max(200)
+                                     .Max(700)
                                      .DefaultValue(0)
                                      .Format("Offset Y: %i")
                                      .LabelPosition(UIWidgets::LabelPositions::None))) {
@@ -348,6 +371,31 @@ void GameplayTools_ObjectSpawner() {
         if (UIWidgets::Button("Spawn Note", { .color = THEME_COLOR })) {
             Actor* newActor = actor_new(spawnPosition, 0, &actorInfoMap.at(ACTOR_51_MUSIC_NOTE).first,
                                         actorInfoMap.at(ACTOR_51_MUSIC_NOTE).second);
+        }
+        ImGui::TableNextColumn();
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Spawn SNS Egg", { .color = THEME_COLOR })) {
+            Actor* newActor = actor_new(spawnPosition, 0, &actorInfoMap.at(ACTOR_25E_SNS_EGG).first,
+                                        actorInfoMap.at(ACTOR_25E_SNS_EGG).second);
+            newActor->actorTypeSpecificField = selectedSnsItem;
+        }
+        ImGui::TableNextColumn();
+        for (auto& [snsId, snsData] : snsDataMap) {
+            bool isChecked = std::get<2>(snsData);
+            if (UIWidgets::Checkbox(std::get<0>(snsData), &isChecked,
+                                    UIWidgets::CheckboxOptions()
+                                        .Color(std::get<1>(snsData))
+                                        .LabelPosition(UIWidgets::LabelPositions::None))) {
+                GameplayTools_UpdateSnsCheckboxes(snsId);
+            }
+            ImGui::SameLine();
+        }
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Spawn Ice Key", { .color = THEME_COLOR })) {
+            Actor* newActor = actor_new(spawnPosition, 0, &actorInfoMap.at(ACTOR_25D_ICE_KEY).first,
+                                        actorInfoMap.at(ACTOR_25D_ICE_KEY).second);
         }
 
         ImGui::EndTable();
@@ -464,4 +512,5 @@ void GameplayToolsWindow::DrawElement() {
 
 void GameplayToolsWindow::InitElement() {
     std::get<2>(jinjoDataMap.at(ACTOR_60_JINJO_BLUE)) = true;
+    std::get<2>(snsDataMap.at(SNS_ITEM_EGG_YELLOW)) = true;
 }

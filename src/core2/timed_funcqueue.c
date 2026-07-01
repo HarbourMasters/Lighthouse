@@ -195,22 +195,25 @@ void func_80324D54(f32 time, enum sfx_e sfx_id, f32 arg2, s32 arg3, f32 position
 }
 
 void func_80324DBC(f32 time, enum asset_e text_id, s32 arg2, f32 position[3], ActorMarker *caller, void (*callback_method_1)(ActorMarker *, enum asset_e, s32), void (*callback_method_2)(ActorMarker *, enum asset_e, s32)) {
-    DelayedTextCallback sp20;
-    s32 pad;
+    if (!EventSystem_Should(VB_OVERRIDE_TIMED_DIALOGUE, false, text_id)) {
+        DelayedTextCallback sp20;
+        s32 pad;
 
-    sp20.text_id = text_id;
-    sp20.unk4 = arg2;
-    sp20.caller = caller;
-    sp20.callback_method_1 = callback_method_1;
-    sp20.callback_method_2 = callback_method_2;
-    if (position != NULL) {
-        sp20.position[0] = position[0];
-        sp20.position[1] = position[1];
-        sp20.position[2] = position[2];
-    } else {
-        sp20.position[0] = sp20.position[1] = sp20.position[2] = 0.0f;
+        sp20.text_id = text_id;
+        sp20.unk4 = arg2;
+        sp20.caller = caller;
+        sp20.callback_method_1 = callback_method_1;
+        sp20.callback_method_2 = callback_method_2;
+        if (position != NULL) {
+            sp20.position[0] = position[0];
+            sp20.position[1] = position[1];
+            sp20.position[2] = position[2];
+        }
+        else {
+            sp20.position[0] = sp20.position[1] = sp20.position[2] = 0.0f;
+        }
+        timedFunc_set_6(time, (GenFunction_6)func_80324AEC, (void*)&sp20, sizeof(sp20));
     }
-    timedFunc_set_6(time, (GenFunction_6) func_80324AEC, (void *) &sp20, sizeof(sp20));
 }
 
 

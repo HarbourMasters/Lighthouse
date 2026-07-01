@@ -621,26 +621,28 @@ void __baMarker_resolveCollision(Prop *other_prop){
 
             case MARKER_169_SNS_EGG: //L8028C908
             { //ONLY THIS CASE DOESN'T MATCH
-                switch (gsworld_getMap())
-                {
-                case MAP_1D_MMM_CELLAR: //L8028C95C
-                    sns_set_item_and_update_payload(SNS_ITEM_EGG_CYAN, 0, 1);
-                    break;
-                case MAP_61_CCW_WINTER_NABNUTS_HOUSE: //L8028C974
-                    sns_set_item_and_update_payload(SNS_ITEM_EGG_YELLOW, 0, 1);
-                    break;
-                case MAP_2C_MMM_BATHROOM: //L8028C988
-                    sns_set_item_and_update_payload(SNS_ITEM_EGG_GREEN, 0, 1);
-                    break;
-                case MAP_3F_RBB_CAPTAINS_CABIN: //L8028C99C
-                    sns_set_item_and_update_payload(SNS_ITEM_EGG_RED, 0, 1);
-                    break;
-                case MAP_92_GV_SNS_CHAMBER: //L8028C9B0
-                    sns_set_item_and_update_payload(SNS_ITEM_EGG_BLUE, 0, 1);
-                    break;
-                case MAP_8F_TTC_SHARKFOOD_ISLAND: //L8028C9C4
-                    sns_set_item_and_update_payload(SNS_ITEM_EGG_PINK, 0, 1);
-                    break;
+                if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false)) {
+                    switch (gsworld_getMap())
+                    {
+                    case MAP_1D_MMM_CELLAR: //L8028C95C
+                        sns_set_item_and_update_payload(SNS_ITEM_EGG_CYAN, 0, 1);
+                        break;
+                    case MAP_61_CCW_WINTER_NABNUTS_HOUSE: //L8028C974
+                        sns_set_item_and_update_payload(SNS_ITEM_EGG_YELLOW, 0, 1);
+                        break;
+                    case MAP_2C_MMM_BATHROOM: //L8028C988
+                        sns_set_item_and_update_payload(SNS_ITEM_EGG_GREEN, 0, 1);
+                        break;
+                    case MAP_3F_RBB_CAPTAINS_CABIN: //L8028C99C
+                        sns_set_item_and_update_payload(SNS_ITEM_EGG_RED, 0, 1);
+                        break;
+                    case MAP_92_GV_SNS_CHAMBER: //L8028C9B0
+                        sns_set_item_and_update_payload(SNS_ITEM_EGG_BLUE, 0, 1);
+                        break;
+                    case MAP_8F_TTC_SHARKFOOD_ISLAND: //L8028C9C4
+                        sns_set_item_and_update_payload(SNS_ITEM_EGG_PINK, 0, 1);
+                        break;
+                    }
                 }
                 comusic_playTrack(COMUSIC_88_BIG_SNS_FANFARE);
                 FUNC_8030E624(SFX_114_BRICKWALL_BREAKING, 0.8f, 15000);
