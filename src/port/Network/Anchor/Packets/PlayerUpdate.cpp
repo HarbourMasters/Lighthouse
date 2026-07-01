@@ -179,6 +179,7 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
     payload["modelMouth2"] = func_8029DFEC();        // mouth 2
     payload["modelEyeBlendUpper"] = func_8029DFC8(); // eye blend upper
     payload["modelEyeBlendLower"] = func_8029DFD4(); // eye blend lower
+    payload["bottlesBonus"] = baanim_getActiveBottlesBonusMask(); // active bottles-bonus effect mask
 
     if (full) {
         payload["anim_id"] = anctrl_getIndex(baanim_getAnimCtrlPtr());
@@ -250,5 +251,6 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                                         payload.value("modelWink", false), payload.value("modelMouth1", false),
                                         payload.value("modelMouth2", false), payload.value("modelEyeBlendUpper", 0.0f),
                                         payload.value("modelEyeBlendLower", 0.0f));
+        client.dummy->dummy_setBottlesBonus(payload.value("bottlesBonus", 0));
     }
 }

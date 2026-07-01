@@ -1,11 +1,72 @@
 #include "LighthouseMenu.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
+#include "port/Network/Anchor/Anchor.h"
+
+extern "C" {
+#include "functions.h"
+#include "variables.h"
+// Per-puzzle completion state (index i == bonus i), persisted via SaveManager. Gates the
+// checkboxes when playing solo.
+extern u8 gCompletedBottlesBonusGames[7];
+}
 
 #define CVAR_INT_SHIP_INIT(cvar, val) \
     CVarSetInteger(cvar, val);        \
     ShipInit::Init(cvar);
 
 namespace LighthouseGui {
+
+// Live toggle state for the Bottles' Bonus graphical gags. These are non-cvar checkboxes: the
+// callback writes the sandcastle volatile flags directly (with triggerEvent = 0 so they don't
+// ride the Anchor flag sync — the active bonus is instead carried in the player-state sync).
+// Order matches D_803635EC in ba_anim.c (VOLATILE_FLAG_97..9D) and gCompletedBottlesBonusGames.
+static bool sBottlesBonusState[7] = { false };
+
+static const char* kBottlesBonusNames[7] = {
+    "Big Head",
+    "Big Hands & Feet",
+    "Big Kazooie",
+    "Tall Body & Small Head",
+    "Tall Body, Small Head, Big Hands & Feet",
+    "Big Everything",
+    "Wishy-Washy Banjo",
+};
+
+static const char* kBottlesBonusTooltips[7] = {
+    "Bottles' Bonus: enlarges Banjo's head.",
+    "Bottles' Bonus: enlarges Banjo's hands and feet.",
+    "Bottles' Bonus: enlarges Kazooie's head and wings.",
+    "Bottles' Bonus: stretches Banjo's body and shrinks his head.",
+    "Bottles' Bonus: stretched body, shrunken head, and big hands and feet.",
+    "The 'Big Bottles Bonus': big head, big hands and feet, and big Kazooie.",
+    "Bottles' Bonus: turns Banjo into Wishy-Washy.",
+};
+
+static const char* kBottlesBonusLockedTooltip =
+    "Complete this Bottles' Bonus puzzle to unlock it. (Always available while connected to Anchor.)";
+
+// A bonus can be toggled once its puzzle is complete, or unconditionally while connected to
+// Anchor (so co-op/rando sessions can play with them freely).
+static bool IsBottlesBonusUnlocked(int i) {
+    Anchor* anchor = Anchor::GetInstance();
+    if (anchor != nullptr && anchor->isConnected) {
+        return true;
+    }
+    return gCompletedBottlesBonusGames[i] != 0;
+}
+
+static void ApplyBottlesBonusState() {
+    bool any = false;
+    for (int i = 0; i < 7; i++) {
+        volatileFlag_setEx((enum volatile_flags_e)(VOLATILE_FLAG_97_SANDCASTLE_BOTTLES_BONUS_1 + i),
+                           sBottlesBonusState[i] ? 1 : 0, 0);
+        if (sBottlesBonusState[i]) {
+            any = true;
+        }
+    }
+    // Master gate read by __baanim_applyBottlesBonus / baanim_getActiveBottlesBonusMask.
+    volatileFlag_setEx(VOLATILE_FLAG_78_SANDCASTLE_NO_BONUS, any ? 1 : 0, 0);
+}
 
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 using namespace UIWidgets;
@@ -73,6 +134,29 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Graphics.CutsceneAspect"))
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
+
+    // Column 2: Bottles' Bonuses (the sandcastle cheat-code graphical gags). Non-cvar checkboxes
+    // that toggle the live effect directly; each callback re-applies the whole set of volatile
+    // flags from the checkbox state. Solo, a bonus is locked until its puzzle is complete; the
+    // PreFunc re-evaluates that (and the Anchor bypass) every frame.
+    path.column = SECTION_COLUMN_2;
+
+    AddWidget(path, "Bottles' Bonuses", WIDGET_SEPARATOR_TEXT);
+
+    for (int i = 0; i < 7; i++) {
+        AddWidget(path, kBottlesBonusNames[i], WIDGET_CHECKBOX)
+            .ValuePointer(&sBottlesBonusState[i])
+            .Callback([](WidgetInfo& info) { ApplyBottlesBonusState(); })
+            .PreFunc([i](WidgetInfo& info) {
+                if (!IsBottlesBonusUnlocked(i)) {
+                    info.options->disabled = true;
+                    info.options->disabledTooltip = kBottlesBonusLockedTooltip;
+                }
+            })
+            .Options(CheckboxOptions().Tooltip(kBottlesBonusTooltips[i]));
+    }
+
+    path.column = SECTION_COLUMN_1;
 
     // Enhancements -> Camera
     path = { "Enhancements", "Camera", SECTION_COLUMN_1 };

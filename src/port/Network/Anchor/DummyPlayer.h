@@ -49,6 +49,8 @@ public:
     void dummy_setScale(f32 scale);
     void dummy_setTransformation(Transformation transform);
     Transformation dummy_getTransformation();
+    // Active bottles-bonus effect mask (D_803635EC bitfield) synced from the remote player.
+    void dummy_setBottlesBonus(s32 mask);
     void dummy_setVisible(s32 arg0);
     void dummy_setYDisplacement(f32 arg0);
     void dummy_setYaw(f32 yaw);
@@ -135,4 +137,5 @@ private:
     f32 dummy_modelEyeBlendUpper;
     f32 dummy_modelEyeBlendLower;
     Transformation dummy_transformation;
+    s32 dummyBottlesBonus = 0;
 };

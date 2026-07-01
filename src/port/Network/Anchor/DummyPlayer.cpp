@@ -11,10 +11,24 @@ void func_802D729C(Actor* actor, f32 arg1);
 #include "bk_math.h"
 #include "port/Patches/Patches.h"
 
+// Bottles-bonus scaling for dummy players. The anim-modify callback registered with
+// func_8028746C is a bare function pointer with no per-dummy context, so the dummy currently
+// being updated publishes its synced bonus mask here right before anctrl_update, and the
+// callback reads it back to scale that dummy's skeleton.
+static s32 sActiveDummyBottlesBonus = 0;
+
+static void dummy_applyBottlesBonus(uintptr_t boneList, uintptr_t arg1) {
+    baanim_applyBottlesBonusMask(boneList, sActiveDummyBottlesBonus);
+}
+
 DummyPlayer::DummyPlayer(){};
 
 void DummyPlayer::dummy_setTransformation(Transformation transform) {
     dummy_transformation = transform;
+}
+
+void DummyPlayer::dummy_setBottlesBonus(s32 mask) {
+    dummyBottlesBonus = mask;
 }
 
 Transformation DummyPlayer::dummy_getTransformation() {
@@ -179,7 +193,12 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
     sp38[2] += dummyDisplacement[2];
 
     if (dummyBin) {
+        // anctrl_drawSetup re-runs anim_update (controller.c), which is what actually invokes the
+        // bonus modify callback for the transforms that get rendered — so publish this dummy's
+        // mask here, not just in dummyAnim_update.
+        sActiveDummyBottlesBonus = dummyBottlesBonus;
         anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
+        sActiveDummyBottlesBonus = 0;
         func_8029DD6C();
         modelRender_setEnvColor(env_color[0], env_color[1], env_color[2], dummyEnvAlpha);
         modelRender_func_8033A280(2.0f);
@@ -459,8 +478,7 @@ void DummyPlayer::dummyAnim_init(void) {
     dummyAnimCtrl = anctrl_new(1);
     func_80287784(dummyAnimCtrl, 0);
     anctrl_setSmoothTransition(dummyAnimCtrl, false);
-    // func_8028746C(dummyAnimCtrl, __baanim_applyBottlesBonus);
-    // AnimModifyFunction = NULL;
+    func_8028746C(dummyAnimCtrl, dummy_applyBottlesBonus);
     anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
     dummyAnimUpdateType = BAANIM_UPDATE_0_NONE;
     //__baanim_setUpdateType(BAANIM_UPDATE_1_NORMAL);
@@ -503,7 +521,11 @@ void DummyPlayer::dummyAnim_update(void) {
         default:
             break;
     }
+    // Publish this dummy's synced bonus for the anim-modify callback, then clear it so an
+    // unmodified dummy (or non-dummy anim update) never picks up a stale mask.
+    sActiveDummyBottlesBonus = dummyBottlesBonus;
     anctrl_update(dummyAnimCtrl);
+    sActiveDummyBottlesBonus = 0;
 }
 
 void DummyPlayer::setModelSubStates(bool kazooie, bool squint, bool wink, bool mouth1, bool mouth2, f32 eyeBlendUpper,

@@ -1335,6 +1335,8 @@ void baAnim_init(void);
 void baAnim_update(void);
 void baanim_80289F30(void);
 enum baanim_update_type_e baanim_getUpdateType(void);
+void baanim_applyBottlesBonusMask(uintptr_t arg0, s32 mask);
+s32 baanim_getActiveBottlesBonusMask(void);
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
 void baanim_setUpdateType(enum baanim_update_type_e arg0);
 
