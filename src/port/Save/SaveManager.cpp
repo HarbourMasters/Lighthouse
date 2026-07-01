@@ -3,7 +3,9 @@
 #include <spdlog/spdlog.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
+#include "port/UI/cvar_prefixes.h"
 #include "port/UI/LighthouseModMenuWindow.h"
 #include <fstream>
 #include <filesystem>
@@ -27,6 +29,8 @@ using nlohmann::json;
 using nlohmann::ordered_json;
 namespace fs = std::filesystem;
 static bool mLoaded = false;
+
+#define CVAR_NAME_BOTTLES_BONUS CVAR_ENHANCEMENT("Saving.PersistBottlesBonus")
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
     std::string romName = GetActiveRomhackBasename();
@@ -645,8 +649,9 @@ static void LoadGlobalData() {
         }
     }
 
-    // Bottles Bonus
-    if (j.contains("bottlesBonusCompleted")) {
+    // Bottles Bonus: only restore from the global save when persistence is enabled.
+    // With it off, completion stays session-only (vanilla), reset at file select.
+    if (CVarGetInteger(CVAR_NAME_BOTTLES_BONUS, 0) && j.contains("bottlesBonusCompleted")) {
         const auto& bb = j["bottlesBonusCompleted"];
         for (int k = 0; k < 7 && k < (int)bb.size(); k++) {
             gCompletedBottlesBonusGames[k] = bb[k].get<int>() ? 1 : 0;
@@ -767,3 +772,10 @@ void SaveManager_Init() {
     // other OnGameLoad listeners read them.
     REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_HIGH, [](IEvent* event) { LoadGlobalData(); });
 }
+
+static void RegisterPersistBottlesBonus_Init() {
+    COND_HOOK(OnBottlesBonusComplete, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME_BOTTLES_BONUS, 0),
+              [](IEvent* event) { SaveGlobalData(); });
+}
+
+static RegisterShipInitFunc initPersistBottlesBonus(RegisterPersistBottlesBonus_Init, { CVAR_NAME_BOTTLES_BONUS });

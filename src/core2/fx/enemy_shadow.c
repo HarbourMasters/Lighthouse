@@ -2,6 +2,8 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Patches/Patches.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 
 
@@ -53,7 +55,9 @@ Actor *chBadShad_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         modelRender_setAlpha(other->alpha_124_19);
     sp40 = ml_map_f(this->actor_specific_1_f, 0.0f , 800.0f, 0.53f, 0.18f)*this->unk1C[1];
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
+    FrameInterpolation_NoInterpolatePush();
     modelRender_draw(gfx, mtx, this->position, sp44, sp40, NULL, marker_loadModelBin(marker));
+    FrameInterpolation_NoInterpolatePop();
     return this;
 }
 
@@ -88,9 +92,10 @@ f32 func_802D7038(Actor *this) {
 
 void func_802D7124(Actor *actor, f32 arg1) {
     f32 vp[3];
+    f32 mul = port_drawDistanceMul();
 
     viewport_getPosition_vec3f(vp);
-    if ((actor->position[0] - vp[0]) * (actor->position[0] - vp[0]) + (actor->position[2] - vp[2]) * (actor->position[2] - vp[2]) < 12250000.0f) {
+    if ((actor->position[0] - vp[0]) * (actor->position[0] - vp[0]) + (actor->position[2] - vp[2]) * (actor->position[2] - vp[2]) < 12250000.0f * mul * mul) {
         func_802D729C(actor, arg1);
     }
 }

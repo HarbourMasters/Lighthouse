@@ -267,6 +267,9 @@ static const LocalizedUiString sUiStrings[] = {
       (const u8*)"ZUR]CK ZUM SPIEL" },
     { "EXIT TO WITCH'S LAIR", (const u8*)"\xfd\x6a\x6e\x82\x4d\xd2\xcd\xe1\xf3\xd6\xcf\xdc\xf4\xe2",
       (const u8*)"ANTRE DE LA SORCI\x63RE", (const u8*)"ZUR HEXENH\\HLE" },
+    // Spiral Mountain variant of the Return-to-Lair option; reuses the lair translations.
+    { "GO TO GRUNTY'S LAIR", (const u8*)"\xfd\x6a\x6e\x82\x4d\xd2\xcd\xe1\xf3\xd6\xcf\xdc\xf4\xe2",
+      (const u8*)"ANTRE DE LA SORCI\x63RE", (const u8*)"ZUR HEXENH\\HLE" },
     { "VIEW TOTALS", (const u8*)"\xfd\x6a\x63\x3b\x5f\x78\xb8\xd9\xe2", (const u8*)"STATISTIQUES",
       (const u8*)"STATISTIK" },
     { "SAVE AND QUIT", (const u8*)"\xfd\x6a\x5d\x3b\x8d\xc5\xcc\xbe\xe5\xe2", (const u8*)"SAUVER ET QUITTER",

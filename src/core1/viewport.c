@@ -366,14 +366,11 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
     rel_pos[2] = (f32) ((cube->z * 1000) + 500) - sViewportPosition[2];
 
     {
-        // [port] Extended draw distance: scale distance threshold by CVar level.
-        // 0 = vanilla (1.6e7), 1-3 = graduated, 4 = no distance cull.
-        int drawDistLevel = port_getDrawDistanceLevel();
-        static const f32 distSqThresholds[] = { 1.6e7f, 2.5e7f, 4.0e7f, 8.0e7f };
-        if (drawDistLevel < 4) {
-            if (LENGTH_SQ_VEC3F(rel_pos) > distSqThresholds[drawDistLevel]) {
-                return false;
-            }
+        // [port] Extended draw distance: scale the cube cull threshold by the distance multiplier.
+        // Vanilla threshold is 1.6e7 (4000 units squared); the multiplier is linear, so square it.
+        f32 mul = port_drawDistanceMul();
+        if (LENGTH_SQ_VEC3F(rel_pos) > 1.6e7f * mul * mul) {
+            return false;
         }
     }
 
@@ -393,16 +390,8 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
     f32 delta[3];
     s32 i;
 
-    // [port] Extended draw distance: scale bounding radius by CVar level.
-    // 0 = vanilla, 1-3 = graduated, 4 = bypass all plane checks.
-    {
-        int drawDistLevel = port_getDrawDistanceLevel();
-        // 4 = no distance limit, keep frustum plane checks active
-        if (drawDistLevel > 0 && drawDistLevel < 4) {
-            static const f32 distanceScale[] = { 1.0f, 1.5f, 2.0f, 3.0f };
-            distance *= distanceScale[drawDistLevel];
-        }
-    }
+    // [port] Extended draw distance: scale bounding radius by the distance multiplier.
+    distance *= port_drawDistanceMul();
 
     delta[0] = pos[0] - sViewportPosition[0];
     delta[1] = pos[1] - sViewportPosition[1];

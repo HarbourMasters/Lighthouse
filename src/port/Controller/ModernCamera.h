@@ -11,6 +11,8 @@ int port_modernCamera_handleYaw(void);
 void port_modernCamera_update(void);
 void port_modernCamera_handleZoom(void);
 int port_camera_suppressVanillaZoom(void);
+float port_cameraInvertXSign(void);
+float port_cameraInvertYSign(void);
 
 #ifdef __cplusplus
 }

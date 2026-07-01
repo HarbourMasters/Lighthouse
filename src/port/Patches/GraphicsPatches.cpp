@@ -8,6 +8,11 @@
 #define CVAR_DRAW_DISTANCE CVAR_ENHANCEMENT("Graphics.DrawDistance")
 #define CVAR_DISABLE_LOD CVAR_ENHANCEMENT("Graphics.DisableLOD")
 
+static const int kMaxDrawDistanceMul = 6;
+static int sDrawDistanceCubeWidth(int mul) {
+    return 4 * mul;
+}
+
 static int sDrawDistanceLevel = 0;
 static int sDisableLOD = 0;
 
@@ -163,51 +168,38 @@ void port_drawLivesCount(Gfx** gfx, Mtx** mtx, Vtx** vtx, char* str, f32 baseX, 
 }
 
 int port_getDrawDistanceLevel(void) {
-    int level = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 0);
-    if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
-        level = 0;
+    int mul = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 1);
+    if (mul < 1) {
+        mul = 1;
     }
-    return level;
+    if (mul > kMaxDrawDistanceMul) {
+        mul = kMaxDrawDistanceMul;
+    }
+    if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
+        mul = 1;
+    }
+    return mul;
 }
 
 float port_drawDistanceMul(void) {
-    int lvl = port_getDrawDistanceLevel();
-    if (lvl >= 4) {
-        return 1e9f;
+    int level = port_getDrawDistanceLevel();
+    if (level <= 1) {
+        return 1.0f;
     }
-    if (lvl > 0) {
-        static const float scale[] = { 1.0f, 1.25f, 1.5811f, 2.2361f };
-        return scale[lvl];
-    }
-    return 1.0f;
+    return (float)level + 0.1f; // Nudge
 }
 
 void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist) {
-    int lvl = port_getDrawDistanceLevel();
-    if (lvl >= 4) {
-        *fadeFlag = 0;
-        *cullMult = 1e30f;
-        *cullDist = 1e30f;
-    } else if (lvl > 0) {
-        static const float cullDistScale[] = { 1.0f, 1.25f, 1.5811f, 2.2361f };
-        *cullMult *= cullDistScale[lvl];
-        *cullDist *= cullDistScale[lvl];
-    }
+    float mul = port_drawDistanceMul();
+    *cullMult *= mul;
+    *cullDist *= mul;
 }
 
 int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag) {
     if (disableFlag) {
         return 0;
     }
-    int lvl = port_getDrawDistanceLevel();
-    if (lvl >= 4) {
-        return 0;
-    }
-    float scale = 1.0f;
-    if (lvl > 0) {
-        static const float spriteCullScale[] = { 1.0f, 1.6667f, 2.1082f, 2.9814f };
-        scale = spriteCullScale[lvl];
-    }
+    float scale = port_drawDistanceMul();
     return (3000.0f * scale < depth) && (((size / depth) * scale) < baseThreshold);
 }
 
@@ -238,24 +230,22 @@ static void OnGeoCull_LevelOcclusion(IEvent* event) {
 }
 
 void RegisterLevelOcclusion_Init() {
-    bool maxed = CVarGetInteger(CVAR_DRAW_DISTANCE, 0) >= 4;
+    bool maxed = CVarGetInteger(CVAR_DRAW_DISTANCE, 1) >= kMaxDrawDistanceMul;
     GeoCull_SetConsumer(GEOCULL_CONSUMER_ENHANCEMENT, maxed);
     COND_HOOK(OnGeoCull, EVENT_PRIORITY_NORMAL, maxed, OnGeoCull_LevelOcclusion);
 }
 
 static RegisterShipInitFunc sInitLevelOcclusion(RegisterLevelOcclusion_Init, { CVAR_DRAW_DISTANCE });
 
-static const int kCubeWidthByLevel[] = { 4, 6, 8, 10, 18 };
-
 static void RegisterDrawDistanceGraphics_Init() {
-    COND_HOOK(DrawDistanceCubeWidth, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DRAW_DISTANCE, 0) > 0,
+    COND_HOOK(DrawDistanceCubeWidth, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DRAW_DISTANCE, 1) > 1,
               [](IEvent* event) {
-                  int lvl = port_getDrawDistanceLevel();
-                  if (lvl <= 0) {
+                  int mul = port_getDrawDistanceLevel();
+                  if (mul <= 1) {
                       return;
                   }
                   auto* ev = (DrawDistanceCubeWidth*)event;
-                  int width = (lvl <= 4) ? kCubeWidthByLevel[lvl] : 4;
+                  int width = sDrawDistanceCubeWidth(mul);
                   if (width > ev->mapWidth) {
                       width = ev->mapWidth;
                   }
@@ -266,7 +256,7 @@ static void RegisterDrawDistanceGraphics_Init() {
 static RegisterShipInitFunc drawDistanceGraphicsInit(RegisterDrawDistanceGraphics_Init, { CVAR_DRAW_DISTANCE });
 
 static void RefreshDrawDistanceCVars() {
-    sDrawDistanceLevel = CVarGetInteger(CVAR_DRAW_DISTANCE, 0);
+    sDrawDistanceLevel = CVarGetInteger(CVAR_DRAW_DISTANCE, 1);
     sDisableLOD = CVarGetInteger(CVAR_DISABLE_LOD, 0);
 }
 

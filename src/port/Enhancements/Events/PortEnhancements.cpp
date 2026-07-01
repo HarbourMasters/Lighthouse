@@ -74,6 +74,7 @@ void PortEnhancements_Register() {
     // Register game events
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
+    REGISTER_EVENT(OnBottlesBonusComplete);
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnSaveClear);

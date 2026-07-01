@@ -10,6 +10,7 @@
 
 extern "C" struct1Bs D_8036C560[];
 extern "C" enum level_e level_get(void);
+extern "C" bool fileProgressFlag_get(enum file_progress_e index);
 
 typedef struct struct_1A_s {
     f32 delay;
@@ -31,8 +32,16 @@ void RegisterReturnToLair_Init() {
 
         if (CVAR && !port_isRomhack()) {
             s32 level = level_get();
-            *should = !(level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR &&
-                        level != LEVEL_B_SPIRAL_MOUNTAIN && D_8036C560[level - 1].map != -1);
+            bool isSpiralMountain = (level == LEVEL_B_SPIRAL_MOUNTAIN);
+            // The enter-lair cutscene flag is what flips the save's start map to the Lair, so it
+            // doubles as "the player has reached the Lair at least once".
+            bool beenToLair = fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE);
+            bool validWorld =
+                level > 0 && level < LEVEL_C_BOSS && level != LEVEL_6_LAIR && D_8036C560[level - 1].map != -1;
+            // Spiral Mountain has a valid Lair warp entry, but only offer the option there once the
+            // Lair has actually been visited.
+            bool showOption = validWorld && (!isSpiralMountain || beenToLair);
+            *should = !showOption;
             if (!*should) {
                 menuData[0].y = 45;
                 menuData[1].y = 75;
@@ -42,8 +51,10 @@ void RegisterReturnToLair_Init() {
                 menuData[2].delay = 0.2f;
                 menuData[3].delay = 0.3f;
                 menuData[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_2;
+                // From Spiral Mountain you head forward to the Lair rather than exiting back to it.
+                menuData[1].str = isSpiralMountain ? (u8*)"GO TO GRUNTY'S LAIR" : (u8*)"EXIT TO WITCH'S LAIR";
             } else {
-                // Not in a world level — reset to vanilla layout
+                // Option hidden — reset to vanilla layout
                 menuData[0].y = 55;
                 menuData[1].y = -100;
                 menuData[2].y = 90;
@@ -52,6 +63,7 @@ void RegisterReturnToLair_Init() {
                 menuData[2].delay = 0.1f;
                 menuData[3].delay = 0.2f;
                 menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
+                menuData[1].str = (u8*)"EXIT TO WITCH'S LAIR";
             }
         } else {
             *should = true;
@@ -63,6 +75,7 @@ void RegisterReturnToLair_Init() {
             menuData[2].delay = 0.1f;
             menuData[3].delay = 0.2f;
             menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
+            menuData[1].str = (u8*)"EXIT TO WITCH'S LAIR";
         }
     });
 
