@@ -5,6 +5,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "actor.h"
+#include "include/core1/sns.h"
 
 #include "spdlog/spdlog.h"
 
@@ -30,6 +31,8 @@ void fxSparkle_musicNote(s16 position[3]);
 void player_getPosition(f32 dst[3]);
 void ml_vec3f_to_vec3h(s16 dst[3], f32 src[3]);
 
+void gcparade_beginFinalParade(void);
+
 void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
 Actor* marker_getActor(ActorMarker* thisx);
 void marker_despawn(ActorMarker* marker);
@@ -48,6 +51,9 @@ extern ActorInfo D_80366CA4;
 extern ActorInfo D_80367D00;
 extern ActorInfo D_80367D24;
 extern ActorInfo D_80367D48;
+
+extern ActorInfo D_80367814;
+extern ActorInfo D_803677A8;
 }
 
 typedef struct {
@@ -75,6 +81,8 @@ std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
     { ACTOR_52_BLUE_EGG,        { D_80367D00,       ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_129_RED_FEATHER,    { D_80367D24,       ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_370_GOLD_FEATHER,   { D_80367D48,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_25E_SNS_EGG,        { D_80367814,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+    { ACTOR_25D_ICE_KEY,        { D_803677A8,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
 };
 // clang-format on
 
@@ -137,6 +145,14 @@ Actor* CustomObject::SetCustomActorParametersEX(RandoCheckId randoCheckId, Actor
             ActorLocal_MumboToken* tokenLocal;
             tokenLocal = (ActorLocal_MumboToken*)&customActor->local;
             tokenLocal->uid = (mumbotoken_e)Rando::Logic::GetShuffledObject(randoCheckId).randoCollectionId;
+            break;
+        case RI_STOP_N_SWOP_EGG:
+        case RI_STOP_N_SWOP_KEY:
+            customActor->actorTypeSpecificField = shuffledObject.randoCollectionId;
+            customActor->scale = 0.5f;
+            if (shuffledObject.randoItemId == RI_STOP_N_SWOP_KEY) {
+                customActor->position_y += 50.0f;
+            }
             break;
         default:
             break;
@@ -305,6 +321,12 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
             UpdateSaveDataNoteScores();
             fxSparkle_musicNote(sparklePos);
             coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
+            break;
+        case RI_STOP_N_SWOP_EGG:
+        case RI_STOP_N_SWOP_KEY:
+            if (Rando::Logic::GetTotalSnsItemsCollected() >= 7) {
+                gcparade_beginFinalParade();
+            }
             break;
         default:
             break;

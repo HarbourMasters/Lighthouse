@@ -172,6 +172,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_MAD_MONSTER_MANSION_INTERIOR_BATHROOM] = RandoRegion{ .regionName = "Bathroom", .mapId = MAP_2C_MMM_BATHROOM,
         .checks = {
             CHECK(RC_MMM_MUMBO_TOKEN_IN_LOGGOS_ROOM, true),
+            CHECK(RC_MMM_SNS_GREEN_EGG,              true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_ENTRANCE, true),
@@ -202,6 +203,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MMM_NOTE_BASEMENT_2,                       CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_MMM_NOTE_BASEMENT_3,                       CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_MMM_NOTE_BASEMENT_4,                       CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_SNS_CYAN_EGG,                          true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_ENTRANCE, true),

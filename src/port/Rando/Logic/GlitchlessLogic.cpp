@@ -184,7 +184,7 @@ int32_t GetCheckPoolJinjoJiggyIndexByLevelId(int16_t levelId) {
         if ((randoStaticCheck.collectionId == (10 * levelId) - 9) &&
             (reachableChecks[Rando::Logic::checkPool[i]].canAccess &&
              !reachableChecks[Rando::Logic::checkPool[i]].isFilled)) {
-            return i;
+            return Rando::Logic::checkPool[i];
         }
     }
 

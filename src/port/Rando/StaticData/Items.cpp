@@ -30,6 +30,8 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_MOLEHILL,         "a",    "New Ability",      RITYPE_MOLEHILL,        ACTOR_12C_MOLEHILL),
     RI(RI_MUMBO_TOKEN,      "a",    "Mumbo Token",      RITYPE_MUMBO_TOKEN,     ACTOR_2D_MUMBO_TOKEN),
     RI(RI_MUSIC_NOTE,       "a",    "Note",             RITYPE_MUSIC_NOTE,      ACTOR_51_MUSIC_NOTE),
+    RI(RI_STOP_N_SWOP_EGG,  "a",    "Mystery Egg",      RITYPE_SNS_EGG,         ACTOR_25E_SNS_EGG),
+    RI(RI_STOP_N_SWOP_KEY,  "a",    "Mystery Key",      RITYPE_SNS_KEY,         ACTOR_25D_ICE_KEY),
 };
 // clang-format on
 

@@ -142,6 +142,7 @@ static RegisterShipInitFunc initFunc([]() {
 			CHECK(RC_RBB_NOTE_CAPTAINS_CABIN_1,	true),
 			CHECK(RC_RBB_NOTE_CAPTAINS_CABIN_2,	true),
 			CHECK(RC_RBB_NOTE_CAPTAINS_CABIN_3,	true),
+			CHECK(RC_RBB_SNS_RED_EGG,			true),
 		},
 		.connections = {
 			CONNECTION(RR_RUSTY_BUCKET_BAY_ENTRANCE, true),

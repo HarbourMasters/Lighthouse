@@ -276,8 +276,9 @@ bool func_8025B818(void)
 
 bool sns_get_item_state(enum StopNSwop_Item item, s32 set)
 {
-    switch (item)
-    {
+    CALL_CANCELLABLE_RETURN_EVENT(OnSnSItemState, item) {
+        switch (item)
+        {
         case SNS_ITEM_EGG_YELLOW: return set == SNS_COLLECTED ? gSaveData.sns.cEggYellow : gSaveData.sns.uEggYellow;
         case SNS_ITEM_EGG_RED:    return set == SNS_COLLECTED ? gSaveData.sns.cEggRed    : gSaveData.sns.uEggRed;
         case SNS_ITEM_EGG_GREEN:  return set == SNS_COLLECTED ? gSaveData.sns.cEggGreen  : gSaveData.sns.uEggGreen;
@@ -287,6 +288,7 @@ bool sns_get_item_state(enum StopNSwop_Item item, s32 set)
         case SNS_ITEM_ICE_KEY:    return set == SNS_COLLECTED ? gSaveData.sns.cIceKey    : gSaveData.sns.uIceKey;
         default:
             return false;
+        }
     }
 }
 
