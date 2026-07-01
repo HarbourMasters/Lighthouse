@@ -79,6 +79,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnJiggySpawned);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
+    REGISTER_EVENT(OnBottlesBonusComplete);
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
     REGISTER_EVENT(OnSaveClear);
@@ -112,6 +113,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnIsHoneycombScoreCollected);
     REGISTER_EVENT(ClearBundleDespawnQueue);
     REGISTER_EVENT(OnIsMumboTokenScoreCollected);
+    REGISTER_EVENT(OnSnSItemState);
 
     Rando::Init();
 }

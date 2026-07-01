@@ -6,6 +6,8 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
+#include "include/core1/sns.h"
+
 #define WIDGET_TEXT_COLOR(id) UIWidgets::ColorValues.at(id)
 #define CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS "gRandoSettings.RandoNotifications"
 #define CVAR_SHOW_COLLISION_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS, 0)
@@ -35,10 +37,13 @@ std::vector<int32_t> actorSpawnWhitelist = {
     ACTOR_60_JINJO_BLUE,
     ACTOR_61_JINJO_PINK,
     ACTOR_62_JINJO_GREEN,
+    ACTOR_25E_SNS_EGG,
+    ACTOR_25D_ICE_KEY,
     //ACTOR_12C_MOLEHILL,
 };
 
 std::map<int32_t, UIWidgets::Colors> randoItemColors = {
+    { RI_UNKNOWN,           UIWidgets::Colors::Brown },
     { RI_EMPTY_HONEYCOMB,   UIWidgets::Colors::Yellow },
     { RI_JIGGY,             UIWidgets::Colors::Yellow },
     { RI_JINJO_BLUE,        UIWidgets::Colors::SkyBlue },
@@ -49,6 +54,18 @@ std::map<int32_t, UIWidgets::Colors> randoItemColors = {
     { RI_MOLEHILL,          UIWidgets::Colors::Cyan },
     { RI_MUMBO_TOKEN,       UIWidgets::Colors::Gray },
     { RI_MUSIC_NOTE,        UIWidgets::Colors::Yellow },
+    { RI_STOP_N_SWOP_EGG,   UIWidgets::Colors::Pink },
+    { RI_STOP_N_SWOP_KEY,   UIWidgets::Colors::White },
+};
+
+std::map<int32_t, UIWidgets::Colors> snsItemColors = {
+    { SNS_ITEM_EGG_YELLOW,  UIWidgets::Colors::Yellow },
+    { SNS_ITEM_EGG_RED,     UIWidgets::Colors::Red },
+    { SNS_ITEM_EGG_GREEN,   UIWidgets::Colors::Green },
+    { SNS_ITEM_EGG_BLUE,    UIWidgets::Colors::Blue },
+    { SNS_ITEM_EGG_PINK,    UIWidgets::Colors::Pink },
+    { SNS_ITEM_EGG_CYAN,    UIWidgets::Colors::Cyan },
+    { SNS_ITEM_ICE_KEY,     UIWidgets::Colors::White },
 };
 
 std::map<int32_t, actor_e> jinjoMarkerMap = {
@@ -150,20 +167,38 @@ void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
         RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
         std::string prefix;
         std::string message;
+        std::string suffix = "";
+        ImVec4 itemColor = WIDGET_TEXT_COLOR(randoItemColors.at(randoSaveCheck.randoItemId));
 
         if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
             prefix = "You learned";
             message = abilityNameList[randoSaveCheck.randoCollectionId].c_str();
+        } else if (randoSaveCheck.randoItemId == RI_STOP_N_SWOP_EGG ||
+                   randoSaveCheck.randoItemId == RI_STOP_N_SWOP_KEY) {
+            int32_t totalsnsItems = Rando::Logic::GetTotalSnsItemsCollected();
+            prefix = "You collected ";
+            prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
+
+            message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
+            suffix = "(";
+            suffix += std::to_string(totalsnsItems);
+            suffix += " / 7)";
+
+            itemColor = WIDGET_TEXT_COLOR(snsItemColors.at(randoSaveCheck.randoCollectionId));
         } else {
             prefix = "You collected ";
             prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
             message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
         }
 
-        Notification::Emit({ .prefix = prefix,
-                             .prefixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
-                             .message = message,
-                             .messageColor = WIDGET_TEXT_COLOR(randoItemColors.at(randoSaveCheck.randoItemId)) });
+        Notification::Emit({
+            .prefix = prefix,
+            .prefixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
+            .message = message,
+            .messageColor = itemColor,
+            .suffix = suffix,
+            .suffixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
+        });
     }
 };
 
@@ -203,6 +238,12 @@ bool CheckEnemyOverlapPosition(int32_t pos[3]) {
     return enemyOverlap;
 }
 
+// CALL_EVENT expands to a braced initializer whose commas don't survive being passed through the
+// COND_HOOK macro wrapper, so fire it from a plain function the listener calls instead.
+static void FireClearBundleDespawnQueue() {
+    CALL_EVENT(ClearBundleDespawnQueue);
+}
+
 // Entry point for the module, run once on game boot
 void Rando::ObjectBehavior::Init() {
     InitBundleBehavior();
@@ -211,6 +252,7 @@ void Rando::ObjectBehavior::Init() {
     InitMolehillBehavior();
     InitMusicNoteBehavior();
     InitPropBehavior();
+    InitStopNSwopBehavior();
 
     UpdateJunkList();
 
@@ -356,6 +398,12 @@ void Rando::ObjectBehavior::Init() {
                         event->Cancelled = true;
                     }
                     break;
+                case MARKER_168_ICE_KEY:
+                    randoItemId = RI_STOP_N_SWOP_KEY;
+                    break;
+                case MARKER_169_SNS_EGG:
+                    randoItemId = RI_STOP_N_SWOP_EGG;
+                    break;
                 case MARKER_265_WORLD_EXIT_PAD:
                     for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i < LEVEL_A_MAD_MONSTER_MANSION; i++) {
                         if (Rando::Logic::ShouldSpawnJinjoJiggy(i)) {
@@ -385,7 +433,7 @@ void Rando::ObjectBehavior::Init() {
 
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         CustomObject::ClearRandoActorListEX();
-        CALL_EVENT(ClearBundleDespawnQueue);
+        FireClearBundleDespawnQueue();
         Rando::Logic::RefreshReachableRegions();
     })
 
@@ -502,6 +550,12 @@ void Rando::ObjectBehavior::Init() {
             case ACTOR_1EF_GREEN_PRESENT_COLLECTIBLE:
             case ACTOR_1F1_RED_PRESENT_COLLECTIBLE:
                 Rando::ObjectBehavior::ModifyPresentBehavior(ev->actor);
+                break;
+            case 0x253: // FP Wozza's Cave Ice Wall
+            case 0x191: // MMM Cellar SNS Entrance
+            case ACTOR_243_GV_SNS_CHAMBER_DOOR:
+            case ACTOR_25C_SHARKFOOD_ISLAND:
+                Rando::ObjectBehavior::ModifyStopNSwopWorldBehavior(ev->actor);
                 break;
             default:
                 break;

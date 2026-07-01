@@ -16,6 +16,7 @@ DEFINE_EVENT(OnAbilityLearned, int32_t move; int32_t value;)
 // Fired when a jiggy actor is spawned (witch switch, minigame reward, etc.).
 DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
 DEFINE_EVENT(OnPropInit, Prop* propPtr;)
+DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)
 DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)
 DEFINE_EVENT(OnSaveFileSave, void* saveBuffer; int32_t fileNum; int32_t * result;)
 // Identifies which warp_* dispatcher is firing OnWarpResolveDest. Keep values

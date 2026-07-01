@@ -24,7 +24,7 @@ float windowScale = 1.0f;
 ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);
 static constexpr ImVec4 tintColor = {};
 
-static const std::vector<const char*> timerDisplayOptions = {
+const std::vector<const char*> timerDisplayOptions = {
     "Display Off",  // TIMER_DISPLAY_NONE
     "Real-Time",    // TIMER_DISPLAY_RTA
     "In-Game Time", // TIMER_DISPLAY_IGT

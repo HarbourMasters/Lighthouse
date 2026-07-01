@@ -59,6 +59,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_FP_JINJO_ORANGE,				    CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_FP_EMPTY_HONEYCOMB_WOZZAS_CAVE,    true),
+            CHECK(RC_FP_SNS_ICE_KEY,				    CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
         },
         .connections = {
             CONNECTION(RR_FREEZEEZY_PEAK_MAIN_LOWER, true),

@@ -29,8 +29,7 @@ uint32_t GetRandoSeed(const std::string& input) {
     return Ship_Hash(randoHash);
 }
 
-void Rando::Logic::ShuffleRandoItems(const std::string& input,
-                                     std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& pool) {
+void ShuffleRandoItems(const std::string& input, std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& pool) {
     uint32_t seed = GetRandoSeed(input);
 
     std::mt19937 rando(seed);
@@ -78,6 +77,11 @@ void GenerateShufflePool(SaveData* saveData) {
 
         if (randoStaticCheck.randoCheckType == RCTYPE_MUSIC_NOTE &&
             CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_MUSIC_NOTES].cvar, 0) == RO_GENERIC_OFF) {
+            continue;
+        }
+
+        if (randoStaticCheck.randoCheckType == RCTYPE_STOP_N_SWOP &&
+            CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_STOP_N_SWOP].cvar, 0) == RO_GENERIC_OFF) {
             continue;
         }
 

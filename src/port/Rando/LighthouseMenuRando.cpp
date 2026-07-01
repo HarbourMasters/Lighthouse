@@ -96,10 +96,12 @@ void LighthouseMenu::AddMenuRando() {
 
     AddWidget(path, "Seed Metrics", WIDGET_SEPARATOR_TEXT);
 
-    AddWidget(path, "Metrics", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawSeedMetrics(); }).HideInSearch(true);
+    AddWidget(path, "Metrics", WIDGET_CUSTOM)
+        .CustomFunction([](WidgetInfo& info) { DrawSeedMetrics(); })
+        .HideInSearch(true);
 
     // Rando - Shuffle Options
-    AddSidebarEntry("Rando", "Shuffle Options", 1);
+    AddSidebarEntry("Rando", "Shuffle Options", 2);
     path = { "Rando", "Shuffle Options", SECTION_COLUMN_1 };
 
     AddWidget(path, "Shuffle Collectables", WIDGET_SEPARATOR_TEXT);
@@ -122,6 +124,13 @@ void LighthouseMenu::AddMenuRando() {
     AddWidget(path, "Shuffle Music Notes", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MUSIC_NOTES].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Music Notes into the Pool."));
+
+    path.column = SECTION_COLUMN_2;
+
+    AddWidget(path, "Win Conditions", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Stop n Swop Hunt", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_STOP_N_SWOP].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Stop n Swop items into the Pool, collect all of them to win."));
 
     // Rando - Starting Loadout
     AddSidebarEntry("Rando", "Starting Loadout", 1);

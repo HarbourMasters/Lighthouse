@@ -113,6 +113,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_TREASURE_TROVE_COVE_INTERIOR_SHIP_LOWER,              CAN_USE_ABILITY(ABILITY_F_DIVE)),
             CONNECTION(RR_TREASURE_TROVE_COVE_INTERIOR_SHIP_UPPER,              CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
             CONNECTION(RR_TREASURE_TROVE_COVE_INTERIOR_NIPPER,                  CAN_USE_ABILITY(ABILITY_B_RATATAT_RAP) || CAN_USE_ABILITY(ABILITY_12_WONDERWING)),
+            CONNECTION(RR_TREASURE_TROVE_COVE_SHARKFOOD_ISLAND,                 true),
         },
         .events = {
             EVENT(RA_DRAIN_WATER_SANDCASTLE, CAN_USE_ABILITY(ABILITY_6_EGGS)),
@@ -203,6 +204,15 @@ static RegisterShipInitFunc initFunc([]() {
         .events = {
             EVENT(RA_WITCH_SWITCH_TREASURE_TROVE_COVE, CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
         }
+    };
+
+    Regions[RR_TREASURE_TROVE_COVE_SHARKFOOD_ISLAND] = RandoRegion{ .regionName = "Sharkfood Island", .mapId = MAP_8F_TTC_SHARKFOOD_ISLAND,
+        .checks = {
+            CHECK(RC_TTC_SNS_PINK_EGG, CAN_EXTEND_JUMP_DISTANCE && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+        },
+        .connections = {
+            CONNECTION(RR_TREASURE_TROVE_COVE_ENTRANCE, true),
+        },
     };
 
 }, {});

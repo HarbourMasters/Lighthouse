@@ -327,6 +327,9 @@ static RegisterShipInitFunc initFunc([]() {
     };
 
     Regions[RR_CLICK_CLOCK_WOOD_WINTER_INTERIOR_NABNUTS_HOUSE] = RandoRegion{ .regionName = "Winter - Inside Nabnut's House", .mapId = MAP_61_CCW_WINTER_NABNUTS_HOUSE,
+        .checks = {
+            CHECK(RC_CCW_SNS_YELLOW_EGG, true),
+        },
         .connections = {
             CONNECTION(RR_CLICK_CLOCK_WOOD_WINTER_UPPER_TREE, true),
         },

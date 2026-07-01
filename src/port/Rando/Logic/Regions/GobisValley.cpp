@@ -120,6 +120,15 @@ static RegisterShipInitFunc initFunc([]() {
         }
     };
 
+    Regions[RR_GOBIS_VALLEY_SECRET_CHAMBER] = RandoRegion{ .regionName = "Secret Chamber", .mapId = MAP_92_GV_SNS_CHAMBER,
+        .checks = {
+            CHECK(RC_GV_SNS_BLUE_EGG, CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
+        },
+        .connections = {
+            CONNECTION(RR_GOBIS_VALLEY_UPPER_AREA, true),
+        },
+    };
+
     Regions[RR_GOBIS_VALLEY_UPPER_AREA] = RandoRegion{ .regionName = "Upper Areas", .mapId = MAP_12_GV_GOBIS_VALLEY,
         .checks = {
             CHECK(RC_GV_EMPTY_HONEYCOMB_CACTUS, 		    CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_9_FLIGHT)),
@@ -198,6 +207,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_GOBIS_VALLEY_INTERIOR_RUBEES_PYRAMID,     CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_1_BEAK_BOMB)),
             CONNECTION(RR_GOBIS_VALLEY_INTERIOR_SPHYNX,             CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_6_EGGS)),
             CONNECTION(RR_GOBIS_VALLEY_INTERIOR_WATER_PYRAMID,      CAN_USE_ABILITY(ABILITY_11_TURBO_TALON)),
+            CONNECTION(RR_GOBIS_VALLEY_SECRET_CHAMBER,              true),
         },
     };
 
