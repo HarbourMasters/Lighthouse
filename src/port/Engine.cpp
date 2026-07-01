@@ -31,6 +31,7 @@
 #include "Audio/GameAudio.h"
 #include "build.h"
 #include "Extractor/GameExtractor.h"
+#include "ship/window/gui/FileBrowserWindow.h"
 #include "Interpolation/AdaptiveFps.h"
 #include "Interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
@@ -211,6 +212,7 @@ typedef enum PromptSteps {
     PS_FILE_CHECK,
     PS_LOCAL,
     PS_FIRST,
+    PS_FIRST_WAIT, // waiting for the async file-pick result (resolves immediately on the native path)
     PS_WAIT,
     PS_NONE,
 } PromptSteps;
@@ -453,6 +455,11 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
     bool extractStarted = false;
     std::atomic<size_t> extractCount{ 0 }, totalExtract{ 0 };
 
+    // Async ROM selection: the result callback fires on this thread during the render step below, so
+    // these plain locals are safe to capture by reference.
+    bool romLoaded = false;
+    bool romResultReady = false;
+
     std::string installPath = Ship::Context::GetAppBundlePath();
     std::string file;
 
@@ -511,7 +518,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     GameExtractor::sCustomCodePromptActive = false;
                 });
         }
-        if (LighthouseGui::PopupsQueued() > 0 || extracting) {
+        if (LighthouseGui::PopupsQueued() > 0 || extracting || Ship::FileBrowserWindow::IsOpen()) {
             goto render;
         }
 
@@ -746,13 +753,54 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                         continue;
                     }
                     case PS_FIRST: {
-                        if (args.empty() && !extract.SelectGameFromUI()) {
-                            promptStep = PS_FILE_CHECK;
+                        if (args.empty()) {
+                            // Skip the picker entirely if a baserom.us.z64 is sitting in the app
+                            // directory: load it and go straight to extraction.
+                            std::string baserom = Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64");
+                            if (std::filesystem::exists(baserom) && extract.LoadRomFromPath(baserom)) {
+                                extracting = true;
+                                extractStarted = true;
+                                file = extract.GetRomPath();
+                                (void)threadPool->submit_task([&]() -> void {
+                                    extract.GenerateOTR(extractCount, totalExtract, "bk");
+                                    extracting = false;
+                                });
+                                continue; // stay in PS_FIRST; the completion check fires when done
+                            }
+                            // Otherwise open the picker (native dialog on desktop, ImGui browser on
+                            // consoles/arm). For the browser, the IsOpen() gate above keeps the loop
+                            // rendering until the user picks or cancels; the ROM loads before the callback.
+                            romResultReady = false;
+                            romLoaded = false;
+                            extract.SelectGameFromUI([&](bool ok) {
+                                romLoaded = ok;
+                                romResultReady = true;
+                            });
+                            promptStep = PS_FIRST_WAIT;
                             continue;
                         }
                         extracting = true;
                         extractStarted = true;
                         file = extract.GetRomPath();
+                        (void)threadPool->submit_task([&]() -> void {
+                            extract.GenerateOTR(extractCount, totalExtract, "bk");
+                            extracting = false;
+                        });
+                        continue;
+                    }
+                    case PS_FIRST_WAIT: {
+                        if (!romResultReady) {
+                            goto render; // browser still open; keep drawing it
+                        }
+                        romResultReady = false;
+                        if (!romLoaded) {
+                            promptStep = PS_FILE_CHECK; // cancelled or failed to load
+                            continue;
+                        }
+                        extracting = true;
+                        extractStarted = true;
+                        file = extract.GetRomPath();
+                        promptStep = PS_FIRST; // so the ES_EXTRACT/PS_FIRST completion check fires
                         (void)threadPool->submit_task([&]() -> void {
                             extract.GenerateOTR(extractCount, totalExtract, "bk");
                             extracting = false;

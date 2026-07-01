@@ -256,9 +256,8 @@ extern u8 D_8037DDF0; // the transformation this hut offers
 static bool sMumboFastXformStarted = false;
 
 static void FastTransform_startHutTransform(Actor* actor) {
-    if (actor->has_met_before ||
-        (actor->unk10_12 == 0 && (s32)player_getTransformation() != TRANSFORM_1_BANJO &&
-         (s32)player_getTransformation() != romhack_mumboWishwashyId())) {
+    if (actor->has_met_before || (actor->unk10_12 == 0 && (s32)player_getTransformation() != TRANSFORM_1_BANJO &&
+                                  (s32)player_getTransformation() != romhack_mumboWishwashyId())) {
         romhack_mumboTransform(TRANSFORM_1_BANJO);
         return;
     }

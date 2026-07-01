@@ -2,6 +2,8 @@
 
 #include "Companion.h"
 #include <filesystem>
+#include <functional>
+#include <optional>
 #include <vector>
 #include <cstdint>
 #include <atomic>
@@ -11,7 +13,11 @@ public:
     static bool GenAssetFile();
     std::optional<std::string> ValidateChecksum() const;
     bool RunStandalone(std::string rom);
-    bool SelectGameFromUI();
+    bool LoadRomFromPath(const std::string& romPath);
+    // Open the file picker for an N64 ROM, then load the choice into this extractor. onComplete
+    // reports whether a ROM was both picked and loaded. Treat as async: the extractor must outlive
+    // the pick (the boot flow keeps a long-lived instance; the Mod Menu holds a shared_ptr).
+    void SelectGameFromUI(std::function<void(bool)> onComplete);
     void SetSearchPath(const std::string& path);
     void GetRoms(std::vector<std::string>& roms);
     std::string GetRomPath();

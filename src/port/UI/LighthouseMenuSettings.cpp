@@ -181,12 +181,13 @@ void LighthouseMenu::AddMenuSettings() {
                     "Make sure you're playing the same game or romhack as the save you're importing.",
                 "Select Save", "Cancel",
                 [slot]() {
-                    SaveConverter::Result r = SaveConverter::PickAndImport(slot);
-                    if (r.message.empty()) {
-                        return; // cancelled
-                    }
-                    LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Import Complete" : "Save Import Failed",
-                                                               r.message, "OK", "", nullptr, nullptr);
+                    SaveConverter::PickAndImport(slot, [](SaveConverter::Result r) {
+                        if (r.message.empty()) {
+                            return; // cancelled
+                        }
+                        LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Import Complete" : "Save Import Failed",
+                                                                   r.message, "OK", "", nullptr, nullptr);
+                    });
                 },
                 nullptr);
         })
@@ -198,12 +199,13 @@ void LighthouseMenu::AddMenuSettings() {
         .RaceDisable(false)
         .Callback([](WidgetInfo& info) {
             int slot = CVarGetInteger(CVAR_SETTING("SaveConvertSlot"), SaveConverter::kSlotAll);
-            SaveConverter::Result r = SaveConverter::PickAndExport(slot);
-            if (r.message.empty()) {
-                return; // cancelled
-            }
-            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed", r.message,
-                                                       "OK", "", nullptr, nullptr);
+            SaveConverter::PickAndExport(slot, [](SaveConverter::Result r) {
+                if (r.message.empty()) {
+                    return; // cancelled
+                }
+                LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed",
+                                                           r.message, "OK", "", nullptr, nullptr);
+            });
         })
         .Options(ButtonOptions().Tooltip(
             "Export the save for the game you're playing to a Banjo: Recompiled file. Use the slot above "
