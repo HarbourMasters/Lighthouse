@@ -784,6 +784,21 @@ add_custom_target(CreateOSXIcons
     )
     add_dependencies(${PROJECT_NAME} CreateOSXIcons)
     configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" COPYONLY)
+
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt
+        ${CMAKE_BINARY_DIR}/gamecontrollerdb.txt)
+
+    INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ../MacOS COMPONENT ${PROJECT_NAME})
+    INSTALL(FILES ${CMAKE_BINARY_DIR}/gamecontrollerdb.txt DESTINATION ../MacOS COMPONENT ${PROJECT_NAME})
+    INSTALL(FILES ${CMAKE_BINARY_DIR}/lighthouse.o2r DESTINATION ../Resources COMPONENT ${PROJECT_NAME})
+    INSTALL(FILES ${CMAKE_BINARY_DIR}/config.yml DESTINATION ../Resources COMPONENT ${PROJECT_NAME})
+    INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/assets/ DESTINATION ../Resources/assets COMPONENT ${PROJECT_NAME})
+
+    install(CODE "
+        include(BundleUtilities)
+        fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/../MacOS/Lighthouse\" \"\" \"${dirs}\")
+    ")
 endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
