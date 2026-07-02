@@ -313,6 +313,19 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Start in the Lair with all basic moves and the six empty honeycombs collected."));
 
+    AddWidget(path, "Furnace Fun Moves", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Start new files with the moves of an N64 Furnace Fun Moves (FFM) setup file. Egg Firing, "
+            "Flight, and Wonderwing stay unlearned so Bottles still teaches them with their free eggs "
+            "and feathers. Has no effect on existing files."));
+
     AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"))
         .RaceDisable(false)

@@ -557,7 +557,12 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 
     // Ship Save Data
     saveData->shipSaveData.fileType = j["ship"]["fileType"];
-    saveData->shipSaveData.fileCreatedAt = j["ship"]["fileCreatedAt"];
+    // Saves from before the gameplay timer lack fileCreatedAt; treat them as created now.
+    if (j["ship"].contains("fileCreatedAt") && j["ship"]["fileCreatedAt"].is_number()) {
+        saveData->shipSaveData.fileCreatedAt = j["ship"]["fileCreatedAt"];
+    } else {
+        saveData->shipSaveData.fileCreatedAt = GetUnixTimestamp();
+    }
 
     // Note retention (all files): clear then load sparse per-map bitfields.
     for (int m = 0; m < NOTE_RETENTION_MAP_SLOTS; m++) {
