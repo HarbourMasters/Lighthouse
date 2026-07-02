@@ -128,6 +128,12 @@ void LighthouseMenu::AddMenuEnhancements() {
             "How quickly the camera settles when sliding along geometry. "
             "Lower is smoother but floatier; higher is snappier but can hitch on walls."));
 
+    AddWidget(path, "Follow Camera", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.Follow"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "The camera will always follow Banjo and Kazooie when available, without requiring the player to hold R"));
+
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
