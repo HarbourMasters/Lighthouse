@@ -87,7 +87,21 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         // jiggy instead (lmonkey.c) — no flag share needed.
         (ANCHOR_FLAGSPACE_MAP_SPECIFIC << 16) | MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED,
     };
-    return excluded.contains((space << 16) | index);
+    if (excluded.contains((space << 16) | index)) {
+        return true;
+    }
+    // BGS jiggy-switch timers: the "timer active" map flags (elevated-walkway switch = 3, maze switch
+    // = 0xC) must stay local so each client runs its own hourglass. If shared, the presser sets the
+    // flag, which trips the teammate's `!flag` timer-start guard — so the teammate never starts their
+    // countdown, and their walkway/jiggy sits with no timer (ITEM_0_HOURGLASS_TIMER never set = reads
+    // as expired), fighting the JIGGY_SPAWN record: infinite despawn/respawn until the presser's timer
+    // ends. The switch-press flag still syncs, so both clients start the sequence. Map-scoped so it
+    // doesn't affect these common flag indices in other maps.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
+        (index == 3 || index == 0xC)) {
+        return true;
+    }
+    return false;
 }
 
 // Which spendable item counts sync in realtime. Mumbo tokens + jiggy total always; eggs and
