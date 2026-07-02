@@ -7,6 +7,7 @@
 #include "port/ShipUtils.h"
 #include "port/UI/cvar_prefixes.h"
 #include "port/UI/LighthouseModMenuWindow.h"
+#include "port/UI/Notification.h"
 #include <fstream>
 #include <filesystem>
 #include <regex>
@@ -29,12 +30,14 @@ using nlohmann::json;
 using nlohmann::ordered_json;
 namespace fs = std::filesystem;
 static bool mLoaded = false;
+const std::string savesFolderPathString(Ship::Context::GetPathRelativeToAppDirectory("saves"));
+const std::filesystem::path savesFolderPath(savesFolderPathString);
 
 #define CVAR_NAME_BOTTLES_BONUS CVAR_ENHANCEMENT("Saving.PersistBottlesBonus")
 
 std::string SaveManager_GetSavePath(const std::string& filename) {
     std::string romName = GetActiveRomhackBasename();
-    std::string dir = romName.empty() ? Ship::Context::GetPathRelativeToAppDirectory("saves")
+    std::string dir = romName.empty() ? savesFolderPathString
                                       : Ship::Context::GetPathRelativeToAppDirectory("saves/~romhacks/" + romName);
     std::error_code ec;
     fs::create_directories(dir, ec);
@@ -689,6 +692,25 @@ static void SaveGlobalData() {
     }
 }
 
+void SaveManager_MoveInvalidSaveFile(const std::filesystem::path& fileName, const std::string& message) {
+    const std::filesystem::path filePath = savesFolderPath / fileName;
+    const std::filesystem::path backupFilePath =
+        savesFolderPath / (fileName.stem().string() + "_invalid_" + std::to_string(std::time(nullptr)) + ".json");
+
+    try {
+        if (std::filesystem::exists(filePath)) {
+            std::filesystem::rename(filePath, backupFilePath);
+        }
+
+        SPDLOG_INFO("{}", message.c_str());
+        Notification::Emit({ .message = message });
+    } catch (...) { SPDLOG_ERROR("Failed to move invalid save file"); }
+}
+
+std::string createFileName(int fileNum) {
+    return "file" + std::to_string(SlotToFileIndex(fileNum)) + ".json";
+}
+
 void SaveManager_Init() {
     LoadGlobalData();
 
@@ -700,13 +722,20 @@ void SaveManager_Init() {
 
     REGISTER_LISTENER(OnSaveFileLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileLoad* ev = (OnSaveFileLoad*)event;
-        SaveData* loaded = Convert_JSONToSaveData(ev->fileNum);
-        if (loaded && ev->saveBuffer && loaded->slotIndex != 0) {
-            loaded->magic = SAVE_MAGIC;
-            memcpy(ev->saveBuffer, loaded, sizeof(SaveData));
-            ev->result = 0; // success
-        } else {
-            ev->result = 2; // empty/missing — let decomp treat as scratch slot
+        SaveData* loaded = nullptr;
+        std::string fileName = createFileName(ev->fileNum);
+        try {
+            loaded = Convert_JSONToSaveData(ev->fileNum);
+            if (loaded && ev->saveBuffer && loaded->slotIndex != 0) {
+                loaded->magic = SAVE_MAGIC;
+                memcpy(ev->saveBuffer, loaded, sizeof(SaveData));
+                ev->result = 0; // success
+            } else {
+                ev->result = 2; // empty/missing — let decomp treat as scratch slot
+            }
+        } catch (...) {
+            SaveManager_MoveInvalidSaveFile(fileName, "Something went wrong trying to load " + fileName +
+                                                          ". Original save file has been backed up.");
         }
         delete loaded;
         event->Cancelled = true;
@@ -719,7 +748,7 @@ void SaveManager_Init() {
         if (!saveFile.empty()) {
             std::string collapsedString = CollapsedJSONArray(saveFile);
 
-            std::string fileName = "file" + std::to_string(SlotToFileIndex(ev->fileNum)) + ".json";
+            std::string fileName = createFileName(ev->fileNum);
             std::string filePath = SaveManager_GetSavePath(fileName);
 
             std::ofstream outputFile(filePath);
