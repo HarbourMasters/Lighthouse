@@ -359,6 +359,13 @@ void Anchor::RefreshClientActors() {
 }
 
 bool Anchor::IsSaveLoaded() {
+    // Attract-mode demos and file playback run real gameplay logic (collecting items, setting
+    // flags) against a throwaway save. Never treat those as a loaded save, or connecting during
+    // a demo syncs the demo's pickups and flags to teammates.
+    s32 gameMode = getGameMode();
+    if (gameMode == GAME_MODE_6_FILE_PLAYBACK || gameMode == GAME_MODE_7_ATTRACT_DEMO) {
+        return false;
+    }
     auto map = gsworld_getMap();
     return map != MAP_1E_CS_START_NINTENDO && map != MAP_1F_CS_START_RAREWARE && map != MAP_91_FILE_SELECT;
     /* if (gPlayState == nullptr) {

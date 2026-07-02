@@ -97,6 +97,7 @@ void chhut_update(Actor *this) {
     f32 diff_pos[3];
     f32 plyr_pos[3];
     s32 loot;
+    s32 smashIndex;
 
     if (gsworld_getUnk0() != 2) {
         return;
@@ -139,8 +140,12 @@ void chhut_update(Actor *this) {
                 __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
                 bundle_setYaw(this->yaw);
 
-                if (mm_hut_smash_count < 5) {
-                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
+                // [port] Anchor: the smash-order index is derived from the shared hut record (which
+                // includes teammates' smashes), not a per-client counter — otherwise every client's
+                // first smash drops bundle 0. The record below then advances that shared count.
+                smashIndex = port_hutSmash_countForCurrentMap();
+                if (smashIndex < 5) {
+                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
                 else {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);
@@ -148,9 +153,7 @@ void chhut_update(Actor *this) {
 
                 // [port] Anchor: record + broadcast the smash (with the bundle index, since the count
                 // isn't shared) so teammates break this same hut and get the same drop.
-                port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, mm_hut_smash_count);
-
-                mm_hut_smash_count = (mm_hut_smash_count + 1) % 6;
+                port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
             }
             else {
                 // [port] Anchor live: a teammate smashed this hut — break it + drop the full bundle.

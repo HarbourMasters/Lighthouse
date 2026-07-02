@@ -168,6 +168,10 @@ int32_t port_puzzleStep_get(int32_t puzzleId);
 // port HutSmash.cpp.
 void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
 int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
+// Number of huts already smashed in the current map (team-wide, via the shared record). MM uses
+// this as the smash-order index so a teammate's smashes advance the sequence instead of every
+// client counting its own huts from zero.
+int32_t port_hutSmash_countForCurrentMap(void);
 
 // RBB jiggy-cage crane: a transient timed minigame (no flag, not persisted). The lower (stage 2)
 // and raise (stage 4) are broadcast to same-map teammates and replayed silently (no camera /

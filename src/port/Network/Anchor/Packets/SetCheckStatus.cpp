@@ -25,7 +25,8 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId);
  */
 
 void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
-    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
+    // Shuffled-check obtainment only exists in a randomizer file. Never send it otherwise.
+    if (!IS_RANDO || !IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
 
@@ -40,7 +41,10 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
 }
 
 void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
-    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
+    // Only a randomizer file has shuffled checks / a populated shuffledPool. Applying this in a
+    // vanilla file would walk stale rando state (RANDO_SAVE_CHECKS, CheckObtainedEX,
+    // RefreshReachableRegions) and interfere with normal collectible handling — ignore it.
+    if (!IS_RANDO || !IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
 

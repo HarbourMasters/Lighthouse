@@ -34,23 +34,50 @@ struct SpawnedJiggy {
     float x;
     float y;
     float z;
+    // Transient (not serialized): we've called codeABC00 and are waiting for the spawn queue to
+    // materialize the actor. jiggy init (func_80347E34/B54) is async — it __spawnQueue_adds and only
+    // sets unk10.marker a frame later — so jiggylist_hasSpawnedObject stays false in between and, left
+    // ungated, the live-spawn + per-frame flush would restack a new bundle every frame. Reset on map
+    // load; cleared once the actor actually appears.
+    bool inFlight = false;
 };
 // The team's dynamically-spawned jiggies this session: map -> list. Session state, dropped on save
 // load; rides the team-state snapshot so a joining client adopts it.
 std::map<int32_t, std::vector<SpawnedJiggy>> sSpawnedJiggies;
 
-// Record a spawn (dedupe by jiggyId within a map; update position).
-void recordJiggySpawn(int32_t map, int16_t jiggyId, float x, float y, float z) {
+// Record a spawn (dedupe by jiggyId within a map; update position). Returns the entry.
+SpawnedJiggy& recordJiggySpawn(int32_t map, int16_t jiggyId, float x, float y, float z) {
     auto& list = sSpawnedJiggies[map];
     for (auto& pj : list) {
         if (pj.jiggyId == jiggyId) {
             pj.x = x;
             pj.y = y;
             pj.z = z;
-            return;
+            return pj;
         }
     }
     list.push_back({ jiggyId, x, y, z });
+    return list.back();
+}
+
+// Spawn a recorded jiggy if it isn't already present, collected, or mid-spawn. The inFlight guard is
+// the key: it flips true synchronously when we issue the spawn, so a second call before the spawn
+// queue materializes the actor is a no-op instead of a duplicate. Cleared once the actor appears (or
+// on map load) so re-entry re-spawns.
+void trySpawnRecordedJiggy(SpawnedJiggy& pj) {
+    if (jiggyscore_isCollected((enum jiggy_e)pj.jiggyId)) {
+        return;
+    }
+    if (jiggylist_hasSpawnedObject((enum jiggy_e)pj.jiggyId)) {
+        pj.inFlight = false; // materialized
+        return;
+    }
+    if (pj.inFlight) {
+        return; // issued, waiting on the spawn queue — don't restack
+    }
+    f32 pos[3] = { pj.x, pj.y, pj.z };
+    codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)pj.jiggyId, pos, 0); // triggerEvent 0: silent, no re-broadcast
+    pj.inFlight = true;
 }
 } // namespace
 
@@ -90,23 +117,14 @@ void Anchor::HandlePacket_SpawnJiggy(nlohmann::json& payload) {
 
     // Always record it (session-persistent), so it reappears on every visit and survives our own
     // re-entries — not just the first time we reach the map.
-    recordJiggySpawn(map, jiggyId, x, y, z);
+    SpawnedJiggy& pj = recordJiggySpawn(map, jiggyId, x, y, z);
 
-    // Already collected: nothing to spawn (FlushPendingJiggySpawns prunes it).
-    if (jiggyscore_isCollected((enum jiggy_e)jiggyId)) {
-        return;
+    // In the jiggy's map: spawn it live through the shared gated helper (its inFlight guard prevents
+    // this and the per-frame flush from both issuing before the spawn queue resolves). Otherwise it
+    // spawns from the record when we (re)enter that map.
+    if ((s32)gsworld_getMap() == map) {
+        trySpawnRecordedJiggy(pj);
     }
-
-    // In the jiggy's map and nothing spawned yet: spawn it live. We gate on the jiggylist slot
-    // (jiggylist_hasSpawnedObject), NOT jiggyscore_isSpawned (the spawned *bit* syncs via the score,
-    // so it's set on us before we've spawned anything) and NOT func_8032B16C (which only finds the
-    // final jiggy actor, returning NULL through the whole falling-bundle pop — which would restack a
-    // new bundle every frame). triggerEvent = 0: silent, no re-broadcast.
-    if ((s32)gsworld_getMap() == map && !jiggylist_hasSpawnedObject((enum jiggy_e)jiggyId)) {
-        f32 pos[3] = { x, y, z };
-        codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)jiggyId, pos, 0);
-    }
-    // Otherwise it'll spawn from the record when we (re)enter that map.
 }
 
 // Re-apply the team's spawned jiggies for the map we're in: (re)spawn any that aren't currently in
@@ -124,13 +142,7 @@ void Anchor::FlushPendingJiggySpawns() {
             list.erase(list.begin() + i);
             continue;
         }
-        // Spawn only if nothing is spawned for this jiggy yet (gate on the jiggylist slot, which is
-        // live from the start of the falling-bundle pop — not func_8032B16C/the spawned bit, either
-        // of which would restack a new bundle every frame while one is still popping — see HandlePacket).
-        if (!jiggylist_hasSpawnedObject((enum jiggy_e)pj.jiggyId)) {
-            f32 pos[3] = { pj.x, pj.y, pj.z };
-            codeABC00_spawnJiggyAtLocationEx((enum jiggy_e)pj.jiggyId, pos, 0);
-        }
+        trySpawnRecordedJiggy(pj);
         i++;
     }
 }
@@ -180,6 +192,16 @@ extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId) {
 void RegisterSpawnJiggy_Init() {
     // Session state — drop it on save load so a spawned-jiggy record can't leak across files.
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sSpawnedJiggies.clear(); });
+
+    // A map load frees the previous map's actors, so any "in flight" spawn is gone — clear the flags
+    // so the flush re-issues for the new map (and re-entry re-spawns something left mid-pop).
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        for (auto& [map, list] : sSpawnedJiggies) {
+            for (auto& pj : list) {
+                pj.inFlight = false;
+            }
+        }
+    });
 }
 
 static RegisterShipInitFunc initSpawnJiggy(RegisterSpawnJiggy_Init, {});

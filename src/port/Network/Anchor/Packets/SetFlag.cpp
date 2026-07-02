@@ -45,7 +45,8 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
         // save array directly rather than via SetRandoInfFlag so applying it doesn't re-fire the
         // event and echo back onto the wire. Check-derived RANDO_INF flags never come through
         // here — they ride SET_CHECK_STATUS and are recomputed by ModifyRandoInfFlagState.
-        if (flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
+        // RANDO_SAVE_FLAGS only exists in a randomizer file, so ignore this in vanilla.
+        if (IS_RANDO && flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
             RANDO_SAVE_FLAGS[flag].flagState = 1;
         }
     } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
