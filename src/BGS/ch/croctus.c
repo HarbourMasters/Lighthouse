@@ -179,7 +179,14 @@ void chCroctus_updat(Actor *this){
             }
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
             if (this->actorTypeSpecificField == 1) {
-                func_8028F94C(2, this->position);
+                // [port] Anchor: func_8028F94C pushes a player look-at that is normally released
+                // when the follow-up 0xC87 dialog is dismissed (func_80387E68's else branch ->
+                // func_8028F918 -> balookat_pop). The remote replay skips that dialog, so the push
+                // would never be popped and the far player would be left locked/immobilized. The
+                // look-at is a local-feed camera effect anyway, so skip it entirely when replaying.
+                if (!sCroctusRemote) {
+                    func_8028F94C(2, this->position);
+                }
                 // Replaying remotely: drive the reveal directly (func_80387E68) instead of through
                 // the dialog, which a far player would otherwise have to dismiss.
                 if (sCroctusRemote) {
