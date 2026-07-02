@@ -841,7 +841,9 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             gSP1Quadrangle((*gfx)++, 0, 1, 3, 2, 0);
         }
         else{
-            gSPScisTextureRectangle((*gfx)++, (s32)(sp200*4.0f), (s32)(f28*4.0f), (s32)((sp200 + sp214->x*arg3)*4.0f), (s32)((f28 + sp214->y*arg3)*4.0f), 0, 0, 0, (s32)(1024.0f / arg3), (s32)(1024.0f / arg3));
+            // [port] Wide variant: widescreen-anchored HUD text can start left of x=0; the Scis
+            // macro would CPU-clamp it to the 4:3 edge and crop the glyph.
+            gSPWideTextureRectangle((*gfx)++, (s32)(sp200*4.0f), (s32)(f28*4.0f), (s32)((sp200 + sp214->x*arg3)*4.0f), (s32)((f28 + sp214->y*arg3)*4.0f), 0, 0, 0, (s32)(1024.0f / arg3), (s32)(1024.0f / arg3));
         }
         *xPtr += sp1F8 * arg3;
     }

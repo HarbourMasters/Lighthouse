@@ -70,7 +70,6 @@ float port_drawDistanceMul(void);
 void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist);
 int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
 float port_hudOrthoShift(float refX);
-void port_drawLivesCount(Gfx** gfx, Mtx** mtx, Vtx** vtx, char* str, float baseX, float screenY);
 
 // Mirror (MirrorPatches.cpp)
 
