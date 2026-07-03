@@ -185,6 +185,9 @@ void Anchor::RegisterHooks() {
             }
         } else {
             anchor->hasRequestedTeamState = false;
+            // Not in a loaded save (e.g. file select): drop buffered spawns so they can't leak
+            // into a different save loaded next.
+            anchor->pendingJiggySpawns.clear();
         }
     });
 
