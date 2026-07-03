@@ -212,6 +212,12 @@ void LighthouseMenu::AddMenuEnhancements() {
             "How quickly the camera settles when sliding along geometry. "
             "Lower is smoother but floatier; higher is snappier but can hitch on walls."));
 
+    AddWidget(path, "Follow Camera", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.Follow"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "The camera will always follow Banjo and Kazooie when available, without requiring the player to hold R"));
+
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
@@ -390,6 +396,19 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip(
             "Start in the Lair with all basic moves and the six empty honeycombs collected."));
+
+    AddWidget(path, "Furnace Fun Moves", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Start new files with the moves of an N64 Furnace Fun Moves (FFM) setup file. Egg Firing, "
+            "Flight, and Wonderwing stay unlearned so Bottles still teaches them with their free eggs "
+            "and feathers. Has no effect on existing files."));
 
     AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"))

@@ -85,8 +85,7 @@ void fxlifescore_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **mtx,
     sp108 = *vtx;
     code_78E50_ItemValueString[0] = '\0';
     strIToA(code_78E50_ItemValueString, MIN(9, itemPrint_getValue(item_id)));
-    // [port] This draw deferred
-    // print_bold_spaced((s32) (0x4E + port_hudOrthoShift(78.0f)), (s32) (func_802FB0E4(arg1) + -16.0f + 4.0f), (char *) &code_78E50_ItemValueString);
+    print_bold_spaced((s32) (0x4E + port_hudOrthoShift(78.0f)), (s32) (func_802FB0E4(arg1) + -16.0f + 4.0f), (char *) &code_78E50_ItemValueString);
     if(1); //fake
     if (D_80381EB0[D_80381EC4] != NULL) {
         gSPDisplayList((*gfx)++, D_8036A278);
@@ -124,9 +123,6 @@ void fxlifescore_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **mtx,
         gDPPipelineMode((*gfx)++, G_PM_NPRIMITIVE);
         viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
     }
-    // [port] Count drawn last (after the heads' shared *vtx usage) as an ortho quad so it
-    // widescreen-anchors next to the heads. Unconditional, matching the original print call.
-    port_drawLivesCount(gfx, mtx, vtx, (char *) code_78E50_ItemValueString, 78.0f, func_802FB0E4(arg1) + -16.0f + 4.0f);
 }
 
 void fxlifescore_update(enum item_e item_id, struct8s *arg1) {
