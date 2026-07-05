@@ -118,16 +118,18 @@ inline bool ShouldSpawnJinjoJiggy(int16_t levelId) {
     bool shouldSpawn = false;
     int16_t jinjoCount = 0;
 
-    for (auto& pool : Rando::Logic::shuffledPool) {
-        if (!pool.obtained) {
+    for (auto& location : Rando::Logic::shuffledPool) {
+        if (!location.obtained) {
             continue;
         }
 
-        if (Rando::StaticData::Checks[pool.shuffledCheckId].worldId != levelId) {
+        Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[location.randoItemId];
+
+        if (randoItem.worldId != levelId) {
             continue;
         }
 
-        if (pool.randoItemId >= RI_JINJO_BLUE && pool.randoItemId <= RI_JINJO_YELLOW) {
+        if (randoItem.randoItemType == RITYPE_JINJO) {
             jinjoCount++;
         }
     }
@@ -142,12 +144,13 @@ inline bool ShouldSpawnJinjoJiggy(int16_t levelId) {
 inline int32_t GetTotalSnsItemsCollected() {
     int32_t snsCount = 0;
 
-    for (auto& pool : Rando::Logic::shuffledPool) {
-        if (!pool.obtained) {
+    for (auto& location : Rando::Logic::shuffledPool) {
+        if (!location.obtained) {
             continue;
         }
 
-        if (pool.randoItemId == RI_STOP_N_SWOP_EGG || pool.randoItemId == RI_STOP_N_SWOP_KEY) {
+        Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[location.randoItemId];
+        if (randoItem.randoItemType == RITYPE_SNS_EGG || randoItem.randoItemType == RITYPE_SNS_KEY) {
             snsCount++;
         }
     }
@@ -209,12 +212,13 @@ inline bool CanCollectWorldJinjos(level_e levelId) {
     int32_t accessibleJinjos = 0;
 
     for (auto& entry : Rando::Logic::shuffledPool) {
-        if (Rando::StaticData::Checks[entry.shuffledCheckId].worldId != levelId) {
+        Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[entry.randoItemId];
+
+        if (randoItem.worldId != levelId) {
             continue;
         }
-
-        if (entry.randoItemId >= RI_JINJO_BLUE && entry.randoItemId <= RI_JINJO_YELLOW) {
-            if (CanAccessCheck(entry.shuffledCheckId)) {
+        if (randoItem.randoItemType == RITYPE_JINJO) {
+            if (CanAccessCheck(entry.randoCheckId)) {
                 accessibleJinjos++;
             }
         }

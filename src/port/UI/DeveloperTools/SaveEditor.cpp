@@ -108,22 +108,23 @@ void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
 
     int32_t itemIncr = randoSaveCheck.obtained ? 1 : -1;
 
-    switch (randoSaveCheck.randoItemId) {
-        case RI_JIGGY:
+    Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
+    switch (randoItem.randoItemType) {
+        case RITYPE_JIGGY:
             jiggyscore_setCollected(randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
             item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, itemIncr);
             break;
-        case RI_EMPTY_HONEYCOMB:
+        case RITYPE_EMPTY_HONEYCOMB:
             honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
             break;
-        case RI_MOLEHILL:
+        case RITYPE_MOLEHILL:
             if (randoSaveCheck.obtained) {
                 ability_unlock((ability_e)randoSaveCheck.randoCollectionId);
             } else {
                 ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, 0);
             }
             break;
-        case RI_MUMBO_TOKEN:
+        case RITYPE_MUMBO_TOKEN:
             mumboscore_set((mumbotoken_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
             item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, itemIncr);
             break;
@@ -397,9 +398,9 @@ void DrawRandoCheckEditor() {
                 ImGui::TableSetupColumn("shuffled", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("obtained", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("skipped", ImGuiTableColumnFlags_WidthFixed, 34.0f);
-                ImGui::TableSetupColumn("checkName", ImGuiTableColumnFlags_WidthStretch, 3.5f);
-                ImGui::TableSetupColumn("itemName", ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                ImGui::TableSetupColumn("collectionId", ImGuiTableColumnFlags_WidthStretch, 0.5f);
+                ImGui::TableSetupColumn("checkName", ImGuiTableColumnFlags_WidthFixed, (ImGui::GetContentRegionAvail().x - 34.0f) * 0.60f);
+                ImGui::TableSetupColumn("itemName", ImGuiTableColumnFlags_WidthFixed, (ImGui::GetContentRegionAvail().x - 34.0f) * 0.25f);
+                ImGui::TableSetupColumn("collectionId", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableNextColumn();
 
                 for (auto& check : RANDO_SAVE_CHECKS) {
@@ -444,15 +445,11 @@ void DrawRandoCheckEditor() {
                     ImGui::TextWrapped(checkName.c_str());
                     ImGui::TableNextColumn();
 
-                    if (check.randoItemId == RI_MOLEHILL) {
-                        TableCellCenteredText(abilityNameList[check.randoCollectionId].c_str());
-                    } else {
-                        TableCellCenteredText(Rando::StaticData::Items[check.randoItemId].name);
-                    }
+                    ImGui::TextWrapped(Rando::StaticData::Items[check.randoItemId].name);
                     ImGui::TableNextColumn();
 
-                    if (Rando::StaticData::Checks[check.shuffledCheckId].randoCheckType != RCTYPE_JINJO &&
-                        Rando::StaticData::Checks[check.shuffledCheckId].randoCheckType != RCTYPE_MUSIC_NOTE) {
+                    Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[check.randoItemId];
+                    if (randoItem.randoItemType != RITYPE_JINJO && randoItem.randoItemType != RITYPE_MUSIC_NOTE) {
                         TableCellCenteredText(std::to_string(check.randoCollectionId).c_str());
                     }
                     ImGui::TableNextColumn();

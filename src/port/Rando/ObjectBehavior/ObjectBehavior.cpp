@@ -42,20 +42,20 @@ std::vector<int32_t> actorSpawnWhitelist = {
     //ACTOR_12C_MOLEHILL,
 };
 
-std::map<int32_t, UIWidgets::Colors> randoItemColors = {
-    { RI_UNKNOWN,           UIWidgets::Colors::Brown },
-    { RI_EMPTY_HONEYCOMB,   UIWidgets::Colors::Yellow },
-    { RI_JIGGY,             UIWidgets::Colors::Yellow },
-    { RI_JINJO_BLUE,        UIWidgets::Colors::SkyBlue },
-    { RI_JINJO_GREEN,       UIWidgets::Colors::Green },
-    { RI_JINJO_ORANGE,      UIWidgets::Colors::Orange },
-    { RI_JINJO_PINK,        UIWidgets::Colors::Pink },
-    { RI_JINJO_YELLOW,      UIWidgets::Colors::Yellow },
-    { RI_MOLEHILL,          UIWidgets::Colors::Cyan },
-    { RI_MUMBO_TOKEN,       UIWidgets::Colors::Gray },
-    { RI_MUSIC_NOTE,        UIWidgets::Colors::Yellow },
-    { RI_STOP_N_SWOP_EGG,   UIWidgets::Colors::Pink },
-    { RI_STOP_N_SWOP_KEY,   UIWidgets::Colors::White },
+std::map<actor_e, UIWidgets::Colors> randoItemColors = {
+    { ACTOR_1_UNKNOWN,          UIWidgets::Colors::Brown },
+    { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow },
+    { ACTOR_46_JIGGY,           UIWidgets::Colors::Yellow },
+    { ACTOR_60_JINJO_BLUE,      UIWidgets::Colors::SkyBlue },
+    { ACTOR_62_JINJO_GREEN,     UIWidgets::Colors::Green },
+    { ACTOR_5F_JINJO_ORANGE,    UIWidgets::Colors::Orange },
+    { ACTOR_61_JINJO_PINK,      UIWidgets::Colors::Pink },
+    { ACTOR_5E_JINJO_YELLOW,    UIWidgets::Colors::Yellow },
+    { ACTOR_12C_MOLEHILL,       UIWidgets::Colors::Cyan },
+    { ACTOR_2D_MUMBO_TOKEN,     UIWidgets::Colors::Gray },
+    { ACTOR_51_MUSIC_NOTE,      UIWidgets::Colors::Yellow },
+    { ACTOR_25E_SNS_EGG,        UIWidgets::Colors::Pink },
+    { ACTOR_25D_ICE_KEY,        UIWidgets::Colors::White },
 };
 
 std::map<int32_t, UIWidgets::Colors> snsItemColors = {
@@ -165,16 +165,17 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId) {
 void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
     if (CVAR_SHOW_COLLISION_NOTIFICATIONS) {
         RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+        actor_e actorId = Rando::StaticData::GetActorIdByRandoItemId(randoSaveCheck.randoItemId);
         std::string prefix;
         std::string message;
         std::string suffix = "";
-        ImVec4 itemColor = WIDGET_TEXT_COLOR(randoItemColors.at(randoSaveCheck.randoItemId));
+        ImVec4 itemColor = WIDGET_TEXT_COLOR(randoItemColors.at(actorId));
 
-        if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
+        if (actorId == ACTOR_12C_MOLEHILL) {
             prefix = "You learned";
             message = abilityNameList[randoSaveCheck.randoCollectionId].c_str();
-        } else if (randoSaveCheck.randoItemId == RI_STOP_N_SWOP_EGG ||
-                   randoSaveCheck.randoItemId == RI_STOP_N_SWOP_KEY) {
+        } else if (randoSaveCheck.randoItemId >= RI_STOP_N_SWOP_EGG_BLUE &&
+                   randoSaveCheck.randoItemId <= RI_STOP_N_SWOP_ICE_KEY) {
             int32_t totalsnsItems = Rando::Logic::GetTotalSnsItemsCollected();
             prefix = "You collected ";
             prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
@@ -201,14 +202,6 @@ void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
         });
     }
 };
-
-bool ShouldOverrideSpawn(RandoCheckId randoCheckId) {
-    if (Rando::Logic::IsCheckShuffled(randoCheckId)) {
-        return true;
-    }
-
-    return false;
-}
 
 bool CheckEnemyOverlapPosition(int32_t pos[3]) {
     level_e levelId = map_getLevel(gsworld_getMap());
@@ -238,8 +231,6 @@ bool CheckEnemyOverlapPosition(int32_t pos[3]) {
     return enemyOverlap;
 }
 
-// CALL_EVENT expands to a braced initializer whose commas don't survive being passed through the
-// COND_HOOK macro wrapper, so fire it from a plain function the listener calls instead.
 static void FireClearBundleDespawnQueue() {
     CALL_EVENT(ClearBundleDespawnQueue);
 }
@@ -359,6 +350,7 @@ void Rando::ObjectBehavior::Init() {
         RandoItemId randoItemId = RI_UNKNOWN;
 
         if (ev->propId->markerFlag) {
+            RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[ev->propId->actorProp.marker->randoCheckId];
             Actor* markerActor = marker_getActor(ev->propId->actorProp.marker);
 
             if (markerActor->is_bundle && func_802C9C14(markerActor)) {
@@ -369,17 +361,17 @@ void Rando::ObjectBehavior::Init() {
             switch (ev->propId->actorProp.marker->id) {
                 case MARKER_39_MUMBO_TOKEN:
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUMBO_TOKENS].optionValue == RO_GENERIC_ON) {
-                        randoItemId = RI_MUMBO_TOKEN;
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_52_JIGGY:
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue == RO_GENERIC_ON) {
-                        randoItemId = RI_JIGGY;
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_53_EMPTY_HONEYCOMB:
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_EMPTY_HONEYCOMBS].optionValue == RO_GENERIC_ON) {
-                        randoItemId = RI_EMPTY_HONEYCOMB;
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_5A_JINJO_BLUE:
@@ -388,21 +380,20 @@ void Rando::ObjectBehavior::Init() {
                 case MARKER_5D_JINJO_PINK:
                 case MARKER_5E_JINJO_YELLOW:
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_JINJOS].optionValue == RO_GENERIC_ON) {
-                        randoItemId = Rando::StaticData::GetRandoItemByActorId(
-                            jinjoMarkerMap.at(ev->propId->actorProp.marker->id));
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_5F_MUSIC_NOTE:
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue == RO_GENERIC_ON) {
-                        randoItemId = RI_MUSIC_NOTE;
+                        randoItemId = randoSaveCheck.randoItemId;
                         event->Cancelled = true;
                     }
                     break;
                 case MARKER_168_ICE_KEY:
-                    randoItemId = RI_STOP_N_SWOP_KEY;
+                    randoItemId = randoSaveCheck.randoItemId;
                     break;
                 case MARKER_169_SNS_EGG:
-                    randoItemId = RI_STOP_N_SWOP_EGG;
+                    randoItemId = randoSaveCheck.randoItemId;
                     break;
                 case MARKER_265_WORLD_EXIT_PAD:
                     for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i < LEVEL_A_MAD_MONSTER_MANSION; i++) {
