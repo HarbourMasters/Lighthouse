@@ -124,8 +124,8 @@ void Rando::Logic::InitializeSaveData(SaveData* saveData) {
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
         RandoSaveCheck randoSaveCheck = {
             .name = randoStaticCheck.name,
-            .randoItemId = Rando::StaticData::GetRandoItemByActorId((actor_e)randoStaticCheck.actorId),
-            .shuffledCheckId = randoCheckId,
+            .randoItemId = randoStaticCheck.randoItemId,
+            // .randoItemId = Rando::StaticData::GetRandoItemByActorId((actor_e)randoStaticCheck.actorId),
             .randoCollectionId = randoStaticCheck.collectionId,
             .isShuffled = false,
             .obtained = false,
