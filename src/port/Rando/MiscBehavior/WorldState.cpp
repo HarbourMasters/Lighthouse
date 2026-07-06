@@ -258,24 +258,33 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
     REGISTER_LISTENER(OnIsHoneycombScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnIsHoneycombScoreCollected* ev = (OnIsHoneycombScoreCollected*)event;
 
-        if (!IS_RANDO || !EMPTY_HONEYCOMB_OPTION_ENABLED) {
+        if (!IS_RANDO && !EMPTY_HONEYCOMB_OPTION_ENABLED) {
             return;
         }
 
-        RandoCheckId randoCheckId = Rando::StaticData::GetCheckByHoneycombId((honeycomb_e)ev->honeycombId);
-
-        if (randoCheckId == RC_UNKNOWN || !RANDO_SAVE_CHECKS[randoCheckId].isShuffled) {
+        if (getGameMode() == GAME_MODE_4_PAUSED) {
             return;
         }
 
-        event->Cancelled = true;
+        for (auto& saveCheck : RANDO_SAVE_CHECKS) {
+            Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[saveCheck.randoItemId];
 
-        if (ev->honeycombId == HONEYCOMB_17_SM_COLLIWOBBLE) {
-            ev->result = false;
-            return;
+            if (randoItem.randoItemType != RITYPE_EMPTY_HONEYCOMB) {
+                continue;
+            }
+
+            if (saveCheck.randoCollectionId == ev->honeycombId) {
+                event->Cancelled = true;
+
+                if (ev->honeycombId == HONEYCOMB_17_SM_COLLIWOBBLE) {
+                    ev->result = false;
+                } else {
+                    ev->result = saveCheck.obtained;
+                }
+
+                break;
+            }
         }
-
-        ev->result = RANDO_SAVE_CHECKS[randoCheckId].obtained;
     })
 
     REGISTER_LISTENER(OnIsMumboTokenScoreCollected, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

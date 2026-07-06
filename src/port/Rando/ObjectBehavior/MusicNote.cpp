@@ -15,13 +15,15 @@ void Rando::ObjectBehavior::InitMusicNoteBehavior() {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
         int32_t currentNotes = 0;
 
-        for (auto& pool : Rando::Logic::shuffledPool) {
-            if (Rando::StaticData::Checks[pool.shuffledCheckId].worldId != ev->levelId) {
+        for (auto& location : Rando::Logic::shuffledPool) {
+            Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[location.randoItemId];
+
+            if (randoItem.worldId != ev->levelId) {
                 continue;
             }
 
-            if (pool.randoItemId == RI_MUSIC_NOTE) {
-                if (pool.obtained) {
+            if (randoItem.randoItemType == RITYPE_MUSIC_NOTE) {
+                if (location.obtained) {
                     currentNotes++;
                 }
             }

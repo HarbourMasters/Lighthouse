@@ -5,6 +5,7 @@
 #include "port/UI/Notification.h"
 
 #include "port/Save/Types.h"
+#include "port/UI/cvar_prefixes.h"
 
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/Spoiler/Spoiler.h"

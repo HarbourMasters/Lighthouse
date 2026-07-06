@@ -4,7 +4,6 @@
 #include "port/Rando/Rando.h"
 #include <vector>
 
-bool ShouldOverrideSpawn(RandoCheckId randoCheckId);
 bool CheckEnemyOverlapPosition(int32_t pos[3]);
 int32_t GetJinjoActorMarkerId(actor_e actorId);
 extern std::vector<RandoCheckId> enemyKillOverlapList;
