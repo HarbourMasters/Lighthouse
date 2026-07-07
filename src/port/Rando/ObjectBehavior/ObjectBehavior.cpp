@@ -32,6 +32,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
     ACTOR_46_JIGGY,
     ACTOR_47_EMPTY_HONEYCOMB,
     ACTOR_51_MUSIC_NOTE,
+    ACTOR_52_BLUE_EGG,
     ACTOR_5E_JINJO_YELLOW,
     ACTOR_5F_JINJO_ORANGE,
     ACTOR_60_JINJO_BLUE,
@@ -44,6 +45,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
 
 std::map<actor_e, UIWidgets::Colors> randoItemColors = {
     { ACTOR_1_UNKNOWN,          UIWidgets::Colors::Brown },
+    { ACTOR_52_BLUE_EGG,        UIWidgets::Colors::Cyan },
     { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow },
     { ACTOR_46_JIGGY,           UIWidgets::Colors::Yellow },
     { ACTOR_60_JINJO_BLUE,      UIWidgets::Colors::SkyBlue },
@@ -349,6 +351,9 @@ void Rando::ObjectBehavior::Init() {
         OnActorCollision* ev = (OnActorCollision*)event;
         RandoItemId randoItemId = RI_UNKNOWN;
 
+        SPDLOG_INFO("Collect: {}, {}, {}", ev->propId->spriteProp.unk4[0], ev->propId->spriteProp.unk4[1],
+                    ev->propId->spriteProp.unk4[2]);
+
         if (ev->propId->markerFlag) {
             RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[ev->propId->actorProp.marker->randoCheckId];
             Actor* markerActor = marker_getActor(ev->propId->actorProp.marker);
@@ -387,6 +392,11 @@ void Rando::ObjectBehavior::Init() {
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue == RO_GENERIC_ON) {
                         randoItemId = randoSaveCheck.randoItemId;
                         event->Cancelled = true;
+                    }
+                    break;
+                case MARKER_60_BLUE_EGG_COLLECTIBLE:
+                    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BLUE_EGGS].optionValue == RO_GENERIC_ON) {
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_168_ICE_KEY:

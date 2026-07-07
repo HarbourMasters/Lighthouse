@@ -46,6 +46,11 @@ void GenerateShufflePool(SaveData* saveData) {
     shuffledPool.clear();
 
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
+        if (randoStaticCheck.randoCheckType == RCTYPE_BLUE_EGG &&
+            CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_BLUE_EGGS].cvar, 0) == RO_GENERIC_OFF) {
+            continue;
+        }
+
         if (randoStaticCheck.randoCheckType == RCTYPE_EMPTY_HONEYCOMB &&
             CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_EMPTY_HONEYCOMBS].cvar, 0) == RO_GENERIC_OFF) {
             continue;
