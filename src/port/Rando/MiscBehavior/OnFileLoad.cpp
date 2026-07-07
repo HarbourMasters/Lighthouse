@@ -7,6 +7,7 @@
 #include "port/UI/cvar_prefixes.h"
 
 #include "port/Rando/Logic/Logic.h"
+#include "port/Rando/CheckTracker/CheckTracker.h"
 // #include "port/Rando/Spoiler/Spoiler.h"
 
 extern "C" {
@@ -47,6 +48,7 @@ void Rando::MiscBehavior::OnFileLoad() {
     REGISTER_LISTENER(OnLoadFileSelect, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnLoadFileSelect* ev = (OnLoadFileSelect*)event;
 
+        isCheckTrackerInitialized = false;
         selectedFileNum = DEFAULT_FILE_NUM;
     });
 }

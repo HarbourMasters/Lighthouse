@@ -76,10 +76,13 @@ std::vector<std::tuple<const char*, Color_RGBA8, const char*>> defaultCheckColor
     { CVAR_NAME_ITEM_COLOR, DEFAULT_ITEM_COLOR, "Obtained Item" },
 };
 
+std::map<RandoCheckId, std::string> checkNames;
+
 Rando::StaticData::RandoLogicData reachableRegions[RR_MAX];
 Rando::StaticData::RandoLogicData reachableEvents[RA_MAX];
 Rando::StaticData::RandoLogicData reachableChecks[RC_MAX];
 
+bool isCheckTrackerInitialized = false;
 bool checkTrackerPopoutState = false;
 ImVec4 checkTrackerBG = ImVec4{ 0, 0, 0, 0.5f };
 ImVec4 collectedChecksBG = ImVec4{ 0, 0, 0, 0.5f };
@@ -111,6 +114,13 @@ std::string GetTotalCheckCount() {
     totalChecks += " of ";
     totalChecks += std::to_string(totalShuffled);
     return totalChecks;
+}
+
+void CreateCheckStringList() {
+    checkNames.clear();
+    for (auto& entry : Rando::Logic::shuffledPool) {
+        checkNames.insert({ entry.randoCheckId, Ship_ConvertEnumToReadableName(entry.name) });
+    }
 }
 
 void UpdateWorldCheckCount(level_e world) {
@@ -163,6 +173,11 @@ void DrawCheckTrackerCount() {
 void DrawCheckTrackerList() {
     if (Rando::Logic::shuffledPool.empty()) {
         return;
+    }
+
+    if (!isCheckTrackerInitialized) {
+        CreateCheckStringList();
+        isCheckTrackerInitialized = true;
     }
 
     if (CVAR_SHOW_COLLECTED_CHECKS && !CVAR_SHOW_SEPARATE_COLLECTED_CHECKS) {
@@ -228,7 +243,7 @@ void DrawCheckTrackerList() {
                     }
 
                     ImGui::BeginGroup();
-                    ImGui::TextColored(checkTextColor, Ship_ConvertEnumToReadableName(entry.name).c_str());
+                    ImGui::TextColored(checkTextColor, checkNames.at(entry.randoCheckId).c_str());
                     if (entry.obtained) {
                         ImGui::SameLine();
                         RandoItemId randoItemId = Rando::Logic::GetShuffledObject(entry.randoCheckId).randoItemId;

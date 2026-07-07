@@ -394,8 +394,10 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input, bool addPre
     for (auto& w : words) {
         std::transform(w.begin(), w.end(), w.begin(), [](unsigned char c) { return std::tolower(c); });
         if (!w.empty()) {
-            if (w == "hp") {
-                w = "HP";
+            if (w == "rbb") {
+                w = "RBB";
+            } else if (w == "mmm") {
+                w = "MMM";
             } else {
                 w[0] = std::toupper(w[0]);
             }
