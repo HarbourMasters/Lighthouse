@@ -329,17 +329,10 @@ std::vector<file_progress_e> worldOpenFlags = {
 };
 
 std::unordered_map<std::string, std::string> levelAbbreviations = {
-    { "MM", "Mumbos Mountain" },
-    { "TTC", "Treasure Trove Cove" },
-    { "CC", "Clankers Cavern" },
-    { "BGS", "Bubblegloop Swamp" },
-    { "FP", "Freezeezy Peak" },
-    { "GL", "Gruntildas Lair" },
-    { "GV", "Gobis Valley" },
-    { "CCW", "Click Clock Wood" },
-    { "RBB", "Rusty Bucket Bay" },
-    { "MMM", "Mad Monster Mansion" },
-    { "SM", "Spiral Mountain" },
+    { "MM", "Mumbos Mountain" },      { "TTC", "Treasure Trove Cove" }, { "CC", "Clankers Cavern" },
+    { "BGS", "Bubblegloop Swamp" },   { "FP", "Freezeezy Peak" },       { "GL", "Gruntildas Lair" },
+    { "GV", "Gobis Valley" },         { "CCW", "Click Clock Wood" },    { "RBB", "Rusty Bucket Bay" },
+    { "MMM", "Mad Monster Mansion" }, { "SM", "Spiral Mountain" },
 };
 
 json Ship_RetrieveSaveFile(int32_t filenum) {
