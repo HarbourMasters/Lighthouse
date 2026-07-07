@@ -142,7 +142,7 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         randoCheckId = (RandoCheckId)((int32_t)RC_BGS_EXTRA_LIFE_MR_VILE_1 + vileCount);
                         vileCount++;
                         applyCustomPhysics = true;
-                        if (vileCount >= 2) {
+                        if (vileCount >= 3) {
                             vileCount = 0;
                         }
                         break;

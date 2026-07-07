@@ -206,7 +206,7 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_SPRING_TOP_ROOM] = RandoRegion{ .regionName = "Spring - Top Room of the Tree", .mapId = MAP_65_CCW_SPRING_WHIPCRACK_ROOM,
         .checks = {
-            CHECK(RC_CCW_EXTRA_LIFE_SPRING_TO_ROOM_BY_THE_JIGGY,        true),
+            CHECK(RC_CCW_EXTRA_LIFE_SPRING_TOP_ROOM_BY_THE_JIGGY,        true),
             CHECK(RC_CCW_EXTRA_LIFE_SPRING_TOP_ROOM_IN_THE_BRANCHES,    true),
             CHECK(RC_CCW_JIGGY_TOP_ROOM,                                true),
         },
