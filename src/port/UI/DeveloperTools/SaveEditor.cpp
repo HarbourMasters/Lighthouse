@@ -398,8 +398,10 @@ void DrawRandoCheckEditor() {
                 ImGui::TableSetupColumn("shuffled", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("obtained", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("skipped", ImGuiTableColumnFlags_WidthFixed, 34.0f);
-                ImGui::TableSetupColumn("checkName", ImGuiTableColumnFlags_WidthFixed, (ImGui::GetContentRegionAvail().x - 34.0f) * 0.60f);
-                ImGui::TableSetupColumn("itemName", ImGuiTableColumnFlags_WidthFixed, (ImGui::GetContentRegionAvail().x - 34.0f) * 0.25f);
+                ImGui::TableSetupColumn("checkName", ImGuiTableColumnFlags_WidthFixed,
+                                        (ImGui::GetContentRegionAvail().x - 34.0f) * 0.60f);
+                ImGui::TableSetupColumn("itemName", ImGuiTableColumnFlags_WidthFixed,
+                                        (ImGui::GetContentRegionAvail().x - 34.0f) * 0.25f);
                 ImGui::TableSetupColumn("collectionId", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableNextColumn();
 
