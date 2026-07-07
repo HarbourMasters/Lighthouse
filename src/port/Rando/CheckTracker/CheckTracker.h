@@ -5,6 +5,8 @@
 #include <ship/window/gui/GuiWindow.h>
 #include <nlohmann/json.hpp>
 
+extern bool isCheckTrackerInitialized;
+
 namespace Rando {
 
 namespace CheckTracker {
