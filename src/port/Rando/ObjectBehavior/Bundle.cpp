@@ -133,6 +133,14 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                 break;
             case LEVEL_4_BUBBLEGLOOP_SWAMP:
                 switch (bundleId) {
+                    case BUNDLE_6_MM_HUT_EXTRA_LIFE:
+                        randoCheckId = (RandoCheckId)((int32_t)RC_BGS_EXTRA_LIFE_MR_VILE_1 + vileCount);
+                        vileCount++;
+                        applyCustomPhysics = true;
+                        if (vileCount >= 3) {
+                            vileCount = 0;
+                        }
+                        break;
                     case BUNDLE_7__JIGGY:
                         randoCheckId = RC_BGS_JIGGY_CROCTUS;
                         break;

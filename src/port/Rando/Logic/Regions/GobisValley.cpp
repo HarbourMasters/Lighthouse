@@ -47,6 +47,7 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_GOBIS_VALLEY_INTERIOR_MAZE_PYRAMID] = RandoRegion{ .regionName = "Maze Pyramid Interior", .mapId = MAP_14_GV_SANDYBUTTS_MAZE,
         .checks = {
+            CHECK(RC_GV_EXTRA_LIFE_INSIDE_SANDYBUTTS_TOMB, 			true),
             CHECK(RC_GV_JIGGY_MAZE, 								true),
             CHECK(RC_GV_JINJO_PINK, 								true),
             CHECK(RC_GV_MUMBO_TOKEN_BEHIND_SANDYBUTTS_SARCOPHAGUS, 	true),
@@ -131,6 +132,8 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_GOBIS_VALLEY_UPPER_AREA] = RandoRegion{ .regionName = "Upper Areas", .mapId = MAP_12_GV_GOBIS_VALLEY,
         .checks = {
+            CHECK(RC_GV_EXTRA_LIFE_BEHIND_JINXY, 		    CAN_USE_ABILITY(ABILITY_E_WADING_BOOTS)),
+            CHECK(RC_GV_EXTRA_LIFE_ON_TOP_OF_WATER_PYRAMID, true),
             CHECK(RC_GV_EMPTY_HONEYCOMB_CACTUS, 		    CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_9_FLIGHT)),
             CHECK(RC_GV_JIGGY_ANCIENT_ONES, 			    CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_9_FLIGHT)),
             CHECK(RC_GV_JIGGY_GOBI_1, 					    CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),

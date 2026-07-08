@@ -9,6 +9,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_CCW_JIGGY_FLOWER,                                  true),
             CHECK(RC_CCW_JIGGY_GNAWTY,                                  CAN_ACCESS(RA_GNAWTYS_BOULDER) && CAN_USE_ABILITY(ABILITY_F_DIVE)),
+            CHECK(RC_CCW_EXTRA_LIFE_AUTUMN_BEHIND_GNAWTYS_FIRE,         CAN_ACCESS(RA_GNAWTYS_BOULDER) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_CCW_JINJO_ORANGE,                                  true),
             CHECK(RC_CCW_MUMBO_TOKEN_AUTUMN_FLOATING_ABOVE_BIG_CLUCKER, CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_CCW_MUMBO_TOKEN_AUTUMN_LEAF_NEAR_TREEHOUSE,        true),
@@ -87,6 +88,9 @@ static RegisterShipInitFunc initFunc([]() {
     };
 
     Regions[RR_CLICK_CLOCK_WOOD_AUTUMN_TOP_ROOM] = RandoRegion{ .regionName = "Autumn - Top Room of the Tree", .mapId = MAP_67_CCW_AUTUMN_WHIPCRACK_ROOM,
+        .checks = {
+            CHECK(RC_CCW_EXTRA_LIFE_AUTUMN_TOP_ROOM,            true),
+        },
         .connections = {
             CONNECTION(RR_CLICK_CLOCK_WOOD_AUTUMN_UPPER_TREE, true),
         },
@@ -94,16 +98,17 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_AUTUMN_UPPER_TREE] = RandoRegion{ .regionName = "Autumn - Upper Portion of the Tree", .mapId = MAP_45_CCW_AUTUMN,
         .checks = {
-            CHECK(RC_CCW_JIGGY_NABNUT,                              CAN_BREAK_OBJECT(RA_BREAK_OBJECT_WINDOWS) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_F_DIVE)),
-            CHECK(RC_CCW_MUMBO_TOKEN_AUTUMN_SNAREBEAR_TOP_OF_TREE,  CAN_USE_ABILITY(ABILITY_12_WONDERWING)),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_1,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_2,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_3,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_4,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_5,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_6,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_7,                 true),
-            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_8,                 true),
+            CHECK(RC_CCW_EXTRA_LIFE_AUTUMN_SNAREBEAR_NEAR_TREEHOUSE,    true),
+            CHECK(RC_CCW_JIGGY_NABNUT,                                  CAN_BREAK_OBJECT(RA_BREAK_OBJECT_WINDOWS) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_F_DIVE)),
+            CHECK(RC_CCW_MUMBO_TOKEN_AUTUMN_SNAREBEAR_TOP_OF_TREE,      CAN_USE_ABILITY(ABILITY_12_WONDERWING)),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_1,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_2,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_3,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_4,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_5,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_6,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_7,                     true),
+            CHECK(RC_CCW_NOTE_AUTUMN_EYRIES_NEST_8,                     true),
         },
         .connections = {
             CONNECTION(RR_CLICK_CLOCK_WOOD_AUTUMN, true),
@@ -137,6 +142,8 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_SPRING] = RandoRegion{ .regionName = "Spring Season", .mapId = MAP_43_CCW_SPRING,
         .checks = {
+            CHECK(RC_CCW_EXTRA_LIFE_SPRING_BRANCHES_ABOVE_MUMBOS_SKULL,         CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) || CAN_USE_TRANSFORMATION(TRANSFORM_6_BEE)),
+            CHECK(RC_CCW_EXTRA_LIFE_SPRING_SNAREBEAR_IN_THE_LAKE,               CAN_USE_TRANSFORMATION(TRANSFORM_6_BEE)),
             CHECK(RC_CCW_MUMBO_TOKEN_SPRING_SNAREBEAR_NEAR_BIG_FLOWER,          CAN_USE_ABILITY(ABILITY_12_WONDERWING) || CAN_USE_TRANSFORMATION(TRANSFORM_6_BEE)),
             CHECK(RC_CCW_MUMBO_TOKEN_SPRING_SNAREBEAR_NEAR_ENTRANCE,            CAN_USE_ABILITY(ABILITY_12_WONDERWING) || CAN_USE_TRANSFORMATION(TRANSFORM_6_BEE)),
             CHECK(RC_CCW_MUMBO_TOKEN_SPRING_THORN_FIELD_FRONT_OF_MUMBOS_SKULL,  CAN_USE_ABILITY(ABILITY_E_WADING_BOOTS)),
@@ -199,7 +206,9 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_SPRING_TOP_ROOM] = RandoRegion{ .regionName = "Spring - Top Room of the Tree", .mapId = MAP_65_CCW_SPRING_WHIPCRACK_ROOM,
         .checks = {
-            CHECK(RC_CCW_JIGGY_TOP_ROOM,        true),
+            CHECK(RC_CCW_EXTRA_LIFE_SPRING_TOP_ROOM_BY_THE_JIGGY,       true),
+            CHECK(RC_CCW_EXTRA_LIFE_SPRING_TOP_ROOM_IN_THE_BRANCHES,    true),
+            CHECK(RC_CCW_JIGGY_TOP_ROOM,                                true),
         },
         .connections = {
             CONNECTION(RR_CLICK_CLOCK_WOOD_SPRING_UPPER_TREE, true),
@@ -225,6 +234,7 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_SUMMER] = RandoRegion{ .regionName = "Summer Season", .mapId = MAP_44_CCW_SUMMER,
         .checks = {
+            CHECK(RC_CCW_EXTRA_LIFE_SUMMER_NEAR_THE_BIG_FLOWER,         true),
             CHECK(RC_CCW_JIGGY_SUMMER_LEAF_JUMPS,                       CAN_EXTEND_JUMP_DISTANCE && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_CCW_JINJO_YELLOW,                                  true),
             CHECK(RC_CCW_MUMBO_TOKEN_SUMMER_BIG_FLOWER_FIELD,           true),
@@ -276,6 +286,9 @@ static RegisterShipInitFunc initFunc([]() {
     };
 
     Regions[RR_CLICK_CLOCK_WOOD_SUMMER_TOP_ROOM] = RandoRegion{ .regionName = "Summer - Top Room of the Tree", .mapId = MAP_66_CCW_SUMMER_WHIPCRACK_ROOM,
+        .checks = {
+            CHECK(RC_CCW_EXTRA_LIFE_SUMMER_TOP_ROOM, true)
+        },
         .connections = {
             CONNECTION(RR_CLICK_CLOCK_WOOD_SUMMER_UPPER_TREE, true),
         },
@@ -283,6 +296,7 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_SUMMER_UPPER_TREE] = RandoRegion{ .regionName = "Summer - Upper Portion of the Tree", .mapId = MAP_44_CCW_SUMMER,
         .checks = {
+            CHECK(RC_CCW_EXTRA_LIFE_SUMMER_TREEHOUSE,                       true),
             CHECK(RC_CCW_JIGGY_HOUSE,                                       true),
             CHECK(RC_CCW_MUMBO_TOKEN_SUMMER_PLATFORMS_BEFORE_EYRIES_NEST,   true),
             CHECK(RC_CCW_NOTE_SUMMER_OUTSIDE_NABNUTS_HOUSE_1,               true),
@@ -304,6 +318,8 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_CLICK_CLOCK_WOOD_WINTER] = RandoRegion{ .regionName = "Winter Season", .mapId = MAP_46_CCW_WINTER,
         .checks = {
+            CHECK(RC_CCW_EXTRA_LIFE_WINTER_BENEATH_SIR_SLUSH,                               CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_1_BEAK_BOMB)),
+            CHECK(RC_CCW_EXTRA_LIFE_WINTER_UNDER_THE_ICY_LAKE,                              CAN_USE_ABILITY(ABILITY_F_DIVE)),
             CHECK(RC_CCW_EMPTY_HONEYCOMB_GNAWTYS,                                           CAN_ACCESS(RA_GNAWTYS_BOULDER) && CAN_USE_ABILITY(ABILITY_F_DIVE)),
             CHECK(RC_CCW_JINJO_BLUE,                                                        CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) || CAN_USE_ABILITY(ABILITY_9_FLIGHT)),
             CHECK(RC_CCW_MUMBO_TOKEN_WINTER_BIG_FLOWER,                                     true),

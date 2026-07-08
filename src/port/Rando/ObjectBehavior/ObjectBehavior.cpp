@@ -31,6 +31,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
     ACTOR_2D_MUMBO_TOKEN,
     ACTOR_46_JIGGY,
     ACTOR_47_EMPTY_HONEYCOMB,
+    ACTOR_49_EXTRA_LIFE,
     ACTOR_51_MUSIC_NOTE,
     ACTOR_5E_JINJO_YELLOW,
     ACTOR_5F_JINJO_ORANGE,
@@ -45,6 +46,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
 std::map<actor_e, UIWidgets::Colors> randoItemColors = {
     { ACTOR_1_UNKNOWN,          UIWidgets::Colors::Brown },
     { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow },
+    { ACTOR_49_EXTRA_LIFE,      UIWidgets::Colors::Yellow },
     { ACTOR_46_JIGGY,           UIWidgets::Colors::Yellow },
     { ACTOR_60_JINJO_BLUE,      UIWidgets::Colors::SkyBlue },
     { ACTOR_62_JINJO_GREEN,     UIWidgets::Colors::Green },
@@ -387,6 +389,11 @@ void Rando::ObjectBehavior::Init() {
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue == RO_GENERIC_ON) {
                         randoItemId = randoSaveCheck.randoItemId;
                         event->Cancelled = true;
+                    }
+                    break;
+                case MARKER_61_EXTRA_LIFE:
+                    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_EXTRA_LIVES].optionValue == RO_GENERIC_ON) {
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_168_ICE_KEY:

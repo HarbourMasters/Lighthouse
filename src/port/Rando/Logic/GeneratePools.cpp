@@ -51,6 +51,11 @@ void GenerateShufflePool(SaveData* saveData) {
             continue;
         }
 
+        if (randoStaticCheck.randoCheckType == RCTYPE_EXTRA_LIFE &&
+            CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_EXTRA_LIVES].cvar, 0) == RO_GENERIC_OFF) {
+            continue;
+        }
+
         if (randoStaticCheck.randoCheckType == RCTYPE_JIGGY &&
             CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JIGGIES].cvar, 0) == RO_GENERIC_OFF) {
             continue;
