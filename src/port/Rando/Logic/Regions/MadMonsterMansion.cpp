@@ -68,11 +68,12 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR_UPPER_ORGAN] = RandoRegion{ .regionName = "Church Organ", .mapId = MAP_1C_MMM_CHURCH,
         .checks = {
-            CHECK(RC_MMM_JIGGY_MOTZAND,         CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_1,    true),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_2,    true),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_3,    true),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_4,    true),
+            CHECK(RC_MMM_EXTRA_LIFE_CHURCH_PIPES,   true),
+            CHECK(RC_MMM_JIGGY_MOTZAND,             CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_1,        true),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_2,        true),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_3,        true),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_4,        true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR,          true),
@@ -123,6 +124,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_16, true),
             CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_17, true),
             CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_18, true),
+            CHECK(RC_MMM_EXTRA_LIFE_CHURCH_WINDOW,  true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_CHURCH_EXTERIOR, true),
@@ -276,6 +278,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_3,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_4,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_5,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+            CHECK(RC_MMM_EXTRA_LIFE_DINING_ROOM_CHANDELIER,         CAN_USE_ABILITY(ABILITY_9_FLIGHT)),
             CHECK(RC_MMM_JIGGY_MANSION_TABLE,                       CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_MMM_MUMBO_TOKEN_IN_CHIMNEY_INSIDE_DINING_ROOM, CAN_USE_ABILITY(ABILITY_12_WONDERWING)),
             CHECK(RC_MMM_NOTE_CHAIR_WEST_SIDE_1,                    true),

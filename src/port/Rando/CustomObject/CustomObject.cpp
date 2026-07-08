@@ -46,6 +46,7 @@ extern ActorInfo chJiggy;
 extern ActorInfo D_80366C80;
 extern ActorInfo D_803685A0;
 extern ActorInfo sumusicNote;
+extern ActorInfo chExtraLife;
 
 extern ActorInfo D_80366CA4;
 extern ActorInfo D_80367D00;
@@ -71,6 +72,7 @@ std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
     { ACTOR_2D_MUMBO_TOKEN,     { D_803685A0,       ACTOR_FLAG_UNKNOWN_6 } },
     { ACTOR_46_JIGGY,           { chJiggy,          ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_47_EMPTY_HONEYCOMB, { D_80366C80,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_49_EXTRA_LIFE,      { chExtraLife,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_51_MUSIC_NOTE,      { sumusicNote,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_5E_JINJO_YELLOW,    { chJinjoYellow,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_5F_JINJO_ORANGE,    { chJinjoOrange,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
