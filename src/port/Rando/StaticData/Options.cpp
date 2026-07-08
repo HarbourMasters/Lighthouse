@@ -17,6 +17,7 @@ namespace StaticData {
 std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_LOGIC,                    RO_LOGIC_GLITCHLESS),
     RO(RO_SPAWN_JUNK,               RO_GENERIC_OFF),
+    RO(RO_SHUFFLE_BLUE_EGGS,        RO_GENERIC_OFF),
     RO(RO_SHUFFLE_EMPTY_HONEYCOMBS, RO_GENERIC_OFF),
     RO(RO_SHUFFLE_EXTRA_LIVES,      RO_GENERIC_OFF),
     RO(RO_SHUFFLE_JIGGIES,          RO_GENERIC_OFF),

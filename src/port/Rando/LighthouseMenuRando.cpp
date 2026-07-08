@@ -135,7 +135,7 @@ void LighthouseMenu::AddMenuRando() {
     AddSidebarEntry("Rando", "Shuffle Options", 2);
     path = { "Rando", "Shuffle Options", SECTION_COLUMN_1 };
 
-    AddWidget(path, "Shuffle Collectables", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Base Shuffles", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Shuffle Empty Honeycombs", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_EMPTY_HONEYCOMBS].cvar)
@@ -149,15 +149,21 @@ void LighthouseMenu::AddMenuRando() {
     AddWidget(path, "Shuffle Jinjos", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Jinjos into the Pool."));
-    AddWidget(path, "Shuffle Molehills", WIDGET_CVAR_CHECKBOX)
-        .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
-        .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
     AddWidget(path, "Shuffle Mumbo Tokens", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MUMBO_TOKENS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Mumbo Tokens into the Pool."));
     AddWidget(path, "Shuffle Music Notes", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MUSIC_NOTES].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Music Notes into the Pool."));
+
+    AddWidget(path, "Advanced Shuffles", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Shuffle Blue Eggs", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_BLUE_EGGS].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Blue Eggs into the Pool."));
+    AddWidget(path, "Shuffle Molehills", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
 
     path.column = SECTION_COLUMN_2;
 

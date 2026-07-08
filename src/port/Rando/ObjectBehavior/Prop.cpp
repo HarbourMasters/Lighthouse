@@ -10,17 +10,23 @@
 
 #include "spdlog/spdlog.h"
 
-#define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
+#define BLUE_EGG_OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_BLUE_EGGS].optionValue
+#define MUSIC_NOTE_OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
 
 void Rando::ObjectBehavior::InitPropBehavior() {
     COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, true, {
         s16* spawnPosition = va_arg(args, s16*);
+        int32_t propAsset = va_arg(args, int32_t);
 
         if (!IS_RANDO) {
             return;
         }
 
-        if (!OPTION_ENABLED) {
+        if (!BLUE_EGG_OPTION_ENABLED && propAsset == ASSET_6D7_SPRITE_BLUE_EGGS) {
+            return;
+        }
+
+        if (!MUSIC_NOTE_OPTION_ENABLED && propAsset == ASSET_6D6_SPRITE_MUSIC_NOTE) {
             return;
         }
 

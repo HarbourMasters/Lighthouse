@@ -25,6 +25,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
     ACTOR_47_EMPTY_HONEYCOMB,
     ACTOR_49_EXTRA_LIFE,
     ACTOR_51_MUSIC_NOTE,
+    ACTOR_52_BLUE_EGG,
     ACTOR_5E_JINJO_YELLOW,
     ACTOR_5F_JINJO_ORANGE,
     ACTOR_60_JINJO_BLUE,
@@ -37,6 +38,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
 
 std::map<actor_e, UIWidgets::Colors> randoItemColors = {
     { ACTOR_1_UNKNOWN,          UIWidgets::Colors::Brown },
+    { ACTOR_52_BLUE_EGG,        UIWidgets::Colors::Cyan },
     { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow },
     { ACTOR_49_EXTRA_LIFE,      UIWidgets::Colors::Yellow },
     { ACTOR_46_JIGGY,           UIWidgets::Colors::Yellow },
@@ -406,6 +408,11 @@ void Rando::ObjectBehavior::Init() {
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue == RO_GENERIC_ON) {
                         randoItemId = randoSaveCheck.randoItemId;
                         event->Cancelled = true;
+                    }
+                    break;
+                case MARKER_60_BLUE_EGG_COLLECTIBLE:
+                    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BLUE_EGGS].optionValue == RO_GENERIC_ON) {
+                        randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
                 case MARKER_61_EXTRA_LIFE:

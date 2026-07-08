@@ -77,6 +77,10 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         randoCheckId = (RandoCheckId)((int32_t)RC_MM_NOTE_HUT_BUNDLE_1 + bundleCount);
                         applyCustomPhysics = true;
                         break;
+                    case BUNDLE_1_MM_HUT_BLUE_EGG:
+                        randoCheckId = (RandoCheckId)((int32_t)RC_MM_BLUE_EGG_HUT_BUNDLE_1 + bundleCount);
+                        applyCustomPhysics = true;
+                        break;
                     case BUNDLE_3_MM_HUT_JINJO_GREEN:
                         randoCheckId = RC_MM_JINJO_GREEN;
                         applyCustomPhysics = true;

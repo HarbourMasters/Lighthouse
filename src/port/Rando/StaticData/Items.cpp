@@ -20,6 +20,16 @@ namespace StaticData {
 // clang-format off
 std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_UNKNOWN,                              "",     "Unknown",                  RITYPE_UNKNOWN,             ACTOR_1_UNKNOWN,                    LEVEL_D_CUTSCENE),
+    RI(RI_BLUE_EGG_BUBBLEGLOOP_SWAMP,           "a",    "Blue Egg - BGS",           RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_4_BUBBLEGLOOP_SWAMP),
+    RI(RI_BLUE_EGG_CLANKERS_CAVERN,             "a",    "Blue Egg - CC",            RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_3_CLANKERS_CAVERN),
+    RI(RI_BLUE_EGG_CLICK_CLOCK_WOOD,            "a",    "Blue Egg - CCW",           RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_8_CLICK_CLOCK_WOOD),
+    RI(RI_BLUE_EGG_FREEZEEZY_PEAK,              "a",    "Blue Egg - FP",            RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_5_FREEZEEZY_PEAK),
+    RI(RI_BLUE_EGG_GOBIS_VALLEY,                "a",    "Blue Egg - GV",            RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_7_GOBIS_VALLEY),
+    RI(RI_BLUE_EGG_GRUNTILDAS_LAIR,             "a",    "Blue Egg - Gl",            RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_6_LAIR),
+    RI(RI_BLUE_EGG_MAD_MONSTER_MANSION,         "a",    "Blue Egg - MMM",           RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_A_MAD_MONSTER_MANSION),
+    RI(RI_BLUE_EGG_MUMBOS_MOUNTAIN,             "a",    "Blue Egg - MM",            RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_1_MUMBOS_MOUNTAIN),
+    RI(RI_BLUE_EGG_RUSTY_BUCKET_BAY,            "a",    "Blue Egg - RBB",           RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_9_RUSTY_BUCKET_BAY),
+    RI(RI_BLUE_EGG_TREASURE_TROVE_COVE,         "a",    "Blue Egg - TTC",           RITYPE_BLUE_EGG,            ACTOR_52_BLUE_EGG,                  LEVEL_2_TREASURE_TROVE_COVE),
     RI(RI_EMPTY_HONEYCOMB_BUBBLEGLOOP_SWAMP,    "a",    "Empty Honeycomb - BGS",    RITYPE_EMPTY_HONEYCOMB,     ACTOR_47_EMPTY_HONEYCOMB,           LEVEL_4_BUBBLEGLOOP_SWAMP),
     RI(RI_EMPTY_HONEYCOMB_CLANKERS_CAVERN,      "a",    "Empty Honeycomb - CC",     RITYPE_EMPTY_HONEYCOMB,     ACTOR_47_EMPTY_HONEYCOMB,           LEVEL_3_CLANKERS_CAVERN),
     RI(RI_EMPTY_HONEYCOMB_CLICK_CLOCK_WOOD,     "a",    "Empty Honeycomb - CCW",    RITYPE_EMPTY_HONEYCOMB,     ACTOR_47_EMPTY_HONEYCOMB,           LEVEL_8_CLICK_CLOCK_WOOD),
