@@ -91,6 +91,10 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                             applyCustomPhysics = true;
                         }
                         break;
+                    case BUNDLE_6_MM_HUT_EXTRA_LIFE:
+                        randoCheckId = RC_MM_EXTRA_LIFE_HUT;
+                        applyCustomPhysics = true;
+                        break;
                     case BUNDLE_7__JIGGY:
                         randoCheckId = RC_MM_JIGGY_CHIMPY;
                         break;
@@ -253,6 +257,13 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         break;
                 }
                 break;
+            case LEVEL_9_RUSTY_BUCKET_BAY:
+                switch (bundleId) {
+                    case BUNDLE_6_MM_HUT_EXTRA_LIFE:
+                        randoCheckId = RC_RBB_EXTRA_LIFE_BOOM_BOXES;
+                        applyCustomPhysics = true;
+                        break;
+                }
             case LEVEL_B_SPIRAL_MOUNTAIN:
                 switch (bundleId) {
                     case BUNDLE_1F_SM_EMPTY_HONEYCOMB:
