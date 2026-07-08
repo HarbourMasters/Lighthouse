@@ -18,6 +18,7 @@ void marker_despawn(ActorMarker* marker);
 
 bool applyCustomPhysics = false;
 std::vector<ActorMarker*> bundleDespawnQueue;
+int32_t vileCount = 0;
 
 void Rando::ObjectBehavior::DespawnCollectedBundles() {
     if (bundleDespawnQueue.empty()) {
