@@ -10,6 +10,9 @@ static RegisterShipInitFunc initFunc([]() {
         // TODO: Logic for Flight because many checks are accessible with flight alone and don't need other methods like Shock Jump if Flight is usable
 		    CHECK(RC_TTC_EMPTY_HONEYCOMB_FLOATING_BOX, 				true),
             CHECK(RC_TTC_EMPTY_HONEYCOMB_UNDERWATER, 				CAN_USE_ABILITY(ABILITY_F_DIVE)),
+            CHECK(RC_TTC_EXTRA_LIFE_CLIFFSIDE_POOL, 				CAN_EXTEND_JUMP_DISTANCE),
+		    CHECK(RC_TTC_EXTRA_LIFE_SHARKFOOD_ISLAND_SIGN, 			true),
+		    CHECK(RC_TTC_EXTRA_LIFE_SPIRAL_PATH, 				    CAN_USE_ABILITY(ABILITY_F_DIVE)),
             CHECK(RC_TTC_JIGGY_ALCOVE1, 							CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_TTC_JIGGY_ALCOVE2, 							true),
             CHECK(RC_TTC_JIGGY_BLUBBER, 							CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP) && CAN_USE_ABILITY(ABILITY_F_DIVE)),

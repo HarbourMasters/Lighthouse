@@ -18,6 +18,7 @@ void marker_despawn(ActorMarker* marker);
 
 bool applyCustomPhysics = false;
 std::vector<ActorMarker*> bundleDespawnQueue;
+int32_t vileCount = 0;
 
 void Rando::ObjectBehavior::DespawnCollectedBundles() {
     if (bundleDespawnQueue.empty()) {
@@ -88,6 +89,10 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                             applyCustomPhysics = true;
                         }
                         break;
+                    case BUNDLE_6_MM_HUT_EXTRA_LIFE:
+                        randoCheckId = RC_MM_EXTRA_LIFE_HUT;
+                        applyCustomPhysics = true;
+                        break;
                     case BUNDLE_7__JIGGY:
                         randoCheckId = RC_MM_JIGGY_CHIMPY;
                         break;
@@ -131,6 +136,14 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                 break;
             case LEVEL_4_BUBBLEGLOOP_SWAMP:
                 switch (bundleId) {
+                    case BUNDLE_6_MM_HUT_EXTRA_LIFE:
+                        randoCheckId = (RandoCheckId)((int32_t)RC_BGS_EXTRA_LIFE_MR_VILE_1 + vileCount);
+                        vileCount++;
+                        applyCustomPhysics = true;
+                        if (vileCount >= 3) {
+                            vileCount = 0;
+                        }
+                        break;
                     case BUNDLE_7__JIGGY:
                         randoCheckId = RC_BGS_JIGGY_CROCTUS;
                         break;
@@ -245,6 +258,13 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         break;
                 }
                 break;
+            case LEVEL_9_RUSTY_BUCKET_BAY:
+                switch (bundleId) {
+                    case BUNDLE_6_MM_HUT_EXTRA_LIFE:
+                        randoCheckId = RC_RBB_EXTRA_LIFE_BOOM_BOXES;
+                        applyCustomPhysics = true;
+                        break;
+                }
             case LEVEL_B_SPIRAL_MOUNTAIN:
                 switch (bundleId) {
                     case BUNDLE_1F_SM_EMPTY_HONEYCOMB:

@@ -9,6 +9,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_MM_EMPTY_HONEYCOMB_HILL, 					true),
             CHECK(RC_MM_EMPTY_HONEYCOMB_JUJU, 					CAN_USE_ABILITY(ABILITY_6_EGGS) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MM_EXTRA_LIFE_HUT, 					    CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
             CHECK(RC_MM_JIGGY_CHIMPY, 							CAN_USE_ABILITY(ABILITY_5_CLIMB) || CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_MM_JIGGY_CONGA, 							CAN_USE_ABILITY(ABILITY_6_EGGS) && CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_MM_JIGGY_HILL, 							true),
@@ -161,7 +162,8 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MUMBOS_MOUNTAIN_TICKERS_TOWER_TOP] = RandoRegion{ .regionName = "Top of Tickers Tower", .mapId = MAP_2_MM_MUMBOS_MOUNTAIN,
         .checks = {
-            CHECK(RC_MM_JIGGY_TICKERS_TOWER, true),
+            CHECK(RC_MM_EXTRA_LIFE_TICKERS_TOWER,   true),
+            CHECK(RC_MM_JIGGY_TICKERS_TOWER,        true),
         },
         .connections = {
             CONNECTION(RR_MUMBOS_MOUNTAIN_ENTRANCE, true),

@@ -113,6 +113,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_CLANKERS_CAVERN_NEAR_CLANKER] = RandoRegion{ .regionName = "Near Clanker", .mapId = MAP_B_CC_CLANKERS_CAVERN,
         .checks = {
             CHECK(RC_CC_EMPTY_HONEYCOMB_UNDERWATER,                 true),
+            CHECK(RC_CC_EXTRA_LIFE_CLANKERS_LEFT_FIN,               true),
             CHECK(RC_CC_JIGGY_BOLT,                                 CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_CC_JIGGY_CLANKER_RAISED,                       true),
             CHECK(RC_CC_JIGGY_LONG_PIPE,                            true),
@@ -173,6 +174,8 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_CLANKERS_CAVERN_NEAR_CLANKER_UPPER] = RandoRegion{ .regionName = "Upper Area Near Clanker", .mapId = MAP_B_CC_CLANKERS_CAVERN,
         .checks = {
             CHECK(RC_CC_EMPTY_HONEYCOMB_ABOVEWATER,         CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
+            CHECK(RC_CC_EXTRA_LIFE_YELLOW_GRATE,            CAN_EXTEND_JUMP_DISTANCE),
+            CHECK(RC_CC_EXTRA_LIFE_JINJO_PIPE,              CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
             CHECK(RC_CC_JINJO_ORANGE,                       CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
             CHECK(RC_CC_MUMBO_TOKEN_ALCOVE_WITH_OPEN_GRATE, CAN_ATTACK),
             CHECK(RC_CC_NOTE_CLIMBABLE_PIPE_1,              CAN_ATTACK),
