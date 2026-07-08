@@ -351,8 +351,10 @@ void Rando::ObjectBehavior::Init() {
         OnActorCollision* ev = (OnActorCollision*)event;
         RandoItemId randoItemId = RI_UNKNOWN;
 
-        SPDLOG_INFO("Collect: {}, {}, {}", ev->propId->spriteProp.unk4[0], ev->propId->spriteProp.unk4[1],
-                    ev->propId->spriteProp.unk4[2]);
+        if (ev->propId->spriteProp.spriteId == 357) {
+            SPDLOG_INFO("Collect: {}, {}, {}", ev->propId->spriteProp.unk4[0], ev->propId->spriteProp.unk4[1],
+                        ev->propId->spriteProp.unk4[2]);
+        }
 
         if (ev->propId->markerFlag) {
             RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[ev->propId->actorProp.marker->randoCheckId];
@@ -395,6 +397,8 @@ void Rando::ObjectBehavior::Init() {
                     }
                     break;
                 case MARKER_60_BLUE_EGG_COLLECTIBLE:
+                    SPDLOG_INFO("Collect: {}, {}, {}", ev->propId->spriteProp.unk4[0], ev->propId->spriteProp.unk4[1],
+                                ev->propId->spriteProp.unk4[2]);
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BLUE_EGGS].optionValue == RO_GENERIC_ON) {
                         randoItemId = randoSaveCheck.randoItemId;
                     }

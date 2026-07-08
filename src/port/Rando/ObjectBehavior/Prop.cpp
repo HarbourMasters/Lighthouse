@@ -22,9 +22,9 @@ void Rando::ObjectBehavior::InitPropBehavior() {
             return;
         }
 
-        if (!BLUE_EGG_OPTION_ENABLED && propAsset == ASSET_6D7_SPRITE_BLUE_EGGS) {
-            return;
-        }
+        //if (!BLUE_EGG_OPTION_ENABLED && propAsset == ASSET_6D7_SPRITE_BLUE_EGGS) {
+        //    return;
+        //}
 
         if (!MUSIC_NOTE_OPTION_ENABLED && propAsset == ASSET_6D6_SPRITE_MUSIC_NOTE) {
             return;
