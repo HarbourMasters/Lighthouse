@@ -134,7 +134,6 @@ void LighthouseMenu::AddMenuRando() {
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
 
-
     path.column = SECTION_COLUMN_2;
 
     AddWidget(path, "Win Conditions", WIDGET_SEPARATOR_TEXT);

@@ -144,7 +144,8 @@ void ApplyCustomActorPhysics(RandoCheckId randoCheckId, Actor* actor, bool isJin
 
     if ((randoCheckId >= RC_MM_NOTE_HUT_BUNDLE_1 && randoCheckId <= RC_MM_NOTE_HUT_BUNDLE_5) ||
         randoCheckId == RC_MM_JINJO_GREEN || randoCheckId == RC_MM_JIGGY_HUTS ||
-        (randoCheckId >= RC_MM_BLUE_EGG_HUT_BUNDLE_1 && randoCheckId <= RC_MM_BLUE_EGG_HUT_BUNDLE_5) || randoCheckId == RC_MM_EXTRA_LIFE_HUT) {
+        (randoCheckId >= RC_MM_BLUE_EGG_HUT_BUNDLE_1 && randoCheckId <= RC_MM_BLUE_EGG_HUT_BUNDLE_5) ||
+        randoCheckId == RC_MM_EXTRA_LIFE_HUT) {
         physicsData = GetPhysicsByCheckId(RC_MM_NOTE_HUT_BUNDLE_1);
     } else {
         physicsData = isJinjoJiggy ? jinjoJiggySpawnPhysics : GetPhysicsByCheckId(randoCheckId);
