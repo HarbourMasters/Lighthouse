@@ -351,11 +351,6 @@ void Rando::ObjectBehavior::Init() {
         OnActorCollision* ev = (OnActorCollision*)event;
         RandoItemId randoItemId = RI_UNKNOWN;
 
-        if (ev->propId->spriteProp.spriteId == 357) {
-            SPDLOG_INFO("Collect: {}, {}, {}", ev->propId->spriteProp.unk4[0], ev->propId->spriteProp.unk4[1],
-                        ev->propId->spriteProp.unk4[2]);
-        }
-
         if (ev->propId->markerFlag) {
             RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[ev->propId->actorProp.marker->randoCheckId];
             Actor* markerActor = marker_getActor(ev->propId->actorProp.marker);

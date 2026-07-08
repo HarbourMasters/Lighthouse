@@ -58,8 +58,6 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         spawnPosition[1] = (int32_t)position[1];
         spawnPosition[2] = (int32_t)position[2];
 
-        SPDLOG_INFO("Bundle Spawn: {}", std::to_string(bundleId));
-
         if (bundleId == BUNDLE_16__HONEYCOMB &&
             (currentMap == MAP_43_CCW_SPRING || currentMap == MAP_B_CC_CLANKERS_CAVERN)) {
             if (CheckEnemyOverlapPosition(spawnPosition)) {

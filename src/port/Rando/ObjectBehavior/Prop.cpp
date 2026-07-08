@@ -22,9 +22,9 @@ void Rando::ObjectBehavior::InitPropBehavior() {
             return;
         }
 
-        // if (!BLUE_EGG_OPTION_ENABLED && propAsset == ASSET_6D7_SPRITE_BLUE_EGGS) {
-        //     return;
-        // }
+        if (!BLUE_EGG_OPTION_ENABLED && propAsset == ASSET_6D7_SPRITE_BLUE_EGGS) {
+            return;
+        }
 
         if (!MUSIC_NOTE_OPTION_ENABLED && propAsset == ASSET_6D6_SPRITE_MUSIC_NOTE) {
             return;
@@ -34,10 +34,6 @@ void Rando::ObjectBehavior::InitPropBehavior() {
         position[0] = spawnPosition[0];
         position[1] = spawnPosition[1];
         position[2] = spawnPosition[2];
-
-        if (propAsset == ASSET_6D7_SPRITE_BLUE_EGGS) {
-            SPDLOG_INFO("Egg: {}, {}, {}", position[0], position[1], position[2]);
-        }
 
         RandoCheckId randoCheckId = Rando::StaticData::GetCheckByPosition(position[0], position[1], position[2]);
         if (randoCheckId == RC_UNKNOWN) {
