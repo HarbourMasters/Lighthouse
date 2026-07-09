@@ -931,8 +931,8 @@ void func_8038685C(ActorMarker *marker);
 s32 chWhistleCtrl_newEvent(Actor *self, s32 whistle_id, Actor *other);
 
 // --- RBB/miniboombox_container.c ---
-void func_8038FB54(void);
-void func_8038FB6C(void);
+void chBoomBoxMinigameCtrl_countInc(void);
+void chBoomBoxMinigameCtrl_countDec(void);
 
 // --- RBB/propellorctrl.c ---
 void rbb_propellorCtrl_reset(void);
