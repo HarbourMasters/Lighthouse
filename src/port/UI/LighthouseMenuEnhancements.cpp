@@ -1,4 +1,5 @@
 #include "LighthouseMenu.h"
+#include "enhancementTypes.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
@@ -373,30 +374,42 @@ void LighthouseMenu::AddMenuEnhancements() {
         }
         ImGui::Separator();
         ImGui::BeginDisabled(!CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Enabled"), 0));
-        if (UIWidgets::CVarCheckbox("Bigbutt", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Bigbutt"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        for (auto& [enemyId, enemyData] : shufflableEnemyMap) {
+            ImGui::PushID(enemyId);
+            if (UIWidgets::CVarCheckbox(enemyData.first.c_str(), enemyData.second)) {
+                CALL_EVENT(OnEnemyShuffleSelectionChanged);
+            }
+            ImGui::PopID();
         }
-        if (UIWidgets::CVarCheckbox("Termite", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Termite"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
-        if (UIWidgets::CVarCheckbox("Grublin", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Grublin"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
-        if (UIWidgets::CVarCheckbox("YumYum", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.YumYum"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
-        if (UIWidgets::CVarCheckbox("Red Flibbit", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.RedFlibbit"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
-        if (UIWidgets::CVarCheckbox("Buzzbomb", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Buzzbomb"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
-        if (UIWidgets::CVarCheckbox("Snarebear", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Snarebear"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
-        if (UIWidgets::CVarCheckbox("Boom Box", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.BoomBox"))) {
-            CALL_EVENT(OnEnemyShuffleSelectionChanged);
-        }
+        //if (UIWidgets::CVarCheckbox("Bigbutt", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Bigbutt"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Termite", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Termite"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Grublin", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Grublin"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Yum-Yum", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.YumYum"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Red Flibbit", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.RedFlibbit"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Buzzbomb", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Buzzbomb"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Snarebear", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Snarebear"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Boom Box", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.BoomBox"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Mum-Mum", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Mummum"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+
+        
         ImGui::EndDisabled();
         ImGui::Separator();
     });

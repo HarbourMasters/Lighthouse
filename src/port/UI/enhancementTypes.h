@@ -1,5 +1,8 @@
 #pragma once
 
+#include <map>
+extern std::map<int32_t, std::pair<std::string, const char*>> shufflableEnemyMap;
+
 typedef enum {
     BOOTSEQUENCE_DEFAULT,
     BOOTSEQUENCE_AUTHENTIC,
