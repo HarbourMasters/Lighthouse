@@ -6,8 +6,14 @@
 void chDeadBeanstalk_update(Actor *this);
 
 /* .data */
-ActorInfo D_8038ECA0 = { 
-    0x1C2, 0x30B, 0x4E3,
+
+enum chDeadBeanstalk_state_e {
+    DEAD_BEANSTALK_STATE_0_NOT_INIT,
+    DEAD_BEANSTALK_STATE_1_IDLE
+};
+
+ActorInfo chDeadBeanstalk = { 
+    MARKER_1C2_DEAD_BEANSTALK, ACTOR_30B_DEAD_BEANSTALK, ASSET_4E3_MODEL_DEAD_BEANSTALK,
     0x0, NULL,
     chDeadBeanstalk_update, NULL, actor_draw,
     0, 0, 1.0f, 0
@@ -15,7 +21,7 @@ ActorInfo D_8038ECA0 = {
 
 /* .code */
 void chDeadBeanstalk_setNextState(Actor *this, s32 next_state){
-    if(next_state == 1){
+    if(next_state == DEAD_BEANSTALK_STATE_1_IDLE){
         skeletalAnim_set(this->unk148, 0x219, 0.0f, 1.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_4_STOPPED);
     }
@@ -26,7 +32,7 @@ void chDeadBeanstalk_update(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
         if(fileProgressFlag_get(FILEPROG_E5_CCW_FLOWER_AUTUMN)){
-            chDeadBeanstalk_setNextState(this, 1);
+            chDeadBeanstalk_setNextState(this, DEAD_BEANSTALK_STATE_1_IDLE);
         }
         else{
             marker_despawn(this->marker);

@@ -78,7 +78,7 @@ void func_8038A1F0(Actor **this_ptr, enum marker_e carried_obj_marker_id, enum a
         return;
     }
 
-    if (bacarry_get_markerId() != carried_obj_marker_id) {
+    if (bacarry_getMarkerId() != carried_obj_marker_id) {
         return;
     }
 

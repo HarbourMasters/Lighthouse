@@ -9,12 +9,54 @@ Actor *func_8038C380(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx);
 void func_8038C41C(Actor *this);
 
 /* .data */
-ActorInfo D_8038F380 = { 0x1C6, 0x310, 0x501, 0x0, NULL, func_8038C41C, NULL, actor_draw, 0, 0, 0.0f, 0};
-ActorInfo D_8038F3A4 = { 0x1C7, 0x311, 0x462, 0x0, NULL, func_8038C41C, NULL, func_8038C380, 0, 0, 0.0f, 0};
-ActorInfo D_8038F3C8 = { 0x1C8, 0x312, 0x463, 0x0, NULL, func_8038C41C, NULL, actor_draw, 0, 0, 0.0f, 0};
-ActorInfo D_8038F3EC = { 0x1C9, 0x313, 0x464, 0x0, NULL, func_8038C41C, NULL, actor_draw, 0, 0, 0.0f, 0};
-ActorInfo D_8038F410 = { 0x1CA, 0x314, 0x502, 0x0, NULL, func_8038C41C, NULL, actor_draw, 0, 0, 2.0f, 0};
-ActorInfo D_8038F434 = { 0x1CB, 0x315, 0x48D, 0x0, NULL, func_8038C41C, NULL, func_8038C380, 0, 0, 0.0f, 0};
+
+ActorInfo chMoundOfAcorns = {
+    MARKER_1C6_MOUND_OF_ACORNS, ACTOR_310_NABNUT_HOUSE_PILE_OF_ACORNS, ASSET_501_MODEL_MOUND_OF_ACORNS,
+    0x0, NULL,
+    func_8038C41C, NULL, actor_draw,
+    0, 0, 0.0f, 0
+};
+
+ActorInfo chPinkSquirrel = {
+    MARKER_1C7_PINK_SQUIRREL, ACTOR_311_PINK_SQUIRREL, ASSET_462_MODEL_PINK_SQUIRREL,
+    0x0, NULL,
+    func_8038C41C, NULL, func_8038C380,
+    0, 0, 0.0f, 0
+};
+
+ActorInfo chNabnutBedsheets = {
+    MARKER_1C8_NABNUT_BEDSHEETS, ACTOR_312_NABNUT_BEDSHEETS, ASSET_463_MODEL_NABNUT_BEDSHEETS,
+    0x0, NULL,
+    func_8038C41C, NULL, actor_draw,
+    0, 0, 0.0f, 0
+};
+
+ActorInfo chNabnutBed = {
+    MARKER_1C9_NABNUT_BED, ACTOR_313_NABNUT_BED, ASSET_464_MODEL_NABNUT_BED,
+    0x0, NULL,
+    func_8038C41C, NULL, actor_draw,
+    0, 0, 0.0f, 0
+};
+
+ActorInfo chNabnut = {
+    MARKER_1CA_NABNUT, ACTOR_314_NABNUT_IN_AUTUMN_HOUSE, ASSET_502_MODEL_NABNUT,
+    0x0, NULL,
+    func_8038C41C, NULL, actor_draw,
+    0, 0, 2.0f, 0
+};
+
+ActorInfo chNabnutAutumnEatingAcorns = {
+    MARKER_1CB_NABNUT_EATING_ACORNS, ACTOR_315_NABNUT_EATING_ACORNS, ASSET_48D_MODEL_NABNUT_EATING_ACORNS,
+    0x0, NULL, func_8038C41C,
+    NULL, func_8038C380,
+    0, 0, 0.0f, 0
+};
+
+enum code_5BF0_state_e {
+    CODE_5BF0_STATE_0_NOT_INIT,
+    CODE_5BF0_STATE_1_CCW_AUTUMN_AFTER_ACORN_JIGGY,
+    CODE_5BF0_STATE_2_CCW_WINTER_OR_NO_ACORN_JIGGY
+};
 
 /* .code */
 void func_8038BFE0(ActorMarker* marker) {
@@ -34,35 +76,38 @@ void func_8038C0E8(ActorMarker* marker) {
     func_8030E878(SFX_81_UUU, sp20, (s32)randf2(10000.0f, 31000.0f), sp24->position, 500.0f, 2500.0f);
 }
 
-void CCW_func_8038C16C(Actor *this, s32 next_state) {
+void code_5BF0_setState(Actor *this, s32 next_state) {
     Actor *other;
 
-    if (next_state == 1) {
+    if (next_state == CODE_5BF0_STATE_1_CCW_AUTUMN_AFTER_ACORN_JIGGY) {
         this->position[1] -= 300.0f;
     }
 
-    if (this->state == 1) {
+    if (this->state == CODE_5BF0_STATE_1_CCW_AUTUMN_AFTER_ACORN_JIGGY) {
         this->position[1] += 300.0f;
     }
 
-    if (next_state == 2) {
-        if (this->marker->id == 0x1CA) {
-            skeletalAnim_set(this->unk148, 0x22E, 0.2f, 3.53f);
+    if (next_state == CODE_5BF0_STATE_2_CCW_WINTER_OR_NO_ACORN_JIGGY) {
+        if (this->marker->id == MARKER_1CA_NABNUT) {
+            skeletalAnim_set(this->unk148, ASSET_22E_ANIM_NABNUT_STAND, 0.2f, 3.53f);
             skeletalAnim_setCallback_1(this->unk148, 0.1f, (GenFunction_1)func_8038C0E8, (uintptr_t)this->marker);
         }
-        if (this->marker->id == 0x1C7) {
-            skeletalAnim_set(this->unk148, 0x230, 0.2f, 4.0f);
+        if (this->marker->id == MARKER_1C7_PINK_SQUIRREL) {
+            skeletalAnim_set(this->unk148, ASSET_230_ANIM_PINK_SQUIRREL_UNK, 0.2f, 4.0f);
         }
-        if (this->marker->id == 0x1CB) {
-            skeletalAnim_set(this->unk148, 0x1A2, 0.2f, 4.0f);
+        if (this->marker->id == MARKER_1CB_NABNUT_EATING_ACORNS) {
+            skeletalAnim_set(this->unk148, ASSET_1A2_ANIM_NABNUT_SLEEP, 0.2f, 4.0f);
             skeletalAnim_setCallback_1(this->unk148, 0.3f, (GenFunction_1)func_8038BFE0, (uintptr_t)this->marker);
             skeletalAnim_setCallback_1(this->unk148, 0.65f, (GenFunction_1)func_8038C064, (uintptr_t)this->marker);
         }
-        if (this->marker->id == 0x1C8) {
-            skeletalAnim_set(this->unk148, 0x231, 0.2f, 4.0f);
+        if (this->marker->id == MARKER_1C8_NABNUT_BEDSHEETS) {
+            skeletalAnim_set(this->unk148, ASSET_231_ANIM_NABNUT_BEDSHEETS_UNK, 0.2f, 4.0f);
         }
-        if ((this->marker->id == 0x1C7) || (this->marker->id == 0x1CB) || (this->marker->id == 0x1C8)) {
-            other = actorArray_findActorFromActorId(0x313);
+        if ((this->marker->id == MARKER_1C7_PINK_SQUIRREL)
+            || (this->marker->id == MARKER_1CB_NABNUT_EATING_ACORNS)
+            || (this->marker->id == MARKER_1C8_NABNUT_BEDSHEETS))
+        {
+            other = actorArray_findActorFromActorId(ACTOR_313_NABNUT_BED);
             if (other != 0) {
                 this->position[0] = other->position[0];
                 this->position[1] = other->position[1];
@@ -89,7 +134,7 @@ Actor *func_8038C380(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx) {
 }
 
 void func_8038C41C(Actor *this) {
-    f32 sp2C[3];
+    f32 player_position[3];
 
     if (!this->volatile_initialized) {
         this->marker->propPtr->unk8_3 = true;
@@ -98,26 +143,31 @@ void func_8038C41C(Actor *this) {
         return;
     }
 
-    if (this->state == 0) {
+    if (this->state == CODE_5BF0_STATE_0_NOT_INIT) {
         if( gsworld_getMap() == MAP_60_CCW_AUTUMN_NABNUTS_HOUSE
             && !jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT) 
-            && (this->marker->id == 0x1C6 || this->marker->id == 0x1CA)
+            && (this->marker->id == MARKER_1C6_MOUND_OF_ACORNS
+                || this->marker->id == MARKER_1CA_NABNUT)
         ){
-            CCW_func_8038C16C(this, 1);
+            code_5BF0_setState(this, CODE_5BF0_STATE_1_CCW_AUTUMN_AFTER_ACORN_JIGGY);
         } else {
-            CCW_func_8038C16C(this, 2);
+            code_5BF0_setState(this, CODE_5BF0_STATE_2_CCW_WINTER_OR_NO_ACORN_JIGGY);
         }
     }
 
-    if ((this->marker->id == 0x1CA) && (this->state != 1)) {
+    if ((this->marker->id == MARKER_1CA_NABNUT)
+        && (this->state != CODE_5BF0_STATE_1_CCW_AUTUMN_AFTER_ACORN_JIGGY))
+    {
         func_8028E668(this->position, 300.0f, -50.0f, 120.0f);
     }
 
-    if ((this->marker->id == 0x1CB) && (this->state == 2)) {
-        player_getPosition(sp2C);
-        if (!this->has_met_before && (ml_vec3f_distance(this->position, sp2C) < 400.0f)) {
+    if ((this->marker->id == MARKER_1CB_NABNUT_EATING_ACORNS)
+        && (this->state == CODE_5BF0_STATE_2_CCW_WINTER_OR_NO_ACORN_JIGGY))
+    {
+        player_getPosition(player_position);
+        if (!this->has_met_before && (ml_vec3f_distance(this->position, player_position) < 400.0f)) {
             this->has_met_before = true;
-            gcdialog_showDialog(0xCCD, 0, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(ASSET_CCD_DIALOG_NABNUT_MEET_WINTER, 0, NULL, NULL, NULL, NULL);
         }
     }
 }

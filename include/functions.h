@@ -739,19 +739,19 @@ void func_803894A0(void);
 void CCW_func_8038DB6C(void);
 
 // --- CCW/ch/nabnut_winter.c ---
-void func_8038BC50(f32 dst[3]);
+void chAutumnOutsideNabnut_getPosition(f32 dst[3]);
 
 // --- CCW/ch/eyrie_baby.c ---
 void func_80389BD8(f32 dst[3]);
 
 // --- CCW/flower.c ---
-bool func_80388438();
-void func_803883F4();
+bool chCCWBeanstalk_hasSpawned();
+void chCCWBeanstalk_growBeanstalk();
 
 // --- CCW/minigame_zubba.c ---
-void func_803867C8(ActorMarker *marker);
-void func_80386814(ActorMarker *marker);
-void func_80386840(ActorMarker *marker, s32 *score, s32 *total);
+void chZubbaFight_zubbaKilled(ActorMarker *marker);
+void chZubbaFight_zubbaDisappear(ActorMarker *marker);
+void chZubbaFight_zubbaScore(ActorMarker *marker, s32 *score, s32 *total);
 
 // --- FP/actor_spawninit.c ---
 void FP_func_80391324(void);
@@ -1509,7 +1509,7 @@ bool player_is_present(void);
 bool player_throwCarriedObject(void);
 enum actor_e carriedObj_getActorId(void);
 enum bswatergroup_e player_getWaterState(void);
-enum marker_e bacarry_get_markerId(void);
+enum marker_e bacarry_getMarkerId(void);
 f32 func_8028EC64(f32 arg0[3]);
 int ability_isUnlocked(enum ability_e uid);
 int func_8028EC04(void);
