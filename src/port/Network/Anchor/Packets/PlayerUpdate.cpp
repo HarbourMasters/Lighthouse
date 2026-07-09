@@ -173,12 +173,12 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
         anctrl_getSubRange(baanim_getAnimCtrlPtr(), &sub_start, &sub_end);
         payload["subrange_end"] = sub_end;
     }
-    payload["kazooieVisible"] = modelAppendages_showKazooiesUpperHalf();     // Kazooie visibility (Kazooie popped out)
-    payload["modelSquint"] = modelAppendages_showKazooiesAss();        // Kazooie's ass visibility
-    payload["modelWink"] = modelAppendages_showKazooiesFeetAndShoes();          // Kazooie's feet & shoes visibility
-    payload["modelMouth1"] = modelAppendages_hideTurboTrainers();        // turbo trainers hidden
-    payload["modelMouth2"] = modelAppendages_hideWadingBoots();        // wading boots hidden
-    payload["modelEyeBlendUpper"] = modelAppendages_showBanjosLeftEye(); // Banjo's left eye blend
+    payload["kazooieVisible"] = modelAppendages_showKazooiesUpperHalf();  // Kazooie visibility (Kazooie popped out)
+    payload["modelSquint"] = modelAppendages_showKazooiesAss();           // Kazooie's ass visibility
+    payload["modelWink"] = modelAppendages_showKazooiesFeetAndShoes();    // Kazooie's feet & shoes visibility
+    payload["modelMouth1"] = modelAppendages_hideTurboTrainers();         // turbo trainers hidden
+    payload["modelMouth2"] = modelAppendages_hideWadingBoots();           // wading boots hidden
+    payload["modelEyeBlendUpper"] = modelAppendages_showBanjosLeftEye();  // Banjo's left eye blend
     payload["modelEyeBlendLower"] = modelAppendages_showBanjosRightEye(); // Banjo's right eye blend
     payload["bottlesBonus"] = baanim_getActiveBottlesBonusMask();
     {
