@@ -22,8 +22,8 @@ ActorInfo D_80392420 = { 0x206, 0x338, 0x486,
 
 /* .code */
 Actor *chXmasTreeSwitch_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    func_8033A45C(1, 0);
-    func_8033A45C(2, 1);
+    modelRender_setAppendageVisibility(1, 0);
+    modelRender_setAppendageVisibility(2, 1);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 

@@ -21,7 +21,7 @@ extern bool func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList 
 extern void boneTransformList_getBoneScale(BoneTransformList *, s32, f32[3]);
 extern void boneTransformList_setBoneScale(BoneTransformList *, s32, f32[3]);
 extern void func_8033A9A8(BoneTransformList *, s32, f32[3]);
-extern void func_8033A45C(s32, s32);
+extern void modelRender_setAppendageVisibility(s32, s32);
 extern void modelRender_setBoneTransformList(BoneTransformList *);
 extern void func_8028FAB0(f32[3]);
 extern void baModel_802921D4(f32[3]);
@@ -187,19 +187,19 @@ void CC_func_80388760(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     D_80389FA0.unk40 = D_80389FA0.unk44;
     D_80389FA0.unk44 = tmp_v0;
 
-    func_8033A45C(1, (D_80389FA0.unk21 == 3) ? 1 : 0);
+    modelRender_setAppendageVisibility(1, (D_80389FA0.unk21 == 3) ? 1 : 0);
     tmp_s0 = (sp98[0] < 100.0f)? 0 : 1;
-    func_8033A45C(2, 1);
-    func_8033A45C(3, 1);
-    func_8033A45C(4, tmp_s0);
-    func_8033A45C(5, tmp_s0);
-    func_8033A45C(6, tmp_s0);
-    func_8033A45C(7, tmp_s0);
-    func_8033A45C(8, tmp_s0);
+    modelRender_setAppendageVisibility(2, 1);
+    modelRender_setAppendageVisibility(3, 1);
+    modelRender_setAppendageVisibility(4, tmp_s0);
+    modelRender_setAppendageVisibility(5, tmp_s0);
+    modelRender_setAppendageVisibility(6, tmp_s0);
+    modelRender_setAppendageVisibility(7, tmp_s0);
+    modelRender_setAppendageVisibility(8, tmp_s0);
     if(tmp_s0){
         tmp_s0 = (s32)(D_80389FA0.unk4C*3.99 + 1.0);
-        func_8033A45C(2, tmp_s0);
-        func_8033A45C(3, tmp_s0);
+        modelRender_setAppendageVisibility(2, tmp_s0);
+        modelRender_setAppendageVisibility(3, tmp_s0);
     }
     modelRender_setBoneTransformList(s1);
     modelRender_setRefPoints(D_80389FA0.unk34);

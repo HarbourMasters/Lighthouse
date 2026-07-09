@@ -231,7 +231,7 @@ void RegisterCycleTransform_Init() {
             if (currentTransform == TRANSFORM_7_WISHWASHY && !isWishyWashyUnlocked()) {
                 currentTransform = TRANSFORM_1_BANJO; // skip Wishy Washy -> wrap to Banjo
             }
-            func_8028FB88((enum transformation_e)currentTransform);
+            player_transform((enum transformation_e)currentTransform);
         }
         // D-pad Down: Cycle backward through transformations
         else if (bakey_pressed(BUTTON_D_DOWN)) {
@@ -242,7 +242,7 @@ void RegisterCycleTransform_Init() {
             if (currentTransform == TRANSFORM_7_WISHWASHY && !isWishyWashyUnlocked()) {
                 currentTransform = TRANSFORM_6_BEE; // skip Wishy Washy -> step to Bee
             }
-            func_8028FB88((enum transformation_e)currentTransform);
+            player_transform((enum transformation_e)currentTransform);
         }
     });
 }

@@ -4,6 +4,7 @@
 
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
+#include "core2/yaw.h"
 
 f32 func_802A2858(void);
 
@@ -21,7 +22,7 @@ u8 D_8037D30C;
 
 void bsbflap_init(void) {
     baanim_playForDuration_onceSmooth(ASSET_18_ANIM_BSBFLAP_ENTER, 0.3f);
-    func_8029C7F4(1, 1, 1, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     if (bastick_distance() != 0.0f) {
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());
     }
@@ -30,7 +31,7 @@ void bsbflap_init(void) {
     baphysics_set_horizontal_velocity(yaw_getIdeal(), baphysics_get_target_horizontal_velocity());
     baphysics_set_vertical_velocity(0.0f);
     baphysics_set_gravity(D_80364A14);
-    func_8029E070(1);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
     baflag_set(BA_FLAG_12_HAS_FLAPPED);
     batimer_set(0, 2.5f);
     D_8037D30C = sfxsource_createSfxsourceAndReturnIndex();
@@ -197,6 +198,6 @@ void bsbflap_end(void) {
     ability_use(1);
     baphysics_reset_gravity();
     baphysics_reset_terminal_velocity();
-    func_8029E090(0, 0.2f);
+    modelAppendages_setKazooiesUpperHalfVisibilityAndTimer(0, 0.2f);
     sfxsource_freeSfxsourceByIndex(D_8037D30C);
 }

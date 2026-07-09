@@ -17,8 +17,8 @@ ActorInfo D_803948B8 = { 0x16F, 0x1D7, 0x54F, 0x1, D_80394860, func_803902B8, ac
 
 /* .code */
 Actor *func_80390030(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    func_8033A45C(3, 1);
-    func_8033A45C(4, 1);
+    modelRender_setAppendageVisibility(3, 1);
+    modelRender_setAppendageVisibility(4, 1);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 

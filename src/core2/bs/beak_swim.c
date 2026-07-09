@@ -5,6 +5,7 @@
 #include "core2/ba/model.h"
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
+#include "core2/yaw.h"
 
 
 extern f32  func_8029494C(void);
@@ -18,7 +19,7 @@ u8  D_8037D396;
 f32 D_8037D398;
 
 void func_802A7140() {
-    func_8029C7F4(1, 3, 3, BA_PHYSICS_NO_GRAVITY);
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NO_GRAVITY);
 }
 
 f32 func_802A716C() {
@@ -76,7 +77,7 @@ void func_802A744C(void) {
     baphysics_set_terminal_velocity(-399.99f);
     bastick_setZoneMax(0, 0.03f);
     bastick_setZoneMax(1, 1.0f);
-    func_8029E070(1);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
     func_80294378(3);
     baModel_setYDisplacement(60.0f);
     baphysics_set_acceleration(2.0f);
@@ -106,13 +107,13 @@ void func_802A75B0(void) {
         baphysics_reset_terminal_velocity();
         baphysics_reset_gravity();
         bastick_resetZones();
-        func_8029E070(0);
+        modelAppendages_setKazooiesUpperHalfVisibility(false);
         func_80294378(1);
         baModel_setYDisplacement(0.0f);
     }
 }
 
-void func_802A762C() {
+void bsbdive_idle_init() {
     baanim_playForDuration_loopSmooth(0x70, 2.0f);
     func_802A7140();
     baphysics_set_target_velocity(0);
@@ -120,7 +121,7 @@ void func_802A762C() {
     baphysics_set_acceleration(0.4f);
 }
 
-void func_802A7674() {
+void bsbdive_idle_update() {
     s32 state_id = 0;
 
     func_802A71D8();
@@ -145,11 +146,11 @@ void func_802A7674() {
     bs_setState(state_id);
 }
 
-void func_802A7718() {
+void bsbdive_idle_end() {
     func_802A75B0();
 }
 
-void func_802A7738(void) {
+void bsbdiveb_init(void) {
     AnimCtrl* temp_s0;
     AnimCtrl* temp_v0;
 
@@ -179,7 +180,7 @@ void func_802A77D8(void) {
     baphysics_set_velocity(sp24);
 }
 
-void func_802A7838(void) {
+void bsbdiveb_update(void) {
     s32 next_state;
     AnimCtrl *anim_ctrl;
     f64 temp_f2;
@@ -229,12 +230,12 @@ void func_802A7838(void) {
     bs_setState(next_state);
 }
 
-void func_802A7A2C() {
+void bsbdiveb_end() {
     func_802906A4(1);
     func_802A75B0();
 }
 
-void func_802A7A54() {
+void bsswim_divea_init() {
     baanim_playForDuration_loopSmooth(0x71, 0.75f);
     func_802A7140();
     func_802A744C();
@@ -243,7 +244,7 @@ void func_802A7A54() {
     func_802906A4(2);
 }
 
-void func_802A7AB0(void) {
+void bsswim_divea_update(void) {
     s32 next_state;
     AnimCtrl *anim_ctl;
 
@@ -275,12 +276,12 @@ void func_802A7AB0(void) {
     bs_setState(next_state);
 }
 
-void func_802A7BA8(void) {
+void bsswim_divea_end(void) {
     func_802906A4(1);
     func_802A75B0();
 }
 
-void func_802A7BD0(void) {
+void bsbswim_ow_init(void) {
     f32 sp3C;
     f32 sp30[3];
     f32 sp24[3];
@@ -296,13 +297,13 @@ void func_802A7BD0(void) {
     baphysics_set_target_horizontal_velocity(barebound_get_horizontal_velocity());
     baphysics_set_target_yaw(sp3C);
     baphysics_set_horizontal_velocity(sp3C, baphysics_get_target_horizontal_velocity());
-    func_8029C7F4(1, 1, 2, BA_PHYSICS_LOCKED_ROTATION);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
     baMarker_collisionOff();
     baeyes_close();
     func_802A744C();
 }
 
-void func_802A7CA8(void) {
+void bsbswim_ow_update(void) {
     s32 next_state;
     f32 plyr_pos[3];
     ParticleEmitter *p_ctrl;
@@ -323,7 +324,7 @@ void func_802A7CA8(void) {
 }
 
 
-void func_802A7D74(void) {
+void bsbswim_ow_end(void) {
     baiFrame_start();
     baMarker_collisionOn();
     baeyes_open();
@@ -343,7 +344,7 @@ void bsSwim_dive_init(void) {
 }
 
 
-void func_802A7E2C(void) {
+void bsSwim_dive_update(void) {
     s32 next_state;
     AnimCtrl *sp38;
     f32 sp34;
@@ -379,11 +380,11 @@ void func_802A7E2C(void) {
     bs_setState(next_state);
 }
 
-void func_802A7F4C(void){
+void bsSwim_dive_end(void){
     func_802A75B0();
 }
 
-void func_802A7F6C(void) {
+void bsbswim_die_init(void) {
     D_8037D394 = BOOL(bs_getPrevState() == BS_41_DIE);
 
     if (D_8037D394 || level_get() == LEVEL_9_RUSTY_BUCKET_BAY || gsworld_getMap() == MAP_46_CCW_WINTER) {
@@ -409,7 +410,7 @@ void func_802A7F6C(void) {
     basfx_80299CF4(SFX_CA_BANJO_DROWNING_1, 1.0f, 24000);
 }
 
-void func_802A8098(void) {
+void bsbswim_die_update(void) {
     s32 next_state;
     f32 sp40[3];
     ParticleEmitter *p_ctrl;
@@ -461,7 +462,7 @@ void func_802A8098(void) {
     bs_setState(next_state);
 }
 
-void func_802A82D4(void) {
+void bsbswim_die_end(void) {
     func_802906A4(1);
     func_80291548();
     core1_ce60_incOrDecCounter(false);
@@ -511,7 +512,7 @@ void bsbswim_lookat_end(void){
     func_802A75B0();
 }
 
-void func_802A846C(void) {
+void bsbswim_landingInWater_init(void) {
     AnimCtrl *temp_s0;
     f32 sp28;
 
@@ -538,12 +539,12 @@ void func_802A846C(void) {
     }
     D_8037D398 = ml_map_f(sp28, 40.0f, 1000.0f, -300.0f, -1200.0f);
     baphysics_set_vertical_velocity(D_8037D398);
-    func_8029C7F4(1, 3, 3, BA_PHYSICS_NO_GRAVITY);
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NO_GRAVITY);
     func_802A744C();
     baphysics_set_type(BA_PHYSICS_AIRBORN);
 }
 
-void func_802A85EC(void) {
+void bsbswim_landingInWater_update(void) {
     s32 next_state;
     f32 sp38[3];
     ParticleEmitter *sp34;
@@ -570,7 +571,7 @@ void func_802A85EC(void) {
     bs_setState(next_state);
 }
 
-void func_802A872C(void){
+void bsbswim_landingInWater_end(void){
     func_802A75B0();
 }
 

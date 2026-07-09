@@ -3,6 +3,7 @@
 #include "variables.h"
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
+#include "core2/yaw.h"
 
 
 void  func_80292864(f32, f32);
@@ -68,11 +69,11 @@ void bsbarge_init(void){
     anctrl_setPlaybackType(plyrMvmnt,  ANIMCTRL_ONCE);
     anctrl_start(plyrMvmnt, "bsbbarge.c", 0x98);
     D_8037D2A4 = 0;
-    func_8029C7F4(1,1,3, BA_PHYSICS_LOCKED_ROTATION);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_target_yaw(yaw_getIdeal());
     baphysics_set_target_horizontal_velocity(baphysics_get_target_horizontal_velocity()*0.3);
     baphysics_set_horizontal_velocity(yaw_getIdeal(), baphysics_get_target_horizontal_velocity());
-    func_8029E070(1);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
     D_8037D2A6 = 0;
     D_8037D2A5 = 0;
     baflag_clear(BA_FLAG_A);
@@ -174,6 +175,6 @@ void bsbarge_update(void){
 
 void bsbarge_end(void){
     ability_use(5);
-    func_8029E070(0);
+    modelAppendages_setKazooiesUpperHalfVisibility(false);
     D_8037D2A6 = 0;
 }

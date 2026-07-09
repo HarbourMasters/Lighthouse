@@ -75,8 +75,8 @@ Actor *chPinkEgg_draw(ActorMarker *this, Gfx ** gdl, Mtx** mptr, Vtx **arg3){
     u32 t7;
 
     t7 = marker_getActor(this)->state == 3;
-    func_8033A45C(1, NOT(sp18 = t7));
-    func_8033A45C(2, sp18);
+    modelRender_setAppendageVisibility(1, NOT(sp18 = t7));
+    modelRender_setAppendageVisibility(2, sp18);
     return actor_draw(this, gdl, mptr, arg3);
 }
 

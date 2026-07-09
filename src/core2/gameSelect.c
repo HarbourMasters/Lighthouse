@@ -138,16 +138,16 @@ f32 D_8037DD34;
 /* .code */
 Actor *gameSelect_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     s32 sp1C = marker->id - 0xe4;
-    func_8033A45C(3, sp1C);
-    func_8033A45C(1, 1);
-    func_8033A45C(4, 1);
-    func_8033A45C(9, 1);
-    func_8033A45C(5, 0);
-    func_8033A45C(8, 0);
-    func_8033A45C(6, 0);
-    func_8033A45C(7, 0);
-    func_8033A45C(0xC, 1);
-    func_8033A45C(0xF, 1);
+    modelRender_setAppendageVisibility(3, sp1C);
+    modelRender_setAppendageVisibility(1, 1);
+    modelRender_setAppendageVisibility(4, 1);
+    modelRender_setAppendageVisibility(9, 1);
+    modelRender_setAppendageVisibility(5, 0);
+    modelRender_setAppendageVisibility(8, 0);
+    modelRender_setAppendageVisibility(6, 0);
+    modelRender_setAppendageVisibility(7, 0);
+    modelRender_setAppendageVisibility(0xC, 1);
+    modelRender_setAppendageVisibility(0xF, 1);
     if(sp1C == D_80365E00){
         modelRender_setEnvColor(0xFF, 0xFF, 0xFF, 0xFF);
     }

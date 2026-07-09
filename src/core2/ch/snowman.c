@@ -49,8 +49,8 @@ Actor *chSnowman_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
     actor = marker_getActor(marker);
     local = (ActorLocal_chSirSlush *)&actor->local;
-    func_8033A45C(1, local->unk9);
-    func_8033A45C(2, local->unkA);
+    modelRender_setAppendageVisibility(1, local->unk9);
+    modelRender_setAppendageVisibility(2, local->unkA);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 

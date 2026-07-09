@@ -30,8 +30,10 @@ extern "C" {
 #include "core2/anim/sprite.h"
 #include "core2/ba/anim.h"
 #include "core2/ba/model.h"
+#include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
 #include "core2/nc/camera.h"
+#include "core2/yaw.h"
 
 #include "bk_time.h"
 #include "bs_funcs.h"
@@ -277,7 +279,7 @@ f32 baphysics_get_target_yaw(void);
 f32 baphysics_get_vertical_velocity(void);
 f32 baphysics_get_horizontal_velocity(void);
 f32 baphysics_get_horizontal_velocity_percentage(void);
-f32 climbGetRadius(void);
+f32 climb_getRadius(void);
 f32 func_8029B3B0(f32 arg0);
 f32 func_8029B56C(f32 arg0, f32 arg1, f32 arg2, f32 arg3);
 f32 func_8029B9C0(void);
@@ -506,16 +508,16 @@ bool isPlayerInHazard(void);
 bool canTakeGroundDamage(void);
 
 // --- core2/ba/ba_animstate.c ---
-bool func_8029DFE0(void);
-f32  func_8029DFC8(void);
-f32  func_8029DFD4(void);
-void func_8029E090(bool, f32);
-void func_8029E0C4(f32);
-void func_8029E0D0(f32);
-bool func_8029DFBC(void);
-bool func_8029DFA4(void);
-bool func_8029DFB0(void);
-bool func_8029DFEC(void);
+bool modelAppendages_hideTurboTrainers(void);
+f32  modelAppendages_showBanjosLeftEye(void);
+f32  modelAppendages_showBanjosRightEye(void);
+void modelAppendages_setKazooiesUpperHalfVisibilityAndTimer(bool, f32);
+void modelAppendages_setBanjosLeftEyeVisibility(f32);
+void modelAppendages_setBanjosRightEyeVisibility(f32);
+bool modelAppendages_showKazooiesUpperHalf(void);
+bool modelAppendages_showKazooiesAss(void);
+bool modelAppendages_showKazooiesFeetAndShoes(void);
+bool modelAppendages_hideWadingBoots(void);
 
 // --- core2/ba/ba_carriedobj.c ---
 bool player_setCarryObjectPose(enum actor_e actor_id, Actor **arg1);
@@ -1343,15 +1345,15 @@ void animBinCache_init(void);
 void animBinCache_update(void);
 
 // --- core2/ba/ba_animstate.c ---
-void func_8029DD6C(void);
-void func_8029DFF8(void);
-void func_8029E058(bool);
-void func_8029E064(bool);
-void func_8029E070(bool);
-void func_8029E0DC(bool);
-void func_8029E0E8(bool);
-void func_8029E0F4(bool);
-void func_8029E100(void);
+void modelAppendages_loadAppendage(void);
+void modelAppendages_reset(void);
+void modelAppendages_setKazooiesAssVisibility(bool);
+void modelAppendages_setKazooiesFeetAndShoesVisibility(bool);
+void modelAppendages_setKazooiesUpperHalfVisibility(bool);
+void modelAppendages_setTurboTrainersVisibility(bool);
+void modelAppendages_setSledVisibility(bool);
+void modelAppendages_setWadingBootsVisibility(bool);
+void modelAppendages_kazooiesUpperHalfVisibilityTimer(void);
 
 // --- core2/ba/ba_bounds.c ---
 void babounds_init(void);
@@ -1486,7 +1488,7 @@ bool func_8028EFC8(void);
 bool func_8028EFEC(void);
 bool func_8028F070(void);
 bool func_8028F098(void);
-bool func_8028F0D4(void);
+bool player_isBanjoOrWishywashy(void);
 bool func_8028F150(void);
 bool func_8028F170(void);
 bool func_8028F1E0(void);
@@ -1502,7 +1504,7 @@ bool func_8028F530(s32 arg0);
 bool func_8028F55C(s32 arg0, ActorMarker *marker);
 bool func_8028F590(s32 arg0, ActorMarker *marker);
 bool func_8028F5F8(f32 arg0[3]);
-bool func_8028FB88(enum transformation_e xform_id);
+bool player_transform(enum transformation_e xform_id);
 bool func_8028FBD4(f32 arg0[3]);
 bool player_is_in_jiggy_jig(void);
 bool player_is_present(void);
@@ -1651,7 +1653,7 @@ void func_8029151C(s32 arg0);
 void func_80291548(void);
 
 // --- core2/ba/ba_state.c ---
-void func_80295914(void);
+void bsmethods_reset(void);
 void func_80295B04(void);
 void func_80295C08(void (* arg0)(void));
 void func_80295C14(void);
@@ -1685,7 +1687,7 @@ void func_802993C8(void);
 void func_8029957C(s32 arg0);
 
 // --- core2/ba/ba_timer.c ---
-s32 batimer_decrement(s32 timer_id);
+bool batimer_decrement(s32 timer_id);
 void batimer_incrementBy(s32 id, f32 inc_value_sec);
 void batimer_set(s32 timer_id, f32 duration);
 
@@ -2068,9 +2070,9 @@ void chwadingboots_802D6E54(Actor *self);
 
 // --- core2/climb.c ---
 u8 func_8029825C(void);
-void climbClear(void);
-void climbRelease(void);
-void func_80298344(void);
+void climb_clear(void);
+void climb_release(void);
+void climb_regrab_update(void);
 
 // --- core2/bundle.c ---
 bool func_802C9C14(Actor *actor);
@@ -2693,7 +2695,7 @@ void func_8029C5E8(void);
 void func_8029C674(void);
 void func_8029C6D0(void);
 void func_8029C748(void);
-void func_8029C7F4(s32 arg0, s32 yaw_state, s32 arg2, s32 arg3);
+void code_14420_setUpdateTypes(enum baanim_update_type_e arg0, enum yaw_state_e yaw_state, s32 arg2, BaPhysicsType arg3);
 void code_14420_setVoidOutLocation(enum map_e map_id, s32 exit_id);
 void func_8029C848(AnimCtrl *arg0);
 void func_8029C984(void);
@@ -2755,21 +2757,21 @@ bool player_isActive(void);
 bool player_isFallTumbling(void);
 bool player_isInRBB(void);
 bool player_isSwimming(void);
-int can_dive(void);
-int can_feathery_flap(void);
-int can_peck(void);
-int can_view_first_person(void);
-int func_8028ABB8(void);
-int func_8028ADB4(void);
-int func_8028B394(void);
-int func_8028B4C4(void);
-int func_8028B528(void);
-int player_isOnDangerousGround(void);
-int player_isSliding(void);
-int player_isStable(void);
-int player_shouldFall(void);
-int player_shouldSlideTrot(void);
-int wishyWashyFlag_get(void);
+bool can_dive(void);
+bool can_feathery_flap(void);
+bool can_peck(void);
+bool can_view_first_person(void);
+bool func_8028ABB8(void);
+bool func_8028ADB4(void);
+bool func_8028B394(void);
+bool func_8028B4C4(void);
+bool func_8028B528(void);
+bool player_isOnDangerousGround(void);
+bool player_isSliding(void);
+bool player_isStable(void);
+bool player_shouldFall(void);
+bool player_shouldSlideTrot(void);
+bool wishyWashyFlag_get(void);
 s32 can_beak_barge(void);
 s32 can_beak_bomb(void);
 s32 can_beak_bust(void);
@@ -3337,9 +3339,9 @@ void func_802C1B20(f32);
 void ncDynamicCamD_func_802BF2C0(f32);
 
 // --- core2/climb.c ---
-f32 climbGetBottomY(void);
-f32 climbGetTopY(void);
-void climbGetBottom(f32 dst[3]);
+f32 climb_getBottomY(void);
+f32 climb_getTopY(void);
+void climb_getBottom(f32 dst[3]);
 
 // --- core2/scorequeue/manager.c ---
 void func_802FAD64(enum item_e);
@@ -3451,7 +3453,7 @@ void pitch_setIdeal(f32);
 
 // --- core2/playerutils.c ---
 bool  func_8028AED4(f32*, f32);
-int player_inWater(void);
+bool player_inWater(void);
 
 // --- core2/roll.c ---
 f32 roll_get(void);

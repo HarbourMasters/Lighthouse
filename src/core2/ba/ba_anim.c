@@ -131,10 +131,10 @@ void __baanim_applyBottlesBonus(uintptr_t arg0, uintptr_t arg1) {
     baanim_applyBottlesBonusMask(arg0, mask);
 
     if ((mask & BAANIM_WISHYWASHY) && (player_getTransformation() == TRANSFORM_1_BANJO)) {
-        func_8028FB88(TRANSFORM_7_WISHWASHY);
+        player_transform(TRANSFORM_7_WISHWASHY);
     }
     if (!(mask & BAANIM_WISHYWASHY) && (player_getTransformation() == TRANSFORM_7_WISHWASHY)) {
-        func_8028FB88(TRANSFORM_1_BANJO);
+        player_transform(TRANSFORM_1_BANJO);
     }
     if (baAnimModifyFunction != NULL) {
         baAnimModifyFunction(arg0, arg1);

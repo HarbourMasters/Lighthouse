@@ -2,6 +2,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "core2/ba/physics.h"
+#include "core2/yaw.h"
 
 /* .data */
 const f32 D_80364A20 = 920.0f;
@@ -51,10 +52,10 @@ void bsbflip_init(void){
     anctrl_setStart(aCtrl, 0.0f);
     anctrl_setPlaybackType(aCtrl,  ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bsbflip.c", 0x80);
-    func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
     bastick_setZoneMax(0, 0.03f);
     bastick_setZoneMax(1, 1.0f);
-    func_8029E070(1);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
     basfx_80299BD4();
     D_8037D310 = 0;
 }
@@ -137,7 +138,7 @@ void bsbflip_update(void){
         if(player_isFallTumbling())
             sp24 = BS_3D_FALL_TUMBLING;
         if(player_isStable()){
-            func_8029E070(0);
+            modelAppendages_setKazooiesUpperHalfVisibility(false);
             _bsbflip_802A2DC0();
             sp24 = func_8029C9C0(sp24);
             D_8037D310 = 4;
@@ -163,6 +164,6 @@ void bsbflip_end(void){
     ability_use(2);
     baphysics_reset_gravity();
     baphysics_reset_terminal_velocity();
-    func_8029E070(0);
+    modelAppendages_setKazooiesUpperHalfVisibility(false);
     bastick_resetZones();
 }

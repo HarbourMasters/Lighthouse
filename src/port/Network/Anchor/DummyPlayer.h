@@ -55,7 +55,7 @@ public:
     void dummy_update(void);
     void dummy_updateModel(void);
     // void func_80254008(void);
-    void func_8029DD6C(void);
+    void modelAppendages_loadAppendage(void);
     // void modelRender_func_8033A280(f32);
     //  anim
     void dummyAnim_init(void);

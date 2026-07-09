@@ -481,16 +481,16 @@ Actor *chBossBoomBox_draw(ActorMarker *marker, Gfx **gdl, Mtx ** mptr, Vtx **arg
     f32 sp3C[3];
     Actor *actor = marker_getActorAndRotation(marker, sp3C);
     ActorLocal_ChBossBoomBox *local = (ActorLocal_ChBossBoomBox *) &actor->local;
-    func_8033A45C(1, local->unk0->unkD);
+    modelRender_setAppendageVisibility(1, local->unk0->unkD);
     if(local->unk0->unkD == 1){
-        func_8033A45C(2, (actor->state == 4)? 2: 1);
-        func_8033A45C(4, (actor->state == 4)? 2: 1);
-        func_8033A45C(5, (actor->state == 4)? 2: 1);
+        modelRender_setAppendageVisibility(2, (actor->state == 4)? 2: 1);
+        modelRender_setAppendageVisibility(4, (actor->state == 4)? 2: 1);
+        modelRender_setAppendageVisibility(5, (actor->state == 4)? 2: 1);
     }//L8038D714
     else{
-        func_8033A45C(3, (actor->state == 4)? 2: 1);
-        func_8033A45C(6, (actor->state == 4)? 2: 1);
-        func_8033A45C(7, (actor->state == 4)? 2: 1);
+        modelRender_setAppendageVisibility(3, (actor->state == 4)? 2: 1);
+        modelRender_setAppendageVisibility(6, (actor->state == 4)? 2: 1);
+        modelRender_setAppendageVisibility(7, (actor->state == 4)? 2: 1);
     }
     modelRender_setPreDrawCallback( (model_render_pre_draw_callback_f)actor_predrawMethod, (void *)actor);
     modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);

@@ -32,7 +32,7 @@ int bainput_should_look_first_person_camera(void);
 void controller_getRightStick(int controller_index, float dst[2]);
 }
 
-#include "enums.h" // BS_CROUCH
+#include "enums.h" // BS_7_CROUCH
 #include "port/ShipUtils.h"
 
 namespace {
@@ -84,7 +84,7 @@ bool ManualCameraControl() {
 } // namespace
 
 extern "C" int port_modernCamera_handleYaw(void) {
-    bool schemeOk = ModernSchemeActive() && bs_getState() != BS_CROUCH && !IsDemoMode();
+    bool schemeOk = ModernSchemeActive() && bs_getState() != BS_7_CROUCH && !IsDemoMode();
     if (!schemeOk) {
         if (sModern.active) {
             OrbitCamera_Exit(&sModern);
@@ -142,14 +142,14 @@ extern "C" int port_camera_suppressVanillaZoom(void) {
     if (scheme == CONTROL_SCHEME_MODERN) {
         return 1;
     }
-    if (scheme == CONTROL_SCHEME_POCKET && bs_getState() == BS_CROUCH) {
+    if (scheme == CONTROL_SCHEME_POCKET && bs_getState() == BS_7_CROUCH) {
         return 1;
     }
     return 0;
 }
 
 extern "C" void port_modernCamera_handleZoom(void) {
-    if (!ModernSchemeActive() || bs_getState() == BS_CROUCH || IsDemoMode()) {
+    if (!ModernSchemeActive() || bs_getState() == BS_7_CROUCH || IsDemoMode()) {
         return;
     }
 

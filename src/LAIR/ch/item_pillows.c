@@ -26,8 +26,8 @@ ActorInfo D_80394958 = { 0x172, 0x1DA, 0x549, 0x1, D_80394900, func_803906A0, ac
 
 /* .code */
 Actor *func_80390560(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    func_8033A45C(3, marker->collidable);
-    func_8033A45C(4, marker->collidable);
+    modelRender_setAppendageVisibility(3, marker->collidable);
+    modelRender_setAppendageVisibility(4, marker->collidable);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 

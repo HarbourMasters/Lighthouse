@@ -60,27 +60,27 @@ void DummyPlayer::dummy_func_8029DBF0(void) {
         case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:  // L8029DC24
         case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY: // L8029DC24
             temp_s0 = (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 8.0f);
-            func_8033A45C(0x1B, temp_s0);
-            func_8033A45C(0x1D, temp_s0);
-            func_8033A45C(0x1F, temp_s0);
-            func_8033A45C(0x21, temp_s0);
+            modelRender_setAppendageVisibility(0x1B, temp_s0);
+            modelRender_setAppendageVisibility(0x1D, temp_s0);
+            modelRender_setAppendageVisibility(0x1F, temp_s0);
+            modelRender_setAppendageVisibility(0x21, temp_s0);
             temp_s0 = (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 8.0f);
-            func_8033A45C(0x1A, temp_s0);
-            func_8033A45C(0x1C, temp_s0);
-            func_8033A45C(0x1E, temp_s0);
-            func_8033A45C(0x20, temp_s0);
+            modelRender_setAppendageVisibility(0x1A, temp_s0);
+            modelRender_setAppendageVisibility(0x1C, temp_s0);
+            modelRender_setAppendageVisibility(0x1E, temp_s0);
+            modelRender_setAppendageVisibility(0x20, temp_s0);
             break;
 
         case ASSET_34F_MODEL_BANJO_TERMITE: // L8029DCCC
         case ASSET_359_MODEL_BANJO_WALRUS:  // L8029DCCC
         case ASSET_36F_MODEL_BANJO_PUMPKIN: // L8029DCCC
         case ASSET_374_MODEL_BANJO_CROC:    // L8029DCCC
-            func_8033A45C(0x1B, (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 6.0f));
-            func_8033A45C(0x1A, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 6.0f));
+            modelRender_setAppendageVisibility(0x1B, (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 6.0f));
+            modelRender_setAppendageVisibility(0x1A, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 6.0f));
             break;
 
         case ASSET_356_MODEL_BANJO_WISHYWASHY: // L8029DD2C
-            func_8033A45C(1, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 4.0f));
+            modelRender_setAppendageVisibility(1, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 4.0f));
             break;
     }
 }
@@ -96,53 +96,53 @@ void DummyPlayer::dummy_setEyeState(bool squint, bool wink, bool isHat) {
     dummy_D_8037D234 = isHat;
 }
 
-void DummyPlayer::func_8029DD6C(void) {
+void DummyPlayer::modelAppendages_loadAppendage(void) {
     s32 temp_s0; // [port] must hold values > 1 for geo selector branches
 
     modelRender_func_8033A1FC();
     switch (dummy_getModelId()) {
         case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
         case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
-            func_8033A45C(1, dummy_kazooieVisible);
-            func_8033A45C(9, dummy_kazooieVisible);
-            func_8033A45C(0xC, dummy_kazooieVisible);
-            func_8033A45C(0xF, dummy_kazooieVisible);
-            func_8033A45C(2, dummy_modelWink);
-            func_8033A45C(0xA, dummy_modelWink);
-            func_8033A45C(0xD, dummy_modelWink);
-            func_8033A45C(0x10, dummy_modelWink);
-            func_8033A45C(8, dummy_modelSquint);
-            func_8033A45C(0xB, dummy_modelSquint);
-            func_8033A45C(0xE, dummy_modelSquint);
-            func_8033A45C(0x11, dummy_modelSquint);
+            modelRender_setAppendageVisibility(1, dummy_kazooieVisible);
+            modelRender_setAppendageVisibility(9, dummy_kazooieVisible);
+            modelRender_setAppendageVisibility(0xC, dummy_kazooieVisible);
+            modelRender_setAppendageVisibility(0xF, dummy_kazooieVisible);
+            modelRender_setAppendageVisibility(2, dummy_modelWink);
+            modelRender_setAppendageVisibility(0xA, dummy_modelWink);
+            modelRender_setAppendageVisibility(0xD, dummy_modelWink);
+            modelRender_setAppendageVisibility(0x10, dummy_modelWink);
+            modelRender_setAppendageVisibility(8, dummy_modelSquint);
+            modelRender_setAppendageVisibility(0xB, dummy_modelSquint);
+            modelRender_setAppendageVisibility(0xE, dummy_modelSquint);
+            modelRender_setAppendageVisibility(0x11, dummy_modelSquint);
             temp_s0 = dummy_modelMouth1 + 1;
-            func_8033A45C(0x12, temp_s0);
-            func_8033A45C(0x14, temp_s0);
-            func_8033A45C(0x16, temp_s0);
-            func_8033A45C(0x18, temp_s0);
-            func_8033A45C(0x13, temp_s0);
-            func_8033A45C(0x15, temp_s0);
-            func_8033A45C(0x17, temp_s0);
-            func_8033A45C(0x19, temp_s0);
+            modelRender_setAppendageVisibility(0x12, temp_s0);
+            modelRender_setAppendageVisibility(0x14, temp_s0);
+            modelRender_setAppendageVisibility(0x16, temp_s0);
+            modelRender_setAppendageVisibility(0x18, temp_s0);
+            modelRender_setAppendageVisibility(0x13, temp_s0);
+            modelRender_setAppendageVisibility(0x15, temp_s0);
+            modelRender_setAppendageVisibility(0x17, temp_s0);
+            modelRender_setAppendageVisibility(0x19, temp_s0);
             temp_s0 = dummy_modelMouth2 + 1;
-            func_8033A45C(0x22, temp_s0);
-            func_8033A45C(0x24, temp_s0);
-            func_8033A45C(0x26, temp_s0);
-            func_8033A45C(0x28, temp_s0);
-            func_8033A45C(0x23, temp_s0);
-            func_8033A45C(0x25, temp_s0);
-            func_8033A45C(0x27, temp_s0);
-            func_8033A45C(0x29, temp_s0);
+            modelRender_setAppendageVisibility(0x22, temp_s0);
+            modelRender_setAppendageVisibility(0x24, temp_s0);
+            modelRender_setAppendageVisibility(0x26, temp_s0);
+            modelRender_setAppendageVisibility(0x28, temp_s0);
+            modelRender_setAppendageVisibility(0x23, temp_s0);
+            modelRender_setAppendageVisibility(0x25, temp_s0);
+            modelRender_setAppendageVisibility(0x27, temp_s0);
+            modelRender_setAppendageVisibility(0x29, temp_s0);
             break;
         case ASSET_359_MODEL_BANJO_WALRUS:
-            func_8033A45C(3, dummy_D_8037D23A);
+            modelRender_setAppendageVisibility(3, dummy_D_8037D23A);
             break;
         case ASSET_374_MODEL_BANJO_CROC:
             temp_s0 = dummy_modelMouth1 + 1;
-            func_8033A45C(4, temp_s0);
-            func_8033A45C(5, temp_s0);
-            func_8033A45C(6, temp_s0);
-            func_8033A45C(7, temp_s0);
+            modelRender_setAppendageVisibility(4, temp_s0);
+            modelRender_setAppendageVisibility(5, temp_s0);
+            modelRender_setAppendageVisibility(6, temp_s0);
+            modelRender_setAppendageVisibility(7, temp_s0);
             break;
     }
     dummy_func_8029DBF0();
@@ -193,7 +193,7 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
         sActiveDummyBottlesBonus = dummyBottlesBonus;
         anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
         sActiveDummyBottlesBonus = 0;
-        func_8029DD6C();
+        modelAppendages_loadAppendage();
         modelRender_setEnvColor(env_color[0], env_color[1], env_color[2], dummyEnvAlpha);
         modelRender_func_8033A280(2.0f);
         // modelRender_preDraw((GenFunction_1)_dummy_preDraw, 0);

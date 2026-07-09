@@ -154,7 +154,7 @@ void modelRender_geoCmd_DRAWDIST(Gfx **, Mtx **, struct bk_geo_cmd_s *);
 void modelRender_geoCmd_UnkE(Gfx **, Mtx **, struct bk_geo_cmd_s *);
 void modelRender_geoCmd_CAMERA(Gfx **, Mtx **, struct bk_geo_cmd_s *);
 void modelRender_executeGeoCmds(Gfx **, Mtx **, BKGeoCmd *);
-void func_8033A45C(s32 arg0, s32 arg1);
+void modelRender_setAppendageVisibility(s32 arg0, s32 arg1);
 
 // Sets up 2 cycle mode
 Gfx setup2CycleDL[] =
@@ -690,8 +690,8 @@ void modelRender_reset(void){
     D_803837B0.unk0 = 0;
     sSecondaryModelData.model_id = 0;
     modelRenderDepthMode = MODEL_RENDER_DEPTH_NONE;
-    func_8033A45C(1,1);
-    func_8033A45C(2,0);
+    modelRender_setAppendageVisibility(1,1);
+    modelRender_setAppendageVisibility(2,0);
     if(D_80383758.unk18){
         viewport_setPosition_vec3f(D_80383758.unk1C);
         viewport_setRotation_vec3f(D_80383758.unk28);
@@ -1538,8 +1538,8 @@ void modelRender_setRefPoints(Vec3fArray *arg0){
     modelRenderRefPoints = arg0;
 }
 
-void func_8033A45C(s32 arg0, s32 arg1){
-    D_80383658[arg0] = arg1;
+void modelRender_setAppendageVisibility(s32 appendage_id, s32 appendage_visibility){
+    D_80383658[appendage_id] = appendage_visibility;
 }
 
 void modelRender_func_8033A470(s32 arg0, s32 arg1){

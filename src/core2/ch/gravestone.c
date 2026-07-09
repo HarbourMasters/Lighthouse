@@ -47,8 +47,8 @@ Actor *chgravestone_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
     this = marker_getActorAndRotation(marker, rotation);
     local = (ActorLocal_core2_D7D10 *)&this->local;
-    func_8033A45C(3, (s32) this->velocity[1]);
-    func_8033A45C(4, local->unk0);
+    modelRender_setAppendageVisibility(3, (s32) this->velocity[1]);
+    modelRender_setAppendageVisibility(4, local->unk0);
     modelRender_setPreDrawCallback( (model_render_pre_draw_callback_f)actor_predrawMethod, (void *)this);
     modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
     modelRender_draw(gfx, mtx, this->position, rotation, this->scale, D_80373008, func_803257B4(marker));

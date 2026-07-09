@@ -16,7 +16,7 @@ extern void func_802D4830(Actor *, s32, f32);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern int  actor_animationIsAt(Actor *, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
-extern void func_8033A45C(s32, s32);
+extern void modelRender_setAppendageVisibility(s32, s32);
 extern ActorArray *suBaddieActorArray;
 
 
@@ -346,8 +346,8 @@ Actor *func_8038664C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     actor = marker_getActor(marker);
     val = actor->unk10_12;
 
-    func_8033A45C(3, val == 1 ? 1 : 0);
-    func_8033A45C(4, val == 0 ? 1 : 0);
+    modelRender_setAppendageVisibility(3, val == 1 ? 1 : 0);
+    modelRender_setAppendageVisibility(4, val == 0 ? 1 : 0);
 
     return actor_draw(marker, gfx, mtx, vtx);
 }
@@ -635,7 +635,7 @@ Actor *lair_func_80387560(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
     u32 i;
 
     for (i = 0; i != 10; i++)
-        func_8033A45C(i + 1, actor->actorTypeSpecificField + 1 == i + 2);
+        modelRender_setAppendageVisibility(i + 1, actor->actorTypeSpecificField + 1 == i + 2);
 
     return actor_drawFullDepth(marker, gfx, mtx, vtx);
 }
@@ -861,7 +861,7 @@ Actor *func_80387DA8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
      * e.g. for the 50 note door, hides 180, 260, etc.
      */
     for (i = 0; i != NUM_NOTE_DOORS; i++)
-        func_8033A45C(i + 1, actor->noteDoorIdx + 1 == i + 2);
+        modelRender_setAppendageVisibility(i + 1, actor->noteDoorIdx + 1 == i + 2);
 
     /**
      * Draw the note door

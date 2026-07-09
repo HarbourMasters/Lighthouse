@@ -57,8 +57,8 @@ static s32 sLockup_CloseVelocity[3] = {0,0,0};
 /* .code */
 static Actor *__chLockup_drawFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor * actor = marker_getActor(marker);
-    func_8033A45C(3, actor->unk38_31);
-    func_8033A45C(4, actor->unk38_31);
+    modelRender_setAppendageVisibility(3, actor->unk38_31);
+    modelRender_setAppendageVisibility(4, actor->unk38_31);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 

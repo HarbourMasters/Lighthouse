@@ -215,7 +215,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     }
 
     const bool modern = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN;
-    const bool crouched = (bs_getState() == BS_CROUCH);
+    const bool crouched = (bs_getState() == BS_7_CROUCH);
     const bool eggPooping = (bs_getState() == BS_A_EGG_ASS);
 
     int32_t rx = pad->right_stick_x;
