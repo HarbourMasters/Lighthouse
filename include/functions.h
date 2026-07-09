@@ -244,8 +244,8 @@ BoneTransformList *anim_getStartTransform(Animation *self);
 BoneTransformList *anim_getTargetTransform(Animation *self);
 
 // --- core1/audio_manager.c ---
-void *func_802403B8(void *state);
-void *audioManager_getThread_PAL(void);
+ALDMAproc audioManager_DMAInitProc(void *state);
+OSThread *audioManager_getThread_PAL(void);
 
 // --- core2/anim/anim_sequencehandler.c ---
 u8 *func_8032479C(void);

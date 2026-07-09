@@ -75,7 +75,7 @@ bool prevAltAssets = false;
 // Audio synthesis entry point (decomp n_synthesizer.c)
 Acmd* n_alAudioFrame(Acmd* cmdList, s32* cmdLen, s16* outBuf, s32 outLen);
 // DMA cache cleanup (decomp audio_manager.c)
-void func_802403F0(void);
+void audioManager_func_802403F0(void);
 void func_80250650(void);
 // Game mode helper
 bool func_802E4A08(void);
@@ -1144,7 +1144,7 @@ void GameEngine::HandleAudioThread() {
                     // Lock only the engine work; the volume scale and backend submit touch
                     // worker-local / backend state, not the synth.
                     port_lockAudio();
-                    func_802403F0();
+                    audioManager_func_802403F0();
                     n_alAudioFrame(cmdList, &cmdLen, audioBuffer, AlFrameSize);
                     func_80250650();
                     port_unlockAudio();

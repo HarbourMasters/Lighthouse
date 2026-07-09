@@ -50,8 +50,8 @@ void core1_15B30_addAudioTaskData(Gfx **arg0, Gfx **arg1, void *arg2, void *arg3
     task_data->task_type = UCODE_TASK_TYPE_AUDIO;
     task_data->data_ptr = arg0;
     task_data->data_ptr_end = arg1;
-    task_data->unk10 = arg2;
-    task_data->unk14 = (s32)(intptr_t)arg3;
+    task_data->audio_mesg_queue = arg2;
+    task_data->audio_mesg = OS_MESG_PTR(arg3);
     thread5_sendTaskToQueue(OS_MESG_PTR(task_data));
 }
 

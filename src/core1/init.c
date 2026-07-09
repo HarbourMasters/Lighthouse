@@ -9,8 +9,6 @@
 
 #define MAIN_THREAD_STACK_SIZE 0x17F0
 
-extern void audioManager_init(void);
-
 #if VERSION == VERSION_PAL
     extern s32 D_80000300;
 #endif
