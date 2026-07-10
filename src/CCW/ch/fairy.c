@@ -24,7 +24,7 @@ CH_GNAWTY_SWIMMING_DIALOG chGnawtySwimmingDialogs[] ={
     {MAP_43_CCW_SPRING, false, ASSET_CCE_DIALOG_GNAWTY_MEET_SPRING},
     {MAP_45_CCW_AUTUMN,  true, ASSET_CD1_DIALOG_GNAWTY_MEET_FALL_OUTSIDE},
     {MAP_46_CCW_WINTER,  true, ASSET_CD3_DIALOG_GNAWTY_MEET_WINTER_OUTSIDE},
-    NULL
+    { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
 };
 
 enum chGnawtySwimming_State_e {

@@ -57,9 +57,9 @@ Struct_CCW_1B20_0 D_8038EC40[4] ={
     {
         ASSET_183_ANIM_BEANSTALK_UNK, SKELETAL_ANIM_1_LOOP,
         1, // Is Initialized
-        NULL,
-        NULL,
-        NULL,
+        0,
+        0,
+        0,
         false
     }
 };

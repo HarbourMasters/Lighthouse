@@ -26,15 +26,15 @@ CH_CCW_Gobi_Dialogs chCCWGobiDialogs[] = {
         MAP_44_CCW_SUMMER,
         ASSET_CDE_DIALOG_CCW_GOBI_MEET_SUMMER,
         ASSET_CDF_DIALOG_CCW_GOBI_COMPLETE_SUMMER,
-        NULL
+        0
     },
     {
         MAP_45_CCW_AUTUMN,
-        NULL,
-        NULL,
+        0,
+        0,
         ASSET_CE0_DIALOG_CCW_GOBI_COMPLETE_FALL
     },
-    NULL
+    { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
 };
 
 ActorInfo chCCWGobi = {

@@ -45,7 +45,7 @@ ActorLocal_ChSpinningFlatPlatform_0 chSpinningFlatPlatformTable[] = {
         5.0f,
         {1600.0f,  810.0f, -1400.0f}
     },
-    NULL
+    { 0 } // [port] decomp uses NULL; actorId is s16 and clang errors on -Wint-conversion
 };
 
 ActorInfo chSpinningFlatPlatform1 = {

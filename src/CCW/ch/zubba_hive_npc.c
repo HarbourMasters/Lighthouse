@@ -37,10 +37,10 @@ Zubba_Docile_Dialog chZubbaDocileDialog[] = {
     {
         MAP_5C_CCW_AUTUMN_ZUBBA_HIVE,
         CCW_ZUBBA_SPECIFIC_FLAG_8_AUTUMN_DIALOG,
-        NULL,
+        0,
         ASSET_CE5_DIALOG_ZUBBA_MEET_FALL
     },
-    NULL
+    { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
 };
 
 ActorInfo chZubbaDocile = {

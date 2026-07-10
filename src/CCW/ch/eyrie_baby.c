@@ -102,16 +102,16 @@ Eyrie_Baby_SFX chEyrieBabyEatingSFX[] = {
 Eyrie_Baby_Dialog chEyrieBabyProgression[] = {
     {
         MAP_43_CCW_SPRING, // Map
-        NULL, FILEPROG_E6_SPRING_EYRIE_HATCHED, // File Progress
-        NULL, NULL, // Waiting
+        0, FILEPROG_E6_SPRING_EYRIE_HATCHED, // File Progress
+        0, NULL, // Waiting
         CH_EYRIE_BABY_STATE_3_GOING_TO_SLEEP, // Unk
-        NULL, NULL, // Yawning
+        0, NULL, // Yawning
         0x18F, chEyrieBabyGoingToSleepSFX, // Going To Sleep
         0x190, chEyrieBabySleepingSFX, // Sleeping
         0, // Camera Node
         0, // Caterpillar Requirement
-        NULL, // Eating Animation
-        NULL // Meet Dialog
+        0, // Eating Animation
+        0 // Meet Dialog
     },
     {
         MAP_44_CCW_SUMMER, // Map
@@ -139,7 +139,7 @@ Eyrie_Baby_Dialog chEyrieBabyProgression[] = {
         0x21B, // Eating Animation
         ASSET_CDA_DIALOG_BABY_EYRIE_MEET_FALL // Meet Dialog
     },
-    NULL
+    { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
 };
 
 ActorInfo chEyrieBaby = {
