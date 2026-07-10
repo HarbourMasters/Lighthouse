@@ -53,6 +53,11 @@ typedef struct {
     s16 unkE;
 }Actorlocal_Core2_9E370;
 
+// [port] Actor array capacity. Sized ahead of demand so actor_new never bk_reallocs (relocates)
+// the array mid-map — see the note in actor_new. Grows in a large chunk if ever exceeded.
+#define ACTOR_ARRAY_INITIAL_CAP 512
+#define ACTOR_ARRAY_GROW_CHUNK  128
+
 /* .data */
 ActorArray *suBaddieActorArray = NULL; //actorArrayPtr
 s32 D_8036E564 = 0;
@@ -568,12 +573,19 @@ void func_803268B4(void) {
                 if (!actor->despawn_flag) {
                     if (marker->unk2C_2) {
                         marker->actorUpdate2Func(actor);
+                        // [port] The update may have spawned actors; actor_new bk_reallocs (moves) the
+                        // array, so the local `actor` slot pointer can dangle. Re-fetch it before any
+                        // further use, or we'd read/commit a stale/other-actor position into the marker
+                        // (actors "relocated" onto each other permanently). marker/anim_ctrl are
+                        // separate allocations and stay valid.
+                        actor = &suBaddieActorArray->data[temp_v1];
                         if (anim_ctrl != NULL) {
                                 actor->sound_timer = anctrl_getAnimTimer(anim_ctrl);
                         }
                     } else if (!temp_s1 || (temp_s1 && func_803296D8(actor, temp_s1))) {
                         if ( marker->actorUpdateFunc != NULL) {
                              marker->actorUpdateFunc(actor);
+                            actor = &suBaddieActorArray->data[temp_v1]; // [port] re-fetch: see above
                             if (anim_ctrl != NULL) {
                                     actor->sound_timer = anctrl_getAnimTimer(anim_ctrl);
                             }
@@ -800,14 +812,21 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     s32 pos_z = position[2];
     s32 pos_copy[3] = { pos_x, pos_y, pos_z };
 
+    // [port] Pre-size the actor array well past any realistic per-map actor count (vanilla actors +
+    // the note-retention note actors) so it never has to grow during a map. N64 used a fixed array;
+    // the port's growth path bk_reallocs, which MOVES the array and dangles any live Actor*/`this` a
+    // caller is holding across an actor_new (the actor update loop, bundle spawns dropping child
+    // items, etc.) — corrupting those actors so they read/write another actor's slot (actors appear
+    // "moved" onto each other). Keeping the capacity ahead of demand means that realloc never fires
+    // in normal play. If some romhack ever exceeds it, grow in a big chunk so it's a rare one-off.
     if(suBaddieActorArray == NULL){
-        suBaddieActorArray = (ActorArray *)bk_malloc(sizeof(ActorArray) + 20*sizeof(Actor));
+        suBaddieActorArray = (ActorArray *)bk_malloc(sizeof(ActorArray) + ACTOR_ARRAY_INITIAL_CAP*sizeof(Actor));
         suBaddieActorArray->cnt = 0;
-        suBaddieActorArray->max_cnt = 20;
+        suBaddieActorArray->max_cnt = ACTOR_ARRAY_INITIAL_CAP;
     }
 
     if(suBaddieActorArray->cnt + 1 > suBaddieActorArray->max_cnt){
-        suBaddieActorArray->max_cnt = suBaddieActorArray->cnt + 5;
+        suBaddieActorArray->max_cnt = suBaddieActorArray->cnt + ACTOR_ARRAY_GROW_CHUNK;
         suBaddieActorArray = (ActorArray *)bk_realloc(suBaddieActorArray, sizeof(ActorArray) + suBaddieActorArray->max_cnt*sizeof(Actor));
     }
 
