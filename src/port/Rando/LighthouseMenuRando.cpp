@@ -109,9 +109,6 @@ void LighthouseMenu::AddMenuRando() {
     AddWidget(path, "Shuffle Empty Honeycombs", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_EMPTY_HONEYCOMBS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Empty Honeycombs into the Pool."));
-    AddWidget(path, "Shuffle Extra Lives", WIDGET_CVAR_CHECKBOX)
-        .CVar(Rando::StaticData::Options[RO_SHUFFLE_EXTRA_LIVES].cvar)
-        .Options(CheckboxOptions().Tooltip("Shuffles Extra Lives into the Pool."));
     AddWidget(path, "Shuffle Jiggies", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_JIGGIES].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Jiggies into the Pool."));
@@ -133,6 +130,9 @@ void LighthouseMenu::AddMenuRando() {
     AddWidget(path, "Shuffle Blue Eggs", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_BLUE_EGGS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Blue Eggs into the Pool."));
+    AddWidget(path, "Shuffle Extra Lives", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_EXTRA_LIVES].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Extra Lives into the Pool."));
     AddWidget(path, "Shuffle Molehills", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
