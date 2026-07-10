@@ -9,6 +9,10 @@ void func_803895F4(Actor *this);
 /* .data */
 ActorInfo D_8038EE70 = { 0x1B3, 0x2A0, 0x483, 0x0, NULL, func_803895F4, NULL, CCW_func_8038954C, 0, 0, 0.0f, 0};
 
+// [port] Anchor: set while replaying a teammate's hatch (FILEPROG_E6 synced in) so the break skips
+// the camera pan that belongs to the player who actually beak-busted the egg. Never set locally.
+static s32 sChEyrieEggRemote = 0;
+
 /* .code */
 void func_80389440(Actor *this, s32 next_state) {
     void *temp_v0;
@@ -19,10 +23,12 @@ void func_80389440(Actor *this, s32 next_state) {
         fileProgressFlag_set(FILEPROG_E6_SPRING_EYRIE_HATCHED, true);
         skeletalAnim_set(this->unk148, 0x187, 0.0f, 2.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        func_80324E38(0.0f, 3);
-        timed_setStaticCameraToNode(0.0f, 2);
-        timed_exitStaticCamera(8.0f);
-        func_80324E38(8.0f, 0);
+        if (!sChEyrieEggRemote) {
+            func_80324E38(0.0f, 3);
+            timed_setStaticCameraToNode(0.0f, 2);
+            timed_exitStaticCamera(8.0f);
+            func_80324E38(8.0f, 0);
+        }
     }
     this->state = next_state;
 }
@@ -59,6 +65,16 @@ void func_803895F4(Actor *this) {
             marker_despawn(this->marker);
         }
         return;
+    }
+
+    // [port] Anchor live: a teammate hatched the egg (FILEPROG_E6 syncs; the baby handles itself in
+    // eyrie_baby.c) but our shell was still sitting whole. Replay the break in place, minus the
+    // camera pan. The hatching player leaves state 1 in the same call that sets the flag, so this
+    // never fires for them.
+    if (this->state == 1 && fileProgressFlag_get(FILEPROG_E6_SPRING_EYRIE_HATCHED)) {
+        sChEyrieEggRemote = 1;
+        func_80389440(this, 2);
+        sChEyrieEggRemote = 0;
     }
 
     if (this->state == 2) {

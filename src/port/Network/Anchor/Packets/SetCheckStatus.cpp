@@ -68,6 +68,13 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
         }
     }
 
+    // The BGS timed-switch checks: each same-map client runs its own countdown (the timer flags are
+    // sync-excluded), so when a teammate grabs the shuffled item, stop our hourglass like the
+    // vanilla collect path does for the timed jiggies.
+    if ((s32)gsworld_getMap() == map && (rc == RC_BGS_JIGGY_ELEVATED_WALKWAY || rc == RC_BGS_JIGGY_MAZE)) {
+        func_802D6924();
+    }
+
     // Apply the obtained state through the same funnel local collects use. isInit = true so it
     // suppresses the "you collected" notification and, crucially, doesn't re-fire
     // OnRandoCheckObtained (no echo back onto the wire).

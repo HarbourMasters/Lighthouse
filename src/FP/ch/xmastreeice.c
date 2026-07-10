@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 typedef struct {
     u8 initShatter; // [port] took the warped-in cutscene path at init; suppresses the live shatter
 } ActorLocal_XmasTreeIce;
@@ -72,6 +74,10 @@ void chXmasTreeIce_shatterIce(ActorMarker *marker){
     func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
     coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     this->unk38_31 = 1;
+    // [port] Anchor: record + broadcast the shatter. LEVEL_FLAG_29 itself must stay local (a raw
+    // share warps teammates into the completer's cutscene — see Anchor_ScopedFlagExcluded), so this
+    // bit is what carries "the ice is gone / jiggy revealed" to the team, live and across reloads.
+    port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_TREE_ICE, 0x1);
 }
 
 void chXmasTreeIce_returnCameraToBanjo(ActorMarker *marker){
@@ -99,16 +105,30 @@ void chXmasTreeIce_update(Actor *this) {
         if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)) {
             marker_despawn(this->marker);
         }
+        // [port] Anchor temp-persist: the team already shattered the ice this session (the bit is
+        // checked before LEVEL_FLAG_29 so the completer's own warp-in cutscene below still wins on
+        // the frame it happens — their bit isn't recorded until the shatter itself). Set the local
+        // level flag so the revealed jiggy is collectable (chjiggy gates its collision on it), and
+        // remove the ice without the cutscene — we walked in normally.
+        else if (port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1) {
+            if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
+                levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+            }
+            marker_despawn(this->marker);
+        }
         else if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
             local->initShatter = 1;
             chXmasTreeIce_initiateShatter(this);
         }
     }
-    // [port] Anchor live: a teammate completed the star (LEVEL_FLAG_29 syncs as a level flag) while
-    // we were already inside the tree, so our ice never re-checked. Shatter it in place here, with
-    // no camera/warp cutscene (we weren't the one warped in), so the jiggy is revealed for us too.
+    // [port] Anchor live: a teammate completed the star while we were already inside the tree.
+    // Shatter the ice in place, with no camera/warp cutscene (we weren't the one warped in), so the
+    // jiggy is revealed — and collectable — for us too.
     else if (!local->initShatter && this->unk38_31 == 0
-             && levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
+             && (port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
+        if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
+            levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+        }
         chXmasTreeIce_shatterIce(this->marker);
     }
 }

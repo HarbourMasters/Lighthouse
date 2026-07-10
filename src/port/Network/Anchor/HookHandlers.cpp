@@ -101,6 +101,24 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == 3 || index == 0xC)) {
         return true;
     }
+    // TTC Blubber's gold quest (flags 0/1 = bullions delivered, 2/3 = his one-shot dance/dialog
+    // gates). Shared raw, the deliverer's flags race the teammate's own gates: whichever client's
+    // Blubber update runs first claims flag 3 and the other sees nothing (or gets yanked into the
+    // dance camera). Kept local; ANCHOR_PUZZLE_TTC_BLUBBER carries the delivered-gold progress
+    // instead, and blubber.c replays it without the camera/dialog (plus temp-persists it).
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE &&
+        index <= TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG) {
+        return true;
+    }
+    // FP xmas tree star minigame (flag 2 = tree switch pressed / lights flashing + timer, flag 3 =
+    // star passes done). Shared, the presser's flags start a camera pan + dialog on the teammate
+    // (flag 2) and, worse, flag 3 warps the teammate into the tree-shatter cutscene alongside the
+    // finisher. It's a per-player minigame, so both stay local; the completed result syncs via
+    // ANCHOR_PUZZLE_FP_TREE_ICE (xmastreeice.c / xmastree.c).
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK &&
+        (index == 2 || index == 3)) {
+        return true;
+    }
     return false;
 }
 

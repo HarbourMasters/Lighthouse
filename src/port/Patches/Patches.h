@@ -157,8 +157,20 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 #define ANCHOR_PUZZLE_GV_JINXY_DOOR 5
 // MM Juju totem: bits 0-3 = a prefix of how many of the 4 segments have been knocked off.
 #define ANCHOR_PUZZLE_MM_JUJU 6
+// TTC Nipper: bits 0-2 = a prefix of how many of the 3 hits he's taken (all 3 = dead, shell open).
+#define ANCHOR_PUZZLE_TTC_NIPPER 7
+// TTC Blubber: bit 0 = first gold bullion delivered, bit 1 = second (jiggy spawned, Blubber leaves).
+#define ANCHOR_PUZZLE_TTC_BLUBBER 8
+// TTC treasure hunt: bits 0-5 = a prefix of the 6 beak-busted X steps (bit 5 = treasure dug up).
+#define ANCHOR_PUZZLE_TTC_XHUNT 9
+// FP xmas tree ice: 1 bit, set when the tree-top ice shatters (star minigame complete). Recorded in
+// the tree-interior map (where the ice lives); the FP hub tree reads it via getForMap.
+#define ANCHOR_PUZZLE_FP_TREE_ICE 10
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
+// Same as get, but for an explicit map key — for the rare puzzle whose recorder and consumer live
+// in different maps (FP tree ice: recorded inside the tree, also read from the FP hub).
+int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
 
 // MM/BGS huts: break + dropped-bundle sync with temporary persistence. record stores + broadcasts
 // the (spawn position -> bundle index) a hut dropped (idempotent, first smasher wins); get returns

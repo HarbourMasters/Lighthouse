@@ -53,6 +53,12 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                 if (m != nullptr) {
                     marker_despawn(m);
                 }
+                // Timed jiggies: the local collector also stops the switch countdown (ba_marker.c
+                // calls func_802D6924 for these ids). Mirror it so our own running hourglass — each
+                // BGS client runs its own timer — doesn't keep counting after the team has the jiggy.
+                if (id == JIGGY_20_BGS_ELEVATED_WALKWAY || id == JIGGY_25_BGS_MAZE) {
+                    func_802D6924();
+                }
             }
             break;
         case ANCHOR_COLLECTIBLE_HONEYCOMB:

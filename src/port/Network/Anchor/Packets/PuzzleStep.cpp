@@ -12,6 +12,9 @@
 
 extern "C" {
 #include "functions.h"
+// Catch-up tick for the TTC treasure hunt (treasurehunt.c): its progress is a bare global with no
+// always-present actor to poll from, so the anchor frame hook drives the replay of teammate steps.
+void chTreasurehunt_netTick(void);
 }
 
 #include "port/Patches/Patches.h"
@@ -36,6 +39,11 @@ std::map<std::array<int32_t, 2>, int32_t> sBits;
 
 extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
     auto it = sBits.find({ (int32_t)gsworld_getMap(), puzzleId });
+    return it != sBits.end() ? it->second : 0;
+}
+
+extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
+    auto it = sBits.find({ map, puzzleId });
     return it != sBits.end() ? it->second : 0;
 }
 
@@ -105,6 +113,14 @@ void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
 
 void RegisterPuzzleStep_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBits.clear(); });
+    // The treasure hunt's progress lives in a global (CH_TREASUREHUNT_PUZZLE_CURRENT_STEP) with no
+    // actor spawned until the first X is busted, so nothing exists to poll the mask from an update
+    // func. Tick it from the frame hook instead; it no-ops unless the shared mask is ahead.
+    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        if (gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE) {
+            chTreasurehunt_netTick();
+        }
+    });
 }
 
 static RegisterShipInitFunc initPuzzleStep(RegisterPuzzleStep_Init, {});

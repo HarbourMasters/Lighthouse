@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 extern void func_8028E668(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3);
 extern  s32 func_802E0970(s32, f32, f32, f32, s32, s32, f32[3]);
 
@@ -140,9 +142,47 @@ static void __func_80387830(Actor *this , f32 arg1, f32 arg2){
 
 static void __chBlubber_updateFunc(Actor *this){
     ActorLocal_Blubber *local;
+    s32 netBits;
 
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
+
+    // [port] Anchor: the gold-quest map flags (0/1, set by the delivery cutscenes) stay local — see
+    // Anchor_ScopedFlagExcluded — and the progress rides ANCHOR_PUZZLE_TTC_BLUBBER instead.
+    netBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+    // Record our own deliveries (idempotent — only the deliverer's flags ever flip on their own).
+    if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
+    }
+    if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
+    }
+    // Temp-persist: the team already finished the quest this session — Blubber danced and ran off,
+    // so don't bring him back crying on a (re)load.
+    if (!this->volatile_initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
+        marker_despawn(this->marker);
+        return;
+    }
+    // A teammate's first delivery only changes which dialogs apply — adopt it silently.
+    if ((netBits & 0x1) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN, true);
+        this->unk138_23  = true; // the half-gold dialog belongs to the deliverer
+        this->has_met_before = true;
+    }
+    // A teammate delivered the second bullion while we're in the map: Blubber celebrates and leaves
+    // for us too — dance straight away, minus the deliverer's camera/dialog (the jiggy itself rides
+    // JIGGY_SPAWN from their client). Waits for init so the dance -> leave chain (unk24) is valid.
+    if (this->initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
+        local = (ActorLocal_Blubber *)&this->local;
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
+        subaddie_set_state(this, CH_BLUBBER_STATE_4_UNKNOWN);
+        actor_loopAnimation(this);
+        this->actor_specific_1_f = 0.0f;
+        local->unk24 = 0;
+    }
+
     if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !subaddie_playerIsWithinSphereAndActive(this, 2500))
         return;
     

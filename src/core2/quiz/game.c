@@ -202,6 +202,10 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0x107:
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 0xF, 0x46, 0.8f, 0.7f);
+            // [port] Anchor: the RBB smokestack door breaks + despawns with no flag of its own.
+            // Broadcast + temp-persist the break (the breakable init checks port_breakable_isBroken)
+            // so it opens live for same-map teammates and stays open on their reloads.
+            port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
 

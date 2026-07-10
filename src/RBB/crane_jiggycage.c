@@ -11,10 +11,11 @@ void func_8038756C(Actor *this, s32 arg1);
 
 // [port] Anchor: the jiggy-cage crane is a transient timed minigame with no flag, so it's synced by
 // replaying the lower (stage 2) and raise (stage 4) on teammates. While we're replaying a remote
-// crane action, sCraneRemote suppresses everything that belongs to the player who actually
-// triggered it — the camera pans and the hourglass HUD/timer — leaving just the visible crane
-// movement + sfx. It also stops our copy from auto-raising on its own (absent) timer; the raise
-// arrives as its own broadcast. The local player never sets this flag, so their path is unchanged.
+// crane action, sCraneRemote suppresses the camera pans that belong to the player who actually
+// triggered it, leaving the visible crane movement + sfx — and the hourglass, which every same-map
+// player gets since they can all race for the cage. It also stops our copy from auto-raising on its
+// own timer; the raise arrives as its own broadcast (which also clears our hourglass). The local
+// player never sets this flag, so their path is unchanged.
 static s32 sCraneRemote = 0;
 extern void port_jiggyCrane_broadcast(s32 stage); // defined in port JiggyCrane.cpp
 extern ActorArray *suBaddieActorArray;
@@ -187,14 +188,17 @@ void func_8038756C(Actor *this, s32 arg1){
         timedFunc_set_1(1.1f, (GenFunction_1)func_8038718C, (uintptr_t)this->marker);
     }//L80387704
 
-    // [port] The hourglass timer/HUD belongs to the player who triggered the crane; a teammate
-    // replaying it shouldn't get one (and shouldn't drive its own raise off it — see func_803878B0).
-    if(arg1 == 3 && !sCraneRemote){
+    // [port] Every same-map player races the same cage window, so a remote-driven crane starts the
+    // hourglass HUD/timer too (the replay reaches this stage on the same timed chain, so the
+    // countdowns line up). The remote copy still never drives its own raise off the timer — see
+    // func_803878B0 — the raise arrives as its own broadcast.
+    if(arg1 == 3){
         item_set(ITEM_6_HOURGLASS, 1);
         item_set(ITEM_0_HOURGLASS_TIMER, 0x3bf);
     }
 
-    if(this->state == 3 && !sCraneRemote){
+    // Leaving the timed stage (locally or via the remote raise) always clears the hourglass.
+    if(this->state == 3){
         item_set(ITEM_6_HOURGLASS, 0);
     }
 
@@ -245,7 +249,8 @@ void func_803878B0(Actor *this){
     }
 
     // [port] Only the triggering player drives the raise off the hourglass timer. A remote-driven
-    // copy has no timer (it was suppressed); it raises when the raise broadcast arrives instead.
+    // copy shows the same countdown but raises when the raise broadcast arrives instead, so the
+    // cage can't close early off a slightly-skewed local timer.
     if(this->state == 3 && !sCraneRemote){
         if(item_empty(ITEM_0_HOURGLASS_TIMER)){
             func_8038756C(this, 4);

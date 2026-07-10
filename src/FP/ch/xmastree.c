@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 Actor *chXmasTree_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chXmasTree_update(Actor *this);
 
@@ -108,6 +110,19 @@ void chXmasTree_update(Actor *this){
     }
 
     this->depth_mode = 1;
+
+    // [port] Anchor: a teammate finished the star minigame (recorded under the tree-interior map,
+    // where the ice lives). Adopt the completed state: light the tree via the local LEVEL_FLAG_29
+    // (kept out of the raw flag sync — see Anchor_ScopedFlagExcluded), and if our own star attempt
+    // was mid-timer, stop the countdown — the puzzle is done.
+    if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)
+        && (port_puzzleStep_getForMap(MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
+        levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
+        if (this->state == 4) {
+            item_set(ITEM_6_HOURGLASS, false);
+            mapSpecificFlags_set(2, false);
+        }
+    }
 
     if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE) || levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
         __chXmasTree_80386EF4(this, 1);
