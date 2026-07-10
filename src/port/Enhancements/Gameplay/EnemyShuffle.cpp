@@ -4,11 +4,14 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
+#include "spdlog/spdlog.h"
+
 #include "actor.h"
 
 #define CVAR_SHUFFLE_ENEMIES CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Enabled")
 
 extern "C" {
+Actor* __actor_spawnWithYaw_s32(enum actor_e arg0, s32 pos[3], s32 rot);
 Actor* actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags);
 extern Vec3fArray* D_8036E568;
 
@@ -39,6 +42,7 @@ std::map<int32_t, std::pair<std::string, const char*>> shufflableEnemyMap = {
     { ACTOR_5_TERMITE,              { "Termite", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Termite") } },
     { ACTOR_6_GRUBLIN,              { "Grublin", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Grublin") } },
     { ACTOR_69_CLAM,                { "Yum-Yum", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.YumYum") } },
+    // { ACTOR_124_SIR_SLUSH,          { "Sir Slush", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.SirSlush") } },
     { ACTOR_133_FLIBBIT_RED,        { "Red Flibbit", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.RedFlibbit") } },
     { ACTOR_134_BUZZBOMB,           { "Buzzbomb", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Buzzbomb") } },
     { ACTOR_1E9_SNARE_BEAR,         { "Snare Bear", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Snarebear") } },
@@ -99,6 +103,7 @@ void RegisterEnemyShuffle_Init() {
 
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, CVAR_SHUFFLE_ENEMIES, [](IEvent* event) {
         OnActorSpawn* ev = (OnActorSpawn*)event;
+        Actor* newActor = NULL;
 
         int32_t spawnPosition[3];
         spawnPosition[0] = ev->posX;
@@ -110,12 +115,12 @@ void RegisterEnemyShuffle_Init() {
             event->Cancelled = true;
 
             actor_e shuffledActorId = (actor_e)shufflableEnemyList[randomEnemy];
-            Actor* newActor = actor_new(spawnPosition, ev->rot, &enemyInfoMap.at(shuffledActorId).first,
-                                        enemyInfoMap.at(shuffledActorId).second);
+            newActor = actor_new(spawnPosition, ev->rot, &enemyInfoMap.at(shuffledActorId).first,
+                                 enemyInfoMap.at(shuffledActorId).second);
 
-            if (shuffledActorId == ACTOR_124_SIR_SLUSH) {
-                newActor->marker->unk44 = D_8036E568;
-            }
+            // if (shuffledActorId == ACTOR_124_SIR_SLUSH) {
+            //     newActor->marker->unk44 = D_8036E568;
+            // }
 
             ev->result = newActor;
         }
