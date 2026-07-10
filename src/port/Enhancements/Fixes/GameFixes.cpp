@@ -2,6 +2,7 @@
 //
 // Port functions and event listeners for various bug fixes and corrections.
 
+#include "port/Rando/Rando.h"
 #include <libultraship/bridge.h>
 #include <cstring>
 #include "port/UI/cvar_prefixes.h"
@@ -118,6 +119,10 @@ void RegisterGruntyBounce_Init() {
 // (structural crash fix, not a toggle); varargs carry (actorId, maxOnGround) from the decomp.
 void RegisterYumYumDrop_Init() {
     REGISTER_VB_SHOULD(VB_YUMYUM_DROP, EVENT_PRIORITY_NORMAL, {
+        if (IS_RANDO) {
+            return;
+        }
+
         int actorId = va_arg(args, int);
         int maxOnGround = va_arg(args, int);
         *should = actorArray_actorCount((enum actor_e)actorId) < maxOnGround;

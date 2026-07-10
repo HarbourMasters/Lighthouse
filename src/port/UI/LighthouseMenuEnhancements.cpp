@@ -1,5 +1,7 @@
 #include "LighthouseMenu.h"
+#include "enhancementTypes.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #define CVAR_INT_SHIP_INIT(cvar, val) \
     CVarSetInteger(cvar, val);        \
@@ -302,17 +304,6 @@ void LighthouseMenu::AddMenuEnhancements() {
                      })
                      .DefaultIndex(1));
 
-    AddWidget(path, "Skip Spiral Mountain Tutorial", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"))
-        .RaceDisable(false)
-        .PreFunc([](WidgetInfo& info) {
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
-                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
-            }
-        })
-        .Options(CheckboxOptions().Tooltip(
-            "Start in the Lair with all basic moves and the six empty honeycombs collected."));
-
     AddWidget(path, "Furnace Fun Moves", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves"))
         .RaceDisable(false)
@@ -372,6 +363,56 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip(
             "Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
+
+    path.column = SECTION_COLUMN_2;
+
+    AddWidget(path, "Enemy Shuffle", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        if (UIWidgets::CVarCheckbox(
+                "Enable Enemy Shuffle", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Enabled"),
+                UIWidgets::CheckboxOptions().Tooltip("Shuffles spawned Enemies with another Enemy."))) {
+            CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        }
+        ImGui::Separator();
+        ImGui::BeginDisabled(!CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Enabled"), 0));
+        for (auto& [enemyId, enemyData] : shufflableEnemyMap) {
+            ImGui::PushID(enemyId);
+            if (UIWidgets::CVarCheckbox(enemyData.first.c_str(), enemyData.second)) {
+                CALL_EVENT(OnEnemyShuffleSelectionChanged);
+            }
+            ImGui::PopID();
+        }
+        //if (UIWidgets::CVarCheckbox("Bigbutt", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Bigbutt"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Termite", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Termite"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Grublin", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Grublin"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Yum-Yum", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.YumYum"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Red Flibbit", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.RedFlibbit"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Buzzbomb", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Buzzbomb"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Snarebear", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Snarebear"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Boom Box", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.BoomBox"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+        //if (UIWidgets::CVarCheckbox("Mum-Mum", CVAR_ENHANCEMENT("Gameplay.EnemyShuffle.Mummum"))) {
+        //    CALL_EVENT(OnEnemyShuffleSelectionChanged);
+        //}
+
+        
+        ImGui::EndDisabled();
+        ImGui::Separator();
+    });
 
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
