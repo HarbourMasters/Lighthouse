@@ -176,6 +176,29 @@ void chHoneycomb_update(Actor *this){
     }
 }
 
+// [port] Anchor: a teammate pressed a honeycomb-reveal switch (GV cactus, RBB boat house). Only the
+// switch's map flag rides the wire — the honeycomb actor itself is spawned by the presser's
+// collision handler (ba_marker.c) — so spawn our copy here too. Called by the scoped-flag appliers
+// (ScopedFlag/ScopedState) after the flag lands; safe to call repeatedly and in any map — it
+// derives everything from the current map/flags, and the spawn dedupes an already-revealed copy.
+extern void __baMarker_8028BA00(s32);
+void chHoneycomb_netRevealFromSwitch(void){
+    s32 uid = -1;
+
+    switch(gsworld_getMap()){
+        case MAP_12_GV_GOBIS_VALLEY:
+            if(mapSpecificFlags_get(0xD)) uid = HONEYCOMB_B_GV_CACTUS;
+            break;
+        case MAP_31_RBB_RUSTY_BUCKET_BAY:
+            if(mapSpecificFlags_get(0)) uid = HONEYCOMB_F_RBB_BOAT_HOUSE;
+            break;
+        default:
+            break;
+    }
+    if(uid < 0 || honeycombscore_get(uid)) return;
+    __baMarker_8028BA00(uid);
+}
+
 enum honeycomb_e func_802CA1C4(Actor *this){
     ActorLocal_EmptyHoneycomb *local = (ActorLocal_EmptyHoneycomb *)&this->local;
     return local->uid;

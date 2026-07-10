@@ -157,16 +157,42 @@ void __baMarker_8028B904(s32 arg0, s32 arg1, s32 arg2, s32 arg3){
 }
 
 
+extern ActorArray *suBaddieActorArray;
+extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
+
+// [port] Anchor: true if the switch-revealed empty honeycomb `uid` is already out. A copy spawned
+// so recently its init hasn't stamped the uid yet still reads 0 (the unset sentinel), so match that
+// too when the pending-uid global says it's ours. Needed because the reveal can now be reached
+// twice for one press: our own timed press callback plus the synced map-flag applier
+// (chHoneycomb_netRevealFromSwitch).
+static bool __baMarker_honeycombPresent(s32 uid){
+    s32 i;
+    s32 actorUid;
+    Actor *actor;
+
+    if(suBaddieActorArray == NULL) return false;
+    for(i = 0; i < suBaddieActorArray->cnt; i++){
+        actor = &suBaddieActorArray->data[i];
+        if(actor->marker == NULL || actor->marker->id != MARKER_53_EMPTY_HONEYCOMB) continue;
+        actorUid = func_802CA1C4(actor);
+        if(actorUid == uid || (actorUid == 0 && D_8037DDC0 == uid)) return true;
+    }
+    return false;
+}
+
 void __baMarker_8028B9A8(uintptr_t arg0){
     NodeProp *tmp_v0;
     s32 ideal_yaw[3];
+
+    // [port] Anchor: skip if this honeycomb is already revealed (see __baMarker_honeycombPresent).
+    if(__baMarker_honeycombPresent(arg0)) return;
 
     tmp_v0 = cubeList_findNodePropByActorIdAndPosition_s32(0x1F6, NULL);
     nodeprop_getPosition_s32(tmp_v0, ideal_yaw);
     func_802CA1CC(arg0);
     actor_spawnWithYaw_s32(ACTOR_47_EMPTY_HONEYCOMB, &ideal_yaw, 0);
     coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
-    
+
 }
 
 void __baMarker_8028BA00(s32 arg0){

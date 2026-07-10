@@ -1235,11 +1235,13 @@ int func_802D60C4(void){
 }
 
 void func_802D6114(void){
-    s32 sp24; 
+    s32 sp24;
     s32 sp20;
+    s32 camScript;
 
     sp24 =  D_80367694;\
     sp20 =  D_80367698;
+    camScript = D_80367688;
     if(D_8036769C)
         fileProgressFlag_set(D_8036769C, true);
     func_802D6344();
@@ -1256,6 +1258,16 @@ void func_802D6114(void){
     else{//L802D61DC
         func_80347A14(1);
         gcpausemenu_80314AC8(1);
+        // [port] Anchor: most entrance-open camera scripts (0x31-0x38) end on the -4 terminator with
+        // no timed_exitStaticCamera of their own — vanilla relies on the warp back to the podium map
+        // (above) to reset the camera, since the completer is never already standing in the door's
+        // map. A teammate's completion CAN play this cutscene for a player already there, landing in
+        // this no-warp branch with the camera left parked on the door — so exit it here. The MM
+        // (0x30) and Door of Grunty (0x40) scripts end with -6 and schedule their own exit for the
+        // vanilla same-map completer; leave their timing alone.
+        if (camScript != 0x30 && camScript != 0x40) {
+            ncStaticCamera_exit();
+        }
     }
 }
 

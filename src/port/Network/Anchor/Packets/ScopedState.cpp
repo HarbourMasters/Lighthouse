@@ -6,6 +6,9 @@
 
 extern "C" {
 #include "functions.h"
+// honeycomb.c: spawn the switch-revealed honeycomb (GV cactus / RBB boat house) if the just-merged
+// map flags say a teammate pressed the switch — the actor itself never rides the wire.
+void chHoneycomb_netRevealFromSwitch(void);
 }
 
 /**
@@ -91,5 +94,6 @@ void Anchor::HandlePacket_ScopedState(nlohmann::json& payload) {
     if (payload.contains("mapFlags") && (s32)gsworld_getMap() == payload.at("map").get<s32>()) {
         u32 mapFlags = payload["mapFlags"].get<u32>();
         mapSpecificFlags_setAll(mapSpecificFlags_getAll() | mapFlags);
+        chHoneycomb_netRevealFromSwitch();
     }
 }

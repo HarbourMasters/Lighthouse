@@ -120,20 +120,35 @@ void chAncientOne_update(Actor *this){
         }
     }
     if(!this->initialized){
-        if(D_80390C28[this->actorTypeSpecificField - 1])
+        if(D_80390C28[this->actorTypeSpecificField - 1] == NULL){
+            LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
+            this->position_y -= 1100.0f;
+            D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
+            if(this->actorTypeSpecificField != 1){
+                this->marker->propPtr->isNotFeatherEggOrNote = false;
+            }
+            this->marker->propPtr->unk8_3 = true;
+            actor_collisionOff(this);
+            func_80386620(this);
             return;
-
-        LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
-        this->position_y -= 1100.0f;
-        D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
-        if(this->actorTypeSpecificField != 1){
-            this->marker->propPtr->isNotFeatherEggOrNote = false;
         }
-        this->marker->propPtr->unk8_3 = true;
-        actor_collisionOff(this);
-        func_80386620(this);
+        // [port] Anchor: a ring normally idles here until its draw-init has run (chAncientOne_draw
+        // fills the ring-pass plane from the rendered model, which needs the ring on-screen). But
+        // team progress (the synced map flags 7-11) can clear this ring or make it the next target
+        // while it has never been rendered — it was deactivated underground — which froze the
+        // catch-up: the force-advance below never ran, so the cleared ring never sank and the next
+        // ring never rose. Once the team has any progress, let an active ring run its state machine
+        // early: sinking needs no draw-init data, rising only needs the rest height captured above,
+        // and the ring-pass check stays inert until draw-init runs (its radius is still 0).
+        {
+            s32 fc = 0, fi;
+            for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
+            if(fc == 0){
+                return;
+            }
+        }
     }
-    else{//L803869B4
+    {//L803869B4
         // [port] Anchor live: a teammate completed the Ancient Ones (JIGGY_46 spawned, which syncs
         // via the JIGGY_SPAWN packet). Despawn live so the puzzle clears for us too.
         if(jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
