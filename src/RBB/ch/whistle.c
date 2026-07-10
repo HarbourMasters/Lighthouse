@@ -26,7 +26,7 @@ ActorLocal_ChRBBWhistleInfo chRBBWhistleInfo[] = {
     { ACTOR_1C2_WHISTLE_1, {-3720.0f, 800.0f, -350.0f}, 0x1, 0x136, 0x3FF},
     { ACTOR_1C3_WHISTLE_2, {-3720.0f, 800.0f,    0.0f}, 0x2, 0x135, 0x3FE},
     { ACTOR_1C4_WHISTLE_3, {-3720.0f, 800.0f,  350.0f}, 0x3, 0x134, 0x3FD},
-    NULL
+    { 0 } // [port] decomp uses NULL; actorId is s16 and clang errors on -Wint-conversion
 };
 
 ActorInfo chRBBWhistle1 = {

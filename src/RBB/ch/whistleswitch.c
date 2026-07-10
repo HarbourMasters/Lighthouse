@@ -30,7 +30,7 @@ Struct_ChWhistleSwitchInfo chWhistleSwitchTable[4] = {
     {ACTOR_1BF_WHISTLE_SWITCH_1, {-3950.0f, 690.0f, -350.0f}, RBB_MAIN_SPECIFIC_FLAG_1_WHISTLE_SWITCH_1},
     {ACTOR_1C0_WHISTLE_SWITCH_2, {-3950.0f, 690.0f, 0.0f},    RBB_MAIN_SPECIFIC_FLAG_2_WHISTLE_SWITCH_2},
     {ACTOR_1C1_WHISTLE_SWITCH_3, {-3950.0f, 690.0f, 350.0f},  RBB_MAIN_SPECIFIC_FLAG_3_WHISTLE_SWITCH_3},
-    NULL
+    { 0 } // [port] decomp uses NULL; actorId is s16 and clang errors on -Wint-conversion
 };
 
 extern ActorInfo chRBBWhistleSwitch1 = {
