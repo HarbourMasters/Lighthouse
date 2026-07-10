@@ -127,6 +127,9 @@ void LighthouseMenu::AddMenuRando() {
 
     AddWidget(path, "Advanced Shuffles", WIDGET_SEPARATOR_TEXT);
 
+    AddWidget(path, "Shuffle Beehives", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_BEEHIVE_HONEYCOMBS].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Contents of Beehives into the Pool."));
     AddWidget(path, "Shuffle Blue Eggs", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_BLUE_EGGS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Blue Eggs into the Pool."));

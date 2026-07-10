@@ -59,6 +59,8 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
         spawnPosition[1] = (int32_t)position[1];
         spawnPosition[2] = (int32_t)position[2];
 
+        SPDLOG_INFO("Bundle ID: {} :: {}, {}, {}", (int32_t)bundleId, spawnPosition[0], spawnPosition[1], spawnPosition[2]);
+
         if (bundleId == BUNDLE_16__HONEYCOMB &&
             (currentMap == MAP_43_CCW_SPRING || currentMap == MAP_B_CC_CLANKERS_CAVERN)) {
             if (CheckEnemyOverlapPosition(spawnPosition)) {
@@ -106,6 +108,15 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                     case BUNDLE_15__JIGGY:
                         randoCheckId = RC_MM_JIGGY_CONGA;
                         break;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (spawnPosition[1] < 400) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_MM_HONEYCOMB_BEEHIVE_BY_BIG_BUTT_1 + bundleCount);
+                        } else {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_MM_HONEYCOMB_BEEHIVE_BY_THE_HUTS_1 + bundleCount);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -120,6 +131,21 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         break;
                     default:
                         break;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (position[1] < 900 && position[1] > 890) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_TTC_HONEYCOMB_BEEHIVE_NEAR_BLUBBERS_SHIP_1 + bundleCount);
+                        } else if (position[1] < 1770 && position[1] > 1765) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_TTC_HONEYCOMB_BEEHIVE_NEAR_THE_BACK_STAIRS_1 + bundleCount);
+                        } else if (position[1] < 1910 && position[1] > 1905) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_TTC_HONEYCOMB_BEEHIVE_IN_THE_CLIFFSIDE_POOL_1 + bundleCount);
+                        } else if (position[1] < 875 && position[1] > 870) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_TTC_HONEYCOMB_BEEHIVE_ON_THE_BEACH_1 + bundleCount);
+                        }
+                        break;
                 }
                 break;
             case LEVEL_3_CLANKERS_CAVERN:
@@ -132,6 +158,18 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                             default:
                                 randoCheckId = RC_CC_JIGGY_RINGS;
                                 break;
+                        }
+                        break;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (position[1] < 1405 && position[1] > 1395) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_CC_HONEYCOMB_BEEHIVE_INSIDE_CLANKER_1 + bundleCount);
+                        } else if (position[1] < 5495 && position[1] > 5490) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_CC_HONEYCOMB_BEEHIVE_NEAR_THE_ENTRANCE_1 + bundleCount);
+                        } else if (position[1] < 3820 && position[1] > 3810) {
+                            randoCheckId = 
+                                (RandoCheckId)((int32_t)RC_CC_HONEYCOMB_BEEHIVE_NEAR_THE_YELLOW_GRATES_1 + bundleCount);
                         }
                         break;
                     default:
@@ -184,6 +222,21 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                                 break;
                         }
                         break;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (position[1] < 1260 && position[1] > 1250) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_BGS_HONEYCOMB_BEEHIVE_ELEVATED_WALKWAY_1 + bundleCount);
+                        } else if (position[1] < 1160 && position[1] > 1150) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_BGS_HONEYCOMB_BEEHIVE_NEAR_MAZE_ENTRANCE_1 + bundleCount);
+                        } else if (position[0] < 4390 && position[0] > 4385) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_BGS_HONEYCOMB_BEEHIVE_NEAR_TANKTUP_1 + bundleCount);
+                        } else if (position[0] < 2565 && position[0] > 2560) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_BGS_HONEYCOMB_BEEHIVE_NEAR_WARP_PAD_1 + bundleCount);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -202,6 +255,21 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         break;
                     case BUNDLE_7__JIGGY:
                         randoCheckId = RC_FP_JIGGY_BOGGY_RACE_2;
+                        break;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (position[1] < 820 && position[1] > 810) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_FP_HONEYCOMB_BEEHIVE_NEAR_RACE_START_1 + bundleCount);
+                        } else if (position[1] < 590 && position[1] > 580) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_FP_HONEYCOMB_BEEHIVE_PRESENT_STACK_1 + bundleCount);
+                        } else if (position[1] < 1755 && position[1] > 1745) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_FP_HONEYCOMB_BEEHIVE_SCARF_END_1 + bundleCount);
+                        } else if (position[1] < 5760 && position[1] > 5750) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_FP_HONEYCOMB_BEEHIVE_SCARF_START_1 + bundleCount);
+                        }
                         break;
                 }
                 break;
@@ -243,6 +311,51 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                                                                                  spawnPosition[2]);
                         }
                         break;
+                    case BUNDLE_18__HONEYCOMB:
+                        switch (currentMap) { 
+                            case MAP_69_GL_MM_LOBBY:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_NEAR_50_NOTE_DOOR_1 + bundleCount);
+                                break;
+                            case MAP_6D_GL_TTC_LOBBY:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_NEAR_TTC_ENTRANCE_1 + bundleCount);
+                                break;
+                            case MAP_6F_GL_FP_LOBBY:
+                                if (position[1] < 295 && position[1] > 285) {
+                                    randoCheckId = 
+                                        (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_BIG_GRUNTY_STATUE_LEFT_1 + bundleCount);
+                                } else if (position[1] < 255 && position[1] > 245) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_BIG_GRUNTY_STATUE_RIGHT_1 + bundleCount);
+                                }
+                                break;
+                            case MAP_70_GL_CC_LOBBY:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_NEAR_CC_ENTRANCE_1 + bundleCount);
+                                break;
+                            case MAP_71_GL_STATUE_ROOM:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_NEAR_FIRST_GRUNTY_STATUE_1 + bundleCount);
+                                break;
+                            case MAP_72_GL_BGS_LOBBY:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_BEHIND_BGS_ENTRANCE_1 + bundleCount);
+                                break; 
+                            case MAP_75_GL_MMM_LOBBY:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_BEHIND_MMM_ENTRANCE_1 + bundleCount);
+                                break;
+                            case MAP_78_GL_RBB_AND_MMM_PUZZLE:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_NEAR_RBB_PUZZLE_1 + bundleCount);
+                                break;
+                            case MAP_79_GL_CCW_LOBBY:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_GL_HONEYCOMB_BEEHIVE_NEAR_CCW_PUZZLE_SWITCH_1 + bundleCount);
+                                break;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -255,6 +368,99 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         break;
                     case BUNDLE_D__EMPTY_HONEYCOMB:
                         randoCheckId = RC_GV_EMPTY_HONEYCOMB_GOBI;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (position[1] < 2990 && position[1] > 2980) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_GV_HONEYCOMB_BEEHIVE_BEHIND_WATER_PYRAMID_1 + bundleCount);
+                        } else if (position[1] < 1990 && position[1] > 1980) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_GV_HONEYCOMB_BEEHIVE_NEAR_PUZZLE_PYRAMID_1 + bundleCount);
+                        } else if (position[1] < 610 && position[1] > 600) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_GV_HONEYCOMB_BEEHIVE_NEAR_WARP_PAD_1 + bundleCount);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case LEVEL_8_CLICK_CLOCK_WOOD:
+                switch (bundleId) {
+                    case BUNDLE_18__HONEYCOMB:
+                        switch (currentMap) { 
+                            case MAP_40_CCW_HUB:
+                                if (position[1] < 150 && position[1] > 140) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_ENTRANCE_LEFT_OF_SUMMER_DOOR_1 +
+                                                       bundleCount);
+                                } else if (position[1] < 160 && position[1] > 150) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_ENTRANCE_RIGHT_OF_SUMMER_DOOR_1 +
+                                                       bundleCount);
+                                }
+                                break;
+                            case MAP_43_CCW_SPRING:
+                                if (position[0] < 5 && position[0] > -5) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_SPRING_BY_THE_BIG_FLOWER_1 +
+                                                       bundleCount);
+                                } else if (position[0] < -1545 && position[0] > -1555) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_SPRING_GRASS_NEAR_THE_ENTRANCE_1 +
+                                                       bundleCount);
+                                } else if (position[0] < 4345 && position[0] > 4340) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_SPRING_UNDER_THE_TREEHOUSE_1 +
+                                                       bundleCount);
+                                }
+                                break;
+                            case MAP_44_CCW_SUMMER:
+                                if (position[1] < -440 && position[1] > -450) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_SUMMER_DRIED_UP_LAKE_1 +
+                                                       bundleCount);
+                                } else if (position[1] < 160 && position[1] > 150) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_SUMMER_GRASS_NEAR_THE_ENTRANCE_1 +
+                                                       bundleCount);
+                                } else if (position[1] < 4580 && position[1] > 4570) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_SUMMER_OUTSIDE_NABNUTS_1 +
+                                                       bundleCount);
+                                }
+                                break;
+                            case MAP_45_CCW_AUTUMN:
+                                if (position[1] < 1435 && position[1] > 1425) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_AUTUMN_ABOVE_THE_LAKE_1 +
+                                                       bundleCount);
+                                } else if (position[1] < 160 && position[1] > 150) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_AUTUMN_GRASS_NEAR_THE_ENTRANCE_1 +
+                                                       bundleCount);
+                                } else if (position[1] < 4405 && position[1] > 4395) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_AUTUMN_IN_THE_TREEHOUSE_1 +
+                                                       bundleCount);
+                                }
+                                break;
+                            case MAP_46_CCW_WINTER:
+                                if (position[1] < 1060 && position[1] > 1050) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_WINTER_AROUND_THE_TREE_BASE_1 +
+                                                       bundleCount);
+                                } else if (position[1] < 4405 && position[1] > 4395) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_WINTER_OUTSIDE_THE_TREEHOUSE_1 +
+                                                       bundleCount);
+                                }
+                                break;
+                            case MAP_4D_CCW_WINTER_MUMBOS_SKULL:
+                                randoCheckId =
+                                    (RandoCheckId)((int32_t)RC_CCW_HONEYCOMB_BEEHIVE_WINTER_INSIDE_MUMBOS_SKULL_1 +
+                                                   bundleCount);
+                                break;
+                        }
                     default:
                         break;
                 }
@@ -265,7 +471,52 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         randoCheckId = RC_RBB_EXTRA_LIFE_BOOM_BOXES;
                         applyCustomPhysics = true;
                         break;
+                    case BUNDLE_18__HONEYCOMB:
+                        if (position[0] == 0 && position[1] == 156 && position[2] == 4800) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_RBB_HONEYCOMB_BEEHIVE_ENGINE_ROOM_ENTRANCE_1 + bundleCount);
+                        } else if (position[0] == 0 && position[1] == 156 && position[2] == -178) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_RBB_HONEYCOMB_BEEHIVE_FIRST_SHIPPING_CONTAINER_1 + bundleCount);
+                        } else if (position[0] == 7850 && position[1] == -1019 && position[2] == 3550) {
+                            randoCheckId =
+                                (RandoCheckId)((int32_t)RC_RBB_HONEYCOMB_BEEHIVE_GRATE_ABOVE_PINK_JINJO_1 + bundleCount);
+                        }
+                        break;
+                    default:
+                        break;
                 }
+            case LEVEL_A_MAD_MONSTER_MANSION:
+                switch (bundleId) { 
+                    case BUNDLE_18__HONEYCOMB:
+                        switch (currentMap) { 
+                            case MAP_1C_MMM_CHURCH:
+                                if (position[0] < 1880 && position[0] > 1870) {
+                                    randoCheckId = 
+                                        (RandoCheckId)((int32_t)RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_RIGHT_1 + bundleCount);
+                                } else if (position[0] < -1870 && position[0] > -1880) {
+                                    randoCheckId = 
+                                        (RandoCheckId)((int32_t)RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_LEFT_1 + bundleCount);
+                                }
+                                break;
+                            case MAP_1B_MMM_MAD_MONSTER_MANSION:
+                                if (position[1] < 160 && position[1] > 150) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_MAZE_1 + bundleCount);
+                                } else if (position[1] < 335 && position[1] > 325) {
+                                    randoCheckId =
+                                        (RandoCheckId)((int32_t)RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_TALL_GRASS_1 +
+                                                       bundleCount);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
             case LEVEL_B_SPIRAL_MOUNTAIN:
                 switch (bundleId) {
                     case BUNDLE_1F_SM_EMPTY_HONEYCOMB:
@@ -274,6 +525,8 @@ void Rando::ObjectBehavior::InitBundleBehavior() {
                         } else {
                             randoCheckId = RC_SM_EMPTY_HONEYCOMB_QUARRIES;
                         }
+                        break;
+                    case BUNDLE_18__HONEYCOMB:
                         break;
                     default:
                         break;

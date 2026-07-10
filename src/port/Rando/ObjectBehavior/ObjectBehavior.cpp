@@ -32,6 +32,7 @@ std::vector<int32_t> actorSpawnWhitelist = {
     ACTOR_46_JIGGY,
     ACTOR_47_EMPTY_HONEYCOMB,
     ACTOR_49_EXTRA_LIFE,
+    ACTOR_50_HONEYCOMB,
     ACTOR_51_MUSIC_NOTE,
     ACTOR_52_BLUE_EGG,
     ACTOR_5E_JINJO_YELLOW,
@@ -49,6 +50,7 @@ std::map<actor_e, UIWidgets::Colors> randoItemColors = {
     { ACTOR_52_BLUE_EGG,        UIWidgets::Colors::Cyan },
     { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow },
     { ACTOR_49_EXTRA_LIFE,      UIWidgets::Colors::Yellow },
+    { ACTOR_50_HONEYCOMB,       UIWidgets::Colors::Yellow },
     { ACTOR_46_JIGGY,           UIWidgets::Colors::Yellow },
     { ACTOR_60_JINJO_BLUE,      UIWidgets::Colors::SkyBlue },
     { ACTOR_62_JINJO_GREEN,     UIWidgets::Colors::Green },
@@ -258,6 +260,10 @@ void Rando::ObjectBehavior::Init() {
         CustomObject::FlushRandoSpawnQueue();
         DespawnCollectedBundles();
 
+        if (ev->actorId == ACTOR_12_BEEHIVE) {
+            SPDLOG_INFO("Actor ID: {} {}, {}, {}", ev->actorId, ev->posX, ev->posY, ev->posZ);
+        }
+
         if (currentMap == MAP_12_GV_GOBIS_VALLEY) {
             if (ev->actorId == ACTOR_118_GRABBA) {
                 event->Cancelled = RANDO_SAVE_CHECKS[RC_GV_JIGGY_GRABBA].obtained;
@@ -375,6 +381,11 @@ void Rando::ObjectBehavior::Init() {
                     break;
                 case MARKER_53_EMPTY_HONEYCOMB:
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_EMPTY_HONEYCOMBS].optionValue == RO_GENERIC_ON) {
+                        randoItemId = randoSaveCheck.randoItemId;
+                    }
+                    break;
+                case MARKER_55_HONEYCOMB:
+                    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BEEHIVE_HONEYCOMBS].optionValue == RO_GENERIC_ON) {
                         randoItemId = randoSaveCheck.randoItemId;
                     }
                     break;
