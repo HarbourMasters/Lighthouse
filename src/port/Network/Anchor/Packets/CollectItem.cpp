@@ -47,6 +47,14 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             if (!jiggyscore_isCollected((enum jiggy_e)id)) {
                 jiggyscore_setCollected(id, true);
                 func_8034798C(); // recompute the current-level jiggy HUD count
+                // Mirror the local pickup's HUD: pop the level tally when the jiggy was
+                // collected in the level we're standing in, the file total otherwise. The
+                // total itself arrives via ITEM_COUNT, which applies increases silently.
+                if ((s32)map_getLevel((enum map_e)map) == (s32)level_get()) {
+                    code_73640_printItemCount(ITEM_E_JIGGY);
+                } else {
+                    code_73640_printItemCount(ITEM_26_JIGGY_TOTAL);
+                }
             }
             if (sameMap) {
                 ActorMarker* m = func_8032B16C((enum jiggy_e)id);

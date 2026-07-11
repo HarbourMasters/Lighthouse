@@ -1,6 +1,7 @@
 #include "Anchor.h"
 #include "Authority.h"
 #include "VileSync.h"
+#include "FightSync.h"
 #include <libultraship/libultraship.h>
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
@@ -45,6 +46,31 @@ static void Anchor_UpdateVileSync() {
     if (++sSnapshotTimer >= 60) {
         sSnapshotTimer = 0;
         Anchor::GetInstance()->SendPacket_VileGameState();
+    }
+}
+
+// Final-fight per-frame work: the first client in the battlements with the boss spawned
+// claims the fight; the live authority streams Grunty's transform + state. The stream
+// stops once the jinjonator-release script takes over (netGather returns false) — from
+// there every client plays the fixed ending locally.
+static void Anchor_UpdateFightSync() {
+    auto* anchor = Anchor::GetInstance();
+    if (!anchor->isConnected || !anchor->IsSaveLoaded() || gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
+        return;
+    }
+
+    f32 pos[3];
+    f32 yaw;
+    s32 state, phase, mirror;
+    if (!FightSync_GatherUpdate(pos, &yaw, &state, &phase, &mirror)) {
+        return; // no boss to run (not spawned yet, despawned, or ending script active)
+    }
+
+    if (!NetAuthority_IsClaimed(NET_ACTIVITY_FINAL_BOSS)) {
+        NetAuthority_Claim(NET_ACTIVITY_FINAL_BOSS);
+    }
+    if (NetAuthority_IsClaimed(NET_ACTIVITY_FINAL_BOSS) && NetAuthority_IsSelf(NET_ACTIVITY_FINAL_BOSS)) {
+        anchor->SendPacket_FightUpdate(pos, yaw, state, phase, mirror);
     }
 }
 
@@ -191,6 +217,7 @@ void Anchor::RegisterHooks() {
         anchor->RefreshClientActors();
         anchor->UpdateDummies();
         Anchor_UpdateVileSync();
+        Anchor_UpdateFightSync();
 
         // Pull team state once per loaded-save session. OnMapLoad is too early — gsworld
         // flips the map after the event, so IsSaveLoaded() is still false there.

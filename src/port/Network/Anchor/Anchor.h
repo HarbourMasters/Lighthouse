@@ -116,6 +116,9 @@ private:
     void HandlePacket_CollectItem(nlohmann::json& payload);
     void HandlePacket_BreakObject(nlohmann::json& payload);
     void HandlePacket_EggToll(nlohmann::json& payload);
+    void HandlePacket_FightEvent(nlohmann::json& payload);
+    void HandlePacket_FightState(nlohmann::json& payload);
+    void HandlePacket_FightUpdate(nlohmann::json& payload);
     void HandlePacket_PuzzleStep(nlohmann::json& payload);
     void HandlePacket_HutSmash(nlohmann::json& payload);
     void HandlePacket_JiggyCrane(nlohmann::json& payload);
@@ -165,6 +168,9 @@ public:
     inline static const std::string COLLECT_ITEM = "COLLECT_ITEM";
     inline static const std::string BREAK_OBJECT = "BREAK_OBJECT";
     inline static const std::string EGG_TOLL = "EGG_TOLL";
+    inline static const std::string FIGHT_EVENT = "FIGHT_EVENT";
+    inline static const std::string FIGHT_STATE = "FIGHT_STATE";
+    inline static const std::string FIGHT_UPDATE = "FIGHT_UPDATE";
     inline static const std::string PUZZLE_STEP = "PUZZLE_STEP";
     inline static const std::string HUT_SMASH = "HUT_SMASH";
     inline static const std::string JIGGY_CRANE = "JIGGY_CRANE";
@@ -231,6 +237,9 @@ public:
     void SendPacket_CollectItem(u8 kind, s32 id);
     void SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, bool replay = true);
     void SendPacket_EggToll(s16 secondaryId, s32 stage, s32 map);
+    void SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3], const f32 v2[3]);
+    void SendPacket_FightState(u32 targetClientId);
+    void SendPacket_FightUpdate(const f32 pos[3], f32 yaw, s32 state, s32 phase, s32 mirror);
     void SendPacket_PuzzleStep(s32 puzzleId, s32 bits, s32 map);
     void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
     void SendPacket_JiggyCrane(s32 stage);

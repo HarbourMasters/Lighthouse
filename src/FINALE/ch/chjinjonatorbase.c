@@ -4,6 +4,8 @@
 #include "variables.h"
 #include "../fight.h"
 
+#include "port/Network/Anchor/FightSync.h"
+
 typedef struct {
     u8 egg_hits[4];
 } ActorLocal_BossJinjonatorBase;
@@ -42,18 +44,20 @@ void chjinjonatorbase_func_8038E0D4(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f
     }
 }
 
-void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
-    Actor *actor_jinjonatorbase = marker_getActor(this);
+// [port] Anchor: the vanilla egg-count body, shared by local hits and networked eggs (the pad
+// index normally comes from the collision sub-part marker, which a network replay doesn't have).
+static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
     ActorLocal_BossJinjonatorBase *local = (ActorLocal_BossJinjonatorBase *) &actor_jinjonatorbase->local;
-    int indx = this->unk40_31 - 1;
     s32 remaining_hits;
-    f32 pad;    
 
     if (actor_jinjonatorbase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
         if (local->egg_hits[indx]) {
             local->egg_hits[indx]--;
             comusic_playTrack(COMUSIC_2B_DING_B);
-            
+            // [port] Anchor: replicate the accepted egg so followers' pads (and, on the last
+            // one, the jinjonator release itself) trigger locally on every client.
+            FightSync_ReplicateEgg(BOSSJINJO_5_JINJONATOR, indx);
+
             if (local->egg_hits[indx] <= 0) {
                 chjinjonatorbase_func_8038E0D4(actor_jinjonatorbase, indx + 0x19a, -100.0f, 0.0f, 1.2f);
                 func_80324D54(1.2f, SFX_90_SWITCH_PRESS, 1.0f, 32000, actor_jinjonatorbase->position, 1000.0f, 2000.0f);
@@ -68,6 +72,51 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
             chstonejinjo_breakOpen(actor_jinjonatorbase->partnerActor);
         }
     }
+}
+
+void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
+    Actor *actor_jinjonatorbase = marker_getActor(this);
+    int indx = this->unk40_31 - 1;
+
+    // [port] Anchor: a follower forwards its egg (with the pad it hit) to the fight authority;
+    // the accepted egg comes back as an EGG_FED event applied through __chjinjonatorbase_applyEgg
+    // on every client, so the pads — and the final release — stay identical for all.
+    if (other != NULL && FightSync_ForwardEgg(BOSSJINJO_5_JINJONATOR, indx)) {
+        return;
+    }
+
+    __chjinjonatorbase_applyEgg(actor_jinjonatorbase, indx);
+}
+
+// [port] Anchor: remaining-egg count per pedestal pad, for the latecomer world snapshot.
+// Returns false (pads filled with the untouched default) when the pedestal isn't up.
+bool chjinjonatorbase_netGetPads(u8 pads[4]) {
+    Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
+    ActorLocal_BossJinjonatorBase *local;
+    s32 i;
+
+    if (actor_jinjonatorbase == NULL || actor_jinjonatorbase->despawn_flag) {
+        for (i = 0; i < 4; i++) {
+            pads[i] = 5;
+        }
+        return false;
+    }
+    local = (ActorLocal_BossJinjonatorBase *) &actor_jinjonatorbase->local;
+    for (i = 0; i < 4; i++) {
+        pads[i] = local->egg_hits[i];
+    }
+    return true;
+}
+
+// [port] Anchor: apply a networked egg (a follower's forwarded egg on the authority, or the
+// authority's replicated EGG_FED on a follower) to the given jinjonator pedestal pad.
+void chjinjonatorbase_netApplyEgg(s32 pad_index) {
+    Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
+
+    if (actor_jinjonatorbase == NULL || pad_index < 0 || pad_index >= 4) {
+        return;
+    }
+    __chjinjonatorbase_applyEgg(actor_jinjonatorbase, pad_index);
 }
 
 

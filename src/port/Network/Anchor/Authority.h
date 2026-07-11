@@ -25,6 +25,7 @@
 typedef enum NetworkActivityId {
     NET_ACTIVITY_NONE = -1,
     NET_ACTIVITY_VILE_MINIGAME,
+    NET_ACTIVITY_FINAL_BOSS,
     NET_ACTIVITY_COUNT
 } NetworkActivityId;
 

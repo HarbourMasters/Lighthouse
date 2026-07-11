@@ -243,6 +243,12 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_VileHoleState(payload);
             else if (packetType == VILE_UPDATE)
                 HandlePacket_VileUpdate(payload);
+            else if (packetType == FIGHT_UPDATE)
+                HandlePacket_FightUpdate(payload);
+            else if (packetType == FIGHT_EVENT)
+                HandlePacket_FightEvent(payload);
+            else if (packetType == FIGHT_STATE)
+                HandlePacket_FightState(payload);
         } catch (const std::exception& e) {
             SPDLOG_ERROR("[Anchor] Exception while processing incoming packet {}", e.what());
             SPDLOG_ERROR("[Anchor] Packet: {}", payload.dump());
