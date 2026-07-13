@@ -23,6 +23,7 @@
 #include "port/Rando/CheckTracker/CheckTracker.h"
 
 #include "Notification.h"
+#include "port/Network/Anchor/Anchor.h"
 #include "port/Enhancements/Backports/EggAim.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
@@ -72,6 +73,7 @@ std::shared_ptr<EggAimCrosshairWindow> mEggAimCrosshair;
 std::shared_ptr<LighthouseModalWindow> mModalWindow;
 std::shared_ptr<EventDebuggerWindow> mEventDebuggerWindow;
 std::shared_ptr<OcclusionDebugWindow> mOcclusionDebugWindow;
+std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mLighthouseMenu->GetMenuThemeColor();
@@ -202,6 +204,9 @@ void SetupGuiElements() {
 
     mOcclusionDebugWindow = std::make_shared<OcclusionDebugWindow>(CVAR_WINDOW("OcclusionDebug"), "Occlusion Debugger");
     gui->AddGuiWindow(mOcclusionDebugWindow);
+
+    mAnchorRoomWindow = std::make_shared<AnchorRoomWindow>(CVAR_WINDOW("AnchorRoom"), "Anchor Room");
+    gui->AddGuiWindow(mAnchorRoomWindow);
 }
 
 void Destroy() {
@@ -237,6 +242,7 @@ void Destroy() {
     mEggAimCrosshair = nullptr;
     mEventDebuggerWindow = nullptr;
     mOcclusionDebugWindow = nullptr;
+    mAnchorRoomWindow = nullptr;
 }
 
 void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,

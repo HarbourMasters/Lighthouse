@@ -137,7 +137,7 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::SameLine();
 
-    // UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), SohGui::mAnchorRoomWindow);
+    UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), LighthouseGui::mAnchorRoomWindow);
 
     ImGui::Spacing();
 
@@ -156,9 +156,9 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     ImGui::Spacing();
 
-    /*if (!SohGui::mAnchorRoomWindow->IsVisible()) {
-        SohGui::mAnchorRoomWindow->DrawElement();
-    }*/
+    if (!LighthouseGui::mAnchorRoomWindow->IsVisible()) {
+        LighthouseGui::mAnchorRoomWindow->DrawElement();
+    }
 }
 
 void AnchorAdminMenu(WidgetInfo& info) {
