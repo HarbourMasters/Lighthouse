@@ -964,3 +964,12 @@ void func_8028FCE8(void) {
     D_8037BFCC = yaw_get();
     D_8037BFD0 = D_8037BFBC;
 }
+
+// [port] Arm the exit-0x63 spawn path (see func_8028E4B0) with an explicit position/yaw,
+// so a map transition can open somewhere other than the local player's own spot.
+// exit_id is what gsworld_getExit-dependent logic should see as the effective entry.
+void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id) {
+    ml_vec3f_copy(D_8037BFC0, position);
+    D_8037BFCC = yaw;
+    D_8037BFD0 = (f32) exit_id;
+}

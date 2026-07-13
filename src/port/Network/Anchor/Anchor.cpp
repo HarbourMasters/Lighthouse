@@ -189,6 +189,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_UpdateTeamState(payload);
             else if (packetType == REQUEST_TEAM_STATE)
                 HandlePacket_RequestTeamState(payload);
+            else if (packetType == REQUEST_TELEPORT)
+                HandlePacket_RequestTeleport(payload);
             else if (packetType == SERVER_MESSAGE)
                 HandlePacket_ServerMessage(payload);
             else if (packetType == SET_CHECK_STATUS)
@@ -221,6 +223,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_PedestalOwner(payload);
             else if (packetType == JIGGY_SPAWN)
                 HandlePacket_SpawnJiggy(payload);
+            else if (packetType == TELEPORT_TO)
+                HandlePacket_TeleportTo(payload);
             else if (packetType == UNSET_FLAG)
                 HandlePacket_UnsetFlag(payload);
             else if (packetType == MAP_LOAD)

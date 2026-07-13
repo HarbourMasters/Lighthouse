@@ -1614,6 +1614,8 @@ void playerPosition_getOffset(f32 arg0[3]);
 void playerPosition_setOffset(f32 arg0[3]);
 void playerPosition_applyOffset(void);
 void player_setPosition(f32 arg0[3]);
+// [port] core2/ba/ba_lookdir.c — arm the exit-0x63 spawn path with an explicit destination.
+void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id);
 
 // --- core2/ba/ba_recoil.c ---
 enum asset_e func_80294974(void);

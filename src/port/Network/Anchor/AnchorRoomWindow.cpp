@@ -94,7 +94,7 @@ void AnchorRoomWindow::DrawElement() {
                 ImGui::SameLine();
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
                 if (ImGui::Button(ICON_FA_LOCATION_ARROW, ImVec2(20.0f, 20.0f))) {
-                    Anchor::GetInstance()->TeleportToClient(client.clientId);
+                    Anchor::GetInstance()->SendPacket_RequestTeleport(client.clientId);
                 }
                 ImGui::PopStyleVar();
             }

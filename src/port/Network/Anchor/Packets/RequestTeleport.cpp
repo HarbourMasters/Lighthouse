@@ -1,25 +1,33 @@
 #include "port/Network/Anchor/Anchor.h"
+#include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
-void func_8031D04C(enum map_e arg0, s32 exit_id);
-}
-
 /**
- * Teleport to player
+ * REQUEST_TELEPORT
  *
- * Every client's current map and entry exit already ride MAP_LOAD / ALL_CLIENT_STATE, so no
- * packet round trip is needed: dispatch a warp to the target's map and entry exit through the
- * game's warp system, the same way the dev tools warp selector does.
+ * Asks another client for their live location. They respond with a TELEPORT_TO packet
+ * carrying their current map, position, and yaw, which we use to warp directly to them.
  */
 
-void Anchor::TeleportToClient(uint32_t clientId) {
+void Anchor::SendPacket_RequestTeleport(uint32_t clientId) {
     if (!CanTeleportTo(clientId)) {
         return;
     }
 
-    AnchorClient& client = clients[clientId];
-    func_8031D04C(client.map, client.exit);
+    nlohmann::json payload;
+    payload["type"] = REQUEST_TELEPORT;
+    payload["targetClientId"] = clientId;
+
+    SendJsonToRemote(payload);
+}
+
+void Anchor::HandlePacket_RequestTeleport(nlohmann::json& payload) {
+    if (!IsSaveLoaded()) {
+        return;
+    }
+
+    uint32_t clientId = payload.at("clientId").get<uint32_t>();
+    SendPacket_TeleportTo(clientId);
 }
 
 // Reusable function to check if teleporting to a client is allowed

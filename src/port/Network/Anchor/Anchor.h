@@ -104,6 +104,7 @@ private:
     void HandlePacket_PlayerTransformChange(nlohmann::json& payload);
     void HandlePacket_PlayerUpdate(nlohmann::json& payload);
     void HandlePacket_RequestTeamState(nlohmann::json& payload);
+    void HandlePacket_RequestTeleport(nlohmann::json& payload);
     void HandlePacket_ServerMessage(nlohmann::json& payload);
     void HandlePacket_SetCheckStatus(nlohmann::json& payload);
     void HandlePacket_SetFlag(nlohmann::json& payload);
@@ -123,6 +124,7 @@ private:
     void HandlePacket_JiggyCrane(nlohmann::json& payload);
     void HandlePacket_PedestalOwner(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
+    void HandlePacket_TeleportTo(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
     void HandlePacket_UpdateClientState(nlohmann::json& payload);
     void HandlePacket_UpdateRoomState(nlohmann::json& payload);
@@ -154,6 +156,7 @@ public:
     inline static const std::string PLAYER_UPDATE = "PLAYER_UPDATE";
     inline static const std::string PLAYER_UPDATE_FULL = "PLAYER_UPDATE_FULL";
     inline static const std::string REQUEST_TEAM_STATE = "REQUEST_TEAM_STATE";
+    inline static const std::string REQUEST_TELEPORT = "REQUEST_TELEPORT";
     inline static const std::string SERVER_MESSAGE = "SERVER_MESSAGE";
     inline static const std::string SET_CHECK_STATUS = "SET_CHECK_STATUS";
     inline static const std::string SET_FLAG = "SET_FLAG";
@@ -173,6 +176,7 @@ public:
     inline static const std::string JIGGY_CRANE = "JIGGY_CRANE";
     inline static const std::string PEDESTAL_OWNER = "PEDESTAL_OWNER";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
+    inline static const std::string TELEPORT_TO = "TELEPORT_TO";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
     inline static const std::string UPDATE_ROOM_STATE = "UPDATE_ROOM_STATE";
@@ -197,7 +201,6 @@ public:
     void SendJsonToRemote(nlohmann::json packet);
     bool IsSaveLoaded();
     bool CanTeleportTo(uint32_t clientId);
-    void TeleportToClient(uint32_t clientId);
     uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
 
@@ -224,6 +227,7 @@ public:
     void SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId = 0);
     void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
     void SendPacket_RequestTeamState();
+    void SendPacket_RequestTeleport(u32 clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);
     void SendPacket_SetItemCount(s16 item, s32 count);
@@ -241,6 +245,7 @@ public:
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
+    void SendPacket_TeleportTo(u32 clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();
     void SendPacket_UpdateRoomState();
