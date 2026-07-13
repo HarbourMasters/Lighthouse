@@ -246,9 +246,9 @@ void DummyPlayer::dummy_updateModel(void) {
 }
 
 void DummyPlayer::dummy_reset(void) {
-    // Clear stale actor reference — the game engine owns actor lifetime and may have
-    // already freed it (e.g. after a map transition). Don't dereference the old pointer.
-    // dummyActor = NULL;
+    // Defensive: a stand-in left over from a previous registration (ClearDummies despawns them
+    // on map change, so this is normally already null).
+    dummy_despawnActor();
     if (dummyAnimCtrl) {
         dummyAnim_free();
         dummyAnimCtrl = NULL;
@@ -285,23 +285,38 @@ void DummyPlayer::dummy_reset(void) {
     dummyAnim_reset();
 }
 
+// Forget the stand-in without despawning it — for when the engine already destroyed it (or is
+// about to tear the whole map's actors down).
 void DummyPlayer::dummy_detachActor(void) {
-    // dummyActor = nullptr;
+    dummyMarker = nullptr;
+}
+
+void DummyPlayer::dummy_despawnActor(void) {
+    if (dummyMarker == nullptr) {
+        return;
+    }
+    Actor* actor = marker_getActor(dummyMarker);
+    if (actor != nullptr && actor->unk104 != nullptr) {
+        // Unlink + despawn the shadow first. marker_despawn only cleans the attached shadow in
+        // deferred mode; despawned immediately (our case — we run outside the actor update
+        // phase), the shadow would keep its back-pointer to our freed marker and deref it on its
+        // next keep-alive check (chBadShad_update) — the old "shadow on a garbage actor" crash.
+        ActorMarker* shadowMarker = actor->unk104;
+        Actor* shadow = marker_getActor(shadowMarker);
+        if (shadow != nullptr) {
+            shadow->unk104 = nullptr;
+        }
+        actor->unk104 = nullptr;
+        marker_despawn(shadowMarker);
+    }
+    // The shadow's swap-remove may have relocated our actor, but marker_despawn only needs the
+    // marker (its array index is fixed up by the compaction).
+    marker_despawn(dummyMarker);
+    dummyMarker = nullptr;
 }
 
 void DummyPlayer::dummy_free(void) {
-    /*if (dummyActor) {
-        if (dummyActor->unk104) {
-            Actor *shadow = marker_getActor(dummyActor->unk104);
-            shadow->unk104 = NULL;
-            shadow->despawn_flag = true;
-            dummyActor->unk104 = NULL;
-        }
-        if (dummyActor->marker) {
-            marker_despawn(dummyActor->marker);
-        }
-        dummyActor = NULL;
-    }*/
+    dummy_despawnActor();
     if (dummyBin) {
         assetcache_release(dummyBin);
         dummyBin = NULL;
@@ -330,15 +345,38 @@ void DummyPlayer::dummyAnim_reset() {
     dummy_D_8037D23A = 0;
 }
 
+// core2/fx/enemy_shadow.c: distance-gated drop-shadow attach + keep-alive (not in functions.h).
+extern "C" void func_802D7124(Actor* actor, f32 scale);
+
 void DummyPlayer::dummy_update(void) {
     dummyAnim_update();
 
-    // if (dummyActor && !dummyActor->despawn_flag) {
-    //     dummyActor->position[0] = dummyPosition[0];
-    //     dummyActor->position[1] = dummyPosition[1];
-    //     dummyActor->position[2] = dummyPosition[2];
-    //     func_802D729C(dummyActor, 1.0f);
-    // }
+    // [port] Engine-side stand-in actor: gives the dummy world presence — a drop shadow, and a
+    // marker other systems (PvP collision) can target. Spawned lazily here (GameFrameUpdate, a
+    // safe spawn context) and always resolved through the marker: raw Actor*s go stale whenever
+    // any actor despawns (swap-remove compaction), which is what used to crash the shadow code.
+    if (dummyMarker == nullptr) {
+        Actor* spawned = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, dummyPosition, (s32)dummyYaw);
+        if (spawned == nullptr) {
+            return;
+        }
+        dummyMarker = spawned->marker;
+    }
+
+    Actor* actor = marker_getActor(dummyMarker);
+    if (actor == nullptr || actor->despawn_flag) {
+        return;
+    }
+    actor->position[0] = dummyPosition[0];
+    actor->position[1] = dummyPosition[1];
+    actor->position[2] = dummyPosition[2];
+    actor->yaw = dummyYaw;
+    if (dummyIsVisible) {
+        // Distance-gated drop shadow, same helper the engine's own actors use. Calling it every
+        // frame doubles as the shadow's keep-alive; when we stop (dummy hidden/despawned) the
+        // shadow unlinks and cleans itself up.
+        func_802D7124(actor, 1.0f);
+    }
 }
 
 BKModelBin* DummyPlayer::dummy_getModelBin(void) {

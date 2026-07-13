@@ -288,7 +288,10 @@ void Anchor::DrawDummies(OnPlayerDraw* event) {
 
 void Anchor::ClearDummies() {
     for (auto& [id, dummy] : dummies) {
-        dummy->dummy_detachActor();
+        // Runs from OnMapLoad (old map's actors still alive) or on disconnect (mid-map), so the
+        // stand-in is valid either way — despawn it properly (shadow unlink included) rather
+        // than leaking it into the map.
+        dummy->dummy_despawnActor();
     }
     dummies.clear();
 }
@@ -318,17 +321,24 @@ void Anchor::UpdateDummies() {
 }
 
 void Anchor::OnActorDestroyed(Actor* actor) {
-    // for (auto& [clientId, client] : clients) {
-    //     if (client.dummy != nullptr && client.dummy->getDummyActor() == actor) {
-    //         client.dummy->dummy_detachActor();
-    //         RemoveDummy(clientId);
-    //         return;
-    //     }
-    // }
+    // The engine destroyed a dummy's stand-in behind our back (or our own despawn is mid-flight):
+    // forget the marker so nothing dereferences it. The dummy stays registered — its update
+    // lazily respawns the stand-in if it should still exist.
+    if (actor == nullptr || actor->marker == nullptr) {
+        return;
+    }
+    for (auto& [clientId, client] : clients) {
+        if (client.dummy != nullptr && client.dummy->dummy_getMarker() == actor->marker) {
+            client.dummy->dummy_detachActor();
+            return;
+        }
+    }
 }
 
 void Anchor::RemoveDummy(uint32_t clientId) {
     if (dummies.contains(clientId)) {
+        // Mid-map removal (client left the map / went offline): take the stand-in with it.
+        dummies[clientId]->dummy_despawnActor();
         dummies.erase(clientId);
     }
 }
