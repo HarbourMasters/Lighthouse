@@ -769,6 +769,19 @@ void SaveManager_Init() {
         event->Cancelled = true;
     });
 
+    REGISTER_LISTENER(OnGameErase, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnGameErase* ev = (OnGameErase*)event;
+        // Erasing a slot only zeroes the in-memory SaveData (OnSaveClear below); without
+        // removing its file too, the save comes back on the next boot.
+        std::string fileName = createFileName(ev->gameNum);
+        std::error_code ec;
+        if (fs::remove(SaveManager_GetSavePath(fileName), ec)) {
+            SPDLOG_INFO("SaveManager: deleted erased save file \"{}\"", fileName);
+        } else if (ec) {
+            SPDLOG_ERROR("SaveManager: failed to delete erased save file \"{}\": {}", fileName, ec.message());
+        }
+    });
+
     REGISTER_LISTENER(OnSaveClear, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveClear* ev = (OnSaveClear*)event;
         SaveData* saveData = (SaveData*)ev->result;

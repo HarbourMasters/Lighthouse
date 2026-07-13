@@ -181,7 +181,7 @@ FunctionQueue *spawnQueue = NULL;
 /* .code */
 // [port] N64 used 15 entries. If this overflows, find the root cause —
 // something is adding entries faster than they're being flushed.
-#define SPAWN_QUEUE_DEFAULT_SIZE 15
+#define SPAWN_QUEUE_DEFAULT_SIZE 32
 #define SPAWN_QUEUE_GL_SIZE 50
 
 static u32 __spawnQueue_getMax(void) {

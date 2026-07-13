@@ -79,6 +79,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnJiggySpawned);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
+    REGISTER_EVENT(OnGameErase);
     REGISTER_EVENT(OnBottlesBonusComplete);
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);

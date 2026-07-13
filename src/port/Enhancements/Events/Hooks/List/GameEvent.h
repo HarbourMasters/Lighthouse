@@ -5,6 +5,9 @@
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
 DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
+// Fired when a game slot is erased (file-select delete menu, sandcastle wipe cheat), so the
+// on-disk save is removed too — clearing only the in-memory slot resurrects it on next boot.
+DEFINE_EVENT(OnGameErase, int32_t gameNum;)
 // flagSpace = AnchorFlagSpace; length = 1 for single sets, bit count for setN.
 DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int32_t length;)
 // Fired after any item count change; count is the resulting absolute value.

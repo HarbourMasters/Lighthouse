@@ -1103,11 +1103,13 @@ static void __actor_free(ActorMarker *arg0, Actor *arg1){
     //remove last actor from actor array
     suBaddieActorArray->cnt--;
 
-    //shrink actor array capacity
-    if(suBaddieActorArray->cnt + 8 <= suBaddieActorArray->max_cnt){
-        suBaddieActorArray->max_cnt = suBaddieActorArray->cnt + 4;
-        suBaddieActorArray = (ActorArray *)bk_realloc(suBaddieActorArray, suBaddieActorArray->max_cnt*sizeof(Actor) + sizeof(ActorArray));
-    }
+    // [port] Never shrink the array. The vanilla shrink clamped capacity back to cnt + 4 on the
+    // first free of the map, throwing away the pre-sized headroom (see actor_new) — after which
+    // every few spawns hit the growth bk_realloc again, MOVING the array and dangling any live
+    // Actor*/`this` held across a spawn (update funcs dropping bundles, sync replays, ...). Those
+    // stale writes land in freed memory that aliases other actors' slots, permanently relocating
+    // actors onto each other. Keeping the capacity costs a couple hundred KB and makes actor
+    // pointers stable for the whole map.
 
     marker_free(arg0);
 }
