@@ -3,6 +3,8 @@
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/LighthouseMenu.h"
 #include "port/ShipUtils.h"
+#include "port/Romhack/RomhackConfig.h"
+#include "port/Romhack/RomhackCompat.h"
 
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
@@ -166,6 +168,13 @@ void AnchorAdminMenu(WidgetInfo& info) {
         for (auto& team : teams) {
             anchor->SendPacket_ClearTeamState(team);
         }
+        // Reset the room's romhack identity to this (admin) client's current state
+        // and re-broadcast it, so the room adopts the admin's hack and any prior
+        // mismatch warning no longer applies against stale room data.
+        anchor->roomState.isRomhack = port_isRomhack();
+        anchor->roomState.romhackName = Lighthouse::CurrentRomhackLabel();
+        anchor->lastWarnedRomhackLabel.clear();
+        anchor->SendPacket_UpdateRoomState();
     }
     UIWidgets::PopStyleButton();
 

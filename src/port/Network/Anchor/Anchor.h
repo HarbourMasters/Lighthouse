@@ -189,6 +189,9 @@ public:
 
     std::map<uint32_t, AnchorClient> clients;
     RoomState roomState;
+    // Last room romhack label we warned the player about, so a mismatch only pops
+    // one warning per distinct value instead of on every room-state update.
+    std::string lastWarnedRomhackLabel;
 
     void Enable();
     void Disable();

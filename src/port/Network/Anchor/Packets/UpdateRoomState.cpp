@@ -56,14 +56,22 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.isRomhack = payload["state"]["isRomHack"].get<bool>();
     roomState.romhackName = payload["state"]["romhackName"].get<std::string>();
     const std::string localLabel = Lighthouse::CurrentRomhackLabel();
+    // Romhack mismatches are no longer a hard gate — warn the player once per
+    // distinct mismatch and let them decide whether to keep playing.
     if (roomState.romhackName != localLabel) {
-        Disable();
-        std::string msg = "There's a romhack mismatch between your client and the server:\n\n";
-        msg += Lighthouse::DescribeRomhackMismatch(port_isRomhack(), localLabel, roomState.isRomhack,
-                                                   roomState.romhackName);
-        msg += "\n\nAnchor has been disabled. Please enable or disable the appropriate\n"
-               "mod(s) in the Mod Menu and reconnect, or enter a new room name.";
-        LighthouseGui::RegisterPopup("Incompatible Romhack State", msg);
+        if (roomState.romhackName != lastWarnedRomhackLabel) {
+            lastWarnedRomhackLabel = roomState.romhackName;
+            std::string msg = "There's a romhack mismatch between your client and the server:\n\n";
+            msg += Lighthouse::DescribeRomhackMismatch(port_isRomhack(), localLabel, roomState.isRomhack,
+                                                       roomState.romhackName);
+            msg += "\n\nYou can still play together, but items, flags, and custom content\n"
+                   "may not sync correctly. To avoid desyncs, enable or disable the\n"
+                   "appropriate mod(s) in the Mod Menu so both sides match, then reconnect.";
+            LighthouseGui::RegisterPopup("Romhack Mismatch Warning", msg);
+        }
+    } else {
+        // Back in agreement — clear the guard so a later mismatch warns again.
+        lastWarnedRomhackLabel.clear();
     }
 
     roomState.ownerClientId = payload["state"]["ownerClientId"].get<uint32_t>();

@@ -7,7 +7,17 @@ namespace Lighthouse {
 static constexpr const char* kVanillaLabel = "Vanilla";
 
 std::string CurrentRomhackLabel() {
-    return port_isRomhack() ? port_getRomhackName() : kVanillaLabel;
+    if (!port_isRomhack()) {
+        return kVanillaLabel;
+    }
+    // Prefer the canonical identifier from the romhack table so two peers running
+    // the same hack agree regardless of how each named their generated o2r file.
+    if (const char* id = port_getRomhackIdentifier()) {
+        return id;
+    }
+    // Unrecognized hack (not in the table): fall back to the filename-derived name
+    // so peers running the same unlisted hack still match each other.
+    return port_getRomhackName();
 }
 
 std::string DescribeRomhackMismatch(bool localIsRomhack, const std::string& localLabel, bool remoteIsRomhack,
