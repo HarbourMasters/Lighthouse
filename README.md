@@ -4,7 +4,7 @@
 # Lighthouse
 
 Lead Developers: 
-TODO: fill in
+* Malkierian
 
 ## Discord
 
@@ -19,12 +19,12 @@ Lighthouse does not include any copyrighted assets.  You are required to provide
 ### 1. Verify your ROM dump
 The supported ROMs are US 1.0 and US 1.1 Rev A versions. You can verify you have dumped a supported copy of the game by using the SHA-1 File Checksum Online at https://www.romhacking.net/hash/. 
 
-- `baserom.us.v10.z64`: `1fe1632098865f639e22c11b9a81ee8f29c75d7a`
-- `baserom.us.v11.z64`: `ded6ee166e740ad1bc810fd678a84b48e245ab80`
-- `baserom.jp.z64`:     `90726d7e7cd5bf6cdfd38f45c9acbf4d45bd9fd8`
-- `baserom.pal.z64`:    `bb359a75941df74bf7290212c89fbc6e2c5601fe`
+* `baserom.us.v10.z64`: `1fe1632098865f639e22c11b9a81ee8f29c75d7a`
+* `baserom.us.v11.z64`: `ded6ee166e740ad1bc810fd678a84b48e245ab80`
+* `baserom.jp.z64`:     `90726d7e7cd5bf6cdfd38f45c9acbf4d45bd9fd8`
+* `baserom.pal.z64`:    `bb359a75941df74bf7290212c89fbc6e2c5601fe`
 
-TODO: add info about languages
+If you have multiple regions of the game and want to use them as language packs, see `# Language Packs` below.
 
 ### 2. Verify your ROM is in .z64 format
 Your ROM needs to be in .z64 format. If it's in .n64 format, use the following to convert it to a .z64: https://hack64.net/tools/swapper.php
@@ -34,7 +34,7 @@ Your ROM needs to be in .z64 format. If it's in .n64 format, use the following t
 ### 3. Generating the OTR from the ROM and Play!
 #### Windows
 * Extract every file from the zip into a folder of your choosing.
-* Run lighthouse.exe and select your US 1.0 or US 1.1 ROM.
+* Run lighthouse.exe and select your compatible ROM.
 
 #### Linux
 * Extract every file from the zip into a folder of your choosing.
@@ -42,10 +42,10 @@ Your ROM needs to be in .z64 format. If it's in .n64 format, use the following t
 
 #### MacOS
 * Extract every file from the zip into a folder of your choosing.
-* Run lighthouse and select your US 1.0 or US 1.1 ROM.
+* Run lighthouse and select your compatible ROM.
 
 #### Nintendo Switch
-* Run one of the PC releases to generate an `sf64.o2r` file. After launching the game on PC, you will be able to find these files in the same directory as `lighthouse.exe` or `lighthouse.appimage`.
+* Run one of the PC releases to generate an `lighthouse.o2r` file. After launching the game on PC, you will be able to find these files in the same directory as `lighthouse.exe` or `lighthouse.appimage`.
 * Copy the files to your sd card
 
 # Configuration
@@ -58,7 +58,7 @@ Your ROM needs to be in .z64 format. If it's in .n64 format, use the following t
 ### Other shortcuts
 | Keys | Action |
 | - | - |
-| F1 | Toggle menubar |
+| ESC | Toggle menubar |
 | F4 | Reset |
 | F11 | Fullscreen |
 | Tab | Toggle Alternate assets |
@@ -68,6 +68,12 @@ Your ROM needs to be in .z64 format. If it's in .n64 format, use the following t
 TODO: verify this info
 
 Currently, there are three rendering APIs supported: DirectX11 (Windows), OpenGL (all platforms), and Metal (macOS). You can change which API to use in the `Settings` menu of the menubar, which requires a restart.  If you're having an issue with crashing, you can change the API in the `lighthouse.cfg.json` file by finding the line `"Backend":{`... and changing the `id` value to `3` and set the `Name` to `OpenGL`. `DirectX 11` with id `2` is the default on Windows. `Metal` with id `4` is the default on macOS.
+
+# Language Packs
+
+Lighthouse supports using multiple regions of Banjo-Kazooie as language packs. Generate your base `bk.o2r` file and once Lighthouse has started, open the imgui menu. Under General -> Languages, you will be able to select another ROM to extract as a language pack. PAL supports UK, French, and German, and Japanese adds Japanese support. After the language pack is generated, the language it brings will be added to the dropdown menu.
+
+When using romhacks, only US v1.0 is supported, inherited from Banjo's Backpack. Therefore, it is recommended to use **US v1.0** as your base `bk.o2r` file.
 
 # Custom Assets
 Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place them in the `mods` folder.
@@ -102,4 +108,5 @@ TODO: replace these with lighthouse builds
 
 # Special Thanks:
 
+* GiantJigglypuff3 for their extensive and continued Banjo Decomp documentation  
 TODO: fill in
