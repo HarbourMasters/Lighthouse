@@ -7,7 +7,11 @@ extern "C" {
 #include "functions.h"
 #include "macros.h"
 #include "variables.h"
+// ba_carry.c: marker of the collectible the local player is carrying (NULL when none).
+ActorMarker* bacarry_get_marker(void);
 }
+
+#include "port/Patches/Patches.h"
 
 /**
  * PLAYER_UPDATE
@@ -180,6 +184,20 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
     payload["modelEyeBlendUpper"] = func_8029DFC8(); // eye blend upper
     payload["modelEyeBlendLower"] = func_8029DFD4(); // eye blend lower
     payload["bottlesBonus"] = baanim_getActiveBottlesBonusMask(); // active bottles-bonus effect mask
+    {
+        // Carried-collectible marker id (0 = none), so teammates render the held model on our
+        // dummy. Reported only while actually held: once thrown (unk138_21), the object is in
+        // flight and the CARRY_THROW packet replays that instead.
+        s32 carryId = 0;
+        ActorMarker* carryMarker = bacarry_get_marker();
+        if (carryMarker != nullptr) {
+            Actor* carried = marker_getActor(carryMarker);
+            if (carried != nullptr && !carried->unk138_21) {
+                carryId = carryMarker->id;
+            }
+        }
+        payload["carry"] = carryId;
+    }
 
     if (full) {
         payload["anim_id"] = anctrl_getIndex(baanim_getAnimCtrlPtr());
@@ -252,5 +270,7 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                                         payload.value("modelMouth2", false), payload.value("modelEyeBlendUpper", 0.0f),
                                         payload.value("modelEyeBlendLower", 0.0f));
         client.dummy->dummy_setBottlesBonus(payload.value("bottlesBonus", 0));
+        // Carried-collectible display copy: spawn/track/despawn to match what they're holding.
+        port_remoteCarry_setCarried(clientId, payload.value("carry", 0));
     }
 }

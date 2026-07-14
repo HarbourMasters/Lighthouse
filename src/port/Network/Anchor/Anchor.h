@@ -114,6 +114,7 @@ private:
     void HandlePacket_RequestScopedState(nlohmann::json& payload);
     void HandlePacket_ScopedState(nlohmann::json& payload);
     void HandlePacket_CollectItem(nlohmann::json& payload);
+    void HandlePacket_CarryThrow(nlohmann::json& payload);
     void HandlePacket_BreakObject(nlohmann::json& payload);
     void HandlePacket_EggToll(nlohmann::json& payload);
     void HandlePacket_FightEvent(nlohmann::json& payload);
@@ -166,6 +167,7 @@ public:
     inline static const std::string REQUEST_SCOPED_STATE = "REQUEST_SCOPED_STATE";
     inline static const std::string SCOPED_STATE = "SCOPED_STATE";
     inline static const std::string COLLECT_ITEM = "COLLECT_ITEM";
+    inline static const std::string CARRY_THROW = "CARRY_THROW";
     inline static const std::string BREAK_OBJECT = "BREAK_OBJECT";
     inline static const std::string EGG_TOLL = "EGG_TOLL";
     inline static const std::string FIGHT_EVENT = "FIGHT_EVENT";
@@ -245,6 +247,7 @@ public:
     void SendPacket_ScopedFlag(u8 space, s16 index, u8 value);
     void SendPacket_RequestScopedState(GameMap map);
     void SendPacket_CollectItem(u8 kind, s32 id);
+    void SendPacket_CarryThrow(s32 markerId, f32 start[3], f32 target[3]);
     void SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, bool replay = true);
     void SendPacket_EggToll(s16 secondaryId, s32 stage, s32 map);
     void SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3], const f32 v2[3]);

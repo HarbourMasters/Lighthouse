@@ -169,6 +169,15 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // FP bear cubs' presents: bit 0 = blue delivered, bit 1 = green, bit 2 = red. The received level
 // flags (0x11-0x13) stay local (Anchor_ScopedFlagExcluded); bearcub.c records/replays via these.
 #define ANCHOR_PUZZLE_FP_PRESENTS 11
+
+// Remote teammates' carried-collectible display copies (defined in level_collectible.c). A
+// teammate's PLAYER_UPDATE reports the carried collectible's marker id (0 = none); their throw
+// arrives via the CARRY_THROW packet and replays the same ballistic arc locally. Display only —
+// flags, spends, and quest progress ride their own sync paths. reset drops all tracked markers
+// and is called from actorArray_free (they're about to dangle).
+void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId);
+void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
+void port_remoteCarry_reset(void);
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 // Same as get, but for an explicit map key — for the rare puzzle whose recorder and consumer live

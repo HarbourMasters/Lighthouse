@@ -22,6 +22,275 @@ static s32 levelCollectible_syncKind(s32 markerId) {
         default:                                   return -1;
     }
 }
+
+// ---------------------------------------------------------------------------
+// [port] Anchor: remote teammates' carried/thrown collectibles (display only).
+//
+// A teammate's PLAYER_UPDATE announces which collectible they're holding
+// (port_remoteCarry_setCarried); we spawn a local display copy that tracks
+// their dummy player every frame (state 6 — unused by the vanilla actor).
+// Their throw arrives as a CARRY_THROW packet and replays the same ballistic
+// arc here (state 7), landing with audio/sparkle feedback only — the delivery
+// flags, count spends, and quest progress all ride their own sync paths, so
+// the display copy must never touch game state.
+// ---------------------------------------------------------------------------
+
+// Anchor-side helpers (CarryThrow.cpp): dummy transform for a client, or 0 if that
+// client/dummy isn't present in our map; broadcast of our own throw for teammates.
+extern s32 port_anchor_getDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
+extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
+
+void __chLevelCollectible_presentReturnEmitSparkles(f32 position[3], enum asset_e sprite_id);
+
+#define REMOTE_CARRY_MAX 16
+static struct {
+    u32 clientId;        // 0 = free slot
+    ActorMarker *marker; // NULL while the spawn is still queued
+    s32 markerId;        // which collectible (MARKER_* enum)
+    u8 throwPending;     // throw arrived before the queued spawn completed
+    f32 throwStart[3];
+    f32 throwTarget[3];
+} sRemoteCarry[REMOTE_CARRY_MAX];
+
+// Only the level_collectible carryables are spawnable as display copies; anything else
+// in a carry packet (stale/foreign data) is ignored.
+static s32 __remoteCarry_actorIdForMarker(s32 markerId) {
+    switch (markerId) {
+        case MARKER_36_ORANGE_COLLECTIBLE:         return ACTOR_29_ORANGE_COLLECTIBLE;
+        case MARKER_37_GOLD_BULLION:               return ACTOR_2A_GOLD_BULLION;
+        case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:  return ACTOR_1ED_BLUE_PRESENT_COLLECTIBLE;
+        case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE: return ACTOR_1EF_GREEN_PRESENT_COLLECTIBLE;
+        case MARKER_1FF_RED_PRESENT_COLLECTIBLE:   return ACTOR_1F1_RED_PRESENT_COLLECTIBLE;
+        default:                                   return 0;
+    }
+}
+
+static s32 __remoteCarry_findByClient(u32 clientId) {
+    s32 i;
+    for (i = 0; i < REMOTE_CARRY_MAX; i++) {
+        if (sRemoteCarry[i].clientId == clientId) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static s32 __remoteCarry_findByMarker(ActorMarker *marker) {
+    s32 i;
+    for (i = 0; i < REMOTE_CARRY_MAX; i++) {
+        if (sRemoteCarry[i].clientId != 0 && sRemoteCarry[i].marker == marker) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void __remoteCarry_clearSlot(s32 slot) {
+    sRemoteCarry[slot].clientId = 0;
+    sRemoteCarry[slot].marker = NULL;
+    sRemoteCarry[slot].markerId = 0;
+    sRemoteCarry[slot].throwPending = 0;
+}
+
+// Mirror of func_802D7DE8's arc math (velocity toward the truncated target, gravity 5/frame)
+// WITHOUT its side effects — no map flags, no spend broadcast. State 7 = remote flight.
+static void __remoteCarry_launch(Actor *actor, f32 start[3], f32 target[3]) {
+    s32 tgt[3];
+    f32 var_f12;
+    f32 var_f14;
+    f32 var_f18;
+
+    actor->position[0] = start[0];
+    actor->position[1] = start[1];
+    actor->position[2] = start[2];
+    ml_vec3f_to_vec3w(tgt, target);
+    actor->unk1C[0] = target[0];
+    actor->unk1C[1] = target[1];
+    actor->unk1C[2] = target[2];
+    actor->velocity[0] = (f32)tgt[0] - actor->position[0];
+    actor->velocity[1] = 28.0f;
+    actor->velocity[2] = (f32)tgt[2] - actor->position[2];
+    var_f12 = actor->position[1];
+    var_f14 = 28.0f;
+    var_f18 = 0.0f;
+    while (!(var_f12 < tgt[1]) || !(var_f14 < 0.0f)) {
+        var_f18 += 1.0f;
+        var_f12 += (var_f14 -= 5.0);
+    }
+    actor->velocity[0] /= var_f18;
+    actor->velocity[2] /= var_f18;
+    actor->unk38_31 = (u32)var_f18;
+    subaddie_set_state(actor, 7);
+}
+
+// Spawn-queue callback: materialize the display copy for (markerId, clientId). Re-finds the
+// registry slot — a map change may have reset the registry while this sat in the queue.
+static void __remoteCarry_spawnMethod(s32 markerId, s32 clientId) {
+    f32 pos[3];
+    f32 yaw = 0.0f;
+    Actor *actor;
+    s32 slot = __remoteCarry_findByClient((u32)clientId);
+    s32 actorId = __remoteCarry_actorIdForMarker(markerId);
+
+    if (slot < 0 || sRemoteCarry[slot].markerId != markerId || actorId == 0) {
+        return; // stale queue entry
+    }
+    if (!port_anchor_getDummyTransform((u32)clientId, pos, &yaw)) {
+        __remoteCarry_clearSlot(slot);
+        return;
+    }
+    actor = actor_spawnWithYaw_f32(actorId, pos, (s32)yaw);
+    // Display copy: skip init entirely (no carriedSync registration/suppression, no collide
+    // func — it can never be collected locally) and never collide with the local player.
+    actor->volatile_initialized = true;
+    actor->marker->propPtr->unk8_3 = false;
+    if (sRemoteCarry[slot].throwPending) {
+        // The throw beat the spawn: launch straight into flight and release the slot.
+        __remoteCarry_launch(actor, sRemoteCarry[slot].throwStart, sRemoteCarry[slot].throwTarget);
+        __remoteCarry_clearSlot(slot);
+    } else {
+        sRemoteCarry[slot].marker = actor->marker;
+        subaddie_set_state(actor, 6);
+    }
+}
+
+void port_remoteCarry_setCarried(u32 clientId, s32 markerId) {
+    s32 slot;
+    if (clientId == 0) {
+        return;
+    }
+    if (markerId != 0 && __remoteCarry_actorIdForMarker(markerId) == 0) {
+        markerId = 0; // not a synced carryable
+    }
+    slot = __remoteCarry_findByClient(clientId);
+    if (markerId == 0) {
+        if (slot >= 0 && !sRemoteCarry[slot].throwPending) {
+            if (sRemoteCarry[slot].marker != NULL) {
+                marker_despawn(sRemoteCarry[slot].marker);
+            }
+            __remoteCarry_clearSlot(slot);
+        }
+        return;
+    }
+    if (slot >= 0) {
+        if (sRemoteCarry[slot].markerId == markerId) {
+            return; // steady state
+        }
+        // Switched to a different carryable: drop the old display copy first.
+        if (sRemoteCarry[slot].marker != NULL) {
+            marker_despawn(sRemoteCarry[slot].marker);
+        }
+        __remoteCarry_clearSlot(slot);
+    }
+    slot = __remoteCarry_findByClient(0);
+    if (slot < 0) {
+        return; // registry full — display-only, safe to drop
+    }
+    sRemoteCarry[slot].clientId = clientId;
+    sRemoteCarry[slot].markerId = markerId;
+    sRemoteCarry[slot].marker = NULL;
+    sRemoteCarry[slot].throwPending = 0;
+    __spawnQueue_add_2((void (*)(void))__remoteCarry_spawnMethod, markerId, clientId);
+}
+
+void port_remoteCarry_throw(u32 clientId, s32 markerId, f32 start[3], f32 target[3]) {
+    s32 slot;
+    if (clientId == 0 || __remoteCarry_actorIdForMarker(markerId) == 0) {
+        return;
+    }
+    slot = __remoteCarry_findByClient(clientId);
+    if (slot >= 0 && sRemoteCarry[slot].marker != NULL) {
+        // Carried copy exists: launch it (the flight is autonomous, so free the slot).
+        Actor *actor = marker_getActor(sRemoteCarry[slot].marker);
+        __remoteCarry_launch(actor, start, target);
+        __remoteCarry_clearSlot(slot);
+        return;
+    }
+    if (slot < 0) {
+        // The carry update never arrived (or was already cleared): spawn straight into flight.
+        slot = __remoteCarry_findByClient(0);
+        if (slot < 0) {
+            return;
+        }
+        sRemoteCarry[slot].clientId = clientId;
+        __spawnQueue_add_2((void (*)(void))__remoteCarry_spawnMethod, markerId, clientId);
+    }
+    sRemoteCarry[slot].markerId = markerId;
+    sRemoteCarry[slot].throwPending = 1;
+    sRemoteCarry[slot].throwStart[0] = start[0];
+    sRemoteCarry[slot].throwStart[1] = start[1];
+    sRemoteCarry[slot].throwStart[2] = start[2];
+    sRemoteCarry[slot].throwTarget[0] = target[0];
+    sRemoteCarry[slot].throwTarget[1] = target[1];
+    sRemoteCarry[slot].throwTarget[2] = target[2];
+}
+
+// All actors are being (or were just) freed — drop every tracked display copy without
+// touching the now-dangling markers. Called from actorArray_free.
+void port_remoteCarry_reset(void) {
+    s32 i;
+    for (i = 0; i < REMOTE_CARRY_MAX; i++) {
+        __remoteCarry_clearSlot(i);
+    }
+}
+
+// Per-frame behavior for the display copies. Returns nonzero if this actor is one (the
+// caller must then skip ALL vanilla logic — collect, flags, despawn checks — for it).
+static s32 __chLevelCollectible_remoteUpdate(Actor *this) {
+    s32 slot = __remoteCarry_findByMarker(this->marker);
+
+    if (this->state == 6 || slot >= 0) { // carried: glued to the owner's dummy
+        f32 pos[3];
+        f32 yaw = 0.0f;
+        if (slot < 0 || !port_anchor_getDummyTransform(sRemoteCarry[slot].clientId, pos, &yaw)) {
+            // Owner left our map / disconnected — the display copy goes with them.
+            if (slot >= 0) {
+                __remoteCarry_clearSlot(slot);
+            }
+            marker_despawn(this->marker);
+            return 1;
+        }
+        this->position[0] = pos[0];
+        this->position[1] = pos[1];
+        this->position[2] = pos[2];
+        this->yaw = yaw;
+        return 1;
+    }
+
+    if (this->state == 7) { // thrown: replay the arc, land with feedback only
+        f32 landY;
+        this->position[0] += this->velocity[0];
+        this->position[1] += (this->velocity[1] -= 5.0);
+        this->position[2] += this->velocity[2];
+        landY = (--this->unk38_31 < 4) ? this->unk1C[1] : this->position[1];
+        if (this->position[1] < landY) {
+            if (this->modelCacheIndex == ACTOR_2A_GOLD_BULLION) {
+                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 32000);
+            }
+            if (this->marker->id != MARKER_36_ORANGE_COLLECTIBLE) {
+                sfx_playFadeShorthandDefault(SFX_21_EGG_BOUNCE_1, 0.76f, 25000, this->position, 1000, 2000);
+            } else {
+                sfx_playFadeShorthandDefault(SFX_B3_ORANGE_TALKING, 1.0f, 25000, this->position, 1000, 2000);
+            }
+            marker_despawn(this->marker);
+            return 1;
+        }
+        switch (this->marker->id) {
+            case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:
+                __chLevelCollectible_presentReturnEmitSparkles(this->position, ASSET_711_SPRITE_SPARKLE_DARK_BLUE);
+                break;
+            case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE:
+                __chLevelCollectible_presentReturnEmitSparkles(this->position, 0x712);
+                break;
+            case MARKER_1FF_RED_PRESENT_COLLECTIBLE:
+                __chLevelCollectible_presentReturnEmitSparkles(this->position, ASSET_715_SPRITE_SPARKLE_RED);
+                break;
+        }
+        return 1;
+    }
+
+    return 0;
+}
 extern void timed_mapSpecificFlags_setTrue(f32, s32);
 extern void progressDialog_showDialogMaskFour(s32);
 
@@ -315,6 +584,9 @@ void func_802D8374(Actor *this){
     else{
         if(this->unk138_21){
             func_8028EF28(sp20);
+            // [port] Anchor: replay this throw on teammates' clients (same start + target =>
+            // same arc). Sent before func_802D7DE8 so the position is still the launch point.
+            port_anchor_onCarryThrow(this->marker->id, this->position, sp20);
             func_802D7DE8(this->marker, sp20);
         }
     }
@@ -346,6 +618,12 @@ void func_802D84F4(Actor *this){
 void chLevelCollectible_update(Actor *this){
     s32 marker_id;
     if(this->despawn_flag) return;
+
+    // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic —
+    // it must never collect, set flags, register with carriedSync, or despawn-check.
+    if (__chLevelCollectible_remoteUpdate(this)) {
+        return;
+    }
 
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
