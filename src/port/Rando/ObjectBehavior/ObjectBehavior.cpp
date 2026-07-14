@@ -162,44 +162,56 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId) {
     return NULL;
 }
 
+// Builds and emits the "<subject> collected/learned <item>" notification for a check. `subject`
+// is the sentence subject and verb-lead-in: "You" for a local pickup, a teammate's name for an
+// Anchor remote collect. Shared so both paths format items (abilities, Stop 'n' Swop counter,
+// articles) and color them identically.
+static void EmitCheckNotification(RandoCheckId randoCheckId, const std::string& subject) {
+    RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+    std::string prefix;
+    std::string message;
+    std::string suffix = "";
+    ImVec4 itemColor = WIDGET_TEXT_COLOR(randoItemColors.at(randoSaveCheck.randoItemId));
+
+    if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
+        prefix = subject + " learned";
+        message = abilityNameList[randoSaveCheck.randoCollectionId].c_str();
+    } else if (randoSaveCheck.randoItemId == RI_STOP_N_SWOP_EGG ||
+               randoSaveCheck.randoItemId == RI_STOP_N_SWOP_KEY) {
+        int32_t totalsnsItems = Rando::Logic::GetTotalSnsItemsCollected();
+        prefix = subject + " collected ";
+        prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
+
+        message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
+        suffix = "(";
+        suffix += std::to_string(totalsnsItems);
+        suffix += " / 7)";
+
+        itemColor = WIDGET_TEXT_COLOR(snsItemColors.at(randoSaveCheck.randoCollectionId));
+    } else {
+        prefix = subject + " collected ";
+        prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
+        message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
+    }
+
+    Notification::Emit({
+        .prefix = prefix,
+        .prefixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
+        .message = message,
+        .messageColor = itemColor,
+        .suffix = suffix,
+        .suffixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
+    });
+}
+
 void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
     if (CVAR_SHOW_COLLISION_NOTIFICATIONS) {
-        RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        std::string prefix;
-        std::string message;
-        std::string suffix = "";
-        ImVec4 itemColor = WIDGET_TEXT_COLOR(randoItemColors.at(randoSaveCheck.randoItemId));
-
-        if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
-            prefix = "You learned";
-            message = abilityNameList[randoSaveCheck.randoCollectionId].c_str();
-        } else if (randoSaveCheck.randoItemId == RI_STOP_N_SWOP_EGG ||
-                   randoSaveCheck.randoItemId == RI_STOP_N_SWOP_KEY) {
-            int32_t totalsnsItems = Rando::Logic::GetTotalSnsItemsCollected();
-            prefix = "You collected ";
-            prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
-
-            message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
-            suffix = "(";
-            suffix += std::to_string(totalsnsItems);
-            suffix += " / 7)";
-
-            itemColor = WIDGET_TEXT_COLOR(snsItemColors.at(randoSaveCheck.randoCollectionId));
-        } else {
-            prefix = "You collected ";
-            prefix += Rando::StaticData::Items[randoSaveCheck.randoItemId].article;
-            message = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
-        }
-
-        Notification::Emit({
-            .prefix = prefix,
-            .prefixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
-            .message = message,
-            .messageColor = itemColor,
-            .suffix = suffix,
-            .suffixColor = WIDGET_TEXT_COLOR(UIWidgets::Colors::White),
-        });
+        EmitCheckNotification(randoCheckId, "You");
     }
+};
+
+void Rando::StaticData::SendRemoteCheckNotification(RandoCheckId randoCheckId, const std::string& collectorName) {
+    EmitCheckNotification(randoCheckId, collectorName);
 };
 
 bool ShouldOverrideSpawn(RandoCheckId randoCheckId) {

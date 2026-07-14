@@ -5,6 +5,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/StaticData/StaticData.h"
 
 extern "C" {
 #include "functions.h"
@@ -79,4 +80,11 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     // suppresses the "you collected" notification and, crucially, doesn't re-fire
     // OnRandoCheckObtained (no echo back onto the wire).
     CustomObject::CheckObtainedEX(rc, true);
+
+    // Re-add a notification for the remote collect (CheckObtainedEX suppressed the local one),
+    // attributed to the teammate who obtained it. Gated by both the rando collection-notification
+    // setting and Anchor's own notification toggle.
+    if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 0) && ShouldShowNotifications()) {
+        Rando::StaticData::SendRemoteCheckNotification(rc, GetClientName(payload.value("clientId", 0u)));
+    }
 }

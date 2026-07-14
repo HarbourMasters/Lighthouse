@@ -118,6 +118,17 @@ void AnchorMainMenu(WidgetInfo& info) {
     ImGui::EndDisabled();
     ImGui::Spacing();
 
+    UIWidgets::CVarCheckbox(
+        "Show Teammate Notifications", CVAR_REMOTE_ANCHOR("Notifications"),
+        UIWidgets::CheckboxOptions()
+            .DefaultValue(true)
+            .Color(THEME_COLOR)
+            .Tooltip("Show a notification when a teammate collects a jiggy, opens a level, or (in a "
+                     "randomizer) obtains a shuffled check. Randomizer check notifications also require "
+                     "\"Send Collection Notifications\" to be enabled in the Randomizer settings."));
+
+    ImGui::Spacing();
+
     if (!anchor->isEnabled) {
         return;
     }

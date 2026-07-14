@@ -402,3 +402,15 @@ bool Anchor::IsSaveLoaded() {
 
     // return true;
 }
+
+bool Anchor::ShouldShowNotifications() {
+    return CVarGetInteger(CVAR_REMOTE_ANCHOR("Notifications"), 1) != 0;
+}
+
+std::string Anchor::GetClientName(uint32_t clientId) {
+    auto it = clients.find(clientId);
+    if (it != clients.end() && !it->second.name.empty()) {
+        return it->second.name;
+    }
+    return "A teammate";
+}

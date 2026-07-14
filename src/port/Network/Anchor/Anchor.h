@@ -207,6 +207,13 @@ public:
     uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
 
+    // True when the player wants to see teammate-event notifications (jiggies, level
+    // unlocks, rando checks). Personal client-side setting, defaults on.
+    bool ShouldShowNotifications();
+    // Display name for a connected client, or a generic fallback ("A teammate") when the
+    // id is unknown (e.g. a packet from a client we haven't seen an ALL_CLIENT_STATE for).
+    std::string GetClientName(uint32_t clientId);
+
     void PrepDirectionPayload(nlohmann::json& payload);
     void PrepTransformationPayload(nlohmann::json& payload);
     void PrepAnimStatePayload(nlohmann::json& payload);

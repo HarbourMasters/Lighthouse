@@ -2,10 +2,21 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Rando/Rando.h"
+#include "port/UI/Notification.h"
 
 extern "C" {
 #include "functions.h"
 }
+
+// World a jiggy belongs to, indexed by its 0-based level index ((jiggyId - 1) / 10). Jiggy ids
+// are grouped 10 per level (JIGGY_ID_MULTIPLIER); ids 1..100 map to indices 0..9. Kept local so
+// the notification doesn't depend on the C++-linkage worldNameList global from another TU.
+static const char* const kJiggyLevelNames[10] = {
+    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern",   "Bubblegloop Swamp",
+    "Freezeezy Peak",   "Gruntilda's Lair",    "Gobi's Valley",      "Click Clock Wood",
+    "Rusty Bucket Bay", "Mad Monster Mansion",
+};
 
 /**
  * COLLECT_ITEM
@@ -54,6 +65,20 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                     code_73640_printItemCount(ITEM_E_JIGGY);
                 } else {
                     code_73640_printItemCount(ITEM_26_JIGGY_TOTAL);
+                }
+                // Vanilla only: announce the teammate's jiggy. In a randomizer, jiggies are
+                // shuffled checks handled by SET_CHECK_STATUS, which posts its own notification.
+                // Jiggy ids are grouped 10 per level (JIGGY_ID_MULTIPLIER), so the 0-based level
+                // index is (id-1)/10 and the jiggy's number within that level is ((id-1)%10)+1.
+                if (!IS_RANDO && ShouldShowNotifications()) {
+                    size_t levelIdx = (size_t)(id - 1) / 10;
+                    const char* where =
+                        levelIdx < (sizeof(kJiggyLevelNames) / sizeof(kJiggyLevelNames[0])) ? kJiggyLevelNames[levelIdx]
+                                                                                             : "an unknown level";
+                    Notification::Emit({
+                        .prefix = GetClientName(payload.value("clientId", 0u)),
+                        .message = "collected Jiggy #" + std::to_string(((id - 1) % 10) + 1) + " in " + where,
+                    });
                 }
             }
             if (sameMap) {

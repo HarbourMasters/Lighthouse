@@ -12,6 +12,9 @@ namespace Rando {
 
 namespace StaticData {
 void SendCollisionNotification(RandoCheckId randoCheckId);
+// Same notification, but attributed to a teammate who obtained the check over Anchor. The caller
+// is responsible for gating on the notification settings (rando + anchor); this always emits.
+void SendRemoteCheckNotification(RandoCheckId randoCheckId, const std::string& collectorName);
 
 struct RandoLogicData {
     const char* name;
