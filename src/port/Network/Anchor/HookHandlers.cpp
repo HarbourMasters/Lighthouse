@@ -145,6 +145,16 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == 2 || index == 3)) {
         return true;
     }
+    // FP bear cubs' presents-received flags. Shared raw, the deliverer's flag fires the cubs'
+    // thank-you dialog on every teammate in FP — and for the third present, the static camera +
+    // jiggy celebration too. Kept local; ANCHOR_PUZZLE_FP_PRESENTS carries the received state and
+    // bearcub.c replays it silently (plus temp-persists it and reconciles the present pool).
+    if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
+        (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_5_FREEZEEZY_PEAK &&
+        (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN ||
+         index == LEVEL_FLAG_13_FP_UNKNOWN)) {
+        return true;
+    }
     return false;
 }
 

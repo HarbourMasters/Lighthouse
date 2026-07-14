@@ -166,6 +166,9 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // FP xmas tree ice: 1 bit, set when the tree-top ice shatters (star minigame complete). Recorded in
 // the tree-interior map (where the ice lives); the FP hub tree reads it via getForMap.
 #define ANCHOR_PUZZLE_FP_TREE_ICE 10
+// FP bear cubs' presents: bit 0 = blue delivered, bit 1 = green, bit 2 = red. The received level
+// flags (0x11-0x13) stay local (Anchor_ScopedFlagExcluded); bearcub.c records/replays via these.
+#define ANCHOR_PUZZLE_FP_PRESENTS 11
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 // Same as get, but for an explicit map key — for the rare puzzle whose recorder and consumer live

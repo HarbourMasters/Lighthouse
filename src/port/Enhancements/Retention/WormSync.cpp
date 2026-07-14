@@ -154,6 +154,20 @@ void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat) {
     }
 }
 
+extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
+    int32_t slot = slotForKind(kind);
+    if (slot < 0) {
+        return 0;
+    }
+    int32_t count = 0;
+    for (const auto& e : sCollected) {
+        if (e[0] == slot) {
+            count++;
+        }
+    }
+    return count;
+}
+
 extern "C" int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker) {
     int32_t slot = slotForKind(kind);
     if (slot < 0) {

@@ -4,6 +4,7 @@
 #include "variables.h"
 
 #include "port/Patches/Patches.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 extern void func_8028E668(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3);
 extern  s32 func_802E0970(s32, f32, f32, f32, s32, s32, f32[3]);
@@ -187,6 +188,17 @@ static void __chBlubber_updateFunc(Actor *this){
         return;
     
     if(!this->volatile_initialized){
+        // [port] Anchor: reconcile the shared gold pool with team progress. The carried count is
+        // transient (zeroed on level exit) while collected bullions never respawn this session
+        // (carriedSync suppression), so a gold collected-but-undelivered when everyone left TTC
+        // would otherwise be gone for good — stranding the quest at fewer than two deliveries.
+        // Rebuild it as collected - delivered so anyone can pick up where the team left off.
+        s32 goldBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+        s32 delivered = ((goldBits & 0x1) ? 1 : 0) + ((goldBits & 0x2) ? 1 : 0);
+        s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;
+        if (pool > item_getCount(ITEM_18_GOLD_BULLIONS)) {
+            item_adjustByDiffWithoutHud(ITEM_18_GOLD_BULLIONS, pool - item_getCount(ITEM_18_GOLD_BULLIONS));
+        }
         if(this->state == CH_BLUBBER_STATE_3_UNKNOWN){
             subaddie_set_state_with_direction(this, CH_BLUBBER_STATE_2_UNKNOWN, 0.0f, 1);
         }

@@ -76,6 +76,13 @@ void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId, int32_t id
 // Pull-based, so the sync never dereferences a marker the engine may have already freed.
 int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker);
 
+// How many objects of this kind the team has collected this session (across all maps; each kind
+// only exists in one map). Quest actors with a fixed spend target (Blubber's gold, the FP cubs'
+// presents) use this to rebuild the shared pool count — which is transient, unlike the collected
+// set — as collected - delivered, so a collected-but-unspent object isn't lost when the count
+// resets on level exit.
+int32_t port_carriedSync_collectedCount(int32_t kind);
+
 #ifdef __cplusplus
 }
 
