@@ -1183,6 +1183,30 @@ void marker_despawn(ActorMarker *marker){
         }
     }
     else{
+        // [port] Immediate-mode despawns (anything outside the actor-update phase: sync replays,
+        // retention flushes, rando object behaviors) skipped the shadow-link cleanup the deferred
+        // branch does. Freeing a shadow-owner then left its chBadShad orphaned with a back-pointer
+        // to the freed marker; once that marker memory was recycled, the shadow's timeout (or the
+        // owner's keep-alive, in the other direction) wrote through it into an unrelated actor —
+        // pinning actors onto other actors' shadow positions, or crashing outright.
+        if(actor->unk104){
+            if(actor->modelCacheIndex != 0x108){
+                // Freeing a shadow-owner: unlink and free its shadow too.
+                ActorMarker *shadowMarker = actor->unk104;
+                Actor *shadow = marker_getActor(shadowMarker);
+                shadow->unk104 = NULL;
+                actor->unk104 = NULL;
+                __actor_free(shadowMarker, shadow);
+                // The shadow's swap-remove may have relocated this actor; re-fetch through the marker.
+                actor = marker_getActor(marker);
+            }
+            else{
+                // Freeing a shadow directly: sever the owner's link so its keep-alive
+                // can't write through our soon-freed marker.
+                marker_getActor(actor->unk104)->unk104 = NULL;
+                actor->unk104 = NULL;
+            }
+        }
         __actor_free(marker, actor);
     }
 }
