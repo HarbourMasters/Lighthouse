@@ -117,6 +117,10 @@ f32 D_80392750;
 f32 D_80392758[3];
 f32 D_80392768[3];
 f32 D_80392778[3];
+// [port] Anchor: the flight/lead time last used to aim a ballistic fireball at the local player
+// (func_80387110, arg3 == 0). Followers re-aim the fireball at their own player using this so every
+// player has to dodge one, instead of replaying the authority's arc (aimed only at the authority).
+f32 __chFinalBossFireballFlightTime;
 f32 chFinalBossPlayerPosition[3];
 f32 chFinalBossPosition[3];
 ActorMarker *__chFinalBossShadowMarker;
@@ -430,6 +434,9 @@ void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 a
         D_80392768[i] = (sp2C[i] - arg1[i]) / arg2 - (D_80392778[i] * arg2 / 2);
     }
     if (arg3 == 0) {
+        // [port] Anchor: remember how this aimed shot was led so followers can reproduce the aim at
+        // their own player (see __chFinalBossFireballFlightTime).
+        __chFinalBossFireballFlightTime = arg2;
         SPAWNQUEUE_ADD_1(chfinalboss_func_80386FD8, marker);
     }
     else{

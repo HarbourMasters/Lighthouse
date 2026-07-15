@@ -13,6 +13,7 @@
 extern f32 D_80392758[3];
 extern f32 D_80392768[3];
 extern f32 D_80392778[3];
+extern f32 __chFinalBossFireballFlightTime;
 extern ActorMarker *__chFinalBossFlightPadMarker;
 extern u8 __chFinalBossSpellBarrierActive;
 extern ActorArray *suBaddieActorArray;
@@ -107,7 +108,11 @@ void FightSync_OnBossDefeated(void) {
 
 void FightSync_OnSpellSpawned(s32 kind) {
     if (FightSync_IsLiveAuthority()) {
-        FightSync_SendEvent(FIGHT_EV_SPELL, kind, 0, D_80392758, D_80392768, D_80392778);
+        // For the aimed ballistic fireball (kind 0) carry the flight/lead time (ms) so each follower
+        // re-aims it at its own player. The fixed-target final fireball (1) and the homing green
+        // blast (2) are reproduced from the exact vectors, so they need no lead value.
+        s32 leadMs = (kind == 0) ? (s32)(__chFinalBossFireballFlightTime * 1000.0f) : 0;
+        FightSync_SendEvent(FIGHT_EV_SPELL, kind, leadMs, D_80392758, D_80392768, D_80392778);
     }
 }
 
@@ -432,6 +437,23 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsFollower() || v0 == NULL) {
                 return;
             }
+            // The aimed ballistic fireball (kind 0) is re-aimed at THIS client's own player rather
+            // than replayed from the authority's arc, so every player has to dodge one and the fight
+            // keeps its difficulty. func_80387110 runs the same vanilla lead + spawn against our
+            // streamed Grunty and local player; its follower spawn won't re-broadcast (authority-
+            // gated). The fixed-target final fireball (1) and homing green blast (2) already threaten
+            // everyone from the exact vectors, so those replay unchanged.
+            if (a == 0) {
+                if (boss != NULL) {
+                    f32 src[3];
+                    f32 leadTime = (b > 0) ? (b / 1000.0f) : 1.3f;
+                    src[0] = boss->position[0];
+                    src[1] = boss->position[1];
+                    src[2] = boss->position[2];
+                    chfinalboss_func_80387110(boss->marker, src, leadTime, 0);
+                }
+                break;
+            }
             // The spawn helpers read these globals; replay through the same queue path the
             // authority used. Their own broadcast is authority-gated, so this can't echo.
             for (i = 0; i < 3; i++) {
@@ -443,8 +465,6 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                 __spawnQueue_add_1((GenFunction_1)chfinalboss_func_80386EC0, 0);
             } else if (a == 1) {
                 __spawnQueue_add_1((GenFunction_1)chfinalboss_func_80387074, 0);
-            } else {
-                __spawnQueue_add_1((GenFunction_1)chfinalboss_func_80386FD8, 0);
             }
             break;
 
