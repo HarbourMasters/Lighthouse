@@ -92,7 +92,8 @@ bool chjinjonatorbase_netGetPads(uint8_t pads[4]);
 
 // --- C -> network (bridges implemented in the packet .cpp files) -----------------------
 
-void FightSync_SendUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror);
+void FightSync_SendUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror,
+                          int32_t vuln);
 // v0/v1/v2 may be NULL for events that carry no vectors.
 void FightSync_SendEvent(int32_t ev, int32_t a, int32_t b, const float v0[3], const float v1[3],
                          const float v2[3]);
@@ -112,10 +113,12 @@ void FightSync_OnAuthorityChanged(void);
 
 // Fill the stream fields from the live boss. Returns false when there is no boss to
 // stream (not in the fight map / boss absent) or the ending script has taken over.
-bool FightSync_GatherUpdate(float pos[3], float* yaw, int32_t* state, int32_t* phase, int32_t* mirror);
+bool FightSync_GatherUpdate(float pos[3], float* yaw, int32_t* state, int32_t* phase, int32_t* mirror,
+                            int32_t* vuln);
 
 // Follower-side appliers.
-void FightSync_ApplyUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror);
+void FightSync_ApplyUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror,
+                           int32_t vuln);
 void FightSync_ApplyEvent(int32_t ev, int32_t a, int32_t b, const float v0[3], const float v1[3],
                           const float v2[3]);
 

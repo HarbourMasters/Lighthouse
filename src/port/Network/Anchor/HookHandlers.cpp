@@ -61,8 +61,8 @@ static void Anchor_UpdateFightSync() {
 
     f32 pos[3];
     f32 yaw;
-    s32 state, phase, mirror;
-    if (!FightSync_GatherUpdate(pos, &yaw, &state, &phase, &mirror)) {
+    s32 state, phase, mirror, vuln;
+    if (!FightSync_GatherUpdate(pos, &yaw, &state, &phase, &mirror, &vuln)) {
         return; // no boss to run (not spawned yet, despawned, or ending script active)
     }
 
@@ -70,7 +70,7 @@ static void Anchor_UpdateFightSync() {
         NetAuthority_Claim(NET_ACTIVITY_FINAL_BOSS);
     }
     if (NetAuthority_IsClaimed(NET_ACTIVITY_FINAL_BOSS) && NetAuthority_IsSelf(NET_ACTIVITY_FINAL_BOSS)) {
-        anchor->SendPacket_FightUpdate(pos, yaw, state, phase, mirror);
+        anchor->SendPacket_FightUpdate(pos, yaw, state, phase, mirror, vuln);
     }
 }
 

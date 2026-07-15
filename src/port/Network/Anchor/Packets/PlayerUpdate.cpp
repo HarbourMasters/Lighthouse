@@ -194,6 +194,12 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
             Actor* carried = marker_getActor(carryMarker);
             if (carried != nullptr && !carried->unk138_21) {
                 carryId = carryMarker->id;
+                // Held pose: where the object rides relative to the player (the carry system
+                // places it at the model position + per-item height/rotation offsets,
+                // ba_carry.c) — so the display copy sits in the dummy's hands, not at its feet.
+                payload["carryOff"] = { carried->position[0] - pos[0], carried->position[1] - pos[1],
+                                        carried->position[2] - pos[2] };
+                payload["carryYaw"] = mlNormalizeAngle(carried->yaw - player_getYaw());
             }
         }
         payload["carry"] = carryId;
@@ -270,7 +276,21 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                                         payload.value("modelMouth2", false), payload.value("modelEyeBlendUpper", 0.0f),
                                         payload.value("modelEyeBlendLower", 0.0f));
         client.dummy->dummy_setBottlesBonus(payload.value("bottlesBonus", 0));
-        // Carried-collectible display copy: spawn/track/despawn to match what they're holding.
-        port_remoteCarry_setCarried(clientId, payload.value("carry", 0));
+        // Carried-collectible display copy: spawn/track/despawn to match what they're holding,
+        // riding the sender's held pose so it sits in the dummy's hands.
+        {
+            f32 carryOff[3] = { 0.0f, 0.0f, 0.0f };
+            f32 carryYaw = 0.0f;
+            if (payload.contains("carryOff")) {
+                std::vector<f32> off = payload["carryOff"].get<std::vector<f32>>();
+                if (off.size() >= 3) {
+                    carryOff[0] = off[0];
+                    carryOff[1] = off[1];
+                    carryOff[2] = off[2];
+                }
+                carryYaw = payload.value("carryYaw", 0.0f);
+            }
+            port_remoteCarry_setCarried(clientId, payload.value("carry", 0), carryOff, carryYaw);
+        }
     }
 }

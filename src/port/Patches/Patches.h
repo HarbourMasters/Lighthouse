@@ -182,7 +182,7 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // arrives via the CARRY_THROW packet and replays the same ballistic arc locally. Display only —
 // flags, spends, and quest progress ride their own sync paths. reset drops all tracked markers
 // and is called from actorArray_free (they're about to dangle).
-void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId);
+void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void port_remoteCarry_reset(void);
 // Anchor dummy players: forget every stand-in actor marker. Called from actorArray_free —

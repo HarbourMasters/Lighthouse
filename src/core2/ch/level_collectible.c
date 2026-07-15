@@ -50,6 +50,8 @@ static struct {
     u8 throwPending;     // throw arrived before the queued spawn completed
     f32 throwStart[3];
     f32 throwTarget[3];
+    f32 carryOff[3];     // held pose: object position relative to the owner (rides PLAYER_UPDATE)
+    f32 carryYawOff;     // held pose: object yaw relative to the owner's yaw
 } sRemoteCarry[REMOTE_CARRY_MAX];
 
 // Only the known carryables are spawnable as display copies; anything else in a carry packet
@@ -94,6 +96,15 @@ static void __remoteCarry_clearSlot(s32 slot) {
     sRemoteCarry[slot].marker = NULL;
     sRemoteCarry[slot].markerId = 0;
     sRemoteCarry[slot].throwPending = 0;
+    sRemoteCarry[slot].carryOff[0] = sRemoteCarry[slot].carryOff[1] = sRemoteCarry[slot].carryOff[2] = 0.0f;
+    sRemoteCarry[slot].carryYawOff = 0.0f;
+}
+
+static void __remoteCarry_setPose(s32 slot, f32 offset[3], f32 yawOffset) {
+    sRemoteCarry[slot].carryOff[0] = offset[0];
+    sRemoteCarry[slot].carryOff[1] = offset[1];
+    sRemoteCarry[slot].carryOff[2] = offset[2];
+    sRemoteCarry[slot].carryYawOff = yawOffset;
 }
 
 // Mirror of func_802D7DE8's arc math (velocity toward the truncated target, gravity 5/frame)
@@ -158,7 +169,7 @@ static void __remoteCarry_spawnMethod(s32 markerId, s32 clientId) {
     }
 }
 
-void port_remoteCarry_setCarried(u32 clientId, s32 markerId) {
+void port_remoteCarry_setCarried(u32 clientId, s32 markerId, f32 offset[3], f32 yawOffset) {
     s32 slot;
     if (clientId == 0) {
         return;
@@ -178,7 +189,9 @@ void port_remoteCarry_setCarried(u32 clientId, s32 markerId) {
     }
     if (slot >= 0) {
         if (sRemoteCarry[slot].markerId == markerId) {
-            return; // steady state
+            // Steady state: just refresh the held pose (it rides every PLAYER_UPDATE).
+            __remoteCarry_setPose(slot, offset, yawOffset);
+            return;
         }
         // Switched to a different carryable: drop the old display copy first.
         if (sRemoteCarry[slot].marker != NULL) {
@@ -194,6 +207,7 @@ void port_remoteCarry_setCarried(u32 clientId, s32 markerId) {
     sRemoteCarry[slot].markerId = markerId;
     sRemoteCarry[slot].marker = NULL;
     sRemoteCarry[slot].throwPending = 0;
+    __remoteCarry_setPose(slot, offset, yawOffset);
     __spawnQueue_add_2((void (*)(void))__remoteCarry_spawnMethod, markerId, clientId);
 }
 
@@ -256,10 +270,12 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
             marker_despawn(this->marker);
             return 1;
         }
-        this->position[0] = pos[0];
-        this->position[1] = pos[1];
-        this->position[2] = pos[2];
-        this->yaw = yaw;
+        // The owner's held pose (object position relative to their player, from PLAYER_UPDATE)
+        // puts the copy in the dummy's hands rather than at its feet.
+        this->position[0] = pos[0] + sRemoteCarry[slot].carryOff[0];
+        this->position[1] = pos[1] + sRemoteCarry[slot].carryOff[1];
+        this->position[2] = pos[2] + sRemoteCarry[slot].carryOff[2];
+        this->yaw = mlNormalizeAngle(yaw + sRemoteCarry[slot].carryYawOff);
         return 1;
     }
 
@@ -287,8 +303,8 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
                 sfx_playFadeShorthandDefault(SFX_B3_ORANGE_TALKING, 1.0f, 25000, this->position, 1000, 2000);
             }
             // Land like the thrower's real object does (state 4 -> snap to target height -> sits
-            // at the delivery spot): stay as an inert landed display (state 8). Despawning here
-            // made the delivered object vanish on teammates' screens the moment it landed.
+            // at the delivery spot): stay as a landed display (state 8). Despawning here made
+            // the delivered object vanish on teammates' screens the moment it landed.
             this->position[1] = landY;
             subaddie_set_state(this, 8);
             return 1;
@@ -307,17 +323,13 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
         return 1;
     }
 
-    if (this->state == 8) { // landed display copy: sits where it landed, display only
-        if (this->modelCacheIndex == ACTOR_2A_GOLD_BULLION) {
-            // Match the real landed gold's idle spin (func_802D83EC), minus its flag-driven
-            // despawn and particles — this copy must never touch game state.
-            this->yaw += time_getDelta() * 25.0f;
-            if (360.0 < this->yaw) {
-                this->yaw -= 360.0;
-            }
-        }
-        return 1;
-    }
+    // State 8 (landed display copy) deliberately returns 0: it falls through to the vanilla
+    // marker-specific lifecycle at the bottom of chLevelCollectible_update — gold spins and
+    // despawns via func_802D83EC exactly like the thrower's real landed gold (so it leaves
+    // when Blubber's does), the orange despawns when Chimpy leaves, presents stay
+    // non-collidable (func_802D84F4, state != 2). It can't be collected or touch quest state:
+    // it has no collision callback (never registered) and no carriedSync spawn data, the main
+    // state switch has no case 8, and the init blocks already ran at spawn.
 
     return 0;
 }

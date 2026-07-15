@@ -16,6 +16,12 @@ extern f32 D_80392778[3];
 extern ActorMarker *__chFinalBossFlightPadMarker;
 extern u8 __chFinalBossSpellBarrierActive;
 extern ActorArray *suBaddieActorArray;
+// Non-zero while the first-statue spawn cutscene is running (set when the four jinjo statues begin
+// rising, cleared when it ends / the first jinjo slams). Vanilla freezes the local player through
+// this cutscene, so a statue can never be fed until it is over.
+extern u8 sFinalBossJinjoStatueActivated;
+// Collision radius the boss brain uses when testing for a jinjo that has flown into Grunty.
+extern f32 func_8033229C(ActorMarker *marker);
 
 // From the jinjonator release (chfinalboss_setBossDefeated) the fight is a fixed script, so
 // every client — authority and followers alike — plays the ending on its own local simulation:
@@ -162,7 +168,7 @@ bool FightSync_ForwardEgg(s32 statue_id, s32 pad_index) {
 
 // --- stream: gather (authority) / apply (follower) ---------------------------------------------
 
-bool FightSync_GatherUpdate(f32 pos[3], f32 *yaw, s32 *state, s32 *phase, s32 *mirror) {
+bool FightSync_GatherUpdate(f32 pos[3], f32 *yaw, s32 *state, s32 *phase, s32 *mirror, s32 *vuln) {
     Actor *boss;
     ActorLocal_FinalBoss *local;
 
@@ -181,6 +187,11 @@ bool FightSync_GatherUpdate(f32 pos[3], f32 *yaw, s32 *state, s32 *phase, s32 *m
     *state = boss->state;
     *phase = local->phase;
     *mirror = local->mirror_phase5;
+    // Phase-2 vulnerability toggle. The collision-id callback (chfinalboss_func_8038B834) reads
+    // unkA to pick Grunty's hittable vs. moving-invulnerable marker id every frame, but unkA is a
+    // brain-internal the follower never runs — so without streaming it a follower computes the
+    // wrong id in phase 2 and its eggs pass straight through her. Other phases key off state/phase.
+    *vuln = local->unkA;
     return true;
 }
 
@@ -217,7 +228,7 @@ static void FightSync_ApplyBossState(Actor *this, s32 phase, s32 state) {
     }
 }
 
-void FightSync_ApplyUpdate(const f32 pos[3], f32 yaw, s32 state, s32 phase, s32 mirror) {
+void FightSync_ApplyUpdate(const f32 pos[3], f32 yaw, s32 state, s32 phase, s32 mirror, s32 vuln) {
     Actor *boss;
     ActorLocal_FinalBoss *local;
 
@@ -236,6 +247,9 @@ void FightSync_ApplyUpdate(const f32 pos[3], f32 yaw, s32 state, s32 phase, s32 
     boss->yaw = yaw;
     boss->yaw_ideal = yaw;
     local->mirror_phase5 = mirror;
+    // Track the authority's phase-2 vulnerability toggle so our collision-id callback matches hers
+    // (see FightSync_GatherUpdate) — applied every frame, not just on state change.
+    local->unkA = (u8)vuln;
     if (local->phase != (u8)phase || boss->state != state) {
         FightSync_ApplyBossState(boss, phase, state);
     }
@@ -371,6 +385,26 @@ bool FightSync_BossFollowerTick(void *bossPtr) {
         return false;
     }
     FightSync_CatchupTick(boss);
+
+    // A jinjo flies into Grunty at each client's own pace, but only the authority runs the brain
+    // that detects the impact and clears it — so a follower would leave the flown-in jinjo drawn on
+    // top of Grunty until the authority's one-shot slam event arrives (and that can land before this
+    // client's copy has even spawned, stranding it forever). Detect the impact locally too, so the
+    // jinjo pops here the moment it reaches our Grunty, exactly as it does on the authority. Grunty's
+    // own reaction still rides the FIGHT_UPDATE stream; this is display-only and phase-4-scoped so it
+    // can't touch the phase-5 jinjonator.
+    if (((ActorLocal_FinalBoss *)&boss->local)->phase == FINALBOSS_PHASE_4_JINJOS) {
+        ActorMarker *jinjoMarker = chfinalboss_findCollidingJinjo(boss, func_8033229C(boss->marker));
+        if (jinjoMarker != NULL) {
+            Actor *jinjo = marker_getActor(jinjoMarker);
+            if (jinjo != NULL && jinjo->actorTypeSpecificField >= BOSSJINJO_1_ORANGE &&
+                jinjo->actorTypeSpecificField <= BOSSJINJO_4_YELLOW) {
+                sFightNetJinjoSlammed |= 1 << jinjo->actorTypeSpecificField;
+            }
+            chbossjinjo_attack(jinjoMarker);
+        }
+    }
+
     switch (boss->state) {
         case 2:
         case 3:
@@ -493,6 +527,15 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (a == BOSSJINJO_5_JINJONATOR) {
                 chjinjonatorbase_netApplyEgg(b);
             } else {
+                // Drop a follower's statue egg that arrives while the first-statue spawn cutscene is
+                // still playing here. Vanilla freezes the local player through it, so a statue can
+                // never be fed this early — but a follower isn't frozen and could feed (and release)
+                // the first statue mid-cutscene, whose early jinjo slam then collides with the
+                // cutscene's own camera/lock teardown and softlocks the authority. Ignoring the egg
+                // restores the vanilla ordering; the follower re-feeds once the statues are up.
+                if (sFinalBossJinjoStatueActivated != 0) {
+                    return;
+                }
                 FightSync_ApplyJinjoStatueEgg(a);
             }
             break;

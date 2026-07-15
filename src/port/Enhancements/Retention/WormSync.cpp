@@ -168,6 +168,16 @@ extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
     return count;
 }
 
+// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): collected worms/acorns/gold/presents/
+// oranges respawn per visit in vanilla, so the pickup records reset once no player is left in
+// their level — the world objects come back and the count reconciliation (blubber.c) restarts
+// from zero, matching the delivery counters/steps that reset in the same sweep.
+void port_carriedSync_clearForLevel(int32_t levelId) {
+    std::erase_if(sCollected, [levelId](const std::array<int32_t, 3>& e) {
+        return (int32_t)map_getLevel((enum map_e)e[1]) == levelId;
+    });
+}
+
 extern "C" int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker) {
     int32_t slot = slotForKind(kind);
     if (slot < 0) {

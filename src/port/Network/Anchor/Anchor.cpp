@@ -370,6 +370,7 @@ extern void port_breakable_clearForLevel(int32_t levelId);
 extern void port_hutSmash_clearForLevel(int32_t levelId);
 extern void port_eggToll_clearForLevel(int32_t levelId);
 extern void port_puzzleStep_clearForLevel(int32_t levelId);
+extern void port_carriedSync_clearForLevel(int32_t levelId);
 
 // Temporary-persistence state (broken windows/grates, smashed huts, egg tolls, puzzle steps) is
 // only valid while its level stays continuously occupied: vanilla persists none of it, so once
@@ -404,6 +405,7 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
             port_hutSmash_clearForLevel(level);
             port_eggToll_clearForLevel(level);
             port_puzzleStep_clearForLevel(level);
+            port_carriedSync_clearForLevel(level);
         }
     }
 }
