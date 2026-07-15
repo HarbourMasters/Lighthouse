@@ -133,9 +133,22 @@ extern "C" void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t 
     Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map, false);
 }
 
+// game.c: silent despawn sweep of live actors recorded broken (no die effects).
+extern "C" void port_breakable_despawnBrokenRestores(s32 map);
+
 void RegisterBreakObject_Init() {
     // Never written to the save — drop it on save load so it can't leak across files.
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBroken.clear(); });
+
+    // Sub-area returns restore actors from the player's own stale savestate (initialized flag
+    // included), skipping the at-spawn isBroken check — a breakable a teammate broke while we
+    // were in the sub-area would come back intact. This fires after mapSavestate_apply (the
+    // gameloop OnMapLoad emit), so sweep the restored actors against the broken set. On fresh
+    // map loads the actor array is empty here and the at-spawn check covers everything.
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnMapLoad* ev = (OnMapLoad*)event;
+        port_breakable_despawnBrokenRestores((s32)ev->nextMap);
+    });
 }
 
 static RegisterShipInitFunc initBreakObject(RegisterBreakObject_Init, {});

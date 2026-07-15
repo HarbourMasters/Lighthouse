@@ -111,6 +111,20 @@ void port_eggToll_clearForLevel(int32_t levelId) {
 
 void RegisterEggToll_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sStages.clear(); });
+
+    // Sub-area returns restore the toll actors from the player's own stale savestate (initialized
+    // flag included), skipping the at-spawn stage restore — a stage a teammate paid while we were
+    // in the sub-area wouldn't show until a full reload. This fires after mapSavestate_apply (the
+    // gameloop OnMapLoad emit); remoteApply is idempotent (only ever advances) and no-ops when the
+    // toll actor doesn't exist (fresh loads, where the at-spawn restore covers it).
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnMapLoad* ev = (OnMapLoad*)event;
+        for (const auto& [key, stage] : sStages) {
+            if (key[0] == (int32_t)ev->nextMap) {
+                port_eggToll_remoteApply(key[0], key[1], stage);
+            }
+        }
+    });
 }
 
 static RegisterShipInitFunc initEggToll(RegisterEggToll_Init, {});

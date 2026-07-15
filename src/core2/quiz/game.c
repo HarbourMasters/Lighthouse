@@ -481,6 +481,31 @@ void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     }
 }
 
+// [port] Anchor: silent counterpart to remoteBreakAt for sub-area returns. The engine's actor
+// savestate memcpy's the player's stale snapshot (initialized = true included) over the freshly
+// parsed actors, so the at-spawn isBroken check in func_802D3CE8 never runs — a breakable a
+// teammate broke while we were in a sub-area came back intact. Called after the savestate has
+// applied (OnMapLoad listener in BreakObject.cpp); despawns without die effects, like the
+// at-spawn restore. Iterates backward: despawns swap-remove from the end, which only moves
+// already-visited elements.
+void port_breakable_despawnBrokenRestores(s32 map) {
+    s32 i;
+
+    if (suBaddieActorArray == NULL) {
+        return;
+    }
+    for (i = suBaddieActorArray->cnt - 1; i >= 0; i--) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        if (actor->marker == NULL || actor->despawn_flag) {
+            continue;
+        }
+        if (port_breakable_isBroken(map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
+                                    (s32)actor->position[2])) {
+            marker_despawn(actor->marker);
+        }
+    }
+}
+
 void func_802D3D54(Actor *this){
     func_802D3CE8(this);
 }
