@@ -86,12 +86,13 @@ void AnchorMainMenu(WidgetInfo& info) {
 
     if (UIWidgets::Button("Global Room", UIWidgets::ButtonOptions()
                                              .Color(UIWidgets::Colors::Blue)
-                                             .Tooltip("Always-online public room so you don't have to experience "
-                                                      "Hyrule alone. PVP and syncing are disabled."))) {
+                                             .Tooltip("Always-online public room so you don't have to explore alone. "
+                                                      "You'll see other players' characters, but nothing is synced — "
+                                                      "no items, flags, PvP, or teleporting."))) {
         CVarSetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org");
         CVarSetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383);
         CVarSetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
-        CVarSetString(CVAR_REMOTE_ANCHOR("RoomId"), "soh-global");
+        CVarSetString(CVAR_REMOTE_ANCHOR("RoomId"), "lh-global");
         Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
 
@@ -141,14 +142,17 @@ void AnchorMainMenu(WidgetInfo& info) {
     ImGui::SeparatorText("Current Room");
     ImGui::Text("%s Connected", ICON_FA_CHECK);
 
-    UIWidgets::PushStyleButton(THEME_COLOR);
-    if (ImGui::Button("Request Team State")) {
-        anchor->SendPacket_RequestTeamState();
-    }
-    UIWidgets::Tooltip("Try this if you are missing items or flags that your team members have collected");
-    UIWidgets::PopStyleButton();
+    // The global room syncs nothing, so a team-state request is meaningless there — hide it.
+    if (!anchor->IsGlobalRoom()) {
+        UIWidgets::PushStyleButton(THEME_COLOR);
+        if (ImGui::Button("Request Team State")) {
+            anchor->SendPacket_RequestTeamState();
+        }
+        UIWidgets::Tooltip("Try this if you are missing items or flags that your team members have collected");
+        UIWidgets::PopStyleButton();
 
-    ImGui::SameLine();
+        ImGui::SameLine();
+    }
 
     UIWidgets::WindowButton("Toggle Anchor Room Window", CVAR_WINDOW("AnchorRoom"), LighthouseGui::mAnchorRoomWindow);
 
@@ -161,10 +165,10 @@ void AnchorMainMenu(WidgetInfo& info) {
 
 void AnchorAdminMenu(WidgetInfo& info) {
     auto anchor = Anchor::GetInstance();
-    bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
+    // Nobody administers the global room — it has no owner-configurable settings.
     if (!anchor->isEnabled || !anchor->isConnected || anchor->roomState.ownerClientId != anchor->ownClientId ||
-        isGlobalRoom) {
+        anchor->IsGlobalRoom()) {
         return;
     }
 

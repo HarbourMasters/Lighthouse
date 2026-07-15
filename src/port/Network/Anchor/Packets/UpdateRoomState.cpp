@@ -20,15 +20,21 @@ extern "C" {
 nlohmann::json Anchor::PrepRoomState() {
     nlohmann::json payload;
     payload["ownerClientId"] = ownClientId;
-    bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
-    // if (isGlobalRoom) {
-    //     // Global room uses hardcoded settings
-    //     payload["pvpMode"] = 0;
-    //     payload["showLocationsMode"] = 0;
-    //     payload["teleportMode"] = 0;
-    //     payload["syncItemsAndFlags"] = 0;
-    // } else {
+    if (IsGlobalRoom()) {
+        // The global room is display-only: everyone just sees each other's dummies. Force every
+        // gameplay setting off. This state is also what the HANDSHAKE ships (Handshake.cpp), so the
+        // very first client to connect creates the server-side room with syncing disabled.
+        payload["pvpMode"] = 0;
+        payload["showLocationsMode"] = 0;
+        payload["teleportMode"] = 0;
+        payload["syncItemsAndFlags"] = 0;
+        payload["shareConsumables"] = 0;
+        payload["isRomHack"] = false;
+        payload["romhackName"] = "";
+        return payload;
+    }
+
     payload["pvpMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.PvpMode"), 1);
     payload["showLocationsMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShowLocationsMode"), 1);
     payload["teleportMode"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.TeleportMode"), 1);
@@ -36,7 +42,6 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["shareConsumables"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShareConsumables"), 0);
     payload["isRomHack"] = port_isRomhack();
     payload["romhackName"] = Lighthouse::CurrentRomhackLabel();
-    //}
 
     return payload;
 }
@@ -53,6 +58,22 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     if (!payload.contains("state")) {
         return;
     }
+
+    // The global room never syncs anything, so ignore whatever room state is on the wire and pin
+    // every gameplay setting off locally. Romhack identity is irrelevant with no syncing, so skip
+    // the mismatch warning too (players run all sorts of mods in the public room).
+    if (IsGlobalRoom()) {
+        roomState.ownerClientId = payload["state"].value("ownerClientId", (uint32_t)0);
+        roomState.pvpMode = 0;
+        roomState.showLocationsMode = 0;
+        roomState.teleportMode = 0;
+        roomState.syncItemsAndFlags = 0;
+        roomState.shareConsumables = 0;
+        roomState.isRomhack = false;
+        roomState.romhackName.clear();
+        return;
+    }
+
     roomState.isRomhack = payload["state"]["isRomHack"].get<bool>();
     roomState.romhackName = payload["state"]["romhackName"].get<std::string>();
     const std::string localLabel = Lighthouse::CurrentRomhackLabel();

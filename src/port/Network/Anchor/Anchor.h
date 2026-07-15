@@ -40,16 +40,16 @@ typedef struct {
     DummyPlayer* dummy;
 } AnchorClient;
 
-typedef struct {
-    uint32_t ownerClientId;
-    u8 pvpMode;           // 0 = off, 1 = on, 2 = on with friendly fire
-    u8 showLocationsMode; // 0 = none, 1 = team, 2 = all
-    u8 teleportMode;      // 0 = off, 1 = team, 2 = all
-    u8 syncItemsAndFlags; // 0 = off, 1 = on
-    u8 shareConsumables;  // 0 = off, 1 = on — share egg/feather counts in team state
-    bool isRomhack;
+struct RoomState {
+    uint32_t ownerClientId = 0;
+    u8 pvpMode = 0;           // 0 = off, 1 = on, 2 = on with friendly fire
+    u8 showLocationsMode = 0; // 0 = none, 1 = team, 2 = all
+    u8 teleportMode = 0;      // 0 = off, 1 = team, 2 = all
+    u8 syncItemsAndFlags = 0; // 0 = off, 1 = on
+    u8 shareConsumables = 0;  // 0 = off, 1 = on — share egg/feather counts in team state
+    bool isRomhack = false;
     std::string romhackName;
-} RoomState;
+};
 
 // True for scoped (level/map) flags with per-client consume semantics that must not sync.
 // Defined in HookHandlers.cpp; used by the realtime broadcast and the entry-sync (ScopedState).
@@ -210,6 +210,11 @@ public:
     bool CanTeleportTo(uint32_t clientId);
     uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
+
+    // The always-online public room (RoomId "lh-global"): players only see each other's dummies —
+    // no item/flag/quest syncing, no PvP/teleport, and nobody gets admin controls. Keyed on the
+    // local RoomId CVar so it's known before any room state arrives.
+    bool IsGlobalRoom();
 
     // True when the player wants to see teammate-event notifications (jiggies, level
     // unlocks, rando checks). Personal client-side setting, defaults on.

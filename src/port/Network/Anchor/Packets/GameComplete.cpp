@@ -33,10 +33,9 @@ void Anchor::HandlePacket_GameComplete(nlohmann::json& payload) {
 
     AnchorClient& anchorClient = clients[clientId];
     anchorClient.isGameComplete = true;
-    bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
     // Notification::Emit({
-    //     .prefix = isGlobalRoom ? "Someone" : anchorClient.name,
+    //     .prefix = IsGlobalRoom() ? "Someone" : anchorClient.name,
     //     .message = ShipUtils::RandomElement(gameCompleteMessages),
     // });
 }

@@ -31,7 +31,13 @@ void Anchor::Enable() {
     Network::Enable(CVarGetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org"),
                     CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383));
     ownClientId = CVarGetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), 0);
-    roomState.ownerClientId = 0;
+    // Start from a fully sync-off room state until an UPDATE_ROOM_STATE arrives, so nothing syncs
+    // in the window before it (and so the global room never briefly syncs on stale values).
+    roomState = RoomState{};
+}
+
+bool Anchor::IsGlobalRoom() {
+    return std::string("lh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "");
 }
 
 void Anchor::Disable() {
