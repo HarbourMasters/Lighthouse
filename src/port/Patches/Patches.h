@@ -195,6 +195,14 @@ int32_t port_puzzleStep_get(int32_t puzzleId);
 // in different maps (FP tree ice: recorded inside the tree, also read from the FP hub).
 int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
 
+// PUZZLE_COUNT: shared monotonic delivery counters keyed by (current map, counterId) — for
+// progress that is a count, not distinct steps, where concurrent deliveries must all land
+// (delta-synced; see PuzzleStep.cpp). add() records + broadcasts; get() reads the team total.
+#define ANCHOR_COUNT_CCW_EYRIE_FED 0
+#define ANCHOR_COUNT_CCW_NABNUT_ACORNS 1
+void port_puzzleCount_add(int32_t counterId, int32_t delta);
+int32_t port_puzzleCount_get(int32_t counterId);
+
 // MM/BGS huts: break + dropped-bundle sync with temporary persistence. record stores + broadcasts
 // the (spawn position -> bundle index) a hut dropped (idempotent, first smasher wins); get returns
 // the recorded index for a hut at this position, or -1. The hut actor breaks + drops live for a

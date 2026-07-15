@@ -2,6 +2,11 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Patches/Patches.h" // [port] Anchor shared acorn-count (port_puzzleCount_*)
+
+// [port] Anchor: within-one-call flavor flag — a teammate's remote completion runs the
+// backflip/thank-you without the camera pan + dialog (those belong to the finisher).
+static s32 sNabnutRemote = 0;
 
 typedef struct {
     s32 returned_acorn_count;
@@ -48,16 +53,24 @@ void chnabnut_setState(Actor *this, s32 next_state) {
         this->marker->propPtr->unk8_3 = false;
         skeletalAnim_set(this->unk148, ASSET_22D_ANIM_NABNUT_BACKFLIP, 0.2f, 3.13f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        func_80324E38(0.0f, 3);
-        timed_setStaticCameraToNode(0.0f, 0xB);
-        gcdialog_showDialog(0xCCC, 0x20, this->position, NULL, NULL, NULL);
+        // [port] The camera pan + dialog belong to the player who returned the final acorn;
+        // on a remote completion just play the animations.
+        if (!sNabnutRemote) {
+            func_80324E38(0.0f, 3);
+            timed_setStaticCameraToNode(0.0f, 0xB);
+            gcdialog_showDialog(0xCCC, 0x20, this->position, NULL, NULL, NULL);
+        }
     }
 
     if (next_state == NABNUT_STATE_4_THANK_PLAYER) {
         skeletalAnim_set(this->unk148, ASSET_22E_ANIM_NABNUT_STAND, 0.2f, 3.53f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_1_LOOP);
         bundle_setYaw(this->yaw - 40.0f);
-        jiggy_spawn(JIGGY_4A_CCW_NABNUT, this->position);
+        // [port] Gated so two clients finishing near-simultaneously (or a remote completion
+        // racing the finisher's JIGGY_SPAWN record) can't double-spawn the jiggy.
+        if (!jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT)) {
+            jiggy_spawn(JIGGY_4A_CCW_NABNUT, this->position);
+        }
     }
 
     if (next_state == NABNUT_STATE_5_EXIT) {
@@ -65,8 +78,10 @@ void chnabnut_setState(Actor *this, s32 next_state) {
     }
 
     if (next_state == NABNUT_STATE_6_DESPAWN) {
-        func_80324E38(0.0f, 0);
-        timed_exitStaticCamera(0.0f);
+        if (!sNabnutRemote) {
+            func_80324E38(0.0f, 0);
+            timed_exitStaticCamera(0.0f);
+        }
         marker_despawn(this->marker);
     }
 
@@ -123,7 +138,10 @@ void chnabnut_update(Actor *this) {
         D_8038F350[2] = this->position[2];
         if (this->state == 0) {
             this->has_met_before = false;
-            local->returned_acorn_count = 0;
+            // [port] Anchor: seed from the team's shared returned count — acorns teammates
+            // returned while we were elsewhere (sub-areas included) must count here too.
+            local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+            sNabnutRemote = 0;
         }
         chnabnut_setState(this, 1);
         if(jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT)) {
@@ -146,11 +164,28 @@ void chnabnut_update(Actor *this) {
             player_setCarryObjectPoseInCylinder(this->position, 500.0f, 200.0f, ACTOR_2A9_ACORN, &this);
             if ((carriedObj_getActorId() == ACTOR_2A9_ACORN) && (ml_vec3f_distance(this->position, sp30) < 300.0f) && player_throwCarriedObject()) {
                 player_setThrowTargetPosition(D_8038F350);
-                local->returned_acorn_count++;
-                if (local->returned_acorn_count == 6) {
+                // [port] Anchor: the returned count is team-shared. Record + broadcast our
+                // return as a delta (concurrent returners' deltas compose — an absolute set
+                // would lose one and strand the jiggy), then act on the team total.
+                port_puzzleCount_add(ANCHOR_COUNT_CCW_NABNUT_ACORNS, 1);
+                local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+                if (local->returned_acorn_count >= 6) {
                     chnabnut_setState(this, NABNUT_STATE_2_WAIT);
                 } else if (item_getCount(ITEM_23_ACORNS) == 1) {
                     gcdialog_showDialog(0xCCB, 0x20, this->position, NULL, NULL, NULL);
+                }
+            }
+        }
+        // [port] Anchor: a teammate returned acorns (the shared counter moved past our applied
+        // mirror). On the final one, run the thank-you sequence without the camera/dialog —
+        // their client spawns the jiggy, which reaches us via the JIGGY_SPAWN record.
+        if (this->state == NABNUT_STATE_1_SAD) {
+            s32 sharedReturned = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+            if (sharedReturned > local->returned_acorn_count) {
+                local->returned_acorn_count = sharedReturned;
+                if (sharedReturned >= 6) {
+                    sNabnutRemote = 1;
+                    chnabnut_setState(this, NABNUT_STATE_2_WAIT);
                 }
             }
         }

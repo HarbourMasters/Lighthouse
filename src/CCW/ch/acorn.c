@@ -5,6 +5,10 @@
 #include "port/Enhancements/Retention/Retention.h"
 
 extern ActorMarker *func_8028E86C(void);
+// [port] Anchor remote-carry display (level_collectible.c / CarryThrow.cpp): a teammate's
+// carried/thrown acorn shows here as a display copy; our own throw is broadcast for theirs.
+extern s32 port_remoteCarry_displayUpdate(Actor *this);
+extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
 typedef struct {
     f32 unk0[3];
@@ -63,6 +67,12 @@ void func_8038C7A8(Actor *this) {
 
     local = (ActorLocal_CCW_61E0 *)&this->local;
     sp44 = time_getDelta();
+
+    // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic.
+    if (port_remoteCarry_displayUpdate(this)) {
+        return;
+    }
+
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
         return;
@@ -105,6 +115,12 @@ void func_8038C7A8(Actor *this) {
     }
     if (this->state == 2) {
         if (this->unk138_21) {
+            // [port] Replay this throw on teammates' clients (their display copy flies to the
+            // same target — Nabnut's stash). Sent before the state change so position is the
+            // launch point.
+            f32 throwTarget[3];
+            func_8038BC50(throwTarget);
+            port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
             func_8028F010(0x2A9);
             // [port] Spending an acorn (given to Nabnut) — sync the -1 to the shared pool.
             port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_ACORN);

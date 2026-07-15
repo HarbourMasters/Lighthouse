@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Patches/Patches.h" // [port] Anchor shared fed-count (port_puzzleCount_*)
 
 typedef struct {
     f32 unk0;
@@ -223,7 +224,10 @@ void CCW_func_80389BFC(Actor *this) {
         D_8038FDE0[1] = this->position[1];
         D_8038FDE0[2] = this->position[2];
         if (this->state == 0) {
-            local->unk4 = 0U;
+            // [port] Anchor: seed from the team's shared fed count (keyed per map, so each
+            // season's eyrie counts separately) instead of 0 — worms teammates fed while we
+            // were elsewhere (other seasons/sub-areas included) must count here too.
+            local->unk4 = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
         }
         local->unk0 = &D_8038F080[0];
         while(local->unk0->map_id != 0 && gsworld_getMap() != local->unk0->map_id){
@@ -277,11 +281,28 @@ void CCW_func_80389BFC(Actor *this) {
                 if ((local->unk0->map_id == MAP_44_CCW_SUMMER) && (local->unk4 == 0)) {
                     gcdialog_showDialog(0xCD8, 4, NULL, NULL, NULL, NULL);
                 }
-                local->unk4++;
+                // [port] Anchor: the fed count is team-shared. Record + broadcast our throw as a
+                // delta (concurrent feeders' deltas compose — an absolute set would lose one and
+                // strand the jiggy), then act on the team total.
+                port_puzzleCount_add(ANCHOR_COUNT_CCW_EYRIE_FED, 1);
+                local->unk4 = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
                 if (local->unk4 < local->unk0->unk25) {
                     func_803897B8(this, 5);
                 } else {
                     func_803897B8(this, 2);
+                }
+            }
+        }
+        // [port] Anchor: a teammate fed a worm (the shared counter moved past our applied
+        // mirror): play the interim eat animation, like their screen shows. The FINAL feed's
+        // sleep/hatch transition rides the fed fileprog flag sync below instead — the finisher
+        // plays the full cutscene, we just transition.
+        if (this->state == 1) {
+            s32 sharedFed = port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
+            if (sharedFed > (s32)local->unk4) {
+                local->unk4 = (u32)sharedFed;
+                if ((s32)local->unk4 < (s32)local->unk0->unk25) {
+                    func_803897B8(this, 5);
                 }
             }
         }

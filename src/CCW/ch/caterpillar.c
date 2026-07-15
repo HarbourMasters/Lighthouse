@@ -6,6 +6,10 @@
 
 extern ActorMarker *func_8028E86C(void);
 extern void func_8028F7D4(f32, f32);
+// [port] Anchor remote-carry display (level_collectible.c / CarryThrow.cpp): a teammate's
+// carried/thrown worm shows here as a display copy; our own throw is broadcast for theirs.
+extern s32 port_remoteCarry_displayUpdate(Actor *this);
+extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
 typedef struct {
     f32 unk0[3];
@@ -86,6 +90,11 @@ void chcaterpillar_update(Actor *this){
     f32 sp60;
     f32 sp54[3];
     int i;
+
+    // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic.
+    if (port_remoteCarry_displayUpdate(this)) {
+        return;
+    }
 
     sp8C = func_8028E86C() == this->marker;
     sp84 = time_getDelta();
@@ -183,6 +192,11 @@ void chcaterpillar_update(Actor *this){
 
     if(this->state == 2){
         if(this->unk138_21){
+            // [port] Replay this throw on teammates' clients (their display copy flies to the
+            // same target — the Eyrie). Sent before the state change so position is the launch point.
+            f32 throwTarget[3];
+            func_80389BD8(throwTarget);
+            port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
             func_8028F010(ACTOR_2A2_CATERPILLAR);
             // [port] Spending a worm (thrown at Eyrie) — sync the -1 to the shared pool.
             port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_WORM);

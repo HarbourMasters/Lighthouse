@@ -52,8 +52,10 @@ static struct {
     f32 throwTarget[3];
 } sRemoteCarry[REMOTE_CARRY_MAX];
 
-// Only the level_collectible carryables are spawnable as display copies; anything else
-// in a carry packet (stale/foreign data) is ignored.
+// Only the known carryables are spawnable as display copies; anything else in a carry packet
+// (stale/foreign data) is ignored. The CCW worm/acorn actors delegate their display copies to
+// this module too (port_remoteCarry_displayUpdate) even though their real update funcs live in
+// caterpillar.c/acorn.c.
 static s32 __remoteCarry_actorIdForMarker(s32 markerId) {
     switch (markerId) {
         case MARKER_36_ORANGE_COLLECTIBLE:         return ACTOR_29_ORANGE_COLLECTIBLE;
@@ -61,6 +63,8 @@ static s32 __remoteCarry_actorIdForMarker(s32 markerId) {
         case MARKER_1FD_BLUE_PRESENT_COLLECTIBLE:  return ACTOR_1ED_BLUE_PRESENT_COLLECTIBLE;
         case MARKER_1FE_GREEN_PRESENT_COLLECTIBLE: return ACTOR_1EF_GREEN_PRESENT_COLLECTIBLE;
         case MARKER_1FF_RED_PRESENT_COLLECTIBLE:   return ACTOR_1F1_RED_PRESENT_COLLECTIBLE;
+        case MARKER_1B5_CATERPILLAR:               return ACTOR_2A2_CATERPILLAR;
+        case 0x1BC /* acorn marker (unnamed) */:   return ACTOR_2A9_ACORN;
         default:                                   return 0;
     }
 }
@@ -236,7 +240,9 @@ void port_remoteCarry_reset(void) {
 
 // Per-frame behavior for the display copies. Returns nonzero if this actor is one (the
 // caller must then skip ALL vanilla logic — collect, flags, despawn checks — for it).
-static s32 __chLevelCollectible_remoteUpdate(Actor *this) {
+// Non-static as port_remoteCarry_displayUpdate: the CCW worm/acorn actors (caterpillar.c,
+// acorn.c) run their display copies through this too, from their own update funcs.
+s32 port_remoteCarry_displayUpdate(Actor *this) {
     s32 slot = __remoteCarry_findByMarker(this->marker);
 
     if (this->state == 6 || slot >= 0) { // carried: glued to the owner's dummy
@@ -264,6 +270,14 @@ static s32 __chLevelCollectible_remoteUpdate(Actor *this) {
         this->position[2] += this->velocity[2];
         landY = (--this->unk38_31 < 4) ? this->unk1C[1] : this->position[1];
         if (this->position[1] < landY) {
+            // Worms/acorns are consumed at delivery (eaten by Eyrie / stashed by Nabnut) — the
+            // thrower's real object despawns with just a ding (state 4 there), so the display
+            // copy does too.
+            if (this->modelCacheIndex == ACTOR_2A2_CATERPILLAR || this->modelCacheIndex == ACTOR_2A9_ACORN) {
+                coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
+                marker_despawn(this->marker);
+                return 1;
+            }
             if (this->modelCacheIndex == ACTOR_2A_GOLD_BULLION) {
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 32000);
             }
@@ -637,7 +651,7 @@ void chLevelCollectible_update(Actor *this){
 
     // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic —
     // it must never collect, set flags, register with carriedSync, or despawn-check.
-    if (__chLevelCollectible_remoteUpdate(this)) {
+    if (port_remoteCarry_displayUpdate(this)) {
         return;
     }
 
