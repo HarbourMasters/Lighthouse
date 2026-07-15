@@ -272,7 +272,11 @@ static s32 __chLevelCollectible_remoteUpdate(Actor *this) {
             } else {
                 sfx_playFadeShorthandDefault(SFX_B3_ORANGE_TALKING, 1.0f, 25000, this->position, 1000, 2000);
             }
-            marker_despawn(this->marker);
+            // Land like the thrower's real object does (state 4 -> snap to target height -> sits
+            // at the delivery spot): stay as an inert landed display (state 8). Despawning here
+            // made the delivered object vanish on teammates' screens the moment it landed.
+            this->position[1] = landY;
+            subaddie_set_state(this, 8);
             return 1;
         }
         switch (this->marker->id) {
@@ -285,6 +289,18 @@ static s32 __chLevelCollectible_remoteUpdate(Actor *this) {
             case MARKER_1FF_RED_PRESENT_COLLECTIBLE:
                 __chLevelCollectible_presentReturnEmitSparkles(this->position, ASSET_715_SPRITE_SPARKLE_RED);
                 break;
+        }
+        return 1;
+    }
+
+    if (this->state == 8) { // landed display copy: sits where it landed, display only
+        if (this->modelCacheIndex == ACTOR_2A_GOLD_BULLION) {
+            // Match the real landed gold's idle spin (func_802D83EC), minus its flag-driven
+            // despawn and particles — this copy must never touch game state.
+            this->yaw += time_getDelta() * 25.0f;
+            if (360.0 < this->yaw) {
+                this->yaw -= 360.0;
+            }
         }
         return 1;
     }
