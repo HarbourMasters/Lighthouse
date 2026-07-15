@@ -46,6 +46,7 @@ void* assetcache_get(int assetId);
 void assetcache_release(void* ptr);
 void bk_free(void* ptr);
 void port_refreshDialogFontGlyphCount(void);
+void port_dialogFontHd_rebuild(void);
 }
 
 // Live language change reactions
@@ -96,6 +97,8 @@ void ReloadDialogFontSlot() {
     assetcache_release(tex);
     // A pack may ship an extended dialog font; refresh the reachable glyph count to match.
     port_refreshDialogFontGlyphCount();
+    // Build cross-revision-corrected HD glyph textures for the current base (no-op without a pack).
+    port_dialogFontHd_rebuild();
 }
 
 // Per cached-model-slot generation
