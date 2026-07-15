@@ -16,10 +16,10 @@
 LighthouseInputEditorWindow::~LighthouseInputEditorWindow() {
     auto ignored = Ship::Context::GetRawInstance()->GetControlDeck()->GetConnectedPhysicalDeviceManager()->GetIgnoredInstanceIdsForPort(0);
     if (!ignored.empty()) {
-        Ship::Context::GetRawInstance()->GetConfig()->SetBlock(CVAR_SETTING("IgnoredControllers"), ignored);
+        Ship::Context::GetRawInstance()->GetConfig()->SetBlock("CVars.gSettings.IgnoredControllers", ignored);
     }
     else {
-        Ship::Context::GetRawInstance()->GetConfig()->EraseBlock(CVAR_SETTING("IgnoredControllers"));
+        Ship::Context::GetRawInstance()->GetConfig()->EraseBlock("CVars.gSettings.IgnoredControllers");
     }
 }
 
@@ -48,12 +48,13 @@ void LighthouseInputEditorWindow::InitElement() {
     addButtonName(BTN_DLEFT, "D-pad left");
     addButtonName(BTN_DRIGHT, "D-pad right");
     addButtonName(0, "None");
-    json ignored = Ship::Context::GetRawInstance()->GetControlDeck()->GetConnectedPhysicalDeviceManager()->GetIgnoredInstanceIdsForPort(0);
-    if (!ignored.empty()) {
-        Ship::Context::GetRawInstance()->GetConfig()->SetBlock(CVAR_SETTING("IgnoredControllers"), ignored);
-    }
-    else {
-        Ship::Context::GetRawInstance()->GetConfig()->EraseBlock(CVAR_SETTING("IgnoredControllers"));
+    if (Ship::Context::GetRawInstance()->GetConfig()->GetNestedJson()["CVars"]["gSettings"].contains("IgnoredControllers")) {
+        std::vector<int> ignored = Ship::Context::GetRawInstance()->GetConfig()->GetNestedJson()["CVars"]["gSettings"]["IgnoredControllers"];
+        if (!ignored.empty()) {
+            for (int id : ignored) {
+                Ship::Context::GetRawInstance()->GetControlDeck()->GetConnectedPhysicalDeviceManager()->IgnoreInstanceIdForPort(0, id);
+            }
+        }
     }
 }
 
