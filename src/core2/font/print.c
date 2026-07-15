@@ -5,6 +5,7 @@
 
 extern int ResourceMgr_GetDialogLanguageCount(void);
 extern int ResourceMgr_IsJapanese(void);
+extern void port_dialogFontHd_rebuild(void);
 // [port] PAL font has 75 glyphs (0x21-0x6B), overlapping NTSC control codes b,d,e,f,h,j.
 // When PAL, fmtStrings use shifted codes above the glyph range.
 #define PRINT_PAL (ResourceMgr_GetDialogLanguageCount() > 1)
@@ -478,6 +479,7 @@ void print_init(void){
     D_80380AB8[4] = assetcache_get(print_getCurrentMapBoldFontTexture());
     print_sFonts[0] =  print_getLettersFromFont(D_80380AB8[0], D_80380AB8[4]);
     print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
+    port_dialogFontHd_rebuild();
     print_sFonts[1] =  print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
     if (PRINT_JP) {
         // [port] JP font index 2 = the Japanese dialog font (sprite 1770, 256 I4 glyphs).
