@@ -1071,6 +1071,51 @@ void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s
     fileProgressFlag_set(progress_flag, true);
 }
 
+// [port] Anchor: pending live entrance-door open from a teammate's podium completion (see
+// port_leveldoor_remoteOpen). Holds the door actor id to animate open; expires on its own once
+// that door's persistent open flag is set (the open animation's completion sets it).
+static s32 sRemoteOpenDoorActor = 0;
+
+// The persistent "<level> open" flag each entrance door sets when its open animation finishes
+// (and snap-opens from at spawn).
+static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
+    switch (actorId) {
+        case ACTOR_20E_MM_ENTRANCE_DOOR:       return FILEPROG_31_MM_OPEN;
+        case ACTOR_211_TTC_ENTRANCE_CHEST_LID: return FILEPROG_32_TTC_OPEN;
+        case ACTOR_212_CC_ENTRANCE_BARS:       return FILEPROG_33_CC_OPEN;
+        case ACTOR_210_BGS_ENTRANCE_DOOR:      return FILEPROG_34_BGS_OPEN;
+        case ACTOR_235_FP_ENTRANCE_DOOR_LEFT:  return FILEPROG_35_FP_OPEN;
+        case ACTOR_226_GV_ENTRANCE:            return FILEPROG_36_GV_OPEN;
+        case ACTOR_228_MMM_ENTRANCE_DOOR:      return FILEPROG_37_MMM_OPEN;
+        case ACTOR_20F_RBB_ENTRANCE_DOOR:      return FILEPROG_38_RBB_OPEN;
+        case ACTOR_234_CCW_ENTRANCE_DOOR:      return FILEPROG_39_CCW_OPEN;
+        case ACTOR_2E5_DOOR_OF_GRUNTY:         return FILEPROG_E2_DOOR_OF_GRUNTY_OPEN;
+        default:                               return 0;
+    }
+}
+
+// [port] Anchor: a teammate completed an entrance's jigsaw podium (SetFlag.cpp, keyed on the
+// "cutscene seen" fileprogs 0x28-0x30/0xE2; the cutscene-trigger LEVEL flags themselves stay
+// local — Anchor_ScopedFlagExcluded). Arm that entrance's door to run the same open animation
+// the completer's cutscene drives, minus all camera/warp. If the door isn't spawned here (we're
+// in another map), the arm just waits and expires when the persistent open flag arrives — the
+// spawn-time snap-open covers the door from then on.
+void port_leveldoor_remoteOpen(s32 progressFlag) {
+    switch (progressFlag) {
+        case 0x28: sRemoteOpenDoorActor = ACTOR_20E_MM_ENTRANCE_DOOR; break;
+        case 0x29: sRemoteOpenDoorActor = ACTOR_211_TTC_ENTRANCE_CHEST_LID; break;
+        case 0x2A: sRemoteOpenDoorActor = ACTOR_212_CC_ENTRANCE_BARS; break;
+        case 0x2B: sRemoteOpenDoorActor = ACTOR_210_BGS_ENTRANCE_DOOR; break;
+        case 0x2C: sRemoteOpenDoorActor = ACTOR_235_FP_ENTRANCE_DOOR_LEFT; break;
+        case 0x2D: sRemoteOpenDoorActor = ACTOR_226_GV_ENTRANCE; break;
+        case 0x2E: sRemoteOpenDoorActor = ACTOR_228_MMM_ENTRANCE_DOOR; break;
+        case 0x2F: sRemoteOpenDoorActor = ACTOR_20F_RBB_ENTRANCE_DOOR; break;
+        case 0x30: sRemoteOpenDoorActor = ACTOR_234_CCW_ENTRANCE_DOOR; break;
+        case 0xE2: sRemoteOpenDoorActor = ACTOR_2E5_DOOR_OF_GRUNTY; break;
+        default: break;
+    }
+}
+
 void func_80388450(Actor *actor1, Actor *actor2)
 {
     f32 vec1[3];
@@ -1100,12 +1145,24 @@ void func_80388524(Actor *this) {
     ParticleEmitter *sp2C;
     Actor *sp28;
 
-    sp34 = func_802D677C(-1) 
+    sp34 = func_802D677C(-1)
              && (func_802D677C(-1) == gsworld_getMap())
              && (func_802D67AC(-1) >= 8)
              && (func_802D67AC(-1) < 0x12)
              && (func_802D67DC(-1) == this->modelCacheIndex)
              ;
+
+    // [port] Anchor: a teammate's podium completion armed this door (port_leveldoor_remoteOpen);
+    // run the same open animation the cutscene would, with no camera/warp. Expires once the
+    // persistent open flag is set — by this animation finishing, or by the completer's flag
+    // arriving first (then the spawn-time snap-open above already handled the door).
+    if (!sp34 && this->modelCacheIndex == sRemoteOpenDoorActor) {
+        if (fileProgressFlag_get(__leveldoor_persistentFlag(this->modelCacheIndex))) {
+            sRemoteOpenDoorActor = 0;
+        } else {
+            sp34 = true;
+        }
+    }
 
     func_802D3D74(this);
     if (!this->initialized) {

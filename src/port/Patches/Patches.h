@@ -108,6 +108,13 @@ void port_beginDemoAudioHold(void);
 // open flag. No-op for non-note-door flags or when that door isn't present.
 void port_notedoor_remoteOpen(int32_t progressFlag);
 
+// Animate the lair entrance door whose podium a teammate just completed — the same open
+// animation the completer's cutscene drives, minus all camera/warp. progressFlag is the
+// entrance-open "cutscene seen" fileprog (0x28-0x30, 0xE2). No-op for other flags; if the door
+// isn't spawned here, the arm waits and expires once the persistent open flag syncs (spawn-time
+// snap-open covers it from then on). Defined in LAIR/actor_spawninit.c.
+void port_leveldoor_remoteOpen(int32_t progressFlag);
+
 // Breakable lair objects (cobwebs, brickwalls, ice ball, grates, statue eye, rareware box,
 // crypt gate). Replay the break (effect + despawn) for the object whose "broken" flag was
 // just received over the network, if it's spawned in the current map. progressFlag is the

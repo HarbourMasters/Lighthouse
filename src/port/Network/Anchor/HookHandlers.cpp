@@ -112,6 +112,22 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         // syncs on its own via JIGGY_SPAWN, so the teammate's Chimpy walks off silently off the
         // jiggy instead (lmonkey.c) — no flag share needed.
         (ANCHOR_FLAGSPACE_MAP_SPECIFIC << 16) | MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED,
+        // Lair entrance-open cutscene triggers: a completed jigsaw podium sets these, and
+        // func_802D5178 consumes them to start the entrance-open cutscene — which warps the
+        // player to the door's map and back (or somewhere wrong, from another sub-lair map).
+        // Only the completer should play it. The persistent open state (the "cutscene seen"
+        // fileprogs 0x28-0x30/0xE2 and the FILEPROG_3x_OPEN flags) still syncs via SET_FLAG,
+        // and the teammate "opened X" notification rides those in SetFlag.cpp.
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1C_MM_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1D_TTC_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1E_CC_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1F_BGS_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_20_FP_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_21_GV_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_22_MMM_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_23_RBB_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_24_CCW_OPEN,
+        (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_3F_LAIR_GRUNTY_DOOR_OPEN,
     };
     if (excluded.contains((space << 16) | index)) {
         return true;

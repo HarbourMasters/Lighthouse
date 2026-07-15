@@ -8,12 +8,34 @@ extern "C" {
 
 #include "port/Patches/Patches.h"
 #include "port/Rando/Rando.h"
+#include "port/UI/Notification.h"
 
 /**
  * SET_FLAG
  *
  * Fired when a flag bit is set (raised) in either flag space.
  */
+
+// Display name for a lair entrance-open "cutscene seen" file-progress flag (func_802D5178 sets
+// these the moment a jigsaw podium completes), or nullptr for any other flag. The level-open
+// LEVEL flags themselves are excluded from sync (they'd start the warping entrance cutscene on
+// teammates — see Anchor_ScopedFlagExcluded), so announcing a teammate's completion rides these
+// instead. 0x28-0x30 have no enum names; pairings are the func_802D5178 call table in game.c.
+static const char* LevelOpenSeenFlagName(s16 flag) {
+    switch (flag) {
+        case 0x28:                            return "Mumbo's Mountain";
+        case 0x29:                            return "Treasure Trove Cove";
+        case 0x2A:                            return "Clanker's Cavern";
+        case 0x2B:                            return "Bubblegloop Swamp";
+        case 0x2C:                            return "Freezeezy Peak";
+        case 0x2D:                            return "Gobi's Valley";
+        case 0x2E:                            return "Mad Monster Mansion";
+        case 0x2F:                            return "Rusty Bucket Bay";
+        case 0x30:                            return "Click Clock Wood";
+        case FILEPROG_E2_DOOR_OF_GRUNTY_OPEN: return "the door to Gruntilda";
+        default:                              return nullptr;
+    }
+}
 
 void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
@@ -52,11 +74,25 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
         volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
     } else {
+        bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        // If a teammate opened a note door or broke a lair object (cobweb, brickwall, ice
-        // ball, grate, etc.), replay that effect live if the matching actor is spawned in our
-        // map. Both match on the unique flag, so an object elsewhere is never affected.
+        // If a teammate opened a note door, broke a lair object (cobweb, brickwall, ice ball,
+        // grate, etc.), or completed an entrance podium, replay that effect live if the
+        // matching actor is spawned in our map. All match on the unique flag, so an object
+        // elsewhere is never affected.
         port_notedoor_remoteOpen(flag);
         port_breakable_remoteBreak(flag);
+        port_leveldoor_remoteOpen(flag);
+        // Vanilla only: announce a teammate opening a world at the Lair puzzle podiums. In a
+        // randomizer, world access is shuffled and reported via SET_CHECK_STATUS instead.
+        // wasSet dedupes queue replays (a late joiner adopts flags via team state first).
+        if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {
+            if (const char* opened = LevelOpenSeenFlagName(flag)) {
+                Notification::Emit({
+                    .prefix = GetClientName(payload.value("clientId", 0u)),
+                    .message = std::string("opened ") + opened,
+                });
+            }
+        }
     }
 }
