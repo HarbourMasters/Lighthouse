@@ -77,6 +77,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnCollectibleCollected);
     REGISTER_EVENT(OnAbilityLearned);
     REGISTER_EVENT(OnJiggySpawned);
+    REGISTER_EVENT(OnTimedJiggyExpired);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
     REGISTER_EVENT(OnGameErase);

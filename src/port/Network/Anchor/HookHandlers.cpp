@@ -14,6 +14,7 @@ extern "C" {
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
 s32 chvile_netGetAnimMode(Actor* actor);
+void port_jiggySpawn_remove(int32_t jiggyId);
 }
 
 // True when a remote client owns the Mr. Vile minigame (our local logic must follow).
@@ -493,6 +494,15 @@ void Anchor::RegisterHooks() {
         }
         auto ev = reinterpret_cast<OnJiggySpawned*>(event);
         anchor->SendPacket_SpawnJiggy((s16)ev->jiggyId, ev->x, ev->y, ev->z);
+    });
+
+    // A timed jiggy (BGS switch challenge) ran out its hourglass and is being destroyed. Drop it from
+    // the spawn-persistence record so the per-frame flush stops resurrecting it — otherwise it pops
+    // back a frame after the vanilla despawn, and the switch never sees it leave to reset. Each client
+    // runs its own countdown (the switch-press flag syncs), so each removes its own record on expiry.
+    COND_HOOK(OnTimedJiggyExpired, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);
+        port_jiggySpawn_remove(ev->jiggyId);
     });
 
     // Push the full flag state to teammates on save.

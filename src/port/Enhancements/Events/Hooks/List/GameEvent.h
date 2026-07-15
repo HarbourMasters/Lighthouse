@@ -18,6 +18,10 @@ DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
 DEFINE_EVENT(OnAbilityLearned, int32_t move; int32_t value;)
 // Fired when a jiggy actor is spawned (witch switch, minigame reward, etc.).
 DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
+// Fired when a timed jiggy (BGS switch challenges) is destroyed by its expired hourglass. The
+// spawn-persistence record must drop it here or the per-frame flush respawns it and cancels the
+// despawn (and the switch never sees the jiggy leave, so it can't reset).
+DEFINE_EVENT(OnTimedJiggyExpired, int32_t jiggyId;)
 DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)
 DEFINE_EVENT(OnSaveFileLoad, int32_t fileNum; void* saveBuffer; int32_t result;)

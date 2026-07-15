@@ -172,6 +172,16 @@ void port_jiggySpawn_restore(const std::vector<int32_t>& flat) {
     }
 }
 
+// Drop a spawned-jiggy record (all maps) — for a timed jiggy whose hourglass ran out. Without this
+// the per-frame flush re-spawns it the moment its timer despawns it, cancelling the despawn (and the
+// switch never sees it leave, so it can't reset). Each client removes its own record when its own
+// timer expires; the switch-press flag syncs, so both clients ran the same countdown independently.
+extern "C" void port_jiggySpawn_remove(int32_t jiggyId) {
+    for (auto& [map, list] : sSpawnedJiggies) {
+        std::erase_if(list, [jiggyId](const SpawnedJiggy& pj) { return pj.jiggyId == jiggyId; });
+    }
+}
+
 // Whether a teammate (or we) has dynamically spawned this jiggy this session and it isn't collected
 // yet — i.e. it will (re)appear from the record. Used by jinjo retention so it doesn't treat a jiggy
 // a teammate spawned as "stranded" and clear the recorded jinjos before the jiggy re-spawns on entry.
