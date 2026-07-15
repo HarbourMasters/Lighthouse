@@ -178,6 +178,10 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId);
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void port_remoteCarry_reset(void);
+// Anchor dummy players: forget every stand-in actor marker. Called from actorArray_free —
+// that path frees all actors/markers wholesale without firing OnActorDestroy, so the tracked
+// markers are about to dangle (a freed marker resolves to non-null garbage, not nullptr).
+void port_anchorDummies_onActorsFreed(void);
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 // Same as get, but for an explicit map key — for the rare puzzle whose recorder and consumer live

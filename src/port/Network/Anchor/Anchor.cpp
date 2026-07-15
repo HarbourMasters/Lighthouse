@@ -290,12 +290,29 @@ void Anchor::DrawDummies(OnPlayerDraw* event) {
 
 void Anchor::ClearDummies() {
     for (auto& [id, dummy] : dummies) {
-        // Runs from OnMapLoad (old map's actors still alive) or on disconnect (mid-map), so the
-        // stand-in is valid either way — despawn it properly (shadow unlink included) rather
-        // than leaking it into the map.
+        // Despawn the stand-in properly (shadow unlink included) rather than leaking it into the
+        // map. On the map-teardown path the markers were already detached (actorArray_free →
+        // port_anchorDummies_onActorsFreed), making this a no-op; it does real work for live
+        // actors (disconnect mid-map).
         dummy->dummy_despawnActor();
     }
     dummies.clear();
+}
+
+// actorArray_free is tearing down every actor and marker wholesale — and that path fires no
+// OnActorDestroy events — so the stand-in markers are about to dangle (a freed marker resolves
+// to non-null garbage, not nullptr). Forget them all; dummies that should still exist respawn
+// their stand-ins lazily on the next update.
+extern "C" void port_anchorDummies_onActorsFreed(void) {
+    Anchor* anchor = Anchor::GetInstance();
+    if (anchor == nullptr) {
+        return;
+    }
+    for (auto& [clientId, client] : anchor->clients) {
+        if (client.dummy != nullptr) {
+            client.dummy->dummy_detachActor();
+        }
+    }
 }
 
 // Takes the map explicitly rather than reading gsworld_getMap(): during the

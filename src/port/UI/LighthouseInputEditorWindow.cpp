@@ -4,6 +4,7 @@
 #include <ship/controller/controldevice/controller/mapping/ControllerRumbleMapping.h>
 #include <ship/controller/controldeck/ControlDeck.h>
 #include <utils/StringHelper.h>
+#include "cvar_prefixes.h"
 #ifndef __WIIU__
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 #endif
@@ -13,6 +14,13 @@
 #define SCALE_IMGUI_SIZE(value) ((value / 13.0f) * ImGui::GetFontSize())
 
 LighthouseInputEditorWindow::~LighthouseInputEditorWindow() {
+    auto ignored = Ship::Context::GetRawInstance()->GetControlDeck()->GetConnectedPhysicalDeviceManager()->GetIgnoredInstanceIdsForPort(0);
+    if (!ignored.empty()) {
+        Ship::Context::GetRawInstance()->GetConfig()->SetBlock(CVAR_SETTING("IgnoredControllers"), ignored);
+    }
+    else {
+        Ship::Context::GetRawInstance()->GetConfig()->EraseBlock(CVAR_SETTING("IgnoredControllers"));
+    }
 }
 
 void LighthouseInputEditorWindow::InitElement() {

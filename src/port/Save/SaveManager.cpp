@@ -21,6 +21,7 @@ extern "C" {
 #include "core1/sns.h"
 
 extern SaveData gameFile_saveData[4];
+extern s8 gameFile_GameIdToFileIdMap[4];
 void savedata_update_crc(void* buffer, s32 size);
 s32 item_getCount(enum item_e item);
 extern u8 gCompletedBottlesBonusGames[7];
@@ -779,6 +780,12 @@ void SaveManager_Init() {
             SPDLOG_INFO("SaveManager: deleted erased save file \"{}\"", fileName);
         } else if (ec) {
             SPDLOG_ERROR("SaveManager: failed to delete erased save file \"{}\": {}", fileName, ec.message());
+        }
+        // Erase has to drop retention data explicitly — otherwise note/jinjo
+        // retention from the deleted file haunts the next game started on this slot until the
+        // app restarts.
+        if (ev->gameNum >= 0 && ev->gameNum < 4) {
+            gameFile_saveData[gameFile_GameIdToFileIdMap[ev->gameNum]].shipSaveData = {};
         }
     });
 

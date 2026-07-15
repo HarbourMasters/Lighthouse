@@ -446,6 +446,8 @@ void actorArray_free(void) {
     // [port] Anchor: same for remote teammates' carried-collectible display copies
     // (level_collectible.c) — their tracked markers are about to dangle.
     port_remoteCarry_reset();
+    // [port] Anchor: and for the dummy players' stand-in actor markers.
+    port_anchorDummies_onActorsFreed();
 
     if (suBaddieActorArray != NULL) {
         for(var_s0 = suBaddieActorArray->data; var_s0 < &suBaddieActorArray->data[suBaddieActorArray->cnt]; var_s0++){
