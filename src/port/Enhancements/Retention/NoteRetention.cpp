@@ -268,6 +268,19 @@ extern "C" void port_noteRetention_setForced(int32_t forced) {
     ShipInit::Init(CVAR_NOTE_RETENTION);
 }
 
+// Dev/test (RemoteCollectSim): pick a live, not-yet-collected note in the given map so the
+// simulator can drive applyRemoteCollect against a real target. Returns its index, or -1.
+extern "C" int32_t port_noteRetention_debugPickLive(int32_t mapId) {
+    for (auto& [key, marker] : activeNoteSet) {
+        int32_t keyMap = (int32_t)(key >> 32);
+        int32_t index = (int32_t)(uint32_t)(key & 0xFFFFFFFF);
+        if (keyMap == mapId && !isCollected(keyMap, index)) {
+            return index;
+        }
+    }
+    return -1;
+}
+
 void RegisterNoteRetention_Init() {
     COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
         s16* spawnPosition = va_arg(args, s16*);

@@ -137,6 +137,20 @@ static int32_t jinjoActorFromBit(u8 bit) {
     }
 }
 
+// Dev/test (RemoteCollectSim): pick a live jinjo actor in the current map so the simulator can
+// drive applyRemoteCollect against a real target. Returns its colour bit, or 0 if none.
+extern "C" int32_t port_jinjoRetention_debugPickLive(void) {
+    static const enum actor_e kJinjoActors[] = { ACTOR_60_JINJO_BLUE, ACTOR_62_JINJO_GREEN, ACTOR_5F_JINJO_ORANGE,
+                                                 ACTOR_61_JINJO_PINK, ACTOR_5E_JINJO_YELLOW };
+    for (enum actor_e id : kJinjoActors) {
+        Actor* a = actorArray_findActorFromActorId(id);
+        if (a != nullptr && a->marker != nullptr) {
+            return jinjoBitFromActor(id);
+        }
+    }
+    return 0;
+}
+
 // Apply a teammate's jinjo pickup: record the colour bit for the collector's level; if we're
 // in the same map, update the HUD count and despawn our copy of that jinjo.
 extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap) {

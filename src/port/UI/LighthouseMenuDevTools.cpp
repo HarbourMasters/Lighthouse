@@ -76,6 +76,13 @@ void LighthouseMenu::AddMenuDevTools() {
     AddWidget(path, "Nametag Distance", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_DEVELOPER_TOOLS("NametagDist"))
         .Options(FloatSliderOptions().DefaultValue(3000.0f).Min(1000.0f).Max(10000.0f).Step(10.0f));
+    AddWidget(path, "Simulate Remote Collects", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("SimRemoteCollect"))
+        .Options(CheckboxOptions().Tooltip(
+            "Every 30 seconds while in a map with live uncollected notes or jinjos, feeds one through the "
+            "remote-collect path (retention record + live despawn) as if a teammate collected it — for testing "
+            "the Anchor collection sync without a second machine. Requires note/jinjo retention to be active "
+            "(enhancement on, or connected to Anchor)."));
     /*AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/

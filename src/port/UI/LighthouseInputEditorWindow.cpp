@@ -48,6 +48,13 @@ void LighthouseInputEditorWindow::InitElement() {
     addButtonName(BTN_DLEFT, "D-pad left");
     addButtonName(BTN_DRIGHT, "D-pad right");
     addButtonName(0, "None");
+    json ignored = Ship::Context::GetRawInstance()->GetControlDeck()->GetConnectedPhysicalDeviceManager()->GetIgnoredInstanceIdsForPort(0);
+    if (!ignored.empty()) {
+        Ship::Context::GetRawInstance()->GetConfig()->SetBlock(CVAR_SETTING("IgnoredControllers"), ignored);
+    }
+    else {
+        Ship::Context::GetRawInstance()->GetConfig()->EraseBlock(CVAR_SETTING("IgnoredControllers"));
+    }
 }
 
 #define INPUT_EDITOR_WINDOW_GAME_INPUT_BLOCK_ID 95237929
