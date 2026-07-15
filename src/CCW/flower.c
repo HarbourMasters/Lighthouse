@@ -29,6 +29,11 @@ Struct_CCW_1B20_0 D_8038EC40[4] ={
     {0x183, 1, 1, 0x000, 0x000, 0x00, 0}
 };
 
+// [port] Anchor: within-one-call flavor flag — a teammate's remote watering grows the flower
+// without the camera pans, fanfare, and jiggy spawn (those belong to the waterer; the jiggy
+// arrives via their JIGGY_SPAWN).
+static s32 sFlowerRemoteGrow = 0;
+
 ActorInfo D_8038EC70 = { 0x1B0, 0x29D, 0x447, 0x0, NULL, func_80388478, NULL, CCW_func_803882F4, 0, 0, 1.0f, 0};
 f32 D_8038EC94[3] = {200.0f,  2120.0f, -5570.0f};
 
@@ -53,25 +58,29 @@ void func_80387F64(Actor *this, s32 next_state){
         skeletalAnim_setBehavior(this->unk148, local->unk0->unk2);
     }
     if (next_state == 2) {
-        if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+        if (gsworld_getMap() == MAP_43_CCW_SPRING && !sFlowerRemoteGrow) {
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
         }
         fileProgressFlag_set(local->unk0->unk8, true);
         skeletalAnim_set(this->unk148, local->unk0->unk4, 0.0f, 6.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+        if (gsworld_getMap() == MAP_43_CCW_SPRING && !sFlowerRemoteGrow) {
             func_80324E38(0.0f, 3);
         }
-        timed_setStaticCameraToNode(0.0f, 0);
+        if (!sFlowerRemoteGrow) {
+            timed_setStaticCameraToNode(0.0f, 0);
+        }
         for( phi_f22 = 0.0f; phi_f22 <= 1.0f; phi_f22 += 0.1) {
                 timed_playSfx(phi_f22 * 5.7, 0x2C, phi_f22 * 0.3 + 0.7, (s32) (32000.0f - phi_f22 * 5000.0f));
         }
         if (local->unk0->unkA != 0) {
-            timed_setStaticCameraToNode(6.0f, 1);
-            timedFunc_set_0(6.1f, (GenFunction_0)func_80387F10);
+            if (!sFlowerRemoteGrow) {
+                timed_setStaticCameraToNode(6.0f, 1);
+                timedFunc_set_0(6.1f, (GenFunction_0)func_80387F10);
+            }
             timedFunc_set_2(8.0f, (GenFunction_2)func_80387F38, (uintptr_t)this->marker, 3);
         } else {
-            if (gsworld_getMap() == MAP_43_CCW_SPRING) {
+            if (gsworld_getMap() == MAP_43_CCW_SPRING && !sFlowerRemoteGrow) {
                 timed_exitStaticCamera(7.0f);
                 func_80324E38(7.0f, 0);
             }
@@ -166,5 +175,16 @@ void func_80388478(Actor *this) {
         else{
             func_80387F64(this, 1);
         }
+        return;
+    }
+
+    // [port] Anchor: a teammate watered this stage — its season flag arrived over the wire while
+    // our flower still shows unwatered. Grow it live, minus the waterer's camera/fanfare/jiggy
+    // (the jiggy rides their JIGGY_SPAWN and lands on the bloomed geometry). The VB listener
+    // (HookHandlers.cpp, isConnected-gated) grants this only when the stage's flag is set.
+    if ((this->state == 1) && EventSystem_Should(VB_CCW_FLOWER_REMOTE_GROW, false, (s32)local->unk0->unk8)) {
+        sFlowerRemoteGrow = 1;
+        func_80387F64(this, 2);
+        sFlowerRemoteGrow = 0;
     }
 }

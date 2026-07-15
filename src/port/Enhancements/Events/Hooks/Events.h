@@ -50,6 +50,10 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
+    // CCW flower (Anchor): polled by the flower's update with its current stage's season flag;
+    // granted (isConnected-gated listener, HookHandlers.cpp) when that flag was set by a
+    // teammate's watering, so the flower grows live without the waterer's camera/fanfare/jiggy.
+    VB_CCW_FLOWER_REMOTE_GROW,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

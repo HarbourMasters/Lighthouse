@@ -306,6 +306,15 @@ void Anchor::RegisterHooks() {
     });
 
     // Followers: suppress local random logic; network state drives these instead.
+    // CCW flower: a teammate's watering sets the stage's season fileprog (arrives via SET_FLAG).
+    // The flower polls this VB with its current stage's flag each update (flower.c); grant the
+    // live grow when that flag is set — the decomp side then runs the growth minus the
+    // waterer's camera/fanfare/jiggy.
+    COND_VB_SHOULD(VB_CCW_FLOWER_REMOTE_GROW, EVENT_PRIORITY_NORMAL, isConnected, {
+        s32 stageFlag = va_arg(args, s32);
+        *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
+    });
+
     COND_VB_SHOULD(VB_VILE_YUMBLIE_EMERGE, EVENT_PRIORITY_NORMAL, true, {
         if (Anchor_IsVileFollower()) {
             *should = false;
