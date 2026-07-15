@@ -1189,7 +1189,29 @@ void marker_despawn(ActorMarker *marker){
 
 void func_803283BC(void){
     D_8036E574 = 1;
-    D_8036E578 = 0;
+    // [port] Vanilla reset D_8036E578 (the pending-despawn count) to 0 here. Despawns can now be
+    // flagged OUTSIDE the window too (network packet handlers at GameFrameUpdate — see
+    // port_actorDespawn_beginDefer), and their count must survive into this window or the next
+    // flush skips the sweep and the flagged actors leak as zombies. func_803283D4 zeroes the
+    // count after every sweep, so it can never be stale-nonzero on entry.
+}
+
+// [port] Deferred-despawn window for code that runs outside game_draw — Anchor's network packet
+// handlers fire at GameFrameUpdate, after spawnQueue_flush closed the vanilla window. Out there,
+// marker_despawn frees + compacts the actor array IMMEDIATELY: the last live actor's struct is
+// memcpy'd into the freed slot and the marker is freed with zero grace, so any Actor*/marker held
+// across that moment reads or writes another actor's memory — the "actors misplaced onto each
+// other" bug (remote-collect despawns made it 100% reproducible). Inside the window the engine
+// defers instead: the actor is flagged, skipped by updates for one pass, and swept in reverse
+// order at the next spawnQueue_flush — the same well-tested path every in-game despawn takes.
+// endDefer closes the window WITHOUT sweeping; the pending flags/count ride into the next
+// frame's window (func_803283BC no longer clears the count) and are swept at its flush.
+void port_actorDespawn_beginDefer(void){
+    D_8036E574 = 1;
+}
+
+void port_actorDespawn_endDefer(void){
+    D_8036E574 = 0;
 }
 
 //actorArray_flushDespawns

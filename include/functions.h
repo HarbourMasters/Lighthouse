@@ -1136,6 +1136,11 @@ void func_803268B4(void);
 void func_80326C24(s32 arg0);
 void func_803283BC(void);
 void func_803283D4(void);
+// [port] Deferred-despawn window for code running outside game_draw (network packet handlers at
+// GameFrameUpdate). See actor_array.c — despawns inside the window are flagged and swept at the
+// next spawnQueue_flush instead of freeing + compacting the actor array immediately.
+void port_actorDespawn_beginDefer(void);
+void port_actorDespawn_endDefer(void);
 void func_80328CA8(Actor *self, s32 angle);
 void func_803297FC(Actor *arg0, f32 *o1, f32 *o2);
 s32 func_80329904(ActorMarker *arg0, s32 arg1, f32 *arg2);
