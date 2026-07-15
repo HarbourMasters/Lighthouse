@@ -102,6 +102,13 @@ void port_eggToll_restore(const std::vector<int32_t>& flat) {
     }
 }
 
+// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): toll bridges retract in vanilla on
+// re-entry, so the stages reset once no player is left in their level.
+void port_eggToll_clearForLevel(int32_t levelId) {
+    std::erase_if(sStages,
+                  [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
+}
+
 void RegisterEggToll_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sStages.clear(); });
 }

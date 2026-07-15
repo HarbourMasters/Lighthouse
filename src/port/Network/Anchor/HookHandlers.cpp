@@ -199,6 +199,9 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->ClearDummies();
         Anchor::GetInstance()->PopulateDummies((GameMap)ev->nextMap);
         Authority_OnSelfMapChanged(ev->nextMap);
+        // Runs offline too (this hook isn't connection-gated), so solo play also gets its
+        // vanilla resets when leaving a level.
+        Anchor::GetInstance()->SweepUnoccupiedLevelState((GameMap)ev->nextMap);
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
 

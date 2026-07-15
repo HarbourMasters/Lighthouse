@@ -88,5 +88,6 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     }
 
     PopulateDummies((GameMap)gsworld_getMap());
+    SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
     SendPacket_PlayerUpdate(true);
 }

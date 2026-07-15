@@ -217,6 +217,10 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             }
         }
 
+        // The adopted snapshot may include session records for levels nobody is in anymore
+        // (valid only while a level stays occupied) — sweep them right away.
+        SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
+
         Notification::Emit({
             .message = "Save updated from team",
         });

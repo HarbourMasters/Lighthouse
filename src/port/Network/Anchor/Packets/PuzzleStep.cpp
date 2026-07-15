@@ -111,6 +111,14 @@ void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
     }
 }
 
+// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): mid-puzzle progress resets in vanilla on
+// re-entry (finished puzzles persist via their jiggy), so the masks reset once no player is left
+// in their level.
+void port_puzzleStep_clearForLevel(int32_t levelId) {
+    std::erase_if(sBits,
+                  [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
+}
+
 void RegisterPuzzleStep_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBits.clear(); });
     // The treasure hunt's progress lives in a global (CH_TREASUREHUNT_PUZZLE_CURRENT_STEP) with no

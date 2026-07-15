@@ -271,6 +271,10 @@ public:
     void OnActorDestroyed(Actor* actor);
     void SendToCurrentMapPlayers(nlohmann::json& payload);
     void SendToCurrentLevelPlayers(nlohmann::json& payload);
+    // Drop temporary-persistence session state (broken objects, huts, egg tolls, puzzle steps)
+    // for every level with no player left in it. Called whenever anyone's location changes;
+    // selfMap is passed explicitly because during OnMapLoad the new map isn't committed yet.
+    void SweepUnoccupiedLevelState(GameMap selfMap);
 
     static Anchor* GetInstance();
     static void Init();

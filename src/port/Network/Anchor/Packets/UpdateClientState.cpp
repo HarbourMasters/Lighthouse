@@ -71,6 +71,7 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         clients[clientId].exit = client.exit;
         EvaluateDummyForClient(clientId);
         Authority_OnClientStateChanged(clientId, client.online, client.map);
+        SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
         if (client.online) {
             // Covers clients (re)connecting while already in an activity's map: rebroadcast
             // any claim of ours so they don't briefly act as their own authority.

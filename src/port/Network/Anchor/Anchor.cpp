@@ -362,6 +362,50 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
+// Per-level clears for the temporary-persistence session stores (defined in the respective
+// packet modules, alongside their team-state snapshot/restore).
+extern void port_breakable_clearForLevel(int32_t levelId);
+extern void port_hutSmash_clearForLevel(int32_t levelId);
+extern void port_eggToll_clearForLevel(int32_t levelId);
+extern void port_puzzleStep_clearForLevel(int32_t levelId);
+
+// Temporary-persistence state (broken windows/grates, smashed huts, egg tolls, puzzle steps) is
+// only valid while its level stays continuously occupied: vanilla persists none of it, so once
+// the last player leaves a level the records must reset or the level stays "used up" for the
+// whole session. Rather than electing the last leaver or first returner to broadcast a clear,
+// every client applies this rule to its own copy whenever anyone's location changes — all copies
+// converge on the same event stream, a last-occupant crash still sweeps (going offline removes
+// them from occupancy), and late joiners can't resurrect stale records because team-state
+// snapshots are served by a live (already-swept) client. Note/jinjo retention and spawned
+// jiggies are deliberately NOT swept: those mirror vanilla-persistent state.
+void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
+    // level_e ids are small (1..0xD); 0x20 gives the same headroom the jinjo retention slots use.
+    bool occupied[0x20] = { false };
+    auto markOccupied = [&occupied](s32 map) {
+        if (map <= 0 || map >= MAP_NUM_MAPS) {
+            return; // unknown/boot map: map_getLevel on a bad id is unsafe
+        }
+        s32 level = (s32)map_getLevel((enum map_e)map);
+        if (level > 0 && level < 0x20) {
+            occupied[level] = true;
+        }
+    };
+    markOccupied((s32)selfMap);
+    for (auto& [clientId, client] : clients) {
+        if (!client.self && client.online && client.isSaveLoaded) {
+            markOccupied((s32)client.map);
+        }
+    }
+    for (s32 level = 1; level < 0x20; level++) {
+        if (!occupied[level]) {
+            port_breakable_clearForLevel(level);
+            port_hutSmash_clearForLevel(level);
+            port_eggToll_clearForLevel(level);
+            port_puzzleStep_clearForLevel(level);
+        }
+    }
+}
+
 void Anchor::RegisterDummy(DummyPlayer* dummy, uint32_t clientID) {
     dummies.emplace(clientID, dummy);
 }

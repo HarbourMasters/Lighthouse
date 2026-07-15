@@ -116,6 +116,13 @@ void port_hutSmash_restore(const std::vector<int32_t>& flat) {
     }
 }
 
+// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): huts respawn intact in vanilla, so the
+// records reset once no player is left in their level.
+void port_hutSmash_clearForLevel(int32_t levelId) {
+    std::erase_if(sHuts,
+                  [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
+}
+
 void RegisterHutSmash_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sHuts.clear(); });
 }

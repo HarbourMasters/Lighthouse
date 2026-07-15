@@ -35,6 +35,7 @@ void Anchor::HandlePacket_MapLoad(nlohmann::json& payload) {
                                      clients[clientId].map != MAP_91_FILE_SELECT;
     EvaluateDummyForClient(clientId);
     Authority_OnPeerMapLoad(clientId, clients[clientId].map);
+    SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
 
     // Handle instances where map-specific updates aren't captured by other clients, causing transformations
     // and animation states to be desynced until updated again while the client is in the map.

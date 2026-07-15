@@ -55,6 +55,13 @@ void port_breakable_restoreBroken(const std::vector<int32_t>& flat) {
     }
 }
 
+// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): vanilla never persists these breaks, so
+// once a level has no players left in it, its records must go or it stays broken all session.
+void port_breakable_clearForLevel(int32_t levelId) {
+    std::erase_if(sBroken,
+                  [levelId](const std::array<int32_t, 5>& e) { return (int32_t)map_getLevel((enum map_e)e[0]) == levelId; });
+}
+
 void Anchor::SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, bool replay) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
