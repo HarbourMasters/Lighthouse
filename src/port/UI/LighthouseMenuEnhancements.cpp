@@ -506,6 +506,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Note Collection Retention", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.NoteRetention"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ANCHOR_CONNECTED).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ANCHOR_CONNECTED);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Notes you've already collected stay collected and don't respawn when you revisit a level. "
             "Collection is always tracked; this toggle controls whether collected notes are skipped on "
@@ -514,6 +519,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Jinjo Collection Retention", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.JinjoRetention"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ANCHOR_CONNECTED).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ANCHOR_CONNECTED);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Jinjos you've already collected stay collected across visits instead of resetting each time "
             "you enter a level, so you no longer need all five in one go. Collection is always tracked; "

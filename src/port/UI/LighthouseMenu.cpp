@@ -5,6 +5,7 @@
 #include "port/Localization/Language.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Patches/Patches.h"
+#include "port/Network/Anchor/Anchor.h"
 #include <ship/window/gui/GuiMenuBar.h>
 #include <ship/window/gui/GuiElement.h>
 #include <variant>
@@ -213,6 +214,12 @@ void LighthouseMenu::InitElement() {
             "Not available during the character parade." } },
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
+        { DISABLE_FOR_ANCHOR_CONNECTED,
+          { [](disabledInfo& info) -> bool {
+               Anchor* anchor = Anchor::GetInstance();
+               return anchor != nullptr && anchor->isConnected;
+           },
+            "Forced on while connected to Anchor" } },
     };
 }
 
