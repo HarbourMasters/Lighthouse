@@ -13,11 +13,8 @@ extern "C" {
  * FIGHT_UPDATE
  *
  * Final-fight Grunty transform + state/phase stream, sent by the fight authority to the
- * other clients in MAP_90_GL_BATTLEMENTS every frame (see Anchor_UpdateFightSync in
- * HookHandlers.cpp). Followers skip the boss brain and apply this instead; discrete
+ * other clients in MAP_90_GL_BATTLEMENTS every frame. Discrete
  * moments (spells, statues, eggs) ride FIGHT_EVENT.
- *
- * Sequence-guarded so an out-of-order packet can never roll a newer state back.
  */
 
 static uint32_t sOutgoingSeq = 0;
@@ -59,7 +56,6 @@ void Anchor::SendPacket_FightUpdate(const f32 pos[3], f32 yaw, s32 state, s32 ph
     SendToCurrentMapPlayers(payload);
 }
 
-// C bridge for the stream pump.
 extern "C" void FightSync_SendUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror,
                                      int32_t vuln) {
     Anchor::GetInstance()->SendPacket_FightUpdate(pos, yaw, state, phase, mirror, vuln);

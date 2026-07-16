@@ -38,7 +38,6 @@ void Anchor::HandlePacket_JiggyCrane(nlohmann::json& payload) {
     port_jiggyCrane_remoteApply(payload.at("stage").get<s32>());
 }
 
-// C-callable broadcast trigger from crane_jiggycage.c.
 extern "C" void port_jiggyCrane_broadcast(int32_t stage) {
     Anchor::GetInstance()->SendPacket_JiggyCrane(stage);
 }

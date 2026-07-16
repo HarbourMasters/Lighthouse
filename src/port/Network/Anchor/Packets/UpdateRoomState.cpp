@@ -23,9 +23,7 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["ownerClientId"] = ownClientId;
 
     if (IsGlobalRoom()) {
-        // The global room is display-only: everyone just sees each other's dummies. Force every
-        // gameplay setting off. This state is also what the HANDSHAKE ships (Handshake.cpp), so the
-        // very first client to connect creates the server-side room with syncing disabled.
+        // The global room is display-only: Force every gameplay setting off.
         payload["pvpMode"] = 0;
         payload["showLocationsMode"] = 0;
         payload["teleportMode"] = 0;
@@ -45,9 +43,6 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["shareConsumables"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShareConsumables"), 0);
     payload["isRomHack"] = port_isRomhack();
     payload["romhackName"] = Lighthouse::CurrentRomhackLabel();
-    // The room adopts the randomizer identity of whoever established it (the first client to connect
-    // ships this via HANDSHAKE, and the owner re-broadcasts it). Joiners compare their own loaded
-    // save against it — see CheckRandoRoomCompatibility.
     payload["isRando"] = (bool)IS_RANDO;
     payload["seed"] = (int32_t)(IS_RANDO ? RANDO_SEED : 0);
 
@@ -85,8 +80,7 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.isRomhack = payload["state"]["isRomHack"].get<bool>();
     roomState.romhackName = payload["state"]["romhackName"].get<std::string>();
     const std::string localLabel = Lighthouse::CurrentRomhackLabel();
-    // Romhack mismatches are no longer a hard gate — warn the player once per
-    // distinct mismatch and let them decide whether to keep playing.
+    // Warn the player of distinct romhack mismatch and let them decide whether to keep playing.
     if (roomState.romhackName != localLabel) {
         if (roomState.romhackName != lastWarnedRomhackLabel) {
             lastWarnedRomhackLabel = roomState.romhackName;
@@ -99,7 +93,6 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
             LighthouseGui::RegisterPopup("Romhack Mismatch Warning", msg);
         }
     } else {
-        // Back in agreement — clear the guard so a later mismatch warns again.
         lastWarnedRomhackLabel.clear();
     }
 
@@ -112,15 +105,10 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.isRando = payload["state"].value("isRando", false);
     roomState.seed = payload["state"].value("seed", (int32_t)0);
 
-    // Warn if our loaded save's randomizer identity disagrees with the room's (seed mismatch, or a
-    // vanilla/rando save in the wrong kind of room). Safe to call before a save is loaded — it
-    // no-ops until there's something to compare.
     CheckRandoRoomCompatibility();
 }
 
-// Warns (once per distinct situation) when the local save's randomizer identity disagrees with the
-// room's. Called both here (room state changed) and once per save-load session (HookHandlers), so it
-// fires whether you join a room mid-game or load a save after connecting.
+// Warns (once per distinct situation) when the local save's randomizer identity disagrees with the room's.
 void Anchor::CheckRandoRoomCompatibility() {
     if (IsGlobalRoom() || !isConnected || !IsSaveLoaded()) {
         return;
@@ -148,12 +136,10 @@ void Anchor::CheckRandoRoomCompatibility() {
     }
 
     if (msg.empty()) {
-        lastWarnedRandoState.clear(); // in agreement — re-arm for a future mismatch
+        lastWarnedRandoState.clear();
         return;
     }
 
-    // Dedup: only pop the warning when the (room vs local) situation actually changes, not on every
-    // room-state update or every frame the session check runs.
     std::string sig = std::to_string(roomState.isRando) + ":" + std::to_string(roomState.seed) + "|" +
                       std::to_string(localRando) + ":" + std::to_string(localSeed);
     if (sig == lastWarnedRandoState) {

@@ -7,7 +7,6 @@ extern "C" {
 #include "functions.h"
 #include "macros.h"
 #include "variables.h"
-// ba_carry.c: marker of the collectible the local player is carrying (NULL when none).
 ActorMarker* bacarry_get_marker(void);
 }
 

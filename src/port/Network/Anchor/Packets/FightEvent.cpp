@@ -17,9 +17,6 @@ extern "C" {
  * followers to replay (spell spawns, statue rises, accepted eggs...); followers broadcast
  * their inputs (Grunty hits, statue eggs), which only the live authority applies —
  * chfinalboss_netApplyEvent sorts that out per event id.
- *
- * Not sequence-guarded: events are one-shots relayed in order, and the appliers are
- * written to tolerate a replay against an already-advanced fight.
  */
 
 void Anchor::SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3], const f32 v2[3]) {
@@ -41,7 +38,6 @@ void Anchor::SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const 
     SendToCurrentMapPlayers(payload);
 }
 
-// C bridge for the FINALE actors.
 extern "C" void FightSync_SendEvent(int32_t ev, int32_t a, int32_t b, const float v0[3], const float v1[3],
                                     const float v2[3]) {
     Anchor* anchor = Anchor::GetInstance();

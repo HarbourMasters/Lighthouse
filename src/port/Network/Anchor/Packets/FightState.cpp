@@ -12,11 +12,7 @@ extern "C" {
 /**
  * FIGHT_STATE
  *
- * Catch-up snapshot of the final fight's world objects, sent by the fight authority
- * directly to a client that just loaded into the battlements (Authority_OnPeerMapLoad).
- * The boss itself rides the FIGHT_UPDATE stream; this rebuilds what earlier FIGHT_EVENTs
- * already produced — statues (with their egg progress), the flight pad and the spell
- * barrier — so a latecomer can join the fight instead of standing in an empty arena.
+ * Final fight world object catch-up snapshot
  */
 
 void Anchor::SendPacket_FightState(u32 targetClientId) {
@@ -42,7 +38,6 @@ void Anchor::SendPacket_FightState(u32 targetClientId) {
     SendJsonToRemote(payload);
 }
 
-// C++ bridge for Authority_OnPeerMapLoad.
 extern "C" void FightSync_SendSnapshot(uint32_t clientId) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr || !anchor->isConnected) {

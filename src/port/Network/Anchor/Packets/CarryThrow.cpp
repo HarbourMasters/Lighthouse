@@ -10,11 +10,7 @@ extern "C" {
 
 /**
  * CARRY_THROW
- *
- * A player threw their carried collectible (gold bullion / FP present / MM orange) at its
- * delivery target. Teammates in the same map replay the identical ballistic arc on their
- * display copy of the carried object (level_collectible.c remote states) — visual/audio only;
- * the delivery flags, count spends, and quest progress all ride their own sync paths.
+ * Sync thrown items that were carried
  */
 
 void Anchor::SendPacket_CarryThrow(s32 markerId, f32 start[3], f32 target[3]) {
@@ -47,7 +43,6 @@ void Anchor::HandlePacket_CarryThrow(nlohmann::json& payload) {
     port_remoteCarry_throw(clientId, markerId, start.data(), target.data());
 }
 
-// C->C++ bridge (level_collectible.c): broadcast our own carried-object throw.
 extern "C" void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr || !anchor->isConnected) {
@@ -56,8 +51,6 @@ extern "C" void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[
     anchor->SendPacket_CarryThrow(markerId, start, target);
 }
 
-// C++->C bridge (level_collectible.c): position + yaw of a client's dummy player, or 0 when
-// that client (or their dummy) isn't present in our map — the display copy despawns on 0.
 extern "C" s32 port_anchor_getDummyTransform(u32 clientId, f32 pos[3], f32* yaw) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr || !anchor->isConnected) {

@@ -20,8 +20,6 @@ extern "C" {
 
 void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     std::vector<AnchorClient> newClients = payload["state"].get<std::vector<AnchorClient>>();
-    // Suppress connect/disconnect toasts in the public global room — it's high-traffic and the
-    // names are strangers.
     bool isGlobalRoom = IsGlobalRoom();
 
     std::vector<uint32_t> clientsToRemove;

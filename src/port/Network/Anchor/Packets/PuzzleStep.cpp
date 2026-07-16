@@ -12,8 +12,6 @@
 
 extern "C" {
 #include "functions.h"
-// Catch-up tick for the TTC treasure hunt (treasurehunt.c): its progress is a bare global with no
-// always-present actor to poll from, so the anchor frame hook drives the replay of teammate steps.
 void chTreasurehunt_netTick(void);
 }
 
@@ -33,34 +31,28 @@ void chTreasurehunt_netTick(void);
  * Cleared on save load so it never leaks across files.
  */
 
-namespace {
-std::map<std::array<int32_t, 2>, int32_t> sBits;
-// PUZZLE_COUNT: monotonic shared counters keyed by (map, counterId) — see below.
-std::map<std::array<int32_t, 2>, int32_t> sCounts;
-} // namespace
+std::map<std::array<int32_t, 2>, int32_t> sPuzzleBits;
+std::map<std::array<int32_t, 2>, int32_t> sPuzzleCounts;
 
 extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
-    auto it = sBits.find({ (int32_t)gsworld_getMap(), puzzleId });
-    return it != sBits.end() ? it->second : 0;
+    auto it = sPuzzleBits.find({ (int32_t)gsworld_getMap(), puzzleId });
+    return it != sPuzzleBits.end() ? it->second : 0;
 }
 
 extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
-    auto it = sBits.find({ map, puzzleId });
-    return it != sBits.end() ? it->second : 0;
+    auto it = sPuzzleBits.find({ map, puzzleId });
+    return it != sPuzzleBits.end() ? it->second : 0;
 }
 
 extern "C" void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits) {
     int32_t map = (int32_t)gsworld_getMap();
     std::array<int32_t, 2> key = { map, puzzleId };
-    int32_t before = sBits.count(key) ? sBits[key] : 0;
+    int32_t before = sPuzzleBits.count(key) ? sPuzzleBits[key] : 0;
     int32_t after = before | bits;
-    // Idempotent by identity: the bitmask is the registration. If these bits are already set (we're
-    // replaying a teammate's step we already recorded, by re-running the same local break/feed path),
-    // nothing changed, so don't re-broadcast. No "am I replaying" guard flag is needed for dedup.
     if (after == before) {
         return;
     }
-    sBits[key] = after;
+    sPuzzleBits[key] = after;
     Anchor::GetInstance()->SendPacket_PuzzleStep(puzzleId, after, map);
 }
 
@@ -88,17 +80,13 @@ void Anchor::HandlePacket_PuzzleStep(nlohmann::json& payload) {
     s32 puzzleId = payload.at("puzzle").get<s32>();
     s32 bits = payload.at("bits").get<s32>();
     s32 map = payload.at("map").get<s32>();
-
-    // Record (OR-merge) regardless of our map; the actors replay each new step themselves on their
-    // next update, both live (in-map) and at spawn (in-memory persistence on the next visit).
-    sBits[{ map, puzzleId }] |= bits;
+    sPuzzleBits[{ map, puzzleId }] |= bits;
 }
 
-// Authoritative team-state snapshot/restore (UpdateTeamState.cpp). Flat [map, puzzleId, bits].
 std::vector<int32_t> port_puzzleStep_snapshot() {
     std::vector<int32_t> flat;
-    flat.reserve(sBits.size() * 3);
-    for (const auto& [key, bits] : sBits) {
+    flat.reserve(sPuzzleBits.size() * 3);
+    for (const auto& [key, bits] : sPuzzleBits) {
         flat.push_back(key[0]);
         flat.push_back(key[1]);
         flat.push_back(bits);
@@ -107,19 +95,16 @@ std::vector<int32_t> port_puzzleStep_snapshot() {
 }
 
 void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
-    sBits.clear();
+    sPuzzleBits.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
-        sBits[{ flat[i], flat[i + 1] }] = flat[i + 2];
+        sPuzzleBits[{ flat[i], flat[i + 1] }] = flat[i + 2];
     }
 }
 
-// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): mid-puzzle progress resets in vanilla on
-// re-entry (finished puzzles persist via their jiggy), so the masks reset once no player is left
-// in their level.
 void port_puzzleStep_clearForLevel(int32_t levelId) {
-    std::erase_if(sBits,
+    std::erase_if(sPuzzleBits,
                   [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
-    std::erase_if(sCounts,
+    std::erase_if(sPuzzleCounts,
                   [levelId](const auto& kv) { return (int32_t)map_getLevel((enum map_e)kv.first[0]) == levelId; });
 }
 
@@ -127,23 +112,19 @@ void port_puzzleStep_clearForLevel(int32_t levelId) {
  * PUZZLE_COUNT
  *
  * Companion to PUZZLE_STEP for progress that is a COUNT rather than a set of distinct steps
- * (Eyrie's fed worms, Nabnut's returned acorns). A bitmask can't carry these: two clients
- * delivering simultaneously would OR the same next bit and one delivery would vanish — the
- * lost count that made the jiggies unobtainable. Deltas compose instead: every client applies
+ * (Eyrie's fed worms, Nabnut's returned acorns). Deltas compose: every client applies
  * every increment (its own locally, teammates' via this packet), so concurrent throws all
- * land. Recorded regardless of the receiver's map so players in sub-areas stay current, and
- * keyed by (map, counterId) like the step masks. Rides team state; cleared on save load and
- * by the level-occupancy sweep (vanilla resets this progress on re-entry).
+ * land.
  */
 
 extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
-    auto it = sCounts.find({ (int32_t)gsworld_getMap(), counterId });
-    return it != sCounts.end() ? it->second : 0;
+    auto it = sPuzzleCounts.find({ (int32_t)gsworld_getMap(), counterId });
+    return it != sPuzzleCounts.end() ? it->second : 0;
 }
 
 extern "C" void port_puzzleCount_add(int32_t counterId, int32_t delta) {
     int32_t map = (int32_t)gsworld_getMap();
-    sCounts[{ map, counterId }] += delta;
+    sPuzzleCounts[{ map, counterId }] += delta;
     Anchor::GetInstance()->SendPacket_PuzzleCount(counterId, delta, map);
 }
 
@@ -172,16 +153,13 @@ void Anchor::HandlePacket_PuzzleCount(nlohmann::json& payload) {
     s32 delta = payload.at("delta").get<s32>();
     s32 map = payload.at("map").get<s32>();
 
-    // Apply regardless of our map; the actors poll the counter themselves (live in-map, and at
-    // spawn to seed from the team's progress when we enter/return — sub-areas included).
-    sCounts[{ map, counterId }] += delta;
+    sPuzzleCounts[{ map, counterId }] += delta;
 }
 
-// Authoritative team-state snapshot/restore (UpdateTeamState.cpp). Flat [map, counterId, count].
 std::vector<int32_t> port_puzzleCount_snapshot() {
     std::vector<int32_t> flat;
-    flat.reserve(sCounts.size() * 3);
-    for (const auto& [key, count] : sCounts) {
+    flat.reserve(sPuzzleCounts.size() * 3);
+    for (const auto& [key, count] : sPuzzleCounts) {
         flat.push_back(key[0]);
         flat.push_back(key[1]);
         flat.push_back(count);
@@ -190,16 +168,16 @@ std::vector<int32_t> port_puzzleCount_snapshot() {
 }
 
 void port_puzzleCount_restore(const std::vector<int32_t>& flat) {
-    sCounts.clear();
+    sPuzzleCounts.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
-        sCounts[{ flat[i], flat[i + 1] }] = flat[i + 2];
+        sPuzzleCounts[{ flat[i], flat[i + 1] }] = flat[i + 2];
     }
 }
 
 void RegisterPuzzleStep_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        sBits.clear();
-        sCounts.clear();
+        sPuzzleBits.clear();
+        sPuzzleCounts.clear();
     });
     // The treasure hunt's progress lives in a global (CH_TREASUREHUNT_PUZZLE_CURRENT_STEP) with no
     // actor spawned until the first X is busted, so nothing exists to poll the mask from an update

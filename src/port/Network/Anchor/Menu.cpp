@@ -167,7 +167,6 @@ void AnchorMainMenu(WidgetInfo& info) {
 void AnchorAdminMenu(WidgetInfo& info) {
     auto anchor = Anchor::GetInstance();
 
-    // Nobody administers the global room — it has no owner-configurable settings.
     if (!anchor->isEnabled || !anchor->isConnected || anchor->roomState.ownerClientId != anchor->ownClientId ||
         anchor->IsGlobalRoom()) {
         return;
@@ -184,9 +183,6 @@ void AnchorAdminMenu(WidgetInfo& info) {
         for (auto& team : teams) {
             anchor->SendPacket_ClearTeamState(team);
         }
-        // Reset the room's romhack + randomizer identity to this (admin) client's current state
-        // and re-broadcast it, so the room adopts the admin's hack/seed and any prior mismatch
-        // warning no longer applies against stale room data.
         anchor->roomState.isRomhack = port_isRomhack();
         anchor->roomState.romhackName = Lighthouse::CurrentRomhackLabel();
         anchor->roomState.isRando = IS_RANDO;

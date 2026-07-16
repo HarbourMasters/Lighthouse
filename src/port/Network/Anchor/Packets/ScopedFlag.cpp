@@ -4,8 +4,6 @@
 
 extern "C" {
 #include "functions.h"
-// honeycomb.c: spawn the switch-revealed honeycomb (GV cactus / RBB boat house) if its just-applied
-// map flag says a teammate pressed the switch — the actor itself never rides the wire.
 void chHoneycomb_netRevealFromSwitch(void);
 }
 
@@ -13,8 +11,8 @@ void chHoneycomb_netRevealFromSwitch(void);
  * SCOPED_FLAG
  *
  * Realtime sync of a transient level-/map-specific flag. Routed only to teammates in the same
- * level (level space) or map (map space); never queued. ctx = the sender's level/map id, so a
- * receiver that has since moved doesn't apply a stale flag.
+ * level or map; never queued. ctx = the sender's level/map id, so a receiver that has since
+ * moved doesn't apply a stale flag.
  */
 
 void Anchor::SendPacket_ScopedFlag(u8 space, s16 index, u8 value) {
@@ -47,7 +45,6 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
     u8 value = payload.at("value").get<u8>();
     s32 ctx = payload.at("ctx").get<s32>();
 
-    // triggerEvent = 0: applying a remote flag must not re-broadcast.
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
         if ((s32)map_getLevel(gsworld_getMap()) == ctx) {
             levelSpecificFlags_setEx(index, value, 0);

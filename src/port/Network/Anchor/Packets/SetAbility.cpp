@@ -36,10 +36,7 @@ void Anchor::HandlePacket_SetAbility(nlohmann::json& payload) {
     s16 move = payload.at("move").get<s16>();
     u8 value = payload.at("value").get<u8>();
 
-    // triggerEvent = 0: applying the remote learn must not re-broadcast.
     ability_setLearnedEx(move, value, 0);
-    // Mark the move used too (matching team state's used-bytes copy), so the receiver
-    // doesn't get a first-use tutorial/ding for an ability they didn't earn locally.
     if (value) {
         ability_setHasUsed((enum ability_e)move);
     }

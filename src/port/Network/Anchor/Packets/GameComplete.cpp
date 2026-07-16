@@ -1,9 +1,7 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "port/UI/Notification.h"
-//#include "soh/ShipUtils.h"
 
 const std::string gameCompleteMessages[] = {
     "killed Ganon",           "saved Zelda",         "proved their Courage",
@@ -12,6 +10,8 @@ const std::string gameCompleteMessages[] = {
 
 /**
  * GAME_COMPLETE
+ * 
+ * no-op
  */
 
 void Anchor::SendPacket_GameComplete() {
