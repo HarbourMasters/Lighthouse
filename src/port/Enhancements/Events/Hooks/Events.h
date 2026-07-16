@@ -58,7 +58,22 @@ typedef enum VBehaviorID {
     // starting; the isConnected listener (HookHandlers.cpp) blocks it (should=false) when another
     // client already owns the run, otherwise claims NET_ACTIVITY_FP_TWINKLY and lets it proceed.
     VB_FP_TWINKLY_START,
+    // Door-open cutscene camera-lock (Anchor): a door/switch update asks before locking the camera,
+    // passing a DoorCameraId. The isConnected listener (HookHandlers.cpp) suppresses it
+    // (should=false) when the driving map-flag was set by a teammate over the network — so only the
+    // client that actually opened the door gets the camera pan; the door still opens for everyone.
+    VB_DOOR_OPEN_CAMERA,
 } VBehaviorID;
+
+// Door ids passed to VB_DOOR_OPEN_CAMERA — each maps to the map-specific flag(s) whose local-vs-
+// remote origin decides whether this client owns the open cutscene.
+typedef enum DoorCameraId {
+    GV_DOOR_CAM_SUN,      // GV sun switch atop its pyramid (flag 3)
+    GV_DOOR_CAM_STAR,     // GV star switch / turbo-trot trapdoor (flag 5)
+    GV_DOOR_CAM_KAZOOIE,  // GV beak-bomb target door (flag 6)
+    GV_DOOR_CAM_JINXY,    // GV Jinxy's sneeze (both eggs fed: flags 0 and 1)
+    MMM_DOOR_CAM_CHURCH,  // MMM church door — Tumblar challenge (flag 0), open + close pans
+} DoorCameraId;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);
 

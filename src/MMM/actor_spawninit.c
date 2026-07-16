@@ -305,7 +305,9 @@ void func_80388BDC(Actor *this) {
     case 1:
         this->yaw = 0.0f;
         if(mapSpecificFlags_get(MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
-            gcStaticCamera_activate(0x21);
+            // [port] Anchor: skip church door open cutscene.
+            if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, MMM_DOOR_CAM_CHURCH))
+                gcStaticCamera_activate(0x21);
             subaddie_set_state(this, 6);
             core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);
             mapSpecificFlags_set(MMM_SPECIFIC_FLAG_2_UNKNOWN, false);
@@ -335,10 +337,13 @@ void func_80388BDC(Actor *this) {
         if( (!this->unk38_31 && item_empty(ITEM_0_HOURGLASS_TIMER))
             || ((this->unk38_31) && (this->lifetime_value == 0.0f))
         ) {
-            if (!this->unk38_31) {
-                gcStaticCamera_activate(0x22);
-            } else {
-                gcStaticCamera_activate(0x23);
+            // [port] Anchor: skip church door close cutscene.
+            if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, MMM_DOOR_CAM_CHURCH)){
+                if (!this->unk38_31) {
+                    gcStaticCamera_activate(0x22);
+                } else {
+                    gcStaticCamera_activate(0x23);
+                }
             }
             subaddie_set_state(this, 8);
             core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.3f);

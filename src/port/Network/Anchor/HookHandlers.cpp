@@ -15,6 +15,7 @@ float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
 s32 chvile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
+int32_t port_mapFlag_wasSetRemotely(int32_t index);
 }
 
 // FP twinkly minigame: give up the single-runner claim when our run ends (see VB_FP_TWINKLY_START).
@@ -337,6 +338,31 @@ void Anchor::RegisterHooks() {
             *should = false;
         } else {
             NetAuthority_Claim(NET_ACTIVITY_FP_TWINKLY);
+        }
+    });
+
+    // Skip remote door open camera locks. Jinxy's sneeze counts as ours as long
+    // as one egg fed was ours.
+    COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, isConnected, {
+        s32 doorId = va_arg(args, s32);
+        switch (doorId) {
+            case GV_DOOR_CAM_SUN:
+                *should = !port_mapFlag_wasSetRemotely(3);
+                break;
+            case GV_DOOR_CAM_STAR:
+                *should = !port_mapFlag_wasSetRemotely(5);
+                break;
+            case GV_DOOR_CAM_KAZOOIE:
+                *should = !port_mapFlag_wasSetRemotely(6);
+                break;
+            case GV_DOOR_CAM_JINXY:
+                *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                break;
+            case MMM_DOOR_CAM_CHURCH:
+                *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                break;
+            default:
+                break;
         }
     });
 

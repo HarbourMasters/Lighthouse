@@ -12,8 +12,6 @@ extern "C" {
 void marker_despawn(ActorMarker* marker);
 }
 
-// Defined (C++ linkage) in ObjectBehavior.cpp. Declared here rather than in ObjectBehavior.h
-// because that header is included where the Actor type isn't yet visible.
 Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId);
 
 /**
@@ -41,9 +39,8 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
 }
 
 // Silently adopt a check a teammate already obtained. Despawns our live copy only if it's currently
-// spawned — which can only happen when we're standing in its map — then marks it obtained through
-// the same funnel a local collect uses with isInit = true: no item granted, no notification, and no
-// packet sent.
+// spawned, then marks it obtained through the same funnel a local collect uses with isInit = true:
+// no item granted, no notification, and no packet sent.
 void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     RandoCheckId rc = (RandoCheckId)rcRaw;
     if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].obtained) {

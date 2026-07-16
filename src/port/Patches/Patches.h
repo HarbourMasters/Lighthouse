@@ -214,6 +214,11 @@ int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t 
 // The start side is gated by VB_FP_TWINKLY_START (HookHandlers.cpp). Defined there too.
 void port_fpTwinkly_release(void);
 
+// True if the given map-specific flag's most recent write came from the network (a teammate's
+// action) rather than a local one — used by VB_DOOR_OPEN_CAMERA to keep a door/switch cutscene's
+// camera-lock on the client that actually triggered it. Defined in ScopedFlag.cpp.
+int32_t port_mapFlag_wasSetRemotely(int32_t index);
+
 // PUZZLE_COUNT: shared monotonic delivery counters keyed by (current map, counterId) — for
 // progress that is a count, not distinct steps, where concurrent deliveries must all land
 // (delta-synced; see PuzzleStep.cpp). add() records + broadcasts; get() reads the team total.

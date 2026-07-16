@@ -2,9 +2,19 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
+#include "port/ShipInit.hpp"
+#include "port/Enhancements/Events/PortEnhancements.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+
 extern "C" {
 #include "functions.h"
 void chHoneycomb_netRevealFromSwitch(void);
+}
+
+static uint32_t sMapFlagSetRemotely = 0;
+
+extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
+    return (index >= 0 && index < 32 && (sMapFlagSetRemotely & (1u << index))) ? 1 : 0;
 }
 
 /**
@@ -52,7 +62,24 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
     } else if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
         if ((s32)gsworld_getMap() == ctx) {
             mapSpecificFlags_setEx(index, value, 0);
+            // Remotely-set flag
+            if (value && index >= 0 && index < 32) {
+                sMapFlagSetRemotely |= (1u << index);
+            }
             chHoneycomb_netRevealFromSwitch();
         }
     }
 }
+
+void RegisterScopedFlag_Init() {
+    // Locally set: clear remote flag bit
+    REGISTER_LISTENER(OnGameFlagSet, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnGameFlagSet*>(event);
+        if (ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC && ev->index >= 0 && ev->index < 32) {
+            sMapFlagSetRemotely &= ~(1u << ev->index);
+        }
+    });
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sMapFlagSetRemotely = 0; });
+}
+
+static RegisterShipInitFunc initScopedFlag(RegisterScopedFlag_Init, {});

@@ -194,8 +194,13 @@ void func_8038E460(Actor *this){//banjo_door
         func_8038E430(this);
         if(!mapSpecificFlags_get(2)){
             mapSpecificFlags_set(2, true);
-            func_8028F918(0);
-            func_80324DBC(4.0f, ASSET_A7D_DIALOG_JINXY_HELPED, 4, NULL, NULL, NULL, NULL);
+            // [port] Anchor: release the lock + show the "Jinxy helped" line only if we ran the cure
+            // cutscene ourselves (carpet2.c gated the matching push with the same VB) — otherwise a
+            // teammate cured him: the door still opens, but we don't pop a lock we never pushed.
+            if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_JINXY)){
+                func_8028F918(0);
+                func_80324DBC(4.0f, ASSET_A7D_DIALOG_JINXY_HELPED, 4, NULL, NULL, NULL, NULL);
+            }
         }
     }
 }
@@ -233,7 +238,10 @@ void func_8038E4DC(Actor *this){
     else{
         if(!mapSpecificFlags_get(4)){
             mapSpecificFlags_set(4, true);
-            gcStaticCamera_activate(1);
+            // [port] Anchor: skip the camera pan for a teammate who opened this (sun switch, flag 3);
+            // the door still rises from the synced flag — we just don't get yanked.
+            if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_SUN))
+                gcStaticCamera_activate(1);
         }
     }
 }
@@ -246,7 +254,10 @@ void func_8038E648(Actor *this){
         case 1: //L8038E690
             this->pitch = 0.0f;
             if(mapSpecificFlags_get(5)){
-                gcStaticCamera_activate(2);
+                // [port] Anchor: skip the camera pan for a teammate who opened this (star switch /
+                // turbo-trot trapdoor, flag 5); the trapdoor + timer still run from the synced flag.
+                if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_STAR))
+                    gcStaticCamera_activate(2);
                 subaddie_set_state(this, 6);
                 core1_7090_initSfxSource(0, 0x6A, 0x7ff8, 0.3f);
                 s32 pyramidTimer = 25;
@@ -348,7 +359,10 @@ void chKazooieDoor_update(Actor *this){
         case 1: //L8038EB98
             if(mapSpecificFlags_get(6)){
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
-                gcStaticCamera_activate(3);
+                // [port] Anchor: skip the camera pan for a teammate who opened this (beak-bomb target,
+                // flag 6); the Kazooie door still rises from the synced flag.
+                if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_KAZOOIE))
+                    gcStaticCamera_activate(3);
                 subaddie_set_state(this, 6);
                 core1_7090_initSfxSource(1, 0x6a, 0x7ff8, 0.3f);
                 this->unk1C[1] = this->position_y + 210.0f;

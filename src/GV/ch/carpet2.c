@@ -89,9 +89,13 @@ void func_8038D47C(Actor *this){
             }
             else if(!mapSpecificFlags_get(0xF) && mapSpecificFlags_get(0) + mapSpecificFlags_get(1) == 2){
                 mapSpecificFlags_set(0xF, true);
-                func_8028F918(2);
+                // [port] Anchor: Jinxy still sneezes (state 3) for everyone, but skip the player-lock +
+                // camera when a teammate fed him — his door opens either way.
+                if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_JINXY)){
+                    func_8028F918(2);
+                    gcStaticCamera_activate(0);
+                }
                 subaddie_set_state_forward(this, 3);
-                gcStaticCamera_activate(0);
             }
             break;
         case 2: //L8038D78C
