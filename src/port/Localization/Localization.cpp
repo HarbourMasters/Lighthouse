@@ -6,20 +6,13 @@
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ResourceHelpers.h"
 #include "port/ShipInit.hpp"
 #include "port/UI/cvar_prefixes.h"
 
 typedef unsigned char u8;
 
 extern "C" {
-int ResourceMgr_IsJapanese(void);
-int ResourceMgr_GetDialogLanguageCount(void); // 1 = US, 3 = PAL (EN/FR/DE)
-int ResourceMgr_GetDialogLanguage(void);      // PAL only: 0=English, 1=French, 2=German
-int ResourceMgr_GetLanguageGeneration(void);
-int ResourceMgr_IsAssetRepointed(uint32_t assetId);
-const char* ResourceMgr_GetLangString(const char* english); // active pack's translation, or the key itself
-int ResourceMgr_HasLangStrings(void);                       // active language is a pack carrying UI overrides
-
 bool gameFile_isNotEmpty(int gamenum);
 int jiggyscore_total(void);
 int itemscore_noteScores_getTotal(void);
@@ -520,8 +513,7 @@ static void buildPalJpParades() {
 // present in the active language (sDialogOverride) rather than on the base version.
 static constexpr uint32_t kMotzandParadeCreditId = 0x11CA;
 static bool port_useMotzandParade() {
-    return ResourceMgr_IsJapanese() || ResourceMgr_GetDialogLanguageCount() > 1 ||
-           ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
+    return ResourceMgr_IsJapanese() || ResourceMgr_IsPal() || ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
 }
 
 // Swap the active parade table for the Motzand variant.

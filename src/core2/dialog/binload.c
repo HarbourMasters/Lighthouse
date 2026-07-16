@@ -3,8 +3,7 @@
 #include "variables.h"
 #include "structs.h"
 #include "port/Patches/Patches.h"
-
-extern int ResourceMgr_GetDialogLanguageCount(void);
+#include "port/ResourceHelpers.h"
 
 /* .bss */
 s32 D_80383150;

@@ -18,6 +18,7 @@ void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath)
 size_t ResourceMgr_GetResourceSize(uint32_t assetId);
 int ResourceMgr_IsModelAsset(uint32_t assetId);
 int ResourceMgr_GetDialogLanguageCount(void);
+int ResourceMgr_IsPal(void);
 int ResourceMgr_IsJapanese(void);
 int ResourceMgr_GetDialogLanguage(void);
 void ResourceMgr_SetDialogLanguage(int lang);

@@ -19,7 +19,6 @@ void assetcache_release(void* asset);
 enum asset_e print_getCurrentMapBoldFontTexture(void);
 char* ResourceMgr_ReloadByAssetId(uint32_t assetId);
 
-int ResourceMgr_IsJapanese(void);
 enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
 extern s32 gFramebufferWidth;

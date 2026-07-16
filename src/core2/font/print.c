@@ -3,17 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
-extern int ResourceMgr_GetDialogLanguageCount(void);
-extern int ResourceMgr_IsJapanese(void);
+#include "port/ResourceHelpers.h"
+
 extern void port_dialogFontHd_rebuild(void);
-// [port] PAL font has 75 glyphs (0x21-0x6B), overlapping NTSC control codes b,d,e,f,h,j.
-// When PAL, fmtStrings use shifted codes above the glyph range.
-#define PRINT_PAL (ResourceMgr_GetDialogLanguageCount() > 1)
-// [port] JP uses font index 2 (sprite 1770, 256 I4 glyphs) for dialog text.
-// Dialog strings begin with "\xFD\x6A" (escape + 'j') which switches to font index 2.
-#define PRINT_JP (ResourceMgr_IsJapanese())
-
-
 
 typedef struct{
     s8 pad0[0x20];
@@ -481,8 +473,7 @@ void print_init(void){
     print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
     port_dialogFontHd_rebuild();
     print_sFonts[1] =  print_getLettersFromFont(D_80380AB8[1], D_80380AB8[4]);
-    if (PRINT_JP) {
-        // [port] JP font index 2 = the Japanese dialog font (sprite 1770, 256 I4 glyphs).
+    if (ResourceMgr_IsJapanese()) {
         D_80380AB8[2] = assetcache_get(SPRITE_JP_DIALOG_FONT_ALPHAMASK);
         print_sFonts[2] = print_getLettersFromFont(D_80380AB8[2], D_80380AB8[4]);
     }
@@ -619,7 +610,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
                 sp20C += (D_80380B04 << 8) - 0x100;
                 D_80380B04 = 0;
             }
-            else if(PRINT_JP){
+            else if(ResourceMgr_IsJapanese()){
                 if(sp20C > 0 && sp20C != 0xFD && sp20C != 0x0F){
                     t0 = 1;
                     if(sp20C == 0x36)
@@ -637,7 +628,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         print_sInFontFormatMode = false;
         switch((u8)letter){
             case '\x0F': // [port] JP font-2 word space; no-op for US/PAL
-                if(!PRINT_JP)
+                if(!ResourceMgr_IsJapanese())
                     break;
                 // fallthrough
             case ' '://802F5818
@@ -843,8 +834,8 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             gSP1Quadrangle((*gfx)++, 0, 1, 3, 2, 0);
         }
         else{
-            // [port] Wide variant: widescreen-anchored HUD text can start left of x=0; the Scis
-            // macro would CPU-clamp it to the 4:3 edge and crop the glyph.
+            // [port] Wide variant: widescreen-anchored HUD text can start left of x=0
+            // the Scis macro would CPU-clamp it to the 4:3 edge and crop the glyph.
             gSPWideTextureRectangle((*gfx)++, (s32)(sp200*4.0f), (s32)(f28*4.0f), (s32)((sp200 + sp214->x*arg3)*4.0f), (s32)((f28 + sp214->y*arg3)*4.0f), 0, 0, 0, (s32)(1024.0f / arg3), (s32)(1024.0f / arg3));
         }
         *xPtr += sp1F8 * arg3;
@@ -991,7 +982,7 @@ void _printbuffer_push_new(s32 x, s32 y, u8 * string) {
 void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "\x72l" : "fl");
+        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x72l" : "fl");
         print_sCurrentPtr->scale = arg2;
     }
 }
@@ -999,21 +990,21 @@ void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
 void print_bold_spaced(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "\x72" : "f");
+        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x72" : "f");
     }
 }
 
 void print_dialog(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "\x6Flq" : "elq");
+        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x6Flq" : "elq");
     }
 }
 
 void print_dialog_w_bg(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "p\x6D" : "pb");
+        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "p\x6D" : "pb");
     }
 }
 
@@ -1031,7 +1022,7 @@ void print_dialog_gradient2(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
     if(print_sCurrentPtr){
         print_sCurrentPtr->topVertexAlpha = arg3;
         print_sCurrentPtr->bottomVertexAlpha = arg4;
-        strcpy(print_sCurrentPtr->fmtString, PRINT_PAL ? "\x6E\x6Flq" : "delq");
+        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x6E\x6Flq" : "delq");
 
     }
 }

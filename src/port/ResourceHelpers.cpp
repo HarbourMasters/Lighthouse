@@ -171,6 +171,11 @@ extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
 }
 
+// PAL is the only base that carries more than one dialog language (EN/FR/DE).
+extern "C" int ResourceMgr_IsPal(void) {
+    return sDialogLanguageCount > 1 ? 1 : 0;
+}
+
 extern "C" int ResourceMgr_IsJapanese(void) {
     return sIsJapanese ? 1 : 0;
 }
