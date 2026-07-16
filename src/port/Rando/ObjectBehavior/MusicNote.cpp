@@ -8,10 +8,6 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-extern "C" {
-void item_inc(enum item_e item);
-}
-
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
 
 void Rando::ObjectBehavior::InitMusicNoteBehavior() {

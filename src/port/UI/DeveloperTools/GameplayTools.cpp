@@ -20,9 +20,6 @@
 #include "include/core1/sns.h"
 
 extern "C" {
-void sns_set_item_state(enum StopNSwop_Item item, s32 set, s32 state);
-void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]);
-void player_getPosition(f32 dst[3]);
 void player_getPosition_s32(s32 arg0[3]);
 enum map_e gsworld_getMap(void);
 Actor* actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags);

@@ -10,7 +10,6 @@
 extern void chyumblie_netApplyState(Actor* actor, s32 state, s32 piece_type);
 extern s32 chyumblie_netGetState(Actor* actor, s32* piece_type);
 extern void chvile_netApplyUpdate(Actor* actor, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode);
-extern s32 chvile_netGetAnimMode(Actor* actor);
 extern bool chvilegame_netGather(Actor* actor, VileGameSnapshot* dst);
 extern void chvilegame_netApply(Actor* actor, const VileGameSnapshot* src);
 extern bool chvilegame_netConsumeRemote(Actor* actor, f32 position[3], s32* out_piece_type, s32* out_correct_type);

@@ -34,7 +34,6 @@ void ml_vec3f_to_vec3h(s16 dst[3], f32 src[3]);
 void gcparade_beginFinalParade(void);
 
 void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
-Actor* marker_getActor(ActorMarker* thisx);
 void marker_despawn(ActorMarker* marker);
 Actor* actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags);
 extern ActorInfo chJinjoBlue;

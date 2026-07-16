@@ -13,7 +13,6 @@
 
 extern "C" {
 enum map_e gsworld_getMap(void);
-enum level_e map_getLevel(enum map_e map);
 u16 itemscore_timeScores_get(enum level_e level_id);
 
 extern SaveData gameFile_saveData[4];

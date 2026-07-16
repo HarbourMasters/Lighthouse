@@ -31,8 +31,6 @@ extern "C" {
 #include "enums.h"
 }
 
-extern "C" uint16_t ResourceMgr_LoadTexWidthByName(char* texPath);
-extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
 extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
 
 // Dialog language state — detected at boot from o2r version

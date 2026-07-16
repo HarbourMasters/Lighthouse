@@ -4,11 +4,6 @@
 #include "prop.h"
 #include "include/core1/sns.h"
 
-extern "C" {
-enum map_e gsworld_getMap(void);
-enum level_e map_getLevel(enum map_e map);
-}
-
 namespace Rando {
 
 namespace StaticData {

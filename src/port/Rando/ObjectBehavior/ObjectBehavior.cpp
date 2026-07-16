@@ -13,13 +13,9 @@
 #define CVAR_SHOW_COLLISION_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS, 0)
 
 extern "C" {
-void player_getPosition(f32 dst[3]);
 Actor* marker_getActor(ActorMarker* thisx);
 bool func_802C9C14(Actor* actor);
 
-s32 mapSpecificFlags_get(s32 i);
-
-void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
 extern ActorArray* suBaddieActorArray;
 }
 

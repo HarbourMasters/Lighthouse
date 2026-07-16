@@ -75,7 +75,6 @@ extern "C" {
 #include "enums.h" // game_mode_e
 
 // Furnace Fun active flag
-s32 volatileFlag_get(s32);
 s32 getGameMode(void);
 
 int gPortResetPending = 0;

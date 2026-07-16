@@ -27,16 +27,13 @@ extern "C" {
 #define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
 
 extern "C" {
-bool player_is_present(void);
 s32 item_getCount(enum item_e item);
 void item_set(s32 item, s32 val);
 bool fileProgressFlag_get(enum file_progress_e index);
 void fileProgressFlag_set(enum file_progress_e index, s32 set);
 int ability_isUnlocked(enum ability_e uid);
 void ability_setLearned(s32 move, s32 val);
-u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
 void jiggyscore_setCollected(s32 indx, s32 val);
-bool honeycombscore_get(enum honeycomb_e indx);
 void honeycombscore_set(enum honeycomb_e indx, bool val);
 void mumboscore_set(enum mumbotoken_e indx, bool val);
 
