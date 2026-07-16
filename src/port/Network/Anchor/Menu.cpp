@@ -5,6 +5,7 @@
 #include "port/ShipUtils.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/RomhackCompat.h"
+#include "port/Rando/Rando.h"
 
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
@@ -183,12 +184,15 @@ void AnchorAdminMenu(WidgetInfo& info) {
         for (auto& team : teams) {
             anchor->SendPacket_ClearTeamState(team);
         }
-        // Reset the room's romhack identity to this (admin) client's current state
-        // and re-broadcast it, so the room adopts the admin's hack and any prior
-        // mismatch warning no longer applies against stale room data.
+        // Reset the room's romhack + randomizer identity to this (admin) client's current state
+        // and re-broadcast it, so the room adopts the admin's hack/seed and any prior mismatch
+        // warning no longer applies against stale room data.
         anchor->roomState.isRomhack = port_isRomhack();
         anchor->roomState.romhackName = Lighthouse::CurrentRomhackLabel();
+        anchor->roomState.isRando = IS_RANDO;
+        anchor->roomState.seed = IS_RANDO ? (int32_t)RANDO_SEED : 0;
         anchor->lastWarnedRomhackLabel.clear();
+        anchor->lastWarnedRandoState.clear();
         anchor->SendPacket_UpdateRoomState();
     }
     UIWidgets::PopStyleButton();

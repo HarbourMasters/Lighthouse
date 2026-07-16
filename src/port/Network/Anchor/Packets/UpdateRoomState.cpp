@@ -4,6 +4,7 @@
 #include <libultraship/libultraship.h>
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/RomhackCompat.h"
+#include "port/Rando/Rando.h"
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/LighthouseModals.h"
 //#include "soh/OTRGlobals.h"
@@ -32,6 +33,8 @@ nlohmann::json Anchor::PrepRoomState() {
         payload["shareConsumables"] = 0;
         payload["isRomHack"] = false;
         payload["romhackName"] = "";
+        payload["isRando"] = false;
+        payload["seed"] = 0;
         return payload;
     }
 
@@ -42,6 +45,11 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["shareConsumables"] = CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.ShareConsumables"), 0);
     payload["isRomHack"] = port_isRomhack();
     payload["romhackName"] = Lighthouse::CurrentRomhackLabel();
+    // The room adopts the randomizer identity of whoever established it (the first client to connect
+    // ships this via HANDSHAKE, and the owner re-broadcasts it). Joiners compare their own loaded
+    // save against it — see CheckRandoRoomCompatibility.
+    payload["isRando"] = (bool)IS_RANDO;
+    payload["seed"] = (int32_t)(IS_RANDO ? RANDO_SEED : 0);
 
     return payload;
 }
@@ -101,4 +109,56 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.teleportMode = payload["state"]["teleportMode"].get<u8>();
     roomState.syncItemsAndFlags = payload["state"]["syncItemsAndFlags"].get<u8>();
     roomState.shareConsumables = payload["state"].value("shareConsumables", (u8)0);
+    roomState.isRando = payload["state"].value("isRando", false);
+    roomState.seed = payload["state"].value("seed", (int32_t)0);
+
+    // Warn if our loaded save's randomizer identity disagrees with the room's (seed mismatch, or a
+    // vanilla/rando save in the wrong kind of room). Safe to call before a save is loaded — it
+    // no-ops until there's something to compare.
+    CheckRandoRoomCompatibility();
+}
+
+// Warns (once per distinct situation) when the local save's randomizer identity disagrees with the
+// room's. Called both here (room state changed) and once per save-load session (HookHandlers), so it
+// fires whether you join a room mid-game or load a save after connecting.
+void Anchor::CheckRandoRoomCompatibility() {
+    if (IsGlobalRoom() || !isConnected || !IsSaveLoaded()) {
+        return;
+    }
+
+    const bool localRando = IS_RANDO;
+    const int32_t localSeed = localRando ? (int32_t)RANDO_SEED : 0;
+
+    std::string msg;
+    if (roomState.isRando && !localRando) {
+        msg = "This is a randomizer room, but the save you loaded is not a randomizer file.\n\n"
+              "Items, flags, and checks will not line up — you'll receive progress you can't use\n"
+              "and may corrupt the shared session. Load the matching randomizer file, or\n"
+              "disconnect before continuing.";
+    } else if (!roomState.isRando && localRando) {
+        msg = "You loaded a randomizer file, but this room is running a vanilla game.\n\n"
+              "Shuffled checks won't match what teammates send, so progress will desync.\n"
+              "Reconnect to a randomizer room, or load a vanilla file to match this one.";
+    } else if (roomState.isRando && localRando && roomState.seed != localSeed) {
+        msg = "Seed mismatch: your randomizer seed differs from the room's.\n\n"
+              "Checks are shuffled differently per seed, so syncing will scatter items to the\n"
+              "wrong locations. Everyone on a team must generate/load from the same seed.\n";
+        msg += "\n    Your seed:  " + std::to_string(localSeed);
+        msg += "\n    Room seed:  " + std::to_string(roomState.seed);
+    }
+
+    if (msg.empty()) {
+        lastWarnedRandoState.clear(); // in agreement — re-arm for a future mismatch
+        return;
+    }
+
+    // Dedup: only pop the warning when the (room vs local) situation actually changes, not on every
+    // room-state update or every frame the session check runs.
+    std::string sig = std::to_string(roomState.isRando) + ":" + std::to_string(roomState.seed) + "|" +
+                      std::to_string(localRando) + ":" + std::to_string(localSeed);
+    if (sig == lastWarnedRandoState) {
+        return;
+    }
+    lastWarnedRandoState = sig;
+    LighthouseGui::RegisterPopup("Randomizer Mismatch Warning", msg);
 }

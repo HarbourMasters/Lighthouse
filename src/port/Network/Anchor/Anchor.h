@@ -49,6 +49,8 @@ struct RoomState {
     u8 shareConsumables = 0;  // 0 = off, 1 = on — share egg/feather counts in team state
     bool isRomhack = false;
     std::string romhackName;
+    bool isRando = false; // room is running a randomizer seed
+    int32_t seed = 0;     // rando seed id (0 when the room is vanilla)
 };
 
 // True for scoped (level/map) flags with per-client consume semantics that must not sync.
@@ -196,6 +198,11 @@ public:
     // Last room romhack label we warned the player about, so a mismatch only pops
     // one warning per distinct value instead of on every room-state update.
     std::string lastWarnedRomhackLabel;
+    // Signature (isRando + seed of room vs local) of the last rando/seed mismatch we warned about,
+    // so the warning pops once per distinct situation instead of on every room-state update / frame.
+    std::string lastWarnedRandoState;
+    // One-shot guard: run the rando/seed compatibility check once per loaded-save session.
+    bool hasCheckedRandoCompat = false;
 
     void Enable();
     void Disable();
@@ -215,6 +222,16 @@ public:
     // no item/flag/quest syncing, no PvP/teleport, and nobody gets admin controls. Keyed on the
     // local RoomId CVar so it's known before any room state arrives.
     bool IsGlobalRoom();
+
+    // Silently adopt a randomizer check a teammate already obtained: despawn our live copy if it's
+    // spawned in our map and mark it obtained without granting the item (those ride the rest of team
+    // state) or echoing back. Shared by SET_CHECK_STATUS and the team-state catch-up. rc is a
+    // RandoCheckId; typed as s32 to keep this header free of the rando type headers.
+    void AdoptRemoteCheck(s32 rc);
+    // Warn (once per distinct situation) when the local save's randomizer identity disagrees with
+    // the room's — a seed mismatch, or a vanilla save in a rando room (and vice versa). No-op in
+    // the global room or before a save is loaded.
+    void CheckRandoRoomCompatibility();
 
     // True when the player wants to see teammate-event notifications (jiggies, level
     // unlocks, rando checks). Personal client-side setting, defaults on.

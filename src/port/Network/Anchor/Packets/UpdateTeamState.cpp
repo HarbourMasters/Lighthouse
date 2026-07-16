@@ -4,6 +4,7 @@
 #include <libultraship/libultraship.h>
 #include "port/UI/Notification.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Rando/Rando.h"
 #include <algorithm>
 #include <vector>
 
@@ -80,6 +81,23 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["puzzleCounts"] = port_puzzleCount_snapshot();
     payload["state"]["spawnedJiggies"] = port_jiggySpawn_snapshot();
     payload["state"]["huts"] = port_hutSmash_snapshot();
+
+    // Randomizer progress lives outside the vanilla score sections: which shuffled checks have been
+    // obtained (indexed by RandoCheckId) and the RANDO_INF flag states. Only meaningful in a rando
+    // file — a vanilla teammate ignores these on receipt.
+    if (IS_RANDO) {
+        std::vector<u8> checks(RC_MAX, 0);
+        for (s32 rc = RC_UNKNOWN + 1; rc < RC_MAX; rc++) {
+            checks[rc] = RANDO_SAVE_CHECKS[rc].obtained ? 1 : 0;
+        }
+        payload["state"]["randoChecks"] = checks;
+
+        std::vector<int32_t> randoFlags(RANDO_INF_MAX, 0);
+        for (s32 i = RANDO_INF_UNKNOWN + 1; i < RANDO_INF_MAX; i++) {
+            randoFlags[i] = RANDO_SAVE_FLAGS[i].flagState;
+        }
+        payload["state"]["randoFlags"] = randoFlags;
+    }
 
     SendJsonToRemote(payload);
 }
@@ -220,6 +238,31 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
                     ((u8*)ts)[i] = incoming[i];
                 }
                 itemscore_timeScores_fromSaveData(ts);
+            }
+        }
+
+        // Randomizer catch-up. The score sections above already carry the items/flags a check
+        // grants; here we only reconcile the *check* records — for every check the team has that we
+        // don't, mark it obtained and despawn our live copy WITHOUT re-granting anything (see
+        // AdoptRemoteCheck). Then take the team's RANDO_INF flag states authoritatively, covering
+        // the flags that aren't derived from a check. Guarded on IS_RANDO so a vanilla file ignores
+        // these fields entirely.
+        if (IS_RANDO && IsSaveLoaded()) {
+            if (state.contains("randoChecks")) {
+                auto checks = state["randoChecks"].get<std::vector<u8>>();
+                s32 n = std::min((s32)checks.size(), (s32)RC_MAX);
+                for (s32 rc = RC_UNKNOWN + 1; rc < n; rc++) {
+                    if (checks[rc]) {
+                        AdoptRemoteCheck(rc);
+                    }
+                }
+            }
+            if (state.contains("randoFlags")) {
+                auto flags = state["randoFlags"].get<std::vector<int32_t>>();
+                s32 n = std::min((s32)flags.size(), (s32)RANDO_INF_MAX);
+                for (s32 i = RANDO_INF_UNKNOWN + 1; i < n; i++) {
+                    RANDO_SAVE_FLAGS[i].flagState = flags[i];
+                }
             }
         }
 

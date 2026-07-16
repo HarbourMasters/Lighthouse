@@ -41,6 +41,29 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
     SendJsonToRemote(payload);
 }
 
+// Silently adopt a check a teammate already obtained. Shared by the realtime SET_CHECK_STATUS path
+// and the team-state catch-up (UpdateTeamState.cpp). Despawns our live copy only if it's currently
+// spawned — which can only happen when we're standing in its map — then marks it obtained through
+// the same funnel a local collect uses with isInit = true: no item granted (item counts, flags, and
+// abilities ride the rest of team state), no "you collected" notification, and no OnRandoCheckObtained
+// echo back onto the wire. Assumes the caller already gated on IS_RANDO && IsSaveLoaded().
+void Anchor::AdoptRemoteCheck(s32 rcRaw) {
+    RandoCheckId rc = (RandoCheckId)rcRaw;
+    if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].obtained) {
+        return;
+    }
+    // Guard on CheckSpawnedIdList: FindActorByRandoCheckId would otherwise spawn a fresh actor just
+    // to hand it back. A spawned copy only exists in the check's own map, so this is the same as the
+    // old explicit same-map guard.
+    if (CustomObject::CheckSpawnedIdList(rc)) {
+        Actor* actor = FindActorByRandoCheckId(rc);
+        if (actor != NULL && actor->marker != NULL) {
+            marker_despawn(actor->marker);
+        }
+    }
+    CustomObject::CheckObtainedEX(rc, true);
+}
+
 void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     // Only a randomizer file has shuffled checks / a populated shuffledPool. Applying this in a
     // vanilla file would walk stale rando state (RANDO_SAVE_CHECKS, CheckObtainedEX,
@@ -59,27 +82,15 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
         return; // already have it — nothing to apply or despawn
     }
 
-    // Live-despawn our copy if we're in the collector's map and the object is currently
-    // spawned. Guard on CheckSpawnedIdList: FindActorByRandoCheckId would otherwise spawn a
-    // fresh actor just to hand it back.
-    if ((s32)gsworld_getMap() == map && CustomObject::CheckSpawnedIdList(rc)) {
-        Actor* actor = FindActorByRandoCheckId(rc);
-        if (actor != NULL && actor->marker != NULL) {
-            marker_despawn(actor->marker);
-        }
-    }
-
     // The BGS timed-switch checks: each same-map client runs its own countdown (the timer flags are
     // sync-excluded), so when a teammate grabs the shuffled item, stop our hourglass like the
-    // vanilla collect path does for the timed jiggies.
+    // vanilla collect path does for the timed jiggies. (Only meaningful in the realtime path, hence
+    // it stays here rather than in AdoptRemoteCheck.)
     if ((s32)gsworld_getMap() == map && (rc == RC_BGS_JIGGY_ELEVATED_WALKWAY || rc == RC_BGS_JIGGY_MAZE)) {
         func_802D6924();
     }
 
-    // Apply the obtained state through the same funnel local collects use. isInit = true so it
-    // suppresses the "you collected" notification and, crucially, doesn't re-fire
-    // OnRandoCheckObtained (no echo back onto the wire).
-    CustomObject::CheckObtainedEX(rc, true);
+    AdoptRemoteCheck(rc);
 
     // Re-add a notification for the remote collect (CheckObtainedEX suppressed the local one),
     // attributed to the teammate who obtained it. Gated by both the rando collection-notification

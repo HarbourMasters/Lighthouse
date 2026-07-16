@@ -258,8 +258,16 @@ void Anchor::RegisterHooks() {
                 anchor->SendPacket_RequestTeamState();
                 anchor->hasRequestedTeamState = true;
             }
+            // Once per save-load session, warn if the save we just loaded doesn't match the room's
+            // randomizer identity (covers loading a save *after* connecting — the room-state packet
+            // arrived while we were still at file select). Room-state changes trigger it separately.
+            if (!anchor->hasCheckedRandoCompat) {
+                anchor->CheckRandoRoomCompatibility();
+                anchor->hasCheckedRandoCompat = true;
+            }
         } else {
             anchor->hasRequestedTeamState = false;
+            anchor->hasCheckedRandoCompat = false;
         }
     });
 

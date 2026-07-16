@@ -1,5 +1,6 @@
 #include "Anchor.h"
 #include "port/Engine.h"
+#include "port/Rando/Rando.h"
 
 extern "C" {
 #include "variables.h"
@@ -108,7 +109,7 @@ void AnchorRoomWindow::DrawElement() {
                     ImGui::EndTooltip();
                 }
             }
-            uint32_t seed = /*IS_RANDO ? Rando::Context::GetRawInstance()->GetSeed() :*/ 0;
+            uint32_t seed = IS_RANDO ? (uint32_t)RANDO_SEED : 0;
             if (client.isSaveLoaded && Anchor::GetInstance()->IsSaveLoaded() && client.seed != seed && client.online &&
                 !client.self) {
                 ImGui::SameLine();

@@ -5,6 +5,8 @@
 #include <libultraship/libultraship.h>
 //#include "soh/OTRGlobals.h"
 
+#include "port/Rando/Rando.h"
+
 extern "C" {
 #include "variables.h"
 // extern PlayState* gPlayState;
@@ -29,7 +31,7 @@ nlohmann::json Anchor::PrepClientState() {
     payload["online"] = true;
 
     if (IsSaveLoaded()) {
-        payload["seed"] = /*IS_RANDO ? Rando::Context::GetRawInstance()->GetSeed() : */ 0;
+        payload["seed"] = (uint32_t)(IS_RANDO ? RANDO_SEED : 0);
         payload["isSaveLoaded"] = true;
         payload["isGameComplete"] = false;
         payload["map"] = gsworld_getMap();
