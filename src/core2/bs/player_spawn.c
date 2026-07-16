@@ -281,6 +281,8 @@ void func_8029B62C(void){
         func_802E4048(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
         return;
     }
+    // [port] Permadeath difficulty empties the reserve and erases the save here.
+    CALL_EVENT(OnPlayerDeath);
     if(item_empty(ITEM_16_LIFE)){
         if(!fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE) || fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE)){
             func_8025A430(-1, 0x7D0, 3);

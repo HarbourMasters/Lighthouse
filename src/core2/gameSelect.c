@@ -276,6 +276,8 @@ void setGameInformationZoombox(s32 gamenum){
 
 void eraseGame(s32 arg0){
     gameFile_clear(arg0);
+    // [port] The clear only zeroes the slot in RAM; also delete the file.
+    CALL_EVENT(OnGameFileErase, arg0);
     setGameInformationZoombox(arg0);
 }
 
@@ -660,6 +662,11 @@ void gameSelect_saveAndExit(void){
     s32 sp1C = level_get();
     s32 t6 = gsworld_getMap() == MAP_83_CS_GAME_OVER_MACHINE_ROOM;
     s32 a1 = (0 < sp1C && sp1C < 0xd);
+    // [port] Permadeath erases the save on death; the game over path routes back through
+    // here, and saving would write the still-live game state over the erased slot.
+    if(!EventSystem_Should(VB_SAVE_AND_EXIT, true)){
+        return;
+    }
     if( a1 || t6)
     {
         if(D_80365E00 != -1 && !func_802E4A08() && gsworld_getMap() != MAP_91_FILE_SELECT){

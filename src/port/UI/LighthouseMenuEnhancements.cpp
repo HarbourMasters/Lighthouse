@@ -381,6 +381,16 @@ void LighthouseMenu::AddMenuEnhancements() {
                      })
                      .DefaultIndex(1));
 
+    AddWidget(path, "Permadeath", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.Permadeath"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Your save file is deleted on death. Lives are ignored."));
+
     AddWidget(path, "Skip Spiral Mountain Tutorial", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"))
         .RaceDisable(false)

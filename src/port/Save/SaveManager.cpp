@@ -748,12 +748,23 @@ void SaveManager_Init() {
     REGISTER_LISTENER(OnSaveFileSave, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveFileSave* ev = (OnSaveFileSave*)event;
 
+        std::string fileName = createFileName(ev->fileNum);
+        std::string filePath = SaveManager_GetSavePath(fileName);
+
+        if (((SaveData*)ev->saveBuffer)->magic == 0) {
+            std::error_code ec;
+            fs::remove(filePath, ec);
+            if (ec) {
+                SPDLOG_ERROR("SaveManager: failed to remove erased save file \"{}\": {}", filePath, ec.message());
+            }
+            SaveGlobalData();
+            event->Cancelled = true;
+            return;
+        }
+
         ordered_json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer, ev->fileNum);
         if (!saveFile.empty()) {
             std::string collapsedString = CollapsedJSONArray(saveFile);
-
-            std::string fileName = createFileName(ev->fileNum);
-            std::string filePath = SaveManager_GetSavePath(fileName);
 
             std::ofstream outputFile(filePath);
             if (outputFile.is_open()) {
@@ -799,6 +810,11 @@ void SaveManager_Init() {
         saveData->shipSaveData = ship;
 
         event->Cancelled = true;
+    });
+
+    REGISTER_LISTENER(OnGameFileErase, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnGameFileErase* ev = (OnGameFileErase*)event;
+        gameFile_8033CFD4(ev->gamenum);
     });
 
     REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

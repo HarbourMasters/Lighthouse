@@ -3,6 +3,8 @@
 #include <libultraship/bridge/eventsbridge.h>
 
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
+DEFINE_EVENT(OnPlayerDeath)
+DEFINE_EVENT(OnGameFileErase, int32_t gamenum;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
 DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
 DEFINE_EVENT(OnGameErase, int32_t gameNum;)
