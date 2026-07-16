@@ -7,6 +7,7 @@
 #endif
 
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
 extern "C" {
@@ -16,14 +17,6 @@ s32 itemscore_noteScores_get(enum level_e lvl_id);
 s32 jiggyscore_leveltotal(s32 lvl);
 s32 honeycombscore_get_level_total(enum level_e level_id);
 u16 itemscore_timeScores_get(enum level_e level_id);
-int port_getRomhackNotesMax(void);
-int port_getRomhackJiggiesPerWorld(void);
-int port_getRomhackHoneycombsPerWorld(void);
-int port_getRomhackSpecialLevel(void);
-int port_getRomhackExtraHcStart(void);
-int port_getRomhackHideCollectiblesLevel(void);
-int port_getRomhackHideJiggiesLevel(void);
-const char* port_getRomhackLevelName(int level_index);
 
 // Pause menu level name table (supports romhack string patches via Torch config)
 typedef struct {

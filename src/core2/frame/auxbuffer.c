@@ -4,7 +4,7 @@
 #include "variables.h"
 
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
-                           unsigned int native_height, unsigned char resize, unsigned char force_fixed_aspect);
+                           unsigned int native_height, unsigned char resize, bool force_fixed_aspect);
 
 s32 sAuxGpuFbId = -1;
 

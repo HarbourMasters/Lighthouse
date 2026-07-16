@@ -5,17 +5,15 @@
 
 #include <libultraship.h>
 
+#include "port/Engine.h"
+
 extern "C" {
 
 #include "core1/core1.h"
 #include "model.h"
 
-int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
-                           unsigned int native_height, unsigned char resize, unsigned char force_fixed_aspect);
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
-unsigned int OTRGetGameRenderWidth(void);
-unsigned int OTRGetGameRenderHeight(void);
 
 // During FADE_IN, the game disables scene drawing one frame before
 // capturing gFramebuffers. Without freezing, the readback would overwrite

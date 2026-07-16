@@ -5,6 +5,7 @@
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 
@@ -14,10 +15,6 @@ extern "C" {
 #include "core2/ba/physics.h"
 #include "bs_funcs.h"
 #include "functions.h"
-
-s32 port_getRomhackMaxEggs(void);
-s32 port_getRomhackMaxGoldFeathers(void);
-s32 port_getRomhackMaxRedFeathers(void);
 }
 
 // ============================================================================

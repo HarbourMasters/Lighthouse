@@ -1,5 +1,6 @@
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
+#include "port/Engine.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
@@ -22,7 +23,6 @@ extern "C" {
 
 extern s32 gFramebufferWidth;
 extern s32 gFramebufferHeight;
-float GameEngine_GetAspectRatio(void);
 
 // Widescreen HUD edge anchoring (centered-ortho HUD geometry).
 float port_hudOrthoShift(float refX) {
