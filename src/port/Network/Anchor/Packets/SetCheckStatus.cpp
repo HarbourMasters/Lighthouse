@@ -18,8 +18,7 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId);
  * SET_CHECK_STATUS
  *
  * Fired when a shuffled rando check is first obtained. The collector broadcasts its
- * RandoCheckId; teammates mark the check obtained (which derives its rando_inf flags via
- * ModifyRandoInfFlagState and refreshes reachable regions) and, if standing in the same
+ * RandoCheckId; teammates mark the check obtained and, if standing in the same
  * map, live-despawn their spawned copy of the shuffled object.
  */
 

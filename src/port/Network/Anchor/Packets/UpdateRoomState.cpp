@@ -7,11 +7,9 @@
 #include "port/Rando/Rando.h"
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/LighthouseModals.h"
-//#include "soh/OTRGlobals.h"
 
 extern "C" {
 #include "variables.h"
-// extern PlayState* gPlayState;
 }
 
 /**

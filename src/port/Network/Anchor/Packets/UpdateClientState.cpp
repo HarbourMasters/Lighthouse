@@ -3,13 +3,11 @@
 #include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/OTRGlobals.h"
 
 #include "port/Rando/Rando.h"
 
 extern "C" {
 #include "variables.h"
-// extern PlayState* gPlayState;
 }
 
 /**
@@ -62,7 +60,6 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         AnchorClient client = payload["state"].get<AnchorClient>();
         clients[clientId].clientId = clientId;
         clients[clientId].name = client.name;
-        // clients[clientId].color = client.color;
         clients[clientId].clientVersion = client.clientVersion;
         clients[clientId].teamId = client.teamId;
         clients[clientId].online = client.online;
