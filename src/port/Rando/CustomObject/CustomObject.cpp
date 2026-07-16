@@ -340,7 +340,9 @@ void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
             shouldRemoveEX = true;
             RANDO_SAVE_CHECKS[pool.randoCheckId].obtained = true;
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
-            if (!isInit) {
+            if (isInit) {
+                CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
+            } else {
                 Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
             }
             Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);

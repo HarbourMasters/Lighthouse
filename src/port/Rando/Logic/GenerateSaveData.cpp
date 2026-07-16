@@ -187,6 +187,10 @@ void Rando::Logic::GrantStartingLoadout() {
             }
 
             CustomObject::CheckObtainedEX(smCheckId, true);
+            if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
+                ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, true);
+                ability_setHasUsed((ability_e)randoSaveCheck.randoCollectionId);
+            }
         }
     }
 }
