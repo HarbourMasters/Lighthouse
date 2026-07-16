@@ -7,25 +7,13 @@
 #include <unordered_set>
 
 extern "C" {
-void item_set(s32 item, s32 val);
-void item_adjustByDiffWithoutHud(enum item_e item, s32 diff);
-s32 item_getCount(enum item_e item);
-void itemscore_noteScores_clear(void);
+#include "functions.h"
 
-void ability_unlock(enum ability_e);
-int ability_isUnlocked(enum ability_e uid);
-void ability_setLearned(s32 move, s32 val);
+// Decomp functions that functions.h does not declare (defined in smbottles.c,
+// mumbo_transforms.c and jigsawpicture.c respectively).
 void __chSmBottles_skipIntroTutorial(void);
-
-void fileProgressFlag_set(enum file_progress_e index, s32 set);
-bool fileProgressFlag_get(enum file_progress_e index);
 s32 __transformation_getCost(enum transformation_e trans_id);
 s32 _puzzleCost(s32 index);
-
-u32 player_getTransformation(void);
-
-enum level_e map_getLevel(enum map_e map);
-enum map_e gsworld_getMap(void);
 }
 
 extern int32_t randoFinalSeed;

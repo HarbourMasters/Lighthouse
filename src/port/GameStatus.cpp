@@ -12,11 +12,7 @@
 
 extern "C" {
 #include "enums.h"
-enum level_e map_getLevel(enum map_e map);
-s32 itemscore_noteScores_get(enum level_e lvl_id);
-s32 jiggyscore_leveltotal(s32 lvl);
-s32 honeycombscore_get_level_total(enum level_e level_id);
-u16 itemscore_timeScores_get(enum level_e level_id);
+#include "functions.h"
 
 // Pause menu level name table (supports romhack string patches via Torch config)
 typedef struct {

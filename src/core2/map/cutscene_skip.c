@@ -7,7 +7,6 @@ extern void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMark
 extern void func_8028F760(s32, f32, f32);
 extern void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2);
 extern void func_8031FFAC(void);
-extern void fileProgressFlag_set(enum file_progress_e index, s32 set);
 extern NodeProp *func_80304ED0(void*, f32 *);
 extern void func_8031CD44(enum map_e, s32, f32, f32, s32);
 extern void mapSpecificFlags_set(s32, s32);

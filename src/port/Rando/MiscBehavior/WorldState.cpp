@@ -6,15 +6,7 @@
 #include "enums.h"
 
 extern "C" {
-s32 getGameMode(void);
-void mapSpecificFlags_set(s32 i, s32 val);
-s32 mapSpecificFlags_get(s32 i);
-
-enum map_e gsworld_getMap(void);
-enum level_e map_getLevel(enum map_e map);
-
-Struct70s* func_8034C5AC(s32 arg0);
-void func_8034E71C(Struct73s* arg0, s32 arg1, f32 arg2);
+#include "functions.h"
 }
 
 // These read per-file save data, so they must not be evaluated before a file is selected.

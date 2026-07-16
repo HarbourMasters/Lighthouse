@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/ShipUtils.h" // gPortResetPending
 
 #include "music.h"
 #include <n_audio/PR/n_libaudio.h>

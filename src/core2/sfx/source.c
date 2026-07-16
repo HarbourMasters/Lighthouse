@@ -2,6 +2,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/ShipUtils.h" // gPortResetPending
 #include <n_audio/PR/n_libaudio.h>
 
 extern void func_80335394(intptr_t, f32);

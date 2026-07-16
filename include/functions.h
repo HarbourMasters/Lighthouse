@@ -25,7 +25,6 @@
 #include "core2/ba/timer.h"
 #include "core2/nc/camera.h"
 
-#include "port/ShipUtils.h"
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
@@ -34,8 +33,6 @@
 #include "bs_funcs.h"
 #include "bsint.h"
 #include "generic.h"
-
-#include <libultraship/bridge.h>
 
 // FuncUnk40 defined in core2/commonParticle.h — forward-typedef here to avoid circular include
 #ifndef FUNCUNK40_DEFINED

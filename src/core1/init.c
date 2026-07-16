@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/ShipUtils.h" // gPortResetPending
 #include "version.h"
 #include "gc/gctransition.h"
 
