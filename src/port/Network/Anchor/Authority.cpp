@@ -5,9 +5,7 @@
 #include "port/Network/Anchor/FightSync.h"
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "enums.h"
-}
 
 struct ActivityState {
     bool claimed = false;

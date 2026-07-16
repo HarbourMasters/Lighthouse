@@ -27,9 +27,7 @@
 #include "GameVersion/AssetVersionRemap.h"
 #include "GameVersion/BaseGameVersion.h"
 
-extern "C" {
 #include "enums.h"
-}
 
 extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
 

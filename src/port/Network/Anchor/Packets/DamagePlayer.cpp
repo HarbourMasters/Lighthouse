@@ -2,10 +2,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "macros.h"
 #include "functions.h"
-}
 
 /**
  * DAMAGE_PLAYER

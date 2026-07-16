@@ -7,9 +7,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
-extern "C" {
 #include "enums.h"
-}
 
 #define CVAR_DISABLE_SNACKER CVAR_ENHANCEMENT("Gameplay.DisableSnackerSpawn")
 #define CVAR CVarGetInteger(CVAR_DISABLE_SNACKER, 0)

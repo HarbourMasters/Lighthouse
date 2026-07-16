@@ -3,6 +3,10 @@
 #include <libultra/thread.h>
 #include "enums.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void core1_main(s32 arg0);
 void func_8023DA74(void);
 void func_8023DA9C(s32 arg0);
@@ -24,5 +28,9 @@ void setBootMap(enum map_e map_id);
 void mainThread_create(void);
 OSThread *mainThread_get(void);
 void disableInput_set(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

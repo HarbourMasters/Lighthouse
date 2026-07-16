@@ -4,11 +4,9 @@
 #include "port/ShipInit.hpp"
 #include "port/Romhack/RomhackConfig.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "core2/abilityprogress.h"
-}
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves")
 

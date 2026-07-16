@@ -3,10 +3,8 @@
 #include <libultraship/libultraship.h>
 #include "port/UI/Notification.h"
 
-extern "C" {
 #include "functions.h"
 // extern PlayState* gPlayState;
-}
 
 /**
  * GIVE_ITEM

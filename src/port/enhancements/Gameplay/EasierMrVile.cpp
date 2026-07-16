@@ -7,9 +7,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
-extern "C" {
 #include "enums.h"
-}
 
 #define CVAR_EASIER_MR_VILE CVAR_ENHANCEMENT("EasierMrVile")
 #define CVAR CVarGetInteger(CVAR_EASIER_MR_VILE, 0)

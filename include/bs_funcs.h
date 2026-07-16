@@ -1,6 +1,10 @@
 #ifndef __BS_FUNCS__
 #define __BS_FUNCS__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //interrupt
 void func_802B5350(void);
 void func_80296608(void);
@@ -712,4 +716,8 @@ void bsDroneEnter_end(void);
 void bsDroneVanish_init(void);
 void bsDroneVanish_update(void);
 void bsDroneVanish_end(void);
+#ifdef __cplusplus
+}
+#endif
+
 #endif

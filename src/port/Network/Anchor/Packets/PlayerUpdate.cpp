@@ -3,12 +3,11 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
 #include "macros.h"
 #include "variables.h"
-ActorMarker* bacarry_get_marker(void);
-}
+
+extern "C" ActorMarker* bacarry_get_marker(void);
 
 #include "port/Patches/Patches.h"
 

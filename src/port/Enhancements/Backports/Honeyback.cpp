@@ -7,11 +7,9 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "gc/gctransition.h"
-}
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Backports.Honeyback")
 

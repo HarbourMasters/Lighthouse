@@ -7,9 +7,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
-extern "C" {
 #include "enums.h"
-}
 
 #define CVAR_NAME CVAR_ENHANCEMENT("EasierBoggyRaces")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)

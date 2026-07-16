@@ -23,6 +23,10 @@
 #include "core1/viewport.h"
 #include "core1/vimgr.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* need to sort out in individual header files */
 void* malloc(size_t size);
@@ -200,5 +204,9 @@ void dummy_func_80254464(void);
 void defragManager_init(void);
 void defragManager_free(void);
 void defragManager_setPriority(OSPri pri);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

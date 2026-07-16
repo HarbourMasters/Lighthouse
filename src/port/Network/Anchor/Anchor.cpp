@@ -8,10 +8,8 @@
 #include "port/ObjectExtension/ObjectExtension.h"
 #include "port/Enhancements/Retention/Retention.h"
 
-extern "C" {
 #include "variables.h"
 #include "functions.h"
-}
 
 // MARK: - Overrides
 

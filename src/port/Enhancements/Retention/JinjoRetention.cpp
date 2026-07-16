@@ -13,12 +13,10 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
-extern "C" {
 #include "enums.h"
 #include "actor.h"
 #include "prop.h"
 #include "functions.h"
-}
 
 extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 

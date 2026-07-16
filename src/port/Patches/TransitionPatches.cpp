@@ -8,9 +8,7 @@
 #include "port/ShipInit.hpp"
 #include "port/Patches/Patches.h"
 
-extern "C" {
 #include "enums.h"
-}
 
 // Falling-pieces transition uids.
 #define TRANSITION_FALLING_PIECES_IN 0x10

@@ -2,12 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
-void func_8031D04C(enum map_e arg0, s32 exit_id);
-// Instant, sweep-free reposition within the current map (sets current + previous position).
-void func_8028F85C(f32 arg0[3]);
-}
 
 // Exit id the game reserves for "spawn at an explicit position" (see func_8028E4B0).
 #define EXIT_WARP_DESTINATION 0x63

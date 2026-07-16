@@ -9,13 +9,11 @@
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 
-extern "C" {
 #include "enums.h"
 #include "core2/statetimer.h"
 #include "core2/ba/physics.h"
 #include "bs_funcs.h"
 #include "functions.h"
-}
 
 // ============================================================================
 // CVAR DEFINITIONS

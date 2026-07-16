@@ -7,6 +7,10 @@
 #include "prop.h"
 #include "core2/anim/sprite.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PARTICLE_LIMIT 40
 
 #ifndef FUNCUNK40_DEFINED
@@ -75,5 +79,9 @@ void func_80344E18(u8, s32);
 void func_80344E3C(u8, f32[3]);
 void func_80344D94(u8, f32[3]);
 void func_80344EE4(u8, f32, f32);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

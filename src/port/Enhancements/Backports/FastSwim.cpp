@@ -8,9 +8,7 @@
 
 // Include C decomp headers with C linkage before C++ headers to prevent
 // transitive includes from giving them C++ name mangling.
-extern "C" {
 #include "core2/bonetransform.h"
-}
 
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"

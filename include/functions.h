@@ -2,10 +2,18 @@
 #define FUNCTIONS_H
 
 #include <ultra64.h>
+#include "string.h"
+#include "math.h"
+
+#include "port/UI/cvar_prefixes.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "enums.h"
 #include "structs.h"
-#include "string.h"
 #include "rand.h"
 
 #include "prop.h"
@@ -25,10 +33,6 @@
 #include "core2/ba/timer.h"
 #include "core2/nc/camera.h"
 
-#include "port/UI/cvar_prefixes.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
-
-#include "math.h"
 #include "bk_time.h"
 #include "bs_funcs.h"
 #include "bsint.h"
@@ -3529,5 +3533,9 @@ float gu_sqrtf(float val);
 void _guMtxIdentF_80245D44(float mf[4][4]); //static should NOT be here
 void func_80241304(Mtx *m, float x, float y, float z);
 BKModelBin *  marker_loadModelBin(ActorMarker *marker);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FUNCTIONS_H

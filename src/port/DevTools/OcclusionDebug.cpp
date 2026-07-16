@@ -16,9 +16,7 @@
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-extern "C" {
 #include "functions.h" // gsworld_getMap, mapModel_getModelBin
-}
 
 // mapModel_getModelBin returns BKModelBin*; the debugger only compares it as an opaque
 // pointer, so reinterpret to const void* at the call sites.

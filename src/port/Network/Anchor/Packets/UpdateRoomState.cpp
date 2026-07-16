@@ -8,9 +8,7 @@
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/LighthouseModals.h"
 
-extern "C" {
 #include "variables.h"
-}
 
 /**
  * UPDATE_ROOM_STATE

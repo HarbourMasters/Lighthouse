@@ -13,11 +13,9 @@
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "variables.h"
-}
 
 #include <cmath>
 

@@ -9,9 +9,7 @@
 
 #include <string>
 
-extern "C" {
 #include "model.h"
-}
 
 namespace Factories {
 namespace {

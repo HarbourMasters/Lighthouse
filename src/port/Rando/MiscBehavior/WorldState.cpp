@@ -5,9 +5,7 @@
 #include "spdlog/spdlog.h"
 #include "enums.h"
 
-extern "C" {
 #include "functions.h"
-}
 
 // These read per-file save data, so they must not be evaluated before a file is selected.
 #define EMPTY_HONEYCOMB_OPTION_ENABLED \

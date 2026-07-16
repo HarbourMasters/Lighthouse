@@ -8,10 +8,8 @@
 #include <algorithm>
 #include <vector>
 
-extern "C" {
 #include "variables.h"
 #include "functions.h"
-}
 
 // In-memory session sets that aren't part of the save but still ride team state. Flat int
 // tuples; defined in the respective port modules.

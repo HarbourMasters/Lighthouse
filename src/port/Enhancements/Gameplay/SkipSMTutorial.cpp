@@ -5,11 +5,9 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Rando/Rando.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "core2/abilityprogress.h"
-}
 
 extern "C" float D_80386000[];
 

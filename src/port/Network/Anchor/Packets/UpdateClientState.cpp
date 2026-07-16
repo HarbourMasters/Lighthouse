@@ -6,9 +6,7 @@
 
 #include "port/Rando/Rando.h"
 
-extern "C" {
 #include "variables.h"
-}
 
 /**
  * UPDATE_CLIENT_STATE

@@ -3,11 +3,9 @@
 #include "port/Rando/Rando.h"
 #include "port/GameStatus.h"
 
-extern "C" {
 #include "variables.h"
 #include "functions.h"
 // extern PlayState* gPlayState;
-}
 
 void AnchorRoomWindow::Draw() {
     if (!IsVisible() || !Anchor::GetInstance()->isConnected) {

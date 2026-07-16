@@ -8,9 +8,7 @@
 #include "include/core2/anctrl.h"
 #include "include/core2/gc/zoombox.h"
 
-extern "C" {
 #include "functions.h"
-}
 
 extern "C" struct1Bs D_8036C560[]; // not declared in variables.h
 

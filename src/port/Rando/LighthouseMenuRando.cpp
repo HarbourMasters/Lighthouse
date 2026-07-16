@@ -10,9 +10,7 @@
 
 #include <spdlog/fmt/fmt.h>
 
-extern "C" {
 #include "variables.h"
-}
 
 const char* logicModes[2] = {
     "Glitchless",

@@ -13,12 +13,10 @@
 #include "port/ShipInit.hpp"
 #include "EggAim.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "core2/commonParticle.h"
 #include "core2/abilityprogress.h"
-}
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Backports.EggAim")
 

@@ -3,10 +3,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "variables.h"
 #include "functions.h"
-}
 
 /**
  * MAP_LOAD

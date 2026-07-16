@@ -6,9 +6,7 @@
 #include "port/Engine.h"
 #include "port/UI/Notification.h"
 
-extern "C" {
 #include "functions.h"
-}
 
 /**
  * ALL_CLIENT_STATE

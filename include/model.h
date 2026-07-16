@@ -4,6 +4,10 @@
 #include <ultra64.h>
 #include "bool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Model header
  * Contains offsets relative to the start of the file to the various sections
  * If a section is not present in the file, the offset will be zero
@@ -511,5 +515,9 @@ void model_free(BKModel *self);
 
 
 void gclights_recolor_vertices(BKVertexList *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *arg5);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
