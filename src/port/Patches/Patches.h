@@ -69,7 +69,8 @@ int port_scalePlayerDamage(int damage);
 
 // Graphics (GraphicsPatches.cpp)
 
-int port_getDrawDistanceLevel(void);
+int port_getDrawDistanceSetting(void); // configured multiplier; safe during map load
+int port_getDrawDistanceLevel(void);   // render-time multiplier; clamped to 1x outside normal gameplay
 int port_shouldDisableLOD(void);
 float port_drawDistanceMul(void);
 void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist);

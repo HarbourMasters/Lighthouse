@@ -40,7 +40,7 @@ float port_hudOrthoShift(float refX) {
     return 0.0f; // centered
 }
 
-int port_getDrawDistanceLevel(void) {
+int port_getDrawDistanceSetting(void) {
     int mul = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 1);
     if (mul < 1) {
         mul = 1;
@@ -48,6 +48,11 @@ int port_getDrawDistanceLevel(void) {
     if (mul > kMaxDrawDistanceMul) {
         mul = kMaxDrawDistanceMul;
     }
+    return mul;
+}
+
+int port_getDrawDistanceLevel(void) {
+    int mul = port_getDrawDistanceSetting();
     if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
         mul = 1;
     }

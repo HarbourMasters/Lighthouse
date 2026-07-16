@@ -7,6 +7,7 @@
 #include "prop.h"
 #include "functions.h"
 #include "core2/ch/snacker.h"
+#include "port/Patches/Patches.h" // port_getDrawDistanceLevel
 #include "port/Romhack/RomhackConfig.h"
 
 void spawnQueue_unlock(void);
@@ -180,18 +181,32 @@ u8 spawnQueueLength = 0;
 FunctionQueue *spawnQueue = NULL;
 
 /* .code */
-// [port] N64 used 15 entries. If this overflows, find the root cause —
-// something is adding entries faster than they're being flushed.
-#define SPAWN_QUEUE_DEFAULT_SIZE 32
+// [port] N64 used 15 entries, sized for the N64's draw distance.
+// Scales with the Draw Distance enhancement.
+#define SPAWN_QUEUE_DEFAULT_SIZE 15
 #define SPAWN_QUEUE_GL_SIZE 50
 
+// [port] Capacity of the live allocation.
+static u32 sSpawnQueueMax = 0;
+
 static u32 __spawnQueue_getMax(void) {
+#if 0
     return (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
+#endif
+    return sSpawnQueueMax;
 }
 
 void spawnQueue_malloc(void){
+#if 0
     u32 tmp = __spawnQueue_getMax();
     spawnQueue = (FunctionQueue *) bk_malloc(tmp * sizeof(FunctionQueue));
+#endif
+    u32 base = (gsworld_getMap() == MAP_90_GL_BATTLEMENTS) ? SPAWN_QUEUE_GL_SIZE : SPAWN_QUEUE_DEFAULT_SIZE;
+    // [port] The setting, not the render-time level: this runs during a map load, where
+    // port_getDrawDistanceLevel() clamps to 1x and would under-size the queue for the
+    // gameplay that follows.
+    sSpawnQueueMax = base * (u32) port_getDrawDistanceSetting();
+    spawnQueue = (FunctionQueue *) bk_malloc(sSpawnQueueMax * sizeof(FunctionQueue));
 }
 
 void spawnQueue_reset(void){
@@ -440,6 +455,7 @@ void spawnQueue_free(void){
     bk_free(spawnQueue);
     spawnQueue = NULL;
     spawnQueueLength = 0;
+    sSpawnQueueMax = 0; // [port] no capacity without an allocation
     
 }
 
@@ -496,7 +512,7 @@ void spawnQueue_lock(void){
 
 void __spawnQueue_add_0(void (* arg0)(void)){
     u32 tmp = __spawnQueue_getMax();
-    if(tmp != spawnQueueLength){
+    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg_cnt = 0;
         spawnQueueLength++;
@@ -507,7 +523,7 @@ void __spawnQueue_add_0(void (* arg0)(void)){
 
 void __spawnQueue_add_1(GenFunction_1 arg0, uintptr_t arg1){
     u32 tmp = __spawnQueue_getMax();
-    if(tmp != spawnQueueLength){
+    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = (void (*)(void))arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg_cnt = 1;
@@ -519,7 +535,7 @@ void __spawnQueue_add_1(GenFunction_1 arg0, uintptr_t arg1){
 
 void __spawnQueue_add_2(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2){
     u32 tmp = __spawnQueue_getMax();
-    if(tmp != spawnQueueLength){
+    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
@@ -532,7 +548,7 @@ void __spawnQueue_add_2(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2){
 
 void __spawnQueue_add_3(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uintptr_t arg3){
     u32 tmp = __spawnQueue_getMax();
-    if(tmp != spawnQueueLength){
+    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
@@ -546,7 +562,7 @@ void __spawnQueue_add_3(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uin
 
 void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4){
     u32 tmp = __spawnQueue_getMax();
-    if(tmp != spawnQueueLength){
+    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = (void (*)(void))arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
@@ -561,7 +577,7 @@ void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uint
 
 void __spawnQueue_add_5(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5){
     u32 tmp = __spawnQueue_getMax();
-    if(tmp != spawnQueueLength){
+    if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
