@@ -22,7 +22,6 @@ extern "C" {
 
 extern SaveData gameFile_saveData[4];
 extern s8 gameFile_GameIdToFileIdMap[4];
-s32 item_getCount(enum item_e item);
 extern u8 gCompletedBottlesBonusGames[7];
 }
 

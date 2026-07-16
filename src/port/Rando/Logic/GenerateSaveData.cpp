@@ -8,11 +8,9 @@
 #include "port/Save/Types.h"
 
 extern "C" {
-void ability_setLearned(s32 move, s32 val);
 void ability_setHasUsed(enum ability_e move);
 
 void item_setMaxCount(s32 item);
-void fileProgressFlag_set(enum file_progress_e index, s32 set);
 }
 
 // clang-format off

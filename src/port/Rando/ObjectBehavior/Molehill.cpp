@@ -21,7 +21,6 @@ typedef struct {
 extern "C" {
 void func_80347A14(s32 arg0);
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff);
-void ability_unlock(enum ability_e);
 s32 mapSpecificFlags_get(s32 i);
 void mapSpecificFlags_set(s32 i, s32 val);
 }

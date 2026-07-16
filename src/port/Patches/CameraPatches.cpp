@@ -17,8 +17,6 @@ extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "variables.h"
-enum level_e map_getLevel(enum map_e map);
-enum map_e gsworld_getMap(void);
 }
 
 #include <cmath>
