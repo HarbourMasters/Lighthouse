@@ -1,5 +1,6 @@
 #include <ultra64.h>
 #include "functions.h"
+#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
 #include "variables.h"
 
 #include "animation.h"
