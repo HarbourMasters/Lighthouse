@@ -54,6 +54,10 @@ typedef enum VBehaviorID {
     // granted (isConnected-gated listener, HookHandlers.cpp) when that flag was set by a
     // teammate's watering, so the flower grows live without the waterer's camera/fanfare/jiggy.
     VB_CCW_FLOWER_REMOTE_GROW,
+    // FP twinkly (Christmas-light) minigame start gate (Anchor): the activating client asks before
+    // starting; the isConnected listener (HookHandlers.cpp) blocks it (should=false) when another
+    // client already owns the run, otherwise claims NET_ACTIVITY_FP_TWINKLY and lets it proceed.
+    VB_FP_TWINKLY_START,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

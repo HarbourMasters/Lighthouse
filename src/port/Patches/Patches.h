@@ -176,6 +176,12 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // FP bear cubs' presents: bit 0 = blue delivered, bit 1 = green, bit 2 = red. The received level
 // flags (0x11-0x13) stay local (Anchor_ScopedFlagExcluded); bearcub.c records/replays via these.
 #define ANCHOR_PUZZLE_FP_PRESENTS 11
+// FP snowman buttons: bit per button (actorTypeSpecificField 1-3 -> bits 0-2). Pressing all three
+// spawns JIGGY_2D; snowmanbutton.c records its own press and replays a teammate's silently.
+#define ANCHOR_PUZZLE_FP_SNOWBUTTONS 12
+// FP Sir Slushes: positional, not a count — each slush is keyed by its (stationary) spawn position,
+// synced through the puzzle-pos set (below), so killing all of them team-wide spawns JIGGY_31.
+#define ANCHOR_PUZZLE_FP_SLUSHES 13
 
 // Remote teammates' carried-collectible display copies (defined in level_collectible.c). A
 // teammate's PLAYER_UPDATE reports the carried collectible's marker id (0 = none); their throw
@@ -194,6 +200,19 @@ int32_t port_puzzleStep_get(int32_t puzzleId);
 // Same as get, but for an explicit map key — for the rare puzzle whose recorder and consumer live
 // in different maps (FP tree ice: recorded inside the tree, also read from the FP hub).
 int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
+
+// PUZZLE_POS: positional companion to PUZZLE_STEP for puzzles whose sub-steps are distinct world
+// objects identified by their fixed spawn position rather than a small index (FP's Sir Slushes).
+// Keyed by (current map, puzzleId, spawn-position hash); a member is recorded + broadcast on mark
+// and stays for the session (temp-persist, like the other puzzle stores). isMarked replays a
+// teammate's step at the matching object. Rides the same PUZZLE_STEP packet (see PuzzleStep.cpp).
+void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
+int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
+
+// FP twinkly (Christmas-light) minigame: release our hold on the single-runner claim once the run
+// ends (completed or failed), so a teammate can take their turn. No-op offline / if we don't own it.
+// The start side is gated by VB_FP_TWINKLY_START (HookHandlers.cpp). Defined there too.
+void port_fpTwinkly_release(void);
 
 // PUZZLE_COUNT: shared monotonic delivery counters keyed by (current map, counterId) — for
 // progress that is a count, not distinct steps, where concurrent deliveries must all land

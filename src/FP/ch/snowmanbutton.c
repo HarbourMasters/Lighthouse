@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 Actor *func_80386B80(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void FP_func_80386CF8(Actor *this);
 
@@ -86,6 +88,22 @@ void FP_func_80386CF8(Actor *this){
         this->volatile_initialized = true;
         if(this->state == 3){
             maSnowButton_decRemaining();
+        }
+    }
+
+    // [port] Anchor: the three buttons ride ANCHOR_PUZZLE_FP_SNOWBUTTONS (one bit each, keyed by
+    // actorTypeSpecificField). Replay a teammate's press here — depress + advance the shared counter,
+    // minus the presser-local ding/particles — and record our own press (idempotent, also covers a
+    // button whose pressed state was restored from a savestate).
+    {
+        s32 bit = 1 << (this->actorTypeSpecificField - 1);
+        if(this->state == 1 && (port_puzzleStep_get(ANCHOR_PUZZLE_FP_SNOWBUTTONS) & bit)){
+            subaddie_set_state_with_direction(this, 2, 0.01f, 1);
+            actor_collisionOff(this);
+            maSnowButton_decRemaining();
+        }
+        if(this->state != 1){
+            port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_SNOWBUTTONS, bit);
         }
     }
 

@@ -26,6 +26,10 @@ typedef enum NetworkActivityId {
     NET_ACTIVITY_NONE = -1,
     NET_ACTIVITY_VILE_MINIGAME,
     NET_ACTIVITY_FINAL_BOSS,
+    // FP twinkly (Christmas-light) minigame: only one client may run it at a time — a second
+    // concurrent run corrupts the shared level geometry after the first finishes. Claimed on
+    // start, released on completion/failure (or auto-released when the owner leaves FP).
+    NET_ACTIVITY_FP_TWINKLY,
     NET_ACTIVITY_COUNT
 } NetworkActivityId;
 

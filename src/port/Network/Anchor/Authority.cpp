@@ -18,8 +18,9 @@ static ActivityState sActivities[NET_ACTIVITY_COUNT];
 
 // The map each activity lives in. A claim is only valid while its owner is in this map.
 static const int32_t sActivityMap[NET_ACTIVITY_COUNT] = {
-    MAP_10_BGS_MR_VILE,     // NET_ACTIVITY_VILE_MINIGAME
-    MAP_90_GL_BATTLEMENTS,  // NET_ACTIVITY_FINAL_BOSS
+    MAP_10_BGS_MR_VILE,        // NET_ACTIVITY_VILE_MINIGAME
+    MAP_90_GL_BATTLEMENTS,     // NET_ACTIVITY_FINAL_BOSS
+    MAP_27_FP_FREEZEEZY_PEAK,  // NET_ACTIVITY_FP_TWINKLY
 };
 
 static bool Authority_IsValidActivity(NetworkActivityId activity) {

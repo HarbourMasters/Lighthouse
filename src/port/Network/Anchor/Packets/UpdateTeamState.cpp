@@ -26,6 +26,8 @@ extern std::vector<int32_t> port_puzzleStep_snapshot();
 extern void port_puzzleStep_restore(const std::vector<int32_t>& flat);
 extern std::vector<int32_t> port_puzzleCount_snapshot();
 extern void port_puzzleCount_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_puzzlePos_snapshot();
+extern void port_puzzlePos_restore(const std::vector<int32_t>& flat);
 extern std::vector<int32_t> port_jiggySpawn_snapshot();
 extern void port_jiggySpawn_restore(const std::vector<int32_t>& flat);
 extern std::vector<int32_t> port_hutSmash_snapshot();
@@ -79,6 +81,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["eggTolls"] = port_eggToll_snapshot();
     payload["state"]["puzzleSteps"] = port_puzzleStep_snapshot();
     payload["state"]["puzzleCounts"] = port_puzzleCount_snapshot();
+    payload["state"]["puzzlePos"] = port_puzzlePos_snapshot();
     payload["state"]["spawnedJiggies"] = port_jiggySpawn_snapshot();
     payload["state"]["huts"] = port_hutSmash_snapshot();
 
@@ -179,6 +182,9 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         }
         if (state.contains("puzzleSteps")) {
             port_puzzleStep_restore(state["puzzleSteps"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("puzzlePos")) {
+            port_puzzlePos_restore(state["puzzlePos"].get<std::vector<int32_t>>());
         }
         if (state.contains("puzzleCounts")) {
             port_puzzleCount_restore(state["puzzleCounts"].get<std::vector<int32_t>>());

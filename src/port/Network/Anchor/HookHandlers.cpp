@@ -17,6 +17,11 @@ s32 chvile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 }
 
+// FP twinkly minigame: give up the single-runner claim when our run ends (see VB_FP_TWINKLY_START).
+extern "C" void port_fpTwinkly_release(void) {
+    NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
+}
+
 // True when a remote client owns the Mr. Vile minigame (our local logic must follow).
 static bool Anchor_IsVileFollower() {
     return !NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
@@ -322,6 +327,17 @@ void Anchor::RegisterHooks() {
     COND_VB_SHOULD(VB_CCW_FLOWER_REMOTE_GROW, EVENT_PRIORITY_NORMAL, isConnected, {
         s32 stageFlag = va_arg(args, s32);
         *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
+    });
+
+    // FP twinkly minigame start gate: block the start when another client is mid-run (its claim is
+    // live), otherwise claim it ourselves and let the vanilla start proceed. The claim releases on
+    // completion/failure (port_fpTwinkly_release) or when the owner leaves FP (Authority auto-drop).
+    COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
+            *should = false;
+        } else {
+            NetAuthority_Claim(NET_ACTIVITY_FP_TWINKLY);
+        }
     });
 
     COND_VB_SHOULD(VB_VILE_YUMBLIE_EMERGE, EVENT_PRIORITY_NORMAL, true, {

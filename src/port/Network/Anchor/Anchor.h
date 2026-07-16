@@ -277,7 +277,7 @@ public:
     void SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3], const f32 v2[3]);
     void SendPacket_FightState(u32 targetClientId);
     void SendPacket_FightUpdate(const f32 pos[3], f32 yaw, s32 state, s32 phase, s32 mirror, s32 vuln);
-    void SendPacket_PuzzleStep(s32 puzzleId, s32 bits, s32 map);
+    void SendPacket_PuzzleStep(s32 puzzleId, s32 bits, s32 map, s32 phash = 0);
     void SendPacket_PuzzleCount(s32 counterId, s32 delta, s32 map);
     void SendPacket_HutSmash(s32 x, s32 y, s32 z, s32 loot, s32 map);
     void SendPacket_JiggyCrane(s32 stage);

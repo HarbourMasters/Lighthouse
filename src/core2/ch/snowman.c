@@ -2,6 +2,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 extern void subaddie_set_state_with_direction(Actor *, s32, f32, s32);
 extern void subaddie_turnToYaw(Actor *, f32);
@@ -185,8 +187,14 @@ void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
     sfx_playFadeShorthandDefault(SFX_2F_ORANGE_SPLAT, 1.0f, 30000, actor->position, 1500, 4500);
 
     __spawnQueue_add_1((GenFunction_1)__chSnowman_spawnHat, (uintptr_t)actor->marker);
-    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK)
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         maSnowy_decRemaining();
+        // [port] Anchor: the FP Sir Slushes are a positional puzzle (JIGGY_31) — record this kill by
+        // its (stationary) spawn position so teammates count it and clear the same slush. Idempotent:
+        // a slush we despawn in response to a teammate's mark re-marks without rebroadcasting.
+        port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SLUSHES, (s32)actor->position[0], (s32)actor->position[1],
+                            (s32)actor->position[2]);
+    }
     __chSnowman_spawnSnowballParticles(actor->position, 0xC);
     marker_despawn(actor->marker);
 }
@@ -224,8 +232,25 @@ void chSnowman_update(Actor *this){
         if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
             local->unk0 = actorArray_findActorFromActorId(0x336)->marker;
             maSnowy_incTotal();
+            // [port] Anchor: a teammate already killed the slush at this spot before we reached it —
+            // count it and remove it silently (no death anim; we weren't here to watch it die).
+            if(port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
+                                       (s32)this->position[1], (s32)this->position[2])){
+                maSnowy_decRemaining();
+                marker_despawn(this->marker);
+                return;
+            }
         }
     }//L802E21D8
+    // [port] Anchor: a teammate killed this slush live (its position was marked while it's still up
+    // here) — replay the real death so it pops with the hat/particles and advances our count too.
+    // Guarded on despawn_flag so the deferred despawn can't re-trigger it next frame.
+    if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK && !this->despawn_flag
+       && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
+                                  (s32)this->position[1], (s32)this->position[2])){
+        __chSnowman_deathCallback(this->marker, NULL);
+        return;
+    }
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive() || func_8038DD14()){
             actor_collisionOff(this);

@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 extern void func_80324CD8(f32);
 extern Actor *actor_spawnWithYaw_f32(enum actor_e, f32[3], s32);
 
@@ -239,7 +241,9 @@ void chTwinklyBox_spawnTwinkly(ActorMarker *marker){
 
 void chTwinklyBox_completeMinigame(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
-    
+
+    // [port] Anchor: our run finished — hand the single-runner claim back (see chTwinklyBox_activateBox).
+    port_fpTwinkly_release();
     item_set(ITEM_6_HOURGLASS, false);
     fileProgressFlag_set(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME, true);
     FUNC_8030E624(SFX_416_ELECTRIC_ZAP, 0.8f, 32000);
@@ -257,6 +261,12 @@ void chTwinklyBox_activateBox(ActorMarker *this_marker, ActorMarker *other_marke
     Actor *this = marker_getActor(this_marker);
 
     if(this->state == 1 || this->state == 2){
+        // [port] Anchor: only one client may run this minigame at a time — a second concurrent run
+        // corrupts the shared level geometry once the first finishes. The gate claims the run for us,
+        // or blocks the start (should=false) if a teammate already holds it.
+        if(!EventSystem_Should(VB_FP_TWINKLY_START, true)){
+            return;
+        }
         actor_collisionOff(this);
         timed_setStaticCameraToNode(0.0f, 0xa);
         func_80324CD8(0.1f);
@@ -394,6 +404,8 @@ void chTwinklyBox_update(Actor *this){
         }
 
         if(item_empty(ITEM_6_HOURGLASS)){
+            // [port] Anchor: ran out of time — release the single-runner claim so a teammate can try.
+            port_fpTwinkly_release();
             subaddie_set_state_with_direction(this, 1, 0.001f, 0);
             actor_playAnimationOnce(this);
             this->unk38_31 = 0;
