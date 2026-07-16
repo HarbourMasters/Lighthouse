@@ -6,6 +6,7 @@
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
 #include "port/ShipInit.hpp"
 #include "port/UI/cvar_prefixes.h"
@@ -38,8 +39,6 @@ void print_setBoldFontTexture(int textureId);
 void* assetcache_get(int assetId);
 void assetcache_release(void* ptr);
 void bk_free(void* ptr);
-void port_refreshDialogFontGlyphCount(void);
-void port_dialogFontHd_rebuild(void);
 }
 
 // Live language change reactions

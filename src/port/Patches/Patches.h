@@ -21,6 +21,11 @@ int port_pauseMenuNeedsRefresh(void); // language or Return-to-Lair CVar changed
 void port_pauseMenuRebuild(void);     // free + recreate + replay the main menu open
 void port_setPrintScale(float scale);
 
+// Dialog font (AltDialogFont.cpp, SpritePatches.cpp)
+
+void port_dialogFontHd_rebuild(void);        // rebuild the HD glyph textures for the current base
+void port_refreshDialogFontGlyphCount(void); // re-read the reachable glyph count from the active font
+
 // Framebuffer (FramebufferPatches.cpp)
 
 void port_setViBlack(int active);

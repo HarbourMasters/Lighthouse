@@ -14,6 +14,7 @@
 #include <fast/resource/type/Texture.h>
 
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 #include "port/ShipInit.hpp"
 
 #include <cstdint>
@@ -21,8 +22,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-extern "C" void port_dialogFontHd_rebuild(void);
 
 namespace {
 

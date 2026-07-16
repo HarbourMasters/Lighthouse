@@ -4,6 +4,8 @@
 
 #include <libultraship.h>
 
+#include "port/Patches/Patches.h"
+
 extern "C" {
 
 #include "structs.h"

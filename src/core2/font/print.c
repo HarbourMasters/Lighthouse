@@ -3,9 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
-
-extern void port_dialogFontHd_rebuild(void);
 
 typedef struct{
     s8 pad0[0x20];
