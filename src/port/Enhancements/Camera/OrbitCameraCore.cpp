@@ -15,8 +15,9 @@ void func_80256E24(float dst[3], float pitch, float yaw, float x, float y, float
 int func_8025801C(float vec[3], float* yaw);                                         // vector -> yaw (degrees)
 void func_802BC434(float rotOut[3], float fromPos[3], float targetPos[3]);           // look-at rotation
 int func_802BE60C(void);                                                             // swept camera collision + slide
-float func_802BD8D4(void); // target orbit distance (zoom level)
-float func_802BD51C(void); // target camera height
+extern float D_8037D948[3]; // dynamicCamera.c collision anchor: the point the camera stays visible from
+float func_802BD8D4(void);  // target orbit distance (zoom level)
+float func_802BD51C(void);  // target camera height
 
 float ml_acosf(float x);
 float mlNormalizeAngle(float deg);
@@ -96,6 +97,21 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     }
     c->justEntered = 0;
 
+    // The trailing-anchor resolve can trap the camera far from the player.
+    // Snap it home when the gap runs away.
+    bool driftEscape = false;
+    float zoomTarget = func_802BD8D4();
+    if (c->smoothValid && zoomTarget > 0.0f) {
+        float rgx = center[0] - c->smoothPos[0];
+        float rgz = center[2] - c->smoothPos[2];
+        float limit = zoomTarget * 2.0f;
+        if ((rgx * rgx + rgz * rgz) > (limit * limit)) {
+            c->distance = zoomTarget;
+            c->smoothValid = 0;
+            driftEscape = true;
+        }
+    }
+
     // Track the vanilla zoom-level distance so the normal zoom controls still take
     // effect while orbiting.
     float distTrack = clampf(kDistanceRate * dt, 0.0f, 1.0f);
@@ -119,7 +135,12 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     }
     ncDynamicCamera_setPosition(pos);
 
-    // Resolve geometry.
+    // Resolve geometry. On a drift escape, anchor at the player so the resolve pulls back in.
+    if (driftEscape) {
+        D_8037D948[0] = center[0];
+        D_8037D948[1] = center[1];
+        D_8037D948[2] = center[2];
+    }
     func_802BE60C();
 
     float resolved[3];
