@@ -427,7 +427,10 @@ void func_80296608(void){
             break;
         case BS_INTR_35: //L80296984
             baflag_set(BA_FLAG_1A_OPEN_NOTEDOOR);
-            next_state = func_8029B504();
+            // The dance masks the fall/land this normally forces; when it's skipped
+            // (listener clears the flag here), leave the state unchanged so Banjo keeps moving.
+            if(EventSystem_Should(VB_PLAY_NOTEDOOR_DANCE, true))
+                next_state = func_8029B504();
             sp2C = 2;
             break;
         case BS_INTR_34: //L802969A4

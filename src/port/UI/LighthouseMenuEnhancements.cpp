@@ -45,6 +45,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Skips the cutscene that plays when first defeating a Clucker."));
 
+    AddWidget(path, "Skip Note Door Dance", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipNoteDoorDance"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Skips Banjo's dance when a note door opens, opening it immediately."));
+
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
