@@ -123,10 +123,9 @@ OTRVersion ReadPortVersionFromOTR(std::string otrPath) {
     return version;
 }
 
-// Checks the program version stored in the otr and compares the major value to soh
-// For Windows/Mac/Linux if the version doesn't match, offer to
+// Reads the port version recorded in the named o2r. A missing file yields INT16_MAX in every
+// field; an o2r that opens without a portVersion record yields zeros.
 OTRVersion DetectOTRVersion(std::string fileName) {
-    bool isOtrOld = false;
     std::string otrPath = Ship::Context::LocateFileAcrossAppDirs(fileName);
 
     // Doesn't exist so nothing to do here
@@ -228,7 +227,7 @@ bool IsSubpath(const std::filesystem::path& path, const std::filesystem::path& b
     return !rel.empty() && rel.native()[0] != '.';
 }
 
-bool PathTestCleanup(FILE* tfile) {
+bool PathTestCleanup() {
     try {
         if (std::filesystem::exists("./text.txt"))
             std::filesystem::remove("./text.txt");
@@ -597,8 +596,10 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                                 "Lighthouse does not have proper file permissions.\nPlease move it to a "
                                 "folder that does and run again.",
                                 "OK", "", [&]() {
-                                    fclose(tfile);
-                                    PathTestCleanup(tfile);
+                                    if (tfile != NULL) {
+                                        fclose(tfile);
+                                    }
+                                    PathTestCleanup();
                                     threadPool = nullptr;
                                     lhFast3dWindow = nullptr;
                                     context = nullptr;
@@ -606,7 +607,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                                 });
                         } else {
                             fclose(tfile);
-                            if (!PathTestCleanup(tfile)) {
+                            if (!PathTestCleanup()) {
                                 LighthouseGui::RegisterPopup(
                                     "Lighthouse Permissions Error",
                                     "Lighthouse does not have proper file permissions.\nPlease move it to a "

@@ -18,10 +18,6 @@ u16 itemscore_timeScores_get(enum level_e level_id);
 extern SaveData gameFile_saveData[4];
 }
 
-float windowScale = 1.0f;
-ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);
-static constexpr ImVec4 tintColor = {};
-
 const std::vector<const char*> timerDisplayOptions = {
     "Display Off",  // TIMER_DISPLAY_NONE
     "Real-Time",    // TIMER_DISPLAY_RTA

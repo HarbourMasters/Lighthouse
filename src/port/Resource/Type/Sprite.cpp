@@ -125,27 +125,6 @@ void Sprite::BuildSpriteStructure() {
         // SPDLOG_DEBUG("  Frame buffer size: {} bytes, pointer: {}",
         //             frameSizes[frameIdx], static_cast<void*>(sprite->frames[frameIdx]));
     }
-
-    // SPDLOG_INFO("=== Sprite structure complete (total {} bytes) ===", totalSize);
-
-    // Verify
-    // SPDLOG_INFO("Verification: frameCnt={}, type=0x{:X}", sprite->frameCnt, sprite->type);
-    if (frameCount > 0) {
-        BKSpriteFrame* verifyFrame = sprite->frames[0];
-        // SPDLOG_INFO("Frame 0: w={}, h={}, chunkCnt={}, frame pointer={}",
-        //            verifyFrame->w, verifyFrame->h, verifyFrame->chunkCnt,
-        //            static_cast<void*>(verifyFrame));
-
-        if (verifyFrame->chunkCnt > 0) {
-            BKSpriteTextureBlock* verifyChunk = reinterpret_cast<BKSpriteTextureBlock*>(verifyFrame + 1);
-            // SPDLOG_INFO("First chunk at frame+1: pointer={}, pos=({}, {}), size={}x{}",
-            //            static_cast<void*>(verifyChunk),
-            //            verifyChunk->x, verifyChunk->y, verifyChunk->w, verifyChunk->h);
-            // SPDLOG_INFO("Expected offset from frame: {} bytes, actual: {} bytes",
-            //            sizeof(BKSpriteFrame),
-            //            reinterpret_cast<uint8_t*>(verifyChunk) - reinterpret_cast<uint8_t*>(verifyFrame));
-        }
-    }
 }
 
 BKSprite* Sprite::GetPointer() {

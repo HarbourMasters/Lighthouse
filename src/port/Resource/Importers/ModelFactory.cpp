@@ -439,10 +439,6 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         // Write pixel data area (raw blob from Torch)
         if (blobPtr) {
             AppendBytes(out, blobPtr, rawTexDataSize);
-        } else {
-            // Fallback: zero-filled if blob was missing
-            for (uint32_t i = 0; i < rawTexDataSize; i++)
-                out.push_back(0);
         }
     }
 

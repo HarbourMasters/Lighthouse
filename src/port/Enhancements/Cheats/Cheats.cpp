@@ -137,7 +137,7 @@ void RegisterTalonTrotCycle_Init() {
         // D-pad cycling - only works while Talon Trot is active
         if (bakey_pressed(BUTTON_D_RIGHT) || bakey_pressed(BUTTON_D_LEFT)) {
             s32 currentState = bs_getState();
-            bool inTalonTrot = bsbtrot_inSet((enum bs_e)currentState) || bslongleg_inSet(0); // Also in longleg state
+            bool inTalonTrot = bsbtrot_inSet(currentState) || bslongleg_inSet(currentState);
 
             if (inTalonTrot) {
                 bool inBoots = stateTimer_isActive(STATE_TIMER_2_LONGLEG);

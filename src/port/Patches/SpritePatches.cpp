@@ -133,9 +133,11 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
                 u8* maskPx = px + (x + y * cw) * 4;
                 const s32 intensity = maskPx[2]; // mask byte[2] = intensity
                 const u8 alpha = maskPx[3];      // mask byte[3] = alpha
-                r5 *= (intensity / 0x1F);
-                g5 *= (intensity / 0x1F);
-                b5 *= (intensity / 0x1F);
+                // 5-bit channel * 8-bit intensity / 31 expands to 8-bit exactly (31 * 255 / 31 == 255).
+                // Dividing first truncates to 0..8, blacking out any intensity below 0x1F.
+                r5 = (r5 * intensity) / 0x1F;
+                g5 = (g5 * intensity) / 0x1F;
+                b5 = (b5 * intensity) / 0x1F;
                 maskPx[0] = (u8)r5;
                 maskPx[1] = (u8)g5;
                 maskPx[2] = (u8)b5;

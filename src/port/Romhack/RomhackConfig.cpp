@@ -444,39 +444,6 @@ static void LoadGameConfig() {
         }
     }
 
-    int codeConstCount = 0;
-    for (int i = 0; i < 24; i++) {
-        // Check each static against its default (-1)
-        const int* vals[] = { &sNewGameMap,      &sStartLevel1,          &sStartLevel2,
-                              &sKnowAllMoves,    &sMumboCostTermite,     &sMumboCostCroc,
-                              &sMumboCostWalrus, &sMumboCostPumpkin,     &sMumboCostBee,
-                              &sEggsNormalMax,   &sRedFeathersNormalMax, &sGoldFeathersNormalMax,
-                              &sEggsCheatomax,   &sRedFeathersCheatomax, &sGoldFeathersCheatomax,
-                              &sNotesMax,        &sJiggiesPerWorld,      &sHoneycombsPerWorld,
-                              &sExtraHcStart,    &sWarpExitBanjosHouse,  &sWarpEnterLair,
-                              &sSpecialLevel,    &sHideJiggiesLevel,     &sHideCollectiblesLevel };
-        if (*vals[i] != -1) {
-            codeConstCount++;
-        }
-    }
-    int levelNameCount = 0;
-    for (int i = 0; i < 13; i++) {
-        if (sLevelNames[i]) {
-            levelNameCount++;
-        }
-    }
-    int noteDoorCount = 0;
-    for (int i = 0; i < 12; i++) {
-        if (sNoteDoors[i] != -1) {
-            noteDoorCount++;
-        }
-    }
-    int jiggyCostCount = 0;
-    for (int i = 0; i < 11; i++) {
-        if (sJiggyCosts[i] != -1) {
-            jiggyCostCount++;
-        }
-    }
     if (sCustomCodeHashHex.empty()) {
         // Data-only romhack — BB patches only, no injected MIPS to identify.
         // Fall back to the o2r-derived name for visibility.

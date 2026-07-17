@@ -195,9 +195,6 @@ void port_readAuxFbToCpu(Gfx** gfx) {
 
 // Picture model patching (Bottles Bonus / SNS pictures)
 
-#define TILE_SIZE 32
-#define IMAGE_WIDTH (TILE_SIZE * 5)
-#define IMAGE_HEIGHT (TILE_SIZE * 4)
 #define SEG4_TAGGED ((uintptr_t)0x04000000 | 1)
 #define FROM_XZ 0
 #define FROM_YZ 1
