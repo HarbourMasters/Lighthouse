@@ -251,6 +251,20 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         Notification::Emit({
             .message = "Save updated from team",
         });
+
+        // Adopting team state overwrites flags via a direct byte copy, so actors already spawned (the
+        // world we're standing in) never re-check them. Hold the map load when loading a file already
+        // connected to a room (with backup timeout allowing load and reloading once received). Otherwise,
+        // force reload on receipt to apply changed state.
+        if (teamStateHoldArmed) {
+            teamStateHoldArmed = false;
+            if (teamStateHoldMapLoaded && IsSaveLoaded()) {
+                transitionToMap(gsworld_getMap(), gsworld_getExit(), 1);
+            }
+        } else if (reloadMapOnTeamState && IsSaveLoaded()) {
+            reloadMapOnTeamState = false;
+            transitionToMap(gsworld_getMap(), gsworld_getExit(), 1);
+        }
     }
 
     if (payload.contains("queue")) {

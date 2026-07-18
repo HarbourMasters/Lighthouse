@@ -219,6 +219,11 @@ void port_fpTwinkly_release(void);
 // camera-lock on the client that actually triggered it. Defined in ScopedFlag.cpp.
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 
+// Non-zero while the game loop should hold a pending map swap on a black screen, waiting for the
+// initial team-state sync to be adopted on file load so the world spawns against
+// the shared flags. Always 0 offline / once state adopted or timed out.
+int32_t port_teamState_holdMapSwap(void);
+
 // PUZZLE_COUNT: shared monotonic delivery counters keyed by (current map, counterId) — for
 // progress that is a count, not distinct steps, where concurrent deliveries must all land
 // (delta-synced; see PuzzleStep.cpp). add() records + broadcasts; get() reads the team total.

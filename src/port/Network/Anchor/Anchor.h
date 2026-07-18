@@ -15,13 +15,7 @@
 extern "C" {
 #include "prop.h"
 #include "variables.h"
-//#include "z64.h"
 }
-
-// void DummyPlayer_Init(Actor* actor, PlayState* play);
-// void DummyPlayer_Update(Actor* actor, PlayState* play);
-// void DummyPlayer_Draw(Actor* actor, PlayState* play);
-// void DummyPlayer_Destroy(Actor* actor, PlayState* play);
 
 typedef struct {
     uint32_t clientId;
@@ -141,6 +135,19 @@ private:
 
 public:
     uint32_t ownClientId;
+    // Set when a mid-session sync (join / manual refresh while already in a map) is adopted — the
+    // world is already up, so HandlePacket_UpdateTeamState reloads the current map from its entrance
+    // so every actor re-spawns against the newly-adopted flags. Consumed once; not set by unsolicited
+    // teammate-save pushes (those already applied live as they happened).
+    bool reloadMapOnTeamState = false;
+    // First-load team-state hold (Option B). Armed at OnGameLoad while connected with a teammate: the
+    // game loop (func_802E4424) holds the pending map swap on a black screen until the initial team
+    // state is adopted, so the world spawns against the shared flags with no reveal-then-reload.
+    // teamStateHoldMapLoaded records whether the swap slipped through anyway (OnMapLoad fired) so the
+    // adopt path knows to fall back to a reload; teamStateHoldFrames bounds the wait.
+    bool teamStateHoldArmed = false;
+    bool teamStateHoldMapLoaded = false;
+    int teamStateHoldFrames = 0;
     inline static const std::string clientVersion = (char*)gGitCommitHash;
 
     // Packet types //
@@ -217,20 +224,13 @@ public:
     bool CanTeleportTo(uint32_t clientId);
     uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
-
-    // The always-online public room (RoomId "lh-global"): players only see each other's dummies —
-    // no item/flag/quest syncing, no PvP/teleport, and nobody gets admin controls. Keyed on the
-    // local RoomId CVar so it's known before any room state arrives.
     bool IsGlobalRoom();
 
-    // Silently adopt a randomizer check a teammate already obtained: despawn our live copy if it's
-    // spawned in our map and mark it obtained without granting the item (those ride the rest of team
-    // state) or echoing back. Shared by SET_CHECK_STATUS and the team-state catch-up. rc is a
-    // RandoCheckId; typed as s32 to keep this header free of the rando type headers.
+    // Silently adopt a check a teammate already obtained. Despawns our live copy only if it's currently
+    // spawned, then marks it obtained through the same funnel a local collect uses with isInit = true:
+    // no item granted, no notification, and no packet sent.
     void AdoptRemoteCheck(s32 rc);
-    // Warn (once per distinct situation) when the local save's randomizer identity disagrees with
-    // the room's — a seed mismatch, or a vanilla save in a rando room (and vice versa). No-op in
-    // the global room or before a save is loaded.
+    // Warns (once per distinct situation) when the local save's randomizer identity disagrees with the room's.
     void CheckRandoRoomCompatibility();
 
     // True when the player wants to see teammate-event notifications (jiggies, level
@@ -239,11 +239,6 @@ public:
     // Display name for a connected client, or a generic fallback ("A teammate") when the
     // id is unknown (e.g. a packet from a client we haven't seen an ALL_CLIENT_STATE for).
     std::string GetClientName(uint32_t clientId);
-
-    void PrepDirectionPayload(nlohmann::json& payload);
-    void PrepTransformationPayload(nlohmann::json& payload);
-    void PrepAnimStatePayload(nlohmann::json& payload);
-    void PrepAnimSubRangePayload(nlohmann::json& payload);
 
     void SendPacket_AuthorityState(u8 activity, bool claimed);
     void SendPacket_ClearTeamState(std::string teamId);
@@ -263,7 +258,7 @@ public:
     void SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId = 0);
     void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
     void SendPacket_RequestTeamState();
-    void SendPacket_RequestTeleport(u32 clientId);
+    void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);
     void SendPacket_SetItemCount(s16 item, s32 count);
@@ -283,7 +278,7 @@ public:
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
-    void SendPacket_TeleportTo(u32 clientId);
+    void SendPacket_TeleportTo(uint32_t clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();
     void SendPacket_UpdateRoomState();
@@ -296,9 +291,10 @@ public:
     void OnActorDestroyed(Actor* actor);
     void SendToCurrentMapPlayers(nlohmann::json& payload);
     void SendToCurrentLevelPlayers(nlohmann::json& payload);
-    // Drop temporary-persistence session state (broken objects, huts, egg tolls, puzzle steps)
-    // for every level with no player left in it. Called whenever anyone's location changes;
-    // selfMap is passed explicitly because during OnMapLoad the new map isn't committed yet.
+    // Temporary-persistence state (broken windows/grates, smashed huts, egg tolls, puzzle steps) is
+    // only valid while its level stays continuously occupied: vanilla persists none of it, so once
+    // the last player leaves a level the records must reset or the level stays "used up" for the
+    // whole session.
     void SweepUnoccupiedLevelState(GameMap selfMap);
 
     static Anchor* GetInstance();

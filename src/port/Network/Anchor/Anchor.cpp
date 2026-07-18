@@ -11,7 +11,6 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
-// extern PlayState* gPlayState;
 }
 
 // MARK: - Overrides
@@ -31,8 +30,6 @@ void Anchor::Enable() {
     Network::Enable(CVarGetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org"),
                     CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383));
     ownClientId = CVarGetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), 0);
-    // Start from a fully sync-off room state until an UPDATE_ROOM_STATE arrives, so nothing syncs
-    // in the window before it (and so the global room never briefly syncs on stale values).
     roomState = RoomState{};
 }
 
@@ -60,13 +57,15 @@ void Anchor::OnConnected() {
     RegisterHooks();
 
     // Realtime note/jinjo collection sync depends on those retention systems running, so force
-    // them on while connected — without touching the user's CVar (their setting is preserved).
+    // them on while connected — without touching the user's CVar.
     port_noteRetention_setForced(1);
     port_jinjoRetention_setForced(1);
 
     if (IsSaveLoaded()) {
+        // Connected while already in a save — trigger reload to apply state changes.
         SendPacket_RequestTeamState();
         hasRequestedTeamState = true;
+        reloadMapOnTeamState = true;
     }
 }
 
@@ -298,10 +297,6 @@ void Anchor::DrawDummies(OnPlayerDraw* event) {
 
 void Anchor::ClearDummies() {
     for (auto& [id, dummy] : dummies) {
-        // Despawn the stand-in properly (shadow unlink included) rather than leaking it into the
-        // map. On the map-teardown path the markers were already detached (actorArray_free →
-        // port_anchorDummies_onActorsFreed), making this a no-op; it does real work for live
-        // actors (disconnect mid-map).
         dummy->dummy_despawnActor();
     }
     dummies.clear();
@@ -323,9 +318,6 @@ extern "C" void port_anchorDummies_onActorsFreed(void) {
     }
 }
 
-// Takes the map explicitly rather than reading gsworld_getMap(): during the
-// OnMapLoad event the new map hasn't been committed yet, so gsworld_getMap()
-// still reports the map being left.
 void Anchor::PopulateDummies(GameMap map) {
     for (const auto& [clientId, client] : clients) {
         if (client.map == map && !client.self && !dummies.contains(clientId) && client.online) {
@@ -349,8 +341,7 @@ void Anchor::UpdateDummies() {
 
 void Anchor::OnActorDestroyed(Actor* actor) {
     // The engine destroyed a dummy's stand-in behind our back (or our own despawn is mid-flight):
-    // forget the marker so nothing dereferences it. The dummy stays registered — its update
-    // lazily respawns the stand-in if it should still exist.
+    // forget the marker so nothing dereferences it.
     if (actor == nullptr || actor->marker == nullptr) {
         return;
     }
@@ -364,7 +355,6 @@ void Anchor::OnActorDestroyed(Actor* actor) {
 
 void Anchor::RemoveDummy(uint32_t clientId) {
     if (dummies.contains(clientId)) {
-        // Mid-map removal (client left the map / went offline): take the stand-in with it.
         dummies[clientId]->dummy_despawnActor();
         dummies.erase(clientId);
     }
@@ -378,15 +368,6 @@ extern void port_eggToll_clearForLevel(int32_t levelId);
 extern void port_puzzleStep_clearForLevel(int32_t levelId);
 extern void port_carriedSync_clearForLevel(int32_t levelId);
 
-// Temporary-persistence state (broken windows/grates, smashed huts, egg tolls, puzzle steps) is
-// only valid while its level stays continuously occupied: vanilla persists none of it, so once
-// the last player leaves a level the records must reset or the level stays "used up" for the
-// whole session. Rather than electing the last leaver or first returner to broadcast a clear,
-// every client applies this rule to its own copy whenever anyone's location changes — all copies
-// converge on the same event stream, a last-occupant crash still sweeps (going offline removes
-// them from occupancy), and late joiners can't resurrect stale records because team-state
-// snapshots are served by a live (already-swept) client. Note/jinjo retention and spawned
-// jiggies are deliberately NOT swept: those mirror vanilla-persistent state.
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     // level_e ids are small (1..0xD); 0x20 gives the same headroom the jinjo retention slots use.
     bool occupied[0x20] = { false };
@@ -457,23 +438,6 @@ bool Anchor::IsSaveLoaded() {
     }
     auto map = gsworld_getMap();
     return map != MAP_1E_CS_START_NINTENDO && map != MAP_1F_CS_START_RAREWARE && map != MAP_91_FILE_SELECT;
-    /* if (gPlayState == nullptr) {
-         return false;
-     }
-
-     if (GET_PLAYER(gPlayState) == nullptr) {
-         return false;
-     }
-
-     if (gSaveContext.fileNum < 0 || gSaveContext.fileNum > 2) {
-         return false;
-     }
-
-     if (gSaveContext.gameMode != GAMEMODE_NORMAL) {
-         return false;
-     }*/
-
-    // return true;
 }
 
 bool Anchor::ShouldShowNotifications() {

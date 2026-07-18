@@ -106,7 +106,6 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     CheckRandoRoomCompatibility();
 }
 
-// Warns (once per distinct situation) when the local save's randomizer identity disagrees with the room's.
 void Anchor::CheckRandoRoomCompatibility() {
     if (IsGlobalRoom() || !isConnected || !IsSaveLoaded()) {
         return;

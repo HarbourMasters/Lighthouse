@@ -507,8 +507,8 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Gameplay.NoteRetention"))
         .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) {
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ANCHOR_CONNECTED).active) {
-                info.activeDisables.push_back(DISABLE_FOR_ANCHOR_CONNECTED);
+            if (mLighthouseMenu->disabledMap.at(FORCED_ON_FOR_ANCHOR_CONNECTED).active) {
+                info.activeDisables.push_back(FORCED_ON_FOR_ANCHOR_CONNECTED);
             }
         })
         .Options(CheckboxOptions().Tooltip(
@@ -520,8 +520,8 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Gameplay.JinjoRetention"))
         .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) {
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ANCHOR_CONNECTED).active) {
-                info.activeDisables.push_back(DISABLE_FOR_ANCHOR_CONNECTED);
+            if (mLighthouseMenu->disabledMap.at(FORCED_ON_FOR_ANCHOR_CONNECTED).active) {
+                info.activeDisables.push_back(FORCED_ON_FOR_ANCHOR_CONNECTED);
             }
         })
         .Options(CheckboxOptions().Tooltip(

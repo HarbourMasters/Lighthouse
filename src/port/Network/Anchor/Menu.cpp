@@ -148,6 +148,7 @@ void AnchorMainMenu(WidgetInfo& info) {
         UIWidgets::PushStyleButton(THEME_COLOR);
         if (ImGui::Button("Request Team State")) {
             anchor->SendPacket_RequestTeamState();
+            anchor->reloadMapOnTeamState = true;
         }
         UIWidgets::Tooltip("Try this if you are missing items or flags that your team members have collected");
         UIWidgets::PopStyleButton();

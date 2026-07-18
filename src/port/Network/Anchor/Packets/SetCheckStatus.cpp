@@ -37,9 +37,6 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
     SendJsonToRemote(payload);
 }
 
-// Silently adopt a check a teammate already obtained. Despawns our live copy only if it's currently
-// spawned, then marks it obtained through the same funnel a local collect uses with isInit = true:
-// no item granted, no notification, and no packet sent.
 void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     RandoCheckId rc = (RandoCheckId)rcRaw;
     if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].obtained) {

@@ -23,6 +23,13 @@ extern "C" void port_fpTwinkly_release(void) {
     NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
 }
 
+// Game loop asks each frame whether to keep the pending map swap held for the first-load team-state
+// sync. Armed at OnGameLoad, released once the state is adopted or the wait times out.
+extern "C" int32_t port_teamState_holdMapSwap(void) {
+    Anchor* anchor = Anchor::GetInstance();
+    return (anchor != nullptr && anchor->teamStateHoldArmed) ? 1 : 0;
+}
+
 // True when a remote client owns the Mr. Vile minigame (our local logic must follow).
 static bool Anchor_IsVileFollower() {
     return !NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
@@ -178,6 +185,11 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
          index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
+    // Prevent multiple Bottles conversations from locking player position after dialog is over.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN &&
+        index == SM_SPECIFIC_FLAG_10) {
+        return true;
+    }
     return false;
 }
 
@@ -235,10 +247,45 @@ void Anchor::RegisterHooks() {
             ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
         }
+        // First-load hold: if a map swap fired while we were still armed, the hold didn't catch it
+        // (the world loaded against our own flags) — note it so the adopt path falls back to a reload.
+        if (anchor->teamStateHoldArmed) {
+            anchor->teamStateHoldMapLoaded = true;
+        }
     });
 
     COND_HOOK(OnReset, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)getDefaultBootMap(), gsworld_getExit());
+    });
+
+    // First file load while connected with a teammate present: pull team state now and hold the map
+    // swap on the black loading screen until it's adopted (Option B) — the world then spawns against
+    // the shared flags with no reveal-then-reload. With no teammate to answer there's nothing to wait
+    // for, so we don't hold (the map loads normally; the GameFrameUpdate fallback covers late joins).
+    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto* anchor = Anchor::GetInstance();
+        std::string myTeam;
+        for (auto& [id, c] : anchor->clients) {
+            if (c.self) {
+                myTeam = c.teamId;
+                break;
+            }
+        }
+        bool haveTeammate = false;
+        for (auto& [id, c] : anchor->clients) {
+            if (!c.self && c.online && c.teamId == myTeam) {
+                haveTeammate = true;
+                break;
+            }
+        }
+        if (!haveTeammate) {
+            return;
+        }
+        anchor->SendPacket_RequestTeamState();
+        anchor->hasRequestedTeamState = true;
+        anchor->teamStateHoldArmed = true;
+        anchor->teamStateHoldMapLoaded = false;
+        anchor->teamStateHoldFrames = 0;
     });
 
     COND_HOOK(OnPlayerDraw, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
@@ -255,6 +302,14 @@ void Anchor::RegisterHooks() {
         Anchor_UpdateVileSync();
         Anchor_UpdateFightSync();
 
+        // First-load map-swap hold timeout. ProcessIncomingPacketQueue above adopts team
+        // state and clears the arm the moment it lands; if it hasn't after ~3s (slow / unresponsive
+        // teammate), give up the hold and let the map load, falling back to a reload once it arrives.
+        if (anchor->teamStateHoldArmed && ++anchor->teamStateHoldFrames > 90) {
+            anchor->teamStateHoldArmed = false;
+            anchor->reloadMapOnTeamState = true;
+        }
+
         // Pull team state once per loaded-save session. OnMapLoad is too early — gsworld
         // flips the map after the event, so IsSaveLoaded() is still false there.
         if (anchor->isConnected && anchor->IsSaveLoaded()) {
@@ -263,6 +318,10 @@ void Anchor::RegisterHooks() {
             if (!anchor->hasRequestedTeamState) {
                 anchor->SendPacket_RequestTeamState();
                 anchor->hasRequestedTeamState = true;
+                // The map already spawned its actors against our own save's flags before this
+                // request's reply lands, so reload it from the entrance once the team state is
+                // adopted — every actor then re-spawns against the shared state.
+                anchor->reloadMapOnTeamState = true;
             }
             // Once per save-load session, warn if the save we just loaded doesn't match the room's
             // randomizer identity (covers loading a save *after* connecting — the room-state packet

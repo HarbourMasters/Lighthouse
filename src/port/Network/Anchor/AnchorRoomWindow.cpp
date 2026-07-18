@@ -1,6 +1,7 @@
 #include "Anchor.h"
 #include "port/Engine.h"
 #include "port/Rando/Rando.h"
+#include "port/GameStatus.h"
 
 extern "C" {
 #include "variables.h"
@@ -83,9 +84,8 @@ void AnchorRoomWindow::DrawElement() {
                 (Anchor::GetInstance()->roomState.showLocationsMode == 1 && isOwnTeam)) {
                 if ((client.self ? Anchor::GetInstance()->IsSaveLoaded() : client.isSaveLoaded)) {
                     ImGui::SameLine();
-                    ImGui::TextColored(
-                        ImVec4(1, 1, 1, 0.5f), "- %s",
-                        /*SohUtils::GetSceneName(client.self ? gPlayState->sceneNum : client.sceneNum).c_str()*/ "");
+                    ImGui::TextColored(ImVec4(1, 1, 1, 0.5f), "- %s",
+                                       port_getLevelName((int)(client.self ? gsworld_getMap() : client.map)));
                 }
             }
 

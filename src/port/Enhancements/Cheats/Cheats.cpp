@@ -190,7 +190,7 @@ void RegisterLevitate_Init() {
     // Fixed rise speed. Setting the vertical velocity outright (rather than nudging the position or
     // just zeroing gravity) overwrites any downward velocity, so engaging it mid-drop always gains
     // height instead of merely slowing the fall. Tune to taste.
-    static const f32 LEVITATE_VELOCITY = 300.0f;
+    static const f32 LEVITATE_VELOCITY = 500.0f;
     static bool levitateActive = false;
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_LEVITATE, 0), [](IEvent* event) {
         if (bakey_held(BUTTON_L)) {

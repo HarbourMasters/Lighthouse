@@ -214,7 +214,7 @@ void LighthouseMenu::InitElement() {
             "Not available during the character parade." } },
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
-        { DISABLE_FOR_ANCHOR_CONNECTED,
+        { FORCED_ON_FOR_ANCHOR_CONNECTED,
           { [](disabledInfo& info) -> bool {
                Anchor* anchor = Anchor::GetInstance();
                return anchor != nullptr && anchor->isConnected;
