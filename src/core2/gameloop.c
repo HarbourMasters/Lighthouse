@@ -509,10 +509,6 @@ bool func_802E4424(void) {
     rand_shuffle();
     if (!gctransition_8030BDC0()) {
         temp_v0 = D_8037E8E0.transition;
-        // [port] Anchor: File load team state hold
-        if (temp_v0 != TRANSITION_0_NONE && port_teamState_holdMapSwap()) {
-            return false;
-        }
         D_8037E8E0.transition = TRANSITION_0_NONE;
         switch (temp_v0) {                          /* switch 1 */
             case 9:                                     /* switch 1 */

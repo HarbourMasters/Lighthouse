@@ -15,8 +15,11 @@
  * state
  */
 
-void Anchor::SendPacket_RequestTeamState() {
-    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
+void Anchor::SendPacket_RequestTeamState(bool force) {
+    // `force` bypasses the IsSaveLoaded check for the first-load hold (Option B): OnGameLoad fires from
+    // gameFile_load while the map is still FILE_SELECT, so the save is being loaded but IsSaveLoaded() is
+    // still false. Without this the request is never sent and the hold just times out into a reload.
+    if ((!force && !IsSaveLoaded()) || !roomState.syncItemsAndFlags) {
         return;
     }
 

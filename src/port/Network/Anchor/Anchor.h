@@ -140,14 +140,6 @@ public:
     // so every actor re-spawns against the newly-adopted flags. Consumed once; not set by unsolicited
     // teammate-save pushes (those already applied live as they happened).
     bool reloadMapOnTeamState = false;
-    // First-load team-state hold (Option B). Armed at OnGameLoad while connected with a teammate: the
-    // game loop (func_802E4424) holds the pending map swap on a black screen until the initial team
-    // state is adopted, so the world spawns against the shared flags with no reveal-then-reload.
-    // teamStateHoldMapLoaded records whether the swap slipped through anyway (OnMapLoad fired) so the
-    // adopt path knows to fall back to a reload; teamStateHoldFrames bounds the wait.
-    bool teamStateHoldArmed = false;
-    bool teamStateHoldMapLoaded = false;
-    int teamStateHoldFrames = 0;
     inline static const std::string clientVersion = (char*)gGitCommitHash;
 
     // Packet types //
@@ -257,7 +249,7 @@ public:
     // client (used to hand a late arrival our current state directly).
     void SendPacket_PlayerTransformChange(Transformation tf_id, uint32_t targetClientId = 0);
     void SendPacket_PlayerUpdate(bool full = false, uint32_t targetClientId = 0);
-    void SendPacket_RequestTeamState();
+    void SendPacket_RequestTeamState(bool force = false);
     void SendPacket_RequestTeleport(uint32_t clientId);
     void SendPacket_SetCheckStatus(s32 rc, s32 map);
     void SendPacket_SetFlag(u8 flagSpace, s16 flag);

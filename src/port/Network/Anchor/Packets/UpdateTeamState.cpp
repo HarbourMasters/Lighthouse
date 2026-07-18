@@ -253,15 +253,11 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         });
 
         // Adopting team state overwrites flags via a direct byte copy, so actors already spawned (the
-        // world we're standing in) never re-check them. Hold the map load when loading a file already
-        // connected to a room (with backup timeout allowing load and reloading once received). Otherwise,
-        // force reload on receipt to apply changed state.
-        if (teamStateHoldArmed) {
-            teamStateHoldArmed = false;
-            if (teamStateHoldMapLoaded && IsSaveLoaded()) {
-                transitionToMap(gsworld_getMap(), gsworld_getExit(), 1);
-            }
-        } else if (reloadMapOnTeamState && IsSaveLoaded()) {
+        // world we're standing in) never re-check them. When this sync is the result of joining or a
+        // manual request while a save is already loaded, reload the current map from its entrance so every
+        // actor re-spawns against the newly-adopted flags. (On first file load the state arrives during the
+        // loading fade, before the world spawns, so no reload is armed.)
+        if (reloadMapOnTeamState && IsSaveLoaded()) {
             reloadMapOnTeamState = false;
             transitionToMap(gsworld_getMap(), gsworld_getExit(), 1);
         }
