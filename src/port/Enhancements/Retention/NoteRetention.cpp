@@ -432,6 +432,7 @@ void RegisterNoteRetention_Init() {
             case 0xD9C: // Bottles' first-note text: "you can't take notes with you"
             case 0xF76: // "you just beat your high score"
             case 0xF74: // milestone: 50 notes (Mumbo's Mountain)
+            case 0xF78: // milestone: collected every note in the level
                 *should = true;
                 break;
             default:

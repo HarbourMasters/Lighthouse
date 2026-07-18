@@ -240,6 +240,24 @@ void Anchor::RegisterHooks() {
             ev->nextMap != MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
             ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
+
+            // "Has entered level" resent on every level entry to keep live sync of entered levels.
+            s32 enteredFlag = -1;
+            switch (ev->nextMap) {
+                case MAP_2_MM_MUMBOS_MOUNTAIN:      enteredFlag = FILEPROG_B0_HAS_ENTERED_MM;  break;
+                case MAP_7_TTC_TREASURE_TROVE_COVE: enteredFlag = FILEPROG_B2_HAS_ENTERED_TTC; break;
+                case MAP_B_CC_CLANKERS_CAVERN:      enteredFlag = FILEPROG_B8_HAS_ENTERED_CC;  break;
+                case MAP_D_BGS_BUBBLEGLOOP_SWAMP:   enteredFlag = FILEPROG_B1_HAS_ENTERED_BGS; break;
+                case MAP_12_GV_GOBIS_VALLEY:        enteredFlag = FILEPROG_B3_HAS_ENTERED_GV;  break;
+                case MAP_1B_MMM_MAD_MONSTER_MANSION:enteredFlag = FILEPROG_B7_HAS_ENTERED_MMM; break;
+                case MAP_27_FP_FREEZEEZY_PEAK:      enteredFlag = FILEPROG_B6_HAS_ENTERED_FP;  break;
+                case MAP_31_RBB_RUSTY_BUCKET_BAY:   enteredFlag = FILEPROG_B4_HAS_ENTERED_RBB; break;
+                case MAP_40_CCW_HUB:                enteredFlag = FILEPROG_B5_HAS_ENTERED_CCW; break;
+                default:                            break;
+            }
+            if (enteredFlag >= 0 && fileProgressFlag_get((enum file_progress_e)enteredFlag)) {
+                anchor->SendPacket_SetFlag((u8)ANCHOR_FLAGSPACE_FILE_PROGRESS, (s16)enteredFlag);
+            }
         }
     });
 
