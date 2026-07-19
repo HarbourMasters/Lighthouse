@@ -4,6 +4,8 @@
 #include "variables.h"
 #include "CC.h"
 
+extern void port_ccWater_broadcastRise(int32_t map, int32_t waterId, int32_t targetDy, f32 duration);
+
 /* .data */
 f32 D_80389BF0[3] = {0.0f, 1300.0f, -2800.0f}; 
 
@@ -83,11 +85,17 @@ void func_8038817C(void){
 
     if(D_80389F90.unk0 != 0){
         // [port] Anchor live: a teammate completed the rings (JIGGY_1C spawned via the synced
-        // JIGGY_SPAWN packet). Tear our in-progress run down so the rings vanish and the hourglass
-        // stops, instead of running a redundant minigame for an already-awarded jiggy.
-        if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS)){
+        // JIGGY_SPAWN packet) *while we're still collecting* (unk0 < 9). Tear our in-progress run down so
+        // the rings vanish and the hourglass stops, instead of running a redundant minigame for an
+        // already-awarded jiggy.
+        if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS) && D_80389F90.unk0 < 9){
             func_80387FE8();
-            func_80387F80();
+            // Vanilla snaps the water to its risen height as the interrupted run tears down. When connected
+            // the finisher's WATER_RISE broadcast already started the animated rise on us (it lands at
+            // completion, before JIGGY_1C syncs ~2.1s later), so the isConnected VB listener suppresses this
+            if(EventSystem_Should(VB_CC_RINGS_SNAP_WATER, true)){
+                func_80387F80();
+            }
             D_80389F90.unk0 = 0;
             return;
         }
@@ -104,6 +112,9 @@ void func_8038817C(void){
             if(tmp_v0){
                 func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f);
             }
+            // [port] Anchor: replay this animated rise on teammates in Clanker now, so a remote doesn't
+            // just snap when JIGGY_1C syncs at the end of the run (no-op offline).
+            port_ccWater_broadcastRise(MAP_22_CC_INSIDE_CLANKER, 0x131, 0x190, 12.0f);
             D_80389F90.unk4 = 0.0f;
         }//L80388264
         if(!(D_80389F90.unk0 < 2) && D_80389F90.unk1 != 0){

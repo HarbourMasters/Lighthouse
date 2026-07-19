@@ -12,6 +12,9 @@ extern void func_802F9D38(s32);
 extern void func_802EE2E8(Actor *arg0, s32 arg1, s32 cnt, s32 arg3, f32 arg4, f32 arg5, f32 arg6);
 extern void gcquiz_func_80319EA4(void);
 
+extern void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag);
+extern int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel);
+
 void func_802D3D54(Actor *this);
 void func_802D3DA4(Actor *this);
 Actor *func_802D3F48(ActorMarker *this, Gfx **gdl, Mtx **mptr, Vtx **arg3);
@@ -1020,14 +1023,31 @@ void func_802D5260(void) {
         if (levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) != false) {
             sp34 = D_803679C8[sp3C].unk6 + D_803676A4;
         } else {
-            sp34 = ((s16 *)&D_803679C8[sp3C])[(fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) ? 3 
-                     : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
-                     : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
-                     : 0];
+            s32 lvl = (fileProgressFlag_get(FILEPROG_27_LAIR_WATER_LEVEL_3)) ? 3
+                    : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
+                    : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
+                    : 0;
+            // [port] Anchor: a teammate's in-flight rise (WaterRise.cpp) bumps this to the target level
+            // before its flag syncs, so a remote eases in lockstep; resolves to the flag once it lands.
+            lvl = port_lairWater_targetLevel(gsworld_getMap(), lvl);
+            sp34 = ((s16 *)&D_803679C8[sp3C])[lvl];
         }
-        func_8034DEB4(&sp38->type_6D, sp34);
+        // [port] Anchor: Mimic local water level change on remote
+        static s32 sLairWaterMap = -1;
+        s32 curMap = gsworld_getMap();
+        if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)) {
+            sLairWaterMap = curMap;
+        } else {
+            f32 curY = sp38->type_6D.unk8;
+            f32 step = 240.0f * time_getDelta();
+            f32 diff = sp34 - curY;
+            if (diff > step)       sp34 = curY + step;
+            else if (diff < -step) sp34 = curY - step;
+            // else: within a step of the target — let sp34 stand (snap the last bit)
+        }
+        func_8034DEB4(&sp38->type_6D, sp34); // sp34 now carries the eased height; ripple below uses it too
         player_getPosition(sp28);
-        
+
         fxRipple_802F363C(sp34 + ((sp3C != -1) ? (D_803679E0[sp3C] + ((sp3C == 2) ? (6600.0f < sp28[0]) ? -200 : 0 : 0)) : 0));
     }
 }
@@ -1314,6 +1334,8 @@ void func_802D6264(f32 delay, enum map_e map_id, s32 arg2, s32 arg3, s32 arg4, e
     D_80367698 = arg4;
     D_8036769C = arg5;
     D_803676A0 = 0;
+
+    port_lairWater_onRiseTrigger(map_id, arg5);
 
     if(map_id != D_80367694){
         timedFunc_set_1(delay, (GenFunction_1) func_802D61FC, map_id);

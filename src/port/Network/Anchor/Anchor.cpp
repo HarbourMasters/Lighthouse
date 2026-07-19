@@ -222,6 +222,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_EggToll(payload);
             else if (packetType == PUZZLE_STEP)
                 HandlePacket_PuzzleStep(payload);
+            else if (packetType == WATER_RISE)
+                HandlePacket_WaterRise(payload);
             else if (packetType == PUZZLE_COUNT)
                 HandlePacket_PuzzleCount(payload);
             else if (packetType == HUT_SMASH)

@@ -63,6 +63,11 @@ typedef enum VBehaviorID {
     // (should=false) when the driving map-flag was set by a teammate over the network — so only the
     // client that actually opened the door gets the camera pan; the door still opens for everyone.
     VB_DOOR_OPEN_CAMERA,
+    // CC rings water snap on run teardown (Anchor): when a teammate finishes the rings while we're still
+    // running, we tear our run down and vanilla snaps the water to its risen height. The isConnected
+    // listener (HookHandlers.cpp) suppresses that snap (should=false) because the finisher's WATER_RISE
+    // broadcast already started the animated rise on us, so snapping would blink it back to done.
+    VB_CC_RINGS_SNAP_WATER,
 } VBehaviorID;
 
 // Door ids passed to VB_DOOR_OPEN_CAMERA — each maps to the map-specific flag(s) whose local-vs-

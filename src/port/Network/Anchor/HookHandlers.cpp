@@ -358,6 +358,8 @@ void Anchor::RegisterHooks() {
         *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
     });
 
+    COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
+
     // FP twinkly minigame start gate: block the start when another client is mid-run (its claim is
     // live), otherwise claim it ourselves and let the vanilla start proceed. The claim releases on
     // completion/failure (port_fpTwinkly_release) or when the owner leaves FP (Authority auto-drop).
