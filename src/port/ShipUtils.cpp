@@ -10,6 +10,7 @@
 #include <libultraship/libultraship.h>
 #include <fast/Fast3dWindow.h>
 #include "UI/cvar_prefixes.h"
+#include "UI/enhancementTypes.h"
 #include "fast/Fast3dGui.h"
 #ifdef _WIN32
 #include <windows.h>
@@ -296,8 +297,8 @@ int port_getBootSequence(void) {
     // Romhacks always boot to file select; their intros aren't compatible with the
     // vanilla cutscene/demo path.
     if (port_isRomhack())
-        return 2; // BOOTSEQUENCE_FILESELECT
-    return CVarGetInteger(CVAR_SETTING("BootSequence"), 0);
+        return BOOTSEQUENCE_FILESELECT;
+    return CVarGetInteger(CVAR_SETTING("BootSequence"), BOOTSEQUENCE_DEFAULT);
 }
 
 float port_getRumbleScale(void) {

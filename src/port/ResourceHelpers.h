@@ -14,6 +14,7 @@ extern "C" {
 #include <libultra/gbi.h>
 
 char* ResourceMgr_LoadByAssetId(uint32_t assetId);
+void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath);
 size_t ResourceMgr_GetResourceSize(uint32_t assetId);
 int ResourceMgr_IsModelAsset(uint32_t assetId);
 int ResourceMgr_GetDialogLanguageCount(void);

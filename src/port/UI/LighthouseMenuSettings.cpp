@@ -156,8 +156,8 @@ void LighthouseMenu::AddMenuSettings() {
                      .ComponentAlignment(ComponentAlignments::Right)
                      .ComboMap(bootSequenceLabels)
                      .Tooltip("Configure what happens when starting or resetting the game.\n\n"
-                              "Default: LUS logo -> N64 logo\n"
-                              "Authentic: N64 logo only\n"
+                              "Default: Replace the N64 branding with LUS branding\n"
+                              "Authentic: Keep the authentic N64 branding\n"
                               "File Select: Skip to file select menu"));
 
     path.column = SECTION_COLUMN_2;

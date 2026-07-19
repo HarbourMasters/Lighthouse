@@ -303,14 +303,20 @@ extern "C" size_t ResourceMgr_GetResourceSize(uint32_t assetId) {
     return 0;
 }
 
-// On N64, sprites and models were raw binary blobs that could be type-punned.
-// On PC, they're separate resource types from different importers. Actors with sprite
-// assets can be spawned as "model" props (unk8_1=1), causing collision code to call
-// marker_loadModelBin which reinterprets sprite data as BKModelBin. This helper lets
-// decomp code detect and skip the model path for sprite assets.
+// Force an asset id to resolve to a custom resource shipped at `customPath`.
+extern "C" void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath) {
+    auto res = GetResourceByName(customPath);
+    if (res != nullptr && res->GetRawPointer() != nullptr) {
+        sResourceRefCache[assetId] = res;
+    }
+}
+
+// Actors with sprite assets can be spawned as "model" props (unk8_1=1), causing collision
+// code to call marker_loadModelBin which reinterprets sprite data as BKModelBin. This helper
+// lets decomp code detect and skip the model path for sprite assets.
 extern "C" int ResourceMgr_IsModelAsset(uint32_t assetId) {
     if (auto it = sResourceRefCache.find(assetId); it != sResourceRefCache.end()) {
-        return it->second->GetInitData()->Type == 0x424B4D4F; // Torch::ResourceType::BKModel
+        return it->second->GetInitData()->Type == 0x424B4D4F;
     }
     return 0;
 }
