@@ -182,6 +182,10 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 // FP Sir Slushes: positional, not a count — each slush is keyed by its (stationary) spawn position,
 // synced through the puzzle-pos set (below), so killing all of them team-wide spawns JIGGY_31.
 #define ANCHOR_PUZZLE_FP_SLUSHES 13
+// RBB engine-room fans: 1 bit. The propeller-slowdown switch sets transient map flag 0 (enginefan.c
+// reads it to slow the fans). It syncs live but resets on reload; persist it (in-memory + team-state)
+// so the fans stay slowed for a returning player / joining teammate, like the GV Jinxy door.
+#define ANCHOR_PUZZLE_RBB_ENGINE_FANS 14
 
 // Remote teammates' carried-collectible display copies (defined in level_collectible.c). A
 // teammate's PLAYER_UPDATE reports the carried collectible's marker id (0 = none); their throw
