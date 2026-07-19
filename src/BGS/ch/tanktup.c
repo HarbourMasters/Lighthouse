@@ -95,6 +95,12 @@ void func_8038F610(Actor *this) {
 void func_8028F94C(s32, f32[3]);
 void func_8028F918(s32);
 
+// [port] Anchor: tracks whether this client took the head-raise look-at/freeze (balookat push) in
+// state 2, so state 3 always releases exactly what it pushed. The push was unconditional while the pop
+// became proximity-gated, so a finisher standing beyond the cutscene radius got frozen with no release;
+// the state 1->3 jump path (below) skips the push entirely, so an unconditional pop would over-pop.
+static s32 sTanktupCameraPushed = 0;
+
 void chTanktup_update(Actor *this)
 {
   ActorLocal_TanktupBody *local = (ActorLocal_TanktupBody *) (&this->local);
@@ -123,6 +129,7 @@ void chTanktup_update(Actor *this)
     this->marker->propPtr->unk8_3 = 1;
     actor_collisionOff(this);
     this->scale = 1.0f;
+    sTanktupCameraPushed = 0;
     // [port] Anchor temp-persist: adopt the team's already-pulled-in legs so the leg actors below
     // spawn already retracted (the loop only spawns legs whose unk0 is still 0). In-memory only.
     {
@@ -201,6 +208,10 @@ void chTanktup_update(Actor *this)
     {
       coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
       func_8028F94C(2, local->unk18);
+      // [port] Anchor: this look-at/freeze push is unconditional, but state 3's pop had been gated on
+      // proximity to the unk18 camera node — a finisher standing at a leg outside that radius was frozen
+      // and never released. Flag it so state 3 pops exactly what we pushed, regardless of proximity.
+      sTanktupCameraPushed = 1;
     }
       if (actor_animationIsAt(this, 0.99f))
     {
@@ -243,16 +254,26 @@ void chTanktup_update(Actor *this)
       sp34[1] -= 125.0f;
       jiggy_spawn(JIGGY_26_BGS_TANKTUP, sp34);
     }
-      if (actor_animationIsAt(this, 0.9f) != 0 && near)
+      if (actor_animationIsAt(this, 0.9f) != 0)
     {
-      func_8028F918(0);
-      if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
+      // [port] Anchor: release the freeze/look-at whenever we took it in state 2, independent of the
+      // proximity check below — the `near` reference (unk18) is a camera node offset from the legs, so a
+      // finisher right next to Tanktup could read as "far" and stay locked. The dialog stays gated.
+      if (sTanktupCameraPushed)
       {
-        gcdialog_showDialog(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0xF, this->position, this->marker, func_8038F5E4, 0);
+        func_8028F918(0);
+        sTanktupCameraPushed = 0;
       }
-      else
+      if (near)
       {
-        func_8038F5E4(this->marker, ASSET_C7F_DIALOG_TANKTUP_COMPLETE, -1);
+        if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
+        {
+          gcdialog_showDialog(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0xF, this->position, this->marker, func_8038F5E4, 0);
+        }
+        else
+        {
+          func_8038F5E4(this->marker, ASSET_C7F_DIALOG_TANKTUP_COMPLETE, -1);
+        }
       }
     }
     }
