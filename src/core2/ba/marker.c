@@ -787,7 +787,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     return;
                 if (bsStoredState_getTransformation() != TRANSFORM_1_BANJO)
                     return;
-                if (func_8028F170())
+                if(player_isInFirstPersonView())
                     return;
                 if (func_8028F25C())
                     return;
@@ -812,7 +812,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 if (func_8028F25C())
                     return;
 
-                if (func_8028F170())
+                if(player_isInFirstPersonView())
                     return;
 
                 if (!chtrainers_canUse(actor))

@@ -112,7 +112,7 @@ void chCarriedAcorn_update(Actor *this) {
         }
         player_getPosition(player_position);
         if (ml_vec3f_distance(this->position, player_position) < 50.0f) {
-            func_8028F030(ACTOR_2A9_ACORN);
+            bacarriedobj_incWithExtraSteps(ACTOR_2A9_ACORN);
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 500, 2500);
             port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_ACORN, this->marker);
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_5_DESPAWN);
@@ -123,11 +123,11 @@ void chCarriedAcorn_update(Actor *this) {
             f32 throwTarget[3];
             chAutumnOutsideNabnut_getPosition(throwTarget);
             port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
-            func_8028F010(ACTOR_2A9_ACORN);
+            bacarriedobj_decWithExtraSteps(ACTOR_2A9_ACORN);
             port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_ACORN);
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_3_TOSS);
         } else if (!player_is_carrying_acorn) {
-            func_8028F050(ACTOR_2A9_ACORN);
+            bacarriedobj_displayOnHudWithExtraSteps(ACTOR_2A9_ACORN);
             chCarriedAcorn_setNextState(this, CH_CARRIED_ACORN_STATE_5_DESPAWN);
         }
     }

@@ -181,7 +181,7 @@ void chcaterpillar_update(Actor *this){
         }//L8038A714
 
         if(ml_vec3f_distance(this->position, sp74) < 50.0f){
-            func_8028F030(ACTOR_2A2_CATERPILLAR);
+            bacarriedobj_incWithExtraSteps(ACTOR_2A2_CATERPILLAR);
             if(!volatileFlag_get(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR)){
                 gcdialog_showDialog(VER_SELECT(ASSET_CC7_DIALOG_CATERPILLAR_COLLECT, 0x09DC, 0, 0), 4, NULL, NULL, NULL, NULL);
                 volatileFlag_set(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR, TRUE);
@@ -197,12 +197,12 @@ void chcaterpillar_update(Actor *this){
             f32 throwTarget[3];
             func_80389BD8(throwTarget);
             port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
-            func_8028F010(ACTOR_2A2_CATERPILLAR);
+            bacarriedobj_decWithExtraSteps(ACTOR_2A2_CATERPILLAR);
             port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_WORM);
             chcaterpillar_setState(this, CH_CATERPILLAR_STATE_3_TOSS);
         }
         else if(!player_is_carrying_caterpillar){
-            func_8028F050(ACTOR_2A2_CATERPILLAR);
+            bacarriedobj_displayOnHudWithExtraSteps(ACTOR_2A2_CATERPILLAR);
             marker_despawn(this->marker);
         }
     }//L8038A804

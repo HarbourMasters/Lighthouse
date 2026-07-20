@@ -1138,7 +1138,7 @@ void lair_func_8038E0B0(void) {
     s32 sp48[6]; //buttons
     s32 temp_v0;
     s32 sp3C[2]; //joystick
-    s32 sp38;
+    s32 ff_tile_type;
     s32 sp28;
 
     if( (gsworld_getMap() == MAP_8E_GL_FURNACE_FUN) 
@@ -1160,11 +1160,12 @@ void lair_func_8038E0B0(void) {
             ffStorage->currentTileId = temp_v0;
             ffStorage->currentBoardTile = ff_getCurrentBoardTile(ffStorage->currentTileId);
         }
-        sp38 = MIN((ffStorage->currentTileId != 0) ? ffStorage->currentBoardTile->tileType : -1, FFTT_7_JOKER);
-        if ((ffStorage->currentTileId != 0) && (ffStorage->currentBoardTile->unk9 == 0) && func_8028F20C()) {
+        // If you see FFTT_8_JOKER in the table, use FFTT_7_JOKER instead
+        ff_tile_type = MIN((ffStorage->currentTileId != 0) ? ffStorage->currentBoardTile->tileType : -1, FFTT_7_JOKER);
+        if ((ffStorage->currentTileId != 0) && (ffStorage->currentBoardTile->unk9 == 0) && player_isStableWithExtraSteps()) {
             ffStorage->currentBoardTile->unk9 = 2;
             if (ffStorage->unk11) {
-                switch(sp38){
+                switch(ff_tile_type){
                     case FFTT_6_SKULL://L8038E26C
                         comusic_playTrack(COMUSIC_7B_STEP_ON_SKULL_TILE);
                         break;
@@ -1220,14 +1221,14 @@ void lair_func_8038E0B0(void) {
                 }
                 code_73640_printItemCount(0x14);
                 code_73640_printItemCount(0x16);
-                if (sp38 != FFTT_0_NIL) {
-                    sp28 = sp38 - 1 + FILEPROG_55_FF_BK_SQUARE_INSTRUCTIONS;
-                    if (!fileProgressFlag_get(sp28) && gcdialog_showDialog(sp38 + 0x101E, 0, NULL, NULL, NULL, NULL)) {
+                if (ff_tile_type != FFTT_0_NIL) {
+                    sp28 = ff_tile_type - 1 + FILEPROG_55_FF_BK_SQUARE_INSTRUCTIONS;
+                    if (!fileProgressFlag_get(sp28) && gcdialog_showDialog(ff_tile_type + 0x101E, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(sp28, true);
                     }
                     s32 ffLifeThreshold = 1;
                     CALL_EVENT(OnFurnaceFunDialog, &ffLifeThreshold);
-                    if ((sp38 == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) == ffLifeThreshold)) {
+                    if ((ff_tile_type == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) == ffLifeThreshold)) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AB_LAST_LIFE_ON_SKULL);
                     } else if (item_getCount(ITEM_14_HEALTH) == 1) {
                         volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AA_FF_LOW_HEALTH);
@@ -1236,7 +1237,7 @@ void lair_func_8038E0B0(void) {
                         if (func_8028EFEC() && (sp48[FACE_BUTTON(BUTTON_A)] == 1)) {
                             func_803114D0();
                             player_getRotation(ffStorage->playerRotation);
-                            ffStorage->ffQuestionType = ff_getQuestionType(sp38);
+                            ffStorage->ffQuestionType = ff_getQuestionType(ff_tile_type);
                             ff_prepareNextQuestion(ffStorage->ffQuestionType);
                             ff_setState(3);
                             return;

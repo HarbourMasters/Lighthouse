@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "jigsawpicture.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Network/Anchor/JigsawPedestal.h"
 extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
@@ -116,7 +117,7 @@ void onJigsawPodiumCollide(ActorMarker *marker, ActorMarker *other_marker){
 }
 
 bool isBanjoOnPodium(ActorMarker *marker) {
-    return func_8028F20C() && func_8028FB48(0x08000000) && marker->isBanjoOnTop;
+    return player_isStableWithExtraSteps() && func_8028FB48(0x08000000) && marker->isBanjoOnTop;
 }
 
 s32 isPicturePiecePlaced(Actor *this, s32 arg1){
@@ -496,14 +497,15 @@ void updateJigsawPictureActor(Actor *this) {
     controller_copyFaceButtons(0, sp7C);
     controller_copySideButtons(0, sp6C);
     func_8038EDBC(this);
-    if (this->state != 1 && !port_jigsawPedestal_isSelf(this->actorTypeSpecificField)) {
-        jigsawPicture_setState(this, 1);
+    if (this->state != JIGSAW_PICTURE_LEAVE_PODIUM && !port_jigsawPedestal_isSelf(this->actorTypeSpecificField)) {
+        jigsawPicture_setState(this, JIGSAW_PICTURE_LEAVE_PODIUM);
         return;
     }
-    switch(this->state){
-        case 1://L8038FCD0
-            if (!this->has_met_before && (!func_8028F20C() || !func_8028FB48(0x08000000))) {
-                this->has_met_before = true;
+
+    switch (this->state) {
+        case JIGSAW_PICTURE_LEAVE_PODIUM:
+            if (!this->has_met_before && (!player_isStableWithExtraSteps() || !func_8028FB48(0x08000000))) {
+                this->has_met_before = TRUE;
             }
             if (subaddie_playerIsWithinSphereAndActive(this, 300)) {
                 if ((this->actorTypeSpecificField == 0xA) && !fileProgressFlag_get(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM)) {
