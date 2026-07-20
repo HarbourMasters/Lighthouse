@@ -462,7 +462,7 @@ void spawnQueue_free(void){
 void spawnQueue_func_802C39D4(void){
     func_803268B4();
     if(!levelSpecificFlags_validateCRC2()){
-        eeprom_writeBlocks(0, 0, (void *)(uintptr_t)0x80749530, EEPROM_MAXBLOCKS);
+        eeprom_writeBlocks(0, 0, (void *)(uintptr_t) PHYS_TO_K0(0x00749530), EEPROM_MAXBLOCKS);
     }
 }
 
@@ -502,12 +502,12 @@ void spawnQueue_flush(void){
     func_803283D4();
 }
 
-void spawnQueue_unlock(void){
-    spawnQueueLock = 0;
+void spawnQueue_unlock(void) {
+    spawnQueueLock = FALSE;
 }
 
-void spawnQueue_lock(void){
-    spawnQueueLock = 1;
+void spawnQueue_lock(void) {
+    spawnQueueLock = TRUE;
 }
 
 void __spawnQueue_add_0(void (* arg0)(void)){

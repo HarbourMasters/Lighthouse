@@ -40,15 +40,15 @@ extern Struct64s *func_8032994C(void);
 extern void func_802F2ED0(Struct64s *, Gfx **, Mtx **, Vtx **);
 
 /* .code */
-void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
+void gsworld_draw(Gfx** gfx, Mtx **mtx, Vtx **vtx) {
     f32 sp44;
     f32 sp40;
 
     if (sEnableDraw == 0) {
-        drawRectangle2D(gdl, 0, 0, gFramebufferWidth, gFramebufferHeight, 0, 0, 0);
-        func_802BBD2C(&sp44, &sp40);
+        drawRectangle2D(gfx, 0, 0, gFramebufferWidth, gFramebufferHeight, 0, 0, 0);
+        core2_34790_getClipDistances(&sp44, &sp40);
         viewport_setNearAndFar(sp44, sp40);
-        viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
+        viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
         return;
     }
     // Lighthouse [port] Crashing here, not sure what this is.
@@ -57,87 +57,87 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
     // }
     spawnQueue_unlock();
     FrameInterpolation_RecordOpenChild("sky", 0);
-    sky_draw(gdl, mptr, vptr);
+    sky_draw(gfx, mtx, vtx);
     FrameInterpolation_RecordCloseChild();
-    func_802BBD2C(&sp44, &sp40);
+    core2_34790_getClipDistances(&sp44, &sp40);
     viewport_setNearAndFar(sp44, sp40);
-    viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
+    viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
     if (mapModel_has_xlu_bin() != 0) {
         FrameInterpolation_RecordOpenChild("map_opa", 0);
-        mapModel_opa_draw(gdl, mptr, vptr);
+        mapModel_opa_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
         if (game_is_frozen() == 0) {
-            leveloverlay_drawCallback(gdl, mptr, vptr);
+            leveloverlay_drawCallback(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("player", 0);
-            player_draw(gdl, mptr, vptr);
+            player_draw(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
-            CALL_EVENT(OnPlayerDraw, gdl, mptr, vptr);
+            CALL_EVENT(OnPlayerDraw, gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
-            func_80302C94(gdl, mptr, vptr);
+            func_80302C94(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("jiggylist", 0);
-            jiggylist_draw(gdl, mptr, vptr);
+            jiggylist_draw(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
-            func_803500D8(gdl, mptr, vptr);
+            func_803500D8(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
-            func_802F2ED0(func_8032994C(), gdl, mptr, vptr);
+            func_802F2ED0(func_8032994C(), gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("part_pass0", 0);
-            partEmitMgr_drawPass0(gdl, mptr, vptr);
+            partEmitMgr_drawPass0(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("map_xlu", 0);
-            mapModel_xlu_draw(gdl, mptr, vptr);
+            mapModel_xlu_draw(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
-        if (game_is_frozen() == 0) {
-            func_8032D3D8(gdl, mptr, vptr);
+        if (!game_is_frozen()) {
+            core2_A5BC0_drawUnknownMarkers(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("part_pass1", 0);
-            partEmitMgr_drawPass1(gdl, mptr, vptr);
+            partEmitMgr_drawPass1(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
-            func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
+            func_8034F6F0(gfx, mtx, (s32)(intptr_t)vtx);
         }
-        func_802D520C(gdl, mptr, vptr);
+        func_802D520C(gfx, mtx, vtx);
     } else {
         FrameInterpolation_RecordOpenChild("map_opa", 0);
-        mapModel_opa_draw(gdl, mptr, vptr);
+        mapModel_opa_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
-        leveloverlay_drawCallback(gdl, mptr, vptr);
-        func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
+        leveloverlay_drawCallback(gfx, mtx, vtx);
+        func_8034F6F0(gfx, mtx, (s32)(intptr_t)vtx);
         FrameInterpolation_RecordOpenChild("player", 0);
-        player_draw(gdl, mptr, vptr);
+        player_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
-        CALL_EVENT(OnPlayerDraw, gdl, mptr, vptr);
-        func_80302C94(gdl, mptr, vptr);
-        func_8032D3D8(gdl, mptr, vptr);
+        CALL_EVENT(OnPlayerDraw, gfx, mtx, vtx);
+        func_80302C94(gfx, mtx, vtx);
+        core2_A5BC0_drawUnknownMarkers(gfx, mtx, vtx);
         FrameInterpolation_RecordOpenChild("jiggylist", 0);
-        jiggylist_draw(gdl, mptr, vptr);
+        jiggylist_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
-        func_803500D8(gdl, mptr, vptr);
-        func_802F2ED0(func_8032994C(), gdl, mptr, vptr);
-        func_802D520C(gdl, mptr, vptr);
+        func_803500D8(gfx, mtx, vtx);
+        func_802F2ED0(func_8032994C(), gfx, mtx, vtx);
+        func_802D520C(gfx, mtx, vtx);
         FrameInterpolation_RecordOpenChild("part_draw", 0);
-        partEmitMgr_draw(gdl, mptr, vptr);
+        partEmitMgr_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
     }
     if (game_is_frozen() == 0) {
-        func_80350818(gdl, mptr, vptr);
+        func_80350818(gfx, mtx, vtx);
     }
     if (game_is_frozen() == 0) {
-        func_802BBD0C(gdl, mptr, vptr);
+        func_802BBD0C(gfx, mtx, vtx);
     }
     spawnQueue_lock();
 }

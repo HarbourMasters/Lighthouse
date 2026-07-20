@@ -329,10 +329,10 @@ void audioManager_create(void) {
 
     for (i = 0; i < 89; i++) {
         alLink(&sDMAStateData[i + 1].link, &sDMAStateData[i].link);
-        sDMAStateData[i].heap = alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
+        sDMAStateData[i].heap = (uintptr_t)alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
     }
 
-    sDMAStateData[i].heap = alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
+    sDMAStateData[i].heap = (uintptr_t)alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
 
     for (i = 0; i < 2; i++) {
         audioManager.ACMDList[i] = bk_malloc(NUM_AUDIO_CMDS_PER_SECOND * sizeof(Acmd) / FRAMERATE);
@@ -427,7 +427,7 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
     if (command_list_len == 0) {
         return false;
     } else {
-        core1_15B30_addAudioTaskData((Gfx **)audioManager.ACMDList[sCmdBufferIndex], (Gfx **)command_list_end, &audioManager.audioReplyMsgQ, &info->reply_mesg_data);
+        core1_15B30_addAudioTaskData(audioManager.ACMDList[sCmdBufferIndex], command_list_end, &audioManager.audioReplyMsgQ, OS_MESG_PTR(&info->reply_mesg_data)); // [port] OSMesg is a union on PC
         func_80250650();
         sCmdBufferIndex ^= 1;
         return true;

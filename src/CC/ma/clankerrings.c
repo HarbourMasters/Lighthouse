@@ -84,7 +84,7 @@ void maClankerRings_init(void){
 void maClankerRings_update(void){
     f32 player_position[3];
     f32 time_delta = time_getDelta();
-    s32 tmp_v0;
+    Struct70s *tmp_v0; // [port] pointer-width
 
     if(maClankerRings.currentActiveRing != 0){
         if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS) && maClankerRings.currentActiveRing < RING_COUNT){
@@ -107,7 +107,7 @@ void maClankerRings_update(void){
             timed_exitStaticCamera(5.0f);
             tmp_v0 = func_8034C5AC(0x131);
             if(tmp_v0){
-                func_8034E78C(tmp_v0, 0x190, 12.0f);
+                func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f); // [port] cast matches decomp behavior
             }
             port_ccWater_broadcastRise(MAP_22_CC_INSIDE_CLANKER, 0x131, 0x190, 12.0f);
             maClankerRings.timer1 = 0.0f;

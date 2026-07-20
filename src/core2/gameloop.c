@@ -4,6 +4,9 @@
 #include "functions.h"
 #include "variables.h"
 
+extern void Graphics_PushFrame(Gfx* data);
+extern void Framebuffer_ReadbackGPU(int bufferIndex);
+
 #include "gc/gctransition.h"
 #include "bk_time.h"
 #include "port/Patches/Patches.h"
@@ -16,7 +19,7 @@ extern void func_8025A2B0(void);
 extern void func_8025A430(s32, s32, s32);
 extern void gsworld_setEnableUpdate(s32);
 extern void func_8034BB90(void);
-extern void func_8030C27C(void);
+extern void picturebox_spawn(void);
 extern void func_80321C34(void);
 extern void func_8030ED0C(void);
 extern void comusicPlayer_update(void);
@@ -118,44 +121,40 @@ void func_802E398C(s32 arg0) {
     }
 }
 
-void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 arg4){
-    Mtx* m_start = *mptr; 
-    Vtx* v_start = *vptr;
+void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool arg4) {
+    Mtx* mtx_start = *mtx; 
+    Vtx* vtx_start = *vtx;
 
-    scissorBox_SetForGameMode(gdl, framebuffer_idx);
+    setupFramebufferForGamemode(gfx, framebuffer_idx);
     D_8037E8E0.unkC = false;
     port_mirror_beginScene();
-    gsworld_draw(gdl, mptr, vptr);
-    CALL_EVENT(OnWorldDraw, gdl, mptr, vptr);
+    gsworld_draw(gfx, mtx, vtx);
+    CALL_EVENT(OnWorldDraw, gfx, mtx, vtx);
     port_mirror_endScene();
-    port_mirror_undoProjection(gdl, mptr);
+    port_mirror_undoProjection(gfx, mtx);
     if (port_shouldCaptureTransition()) {
-        port_captureTransitionFb(gdl);
+        port_captureTransitionFb(gfx);
     }
     if(!arg4){
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());
         func_802E67C4();
-        func_802E5F10(gdl);
+        func_802E5F10(gfx);
     }
-    if( D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE
-        && D_8037E8E0.unk19 != 6
-        && D_8037E8E0.unk19 != 5
-    ){
-        gctransition_draw(gdl, mptr, vptr);
+
+    if ((D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) && (D_8037E8E0.unk19 != 6) && (D_8037E8E0.unk19 != 5)) {
+        gctransition_draw(gfx, mtx, vtx);
     }
 
     // [port] Return rendering to main FB after scene draw + transitions for
     // SNS/Bottles modes. Must come AFTER gctransition_draw so the transition
     // fade renders into the aux FB (visible on the picture), not the main FB.
     if (D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS || D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) {
-        gsSPResetFB((*gdl)++);
+        gsSPResetFB((*gfx)++);
     }
     
-    if( D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS
-        || D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE
-    ){
-        func_8030C2D4(gdl, mptr, vptr);
+    if ((D_8037E8E0.game_mode == GAME_MODE_8_BOTTLES_BONUS) || (D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE)) {
+        picturebox_resetScissorBoxAndFramebuffer(gfx, mtx, vtx);
     }
 
     // [port] Skip all HUD/overlay draws while pause menu is capturing the
@@ -164,42 +163,39 @@ void func_802E39D0(Gfx **gdl, Mtx **mptr, Vtx **vptr, s32 framebuffer_idx, s32 a
     bool capturing = gcpausemenu_isCapturing();
 
     if(!game_is_frozen() && gsworld_getEnableDraw() && !capturing){
-        func_8032D474(gdl, mptr, vptr);
+        core2_A5BC0_drawScreenOverlayMarkers(gfx, mtx, vtx);
     }
 
-    gcpausemenu_draw(gdl, mptr, vptr);
+    gcpausemenu_draw(gfx, mtx, vtx);
     if(!game_is_frozen() && !capturing){
-        dummy_func_8025AFC0(gdl, mptr, vptr);
+        dummy_func_8025AFC0(gfx, mtx, vtx);
     }
 
     if (!capturing) {
-        gcdialog_draw(gdl, mptr, vptr);
+        gcdialog_draw(gfx, mtx, vtx);
     }
     if(!game_is_frozen() && !capturing){
-        itemPrint_draw(gdl, mptr, vptr);
+        itemPrint_draw(gfx, mtx, vtx);
     }
 
     if (!capturing) {
-        printbuffer_draw(gdl, mptr, vptr);
+        printbuffer_draw(gfx, mtx, vtx);
     }
 
-    if( D_8037E8E0.game_mode != GAME_MODE_A_SNS_PICTURE
-        || D_8037E8E0.unk19 == 6
-        || D_8037E8E0.unk19 == 5
-    ){
-        gctransition_draw(gdl, mptr, vptr);
+    if ((D_8037E8E0.game_mode != GAME_MODE_A_SNS_PICTURE) || (D_8037E8E0.unk19 == 6) || (D_8037E8E0.unk19 == 5)) {
+        gctransition_draw(gfx, mtx, vtx);
     }
     // [port] Populate gFramebuffers from the GPU via gDPReadFB at native resolution.
     // Transitions and particles read from gFramebuffers during game logic.
     // On N64, gFramebuffers was the render target directly; on PC the GPU renders
     // to its own buffer, so we read it back here when requested.
     if (port_consumeReadbackRequest()) {
-        gDPReadFB((*gdl)++, 0, (u16 *)gFramebuffers[getActiveFramebuffer()],
+        gDPReadFB((*gfx)++, 0, (u16 *)gFramebuffers[getActiveFramebuffer()],
                   0, 0, gFramebufferWidth, gFramebufferHeight, 1);
     }
-    core1_15B30_finishDList(gdl);
-    osWritebackDCache(m_start, sizeof(Mtx)*( *mptr - m_start));
-    osWritebackDCache(v_start, sizeof(Vtx)*( *vptr - v_start));
+    core1_15B30_finishDList(gfx);
+    osWritebackDCache(mtx_start, sizeof(Mtx)*( *mtx - mtx_start));
+    osWritebackDCache(vtx_start, sizeof(Vtx)*( *vtx - vtx_start));
 }
 
 void func_802E3BD0(s32 frame_buffer_indx){
@@ -230,10 +226,10 @@ void game_setMode(enum game_mode_e next_mode, s32 arg1){
 
     //L802E3C84
     if(next_mode == GAME_MODE_8_BOTTLES_BONUS || next_mode == GAME_MODE_A_SNS_PICTURE){
-        func_8030C1A0();
+        picturebox_init();
     }
     else{
-        func_8030C204();
+        picturebox_free();
     }//L802E3CB4
 
     D_8037E8E0.game_mode = next_mode;
@@ -319,26 +315,21 @@ s32 func_802E3F80(void){
     return D_8037E8E0.unk0;
 }
 
-extern void Graphics_PushFrame(Gfx* data);
-extern void Framebuffer_ReadbackGPU(int bufferIndex);
-
-void game_draw(s32 arg0){
-    Gfx *gfx;
-    Gfx *gfx_start;
-    Gfx *sp2C;
+void game_draw(bool arg0) {
+    Gfx *gfx, *gfx_start, *gfx_end;
     Mtx *mtx;
     Mtx *mtx_start;
     Vtx *vtx;
     Vtx *vtx_start;
 
-    if(arg0) {
+    if (arg0) {
         scissorBox_setDefault();
     }
 
-    getGraphicsStacks(&gfx, &mtx, &vtx);
+    graphicscache_swapAndGetStacks(&gfx, &mtx, &vtx);
 
-    if(D_8037E8E0.unkC == 1){
-        getGraphicsStacks(&gfx, &mtx, &vtx);
+    if (D_8037E8E0.unkC == TRUE) { // BUG: Compares explicit for integral value of TRUE, instead for true-ness
+        graphicscache_swapAndGetStacks(&gfx, &mtx, &vtx);
     }
 
     gfx_start = gfx;
@@ -356,11 +347,11 @@ void game_draw(s32 arg0){
     Framebuffer_ReadbackGPU(getActiveFramebuffer());
 
     if(D_8037E8E0.unkC == 0){
-        sp2C = gfx;
+        gfx_end = gfx;
         viMgr_func_8024C1DC();
-        core1_15B30_addF3DEXTaskData_40000000(gfx_start, sp2C);
+        core1_15B30_addF3DEXTaskData_40000000(gfx_start, gfx_end);
 
-        if(arg0) {
+        if (arg0) {
             scissorBox_setDefault();
         }
     }
@@ -421,13 +412,13 @@ void func_802E4170(void){
     timedFuncQueue_free();
     func_802F9C48();
     modelRender_free();
-    depthBuffer_stub();
+    depthbuffer_stub();
     func_802E398C(0);
     func_8030AFD8(0);
     func_80321854();
     debugScoreStates();
     animCache_free();
-    comusicPlayer_free();
+    coMusicPlayer_free();
     func_8030D8DC();
 }
 
@@ -436,7 +427,7 @@ void func_802E4214(enum map_e map_id){
     D_8037E8E0.unk19 = D_8037E8E0.unk18 = 0;
     D_8037E8E0.map = D_8037E8E0.exit = D_8037E8E0.unk17 = 0;
     D_8037E8E0.unk1B = D_8037E8E0.unk1A = 0;
-    D_8037E8E0.unkC = 0;
+    D_8037E8E0.unkC = FALSE;
     D_8037E8E0.unk1C = 0;
     savedata_init();
     sns_save_and_update_global_data();
@@ -453,7 +444,7 @@ void func_802E4214(enum map_e map_id){
     func_802E5F38();
     defragManager_init();
     modelRender_init();
-    func_80253428(1);
+    depthbuffer_enable(TRUE);
     animCache_init();
     viewport_reset();
     viewport_setNearAndFar(1.0f, 10000.0f);
@@ -597,7 +588,7 @@ bool func_802E4424(void) {
     switch (D_8037E8E0.game_mode) {
         case GAME_MODE_8_BOTTLES_BONUS:
         case GAME_MODE_A_SNS_PICTURE:
-            func_8030C27C();
+            picturebox_spawn();
             /* fallthrough */
         case GAME_MODE_7_ATTRACT_DEMO:
             /* fallthrough */

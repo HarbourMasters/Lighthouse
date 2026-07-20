@@ -3,9 +3,10 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "bk_math.h" // [port] TUPLE macros
 
 #include <core2/file.h>
-#include "bk_math.h"
+#include "math.h"
 #include "prop.h"
 
 #include "port/Patches/Patches.h"
@@ -389,19 +390,19 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     s32 sp38[3];
     f32 temp_f18;
 
+#if ANTI_TAMPER
     if (!mapSpecificFlags_validateCRC1())
         return;
+#endif
 
     func_8032D3A8();
     viewport_getPosition_vec3f(vp_position);
     viewport_getRotation_vec3f(vp_rotation);
-    func_80256664(vp_rotation);
+    ml_vec3f_clamp_deg360(vp_rotation);
     cube_positionToIndices(vp_cube_indices, vp_position);
-    vp_cube_indices[0] -= sCubeList.min[0];\
-    vp_cube_indices[1] -= sCubeList.min[1];\
-    vp_cube_indices[2] -= sCubeList.min[2];
+    TUPLE_DIFF(vp_cube_indices, sCubeList.min)
     func_80308EC8();
-    sp44[0] = sp44[1] = sp44[2] = 0;
+    TUPLE_SET(sp44, 0)
     sp38[0] = sCubeList.width[0] - 1;\
     sp38[1] = sCubeList.width[1] - 1;\
     sp38[2] = sCubeList.width[2] - 1;

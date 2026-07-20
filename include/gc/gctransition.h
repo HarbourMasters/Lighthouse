@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 void gctransition_defrag(void);
-void gctransition_draw(Gfx **arg0, Mtx **arg1, Vtx **arg2);
+void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void gctransition_8030BD4C(void);
 f32 gctransition_8030BD88(void);
 int gctransition_done(void);

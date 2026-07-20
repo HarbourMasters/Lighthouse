@@ -149,7 +149,7 @@ void chZubbaFight_update(Actor *this) {
     if(!this->volatile_initialized) {
         this->volatile_initialized = true;
         this->marker->propPtr->unk8_3 = true;
-        reinterpret_cast(s32, local->jiggyMarker) = 1;
+        local->jiggyMarker = (ActorMarker *)(uintptr_t)1; // [port] full pointer-width sentinel write
         local->spawnedZubbaCount = 0;
         local->zubbasDefeated = 0;
         local->unkC = 0.0f;

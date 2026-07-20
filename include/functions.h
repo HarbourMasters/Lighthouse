@@ -70,6 +70,7 @@ BKSprite *propModelList_getSprite(s32 arg0);
 BKModelBin *propModelList_getModel(s32);
 
 // --- core2/actor_cubepropsystem.c ---
+BKModelBin *marker_loadModelBin(ActorMarker *marker);
 ActorMarker *func_8032DCAC(void);
 BKVertexList *func_80330CFC(Actor *self, s32 arg1);
 BKModelBin *func_80330E28(Actor *self);
@@ -314,7 +315,7 @@ RandomCameraNode *ncCameraNodeList_getRandomCameraNode(int camera_node_index);
 
 // MISC POINTER-RETURNING + OS + GBI PROTOTYPES
 
-s16 *func_8030C704(void);
+s16 *picturebox_getColorBuffer(void);
 
 // COMMONLY MISSING PROTOTYPES
 
@@ -994,7 +995,7 @@ void musicInstruments_init(void);
 int func_8025AEEC(void);
 s32 comusic_active_track_count(void);
 s32 func_8025ADD4(enum comusic_e id);
-void comusicPlayer_free(void);
+void coMusicPlayer_free(void);
 void comusicPlayer_init(void);
 void comusic_defrag(void);
 void func_8025A23C(s32 arg0);
@@ -1219,7 +1220,7 @@ void cube_sortAbsolute(Cube *cube);
 void cube_sortRelative(Cube *cube);
 void func_8032D3A8(void);
 void func_8032D3D8(Gfx **gdl, Mtx **mptr, Vtx **vptr);
-void func_8032D474(Gfx **gdl, Mtx **mptr, Vtx **vptr);
+void core2_A5BC0_drawScreenOverlayMarkers(Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void func_8032E070(void);
 void func_8032EE2C(s32 arg0[3], s32 arg1, s32 arg2);
 void func_8032EE80(Cube *cube);
@@ -1375,6 +1376,9 @@ void bacarriedobj_dec(enum actor_e actor_id);
 void bacarriedobj_displayOnHud(enum actor_e actor_id);
 void bacarriedobj_inc(enum actor_e actor_id);
 void bacarriedobj_spawn(enum actor_e actor_id);
+void bacarriedobj_incWithExtraSteps(enum actor_e actor_id);
+void bacarriedobj_decWithExtraSteps(enum actor_e actor_id);
+void bacarriedobj_displayOnHudWithExtraSteps(enum actor_e actor_id);
 void func_8028DEEC(enum actor_e actor_id, Actor *actor);
 
 // --- core2/ba/carry.c ---
@@ -1600,6 +1604,7 @@ void func_802986D0(void);
 void func_80298700(void);
 void playerModel_set(void);
 void playerModel_free(void);
+enum asset_e playerModel_get(void);
 
 // --- core2/ba/ba_momentum.c ---
 void func_8029065C(void);
@@ -1825,7 +1830,7 @@ void func_802BB4D8(f32 position[3], f32 rotation[3]);
 s32 ncCamera_getType(void);
 void camera_setType(enum camera_type_e camera_type);
 void func_802BBD0C(Gfx **gdl, Mtx **mptr, Vtx **vptr);
-void func_802BBD2C(f32 *arg0, f32 *arg1);
+void core2_34790_getClipDistances(f32 *arg0, f32 *arg1);
 void nccamera_init(void);
 void func_802BC10C(void);
 void func_802BC21C(s32 arg0, s32 arg1);
@@ -2506,7 +2511,7 @@ void func_8030C180(void);
 void func_8030C1A0(void);
 void func_8030C204(void);
 void func_8030C2D4(Gfx **gdl, Mtx **mptr, Vtx **vptr);
-void scissorBox_setSmall(void);
+void picturebox_setScissorBox(void);
 
 // --- core2/gfx/displaylistinit.c ---
 void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -3540,10 +3545,23 @@ void yaw_setVelocityBounded(f32, f32);
 // --- port/stub.c ---
 float gu_sqrtf(float val);
 
-// --- unknown source (no .c definition found) ---
-void _guMtxIdentF_80245D44(float mf[4][4]); //static should NOT be here
-void func_80241304(Mtx *m, float x, float y, float z);
-BKModelBin *  marker_loadModelBin(ActorMarker *marker);
+
+// --- GV/gv_helpers.c (rubee egg pot) ---
+void rubeeEggPot_addedEggToPot(void);
+s32 rubeeEggPot_getEggGoal(void);
+
+// --- core2/frame/auxbuffer.c (picturebox) ---
+void picturebox_init(void);
+void picturebox_free(void);
+void picturebox_func_8030C180(void);
+void picturebox_resetScissorBoxAndFramebuffer(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+
+// --- core2/actor_cubepropsystem.c ---
+void core2_A5BC0_drawUnknownMarkers(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+
+// --- core2/crc_bootvalidation.c ---
+void codeCF5F0_init(void);
+void codeCF5F0_triggerAntiTamperMeasurement(void);
 
 #ifdef __cplusplus
 }

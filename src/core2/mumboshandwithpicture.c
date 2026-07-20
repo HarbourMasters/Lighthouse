@@ -45,7 +45,7 @@ Actor *chMumbosHandWithPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, V
 
 
     this = marker_getActor(marker);
-    sp48 = func_8030C704();
+    sp48 = picturebox_getColorBuffer();
 
     if ((sp48 == 0) || (getGameMode() != GAME_MODE_A_SNS_PICTURE))
         return this;
@@ -63,13 +63,13 @@ Actor *chMumbosHandWithPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, V
     D_8037DFF0[1] = 270.0f;
     D_8037DFF0[2] = 0.0f;
     // [port] Draw the background picture and Mumbo's hand without depth testing.
-    // On N64, func_80253190 cleared the hardware depth buffer between the two draws
+    // On N64, depthbuffer_clear cleared the hardware depth buffer between the two draws
     // via CPU-accessible memory. On PC, the GBI depth fill may not translate to a
     // GPU depth clear, causing the hand to fail depth tests against the 3D scene.
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     modelRender_draw(gfx, mtx, sp58, NULL, 1.0f, sp4C, D_8037DFE8);
     gDPSetColorDither((*gfx)++, G_CD_DISABLE);
-    func_80253190(gfx);
+    depthbuffer_clear(gfx);
     port_readAuxFbToCpu(gfx);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp48));

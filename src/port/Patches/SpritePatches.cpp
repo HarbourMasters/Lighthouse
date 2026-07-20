@@ -25,7 +25,7 @@ enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
 extern s32 gFramebufferWidth;
 
-extern BKSprite* D_80380AB8[];          // font alphamask sprites ([0] = dialog font)
+extern BKSprite* print_sFontSpriteAssets[];          // font alphamask sprites ([0] = dialog font)
 extern s32 print_sDialogFontGlyphCount; // reachable glyph count: byte range 0x21 .. 0x21+count-1
 
 #define SPRITE_DISPLAY_CACHE_SIZE 256
@@ -46,8 +46,8 @@ void port_spriteDisplayCache_clear(void) {
 // sets this once from the base font, but a language pack can swap in an extended dialog font
 // (more glyphs than the base 62) at runtime.
 void port_refreshDialogFontGlyphCount(void) {
-    if (D_80380AB8[0] != NULL) {
-        print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
+    if (print_sFontSpriteAssets[0] != NULL) {
+        print_sDialogFontGlyphCount = sprite_getFramePtr(print_sFontSpriteAssets[0], 0)->chunkCnt;
     }
 }
 

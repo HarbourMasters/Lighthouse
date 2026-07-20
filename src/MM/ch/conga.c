@@ -240,7 +240,7 @@ void chConga_update(Actor *this) {
     if (0.0f != this->velocity_x) {
         this->velocity_x -= 1.0f; 
         if(0.0f == this->velocity_x){
-            __spawnQueue_add_1((GenFunction_1)func_80387100, reinterpret_cast(s32, this->marker));
+            __spawnQueue_add_1((GenFunction_1)func_80387100, reinterpret_cast(uintptr_t, this->marker));
         }
     }
 
@@ -399,7 +399,7 @@ void chConga_update(Actor *this) {
     if ((this->state == CONGA_STATE_TARGET_GROUND && actor_animationIsAt(this, 0.56f))
         || (this->state == CONGA_STATE_TARGET_BANJO && actor_animationIsAt(this, 0.468f))) {
 
-        vec3fArray_get_vec3i(this->marker->unk44, 5, &this->local);
-        __spawnQueue_add_1((GenFunction_1)__chConga_sendOrangeProjectile, reinterpret_cast(s32, this->marker)); //spawn orange
+        vec3fArray_get_vec3i(this->marker->unk44, 5, (s32 *)&this->local); // [port] writes 3 s32 into actor local
+        __spawnQueue_add_1((GenFunction_1)__chConga_sendOrangeProjectile, reinterpret_cast(uintptr_t, this->marker)); //spawn orange
     }
 }

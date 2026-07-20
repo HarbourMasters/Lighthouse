@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-extern void func_802F82F4(s32, f32, f32, f32, f32);
+extern void func_802F82F4(struct3s *, f32, f32, f32, f32);
 
 typedef struct {
     s16 startState;
@@ -128,7 +128,7 @@ bool weatherParticle_shouldStartCCWHubSnowFalling(Actor *this){
 
 void weatherParticle_setState(Actor *this, s32 next_state){
     ActorLocal_core2_D2180 * local = (ActorLocal_core2_D2180 *) &this->local;
-    s32 sp20;
+    struct3s *sp20; // [port] pointer-width
 
     if(next_state == WEATHERPARTICLE_STATE_2_LEAF_FALLING)
         func_802F8C90(func_802F7C38());

@@ -45,11 +45,11 @@ void func_802E329C(s32 arg0, Gfx **gfx_begin, Gfx **gfx_end) {
     Vtx *vtx;
     Vtx *vtx_start;
 
-    getGraphicsStacks(&gfx, &mtx, &vtx);
+    graphicscache_swapAndGetStacks(&gfx, &mtx, &vtx);
     gfx_start = gfx;
     mtx_start = mtx;
     vtx_start = vtx;
-    scissorBox_SetForGameMode(&gfx, arg0);
+    setupFramebufferForGamemode(&gfx, arg0);
     if (D_8037E8C0.unk14 == 2) {
         drawRectangle2D(&gfx, 0, 0, (s32) (f32) gFramebufferWidth, (s32) (f32) gFramebufferHeight, 0, 0, 0);
     }
@@ -113,8 +113,8 @@ void func_802E3580(void) {
     assetcache_release((void *)(intptr_t)D_8037E8C0.unkC);
     func_802F1884(D_8037E8C0.unk10);
     func_802E5F68();
-    comusicPlayer_free();
-    depthBuffer_stub();
+    coMusicPlayer_free();
+    depthbuffer_stub();
     viMgr_func_8024BF94(2);
 }
 

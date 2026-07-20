@@ -108,7 +108,7 @@ void chWozza_firstContact(Actor *this){
         actor_loopAnimation(this);
         timed_setStaticCameraToNode(0.0f, 0x2e);
         func_80324DBC(0.0f, VER_SELECT(ASSET_C1B_DIALOG_WOZZA_MEET_AS_BEAR, 0x995, 0, 0), 0x2a, this->position, this->marker, chWozza_textCallback, NULL);
-        timedFunc_set_1(2.5f, (GenFunction_1)chWozza_delayedRetreatToCave, reinterpret_cast(s32, this->marker));
+        timedFunc_set_1(2.5f, (GenFunction_1)chWozza_delayedRetreatToCave, reinterpret_cast(uintptr_t, this->marker));
     }
     else{
         chWozza_retreatToCave(this);

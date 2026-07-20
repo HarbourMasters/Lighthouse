@@ -100,12 +100,12 @@ void viewport_setRenderPerspectiveMatrix(Gfx **gfx, Mtx **mtx, f32 near, f32 far
     near = MAX(sViewportNear, near);
     far = MIN(sViewportFar, far);
 
-    // [port] This is either anti-tamper or a legit camera adjustment 
-    // based on NTSC or PAL, because PAL runs at 50Hz instead of 60Hz
-    // if(*(u32*)OS_PHYSICAL_TO_K1(0x1D8) + 0x53D4FFF0) {
-    //     near = 750.0f; 
-    //     far = 1250.0f;
-    // }
+#if ANTI_TAMPER
+    if ((*(u32*) OS_PHYSICAL_TO_K1(0x000001D8)) + 0x53D4FFF0) {
+        near = 750.0f; 
+        far = 1250.0f;
+    }
+#endif
     
     guPerspective(*mtx, &perspNorm, sViewportFOVy, sViewportAspect, near, far, 0.5f);
     gSPPerspNormalize((*gfx)++, perspNorm);

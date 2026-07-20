@@ -15,7 +15,7 @@ void musicTrack_setVolume(u8, s32);
 void func_8024FC1C(u8, s32);
 void func_8025AC20(enum comusic_e, s32, s32, f32, char*, s32);
 void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void *arg4, char *arg5, s32 arg6);
-void comusicPlayer_free(void);
+void coMusicPlayer_free(void);
 void func_8025A55C(s32, s32, s32);
 void func_8025A7DC(enum comusic_e);
 void func_8025ABB8(enum comusic_e, s32, s32, s32);
@@ -81,7 +81,7 @@ void comusicPlayer_init(void){
     s32 i;
     
     if(D_80276E30 != NULL)
-        comusicPlayer_free();
+        coMusicPlayer_free();
 
     D_80276E30 = (CoMusic *) bk_malloc(6*sizeof(CoMusic));
     for(iPtr = D_80276E30; iPtr < D_80276E30 + 6; iPtr++){
@@ -101,7 +101,7 @@ void comusicPlayer_init(void){
 }
 
 //comusic_freeAll
-void comusicPlayer_free(void){
+void coMusicPlayer_free(void){
     CoMusic *iPtr;
     func_8024FB8C();
     func_8024F83C();

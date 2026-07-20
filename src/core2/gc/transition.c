@@ -242,7 +242,7 @@ void gctransition_defrag(void){
         s_current_transition.model_ptr = defrag_asset(s_current_transition.model_ptr);
 }
 
-void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
+void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     f32 vp_position[3];
     f32 vp_rotation[3];
     f32 percentage;
@@ -271,31 +271,31 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
     viewport_setPosition_vec3f(vp_position); //viewport_getPosition_vec3f
     viewport_setRotation_vec3f(vp_rotation); //viewport_getRotation_vec3f
     viewport_update(); //camera_updateNormal
-    viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
+    viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
 
 
     sp58[0] = 0.0f;
     sp58[1] = 0.0f;
     sp58[2] = 0.0f;
     if(s_current_transition.anctrl != NULL){
-        gDPSetTextureFilter((*gdl)++, G_TF_POINT);
-        gDPSetColorDither((*gdl)++, G_CD_DISABLE);
+        gDPSetTextureFilter((*gfx)++, G_TF_POINT);
+        gDPSetColorDither((*gfx)++, G_CD_DISABLE);
         anctrl_drawSetup(s_current_transition.anctrl, sp58, 1);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     }
 
     // [port] Widescreen transition scaling is applied by the port listener
     f32 transitionScale = 1.0f;
-    CALL_EVENT(OnTransitionModelScale, gdl, mptr,
+    CALL_EVENT(OnTransitionModelScale, gfx, mtx,
                s_current_transition.transistion_info != NULL ? s_current_transition.transistion_info->uid : 0,
                &transitionScale);
 
     //complex animation (from animation bin file)
     if(s_current_transition.state == 1 || s_current_transition.state == 6){
-        modelRender_draw(gdl, mptr, sp58, vp_rotation, transitionScale, 0, s_current_transition.model_ptr);
+        modelRender_draw(gfx, mtx, sp58, vp_rotation, 1.0f, 0, s_current_transition.model_ptr);
         if(s_current_transition.anctrl != NULL){
-            gDPSetTextureFilter((*gdl)++, G_TF_BILERP);
-            gDPSetColorDither((*gdl)++, G_CD_MAGICSQ);
+            gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
+            gDPSetColorDither((*gfx)++, G_CD_MAGICSQ);
         }
         return;
     }
@@ -312,7 +312,7 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
             vp_rotation[2] = s_current_transition.rotation - 90.0f*percentage;
             scale = percentage*s_current_transition.transistion_info->scale + 0.1;
         }
-        modelRender_draw(gdl, mptr, sp58, vp_rotation, scale * transitionScale, 0, s_current_transition.model_ptr);
+        modelRender_draw(gfx, mtx, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
     }
     else if(s_current_transition.state == TRANSITION_STATE_5_FADE_OUT){//L8030B9EC
         switch (s_current_transition.transistion_info->uid)
@@ -333,7 +333,7 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
                 break;
         }
         if(!(s_current_transition.substate < 3) || s_current_transition.transistion_info->uid != 0x11){
-            modelRender_draw(gdl, mptr, sp58, vp_rotation, scale * transitionScale, 0, s_current_transition.model_ptr);
+            modelRender_draw(gfx, mtx, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
         }
         else{
             modelRender_reset();
@@ -345,14 +345,14 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
         gcbound_reset();
         gcbound_alpha((1.0f - percentage)*255.0f + 0.5);
         gcbound_color(0,0,0);
-        gcbound_draw(gdl);
+        gcbound_draw(gfx);
     }
     else if(s_current_transition.state == TRANSITION_STATE_3_BLACK_OUT){//L8030BB6C
         //fade out black (i.e. get more black)
         gcbound_reset();
         gcbound_alpha(percentage*255.0f + 0.5);
         gcbound_color(0,0,0);
-        gcbound_draw(gdl);
+        gcbound_draw(gfx);
     }
     else if(s_current_transition.state == TRANSITION_STATE_7_WHITE_IN){//L8030BBD8
         //fade in white (i.e. get less white)
@@ -360,23 +360,23 @@ void gctransition_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr){
         gcbound_reset();
         gcbound_alpha(percentage*255.0f + 0.5);
         gcbound_color(0xff,0xff,0xff);
-        gcbound_draw(gdl);
+        gcbound_draw(gfx);
     }
     else if(s_current_transition.state == TRANSITION_STATE_8_WHITE_OUT){//L8030BC8C
         //fade out white (i.e. get more white)
         gcbound_reset();
         gcbound_alpha(percentage*255.0f + 0.5);
         gcbound_color(0xff,0xff,0xff);
-        gcbound_draw(gdl);
+        gcbound_draw(gfx);
     }//L8030BD00
     else{
         
     }
     if(s_current_transition.anctrl != NULL){
-        gDPSetTextureFilter((*gdl)++, G_TF_BILERP);
+        gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     }
     viewport_restoreState();
-    viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
+    viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
     
 }
 
@@ -415,7 +415,7 @@ void gctransition_8030BE3C(void){
 void gctransition_8030BE60(void){
     TransitionInfo *tmp_a1;
     tmp_a1 = _gctranstion_8030B400(_gctranstion_get_map_transition_info(gsworld_getMap())->out_index);
-   func_8030C180();
+   picturebox_func_8030C180();
    _gctranstion_changeState(tmp_a1->state, tmp_a1);
 }
 
@@ -504,7 +504,7 @@ void gctransition_update(void){
         }//L8030C104
         _gctranstion_changeState(s_current_transition.transistion_info->next_state, 0);
         if(s_current_transition.state == TRANSITION_STATE_4_FADE_IN)
-            func_8030C180();
+            picturebox_func_8030C180();
 
         if(s_current_transition.anctrl != NULL)
             gsworld_update();

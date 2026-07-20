@@ -11,17 +11,17 @@ extern void func_8030E9FC(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4
 extern void func_8030EA54(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4[3], f32 arg5, f32 arg6);
 extern void func_8031CE28(s32, s32, f32);
 void timed_exitStaticCamera(f32);
-extern BKCollisionTriangle *collisionList_func_802E805C(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, s32, s32, s32);
-extern void func_80340200(s32, f32[3], s32, f32, s32, s32, BKVertexList *, s32);
-extern void func_802E9118(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, s32, f32, s32, s32, s32);
-extern BKCollisionTriangle *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], s32, f32, s32, f32, s32, s32);
-extern int func_80340020(s32, f32[3], s32, f32, s32, BKVertexList *, f32[3], f32[3]);
+extern BKCollisionTriangle *collisionList_func_802E805C(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32[3], u32);
+extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]);
+extern BKCollisionTriangle *func_802E9118(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32, f32[3], s32, s32);
+extern BKCollisionTriangle *func_802E9DD8(BKCollisionList *, BKVertexList *, f32[3], f32 *, f32, f32[3], f32, f32[3], s32);
+extern int func_80340020(Struct83s *, f32[3], f32[3], f32, f32[3], BKVertexList *, f32[3], f32[3]);
 
-extern void boneTransformList_getBoneScale(s32, s32, f32[3]);
-extern void boneTransformList_setBoneScale(s32, s32, f32[3]);
-extern void func_8033A9A8(s32, s32, f32[3]);
+extern void boneTransformList_getBoneScale(BoneTransformList *, s32, f32[3]);
+extern void boneTransformList_setBoneScale(BoneTransformList *, s32, f32[3]);
+extern void func_8033A9A8(BoneTransformList *, s32, f32[3]);
 extern void modelRender_setAppendageVisibility(s32, s32);
-extern void modelRender_setBoneTransformList(s32);
+extern void modelRender_setBoneTransformList(BoneTransformList *);
 extern void func_8028FAB0(f32[3]);
 extern void baModel_802921D4(f32[3]);
 
@@ -33,7 +33,7 @@ f32 maClankerRaisedSoundPosition[3] = {4000.0f, 3500.0f, 0.0f};
 
 /* .bss */
 struct {
-    s32 skeletonAnim;
+    SkeletalAnimation *skeletonAnim;
     u8 sfxsourceIdx;
     //u8 pad5[0x3];
     f32 unk8; // screw timer?
@@ -65,21 +65,21 @@ enum maClankerState_e {
     MACLANKER_STATE_3_IDLE_RAISED
 };
 
-BKCollisionTriangle *__maClanker_getClankerCollisionTris(s32 arg0, s32 arg1, s32 arg2, s32 arg3){
+BKCollisionTriangle *__maClanker_getClankerCollisionTris(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3){ // [port] pointer-width args
     BKCollisionTriangle *collision_tris;
 
     collision_tris = collisionList_func_802E805C(maClanker.collisionList, maClanker.vertexList1, maClanker.position, 0, 1.0f, arg0, arg1, arg2, arg3);
     if(collision_tris && func_8029453C()){
-        func_80340200(maClanker.unk18, maClanker.position, 0, 1.0f, 0, collision_tris, maClanker.vertexList1, arg1);
+        func_80340200(maClanker.unk18, maClanker.position, 0, 1.0f, 0, collision_tris->unk0, maClanker.vertexList1, arg1);
     }
     return collision_tris;
 }
 
-void __code1F70_func_80388428(s32 arg0, s32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5){
+void __code1F70_func_80388428(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5){ // [port] pointer-width args
     func_802E9118(maClanker.collisionList, maClanker.vertexList1, maClanker.position, 0, 1.0f, arg0, arg1, arg2, arg3, arg4, arg5);
 }
 
-void func_803884A8(s32 arg0, f32 arg1, s32 arg2, s32 arg3){
+void func_803884A8(f32 arg0[3], f32 arg1, f32 arg2[3], u32 arg3){ // [port] pointer-width args
     func_802E9DD8(maClanker.collisionList, maClanker.vertexList1, maClanker.position, 0, 1.0f, arg0, arg1, arg2, arg3);
 }
 
@@ -218,7 +218,7 @@ void maClanker_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
-void func_80388B4C(s32 arg0) {
+void func_80388B4C(f32 arg0[3]) { // [port] pointer-width
     vec3fArray_get_vec3f(maClanker.unk34, 5, arg0);
 }
 
@@ -232,19 +232,19 @@ void func_80388BBC(f32 arg0[3], f32 arg1[3]){
     vec3fArray_get_vec3f(maClanker.unk34, 10, arg1);
 }
 
-void func_80388C00(s32 arg0, s32 arg1){
+void func_80388C00(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
     func_8031CD20(arg0, 0xb, 3);
 }
 
-void func_80388C28(s32 arg0, s32 arg1){
+void func_80388C28(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
     func_8031CD20(arg0, 0xb, 4);
 }
 
-void func_80388C50(s32 arg0, s32 arg1){
+void func_80388C50(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
     func_8031CD20(arg0, 0xb, 1);
 }
 
-void CC_func_80388C78(s32 arg0, s32 arg1){
+void CC_func_80388C78(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
     func_8031CD20(arg0, 0xb, 2);
 }
 
