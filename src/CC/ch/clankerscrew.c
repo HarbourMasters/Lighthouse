@@ -25,7 +25,7 @@ ActorInfo D_80389AA0 = {
 void CC_func_803863F0(Actor *this, s32 next_state){
     ActorLocal_CC_0 * local = (ActorLocal_CC_0 *)this->local;
     if(this->state == 4){
-        func_80388ED4(0);
+        maClanker_playScrewNoise(0);
     }
     this->state = next_state;
     local->unkC = 1;
@@ -36,7 +36,7 @@ void CC_func_803863F0(Actor *this, s32 next_state){
         local->unk4 = 2.0f;
     }
     if(this->state == 2){
-        func_80388ED4(1);
+        maClanker_playScrewNoise(1);
     }
     if(this->state == 3){
         local->unk0 = 1.0f;

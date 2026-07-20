@@ -653,6 +653,7 @@ bool func_8038A1A0(ActorMarker *marker);
 // code3B10_checkGVChecksums omitted: decomp defines as (void) but callers pass Actor*
 
 // --- CC/model_renderstate.c ---
+void code13C0_checkCCChecksums(void);
 void CC_func_80387D4C(void);
 
 // OS function prototypes
@@ -721,22 +722,27 @@ void CC_func_803870E0(void);
 void func_803870EC(s32 arg0);
 
 // --- CC/clankerrings.c ---
-void func_803880D4(void);
-void func_80388104(void);
-void func_8038817C(void);
+void maClankerRings_release(void);
+void maClankerRings_init(void);
+void maClankerRings_update(void);
 
 // --- CC/clanker.c ---
 int CC_func_80388CA0(void);
-void CC_func_8038868C(void);
-void CC_func_80388760(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void maClanker_raiseClankerCutscene(void);
+void maClanker_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void CC_func_80388F4C(void);
 void func_80388B4C(f32 arg0[3]);
 void func_80388B78(f32 arg0[3], f32 arg1[3]);
 void func_80388BBC(f32 arg0[3], f32 arg1[3]);
 void func_80388CB4(void);
 void func_80388D54(void);
-void func_80388ED4(s32 arg0);
-void func_803894A0(void);
+void maClanker_playScrewNoise(s32 arg0);
+void maClanker_defrag(void);
+void maClanker_release(void);
+void maClanker_init(void);
+void maClanker_update(void);
+s32 maClankerRings_isMinigameActive(void);
+void maClankerRings_passRing(s32);
 
 // --- CCW/ccwspawnqueue.c ---
 void CCW_func_8038DB6C(void);

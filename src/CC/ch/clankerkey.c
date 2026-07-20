@@ -7,7 +7,7 @@
 
 extern void func_8030E730(s32, f32, s32);
 
-void func_80388EA4(void);
+void maClanker_raiseClanker(void);
 
 
 typedef struct {
@@ -60,7 +60,7 @@ void CC_func_80386920(Actor *this, s32 next_state){
     }
 
     if(next_state == 4){
-        CC_func_8038868C();
+        maClanker_raiseClankerCutscene();
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
     }
 
@@ -200,7 +200,7 @@ void chClankerKey_update(Actor *this){
             this->pitch = (f32)local->unk10 + 180.0f*(local->unk14/5.0f);
             if(5.0f <= local->unk14){
                 CC_func_80386920(this, 5);
-                func_80388EA4();
+                maClanker_raiseClanker();
             }
         }//L80386FC0
     }

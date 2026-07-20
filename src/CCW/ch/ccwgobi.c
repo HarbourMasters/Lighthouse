@@ -24,15 +24,15 @@ void chGobiCCW_update(Actor *this);
 CH_CCW_Gobi_Dialogs chCCWGobiDialogs[] = {
     {
         MAP_44_CCW_SUMMER,
-        ASSET_CDE_DIALOG_CCW_GOBI_MEET_SUMMER,
-        ASSET_CDF_DIALOG_CCW_GOBI_COMPLETE_SUMMER,
-        0
+        VER_SELECT(ASSET_CDE_DIALOG_CCW_GOBI_MEET_SUMMER, 0x09F3, 0, 0),
+        VER_SELECT(ASSET_CDF_DIALOG_CCW_GOBI_COMPLETE_SUMMER, 0x09F4, 0, 0),
+        NULL
     },
     {
         MAP_45_CCW_AUTUMN,
-        0,
-        0,
-        ASSET_CE0_DIALOG_CCW_GOBI_COMPLETE_FALL
+        NULL,
+        NULL,
+        VER_SELECT(ASSET_CE0_DIALOG_CCW_GOBI_COMPLETE_FALL, 0x09F5, 0, 0)
     },
     { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
 };

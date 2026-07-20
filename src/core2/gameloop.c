@@ -686,7 +686,7 @@ s32 game_defrag(void){
         gcpausemenu_defrag();
     switch(overlayManager_getLoadedID()){
         case OVERLAY_2_WHALE:
-            func_803894A0();
+            maClanker_defrag();
             break;
         case OVERLAY_D_WITCH:
             code_C9E70_defrag();

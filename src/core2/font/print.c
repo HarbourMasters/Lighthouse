@@ -211,7 +211,7 @@ s32 D_80380AF0; //print_sMonospaced
 s32 D_80380AF4;
 s32 D_80380AF8;
 s32 D_80380AFC;
-s32 D_80380B00;
+s32 print_sCurrentFont;
 s32 D_80380B04;
 bool print_sInFontFormatMode;
 s32 D_80380B0C;
@@ -461,7 +461,7 @@ void print_init(void){
     D_80380AFC = \
     print_sInFontFormatMode = \
     D_80380B04 = \
-    D_80380B00 = \
+    print_sCurrentFont = \
     D_80380B10 = \
     D_80380B14 = 0;
     D_80380AB0 = 0;
@@ -561,9 +561,9 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
     // u8 letter = arg0;
     BKSpriteTextureBlock *sp214;
     uintptr_t sp210;
-    s32 sp20C;
-    s32 t0;
-    s8 t1;
+    s32 letter_id;
+    s32 valid_letter;
+    s8 y_offset;
     f32 sp200;
     f32 f28;    
     f32 sp1F8;
@@ -573,58 +573,57 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
 
 
 
-    t0 = 0;
     sp200 = *xPtr;
     f28 = *yPtr;
-    t1 = 0;
+    valid_letter = 0;
 
     if(!D_80380B04 && !letter){
         left_margin = 0.0f;
     }//L802F563C
 
-    switch(D_80380AE8){
-        case 0: //L802F5678
-            if(letter >= '\x21' && letter < ('\x21' + print_sDialogFontGlyphCount)){
-                sp20C = letter - '\x21';
-                t0 = 1;
+    switch(print_sCurrentFont){
+        case FONTS_0_DIALOG: //L802F5678
+            if(letter >= '\x21' && letter < VER_SELECT('\x5f', '\x6c', 0, 0)){
+                letter_id = letter - '\x21';
+                valid_letter = 1;
             }
             break;
         case 1: //L802F56A0
             if((u8)letter < 0x80 && D_80380F20[(u8)letter] >= 0){ // [port] char is signed on MSVC; MIPS char is unsigned
                 for(i = 0; boldFontKernings[i].firstLetter != 0; i++){
                     if(letter == boldFontKernings[i].secondLetter && D_80380AB0 == boldFontKernings[i].firstLetter){
-                        t1 = boldFontKernings[i].yOffset;
+                        y_offset = boldFontKernings[i].yOffset;
                         break;
                     }
                 }//L802F5710
-                sp20C = D_80380F20[(u8)letter];
-                t0 = 1;
+                letter_id = D_80380F20[(u8)letter];
+                valid_letter = 1;
                 D_80380AB0 = (u8)letter;
-                f28 += (f32)t1*arg3;
+                f28 += (f32)y_offset*arg3;
             }//L802F5738
             break;
         case 2: //L802F5740
-            sp20C = (u8)letter;
+            letter_id = (u8)letter;
             if(D_80380B04){
-                t0 = 1;
-                sp20C += (D_80380B04 << 8) - 0x100;
+                valid_letter = 1;
+                letter_id += (D_80380B04 << 8) - 0x100;
                 D_80380B04 = 0;
             }
             else if(ResourceMgr_IsJapanese()){
-                if(sp20C > 0 && sp20C != 0xFD && sp20C != 0x0F){
-                    t0 = 1;
-                    if(sp20C == 0x36)
-                        sp20C = 0xFD;
+                if(letter_id > 0 && letter_id != 0xFD && letter_id != 0x0F){
+                    valid_letter = 1;
+                    if(letter_id == 0x36)
+                        letter_id = 0xFD;
                 }
             }
             else{//L802F5764
-                if(sp20C > 0 && sp20C < 0xfD)
-                    t0 = 1;
+                if(letter_id > 0 && letter_id < 0xfD)
+                    valid_letter = 1;
             }
             break;
     }//L802F5778
 
-    if(!t0 || print_sInFontFormatMode){
+    if(!valid_letter || print_sInFontFormatMode){
         print_sInFontFormatMode = false;
         switch((u8)letter){
             case '\x0F': // [port] JP font-2 word space; no-op for US/PAL
@@ -638,7 +637,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
             case 'b': //L802F5890
             case '\x6D': // [port] PAL shifted b
                 //toggle background
-                D_80380B00  = D_80380B00 ^ 1;
+                print_sCurrentFont  = print_sCurrentFont ^ 1;
                 break;
 
             case 'f': //L802F58A8
@@ -738,7 +737,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         }
     }
     else{//L802F5C08
-        sp214 = print_getBoldFontLetterSprite(sp20C, &sp1F4);
+        sp214 = print_getBoldFontLetterSprite(letter_id, &sp1F4);
         if (D_80380B10 != 0) {
                sp200 += randf2(-2.0f, 2.0f);
                f28 += randf2(-2.0f, 2.0f);
@@ -779,7 +778,7 @@ void _printbuffer_draw_letter(char letter, f32* xPtr, f32* yPtr, f32 arg3, Gfx *
         } else if (sp1F4 == SPRITE_TYPE_I4) {
             gDPLoadTextureTile_4b((*gfx)++, sp210, G_IM_FMT_I, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y-1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else if (sp1F4 == SPRITE_TYPE_CI8) {
-            void * pal = print_getCurrentFontPalette(sp20C);
+            void * pal = print_getCurrentFontPalette(letter_id);
             gDPLoadTLUT_pal256((*gfx)++, pal);
             gDPLoadTextureTile((*gfx)++, sp210, G_IM_FMT_CI, G_IM_SIZ_8b, sp214->w, sp214->h, 0, 0, sp214->x-1, sp214->y-1, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gDPSetTextureLUT((*gfx)++, G_TT_RGBA16);
@@ -913,7 +912,7 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                 _printbuffer_draw_letter(0xFD, &_x, &_y, 1.0f, gfx, mtx, vtx);
                 _printbuffer_draw_letter(print_sCurrentPtr->fmtString[j], &_x, &_y, 1.0f, gfx, mtx, vtx);
             }
-            if (D_80380B00 != 0) {
+            if (print_sCurrentFont != 0) {
                 width = (strlen(print_sCurrentPtr->string) -1)*D_80369068[D_80380AE8];
                 gDPPipeSync((*gfx)++);
                 gDPSetPrimColor((*gfx)++, 0, 0, 0x00, 0x00, 0x00, 0x64);

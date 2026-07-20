@@ -20,13 +20,13 @@ Actor *chIndoorsGnawty_draw(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx
 CH_Indoors_Gnawty_Dialogs chIndoorsGnawtyDialogs[] = {
     {
         MAP_45_CCW_AUTUMN,
-        ASSET_CD2_DIALOG_GNAWTY_MEET_FALL_INSIDE,
-        0
+        VER_SELECT(ASSET_CD2_DIALOG_GNAWTY_MEET_FALL_INSIDE, 0x9E7, 0, 0),
+        NULL
     },
     {
         MAP_46_CCW_WINTER,
-        ASSET_CD4_DIALOG_GNAWTY_MEET_WINTER_INSIDE_JIGGY,
-        ASSET_CD5_DIALOG_GNAWTY_MEET_WINTER_INSIDE_AFTER_JIGGY
+        VER_SELECT(ASSET_CD4_DIALOG_GNAWTY_MEET_WINTER_INSIDE_JIGGY, 0x09E9, 0, 0),
+        VER_SELECT(ASSET_CD5_DIALOG_GNAWTY_MEET_WINTER_INSIDE_AFTER_JIGGY, 0x09EA, 0, 0)
     },
     { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
 };

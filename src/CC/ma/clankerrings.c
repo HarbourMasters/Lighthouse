@@ -7,48 +7,51 @@
 extern void port_ccWater_broadcastRise(int32_t map, int32_t waterId, int32_t targetDy, f32 duration);
 
 /* .data */
-f32 D_80389BF0[3] = {0.0f, 1300.0f, -2800.0f}; 
+f32 maClankerRingsJiggyPosition[3] = {0.0f, 1300.0f, -2800.0f};
+
+#define RINGS_TIMER VER_SELECT(48, 40, 0, 0) // Seconds
+#define RING_COUNT   9
 
 /* .bss */
 struct {
-    u8 unk0;
-    u8 unk1;
-    f32 unk4;
-    f32 unk8;
-} D_80389F90;
+    u8 currentActiveRing;
+    u8 isMinigameActive;
+    f32 timer1;
+    f32 timer2;
+} maClankerRings;
 
 /* .code */
 void func_80387F80(void){
-    func_8034E71C((Struct73s *)func_8034C5AC(0x131), 0x190, 0.0f);
+    func_8034E71C((Struct73s *)func_8034C5AC(0x131), 0x190, 0.0f); // [port] cast to match decomp behavior
 }
 
-void CC_func_80387FB0(void){
-    item_set(ITEM_0_HOURGLASS_TIMER, 48*60 - 1);
+void maClankerRings_startMinigame(void){
+    item_set(ITEM_0_HOURGLASS_TIMER, RINGS_TIMER * 60 - 1);
     item_set(ITEM_6_HOURGLASS, 1);
-    D_80389F90.unk1 = 1;
+    maClankerRings.isMinigameActive = 1;
 }
 
-void func_80387FE8(void){
+void maClankerRings_endMinigame(void){
     item_set(ITEM_6_HOURGLASS, 0);
-    D_80389F90.unk1 = 0;
+    maClankerRings.isMinigameActive = 0;
 }
 
-s32 func_80388010(void){
-    if(D_80389F90.unk0 > 0 && D_80389F90.unk0 < 0xA){
-        return D_80389F90.unk0;
+s32 maClankerRings_isMinigameActive(void){
+    if(maClankerRings.currentActiveRing > 0 && maClankerRings.currentActiveRing < 0xA){
+        return maClankerRings.currentActiveRing;
     }
     return 0;
 }
 
-void func_8038803C(s32 arg0){
-    if(arg0 == D_80389F90.unk0){
-        if(arg0 == 1){
-            CC_func_80387FB0();
+void maClankerRings_passRing(s32 ring_num){
+    if(ring_num == maClankerRings.currentActiveRing){
+        if(ring_num == 1){
+            maClankerRings_startMinigame();
         }
-        D_80389F90.unk0++;
-        if(D_80389F90.unk0 >= 9){
-            func_80387FE8();
-            D_80389F90.unk8 = 1.0f;
+        maClankerRings.currentActiveRing++;
+        if(maClankerRings.currentActiveRing >= RING_COUNT){
+            maClankerRings_endMinigame();
+            maClankerRings.timer2 = 1.0f;
         }
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
     }
@@ -57,69 +60,69 @@ void func_8038803C(s32 arg0){
     }
 }
 
-void func_803880D4(void){
-    if(D_80389F90.unk0 != 0){
-        func_80387FE8();
+void maClankerRings_release(void){
+    if(maClankerRings.currentActiveRing != 0){
+        maClankerRings_endMinigame();
     }
 }
 
-void func_80388104(void){
-    D_80389F90.unk0 = 0;
+void maClankerRings_init(void){
+    maClankerRings.currentActiveRing = 0;
     if(gsworld_getMap() == MAP_22_CC_INSIDE_CLANKER){
         if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS)){
             timedFunc_set_0(0.0f, func_80387F80);
         }
         else{
-            D_80389F90.unk0 = 1;
-            D_80389F90.unk1 = 0;
-            D_80389F90.unk8 = 0.0f;
-            D_80389F90.unk4 = 0.0f;
+            maClankerRings.currentActiveRing = 1;
+            maClankerRings.isMinigameActive = 0;
+            maClankerRings.timer2 = 0.0f;
+            maClankerRings.timer1 = 0.0f;
         }
     }
 }
 
-void func_8038817C(void){
-    f32 sp24[3];
-    f32 sp20 = time_getDelta();
-    Struct70s *tmp_v0;
+void maClankerRings_update(void){
+    f32 player_position[3];
+    f32 time_delta = time_getDelta();
+    s32 tmp_v0;
 
-    if(D_80389F90.unk0 != 0){
-        if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS) && D_80389F90.unk0 < 9){
-            func_80387FE8();
+    if(maClankerRings.currentActiveRing != 0){
+        if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS) && maClankerRings.currentActiveRing < RING_COUNT){
+            maClankerRings_endMinigame();
             // func_80387F80 snaps water to risen height; VB listener suppresses it when connected (rise already animating).
             if(EventSystem_Should(VB_CC_RINGS_SNAP_WATER, true)){
                 func_80387F80();
             }
-            D_80389F90.unk0 = 0;
+            maClankerRings.currentActiveRing = 0;
             return;
         }
-        D_80389F90.unk4 += sp20;
-        player_getPosition(sp24);
-        if(ml_timer_update(&D_80389F90.unk8, sp20)){
+        maClankerRings.timer1 += time_delta;
+        player_getPosition(player_position);
+        if(ml_timer_update(&maClankerRings.timer2, time_delta)){
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
             func_80324E38(0.0f, 3);
             timed_setStaticCameraToNode(2.0f, 0);
-            timedJiggySpawn(2.1f, JIGGY_1C_CC_RINGS, D_80389BF0);
+            timedJiggySpawn(2.1f, JIGGY_1C_CC_RINGS, maClankerRingsJiggyPosition);
             func_80324E38(5.0f, 0);
             timed_exitStaticCamera(5.0f);
             tmp_v0 = func_8034C5AC(0x131);
             if(tmp_v0){
-                func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f);
+                func_8034E78C(tmp_v0, 0x190, 12.0f);
             }
             port_ccWater_broadcastRise(MAP_22_CC_INSIDE_CLANKER, 0x131, 0x190, 12.0f);
-            D_80389F90.unk4 = 0.0f;
+            maClankerRings.timer1 = 0.0f;
         }//L80388264
-        if(!(D_80389F90.unk0 < 2) && D_80389F90.unk1 != 0){
-            if( (sp24[0] < -1100.0f && sp24[1] < -40.0f)
-                || (1560.0f < sp24[0])
-                || (2850.0f < sp24[2])
-                || (sp24[2] < -3000.0f)
-                || (D_80389F90.unk0 < 9 && item_empty(ITEM_6_HOURGLASS))
+        if(!(maClankerRings.currentActiveRing < 2) && maClankerRings.isMinigameActive != 0){
+            if( (player_position[0] < -1100.0f && player_position[1] < -40.0f)
+                || (1560.0f < player_position[0])
+                || (2850.0f < player_position[2])
+                || (player_position[2] < -3000.0f)
+                || (maClankerRings.currentActiveRing < RING_COUNT && item_empty(ITEM_6_HOURGLASS))
             ){
-                func_80387FE8();
+                maClankerRings_endMinigame();
                 coMusicPlayer_playMusic(COMUSIC_3C_MINIGAME_LOSS, 28000);
-                func_803880D4();
-                func_80388104();
+                maClankerRings_release();
+                maClankerRings_init();
             }
         }//L8038834C
     }//L8038834C
