@@ -1157,7 +1157,15 @@ void func_80388524(Actor *this) {
     // persistent open flag is set — by this animation finishing, or by the completer's flag
     // arriving first (then the spawn-time snap-open above already handled the door).
     if (!sp34 && this->modelCacheIndex == sRemoteOpenDoorActor) {
-        if (fileProgressFlag_get(__leveldoor_persistentFlag(this->modelCacheIndex))) {
+        // "Already handled" (disarm) defaults to the door's persistent open flag being set — the
+        // completer's flag arrived first, so the spawn-time snap-open above covered it. That's right
+        // for the world entrances, whose synced "seen" flag is distinct from their "open" flag. The
+        // Anchor VB listener overrides this for the Door of Grunty, which is broadcast on its own open
+        // flag (0xE2) — already set when the arm arrives — to key off its visual state instead.
+        bool alreadyOpen = EventSystem_Should(VB_LEVELDOOR_REMOTE_OPEN_DONE,
+                                              fileProgressFlag_get(__leveldoor_persistentFlag(this->modelCacheIndex)) != 0,
+                                              this->modelCacheIndex, this->state);
+        if (alreadyOpen) {
             sRemoteOpenDoorActor = 0;
         } else {
             sp34 = true;

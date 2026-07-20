@@ -55,6 +55,7 @@ void chEngineFanSwitch_update(Actor *this){
     }
     // [port] Anchor temp-persist: the fan slowdown is transient map flag 0, set by pressing this
     // switch (RBB_func_803898A0). It syncs live but resets on reload, so persist it
+    if(mapSpecificFlags_get(0)){
         port_puzzleStep_orBits(ANCHOR_PUZZLE_RBB_ENGINE_FANS, 1);
     } else if((this->state == 1) && (port_puzzleStep_get(ANCHOR_PUZZLE_RBB_ENGINE_FANS) & 1)){
         this->position_y -= 35.0f;

@@ -360,6 +360,19 @@ void Anchor::RegisterHooks() {
 
     COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
 
+    // Lair door remote-open: the arm normally disarms once the door's persistent open flag is set
+    // (the default the decomp passes). The Door of Grunty broadcasts on that same flag (0xE2), so it's
+    // already set when the arm arrives and the door would never animate for a teammate already in the
+    // Dingpot room. Key off its visual state instead — "done" only once fully open (0x1B) — so the
+    // arm holds through the open animation. Other lair doors keep the default flag-based behavior.
+    COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
+        s32 doorActorId = va_arg(args, s32);
+        s32 doorState = va_arg(args, s32);
+        if (doorActorId == ACTOR_2E5_DOOR_OF_GRUNTY) {
+            *should = (doorState == 0x1B);
+        }
+    });
+
     // FP twinkly minigame start gate: block the start when another client is mid-run (its claim is
     // live), otherwise claim it ourselves and let the vanilla start proceed. The claim releases on
     // completion/failure (port_fpTwinkly_release) or when the owner leaves FP (Authority auto-drop).

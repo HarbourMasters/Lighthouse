@@ -68,6 +68,14 @@ typedef enum VBehaviorID {
     // listener (HookHandlers.cpp) suppresses that snap (should=false) because the finisher's WATER_RISE
     // broadcast already started the animated rise on us, so snapping would blink it back to done.
     VB_CC_RINGS_SNAP_WATER,
+    // Lair door remote-open "already handled" test (Anchor): the sRemoteOpenDoorActor arm animates a
+    // lair door open for teammates already in the room. It disarms when the door's persistent open flag
+    // is set (the default, passed in) — correct for the world entrances, whose synced "seen" flag is
+    // distinct from their "open" flag. The Grunty door is the exception: it's broadcast on its own open
+    // flag (0xE2), already set when the arm arrives, so the isConnected listener (HookHandlers.cpp)
+    // overrides it to key off the door's visual state (fully open = 0x1B) so it still animates live.
+    // Args: (s32 doorActorId, s32 doorState).
+    VB_LEVELDOOR_REMOTE_OPEN_DONE,
 } VBehaviorID;
 
 // Door ids passed to VB_DOOR_OPEN_CAMERA — each maps to the map-specific flag(s) whose local-vs-
