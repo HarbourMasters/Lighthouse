@@ -7,29 +7,17 @@
 #include "core1/pfsmanager.h"
 
 #include "version.h"
+#include "checksums.h"
 
 #include "port/Patches/Patches.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
 
-extern struct {
-    u8 pad0[4];
-    s32 unk4; 
-    u8 pad8[4];
-    s32 unkC; 
-} D_80379B90;
-
 extern s32 D_803727F4;
 extern s32 D_80276574;
 
-/* .data */
-#if VERSION == VERSION_USA_1_0
-    s32 D_80275D30 = 0xC3A68832; //WHAT IS THIS?
-    s32 D_80275D34 = 0xDDC3A724; //WHAT IS THIS?
-#elif VERSION == VERSION_PAL
-    s32 D_80275D30 = 0xED7BCDB7; //WHAT IS THIS?
-    s32 D_80275D34 = 0xF82DC7AC; //WHAT IS THIS?
-#endif
+s32 D_80275D30 = VER_SELECT(0xC3A68832, 0xED7BCDB7, 0, 0); // CCW_DATA_CRC2
+s32 D_80275D34 = VER_SELECT(0xDDC3A724, 0xF82DC7AC, 0, 0); // FIGHT_DATA_CRC2
 
 static s32 D_80275D38 = 0;
 
@@ -66,7 +54,7 @@ f32 func_8024E420(s32 arg0, s32 arg1, s32 arg2) {
     // instead of 1.0), making it impossible to reach the 0.7 threshold used by
     // gameSelect.c and other input consumers. Bypassed.
 #if ANTI_TAMPER
-    if ((D_80379B90.unk4 != D_803727F4) || (D_80379B90.unkC != D_80276574)) {
+    if ((gChecksumsCore2.text_checksum2 != D_803727F4) || (gChecksumsCore2.data_checksum2 != D_80276574)) {
         phi_f2 = 0.00625f;
     }
 #endif

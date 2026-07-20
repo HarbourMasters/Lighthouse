@@ -1,2 +1,7 @@
 // BanjoDecomp: lair/checksums.c
-static char pad_lair_80395350[0x10]; //padding
+#include <ultra64.h>
+#include "checksums.h"
+
+// !! THIS FILE MUST BE LINKED FIRST FOR THIS OVERLAY !!
+
+/* bss */ struct overlay_checksums_s gChecksumsLair;
