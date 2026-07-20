@@ -769,7 +769,7 @@ void func_80386D20(Actor *this)
 
 void func_80386D40(void)
 {
-    func_802D68F0(0xC);
+    code_4C020_setHourglassTimer(0xC);
     item_set(ITEM_6_HOURGLASS, true);
     mapSpecificFlags_set(1, true);
 }
@@ -1081,7 +1081,7 @@ void func_80387730(Actor *this) {
                 }
             }
         } else if ((this->actorTypeSpecificField >= 2) && (ml_vec3f_distance(spAC, this->position) < 290.0f)) {
-            volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_B0_NOT_ENOUGH_NOTES);
+            progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_B0_NOT_ENOUGH_NOTES);
         }
     }
 }
@@ -1377,7 +1377,7 @@ void func_80388450(Actor *actor1, Actor *actor2)
     f32 vec1[3];
     f32 vec2[3];
     void *actor3 = nodeprop_findByActorIdAndActorPosition(0x22A, actor1);
-    s32 val = nodeprop_getYaw(actor3);
+    s32 val = nodeProp_getYaw(actor3);
 
     actor2->yaw = val;
     actor1->yaw = val;

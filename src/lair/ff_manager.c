@@ -946,17 +946,17 @@ void ff_setState(enum FF_Action next_state) {
                 if (((s32) ffStorage->currentBoardTile->tileType >= 7) && (quizQuestionAskedBitfield_get(func_8038D60C(ffStorage->currentTileId)) == 0)) {
                     item_adjustByDiffWithHud(ITEM_27_JOKER_CARD, ffStorage->currentBoardTile->tileType - 6);
                     quizQuestionAskedBitfield_set(func_8038D60C(ffStorage->currentTileId), true);
-                    volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A8_FF_GOT_JOKER);
+                    progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A8_FF_GOT_JOKER);
                 }
                 if (ffStorage->currentTileId != 0x1EF) {
                     gcsfx_playWithPitch(SFX_126_AUDIENCE_BOOING, 1.0f, 0x7FF8);
                     if (ffStorage->currentBoardTile->tileType == FFTT_5_GRUNTY) {
-                        volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A2_FF_GRUNTY_ANSWER_RIGHT);
+                        progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A2_FF_GRUNTY_ANSWER_RIGHT);
                     }
                     if (volatileFlag_get(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT)) {
-                        volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A1_FF_NEXT_ANSWER_RIGHT);
+                        progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A1_FF_NEXT_ANSWER_RIGHT);
                     }
-                    volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT);
+                    progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A0_FF_FIRST_ANSWER_RIGHT);
                 }
             } else {
                 if (ffStorage->currentBoardTile->tileType == FFTT_6_SKULL) {
@@ -983,9 +983,9 @@ void ff_setState(enum FF_Action next_state) {
                     lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                 }
                 if (volatileFlag_get(VOLATILE_FLAG_A3_FF_FIRST_ANSWER_WRONG)) {
-                    volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A4_FF_NEXT_ANSWER_WRONG);
+                    progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A4_FF_NEXT_ANSWER_WRONG);
                 }
-                volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A3_FF_FIRST_ANSWER_WRONG);
+                progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A3_FF_FIRST_ANSWER_WRONG);
             }
             break;
 
@@ -1228,9 +1228,9 @@ void lair_func_8038E0B0(void) {
                     s32 ffLifeThreshold = 1;
                     CALL_EVENT(OnFurnaceFunDialog, &ffLifeThreshold);
                     if ((ff_tile_type == FFTT_6_SKULL) && (item_getCount(ITEM_16_LIFE) == ffLifeThreshold)) {
-                        volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AB_LAST_LIFE_ON_SKULL);
+                        progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_AB_LAST_LIFE_ON_SKULL);
                     } else if (item_getCount(ITEM_14_HEALTH) == 1) {
-                        volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_AA_FF_LOW_HEALTH);
+                        progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_AA_FF_LOW_HEALTH);
                     }
                     if ((ffStorage->currentBoardTile->unk9 == 2) && (player_movementGroup() == BSGROUP_0_NONE)) {
                         if (func_8028EFEC() && (sp48[FACE_BUTTON(BUTTON_A)] == 1)) {
@@ -1246,7 +1246,7 @@ void lair_func_8038E0B0(void) {
                                 lair_func_8038C640(ffStorage->currentTileId, ffStorage->currentBoardTile);
                                 item_dec(ITEM_27_JOKER_CARD);
                                 func_8030E6D4(SFX_3EA_BANJO_GUH_HUH);
-                                volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A9_FF_USED_JOKER);
+                                progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A9_FF_USED_JOKER);
                                 if (ffStorage->currentTileId == 0x1EF) {
                                     ff_setState(8);
                                 }

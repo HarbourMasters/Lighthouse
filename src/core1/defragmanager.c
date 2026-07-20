@@ -28,13 +28,13 @@ void defragManager_free(void){
     osDestroyThread(&sDefragThread);
 }
 
-void defragManager_80240874(void){
+void defragManager_resume(void){
     if(func_8023E000() == 3){
         osSendMesgPtr(&sDefragThreadResumeSyncQueue, NULL, OS_MESG_BLOCK);
     }
 }
 
-void defragManager_802408B0(void){
+void defragManager_pause(void){
     if(func_8023E000() == 3){
         osSendMesgPtr(&sDefragThreadPauseSyncQueue, NULL, OS_MESG_BLOCK);
     }

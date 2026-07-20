@@ -4,7 +4,7 @@
 #include "variables.h"
 
 
-void chfrogminigame_update(Actor *);
+void chFrogMinigame_update(Actor *);
 void chFrogMinigame_setState(Actor * arg0, u32 next_state);
 void func_8025A58C(u32, u32);
 void timed_exitStaticCamera(f32);
@@ -12,7 +12,7 @@ void timed_exitStaticCamera(f32);
 
 ActorInfo chFrogMinigame = {MARKER_C4_YELLOW_FLIBBIT_CTRL, ACTOR_136_YELLOW_FLIBBIT_CONTROLLER, 0x00, 
     0x00, NULL,
-    chfrogminigame_update, NULL, func_80325340,
+    chFrogMinigame_update, NULL, func_80325340,
     0, 0, 0.0f, 0
 };
 
@@ -46,7 +46,7 @@ static void __chFrogMinigame_textCallback(ActorMarker *marker, enum asset_e text
     }
 }
 
-void func_8038CBB4(Actor * arg0){
+void chFrogMinigame_stopFlibbitFightMusic(Actor * arg0){
     if(!arg0->bgs_6730.unk4)
         return;
     func_8025A58C(-1, 400);
@@ -98,7 +98,7 @@ void chFrogMinigame_setState(Actor * arg0, u32 next_state){
             }
         }
         else{
-            func_8038CBB4(arg0);
+            chFrogMinigame_stopFlibbitFightMusic(arg0);
         }
     }
 
@@ -137,7 +137,7 @@ void BGS_func_8038CED0(void){
     D_80391240[3]++;
 }
 
-void chfrogminigame_update(Actor *this){
+void chFrogMinigame_update(Actor *this){
     f32 player_position[3];
     u32 sp28;
     ActorLocal_BGS_6730 *local;
@@ -190,7 +190,7 @@ void chfrogminigame_update(Actor *this){
         else{
             //L8038D0E0
             if(local->unk4 && !local->unk8){
-                func_8038CBB4(this);
+                chFrogMinigame_stopFlibbitFightMusic(this);
             }
         }
     }

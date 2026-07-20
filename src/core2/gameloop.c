@@ -22,7 +22,7 @@ extern void func_8034BB90(void);
 extern void picturebox_spawn(void);
 extern void func_80321C34(void);
 extern void func_8030ED0C(void);
-extern void comusicPlayer_update(void);
+extern void coMusicPlayer_update(void);
 
 enum transition_e {
     TRANSITION_0_NONE
@@ -115,7 +115,7 @@ void func_802E38E8(enum map_e map, s32 exit, s32 reset_on_load){
 void func_802E398C(s32 arg0) {
     gsworld_free();
     func_8030ED0C();
-    comusicPlayer_update();
+    coMusicPlayer_update();
     if (arg0 != 0) {
         func_802E3854();
     }
@@ -432,7 +432,7 @@ void func_802E4214(enum map_e map_id){
     savedata_init();
     sns_save_and_update_global_data();
     func_8030D86C();
-    comusicPlayer_init();
+    coMusicPlayer_init();
     func_80322764();
     timedFuncQueue_init();
     func_802F9CD8();
@@ -584,7 +584,7 @@ bool func_802E4424(void) {
     sp1C = gsworld_update();
     func_80321C34();
     func_8030ED0C();
-    comusicPlayer_update();
+    coMusicPlayer_update();
     switch (D_8037E8E0.game_mode) {
         case GAME_MODE_8_BOTTLES_BONUS:
         case GAME_MODE_A_SNS_PICTURE:

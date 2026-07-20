@@ -2010,7 +2010,7 @@ void func_8032A82C(Actor *arg0, s32 arg1) {
     sp1C = (Actorlocal_Core2_9E370 *)arg0->local;
     sp24 = nodeprop_findByActorIdAndActorPosition(arg1, arg0);
     if (sp24 != NULL) {
-        sp1C->unkC = nodeprop_getYaw(sp24);
+        sp1C->unkC = nodeProp_getYaw(sp24);
         nodeprop_getPosition(sp24, sp1C->unk0);
         sp1C->unkE = func_80341EC4(sp1C->unk0);
     }

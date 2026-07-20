@@ -100,7 +100,7 @@ void __chChompa_die(ActorMarker *this_marker, ActorMarker *other_marker) {
     chChompa_setState(this, CHOMPA_STATE_5_DYING);
 }
 
-void __chChompa_spwanPortrait(ActorMarker *marker) {
+void __chChompa_spawnPortrait(ActorMarker *marker) {
     Actor *this = marker_getActor(reinterpret_cast(ActorMarker *, marker));
     enum asset_e portrait_id;
     Actor *portrait;
@@ -206,7 +206,7 @@ void chChompa_update(Actor *this) {
         this->volatile_initialized = true;
         this->unk16C_0 = true;
         marker_setCollisionScripts(this->marker, NULL, __chChompa_hit, __chChompa_die);
-        __spawnQueue_add_1((GenFunction_1) __chChompa_spwanPortrait, (uintptr_t)this->marker);
+        __spawnQueue_add_1((GenFunction_1) __chChompa_spawnPortrait, (uintptr_t)this->marker);
         chChompa_setState(this, this->state < CHOMPA_STATE_5_DYING ? CHOMPA_STATE_1_IDLE : CHOMPA_STATE_6_DEAD);
     }//L803880B4
 

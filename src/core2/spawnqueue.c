@@ -406,7 +406,7 @@ void spawnQueue_reset(void){
             MM_func_803888B0();
             break;
         case OVERLAY_7_SWAMP:
-            BGS_func_8038F1E0();
+            bgs_updateSpawnableActors();
             break;
         case OVERLAY_8_SHIP:
             RBB_func_80386C48();
@@ -434,7 +434,7 @@ void spawnQueue_reset(void){
         if (loaded_asm_file != OVERLAY_4_DESERT)   { GV_func_8038F154(); }
         if (loaded_asm_file != OVERLAY_5_BEACH)    { code26D0_resetSpawnableActorsForTTC(); }
         if (loaded_asm_file != OVERLAY_6_JUNGLE)   { MM_func_803888B0(); }
-        if (loaded_asm_file != OVERLAY_7_SWAMP)    { BGS_func_8038F1E0(); }
+        if (loaded_asm_file != OVERLAY_7_SWAMP)    { bgs_updateSpawnableActors(); }
         if (loaded_asm_file != OVERLAY_8_SHIP)     { RBB_func_80386C48(); }
         if (loaded_asm_file != OVERLAY_9_SNOW)     { FP_func_80391324(); }
         if (loaded_asm_file != OVERLAY_A_TREE)     { CCW_func_8038DB6C(); }

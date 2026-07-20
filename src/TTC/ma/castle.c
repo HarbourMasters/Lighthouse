@@ -332,11 +332,11 @@ static u32 __maCastle_cheatoCodeUnlocked(s32 cheato_code_index)
 static void __maCastle_setVolatileFlags(u32 arg0)
 {
     int i;
-    volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_C2_NOBONUS_TEXT);
+    progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_C2_NOBONUS_TEXT);
     // wish washy banjo cheat code
     if (arg0 & 0x400)
     {
-        volatileFlag_setAndTriggerDialog_E(VOLATILE_FLAG_C5_WISHYWASHYBANJO_TEXT);
+        progressDialog_setAndTriggerDialog_E(VOLATILE_FLAG_C5_WISHYWASHYBANJO_TEXT);
     }
     volatileFlag_set(VOLATILE_FLAG_78_SANDCASTLE_NO_BONUS, 0);
     for (i = 4; i < 11; i++)

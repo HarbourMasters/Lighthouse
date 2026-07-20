@@ -41,7 +41,7 @@ void func_8035CCA0(ParticleEmitter *pCtrl, Actor *this, enum asset_e model_id) {
 }
 
 
-void chskeleton_despawn(ActorMarker *marker, s32 arg1) {
+void chLimbo_die(ActorMarker *marker, s32 arg1) {
     Actor *this;
 
     this = marker_getActor(marker);
@@ -79,7 +79,7 @@ static void _chskeleton_init(Actor *this) {
     local->exitInvulnerableStateVolume = 1.0f;
     local->unkC_28 = true;
     local->hitFunction = (void (*)(ActorMarker *, ActorMarker *)) humanoidBaddie_enterInvulnerableState;
-    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) chskeleton_despawn;
+    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) chLimbo_die;
 
 }
 

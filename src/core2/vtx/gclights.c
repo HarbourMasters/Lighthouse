@@ -166,7 +166,7 @@ static void __lighting_setPosition(s32 index , f32 *position) {
     TUPLE_COPY(v0->position, position)
 }
 
-static void __lighting_setUnk18AndUnk1C(s32 index , f32 *unk18_and_unk1c) {
+static void __lighting_setFadeRadii(s32 index , f32 *unk18_and_unk1c) {
     Lighting *v0 = bk_vector_at(sLightingbk_vectorList.bk_vector_ptr, index-1);
     v0->fade_radius_min_unscaled = unk18_and_unk1c[0];
     v0->fade_radius_max_unscaled = unk18_and_unk1c[1];
@@ -191,7 +191,7 @@ void lightingVectorList_fromFile(File *file_ptr) {
         ) {
             lighting_ptr = __lighting_create();
             __lighting_setPosition(lighting_ptr, position);
-            __lighting_setUnk18AndUnk1C(lighting_ptr, unk18_and_unk1c);
+            __lighting_setFadeRadii(lighting_ptr, unk18_and_unk1c);
             __lighting_setRgb(lighting_ptr, rgb);
         }
     }

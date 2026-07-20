@@ -382,7 +382,7 @@ void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEven
 void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
 // --- core2/dialog/progressDialog.c ---
-void volatileFlag_setAndTriggerDialog_0(enum volatile_flags_e arg0);
+void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0);
 
 // --- core1/init.c ---
 s32 globalTimer_getTime(void);
@@ -585,6 +585,7 @@ void __spawnQueue_add_2(void (*arg0)(void), uintptr_t arg1, uintptr_t arg2);
 Actor *spawnQueue_actor_f32(enum actor_e actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
 void __spawnQueue_add_1(GenFunction_1, uintptr_t);
 #define SPAWNQUEUE_ADD_1(method, arg0) __spawnQueue_add_1((GenFunction_1) (method), reinterpret_cast(uintptr_t, (arg0)))
+void __spawnQueue_add_3(GenFunction_3, uintptr_t, uintptr_t, uintptr_t);
 void __spawnQueue_add_4(GenFunction_4, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
 // --- core2/fx/commonParticle.c ---
@@ -628,7 +629,7 @@ void particleEmitter_update(ParticleEmitter *self);
 void particleEmitter_setVelocityAndAccelerationRanges(ParticleEmitter *, ParticleSettingsVelocityAcceleration *);
 
 // --- core2/quiz/game.c ---
-void func_802D68F0(s32 seconds);
+void code_4C020_setHourglassTimer(s32 seconds);
 void func_802D4A9C(Actor *self, s32 arg1);
 void func_802D4AC0(Actor *self, s32 arg1, enum file_progress_e arg2);
 void func_802D6264(f32, enum map_e, s32, s32, s32, enum file_progress_e);
@@ -673,7 +674,7 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
 int ResourceMgr_OTRSigCheck(char* imgData);
 
 // --- BGS/bgsspawnqueue.c ---
-void BGS_func_8038F1E0(void);
+void bgs_updateSpawnableActors(void);
 
 // --- BGS/ch/croctus.c ---
 void BGS_func_803885DC(void);
@@ -995,10 +996,10 @@ void musicInstruments_init(void);
 
 // --- core1/musicplayer.c ---
 int func_8025AEEC(void);
-s32 comusic_active_track_count(void);
+s32 coMusicPlayer_getTrackCount(void);
 s32 func_8025ADD4(enum comusic_e id);
 void coMusicPlayer_free(void);
-void comusicPlayer_init(void);
+void coMusicPlayer_init(void);
 void comusic_defrag(void);
 void func_8025A23C(s32 arg0);
 void func_8025A2B0(void);
@@ -1181,7 +1182,7 @@ s32 func_80307164(s32 arg0[3]);
 s32 func_80307258(f32 arg0[3], s32 arg1, s32 arg2);
 s32 nodeprop_getRadius(NodeProp *arg0);
 s32 nodeprop_getScale(NodeProp *nodeProp);
-u32 nodeprop_getYaw(NodeProp *nodeProp);
+u32 nodeProp_getYaw(NodeProp *nodeProp);
 void code7AF80_freeTotalCounts(void);
 void cubeList_defrag();
 void cubeList_free();
@@ -1206,9 +1207,9 @@ void spawnableActorList_new(void);
 
 // --- core2/actor_cubepropsystem.c ---
 s32 actor_getAnimatedTexturesCacheId(Actor *actor);
-s32 codeA5BC0_getNodePropBit6(NodeProp *arg0);
-s32 codeA5BC0_getNodePropUnk8(NodeProp *arg0);
-s32 codeA5BC0_getNodePropUnkA(NodeProp *arg0);
+s32 codeA5BC0_getNodePropCategory(NodeProp *arg0);
+s32 codeA5BC0_getNodePropActorId(NodeProp *arg0);
+s32 codeA5BC0_getNodePropMarkerId(NodeProp *arg0);
 s32 codeA5BC0_getNodePropUnkC(NodeProp *arg0);
 s32 func_8032E49C(Cube *cube, enum actor_e *actor_id_list, NodeProp **node_list, s32 node_list_capacity);
 s32 func_8032E5A8(Cube *cube, s32 arg1, f32 (*arg2)[3], s32 capacity);
@@ -2261,8 +2262,8 @@ void func_8031B62C(void);
 
 // --- core2/dialog/progressDialog.c ---
 void progressDialog_showDialogMaskZero(enum file_progress_e progress_flag);
-void volatileFlag_setAndTriggerDialog_4(enum volatile_flags_e arg0);
-void volatileFlag_setAndTriggerDialog_E(enum volatile_flags_e arg0);
+void progressDialog_setAndTriggerDialog_4(enum volatile_flags_e arg0);
+void progressDialog_setAndTriggerDialog_E(enum volatile_flags_e arg0);
 
 // --- core2/inventory_slots.c ---
 void func_803246F0(u8* self, s32 indx);
@@ -2444,15 +2445,15 @@ void gameSelect_setGameNumber(s32 arg0);
 void gameSelect_resetGameNumber(void);
 
 // --- core2/flags_bitfield.c ---
-s32 bitfield_get_bit(u8 *array, s32 index);
-s32 bitfield_get_n_bits(u8 *array, s32 offset, s32 numBits);
+s32 bitfieldarray_getBit(u8 *array, s32 index);
+s32 bitfieldarray_getNBits(u8 *array, s32 offset, s32 numBits);
 s32 dummy_func_80320240(void);
 s32 dummy_func_80320248(void);
 s32 fileProgressFlag_getAndSet(enum file_progress_e index, s32 set);
 s32 func_8032056C(void);
 s32 func_80320708(void);
-void bitfield_set_bit(u8 *array, s32 index, s32 set);
-void bitfield_set_n_bits(u8 *array, s32 startIndex, s32 set, s32 length);
+void bitfieldarray_setBit(u8 *array, s32 index, s32 set);
+void bitfieldarray_setNBits(u8 *array, s32 startIndex, s32 set, s32 length);
 void fileProgressFlag_getSizeAndPtr(s32 *size, u8 **addr);
 void volatileFlag_getSizeAndPtr(s32 *size, u8 **addr);
 void fileProgressFlag_set(enum file_progress_e index, s32 set);
@@ -3209,7 +3210,7 @@ bool chCollectible_collectRedFeather(ActorProp *arg0);
 bool chNipper_isInState7(s16 arg0[3]);
 
 // --- core2/actor_cubepropsystem.c ---
-s32 codeA5BC0_getPositionAndReturnRadius(void *arg0, s32 arg1[3]);
+s32 codeA5BC0_getPositionAndSelectorOrRadius(void *arg0, s32 arg1[3]);
 
 // --- core2/gamestate.c ---
 void itemscore_timeScores_fromSaveData(u16 *savedata);

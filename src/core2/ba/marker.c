@@ -632,7 +632,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     && volatileFlag_get(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ)
                     && !fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE)
                     ) {
-                    volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A6_FF_FOUND_HONEYCOMB);
+                    progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A6_FF_FOUND_HONEYCOMB);
                     func_8030E6D4(SFX_126_AUDIENCE_BOOING);
                 }
 
@@ -747,7 +747,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     && volatileFlag_get(VOLATILE_FLAG_0_IN_FURNACE_FUN_QUIZ)
                     && !fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE)
                     ) {
-                    volatileFlag_setAndTriggerDialog_4(VOLATILE_FLAG_A7_FF_FOUND_EXTRALIFE);
+                    progressDialog_setAndTriggerDialog_4(VOLATILE_FLAG_A7_FF_FOUND_EXTRALIFE);
                     func_8030E6D4(SFX_127_AUDIENCE_MIXED);
                 }
                 coMusicPlayer_playMusic(COMUSIC_15_EXTRA_LIFE_COLLECTED, 0x7FFF);
@@ -943,7 +943,7 @@ void baMarker_update(void){
 
     if ((D_8037BF88 != 0)){
         temp_s0 = func_8024FEEC(func_8025ADD4(COMUSIC_30_5TH_JINJO_COLLECTED) & 0xFF);
-        if((comusic_active_track_count() < 4 && temp_s0 >= 0xBB9) || !func_8025AD7C(COMUSIC_30_5TH_JINJO_COLLECTED)){
+        if((coMusicPlayer_getTrackCount() < 4 && temp_s0 >= 0xBB9) || !func_8025AD7C(COMUSIC_30_5TH_JINJO_COLLECTED)){
             func_8028F918(0);
             D_8037BF88 = 0;
         }

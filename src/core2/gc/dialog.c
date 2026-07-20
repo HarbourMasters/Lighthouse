@@ -138,7 +138,7 @@ void gcdialog_init(void) {
     g_Dialog.unk128_3 = true;
 }
 
-static void _gcdialog_freeZoomboxes(void){
+static void freeZoomboxes(void){
     s32 i;
     for(i =0; i < 2; i++){
         gczoombox_free(g_Dialog.zoombox[i]);
@@ -169,7 +169,7 @@ void clearDialog(void){
        func_80347A14(1);
    }
    if(!g_Dialog.unk11A[0].unk0_7 && !g_Dialog.unk11A[1].unk0_7){
-       _gcdialog_freeZoomboxes();
+       freeZoomboxes();
    }
    g_Dialog.unk130 = -1;
    g_Dialog.unk128_15 = 0;
@@ -246,7 +246,7 @@ void gcdialog_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
-void gcdialog_setState(s32 next_state){
+void dialog_setState(s32 next_state){
     s32 i;
     s32 j;
     s32 v0 = 6;
@@ -324,7 +324,7 @@ void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
             break;
         
         case 3: //L8030F7BC
-            gcdialog_setState(2);
+            dialog_setState(2);
             break;
 
         case 4: //L8030F7CC
@@ -333,7 +333,7 @@ void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
                 if(g_Dialog.unk12C_25 == 0){
                     temp_a0 = ((g_Dialog.unk11A[0].unk0_7) ? 1 : 0);
                     temp_v0 = ((g_Dialog.unk11A[1].unk0_7) ? 1 : 0);
-                    gcdialog_setState((temp_v0 + temp_a0) ? 8 : 5);
+                    dialog_setState((temp_v0 + temp_a0) ? 8 : 5);
                 }//L8030F980
                 break;
             }
@@ -342,7 +342,7 @@ void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
             if(temp_v0 > (s32)g_Dialog.unk12C_29){
                 g_Dialog.unk12C_29++;
                 if(g_Dialog.unk128_15 == g_Dialog.unk12C_29 + g_Dialog.unk12C_27){
-                    gcdialog_setState(8);
+                    dialog_setState(8);
                 }
             }
             break;
@@ -350,11 +350,11 @@ void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
         case 6: //L8030F8FC
             g_Dialog.unk12C_27++;
             if(g_Dialog.unk12C_27 == g_Dialog.unk128_15){
-                gcdialog_setState(7);
+                dialog_setState(7);
             }//L8030F964
 
             if(g_Dialog.unk128_15 == g_Dialog.unk12C_29 + g_Dialog.unk12C_27){
-                gcdialog_setState(8);
+                dialog_setState(8);
             }
             break;
     }//L8030F984
@@ -363,7 +363,7 @@ void newZoomboxCallback(GcZoomboxSprite portrait_id, s32 arg1){
 #define CMD(i) (g_Dialog.string_list[g_Dialog.u8_s.active_zoombox] + i)
 #define CMD2(i) (&g_Dialog.string_list[g_Dialog.u8_s.active_zoombox][i])
 
-void gcdialog_update(void) {
+void dialog_update(void) {
     s32 i;
     s32 spA8;
     s32 controller_face_buttons[6];
@@ -391,10 +391,10 @@ void gcdialog_update(void) {
             }
         }
         if (spA8 == 2) {
-            gcdialog_setState(7);
+            dialog_setState(7);
         } else if (g_Dialog.u8_s.unk12C_31 == g_Dialog.u8_s.unk128_15) {
             g_Dialog.u8_s.unk12C_31 = 0;
-            gcdialog_setState(2);
+            dialog_setState(2);
         }
         break;
 
@@ -419,7 +419,7 @@ void gcdialog_update(void) {
 
             case -1: // Choice
                 g_Dialog.unk11A[g_Dialog.u8_s.active_zoombox].unk0_7 = 2;
-                gcdialog_setState(4);
+                dialog_setState(4);
                 break;
 
             case -4: // Close
@@ -478,7 +478,7 @@ void gcdialog_update(void) {
 
             case -3:
                 g_Dialog.unk11A[g_Dialog.u8_s.active_zoombox].unk0_7 = 0;
-                gcdialog_setState(4);
+                dialog_setState(4);
                 break;
 
             default:
@@ -566,7 +566,7 @@ void gcdialog_update(void) {
                         g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]++;
                     }
 
-                    gcdialog_setState(3);
+                    dialog_setState(3);
                 }
                 break;
             }
@@ -575,7 +575,7 @@ void gcdialog_update(void) {
 
     case 3:
         if ((g_Dialog.u8_s.unk128_31 & 1) && controller_face_buttons[FACE_BUTTON(BUTTON_B)] == 1u) {
-            gcdialog_setState(6);
+            dialog_setState(6);
             break;
         }
 
@@ -587,7 +587,7 @@ void gcdialog_update(void) {
             break;
         }
 
-        gcdialog_setState(6);
+        dialog_setState(6);
         break;
 
     case 4: // Waiting for player to make choice
@@ -598,13 +598,13 @@ void gcdialog_update(void) {
         }
 
         if (g_Dialog.u8_s.unk12C_23 != -1) {
-            gcdialog_setState(g_Dialog.unk11A[g_Dialog.u8_s.active_zoombox].unk0_7 ? 8 : 5);
+            dialog_setState(g_Dialog.unk11A[g_Dialog.u8_s.active_zoombox].unk0_7 ? 8 : 5);
         }
         break;
 
     case 7:
     case 8:
-        gcdialog_setState(0);
+        dialog_setState(0);
         break;
     }
 
@@ -719,7 +719,7 @@ void loadAndCreateDialogs(s32 text_id, s32 arg1, ActorMarker *marker, void(*call
     g_Dialog.unk140 = arg4;
     g_Dialog.unk144 = arg5;
     g_Dialog.unk138 = (marker != NULL )? ((marker->unk5C)? marker->unk5C : -1) : 0;
-    gcdialog_setState(((func_802E4A08() || volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) && g_Dialog.unk128_3) ? 6 : 1);
+    dialog_setState(((func_802E4A08() || volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) && g_Dialog.unk128_3) ? 6 : 1);
     //L803109EC
 }
 
@@ -818,7 +818,7 @@ void func_80310D2C(void){
             g_Dialog.unk12C_15--;
             
         }else{//L80310F88
-            gcdialog_update();
+            dialog_update();
         }//L80310F98
         if( ( g_Dialog.state != 0 && g_Dialog.state != 5 && g_Dialog.state != 7)
             || ((!g_Dialog.state && (g_Dialog.unk11A[0].unk0_7  || g_Dialog.unk11A[1].unk0_7)))
@@ -964,7 +964,7 @@ void func_803114D0(void){
     s32 i;
 
     if(gcdialog_hasCurrentTextId()){
-        gcdialog_setState(6);
+        dialog_setState(6);
     }else{
         if(g_Dialog.state != 6){
             g_Dialog.unk12C_25 = 0;
@@ -988,7 +988,7 @@ int func_803115C4(s32 next_state){
     if(gcdialog_getCurrentTextId() != next_state){
         return 0;
     }else{
-        gcdialog_setState(6);
+        dialog_setState(6);
         return 1;
     }
 }

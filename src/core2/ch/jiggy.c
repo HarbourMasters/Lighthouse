@@ -79,7 +79,7 @@ void destroyJiggy(Actor *this, s32 jiggyFlag, s32 timerRunningFlag, s32 cameraId
     // Switch camera to a static one showing the newly destroyed jiggy
     gcStaticCamera_activate(cameraId);
 
-    volatileFlag_setAndTriggerDialog_0(dialogFlag); // [port] LH names this subsystem volatileFlag_* (decomp: progressDialog_*)
+    progressDialog_setAndTriggerDialog_0(dialogFlag);
     timedFunc_set_4(0.6f, (GenFunction_4)spawnJiggyDestroyedEffects, (s32)this->position[0], (s32)this->position[1], (s32)this->position[2], switchPressedFlag);
     timedFunc_set_2(0.6f, (GenFunction_2)playJiggyDestroyedSoundsAndReset, reinterpret_cast(uintptr_t, this->marker), resetSwitchFlag);
     timedFunc_set_0(1.0f, (GenFunction_0)func_802BE720);

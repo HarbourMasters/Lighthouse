@@ -79,12 +79,12 @@ void _levelSpecificFlags_updateCRC2(void) {
 
 s32 levelSpecificFlags_get(s32 i){
     CALL_CANCELLABLE_RETURN_EVENT(OnGetLevelSpecificFlag, i) {
-        return bitfield_get_bit(D_80383320.unk8, i);
+        return bitfieldarray_getBit(D_80383320.unk8, i);
     }
 }
 
 s32 levelSpecificFlags_getN(s32 i, s32 n){
-    return bitfield_get_n_bits(D_80383320.unk8, i, n);
+    return bitfieldarray_getNBits(D_80383320.unk8, i, n);
 }
 
 s32 levelSpecificFlags_getSet(s32 arg0, s32 arg1){
@@ -103,8 +103,8 @@ void levelSpecificFlags_clear(void){
 }
 
 void levelSpecificFlags_setEx(s32 index, s32 val, s32 triggerEvent){
-    s32 changed = bitfield_get_bit(D_80383320.unk8, index) != (val ? 1 : 0);
-    bitfield_set_bit(D_80383320.unk8, index, val);
+    s32 changed = bitfieldarray_getBit(D_80383320.unk8, index) != (val ? 1 : 0);
+    bitfieldarray_setBit(D_80383320.unk8, index, val);
     _levelSpecificFlags_updateCRC1();
     _levelSpecificFlags_updateCRC2();
     if (triggerEvent && changed) {
@@ -117,7 +117,7 @@ void levelSpecificFlags_set(s32 index, s32 val){
 }
 
 void levelSpecificFlags_setN(s32 index, s32 val, s32 n){
-    bitfield_set_n_bits(D_80383320.unk8, index, val, n);
+    bitfieldarray_setNBits(D_80383320.unk8, index, val, n);
     _levelSpecificFlags_updateCRC1();
     _levelSpecificFlags_updateCRC2();
     CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_LEVEL_SPECIFIC, index, val, n);

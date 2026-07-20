@@ -1008,7 +1008,7 @@ void func_802D5260(void) {
         && !levelSpecificFlags_get(LEVEL_FLAG_3D_LAIR_UNKNOWN)
         && !levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)
     ) {
-        func_802D68F0(30);
+        code_4C020_setHourglassTimer(30);
         item_set(ITEM_6_HOURGLASS, true);
         levelSpecificFlags_set(LEVEL_FLAG_3D_LAIR_UNKNOWN, true);
     }
@@ -1532,7 +1532,7 @@ int func_802D68B4(void){
 //BREAK????
 
 //set_hourglass_timer_seconds
-void func_802D68F0(s32 seconds){
+void code_4C020_setHourglassTimer(s32 seconds){
     item_set(ITEM_0_HOURGLASS_TIMER, seconds*60 - 1);
 }
 

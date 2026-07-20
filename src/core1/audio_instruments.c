@@ -511,14 +511,14 @@ s32 gcMusic_getDefaultVolumeForTrack(s32 track_id){
     return 0;
 }
 
-void func_80250048(s32 track_id, u16 arg1){
+void gcMusic_setDefaultVolumeForTrack(s32 track_id, u16 arg1){
     if (track_id >= 0 && track_id < 0xB0) {
         D_80275D40[track_id].volume = arg1;
     }
 }
 
 //song_getName
-char *func_80250060(s32 track_id){
+char *gcMusic_getNameForTrack(s32 track_id){
     if (track_id >= 0 && track_id < 0xB0) {
         return D_80275D40[track_id].name;
     }

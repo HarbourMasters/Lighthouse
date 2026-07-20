@@ -327,7 +327,7 @@ void chChurchDoor_update(Actor *this) {
             this->yaw = 270.0f;
             gcsfx_play(0x7F);
             core1_7090_freeSfxSource(0);
-            func_802D68F0(0xE);
+            code_4C020_setHourglassTimer(0xE);
             item_set(6, 1);
         }
         break;
@@ -366,7 +366,7 @@ void chChurchDoor_update(Actor *this) {
             }
             this->unk38_31 = 0;
             this->lifetime_value = 0.0f;
-            volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED);
+            progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AD_MMM_CHURCH_DOOR_MISSED);
         }
         break;
     }

@@ -252,7 +252,7 @@ void func_8038E648(Actor *this){
                 s32 pyramidTimer = 25;
                 CALL_EVENT(OnWaterPyramidTimer, &pyramidTimer); // [port] may extend timer
                 this->unk38_31 = pyramidTimer * 24; // [port] door duration derived from HUD timer (vanilla ratio 600:25)
-                func_802D68F0(pyramidTimer);
+                code_4C020_setHourglassTimer(pyramidTimer);
                 item_set(ITEM_6_HOURGLASS, 1);
             }
             break;
@@ -283,7 +283,7 @@ void func_8038E648(Actor *this){
                 gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 mapSpecificFlags_set(5, false);
                 core1_7090_freeSfxSource(0);
-                volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
+                progressDialog_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
             }
             break;
     }//L8038E904:
@@ -399,7 +399,7 @@ void chSunSwitch_update(Actor *this){
         && func_802BB270()
     ){
         this->velocity_x = 1.0f;
-        func_802D68F0(10);
+        code_4C020_setHourglassTimer(10);
         item_set(ITEM_6_HOURGLASS, 1);
     }//L8038EDC8
 
@@ -444,7 +444,7 @@ void chKazooieTarget_update(Actor *this){
         && func_802BB270()
     ){
         this->velocity_x = 1.0f;
-        func_802D68F0(0x15);
+        code_4C020_setHourglassTimer(0x15);
         item_set(ITEM_6_HOURGLASS, 1);
     }//L8038EDC8
 

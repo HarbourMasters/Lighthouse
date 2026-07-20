@@ -7,7 +7,7 @@
 #include "bk_time.h"
 
 extern void func_8023DFF0(s32);
-extern void comusicPlayer_update(void);
+extern void coMusicPlayer_update(void);
 extern void func_802F1A10(void *, f32);
 extern void func_8033DC10(void);
 extern void func_8033DC18(void);
@@ -168,7 +168,7 @@ void func_802E35D8(void ) {
             return;
         }
     }
-    comusicPlayer_update();
+    coMusicPlayer_update();
     if (D_8037E8C0.unk14 == 0) {
         gcbound_alpha(D_8037E8C0.unk8);
     }

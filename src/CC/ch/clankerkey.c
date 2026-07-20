@@ -21,12 +21,12 @@ typedef struct {
     f32 unk14;
 } ActorLocal_CC_530;
 
-void chClankerKey_update(Actor* this);
+void maClankerKey_update(Actor* this);
 
 /* .data */
 ActorInfo D_80389AD0 = {
     MARKER_4A_CC_KEY, ACTOR_3C_CC_KEY, ASSET_429_MODEL_CC_KEY, 0, NULL,
-    chClankerKey_update, actor_update_func_80326224, actor_draw,
+    maClankerKey_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
 
@@ -83,7 +83,7 @@ void func_80386AF8(Actor *arg0) {
     sfxsource_freeSfxsourceByIndex(local->sfxsourceIdx);
 }
 
-void chClankerKey_update(Actor *this){
+void maClankerKey_update(Actor *this){
     ActorMarker *marker = this->marker;
     f32 sp58[3];
     ActorLocal_CC_530 * local = (ActorLocal_CC_530 *)&this->local;

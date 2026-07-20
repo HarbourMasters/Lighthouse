@@ -22,7 +22,7 @@ ActorInfo D_80389AA0 = {
 };
 
 /* .code */
-void CC_func_803863F0(Actor *this, s32 next_state){
+void maClankersScrew_setNextState(Actor *this, s32 next_state){
     ActorLocal_CC_0 * local = (ActorLocal_CC_0 *)this->local;
     if(this->state == 4){
         maClanker_playScrewNoise(0);
@@ -57,7 +57,7 @@ void func_803864D4(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
         marker->propPtr->unk8_3 = 1;
-        CC_func_803863F0(this, 1);
+        maClankersScrew_setNextState(this, 1);
     }//L80386530
 
     func_80388B4C(sp4C);
@@ -74,20 +74,20 @@ void func_803864D4(Actor *this){
             local->unk4 = 0.05f;
         }
         else{
-            CC_func_803863F0(this, 2);
+            maClankersScrew_setNextState(this, 2);
         }
     }//L80386634
 
     if(ml_timer_update(&local->unk0, sp3C)){
-        CC_func_803863F0(this, 4);
+        maClankersScrew_setNextState(this, 4);
     }
     
     if((this->state == 2) && (1.0 <= local->unk8)){
-            CC_func_803863F0(this, 3);
+            maClankersScrew_setNextState(this, 3);
     }//L803866B4
 
     if((this->state == 4) && (1.0 <= local->unk8)){
-            CC_func_803863F0(this, 1);
+            maClankersScrew_setNextState(this, 1);
     }//L80386714
 
     if(this->state == 1){

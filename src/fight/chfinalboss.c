@@ -315,7 +315,7 @@ void chfinalboss_func_80386B54(f32 *arg0, f32 arg1) {
     }
 }
 
-bool chfinalboss_func_80386BEC(Actor *this, f32 arg1) {
+bool chfinalboss_turnTowardPlayer(Actor *this, f32 arg1) {
     this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
     subaddie_turnToYaw(this, arg1);
     if ((this->yaw_ideal < (this->yaw + arg1)) && ((this->yaw - arg1) < this->yaw_ideal)) {
@@ -427,7 +427,7 @@ void chfinalboss_func_80387074(s32 arg0) {
     FightSync_OnSpellSpawned(1);
 }
 
-void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 arg3) {
+void chfinalboss_throwObject(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 arg3) {
     Actor *temp_v0;
     ActorLocal_FinalBoss *local;
     f32 sp2C[3];
@@ -468,14 +468,14 @@ void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 a
     }
 }
 
-void chfinalboss_func_803872F8(Actor *arg0) {
+void chfinalboss_throwFinalSpell(Actor *arg0) {
     f32 vec[3];
 
     vec3fArray_get_vec3f(arg0->marker->unk44, 0xA, vec);
-    chfinalboss_func_80387110(arg0->marker, vec, 3.0f, 1);
+    chfinalboss_throwObject(arg0->marker, vec, 3.0f, 1);
 }
 
-s32 chfinalboss_func_80387340(Actor *this, f32 arg1) {
+s32 chfinalboss_throwFireball(Actor *this, f32 arg1) {
     f32 sp24[3];
 
     if (actor_animationIsAt(this, 0.50f) != 0) {
@@ -486,7 +486,7 @@ s32 chfinalboss_func_80387340(Actor *this, f32 arg1) {
             sp24[1] = this->position_y;
             sp24[2] = this->position_z;
         }
-        chfinalboss_func_80387110(this->marker, sp24, arg1, 0);
+        chfinalboss_throwObject(this->marker, sp24, arg1, 0);
         return 1;
     }
     return 0;
@@ -948,7 +948,7 @@ void chfinalboss_phase1_update(ActorMarker *marker) {
         chfinalboss_func_80386600(this->marker, 0);
         chfinalboss_spawnBroomstickGlowParticles(this);
         chfinalboss_func_80387ACC(this, 60.0f * sp54);
-        if (chfinalboss_func_80386BEC(this, 240.0f * sp54)) {
+        if (chfinalboss_turnTowardPlayer(this, 240.0f * sp54)) {
             chfinalboss_phase1_setState(this, 5);
             chfinalboss_func_80386654(1.0f, fight_D_80391380, fight_D_80391390);
         }
@@ -1046,9 +1046,9 @@ void chfinalboss_phase1_update(ActorMarker *marker) {
         break;
     case 10:
         chfinalboss_func_80387ACC(this, 60.0f * sp54);
-        chfinalboss_func_80386BEC(this, 30.0f);
+        chfinalboss_turnTowardPlayer(this, 30.0f);
         chfinalboss_func_8038871C(this, 460.0f, 400.0f * sp54);
-        chfinalboss_func_80387340(this, 1.0f);
+        chfinalboss_throwFireball(this, 1.0f);
         if (actor_animationIsAt(this, 0.9999f)) {
             chfinalboss_phase1_setState(this, 2);
             chfinalboss_func_803880A0(this, 2000.0f);
@@ -1056,14 +1056,14 @@ void chfinalboss_phase1_update(ActorMarker *marker) {
         break;
     case 11:
         chfinalboss_func_80387ACC(this, 60.0f * sp54);
-        chfinalboss_func_80386BEC(this, 30.0f);
+        chfinalboss_turnTowardPlayer(this, 30.0f);
         if (local->unk9) {
             chfinalboss_func_8038871C(this, 460.0f, 400.0f * sp54);
         }
         break;
     case 12:
         chfinalboss_func_80387ACC(this, 60.0f * sp54);
-        chfinalboss_func_80386BEC(this, 30.0f);
+        chfinalboss_turnTowardPlayer(this, 30.0f);
         chfinalboss_func_8038871C(this, 460.0f, 400.0f * sp54);
         chfinalboss_func_803873DC(this, 600.0f, 2000.0f);
         if (actor_animationIsAt(this, 0.9999f)) {
@@ -1074,7 +1074,7 @@ void chfinalboss_phase1_update(ActorMarker *marker) {
         break;
     case 13:
         chfinalboss_func_80387ACC(this, 60.0f * sp54);
-        chfinalboss_func_80386BEC(this, 30.0f);
+        chfinalboss_turnTowardPlayer(this, 30.0f);
         if (actor_animationIsAt(this, 0.9999f)) {
             if (local->hits >= 4) {
                 chfinalboss_phase1_setState(this, 0xB);
@@ -1147,13 +1147,13 @@ void chfinalboss_phase2_update(ActorMarker *marker) {
             break;
 
         case 15:
-            if (chfinalboss_func_80386BEC(this, 9.0f)) {
+            if (chfinalboss_turnTowardPlayer(this, 9.0f)) {
                 chfinalboss_phase2_setState(this, 0x10);
             }
             break;
         case 16:
-            chfinalboss_func_80386BEC(this, 3.0f);
-            chfinalboss_func_80387340(this, 1.3f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
+            chfinalboss_throwFireball(this, 1.3f);
             if (actor_animationIsAt(this, 0.9999f)) {
                 chfinalboss_phase2_setState(this, 0x12);
                 local->unk3++;
@@ -1167,19 +1167,19 @@ void chfinalboss_phase2_update(ActorMarker *marker) {
             }
             break;
         case 17:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             chfinalboss_func_803873DC(this, 1200.0f, 2400.0f);
             if (actor_animationIsAt(this, 0.9999f)) {
                 chfinalboss_setPhase(this->marker, FINALBOSS_PHASE_3_FLIGHT);
             }
             break;
         case 18:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             if (this->lifetime_value > 0.0) {
                 this->lifetime_value = this->lifetime_value - sp4C;
                 break;
             }
-            if (chfinalboss_func_80386BEC(this, 3.0f)) {
+            if (chfinalboss_turnTowardPlayer(this, 3.0f)) {
                 chfinalboss_phase2_setState(this, 0x10);
             }
             break;
@@ -1355,13 +1355,13 @@ void chfinalboss_phase3_update(ActorMarker *marker) {
         }
         break;
     case 23:
-        if (chfinalboss_func_80386BEC(this, 9.0f) && (baiFrame_getState() != 3)) {
+        if (chfinalboss_turnTowardPlayer(this, 9.0f) && (baiFrame_getState() != 3)) {
             chfinalboss_phase3_setState(this, 0x18);
         }
         break;
     case 24:
-        chfinalboss_func_80386BEC(this, 3.0f);
-        if (chfinalboss_func_80387340(this, 1.3f)) {
+        chfinalboss_turnTowardPlayer(this, 3.0f);
+        if (chfinalboss_throwFireball(this, 1.3f)) {
             local->unk3++;
         }
         if (actor_animationIsAt(this, 0.9999f)) {
@@ -1604,15 +1604,15 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             break;
 
         case 29:
-            if ((chfinalboss_func_80386BEC(this, 9.0f)) && (baiFrame_getState() != 3) && (sFinalBossJinjoStatueActivated == 0)) {
+            if ((chfinalboss_turnTowardPlayer(this, 9.0f)) && (baiFrame_getState() != 3) && (sFinalBossJinjoStatueActivated == 0)) {
                 chfinalboss_phase4_setState(this, 0x1E);
             }
             break;
 
         case 30:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             if (sFinalBossJinjoStatueActivated == 0) {
-                chfinalboss_func_80387340(this, 1.0f);
+                chfinalboss_throwFireball(this, 1.0f);
                 if (actor_animationIsAt(this, 0.9999f)) {
                     local->unk3++;
                     chfinalboss_phase4_setState(this, 0x1F);
@@ -1624,12 +1624,12 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             break;
 
         case 31:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             if (this->lifetime_value > 0.0) {
                 this->lifetime_value -= sp74;
                 break;
             }
-            if (chfinalboss_func_80386BEC(this, 3.0f)) {
+            if (chfinalboss_turnTowardPlayer(this, 3.0f)) {
                 chfinalboss_phase4_setState(this, 0x1E);
             }
             break;
@@ -1641,7 +1641,7 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
             break;
 
         case 33:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             sp5C[0] = this->position[0] + (this->velocity[0] * sp74);
             sp5C[1] = this->position[1] + (this->velocity[1] * sp74);
             sp5C[2] = this->position[2] + (this->velocity[2] * sp74);
@@ -1839,22 +1839,22 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
     }
     switch (this->state) {
         case 35:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             break;
 
         case 36:
-            if (chfinalboss_func_80386BEC(this, 9.0f) && (baiFrame_getState() != 3)) {
+            if (chfinalboss_turnTowardPlayer(this, 9.0f) && (baiFrame_getState() != 3)) {
                 chfinalboss_phase5_setState(this, 0x25);
             }
             break;
 
         case 37:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             if (baiFrame_getState() == 3) {
                 chfinalboss_phase5_setState(this, 0x24);
                 break;
             }
-            if (chfinalboss_func_80387340(this, 1.0f)) {
+            if (chfinalboss_throwFireball(this, 1.0f)) {
                 local->unk3++;
             }
             if ((actor_animationIsAt(this, 0.9999f)) && (local->unk3 >= 5)) {
@@ -1863,7 +1863,7 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
             break;
 
         case 38:
-            chfinalboss_func_80386BEC(this, 3.0f);
+            chfinalboss_turnTowardPlayer(this, 3.0f);
             chfinalboss_func_803873DC(this, 700.0f, 2400.0f);
             if (actor_animationIsAt(this, 0.9999f)) {
                 chfinalboss_phase5_setState(this, 0x27);
@@ -1875,7 +1875,7 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
             if (local->unk8) {
                 chfinalboss_func_80386C68(this, 4.5f);
             } else {
-                chfinalboss_func_80386BEC(this, 3.0f);
+                chfinalboss_turnTowardPlayer(this, 3.0f);
             }
             if (this->lifetime_value > 0.0) {
                 this->lifetime_value -= dt;
@@ -1948,7 +1948,7 @@ void chfinalboss_phase5_update(ActorMarker *marker) {
                 FUNC_8030E624(SFX_130_GRUNTY_ECHOING_CRY, 1.0f, 32000);
             }
             if (actor_animationIsAt(this, 0.85f)) {
-                chfinalboss_func_803872F8(this);
+                chfinalboss_throwFinalSpell(this);
             }
             if (actor_animationIsAt(this, 0.9f)) {
                 ncStaticCamera_exit();

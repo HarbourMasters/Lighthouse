@@ -74,7 +74,7 @@ void __bsswim_updateVelocity(void) {
     baphysics_set_target_horizontal_velocity(ml_interpolate_f(sp1C, bsSwimHorzVelocityMin, bsSwimHorzVelocityMax));
 }
 
-void swim_enteredWater(void) {
+void __bsswim_enteredWater(void) {
     if (level_get() == LEVEL_9_RUSTY_BUCKET_BAY) {
         progressDialog_showDialogMaskZero(FILEPROG_AB_SWIM_OILY_WATER);
     } else if (gsworld_getMap() == MAP_46_CCW_WINTER) {
@@ -143,7 +143,7 @@ void bsswim_idle_init(void) {
     code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NORMAL);
     yaw_setVelocityBounded(500.0f, 5.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
-    swim_enteredWater();
+    __bsswim_enteredWater();
     bsSwimCurrentAnimation = 0;
 }
 
@@ -267,7 +267,7 @@ void bsswim_swim_end(void){
     __bsswim_end();
 }
 
-void __bsswim_enteredWater(void) {
+void __bsswim_update_rotation(void) {
     f32 sp34;
     f32 plyr_pos[3];
     f32 sp1C[3];
@@ -285,8 +285,8 @@ void bsswim_lookat_init(void) {
     code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NORMAL);
     yaw_setVelocityBounded(500.0f, 5.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
-    swim_enteredWater();
     __bsswim_enteredWater();
+    __bsswim_update_rotation();
 }
 
 void bsswim_lookat_update(void) {
@@ -296,7 +296,7 @@ void bsswim_lookat_update(void) {
     if (balookat_getState() == 0) {
         next_state = BS_2D_SWIM_IDLE;
     }
-    __bsswim_enteredWater();
+    __bsswim_update_rotation();
     bs_setState(next_state);
 }
 
@@ -305,7 +305,7 @@ void bsswim_lookat_end(void){
 }
 
 void bsswim_drone_init(void){
-    swim_enteredWater();
+    __bsswim_enteredWater();
     bsdrone_init();
 }
 

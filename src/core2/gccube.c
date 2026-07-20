@@ -541,7 +541,7 @@ static Cube *__code7AF80_getCubeAtPosition(s32 position[3]) {
         (position[2] - sCubeList.min[2]) * sCubeList.stride[1];
 }
 
-Cube *cube_atPosition_s32(s32 position[3]) {
+Cube *cubeList_GetCubeAtPosition_s32(s32 position[3]) {
     s32 sp1C[3];
     s32 i;
     // Cube *out;
@@ -565,13 +565,13 @@ Cube *cube_atPosition_s32(s32 position[3]) {
         + diff[2]*sCubeList.stride[1];
 }
 
-Cube *cube_atPosition_f32(f32 position[3]){
+Cube *cubeList_GetCubeAtPosition_f32(f32 position[3]){
     s32 pos_s32[3];
 
     pos_s32[0] = (s32)position[0];
     pos_s32[1] = (s32)position[1];
     pos_s32[2] = (s32)position[2];
-    return cube_atPosition_s32(pos_s32);
+    return cubeList_GetCubeAtPosition_s32(pos_s32);
 }
 
 Cube *func_8030364C(void){
@@ -1084,7 +1084,7 @@ void nodeprop_getPosition(NodeProp *nodeProp, f32 dst[3]) {
     TUPLE_ASSIGN(dst, nodeProp->x, nodeProp->y, nodeProp->z)
 }
 
-u32 nodeprop_getYaw(NodeProp *nodeProp) {
+u32 nodeProp_getYaw(NodeProp *nodeProp) {
     return nodeProp->yaw;
 }
 
@@ -2064,8 +2064,8 @@ void func_80307CA0(ActorMarker *marker) {
         for(i = 0; cubePtrList[i] != NULL; i++) {
             for(node_idx = 0; node_idx < cubePtrList[i]->unk0_4; node_idx++){
                 node = codeA5BC0_getPropNodeAtIndex(cubePtrList[i], node_idx);
-                if (codeA5BC0_getNodePropUnkA(node) == marker_bitfield) {
-                    node_radius = codeA5BC0_getPositionAndReturnRadius(node, node_position);
+                if (codeA5BC0_getNodePropMarkerId(node) == marker_bitfield) {
+                    node_radius = codeA5BC0_getPositionAndSelectorOrRadius(node, node_position);
                     if( ((node_position[0] - node_radius) < marker_position[0]) && (marker_position[0] < (node_position[0] + node_radius)) 
                         && ((node_position[1] - node_radius) < marker_position[1]) && (marker_position[1] < (node_position[1] + node_radius)) 
                         && ((node_position[2] - node_radius) < marker_position[2]) && (marker_position[2] < (node_position[2] + node_radius))
@@ -2480,7 +2480,7 @@ void func_80308D2C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                 cube = &sCubeList.cubes[D_80382150[phi_s4]];
                 if (viewport_cube_isInFrustum(cube)) {
                     viewport_getPosition_vec3w(vp_pos);
-                    vp_cube_index = cube_atPosition_s32(vp_pos) - sCubeList.cubes;
+                    vp_cube_index = cubeList_GetCubeAtPosition_s32(vp_pos) - sCubeList.cubes;
                     for(phi_s0 = 0; (phi_s0 < D_80382150[phi_s4 + 1]) && (vp_cube_index != D_80382150[phi_s0 + 2]); phi_s0++) {
                     }
                     if (phi_s0 < D_80382150[phi_s4 + 1]) {

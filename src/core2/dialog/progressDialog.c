@@ -102,7 +102,7 @@ void progressDialog_showDialogMaskFour(enum file_progress_e progress_flag) {
 }
 
 /* Checks for a specific "volatile" progress flag and triggers a dialog only if the progress flag was not set and sets the progress flag */
-s32 volatileFlag_setAndTriggerDialog(enum volatile_flags_e id, s32 arg1) {
+s32 progressDialog_setAndTriggerDialog(enum volatile_flags_e id, s32 arg1) {
     s32 index;
 
     if (volatileFlag_get(id) != 0) {
@@ -120,16 +120,16 @@ s32 volatileFlag_setAndTriggerDialog(enum volatile_flags_e id, s32 arg1) {
 }
 
 // called for dialogs when banjo is not fast enough to reach a door or jiggy and for NOBONUS text
-void volatileFlag_setAndTriggerDialog_0(enum volatile_flags_e arg0) {
-    volatileFlag_setAndTriggerDialog(arg0, 0);
+void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0) {
+    progressDialog_setAndTriggerDialog(arg0, 0);
 }
 
 // called for FFQ dialogs
-void volatileFlag_setAndTriggerDialog_4(enum volatile_flags_e arg0) {
-    volatileFlag_setAndTriggerDialog(arg0, 4);
+void progressDialog_setAndTriggerDialog_4(enum volatile_flags_e arg0) {
+    progressDialog_setAndTriggerDialog(arg0, 4);
 }
 
 // called for WISHYWASHYBANJO dialog, mumbo jumbo speaking?
-void volatileFlag_setAndTriggerDialog_E(enum volatile_flags_e arg0) {
-    volatileFlag_setAndTriggerDialog(arg0, 0xE);
+void progressDialog_setAndTriggerDialog_E(enum volatile_flags_e arg0) {
+    progressDialog_setAndTriggerDialog(arg0, 0xE);
 }
