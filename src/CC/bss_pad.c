@@ -1,2 +1,0 @@
-// BanjoDecomp: bss_pad.c
-char pad_CC_D_80389F70[0x10];

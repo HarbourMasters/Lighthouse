@@ -1,4 +1,4 @@
-// BanjoDecomp: CH/histup.c
+// BanjoDecomp: GV/ch/histup.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

@@ -1,4 +1,4 @@
-// BanjoDecomp: (unknown decomp origin - unused block)
+// BanjoDecomp: core2/code_B7F40.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

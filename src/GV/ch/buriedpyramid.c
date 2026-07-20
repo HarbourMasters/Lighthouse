@@ -1,4 +1,4 @@
-// BanjoDecomp: CH/buriedpyramid.c
+// BanjoDecomp: GV/ch/buriedpyramid.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

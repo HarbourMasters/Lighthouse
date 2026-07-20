@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_AEDA0.c
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"

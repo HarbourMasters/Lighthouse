@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_630D0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput

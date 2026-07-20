@@ -1,4 +1,4 @@
-// BanjoDecomp: sns.c
+// BanjoDecomp: core1/code_1D5D0.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
@@ -217,7 +217,7 @@ void sns_generate_payload(struct SnsPayload *payload)
 void sns_write_payload_over_heap(void)
 {
     // [port] SNS writes payload to hardcoded N64 RDRAM for cartridge-swap.
-    // Non-functional on PC — all base payload pointers are NULL.
+    // Non-functional on PC.
 #if 0
     s32 val2;
     u32 i;

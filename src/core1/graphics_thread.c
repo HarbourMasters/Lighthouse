@@ -1,4 +1,4 @@
-// BanjoDecomp: thread5 (osCreateThread OSId 5)
+// BanjoDecomp: core1/code_8C50.c
 // Needs to be included here because interrupt.h contains:
 // typedef u32 OSIntMask; and u32 isn't defined before that.
 

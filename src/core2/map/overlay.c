@@ -1,4 +1,4 @@
-// BanjoDecomp: code_9B990.c -> overlay.c (level overlay callbacks)
+// BanjoDecomp: core2/code_9B990.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

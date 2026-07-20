@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_851D0.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"

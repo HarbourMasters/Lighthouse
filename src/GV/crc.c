@@ -1,4 +1,4 @@
-// BanjoDecomp: code_3B10.c
+// BanjoDecomp: GV/crc.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

@@ -1,4 +1,4 @@
-// BanjoDecomp: code_2F60.c
+// BanjoDecomp: MMM/ch/portrait.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

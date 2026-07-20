@@ -1,4 +1,4 @@
-// BanjoDecomp: code_61E0.c
+// BanjoDecomp: CCW/ch/acorn.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

@@ -1,4 +1,4 @@
-// BanjoDecomp: CH/trunker.c
+// BanjoDecomp: GV/ch/trunker.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

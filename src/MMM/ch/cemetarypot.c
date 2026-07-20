@@ -1,0 +1,118 @@
+// BanjoDecomp: MMM/ch/cemetarypot.c
+#include <ultra64.h>
+#include "functions.h"
+#include "variables.h"
+
+/* public functions */
+void chFlowerpot_update(Actor *this);
+
+extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
+extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
+
+/* .data */
+enum chFlowerpot_state_e {
+    FLOWER_POT_STATE_1_IDLE = 1,
+    FLOWER_POT_STATE_2_FLOWERED
+};
+
+ActorAnimationInfo D_8038BA50[] = {
+    {0x00,                     0.0f},
+    {ASSET_A9_ANIM_FLOWER_POT, 2.0f},
+    {ASSET_A9_ANIM_FLOWER_POT, 2.0f}
+};
+
+ActorInfo D_8038BA68 = {
+    MARKER_34_CEMETARY_POT, ACTOR_25_CEMETARY_POT, ASSET_3AE_MODEL_GRAVE_FLOWER_POT,
+    0x1, D_8038BA50,
+    chFlowerpot_update, actor_update_func_80326224, actor_draw,
+    0, 0, 0.0f, 0
+};
+
+/* .code */
+s32 chFlowerpot_getRemaining(void) {
+    return levelSpecificFlags_getN(0x39, 3);
+}
+
+void chFlowerpot_setRemaining(s32 arg0) {
+    levelSpecificFlags_setN(0x39, arg0, 3);
+}
+
+void MMM_func_803871FC(Actor *this) {
+    switch (this->state) {
+        case FLOWER_POT_STATE_1_IDLE:
+            modelRender_setAppendageVisibility(3, false);
+            break;
+
+        case FLOWER_POT_STATE_2_FLOWERED:
+            modelRender_setAppendageVisibility(3, true);
+            break;
+    }
+
+    func_803255FC(this);
+}
+
+void chFlowerpot_reset() {
+    chFlowerpot_setRemaining(5);
+}
+
+void chFlowerpot_update(Actor *this) {
+    this->marker->propPtr->unk8_3 = true;
+
+    if (!this->initialized) {
+        this->initialized = true;
+        this->unk130 = MMM_func_803871FC;
+    }
+
+    // Anchor: teammate flowered this pot - match visually without decrementing the count.
+    if (this->state == FLOWER_POT_STATE_1_IDLE
+        && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+                                   (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {
+        subaddie_set_state(this, FLOWER_POT_STATE_2_FLOWERED);
+        anctrl_setPlaybackType(this->anctrl, ANIMCTRL_ONCE);
+    }
+
+    switch (this->state) {
+        case FLOWER_POT_STATE_1_IDLE:
+            anctrl_setPlaybackType(this->anctrl, ANIMCTRL_STOPPED);
+            break;
+
+        case FLOWER_POT_STATE_2_FLOWERED:
+            if (actor_animationIsAt(this, 0.2f)) {
+                sfx_playFadeShorthandDefault(SFX_12F_THAAANK_YOOOUUU, 1.0f, 30000, this->position, 300, 2000);
+            }
+            break;
+    }
+}
+
+bool chFlowerpot_eggCollision(ActorMarker *marker) {
+    Actor *actor = marker_getActor(marker);
+    f32 position[3];
+    s32 remaining;
+
+    if (actor->state == FLOWER_POT_STATE_2_FLOWERED) {
+        return false;
+    }
+
+    subaddie_set_state(actor, FLOWER_POT_STATE_2_FLOWERED);
+    anctrl_setPlaybackType(actor->anctrl, ANIMCTRL_ONCE);
+    port_breakable_recordBreak((s32)marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
+    remaining = chFlowerpot_getRemaining();
+
+    if (remaining != 0) {
+        remaining--;
+
+        if (remaining == 0) {
+            ml_vec3f_copy(position, actor->position);
+            position[1] += 80.0f;
+
+            comusic_playTrack(COMUSIC_2D_PUZZLE_SOLVED_FANFARE);
+            jiggy_spawn(JIGGY_63_MMM_FLOWER_POTS, position);
+        }
+        else {
+            comusic_playTrack(COMUSIC_2B_DING_B);
+        }
+    }
+
+    chFlowerpot_setRemaining(remaining);
+    return true;
+}
