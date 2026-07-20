@@ -1034,7 +1034,7 @@ void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[
 
 // --- core1/debugtext.c ---
 s32 gcdebugText_isThreadLocked(void);
-void func_80247F24(s32 arg0, s32 arg1);
+void gcdebugText_showLargeValue(s32 arg0, s32 arg1);
 void func_80247F9C(s32 arg0);
 void gcdebugText_pauseThread(void);
 

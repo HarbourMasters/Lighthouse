@@ -9,6 +9,8 @@
 //#include "PR/os_system.h"
 #include "port/ShipUtils.h"
 
+#define DMA_BLOCK_SIZE VER_SELECT(0x200, 0x270, 0x200, 0x200)
+
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 
 // [port] 64-bit structs with pointers are larger — double the heap
@@ -327,10 +329,10 @@ void audioManager_create(void) {
 
     for (i = 0; i < 89; i++) {
         alLink(&sDMAStateData[i + 1].link, &sDMAStateData[i].link);
-        sDMAStateData[i].heap = (uintptr_t) alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200));
+        sDMAStateData[i].heap = alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
     }
 
-    sDMAStateData[i].heap = (uintptr_t) alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200));
+    sDMAStateData[i].heap = alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
 
     for (i = 0; i < 2; i++) {
         audioManager.ACMDList[i] = bk_malloc(NUM_AUDIO_CMDS_PER_SECOND * sizeof(Acmd) / FRAMERATE);
@@ -391,7 +393,7 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
 
 #if VERSION == VERSION_USA_1_0
     if (ret == -1) {
-        func_80247F24(2, 2002);
+        gcdebugText_showLargeValue(2, 2002);
         func_80247F9C(prev_info->frame_samples);
         func_80247F9C(info->frame_samples);
         gcdebugText_pauseThread();
@@ -415,7 +417,7 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
 
 #if VERSION == VERSION_USA_1_0
     if (sNumAudioCmdsPerFrame < command_list_len) {
-        func_80247F24(2, 2000);
+        gcdebugText_showLargeValue(2, 2000);
         func_80247F9C(command_list_len);
         func_80247F9C(sNumAudioCmdsPerFrame);
         gcdebugText_pauseThread();
@@ -440,18 +442,23 @@ void audioManager_handleDoneMsg(AudioInfo *info) {
 	}
 }
 
-#if VERSION == VERSION_USA_1_0
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) {
+uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) { // [port] pointer-width for 64-bit ALDMAproc
     void *dest_vaddr;
     uintptr_t dev_addr_low_bit;
     uintptr_t dev_addr_end;
     struct dma_state_data_s *phi_s0, *phi_v0, *sp30;
 
-    phi_s0 = sDMAState.unk4;
+#if VERSION == VERSION_PAL
+    phi_v0 = sDMAState.unk4;
+#endif
     sp30 = NULL;
 
-    while (phi_s0 != NULL) {
-        dev_addr_end = phi_s0->unk8 + 512;
+#if VERSION == VERSION_USA_1_0
+    for (phi_s0 = sDMAState.unk4; phi_s0 != NULL; phi_s0 = (struct dma_state_data_s *) phi_s0->link.next) {
+#elif VERSION == VERSION_PAL
+    for (phi_s0 = phi_v0; phi_s0 != NULL; phi_s0 = (struct dma_state_data_s *) phi_s0->link.next) {
+#endif
+        dev_addr_end = phi_s0->unk8 + DMA_BLOCK_SIZE;
 
         if (phi_s0->unk8 > addr) {
             break;
@@ -460,20 +467,27 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) {
         sp30 = phi_s0;
 
         if ((addr + len) <= dev_addr_end) {
-            phi_s0->unkC = (uintptr_t) sAudioInfoID;
-            return osVirtualToPhysical((void*)(phi_s0->heap + (addr - phi_s0->unk8)));
+            phi_s0->unkC = sAudioInfoID;
+#if VERSION == VERSION_USA_1_0
+            return osVirtualToPhysical((u8 *) phi_s0->heap + (addr - phi_s0->unk8));
+#elif VERSION == VERSION_PAL
+            dev_addr_low_bit = (s32) (u8 *) phi_s0->heap + (addr - phi_s0->unk8);
+            return osVirtualToPhysical((void *) dev_addr_low_bit);
+#endif
         }
-
-        phi_s0 = (struct dma_state_data_s *) phi_s0->link.next;
-
     }
 
     phi_s0 = sDMAState.unk8;
     if (phi_s0 == NULL) {
-        func_80247F24(2, 2001);
+#if VERSION == VERSION_USA_1_0
+        gcdebugText_showLargeValue(2, 2001);
         gcdebugText_pauseThread();
         return osVirtualToPhysical(sDMAState.unk4);
+#elif VERSION == VERSION_PAL
+        return osVirtualToPhysical(phi_v0);
+#endif
     }
+
     sDMAState.unk8 = (struct dma_state_data_s *) phi_s0->link.next;
     alUnlink((ALLink *) phi_s0);
 
@@ -483,9 +497,9 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) {
         phi_v0 = sDMAState.unk4;
         if (phi_v0 != NULL) {
             sDMAState.unk4 = phi_s0;
-            phi_s0->link.next = (ALLink *)phi_v0;
+            phi_s0->link.next = (ALLink *) phi_v0;
             phi_s0->link.prev = NULL;
-            phi_v0->link.prev = (ALLink *)phi_s0;
+            phi_v0->link.prev = (ALLink *) phi_s0;
         } else {
             sDMAState.unk4 = phi_s0;
             phi_s0->link.next = NULL;
@@ -498,66 +512,9 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) {
     addr -= dev_addr_low_bit;
     phi_s0->unk8 = addr;
     phi_s0->unkC = (uintptr_t) sAudioInfoID;
-    osPiStartDma((OSIoMesg *)&sDMAMesgBlocks[sNumDMATransfers++], OS_MESG_PRI_HIGH, OS_READ, addr, dest_vaddr, 512, &audioDMANotifyMsgQ);
+    osPiStartDma((OSIoMesg *)&sDMAMesgBlocks[sNumDMATransfers++], OS_MESG_PRI_HIGH, OS_READ, addr, dest_vaddr, DMA_BLOCK_SIZE, &audioDMANotifyMsgQ);
     return osVirtualToPhysical(dest_vaddr) + dev_addr_low_bit;
 }
-#elif VERSION == VERSION_PAL
-#ifndef NONMATCHING
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state);
-#pragma GLOBAL_ASM("asm/nonmatchings/core1/code_1D00/func_80240204.s")
-#else
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){
-    void *sp44;
-    uintptr_t sp40;
-    struct dma_state_data_s *phi_s0;
-    struct dma_state_data_s *phi_v0;
-    uintptr_t new_var;
-    struct dma_state_data_s *sp30;
-
-    phi_v0 = sDMAState.unk4;
-    sp30 = NULL;
-    for(phi_s0 = phi_v0; phi_s0 != NULL; phi_s0 = (struct dma_state_data_s *)phi_s0->link.next) {
-        sp40 = (phi_s0->unk8 + 0x270);
-        if ((phi_s0->unk8 > addr)) break;
-
-        sp30 = phi_s0;
-        if ((addr + len) <= sp40) {
-            phi_s0->unkC = (uintptr_t) sAudioInfoID;
-            return osVirtualToPhysical((void*)(phi_s0->heap + (addr - phi_s0->unk8)));
-        }
-    }
-    phi_s0 = sDMAState.unk8;
-    if (phi_s0 == NULL) {
-        return osVirtualToPhysical(phi_v0);
-    }
-    sDMAState.unk8 = (struct dma_state_data_s *)phi_s0->link.next;
-    alUnlink((ALLink *)phi_s0);
-    if (sp30 != NULL) {
-        alLink((ALLink *)phi_s0, (ALLink *)sp30);
-    } else {
-        phi_v0 = sDMAState.unk4;
-        if (phi_v0 != NULL) {
-            sDMAState.unk4 = phi_s0;
-            phi_s0->link.next = (ALLink *)phi_v0;
-            phi_s0->link.prev = NULL;
-            phi_v0->link.prev = (ALLink *)phi_s0;
-        } else {
-            sDMAState.unk4 = phi_s0;
-            phi_s0->link.next = NULL;
-            phi_s0->link.prev = NULL;
-        }
-    }
-
-    new_var = addr & 1;
-    addr = addr - new_var;
-    phi_s0->unk8 = addr;
-    phi_s0->unkC = (uintptr_t) sAudioInfoID;
-    sp44 = (void*)phi_s0->heap;
-    osPiStartDma((OSIoMesg *)&sDMAMesgBlocks[sNumDMATransfers++], 1, 0, phi_s0->unk8, (void*)phi_s0->heap, 0x270U, &audioDMANotifyMsgQ);
-    return osVirtualToPhysical(sp44) + new_var;
-}
-#endif
-#endif
 
 ALDMAproc audioManager_DMAInitProc(void *state) {
     if (!sDMAState.initialized) {
@@ -580,7 +537,7 @@ void audioManager_func_802403F0(void) {
 #if VERSION == VERSION_USA_1_0
         if (osRecvMesg(&audioDMANotifyMsgQ, &temp_mesg, OS_MESG_NOBLOCK) == -1) {
 #if 0 // [port] DMA is synchronous on PC (memcpy), no completion messages to drain
-            func_80247F24(2, 2005);
+            gcdebugText_showLargeValue(2, 2005);
             func_80247F9C(sNumDMATransfers);
             func_80247F9C(i);
             gcdebugText_pauseThread();
