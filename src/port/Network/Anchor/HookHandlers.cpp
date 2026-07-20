@@ -12,7 +12,9 @@
 extern "C" {
 #include "variables.h"
 
-s32 chvile_netGetAnimMode(Actor* actor);
+float OTRGetDimensionFromLeftEdge(float v);
+float OTRGetDimensionFromRightEdge(float v);
+s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 }
@@ -44,7 +46,7 @@ static void Anchor_UpdateVileSync() {
     Actor* vile = actorArray_findClosestActorFromActorId(origin, ACTOR_13A_MR_VILE, -1, &dist);
     if (vile != nullptr) {
         Anchor::GetInstance()->SendPacket_VileUpdate(vile->position, vile->pitch, vile->yaw, vile->roll,
-                                                     (u8)chvile_netGetAnimMode(vile));
+                                                     (u8)chMrVile_netGetAnimMode(vile));
     }
 
     static u32 sSnapshotTimer = 0;
@@ -305,7 +307,7 @@ void Anchor::RegisterHooks() {
     COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
         s32 doorActorId = va_arg(args, s32);
         s32 doorState = va_arg(args, s32);
-        if (doorActorId == ACTOR_2E5_DOOR_OF_GRUNTY) {
+        if (doorActorId == ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE) {
             *should = (doorState == 0x1B);
         }
     });

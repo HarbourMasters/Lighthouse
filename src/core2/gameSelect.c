@@ -104,7 +104,7 @@ enum chgameselect_savefile_e {
 
 /* .bss */
 s32 mm_hut_smash_count;
-u32 CH_TREASUREHUNT_PUZZLE_CURRENT_STEP;
+u32 chtreasureHunt_puzzleCurrentStep;
 struct FF_StorageStruct* ffStorage;
 s32 mmhut_smashCount;
 u8 gCompletedBottlesBonusGames[7]; // bottle bonus puzzle?

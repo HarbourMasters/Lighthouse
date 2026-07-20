@@ -98,8 +98,8 @@ void func_8038B900(Actor *this){
                 && subaddie_playerIsWithinSphereAndActive(this, 600)
                 && !player_movementGroup()
             ){
-                gcdialog_showDialog(ASSET_B9B_DIALOG_SNORKEL_MEET, 4, 0, 0, 0, 0);
-                this->has_met_before = true;
+                gcdialog_showDialog(VER_SELECT(ASSET_B9B_DIALOG_SNORKEL_MEET, 0x970, 0, 0), 4, 0, 0, 0, 0);
+                this->has_met_before = TRUE;
             }
         }
 

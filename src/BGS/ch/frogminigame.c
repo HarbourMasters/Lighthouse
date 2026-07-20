@@ -17,6 +17,15 @@ ActorInfo chFrogMinigame = {MARKER_C4_YELLOW_FLIBBIT_CTRL, ACTOR_136_YELLOW_FLIB
 };
 
 
+enum chFrogMinigameState {
+    CH_FROG_MINIGAME_STATE_1_IDLE = 1,
+    CH_FROG_MINIGAME_STATE_2_ENTER_BATTLE,
+    CH_FROG_MINIGAME_STATE_3_BATTLE,
+    CH_FROG_MINIGAME_STATE_4_COMPLETE,
+    CH_FROG_MINIGAME_STATE_5_SPAWN_JIGGY,
+    CH_FROG_MINIGAME_STATE_6_DESPAWN
+};
+
 /* .bss */
 u8 D_80391240[4];
 
@@ -57,13 +66,13 @@ void chFrogMinigame_setState(Actor * arg0, u32 next_state){
         mapSpecificFlags_set(0x10, 1);
         if(!fileProgressFlag_get(FILEPROG_1B_MET_YELLOW_FLIBBITS)){
             fileProgressFlag_set(FILEPROG_1B_MET_YELLOW_FLIBBITS, 1);
-            gcdialog_showDialog(ASSET_C81_DIALOG_YELLOW_FLIBBITS_MEET, 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
+            gcdialog_showDialog(VER_SELECT(ASSET_C81_DIALOG_YELLOW_FLIBBITS_MEET, 0x9C4, 0, 0), 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
         }else{
             if(!arg0->bgs_6730.unk8){
-                gcdialog_showDialog(ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0x4, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
+                gcdialog_showDialog(VER_SELECT(ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0x9C6, 0, 0), 0x4, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
             }
             else{
-                __chFrogMinigame_textCallback(arg0->marker, ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0);
+                __chFrogMinigame_textCallback(arg0->marker, VER_SELECT(ASSET_C83_DIALOG_YELLOW_FLIBBITS_RETURN, 0x9C6, 0, 0), 0);
                 return;
             }
         }
@@ -93,8 +102,8 @@ void chFrogMinigame_setState(Actor * arg0, u32 next_state){
         }
     }
 
-    if (next_state == 4) {
-        gcdialog_showDialog(ASSET_C82_DIALOG_YELLOW_FLIBBITS_COMPLETE, 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
+    if (next_state == CH_FROG_MINIGAME_STATE_4_COMPLETE) {
+        gcdialog_showDialog(VER_SELECT(ASSET_C82_DIALOG_YELLOW_FLIBBITS_COMPLETE, 0x9C5, 0, 0), 0xf, arg0->position, arg0->marker, __chFrogMinigame_textCallback, 0);
     }
 
     if(next_state == 5){

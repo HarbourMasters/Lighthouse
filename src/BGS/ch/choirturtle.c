@@ -96,7 +96,7 @@ void chChoirTurtle_update(Actor *this) {
         }
     }
     if (this->state == 1) {
-        if (local->tiptup_marker != NULL && (func_80388E70(local->tiptup_marker) == local->unk0)) {
+        if (local->tiptup_marker != NULL && (chTiptup_getUnkB(local->tiptup_marker) == local->unk0)) {
             chChoirTurtle_setState(this, 2);
         }
     }

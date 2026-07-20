@@ -682,14 +682,14 @@ void func_8038CEA0(void);
 void func_8038CEB8(void);
 
 // --- BGS/ch/mrvile.c ---
-bool BGS_func_8038C338(ActorMarker *marker);
-bool func_8038C2A8(ActorMarker *marker);
-void BGS_func_8038C434(ActorMarker *marker);
-void BGS_func_8038C460(ActorMarker *arg0);
-void func_8038C384(ActorMarker *marker);
-void func_8038C3B0(ActorMarker *marker);
-void func_8038C3DC(ActorMarker *marker);
-void func_8038C408(ActorMarker *marker);
+bool chMrVile_isInitialIdle(ActorMarker *marker);
+bool chMrVile_playerWithinRange(ActorMarker *marker);
+void chMrVile_setStateRunFromPlayer(ActorMarker *marker);
+void chMrVile_setInitialIdleStill(ActorMarker *arg0);
+void chMrVile_setStateAttackPlayer(ActorMarker *marker);
+void chMrVile_setStateTalkToPlayer(ActorMarker *marker);
+void chMrVile_setStatePlayMinigame(ActorMarker *marker);
+void chMrVile_setStateIdleWalking(ActorMarker *marker);
 
 // --- BGS/ch/mudhut.c ---
 void chMudHut_checkBGSChecksums(void);
@@ -698,8 +698,8 @@ void chMudHut_checkBGSChecksums(void);
 void func_8038F51C(Actor *self);
 
 // --- BGS/ch/tiptup.c ---
-s32 func_80388E70(ActorMarker *self);
 void chTiptup_choirHitReaction(ActorMarker *self, s32 arg1);
+s32 chTiptup_getUnkB(ActorMarker *self);
 void func_80388FFC(ActorMarker *self, s32 *arg1, f32* arg2);
 
 // --- BGS/ch/yumblie.c ---
@@ -707,11 +707,11 @@ bool chyumblie_is_edible(ActorMarker * arg0);
 bool func_8038B684(ActorMarker * arg0);
 
 // --- BGS/mrvileminigame.c ---
-bool chvilegame_cpu_consume_piece(ActorMarker *marker, f32 position[3]);
-s32 chvilegame_get_piece_count(ActorMarker *marker);
-s32 chvilegame_get_score_difference(ActorMarker *marker);
-s32 func_8038A9E0(ActorMarker *marker);
-void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type);
+bool chMrVileMinigame_mrVileConsumePiece(ActorMarker *marker, f32 position[3]);
+s32 chMrVileMinigame_getPieceCount(ActorMarker *marker);
+s32 chMrVileMinigame_getScoreDifference(ActorMarker *marker);
+s32 chMrVileMinigame_getDialogIndex(ActorMarker *marker);
+void chMrVileMinigame_newPiece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type);
 void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker);
 
 // --- CC/ccspawnqueue.c ---

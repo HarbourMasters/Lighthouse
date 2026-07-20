@@ -69,7 +69,7 @@ bool VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId, int32_t* 
 // plus the wrong-type reaction) once the authority confirms the eat succeeded.
 void VileSync_PlayLocalEatFeedback(int32_t pieceType, int32_t correctType);
 
-// Apply a streamed Mr. Vile transform + anim mode (BGS_func_8038BBA0 modes 101-104).
+// Apply a streamed Mr. Vile transform + anim mode (chMrVile_setAction modes 101-104).
 void VileSync_ApplyVileUpdate(const float position[3], float pitch, float yaw, float roll, uint8_t animMode);
 
 // Fill dst from the live minigame controller. Returns false if there is nothing to

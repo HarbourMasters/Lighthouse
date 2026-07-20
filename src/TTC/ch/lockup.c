@@ -87,9 +87,9 @@ static void __chLockup_updateFunc(Actor *this){
         && subaddie_playerIsWithinSphereAndActive(this, 320)
         && !subaddie_playerIsWithinSphereAndActive(this, 160)
         && !player_movementGroup()
-        && gcdialog_showDialog(ASSET_A15_DIALOG_LOCKUP_SPAWNED, 0, NULL, NULL, NULL, NULL)
-    ){
-        this->has_met_before = true;
+        && gcdialog_showDialog(VER_SELECT(ASSET_A15_DIALOG_LOCKUP_SPAWNED, 0x915, 0, 0), 0, NULL, NULL, NULL, NULL)) {
+
+        this->has_met_before = TRUE;
     }
 
     if(!this->volatile_initialized){

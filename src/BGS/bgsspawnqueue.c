@@ -13,7 +13,7 @@ extern ActorInfo chPinkEggMedium;
 extern ActorInfo chPinkEggSmall;
 extern ActorInfo chPinkEggSmallest;
 extern ActorInfo chMudHut;
-extern ActorInfo chTanktup;
+extern ActorInfo gChTanktup;
 extern ActorInfo gChTanktupLegFrontLeft;
 extern ActorInfo gChTanktupLegBackLeft;
 extern ActorInfo gChTanktupLegFrontRight;
@@ -23,7 +23,7 @@ extern ActorInfo gChYellowFlibbit;
 extern ActorInfo D_80390960;
 extern ActorInfo gChYumblie;
 extern ActorInfo gChVile;
-extern ActorInfo chTiptup;
+extern ActorInfo gChTiptup;
 extern ActorInfo chChoirTurtleYellow;
 extern ActorInfo chChoirTurtleCyan;
 extern ActorInfo chChoirTurtleBlue;
@@ -44,7 +44,7 @@ void BGS_func_8038F1E0(void){//bgs_updateSpawnableActors
     spawnableActorList_add(&chPinkEggSmall, actor_new, ACTOR_FLAG_UNKNOWN_10); //pink_egg_small
     spawnableActorList_add(&chPinkEggSmallest, actor_new, ACTOR_FLAG_UNKNOWN_10); //pink_egg_smallest
     spawnableActorList_add(&chMudHut, actor_new, ACTOR_FLAG_NONE); //mudhut_top
-    spawnableActorList_add(&chTanktup, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_3);//tanktup
+    spawnableActorList_add(&gChTanktup, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_3);//tanktup
     spawnableActorList_add(&gChTanktupLegFrontLeft, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
     spawnableActorList_add(&gChTanktupLegBackLeft, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
     spawnableActorList_add(&gChTanktupLegFrontRight, actor_new, ACTOR_FLAG_UNKNOWN_26 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_2);//tanktup_leg
@@ -54,7 +54,7 @@ void BGS_func_8038F1E0(void){//bgs_updateSpawnableActors
     spawnableActorList_add(&D_80390960, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&gChYumblie, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_7); //yumblie
     spawnableActorList_add(&gChVile, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_1); //mr. vile
-    spawnableActorList_add(&chTiptup, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_3 ); //tiptup
+    spawnableActorList_add(&gChTiptup, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_3 ); //tiptup
     spawnableActorList_add(&chChoirTurtleYellow, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 ); //tiptup_chiorMember
     spawnableActorList_add(&chChoirTurtleCyan, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 ); //tiptup_chiorMember
     spawnableActorList_add(&chChoirTurtleBlue, actor_new, ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_3 ); //tiptup_chiorMember

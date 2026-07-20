@@ -45,7 +45,7 @@ bool func_8038B160(Actor *this){
     s32 temp_v0;
 
     local = (ActorLocal_Yumblie *)&this->local;
-    temp_v0 = func_8038A9E0(local->game_marker);
+    temp_v0 = chMrVileMinigame_getDialogIndex(local->game_marker);
 
     if ((temp_v0 == 1) || (temp_v0 == 4)) {
         return false;
@@ -70,7 +70,7 @@ void chyumblie_set_state(Actor* this, enum chyumblie_state_e next_state){
     if(next_state == 2){
         this->yaw = randf2(0.0f, 360.0f);
         s0->unk4 = (sNetForcedPieceType >= 0) ? (u8)sNetForcedPieceType : func_8038B160(this);
-        chvilegame_new_piece(s0->game_marker, this->marker, this->position, s0->unk4);
+        chMrVileMinigame_newPiece(s0->game_marker, this->marker, this->position, s0->unk4);
         skeletalAnim_set(this->unk148, (s0->unk4)? ASSET_128_ANIM_GRUMBLIE_APPEAR : ASSET_125_ANIM_YUMBLIE_APPEAR, 0.0f, 1.5f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
     }
@@ -198,7 +198,7 @@ void chyumblie_update(Actor *this){
     sp50 = skeletalAnim_getProgress(this->unk148);
     if(this->state == YUMBLIE_STATE_1_UNDER_GROUND){
         if(ml_timer_update(&s0->unk8, sp4C)){
-            if(EventSystem_Should(VB_VILE_YUMBLIE_EMERGE, mapSpecificFlags_get(6) && (12 > chvilegame_get_piece_count(s0->game_marker)))){
+            if(EventSystem_Should(VB_VILE_YUMBLIE_EMERGE, mapSpecificFlags_get(6) && (12 > chMrVileMinigame_getPieceCount(s0->game_marker)))){
                 chyumblie_set_state(this, YUMBLIE_STATE_2_APPEAR);
             }
             else{

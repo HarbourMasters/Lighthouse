@@ -192,7 +192,7 @@ void func_8038E460(Actor *this){//banjo_door
             mapSpecificFlags_set(2, true);
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_JINXY)){
                 func_8028F918(0);
-                func_80324DBC(4.0f, ASSET_A7D_DIALOG_JINXY_HELPED, 4, NULL, NULL, NULL, NULL);
+                func_80324DBC(4.0f, VER_SELECT(ASSET_A7D_DIALOG_JINXY_HELPED, 0x939, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
         }
     }

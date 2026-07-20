@@ -6,7 +6,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Network/Anchor/VileSync.h"
 
-extern f32 *chVile_getPostion(ActorMarker *);
+extern f32 *chMrVile_getPostion(ActorMarker *);
 extern void bundle_setRandomVelocity(f32);
 extern void func_802FDCB8(s32);
 
@@ -21,95 +21,122 @@ typedef struct {
     // u8 pad1[3];
     bk_vector(struct vilegame_piece) *game_pieces;
     BKModelBin *grumblie_model_bin;
-    u8 unkC;
-    u8 unkD;
+    u8 dialogIndex;
+    u8 mode;
     u8 player_score;
     u8 vile_score;
     f32 type_change_timer;
     ActorMarker *vile_marker;
-}ActorLocal_BGS_3420;
+}chMrVileMinigameActor;
 
-void func_8038A068(Actor *this, s32 next_state);
-void chvilegame_update(Actor *this);
+void chMrVileMinigame_setState(Actor *this, s32 next_state);
+void chMrVileMinigame_update(Actor *this);
 
 /* .data */
 ActorInfo D_80390960 = {
     MARKER_C6_VILE_GAME_CTRL, ACTOR_138_VILE_GAME_CTRL, 0,
     0, NULL,
-    chvilegame_update, NULL, func_80325340,
+    chMrVileMinigame_update, NULL, func_80325340,
     0, 0, 0.0f, 0
 };
 
 // Vile Wins
-enum asset_e D_80390984[] = {
+enum asset_e chMrVileMinigamePlayerLosesDialog[] = {
     0,
-    ASSET_C66_DIALOG_MR_VILE_WINS_ROUND_1,
-    ASSET_C68_DIALOG_MR_VILE_WINS_ROUND_2,
-    ASSET_C6A_DIALOG_MR_VILE_WINS_ROUND_3,
-    ASSET_C92_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_2,
-    ASSET_C93_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_3,
-    ASSET_C94_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_4,
+    VER_SELECT(ASSET_C66_DIALOG_MR_VILE_WINS_ROUND_1, 0x9A9, 0, 0),
+    VER_SELECT(ASSET_C68_DIALOG_MR_VILE_WINS_ROUND_2, 0x9AB, 0, 0),
+    VER_SELECT(ASSET_C6A_DIALOG_MR_VILE_WINS_ROUND_3, 0x9AD, 0, 0),
+    VER_SELECT(ASSET_C92_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_2, 0x9D5, 0, 0),
+    VER_SELECT(ASSET_C93_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_3, 0x9D6, 0, 0),
+    VER_SELECT(ASSET_C94_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_4, 0x9D7, 0, 0),
     0
 };
 
 // Player Wins
-enum asset_e D_803909A4[] = {
+enum asset_e chMrVileMinigamePlayerWinsDialog[] = {
     0,
-    ASSET_C67_DIALOG_MR_VILE_ROUND_2_START,
-    ASSET_C69_DIALOG_MR_VILE_ROUND_3_START,
+    VER_SELECT(ASSET_C67_DIALOG_MR_VILE_ROUND_2_START, 0x9AA, 0, 0),
+    VER_SELECT(ASSET_C69_DIALOG_MR_VILE_ROUND_3_START, 0x9AC, 0, 0),
     0,
-    ASSET_C95_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_1,
-    ASSET_C96_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_2,
-    ASSET_C97_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_3
+    VER_SELECT(ASSET_C95_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_1, 0x9D8, 0, 0),
+    VER_SELECT(ASSET_C96_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_2, 0x9D9, 0, 0),
+    VER_SELECT(ASSET_C97_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_3, 0x9DA, 0, 0)
 };
 
 // Player Wins Rematch
-enum asset_e D_803909C0[] = {
+enum asset_e chMrVileMinigamePlayerWinsRematchDialog[] = {
     0,
-    ASSET_C6E_DIALOG_MR_VILE_LOSE_ROUND_2_REMATCH,
-    ASSET_C6F_DIALOG_MR_VILE_LOSE_ROUND_3_REMATCH,
+    VER_SELECT(ASSET_C6E_DIALOG_MR_VILE_LOSE_ROUND_2_REMATCH, 0x9B1, 0, 0),
+    VER_SELECT(ASSET_C6F_DIALOG_MR_VILE_LOSE_ROUND_3_REMATCH, 0x9B2, 0, 0),
     0,
-    ASSET_C95_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_1,
-    ASSET_C96_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_2,
-    ASSET_C97_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_3
+    VER_SELECT(ASSET_C95_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_1, 0x9D8, 0, 0),
+    VER_SELECT(ASSET_C96_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_2, 0x9D9, 0, 0),
+    VER_SELECT(ASSET_C97_DIALOG_MR_VILE_LOSES_EXTRA_CHALLENGE_3, 0x9DA, 0, 0)
 };
 
-// Player Declines
-enum asset_e D_803909DC[] = {
-    ASSET_C65_DIALOG_MR_VILE_PLAYER_DECLINES,
-    ASSET_C65_DIALOG_MR_VILE_PLAYER_DECLINES,
-    ASSET_C65_DIALOG_MR_VILE_PLAYER_DECLINES,
-    ASSET_C8F_DIALOG_MR_VILE_PLAYER_DECLINES_EXTRA_CHALLENGE,
+enum asset_e chMrVileMinigamePlayerDeclinesDialog[] = {
+    VER_SELECT(ASSET_C65_DIALOG_MR_VILE_PLAYER_DECLINES, 0x9A8, 0, 0),
+    VER_SELECT(ASSET_C65_DIALOG_MR_VILE_PLAYER_DECLINES, 0x9A8, 0, 0),
+    VER_SELECT(ASSET_C65_DIALOG_MR_VILE_PLAYER_DECLINES, 0x9A8, 0, 0),
+    VER_SELECT(ASSET_C8F_DIALOG_MR_VILE_PLAYER_DECLINES_EXTRA_CHALLENGE, 0x9D2, 0, 0),
     0,
     0,
     0
 };
 
-// Round 1 Regular & Extra Challenge
-enum asset_e BGS_D_803909F8[] = {
-    ASSET_C64_DIALOG_MR_VILE_ROUND_1_START,
+enum asset_e chMrVileMinigameRound1AndChallengeDialog[] = {
+    VER_SELECT(ASSET_C64_DIALOG_MR_VILE_ROUND_1_START, 0x9A7, 0, 0),
     0,
     0,
-    ASSET_C8E_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_1,
+    VER_SELECT(ASSET_C8E_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_1, 0x9D1, 0, 0),
     0,
     0,
     0,
     0
 };
 
-enum asset_e D_80390A18[] = {
-    ASSET_C6D_DIALOG_MR_VILE_LOSE_ROUND_1_REMATCH,
-    ASSET_C70_DIALOG_MR_VILE_WIN_ROUND_2_REMATCH,
-    ASSET_C71_DIALOG_MR_VILE_WIN_ROUND_3_REMATCH,
-    ASSET_C8E_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_1,
+enum asset_e chMrVileMinigameRematchDialog[] = {
+    VER_SELECT(ASSET_C6D_DIALOG_MR_VILE_LOSE_ROUND_1_REMATCH, 0x9B0, 0, 0),
+    VER_SELECT(ASSET_C70_DIALOG_MR_VILE_WIN_ROUND_2_REMATCH, 0x9B3, 0, 0),
+    VER_SELECT(ASSET_C71_DIALOG_MR_VILE_WIN_ROUND_3_REMATCH, 0x9B4, 0, 0),
+    VER_SELECT(ASSET_C8E_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_1, 0x9D1, 0, 0),
     0,
     0,
     0,
     0
 };
+
+enum MrVileMinigameState {
+    MR_VILE_MINIGAME_STATE_0_NO_INIT = 0,
+    MR_VILE_MINIGAME_STATE_1_IDLE,
+    MR_VILE_MINIGAME_STATE_2_YES_OR_NO,
+    MR_VILE_MINIGAME_STATE_3_DECLINE_MINIGAME,
+    MR_VILE_MINIGAME_STATE_4_ROUND_INTRO_EXPLANATION,
+    MR_VILE_MINIGAME_STATE_5_PLAYING_MINIGAME,
+    MR_VILE_MINIGAME_STATE_6_VILE_WINS,
+    MR_VILE_MINIGAME_STATE_7_ATTACK_PLAYER,
+    MR_VILE_MINIGAME_STATE_8_PLAYER_WINS,
+    MR_VILE_MINIGAME_STATE_9_DROP_JIGGY,
+    MR_VILE_MINIGAME_STATE_A_DROP_EXTRA_LIVES
+};
+
+enum MrVileMinigameMode {
+    MR_VILE_MINIGAME_MODE_0_ROUND_1 = 0,
+    MR_VILE_MINIGAME_MODE_1_ROUND_2,
+    MR_VILE_MINIGAME_MODE_2_ROUND_3,
+    MR_VILE_MINIGAME_MODE_3_CHALLENGE_1_AND_FF,
+    MR_VILE_MINIGAME_MODE_4_CHALLENGE_2,
+    MR_VILE_MINIGAME_MODE_4_CHALLENGE_3
+};
+
+#define MR_VILE_MINIGAME_TIMER      VER_SELECT(3600, 3000, 0, 0)
+#define TYPE_CHANGE_TIMER_REGULAR  10.0f
+#define TYPE_CHANGE_TIMER_FF        5.0f
+#define EXTRA_LIFE_SCORE              35
+#define MAX_DISTANCE_FROM_PIECE    65.25
 
 /* .code */
-bool BGS_func_80389810(f32 arg0[3]) {
+bool chMrVileMinigame_didPlayerConsumePiece(f32 arg0[3]) {
     if (player_movementGroup() != BSGROUP_7_CROC_ATTACK) {
         return false;
     }
@@ -117,8 +144,8 @@ bool BGS_func_80389810(f32 arg0[3]) {
     return true;
 }
 
-void BGS_func_80389850(Actor *this, s32 arg1) {
-    ActorLocal_BGS_3420 *local;
+void chMrVileMinigame_spawnJiggy(Actor *this, s32 arg1) {
+    chMrVileMinigameActor *local;
     Actor *vile;
     f32 sp94[3];
     f32 sp88[3];
@@ -126,7 +153,7 @@ void BGS_func_80389850(Actor *this, s32 arg1) {
     s32 var_s0;
     s32 var_v0;
 
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     vile = marker_getActor(local->vile_marker);
     if (arg1 != 0) {
         if (LENGTH_VEC3F(this->position) < 800.0f) {
@@ -174,120 +201,127 @@ void BGS_func_80389850(Actor *this, s32 arg1) {
     ncStaticCamera_setPositionAndRotation(sp94, sp88);
 }
 
-void func_80389B48(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void chMrVileMinigame_vileOffersMinigame(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
     if(arg2 == 1){
-        func_8038A068(this, 4);
+        chMrVileMinigame_setState(this, 4);
     }
     else{
-        func_8038A068(this, 3);
+        chMrVileMinigame_setState(this, 3);
     }
 }
 
-void func_80389B98(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void chMrVileMinigame_setStateIdleAfterDeclined(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
-    func_8038A068(this, 1);
+    chMrVileMinigame_setState(this, 1);
 }
 
-void func_80389BC8(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void chMrVileMinigame_setStatePlayingMinigame(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
-    func_8038A068(this, 5);
+    chMrVileMinigame_setState(this, 5);
 }
 
-void func_80389BF8(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
+void chMrVileMinigame_vileAttacksPlayer(ActorMarker *marker, enum asset_e text_id, s32 arg2) {
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     timed_exitStaticCamera(0.0f);
     func_80324E38(0.0f, 0);
-    local->unkC--;
-    func_8038A068(this, 7);
+    local->dialogIndex--;
+    chMrVileMinigame_setState(this, 7);
 }
 
-void func_80389C58(ActorMarker *marker) {
+void chMrVileMinigame_vileWinsRound(ActorMarker *marker) {
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
-    BGS_func_80389850(this, 0);
-    gcdialog_showDialog(D_80390984[local->unkC], 0xF, chVile_getPostion(local->vile_marker), this->marker, func_80389BF8, NULL);
+    local = (chMrVileMinigameActor *)&this->local;
+    chMrVileMinigame_spawnJiggy(this, 0);
+    gcdialog_showDialog(chMrVileMinigamePlayerLosesDialog[local->dialogIndex], 0xF, chMrVile_getPostion(local->vile_marker), this->marker, chMrVileMinigame_vileAttacksPlayer, NULL);
 }
 
-void BGS_func_80389CD8(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void chMrVileMinigame_startNextRound(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
     timed_exitStaticCamera(0.0f);
     func_80324E38(0.0f, 0);
-    func_8038A068(this, 5);
+    chMrVileMinigame_setState(this, 5);
 }
 
-void func_80389D20(ActorMarker *marker) {
+void chMrVileMinigame_playerWinsRound(ActorMarker *marker) {
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
-    BGS_func_80389850(this, 0);
-    if (local->unkC == local->unkD) {
-        gcdialog_showDialog(D_803909A4[local->unkC], 0xF, chVile_getPostion(local->vile_marker), this->marker, BGS_func_80389CD8, NULL);
+    local = (chMrVileMinigameActor *)&this->local;
+    chMrVileMinigame_spawnJiggy(this, 0);
+    if (local->dialogIndex == local->mode) {
+        gcdialog_showDialog(chMrVileMinigamePlayerWinsDialog[local->dialogIndex], 0xF, chMrVile_getPostion(local->vile_marker), this->marker, chMrVileMinigame_startNextRound, NULL);
     } else {
-        gcdialog_showDialog(D_803909C0[local->unkC], 0xF, chVile_getPostion(local->vile_marker), this->marker, BGS_func_80389CD8, NULL);
+        gcdialog_showDialog(chMrVileMinigamePlayerWinsRematchDialog[local->dialogIndex], 0xF, chMrVile_getPostion(local->vile_marker), this->marker, chMrVileMinigame_startNextRound, NULL);
     }
     func_80347A14(0);
 }
 
-void func_80389DF8(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void chMrVileMinigame_setStateIdleAfterDeclinedAfterJiggy(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
 
     this = marker_getActor(marker);
     timed_exitStaticCamera(0.0f);
     func_80324E38(0.0f, 0);
-    func_8038A068(this, 1);
+    chMrVileMinigame_setState(this, 1);
 }
 
-void func_80389E40(ActorMarker *marker) {
+void chMrVileMinigame_vileDropsJiggy(ActorMarker *marker) {
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
 
-    BGS_func_80389850(this, 1);
-    gcdialog_showDialog(0xC6B, 0xF, chVile_getPostion(local->vile_marker), this->marker, func_80389DF8, NULL);
+    chMrVileMinigame_spawnJiggy(this, 1);
+    gcdialog_showDialog(
+        VER_SELECT(ASSET_C6B_DIALOG_MR_VILE_PLAYER_WINS, 0x9AE, 0, 0),
+        0xF,
+        chMrVile_getPostion(local->vile_marker),
+        this->marker,
+        chMrVileMinigame_setStateIdleAfterDeclinedAfterJiggy,
+        NULL
+    );
 }
 
-void func_80389EAC(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+void chMrVileMinigame_setStateIdleAfterExtraLives(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     timed_exitStaticCamera(0.0f);
     func_80324E38(0.0f, 0);
-    local->unkC = 3;
-    func_8038A068(this, 1);
+    local->dialogIndex = 3;
+    chMrVileMinigame_setState(this, 1);
 }
 
-void func_80389F08(ActorMarker *marker) {
+void chMrVileMinigame_vileDropsExtraLives(ActorMarker *marker) {
     Actor *vile;
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
     s32 i;
     s32 var_s2;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
-    BGS_func_80389850(this, 0);
+    local = (chMrVileMinigameActor *)&this->local;
+    chMrVileMinigame_spawnJiggy(this, 0);
     var_s2 = actorArray_actorCount(ACTOR_49_EXTRA_LIFE);
     vile = marker_getActor(local->vile_marker);
     if (var_s2 > 0) {
@@ -303,7 +337,14 @@ void func_80389F08(ActorMarker *marker) {
             item_inc(ITEM_16_LIFE);
         }
     }
-    gcdialog_showDialog(0xC98, 0xF, chVile_getPostion(local->vile_marker), this->marker, func_80389EAC, NULL);
+    gcdialog_showDialog(
+        VER_SELECT(ASSET_C98_DIALOG_MR_VILE_GIVES_PRIZE, 0x9DB, 0, 0),
+        0xF,
+        chMrVile_getPostion(local->vile_marker),
+        this->marker,
+        chMrVileMinigame_setStateIdleAfterExtraLives,
+        NULL
+    );
 }
 
 
@@ -311,46 +352,85 @@ void func_8038A044(void){
     func_8025A58C(-1, 400);
 }
 
-void func_8038A068(Actor *this, s32 next_state) {
-    ActorLocal_BGS_3420 *local;
+void chMrVileMinigame_setState(Actor *this, s32 next_state) {
+    chMrVileMinigameActor *local;
 
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     mapSpecificFlags_set(6, false);
     if (next_state == 1) {
         if (local->vile_marker != NULL) {
-            func_8038C408(local->vile_marker);
+            chMrVile_setStateIdleWalking(local->vile_marker);
         }
     }
-    if (next_state == 2) {
-        func_8038C3B0(local->vile_marker);
-        if (local->unkC == 3) {
-            if (local->unkD >= 4) {
-                gcdialog_showDialog(0xC91, 0xE, chVile_getPostion(local->vile_marker), this->marker, func_80389B48, NULL);
+    if (next_state == MR_VILE_MINIGAME_STATE_2_YES_OR_NO) {
+        chMrVile_setStateTalkToPlayer(local->vile_marker);
+        if (local->dialogIndex == 3) {
+            if (local->mode >= MR_VILE_MINIGAME_MODE_4_CHALLENGE_2) {
+                gcdialog_showDialog(
+                    VER_SELECT(ASSET_C91_DIALOG_MR_VILE_EXTRA_CHALLENGE_REMATCH_2, 0x9D4, 0, 0),
+                    0xE,
+                    chMrVile_getPostion(local->vile_marker),
+                    this->marker,
+                    chMrVileMinigame_vileOffersMinigame,
+                    NULL
+                );
             } else {
-                gcdialog_showDialog((local->unkC == local->unkD) ? 0xC8D : 0xC90, 0xE, chVile_getPostion(local->vile_marker), this->marker, func_80389B48, NULL);
+                gcdialog_showDialog(
+                    (local->dialogIndex == local->mode) ?
+                        VER_SELECT(ASSET_C8D_DIALOG_MR_VILE_EXTRA_CHALLENGE_INTRO, 0x9D0, 0, 0) :
+                        VER_SELECT(ASSET_C90_DIALOG_MR_VILE_EXTRA_CHALLENGE_REMATCH_1, 0x9D3, 0, 0),
+                    0xE,
+                    chMrVile_getPostion(local->vile_marker),
+                    this->marker,
+                    chMrVileMinigame_vileOffersMinigame,
+                    NULL
+                );
             }
         } else {
-            gcdialog_showDialog((local->unkC == local->unkD) ? 0xC63 : 0xC6C, 0xE, chVile_getPostion(local->vile_marker), this->marker, func_80389B48, NULL);
+            gcdialog_showDialog(
+                (local->dialogIndex == local->mode) ?
+                    VER_SELECT(ASSET_C63_DIALOG_MR_VILE_INTRO, 0x9A6, 0, 0) :
+                    VER_SELECT(ASSET_C6C_DIALOG_MR_VILE_TRY_AGAIN, 0x9AF, 0, 0),
+                0xE,
+                chMrVile_getPostion(local->vile_marker),
+                this->marker,
+                chMrVileMinigame_vileOffersMinigame,
+                NULL
+            );
         }
     }
-    if (next_state == 3) {
-        gcdialog_showDialog(D_803909DC[local->unkC], 4, chVile_getPostion(local->vile_marker), this->marker, func_80389B98, NULL);
+    if (next_state == MR_VILE_MINIGAME_STATE_3_DECLINE_MINIGAME) {
+        gcdialog_showDialog(
+            chMrVileMinigamePlayerDeclinesDialog[local->dialogIndex],
+            4,
+            chMrVile_getPostion(local->vile_marker),
+            this->marker,
+            chMrVileMinigame_setStateIdleAfterDeclined,
+            NULL
+        );
     }
-    if (next_state == 4) {
-        if (local->unkC == local->unkD) {
-            gcdialog_showDialog(BGS_D_803909F8[local->unkC], 0xE | ((BGS_D_803909F8[local->unkC] == 0xC8E) ? 1 : 0) | 0xE, chVile_getPostion(local->vile_marker), this->marker, func_80389BC8, NULL);
+    if (next_state == MR_VILE_MINIGAME_STATE_4_ROUND_INTRO_EXPLANATION) {
+        if (local->dialogIndex == local->mode) {
+            gcdialog_showDialog(
+                chMrVileMinigameRound1AndChallengeDialog[local->dialogIndex],
+                0xE | ((chMrVileMinigameRound1AndChallengeDialog[local->dialogIndex] == VER_SELECT(ASSET_C8E_DIALOG_MR_VILE_WINS_EXTRA_CHALLENGE_1, 0x9D1, 0, 0)) ? 1 : 0) | 0xE,
+                chMrVile_getPostion(local->vile_marker),
+                this->marker,
+                chMrVileMinigame_setStatePlayingMinigame,
+                NULL
+            );
         } else {
-            gcdialog_showDialog(D_80390A18[local->unkC], 0xF , chVile_getPostion(local->vile_marker), this->marker, func_80389BC8, NULL);
+            gcdialog_showDialog(chMrVileMinigameRematchDialog[local->dialogIndex], 0xF , chMrVile_getPostion(local->vile_marker), this->marker, chMrVileMinigame_setStatePlayingMinigame, NULL);
         }
         func_80347A14(0);
     }
     if (next_state == 5) {
-        local->unkC++;
-        if (local->unkD < local->unkC) {
-            local->unkD = local->unkC;
+        local->dialogIndex++;
+        if (local->mode < local->dialogIndex) {
+            local->mode = local->dialogIndex;
         }
-        if (local->unkC == 7) {
-            BGS_func_8038C434(local->vile_marker);
+        if (local->dialogIndex == 7) {
+            chMrVile_setStateRunFromPlayer(local->vile_marker);
         } else {
             local->current_type = YUMBLIE;
             local->player_score = 0;
@@ -363,69 +443,69 @@ void func_8038A068(Actor *this, s32 next_state) {
             item_set(ITEM_0_HOURGLASS_TIMER, 3600-1);
             item_set(ITEM_6_HOURGLASS, true);
             mapSpecificFlags_set(6, true);
-            func_8038C3DC(local->vile_marker);
+            chMrVile_setStatePlayMinigame(local->vile_marker);
             func_8025A58C(0, 4000);
             timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_55_BGS_MR_VILE, 28000);
         }
     }
     if (this->state == 5) {
-        if (local->unkC != 7) {
+        if (local->dialogIndex != 7) {
             item_set(ITEM_6_HOURGLASS, false);
             if ((next_state != 6) && (next_state != 8) && (next_state != 9)) {
                 func_8038A044();
             }
         }
-        BGS_func_8038C460(local->vile_marker);
+        chMrVile_setInitialIdleStill(local->vile_marker);
         func_80347A14(1);
     }
     if (next_state == 6) {
-        func_8038C3B0(local->vile_marker);
+        chMrVile_setStateTalkToPlayer(local->vile_marker);
         func_80324E38(0.0f, 3);
         timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3C_MINIGAME_LOSS, 28000);
         timedFunc_set_0(4.0f, (GenFunction_0)func_8038A044);
-        timedFunc_set_1(4.0f, (GenFunction_1)func_80389C58, (uintptr_t)this->marker);
+        timedFunc_set_1(4.0f, (GenFunction_1)chMrVileMinigame_vileWinsRound, (uintptr_t)this->marker);
     }
     if (next_state == 8) {
-        func_8038C3B0(local->vile_marker);
+        chMrVile_setStateTalkToPlayer(local->vile_marker);
         func_80324E38(0.0f, 3);
         timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
         timedFunc_set_0(3.0f, (GenFunction_0)func_8038A044);
-        timedFunc_set_1(3.0f, (GenFunction_1)func_80389D20, (uintptr_t)this->marker);
+        timedFunc_set_1(3.0f, (GenFunction_1)chMrVileMinigame_playerWinsRound, (uintptr_t)this->marker);
     }
     if (next_state == 9) {
-        func_8038C3B0(local->vile_marker);
+        chMrVile_setStateTalkToPlayer(local->vile_marker);
         func_80324E38(0.0f, 3);
         timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
         timedFunc_set_0(3.0f, (GenFunction_0)func_8038A044);
-        timedFunc_set_1(3.0f, (GenFunction_1)func_80389E40, (uintptr_t)this->marker);
+        timedFunc_set_1(3.0f, (GenFunction_1)chMrVileMinigame_vileDropsJiggy, (uintptr_t)this->marker);
     }
     if (next_state == 0xA) {
-        func_8038C3B0(local->vile_marker);
+        chMrVile_setStateTalkToPlayer(local->vile_marker);
         func_80324E38(0.5f, 3);
         timedFunc_set_2(1.0f, (GenFunction_2) coMusicPlayer_playMusic, COMUSIC_3B_MINIGAME_VICTORY, 28000);
-        timedFunc_set_1(3.0f, (GenFunction_1) func_80389F08, (uintptr_t)this->marker);
+        timedFunc_set_1(3.0f, (GenFunction_1) chMrVileMinigame_vileDropsExtraLives, (uintptr_t)this->marker);
     }
     if (next_state == 7) {
-        func_8038C384(local->vile_marker);
+        chMrVile_setStateAttackPlayer(local->vile_marker);
     }
     this->state = next_state;
     // [port] Anchor: authority claim/release and round lifecycle react to this event
     CALL_EVENT(OnVileGameStateChange, next_state);
 }
 
-void chvilegame_player_consume_piece(Actor *this) {
-    ActorLocal_BGS_3420 *local;
+void chMrVileMinigame_playerConsumePiece(Actor *this) {
+    chMrVileMinigameActor *local;
     bool is_correct_type;
     f32 sp44[3];
     struct vilegame_piece *begin;
     struct vilegame_piece *end;
     struct vilegame_piece *i_ptr;
 
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
 
     begin = (struct vilegame_piece *)bk_vector_getBegin(local->game_pieces);
     end = (struct vilegame_piece *) bk_vector_getEnd(local->game_pieces);
-    if ((end != begin) && BGS_func_80389810(sp44)){
+    if ((end != begin) && chMrVileMinigame_didPlayerConsumePiece(sp44)){
         sp44[1] = 0.0f;
         for(i_ptr = begin; i_ptr < end; i_ptr++){
             if ((ml_vec3f_distance(i_ptr->position, sp44) < 65.25) && chyumblie_is_edible(i_ptr->marker)) {
@@ -455,15 +535,15 @@ void chvilegame_player_consume_piece(Actor *this) {
     }
 }
 
-bool chvilegame_cpu_consume_piece(ActorMarker *marker, f32 position[3]) {
+bool chMrVileMinigame_mrVileConsumePiece(ActorMarker *marker, f32 position[3]) {
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
     struct vilegame_piece *begin;
     struct vilegame_piece *end;
     struct vilegame_piece *i_ptr;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     if (this->state != 5){
         return false;
     }
@@ -483,49 +563,49 @@ bool chvilegame_cpu_consume_piece(ActorMarker *marker, f32 position[3]) {
 
 BKModelBin *chvilegame_get_grumblie_model(ActorMarker *marker){
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     return local->grumblie_model_bin;
 }
 
-s32 chvilegame_get_piece_count(ActorMarker *marker){
+s32 chMrVileMinigame_getPieceCount(ActorMarker *marker){
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     return bk_vector_size(local->game_pieces);
 }
 
-s32 func_8038A9E0(ActorMarker *marker){
+s32 chMrVileMinigame_getDialogIndex(ActorMarker *marker){
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
-    return local->unkC;
+    local = (chMrVileMinigameActor *)&this->local;
+    return local->dialogIndex;
 }
 
-s32 chvilegame_get_score_difference(ActorMarker *marker){
+s32 chMrVileMinigame_getScoreDifference(ActorMarker *marker){
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
 
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     return local->vile_score - local->player_score;
 }
 
-bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[3], f32 yaw, f32 dst[3]) {
+bool chMrVileMinigame_findClosestPiece(ActorMarker *marker, f32 position[3], f32 yaw, f32 dst[3]) {
     f32 piece_direction[3];
     f32 target_direction[3];
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
     struct vilegame_piece *closest_piece;
     struct vilegame_piece *begin;
     struct vilegame_piece *end;
@@ -534,7 +614,7 @@ bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[3], f32 yaw
     f32 angle_diff;
 
     this = marker_getActor(marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     target_direction[0] = 0.0f;
     target_direction[1] = 0.0f;
     target_direction[2] = 100.0f;
@@ -569,13 +649,13 @@ bool chvilegame_find_closest_piece(ActorMarker *marker, f32 position[3], f32 yaw
     return false;
 }
 
-void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type){
+void chMrVileMinigame_newPiece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type){
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
     struct vilegame_piece *temp_v0;
 
     this = marker_getActor(game_marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     temp_v0 = (struct vilegame_piece *)bk_vector_pushBackNew(&local->game_pieces);
     temp_v0->type = yumblie_type;
     temp_v0->marker = piece_marker;
@@ -585,14 +665,14 @@ void chvilegame_new_piece(ActorMarker *game_marker, ActorMarker *piece_marker, f
     temp_v0->position[1] = 0.0f;
 }
 
-void chvilegame_free(Actor *this){
-    ActorLocal_BGS_3420 *local;
+void chMrVileMinigame_free(Actor *this){
+    chMrVileMinigameActor *local;
 
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     // [port] Teardown ordering hazard: if Mr Vile is freed before this controller, its skeletal
-    // anim (unk148) is already NULL and func_8038A068(this, 0) -> skeletalAnim_set crashes. Skip it.
+    // anim (unk148) is already NULL and chMrVileMinigame_setState(this, 0) -> skeletalAnim_set crashes. Skip it.
 #if 0
-    func_8038A068(this, 0);
+    chMrVileMinigame_setState(this, 0);
 #endif
     bk_vector_free(local->game_pieces);
     assetcache_release(local->grumblie_model_bin);
@@ -600,13 +680,13 @@ void chvilegame_free(Actor *this){
 
 void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker) {
     Actor *this;
-    ActorLocal_BGS_3420 *local;
+    chMrVileMinigameActor *local;
     struct vilegame_piece *begin;
     struct vilegame_piece *end;
     struct vilegame_piece *i_ptr;
 
     this = marker_getActor(game_marker);
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     begin = (struct vilegame_piece *)bk_vector_getBegin(local->game_pieces);
     end = (struct vilegame_piece *)bk_vector_getEnd(local->game_pieces);
     for(i_ptr = begin; i_ptr < end; i_ptr++){
@@ -617,8 +697,8 @@ void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker
     }
 }
 
-void chvilegame_update(Actor *this) {
-    ActorLocal_BGS_3420 *local;
+void chMrVileMinigame_update(Actor *this) {
+    chMrVileMinigameActor *local;
     f32 sp50;
     f32 sp4C;
     u8 temp_v0;
@@ -626,28 +706,28 @@ void chvilegame_update(Actor *this) {
     s32 sp2C;
 
     sp50 = time_getDelta();
-    local = (ActorLocal_BGS_3420 *)&this->local;
+    local = (chMrVileMinigameActor *)&this->local;
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        this->marker->actorFreeFunc = &chvilegame_free;
+        this->marker->actorFreeFunc = &chMrVileMinigame_free;
         local->game_pieces = bk_vector_new(sizeof(struct vilegame_piece), 0x20);
         local->grumblie_model_bin = assetcache_get(0x3F7);
-        local->unkC = 0;
+        local->dialogIndex = 0;
         local->vile_marker = NULL;
         if (this->state == 0) {
-            local->unkD = 0;
+            local->mode = 0;
         } else {
             this->state = 0;
         }
         if (jiggyscore_isSpawned(JIGGY_28_BGS_MR_VILE)) {
-            local->unkC = 3;
-            local->unkD = 3;
+            local->dialogIndex = 3;
+            local->mode = 3;
         }
         if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
-            local->unkC = 2;
-            local->unkD = 3;
+            local->dialogIndex = 2;
+            local->mode = 3;
         }
-        func_8038A068(this, 1);
+        chMrVileMinigame_setState(this, 1);
         return;
     }
     if (local->vile_marker == NULL) {
@@ -656,8 +736,8 @@ void chvilegame_update(Actor *this) {
     // [port] Anchor: followers are driven by snapshots; only local chomp detection (for
     // eat requests) and HUD mirroring run here.
     if (!EventSystem_Should(VB_VILE_GAME_UPDATE, true)) {
-        if ((this->state == 5) && (local->unkC != 7)) {
-            chvilegame_player_consume_piece(this);
+        if ((this->state == 5) && (local->dialogIndex != 7)) {
+            chMrVileMinigame_playerConsumePiece(this);
             if (local->type_change_timer > 3.5) {
                 if (local->current_type != 0) {
                     item_adjustByDiffWithHud(ITEM_1D_GRUMBLIE, false);
@@ -674,21 +754,21 @@ void chvilegame_update(Actor *this) {
     if (this->state == 1) {
         if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
             if (volatileFlag_get(VOLATILE_FLAG_3)) {
-                func_8038A068(this, 5);
+                chMrVileMinigame_setState(this, 5);
             }
-        } else if (func_8038C2A8(local->vile_marker)) {
-            func_8038A068(this, 2);
+        } else if (chMrVile_playerWithinRange(local->vile_marker)) {
+            chMrVileMinigame_setState(this, 2);
         }
     }
     if (this->state == 5) {
-        if (local->unkC == 7) {
+        if (local->dialogIndex == 7) {
             controller_copyFaceButtons(0, sp30);
-            if ((sp30[FACE_BUTTON(BUTTON_B)] > 0) && func_8038C2A8(local->vile_marker)) {
-                func_8038A068(this, 0xA);
+            if ((sp30[FACE_BUTTON(BUTTON_B)] > 0) && chMrVile_playerWithinRange(local->vile_marker)) {
+                chMrVileMinigame_setState(this, 0xA);
             }
         } else {
-            chvilegame_player_consume_piece(this);
-            if ((local->unkC == 3) || (local->unkC == 6)) {
+            chMrVileMinigame_playerConsumePiece(this);
+            if ((local->dialogIndex == 3) || (local->dialogIndex == 6)) {
                 if (ml_timer_update(&local->type_change_timer, sp50)) {
                     local->current_type = !local->current_type;
                     if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
@@ -715,21 +795,21 @@ void chvilegame_update(Actor *this) {
                 if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)) {
                     volatileFlag_set(VOLATILE_FLAG_3, 0);
                     volatileFlag_set(VOLATILE_FLAG_5_FF_MINIGAME_WON, BOOL(local->vile_score < local->player_score));
-                    func_8038A068(this, 1);
+                    chMrVileMinigame_setState(this, 1);
                 } else if (local->vile_score < local->player_score) {
-                    if (local->unkC == 3) {
-                        func_8038A068(this, 9);
+                    if (local->dialogIndex == 3) {
+                        chMrVileMinigame_setState(this, 9);
                     } else {
-                        func_8038A068(this, 8);
+                        chMrVileMinigame_setState(this, 8);
                     }
                 } else {
-                    func_8038A068(this, 6);
+                    chMrVileMinigame_setState(this, 6);
                 }
             }
         }
     }
-    if ((this->state == 7) && (BGS_func_8038C338(local->vile_marker) != 0)) {
-        func_8038A068(this, 1);
+    if ((this->state == 7) && (chMrVile_isInitialIdle(local->vile_marker) != 0)) {
+        chMrVileMinigame_setState(this, 1);
     }
 }
 
@@ -738,7 +818,7 @@ void chvilegame_update(Actor *this) {
 // Fills a snapshot from the live controller. Only the stable states (idle, playing, and
 // the round-end results) are broadcast; dialog states cannot be reconstructed remotely.
 bool chvilegame_netGather(Actor *this, VileGameSnapshot *dst){
-    ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
+    chMrVileMinigameActor *local = (chMrVileMinigameActor *)&this->local;
 
     switch (this->state) {
         case 1:   // idle
@@ -752,8 +832,8 @@ bool chvilegame_netGather(Actor *this, VileGameSnapshot *dst){
             return false;
     }
     dst->gameState = this->state;
-    dst->round = local->unkC;
-    dst->maxRound = local->unkD;
+    dst->round = local->dialogIndex;
+    dst->maxRound = local->mode;
     dst->currentType = local->current_type;
     dst->typeChangeTimer = local->type_change_timer;
     dst->playerScore = local->player_score;
@@ -763,13 +843,13 @@ bool chvilegame_netGather(Actor *this, VileGameSnapshot *dst){
 }
 
 // Forces the controller to match an authoritative snapshot (followers + late joiners).
-// Mirrors the state-5 side effects of func_8038A068 without the dialog/round bookkeeping.
+// Mirrors the state-5 side effects of chMrVileMinigame_setState without the dialog/round bookkeeping.
 void chvilegame_netApply(Actor *this, const VileGameSnapshot *src){
-    ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
+    chMrVileMinigameActor *local = (chMrVileMinigameActor *)&this->local;
     s32 drift;
 
-    local->unkC = src->round;
-    local->unkD = src->maxRound;
+    local->dialogIndex = src->round;
+    local->mode = src->maxRound;
     local->current_type = src->currentType;
     local->type_change_timer = src->typeChangeTimer;
     local->player_score = src->playerScore;
@@ -783,14 +863,14 @@ void chvilegame_netApply(Actor *this, const VileGameSnapshot *src){
             item_set(ITEM_6_HOURGLASS, true);
             mapSpecificFlags_set(6, true);
             if (local->vile_marker != NULL) {
-                func_8038C3DC(local->vile_marker);
+                chMrVile_setStatePlayMinigame(local->vile_marker);
             }
             func_8025A58C(0, 4000);
             timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_55_BGS_MR_VILE, 28000);
         } else {
             item_set(ITEM_6_HOURGLASS, false);
             mapSpecificFlags_set(6, false);
-            // Round-end result presentation, mirroring func_8038A068's timed callbacks
+            // Round-end result presentation, mirroring chMrVileMinigame_setState's timed callbacks
             // (dialogs and the static camera stay on the authority).
             if (src->gameState == 6) {
                 timedFunc_set_2(1.0f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_3C_MINIGAME_LOSS, 28000);
@@ -813,13 +893,13 @@ void chvilegame_netApply(Actor *this, const VileGameSnapshot *src){
 }
 
 // Authority-side: consume the piece at position on behalf of a remote player. Mirrors
-// chvilegame_player_consume_piece without reading the local player's mouth position.
-// position[1] must be 0 to match piece positions (see chvilegame_new_piece).
+// chMrVileMinigame_playerConsumePiece without reading the local player's mouth position.
+// position[1] must be 0 to match piece positions (see chMrVileMinigame_newPiece).
 // On success, reports the consumed piece's type and whether it matched the required
 // type so the requesting client can replay the croc's eat feedback (see
 // chvilegame_netPlayEatFeedback).
 bool chvilegame_netConsumeRemote(Actor *this, f32 position[3], s32 *out_piece_type, s32 *out_correct_type){
-    ActorLocal_BGS_3420 *local = (ActorLocal_BGS_3420 *)&this->local;
+    chMrVileMinigameActor *local = (chMrVileMinigameActor *)&this->local;
     bool is_correct_type;
     struct vilegame_piece *begin;
     struct vilegame_piece *end;
@@ -853,7 +933,7 @@ bool chvilegame_netConsumeRemote(Actor *this, f32 position[3], s32 *out_piece_ty
 // remote eat request: the croc chomp animation (which carries the chomp SFX) plus
 // the wrong-type reaction when the eaten piece didn't match the required type. The
 // score and piece removal are authority-driven and arrive separately; this is the
-// cosmetic half of chvilegame_player_consume_piece that the follower otherwise skips.
+// cosmetic half of chMrVileMinigame_playerConsumePiece that the follower otherwise skips.
 void chvilegame_netPlayEatFeedback(s32 piece_type, s32 correct_type){
     func_8028F6B8(BS_INTR_17, (piece_type != YUMBLIE) ? ASSET_3F7_MODEL_GRUMBLIE : ASSET_3F6_MODEL_YUMBLIE);
     if (!correct_type) {

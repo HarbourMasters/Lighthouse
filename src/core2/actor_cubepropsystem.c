@@ -2427,8 +2427,8 @@ void func_80332894(void) {
     s32 size;
     s32 i;
 
-    size = 0x579;
-    D_8036E7C4 = bk_malloc(size);
+    size = VER_SELECT(0x579, 0x391, 0, 0);
+    D_8036E7C4 = malloc(size);
     i = 0;
     do{
         D_8036E7C4[i] = 0;

@@ -13,7 +13,7 @@
  * in the chamber at the player-update cadence. Remote clients skip Mr. Vile's AI and
  * apply this instead.
  *
- * animMode is the BGS_func_8038BBA0 mode (101 idle / 102 walk / 103 munch / 104 burp).
+ * animMode is the chMrVile_setAction mode (101 idle / 102 walk / 103 munch / 104 burp).
  *
  * Note: sent every frame while the minigame runs, so keep this payload lean.
  */
