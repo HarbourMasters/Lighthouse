@@ -51,7 +51,7 @@ void func_80308EC8(void);
 bool func_80308F54(s32 cube_index);
 
 extern ActorInfo D_803675F0;
-extern ActorInfo D_80367838;
+extern ActorInfo gWorldExitPad;
 
 /* .data */
 s32 sSpawnableActorSize = 0; //0x8036A9B0
@@ -1330,7 +1330,7 @@ void func_8030578C(void){
             && (sSpawnableActorList != NULL)
         ){
             for(i = 0; i < sSpawnableActorSize - 1; i++){
-                if(sSpawnableActorList[i].infoPtr == &D_80367838){
+                if(sSpawnableActorList[i].infoPtr == &gWorldExitPad){
                     sSpawnableActorList[i].infoPtr = &D_803675F0;
                     sSpawnableActorList[i].spawnFunc = actor_new;
                     sSpawnableActorList[i].unk8 = 0;

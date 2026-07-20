@@ -14,11 +14,12 @@
 extern u8 D_80370250 = 0;
 
 /* .bss */
-struct {
-    s32 unk0;
-    s32 map_4;
-    s32 unk8;
-}sGsWorldData;
+struct gsworld_data_s {
+    s32 unk0; // probably game_mode_e
+    enum map_e map;
+    s32 exit;
+};
+struct gsworld_data_s sGsWorldData;
 s32 D_803835DC;
 u32 sEnableDraw;
 
@@ -145,15 +146,15 @@ void gsworld_stub1(s32 arg0, s32 arg1, s32 arg2){
 }
 
 enum map_e gsworld_getMap(void){
-    return sGsWorldData.map_4;
+    return sGsWorldData.map;
 }
 
 s32 gsworld_getExit(){
-    return sGsWorldData.unk8;
+    return sGsWorldData.exit;
 }
 
 void gsworld_transitionToExit(s32 arg0) {
-    transitionToMap(sGsWorldData.map_4, arg0, 1);
+    transitionToMap(sGsWorldData.map, arg0, 1);
 }
 
 s32 gsworld_getUnk0(){
@@ -215,9 +216,9 @@ void gsworld_free(void) {
         itemPrint_free();
     }
     dialogBin_terminate();
-    func_802986D0();
-    if (func_80322914() == 0) {
-        func_8024F7C4(func_803226E8(sGsWorldData.map_4));
+    playerModel_free();
+    if (!func_80322914()) {
+        func_8024F7C4(func_803226E8(sGsWorldData.map));
     }
     core1_7090_release();
     AnimTextureListCache_free();
@@ -229,12 +230,12 @@ void gsworld_free(void) {
 
 void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     sGsWorldData.unk0 = 3;
-    CALL_EVENT(OnMapLoad, sGsWorldData.map_4, arg0, arg1);
-    sGsWorldData.map_4 = arg0;
+    CALL_EVENT(OnMapLoad, sGsWorldData.map, arg0, arg1);
+    sGsWorldData.map = arg0;
     // [port] Drop the prev tree; the next sub-frame would otherwise lerp
     // the old map's geometry against the new one's.
     FrameInterpolation_DontInterpolateCamera();
-    sGsWorldData.unk8 = arg1;
+    sGsWorldData.exit = arg1;
     leveloverlay_init();
     gsworld_setEnableUpdate(1);
     gsworld_setEnableDraw(1);
@@ -244,15 +245,15 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
         func_8038E7C4();
     }
     if (func_80322914() == 0) {
-        func_8024F764(func_803226E8(sGsWorldData.map_4));
+        func_8024F764(func_803226E8(sGsWorldData.map));
     }
     func_80320B84();
     AnimTextureListCache_init();
     func_8034C97C();
     func_8030A078();
     func_8031B718();
-    func_80298700();
-    if (func_802E4A08() == 0) {
+    playerModel_set();
+    if (!func_802E4A08()) {
         itemPrint_init();
     }
     dialogBin_initialize();
@@ -301,7 +302,7 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     func_80350174();
     gcparade_init();
     func_80351998();
-    func_802BC2CC(sGsWorldData.unk8);
+    func_802BC2CC(sGsWorldData.exit);
     func_802D63D4();
     func_80255A04();
     func_802D6948();
@@ -315,11 +316,11 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
 
 void gsworld_reload(void) {
     gsworld_free();
-    gsworld_set(sGsWorldData.map_4, sGsWorldData.unk8, 1);
+    gsworld_set(sGsWorldData.map, sGsWorldData.exit, 1);
 }
 
 void gsworld_stub2(void) {
-    gsworld_stub3(sGsWorldData.map_4);
+    gsworld_stub3(sGsWorldData.map);
 }
 
 void gsworld_setUnk0(s32 arg0) {
@@ -404,7 +405,7 @@ s32 gsworld_update(void) {
         func_803306C8(1);
         func_8032AD7C(1);
         func_80322490();
-        if (map_getLevel(sGsWorldData.map_4) == LEVEL_D_CUTSCENE) {
+        if (map_getLevel(sGsWorldData.map) == LEVEL_D_CUTSCENE) {
             func_802C79C4();
         }
         func_8032AABC();

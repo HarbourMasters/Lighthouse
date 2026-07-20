@@ -55,7 +55,7 @@ static void _baModel_updateModelYaw(void){
 void baModel_80291A50(s32 arg0, f32 dst[3]){
     vec3fArray_get_vec3f(D_80363780, arg0, dst);
     if(ml_isZero_vec3f(dst)){
-        _player_getPosition(dst);
+        playerPosition_get(dst);
     }
 }
 
@@ -79,7 +79,7 @@ void baModel_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     _baModel_updateModelYaw();
     baModelRoll = roll_get();
     baModelPitch = pitch_get();
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     plyr_pos[1] += 2.0f;
     ml_vec3f_assign(rotation, baModelPitch, baModelYaw, baModelRoll);
     func_8029A47C(env_color);
@@ -116,7 +116,7 @@ void baModel_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
 }
 
 void baModel_updateModel(void){
-    baModel_set(func_802985F0());
+    baModel_set(playerModel_get());
 }
 
 void baModel_reset(void){
@@ -305,7 +305,7 @@ void baModel_80292284(f32 arg0[3], s32 arg1){
             case ASSET_374_MODEL_BANJO_CROC:
                 vec3fArray_get_vec3f(D_80363780, arg1 + 1, arg0);
                 if(ml_isZero_vec3f(arg0)){
-                    _player_getPosition(arg0);
+                    playerPosition_get(arg0);
                 }
                 
                 arg0[1] += D_8037C130[arg1][0];
@@ -321,12 +321,12 @@ void baModel_80292284(f32 arg0[3], s32 arg1){
                 arg0[2] = arg0[2] + sp38[2];
                 break;
             default: ////80292400
-                _player_getPosition(arg0);
+                playerPosition_get(arg0);
                 break;
         }
     }
     else{//L80292410
-        _player_getPosition(arg0);
+        playerPosition_get(arg0);
         if(arg1){
             arg0[1] += 33.0f;
         }

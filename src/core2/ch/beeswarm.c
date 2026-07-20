@@ -2,9 +2,6 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "core2/quiz_storage.h"
-#include "port/Interpolation/FrameInterpolation.h"
-
 extern void func_8030DBFC(u32, f32, f32, f32);
 extern BKCollisionTriangle * func_80309DBC(f32[3], f32[3], f32, f32 sp54[3], s32, s32);
 extern void sfxsource_set_fade_distances(u8, f32, f32);
@@ -39,7 +36,7 @@ Actor *chBeeSwarm_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 
 /* .data */
-ActorInfo D_80367310 = {
+ActorInfo chBeeSwarm = {
     MARKER_217_BEE_SWARM, ACTOR_34D_BEE_SWARM, ASSET_49E_SPRITE_BEE_SWARM, 
     1, NULL, 
     chBeeSwarm_update, NULL, chBeeSwarm_draw,
@@ -225,7 +222,7 @@ void chBeeSwarm_802CF1C8(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3, f32 ar
     }
     if (arg5 != 0) {
         sp3C[0] = sp3C[1] = sp3C[2] = 0.0f;
-        func_8025727C(arg2[0], arg2[1], arg2[2], sp3C[0], sp3C[1], sp3C[2], arg5, arg5 + 1);
+        ml_horizontal_and_vertical_angles(arg2[0], arg2[1], arg2[2], sp3C[0], sp3C[1], sp3C[2], arg5, arg5 + 1);
     }
 }
 

@@ -94,7 +94,7 @@ void chTanktupLeg_update(Actor *this){
     }
     if(this->state == 2){
         if(anctrl_isAt(this->anctrl, 0.65f)){
-            gcsfx_playAtSampleRate(SFX_7C_CHEBOOF);
+            gcsfx_play(SFX_7C_CHEBOOF);
         }
         if(anctrl_isStopped(this->anctrl)){
             marker_despawn(this->marker);

@@ -297,7 +297,7 @@ static void __bsant_recoil_init(int take_damage){
     else
         func_8030E58C(SFX_56_BANJO_HUI, 1.8f);
     
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     yaw_setIdeal(mlNormalizeAngle(sp38 + 180.0f));
@@ -383,7 +383,7 @@ void bsant_die_init(void){
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bsant.c", 0x2f6);
     func_8030E58C(SFX_36_BANJO_DOH, 1.8f);
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     D_8037D290 = 250.0f;
@@ -397,7 +397,7 @@ void bsant_die_init(void){
     baphysics_set_gravity(-1200.0f);
     pitch_setAngVel(1000.0f, 12.0f);
     func_802914CC(0xd);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8029C984();
     bsant_substate = 0;
     baMarker_collisionOff();

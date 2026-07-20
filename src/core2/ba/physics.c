@@ -198,7 +198,7 @@ void __baphysics_update_goto(void){
             break;
         case 1: //L802974E8
             baphysics_goto.state = 2;
-            _player_getPosition(baphysics_goto.start_position);
+            playerPosition_get(baphysics_goto.start_position);
             baphysics_goto.elapsed_time = 0.0f;
             baphysics_set_velocity(0);
             break;
@@ -245,7 +245,7 @@ void baphysics_init(void){
 }
 
 void baphysics_update(void){
-    _player_getPosition(s_next_position);
+    playerPosition_get(s_next_position);
     switch(baphysics_type){
         case BA_PHYSICS_GOTO: //L80297780
             __baphysics_update_goto();
@@ -290,7 +290,7 @@ void baphysics_update(void){
         default:
             break;
     }
-    player_setPosition(s_next_position);
+    playerPosition_set(s_next_position);
 }
 
 void baphysics_reset_horizontal_velocity(void){

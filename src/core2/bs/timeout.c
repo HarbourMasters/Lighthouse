@@ -8,7 +8,7 @@
 
 void baeyes_openSingleEye(s32, f32);
 f32 func_8029B41C(void);
-void ncDynamicCamD_func_802BF2C0(f32);
+void ncbadie_func_802BF2C0(f32);
 
 void timeout_banjo_init(void){
     baanim_playForDuration_once(ASSET_77_ANIM_BSTIMEOUT, 3.2f);
@@ -16,7 +16,7 @@ void timeout_banjo_init(void){
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802914CC(0xD);
     yaw_setIdeal(func_8029B41C() + 35.0f);
-    ncDynamicCamD_func_802BF2C0(80.0f);
+    ncbadie_func_802BF2C0(80.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
     core1_ce60_incOrDecCounter(false);
@@ -57,7 +57,7 @@ void timeout_transformation_init(void){
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802914CC(0xD);
     yaw_setIdeal(func_8029B41C() + 35.0f);
-    ncDynamicCamD_func_802BF2C0(80.0f);
+    ncbadie_func_802BF2C0(80.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
     core1_ce60_incOrDecCounter(false);

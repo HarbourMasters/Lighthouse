@@ -379,7 +379,7 @@ static void __bswalrus_recoil_init(s32 damage){
     else
         func_8030E58C(SFX_56_BANJO_HUI, 1.8f);
     
-    _player_getPosition(sp30);
+    playerPosition_get(sp30);
     func_80294980(sp24);
     func_80257F18(sp24, sp30, &sp3C);
     yaw_setIdeal(mlNormalizeAngle(sp3C + 180.0f));
@@ -452,7 +452,7 @@ void bswalrus_die_init(void){
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bswalrus.c", 0x366);
     func_8030E58C(SFX_36_BANJO_DOH, 1.8f);
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     D_8037D5C4 = 250.0f;
@@ -466,7 +466,7 @@ void bswalrus_die_init(void){
     baphysics_set_gravity(-1200.0f);
     pitch_setAngVel(1000.0f, 12.0f);
     func_802914CC(0xd);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8025AB00();
     func_8025A2FC(0, 0xfa0);
     comusic_playTrack(0x1A);
@@ -730,7 +730,7 @@ void bswalrus_timeout_init(void) {
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_FREEZE);
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802914CC(0xD);
-    ncDynamicCamD_func_802BF2C0(60.0f);
+    ncbadie_func_802BF2C0(60.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
     core1_ce60_incOrDecCounter(false);

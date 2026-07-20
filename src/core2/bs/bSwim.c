@@ -66,7 +66,7 @@ bool func_802A73BC(void) {
     f32 sp1C;
 
     sp1C = (gsworld_getMap() == MAP_46_CCW_WINTER) ? 90.0f : 130.0f;
-    return floor_isCurrentFloorunk59() && player_getYPosition() > (floor_getCurrentFloorYPosition() - sp1C);
+    return floor_isCurrentFloorunk59() && playerPosition_getY() > (floor_getCurrentFloorYPosition() - sp1C);
 }
 
 void func_802A744C(void) {
@@ -290,7 +290,7 @@ void bsbswim_ow_init(void) {
     barebound_set_active(func_80296560());
     baanim_playForDuration_onceSmooth(0x1A0, 1.4f);
     basfx_playOwSfx(1.0f);
-    _player_getPosition(sp30);
+    playerPosition_get(sp30);
     func_80294980(sp24);
     func_80257F18(sp24, sp30, &sp3C);
     yaw_setIdeal(mlNormalizeAngle(sp3C));
@@ -310,7 +310,7 @@ void bsbswim_ow_update(void) {
     ParticleEmitter *p_ctrl;
 
     next_state = 0;
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     plyr_pos[1] += 60.0f;
     p_ctrl = func_8029B950(plyr_pos, 25.0f);
     particleEmitter_setParticleVelocityRange(p_ctrl, -60.0f, -50.0f, -60.0f, 60.0f, 100.0f, 60.0f);
@@ -431,7 +431,7 @@ void bsbswim_die_update(void) {
     switch (D_8037D396) {
     case 0:
         if (globalTimer_getTimeMasked(1) == 0) {
-            _player_getPosition(plyr_pos);
+            playerPosition_get(plyr_pos);
             plyr_pos[1] += 60.0f;
             p_ctrl = func_8029B950(plyr_pos, 25.0f);
             particleEmitter_setParticleVelocityRange(p_ctrl, -60.0f, -50.0f, -60.0f, 60.0f, 100.0f, 60.0f);
@@ -445,7 +445,7 @@ void bsbswim_die_update(void) {
         }
         if (batimer_isAt(1, 1.9f)) {
             func_802914CC(0xD);
-            ncDynamicCamD_func_802BF2C0(80.0f);
+            ncbadie_func_802BF2C0(80.0f);
             if (D_8037D394) {
                 batimer_set(0, 0.5f);
             } else {
@@ -480,8 +480,8 @@ void __bsbswim_update_rotation(void) {
     f32 sp2C[3];
 
     if (balookat_getState() && balookat_try_get_position(sp2C)) {
-        _player_getPosition(sp44);
-        func_8025727C(sp44[0], sp44[1], sp44[2], sp2C[0], sp2C[1], sp2C[2], &sp38[0], &sp38[1]);
+        playerPosition_get(sp44);
+        ml_horizontal_and_vertical_angles(sp44[0], sp44[1], sp44[2], sp2C[0], sp2C[1], sp2C[2], &sp38[0], &sp38[1]);
         pitch_setIdeal(sp38[0]);
         yaw_setIdeal(sp38[1]);
         roll_setIdeal(0.0f);
@@ -551,7 +551,7 @@ void bsbswim_landingInWater_update(void) {
     ParticleEmitter *sp34;
 
     next_state = 0;
-    _player_getPosition(sp38);
+    playerPosition_get(sp38);
     sp38[1] += 60.0f;
     sp34 = func_8029B950(sp38, 20.0f);
     particleEmitter_setParticleVelocityRange(sp34, -30.0f, -30.0f, -30.0f, 30.0f, 30.0f, 30.0f);

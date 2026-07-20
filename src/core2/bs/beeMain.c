@@ -10,7 +10,7 @@
 f32 func_8029B41C(void);
 void func_80299628(s32);
 void yaw_applyIdeal(void);
-void ncDynamicCamD_func_802BF2C0(f32);
+void ncbadie_func_802BF2C0(f32);
 
 f32 baanim_getTimer(void);
 void baanim_setEndAndDuration(f32, f32);
@@ -320,7 +320,7 @@ void func_802A18E8(s32 arg0){
     }else{
         func_8030E58C(SFX_56_BANJO_HUI, 1.8f);
     }
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     yaw_setIdeal(mlNormalizeAngle(sp38 + 180.0f));
@@ -410,7 +410,7 @@ void bsbeemain_die_init(void){
     anctrl_setPlaybackType(sp3C,  ANIMCTRL_ONCE);
     anctrl_start(sp3C, "bsbeemain.c", 0x2ef);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     yaw_setIdeal(mlNormalizeAngle(sp38 + 180.0f));
@@ -425,7 +425,7 @@ void bsbeemain_die_init(void){
     baMarker_collisionOff();
     baeyes_close();
     func_802914CC(0xd);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8029C984();
     func_8030E58C(SFX_36_BANJO_DOH, 1.8f);
     batimer_set(0, 2.9f);

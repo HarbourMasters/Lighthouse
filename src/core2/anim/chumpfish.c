@@ -28,7 +28,7 @@ ActorAnimationInfo D_80372EA0[] = {
     {0x2C0, 1.5f}
 };
 
-ActorInfo D_80372EE0 = { 
+ActorInfo chChumpFish = { 
     MARKER_69_CHUMP_FISH, ACTOR_A_CHUMP_FISH, ASSET_36B_CHUMP_FISH, 
     0x2, D_80372EA0, 
     chchumpfish_update, actor_update_func_80326224, actor_draw, 

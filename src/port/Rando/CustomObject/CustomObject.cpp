@@ -43,17 +43,17 @@ extern ActorInfo chJinjoYellow;
 extern ActorInfo chJinjoPink;
 extern ActorInfo chJinjoOrange;
 extern ActorInfo chJiggy;
-extern ActorInfo D_80366C80;
-extern ActorInfo D_803685A0;
+extern ActorInfo chEmptyHoneycomb;
+extern ActorInfo chMumboToken;
 extern ActorInfo sumusicNote;
 
-extern ActorInfo D_80366CA4;
-extern ActorInfo D_80367D00;
-extern ActorInfo D_80367D24;
-extern ActorInfo D_80367D48;
+extern ActorInfo chHoneycomb;
+extern ActorInfo chBlueEgg;
+extern ActorInfo chRedFeather;
+extern ActorInfo chGoldFeather;
 
-extern ActorInfo D_80367814;
-extern ActorInfo D_803677A8;
+extern ActorInfo chSnsEgg;
+extern ActorInfo chIceKey;
 }
 
 typedef struct {
@@ -68,21 +68,21 @@ bool shouldRemoveEX = false;
 
 // clang-format off
 std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
-    { ACTOR_2D_MUMBO_TOKEN,     { D_803685A0,       ACTOR_FLAG_UNKNOWN_6 } },
+    { ACTOR_2D_MUMBO_TOKEN,     { chMumboToken,       ACTOR_FLAG_UNKNOWN_6 } },
     { ACTOR_46_JIGGY,           { chJiggy,          ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_47_EMPTY_HONEYCOMB, { D_80366C80,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_47_EMPTY_HONEYCOMB, { chEmptyHoneycomb,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_51_MUSIC_NOTE,      { sumusicNote,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_5E_JINJO_YELLOW,    { chJinjoYellow,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_5F_JINJO_ORANGE,    { chJinjoOrange,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_60_JINJO_BLUE,      { chJinjoBlue,      ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_61_JINJO_PINK,      { chJinjoPink,      ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_62_JINJO_GREEN,     { chJinjoGreen,     ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
-    { ACTOR_50_HONEYCOMB,       { D_80366CA4,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_52_BLUE_EGG,        { D_80367D00,       ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_129_RED_FEATHER,    { D_80367D24,       ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_370_GOLD_FEATHER,   { D_80367D48,       ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_25E_SNS_EGG,        { D_80367814,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
-    { ACTOR_25D_ICE_KEY,        { D_803677A8,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+    { ACTOR_50_HONEYCOMB,       { chHoneycomb,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_52_BLUE_EGG,        { chBlueEgg,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_129_RED_FEATHER,    { chRedFeather,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_370_GOLD_FEATHER,   { chGoldFeather,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_25E_SNS_EGG,        { chSnsEgg,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+    { ACTOR_25D_ICE_KEY,        { chIceKey,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
 };
 // clang-format on
 

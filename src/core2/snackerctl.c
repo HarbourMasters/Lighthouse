@@ -12,7 +12,7 @@
 #define SNACKER_BB_DIALOG_0 VER_SELECT(0xe26, 0xa68, 0xa68, 0xa68)
 #define SNACKER_BB_DIALOG_1 VER_SELECT(0xe33, 0xa75, 0xa75, 0xa75)
 
-void ncFirstPersonCamera_getZoomedInRotation(f32 *);
+void ncba1p_getZoomedInRotation(f32 *);
 
 extern u8  D_8037DCCA;
 extern u8  D_8037DCCB;
@@ -33,7 +33,7 @@ void snackerctl_reset(void){
 static s32 __snackerctl_player_within_distance(f32 x, f32 z, f32 dist){
     f32 player_position[3];
 
-    _player_getPosition(player_position);
+    playerPosition_get(player_position);
     return ml_vec3f_point_within_horizontal_distance(player_position, x, z, dist);
 }
 
@@ -41,7 +41,7 @@ static SnackerCtlState __snackerctl_update_ttc(void){
     SnackerCtlState nextState = 0;
     f32 player_position[3];
 
-    _player_getPosition(player_position);
+    playerPosition_get(player_position);
     if(player_isSwimming() || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE)){ //(swimming || ???)
         if(player_position[1] < 600.0f
             && !__snackerctl_player_within_distance(2478.0f, 4586.0f, 1750.0f) //within 1750 of sandcastle center
@@ -102,7 +102,7 @@ static SnackerCtlState _snackerctl_update_bottles_bonus(void){
                 chBottleBonusPuzzleIndex = 1;
             }//L8028A764
             else if(jiggyscore_isCollected(0x10)){
-                ncFirstPersonCamera_getZoomedInRotation(sp30);
+                ncba1p_getZoomedInRotation(sp30);
                 if( (((D_8036361C[0] <= sp30[0])? (sp30[0] - D_8036361C[0]) : -(sp30[0] - D_8036361C[0])) < 4.0f)
                     && (((D_8036361C[1] <= sp30[1])? (sp30[1] - D_8036361C[1]) : -(sp30[1] - D_8036361C[1])) < 20.0f)
                 ){

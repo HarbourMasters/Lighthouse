@@ -58,6 +58,8 @@ typedef struct model_prop_s{
     u8 padB_3 :4;
 } ModelProp;
 
+#define MODEL_ASSET_OFFSET 0x2D1
+
 
 // [port] On N64 the marker pointer is 4 bytes, so words[3] (12 bytes) covers
 // the entire struct. On 64-bit, the pointer is 8 bytes (16 bytes total).

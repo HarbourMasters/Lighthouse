@@ -427,7 +427,8 @@ void func_8030E0FC(u8, f32, f32, f32);
 void sfxSource_func_8030E2C4(u8);
 void sfxSource_func_8030E2C4(u8 indx);
 void func_8030E4E4(enum sfx_e uid);
-void gcsfx_playAtSampleRate(enum sfx_e uid);
+void gcsfx_playAtSampleRate(enum sfx_e uid, s32 sample_rate);
+void gcsfx_play(enum sfx_e uid);
 void func_8030E560(enum sfx_e uid, s32 arg1);
 void func_8030E58C(enum sfx_e uid, f32 arg1);
 void func_8030E5F4(enum sfx_e uid, f32 arg1);
@@ -553,7 +554,7 @@ bool ncDynamicCamA_func_802C1EE0(void);
 bool  ncDynamicCamA_func_802C1DB0(f32);
 
 // --- core2/camera/1p.c ---
-bool __ncFirstPersonCamera_fullyZoomedIn(void);
+bool __ncba1p_fullyZoomedIn(void);
 
 // --- core2/collision/funcs.c ---
 void func_80320B24(void *arg0, void *arg1, void *arg2);
@@ -842,7 +843,7 @@ void gv_matchingGame_reset(void);
 void gv_matchingGame_update(void);
 
 // --- GV/sandybutteggtoll.c ---
-int func_8038D388(void);
+bool func_8038D388(void);
 
 // --- GV/water_pyramidactivate.c ---
 void func_803900F8(void);
@@ -1591,6 +1592,8 @@ void baModel_updateModel(void);
 s32 func_802985F0(void);
 void func_802986D0(void);
 void func_80298700(void);
+void playerModel_set(void);
+void playerModel_free(void);
 
 // --- core2/ba/ba_momentum.c ---
 void func_8029065C(void);
@@ -1612,7 +1615,7 @@ void playerPosition_func_80298504(f32 arg0[3]);
 void playerPosition_getOffset(f32 arg0[3]);
 void playerPosition_setOffset(f32 arg0[3]);
 void playerPosition_applyOffset(void);
-void player_setPosition(f32 arg0[3]);
+void playerPosition_set(f32 arg0[3]);
 void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id);
 
 // --- core2/ba/ba_recoil.c ---
@@ -1894,10 +1897,10 @@ void ncDynamicCam3_init(void);
 void ncDynamicCam3_update(void);
 
 // --- core2/camera/fly.c ---
-void ncDynamicCam4_end(void);
-void ncDynamicCam4_func_802BFE74(bool);
-void ncDynamicCam4_init(void);
-void ncDynamicCam4_update(void);
+void ncbafly_end(void);
+void ncbafly_func_802BFE74(bool);
+void ncbafly_init(void);
+void ncbafly_update(void);
 
 // --- core2/camera/dynamicCam5.c ---
 void ncDynamicCam5_end(void);
@@ -1932,9 +1935,9 @@ void ncDynamicCamC_init(void);
 void ncDynamicCamC_update(void);
 
 // --- core2/camera/die.c ---
-void ncDynamicCamD_end(void);
-void ncDynamicCamD_init(void);
-void ncDynamicCamD_update(void);
+void ncbadie_end(void);
+void ncbadie_init(void);
+void ncbadie_update(void);
 
 // --- core2/camera/dynamicCamF.c ---
 void ncDynamicCamF_end(void);
@@ -1969,13 +1972,13 @@ void ncDynamicCamera_setUpdateEnabled(bool arg0);
 void ncDynamicCamera_update(void);
 
 // --- core2/camera/1p.c ---
-s32 ncFirstPersonCamera_getState(void);
-void ncFirstPersonCamera_getPositionAndRotation(f32 position[3], f32 rotation[3]);
-void ncFirstPersonCamera_getZoomedInRotation(f32 dst[3]);
-void ncFirstPersonCamera_reset(void);
-void ncFirstPersonCamera_setState(enum nc_first_person_state state);
-void ncFirstPersonCamera_setZoomedOutPosition(f32 src[3]);
-void ncFirstPersonCamera_setZoomedOutRotation(f32 src[3]);
+s32 ncba1p_getState(void);
+void ncba1p_getPositionAndRotation(f32 position[3], f32 rotation[3]);
+void ncba1p_getZoomedInRotation(f32 dst[3]);
+void ncba1p_reset(void);
+void ncba1p_setState(enum nc_first_person_state state);
+void ncba1p_setZoomedOutPosition(f32 src[3]);
+void ncba1p_setZoomedOutRotation(f32 src[3]);
 
 // --- core2/camera/randomCamera.c ---
 void ncRandomCamera_end(void);
@@ -3277,10 +3280,10 @@ void baphysics_reset_gravity(void);
 void baphysics_set_gravity(f32 gravity);
 
 // --- core2/ba/playerposition.c ---
-f32 player_getYPosition(void);
-void _player_getPosition(f32 dst[3]);
+f32 playerPosition_getY(void);
+void playerPosition_get(f32 dst[3]);
 void playerPosition_addY(f32);
-void player_setYPosition(f32);
+void playerPosition_setY(f32);
 
 // --- core2/ba/ba_recoil.c ---
 f32  get_turbo_duration(void);
@@ -3336,7 +3339,7 @@ void func_802BB3DC(s32, f32, f32);
 void func_802C1B20(f32);
 
 // --- core2/camera/die.c ---
-void ncDynamicCamD_func_802BF2C0(f32);
+void ncbadie_func_802BF2C0(f32);
 
 // --- core2/climb.c ---
 f32 climb_getBottomY(void);

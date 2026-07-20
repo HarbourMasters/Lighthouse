@@ -72,7 +72,7 @@ ActorAnimationInfo banjoGameboyAnimations[] = {
     {0x24F, 0.6f},  
     {0x24D, 2.0f}
 };
-ActorInfo D_80365E58 = { 0xE4, 0x195, 0x532, 0x1, banjoGameboyAnimations, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
+ActorInfo gameSelect_banjoSleeping = { 0xE4, 0x195, 0x532, 0x1, banjoGameboyAnimations, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365E7C[] = {
     {0x000, 0.0f}, 
@@ -82,7 +82,7 @@ ActorAnimationInfo D_80365E7C[] = {
     {0x252, 0.67f}, 
     {0x250, 4.5f},
 };
-ActorInfo D_80365EAC = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
+ActorInfo gameSelect_banjoGameboy = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365ED0[] = {
     {0x000, 0.0f},
@@ -92,7 +92,7 @@ ActorAnimationInfo D_80365ED0[] = {
     {0x24C, 1.0f},
     {0x24A, 1.0f}
 };
-ActorInfo D_80365F00 = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
+ActorInfo gameSelect_banjoCooking = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
 
 // Yes, Gaming Chair is before Kitchen
@@ -503,7 +503,7 @@ void gameSelect_update(Actor *this){
                                 switch(sp84){
                                     case CH_GAME_SELECT_SAVEFILE_0_BED://L802C52B8
                                         sfxsource_play(SFX_31_BANJO_OHHWAAOOO, 28000);
-                                        gcsfx_playAtSampleRate(SFX_135_CARTOONY_SPRING);
+                                        gcsfx_play(SFX_135_CARTOONY_SPRING);
                                         timedFunc_set_2(0.4f, (GenFunction_2)sfxsource_play, SFX_13A_GLASS_BREAKING_7, 0x7fff);
                                         timedFunc_set_2(0.9f, (GenFunction_2)sfxsource_play, SFX_150_PORCELAIN_CRASH, 0x7fff);
                                         timedFunc_set_2(1.0f, (GenFunction_2)sfxsource_play, SFX_151_CAT_MEOW, 0x7fff);
@@ -511,12 +511,12 @@ void gameSelect_update(Actor *this){
                                     case CH_GAME_SELECT_SAVEFILE_1_GAMING_CHAIR://L802C5320
                                         timedFunc_set_2(0.4f, (GenFunction_2)sfxsource_play, SFX_31_BANJO_OHHWAAOOO, 28000);
                                         timedFunc_set_2(0.2f, (GenFunction_2)sfxsource_play, SFX_E_SHOCKSPRING_BOING, 28000);
-                                        gcsfx_playAtSampleRate(SFX_2D_KABOING);
+                                        gcsfx_play(SFX_2D_KABOING);
                                         break;
                                     case CH_GAME_SELECT_SAVEFILE_2_KITCHEN://L802C5364
                                         timedFunc_set_2(0.15f, (GenFunction_2)sfxsource_play, SFX_32_BANJO_EGHEE, 28000);
                                         sfxsource_play(SFX_3F6_RUBBING, 28000);
-                                        gcsfx_playAtSampleRate(SFX_8F_SNOWBALL_FLYING);
+                                        gcsfx_play(SFX_8F_SNOWBALL_FLYING);
                                         break;
                                 }//L802C5394
                                 subaddie_set_state(this, 4);

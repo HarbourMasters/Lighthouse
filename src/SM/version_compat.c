@@ -14,6 +14,7 @@ int func_8038AAB0(void){return 0;}
 
 #elif VERSION == PAL
 #if 0
+u8 D_8038BFC2;
 void func_8038AAB0(s32 arg0, s32 arg1){
      if(arg1 < 0){
          func_8031A844();
@@ -38,7 +39,7 @@ void func_8038AAB0(s32 arg0, s32 arg1){
          D_8038BFC8->unk4 = (s32) D_8038BD3C;
          D_8038BFC8->unk10 = (s32) D_8038BD40;
          D_8038BFC8->unk20 = (s32) D_8038BD44;
-         D_8038BFC8->unk30 = (s32) D_8038BD48;
+         D_8038BFC8->unk30 = (s32) chMMMWideWindow;
          func_8031A5E4(&D_8038BD30, &D_8038BD34, (void *)0x8038BFC8, 0xA, &D_8038B490);
          break;
      case 3:

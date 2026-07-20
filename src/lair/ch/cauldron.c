@@ -166,7 +166,7 @@ void func_8038AB90(Actor *this, s32 arg1, s32 arg2, enum sfx_e sfx_id, f32 sfx_t
             if (arg2 == 2) {
                 coMusicPlayer_playMusicWeak(COMUSIC_3F_MAGIC_CARPET_RISING, 32000);
                 func_80324D2C(2.6f, COMUSIC_3F_MAGIC_CARPET_RISING);
-                gcsfx_playAtSampleRate(SFX_7C_CHEBOOF);
+                gcsfx_play(SFX_7C_CHEBOOF);
             }
         }
     }
@@ -351,7 +351,7 @@ void chWarpCauldron_update(Actor *this) {
         case 5: //L8038B48C
             func_8038A96C(this, 3);
             if (actor_animationIsAt(this, 0.01f)) {
-                gcsfx_playAtSampleRate(SFX_7C_CHEBOOF);
+                gcsfx_play(SFX_7C_CHEBOOF);
             }
             if (actor_animationIsAt(this, 0.63f)) {
                 volatileFlag_set(VOLATILE_FLAG_1E, 0);

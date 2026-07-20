@@ -53,18 +53,18 @@ extern ActorInfo chBoomBoxFast; //TNTpart_IDStruct;
 extern ActorInfo chBoomBoxMinigameCtrl;
 extern ActorInfo chRBBSpinningSinglePipeSfxCtrl;
 extern ActorInfo chRBBSpinningDoublePipeSfxCtrl;
-extern ActorInfo D_803900E0;
-extern ActorInfo D_80390104; //captcabinwooddoor
-extern ActorInfo D_80390128;
-extern ActorInfo D_8039014C;
-extern ActorInfo D_803901B8;
-extern ActorInfo D_803901DC;
-extern ActorInfo D_80390170;//skylight
-extern ActorInfo D_80390194;//honeycombswitch
+extern ActorInfo chEngineRoomDoor;
+extern ActorInfo chCabinClosetDoor; //captcabinwooddoor
+extern ActorInfo chShipShadowWindow;
+extern ActorInfo chShipSunnyWindow;
+extern ActorInfo chSunnyLifeboat;
+extern ActorInfo chShadowLifeboat;
+extern ActorInfo chCrackedSkylight;//skylight
+extern ActorInfo chRbbHoneycombSwitch;//honeycombswitch
 
 
 
-extern void func_802D3D54(Actor *);
+extern void chMMMBreakableWooden_update(Actor *);
 
 void func_80386A7C(Actor *);
 void func_80386BF8(Actor *arg0);
@@ -79,50 +79,58 @@ ActorAnimationInfo D_803900C0[4] = {
     {0xD5, 0.5f}
 };
 
-ActorInfo D_803900E0 = {
-    0x107, 0x21D, 0x493, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+ActorInfo chEngineRoomDoor = {
+    MARKER_107_ENGINE_ROOM_DOOR, ACTOR_21D_ENGINE_ROOM_DOOR, ASSET_493_MODEL_ENGINE_ROOM_DOOR,
+    0x1, NULL,
+    chMMMBreakableWooden_update, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_80390104 = {
-    0x108, 0x21C, 0x492, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+ActorInfo chCabinClosetDoor = {
+    MARKER_108_CABIN_CLOSET_DOOR, ACTOR_21C_CABIN_CLOSET_DOOR, ASSET_492_MODEL_CABIN_CLOSET_DOOR,
+    0x1, NULL,
+    chMMMBreakableWooden_update, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_80390128 = {
-    0x22D, 0x266, 0x4BA, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+ActorInfo chShipShadowWindow = {
+    MARKER_22D_SHIP_SHADOW_WINDOW, ACTOR_266_SHIP_SHADOW_WINDOW, ASSET_4BA_MODEL_SHIP_SHADOW_WINDOW,
+    0x1, NULL,
+    chMMMBreakableWooden_update, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_8039014C = {
-    0x22E, 0x267, 0x4BB, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+ActorInfo chShipSunnyWindow = {
+    MARKER_22E_SHIP_SUNNY_WINDOW, ACTOR_267_SHIP_SUNNY_WINDOW, ASSET_4BB_MODEL_SHIP_SUNNY_WINDOW,
+    0x1, NULL,
+    chMMMBreakableWooden_update, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_80390170 = {
-    0x235, 0x23F, 0x4E2, 0x1, NULL,
-    func_802D3D54, actor_update_func_80326224, actor_drawFullDepth,
+ActorInfo chCrackedSkylight = {
+    MARKER_235_CRACKED_SKYLIGHT, ACTOR_23F_CRACKED_SKYLIGHT, ASSET_4E2_MODEL_CRACKED_SKYLIGHT,
+    0x1, NULL,
+    chMMMBreakableWooden_update, actor_update_func_80326224, actor_drawFullDepth,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_80390194 = {
-    0x15F, 0x18F, 0x42F, 0x1, D_803900C0,
+ActorInfo chRbbHoneycombSwitch = {
+    MARKER_15F_RBB_HONEYCOMB_SWITCH, ACTOR_18F_RBB_HONEYCOMB_SWITCH, ASSET_42F_MODEL_RBB_HONEYCOMB_SWITCH,
+    0x1, D_803900C0,
     func_80386BF8, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_803901B8 = {
-    0x22F, 0x263, 0x4DB, 0x1, NULL,
+ActorInfo chSunnyLifeboat = {
+    MARKER_22F_SUNNY_LIFEBOAT, ACTOR_263_SUNNY_LIFEBOAT, ASSET_4DB_MODEL_SUNNY_LIFEBOAT,
+    0x1, NULL,
     func_80386A7C, actor_update_func_80326224, func_80386B9C,
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_803901DC = {
-    0x230, 0x264, 0x4DE, 0x1, NULL,
+ActorInfo chShadowLifeboat = {
+    MARKER_230_SHADOW_LIFEBOAT, ACTOR_264_SHADOW_LIFEBOAT, ASSET_4DE_MODEL_SHADOW_LIFEBOAT,
+    0x1, NULL,
     func_80386A7C, actor_update_func_80326224, func_80386B9C,
     0, 0, 0.0f, 0
 };
@@ -220,12 +228,12 @@ void RBB_func_80386C48(void){
     spawnableActorList_add(&chBoomBoxMinigameCtrl, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&chRBBSpinningSinglePipeSfxCtrl, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&chRBBSpinningDoublePipeSfxCtrl, actor_new, ACTOR_FLAG_UNKNOWN_7);
-    spawnableActorList_add(&D_803900E0, actor_new, ACTOR_FLAG_NONE);
-    spawnableActorList_add(&D_80390104, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15); //captcabinwooddoor
-    spawnableActorList_add(&D_80390128, actor_new, ACTOR_FLAG_NONE);
-    spawnableActorList_add(&D_8039014C, actor_new, ACTOR_FLAG_NONE);
-    spawnableActorList_add(&D_803901B8, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
-    spawnableActorList_add(&D_803901DC, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
-    spawnableActorList_add(&D_80390170, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15); //skylight
-    spawnableActorList_add(&D_80390194, actor_new, ACTOR_FLAG_UNKNOWN_3); //honeycombswitch
+    spawnableActorList_add(&chEngineRoomDoor, actor_new, ACTOR_FLAG_NONE);
+    spawnableActorList_add(&chCabinClosetDoor, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15); //captcabinwooddoor
+    spawnableActorList_add(&chShipShadowWindow, actor_new, ACTOR_FLAG_NONE);
+    spawnableActorList_add(&chShipSunnyWindow, actor_new, ACTOR_FLAG_NONE);
+    spawnableActorList_add(&chSunnyLifeboat, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
+    spawnableActorList_add(&chShadowLifeboat, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
+    spawnableActorList_add(&chCrackedSkylight, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15); //skylight
+    spawnableActorList_add(&chRbbHoneycombSwitch, actor_new, ACTOR_FLAG_UNKNOWN_3); //honeycombswitch
 }

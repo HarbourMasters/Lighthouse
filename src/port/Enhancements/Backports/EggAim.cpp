@@ -222,7 +222,7 @@ void RegisterEggAimSpawn_Init() {
         }
         auto* ev = reinterpret_cast<EggHeadSpawn*>(event);
         float rotation[3];
-        ncFirstPersonCamera_getZoomedInRotation(rotation);
+        ncba1p_getZoomedInRotation(rotation);
         *ev->pitch = -rotation[0];
         *ev->spawnHeight = 100.0f;
         *ev->minVerticalVelocity = -99999.0f;
@@ -245,7 +245,7 @@ void RegisterEggAim_Init() {
             return;
         }
 
-        if (ncFirstPersonCamera_getState() == FIRSTPERSON_STATE_2_IDLE) {
+        if (ncba1p_getState() == FIRSTPERSON_STATE_2_IDLE) {
             if (sOverlayShown < kOverlayFadeDuration) {
                 sOverlayShown++;
             }

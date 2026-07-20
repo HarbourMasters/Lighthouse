@@ -15,7 +15,7 @@ f32 D_8037D224;
 
 /*.code */
 bool isOnFloor(void){
-    return floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > player_getYPosition();
+    return floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > playerPosition_getY();
 }
 
 void freeHazardSfxId(void){

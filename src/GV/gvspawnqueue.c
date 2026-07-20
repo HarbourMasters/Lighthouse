@@ -10,7 +10,7 @@
 #include "port/Patches/Patches.h"
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
-extern void func_802D3D54(Actor *this);
+extern void chMMMBreakableWooden_update(Actor *this);
 extern void func_802D3D74(Actor *this);
 extern Actor *func_80325F2C(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 extern void func_8032BC3C(Actor *, f32);
@@ -24,20 +24,20 @@ extern ActorInfo chGobiRock;
 extern ActorInfo chGobi2;
 extern ActorInfo chGobi3;
 extern ActorInfo chTrunker;
-extern ActorInfo GV_D_80390DD0;
+extern ActorInfo chMagicCarpetShadow;
 extern ActorInfo chSarcophagus;
 extern ActorInfo chSNSSarcophagus;
 extern ActorInfo D_80390ED0;
 extern ActorInfo D_80390F00;
-extern ActorInfo D_80390FD0;
+extern ActorInfo chMagicCarpet2;
 extern ActorInfo D_80391010;
 extern ActorInfo chSlappa;
 extern ActorInfo chGrabba;
 extern ActorInfo D_803911C0;
-extern ActorInfo D_803911F4;
-extern ActorInfo D_80391218;
-extern ActorInfo D_8039123C;
-extern ActorInfo D_80391260;
+extern ActorInfo chJinxyHeadSandybutt1;
+extern ActorInfo chJinxyHeadSandybutt2;
+extern ActorInfo chJinxyHeadSandybutt3;
+extern ActorInfo chSandybuttEggToll;
 extern ActorInfo D_80391318;
 extern ActorInfo D_80391358;
 extern ActorInfo D_803912B8;
@@ -111,13 +111,13 @@ ActorInfo D_80391494 = { MARKER_23C_GV_SNS_SWITCH, ACTOR_245_GV_SNS_SWITCH, ASSE
 
 ActorInfo D_803914B8 = { MARKER_EB_GV_BANJO_DOOR, ACTOR_6D_GV_BANJO_DOOR, ASSET_3D8_MODEL_GV_BANJO_DOOR, 
     0x1, 0x0, 
-    func_802D3D54, func_8038E460, func_80325F2C,
+    chMMMBreakableWooden_update, func_8038E460, func_80325F2C,
     0, 0, 0.0f, 0
 };
 
 ActorInfo D_803914DC = { MARKER_ED_GV_SUN_DOOR, ACTOR_140_GV_SUN_DOOR, ASSET_3FF_MODEL_GV_SUN_DOOR, 
     0x1, 0x0, 
-    func_802D3D54, func_8038E4DC, func_80325F2C,
+    chMMMBreakableWooden_update, func_8038E4DC, func_80325F2C,
     0, 0, 0.0f, 0
 };
 
@@ -262,7 +262,7 @@ void func_8038E648(Actor *this){
             if(90.0f <= this->pitch){
                 subaddie_set_state(this, 7);
                 this->pitch = 90.0f;
-                gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
+                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 core1_7090_freeSfxSource(0);
             }
             break;
@@ -280,7 +280,7 @@ void func_8038E648(Actor *this){
             if(this->pitch <= 0.0f){
                 subaddie_set_state(this, 1);
                 this->pitch = 0.0f;
-                gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
+                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 mapSpecificFlags_set(5, false);
                 core1_7090_freeSfxSource(0);
                 volatileFlag_setAndTriggerDialog_0(VOLATILE_FLAG_AC_GV_TRAPDOOR_MISSED);
@@ -335,7 +335,7 @@ void func_8038E97C(Actor *this){
         if(this->unk38_31 == 0){
             subaddie_set_state(this, 1);
             core1_7090_freeSfxSource(1);
-            gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
+            gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
         }
 
     }
@@ -362,7 +362,7 @@ void chKazooieDoor_update(Actor *this){
             this->position_z -= 1.3319999999999999;
             if(this->unk1C[1] <= this->position_y){
                 subaddie_set_state(this, 7);
-                gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
+                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 core1_7090_freeSfxSource(1);
                 this->unk38_31 = 450;
             }
@@ -382,7 +382,7 @@ void chKazooieDoor_update(Actor *this){
             if(this->position_y <= this->unk1C[0]){
                 this->position_y = this->unk1C[0];
                 subaddie_set_state(this, 1);
-                gcsfx_playAtSampleRate(SFX_7F_HEAVYDOOR_SLAM);
+                gcsfx_play(SFX_7F_HEAVYDOOR_SLAM);
                 core1_7090_freeSfxSource(1);
                 mapSpecificFlags_set(6, false);
             }
@@ -496,20 +496,20 @@ void GV_func_8038F154(void)
     spawnableActorList_add(&chGobi2, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_11);
     spawnableActorList_add(&chGobi3, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11);
     spawnableActorList_add(&chTrunker, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_11);
-    spawnableActorList_add(&GV_D_80390DD0, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_14);
+    spawnableActorList_add(&chMagicCarpetShadow, actor_new, ACTOR_FLAG_UNKNOWN_2 | ACTOR_FLAG_UNKNOWN_14);
     spawnableActorList_add(&chSarcophagus, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_10);
     spawnableActorList_add(&chSNSSarcophagus, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_6);
     spawnableActorList_add(&D_80390ED0, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8);
     spawnableActorList_add(&D_80390F00, actor_new, ACTOR_FLAG_UNKNOWN_7);
-    spawnableActorList_add(&D_80390FD0, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_14);
+    spawnableActorList_add(&chMagicCarpet2, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_14);
     spawnableActorList_add(&D_80391010, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_14);
     spawnableActorList_add(&chSlappa, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_16);
     spawnableActorList_add(&chGrabba, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_6);
     spawnableActorList_add(&D_803911C0, actor_new, ACTOR_FLAG_UNKNOWN_3);
-    spawnableActorList_add(&D_803911F4, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_19);
-    spawnableActorList_add(&D_80391218, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_19);
-    spawnableActorList_add(&D_8039123C, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_19);
-    spawnableActorList_add(&D_80391260, actor_new, ACTOR_FLAG_UNKNOWN_7);
+    spawnableActorList_add(&chJinxyHeadSandybutt1, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_19);
+    spawnableActorList_add(&chJinxyHeadSandybutt2, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_19);
+    spawnableActorList_add(&chJinxyHeadSandybutt3, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_19);
+    spawnableActorList_add(&chSandybuttEggToll, actor_new, ACTOR_FLAG_UNKNOWN_7);
     spawnableActorList_add(&D_80391318, actor_new, ACTOR_FLAG_UNKNOWN_1 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10);
     spawnableActorList_add(&D_80391358, actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_4 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_10); // Big Jinxy Head ?
     spawnableActorList_add(&D_803912B8, actor_new, ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_10);

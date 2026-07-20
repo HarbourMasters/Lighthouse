@@ -13,7 +13,7 @@ f32  bastick_distance(void);
 f32 bastick_getAngleRelativeToBanjo(void);
 
 void baModel_setYDisplacement(f32);
-void ncDynamicCam4_func_802BFE50(f32, f32, f32);
+void ncbafly_func_802BFE50(f32, f32, f32);
 void yaw_setVelocityBounded(f32, f32);
 f32 bastick_getX(void);
 f32 bastick_getY(void);
@@ -32,7 +32,7 @@ int bsBeeFly_inSet(s32);
 void func_802A04F0(void){
     f32 player_position[3];
 
-    _player_getPosition(player_position);
+    playerPosition_get(player_position);
     player_position[0] += randf2(-30.0f, 30.0f);
     player_position[1] += 30.0f + randf2(0.0f, 30.0f);
     player_position[2] += randf2(-30.0f, 30.0f);
@@ -123,7 +123,7 @@ void _bsBeeFly_updateYaw(void){
     f32 sp30;
     f32 stickX;
     stickX = bastick_getX();
-    ncDynamicCam4_func_802BFE50(2.0f, 2000.0f, 350.0f);
+    ncbafly_func_802BFE50(2.0f, 2000.0f, 350.0f);
     if(bakey_held(BUTTON_R)){
         yaw_setVelocityBounded(500.0f, 30.0f);
         sp34 = 6.0f;
@@ -187,7 +187,7 @@ void bsbeefly_update(void){
     _bsBeeFly_updateYaw();
     _bsBeeFly_updatePitch();
     pitch_get(); //return value never used
-    if(bakey_pressed(BUTTON_A) && (player_getYPosition() < 7500.0)){
+    if(bakey_pressed(BUTTON_A) && (playerPosition_getY() < 7500.0)){
         baflap_add(1.0f);
     }
     if((baflap_getCount() == 0) && player_inWater()){

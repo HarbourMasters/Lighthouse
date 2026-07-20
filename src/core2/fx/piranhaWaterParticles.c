@@ -9,7 +9,7 @@ extern ParticleEmitter *func_802F4094(f32 pos[3], f32 arg1);
 void chPiranhaWaterParticles_update(Actor *this);
 
 /* .data */
-ActorInfo D_80367C60 = { 
+ActorInfo chPiranhaWaterParticles = { 
     0x15E, 0x188, 0x0, 
     0, NULL, 
     chPiranhaWaterParticles_update, actor_update_func_80326224, func_80325340,

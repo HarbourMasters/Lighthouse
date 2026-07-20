@@ -392,7 +392,7 @@ void func_8029B984(f32 dst[3]){
     f32 plyr_pos[3];
     f32 sp18[3];
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     viewport_getPosition_vec3f(sp18);
     ml_vec3f_diff_copy(dst, sp18, plyr_pos);
 }
@@ -612,7 +612,7 @@ enum bs_e bs_getIdleState(void){
                 return BS_26_LONGLEG_IDLE;
             }
             if (player_inWater()) {
-                if (player_getYPosition() > (floor_getCurrentFloorYPosition() - 80.0f)) {
+                if (playerPosition_getY() > (floor_getCurrentFloorYPosition() - 80.0f)) {
                     return BS_2D_SWIM_IDLE;
                 }
                 return BS_2B_DIVE_IDLE;
@@ -631,7 +631,7 @@ void func_8029C0D0(void) {
     f32 sp34;
 
     if (floor_isCurrentFloorunk59()) {
-        _player_getPosition(sp3C);
+        playerPosition_get(sp3C);
         sp3C[1] = sp34 = floor_getCurrentFloorYPosition();
         p_ctrl = func_802F4094(sp3C, 35.0f);
         fxRipple_802F3554(3, sp3C);
@@ -651,7 +651,7 @@ void func_8029C0D0(void) {
 
 void func_8029C22C(void) {
 
-    if(floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > player_getYPosition())
+    if(floor_isCurrentFloorunk59() && floor_getCurrentFloorYPosition() > playerPosition_getY())
         return;
 
     D_80364620 = D_80364620 ? false : true;
@@ -668,7 +668,7 @@ void func_8029C22C(void) {
 void func_8029C304(s32 arg0) {
     f32 sp1C[3];
 
-    _player_getPosition(sp1C);
+    playerPosition_get(sp1C);
     sp1C[1] = floor_getCurrentFloorYPosition();
     fxRipple_802F3584(arg0, sp1C, (uintptr_t)func_802946CC());
 }
@@ -676,7 +676,7 @@ void func_8029C304(s32 arg0) {
 void func_8029C348(void) {
     f32 sp1C[3];
 
-    _player_getPosition(sp1C);
+    playerPosition_get(sp1C);
     sp1C[0] += randf2(-30.0f, 30.0f);
     sp1C[1] += randf2(60.0f, 70.0f);
     sp1C[2] += randf2(-30.0f, 30.0f);
@@ -691,7 +691,7 @@ void func_8029C3E8(f32 arg0, f32 arg1) {
     f32 sp2C;
     f32 sp28;
 
-    _player_getPosition(sp30);
+    playerPosition_get(sp30);
     sp28 = ml_map_f(baphysics_get_horizontal_velocity(), 0.0f, 1000.0f, arg0, arg1);
     sp2C = player_getYaw();
     func_802589E4(sp3C, sp2C, sp28);
@@ -756,7 +756,7 @@ void func_8029C674(void) {
         baflag_set(BA_FLAG_17_FIRST_PERSON_VIEW);
         ncDynamicCamera_enterFirstPerson();
         func_8028E9C4(5, sp1C);
-        ncFirstPersonCamera_setZoomedOutPosition(sp1C);
+        ncba1p_setZoomedOutPosition(sp1C);
     }
 }
 
@@ -768,11 +768,11 @@ void func_8029C6D0(void) {
 
     if (balookat_getState() == 4 && D_8037D1E8) {
         func_8028E9C4(5, sp18);
-        ncFirstPersonCamera_setZoomedOutPosition(sp18);
+        ncba1p_setZoomedOutPosition(sp18);
         func_8028E9C4(5, sp30);
         balookat_try_get_position(sp24);
         func_802BC434(sp3C, sp24, sp30);
-        ncFirstPersonCamera_setZoomedOutRotation(sp3C);
+        ncba1p_setZoomedOutRotation(sp3C);
     }
 }
 
@@ -979,7 +979,7 @@ void func_8029CDC0(void) {
     f32 sp2C[3];
     f32 sp20[3];
 
-    _player_getPosition(sp20);
+    playerPosition_get(sp20);
     sp20[0] += (randf() * 90.0f) - 45.0f;
     sp20[2] += (randf() * 90.0f) - 45.0f;
     sp2C[0]  = (randf() * 20.0f) - 10.0f;

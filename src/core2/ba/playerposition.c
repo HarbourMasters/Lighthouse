@@ -25,19 +25,19 @@ void playerPosition_func_80298464(f32 arg0[3]){
     ml_vec3f_copy(D_8037C5B0, arg0);
 }
 
-void player_setPosition(f32 arg0[3]){
+void playerPosition_set(f32 arg0[3]){
     ml_vec3f_copy(player_position, arg0);
 }
 
-void player_setYPosition(f32 arg0){
+void playerPosition_setY(f32 arg0){
     player_position[1] = arg0;
 }
 
-void _player_getPosition(f32 arg0[3]){
+void playerPosition_get(f32 arg0[3]){
     ml_vec3f_copy(arg0, player_position);
 }
 
-f32 player_getYPosition(void){
+f32 playerPosition_getY(void){
     return player_position[1];
 }
 

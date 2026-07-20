@@ -346,7 +346,7 @@ static void __bscroc_recoil_init(s32 damage){
     else
         func_8030E58C(SFX_56_BANJO_HUI, 1.8f);
     
-    _player_getPosition(player_position);
+    playerPosition_get(player_position);
     func_80294980(sp20);
     func_80257F18(sp20, player_position, &sp38);
     yaw_setIdeal(mlNormalizeAngle(sp38 + 180.0f));
@@ -431,7 +431,7 @@ void bscroc_die_init(void){
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bscroc.c", 0x32b);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
-    _player_getPosition(player_position);
+    playerPosition_get(player_position);
     func_80294980(sp20);
     func_80257F18(sp20, player_position, &sp38);
     yaw_setIdeal(mlNormalizeAngle(sp38 + 180.0f));
@@ -446,7 +446,7 @@ void bscroc_die_init(void){
     baMarker_collisionOff();
     baeyes_close();
     func_802914CC(0xd);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8029C984();
     func_8030E58C(SFX_36_BANJO_DOH, 1.8f);
     batimer_set(0, 2.9f);

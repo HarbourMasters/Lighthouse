@@ -354,7 +354,7 @@ void __bspumpkin_bounce_init(s32 arg0) {
     } else {
         func_8030E58C(SFX_56_BANJO_HUI, 1.8f);
     }
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     func_80294980(sp20);
     func_80257F18(sp20, plyr_pos, &sp38);
     yaw_setIdeal(mlNormalizeAngle(sp38 + 180.0f));
@@ -442,7 +442,7 @@ void bspumpkin_die_init(void) {
     anctrl_setPlaybackType(anim_ctrl, ANIMCTRL_ONCE);
     anctrl_start(anim_ctrl, "bspumpkin.c", 0x32E);
     func_8030E58C(SFX_36_BANJO_DOH, 1.8f);
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     func_80294980(sp20);
     func_80257F18(sp20, plyr_pos, &sp38);
     D_8037D4F4 = 250.0f;
@@ -456,7 +456,7 @@ void bspumpkin_die_init(void) {
     baphysics_set_gravity(-1200.0f);
     pitch_setAngVel(1000.0f, 12.0f);
     func_802914CC(0xD);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8029C984();
     baMarker_collisionOff();
     baeyes_close();

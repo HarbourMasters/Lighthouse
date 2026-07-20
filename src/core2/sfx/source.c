@@ -861,8 +861,12 @@ void sfxsource_play(enum sfx_e uid, s32 sampleRate){
     func_8030D6C4(uid, 1.0f, sampleRate, 0, 2);
 }
 
-void gcsfx_playAtSampleRate(enum sfx_e uid){
-    sfxsource_play(uid, 0x7ff8);
+void gcsfx_playAtSampleRate(enum sfx_e uid, s32 sampleRate){
+    sfxsource_play(uid, sampleRate);
+}
+
+void gcsfx_play(enum sfx_e uid){
+    gcsfx_playAtSampleRate(uid, 0x7FF8);
 }
 
 void func_8030E560(enum sfx_e uid, s32 arg1){

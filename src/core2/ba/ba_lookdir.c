@@ -189,7 +189,7 @@ void func_8028E4B0(void) {
     bsmethods_reset();
     sp20 = gsworld_getExit();
     D_8037BFB8 = 0;
-    player_setPosition(D_803636C0);
+    playerPosition_set(D_803636C0);
     if (volatileFlag_get(VOLATILE_FLAG_E) || func_802D686C() || (sp20 == 0x65)){
         return;
     }
@@ -334,7 +334,7 @@ f32 func_8028E984(void){
 }
 
 void player_getPosition(f32 dst[3]){
-    _player_getPosition(dst);
+    playerPosition_get(dst);
 }
 
 void func_8028E9C4(s32 arg0, f32 arg1[3]) {
@@ -356,7 +356,7 @@ void func_8028E9C4(s32 arg0, f32 arg1[3]) {
             break;
 
         case 5: //L8028EA2C
-            _player_getPosition(arg1);
+            playerPosition_get(arg1);
             switch(bsStoredState_getTransformation()){
                 case TRANSFORM_3_PUMPKIN: //L8028EA68
                     if(gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION){
@@ -432,7 +432,7 @@ f32 func_8028EC64(f32 arg0[3]){
     f32 sp1C;
     f32 sp18;
     func_80293D2C(&sp18, &sp1C);
-    _player_getPosition(arg0);
+    playerPosition_get(arg0);
     arg0[1] += sp18;
     return sp1C;
 }
@@ -549,7 +549,7 @@ f32 func_8028EF88(void){
     if(floor_isCurrentFloorunk59()){
         return floor_getCurrentFloorYPosition();
     }
-    return player_getYPosition();
+    return playerPosition_getY();
 }
 
 bool func_8028EFC8(void){
@@ -885,7 +885,7 @@ void func_8028FA74(f32 dst[3]){
     f32 plyr_pos[3];
     f32 sp18[3];
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     playerPosition_getOffset(sp18);
     ml_vec3f_add(dst, plyr_pos, sp18);
 }
@@ -894,7 +894,7 @@ void func_8028FAB0(f32 arg0[3]){
     f32 plyr_pos[3];
     f32 diff[3];
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     ml_vec3f_diff_copy(diff, arg0, plyr_pos);
     playerPosition_setOffset(diff);
 }
