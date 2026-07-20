@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "musicplayer.h"
 
 #include "version.h"
 

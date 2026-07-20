@@ -5,9 +5,8 @@
 #include "model.h"
 
 #include "core2/gc/zoombox.h"
-#include "core2/quiz_storage.h"
 #include "core2/nc/camera.h"
-
+#include "core2/quiz/storage.h"
 
 #define ARRLEN(x) ((s32)(sizeof(x) / sizeof(x[0])))
 

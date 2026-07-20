@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "dialog.h"
 
 #include "core2/gc/zoombox.h"
 

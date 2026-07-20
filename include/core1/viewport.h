@@ -7,7 +7,7 @@ extern "C" {
 
 void viewport_moveAlongZAxis(f32 offset);
 f32 viewport_getDistance(f32 arg0[3]);
-void viewport_getLookbk_vector(f32 arg0[3]);
+void viewport_getLookVector(f32 arg0[3]);
 void viewport_getPosition_vec3f(f32 arg0[3]);
 void viewport_getPosition_vec3w(s32 dst[3]);
 void viewport_getPosition_vec3s(s16 dst[3]);

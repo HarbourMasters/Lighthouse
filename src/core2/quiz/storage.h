@@ -1,5 +1,9 @@
-#ifndef __CORE2_QUIZ_STORAGE_H__
-#define __CORE2_QUIZ_STORAGE_H__
+// BanjoDecomp: core2/code_C9E70.h
+#ifndef BANJO_KAZOOIE_CODE_C9E70_H
+#define BANJO_KAZOOIE_CODE_C9E70_H
+
+#ifndef __CORE2_C9E70_H__
+#define __CORE2_C9E70_H__
 
 #include <ultra64.h>
 #include "structs.h"
@@ -59,8 +63,8 @@ struct FF_StorageStruct {
     /* 08 */ s16   currentTileId;
     /* 0A */ u8    currFfMode;
     /* 0B */ u8    ffQuestionType;
-    /* 0C */ u8    questionTypeTableIndex;
-    /* 0D */ u8    questionAssetIndex;
+    /* 0C */ u8    questionTypeTableIndex; // Question Type Index
+    /* 0D */ u8    questionAssetIndex; // Question Asset Id
     /* 0E */ s8    unkE;
     /* 0F */ s8    unkF;
 
@@ -90,3 +94,5 @@ struct FF_StorageStruct {
     /* 48 */ struct FF_StorageStruct_48 *unk48;
 }; // 0x4C
 #endif
+
+#endif // BANJO_KAZOOIE_CODE_C9E70_H

@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-#include "core2/quiz_storage.h"
+#include "core2/quiz/storage.h"
 
 extern struct FF_StorageStruct *ffStorage;
 

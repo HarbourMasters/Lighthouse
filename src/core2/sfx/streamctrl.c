@@ -21,7 +21,7 @@ void func_802F7EB0(struct3s *this){
         return;
 
     player_getPosition(plyrPos);
-    viewport_getLookbk_vector(camNorm);
+    viewport_getLookVector(camNorm);
     viewport_getRotation_vec3f(camRot);
     sp50 = bk_vector_pushBackNew(&this->unk20);
     tmpf = randf2(50.0f, 1100.0f);

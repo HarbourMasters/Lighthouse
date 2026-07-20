@@ -114,7 +114,7 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition);
 // --- core2/time.c ---
 f32 time_getDelta(void);
 
-// --- core2/map_list.c ---
+// --- core2/map/list.c ---
 BKCollisionTriangle *func_8029463C(void);
 BKModelBin *func_802946A8(void);
 BKCollisionTriangle *func_802946CC(void);
@@ -127,7 +127,7 @@ BKCollisionTriangle *func_8031C5F4(struct0 *self);
 BKModelBin *func_8031C5DC(struct0 *self);
 struct0 *func_8031B9D8(void);
 
-// --- core2/collision/funcs.c ---
+// --- core2/collision/dispatch.c ---
 BKCollisionTriangle *func_80320B98(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3);
 // func_80320C94, func_80320DB0 return BKCollisionTriangle* but
 // have conflicting local externs (bool/s32/int) in decomp source files.
@@ -307,7 +307,7 @@ f32 player_getYaw(void);
 // Only functions that return pointers or have no conflicting local externs.
 NodeProp *cube_findNodePropByActorId(Cube *cube, enum actor_e actor_id);
 
-// --- core2/camera/cameranodelist.c ---
+// --- core2/nc/cameranodelist.c ---
 PivotCameraNode *ncCameraNodeList_getPivotCameraNode(int camera_node_index);
 StaticCameraNode *ncCameraNodeList_getStaticCameraNode(int camera_node_index);
 ZoomCameraNode *ncCameraNodeList_getZoomCameraNode(int camera_node_index);
@@ -319,11 +319,11 @@ s16 *picturebox_getColorBuffer(void);
 
 // COMMONLY MISSING PROTOTYPES
 
-// --- core2/fx/score_jiggy.c ---
+// --- core2/jiggyscore.c ---
 u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
 int jiggyscore_isSpawned(enum jiggy_e jiggy_id);
 
-// --- core2/fx/score_honeycomb.c ---
+// --- core2/honeycombscore.c ---
 bool honeycombscore_get(enum honeycomb_e indx);
 
 // --- core2/map/mapspecificflags.c ---
@@ -368,6 +368,8 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_GOLD = 10,
     ANCHOR_COLLECTIBLE_ORANGE = 11,
 };
+
+// --- core2/flags_bitfield.c ---
 bool fileProgressFlag_get(enum file_progress_e index);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);
 s32 volatileFlag_get(enum volatile_flags_e index);
@@ -455,7 +457,7 @@ void sfxsource_setSfxId(u8 indx, enum sfx_e uid);
 void sfxsource_set_fade_distances(u8, f32, f32);
 void sfxsource_set_position(u8, f32[3]);
 
-// --- core2/camera/camera_motor1.c ---
+// --- core2/nc/camera_motor1.c ---
 void gcStaticCamera_activate(s32 arg0);
 bool func_802BB270(void);
 
@@ -464,7 +466,7 @@ void func_803114D0(void);
 int gcdialog_hasCurrentTextId(void);
 bool gcdialog_showDialog(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32));
 
-// --- core2/cutscene/lair.c ---
+// --- core2/map/cutscene_skip.c ---
 void func_8031CD20(NodeProp *arg0, s32 arg1, s32 arg2);
 
 // --- core2/collision/polydetect.c ---
@@ -524,18 +526,18 @@ bool modelAppendages_hideWadingBoots(void);
 // --- core2/ba/carriedobj.c ---
 bool player_setCarryObjectPose(enum actor_e actor_id, Actor **arg1);
 
-// --- core2/camera/camera_nodemanager.c ---
+// --- core2/nc/camera_nodemanager.c ---
 bool func_802BB720(s32 arg0, f32 arg1[3], f32 arg2[3], s32 *arg3);
 bool func_802BB884(f32 arg0[3], f32 *arg1);
 bool func_802BC428(void);
 
-// --- core2/camera/camera_fog.c ---
+// --- core2/nc/camera_fog.c ---
 bool func_802BEF64(void);
 
-// --- core2/camera/camera_focus.c ---
+// --- core2/nc/camera_focus.c ---
 bool func_802BAC1C(void);
 
-// --- core2/camera/dynamicCamera.c ---
+// --- core2/nc/dynamicCamera.c ---
 bool func_802BC640(f32 arg0[3], f32 arg1[3], f32 arg2, s32 arg3);
 bool func_802BCE0C(f32 arg0[3], f32 arg1[3]);
 f32  func_802BD8D4(void);
@@ -543,21 +545,21 @@ void func_802BD8A4(f32, f32, f32);
 void func_802BE230(f32, f32);
 void func_802BE244(f32, f32);
 
-// --- core2/camera/dynamicCam12.c ---
+// --- core2/nc/dynamicCam12.c ---
 bool __is_flying_in_FP(void);
 bool func_802C189C(void);
 
-// --- core2/camera/dynamicCam13.c ---
+// --- core2/nc/dynamicCam13.c ---
 bool func_802C0640(void);
 
-// --- core2/camera/dynamicCamA.c ---
+// --- core2/nc/dynamicCamA.c ---
 bool ncDynamicCamA_func_802C1EE0(void);
 bool  ncDynamicCamA_func_802C1DB0(f32);
 
-// --- core2/camera/1p.c ---
+// --- core2/nc/1p.c ---
 bool __ncba1p_fullyZoomedIn(void);
 
-// --- core2/collision/funcs.c ---
+// --- core2/collision/dispatch.c ---
 void func_80320B24(void *arg0, void *arg1, void *arg2);
 void func_80320B44(void *arg0, void *arg1, void *arg2, void *arg3);
 
@@ -585,7 +587,7 @@ void __spawnQueue_add_1(GenFunction_1, uintptr_t);
 #define SPAWNQUEUE_ADD_1(method, arg0) __spawnQueue_add_1((GenFunction_1) (method), reinterpret_cast(uintptr_t, (arg0)))
 void __spawnQueue_add_4(GenFunction_4, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
-// --- core2/sprite/displaydata.c ---
+// --- core2/fx/commonParticle.c ---
 void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2);
 int commonParticle_new(enum common_particle_e particle_id, int arg1);
 
@@ -645,7 +647,7 @@ void coMusicPlayer_playMusic(enum comusic_e, s32);
 // --- core1/stopnswop.c ---
 bool sns_get_item_state(enum StopNSwop_Item item, s32 set);
 
-// --- FP/mapstate/slalom.c ---
+// --- FP/ma/slalom.c ---
 bool maSlalom_isActive(void);
 
 // --- FP/ch/boggy2.c ---
@@ -722,12 +724,12 @@ void CC_func_80387DA0(void);
 void CC_func_803870E0(void);
 void func_803870EC(s32 arg0);
 
-// --- CC/clankerrings.c ---
+// --- CC/ma/clankerrings.c ---
 void maClankerRings_release(void);
 void maClankerRings_init(void);
 void maClankerRings_update(void);
 
-// --- CC/clanker.c ---
+// --- CC/ma/clanker.c ---
 int CC_func_80388CA0(void);
 void maClanker_raiseClankerCutscene(void);
 void maClanker_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -748,17 +750,17 @@ void maClankerRings_passRing(s32);
 // --- CCW/ccwspawnqueue.c ---
 void CCW_func_8038DB6C(void);
 
-// --- CCW/ch/nabnut_winter.c ---
+// --- CCW/nabnut_winter.c ---
 void chAutumnOutsideNabnut_getPosition(f32 dst[3]);
 
-// --- CCW/ch/eyrie_baby.c ---
+// --- CCW/eyrie_baby.c ---
 void func_80389BD8(f32 dst[3]);
 
-// --- CCW/beanstalk.c ---
+// --- CCW/ch/beanstalk.c ---
 bool chCCWBeanstalk_hasSpawned();
 void chCCWBeanstalk_growBeanstalk();
 
-// --- CCW/zubbahoneylump.c ---
+// --- CCW/ch/zubbahoneylump.c ---
 void chZubbaFight_zubbaKilled(ActorMarker *marker);
 void chZubbaFight_zubbaDisappear(ActorMarker *marker);
 void chZubbaFight_zubbaScore(ActorMarker *marker, s32 *score, s32 *total);
@@ -775,7 +777,7 @@ void chTwinkly_decideShatterColor(f32 position[3], enum marker_e marker_id);
 // --- FP/ch/twinklybox.c ---
 bool preventSnowmanAttack(ActorMarker *marker);
 
-// --- FP/mapstate/slalom.c ---
+// --- FP/ma/slalom.c ---
 bool maSlolam_WithinRadiusOfBoggy(f32 position[3], s32 radius);
 void maSlalom_end();
 void maSlalom_init(void);
@@ -788,20 +790,20 @@ void maSlalom_start(void);
 void maSlalom_unlinkBoggy(void);
 void maSlalom_update(void);
 
-// --- FP/mapstate/snowbutton.c ---
+// --- FP/ma/snowbutton.c ---
 void maSnowButton_decRemaining(void);
 void maSnowButton_end(void);
 void maSnowButton_init(void);
 void maSnowButton_update(void);
 
-// --- FP/mapstate/snowy.c ---
+// --- FP/ma/snowy.c ---
 void maSnowy_decRemaining(void);
 void maSnowy_end(void);
 void maSnowy_incTotal(void);
 void maSnowy_init(void);
 void maSnowy_update(void);
 
-// --- FP/ch/wozza_fire.c ---
+// --- FP/wozza_fire.c ---
 void func_803918C0(void);
 void func_8039195C(void);
 void func_80391994(void);
@@ -826,10 +828,10 @@ bool chGobiRock_isDestroyed(void);
 // --- GV/ch/grabba.c ---
 s32 GV_func_8038C5BC(void);
 
-// --- GV/ch/handshadow.c ---
+// --- GV/handshadow.c ---
 void func_8038C748(void);
 
-// --- GV/ch/jinxy_head.c ---
+// --- GV/jinxy_head.c ---
 int func_8038E344(ActorMarker *this_marker);
 void func_8038E2FC(ActorMarker *this_marker);
 
@@ -971,7 +973,7 @@ void chTreasurehunt_resetProgress(void);
 // --- TTC/crc.c ---
 void code3040_checkTTCChecksums(void);
 
-// --- TTC/castle.c ---
+// --- TTC/ma/castle.c ---
 bool maCastle_hasBanjoKazooieCodeBeenEntered(void);
 bool maCastle_isSecretCheatCodeRelatedValueEqualToScrambledAddressValue();
 void maCastle_init(void);
@@ -1020,7 +1022,7 @@ void func_80244814(void *arg0);
 void func_80244978(intptr_t arg0, s16 type, s32 arg2);
 void func_80244A98(s32 arg0);
 
-// --- core1/io/ba_motor.c ---
+// --- core1/bamotor.c ---
 void baMotor_80250C08(void);
 void baMotor_80250FC0(void);
 void baMotor_init(void);
@@ -1046,7 +1048,7 @@ void defragManager_init(void);
 // --- core1/gu_perspective.c ---
 void _guMtxF2L(float mf[4][4], Mtx *m);
 
-// --- core1/inflate.c ---
+// --- boot/inflate.c ---
 int bk_inflate(void);
 
 // --- core1/initthread.c ---
@@ -1258,7 +1260,7 @@ void func_80296CC0(f32 arg0[3]);
 // --- core2/scorequeue/queue_timers.c ---
 bool func_802FCD98(struct8s *arg0);
 
-// --- core2/ambient_fish.c ---
+// --- SM/ch/ambient_fish.c ---
 void func_803500D8(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_803500E8(void);
 void func_80350174(void);
@@ -1320,7 +1322,7 @@ void func_8033A6B0(BoneTransformList *self, s32 bone_id, f32 arg2[3]);
 void func_8033A8F0(BoneTransformList *self, s32 bone_id, f32 arg2[4]);
 void func_8033A968(BoneTransformList *self, s32 bone_id, f32 arg2[3]);
 
-// --- core2/anim_sequence.c ---
+// --- core2/anim/anseq.c ---
 void anSeq_free(void **ppAnSeq);
 void anSeq_setActivationFrameDelay(void **ppAnSeq, s32 arg1);
 void anSeq_update(void **ppAnSeq, AnimCtrl *pAnCtl);
@@ -1658,7 +1660,7 @@ void basfx_free(void);
 void basfx_reset(void);
 void basfx_update(void);
 
-// --- core2/ba/ba_sfxintensity.c ---
+// --- core2/ba/ba_camera.c ---
 void cameraMode_update(void);
 void func_80290B6C(void);
 void func_80291488(s32 arg0);
@@ -1793,17 +1795,17 @@ void func_802B6FA8(void);
 // --- core2/bs/walrus.c ---
 int bswalrus_inSledSet(enum bs_e state);
 
-// --- core2/camera/camera_ease.c ---
+// --- core2/nc/camera_ease.c ---
 void func_802C2250(void);
 void func_802C2258(void);
 void func_802C22C0(f32 target_position[3], f32 target_rotation[3]);
 
-// --- core2/camera/camera_focus.c ---
+// --- core2/nc/camera_focus.c ---
 void func_802BABD8(void);
 void func_802BAC10(void);
 void func_802BAC58(void);
 
-// --- core2/camera/camera_fog.c ---
+// --- core2/nc/camera_fog.c ---
 void func_802BEE2C(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802BEF70(void);
 void func_802BEF78(void);
@@ -1814,19 +1816,19 @@ void propModelList_free(void);
 void propModelList_init(void);
 void propModelList_flush(s32 arg0);
 
-// --- core2/camera/camera_motor1.c ---
+// --- core2/nc/camera_motor1.c ---
 s32 func_802BB294(void);
 void func_802BAF20(void);
 void func_802BAF40(void);
 
-// --- core2/camera/camera_motor2.c ---
+// --- core2/nc/camera_motor2.c ---
 void func_802BB2A0(void);
 void func_802BB2A8(void);
 void func_802BB3C4(s32 arg0);
 void func_802BB41C(s32 arg0);
 void func_802BB4D8(f32 position[3], f32 rotation[3]);
 
-// --- core2/camera/camera_nodemanager.c ---
+// --- core2/nc/camera_nodemanager.c ---
 s32 ncCamera_getType(void);
 void camera_setType(enum camera_type_e camera_type);
 void func_802BBD0C(Gfx **gdl, Mtx **mptr, Vtx **vptr);
@@ -1847,26 +1849,26 @@ s32 func_80322758(void);
 void func_80322764(void);
 void func_8032278C(s32 arg0, s32 arg1);
 
-// --- core2/camera/camera_position.c ---
+// --- core2/nc/camera_position.c ---
 void func_802BE940(void);
 
-// --- core2/camera/camera_set.c ---
+// --- core2/nc/camera_set.c ---
 void func_803525A0(f32 arg0[3]);
 
-// --- core2/camera/cameranode_type1.c ---
+// --- core2/nc/cameranode_type1.c ---
 bool code336F0_func_802BA87C(PivotCameraNode *self);
 bool code336F0_func_802BA89C(PivotCameraNode *self);
 bool code336F0_func_802BA8BC(PivotCameraNode *self);
 void code336F0_func_802BA7D8(PivotCameraNode *self, f32 arg1[3]);
 
-// --- core2/camera/cameranode_type3.c ---
+// --- core2/nc/cameranode_type3.c ---
 bool code33310_func_802BA4D0(ZoomCameraNode *self);
 bool code33310_func_802BA4F0(ZoomCameraNode *self);
 
-// --- core2/camera/cameranode_type4.c ---
+// --- core2/nc/cameranode_type4.c ---
 s32 code33250_func_802BA234(RandomCameraNode *self);
 
-// --- core2/camera/cameranodelist.c ---
+// --- core2/nc/cameranodelist.c ---
 s32 ncCameraNodeList_getNodeType(int camera_node_index);
 s32 ncCameraNodeList_nodeIsValid(int camera_node_index);
 void ncCameraNodeList_defrag();
@@ -1874,88 +1876,88 @@ void ncCameraNodeList_free();
 void ncCameraNodeList_fromFile(File *file_ptr);
 void ncCameraNodeList_init();
 
-// --- core2/camera/dynamicCam1.c ---
+// --- core2/nc/dynamicCam1.c ---
 void ncDynamicCam1_end(void);
 void ncDynamicCam1_init(void);
 void ncDynamicCam1_update(void);
 
-// --- core2/camera/dynamicCam10.c ---
+// --- core2/nc/dynamicCam10.c ---
 void ncDynamicCam10_end(void);
 void ncDynamicCam10_init(void);
 void ncDynamicCam10_update(void);
 
-// --- core2/camera/dynamicCam11.c ---
+// --- core2/nc/dynamicCam11.c ---
 void func_802BF798(s32 camera_node_index);
 void ncDynamicCam11_end(void);
 void ncDynamicCam11_init(void);
 void ncDynamicCam11_update(void);
 
-// --- core2/camera/dynamicCam12.c ---
+// --- core2/nc/dynamicCam12.c ---
 void dynamicCam12_init(void);
 void func_802C0F4C(void);
 void ncDynamicCam12_end(void);
 void ncDynamicCam12_update(void);
 
-// --- core2/camera/dynamicCam13.c ---
+// --- core2/nc/dynamicCam13.c ---
 void func_802C095C(void);
 void ncDynamicCam13_end(void);
 void ncDynamicCam13_init(void);
 void ncDynamicCam13_update(void);
 
-// --- core2/camera/dynamicCam3.c ---
+// --- core2/nc/dynamicCam3.c ---
 void ncDynamicCam3_end(void);
 void ncDynamicCam3_init(void);
 void ncDynamicCam3_update(void);
 
-// --- core2/camera/fly.c ---
+// --- core2/nc/fly.c ---
 void ncbafly_end(void);
 void ncbafly_func_802BFE74(bool);
 void ncbafly_init(void);
 void ncbafly_update(void);
 
-// --- core2/camera/dynamicCam5.c ---
+// --- core2/nc/dynamicCam5.c ---
 void ncDynamicCam5_end(void);
 void ncDynamicCam5_func_802BF590(f32 arg0[3]);
 void ncDynamicCam5_init(void);
 void ncDynamicCam5_update(void);
 
-// --- core2/camera/dynamicCam8.c ---
+// --- core2/nc/dynamicCam8.c ---
 void ncDynamicCam8_end(void);
 void ncDynamicCam8_func_802BF9B8(s32 arg0);
 void ncDynamicCam8_init(void);
 void ncDynamicCam8_update(void);
 
-// --- core2/camera/dynamicCam9.c ---
+// --- core2/nc/dynamicCam9.c ---
 void ncDynamicCam9_end(void);
 void ncDynamicCam9_init(void);
 void ncDynamicCam9_update(void);
 
-// --- core2/camera/dynamicCamA.c ---
+// --- core2/nc/dynamicCamA.c ---
 void ncDynamicCamA_end(void);
 void ncDynamicCamA_init(void);
 void ncDynamicCamA_update(void);
 
-// --- core2/camera/dynamicCamB.c ---
+// --- core2/nc/dynamicCamB.c ---
 void ncDynamicCamB_end(void);
 void ncDynamicCamB_init(void);
 void ncDynamicCamB_update(void);
 
-// --- core2/camera/dynamicCamC.c ---
+// --- core2/nc/dynamicCamC.c ---
 void ncDynamicCamC_end(void);
 void ncDynamicCamC_init(void);
 void ncDynamicCamC_update(void);
 
-// --- core2/camera/die.c ---
+// --- core2/nc/die.c ---
 void ncbadie_end(void);
 void ncbadie_init(void);
 void ncbadie_update(void);
 
-// --- core2/camera/dynamicCamF.c ---
+// --- core2/nc/dynamicCamF.c ---
 void ncDynamicCamF_end(void);
 void ncDynamicCamF_init(void);
 void ncDynamicCamF_update(void);
 
-// --- core2/camera/dynamicCamera.c ---
+// --- core2/nc/dynamicCamera.c ---
 int func_802BE60C(void);
 int func_802BE834(f32 arg0[3]);
 int ncDynamicCamera_getState(void);
@@ -1982,7 +1984,7 @@ void ncDynamicCamera_setState(s32 state);
 void ncDynamicCamera_setUpdateEnabled(bool arg0);
 void ncDynamicCamera_update(void);
 
-// --- core2/camera/1p.c ---
+// --- core2/nc/1p.c ---
 s32 ncba1p_getState(void);
 void ncba1p_getPositionAndRotation(f32 position[3], f32 rotation[3]);
 void ncba1p_getZoomedInRotation(f32 dst[3]);
@@ -1991,12 +1993,12 @@ void ncba1p_setState(enum nc_first_person_state state);
 void ncba1p_setZoomedOutPosition(f32 src[3]);
 void ncba1p_setZoomedOutRotation(f32 src[3]);
 
-// --- core2/camera/randomCamera.c ---
+// --- core2/nc/randomCamera.c ---
 void ncRandomCamera_end(void);
 void ncRandomCamera_init(void);
 void ncRandomCamera_update(void);
 
-// --- core2/camera/staticCamera.c ---
+// --- core2/nc/staticCamera.c ---
 void ncStaticCamera_end(void);
 void ncStaticCamera_exit(void);
 void ncStaticCamera_getPosition(f32 dst[3]);
@@ -2032,7 +2034,7 @@ s32 chBottlesBonusCursor_getState(void);
 void chBottlesBonusCursor_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chBottlesBonusCursor_lose(void);
 
-// --- core2/ch/drips.c ---
+// --- core2/fx/drips.c ---
 void func_80359A40(f32 position[3], void *arg1, s32 cnt);
 
 // --- core2/ch/goldfeather.c ---
@@ -2051,27 +2053,27 @@ void chjiggy_setJiggyId(Actor *self, u32 id);
 // --- core2/ch/jigsawdance.c ---
 void chJigsawDance_setState(Actor * self, u32 arg1);
 
-// --- core2/ch/mmm_veggies.c ---
+// --- cutscenes/cutscene_trigger.c ---
 void func_802CDAC4(Actor *);
 
 // --- core2/ch/mole.c ---
 int chmole_learnedAllLevelAbilities(enum level_e level);
 int chmole_learnedAllSpiralMountainAbilities(void);
 
-// --- core2/ch/overlaycopyright.c ---
+// --- core2/gc/overlaycopyright.c ---
 void chOverlayCopyright_func_802DCB0C(s32 arg0, s32 arg1);
 void chOverlayCopyright_spawn(s32 arg0, s32 arg1);
 
-// --- core2/ch/overlaynocontroller.c ---
+// --- core2/gc/overlaynocontroller.c ---
 void chOverlayNoController_func_802DD040(s32 arg0, s32 arg1);
 void chOverlayNoController_spawn(s32 arg0, s32 arg1);
 
-// --- core2/ch/overlaypressstart.c ---
+// --- core2/gc/overlaypressstart.c ---
 void chOverlayPressStart_func_802DCDB0(void);
 void chOverlayPressStart_func_802DCDC0(NodeProp *arg0, ActorMarker *arg1);
 void chOverlayPressStart_spawn(NodeProp *arg0, ActorMarker *arg1);
 
-// --- core2/ch/soundsource.c ---
+// --- core2/sfx/soundsource.c ---
 void func_802D09B8(Actor *self, s32 arg1);
 
 // --- core2/ch/trainers.c ---
@@ -2118,7 +2120,7 @@ void itemPrint_init(void);
 void itemPrint_reset(void);
 void itemPrint_update(void);
 
-// --- core2/collision/cachesize.c ---
+// --- core2/time_framedelta.c ---
 void func_8033DC04(void);
 void func_8033DC10(void);
 void func_8033DC18(void);
@@ -2161,7 +2163,7 @@ void func_80351B28(Struct68s *arg0, f32 arg1[3]);
 void func_80351C2C(Struct68s *arg0, f32 arg1[3]);
 void func_80351C48(void);
 
-// --- core2/collision/funcs.c ---
+// --- core2/collision/dispatch.c ---
 bool func_803209F8(f32 arg0[3], f32 arg1[3], f32 *arg2, f32 arg3[3]);
 void func_80320B7C(void);
 void func_80320B84(void);
@@ -2175,7 +2177,7 @@ s32 collision_getHitsToTrigger(CollisionParams *arg0);
 s32 collision_getDropBundleNum(CollisionParams *arg0);
 void func_8033D2F4(void);
 
-// --- core2/collision/init.c ---
+// --- core2/map/envcolor.c ---
 void func_8031B710(void);
 void func_8031B718(void);
 void func_8031B790(void);
@@ -2206,18 +2208,18 @@ void func_803451B0(u8 index, f32 arg1[3]);
 void func_80356714(void);
 void codeCF5F0_forgetAllAbilitiesExceptClawSwipeIfChecksumsFail(void);
 
-// --- core2/cutscene/animated.c ---
+// --- GV/ch/mummum.c ---
 void func_8035D490(ActorMarker *marker);
 void func_8035D4F0(ActorMarker *marker, s32 arg1);
 
-// --- core2/cutscene/ctrl.c ---
+// --- core2/nc/camera_focustarget.c ---
 s32 func_802C0190(void);
 void func_802C0120(void);
 void func_802C0148(void);
 void func_802C0150(s32 arg0);
 void func_802C02D4(f32 arg0[3]);
 
-// --- core2/cutscene/lair.c ---
+// --- core2/map/cutscene_skip.c ---
 s32 cutscenetrigger_update(void);
 void func_8031CC8C(NodeProp *arg0, s32 arg1);
 void func_8031CC40(enum map_e map_id, s32 arg1);
@@ -2231,7 +2233,7 @@ void clearScoreStates(void);
 void debugScoreStates(void);
 void warp_mmmEnterLoggo(NodeProp *arg0, ActorMarker *arg1);
 
-// --- core2/cutscene/nodeupdate.c ---
+// --- core2/map/warp_dispatch.c ---
 s32 func_8033451C(s32 arg0);
 s32 func_80334524(s32 arg0);
 s32 func_8033452C(s32 arg0);
@@ -2294,7 +2296,7 @@ void func_802E67AC(void);
 void func_802E67C4(void);
 void func_802E6820(s32 arg0);
 
-// --- core2/frame/bufferreadback.c ---
+// --- core2/frame/rendermem.c ---
 bool func_802E4424(void);
 bool func_802E4A08(void);
 s32 func_802E4A98(s32 arg0);
@@ -2323,11 +2325,11 @@ void dummy_func_802E35D0(void);
 void func_802E3580(void);
 void func_802E35D8(void);
 
-// --- core2/fx/airscore.c ---
+// --- core2/scorequeue/airscore.c ---
 s32 fxairscore_count_to_time(s32 count);
 s32 fxairscore_time_to_count(s32 time);
 
-// --- core2/fx/common2score.c ---
+// --- core2/scorequeue/common2score.c ---
 enum item_e func_802FDD0C(struct8s *arg0);
 
 // --- core2/fx/effect_colordata.c ---
@@ -2346,7 +2348,7 @@ void eggShatter_init(void);
 void eggShatter_new(f32 position[3]);
 void eggShatter_update(void);
 
-// --- core2/fx/effect_enemyrender.c ---
+// --- core2/gc/pictureframe.c ---
 Actor * func_802DF160(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802DF270(void);
 
@@ -2357,7 +2359,7 @@ void func_802DAD8C(ParticleEmitter *pCtrl, Actor *self, enum asset_e model_id);
 void humanoidBaddie_enterInvulnerableState(ActorMarker *marker, s32 arg1);
 void humanoidBaddie_update(Actor *self);
 
-// --- core2/fx/effect_particle.c ---
+// --- core2/mumboshandwithpicture.c ---
 void func_802DF090(s32 arg0, s32 arg1);
 void func_802DF0C8(void);
 void func_802DF11C(s32 arg0, s32 arg1);
@@ -2372,7 +2374,7 @@ void func_802DC110(f32 *position, enum asset_e sprite_id);
 void func_802DC9A4(s32 arg0, s32 arg1);
 void func_802DC9DC(s32 arg0, s32 arg1);
 
-// --- core2/fx/honeycarrierscore.c ---
+// --- core2/scorequeue/honeycarrierscore.c ---
 void gcpausemenu_80314AC8(int arg0);
 
 // --- core2/fx/ripple.c ---
@@ -2381,7 +2383,7 @@ void fxRipple_802F3584(s32 arg0, f32 position[3], uintptr_t arg2);
 void fxRipple_free(void);
 void fxRipple_init(void);
 
-// --- core2/fx/score_honeycomb.c ---
+// --- core2/honeycombscore.c ---
 s32 honeycombscore_get_level_total(enum level_e level_id);
 s32 honeycombscore_get_total(void);
 void honeycombscore_clear(void);
@@ -2389,7 +2391,7 @@ void honeycombscore_debug(void);
 void honeycombscore_getSizeAndPtr(s32 *size, u8 **addr);
 void honeycombscore_set(enum honeycomb_e indx,  bool val);
 
-// --- core2/fx/score_jiggy.c ---
+// --- core2/jiggyscore.c ---
 s32 jiggyscore_leveltotal(s32 lvl);
 s32 jiggyscore_total(void);
 void * jiggyscore_clearAllSpawned(void);
@@ -2399,7 +2401,7 @@ void jiggyscore_getSizeAndPtr(s32 *size, u8 **addr);
 void jiggyscore_setCollected(s32 indx,  s32 val);
 void jiggyscore_setSpawned(s32, s32);
 
-// --- core2/fx/score_jiggylist.c ---
+// --- core2/fx/effect_jiggy_list.c ---
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
 void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e, f32[3], s32 triggerEvent);
 s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id);
@@ -2412,7 +2414,7 @@ void jiggylist_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void jiggylist_map_actors(void);
 void jiggylist_set_level(enum map_e map_id);
 
-// --- core2/fx/score_mumbo.c ---
+// --- core2/mumboscore.c ---
 bool mumboscore_get(enum mumbotoken_e indx);
 void mumboscore_clear(void);
 void mumboscore_debug(void);
@@ -2441,7 +2443,7 @@ void gameSelect_saveAndExit(void);
 void gameSelect_setGameNumber(s32 arg0);
 void gameSelect_resetGameNumber(void);
 
-// --- core2/game_complete.c ---
+// --- core2/flags_bitfield.c ---
 s32 bitfield_get_bit(u8 *array, s32 index);
 s32 bitfield_get_n_bits(u8 *array, s32 offset, s32 numBits);
 s32 dummy_func_80320240(void);
@@ -2506,14 +2508,14 @@ void sky_free(void);
 void sky_reset(void);
 void sky_update(void);
 
-// --- core2/gfx/displaylistdata.c ---
+// --- (data declarations - origin unknown) ---
 void func_8030C180(void);
 void func_8030C1A0(void);
 void func_8030C204(void);
 void func_8030C2D4(Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void picturebox_setScissorBox(void);
 
-// --- core2/gfx/displaylistinit.c ---
+// --- core2/displaylist_init.c ---
 void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_80315110(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_803151D0(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -2544,7 +2546,7 @@ s32 levelSpecificFlags_validateCRC2(void);
 void levelSpecificFlags_clear(void);
 void levelSpecificFlags_setN(s32 index, s32 val, s32 n);
 
-// --- core2/load_zone.c ---
+// --- core2/map/loadzone.c ---
 void codeA960_forceLoadzone(s32);
 void func_80291910(void);
 void func_802919A0(void);
@@ -2597,13 +2599,13 @@ u32 mapSpecificFlags_getN(s32 idx, s32 n);
 void mapSpecificFlags_clearAll(void);
 void mapSpecificFlags_setN(s32 idx, s32 val, s32 n);
 
-// --- core2/map_list.c ---
+// --- core2/map/list.c ---
 void func_8029A47C(s32 arg0[3]);
 void func_8029A4D0(void);
 void func_8029A54C(void);
 void func_8029A554(void);
 
-// --- core2/model/matrixrotate.c ---
+// --- core2/fx/projectile_system.c ---
 void func_8033F9C0(void);
 void func_8033FA24(void);
 
@@ -2623,10 +2625,10 @@ void chmumbo_func_802D1724(void);
 void func_802D2CB8(void);
 void func_802D2CDC(void);
 
-// --- core2/overlay.c ---
+// --- core2/map/overlay.c ---
 // leveloverlay_* functions are declared in core2/core2.h
 
-// --- core2/particle/bathroom.c ---
+// --- MMM/bathroom_particles.c ---
 void func_8029ADA8(void);
 void func_8029ADCC(void);
 void func_8029AE1C(void);
@@ -2754,7 +2756,7 @@ void func_802F4200(f32 arg0[3]);
 void func_802F422C(void);
 void func_802F4250(void);
 
-// --- core2/cutscene_triggers.c ---
+// --- core2/map/cutscene_triggers.c ---
 void func_803223AC(void);
 void func_80322490(void);
 void func_803224FC(void);
@@ -2800,12 +2802,12 @@ s32 func_8028B120(void);
 void func_8028B6FC(void);
 void func_8028B71C(void);
 
-// --- core2/actor_gameover.c ---
+// --- core2/gc/gameoversign.c ---
 void func_802DC528(NodeProp *arg0, ActorMarker *arg1);
 void func_802DC560(NodeProp*, ActorMarker*);
 void func_802DC604(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
-// --- core2/level_transition.c ---
+// --- core2/gc/transition.c ---
 int func_8032190C(void);
 enum level_e level_get(void);
 void func_803216D0(enum map_e map);
@@ -2947,12 +2949,12 @@ void func_8034F734(void);
 void func_8034F774(void);
 void func_8034F918(void);
 
-// --- core2/snacker_pool1.c ---
+// --- core2/scorequeue/queue_collectibles.c ---
 bool func_802FBE04(void);
 void func_802FBB18(void);
 void func_802FBDFC(void);
 
-// --- core2/snacker_pool2.c ---
+// --- core2/scorequeue/queue_major_items.c ---
 bool func_802FC390(void);
 
 // --- core2/spawnqueue.c ---
@@ -2966,7 +2968,7 @@ void spawnQueue_unlock(void);
 
 // --- core2/spline_bezier.c ---
 
-// --- core2/sprite/displaydata.c ---
+// --- core2/fx/commonParticle.c ---
 s32 func_8033E8AC(void);
 u8 func_8033E93C(void);
 void commonParticle_init(void);
@@ -3036,7 +3038,7 @@ void itemscore_noteScores_setLevel(enum level_e level, s32 score);
 void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 
-// --- core2/texture/copy.c ---
+// --- core2/timedfuncqueue.c ---
 
 // --- core2/timedfuncqueue.c ---
 void func_80324C58(void);
@@ -3168,13 +3170,13 @@ bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3);
 // --- core2/bs/player_spawn.c ---
 void func_8029BC60(enum asset_e *anim_id, f32 *anim_duration);
 
-// --- core2/frame/bufferreadback.c ---
+// --- core2/frame/rendermem.c ---
 s32 func_802E4AD4(s32 arg0);
 
 // --- core2/sfx/instruments.c ---
 void func_8033543C(Struct81s *arg0);
 
-// --- core2/model/matrixrotate.c ---
+// --- core2/fx/projectile_system.c ---
 void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/spline_pathfollow.c ---
@@ -3227,11 +3229,11 @@ u32 bkGetSR(void); // handwritten assembly code that replicates the __osGetSR fu
 // --- RBB/ch/engineparts.c ---
 f32 func_8038A6B8(ActorMarker *);
 
-// --- core1/io/ba_motor.c ---
+// --- core1/bamotor.c ---
 void baMotor_80250D94(f32, f32, f32);
 void baMotor_80250E94(f32, f32, f32, f32, f32, f32);
 
-// --- core1/io/pfsmanager.c ---
+// --- core1/pfsmanager.c ---
 OSContPad *func_8024F3F4(void);
 OSMesgQueue *pfsManager_getFrameReplyQ(void);
 void controller_copyFaceButtons(s32, s32 [6]);
@@ -3343,13 +3345,13 @@ void bsStoredState_setTurboTimer(f32);
 // --- core2/bs/walk.c ---
 f32  func_802B6F9C(void);
 
-// --- core2/camera/camera_motor2.c ---
+// --- core2/nc/camera_motor2.c ---
 void func_802BB3DC(s32, f32, f32);
 
-// --- core2/camera/dynamicCam3.c ---
+// --- core2/nc/dynamicCam3.c ---
 void func_802C1B20(f32);
 
-// --- core2/camera/die.c ---
+// --- core2/nc/die.c ---
 void ncbadie_func_802BF2C0(f32);
 
 // --- core2/climb.c ---
@@ -3363,25 +3365,25 @@ void func_802FAD64(enum item_e);
 // --- core2/collision/hitboxdata.c ---
 enum marker_collision_func_type_e collision_getNextState(CollisionParams *arg0);
 
-// --- core2/fx/airscore.c ---
+// --- core2/scorequeue/airscore.c ---
 struct7s *fxairscore_new(s32);
 void fxairscore_draw(enum item_e, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxairscore_free(s32, struct7s *);
 void fxairscore_update(enum item_e, struct7s *);
 
-// --- core2/fx/common1score.c ---
+// --- core2/scorequeue/common1score.c ---
 struct7s *fxcommon1score_new(enum asset_e item_id);
 void fxcommon1score_draw(enum item_e arg0, struct8s *arg1, Gfx **arg2, Mtx **arg3, Vtx **arg4);
 void fxcommon1score_free(enum item_e item_id, struct8s *);
 void fxcommon1score_update(enum item_e, struct8s *);
 
-// --- core2/fx/common2score.c ---
+// --- core2/scorequeue/common2score.c ---
 struct8s *fxcommon2score_new(enum item_e);
 void fxcommon2score_draw(enum item_e, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxcommon2score_free(enum item_e, struct8s *);
 void fxcommon2score_update(s32, struct8s *);
 
-// --- core2/fx/common3score.c ---
+// --- core2/scorequeue/common3score.c ---
 void *fxcommon3score_new(enum item_e);
 void fxcommon3score_draw(enum item_e, void *, Gfx**, Mtx**, Vtx **);
 void fxcommon3score_free(enum item_e item_id, void *);
@@ -3403,31 +3405,31 @@ void func_80292974(f32, f32, f32);
 // --- core2/fx/banjokazooiesign.c ---
 Actor *func_802DC7E0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
-// --- core2/fx/healthscore.c ---
+// --- core2/scorequeue/healthscore.c ---
 struct7s *fxhealthscore_new(enum item_e);
 void fxhealthscore_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void fxhealthscore_free(enum item_e, struct8s *);
 void fxhealthscore_update(enum item_e, struct8s *);
 
-// --- core2/fx/honeycarrierscore.c ---
+// --- core2/scorequeue/honeycarrierscore.c ---
 struct7s *fxhoneycarrierscore_new(s32);
 void fxhoneycarrierscore_draw(s32, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxhoneycarrierscore_free(s32, struct8s *);
 void fxhoneycarrierscore_update(s32, struct8s *);
 
-// --- core2/fx/jinjoscore.c ---
+// --- core2/scorequeue/jinjoscore.c ---
 struct8s *fxjinjoscore_new(enum item_e);
 void fxjinjoscore_draw(s32, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxjinjoscore_free(enum item_e, struct8s *);
 void fxjinjoscore_update(enum item_e, struct8s *);
 
-// --- core2/fx/lifescore.c ---
+// --- core2/scorequeue/lifescore.c ---
 struct8s *fxlifescore_new(s32);
 void fxlifescore_draw(enum item_e, struct8s *, Gfx**, Mtx**, Vtx **);
 void fxlifescore_free(s32, struct8s *);
 void fxlifescore_update(enum item_e, struct8s *);
 
-// --- core2/fx/score_jiggylist.c ---
+// --- core2/fx/effect_jiggy_list.c ---
 void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]);
 
 // --- core2/fx/sparkle.c ---
@@ -3445,7 +3447,7 @@ f32  barebound_get_vertical_velocity(void);
 f32  barebound_get_horizontal_velocity(void);
 f32  barebound_get_gravity(void);
 
-// --- core2/particle/bathroom.c ---
+// --- MMM/bathroom_particles.c ---
 void func_8029AD28(f32, s32);
 
 // --- core2/bs/player_spawn.c ---
@@ -3545,12 +3547,11 @@ void yaw_setVelocityBounded(f32, f32);
 // --- port/stub.c ---
 float gu_sqrtf(float val);
 
-
-// --- GV/gv_helpers.c (rubee egg pot) ---
+// --- GV/gv_helpers.c ---
 void rubeeEggPot_addedEggToPot(void);
 s32 rubeeEggPot_getEggGoal(void);
 
-// --- core2/frame/auxbuffer.c (picturebox) ---
+// --- core2/frame/auxbuffer.c ---
 void picturebox_init(void);
 void picturebox_free(void);
 void picturebox_func_8030C180(void);

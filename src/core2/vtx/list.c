@@ -228,7 +228,7 @@ void vtxList_func_802ECBD4(BKVertexList *dst, BKVertexList *src, f32 position[3]
     s32 pad40;
 
     viewport_getPosition_vec3f(vp_position);
-    viewport_getLookbk_vector(vp_look);
+    viewport_getLookVector(vp_look);
     mlMtxIdent();
     func_80252CC4(position, rotation, 1.0f, NULL);
     mlMtx_apply_vec3f(vp_position, vp_position);

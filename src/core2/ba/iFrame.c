@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "iFrame.h"
 #include "core2/statetimer.h"
 
 /* .bss */

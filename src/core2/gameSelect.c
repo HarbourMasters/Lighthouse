@@ -2,11 +2,12 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "ch/gameSelect.h"
 
 #include "core2/modelRender.h"
 
 #include "core2/gc/zoombox.h"
-#include "core2/quiz_storage.h"
+#include "core2/quiz/storage.h"
 
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Patches/Patches.h"
