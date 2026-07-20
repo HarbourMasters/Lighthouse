@@ -91,13 +91,38 @@ static void FightSync_ApplyJinjoStatueEgg(s32 statue_id) {
     }
 }
 
+// The first jinjo statue's break plays a static-camera cutscene on EVERY client
+// (chstonejinjo_breakOpen, gated by FILEPROG_D1), but the vanilla release runs only in the
+// authority's phase-4 brain when that first jinjo slams Grunty (chfinalboss_phase4_update). A
+// follower skips that brain, so its camera would stay locked on the cutscene node until it warped
+// out. Mirror the release here when we process the first slam, freeing the follower's camera the
+// same way — sFinalBossJinjoStatueActivated (set by the break, cleared here) makes it fire once.
+static void FightSync_ReleaseFirstStatueCutscene(void) {
+    if (sFinalBossJinjoStatueActivated) {
+        sFinalBossJinjoStatueActivated = 0;
+        timed_exitStaticCamera(1.0f);
+        func_80324E38(1.0f, 0);
+    }
+}
+
 // --- boss lifecycle hooks (called from chfinalboss.c) -----------------------------------------
 
 void FightSync_OnBossSpawned(void) {
+    s32 i;
     sFightNetCinematic = 0;
     sFightNetWasFollower = 0;
     sFightNetJinjoSlammed = 0;
     sFightNetCatchupActive = 0;
+    // The one-shot "already spawned" latches are cleared here (fresh fight / re-entry respawns the
+    // boss) rather than in FightSync_ApplyWorld, so a second world snapshot for the *same* boss (the
+    // authority re-sends on every peer map-load) can't re-run the catch-up and spawn a duplicate
+    // flight pad or spell barrier — a second barrier would orphan the first, which then stops
+    // following Grunty and lingers at her old position.
+    sFightNetCatchupPadDone = 0;
+    sFightNetCatchupBarrierDone = 0;
+    for (i = 0; i < 6; i++) {
+        sFightNetCatchupSpawned[i] = 0;
+    }
 }
 
 void FightSync_OnBossDefeated(void) {
@@ -296,10 +321,17 @@ void FightSync_ApplyWorld(const FightWorldSnapshot *snap) {
     }
     sFightNetSnap = *snap;
     sFightNetCatchupActive = 1;
-    sFightNetCatchupPadDone = 0;
-    sFightNetCatchupBarrierDone = 0;
-    for (i = 0; i < 6; i++) {
-        sFightNetCatchupSpawned[i] = 0;
+    // The "already spawned" latches (pad/barrier/statues) are NOT reset here — they clear on a fresh
+    // boss spawn (FightSync_OnBossSpawned) instead, so re-receiving a snapshot for the same boss
+    // re-drives egg/statue catch-up without spawning a duplicate flight pad or spell barrier.
+    // Seed the slammed set from the snapshot up front: a statue whose jinjo already slammed before
+    // we arrived is rebuilt by the catch-up (which despawns the re-hatched jinjo when it appears),
+    // but should the jinjo reach Grunty before that, the phase-4 slam guard (BossFollowerTick) uses
+    // this bit to remove it quietly rather than replaying the attack.
+    for (i = 0; i < 4; i++) {
+        if (snap->jinjoGone[i]) {
+            sFightNetJinjoSlammed |= 1 << (i + 1);
+        }
     }
 }
 
@@ -402,11 +434,21 @@ bool FightSync_BossFollowerTick(void *bossPtr) {
         ActorMarker *jinjoMarker = chfinalboss_findCollidingJinjo(boss, func_8033229C(boss->marker));
         if (jinjoMarker != NULL) {
             Actor *jinjo = marker_getActor(jinjoMarker);
-            if (jinjo != NULL && jinjo->actorTypeSpecificField >= BOSSJINJO_1_ORANGE &&
-                jinjo->actorTypeSpecificField <= BOSSJINJO_4_YELLOW) {
-                sFightNetJinjoSlammed |= 1 << jinjo->actorTypeSpecificField;
+            s32 sid = (jinjo != NULL) ? jinjo->actorTypeSpecificField : 0;
+            if (sid >= BOSSJINJO_1_ORANGE && sid <= BOSSJINJO_4_YELLOW &&
+                (sFightNetJinjoSlammed & (1 << sid))) {
+                // This jinjo's slam already happened before we got here (a re-entry catch-up rebuilt
+                // its statue and hatched it again) — remove the rebuilt jinjo quietly instead of
+                // replaying its attack particles + Grunty reaction.
+                marker_despawn(jinjoMarker);
+            } else {
+                if (sid >= BOSSJINJO_1_ORANGE && sid <= BOSSJINJO_4_YELLOW) {
+                    sFightNetJinjoSlammed |= 1 << sid;
+                }
+                chbossjinjo_attack(jinjoMarker);
+                // First real slam releases the follower's first-statue cutscene camera.
+                FightSync_ReleaseFirstStatueCutscene();
             }
-            chbossjinjo_attack(jinjoMarker);
         }
     }
 
@@ -517,6 +559,9 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (jinjo != NULL) {
                 chbossjinjo_attack(jinjo->marker);
             }
+            // First slam from the authority releases the follower's first-statue cutscene camera
+            // (the vanilla release lives in the authority-only phase-4 brain).
+            FightSync_ReleaseFirstStatueCutscene();
             break;
         }
 
