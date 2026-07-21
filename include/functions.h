@@ -29,6 +29,10 @@ extern "C" {
 #include "core2/staticcamera.h"
 #include "core2/anim/sprite.h"
 #include "core2/ba/anim.h"
+#include "core2/ba/carry.h"
+#include "core2/ba/drone.h"
+#include "core2/lighting.h"
+#include "core2/particle.h"
 #include "core2/ba/model.h"
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
@@ -110,9 +114,6 @@ BKCollisionTriangle *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg
 u8 GetCurrentMap();
 s32 getGameMode(void);
 void transitionToMap(enum map_e map, s32 exit, s32 transition);
-
-// --- core2/time.c ---
-f32 time_getDelta(void);
 
 // --- core2/map/list.c ---
 BKCollisionTriangle *func_8029463C(void);
@@ -198,12 +199,6 @@ struct56s *func_80343F00(s32 indx, f32 arg1[3]);
 Struct83s *func_803406B0(void);
 Struct83s *func_803406D4(Struct83s *self);
 
-// --- core2/vtx/list.c ---
-
-// --- core2/spline_bezier.c ---
-
-// --- core2/model/modelRender.c ---
-
 // --- core2/vtx/colorapply.c ---
 Struct70s *func_8034C344(s32 arg0);
 Struct70s *func_8034C448(s32 arg0);
@@ -267,19 +262,11 @@ f32 babuzz_80290890(f32 arg0);
 f32 babuzz_80290920(f32 arg0, f32 arg1, f32 arg2);
 f32 baeyes_getEyePosition(s32 id);
 f32 baanim_getTimer(void);
-f32 batimer_get(s32 id);
 f32 bafalldamage_get_distance_fallen(void);
 f32 bastick_calculateZonePosition(f32 arg0, f32 arg1, f32 arg2);
 f32 bastick_getX(void);
 f32 bastick_getAngle(void);
 f32 baModel_getYaw(void);
-f32 baphysics_get_gravity(void);
-f32 baphysics_get_target_horizontal_velocity(void);
-f32 baphysics_get_target_vertical_velocity(void);
-f32 baphysics_get_target_yaw(void);
-f32 baphysics_get_vertical_velocity(void);
-f32 baphysics_get_horizontal_velocity(void);
-f32 baphysics_get_horizontal_velocity_percentage(void);
 f32 climb_getRadius(void);
 f32 func_8029B3B0(f32 arg0);
 f32 func_8029B56C(f32 arg0, f32 arg1, f32 arg2, f32 arg3);
@@ -341,7 +328,7 @@ void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
 s32 getGameMode(void);
 void transitionToMap(enum map_e map, s32 exit, s32 transition);
 
-// --- core2/gamestate.c (item system) ---
+// --- core2/gamestate.c ---
 s32 item_empty(enum item_e item);
 void item_set(s32 item, s32 val);
 void item_setEx(s32 item, s32 val, s32 triggerEvent);
@@ -570,14 +557,8 @@ f32  func_80294438(void);
 f32  floor_getCurrentFloorYPosition(void);
 void func_80293D48(f32, f32);
 
-// --- core2/spline_bezier.c ---
-
-// --- core2/vtx/list.c ---
-
 // --- core2/spline_pathfollow.c ---
 void func_80343DEC(Actor *self);
-
-// --- core2/model/modelRender.c ---
 
 // --- core2/spawnqueue.c ---
 void __spawnQueue_add_0(void (*arg0)(void));
@@ -594,14 +575,11 @@ int commonParticle_new(enum common_particle_e particle_id, int arg1);
 
 // --- core2/particle/particle.c ---
 void particleEmitter_setModel(ParticleEmitter *self, enum asset_e model_id);
-void particleEmitter_setSfx(ParticleEmitter *self, enum sfx_e sfx_id, s32 arg2);
-void particleEmitter_setAlpha(ParticleEmitter *self, s32 arg1);
 void particleEmitter_setVelocityAccelerationAndPositionRanges(ParticleEmitter *self, ParticleSettingsVelocityAccelerationPosition *settings);
 void func_802EFC28(ParticleEmitter *self, ParticleSettingsScaleAndLifetimeDrawModeEmitCount *settings);
 ParticleEmitter *partEmitMgr_defragEmitter(ParticleEmitter *);
 ParticleEmitter *partEmitMgr_newEmitter(u32);
 ParticleEmitter *particleEmitter_new(u32 capacity);
-void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 void func_802EFF50(ParticleEmitter *, f32);
 void particleEmitter_emitInVolume(ParticleEmitter *, f32[3], f32[3], s32);
 void particleEmitter_emitN(ParticleEmitter *, int);
@@ -653,8 +631,6 @@ bool maSlalom_isActive(void);
 
 // --- FP/ch/boggy2.c ---
 bool func_8038A1A0(ActorMarker *marker);
-
-// code3B10_checkGVChecksums omitted: decomp defines as (void) but callers pass Actor*
 
 // --- CC/model_renderstate.c ---
 void code13C0_checkCCChecksums(void);
@@ -1042,10 +1018,6 @@ void gcdebugText_showLargeValue(s32 arg0, s32 arg1);
 void func_80247F9C(s32 arg0);
 void gcdebugText_pauseThread(void);
 
-// --- core1/defragmanager.c ---
-void defragManager_free(void);
-void defragManager_init(void);
-
 // --- core1/gu_perspective.c ---
 void _guMtxF2L(float mf[4][4], Mtx *m);
 
@@ -1070,9 +1042,6 @@ void func_802555C4(void);
 void func_80255A04(void);
 void func_80255A14(void);
 void func_80255ACC(void);
-
-// --- core1/ml.c ---
-void func_802596AC(f32 a0[3], f32 a1[3], f32 a2[3], f32 a3[3]);
 
 // --- core1/mlmtx.c ---
 void func_802515D4(f32 arg0[3][3]);
@@ -1307,13 +1276,6 @@ void func_80361E9C(Actor *self);
 void func_80361EE0(Actor *self);
 
 // --- core2/anim/animtexturecache.c ---
-bool AnimTextureListCache_tryGetTextureOffset(s32 list_index, s32 texture_index, s32 *current_frame);
-s32 AnimTextureListCache_newList(void);
-void AnimTextureListCache_setAnimTextureList(s32 arg0, BKAnimTextureList *bk_anim_texture_list);
-void AnimTextureListCache_free(void);
-void AnimTextureListCache_freeList(s32 arg0);
-void AnimTextureListCache_init(void);
-void AnimTextureListCache_update(void);
 
 // --- core2/anim/bonetransformlist.c ---
 void boneTransformList_getBoneScale(BoneTransformList *self, s32 bone_id, f32 scale[3]);
@@ -1384,20 +1346,11 @@ void bacarriedobj_decWithExtraSteps(enum actor_e actor_id);
 void bacarriedobj_displayOnHudWithExtraSteps(enum actor_e actor_id);
 void func_8028DEEC(enum actor_e actor_id, Actor *actor);
 
-// --- core2/ba/carry.c ---
-void bacarry_end(void);
-void bacarry_init(void);
-void bacarry_reset_marker(void);
-void bacarry_set_marker(ActorMarker *arg0);
-void bacarry_update(void);
-
 // --- core2/ba/drone.c ---
 enum bs_e badrone_802926E8(void);
-enum bs_e badrone_enter(void);
 enum bs_e badrone_look(void);
 enum bs_e badrone_transform(void);
 enum bs_e badrone_vanish(void);
-void badrone_get_position_and_duration(f32 position[3], f32 *duration);
 void badrone_goto_end(void);
 void badrone_init(void);
 
@@ -1597,7 +1550,6 @@ void baModel_getPosition(f32* dst);
 void baModel_reset(void);
 void baModel_setEnvAlpha(s32 alpha);
 void baModel_setPostDraw(void (*draw_func)(Gfx **gfx, Mtx **mtx, Vtx **vtx));
-void baModel_setVisible(s32 arg0);
 void baModel_update(void);
 void baModel_updateModel(void);
 
@@ -1702,11 +1654,6 @@ void func_8029CF6C(void);
 void func_802992F0(void);
 void func_802993C8(void);
 void func_8029957C(s32 arg0);
-
-// --- core2/ba/batimer.c ---
-bool batimer_decrement(s32 timer_id);
-void batimer_incrementBy(s32 id, f32 inc_value_sec);
-void batimer_set(s32 timer_id, f32 duration);
 
 // --- core2/bs/ant.c ---
 int bsant_inSet(s32 move_indx);
@@ -2532,9 +2479,6 @@ void func_803411B0(void);
 void func_80341A54(void);
 void glspline_defrag(void);
 
-// --- core2/level/lightconfig.c ---
-// code35520_getDistanceVectors and code35520_selectTable are declared in core2/core2.h
-
 // --- core2/level/metadata.c ---
 int barebound_set_active(s32 arg0);
 s32 barebound_802987B4(void);
@@ -2567,10 +2511,6 @@ void func_8034B9E4(void);
 void func_8034BA7C(enum map_e map_id, s32 exit_id);
 
 // --- core2/map/mapModel.c ---
-// NOTE: func_802E76B0, collisionList_func_802E805C, func_802E8E88, func_802E9118,
-// func_802E92AC, func_802E9DD8 return BKCollisionTriangle* but have conflicting
-// local externs (bool/s32/void) in decomp source files. Files that need
-// the pointer type already have correct local externs.
 BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
 Vec3fArray *func_803097A0(void);
 BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
@@ -2591,7 +2531,6 @@ void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 int game_is_frozen(void);
 
 // --- core2/map/gsworld.c ---
-enum map_e gsworld_getMap(void);
 
 // --- core2/map/mapspecificflags.c ---
 s32 mapSpecificFlags_validateCRC1(void);
@@ -2672,14 +2611,11 @@ void partEmitMgr_draw(Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void partEmitMgr_drawPass0(Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void partEmitMgr_drawPass1(Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void partEmitMgr_free(void);
-void partEmitMgr_freeEmitter(ParticleEmitter *self);
 void partEmitMgr_init(void);
 void partEmitMgr_update(void);
 void particleEmitter_draw(ParticleEmitter *self, Gfx **gdl, Mtx **mPtr, Vtx **vPtr);
 void particleEmitter_emitUniformLine(ParticleEmitter *self, f32 start[3], f32 end[3], s32 count);
 void particleEmitter_free(ParticleEmitter *self);
-void particleEmitter_func_802EFA78(ParticleEmitter *self, s32 arg1);
-void particleEmitter_setParticleCallback(ParticleEmitter *self, void (*arg1)(ParticleEmitter *self, f32 pos[3]));
 
 // --- core2/bs/player_spawn.c ---
 bool func_8029BDE8(void);
@@ -3040,8 +2976,6 @@ void saveditem_getSizeAndPtr(s32 *size, u8 **buffer);
 void timeScores_getSizeAndPtr(s32 *size, void **ptr);
 
 // --- core2/timedfuncqueue.c ---
-
-// --- core2/timedfuncqueue.c ---
 void func_80324C58(void);
 void func_80324DBC(f32 time, enum asset_e text_id, s32 arg2, f32 position[3], ActorMarker *caller, void (*callback_method_1)(ActorMarker *, enum asset_e, s32), void (*callback_method_2)(ActorMarker *, enum asset_e, s32));
 void timedFuncQueue_defrag(void);
@@ -3059,8 +2993,6 @@ void func_8034BFF8(ActorMarker *marker);
 void func_8034C21C(ActorMarker *marker);
 
 // --- core2/vtx/gclights.c ---
-void lighting_free();
-void lighting_init();
 void lightingVectorList_fromFile(File *file_ptr);
 
 // --- core2/vtx/listutils.c ---
@@ -3083,13 +3015,6 @@ void * func_8034C9D4(void);
 void func_8034C8D8(void);
 void func_8034C97C(void);
 void func_8034C9B0(int arg0);
-
-// --- core2/vtx/list.c ---
-
-// --- core2/yaw.c ---
-void yaw_init(void);
-void yaw_setUpdateState(s32 arg0);
-void yaw_update(void);
 
 // --- cutscenes/cutscenesspawnqueue.c ---
 void cutscene_func_8038C4E0(void);
@@ -3126,7 +3051,7 @@ void osSpTaskYield(void);
 void osStartThread(OSThread* thread);
 void osStopThread(OSThread* t);
 
-// --- unmapped (definition not found in src/) ---
+// --- provided by libultraship ---
 s32 osPiReadIo(u32, u32 *);
 
 // --- core2/ba/bastick.c ---
@@ -3223,9 +3148,12 @@ void savedata_clear(void *savedata);
 // --- core2/spawnqueue.c ---
 void spawnQueue_defrag(void);
 
-void bkmemcpy64(void *dest, void *src, s32 size); // handwritten assembly code that performs an optimized 8 byte memcpy
-void bkmemset64(void *dest, s32 value, s32 size); // handwritten assembly code that performs an optimized 8 byte memset
-u32 bkGetSR(void); // handwritten assembly code that replicates the __osGetSR function
+// --- port/MemShims.c ---
+void bkmemcpy64(void *dest, void *src, s32 size);
+void bkmemset64(void *dest, s32 value, s32 size);
+
+// --- port/stub.c ---
+u32 bkGetSR(void);
 
 // --- RBB/ch/engineparts.c ---
 f32 func_8038A6B8(ActorMarker *);
@@ -3233,11 +3161,6 @@ f32 func_8038A6B8(ActorMarker *);
 // --- core1/bamotor.c ---
 void baMotor_80250D94(f32, f32, f32);
 void baMotor_80250E94(f32, f32, f32, f32, f32, f32);
-
-// --- core1/pfsmanager.c ---
-OSContPad *func_8024F3F4(void);
-OSMesgQueue *pfsManager_getFrameReplyQ(void);
-void controller_copyFaceButtons(s32, s32 [6]);
 
 // --- core1/memory.c ---
 void * bk_malloc(size_t size);
@@ -3289,9 +3212,6 @@ void baModel_80292158(f32);
 
 // --- core2/ba/physics.c ---
 f32  get_slope_timer(void);
-void baphysics_get_velocity(f32 dst[3]);
-void baphysics_reset_gravity(void);
-void baphysics_set_gravity(f32 gravity);
 
 // --- core2/ba/playerposition.c ---
 f32 playerPosition_getY(void);
@@ -3535,15 +3455,6 @@ BKModel *func_8034C4F0(Struct70s *arg0);
 Struct70s *func_8034C528(s32);
 Struct70s *func_8034C5AC(s32);
 s16 func_8034C50C(Struct70s *arg0);
-
-// --- core2/yaw.c ---
-f32 yaw_get(void);
-f32 yaw_getIdeal(void);
-void yaw_applyIdeal(void);
-void yaw_rotateTimed(f32);
-void yaw_set(f32);
-void yaw_setIdeal(f32);
-void yaw_setVelocityBounded(f32, f32);
 
 // --- port/stub.c ---
 float gu_sqrtf(float val);
