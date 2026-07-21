@@ -384,28 +384,21 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     //
     // Layout (each section padded to 8-byte alignment):
     //   [  0 ] BKModelBin header (zero-init, geo_type set)
-    //   [ GL ] GeoLayout command tree                          → geo_list_offset
-    //   [ T  ] BKTextureList + BKTextureInfo[] + pixel data    → texture_list_offset
-    //   [ A  ] BKAnimationList + BKAnimation[]                 → animation_list_offset
-    //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           → collision_list_offset
-    //   [ 14 ] BKModelUnk14List + entries                      → unk14
-    //   [ 20 ] BKCameraAreaList + entries                      → unk20
-    //   [ E  ] effect count (s16) + effects                    → mesh_list_offset
-    //   [ 28 ] BKAnimVerticesList + entries                    → unk28
-    //   [ AT ] AnimTexture[4]                                  → animated_texture_list_offset
-    //   [ V  ] BKVertexList header + Vtx[]                     → vtx_list_offset
-    //   [ G  ] BKGfxList header + Gfx[]                        → gfx_list_offset
+    //   [ T  ] BKTextureList + BKTextureInfo[] + pixel data    -> texture_list_offset
+    //   [ GL ] GeoLayout command tree                          -> geo_list_offset
+    //   [ A  ] BKAnimationList + BKAnimation[]                 -> animation_list_offset
+    //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           -> collision_list_offset
+    //   [ 14 ] BKModelUnk14List + entries                      -> unk14
+    //   [ 20 ] BKCameraAreaList + entries                      -> unk20
+    //   [ E  ] effect count (s16) + effects                    -> mesh_list_offset
+    //   [ 28 ] BKAnimVerticesList + entries                    -> unk28
+    //   [ AT ] AnimTexture[4]                                  -> animated_texture_list_offset
+    //   [ V  ] BKVertexList header + Vtx[]                     -> vtx_list_offset
+    //   [ G  ] BKGfxList header + Gfx[]                        -> gfx_list_offset
 
     auto out = std::vector<uint8_t>(sizeof(BKModelBin), 0);
     auto hdr = [&]() -> BKModelBin* { return reinterpret_cast<BKModelBin*>(out.data()); };
     hdr()->geo_type = static_cast<int16_t>(geoType);
-
-    // GeoLayout section
-    if (geoBlob && !geoBlob->Data.empty()) {
-        PadTo8(out);
-        hdr()->geo_list_offset = static_cast<int32_t>(out.size());
-        AppendBytes(out, geoBlob->Data.data(), geoBlob->Data.size());
-    }
 
     // Texture section
     if (texCount > 0) {
@@ -440,6 +433,13 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         if (blobPtr) {
             AppendBytes(out, blobPtr, rawTexDataSize);
         }
+    }
+
+    // GeoLayout section
+    if (geoBlob && !geoBlob->Data.empty()) {
+        PadTo8(out);
+        hdr()->geo_list_offset = static_cast<int32_t>(out.size());
+        AppendBytes(out, geoBlob->Data.data(), geoBlob->Data.size());
     }
 
     // Animation section
