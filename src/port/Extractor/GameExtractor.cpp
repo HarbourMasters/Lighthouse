@@ -339,9 +339,11 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         }
     } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
 
-    // Detect non-BB custom MIPS code injection
+    // Detect custom code: an injected MIPS blob (BB hacks) or a rebuilt code overlay (non-BB builds)
     if (BK64::HasCustomCodeBlob(this->mGameData)) {
-        SPDLOG_WARN("[GameExtractor] Custom MIPS code detected in ROM; prompting user before extraction.");
+        const bool rebuiltOverlay = BK64::ClassifyRomhack(this->mGameData) == BK64::RomhackKind::CustomBuild;
+        SPDLOG_WARN("[GameExtractor] Romhack ships custom code ({}); prompting user before extraction.",
+                    rebuiltOverlay ? "rebuilt code overlay, non-BB build" : "injected MIPS code blob");
         sCustomCodePromptResult = -1;
         sCustomCodePromptActive = true;
         sCustomCodePromptRequested = true;
