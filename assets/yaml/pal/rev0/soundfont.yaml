@@ -4,7 +4,7 @@
       - '#include "structs.h"'
 
 soundfont1ctl:
-  type: BLOB
+  type: BK64:SOUNDFONT_CTL
   offset: 0xDA8DF0
   size: 0x10DF0
   symbol: soundfont1ctl
@@ -17,7 +17,7 @@ soundfont1tbl:
   symbol: soundfont1tbl
 
 soundfont2ctl:
-  type: BLOB
+  type: BK64:SOUNDFONT_CTL
   offset: 0xEC85E0
   size: 0x9FB0
   symbol: soundfont2ctl
