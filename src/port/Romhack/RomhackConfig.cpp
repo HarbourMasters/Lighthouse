@@ -62,6 +62,8 @@ static int sHideJiggiesLevel = -1;
 static int sHideCollectiblesLevel = -1;
 static int sNoteDoors[12] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 static int sJiggyCosts[11] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+static int sJiggySizes[11] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+static int sJiggyFlags[11] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 static char* sLevelNames[13] = {};
 static std::unordered_map<int, int> sWarpDests;
 static std::string sRomName;
@@ -352,12 +354,16 @@ static void LoadGameConfig() {
                 break;
 
             case 8: // JIGGY_PUZZLES
-                for (uint16_t e = 0; e < entryCount && pos + 2 <= size; e++) {
+                for (uint16_t e = 0; e < entryCount && pos + 6 <= size; e++) {
                     int idx = data[pos];
                     int cost = data[pos + 1];
-                    pos += 2;
+                    int sizeBits = data[pos + 2];
+                    int flag = readLE16(data + pos + 4);
+                    pos += 6;
                     if (idx >= 0 && idx < 11) {
                         sJiggyCosts[idx] = cost;
+                        sJiggySizes[idx] = sizeBits;
+                        sJiggyFlags[idx] = flag;
                     }
                 }
                 break;
@@ -730,6 +736,22 @@ extern "C" int port_getRomhackJiggyPuzzleCost(int puzzle_index) {
     ROMHACK_GUARD_INT;
     if (puzzle_index >= 0 && puzzle_index < 11) {
         return sJiggyCosts[puzzle_index];
+    }
+    return -1;
+}
+
+extern "C" int port_getRomhackJiggyPuzzleSize(int puzzle_index) {
+    ROMHACK_GUARD_INT;
+    if (puzzle_index >= 0 && puzzle_index < 11) {
+        return sJiggySizes[puzzle_index];
+    }
+    return -1;
+}
+
+extern "C" int port_getRomhackJiggyPuzzleFlag(int puzzle_index) {
+    ROMHACK_GUARD_INT;
+    if (puzzle_index >= 0 && puzzle_index < 11) {
+        return sJiggyFlags[puzzle_index];
     }
     return -1;
 }

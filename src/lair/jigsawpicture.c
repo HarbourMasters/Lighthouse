@@ -59,9 +59,19 @@ s32 _puzzleCost(s32 index) {
     return (override >= 0) ? override : D_803947F8[index].cost;
 }
 
+s32 _puzzleSize(s32 index) {
+    s32 override = port_getRomhackJiggyPuzzleSize(index);
+    return (override >= 0) ? override : D_803947F8[index].size_bits;
+}
+
+s32 _puzzleFlag(s32 index) {
+    s32 override = port_getRomhackJiggyPuzzleFlag(index);
+    return (override >= 0) ? override : D_803947F8[index].progress_flag;
+}
+
 bool jigsawPicture_isJigsawPictureComplete(s32 arg0) {
     s32 cost = _puzzleCost(arg0 - 1);
-    return fileProgressFlag_getN(D_803947F8[arg0 -1].progress_flag, D_803947F8[arg0 -1].size_bits) == cost;
+    return fileProgressFlag_getN(_puzzleFlag(arg0 - 1), _puzzleSize(arg0 - 1)) == cost;
 }
 
 s32 getPictureCost(Actor *this){
@@ -337,7 +347,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
                 addOrRemovePieceFromDisplay(this, temp_s1, 0);
                 local->unk4--;
                 local->unk0 &= ~(1 << temp_s1);
-                fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
+                fileProgressFlag_setN(_puzzleFlag(this->actorTypeSpecificField - 1), local->unk4, _puzzleSize(this->actorTypeSpecificField - 1));
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, 1);
             }
             break;
@@ -350,7 +360,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
                 temp_s1 = getPicturePiecePosition(this);
                 addOrRemovePieceFromDisplay(this, temp_s1, 1);
                 local->unk0 |= (1 << temp_s1);
-                fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
+                fileProgressFlag_setN(_puzzleFlag(this->actorTypeSpecificField - 1), local->unk4, _puzzleSize(this->actorTypeSpecificField - 1));
                 item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 unlockAdditionalActions(this);
             }
@@ -373,7 +383,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
                     local->unk0 |= (1 << temp_s1);
                     item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -1);
                 }
-                fileProgressFlag_setN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, local->unk4, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
+                fileProgressFlag_setN(_puzzleFlag(this->actorTypeSpecificField - 1), local->unk4, _puzzleSize(this->actorTypeSpecificField - 1));
                 unlockAdditionalActions(this);
             }
             break;
@@ -437,7 +447,7 @@ void updateJigsawPictureActor(Actor *this) {
 
     if (!this->volatile_initialized) {
         // temp_v0 = &D_803947F8[this->actorTypeSpecificField - 1];
-        sp64 = fileProgressFlag_getN(D_803947F8[this->actorTypeSpecificField - 1].progress_flag, D_803947F8[this->actorTypeSpecificField - 1].size_bits);
+        sp64 = fileProgressFlag_getN(_puzzleFlag(this->actorTypeSpecificField - 1), _puzzleSize(this->actorTypeSpecificField - 1));
         local->unk0 = 0;
         local->unk4 = 0;
         local->unk8 = (isBanjoOnPodium(this->marker)) ? 0xff : 1;

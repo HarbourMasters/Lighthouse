@@ -41,6 +41,8 @@ int port_getRomhackHoneycombsPerWorld(void);
 int port_getRomhackExtraHcStart(void);
 int port_getRomhackNoteDoor(int door_index);
 int port_getRomhackJiggyPuzzleCost(int puzzle_index);
+int port_getRomhackJiggyPuzzleSize(int puzzle_index);
+int port_getRomhackJiggyPuzzleFlag(int puzzle_index);
 const char* port_getRomhackLevelName(int level_index);
 int port_getRomhackWarpDest(int warp_index);
 bool port_getRomhackCustomCodeHash(char out_hex[41]);
