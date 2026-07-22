@@ -27,6 +27,7 @@
 #ifndef __SWITCH__
 #include "Companion.h"
 #include "factories/bk64/ConfigFactory.h"
+#include "port/Romhack/RomhackTable.h"
 
 #if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
 #include "portable-file-dialogs.h"
@@ -339,9 +340,29 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         }
     } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
 
-    // Detect custom code: an injected MIPS blob (BB hacks) or a rebuilt code overlay (non-BB builds)
-    if (BK64::HasCustomCodeBlob(this->mGameData)) {
-        const bool rebuiltOverlay = BK64::ClassifyRomhack(this->mGameData) == BK64::RomhackKind::CustomBuild;
+    // Detect custom code: an injected MIPS blob or a rebuilt code overlay.
+    BK64::CustomCodeKind ccKind = BK64::CustomCodeKind::NONE;
+    char ccSha1[41] = {};
+    const bool hasBlob = BK64::GetCustomCodeBlobInfo(this->mGameData, ccKind, ccSha1);
+    const bool rebuiltOverlay = BK64::ClassifyRomhack(this->mGameData) == BK64::RomhackKind::CustomBuild;
+    bool promptCustomCode = rebuiltOverlay;
+    if (!promptCustomCode && hasBlob) {
+        if (const auto* entry = Lighthouse::LookupRomhackEntry(ccSha1)) {
+            // Known blob: the table's verdict beats the location heuristic — an
+            // isPorted=false row means analysis found real un-ported code even
+            // inside a globalization-kind blob (e.g. Nostalgia 64).
+            promptCustomCode = !entry->isPorted;
+            if (!promptCustomCode) {
+                SPDLOG_INFO("[GameExtractor] Custom code blob {} is ported ({}); no warning needed.", ccSha1,
+                            entry->identifier);
+            }
+        } else {
+            // Unknown blob: only injected blobs warrant the prompt; the stock
+            // globalization framework is covered by the statically linked build.
+            promptCustomCode = (ccKind == BK64::CustomCodeKind::BB_INJECTED);
+        }
+    }
+    if (promptCustomCode) {
         SPDLOG_WARN("[GameExtractor] Romhack ships custom code ({}); prompting user before extraction.",
                     rebuiltOverlay ? "rebuilt code overlay, non-BB build" : "injected MIPS code blob");
         sCustomCodePromptResult = -1;

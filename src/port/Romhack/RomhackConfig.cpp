@@ -70,6 +70,7 @@ static std::string sRomName;
 // loaded romhack has no detectable injected MIPS code.
 static std::string sCustomCodeHashHex;
 static uint32_t sCustomCodeRamBase = 0;
+static int sCustomCodeKind = -1;
 
 // ROM SHA1 — populated by the ROM_HASH section. Always emitted by Torch for
 // any romhack; serves as the fallback identifier when no custom-code blob is
@@ -390,7 +391,7 @@ static void LoadGameConfig() {
                 }
                 break;
 
-            case 11: // CUSTOM_CODE — single entry: u32 ramBase + u8 hash[20]
+            case 11: // CUSTOM_CODE
                 if (entryCount >= 1 && pos + 24 <= size) {
                     sCustomCodeRamBase = readLE32(data + pos);
                     char hex[41];
@@ -398,17 +399,6 @@ static void LoadGameConfig() {
                         std::snprintf(hex + i * 2, 3, "%02x", data[pos + 4 + i]);
                     }
                     sCustomCodeHashHex.assign(hex, 40);
-                    if (Lighthouse::LookupRomhackIdentifier(sCustomCodeHashHex.c_str()) == nullptr) {
-                        // Hash isn't in RomhackTable.h yet — Lighthouse can detect
-                        // this hack ships custom code but doesn't know which one.
-                        // Log the SHA1 so a hand-port author can pick it up.
-                        SPDLOG_WARN("[GameConfig] Custom-code SHA1 {} is not identified! This romhack's "
-                                    "scripted behavior will be absent until a hand-port is added "
-                                    "(ramBase=0x{:08X}).",
-                                    sCustomCodeHashHex, sCustomCodeRamBase);
-                    }
-                    // Known identifiers are surfaced in the summary log line below.
-
                     pos += 24;
                     // Skip any additional entries (forward-compat).
                     for (uint16_t e = 1; e < entryCount && pos + 24 <= size; e++) {
@@ -418,6 +408,13 @@ static void LoadGameConfig() {
                     SPDLOG_WARN("[GameConfig] CUSTOM_CODE section malformed, skipping");
                     pos += entryCount * 24;
                 }
+                break;
+
+            case 13: // CUSTOM_CODE_INFO
+                if (entryCount >= 1 && pos + 4 <= size) {
+                    sCustomCodeKind = readLE16(data + pos);
+                }
+                pos += entryCount * 4;
                 break;
 
             case 12: // ROM_HASH — single entry: u8 hash[20]
@@ -481,11 +478,27 @@ static void LoadGameConfig() {
         // Data-only romhack — BB patches only, no injected MIPS to identify.
         // Fall back to the o2r-derived name for visibility.
         SPDLOG_INFO("[GameConfig] Loaded romhack: {}", sRomName.empty() ? "<unnamed>" : sRomName);
-    } else if (const char* id = Lighthouse::LookupRomhackIdentifier(sCustomCodeHashHex.c_str())) {
-        SPDLOG_INFO("[GameConfig] Loaded romhack: {}", id);
+    } else if (const auto* entry = Lighthouse::LookupRomhackEntry(sCustomCodeHashHex.c_str())) {
+        SPDLOG_INFO("[GameConfig] Loaded romhack: {}", entry->identifier);
+        // No warning when the custom code is just the BB globalized-overlay
+        // framework or is already ported. Only injected, not-yet-ported code merits one.
+        // isPorted=false means analysis confirmed real un-ported custom code,
+        // regardless of how the blob is shipped (Nostalgia 64's lives inside a
+        // globalization-kind blob).
+        if (!entry->isPorted) {
+            SPDLOG_WARN("[GameConfig] {} ships injected custom code that is not ported yet; "
+                        "scripted behavior driven by it will be absent.",
+                        entry->identifier);
+        }
+    } else if (sCustomCodeKind == 1 /* BB_GLOBALIZATION */) {
+        const char* romId = sRomHashHex.empty() ? nullptr : Lighthouse::LookupRomhackIdentifier(sRomHashHex.c_str());
+        SPDLOG_INFO("[GameConfig] Loaded romhack: {}",
+                    romId ? romId : (sRomName.empty() ? "<unnamed>" : sRomName.c_str()));
     } else {
-        // Custom code present but the SHA1 is not in RomhackTable.h. The
-        // separate warn earlier in this function already surfaced the hash.
+        // Custom code present but the SHA1 is not in RomhackTable.h.
+        SPDLOG_WARN("[GameConfig] Custom-code SHA1 {} is not identified! This romhack's scripted "
+                    "behavior will be absent until a port is added (ramBase=0x{:08X}).",
+                    sCustomCodeHashHex, sCustomCodeRamBase);
         SPDLOG_INFO("[GameConfig] Loaded romhack: unidentified custom-code");
     }
 }
@@ -519,6 +532,14 @@ extern "C" bool port_isRomhack(void) {
 extern "C" const char* port_getRomhackName(void) {
     LoadGameConfig();
     return sRomName.empty() ? "" : sRomName.c_str();
+}
+
+extern "C" int port_getRomhackCustomCodeKind(void) {
+    LoadGameConfig();
+    if (!sIsRomhack || sCustomCodeHashHex.empty() || sCustomCodeKind < 0) {
+        return 0; // none
+    }
+    return sCustomCodeKind;
 }
 
 extern "C" bool port_getRomhackCustomCodeHash(char out_hex[41]) {
