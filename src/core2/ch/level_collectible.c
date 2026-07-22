@@ -7,11 +7,7 @@ extern void func_8028F7D4(f32, f32);
 void chLevelCollectible_update(Actor *this);
 extern ActorMarker *func_8028E86C(void);
 
-// [port] Anchor: FP presents and TTC gold are carried collectibles sharing this actor, so they ride
-// the same shared-pool framework as CCW worms/acorns (carriedSync): a shared count synced via the
-// COLLECT_ITEM packet (so anyone can return what anyone collects), and per-object live despawn keyed
-// by spawn position. Maps the world-collectible marker to its ANCHOR_COLLECTIBLE_* kind, or -1 for
-// the ones not synced this way (e.g. MM's orange).
+// [port] Anchor: maps a world-collectible marker to its ANCHOR_COLLECTIBLE_* kind for carriedSync, or -1 if unsynced.
 static s32 levelCollectible_syncKind(s32 markerId) {
     switch (markerId) {
         case MARKER_36_ORANGE_COLLECTIBLE:         return ANCHOR_COLLECTIBLE_ORANGE;
@@ -23,20 +19,10 @@ static s32 levelCollectible_syncKind(s32 markerId) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// [port] Anchor: remote teammates' carried/thrown collectibles (display only).
-//
-// A teammate's PLAYER_UPDATE announces which collectible they're holding
-// (port_remoteCarry_setCarried); we spawn a local display copy that tracks
-// their dummy player every frame (state 6 — unused by the vanilla actor).
-// Their throw arrives as a CARRY_THROW packet and replays the same ballistic
-// arc here (state 7), landing with audio/sparkle feedback only — the delivery
-// flags, count spends, and quest progress all ride their own sync paths, so
-// the display copy must never touch game state.
-// ---------------------------------------------------------------------------
+// [port] Anchor: remote teammates' carried/thrown collectibles, display only — never touches
+// game state (flags/counts/quest progress ride their own sync paths).
 
-// Anchor-side helpers (CarryThrow.cpp): dummy transform for a client, or 0 if that
-// client/dummy isn't present in our map; broadcast of our own throw for teammates.
+// Anchor-side helpers (CarryThrow.cpp): dummy transform for a client (0 if absent); broadcast our own throw.
 extern s32 port_anchor_getDummyTransform(u32 clientId, f32 pos[3], f32* yaw);
 extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
@@ -54,10 +40,8 @@ static struct {
     f32 carryYawOff;     // held pose: object yaw relative to the owner's yaw
 } sRemoteCarry[REMOTE_CARRY_MAX];
 
-// Only the known carryables are spawnable as display copies; anything else in a carry packet
-// (stale/foreign data) is ignored. The CCW worm/acorn actors delegate their display copies to
-// this module too (port_remoteCarry_displayUpdate) even though their real update funcs live in
-// caterpillar.c/acorn.c.
+// Only known carryables spawn a display copy; also covers CCW worm/acorn actors, which delegate
+// their display copies here from caterpillar.c/acorn.c.
 static s32 __remoteCarry_actorIdForMarker(s32 markerId) {
     switch (markerId) {
         case MARKER_36_ORANGE_COLLECTIBLE:         return ACTOR_29_ORANGE_COLLECTIBLE;
@@ -155,8 +139,7 @@ static void __remoteCarry_spawnMethod(s32 markerId, s32 clientId) {
         return;
     }
     actor = actor_spawnWithYaw_f32(actorId, pos, (s32)yaw);
-    // Display copy: skip init entirely (no carriedSync registration/suppression, no collide
-    // func — it can never be collected locally) and never collide with the local player.
+    // Display copy: skip init/collide setup, never collides with the local player.
     actor->volatile_initialized = true;
     actor->marker->propPtr->unk8_3 = false;
     if (sRemoteCarry[slot].throwPending) {
@@ -252,10 +235,8 @@ void port_remoteCarry_reset(void) {
     }
 }
 
-// Per-frame behavior for the display copies. Returns nonzero if this actor is one (the
-// caller must then skip ALL vanilla logic — collect, flags, despawn checks — for it).
-// Non-static as port_remoteCarry_displayUpdate: the CCW worm/acorn actors (caterpillar.c,
-// acorn.c) run their display copies through this too, from their own update funcs.
+// Per-frame behavior for display copies. Nonzero return means caller must skip all vanilla logic.
+// Non-static: caterpillar.c/acorn.c also run their display copies through this.
 s32 port_remoteCarry_displayUpdate(Actor *this) {
     s32 slot = __remoteCarry_findByMarker(this->marker);
 
@@ -270,8 +251,7 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
             marker_despawn(this->marker);
             return 1;
         }
-        // The owner's held pose (object position relative to their player, from PLAYER_UPDATE)
-        // puts the copy in the dummy's hands rather than at its feet.
+        // Held pose offset puts the copy in the dummy's hands rather than at its feet.
         this->position[0] = pos[0] + sRemoteCarry[slot].carryOff[0];
         this->position[1] = pos[1] + sRemoteCarry[slot].carryOff[1];
         this->position[2] = pos[2] + sRemoteCarry[slot].carryOff[2];
@@ -286,9 +266,7 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
         this->position[2] += this->velocity[2];
         landY = (--this->unk38_31 < 4) ? this->unk1C[1] : this->position[1];
         if (this->position[1] < landY) {
-            // Worms/acorns are consumed at delivery (eaten by Eyrie / stashed by Nabnut) — the
-            // thrower's real object despawns with just a ding (state 4 there), so the display
-            // copy does too.
+            // Worms/acorns despawn with just a ding on delivery, same as the thrower's real object.
             if (this->modelCacheIndex == ACTOR_2A2_CATERPILLAR || this->modelCacheIndex == ACTOR_2A9_ACORN) {
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
                 marker_despawn(this->marker);
@@ -302,9 +280,7 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
             } else {
                 sfx_playFadeShorthandDefault(SFX_B3_ORANGE_TALKING, 1.0f, 25000, this->position, 1000, 2000);
             }
-            // Land like the thrower's real object does (state 4 -> snap to target height -> sits
-            // at the delivery spot): stay as a landed display (state 8). Despawning here made
-            // the delivered object vanish on teammates' screens the moment it landed.
+            // Stay as a landed display (state 8) instead of despawning, or it'd vanish on landing.
             this->position[1] = landY;
             subaddie_set_state(this, 8);
             return 1;
@@ -323,13 +299,8 @@ s32 port_remoteCarry_displayUpdate(Actor *this) {
         return 1;
     }
 
-    // State 8 (landed display copy) deliberately returns 0: it falls through to the vanilla
-    // marker-specific lifecycle at the bottom of chLevelCollectible_update — gold spins and
-    // despawns via func_802D83EC exactly like the thrower's real landed gold (so it leaves
-    // when Blubber's does), the orange despawns when Chimpy leaves, presents stay
-    // non-collidable (func_802D84F4, state != 2). It can't be collected or touch quest state:
-    // it has no collision callback (never registered) and no carriedSync spawn data, the main
-    // state switch has no case 8, and the init blocks already ran at spawn.
+    // State 8 (landed display copy) falls through to the vanilla marker-specific lifecycle
+    // below; it can't be collected since it has no collision callback registered.
 
     return 0;
 }
@@ -478,8 +449,7 @@ void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker
         }
         func_8028F030(this->modelCacheIndex);
         {
-            // [port] Broadcast the pickup so this world object despawns on teammates too; the shared
-            // count rides the ITEM_* item-count delta via func_8028F030's item_inc.
+            // [port] Broadcast the pickup so this world object despawns on teammates too.
             s32 kind = levelCollectible_syncKind(marker->id);
             if (kind >= 0) {
                 port_carriedSync_onLocalCollect(kind, marker);
@@ -626,8 +596,7 @@ void func_802D8374(Actor *this){
     else{
         if(this->unk138_21){
             func_8028EF28(sp20);
-            // [port] Anchor: replay this throw on teammates' clients (same start + target =>
-            // same arc). Sent before func_802D7DE8 so the position is still the launch point.
+            // [port] Anchor: replay this throw on teammates; sent before func_802D7DE8 changes position.
             port_anchor_onCarryThrow(this->marker->id, this->position, sp20);
             func_802D7DE8(this->marker, sp20);
         }
@@ -661,8 +630,7 @@ void chLevelCollectible_update(Actor *this){
     s32 marker_id;
     if(this->despawn_flag) return;
 
-    // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic —
-    // it must never collect, set flags, register with carriedSync, or despawn-check.
+    // [port] Anchor: a display copy skips all vanilla logic (collect, flags, despawn).
     if (port_remoteCarry_displayUpdate(this)) {
         return;
     }
@@ -682,9 +650,7 @@ void chLevelCollectible_update(Actor *this){
             func_8028F7D4(0.0f, 0.0f);
             subaddie_set_state(this, 3);
         } else {
-            // [port] Register the world collectible (not the carried instance) for networked live
-            // despawn, keyed by its fixed spawn position. If a teammate already grabbed it this
-            // session, don't present it.
+            // [port] Register for networked live despawn; skip presenting if already grabbed remotely.
             s32 kind = levelCollectible_syncKind(this->marker->id);
             if (kind >= 0) {
                 s32 suppress;
@@ -698,9 +664,7 @@ void chLevelCollectible_update(Actor *this){
         }
     }//L802D85DC
 
-    // [port] A teammate grabbed this world collectible — despawn it here so it vanishes on every
-    // client. Only the world instance (not the carried one) was registered, so this is a no-op for
-    // carried/thrown copies.
+    // [port] A teammate grabbed this world collectible remotely — despawn it here too.
     if (!this->unk138_22) {
         s32 kind = levelCollectible_syncKind(this->marker->id);
         if (kind >= 0 && port_carriedSync_consumeRemoteDespawn(kind, this->marker)) {

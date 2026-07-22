@@ -20,9 +20,7 @@ extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
 /**
  * SCOPED_FLAG
  *
- * Realtime sync of a transient level-/map-specific flag. Routed only to teammates in the same
- * level or map; never queued. ctx = the sender's level/map id, so a receiver that has since
- * moved doesn't apply a stale flag.
+ * Realtime sync of a transient level-/map flag; ctx = sender's level/map id, so a moved receiver skips it.
  */
 
 void Anchor::SendPacket_ScopedFlag(u8 space, s16 index, u8 value) {
@@ -62,7 +60,6 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
     } else if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC) {
         if ((s32)gsworld_getMap() == ctx) {
             mapSpecificFlags_setEx(index, value, 0);
-            // Remotely-set flag
             if (value && index >= 0 && index < 32) {
                 sMapFlagSetRemotely |= (1u << index);
             }

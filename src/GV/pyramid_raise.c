@@ -185,10 +185,7 @@ void func_8038CC98(Actor *this){
         local->unk14 = actorArray_findActorFromActorId(ACTOR_31D_SANDYBUTT_PYRAMID)->marker;
     }
 
-    // [port] Network catch-up: if the shared progress flag has advanced past this statue, a teammate
-    // already fed it — despawn it, the same end state the init check produces. Entering state 8 from
-    // a state other than 7 skips func_8038C760's pyramid-raise/flag-set side effects, which the
-    // feeder already triggered.
+    // Anchor: teammate already fed this statue (progress flag advanced past it) - despawn to match.
     if(this->state != 8 && fileProgressFlag_getN(FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, 2) > *local->unk8){
         func_8038C8A0(this, 8);
         return;

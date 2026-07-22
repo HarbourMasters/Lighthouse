@@ -44,8 +44,7 @@ void chjinjonatorbase_func_8038E0D4(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f
     }
 }
 
-// [port] Anchor: the vanilla egg-count body, shared by local hits and networked eggs (the pad
-// index normally comes from the collision sub-part marker, which a network replay doesn't have).
+// Anchor: vanilla egg-count body, shared by local hits and networked eggs (pad index passed explicitly).
 static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
     ActorLocal_BossJinjonatorBase *local = (ActorLocal_BossJinjonatorBase *) &actor_jinjonatorbase->local;
     s32 remaining_hits;
@@ -54,8 +53,7 @@ static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
         if (local->egg_hits[indx]) {
             local->egg_hits[indx]--;
             comusic_playTrack(COMUSIC_2B_DING_B);
-            // [port] Anchor: replicate the accepted egg so followers' pads (and, on the last
-            // one, the jinjonator release itself) trigger locally on every client.
+            // Anchor: replicate the accepted egg so followers' pads trigger locally too.
             FightSync_ReplicateEgg(BOSSJINJO_5_JINJONATOR, indx);
 
             if (local->egg_hits[indx] <= 0) {
@@ -78,9 +76,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     Actor *actor_jinjonatorbase = marker_getActor(this);
     int indx = this->unk40_31 - 1;
 
-    // [port] Anchor: a follower forwards its egg (with the pad it hit) to the fight authority;
-    // the accepted egg comes back as an EGG_FED event applied through __chjinjonatorbase_applyEgg
-    // on every client, so the pads — and the final release — stay identical for all.
+    // Anchor: follower forwards to the authority; the accepted egg replays via EGG_FED on every client.
     if (other != NULL && FightSync_ForwardEgg(BOSSJINJO_5_JINJONATOR, indx)) {
         return;
     }
@@ -88,8 +84,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     __chjinjonatorbase_applyEgg(actor_jinjonatorbase, indx);
 }
 
-// [port] Anchor: remaining-egg count per pedestal pad, for the latecomer world snapshot.
-// Returns false (pads filled with the untouched default) when the pedestal isn't up.
+// Anchor: remaining-egg count per pad, for the latecomer snapshot; false if the pedestal isn't up.
 bool chjinjonatorbase_netGetPads(u8 pads[4]) {
     Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
     ActorLocal_BossJinjonatorBase *local;
@@ -108,8 +103,7 @@ bool chjinjonatorbase_netGetPads(u8 pads[4]) {
     return true;
 }
 
-// [port] Anchor: apply a networked egg (a follower's forwarded egg on the authority, or the
-// authority's replicated EGG_FED on a follower) to the given jinjonator pedestal pad.
+// Anchor: apply a networked egg (forwarded or replicated) to the given pedestal pad.
 void chjinjonatorbase_netApplyEgg(s32 pad_index) {
     Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
 

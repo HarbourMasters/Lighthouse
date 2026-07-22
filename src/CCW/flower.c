@@ -29,9 +29,7 @@ Struct_CCW_1B20_0 D_8038EC40[4] ={
     {0x183, 1, 1, 0x000, 0x000, 0x00, 0}
 };
 
-// [port] Anchor: within-one-call flavor flag — a teammate's remote watering grows the flower
-// without the camera pans, fanfare, and jiggy spawn (those belong to the waterer; the jiggy
-// arrives via their JIGGY_SPAWN).
+// Anchor: set during a remote-water replay; skips the waterer's camera/fanfare/jiggy spawn.
 static s32 sFlowerRemoteGrow = 0;
 
 ActorInfo D_8038EC70 = { 0x1B0, 0x29D, 0x447, 0x0, NULL, func_80388478, NULL, CCW_func_803882F4, 0, 0, 1.0f, 0};
@@ -178,10 +176,7 @@ void func_80388478(Actor *this) {
         return;
     }
 
-    // [port] Anchor: a teammate watered this stage — its season flag arrived over the wire while
-    // our flower still shows unwatered. Grow it live, minus the waterer's camera/fanfare/jiggy
-    // (the jiggy rides their JIGGY_SPAWN and lands on the bloomed geometry). The VB listener
-    // (HookHandlers.cpp, isConnected-gated) grants this only when the stage's flag is set.
+    // Anchor: teammate watered this stage — grow it live, minus camera/fanfare/jiggy.
     if ((this->state == 1) && EventSystem_Should(VB_CCW_FLOWER_REMOTE_GROW, false, (s32)local->unk0->unk8)) {
         sFlowerRemoteGrow = 1;
         func_80387F64(this, 2);

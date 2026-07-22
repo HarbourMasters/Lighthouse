@@ -30,7 +30,7 @@ void Anchor::Enable() {
     Network::Enable(CVarGetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org"),
                     CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383));
     ownClientId = CVarGetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), 0);
-    roomState = RoomState{};
+    roomState = RoomState{}; // sync-off until UPDATE_ROOM_STATE arrives
 }
 
 bool Anchor::IsGlobalRoom() {
@@ -56,8 +56,7 @@ void Anchor::OnConnected() {
     SendPacket_Handshake();
     RegisterHooks();
 
-    // Realtime note/jinjo collection sync depends on those retention systems running, so force
-    // them on while connected — without touching the user's CVar.
+    // Force retention on while connected (needed for realtime collection sync); CVar untouched.
     port_noteRetention_setForced(1);
     port_jinjoRetention_setForced(1);
 
@@ -299,15 +298,13 @@ void Anchor::DrawDummies(OnPlayerDraw* event) {
 
 void Anchor::ClearDummies() {
     for (auto& [id, dummy] : dummies) {
-        dummy->dummy_despawnActor();
+        dummy->dummy_despawnActor(); // no-op if already detached by map teardown
     }
     dummies.clear();
 }
 
-// actorArray_free is tearing down every actor and marker wholesale — and that path fires no
-// OnActorDestroy events — so the stand-in markers are about to dangle (a freed marker resolves
-// to non-null garbage, not nullptr). Forget them all; dummies that should still exist respawn
-// their stand-ins lazily on the next update.
+// actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all so
+// nothing dereferences a freed marker. Dummies respawn their stand-ins lazily if still needed.
 extern "C" void port_anchorDummies_onActorsFreed(void) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr) {
@@ -342,8 +339,7 @@ void Anchor::UpdateDummies() {
 }
 
 void Anchor::OnActorDestroyed(Actor* actor) {
-    // The engine destroyed a dummy's stand-in behind our back (or our own despawn is mid-flight):
-    // forget the marker so nothing dereferences it.
+    // Stand-in was destroyed externally; forget its marker, dummy stays registered.
     if (actor == nullptr || actor->marker == nullptr) {
         return;
     }
@@ -362,17 +358,19 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
-// Per-level clears for the temporary-persistence session stores (defined in the respective
-// packet modules, alongside their team-state snapshot/restore).
+// Per-level clears for temporary-persistence session stores (defined alongside their
+// team-state snapshot/restore in the respective packet modules).
 extern void port_breakable_clearForLevel(int32_t levelId);
 extern void port_hutSmash_clearForLevel(int32_t levelId);
 extern void port_eggToll_clearForLevel(int32_t levelId);
 extern void port_puzzleStep_clearForLevel(int32_t levelId);
 extern void port_carriedSync_clearForLevel(int32_t levelId);
 
+// Vanilla doesn't persist broken objects/huts/tolls/puzzle steps, so once a level is fully
+// unoccupied each client resets its own copy of that state (all copies converge on the same
+// event stream). Note/jinjo retention and spawned jiggies are NOT swept; those mirror vanilla.
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
-    // level_e ids are small (1..0xD); 0x20 gives the same headroom the jinjo retention slots use.
-    bool occupied[0x20] = { false };
+    bool occupied[0x20] = { false }; // level_e ids are small; matches jinjo retention slot count
     auto markOccupied = [&occupied](s32 map) {
         if (map <= 0 || map >= MAP_NUM_MAPS) {
             return; // unknown/boot map: map_getLevel on a bad id is unsafe
@@ -431,9 +429,7 @@ void Anchor::RefreshClientActors() {
 }
 
 bool Anchor::IsSaveLoaded() {
-    // Attract-mode demos and file playback run real gameplay logic (collecting items, setting
-    // flags) against a throwaway save. Never treat those as a loaded save, or connecting during
-    // a demo syncs the demo's pickups and flags to teammates.
+    // Demos/playback run real gameplay logic against a throwaway save; don't sync them.
     s32 gameMode = getGameMode();
     if (gameMode == GAME_MODE_6_FILE_PLAYBACK || gameMode == GAME_MODE_7_ATTRACT_DEMO) {
         return false;

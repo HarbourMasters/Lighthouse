@@ -1,16 +1,14 @@
 #pragma once
 #include <stdint.h>
 
-// Per-pedestal interaction lock for the Lair jigsaw podiums, keyed by the podium's
-// actorTypeSpecificField. While one player is engaged with a podium, others can't engage it.
-// Offline or unclaimed -> claim/isSelf succeed, so single-player behaves exactly as vanilla.
+// Per-pedestal interaction lock for the Lair jigsaw podiums (keyed by actorTypeSpecificField).
+// Offline or unclaimed always succeeds, so single-player behaves exactly as vanilla.
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Claim for the local client if available (unowned/self/offline) and broadcast; returns 1 on
-// success, 0 if another client owns it.
+// Claim for the local client if available and broadcast; 0 if another client owns it.
 int32_t port_jigsawPedestal_tryClaim(int32_t id);
 // 1 if we may drive this podium (unowned/self/offline), 0 if another owns it.
 int32_t port_jigsawPedestal_isSelf(int32_t id);

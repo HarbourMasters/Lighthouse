@@ -54,10 +54,7 @@ void __chhut_spawnExplosion(ActorMarker *this) {
     if (this);
 }
 
-// [port] Anchor: the bundle a hut drops, indexed by the global smash-order counter recorded at the
-// smash (the count isn't shared, so the index travels in the HUT_SMASH record). Indices 0 (note) and
-// 3 (green jinjo) are tracked collectibles (their own retention/sync), and 5 is the jiggy (rides
-// JIGGY_SPAWN — never dropped here); 1/2/4 (blue egg / grublin / extra life) are non-tracked.
+// Anchor: bundle a hut drops, indexed by smash order (index travels in the HUT_SMASH record).
 static enum bundle_e mm_hut_bundles[6] = {
     BUNDLE_0_MM_HUT_MUSIC_NOTE,
     BUNDLE_1_MM_HUT_BLUE_EGG,
@@ -67,8 +64,8 @@ static enum bundle_e mm_hut_bundles[6] = {
     BUNDLE_4_MM_HUT_JIGGY
 };
 
-// Drop a recorded hut's bundle. fullBundle=1 (a teammate's live smash) drops everything but the
-// jiggy; fullBundle=0 (restored broken on reload) drops only the non-tracked loot.
+// fullBundle=1: live teammate smash, drops everything but jiggy. fullBundle=0: restore on reload,
+// non-tracked loot only.
 static void chhut_dropRecordedBundle(Actor *this, s32 loot, s32 fullBundle) {
     f32 pos[3];
     if (loot < 0 || loot >= 5) {
@@ -106,8 +103,7 @@ void chhut_update(Actor *this) {
     if (!this->initialized) {
         this->marker->collidable = false;
         this->initialized = true;
-        // [port] Anchor temp-persist: this hut was already smashed this session (a teammate's, or
-        // ours on an earlier visit). Restore it broken and re-drop only its non-tracked loot.
+        // Anchor: already smashed this session - restore broken and re-drop non-tracked loot.
         loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
         if (loot >= 0) {
             chhut_dropRecordedBundle(this, loot, 0);
@@ -140,9 +136,7 @@ void chhut_update(Actor *this) {
                 __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
                 bundle_setYaw(this->yaw);
 
-                // [port] Anchor: the smash-order index is derived from the shared hut record (which
-                // includes teammates' smashes), not a per-client counter — otherwise every client's
-                // first smash drops bundle 0. The record below then advances that shared count.
+                // Anchor: derive smash order from the shared hut record, not a per-client counter.
                 smashIndex = port_hutSmash_countForCurrentMap();
                 if (smashIndex < 5) {
                     __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
@@ -151,12 +145,11 @@ void chhut_update(Actor *this) {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);
                 }
 
-                // [port] Anchor: record + broadcast the smash (with the bundle index, since the count
-                // isn't shared) so teammates break this same hut and get the same drop.
+                // Anchor: broadcast the smash + bundle index so teammates get the same drop.
                 port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
             }
             else {
-                // [port] Anchor live: a teammate smashed this hut — break it + drop the full bundle.
+                // Anchor: teammate smashed this hut - break it + drop the full bundle.
                 loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
                 if (loot >= 0) {
                     chhut_replaySmash(this, loot);

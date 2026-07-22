@@ -1,13 +1,8 @@
-// Dev tool: remote-collect simulator.
+// Dev tool: simulates a teammate's remote note/jinjo collects locally, no second machine
+// needed. Toggled by Dev Tools > General "Simulate Remote Collects".
 //
-// Simulates a teammate's COLLECT_ITEM packet locally to exercise the remote note/jinjo
-// collection paths (retention record + live despawn) without a second machine. Every 30
-// seconds while in a map that has live uncollected notes or jinjos, one is fed through the
-// exact functions HandlePacket_CollectItem uses (sameMap = 1), alternating between kinds.
-// Toggled by the Dev Tools > General "Simulate Remote Collects" checkbox.
-//
-// libultraship comes first: core2/timedfunc.h (via functions.h) defines a C-compat
-// `reinterpret_cast` macro that breaks the MSVC standard library if included afterward.
+// libultraship first: core2/timedfunc.h redefines `reinterpret_cast`, breaking MSVC's
+// stdlib if included after.
 #include <libultraship/libultraship.h>
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
@@ -95,8 +90,7 @@ void Tick() {
     if (SimulateOne(sPreferNote, map)) {
         sPreferNote = !sPreferNote;
     } else {
-        // Preferred kind has none left in this map — fire the other and keep preferring
-        // the scarce kind so it triggers as soon as one appears.
+        // Preferred kind exhausted; try the other and keep preferring the scarce one.
         SimulateOne(!sPreferNote, map);
     }
 }

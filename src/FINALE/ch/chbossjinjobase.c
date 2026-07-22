@@ -49,9 +49,7 @@ void chBossJinjoBase_func_8038D3DC(Actor *this, s32 arg1, f32 arg2, f32 arg3, f3
 void chBossJinjoBase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     Actor *actor_bossjinjobase = marker_getActor(this);
 
-    // [port] Anchor: a follower forwards its egg to the fight authority instead of counting it;
-    // the accepted egg comes back as an EGG_FED event, replayed on every client through this same
-    // function with other == NULL — so the counters (and the break at 3) stay identical for all.
+    // Anchor: follower forwards to the authority; the accepted egg replays here via EGG_FED (other == NULL).
     if (other != NULL && FightSync_ForwardEgg(actor_bossjinjobase->actorTypeSpecificField, 0)) {
         return;
     }
@@ -59,7 +57,7 @@ void chBossJinjoBase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     if (actor_bossjinjobase->state != CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
         comusic_playTrack(COMUSIC_2B_DING_B);
         actor_bossjinjobase->unk38_31++;
-        // [port] Anchor: replicate the accepted egg so followers' statues track ours.
+        // Anchor: replicate the accepted egg so followers' statues track ours.
         FightSync_ReplicateEgg(actor_bossjinjobase->actorTypeSpecificField, 0);
 
         if (actor_bossjinjobase->unk38_31 >= 3) {

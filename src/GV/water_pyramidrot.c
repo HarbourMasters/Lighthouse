@@ -4,8 +4,7 @@
 #include "variables.h"
 
 
-// [port] Tracks whether the valley pyramid is currently shown raised. Set on map entry by
-// func_8038FF68; lets the live re-check in func_8038FFF4 fire exactly once.
+// Anchor: whether the valley pyramid is currently shown raised.
 static s32 sGvPyramidRaised = 0;
 
 void func_8038FF60(void){}
@@ -31,12 +30,8 @@ void func_8038FF68(void){
 void func_8038FFF4(void){
     Struct70s *tmp_s70;
 
-    // [port] Raise the valley pyramid live when the water-pyramid jiggy becomes collected while
-    // we're already in the valley — e.g. a networked teammate finishes the puzzle inside the
-    // pyramid. func_8038FF68 only applies the raise on map entry, so without this the pyramid stays
-    // sunk on the teammate's screen until the next reload. Restoring 0x130 to 0 undoes the sink the
-    // entry path applied. Gated on LEVEL_FLAG_6 being clear so this never fights the local rise
-    // cutscene (func_80390000), which owns that flag while it plays.
+    // Anchor: raise the pyramid live if a teammate collects the jiggy while we're in the valley.
+    // Skip if LEVEL_FLAG_6 is set so this doesn't fight the local rise cutscene.
     if(sGvPyramidRaised) return;
     if(gsworld_getMap() != MAP_12_GV_GOBIS_VALLEY) return;
     if(levelSpecificFlags_get(LEVEL_FLAG_6_GV_UNKNOWN)) return;

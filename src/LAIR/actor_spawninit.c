@@ -232,10 +232,7 @@ void chFloorCobweb_update(Actor *this)
         }
     }
 
-    // [port] Map savestates restore actors between a level's scenes from a snapshot that keeps
-    // `initialized` true, so the spawn-time check above is skipped on a scene return. Re-check
-    // on `volatile_initialized` (which the restore DOES reset, same as the warp cauldron) so a
-    // web a teammate broke over the network while we were elsewhere stays gone.
+    // Anchor: re-check on scene-return restore, which resets volatile_initialized but not initialized.
     if (!this->volatile_initialized)
     {
         this->volatile_initialized = true;
@@ -730,11 +727,8 @@ void func_80387730(Actor *this) {
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
     }
-    // Anchor remote open: a teammate opened this exact door, flagged via unk1C[0] by
-    // port_notedoor_remoteOpen. When set, the normal fade-out below runs regardless of our
-    // own note count / proximity (forceOpen), reusing the same animation rather than a copy,
-    // and skips the local player's door-opening camera / BS interrupt and the flag set (the
-    // packet already set it) so the remote event never hijacks our character.
+    // Anchor: unk1C[0] set by port_notedoor_remoteOpen means a teammate opened this door;
+    // run the same fade-out, skipping camera/BS interrupt/flag-set (already handled remotely).
     forceOpen = (this->unk1C[0] != 0.0f);
     if (forceOpen ||
         (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR))) {
@@ -811,11 +805,7 @@ void func_80387730(Actor *this) {
     }
 }
 
-// Anchor: a teammate opened a note door. If THIS exact door (identified by its unique open
-// flag, not just "a note door") is spawned in our current map, start its dissolve animation
-// so it goes away live. Each door has a distinct actorTypeSpecificField (open flag = field +
-// FILEPROG_39_CCW_OPEN), so a door opened in one lair area never animates a different door a
-// remote player happens to be standing near. No-op when that door isn't spawned here.
+// Anchor: teammate opened this exact note door; start its dissolve animation locally too.
 void port_notedoor_remoteOpen(s32 progressFlag) {
     s32 field;
     s32 i;
@@ -831,7 +821,7 @@ void port_notedoor_remoteOpen(s32 progressFlag) {
         Actor *actor = &suBaddieActorArray->data[i];
         if (actor->marker != NULL && actor->modelCacheIndex == ACTOR_203_NOTE_DOOR &&
             actor->actorTypeSpecificField == field) {
-            actor->unk1C[0] = 1.0f; // handled by func_80387730 on the next update
+            actor->unk1C[0] = 1.0f; // picked up by func_80387730 next update
             return;
         }
     }
@@ -1035,10 +1025,8 @@ void func_803882B0(Actor *this)
         this->lifetime_value = 0;
     }
 
-    // [port] Anchor: the cubby/advent door opens off the transient VOLATILE_FLAG_BB, set when the FP
-    // witch switch is pressed. That flag doesn't reliably reach a teammate already in the lair, so
-    // also honor the persistent FILEPROG_47 (witch switch pressed), which syncs team-wide and queues
-    // for offline teammates — so the cubby opens live for a lair player when anyone presses it.
+    // Anchor: also honor the persistent FILEPROG_47 flag, since the transient VOLATILE_FLAG_BB
+    // doesn't reliably reach a teammate already in the lair.
     if (this->pitch == 90.f
         || !(volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)
              || fileProgressFlag_get(FILEPROG_47_FP_WITCH_SWITCH_JIGGY_PRESSED)))
@@ -1071,13 +1059,10 @@ void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s
     fileProgressFlag_set(progress_flag, true);
 }
 
-// [port] Anchor: pending live entrance-door open from a teammate's podium completion (see
-// port_leveldoor_remoteOpen). Holds the door actor id to animate open; expires on its own once
-// that door's persistent open flag is set (the open animation's completion sets it).
+// Anchor: entrance door actor id pending a live open from a teammate's podium completion.
 static s32 sRemoteOpenDoorActor = 0;
 
-// The persistent "<level> open" flag each entrance door sets when its open animation finishes
-// (and snap-opens from at spawn).
+// Persistent "<level> open" flag each entrance door sets when its open animation finishes.
 static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
     switch (actorId) {
         case ACTOR_20E_MM_ENTRANCE_DOOR:       return FILEPROG_31_MM_OPEN;
@@ -1094,12 +1079,7 @@ static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
     }
 }
 
-// [port] Anchor: a teammate completed an entrance's jigsaw podium (SetFlag.cpp, keyed on the
-// "cutscene seen" fileprogs 0x28-0x30/0xE2; the cutscene-trigger LEVEL flags themselves stay
-// local — Anchor_ScopedFlagExcluded). Arm that entrance's door to run the same open animation
-// the completer's cutscene drives, minus all camera/warp. If the door isn't spawned here (we're
-// in another map), the arm just waits and expires when the persistent open flag arrives — the
-// spawn-time snap-open covers the door from then on.
+// Anchor: teammate completed an entrance podium; arm that door to open locally too, minus camera/warp.
 void port_leveldoor_remoteOpen(s32 progressFlag) {
     switch (progressFlag) {
         case 0x28: sRemoteOpenDoorActor = ACTOR_20E_MM_ENTRANCE_DOOR; break;
@@ -1152,10 +1132,7 @@ void func_80388524(Actor *this) {
              && (func_802D67DC(-1) == this->modelCacheIndex)
              ;
 
-    // [port] Anchor: a teammate's podium completion armed this door (port_leveldoor_remoteOpen);
-    // run the same open animation the cutscene would, with no camera/warp. Expires once the
-    // persistent open flag is set — by this animation finishing, or by the completer's flag
-    // arriving first (then the spawn-time snap-open above already handled the door).
+    // Anchor: door armed by port_leveldoor_remoteOpen; run the open animation locally, no camera/warp.
     if (!sp34 && this->modelCacheIndex == sRemoteOpenDoorActor) {
         // "Already handled" (disarm) defaults to the door's persistent open flag being set — the
         // completer's flag arrived first, so the spawn-time snap-open above covered it. That's right
@@ -1970,8 +1947,7 @@ void func_80389FA8(Actor *this, enum file_progress_e flag)
             marker_despawn(this->marker);
     }
 
-    // [port] Re-check on scene-return restore (see chFloorCobweb_update). Covers the ice ball
-    // to Cheato, the RBB grate, the statue eye, and the rareware box, which all share this init.
+    // Anchor: re-check on scene-return restore (see chFloorCobweb_update).
     if (!this->volatile_initialized)
     {
         this->volatile_initialized = true;

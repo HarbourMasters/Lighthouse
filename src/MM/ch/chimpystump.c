@@ -47,9 +47,7 @@ void chchimpystump_update(Actor *this) {
         actor_collisionOff(this);
         this->initialized = true;
         this->actor_specific_1_f = this->position_y;
-        // [port] Anchor: if Chimpy is already done (the stump-raised flag synced from a teammate)
-        // when we spawn into the map, stay at the raised position (state 3) instead of dropping the
-        // stump and replaying the rise — which left it animating up through the spawned jiggy.
+        // Anchor: spawn already-raised if a teammate finished this, instead of replaying the rise.
         if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED)) {
             subaddie_set_state(this, CHIMPY_STUMP_STATE_3_RAISED);
         } else {

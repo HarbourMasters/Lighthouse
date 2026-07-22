@@ -11,11 +11,7 @@ extern "C" {
 /**
  * JIGGY_CRANE
  *
- * Live-only sync of the RBB jiggy-cage crane (a transient timed minigame). The triggering player
- * broadcasts the lower (stage 2) and, when their hourglass runs out, the raise (stage 4); same-map
- * teammates replay the crane movement silently (no camera / hourglass — see crane_jiggycage.c).
- * Nothing is persisted: the crane resets on its own, and the jiggy reward already syncs via
- * jiggyscore.
+ * Syncs the RBB jiggy-crane minigame; same-map teammates replay it silently. Not persisted.
  */
 
 void Anchor::SendPacket_JiggyCrane(s32 stage) {

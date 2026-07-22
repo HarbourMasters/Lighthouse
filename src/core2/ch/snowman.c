@@ -189,9 +189,7 @@ void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
     __spawnQueue_add_1((GenFunction_1)__chSnowman_spawnHat, (uintptr_t)actor->marker);
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         maSnowy_decRemaining();
-        // [port] Anchor: the FP Sir Slushes are a positional puzzle (JIGGY_31) — record this kill by
-        // its (stationary) spawn position so teammates count it and clear the same slush. Idempotent:
-        // a slush we despawn in response to a teammate's mark re-marks without rebroadcasting.
+        // [port] Anchor: record this kill by position so teammates count and clear the same slush.
         port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SLUSHES, (s32)actor->position[0], (s32)actor->position[1],
                             (s32)actor->position[2]);
     }
@@ -232,8 +230,7 @@ void chSnowman_update(Actor *this){
         if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
             local->unk0 = actorArray_findActorFromActorId(0x336)->marker;
             maSnowy_incTotal();
-            // [port] Anchor: a teammate already killed the slush at this spot before we reached it —
-            // count it and remove it silently (no death anim; we weren't here to watch it die).
+            // [port] Anchor: already killed by a teammate — count and remove silently, no death anim.
             if(port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
                                        (s32)this->position[1], (s32)this->position[2])){
                 maSnowy_decRemaining();
@@ -242,9 +239,8 @@ void chSnowman_update(Actor *this){
             }
         }
     }//L802E21D8
-    // [port] Anchor: a teammate killed this slush live (its position was marked while it's still up
-    // here) — replay the real death so it pops with the hat/particles and advances our count too.
-    // Guarded on despawn_flag so the deferred despawn can't re-trigger it next frame.
+    // [port] Anchor: killed live by a teammate — replay the death here too. Guard despawn_flag
+    // against re-triggering next frame.
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK && !this->despawn_flag
        && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
                                   (s32)this->position[1], (s32)this->position[2])){

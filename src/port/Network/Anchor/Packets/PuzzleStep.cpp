@@ -21,15 +21,9 @@ void chTreasurehunt_netTick(void);
 /**
  * PUZZLE_STEP
  *
- * Live + temporary-persistence sync of multi-step world puzzles whose progress lives only in
- * actor-local data with no flag of its own (BGS Tanktup's four legs, the croctus feed chain, the
- * nested pink eggs). Each completed sub-step is one bit; the per-puzzle progress is an OR-merged
- * bitmask kept in an in-memory map (never saved), broadcast team-wide, and restored at spawn. Each
- * actor polls its puzzle's mask every update and replays any teammate steps it hasn't applied yet.
- *
- * Puzzles are keyed by (map, puzzleId). puzzleId is a stable per-puzzle constant (see Patches.h);
- * keying by map too lets the small ids stay unique. Bits are monotonic, so OR is the only merge.
- * Cleared on save load so it never leaks across files.
+ * Syncs multi-step world puzzles with no flag of their own (Tanktup's legs, croctus feed, pink
+ * eggs). Progress is an OR-merged bitmask, keyed by (map, puzzleId), broadcast team-wide and
+ * restored at spawn; never saved.
  */
 
 std::map<std::array<int32_t, 2>, int32_t> sPuzzleBits;
@@ -130,11 +124,9 @@ void port_puzzleStep_clearForLevel(int32_t levelId) {
 /**
  * PUZZLE_POS
  *
- * Positional companion to PUZZLE_STEP: sub-steps that are distinct world objects keyed by their
- * fixed spawn position rather than a small index (FP's Sir Slushes, which spawn lazily from cube
- * prop data with no per-object index to shift a bit by). Each member is a spawn-position hash;
- * marks are OR-set semantics like the bitmask, so they compose across clients. Rides the shared
- * PUZZLE_STEP packet (phash field) and the same team-state snapshot / save-load / level-empty reset.
+ * Positional companion to PUZZLE_STEP for steps keyed by spawn position instead of a bit index
+ * (FP's Sir Slushes, lazily spawned with no per-object index). Rides the same PUZZLE_STEP packet
+ * via the phash field.
  */
 
 extern "C" int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
@@ -152,8 +144,7 @@ extern "C" void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int3
     Anchor::GetInstance()->SendPacket_PuzzleStep(puzzleId, 0, map, hash);
 }
 
-// Snapshot/restore for the team-state sync. Flat [map, puzzleId, count, hashes...] runs so a set of
-// any size round-trips: a joining client adopts the team's positional progress.
+// Flat [map, puzzleId, count, hashes...] runs, so sets of any size round-trip for team-state sync.
 std::vector<int32_t> port_puzzlePos_snapshot() {
     std::vector<int32_t> flat;
     for (const auto& [key, set] : sPuzzlePos) {
@@ -183,10 +174,8 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
 /**
  * PUZZLE_COUNT
  *
- * Companion to PUZZLE_STEP for progress that is a COUNT rather than a set of distinct steps
- * (Eyrie's fed worms, Nabnut's returned acorns). Deltas compose: every client applies
- * every increment (its own locally, teammates' via this packet), so concurrent throws all
- * land.
+ * Companion to PUZZLE_STEP for count-based progress (Eyrie's fed worms, Nabnut's acorns). Every
+ * client applies every delta, so concurrent throws all land.
  */
 
 extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
@@ -252,9 +241,7 @@ void RegisterPuzzleStep_Init() {
         sPuzzleCounts.clear();
         sPuzzlePos.clear();
     });
-    // The treasure hunt's progress lives in a global (CH_TREASUREHUNT_PUZZLE_CURRENT_STEP) with no
-    // actor spawned until the first X is busted, so nothing exists to poll the mask from an update
-    // func. Tick it from the frame hook instead; it no-ops unless the shared mask is ahead.
+    // Treasure hunt has no actor to poll until the first X is busted; tick it from the frame hook.
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         if (gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE) {
             chTreasurehunt_netTick();

@@ -67,11 +67,7 @@ void chBuriedPyramid_update(Actor *this){
         __chBuriedPyramid_setState(this, 1);
     }//L8038FE48
 
-    // [port] Live-sync the raised level from the shared progress flag. The pyramid is normally
-    // raised by the local egg-statue feeding (chBuriedPyramid_setRaisedAmount); a teammate feeding
-    // only advances FILEPROG_F8 over the network, so detect that here and animate up to match (no
-    // cutscene). Only ever raises: the local feeder sets raised_state ahead of the flag, so this
-    // can't fire on the feeder and undo their progress.
+    // Anchor: catch up raised level when a teammate feeds the statue (no cutscene).
     if(this->state == 1){
         s32 flagState = fileProgressFlag_getN(FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, 2);
         if(flagState > local->raised_state){

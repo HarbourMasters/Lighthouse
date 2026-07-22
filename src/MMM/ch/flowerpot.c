@@ -6,9 +6,7 @@
 /* public functions */
 void chFlowerpot_update(Actor *this);
 
-// [port] Anchor: live-sync which pots have flowered, by spawn position, through the shared
-// non-persistent breakable set (in-memory + team-state). recordBreak records + broadcasts without
-// the generic remote-break replay (pots flower, they don't despawn); each pot polls isBroken below.
+// Anchor: sync which pots have flowered by spawn position, via the shared breakable set.
 extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
@@ -66,9 +64,7 @@ void chFlowerpot_update(Actor *this) {
         this->unk130 = MMM_func_803871FC;
     }
 
-    // [port] Anchor live + temp-persist: a teammate flowered this pot (recorded by spawn position).
-    // Flower it here too, without decrementing the count — the count syncs separately as level flags
-    // 0x39-0x3B and the jiggy rides JIGGY_SPAWN — so the visual matches across clients and on reload.
+    // Anchor: teammate flowered this pot - match visually, without decrementing the count.
     if (this->state == FLOWER_POT_STATE_1_IDLE
         && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
                                    (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {
@@ -100,9 +96,7 @@ bool chFlowerpot_eggCollision(ActorMarker *marker) {
 
     subaddie_set_state(actor, FLOWER_POT_STATE_2_FLOWERED);
     anctrl_setPlaybackType(actor->anctrl, ANIMCTRL_ONCE);
-    // [port] Anchor: broadcast this pot's flowering (by spawn position) so teammates' pots flower
-    // to match. The decrement below is local; the count rides level flags 0x39-0x3B, the jiggy rides
-    // JIGGY_SPAWN.
+    // Anchor: broadcast this pot's flowering so teammates' pots match.
     port_breakable_recordBreak((s32)marker->id, (s32)actor->position[0], (s32)actor->position[1], (s32)actor->position[2]);
     remaining = chFlowerpot_getRemaining();
 

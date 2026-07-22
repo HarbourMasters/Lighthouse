@@ -93,13 +93,12 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     this->collidable = false;
     thisActor->unk124_6 = 0;
     tmp = (ActorLocal_PinkEgg *) &thisActor->local;
-    // [port] Anchor: record + broadcast this layer's break so each teammate's chain advances too.
-    // orBits is idempotent by bitmask
+    // Anchor: broadcast this layer's break; orBits is idempotent so the replay's re-run is a no-op.
     port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->unk0);
     if(D_803906C4[tmp->unk0] != 0){
         __spawnQueue_add_2((void (*)(void))chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->unk0);
     } else if(!jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)){
-        // Gate so two clients finishing the chain don't each spawn a jiggy
+        // Anchor: gate so two clients finishing don't both spawn a jiggy.
         jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
@@ -112,13 +111,13 @@ void chPinkEgg_update(Actor *this){
         this->initialized = true;
     }
 
-    // [port] Anchor: despawn if completed
+    // Anchor: team already finished the chain — despawn, unless mid-break.
     if(jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG) && this->state != 3){
         marker_despawn(this->marker);
         return;
     }
 
-    // [port] Anchor live + temp-persist: replay teammates' layer breaks.
+    // Anchor: replay teammates' layer breaks, catching up one layer per frame.
     if((port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg *)&this->local)->unk0))
         && this->state != 3){
         chPinkEgg_collision(this->marker, NULL);

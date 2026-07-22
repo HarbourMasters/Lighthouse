@@ -13,7 +13,8 @@ extern "C" {
 #include "functions.h"
 }
 
-// Temporary persistence
+// In-memory session sets that aren't part of the save but still ride team state. Flat int
+// tuples; defined in the respective port modules.
 extern std::vector<int32_t> port_breakable_snapshotBroken();
 extern void port_breakable_restoreBroken(const std::vector<int32_t>& flat);
 extern std::vector<int32_t> port_carriedSync_snapshotCollected();
@@ -34,11 +35,8 @@ extern void port_hutSmash_restore(const std::vector<int32_t>& flat);
 /**
  * UPDATE_TEAM_STATE
  *
- * Pushes our full flag state to the server for teammates. Fires when the server passes
- * on a REQUEST_TEAM_STATE packet, or when this client saves the game.
- *
- * Sending assumes the team queue has been drained for this client, so we clear it.
- * Receiving replays any queued packets in order after applying the state.
+ * Pushes our full flag state to teammates on REQUEST_TEAM_STATE or on save. Sending clears
+ * the team queue (assumed drained); receiving replays any queued packets after applying state.
  */
 
 // Snapshot a decomp byte-array score/flag section into a JSON byte array.
@@ -71,7 +69,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     timeScores_getSizeAndPtr(&tsSize, &tsAddr);
     payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
     payload["state"]["volatileFlags"] = ScoreBytes(volatileFlag_getSizeAndPtr);
-    // In-memory session sets (never saved): broken non-persistent objects + collected worms/acorns.
+    // In-memory session sets (never saved).
     payload["state"]["brokenObjects"] = port_breakable_snapshotBroken();
     payload["state"]["carriedCollected"] = port_carriedSync_snapshotCollected();
     payload["state"]["eggTolls"] = port_eggToll_snapshot();
@@ -81,6 +79,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["spawnedJiggies"] = port_jiggySpawn_snapshot();
     payload["state"]["huts"] = port_hutSmash_snapshot();
 
+    // Randomizer progress lives outside the vanilla score sections: obtained checks + RANDO_INF flags.
     if (IS_RANDO) {
         std::vector<u8> checks(RC_MAX, 0);
         for (s32 rc = RC_UNKNOWN + 1; rc < RC_MAX; rc++) {
@@ -107,6 +106,7 @@ void Anchor::SendPacket_ClearTeamState(std::string teamId) {
     SendJsonToRemote(payload);
 }
 
+// Overwrites a local byte section with the authoritative team-state array (no additive merge).
 static void ApplyTeamBytes(nlohmann::json& bytes, void (*getSizeAndPtr)(s32*, u8**)) {
     s32 size;
     u8* addr;
@@ -126,8 +126,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
 
     if (payload.contains("state")) {
         auto& state = payload["state"];
-        // Authoritative overwrite of each section — direct byte copy bypasses the setters,
-        // so no OnGameFlagSet / collectible events fire from adopting team state.
+        // Direct byte copy bypasses the setters, so no OnGameFlagSet / collectible events fire.
         if (state.contains("fileProgressFlags")) {
             ApplyTeamBytes(state["fileProgressFlags"], fileProgressFlag_getSizeAndPtr);
         }
@@ -146,6 +145,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         if (state.contains("noteScores")) {
             ApplyTeamBytes(state["noteScores"], itemscore_noteScores_getSizeAndPtr);
         }
+        // Per-level retention sets; takes effect on next map load (realtime collection packets
+        // handle already-spawned notes/jinjos).
         if (state.contains("noteRetention")) {
             ApplyTeamBytes(state["noteRetention"], port_noteRetention_getSizeAndPtr);
         }
@@ -155,7 +156,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         if (state.contains("abilities")) {
             ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);
         }
-        // In-memory session sets (never saved)
+        // In-memory session sets; takes effect on next map load (realtime BREAK_OBJECT /
+        // COLLECT_ITEM packets handle already-spawned objects).
         if (state.contains("brokenObjects")) {
             port_breakable_restoreBroken(state["brokenObjects"].get<std::vector<int32_t>>());
         }
@@ -181,7 +183,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             port_hutSmash_restore(state["huts"].get<std::vector<int32_t>>());
         }
 
-        // Recompute for the overwrites
+        // Recompute cached HUD counts the overwrites above bypassed. Guarded since team state
+        // can arrive before the game has fully loaded.
         if (IsSaveLoaded()) {
             if (state.contains("jiggies")) {
                 func_8034798C();
@@ -193,6 +196,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
                 func_80347984();
             }
 
+            // Saved item counts: mumbo tokens [0] and jiggy total [4] always sync; feathers
+            // [1-3] only when the room shares consumables.
             if (state.contains("savedItems")) {
                 auto& incoming = state["savedItems"];
                 s32 size;
@@ -226,7 +231,8 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             }
         }
 
-        // Randomizer catch-up
+        // Randomizer catch-up: reconcile check records (obtain without re-granting, see
+        // AdoptRemoteCheck) and take RANDO_INF flags authoritatively.
         if (IS_RANDO && IsSaveLoaded()) {
             if (state.contains("randoChecks")) {
                 auto checks = state["randoChecks"].get<std::vector<u8>>();
@@ -246,6 +252,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             }
         }
 
+        // Adopted snapshot may include session records for levels nobody occupies anymore.
         SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
 
         Notification::Emit({

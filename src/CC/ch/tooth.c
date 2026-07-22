@@ -80,8 +80,7 @@ extern void chTooth_update(Actor * this){
             __chTooth_setState(this, 1);
         }
     }
-    // [port] Anchor live re-eval: a teammate opened this tooth (its level flag synced) after we
-    // already closed it at init — open it now so the token/jiggy reveals live.
+    // Anchor: teammate opened this tooth (flag synced) — open it now so the reveal happens live.
     else if(this->state == 1 && levelSpecificFlags_get(local->unk0->level_flag)){
         __chTooth_setState(this, 2);
     }

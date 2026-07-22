@@ -74,10 +74,7 @@ void __baanim_oscillateScale(f32 dst[3], f32 x, f32 min, f32 osc_size) {
     };
 }
 
-// [port] Applies the bottles-bonus bone scaling for a precomputed effect mask (the D_803635EC
-// bitfield). Split out from __baanim_applyBottlesBonus so dummy players can apply a remote
-// player's synced bonus to their own skeleton. Does not touch the wishy-washy transform, which
-// is player-specific and syncs through the transformation flow instead.
+// [port] Split from __baanim_applyBottlesBonus so dummy players can apply a synced remote mask.
 void baanim_applyBottlesBonusMask(uintptr_t arg0, s32 mask) {
     f32 scale[3];
     f32 sp28 = func_802E4B38();
@@ -114,8 +111,7 @@ void baanim_applyBottlesBonusMask(uintptr_t arg0, s32 mask) {
     }
 }
 
-// [port] Resolves the local player's active bottles-bonus effect mask from the sandcastle
-// volatile flags (0 when no bonus is active). Used to feed the bonus into the player-state sync.
+// [port] Local player's active bottles-bonus mask, for feeding into player-state sync.
 s32 baanim_getActiveBottlesBonusMask(void) {
     s32 mask = 0;
     s32 i;
@@ -136,10 +132,7 @@ void __baanim_applyBottlesBonus(uintptr_t arg0, uintptr_t arg1) {
 
     baanim_applyBottlesBonusMask(arg0, mask);
 
-    // Wishy-Washy applies game-wide (not just in the TTC sandcastle) so the enhancement toggle
-    // works anywhere. Only swap when the player is plain Banjo (apply) or already Wishy-Washy
-    // (revert) — never clobber an active Mumbo transform. When such a transform ends,
-    // func_8028FB88's own wishyWashyFlag_get() check re-applies Wishy-Washy while the flag is set.
+    // Wishy-Washy now applies game-wide; only swap Banjo<->Wishy-Washy, never clobber another transform.
     if ((mask & BAANIM_WISHYWASHY) && (player_getTransformation() == TRANSFORM_1_BANJO)) {
         func_8028FB88(TRANSFORM_7_WISHWASHY);
     }

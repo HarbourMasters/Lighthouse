@@ -130,8 +130,7 @@ void chTanktup_update(Actor *this)
     actor_collisionOff(this);
     this->scale = 1.0f;
     sTanktupCameraPushed = 0;
-    // [port] Anchor temp-persist: adopt the team's already-pulled-in legs so the leg actors below
-    // spawn already retracted (the loop only spawns legs whose unk0 is still 0). In-memory only.
+    // Anchor: adopt the team's already-retracted legs so their actors spawn pre-retracted.
     {
       s32 legBits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
       for (sp44 = 0; sp44 < 4; sp44++)
@@ -155,10 +154,7 @@ void chTanktup_update(Actor *this)
       ;
     }
   }
-  // [port] Anchor: if the team already completed Tanktup (JIGGY_26 spawned) but our body is still
-  // idle — e.g. we arrived after it happened, or restored all four legs at spawn without anyone
-  // hitting the last one locally — raise the head so it matches the jiggy. The state-3 cutscene
-  // below is proximity-gated, so this won't yank a far player.
+  // Anchor: team already completed Tanktup but our body is still idle — raise the head to match.
   if (this->state == 1 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
   {
     subaddie_set_state_with_direction(this, 3, 0.0f, -1);
@@ -229,11 +225,7 @@ void chTanktup_update(Actor *this)
 
     case 3:
     {
-      // [port] Anchor: the head-raise can be driven by a teammate's leg/synced completion, so gate
-      // the camera cutscene + completion dialog on local-player proximity — a player across the
-      // swamp who wasn't involved isn't yanked, but the head still animates up for everyone. The
-      // jiggy is gated on !spawned so two finishers don't each spawn one (the other gets it via the
-      // JIGGY_SPAWN packet).
+      // Anchor: head-raise can be teammate-driven, so gate camera/dialog on local proximity.
       f32 pp[3];
       s32 near;
       player_getPosition(pp);

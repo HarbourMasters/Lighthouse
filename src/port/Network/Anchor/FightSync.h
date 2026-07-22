@@ -4,27 +4,17 @@
 
 // Final Grunty fight sync (Anchor).
 //
-// The first client in the fight map (MAP_90_GL_BATTLEMENTS) with the boss spawned claims
-// NET_ACTIVITY_FINAL_BOSS and runs the vanilla fight; everyone else in the map follows:
-// their boss actor skips its brain and mirrors the authority instead. The sync logic lives
-// in FightSync.c; the FINALE actors only call the small FightSync_* hooks below.
+// First client in the fight map with the boss spawned claims NET_ACTIVITY_FINAL_BOSS and
+// runs the vanilla fight; everyone else mirrors it instead of running the local brain.
 //
-// Protocol overview:
-//  - FIGHT_UPDATE  authority -> map: Grunty transform + state/phase stream (per frame,
-//                  sequence-guarded so a stale packet can't roll a newer one back)
-//  - FIGHT_STATE   authority -> one joining client: world catch-up snapshot (statues with
-//                  their egg progress, flight pad, spell barrier)
-//  - FIGHT_EVENT   both directions, one shot each:
-//      authority -> map:  spell spawns, flight pad spawn/despawn, spell barrier, jinjo
-//                         statue spawns, accepted statue eggs (EGG_FED), jinjo attacks
-//      follower  -> map:  boss hits (my player damaged Grunty) and statue eggs, which
-//                         only the live authority applies
+// FIGHT_UPDATE: authority -> map, per-frame transform/state stream, sequence-guarded.
+// FIGHT_STATE: authority -> joining client, world catch-up snapshot.
+// FIGHT_EVENT: one-shot; authority -> map for spells/pads/barrier/statues/eggs/jinjo
+// attacks, follower -> authority for boss hits and statue eggs.
 //
-// The statue subsystem stays deterministic on every client by replicating accepted eggs
-// (EGG_FED): each client runs the same counters, so pedestal pads lower, stone jinjos
-// break and — for the jinjonator — the endgame release triggers locally everywhere. From
-// the release (chfinalboss_setBossDefeated) onward the fight is a fixed script, so every
-// client leaves follower mode and plays the ending with its own local simulation.
+// Accepted eggs (EGG_FED) replicate to every client so statue/jinjonator state stays
+// deterministic; once the jinjonator releases (chfinalboss_setBossDefeated), every client
+// drops out of follower mode and plays the fixed ending locally.
 
 // FIGHT_EVENT ids ('ev' field).
 enum FightSyncEvent {
@@ -41,9 +31,7 @@ enum FightSyncEvent {
     FIGHT_EV_EGG,             // a = statue id, b = jinjonator pad index
 };
 
-// Catch-up snapshot of the fight's world objects for a client that enters the map
-// mid-fight (FIGHT_STATE packet). The boss itself rides the FIGHT_UPDATE stream; this
-// carries what past FIGHT_EVENTs already built. Applied incrementally on the follower
+// FIGHT_STATE catch-up snapshot for a client joining mid-fight. Applied incrementally
 // since the replayed actors take frames to come into existence.
 typedef struct FightWorldSnapshot {
     uint8_t pad;          // flight pad present
@@ -60,23 +48,20 @@ extern "C" {
 
 // --- hooks called by the FINALE actors (implemented in FightSync.c) --------------------
 
-// Boss lifecycle: fresh spawn resets the sync state; the jinjonator release drops every
-// client (authority and followers alike) back to its own local simulation for the ending.
+// Boss lifecycle: spawn resets sync state; defeat drops every client to local simulation.
 void FightSync_OnBossSpawned(void);
 void FightSync_OnBossDefeated(void);
 
-// Follower gate for chfinalboss_update: true = a remote authority drives this boss, skip
-// the local brain (the mirrored cosmetics and the latecomer catch-up run inside).
+// True = a remote authority drives this boss; chfinalboss_update should skip its brain.
 bool FightSync_BossFollowerTick(void* boss /* Actor* */);
 
-// Follower input forwarding. When these return true the local apply must be skipped — the
-// input was sent to the fight authority instead (phase = the phase the hitter saw).
+// Forward follower input to the authority; true = handled remotely, skip local apply.
 bool FightSync_ForwardBossHit(int32_t phase);
 bool FightSync_ForwardEgg(int32_t statue_id, int32_t pad_index);
 
-// Authority world replication (each is a no-op unless we are the live authority).
+// Authority world replication (no-op unless we are the live authority).
 void FightSync_ReplicateEgg(int32_t statue_id, int32_t pad_index);
-void FightSync_OnSpellSpawned(int32_t kind); // reads the chfinalboss spell-spawn globals
+void FightSync_OnSpellSpawned(int32_t kind);
 void FightSync_OnFlightPadSpawned(void);
 void FightSync_OnFlightPadDespawned(void);
 void FightSync_OnBarrierSpawned(void);
@@ -85,8 +70,7 @@ void FightSync_OnJinjoSlam(int32_t statue_id);
 
 // --- FINALE entry points used by FightSync.c (implemented in the decomp actors) --------
 
-// chjinjonatorbase.c: apply one networked egg to a pedestal pad / read the pad counters
-// (returns false, pads defaulted, when the pedestal isn't up).
+// chjinjonatorbase.c: apply/read one networked egg's pedestal pad counters.
 void chjinjonatorbase_netApplyEgg(int32_t pad_index);
 bool chjinjonatorbase_netGetPads(uint8_t pads[4]);
 
@@ -107,12 +91,10 @@ void FightSyncSeq_Reset(void);
 
 // --- network -> sync layer (implemented in FightSync.c) --------------------------------
 
-// Called whenever the fight's authority owner changes (claim, tie-break, disconnect,
-// owner left the map). A promoted client re-enters its current phase cleanly.
+// Called on any authority change (claim, tie-break, disconnect); re-enters cleanly.
 void FightSync_OnAuthorityChanged(void);
 
-// Fill the stream fields from the live boss. Returns false when there is no boss to
-// stream (not in the fight map / boss absent) or the ending script has taken over.
+// Fill the stream fields from the live boss; false if there's no boss to stream.
 bool FightSync_GatherUpdate(float pos[3], float* yaw, int32_t* state, int32_t* phase, int32_t* mirror,
                             int32_t* vuln);
 
@@ -122,8 +104,7 @@ void FightSync_ApplyUpdate(const float pos[3], float yaw, int32_t state, int32_t
 void FightSync_ApplyEvent(int32_t ev, int32_t a, int32_t b, const float v0[3], const float v1[3],
                           const float v2[3]);
 
-// World snapshot: gather on the authority (false = nothing to send: no live fight, or the
-// ending script took over) / stage on a joining follower for the incremental catch-up.
+// Gather on the authority (false = nothing to send) / apply on a joining follower.
 bool FightSync_GatherWorld(FightWorldSnapshot* snap);
 void FightSync_ApplyWorld(const FightWorldSnapshot* snap);
 

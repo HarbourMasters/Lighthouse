@@ -160,11 +160,8 @@ void __baMarker_8028B904(s32 arg0, s32 arg1, s32 arg2, s32 arg3){
 extern ActorArray *suBaddieActorArray;
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
 
-// [port] Anchor: true if the switch-revealed empty honeycomb `uid` is already out. A copy spawned
-// so recently its init hasn't stamped the uid yet still reads 0 (the unset sentinel), so match that
-// too when the pending-uid global says it's ours. Needed because the reveal can now be reached
-// twice for one press: our own timed press callback plus the synced map-flag applier
-// (chHoneycomb_netRevealFromSwitch).
+// [port] Anchor: true if honeycomb `uid` is already spawned; avoids double-reveal from our own
+// press callback racing the synced map-flag applier.
 static bool __baMarker_honeycombPresent(s32 uid){
     s32 i;
     s32 actorUid;

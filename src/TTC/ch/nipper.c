@@ -18,14 +18,13 @@ enum ch_nipper_states_e {
     CH_NIPPER_STATE_7_UNKNOWN      // already dead? L80388A20
 };
 
-// [port] Anchor: how many of Nipper's 3 hits the team has landed, from the synced prefix mask.
+// Anchor: how many of Nipper's 3 hits the team has landed, from the synced prefix mask.
 static s32 __chNipper_sharedHits(void) {
     s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
 }
 
-// [port] Anchor: hits this actor instance has already accounted for. Alive, his remaining health is
-// encoded in lifetime_value (120 -> untouched, 80 -> 1 hit, 40 -> 2); the dead states are 3.
+// Anchor: hits this actor instance has already accounted for, from its remaining health.
 static s32 __chNipper_localHits(Actor *this) {
     if (this->state == CH_NIPPER_STATE_6_DEAD || this->state == CH_NIPPER_STATE_7_UNKNOWN) {
         return 3;
@@ -160,7 +159,7 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     func_8032B4DC(this, other_marker, 7);
 
     if (this->lifetime_value == 40.0f) {
-        // [port] Anchor: final blow — record + broadcast the full hit prefix.
+        // Anchor: final blow - broadcast the full hit prefix.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x7);
         subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
         actor_playAnimationOnce(this);
@@ -253,16 +252,13 @@ static void __chNipper_updateFunc(Actor *this){
         this->velocity_x = xVelocity;
     }
 
-    // [port] Anchor: catch up to the team's hit count — live while we watch, and at (re)spawn since
-    // the mask temp-persists for the session. Gated on `initialized` so the state-1 init block can't
-    // stomp the restored health with its lifetime_value = 120 afterwards; skipped while a locally
-    // landed hit's ow anim (state 4) or the death sequence is already playing.
+    // Anchor: catch up to the team's hit count.
     if (this->initialized && this->state != CH_NIPPER_STATE_4_DIEING && this->state != CH_NIPPER_STATE_6_DEAD &&
         this->state != CH_NIPPER_STATE_7_UNKNOWN) {
         sharedHits = __chNipper_sharedHits();
         if (__chNipper_localHits(this) < sharedHits) {
             if (sharedHits >= 3) {
-                // A teammate landed the killing blow: play the death in place, minus their camera.
+                // Anchor: teammate landed the killing blow - play the death in place, minus camera.
                 this->lifetime_value = 40.0f;
                 subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
                 actor_playAnimationOnce(this);

@@ -17,11 +17,9 @@ extern "C" {
 /**
  * HUT_SMASH
  *
- * Live + temporary-persistence sync of the MM and BGS huts (which break with no flag of their own).
- * A hut is keyed by its (map, spawn position); the value is the bundle index it dropped.
+ * Syncs MM/BGS hut smashes (no flag of their own); keyed by (map, spawn pos) -> loot index.
  */
 
-// (map, x, y, z) -> bundle index dropped.
 std::map<std::array<int32_t, 4>, int32_t> sHuts;
 
 extern "C" int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z) {

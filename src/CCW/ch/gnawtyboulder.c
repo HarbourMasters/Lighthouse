@@ -121,9 +121,7 @@ void chGnawtyBoulder_update(Actor *this) {
         }
         return;
     }
-    // [port] Anchor live: a teammate broke the boulder (LEVEL_FLAG_25 set, which syncs as a level
-    // flag) while we were standing by it. Despawn live instead of only on reload — with no break
-    // cutscene, since we weren't the one who hit it. State 1 is idle; a local break runs as state 2.
+    // Anchor: teammate broke the boulder — despawn live (no break cutscene) instead of only on reload.
     if (this->state == 1
         && levelSpecificFlags_get(LEVEL_FLAG_25_CCW_UNKNOWN)
         && gsworld_getMap() != MAP_43_CCW_SPRING) {

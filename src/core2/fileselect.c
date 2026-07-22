@@ -116,8 +116,7 @@ return 0;
 void gameFile_clear(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     savedata_clear(&gameFile_saveData[filenum]);
-    // [port] Erasing must also remove the slot's save on disk and its in-memory
-    // shipSaveData (SaveManager listens).
+    // [port] SaveManager listens, to also remove the slot's on-disk save.
     CALL_EVENT(OnGameErase, gamenum);
 }
 

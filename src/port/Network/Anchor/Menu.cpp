@@ -143,8 +143,7 @@ void AnchorMainMenu(WidgetInfo& info) {
     ImGui::SeparatorText("Current Room");
     ImGui::Text("%s Connected", ICON_FA_CHECK);
 
-    // The global room syncs nothing, so a team-state request is meaningless there — hide it.
-    if (!anchor->IsGlobalRoom()) {
+    if (!anchor->IsGlobalRoom()) { // nothing to request in the global room
         UIWidgets::PushStyleButton(THEME_COLOR);
         if (ImGui::Button("Request Team State")) {
             anchor->SendPacket_RequestTeamState();

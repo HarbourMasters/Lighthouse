@@ -96,11 +96,8 @@ void func_80388FD4(Actor *this) {
         this->unk38_0 = false;
         this->volatile_initialized = true;
     }
-    // [port] Anchor live: a teammate pressed this switch. Its pressed state persists in the
-    // fileProgress flag (which syncs team-wide), but we only checked it at init, so our switch
-    // stayed up while the door (driven by a synced level flag) opened. Drop the switch to match.
-    // unk38_0 stays false, so the state-4 block below — which fires the open effect and sets the
-    // door's level flag — does not re-trigger (that already synced via the door).
+    // Anchor: teammate pressed this switch (flag synced) — drop it to match; unk38_0 stays false
+    // so the block below doesn't re-trigger the already-synced door.
     if( this->state != 4
         && fileProgressFlag_get(this->unk10_12 + FILEPROG_8B_CCW_SPRING_OPEN)
     ){

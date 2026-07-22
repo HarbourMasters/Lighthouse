@@ -117,9 +117,7 @@ f32 D_80392750;
 f32 D_80392758[3];
 f32 D_80392768[3];
 f32 D_80392778[3];
-// [port] Anchor: the flight/lead time last used to aim a ballistic fireball at the local player
-// (func_80387110, arg3 == 0). Followers re-aim the fireball at their own player using this so every
-// player has to dodge one, instead of replaying the authority's arc (aimed only at the authority).
+// Anchor: lead time from the last local aim; followers reuse it to re-aim at their own player.
 f32 __chFinalBossFireballFlightTime;
 f32 chFinalBossPlayerPosition[3];
 f32 chFinalBossPosition[3];
@@ -341,7 +339,7 @@ void __chfinalboss_dropHealth(ActorMarker *marker) {
 }
 
 void chfinalboss_despawnFlightPad(void) {
-    // [port] Anchor: a follower that joined late never spawned one; also replayed remotely.
+    // Anchor: a follower that joined late never spawned one; also replayed remotely.
     if (__chFinalBossFlightPadMarker == NULL) {
         return;
     }
@@ -367,7 +365,7 @@ void chfinalboss_func_80386EC0(s32 arg0) {
     marker = actor_spawnWithYaw_f32(0x38A, D_80392758, 0)->marker;
     func_8030E878(SFX_147_GRUNTY_SPELL_ATTACK_2, randf2(0.95f, 1.05f), 32000, D_80392758, 5000.0f, 12000.0f);
     chGreenBlast_func_803900DC(marker, D_80392758, D_80392768[1], D_80392768[2]);
-    // [port] Anchor: replay this green blast on followers with the exact same vectors.
+    // Anchor: replay this green blast on followers with the exact same vectors.
     FightSync_OnSpellSpawned(2);
 }
 
@@ -387,7 +385,7 @@ void chfinalboss_func_80386FD8(s32 arg0) {
     marker = actor_spawnWithYaw_f32(0x389, D_80392758, 0)->marker;
     func_8030E878(SFX_146_GRUNTY_SPELL_ATTACK_1, randf2(0.95f, 1.05f), 32000, D_80392758, 5000.0f, 12000.0f);
     chSpellFireball_func_8038FB84(marker, D_80392758, D_80392768, D_80392778);
-    // [port] Anchor: replay this fireball on followers with the exact same vectors.
+    // Anchor: replay this fireball on followers with the exact same vectors.
     FightSync_OnSpellSpawned(0);
 }
 
@@ -397,7 +395,7 @@ void chfinalboss_func_80387074(s32 arg0) {
     marker = actor_spawnWithYaw_f32(0x3AA, D_80392758, 0)->marker;
     func_8030E878(SFX_146_GRUNTY_SPELL_ATTACK_1, randf2(0.95f, 1.05f), 32000, D_80392758, 5000.0f, 12000.0f);
     chSpellFireball_func_8038FB84(marker, D_80392758, D_80392768, D_80392778);
-    // [port] Anchor: replay this final-spell fireball on followers with the exact same vectors.
+    // Anchor: replay this final-spell fireball on followers with the exact same vectors.
     FightSync_OnSpellSpawned(1);
 }
 
@@ -434,8 +432,7 @@ void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 a
         D_80392768[i] = (sp2C[i] - arg1[i]) / arg2 - (D_80392778[i] * arg2 / 2);
     }
     if (arg3 == 0) {
-        // [port] Anchor: remember how this aimed shot was led so followers can reproduce the aim at
-        // their own player (see __chFinalBossFireballFlightTime).
+        // Anchor: remember the lead so followers can reproduce this aim (see the global above).
         __chFinalBossFireballFlightTime = arg2;
         SPAWNQUEUE_ADD_1(chfinalboss_func_80386FD8, marker);
     }
@@ -1216,8 +1213,7 @@ void __chfinalboss_spawnStatue(enum ch_bossjinjo_e statue_id) {
     }
     sp1C->lifetime_value = (statue_id == BOSSJINJO_5_JINJONATOR) ? 5.25f : 1.54f;
     sp1C->actorTypeSpecificField = statue_id;
-    // [port] Anchor: raise the same statue on followers (their replay skips the camera pans,
-    // which belong to the player who triggered it; the event timing spaces them naturally).
+    // Anchor: raise the same statue on followers, skipping the trigger's camera pan.
     FightSync_OnStatueSpawned(statue_id);
 }
 
@@ -1231,7 +1227,7 @@ void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
     actor = marker_getActor(marker);
     actor->partnerActor = spawn_child_actor(ACTOR_3AB_GRUNTY_SPELL_BARRIER, &actor)->marker;
     __chFinalBossSpellBarrierActive = true;
-    // [port] Anchor: raise the barrier on followers too.
+    // Anchor: raise the barrier on followers too.
     FightSync_OnBarrierSpawned();
 }
 
@@ -1547,8 +1543,7 @@ void chfinalboss_phase4_update(ActorMarker *marker) {
     sp70 = local->hits;
     sp6C = chfinalboss_findCollidingJinjo(this, func_8033229C(this->marker));
     if (sp6C != NULL) {
-        // [port] Anchor: only the authority detects the slam; despawn the followers' copy of
-        // this jinjo too (the boss reaction states ride the FIGHT_UPDATE stream).
+        // Anchor: only the authority detects the slam; despawn followers' copy of this jinjo too.
         FightSync_OnJinjoSlam(marker_getActor(sp6C)->actorTypeSpecificField);
         chbossjinjo_attack(sp6C);
         if (!fileProgressFlag_get(FILEPROG_D1_HAS_ACTIVATED_A_JINJO_STATUE_IN_FINAL_FIGHT)) {
@@ -2024,9 +2019,7 @@ void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker
 
     this = marker_getActor(marker);
     local = (ActorLocal_FinalBoss *)&this->local;
-    // [port] Anchor: a follower's landed hit is an input for the fight authority — forward it
-    // (with the phase we saw, so a lagged hit can't count toward the wrong phase) instead of
-    // advancing our mirrored boss. A NULL other_marker is the authority applying such a hit.
+    // Anchor: follower's hit is forwarded to the authority (with phase, to avoid lag misattribution).
     if (other_marker != NULL && FightSync_ForwardBossHit(local->phase)) {
         return;
     }
@@ -2133,7 +2126,7 @@ void chfinalboss_update(Actor *this){
         local->unk8 = 0;
         local->unk9 = 0;
         local->unkB = 0;
-        // [port] Anchor: fresh boss spawn — new fight (or re-entry after voiding out).
+        // Anchor: fresh boss spawn — new fight (or re-entry after voiding out).
         FightSync_OnBossSpawned();
 
         for(i = 0; i < 4; i++){ 
@@ -2160,10 +2153,7 @@ void chfinalboss_update(Actor *this){
         timed_playSfx(2.0f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 32000);
     }//L8038BF0C
 
-    // [port] Anchor: while a remote client owns the fight, skip the boss brain — the transform
-    // and state ride the FIGHT_UPDATE stream, one-shots ride FIGHT_EVENT, and only cosmetics run
-    // inside the follower tick. From the jinjonator release the fight is a fixed script, so every
-    // client — followers included — plays the ending on its own local simulation.
+    // Anchor: followers skip the boss brain — state rides FIGHT_UPDATE/FIGHT_EVENT instead.
     if (!FightSync_BossFollowerTick(this))
     switch(local->phase) {
         case FINALBOSS_PHASE_0_INTRO:
@@ -2258,9 +2248,7 @@ void chfinalboss_setBossDefeated(void) {
 
     sp4C = actorArray_findActorFromActorId(ACTOR_38B_GRUNTILDA_FINAL_BOSS);
     sp48 = (ActorLocal_FinalBoss *)&sp4C->local;
-    // [port] Anchor: the jinjonator release starts the fixed ending script. Every client reaches
-    // this via its own replicated final egg, so from here the stream stops and each client —
-    // authority and followers alike — plays the defeat cinematic on its own local simulation.
+    // Anchor: jinjonator release starts the fixed ending script; every client runs it locally from here.
     FightSync_OnBossDefeated();
     sp34 = chstonejinjo_getBreakUpTime();
     temp_f20 = sp34 + chjinjonator_80391234();

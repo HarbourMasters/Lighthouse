@@ -19,10 +19,7 @@ extern "C" {
 /**
  * EGG_TOLL
  *
- * Live + temporary-persistence sync of the RBB egg-toll paths (bridges that extend in stages as
- * eggs are paid). Track the highest stage each toll has reached in an in-memory map, broadcast it
- * team-wide, and restore it at spawn. A teammate in the same map extends the bridge live; everyone
- * else picks it up at spawn (and via the team-state snapshot). Cleared on save load.
+ * Session sync of RBB egg-toll bridge stages, keyed by (map, secondaryId). Cleared on save load.
  */
 
 std::map<std::array<int32_t, 2>, int32_t> sStages;

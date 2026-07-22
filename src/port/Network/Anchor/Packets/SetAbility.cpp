@@ -9,8 +9,7 @@ extern "C" {
 /**
  * SET_ABILITY
  *
- * Realtime sync of a learned move (absolute value). Not queued — team state converges the
- * full ability bitfield on connect/save anyway, so offline teammates pick it up on reconnect.
+ * Realtime sync of a learned move. Not queued — team state converges the full bitfield anyway.
  */
 
 void Anchor::SendPacket_SetAbility(s16 move, u8 value) {

@@ -18,14 +18,7 @@ extern "C" {
 /**
  * BREAK_OBJECT
  *
- * Live + temporary-persistence sync of a non-persistent breakable (glass windows, etc.) that
- * breaks + despawns with no synced flag of its own. These objects are static, so their spawn
- * position is identical on every client; we key them by (map, marker, position).
- *
- * The break is recorded in an in-memory set (never written to the save) and broadcast team-wide,
- * so every client remembers it for the session. A teammate in the same map replays the real break
- * live; everyone else applies it at spawn (the object despawns on (re)load if it was broken). The
- * set is cleared on save load so it never leaks across files.
+ * Session-only sync for breakables with no save flag; keyed by (map, marker, position).
  */
 
 std::set<std::array<int32_t, 5>> sBrokenObjects;
@@ -34,8 +27,7 @@ extern "C" int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_
     return sBrokenObjects.count({ map, markerId, x, y, z }) != 0 ? 1 : 0;
 }
 
-// Snapshot/restore for the authoritative team-state sync (UpdateTeamState.cpp). Flat [map, marker,
-// x, y, z] tuples. Restore overwrites — a client adopting team state takes that session's set.
+// Flat [map, marker, x, y, z] tuples for team-state sync (UpdateTeamState.cpp).
 std::vector<int32_t> port_breakable_snapshotBroken() {
     std::vector<int32_t> flat;
     flat.reserve(sBrokenObjects.size() * 5);
@@ -98,7 +90,6 @@ void Anchor::HandlePacket_BreakObject(nlohmann::json& payload) {
 
 extern "C" void port_breakable_broadcastBreak(int32_t markerId, int32_t x, int32_t y, int32_t z) {
     s32 map = (s32)gsworld_getMap();
-    // Check if object is already broken
     if (sBrokenObjects.count({ map, markerId, x, y, z }) != 0) {
         return;
     }

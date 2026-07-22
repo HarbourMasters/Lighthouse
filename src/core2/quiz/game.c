@@ -162,10 +162,8 @@ void func_802D317C(ActorMarker *marker, enum file_progress_e prog_flag_id) {
     marker_despawn(marker);
 }
 
-// [port] Anchor: broadcast a non-persistent breakable's break (glass windows etc. that despawn
-// with no synced flag) so it replays on same-map teammates. broadcastBreak is idempotent against
-// the broken set, so a replayed break (which we recorded on receipt before replaying) doesn't echo
-// back out — no guard flag is needed in this shared handler. Defined in port BreakObject.cpp.
+// [port] Anchor: broadcasts a non-persistent breakable's break so it replays on same-map teammates.
+// Idempotent against the broken set, so a replayed break doesn't echo back out. In BreakObject.cpp.
 extern void port_breakable_broadcastBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
@@ -181,9 +179,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0xFF:
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             subaddie_set_state(sp2C, 4);
-            // [port] Anchor: MMM barrels topple + despawn with no flag. Broadcast + temp-persist the
-            // break (the breakable init checks port_breakable_isBroken), and a same-map teammate
-            // replays the topple via this same handler.
+            // [port] Anchor: broadcast this flagless break so it replays for same-map teammates.
             port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             break;
 
@@ -205,9 +201,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0x107:
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 0xF, 0x46, 0.8f, 0.7f);
-            // [port] Anchor: the RBB smokestack door breaks + despawns with no flag of its own.
-            // Broadcast + temp-persist the break (the breakable init checks port_breakable_isBroken)
-            // so it opens live for same-map teammates and stays open on their reloads.
+            // [port] Anchor: flagless break — broadcast so it stays open for same-map teammates.
             port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
@@ -284,10 +278,7 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
                     func_802EE278(sp2C, 7, 0x19, 0x82, 0.17f, 0.8f);
                     break;
             }
-            // [port] Anchor: these MMM/CCW windows break + despawn; most carry no flag of their own
-            // (only 0x9D/0xE7 set LEVEL_FLAG_2E, 0x263 sets LEVEL_FLAG_38). Broadcast + temp-persist
-            // the break for all of them (the breakable init checks port_breakable_isBroken), and a
-            // same-map teammate replays it here — so every window vanishes live and stays broken.
+            // [port] Anchor: flagless break — broadcast so it vanishes live and stays broken for teammates.
             port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
@@ -389,9 +380,7 @@ void func_802D3CE8(Actor *this){
         marker_setCollisionScripts(this->marker, NULL, func_802D3138, func_802D31AC);
         this->marker->propPtr->unk8_3 = true;
         this->initialized = true;
-        // [port] Temporary-persistence: if a teammate broke this object earlier this session,
-        // despawn it on (re)spawn so it stays broken. Only the recorded breakables (glass windows)
-        // ever match; everything else is a no-op. In-memory only, never touches the save.
+        // [port] If a teammate broke this earlier this session, despawn on (re)spawn so it stays broken.
         if (port_breakable_isBroken((s32)gsworld_getMap(), this->marker->id, (s32)this->position[0],
                                     (s32)this->position[1], (s32)this->position[2])) {
             marker_despawn(this->marker);
@@ -401,14 +390,9 @@ void func_802D3CE8(Actor *this){
 
 extern ActorArray *suBaddieActorArray;
 
-// Anchor: lair breakables persist a "broken" fileProgress flag but only check it at spawn,
-// so a teammate breaking one over the network leaves it standing for us until a map reload.
-// This maps each broken flag to the breakable's marker (the same id func_802D31AC switches
-// on) so we can replay the real break when the flag arrives.
-//
-// fieldSel disambiguates the two markers that serve two objects via
-// `actorTypeSpecificField == 1 ? flagA : flagB`: 0 = any, 1 = field==1 (flagA), 2 = field!=1
-// (flagB). So a breakable in one part of the lair never breaks a different one elsewhere.
+// Anchor: maps each lair "broken" flag to its breakable's marker id, so a teammate's break can be
+// replayed live instead of waiting for a map reload. fieldSel picks between the two markers that
+// share an id: 0 = any, 1 = actorTypeSpecificField==1, 2 = !=1.
 typedef struct {
     s16 flag;
     s16 markerId;
@@ -461,10 +445,7 @@ void port_breakable_remoteBreak(s32 progressFlag) {
     }
 }
 
-// Replay a teammate's break of a non-persistent breakable (glass window etc.). These set no flag,
-// so they're matched by (marker id, spawn position) — the objects are static, so position is the
-// same on every client. The packet recorded the break in the broken set before calling us, so the
-// broadcastBreak inside the handler is idempotent and won't echo — no guard flag needed.
+// Replay a teammate's break of a flagless breakable, matched by (marker id, spawn position).
 void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     s32 i;
 
@@ -484,13 +465,9 @@ void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     }
 }
 
-// [port] Anchor: silent counterpart to remoteBreakAt for sub-area returns. The engine's actor
-// savestate memcpy's the player's stale snapshot (initialized = true included) over the freshly
-// parsed actors, so the at-spawn isBroken check in func_802D3CE8 never runs — a breakable a
-// teammate broke while we were in a sub-area came back intact. Called after the savestate has
-// applied (OnMapLoad listener in BreakObject.cpp); despawns without die effects, like the
-// at-spawn restore. Iterates backward: despawns swap-remove from the end, which only moves
-// already-visited elements.
+// [port] Anchor: sub-area-return counterpart to remoteBreakAt — the actor savestate restore skips
+// func_802D3CE8's at-spawn isBroken check, so re-despawn broken objects here instead. Iterates
+// backward since despawn does a swap-remove from the end.
 void port_breakable_despawnBrokenRestores(s32 map) {
     s32 i;
 
@@ -1303,13 +1280,9 @@ void func_802D6114(void){
     else{//L802D61DC
         func_80347A14(1);
         gcpausemenu_80314AC8(1);
-        // [port] Anchor: most entrance-open camera scripts (0x31-0x38) end on the -4 terminator with
-        // no timed_exitStaticCamera of their own — vanilla relies on the warp back to the podium map
-        // (above) to reset the camera, since the completer is never already standing in the door's
-        // map. A teammate's completion CAN play this cutscene for a player already there, landing in
-        // this no-warp branch with the camera left parked on the door — so exit it here. The MM
-        // (0x30) and Door of Grunty (0x40) scripts end with -6 and schedule their own exit for the
-        // vanilla same-map completer; leave their timing alone.
+        // [port] Anchor: a teammate's completion can play this cutscene while we're already in the
+        // door's map, landing here with no warp to reset the camera — exit it manually. MM (0x30)
+        // and Door of Grunty (0x40) already schedule their own exit; leave those alone.
         if (camScript != 0x30 && camScript != 0x40) {
             ncStaticCamera_exit();
         }

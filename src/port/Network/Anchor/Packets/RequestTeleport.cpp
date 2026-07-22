@@ -5,8 +5,7 @@
 /**
  * REQUEST_TELEPORT
  *
- * Asks another client for their live location. They respond with a TELEPORT_TO packet
- * carrying their current map, position, and yaw, which we use to warp directly to them.
+ * Asks a client for their location; they reply with TELEPORT_TO (map, position, yaw).
  */
 
 void Anchor::SendPacket_RequestTeleport(uint32_t clientId) {

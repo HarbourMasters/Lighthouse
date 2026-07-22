@@ -7,9 +7,8 @@
 #include "prop.h"
 #include "FINALE/fight.h"
 
-// chfinalboss.c data the sync layer mirrors/replays (see the FINALE entry points in fight.h
-// for the functions). D_803927xx are the spell-spawn scratch vectors the queued spawn helpers
-// read; the pad/barrier globals feed the latecomer world snapshot.
+// chfinalboss.c globals the sync layer mirrors/replays. D_803927xx are the spell-spawn
+// scratch vectors; the pad/barrier globals feed the latecomer world snapshot.
 extern f32 D_80392758[3];
 extern f32 D_80392768[3];
 extern f32 D_80392778[3];
@@ -17,27 +16,23 @@ extern f32 __chFinalBossFireballFlightTime;
 extern ActorMarker *__chFinalBossFlightPadMarker;
 extern u8 __chFinalBossSpellBarrierActive;
 extern ActorArray *suBaddieActorArray;
-// Non-zero while the first-statue spawn cutscene is running (set when the four jinjo statues begin
-// rising, cleared when it ends / the first jinjo slams). Vanilla freezes the local player through
-// this cutscene, so a statue can never be fed until it is over.
+// Non-zero while the first-statue spawn cutscene is running; vanilla freezes the local
+// player through it, so a statue can never be fed until it ends.
 extern u8 sFinalBossJinjoStatueActivated;
 // Collision radius the boss brain uses when testing for a jinjo that has flown into Grunty.
 extern f32 func_8033229C(ActorMarker *marker);
 
-// From the jinjonator release (chfinalboss_setBossDefeated) the fight is a fixed script, so
-// every client — authority and followers alike — plays the ending on its own local simulation:
-// the stream stops, and incoming stream/world packets are ignored.
+// Set once the ending script takes over (chfinalboss_setBossDefeated); every client then
+// plays the fixed ending locally and stream/world packets are ignored.
 static u8 sFightNetCinematic = 0;
-// True while we mirrored a remote authority at least once this fight; a promotion (the old
-// owner left) then re-enters the current phase so the resumed brain starts from clean
-// per-phase state instead of the mirror's partial internals.
+// True once we've mirrored a remote authority; on promotion, re-enter the current phase
+// so the resumed brain starts clean instead of from the mirror's partial internals.
 static u8 sFightNetWasFollower = 0;
-// Bit per jinjo statue id (1-4): its jinjo already slammed into Grunty. Feeds the world
-// snapshot so a latecomer's replayed statue doesn't hatch a jinjo that circles forever.
+// Bit per jinjo statue id (1-4): its jinjo already slammed Grunty. Feeds the world
+// snapshot so a latecomer doesn't spawn a jinjo that circles forever.
 static u8 sFightNetJinjoSlammed = 0;
-// Latecomer catch-up: a FIGHT_STATE snapshot staged by FightSync_ApplyWorld and applied
-// incrementally by the follower tick, since the replayed actors (statue bases, stone jinjos)
-// take frames — or whole rise animations — to come into existence.
+// FIGHT_STATE snapshot staged by FightSync_ApplyWorld, applied incrementally by the
+// follower tick since the replayed actors take frames to come into existence.
 static FightWorldSnapshot sFightNetSnap;
 static u8 sFightNetCatchupActive = 0;
 static u8 sFightNetCatchupSpawned[6]; // statue spawn already queued, indexed by statue id
@@ -81,8 +76,7 @@ static Actor *FightSync_FindStatueBase(s32 statue_id) {
     return NULL;
 }
 
-// Apply a networked egg to a jinjo statue base: getHitByEgg with other == NULL takes the
-// vanilla counting path on every client (see chbossjinjobase.c).
+// Apply a networked egg via getHitByEgg(other == NULL), the vanilla counting path.
 static void FightSync_ApplyJinjoStatueEgg(s32 statue_id) {
     Actor *base = FightSync_FindStatueBase(statue_id);
 
@@ -133,9 +127,7 @@ void FightSync_OnBossDefeated(void) {
 
 void FightSync_OnSpellSpawned(s32 kind) {
     if (FightSync_IsLiveAuthority()) {
-        // For the aimed ballistic fireball (kind 0) carry the flight/lead time (ms) so each follower
-        // re-aims it at its own player. The fixed-target final fireball (1) and the homing green
-        // blast (2) are reproduced from the exact vectors, so they need no lead value.
+        // Ballistic fireball (kind 0) carries lead time so each follower re-aims at its own player.
         s32 leadMs = (kind == 0) ? (s32)(__chFinalBossFireballFlightTime * 1000.0f) : 0;
         FightSync_SendEvent(FIGHT_EV_SPELL, kind, leadMs, D_80392758, D_80392768, D_80392778);
     }
@@ -217,17 +209,14 @@ bool FightSync_GatherUpdate(f32 pos[3], f32 *yaw, s32 *state, s32 *phase, s32 *m
     *state = boss->state;
     *phase = local->phase;
     *mirror = local->mirror_phase5;
-    // Phase-2 vulnerability toggle. The collision-id callback (chfinalboss_func_8038B834) reads
-    // unkA to pick Grunty's hittable vs. moving-invulnerable marker id every frame, but unkA is a
-    // brain-internal the follower never runs — so without streaming it a follower computes the
-    // wrong id in phase 2 and its eggs pass straight through her. Other phases key off state/phase.
+    // Phase-2 vulnerability toggle (unkA); brain-internal, so it must be streamed explicitly
+    // or a follower picks the wrong hittable/invulnerable marker id and eggs pass through.
     *vuln = local->unkA;
     return true;
 }
 
-// Mirror a streamed state/phase change: the anim comes from the shared state table, plus the
-// model-part toggles the authority's setState paths do (ram-attack overlay in phase 1's dive,
-// the broom vanishing once it breaks) so the follower's Grunty looks right in every state.
+// Mirror a streamed state/phase change, including the model-part toggles setState does,
+// so the follower's Grunty looks right in every state.
 static void FightSync_ApplyBossState(Actor *this, s32 phase, s32 state) {
     ActorLocal_FinalBoss *local = (ActorLocal_FinalBoss *)&this->local;
 
@@ -277,8 +266,7 @@ void FightSync_ApplyUpdate(const f32 pos[3], f32 yaw, s32 state, s32 phase, s32 
     boss->yaw = yaw;
     boss->yaw_ideal = yaw;
     local->mirror_phase5 = mirror;
-    // Track the authority's phase-2 vulnerability toggle so our collision-id callback matches hers
-    // (see FightSync_GatherUpdate) — applied every frame, not just on state change.
+    // Applied every frame, not just on state change (see FightSync_GatherUpdate).
     local->unkA = (u8)vuln;
     if (local->phase != (u8)phase || boss->state != state) {
         FightSync_ApplyBossState(boss, phase, state);
@@ -335,9 +323,8 @@ void FightSync_ApplyWorld(const FightWorldSnapshot *snap) {
     }
 }
 
-// Rebuild the snapshot's world piece by piece: queue missing spawns, then replay eggs one per
-// frame once each base exists, and finally clear out jinjos whose slam we missed. Runs from the
-// follower tick until everything has caught up.
+// Rebuild the snapshot piece by piece: queue missing spawns, replay eggs once bases exist,
+// clear jinjos whose slam we missed. Runs from the follower tick until caught up.
 static void FightSync_CatchupTick(Actor *boss) {
     Actor *base;
     Actor *jinjo;
@@ -412,8 +399,7 @@ static void FightSync_CatchupTick(Actor *boss) {
     }
 }
 
-// Follower gate + per-frame cosmetics for the mirrored boss: the broom glow/sparkle trail the
-// authority's phase updates emit in the moving states, plus the latecomer catch-up. Returns
+// Follower gate + per-frame cosmetics (broom glow/trail) plus latecomer catch-up. Returns
 // true while a remote authority drives the boss, so chfinalboss_update skips the local brain.
 bool FightSync_BossFollowerTick(void *bossPtr) {
     Actor *boss = (Actor *)bossPtr;
@@ -423,13 +409,8 @@ bool FightSync_BossFollowerTick(void *bossPtr) {
     }
     FightSync_CatchupTick(boss);
 
-    // A jinjo flies into Grunty at each client's own pace, but only the authority runs the brain
-    // that detects the impact and clears it — so a follower would leave the flown-in jinjo drawn on
-    // top of Grunty until the authority's one-shot slam event arrives (and that can land before this
-    // client's copy has even spawned, stranding it forever). Detect the impact locally too, so the
-    // jinjo pops here the moment it reaches our Grunty, exactly as it does on the authority. Grunty's
-    // own reaction still rides the FIGHT_UPDATE stream; this is display-only and phase-4-scoped so it
-    // can't touch the phase-5 jinjonator.
+    // Detect a jinjo-into-Grunty collision locally too (display-only), so it pops immediately
+    // instead of waiting on the authority's slam event, which can arrive after ours has spawned.
     if (((ActorLocal_FinalBoss *)&boss->local)->phase == FINALBOSS_PHASE_4_JINJOS) {
         ActorMarker *jinjoMarker = chfinalboss_findCollidingJinjo(boss, func_8033229C(boss->marker));
         if (jinjoMarker != NULL) {
@@ -479,12 +460,8 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsFollower() || v0 == NULL) {
                 return;
             }
-            // The aimed ballistic fireball (kind 0) is re-aimed at THIS client's own player rather
-            // than replayed from the authority's arc, so every player has to dodge one and the fight
-            // keeps its difficulty. func_80387110 runs the same vanilla lead + spawn against our
-            // streamed Grunty and local player; its follower spawn won't re-broadcast (authority-
-            // gated). The fixed-target final fireball (1) and homing green blast (2) already threaten
-            // everyone from the exact vectors, so those replay unchanged.
+            // Ballistic fireball (kind 0) is re-aimed at this client's own player, not replayed
+            // from the authority's arc, so every player has to dodge one.
             if (a == 0) {
                 if (boss != NULL) {
                     f32 src[3];
@@ -496,8 +473,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                 }
                 break;
             }
-            // The spawn helpers read these globals; replay through the same queue path the
-            // authority used. Their own broadcast is authority-gated, so this can't echo.
+            // Spawn helpers read these globals; replay through the same queue path as the authority.
             for (i = 0; i < 3; i++) {
                 D_80392758[i] = v0[i];
                 D_80392768[i] = v1[i];
@@ -569,8 +545,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsLiveAuthority() || boss == NULL) {
                 return;
             }
-            // Deter pause abuse: while our game is paused the boss can't react, so hits landed
-            // on the frozen simulation are discarded rather than banked for the unpause.
+            // Deter pause abuse: discard hits landed while our game is paused.
             if (getGameMode() == GAME_MODE_4_PAUSED) {
                 return;
             }
@@ -592,12 +567,9 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (a == BOSSJINJO_5_JINJONATOR) {
                 chjinjonatorbase_netApplyEgg(b);
             } else {
-                // Drop a follower's statue egg that arrives while the first-statue spawn cutscene is
-                // still playing here. Vanilla freezes the local player through it, so a statue can
-                // never be fed this early — but a follower isn't frozen and could feed (and release)
-                // the first statue mid-cutscene, whose early jinjo slam then collides with the
-                // cutscene's own camera/lock teardown and softlocks the authority. Ignoring the egg
-                // restores the vanilla ordering; the follower re-feeds once the statues are up.
+                // Drop eggs that arrive during the first-statue spawn cutscene: a follower isn't
+                // frozen like vanilla and could release a statue mid-cutscene and softlock the
+                // authority. The follower re-feeds once the statues are up.
                 if (sFinalBossJinjoStatueActivated != 0) {
                     return;
                 }
@@ -619,8 +591,7 @@ void FightSync_OnAuthorityChanged(void) {
     if (boss == NULL) {
         return;
     }
-    // Promoted mid-fight (the previous owner left or disconnected): re-enter the phase we
-    // were mirroring so the resumed vanilla brain starts from clean per-phase state.
+    // Promoted mid-fight: re-enter the mirrored phase so the brain starts clean.
     if (sFightNetWasFollower && FightSync_IsLiveAuthority()) {
         sFightNetWasFollower = 0;
         local = (ActorLocal_FinalBoss *)&boss->local;

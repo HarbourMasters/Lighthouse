@@ -5,8 +5,7 @@
 extern "C" {
 #include "functions.h"
 #include "variables.h"
-// Per-puzzle completion state (index i == bonus i), persisted via SaveManager. Gates the
-// checkboxes when playing solo.
+// Per-puzzle completion state, persisted via SaveManager; gates the checkboxes solo.
 extern u8 gCompletedBottlesBonusGames[7];
 }
 
@@ -16,10 +15,9 @@ extern u8 gCompletedBottlesBonusGames[7];
 
 namespace LighthouseGui {
 
-// Live toggle state for the Bottles' Bonus graphical gags. These are non-cvar checkboxes: the
-// callback writes the sandcastle volatile flags directly (with triggerEvent = 0 so they don't
-// ride the Anchor flag sync — the active bonus is instead carried in the player-state sync).
-// Order matches D_803635EC in ba_anim.c (VOLATILE_FLAG_97..9D) and gCompletedBottlesBonusGames.
+// Live toggle state for the Bottles' Bonus gags. Non-cvar checkboxes; writes volatile flags
+// directly with triggerEvent = 0 (bypasses Anchor flag sync — carried via player-state sync
+// instead). Order matches D_803635EC in ba_anim.c and gCompletedBottlesBonusGames.
 static bool sBottlesBonusState[7] = { false };
 
 static const char* kBottlesBonusNames[7] = {
@@ -45,8 +43,7 @@ static const char* kBottlesBonusTooltips[7] = {
 static const char* kBottlesBonusLockedTooltip =
     "Complete this Bottles' Bonus puzzle to unlock it. (Always available while connected to Anchor.)";
 
-// A bonus can be toggled once its puzzle is complete, or unconditionally while connected to
-// Anchor (so co-op/rando sessions can play with them freely).
+// Unlocked once its puzzle is complete, or always while connected to Anchor.
 static bool IsBottlesBonusUnlocked(int i) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor != nullptr && anchor->isConnected) {
@@ -121,10 +118,8 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
 
-    // Column 2: Bottles' Bonuses (the sandcastle cheat-code graphical gags). Non-cvar checkboxes
-    // that toggle the live effect directly; each callback re-applies the whole set of volatile
-    // flags from the checkbox state. Solo, a bonus is locked until its puzzle is complete; the
-    // PreFunc re-evaluates that (and the Anchor bypass) every frame.
+    // Bottles' Bonuses (sandcastle cheat-code gags). Non-cvar checkboxes; PreFunc re-evaluates
+    // the unlock (puzzle complete, or Anchor bypass) every frame.
     path.column = SECTION_COLUMN_2;
 
     AddWidget(path, "Bottles' Bonuses", WIDGET_SEPARATOR_TEXT);

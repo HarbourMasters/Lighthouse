@@ -47,8 +47,7 @@ struct RoomState {
     int32_t seed = 0;     // rando seed id (0 when the room is vanilla)
 };
 
-// True for scoped (level/map) flags with per-client consume semantics that must not sync.
-// Defined in HookHandlers.cpp; used by the realtime broadcast and the entry-sync (ScopedState).
+// True for scoped flags with per-client consume semantics that must not sync.
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
 
 class Anchor : public Network {
@@ -58,17 +57,14 @@ private:
     bool justLoadedSave = false;
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
-    // One-shot guard: request team state once per loaded-save session (reset at file select).
-    bool hasRequestedTeamState = false;
+    bool hasRequestedTeamState = false; // one-shot per loaded-save session
     std::queue<nlohmann::json> incomingPacketQueue;
     std::mutex incomingPacketQueueMutex;
     std::queue<nlohmann::json> outgoingPacketQueue;
     std::mutex outgoingPacketQueueMutex;
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
-    // Re-applies the team's dynamically-spawned-jiggy record (SpawnJiggy.cpp) for the map we're in,
-    // so a jiggy a teammate spawned (minigame reward, jinjo fifth, etc.) appears for us — live, on
-    // re-entry, and for late joiners. The record itself lives as file state in SpawnJiggy.cpp.
+    // Re-applies the team's spawned-jiggy record (SpawnJiggy.cpp) for the current map.
     void FlushPendingJiggySpawns();
 
     nlohmann::json PrepClientState();
@@ -196,14 +192,9 @@ public:
 
     std::map<uint32_t, AnchorClient> clients;
     RoomState roomState;
-    // Last room romhack label we warned the player about, so a mismatch only pops
-    // one warning per distinct value instead of on every room-state update.
-    std::string lastWarnedRomhackLabel;
-    // Signature (isRando + seed of room vs local) of the last rando/seed mismatch we warned about,
-    // so the warning pops once per distinct situation instead of on every room-state update / frame.
-    std::string lastWarnedRandoState;
-    // One-shot guard: run the rando/seed compatibility check once per loaded-save session.
-    bool hasCheckedRandoCompat = false;
+    std::string lastWarnedRomhackLabel; // last romhack mismatch warned about, so it pops once
+    std::string lastWarnedRandoState;   // last rando/seed mismatch warned about, so it pops once
+    bool hasCheckedRandoCompat = false; // one-shot per loaded-save session
 
     void Enable();
     void Disable();
@@ -218,20 +209,18 @@ public:
     bool CanTeleportTo(uint32_t clientId);
     uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
+
+    // Always-online public room ("lh-global"): dummies only, no syncing or admin controls.
     bool IsGlobalRoom();
 
-    // Silently adopt a check a teammate already obtained. Despawns our live copy only if it's currently
-    // spawned, then marks it obtained through the same funnel a local collect uses with isInit = true:
-    // no item granted, no notification, and no packet sent.
+    // Adopt a randomizer check a teammate already obtained, without granting the item or echoing back.
     void AdoptRemoteCheck(s32 rc);
-    // Warns (once per distinct situation) when the local save's randomizer identity disagrees with the room's.
+    // Warn once (per situation) when local randomizer identity disagrees with the room's.
     void CheckRandoRoomCompatibility();
 
-    // True when the player wants to see teammate-event notifications (jiggies, level
-    // unlocks, rando checks). Personal client-side setting, defaults on.
+    // Whether the player wants teammate-event notifications. Client-side setting, defaults on.
     bool ShouldShowNotifications();
-    // Display name for a connected client, or a generic fallback ("A teammate") when the
-    // id is unknown (e.g. a packet from a client we haven't seen an ALL_CLIENT_STATE for).
+    // Display name for a client, or a generic fallback if unknown.
     std::string GetClientName(uint32_t clientId);
 
     void SendPacket_AuthorityState(u8 activity, bool claimed);
@@ -286,10 +275,7 @@ public:
     void OnActorDestroyed(Actor* actor);
     void SendToCurrentMapPlayers(nlohmann::json& payload);
     void SendToCurrentLevelPlayers(nlohmann::json& payload);
-    // Temporary-persistence state (broken windows/grates, smashed huts, egg tolls, puzzle steps) is
-    // only valid while its level stays continuously occupied: vanilla persists none of it, so once
-    // the last player leaves a level the records must reset or the level stays "used up" for the
-    // whole session.
+    // Clears temporary-persistence session state for levels with no player left in them.
     void SweepUnoccupiedLevelState(GameMap selfMap);
 
     static Anchor* GetInstance();

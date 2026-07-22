@@ -54,8 +54,7 @@ typedef struct {
     s16 unkE;
 }Actorlocal_Core2_9E370;
 
-// [port] Actor array capacity. Sized ahead of demand so actor_new never bk_reallocs (relocates)
-// the array mid-map — see the note in actor_new. Grows in a large chunk if ever exceeded.
+// [port] Sized ahead of demand so actor_new never bk_reallocs (relocates) the array mid-map.
 #define ACTOR_ARRAY_INITIAL_CAP 512
 #define ACTOR_ARRAY_GROW_CHUNK  128
 
@@ -443,10 +442,9 @@ void actorArray_free(void) {
     // [port] Note retention: every note actor is about to be freed, so drop our
     // live-actor tracking (markers are being released here).
     port_noteRetention_onActorsFreed();
-    // [port] Anchor: same for remote teammates' carried-collectible display copies
-    // (level_collectible.c) — their tracked markers are about to dangle.
+    // [port] Anchor: same, for remote teammates' carried-collectible display copies.
     port_remoteCarry_reset();
-    // [port] Anchor: and for the dummy players' stand-in actor markers.
+    // [port] Anchor: same, for dummy players' stand-in actor markers.
     port_anchorDummies_onActorsFreed();
 
     if (suBaddieActorArray != NULL) {
@@ -579,11 +577,7 @@ void func_803268B4(void) {
                 if (!actor->despawn_flag) {
                     if (marker->unk2C_2) {
                         marker->actorUpdate2Func(actor);
-                        // [port] The update may have spawned actors; actor_new bk_reallocs (moves) the
-                        // array, so the local `actor` slot pointer can dangle. Re-fetch it before any
-                        // further use, or we'd read/commit a stale/other-actor position into the marker
-                        // (actors "relocated" onto each other permanently). marker/anim_ctrl are
-                        // separate allocations and stay valid.
+                        // [port] Update may have spawned actors, reallocating the array; re-fetch the slot.
                         actor = &suBaddieActorArray->data[temp_v1];
                         if (anim_ctrl != NULL) {
                                 actor->sound_timer = anctrl_getAnimTimer(anim_ctrl);
@@ -818,13 +812,8 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     s32 pos_z = position[2];
     s32 pos_copy[3] = { pos_x, pos_y, pos_z };
 
-    // [port] Pre-size the actor array well past any realistic per-map actor count (vanilla actors +
-    // the note-retention note actors) so it never has to grow during a map. N64 used a fixed array;
-    // the port's growth path bk_reallocs, which MOVES the array and dangles any live Actor*/`this` a
-    // caller is holding across an actor_new (the actor update loop, bundle spawns dropping child
-    // items, etc.) — corrupting those actors so they read/write another actor's slot (actors appear
-    // "moved" onto each other). Keeping the capacity ahead of demand means that realloc never fires
-    // in normal play. If some romhack ever exceeds it, grow in a big chunk so it's a rare one-off.
+    // [port] Pre-sized well past normal demand so growth (which moves the array and dangles any
+    // live Actor* held across this call) never fires in normal play.
     if(suBaddieActorArray == NULL){
         suBaddieActorArray = (ActorArray *)bk_malloc(sizeof(ActorArray) + ACTOR_ARRAY_INITIAL_CAP*sizeof(Actor));
         suBaddieActorArray->cnt = 0;
@@ -1109,13 +1098,7 @@ static void __actor_free(ActorMarker *arg0, Actor *arg1){
     //remove last actor from actor array
     suBaddieActorArray->cnt--;
 
-    // [port] Never shrink the array. The vanilla shrink clamped capacity back to cnt + 4 on the
-    // first free of the map, throwing away the pre-sized headroom (see actor_new) — after which
-    // every few spawns hit the growth bk_realloc again, MOVING the array and dangling any live
-    // Actor*/`this` held across a spawn (update funcs dropping bundles, sync replays, ...). Those
-    // stale writes land in freed memory that aliases other actors' slots, permanently relocating
-    // actors onto each other. Keeping the capacity costs a couple hundred KB and makes actor
-    // pointers stable for the whole map.
+    // [port] Never shrink the array; keeps the pre-sized headroom from actor_new so pointers stay stable.
 
     marker_free(arg0);
 }
@@ -1185,12 +1168,7 @@ void marker_despawn(ActorMarker *marker){
         }
     }
     else{
-        // [port] Immediate-mode despawns (anything outside the actor-update phase: sync replays,
-        // retention flushes, rando object behaviors) skipped the shadow-link cleanup the deferred
-        // branch does. Freeing a shadow-owner then left its chBadShad orphaned with a back-pointer
-        // to the freed marker; once that marker memory was recycled, the shadow's timeout (or the
-        // owner's keep-alive, in the other direction) wrote through it into an unrelated actor —
-        // pinning actors onto other actors' shadow positions, or crashing outright.
+        // [port] Immediate-mode despawns skip the deferred branch's shadow-link cleanup; do it here too.
         if(actor->unk104){
             if(actor->modelCacheIndex != 0x108){
                 // Freeing a shadow-owner: unlink and free its shadow too.
@@ -1199,12 +1177,11 @@ void marker_despawn(ActorMarker *marker){
                 shadow->unk104 = NULL;
                 actor->unk104 = NULL;
                 __actor_free(shadowMarker, shadow);
-                // The shadow's swap-remove may have relocated this actor; re-fetch through the marker.
+                // Swap-remove may have relocated this actor; re-fetch through the marker.
                 actor = marker_getActor(marker);
             }
             else{
-                // Freeing a shadow directly: sever the owner's link so its keep-alive
-                // can't write through our soon-freed marker.
+                // Freeing a shadow directly: sever the owner's link too.
                 marker_getActor(actor->unk104)->unk104 = NULL;
                 actor->unk104 = NULL;
             }
@@ -1215,23 +1192,10 @@ void marker_despawn(ActorMarker *marker){
 
 void func_803283BC(void){
     D_8036E574 = 1;
-    // [port] Vanilla reset D_8036E578 (the pending-despawn count) to 0 here. Despawns can now be
-    // flagged OUTSIDE the window too (network packet handlers at GameFrameUpdate — see
-    // port_actorDespawn_beginDefer), and their count must survive into this window or the next
-    // flush skips the sweep and the flagged actors leak as zombies. func_803283D4 zeroes the
-    // count after every sweep, so it can never be stale-nonzero on entry.
+    // [port] Not clearing D_8036E578 here; func_803283D4 zeroes it after every sweep instead.
 }
 
-// [port] Deferred-despawn window for code that runs outside game_draw — Anchor's network packet
-// handlers fire at GameFrameUpdate, after spawnQueue_flush closed the vanilla window. Out there,
-// marker_despawn frees + compacts the actor array IMMEDIATELY: the last live actor's struct is
-// memcpy'd into the freed slot and the marker is freed with zero grace, so any Actor*/marker held
-// across that moment reads or writes another actor's memory — the "actors misplaced onto each
-// other" bug (remote-collect despawns made it 100% reproducible). Inside the window the engine
-// defers instead: the actor is flagged, skipped by updates for one pass, and swept in reverse
-// order at the next spawnQueue_flush — the same well-tested path every in-game despawn takes.
-// endDefer closes the window WITHOUT sweeping; the pending flags/count ride into the next
-// frame's window (func_803283BC no longer clears the count) and are swept at its flush.
+// [port] Extends the deferred-despawn window to Anchor's network handlers outside game_draw.
 void port_actorDespawn_beginDefer(void){
     D_8036E574 = 1;
 }
@@ -2291,8 +2255,7 @@ ActorMarker *func_8032B16C(enum jiggy_e jiggy_id) {
     }
 }
 
-// Anchor: find a still-spawned collectible's marker by its collectible id, for live despawn
-// when a teammate collects it. Mirrors func_8032B16C (jiggies).
+// Anchor: find a live honeycomb's marker by id, for despawn when a teammate collects it.
 ActorMarker *actorArray_findHoneycombMarkerById(enum honeycomb_e id) {
     Actor* base;
     Actor* var_s0;

@@ -12,11 +12,7 @@ extern "C" {
 /**
  * FIGHT_EVENT
  *
- * One-shot final-fight moments, exchanged between the clients in MAP_90_GL_BATTLEMENTS
- * (see FightSync.h for the event list). The authority broadcasts world changes for
- * followers to replay (spell spawns, statue rises, accepted eggs...); followers broadcast
- * their inputs (Grunty hits, statue eggs), which only the live authority applies —
- * chfinalboss_netApplyEvent sorts that out per event id.
+ * One-shot final-fight moments in MAP_90_GL_BATTLEMENTS (event list in FightSync.h).
  */
 
 void Anchor::SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3], const f32 v2[3]) {

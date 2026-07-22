@@ -149,9 +149,7 @@ void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
             // A peer just entered the map of an activity we own; make sure they know.
             anchor->SendPacket_AuthorityState((uint8_t)i, true);
             if (i == NET_ACTIVITY_FINAL_BOSS) {
-                // Catch the latecomer up on the fight's world objects (statues, egg progress,
-                // flight pad, barrier) — the boss itself rides the FIGHT_UPDATE stream.
-                FightSync_SendSnapshot(clientId);
+                FightSync_SendSnapshot(clientId); // catch up world objects; boss rides FIGHT_UPDATE
             }
         }
     }

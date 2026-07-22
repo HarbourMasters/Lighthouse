@@ -37,9 +37,8 @@ void Anchor::HandlePacket_SetItemCount(nlohmann::json& payload) {
     s16 item = payload.at("item").get<s16>();
     s32 count = payload.at("count").get<s32>();
 
-    // A jiggy-total increase is a teammate's collect: apply it silently — the paired
-    // COLLECT_ITEM packet pops the right counter on the HUD (the level tally when the collect
-    // happened in our level, the file total otherwise).
+    // Jiggy-total increase is a teammate's collect: apply silently, the paired COLLECT_ITEM
+    // packet pops the HUD counter. Decreases (pedestal spends) keep the vanilla total pop.
     if (item == ITEM_26_JIGGY_TOTAL && count > item_getCount(ITEM_26_JIGGY_TOTAL)) {
         item_adjustByDiff((enum item_e)item, count - item_getCount(ITEM_26_JIGGY_TOTAL), 1, 0);
         return;

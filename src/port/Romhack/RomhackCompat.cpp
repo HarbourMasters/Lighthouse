@@ -10,13 +10,11 @@ std::string CurrentRomhackLabel() {
     if (!port_isRomhack()) {
         return kVanillaLabel;
     }
-    // Prefer the canonical identifier from the romhack table so two peers running
-    // the same hack agree regardless of how each named their generated o2r file.
+    // Prefer the canonical identifier so peers agree regardless of o2r filename.
     if (const char* id = port_getRomhackIdentifier()) {
         return id;
     }
-    // Unrecognized hack (not in the table): fall back to the filename-derived name
-    // so peers running the same unlisted hack still match each other.
+    // Unlisted hack: fall back to the filename-derived name.
     return port_getRomhackName();
 }
 

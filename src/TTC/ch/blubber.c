@@ -148,31 +148,26 @@ static void __chBlubber_updateFunc(Actor *this){
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
 
-    // [port] Anchor: the gold-quest map flags (0/1, set by the delivery cutscenes) stay local — see
-    // Anchor_ScopedFlagExcluded — and the progress rides ANCHOR_PUZZLE_TTC_BLUBBER instead.
+    // Anchor: gold-quest progress rides ANCHOR_PUZZLE_TTC_BLUBBER since the map flags stay local.
     netBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
-    // Record our own deliveries (idempotent — only the deliverer's flags ever flip on their own).
     if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
     }
     if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
     }
-    // Temp-persist: the team already finished the quest this session — Blubber danced and ran off,
-    // so don't bring him back crying on a (re)load.
+    // Anchor: quest already finished this session - don't bring Blubber back on (re)load.
     if (!this->volatile_initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         marker_despawn(this->marker);
         return;
     }
-    // A teammate's first delivery only changes which dialogs apply — adopt it silently.
+    // Anchor: teammate's first delivery - adopt silently.
     if ((netBits & 0x1) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
         mapSpecificFlags_set(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN, true);
-        this->unk138_23  = true; // the half-gold dialog belongs to the deliverer
+        this->unk138_23  = true; // half-gold dialog belongs to the deliverer
         this->has_met_before = true;
     }
-    // A teammate delivered the second bullion while we're in the map: Blubber celebrates and leaves
-    // for us too — dance straight away, minus the deliverer's camera/dialog (the jiggy itself rides
-    // JIGGY_SPAWN from their client). Waits for init so the dance -> leave chain (unk24) is valid.
+    // Anchor: teammate delivered the second bullion - dance/leave here too, minus camera/dialog.
     if (this->initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         local = (ActorLocal_Blubber *)&this->local;
         mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
@@ -188,11 +183,8 @@ static void __chBlubber_updateFunc(Actor *this){
         return;
     
     if(!this->volatile_initialized){
-        // [port] Anchor: reconcile the shared gold pool with team progress. The carried count is
-        // transient (zeroed on level exit) while collected bullions never respawn this session
-        // (carriedSync suppression), so a gold collected-but-undelivered when everyone left TTC
-        // would otherwise be gone for good — stranding the quest at fewer than two deliveries.
-        // Rebuild it as collected - delivered so anyone can pick up where the team left off.
+        // Anchor: rebuild the local gold count as collected - delivered, since carried gold is
+        // transient but doesn't respawn - otherwise undelivered gold is lost once everyone leaves TTC.
         s32 goldBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
         s32 delivered = ((goldBits & 0x1) ? 1 : 0) + ((goldBits & 0x2) ? 1 : 0);
         s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;

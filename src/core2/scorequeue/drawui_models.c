@@ -193,10 +193,8 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
 
     sp40 = func_802FB0E4(arg1)*a1->unk54 + a1->unk34;
     if(a1->model != NULL && func_802FB0D4(arg1)){
-        // [port] Two of these HUD models can share one asset in the same frame (the level jiggy
-        // tally and the file total both draw ASSET_35F_MODEL_JIGGY), and score entries come and
-        // go, so order-based interpolation pairing cross-matches them across frames — the icon
-        // ghosts between the two HUD positions. Scope each draw to its item id instead.
+        // [port] Scope interpolation pairing to the item id, or shared-asset HUD models (e.g. two
+        // jiggy tallies) can cross-match across frames and ghost between positions.
         FrameInterpolation_RecordOpenChild("score_model", (uintptr_t)item_id);
         draw_x = a1->unk30 + port_hudOrthoShift(a1->unk30);
         a1->value_string[0] = '\0';

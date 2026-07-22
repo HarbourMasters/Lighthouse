@@ -1,20 +1,12 @@
 // CCW Carried-Collectible Live-Despawn Sync (worms for Eyrie, acorns for Nabnut)
 //
-// Both are a shared pool: the carried count (ITEM_22_CATERPILLAR / ITEM_23_ACORNS) is delta-synced
-// through the COLLECT_ITEM packet (+1 on collect, -1 on spend; see CollectItem.cpp), so one a
-// player collects can be spent by anyone. This module gives each world object a stable identity so
-// a pickup despawns it on every client (no double-collect).
+// Shared pool: carried count (ITEM_22/23) is delta-synced via COLLECT_ITEM (+1 collect, -1
+// spend). Each object gets a stable identity — a hash of its fixed spawn position (from prop
+// data, so identical on every client) — attached via ObjectExtension at registration, so a
+// pickup despawns it everywhere.
 //
-// Identity is the object's FIXED SPAWN POSITION, hashed to an int. The spawn position comes from
-// the map's prop data, so it's identical on every client and independent of spawn/update order or
-// player path — unlike a spawn-order counter (the objects init lazily as players approach them) or
-// the live position (the worms crawl away from where they spawned). The hash is attached to the
-// marker via ObjectExtension when the actor registers at init, and masked non-negative so it never
-// collides with the -1 spend sentinel.
-//
-// The picked-up set is keyed by (kind, mapId, hash) and persists for the session (cleared on save
-// load), so a teammate's pickup also suppresses that object when anyone next enters that map —
-// fixing cross-map re-collection. Tradeoff: a collected worm/acorn no longer respawns per visit.
+// The picked-up set is keyed by (kind, mapId, hash) and persists for the session, so it also
+// suppresses cross-map re-collection. Tradeoff: collected objects don't respawn per visit.
 //
 #include <libultraship/bridge.h>
 #include "port/ObjectExtension/ObjectExtension.h"
@@ -34,8 +26,7 @@ extern "C" {
 
 namespace {
 
-// Per-object identity attached to its marker at registration. A constructor lets us build with
-// parentheses, since brace-init commas break the event macros.
+// Per-object identity. Parenthesized ctor avoids brace-init commas breaking event macros.
 struct CarriedSpawnData {
     int32_t mapId;
     int32_t hash;
@@ -68,8 +59,7 @@ int32_t slotForKind(int32_t kind) {
     }
 }
 
-// Stable, client-independent identity from the fixed spawn position. Masked non-negative so it is
-// never confused with the -1 spend sentinel carried by the same packet.
+// Client-independent identity from spawn position; masked non-negative to avoid the -1 spend sentinel.
 int32_t spawnHash(int32_t x, int32_t y, int32_t z) {
     uint32_t h = (uint32_t)x * 73856093u ^ (uint32_t)y * 19349663u ^ (uint32_t)z * 83492791u;
     return (int32_t)(h & 0x7FFFFFFFu);
@@ -82,8 +72,7 @@ bool isCollected(int32_t slot, int32_t mapId, int32_t hash) {
 } // namespace
 
 extern "C" void port_carriedSync_beginMapLoad(int32_t mapId) {
-    // Identity is spawn-position based and the picked-up set is session-persistent, so there is
-    // nothing per-map to reset here. Kept as the single map-load entry point in case that changes.
+    // No-op: identity/state are session-persistent, not per-map. Kept as the entry point.
     (void)mapId;
 }
 
@@ -129,15 +118,12 @@ extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId,
     if (slot < 0 || id < 0) {
         return;
     }
-    // Record regardless of our current map so a later visit suppresses it. If we're in this map now,
-    // the matching object despawns itself via consumeRemoteDespawn on its next update.
+    // Record regardless of current map; the matching object despawns via consumeRemoteDespawn.
     sCollected.insert({ slot, mapId, id });
 }
 
-// Snapshot/restore for the authoritative team-state sync (UpdateTeamState.cpp). Flat [slot, mapId,
-// hash] tuples. Restore overwrites — a client adopting team state takes that session's set. This
-// covers which worms/acorns are already collected; the carried *count* (ITEM_22/23) is delta-synced
-// separately through the COLLECT_ITEM packet.
+// Snapshot/restore for team-state sync (UpdateTeamState.cpp), as flat [slot, mapId, hash]
+// tuples. Restore overwrites. Carried *count* is synced separately via COLLECT_ITEM.
 std::vector<int32_t> port_carriedSync_snapshotCollected() {
     std::vector<int32_t> flat;
     flat.reserve(sCollected.size() * 3);
@@ -168,10 +154,8 @@ extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
     return count;
 }
 
-// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): collected worms/acorns/gold/presents/
-// oranges respawn per visit in vanilla, so the pickup records reset once no player is left in
-// their level — the world objects come back and the count reconciliation (blubber.c) restarts
-// from zero, matching the delivery counters/steps that reset in the same sweep.
+// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): resets pickup records once nobody's
+// left in the level, so objects and delivery counters respawn/restart together.
 void port_carriedSync_clearForLevel(int32_t levelId) {
     std::erase_if(sCollected, [levelId](const std::array<int32_t, 3>& e) {
         return (int32_t)map_getLevel((enum map_e)e[1]) == levelId;

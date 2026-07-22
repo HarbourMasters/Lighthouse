@@ -44,8 +44,7 @@ void port_jigsawPedestal_release(int32_t id) {
 void JigsawPedestal_ApplyRemote(int32_t id, uint32_t clientId, bool claimed) {
     auto it = sPedestalOwner.find(id);
     if (claimed) {
-        // Simultaneous-claim tie-break: lowest clientId wins. Every client applies the same
-        // rule, so all converge; a losing local claimant sees port_jigsawPedestal_isSelf turn 0.
+        // Simultaneous-claim tie-break: lowest clientId wins, so every client converges.
         if (it == sPedestalOwner.end() || clientId < it->second) {
             sPedestalOwner[id] = clientId;
         }

@@ -347,8 +347,7 @@ void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
             }
             Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
             Rando::Logic::RefreshReachableRegions();
-            // Broadcast real collects (not save-load re-application or a remote apply, both
-            // isInit) so Anchor teammates mark it obtained and despawn their copy.
+            // Broadcast real collects only (not save-load/remote apply, both isInit).
             if (!isInit) {
                 CALL_EVENT(OnRandoCheckObtained, (int32_t)randoCheckId, (int32_t)gsworld_getMap());
             }

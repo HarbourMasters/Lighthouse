@@ -9,8 +9,7 @@ void func_803895F4(Actor *this);
 /* .data */
 ActorInfo D_8038EE70 = { 0x1B3, 0x2A0, 0x483, 0x0, NULL, func_803895F4, NULL, CCW_func_8038954C, 0, 0, 0.0f, 0};
 
-// [port] Anchor: set while replaying a teammate's hatch (FILEPROG_E6 synced in) so the break skips
-// the camera pan that belongs to the player who actually beak-busted the egg. Never set locally.
+// Anchor: set while replaying a teammate's hatch; skips the camera pan (belongs to the actual breaker).
 static s32 sChEyrieEggRemote = 0;
 
 /* .code */
@@ -67,10 +66,7 @@ void func_803895F4(Actor *this) {
         return;
     }
 
-    // [port] Anchor live: a teammate hatched the egg (FILEPROG_E6 syncs; the baby handles itself in
-    // eyrie_baby.c) but our shell was still sitting whole. Replay the break in place, minus the
-    // camera pan. The hatching player leaves state 1 in the same call that sets the flag, so this
-    // never fires for them.
+    // Anchor: teammate hatched the egg — replay the break in place, minus the camera pan.
     if (this->state == 1 && fileProgressFlag_get(FILEPROG_E6_SPRING_EYRIE_HATCHED)) {
         sChEyrieEggRemote = 1;
         func_80389440(this, 2);

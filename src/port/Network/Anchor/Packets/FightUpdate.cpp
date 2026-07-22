@@ -12,9 +12,8 @@ extern "C" {
 /**
  * FIGHT_UPDATE
  *
- * Final-fight Grunty transform + state/phase stream, sent by the fight authority to the
- * other clients in MAP_90_GL_BATTLEMENTS every frame. Discrete
- * moments (spells, statues, eggs) ride FIGHT_EVENT.
+ * Per-frame Grunty transform + state/phase stream from the fight authority. Discrete moments
+ * (spells, statues, eggs) ride FIGHT_EVENT instead.
  */
 
 static uint32_t sOutgoingSeq = 0;

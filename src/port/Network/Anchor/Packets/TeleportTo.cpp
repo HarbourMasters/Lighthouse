@@ -5,19 +5,20 @@
 extern "C" {
 #include "functions.h"
 void func_8031D04C(enum map_e arg0, s32 exit_id);
+// Instantaneous, sweep-free reposition within the current map (sets current + previous position
+// so no movement delta is produced). Unlike player_setPosition, avoids dragging the player
+// through geometry from the stale previous position.
 void func_8028F85C(f32 arg0[3]);
 }
 
-// Exit id the game reserves for "spawn at an explicit position" (see func_8028E4B0);
-// player_setWarpDestination arms it with the destination before the transition starts.
+// Exit id the game reserves for "spawn at an explicit position" (see func_8028E4B0).
 #define EXIT_WARP_DESTINATION 0x63
 
 /**
  * TELEPORT_TO
  *
- * See REQUEST_TELEPORT for more information, this is the second part of the process.
- * Carries the sender's live map/position/yaw so the requester's map transition opens
- * directly at the sender instead of at a map entrance.
+ * See REQUEST_TELEPORT; carries the sender's live map/position/yaw so the requester's
+ * transition opens directly at the sender instead of at a map entrance.
  */
 
 void Anchor::SendPacket_TeleportTo(uint32_t clientId) {
@@ -48,7 +49,7 @@ void Anchor::HandlePacket_TeleportTo(nlohmann::json& payload) {
     std::vector<f32> pos = payload.at("pos").get<std::vector<f32>>();
     f32 yaw = payload.at("yaw").get<f32>();
 
-    // Already in their map: place the player directly, no transition needed.
+    // Already in their map: reposition directly, no transition needed.
     if (map == (GameMap)gsworld_getMap()) {
         yaw_set(yaw);
         yaw_setIdeal(yaw);

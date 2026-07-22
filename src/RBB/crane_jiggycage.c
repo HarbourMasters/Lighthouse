@@ -9,15 +9,9 @@
 void func_803878B0(Actor *this);
 void func_8038756C(Actor *this, s32 arg1);
 
-// [port] Anchor: the jiggy-cage crane is a transient timed minigame with no flag, so it's synced by
-// replaying the lower (stage 2) and raise (stage 4) on teammates. While we're replaying a remote
-// crane action, sCraneRemote suppresses the camera pans that belong to the player who actually
-// triggered it, leaving the visible crane movement + sfx — and the hourglass, which every same-map
-// player gets since they can all race for the cage. It also stops our copy from auto-raising on its
-// own timer; the raise arrives as its own broadcast (which also clears our hourglass). The local
-// player never sets this flag, so their path is unchanged.
+// Anchor: set while replaying a teammate's crane action; suppresses camera pans and auto-raise.
 static s32 sCraneRemote = 0;
-extern void port_jiggyCrane_broadcast(s32 stage); // defined in port JiggyCrane.cpp
+extern void port_jiggyCrane_broadcast(s32 stage);
 extern ActorArray *suBaddieActorArray;
 
 /* .data */
@@ -147,8 +141,7 @@ void func_8038756C(Actor *this, s32 arg1){
     f32 sp24[3];
     
     if(arg1 == 1){
-        // [port] Back to the ready state (init or after a raise completes) — a finished sequence
-        // is no longer remote-driven, so clear the flag for the next trigger.
+        // Anchor: sequence finished, clear the remote-driven flag for the next trigger.
         sCraneRemote = 0;
         if(this->state != 0){
             sp6C[0] = 0.0f;
@@ -165,7 +158,7 @@ void func_8038756C(Actor *this, s32 arg1){
     }//L80387610
 
     if(arg1 == 2){
-        // [port] We're the one lowering the crane — tell teammates to replay it.
+        // Anchor: tell teammates to replay the lower.
         if (!sCraneRemote) {
             port_jiggyCrane_broadcast(2);
         }
@@ -188,10 +181,7 @@ void func_8038756C(Actor *this, s32 arg1){
         timedFunc_set_1(1.1f, (GenFunction_1)func_8038718C, (uintptr_t)this->marker);
     }//L80387704
 
-    // [port] Every same-map player races the same cage window, so a remote-driven crane starts the
-    // hourglass HUD/timer too (the replay reaches this stage on the same timed chain, so the
-    // countdowns line up). The remote copy still never drives its own raise off the timer — see
-    // func_803878B0 — the raise arrives as its own broadcast.
+    // Anchor: every same-map player races the same window, so start the hourglass HUD here too.
     if(arg1 == 3){
         item_set(ITEM_6_HOURGLASS, 1);
         item_set(ITEM_0_HOURGLASS_TIMER, 0x3bf);
@@ -203,7 +193,7 @@ void func_8038756C(Actor *this, s32 arg1){
     }
 
     if(arg1 == 4){
-        // [port] We're the one raising the crane (our timer ran out) — replay it on teammates.
+        // Anchor: tell teammates to replay the raise.
         if (!sCraneRemote) {
             port_jiggyCrane_broadcast(4);
         }
@@ -248,9 +238,7 @@ void func_803878B0(Actor *this){
         func_8038756C(this, 1);
     }
 
-    // [port] Only the triggering player drives the raise off the hourglass timer. A remote-driven
-    // copy shows the same countdown but raises when the raise broadcast arrives instead, so the
-    // cage can't close early off a slightly-skewed local timer.
+    // Anchor: only the triggering player auto-raises off the timer; remote copies wait for the broadcast.
     if(this->state == 3 && !sCraneRemote){
         if(item_empty(ITEM_0_HOURGLASS_TIMER)){
             func_8038756C(this, 4);
@@ -258,9 +246,7 @@ void func_803878B0(Actor *this){
     }
 }
 
-// [port] Apply a teammate's crane action: lower (stage 2, from the ready state) or raise (stage 4,
-// from the lowered/timed state). Marks the crane remote-driven so the replay suppresses the camera
-// and hourglass; the flag clears itself when the sequence returns to the ready state.
+// Anchor: apply a teammate's crane action (lower/raise), marked remote-driven to suppress camera/hourglass.
 void port_jiggyCrane_remoteApply(s32 stage) {
     s32 i;
 

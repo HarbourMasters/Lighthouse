@@ -360,8 +360,7 @@ enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_JINJO = 4, // id = jinjo colour bit, level derived from map
     ANCHOR_COLLECTIBLE_WORM = 5,  // CCW caterpillar; id = spawn-position hash, map = mapId
     ANCHOR_COLLECTIBLE_ACORN = 6, // CCW acorn; id = spawn-position hash, map = mapId
-    // Carried collectibles sharing core2/ch/level_collectible.c. Same shared-pool framework as
-    // worms/acorns: id = spawn-position hash (collect, >= 0) or -1 (spend), map = mapId.
+    // Carried collectibles (level_collectible.c): id = spawn-position hash (collect) or -1 (spend).
     ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,  // FP blue present
     ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8, // FP green present
     ANCHOR_COLLECTIBLE_PRESENT_RED = 9,   // FP red present
@@ -376,8 +375,7 @@ s32 volatileFlag_getN(enum volatile_flags_e index, s32 numBits);
 void fileProgressFlag_setN(enum file_progress_e, s32, s32);
 void volatileFlag_set(enum volatile_flags_e index, s32 set);
 void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length);
-// *_setEx: triggerEvent controls whether OnGameFlagSet fires; Anchor passes 0 when
-// applying a remote change so it isn't re-broadcast.
+// *_setEx: triggerEvent=0 suppresses OnGameFlagSet (used when applying a remote change).
 void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
 void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
@@ -1136,9 +1134,7 @@ void func_803268B4(void);
 void func_80326C24(s32 arg0);
 void func_803283BC(void);
 void func_803283D4(void);
-// [port] Deferred-despawn window for code running outside game_draw (network packet handlers at
-// GameFrameUpdate). See actor_array.c — despawns inside the window are flagged and swept at the
-// next spawnQueue_flush instead of freeing + compacting the actor array immediately.
+// [port] Deferred-despawn window for despawns triggered outside game_draw; see actor_array.c.
 void port_actorDespawn_beginDefer(void);
 void port_actorDespawn_endDefer(void);
 void func_80328CA8(Actor *self, s32 angle);

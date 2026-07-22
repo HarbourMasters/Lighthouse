@@ -77,9 +77,7 @@ void destroyJiggy(Actor *this, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
         && mapSpecificFlags_get(arg2)
         && item_getCount(ITEM_0_HOURGLASS_TIMER) == 0
     ){
-        // [port] Anchor: this timed jiggy's hourglass ran out — it's about to be despawned and the
-        // switch reset. Notify so the spawn-persistence record drops it now; otherwise the per-frame
-        // flush respawns it a frame after the despawn, cancelling both the despawn and the reset.
+        // [port] Anchor: notify now so spawn-persistence drops it before the next flush respawns it.
         CALL_EVENT(OnTimedJiggyExpired, (s32)chjiggy_getJiggyId(this));
         player_setModelVisible(1);
         actor_collisionOff(this);

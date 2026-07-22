@@ -18,10 +18,8 @@ static const char* const kJiggyLevelNames[10] = {
 /**
  * COLLECT_ITEM
  *
- * Realtime collectible pickup (jiggy/honeycomb/Mumbo token). Sets the collected bit and, for
- * teammates in the same map, despawns the actor live. Counts ride the ITEM_COUNT packet
- * (jiggy total / token) or are recomputed from the score (honeycomb), so this never touches
- * counts directly.
+ * Realtime collectible pickup. Sets the collected bit; despawns the actor live for teammates
+ * in the same map. Counts are handled elsewhere (ITEM_COUNT packet / recomputed from score).
  */
 
 void Anchor::SendPacket_CollectItem(u8 kind, s32 id) {
@@ -123,8 +121,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_PRESENT_RED:
         case ANCHOR_COLLECTIBLE_GOLD:
         case ANCHOR_COLLECTIBLE_ORANGE: {
-            // Update shared-pool carried collectible (CCW worms/acorns, FP presents, TTC gold)
-            // via delta composition
+            // Shared-pool carried collectible (CCW worms/acorns, FP presents, TTC gold)
             enum item_e item;
             switch (kind) {
                 case ANCHOR_COLLECTIBLE_WORM:          item = ITEM_22_CATERPILLAR;  break;

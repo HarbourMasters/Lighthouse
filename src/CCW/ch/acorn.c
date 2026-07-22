@@ -5,8 +5,7 @@
 #include "port/Enhancements/Retention/Retention.h"
 
 extern ActorMarker *func_8028E86C(void);
-// [port] Anchor remote-carry display (level_collectible.c / CarryThrow.cpp): a teammate's
-// carried/thrown acorn shows here as a display copy; our own throw is broadcast for theirs.
+// Anchor: teammate's carried/thrown acorn shows here as a display copy (level_collectible.c).
 extern s32 port_remoteCarry_displayUpdate(Actor *this);
 extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
@@ -68,7 +67,7 @@ void func_8038C7A8(Actor *this) {
     local = (ActorLocal_CCW_61E0 *)&this->local;
     sp44 = time_getDelta();
 
-    // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic.
+    // Anchor: display copy bypasses vanilla logic entirely.
     if (port_remoteCarry_displayUpdate(this)) {
         return;
     }
@@ -83,9 +82,7 @@ void func_8038C7A8(Actor *this) {
         if (sp4C) {
             CCW_func_8038C6A0(this, 2);
         } else {
-            // [port] Register this active world acorn for networked live-despawn, keyed by its fixed
-            // spawn position (captured now, before it can be carried). If a teammate already grabbed
-            // it, don't present it.
+            // Anchor: register this acorn (by spawn pos) for live-despawn; suppress if already grabbed.
             s32 acornSuppress;
             port_carriedSync_register(ANCHOR_COLLECTIBLE_ACORN, this->marker, (s32)this->position[0],
                                       (s32)this->position[1], (s32)this->position[2], &acornSuppress);
@@ -98,7 +95,7 @@ void func_8038C7A8(Actor *this) {
     }
 
     if (this->state == 1) {
-        // [port] A teammate grabbed this acorn — despawn it here so it vanishes on every client.
+        // Anchor: teammate grabbed this acorn — despawn here too.
         if (port_carriedSync_consumeRemoteDespawn(ANCHOR_COLLECTIBLE_ACORN, this->marker)) {
             CCW_func_8038C6A0(this, 5);
             return;
@@ -107,22 +104,19 @@ void func_8038C7A8(Actor *this) {
         if (ml_vec3f_distance(this->position, sp38) < 50.0f) {
             func_8028F030(0x2A9);
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 500, 2500);
-            // [port] Broadcast the pickup so this acorn despawns on teammates too (the shared count
-            // rides the ITEM_23_ACORNS item-count sync via func_8028F030's item_inc).
+            // Anchor: broadcast the pickup so this acorn despawns on teammates too.
             port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_ACORN, this->marker);
             CCW_func_8038C6A0(this, 5);
         }
     }
     if (this->state == 2) {
         if (this->unk138_21) {
-            // [port] Replay this throw on teammates' clients (their display copy flies to the
-            // same target — Nabnut's stash). Sent before the state change so position is the
-            // launch point.
+            // Anchor: replay this throw on teammates' clients (their display copy flies to the same target).
             f32 throwTarget[3];
             func_8038BC50(throwTarget);
             port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
             func_8028F010(0x2A9);
-            // [port] Spending an acorn (given to Nabnut) — sync the -1 to the shared pool.
+            // Anchor: spending an acorn — sync the -1 to the shared pool.
             port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_ACORN);
             CCW_func_8038C6A0(this, 3);
         } else if (!sp4C) {

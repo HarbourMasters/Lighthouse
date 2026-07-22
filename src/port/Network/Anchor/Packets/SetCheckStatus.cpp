@@ -17,9 +17,8 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId);
 /**
  * SET_CHECK_STATUS
  *
- * Fired when a shuffled rando check is first obtained. The collector broadcasts its
- * RandoCheckId; teammates mark the check obtained and, if standing in the same
- * map, live-despawn their spawned copy of the shuffled object.
+ * Fired when a shuffled rando check is first obtained; teammates mark it obtained and
+ * despawn their copy if in the same map.
  */
 
 void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
@@ -37,6 +36,8 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
     SendJsonToRemote(payload);
 }
 
+// Adopt a check a teammate obtained: despawn our copy if spawned, mark obtained silently
+// (no item grant, no notification, no re-broadcast).
 void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     RandoCheckId rc = (RandoCheckId)rcRaw;
     if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].obtained) {

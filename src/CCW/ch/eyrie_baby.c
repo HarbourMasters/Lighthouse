@@ -224,9 +224,7 @@ void CCW_func_80389BFC(Actor *this) {
         D_8038FDE0[1] = this->position[1];
         D_8038FDE0[2] = this->position[2];
         if (this->state == 0) {
-            // [port] Anchor: seed from the team's shared fed count (keyed per map, so each
-            // season's eyrie counts separately) instead of 0 — worms teammates fed while we
-            // were elsewhere (other seasons/sub-areas included) must count here too.
+            // Anchor: seed from the team's shared fed count (per-map), not 0.
             local->unk4 = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
         }
         local->unk0 = &D_8038F080[0];
@@ -281,9 +279,7 @@ void CCW_func_80389BFC(Actor *this) {
                 if ((local->unk0->map_id == MAP_44_CCW_SUMMER) && (local->unk4 == 0)) {
                     gcdialog_showDialog(0xCD8, 4, NULL, NULL, NULL, NULL);
                 }
-                // [port] Anchor: the fed count is team-shared. Record + broadcast our throw as a
-                // delta (concurrent feeders' deltas compose — an absolute set would lose one and
-                // strand the jiggy), then act on the team total.
+                // Anchor: broadcast our feed as a delta (deltas compose; an absolute set wouldn't).
                 port_puzzleCount_add(ANCHOR_COUNT_CCW_EYRIE_FED, 1);
                 local->unk4 = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
                 if (local->unk4 < local->unk0->unk25) {
@@ -293,10 +289,7 @@ void CCW_func_80389BFC(Actor *this) {
                 }
             }
         }
-        // [port] Anchor: a teammate fed a worm (the shared counter moved past our applied
-        // mirror): play the interim eat animation, like their screen shows. The FINAL feed's
-        // sleep/hatch transition rides the fed fileprog flag sync below instead — the finisher
-        // plays the full cutscene, we just transition.
+        // Anchor: teammate fed a worm — play the interim eat animation to match; final feed handled below.
         if (this->state == 1) {
             s32 sharedFed = port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
             if (sharedFed > (s32)local->unk4) {
@@ -307,13 +300,7 @@ void CCW_func_80389BFC(Actor *this) {
             }
         }
         if (this->state == 1 && fileProgressFlag_get(local->unk0->unk4)) {
-            // [port] Anchor: in summer/fall, feeding the required worms makes the eyrie fall asleep
-            // until the next season — that's state 4 (the looping sleep anim + drifting feathers,
-            // which init also drops a fed eyrie straight into). The local feeder reaches it via the
-            // throw (state 2 -> 3 yawn -> 4) and leaves state 1, so still being in state 1 here means
-            // a teammate's fed flag synced: go straight to the sleeping state, skipping the eat
-            // cutscene + blocking "complete" dialog we weren't part of. Spring instead hatches
-            // through this path locally, so keep its cutscene (unkC).
+            // Anchor: fed flag synced from a teammate — skip to sleep state (spring keeps its hatch cutscene).
             func_803897B8(this, (local->unk0->map_id == MAP_43_CCW_SPRING) ? local->unk0->unkC : 4);
         }
     }

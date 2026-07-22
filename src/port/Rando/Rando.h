@@ -22,8 +22,7 @@ extern int16_t selectedFileNum;
 #define RANDO_SAVE_OPTIONS gameFile_saveData[selectedFileNum].shipSaveData.randoSaveData.randoSaveOption
 #define RANDO_SAVE_FLAGS gameFile_saveData[selectedFileNum].shipSaveData.randoSaveData.randoSaveFlag
 
-// Generated-seed id of the loaded randomizer file, or 0 when no rando file is loaded. Used to
-// detect seed mismatches between netplay peers.
+// Loaded rando file's seed id, or 0 if none; used to detect netplay seed mismatches.
 #define RANDO_SEED                       \
     (selectedFileNum == DEFAULT_FILE_NUM \
          ? 0                             \

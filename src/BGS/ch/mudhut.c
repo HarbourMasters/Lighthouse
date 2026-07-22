@@ -81,8 +81,7 @@ void chMudHut_spawnExplosion(ActorMarker *this){
     if(this);
 }
 
-// [port] Anchor: fullBundle=1 (remote live smash) drops everything but the jiggy
-// fullBundle=0 (restored broken on reload) drops only the non-tracked pads
+// Anchor: re-drop the hut's loot by slot (tmp); fullBundle=1 for a live smash, 0 for restore-on-reload.
 static void chMudHut_dropRecordedBundle(Actor *this, s32 tmp, s32 fullBundle){
     f32 pos[3];
     if(tmp < 0 || tmp >= 5){
@@ -120,7 +119,7 @@ void chMudHut_update(Actor *this){
         if(!this->initialized){
             this->marker->collidable = false;
             this->initialized = true;
-            // [port] Anchor temp-persist: Restore previously smashed state
+            // Anchor: already smashed this session — restore broken and re-drop non-tracked loot.
             tmp = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
             if(tmp >= 0){
                 this->state = 3;

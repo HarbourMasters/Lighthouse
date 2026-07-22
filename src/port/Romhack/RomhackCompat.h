@@ -9,8 +9,8 @@
 namespace Lighthouse {
 
 // Canonical identity label for the locally loaded romhack, or "Vanilla" when
-// none is active. Backed by port_getRomhackIdentifier() (with a filename-name
-// fallback for unlisted hacks). This is the string compared between netplay peers.
+// none is active. Backed by port_getRomhackIdentifier(), filename as fallback.
+// This is the string compared between netplay peers.
 std::string CurrentRomhackLabel();
 
 // One-line description of how the local romhack state differs from a peer's,

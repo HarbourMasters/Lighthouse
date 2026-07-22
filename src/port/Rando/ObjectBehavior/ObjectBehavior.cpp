@@ -162,10 +162,8 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId) {
     return NULL;
 }
 
-// Builds and emits the "<subject> collected/learned <item>" notification for a check. `subject`
-// is the sentence subject and verb-lead-in: "You" for a local pickup, a teammate's name for an
-// Anchor remote collect. Shared so both paths format items (abilities, Stop 'n' Swop counter,
-// articles) and color them identically.
+// Builds the "<subject> collected/learned <item>" notification; subject is "You" or a
+// teammate's name for Anchor remote collects.
 static void EmitCheckNotification(RandoCheckId randoCheckId, const std::string& subject) {
     RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
     std::string prefix;

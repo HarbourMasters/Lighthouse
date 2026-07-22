@@ -187,24 +187,19 @@ void RegisterTalonTrotCycle_Init() {
 
 // Levitate — Hold L to float straight up; tapping L out of a damaging fall cancels the fall.
 void RegisterLevitate_Init() {
-    // Fixed rise speed. Setting the vertical velocity outright (rather than nudging the position or
-    // just zeroing gravity) overwrites any downward velocity, so engaging it mid-drop always gains
-    // height instead of merely slowing the fall. Tune to taste.
+    // Setting velocity directly (not nudging position) overwrites any fall velocity too.
     static const f32 LEVITATE_VELOCITY = 500.0f;
     static bool levitateActive = false;
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_LEVITATE, 0), [](IEvent* event) {
         if (bakey_held(BUTTON_L)) {
-            // On the press, if we're mid-air and have already fallen far enough that landing would
-            // hurt, wipe the fall-damage starting height (so the drop no longer counts) and drop
-            // back to the standing idle pose instead of finishing the tumble/splat animation.
+            // Cancel fall damage and the tumble/splat animation if pressed mid-fall.
             if (bakey_pressed(BUTTON_L) && !player_isStable()) {
                 s32 fallDamage = 0;
                 if (bafalldamage_get_damage(&fallDamage) != 0) {
-                    bafalldamage_start();   // reset the starting height -> no landing damage
-                    bs_setState(BS_1_IDLE); // revert to the standing idle animation
+                    bafalldamage_start();
+                    bs_setState(BS_1_IDLE);
                 }
             }
-            // Gravity off + a re-applied fixed velocity gives a steady, constant-speed rise.
             baphysics_set_gravity(0.0f);
             baphysics_set_vertical_velocity(LEVITATE_VELOCITY);
             levitateActive = true;

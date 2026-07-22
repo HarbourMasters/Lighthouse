@@ -25,9 +25,7 @@ typedef struct {
 void jigsawPicture_setState(Actor *this, s32 next_state);
 void updateJigsawPictureActor(Actor *this);
 
-// Pedestal id we last played the "busy" buzzer for; re-armed when the player steps off, so a
-// blocked podium buzzes once per approach rather than every frame. Only one local player engages
-// one podium at a time, so a single value suffices.
+// Anchor: pedestal id last buzzed for, so a blocked podium buzzes once per approach.
 static s32 sBuzzedPedestalField = 0;
 
 /* .data */
@@ -454,17 +452,12 @@ void updateJigsawPictureActor(Actor *this) {
         this->volatile_initialized = true;
         if (this->actorTypeSpecificField == 9) {
             this->unk1C[0] = 8.0f;
-            // [port] Anchor: don't despawn when the switch (FILEPROG_53) isn't pressed yet. The
-            // picture pieces are invisible until placed and the pad isn't spawned until 53, so the
-            // podium stays effectively absent — but present, so it can appear live when a teammate's
-            // switch press syncs, instead of only on reload. unk1C[1] latches the pad-appear below.
+            // Anchor: don't despawn if switch not pressed yet - let it appear live once synced.
             this->unk1C[1] = 0.0f;
         }
     }
 
-    // [port] Anchor: the field-9 (CCW) podium is gated by the switch's FILEPROG_53. Stay dormant (no
-    // pad, no puzzle interaction) until it's set, then run the pad-appear once — covering both
-    // arriving already-pressed and a teammate pressing the switch live while we're in the lair.
+    // Anchor: stay dormant until FILEPROG_53 is set, then run the pad-appear once.
     if (this->actorTypeSpecificField == 9) {
         if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
             return;
@@ -527,8 +520,7 @@ void updateJigsawPictureActor(Actor *this) {
                 }
             }
             if (isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
-                // Only engage if we hold the per-pedestal lock; otherwise buzz once (a teammate
-                // is already using this podium).
+                // Anchor: only engage if we hold the per-pedestal lock; else buzz once.
                 if (port_jigsawPedestal_tryClaim(this->actorTypeSpecificField)) {
                     jigsawPicture_setState(this, 2);
                 } else if (sBuzzedPedestalField != this->actorTypeSpecificField) {

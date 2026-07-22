@@ -132,14 +132,8 @@ void chAncientOne_update(Actor *this){
             func_80386620(this);
             return;
         }
-        // [port] Anchor: a ring normally idles here until its draw-init has run (chAncientOne_draw
-        // fills the ring-pass plane from the rendered model, which needs the ring on-screen). But
-        // team progress (the synced map flags 7-11) can clear this ring or make it the next target
-        // while it has never been rendered — it was deactivated underground — which froze the
-        // catch-up: the force-advance below never ran, so the cleared ring never sank and the next
-        // ring never rose. Once the team has any progress, let an active ring run its state machine
-        // early: sinking needs no draw-init data, rising only needs the rest height captured above,
-        // and the ring-pass check stays inert until draw-init runs (its radius is still 0).
+        // Anchor: let an unrendered ring run its state machine once the team has synced progress,
+        // so a ring that was never drawn locally can still sink/rise to match.
         {
             s32 fc = 0, fi;
             for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
@@ -149,16 +143,13 @@ void chAncientOne_update(Actor *this){
         }
     }
     {//L803869B4
-        // [port] Anchor live: a teammate completed the Ancient Ones (JIGGY_46 spawned, which syncs
-        // via the JIGGY_SPAWN packet). Despawn live so the puzzle clears for us too.
+        // Anchor: teammate finished the puzzle (JIGGY_46 synced) - despawn ours too.
         if(jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
             marker_despawn(this->marker);
             return;
         }
-        // [port] Anchor force-advance: progress is the count of map flags 7-11 set (rings passed),
-        // which already sync. Each client's ring order is randomized, so rather than mirror a
-        // specific ring we sink any of our rings the team has already cleared (field <= count) and
-        // activate the next, with no camera/dialog — catching our sequence up to the shared progress.
+        // Anchor: ring order is randomized per-client, so catch up by count of synced flags rather
+        // than mirroring a specific ring; no camera/dialog for the forced advance.
         {
             s32 fc = 0, fi;
             for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;

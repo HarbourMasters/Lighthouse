@@ -210,11 +210,7 @@ void mainLoop(void){
     }//L8023DF70
 #endif
 
-    // [port] Frame-update listeners (Anchor's packet handlers, sync ticks) may despawn actors.
-    // Keep the deferred-despawn window open across the event so those follow the same
-    // flagged-then-swept path as in-game despawns, instead of freeing + compacting the actor
-    // array immediately — which moves a live actor's struct mid-frame and frees its marker with
-    // zero grace, misplacing actors onto each other.
+    // [port] Keep the deferred-despawn window open so Anchor's frame-update handlers despawn safely too.
     port_actorDespawn_beginDefer();
     CALL_EVENT(GameFrameUpdate);
     port_actorDespawn_endDefer();

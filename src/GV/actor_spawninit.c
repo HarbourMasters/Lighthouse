@@ -177,11 +177,7 @@ void func_8038E430(Actor *this){
 
 void func_8038E460(Actor *this){//banjo_door
     func_802D3D74(this);
-    // [port] Anchor temp-persist: the door's open state is the transient map flag 0x10, set by
-    // curing Jinxy's plugged nose (carpet2.c). It syncs live, but resets on reload — and a teammate
-    // can't cure Jinxy themselves — so persist it (in-memory + team-state, 1-bit puzzle) and
-    // re-assert it here so the door stays open. On the restore path, also set flag 2 to suppress
-    // the one-time "Jinxy helped" dialog (the live curer already showed it; it syncs to teammates).
+    // Anchor: flag 0x10 is transient, doesn't survive reload; persist via puzzle step.
     if(mapSpecificFlags_get(0x10)){
         if(!(port_puzzleStep_get(ANCHOR_PUZZLE_GV_JINXY_DOOR) & 1)){
             port_puzzleStep_orBits(ANCHOR_PUZZLE_GV_JINXY_DOOR, 1);
@@ -194,9 +190,7 @@ void func_8038E460(Actor *this){//banjo_door
         func_8038E430(this);
         if(!mapSpecificFlags_get(2)){
             mapSpecificFlags_set(2, true);
-            // [port] Anchor: release the lock + show the "Jinxy helped" line only if we ran the cure
-            // cutscene ourselves (carpet2.c gated the matching push with the same VB) — otherwise a
-            // teammate cured him: the door still opens, but we don't pop a lock we never pushed.
+            // Anchor: skip dialog if a teammate cured Jinxy, not us.
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_JINXY)){
                 func_8028F918(0);
                 func_80324DBC(4.0f, ASSET_A7D_DIALOG_JINXY_HELPED, 4, NULL, NULL, NULL, NULL);
@@ -238,8 +232,7 @@ void func_8038E4DC(Actor *this){
     else{
         if(!mapSpecificFlags_get(4)){
             mapSpecificFlags_set(4, true);
-            // [port] Anchor: skip the camera pan for a teammate who opened this (sun switch, flag 3);
-            // the door still rises from the synced flag — we just don't get yanked.
+            // Anchor: skip camera pan if a teammate triggered this.
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_SUN))
                 gcStaticCamera_activate(1);
         }
@@ -254,8 +247,7 @@ void func_8038E648(Actor *this){
         case 1: //L8038E690
             this->pitch = 0.0f;
             if(mapSpecificFlags_get(5)){
-                // [port] Anchor: skip the camera pan for a teammate who opened this (star switch /
-                // turbo-trot trapdoor, flag 5); the trapdoor + timer still run from the synced flag.
+                // Anchor: skip camera pan if a teammate triggered this.
                 if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_STAR))
                     gcStaticCamera_activate(2);
                 subaddie_set_state(this, 6);
@@ -359,8 +351,7 @@ void chKazooieDoor_update(Actor *this){
         case 1: //L8038EB98
             if(mapSpecificFlags_get(6)){
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, -1);
-                // [port] Anchor: skip the camera pan for a teammate who opened this (beak-bomb target,
-                // flag 6); the Kazooie door still rises from the synced flag.
+                // Anchor: skip camera pan if a teammate triggered this.
                 if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_KAZOOIE))
                     gcStaticCamera_activate(3);
                 subaddie_set_state(this, 6);

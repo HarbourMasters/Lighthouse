@@ -16,6 +16,9 @@ extern "C" {
  * Fired when a flag bit is set (raised) in either flag space.
  */
 
+// Display name for a lair entrance-open "cutscene seen" flag, or nullptr for any other flag.
+// LEVEL flags themselves are excluded from sync (would trigger the warp cutscene remotely), so
+// completion announcements ride these instead.
 static const char* LevelOpenSeenFlagName(s16 flag) {
     switch (flag) {
         case 0x28:                            return "Mumbo's Mountain";
@@ -58,9 +61,7 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     SPDLOG_INFO("[Anchor][flagdiag] received SetFlag space={} flag={:#x}", flagSpace, flag);
 
     if (flagSpace == ANCHOR_FLAGSPACE_RANDO_INF) {
-        // Non-derived rando save flag (currently only the MM bridge-repair dialog flag). Set the
-        // save array directly rather than via SetRandoInfFlag so applying it doesn't re-fire the
-        // event and echo back onto the wire.
+        // Non-derived rando flag; set directly to avoid re-firing and echoing back on the wire.
         if (IS_RANDO && flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
             RANDO_SAVE_FLAGS[flag].flagState = 1;
         }
@@ -69,14 +70,11 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        // If a teammate opened a note door, broke a lair object (cobweb, brickwall, ice ball,
-        // grate, etc.), or completed an entrance podium, replay that effect live if the
-        // matching actor is spawned in our map.
+        // Replay the matching effect live if the actor is spawned in our map.
         port_notedoor_remoteOpen(flag);
         port_breakable_remoteBreak(flag);
         port_leveldoor_remoteOpen(flag);
-        // Vanilla only: announce a teammate opening a world at the Lair puzzle podiums. In a
-        // randomizer, world access is shuffled and reported via SET_CHECK_STATUS instead.
+        // Vanilla only; rando reports world access via SET_CHECK_STATUS instead.
         if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {
             if (const char* opened = LevelOpenSeenFlagName(flag)) {
                 Notification::Emit({

@@ -115,8 +115,7 @@ void ability_clearAll(void){
     abilityprogress_usedAbilities = 0;
 }
 
-// triggerEvent fires OnAbilityLearned so Anchor can broadcast the change in realtime.
-// Remote applies pass triggerEvent=0 to avoid echoing the change back out.
+// triggerEvent=0 for remote applies, to avoid echoing the change back out.
 void ability_setLearnedEx(s32 move, s32 val, s32 triggerEvent){
     s32 prev = (abilityprogress_learnedAbilities >> move) & 1;
     if(val){

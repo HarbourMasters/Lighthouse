@@ -126,7 +126,7 @@ static void __chTreasurehunt_checkStepProgress(s32 currentStep){
         }
 
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
-        // [port] Anchor: record + broadcast the completed-step prefix so teammates advance too.
+        // Anchor: broadcast the completed-step prefix so teammates advance too.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, (1 << CH_TREASUREHUNT_PUZZLE_CURRENT_STEP) - 1);
         __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
         __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
@@ -177,7 +177,7 @@ void chTreasurehunt_checkStepProgress5(NodeProp *this, ActorMarker *arg1){
         timedFunc_set_1(0.1f, (GenFunction_1) gcpausemenu_80314AC8, 1);
         gcdialog_showDialog(ASSET_A17_DIALOG_BURIED_TREASURE_SPAWNED, 4, NULL, NULL, NULL, NULL);
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
-        // [port] Anchor: full prefix — the buried treasure is out of the sand.
+        // Anchor: full prefix - buried treasure is out of the sand.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, 0x3F);
     }
 }
@@ -186,11 +186,7 @@ void chTreasurehunt_resetProgress(void){
     CH_TREASUREHUNT_PUZZLE_CURRENT_STEP = 0;
 }
 
-// [port] Anchor: replay teammates' hunt steps. Called once per frame in TTC (PuzzleStep.cpp) since
-// the progress global has no always-present actor to poll from. Advances one step per frame — the
-// spawn-queue callbacks read the global, so each queued pair must flush before the next increment.
-// Handles both live steps and the temp-persisted catch-up after a map (re)load; skips the busting
-// player's dialogs/sfx. The old X fades itself out (its update sees the step move past it).
+// Anchor: replay teammates' hunt steps, one per frame; called each frame in TTC (PuzzleStep.cpp).
 void chTreasurehunt_netTick(void){
     static f32 sNetTreasurePosition[3];
     s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_XHUNT) & 0x3F;
@@ -210,9 +206,7 @@ void chTreasurehunt_netTick(void){
         __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
     }
     else{
-        // Final step: the buried treasure surfaced. Spawn our copy so we can open it too (whoever
-        // opens one spawns JIGGY_11, which dedupes through JIGGY_SPAWN) — unless the jiggy already
-        // exists or was collected, in which case the treasure is gone.
+        // Anchor: final step - spawn our copy of the surfaced treasure, unless already spawned/collected.
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
         if(!jiggyscore_isSpawned(JIGGY_11_TTC_RED_X) && !jiggyscore_isCollected(JIGGY_11_TTC_RED_X)){
             sNetTreasurePosition[0] = sChTreasurehunt_stepPositions[5][0];

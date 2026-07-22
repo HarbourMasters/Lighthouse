@@ -50,18 +50,11 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
-    // CCW flower (Anchor): polled by the flower's update with its current stage's season flag;
-    // granted (isConnected-gated listener, HookHandlers.cpp) when that flag was set by a
-    // teammate's watering, so the flower grows live without the waterer's camera/fanfare/jiggy.
+    // Anchor: lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
     VB_CCW_FLOWER_REMOTE_GROW,
-    // FP twinkly (Christmas-light) minigame start gate (Anchor): the activating client asks before
-    // starting; the isConnected listener (HookHandlers.cpp) blocks it (should=false) when another
-    // client already owns the run, otherwise claims NET_ACTIVITY_FP_TWINKLY and lets it proceed.
+    // Anchor: gates FP twinkly minigame start so only one client owns a run at a time.
     VB_FP_TWINKLY_START,
-    // Door-open cutscene camera-lock (Anchor): a door/switch update asks before locking the camera,
-    // passing a DoorCameraId. The isConnected listener (HookHandlers.cpp) suppresses it
-    // (should=false) when the driving map-flag was set by a teammate over the network — so only the
-    // client that actually opened the door gets the camera pan; the door still opens for everyone.
+    // Anchor: suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_DOOR_OPEN_CAMERA,
     // CC rings water snap on run teardown (Anchor): when a teammate finishes the rings while we're still
     // running, we tear our run down and vanilla snaps the water to its risen height. The isConnected
@@ -78,14 +71,13 @@ typedef enum VBehaviorID {
     VB_LEVELDOOR_REMOTE_OPEN_DONE,
 } VBehaviorID;
 
-// Door ids passed to VB_DOOR_OPEN_CAMERA — each maps to the map-specific flag(s) whose local-vs-
-// remote origin decides whether this client owns the open cutscene.
+// Door ids for VB_DOOR_OPEN_CAMERA, identifying which flag(s) gate camera ownership.
 typedef enum DoorCameraId {
-    GV_DOOR_CAM_SUN,      // GV sun switch atop its pyramid (flag 3)
-    GV_DOOR_CAM_STAR,     // GV star switch / turbo-trot trapdoor (flag 5)
-    GV_DOOR_CAM_KAZOOIE,  // GV beak-bomb target door (flag 6)
-    GV_DOOR_CAM_JINXY,    // GV Jinxy's sneeze (both eggs fed: flags 0 and 1)
-    MMM_DOOR_CAM_CHURCH,  // MMM church door — Tumblar challenge (flag 0), open + close pans
+    GV_DOOR_CAM_SUN,      // sun switch (flag 3)
+    GV_DOOR_CAM_STAR,     // star switch / trapdoor (flag 5)
+    GV_DOOR_CAM_KAZOOIE,  // beak-bomb door (flag 6)
+    GV_DOOR_CAM_JINXY,    // Jinxy sneeze (flags 0, 1)
+    MMM_DOOR_CAM_CHURCH,  // church door, Tumblar challenge (flag 0)
 } DoorCameraId;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

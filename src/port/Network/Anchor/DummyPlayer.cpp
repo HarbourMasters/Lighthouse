@@ -11,10 +11,8 @@ void func_802D729C(Actor* actor, f32 arg1);
 #include "bk_math.h"
 #include "port/Patches/Patches.h"
 
-// Bottles-bonus scaling for dummy players. The anim-modify callback registered with
-// func_8028746C is a bare function pointer with no per-dummy context, so the dummy currently
-// being updated publishes its synced bonus mask here right before anctrl_update, and the
-// callback reads it back to scale that dummy's skeleton.
+// func_8028746C's callback has no per-dummy context, so the dummy being updated publishes its
+// bonus mask here right before the callback runs.
 static s32 sActiveDummyBottlesBonus = 0;
 
 static void dummy_applyBottlesBonus(uintptr_t boneList, uintptr_t arg1) {
@@ -193,9 +191,7 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
     sp38[2] += dummyDisplacement[2];
 
     if (dummyBin) {
-        // anctrl_drawSetup re-runs anim_update (controller.c), which is what actually invokes the
-        // bonus modify callback for the transforms that get rendered — so publish this dummy's
-        // mask here, not just in dummyAnim_update.
+        // anctrl_drawSetup also re-runs anim_update, so publish the mask here too.
         sActiveDummyBottlesBonus = dummyBottlesBonus;
         anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
         sActiveDummyBottlesBonus = 0;
@@ -246,9 +242,7 @@ void DummyPlayer::dummy_updateModel(void) {
 }
 
 void DummyPlayer::dummy_reset(void) {
-    // Defensive: a stand-in left over from a previous registration (ClearDummies despawns them
-    // on map change, so this is normally already null).
-    dummy_despawnActor();
+    dummy_despawnActor(); // defensive: normally already null
     if (dummyAnimCtrl) {
         dummyAnim_free();
         dummyAnimCtrl = NULL;
@@ -285,8 +279,7 @@ void DummyPlayer::dummy_reset(void) {
     dummyAnim_reset();
 }
 
-// Forget the stand-in without despawning it — for when the engine already destroyed it (or is
-// about to tear the whole map's actors down).
+// Forget the stand-in without despawning it (engine already destroyed it, or is about to).
 void DummyPlayer::dummy_detachActor(void) {
     dummyMarker = nullptr;
 }
@@ -297,10 +290,7 @@ void DummyPlayer::dummy_despawnActor(void) {
     }
     Actor* actor = marker_getActor(dummyMarker);
     if (actor != nullptr && actor->unk104 != nullptr) {
-        // Unlink + despawn the shadow first. marker_despawn only cleans the attached shadow in
-        // deferred mode; despawned immediately (our case — we run outside the actor update
-        // phase), the shadow would keep its back-pointer to our freed marker and deref it on its
-        // next keep-alive check (chBadShad_update) — the old "shadow on a garbage actor" crash.
+        // Unlink the shadow first, or its next keep-alive check derefs our freed marker.
         ActorMarker* shadowMarker = actor->unk104;
         Actor* shadow = marker_getActor(shadowMarker);
         if (shadow != nullptr) {
@@ -309,8 +299,6 @@ void DummyPlayer::dummy_despawnActor(void) {
         actor->unk104 = nullptr;
         marker_despawn(shadowMarker);
     }
-    // The shadow's swap-remove may have relocated our actor, but marker_despawn only needs the
-    // marker (its array index is fixed up by the compaction).
     marker_despawn(dummyMarker);
     dummyMarker = nullptr;
 }
@@ -351,10 +339,8 @@ extern "C" void func_802D7124(Actor* actor, f32 scale);
 void DummyPlayer::dummy_update(void) {
     dummyAnim_update();
 
-    // [port] Engine-side stand-in actor: gives the dummy world presence — a drop shadow, and a
-    // marker other systems (PvP collision) can target. Spawned lazily here (GameFrameUpdate, a
-    // safe spawn context) and always resolved through the marker: raw Actor*s go stale whenever
-    // any actor despawns (swap-remove compaction), which is what used to crash the shadow code.
+    // Stand-in actor gives world presence (shadow, PvP collision target). Always resolved via
+    // marker — raw Actor*s go stale on despawn compaction.
     if (dummyMarker == nullptr) {
         Actor* spawned = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, dummyPosition, (s32)dummyYaw);
         if (spawned == nullptr) {
@@ -372,10 +358,7 @@ void DummyPlayer::dummy_update(void) {
     actor->position[2] = dummyPosition[2];
     actor->yaw = dummyYaw;
     if (dummyIsVisible) {
-        // Distance-gated drop shadow, same helper the engine's own actors use. Calling it every
-        // frame doubles as the shadow's keep-alive; when we stop (dummy hidden/despawned) the
-        // shadow unlinks and cleans itself up.
-        func_802D7124(actor, 1.0f);
+        func_802D7124(actor, 1.0f); // drop shadow; doubles as its keep-alive
     }
 }
 
@@ -559,9 +542,7 @@ void DummyPlayer::dummyAnim_update(void) {
         default:
             break;
     }
-    // Publish this dummy's synced bonus for the anim-modify callback, then clear it so an
-    // unmodified dummy (or non-dummy anim update) never picks up a stale mask.
-    sActiveDummyBottlesBonus = dummyBottlesBonus;
+    sActiveDummyBottlesBonus = dummyBottlesBonus; // cleared after so stale mask isn't reused
     anctrl_update(dummyAnimCtrl);
     sActiveDummyBottlesBonus = 0;
 }

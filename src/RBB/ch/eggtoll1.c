@@ -5,10 +5,7 @@
 
 extern void timed_exitStaticCamera(f32);
 
-// [port] Anchor: egg-toll path (bridge) extension is actor-local state (unk8 = stage) with no flag,
-// so sync it explicitly. onAdvance records + broadcasts a stage; getStage restores it at spawn
-// (temporary in-memory persistence). Tolls are identified by their stable secondaryId. Defined in
-// port EggToll.cpp; remoteApply (below) is the C side that extends the matching toll.
+// Anchor: toll extension stage is actor-local (unk8) with no flag, so sync it explicitly by secondaryId.
 extern void port_eggToll_onAdvance(s32 map, s32 secondaryId, s32 stage);
 extern s32 port_eggToll_getStage(s32 map, s32 secondaryId);
 extern ActorArray *suBaddieActorArray;
@@ -52,9 +49,7 @@ Struct_RBB_0_1 D_80390074[4] = {
 };
 
 /* .code */
-// [port] Cumulative egg count that corresponds to a given extension stage, matching the thresholds
-// func_8038685C checks (stage 1 = unk1, stage 2 = unk1 + unk2). Used to keep the egg counter (unk0)
-// consistent with a synced/restored stage so a later local payment doesn't mis-trigger an advance.
+// Anchor: egg count matching a given extension stage, to keep unk0 consistent with a synced stage.
 static s32 eggToll_countForStage(s32 tollIdx, s32 stage) {
     s32 count = 0;
     if (stage >= 1) count += D_80390074[tollIdx].unk1;
@@ -130,7 +125,7 @@ void func_803866F4(Actor *this, s32 arg1){
     }
     if(arg1 == 3){
         local->unk8++;
-        // [port] Broadcast the new extension stage so teammates' matching toll extends too.
+        // Anchor: broadcast the new extension stage to teammates.
         port_eggToll_onAdvance((s32)gsworld_getMap(), this->secondaryId, local->unk8);
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         func_80324E38(0.0f, 3);
@@ -177,9 +172,7 @@ void func_803868F0(Actor *this){
             local->unk4 = (this->secondaryId == 0x13)? 1: local->unk4;
             local->unk4 = (this->secondaryId == 0x14)? 2: local->unk4;
             local->unk4 = (this->secondaryId == 0xB)?  3: local->unk4;
-            // [port] Restore this toll's synced extension stage (temporary in-memory persistence)
-            // so a teammate's progress shows on (re)load; RBB_func_803863F0(this, 0) below snaps to it.
-            // Keep the egg counter consistent with the restored stage.
+            // Anchor: restore synced extension stage so teammates' progress shows on load.
             local->unk8 = port_eggToll_getStage((s32)gsworld_getMap(), this->secondaryId);
             local->unk0 = eggToll_countForStage(local->unk4, local->unk8);
             func_803866F4(this, 1);
@@ -194,8 +187,7 @@ void func_803868F0(Actor *this){
     }
 }
 
-// [port] Apply a teammate's toll advance: find the matching toll (by stable secondaryId) and extend
-// it to the new stage, animated — no camera pan / fanfare, which belong to the player who paid.
+// Anchor: apply a teammate's toll advance to the matching local toll, no camera pan / fanfare.
 void port_eggToll_remoteApply(s32 map, s32 secondaryId, s32 stage) {
     s32 i;
     (void)map;

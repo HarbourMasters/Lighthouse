@@ -3,10 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
-// [port] Anchor grate sync. The grates break/rise on collision with no flag of their own, so the
-// open is recorded + broadcast by (marker, spawn position) through the shared non-persistent
-// breakable set and replayed by each grate polling that set on its own update — letting it run its
-// real break/rise state machine (which the generic remote-break handler can't reproduce).
+// Anchor: grates have no flag of their own, so opens sync via the shared breakable set.
 extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
@@ -72,7 +69,7 @@ void chCCGrate_die(ActorMarker *marker, ActorMarker *other_marker){
 
     if(actor->state == 1){
         chCCGrate_setNextState(actor, *local->unk0);
-        // [port] Anchor: record + broadcast the open so teammates' matching grate opens too.
+        // Anchor: broadcast the open so teammates' matching grate opens too.
         port_breakable_recordBreak((s32)actor->marker->id, (s32)actor->position[0],
                                    (s32)actor->position[1], (s32)actor->position[2]);
     }
@@ -92,8 +89,7 @@ void chCCGrate_update(Actor * this){
         if(this->modelCacheIndex == 0x28E && jiggyscore_isSpawned(JIGGY_18_CC_BOLT)){
             marker_despawn(this->marker);
         }
-        // [port] Anchor temporary persistence: if a teammate already opened this grate this
-        // session, despawn it on (re)load so it stays open. In-memory only, never touches the save.
+        // Anchor: teammate already opened this grate this session — despawn on (re)load.
         else if(port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
                                         (s32)this->position[0], (s32)this->position[1],
                                         (s32)this->position[2])){
@@ -103,8 +99,7 @@ void chCCGrate_update(Actor * this){
     }//L803899D4
 
     if(this->state == 1){
-        // [port] Anchor live re-eval: a teammate opened this grate (recorded in the shared broken
-        // set). Run our own break/rise now so it opens live, not just on reload.
+        // Anchor: teammate opened this grate — run our break/rise live, not just on reload.
         if(local->unk8 || port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
                                                   (s32)this->position[0], (s32)this->position[1],
                                                   (s32)this->position[2])){

@@ -6,8 +6,7 @@
 
 extern ActorMarker *func_8028E86C(void);
 extern void func_8028F7D4(f32, f32);
-// [port] Anchor remote-carry display (level_collectible.c / CarryThrow.cpp): a teammate's
-// carried/thrown worm shows here as a display copy; our own throw is broadcast for theirs.
+// Anchor: teammate's carried/thrown worm shows here as a display copy (level_collectible.c).
 extern s32 port_remoteCarry_displayUpdate(Actor *this);
 extern void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]);
 
@@ -91,7 +90,7 @@ void chcaterpillar_update(Actor *this){
     f32 sp54[3];
     int i;
 
-    // [port] Anchor: a teammate's carried/thrown display copy bypasses ALL vanilla logic.
+    // Anchor: display copy bypasses vanilla logic entirely.
     if (port_remoteCarry_displayUpdate(this)) {
         return;
     }
@@ -114,9 +113,7 @@ void chcaterpillar_update(Actor *this){
             ) {
                 chcaterpillar_setState(this, 5);
             } else {
-                // [port] Register this active worm for networked live-despawn, keyed by its fixed
-                // spawn position (captured now, before it starts crawling). If a teammate already
-                // grabbed it, don't present it.
+                // Anchor: register this worm (by spawn pos) for live-despawn; suppress if already grabbed.
                 s32 wormSuppress;
                 port_carriedSync_register(ANCHOR_COLLECTIBLE_WORM, this->marker, (s32)this->position[0],
                                           (s32)this->position[1], (s32)this->position[2], &wormSuppress);
@@ -130,7 +127,7 @@ void chcaterpillar_update(Actor *this){
     }//L8038A45C
 
     if(this->state == 1){
-        // [port] A teammate grabbed this worm — despawn it here so it vanishes on every client.
+        // Anchor: teammate grabbed this worm — despawn here too.
         if(port_carriedSync_consumeRemoteDespawn(ANCHOR_COLLECTIBLE_WORM, this->marker)){
             marker_despawn(this->marker);
             return;
@@ -183,8 +180,7 @@ void chcaterpillar_update(Actor *this){
                 volatileFlag_set(VOLATILE_FLAG_B2_HAS_COLLECTED_CATERPILLAR, true);
             }
             sfx_playFadeShorthandDefault(SFX_C5_TWINKLY_POP, 1.0f, 25000, this->position, 0x1f4, 0x9c4);
-            // [port] Broadcast the pickup so this worm despawns on teammates too (the shared count
-            // itself rides the ITEM_22_CATERPILLAR item-count sync via func_8028F030's item_inc).
+            // Anchor: broadcast the pickup so this worm despawns on teammates too.
             port_carriedSync_onLocalCollect(ANCHOR_COLLECTIBLE_WORM, this->marker);
             marker_despawn(this->marker);
         }
@@ -192,13 +188,12 @@ void chcaterpillar_update(Actor *this){
 
     if(this->state == 2){
         if(this->unk138_21){
-            // [port] Replay this throw on teammates' clients (their display copy flies to the
-            // same target — the Eyrie). Sent before the state change so position is the launch point.
+            // Anchor: replay this throw on teammates' clients (their display copy flies to the same target).
             f32 throwTarget[3];
             func_80389BD8(throwTarget);
             port_anchor_onCarryThrow(this->marker->id, this->position, throwTarget);
             func_8028F010(ACTOR_2A2_CATERPILLAR);
-            // [port] Spending a worm (thrown at Eyrie) — sync the -1 to the shared pool.
+            // Anchor: spending a worm — sync the -1 to the shared pool.
             port_carriedSync_onLocalSpend(ANCHOR_COLLECTIBLE_WORM);
             chcaterpillar_setState(this, 3);
         }

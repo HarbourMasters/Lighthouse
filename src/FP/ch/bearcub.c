@@ -50,8 +50,7 @@ Struct_FP_3E00 D_80391E80[] ={
     {LEVEL_FLAG_13_FP_UNKNOWN, MARKER_1FF_RED_PRESENT_COLLECTIBLE,   ACTOR_1F1_RED_PRESENT_COLLECTIBLE,   0x1F2}
 };
 
-// [port] Anchor: per-cub sync data, indexed like D_80391E80 (0 = blue, 1 = green, 2 = red) — the
-// cub's ANCHOR_PUZZLE_FP_PRESENTS bit, its present's shared-pool kind, and its carried item id.
+// Anchor: per-cub sync data (puzzle bit, shared-pool kind, item id), indexed like D_80391E80.
 static const struct {
     s32 bit;
     s32 kind;
@@ -148,10 +147,7 @@ void func_8038A384(Actor *this){
             subaddie_set_state_with_direction(this, 2, randf2(0.0f, 0.9f), 1);
         }
 
-        // [port] Anchor: reconcile the shared present pool for this cub's colour. The carried
-        // count is transient (zeroed on level exit) while collected presents never respawn this
-        // session (carriedSync suppression), so a present collected-but-undelivered when everyone
-        // left FP would otherwise be gone for good. Rebuild it as collected - delivered.
+        // Anchor: reconcile the shared present pool — rebuild our carried count as collected minus delivered.
         {
             s32 cubIdx = __chBearcub_cubIndex(this);
             if (cubIdx >= 0) {
@@ -166,11 +162,8 @@ void func_8038A384(Actor *this){
         }
     }//L8038A4E4
 
-    // [port] Anchor: presents-received progress rides ANCHOR_PUZZLE_FP_PRESENTS (one bit per cub).
-    // The received level flags themselves stay local (Anchor_ScopedFlagExcluded) so a deliverer's
-    // flag can't fire the thank-you dialog/static camera on teammates. Record our own delivery
-    // (idempotent) and replay a teammate's silently: flag set without events, cub straight to
-    // happy — the jiggy itself rides JIGGY_SPAWN from the deliverer's client.
+    // Anchor: delivery progress syncs via a puzzle bit (flags stay local to avoid remote dialogs);
+    // replay a teammate's delivery silently.
     {
         s32 cubIdx = __chBearcub_cubIndex(this);
         if (cubIdx >= 0) {

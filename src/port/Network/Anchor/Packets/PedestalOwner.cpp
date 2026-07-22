@@ -6,8 +6,7 @@
 /**
  * PEDESTAL_OWNER
  *
- * Claim or release of a Lair jigsaw podium's interaction lock (see JigsawPedestal.h).
- * Broadcast to the room; receivers resolve conflicting claims by lowest clientId.
+ * Claim/release of a jigsaw podium lock; conflicts resolve by lowest clientId.
  */
 
 void Anchor::SendPacket_PedestalOwner(s32 id, bool claimed) {

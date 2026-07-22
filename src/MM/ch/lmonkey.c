@@ -108,17 +108,11 @@ void chlmonkey_update(Actor *this) {
                     subaddie_set_state(this, LMONKEY_STATE_4_LEAVING);
 
                     if (jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY)) {
-                        // [port] Anchor: the jiggy already exists — a teammate completed Chimpy (it
-                        // syncs via JIGGY_SPAWN; FLAG_2 is excluded from sync), or we did on an
-                        // earlier visit. Walk off silently: no camera cutscene, no jiggy re-spawn,
-                        // just the leaving sequence (state 3 sets the stump-raise/left flags + despawns)
-                        // — so arriving in MM or reloading doesn't replay the cutscene.
+                        // Anchor: jiggy already spawned (teammate completed this) - walk off silently.
                         mapSpecificFlags_set(MM_SPECIFIC_FLAG_4_SHAKE, true);
                         subaddie_set_state(this, LMONKEY_STATE_3_WALKING);
                     }
                     else {//L803886E8
-                        // Local give in progress (jiggy not spawned yet): play the full cutscene,
-                        // which spawns the jiggy.
                         gcdialog_showDialog(ASSET_B40_DIALOG_CHIMPY_COMPLETE, 0xE, this->position, this->marker, __chlmonkey_complete, NULL);
                     }//L80388898
                 }

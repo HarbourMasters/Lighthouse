@@ -12,8 +12,7 @@ void chHoneycomb_netRevealFromSwitch(void);
 /**
  * REQUEST_SCOPED_STATE / SCOPED_STATE
  *
- * Entry-sync for transient level/map flags: on map load a client asks the team for the current
- * level-/map-specific flag state, and any teammate in the same level/map replies with theirs.
+ * On map load, a client asks the team for current level/map flag state; same-scope teammates reply.
  */
 
 void Anchor::SendPacket_RequestScopedState(GameMap map) {

@@ -79,12 +79,9 @@ public:
     // eye/mouth
     void dummy_setEyeState(bool squint, bool wink, bool isHat);
     AnimCtrl* dummy_getAnimCtrl();
-    // The engine-side stand-in actor (world presence: shadow, optional collision). Tracked by
-    // MARKER — raw Actor*s go stale on any despawn compaction, never hold one across frames.
+    // Tracked by marker, not Actor* — raw pointers go stale on despawn compaction.
     ActorMarker* dummy_getMarker() const { return dummyMarker; }
-    // Despawn the stand-in (and unlink+despawn its shadow first — an immediate-mode despawn
-    // doesn't clean the shadow's back-pointer, and the shadow derefs it next frame).
-    void dummy_despawnActor(void);
+    void dummy_despawnActor(void); // despawns the stand-in and its shadow
 
 private:
     uint32_t PlayerID;

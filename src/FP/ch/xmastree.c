@@ -111,10 +111,7 @@ void chXmasTree_update(Actor *this){
 
     this->depth_mode = 1;
 
-    // [port] Anchor: a teammate finished the star minigame (recorded under the tree-interior map,
-    // where the ice lives). Adopt the completed state: light the tree via the local LEVEL_FLAG_29
-    // (kept out of the raw flag sync — see Anchor_ScopedFlagExcluded), and if our own star attempt
-    // was mid-timer, stop the countdown — the puzzle is done.
+    // Anchor: teammate finished the star minigame — light the tree locally and stop our countdown if running.
     if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)
         && (port_puzzleStep_getForMap(MAP_53_FP_CHRISTMAS_TREE, ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
         levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);

@@ -133,10 +133,7 @@ void chHoneycomb_update(Actor *this){
         }
     }//L802CA098
 
-    // [port] Anchor: switch-revealed honeycombs (GV cactus, RBB boat house) are placed but gated by
-    // their switch's map flag. That flag syncs, but the honeycomb only checked it implicitly, so it
-    // never appeared live for a teammate. Re-check the flag every frame: hide (no collision/draw)
-    // until the switch is pressed, show once it is — so a teammate's press reveals it here too.
+    // [port] Anchor: re-check the switch's map flag every frame so a teammate's press reveals it here too.
     {
         s32 gateFlag = -1;
         if(local->uid == HONEYCOMB_B_GV_CACTUS) gateFlag = 0xd;
@@ -176,11 +173,8 @@ void chHoneycomb_update(Actor *this){
     }
 }
 
-// [port] Anchor: a teammate pressed a honeycomb-reveal switch (GV cactus, RBB boat house). Only the
-// switch's map flag rides the wire — the honeycomb actor itself is spawned by the presser's
-// collision handler (ba_marker.c) — so spawn our copy here too. Called by the scoped-flag appliers
-// (ScopedFlag/ScopedState) after the flag lands; safe to call repeatedly and in any map — it
-// derives everything from the current map/flags, and the spawn dedupes an already-revealed copy.
+// [port] Anchor: spawns our copy of a switch-revealed honeycomb after the flag syncs from a
+// teammate's press. Safe to call repeatedly; the spawn dedupes an already-revealed copy.
 extern void __baMarker_8028BA00(s32);
 void chHoneycomb_netRevealFromSwitch(void){
     s32 uid = -1;

@@ -5,8 +5,7 @@
 
 #include "port/Patches/Patches.h"
 
-// [port] Anchor: set while replaying a teammate's croctus feed so the camera/dialogs are
-// suppressed and the feed isn't re-broadcast.
+// Anchor: set while replaying a teammate's feed; suppresses camera/dialog + rebroadcast.
 static s32 sCroctusRemote = 0;
 
 extern s32 func_80328748(AnimCtrl *, f32, f32);
@@ -103,7 +102,7 @@ void func_80387E68(ActorMarker *caller, enum asset_e text_id, s32 arg2){
         func_80326310(this); //did not disappear when moved, after cutscene still there with collision but broken
         bgs_D_803907B8[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
         timedFunc_set_1(1.1f, (GenFunction_1)func_80387E00, (uintptr_t)bgs_D_803907B8[this->actorTypeSpecificField]);
-        // [port] Anchor: Skip camera and dialog for remote first-head clear.
+        // Anchor: replaying a teammate's feed — skip camera/dialog, don't yank a far player.
         if(!sCroctusRemote){
             timed_setStaticCameraToNode(0.8f, 9);
             func_80324DBC(3.4f, 0xC87, 0xE, NULL, NULL, func_80387E68, NULL);
@@ -148,14 +147,13 @@ void chCroctus_updat(Actor *this){
         return;
     }//L80388160
 
-    // [port] Croctus chain remotely completed. Despawn local heads so the puzzle clears locally.
-    // State 5/6 is the local finisher's eat/cutscene sequence — skip those so it isn't cut short.
+    // Anchor: teammate finished the chain (jiggy synced) — despawn our heads too, unless mid-cutscene.
     if(jiggyscore_isSpawned(JIGGY_22_CROCTUS) && this->state != 5 && this->state != 6){
         marker_despawn(this->marker);
         return;
     }
 
-    // [port] Anchor live + temp-persist: replay a teammate's feed of the currently-active head.
+    // Anchor: replay a teammate's feed of the active head (field 5 handled by the despawn above).
     if (this->actorTypeSpecificField < 5 && this->state != 5 && this->state != 6 && !this->unk38_31
         && this->marker->propPtr->isNotFeatherEggOrNote
         && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_CROCTUS) & (1 << (this->actorTypeSpecificField - 1)))) {
@@ -165,17 +163,17 @@ void chCroctus_updat(Actor *this){
 
     if(this->unk38_31){
         if ((this->state != 5) && (this->state != 6)) {
-            // [port] Anchor: record + broadcast this head's feed so each teammate's chain advances.
+            // Anchor: broadcast this feed; guarded so the replay above doesn't re-broadcast.
             if (!sCroctusRemote) {
                 port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_CROCTUS, 1 << (this->actorTypeSpecificField - 1));
             }
             coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000); //TODO ISSUE HERE
             if (this->actorTypeSpecificField == 1) {
-                // [port] Anchor: Fix remote replay camera lock
+                // Anchor: skip — the look-at is only popped via the dialog we skip below, would lock a remote player.
                 if (!sCroctusRemote) {
                     func_8028F94C(2, this->position);
                 }
-                // Reveal directly (func_80387E68) instead of through the dialog.
+                // Anchor: replaying remotely — drive the reveal directly, no dialog to dismiss.
                 if (sCroctusRemote) {
                     func_80387E68(this->marker, ASSET_C86_DIALOG_CROCTUS_FIRST_SUCCESS, 0);
                 } else {

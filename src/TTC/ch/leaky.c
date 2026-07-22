@@ -57,12 +57,8 @@ static void __chLeaky_updateFunc(Actor *this) {
         }
     }
 
-    // [port] Anchor live: a teammate finished feeding Leaky (LEVEL_FLAG_2 syncs level-wide) while
-    // we're in the map — lower the water in place like their cutscene does, minus the camera pan
-    // and the sandcastle warp (those belong to the feeder). Their one-shot cutscene flag
-    // (LEVEL_FLAG_5) is excluded from sync, so this is the only live path for us. The feeder
-    // themselves never takes it: their egg counter (unk38_31) hit 2 and their dialog callback
-    // (__chLeaky_showDoneText) moves them to state 2.
+    // Anchor: teammate finished feeding Leaky (LEVEL_FLAG_2 synced) - lower water here too, minus
+    // camera pan and sandcastle warp.
     if (this->state == 1 && this->unk38_31 < 2 && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)) {
         Struct70s *water = func_8034C5AC(300);
         if (water != NULL) {

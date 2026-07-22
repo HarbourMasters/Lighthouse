@@ -84,8 +84,7 @@ extern ActorInfo chGreenBlast;
 extern ActorInfo chJinjonator;
 extern ActorInfo chBossShadow;
 
-// [port] Moved here from chfinalboss.c so the Anchor fight-sync layer
-// (port/Network/Anchor/FightSync.c) can read the boss's phase/mirror state.
+// [port] Moved from chfinalboss.c so FightSync.c can read the boss's phase/mirror state.
 typedef struct chfinalboss_s {
     u8 phase;
     u8 hits;

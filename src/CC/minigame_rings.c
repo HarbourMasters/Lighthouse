@@ -84,10 +84,7 @@ void func_8038817C(void){
     Struct70s *tmp_v0;
 
     if(D_80389F90.unk0 != 0){
-        // [port] Anchor live: a teammate completed the rings (JIGGY_1C spawned via the synced
-        // JIGGY_SPAWN packet) *while we're still collecting* (unk0 < 9). Tear our in-progress run down so
-        // the rings vanish and the hourglass stops, instead of running a redundant minigame for an
-        // already-awarded jiggy.
+        // Anchor: teammate completed the rings — tear our in-progress run down.
         if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS) && D_80389F90.unk0 < 9){
             func_80387FE8();
             // Vanilla snaps the water to its risen height as the interrupted run tears down. When connected
