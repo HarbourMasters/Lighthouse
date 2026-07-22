@@ -84,6 +84,12 @@ s32 jiggyscore_leveltotal(s32 lvl) {
     s32 start;
     s32 end;
     s32 cnt;
+    s32 override_total = 0;
+
+    // [port] Romhack gate: listeners can supply the whole per-level tally.
+    if (!EventSystem_Should(VB_JIGGYSCORE_LEVEL_TOTAL, true, lvl, &override_total)) {
+        return override_total;
+    }
 
     if (lvl <= 0 || lvl == 0xB || lvl >= 0xB)
         return 0;

@@ -44,6 +44,7 @@ int port_getRomhackJiggyPuzzleCost(int puzzle_index);
 const char* port_getRomhackLevelName(int level_index);
 int port_getRomhackWarpDest(int warp_index);
 bool port_getRomhackCustomCodeHash(char out_hex[41]);
+int port_getRomhackCustomCodeKind(void);
 bool port_getRomhackRomHash(char out_hex[41]);
 const char* port_getRomhackIdentifier(void);
 

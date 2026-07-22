@@ -1328,6 +1328,9 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     // [port] Mirror mode: restore culling inversion
     if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
+    // [port] Romhack model DLs can leave a palette (TLUT) mode enabled and leak it
+    // into the next model's draw; reset it after every model for romhacks.
+    port_modelRenderResetTLUT(gfx);
 
     if(modelRenderCallback.post_draw != NULL){
         modelRenderCallback.post_draw(modelRenderCallback.post_draw_arg);

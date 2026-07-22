@@ -61,6 +61,22 @@ typedef enum VBehaviorID {
     VB_CC_RINGS_SNAP_WATER,
     // Lair door remote-open "already handled" test (Anchor). Args: (s32 doorActorId, s32 doorState).
     VB_LEVELDOOR_REMOTE_OPEN_DONE,
+    // Romhack port gates. Cancel to override the vanilla behavior;
+    // args carry the site-specific data.
+    VB_JIGGYSCORE_LEVEL_TOTAL,
+    VB_PAUSEMENU_LEVEL_TO_PAGE,
+    VB_PAUSEMENU_SET_NEXT_PAGE,
+    VB_MAP_CHANGE_REQUEST,
+    VB_VOID_OUT_RESPAWN_TRANSITION,
+    VB_MAP_TRANSITION_IN_INDEX,
+    VB_CCW_SEASON_SWITCH_PRESSED_INIT,
+    VB_PAUSEMENU_DRAW_JOYSTICKS,
+    VB_PAUSEMENU_BOLD_FONT_TEXTURE,
+    VB_JIGGY_COLLECT_TUTORIAL,
+    VB_HONEYCOMB_PUMPKIN_REQUIREMENT,
+    VB_SKY_UPDATE,
+    VB_SKY_DRAW_BACKDROP_RECT,
+    VB_BRENTILDA_HEAL_DIALOG,
 } VBehaviorID;
 
 typedef enum DoorCameraId {

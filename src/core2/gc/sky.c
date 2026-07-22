@@ -65,7 +65,7 @@ static MapSkyInfo sSkyOverride;
 MapSkyInfo * sky_getMapSkyInfo(enum map_e map_id){
     int models[3];
     float scales[3], rotations[3];
-    if (port_getRomhackSkyboxFull(map_getLevel(map_id), models, scales, rotations)) {
+    if (port_getRomhackSkyboxFull(map_id, models, scales, rotations)) {
         sSkyOverride.map = map_id;
         for (int i = 0; i < 3; i++) {
             sSkyOverride.sky_list[i].model_id = (s16)models[i];
@@ -94,7 +94,9 @@ void sky_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     viewport_setNearAndFar(5.0f, 15000.0f);
 
     if (gcSky.model_bins[0]) {
-        drawRectangle2D(gfx, 0, 0, (f32) gFramebufferWidth, (f32) gFramebufferHeight, 0, 0, 0);
+        if (EventSystem_Should(VB_SKY_DRAW_BACKDROP_RECT, true)) {
+            drawRectangle2D(gfx, 0, 0, (f32) gFramebufferWidth, (f32) gFramebufferHeight, 0, 0, 0);
+        }
         viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
         viewport_getPosition_vec3f(position);
         for (i = 0; i < 3; i++) {

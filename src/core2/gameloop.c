@@ -371,6 +371,8 @@ void transitionToMap(enum map_e map, s32 exit, s32 transition){
 }
 
 void func_802E40A8(s32 map, s32 exit){
+    // [port] Romhack gate: listeners may rewrite the requested destination.
+    EventSystem_Should(VB_MAP_CHANGE_REQUEST, true, &map, &exit);
     D_8037E8E0.unk18 = 1;
     D_8037E8E0.map = map;
     D_8037E8E0.exit = exit;
@@ -381,6 +383,8 @@ void func_802E40C4( s32 arg0){
 }
 
 void func_802E40D0(s32 map, s32 exit){
+    // [port] Romhack gate: listeners may rewrite the requested destination.
+    EventSystem_Should(VB_MAP_CHANGE_REQUEST, true, &map, &exit);
     D_8037E8E0.unk18 = 0;
     D_8037E8E0.map = map;
     D_8037E8E0.exit = exit;

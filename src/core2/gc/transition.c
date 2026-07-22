@@ -383,8 +383,12 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 void gctransition_8030BD4C(void){
     MapTransitionInfo *tmp_10s;
     TransitionInfo *tmp_a1;
+    s32 in_index;
     tmp_10s = _gctranstion_get_map_transition_info(gsworld_getMap());
-    tmp_a1 = _gctranstion_8030B400(tmp_10s->in_index);
+    in_index = tmp_10s->in_index;
+    // [port] Romhack gate: listeners may override the incoming transition style.
+    EventSystem_Should(VB_MAP_TRANSITION_IN_INDEX, true, gsworld_getMap(), &in_index);
+    tmp_a1 = _gctranstion_8030B400(in_index);
    _gctranstion_changeState(tmp_a1->state, tmp_a1);
 }
 

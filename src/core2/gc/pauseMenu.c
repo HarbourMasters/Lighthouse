@@ -428,6 +428,11 @@ void gcpausemenu_printTotals(void) {
 }
 
 s32 gcpausemenu_levelToMenuPage(enum level_e level) {
+    // [port] Romhack gate: listeners can pin every level to one menu page.
+    s32 override_page = 0;
+    if (!EventSystem_Should(VB_PAUSEMENU_LEVEL_TO_PAGE, true, level, &override_page)) {
+        return override_page;
+    }
     switch (level) {
         case LEVEL_1_MUMBOS_MOUNTAIN:
         case LEVEL_2_TREASURE_TROVE_COVE:
@@ -531,7 +536,10 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             gcpausemenu_zoomboxes_initTotalsMenu();
 
             if (D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                print_setBoldFontTexture(0x6e7);
+                // [port] Romhack gate: listeners can swap the highlight bold-font texture.
+                s32 boldFontId = 0x6e7;
+                EventSystem_Should(VB_PAUSEMENU_BOLD_FONT_TEXTURE, true, &boldFontId);
+                print_setBoldFontTexture(boldFontId);
             }
 
             if (D_80383010.selection) {
@@ -610,7 +618,10 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             D_80383010.selection = D_80383010.page;
 
             if (D_80383010.selection && D_80383010.selection == gcpausemenu_levelToMenuPage(level_get())) {
-                print_setBoldFontTexture(0x6e7);
+                // [port] Romhack gate: listeners can swap the highlight bold-font texture.
+                s32 boldFontId = 0x6e7;
+                EventSystem_Should(VB_PAUSEMENU_BOLD_FONT_TEXTURE, true, &boldFontId);
+                print_setBoldFontTexture(boldFontId);
             }
 
             if (D_80383010.selection) {
@@ -898,6 +909,10 @@ s32 gcpausemenu_getMaxPage(void) {
 }
 
 void gcpausemenu_setNextPage(s32 increment) {
+    // [port] Romhack gate: listeners can pin the page and skip paging entirely.
+    if (!EventSystem_Should(VB_PAUSEMENU_SET_NEXT_PAGE, true, &D_80383010.page)) {
+        return;
+    }
     D_80383010.page = D_80383010.selection;
     do {
         D_80383010.page += increment;
@@ -1469,8 +1484,10 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         }
     }
 
-    gcpausemenu_drawSprite(gfx, mtx, vtx, D_80383010.joystick_sprite, D_80383010.joystick_frame, 30.0f, 196.0f, 1, (s32) D_80383010.left_joystick_alpha);
-    gcpausemenu_drawSprite(gfx, mtx, vtx, D_80383010.joystick_sprite, D_80383010.joystick_frame, (f32)(gFramebufferWidth - 0x1E), 196.0f, 0, (s32) D_80383010.right_joystick_alpha);
+    if (EventSystem_Should(VB_PAUSEMENU_DRAW_JOYSTICKS, true, NULL)) {
+        gcpausemenu_drawSprite(gfx, mtx, vtx, D_80383010.joystick_sprite, D_80383010.joystick_frame, 30.0f, 196.0f, 1, (s32) D_80383010.left_joystick_alpha);
+        gcpausemenu_drawSprite(gfx, mtx, vtx, D_80383010.joystick_sprite, D_80383010.joystick_frame, (f32)(gFramebufferWidth - 0x1E), 196.0f, 0, (s32) D_80383010.right_joystick_alpha);
+    }
     // [port] Original decomp used raw u32 bit extraction: ((*((u32*)&D_80383010.state) << N) >> 0x1f)
     // This depends on big-endian byte order (byte 3 of the u32 is the bitfield byte on MIPS).
     // On little-endian, byte 0 of the u32 is 'state', so the shifts extract wrong bits.

@@ -17,12 +17,24 @@ static int sDrawDistanceCubeWidth(int mul) {
 static int sDrawDistanceLevel = 0;
 static int sDisableLOD = 0;
 
-#include "functions.h"
 extern "C" {
+#include <ultra64.h>
 #include "enums.h"
+#include "functions.h"
+#include "libultraship/libultra/gbi.h"
+#include "port/Romhack/RomhackConfig.h"
 
 extern s32 gFramebufferWidth;
 extern s32 gFramebufferHeight;
+
+// Romhack model display lists can leave a palette (TLUT) mode enabled and leak it
+// into the next model's draw.
+void port_modelRenderResetTLUT(Gfx** gfx) {
+    if (!port_isRomhack()) {
+        return;
+    }
+    gDPSetTextureLUT((*gfx)++, G_TT_NONE);
+}
 
 // Widescreen HUD edge anchoring (centered-ortho HUD geometry).
 float port_hudOrthoShift(float refX) {

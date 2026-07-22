@@ -582,7 +582,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     if (jiggy_id == JIGGY_20_BGS_ELEVATED_WALKWAY || jiggy_id == JIGGY_25_BGS_MAZE) {
                         func_802D6924();
                     }
-                    if (jiggyscore_total() < 3) {
+                    if (jiggyscore_total() < 3 && EventSystem_Should(VB_JIGGY_COLLECT_TUTORIAL, true)) {
                         __baMarker_8028B848();
                     }
 
@@ -601,7 +601,8 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 if (__baMarker_8028BC20(marker))
                     return;
                 sp98 = func_802CA1C4(marker_getActor(marker));
-                if (sp98 != HONEYCOMB_12_MMM_FLOORBOARD || player_getTransformation() == TRANSFORM_3_PUMPKIN)
+                if (sp98 != HONEYCOMB_12_MMM_FLOORBOARD || player_getTransformation() == TRANSFORM_3_PUMPKIN
+                    || !EventSystem_Should(VB_HONEYCOMB_PUMPKIN_REQUIREMENT, true))
                 {
                     honeycombscore_set(sp98, 1);
                     CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_HONEYCOMB, sp98);

@@ -385,7 +385,9 @@ s32 gsworld_update(void) {
         func_8031B790();
         func_8034C9D4();
         propModelList_flush(1);
-        sky_update();
+        if (EventSystem_Should(VB_SKY_UPDATE, true)) {
+            sky_update();
+        }
         partEmitMgr_update();
         func_8034F918();
         func_80350250();
