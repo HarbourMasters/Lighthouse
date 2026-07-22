@@ -50,6 +50,22 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
+    // Romhack port gates. Cancel to override the vanilla behavior;
+    // args carry the site-specific data.
+    VB_JIGGYSCORE_LEVEL_TOTAL,
+    VB_PAUSEMENU_LEVEL_TO_PAGE,
+    VB_PAUSEMENU_SET_NEXT_PAGE,
+    VB_MAP_CHANGE_REQUEST,
+    VB_VOID_OUT_RESPAWN_TRANSITION,
+    VB_MAP_TRANSITION_IN_INDEX,
+    VB_CCW_SEASON_SWITCH_PRESSED_INIT,
+    VB_PAUSEMENU_DRAW_JOYSTICKS,
+    VB_PAUSEMENU_BOLD_FONT_TEXTURE,
+    VB_JIGGY_COLLECT_TUTORIAL,
+    VB_HONEYCOMB_PUMPKIN_REQUIREMENT,
+    VB_SKY_UPDATE,
+    VB_SKY_DRAW_BACKDROP_RECT,
+    VB_BRENTILDA_HEAL_DIALOG,
 } VBehaviorID;
 
 DEFINE_EVENT(VanillaBehavior, VBehaviorID id; bool* should; va_list * originalArgs;);

@@ -23,7 +23,7 @@ struct RomhackTableEntry {
 */
 static constexpr RomhackTableEntry kRomhackTable[] = {
     // Cut-Throat Coast
-    { "13f4fa8a180fe5775a606486effbafeb58862d26", "CutThroatCoast", false },
+    { "13f4fa8a180fe5775a606486effbafeb58862d26", "CutThroatCoast", true },
 
     // The Gruntch, Santa's Village
     { "bed22dd8ef931228fbc94f006dfc718a4d4f6f8c", "Gruntch", false },

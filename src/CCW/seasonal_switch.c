@@ -144,7 +144,10 @@ void func_80389268(Actor *this) {
 
         this->volatile_initialized = true;
         if (fileProgressFlag_get(this->unk10_12 + FILEPROG_8B_CCW_SPRING_OPEN)) {
-            subaddie_set_state(this, 3);
+            // [port] Romhack gate: listeners can hide the already-pressed switch.
+            if (EventSystem_Should(VB_CCW_SEASON_SWITCH_PRESSED_INIT, true, this)) {
+                subaddie_set_state(this, 3);
+            }
         }
     }
 

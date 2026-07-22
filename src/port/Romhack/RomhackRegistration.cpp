@@ -37,6 +37,8 @@ void RegisterRomhackPatches_Init() {
         RegisterNewHorizonsPatches();
     } else if (std::strcmp(id, "Nostalgia64") == 0) {
         RegisterNostalgia64Patches();
+    } else if (std::strcmp(id, "CutThroatCoast") == 0) {
+        RegisterCutThroatCoastPatches();
     }
 }
 

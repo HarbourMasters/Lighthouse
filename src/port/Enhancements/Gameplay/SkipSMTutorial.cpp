@@ -51,7 +51,7 @@ void RegisterSkipSMTutorial_Init() {
             }
             func_8034789C();
             item_adjustByDiffWithoutHud(ITEM_14_HEALTH,
-                item_getCount(ITEM_15_HEALTH_TOTAL) - item_getCount(ITEM_14_HEALTH));
+                                        item_getCount(ITEM_15_HEALTH_TOTAL) - item_getCount(ITEM_14_HEALTH));
         }
 
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);
