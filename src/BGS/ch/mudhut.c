@@ -81,10 +81,8 @@ void chMudHut_spawnExplosion(ActorMarker *this){
     if(this);
 }
 
-// [port] Anchor: the hut's drop is keyed by position; tmp 2 is the note (tracked), tmp 5 the jiggy
-// (rides JIGGY_SPAWN — never dropped here), the rest are shockspring pads (non-tracked). fullBundle=1
-// (a teammate's live smash) drops everything but the jiggy; fullBundle=0 (restored broken on reload)
-// drops only the non-tracked pads — the note is left to its own collection/spawn sync.
+// [port] Anchor: fullBundle=1 (remote live smash) drops everything but the jiggy
+// fullBundle=0 (restored broken on reload) drops only the non-tracked pads
 static void chMudHut_dropRecordedBundle(Actor *this, s32 tmp, s32 fullBundle){
     f32 pos[3];
     if(tmp < 0 || tmp >= 5){
@@ -122,8 +120,7 @@ void chMudHut_update(Actor *this){
         if(!this->initialized){
             this->marker->collidable = false;
             this->initialized = true;
-            // [port] Anchor temp-persist: this hut was already smashed this session (a teammate's, or
-            // ours on an earlier visit). Restore it broken and re-drop only its non-tracked loot.
+            // [port] Anchor temp-persist: Restore previously smashed state
             tmp = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
             if(tmp >= 0){
                 this->state = 3;
