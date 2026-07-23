@@ -22,6 +22,7 @@ void RegisterCutThroatCoastPatches();
 void RegisterJiggiesOfTimePatches();
 void RegisterNewHorizonsPatches();
 void RegisterNostalgia64Patches();
+void RegisterBubblingBogPatches();
 
 namespace {
 
@@ -39,6 +40,8 @@ void RegisterRomhackPatches_Init() {
         RegisterNostalgia64Patches();
     } else if (std::strcmp(id, "CutThroatCoast") == 0) {
         RegisterCutThroatCoastPatches();
+    } else if (std::strcmp(id, "BubblingBog") == 0) {
+        RegisterBubblingBogPatches();
     }
 }
 

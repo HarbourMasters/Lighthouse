@@ -263,10 +263,14 @@ void updateOrbit() {
 
 } // namespace
 
+// Romhacks that bundle wedarobi's jiggy dance should have it on by default.
+// The hack may depend on the retained player motion that the animation provides.
+static bool sJiggyDanceForced = false;
+
 void RegisterJiggyCollect_Init() {
     clearOrbit();
     const bool skip = CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0);
-    const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0);
+    const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0) || sJiggyDanceForced;
     const bool playOrbit = tooie && !skip;
 
     COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, { *should = false; });
@@ -274,6 +278,11 @@ void RegisterJiggyCollect_Init() {
     COND_HOOK(OnTooieJiggyCollect, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { spawnOrbit(); });
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { updateOrbit(); });
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { forgetOrbit(); });
+}
+
+void TooieJiggyDance_ForceEnable() {
+    sJiggyDanceForced = true;
+    RegisterJiggyCollect_Init();
 }
 
 static RegisterShipInitFunc initJiggyCollect(RegisterJiggyCollect_Init,

@@ -79,6 +79,7 @@ typedef enum VBehaviorID {
     VB_SKY_UPDATE,
     VB_SKY_DRAW_BACKDROP_RECT,
     VB_BRENTILDA_HEAL_DIALOG,
+    VB_GROUND_HAZARD_ACTIVE,
 } VBehaviorID;
 
 typedef enum DoorCameraId {

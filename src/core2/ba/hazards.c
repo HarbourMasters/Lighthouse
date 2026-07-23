@@ -187,7 +187,10 @@ bool isPlayerInHazard(void){
         case MAP_6E_GL_GV_LOBBY:
         case MAP_72_GL_BGS_LOBBY:
         case MAP_8E_GL_FURNACE_FUN://L8029D6FC
-            return func_80294610(0xE000) && player_isStable();
+            // [port] Default is the vanilla hazard-collision-flag check; a romhack
+            // whose hazard-flagged collision was stripped on export can force it.
+            return EventSystem_Should(VB_GROUND_HAZARD_ACTIVE, func_80294610(0xE000) != 0, gsworld_getMap()) &&
+                   player_isStable();
 
         case MAP_31_RBB_RUSTY_BUCKET_BAY:
             player_getPosition(sp2C);
