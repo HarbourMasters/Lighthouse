@@ -132,8 +132,6 @@ void chAncientOne_update(Actor *this){
             func_80386620(this);
             return;
         }
-        // Anchor: let an unrendered ring run its state machine once the team has synced progress,
-        // so a ring that was never drawn locally can still sink/rise to match.
         {
             s32 fc = 0, fi;
             for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
@@ -143,13 +141,11 @@ void chAncientOne_update(Actor *this){
         }
     }
     {//L803869B4
-        // Anchor: teammate finished the puzzle (JIGGY_46 synced) - despawn ours too.
         if(jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
             marker_despawn(this->marker);
             return;
         }
-        // Anchor: ring order is randomized per-client, so catch up by count of synced flags rather
-        // than mirroring a specific ring; no camera/dialog for the forced advance.
+        // Anchor: ring order is randomized per-client; advance by synced-flag count.
         {
             s32 fc = 0, fi;
             for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;

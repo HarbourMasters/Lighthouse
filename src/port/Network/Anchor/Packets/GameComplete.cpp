@@ -10,8 +10,8 @@ const std::string gameCompleteMessages[] = {
 
 /**
  * GAME_COMPLETE
- * 
- * no-op
+ *
+ * unimplemented
  */
 
 void Anchor::SendPacket_GameComplete() {

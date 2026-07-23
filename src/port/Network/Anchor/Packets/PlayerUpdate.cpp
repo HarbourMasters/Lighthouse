@@ -184,15 +184,13 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
     payload["modelEyeBlendLower"] = func_8029DFD4(); // eye blend lower
     payload["bottlesBonus"] = baanim_getActiveBottlesBonusMask();
     {
-        // Carried-collectible marker id (0 = none); skipped once thrown (unk138_21 = in flight,
-        // handled by CARRY_THROW instead).
+        // Carried-collectible marker id (0 = none); skipped once thrown (unk138_21 = in flight).
         s32 carryId = 0;
         ActorMarker* carryMarker = bacarry_get_marker();
         if (carryMarker != nullptr) {
             Actor* carried = marker_getActor(carryMarker);
             if (carried != nullptr && !carried->unk138_21) {
                 carryId = carryMarker->id;
-                // Held pose relative to the player, so the display copy sits in the dummy's hands.
                 payload["carryOff"] = { carried->position[0] - pos[0], carried->position[1] - pos[1],
                                         carried->position[2] - pos[2] };
                 payload["carryYaw"] = mlNormalizeAngle(carried->yaw - player_getYaw());
@@ -206,7 +204,7 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
         payload["anim_control"] = anctrl_getPlaybackType(baanim_getAnimCtrlPtr());
     }
     payload["type"] = full ? PLAYER_UPDATE_FULL : PLAYER_UPDATE;
-    payload["quiet"] = true; // [temp] suppress per-frame player-update log spam while debugging
+    payload["quiet"] = true;
 
     if (targetClientId != 0) {
         payload["targetClientId"] = targetClientId;
@@ -272,7 +270,6 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                                         payload.value("modelMouth2", false), payload.value("modelEyeBlendUpper", 0.0f),
                                         payload.value("modelEyeBlendLower", 0.0f));
         client.dummy->dummy_setBottlesBonus(payload.value("bottlesBonus", 0));
-        // Sync the carried-collectible display copy to the sender's held pose.
         {
             f32 carryOff[3] = { 0.0f, 0.0f, 0.0f };
             f32 carryYaw = 0.0f;

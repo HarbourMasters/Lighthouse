@@ -4,7 +4,6 @@
 #include "variables.h"
 
 
-// Anchor: whether the valley pyramid is currently shown raised.
 static s32 sGvPyramidRaised = 0;
 
 void func_8038FF60(void){}
@@ -30,8 +29,7 @@ void func_8038FF68(void){
 void func_8038FFF4(void){
     Struct70s *tmp_s70;
 
-    // Anchor: raise the pyramid live if a teammate collects the jiggy while we're in the valley.
-    // Skip if LEVEL_FLAG_6 is set so this doesn't fight the local rise cutscene.
+    // LEVEL_FLAG_6 = local rise cutscene in progress.
     if(sGvPyramidRaised) return;
     if(gsworld_getMap() != MAP_12_GV_GOBIS_VALLEY) return;
     if(levelSpecificFlags_get(LEVEL_FLAG_6_GV_UNKNOWN)) return;

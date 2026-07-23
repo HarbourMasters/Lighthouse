@@ -343,29 +343,26 @@ void item_set(s32 item, s32 val);
 void item_setEx(s32 item, s32 val, s32 triggerEvent);
 
 // --- core2/game_complete.c ---
-// Identifies which flag bitfield an OnGameFlagSet event / Anchor flag packet targets.
 enum AnchorFlagSpace {
     ANCHOR_FLAGSPACE_FILE_PROGRESS = 0,
     ANCHOR_FLAGSPACE_VOLATILE = 1,
-    ANCHOR_FLAGSPACE_LEVEL_SPECIFIC = 2, // transient per-level; ctx = level id
-    ANCHOR_FLAGSPACE_MAP_SPECIFIC = 3,   // transient per-map; ctx = map id
-    ANCHOR_FLAGSPACE_RANDO_INF = 4,      // rando RANDO_INF_* save flags not derivable from checks
+    ANCHOR_FLAGSPACE_LEVEL_SPECIFIC = 2,
+    ANCHOR_FLAGSPACE_MAP_SPECIFIC = 3,
+    ANCHOR_FLAGSPACE_RANDO_INF = 4,
 };
-// Identifies which collectible an OnCollectibleCollected event / COLLECT_ITEM packet targets.
 enum AnchorCollectibleSpace {
     ANCHOR_COLLECTIBLE_JIGGY = 0,
     ANCHOR_COLLECTIBLE_HONEYCOMB = 1,
     ANCHOR_COLLECTIBLE_MUMBO = 2,
-    ANCHOR_COLLECTIBLE_NOTE = 3,  // id = noteIndex, map = mapId
-    ANCHOR_COLLECTIBLE_JINJO = 4, // id = jinjo colour bit, level derived from map
-    ANCHOR_COLLECTIBLE_WORM = 5,  // CCW caterpillar; id = spawn-position hash, map = mapId
-    ANCHOR_COLLECTIBLE_ACORN = 6, // CCW acorn; id = spawn-position hash, map = mapId
-    // Carried collectibles (level_collectible.c): id = spawn-position hash (collect) or -1 (spend).
-    ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,  // FP blue present
-    ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8, // FP green present
-    ANCHOR_COLLECTIBLE_PRESENT_RED = 9,   // FP red present
-    ANCHOR_COLLECTIBLE_GOLD = 10,         // TTC gold bullion (Blubber)
-    ANCHOR_COLLECTIBLE_ORANGE = 11,       // MM orange (Chimpy)
+    ANCHOR_COLLECTIBLE_NOTE = 3,
+    ANCHOR_COLLECTIBLE_JINJO = 4,
+    ANCHOR_COLLECTIBLE_WORM = 5,
+    ANCHOR_COLLECTIBLE_ACORN = 6,
+    ANCHOR_COLLECTIBLE_PRESENT_BLUE = 7,
+    ANCHOR_COLLECTIBLE_PRESENT_GREEN = 8,
+    ANCHOR_COLLECTIBLE_PRESENT_RED = 9,
+    ANCHOR_COLLECTIBLE_GOLD = 10,
+    ANCHOR_COLLECTIBLE_ORANGE = 11,
 };
 bool fileProgressFlag_get(enum file_progress_e index);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);
@@ -375,7 +372,6 @@ s32 volatileFlag_getN(enum volatile_flags_e index, s32 numBits);
 void fileProgressFlag_setN(enum file_progress_e, s32, s32);
 void volatileFlag_set(enum volatile_flags_e index, s32 set);
 void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length);
-// *_setEx: triggerEvent=0 suppresses OnGameFlagSet (used when applying a remote change).
 void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
 void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
@@ -1134,7 +1130,6 @@ void func_803268B4(void);
 void func_80326C24(s32 arg0);
 void func_803283BC(void);
 void func_803283D4(void);
-// [port] Deferred-despawn window for despawns triggered outside game_draw; see actor_array.c.
 void port_actorDespawn_beginDefer(void);
 void port_actorDespawn_endDefer(void);
 void func_80328CA8(Actor *self, s32 angle);
@@ -1615,7 +1610,6 @@ void playerPosition_getOffset(f32 arg0[3]);
 void playerPosition_setOffset(f32 arg0[3]);
 void playerPosition_applyOffset(void);
 void player_setPosition(f32 arg0[3]);
-// [port] core2/ba/ba_lookdir.c — arm the exit-0x63 spawn path with an explicit destination.
 void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id);
 
 // --- core2/ba/ba_recoil.c ---
@@ -2391,7 +2385,7 @@ void jiggyscore_setSpawned(s32, s32);
 // --- core2/fx/score_jiggylist.c ---
 void codeABC00_spawnJiggyAtLocation(enum jiggy_e, f32[3]);
 void codeABC00_spawnJiggyAtLocationEx(enum jiggy_e, f32[3], s32 triggerEvent);
-s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id); // [port] Anchor re-spawn gate (covers bundle pop)
+s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id);
 void func_80332E08(void);
 void func_8033301C(void);
 void func_80333270(enum jiggy_e jiggy_id, f32 position[3], void (*method)(Actor *, ActorMarker *), ActorMarker *other_marker);

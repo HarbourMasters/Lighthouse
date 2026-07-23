@@ -17,8 +17,6 @@ extern "C" {
 
 /**
  * BREAK_OBJECT
- *
- * Session-only sync for breakables with no save flag; keyed by (map, marker, position).
  */
 
 std::set<std::array<int32_t, 5>> sBrokenObjects;
@@ -27,7 +25,6 @@ extern "C" int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_
     return sBrokenObjects.count({ map, markerId, x, y, z }) != 0 ? 1 : 0;
 }
 
-// Flat [map, marker, x, y, z] tuples for team-state sync (UpdateTeamState.cpp).
 std::vector<int32_t> port_breakable_snapshotBroken() {
     std::vector<int32_t> flat;
     flat.reserve(sBrokenObjects.size() * 5);
@@ -63,7 +60,6 @@ void Anchor::SendPacket_BreakObject(s16 markerId, s32 x, s32 y, s32 z, s32 map, 
     payload["y"] = y;
     payload["z"] = z;
     payload["map"] = map;
-    // replay=false: don't invoke remote break handler
     payload["replay"] = replay;
 
     SendJsonToRemote(payload);
@@ -81,7 +77,6 @@ void Anchor::HandlePacket_BreakObject(nlohmann::json& payload) {
     s32 map = payload.at("map").get<s32>();
     bool replay = payload.contains("replay") ? payload.at("replay").get<bool>() : true;
 
-    // Replay break for non-self-polling breakables
     sBrokenObjects.insert({ map, markerId, x, y, z });
     if (replay && (s32)gsworld_getMap() == map) {
         port_breakable_remoteBreakAt(markerId, x, y, z);
@@ -106,14 +101,11 @@ extern "C" void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t 
     Anchor::GetInstance()->SendPacket_BreakObject((s16)markerId, x, y, z, map, false);
 }
 
-// game.c: silent despawn sweep of live actors recorded broken (no die effects).
 extern "C" void port_breakable_despawnBrokenRestores(s32 map);
 
 void RegisterBreakObject_Init() {
-    // Clear on file start
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBrokenObjects.clear(); });
 
-    // Re-break on save state restore
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         port_breakable_despawnBrokenRestores((s32)ev->nextMap);

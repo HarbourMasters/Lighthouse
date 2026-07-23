@@ -78,7 +78,6 @@ void BGS_func_8038FB84(ActorMarker *this, ActorMarker *other_marker){
     timedFunc_set_2(0.65f, (GenFunction_2) func_8038FB40, (uintptr_t) this, (uintptr_t) other_marker);
     func_8038F51C(thisActor);
     this->collidable = false;
-    // Anchor: broadcast this leg's hit so teammates' legs retract too.
     port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_TANKTUP, 1 << thisActor->unk10_12);
 }
 
@@ -88,7 +87,7 @@ void chTanktupLeg_update(Actor *this){
         this->marker->propPtr->unk8_3 = 1;
         marker_setCollisionScripts(this->marker, NULL, NULL, BGS_func_8038FB84);
     }
-    // Anchor: teammate hit this leg remotely — replay the pull-in here.
+    // Anchor: teammate hit this leg remotely — replay the pull-in.
     if(this->state == 1 && this->marker->collidable
         && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << this->unk10_12))){
         BGS_func_8038FB84(this->marker, NULL);

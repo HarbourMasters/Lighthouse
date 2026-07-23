@@ -19,7 +19,6 @@ void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 }
 
-// Release the FP twinkly minigame claim when our run ends (see VB_FP_TWINKLY_START).
 extern "C" void port_fpTwinkly_release(void) {
     NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
 }
@@ -57,8 +56,6 @@ static void Anchor_UpdateVileSync() {
     }
 }
 
-// Claims the final-boss fight for the first client that finds it spawned; live authority
-// streams Grunty's transform/state until the ending script takes over.
 static void Anchor_UpdateFightSync() {
     auto* anchor = Anchor::GetInstance();
     if (!anchor->isConnected || !anchor->IsSaveLoaded() || gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
@@ -69,7 +66,7 @@ static void Anchor_UpdateFightSync() {
     f32 yaw;
     s32 state, phase, mirror, vuln;
     if (!FightSync_GatherUpdate(pos, &yaw, &state, &phase, &mirror, &vuln)) {
-        return; // no boss to run (not spawned yet, despawned, or ending script active)
+        return;
     }
 
     if (!NetAuthority_IsClaimed(NET_ACTIVITY_FINAL_BOSS)) {
@@ -80,7 +77,6 @@ static void Anchor_UpdateFightSync() {
     }
 }
 
-// Volatile flags broadcast individually unless listed here (high-churn / per-frame).
 static bool Anchor_ShouldBroadcastVolatileFlag(s32 index) {
     static const std::unordered_set<s32> syncList = {
         VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM,
@@ -96,24 +92,14 @@ static bool Anchor_ShouldBroadcastVolatileFlag(s32 index) {
     return syncList.contains(index);
 }
 
-// Scoped (level/map) flags excluded from broadcast — per-client consume semantics not
-// covered by getClear. Keyed (space << 16) | index. Also applied to the entry-sync
-// (ScopedState.cpp), so these stay strictly local to each client.
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     static const std::unordered_set<s32> excluded = {
-        // One-shot cutscene triggers: each client plays its own on completion; sharing would
-        // replay it for teammates who already saw it. Persistent completion still syncs.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_5_TTC_UNKNOWN,            // TTC sandcastle drain
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, // FP xmas-tree ice shatter
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_30_RBB_UNKNOWN,           // RBB anchor/Snorkel chain cutscene
-        // GV water-pyramid rise: transient cutscene/map-warp handoff; stays local, reapplied
-        // live from JIGGY_42 in water_pyramidrot.c instead.
+        // GV water-pyramid rise: reapplied live from JIGGY_42 in water_pyramidrot.c.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_6_GV_UNKNOWN,
-        // MM Chimpy: shared, this replays the orange-return camera cutscene on map entry.
-        // JIGGY_9 syncs on its own, so the teammate's Chimpy just walks off it silently.
         (ANCHOR_FLAGSPACE_MAP_SPECIFIC << 16) | MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED,
-        // Lair entrance-open cutscene triggers: only the completer should play the warp
-        // cutscene. Persistent open state still syncs via SET_FLAG.
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1C_MM_OPEN,
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1D_TTC_OPEN,
         (ANCHOR_FLAGSPACE_LEVEL_SPECIFIC << 16) | LEVEL_FLAG_1E_CC_OPEN,
@@ -128,33 +114,28 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     if (excluded.contains((space << 16) | index)) {
         return true;
     }
-    // BGS jiggy-switch timers (walkway=3, maze=0xC): must stay local or the presser's flag
-    // blocks the teammate's own timer-start guard, stranding their jiggy with no hourglass.
+    // BGS jiggy-switch timers (walkway=3, maze=0xC): kept local.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_D_BGS_BUBBLEGLOOP_SWAMP &&
         (index == 3 || index == 0xC)) {
         return true;
     }
-    // TTC Blubber's gold quest gates (0-3): shared raw they'd race between clients. Kept local;
-    // ANCHOR_PUZZLE_TTC_BLUBBER carries progress and blubber.c replays it without camera/dialog.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE &&
         index <= TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG) {
         return true;
     }
-    // FP xmas tree star minigame (flags 2/3): per-player, shared raw it triggers the teammate's
-    // camera/dialog or drags them into the cutscene. Result syncs via ANCHOR_PUZZLE_FP_TREE_ICE.
+    // FP xmas tree star minigame (flags 2/3): per-player, kept local; result syncs via ANCHOR_PUZZLE_FP_TREE_ICE.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK &&
         (index == 2 || index == 3)) {
         return true;
     }
-    // FP bear cubs' presents-received flags: shared raw they'd fire the thank-you dialog (and
-    // jiggy celebration) on every teammate. Kept local; ANCHOR_PUZZLE_FP_PRESENTS syncs the result.
+    // FP bear cubs' presents-received flags: kept local; ANCHOR_PUZZLE_FP_PRESENTS syncs the result.
     if (space == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC &&
         (s32)map_getLevel(gsworld_getMap()) == (s32)LEVEL_5_FREEZEEZY_PEAK &&
         (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN ||
          index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
-    // Prevent multiple Bottles conversations from locking player position after dialog is over.
+    // SM_SPECIFIC_FLAG_10: Bottles-conversation position lock; kept local.
     if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN &&
         index == SM_SPECIFIC_FLAG_10) {
         return true;
@@ -162,14 +143,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
     return false;
 }
 
-// Which spendable item counts sync in realtime. Mumbo tokens + jiggy total always; eggs and
-// feathers only when the room shares consumables.
 static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
     switch (item) {
         case ITEM_1C_MUMBO_TOKEN:
         case ITEM_26_JIGGY_TOTAL:
-        // CCW worms/acorns intentionally excluded: concurrent +1/-1 on a shared pool would lose
-        // updates under absolute last-writer-wins, so those sync as deltas via CollectItem.cpp.
         case ITEM_D_EGGS:
         case ITEM_F_RED_FEATHER:
         case ITEM_10_GOLD_FEATHER:
@@ -200,19 +177,16 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->ClearDummies();
         Anchor::GetInstance()->PopulateDummies((GameMap)ev->nextMap);
         Authority_OnSelfMapChanged(ev->nextMap);
-        // Not connection-gated, so solo play also gets its vanilla resets when leaving a level.
         Anchor::GetInstance()->SweepUnoccupiedLevelState((GameMap)ev->nextMap);
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
 
-        // Entry-sync: pull current level/map scoped flags from teammates already there.
         auto* anchor = Anchor::GetInstance();
         if (anchor->isConnected && anchor->roomState.syncItemsAndFlags &&
             ev->nextMap != MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
             ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
 
-            // "Has entered level" resent on every level entry to keep live sync of entered levels.
             s32 enteredFlag = -1;
             switch (ev->nextMap) {
                 case MAP_2_MM_MUMBOS_MOUNTAIN:      enteredFlag = FILEPROG_B0_HAS_ENTERED_MM;  break;
@@ -236,10 +210,6 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)getDefaultBootMap(), gsworld_getExit());
     });
 
-    // First file load while connected: request team state now, before the map swaps. The request goes out
-    // during file select so the reply lands during the loading fade and its flags are applied before the
-    // world spawns — no reload needed. (Reloads are reserved for connecting/requesting after a save is
-    // already loaded, where the world is already up.)
     COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         anchor->hasCheckedRandoCompat = false;
@@ -261,11 +231,8 @@ void Anchor::RegisterHooks() {
         Anchor_UpdateVileSync();
         Anchor_UpdateFightSync();
 
-        // Team state is requested from OnGameLoad / OnConnected; here we just do per-frame follow-up once a save is loaded.
         if (anchor->isConnected && anchor->IsSaveLoaded()) {
-            // Spawn any jiggies a teammate spawned in this map while we were elsewhere.
             anchor->FlushPendingJiggySpawns();
-            // Warn once per session if this save doesn't match the room's randomizer identity.
             if (!anchor->hasCheckedRandoCompat) {
                 anchor->CheckRandoRoomCompatibility();
                 anchor->hasCheckedRandoCompat = true;
@@ -315,8 +282,6 @@ void Anchor::RegisterHooks() {
     });
 
     // Followers: suppress local random logic; network state drives these instead.
-    // CCW flower: grow when a teammate's watering set the stage's season fileprog, minus the
-    // waterer's camera/fanfare/jiggy.
     COND_VB_SHOULD(VB_CCW_FLOWER_REMOTE_GROW, EVENT_PRIORITY_NORMAL, isConnected, {
         s32 stageFlag = va_arg(args, s32);
         *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
@@ -324,8 +289,8 @@ void Anchor::RegisterHooks() {
 
     COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
 
-    // Lair door remote-open: the Door of Grunty shares its open flag (0xE2), already set when the arm
-    // arrives, so key off visual state (fully open == 0x1B) instead. Other lair doors keep flag-based.
+    // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off
+    // visual state (fully open == 0x1B) instead. Other lair doors stay flag-based.
     COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
         s32 doorActorId = va_arg(args, s32);
         s32 doorState = va_arg(args, s32);
@@ -334,7 +299,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // FP twinkly minigame: block the start if another client is mid-run, else claim it.
     COND_VB_SHOULD(VB_FP_TWINKLY_START, EVENT_PRIORITY_NORMAL, isConnected, {
         if (NetAuthority_IsClaimed(NET_ACTIVITY_FP_TWINKLY) && !NetAuthority_IsSelf(NET_ACTIVITY_FP_TWINKLY)) {
             *should = false;
@@ -343,7 +307,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Skip remote door-open camera locks; Jinxy's sneeze counts as ours if one egg fed was ours.
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, isConnected, {
         s32 doorId = va_arg(args, s32);
         switch (doorId) {
@@ -424,7 +387,6 @@ void Anchor::RegisterHooks() {
 
     // #region Flag sync
 
-    // Broadcast individual flag changes; remote applies use triggerEvent=0, so no echo.
     COND_HOOK(OnGameFlagSet, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -433,7 +395,6 @@ void Anchor::RegisterHooks() {
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
         for (s32 i = 0; i < ev->length; i++) {
             s32 index = ev->index + i;
-            // Transient level/map flags: scoped to same-level/same-map teammates, not queued.
             if (ev->flagSpace == ANCHOR_FLAGSPACE_LEVEL_SPECIFIC) {
                 if (Anchor_ScopedFlagExcluded(ev->flagSpace, index)) {
                     continue;
@@ -448,7 +409,6 @@ void Anchor::RegisterHooks() {
                 anchor->SendPacket_ScopedFlag((u8)ev->flagSpace, (s16)index, (u8)(mapSpecificFlags_get(index) ? 1 : 0));
                 continue;
             }
-            // Persistent flags: team-wide, queued for offline teammates.
             s32 bit;
             if (ev->flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
                 if (!Anchor_ShouldBroadcastVolatileFlag(index)) {
@@ -467,7 +427,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Realtime spendable item counts (absolute); remote applies use triggerEvent=0, no echo.
     COND_HOOK(OnItemCountChanged, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -479,7 +438,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Realtime learned-move sync; remote applies use triggerEvent=0, no echo.
     COND_HOOK(OnAbilityLearned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -489,7 +447,6 @@ void Anchor::RegisterHooks() {
         anchor->SendPacket_SetAbility((s16)ev->move, (u8)ev->value);
     });
 
-    // Realtime collectible pickups (jiggy/honeycomb/Mumbo token) for live despawn + bit credit.
     COND_HOOK(OnCollectibleCollected, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -499,8 +456,6 @@ void Anchor::RegisterHooks() {
         anchor->SendPacket_CollectItem((u8)ev->kind, (s32)ev->id);
     });
 
-    // Realtime shuffled-check obtainment; teammates mark it obtained and despawn their copy.
-    // Only fires for real collects (isInit covers save-load/remote applies), so no echo.
     COND_HOOK(OnRandoCheckObtained, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -510,8 +465,6 @@ void Anchor::RegisterHooks() {
         anchor->SendPacket_SetCheckStatus((s32)ev->randoCheckId, (s32)ev->map);
     });
 
-    // Non-check-derived rando save flags (currently only MM bridge-repair dialog) ride SET_FLAG.
-    // Check-derived RANDO_INF flags are recomputed locally instead, so excluded here.
     COND_HOOK(SetRandoInfFlag, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -530,7 +483,6 @@ void Anchor::RegisterHooks() {
         }
     });
 
-    // Realtime jiggy spawns (witch switch, minigame reward) for same-map teammates.
     COND_HOOK(OnJiggySpawned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
@@ -540,14 +492,11 @@ void Anchor::RegisterHooks() {
         anchor->SendPacket_SpawnJiggy((s16)ev->jiggyId, ev->x, ev->y, ev->z);
     });
 
-    // Timed jiggy expired: drop it from the spawn-persistence record, or the per-frame flush
-    // resurrects it a frame after the vanilla despawn.
     COND_HOOK(OnTimedJiggyExpired, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);
         port_jiggySpawn_remove(ev->jiggyId);
     });
 
-    // Push the full flag state to teammates on save.
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         Anchor::GetInstance()->SendPacket_UpdateTeamState();
     });

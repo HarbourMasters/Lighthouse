@@ -133,7 +133,6 @@ void chHoneycomb_update(Actor *this){
         }
     }//L802CA098
 
-    // [port] Anchor: re-check the switch's map flag every frame so a teammate's press reveals it here too.
     {
         s32 gateFlag = -1;
         if(local->uid == HONEYCOMB_B_GV_CACTUS) gateFlag = 0xd;
@@ -173,8 +172,6 @@ void chHoneycomb_update(Actor *this){
     }
 }
 
-// [port] Anchor: spawns our copy of a switch-revealed honeycomb after the flag syncs from a
-// teammate's press. Safe to call repeatedly; the spawn dedupes an already-revealed copy.
 extern void __baMarker_8028BA00(s32);
 void chHoneycomb_netRevealFromSwitch(void){
     s32 uid = -1;

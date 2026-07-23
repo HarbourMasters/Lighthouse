@@ -67,7 +67,6 @@ void chBuriedPyramid_update(Actor *this){
         __chBuriedPyramid_setState(this, 1);
     }//L8038FE48
 
-    // Anchor: catch up raised level when a teammate feeds the statue (no cutscene).
     if(this->state == 1){
         s32 flagState = fileProgressFlag_getN(FILEPROG_F8_KING_SANDYBUTT_PYRAMID_STATE, 2);
         if(flagState > local->raised_state){

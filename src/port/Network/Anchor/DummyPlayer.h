@@ -49,7 +49,7 @@ public:
     void dummy_setScale(f32 scale);
     void dummy_setTransformation(Transformation transform);
     Transformation dummy_getTransformation();
-    // Active bottles-bonus effect mask (D_803635EC bitfield) synced from the remote player.
+    // Bottles-bonus effect mask (D_803635EC bitfield).
     void dummy_setBottlesBonus(s32 mask);
     void dummy_setVisible(s32 arg0);
     void dummy_setYDisplacement(f32 arg0);
@@ -79,9 +79,8 @@ public:
     // eye/mouth
     void dummy_setEyeState(bool squint, bool wink, bool isHat);
     AnimCtrl* dummy_getAnimCtrl();
-    // Tracked by marker, not Actor* — raw pointers go stale on despawn compaction.
     ActorMarker* dummy_getMarker() const { return dummyMarker; }
-    void dummy_despawnActor(void); // despawns the stand-in and its shadow
+    void dummy_despawnActor(void);
 
 private:
     uint32_t PlayerID;

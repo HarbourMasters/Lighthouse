@@ -11,7 +11,6 @@ void __chjujuhitbox_initialize_all(ActorMarker *, s32);
 s32 subaddie_getYawToPlayer(Actor *);
 void func_80353580(ActorMarker *);
 
-// Anchor: number of segments the team has knocked off, from the synced prefix mask.
 static s32 mm_juju_sharedKnocked(void) {
     s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_MM_JUJU) & 0xF;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1) + ((bits >> 3) & 1);
@@ -83,7 +82,6 @@ void func_80388BEC(NodeProp *node, ActorMarker *marker) {
             if (func_80388B30(temp_v0, 90.0f)) {
                 closest_actor->state = 1;
                 ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4++;
-                // Anchor: broadcast the new knocked-off count so teammates' totems match.
                 port_puzzleStep_orBits(ANCHOR_PUZZLE_MM_JUJU, (1 << ((ActorLocal_JujuHitbox *) &closest_actor->local)->unk4) - 1);
                 func_803892A8(((ActorLocal_JujuHitbox *) &closest_actor->local)->jujus);
                 func_80353580(marker);
@@ -143,10 +141,8 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        // Anchor: restore segments knocked off this session instead of resetting.
         jujuCtlPtr->unk4 = mm_juju_sharedKnocked();
         if (jujuCtlPtr->unk4 >= 4) {
-            // Anchor: fully solved already - totem is gone.
             marker_despawn(this->marker);
             return;
         }
@@ -178,7 +174,6 @@ void chjujuhitbox_update(Actor *this) {
         __chjuju_updateCount(jujuCtlPtr->jujus);
     }
 
-    // Anchor: teammate knocked off more segments - catch up one per ready cycle.
     if (this->state == 3 && jujuCtlPtr->unk4 < mm_juju_sharedKnocked()) {
         this->state = 1;
         jujuCtlPtr->unk4++;

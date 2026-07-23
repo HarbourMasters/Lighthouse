@@ -124,7 +124,7 @@ void Authority_ApplyRemote(NetworkActivityId activity, uint32_t clientId, bool c
 
 void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map) {
     if (!online) {
-        JigsawPedestal_ClearClient(clientId); // an offline peer can't hold a pedestal
+        JigsawPedestal_ClearClient(clientId);
     }
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         ActivityState& state = sActivities[i];
@@ -135,7 +135,7 @@ void Authority_OnClientStateChanged(uint32_t clientId, bool online, int32_t map)
 }
 
 void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
-    JigsawPedestal_ClearClient(clientId); // peer entered a new map -> left any pedestal it held
+    JigsawPedestal_ClearClient(clientId);
     Anchor* anchor = Anchor::GetInstance();
     for (int32_t i = 0; i < NET_ACTIVITY_COUNT; i++) {
         ActivityState& state = sActivities[i];
@@ -149,14 +149,14 @@ void Authority_OnPeerMapLoad(uint32_t clientId, int32_t map) {
             // A peer just entered the map of an activity we own; make sure they know.
             anchor->SendPacket_AuthorityState((uint8_t)i, true);
             if (i == NET_ACTIVITY_FINAL_BOSS) {
-                FightSync_SendSnapshot(clientId); // catch up world objects; boss rides FIGHT_UPDATE
+                FightSync_SendSnapshot(clientId);
             }
         }
     }
 }
 
 void Authority_OnSelfMapChanged(int32_t map) {
-    JigsawPedestal_ReleaseAllSelf(); // we left the Lair map -> drop our pedestal claims
+    JigsawPedestal_ReleaseAllSelf();
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr) {
         return;

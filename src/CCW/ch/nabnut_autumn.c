@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Patches/Patches.h" // Anchor shared acorn-count (port_puzzleCount_*)
+#include "port/Patches/Patches.h"
 
 // Anchor: set during a remote completion replay; skips the finisher's camera/dialog.
 static s32 sNabnutRemote = 0;
@@ -52,7 +52,6 @@ void chnabnut_setState(Actor *this, s32 next_state) {
         this->marker->propPtr->unk8_3 = false;
         skeletalAnim_set(this->unk148, ASSET_22D_ANIM_NABNUT_BACKFLIP, 0.2f, 3.13f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
-        // Anchor: skip camera/dialog on a remote completion — those belong to the finisher.
         if (!sNabnutRemote) {
             func_80324E38(0.0f, 3);
             timed_setStaticCameraToNode(0.0f, 0xB);
@@ -64,7 +63,6 @@ void chnabnut_setState(Actor *this, s32 next_state) {
         skeletalAnim_set(this->unk148, ASSET_22E_ANIM_NABNUT_STAND, 0.2f, 3.53f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_1_LOOP);
         bundle_setYaw(this->yaw - 40.0f);
-        // Anchor: gate so two near-simultaneous finishers can't double-spawn the jiggy.
         if (!jiggyscore_isSpawned(JIGGY_4A_CCW_NABNUT)) {
             jiggy_spawn(JIGGY_4A_CCW_NABNUT, this->position);
         }
@@ -135,7 +133,6 @@ void chnabnut_update(Actor *this) {
         D_8038F350[2] = this->position[2];
         if (this->state == 0) {
             this->has_met_before = false;
-            // Anchor: seed from the team's shared returned count, not 0.
             local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
             sNabnutRemote = 0;
         }
@@ -160,7 +157,6 @@ void chnabnut_update(Actor *this) {
             player_setCarryObjectPoseInCylinder(this->position, 500.0f, 200.0f, ACTOR_2A9_ACORN, &this);
             if ((carriedObj_getActorId() == ACTOR_2A9_ACORN) && (ml_vec3f_distance(this->position, sp30) < 300.0f) && player_throwCarriedObject()) {
                 player_setThrowTargetPosition(D_8038F350);
-                // Anchor: broadcast our return as a delta (deltas compose; an absolute set wouldn't).
                 port_puzzleCount_add(ANCHOR_COUNT_CCW_NABNUT_ACORNS, 1);
                 local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
                 if (local->returned_acorn_count >= 6) {
@@ -170,7 +166,6 @@ void chnabnut_update(Actor *this) {
                 }
             }
         }
-        // Anchor: teammate returned acorns — on the final one, run thank-you without camera/dialog.
         if (this->state == NABNUT_STATE_1_SAD) {
             s32 sharedReturned = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
             if (sharedReturned > local->returned_acorn_count) {

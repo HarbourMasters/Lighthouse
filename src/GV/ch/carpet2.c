@@ -89,7 +89,6 @@ void func_8038D47C(Actor *this){
             }
             else if(!mapSpecificFlags_get(0xF) && mapSpecificFlags_get(0) + mapSpecificFlags_get(1) == 2){
                 mapSpecificFlags_set(0xF, true);
-                // Anchor: skip player-lock + camera if a teammate fed him.
                 if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, GV_DOOR_CAM_JINXY)){
                     func_8028F918(2);
                     gcStaticCamera_activate(0);

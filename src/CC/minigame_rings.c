@@ -84,12 +84,9 @@ void func_8038817C(void){
     Struct70s *tmp_v0;
 
     if(D_80389F90.unk0 != 0){
-        // Anchor: teammate completed the rings — tear our in-progress run down.
         if(jiggyscore_isSpawned(JIGGY_1C_CC_RINGS) && D_80389F90.unk0 < 9){
             func_80387FE8();
-            // Vanilla snaps the water to its risen height as the interrupted run tears down. When connected
-            // the finisher's WATER_RISE broadcast already started the animated rise on us (it lands at
-            // completion, before JIGGY_1C syncs ~2.1s later), so the isConnected VB listener suppresses this
+            // func_80387F80 snaps water to risen height; VB listener suppresses it when connected (rise already animating).
             if(EventSystem_Should(VB_CC_RINGS_SNAP_WATER, true)){
                 func_80387F80();
             }
@@ -109,8 +106,6 @@ void func_8038817C(void){
             if(tmp_v0){
                 func_8034E78C((Struct73s *)tmp_v0, 0x190, 12.0f);
             }
-            // [port] Anchor: replay this animated rise on teammates in Clanker now, so a remote doesn't
-            // just snap when JIGGY_1C syncs at the end of the run (no-op offline).
             port_ccWater_broadcastRise(MAP_22_CC_INSIDE_CLANKER, 0x131, 0x190, 12.0f);
             D_80389F90.unk4 = 0.0f;
         }//L80388264

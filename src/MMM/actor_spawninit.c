@@ -305,7 +305,6 @@ void func_80388BDC(Actor *this) {
     case 1:
         this->yaw = 0.0f;
         if(mapSpecificFlags_get(MMM_SPECIFIC_FLAG_0_UNKNOWN)) {
-            // [port] Anchor: skip church door open cutscene.
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, MMM_DOOR_CAM_CHURCH))
                 gcStaticCamera_activate(0x21);
             subaddie_set_state(this, 6);
@@ -337,7 +336,6 @@ void func_80388BDC(Actor *this) {
         if( (!this->unk38_31 && item_empty(ITEM_0_HOURGLASS_TIMER))
             || ((this->unk38_31) && (this->lifetime_value == 0.0f))
         ) {
-            // [port] Anchor: skip church door close cutscene.
             if(EventSystem_Should(VB_DOOR_OPEN_CAMERA, true, MMM_DOOR_CAM_CHURCH)){
                 if (!this->unk38_31) {
                     gcStaticCamera_activate(0x22);
@@ -379,7 +377,6 @@ void func_80389004(Actor *this){
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
     }
-    // Anchor: check live, not just at spawn, so a teammate breaking the window despawns ours to match.
     if (levelSpecificFlags_get(LEVEL_FLAG_2E_MMM_UNKNOWN)) {
         marker_despawn(this->marker);
     }

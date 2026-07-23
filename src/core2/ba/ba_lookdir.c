@@ -965,8 +965,6 @@ void func_8028FCE8(void) {
     D_8037BFD0 = D_8037BFBC;
 }
 
-// [port] Arms the exit-0x63 spawn path with an explicit position/yaw/exit_id, so a map
-// transition can open somewhere other than the local player's own spot.
 void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id) {
     ml_vec3f_copy(D_8037BFC0, position);
     D_8037BFCC = yaw;

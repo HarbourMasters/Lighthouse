@@ -6,7 +6,7 @@
 #include "port/Patches/Patches.h"
 
 typedef struct {
-    u8 initShatter; // [port] took the warped-in cutscene path at init; suppresses the live shatter
+    u8 initShatter; // took the warped-in cutscene path at init; suppresses the live shatter
 } ActorLocal_XmasTreeIce;
 
 Actor *chXmasTreeIce_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -74,7 +74,7 @@ void chXmasTreeIce_shatterIce(ActorMarker *marker){
     func_8030E6D4(SFX_B6_GLASS_BREAKING_1);
     coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     this->unk38_31 = 1;
-    // Anchor: broadcast the shatter; LEVEL_FLAG_29 stays local to avoid warping teammates into our cutscene.
+    // Anchor: broadcast the shatter; LEVEL_FLAG_29 stays local.
     port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_TREE_ICE, 0x1);
 }
 
@@ -103,7 +103,6 @@ void chXmasTreeIce_update(Actor *this) {
         if (jiggyscore_isCollected(JIGGY_2F_FP_XMAS_TREE)) {
             marker_despawn(this->marker);
         }
-        // Anchor: team already shattered the ice — set the local flag and remove the ice, no cutscene.
         else if (port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1) {
             if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
                 levelSpecificFlags_set(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE, true);
@@ -115,7 +114,6 @@ void chXmasTreeIce_update(Actor *this) {
             chXmasTreeIce_initiateShatter(this);
         }
     }
-    // Anchor: teammate completed the star while we were already inside — shatter live, no cutscene.
     else if (!local->initShatter && this->unk38_31 == 0
              && (port_puzzleStep_get(ANCHOR_PUZZLE_FP_TREE_ICE) & 0x1)) {
         if (!levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {

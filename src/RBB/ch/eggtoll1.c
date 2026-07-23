@@ -5,7 +5,7 @@
 
 extern void timed_exitStaticCamera(f32);
 
-// Anchor: toll extension stage is actor-local (unk8) with no flag, so sync it explicitly by secondaryId.
+// Anchor: toll extension stage is actor-local (unk8), no flag; keyed by secondaryId.
 extern void port_eggToll_onAdvance(s32 map, s32 secondaryId, s32 stage);
 extern s32 port_eggToll_getStage(s32 map, s32 secondaryId);
 extern ActorArray *suBaddieActorArray;
@@ -49,7 +49,6 @@ Struct_RBB_0_1 D_80390074[4] = {
 };
 
 /* .code */
-// Anchor: egg count matching a given extension stage, to keep unk0 consistent with a synced stage.
 static s32 eggToll_countForStage(s32 tollIdx, s32 stage) {
     s32 count = 0;
     if (stage >= 1) count += D_80390074[tollIdx].unk1;
@@ -125,7 +124,6 @@ void func_803866F4(Actor *this, s32 arg1){
     }
     if(arg1 == 3){
         local->unk8++;
-        // Anchor: broadcast the new extension stage to teammates.
         port_eggToll_onAdvance((s32)gsworld_getMap(), this->secondaryId, local->unk8);
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
         func_80324E38(0.0f, 3);
@@ -172,7 +170,6 @@ void func_803868F0(Actor *this){
             local->unk4 = (this->secondaryId == 0x13)? 1: local->unk4;
             local->unk4 = (this->secondaryId == 0x14)? 2: local->unk4;
             local->unk4 = (this->secondaryId == 0xB)?  3: local->unk4;
-            // Anchor: restore synced extension stage so teammates' progress shows on load.
             local->unk8 = port_eggToll_getStage((s32)gsworld_getMap(), this->secondaryId);
             local->unk0 = eggToll_countForStage(local->unk4, local->unk8);
             func_803866F4(this, 1);
@@ -187,7 +184,6 @@ void func_803868F0(Actor *this){
     }
 }
 
-// Anchor: apply a teammate's toll advance to the matching local toll, no camera pan / fanfare.
 void port_eggToll_remoteApply(s32 map, s32 secondaryId, s32 stage) {
     s32 i;
     (void)map;

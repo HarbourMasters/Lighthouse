@@ -16,9 +16,6 @@ extern "C" {
  * Fired when a flag bit is set (raised) in either flag space.
  */
 
-// Display name for a lair entrance-open "cutscene seen" flag, or nullptr for any other flag.
-// LEVEL flags themselves are excluded from sync (would trigger the warp cutscene remotely), so
-// completion announcements ride these instead.
 static const char* LevelOpenSeenFlagName(s16 flag) {
     switch (flag) {
         case 0x28:                            return "Mumbo's Mountain";
@@ -61,7 +58,7 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     SPDLOG_INFO("[Anchor][flagdiag] received SetFlag space={} flag={:#x}", flagSpace, flag);
 
     if (flagSpace == ANCHOR_FLAGSPACE_RANDO_INF) {
-        // Non-derived rando flag; set directly to avoid re-firing and echoing back on the wire.
+        // Non-derived rando flag; set directly.
         if (IS_RANDO && flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
             RANDO_SAVE_FLAGS[flag].flagState = 1;
         }
@@ -70,7 +67,6 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        // Replay the matching effect live if the actor is spawned in our map.
         port_notedoor_remoteOpen(flag);
         port_breakable_remoteBreak(flag);
         port_leveldoor_remoteOpen(flag);

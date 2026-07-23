@@ -141,7 +141,6 @@ void func_8038756C(Actor *this, s32 arg1){
     f32 sp24[3];
     
     if(arg1 == 1){
-        // Anchor: sequence finished, clear the remote-driven flag for the next trigger.
         sCraneRemote = 0;
         if(this->state != 0){
             sp6C[0] = 0.0f;
@@ -158,7 +157,6 @@ void func_8038756C(Actor *this, s32 arg1){
     }//L80387610
 
     if(arg1 == 2){
-        // Anchor: tell teammates to replay the lower.
         if (!sCraneRemote) {
             port_jiggyCrane_broadcast(2);
         }
@@ -181,19 +179,16 @@ void func_8038756C(Actor *this, s32 arg1){
         timedFunc_set_1(1.1f, (GenFunction_1)func_8038718C, (uintptr_t)this->marker);
     }//L80387704
 
-    // Anchor: every same-map player races the same window, so start the hourglass HUD here too.
     if(arg1 == 3){
         item_set(ITEM_6_HOURGLASS, 1);
         item_set(ITEM_0_HOURGLASS_TIMER, 0x3bf);
     }
 
-    // Leaving the timed stage (locally or via the remote raise) always clears the hourglass.
     if(this->state == 3){
         item_set(ITEM_6_HOURGLASS, 0);
     }
 
     if(arg1 == 4){
-        // Anchor: tell teammates to replay the raise.
         if (!sCraneRemote) {
             port_jiggyCrane_broadcast(4);
         }
@@ -238,7 +233,6 @@ void func_803878B0(Actor *this){
         func_8038756C(this, 1);
     }
 
-    // Anchor: only the triggering player auto-raises off the timer; remote copies wait for the broadcast.
     if(this->state == 3 && !sCraneRemote){
         if(item_empty(ITEM_0_HOURGLASS_TIMER)){
             func_8038756C(this, 4);
@@ -246,7 +240,6 @@ void func_803878B0(Actor *this){
     }
 }
 
-// Anchor: apply a teammate's crane action (lower/raise), marked remote-driven to suppress camera/hourglass.
 void port_jiggyCrane_remoteApply(s32 stage) {
     s32 i;
 

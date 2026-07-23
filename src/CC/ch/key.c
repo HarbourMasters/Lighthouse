@@ -117,7 +117,7 @@ void chClankerKey_update(Actor *this){
         }
     }
     else{//L80386C40
-        // Anchor: teammate raised Clanker — snap the key to finished instead of leaving it un-turned.
+        // Anchor: teammate raised Clanker — snap the key to finished (state 5).
         if(this->state == 1 && jiggyscore_isSpawned(JIGGY_17_CC_CLANKER_RAISED)){
             CC_func_80386920(this, 5);
         }

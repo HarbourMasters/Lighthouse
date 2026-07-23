@@ -1,13 +1,8 @@
 // Note Collection Retention
 //
-// Persists which individual music notes are collected so they don't respawn on revisit.
 // Notes are identified by (mapId, spawn-order index) from the map's deterministic cube parse.
-//
-// Static notes are replaced with real actors tagged via ObjectExtension. Dynamic bundle
-// notes are also replaced, with identity stored in actor->local instead (bundle notes
-// survive sub-area save/restore, which copies the actor struct but assigns a new marker).
-//
-// Recording is always on; suppressing respawn + seeding ITEM_C_NOTE is behind a toggle.
+// Bundle notes store identity in actor->local (survives sub-area save/restore, which copies
+// the actor struct but assigns a new marker).
 //
 #include "port/ObjectExtension/ObjectExtension.h"
 #include <libultraship/bridge.h>
@@ -37,11 +32,9 @@ extern ActorInfo sumusicNote;
 namespace {
 
 #define CVAR_NOTE_RETENTION CVAR_ENHANCEMENT("Gameplay.NoteRetention")
-// Anchor forces retention on while connected, without touching the user's own CVar setting.
 static bool sForcedByAnchor = false;
 #define CVAR_VALUE (CVarGetInteger(CVAR_NOTE_RETENTION, 0) || sForcedByAnchor)
 
-// The note sprite asset id passed through VB_OVERRIDE_PROP_SPAWN identifies notes.
 constexpr s32 kNoteSpriteAsset = ASSET_6D6_SPRITE_MUSIC_NOTE;
 
 // Per-actor note identity. Parenthesized ctor avoids brace-init commas breaking event macros.
@@ -53,9 +46,8 @@ struct NoteRetentionData {
 };
 ObjectExtension::Register<NoteRetentionData> NoteRetentionDataRegister;
 
-// Identity for bundle notes, stored in actor->local: sub-area restore memcpy's the Actor
-// struct (local survives) but assigns a new marker (an extension wouldn't survive).
-// magic distinguishes our data from uninitialized garbage / notes we didn't spawn.
+// Identity for bundle notes, stored in actor->local (survives sub-area restore; a new marker
+// is assigned, so an extension wouldn't). magic distinguishes our data from garbage.
 constexpr uint32_t kNoteLocalMagic = 0x4E4F5445u; // 'NOTE'
 struct NoteLocal {
     uint32_t magic;
@@ -157,7 +149,7 @@ extern "C" void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) 
     *addr = (uint8_t*)s;
 }
 
-// Called from the actual pickup (MARKER_5F_MUSIC_NOTE case), not broad-phase collision.
+// Called from the actual pickup (MARKER_5F_MUSIC_NOTE), not broad-phase collision.
 extern "C" void port_noteRetention_onLocalNoteCollected(void* markerPtr) {
     if (!applyEnabled() || !systemActive()) {
         return;
@@ -188,7 +180,6 @@ extern "C" void port_noteRetention_onLocalNoteCollected(void* markerPtr) {
     }
 }
 
-// Apply a teammate's note pickup: record it, credit HUD/high-score, despawn if same map.
 extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap) {
     bool already = isCollected(mapId, noteIndex);
     setCollected(mapId, noteIndex);
@@ -198,12 +189,12 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
         if (level == (int32_t)level_get()) {
             item_inc(ITEM_C_NOTE);
         } else {
-            // Different level: can't touch live ITEM_C_NOTE, but still bump its high score.
+            // Different level: can't touch live ITEM_C_NOTE, still bump its high score.
             itemscore_noteScores_setLevel((enum level_e)level, countCollectedForLevel(level));
         }
     }
     if (sameMap) {
-        // Erase before despawn: OnActorDestroy's hook also erases this key, would invalidate it.
+        // Erase before despawn: OnActorDestroy's hook also erases this key.
         auto it = activeNoteSet.find(noteKey(mapId, noteIndex));
         if (it != activeNoteSet.end()) {
             ActorMarker* m = it->second;
@@ -216,15 +207,13 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
 }
 
 // Called from gsworld_load before cube parsing; fires on every re-parse (map load, intra-
-// level warps) even when OnMapLoad doesn't. Resets the index counter for index stability.
-// Does NOT clear activeNoteSet: our actors persist until actorArray_free, so must the set.
+// level warps). Resets the index counter.
 extern "C" void port_noteRetention_beginMapLoad(int32_t mapId) {
     (void)mapId;
     noteCounter = 0;
     noteActorQueue.clear();
 }
 
-// Called from actorArray_free: every note actor is gone, drop the live set + extension data.
 extern "C" void port_noteRetention_onActorsFreed(void) {
     for (auto& [key, marker] : activeNoteSet) {
         ObjectExtension::GetInstance().Remove<NoteRetentionData>(marker);
@@ -233,13 +222,11 @@ extern "C" void port_noteRetention_onActorsFreed(void) {
     noteActorQueue.clear();
 }
 
-// Anchor sets this on connect/disconnect. Re-runs the init so the COND_HOOK gates re-evaluate.
 extern "C" void port_noteRetention_setForced(int32_t forced) {
     sForcedByAnchor = forced != 0;
     ShipInit::Init(CVAR_NOTE_RETENTION);
 }
 
-// Dev/test (RemoteCollectSim): finds a live, uncollected note to feed into applyRemoteCollect.
 extern "C" int32_t port_noteRetention_debugPickLive(int32_t mapId) {
     for (auto& [key, marker] : activeNoteSet) {
         int32_t keyMap = (int32_t)(key >> 32);
@@ -263,18 +250,18 @@ void RegisterNoteRetention_Init() {
         int32_t mapId = (int32_t)gsworld_getMap();
         int32_t noteIndex = noteCounter++;
         if (!indexInRange(mapId, noteIndex)) {
-            return; // out of addressable range: leave as a vanilla sprite prop
+            return; // out of addressable range
         }
 
-        // From here we own this note: suppress the static sprite prop.
+        // We own this note: suppress the static sprite prop.
         *should = true;
 
         if (activeNoteSet.count(noteKey(mapId, noteIndex))) {
-            return; // a live actor already exists (re-parse): don't duplicate it
+            return; // a live actor already exists (re-parse)
         }
 
         if (applyEnabled() && isCollected(mapId, noteIndex)) {
-            return; // already collected and retention on: don't respawn it
+            return; // already collected and retention on
         }
 
         QueuedNote queued;
@@ -287,7 +274,7 @@ void RegisterNoteRetention_Init() {
         noteActorQueue.push_back(queued);
     });
 
-    // Flush queued notes into actors. actor_new does not re-fire OnActorSpawn, so no recursion.
+    // Flush queued notes into actors. actor_new does not re-fire OnActorSpawn.
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         if (!systemActive() || noteActorQueue.empty()) {
             return;
@@ -303,7 +290,7 @@ void RegisterNoteRetention_Init() {
             Actor* note = actor_new(pos, 0, &sumusicNote, ACTOR_FLAG_UNKNOWN_21);
             ActorMarker* marker = (note != nullptr) ? note->marker : nullptr;
             if (marker != nullptr) {
-                // Key on the marker (stable across the actor's life and what the collision event hands us).
+                // Key on the marker (stable across the actor's life).
                 ObjectExtension::GetInstance().Set<NoteRetentionData>(marker, NoteRetentionData(q.mapId, q.noteIndex));
                 activeNoteSet[noteKey(q.mapId, q.noteIndex)] = marker;
             }
@@ -311,34 +298,33 @@ void RegisterNoteRetention_Init() {
         }
     });
 
-    // Bundle notes continue the map's index counter; substitute our own actor (identity in
-    // local) and re-apply vanilla physics. Detected by actor type, so romhack-agnostic.
+    // Bundle notes continue the map's index counter; identity stored in actor->local.
     COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, true, {
         bundle_e bundleId = (bundle_e)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
-        va_arg(args, s32); // index within the bundle (unused: we use our own counter)
+        va_arg(args, s32); // index within the bundle (unused)
         f32* position = va_arg(args, f32*);
         Actor** actorOut = va_arg(args, Actor**);
 
         if (!systemActive() || bundleInfo == nullptr || bundleInfo->actor_id != ACTOR_51_MUSIC_NOTE) {
-            return; // not our note bundle: leave it to vanilla (or rando)
+            return; // not our note bundle
         }
 
         int32_t mapId = (int32_t)gsworld_getMap();
         int32_t noteIndex = noteCounter++;
         if (!indexInRange(mapId, noteIndex)) {
-            return; // out of addressable range: let vanilla spawn it normally
+            return; // out of addressable range
         }
 
-        // From here we own this note: suppress the vanilla bundle spawn.
+        // We own this note: suppress the vanilla bundle spawn.
         *should = true;
 
         int64_t key = noteKey(mapId, noteIndex);
         if (activeNoteSet.count(key)) {
-            return; // a live actor already exists (re-trigger this load): don't duplicate
+            return; // a live actor already exists (re-trigger this load)
         }
         if (applyEnabled() && isCollected(mapId, noteIndex)) {
-            return; // already collected and retention on: don't respawn it
+            return; // already collected and retention on
         }
 
         int32_t pos[3];
@@ -360,7 +346,6 @@ void RegisterNoteRetention_Init() {
         *actorOut = note;
     });
 
-    // Prevent restoration from save states, as actors get re-added by the cubeprop parse.
     COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
         if (!systemActive() || ev->actor == nullptr) {
@@ -375,10 +360,7 @@ void RegisterNoteRetention_Init() {
         event->Cancelled = true;
     });
 
-    // Collection is recorded in port_noteRetention_onLocalNoteCollected (real pickup), not
-    // here on broad-phase OnActorCollision.
-
-    // Seed the level's note counter from collected notes so totals stay reachable.
+    // Seed the level's note counter from collected notes.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
         if (!systemActive() || !applyEnabled()) {
@@ -387,7 +369,7 @@ void RegisterNoteRetention_Init() {
         item_set(ITEM_C_NOTE, countCollectedForLevel(ev->levelId));
     });
 
-    // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress while retention is on.
+    // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress them.
     COND_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_NORMAL, true, {
         s32 textId = va_arg(args, s32);
         if (!applyEnabled()) {
@@ -405,7 +387,6 @@ void RegisterNoteRetention_Init() {
         }
     });
 
-    // Clean up per-marker data when actors are destroyed (marker pointers get reused).
     COND_HOOK(OnActorDestroy, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnActorDestroy* ev = (OnActorDestroy*)event;
         if (ev->actor == nullptr) {
@@ -424,7 +405,7 @@ void RegisterNoteRetention_Init() {
         }
     });
 
-    // bcopy's scratch-slot save buffer doesn't reliably carry our bits; sync them in first.
+    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in.
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_HIGH, CVAR_VALUE, [](IEvent* event) {
         OnSaveFileSave* ev = (OnSaveFileSave*)event;
         SaveData* buf = (SaveData*)ev->saveBuffer;

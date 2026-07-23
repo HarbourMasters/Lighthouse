@@ -9,7 +9,7 @@ extern "C" {
 /**
  * SET_ABILITY
  *
- * Realtime sync of a learned move. Not queued — team state converges the full bitfield anyway.
+ * Realtime sync of a learned move. Not queued.
  */
 
 void Anchor::SendPacket_SetAbility(s16 move, u8 value) {

@@ -26,7 +26,7 @@ void Anchor::SendPacket_DamagePlayer(u32 clientId, u8 damageEffect, u8 damage) {
 }
 
 void Anchor::HandlePacket_DamagePlayer(nlohmann::json& payload) {
-    return; // no-op for now
+    return; // unimplemented
     uint32_t clientId = payload.at("clientId").get<uint32_t>();
 
     AnchorClient& anchorClient = clients[clientId];

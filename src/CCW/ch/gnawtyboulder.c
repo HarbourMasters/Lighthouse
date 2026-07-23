@@ -121,7 +121,7 @@ void chGnawtyBoulder_update(Actor *this) {
         }
         return;
     }
-    // Anchor: teammate broke the boulder — despawn live (no break cutscene) instead of only on reload.
+    // Anchor: teammate broke the boulder — despawn live (no break cutscene).
     if (this->state == 1
         && levelSpecificFlags_get(LEVEL_FLAG_25_CCW_UNKNOWN)
         && gsworld_getMap() != MAP_43_CCW_SPRING) {

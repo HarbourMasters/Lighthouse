@@ -22,7 +22,7 @@ extern void player_setIdealRotation(f32[3]);
 extern f32 func_8033229C(ActorMarker *);
 void func_8034DF30(Struct6Ds *, f32[3], f32[3], f32);
 
-// [port] ActorLocal_FinalBoss moved to fight.h for the Anchor fight-sync layer.
+// ActorLocal_FinalBoss moved to fight.h for the Anchor fight-sync layer.
 
 f32 fight_D_80391380[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 f32 fight_D_80391390[4] = { 0.33f, 0.33f, 0.33f, 1.0f };
@@ -339,7 +339,7 @@ void __chfinalboss_dropHealth(ActorMarker *marker) {
 }
 
 void chfinalboss_despawnFlightPad(void) {
-    // Anchor: a follower that joined late never spawned one; also replayed remotely.
+    // Anchor: a follower that joined late never spawned one.
     if (__chFinalBossFlightPadMarker == NULL) {
         return;
     }
@@ -432,7 +432,6 @@ void chfinalboss_func_80387110(ActorMarker *marker, f32 arg1[3], f32 arg2, s32 a
         D_80392768[i] = (sp2C[i] - arg1[i]) / arg2 - (D_80392778[i] * arg2 / 2);
     }
     if (arg3 == 0) {
-        // Anchor: remember the lead so followers can reproduce this aim (see the global above).
         __chFinalBossFireballFlightTime = arg2;
         SPAWNQUEUE_ADD_1(chfinalboss_func_80386FD8, marker);
     }
@@ -1213,7 +1212,6 @@ void __chfinalboss_spawnStatue(enum ch_bossjinjo_e statue_id) {
     }
     sp1C->lifetime_value = (statue_id == BOSSJINJO_5_JINJONATOR) ? 5.25f : 1.54f;
     sp1C->actorTypeSpecificField = statue_id;
-    // Anchor: raise the same statue on followers, skipping the trigger's camera pan.
     FightSync_OnStatueSpawned(statue_id);
 }
 
@@ -1227,7 +1225,6 @@ void __chfinalboss_spawnSpellBarrier(ActorMarker *marker) {
     actor = marker_getActor(marker);
     actor->partnerActor = spawn_child_actor(ACTOR_3AB_GRUNTY_SPELL_BARRIER, &actor)->marker;
     __chFinalBossSpellBarrierActive = true;
-    // Anchor: raise the barrier on followers too.
     FightSync_OnBarrierSpawned();
 }
 
@@ -2019,7 +2016,7 @@ void chfinalboss_collisionPassive(ActorMarker *marker, ActorMarker *other_marker
 
     this = marker_getActor(marker);
     local = (ActorLocal_FinalBoss *)&this->local;
-    // Anchor: follower's hit is forwarded to the authority (with phase, to avoid lag misattribution).
+    // Anchor: follower's hit is forwarded to the authority (with phase).
     if (other_marker != NULL && FightSync_ForwardBossHit(local->phase)) {
         return;
     }
@@ -2126,7 +2123,6 @@ void chfinalboss_update(Actor *this){
         local->unk8 = 0;
         local->unk9 = 0;
         local->unkB = 0;
-        // Anchor: fresh boss spawn — new fight (or re-entry after voiding out).
         FightSync_OnBossSpawned();
 
         for(i = 0; i < 4; i++){ 
@@ -2248,7 +2244,6 @@ void chfinalboss_setBossDefeated(void) {
 
     sp4C = actorArray_findActorFromActorId(ACTOR_38B_GRUNTILDA_FINAL_BOSS);
     sp48 = (ActorLocal_FinalBoss *)&sp4C->local;
-    // Anchor: jinjonator release starts the fixed ending script; every client runs it locally from here.
     FightSync_OnBossDefeated();
     sp34 = chstonejinjo_getBreakUpTime();
     temp_f20 = sp34 + chjinjonator_80391234();

@@ -5,20 +5,16 @@
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnGameSave, int32_t fileNum;)
 DEFINE_EVENT(OnGameLoad, int32_t fileNum;)
-// Fired when a save slot is erased, so the on-disk file is removed too (not just memory).
 DEFINE_EVENT(OnGameErase, int32_t gameNum;)
 // flagSpace = AnchorFlagSpace; length = 1 for single sets, bit count for setN.
 DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int32_t length;)
-// Fired after any item count change; count is the resulting absolute value.
+// count is the resulting absolute value.
 DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
-// Fired when a collectible is picked up. kind = AnchorCollectibleSpace.
+// kind = AnchorCollectibleSpace.
 DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
-// Fired when a move's learned state changes. move = ability_e; value = 1 learned, 0 cleared.
+// move = ability_e; value = 1 learned, 0 cleared.
 DEFINE_EVENT(OnAbilityLearned, int32_t move; int32_t value;)
-// Fired when a jiggy actor is spawned (witch switch, minigame reward, etc.).
 DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
-// Fired when a timed jiggy (BGS switch challenges) expires. Must drop the spawn-persistence
-// record here or the per-frame flush respawns it and blocks the switch reset.
 DEFINE_EVENT(OnTimedJiggyExpired, int32_t jiggyId;)
 DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)

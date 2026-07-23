@@ -108,7 +108,6 @@ void chlmonkey_update(Actor *this) {
                     subaddie_set_state(this, LMONKEY_STATE_4_LEAVING);
 
                     if (jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY)) {
-                        // Anchor: jiggy already spawned (teammate completed this) - walk off silently.
                         mapSpecificFlags_set(MM_SPECIFIC_FLAG_4_SHAKE, true);
                         subaddie_set_state(this, LMONKEY_STATE_3_WALKING);
                     }

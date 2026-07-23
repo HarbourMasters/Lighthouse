@@ -10,11 +10,9 @@ std::string CurrentRomhackLabel() {
     if (!port_isRomhack()) {
         return kVanillaLabel;
     }
-    // Prefer the canonical identifier so peers agree regardless of o2r filename.
     if (const char* id = port_getRomhackIdentifier()) {
         return id;
     }
-    // Unlisted hack: fall back to the filename-derived name.
     return port_getRomhackName();
 }
 

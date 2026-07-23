@@ -63,7 +63,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["state"]["noteScores"] = ScoreBytes(itemscore_noteScores_getSizeAndPtr);
     payload["state"]["savedItems"] = ScoreBytes(saveditem_getSizeAndPtr);
     payload["state"]["abilities"] = ScoreBytes(ability_getSizeAndPtr);
-    // Time scores use a (s32*, void**) accessor, so pack inline rather than via ScoreBytes.
+    // Time scores use a (s32*, void**) accessor, so packed inline.
     s32 tsSize;
     void* tsAddr;
     timeScores_getSizeAndPtr(&tsSize, &tsAddr);
@@ -126,7 +126,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
 
     if (payload.contains("state")) {
         auto& state = payload["state"];
-        // Direct byte copy bypasses the setters, so no OnGameFlagSet / collectible events fire.
+        // Direct byte copy bypasses the setters; no OnGameFlagSet / collectible events fire.
         if (state.contains("fileProgressFlags")) {
             ApplyTeamBytes(state["fileProgressFlags"], fileProgressFlag_getSizeAndPtr);
         }
@@ -145,8 +145,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         if (state.contains("noteScores")) {
             ApplyTeamBytes(state["noteScores"], itemscore_noteScores_getSizeAndPtr);
         }
-        // Per-level retention sets; takes effect on next map load (realtime collection packets
-        // handle already-spawned notes/jinjos).
+        // Per-level retention sets; takes effect on next map load.
         if (state.contains("noteRetention")) {
             ApplyTeamBytes(state["noteRetention"], port_noteRetention_getSizeAndPtr);
         }
@@ -156,8 +155,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         if (state.contains("abilities")) {
             ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);
         }
-        // In-memory session sets; takes effect on next map load (realtime BREAK_OBJECT /
-        // COLLECT_ITEM packets handle already-spawned objects).
+        // In-memory session sets; takes effect on next map load.
         if (state.contains("brokenObjects")) {
             port_breakable_restoreBroken(state["brokenObjects"].get<std::vector<int32_t>>());
         }
@@ -183,8 +181,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             port_hutSmash_restore(state["huts"].get<std::vector<int32_t>>());
         }
 
-        // Recompute cached HUD counts the overwrites above bypassed. Guarded since team state
-        // can arrive before the game has fully loaded.
+        // Recompute cached HUD counts the overwrites above bypassed.
         if (IsSaveLoaded()) {
             if (state.contains("jiggies")) {
                 func_8034798C();
@@ -219,7 +216,7 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
                 }
             }
 
-            // Per-level best times (truncated u16 each); copy into an aligned buffer first.
+            // Per-level best times (truncated u16 each).
             if (state.contains("timeScores")) {
                 auto incoming = state["timeScores"].get<std::vector<u8>>();
                 u16 ts[0xB] = { 0 };
@@ -252,18 +249,12 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
             }
         }
 
-        // Adopted snapshot may include session records for levels nobody occupies anymore.
         SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
 
         Notification::Emit({
             .message = "Save updated from team",
         });
 
-        // Adopting team state overwrites flags via a direct byte copy, so actors already spawned (the
-        // world we're standing in) never re-check them. When this sync is the result of joining or a
-        // manual request while a save is already loaded, reload the current map from its entrance so every
-        // actor re-spawns against the newly-adopted flags. (On first file load the state arrives during the
-        // loading fade, before the world spawns, so no reload is armed.)
         if (reloadMapOnTeamState && IsSaveLoaded()) {
             reloadMapOnTeamState = false;
             transitionToMap(gsworld_getMap(), gsworld_getExit(), 1);

@@ -11,8 +11,6 @@ extern "C" {
 
 /**
  * FIGHT_STATE
- *
- * Final fight world object catch-up snapshot
  */
 
 void Anchor::SendPacket_FightState(u32 targetClientId) {

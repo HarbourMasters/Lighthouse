@@ -85,7 +85,7 @@ void func_8038DAB0(Actor *this){
         func_802D3CE8(this);
         this->initialized = true;
     }
-    // Anchor: checked live, not just at spawn, so a teammate breaking it despawns ours immediately.
+    // Anchor: checked live, not just at spawn.
     if (levelSpecificFlags_get(LEVEL_FLAG_38_CCW_UNKNOWN)) {
         marker_despawn(this->marker);
     }

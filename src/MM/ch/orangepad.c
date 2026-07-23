@@ -9,7 +9,6 @@
 void actor_update_func_80326224(Actor *);
 extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
 
-// Anchor: pads have no per-pad index, so sync lit state by spawn position via the breakable set.
 extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
@@ -46,7 +45,6 @@ void handleOrangeCollision(ActorMarker *marker) {
 
     if (closest_orange_pad && !(500.0f < distance_to_orange_pad)) {
         closest_orange_pad->state = 1;
-        // Anchor: broadcast this pad's lighting to teammates.
         port_breakable_recordBreak((s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2]);
 
         if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, 1, &distance_to_orange_pad)) {
@@ -109,7 +107,6 @@ void chorangepad_update(Actor *this) {
         closest_actor = marker_getActor(this->partnerActor);
     }
 
-    // Anchor: a teammate lit this pad (recorded by position) - light it here to match.
     if (this->state != 1
         && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
                                    (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {

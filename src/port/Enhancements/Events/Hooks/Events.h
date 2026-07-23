@@ -56,22 +56,12 @@ typedef enum VBehaviorID {
     VB_FP_TWINKLY_START,
     // Anchor: suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_DOOR_OPEN_CAMERA,
-    // CC rings water snap on run teardown (Anchor): when a teammate finishes the rings while we're still
-    // running, we tear our run down and vanilla snaps the water to its risen height. The isConnected
-    // listener (HookHandlers.cpp) suppresses that snap (should=false) because the finisher's WATER_RISE
-    // broadcast already started the animated rise on us, so snapping would blink it back to done.
+    // CC rings water snap on run teardown (Anchor): suppressed when a teammate finished the rings.
     VB_CC_RINGS_SNAP_WATER,
-    // Lair door remote-open "already handled" test (Anchor): the sRemoteOpenDoorActor arm animates a
-    // lair door open for teammates already in the room. It disarms when the door's persistent open flag
-    // is set (the default, passed in) — correct for the world entrances, whose synced "seen" flag is
-    // distinct from their "open" flag. The Grunty door is the exception: it's broadcast on its own open
-    // flag (0xE2), already set when the arm arrives, so the isConnected listener (HookHandlers.cpp)
-    // overrides it to key off the door's visual state (fully open = 0x1B) so it still animates live.
-    // Args: (s32 doorActorId, s32 doorState).
+    // Lair door remote-open "already handled" test (Anchor). Args: (s32 doorActorId, s32 doorState).
     VB_LEVELDOOR_REMOTE_OPEN_DONE,
 } VBehaviorID;
 
-// Door ids for VB_DOOR_OPEN_CAMERA, identifying which flag(s) gate camera ownership.
 typedef enum DoorCameraId {
     GV_DOOR_CAM_SUN,      // sun switch (flag 3)
     GV_DOOR_CAM_STAR,     // star switch / trapdoor (flag 5)

@@ -43,7 +43,7 @@ u32 mapSpecificFlags_getN(s32 idx, s32 n){
 
 u32 mapSpecificFlags_getClear(s32 i){
     u32 ret_val = mapSpecificFlags_get(i);
-    mapSpecificFlags_setEx(i, 0, 0); // consume clear stays local — don't broadcast
+    mapSpecificFlags_setEx(i, 0, 0);
     return ret_val;
 }
 

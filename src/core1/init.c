@@ -210,7 +210,6 @@ void mainLoop(void){
     }//L8023DF70
 #endif
 
-    // [port] Keep the deferred-despawn window open so Anchor's frame-update handlers despawn safely too.
     port_actorDespawn_beginDefer();
     CALL_EVENT(GameFrameUpdate);
     port_actorDespawn_endDefer();

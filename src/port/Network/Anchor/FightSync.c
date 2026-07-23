@@ -7,8 +7,7 @@
 #include "prop.h"
 #include "FINALE/fight.h"
 
-// chfinalboss.c globals the sync layer mirrors/replays. D_803927xx are the spell-spawn
-// scratch vectors; the pad/barrier globals feed the latecomer world snapshot.
+// chfinalboss.c globals. D_803927xx = spell-spawn scratch vectors.
 extern f32 D_80392758[3];
 extern f32 D_80392768[3];
 extern f32 D_80392778[3];
@@ -16,23 +15,15 @@ extern f32 __chFinalBossFireballFlightTime;
 extern ActorMarker *__chFinalBossFlightPadMarker;
 extern u8 __chFinalBossSpellBarrierActive;
 extern ActorArray *suBaddieActorArray;
-// Non-zero while the first-statue spawn cutscene is running; vanilla freezes the local
-// player through it, so a statue can never be fed until it ends.
 extern u8 sFinalBossJinjoStatueActivated;
-// Collision radius the boss brain uses when testing for a jinjo that has flown into Grunty.
+// Collision radius for the jinjo-into-Grunty test.
 extern f32 func_8033229C(ActorMarker *marker);
 
-// Set once the ending script takes over (chfinalboss_setBossDefeated); every client then
-// plays the fixed ending locally and stream/world packets are ignored.
+// Set once the ending script takes over (chfinalboss_setBossDefeated).
 static u8 sFightNetCinematic = 0;
-// True once we've mirrored a remote authority; on promotion, re-enter the current phase
-// so the resumed brain starts clean instead of from the mirror's partial internals.
 static u8 sFightNetWasFollower = 0;
-// Bit per jinjo statue id (1-4): its jinjo already slammed Grunty. Feeds the world
-// snapshot so a latecomer doesn't spawn a jinjo that circles forever.
+// Bit per jinjo statue id (1-4): its jinjo already slammed Grunty.
 static u8 sFightNetJinjoSlammed = 0;
-// FIGHT_STATE snapshot staged by FightSync_ApplyWorld, applied incrementally by the
-// follower tick since the replayed actors take frames to come into existence.
 static FightWorldSnapshot sFightNetSnap;
 static u8 sFightNetCatchupActive = 0;
 static u8 sFightNetCatchupSpawned[6]; // statue spawn already queued, indexed by statue id
@@ -76,7 +67,7 @@ static Actor *FightSync_FindStatueBase(s32 statue_id) {
     return NULL;
 }
 
-// Apply a networked egg via getHitByEgg(other == NULL), the vanilla counting path.
+// Apply a networked egg via getHitByEgg(other == NULL), the counting path.
 static void FightSync_ApplyJinjoStatueEgg(s32 statue_id) {
     Actor *base = FightSync_FindStatueBase(statue_id);
 
@@ -85,12 +76,6 @@ static void FightSync_ApplyJinjoStatueEgg(s32 statue_id) {
     }
 }
 
-// The first jinjo statue's break plays a static-camera cutscene on EVERY client
-// (chstonejinjo_breakOpen, gated by FILEPROG_D1), but the vanilla release runs only in the
-// authority's phase-4 brain when that first jinjo slams Grunty (chfinalboss_phase4_update). A
-// follower skips that brain, so its camera would stay locked on the cutscene node until it warped
-// out. Mirror the release here when we process the first slam, freeing the follower's camera the
-// same way — sFinalBossJinjoStatueActivated (set by the break, cleared here) makes it fire once.
 static void FightSync_ReleaseFirstStatueCutscene(void) {
     if (sFinalBossJinjoStatueActivated) {
         sFinalBossJinjoStatueActivated = 0;
@@ -107,11 +92,7 @@ void FightSync_OnBossSpawned(void) {
     sFightNetWasFollower = 0;
     sFightNetJinjoSlammed = 0;
     sFightNetCatchupActive = 0;
-    // The one-shot "already spawned" latches are cleared here (fresh fight / re-entry respawns the
-    // boss) rather than in FightSync_ApplyWorld, so a second world snapshot for the *same* boss (the
-    // authority re-sends on every peer map-load) can't re-run the catch-up and spawn a duplicate
-    // flight pad or spell barrier — a second barrier would orphan the first, which then stops
-    // following Grunty and lingers at her old position.
+    // Cleared on a fresh boss spawn, not in ApplyWorld, so a repeat snapshot can't re-run catch-up.
     sFightNetCatchupPadDone = 0;
     sFightNetCatchupBarrierDone = 0;
     for (i = 0; i < 6; i++) {
@@ -123,11 +104,11 @@ void FightSync_OnBossDefeated(void) {
     sFightNetCinematic = 1;
 }
 
-// --- authority replication hooks (each a no-op unless we are the live authority) --------------
+// --- authority replication hooks -------------------------------------------------------------
 
 void FightSync_OnSpellSpawned(s32 kind) {
     if (FightSync_IsLiveAuthority()) {
-        // Ballistic fireball (kind 0) carries lead time so each follower re-aims at its own player.
+        // Kind 0 (ballistic fireball) carries lead time; each follower re-aims at its own player.
         s32 leadMs = (kind == 0) ? (s32)(__chFinalBossFireballFlightTime * 1000.0f) : 0;
         FightSync_SendEvent(FIGHT_EV_SPELL, kind, leadMs, D_80392758, D_80392768, D_80392778);
     }
@@ -209,18 +190,15 @@ bool FightSync_GatherUpdate(f32 pos[3], f32 *yaw, s32 *state, s32 *phase, s32 *m
     *state = boss->state;
     *phase = local->phase;
     *mirror = local->mirror_phase5;
-    // Phase-2 vulnerability toggle (unkA); brain-internal, so it must be streamed explicitly
-    // or a follower picks the wrong hittable/invulnerable marker id and eggs pass through.
+    // Phase-2 vulnerability toggle (unkA).
     *vuln = local->unkA;
     return true;
 }
 
-// Mirror a streamed state/phase change, including the model-part toggles setState does,
-// so the follower's Grunty looks right in every state.
 static void FightSync_ApplyBossState(Actor *this, s32 phase, s32 state) {
     ActorLocal_FinalBoss *local = (ActorLocal_FinalBoss *)&this->local;
 
-    // Leaving the broomstick phase drops the motor sfx source our own intro path created.
+    // unk44_31 = broomstick motor sfx source.
     if (this->unk44_31 != 0 && phase != FINALBOSS_PHASE_1_BROOMSTICK) {
         sfxsource_freeSfxsourceByIndex(this->unk44_31);
         this->unk44_31 = 0;
@@ -239,7 +217,7 @@ static void FightSync_ApplyBossState(Actor *this, s32 phase, s32 state) {
         chfinalboss_func_80386628(this->marker, 1);
     }
     if (state == 0x21) {
-        // The broom shatters at the end of phase 4 — replay the burst for the follower.
+        // State 0x21 = broom shatters (end of phase 4); replay the burst.
         chfinalboss_createBroomstickParticles(this->position, ASSET_552_MODEL_BROOMSTICK_PIECE_HEAD, 1);
         chfinalboss_createBroomstickParticles(this->position, ASSET_553_MODEL_BROOMSTICK_PIECE_SHORT, 12);
         chfinalboss_createBroomstickParticles(this->position, ASSET_554_MODEL_BROOMSTICK_PIECE_LONG, 20);
@@ -309,13 +287,8 @@ void FightSync_ApplyWorld(const FightWorldSnapshot *snap) {
     }
     sFightNetSnap = *snap;
     sFightNetCatchupActive = 1;
-    // The "already spawned" latches (pad/barrier/statues) are NOT reset here — they clear on a fresh
-    // boss spawn (FightSync_OnBossSpawned) instead, so re-receiving a snapshot for the same boss
-    // re-drives egg/statue catch-up without spawning a duplicate flight pad or spell barrier.
-    // Seed the slammed set from the snapshot up front: a statue whose jinjo already slammed before
-    // we arrived is rebuilt by the catch-up (which despawns the re-hatched jinjo when it appears),
-    // but should the jinjo reach Grunty before that, the phase-4 slam guard (BossFollowerTick) uses
-    // this bit to remove it quietly rather than replaying the attack.
+    // Seed the slammed set from the snapshot so a jinjo that reaches Grunty before catch-up
+    // rebuilds its statue is removed by the phase-4 guard rather than replaying the attack.
     for (i = 0; i < 4; i++) {
         if (snap->jinjoGone[i]) {
             sFightNetJinjoSlammed |= 1 << (i + 1);
@@ -323,8 +296,6 @@ void FightSync_ApplyWorld(const FightWorldSnapshot *snap) {
     }
 }
 
-// Rebuild the snapshot piece by piece: queue missing spawns, replay eggs once bases exist,
-// clear jinjos whose slam we missed. Runs from the follower tick until caught up.
 static void FightSync_CatchupTick(Actor *boss) {
     Actor *base;
     Actor *jinjo;
@@ -366,12 +337,11 @@ static void FightSync_CatchupTick(Actor *boss) {
         if (sFightNetSnap.jinjoGone[i]) {
             jinjo = actorArray_findActorFromActorId(ACTOR_3A4_BOSS_JINJO_BASE_IDX + i + 1);
             if (jinjo != NULL) {
-                // Its slam happened before we arrived — remove it quietly.
                 sFightNetJinjoSlammed |= 1 << (i + 1);
                 marker_despawn(jinjo->marker);
                 sFightNetSnap.jinjoGone[i] = 0;
             } else if (base->state == CHBOSSJINJOBASE_STATE_3_SPAWNED_BOSS_JINJO) {
-                done = 0; // the stone jinjo is still cracking open; wait for the spawn
+                done = 0;
             }
         }
     }
@@ -399,8 +369,6 @@ static void FightSync_CatchupTick(Actor *boss) {
     }
 }
 
-// Follower gate + per-frame cosmetics (broom glow/trail) plus latecomer catch-up. Returns
-// true while a remote authority drives the boss, so chfinalboss_update skips the local brain.
 bool FightSync_BossFollowerTick(void *bossPtr) {
     Actor *boss = (Actor *)bossPtr;
 
@@ -409,8 +377,7 @@ bool FightSync_BossFollowerTick(void *bossPtr) {
     }
     FightSync_CatchupTick(boss);
 
-    // Detect a jinjo-into-Grunty collision locally too (display-only), so it pops immediately
-    // instead of waiting on the authority's slam event, which can arrive after ours has spawned.
+    // Detect a jinjo-into-Grunty collision locally (display-only) ahead of the authority's slam event.
     if (((ActorLocal_FinalBoss *)&boss->local)->phase == FINALBOSS_PHASE_4_JINJOS) {
         ActorMarker *jinjoMarker = chfinalboss_findCollidingJinjo(boss, func_8033229C(boss->marker));
         if (jinjoMarker != NULL) {
@@ -418,16 +385,12 @@ bool FightSync_BossFollowerTick(void *bossPtr) {
             s32 sid = (jinjo != NULL) ? jinjo->actorTypeSpecificField : 0;
             if (sid >= BOSSJINJO_1_ORANGE && sid <= BOSSJINJO_4_YELLOW &&
                 (sFightNetJinjoSlammed & (1 << sid))) {
-                // This jinjo's slam already happened before we got here (a re-entry catch-up rebuilt
-                // its statue and hatched it again) — remove the rebuilt jinjo quietly instead of
-                // replaying its attack particles + Grunty reaction.
                 marker_despawn(jinjoMarker);
             } else {
                 if (sid >= BOSSJINJO_1_ORANGE && sid <= BOSSJINJO_4_YELLOW) {
                     sFightNetJinjoSlammed |= 1 << sid;
                 }
                 chbossjinjo_attack(jinjoMarker);
-                // First real slam releases the follower's first-statue cutscene camera.
                 FightSync_ReleaseFirstStatueCutscene();
             }
         }
@@ -460,8 +423,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsFollower() || v0 == NULL) {
                 return;
             }
-            // Ballistic fireball (kind 0) is re-aimed at this client's own player, not replayed
-            // from the authority's arc, so every player has to dodge one.
+            // Kind 0 (ballistic fireball) is re-aimed at this client's own player.
             if (a == 0) {
                 if (boss != NULL) {
                     f32 src[3];
@@ -473,7 +435,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                 }
                 break;
             }
-            // Spawn helpers read these globals; replay through the same queue path as the authority.
+            // Spawn helpers read these globals; set them before queueing.
             for (i = 0; i < 3; i++) {
                 D_80392758[i] = v0[i];
                 D_80392768[i] = v1[i];
@@ -535,8 +497,6 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (jinjo != NULL) {
                 chbossjinjo_attack(jinjo->marker);
             }
-            // First slam from the authority releases the follower's first-statue cutscene camera
-            // (the vanilla release lives in the authority-only phase-4 brain).
             FightSync_ReleaseFirstStatueCutscene();
             break;
         }
@@ -545,11 +505,9 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsLiveAuthority() || boss == NULL) {
                 return;
             }
-            // Deter pause abuse: discard hits landed while our game is paused.
             if (getGameMode() == GAME_MODE_4_PAUSED) {
                 return;
             }
-            // Drop hits from a client whose view of the fight lagged past a phase change.
             if (((ActorLocal_FinalBoss *)&boss->local)->phase != (u8)a) {
                 return;
             }
@@ -560,16 +518,12 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
             if (!FightSync_IsLiveAuthority()) {
                 return;
             }
-            // Same pause guard as BOSS_HIT: no statue activations against a frozen fight.
             if (getGameMode() == GAME_MODE_4_PAUSED) {
                 return;
             }
             if (a == BOSSJINJO_5_JINJONATOR) {
                 chjinjonatorbase_netApplyEgg(b);
             } else {
-                // Drop eggs that arrive during the first-statue spawn cutscene: a follower isn't
-                // frozen like vanilla and could release a statue mid-cutscene and softlock the
-                // authority. The follower re-feeds once the statues are up.
                 if (sFinalBossJinjoStatueActivated != 0) {
                     return;
                 }
@@ -591,7 +545,6 @@ void FightSync_OnAuthorityChanged(void) {
     if (boss == NULL) {
         return;
     }
-    // Promoted mid-fight: re-enter the mirrored phase so the brain starts clean.
     if (sFightNetWasFollower && FightSync_IsLiveAuthority()) {
         sFightNetWasFollower = 0;
         local = (ActorLocal_FinalBoss *)&boss->local;

@@ -57,8 +57,7 @@ static void __chLeaky_updateFunc(Actor *this) {
         }
     }
 
-    // Anchor: teammate finished feeding Leaky (LEVEL_FLAG_2 synced) - lower water here too, minus
-    // camera pan and sandcastle warp.
+    // Anchor: teammate finished feeding Leaky (LEVEL_FLAG_2) - lower water here too.
     if (this->state == 1 && this->unk38_31 < 2 && levelSpecificFlags_get(LEVEL_FLAG_2_TTC_UNKNOWN)) {
         Struct70s *water = func_8034C5AC(300);
         if (water != NULL) {

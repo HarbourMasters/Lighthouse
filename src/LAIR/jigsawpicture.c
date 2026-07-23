@@ -25,7 +25,6 @@ typedef struct {
 void jigsawPicture_setState(Actor *this, s32 next_state);
 void updateJigsawPictureActor(Actor *this);
 
-// Anchor: pedestal id last buzzed for, so a blocked podium buzzes once per approach.
 static s32 sBuzzedPedestalField = 0;
 
 /* .data */
@@ -306,7 +305,7 @@ void jigsawPicture_setState(Actor *this, s32 next_state){
     vec3fArray_get_vec3f(func_803097A0(), getUnknownJigsawPictureIndex(this), sp50);
     switch (next_state) {
         case 1: //L8038F3BC
-            port_jigsawPedestal_release(this->actorTypeSpecificField); // disengage frees the lock
+            port_jigsawPedestal_release(this->actorTypeSpecificField);
             func_8028F918(0);
             break;
 
@@ -452,12 +451,10 @@ void updateJigsawPictureActor(Actor *this) {
         this->volatile_initialized = true;
         if (this->actorTypeSpecificField == 9) {
             this->unk1C[0] = 8.0f;
-            // Anchor: don't despawn if switch not pressed yet - let it appear live once synced.
             this->unk1C[1] = 0.0f;
         }
     }
 
-    // Anchor: stay dormant until FILEPROG_53 is set, then run the pad-appear once.
     if (this->actorTypeSpecificField == 9) {
         if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
             return;
@@ -499,7 +496,6 @@ void updateJigsawPictureActor(Actor *this) {
     controller_copyFaceButtons(0, sp7C);
     controller_copySideButtons(0, sp6C);
     func_8038EDBC(this);
-    // Lost the lock mid-interaction (tie-break or peer claim) -> disengage this frame.
     if (this->state != 1 && !port_jigsawPedestal_isSelf(this->actorTypeSpecificField)) {
         jigsawPicture_setState(this, 1);
         return;
@@ -520,7 +516,6 @@ void updateJigsawPictureActor(Actor *this) {
                 }
             }
             if (isBanjoOnPodium(this->marker) && this->has_met_before && !isPictureComplete(this) && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)) {
-                // Anchor: only engage if we hold the per-pedestal lock; else buzz once.
                 if (port_jigsawPedestal_tryClaim(this->actorTypeSpecificField)) {
                     jigsawPicture_setState(this, 2);
                 } else if (sBuzzedPedestalField != this->actorTypeSpecificField) {
@@ -528,7 +523,7 @@ void updateJigsawPictureActor(Actor *this) {
                     sBuzzedPedestalField = this->actorTypeSpecificField;
                 }
             } else if (sBuzzedPedestalField == this->actorTypeSpecificField) {
-                sBuzzedPedestalField = 0; // stepped off -> re-arm the buzzer
+                sBuzzedPedestalField = 0;
             }
             break;
 

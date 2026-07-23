@@ -13,7 +13,6 @@ extern "C" {
  * PLAYER_SFX
  *
  * Sound effects, only sent to other clients in the same scene as the player
- * currently no-op
  */
 
 void Anchor::SendPacket_PlayerSfx(u16 sfxId) {

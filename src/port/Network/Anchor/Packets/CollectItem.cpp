@@ -17,9 +17,6 @@ static const char* const kJiggyLevelNames[10] = {
 
 /**
  * COLLECT_ITEM
- *
- * Realtime collectible pickup. Sets the collected bit; despawns the actor live for teammates
- * in the same map. Counts are handled elsewhere (ITEM_COUNT packet / recomputed from score).
  */
 
 void Anchor::SendPacket_CollectItem(u8 kind, s32 id) {
@@ -53,13 +50,11 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             if (!jiggyscore_isCollected((enum jiggy_e)id)) {
                 jiggyscore_setCollected(id, true);
                 func_8034798C(); // recompute the current-level jiggy HUD count
-                // Level-count when in same level; otherwise, overall total
                 if ((s32)map_getLevel((enum map_e)map) == (s32)level_get()) {
                     code_73640_printItemCount(ITEM_E_JIGGY);
                 } else {
                     code_73640_printItemCount(ITEM_26_JIGGY_TOTAL);
                 }
-                // Vanilla only: announce the teammate's jiggy.
                 if (!IS_RANDO && ShouldShowNotifications()) {
                     size_t levelIdx = (size_t)(id - 1) / 10;
                     const char* where =
@@ -84,7 +79,6 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_HONEYCOMB:
             if (!honeycombscore_get((enum honeycomb_e)id)) {
                 honeycombscore_set((enum honeycomb_e)id, 1);
-                // Animate HUD for remote collection
                 item_inc(ITEM_13_EMPTY_HONEYCOMB);
                 if (!(item_getCount(ITEM_13_EMPTY_HONEYCOMB) < 6)) {
                     gcpausemenu_80314AC8(0);
@@ -121,7 +115,6 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
         case ANCHOR_COLLECTIBLE_PRESENT_RED:
         case ANCHOR_COLLECTIBLE_GOLD:
         case ANCHOR_COLLECTIBLE_ORANGE: {
-            // Shared-pool carried collectible (CCW worms/acorns, FP presents, TTC gold)
             enum item_e item;
             switch (kind) {
                 case ANCHOR_COLLECTIBLE_WORM:          item = ITEM_22_CATERPILLAR;  break;

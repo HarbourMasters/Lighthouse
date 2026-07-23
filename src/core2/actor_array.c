@@ -442,9 +442,7 @@ void actorArray_free(void) {
     // [port] Note retention: every note actor is about to be freed, so drop our
     // live-actor tracking (markers are being released here).
     port_noteRetention_onActorsFreed();
-    // [port] Anchor: same, for remote teammates' carried-collectible display copies.
     port_remoteCarry_reset();
-    // [port] Anchor: same, for dummy players' stand-in actor markers.
     port_anchorDummies_onActorsFreed();
 
     if (suBaddieActorArray != NULL) {
@@ -812,8 +810,6 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     s32 pos_z = position[2];
     s32 pos_copy[3] = { pos_x, pos_y, pos_z };
 
-    // [port] Pre-sized well past normal demand so growth (which moves the array and dangles any
-    // live Actor* held across this call) never fires in normal play.
     if(suBaddieActorArray == NULL){
         suBaddieActorArray = (ActorArray *)bk_malloc(sizeof(ActorArray) + ACTOR_ARRAY_INITIAL_CAP*sizeof(Actor));
         suBaddieActorArray->cnt = 0;
@@ -1168,7 +1164,7 @@ void marker_despawn(ActorMarker *marker){
         }
     }
     else{
-        // [port] Immediate-mode despawns skip the deferred branch's shadow-link cleanup; do it here too.
+        // [port] Shadow-link cleanup for immediate-mode despawns.
         if(actor->unk104){
             if(actor->modelCacheIndex != 0x108){
                 // Freeing a shadow-owner: unlink and free its shadow too.
@@ -1192,10 +1188,8 @@ void marker_despawn(ActorMarker *marker){
 
 void func_803283BC(void){
     D_8036E574 = 1;
-    // [port] Not clearing D_8036E578 here; func_803283D4 zeroes it after every sweep instead.
 }
 
-// [port] Extends the deferred-despawn window to Anchor's network handlers outside game_draw.
 void port_actorDespawn_beginDefer(void){
     D_8036E574 = 1;
 }
@@ -2255,7 +2249,6 @@ ActorMarker *func_8032B16C(enum jiggy_e jiggy_id) {
     }
 }
 
-// Anchor: find a live honeycomb's marker by id, for despawn when a teammate collects it.
 ActorMarker *actorArray_findHoneycombMarkerById(enum honeycomb_e id) {
     Actor* base;
     Actor* var_s0;

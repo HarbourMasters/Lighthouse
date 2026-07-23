@@ -50,7 +50,6 @@ Struct_FP_3E00 D_80391E80[] ={
     {LEVEL_FLAG_13_FP_UNKNOWN, MARKER_1FF_RED_PRESENT_COLLECTIBLE,   ACTOR_1F1_RED_PRESENT_COLLECTIBLE,   0x1F2}
 };
 
-// Anchor: per-cub sync data (puzzle bit, shared-pool kind, item id), indexed like D_80391E80.
 static const struct {
     s32 bit;
     s32 kind;
@@ -61,7 +60,7 @@ static const struct {
     { 0x4, ANCHOR_COLLECTIBLE_PRESENT_RED,   ITEM_21_RED_PRESENT },
 };
 
-// [port] D_80391E80 row for this cub, or -1. Same mapping the state machine derives inline (sp3C).
+// D_80391E80 row for this cub, or -1. Same mapping the state machine derives inline (sp3C).
 static s32 __chBearcub_cubIndex(Actor *this) {
     switch (this->marker->id) {
         case MARKER_1FA_POLAR_BEAR_CUB_BLUE:  return 0;
@@ -147,7 +146,7 @@ void func_8038A384(Actor *this){
             subaddie_set_state_with_direction(this, 2, randf2(0.0f, 0.9f), 1);
         }
 
-        // Anchor: reconcile the shared present pool — rebuild our carried count as collected minus delivered.
+        // Anchor: reconcile the shared present pool — carried = collected minus delivered.
         {
             s32 cubIdx = __chBearcub_cubIndex(this);
             if (cubIdx >= 0) {
@@ -162,8 +161,6 @@ void func_8038A384(Actor *this){
         }
     }//L8038A4E4
 
-    // Anchor: delivery progress syncs via a puzzle bit (flags stay local to avoid remote dialogs);
-    // replay a teammate's delivery silently.
     {
         s32 cubIdx = __chBearcub_cubIndex(this);
         if (cubIdx >= 0) {

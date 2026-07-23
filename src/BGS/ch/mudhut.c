@@ -81,11 +81,10 @@ void chMudHut_spawnExplosion(ActorMarker *this){
     if(this);
 }
 
-// Anchor: re-drop the hut's loot by slot (tmp); fullBundle=1 for a live smash, 0 for restore-on-reload.
 static void chMudHut_dropRecordedBundle(Actor *this, s32 tmp, s32 fullBundle){
     f32 pos[3];
     if(tmp < 0 || tmp >= 5){
-        return; // jiggy (or out of range): handled by JIGGY_SPAWN, not the hut
+        return; // jiggy / out of range: handled by JIGGY_SPAWN, not the hut
     }
     if(!fullBundle && tmp == 2){
         return; // note: spawn live but skip on reload
@@ -96,7 +95,6 @@ static void chMudHut_dropRecordedBundle(Actor *this, s32 tmp, s32 fullBundle){
     __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_80390B50[tmp], reinterpret_cast(s32, pos[0]), reinterpret_cast(s32, pos[1]), reinterpret_cast(s32, pos[2]));
 }
 
-// [port] Anchor: replay a teammate's smash live — break visual + the full drop.
 static void chMudHut_replaySmash(Actor *this, s32 tmp){
     sfx_playFadeShorthandDefault(SFX_5B_HEAVY_STUFF_FALLING, 1.0f, 28000, this->position, 0x12C, 0xBB8);
     subaddie_set_state(this, 2);
@@ -119,7 +117,7 @@ void chMudHut_update(Actor *this){
         if(!this->initialized){
             this->marker->collidable = false;
             this->initialized = true;
-            // Anchor: already smashed this session — restore broken and re-drop non-tracked loot.
+            // Anchor: already smashed this session — restore broken, re-drop non-tracked loot.
             tmp = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
             if(tmp >= 0){
                 this->state = 3;
@@ -162,11 +160,9 @@ void chMudHut_update(Actor *this){
                     else {
                         jiggy_spawn(JIGGY_23_BGS_HUTS, diffPos);
                     }
-                    // [port] Anchor: record + broadcast the smash so teammates break this same hut.
                     port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, tmp);
                 }
                 else {
-                    // [port] Anchor live: a teammate smashed this hut — break it + drop the full bundle.
                     tmp = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
                     if(tmp >= 0){
                         chMudHut_replaySmash(this, tmp);

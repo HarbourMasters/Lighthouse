@@ -10,8 +10,6 @@ extern "C" {
 
 /**
  * JIGGY_CRANE
- *
- * Syncs the RBB jiggy-crane minigame; same-map teammates replay it silently. Not persisted.
  */
 
 void Anchor::SendPacket_JiggyCrane(s32 stage) {

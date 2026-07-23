@@ -162,8 +162,7 @@ Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId) {
     return NULL;
 }
 
-// Builds the "<subject> collected/learned <item>" notification; subject is "You" or a
-// teammate's name for Anchor remote collects.
+// subject is "You" or a teammate's name for Anchor remote collects.
 static void EmitCheckNotification(RandoCheckId randoCheckId, const std::string& subject) {
     RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
     std::string prefix;

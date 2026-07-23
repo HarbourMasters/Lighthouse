@@ -95,10 +95,7 @@ void func_8038F610(Actor *this) {
 void func_8028F94C(s32, f32[3]);
 void func_8028F918(s32);
 
-// [port] Anchor: tracks whether this client took the head-raise look-at/freeze (balookat push) in
-// state 2, so state 3 always releases exactly what it pushed. The push was unconditional while the pop
-// became proximity-gated, so a finisher standing beyond the cutscene radius got frozen with no release;
-// the state 1->3 jump path (below) skips the push entirely, so an unconditional pop would over-pop.
+// Anchor: set when state 2 took the head-raise look-at/freeze push; state 3 releases it.
 static s32 sTanktupCameraPushed = 0;
 
 void chTanktup_update(Actor *this)
@@ -130,7 +127,7 @@ void chTanktup_update(Actor *this)
     actor_collisionOff(this);
     this->scale = 1.0f;
     sTanktupCameraPushed = 0;
-    // Anchor: adopt the team's already-retracted legs so their actors spawn pre-retracted.
+    // Anchor: adopt the team's already-retracted legs.
     {
       s32 legBits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
       for (sp44 = 0; sp44 < 4; sp44++)
@@ -154,7 +151,7 @@ void chTanktup_update(Actor *this)
       ;
     }
   }
-  // Anchor: team already completed Tanktup but our body is still idle — raise the head to match.
+  // Anchor: team completed Tanktup but our body is still idle (state 1) — raise the head to match.
   if (this->state == 1 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
   {
     subaddie_set_state_with_direction(this, 3, 0.0f, -1);
@@ -204,9 +201,6 @@ void chTanktup_update(Actor *this)
     {
       coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
       func_8028F94C(2, local->unk18);
-      // [port] Anchor: this look-at/freeze push is unconditional, but state 3's pop had been gated on
-      // proximity to the unk18 camera node — a finisher standing at a leg outside that radius was frozen
-      // and never released. Flag it so state 3 pops exactly what we pushed, regardless of proximity.
       sTanktupCameraPushed = 1;
     }
       if (actor_animationIsAt(this, 0.99f))
@@ -225,7 +219,6 @@ void chTanktup_update(Actor *this)
 
     case 3:
     {
-      // Anchor: head-raise can be teammate-driven, so gate camera/dialog on local proximity.
       f32 pp[3];
       s32 near;
       player_getPosition(pp);
@@ -248,9 +241,7 @@ void chTanktup_update(Actor *this)
     }
       if (actor_animationIsAt(this, 0.9f) != 0)
     {
-      // [port] Anchor: release the freeze/look-at whenever we took it in state 2, independent of the
-      // proximity check below — the `near` reference (unk18) is a camera node offset from the legs, so a
-      // finisher right next to Tanktup could read as "far" and stay locked. The dialog stays gated.
+      // Anchor: release the freeze/look-at if state 2 took it, independent of the proximity check below.
       if (sTanktupCameraPushed)
       {
         func_8028F918(0);

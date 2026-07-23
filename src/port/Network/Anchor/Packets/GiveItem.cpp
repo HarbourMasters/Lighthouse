@@ -10,8 +10,8 @@ extern "C" {
 
 /**
  * GIVE_ITEM
- * 
- * no-op
+ *
+ * unimplemented
  */
 
 uint8_t incomingIceTrapsFromAnchor = 0;

@@ -148,7 +148,6 @@ static void __chBlubber_updateFunc(Actor *this){
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
 
-    // Anchor: gold-quest progress rides ANCHOR_PUZZLE_TTC_BLUBBER since the map flags stay local.
     netBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
     if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
@@ -156,18 +155,15 @@ static void __chBlubber_updateFunc(Actor *this){
     if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
     }
-    // Anchor: quest already finished this session - don't bring Blubber back on (re)load.
     if (!this->volatile_initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         marker_despawn(this->marker);
         return;
     }
-    // Anchor: teammate's first delivery - adopt silently.
     if ((netBits & 0x1) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
         mapSpecificFlags_set(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN, true);
         this->unk138_23  = true; // half-gold dialog belongs to the deliverer
         this->has_met_before = true;
     }
-    // Anchor: teammate delivered the second bullion - dance/leave here too, minus camera/dialog.
     if (this->initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
         local = (ActorLocal_Blubber *)&this->local;
         mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
@@ -183,8 +179,7 @@ static void __chBlubber_updateFunc(Actor *this){
         return;
     
     if(!this->volatile_initialized){
-        // Anchor: rebuild the local gold count as collected - delivered, since carried gold is
-        // transient but doesn't respawn - otherwise undelivered gold is lost once everyone leaves TTC.
+        // Anchor: rebuild local gold count as collected - delivered (carried gold is transient).
         s32 goldBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
         s32 delivered = ((goldBits & 0x1) ? 1 : 0) + ((goldBits & 0x2) ? 1 : 0);
         s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;

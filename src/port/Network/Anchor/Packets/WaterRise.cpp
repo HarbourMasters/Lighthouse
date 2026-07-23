@@ -11,23 +11,20 @@
 extern "C" {
 #include "functions.h"
 #include "variables.h"
-// func_8034C5AC (xform-3 water group) and func_8034E78C (animate its dy) come from functions.h; used for
-// the CC remote replay below.
+// func_8034C5AC: xform-3 water group. func_8034E78C: animate its dy.
 }
 
 /**
  * WATER_RISE
  *
- * A rising water level animates only on the client that triggered it (lair: the switch cutscene in
- * func_802D5628/func_802D5260; CC rings: func_8034E78C on completion). A remote only receives the
- * trailing side effect — the water-level fileprog flag, or the JIGGY_1C spawn — at the END of that
- * animation, so its water snaps. This packet tells teammates the rise STARTED so they animate in step.
+ * A rising water level animates only on the client that triggered it (lair: switch cutscene in
+ * func_802D5628/func_802D5260; CC rings: func_8034E78C). Remotes otherwise only get the trailing
+ * fileprog flag / JIGGY_1C spawn at the end, snapping the water. This packet signals the rise start.
  *
- *   kind 0 (lair): the RBB-lobby water subaddie, driven every frame by func_802D5260. p1 = target level
- *     (1-3). A remote stashes it as a "pending level"; func_802D5260 eases toward that until the real
- *     flag catches up (then it's cleared).
- *   kind 1 (CC): the rings water (xform-3 dy) has no per-frame holder, so a remote just plays the same
- *     animated func_8034E78C. p1 = mesh id, p2 = target dy, dur = seconds.
+ *   kind 0 (lair): RBB-lobby water subaddie, driven every frame by func_802D5260. p1 = target level
+ *     (1-3), stashed by a remote as a "pending level" until the real flag catches up.
+ *   kind 1 (CC): rings water (xform-3 dy), no per-frame holder; remote replays func_8034E78C.
+ *     p1 = mesh id, p2 = target dy, dur = seconds.
  */
 
 enum { WATERRISE_KIND_LAIR = 0, WATERRISE_KIND_CC = 1 };
@@ -44,9 +41,8 @@ static int32_t lairLevelForFlag(int32_t levelFlag) {
     }
 }
 
-// Called from func_802D6264 (the lair switch/cutscene trigger) at the press. If the flag that the cutscene
-// will set at its end is a water-level flag, broadcast the rise now so teammates start animating in step
-// rather than waiting for that flag to sync ~6s later.
+// Called from func_802D6264 (the lair switch/cutscene trigger). If the flag the cutscene will set is
+// a water-level flag, broadcast the rise now.
 extern "C" void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag) {
     int32_t level = lairLevelForFlag(levelFlag);
     if (level == 0) {
@@ -55,21 +51,20 @@ extern "C" void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag
     Anchor::GetInstance()->SendPacket_WaterRise(waterMap, WATERRISE_KIND_LAIR, level, 0, 0.0f);
 }
 
-// func_802D5260 asks for the effective target level: max(flag-derived level, a not-yet-synced pending level
-// from a teammate's in-flight rise). Clears the pending once the real flag has caught up.
+// func_802D5260 asks for the effective target level: max(flag-derived level, pending level from a
+// teammate's in-flight rise). Clears the pending once the real flag catches up.
 extern "C" int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel) {
     auto it = sLairPendingLevel.find(map);
     if (it == sLairPendingLevel.end()) {
         return flagLevel;
     }
     if (flagLevel >= it->second) {
-        sLairPendingLevel.erase(it); // real flag arrived — pending no longer needed
+        sLairPendingLevel.erase(it);
         return flagLevel;
     }
     return it->second;
 }
 
-// CC rings: broadcast the animated rise (mesh id, target dy, duration) as the local run completes.
 extern "C" void port_ccWater_broadcastRise(int32_t map, int32_t waterId, int32_t targetDy, f32 duration) {
     Anchor::GetInstance()->SendPacket_WaterRise(map, WATERRISE_KIND_CC, waterId, targetDy, duration);
 }
@@ -105,8 +100,7 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
             sLairPendingLevel[map] = p1;
         }
     } else if (kind == WATERRISE_KIND_CC) {
-        // Only meaningful while we're actually in the water's map; on later entry func_80388104 sets it
-        // correctly (snapped) on its own.
+        // Only replay while in the water's map; on later entry func_80388104 snaps it on its own.
         if ((s32)gsworld_getMap() == map) {
             Struct70s* water = func_8034C5AC(p1);
             if (water != nullptr) {
@@ -117,8 +111,6 @@ void Anchor::HandlePacket_WaterRise(nlohmann::json& payload) {
 }
 
 void RegisterWaterRise_Init() {
-    // Pending rises are transient (cleared when their flag lands); drop any leftovers on save load so they
-    // never leak across files.
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sLairPendingLevel.clear(); });
 }
 

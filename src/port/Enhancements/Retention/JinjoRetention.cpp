@@ -1,11 +1,7 @@
 // Jinjo Collection Retention
 //
-// Vanilla resets ITEM_12_JINJOS every level entry, so all 5 jinjos must be collected in one
-// visit to earn the jiggy. This persists per-level collected colors across visits.
-//
-// Recording is always on; suppressing respawn is behind an enhancement toggle. If all 5 are
-// recorded but the jiggy isn't collected or spawned, retention is skipped for that level so
-// jinjos respawn and the jiggy stays earnable.
+// Vanilla resets ITEM_12_JINJOS (per-level jinjo count) every level entry; this persists
+// per-level collected colors across visits.
 //
 #include <libultraship/bridge.h>
 #include <libultraship/bridge/consolevariablebridge.h>
@@ -24,10 +20,8 @@ extern "C" {
 #include "functions.h"
 }
 
-// True if this session's spawned-jiggy record has it (re)appearing on entry. See SpawnJiggy.cpp.
 extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 
-// Anchor forces retention on while connected, without touching the user's own CVar setting.
 static bool sForcedByAnchor = false;
 #define CVAR_JINJO_RETENTION CVAR_ENHANCEMENT("Gameplay.JinjoRetention")
 #define CVAR_VALUE (CVarGetInteger(CVAR_JINJO_RETENTION, 0) || sForcedByAnchor)
@@ -41,7 +35,6 @@ static bool applyEnabled() {
     return CVAR_VALUE;
 }
 
-// Anchor sets this on connect/disconnect. Re-runs the init so the COND_HOOK gates re-evaluate.
 extern "C" void port_jinjoRetention_setForced(int32_t forced) {
     sForcedByAnchor = forced != 0;
     ShipInit::Init(CVAR_JINJO_RETENTION);
@@ -79,7 +72,6 @@ static void setCollectedBits(int32_t level, u8 bits) {
     }
 }
 
-// The level's jinjo jiggy (the "all five jinjos" reward).
 static enum jiggy_e jinjoJiggy(int32_t level) {
     return (enum jiggy_e)(10 * level - 9);
 }
@@ -125,7 +117,6 @@ static int32_t jinjoActorFromBit(u8 bit) {
     }
 }
 
-// Dev/test (RemoteCollectSim): finds a live jinjo actor to feed into applyRemoteCollect.
 extern "C" int32_t port_jinjoRetention_debugPickLive(void) {
     static const enum actor_e kJinjoActors[] = { ACTOR_60_JINJO_BLUE, ACTOR_62_JINJO_GREEN, ACTOR_5F_JINJO_ORANGE,
                                                  ACTOR_61_JINJO_PINK, ACTOR_5E_JINJO_YELLOW };
@@ -138,7 +129,6 @@ extern "C" int32_t port_jinjoRetention_debugPickLive(void) {
     return 0;
 }
 
-// Apply a teammate's jinjo pickup: record it, update HUD if same level, despawn if same map.
 extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap) {
     int32_t level = map_getLevel((enum map_e)map);
     JinjoRetentionSaveData* s = store();
@@ -180,13 +170,12 @@ extern "C" void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId) {
     }
 }
 
-// False when retention is off, or when the jiggy is stranded (all 5 recorded but jiggy not
-// collected/spawned) so the jinjos respawn and it stays earnable.
+// False when retention is off, or when the jiggy is stranded (all 5 recorded but not
+// collected/spawned).
 static bool retentionActiveForLevel(int32_t level) {
     if (!applyEnabled() || !levelInRange(level)) {
         return false;
     }
-    // Stranded jiggy: don't suppress respawn if it can only be re-earned by re-collecting.
     if (collectedBits(level) == kAllJinjos && !jiggyscore_isCollected(jinjoJiggy(level)) &&
         !jiggyscore_isSpawned(jinjoJiggy(level)) && !port_jiggySpawn_isRecorded(jinjoJiggy(level))) {
         return false;
@@ -195,26 +184,21 @@ static bool retentionActiveForLevel(int32_t level) {
 }
 
 void RegisterJinjoRetention_Init() {
-    // Collection is recorded in port_jinjoRetention_onLocalJinjoCollected (real pickup), not
-    // here on broad-phase OnActorCollision.
-
-    // Seed ITEM_12_JINJOS from saved bits on entry so progress carries across visits.
+    // Seed ITEM_12_JINJOS from saved bits on entry.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
         if (!systemActive() || !applyEnabled() || !levelInRange(ev->levelId)) {
             return;
         }
         int32_t level = ev->levelId;
-        // Reconcile recorded bits with the jiggy's actual state on entry.
         if (jiggyscore_isCollected(jinjoJiggy(level))) {
-            // Jiggy earned but record out of sync (e.g. a teammate finished it) — force all five.
+            // Jiggy earned but record out of sync — force all five.
             if (collectedBits(level) != kAllJinjos) {
                 setCollectedBits(level, kAllJinjos);
             }
         } else if (collectedBits(level) == kAllJinjos && !jiggyscore_isSpawned(jinjoJiggy(level)) &&
                    !port_jiggySpawn_isRecorded(jinjoJiggy(level))) {
-            // Orphaned: all recorded but jiggy neither collected nor spawned — clear so jinjos
-            // respawn and can be re-collected to re-spawn the jiggy.
+            // Orphaned: all recorded but jiggy neither collected nor spawned.
             setCollectedBits(level, 0);
         }
         if (!retentionActiveForLevel(level)) {
@@ -244,7 +228,7 @@ void RegisterJinjoRetention_Init() {
         event->Cancelled = true;
     });
 
-    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in before serializing.
+    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in.
     COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_HIGH, CVAR_VALUE, [](IEvent* event) {
         OnSaveFileSave* ev = (OnSaveFileSave*)event;
         SaveData* buf = (SaveData*)ev->saveBuffer;

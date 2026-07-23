@@ -727,8 +727,7 @@ void func_80387730(Actor *this) {
         this->unk1C[1] = 0.0f;
         this->unk1C[2] = 3.5f;
     }
-    // Anchor: unk1C[0] set by port_notedoor_remoteOpen means a teammate opened this door;
-    // run the same fade-out, skipping camera/BS interrupt/flag-set (already handled remotely).
+    // Anchor: unk1C[0] set by port_notedoor_remoteOpen = a teammate opened this door.
     forceOpen = (this->unk1C[0] != 0.0f);
     if (forceOpen ||
         (!fileProgressFlag_get(this->actorTypeSpecificField + FILEPROG_39_CCW_OPEN) && ability_isUnlocked(ABILITY_13_1ST_NOTEDOOR))) {
@@ -805,7 +804,6 @@ void func_80387730(Actor *this) {
     }
 }
 
-// Anchor: teammate opened this exact note door; start its dissolve animation locally too.
 void port_notedoor_remoteOpen(s32 progressFlag) {
     s32 field;
     s32 i;
@@ -1025,8 +1023,7 @@ void func_803882B0(Actor *this)
         this->lifetime_value = 0;
     }
 
-    // Anchor: also honor the persistent FILEPROG_47 flag, since the transient VOLATILE_FLAG_BB
-    // doesn't reliably reach a teammate already in the lair.
+    // Anchor: also honor persistent FILEPROG_47; VOLATILE_FLAG_BB is transient.
     if (this->pitch == 90.f
         || !(volatileFlag_get(VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP)
              || fileProgressFlag_get(FILEPROG_47_FP_WITCH_SWITCH_JIGGY_PRESSED)))
@@ -1059,10 +1056,8 @@ void func_80388404(enum file_progress_e progress_flag, enum sfx_e sfx, f32 a2, s
     fileProgressFlag_set(progress_flag, true);
 }
 
-// Anchor: entrance door actor id pending a live open from a teammate's podium completion.
 static s32 sRemoteOpenDoorActor = 0;
 
-// Persistent "<level> open" flag each entrance door sets when its open animation finishes.
 static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
     switch (actorId) {
         case ACTOR_20E_MM_ENTRANCE_DOOR:       return FILEPROG_31_MM_OPEN;
@@ -1079,7 +1074,6 @@ static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
     }
 }
 
-// Anchor: teammate completed an entrance podium; arm that door to open locally too, minus camera/warp.
 void port_leveldoor_remoteOpen(s32 progressFlag) {
     switch (progressFlag) {
         case 0x28: sRemoteOpenDoorActor = ACTOR_20E_MM_ENTRANCE_DOOR; break;
@@ -1132,13 +1126,7 @@ void func_80388524(Actor *this) {
              && (func_802D67DC(-1) == this->modelCacheIndex)
              ;
 
-    // Anchor: door armed by port_leveldoor_remoteOpen; run the open animation locally, no camera/warp.
     if (!sp34 && this->modelCacheIndex == sRemoteOpenDoorActor) {
-        // "Already handled" (disarm) defaults to the door's persistent open flag being set — the
-        // completer's flag arrived first, so the spawn-time snap-open above covered it. That's right
-        // for the world entrances, whose synced "seen" flag is distinct from their "open" flag. The
-        // Anchor VB listener overrides this for the Door of Grunty, which is broadcast on its own open
-        // flag (0xE2) — already set when the arm arrives — to key off its visual state instead.
         bool alreadyOpen = EventSystem_Should(VB_LEVELDOOR_REMOTE_OPEN_DONE,
                                               fileProgressFlag_get(__leveldoor_persistentFlag(this->modelCacheIndex)) != 0,
                                               this->modelCacheIndex, this->state);

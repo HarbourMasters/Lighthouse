@@ -195,8 +195,6 @@ void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     item_adjustByDiff(item, diff, 1, 1);
 }
 
-// item_setEx: triggerEvent controls whether OnItemCountChanged fires; Anchor passes 0 when
-// applying a remote count so it isn't re-broadcast.
 void item_setEx(s32 item, s32 val, s32 triggerEvent){
     item_adjustByDiff(item, val - item_getCount(item), 0, triggerEvent);
 }
@@ -481,14 +479,13 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
     }
 }
 
-// Raw per-level note-score array, for Anchor team-state sync (vs. the packed u64 above).
+// Raw per-level note-score array (vs. the packed u64 above).
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
     *size = 0xE;
     *addr = D_80385FF0;
 }
 
-// Max-merge a level's note high score (no side effects). Used by Anchor to bump the total
-// for a remote note pickup in a level the player isn't currently in.
+// Max-merge a level's note high score.
 void itemscore_noteScores_setLevel(enum level_e level, s32 score) {
     if (level >= 0 && level < 0xE && score > D_80385FF0[level]) {
         D_80385FF0[level] = score;

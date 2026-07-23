@@ -162,8 +162,6 @@ void func_802D317C(ActorMarker *marker, enum file_progress_e prog_flag_id) {
     marker_despawn(marker);
 }
 
-// [port] Anchor: broadcasts a non-persistent breakable's break so it replays on same-map teammates.
-// Idempotent against the broken set, so a replayed break doesn't echo back out. In BreakObject.cpp.
 extern void port_breakable_broadcastBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
@@ -179,7 +177,6 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0xFF:
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             subaddie_set_state(sp2C, 4);
-            // [port] Anchor: broadcast this flagless break so it replays for same-map teammates.
             port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             break;
 
@@ -201,7 +198,6 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
         case 0x107:
             gcsfx_playAtSampleRate(SFX_82_METAL_BREAK);
             func_802EE278(sp2C, 0xE, 0xF, 0x46, 0.8f, 0.7f);
-            // [port] Anchor: flagless break — broadcast so it stays open for same-map teammates.
             port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
@@ -278,7 +274,6 @@ void func_802D31AC(ActorMarker *arg0, ActorMarker * arg1) {
                     func_802EE278(sp2C, 7, 0x19, 0x82, 0.17f, 0.8f);
                     break;
             }
-            // [port] Anchor: flagless break — broadcast so it vanishes live and stays broken for teammates.
             port_breakable_broadcastBreak(arg0->id, (s32)sp2C->position[0], (s32)sp2C->position[1], (s32)sp2C->position[2]);
             marker_despawn(arg0);
             break;
@@ -380,7 +375,6 @@ void func_802D3CE8(Actor *this){
         marker_setCollisionScripts(this->marker, NULL, func_802D3138, func_802D31AC);
         this->marker->propPtr->unk8_3 = true;
         this->initialized = true;
-        // [port] If a teammate broke this earlier this session, despawn on (re)spawn so it stays broken.
         if (port_breakable_isBroken((s32)gsworld_getMap(), this->marker->id, (s32)this->position[0],
                                     (s32)this->position[1], (s32)this->position[2])) {
             marker_despawn(this->marker);
@@ -390,9 +384,7 @@ void func_802D3CE8(Actor *this){
 
 extern ActorArray *suBaddieActorArray;
 
-// Anchor: maps each lair "broken" flag to its breakable's marker id, so a teammate's break can be
-// replayed live instead of waiting for a map reload. fieldSel picks between the two markers that
-// share an id: 0 = any, 1 = actorTypeSpecificField==1, 2 = !=1.
+// fieldSel picks between two markers sharing an id: 0 = any, 1 = actorTypeSpecificField==1, 2 = !=1.
 typedef struct {
     s16 flag;
     s16 markerId;
@@ -438,14 +430,11 @@ void port_breakable_remoteBreak(s32 progressFlag) {
             (fieldSel == 2 && actor->actorTypeSpecificField == 1)) {
             continue;
         }
-        // The flag is already set (the packet applied it before calling us), so the
-        // fileProgressFlag_set inside is a no-op and won't re-broadcast.
         func_802D31AC(actor->marker, NULL);
         return;
     }
 }
 
-// Replay a teammate's break of a flagless breakable, matched by (marker id, spawn position).
 void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     s32 i;
 
@@ -465,9 +454,7 @@ void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     }
 }
 
-// [port] Anchor: sub-area-return counterpart to remoteBreakAt — the actor savestate restore skips
-// func_802D3CE8's at-spawn isBroken check, so re-despawn broken objects here instead. Iterates
-// backward since despawn does a swap-remove from the end.
+// [port] Iterates backward: despawn swap-removes from the end.
 void port_breakable_despawnBrokenRestores(s32 map) {
     s32 i;
 
@@ -1004,12 +991,9 @@ void func_802D5260(void) {
                     : (fileProgressFlag_get(FILEPROG_25_LAIR_WATER_LEVEL_2)) ? 2
                     : (fileProgressFlag_get(FILEPROG_23_LAIR_WATER_LEVEL_1)) ? 1
                     : 0;
-            // [port] Anchor: a teammate's in-flight rise (WaterRise.cpp) bumps this to the target level
-            // before its flag syncs, so a remote eases in lockstep; resolves to the flag once it lands.
             lvl = port_lairWater_targetLevel(gsworld_getMap(), lvl);
             sp34 = ((s16 *)&D_803679C8[sp3C])[lvl];
         }
-        // [port] Anchor: Mimic local water level change on remote
         static s32 sLairWaterMap = -1;
         s32 curMap = gsworld_getMap();
         if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)) {
@@ -1020,9 +1004,9 @@ void func_802D5260(void) {
             f32 diff = sp34 - curY;
             if (diff > step)       sp34 = curY + step;
             else if (diff < -step) sp34 = curY - step;
-            // else: within a step of the target — let sp34 stand (snap the last bit)
+            // within a step of the target: let sp34 stand.
         }
-        func_8034DEB4(&sp38->type_6D, sp34); // sp34 now carries the eased height; ripple below uses it too
+        func_8034DEB4(&sp38->type_6D, sp34);
         player_getPosition(sp28);
 
         fxRipple_802F363C(sp34 + ((sp3C != -1) ? (D_803679E0[sp3C] + ((sp3C == 2) ? (6600.0f < sp28[0]) ? -200 : 0 : 0)) : 0));
@@ -1280,9 +1264,7 @@ void func_802D6114(void){
     else{//L802D61DC
         func_80347A14(1);
         gcpausemenu_80314AC8(1);
-        // [port] Anchor: a teammate's completion can play this cutscene while we're already in the
-        // door's map, landing here with no warp to reset the camera — exit it manually. MM (0x30)
-        // and Door of Grunty (0x40) already schedule their own exit; leave those alone.
+        // [port] Anchor: exit the camera manually; 0x30 (MM) and 0x40 (Door of Grunty) schedule their own exit.
         if (camScript != 0x30 && camScript != 0x40) {
             ncStaticCamera_exit();
         }

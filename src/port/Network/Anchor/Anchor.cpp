@@ -30,7 +30,7 @@ void Anchor::Enable() {
     Network::Enable(CVarGetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org"),
                     CVarGetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383));
     ownClientId = CVarGetInteger(CVAR_REMOTE_ANCHOR("LastClientId"), 0);
-    roomState = RoomState{}; // sync-off until UPDATE_ROOM_STATE arrives
+    roomState = RoomState{};
 }
 
 bool Anchor::IsGlobalRoom() {
@@ -56,12 +56,10 @@ void Anchor::OnConnected() {
     SendPacket_Handshake();
     RegisterHooks();
 
-    // Force retention on while connected (needed for realtime collection sync); CVar untouched.
     port_noteRetention_setForced(1);
     port_jinjoRetention_setForced(1);
 
     if (IsSaveLoaded()) {
-        // Connected while already in a save — trigger reload to apply state changes.
         SendPacket_RequestTeamState();
         hasRequestedTeamState = true;
         reloadMapOnTeamState = true;
@@ -298,13 +296,12 @@ void Anchor::DrawDummies(OnPlayerDraw* event) {
 
 void Anchor::ClearDummies() {
     for (auto& [id, dummy] : dummies) {
-        dummy->dummy_despawnActor(); // no-op if already detached by map teardown
+        dummy->dummy_despawnActor(); // skips if already detached by map teardown
     }
     dummies.clear();
 }
 
-// actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all so
-// nothing dereferences a freed marker. Dummies respawn their stand-ins lazily if still needed.
+// actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all.
 extern "C" void port_anchorDummies_onActorsFreed(void) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr) {
@@ -358,22 +355,17 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
-// Per-level clears for temporary-persistence session stores (defined alongside their
-// team-state snapshot/restore in the respective packet modules).
 extern void port_breakable_clearForLevel(int32_t levelId);
 extern void port_hutSmash_clearForLevel(int32_t levelId);
 extern void port_eggToll_clearForLevel(int32_t levelId);
 extern void port_puzzleStep_clearForLevel(int32_t levelId);
 extern void port_carriedSync_clearForLevel(int32_t levelId);
 
-// Vanilla doesn't persist broken objects/huts/tolls/puzzle steps, so once a level is fully
-// unoccupied each client resets its own copy of that state (all copies converge on the same
-// event stream). Note/jinjo retention and spawned jiggies are NOT swept; those mirror vanilla.
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     bool occupied[0x20] = { false }; // level_e ids are small; matches jinjo retention slot count
     auto markOccupied = [&occupied](s32 map) {
         if (map <= 0 || map >= MAP_NUM_MAPS) {
-            return; // unknown/boot map: map_getLevel on a bad id is unsafe
+            return;
         }
         s32 level = (s32)map_getLevel((enum map_e)map);
         if (level > 0 && level < 0x20) {
@@ -429,7 +421,6 @@ void Anchor::RefreshClientActors() {
 }
 
 bool Anchor::IsSaveLoaded() {
-    // Demos/playback run real gameplay logic against a throwaway save; don't sync them.
     s32 gameMode = getGameMode();
     if (gameMode == GAME_MODE_6_FILE_PLAYBACK || gameMode == GAME_MODE_7_ATTRACT_DEMO) {
         return false;

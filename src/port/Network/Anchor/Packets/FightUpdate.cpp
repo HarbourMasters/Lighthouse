@@ -11,9 +11,6 @@ extern "C" {
 
 /**
  * FIGHT_UPDATE
- *
- * Per-frame Grunty transform + state/phase stream from the fight authority. Discrete moments
- * (spells, statues, eggs) ride FIGHT_EVENT instead.
  */
 
 static uint32_t sOutgoingSeq = 0;

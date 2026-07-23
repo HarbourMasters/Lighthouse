@@ -47,7 +47,6 @@ void chchimpystump_update(Actor *this) {
         actor_collisionOff(this);
         this->initialized = true;
         this->actor_specific_1_f = this->position_y;
-        // Anchor: spawn already-raised if a teammate finished this, instead of replaying the rise.
         if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED)) {
             subaddie_set_state(this, CHIMPY_STUMP_STATE_3_RAISED);
         } else {

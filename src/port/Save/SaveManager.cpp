@@ -772,7 +772,6 @@ void SaveManager_Init() {
 
     REGISTER_LISTENER(OnGameErase, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnGameErase* ev = (OnGameErase*)event;
-        // Zeroing in-memory SaveData (OnSaveClear) alone isn't enough; the file must go too.
         std::string fileName = createFileName(ev->gameNum);
         std::error_code ec;
         if (fs::remove(SaveManager_GetSavePath(fileName), ec)) {
@@ -780,7 +779,7 @@ void SaveManager_Init() {
         } else if (ec) {
             SPDLOG_ERROR("SaveManager: failed to delete erased save file \"{}\": {}", fileName, ec.message());
         }
-        // Drop retention data too, or it haunts the next game started on this slot until restart.
+        // Drop retention data too.
         if (ev->gameNum >= 0 && ev->gameNum < 4) {
             gameFile_saveData[gameFile_GameIdToFileIdMap[ev->gameNum]].shipSaveData = {};
         }

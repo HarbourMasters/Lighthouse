@@ -43,11 +43,10 @@ struct RoomState {
     u8 shareConsumables = 0;  // 0 = off, 1 = on — share egg/feather counts in team state
     bool isRomhack = false;
     std::string romhackName;
-    bool isRando = false; // room is running a randomizer seed
-    int32_t seed = 0;     // rando seed id (0 when the room is vanilla)
+    bool isRando = false;
+    int32_t seed = 0; // rando seed id (0 when the room is vanilla)
 };
 
-// True for scoped flags with per-client consume semantics that must not sync.
 bool Anchor_ScopedFlagExcluded(s32 space, s32 index);
 
 class Anchor : public Network {
@@ -57,14 +56,13 @@ private:
     bool justLoadedSave = false;
     bool isHandlingUpdateTeamState = false;
     bool isProcessingIncomingPacket = false;
-    bool hasRequestedTeamState = false; // one-shot per loaded-save session
+    bool hasRequestedTeamState = false;
     std::queue<nlohmann::json> incomingPacketQueue;
     std::mutex incomingPacketQueueMutex;
     std::queue<nlohmann::json> outgoingPacketQueue;
     std::mutex outgoingPacketQueueMutex;
     std::unordered_map<uint32_t, DummyPlayer*> dummies;
 
-    // Re-applies the team's spawned-jiggy record (SpawnJiggy.cpp) for the current map.
     void FlushPendingJiggySpawns();
 
     nlohmann::json PrepClientState();
@@ -132,10 +130,6 @@ private:
 
 public:
     uint32_t ownClientId;
-    // Set when a mid-session sync (join / manual refresh while already in a map) is adopted — the
-    // world is already up, so HandlePacket_UpdateTeamState reloads the current map from its entrance
-    // so every actor re-spawns against the newly-adopted flags. Consumed once; not set by unsolicited
-    // teammate-save pushes (those already applied live as they happened).
     bool reloadMapOnTeamState = false;
     inline static const std::string clientVersion = (char*)gGitCommitHash;
 
@@ -192,9 +186,9 @@ public:
 
     std::map<uint32_t, AnchorClient> clients;
     RoomState roomState;
-    std::string lastWarnedRomhackLabel; // last romhack mismatch warned about, so it pops once
-    std::string lastWarnedRandoState;   // last rando/seed mismatch warned about, so it pops once
-    bool hasCheckedRandoCompat = false; // one-shot per loaded-save session
+    std::string lastWarnedRomhackLabel;
+    std::string lastWarnedRandoState;
+    bool hasCheckedRandoCompat = false;
 
     void Enable();
     void Disable();
@@ -210,17 +204,12 @@ public:
     uint32_t GetDummyPlayerClientId(const Actor* actor);
     bool GetCurrentMapPlayers();
 
-    // Always-online public room ("lh-global"): dummies only, no syncing or admin controls.
     bool IsGlobalRoom();
 
-    // Adopt a randomizer check a teammate already obtained, without granting the item or echoing back.
     void AdoptRemoteCheck(s32 rc);
-    // Warn once (per situation) when local randomizer identity disagrees with the room's.
     void CheckRandoRoomCompatibility();
 
-    // Whether the player wants teammate-event notifications. Client-side setting, defaults on.
     bool ShouldShowNotifications();
-    // Display name for a client, or a generic fallback if unknown.
     std::string GetClientName(uint32_t clientId);
 
     void SendPacket_AuthorityState(u8 activity, bool claimed);
@@ -275,7 +264,6 @@ public:
     void OnActorDestroyed(Actor* actor);
     void SendToCurrentMapPlayers(nlohmann::json& payload);
     void SendToCurrentLevelPlayers(nlohmann::json& payload);
-    // Clears temporary-persistence session state for levels with no player left in them.
     void SweepUnoccupiedLevelState(GameMap selfMap);
 
     static Anchor* GetInstance();

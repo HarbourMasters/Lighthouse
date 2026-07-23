@@ -18,8 +18,6 @@ extern "C" {
 
 /**
  * EGG_TOLL
- *
- * Session sync of RBB egg-toll bridge stages, keyed by (map, secondaryId). Cleared on save load.
  */
 
 std::map<std::array<int32_t, 2>, int32_t> sStages;
@@ -99,7 +97,6 @@ void port_eggToll_clearForLevel(int32_t levelId) {
 void RegisterEggToll_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sStages.clear(); });
 
-    // Correct sub-area stale states for already-paid tolls
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
         for (const auto& [key, stage] : sStages) {

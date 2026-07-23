@@ -44,7 +44,6 @@ void chjinjonatorbase_func_8038E0D4(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f
     }
 }
 
-// Anchor: vanilla egg-count body, shared by local hits and networked eggs (pad index passed explicitly).
 static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
     ActorLocal_BossJinjonatorBase *local = (ActorLocal_BossJinjonatorBase *) &actor_jinjonatorbase->local;
     s32 remaining_hits;
@@ -53,7 +52,6 @@ static void __chjinjonatorbase_applyEgg(Actor *actor_jinjonatorbase, s32 indx) {
         if (local->egg_hits[indx]) {
             local->egg_hits[indx]--;
             comusic_playTrack(COMUSIC_2B_DING_B);
-            // Anchor: replicate the accepted egg so followers' pads trigger locally too.
             FightSync_ReplicateEgg(BOSSJINJO_5_JINJONATOR, indx);
 
             if (local->egg_hits[indx] <= 0) {
@@ -76,7 +74,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     Actor *actor_jinjonatorbase = marker_getActor(this);
     int indx = this->unk40_31 - 1;
 
-    // Anchor: follower forwards to the authority; the accepted egg replays via EGG_FED on every client.
+    // Anchor: follower forwards to authority; accepted egg replays via EGG_FED.
     if (other != NULL && FightSync_ForwardEgg(BOSSJINJO_5_JINJONATOR, indx)) {
         return;
     }
@@ -84,7 +82,7 @@ void chjinjonatorbase_getHitByEgg(ActorMarker *this, ActorMarker *other) {
     __chjinjonatorbase_applyEgg(actor_jinjonatorbase, indx);
 }
 
-// Anchor: remaining-egg count per pad, for the latecomer snapshot; false if the pedestal isn't up.
+// Anchor: remaining-egg count per pad for the latecomer snapshot; false if pedestal isn't up.
 bool chjinjonatorbase_netGetPads(u8 pads[4]) {
     Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
     ActorLocal_BossJinjonatorBase *local;
@@ -103,7 +101,6 @@ bool chjinjonatorbase_netGetPads(u8 pads[4]) {
     return true;
 }
 
-// Anchor: apply a networked egg (forwarded or replicated) to the given pedestal pad.
 void chjinjonatorbase_netApplyEgg(s32 pad_index) {
     Actor *actor_jinjonatorbase = actorArray_findActorFromActorId(ACTOR_3A9_JINJONATOR_STATUE_BASE);
 

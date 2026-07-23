@@ -80,7 +80,6 @@ extern void chTooth_update(Actor * this){
             __chTooth_setState(this, 1);
         }
     }
-    // Anchor: teammate opened this tooth (flag synced) — open it now so the reveal happens live.
     else if(this->state == 1 && levelSpecificFlags_get(local->unk0->level_flag)){
         __chTooth_setState(this, 2);
     }

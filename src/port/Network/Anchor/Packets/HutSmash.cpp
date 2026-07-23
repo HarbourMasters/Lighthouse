@@ -16,8 +16,6 @@ extern "C" {
 
 /**
  * HUT_SMASH
- *
- * Syncs MM/BGS hut smashes (no flag of their own); keyed by (map, spawn pos) -> loot index.
  */
 
 std::map<std::array<int32_t, 4>, int32_t> sHuts;

@@ -11,8 +11,6 @@ void func_802D729C(Actor* actor, f32 arg1);
 #include "bk_math.h"
 #include "port/Patches/Patches.h"
 
-// func_8028746C's callback has no per-dummy context, so the dummy being updated publishes its
-// bonus mask here right before the callback runs.
 static s32 sActiveDummyBottlesBonus = 0;
 
 static void dummy_applyBottlesBonus(uintptr_t boneList, uintptr_t arg1) {
@@ -191,7 +189,7 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
     sp38[2] += dummyDisplacement[2];
 
     if (dummyBin) {
-        // anctrl_drawSetup also re-runs anim_update, so publish the mask here too.
+        // anctrl_drawSetup re-runs anim_update, which invokes the bonus-mask callback.
         sActiveDummyBottlesBonus = dummyBottlesBonus;
         anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
         sActiveDummyBottlesBonus = 0;
@@ -242,7 +240,7 @@ void DummyPlayer::dummy_updateModel(void) {
 }
 
 void DummyPlayer::dummy_reset(void) {
-    dummy_despawnActor(); // defensive: normally already null
+    dummy_despawnActor(); // skips if already detached
     if (dummyAnimCtrl) {
         dummyAnim_free();
         dummyAnimCtrl = NULL;
@@ -279,7 +277,7 @@ void DummyPlayer::dummy_reset(void) {
     dummyAnim_reset();
 }
 
-// Forget the stand-in without despawning it (engine already destroyed it, or is about to).
+// Forget the stand-in without despawning it.
 void DummyPlayer::dummy_detachActor(void) {
     dummyMarker = nullptr;
 }
@@ -290,7 +288,6 @@ void DummyPlayer::dummy_despawnActor(void) {
     }
     Actor* actor = marker_getActor(dummyMarker);
     if (actor != nullptr && actor->unk104 != nullptr) {
-        // Unlink the shadow first, or its next keep-alive check derefs our freed marker.
         ActorMarker* shadowMarker = actor->unk104;
         Actor* shadow = marker_getActor(shadowMarker);
         if (shadow != nullptr) {
@@ -333,14 +330,12 @@ void DummyPlayer::dummyAnim_reset() {
     dummy_D_8037D23A = 0;
 }
 
-// core2/fx/enemy_shadow.c: distance-gated drop-shadow attach + keep-alive (not in functions.h).
+// func_802D7124 (core2/fx/enemy_shadow.c): distance-gated drop-shadow attach + keep-alive.
 extern "C" void func_802D7124(Actor* actor, f32 scale);
 
 void DummyPlayer::dummy_update(void) {
     dummyAnim_update();
 
-    // Stand-in actor gives world presence (shadow, PvP collision target). Always resolved via
-    // marker — raw Actor*s go stale on despawn compaction.
     if (dummyMarker == nullptr) {
         Actor* spawned = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, dummyPosition, (s32)dummyYaw);
         if (spawned == nullptr) {
@@ -358,7 +353,7 @@ void DummyPlayer::dummy_update(void) {
     actor->position[2] = dummyPosition[2];
     actor->yaw = dummyYaw;
     if (dummyIsVisible) {
-        func_802D7124(actor, 1.0f); // drop shadow; doubles as its keep-alive
+        func_802D7124(actor, 1.0f);
     }
 }
 
@@ -542,7 +537,7 @@ void DummyPlayer::dummyAnim_update(void) {
         default:
             break;
     }
-    sActiveDummyBottlesBonus = dummyBottlesBonus; // cleared after so stale mask isn't reused
+    sActiveDummyBottlesBonus = dummyBottlesBonus;
     anctrl_update(dummyAnimCtrl);
     sActiveDummyBottlesBonus = 0;
 }

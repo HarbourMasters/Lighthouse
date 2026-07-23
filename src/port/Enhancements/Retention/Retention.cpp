@@ -1,8 +1,7 @@
 // Helpers shared by the note and jinjo retention systems.
 //
-// libultraship is included before the decomp headers on purpose: core2/timedfunc.h (pulled in
-// by functions.h) defines a C-compat `reinterpret_cast` macro that breaks the MSVC C++ standard
-// library if its keyword check runs afterward.
+// libultraship must precede the decomp headers: core2/timedfunc.h (via functions.h) defines a
+// C-compat `reinterpret_cast` macro that breaks the MSVC C++ standard library.
 #include <libultraship/libultraship.h>
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/Rando/Rando.h" // selectedFileNum, gameFile_saveData, DEFAULT_FILE_NUM, FILE_TYPE_SAVE_RANDO

@@ -3,17 +3,16 @@
 #include <unordered_map>
 #include <vector>
 
-// pedestal id -> owning clientId. Absence means unowned.
 static std::unordered_map<int32_t, uint32_t> sPedestalOwner;
 
 int32_t port_jigsawPedestal_tryClaim(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr || !anchor->isConnected) {
-        return 1; // offline: vanilla
+        return 1;
     }
     auto it = sPedestalOwner.find(id);
     if (it != sPedestalOwner.end() && it->second != anchor->ownClientId) {
-        return 0; // another client owns it
+        return 0;
     }
     sPedestalOwner[id] = anchor->ownClientId;
     anchor->SendPacket_PedestalOwner(id, true);
@@ -44,7 +43,7 @@ void port_jigsawPedestal_release(int32_t id) {
 void JigsawPedestal_ApplyRemote(int32_t id, uint32_t clientId, bool claimed) {
     auto it = sPedestalOwner.find(id);
     if (claimed) {
-        // Simultaneous-claim tie-break: lowest clientId wins, so every client converges.
+        // Simultaneous-claim tie-break: lowest clientId wins.
         if (it == sPedestalOwner.end() || clientId < it->second) {
             sPedestalOwner[id] = clientId;
         }

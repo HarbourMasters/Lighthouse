@@ -74,7 +74,6 @@ void __baanim_oscillateScale(f32 dst[3], f32 x, f32 min, f32 osc_size) {
     };
 }
 
-// [port] Split from __baanim_applyBottlesBonus so dummy players can apply a synced remote mask.
 void baanim_applyBottlesBonusMask(uintptr_t arg0, s32 mask) {
     f32 scale[3];
     f32 sp28 = func_802E4B38();
@@ -111,7 +110,6 @@ void baanim_applyBottlesBonusMask(uintptr_t arg0, s32 mask) {
     }
 }
 
-// [port] Local player's active bottles-bonus mask, for feeding into player-state sync.
 s32 baanim_getActiveBottlesBonusMask(void) {
     s32 mask = 0;
     s32 i;
@@ -132,7 +130,6 @@ void __baanim_applyBottlesBonus(uintptr_t arg0, uintptr_t arg1) {
 
     baanim_applyBottlesBonusMask(arg0, mask);
 
-    // Wishy-Washy now applies game-wide; only swap Banjo<->Wishy-Washy, never clobber another transform.
     if ((mask & BAANIM_WISHYWASHY) && (player_getTransformation() == TRANSFORM_1_BANJO)) {
         func_8028FB88(TRANSFORM_7_WISHWASHY);
     }

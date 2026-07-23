@@ -21,7 +21,6 @@ nlohmann::json Anchor::PrepRoomState() {
     payload["ownerClientId"] = ownClientId;
 
     if (IsGlobalRoom()) {
-        // Global room is display-only: force every gameplay setting off.
         payload["pvpMode"] = 0;
         payload["showLocationsMode"] = 0;
         payload["teleportMode"] = 0;
@@ -60,7 +59,6 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
         return;
     }
 
-    // Global room never syncs anything; pin every gameplay setting off locally.
     if (IsGlobalRoom()) {
         roomState.ownerClientId = payload["state"].value("ownerClientId", (uint32_t)0);
         roomState.pvpMode = 0;
@@ -76,7 +74,6 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     roomState.isRomhack = payload["state"]["isRomHack"].get<bool>();
     roomState.romhackName = payload["state"]["romhackName"].get<std::string>();
     const std::string localLabel = Lighthouse::CurrentRomhackLabel();
-    // Warn the player of distinct romhack mismatch and let them decide whether to keep playing.
     if (roomState.romhackName != localLabel) {
         if (roomState.romhackName != lastWarnedRomhackLabel) {
             lastWarnedRomhackLabel = roomState.romhackName;
@@ -104,7 +101,6 @@ void Anchor::HandlePacket_UpdateRoomState(nlohmann::json& payload) {
     CheckRandoRoomCompatibility();
 }
 
-// Warns (once per distinct situation) when the local randomizer identity disagrees with the room's.
 void Anchor::CheckRandoRoomCompatibility() {
     if (IsGlobalRoom() || !isConnected || !IsSaveLoaded()) {
         return;

@@ -187,7 +187,6 @@ void RegisterTalonTrotCycle_Init() {
 
 // Levitate — Hold L to float straight up; tapping L out of a damaging fall cancels the fall.
 void RegisterLevitate_Init() {
-    // Setting velocity directly (not nudging position) overwrites any fall velocity too.
     static const f32 LEVITATE_VELOCITY = 500.0f;
     static bool levitateActive = false;
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_LEVITATE, 0), [](IEvent* event) {

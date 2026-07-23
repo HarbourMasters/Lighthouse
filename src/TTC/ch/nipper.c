@@ -18,13 +18,11 @@ enum ch_nipper_states_e {
     CH_NIPPER_STATE_7_UNKNOWN      // already dead? L80388A20
 };
 
-// Anchor: how many of Nipper's 3 hits the team has landed, from the synced prefix mask.
 static s32 __chNipper_sharedHits(void) {
     s32 bits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_NIPPER) & 0x7;
     return (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1);
 }
 
-// Anchor: hits this actor instance has already accounted for, from its remaining health.
 static s32 __chNipper_localHits(Actor *this) {
     if (this->state == CH_NIPPER_STATE_6_DEAD || this->state == CH_NIPPER_STATE_7_UNKNOWN) {
         return 3;
@@ -159,7 +157,6 @@ static void __chNipper_dieFunc(ActorMarker *this_marker, ActorMarker *other_mark
     func_8032B4DC(this, other_marker, 7);
 
     if (this->lifetime_value == 40.0f) {
-        // Anchor: final blow - broadcast the full hit prefix.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_NIPPER, 0x7);
         subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
         actor_playAnimationOnce(this);
@@ -252,13 +249,11 @@ static void __chNipper_updateFunc(Actor *this){
         this->velocity_x = xVelocity;
     }
 
-    // Anchor: catch up to the team's hit count.
     if (this->initialized && this->state != CH_NIPPER_STATE_4_DIEING && this->state != CH_NIPPER_STATE_6_DEAD &&
         this->state != CH_NIPPER_STATE_7_UNKNOWN) {
         sharedHits = __chNipper_sharedHits();
         if (__chNipper_localHits(this) < sharedHits) {
             if (sharedHits >= 3) {
-                // Anchor: teammate landed the killing blow - play the death in place, minus camera.
                 this->lifetime_value = 40.0f;
                 subaddie_set_state_with_direction(this, CH_NIPPER_STATE_6_DEAD, 0.01f, 1);
                 actor_playAnimationOnce(this);
@@ -267,7 +262,6 @@ static void __chNipper_updateFunc(Actor *this){
                 func_8025AABC(COMUSIC_12_TTC_NIPPER);
                 func_8032BB88(this, -1, 300);
             } else {
-                // Intermediate hits only change his remaining health; sync the counter silently.
                 this->lifetime_value = (sharedHits == 1) ? 80.0f : 40.0f;
             }
         }

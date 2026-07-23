@@ -29,7 +29,7 @@ Struct_CCW_1B20_0 D_8038EC40[4] ={
     {0x183, 1, 1, 0x000, 0x000, 0x00, 0}
 };
 
-// Anchor: set during a remote-water replay; skips the waterer's camera/fanfare/jiggy spawn.
+// Anchor: set during a remote-water replay; skips camera/fanfare/jiggy spawn.
 static s32 sFlowerRemoteGrow = 0;
 
 ActorInfo D_8038EC70 = { 0x1B0, 0x29D, 0x447, 0x0, NULL, func_80388478, NULL, CCW_func_803882F4, 0, 0, 1.0f, 0};
@@ -176,7 +176,6 @@ void func_80388478(Actor *this) {
         return;
     }
 
-    // Anchor: teammate watered this stage — grow it live, minus camera/fanfare/jiggy.
     if ((this->state == 1) && EventSystem_Should(VB_CCW_FLOWER_REMOTE_GROW, false, (s32)local->unk0->unk8)) {
         sFlowerRemoteGrow = 1;
         func_80387F64(this, 2);

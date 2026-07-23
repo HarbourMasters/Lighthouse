@@ -386,7 +386,6 @@ void saveData_load(void *savedata_){
     func_8033C4E4((u8*)savedata);
     __savedata_load_abilities((u8*)savedata);
     for(i = 0; D_80370A20[i].unk0 != -1; i++){
-        // setEx(..., 0): these mirror permanent flags that Anchor already syncs, so don't re-broadcast.
         volatileFlag_setEx(D_80370A20[i].unk0, fileProgressFlag_get(D_80370A20[i].unk2), 0);
     }
     CALL_EVENT(OnSaveLoad, savedata);
@@ -396,7 +395,6 @@ void saveData_create(void *savedata_){
     SaveData *savedata = (SaveData *)savedata_;
     int i;
     for(i = 0; D_80370A20[i].unk0 != -1; i++){
-        // setEx(..., 0): UPDATE_TEAM_STATE already carries these on save, so don't re-broadcast.
         fileProgressFlag_setEx(D_80370A20[i].unk2, volatileFlag_get(D_80370A20[i].unk0), 0);
     }
     savedata_clear((u8*)savedata);

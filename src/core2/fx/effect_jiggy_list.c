@@ -264,8 +264,7 @@ void jiggy_spawn(enum jiggy_e jiggy_id, f32 pos[3]) {
     }
 }
 
-// [port] Anchor: true once the jiggylist slot is linked (covers the bundle-pop phase too, unlike
-// func_8032B16C/jiggyscore_isSpawned), so the re-spawn flush doesn't restack a popping bundle.
+// [port] Anchor: true once the jiggylist slot's marker is linked (covers bundle-pop, unlike jiggyscore_isSpawned).
 s32 jiggylist_hasSpawnedObject(enum jiggy_e jiggy_id) {
     if ((jiggy_id <= 0) || (jiggy_id >= (s_jiggyList_level_jiggy_count * 10))) {
         return 0;

@@ -20,7 +20,7 @@ extern "C" int32_t port_mapFlag_wasSetRemotely(int32_t index) {
 /**
  * SCOPED_FLAG
  *
- * Realtime sync of a transient level-/map flag; ctx = sender's level/map id, so a moved receiver skips it.
+ * Realtime sync of a transient level-/map flag; ctx = sender's level/map id.
  */
 
 void Anchor::SendPacket_ScopedFlag(u8 space, s16 index, u8 value) {
@@ -69,7 +69,6 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
 }
 
 void RegisterScopedFlag_Init() {
-    // Locally set: clear remote flag bit
     REGISTER_LISTENER(OnGameFlagSet, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto ev = reinterpret_cast<OnGameFlagSet*>(event);
         if (ev->flagSpace == ANCHOR_FLAGSPACE_MAP_SPECIFIC && ev->index >= 0 && ev->index < 32) {

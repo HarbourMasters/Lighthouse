@@ -116,7 +116,6 @@ return 0;
 void gameFile_clear(s32 gamenum){
     s32 filenum = gameFile_GameIdToFileIdMap[gamenum];
     savedata_clear(&gameFile_saveData[filenum]);
-    // [port] SaveManager listens, to also remove the slot's on-disk save.
     CALL_EVENT(OnGameErase, gamenum);
 }
 

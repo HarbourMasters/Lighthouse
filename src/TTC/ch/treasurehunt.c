@@ -126,7 +126,6 @@ static void __chTreasurehunt_checkStepProgress(s32 currentStep){
         }
 
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
-        // Anchor: broadcast the completed-step prefix so teammates advance too.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, (1 << CH_TREASUREHUNT_PUZZLE_CURRENT_STEP) - 1);
         __spawnQueue_add_0(__chTreasurehunt_spawnActorForNextStep);
         __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
@@ -177,7 +176,6 @@ void chTreasurehunt_checkStepProgress5(NodeProp *this, ActorMarker *arg1){
         timedFunc_set_1(0.1f, (GenFunction_1) gcpausemenu_80314AC8, 1);
         gcdialog_showDialog(ASSET_A17_DIALOG_BURIED_TREASURE_SPAWNED, 4, NULL, NULL, NULL, NULL);
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
-        // Anchor: full prefix - buried treasure is out of the sand.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_XHUNT, 0x3F);
     }
 }
@@ -206,7 +204,6 @@ void chTreasurehunt_netTick(void){
         __spawnQueue_add_0(__chTreasurehunt_spawnRedXForNextStep);
     }
     else{
-        // Anchor: final step - spawn our copy of the surfaced treasure, unless already spawned/collected.
         CH_TREASUREHUNT_PUZZLE_CURRENT_STEP++;
         if(!jiggyscore_isSpawned(JIGGY_11_TTC_RED_X) && !jiggyscore_isCollected(JIGGY_11_TTC_RED_X)){
             sNetTreasurePosition[0] = sChTreasurehunt_stepPositions[5][0];

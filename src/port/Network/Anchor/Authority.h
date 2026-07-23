@@ -26,7 +26,7 @@ typedef enum NetworkActivityId {
     NET_ACTIVITY_NONE = -1,
     NET_ACTIVITY_VILE_MINIGAME,
     NET_ACTIVITY_FINAL_BOSS,
-    NET_ACTIVITY_FP_TWINKLY, // only one client may run this at a time; concurrent runs corrupt geometry
+    NET_ACTIVITY_FP_TWINKLY,
     NET_ACTIVITY_COUNT
 } NetworkActivityId;
 
@@ -40,10 +40,7 @@ bool NetAuthority_IsSelf(NetworkActivityId activity);
 bool NetAuthority_IsClaimed(NetworkActivityId activity);
 // Owning clientId, or 0 when unclaimed.
 uint32_t NetAuthority_GetOwner(NetworkActivityId activity);
-// Claim authority for the local client and broadcast it. No-op offline, or if another
-// client already holds the claim.
 void NetAuthority_Claim(NetworkActivityId activity);
-// Release our own claim and broadcast it. No-op unless we are the owner.
 void NetAuthority_Release(NetworkActivityId activity);
 
 #ifdef __cplusplus

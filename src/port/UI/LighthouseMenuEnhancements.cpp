@@ -5,7 +5,6 @@
 extern "C" {
 #include "functions.h"
 #include "variables.h"
-// Per-puzzle completion state, persisted via SaveManager; gates the checkboxes solo.
 extern u8 gCompletedBottlesBonusGames[7];
 }
 
@@ -15,9 +14,8 @@ extern u8 gCompletedBottlesBonusGames[7];
 
 namespace LighthouseGui {
 
-// Live toggle state for the Bottles' Bonus gags. Non-cvar checkboxes; writes volatile flags
-// directly with triggerEvent = 0 (bypasses Anchor flag sync — carried via player-state sync
-// instead). Order matches D_803635EC in ba_anim.c and gCompletedBottlesBonusGames.
+// Live toggle state for the Bottles' Bonus gags (non-cvar checkboxes). Order matches
+// D_803635EC in ba_anim.c and gCompletedBottlesBonusGames.
 static bool sBottlesBonusState[7] = { false };
 
 static const char* kBottlesBonusNames[7] = {
@@ -43,7 +41,6 @@ static const char* kBottlesBonusTooltips[7] = {
 static const char* kBottlesBonusLockedTooltip =
     "Complete this Bottles' Bonus puzzle to unlock it. (Always available while connected to Anchor.)";
 
-// Unlocked once its puzzle is complete, or always while connected to Anchor.
 static bool IsBottlesBonusUnlocked(int i) {
     Anchor* anchor = Anchor::GetInstance();
     if (anchor != nullptr && anchor->isConnected) {
@@ -118,8 +115,6 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
 
-    // Bottles' Bonuses (sandcastle cheat-code gags). Non-cvar checkboxes; PreFunc re-evaluates
-    // the unlock (puzzle complete, or Anchor bypass) every frame.
     path.column = SECTION_COLUMN_2;
 
     AddWidget(path, "Bottles' Bonuses", WIDGET_SEPARATOR_TEXT);

@@ -10,7 +10,6 @@ extern "C" {
 
 /**
  * CARRY_THROW
- * Sync thrown items that were carried
  */
 
 void Anchor::SendPacket_CarryThrow(s32 markerId, f32 start[3], f32 target[3]) {

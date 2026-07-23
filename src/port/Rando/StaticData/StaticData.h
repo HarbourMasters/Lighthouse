@@ -12,7 +12,6 @@ namespace Rando {
 
 namespace StaticData {
 void SendCollisionNotification(RandoCheckId randoCheckId);
-// Same notification, attributed to a teammate's Anchor pickup. Caller gates on settings.
 void SendRemoteCheckNotification(RandoCheckId randoCheckId, const std::string& collectorName);
 
 struct RandoLogicData {

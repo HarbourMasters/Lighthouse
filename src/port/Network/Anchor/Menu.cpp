@@ -143,7 +143,7 @@ void AnchorMainMenu(WidgetInfo& info) {
     ImGui::SeparatorText("Current Room");
     ImGui::Text("%s Connected", ICON_FA_CHECK);
 
-    if (!anchor->IsGlobalRoom()) { // nothing to request in the global room
+    if (!anchor->IsGlobalRoom()) {
         UIWidgets::PushStyleButton(THEME_COLOR);
         if (ImGui::Button("Request Team State")) {
             anchor->SendPacket_RequestTeamState();

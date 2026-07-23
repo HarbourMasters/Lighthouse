@@ -96,8 +96,7 @@ void func_80388FD4(Actor *this) {
         this->unk38_0 = false;
         this->volatile_initialized = true;
     }
-    // Anchor: teammate pressed this switch (flag synced) — drop it to match; unk38_0 stays false
-    // so the block below doesn't re-trigger the already-synced door.
+    // Anchor: teammate pressed this switch (flag synced) — drop it to match; unk38_0 stays false.
     if( this->state != 4
         && fileProgressFlag_get(this->unk10_12 + FILEPROG_8B_CCW_SPRING_OPEN)
     ){

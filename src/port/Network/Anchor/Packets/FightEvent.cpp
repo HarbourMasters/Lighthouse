@@ -11,8 +11,6 @@ extern "C" {
 
 /**
  * FIGHT_EVENT
- *
- * One-shot final-fight moments in MAP_90_GL_BATTLEMENTS (event list in FightSync.h).
  */
 
 void Anchor::SendPacket_FightEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3], const f32 v2[3]) {

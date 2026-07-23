@@ -9,7 +9,7 @@ void func_803895F4(Actor *this);
 /* .data */
 ActorInfo D_8038EE70 = { 0x1B3, 0x2A0, 0x483, 0x0, NULL, func_803895F4, NULL, CCW_func_8038954C, 0, 0, 0.0f, 0};
 
-// Anchor: set while replaying a teammate's hatch; skips the camera pan (belongs to the actual breaker).
+// Anchor: set while replaying a teammate's hatch; skips the camera pan.
 static s32 sChEyrieEggRemote = 0;
 
 /* .code */
@@ -66,7 +66,6 @@ void func_803895F4(Actor *this) {
         return;
     }
 
-    // Anchor: teammate hatched the egg — replay the break in place, minus the camera pan.
     if (this->state == 1 && fileProgressFlag_get(FILEPROG_E6_SPRING_EYRIE_HATCHED)) {
         sChEyrieEggRemote = 1;
         func_80389440(this, 2);

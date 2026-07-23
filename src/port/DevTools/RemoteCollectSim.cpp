@@ -1,8 +1,7 @@
-// Dev tool: simulates a teammate's remote note/jinjo collects locally, no second machine
-// needed. Toggled by Dev Tools > General "Simulate Remote Collects".
+// Dev tool: simulates a teammate's remote note/jinjo collects locally. Toggled by Dev Tools >
+// General "Simulate Remote Collects".
 //
-// libultraship first: core2/timedfunc.h redefines `reinterpret_cast`, breaking MSVC's
-// stdlib if included after.
+// libultraship first: core2/timedfunc.h redefines `reinterpret_cast`, breaking MSVC's stdlib.
 #include <libultraship/libultraship.h>
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
@@ -19,7 +18,6 @@ extern "C" {
 #include "functions.h"
 }
 
-// NoteRetention.cpp / JinjoRetention.cpp
 extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap);
 extern "C" int32_t port_noteRetention_debugPickLive(int32_t mapId);
 extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap);
@@ -48,7 +46,6 @@ const char* jinjoColorName(int32_t bit) {
     }
 }
 
-// Returns true if a collect of the given kind was simulated.
 bool SimulateOne(bool note, int32_t map) {
     if (note) {
         int32_t idx = port_noteRetention_debugPickLive(map);
@@ -75,7 +72,6 @@ void Tick() {
     }
     int32_t map = (int32_t)gsworld_getMap();
     Clock::time_point now = Clock::now();
-    // (Re)arm on enable and on map change so the first collect lands 30s after entry.
     if (!sArmed || map != sLastMap) {
         sArmed = true;
         sLastMap = map;
@@ -86,11 +82,9 @@ void Tick() {
         return;
     }
     sNextFire = now + kInterval;
-    // Try the preferred kind, fall back to the other; alternate after a success.
     if (SimulateOne(sPreferNote, map)) {
         sPreferNote = !sPreferNote;
     } else {
-        // Preferred kind exhausted; try the other and keep preferring the scarce one.
         SimulateOne(!sPreferNote, map);
     }
 }

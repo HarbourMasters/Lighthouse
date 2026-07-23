@@ -91,7 +91,6 @@ void FP_func_80386CF8(Actor *this){
         }
     }
 
-    // Anchor: buttons sync via a shared bit each; replay a teammate's press (minus local ding/particles).
     {
         s32 bit = 1 << (this->actorTypeSpecificField - 1);
         if(this->state == 1 && (port_puzzleStep_get(ANCHOR_PUZZLE_FP_SNOWBUTTONS) & bit)){

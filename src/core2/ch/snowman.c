@@ -189,7 +189,6 @@ void __chSnowman_deathCallback(ActorMarker *marker, ActorMarker *other_marker){
     __spawnQueue_add_1((GenFunction_1)__chSnowman_spawnHat, (uintptr_t)actor->marker);
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         maSnowy_decRemaining();
-        // [port] Anchor: record this kill by position so teammates count and clear the same slush.
         port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SLUSHES, (s32)actor->position[0], (s32)actor->position[1],
                             (s32)actor->position[2]);
     }
@@ -230,7 +229,6 @@ void chSnowman_update(Actor *this){
         if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
             local->unk0 = actorArray_findActorFromActorId(0x336)->marker;
             maSnowy_incTotal();
-            // [port] Anchor: already killed by a teammate — count and remove silently, no death anim.
             if(port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
                                        (s32)this->position[1], (s32)this->position[2])){
                 maSnowy_decRemaining();
@@ -239,8 +237,6 @@ void chSnowman_update(Actor *this){
             }
         }
     }//L802E21D8
-    // [port] Anchor: killed live by a teammate — replay the death here too. Guard despawn_flag
-    // against re-triggering next frame.
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK && !this->despawn_flag
        && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SLUSHES, (s32)this->position[0],
                                   (s32)this->position[1], (s32)this->position[2])){

@@ -92,7 +92,6 @@ void chClankerTooth_update(Actor *this){
             chClankerTooth_setNextState(this, 3);
         }
     }//L803871D8
-    // Anchor: catch our egg_count up to the team's shared count, replaying each ding/open.
     if(this->state == 1){
         s32 base = (local->unk0 - 1) * 3;
         s32 bits = (port_puzzleStep_get(ANCHOR_PUZZLE_CC_CLANKER_TEETH) >> base) & 0x7;
@@ -137,7 +136,7 @@ void chClankerTooth_update(Actor *this){
     if(this->state == 1 && D_80389F80 == local->unk0){
         D_80389F80 = 0;
         local->egg_count++;
-        // Anchor: broadcast cumulative egg progress so teammates' teeth catch up via the poll above.
+        // Anchor: broadcast cumulative egg progress.
         port_puzzleStep_orBits(ANCHOR_PUZZLE_CC_CLANKER_TEETH,
                                ((1 << local->egg_count) - 1) << ((local->unk0 - 1) * 3));
         if(local->egg_count == 3){

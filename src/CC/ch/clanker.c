@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "variables.h"
 
-// Anchor: grates have no flag of their own, so opens sync via the shared breakable set.
 extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
 extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
@@ -69,7 +68,6 @@ void chCCGrate_die(ActorMarker *marker, ActorMarker *other_marker){
 
     if(actor->state == 1){
         chCCGrate_setNextState(actor, *local->unk0);
-        // Anchor: broadcast the open so teammates' matching grate opens too.
         port_breakable_recordBreak((s32)actor->marker->id, (s32)actor->position[0],
                                    (s32)actor->position[1], (s32)actor->position[2]);
     }
@@ -89,7 +87,6 @@ void chCCGrate_update(Actor * this){
         if(this->modelCacheIndex == 0x28E && jiggyscore_isSpawned(JIGGY_18_CC_BOLT)){
             marker_despawn(this->marker);
         }
-        // Anchor: teammate already opened this grate this session — despawn on (re)load.
         else if(port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
                                         (s32)this->position[0], (s32)this->position[1],
                                         (s32)this->position[2])){
@@ -99,7 +96,6 @@ void chCCGrate_update(Actor * this){
     }//L803899D4
 
     if(this->state == 1){
-        // Anchor: teammate opened this grate — run our break/rise live, not just on reload.
         if(local->unk8 || port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
                                                   (s32)this->position[0], (s32)this->position[1],
                                                   (s32)this->position[2])){

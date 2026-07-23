@@ -160,8 +160,6 @@ void __baMarker_8028B904(s32 arg0, s32 arg1, s32 arg2, s32 arg3){
 extern ActorArray *suBaddieActorArray;
 extern enum honeycomb_e D_8037DDC0; // honeycomb.c: pending uid for the next spawned honeycomb
 
-// [port] Anchor: true if honeycomb `uid` is already spawned; avoids double-reveal from our own
-// press callback racing the synced map-flag applier.
 static bool __baMarker_honeycombPresent(s32 uid){
     s32 i;
     s32 actorUid;
@@ -181,7 +179,6 @@ void __baMarker_8028B9A8(uintptr_t arg0){
     NodeProp *tmp_v0;
     s32 ideal_yaw[3];
 
-    // [port] Anchor: skip if this honeycomb is already revealed (see __baMarker_honeycombPresent).
     if(__baMarker_honeycombPresent(arg0)) return;
 
     tmp_v0 = cubeList_findNodePropByActorIdAndPosition_s32(0x1F6, NULL);

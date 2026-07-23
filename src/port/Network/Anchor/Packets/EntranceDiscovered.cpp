@@ -5,7 +5,7 @@
 /**
  * ENTRANCE_DISCOVERED
  * 
- * currently no-op
+ * currently unimplemented
  */
 
 void Anchor::SendPacket_EntranceDiscovered(u16 entranceIndex) {

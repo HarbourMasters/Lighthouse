@@ -1,12 +1,7 @@
-// CCW Carried-Collectible Live-Despawn Sync (worms for Eyrie, acorns for Nabnut)
+// CCW Carried-Collectible Live-Despawn Sync (worms for Eyrie, acorns for Nabnut).
 //
-// Shared pool: carried count (ITEM_22/23) is delta-synced via COLLECT_ITEM (+1 collect, -1
-// spend). Each object gets a stable identity — a hash of its fixed spawn position (from prop
-// data, so identical on every client) — attached via ObjectExtension at registration, so a
-// pickup despawns it everywhere.
-//
-// The picked-up set is keyed by (kind, mapId, hash) and persists for the session, so it also
-// suppresses cross-map re-collection. Tradeoff: collected objects don't respawn per visit.
+// Carried count is ITEM_22/23. Object identity is a hash of its fixed spawn position, keyed
+// with (kind, mapId, hash).
 //
 #include <libultraship/bridge.h>
 #include "port/ObjectExtension/ObjectExtension.h"
@@ -59,7 +54,7 @@ int32_t slotForKind(int32_t kind) {
     }
 }
 
-// Client-independent identity from spawn position; masked non-negative to avoid the -1 spend sentinel.
+// Identity from spawn position; masked non-negative to avoid the -1 spend sentinel.
 int32_t spawnHash(int32_t x, int32_t y, int32_t z) {
     uint32_t h = (uint32_t)x * 73856093u ^ (uint32_t)y * 19349663u ^ (uint32_t)z * 83492791u;
     return (int32_t)(h & 0x7FFFFFFFu);
@@ -72,7 +67,6 @@ bool isCollected(int32_t slot, int32_t mapId, int32_t hash) {
 } // namespace
 
 extern "C" void port_carriedSync_beginMapLoad(int32_t mapId) {
-    // No-op: identity/state are session-persistent, not per-map. Kept as the entry point.
     (void)mapId;
 }
 
@@ -108,7 +102,7 @@ extern "C" void port_carriedSync_onLocalSpend(int32_t kind) {
     if (slotForKind(kind) < 0) {
         return;
     }
-    // A spend (feeding Eyrie/Nabnut) is a -1 to the shared pool, no object identity.
+    // A spend (feeding Eyrie/Nabnut) is -1 to the shared pool.
     CALL_EVENT(OnCollectibleCollected, kind, -1);
 }
 
@@ -118,12 +112,10 @@ extern "C" void port_carriedSync_applyRemoteCollect(int32_t kind, int32_t mapId,
     if (slot < 0 || id < 0) {
         return;
     }
-    // Record regardless of current map; the matching object despawns via consumeRemoteDespawn.
     sCollected.insert({ slot, mapId, id });
 }
 
-// Snapshot/restore for team-state sync (UpdateTeamState.cpp), as flat [slot, mapId, hash]
-// tuples. Restore overwrites. Carried *count* is synced separately via COLLECT_ITEM.
+// Snapshot/restore as flat [slot, mapId, hash] tuples.
 std::vector<int32_t> port_carriedSync_snapshotCollected() {
     std::vector<int32_t> flat;
     flat.reserve(sCollected.size() * 3);
@@ -154,8 +146,6 @@ extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
     return count;
 }
 
-// Occupancy sweep (Anchor::SweepUnoccupiedLevelState): resets pickup records once nobody's
-// left in the level, so objects and delivery counters respawn/restart together.
 void port_carriedSync_clearForLevel(int32_t levelId) {
     std::erase_if(sCollected, [levelId](const std::array<int32_t, 3>& e) {
         return (int32_t)map_getLevel((enum map_e)e[1]) == levelId;
@@ -175,10 +165,8 @@ extern "C" int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* mar
 }
 
 void RegisterWormSync_Init() {
-    // Drop the picked-up set when a save loads, so it never leaks across files/playthroughs.
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sCollected.clear(); });
 
-    // Detach per-marker spawn data when an object is destroyed, so a reused marker starts clean.
     REGISTER_LISTENER(OnActorDestroy, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnActorDestroy* ev = (OnActorDestroy*)event;
         if (ev->actor != nullptr && ev->actor->marker != nullptr) {
