@@ -466,7 +466,7 @@ static void DrawModInfo(std::string file) {
 
 using ModFilter = std::function<bool(const std::string&)>;
 
-static void DrawMods(bool enabled, const ModFilter& shown) {
+static void DrawMods(bool enabled, const ModFilter& shown, bool alphabetical) {
     std::vector<std::string>& selectedModFiles = GetModFiles(enabled);
 
     std::vector<size_t> visible;
@@ -482,10 +482,10 @@ static void DrawMods(bool enabled, const ModFilter& shown) {
     bool madeAnyChange = false;
     size_t switchFromIndex = 0;
     size_t switchToIndex = 0;
+    std::string pendingMoveFile;
 
-    // Highest priority (largest real index) draws at the top, matching the
-    // "top overrides bottom" rule.
-    for (size_t vpos = visible.size() - 1; vpos != SIZE_MAX; vpos--) {
+    for (size_t k = 0; k < visible.size(); k++) {
+        size_t vpos = alphabetical ? k : (visible.size() - 1 - k);
         size_t i = visible[vpos];
         std::string file = selectedModFiles[i];
         if (enabled) {
@@ -496,14 +496,10 @@ static void DrawMods(bool enabled, const ModFilter& shown) {
         // (to the disabled list), disabled mods get an arrow pointing left.
         if (UIWidgets::StateButton((file + "_left_right").c_str(), enabled ? ICON_FA_ARROW_RIGHT : ICON_FA_ARROW_LEFT,
                                    ImVec2(25, 25), UIWidgets::ButtonOptions().Color(THEME_COLOR))) {
-            if (enabled) {
-                DisableMod(file);
-            } else {
-                EnableMod(file);
-            }
+            pendingMoveFile = file;
         }
 
-        if (enabled) {
+        if (enabled && !alphabetical) {
             const bool atTop = (vpos == visible.size() - 1);
             const bool atBottom = (vpos == 0);
 
@@ -551,11 +547,19 @@ static void DrawMods(bool enabled, const ModFilter& shown) {
         std::iter_swap(selectedModFiles.begin() + switchFromIndex, selectedModFiles.begin() + switchToIndex);
         AfterModChange();
     }
+
+    if (!pendingMoveFile.empty()) {
+        if (enabled) {
+            DisableMod(pendingMoveFile);
+        } else {
+            EnableMod(pendingMoveFile);
+        }
+    }
 }
 
 static bool editing = false;
 
-static void DrawModManager(const char* tableId, const ModFilter& shown) {
+static void DrawModManager(const char* tableId, const ModFilter& shown, bool alphabetical = false) {
     auto editOpts = UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline).Color(THEME_COLOR);
     editOpts.Disabled(editing);
     editOpts.DisabledTooltip("Already editing...");
@@ -610,7 +614,7 @@ static void DrawModManager(const char* tableId, const ModFilter& shown) {
         ImGui::TableNextColumn();
 
         if (ImGui::BeginChild("Enabled Mods", ImVec2(0, -8))) {
-            DrawMods(true, shown);
+            DrawMods(true, shown, alphabetical);
 
             ImGui::EndChild();
         }
@@ -618,7 +622,7 @@ static void DrawModManager(const char* tableId, const ModFilter& shown) {
         ImGui::TableNextColumn();
 
         if (ImGui::BeginChild("Disabled Mods", ImVec2(0, -8))) {
-            DrawMods(false, shown);
+            DrawMods(false, shown, alphabetical);
 
             ImGui::EndChild();
         }
@@ -662,7 +666,10 @@ void LighthouseRomhackMenuWindow::DrawElement() {
                        "Romhack overlays live in mods/~romhacks/. Changes require a restart, and only one\n"
                        "romhack can be active at a time.");
 
-    DrawModManager("tableRomhacks", [](const std::string& name) { return IsRomhackOverlay(name); });
+    // Romhacks are one-at-a-time, so there's no load order to preserve: list them
+    // alphabetically instead of by priority.
+    DrawModManager(
+        "tableRomhacks", [](const std::string& name) { return IsRomhackOverlay(name); }, true);
 }
 
 void LighthouseModMenuWindow::InitElement() {
