@@ -879,7 +879,11 @@ void gcpausemenu_printTotalsHeader(s32 page_id) {
     if (port_pauseBannerUpdate(page_id)) {
         return;
     }
-    print_bold_overlapping(v0->x, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
+    // [port] A custom romhack name inherits the vanilla name's hand-tuned x; let a
+    // listener recenter it for its own width.
+    s32 nameX = v0->x;
+    EventSystem_Should(VB_PAUSEMENU_LEVEL_NAME_X, true, &nameX, page_id, (const char*)v0->string, name);
+    print_bold_overlapping(nameX, D_80383010.unk8, -1.05f, name ? (u8*)name : v0->string);
 }
 
 void gcpausemenu_80312FD0(s32 arg0) {

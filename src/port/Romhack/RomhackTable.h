@@ -41,7 +41,7 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     { "af7c71b034b2d7af867cd0aec8751c49aca1f0bc", "BubblingBog", false },
 
     // Cheatos Challenges
-    { "017bf33d80b22d7926a9839f09fd1c52f83d3b97", "CheatosChallenges", false },
+    { "017bf33d80b22d7926a9839f09fd1c52f83d3b97", "CheatosChallenges", true },
 
     // These hacks ship no blob of their own; they edit the globalized overlay
     // in place, which aGameConfig has no schema for. Mostly actor table
