@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 
 extern "C" {
 #include "enums.h"
@@ -202,6 +203,17 @@ void RegisterCutThroatCoastPatches() {
         s32* fontId = va_arg(args, s32*);
         *fontId = 0x6E4;
         (void)should;
+    });
+
+    // TODO: CTC has an extra data blob separate from the asset table
+    // where a custom gravestone and note door (100) are. Torch should not
+    // need to do per-romhack extraction, so these will need to either be skipped
+    // or rebuilt a different way. For now, blank the digits on the note door.
+    REGISTER_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, {
+        s32 noteDoorIdx = va_arg(args, s32);
+        if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
+            *should = false;
+        }
     });
 
     // Exiting via the exit pad should go back to the CTC lobby map
