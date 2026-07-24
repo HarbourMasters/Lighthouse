@@ -21,23 +21,17 @@ float func_802BD51C(void);  // target camera height
 
 float ml_acosf(float x);
 float mlNormalizeAngle(float deg);
+float mlDiffDegF(float a, float b); // shortest signed a-b in degrees
 float gu_sqrtf(float x);
 float time_getDelta(void);
 }
 
 namespace {
 
-// 1/sec; how fast distance chases the zoom-level target.
 constexpr float kDistanceRate = 8.0f;
-// 1/sec; vertical follow (flat-pitch mode only). Matched to the vanilla camera,
-// whose Y lerp is target*dt*2, so the camera stays mostly put during a jump
-// (Banjo rises in frame) instead of choppily chasing the parabola up and down.
-constexpr float kHeightRate = 2.0f;
-// 1/sec; how fast the look-at target's Y chases its raw value. The orbit center
-// Y is derived from the floor height under the player, which snaps up in discrete
-// steps on stairs; smoothing it de-steps the aim pitch the way the vanilla camera's
-// rotation tracker (func_802BD904) does, without adding lag to the stick-driven yaw.
-constexpr float kAimHeightRate = 8.0f;
+constexpr float kReturnRateFactor = 0.2f; // collision offset relaxes this much slower than it deepens
+constexpr float kVertRate = 0.8f;         // height + aim Y follow rate; low to filter floor-height churn
+constexpr float kRotRate = 12.0f;         // look-at damping, mirroring the vanilla follow camera
 
 float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
@@ -71,6 +65,7 @@ extern "C" void OrbitCamera_Capture(OrbitCamera* c) {
     c->justEntered = 1;
     c->smoothValid = 0;
     c->aimValid = 0;
+    c->rotValid = 0;
 }
 
 extern "C" void OrbitCamera_Enter(OrbitCamera* c) {
@@ -97,8 +92,7 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     }
     c->justEntered = 0;
 
-    // The trailing-anchor resolve can trap the camera far from the player.
-    // Snap it home when the gap runs away.
+    // The collision resolve can trap the camera far from the player; snap home when the gap runs away.
     bool driftEscape = false;
     float zoomTarget = func_802BD8D4();
     if (c->smoothValid && zoomTarget > 0.0f) {
@@ -112,8 +106,7 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
         }
     }
 
-    // Track the vanilla zoom-level distance so the normal zoom controls still take
-    // effect while orbiting.
+    // Track the vanilla zoom-level distance so zoom controls still apply while orbiting.
     float distTrack = clampf(kDistanceRate * dt, 0.0f, 1.0f);
     c->distance += (func_802BD8D4() - c->distance) * distTrack;
 
@@ -124,18 +117,15 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     pos[0] = center[0] + offset[0];
     pos[2] = center[2] + offset[2];
     if (c->allowPitch) {
-        // Pitch carries the vertical offset.
-        pos[1] = center[1] + offset[1];
+        pos[1] = center[1] + offset[1]; // pitch carries the vertical offset
     } else {
-        // Flat orbit: height follows the vanilla target, more slowly than distance
-        // so jumps read as natural rather than choppy.
-        float heightTrack = clampf(kHeightRate * dt, 0.0f, 1.0f);
-        c->height += (func_802BD51C() - c->height) * heightTrack;
+        // Flat orbit: height low-passes the vanilla target, filtering plank/step floor churn.
+        c->height += (func_802BD51C() - c->height) * clampf(kVertRate * dt, 0.0f, 1.0f);
         pos[1] = c->height;
     }
     ncDynamicCamera_setPosition(pos);
 
-    // Resolve geometry. On a drift escape, anchor at the player so the resolve pulls back in.
+    // Resolve geometry; on a drift escape, anchor at the player so the resolve pulls back in.
     if (driftEscape) {
         D_8037D948[0] = center[0];
         D_8037D948[1] = center[1];
@@ -146,33 +136,54 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     float resolved[3];
     ncDynamicCamera_getPosition(resolved);
 
+    // pos already follows the player smoothly; the shake near thin/translucent geometry lives in the
+    // collision correction, so smooth only that (damps every direction with no added follow lag).
+    float corr[3] = { resolved[0] - pos[0], resolved[1] - pos[1], resolved[2] - pos[2] };
     if (!c->smoothValid) {
-        c->smoothPos[0] = resolved[0];
-        c->smoothPos[1] = resolved[1];
-        c->smoothPos[2] = resolved[2];
+        c->collisionOffset[0] = corr[0];
+        c->collisionOffset[1] = corr[1];
+        c->collisionOffset[2] = corr[2];
         c->smoothValid = 1;
     } else {
-        // Smooth the resolved position to prevent hitching on edges.
-        float f = clampf(c->smoothRate * dt, 0.0f, 1.0f);
-        c->smoothPos[0] += (resolved[0] - c->smoothPos[0]) * f;
-        c->smoothPos[1] += (resolved[1] - c->smoothPos[1]) * f;
-        c->smoothPos[2] += (resolved[2] - c->smoothPos[2]) * f;
+        // Deepen the pull-in fast (never clip through geometry), relax slowly so a flickering
+        // collision settles at its deep value instead of oscillating.
+        float newSq = corr[0] * corr[0] + corr[1] * corr[1] + corr[2] * corr[2];
+        float curSq = c->collisionOffset[0] * c->collisionOffset[0] +
+                      c->collisionOffset[1] * c->collisionOffset[1] + c->collisionOffset[2] * c->collisionOffset[2];
+        float rate = (newSq > curSq) ? c->smoothRate : c->smoothRate * kReturnRateFactor;
+        float f = clampf(rate * dt, 0.0f, 1.0f);
+        c->collisionOffset[0] += (corr[0] - c->collisionOffset[0]) * f;
+        c->collisionOffset[1] += (corr[1] - c->collisionOffset[1]) * f;
+        c->collisionOffset[2] += (corr[2] - c->collisionOffset[2]) * f;
     }
+    c->smoothPos[0] = pos[0] + c->collisionOffset[0];
+    c->smoothPos[1] = pos[1] + c->collisionOffset[1];
+    c->smoothPos[2] = pos[2] + c->collisionOffset[2];
     ncDynamicCamera_setPosition(c->smoothPos);
 
-    // Aim back at the player from the smoothed position. Smooth only the target's
-    // Y: the orbit center Y steps with the floor height under the player.
-    // X/Z follow the player directly so horizontal aim stays responsive.
+    // Aim at the player; smooth only the target Y (X/Z follow directly for responsive horizontal aim).
     if (!c->aimValid) {
         c->aimCenterY = center[1];
         c->aimValid = 1;
     } else {
-        float aimTrack = clampf(kAimHeightRate * dt, 0.0f, 1.0f);
-        c->aimCenterY += (center[1] - c->aimCenterY) * aimTrack;
+        c->aimCenterY += (center[1] - c->aimCenterY) * clampf(kVertRate * dt, 0.0f, 1.0f);
     }
     float aimCenter[3] = { center[0], c->aimCenterY, center[2] };
 
     float rot[3];
     func_802BC434(rot, aimCenter, c->smoothPos);
-    ncDynamicCamera_setRotation(rot);
+
+    // Damp the look-at instead of snapping to it, like the vanilla camera; filters residual aim wobble.
+    if (!c->rotValid) {
+        c->smoothRot[0] = rot[0];
+        c->smoothRot[1] = rot[1];
+        c->smoothRot[2] = rot[2];
+        c->rotValid = 1;
+    } else {
+        float rf = clampf(kRotRate * dt, 0.0f, 1.0f);
+        c->smoothRot[0] = mlNormalizeAngle(c->smoothRot[0] + mlDiffDegF(rot[0], c->smoothRot[0]) * rf);
+        c->smoothRot[1] = mlNormalizeAngle(c->smoothRot[1] + mlDiffDegF(rot[1], c->smoothRot[1]) * rf);
+        c->smoothRot[2] = rot[2];
+    }
+    ncDynamicCamera_setRotation(c->smoothRot);
 }
