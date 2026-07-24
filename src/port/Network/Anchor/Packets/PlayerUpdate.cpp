@@ -7,7 +7,7 @@
 #include "macros.h"
 #include "variables.h"
 
-extern "C" ActorMarker* bacarry_get_marker(void);
+extern "C" ActorMarker* bacarry_getMarker(void);
 
 #include "port/Patches/Patches.h"
 
@@ -184,7 +184,7 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
     {
         // Carried-collectible marker id (0 = none); skipped once thrown (unk138_21 = in flight).
         s32 carryId = 0;
-        ActorMarker* carryMarker = bacarry_get_marker();
+        ActorMarker* carryMarker = bacarry_getMarker();
         if (carryMarker != nullptr) {
             Actor* carried = marker_getActor(carryMarker);
             if (carried != nullptr && !carried->unk138_21) {

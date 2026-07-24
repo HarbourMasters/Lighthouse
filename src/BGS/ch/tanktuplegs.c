@@ -90,7 +90,7 @@ void chTanktupLeg_update(Actor *this){
     // Anchor: teammate hit this leg remotely — replay the pull-in.
     if(this->state == 1 && this->marker->collidable
         && (port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP) & (1 << this->unk10_12))){
-        BGS_func_8038FB84(this->marker, NULL);
+        chTanktupLeg_despawn(this->marker, NULL);
     }
     if(this->state == 2){
         if(anctrl_isAt(this->anctrl, 0.65f)){

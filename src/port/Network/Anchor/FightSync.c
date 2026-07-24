@@ -5,7 +5,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "prop.h"
-#include "FINALE/fight.h"
+#include "fight/fight.h"
 
 // chfinalboss.c globals. D_803927xx = spell-spawn scratch vectors.
 extern f32 D_80392758[3];
@@ -430,7 +430,7 @@ void FightSync_ApplyEvent(s32 ev, s32 a, s32 b, const f32 v0[3], const f32 v1[3]
                     src[0] = boss->position[0];
                     src[1] = boss->position[1];
                     src[2] = boss->position[2];
-                    chfinalboss_func_80387110(boss->marker, src, leadTime, 0);
+                    chfinalboss_throwObject(boss->marker, src, leadTime, 0);
                 }
                 break;
             }

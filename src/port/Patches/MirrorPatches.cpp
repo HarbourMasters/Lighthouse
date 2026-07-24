@@ -25,8 +25,8 @@ static ActorDrawFunc sOrig_actor_draw = nullptr;
 extern "C" {
 
 // ActorInfo externs for text-bearing models (must be inside extern "C" for correct linkage)
-extern ActorInfo D_80393354; // level entry signs (model 0x563)
-extern ActorInfo chMumboSign5; // 5 mumbo token sign (0x301)
+extern ActorInfo D_80393354;    // level entry signs (model 0x563)
+extern ActorInfo chMumboSign5;  // 5 mumbo token sign (0x301)
 extern ActorInfo chMumboSign10; // 10 mumbo token sign (0x302)
 extern ActorInfo chMumboSign15; // 15 mumbo token sign (0x303)
 extern ActorInfo chMumboSign20; // 20 mumbo token sign (0x304)

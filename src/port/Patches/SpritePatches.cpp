@@ -25,8 +25,8 @@ enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
 extern s32 gFramebufferWidth;
 
-extern BKSprite* print_sFontSpriteAssets[];          // font alphamask sprites ([0] = dialog font)
-extern s32 print_sDialogFontGlyphCount; // reachable glyph count: byte range 0x21 .. 0x21+count-1
+extern BKSprite* print_sFontSpriteAssets[]; // font alphamask sprites ([0] = dialog font)
+extern s32 print_sDialogFontGlyphCount;     // reachable glyph count: byte range 0x21 .. 0x21+count-1
 
 #define SPRITE_DISPLAY_CACHE_SIZE 256
 

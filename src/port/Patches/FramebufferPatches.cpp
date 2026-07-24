@@ -180,7 +180,7 @@ static void patchModelDL(BKModelBin* model_bin, uintptr_t seg_start, uintptr_t s
 // Aux picture FB readback (Bottles Bonus / SNS pictures)
 
 extern s16* sPictureBoxColorBuffer; // aux picture CPU buffer (auxbuffer.c)
-extern s32 sAuxGpuFbId; // aux picture GPU FB id (picturebuffer.c)
+extern s32 sAuxGpuFbId;             // aux picture GPU FB id (picturebuffer.c)
 
 s32 port_getAuxGpuFbId(void) {
     return sAuxGpuFbId;

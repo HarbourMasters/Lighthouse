@@ -25,7 +25,7 @@
 #define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
 
 extern "C" {
-int ability_isUnlocked(enum ability_e uid);
+bool ability_isUnlocked(enum ability_e uid);
 void jiggyscore_setCollected(s32 indx, s32 val);
 void honeycombscore_set(enum honeycomb_e indx, bool val);
 void mumboscore_set(enum mumbotoken_e indx, bool val);

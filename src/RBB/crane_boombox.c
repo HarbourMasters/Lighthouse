@@ -257,6 +257,6 @@ void chTNTDownSwitch_update(Actor *this){
         func_80387AC0();
         RBB_func_80387960(0.0f);
         func_80387B24();
-        func_803881E8(this, 3);
+        chTNTDownSwitch_setState(this, 3);
     }
 }

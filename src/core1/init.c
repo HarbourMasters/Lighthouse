@@ -15,7 +15,7 @@
 
 s32 D_80275610 = 0;
 s32 D_80275614 = 0;
-u32 gGlobalTimer = 0;
+s32 gGlobalTimer = 0;
 u32 sDebugVar_8027561C[] = { 0x9, 0x4, 0xA, 0x3, 0xB, 0x2, 0xC, 0x5, 0x0,  0x1, 0x6, 0xD,  -1 }; // never used
 s32 D_80275650 = VER_SELECT(0xAD019D3C, 0xA371A8F3, 0, 0); //SM_DATA_CRC2
 s32 D_80275654 = VER_SELECT(0xD381B72F, 0xD0709154, 0, 0); //MM_DATA_CRC2
@@ -70,7 +70,7 @@ void func_8023DA9C(s32 arg0){
     ucode_stub1();
 }
 
-u32 globalTimer_getTimeMasked(u32 mask){
+s32 globalTimer_getTimeMasked(s32 mask) {
     return gGlobalTimer & mask;
 }
 
@@ -192,7 +192,7 @@ void mainLoop(void){
         //render weird CRC failure image
         for(y= 0x1e; y < gFramebufferHeight - 0x1e; y++){//L8023DEB4
             for(x = 0x14; x < 0xeb; x++){
-                tmp = ((8 * globalTimer_getTime()) + ((x*x) + (y*y)));
+                tmp = ((globalTimer_getTime() << 3) + x * x + y * y);
                 
                 r = _SHIFTL(x>>3, 11, 5);
                 g = _SHIFTL(y>>3, 6, 5);

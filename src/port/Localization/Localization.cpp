@@ -31,8 +31,8 @@ int code94620_func_8031B5B0(void);           // current dialog-language index (0
 int func_8031877C(void* zoombox);            // clear a zoombox's strings before re-setting
 
 // Print font internals
-extern void* print_sFontSpriteAssets[];   // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
-extern void* print_sFonts[]; // FontLetter*[4]: decoded glyph tables per slot
+extern void* print_sFontSpriteAssets[]; // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
+extern void* print_sFonts[];            // FontLetter*[4]: decoded glyph tables per slot
 void* print_getLettersFromFont(void* alphaMask, void* textureSprite);
 int print_getCurrentMapBoldFontTexture(void);
 void print_setBoldFontTexture(int textureId);

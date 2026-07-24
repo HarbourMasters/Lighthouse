@@ -1351,7 +1351,7 @@ static enum file_progress_e __leveldoor_persistentFlag(s32 actorId) {
         case ACTOR_228_MMM_ENTRANCE_DOOR:      return FILEPROG_37_MMM_OPEN;
         case ACTOR_20F_RBB_ENTRANCE_DOOR:      return FILEPROG_38_RBB_OPEN;
         case ACTOR_234_CCW_ENTRANCE_DOOR:      return FILEPROG_39_CCW_OPEN;
-        case ACTOR_2E5_DOOR_OF_GRUNTY:         return FILEPROG_E2_DOOR_OF_GRUNTY_OPEN;
+        case ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE:         return FILEPROG_E2_DOOR_OF_GRUNTY_OPEN;
         default:                               return 0;
     }
 }
@@ -1367,7 +1367,7 @@ void port_leveldoor_remoteOpen(s32 progressFlag) {
         case 0x2E: sRemoteOpenDoorActor = ACTOR_228_MMM_ENTRANCE_DOOR; break;
         case 0x2F: sRemoteOpenDoorActor = ACTOR_20F_RBB_ENTRANCE_DOOR; break;
         case 0x30: sRemoteOpenDoorActor = ACTOR_234_CCW_ENTRANCE_DOOR; break;
-        case 0xE2: sRemoteOpenDoorActor = ACTOR_2E5_DOOR_OF_GRUNTY; break;
+        case 0xE2: sRemoteOpenDoorActor = ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE; break;
         default: break;
     }
 }

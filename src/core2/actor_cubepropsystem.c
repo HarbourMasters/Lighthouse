@@ -276,8 +276,7 @@ void func_8032CD60(Prop *prop) {
                         } else {
                             sp3C = prop->spriteProp.isMirrored;
                         }
-                      if (1);
-                        break;
+                      if (1) break;
                 }
                 break;
 

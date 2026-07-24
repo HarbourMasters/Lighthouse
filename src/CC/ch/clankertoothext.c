@@ -99,7 +99,7 @@ void maClankerTooth_update(Actor *this){
         while(this->state == 1 && local->egg_count < shared){
             local->egg_count++;
             if(local->egg_count == 3){
-                chClankerTooth_setNextState(this, 2);
+                maClankerTooth_setNextState(this, 2);
             }else{
                 coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
             }

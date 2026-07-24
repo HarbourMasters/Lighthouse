@@ -81,7 +81,7 @@ void chEyrieEgg_update(Actor *this) {
 
     if (this->state == CH_EYRIE_EGG_STATE_1_IDLE && fileProgressFlag_get(FILEPROG_E6_SPRING_EYRIE_HATCHED)) {
         sChEyrieEggRemote = 1;
-        func_80389440(this, 2);
+        chEyrieEgg_setNextState(this, CH_EYRIE_EGG_STATE_2_BREAKING);
         sChEyrieEggRemote = 0;
     }
 
