@@ -148,8 +148,8 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
         // Deepen the pull-in fast (never clip through geometry), relax slowly so a flickering
         // collision settles at its deep value instead of oscillating.
         float newSq = corr[0] * corr[0] + corr[1] * corr[1] + corr[2] * corr[2];
-        float curSq = c->collisionOffset[0] * c->collisionOffset[0] +
-                      c->collisionOffset[1] * c->collisionOffset[1] + c->collisionOffset[2] * c->collisionOffset[2];
+        float curSq = c->collisionOffset[0] * c->collisionOffset[0] + c->collisionOffset[1] * c->collisionOffset[1] +
+                      c->collisionOffset[2] * c->collisionOffset[2];
         float rate = (newSq > curSq) ? c->smoothRate : c->smoothRate * kReturnRateFactor;
         float f = clampf(rate * dt, 0.0f, 1.0f);
         c->collisionOffset[0] += (corr[0] - c->collisionOffset[0]) * f;
