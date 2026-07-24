@@ -77,16 +77,31 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Allow Start to Skip Boot Logos", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipBootLogos"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Press Start to skip the Rareware and Nintendo logos on boot."));
 
     AddWidget(path, "Allow Start to Skip Intro Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.StartSkipIntro"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Press Start to Skip Intro Cutscenes."));
 
     AddWidget(path, "Allow Start to Skip Misc Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipMiscCutscenes"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Press Start to skip the Gruntilda's Lair and Game Over cutscenes."));
 
     AddWidget(path, "Skip Jiggy Dance", WIDGET_CVAR_CHECKBOX)
@@ -297,11 +312,21 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix CCW Gnawty Rock (Spring)", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.GnawtySpringRock"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Makes Gnawty's rock indestructible in CCW Spring."));
 
     AddWidget(path, "Fix Termite Mound Slopes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Makes slopes in the Mumbo's Mountain termite mound slide instantly."));
 
     AddWidget(path, "Fix Early Claw Swipe During Slide", WIDGET_CVAR_CHECKBOX)
@@ -347,6 +372,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CongaText"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Corrects a spelling error when meeting Conga as a termite."));
 
     // Enhancements -> Restorations
@@ -596,6 +626,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.FastTransform"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Speeds up Mumbo transformation animation by 3x."));
 
     AddWidget(path, "D-pad Cycle Transform", WIDGET_CVAR_CHECKBOX)
@@ -607,6 +642,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "No Mumbo Untransform", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.NoMumboUntransform"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
 
