@@ -23,6 +23,34 @@ extern f32 func_8033229C(ActorMarker *);
 void func_8034DF30(Struct6Ds *, f32[3], f32[3], f32);
 
 // ActorLocal_FinalBoss moved to fight.h for the Anchor fight-sync layer.
+#if 0
+typedef struct chfinalboss_s {
+    u8 phase;
+    u8 hits;
+    u8 unk2;
+    u8 unk3;
+    u8 unk4;
+    u8 unk5;
+    u8 player_hit_in_phase3;
+    u8 mirror_phase5;
+    u8 unk8;
+    u8 unk9;
+    u8 unkA;
+    u8 unkB;
+    u8 unkC;
+    u8 unkD;
+    u8 unkE;
+    u8 unkF;
+    s32 player_hit_in_phase1;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    u8 pad24[4];
+    f32 unk28;
+    f32 unk2C;
+} ActorLocal_FinalBoss;
+#endif
 
 f32 fight_D_80391380[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 f32 fight_D_80391390[4] = { 0.33f, 0.33f, 0.33f, 1.0f };
@@ -2149,7 +2177,7 @@ void chfinalboss_update(Actor *this){
         timed_playSfx(2.0f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 32000);
     }//L8038BF0C
 
-    // Anchor: followers skip the boss brain — state rides FIGHT_UPDATE/FIGHT_EVENT instead.
+    // Anchor: followers skip the boss brain - state rides FIGHT_UPDATE/FIGHT_EVENT instead.
     if (!FightSync_BossFollowerTick(this))
     switch(local->phase) {
         case FINALBOSS_PHASE_0_INTRO:
