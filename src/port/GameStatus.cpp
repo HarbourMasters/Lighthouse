@@ -10,9 +10,9 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 
 // Pause menu level name table (supports romhack string patches via Torch config)
 typedef struct {

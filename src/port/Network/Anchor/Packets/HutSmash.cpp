@@ -10,9 +10,7 @@
 #include <map>
 #include <vector>
 
-extern "C" {
 #include "functions.h"
-}
 
 /**
  * HUT_SMASH

@@ -2,8 +2,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent);
 }
 

@@ -17,9 +17,9 @@ static int sDrawDistanceCubeWidth(int mul) {
 static int sDrawDistanceLevel = 0;
 static int sDisableLOD = 0;
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 
 extern s32 gFramebufferWidth;
 extern s32 gFramebufferHeight;

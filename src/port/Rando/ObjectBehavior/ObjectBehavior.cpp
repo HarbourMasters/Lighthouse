@@ -13,9 +13,6 @@
 #define CVAR_SHOW_COLLISION_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS, 0)
 
 extern "C" {
-Actor* marker_getActor(ActorMarker* thisx);
-bool func_802C9C14(Actor* actor);
-
 extern ActorArray* suBaddieActorArray;
 }
 

@@ -5,10 +5,10 @@
 #include <libultra/gu.h>
 #include <libultra/convert.h>
 
+#include "functions.h"
 extern "C" {
 #include "model.h"
 #include "prop.h"
-#include "functions.h"
 }
 
 static bool sMirrorSceneActive = false;

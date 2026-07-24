@@ -6,8 +6,8 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 void chHoneycomb_netRevealFromSwitch(void);
 }
 

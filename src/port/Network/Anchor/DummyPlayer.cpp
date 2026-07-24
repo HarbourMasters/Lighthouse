@@ -1,9 +1,9 @@
 #include "Anchor.h"
 #include "port/Nametag/Nametag.h"
 
+#include "functions.h"
 extern "C" {
 #include <ultra64.h>
-#include "functions.h"
 #include "variables.h"
 void func_802D729C(Actor* actor, f32 arg1);
 }

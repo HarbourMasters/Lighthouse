@@ -7,8 +7,8 @@
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/StaticData/StaticData.h"
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 void marker_despawn(ActorMarker* marker);
 }
 

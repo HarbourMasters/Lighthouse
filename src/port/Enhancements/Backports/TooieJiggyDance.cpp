@@ -9,9 +9,9 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 #include "core2/particle.h"
 
 ParticleEmitter* __fxSparkle_create(s16 position[3], f32 height, enum asset_e sprite_id);

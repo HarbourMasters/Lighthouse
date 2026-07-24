@@ -1,9 +1,7 @@
 #pragma once
-extern "C" {
 #include "functions.h"
 #include "core2/ba/model.h"
 #include "variables.h"
-}
 
 class DummyPlayer {
 public:

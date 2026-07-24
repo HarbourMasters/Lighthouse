@@ -13,9 +13,9 @@
 #include <chrono>
 #include <string>
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 }
 
 extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap);

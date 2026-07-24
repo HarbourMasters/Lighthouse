@@ -8,9 +8,9 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 
 enum map_e gsworld_getMap(void);
 }

@@ -2,8 +2,8 @@
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
 #include "port/Network/Anchor/Anchor.h"
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 #include "variables.h"
 extern u8 gCompletedBottlesBonusGames[7];
 }

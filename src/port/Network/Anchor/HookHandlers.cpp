@@ -8,9 +8,9 @@
 #include "port/UI/Notification.h"
 #include <unordered_set>
 
+#include "functions.h"
 extern "C" {
 #include "variables.h"
-#include "functions.h"
 
 s32 chvile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);

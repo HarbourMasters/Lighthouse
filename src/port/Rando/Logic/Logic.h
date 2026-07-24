@@ -6,9 +6,8 @@
 
 #include <unordered_set>
 
-extern "C" {
 #include "functions.h"
-
+extern "C" {
 // Decomp functions that functions.h does not declare (defined in smbottles.c,
 // mumbo_transforms.c and jigsawpicture.c respectively).
 void __chSmBottles_skipIntroTutorial(void);

@@ -18,13 +18,6 @@ typedef struct {
     s8 ability;
 } ChMoleDescription;
 
-extern "C" {
-void func_80347A14(s32 arg0);
-s32 item_adjustByDiffWithHud(enum item_e item, s32 diff);
-s32 mapSpecificFlags_get(s32 i);
-void mapSpecificFlags_set(s32 i, s32 val);
-}
-
 // clang-format off
 ChMoleDescription moleDialogTable[MOLETABLE_SIZE] = {
     //{ ASSET_DF3_DIALOG_BOTTLES_INTRODUCTION,            ASSET_E08_DIALOG_BOTTLES_FIND_ANOTHER_MOLEHILL,     0x1, -1 },

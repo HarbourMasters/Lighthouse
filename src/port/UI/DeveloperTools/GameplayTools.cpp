@@ -20,16 +20,6 @@
 #include "include/core1/sns.h"
 
 extern "C" {
-void player_getPosition_s32(s32 arg0[3]);
-Actor* actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags);
-void func_8031D04C(enum map_e arg0, s32 exit_id);
-
-void ability_setAllLearned(s32 val);
-void ability_setAllUsed(s32 val);
-
-s32 mapSpecificFlags_get(s32 i);
-void mapSpecificFlags_set(s32 i, s32 val);
-
 typedef struct {
     enum honeycomb_e uid;
     s32 unk4;

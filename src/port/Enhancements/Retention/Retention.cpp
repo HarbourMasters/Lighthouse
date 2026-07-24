@@ -6,9 +6,9 @@
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/Rando/Rando.h" // selectedFileNum, gameFile_saveData, DEFAULT_FILE_NUM, FILE_TYPE_SAVE_RANDO
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 }
 
 namespace retention {

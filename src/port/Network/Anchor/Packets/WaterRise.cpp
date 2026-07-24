@@ -8,8 +8,8 @@
 
 #include <map>
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 #include "variables.h"
 // func_8034C5AC: xform-3 water group. func_8034E78C: animate its dy.
 }

@@ -19,11 +19,11 @@
 #include <vector>
 #include <unordered_map>
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
 #include "actor.h"
 #include "prop.h"
-#include "functions.h"
 
 extern f32 gBundle_yaw;
 extern ActorInfo sumusicNote;

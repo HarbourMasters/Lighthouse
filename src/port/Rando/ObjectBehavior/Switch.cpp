@@ -6,12 +6,7 @@
 #include "spdlog/spdlog.h"
 
 extern "C" {
-Actor* actorArray_findActorFromActorId(enum actor_e actor_id);
 void destroyJiggy(Actor* thisx, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, enum volatile_flags_e arg6);
-
-s32 mapSpecificFlags_get(s32 i);
-
-void actor_collisionOff(Actor*);
 }
 
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue

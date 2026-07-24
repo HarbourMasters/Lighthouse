@@ -13,10 +13,10 @@
 #include <array>
 #include <set>
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
 #include "actor.h"
-#include "functions.h"
 }
 
 namespace {

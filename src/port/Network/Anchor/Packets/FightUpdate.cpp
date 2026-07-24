@@ -4,8 +4,8 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 #include "variables.h"
 }
 

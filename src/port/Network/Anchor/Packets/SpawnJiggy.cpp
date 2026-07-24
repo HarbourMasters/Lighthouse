@@ -9,9 +9,7 @@
 #include <map>
 #include <vector>
 
-extern "C" {
 #include "functions.h"
-}
 
 /**
  * JIGGY_SPAWN

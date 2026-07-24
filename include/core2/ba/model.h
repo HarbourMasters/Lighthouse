@@ -1,6 +1,10 @@
 #ifndef _PLAYER_MODEL_H_
 #define _PLAYER_MODEL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum player_model_direction_e {
     PLAYER_MODEL_DIR_NONE = 0,
     PLAYER_MODEL_DIR_BANJO = 1,
@@ -14,5 +18,9 @@ void baModel_setScale(f32);
 void baModel_setYDisplacement(f32);
 void baModel_8029217C(f32);
 void baModel_setVisible(s32 arg0);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

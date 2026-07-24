@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <vector>
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 void chHoneycomb_netRevealFromSwitch(void);
 }
 

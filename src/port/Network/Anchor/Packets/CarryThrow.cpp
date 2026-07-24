@@ -4,9 +4,7 @@
 
 #include "port/Patches/Patches.h"
 
-extern "C" {
 #include "functions.h"
-}
 
 /**
  * CARRY_THROW

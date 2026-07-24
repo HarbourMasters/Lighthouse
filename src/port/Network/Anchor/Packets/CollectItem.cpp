@@ -5,9 +5,7 @@
 #include "port/Rando/Rando.h"
 #include "port/UI/Notification.h"
 
-extern "C" {
 #include "functions.h"
-}
 
 static const char* const kJiggyLevelNames[10] = {
     "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp", "Freezeezy Peak",

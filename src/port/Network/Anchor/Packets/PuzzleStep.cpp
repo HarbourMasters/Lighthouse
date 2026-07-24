@@ -11,8 +11,8 @@
 #include <set>
 #include <vector>
 
-extern "C" {
 #include "functions.h"
+extern "C" {
 void chTreasurehunt_netTick(void);
 }
 

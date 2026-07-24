@@ -9,9 +9,7 @@
 #include <array>
 #include <set>
 
-extern "C" {
 #include "functions.h"
-}
 
 #include "port/Patches/Patches.h"
 
