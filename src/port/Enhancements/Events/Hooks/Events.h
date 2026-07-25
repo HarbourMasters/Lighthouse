@@ -28,6 +28,8 @@ typedef enum VBehaviorID {
     VB_CLAW_SWIPE_SLIDE,
     VB_BOGGY_RACE_GAME_OVER,
     VB_JINJO_CHARGE_SOUND,
+    // MM Chimpy stump: gates the rumble sfx that starts when the stump begins shaking.
+    VB_MM_CHIMPY_STUMP_RUMBLE,
     VB_YUMYUM_DROP,
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,
     VB_OVERRIDE_MOLEHILL_ABILITY,

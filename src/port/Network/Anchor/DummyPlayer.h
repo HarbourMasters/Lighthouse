@@ -128,14 +128,14 @@ private:
 
     f32 dummy_D_8037D230;
     u8 dummy_D_8037D234;
-    u8 dummy_modelSquint;
-    u8 dummy_modelWink;
-    u8 dummy_modelMouth1;
-    u8 dummy_kazooieVisible;
-    u8 dummy_modelMouth2;
+    u8 dummy_kazooieLower;
+    u8 dummy_kazooieFeet;
+    u8 dummy_kazooieTurbos;
+    u8 dummy_kazooieUpper;
+    u8 dummy_kazooieBoots;
     u8 dummy_D_8037D23A;
-    f32 dummy_modelEyeBlendUpper;
-    f32 dummy_modelEyeBlendLower;
+    f32 dummy_banjoLeftEye;
+    f32 dummy_banjoRightEye;
     Transformation dummy_transformation;
     s32 dummyBottlesBonus = 0;
 };

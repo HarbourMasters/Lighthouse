@@ -34,6 +34,7 @@ extern "C" int port_isInCharacterParade(void) {
 #define CVAR_JINJO_SOUND CVAR_ENHANCEMENT("Fixes.JinjoChargeSound")
 #define CVAR_GRUNTY_BOUNCE CVAR_ENHANCEMENT("Fixes.GruntyBounce")
 #define CVAR_CONGA_TEXT CVAR_ENHANCEMENT("Fixes.CongaText")
+#define CVAR_STUMP_RUMBLE CVAR_ENHANCEMENT("Fixes.ChimpyStumpRumble")
 
 void RegisterVoidOutGameOver_Init() {
     COND_VB_SHOULD(VB_VOID_OUT_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_VOID_OUT, 0),
@@ -140,6 +141,15 @@ void RegisterCongaDialog_Init() {
     });
 }
 
+// MM Chimpy stump: Chimpy respawns and walks off again on every entry to MM once his jiggy has
+// spawned, so the stump drops in low and grinds back up with the rumble sfx each time. Mute the
+// rumble for those replays only; the first rise (jiggy spawns 2.9s after the shake starts, so it
+// isn't marked spawned yet) keeps its sound.
+void RegisterChimpyStumpRumble_Init() {
+    COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
+                   { *should = !jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY); });
+}
+
 // Mumbo token duplicate-id fix: rewrite the resolved id for the two tokens that share an id.
 void RegisterMumboTokenIdResolve_Init() {
     COND_HOOK(OnMumboTokenIdResolve, EVENT_PRIORITY_NORMAL,
@@ -171,5 +181,6 @@ static RegisterShipInitFunc initJinjoChargeSoundFunc(RegisterJinjoChargeSound_In
 static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CVAR_GRUNTY_BOUNCE });
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
+static RegisterShipInitFunc initChimpyStumpRumbleFunc(RegisterChimpyStumpRumble_Init, { CVAR_STUMP_RUMBLE });
 static RegisterShipInitFunc initMumboTokenIdResolveFunc(RegisterMumboTokenIdResolve_Init,
                                                         { CVAR_TOKEN_MMM, CVAR_TOKEN_CCW });

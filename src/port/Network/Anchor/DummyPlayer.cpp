@@ -59,12 +59,12 @@ void DummyPlayer::dummy_func_8029DBF0(void) {
     switch (dummy_getModelId()) {
         case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:  // L8029DC24
         case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY: // L8029DC24
-            temp_s0 = (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 8.0f);
+            temp_s0 = (s32)ml_interpolate_f(dummy_banjoLeftEye, 1.0f, 8.0f);
             modelRender_setAppendageVisibility(0x1B, temp_s0);
             modelRender_setAppendageVisibility(0x1D, temp_s0);
             modelRender_setAppendageVisibility(0x1F, temp_s0);
             modelRender_setAppendageVisibility(0x21, temp_s0);
-            temp_s0 = (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 8.0f);
+            temp_s0 = (s32)ml_interpolate_f(dummy_banjoRightEye, 1.0f, 8.0f);
             modelRender_setAppendageVisibility(0x1A, temp_s0);
             modelRender_setAppendageVisibility(0x1C, temp_s0);
             modelRender_setAppendageVisibility(0x1E, temp_s0);
@@ -75,12 +75,12 @@ void DummyPlayer::dummy_func_8029DBF0(void) {
         case ASSET_359_MODEL_BANJO_WALRUS:  // L8029DCCC
         case ASSET_36F_MODEL_BANJO_PUMPKIN: // L8029DCCC
         case ASSET_374_MODEL_BANJO_CROC:    // L8029DCCC
-            modelRender_setAppendageVisibility(0x1B, (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 6.0f));
-            modelRender_setAppendageVisibility(0x1A, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 6.0f));
+            modelRender_setAppendageVisibility(0x1B, (s32)ml_interpolate_f(dummy_banjoLeftEye, 1.0f, 6.0f));
+            modelRender_setAppendageVisibility(0x1A, (s32)ml_interpolate_f(dummy_banjoRightEye, 1.0f, 6.0f));
             break;
 
         case ASSET_356_MODEL_BANJO_WISHYWASHY: // L8029DD2C
-            modelRender_setAppendageVisibility(1, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 4.0f));
+            modelRender_setAppendageVisibility(1, (s32)ml_interpolate_f(dummy_banjoRightEye, 1.0f, 4.0f));
             break;
     }
 }
@@ -90,8 +90,8 @@ AnimCtrl* DummyPlayer::dummy_getAnimCtrl() {
 }
 
 void DummyPlayer::dummy_setEyeState(bool squint, bool wink, bool isHat) {
-    dummy_modelSquint = squint;
-    dummy_modelWink = wink;
+    dummy_kazooieLower = squint;
+    dummy_kazooieFeet = wink;
     dummy_D_8037D230 = 1.0f;
     dummy_D_8037D234 = isHat;
 }
@@ -103,19 +103,19 @@ void DummyPlayer::modelAppendages_loadAppendage(void) {
     switch (dummy_getModelId()) {
         case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
         case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
-            modelRender_setAppendageVisibility(1, dummy_kazooieVisible);
-            modelRender_setAppendageVisibility(9, dummy_kazooieVisible);
-            modelRender_setAppendageVisibility(0xC, dummy_kazooieVisible);
-            modelRender_setAppendageVisibility(0xF, dummy_kazooieVisible);
-            modelRender_setAppendageVisibility(2, dummy_modelWink);
-            modelRender_setAppendageVisibility(0xA, dummy_modelWink);
-            modelRender_setAppendageVisibility(0xD, dummy_modelWink);
-            modelRender_setAppendageVisibility(0x10, dummy_modelWink);
-            modelRender_setAppendageVisibility(8, dummy_modelSquint);
-            modelRender_setAppendageVisibility(0xB, dummy_modelSquint);
-            modelRender_setAppendageVisibility(0xE, dummy_modelSquint);
-            modelRender_setAppendageVisibility(0x11, dummy_modelSquint);
-            temp_s0 = dummy_modelMouth1 + 1;
+            modelRender_setAppendageVisibility(1, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(9, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(0xC, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(0xF, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(2, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(0xA, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(0xD, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(0x10, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(8, dummy_kazooieLower);
+            modelRender_setAppendageVisibility(0xB, dummy_kazooieLower);
+            modelRender_setAppendageVisibility(0xE, dummy_kazooieLower);
+            modelRender_setAppendageVisibility(0x11, dummy_kazooieLower);
+            temp_s0 = dummy_kazooieTurbos + 1;
             modelRender_setAppendageVisibility(0x12, temp_s0);
             modelRender_setAppendageVisibility(0x14, temp_s0);
             modelRender_setAppendageVisibility(0x16, temp_s0);
@@ -124,7 +124,7 @@ void DummyPlayer::modelAppendages_loadAppendage(void) {
             modelRender_setAppendageVisibility(0x15, temp_s0);
             modelRender_setAppendageVisibility(0x17, temp_s0);
             modelRender_setAppendageVisibility(0x19, temp_s0);
-            temp_s0 = dummy_modelMouth2 + 1;
+            temp_s0 = dummy_kazooieBoots + 1;
             modelRender_setAppendageVisibility(0x22, temp_s0);
             modelRender_setAppendageVisibility(0x24, temp_s0);
             modelRender_setAppendageVisibility(0x26, temp_s0);
@@ -138,7 +138,7 @@ void DummyPlayer::modelAppendages_loadAppendage(void) {
             modelRender_setAppendageVisibility(3, dummy_D_8037D23A);
             break;
         case ASSET_374_MODEL_BANJO_CROC:
-            temp_s0 = dummy_modelMouth1 + 1;
+            temp_s0 = dummy_kazooieTurbos + 1;
             modelRender_setAppendageVisibility(4, temp_s0);
             modelRender_setAppendageVisibility(5, temp_s0);
             modelRender_setAppendageVisibility(6, temp_s0);
@@ -320,13 +320,13 @@ void DummyPlayer::dummy_free(void) {
 void DummyPlayer::dummyAnim_reset() {
     dummy_D_8037D230 = 0;
     dummy_D_8037D234 = 0;
-    dummy_kazooieVisible = 0;
-    dummy_modelWink = 0;
-    dummy_modelSquint = 0;
-    dummy_modelEyeBlendUpper = 0.0f;
-    dummy_modelEyeBlendLower = 0.0f;
-    dummy_modelMouth1 = 0;
-    dummy_modelMouth2 = 0;
+    dummy_kazooieUpper = 0;
+    dummy_kazooieFeet = 0;
+    dummy_kazooieLower = 0;
+    dummy_banjoLeftEye = 0.0f;
+    dummy_banjoRightEye = 0.0f;
+    dummy_kazooieTurbos = 0;
+    dummy_kazooieBoots = 0;
     dummy_D_8037D23A = 0;
 }
 
@@ -544,13 +544,13 @@ void DummyPlayer::dummyAnim_update(void) {
 
 void DummyPlayer::setModelSubStates(bool kazooie, bool squint, bool wink, bool mouth1, bool mouth2, f32 eyeBlendUpper,
                                     f32 eyeBlendLower) {
-    dummy_kazooieVisible = kazooie;
-    dummy_modelSquint = squint;
-    dummy_modelWink = wink;
-    dummy_modelMouth1 = mouth1;
-    dummy_modelMouth2 = mouth2;
-    dummy_modelEyeBlendUpper = eyeBlendUpper;
-    dummy_modelEyeBlendLower = eyeBlendLower;
+    dummy_kazooieUpper = kazooie;
+    dummy_kazooieLower = squint;
+    dummy_kazooieFeet = wink;
+    dummy_kazooieTurbos = mouth1;
+    dummy_kazooieBoots = mouth2;
+    dummy_banjoLeftEye = eyeBlendUpper;
+    dummy_banjoRightEye = eyeBlendLower;
 }
 
 void DummyPlayer::dummyAnim_setUpdateType(s32 state) {
