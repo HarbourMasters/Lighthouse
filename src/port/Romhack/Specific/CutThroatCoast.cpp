@@ -14,7 +14,7 @@ extern struct1Cs_1 D_8036C58C[0xD];
 
 // Acorn replaced with collectible doubloon
 extern ActorInfo D_8038F460;
-void func_8038C7A8(Actor* thisx);
+void chCarriedAcorn_update(Actor* thisx);
 
 typedef struct {
     u8 map_id;
@@ -141,7 +141,7 @@ void UpdateLighthouseBeam() {
 
 extern "C" void CutThroatCoast_DoubloonUpdate(Actor* thisx) {
     thisx->yaw = mlNormalizeAngle(thisx->yaw + 12.0f);
-    func_8038C7A8(thisx);
+    chCarriedAcorn_update(thisx);
 }
 
 void RegisterCutThroatCoastPatches() {

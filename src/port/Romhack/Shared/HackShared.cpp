@@ -12,10 +12,9 @@ extern "C" {
 
 extern ActorArray* suBaddieActorArray;
 
-// Bold world-name font internals
-extern s32 D_80380AE8;  // active font slot (1 == bold)
-extern s32 D_80380AF0;  // monospaced flag
-extern char D_80380AB0; // previous letter
+extern s32 print_sCurrentFont;
+extern s32 print_sMonospacedModeEnabled;
+extern char print_sPreviousBoldLetter;
 f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32* yPtr, f32 arg3);
 }
 
@@ -66,20 +65,20 @@ void ApplyNoteSignHooks() {
 
 // Center bold font in pause menu
 f32 MeasureBoldNameWidth(const char* s) {
-    const s32 savedSlot = D_80380AE8;
-    const s32 savedMono = D_80380AF0;
-    const char savedPrev = D_80380AB0;
-    D_80380AE8 = 1;
-    D_80380AF0 = 0;
-    D_80380AB0 = 0;
+    const s32 savedSlot = print_sCurrentFont;
+    const s32 savedMono = print_sMonospacedModeEnabled;
+    const char savedPrev = print_sPreviousBoldLetter;
+    print_sCurrentFont = 1;
+    print_sMonospacedModeEnabled = 0;
+    print_sPreviousBoldLetter = 0;
     f32 x = 0.0f;
     f32 y = 0.0f;
     for (const char* p = s; *p != '\0'; ++p) {
         print_calculateLetterXPos((u8)(unsigned char)*p, &x, &y, 1.05f);
     }
-    D_80380AE8 = savedSlot;
-    D_80380AF0 = savedMono;
-    D_80380AB0 = savedPrev;
+    print_sCurrentFont = savedSlot;
+    print_sMonospacedModeEnabled = savedMono;
+    print_sPreviousBoldLetter = savedPrev;
     return x;
 }
 

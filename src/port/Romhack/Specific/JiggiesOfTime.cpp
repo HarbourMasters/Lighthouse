@@ -17,12 +17,12 @@ extern "C" {
 #include "enums.h"
 #include "functions.h"
 
-extern ActorInfo D_8038BD00;
+extern ActorInfo chXBarrelTop;
 extern ActorInfo gChVegetablesCollywobbleB;
 }
 
 void RegisterJiggiesOfTimePatches() {
-    D_8038BD00.markerId = 0x54;
+    chXBarrelTop.markerId = 0x54;
     gChVegetablesCollywobbleB.markerId = MARKER_1F1_GRUNTLING_BLACK;
 
     // JoT's note signs are repurposed Red Question Marks.

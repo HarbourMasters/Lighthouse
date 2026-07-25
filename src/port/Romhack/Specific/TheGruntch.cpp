@@ -266,7 +266,7 @@ void MumboReward_setState() {
 
 extern "C" s32 romhack_mumboTransform(s32 transformId) {
     if (!sMumboRewardEnabled || gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
-        return func_8028FB88((enum transformation_e)transformId);
+        return player_transform((enum transformation_e)transformId);
     }
     timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
     timedFunc_set_0(kStateDelay, MumboReward_setState);

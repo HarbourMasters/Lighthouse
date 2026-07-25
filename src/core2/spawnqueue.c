@@ -438,9 +438,9 @@ void spawnQueue_reset(void){
         if (loaded_asm_file != OVERLAY_8_SHIP)     { RBB_func_80386C48(); }
         if (loaded_asm_file != OVERLAY_9_SNOW)     {
             FP_func_80391324();
-            spawnableActorList_add(&D_80367BC8, actor_new, ACTOR_FLAG_UNKNOWN_3);
-            spawnableActorList_add(&D_80367BEC, actor_new, ACTOR_FLAG_UNKNOWN_3);
-            spawnableActorList_add(&D_80367C10, actor_new, ACTOR_FLAG_UNKNOWN_3);
+            spawnableActorList_add(&chBluePresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
+            spawnableActorList_add(&chGreenPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
+            spawnableActorList_add(&chRedPresentCollectible, actor_new, ACTOR_FLAG_UNKNOWN_3);
         }
         if (loaded_asm_file != OVERLAY_A_TREE)     { CCW_func_8038DB6C(); }
     }

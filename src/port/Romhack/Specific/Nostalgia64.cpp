@@ -9,8 +9,8 @@ extern "C" {
 
 extern ActorInfo D_80393378;
 extern ActorInfo chGruntlingBlack;
-extern ActorInfo D_8038BC4C;
-extern ActorInfo D_8038BD48;
+extern ActorInfo chCellarHatch;
+extern ActorInfo chMMMWideWindow;
 
 void chGruntling_initialize(Actor* thisx);
 void func_802D3CE8(Actor* thisx);
@@ -21,7 +21,7 @@ struct HitboxRow {
     u16 flags;
     u16 vals[11];
 };
-extern "C" HitboxRow D_80370AC0[];
+extern "C" HitboxRow collision_table[];
 
 namespace {
 
@@ -53,8 +53,8 @@ extern "C" void Nostalgia64_VentUpdate(Actor* thisx) {
 extern "C" void Nostalgia64_VentSmokeUpdate(Actor* thisx) {
     func_802D3CE8(thisx);
     for (int i = 0; i < 0xBB; i++) {
-        if (D_80370AC0[i].markerId == MARKER_1F1_GRUNTLING_BLACK) {
-            D_80370AC0[i].vals[10] = 0x7000;
+        if (collision_table[i].markerId == MARKER_1F1_GRUNTLING_BLACK) {
+            collision_table[i].vals[10] = 0x7000;
             break;
         }
     }
@@ -69,8 +69,8 @@ extern "C" void Nostalgia64_VentSmokeUpdate(Actor* thisx) {
 extern "C" void Nostalgia64_BreakableDoorUpdate(Actor* thisx) {
     func_802D3CE8(thisx);
     for (int i = 0; i < 0xBB; i++) {
-        if (D_80370AC0[i].markerId == MARKER_9A_1881_BARREL_TOP) {
-            D_80370AC0[i].flags = 0x0804;
+        if (collision_table[i].markerId == MARKER_9A_1881_BARREL_TOP) {
+            collision_table[i].flags = 0x0804;
             break;
         }
     }
@@ -82,8 +82,8 @@ void RegisterNostalgia64Patches() {
     D_80393378.markerId = MARKER_65_SHRAPNEL;
 
     chGruntlingBlack.update_func = Nostalgia64_VentUpdate;
-    D_8038BC4C.update_func = Nostalgia64_VentSmokeUpdate;
-    D_8038BD48.update_func = Nostalgia64_BreakableDoorUpdate;
+    chCellarHatch.update_func = Nostalgia64_VentSmokeUpdate;
+    chMMMWideWindow.update_func = Nostalgia64_BreakableDoorUpdate;
 
     // The N64 cube stands in for the note signs
     HackShared_EnableNoteSignSuppression(ACTOR_93_INTRO_N64_CUBE);
