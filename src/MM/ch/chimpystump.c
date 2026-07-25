@@ -34,7 +34,11 @@ void __chchimpystump_updateShaking(Actor *this) {
         if (this->unk10_12 == 0) {
             this->unk10_12 = 1;
             func_802BB3DC(1, 3.0f, 1.0f);
-            core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.2f);
+            // [port] Vanilla replays Chimpy's walk-off, and with it this rise, on every entry to MM
+            // once his jiggy has spawned. The rumble can be muted for those replays.
+            if (EventSystem_Should(VB_MM_CHIMPY_STUMP_RUMBLE, true)) {
+                core1_7090_initSfxSource(0, 0x6A, 0x7FF8, 0.2f);
+            }
         }//L80386D0C
 
         this->position_x = ((globalTimer_getTime() & 1) * 2) ^ (s32) this->position_x;

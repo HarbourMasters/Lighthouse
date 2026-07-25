@@ -173,13 +173,13 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
         anctrl_getSubRange(baanim_getAnimCtrlPtr(), &sub_start, &sub_end);
         payload["subrange_end"] = sub_end;
     }
-    payload["kazooieVisible"] = modelAppendages_showKazooiesUpperHalf();  // Kazooie visibility (Kazooie popped out)
-    payload["modelSquint"] = modelAppendages_showKazooiesAss();           // Kazooie's ass visibility
-    payload["modelWink"] = modelAppendages_showKazooiesFeetAndShoes();    // Kazooie's feet & shoes visibility
-    payload["modelMouth1"] = modelAppendages_hideTurboTrainers();         // turbo trainers hidden
-    payload["modelMouth2"] = modelAppendages_hideWadingBoots();           // wading boots hidden
-    payload["modelEyeBlendUpper"] = modelAppendages_showBanjosLeftEye();  // Banjo's left eye blend
-    payload["modelEyeBlendLower"] = modelAppendages_showBanjosRightEye(); // Banjo's right eye blend
+    payload["kazooieUpper"] = modelAppendages_showKazooiesUpperHalf();
+    payload["kazooieLower"] = modelAppendages_showKazooiesAss();
+    payload["kazooieFeet"] = modelAppendages_showKazooiesFeetAndShoes();
+    payload["kazooieTurbos"] = modelAppendages_hideTurboTrainers();
+    payload["kazooieBoots"] = modelAppendages_hideWadingBoots();
+    payload["banjoLeftEye"] = modelAppendages_showBanjosLeftEye();
+    payload["banjoRightEye"] = modelAppendages_showBanjosRightEye();
     payload["bottlesBonus"] = baanim_getActiveBottlesBonusMask();
     {
         // Carried-collectible marker id (0 = none); skipped once thrown (unk138_21 = in flight).
@@ -263,10 +263,10 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                                                     (AnimControl)payload.value("anim_control", (int)ANIMCTRL_LOOP),
                                                     0.0f, payload.value("subrange_end", 1.0f), false);
         }
-        client.dummy->setModelSubStates(payload.value("kazooieVisible", false), payload.value("modelSquint", false),
-                                        payload.value("modelWink", false), payload.value("modelMouth1", false),
-                                        payload.value("modelMouth2", false), payload.value("modelEyeBlendUpper", 0.0f),
-                                        payload.value("modelEyeBlendLower", 0.0f));
+        client.dummy->setModelSubStates(payload.value("kazooieUpper", false), payload.value("kazooieLower", false),
+                                        payload.value("kazooieFeet", false), payload.value("kazooieTurbos", false),
+                                        payload.value("kazooieBoots", false), payload.value("banjoLeftEye", 0.0f),
+                                        payload.value("banjoRightEye", 0.0f));
         client.dummy->dummy_setBottlesBonus(payload.value("bottlesBonus", 0));
         {
             f32 carryOff[3] = { 0.0f, 0.0f, 0.0f };
