@@ -1,6 +1,8 @@
 ports:
   - name: libsdl2
     select: [ universal ]
+  - name: libsdl2_net
+    select: [ universal ]
   - name: libpng
     select: [ universal ]
   - name: glew
