@@ -11,6 +11,7 @@ int ncDynamicCamera_getState(void);
 void ncDynamicCamera_setState(int state);
 
 void func_802C02D4(float center[3]);                                                 // camera focus/orbit center
+void func_802C0150(int mode);                                                        // select the focus target
 void func_80256E24(float dst[3], float pitch, float yaw, float x, float y, float z); // spherical -> offset
 int func_8025801C(float vec[3], float* yaw);                                         // vector -> yaw (degrees)
 void func_802BC434(float rotOut[3], float fromPos[3], float targetPos[3]);           // look-at rotation
@@ -41,6 +42,8 @@ float clampf(float v, float lo, float hi) {
 } // namespace
 
 extern "C" void OrbitCamera_Capture(OrbitCamera* c) {
+    func_802C0150(2);
+
     float camPos[3];
     float center[3];
     ncDynamicCamera_getPosition(camPos);

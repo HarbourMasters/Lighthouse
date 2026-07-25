@@ -3,6 +3,8 @@
 // The right stick orbits the camera in yaw around the player (no pitch). It runs
 // on the shared orbit core; this file is just the modern-scheme policy.
 
+#include <cmath>
+
 #include <libultraship/bridge.h>
 
 #include "port/UI/cvar_prefixes.h"
@@ -24,6 +26,9 @@ int balookat_getState(void);    // nonzero while the look-around camera is activ
 int player_movementGroup(void); // enum bsgroup_e
 
 int ncDynamicCamera_getState(void);
+int func_8029147C(void);       // current ba camera mode
+void func_80291488(int mode);  // set the ba camera mode
+void func_802914CC(int state); // force a dynamic camera state (mode 1)
 
 int bainput_should_rotate_camera_left(void);
 int bainput_should_rotate_camera_right(void);
@@ -41,6 +46,9 @@ bool ModernSchemeActive() {
     return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN;
 }
 
+constexpr int kClimbCamState = 0x10;
+constexpr int kSwivelCamMode = 8;
+constexpr int kFollowCamMode = 2;
 constexpr float kYawDeadzone = 0.2f;
 constexpr float kYawEnter = 0.3f;
 constexpr float kYawSpeed = 160.0f;
@@ -81,13 +89,34 @@ bool ManualCameraControl() {
            bainput_should_look_first_person_camera();
 }
 
+bool Climbing() {
+    return player_movementGroup() == BSGROUP_5_CLIMB;
+}
+
+// Give the mode back
+void ReleaseSwivelMode() {
+    if (func_8029147C() != kSwivelCamMode) {
+        return;
+    }
+    if (Climbing()) {
+        func_802914CC(kClimbCamState);
+    } else {
+        func_80291488(kFollowCamMode);
+    }
+}
+
+void ExitOrbit() {
+    OrbitCamera_Exit(&sModern);
+    ReleaseSwivelMode();
+}
+
 } // namespace
 
 extern "C" int port_modernCamera_handleYaw(void) {
     bool schemeOk = ModernSchemeActive() && bs_getState() != BS_CROUCH && !IsDemoMode();
     if (!schemeOk) {
         if (sModern.active) {
-            OrbitCamera_Exit(&sModern);
+            ExitOrbit();
         }
         return 0;
     }
@@ -102,8 +131,11 @@ extern "C" int port_modernCamera_handleYaw(void) {
             return 0;
         }
         if (ManualCameraControl()) {
-            OrbitCamera_Exit(&sModern);
+            ExitOrbit();
             return 0;
+        }
+        if (!Climbing()) {
+            ReleaseSwivelMode();
         }
         return 1;
     }
@@ -111,8 +143,11 @@ extern "C" int port_modernCamera_handleYaw(void) {
     float x;
     float y;
     ReadStickNorm(x, y);
-    if (x > kYawEnter || x < -kYawEnter) {
+    if (std::fabs(x) > kYawEnter) {
         OrbitCamera_Enter(&sModern);
+        if (state == kClimbCamState) {
+            func_80291488(kSwivelCamMode);
+        }
         return 1;
     }
     return 0;
