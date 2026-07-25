@@ -131,7 +131,7 @@ void chhut_update(Actor *this) {
                 __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
                 bundle_setYaw(this->yaw);
 
-                smashIndex = port_hutSmash_countForCurrentMap();
+                smashIndex = port_hutSmash_countForCurrentLevel();
                 if (smashIndex < 5) {
                     __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }

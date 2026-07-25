@@ -295,6 +295,7 @@ void pfsManager_update(void) {
         }
     }
 
+    CALL_EVENT(OnControllerUpdate);
     osSetThreadPri(0, 0x14);
 }
 

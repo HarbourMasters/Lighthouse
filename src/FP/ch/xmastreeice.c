@@ -94,6 +94,11 @@ void chXmasTreeIce_initiateShatter(Actor *this){
 
 void chXmasTreeIce_update(Actor *this) {
     ActorLocal_XmasTreeIce *local = (ActorLocal_XmasTreeIce *)&this->local;
+
+    if (!EventSystem_Should(VB_XMAS_TREE_ICE_UPDATE, true, this)) {
+        return;
+    }
+
     this->marker->propPtr->unk8_3 = true;
     actor_collisionOff(this);
 

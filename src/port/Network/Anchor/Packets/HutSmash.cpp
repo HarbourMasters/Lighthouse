@@ -23,11 +23,11 @@ extern "C" int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z) {
     return it != sHuts.end() ? it->second : -1;
 }
 
-extern "C" int32_t port_hutSmash_countForCurrentMap(void) {
-    int32_t map = (int32_t)gsworld_getMap();
+extern "C" int32_t port_hutSmash_countForCurrentLevel(void) {
+    int32_t level = (int32_t)map_getLevel(gsworld_getMap());
     int32_t count = 0;
     for (const auto& [key, loot] : sHuts) {
-        if (key[0] == map) {
+        if ((int32_t)map_getLevel((enum map_e)key[0]) == level) {
             count++;
         }
     }

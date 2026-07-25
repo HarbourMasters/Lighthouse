@@ -450,14 +450,14 @@ void gameSelect_update(Actor *this){
                         chBottlesBonus_resetCompleted();
                         gameFile_load(gSelectedGameNum);
                         port_syncBottlesBonusIndex();
-                        if(!gameFile_isNotEmpty(sp84)){
+                        if(EventSystem_Should(VB_GAMESELECT_START_NEW_GAME, !gameFile_isNotEmpty(sp84), sp84)){
                             s32 skipIntro = 0;
                             CALL_EVENT(OnNewGame, &skipIntro);
                             if (skipIntro) {
                                 timedFunc_set_2(0.0f, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
                                 timedFunc_set_1(0.0f, (GenFunction_1)gsworld_setEnableUpdate, 1);
                             } else {
-                                // [port] BB romhacks can override the new-game boot map
+                                // [port] Romhacks can override the new-game boot map
                                 s32 newGameMap = port_getRomhackNewGameMap();
                                 if (newGameMap < 0) {
                                     newGameMap = MAP_85_CS_SPIRAL_MOUNTAIN_3;
@@ -473,7 +473,11 @@ void gameSelect_update(Actor *this){
                             sp44 = 0.0f;
                             if(this->state == 4 &&  (sp84 == CH_GAME_SELECT_SAVEFILE_0_BED || sp84 == CH_GAME_SELECT_SAVEFILE_1_GAMING_CHAIR))
                                 sp44 = 0.25f;
-                            if(chmole_learnedAllSpiralMountainAbilities() && fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE)){
+                            // [port] Romhacks can replace the resume transition outright
+                            if(port_getRomhackResumeWarpFunc() != NULL){
+                                timedFunc_set_2(sp44, (GenFunction_2)port_getRomhackResumeWarpFunc(), 0, 0);
+                            }
+                            else if(chmole_learnedAllSpiralMountainAbilities() && fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE)){
                                 timedFunc_set_2(sp44, (GenFunction_2)warp_lairEnterLairFromSMLevel, 0, 0);
                             }
                             else{//L802C5188

@@ -11,7 +11,7 @@
  */
 
 #include <libultraship/bridge.h>
-#include "HackShared.h"
+#include "port/Romhack/Shared/HackShared.h"
 
 extern "C" {
 #include "enums.h"

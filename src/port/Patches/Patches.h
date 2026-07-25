@@ -105,6 +105,11 @@ void port_unlockAudio(void);
 void port_audioIntMaskEnter(void);
 void port_audioIntMaskExit(void);
 
+// Romhacks
+
+void* port_getRomhackResumeWarpFunc(void);
+void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
+
 // Attract-demo audio hold
 
 void port_beginDemoAudioHold(void);
@@ -173,7 +178,7 @@ int32_t port_puzzleCount_get(int32_t counterId);
 
 void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
 int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
-int32_t port_hutSmash_countForCurrentMap(void);
+int32_t port_hutSmash_countForCurrentLevel(void);
 
 void port_jiggyCrane_broadcast(int32_t stage);
 void port_jiggyCrane_remoteApply(int32_t stage);

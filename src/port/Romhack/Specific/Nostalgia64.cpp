@@ -1,6 +1,6 @@
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "HackShared.h"
+#include "port/Romhack/Shared/HackShared.h"
 
 extern "C" {
 #include "enums.h"

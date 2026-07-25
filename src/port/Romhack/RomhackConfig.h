@@ -4,10 +4,7 @@
 extern "C" {
 #endif
 
-// BB romhack game config — loaded from aGameConfig blob in the o2r.
-// Returns -1 (or 0/NULL) for vanilla default when no override exists.
-// All functions are fast after first call: vanilla ROMs hit one branch.
-
+// Config building
 bool port_isRomhack(void);
 const char* port_getRomhackName(void);
 
@@ -49,6 +46,11 @@ bool port_getRomhackCustomCodeHash(char out_hex[41]);
 int port_getRomhackCustomCodeKind(void);
 bool port_getRomhackRomHash(char out_hex[41]);
 const char* port_getRomhackIdentifier(void);
+
+// Hack specific functions
+int romhack_mumboTransform(int transformId);
+int romhack_mumboWishwashyId(void);
+int romhack_mumboRandomEventsAllowed(void);
 
 #ifdef __cplusplus
 }

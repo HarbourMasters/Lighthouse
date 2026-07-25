@@ -8,6 +8,7 @@
 extern "C" {
 #include "enums.h"
 #include "functions.h"
+#include "actor.h"
 
 extern ActorArray* suBaddieActorArray;
 
@@ -22,7 +23,14 @@ f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32* yPtr, f32 arg3);
 
 namespace {
 
+void ApplyNoteSignHooks();
+f32 MeasureBoldNameWidth(const char* s);
+void ApplyPauseNameCentering();
+void ApplyDialogSuppression();
+
 int sNoteSignActorId = -1;
+const int* sSuppressedDialogs = nullptr;
+int sSuppressedDialogCount = 0;
 
 // Romhacks that have note signs and Bottles explainers don't need them when
 // note saving is turned on. Suppress them.
@@ -55,8 +63,6 @@ void ApplyNoteSignHooks() {
         }
     });
 }
-
-RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 
 // Center bold font in pause menu
 f32 MeasureBoldNameWidth(const char* s) {
@@ -91,6 +97,20 @@ void ApplyPauseNameCentering() {
     });
 }
 
+// Suppress a caller-supplied set of dialogs
+void ApplyDialogSuppression() {
+    COND_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_NORMAL, sSuppressedDialogCount > 0, {
+        const s32 textId = va_arg(args, s32);
+        for (int i = 0; i < sSuppressedDialogCount; i++) {
+            if (sSuppressedDialogs[i] == textId) {
+                *should = true;
+                break;
+            }
+        }
+    });
+}
+
+RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
 
 } // namespace
@@ -98,4 +118,10 @@ RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
 void HackShared_EnableNoteSignSuppression(int signActorId) {
     sNoteSignActorId = signActorId;
     ApplyNoteSignHooks();
+}
+
+void HackShared_EnableDialogSuppression(const int* dialogIds, int count) {
+    sSuppressedDialogs = dialogIds;
+    sSuppressedDialogCount = count;
+    ApplyDialogSuppression();
 }

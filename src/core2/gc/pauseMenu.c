@@ -555,13 +555,17 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
             if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
             for (i = 0; i < 4; i++) {
+                s32 rowVisible;
                 if (selLvl == hideCollLvl) {
-                    gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 2)));
+                    rowVisible = (!(i == 0) && !(i == 2));
                 } else if (selLvl == hideJigLvl) {
-                    gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 1)));
+                    rowVisible = (!(i == 0) && !(i == 1));
                 } else {
-                    gczoombox_highlight(D_80383010.zoombox[i], 1);
+                    rowVisible = 1;
                 }
+                // [port] Romhack gate: level-merging hacks can hide extra rows per page.
+                rowVisible = EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, rowVisible, selLvl, i);
+                gczoombox_highlight(D_80383010.zoombox[i], rowVisible);
             }
             break;
 
@@ -637,13 +641,17 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
             if (hideCollLvl < 0) { hideCollLvl = LEVEL_6_LAIR; }
             if (hideJigLvl < 0) { hideJigLvl = LEVEL_B_SPIRAL_MOUNTAIN; }
             for (i = 0; i < 4; i++) {
+                s32 rowVisible;
                 if (selLvl == hideCollLvl) {
-                    gczoombox_highlight(D_80383010.zoombox[i], !((i == 0) || (i == 2)));
+                    rowVisible = !((i == 0) || (i == 2));
                 } else if (selLvl == hideJigLvl) {
-                    gczoombox_highlight(D_80383010.zoombox[i], (!(i == 0) && !(i == 1)));
+                    rowVisible = (!(i == 0) && !(i == 1));
                 } else {
-                    gczoombox_highlight(D_80383010.zoombox[i], 1);
+                    rowVisible = 1;
                 }
+                // [port] Romhack gate: level-merging hacks can hide extra rows per page.
+                rowVisible = EventSystem_Should(VB_PAUSEMENU_ROW_VISIBLE, rowVisible, selLvl, i);
+                gczoombox_highlight(D_80383010.zoombox[i], rowVisible);
 
                 if (gczoombox_is_highlighted(D_80383010.zoombox[i])) {
                     gczoombox_maximize(D_80383010.zoombox[i]);

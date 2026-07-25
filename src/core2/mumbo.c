@@ -335,7 +335,7 @@ void chMumbo_update(Actor *this) {
                         func_8028F94C(2, this->position);
                         if ( sp44 && gsworld_getMap() != MAP_7A_GL_CRYPT 
                              && !fileProgressFlag_get(FILEPROG_BA_HAS_SEEN_TREX_TEXT) 
-                             && randf() < 0.01 
+                             && romhack_mumboRandomEventsAllowed() && randf() < 0.01 
                              && sp48
                         ) {
                             gcdialog_showDialog(VER_SELECT(ASSET_DAE_DIALOG_MUMBO_TREX_START, 0xA2C, 0, 0), 6, NULL, this->marker, __chMumbo_textCallback, NULL);
@@ -347,7 +347,7 @@ void chMumbo_update(Actor *this) {
                             && gsworld_getMap() != MAP_7A_GL_CRYPT  
                             && !this->unk138_23 
                             && (sp40 = fileProgressFlag_getN(FILEPROG_BB_MUMBO_MISTAKE_INDEX, 2), sp40 < 3) 
-                            && randf() < 0.05 
+                            && romhack_mumboRandomEventsAllowed() && randf() < 0.05 
                             && sp48
                         ){
                             this->unk138_23 = true;
@@ -395,11 +395,11 @@ void chMumbo_update(Actor *this) {
                 if ( this->has_met_before
                      || (this->unk10_12 == 0 
                         && (player_getTransformation() != TRANSFORM_1_BANJO) 
-                        && (player_getTransformation() != TRANSFORM_7_WISHWASHY))
+                        && (player_getTransformation() != romhack_mumboWishwashyId()))
                 ) {
-                    player_transform(TRANSFORM_1_BANJO);
-                } else if (player_transform(D_8037DDF0)) {
-                    if (D_8037DDF0 != TRANSFORM_7_WISHWASHY) {
+                    romhack_mumboTransform(TRANSFORM_1_BANJO);
+                } else if (romhack_mumboTransform(D_8037DDF0)) {
+                    if (D_8037DDF0 != romhack_mumboWishwashyId()) {
                         if (fileProgressFlag_getAndSet(__bkProgId_from_transformationId(D_8037DDF0), true)) {
                             this->velocity[0] = 1.0f;
                         }

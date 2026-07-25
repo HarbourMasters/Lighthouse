@@ -14,6 +14,7 @@ extern "C" {
 
 DEFINE_EVENT(GameFrameUpdate);
 DEFINE_EVENT(FrameDrawEnd);
+DEFINE_EVENT(OnControllerUpdate);
 
 DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 

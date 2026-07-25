@@ -19,6 +19,7 @@ void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(FrameDrawEnd);
+    REGISTER_EVENT(OnControllerUpdate);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnDialogLoaded);

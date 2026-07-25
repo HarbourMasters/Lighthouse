@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Patches/Patches.h"
 #include "actor.h"
 
 #include "prop.h"
@@ -800,6 +801,8 @@ void func_803272D0(f32 arg0[3], f32 arg1, s32 arg2, int (*arg3)(Actor *)){
 }
 
 Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
+    // [port] Romhacks rewrite spawn args per actor id before the real work
+    romhack_RewriteActorSpawn(actorInfo, &flags);
     ActorAnimationInfo * sp54;
     s32 i;
     f32 sp44[3];
