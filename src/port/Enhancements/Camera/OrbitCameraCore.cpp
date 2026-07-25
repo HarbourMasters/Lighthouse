@@ -30,8 +30,9 @@ namespace {
 
 constexpr float kDistanceRate = 8.0f;
 constexpr float kReturnRateFactor = 0.2f; // collision offset relaxes this much slower than it deepens
-constexpr float kVertRate = 0.8f;         // height + aim Y follow rate; low to filter floor-height churn
-constexpr float kRotRate = 12.0f;         // look-at damping, mirroring the vanilla follow camera
+constexpr float kHeightRate = 2.0f;
+constexpr float kAimHeightRate = 8.0f;
+constexpr float kRotRate = 12.0f; // look-at damping, mirroring the vanilla follow camera
 
 float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
@@ -120,7 +121,7 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
         pos[1] = center[1] + offset[1]; // pitch carries the vertical offset
     } else {
         // Flat orbit: height low-passes the vanilla target, filtering plank/step floor churn.
-        c->height += (func_802BD51C() - c->height) * clampf(kVertRate * dt, 0.0f, 1.0f);
+        c->height += (func_802BD51C() - c->height) * clampf(kHeightRate * dt, 0.0f, 1.0f);
         pos[1] = c->height;
     }
     ncDynamicCamera_setPosition(pos);
@@ -166,7 +167,7 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
         c->aimCenterY = center[1];
         c->aimValid = 1;
     } else {
-        c->aimCenterY += (center[1] - c->aimCenterY) * clampf(kVertRate * dt, 0.0f, 1.0f);
+        c->aimCenterY += (center[1] - c->aimCenterY) * clampf(kAimHeightRate * dt, 0.0f, 1.0f);
     }
     float aimCenter[3] = { center[0], c->aimCenterY, center[2] };
 
