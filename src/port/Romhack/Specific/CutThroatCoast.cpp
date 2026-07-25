@@ -13,7 +13,7 @@ extern "C" {
 extern struct1Cs_1 D_8036C58C[0xD];
 
 // Acorn replaced with collectible doubloon
-extern ActorInfo D_8038F460;
+extern ActorInfo chCarriedAcorn;
 void chCarriedAcorn_update(Actor* thisx);
 
 typedef struct {
@@ -147,7 +147,7 @@ extern "C" void CutThroatCoast_DoubloonUpdate(Actor* thisx) {
 void RegisterCutThroatCoastPatches() {
     RebuildPauseMenuTable();
     ApplyDataPatches();
-    D_8038F460.update_func = CutThroatCoast_DoubloonUpdate;
+    chCarriedAcorn.update_func = CutThroatCoast_DoubloonUpdate;
 
     // Sweep the lighthouse beam
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
