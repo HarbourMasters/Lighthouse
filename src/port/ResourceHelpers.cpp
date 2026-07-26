@@ -44,8 +44,6 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
     static std::unordered_map<uint32_t, std::string> symbolMap;
 
     std::call_once(mapOnce, [] {
-        SPDLOG_INFO("[AssetSymbolMap] Initializing with base version {}",
-                    static_cast<uint32_t>(Lighthouse::GetBaseVersion()));
         // Torch writes this as a Blob at "assets/aBKAssetTable".
         // Format: u32 count, then for each entry: u32 assetId, s32 pathLen, char path[pathLen]
         auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource("assets/aBKAssetTable");

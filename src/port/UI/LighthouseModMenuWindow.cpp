@@ -84,8 +84,8 @@ static std::vector<std::string> sRomhackBaseMismatch;
 // Romhacks and universally shared mods get special folders
 // The lang folder is skipped in scans
 #define ROMHACKS_DIR "~romhacks"
-#define SHARED_DIR "shared"
-#define LANG_DIR "lang"
+#define SHARED_DIR "~shared"
+#define LANG_DIR "~lang"
 
 static std::string JoinModList(const std::vector<std::string>& list) {
     std::string s;
@@ -313,7 +313,7 @@ void UpdateModFiles(bool init, bool reset) {
                 if (!IsValidExtension(p.path().extension().generic_string())) {
                     continue;
                 }
-                // Skip reserved folders (e.g. mods/lang/ language packs) — they
+                // Skip reserved folders (e.g. mods/~lang/ language packs) — they
                 // aren't user-toggleable mods and must not appear in either menu.
                 if (IsReservedModPath(modsPath, p.path())) {
                     continue;
@@ -883,8 +883,8 @@ void RequestInlineLanguagePackExtraction() {
         return;
     }
     // Re-extracting a region overwrites its existing pack (e.g. to refresh it
-    // after an update), so a pre-existing mods/lang/bk<region>.o2r is fine.
-    const std::string langDir = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
+    // after an update), so a pre-existing mods/~lang/bk<region>.o2r is fine.
+    const std::string langDir = Ship::Context::GetPathRelativeToAppDirectory("mods/~lang");
     std::error_code ec;
     std::filesystem::create_directories(langDir, ec);
 
@@ -931,7 +931,7 @@ void DrawInlineModExtraction() {
         const std::string packPath = GameExtractor::sLastOutputPath;
         if (!packPath.empty() && GetArchiveManager()->AddArchive(packPath) == nullptr) {
             // Shouldn't happen for an o2r we just wrote; if it does, the pack is
-            // still in mods/lang and loads on the next launch.
+            // still in mods/~lang and loads on the next launch.
             SPDLOG_WARN("[Lang] Pack '{}' didn't register live; it will load on the next launch.", packPath);
         }
         Lighthouse::RescanLanguages();

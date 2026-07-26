@@ -247,7 +247,8 @@ void CheckAndCreateModFolder() {
             if (std::filesystem::create_directories(modsPath)) {
                 std::ofstream(filePath).close();
                 std::filesystem::create_directories(modsPath + "/~romhacks"); // BK romhacks go here
-                std::filesystem::create_directories(modsPath + "/shared");    // Mods usable by everything go here
+                std::filesystem::create_directories(modsPath + "/~lang");     // Language packs go here
+                std::filesystem::create_directories(modsPath + "/~shared");   // Mods usable by everything go here
             }
         }
     } catch (std::filesystem::filesystem_error const&) {
@@ -326,7 +327,7 @@ static void LoadLooseModDirectories(const std::string& patches_path) {
             continue;
         }
         const std::string dirName = p.path().filename().generic_string();
-        if (dirName == "~romhacks" || dirName == "shared" || dirName == "lang" || IsScopedModFolderName(dirName)) {
+        if (dirName == "~romhacks" || dirName == "~shared" || dirName == "~lang" || IsScopedModFolderName(dirName)) {
             continue;
         }
         SPDLOG_INFO("Found mod directory: {}", p.path().generic_string());
@@ -335,9 +336,9 @@ static void LoadLooseModDirectories(const std::string& patches_path) {
     }
 }
 
-// Load every .o2r language pack from mods/lang into the ArchiveManager.
+// Load every .o2r language pack from mods/~lang into the ArchiveManager.
 static void LoadLanguagePacks() {
-    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
+    const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/~lang");
     if (lang_path.empty() || !std::filesystem::is_directory(lang_path)) {
         return;
     }

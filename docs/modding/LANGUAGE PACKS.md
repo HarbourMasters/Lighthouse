@@ -1,6 +1,6 @@
 # Making a Language Pack
 
-A language pack is a small companion archive that adds a new in-game language alongside the retail `bkpal.o2r` / `bkjp.o2r`. Players drop it into their `mods/lang/` folder and pick the new language from the options menu.
+A language pack is a small companion archive that adds a new in-game language alongside the retail `bkpal.o2r` / `bkjp.o2r`. Players drop it into their `mods/~lang/` folder and pick the new language from the options menu.
 
 This guide walks through building one pack end to end: a **Spanish** translation, from the first export to a finished `bkes.o2r`.
 
@@ -199,7 +199,7 @@ config:
 torch modding import o2r <baserom.z64> -s <lighthouse> -d <workdir>
 ```
 
-The importer walks the asset list: your edited yamls are re-encoded from `<workdir>`, everything else parses straight from the ROM, and `dialog_pack` strips the result down to the language assets plus `langinfo`. The finished pack lands in **`mods/lang/`** automatically, named from your `output.binary` - `bkes.o2r` in our case. Copy that into the game's `mods/lang/` folder and it shows up in the options menu.
+The importer walks the asset list: your edited yamls are re-encoded from `<workdir>`, everything else parses straight from the ROM, and `dialog_pack` strips the result down to the language assets plus `langinfo`. The finished pack lands in **`mods/~lang/`** automatically, named from your `output.binary` - `bkes.o2r` in our case. Copy that into the game's `mods/~lang/` folder and it shows up in the options menu.
 
 ---
 
