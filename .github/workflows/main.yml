@@ -202,9 +202,7 @@ jobs:
           name: Lighthouse-linux
           path: |
             lighthouse.appimage
-            config.yml
             readme.txt
-            assets
             gamecontrollerdb.txt
 
   build-switch:
