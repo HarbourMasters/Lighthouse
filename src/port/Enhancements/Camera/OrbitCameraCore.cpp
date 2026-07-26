@@ -102,7 +102,7 @@ extern "C" void OrbitCamera_Update(OrbitCamera* c, float yawDelta, float pitchDe
     if (c->smoothValid && zoomTarget > 0.0f) {
         float rgx = center[0] - c->smoothPos[0];
         float rgz = center[2] - c->smoothPos[2];
-        float limit = zoomTarget * 2.0f;
+        float limit = zoomTarget * 1.05f;
         if ((rgx * rgx + rgz * rgz) > (limit * limit)) {
             c->distance = zoomTarget;
             c->smoothValid = 0;
