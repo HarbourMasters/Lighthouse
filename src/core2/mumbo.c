@@ -375,6 +375,10 @@ void chMumbo_update(Actor *this) {
             break;
 
         case 5: //L802D2488
+            // [port] Fast Transformation drives this state from Cheats.cpp instead.
+            if (!EventSystem_Should(VB_MUMBO_HUT_TRANSFORM_CUTSCENE, true, this)) {
+                break;
+            }
             actor_playAnimationOnce(this);
             if (actor_animationIsAt(this, 0.35f)){
                 sfxSource_func_8030E2C4(this->unk44_31);

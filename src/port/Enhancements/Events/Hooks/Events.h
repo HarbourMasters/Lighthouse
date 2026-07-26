@@ -30,6 +30,8 @@ typedef enum VBehaviorID {
     VB_JINJO_CHARGE_SOUND,
     // MM Chimpy stump: gates the rumble sfx that starts when the stump begins shaking.
     VB_MM_CHIMPY_STUMP_RUMBLE,
+    // Cancelling hands Mumbo's transform state to the listener. Args: (Actor *mumbo).
+    VB_MUMBO_HUT_TRANSFORM_CUTSCENE,
     VB_YUMYUM_DROP,
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,
     VB_OVERRIDE_MOLEHILL_ABILITY,
