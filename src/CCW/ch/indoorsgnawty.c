@@ -21,7 +21,7 @@ CH_Indoors_Gnawty_Dialogs chIndoorsGnawtyDialogs[] = {
     {
         MAP_45_CCW_AUTUMN,
         VER_SELECT(ASSET_CD2_DIALOG_GNAWTY_MEET_FALL_INSIDE, 0x9E7, 0, 0),
-        NULL
+        0 // [port] decomp uses NULL; dialog fields are asset ids, not pointers
     },
     {
         MAP_46_CCW_WINTER,
@@ -70,7 +70,7 @@ void chIndoorsGnawty_update(Actor *this) {
         this->volatile_initialized = true;
         this->has_met_before = false;
         local->dialogs = chIndoorsGnawtyDialogs;
-        while (local->dialogs->map != NULL && gsworld_getMap() != local->dialogs->map) {
+        while (local->dialogs->map != 0 && gsworld_getMap() != local->dialogs->map) {
             local->dialogs++;
         }
 

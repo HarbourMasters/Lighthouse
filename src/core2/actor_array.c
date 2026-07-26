@@ -31,7 +31,6 @@ f32 player_getYaw(void);
 extern void func_8032B3A0(Actor *, ActorMarker *);
 extern void func_8032EE0C(GenFunction_2, uintptr_t);
 extern void func_8032EE20(void);
-extern void __spawnQueue_add_5(GenFunction_5, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
 
 void func_8032A6A8(Actor *arg0);

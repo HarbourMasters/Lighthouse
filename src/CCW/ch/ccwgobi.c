@@ -26,12 +26,12 @@ CH_CCW_Gobi_Dialogs chCCWGobiDialogs[] = {
         MAP_44_CCW_SUMMER,
         VER_SELECT(ASSET_CDE_DIALOG_CCW_GOBI_MEET_SUMMER, 0x09F3, 0, 0),
         VER_SELECT(ASSET_CDF_DIALOG_CCW_GOBI_COMPLETE_SUMMER, 0x09F4, 0, 0),
-        NULL
+        0 // [port] decomp uses NULL; dialog fields are asset ids, not pointers
     },
     {
         MAP_45_CCW_AUTUMN,
-        NULL,
-        NULL,
+        0,
+        0,
         VER_SELECT(ASSET_CE0_DIALOG_CCW_GOBI_COMPLETE_FALL, 0x09F5, 0, 0)
     },
     { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
@@ -69,7 +69,7 @@ void chCCWGobi_setState(Actor *this, s32 next_state) {
         skeletalAnim_set(this->unk148, ASSET_F4_ANIM_GOBI_IDLE, 0.5f, 12.0f);
     }
     if (next_state == CH_CCW_GOBI_STATE_2_SPITTING) {
-        if (local->dialogs->summerCompleteDialog != NULL) {
+        if (local->dialogs->summerCompleteDialog != 0) {
             gcdialog_showDialog(local->dialogs->summerCompleteDialog, 4, NULL, NULL, NULL, NULL);
         }
         skeletalAnim_set(this->unk148, ASSET_FC_ANIM_GOBI_SPITTING, 0.2f, 3.0f);

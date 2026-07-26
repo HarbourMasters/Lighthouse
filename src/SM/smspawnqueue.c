@@ -6,7 +6,6 @@
 #include "actor.h"
 #include "checksums.h"
 
-int ability_hasLearned(s32);
 
 
 

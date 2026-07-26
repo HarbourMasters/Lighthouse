@@ -370,7 +370,12 @@ void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dia
     }
     ++sLanguageGeneration; // invalidates re-pointed models on their next draw
     sIsJapanese = isJapanese;
-    sDialogLanguageCount = dialogCount;
+    sDialogLanguageCount = (dialogCount > 0) ? dialogCount : 1;
+    if (dialogIndex < 0 || dialogIndex >= sDialogLanguageCount) {
+        SPDLOG_WARN("[ResourceHelpers] Dialog language index {} out of range for a {}-language source; using 0",
+                    dialogIndex, sDialogLanguageCount);
+        dialogIndex = 0;
+    }
     sDialogLanguage = dialogIndex; // keep ResourceMgr_GetDialogLanguage() in sync
-    func_8031B5C4(dialogIndex);    // clamps against sDialogLanguageCount
+    func_8031B5C4(dialogIndex);
 }

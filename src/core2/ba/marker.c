@@ -11,7 +11,6 @@
 
 extern void func_803012F8(void);
 extern void __baMarker_8028BA00(s32);
-extern Actor *spawnQueue_actor_s16(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 extern void func_802A6388(f32);
 extern f32 chwadingboots_802D6E4C(Actor *);
 extern void set_turbo_duration(f32);

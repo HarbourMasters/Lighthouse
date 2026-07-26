@@ -19,7 +19,8 @@ s32 code94620_func_8031B5B0(void) {
     return s_dialogBin.unk0;
 }
 
-s32 func_8031B5BC(void){ return VER_SELECT(1, 3, 0, 0); }
+// s32 func_8031B5BC(void){ return VER_SELECT(1, 3, 0, 0); }
+s32 func_8031B5BC(void){ return ResourceMgr_GetDialogLanguageCount(); }
 
 void func_8031B5C4(s32 arg0) {
     if ((arg0 >= 0) && (arg0 < func_8031B5BC())) {

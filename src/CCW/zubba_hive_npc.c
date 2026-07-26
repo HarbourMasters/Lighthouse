@@ -37,7 +37,7 @@ Zubba_Docile_Dialog chZubbaDocileDialog[] = {
     {
         MAP_5C_CCW_AUTUMN_ZUBBA_HIVE,
         CCW_ZUBBA_SPECIFIC_FLAG_8_AUTUMN_DIALOG,
-        NULL,
+        0, // [port] decomp uses NULL; jiggyId is an integer, not a pointer
         VER_SELECT(ASSET_CE5_DIALOG_ZUBBA_MEET_FALL, 0x09FA, 0, 0)
     },
     { 0 } // [port] decomp uses NULL; first field is an integer and clang errors on -Wint-conversion
@@ -96,7 +96,7 @@ void chZubbaDocile_update(Actor *this) {
         this->volatile_initialized = true;
         this->marker->actorFreeFunc = chZubbaDocile_free;
         local->dialog = &chZubbaDocileDialog[0];
-        while((local->dialog->map != NULL) && (gsworld_getMap() != local->dialog->map)) {
+        while((local->dialog->map != 0) && (gsworld_getMap() != local->dialog->map)) {
             local->dialog++;
         }
         local->sfxsourceIdx = sfxsource_createSfxsourceAndReturnIndex();

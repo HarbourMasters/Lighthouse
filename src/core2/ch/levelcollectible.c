@@ -179,7 +179,7 @@ void port_remoteCarry_setCarried(u32 clientId, s32 markerId, f32 offset[3], f32 
     sRemoteCarry[slot].marker = NULL;
     sRemoteCarry[slot].throwPending = 0;
     __remoteCarry_setPose(slot, offset, yawOffset);
-    __spawnQueue_add_2((void (*)(void))__remoteCarry_spawnMethod, markerId, clientId);
+    __spawnQueue_add_2((GenFunction_2)__remoteCarry_spawnMethod, markerId, clientId);
 }
 
 void port_remoteCarry_throw(u32 clientId, s32 markerId, f32 start[3], f32 target[3]) {
@@ -200,7 +200,7 @@ void port_remoteCarry_throw(u32 clientId, s32 markerId, f32 start[3], f32 target
             return;
         }
         sRemoteCarry[slot].clientId = clientId;
-        __spawnQueue_add_2((void (*)(void))__remoteCarry_spawnMethod, markerId, clientId);
+        __spawnQueue_add_2((GenFunction_2)__remoteCarry_spawnMethod, markerId, clientId);
     }
     sRemoteCarry[slot].markerId = markerId;
     sRemoteCarry[slot].throwPending = 1;

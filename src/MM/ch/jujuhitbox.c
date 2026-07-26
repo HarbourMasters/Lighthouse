@@ -146,7 +146,7 @@ void chjujuhitbox_update(Actor *this) {
             marker_despawn(this->marker);
             return;
         }
-        __spawnQueue_add_2((void (*)(void)) __chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4);
+        __spawnQueue_add_2((GenFunction_2) __chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4);
         __chjujuhitbox_playRubbingSfx(this);
         return;
     }

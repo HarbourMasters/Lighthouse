@@ -127,7 +127,7 @@ void __maSlalom_spawnGate(s32 indx, s32 arg1){
 }
 
 void maSlalom_spawnGate(s32 indx, s32 arg1){
-    __spawnQueue_add_2((void (*)(void))__maSlalom_spawnGate, indx, arg1);
+    __spawnQueue_add_2((GenFunction_2)__maSlalom_spawnGate, indx, arg1);
 }
 
 void __maSlalom_despawnGate(s32 indx){

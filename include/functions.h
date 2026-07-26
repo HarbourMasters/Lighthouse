@@ -561,13 +561,16 @@ void func_80293D48(f32, f32);
 void func_80343DEC(Actor *self);
 
 // --- core2/spawnqueue.c ---
-void __spawnQueue_add_0(void (*arg0)(void));
-void __spawnQueue_add_2(void (*arg0)(void), uintptr_t arg1, uintptr_t arg2);
 Actor *spawnQueue_actor_f32(enum actor_e actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
+Actor *spawnQueue_actor_s32(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
+Actor *spawnQueue_actor_s16(uintptr_t actor_id, uintptr_t x, uintptr_t y, uintptr_t z);
+void __spawnQueue_add_0(GenFunction_0);
 void __spawnQueue_add_1(GenFunction_1, uintptr_t);
-#define SPAWNQUEUE_ADD_1(method, arg0) __spawnQueue_add_1((GenFunction_1) (method), reinterpret_cast(uintptr_t, (arg0)))
+void __spawnQueue_add_2(GenFunction_2, uintptr_t, uintptr_t);
 void __spawnQueue_add_3(GenFunction_3, uintptr_t, uintptr_t, uintptr_t);
 void __spawnQueue_add_4(GenFunction_4, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
+void __spawnQueue_add_5(GenFunction_5, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
+#define SPAWNQUEUE_ADD_1(method, arg0) __spawnQueue_add_1((GenFunction_1) (method), reinterpret_cast(uintptr_t, (arg0)))
 
 // --- core2/fx/commonParticle.c ---
 void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2);
@@ -2266,7 +2269,7 @@ void func_802E4214(enum map_e map_id);
 void func_802E4384(void);
 void func_802E4A70(void);
 void func_802E4A80(void);
-void game_draw(s32 arg0);
+void game_draw(bool arg0);
 
 // --- core2/frame/rendermem.c ---
 void dummy_func_802E35D0(void);

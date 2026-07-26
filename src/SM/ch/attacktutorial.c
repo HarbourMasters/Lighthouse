@@ -59,7 +59,7 @@ static s32 __chAttackTutorial_spawnEnemyActor(Actor *this, s32 already_killed_en
           : ACTOR_164_COLLYWOBBLE_THE_CAULIFLOWER_A;
     }
     
-    __spawnQueue_add_2((void (*)(void))__chAttackTutorial_spawnEnemyActorForMarker, (uintptr_t)this->marker, sp1C);
+    __spawnQueue_add_2((GenFunction_2)__chAttackTutorial_spawnEnemyActorForMarker, (uintptr_t)this->marker, sp1C);
 
     return 0;
 }

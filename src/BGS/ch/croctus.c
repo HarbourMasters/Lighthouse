@@ -14,7 +14,6 @@ extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void func_803289EC(Actor *, f32, s32);
 extern void func_80326310(Actor *);
 extern void actor_setOpacity(Actor *, s32);
-extern void __spawnQueue_add_2(void (*)(s32, s32), s32, s32);
 extern void gcStaticCamera_activate(s32 arg0);
 
 void func_80387D18(ActorMarker *, u32);
@@ -86,12 +85,11 @@ void *chCroctus_jiggySpawn(ActorMarker * arg0){
     coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
 }
 
-void func_80387E00(s32 arg0){
-    ActorMarker *marker = reinterpret_cast(ActorMarker *, arg0);
-    Actor * this = marker_getActor(marker);
+void func_80387E00(ActorMarker *arg0){
+    Actor * this = marker_getActor(arg0);
 
     func_803262E4(this);
-    __spawnQueue_add_2((GenFunction_2)func_80387D18, reinterpret_cast(uintptr_t, marker), 0x1E);
+    __spawnQueue_add_2((GenFunction_2)func_80387D18, reinterpret_cast(uintptr_t, arg0), 0x1E);
 }
 
 void func_80387E40(ActorMarker * arg0){

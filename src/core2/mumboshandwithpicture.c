@@ -5,7 +5,6 @@
 
 extern void actor_postdrawMethod(ActorMarker *);
 extern void chBottlesBonus_func_802DD080(Gfx **, Mtx **);
-extern void func_80311714(s32);
 #include "port/Patches/Patches.h"
 
 Actor *chMumbosHandWithPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -131,9 +130,9 @@ void chMumbosHandWithPicture_update(Actor *this) {
                 break;
         }
         time = (f32) ((f64) (level_id_2 + 1) * 0.75);
-        timedFunc_set_1(time, func_80311714, 0);
+        timedFunc_set_1(time, (GenFunction_1)func_80311714, 0);
         func_80324DBC(time, text_id, 0x80, NULL, NULL, NULL, NULL);
-        timedFunc_set_1(time, func_80311714, 1);
+        timedFunc_set_1(time, (GenFunction_1)func_80311714, 1);
         D_8037DFE4 = level_id_1;
     }
     switch(this->state){

@@ -515,60 +515,60 @@ void spawnQueue_lock(void) {
     spawnQueueLock = TRUE;
 }
 
-void __spawnQueue_add_0(void (* arg0)(void)){
+void __spawnQueue_add_0(GenFunction_0 arg0){
     u32 tmp = __spawnQueue_getMax();
     if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
         spawnQueue[spawnQueueLength].func0 = arg0;
         spawnQueue[spawnQueueLength].arg_cnt = 0;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_0 entry", tmp);
+        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_0 entry", tmp);
     }
 }
 
 void __spawnQueue_add_1(GenFunction_1 arg0, uintptr_t arg1){
     u32 tmp = __spawnQueue_getMax();
     if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func0 = (void (*)(void))arg0;
+        spawnQueue[spawnQueueLength].func1 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg_cnt = 1;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_1 entry", tmp);
+        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_1 entry", tmp);
     }
 }
 
-void __spawnQueue_add_2(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2){
+void __spawnQueue_add_2(GenFunction_2 arg0, uintptr_t arg1, uintptr_t arg2){
     u32 tmp = __spawnQueue_getMax();
     if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func0 = arg0;
+        spawnQueue[spawnQueueLength].func2 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
         spawnQueue[spawnQueueLength].arg_cnt = 2;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_2 entry", tmp);
+        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_2 entry", tmp);
     }
 }
 
-void __spawnQueue_add_3(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uintptr_t arg3){
+void __spawnQueue_add_3(GenFunction_3 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3){
     u32 tmp = __spawnQueue_getMax();
     if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func0 = arg0;
+        spawnQueue[spawnQueueLength].func3 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
         spawnQueue[spawnQueueLength].arg[2] = arg3;
         spawnQueue[spawnQueueLength].arg_cnt = 3;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_3 entry", tmp);
+        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_3 entry", tmp);
     }
 }
 
 void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4){
     u32 tmp = __spawnQueue_getMax();
     if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func0 = (void (*)(void))arg0;
+        spawnQueue[spawnQueueLength].func4 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
         spawnQueue[spawnQueueLength].arg[2] = arg3;
@@ -576,14 +576,14 @@ void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uint
         spawnQueue[spawnQueueLength].arg_cnt = 4;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_4 entry", tmp);
+        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_4 entry", tmp);
     }
 }
 
-void __spawnQueue_add_5(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5){
+void __spawnQueue_add_5(GenFunction_5 arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5){
     u32 tmp = __spawnQueue_getMax();
     if(tmp > spawnQueueLength){ // [port] decomp used !=; < also holds if length ever exceeds tmp
-        spawnQueue[spawnQueueLength].func0 = arg0;
+        spawnQueue[spawnQueueLength].func5 = arg0;
         spawnQueue[spawnQueueLength].arg[0] = arg1;
         spawnQueue[spawnQueueLength].arg[1] = arg2;
         spawnQueue[spawnQueueLength].arg[2] = arg3;
@@ -592,7 +592,7 @@ void __spawnQueue_add_5(void (* arg0)(void), uintptr_t arg1, uintptr_t arg2, uin
         spawnQueue[spawnQueueLength].arg_cnt = 5;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("[port] spawnQueue FULL (%d entries) — dropped add_5 entry", tmp);
+        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_5 entry", tmp);
     }
 }
 

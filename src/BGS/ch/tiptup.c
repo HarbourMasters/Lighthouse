@@ -31,14 +31,14 @@ ActorInfo gChTiptup = {
 };
 
 s16 chTiptupRepeatDialogs[] = {
-    NULL,
+    0, // [port] decomp uses NULL; these are asset ids, not pointers
     VER_SELECT(ASSET_C78_DIALOG_TIPTUP_LESSON_1_REPEAT, 0x9BB, 0, 0),
     VER_SELECT(ASSET_C7A_DIALOG_TIPTUP_LESSON_2_REPEAT, 0x9BD, 0, 0),
     VER_SELECT(ASSET_C7C_DIALOG_TIPTUP_LESSON_3_REPEAT, 0x9BF, 0, 0)
 };
 
 s16 chTiptupSuccessDialogs[] = {
-    NULL,
+    0, // [port] decomp uses NULL; these are asset ids, not pointers
     VER_SELECT(ASSET_C77_DIALOG_TIPTUP_LESSON_1_COMPLETE, 0x9BA, 0, 0),
     VER_SELECT(ASSET_C79_DIALOG_TIPTUP_LESSON_2_COMPLETE, 0x9BC, 0, 0),
     VER_SELECT(ASSET_C7B_DIALOG_TIPTUP_LESSON_3_COMPLETE, 0x9BE, 0, 0)

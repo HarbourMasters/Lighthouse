@@ -126,7 +126,8 @@ void __chTumblar_congratulationTextCallback(ActorMarker *marker, enum asset_e te
     mapSpecificFlags_set(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN, true);
 }
 
-void chTumblar_congratulate(Struct_MMM_47D0_0 *arg0, s32 arg1) {
+void chTumblar_congratulate(void *arg0_, s32 arg1) {
+    Struct_MMM_47D0_0 *arg0 = (Struct_MMM_47D0_0 *)arg0_;
     gcdialog_showDialog(VER_SELECT(ASSET_ADB_DIALOG_TUMBLAR_COMPLETE, 0x94D, 0, 0), 4, NULL, arg0->jiggy_marker, __chTumblar_congratulationTextCallback, NULL);
     arg0->state = TUMBLAR_STATE_1_CONGRATULATING;
 }
