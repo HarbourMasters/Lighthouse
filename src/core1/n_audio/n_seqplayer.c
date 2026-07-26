@@ -2,7 +2,7 @@
 #include <n_audio/PR/n_libaudio.h>
 #include "n_synth.h"
 #include "file_and_line.h"
-#include "assert.h"
+#include "ultra_assert.h"
 //#include <PR/os_error.h>
 #include <PR/ultraerror.h>
 // #include "functions.h"

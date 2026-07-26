@@ -3,7 +3,7 @@
 #include "n_synth.h"
 #include "functions.h"
 #include "variables.h"
-#include "assert.h"
+#include "ultra_assert.h"
 
 Acmd *n_alResamplePull(N_PVoice *e, s16 *outp, Acmd *p);
 

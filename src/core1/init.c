@@ -117,7 +117,7 @@ void core1_init(void) {
     // [port] Irrelevant and replaced with system malloc
     // heap_init();
     core1_15B30_init();
-    dummy_func_8025AFB0();
+    // dummy_func_8025AFB0();
     // [port] Irrelevant and replaced with system malloc
     // allocUnusedBlock();
     assetCache_init();

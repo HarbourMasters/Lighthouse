@@ -19,7 +19,7 @@ ded6ee166e740ad1bc810fd678a84b48e245ab80:
   config:
     gbi: F3DEX_BK64
     sort: OFFSET
-    logging: ERROR
+    logging: WARN
     textures: ADDITIONAL_DEFINES
     include_autogen: true
     output:
@@ -34,7 +34,7 @@ bb359a75941df74bf7290212c89fbc6e2c5601fe:
   config:
     gbi: F3DEX_BK64
     sort: OFFSET
-    logging: ERROR
+    logging: WARN
     textures: ADDITIONAL_DEFINES
     include_autogen: true
     output:
@@ -49,7 +49,7 @@ bb359a75941df74bf7290212c89fbc6e2c5601fe:
   config:
     gbi: F3DEX_BK64
     sort: OFFSET
-    logging: ERROR
+    logging: WARN
     textures: ADDITIONAL_DEFINES
     include_autogen: true
     output:

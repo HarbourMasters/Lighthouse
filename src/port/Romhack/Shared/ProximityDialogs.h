@@ -6,12 +6,12 @@ struct ProximityDialogPage {
     int textId;
     int dialogFlags;
     unsigned char word;     // which sDialogShown word tracks this page
-    unsigned short doneBit;  // bit within that word; 0 means "guarded by token instead"
+    unsigned short doneBit; // bit within that word; 0 means "guarded by token instead"
     int token;              // mumbotoken to guard on / bank (-1 = none)
     const float* dialogPos;
-    int skipIfJiggy;        // skip if this jiggy is collected (>0)
-    int needFlag;           // skip unless this FILEPROG flag is set (>0)
-    int needFlagClear;      // skip if this FILEPROG flag is set (>0)
+    int skipIfJiggy;   // skip if this jiggy is collected (>0)
+    int needFlag;      // skip unless this FILEPROG flag is set (>0)
+    int needFlagClear; // skip if this FILEPROG flag is set (>0)
 };
 
 struct ProximityDialogMap {
@@ -30,8 +30,7 @@ void ProximityDialogs_Run(const ProximityDialogMap* maps, int count);
 void ProximityDialogs_Enable(const ProximityDialogMap* maps, int count);
 
 // Deduce the count from a fixed table so callers pass just the table.
-template <int N>
-inline void ProximityDialogs_Enable(const ProximityDialogMap (&maps)[N]) {
+template <int N> inline void ProximityDialogs_Enable(const ProximityDialogMap (&maps)[N]) {
     ProximityDialogs_Enable(maps, N);
 }
 

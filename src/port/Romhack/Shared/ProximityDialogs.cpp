@@ -67,9 +67,8 @@ void ProximityDialogs_Run(const ProximityDialogMap* maps, int count) {
 void ProximityDialogs_Enable(const ProximityDialogMap* maps, int count) {
     sWorldMaps = maps;
     sWorldMapCount = count;
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, sWorldMapCount > 0, [](IEvent*) {
-        ProximityDialogs_Run(sWorldMaps, sWorldMapCount);
-    });
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, sWorldMapCount > 0,
+              [](IEvent*) { ProximityDialogs_Run(sWorldMaps, sWorldMapCount); });
 }
 
 bool ProximityDialogs_IsShown(int word, unsigned bits) {

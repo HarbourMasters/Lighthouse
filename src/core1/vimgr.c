@@ -209,7 +209,7 @@ void viMgr_func_8024BFD8(s32 arg0){
 
 void viMgr_func_8024C1B4(void){
     viMgr_func_8024BFD8(0);
-    dummy_func_8025AFB8();
+    // dummy_func_8025AFB8();
 }
 
 void viMgr_func_8024C1DC(void){

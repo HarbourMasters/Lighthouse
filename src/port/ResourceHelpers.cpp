@@ -44,6 +44,8 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
     static std::unordered_map<uint32_t, std::string> symbolMap;
 
     std::call_once(mapOnce, [] {
+        SPDLOG_INFO("[AssetSymbolMap] Initializing with base version {}",
+                    static_cast<uint32_t>(Lighthouse::GetBaseVersion()));
         // Torch writes this as a Blob at "assets/aBKAssetTable".
         // Format: u32 count, then for each entry: u32 assetId, s32 pathLen, char path[pathLen]
         auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource("assets/aBKAssetTable");
@@ -103,7 +105,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         switch (Lighthouse::GetBaseVersion()) {
             case BK_VER_US_11:
                 remapTable = &sV10toV11Remap;
-                SPDLOG_INFO("Loaded v1.1 o2r with {} entries", symbolMap.size());
+                SPDLOG_INFO("Loaded US v1.1 o2r with {} entries", symbolMap.size());
                 break;
             case BK_VER_PAL:
                 remapTable = &sV10toPALRemap;
@@ -115,6 +117,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                 break;
             case BK_VER_US_10:
             default:
+                SPDLOG_INFO("Loaded US v1.0 o2r");
                 // v1.0 or a v1.0-based romhack: decomp IDs are already correct.
                 break;
         }

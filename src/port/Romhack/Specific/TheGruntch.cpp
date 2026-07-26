@@ -223,8 +223,8 @@ static void Gruntch_EnableConditionalActors() {
     sConditionalActorsEnabled = true;
     COND_VB_SHOULD(VB_XMAS_TREE_ICE_UPDATE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, {
         Actor* self = va_arg(args, Actor*);
-        if (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION &&
-            self != NULL && self->marker != NULL && self->marker->propPtr != NULL) {
+        if (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION && self != NULL && self->marker != NULL &&
+            self->marker->propPtr != NULL) {
             bool open = fileProgressFlag_get(FILEPROG_38_RBB_OPEN) != 0;
             self->marker->propPtr->unk8_3 = open;
             self->unk38_31 = !open;
@@ -233,9 +233,7 @@ static void Gruntch_EnableConditionalActors() {
     });
 
     // Force Boggy to be visible
-    COND_VB_SHOULD(VB_BOGGY_HOME_VISIBLE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, {
-        *should = true;
-    });
+    COND_VB_SHOULD(VB_BOGGY_HOME_VISIBLE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, { *should = true; });
 }
 
 // --------------------------------------------------------------- Mumbo reward
@@ -379,5 +377,5 @@ void RegisterGruntchPatches() {
      *  Stealth minigame in Gruntch's room (RBB Kitchen)
      *  Possible retention of turbo trainers through cauldron warp
      *  Game over respawn to Gruntch Cave
-    */
+     */
 }

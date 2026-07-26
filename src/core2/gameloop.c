@@ -168,7 +168,7 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
 
     gcpausemenu_draw(gfx, mtx, vtx);
     if(!game_is_frozen() && !capturing){
-        dummy_func_8025AFC0(gfx, mtx, vtx);
+        // dummy_func_8025AFC0(gfx, mtx, vtx);
     }
 
     if (!capturing) {

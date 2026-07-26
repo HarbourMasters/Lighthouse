@@ -31,6 +31,9 @@
 #define JP_EXCLUSIVE(body)
 #endif
 
+// [port] AssetVersionRemap.h keys on usa0
+#define VER_SELECT(usa0, pal, usa1, jp) usa0
+
 #if VERSION == VERSION_USA_1_0
 #define VER_SELECT(usa0, pal, usa1, jp) usa0
 #elif VERSION == VERSION_PAL

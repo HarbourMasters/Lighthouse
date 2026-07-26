@@ -23,13 +23,32 @@ bool ReadStampedCrc(const std::string& archivePath, uint32_t& outCrc) {
     if (zip_int64_t idx = zip_name_locate(z, "version", 0); idx >= 0) {
         if (zip_file_t* f = zip_fopen_index(z, idx, 0)) {
             uint8_t buf[5] = {};
-            if (zip_fread(f, buf, sizeof(buf)) == static_cast<zip_int64_t>(sizeof(buf))) {
-                const bool big = buf[0] != 0;
-                outCrc = big ? (static_cast<uint32_t>(buf[1]) << 24 | static_cast<uint32_t>(buf[2]) << 16 |
-                                static_cast<uint32_t>(buf[3]) << 8 | static_cast<uint32_t>(buf[4]))
-                             : (static_cast<uint32_t>(buf[4]) << 24 | static_cast<uint32_t>(buf[3]) << 16 |
-                                static_cast<uint32_t>(buf[2]) << 8 | static_cast<uint32_t>(buf[1]));
-                ok = true;
+            if (zip_fread(f, buf, sizeof(buf)) == sizeof(buf)) {
+                const uint32_t crcBE = (static_cast<uint32_t>(buf[1]) << 24) | (static_cast<uint32_t>(buf[2]) << 16) |
+                                       (static_cast<uint32_t>(buf[3]) << 8) | static_cast<uint32_t>(buf[4]);
+
+                const uint32_t crcLE = (static_cast<uint32_t>(buf[4]) << 24) | (static_cast<uint32_t>(buf[3]) << 16) |
+                                       (static_cast<uint32_t>(buf[2]) << 8) | static_cast<uint32_t>(buf[1]);
+
+                auto isKnownVersion = [](uint32_t crc) {
+                    switch (crc) {
+                        case BK_VER_US_10:
+                        case BK_VER_US_11:
+                        case BK_VER_PAL:
+                        case BK_VER_JP:
+                            return true;
+                        default:
+                            return false;
+                    }
+                };
+
+                if (isKnownVersion(crcBE)) {
+                    outCrc = crcBE;
+                    ok = true;
+                } else if (isKnownVersion(crcLE)) {
+                    outCrc = crcLE;
+                    ok = true;
+                }
             }
             zip_fclose(f);
         }
