@@ -486,7 +486,8 @@ void LighthouseMenu::AddMenuEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
             }
         })
-        .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
+        .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak.\n"
+                                           "Requires a map reload to take effect."));
 
     AddWidget(path, "Easier Mr Vile", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("EasierMrVile"))
