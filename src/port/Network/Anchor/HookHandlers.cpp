@@ -518,8 +518,7 @@ void Anchor::RegisterHooks() {
         if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
             (port_puzzleStep_getForMap(MAP_1_SM_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
-        } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) &&
-                   !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
+        } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) && !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
             *should = false;
         } else {
             NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
