@@ -37,16 +37,19 @@ void port_modelRenderResetTLUT(Gfx** gfx) {
 }
 
 // Widescreen HUD edge anchoring (centered-ortho HUD geometry).
+
+static const float kHudCenterBand = 32.0f;
+
 float port_hudOrthoShift(float refX) {
     float halfW = (f32)gFramebufferWidth * 0.5f;
     float extraHalf = (f32)gFramebufferHeight * 0.5f * GameEngine_GetAspectRatio() - halfW;
     if (extraHalf < 0.0f) {
         extraHalf = 0.0f; // narrower than 4:3 (e.g. pillarboxed): never pull inward
     }
-    if (refX < halfW) {
+    if (refX < halfW - kHudCenterBand) {
         return -extraHalf; // left-anchored
     }
-    if (refX > halfW) {
+    if (refX > halfW + kHudCenterBand) {
         return extraHalf; // right-anchored
     }
     return 0.0f; // centered

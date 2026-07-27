@@ -214,7 +214,10 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
         if(a1->unk6C == 0.0f){
             a1->unk6C = 1.1*(vtxList_getGlobalNorm(modelbin_getVtxList(a1->model)) * a1->unk3C);
         }
-        depthbuffer_clearRegion(gfx, a1->unk30 - a1->unk6C, sp40 - a1->unk6C, 2*a1->unk6C, 2*a1->unk6C, gFramebuffers[getActiveFramebuffer()]);
+        // [port] Clear against draw_x, not unk30: the model is drawn at the widescreen-anchored
+        // position, so the depth hole has to move with it or the icon gets z-clipped by the world.
+        // depthbuffer_clearRegion(gfx, a1->unk30 - a1->unk6C, sp40 - a1->unk6C, 2*a1->unk6C, 2*a1->unk6C, gFramebuffers[getActiveFramebuffer()]);
+        depthbuffer_clearRegion(gfx, draw_x - a1->unk6C, sp40 - a1->unk6C, 2*a1->unk6C, 2*a1->unk6C, gFramebuffers[getActiveFramebuffer()]);
         if(a1->anim_ctrl != NULL){
             anctrl_drawSetup(a1->anim_ctrl, sp5C, 1);
         }
