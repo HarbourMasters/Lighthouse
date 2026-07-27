@@ -24,7 +24,6 @@ void FrameInterpolation_ShouldInterpolateFrame(bool shouldInterpolate);
 // Hierarchical scope (cross-tick pairing identity).
 void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id);
 void FrameInterpolation_RecordCloseChild(void);
-void FrameInterpolation_RecordMarker(const char* file, int line);
 
 // Mix three scalar fields into a stable scope id when no single field is
 // unique on its own (e.g. modelId+pos, particle spawn randomness).
@@ -38,15 +37,7 @@ static inline uint64_t FrameInterpolation_FloatBits(float f) {
     return (uint64_t)u;
 }
 
-// Low-level matrix primitives (from src/core1/math/matrix_stack.c).
-void FrameInterpolation_RecordMatrixIdent(void);
-void FrameInterpolation_RecordMatrixTranslate(float x, float y, float z);
-void FrameInterpolation_RecordMatrixRotYaw(float degrees);
-void FrameInterpolation_RecordMatrixRotPitch(float degrees);
-void FrameInterpolation_RecordMatrixRotRoll(float degrees);
-void FrameInterpolation_RecordMatrixScale(float x, float y, float z);
-void FrameInterpolation_RecordMatrixSet(const float src[4][4]);
-void FrameInterpolation_RecordMatrixMult(const float l[4][4], const float r[4][4]);
+// Final matrix output of a mlMtxApply — the only matrix event replay needs.
 void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]);
 
 // BK puts camera rotation in projection, not modelview. We record the

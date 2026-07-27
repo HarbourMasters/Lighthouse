@@ -14,7 +14,7 @@ static int sDrawDistanceCubeWidth(int mul) {
     return 4 * mul;
 }
 
-static int sDrawDistanceLevel = 0;
+static int sDrawDistanceLevel = 1;
 static int sDisableLOD = 0;
 
 extern "C" {
@@ -92,14 +92,7 @@ float port_hudOrthoShift(float refX) {
 }
 
 int port_getDrawDistanceSetting(void) {
-    int mul = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DrawDistance"), 1);
-    if (mul < 1) {
-        mul = 1;
-    }
-    if (mul > kMaxDrawDistanceMul) {
-        mul = kMaxDrawDistanceMul;
-    }
-    return mul;
+    return sDrawDistanceLevel;
 }
 
 int port_getDrawDistanceLevel(void) {
@@ -185,7 +178,14 @@ static void RegisterDrawDistanceGraphics_Init() {
 static RegisterShipInitFunc drawDistanceGraphicsInit(RegisterDrawDistanceGraphics_Init, { CVAR_DRAW_DISTANCE });
 
 static void RefreshDrawDistanceCVars() {
-    sDrawDistanceLevel = CVarGetInteger(CVAR_DRAW_DISTANCE, 1);
+    int mul = CVarGetInteger(CVAR_DRAW_DISTANCE, 1);
+    if (mul < 1) {
+        mul = 1;
+    }
+    if (mul > kMaxDrawDistanceMul) {
+        mul = kMaxDrawDistanceMul;
+    }
+    sDrawDistanceLevel = mul;
     sDisableLOD = CVarGetInteger(CVAR_DISABLE_LOD, 0);
 }
 

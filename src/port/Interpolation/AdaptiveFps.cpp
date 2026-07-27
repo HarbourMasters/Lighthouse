@@ -50,6 +50,10 @@ constexpr double kPeakDecay = 0.40;
 constexpr double kLogicRiseAlpha = 0.5;
 constexpr double kLogicFallAlpha = 0.1;
 
+// How much estimated spare capacity (in sub-frames) is needed beyond the next
+// tier before the cap steps up.
+constexpr double kStepUpHeadroom = 0.25;
+
 // Default game update rate (times per second) if none is given.
 constexpr uint32_t kDefaultTickHz = 30;
 
@@ -65,6 +69,7 @@ struct State {
     Clock::time_point winStart = Clock::now();
     double safety = kSafetySteady;
     int risingHoldRemaining = 0;
+    int grantedSub = 0;
 };
 
 State& state() {
@@ -92,6 +97,7 @@ void AdaptiveFps_Configure(uint32_t tickHz) {
     s.winStart = Clock::now();
     s.safety = kSafetySteady;
     s.risingHoldRemaining = 0;
+    s.grantedSub = 0;
 }
 
 uint32_t AdaptiveFps_Cap(uint32_t userTarget) {
@@ -102,21 +108,30 @@ uint32_t AdaptiveFps_Cap(uint32_t userTarget) {
     if (costUs <= 0.0) {
         return userTarget;
     }
+    int userSub = (int)(userTarget / s.tickHz);
+    if (userSub < 1) {
+        userSub = 1;
+    }
     // Set aside the time the game spent updating, then share what's left among
     // interpolated frames so a busy scene can't overshoot the tick's budget.
     double renderBudgetUs = s.tickBudgetUs - s.envLogicUs;
-    if (renderBudgetUs <= 0.0) {
-        return s.tickHz;
+    double maxSubPerTick = renderBudgetUs <= 0.0 ? 1.0 : (renderBudgetUs * s.safety) / costUs;
+    int desired = maxSubPerTick < 1.0 ? 1 : (int)maxSubPerTick;
+    if (desired > userSub) {
+        desired = userSub;
     }
-    double maxSubPerTick = (renderBudgetUs * s.safety) / costUs;
-    if (maxSubPerTick < 1.0) {
-        return s.tickHz;
+
+    if (s.grantedSub == 0 || desired < s.grantedSub) {
+        // First measurement, or capacity dropped (or the user lowered the
+        // target): apply immediately, don't promise frames that can't be drawn.
+        s.grantedSub = desired;
+    } else if (desired > s.grantedSub && s.risingHoldRemaining == 0 &&
+               maxSubPerTick >= (double)(s.grantedSub + 1) + kStepUpHeadroom) {
+        // Recover one tier at a time, only in steady state and with headroom.
+        s.grantedSub++;
     }
-    uint32_t maxFps = (uint32_t)(maxSubPerTick * s.tickHz);
-    if (maxFps < s.tickHz) {
-        maxFps = s.tickHz;
-    }
-    return std::min(userTarget, maxFps);
+
+    return std::min(userTarget, (uint32_t)s.grantedSub * s.tickHz);
 }
 
 void AdaptiveFps_SampleTick(long long logicNs) {

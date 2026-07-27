@@ -8,85 +8,18 @@
 
 #include <libultraship/libultra/gu.h>
 
-// Double-buffered op recorder. Matrix primitives in core1/math/matrix_stack.c
-// append into gCurrent between StartRecord/StopRecord; Interpolate(t) pairs
-// ops across two consecutive ticks (gPrevious vs gCurrent) by scope-path and
-// lerps the inputs. Camera projection rotations and sprite inputs go through
-// angle-space lerp (not matrix-lerp) to avoid the paper-fold artifact on fast
-// spins. See docs/INTERPOLATION.md for the full design.
-
 namespace {
-
-enum class Op : uint8_t {
-    OpenChild,
-    CloseChild,
-    Marker,
-
-    MatrixIdent,
-    MatrixTranslate,
-    MatrixRotYaw,
-    MatrixRotPitch,
-    MatrixRotRoll,
-    MatrixScale,
-    MatrixSet,
-    MatrixMult,
-    MatrixToMtx,
-
-    CameraProjectionRotation,
-    SpriteDraw,
-};
-
-// Heavy ops (Set/Mult/ToMtx/Camera/Sprite) stash their payload in per-tree
-// side vectors and reference it via side_index.
-struct OpNode {
-    Op op;
-    union {
-        struct {
-            float x, y, z;
-        } vec3;
-        struct {
-            float degrees;
-        } rotate;
-        struct {
-            const void* key;
-            uintptr_t id;
-        } open_child;
-        struct {
-            const char* file;
-            int line;
-        } marker;
-        uint32_t side_index;
-    };
-
-    OpNode() : op(Op::Marker), side_index(0) {
-    }
-};
-
-struct MatrixSetData {
-    float m[4][4];
-};
-
-struct MatrixMultData {
-    float l[4][4];
-    float r[4][4];
-};
 
 struct ToMtxData {
     void* dst;
     float src[4][4];
-    // Cross-tick pairing key, built at record time from the live FNV scope
-    // hash; same scope path on both ticks → same sig → O(1) pair lookup.
     uint64_t pathSig;
-    // Sprites flag this so the lerp loop leaves their dst alone — cube
-    // culling reorders sprites between ticks so index pairing mismatches.
     bool noInterpolate;
 };
 
-// Sprites record raw inputs (angles for rotations, linear for pos/scale)
-// rather than the final matrix, so replay can lerp in natural spaces and
-// rebuild a matrix that stays consistent with the angle-lerped projection.
-// Which fields matter depends on kind: billboards use camYaw/camPitch,
-// FULL uses rotation[], only BILLBOARD_ROLL cares about spriteRoll.
+// Sprites keep their raw inputs instead of the finished matrix so replay can
+// blend angles as angles; blending the matrix itself makes billboards shear
+// while the camera swings around them.
 struct SpriteDrawData {
     void* dst;
     float camRelPos[3];
@@ -100,9 +33,6 @@ struct SpriteDrawData {
     bool mirrored;
 };
 
-// We record the three Euler angles behind BK's projection rotation rather
-// than the matrices, so replay can shortest-path angle-lerp and rebuild via
-// guRotateF — element-wise lerp on these matrices folds during fast spins.
 struct CameraProjRotData {
     void* rollMtx;
     void* pitchMtx;
@@ -112,6 +42,9 @@ struct CameraProjRotData {
     float yawDeg;
 };
 
+// Two entries pair up across ticks when they were recorded under the same
+// scope path at the same index; that identity is hashed into pathSig as the
+// game draws.
 struct ScopeFrame {
     uint64_t pathHash;
     uint32_t toMtxIdx;
@@ -119,8 +52,6 @@ struct ScopeFrame {
 };
 
 constexpr uint64_t kFnvSeed = 0xcbf29ce484222325ULL;
-// Disambiguators so a ToMtx and a Sprite at the same in-scope index don't
-// collide on a single signature.
 constexpr uint64_t kSigKindToMtx = 0x1ULL;
 constexpr uint64_t kSigKindSprite = 0x2ULL;
 
@@ -130,13 +61,7 @@ inline uint64_t fnvMix(uint64_t h, uint64_t v) {
     return h;
 }
 
-// Sig maps are populated live during recording. After StopRecord swaps
-// trees, gPrevious already has its maps and BuildInterpolationCache can
-// pair entries with O(1) lookups instead of re-walking the prev tree.
 struct FrameTree {
-    std::vector<OpNode> ops;
-    std::vector<MatrixSetData> sets;
-    std::vector<MatrixMultData> mults;
     std::vector<ToMtxData> toMtxs;
     std::vector<CameraProjRotData> projRots;
     std::vector<SpriteDrawData> sprites;
@@ -148,9 +73,6 @@ struct FrameTree {
     bool valid = false;
 
     void reset() {
-        ops.clear();
-        sets.clear();
-        mults.clear();
         toMtxs.clear();
         projRots.clear();
         sprites.clear();
@@ -172,31 +94,25 @@ bool gRecording = false;
 bool gShouldInterpolate = true;
 int gNoInterpolateDepth = 0;
 
-// Monotonic ids for heap pointers that get reused by the allocator. Without
-// these, a freed object's address gets reused by the next allocation and
-// the new one inherits the dead one's matrix pairing.
 std::unordered_map<const void*, uint64_t> gIdMap;
 uint64_t gNextId = 1;
 
-// Per-tick cache built lazily on the first Interpolate(t) call and reused
-// for every sub-frame within the tick. Stores only (curr, prev) pairs whose
-// lerped output differs from c.src — no-prev and bit-identical entries are
-// skipped because the interpreter's fallback path decodes the DL bytes that
-// c.src was already encoded into, producing the same matrix without a map
-// lookup. Shrinking the map this way speeds up every interpreter find()
-// across the whole DL on top of cheaper inserts.
 struct PairedToMtx {
     uint32_t currIdx;
     uint32_t prevIdx;
-    // Hemisphere check is stable across t for a (prev, curr) pair, so we
-    // do it once at cache build instead of 6 fmuls + cmps per sub-frame.
     bool snap;
 };
 struct PairedSprite {
     uint32_t currIdx;
     uint32_t prevIdx;
 };
+
+// Pairing happens once per tick, on the first Interpolate() call; later
+// sub-frames only read the result. Engine.cpp builds those on worker threads,
+// so after `built` goes true nothing in here may be mutated until the next
+// StartRecord.
 struct InterpolationCache {
+    bool built = false;
     bool valid = false;
     std::vector<PairedToMtx> pairedToMtxs;
     std::vector<PairedSprite> pairedSprites;
@@ -204,6 +120,7 @@ struct InterpolationCache {
     float prevCameraPos[3] = { 0.0f, 0.0f, 0.0f };
 
     void reset() {
+        built = false;
         valid = false;
         pairedToMtxs.clear();
         pairedSprites.clear();
@@ -212,23 +129,12 @@ struct InterpolationCache {
 };
 InterpolationCache gCache;
 
-OpNode& append(Op op) {
-    gCurrent->ops.emplace_back();
-    OpNode& n = gCurrent->ops.back();
-    n.op = op;
-    return n;
-}
-
 } // namespace
 
 extern "C" {
 
 void FrameInterpolation_StartRecord(void) {
     gCurrent->reset();
-    // Reserve once; subsequent ticks reuse the existing capacity.
-    gCurrent->ops.reserve(4096);
-    gCurrent->sets.reserve(128);
-    gCurrent->mults.reserve(256);
     gCurrent->toMtxs.reserve(512);
     gCurrent->projRots.reserve(4);
     gCurrent->sprites.reserve(256);
@@ -238,15 +144,14 @@ void FrameInterpolation_StartRecord(void) {
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
     gRecording = true;
-    // The cache built during the prior render pass references trees that
-    // are about to be reused for this tick.
+    // The old cache indexes into the tree this tick is about to overwrite.
+    gCache.built = false;
     gCache.valid = false;
 }
 
 void FrameInterpolation_StopRecord(void) {
     gRecording = false;
     gCurrent->valid = gShouldInterpolate;
-    // What we just recorded becomes `previous` for the next tick.
     std::swap(gCurrent, gPrevious);
 }
 
@@ -258,9 +163,6 @@ void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id) {
     if (!gRecording) {
         return;
     }
-    OpNode& n = append(Op::OpenChild);
-    n.open_child.key = key;
-    n.open_child.id = id;
     uint64_t h = gCurrent->scopeStack.back().pathHash;
     h = fnvMix(h, reinterpret_cast<uintptr_t>(key));
     h = fnvMix(h, static_cast<uint64_t>(id));
@@ -271,15 +173,12 @@ void FrameInterpolation_RecordCloseChild(void) {
     if (!gRecording) {
         return;
     }
-    append(Op::CloseChild);
     if (gCurrent->scopeStack.size() > 1) {
         gCurrent->scopeStack.pop_back();
     }
 }
 
 uintptr_t FrameInterpolation_Hash3(uint64_t a, uint64_t b, uint64_t c) {
-    // Three distinct odd primes keep the three inputs separable even when
-    // they share most of their bytes.
     uint64_t h = a * 0x9E3779B97F4A7C15ULL;
     h ^= b * 0x100000001b3ULL;
     h ^= c * 0xbf58476d1ce4e5b9ULL;
@@ -288,83 +187,6 @@ uintptr_t FrameInterpolation_Hash3(uint64_t a, uint64_t b, uint64_t c) {
 
 void FrameInterpolation_RecordOpenChildHash3(const char* key, uint64_t a, uint64_t b, uint64_t c) {
     FrameInterpolation_RecordOpenChild(key, FrameInterpolation_Hash3(a, b, c));
-}
-
-void FrameInterpolation_RecordMarker(const char* file, int line) {
-    if (!gRecording) {
-        return;
-    }
-    OpNode& n = append(Op::Marker);
-    n.marker.file = file;
-    n.marker.line = line;
-}
-
-void FrameInterpolation_RecordMatrixIdent(void) {
-    if (!gRecording) {
-        return;
-    }
-    append(Op::MatrixIdent);
-}
-
-void FrameInterpolation_RecordMatrixTranslate(float x, float y, float z) {
-    if (!gRecording) {
-        return;
-    }
-    OpNode& n = append(Op::MatrixTranslate);
-    n.vec3.x = x;
-    n.vec3.y = y;
-    n.vec3.z = z;
-}
-
-void FrameInterpolation_RecordMatrixRotYaw(float degrees) {
-    if (!gRecording) {
-        return;
-    }
-    append(Op::MatrixRotYaw).rotate.degrees = degrees;
-}
-
-void FrameInterpolation_RecordMatrixRotPitch(float degrees) {
-    if (!gRecording) {
-        return;
-    }
-    append(Op::MatrixRotPitch).rotate.degrees = degrees;
-}
-
-void FrameInterpolation_RecordMatrixRotRoll(float degrees) {
-    if (!gRecording) {
-        return;
-    }
-    append(Op::MatrixRotRoll).rotate.degrees = degrees;
-}
-
-void FrameInterpolation_RecordMatrixScale(float x, float y, float z) {
-    if (!gRecording) {
-        return;
-    }
-    OpNode& n = append(Op::MatrixScale);
-    n.vec3.x = x;
-    n.vec3.y = y;
-    n.vec3.z = z;
-}
-
-void FrameInterpolation_RecordMatrixSet(const float src[4][4]) {
-    if (!gRecording) {
-        return;
-    }
-    gCurrent->sets.emplace_back();
-    std::memcpy(gCurrent->sets.back().m, src, sizeof(float) * 16);
-    append(Op::MatrixSet).side_index = static_cast<uint32_t>(gCurrent->sets.size() - 1);
-}
-
-void FrameInterpolation_RecordMatrixMult(const float l[4][4], const float r[4][4]) {
-    if (!gRecording) {
-        return;
-    }
-    gCurrent->mults.emplace_back();
-    MatrixMultData& d = gCurrent->mults.back();
-    std::memcpy(d.l, l, sizeof(float) * 16);
-    std::memcpy(d.r, r, sizeof(float) * 16);
-    append(Op::MatrixMult).side_index = static_cast<uint32_t>(gCurrent->mults.size() - 1);
 }
 
 void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
@@ -383,7 +205,6 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     d.pathSig = sig;
     d.noInterpolate = (gNoInterpolateDepth > 0);
     gCurrent->sigToToMtx.emplace(sig, idx);
-    append(Op::MatrixToMtx).side_index = idx;
 }
 
 void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float rollDeg, void* pitchMtx, float pitchDeg,
@@ -399,7 +220,6 @@ void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float roll
     d.rollDeg = rollDeg;
     d.pitchDeg = pitchDeg;
     d.yawDeg = yawDeg;
-    append(Op::CameraProjectionRotation).side_index = static_cast<uint32_t>(gCurrent->projRots.size() - 1);
 }
 
 void FrameInterpolation_RecordCameraPosition(const float pos[3]) {
@@ -450,12 +270,9 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     d.kind = static_cast<uint8_t>(kind);
     d.mirrored = (mirrored != 0);
     gCurrent->sigToSprite.emplace(sig, idx);
-    append(Op::SpriteDraw).side_index = idx;
 }
 
 void FrameInterpolation_DontInterpolateCamera(void) {
-    // Prev's matrices belong to a scene the camera just left; dropping the
-    // tree makes the next Interpolate() bail and replay uses curr as-is.
     if (gPrevious != nullptr) {
         gPrevious->valid = false;
     }
@@ -478,7 +295,6 @@ uintptr_t FrameInterpolation_GetId(const void* ptr) {
     if (it != gIdMap.end()) {
         return static_cast<uintptr_t>(it->second);
     }
-    // Fallback for callers that don't Register; ABA-prone.
     return reinterpret_cast<uintptr_t>(ptr);
 }
 
@@ -493,15 +309,14 @@ void FrameInterpolation_UnregisterId(const void* ptr) {
 
 namespace {
 
-// Snap to curr when prev/curr point apart on X or Y (>90° rotation):
-// element-wise lerp on those folds the character inside-out.
+// Blending across a >90 degree turn drags the model through itself for a frame;
+// snap to the new orientation instead.
 inline bool shouldSnap(const float pa[4][4], const float ca[4][4]) {
     float dotX = pa[0][0] * ca[0][0] + pa[0][1] * ca[0][1] + pa[0][2] * ca[0][2];
     float dotY = pa[1][0] * ca[1][0] + pa[1][1] * ca[1][1] + pa[1][2] * ca[1][2];
     return dotX < 0.0f || dotY < 0.0f;
 }
 
-// Shortest-path angle lerp in degrees.
 inline float lerpAngleDegSP(float a, float b, float tt) {
     float d = b - a;
     d = std::fmod(d + 540.0f, 360.0f) - 180.0f;
@@ -510,12 +325,11 @@ inline float lerpAngleDegSP(float a, float b, float tt) {
 
 void BuildInterpolationCache() {
     gCache.reset();
+    gCache.built = true;
     if (!gPrevious->valid) {
         return;
     }
 
-    // Snapshot prev's camera pos so Interpolate's cut detector reads only
-    // gCache for tick-stable state.
     gCache.prevHasCameraPos = gPrevious->hasCameraPos;
     if (gCache.prevHasCameraPos) {
         gCache.prevCameraPos[0] = gPrevious->cameraPos[0];
@@ -533,12 +347,10 @@ void BuildInterpolationCache() {
     gCache.pairedToMtxs.reserve(currToMtxs.size());
     gCache.pairedSprites.reserve(currSprites.size());
 
-    // Only pair ToMtxs whose replacement actually differs from the curr
-    // matrix. The interpreter's fallback path decodes the DL bytes at
-    // c.dst, which the game wrote from the same float matrix that's now
-    // c.src — so unpaired AND bit-identical entries decode to the same
-    // result without a map lookup. Skipping them shrinks the replacement
-    // map and speeds up every interpreter find() across the whole DL.
+    // Whatever stays out of the cache falls back to the interpreter decoding
+    // the Mtx bytes the game itself wrote, which already hold the correct
+    // end-of-tick matrix. Entries with no previous partner, or whose
+    // matrix didn't change, can simply be dropped here.
     for (uint32_t i = 0; i < currToMtxs.size(); i++) {
         const ToMtxData& c = currToMtxs[i];
         if (c.dst == nullptr || c.noInterpolate) {
@@ -555,25 +367,31 @@ void BuildInterpolationCache() {
         gCache.pairedToMtxs.push_back({ i, it->second, shouldSnap(p.src, c.src) });
     }
 
-    // Sprites always pair (or get a sentinel prev-idx) because the matrix
-    // must be rebuilt every sub-frame anyway — billboard rotations follow
-    // the lerped projection.
+    // Sprites whose inputs didn't move at all are dropped for the same
+    // reason; the rest get their matrix rebuilt every sub-frame so billboards
+    // keep facing the blended camera.
     for (uint32_t i = 0; i < currSprites.size(); i++) {
         const SpriteDrawData& c = currSprites[i];
         auto it = prevSpriteMap.find(c.pathSig);
         if (it == prevSpriteMap.end() || prevSprites[it->second].kind != c.kind) {
             gCache.pairedSprites.push_back({ i, UINT32_MAX });
-        } else {
-            gCache.pairedSprites.push_back({ i, it->second });
+            continue;
         }
+        const SpriteDrawData& p = prevSprites[it->second];
+        if (std::memcmp(p.camRelPos, c.camRelPos, sizeof(c.camRelPos)) == 0 &&
+            std::memcmp(p.scale, c.scale, sizeof(c.scale)) == 0 && p.camYaw == c.camYaw && p.camPitch == c.camPitch &&
+            p.spriteRoll == c.spriteRoll && std::memcmp(p.rotation, c.rotation, sizeof(c.rotation)) == 0 &&
+            p.mirrored == c.mirrored) {
+            continue;
+        }
+        gCache.pairedSprites.push_back({ i, it->second });
     }
 
     gCache.valid = true;
 }
 
-// Build a sprite modelview from lerped inputs. Mirrors the decomp
-// composition for each kind so the replay matrix stays consistent with
-// the record-site one.
+// Rebuilds the sprite modelview the same way sprite/render.c composes it, so
+// a replayed matrix can't drift from what the game would have written.
 void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replacements) {
     if (L.dst == nullptr) {
         return;
@@ -582,7 +400,6 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
     std::memset(m, 0, sizeof(m));
     m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1.0f;
 
-    // Rotations match the matrix_stack.c primitives — rows 0-2 only.
     auto rotYaw = [&](float deg) {
         if (deg == 0.0f)
             return;
@@ -617,9 +434,9 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
         }
     };
 
+    // The rotation lambdas only touch rows 0-2, which is why FULL can
+    // translate first while billboards translate last.
     if (L.kind == FI_SPRITE_KIND_FULL) {
-        // FULL: translate first (the game's func_80252330 stomps mf[3]),
-        // then rotate — rotations only touch rows 0-2.
         m[3][0] = L.camRelPos[0];
         m[3][1] = L.camRelPos[1];
         m[3][2] = L.camRelPos[2];
@@ -627,8 +444,6 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
         rotPitch(L.rotation[0]);
         rotRoll(L.rotation[2]);
     } else {
-        // Billboard: cam-aligned rotations, optional sprite roll, then
-        // translate overwrites mf[3].
         rotYaw(L.camYaw);
         rotPitch(L.camPitch);
         if (L.kind == FI_SPRITE_KIND_BILLBOARD_ROLL) {
@@ -639,7 +454,6 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
         m[3][2] = L.camRelPos[2];
     }
 
-    // mlMtxScale_xyz: rows 0-2 only, translation preserved.
     float sx = L.mirrored ? -L.scale[0] : L.scale[0];
     for (int i = 0; i < 3; i++) {
         m[0][i] *= sx;
@@ -654,24 +468,20 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
 } // namespace
 
 void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& replacements) {
-    // Cache is built lazily by the first sub-frame call per render pass and
-    // reused; StartRecord clears it for the next tick. Caller owns
-    // `replacements` so its bucket array persists across sub-frames.
     replacements.clear();
 
     if (!gShouldInterpolate) {
         return;
     }
-    if (!gCache.valid) {
+    if (!gCache.built) {
         BuildInterpolationCache();
-        if (!gCache.valid) {
-            return;
-        }
+    }
+    if (!gCache.valid) {
+        return;
     }
 
-    // Cut detector: a >1000-unit camera jump means a teleport (warp,
-    // fixed-cam snap). Lerping across that places the world between two
-    // scenes for one sub-frame.
+    // A large camera jump means a warp or camera cut; blending across it
+    // would draw the world halfway between two scenes for a frame.
     if (gCache.prevHasCameraPos && gCurrent->hasCameraPos) {
         float dx = gCurrent->cameraPos[0] - gCache.prevCameraPos[0];
         float dy = gCurrent->cameraPos[1] - gCache.prevCameraPos[1];
@@ -705,8 +515,6 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
         }
     }
 
-    // Even unpaired sprites need a per-sub-frame matrix rebuild because
-    // their billboard rotations follow the lerped projection.
     for (const PairedSprite& pair : gCache.pairedSprites) {
         const SpriteDrawData& c = currSpritesData[pair.currIdx];
         SpriteDrawData L = c;
@@ -739,7 +547,7 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
                 MtxF& out = replacements[reinterpret_cast<Mtx*>(dst)];
                 guRotateF(out.mf, deg, ax, ay, az);
             };
-            // Axes match viewport.c: roll Z-, pitch X+, yaw Y+.
+            // Axis conventions per viewport.c: roll about -Z, pitch +X, yaw +Y.
             emitProj(c.rollMtx, lerpAngleDegSP(p.rollDeg, c.rollDeg, t), 0.0f, 0.0f, -1.0f);
             emitProj(c.pitchMtx, lerpAngleDegSP(p.pitchDeg, c.pitchDeg, t), 1.0f, 0.0f, 0.0f);
             emitProj(c.yawMtx, lerpAngleDegSP(p.yawDeg, c.yawDeg, t), 0.0f, 1.0f, 0.0f);

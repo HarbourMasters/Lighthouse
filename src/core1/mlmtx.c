@@ -217,7 +217,6 @@ void mlMtx_push_multiplied_2(MtxF * l_mtx, MtxF * r_mtx) {
         }
     }
     s_mtx_stack = (dst + 0);
-    FrameInterpolation_RecordMatrixMult(l_mtx->mf, r_mtx->mf);
 }
 
 //mlMtx
@@ -233,7 +232,6 @@ void mlMtxIdent(void){
         v0 += 5;
     }
     v0[0] = 1.0f;
-    FrameInterpolation_RecordMatrixIdent();
 }
 
 void func_80251B5C(f32 x, f32 y, f32 z){
@@ -256,7 +254,6 @@ void mlMtxSet(MtxF* arg0) {
             *dst++ = *src++;
         }
     }
-    FrameInterpolation_RecordMatrixSet(arg0->mf);
 }
 
 void mlMtxRotate(f32 a, f32 x, f32 y, f32 z) {
@@ -270,7 +267,6 @@ void mlMtxRotPitch(f32 arg0) {
     f32 var_f10;
     f32 var_f18;
 
-    FrameInterpolation_RecordMatrixRotPitch(arg0);
     if (arg0 != 0.0f) {
         arg0 *= D_80276578;
         sin = sinf(arg0);
@@ -299,7 +295,6 @@ void mlMtxRotYaw(f32 arg0) {
     f32 var_f18;
     s32 i;
 
-    FrameInterpolation_RecordMatrixRotYaw(arg0);
     if (arg0 != 0.0f) {
         arg0 *= BAD_DTOR;
         sin = sinf(arg0);
@@ -319,7 +314,6 @@ void mlMtxRotRoll(f32 arg0) {
     f32 var_f10;
     f32 var_f18;
 
-    FrameInterpolation_RecordMatrixRotRoll(arg0);
     if (arg0 != 0.0f) {
         arg0 *= D_8027657C;
         sin = sinf(arg0);
@@ -391,7 +385,6 @@ void mlMtxRotatePYR(f32 pitch, f32 yaw, f32 roll){
 
 void mlMtxScale_xyz(f32 x, f32 y, f32 z){
     int i;
-    FrameInterpolation_RecordMatrixScale(x, y, z);
     for(i = 0; i < 3; i++){
         s_mtx_stack->mf[0][i] *= x;
         s_mtx_stack->mf[1][i] *= y;
@@ -401,7 +394,6 @@ void mlMtxScale_xyz(f32 x, f32 y, f32 z){
 
 void mlMtxScale(f32 scale){
     int i;
-    FrameInterpolation_RecordMatrixScale(scale, scale, scale);
     for(i = 0; i < 3; i++){
         s_mtx_stack->mf[0][i] *= scale;
         s_mtx_stack->mf[1][i] *= scale;
@@ -516,7 +508,6 @@ void mlMtxTranslate(f32 x, f32 y, f32 z) {
     f32 phi_f16;
     s32 phi_v1;
 
-    FrameInterpolation_RecordMatrixTranslate(x, y, z);
     for(phi_v1 = 0; phi_v1 < 3; phi_v1++){
         phi_f18 = s_mtx_stack->mf[0][phi_v1] * x;
         phi_f16 = s_mtx_stack->mf[1][phi_v1] * y;
