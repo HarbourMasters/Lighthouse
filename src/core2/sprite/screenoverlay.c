@@ -286,7 +286,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     sp1B4 = *gfx;
     sp1B0 = var_a3;
     if(segment != 0){
-        gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), 0, 0);
+        gSPVertexSeg((*gfx)++, segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start, 0, 0);
     }else{
         gSPVertex((*gfx)++, (uintptr_t)sp1B0, 0, 0);
     }
@@ -336,7 +336,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
         if (i_vtx == 0x10) {
             i_vtx = 0;
             if(segment != 0){
-                gSPVertex(sp1B4, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), 16, 0);
+                gSPVertexSeg(sp1B4, segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start, 16, 0);
             }else{
                 gSPVertex(sp1B4, (uintptr_t)sp1B0, 16, 0);
             }
@@ -344,7 +344,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
             sp1B4 = *gfx;
             sp1B0 = var_a3;
             if (segment) {
-                gSPVertex((*gfx)++, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), 0, 0);
+                gSPVertexSeg((*gfx)++, segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start, 0, 0);
             } else {
                 gSPVertex((*gfx)++, (uintptr_t)sp1B0, 0, 0);
             }
@@ -358,7 +358,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     //rewrite vtx seg start with correct vtx count
     if (i_vtx > 0) {
         if(segment != 0){
-            gSPVertex(sp1B4, SEGMENT_ADDR(segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start), i_vtx, 0);
+            gSPVertexSeg(sp1B4, segment, (uintptr_t)sp1B0 - (uintptr_t)vtx_start, i_vtx, 0);
         }else{
             if(1);
             gSPVertex(sp1B4, (uintptr_t)sp1B0, i_vtx, 0);

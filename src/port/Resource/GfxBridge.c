@@ -5,6 +5,8 @@
 // __OTR__ asset paths instead of raw RAM; these wrappers detect that, swap in the
 // loaded resource via the ResourceManager, then forward to the real __gSP* GBI ops.
 
+#include <assert.h>
+
 #include "libultraship/libultra/gbi.h"
 #include "libultraship/bridge/resourcebridge.h"
 #include "src/port/ResourceHelpers.h"
@@ -12,12 +14,9 @@
 int ResourceMgr_OTRSigCheck(char* imgData) {
     uintptr_t i = (uintptr_t)(imgData);
 
-    // [port] Reject N64 segmented addresses and special sentinels.
-    // Segmented addresses fit in 32 bits with a non-zero segment byte (bits 24-31).
-    // Bit 0 set = already-tagged segmented address from stub GBI functions.
-    if ((i & 1) == 1)
-        return 0;
-    if (i != 0 && i <= 0xFFFFFFFF && (i >> 24) != 0)
+    // [port] Guard against small integers masquerading as pointers, which arise when
+    // N64 code computes an address from a NULL-based buffer.
+    if (i < 0x10000)
         return 0;
 
     // if ((i & 0xFF000000) != 0xAB000000 && (i & 0xFF000000) != 0xCD000000 && i != 0) {
@@ -52,18 +51,23 @@ void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset) {
     __gSPDisplayList(pkt, dl + offset);
 }
 
+// [port] `v` is a host pointer or an __OTR__ path. It is never a segmented address:
+// callers that mean "segment N, offset off" use gSPVertexSeg.
 void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0) {
     if (ResourceMgr_OTRSigCheck((char*)v) == 1)
         v = (uintptr_t)ResourceMgr_LoadVtxByName((char*)v);
 
-    // [port] Mark N64 segmented addresses with bit 0 so the interpreter's SegAddr resolves them.
-    // SEGMENT_ADDR(num, off) produces values like 0x01000000 without bit 0 set.
-    // Segmented addresses fit in 32 bits with a non-zero segment byte (bits 24-31).
-    if (v != 0 && v <= 0xFFFFFFFF && (v >> 24) != 0) {
-        v |= 1;
-    }
-
     __gSPVertex(pkt, v, n, v0);
+}
+
+// [port] Emit a vertex command that references segment `seg` at byte offset `off`.
+// Bit 0 is the tag Fast::Interpreter::SegAddr keys on to resolve against its segment
+// table; host pointers are always even, so the two can never be confused.
+void gSPVertexSeg(Gfx* pkt, u32 seg, uintptr_t off, int n, int v0) {
+    assert(seg < 16);
+    assert(off <= 0x00FFFFFE);
+
+    __gSPVertex(pkt, ((uintptr_t)(seg & 0xF) << 24) | (off & 0x00FFFFFEu) | 1u, n, v0);
 }
 
 void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
