@@ -2822,7 +2822,7 @@ void saveData_load(void *savedata);
 void savedata_init(void);
 void savedata_update_crc(void *buffer, s32 size);
 
-// --- core2/sfx/filedata.c ---
+// --- core2/fx/weather_snow.c ---
 void func_802F8FF0(void);
 void func_802F8FFC(void);
 void func_802F9054(void);
@@ -2831,7 +2831,7 @@ void func_802F9114(void);
 void func_802F919C(void);
 void func_802F962C(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
-// --- core2/sfx/init.c ---
+// --- core2/fx/weather.c ---
 struct3s * func_802F7C7C(void);
 struct6s * func_802F7C38(void);
 void func_802F7CC0(void);
@@ -2841,7 +2841,7 @@ void func_802F7D44(void);
 void func_802F7DE4(void);
 void func_802F7E54(void);
 
-// --- core2/sfx/playstate.c ---
+// --- core2/fx/weather_leaves.c ---
 void func_802F8A70(struct6s *self);
 void func_802F8A90(struct6s *self, Gfx **gdl, Mtx **mptr, Vtx **vptr);
 void func_802F8B8C(struct6s *self);
@@ -2876,7 +2876,7 @@ void sfxSource_setCallbackByIndex(u8 indx, void (*arg1)(u8));
 void sfxSource_triggerCallbackByIndex(u8 indx);
 void func_8030DFB4(u8 indx, s32 arg1);
 
-// --- core2/sfx/streamctrl.c ---
+// --- core2/fx/weather_rain.c ---
 void func_802F80F0(struct3s *self);
 void func_802F8110(struct3s *self, Gfx **gdl, Mtx **mptr, u32 arg3);
 void func_802F8214(struct3s * self);
@@ -3401,7 +3401,7 @@ f32 roll_get(void);
 void roll_setAngularVelocity(f32, f32);
 void roll_setIdeal(f32);
 
-// --- core2/sfx/playstate.c ---
+// --- core2/fx/weather_leaves.c ---
 struct6s *func_802F8BE0(s32 arg0);
 
 // --- core2/sfx/randompitch.c ---
@@ -3411,7 +3411,7 @@ void func_802F9F80(s32, f32, f32, f32);
 void func_802F9FD0(s32, f32, f32, f32);
 void func_802FA060(s32, s32, s32, f32);
 
-// --- core2/sfx/streamctrl.c ---
+// --- core2/fx/weather_rain.c ---
 struct3s *func_802F8264(s32 arg0);
 
 // --- core2/fx/projectile_anim.c ---

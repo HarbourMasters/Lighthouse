@@ -69,7 +69,7 @@ void func_802F8110(struct3s *this, Gfx **gdl, Mtx **mptr, u32 arg3){
     endPtr = bk_vector_getEnd(this->unk20);
     for(iPtr = startPtr; iPtr < endPtr; iPtr++){
         // [port] Per-entry stable scope — vector count varies, indices shift.
-        FrameInterpolation_RecordOpenChild("streamctrl", (uintptr_t)(iPtr - startPtr));
+        FrameInterpolation_RecordOpenChild("weather_rain", (uintptr_t)(iPtr - startPtr));
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
         modelRender_draw(gdl, mptr, iPtr->unk0, 0, 1.0f, 0, this->unk2C);
         iPtr->unk18 = modelRender_func_8033A170();

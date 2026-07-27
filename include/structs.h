@@ -437,6 +437,7 @@ typedef struct{
 typedef struct struct_4D_s{
     f32 unk0[3];
     f32 unkC[3];
+    u32 id; // [port] stable identity for frame interpolation
 }struct4Ds;
 
 typedef struct{

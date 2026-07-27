@@ -57,6 +57,7 @@ f32 D_80381080[3];
 f32 D_8038108C;
 Gfx *D_80381090;
 Struct_core2_72060_0 *D_80381094;
+static u32 sSnowNextId = 0; // [port] Monotonic spawn id
 
 bool func_802F989C(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 
@@ -179,6 +180,7 @@ void func_802F919C(void) {
                 sp40->unkC[0] = 0.0f;
                 sp40->unkC[1] = randf2(-150.0f, -50.0f);
                 sp40->unkC[2] = 0.0f;
+                sp40->id = ++sSnowNextId;
             }
         }
     }
@@ -213,13 +215,8 @@ void func_802F962C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         D_80381094 = (Struct_core2_72060_0 *)((uintptr_t)D_80369288 + D_80369288->geo_list_offset);
         
         for(phi_s0 = D_80369280->unk1C; phi_s0 < D_80369280->unk1C + D_80369284; phi_s0++) {
-            // [port] Scope keyed on position — array shrinks below the
-            // height threshold and frustum culls inside func_802F989C, so
-            // index-based pairing would mismatch surviving items.
-            FrameInterpolation_RecordOpenChildHash3("grass_item",
-                FrameInterpolation_FloatBits(phi_s0->unk0[0]),
-                FrameInterpolation_FloatBits(phi_s0->unk0[1]),
-                FrameInterpolation_FloatBits(phi_s0->unk0[2]));
+            // [port] Scope keyed on spawn id
+            FrameInterpolation_RecordOpenChild("weather_snow", phi_s0->id);
             if ((func_802F989C(gfx, mtx, phi_s0->unk0) == 0) && (phi_s0->unk0[1] < D_8038104C)) {
                 func_802F9134(phi_s0 - D_80369280->unk1C);
                 phi_s0--;
