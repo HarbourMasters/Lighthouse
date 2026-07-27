@@ -102,8 +102,13 @@ int SDL_main(int argc, char* argv[]) {
     // when SHIP_HOME is not in use
     std::error_code ec;
     const char* shipHome = std::getenv("SHIP_HOME");
+    const char* appImage = std::getenv("APPIMAGE");
     if (shipHome != nullptr && shipHome[0] != '\0') {
         std::filesystem::current_path(shipHome, ec);
+    } else if (appImage != nullptr && appImage[0] != '\0') {
+        // Running from an AppImage: the executable lives in a read-only squashfs
+        // mount under /tmp, so anchor to the .AppImage file's directory instead.
+        std::filesystem::current_path(std::filesystem::path(appImage).parent_path(), ec);
     } else {
         std::string base = Ship::Context::GetAppBundlePath();
         if (!base.empty() && base != ".") {
