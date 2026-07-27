@@ -28,6 +28,7 @@ void __chGobi3_spawnHoneyComb(Actor *this){
     bundle_setYaw(this->yaw);
     func_802CA1CC(HONEYCOMB_C_GV_GOBI_3);
     bundle_spawn_f32(BUNDLE_D__EMPTY_HONEYCOMB, sp18);
+    CALL_EVENT(OnHoneycombDropSpawn, HONEYCOMB_C_GV_GOBI_3, BUNDLE_D__EMPTY_HONEYCOMB, sp18[0], sp18[1], sp18[2]);
 }
 
 void __chGobi3_runaway(ActorMarker *caller, enum asset_e text_id, s32 arg2){

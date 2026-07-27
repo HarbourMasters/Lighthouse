@@ -229,6 +229,8 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_PedestalOwner(payload);
             else if (packetType == JIGGY_SPAWN)
                 HandlePacket_SpawnJiggy(payload);
+            else if (packetType == HONEYCOMB_SPAWN)
+                HandlePacket_SpawnHoneycomb(payload);
             else if (packetType == TELEPORT_TO)
                 HandlePacket_TeleportTo(payload);
             else if (packetType == UNSET_FLAG)

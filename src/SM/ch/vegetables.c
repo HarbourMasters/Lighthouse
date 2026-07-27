@@ -218,10 +218,12 @@ static void __chVegetables_vegetableDeathParticles(Actor* this) {
         __chVegetables_setSpriteDustParticles(partEmitMgr_newEmitter(8), particles_position, 8);
     }
 
-    if (this->unk38_31) {
+    // [port] Anchor: skip the drop if a teammate's synced drop already put one here.
+    if (this->unk38_31 && !actorArray_findHoneycombMarkerById(HONEYCOMB_17_SM_COLLIWOBBLE)) {
         this->position_y += 100.0f;
         func_802CA1CC(HONEYCOMB_17_SM_COLLIWOBBLE);
         __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position_x), reinterpret_cast(s32, this->position_y), reinterpret_cast(s32, this->position_z));
+        CALL_EVENT(OnHoneycombDropSpawn, HONEYCOMB_17_SM_COLLIWOBBLE, BUNDLE_1F_SM_EMPTY_HONEYCOMB, this->position_x, this->position_y, this->position_z);
     }
 
     timed_mapSpecificFlags_setTrue(1.5f, SM_SPECIFIC_FLAG_7);

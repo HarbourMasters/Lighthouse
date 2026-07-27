@@ -112,9 +112,12 @@ void SM_func_80386D68(Actor *this){
     func_80386B04(partEmitMgr_newEmitter(0xA), this->position, 0xA, this->scale);
     func_80386C2C(partEmitMgr_newEmitter(0x10), this->position, 0x10, this->scale);
 
-    if (this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor)) {
+    // [port] Anchor: skip the drop if a teammate's synced drop already put one here.
+    if (this->partnerActor && codeBF0_shouldSpawnQuarrieHoneyComb(this->partnerActor) &&
+        !actorArray_findHoneycombMarkerById(HONEYCOMB_18_SM_QUARRIES)) {
         func_802CA1CC(HONEYCOMB_18_SM_QUARRIES);
         __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, BUNDLE_1F_SM_EMPTY_HONEYCOMB, reinterpret_cast(s32, this->position[0]), reinterpret_cast(s32, this->position[1]), reinterpret_cast(s32, this->position[2]));
+        CALL_EVENT(OnHoneycombDropSpawn, HONEYCOMB_18_SM_QUARRIES, BUNDLE_1F_SM_EMPTY_HONEYCOMB, this->position[0], this->position[1], this->position[2]);
     }
 
     marker_despawn(this->marker);

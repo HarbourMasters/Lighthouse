@@ -60,6 +60,13 @@ typedef enum VBehaviorID {
     VB_CCW_FLOWER_REMOTE_GROW,
     // Anchor: gates FP twinkly minigame start so only one client owns a run at a time.
     VB_FP_TWINKLY_START,
+    // Anchor: true while the SM tutorial choice is still open to the local player. Checked
+    // when opening the intro offer (first client to reach it claims ownership) and again
+    // when an answer lands (a stale opt-out folds into opt-in once the choice closed).
+    VB_SM_TUTORIAL_CHOICE_OPEN,
+    // Anchor: SM ability molehills stay inert until the tutorial choice is made, so no
+    // tutorial sequence can start while the decision is still open.
+    VB_SM_MOLEHILL_ACTIVE,
     // Anchor: suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_DOOR_OPEN_CAMERA,
     // CC rings water snap on run teardown (Anchor): suppressed when a teammate finished the rings.

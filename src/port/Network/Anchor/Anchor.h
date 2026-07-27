@@ -117,6 +117,7 @@ private:
     void HandlePacket_JiggyCrane(nlohmann::json& payload);
     void HandlePacket_PedestalOwner(nlohmann::json& payload);
     void HandlePacket_SpawnJiggy(nlohmann::json& payload);
+    void HandlePacket_SpawnHoneycomb(nlohmann::json& payload);
     void HandlePacket_TeleportTo(nlohmann::json& payload);
     void HandlePacket_UnsetFlag(nlohmann::json& payload);
     void HandlePacket_UpdateClientState(nlohmann::json& payload);
@@ -173,6 +174,7 @@ public:
     inline static const std::string JIGGY_CRANE = "JIGGY_CRANE";
     inline static const std::string PEDESTAL_OWNER = "PEDESTAL_OWNER";
     inline static const std::string JIGGY_SPAWN = "JIGGY_SPAWN";
+    inline static const std::string HONEYCOMB_SPAWN = "HONEYCOMB_SPAWN";
     inline static const std::string TELEPORT_TO = "TELEPORT_TO";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
@@ -251,6 +253,7 @@ public:
     void SendPacket_JiggyCrane(s32 stage);
     void SendPacket_PedestalOwner(s32 id, bool claimed);
     void SendPacket_SpawnJiggy(s16 jiggyId, f32 x, f32 y, f32 z);
+    void SendPacket_SpawnHoneycomb(s16 honeycombId, s32 bundleId, f32 x, f32 y, f32 z);
     void SendPacket_TeleportTo(uint32_t clientId);
     void SendPacket_UnsetFlag(u8 flagSpace, s16 flag);
     void SendPacket_UpdateClientState();

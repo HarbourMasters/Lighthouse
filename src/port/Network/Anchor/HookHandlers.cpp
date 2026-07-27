@@ -6,6 +6,7 @@
 //#include "soh/frame_interpolation.h"
 #include "port/Engine.h"
 #include "port/UI/Notification.h"
+#include "port/Patches/Patches.h"
 #include <unordered_set>
 
 #include "functions.h"
@@ -17,6 +18,7 @@ float OTRGetDimensionFromRightEdge(float v);
 s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
+bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 }
 
 extern "C" void port_fpTwinkly_release(void) {
@@ -130,9 +132,9 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
         (index == LEVEL_FLAG_11_FP_UNKNOWN || index == LEVEL_FLAG_12_FP_UNKNOWN || index == LEVEL_FLAG_13_FP_UNKNOWN)) {
         return true;
     }
-    // SM_SPECIFIC_FLAG_10: Bottles-conversation position lock; kept local.
-    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN &&
-        index == SM_SPECIFIC_FLAG_10) {
+    // SM map flags are entirely Bottles-tutorial choreography;
+    // syncing any of them runs someone else's state machine.
+    if (space == ANCHOR_FLAGSPACE_MAP_SPECIFIC && gsworld_getMap() == MAP_1_SM_SPIRAL_MOUNTAIN) {
         return true;
     }
     return false;
@@ -504,6 +506,33 @@ void Anchor::RegisterHooks() {
         }
         auto ev = reinterpret_cast<OnJiggySpawned*>(event);
         anchor->SendPacket_SpawnJiggy((s16)ev->jiggyId, ev->x, ev->y, ev->z);
+    });
+
+    COND_HOOK(OnHoneycombDropSpawn, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnHoneycombDropSpawn*>(event);
+        Anchor::GetInstance()->SendPacket_SpawnHoneycomb((s16)ev->honeycombId, ev->bundleId, ev->x, ev->y, ev->z);
+    });
+
+    // SM intro Bottles: the tutorial offer is first-answer-wins for the team.
+    COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
+            (port_puzzleStep_getForMap(MAP_1_SM_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+            *should = false;
+        } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) &&
+                   !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
+            *should = false;
+        } else {
+            NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
+        }
+    });
+
+    // Ability molehills wake up only after the tutorial choice exists: the offer was
+    // answered (synced bit) or a move is already known (covers skip-tutorial saves).
+    COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (!__chSmBottles_isAnySpiralMountainAbilityLearned() &&
+            !(port_puzzleStep_getForMap(MAP_1_SM_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+            *should = false;
+        }
     });
 
     COND_HOOK(OnTimedJiggyExpired, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {

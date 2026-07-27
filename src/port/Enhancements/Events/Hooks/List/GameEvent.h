@@ -17,6 +17,7 @@ DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
 // move = ability_e; value = 1 learned, 0 cleared.
 DEFINE_EVENT(OnAbilityLearned, int32_t move; int32_t value;)
 DEFINE_EVENT(OnJiggySpawned, int32_t jiggyId; float x; float y; float z;)
+DEFINE_EVENT(OnHoneycombDropSpawn, int32_t honeycombId; int32_t bundleId; float x; float y; float z;)
 DEFINE_EVENT(OnTimedJiggyExpired, int32_t jiggyId;)
 DEFINE_EVENT(OnPropInit, Prop* propPtr;)
 DEFINE_EVENT(OnBottlesBonusComplete, int32_t index;)

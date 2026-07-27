@@ -156,6 +156,8 @@ void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);
 #define ANCHOR_PUZZLE_FP_SLUSHES 13
 // RBB engine-room fans: 1 bit. Transient map flag 0 (enginefan.c reads it to slow the fans); persisted across reloads.
 #define ANCHOR_PUZZLE_RBB_ENGINE_FANS 14
+// SM intro Bottles: bit 0 = the tutorial choice has been made.
+#define ANCHOR_PUZZLE_SM_TUTORIAL 15
 
 void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offset[3], float yawOffset);
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
