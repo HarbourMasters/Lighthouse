@@ -377,8 +377,12 @@ void DummyPlayer::dummy_set(enum asset_e asset_id) {
             dummyBin = NULL;
         }
         dummyId = asset_id;
-        if (dummyId)
+        if (dummyId) {
             dummyBin = static_cast<BKModelBin*>(assetcache_get(dummyId));
+            if (!EventSystem_Should(VB_MODEL_XLU_DEPTH_WRITE, true, dummyBin, (s32)dummyId)) {
+                port_patchModelXluDepthWrite(dummyBin, dummyId);
+            }
+        }
     }
 }
 

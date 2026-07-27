@@ -6,6 +6,7 @@
 #include "core2/ba/model.h"
 #include "core2/ba/physics.h"
 #include "bk_math.h"
+#include "port/Patches/Patches.h"
 
 void assetcache_release(void *); //assetcache_free
 void modelRender_func_8033A280(f32);
@@ -205,8 +206,12 @@ void baModel_set(enum asset_e asset_id){
             baModelBin = NULL;
         }
         baModelId = asset_id;
-        if(baModelId)
+        if(baModelId) {
             baModelBin = assetcache_get(baModelId);
+            if (!EventSystem_Should(VB_MODEL_XLU_DEPTH_WRITE, true, baModelBin, baModelId)) {
+                port_patchModelXluDepthWrite(baModelBin, baModelId);
+            }
+        }
     }
 }
 
