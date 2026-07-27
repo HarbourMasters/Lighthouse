@@ -836,19 +836,13 @@ bool IsInlineModExtractionBusy() {
     return sInlineExtracting.load();
 }
 
-void RequestInlineModExtraction() {
-    if (sInlineExtracting.load()) {
-        return;
-    }
-    auto extractor = std::make_unique<GameExtractor>();
-    if (!extractor->SelectGameFromUI()) {
-        return;
-    }
+// Kick off the (detached) extraction worker for a ROM the user already picked + loaded.
+static void BeginInlineExtraction(std::shared_ptr<GameExtractor> extractor, bool langPack) {
     sInlineFile = extractor->GetRomPath();
     sInlineCount = 0;
     sInlineTotal = 0;
     sInlineResult = 0;
-    sInlineLangPack = false;
+    sInlineLangPack = langPack;
     sInlineExtracting = true;
     std::thread([ex = std::move(extractor)]() mutable {
         const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
@@ -857,49 +851,51 @@ void RequestInlineModExtraction() {
     }).detach();
 }
 
-void RequestInlineLanguagePackExtraction() {
+// Shared body of the two public requests: pick a ROM, load it, and start extraction. Language packs
+// add a couple of region gates before the common kickoff. The extractor is a shared_ptr so it stays
+// alive across the async pick (captured in the callback) and the detached extraction thread.
+static void StartInlineRomExtraction(bool langPack) {
     if (sInlineExtracting.load()) {
         return;
     }
-    auto extractor = std::make_unique<GameExtractor>();
-    if (!extractor->SelectGameFromUI()) {
-        return;
-    }
+    auto extractor = std::make_shared<GameExtractor>();
+    extractor->SelectGameFromUI([extractor, langPack](bool ok) {
+        if (!ok) {
+            return; // cancelled or failed to load
+        }
+        if (langPack) {
+            // Refuse a pack when we already have it as bk.o2r.
+            const std::string region = extractor->GetRegionSlug();
+            if (region.empty()) {
+                LighthouseGui::RegisterPopup("Unrecognized ROM",
+                                             "That file isn't a recognized Banjo-Kazooie ROM, so no\n"
+                                             "language pack could be made from it.",
+                                             "OK", "", nullptr, nullptr);
+                return;
+            }
+            if (region == Lighthouse::BaseRegionSlug()) {
+                LighthouseGui::RegisterPopup("Already Have This Language",
+                                             "Your base game data (bk.o2r) already provides this region's\n"
+                                             "dialog, so there's no need to add it as a language pack.",
+                                             "OK", "", nullptr, nullptr);
+                return;
+            }
+            // Re-extracting a region overwrites its existing pack (e.g. to refresh it after an
+            // update), so a pre-existing mods/lang/bk<region>.o2r is fine.
+            std::error_code ec;
+            std::filesystem::create_directories(Ship::Context::GetPathRelativeToAppDirectory("mods/lang"), ec);
+            extractor->SetDialogPack(true);
+        }
+        BeginInlineExtraction(extractor, langPack);
+    });
+}
 
-    // Refuse a pack when we already have it as bk.o2r.
-    const std::string region = extractor->GetRegionSlug();
-    if (region.empty()) {
-        LighthouseGui::RegisterPopup("Unrecognized ROM",
-                                     "That file isn't a recognized Banjo-Kazooie ROM, so no\n"
-                                     "language pack could be made from it.",
-                                     "OK", "", nullptr, nullptr);
-        return;
-    }
-    if (region == Lighthouse::BaseRegionSlug()) {
-        LighthouseGui::RegisterPopup("Already Have This Language",
-                                     "Your base game data (bk.o2r) already provides this region's\n"
-                                     "dialog, so there's no need to add it as a language pack.",
-                                     "OK", "", nullptr, nullptr);
-        return;
-    }
-    // Re-extracting a region overwrites its existing pack (e.g. to refresh it
-    // after an update), so a pre-existing mods/~lang/bk<region>.o2r is fine.
-    const std::string langDir = Ship::Context::GetPathRelativeToAppDirectory("mods/~lang");
-    std::error_code ec;
-    std::filesystem::create_directories(langDir, ec);
+void RequestInlineModExtraction() {
+    StartInlineRomExtraction(false);
+}
 
-    extractor->SetDialogPack(true);
-    sInlineFile = extractor->GetRomPath();
-    sInlineCount = 0;
-    sInlineTotal = 0;
-    sInlineResult = 0;
-    sInlineLangPack = true;
-    sInlineExtracting = true;
-    std::thread([ex = std::move(extractor)]() mutable {
-        const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
-        sInlineResult = ok ? 1 : 2;
-        sInlineExtracting = false;
-    }).detach();
+void RequestInlineLanguagePackExtraction() {
+    StartInlineRomExtraction(true);
 }
 
 void DrawInlineModExtraction() {

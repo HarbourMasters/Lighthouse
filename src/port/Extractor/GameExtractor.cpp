@@ -14,6 +14,7 @@
 #include <unordered_map>
 
 #include "ship/Context.h"
+#include "port/FilePicker.h"
 #include "spdlog/spdlog.h"
 #include <port/Engine.h>
 
@@ -28,10 +29,6 @@
 #include "Companion.h"
 #include "factories/bk64/ConfigFactory.h"
 #include "port/Romhack/RomhackTable.h"
-
-#if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
-#include "portable-file-dialogs.h"
-#endif
 
 std::string GameExtractor::sStatusText;
 std::string GameExtractor::sLastError;
@@ -98,53 +95,21 @@ bool GameExtractor::RunStandalone(std::string rom) {
     return true;
 }
 
-bool GameExtractor::SelectGameFromUI() {
-    //// Store both path and already-read data
-    std::string romPath;
-    std::vector<uint8_t> romData;
-
-#if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
-    // Desktop: fallback to file dialogue if no baserom found
-    // if (!foundGame) {
-    if (!pfd::settings::available()) {
-        SPDLOG_ERROR("portable-file-dialogs is not available on this system.");
+// Load a ROM from disk into mGameData. The caller does the picking (asynchronously on the boot path —
+// see Engine.cpp PS_FIRST/PS_FIRST_WAIT), so this is just the read.
+bool GameExtractor::LoadRomFromPath(const std::string& romPath) {
+    if (!std::filesystem::exists(romPath)) {
+        SPDLOG_ERROR("Failed to find ROM at path: {}", romPath);
         return false;
     }
 
-    auto selection = pfd::open_file("Select a file", ".", { "N64 Roms", "*.z64" }).result();
-    if (selection.empty()) {
+    std::ifstream inFile(romPath, std::ios::binary);
+    if (!inFile.is_open()) {
         return false;
     }
 
-    romPath = selection[0];
-    //}
-#else
-    // Mobile: fallback to baserom.us.z64
-    if (/*!foundGame && */ !std::filesystem::exists(Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64"))) {
-        SPDLOG_ERROR("baserom not found");
-        return false;
-    }
-
-    // if (!foundGame) {
-    romPath = Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64");
-    //}
-#endif
-
-    // Load file if it is not already open
-    if (romData.empty()) {
-        if (!std::filesystem::exists(romPath)) {
-            SPDLOG_ERROR("Failed to find ROM at path: {}", romPath);
-            return false;
-        }
-
-        std::ifstream inFile(romPath, std::ios::binary);
-        if (!inFile.is_open()) {
-            return false;
-        }
-
-        romData = std::vector<uint8_t>(std::istreambuf_iterator<char>(inFile), {});
-        inFile.close();
-    }
+    std::vector<uint8_t> romData(std::istreambuf_iterator<char>(inFile), {});
+    inFile.close();
 
     this->mGamePath = romPath;
     this->mGameData = std::move(romData);
@@ -423,7 +388,7 @@ std::optional<std::string> GameExtractor::ValidateChecksum() const {
     return std::nullopt;
 }
 
-bool GameExtractor::SelectGameFromUI() {
+bool GameExtractor::LoadRomFromPath(const std::string& romPath) {
     return false;
 }
 
@@ -439,3 +404,18 @@ void GameExtractor::WritePortVersion() {
     // None
 }
 #endif
+
+// No #ifdef needed: Lighthouse::PickFile picks the backend (native dialog on desktop, ImGui browser
+// on consoles/arm). The N64-ROM title/filters live here so libultraship stays game-agnostic.
+void GameExtractor::SelectGameFromUI(std::function<void(bool)> onComplete) {
+    Ship::FileBrowserRequest req;
+    req.Title = "Select a N64 ROM";
+    req.Filters = { { "N64 ROMs (.z64, .n64, .v64)", { "*.z64", "*.n64", "*.v64" } }, { "All files", { "*" } } };
+    Lighthouse::PickFile(std::move(req),
+                         [this, onComplete = std::move(onComplete)](std::optional<std::filesystem::path> path) {
+                             const bool ok = path.has_value() && LoadRomFromPath(path->string());
+                             if (onComplete) {
+                                 onComplete(ok);
+                             }
+                         });
+}

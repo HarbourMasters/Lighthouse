@@ -1,6 +1,7 @@
 #ifndef SAVE_CONVERTER_H
 #define SAVE_CONVERTER_H
 
+#include <functional>
 #include <string>
 
 namespace SaveConverter {
@@ -15,8 +16,11 @@ struct Result {
 
 Result ImportFromRawEeprom(const std::string& srcPath, int slot = kSlotAll);
 Result ExportToRecompBin(const std::string& dstPath, int slot = kSlotAll);
-Result PickAndImport(int slot = kSlotAll);
-Result PickAndExport(int slot = kSlotAll);
+
+// Open the file picker, then import/export on the chosen path. onComplete runs when done; an empty
+// Result.message means the user cancelled.
+void PickAndImport(int slot, std::function<void(Result)> onComplete);
+void PickAndExport(int slot, std::function<void(Result)> onComplete);
 
 } // namespace SaveConverter
 

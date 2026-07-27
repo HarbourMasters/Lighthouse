@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
-#include "portable-file-dialogs.h"
+#include "port/FilePicker.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
@@ -227,23 +227,44 @@ Result ExportToRecompBin(const std::string& dstPath, int slot) {
     return res;
 }
 
-Result PickAndImport(int slot) {
-    // We can't predict the file extension a save will come in, and we already validate later in the chain
-    // Trust the user to pick the correct file
-    auto selection = pfd::open_file("Select a save to import", ".", { "All Files", "*" }).result();
-    if (selection.empty()) {
-        return {};
-    }
-    return ImportFromRawEeprom(selection[0], slot);
+void PickAndImport(int slot, std::function<void(Result)> onComplete) {
+    // We can't predict the file extension a save will come in, and we already validate later in the
+    // chain, so trust the user to pick the correct file.
+    Ship::FileBrowserRequest req;
+    req.Title = "Select a save to import";
+    req.Filters = { { "All Files", { "*" } } };
+    Lighthouse::PickFile(std::move(req), [slot, onComplete](std::optional<std::filesystem::path> path) {
+        if (!path) {
+            if (onComplete) {
+                onComplete({}); // cancelled
+            }
+            return;
+        }
+        Result r = ImportFromRawEeprom(path->string(), slot);
+        if (onComplete) {
+            onComplete(r);
+        }
+    });
 }
 
-Result PickAndExport(int slot) {
-    auto dest = pfd::save_file("Export save", "bk.n64.us.1.0.bin", { "Save files (*.bin)", "*.bin", "All Files", "*" })
-                    .result();
-    if (dest.empty()) {
-        return {};
-    }
-    return ExportToRecompBin(dest, slot);
+void PickAndExport(int slot, std::function<void(Result)> onComplete) {
+    Ship::FileBrowserRequest req;
+    req.Title = "Export save";
+    req.Save = true;
+    req.DefaultName = "bk.n64.us.1.0.bin";
+    req.Filters = { { "Save files (*.bin)", { "*.bin" } }, { "All Files", { "*" } } };
+    Lighthouse::PickFile(std::move(req), [slot, onComplete](std::optional<std::filesystem::path> path) {
+        if (!path) {
+            if (onComplete) {
+                onComplete({}); // cancelled
+            }
+            return;
+        }
+        Result r = ExportToRecompBin(path->string(), slot);
+        if (onComplete) {
+            onComplete(r);
+        }
+    });
 }
 
 } // namespace SaveConverter

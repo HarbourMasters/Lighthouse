@@ -301,7 +301,7 @@ void EggAimCrosshairWindow::Draw() {
         tex.ImageDataSize = sizeof(sCrosshairTextureData);
         tex.ImageData = new uint8_t[sizeof(sCrosshairTextureData)];
         std::memcpy(tex.ImageData, sCrosshairTextureData, sizeof(sCrosshairTextureData));
-        gui->LoadGuiTexture(kCrosshairTexture, tex, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+        gui->LoadGuiTexture(kCrosshairTexture, tex, "", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
     const float t = (float)sOverlayShown / (float)kOverlayFadeDuration; // 0..1

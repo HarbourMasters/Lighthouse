@@ -33,7 +33,7 @@ void LighthouseModalWindow::DrawElement() {
     if (modals.size() > 0) {
         LighthouseModal curModal = modals.at(0);
         if (!ImGui::IsPopupOpen(curModal.title_.c_str())) {
-            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImVec2 center = ImGui::GetMainViewport()->GetWorkCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             ImGui::OpenPopup(curModal.title_.c_str());
         }
@@ -46,6 +46,11 @@ void LighthouseModalWindow::DrawElement() {
                                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
                                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
                                        ImGuiWindowFlags_NoSavedSettings)) {
+            // Show the nav highlight on the default button (button1) the moment the popup opens, so a
+            // gamepad/keyboard user sees the selection immediately rather than after a first input.
+            if (ImGui::IsWindowAppearing()) {
+                ImGui::SetNavCursorVisible(true);
+            }
             ImGui::Text("%s", curModal.message_.c_str());
             UIWidgets::PushStyleButton(THEME_COLOR);
             if (ImGui::Button(curModal.button1_.c_str())) {
