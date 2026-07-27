@@ -1,0 +1,18 @@
+<DisplayList Version="0">
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_red_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_0"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_yellow_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_1"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_blue_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_2"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_orange_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_3"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_purple_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_4"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_green_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_5"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoProgressiveDL_arrow_gold_progressive"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoProgressiveDL_tri_6"/>
+	<EndDisplayList/>
+</DisplayList>
+

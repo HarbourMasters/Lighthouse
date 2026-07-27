@@ -2,6 +2,7 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/CustomCollectible/CustomCollectible.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "port/UI/UIWidgets.hpp"
@@ -69,6 +70,7 @@ int32_t selectedSnsItem = SNS_ITEM_EGG_YELLOW;
 int32_t selectedJiggy = JIGGY_01_MM_JINJO;
 int32_t selectedHoneycomb = HONEYCOMB_1_MM_HILL;
 int32_t selectedToken = MUMBOTOKEN_01_MM_STUMP_NEAR_CONGA;
+int32_t selectedCustomCollectible = RI_EMPTY_HONEYCOMB_BUBBLEGLOOP_SWAMP;
 
 const char* mapNames[] = {
     "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",   "Freezeezy Peak",
@@ -238,7 +240,7 @@ void GameplayTools_UpdateSnsCheckboxes(StopNSwop_Item selectedSnsId) {
 }
 
 void GameplayTools_SpawnPosition() {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i <= 2; i++) {
         spawnPosition[i] = playerPosition[i] + spawnOffset[i];
     }
 }
@@ -418,6 +420,26 @@ void GameplayTools_ObjectSpawner() {
                                         actorInfoMap.at(ACTOR_25D_ICE_KEY).second);
         }
 
+        ImGui::EndTable();
+    }
+
+    ImGui::SeparatorText("Custom Collectible Testing");
+    if (ImGui::BeginTable("ObjectSpawner", 2, ImGuiTableFlags_SizingStretchSame)) {
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Spawn Custom Collectible", { .color = THEME_COLOR })) {
+            Actor* newActor = CustomCollectible::Spawn(spawnPosition, (RandoItemId)selectedCustomCollectible);
+        }
+        ImGui::TableNextColumn();
+        std::string customCollectibleText = Rando::StaticData::Items[(RandoItemId)selectedCustomCollectible].name;
+
+        UIWidgets::SliderInt("##customCollectibleIndex", &selectedCustomCollectible,
+                             UIWidgets::IntSliderOptions()
+                                 .Color(THEME_COLOR)
+                                 .Min(RI_UNKNOWN + 1)
+                                 .Max(RI_MAX - 1)
+                                 .DefaultValue(RI_EMPTY_HONEYCOMB_BUBBLEGLOOP_SWAMP)
+                                 .Format(customCollectibleText.c_str())
+                                 .LabelPosition(UIWidgets::LabelPositions::None));
         ImGui::EndTable();
     }
 }

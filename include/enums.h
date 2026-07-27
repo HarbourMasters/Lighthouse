@@ -2392,6 +2392,7 @@ typedef enum actor_e
     ACTOR_3CB_UNKNOWN,
 
     ACTOR_3CC_DUMMY_PLAYER_ANCHOR = 0x3CC,
+    ACTOR_3CD_CUSTOM_COLLECTIBLE = 0x3CD,
 } ActorID;
 
 enum bundle_e {
@@ -5829,6 +5830,7 @@ enum marker_e{
     MARKER_29E_BIGBUTT_KNOCKED_DOWN,
 
     MARKER_29F_DUMMY_PLAYER_ANCHOR,
+    MARKER_300_CUSTOM_COLLECTIBLE,
 };
 
 enum hitbox_e{

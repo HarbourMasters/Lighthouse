@@ -2040,6 +2040,7 @@ typedef enum {
     RITYPE_MUSIC_NOTE,
     RITYPE_SNS_EGG,
     RITYPE_SNS_KEY,
+    RITYPE_AP_ITEM,
     RITYPE_MAX,
 } RandoItemType;
 
@@ -2184,6 +2185,7 @@ typedef enum {
     RI_STOP_N_SWOP_EGG_RED,
     RI_STOP_N_SWOP_EGG_YELLOW,
     RI_STOP_N_SWOP_ICE_KEY,
+    RI_AP_ITEM_PROGRESSION,
     RI_MAX,
 } RandoItemId;
 
