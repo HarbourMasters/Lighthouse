@@ -165,10 +165,9 @@ void pfsManager_update(void) {
 
     osSetThreadPri(0, 0x29);
 
-    // [port] On N64, pfsManager_getStartReadData() is called from the RSP/GFX thread
-    // (code_8C50.c:490) which is #if 0'd on PC. Without it, pfsManagerBusy is never set,
-    // pfsManager_readData() never fires, and osContGetReadData() never fills the pad data.
-    // Poll LUS input directly here each frame instead.
+    // [port] Re-read the latched transaction so the pad data is stable for the
+    // whole tick; the SI completes reads at its own cadence, and the shaping
+    // below rewrites this buffer in place.
     osContGetReadData(pfsManagerContPadData);
 
     // [port] Control-scheme input shaping: right stick -> C-button conversion,

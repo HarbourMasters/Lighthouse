@@ -135,11 +135,14 @@ int ServiceRcp() {
     return 1;
 }
 
-// Called before core1_init, which is where thread5_create runs.
+// Called before core1_init, which is where these threads are created.
 void EnableThread5() {
     OS_EnableThreadEntry((void*)thread5_entry);
     OS_SetQueueBlocking(thread5_getTaskQueue(), 1);
     OS_SetQueueBlocking(thread5_getSyncQueue(), 1);
+    // The controller manager parks on its polling queue waiting for OS_EVENT_SI.
+    OS_EnableThreadEntry((void*)pfsManager_entry);
+    OS_SetQueueBlocking(pfsManager_getFrameMesgQ(), 1);
 }
 } // namespace
 
@@ -285,6 +288,7 @@ int SDL_main(int argc, char* argv[]) {
         // Pump events every iteration: a task-starved pass must not starve
         // input and window messages.
         Ship::Context::GetRawInstance()->GetWindow()->HandleEvents();
+        OS_SiService();
         if (IsInlineModExtractionBusy()) {
             GameEngine::Instance->RenderGuiFrame();
             SDL_Delay(16);

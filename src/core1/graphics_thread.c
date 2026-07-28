@@ -301,13 +301,15 @@ void thread5_handleVIRetraceEvent(void) {
         }
     }
     sTask7Handled = false;
-#if 0
+#if 0 // [port] PC audio free-runs and never submits an RSP task, so there is no
+      // audio task scheduler for this timer to drive.
     static s32 audiotimer_trigger = 0;
     audiotimer_trigger++;
     if (!(audiotimer_trigger & 1)) {
         osStopTimer(&sAudioTimer);
         osSetTimer(&sAudioTimer, 280000, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_AUDIO_TIMER));
     }
+#endif
 
     if (sEnableControllerTimer) {
         osStopTimer(&sControllerTimer);
@@ -317,7 +319,6 @@ void thread5_handleVIRetraceEvent(void) {
         osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #endif
     }
-#endif
 }
 
 void thread5_handleSPEvent(void) {

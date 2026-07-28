@@ -1,10 +1,14 @@
-// This file should eventually go back to LUS; it is unchanged from its
-// libultra/os.cpp original, and only lives here because taking osSetTimer
-// port-side means taking that whole object with it.
+// This file should eventually go to LUS as the SI api. The controller init and
+// motor pieces are unchanged from libultra/os.cpp and only live here because
+// taking osSetTimer port-side meant taking that whole object with it.
+
+#include "OS.h"
 
 #include <libultraship/libultraship.h>
 
+#include <atomic>
 #include <cstring>
+#include <mutex>
 
 extern "C" {
 
@@ -22,13 +26,50 @@ int32_t osContInit(OSMesgQueue* mq, uint8_t* controllerBits, OSContStatus* statu
     return 0;
 }
 
+// The SI, as a request and a completion rather than an inline poll.
+//
+// LUS's StartReadData does nothing and GetReadData polls the control deck on
+// whichever thread asked, which cannot work once the tick is off the window
+// thread: SDL input belongs to the thread pumping its events. So a read is
+// posted here, completed by that thread in OS_SiService, and answered with
+// OS_EVENT_SI -- which is what pfsManager_init already registered for and what
+// its thread has been waiting on all along.
+namespace {
+std::atomic<bool> sReadPending{ false };
+std::mutex sLatchMutex;
+OSContPad sLatch[MAXCONTROLLERS];
+std::atomic<bool> sLatchValid{ false };
+} // namespace
+
 int32_t osContStartReadData(OSMesgQueue* mesg) {
+    (void)mesg; // completion goes to whoever registered for OS_EVENT_SI
+    sReadPending.store(true, std::memory_order_release);
     return 0;
 }
 
-void osContGetReadData(OSContPad* pad) {
-    memset(pad, 0, sizeof(OSContPad) * __osMaxControllers);
+extern "C" int OS_SiService(void) {
+    if (!sReadPending.exchange(false, std::memory_order_acq_rel)) {
+        return 0;
+    }
+    {
+        std::lock_guard<std::mutex> lock(sLatchMutex);
+        memset(sLatch, 0, sizeof(sLatch));
+        Ship::Context::GetRawInstance()->GetControlDeck()->WriteToPad(sLatch);
+    }
+    sLatchValid.store(true, std::memory_order_release);
+    OS_SendEventMesg(OS_EVENT_SI);
+    return 1;
+}
 
+void osContGetReadData(OSContPad* pad) {
+    // Hands back the last completed transaction. Before the first one lands,
+    // fall back to a direct poll so early boot reads still see a controller.
+    if (sLatchValid.load(std::memory_order_acquire)) {
+        std::lock_guard<std::mutex> lock(sLatchMutex);
+        memcpy(pad, sLatch, sizeof(sLatch));
+        return;
+    }
+    memset(pad, 0, sizeof(OSContPad) * __osMaxControllers);
     Ship::Context::GetRawInstance()->GetControlDeck()->WriteToPad(pad);
 }
 
