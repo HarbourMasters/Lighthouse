@@ -30,9 +30,9 @@ int32_t osContInit(OSMesgQueue* mq, uint8_t* controllerBits, OSContStatus* statu
 //
 // LUS's StartReadData does nothing and GetReadData polls the control deck on
 // whichever thread asked, which cannot work once the tick is off the window
-// thread: SDL input belongs to the thread pumping its events. So a read is
+// thread: SDL input belongs to the thread pumping its events. A read is
 // posted here, completed by that thread in OS_SiService, and answered with
-// OS_EVENT_SI -- which is what pfsManager_init already registered for and what
+// OS_EVENT_SI, which is what pfsManager_init already registered for and what
 // its thread has been waiting on all along.
 namespace {
 std::atomic<bool> sReadPending{ false };

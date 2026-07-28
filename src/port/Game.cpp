@@ -230,6 +230,10 @@ void push_frame() {
     GameEngine::StartAudioFrame();
     GameEngine::EndAudioFrame();
 
+    if (sFrameRendered) {
+        port_tickDemoAudioHold();
+    }
+
     // Refresh window title stats once per second (every 30 game ticks). The
     // window belongs to the other thread, so hand the call over.
     if (++sTitleCounter >= 30) {

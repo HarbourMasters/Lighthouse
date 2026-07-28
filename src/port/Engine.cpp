@@ -1165,8 +1165,8 @@ extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
 
 // Attract-demo audio hold
 static std::atomic<bool> sHoldAudio{ false };
-static constexpr int kDemoAudioHoldFrames = 2; // frames to stay held after the load
-static int sHoldFramesRemaining = 0;           // game-thread countdown
+static constexpr int kDemoAudioHoldFrames = 2; // drawn ticks to stay held after the load
+static int sHoldFramesRemaining = 0;           // game thread only
 
 extern "C" void port_beginDemoAudioHold(void) {
     if (kDemoAudioHoldFrames <= 0) {
@@ -1174,6 +1174,12 @@ extern "C" void port_beginDemoAudioHold(void) {
     }
     sHoldFramesRemaining = kDemoAudioHoldFrames;
     sHoldAudio.store(true);
+}
+
+extern "C" void port_tickDemoAudioHold(void) {
+    if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
+        sHoldAudio.store(false);
+    }
 }
 
 void GameEngine::HandleAudioThread() {
@@ -1492,11 +1498,6 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
         }
     }
     sMapBuildFutures.clear();
-
-    // [port] Release the demo audio hold after kDemoAudioHoldFrames rendered frames.
-    if (sHoldAudio.load() && --sHoldFramesRemaining <= 0) {
-        sHoldAudio.store(false);
-    }
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {
