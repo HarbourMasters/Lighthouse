@@ -643,7 +643,7 @@ void CC_func_80387D4C(void);
 extern uintptr_t osVirtualToPhysical(void *addr);
 extern void *osPhysicalToVirtual(uintptr_t addr);
 
-// GBI function prototypes (implementations in src/port/stub.c)
+// GBI function prototypes
 void gSPSegment(void* value, int segNum, uintptr_t target);
 void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
 void gSPDisplayList(Gfx* pkt, Gfx* dl);
@@ -3044,7 +3044,7 @@ void lair_func_8038E768(Gfx **dl, Mtx **m, Vtx **v);
 // --- lair/jigsawpicture.c ---
 bool jigsawPicture_isJigsawPictureComplete(s32 arg0);
 
-// --- port/stub.c ---
+// --- port/OS/libultra.c ---
 s32 osContSetCh(u8 ch);
 u32 __osGetSR(void);
 void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
@@ -3054,6 +3054,8 @@ void osSetThreadPri(OSThread* thread, OSPri p);
 void osSpTaskYield(void);
 void osStartThread(OSThread* thread);
 void osStopThread(OSThread* t);
+u32 bkGetSR(void);
+float gu_sqrtf(float val);
 
 // --- provided by libultraship ---
 s32 osPiReadIo(u32, u32 *);
@@ -3155,9 +3157,6 @@ void spawnQueue_defrag(void);
 // --- port/MemShims.c ---
 void bkmemcpy64(void *dest, void *src, s32 size);
 void bkmemset64(void *dest, s32 value, s32 size);
-
-// --- port/stub.c ---
-u32 bkGetSR(void);
 
 // --- RBB/ch/engineparts.c ---
 f32 func_8038A6B8(ActorMarker *);
@@ -3459,9 +3458,6 @@ BKModel *func_8034C4F0(Struct70s *arg0);
 Struct70s *func_8034C528(s32);
 Struct70s *func_8034C5AC(s32);
 s16 func_8034C50C(Struct70s *arg0);
-
-// --- port/stub.c ---
-float gu_sqrtf(float val);
 
 // --- GV/gv_helpers.c ---
 void rubeeEggPot_addedEggToPot(void);

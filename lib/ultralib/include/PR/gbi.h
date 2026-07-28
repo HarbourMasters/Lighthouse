@@ -4579,7 +4579,7 @@ typedef union {
 
 #endif
 
-// [port] Function declarations for GBI overrides in stub.c
+// [port] Function declarations for GBI overrides in libultra.c
 // The decomp macros above are inside #if 0, so callers need prototypes
 // to avoid implicit-declaration truncation of 64-bit pointer arguments.
 #if defined(_LANGUAGE_C) || defined(_LANGUAGE_C_PLUS_PLUS)

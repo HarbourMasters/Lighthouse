@@ -1,3 +1,6 @@
+// BanjoDecomp: This file no longer exists upstream,
+// but we do wrap its functions with our own.
+
 #include "libultraship/libultra/types.h"
 #include "libultraship/libultra/interrupt.h"
 #include "libultraship/libultra/sptask.h"
@@ -22,13 +25,24 @@ _Alignas(0x40) u8 D_8000E800[DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEI
 
 u16 gFramebuffers[2][DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEIGHT];
 
+// [port] Threads are in src/port/OS/OS.cpp.
+void OS_CreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
+void OS_StartThread(OSThread* thread);
+void OS_StopThread(OSThread* thread);
+void OS_DestroyThread(OSThread* thread);
+void OS_SetThreadPri(OSThread* thread, OSPri p);
+
 void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p) {
+    OS_CreateThread(thread, id, entry, arg, sp, p);
 }
 void osStartThread(OSThread* thread) {
+    OS_StartThread(thread);
 }
 void osStopThread(OSThread* t) {
+    OS_StopThread(t);
 }
 void osDestroyThread(OSThread* thread) {
+    OS_DestroyThread(thread);
 }
 void osSpTaskYield(void) {
 }
@@ -39,6 +53,7 @@ void osSpTaskStartGo(OSTask* task) {
 void osViExtendVStart(u32 arg0) {
 }
 void osSetThreadPri(OSThread* thread, OSPri p) {
+    OS_SetThreadPri(thread, p);
 }
 s32 osContSetCh(u8 ch) {
     return 0;
