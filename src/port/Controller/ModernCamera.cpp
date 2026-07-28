@@ -1,7 +1,4 @@
 // Modern control scheme camera
-//
-// The right stick orbits the camera in yaw around the player (no pitch). It runs
-// on the shared orbit core; this file is just the modern-scheme policy.
 
 #include <cmath>
 
@@ -10,9 +7,14 @@
 #include "port/UI/cvar_prefixes.h"
 #include "ControlSchemes.h"
 #include "ModernCamera.h"
-#include "port/Enhancements/Camera/OrbitCameraCore.h"
 
 extern "C" {
+// Math helpers
+void func_80256E24(float dst[3], float pitch, float yaw, float x, float y, float z);
+void ml_vec3f_add(float dst[3], float a[3], float b[3]);
+void ml_vec3f_clear(float dst[3]);
+float mlNormalizeAngle(float deg);
+
 extern unsigned char D_8037C061; // current zoom level
 extern int D_8037C07C;           // level-3 distance x; 0 means level 3 is unavailable
 
@@ -26,6 +28,8 @@ int balookat_getState(void);    // nonzero while the look-around camera is activ
 int player_movementGroup(void); // enum bsgroup_e
 
 int ncDynamicCamera_getState(void);
+void ncDynamicCamera_setState(int state);
+void ncDynamicCamera_setRotation(float src[3]);
 int func_8029147C(void);       // current ba camera mode
 void func_80291488(int mode);  // set the ba camera mode
 void func_802914CC(int state); // force a dynamic camera state (mode 1)
@@ -35,6 +39,25 @@ int bainput_should_rotate_camera_right(void);
 int bainput_should_look_first_person_camera(void);
 
 void controller_getRightStick(int controller_index, float dst[2]);
+
+// Vanilla follow-camera machinery
+extern float D_8037DB70;    // dynamicCamB.c: orbit yaw, degrees
+extern float D_8037D9C8[3]; // dynamicCamera.c: rotation spring velocity
+
+void func_802C0150(int mode);        // select the focus target
+void func_802C0370(void);            // record the pre-move position (anti-flip guard)
+void func_802C0394(float target[3]); // record the ideal target (anti-flip guard)
+void func_802C03BC(void);            // undo a collision resolve that crossed over
+void func_802C0490(float dst[3]);    // focus/orbit center
+void func_802C04B0(void);            // re-derive D_8037DB70 from the live camera
+
+float func_802BD51C(void);              // target camera height
+float func_802BD8D4(void);              // target orbit distance (zoom level)
+void func_802BE190(float target[3]);    // position spring toward target
+void func_802BE230(float gain, float damp); // position spring tuning
+int func_802BE60C(void);                // swept camera collision + slide
+int func_802BC84C(int mode);            // occluded-too-long recovery
+void func_802BE6FC(float rotOut[3], float focus[3]); // look-at from the live position
 }
 
 #include "enums.h" // BS_7_CROUCH
@@ -54,11 +77,16 @@ constexpr float kYawEnter = 0.3f;
 constexpr float kYawSpeed = 160.0f;
 constexpr float kZoomOn = 0.49f;
 constexpr float kZoomOff = 0.21f;
-constexpr float kPosSmoothRate = 40.0f;
+constexpr float kPosSpringGain = 20.0f;
+constexpr float kPosSpringDamp = 80.0f;
+constexpr float kHeightRate = 3.0f;
+constexpr float kAimHeightRate = 8.0f;
 
-// Flat (pitch-locked) orbit on the shared core.
-OrbitCamera sModern = { /*stateId*/ MODERN_ORBIT_CAM_STATE, /*allowPitch*/ 0,
-                        /*minPitch*/ 0.0f, /*maxPitch*/ 0.0f, /*smoothRate*/ kPosSmoothRate };
+bool sActive = false;
+bool sHeightValid = false;
+bool sAimValid = false;
+float sHeight = 0.0f;
+float sAimY = 0.0f;
 
 float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
@@ -105,8 +133,28 @@ void ReleaseSwivelMode() {
     }
 }
 
+// Take the camera over. Everything the vanilla follow camera would set up on init is
+// set up here, except that the position spring velocity is deliberately left alone.
+void EnterOrbit() {
+    func_802C0150(2);
+    func_802BE230(kPosSpringGain, kPosSpringDamp);
+    func_802C04B0();
+
+    // We drive the rotation directly, so nothing services the rotation spring while we
+    // own the camera. Park its velocity so it cannot kick the aim when camB resumes.
+    ml_vec3f_clear(D_8037D9C8);
+
+    sHeightValid = false;
+    sAimValid = false;
+    sActive = true;
+    ncDynamicCamera_setState(MODERN_ORBIT_CAM_STATE);
+}
+
 void ExitOrbit() {
-    OrbitCamera_Exit(&sModern);
+    sActive = false;
+    if (ncDynamicCamera_getState() == MODERN_ORBIT_CAM_STATE) {
+        ncDynamicCamera_setState(0xB);
+    }
     ReleaseSwivelMode();
 }
 
@@ -115,7 +163,7 @@ void ExitOrbit() {
 extern "C" int port_modernCamera_handleYaw(void) {
     bool schemeOk = ModernSchemeActive() && bs_getState() != BS_7_CROUCH && !IsDemoMode();
     if (!schemeOk) {
-        if (sModern.active) {
+        if (sActive) {
             ExitOrbit();
         }
         return 0;
@@ -123,11 +171,11 @@ extern "C" int port_modernCamera_handleYaw(void) {
 
     int state = ncDynamicCamera_getState();
 
-    if (sModern.active) {
+    if (sActive) {
         // A scripted/special camera took the state out from under us; drop the
         // orbit and let that camera run.
         if (state != MODERN_ORBIT_CAM_STATE) {
-            sModern.active = 0;
+            sActive = false;
             return 0;
         }
         if (ManualCameraControl()) {
@@ -144,7 +192,7 @@ extern "C" int port_modernCamera_handleYaw(void) {
     float y;
     ReadStickNorm(x, y);
     if (std::fabs(x) > kYawEnter) {
-        OrbitCamera_Enter(&sModern);
+        EnterOrbit();
         if (state == kClimbCamState) {
             func_80291488(kSwivelCamMode);
         }
@@ -158,15 +206,59 @@ extern "C" void port_modernCamera_update(void) {
 
     // Drive yaw from the stick. Freeze it during look-around so it doesn't drift
     // while the first-person view overrides the camera.
-    float yawDelta = 0.0f;
-    if (!sModern.justEntered && !balookat_getState()) {
+    if (!balookat_getState()) {
         float x;
         float y;
         ReadStickNorm(x, y);
-        yawDelta = YawInput(x) * kYawSpeed * dt * port_cameraInvertXSign();
+        D_8037DB70 = mlNormalizeAngle(D_8037DB70 + YawInput(x) * kYawSpeed * dt * port_cameraInvertXSign());
     }
 
-    OrbitCamera_Update(&sModern, yawDelta, 0.0f);
+    // From here down this is ncDynamicCamB_update with our own yaw and height filter.
+    float focus[3];
+    float offset[3];
+    float target[3];
+
+    func_802C0370();
+    func_802C0490(focus);
+    func_80256E24(offset, 0.0f, D_8037DB70, 0.0f, 0.0f, func_802BD8D4());
+    ml_vec3f_add(target, focus, offset);
+
+    float wantHeight = func_802BD51C();
+    if (!sHeightValid) {
+        sHeight = wantHeight;
+        sHeightValid = true;
+    } else {
+        sHeight += (wantHeight - sHeight) * clampf(kHeightRate * dt, 0.0f, 1.0f);
+    }
+    target[1] = sHeight;
+
+    func_802C0394(target);
+    func_802BE190(target);
+
+    if (func_802BE60C()) {
+        // Occluded too long: func_802BC84C relocates the camera outright. Otherwise
+        // discard a resolve that pushed the camera back the way it came.
+        if (!func_802BC84C(1)) {
+            func_802C03BC();
+        }
+        func_802C04B0(); // the camera slid along geometry; carry the orbit yaw with it
+    }
+
+    // Aim straight at the focus from wherever the spring left the camera. The position
+    // is already smooth, so the look-at inherits that smoothness exactly and the player
+    // stays centered.
+    func_802C0490(focus);
+    if (!sAimValid) {
+        sAimY = focus[1];
+        sAimValid = true;
+    } else {
+        sAimY += (focus[1] - sAimY) * clampf(kAimHeightRate * dt, 0.0f, 1.0f);
+    }
+    focus[1] = sAimY;
+
+    float rot[3];
+    func_802BE6FC(rot, focus);
+    ncDynamicCamera_setRotation(rot);
 }
 
 extern "C" int port_camera_suppressVanillaZoom(void) {
