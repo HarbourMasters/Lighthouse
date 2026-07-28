@@ -48,10 +48,6 @@ void osStopThread(OSThread* t) {
 void osDestroyThread(OSThread* thread) {
     OS_DestroyThread(thread);
 }
-void osSpTaskYield(void) {
-}
-// Task submission is in OS_RCP.cpp. Yield/Yielded stay dead: only the
-// audio task ever yielded the RSP, and PC audio never submits one.
 void osViExtendVStart(u32 arg0) {
 }
 void osSetThreadPri(OSThread* thread, OSPri p) {
@@ -71,10 +67,6 @@ void __osSetSR(u32 value) {
 u32 bkGetSR(void) {
     return 0xFFFFFFFFu;
 }
-OSYieldResult osSpTaskYielded(OSTask* task) {
-    return 0;
-}
-
 void __osError(s16 error_code, s16 num_args, ...) {
 }
 

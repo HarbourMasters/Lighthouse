@@ -384,6 +384,12 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
     ret = 0;
 #endif
 
+    // [port] On N64 nothing could run concurrently with this thread: one core,
+    // and the game brackets its audio writes with osSetIntMask, which blocks
+    // preemption. On PC those brackets map to a lock, and the engine advance
+    // here has to take the same one.
+    port_lockAudio();
+
     outbuffer = (s16 *) osVirtualToPhysical(info->data);
     audioManager_func_802403F0();
     audioManager_func_8023FFAC();
@@ -425,10 +431,12 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
 #endif
 
     if (command_list_len == 0) {
+        port_unlockAudio(); // [port]
         return false;
     } else {
         core1_15B30_addAudioTaskData(audioManager.ACMDList[sCmdBufferIndex], command_list_end, &audioManager.audioReplyMsgQ, OS_MESG_PTR(&info->reply_mesg_data)); // [port] OSMesg is a union on PC
         func_80250650();
+        port_unlockAudio(); // [port]
         sCmdBufferIndex ^= 1;
         return true;
     }
@@ -590,8 +598,12 @@ void audioManager_stopThread(void) {
 void audioManager_startThread(void) {
     if (!sAudioManagerThreadStarted) {
         sAudioManagerThreadStarted = true;
-        port_audioStartThread();
+        osStartThread(&audioManager.thread);
     }
+}
+
+OSMesgQueue *audioManager_getReplyMesgQueue(void) {
+    return &audioManager.audioReplyMsgQ;
 }
 
 OSThread *audioManager_getThread(void) {

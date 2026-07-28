@@ -139,19 +139,19 @@ void thread5_insertGfxTaskData(OSMesg arg0) {
 }
 
 void thread5_startAudioTask(struct ucode_task_data_s *task_data) {
-#if 0
+#if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sAudTask.t.ucode_boot, &sAudTask.t.ucode_boot_size);
     sAudTask.t.ucode = n_aspMainTextStart;
     sAudTask.t.ucode_data = n_aspMainDataStart;
+#endif
     sAudTask.t.data_ptr = (void*) task_data->data_ptr;
-    sAudTask.t.data_size = (task_data->data_ptr_end - task_data->data_ptr) >> 3 << 3;
+    sAudTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;
     osWritebackDCache(sAudTask.t.data_ptr , sAudTask.t.data_size);
     osWritebackDCache(&sAudTask, sizeof(OSTask));
     sActiveAudioTaskDataPtr = task_data;
     osSpTaskLoad(&sAudTask);
     osSpTaskStartGo(&sAudTask);
     sUnkFlag1 = UNKFLAG1_AUDIO_TASK;
-#endif
 }
 
 void thread5_startF3DEXTask(struct ucode_task_data_s *task_data) {
@@ -301,15 +301,12 @@ void thread5_handleVIRetraceEvent(void) {
         }
     }
     sTask7Handled = false;
-#if 0 // [port] PC audio free-runs and never submits an RSP task, so there is no
-      // audio task scheduler for this timer to drive.
     static s32 audiotimer_trigger = 0;
     audiotimer_trigger++;
     if (!(audiotimer_trigger & 1)) {
         osStopTimer(&sAudioTimer);
         osSetTimer(&sAudioTimer, 280000, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_AUDIO_TIMER));
     }
-#endif
 
     if (sEnableControllerTimer) {
         osStopTimer(&sControllerTimer);
@@ -322,7 +319,6 @@ void thread5_handleVIRetraceEvent(void) {
 }
 
 void thread5_handleSPEvent(void) {
-#if 0
     struct ucode_task_data_s *active_audio_task;
     s32 temp_v1;
 
@@ -337,7 +333,10 @@ void thread5_handleSPEvent(void) {
     }
 
     if (sUnkFlag1 == UNKFLAG1_AUDIO_TASK) {
-        osSendMesg(&sActiveAudioTaskDataPtr->task_type, sActiveAudioTaskDataPtr->unk4, 0);
+        // [port] The raw decomp sends through the first two struct fields;
+        // with the struct typed, these are the reply queue and message set by
+        // core1_15B30_addAudioTaskData.
+        osSendMesg(sActiveAudioTaskDataPtr->audio_mesg_queue, sActiveAudioTaskDataPtr->audio_mesg, 0);
     }
 
     if ((sUnkFlag1 == UNKFLAG1_AUDIO_TASK) && (sGfxTaskYielded != 0)) {
@@ -347,7 +346,6 @@ void thread5_handleSPEvent(void) {
         sGfxTaskYielded = 0;
         return;
     }
-#endif
 
     sUnkFlag1 = UNKFLAG1_NO_TASK;
     if ((sActiveGfxTaskDataID != sSelectedGfxTaskDataID) && (sTask7Handled == 0)) {
@@ -367,6 +365,11 @@ void thread5_handleTask7Mesg(OSMesg arg0) {
 }
 
 void thread5_handleAudioTimerEvent(void) {
+    // [port] While the demo audio hold is up, skip the frame message so the
+    // engine does not consume sfx cues queued for the demo's first frame.
+    if (port_audioHeld()) {
+        return;
+    }
     osSendMesgPtr(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);
     thread5_startNextAudioTask();
 }

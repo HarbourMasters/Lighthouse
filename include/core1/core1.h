@@ -54,6 +54,7 @@ ALHeap *audioManager_getALHeapInfo(void);
 OSMesgQueue *audioManager_getDMANotifyMesgQueue(void);
 OSIoMesg *audioManager_getExtraDMAMesg(void);
 OSMesgQueue *audioManager_getFrameMesgQueue(void);
+OSMesgQueue *audioManager_getReplyMesgQueue(void);
 
 
 /* src/core1/overlay.c */

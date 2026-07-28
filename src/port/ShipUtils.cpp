@@ -95,10 +95,6 @@ bool Ship_IsCStringEmpty(const char* str) {
     return str == NULL || str[0] == '\0';
 }
 
-void port_audioStartThread(void) {
-    GameEngine::AudioStartThread();
-}
-
 int port_checkHeap(const char* label) {
 #if defined(_DEBUG) && defined(_MSC_VER)
     if (!_CrtCheckMemory()) {

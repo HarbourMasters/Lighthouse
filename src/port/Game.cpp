@@ -35,6 +35,7 @@ extern "C" {
 #include "core1/thread5.h"
 void viMgr_entry(void* arg);
 void thread5_entry(void* arg);
+void audioManagerThread_entry(void* arg);
 void core1_15B30_sendMesg3ToRenderThread(void);
 OSMesgQueue* thread5_getTaskQueue(void);
 OSMesgQueue* thread5_getSyncQueue(void);
@@ -142,6 +143,9 @@ void EnableThread5() {
     // The controller manager parks on its polling queue waiting for OS_EVENT_SI.
     OS_EnableThreadEntry((void*)pfsManager_entry);
     OS_SetQueueBlocking(pfsManager_getFrameMesgQ(), 1);
+    OS_EnableThreadEntry((void*)audioManagerThread_entry);
+    OS_SetQueueBlocking(audioManager_getFrameMesgQueue(), 1);
+    OS_SetQueueBlocking(audioManager_getReplyMesgQueue(), 1);
 }
 } // namespace
 
@@ -211,9 +215,6 @@ void push_frame() {
     if (recordInterpolation) {
         FrameInterpolation_StopRecord();
     }
-    GameEngine::StartAudioFrame();
-    GameEngine::EndAudioFrame();
-
     if (sFrameRendered) {
         port_tickDemoAudioHold();
     }

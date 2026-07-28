@@ -135,4 +135,21 @@ void OS_SendEventMesg(OSEvent event) {
     osSendMesg(mq, msg, OS_MESG_NOBLOCK);
 }
 
+// Same, but the message goes to the front of the queue. An interrupt landed
+// ahead of whatever the recipient had queued; a hardware stand-in whose event
+// must be seen before pending messages jams instead of sending.
+void OS_JamEventMesg(OSEvent event) {
+    OSMesgQueue* mq = nullptr;
+    OSMesg msg = {};
+    {
+        std::lock_guard<std::mutex> lock(sMesgMutex);
+        if (event >= OS_NUM_EVENTS || __osEventStateTab[event].queue == nullptr) {
+            return;
+        }
+        mq = __osEventStateTab[event].queue;
+        msg = __osEventStateTab[event].msg;
+    }
+    osJamMesg(mq, msg, OS_MESG_NOBLOCK);
+}
+
 } // extern "C"

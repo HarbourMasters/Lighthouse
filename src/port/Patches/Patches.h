@@ -121,6 +121,7 @@ void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 
 void port_beginDemoAudioHold(void);
 void port_tickDemoAudioHold(void);
+int port_audioHeld(void);
 
 void port_notedoor_remoteOpen(int32_t progressFlag);
 

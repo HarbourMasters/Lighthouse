@@ -33,6 +33,11 @@ void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
 // Raise a registered hardware event (VI retrace, SI done, RDP done).
 void OS_SendEventMesg(OSEvent event);
 
+// Raise an event ahead of whatever the recipient already has queued, the way
+// an interrupt preempts. Used for completions that must not be reordered
+// behind pending messages.
+void OS_JamEventMesg(OSEvent event);
+
 // The VI ticker starts with osCreateViManager; this stops it at shutdown.
 void OS_StopViTicker(void);
 

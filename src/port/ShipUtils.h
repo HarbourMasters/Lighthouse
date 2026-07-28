@@ -34,9 +34,6 @@ void BK_LOG_INFO(const char* fmt, ...);
 void BK_LOG_WARN(const char* fmt, ...);
 void BK_LOG_ERROR(const char* fmt, ...);
 
-// Start the audio processing thread (called from audioManager_startThread after soundfont patching)
-void port_audioStartThread(void);
-
 // Flag: when true, audio spin-waits should force-stop immediately.
 extern int gPortResetPending;
 
