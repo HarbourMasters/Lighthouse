@@ -21,7 +21,6 @@ extern "C" {
 #include <ultra64.h>
 #include "enums.h"
 #include "functions.h"
-#include "model.h"
 #include "libultraship/libultra/gbi.h"
 #include "port/Romhack/RomhackConfig.h"
 
@@ -36,41 +35,6 @@ void port_modelRenderResetTLUT(Gfx** gfx) {
     }
     gDPSetTextureLUT((*gfx)++, G_TT_NONE);
 }
-
-// When disabling LOD, Banjo's belt buckle will render and enforce transparency
-// clipping through his stomach. Patch the subDL to change the depth write.
-void port_patchModelXluDepthWrite(void* model_bin, s32 asset_id) {
-    if (model_bin == NULL ||
-        (asset_id != ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY && asset_id != ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY)) {
-        return;
-    }
-
-    BKGfxList* gfx_list = modelbin_getGfxList((BKModelBin*)model_bin);
-    if (gfx_list == NULL) {
-        return;
-    }
-
-    for (s32 i = 0; i < (s32)gfx_list->size; i++) {
-        Gfx* cmd = &gfx_list->list[i];
-        if ((cmd->words.w0 >> 24) != G_DL) {
-            continue;
-        }
-
-        if ((cmd->words.w1 & ~(uintptr_t)1) == 0x03000060) {
-            cmd->words.w1 = (cmd->words.w1 & (uintptr_t)1) | 0x03000120;
-        }
-    }
-}
-
-} // extern "C"
-
-static void RegisterModelXluDepthWrite_Init() {
-    COND_VB_SHOULD(VB_MODEL_XLU_DEPTH_WRITE, EVENT_PRIORITY_NORMAL, true, { *should = false; });
-}
-
-static RegisterShipInitFunc sModelXluDepthWriteInit(RegisterModelXluDepthWrite_Init);
-
-extern "C" {
 
 // Widescreen HUD edge anchoring (centered-ortho HUD geometry).
 

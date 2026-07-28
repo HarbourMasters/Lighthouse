@@ -77,7 +77,6 @@ void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cull
 int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disableFlag);
 float port_hudOrthoShift(float refX);
 void port_modelRenderResetTLUT(Gfx** gfx);
-void port_patchModelXluDepthWrite(void* model_bin, s32 asset_id);
 
 // Mirror (MirrorPatches.cpp)
 
