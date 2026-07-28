@@ -170,25 +170,30 @@ void Rando::Logic::GrantStartingLoadout() {
             item_setMaxCount(item);
         }
     }
+}
 
-    // Set progress flag for tutorial dialogue, skipping them
+void Rando::Logic::GrantFileProgressFlags() {
     for (auto& fileprog : progressLoadout) {
         fileProgressFlag_set(fileprog, 1);
     }
+}
 
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"), 0)) {
-        for (auto& smCheckId : smRandoCheckIdList) {
-            RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[smCheckId];
+void Rando::Logic::GrantSpiralMountainChecks() {
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"), 0)) {
+        return;
+    }
 
-            if (!randoSaveCheck.isShuffled) {
-                continue;
-            }
+    for (auto& smCheckId : smRandoCheckIdList) {
+        RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[smCheckId];
 
-            CustomObject::CheckObtainedEX(smCheckId, true);
-            if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
-                ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, true);
-                ability_setHasUsed((ability_e)randoSaveCheck.randoCollectionId);
-            }
+        if (!randoSaveCheck.isShuffled) {
+            continue;
+        }
+
+        CustomObject::CheckObtainedEX(smCheckId, true);
+        if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
+            ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, true);
+            ability_setHasUsed((ability_e)randoSaveCheck.randoCollectionId);
         }
     }
 }

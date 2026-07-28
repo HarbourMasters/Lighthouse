@@ -1,12 +1,13 @@
 #include "MiscBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "ship/Context.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/UI/Notification.h"
 
 #include "port/Save/Types.h"
 
 #include "port/Rando/Logic/Logic.h"
-// #include "port/Rando/Spoiler/Spoiler.h"
+#include "port/Rando/Spoiler/Spoiler.h"
 
 void Rando::MiscBehavior::OnFileLoad() {
     REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
@@ -29,10 +30,22 @@ void Rando::MiscBehavior::OnFileLoad() {
             return;
         }
 
-        if (CVarGetInteger("gRandoSettings.Enable", 0)) {
+        if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0)) {
             Rando::Logic::InitializeSaveData(saveData);
-            Rando::Logic::GenerateShufflePool(saveData);
-            Rando::Logic::GrantStartingLoadout();
+            if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("UseExistingLog"), 0) && CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "")) {
+                std::string spoilerPath = CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "");
+                Rando::Spoiler::GenerateFromSpoiler(Rando::Spoiler::LoadFromFile(spoilerPath.c_str()));
+            } else {
+                Rando::Logic::GenerateShufflePool(saveData);
+                Rando::Logic::GrantStartingLoadout();
+                Rando::Logic::GrantFileProgressFlags();
+                Rando::Logic::GrantSpiralMountainChecks();
+                std::string spoilerName = std::to_string(saveData->shipSaveData.randoSaveData.seedId).c_str();
+                std::erase(spoilerName, '-');
+                spoilerName += ".json";
+                Rando::Spoiler::SaveToFile(spoilerName, Rando::Spoiler::GenerateFromPoolGeneration());
+            }
+
             saveData->shipSaveData.fileType = FILE_TYPE_SAVE_RANDO;
             saveData->shipSaveData.fileCreatedAt = GetUnixTimestamp();
             CALL_EVENT(InitRandoEvents);

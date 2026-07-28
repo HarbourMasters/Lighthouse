@@ -19,6 +19,8 @@ extern int32_t randoFinalSeed;
 
 extern std::map<ability_e, std::pair<const char*, const char*>> abilityLoadoutMap;
 extern std::map<item_e, std::pair<const char*, const char*>> itemLoadoutMap;
+extern std::vector<file_progress_e> progressLoadout;
+extern std::vector<RandoCheckId> smRandoCheckIdList;
 
 extern Rando::StaticData::RandoLogicData reachableRegions[RR_MAX];
 extern Rando::StaticData::RandoLogicData reachableEvents[RA_MAX];
@@ -54,6 +56,8 @@ void GeneratePoolFromSaveData(SaveData* saveData);
 void InitializeSaveData(SaveData* saveData);
 void GenerateSaveData(SaveData* saveData);
 void GrantStartingLoadout();
+void GrantFileProgressFlags();
+void GrantSpiralMountainChecks();
 
 void RefreshReachableRegions();
 

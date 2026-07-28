@@ -5,7 +5,7 @@
 #include "MiscBehavior/MiscBehavior.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
 // #include "port/Rando/EntranceTracker/EntranceTracker.h"
-// #include "port/Rando/Spoiler/Spoiler.h"
+#include "port/Rando/Spoiler/Spoiler.h"
 #include "port/ShipInit.hpp"
 
 #include "spdlog/spdlog.h"
@@ -23,7 +23,7 @@ void Rando::Init() {
         fs::create_directory(randomizerFolderPath);
     }
 
-    // Rando::Spoiler::RefreshSpoilerLogs();
+    Rando::Spoiler::RefreshSpoilerLogs();
     Rando::MiscBehavior::Init();
     // Rando::EntranceTracker::Init();
     // Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(Rando::Spoiler::HandleFileDropped);
