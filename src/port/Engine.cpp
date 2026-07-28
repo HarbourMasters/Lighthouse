@@ -33,7 +33,6 @@
 #include "build.h"
 #include "Extractor/GameExtractor.h"
 #include "ship/window/gui/FileBrowserWindow.h"
-#include "Interpolation/AdaptiveFps.h"
 #include "Interpolation/FrameInterpolation.h"
 #include "OS/OS.h"
 #include "Network/Anchor/Anchor.h"
@@ -413,7 +412,6 @@ void GameEngine::FinishInit() {
     // Likewise if it refused romhack overlays due to a non-v1.0 base.
     MaybeShowRomhackBaseMismatchPopup();
     Instance->AudioInit();
-    AdaptiveFps_Configure(30); // BK ticks at 30 Hz
     // Instance->LoadDictionary();
     // Instance->LoadPlayerAnims();
 #if defined(__SWITCH__) || defined(__WIIU__)
@@ -1292,8 +1290,7 @@ void GameEngine::AudioExit() {
     }
 }
 
-// Local timer helper for the per-sub-frame measurement we feed into
-// AdaptiveFps_Sample.
+// Local timer helper for the per-sub-frame cost measurement.
 namespace {
 using Clock = std::chrono::steady_clock;
 inline long long NsSince(Clock::time_point t0) {
@@ -1302,6 +1299,11 @@ inline long long NsSince(Clock::time_point t0) {
 
 // In-flight async builds of interpolated sub-frame replacement maps
 std::vector<std::future<void>> sMapBuildFutures;
+
+// Cost of the most recent sub-frame, and the wall time this pass may spend:
+// subframes/paceFps is exactly the game time one task represents.
+long long sLastSubFrameNs = 0;
+long long sPassBudgetNs = 0;
 } // namespace
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
@@ -1323,9 +1325,15 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     // Run() (frame rendered) and EndFrame() (buffer swap). On N64, CPU/RDP shared
     // physical memory so gFramebuffers always had valid pixel data after rendering.
     auto wndBase = Ship::Context::GetRawInstance()->GetWindow();
+    const auto passT0 = Clock::now();
     for (size_t frameIdx = 0; frameIdx < frameCount; frameIdx++) {
         if (frameIdx >= 1 && frameIdx - 1 < sMapBuildFutures.size()) {
             sMapBuildFutures[frameIdx - 1].wait();
+        }
+        // Stop once another sub-frame no longer fits in what the tick's worth
+        // of wall time has left.
+        if (frameIdx > 0 && sLastSubFrameNs > 0 && (sPassBudgetNs - NsSince(passT0)) < sLastSubFrameNs) {
+            break;
         }
         const auto& m = mtx_replacements[frameIdx];
         bool isFinalFrame = (frameIdx == frameCount - 1);
@@ -1346,7 +1354,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
                 rapi->ClearFramebuffer(true, false);
             }
             gui->EndDraw();
-            AdaptiveFps_Sample(NsSince(runT0));
+            sLastSubFrameNs = NsSince(runT0);
             interpreter->EndFrame();
             CALL_EVENT(FrameDrawEnd);
         }
@@ -1380,10 +1388,6 @@ SubframePacing ComputeSubframePacing() {
     // Demo/replay modes render at the native rate
     const bool replayMode = func_802E4A08();
     if (!replayMode) {
-        if (CVarGetInteger(CVAR_SETTING("AdaptiveFPS"), 1)) {
-            target_fps = (int)AdaptiveFps_Cap((uint32_t)target_fps);
-        }
-
         // Some music-synced cutscenes cap interpolation at native 30
         int fpsCap = port_getInterpolationFpsCap();
         if (fpsCap > 0 && target_fps > fpsCap) {
@@ -1473,6 +1477,8 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
         }
         activeFrames++;
     }
+
+    sPassBudgetNs = 1000000000LL * subframesPerTick / fps;
 
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);

@@ -19,7 +19,6 @@
 #include <SDL2/SDL.h>
 
 #include "GameStatus.h"
-#include "Interpolation/AdaptiveFps.h"
 #include "Interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
 #include "OS/OS.h"
@@ -183,21 +182,11 @@ extern "C" void port_pipelineSyncPoint(void) {
 // BK's gameloop conditionally skips game_draw during scene transitions.
 static bool sFrameRendered = false;
 
-// Start of this tick. The gap until drawing begins is how long the game spent
-// updating; Adaptive FPS uses it to budget how many interpolated frames fit.
-static std::chrono::steady_clock::time_point sTickStart;
-
 // The list itself reaches the renderer through thread5's task queue, submitted
 // by core1_15B30_addF3DEXTaskData right after this call; all that is left here
 // is noting that the tick drew.
 extern "C" void Graphics_PushFrame(Gfx* data) {
     (void)data;
-    // Only measure the first draw of the tick.
-    if (!sFrameRendered) {
-        auto logicNs =
-            std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - sTickStart).count();
-        AdaptiveFps_SampleTick((long long)logicNs);
-    }
     sFrameRendered = true;
 }
 
@@ -205,10 +194,6 @@ void push_frame() {
     static int sTitleCounter = 0;
     sFrameRendered = false;
 
-    // While an inline mod extraction runs on its worker thread, freeze the game
-    // and render only the GUI so the progress modal stays live and the extractor
-    // gets the machine instead of fighting a full-speed game loop. The delay
-    // keeps the otherwise-idle main thread from busy-spinning a core.
     // The window thread keeps the progress modal alive while an inline mod
     // extraction runs; the tick just idles so the extractor gets the machine.
     if (IsInlineModExtractionBusy()) {
@@ -216,7 +201,6 @@ void push_frame() {
         return;
     }
 
-    sTickStart = std::chrono::steady_clock::now();
     GameEngine::Instance->StartFrame();
     // Demo/playback modes render at native rate with no interpolation, so skip recording it.
     const bool recordInterpolation = GameEngine::IsInterpolationEnabled() && !func_802E4A08();
