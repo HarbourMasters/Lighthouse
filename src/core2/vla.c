@@ -81,7 +81,9 @@ void bk_vector_remove(VLA *this, u32 indx){
     uintptr_t nextOffset = (uintptr_t)this->begin + (indx + 1) * this->elem_size;\
     uintptr_t size = (uintptr_t)this->end - (uintptr_t)this->begin;
     
-    memcpy((void *)elemOffset, (void *)nextOffset, size - (indx + 1) * this->elem_size);
+    // [port] source and destination overlap when removing anywhere but the tail;
+    // memcpy on overlapping buffers is UB on PC toolchains.
+    memmove((void *)elemOffset, (void *)nextOffset, size - (indx + 1) * this->elem_size);
     this->end = (void *)((uintptr_t)this->end - this->elem_size);
 }
 
