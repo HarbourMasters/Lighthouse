@@ -300,8 +300,6 @@ void pfsManager_update(void) {
 
 void pfsManager_readData(){
     func_8024F35C(0);
-    if(!pfsManagerContStatus.err_no)
-        osContGetReadData(pfsManagerContPadData);
 }
 
 
