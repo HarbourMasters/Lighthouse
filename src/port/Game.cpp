@@ -17,6 +17,7 @@
 #include "Interpolation/AdaptiveFps.h"
 #include "Interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
+#include "OS/OS.h"
 #include "Patches/Patches.h"
 #include "ShipUtils.h"
 #include "src/port/Enhancements/Events/Hooks/Events.h"
@@ -26,6 +27,7 @@ extern "C" {
 #include "enums.h"
 #include "core1/core1.h"
 #include "core1/main.h"
+void viMgr_entry(void* arg);
 // Non-interactive demo/playback modes (attract demo, file playback, etc.) -- decomp gameloop.c
 bool func_802E4A08(void);
 }
@@ -118,11 +120,14 @@ int SDL_main(int argc, char* argv[]) {
     }
 
     GameEngine::Create(argc, argv);
+    // viMgr's thread is created during core1_init, so allowlist it first.
+    OS_EnableThreadEntry((void*)viMgr_entry);
     core1_init();
 
     while (WindowIsRunning()) {
         push_frame();
     }
+    OS_StopViTicker();
 #ifdef USE_NETWORKING
     Anchor::GetInstance()->Disable();
     SDLNet_Quit();

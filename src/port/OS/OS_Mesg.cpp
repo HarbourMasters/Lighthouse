@@ -119,4 +119,20 @@ void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled) {
     SyncFor(mq).blockingEnabled = (enabled != 0);
 }
 
+// Raise a hardware event. Nothing interrupts on PC, so whoever stands in for a
+// piece of hardware calls this when the real one would have fired.
+void OS_SendEventMesg(OSEvent event) {
+    OSMesgQueue* mq = nullptr;
+    OSMesg msg = {};
+    {
+        std::lock_guard<std::mutex> lock(sMesgMutex);
+        if (event >= OS_NUM_EVENTS || __osEventStateTab[event].queue == nullptr) {
+            return;
+        }
+        mq = __osEventStateTab[event].queue;
+        msg = __osEventStateTab[event].msg;
+    }
+    osSendMesg(mq, msg, OS_MESG_NOBLOCK);
+}
+
 } // extern "C"

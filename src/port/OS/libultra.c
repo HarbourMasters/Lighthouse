@@ -61,8 +61,11 @@ u32 __osGetSR(void) {
 }
 void __osSetSR(u32 value) {
 }
+// All interrupt-enable bits set. thread5_checkAndExecutePreNMI reads SR_IBIT5
+// and treats a clear bit as "reset pressed"; with retraces running, returning
+// 0 fires the PreNMI handler 60 times a second.
 u32 bkGetSR(void) {
-    return 0;
+    return 0xFFFFFFFFu;
 }
 OSYieldResult osSpTaskYielded(OSTask* task) {
     return 0;

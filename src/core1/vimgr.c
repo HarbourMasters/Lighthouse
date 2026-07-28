@@ -7,6 +7,7 @@
 #include "libultraship/libultra/rcp.h"
 
 #include "port/Patches/Patches.h"
+#include "port/OS/OS.h"
 
 #define VIMANAGER_THREAD_STACK_SIZE 0x400
 
@@ -139,6 +140,7 @@ void viMgr_init(void) {
     osCreateMesgQueue(&sMesgQueue2, sMesgBuffer2, 1);
     osCreateMesgQueue(&sMesgQueue3, sMesgBuffer3, FRAMERATE);
     osViSetEvent(&sMesgQueue1, OS_MESG_PTR(NULL), 1);
+    OS_SetQueueBlocking(&sMesgQueue1, 1);
 
     sActiveFramebuffer = 0;
     D_80280724 = 1;

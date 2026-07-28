@@ -30,6 +30,12 @@ void OS_EnableThreadEntry(void* entry);
 // OS_MESG_BLOCK only blocks on queues opted in here.
 void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
 
+// Raise a registered hardware event (VI retrace, SI done, RDP done).
+void OS_SendEventMesg(OSEvent event);
+
+// The VI ticker starts with osCreateViManager; this stops it at shutdown.
+void OS_StopViTicker(void);
+
 #include "libultraship/libultra/sptask.h"
 
 // Take the task osSpTaskStartGo handed over, or NULL if none is pending.
