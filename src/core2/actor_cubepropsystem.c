@@ -156,6 +156,9 @@ void __cube_sort(Cube *cube, bool global) {
         }
 
         //sort prop list
+        // [port] Cancelled by PerfPatches.cpp, which sorts the same distances
+        // with a stable insertion sort instead of this exchange sort.
+        if (EventSystem_Should(VB_CUBE_PROP_SORT, true, cube)) {
         start_prop = cube->prop2Ptr;
         var_t0 = cube->prop2Ptr + (cube->prop2Cnt - 1);   
         do {
@@ -194,6 +197,7 @@ void __cube_sort(Cube *cube, bool global) {
                 i++;
             }
         } while (start_prop != NULL);
+        }
         code_A5BC0_initCubePropActorProp(cube);
     }
 }

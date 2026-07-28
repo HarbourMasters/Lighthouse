@@ -959,8 +959,10 @@ void modelRender_geoCmd_DRAWDIST(Gfx ** gfx, Mtx ** mtx, struct bk_geo_cmd_s *ar
         sp20[2] = (f32)cmd->unkE[2] * modelRenderScale;
         // [port] The N64 bounding boxes in CmdD_DRAW_DISTANCE are too conservative
         // for the port's viewport (292x216 -> 320x240 at 4:3). Extend to all aspect
-        //ratios since the port always renders at a higher effective resolution.
-        modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk14));
+        // ratios since the port always renders at a higher effective resolution.
+        if (EventSystem_Should(VB_DRAWDIST_BOX_CULL, true, sp2C, sp20)) {
+            modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk14));
+        }
     }
 }
 

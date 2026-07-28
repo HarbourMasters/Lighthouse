@@ -233,6 +233,12 @@ void gclights_recolor_vertices(BKVertexList *vertex_list, f32 position[3], f32 r
 
     ref_ptr = vtxList_getVertices(ref_vertex_list);
     vtxList_getVtxRange(vertex_list, &i_ptr, &end_ptr);
+    // [port] Cancelled by PerfPatches.cpp, which runs this same loop with a
+    // squared-distance early-out so out-of-range lights never pay the sqrt.
+    if (!EventSystem_Should(VB_GCLIGHTS_RECOLOR, true, i_ptr, end_ptr, ref_ptr, &sLightingbk_vectorList.unk4[0],
+                            sLightingbk_vectorList.unk44)) {
+        return;
+    }
     for(i_ptr = i_ptr; i_ptr < end_ptr; i_ptr++, ref_ptr++) {
         rgb_modifier[0] = rgb_modifier[1] = rgb_modifier[2] = 0.0f;
         TUPLE_COPY(vtx_position, ref_ptr->v.ob);
