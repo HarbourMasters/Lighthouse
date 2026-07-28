@@ -140,7 +140,8 @@ void viMgr_init(void) {
     osCreateMesgQueue(&sMesgQueue2, sMesgBuffer2, 1);
     osCreateMesgQueue(&sMesgQueue3, sMesgBuffer3, FRAMERATE);
     osViSetEvent(&sMesgQueue1, OS_MESG_PTR(NULL), 1);
-    OS_SetQueueBlocking(&sMesgQueue1, 1);
+    OS_SetQueueBlocking(&sMesgQueue1, 1); // viMgr_entry parks here between retraces
+    OS_SetQueueBlocking(&sMesgQueue2, 1); // the tick parks here for the frame token
 
     sActiveFramebuffer = 0;
     D_80280724 = 1;
@@ -176,6 +177,9 @@ void viMgr_func_8024BFD8(s32 arg0){
     // During demo playback, sDemoViCount includes the N64's original rendering lag
     // for maps that ran slow, which the zoombox dialog system needs to pace text.
     s32 demoVi = port_getDemoViCount();
+    if (arg0) {
+        osRecvMesg(&sMesgQueue2, NULL, OS_MESG_BLOCK);
+    }
     D_80280724 = (demoVi > 0) ? demoVi : time_getDeltaReal_frames();
 #if 0
     static s32 D_80280E90;

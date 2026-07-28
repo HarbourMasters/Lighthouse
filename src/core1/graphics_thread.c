@@ -7,6 +7,7 @@
 #include <PR/ucode.h>
 #include "core1/core1.h"
 #include "functions.h"
+#include "port/Patches/Patches.h"
 #include "libultraship/libultra/rcp.h"
 #include "libultraship/libultra/sptask.h"
 #include "libultraship/libultra/types.h"
@@ -90,11 +91,24 @@ static OSTimer sControllerTimer;
 static bool sEnableControllerTimer;
 
 void thread5_startNextAudioTask(void);
+void osSpTaskLoad(OSTask* task);
+void osSpTaskStartGo(OSTask* task);
 
 /* .code */
+
+// [port] The queues are static; Game.cpp opts them into blocking before
+// thread5_create runs.
+OSMesgQueue* thread5_getTaskQueue(void) {
+    return &sThread5MesgQueue;
+}
+OSMesgQueue* thread5_getSyncQueue(void) {
+    return &sThread5SyncMesgQueue;
+}
+
 void thread5_sendTaskToQueue(OSMesg arg0) {
     static bool clear_freeze = true;
 
+    port_thread5_onSubmit(arg0.ptr); // [port] carry the interpolation pair with the task
     osSendMesg(&sThread5MesgQueue, arg0, 1);
     // Lighthouse [port] Adjustment here to account for our OSMesg union definition
     if (arg0.data32 == THREAD5_MESSAGE_EVENT_SYNC) {
@@ -141,12 +155,13 @@ void thread5_startAudioTask(struct ucode_task_data_s *task_data) {
 }
 
 void thread5_startF3DEXTask(struct ucode_task_data_s *task_data) {
-#if 0
+#if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sGfxTask.t.ucode_boot, &sGfxTask.t.ucode_boot_size);
     sGfxTask.t.ucode = gSPF3DEX_fifoTextStart;
     sGfxTask.t.ucode_data = gSPF3DEX_fifoDataStart;
+#endif
     sGfxTask.t.data_ptr = (void*) task_data->data_ptr;
-    sGfxTask.t.data_size = (task_data->data_ptr_end - task_data->data_ptr) >> 3 << 3;
+    sGfxTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;
     osWritebackDCache(sGfxTask.t.data_ptr , sGfxTask.t.data_size);
     osWritebackDCache(&sGfxTask, sizeof(OSTask));
     osSpTaskLoad(&sGfxTask);
@@ -157,16 +172,16 @@ void thread5_startF3DEXTask(struct ucode_task_data_s *task_data) {
         sUnkFlag2_Saved = sUnkFlag2;
         sUnkCounter3 = 30;
     }
-#endif
 }
 
 void thread5_startL3DEXTask(struct ucode_task_data_s *task_data) {
-#if 0
+#if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sGfxTask.t.ucode_boot, &sGfxTask.t.ucode_boot_size);
     sGfxTask.t.ucode = gSPL3DEX_fifoTextStart;
     sGfxTask.t.ucode_data = gSPL3DEX_fifoDataStart;
+#endif
     sGfxTask.t.data_ptr = (void*) task_data->data_ptr;
-    sGfxTask.t.data_size = (task_data->data_ptr_end - task_data->data_ptr) >> 3 << 3;
+    sGfxTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;
     osWritebackDCache(sGfxTask.t.data_ptr , sGfxTask.t.data_size);
     osWritebackDCache(&sGfxTask, sizeof(OSTask));
     osSpTaskLoad(&sGfxTask);
@@ -177,11 +192,9 @@ void thread5_startL3DEXTask(struct ucode_task_data_s *task_data) {
         sUnkFlag2_Saved = sUnkFlag2;
         sUnkCounter3 = 30;
     }
-#endif
 }
 
 void thread5_startGfxTask(struct ucode_task_data_s *task_data) {
-#if 0
     switch (task_data->task_type) {
         case 1:
             thread5_startF3DEXTask(task_data);
@@ -191,7 +204,6 @@ void thread5_startGfxTask(struct ucode_task_data_s *task_data) {
             thread5_startL3DEXTask(task_data);
             break;
     }
-#endif
 }
 
 void thread5_handleAudioTaskMesg(OSMesg msg) {
@@ -215,7 +227,6 @@ void thread5_handleL3DEXTaskMesg(OSMesg msg) {
 }
 
 void thread5_handleSyncEvent(void) {
-#if 0
     if ((sUnkFlag1 == UNKFLAG1_NO_TASK)
         && (sUnkFlag2_Saved == 2)
         && (sActiveGfxTaskDataID == sSelectedGfxTaskDataID)
@@ -226,13 +237,11 @@ void thread5_handleSyncEvent(void) {
     else {
         sSyncCounter++;
     }
-#endif
 }
 
 extern u64 osClockRate;
 
 void thread5_handleDPEvent(void) {
-#if 0
     if ((sUnkFlag2 << 1) < 0) {
         osDpSetStatus(DPC_SET_FREEZE);
         sCurrentFramebuffer = osViGetCurrentFramebuffer();
@@ -250,12 +259,9 @@ void thread5_handleDPEvent(void) {
             sSyncCounter--;
         }
     }
-#endif
 }
 
 void thread5_handleVIRetraceEvent(void) {
-#if 0
-    static s32 audiotimer_trigger = 0;
     s32 sp2C = (sSyncCounter != 0) && (sActiveGfxTaskDataID == sSelectedGfxTaskDataID) && (sUnkFlag2 == 2) && (sUnkFlag1 == UNKFLAG1_NO_TASK);
     volatile s32 sp30;
 
@@ -265,7 +271,7 @@ void thread5_handleVIRetraceEvent(void) {
             osDpSetStatus(DPC_CLR_FREEZE);
 
             sUnkFlag2_Saved = sUnkFlag2;
-            dummy_func_8025AFB8();
+            // dummy_func_8025AFB8();
 
             if (sUnkFlag2_Saved & 1) {
                 sUnkCounter3 = 30;
@@ -295,6 +301,8 @@ void thread5_handleVIRetraceEvent(void) {
         }
     }
     sTask7Handled = false;
+#if 0
+    static s32 audiotimer_trigger = 0;
     audiotimer_trigger++;
     if (!(audiotimer_trigger & 1)) {
         osStopTimer(&sAudioTimer);
@@ -306,7 +314,7 @@ void thread5_handleVIRetraceEvent(void) {
 #if VERSION == VERSION_USA_1_0
         osSetTimer(&sControllerTimer, ((osClockRate / 60)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #elif VERSION == VERSION_PAL
-        osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_CONT_TIMER);
+        osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #endif
     }
 #endif
@@ -338,6 +346,7 @@ void thread5_handleSPEvent(void) {
         sGfxTaskYielded = 0;
         return;
     }
+#endif
 
     sUnkFlag1 = UNKFLAG1_NO_TASK;
     if ((sActiveGfxTaskDataID != sSelectedGfxTaskDataID) && (sTask7Handled == 0)) {
@@ -350,7 +359,6 @@ void thread5_handleSPEvent(void) {
         osSendMesgPtr(&sThread5SyncMesgQueue, NULL, 0);
         sSyncCounter--;
     }
-#endif
 }
 
 void thread5_handleTask7Mesg(OSMesg arg0) {
@@ -466,40 +474,42 @@ void thread5_checkAndExecutePreNMI(void) {
 
 //thread5 entry
 void thread5_entry(void *arg) {
-#if 0
-    OSMesg msg = NULL;
+    // [port] Only adjustment: OSMesg is a union here,
+    // so event words read through .data32 and tasks through .ptr
+    OSMesg msg;
+    msg.ptr = NULL;
     do {
         osRecvMesg(&sThread5MesgQueue, &msg, OS_MESG_BLOCK);
         thread5_checkAndExecutePreNMI();
-        if ((s32)msg == THREAD5_MESSAGE_EVENT_SYNC) { thread5_handleSyncEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_VI_RETRACE)  { thread5_handleVIRetraceEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_DP)          { thread5_handleDPEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_SP)          { thread5_handleSPEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_AUDIO_TIMER) { thread5_handleAudioTimerEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_FAULT)       { do{}while(1); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_PRENMI)      { thread5_handlePreNMIEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_DEBUG) {  }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_CONT_TIMER)  { pfsManager_getStartReadData(); }
-        else if ((u32)msg >= 100) {
-            if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_AUDIO) { thread5_handleAudioTaskMesg(msg); }
-            else if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_F3DEX) { thread5_handleF3DEXTaskMesg(msg); }
-            else if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_L3DEX) { thread5_handleL3DEXTaskMesg(msg); }
-            else if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_FRAMEBUFFER_CHANGED) { thread5_handleTask7Mesg(msg); }
+        if ((uintptr_t)msg.ptr < 100) {
+            if (msg.data32 == THREAD5_MESSAGE_EVENT_SYNC) { thread5_handleSyncEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_VI_RETRACE)  { thread5_handleVIRetraceEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_DP)          { thread5_handleDPEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_SP)          { thread5_handleSPEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_AUDIO_TIMER) { thread5_handleAudioTimerEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_FAULT)       { do{}while(1); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_PRENMI)      { thread5_handlePreNMIEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_DEBUG) {  }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_CONT_TIMER)  { pfsManager_getStartReadData(); }
+        }
+        else {
+            if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_AUDIO) { thread5_handleAudioTaskMesg(msg); }
+            else if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_F3DEX) { thread5_handleF3DEXTaskMesg(msg); }
+            else if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_L3DEX) { thread5_handleL3DEXTaskMesg(msg); }
+            else if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_FRAMEBUFFER_CHANGED) { thread5_handleTask7Mesg(msg); }
         }
     } while (1);
-#endif
 }
 
 //thread5 create
 void thread5_create(void) {
-#if 0
     u8 *yield_data_ptr;
-    osCreateMesgQueue(&sThread5MesgQueue, &sThread5MesgBuffer, 20);
-    osCreateMesgQueue(&sThread5SyncMesgQueue, &sThread5SyncMesgBufer, 10);
-    osSetEventMesg(OS_EVENT_DP, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_DP);
-    osSetEventMesg(OS_EVENT_SP, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_SP);
-    osSetEventMesg(OS_EVENT_FAULT, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_FAULT);
-    osSetEventMesg(OS_EVENT_PRENMI, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_PRENMI);
+    osCreateMesgQueue(&sThread5MesgQueue, sThread5MesgBuffer, 20);
+    osCreateMesgQueue(&sThread5SyncMesgQueue, sThread5SyncMesgBufer, 10);
+    osSetEventMesg(OS_EVENT_DP, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_DP));
+    osSetEventMesg(OS_EVENT_SP, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_SP));
+    osSetEventMesg(OS_EVENT_FAULT, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_FAULT));
+    osSetEventMesg(OS_EVENT_PRENMI, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_PRENMI));
     viMgr_registerSignalMesg(&sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_VI_RETRACE));
     sSyncCounter = 0;
     sTask7Handled = 0;
@@ -516,7 +526,6 @@ void thread5_create(void) {
     sGfxTask.t.yield_data_ptr = (u64 *) yield_data_ptr;
     osCreateThread(&sThread5, THREAD5_ID, thread5_entry, NULL, &sThread5Stack[2048], THREAD5_PRI);
     osStartThread(&sThread5);
-#endif
 }
 
 void thread5_enableControllerTimer(void) {

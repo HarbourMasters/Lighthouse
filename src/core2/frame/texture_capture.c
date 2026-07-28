@@ -4,7 +4,15 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 extern void gfx_texture_cache_clear(void);
+
+// [port] The texture cache belongs to the renderer; marshal the clear.
+static void __textureCacheClearFn(void* arg) {
+    (void)arg;
+    gfx_texture_cache_clear();
+}
 
 u8 *textureList_getDataPtr(BKTextureList *texture_list);
 
@@ -35,6 +43,10 @@ void model_copyFramebufferToTextures(BKModelBin *model_bin){
     s32 x, y;
 
     texture_list = modelbin_getTextureList(model_bin);
+    // [port] The blocks below read the rendered frame from the CPU-side
+    // buffer, so the frame this tick submitted has to be drawn first. One
+    // sync covers the whole capture.
+    port_pipelineSyncPoint();
     osInvalDCache((void *)gFramebuffers[getActiveFramebuffer()], gFramebufferWidth * gFramebufferHeight*2);
 
     for(y = 0; y < 8; y++){
@@ -47,5 +59,5 @@ void model_copyFramebufferToTextures(BKModelBin *model_bin){
 
     // [port] The CPU just modified texture data that LUS may have cached on the GPU.
     // Clear the texture cache so the next draw re-uploads from CPU memory.
-    gfx_texture_cache_clear();
+    port_runOnRenderThread(__textureCacheClearFn, NULL);
 }

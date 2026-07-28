@@ -224,12 +224,6 @@ void FrameInterpolation_BeginRenderPass(int prevSlot, int currSlot, bool shouldI
     gCache.valid = false;
 }
 
-// Single-threaded path: the render happens inside the tick that is still
-// recording, so the pair is (last finished, in progress).
-void FrameInterpolation_BeginRenderPassLive(void) {
-    FrameInterpolation_BeginRenderPass(gLastRecordedSlot, gRecordSlot, gShouldInterpolate);
-}
-
 void FrameInterpolation_ShouldInterpolateFrame(bool shouldInterpolate) {
     gShouldInterpolate = shouldInterpolate;
 }

@@ -7,6 +7,10 @@
 
 #include "port/Engine.h"
 
+// From Patches.h; declared here because this file's definitions use concrete
+// Gfx/model types where the header declares void*.
+extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg);
+
 extern "C" {
 
 #include "core1/core1.h"
@@ -63,10 +67,17 @@ static void currentRenderSize(int* w, int* h) {
     }
 }
 
+// Framebuffer creation talks to the renderer, so under thread5 mode it has to
+// happen on the render thread rather than the game tick.
+static void createPauseFb(void* arg) {
+    (void)arg;
+    s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
+}
+
 int port_getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
         currentRenderSize(&s_pauseFbW, &s_pauseFbH);
-        s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
+        port_runOnRenderThread(createPauseFb, NULL);
     }
     return s_pauseFbId;
 }
@@ -82,7 +93,7 @@ int port_capturePauseFramebuffer(void) {
     if (s_pauseFbId < 0 || w != s_pauseFbW || h != s_pauseFbH) {
         s_pauseFbW = w;
         s_pauseFbH = h;
-        s_pauseFbId = gfx_create_framebuffer(w, h, w, h, 0, 0);
+        port_runOnRenderThread(createPauseFb, NULL);
     }
     return s_pauseFbId;
 }
@@ -236,11 +247,16 @@ void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 m
 static u16 sTransitionFbDummy[1];
 static s32 sTransitionGpuFbId = -1;
 
+static void createTransitionFb(void* arg) {
+    (void)arg;
+    sTransitionGpuFbId = gfx_create_framebuffer(DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT,
+                                                DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1, 0);
+    gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
+}
+
 s32 port_getTransitionGpuFbId(void) {
     if (sTransitionGpuFbId < 0) {
-        sTransitionGpuFbId = gfx_create_framebuffer(DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT,
-                                                    DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1, 0);
-        gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
+        port_runOnRenderThread(createTransitionFb, NULL);
     }
     return sTransitionGpuFbId;
 }

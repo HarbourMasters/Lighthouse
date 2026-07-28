@@ -3060,6 +3060,10 @@ float gu_sqrtf(float val);
 u32 osDpGetStatus(void);
 void osDpSetStatus(u32 data);
 
+// --- port/OS/OS_VI.cpp ---
+void* osViGetCurrentFramebuffer(void);
+void* osViGetNextFramebuffer(void);
+
 // --- provided by libultraship ---
 s32 osPiReadIo(u32, u32 *);
 

@@ -8,13 +8,23 @@
 int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
                            unsigned int native_height, unsigned char resize, bool force_fixed_aspect);
 
+#include "port/Patches/Patches.h"
+
 s32 sAuxGpuFbId = -1;
+
+// [port] Renderer call; runs on the render thread under thread5 mode.
+static void __auxbuffer_createGpuFb(void* arg);
 
 #define TILE_SIZE 32
 #define TILE_COUNT_X 5
 #define TILE_COUNT_Y 4
 #define IMAGE_WIDTH (TILE_SIZE * TILE_COUNT_X)
 #define IMAGE_HEIGHT (TILE_SIZE * TILE_COUNT_Y)
+
+static void __auxbuffer_createGpuFb(void* arg) {
+    (void)arg;
+    sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, 0, 0);
+}
 #define SCREEN_WIDTH 292
 #define SCREEN_HEIGHT 216
 #define HORIZONTAL_MARGIN (((SCREEN_WIDTH) - IMAGE_WIDTH) / 2)
@@ -63,7 +73,7 @@ void picturebox_init(void) {
         }
     }
     if (sAuxGpuFbId < 0) {
-        sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT, 0, 0);
+        port_runOnRenderThread(__auxbuffer_createGpuFb, NULL);
     }
 }
 

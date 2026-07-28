@@ -28,7 +28,6 @@ void FrameInterpolation_GetRecordingPair(int* prevSlot, int* currSlot, bool* sho
 void FrameInterpolation_ClaimPair(int prevSlot, int currSlot);
 void FrameInterpolation_ReleasePair(int prevSlot, int currSlot);
 void FrameInterpolation_BeginRenderPass(int prevSlot, int currSlot, bool shouldInterpolate);
-void FrameInterpolation_BeginRenderPassLive(void);
 
 // Hierarchical scope (cross-tick pairing identity).
 void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id);

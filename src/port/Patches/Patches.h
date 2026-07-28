@@ -7,6 +7,15 @@
 extern "C" {
 #endif
 
+// Threaded rendering (Game.cpp)
+
+// Carries the interpolation pair with a submitted display list.
+void port_thread5_onSubmit(void* taskData);
+// Runs fn on the window thread when the tick is on its own thread.
+void port_runOnRenderThread(void (*fn)(void*), void* arg);
+// Waits for in-flight display lists before freeing or reading what they use.
+void port_pipelineSyncPoint(void);
+
 // Frame Pacing (FramePacingPatches.cpp)
 
 int port_getDemoViCount(void);
