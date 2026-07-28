@@ -142,6 +142,7 @@ void viMgr_init(void) {
     osViSetEvent(&sMesgQueue1, OS_MESG_PTR(NULL), 1);
     OS_SetQueueBlocking(&sMesgQueue1, 1); // viMgr_entry parks here between retraces
     OS_SetQueueBlocking(&sMesgQueue2, 1); // the tick parks here for the frame token
+    OS_SetQueueBlocking(&sMesgQueue3, 1); // and here for its retraces
 
     sActiveFramebuffer = 0;
     D_80280724 = 1;
@@ -177,13 +178,9 @@ void viMgr_func_8024BFD8(s32 arg0){
     // During demo playback, sDemoViCount includes the N64's original rendering lag
     // for maps that ran slow, which the zoombox dialog system needs to pace text.
     s32 demoVi = port_getDemoViCount();
-    if (arg0) {
-        osRecvMesg(&sMesgQueue2, NULL, OS_MESG_BLOCK);
-    }
-    D_80280724 = (demoVi > 0) ? demoVi : time_getDeltaReal_frames();
-#if 0
     static s32 D_80280E90;
-    
+    s32 viBudget = (!func_802E4A08() && demoVi > 2) ? demoVi : 2;
+
     osSetThreadPri(NULL, 0x7f);
     defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY_HIGH);
     defragManager_resume();
@@ -191,26 +188,25 @@ void viMgr_func_8024BFD8(s32 arg0){
         osRecvMesg(&sMesgQueue2, NULL, OS_MESG_BLOCK);
     }
 
-    while(D_802808D8 < viMgr_func_8024BFA0() - D_80280E90){
+    while(D_802808D8 < viBudget - D_80280E90){
         osRecvMesg(&sMesgQueue3, NULL, OS_MESG_BLOCK);
     }
 
     while(sMesgQueue3.validCount){
         osRecvMesg(&sMesgQueue3, NULL, OS_MESG_NOBLOCK);
     }
-    
+
     osViSwapBuffer(gFramebuffers[sActiveFramebuffer = getOtherFramebuffer()]);
     D_80280E90 = 0;
     while(!(osDpGetStatus() & 2) && osViGetCurrentFramebuffer() != osViGetNextFramebuffer()){
         osRecvMesg(&sMesgQueue3, NULL, OS_MESG_BLOCK);
         D_80280E90++;
     }//L8024C178
-    D_80280724 = D_802808D8;
+    D_80280724 = (demoVi > 0) ? demoVi : D_802808D8;
     D_802808D8 = 0;
     defragManager_pause();
     osSetThreadPri(NULL, 0x14);
     defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY);
-#endif
 }
 
 void viMgr_func_8024C1B4(void){
