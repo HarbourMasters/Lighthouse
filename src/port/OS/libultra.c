@@ -1,10 +1,14 @@
 // BanjoDecomp: This file no longer exists upstream,
 // but we do wrap its functions with our own.
 
+// Include the headers that declare what this file defines, so the compiler
+// checks the definitions against them.
 #include "libultraship/libultra/types.h"
 #include "libultraship/libultra/interrupt.h"
 #include "libultraship/libultra/sptask.h"
 #include "libultraship/libultra/thread.h"
+#include "libultraship/libultra/os.h"
+#include "functions.h"
 #include "bk_string.h"
 
 #include <libultra/convert.h>
@@ -68,12 +72,6 @@ u32 bkGetSR(void) {
     return 0xFFFFFFFFu;
 }
 OSYieldResult osSpTaskYielded(OSTask* task) {
-    return 0;
-}
-int osStartTimer(void* t) {
-    return 0;
-}
-int osStopTimer(void* t) {
     return 0;
 }
 

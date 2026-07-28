@@ -3055,6 +3055,11 @@ void osStartThread(OSThread* thread);
 void osStopThread(OSThread* t);
 u32 bkGetSR(void);
 float gu_sqrtf(float val);
+void osViExtendVStart(u32 arg0);
+OSYieldResult osSpTaskYielded(OSTask* task);
+void __osError(s16 error_code, s16 num_args, ...);
+s32 eeprom_readBlocks(s32 file, s32 offset, void* buffer, s32 count);
+s32 eeprom_writeBlocks(s32 file, s32 offset, void* buffer, s32 count);
 
 // --- port/OS/OS_RCP.cpp ---
 u32 osDpGetStatus(void);
