@@ -1,5 +1,7 @@
 #include "FrameInterpolation.h"
 
+#include <atomic>
+#include <spdlog/spdlog.h>
 #include <vector>
 #include <cstring>
 #include <cstdint>
@@ -71,8 +73,10 @@ struct FrameTree {
     float cameraPos[3] = { 0.0f, 0.0f, 0.0f };
     bool hasCameraPos = false;
     bool valid = false;
+    std::atomic<uint32_t> generation{ 0 };
 
     void reset() {
+        generation.fetch_add(1, std::memory_order_release);
         toMtxs.clear();
         projRots.clear();
         sprites.clear();
@@ -85,10 +89,18 @@ struct FrameTree {
     }
 };
 
-FrameTree gTreeA;
-FrameTree gTreeB;
-FrameTree* gCurrent = &gTreeA;
-FrameTree* gPrevious = &gTreeB;
+// Ring of trees: the render side reads a (prev, curr) pair while the tick
+// records the next one. Reuse is ownership-based; a submitted pair claims
+// its two slots until that render finishes, and recording skips claimed slots.
+constexpr int kRingSlots = 4;
+FrameTree gRing[kRingSlots];
+std::atomic<int> gSlotClaims[kRingSlots] = {};
+int gRecordSlot = 0;
+int gLastRecordedSlot = -1;
+FrameTree* gRecord = &gRing[0];
+FrameTree* gRenderPrev = nullptr;
+FrameTree* gRenderCurr = nullptr;
+bool gRenderShould = false;
 
 bool gRecording = false;
 bool gShouldInterpolate = true;
@@ -134,25 +146,88 @@ InterpolationCache gCache;
 extern "C" {
 
 void FrameInterpolation_StartRecord(void) {
-    gCurrent->reset();
-    gCurrent->toMtxs.reserve(512);
-    gCurrent->projRots.reserve(4);
-    gCurrent->sprites.reserve(256);
-    gCurrent->sigToToMtx.reserve(512);
-    gCurrent->sigToSprite.reserve(64);
-    gCurrent->scopeStack.push_back({ kFnvSeed, 0, 0 });
+    for (int i = 0; i < kRingSlots; i++) {
+        gRecordSlot = (gRecordSlot + 1) % kRingSlots;
+        if (gSlotClaims[gRecordSlot].load(std::memory_order_acquire) == 0 && gRecordSlot != gLastRecordedSlot) {
+            break;
+        }
+    }
+    if (gSlotClaims[gRecordSlot].load(std::memory_order_acquire) != 0) {
+        // Should be impossible, but if it ever prints, a claim leaked.
+        SPDLOG_WARN("interp record forced into claimed slot {} claims=[{},{},{},{}]", gRecordSlot,
+                    gSlotClaims[0].load(), gSlotClaims[1].load(), gSlotClaims[2].load(), gSlotClaims[3].load());
+    }
+    gRecord = &gRing[gRecordSlot];
+    gRecord->reset();
+    gRecord->toMtxs.reserve(512);
+    gRecord->projRots.reserve(4);
+    gRecord->sprites.reserve(256);
+    gRecord->sigToToMtx.reserve(512);
+    gRecord->sigToSprite.reserve(64);
+    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0 });
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
     gRecording = true;
-    // The old cache indexes into the tree this tick is about to overwrite.
+}
+
+// Idempotent: a threaded submitter has to close the session early, before the
+// tree goes to another thread, so the tick's own call then finds it closed.
+void FrameInterpolation_StopRecord(void) {
+    if (!gRecording) {
+        return;
+    }
+    gRecording = false;
+    gRecord->valid = gShouldInterpolate;
+    gLastRecordedSlot = gRecordSlot;
+}
+
+// The pair for the tick being recorded right now, grabbed when a display list
+// is handed off so it renders against the trees it was built from.
+void FrameInterpolation_GetRecordingPair(int* prevSlot, int* currSlot, bool* shouldInterpolate) {
+    if (!gRecording) {
+        *prevSlot = -1;
+        *currSlot = -1;
+        *shouldInterpolate = false;
+        return;
+    }
+    *prevSlot = gLastRecordedSlot;
+    *currSlot = gRecordSlot;
+    *shouldInterpolate = gShouldInterpolate;
+}
+
+// Claim and release bracket a pair's render lifetime: claimed on the tick side
+// at submission, released once the render (and its workers) are done reading.
+void FrameInterpolation_ClaimPair(int prevSlot, int currSlot) {
+    if (prevSlot >= 0 && prevSlot < kRingSlots) {
+        gSlotClaims[prevSlot].fetch_add(1, std::memory_order_release);
+    }
+    if (currSlot >= 0 && currSlot < kRingSlots) {
+        gSlotClaims[currSlot].fetch_add(1, std::memory_order_release);
+    }
+}
+
+void FrameInterpolation_ReleasePair(int prevSlot, int currSlot) {
+    if (prevSlot >= 0 && prevSlot < kRingSlots) {
+        gSlotClaims[prevSlot].fetch_sub(1, std::memory_order_release);
+    }
+    if (currSlot >= 0 && currSlot < kRingSlots) {
+        gSlotClaims[currSlot].fetch_sub(1, std::memory_order_release);
+    }
+}
+
+// Pins the trees this pass blends and drops the previous pass's pairing cache.
+void FrameInterpolation_BeginRenderPass(int prevSlot, int currSlot, bool shouldInterpolate) {
+    gRenderPrev = (prevSlot >= 0 && prevSlot < kRingSlots) ? &gRing[prevSlot] : nullptr;
+    gRenderCurr = (currSlot >= 0 && currSlot < kRingSlots) ? &gRing[currSlot] : nullptr;
+    gRenderShould = shouldInterpolate && gRenderCurr != nullptr && gRenderPrev != nullptr;
     gCache.built = false;
     gCache.valid = false;
 }
 
-void FrameInterpolation_StopRecord(void) {
-    gRecording = false;
-    gCurrent->valid = gShouldInterpolate;
-    std::swap(gCurrent, gPrevious);
+// Single-threaded path: the render happens inside the tick that is still
+// recording, so the pair is (last finished, in progress).
+void FrameInterpolation_BeginRenderPassLive(void) {
+    FrameInterpolation_BeginRenderPass(gLastRecordedSlot, gRecordSlot, gShouldInterpolate);
 }
 
 void FrameInterpolation_ShouldInterpolateFrame(bool shouldInterpolate) {
@@ -163,18 +238,18 @@ void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id) {
     if (!gRecording) {
         return;
     }
-    uint64_t h = gCurrent->scopeStack.back().pathHash;
+    uint64_t h = gRecord->scopeStack.back().pathHash;
     h = fnvMix(h, reinterpret_cast<uintptr_t>(key));
     h = fnvMix(h, static_cast<uint64_t>(id));
-    gCurrent->scopeStack.push_back({ h, 0, 0 });
+    gRecord->scopeStack.push_back({ h, 0, 0 });
 }
 
 void FrameInterpolation_RecordCloseChild(void) {
     if (!gRecording) {
         return;
     }
-    if (gCurrent->scopeStack.size() > 1) {
-        gCurrent->scopeStack.pop_back();
+    if (gRecord->scopeStack.size() > 1) {
+        gRecord->scopeStack.pop_back();
     }
 }
 
@@ -193,18 +268,18 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     if (!gRecording) {
         return;
     }
-    ScopeFrame& scope = gCurrent->scopeStack.back();
+    ScopeFrame& scope = gRecord->scopeStack.back();
     uint64_t sig = fnvMix(fnvMix(scope.pathHash, kSigKindToMtx), scope.toMtxIdx);
     scope.toMtxIdx++;
 
-    uint32_t idx = static_cast<uint32_t>(gCurrent->toMtxs.size());
-    gCurrent->toMtxs.emplace_back();
-    ToMtxData& d = gCurrent->toMtxs.back();
+    uint32_t idx = static_cast<uint32_t>(gRecord->toMtxs.size());
+    gRecord->toMtxs.emplace_back();
+    ToMtxData& d = gRecord->toMtxs.back();
     d.dst = dst;
     std::memcpy(d.src, src, sizeof(float) * 16);
     d.pathSig = sig;
     d.noInterpolate = (gNoInterpolateDepth > 0);
-    gCurrent->sigToToMtx.emplace(sig, idx);
+    gRecord->sigToToMtx.emplace(sig, idx);
 }
 
 void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float rollDeg, void* pitchMtx, float pitchDeg,
@@ -212,8 +287,8 @@ void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float roll
     if (!gRecording) {
         return;
     }
-    gCurrent->projRots.emplace_back();
-    CameraProjRotData& d = gCurrent->projRots.back();
+    gRecord->projRots.emplace_back();
+    CameraProjRotData& d = gRecord->projRots.back();
     d.rollMtx = rollMtx;
     d.pitchMtx = pitchMtx;
     d.yawMtx = yawMtx;
@@ -226,10 +301,10 @@ void FrameInterpolation_RecordCameraPosition(const float pos[3]) {
     if (!gRecording || pos == nullptr) {
         return;
     }
-    gCurrent->cameraPos[0] = pos[0];
-    gCurrent->cameraPos[1] = pos[1];
-    gCurrent->cameraPos[2] = pos[2];
-    gCurrent->hasCameraPos = true;
+    gRecord->cameraPos[0] = pos[0];
+    gRecord->cameraPos[1] = pos[1];
+    gRecord->cameraPos[2] = pos[2];
+    gRecord->hasCameraPos = true;
 }
 
 void FrameInterpolation_NoInterpolatePush(void) {
@@ -248,13 +323,13 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     if (!gRecording) {
         return;
     }
-    ScopeFrame& scope = gCurrent->scopeStack.back();
+    ScopeFrame& scope = gRecord->scopeStack.back();
     uint64_t sig = fnvMix(fnvMix(scope.pathHash, kSigKindSprite), scope.spriteIdx);
     scope.spriteIdx++;
 
-    uint32_t idx = static_cast<uint32_t>(gCurrent->sprites.size());
-    gCurrent->sprites.emplace_back();
-    SpriteDrawData& d = gCurrent->sprites.back();
+    uint32_t idx = static_cast<uint32_t>(gRecord->sprites.size());
+    gRecord->sprites.emplace_back();
+    SpriteDrawData& d = gRecord->sprites.back();
     d.dst = dst;
     std::memcpy(d.camRelPos, camRelPos, sizeof(float) * 3);
     std::memcpy(d.scale, scale, sizeof(float) * 3);
@@ -269,12 +344,12 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     d.pathSig = sig;
     d.kind = static_cast<uint8_t>(kind);
     d.mirrored = (mirrored != 0);
-    gCurrent->sigToSprite.emplace(sig, idx);
+    gRecord->sigToSprite.emplace(sig, idx);
 }
 
 void FrameInterpolation_DontInterpolateCamera(void) {
-    if (gPrevious != nullptr) {
-        gPrevious->valid = false;
+    if (gLastRecordedSlot >= 0) {
+        gRing[gLastRecordedSlot].valid = false;
     }
 }
 
@@ -326,23 +401,25 @@ inline float lerpAngleDegSP(float a, float b, float tt) {
 void BuildInterpolationCache() {
     gCache.reset();
     gCache.built = true;
-    if (!gPrevious->valid) {
+    if (gRenderPrev == nullptr || gRenderCurr == nullptr || !gRenderPrev->valid) {
         return;
     }
+    const uint32_t prevGen = gRenderPrev->generation.load(std::memory_order_acquire);
+    const uint32_t currGen = gRenderCurr->generation.load(std::memory_order_acquire);
 
-    gCache.prevHasCameraPos = gPrevious->hasCameraPos;
+    gCache.prevHasCameraPos = gRenderPrev->hasCameraPos;
     if (gCache.prevHasCameraPos) {
-        gCache.prevCameraPos[0] = gPrevious->cameraPos[0];
-        gCache.prevCameraPos[1] = gPrevious->cameraPos[1];
-        gCache.prevCameraPos[2] = gPrevious->cameraPos[2];
+        gCache.prevCameraPos[0] = gRenderPrev->cameraPos[0];
+        gCache.prevCameraPos[1] = gRenderPrev->cameraPos[1];
+        gCache.prevCameraPos[2] = gRenderPrev->cameraPos[2];
     }
 
-    const std::vector<ToMtxData>& currToMtxs = gCurrent->toMtxs;
-    const std::vector<ToMtxData>& prevToMtxs = gPrevious->toMtxs;
-    const std::vector<SpriteDrawData>& currSprites = gCurrent->sprites;
-    const std::vector<SpriteDrawData>& prevSprites = gPrevious->sprites;
-    const std::unordered_map<uint64_t, uint32_t>& prevSigMap = gPrevious->sigToToMtx;
-    const std::unordered_map<uint64_t, uint32_t>& prevSpriteMap = gPrevious->sigToSprite;
+    const std::vector<ToMtxData>& currToMtxs = gRenderCurr->toMtxs;
+    const std::vector<ToMtxData>& prevToMtxs = gRenderPrev->toMtxs;
+    const std::vector<SpriteDrawData>& currSprites = gRenderCurr->sprites;
+    const std::vector<SpriteDrawData>& prevSprites = gRenderPrev->sprites;
+    const std::unordered_map<uint64_t, uint32_t>& prevSigMap = gRenderPrev->sigToToMtx;
+    const std::unordered_map<uint64_t, uint32_t>& prevSpriteMap = gRenderPrev->sigToSprite;
 
     gCache.pairedToMtxs.reserve(currToMtxs.size());
     gCache.pairedSprites.reserve(currSprites.size());
@@ -357,7 +434,7 @@ void BuildInterpolationCache() {
             continue;
         }
         auto it = prevSigMap.find(c.pathSig);
-        if (it == prevSigMap.end()) {
+        if (it == prevSigMap.end() || it->second >= prevToMtxs.size()) {
             continue;
         }
         const ToMtxData& p = prevToMtxs[it->second];
@@ -373,7 +450,7 @@ void BuildInterpolationCache() {
     for (uint32_t i = 0; i < currSprites.size(); i++) {
         const SpriteDrawData& c = currSprites[i];
         auto it = prevSpriteMap.find(c.pathSig);
-        if (it == prevSpriteMap.end() || prevSprites[it->second].kind != c.kind) {
+        if (it == prevSpriteMap.end() || it->second >= prevSprites.size() || prevSprites[it->second].kind != c.kind) {
             gCache.pairedSprites.push_back({ i, UINT32_MAX });
             continue;
         }
@@ -387,6 +464,17 @@ void BuildInterpolationCache() {
         gCache.pairedSprites.push_back({ i, it->second });
     }
 
+    // A tree recycled while we walked it means every index above is suspect.
+    // Drop the pass to uninterpolated and say which slot collided.
+    if (gRenderPrev->generation.load(std::memory_order_acquire) != prevGen ||
+        gRenderCurr->generation.load(std::memory_order_acquire) != currGen) {
+        SPDLOG_WARN("interp tree recycled mid-pass: prev={} curr={} record={} last={} claims=[{},{},{},{}]",
+                    (int)(gRenderPrev - gRing), (int)(gRenderCurr - gRing), gRecordSlot, gLastRecordedSlot,
+                    gSlotClaims[0].load(), gSlotClaims[1].load(), gSlotClaims[2].load(), gSlotClaims[3].load());
+        gCache.reset();
+        gCache.built = true;
+        return;
+    }
     gCache.valid = true;
 }
 
@@ -470,7 +558,7 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
 void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& replacements) {
     replacements.clear();
 
-    if (!gShouldInterpolate) {
+    if (!gRenderShould) {
         return;
     }
     if (!gCache.built) {
@@ -482,22 +570,22 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
 
     // A large camera jump means a warp or camera cut; blending across it
     // would draw the world halfway between two scenes for a frame.
-    if (gCache.prevHasCameraPos && gCurrent->hasCameraPos) {
-        float dx = gCurrent->cameraPos[0] - gCache.prevCameraPos[0];
-        float dy = gCurrent->cameraPos[1] - gCache.prevCameraPos[1];
-        float dz = gCurrent->cameraPos[2] - gCache.prevCameraPos[2];
+    if (gCache.prevHasCameraPos && gRenderCurr->hasCameraPos) {
+        float dx = gRenderCurr->cameraPos[0] - gCache.prevCameraPos[0];
+        float dy = gRenderCurr->cameraPos[1] - gCache.prevCameraPos[1];
+        float dz = gRenderCurr->cameraPos[2] - gCache.prevCameraPos[2];
         constexpr float kCutDistSq = 1000.0f * 1000.0f;
         if (dx * dx + dy * dy + dz * dz > kCutDistSq) {
             return;
         }
     }
 
-    const std::vector<ToMtxData>& prevToMtxs = gPrevious->toMtxs;
-    const std::vector<ToMtxData>& currToMtxs = gCurrent->toMtxs;
-    const std::vector<SpriteDrawData>& prevSpritesData = gPrevious->sprites;
-    const std::vector<SpriteDrawData>& currSpritesData = gCurrent->sprites;
+    const std::vector<ToMtxData>& prevToMtxs = gRenderPrev->toMtxs;
+    const std::vector<ToMtxData>& currToMtxs = gRenderCurr->toMtxs;
+    const std::vector<SpriteDrawData>& prevSpritesData = gRenderPrev->sprites;
+    const std::vector<SpriteDrawData>& currSpritesData = gRenderCurr->sprites;
 
-    replacements.reserve(gCache.pairedToMtxs.size() + gCache.pairedSprites.size() + gCurrent->projRots.size() * 3);
+    replacements.reserve(gCache.pairedToMtxs.size() + gCache.pairedSprites.size() + gRenderCurr->projRots.size() * 3);
     const float w = 1.0f - t;
 
     for (const PairedToMtx& pair : gCache.pairedToMtxs) {
@@ -534,8 +622,8 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
         emitSprite(L, replacements);
     }
 
-    const std::vector<CameraProjRotData>& prevProj = gPrevious->projRots;
-    const std::vector<CameraProjRotData>& currProj = gCurrent->projRots;
+    const std::vector<CameraProjRotData>& prevProj = gRenderPrev->projRots;
+    const std::vector<CameraProjRotData>& currProj = gRenderCurr->projRots;
     if (prevProj.size() == currProj.size()) {
         for (size_t i = 0; i < currProj.size(); i++) {
             const CameraProjRotData& p = prevProj[i];

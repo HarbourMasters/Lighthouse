@@ -46,6 +46,7 @@ extern "C" void Graphics_PushFrame(Gfx* data) {
         AdaptiveFps_SampleTick((long long)logicNs);
     }
     sFrameRendered = true;
+    FrameInterpolation_BeginRenderPassLive();
     GameEngine::ProcessGfxCommands(data);
 }
 

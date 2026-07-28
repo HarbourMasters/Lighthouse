@@ -21,6 +21,15 @@ void FrameInterpolation_StartRecord(void);
 void FrameInterpolation_StopRecord(void);
 void FrameInterpolation_ShouldInterpolateFrame(bool shouldInterpolate);
 
+// Which pair of recorded ticks a render pass blends between. The threaded
+// path captures the pair when a display list is submitted and applies it when
+// that list renders; the single-threaded path uses the live variant.
+void FrameInterpolation_GetRecordingPair(int* prevSlot, int* currSlot, bool* shouldInterpolate);
+void FrameInterpolation_ClaimPair(int prevSlot, int currSlot);
+void FrameInterpolation_ReleasePair(int prevSlot, int currSlot);
+void FrameInterpolation_BeginRenderPass(int prevSlot, int currSlot, bool shouldInterpolate);
+void FrameInterpolation_BeginRenderPassLive(void);
+
 // Hierarchical scope (cross-tick pairing identity).
 void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id);
 void FrameInterpolation_RecordCloseChild(void);
