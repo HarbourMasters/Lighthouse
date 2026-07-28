@@ -35,6 +35,7 @@
 #include "ship/window/gui/FileBrowserWindow.h"
 #include "Interpolation/AdaptiveFps.h"
 #include "Interpolation/FrameInterpolation.h"
+#include "OS/OS.h"
 #include "Network/Anchor/Anchor.h"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Patches/Patches.h"
@@ -1332,9 +1333,7 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             gui->StartDraw();
             interpreter->StartFrame();
             interpreter->Run(Commands, m);
-            // Emulate N64 osViBlack to prevent a flicker when the scene is drawn
-            // for the falling jiggy transition framebuffer capture.
-            if (port_isViBlack()) {
+            if (OS_ViBlackActive()) {
                 interpreter->mGfxFrameBuffer = 0;
                 auto rapi = interpreter->GetCurrentRenderingAPI();
                 rapi->StartDrawToFramebuffer(0, 1.0f);

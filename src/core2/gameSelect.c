@@ -617,7 +617,6 @@ void gameSelect_update(Actor *this){
         );
         if(this->marker->unk14_21) {
             osViBlack(0);
-            port_setViBlack(0);
         }
     }//L802C5734
 }

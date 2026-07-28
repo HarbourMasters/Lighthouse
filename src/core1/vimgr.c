@@ -258,7 +258,6 @@ void viMgr_entry(void *arg0){
 
 void viMgr_setScreenBlack(s32 active) {
     osViBlack(active);
-    port_setViBlack(active);
 }
 
 void viMgr_clearFramebuffers(void) {

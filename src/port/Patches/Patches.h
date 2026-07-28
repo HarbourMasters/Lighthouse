@@ -37,8 +37,6 @@ void port_refreshDialogFontGlyphCount(void); // re-read the reachable glyph coun
 
 // Framebuffer (FramebufferPatches.cpp)
 
-void port_setViBlack(int active);
-int port_isViBlack(void);
 void port_freezeReadback(int freeze);
 void port_requestReadback(void);
 int port_consumeReadbackRequest(void);

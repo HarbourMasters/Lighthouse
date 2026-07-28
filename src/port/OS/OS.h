@@ -36,6 +36,10 @@ void OS_SendEventMesg(OSEvent event);
 // The VI ticker starts with osCreateViManager; this stops it at shutdown.
 void OS_StopViTicker(void);
 
+// Whether osViBlack has the display blanked. The renderer blacks the presented
+// frame while the world keeps rendering underneath.
+int OS_ViBlackActive(void);
+
 #include "libultraship/libultra/sptask.h"
 
 // Take the task osSpTaskStartGo handed over, or NULL if none is pending.

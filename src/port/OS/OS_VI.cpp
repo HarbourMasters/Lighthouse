@@ -29,6 +29,7 @@ std::atomic<bool> sTickerRun{ false };
 
 std::atomic<void*> sNextFramebuffer{ nullptr };
 std::atomic<void*> sCurrentFramebuffer{ nullptr };
+std::atomic<bool> sBlack{ false };
 
 } // namespace
 
@@ -91,7 +92,11 @@ extern "C" void osViSetSpecialFeatures(u32 features) {
 }
 
 extern "C" void osViBlack(u8 active) {
-    (void)active;
+    sBlack.store(active != 0, std::memory_order_release);
+}
+
+extern "C" int OS_ViBlackActive(void) {
+    return sBlack.load(std::memory_order_acquire) ? 1 : 0;
 }
 
 extern "C" void osViSetXScale(f32 scale) {
