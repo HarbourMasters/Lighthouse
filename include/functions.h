@@ -3049,13 +3049,16 @@ s32 osContSetCh(u8 ch);
 u32 __osGetSR(void);
 void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
 void osDestroyThread(OSThread* thread);
-void osDpSetStatus(u32 data);
 void osSetThreadPri(OSThread* thread, OSPri p);
 void osSpTaskYield(void);
 void osStartThread(OSThread* thread);
 void osStopThread(OSThread* t);
 u32 bkGetSR(void);
 float gu_sqrtf(float val);
+
+// --- port/OS/OS_RCP.cpp ---
+u32 osDpGetStatus(void);
+void osDpSetStatus(u32 data);
 
 // --- provided by libultraship ---
 s32 osPiReadIo(u32, u32 *);

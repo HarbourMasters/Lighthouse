@@ -77,9 +77,6 @@ int osStopTimer(void* t) {
     return 0;
 }
 
-void osDpSetStatus(u32 data) {
-}
-
 void __osError(s16 error_code, s16 num_args, ...) {
 }
 
