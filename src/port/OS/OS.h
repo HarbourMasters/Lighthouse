@@ -25,6 +25,12 @@ void OS_SetThreadPri(OSThread* thread, OSPri p);
 // are revived deliberately, one consumer at a time.
 void OS_EnableThreadEntry(void* entry);
 
+#include "libultraship/libultra/message.h"
+
+// OS_MESG_BLOCK only blocks on queues opted in here; the rest stay as LUS had
+// them, non-blocking.
+void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
+
 #ifdef __cplusplus
 }
 #endif
