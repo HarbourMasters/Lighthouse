@@ -32,7 +32,8 @@ void Rando::MiscBehavior::OnFileLoad() {
 
         if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0)) {
             Rando::Logic::InitializeSaveData(saveData);
-            if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("UseExistingLog"), 0) && CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "")) {
+            if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("UseExistingLog"), 0) &&
+                CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "")) {
                 std::string spoilerPath = CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "");
                 Rando::Spoiler::GenerateFromSpoiler(Rando::Spoiler::LoadFromFile(spoilerPath.c_str()));
             } else {

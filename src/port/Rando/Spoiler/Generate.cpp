@@ -66,7 +66,7 @@ void GenerateFromSpoiler(nlohmann::json spoiler) {
             RandoSaveCheck checkEntry = RandoSaveCheck_from_json(data.value(), checkEntry);
             checkEntry.name = Rando::StaticData::Checks[checkEntry.randoCheckId].name;
             RANDO_SAVE_CHECKS[checkEntry.randoCheckId] = checkEntry;
-            
+
             Rando::Logic::shuffledPool.push_back(checkEntry);
         }
     }

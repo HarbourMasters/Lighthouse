@@ -19,7 +19,6 @@ void SaveToFile(const std::string& fileName, nlohmann::ordered_json spoiler) {
         fs::create_directories(testDirectory);
     }
 
-
     std::ofstream fileStream(filePath);
     if (!fileStream.is_open()) {
         Notification::Emit(

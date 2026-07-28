@@ -73,12 +73,12 @@ void LighthouseMenu::AddMenuRando() {
 
         ImGui::BeginDisabled(!CVarGetInteger(CVAR_RANDOMIZER_SETTING("UseExistingLog"), 0));
         if (UIWidgets::CVarCombobox("Seed", CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), spoilerLogPtrs,
-            { .labelPosition = UIWidgets::LabelPositions::None, .color = WIDGET_COLOR })) {
+                                    { .labelPosition = UIWidgets::LabelPositions::None, .color = WIDGET_COLOR })) {
             if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0) == 0) {
                 CVarSetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "");
-            }
-            else {
-                std::string spoilerName = Rando::Spoiler::spoilerLogs[CVarGetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0)];
+            } else {
+                std::string spoilerName =
+                    Rando::Spoiler::spoilerLogs[CVarGetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0)];
                 CVarSetString("gRandoSettings.SpoilerFile", spoilerName.c_str());
             }
         }
