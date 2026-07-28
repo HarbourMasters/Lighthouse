@@ -62,15 +62,12 @@ extern "C" int OS_SiService(void) {
 }
 
 void osContGetReadData(OSContPad* pad) {
-    // Hands back the last completed transaction. Before the first one lands,
-    // fall back to a direct poll so early boot reads still see a controller.
     if (sLatchValid.load(std::memory_order_acquire)) {
         std::lock_guard<std::mutex> lock(sLatchMutex);
         memcpy(pad, sLatch, sizeof(sLatch));
         return;
     }
     memset(pad, 0, sizeof(OSContPad) * __osMaxControllers);
-    Ship::Context::GetRawInstance()->GetControlDeck()->WriteToPad(pad);
 }
 
 int32_t __osMotorAccess(OSPfs* pfs, uint32_t vibrate) {
