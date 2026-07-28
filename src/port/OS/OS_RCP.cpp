@@ -5,6 +5,7 @@
 extern "C" {
 #include <libultra/rdp.h>
 #include "libultraship/libultra/types.h"
+#include "libultraship/libultra/sptask.h"
 }
 
 // The RDP command unit's status register.
@@ -44,4 +45,28 @@ extern "C" void osDpSetStatus(u32 data) {
     if (clr != 0) {
         sStatus.fetch_and(~clr, std::memory_order_acq_rel);
     }
+}
+
+// Task submission.
+//
+// There is no RSP, so this only hands the task over; whoever drains it decides
+// what running one means. For the graphics task that has to be the window
+// thread, since it ends up in the renderer.
+//
+// One slot is enough: the decomp starts a task and waits for its SP event
+// before starting the next, so a second can never be pending.
+namespace {
+std::atomic<OSTask*> sPendingTask{ nullptr };
+}
+
+extern "C" void osSpTaskLoad(OSTask* task) {
+    (void)task; // no DMEM to load; StartGo carries the pointer
+}
+
+extern "C" void osSpTaskStartGo(OSTask* task) {
+    sPendingTask.store(task, std::memory_order_release);
+}
+
+extern "C" OSTask* OS_SpTakePendingTask(void) {
+    return sPendingTask.exchange(nullptr, std::memory_order_acq_rel);
 }

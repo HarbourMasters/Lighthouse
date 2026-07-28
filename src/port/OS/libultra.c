@@ -19,13 +19,13 @@ s32 osViClock = VI_NTSC_CLOCK;
 u32 __osShutdown = 0;
 u32 __OSGlobalIntMask = OS_IM_ALL;
 s32 osCicId = 6103;
-// [port] On N64 this was a fixed-address depth buffer at 0x8000E800 (naturally 0x40-aligned).
+// On N64 this was a fixed-address depth buffer at 0x8000E800 (naturally 0x40-aligned).
 // On PC we need a properly sized and aligned buffer to avoid the alignment loop in func_80253428.
 _Alignas(0x40) u8 D_8000E800[DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEIGHT * sizeof(u16)];
 
 u16 gFramebuffers[2][DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEIGHT];
 
-// [port] Threads are in src/port/OS/OS.cpp.
+// Threads are in src/port/OS/OS.cpp.
 void OS_CreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
 void OS_StartThread(OSThread* thread);
 void OS_StopThread(OSThread* thread);
@@ -46,10 +46,8 @@ void osDestroyThread(OSThread* thread) {
 }
 void osSpTaskYield(void) {
 }
-void osSpTaskLoad(OSTask* task) {
-}
-void osSpTaskStartGo(OSTask* task) {
-}
+// Task submission is in OS_RCP.cpp. Yield/Yielded stay dead: only the
+// audio task ever yielded the RSP, and PC audio never submits one.
 void osViExtendVStart(u32 arg0) {
 }
 void osSetThreadPri(OSThread* thread, OSPri p) {
@@ -69,7 +67,6 @@ u32 bkGetSR(void) {
 OSYieldResult osSpTaskYielded(OSTask* task) {
     return 0;
 }
-// Lighthouse TODO these need to be implemented in LUS
 int osStartTimer(void* t) {
     return 0;
 }

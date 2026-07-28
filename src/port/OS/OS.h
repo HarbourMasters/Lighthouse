@@ -27,9 +27,13 @@ void OS_EnableThreadEntry(void* entry);
 
 #include "libultraship/libultra/message.h"
 
-// OS_MESG_BLOCK only blocks on queues opted in here; the rest stay as LUS had
-// them, non-blocking.
+// OS_MESG_BLOCK only blocks on queues opted in here.
 void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
+
+#include "libultraship/libultra/sptask.h"
+
+// Take the task osSpTaskStartGo handed over, or NULL if none is pending.
+OSTask* OS_SpTakePendingTask(void);
 
 #ifdef __cplusplus
 }
