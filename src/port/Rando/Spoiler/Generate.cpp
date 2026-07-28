@@ -100,7 +100,7 @@ void GenerateFromSpoiler(nlohmann::json spoiler) {
     Rando::Logic::GrantFileProgressFlags();
     Rando::Logic::GrantSpiralMountainChecks();
 
-    Notification::Emit({ .message = "Loaded from Spoiler Log.", .messageColor = ImVec4(0.85f, 0.3f, 0, 1) });
+    Notification::Emit({ .message = "Loaded from Spoiler Log.", .messageColor = ImVec4(0, 0.85f, 0, 1) });
 }
 
 } // namespace Spoiler
