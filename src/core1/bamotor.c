@@ -136,7 +136,7 @@ void baMotor_init(void) {
         OS_EnableThreadEntry((void*)rumbleThread_entry);
         osCreateThread(&sRumbleThread, 8, rumbleThread_entry, NULL, sRumbleThreadStack + RUMBLE_THREAD_STACK_SIZE, 25);
         osStartThread(&sRumbleThread);
-        viMgr_registerSignalMesg(&D_80282390, OS_MESG_32(NULL));
+        viMgr_registerSignalMesg(&D_80282390, OS_MESG_32(0));
     }
 }
 

@@ -8,6 +8,7 @@
 #include "n_audio/PR/n_libaudio.h"
 //#include "PR/os_system.h"
 #include "port/DevTools/ThreadWatchdog.h"
+#include "port/Patches/Patches.h"
 #include "port/ShipUtils.h"
 
 #define DMA_BLOCK_SIZE VER_SELECT(0x200, 0x270, 0x200, 0x200)

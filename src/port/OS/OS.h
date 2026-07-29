@@ -16,6 +16,7 @@ extern "C" {
 #include "libultraship/libultra/thread.h"
 #include "libultraship/libultra/pfs.h"
 #include "libultraship/libultra/sptask.h"
+#include "libultraship/libultra/time.h"
 
 void OS_CreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
 void OS_StartThread(OSThread* thread);
@@ -57,6 +58,11 @@ int OS_SiService(void);
 
 // Whether that thread has begun servicing SI at all.
 int OS_SiPumpLive(void);
+
+// Cancel a pending timer. Both halves of the pair are ours (OS_Timer.cpp), but
+// only osSetTimer has a prototype in LUS to be found through, so a decomp caller
+// needs this one declared here.
+int osStopTimer(OSTimer* t);
 
 s32 osPfsInit(OSMesgQueue* mq, OSPfs* pfs, s32 channel);
 
