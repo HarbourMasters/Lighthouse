@@ -962,6 +962,11 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
                 break;
 
             case 3:
+                // [port] Path sfx nodes fire for whichever actor is walking the spline; listeners
+                // get the actor so a single actor's path sounds can be muted.
+                if (!EventSystem_Should(VB_SPLINE_PATH_SFX, true, arg0)) {
+                    break;
+                }
                 sp78 = arg1->t0.unk4.common.bit31;
                 sp7C = arg1->t0.unk8.bit31 / 8.388608e6f;
                 sp74 = arg1->t0.unk4.common.bit15 * 8;

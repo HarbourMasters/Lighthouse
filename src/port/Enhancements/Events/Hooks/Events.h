@@ -30,6 +30,9 @@ typedef enum VBehaviorID {
     VB_JINJO_CHARGE_SOUND,
     // MM Chimpy stump: gates the rumble sfx that starts when the stump begins shaking.
     VB_MM_CHIMPY_STUMP_RUMBLE,
+    VB_MM_CHIMPY_NOISE,
+    // Gates the sfx a spline path node plays. Args: (Actor *pathWalker).
+    VB_SPLINE_PATH_SFX,
     // Cancelling hands Mumbo's transform state to the listener. Args: (Actor *mumbo).
     VB_MUMBO_HUT_TRANSFORM_CUTSCENE,
     VB_YUMYUM_DROP,

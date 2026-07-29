@@ -98,7 +98,8 @@ void chlmonkey_update(Actor *this) {
         func_80343DEC(this);
     }
     else {//L80388630
-        if (subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId()) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId() &&
+            EventSystem_Should(VB_MM_CHIMPY_NOISE, true)) {
             __chlmonkey_playRandomNoise(this);
         }//L8038865C
 

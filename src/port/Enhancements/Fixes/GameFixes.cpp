@@ -145,9 +145,23 @@ void RegisterCongaDialog_Init() {
 // spawned, so the stump drops in low and grinds back up with the rumble sfx each time. Mute the
 // rumble for those replays only; the first rise (jiggy spawns 2.9s after the shake starts, so it
 // isn't marked spawned yet) keeps its sound.
+static bool IsChimpyWalkOffReplay() {
+    return jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY) &&
+           !mapSpecificFlags_get(MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED);
+}
+
 void RegisterChimpyStumpRumble_Init() {
     COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
                    { *should = !jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY); });
+    COND_VB_SHOULD(VB_MM_CHIMPY_NOISE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
+                   { *should = !IsChimpyWalkOffReplay(); });
+    COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
+        Actor* pathWalker = va_arg(args, Actor*);
+        if (pathWalker != NULL && pathWalker->actor_info != NULL &&
+            pathWalker->actor_info->actorId == ACTOR_F_CHIMPY && IsChimpyWalkOffReplay()) {
+            *should = false;
+        }
+    });
 }
 
 // Mumbo token duplicate-id fix: rewrite the resolved id for the two tokens that share an id.
