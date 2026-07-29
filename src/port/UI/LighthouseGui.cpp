@@ -23,6 +23,7 @@
 #include "port/Rando/CheckTracker/CheckTracker.h"
 
 #include "Notification.h"
+#include "port/Controller/Mapper.h"
 #include "port/Network/Anchor/Anchor.h"
 #include "port/Enhancements/Backports/EggAim.h"
 #include "LighthouseMenu.h"
@@ -44,6 +45,7 @@ std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
 std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 std::shared_ptr<LighthouseInputEditorWindow> mInputEditorWindow;
+std::shared_ptr<Mapper::MapperWindow> mGamepadMapperWindow;
 std::shared_ptr<LighthouseModMenuWindow> mModMenuWindow;
 std::shared_ptr<LighthouseRomhackMenuWindow> mRomhackMenuWindow;
 
@@ -115,6 +117,10 @@ void SetupGuiElements() {
     mInputEditorWindow =
         std::make_shared<LighthouseInputEditorWindow>(CVAR_WINDOW("ControllerConfiguration"), "Configure Controller");
     gui->AddGuiWindow(mInputEditorWindow);
+
+    mGamepadMapperWindow =
+        std::make_shared<Mapper::MapperWindow>(CVAR_WINDOW("GamepadMapper"), "Gamepad Mapper", ImVec2(1280, 820));
+    gui->AddGuiWindow(mGamepadMapperWindow);
 
     mModMenuWindow = std::make_shared<LighthouseModMenuWindow>(CVAR_WINDOW("ModMenu"), "Mod Menu");
     gui->AddGuiWindow(mModMenuWindow);
@@ -219,6 +225,7 @@ void Destroy() {
     mConsoleWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
     mInputEditorWindow = nullptr;
+    mGamepadMapperWindow = nullptr;
     // mCollisionViewerWindow = nullptr;
     // mEventLogWindow = nullptr;
     mNotificationWindow = nullptr;
