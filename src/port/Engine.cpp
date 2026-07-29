@@ -389,6 +389,11 @@ void GameEngine::FinishInit() {
     lhFast3dWindow->SetMaximumFrameLatency(1);
     lhFast3dWindow->SetRendererUCode(ucode_f3d);
 
+    // Opt-in to memoization
+    if (auto interpreter = lhFast3dWindow->GetInterpreterWeak().lock()) {
+        interpreter->SetResolvedResourceCacheEnabled(true);
+    }
+
 #ifdef USE_NETWORKING
     SDLNet_Init();
 #endif
