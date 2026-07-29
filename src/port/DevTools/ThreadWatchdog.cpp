@@ -39,6 +39,7 @@ OSMesgQueue* pfsManager_getSiLockQueue(void);
 int pfsManager_isBusy(void);
 OSMesgQueue* audioManager_getFrameMesgQueue(void);
 OSMesgQueue* audioManager_getReplyMesgQueue(void);
+OSMesgQueue* baMotor_getRetraceQueue(void);
 OSMesgQueue* viMgr_getRetraceQueue(void);
 OSMesgQueue* viMgr_getFrameTokenQueue(void);
 OSMesgQueue* viMgr_getTickRetraceQueue(void);
@@ -58,7 +59,7 @@ namespace {
 using Clock = std::chrono::steady_clock;
 
 constexpr const char* kThreadNames[WATCHDOG_NUM_THREADS] = {
-    "vi-ticker", "main-loop", "game-tick", "thread5", "vimgr", "pfsmanager", "audio-mgr",
+    "vi-ticker", "main-loop", "game-tick", "thread5", "vimgr", "pfsmanager", "audio-mgr", "rumble",
 };
 
 // Blocking points in each loop that are not message-queue waits. A stall with
@@ -74,6 +75,8 @@ constexpr const char* kThreadNonQueueWaits[WATCHDOG_NUM_THREADS] = {
     "sMesgMutex",
     "func_8024F450 -> D_802816E8 wait; port_shapeControllerInput; CALL_EVENT(OnControllerUpdate)",
     "port_lockAudio (gAudioLock) in audioManager_handleFrameMsg",
+    "func_8024F450 -> D_802816E8 wait via __baMotor_startRumble/stopRumble/func_80250930; __osMotorAccess -> "
+    "ControlDeck rumble",
 };
 
 // Entry point each heartbeat belongs to.
@@ -85,6 +88,7 @@ constexpr const char* kThreadLoops[WATCHDOG_NUM_THREADS] = {
     "viMgr_entry (vimgr.c)",
     "pfsManager_entry (pfsmanager.c)",
     "audioManagerThread_entry (audio_manager.c)",
+    "rumbleThread_entry (bamotor.c)",
 };
 
 // The audio thread legitimately idles through demo audio holds, and the
@@ -173,6 +177,9 @@ QueueInfo DescribeQueue(OSMesgQueue* mq) {
     }
     if (mq == pfsManager_getSiLockQueue()) {
         return { true, "D_802816E8 (pfsmanager.c)", "func_8024F4AC via func_8024F35C(0)" };
+    }
+    if (mq == baMotor_getRetraceQueue()) {
+        return { true, "D_80282390 (bamotor.c)", "viMgr_entry retrace signal (NOBLOCK, so extras drop)" };
     }
     if (mq == audioManager_getFrameMesgQueue()) {
         return { true, "audioFrameMsgQ (audio_manager.c)",

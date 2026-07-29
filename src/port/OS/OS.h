@@ -12,7 +12,10 @@
 extern "C" {
 #endif
 
+#include "libultraship/libultra/message.h"
 #include "libultraship/libultra/thread.h"
+#include "libultraship/libultra/pfs.h"
+#include "libultraship/libultra/sptask.h"
 
 void OS_CreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
 void OS_StartThread(OSThread* thread);
@@ -24,8 +27,6 @@ void OS_SetThreadPri(OSThread* thread, OSPri p);
 // osCreateThread/osStartThread pair is recorded but never launched, so threads
 // are revived deliberately, one consumer at a time.
 void OS_EnableThreadEntry(void* entry);
-
-#include "libultraship/libultra/message.h"
 
 // OS_MESG_BLOCK only blocks on queues opted in here.
 void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
@@ -54,11 +55,14 @@ void OS_StopViTicker(void);
 // Called by the thread that owns SDL input.
 int OS_SiService(void);
 
+// Whether that thread has begun servicing SI at all.
+int OS_SiPumpLive(void);
+
+s32 osPfsInit(OSMesgQueue* mq, OSPfs* pfs, s32 channel);
+
 // Whether osViBlack has the display blanked. The renderer blacks the presented
 // frame while the world keeps rendering underneath.
 int OS_ViBlackActive(void);
-
-#include "libultraship/libultra/sptask.h"
 
 // Take the task osSpTaskStartGo handed over, or NULL if none is pending.
 OSTask* OS_SpTakePendingTask(void);

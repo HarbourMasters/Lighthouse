@@ -8,6 +8,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "port/DevTools/ThreadWatchdog.h"
+#include "port/OS/OS.h"
 #include "port/Patches/Patches.h"
 #include "libultraship/libultra/rcp.h"
 #include "libultraship/libultra/sptask.h"
@@ -308,8 +309,7 @@ void thread5_handleVIRetraceEvent(void) {
         osStopTimer(&sAudioTimer);
         osSetTimer(&sAudioTimer, 280000, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_AUDIO_TIMER));
     }
-
-    if (sEnableControllerTimer) {
+    if (sEnableControllerTimer && OS_SiPumpLive()) {
         osStopTimer(&sControllerTimer);
 #if VERSION == VERSION_USA_1_0
         osSetTimer(&sControllerTimer, ((osClockRate / 60)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));

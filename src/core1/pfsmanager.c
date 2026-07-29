@@ -10,6 +10,7 @@
 #include "checksums.h"
 
 #include "port/DevTools/ThreadWatchdog.h"
+#include "port/OS/OS.h"
 #include "port/Patches/Patches.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
@@ -408,13 +409,10 @@ void func_8024F35C(s32 arg0) {
         func_8024F4AC();
     else
         func_8024F450();
-#if 0
+
     if(arg0 || D_802816E8.validCount == 1){
-        pfsManagerBusy = arg0; 
+        pfsManagerBusy = arg0;
     }
-#endif
-    // [port] Rumble safety, don't rely on the OSMesgQueue
-    pfsManagerBusy = arg0; 
 }
 
 bool pfsManager_isBusy(void){
@@ -433,6 +431,7 @@ OSContPad *func_8024F3F4(void){
 void func_8024F400(void) {
     D_80275D38 = true;
     osCreateMesgQueue(&D_802816E8, D_80281700, 5);
+    OS_SetQueueBlocking(&D_802816E8, 1);
     osSendMesgPtr(&D_802816E8, NULL, OS_MESG_NOBLOCK);
 }
 

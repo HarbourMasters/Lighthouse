@@ -23,6 +23,7 @@ typedef enum WatchdogThread {
     WATCHDOG_VIMGR,          // decomp VI manager thread (vimgr.c)
     WATCHDOG_PFSMANAGER,     // controller thread (pfsmanager.c)
     WATCHDOG_AUDIO_MANAGER,  // audio thread (audio_manager.c); idles during demo audio holds
+    WATCHDOG_RUMBLE,         // motor thread (bamotor.c); one beat per retrace signal
     WATCHDOG_NUM_THREADS
 } WatchdogThread;
 

@@ -39,6 +39,7 @@ std::atomic<bool> sReadPending{ false };
 std::mutex sLatchMutex;
 OSContPad sLatch[MAXCONTROLLERS];
 std::atomic<bool> sLatchValid{ false };
+std::atomic<bool> sPumpLive{ false };
 } // namespace
 
 int32_t osContStartReadData(OSMesgQueue* mesg) {
@@ -47,7 +48,12 @@ int32_t osContStartReadData(OSMesgQueue* mesg) {
     return 0;
 }
 
+extern "C" int OS_SiPumpLive(void) {
+    return sPumpLive.load(std::memory_order_acquire) ? 1 : 0;
+}
+
 extern "C" int OS_SiService(void) {
+    sPumpLive.store(true, std::memory_order_release);
     if (!sReadPending.exchange(false, std::memory_order_acq_rel)) {
         return 0;
     }
@@ -84,6 +90,14 @@ int32_t __osMotorAccess(OSPfs* pfs, uint32_t vibrate) {
 int32_t osMotorInit(OSMesgQueue* ctrlrqueue, OSPfs* pfs, int32_t channel) {
     pfs->channel = channel;
     return 0;
+}
+
+// Controller Pak gets probed first, the return kickstarts rumble
+int32_t osPfsInit(OSMesgQueue* mq, OSPfs* pfs, int32_t channel) {
+    (void)mq;
+    (void)pfs;
+    (void)channel;
+    return PFS_ERR_DEVICE;
 }
 
 } // extern "C"

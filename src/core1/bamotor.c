@@ -5,9 +5,9 @@
 #include "variables.h"
 
 #include "version.h"
+#include "port/DevTools/ThreadWatchdog.h"
+#include "port/OS/OS.h"
 #include "port/Patches/Patches.h"
-
-//#include <libultra/pfs.h>
 
 #define RUMBLE_THREAD_STACK_SIZE 0x200
 
@@ -75,6 +75,7 @@ void rumbleThread_entry(void *arg) {
 
     do{
         osRecvMesg(&D_80282390, NULL, 1);
+        ThreadWatchdog_Beat(WATCHDOG_RUMBLE); // [port] one beat per retrace signal
         D_802827E0++;
         if (!D_802823B0 && ((D_802827E0 % FRAMERATE) == 0)) {
             func_80250930();
@@ -109,43 +110,12 @@ void __baMotor_80250BA4(s32 arg0, s32 arg1, s32 arg2){
 }
 
 void baMotor_80250C08(void) {
-    // [port] Rumble thread logic inlined — N64 thread/VBlank model replaced by per-frame update
-    static s32 sFrameCounter;
-    static s32 sRumbleState;
-
     if (D_802823AC != 0) {
-        s32 prev_state;
-
         D_80282424 = MIN(D_80282420, D_80282424 + time_getDelta());
-
-        prev_state = sRumbleState;
-        sFrameCounter++;
-
-        if (D_80282424 != D_80282420) {
-            f32 temp_f2 = D_80282428 + ((D_8028242C - D_80282428) * D_80282424 / D_80282420);
-            s32 var_v0 = (s32)(((1.0 - temp_f2) * 8.0) + 1);
-            if (var_v0 < 2) {
-                sRumbleState = var_v0;
-            } else {
-                sRumbleState = (sFrameCounter % var_v0) == 0;
-            }
-        } else {
-            sRumbleState = 0;
-        }
-
-        if (sRumbleState != prev_state) {
-            if (sRumbleState) {
-                __baMotor_startRumble();
-            } else {
-                __baMotor_stopRumble();
-            }
-        }
     }
 }
 
 void baMotor_init(void) {
-    // [port] Bypass N64 PFS probing and rumble thread — LUS handles motor directly.
-#if 0
     s32 pfs_status;
 
     func_8024F35C(4);
@@ -159,14 +129,20 @@ void baMotor_init(void) {
     D_802823B0 = D_802823AC;
     if(D_802823AC){
         osCreateMesgQueue(&D_80282390, &D_802823A8, 1);
+        // [port] The thread parks on that queue between retraces, so it has to
+        // block on it, and its entry needs allowlisting before osStartThread
+        // will really launch it.
+        OS_SetQueueBlocking(&D_80282390, 1);
+        OS_EnableThreadEntry((void*)rumbleThread_entry);
         osCreateThread(&sRumbleThread, 8, rumbleThread_entry, NULL, sRumbleThreadStack + RUMBLE_THREAD_STACK_SIZE, 25);
         osStartThread(&sRumbleThread);
         viMgr_registerSignalMesg(&D_80282390, OS_MESG_32(NULL));
     }
-#endif
-    osMotorInit(NULL, &D_802823B8, 0);
-    D_802823AC = 1;
-    D_802823B0 = 1;
+}
+
+// [port] Watchdog diagnostics
+OSMesgQueue *baMotor_getRetraceQueue(void){
+    return &D_80282390;
 }
 
 void __baMotor_80250D8C(void){}
