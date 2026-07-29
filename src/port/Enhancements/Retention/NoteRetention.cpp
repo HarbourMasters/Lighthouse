@@ -366,7 +366,7 @@ void RegisterNoteRetention_Init() {
         if (!systemActive() || !applyEnabled()) {
             return;
         }
-        item_set(ITEM_C_NOTE, countCollectedForLevel(ev->levelId));
+        item_adjustByDiffWithoutHud(ITEM_C_NOTE, countCollectedForLevel(ev->levelId) - item_getCount(ITEM_C_NOTE));
     });
 
     // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress them.
@@ -378,8 +378,9 @@ void RegisterNoteRetention_Init() {
         switch (textId) {
             case 0xD9C: // Bottles' first-note text: "you can't take notes with you"
             case 0xF76: // "you just beat your high score"
-            case 0xF74: // milestone: 50 notes (Mumbo's Mountain)
-            case 0xF78: // milestone: collected every note in the level
+            // Milestones...maybe they should not be suppressed? They're aides for new players.
+            //case 0xF74: // milestone: 50 notes (Mumbo's Mountain)
+            //case 0xF78: // milestone: collected every note in the level
                 *should = true;
                 break;
             default:
