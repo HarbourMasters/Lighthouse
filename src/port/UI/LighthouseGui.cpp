@@ -109,10 +109,10 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find console window");
     }
 
-    mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
-    if (mGfxDebuggerWindow == nullptr) {
-        SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
-    }
+    // mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
+    // if (mGfxDebuggerWindow == nullptr) {
+    //     SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
+    // }
 
     mInputEditorWindow =
         std::make_shared<LighthouseInputEditorWindow>(CVAR_WINDOW("ControllerConfiguration"), "Configure Controller");
