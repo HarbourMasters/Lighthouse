@@ -18,6 +18,7 @@
 #endif
 #include <SDL2/SDL.h>
 
+#include "DevTools/ThreadWatchdog.h"
 #include "GameStatus.h"
 #include "Interpolation/FrameInterpolation.h"
 #include "Network/Anchor/Anchor.h"
@@ -160,6 +161,13 @@ static void RegisterThread5MapSync_Init() {
 
 static RegisterShipInitFunc sThread5MapSyncInit(RegisterThread5MapSync_Init);
 
+// Whether a tick-side renderer call is waiting on the window thread. The
+// handshake below is a condvar rather than a message queue, so it is the one
+// park the watchdog's blocked-wait registry cannot see.
+extern "C" int port_renderServicePending(void) {
+    return sSvcFn != nullptr;
+}
+
 // Renderer calls from tick code come through here; D3D11 hangs if they run
 // off the window thread. Inline when there is no separate tick thread.
 extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg) {
@@ -265,15 +273,18 @@ int SDL_main(int argc, char* argv[]) {
     OS_EnableThreadEntry((void*)viMgr_entry);
     EnableThread5();
     core1_init();
+    ThreadWatchdog_Start();
 
     sGameThread = std::thread([] {
         tIsGameThread = true;
         while (WindowIsRunning()) {
+            ThreadWatchdog_Beat(WATCHDOG_GAME_TICK);
             push_frame();
         }
         sGameThreadDone.store(true);
     });
     while (WindowIsRunning() || !sGameThreadDone.load()) {
+        ThreadWatchdog_Beat(WATCHDOG_MAIN_LOOP);
         // Pump events every iteration: a task-starved pass must not starve
         // input and window messages.
         Ship::Context::GetRawInstance()->GetWindow()->HandleEvents();
@@ -285,12 +296,21 @@ int SDL_main(int argc, char* argv[]) {
         }
         DrainRenderService();
         if (!ServiceRcp()) {
+            // The gui only draws inside serviced frames, so a stalled game
+            // thread would freeze ImGui with it. Render gui-only frames during
+            // a stall so the menu (and the watchdog dump) stays reachable.
+            if (ThreadWatchdog_IsStalled(WATCHDOG_GAME_TICK)) {
+                GameEngine::Instance->RenderGuiFrame();
+                SDL_Delay(16);
+                continue;
+            }
             SDL_Delay(1);
         }
     }
     if (sGameThread.joinable()) {
         sGameThread.join();
     }
+    ThreadWatchdog_Stop();
     OS_StopViTicker();
 #ifdef USE_NETWORKING
     Anchor::GetInstance()->Disable();

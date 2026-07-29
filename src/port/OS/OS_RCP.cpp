@@ -96,3 +96,7 @@ extern "C" void osSpTaskStartGo(OSTask* task) {
 extern "C" OSTask* OS_SpTakePendingTask(void) {
     return sPendingTask.exchange(nullptr, std::memory_order_acq_rel);
 }
+
+extern "C" OSTask* OS_SpPeekPendingTask(void) {
+    return sPendingTask.load(std::memory_order_acquire);
+}

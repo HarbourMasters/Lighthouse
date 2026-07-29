@@ -7,6 +7,7 @@
 //#include "PR/sched.h"
 #include "n_audio/PR/n_libaudio.h"
 //#include "PR/os_system.h"
+#include "port/DevTools/ThreadWatchdog.h"
 #include "port/ShipUtils.h"
 
 #define DMA_BLOCK_SIZE VER_SELECT(0x200, 0x270, 0x200, 0x200)
@@ -355,6 +356,7 @@ void audioManagerThread_entry(void *arg) {
 
     while (true) {
         osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
+        ThreadWatchdog_Beat(WATCHDOG_AUDIO_MANAGER); // [port] one beat per audio frame
         if (audioManager_handleFrameMsg(audioManager.audio_info[sAudioInfoID % 3], sPrevFinishedAudioInfo)) {
             if (skip_handle_done_mesg == 0) {
                 osRecvMesg(&audioManager.audioReplyMsgQ, (OSMesg *) &D_80275844, OS_MESG_BLOCK);

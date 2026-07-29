@@ -6,6 +6,8 @@
 #include <chrono>
 #include <thread>
 
+#include "port/DevTools/ThreadWatchdog.h"
+
 extern "C" {
 #include "libultraship/libultra/types.h"
 #include "libultraship/libultra/vi.h"
@@ -52,6 +54,7 @@ extern "C" void osCreateViManager(OSPri pri) {
             }
             // A retrace latches whatever swap armed, then raises VI.
             sCurrentFramebuffer.store(sNextFramebuffer.load(std::memory_order_acquire), std::memory_order_release);
+            ThreadWatchdog_Beat(WATCHDOG_VI_TICKER);
             OS_SendEventMesg(OS_EVENT_VI);
         }
     });

@@ -30,6 +30,15 @@ void OS_EnableThreadEntry(void* entry);
 // OS_MESG_BLOCK only blocks on queues opted in here.
 void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
 
+// Watchdog diagnostics: threads currently parked inside a blocking
+// osSendMesg/osRecvMesg, so a stall dump can say where each one waits.
+typedef struct OS_BlockedWait {
+    unsigned long tid; // SDL thread id
+    OSMesgQueue* mq;
+    int isSend; // 0 = recv, 1 = send/jam
+} OS_BlockedWait;
+int OS_MesgSnapshotBlockedWaits(OS_BlockedWait* out, int max);
+
 // Raise a registered hardware event (VI retrace, SI done, RDP done).
 void OS_SendEventMesg(OSEvent event);
 
@@ -53,6 +62,9 @@ int OS_ViBlackActive(void);
 
 // Take the task osSpTaskStartGo handed over, or NULL if none is pending.
 OSTask* OS_SpTakePendingTask(void);
+
+// Same, but without consuming it; the watchdog reports what is in flight.
+OSTask* OS_SpPeekPendingTask(void);
 
 #ifdef __cplusplus
 }

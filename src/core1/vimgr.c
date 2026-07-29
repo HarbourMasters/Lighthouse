@@ -6,6 +6,7 @@
 #include "version.h"
 #include "libultraship/libultra/rcp.h"
 
+#include "port/DevTools/ThreadWatchdog.h"
 #include "port/Patches/Patches.h"
 #include "port/OS/OS.h"
 
@@ -239,6 +240,7 @@ void viMgr_entry(void *arg0){
     OSMesg sp48;
     do{
         osRecvMesg(&sMesgQueue1, &sp48, OS_MESG_BLOCK);
+        ThreadWatchdog_Beat(WATCHDOG_VIMGR); // [port] one beat per retrace
         thread5_checkAndExecutePreNMI();
         D_802808D8++;
         if(D_802808D8 == 420){
@@ -270,6 +272,25 @@ void viMgr_clearFramebuffers(void) {
 
 s32 viMgr_func_8024C4E8(void) {
     return D_802808D8;
+}
+
+// [port] Watchdog diagnostics: unsynchronized snapshot of the pacing state.
+void viMgr_getWatchdogState(ViMgrWatchdogState *out) {
+    out->retraceCount = D_802808D8;
+    out->q1Count = sMesgQueue1.validCount;
+    out->q2Count = sMesgQueue2.validCount;
+    out->q3Count = sMesgQueue3.validCount;
+}
+
+// [port] Watchdog diagnostics: queue identities, so blocked waits get names.
+OSMesgQueue *viMgr_getRetraceQueue(void) {
+    return &sMesgQueue1;
+}
+OSMesgQueue *viMgr_getFrameTokenQueue(void) {
+    return &sMesgQueue2;
+}
+OSMesgQueue *viMgr_getTickRetraceQueue(void) {
+    return &sMesgQueue3;
 }
 
 void viMgr_func_8024C4F8(s32 arg0) {

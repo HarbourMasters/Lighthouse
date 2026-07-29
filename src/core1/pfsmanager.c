@@ -9,6 +9,7 @@
 #include "version.h"
 #include "checksums.h"
 
+#include "port/DevTools/ThreadWatchdog.h"
 #include "port/Patches/Patches.h"
 
 #define PFSMANAGER_THREAD_STACK_SIZE 0x200
@@ -306,6 +307,7 @@ void pfsManager_readData(){
 void pfsManager_entry(void *arg) {
     do {
         osRecvMesg(&pfsManagerContPollingMsqQ, 0, 1);
+        ThreadWatchdog_Beat(WATCHDOG_PFSMANAGER); // [port] one beat per SI completion
         if(pfsManagerBusy == true){
             pfsManager_readData();
         }
@@ -393,6 +395,12 @@ OSMesgQueue * pfsManager_getFrameReplyQ(void){
 
 OSMesgQueue *pfsManager_getFrameMesgQ(void){
     return &pfsManagerContPollingMsqQ;
+}
+
+// [port] Watchdog diagnostics: the SI event-registration lock queue
+// (func_8024F450 parks here), so blocked waits get a name.
+OSMesgQueue *pfsManager_getSiLockQueue(void){
+    return &D_802816E8;
 }
 
 void func_8024F35C(s32 arg0) {

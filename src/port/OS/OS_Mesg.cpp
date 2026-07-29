@@ -1,8 +1,13 @@
 // This file should eventually replace libultraship's os_mesg.cpp
 
+#include <atomic>
 #include <condition_variable>
 #include <map>
 #include <mutex>
+
+#include <SDL2/SDL_thread.h>
+
+#include "OS.h"
 
 extern "C" {
 #include "libultraship/libultra/message.h"
@@ -39,6 +44,37 @@ QueueSync& SyncFor(OSMesgQueue* mq) {
     return sQueueSync[mq];
 }
 
+// Blocked-wait registry for the watchdog. Slots are atomics so a stall dump
+// can read them without taking sMesgMutex (which a deadlocked thread may
+// implicate); marking and clearing happen under sMesgMutex on the wait path.
+constexpr int kMaxBlockedWaits = 16;
+struct BlockedWaitSlot {
+    std::atomic<unsigned long> tid{ 0 };
+    std::atomic<OSMesgQueue*> mq{ nullptr };
+    std::atomic<int> isSend{ 0 };
+};
+BlockedWaitSlot sBlockedWaits[kMaxBlockedWaits];
+
+int MarkBlockedWait(OSMesgQueue* mq, int isSend) {
+    unsigned long tid = (unsigned long)SDL_ThreadID();
+    for (int i = 0; i < kMaxBlockedWaits; i++) {
+        unsigned long expected = 0;
+        if (sBlockedWaits[i].tid.compare_exchange_strong(expected, tid, std::memory_order_acq_rel)) {
+            sBlockedWaits[i].mq.store(mq, std::memory_order_release);
+            sBlockedWaits[i].isSend.store(isSend, std::memory_order_release);
+            return i;
+        }
+    }
+    return -1;
+}
+
+void ClearBlockedWait(int slot) {
+    if (slot >= 0) {
+        sBlockedWaits[slot].mq.store(nullptr, std::memory_order_release);
+        sBlockedWaits[slot].tid.store(0, std::memory_order_release);
+    }
+}
+
 } // namespace
 
 extern "C" {
@@ -57,12 +93,18 @@ void osCreateMesgQueue(OSMesgQueue* mq, OSMesg* msgBuf, int32_t count) {
 int32_t osSendMesg(OSMesgQueue* mq, OSMesg msg, int32_t flag) {
     std::unique_lock<std::mutex> lock(sMesgMutex);
     QueueSync& sync = SyncFor(mq);
+    int waitSlot = -1;
     while (mq->validCount >= mq->msgCount) {
         if (flag != OS_MESG_BLOCK || !sync.blockingEnabled) {
+            ClearBlockedWait(waitSlot);
             return -1;
+        }
+        if (waitSlot < 0) {
+            waitSlot = MarkBlockedWait(mq, 1);
         }
         sync.notFull.wait(lock);
     }
+    ClearBlockedWait(waitSlot);
     s32 last = (mq->first + mq->validCount) % mq->msgCount;
     mq->msg[last] = msg;
     mq->validCount++;
@@ -75,12 +117,18 @@ int32_t osSendMesg(OSMesgQueue* mq, OSMesg msg, int32_t flag) {
 int32_t osJamMesg(OSMesgQueue* mq, OSMesg msg, int32_t flag) {
     std::unique_lock<std::mutex> lock(sMesgMutex);
     QueueSync& sync = SyncFor(mq);
+    int waitSlot = -1;
     while (mq->validCount >= mq->msgCount) {
         if (flag != OS_MESG_BLOCK || !sync.blockingEnabled) {
+            ClearBlockedWait(waitSlot);
             return -1;
+        }
+        if (waitSlot < 0) {
+            waitSlot = MarkBlockedWait(mq, 1);
         }
         sync.notFull.wait(lock);
     }
+    ClearBlockedWait(waitSlot);
     mq->first = (mq->first + mq->msgCount - 1) % mq->msgCount;
     mq->msg[mq->first] = msg;
     mq->validCount++;
@@ -91,12 +139,18 @@ int32_t osJamMesg(OSMesgQueue* mq, OSMesg msg, int32_t flag) {
 int32_t osRecvMesg(OSMesgQueue* mq, OSMesg* msg, int32_t flag) {
     std::unique_lock<std::mutex> lock(sMesgMutex);
     QueueSync& sync = SyncFor(mq);
+    int waitSlot = -1;
     while (mq->validCount == 0) {
         if (flag != OS_MESG_BLOCK || !sync.blockingEnabled) {
+            ClearBlockedWait(waitSlot);
             return -1;
+        }
+        if (waitSlot < 0) {
+            waitSlot = MarkBlockedWait(mq, 0);
         }
         sync.notEmpty.wait(lock);
     }
+    ClearBlockedWait(waitSlot);
     if (msg != nullptr) {
         *msg = mq->msg[mq->first];
     }
@@ -117,6 +171,25 @@ void osSetEventMesg(OSEvent event, OSMesgQueue* mq, OSMesg msg) {
 void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled) {
     std::lock_guard<std::mutex> lock(sMesgMutex);
     SyncFor(mq).blockingEnabled = (enabled != 0);
+}
+
+// Lock-free on purpose: the caller is a watchdog inspecting a possible
+// deadlock, so it must not touch sMesgMutex. Entries can be mid-update;
+// they are diagnostics, not decisions.
+int OS_MesgSnapshotBlockedWaits(OS_BlockedWait* out, int max) {
+    int n = 0;
+    for (int i = 0; i < kMaxBlockedWaits && n < max; i++) {
+        unsigned long tid = sBlockedWaits[i].tid.load(std::memory_order_acquire);
+        OSMesgQueue* mq = sBlockedWaits[i].mq.load(std::memory_order_acquire);
+        if (tid == 0 || mq == nullptr) {
+            continue;
+        }
+        out[n].tid = tid;
+        out[n].mq = mq;
+        out[n].isSend = sBlockedWaits[i].isSend.load(std::memory_order_acquire);
+        n++;
+    }
+    return n;
 }
 
 // Raise a hardware event. Nothing interrupts on PC, so whoever stands in for a

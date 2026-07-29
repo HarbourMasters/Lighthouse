@@ -7,6 +7,7 @@
 #include <PR/ucode.h>
 #include "core1/core1.h"
 #include "functions.h"
+#include "port/DevTools/ThreadWatchdog.h"
 #include "port/Patches/Patches.h"
 #include "libultraship/libultra/rcp.h"
 #include "libultraship/libultra/sptask.h"
@@ -484,6 +485,7 @@ void thread5_entry(void *arg) {
     msg.ptr = NULL;
     do {
         osRecvMesg(&sThread5MesgQueue, &msg, OS_MESG_BLOCK);
+        ThreadWatchdog_Beat(WATCHDOG_THREAD5); // [port] one beat per serviced message
         thread5_checkAndExecutePreNMI();
         if ((uintptr_t)msg.ptr < 100) {
             if (msg.data32 == THREAD5_MESSAGE_EVENT_SYNC) { thread5_handleSyncEvent(); }
@@ -551,4 +553,21 @@ OSMesgQueue *__thread5_getMessageQueue(void) {
 
 OSThread *__thread5_getThreadObject(void) {
     return &sThread5;
+}
+
+// [port] Watchdog diagnostics: unsynchronized snapshot of the pipeline state.
+void thread5_getWatchdogState(Thread5WatchdogState *out) {
+    out->unkFlag1 = sUnkFlag1;
+    out->unkFlag2 = sUnkFlag2;
+    out->unkFlag2Saved = sUnkFlag2_Saved;
+    out->syncCounter = sSyncCounter;
+    out->task7Handled = sTask7Handled;
+    out->gfxActiveId = sActiveGfxTaskDataID;
+    out->gfxSelectedId = sSelectedGfxTaskDataID;
+    out->audioActiveId = sActiveAudioTaskDataID;
+    out->audioSelectedId = sSelectedAudioTaskDataID;
+    out->taskQueueCount = sThread5MesgQueue.validCount;
+    out->taskQueueCap = sThread5MesgQueue.msgCount;
+    out->syncQueueCount = sThread5SyncMesgQueue.validCount;
+    out->syncQueueCap = sThread5SyncMesgQueue.msgCount;
 }
