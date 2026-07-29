@@ -7,6 +7,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "ControlSchemes.h"
 #include "ModernCamera.h"
+#include "port/Enhancements/Camera/FreeLookCamera.h"
 
 extern "C" {
 // Math helpers
@@ -66,7 +67,8 @@ void func_802BE6FC(float rotOut[3], float focus[3]); // look-at from the live po
 namespace {
 
 bool ModernSchemeActive() {
-    return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN;
+    return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN &&
+           !port_freeLook_isEnabled();
 }
 
 constexpr int kClimbCamState = 0x10;
@@ -262,7 +264,7 @@ extern "C" void port_modernCamera_update(void) {
 }
 
 extern "C" int port_camera_suppressVanillaZoom(void) {
-    if (IsDemoMode()) {
+    if (IsDemoMode() || port_freeLook_isEnabled()) {
         return 0;
     }
     int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
