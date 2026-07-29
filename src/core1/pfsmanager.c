@@ -408,10 +408,13 @@ void func_8024F35C(s32 arg0) {
         func_8024F4AC();
     else
         func_8024F450();
-
+#if 0
     if(arg0 || D_802816E8.validCount == 1){
         pfsManagerBusy = arg0; 
     }
+#endif
+    // [port] Rumble safety, don't rely on the OSMesgQueue
+    pfsManagerBusy = arg0; 
 }
 
 bool pfsManager_isBusy(void){
