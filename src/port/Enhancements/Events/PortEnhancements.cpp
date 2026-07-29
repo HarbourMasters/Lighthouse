@@ -24,6 +24,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnModelLoad);
+    REGISTER_EVENT(OnModelDisplayListLoad);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(OnTransitionModelScale);
     REGISTER_EVENT(OnTransitionStateUpdate);

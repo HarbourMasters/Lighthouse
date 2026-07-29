@@ -386,6 +386,17 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Corrects a spelling error when meeting Conga as a termite."));
 
+    AddWidget(path, "Fix Freezeezy Peak Lobby", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.FPLobbyDoorTile"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Fixes the smeared snow trim around the Freezeezy Peak entrance in "
+                                           "Gruntilda's Lair. Requires a map reload to take effect."));
+
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);

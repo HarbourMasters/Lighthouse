@@ -21,6 +21,15 @@ DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
 
 DEFINE_EVENT(OnModelLoad, s32 modelId; void* modelInfo; s32 * reload;);
+
+// Declared texture dimensions from a model's BKTextureInfo table.
+typedef struct {
+    u8 width;
+    u8 height;
+} ModelTexSize;
+
+DEFINE_EVENT(OnModelDisplayListLoad, const char* path; u32 * dlWords; u32 dlWordCount; const ModelTexSize* texSizes;
+             u16 texCount;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 DEFINE_EVENT(OnTransitionModelScale, Gfx** gfx; Mtx * *mtx; s32 uid; f32 * scale;);
 DEFINE_EVENT(OnTransitionStateUpdate, s32 modelId; s32 uid; s32 substate;);

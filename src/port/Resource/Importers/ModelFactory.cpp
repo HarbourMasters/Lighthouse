@@ -6,8 +6,10 @@
 #include <fast/resource/type/Texture.h>
 
 #include "port/Resource/Alt/AltPathPool.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include <string>
+#include <vector>
 
 #include "model.h"
 
@@ -128,6 +130,18 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         tm.textureDataOffset = reader->ReadUInt32();
         SPDLOG_TRACE("[BKModel] '{}' tex[{}]: type=0x{:X} {}x{} tlutColors={} romOff=0x{:X}", initData->Path, ti,
                      tm.type, tm.width, tm.height, tm.tlutColors, tm.textureDataOffset);
+    }
+
+    // Let enhancements patch the raw display list before it is widened.
+    // Command indices must be preserved; the geo layout references them by position.
+    if (!rawDLWords.empty() && texCount > 0) {
+        std::vector<ModelTexSize> texSizes;
+        texSizes.reserve(texMetas.size());
+        for (const auto& tm : texMetas) {
+            texSizes.push_back(ModelTexSize{ tm.width, tm.height });
+        }
+        CALL_EVENT(OnModelDisplayListLoad, initData->Path.c_str(), rawDLWords.data(),
+                   static_cast<uint32_t>(rawDLWords.size()), texSizes.data(), texCount);
     }
 
     // Raw texture data blob — full contiguous pixel area from the ROM.
