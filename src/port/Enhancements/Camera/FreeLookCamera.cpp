@@ -38,11 +38,11 @@ void func_802C03BC(void);            // undo a collision resolve that crossed ov
 void func_802C0490(float dst[3]);    // focus/orbit center
 void func_802C04B0(void);            // re-derive D_8037DB70 from the live camera
 
-float func_802BD8D4(void);                  // target orbit distance (zoom level)
-void func_802BE190(float target[3]);        // position spring toward target
-void func_802BE230(float gain, float damp); // position spring tuning
-int func_802BE60C(void);                    // swept camera collision + slide
-int func_802BC84C(int mode);                // occluded-too-long recovery
+float func_802BD8D4(void);                           // target orbit distance (zoom level)
+void func_802BE190(float target[3]);                 // position spring toward target
+void func_802BE230(float gain, float damp);          // position spring tuning
+int func_802BE60C(void);                             // swept camera collision + slide
+int func_802BC84C(int mode);                         // occluded-too-long recovery
 void func_802BE6FC(float rotOut[3], float focus[3]); // look-at from the live position
 }
 

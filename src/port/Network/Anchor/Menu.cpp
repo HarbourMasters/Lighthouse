@@ -193,13 +193,13 @@ void AnchorAdminMenu(WidgetInfo& info) {
     }
     UIWidgets::PopStyleButton();
 
-    //if (UIWidgets::CVarCombobox("PvP Mode:", CVAR_REMOTE_ANCHOR("RoomSettings.PvpMode"), pvpModes,
-    //                            UIWidgets::ComboboxOptions()
-    //                                .DefaultIndex(1)
-    //                                .LabelPosition(UIWidgets::LabelPositions::Above)
-    //                                .Color(THEME_COLOR))) {
-    //    anchor->SendPacket_UpdateRoomState();
-    //}
+    // if (UIWidgets::CVarCombobox("PvP Mode:", CVAR_REMOTE_ANCHOR("RoomSettings.PvpMode"), pvpModes,
+    //                             UIWidgets::ComboboxOptions()
+    //                                 .DefaultIndex(1)
+    //                                 .LabelPosition(UIWidgets::LabelPositions::Above)
+    //                                 .Color(THEME_COLOR))) {
+    //     anchor->SendPacket_UpdateRoomState();
+    // }
     if (UIWidgets::CVarCombobox("Show Locations For:", CVAR_REMOTE_ANCHOR("RoomSettings.ShowLocationsMode"),
                                 showLocationsModes,
                                 UIWidgets::ComboboxOptions()

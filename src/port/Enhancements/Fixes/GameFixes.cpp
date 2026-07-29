@@ -157,8 +157,8 @@ void RegisterChimpyStumpRumble_Init() {
                    { *should = !IsChimpyWalkOffReplay(); });
     COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
         Actor* pathWalker = va_arg(args, Actor*);
-        if (pathWalker != NULL && pathWalker->actor_info != NULL &&
-            pathWalker->actor_info->actorId == ACTOR_F_CHIMPY && IsChimpyWalkOffReplay()) {
+        if (pathWalker != NULL && pathWalker->actor_info != NULL && pathWalker->actor_info->actorId == ACTOR_F_CHIMPY &&
+            IsChimpyWalkOffReplay()) {
             *should = false;
         }
     });
