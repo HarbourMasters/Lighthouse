@@ -136,6 +136,7 @@ void spawnOrbit() {
     }
     actor->state = 0;
     actor_collisionOff(actor);
+    actor->unk44_2 = 1;
     sfxsource_playHighPriority(SFX_3E9_UNKNOWN);
     sMarker = (void*)actor->marker;
 }
