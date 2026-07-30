@@ -678,8 +678,7 @@ static bool WriteFileAtomically(const std::filesystem::path& path, const std::st
         ofs << contents;
         ofs.flush();
         if (!ofs.good()) {
-            SPDLOG_ERROR("SaveManager: failed writing \"{}\"; leaving the existing file alone",
-                         tempPath.string());
+            SPDLOG_ERROR("SaveManager: failed writing \"{}\"; leaving the existing file alone", tempPath.string());
             ofs.close();
             std::filesystem::remove(tempPath, ec);
             return false;

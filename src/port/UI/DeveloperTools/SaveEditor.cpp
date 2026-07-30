@@ -454,9 +454,9 @@ void DrawRandoCheckEditor() {
                     ImGui::TableNextColumn();
 
                     auto shuffledEntry = Rando::StaticData::Checks.find(check.shuffledCheckId);
-                    const RandoCheckType shuffledType =
-                        (shuffledEntry != Rando::StaticData::Checks.end()) ? shuffledEntry->second.randoCheckType
-                                                                          : RCTYPE_UNKNOWN;
+                    const RandoCheckType shuffledType = (shuffledEntry != Rando::StaticData::Checks.end())
+                                                            ? shuffledEntry->second.randoCheckType
+                                                            : RCTYPE_UNKNOWN;
                     if (shuffledType != RCTYPE_JINJO && shuffledType != RCTYPE_MUSIC_NOTE) {
                         TableCellCenteredText(std::to_string(check.randoCollectionId).c_str());
                     }
