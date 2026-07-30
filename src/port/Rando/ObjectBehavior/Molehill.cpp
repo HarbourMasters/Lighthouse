@@ -55,7 +55,9 @@ ChMoleDescription result;
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MOLEHILLS].optionValue
 
 ChMoleDescription GetMoleDescriptionByAbility(int16_t abilityId) {
-    result.ability = -1;
+    // Reset every field, not just ability: result is file-scope, so a miss used to
+    // return the previous hit's dialog ids alongside ability == -1.
+    result = { -1, -1, -1, -1 };
     for (int i = 0; i < MOLETABLE_SIZE; i++) {
         if (moleDialogTable[i].ability == abilityId) {
             result = moleDialogTable[i];
@@ -112,13 +114,12 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
 
         RandoSaveCheck shuffledMolehill = Rando::Logic::GetShuffledObject(randoCheckId);
         ChMoleDescription moleInfo = GetMoleDescriptionByAbility(shuffledMolehill.randoCollectionId);
+        *should = true;
+
+        func_80347A14(0);
+        molehillActor->has_met_before = true;
 
         if (moleInfo.ability >= ABILITY_0_BARGE) {
-            *should = true;
-
-            func_80347A14(0);
-            molehillActor->has_met_before = true;
-
             switch (moleInfo.ability) {
                 case ABILITY_4_CLAW_SWIPE:
                     *textId = (s32)moleInfo.refresher_text_id;
@@ -152,13 +153,18 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
                     ability_unlock((ability_e)moleInfo.ability);
                     break;
             }
+        } else {
+            // Nothing in the table to say for whatever landed here, so hand the item to the shared
+            // dispatch every other check type grants through and keep Bottles on a generic line.
+            *textId = (s32)ASSET_E08_DIALOG_BOTTLES_FIND_ANOTHER_MOLEHILL;
+            CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
+        }
 
-            CustomObject::CheckObtainedEX(shuffledMolehill.randoCheckId);
+        CustomObject::CheckObtainedEX(shuffledMolehill.randoCheckId);
 
-            if (map_getLevel(gsworld_getMap()) == LEVEL_B_SPIRAL_MOUNTAIN) {
-                if (CheckBridgeState()) {
-                    SetSpiralMountainFlags();
-                }
+        if (map_getLevel(gsworld_getMap()) == LEVEL_B_SPIRAL_MOUNTAIN) {
+            if (CheckBridgeState()) {
+                SetSpiralMountainFlags();
             }
         }
     })
