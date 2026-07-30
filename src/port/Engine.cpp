@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <chrono>
@@ -734,10 +735,17 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     }
                     case PS_LOCAL: {
                         extract = GameExtractor();
+                        const std::string appDir = Ship::Context::GetAppDirectoryPath("bk");
+                        std::error_code sameDirEc;
+                        const bool sameDir = std::filesystem::equivalent(installPath, appDir, sameDirEc);
                         extract.SetSearchPath(installPath);
                         extract.GetRoms(args);
-                        extract.SetSearchPath(Ship::Context::GetAppDirectoryPath("bk"));
-                        extract.GetRoms(args);
+                        if (sameDirEc || !sameDir) {
+                            extract.SetSearchPath(appDir);
+                            extract.GetRoms(args);
+                        }
+                        std::sort(args.begin(), args.end());
+                        args.erase(std::unique(args.begin(), args.end()), args.end());
                         if (!args.empty()) {
                             promptStep = PS_WAIT;
                             LighthouseGui::RegisterPopup(
