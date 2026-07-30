@@ -17,6 +17,9 @@ struct ToMtxData {
     float src[4][4];
     uint64_t pathSig;
     bool noInterpolate;
+    // Another entry this tick claimed the same scope identity, so which one a
+    // cross-tick partner refers to is a guess. See recordSigCollision.
+    bool ambiguousSig;
 };
 
 // Sprites keep their raw inputs instead of the finished matrix so replay can
@@ -33,6 +36,7 @@ struct SpriteDrawData {
     uint64_t pathSig;
     uint8_t kind;
     bool mirrored;
+    bool ambiguousSig;
 };
 
 struct CameraProjRotData {
@@ -73,6 +77,7 @@ struct FrameTree {
     float cameraPos[3] = { 0.0f, 0.0f, 0.0f };
     bool hasCameraPos = false;
     bool valid = false;
+    uint32_t sigCollisions = 0;
     std::atomic<uint32_t> generation{ 0 };
 
     void reset() {
@@ -86,8 +91,30 @@ struct FrameTree {
         cameraPos[0] = cameraPos[1] = cameraPos[2] = 0.0f;
         hasCameraPos = false;
         valid = false;
+        sigCollisions = 0;
     }
 };
+
+// A scope identity is only useful if one entry owns it. When two do, the
+// sig->index maps cannot say which, and emplace keeps whichever arrived first
+// -- so the second entry silently pairs against the first one's transform and
+// gets dragged across the screen for a sub-frame. Mark every claimant instead
+// and point the map at a sentinel, which leaves all of them uninterpolated.
+constexpr uint32_t kAmbiguousSig = UINT32_MAX;
+
+template <typename Map, typename Vec>
+void recordSigCollision(Map& sigMap, Vec& entries, uint64_t sig, uint32_t idx, uint32_t& collisionCount) {
+    auto [it, inserted] = sigMap.emplace(sig, idx);
+    if (inserted) {
+        return;
+    }
+    if (it->second < entries.size()) {
+        entries[it->second].ambiguousSig = true;
+    }
+    entries[idx].ambiguousSig = true;
+    it->second = kAmbiguousSig;
+    collisionCount++;
+}
 
 // Ring of trees: the render side reads a (prev, curr) pair while the tick
 // records the next one. Reuse is ownership-based; a submitted pair claims
@@ -179,6 +206,17 @@ void FrameInterpolation_StopRecord(void) {
     gRecording = false;
     gRecord->valid = gShouldInterpolate;
     gLastRecordedSlot = gRecordSlot;
+
+    // One line per affected tick, not per collision: a scope whose id repeats
+    // usually repeats for every instance behind it.
+    if (gRecord->sigCollisions != 0) {
+        static uint32_t sReported = 0;
+        if (sReported < 20) {
+            sReported++;
+            SPDLOG_WARN("interp scope id collided {}x this tick ({} matrices, {} sprites)",
+                        gRecord->sigCollisions, gRecord->toMtxs.size(), gRecord->sprites.size());
+        }
+    }
 }
 
 // The pair for the tick being recorded right now, grabbed when a display list
@@ -273,7 +311,8 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     std::memcpy(d.src, src, sizeof(float) * 16);
     d.pathSig = sig;
     d.noInterpolate = (gNoInterpolateDepth > 0);
-    gRecord->sigToToMtx.emplace(sig, idx);
+    d.ambiguousSig = false;
+    recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions);
 }
 
 void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float rollDeg, void* pitchMtx, float pitchDeg,
@@ -338,7 +377,8 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     d.pathSig = sig;
     d.kind = static_cast<uint8_t>(kind);
     d.mirrored = (mirrored != 0);
-    gRecord->sigToSprite.emplace(sig, idx);
+    d.ambiguousSig = false;
+    recordSigCollision(gRecord->sigToSprite, gRecord->sprites, sig, idx, gRecord->sigCollisions);
 }
 
 void FrameInterpolation_DontInterpolateCamera(void) {
@@ -424,7 +464,7 @@ void BuildInterpolationCache() {
     // matrix didn't change, can simply be dropped here.
     for (uint32_t i = 0; i < currToMtxs.size(); i++) {
         const ToMtxData& c = currToMtxs[i];
-        if (c.dst == nullptr || c.noInterpolate) {
+        if (c.dst == nullptr || c.noInterpolate || c.ambiguousSig) {
             continue;
         }
         auto it = prevSigMap.find(c.pathSig);
@@ -443,6 +483,9 @@ void BuildInterpolationCache() {
     // keep facing the blended camera.
     for (uint32_t i = 0; i < currSprites.size(); i++) {
         const SpriteDrawData& c = currSprites[i];
+        if (c.ambiguousSig) {
+            continue;
+        }
         auto it = prevSpriteMap.find(c.pathSig);
         if (it == prevSpriteMap.end() || it->second >= prevSprites.size() || prevSprites[it->second].kind != c.kind) {
             gCache.pairedSprites.push_back({ i, UINT32_MAX });
