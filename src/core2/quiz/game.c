@@ -985,6 +985,9 @@ void func_802D520C(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     }
 }
 
+// [port] Map the lair water was last levelled for, so re-entry snaps instead of ramping.
+static s32 sLairWaterMap = -1;
+
 void func_802D5260(void) {
     s32 sp3C;
     Struct70s *sp38;
@@ -997,6 +1000,7 @@ void func_802D5260(void) {
          : -1;
 
     if (sp3C == -1) {
+        sLairWaterMap = -1; // [port] see above
         levelSpecificFlags_set(LEVEL_FLAG_3C_LAIR_UNKNOWN, false);
         fileProgressFlag_set(FILEPROG_26_WATER_SWITCH_3_PRESSED, false);
         fileProgressFlag_set(FILEPROG_27_LAIR_WATER_LEVEL_3,     false);
@@ -1050,7 +1054,6 @@ void func_802D5260(void) {
             lvl = port_lairWater_targetLevel(gsworld_getMap(), lvl);
             sp34 = ((s16 *)&D_803679C8[sp3C])[lvl];
         }
-        static s32 sLairWaterMap = -1;
         s32 curMap = gsworld_getMap();
         if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)) {
             sLairWaterMap = curMap;
