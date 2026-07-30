@@ -110,7 +110,7 @@ void Anchor::CheckRandoRoomCompatibility() {
     std::string msg;
     if (roomState.isRando && !localRando) {
         msg = "This is a randomizer room, but the save you loaded is not a randomizer file.\n\n"
-              "Items, flags, and checks will not line up — you'll receive progress you can't use\n"
+              "Items, flags, and checks will not line up - you'll receive progress you can't use\n"
               "and may corrupt the shared session. Load the matching randomizer file, or\n"
               "disconnect before continuing.";
     } else if (!roomState.isRando && localRando) {

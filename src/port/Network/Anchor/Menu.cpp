@@ -88,7 +88,7 @@ void AnchorMainMenu(WidgetInfo& info) {
     if (UIWidgets::Button("Global Room", UIWidgets::ButtonOptions()
                                              .Color(UIWidgets::Colors::Blue)
                                              .Tooltip("Always-online public room so you don't have to explore alone. "
-                                                      "You'll see other players' characters, but nothing is synced — "
+                                                      "You'll see other players' characters, but nothing is synced - "
                                                       "no items, flags, PvP, or teleporting."))) {
         CVarSetString(CVAR_REMOTE_ANCHOR("Host"), "anchor.hm64.org");
         CVarSetInteger(CVAR_REMOTE_ANCHOR("Port"), 43383);

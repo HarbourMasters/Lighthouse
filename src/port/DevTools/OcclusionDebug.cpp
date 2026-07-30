@@ -155,7 +155,7 @@ void OcclusionDebugWindow::DrawElement() {
     }
     ImGui::TextWrapped(
         "Flip 'Force draw all' on for a moment to walk every cull command and populate the list (the "
-        "screen will look broken — that is expected), then turn it off and tick 'Force Draw' on "
+        "screen will look broken - that is expected), then turn it off and tick 'Force Draw' on "
         "individual rows to find the chunk(s) that reveal the target scenery. Offsets are stable, so the "
         "list never shifts. Dump the chosen set to the log when done.");
 
