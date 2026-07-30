@@ -32,6 +32,9 @@ typedef enum WarpId {
 
 DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;)
 DEFINE_EVENT(OnNewGame, int32_t* skipIntro;)
+// The file-select commit, for both new game and continue. Unlike OnGameLoad this
+// does not fire for the zoombox preview.
+DEFINE_EVENT(OnGameStart)
 DEFINE_EVENT(EggHeadSpawn, float* pitch; float* spawnHeight; float* minVerticalVelocity; float* yawBias;
              int32_t * flattenTrajectory;)
 
