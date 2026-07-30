@@ -27,7 +27,7 @@ __OSEventState __osEventStateTab[OS_NUM_EVENTS] = { 0 };
 // The queue fields themselves stay as they were, since decomp code reads them
 // directly (pfsmanager watches validCount); only the waiting is ours, a
 // condvar pair per queue where libultra used priority-ordered thread lists.
-// Blocking is opt-in per queue. 
+// Blocking is opt-in per queue.
 
 namespace {
 

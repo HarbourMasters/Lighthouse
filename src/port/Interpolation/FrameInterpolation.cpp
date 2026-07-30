@@ -213,8 +213,8 @@ void FrameInterpolation_StopRecord(void) {
         static uint32_t sReported = 0;
         if (sReported < 20) {
             sReported++;
-            SPDLOG_WARN("interp scope id collided {}x this tick ({} matrices, {} sprites)",
-                        gRecord->sigCollisions, gRecord->toMtxs.size(), gRecord->sprites.size());
+            SPDLOG_WARN("interp scope id collided {}x this tick ({} matrices, {} sprites)", gRecord->sigCollisions,
+                        gRecord->toMtxs.size(), gRecord->sprites.size());
         }
     }
 }

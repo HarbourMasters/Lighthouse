@@ -316,12 +316,13 @@ void Rando::ObjectBehavior::Init() {
     COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
 
+        // Junk doesn't count as rando-managed while restoring; only real checks do.
         isSaveState = true;
-        if (!IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex)) {
-            event->Cancelled = true;
+        bool randoManaged = IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex);
+        isSaveState = false;
+        if (!randoManaged) {
             return;
         }
-        isSaveState = false;
 
         if (randoSaveState.empty()) {
             return;

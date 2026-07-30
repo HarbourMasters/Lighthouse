@@ -77,9 +77,12 @@ void LighthouseMenu::AddMenuDevTools() {
         .Options(FloatSliderOptions().DefaultValue(3000.0f).Min(1000.0f).Max(10000.0f).Step(10.0f));
     AddWidget(path, "Dump Thread State", WIDGET_BUTTON)
         .Callback([](WidgetInfo&) { ThreadWatchdog_DumpNow(); })
-        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip(
-            "Log a snapshot of the decomp thread heartbeats and pipeline queue state. The watchdog also logs "
-            "this automatically when a thread stops beating."));
+        .Options(
+            ButtonOptions()
+                .Size(Sizes::Inline)
+                .Tooltip(
+                    "Log a snapshot of the decomp thread heartbeats and pipeline queue state. The watchdog also logs "
+                    "this automatically when a thread stops beating."));
     /*AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/

@@ -157,7 +157,6 @@ static void RegisterSnowTrig_Init() {
     });
 }
 
-
 static void RebuildPaddedPlanes() {
     f32 rot[3];
     f32 pos[3];

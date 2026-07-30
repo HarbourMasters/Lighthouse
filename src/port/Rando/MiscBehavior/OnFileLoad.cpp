@@ -24,20 +24,17 @@ void Rando::MiscBehavior::OnFileLoad() {
         if (saveData->magic != 0) {
             if (saveData->shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
                 Rando::Logic::GeneratePoolFromSaveData(saveData);
-                CALL_EVENT(InitRandoEvents);
             }
-            return;
-        }
-
-        if (CVarGetInteger("gRandoSettings.Enable", 0)) {
+        } else if (CVarGetInteger("gRandoSettings.Enable", 0)) {
             Rando::Logic::InitializeSaveData(saveData);
             Rando::Logic::GenerateShufflePool(saveData);
             Rando::Logic::GrantStartingLoadout();
             saveData->shipSaveData.fileType = FILE_TYPE_SAVE_RANDO;
             saveData->shipSaveData.fileCreatedAt = GetUnixTimestamp();
-            CALL_EVENT(InitRandoEvents);
         }
     });
+
+    REGISTER_LISTENER(OnGameStart, EVENT_PRIORITY_NORMAL, [](IEvent* event) { CALL_EVENT(InitRandoEvents); });
 
     REGISTER_LISTENER(OnLoadFileSelect, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnLoadFileSelect* ev = (OnLoadFileSelect*)event;
