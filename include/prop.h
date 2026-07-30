@@ -398,12 +398,18 @@ typedef struct {
     u32 pad10_0:1; 
 } OtherNode; //can be inplace of NodeProp (see code7AF80_initCubeFromFile) size: 12 (0xC) bytes
 
+// Distance scratch __cube_sort fills, one entry per prop. Cubes past this are
+// left unsorted rather than overrunning it.
+#define CUBE_SORT_SCRATCH_SIZE 0x400
+
 typedef struct cude_s{
     s32 x:5;
     s32 y:5;
     s32 z:5;
-    u32 prop1Cnt:6;
-    u32 prop2Cnt:6;
+    // [port] were :6 bitfields; the 64th prop wrapped the count to 0, which
+    // realloc'd the prop array to nothing while live markers still pointed into it.
+    u16 prop1Cnt;
+    u16 prop2Cnt;
     u32 unk0_4:5; //node_prop_count
     NodeProp *prop1Ptr;
     Prop *prop2Ptr;
