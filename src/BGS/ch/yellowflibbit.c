@@ -360,6 +360,7 @@ void gChYellowFlibbit_update(Actor *this) {
         local->unk10[0] = (s16) (s32) this->position[0];
         local->unk10[1] = (s16) (s32) this->position[1];
         local->unk10[2] = (s16) (s32) this->position[2];
+        this->state = 0; // [port] Zero-init, which vanilla did not need because of draw distance
         gChYellowFlibbit_setState(this, 1);
         if (jiggyscore_isSpawned(JIGGY_24_BGS_FLIBBITS) != 0) {
             marker_despawn(this->marker);
