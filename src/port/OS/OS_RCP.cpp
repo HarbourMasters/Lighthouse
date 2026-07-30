@@ -61,7 +61,7 @@ namespace {
 std::atomic<OSTask*> sPendingTask{ nullptr };
 std::atomic<bool> sYieldPending{ false };  // yield requested, not yet observed
 std::atomic<bool> sResumePending{ false }; // next gfx StartGo is the resume
-}
+} // namespace
 
 extern "C" void osSpTaskYield(void) {
     sYieldPending.store(true, std::memory_order_release);

@@ -288,8 +288,7 @@ std::string CaptureStalledStack(int threadIdx) {
             if (SymGetLineFromAddr64(proc, frames[i], &lineDisp, &line)) {
                 // Only frames under this repo's source root are ours; CRT and
                 // STL paths contain "\src\" as well and must not match.
-                const bool ours = !srcRoot.empty() &&
-                                  _strnicmp(line.FileName, srcRoot.c_str(), srcRoot.size()) == 0;
+                const bool ours = !srcRoot.empty() && _strnicmp(line.FileName, srcRoot.c_str(), srcRoot.size()) == 0;
                 out += fmt::format("{} #{:02} {}+0x{:x} ({}:{})\n", ours ? ">" : " ", i, sym->Name, symDisp,
                                    line.FileName, line.LineNumber);
             } else {
@@ -391,8 +390,8 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
         std::string park;
         if (const OS_BlockedWait* w = waitFor(i)) {
             QueueInfo qi = DescribeQueue(w->mq);
-            park = fmt::format("  {} {} {}/{}", w->isSend ? "send" : "recv", qi.name, w->mq->validCount,
-                               w->mq->msgCount);
+            park =
+                fmt::format("  {} {} {}/{}", w->isSend ? "send" : "recv", qi.name, w->mq->validCount, w->mq->msgCount);
         }
         out += fmt::format("  {:<11} {:<7} {:>6} tid {:<6} {} beats{}\n", kThreadNames[i],
                            (stalled != nullptr && stalled[i]) ? "STALLED" : "ok", age,
@@ -413,8 +412,8 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
                        DescribeUnkFlag1(t5.unkFlag1), t5.unkFlag2, t5.unkFlag2Saved, t5.syncCounter, t5.task7Handled,
                        t5.gfxActiveId, t5.gfxSelectedId, t5.audioActiveId, t5.audioSelectedId, t5.taskQueueCount,
                        t5.taskQueueCap, t5.syncQueueCount, t5.syncQueueCap, (dpStatus & 0x2) ? 1 : 0,
-                       OS_SpPeekPendingTask() != nullptr ? "yes" : "no", curFb == nextFb ? "==" : "!=",
-                       OS_ViBlackActive() ? " viBlack" : "");
+                       OS_SpPeekPendingTask() != nullptr ? "yes" : "no",
+                       curFb == nextFb ? "==" : "!=", OS_ViBlackActive() ? " viBlack" : "");
     out += fmt::format("Frame pacing: D_802808D8={}{} frameTokenQ={} tickRetraceQ={} retraceQ={}\n", vi.retraceCount,
                        vi.retraceCount > 10 ? " (accumulating)" : "", vi.q2Count, vi.q3Count, vi.q1Count);
 
@@ -424,9 +423,8 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
     out += fmt::format("SI/audio: pfsBusy={} pollingQ={} audioFrameQ={} audioReplyQ={} audioHeld={} svcPending={}\n",
                        pfsManager_isBusy(), pfsPoll->validCount, audioFrame->validCount, audioReply->validCount,
                        port_audioHeld(), port_renderServicePending());
-    out += fmt::format("Context: map={:#x} exit={:#x} gameMode={} build={} {}@{}", gsworld_getMap(),
-                       gsworld_getExit(), getGameMode(), (char*)gBuildVersion, (char*)gGitBranch,
-                       (char*)gGitCommitHash);
+    out += fmt::format("Context: map={:#x} exit={:#x} gameMode={} build={} {}@{}", gsworld_getMap(), gsworld_getExit(),
+                       getGameMode(), (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
 
     if (!stack.empty()) {
         out += "\n" + stack;
@@ -549,4 +547,3 @@ extern "C" void ThreadWatchdog_DumpNow(void) {
 extern "C" int ThreadWatchdog_IsStalled(WatchdogThread id) {
     return sStalledFlags[id].load(std::memory_order_relaxed) ? 1 : 0;
 }
-

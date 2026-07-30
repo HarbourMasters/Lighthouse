@@ -1215,7 +1215,6 @@ void GameEngine::AudioInit() {
     LoadSoundfonts();
 }
 
-
 // Local timer helper for the per-sub-frame cost measurement.
 namespace {
 using Clock = std::chrono::steady_clock;

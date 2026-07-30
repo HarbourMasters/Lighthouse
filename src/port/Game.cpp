@@ -173,7 +173,6 @@ void EnableThread5() {
 }
 } // namespace
 
-
 // Drain submitted lists for safety.
 static void RegisterThread5MapSync_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
