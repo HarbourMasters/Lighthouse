@@ -71,6 +71,7 @@ std::mutex sSvcMutex;
 std::condition_variable sSvcCv;
 void (*sSvcFn)(void*) = nullptr;
 void* sSvcArg = nullptr;
+std::atomic<bool> sShutdownRequested{ false };
 
 int sTitleMap = 0;
 
@@ -198,10 +199,17 @@ extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg) {
         return;
     }
     std::unique_lock<std::mutex> lock(sSvcMutex);
-    sSvcCv.wait(lock, [] { return sSvcFn == nullptr; });
+    auto done = [] { return sSvcFn == nullptr || sShutdownRequested.load(std::memory_order_acquire); };
+    if (sShutdownRequested.load(std::memory_order_acquire)) {
+        return;
+    }
+    sSvcCv.wait(lock, done);
+    if (sShutdownRequested.load(std::memory_order_acquire)) {
+        return;
+    }
     sSvcFn = fn;
     sSvcArg = arg;
-    sSvcCv.wait(lock, [] { return sSvcFn == nullptr; });
+    sSvcCv.wait(lock, done);
 }
 
 // Barrier before the tick frees or reads memory an in-flight list references.
@@ -329,9 +337,22 @@ int SDL_main(int argc, char* argv[]) {
             SDL_Delay(1);
         }
     }
+    // Ask first, then release: a thread woken before the request is set would just
+    // park again.
+    OS_RequestThreadExit();
+    {
+        std::lock_guard<std::mutex> lock(sSvcMutex);
+        sShutdownRequested.store(true, std::memory_order_release);
+        sSvcFn = nullptr;
+    }
+    sSvcCv.notify_all();
+    OS_BeginShutdown();
+
     if (sGameThread.joinable()) {
         sGameThread.join();
     }
+    // Before Destroy: these threads draw and play audio through the engine.
+    OS_JoinDecompThreads();
     ThreadWatchdog_Stop();
     OS_StopViTicker();
 #ifdef USE_NETWORKING

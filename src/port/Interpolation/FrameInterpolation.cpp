@@ -12,19 +12,21 @@
 
 namespace {
 
+constexpr uint64_t kFnvSeed = 0xcbf29ce484222325ULL;
+constexpr uint64_t kSigKindToMtx = 0x1ULL;
+constexpr uint64_t kSigKindSprite = 0x2ULL;
+constexpr float kSpriteSnapDistSq = 300.0f * 300.0f;
+constexpr int kRingSlots = 4;
+constexpr uint32_t kAmbiguousSig = UINT32_MAX;
+
 struct ToMtxData {
     void* dst;
     float src[4][4];
     uint64_t pathSig;
     bool noInterpolate;
-    // Another entry this tick claimed the same scope identity, so which one a
-    // cross-tick partner refers to is a guess. See recordSigCollision.
     bool ambiguousSig;
 };
 
-// Sprites keep their raw inputs instead of the finished matrix so replay can
-// blend angles as angles; blending the matrix itself makes billboards shear
-// while the camera swings around them.
 struct SpriteDrawData {
     void* dst;
     float camRelPos[3];
@@ -48,24 +50,13 @@ struct CameraProjRotData {
     float yawDeg;
 };
 
-// Two entries pair up across ticks when they were recorded under the same
-// scope path at the same index; that identity is hashed into pathSig as the
-// game draws.
 struct ScopeFrame {
     uint64_t pathHash;
     uint32_t toMtxIdx;
     uint32_t spriteIdx;
+    const char* key;
+    uintptr_t id;
 };
-
-constexpr uint64_t kFnvSeed = 0xcbf29ce484222325ULL;
-constexpr uint64_t kSigKindToMtx = 0x1ULL;
-constexpr uint64_t kSigKindSprite = 0x2ULL;
-
-inline uint64_t fnvMix(uint64_t h, uint64_t v) {
-    h ^= v;
-    h *= 0x100000001b3ULL;
-    return h;
-}
 
 struct FrameTree {
     std::vector<ToMtxData> toMtxs;
@@ -95,61 +86,18 @@ struct FrameTree {
     }
 };
 
-// A scope identity is only useful if one entry owns it. When two do, the
-// sig->index maps cannot say which, and emplace keeps whichever arrived first
-// -- so the second entry silently pairs against the first one's transform and
-// gets dragged across the screen for a sub-frame. Mark every claimant instead
-// and point the map at a sentinel, which leaves all of them uninterpolated.
-constexpr uint32_t kAmbiguousSig = UINT32_MAX;
-
-template <typename Map, typename Vec>
-void recordSigCollision(Map& sigMap, Vec& entries, uint64_t sig, uint32_t idx, uint32_t& collisionCount) {
-    auto [it, inserted] = sigMap.emplace(sig, idx);
-    if (inserted) {
-        return;
-    }
-    if (it->second < entries.size()) {
-        entries[it->second].ambiguousSig = true;
-    }
-    entries[idx].ambiguousSig = true;
-    it->second = kAmbiguousSig;
-    collisionCount++;
-}
-
-// Ring of trees: the render side reads a (prev, curr) pair while the tick
-// records the next one. Reuse is ownership-based; a submitted pair claims
-// its two slots until that render finishes, and recording skips claimed slots.
-constexpr int kRingSlots = 4;
-FrameTree gRing[kRingSlots];
-std::atomic<int> gSlotClaims[kRingSlots] = {};
-int gRecordSlot = 0;
-int gLastRecordedSlot = -1;
-FrameTree* gRecord = &gRing[0];
-FrameTree* gRenderPrev = nullptr;
-FrameTree* gRenderCurr = nullptr;
-bool gRenderShould = false;
-
-bool gRecording = false;
-bool gShouldInterpolate = true;
-int gNoInterpolateDepth = 0;
-
-std::unordered_map<const void*, uint64_t> gIdMap;
-uint64_t gNextId = 1;
-
 struct PairedToMtx {
     uint32_t currIdx;
     uint32_t prevIdx;
     bool snap;
 };
+
 struct PairedSprite {
     uint32_t currIdx;
     uint32_t prevIdx;
+    bool snap;
 };
 
-// Pairing happens once per tick, on the first Interpolate() call; later
-// sub-frames only read the result. Engine.cpp builds those on worker threads,
-// so after `built` goes true nothing in here may be mutated until the next
-// StartRecord.
 struct InterpolationCache {
     bool built = false;
     bool valid = false;
@@ -166,7 +114,64 @@ struct InterpolationCache {
         prevHasCameraPos = false;
     }
 };
+
+// Ring of trees
+FrameTree gRing[kRingSlots];
+std::atomic<int> gSlotClaims[kRingSlots] = {};
+int gRecordSlot = 0;
+int gLastRecordedSlot = -1;
+FrameTree* gRecord = &gRing[0];
+FrameTree* gRenderPrev = nullptr;
+FrameTree* gRenderCurr = nullptr;
+bool gRenderShould = false;
+
+bool gRecording = false;
+bool gShouldInterpolate = true;
+int gNoInterpolateDepth = 0;
+
+std::unordered_map<const void*, uint64_t> gIdMap;
+uint64_t gNextId = 1;
+
 InterpolationCache gCache;
+
+// First scope identity to collide this tick, reported once by StopRecord so a
+// busy frame cannot flood the log. Cleared per tick in StartRecord; nullptr
+// means nothing has collided yet.
+const char* gCollidedScopeKey = nullptr;
+uintptr_t gCollidedScopeId = 0;
+const char* gCollidedParentKey = nullptr;
+uintptr_t gCollidedParentId = 0;
+
+inline uint64_t fnvMix(uint64_t h, uint64_t v) {
+    h ^= v;
+    h *= 0x100000001b3ULL;
+    return h;
+}
+
+template <typename Map, typename Vec>
+void recordSigCollision(Map& sigMap, Vec& entries, uint64_t sig, uint32_t idx, uint32_t& collisionCount,
+                        const std::vector<ScopeFrame>& stack) {
+    const ScopeFrame& scope = stack.back();
+    auto [it, inserted] = sigMap.emplace(sig, idx);
+    if (inserted) {
+        return;
+    }
+    if (it->second < entries.size()) {
+        entries[it->second].ambiguousSig = true;
+    }
+    entries[idx].ambiguousSig = true;
+    it->second = kAmbiguousSig;
+    collisionCount++;
+    if (gCollidedScopeKey == nullptr) {
+        gCollidedScopeKey = scope.key;
+        gCollidedScopeId = scope.id;
+        if (stack.size() >= 2) {
+            const ScopeFrame& parent = stack[stack.size() - 2];
+            gCollidedParentKey = parent.key;
+            gCollidedParentId = parent.id;
+        }
+    }
+}
 
 } // namespace
 
@@ -185,13 +190,17 @@ void FrameInterpolation_StartRecord(void) {
                     gSlotClaims[0].load(), gSlotClaims[1].load(), gSlotClaims[2].load(), gSlotClaims[3].load());
     }
     gRecord = &gRing[gRecordSlot];
+    gCollidedScopeKey = nullptr;
+    gCollidedScopeId = 0;
+    gCollidedParentKey = nullptr;
+    gCollidedParentId = 0;
     gRecord->reset();
     gRecord->toMtxs.reserve(512);
     gRecord->projRots.reserve(4);
     gRecord->sprites.reserve(256);
     gRecord->sigToToMtx.reserve(512);
     gRecord->sigToSprite.reserve(64);
-    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0 });
+    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0, "root", 0 });
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
     gRecording = true;
@@ -213,7 +222,10 @@ void FrameInterpolation_StopRecord(void) {
         static uint32_t sReported = 0;
         if (sReported < 20) {
             sReported++;
-            SPDLOG_WARN("interp scope id collided {}x this tick ({} matrices, {} sprites)", gRecord->sigCollisions,
+            SPDLOG_WARN("interp scope id collided {}x this tick under \"{}\" id={:#x} > \"{}\" id={:#x} "
+                        "({} matrices, {} sprites)",
+                        gRecord->sigCollisions, gCollidedParentKey != nullptr ? gCollidedParentKey : "?",
+                        gCollidedParentId, gCollidedScopeKey != nullptr ? gCollidedScopeKey : "?", gCollidedScopeId,
                         gRecord->toMtxs.size(), gRecord->sprites.size());
         }
     }
@@ -273,7 +285,7 @@ void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id) {
     uint64_t h = gRecord->scopeStack.back().pathHash;
     h = fnvMix(h, reinterpret_cast<uintptr_t>(key));
     h = fnvMix(h, static_cast<uint64_t>(id));
-    gRecord->scopeStack.push_back({ h, 0, 0 });
+    gRecord->scopeStack.push_back({ h, 0, 0, static_cast<const char*>(key), id });
 }
 
 void FrameInterpolation_RecordCloseChild(void) {
@@ -312,7 +324,7 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     d.pathSig = sig;
     d.noInterpolate = (gNoInterpolateDepth > 0);
     d.ambiguousSig = false;
-    recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions);
+    recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
 
 void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float rollDeg, void* pitchMtx, float pitchDeg,
@@ -378,7 +390,7 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     d.kind = static_cast<uint8_t>(kind);
     d.mirrored = (mirrored != 0);
     d.ambiguousSig = false;
-    recordSigCollision(gRecord->sigToSprite, gRecord->sprites, sig, idx, gRecord->sigCollisions);
+    recordSigCollision(gRecord->sigToSprite, gRecord->sprites, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
 
 void FrameInterpolation_DontInterpolateCamera(void) {
@@ -488,7 +500,7 @@ void BuildInterpolationCache() {
         }
         auto it = prevSpriteMap.find(c.pathSig);
         if (it == prevSpriteMap.end() || it->second >= prevSprites.size() || prevSprites[it->second].kind != c.kind) {
-            gCache.pairedSprites.push_back({ i, UINT32_MAX });
+            gCache.pairedSprites.push_back({ i, UINT32_MAX, false });
             continue;
         }
         const SpriteDrawData& p = prevSprites[it->second];
@@ -498,7 +510,15 @@ void BuildInterpolationCache() {
             p.mirrored == c.mirrored) {
             continue;
         }
-        gCache.pairedSprites.push_back({ i, it->second });
+        bool snap = false;
+        if (gRenderPrev->hasCameraPos && gRenderCurr->hasCameraPos) {
+            float d[3];
+            for (int k = 0; k < 3; k++) {
+                d[k] = (c.camRelPos[k] + gRenderCurr->cameraPos[k]) - (p.camRelPos[k] + gRenderPrev->cameraPos[k]);
+            }
+            snap = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]) > kSpriteSnapDistSq;
+        }
+        gCache.pairedSprites.push_back({ i, it->second, snap });
     }
 
     // A tree recycled while we walked it means every index above is suspect.
@@ -559,8 +579,6 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
         }
     };
 
-    // The rotation lambdas only touch rows 0-2, which is why FULL can
-    // translate first while billboards translate last.
     if (L.kind == FI_SPRITE_KIND_FULL) {
         m[3][0] = L.camRelPos[0];
         m[3][1] = L.camRelPos[1];
@@ -605,8 +623,7 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
         return;
     }
 
-    // A large camera jump means a warp or camera cut; blending across it
-    // would draw the world halfway between two scenes for a frame.
+    // A large camera jump means a warp or camera cut.
     if (gCache.prevHasCameraPos && gRenderCurr->hasCameraPos) {
         float dx = gRenderCurr->cameraPos[0] - gCache.prevCameraPos[0];
         float dy = gRenderCurr->cameraPos[1] - gCache.prevCameraPos[1];
@@ -643,7 +660,7 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
     for (const PairedSprite& pair : gCache.pairedSprites) {
         const SpriteDrawData& c = currSpritesData[pair.currIdx];
         SpriteDrawData L = c;
-        if (pair.prevIdx != UINT32_MAX) {
+        if (pair.prevIdx != UINT32_MAX && !pair.snap) {
             const SpriteDrawData& p = prevSpritesData[pair.prevIdx];
             for (int k = 0; k < 3; k++) {
                 L.camRelPos[k] = w * p.camRelPos[k] + t * c.camRelPos[k];

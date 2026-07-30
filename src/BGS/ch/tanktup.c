@@ -100,6 +100,7 @@ void func_8028F918(s32);
 
 // Anchor: set when state 2 took the head-raise look-at/freeze push; state 3 releases it.
 static s32 sTanktupCameraPushed = 0;
+static s32 sTanktupPoseCatchUp = 0;
 
 void chTanktup_update(Actor *this)
 {
@@ -157,6 +158,7 @@ void chTanktup_update(Actor *this)
     // Anchor: team completed Tanktup but our body is still idle (state 1) — raise the head to match.
     if (this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
     {
+        sTanktupPoseCatchUp = 1; // [port] pose only, no presentation
         subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
         actor_playAnimationOnce(this);
     }
@@ -214,6 +216,7 @@ void chTanktup_update(Actor *this)
                 }
                 else
                 {
+                    sTanktupPoseCatchUp = 0; // [port] solved for real: keep the presentation
                     subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
                     actor_playAnimationOnce(this);
                 }
@@ -226,13 +229,13 @@ void chTanktup_update(Actor *this)
             s32 near;
             player_getPosition(pp);
             near = ml_vec3f_distance(local->unk18, pp) < 700.0f;
-            if (actor_animationIsAt(this, 0.1f) != 0 && near)
+            if (actor_animationIsAt(this, 0.1f) != 0 && near && !sTanktupPoseCatchUp)
             {
                 timed_setStaticCameraToNode(0.0f, 0xD);
             }
-            if (actor_animationIsAt(this, 0.55f) != 0)
+            if (actor_animationIsAt(this, 0.55f) != 0 && !sTanktupPoseCatchUp)
             {
-                func_8030E624(0x797FF885U);
+                func_8030E624(0x797FF885U); // SFX_85_ROUGH_COUGH
             }
             if (actor_animationIsAt(this, 0.4f) != 0 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP) == 0)
             {

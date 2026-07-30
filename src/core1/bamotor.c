@@ -75,6 +75,9 @@ void rumbleThread_entry(void *arg) {
 
     do{
         osRecvMesg(&D_80282390, NULL, 1);
+        if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
+            return;
+        }
         ThreadWatchdog_Beat(WATCHDOG_RUMBLE); // [port] one beat per retrace signal
         D_802827E0++;
         if (!D_802823B0 && ((D_802827E0 % FRAMERATE) == 0)) {

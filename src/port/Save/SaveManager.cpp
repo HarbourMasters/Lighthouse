@@ -666,6 +666,34 @@ static void LoadGlobalData() {
     }
 }
 
+static bool WriteFileAtomically(const std::filesystem::path& path, const std::string& contents) {
+    const std::filesystem::path tempPath = path.parent_path() / (path.filename().string() + ".tmp");
+    std::error_code ec;
+    {
+        std::ofstream ofs(tempPath, std::ios::binary | std::ios::trunc);
+        if (!ofs.is_open()) {
+            SPDLOG_ERROR("SaveManager: failed to open \"{}\" for writing", tempPath.string());
+            return false;
+        }
+        ofs << contents;
+        ofs.flush();
+        if (!ofs.good()) {
+            SPDLOG_ERROR("SaveManager: failed writing \"{}\"; leaving the existing file alone", tempPath.string());
+            ofs.close();
+            std::filesystem::remove(tempPath, ec);
+            return false;
+        }
+    }
+    std::filesystem::rename(tempPath, path, ec);
+    if (ec) {
+        SPDLOG_ERROR("SaveManager: failed to replace \"{}\": {}", path.string(), ec.message());
+        std::error_code removeEc;
+        std::filesystem::remove(tempPath, removeEc);
+        return false;
+    }
+    return true;
+}
+
 static void SaveGlobalData() {
     ordered_json j = ordered_json::object();
 
@@ -687,13 +715,7 @@ static void SaveGlobalData() {
     j["bottlesBonusCompleted"] = bb;
 
     std::string globalPath = SaveManager_GetSavePath("global.json");
-    std::ofstream ofs(globalPath);
-    if (ofs.is_open()) {
-        ofs << CollapsedJSONArray(j);
-        ofs.close();
-    } else {
-        SPDLOG_ERROR("SaveManager: failed to open global save file \"{}\" for writing", globalPath);
-    }
+    WriteFileAtomically(globalPath, CollapsedJSONArray(j));
 }
 
 void SaveManager_MoveInvalidSaveFile(const std::filesystem::path& fileName, const std::string& message) {
@@ -764,15 +786,7 @@ void SaveManager_Init() {
 
         ordered_json saveFile = Convert_SaveDataToJSON((SaveData*)ev->saveBuffer, ev->fileNum);
         if (!saveFile.empty()) {
-            std::string collapsedString = CollapsedJSONArray(saveFile);
-
-            std::ofstream outputFile(filePath);
-            if (outputFile.is_open()) {
-                outputFile << collapsedString;
-                outputFile.close();
-            } else {
-                SPDLOG_ERROR("SaveManager: failed to open save file \"{}\" for writing", filePath);
-            }
+            WriteFileAtomically(filePath, CollapsedJSONArray(saveFile));
         }
 
         SaveGlobalData();

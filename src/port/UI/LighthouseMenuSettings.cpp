@@ -293,10 +293,10 @@ void LighthouseMenu::AddMenuSettings() {
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Audio", 3);
 
-    AddWidget(path, "Master Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
+    AddWidget(path, "Master Volume", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SETTING("Volume.Master"))
         .RaceDisable(false)
-        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(40).ShowButtons(true).Format(""));
+        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(40).ShowButtons(true).Format("%d%%"));
     // AddWidget(path, "Main Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
     //     .CVar(CVAR_SETTING("Volume.MainMusic"))
     //     .RaceDisable(false)

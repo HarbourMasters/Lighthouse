@@ -160,12 +160,14 @@ void func_80386A7C(Actor *this){
     f32 cull = 8000.0f * port_drawDistanceMul();
     if(viewport[0] + cull < this->position_x || this->position_x < viewport[0] - cull)
         return;
-        
+
     if( !(  (sp28 ^ temp_v0) & 2
             && (-5000.0f < viewport[0] && viewport[0] < 6000.0f)
             && (viewport[2] < -600.0f || 600.0f < viewport[2])
         )
+#if 0
         && ( sp28 ^ temp_v0) != 3
+#endif
     ){
             this->unk38_0 = 1;
     }

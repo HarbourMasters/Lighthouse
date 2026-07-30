@@ -32,6 +32,15 @@ void OS_EnableThreadEntry(void* entry);
 // OS_MESG_BLOCK only blocks on queues opted in here.
 void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled);
 
+// Cooperative exit for threads.
+void OS_RequestThreadExit(void);
+int OS_ThreadShouldExit(void);
+void OS_JoinDecompThreads(void);
+
+// Stop every queue blocking and wake all waiters, so the tick can unwind and be
+// joined. Call once the window has closed and before joining it.
+void OS_BeginShutdown(void);
+
 // Watchdog diagnostics: threads currently parked inside a blocking
 // osSendMesg/osRecvMesg, so a stall dump can say where each one waits.
 typedef struct OS_BlockedWait {

@@ -2,13 +2,69 @@
 #include "ShipUtils.h"
 #include <cstdio>
 #include <cstring>
+#include <spdlog/spdlog.h>
 #ifdef _WIN32
 #include <windows.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 #endif
 
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
+
+#ifdef _WIN32
+namespace {
+HWND ResolveGameWindow() {
+    static HWND sCached = nullptr;
+    if (sCached != nullptr && IsWindow(sCached)) {
+        return sCached;
+    }
+    for (Uint32 id = 1; id <= 16 && sCached == nullptr; id++) {
+        SDL_Window* window = SDL_GetWindowFromID(id);
+        if (window == nullptr) {
+            continue;
+        }
+        SDL_SysWMinfo info;
+        SDL_VERSION(&info.version);
+        if (SDL_GetWindowWMInfo(window, &info) == SDL_TRUE && info.subsystem == SDL_SYSWM_WINDOWS) {
+            sCached = info.info.win.window;
+        }
+    }
+    if (sCached == nullptr) {
+        struct Search {
+            DWORD pid;
+            HWND gameWindow;
+            HWND fallback;
+        };
+        Search search{ GetCurrentProcessId(), nullptr, nullptr };
+        EnumWindows(
+            [](HWND hwnd, LPARAM param) -> BOOL {
+                Search* s = reinterpret_cast<Search*>(param);
+                DWORD pid = 0;
+                GetWindowThreadProcessId(hwnd, &pid);
+                if (pid != s->pid || GetWindow(hwnd, GW_OWNER) != nullptr || !IsWindowVisible(hwnd)) {
+                    return TRUE;
+                }
+                char cls[64] = { 0 };
+                GetClassNameA(hwnd, cls, (int)sizeof(cls));
+                if (strcmp(cls, "N64GAME") == 0) {
+                    s->gameWindow = hwnd;
+                    return FALSE;
+                }
+                if (s->fallback == nullptr && strcmp(cls, "ConsoleWindowClass") != 0) {
+                    s->fallback = hwnd;
+                }
+                return TRUE;
+            },
+            reinterpret_cast<LPARAM>(&search));
+        sCached = (search.gameWindow != nullptr) ? search.gameWindow : search.fallback;
+    }
+    return sCached;
+}
+} // namespace
+#endif
 
 #include "functions.h"
 extern "C" {
@@ -140,17 +196,20 @@ extern "C" void port_setWindowTitle(int map_id) {
              noteStr, jiggyStr, hcStr, timeStr);
 
 #ifdef _WIN32
-    HWND hwnd = GetActiveWindow();
+    HWND hwnd = ResolveGameWindow();
     if (hwnd) {
         SetWindowTextA(hwnd, title);
     }
 #endif
 }
 
+static int sPendingTitleMap = 0;
+
 void RegisterGameStatus_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_LOW, true, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
-        port_setWindowTitle(ev->nextMap);
+        sPendingTitleMap = ev->nextMap;
+        port_runOnRenderThread([](void*) { port_setWindowTitle(sPendingTitleMap); }, nullptr);
     });
 }
 

@@ -173,6 +173,17 @@ void OS_SetQueueBlocking(OSMesgQueue* mq, int enabled) {
     SyncFor(mq).blockingEnabled = (enabled != 0);
 }
 
+// Called once the window closes, before the tick is joined.
+void OS_BeginShutdown(void) {
+    std::lock_guard<std::mutex> lock(sMesgMutex);
+    for (auto& [mq, sync] : sQueueSync) {
+        (void)mq;
+        sync.blockingEnabled = false;
+        sync.notEmpty.notify_all();
+        sync.notFull.notify_all();
+    }
+}
+
 // Lock-free on purpose: the caller is a watchdog inspecting a possible
 // deadlock, so it must not touch sMesgMutex. Entries can be mid-update;
 // they are diagnostics, not decisions.

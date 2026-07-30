@@ -356,6 +356,10 @@ void SaveEditor_DrawProgressTab() {
 
 void DrawRandoFlagEditor() {
     ImGui::SeparatorText("Rando INF Flags");
+    if (selectedFileNum == DEFAULT_FILE_NUM) {
+        ImGui::Text("No Save File Loaded");
+        return;
+    }
     if (ImGui::BeginChild("RandoFlagChild")) {
         for (int f = RANDO_INF_UNKNOWN; f < RANDO_INF_MAX; f++) {
             ImGui::PushID(f);
@@ -370,7 +374,7 @@ void DrawRandoFlagEditor() {
 }
 
 void DrawRandoCheckEditor() {
-    if (Rando::Logic::shuffledPool.empty()) {
+    if (selectedFileNum == DEFAULT_FILE_NUM || Rando::Logic::shuffledPool.empty()) {
         ImGui::Text("No Rando Save Data");
     } else {
         static ImGuiTextFilter rcFilter;
@@ -393,8 +397,17 @@ void DrawRandoCheckEditor() {
                 ImGui::TableNextColumn();
 
                 for (auto& check : RANDO_SAVE_CHECKS) {
-                    if (!rcFilter.PassFilter(check.name) &&
-                        !rcFilter.PassFilter(Rando::StaticData::Items[check.randoItemId].name)) {
+                    auto checkEntry = Rando::StaticData::Checks.find(check.randoCheckId);
+                    if (checkEntry == Rando::StaticData::Checks.end()) {
+                        continue;
+                    }
+                    const char* checkName = checkEntry->second.name;
+
+                    auto itemEntry = Rando::StaticData::Items.find(check.randoItemId);
+                    const char* itemName =
+                        (itemEntry != Rando::StaticData::Items.end()) ? itemEntry->second.name : nullptr;
+
+                    if (!rcFilter.PassFilter(checkName) && !rcFilter.PassFilter(itemName)) {
                         continue;
                     }
 
@@ -430,19 +443,21 @@ void DrawRandoCheckEditor() {
                     }
                     ImGui::TableNextColumn();
 
-                    std::string checkName = Rando::StaticData::Checks[check.randoCheckId].name;
-                    ImGui::TextWrapped(checkName.c_str());
+                    ImGui::TextWrapped("%s", checkName);
                     ImGui::TableNextColumn();
 
                     if (check.randoItemId == RI_MOLEHILL) {
                         TableCellCenteredText(abilityNameList[check.randoCollectionId].c_str());
                     } else {
-                        TableCellCenteredText(Rando::StaticData::Items[check.randoItemId].name);
+                        TableCellCenteredText(itemName != nullptr ? itemName : "");
                     }
                     ImGui::TableNextColumn();
 
-                    if (Rando::StaticData::Checks[check.shuffledCheckId].randoCheckType != RCTYPE_JINJO &&
-                        Rando::StaticData::Checks[check.shuffledCheckId].randoCheckType != RCTYPE_MUSIC_NOTE) {
+                    auto shuffledEntry = Rando::StaticData::Checks.find(check.shuffledCheckId);
+                    const RandoCheckType shuffledType = (shuffledEntry != Rando::StaticData::Checks.end())
+                                                            ? shuffledEntry->second.randoCheckType
+                                                            : RCTYPE_UNKNOWN;
+                    if (shuffledType != RCTYPE_JINJO && shuffledType != RCTYPE_MUSIC_NOTE) {
                         TableCellCenteredText(std::to_string(check.randoCollectionId).c_str());
                     }
                     ImGui::TableNextColumn();

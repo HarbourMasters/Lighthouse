@@ -154,10 +154,10 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     path.column = SECTION_COLUMN_1;
 
-    AddWidget(path, "Extended Draw Distance: %dx", WIDGET_CVAR_SLIDER_INT)
+    AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
         .RaceDisable(false)
-        .Options(IntSliderOptions().Min(1).Max(6).DefaultValue(1).ShowButtons(true).Format("").Tooltip(
+        .Options(IntSliderOptions().Min(1).Max(6).DefaultValue(1).ShowButtons(true).Format("%dx").Tooltip(
             "Multiplies the draw distance for objects.\n"
             "Higher values render more but cost performance."));
 
@@ -647,7 +647,7 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Cheats.TalonTrotCycle"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
-            "While in Talon Trot: D-pad Right cycles forward (Normal→Boots→Sneakers), D-pad Left cycles backward."));
+            "While in Talon Trot: D-pad Right cycles forward (Normal->Boots->Sneakers), D-pad Left cycles backward."));
 
     // Transformations Section
     AddWidget(path, "Transformations", WIDGET_SEPARATOR_TEXT);
@@ -666,7 +666,7 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Cheats.CycleTransform"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Press D-pad Up/Down to cycle through transformation forms.\nUp: Forward "
-                                           "(Banjo→Termite→...→Bee→Banjo), Down: Backward."));
+                                           "(Banjo->Termite->...->Bee->Banjo), Down: Backward."));
 
     AddWidget(path, "No Mumbo Untransform", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.NoMumboUntransform"))

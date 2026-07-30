@@ -792,11 +792,8 @@ void modelRender_geoCmd_TEXWRAP(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2)
 void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     GeoCmd2 *cmd = (GeoCmd2 *)arg2;
 
-    // [port] Stable per-bone scope. Without it, any op-count shift in the
-    // geo walk mis-pairs every subsequent bone — Banjo ends up half in
-    // one pose and half in another on the affected sub-frame. Nested
-    // bones nest their scopes via the recursive walk below.
-    FrameInterpolation_RecordOpenChild("bone", (uintptr_t)(u8)cmd->unk9);
+    // [port] Stable per-bone scope.
+    FrameInterpolation_RecordOpenChildHash3("bone", (uintptr_t)(u8)cmd->unk9, (uintptr_t)cmd, 0);
     if(D_8038371C){
         mlMtx_push_multiplied_2(&D_80383BF8, animMtxList_get(D_8038371C, cmd->unk9));
         if(D_80370990){

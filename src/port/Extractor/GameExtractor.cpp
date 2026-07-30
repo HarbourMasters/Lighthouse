@@ -134,7 +134,7 @@ void GameExtractor::GetRoms(std::vector<std::string>& roms) {
             // Check for any standard N64 rom file extensions.
             if (ext != NULL &&
                 (strcmp(ext, ".z64") == 0) /* || (strcmp(ext, ".n64") == 0) || (strcmp(ext, ".v64") == 0)*/)
-                roms.push_back(ffd.cFileName);
+                roms.push_back(mSearchPath + "/" + ffd.cFileName);
         }
     } while (FindNextFileA(h, &ffd) != 0);
     FindClose(h);
@@ -148,20 +148,23 @@ void GameExtractor::GetRoms(std::vector<std::string>& roms) {
         while ((dir = readdir(d)) != NULL) {
             struct stat path;
 
-            // Check if current entry is not folder
-            stat(dir->d_name, &path);
-            if (S_ISREG(path.st_mode)) {
+            // Against the full path: a bare name would be resolved relative to the
+            // working directory, so searching anywhere else stat'd the wrong file (or
+            // nothing) and left path uninitialised for the S_ISREG test below.
+            const std::string fullPath = mSearchPath + "/" + dir->d_name;
+            if (stat(fullPath.c_str(), &path) != 0 || !S_ISREG(path.st_mode)) {
+                continue;
+            }
 
-                // Get the position of the extension character.
-                char* ext = strrchr(dir->d_name, '.');
-                if (ext != NULL &&
-                    (strcmp(ext, ".z64") == 0 /* || strcmp(ext, ".n64") == 0 || strcmp(ext, ".v64") == 0*/)) {
-                    roms.push_back(dir->d_name);
-                }
+            // Get the position of the extension character.
+            char* ext = strrchr(dir->d_name, '.');
+            if (ext != NULL &&
+                (strcmp(ext, ".z64") == 0 /* || strcmp(ext, ".n64") == 0 || strcmp(ext, ".v64") == 0*/)) {
+                roms.push_back(fullPath);
             }
         }
+        closedir(d);
     }
-    closedir(d);
 #else
     for (const auto& file : std::filesystem::directory_iterator(mSearchPath)) {
         if (file.is_directory()) {

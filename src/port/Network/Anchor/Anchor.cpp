@@ -301,6 +301,12 @@ void Anchor::ClearDummies() {
     dummies.clear();
 }
 
+// Lets decomp gate Anchor-only catch-up paths so single player keeps vanilla behaviour.
+extern "C" s32 port_anchor_isConnected(void) {
+    Anchor* anchor = Anchor::GetInstance();
+    return (anchor != nullptr && anchor->isConnected) ? 1 : 0;
+}
+
 // actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all.
 extern "C" void port_anchorDummies_onActorsFreed(void) {
     Anchor* anchor = Anchor::GetInstance();
