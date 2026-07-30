@@ -55,6 +55,8 @@ struct ScopeFrame {
     uint64_t pathHash;
     uint32_t toMtxIdx;
     uint32_t spriteIdx;
+    const char* key;
+    uintptr_t id;
 };
 
 constexpr uint64_t kFnvSeed = 0xcbf29ce484222325ULL;
@@ -95,15 +97,16 @@ struct FrameTree {
     }
 };
 
-// A scope identity is only useful if one entry owns it. When two do, the
-// sig->index maps cannot say which, and emplace keeps whichever arrived first
-// -- so the second entry silently pairs against the first one's transform and
-// gets dragged across the screen for a sub-frame. Mark every claimant instead
-// and point the map at a sentinel, which leaves all of them uninterpolated.
 constexpr uint32_t kAmbiguousSig = UINT32_MAX;
+const char* gCollidedScopeKey = nullptr;
+uintptr_t gCollidedScopeId = 0;
+const char* gCollidedParentKey = nullptr;
+uintptr_t gCollidedParentId = 0;
 
 template <typename Map, typename Vec>
-void recordSigCollision(Map& sigMap, Vec& entries, uint64_t sig, uint32_t idx, uint32_t& collisionCount) {
+void recordSigCollision(Map& sigMap, Vec& entries, uint64_t sig, uint32_t idx, uint32_t& collisionCount,
+                        const std::vector<ScopeFrame>& stack) {
+    const ScopeFrame& scope = stack.back();
     auto [it, inserted] = sigMap.emplace(sig, idx);
     if (inserted) {
         return;
@@ -114,6 +117,17 @@ void recordSigCollision(Map& sigMap, Vec& entries, uint64_t sig, uint32_t idx, u
     entries[idx].ambiguousSig = true;
     it->second = kAmbiguousSig;
     collisionCount++;
+    if (gCollidedScopeKey == nullptr) {
+        gCollidedScopeKey = scope.key;
+        gCollidedScopeId = scope.id;
+        // The parent too: a unique-looking scope that still collides means the
+        // scope above it is the one failing to separate instances.
+        if (stack.size() >= 2) {
+            const ScopeFrame& parent = stack[stack.size() - 2];
+            gCollidedParentKey = parent.key;
+            gCollidedParentId = parent.id;
+        }
+    }
 }
 
 // Ring of trees: the render side reads a (prev, curr) pair while the tick
@@ -185,13 +199,17 @@ void FrameInterpolation_StartRecord(void) {
                     gSlotClaims[0].load(), gSlotClaims[1].load(), gSlotClaims[2].load(), gSlotClaims[3].load());
     }
     gRecord = &gRing[gRecordSlot];
+    gCollidedScopeKey = nullptr;
+    gCollidedScopeId = 0;
+    gCollidedParentKey = nullptr;
+    gCollidedParentId = 0;
     gRecord->reset();
     gRecord->toMtxs.reserve(512);
     gRecord->projRots.reserve(4);
     gRecord->sprites.reserve(256);
     gRecord->sigToToMtx.reserve(512);
     gRecord->sigToSprite.reserve(64);
-    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0 });
+    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0, "root", 0 });
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
     gRecording = true;
@@ -213,7 +231,10 @@ void FrameInterpolation_StopRecord(void) {
         static uint32_t sReported = 0;
         if (sReported < 20) {
             sReported++;
-            SPDLOG_WARN("interp scope id collided {}x this tick ({} matrices, {} sprites)", gRecord->sigCollisions,
+            SPDLOG_WARN("interp scope id collided {}x this tick under \"{}\" id={:#x} > \"{}\" id={:#x} "
+                        "({} matrices, {} sprites)",
+                        gRecord->sigCollisions, gCollidedParentKey != nullptr ? gCollidedParentKey : "?",
+                        gCollidedParentId, gCollidedScopeKey != nullptr ? gCollidedScopeKey : "?", gCollidedScopeId,
                         gRecord->toMtxs.size(), gRecord->sprites.size());
         }
     }
@@ -273,7 +294,7 @@ void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id) {
     uint64_t h = gRecord->scopeStack.back().pathHash;
     h = fnvMix(h, reinterpret_cast<uintptr_t>(key));
     h = fnvMix(h, static_cast<uint64_t>(id));
-    gRecord->scopeStack.push_back({ h, 0, 0 });
+    gRecord->scopeStack.push_back({ h, 0, 0, static_cast<const char*>(key), id });
 }
 
 void FrameInterpolation_RecordCloseChild(void) {
@@ -312,7 +333,7 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     d.pathSig = sig;
     d.noInterpolate = (gNoInterpolateDepth > 0);
     d.ambiguousSig = false;
-    recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions);
+    recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
 
 void FrameInterpolation_RecordCameraProjectionRotation(void* rollMtx, float rollDeg, void* pitchMtx, float pitchDeg,
@@ -378,7 +399,7 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     d.kind = static_cast<uint8_t>(kind);
     d.mirrored = (mirrored != 0);
     d.ambiguousSig = false;
-    recordSigCollision(gRecord->sigToSprite, gRecord->sprites, sig, idx, gRecord->sigCollisions);
+    recordSigCollision(gRecord->sigToSprite, gRecord->sprites, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
 
 void FrameInterpolation_DontInterpolateCamera(void) {
