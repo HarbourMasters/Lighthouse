@@ -491,14 +491,16 @@ void chmole_update(Actor *this){
 
 int chmole_learnedAllSpiralMountainAbilities(void){
     // Checks if the player has learned all of the Spiral Mountain abilities.
-    return ability_isUnlocked(ABILITY_F_DIVE)
-        && ability_isUnlocked(ABILITY_4_CLAW_SWIPE)
-        && ability_isUnlocked(ABILITY_C_ROLL)
-        && ability_isUnlocked(ABILITY_B_RATATAT_RAP)
-        && ability_isUnlocked(ABILITY_0_BARGE)
-        && ability_isUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER)
-        && ability_isUnlocked(ABILITY_7_FEATHERY_FLAP)
-        && ability_isUnlocked(ABILITY_8_FLAP_FLIP)
-        && ability_isUnlocked(ABILITY_5_CLIMB)
-    ;
+    CALL_CANCELLABLE_RETURN_EVENT(OnCheckSpiralMountainAbilities) {
+        return ability_isUnlocked(ABILITY_F_DIVE)
+            && ability_isUnlocked(ABILITY_4_CLAW_SWIPE)
+            && ability_isUnlocked(ABILITY_C_ROLL)
+            && ability_isUnlocked(ABILITY_B_RATATAT_RAP)
+            && ability_isUnlocked(ABILITY_0_BARGE)
+            && ability_isUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER)
+            && ability_isUnlocked(ABILITY_7_FEATHERY_FLAP)
+            && ability_isUnlocked(ABILITY_8_FLAP_FLIP)
+            && ability_isUnlocked(ABILITY_5_CLIMB)
+            ;
+    }
 }
