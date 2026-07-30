@@ -57,9 +57,14 @@ struct InterpPair {
     int prev = -1;
     int curr = -1;
     bool should = false;
+    uint64_t serial = 0;
 };
 std::mutex sInterpMutex;
 std::map<void*, InterpPair> sTaskInterp;
+uint64_t sInterpSerial = 0;
+// Submissions of slack before an unrendered pair is assumed dropped. The ring is
+// 4 slots, so by then its trees have been recycled regardless.
+constexpr uint64_t kInterpStaleAfter = 4;
 
 // Renderer calls made from tick code, run by the main loop between services.
 std::mutex sSvcMutex;
@@ -104,7 +109,25 @@ extern "C" void port_thread5_onSubmit(void* taskData) {
     FrameInterpolation_ClaimPair(pair.prev, pair.curr);
     FrameInterpolation_StopRecord();
     std::lock_guard<std::mutex> lock(sInterpMutex);
-    sTaskInterp[task->data_ptr] = pair;
+    pair.serial = ++sInterpSerial;
+    auto [it, inserted] = sTaskInterp.emplace(task->data_ptr, pair);
+    if (!inserted) {
+        FrameInterpolation_ReleasePair(it->second.prev, it->second.curr);
+        it->second = pair;
+    }
+
+    // Anything still here after a full trip round the ring can no longer be
+    // blended against a live tree, so its claim is only holding a slot hostage.
+    // Dropping the entry leaves RenderTask with a -1 pair, which renders
+    // uninterpolated rather than against a recycled tree.
+    for (auto stale = sTaskInterp.begin(); stale != sTaskInterp.end();) {
+        if (stale->second.serial + kInterpStaleAfter < pair.serial) {
+            FrameInterpolation_ReleasePair(stale->second.prev, stale->second.curr);
+            stale = sTaskInterp.erase(stale);
+        } else {
+            ++stale;
+        }
+    }
 }
 
 namespace {

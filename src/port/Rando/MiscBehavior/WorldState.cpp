@@ -195,7 +195,14 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
             if (randoCheckId == RC_MMM_JIGGY_TUMBLARS_PUZZLE) {
                 ev->result = mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN);
             } else if (randoCheckId == RC_CC_JIGGY_CLANKER_RAISED) {
-                ev->result = RANDO_SAVE_FLAGS[RANDO_INF_CLANKER_RAISED].flagState;
+                // Clanker's height and his rings' water level are both recalled from
+                // this query, so it has to answer for the world event and not just
+                // for a reward still sitting in the level.
+                ev->result = RANDO_SAVE_FLAGS[RANDO_INF_CLANKER_RAISED].flagState ||
+                             CustomObject::CheckSpawnedIdList(randoCheckId);
+            } else if (randoCheckId == RC_CC_JIGGY_RINGS) {
+                ev->result = RANDO_SAVE_FLAGS[RANDO_INF_MINIGAME_RINGS_COMPLETED].flagState ||
+                             CustomObject::CheckSpawnedIdList(randoCheckId);
             } else {
                 ev->result = CustomObject::CheckSpawnedIdList(randoCheckId);
             }
