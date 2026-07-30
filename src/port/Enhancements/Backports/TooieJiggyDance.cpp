@@ -136,7 +136,8 @@ void spawnOrbit() {
     }
     actor->state = 0;
     actor_collisionOff(actor);
-    actor->unk44_2 = 1;
+    actor->unk44_2 = 1; // Keep this jiggy out of jiggylist_map_actors
+    actor->unk10_1 = 0; // Keep this jiggy out of map savestate
     sfxsource_playHighPriority(SFX_3E9_UNKNOWN);
     sMarker = (void*)actor->marker;
 }
