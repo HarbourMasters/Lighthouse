@@ -485,6 +485,11 @@ void thread5_entry(void *arg) {
     msg.ptr = NULL;
     do {
         osRecvMesg(&sThread5MesgQueue, &msg, OS_MESG_BLOCK);
+        // [port] Shutdown released the queue rather than delivering anything, so msg
+        // holds nothing worth dispatching. Leave before the engine goes away.
+        if (OS_ThreadShouldExit()) {
+            return;
+        }
         ThreadWatchdog_Beat(WATCHDOG_THREAD5); // [port] one beat per serviced message
         thread5_checkAndExecutePreNMI();
         if ((uintptr_t)msg.ptr < 100) {

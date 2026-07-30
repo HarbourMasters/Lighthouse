@@ -308,6 +308,9 @@ void pfsManager_readData(){
 void pfsManager_entry(void *arg) {
     do {
         osRecvMesg(&pfsManagerContPollingMsqQ, 0, 1);
+        if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
+            return;
+        }
         ThreadWatchdog_Beat(WATCHDOG_PFSMANAGER); // [port] one beat per SI completion
         if(pfsManagerBusy == true){
             pfsManager_readData();

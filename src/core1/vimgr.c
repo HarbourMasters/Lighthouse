@@ -240,6 +240,9 @@ void viMgr_entry(void *arg0){
     OSMesg sp48;
     do{
         osRecvMesg(&sMesgQueue1, &sp48, OS_MESG_BLOCK);
+        if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
+            return;
+        }
         ThreadWatchdog_Beat(WATCHDOG_VIMGR); // [port] one beat per retrace
         thread5_checkAndExecutePreNMI();
         D_802808D8++;

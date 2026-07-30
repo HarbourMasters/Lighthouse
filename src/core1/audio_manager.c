@@ -357,6 +357,9 @@ void audioManagerThread_entry(void *arg) {
 
     while (true) {
         osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
+        if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
+            return;
+        }
         ThreadWatchdog_Beat(WATCHDOG_AUDIO_MANAGER); // [port] one beat per audio frame
         if (audioManager_handleFrameMsg(audioManager.audio_info[sAudioInfoID % 3], sPrevFinishedAudioInfo)) {
             if (skip_handle_done_mesg == 0) {
