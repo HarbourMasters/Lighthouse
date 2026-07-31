@@ -234,7 +234,9 @@ inline bool CanOpenWorld(level_e levelId) {
         return true;
     }
 
-    int32_t puzzleCost = levelId == LEVEL_6_LAIR ? 25 : _puzzleCost(levelNum - 1);
+    // [port] index 9 is the Door of Grunty picture; 25 is only its vanilla cost, and a
+    // romhack can change it like any other.
+    int32_t puzzleCost = levelId == LEVEL_6_LAIR ? _puzzleCost(9) : _puzzleCost(levelNum - 1);
     int32_t jiggyCount = item_getCount(ITEM_E_JIGGY);
 
     if (jiggyCount >= puzzleCost) {

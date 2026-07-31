@@ -16,6 +16,7 @@
 #include "Types.h"
 
 #include "port/Rando/Logic/Logic.h"
+#include "port/Romhack/RomhackConfig.h"
 
 extern "C" {
 #include "core1/sns.h"
@@ -70,6 +71,64 @@ static void BitfieldSetNBits(uint8_t* array, int startIndex, int numBits, int va
     for (int i = 0; i < numBits; i++) {
         BitfieldSetBit(array, startIndex + i, (1 << i) & value);
     }
+}
+
+struct ResolvedFlag {
+    int index;
+    int width;
+    int puzzle;
+};
+
+static int PuzzleIndexForFlag(const FlagDef& f) {
+    static const char* const kPuzzleFlagNames[] = {
+        "MM_PUZZLE_PIECES_PLACED",  "TTC_PUZZLE_PIECES_PLACED", "CC_PUZZLE_PIECES_PLACED",
+        "BGS_PUZZLE_PIECES_PLACED", "FP_PUZZLE_PIECES_PLACED",  "GV_PUZZLE_PIECES_PLACED",
+        "MMM_PUZZLE_PIECES_PLACED", "RBB_PUZZLE_PIECES_PLACED", "CCW_PUZZLE_PIECES_PLACED",
+        "DOG_PUZZLE_PIECES_PLACED", "DOUBLE_HEALTH_PUZZLE_PIECES_PLACED",
+    };
+    if (f.name != nullptr) {
+        for (int i = 0; i < 11; i++) {
+            if (strcmp(f.name, kPuzzleFlagNames[i]) == 0) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+static ResolvedFlag ResolveFlag(const FlagDef& f) {
+    const int puzzle = PuzzleIndexForFlag(f);
+    if (puzzle < 0) {
+        return { f.bitIndex, f.bitWidth, -1 };
+    }
+
+    const int index = port_getRomhackJiggyPuzzleFlag(puzzle);
+    const int width = port_getRomhackJiggyPuzzleSize(puzzle);
+    if (index < 0 || width < 0) {
+        return { f.bitIndex, f.bitWidth, puzzle }; // no override, vanilla placement
+    }
+    // A malformed override would put the counter on top of unrelated progress flags.
+    // The vanilla counters tile 0x5D-0x81 exactly, and 0x82 is the next flag along.
+    if (width == 0 || index < 0x5D || index + width - 1 > 0x81) {
+        SPDLOG_WARN("[SaveManager] {} declares an out-of-range puzzle layout (offset {:#x}, {} bits); "
+                    "falling back to the vanilla placement",
+                    f.name, index, width);
+        return { f.bitIndex, f.bitWidth, puzzle };
+    }
+    return { index, width, puzzle };
+}
+
+// A picture's cost can shrink when a romhack ships a revised aGameConfig, which leaves an
+// existing save reporting more pieces placed than the picture now has slots. The podium
+// picks its occupied slots by rejection sampling, which never terminates once every slot
+// is taken, so pin the counter to what the current table can represent on the way in.
+static uint32_t ClampPuzzleCount(int puzzle, uint32_t value, const char* name) {
+    const int cost = _puzzleCost(puzzle);
+    if (cost >= 0 && value > static_cast<uint32_t>(cost)) {
+        SPDLOG_WARN("[SaveManager] {} is {} but the picture only has {} slots; clamping", name, value, cost);
+        return static_cast<uint32_t>(cost);
+    }
+    return value;
 }
 
 void RandoSaveCheck_to_json(nlohmann::json& j, const RandoSaveCheck& randoSaveCheck) {
@@ -161,10 +220,11 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
         if (f.world != nullptr) {
             continue;
         }
-        if (f.bitWidth == 1) {
-            general[f.name] = BitfieldGetBit(progressFlags, f.bitIndex);
+        const ResolvedFlag r = ResolveFlag(f);
+        if (r.width == 1) {
+            general[f.name] = BitfieldGetBit(progressFlags, r.index);
         } else {
-            general[f.name] = BitfieldGetNBits(progressFlags, f.bitIndex, f.bitWidth);
+            general[f.name] = BitfieldGetNBits(progressFlags, r.index, r.width);
         }
     }
     j["progress"] = general;
@@ -176,10 +236,11 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
         if (f.world == nullptr || strcmp(f.world, "CHEATS") != 0) {
             continue;
         }
-        if (f.bitWidth == 1) {
-            cheats[f.name] = BitfieldGetBit(progressFlags, f.bitIndex);
+        const ResolvedFlag r = ResolveFlag(f);
+        if (r.width == 1) {
+            cheats[f.name] = BitfieldGetBit(progressFlags, r.index);
         } else {
-            cheats[f.name] = BitfieldGetNBits(progressFlags, f.bitIndex, f.bitWidth);
+            cheats[f.name] = BitfieldGetNBits(progressFlags, r.index, r.width);
         }
     }
     j["cheats"] = cheats;
@@ -264,10 +325,11 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
             if (f.world == nullptr || strcmp(f.world, wd.name) != 0) {
                 continue;
             }
-            if (f.bitWidth == 1) {
-                worldProgress[f.name] = BitfieldGetBit(progressFlags, f.bitIndex);
+            const ResolvedFlag r = ResolveFlag(f);
+            if (r.width == 1) {
+                worldProgress[f.name] = BitfieldGetBit(progressFlags, r.index);
             } else {
-                worldProgress[f.name] = BitfieldGetNBits(progressFlags, f.bitIndex, f.bitWidth);
+                worldProgress[f.name] = BitfieldGetNBits(progressFlags, r.index, r.width);
             }
         }
         if (!worldProgress.empty()) {
@@ -418,11 +480,15 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 
         if (generalProgress.contains(f.name)) {
             uint32_t value = generalProgress[f.name].get<uint32_t>();
+            const ResolvedFlag r = ResolveFlag(f);
+            if (r.puzzle >= 0) {
+                value = ClampPuzzleCount(r.puzzle, value, f.name);
+            }
 
-            if (f.bitWidth == 1) {
-                BitfieldSetBit(progressFlags, f.bitIndex, value != 0);
+            if (r.width == 1) {
+                BitfieldSetBit(progressFlags, r.index, value != 0);
             } else {
-                BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, value);
+                BitfieldSetNBits(progressFlags, r.index, r.width, value);
             }
         }
     }
@@ -439,13 +505,14 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
 
         if (cheats.contains(f.name)) {
             uint32_t value = cheats[f.name].get<uint32_t>();
+            const ResolvedFlag r = ResolveFlag(f);
 
-            if (f.bitWidth == 1) {
+            if (r.width == 1) {
                 // Set single bit (0 or 1)
-                BitfieldSetBit(progressFlags, f.bitIndex, value != 0);
+                BitfieldSetBit(progressFlags, r.index, value != 0);
             } else {
                 // Set multiple bits for specific cheat values
-                BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, value);
+                BitfieldSetNBits(progressFlags, r.index, r.width, value);
             }
         }
     }
@@ -533,10 +600,14 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
             if (f.world != nullptr && strcmp(f.world, wd.name) == 0) {
                 if (src.contains(f.name)) {
                     uint32_t val = src[f.name].get<uint32_t>();
-                    if (f.bitWidth == 1)
-                        BitfieldSetBit(progressFlags, f.bitIndex, val != 0);
+                    const ResolvedFlag r = ResolveFlag(f);
+                    if (r.puzzle >= 0) {
+                        val = ClampPuzzleCount(r.puzzle, val, f.name);
+                    }
+                    if (r.width == 1)
+                        BitfieldSetBit(progressFlags, r.index, val != 0);
                     else
-                        BitfieldSetNBits(progressFlags, f.bitIndex, f.bitWidth, val);
+                        BitfieldSetNBits(progressFlags, r.index, r.width, val);
                 }
             }
         }
