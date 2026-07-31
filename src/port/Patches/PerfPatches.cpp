@@ -30,6 +30,7 @@ static f32 sPadFrustumY = 93.9692611694336f;
 static f32 sPadPlanes[4][4];
 static bool sPadPlanesDirty = true;
 
+// TODO: Find better place for these two warn functions
 // Capped so a bad frame can't flood the log; one print is enough to investigate.
 extern "C" void port_warnPropNotInCube(int32_t index, int32_t propCnt) {
     static int32_t sReported = 0;

@@ -506,9 +506,6 @@ static bool port_breakable_survivesBreak(s32 markerId) {
     switch (markerId) {
         case MARKER_34_CEMETARY_POT:            // flowers
         case MARKER_66_ORANGE_PAD:              // stays, marked hit
-        case MARKER_9F_CHURCH_GATE_LEFT_LOCK:   // broken lock stays on the gate
-        case MARKER_A0_HEDGE_GATE_RIGHT_LOCK_1:
-        case MARKER_FF_HEDGE_GATE_RIGHT_LOCK_2:
             return TRUE;
         default:
             return FALSE;

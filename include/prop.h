@@ -409,7 +409,7 @@ typedef struct cude_s{
     // [port] were bitfields (:5/:6/:6). The 64th prop wrapped a count to 0, which
     // realloc'd the prop array to nothing while live markers still pointed into it;
     // unk0_4 is the front index of the node-prop partition and wrapped at 32.
-    u16 unk0_4; //node_prop_count
+    u32 unk0_4:16; //node_prop_count
     u16 prop1Cnt;
     u16 prop2Cnt;
     NodeProp *prop1Ptr;

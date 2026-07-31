@@ -521,13 +521,14 @@ s32 func_8032D9C0(Cube *cube, Prop* prop){
 
     sp24 = 0;
     if(cube != NULL && cube->prop2Cnt != 0 && prop != NULL && cube->prop2Ptr != NULL){
-        sp24 = prop->unk8_1;
         ptrdiff_t index = prop - cube->prop2Ptr;
         // [port] A stale propPtr makes elementsAfter enormous; drop the removal instead.
         if (index < 0 || index >= (ptrdiff_t)cube->prop2Cnt) {
             port_warnPropNotInCube((s32)index, (s32)cube->prop2Cnt);
             return sp24;
         }
+
+        sp24 = prop->unk8_1;
         if(func_80305D14()){
             func_80305CD8(func_803058C0(prop->unk4[1]), -1);
         }
