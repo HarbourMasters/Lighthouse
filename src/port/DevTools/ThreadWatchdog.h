@@ -37,6 +37,10 @@ void ThreadWatchdog_Stop(void);
 // Log the pipeline state immediately, stalled or not.
 void ThreadWatchdog_DumpNow(void);
 
+// Bracket a section that blocks a serviced thread on purpose.
+void ThreadWatchdog_BeginExpectedStall(const char* reason);
+void ThreadWatchdog_EndExpectedStall(void);
+
 // Whether the watcher currently considers this thread stalled. The gui only
 // draws inside serviced frames, so the main loop uses this to keep drawing
 // while the tick is down instead of freezing ImGui along with it.
@@ -71,6 +75,20 @@ void viMgr_getWatchdogState(ViMgrWatchdogState* out);
 
 #ifdef __cplusplus
 }
+
+namespace Lighthouse {
+class ExpectedStall {
+  public:
+    explicit ExpectedStall(const char* reason) {
+        ThreadWatchdog_BeginExpectedStall(reason);
+    }
+    ~ExpectedStall() {
+        ThreadWatchdog_EndExpectedStall();
+    }
+    ExpectedStall(const ExpectedStall&) = delete;
+    ExpectedStall& operator=(const ExpectedStall&) = delete;
+};
+} // namespace Lighthouse
 #endif
 
 #endif // PORT_THREAD_WATCHDOG_H

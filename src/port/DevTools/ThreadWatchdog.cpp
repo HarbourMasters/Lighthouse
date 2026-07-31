@@ -116,6 +116,10 @@ std::atomic<bool> sStalledFlags[WATCHDOG_NUM_THREADS] = {};
 std::thread sWatcher;
 std::atomic<bool> sWatcherRun{ false };
 
+// Non-zero while a serviced thread is blocked on purpose.
+std::atomic<int> sExpectedStallDepth{ 0 };
+std::atomic<const char*> sExpectedStallReason{ nullptr };
+
 std::string DescribeUnkFlag1(int32_t f) {
     switch (f) {
         case 0x04:
@@ -436,6 +440,7 @@ void Watcher() {
     auto lastSample = Clock::now();
     auto lastReport = Clock::time_point{};
     bool wasStalled = false;
+    bool wasExpected = false;
 
     while (sWatcherRun.load(std::memory_order_relaxed)) {
         std::this_thread::sleep_for(kSampleEvery);
@@ -445,6 +450,9 @@ void Watcher() {
         // this one; a stale "last beat" then isn't a stall. Rebaseline.
         const bool suspended = (now - lastSample) > kSampleEvery * 4;
         lastSample = now;
+        const bool expected = sExpectedStallDepth.load(std::memory_order_acquire) > 0;
+        const bool rebaseline = suspended || expected || wasExpected;
+        wasExpected = expected;
 
         bool stalled[WATCHDOG_NUM_THREADS] = {};
         bool anyStalled = false;
@@ -457,7 +465,7 @@ void Watcher() {
                 }
                 hb.started = true;
             }
-            if (cur != hb.lastCount || suspended) {
+            if (cur != hb.lastCount || rebaseline) {
                 hb.lastCount = cur;
                 hb.lastBeat = now;
                 continue;
@@ -546,4 +554,27 @@ extern "C" void ThreadWatchdog_DumpNow(void) {
 
 extern "C" int ThreadWatchdog_IsStalled(WatchdogThread id) {
     return sStalledFlags[id].load(std::memory_order_relaxed) ? 1 : 0;
+}
+
+extern "C" void ThreadWatchdog_BeginExpectedStall(const char* reason) {
+    if (sExpectedStallDepth.fetch_add(1, std::memory_order_acq_rel) == 0) {
+        sExpectedStallReason.store(reason, std::memory_order_relaxed);
+        SPDLOG_DEBUG("[Watchdog] stall reporting suppressed: {}", reason ? reason : "?");
+    }
+}
+
+extern "C" void ThreadWatchdog_EndExpectedStall(void) {
+    const int prev = sExpectedStallDepth.fetch_sub(1, std::memory_order_acq_rel);
+    if (prev <= 0) {
+        // Unbalanced release would leave the counter negative and suppress
+        // every future stall, which is worse than the false positive.
+        sExpectedStallDepth.store(0, std::memory_order_release);
+        SPDLOG_WARN("[Watchdog] ThreadWatchdog_EndExpectedStall without a matching Begin");
+        return;
+    }
+    if (prev == 1) {
+        const char* reason = sExpectedStallReason.load(std::memory_order_relaxed);
+        SPDLOG_DEBUG("[Watchdog] stall reporting resumed: {}", reason ? reason : "?");
+        sExpectedStallReason.store(nullptr, std::memory_order_relaxed);
+    }
 }
