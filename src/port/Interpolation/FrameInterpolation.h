@@ -66,6 +66,10 @@ void FrameInterpolation_RecordCameraPosition(const float pos[3]);
 void FrameInterpolation_NoInterpolatePush(void);
 void FrameInterpolation_NoInterpolatePop(void);
 
+// Like NoInterpolatePush, but keeps the camera half of the transform live.
+void FrameInterpolation_CameraRelativePush(void);
+void FrameInterpolation_CameraRelativePop(void);
+
 // kind matches the three sprite paths in sprite/render.c:
 //   BILLBOARD       — func_80344138. camYaw/camPitch, no spriteRoll.
 //   BILLBOARD_ROLL  — func_80344424. camYaw/camPitch + spriteRoll forward.

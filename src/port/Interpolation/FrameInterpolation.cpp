@@ -24,6 +24,7 @@ struct ToMtxData {
     float src[4][4];
     uint64_t pathSig;
     bool noInterpolate;
+    bool camRelFixup;
     bool ambiguousSig;
 };
 
@@ -103,6 +104,9 @@ struct InterpolationCache {
     bool valid = false;
     std::vector<PairedToMtx> pairedToMtxs;
     std::vector<PairedSprite> pairedSprites;
+    std::vector<uint32_t> camRelFixups;
+    float cameraDelta[3] = { 0.0f, 0.0f, 0.0f };
+    bool hasCameraDelta = false;
     bool prevHasCameraPos = false;
     float prevCameraPos[3] = { 0.0f, 0.0f, 0.0f };
 
@@ -111,6 +115,8 @@ struct InterpolationCache {
         valid = false;
         pairedToMtxs.clear();
         pairedSprites.clear();
+        camRelFixups.clear();
+        hasCameraDelta = false;
         prevHasCameraPos = false;
     }
 };
@@ -128,6 +134,7 @@ bool gRenderShould = false;
 bool gRecording = false;
 bool gShouldInterpolate = true;
 int gNoInterpolateDepth = 0;
+int gCameraRelativeDepth = 0;
 
 std::unordered_map<const void*, uint64_t> gIdMap;
 uint64_t gNextId = 1;
@@ -203,6 +210,7 @@ void FrameInterpolation_StartRecord(void) {
     gRecord->scopeStack.push_back({ kFnvSeed, 0, 0, "root", 0 });
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
+    gCameraRelativeDepth = 0;
     gRecording = true;
 }
 
@@ -322,7 +330,8 @@ void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]) {
     d.dst = dst;
     std::memcpy(d.src, src, sizeof(float) * 16);
     d.pathSig = sig;
-    d.noInterpolate = (gNoInterpolateDepth > 0);
+    d.noInterpolate = (gNoInterpolateDepth > 0 || gCameraRelativeDepth > 0);
+    d.camRelFixup = (gCameraRelativeDepth > 0);
     d.ambiguousSig = false;
     recordSigCollision(gRecord->sigToToMtx, gRecord->toMtxs, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
@@ -359,6 +368,16 @@ void FrameInterpolation_NoInterpolatePush(void) {
 void FrameInterpolation_NoInterpolatePop(void) {
     if (gNoInterpolateDepth > 0) {
         gNoInterpolateDepth--;
+    }
+}
+
+void FrameInterpolation_CameraRelativePush(void) {
+    gCameraRelativeDepth++;
+}
+
+void FrameInterpolation_CameraRelativePop(void) {
+    if (gCameraRelativeDepth > 0) {
+        gCameraRelativeDepth--;
     }
 }
 
@@ -460,6 +479,16 @@ void BuildInterpolationCache() {
         gCache.prevCameraPos[2] = gRenderPrev->cameraPos[2];
     }
 
+    // Same two positions the cut heuristic below compares, so a fixup can never
+    // shift further than the cut threshold before Interpolate() bails outright.
+    gCache.hasCameraDelta = false;
+    if (gRenderPrev->hasCameraPos && gRenderCurr->hasCameraPos) {
+        for (int k = 0; k < 3; k++) {
+            gCache.cameraDelta[k] = gRenderCurr->cameraPos[k] - gRenderPrev->cameraPos[k];
+            gCache.hasCameraDelta |= (gCache.cameraDelta[k] != 0.0f);
+        }
+    }
+
     const std::vector<ToMtxData>& currToMtxs = gRenderCurr->toMtxs;
     const std::vector<ToMtxData>& prevToMtxs = gRenderPrev->toMtxs;
     const std::vector<SpriteDrawData>& currSprites = gRenderCurr->sprites;
@@ -476,7 +505,17 @@ void BuildInterpolationCache() {
     // matrix didn't change, can simply be dropped here.
     for (uint32_t i = 0; i < currToMtxs.size(); i++) {
         const ToMtxData& c = currToMtxs[i];
-        if (c.dst == nullptr || c.noInterpolate || c.ambiguousSig) {
+        if (c.dst == nullptr) {
+            continue;
+        }
+        // Camera-relative fixups skip pairing entirely.
+        if (c.camRelFixup) {
+            if (gCache.hasCameraDelta) {
+                gCache.camRelFixups.push_back(i);
+            }
+            continue;
+        }
+        if (c.noInterpolate || c.ambiguousSig) {
             continue;
         }
         auto it = prevSigMap.find(c.pathSig);
@@ -639,8 +678,19 @@ void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& rep
     const std::vector<SpriteDrawData>& prevSpritesData = gRenderPrev->sprites;
     const std::vector<SpriteDrawData>& currSpritesData = gRenderCurr->sprites;
 
-    replacements.reserve(gCache.pairedToMtxs.size() + gCache.pairedSprites.size() + gRenderCurr->projRots.size() * 3);
+    replacements.reserve(gCache.pairedToMtxs.size() + gCache.pairedSprites.size() + gCache.camRelFixups.size() +
+                         gRenderCurr->projRots.size() * 3);
     const float w = 1.0f - t;
+
+    // Re-aim the frozen matrix at the sub-frame's camera.
+    for (uint32_t idx : gCache.camRelFixups) {
+        const ToMtxData& c = currToMtxs[idx];
+        MtxF& out = replacements[reinterpret_cast<Mtx*>(c.dst)];
+        std::memcpy(out.mf, c.src, sizeof(out.mf));
+        for (int k = 0; k < 3; k++) {
+            out.mf[3][k] += w * gCache.cameraDelta[k];
+        }
+    }
 
     for (const PairedToMtx& pair : gCache.pairedToMtxs) {
         const ToMtxData& c = currToMtxs[pair.currIdx];

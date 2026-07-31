@@ -291,6 +291,9 @@ void RegisterNoteRetention_Init() {
             pos[1] = q.pos[1];
             pos[2] = q.pos[2];
             Actor* note = actor_new(pos, 0, &sumusicNote, ACTOR_FLAG_UNKNOWN_21);
+            if (note != nullptr) {
+                note->unk124_6 = 0;
+            }
             ActorMarker* marker = (note != nullptr) ? note->marker : nullptr;
             if (marker != nullptr) {
                 // Key on the marker (stable across the actor's life).

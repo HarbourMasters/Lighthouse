@@ -56,9 +56,9 @@ Actor *chBadShad_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
         modelRender_setAlpha(other->alpha_124_19);
     sp40 = ml_map_f(this->actor_specific_1_f, 0.0f , 800.0f, 0.53f, 0.18f)*this->unk1C[1];
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
-    FrameInterpolation_NoInterpolatePush();
+    FrameInterpolation_CameraRelativePush();
     modelRender_draw(gfx, mtx, this->position, sp44, sp40, NULL, marker_loadModelBin(marker));
-    FrameInterpolation_NoInterpolatePop();
+    FrameInterpolation_CameraRelativePop();
     return this;
 }
 
