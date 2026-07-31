@@ -520,7 +520,7 @@ s32 func_8032D9C0(Cube *cube, Prop* prop){
     s32 tmp;
 
     sp24 = 0;
-    if(cube->prop2Cnt != 0){
+    if(cube != NULL && cube->prop2Cnt != 0 && prop != NULL){
         sp24 = prop->unk8_1;
         if(func_80305D14()){
             func_80305CD8(func_803058C0(prop->unk4[1]), -1);
@@ -953,6 +953,11 @@ static void __codeA5BC0_initPropPointerForCube(NodeProp *node, Cube *cube, s32 c
             memcpy(&cube->prop1Ptr[cube->unk0_4], &node[i], sizeof(NodeProp));
             cube->unk0_4++;
         }
+    }
+
+    // [port] unk0_4 is the front index of this partition; :5 wrapped it here.
+    if(cube->unk0_4 > 31){
+        port_warnNodePropSplit(cube->unk0_4, cnt);
     }
 
     bk_free(node);

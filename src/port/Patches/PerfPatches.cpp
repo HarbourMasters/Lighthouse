@@ -39,6 +39,16 @@ extern "C" void port_warnPropNotInCube(int32_t index, int32_t propCnt) {
     }
 }
 
+// Fires only for a cube the old :5 unk0_4 would have silently corrupted, so if this
+// never prints, no shipped map reaches the limit and the widening is forward-looking.
+extern "C" void port_warnNodePropSplit(int32_t splitIndex, int32_t nodeCnt) {
+    static int32_t sReported = 0;
+    if (sReported < 20) {
+        sReported++;
+        SPDLOG_WARN("cube node-prop split {} of {} exceeds the old 31 limit", splitIndex, nodeCnt);
+    }
+}
+
 // __cube_sort re-sorts every visible cube's props each tick, but only the camera
 // moves, so the order rarely changes. A stable insertion sort skims an already
 // sorted array in one pass and produces the same ordering as the vanilla sort.
