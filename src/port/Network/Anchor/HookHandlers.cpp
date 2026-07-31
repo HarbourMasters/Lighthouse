@@ -142,8 +142,10 @@ bool Anchor_ScopedFlagExcluded(s32 space, s32 index) {
 
 static bool Anchor_ShouldSyncItemCount(s32 item, const RoomState& room) {
     switch (item) {
+        // Progress counters, not consumables; the caller already gates on syncItemsAndFlags.
         case ITEM_1C_MUMBO_TOKEN:
         case ITEM_26_JIGGY_TOTAL:
+            return true;
         case ITEM_D_EGGS:
         case ITEM_F_RED_FEATHER:
         case ITEM_10_GOLD_FEATHER:
