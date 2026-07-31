@@ -208,6 +208,11 @@ public:
 
     bool IsGlobalRoom();
 
+    // Presence/position/plumbing packets, the only ones allowed through when the room
+    // is not syncing game state. Anything absent is treated as world state and dropped
+    // at the send and receive choke points, so a new packet type is unsynced by default.
+    static bool AllowedWithoutGameSync(const std::string& packetType);
+
     void AdoptRemoteCheck(s32 rc);
     void CheckRandoRoomCompatibility();
 
