@@ -104,6 +104,8 @@ typedef enum VBehaviorID {
     VB_GCLIGHTS_RECOLOR,
     VB_SNOW_CAMERA_ROTATION,
     VB_DRAWDIST_BOX_CULL,
+    VB_PICTUREBOX_TARGET_FB,
+    VB_MAP_SAVESTATE_USE,
 } VBehaviorID;
 
 typedef enum DoorCameraId {

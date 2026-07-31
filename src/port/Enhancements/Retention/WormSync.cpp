@@ -64,6 +64,10 @@ bool isCollected(int32_t slot, int32_t mapId, int32_t hash) {
     return sCollected.count({ slot, mapId, hash }) != 0;
 }
 
+bool inDemoPlayback() {
+    return func_802E4A08() != 0;
+}
+
 } // namespace
 
 extern "C" void port_carriedSync_beginMapLoad(int32_t mapId) {
@@ -80,14 +84,14 @@ extern "C" void port_carriedSync_register(int32_t kind, void* marker, int32_t x,
     int32_t mapId = (int32_t)gsworld_getMap();
     int32_t hash = spawnHash(x, y, z);
     ObjectExtension::GetInstance().Set<CarriedSpawnData>(marker, CarriedSpawnData(mapId, hash));
-    if (isCollected(slot, mapId, hash)) {
+    if (!inDemoPlayback() && isCollected(slot, mapId, hash)) {
         *suppress = 1;
     }
 }
 
 extern "C" void port_carriedSync_onLocalCollect(int32_t kind, void* marker) {
     int32_t slot = slotForKind(kind);
-    if (slot < 0) {
+    if (slot < 0 || inDemoPlayback()) {
         return;
     }
     CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
@@ -99,7 +103,7 @@ extern "C" void port_carriedSync_onLocalCollect(int32_t kind, void* marker) {
 }
 
 extern "C" void port_carriedSync_onLocalSpend(int32_t kind) {
-    if (slotForKind(kind) < 0) {
+    if (slotForKind(kind) < 0 || inDemoPlayback()) {
         return;
     }
     // A spend (feeding Eyrie/Nabnut) is -1 to the shared pool.

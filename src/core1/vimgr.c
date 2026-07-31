@@ -174,13 +174,10 @@ void viMgr_func_8024BFAC(void){
 
 void viMgr_func_8024BFD8(s32 arg0){
     // [port] Set D_80280724 to the actual VI count so time_func_8033DDB8() returns
-    // the correct delta for demo/playback zoomboxes. On N64 this was set from the
-    // VI wait loop counter which reflected real rendering time (including lag).
-    // During demo playback, sDemoViCount includes the N64's original rendering lag
-    // for maps that ran slow, which the zoombox dialog system needs to pace text.
+    // the correct delta for demo/playback zoomboxes.
     s32 demoVi = port_getDemoViCount();
     static s32 D_80280E90;
-    s32 viBudget = (!func_802E4A08() && demoVi > 2) ? demoVi : 2;
+    s32 viBudget = (demoVi > 2) ? demoVi : 2;
 
     osSetThreadPri(NULL, 0x7f);
     defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY_HIGH);

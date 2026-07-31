@@ -614,7 +614,9 @@ void func_8031594C(GcZoombox * this, u8 *str, s32 arg2, s32 arg3){
      s1 = 0;
      f22 = (this->portrait_id == ZOOMBOX_SPRITE_5F_TOOTY_4) ? 0.4 : 0.8;
 
-     if(getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE){
+     // [port] The zoombox draws from the shared gameplay RNG, and these two calls are a
+     // save/restore of the whole state around that.
+     if(func_802E4A08()){
           sfx_rand_sync_to_rand();
      }
      for(s2 = arg2; s2 <= arg3; s2++){
@@ -667,7 +669,7 @@ void func_8031594C(GcZoombox * this, u8 *str, s32 arg2, s32 arg3){
      }//L80315B6C
      this->unk189 = s1;
      this->unk187 = 0;
-     if(getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE){
+     if(func_802E4A08()){
           rand_sync_to_sfx_rand();
      }
 }
@@ -995,7 +997,7 @@ void gczoombox_draw(GcZoombox *this, Gfx **gdl, Mtx ** mptr, void *vptr){
      if(!this)
           return;
 
-     if(getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE)
+     if(func_802E4A08())
           sfx_rand_sync_to_rand();
      //L80316BCC
      // [port] Stable scope. The crossfade branch below toggles 1↔2 sprite
@@ -1046,7 +1048,7 @@ void gczoombox_draw(GcZoombox *this, Gfx **gdl, Mtx ** mptr, void *vptr){
           }
      }//L80316DD8
      FrameInterpolation_RecordCloseChild();
-     if(getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE){
+     if(func_802E4A08()){
           rand_sync_to_sfx_rand();
      }
 
@@ -1401,9 +1403,14 @@ void __gczoombox_load_sfx(GcZoombox *this, GcZoomboxSprite portrait_id){
                     }
                     //L80317E48
                }
+               // [port] Balanced bracket. Vanilla restores below without a matching save,
+               // which rewinds the shared stream to whenever the last snapshot was taken;
+               // taking one here means the restore only undoes this randi2.
+               if(func_802E4A08()){
+                    sfx_rand_sync_to_rand();
+               }
                this->prev_sfx = randi2(0,this->sfx_count);
-               // [port] This mode needs a rand sync like many other places
-               if(getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE){
+               if(func_802E4A08()){
                     rand_sync_to_sfx_rand();
                }
           }

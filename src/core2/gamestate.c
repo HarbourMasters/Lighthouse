@@ -30,7 +30,12 @@ bool func_80347A4C(void);
 /* .code */
 void func_80345EB0(enum item_e item){
     if(func_802FAFE8(item)){
-        item_adjustByDiffWithHud(item, (s32)(-time_getDelta()*(float)(FRAMERATE) * 1.1));
+        // [port] Pin the Bottles Bonus hourglass for timer consistency
+        f32 dt = time_getDelta();
+        if(item == ITEM_0_HOURGLASS_TIMER && getGameMode() == GAME_MODE_8_BOTTLES_BONUS){
+            dt = 1.0f / 30.0f;
+        }
+        item_adjustByDiffWithHud(item, (s32)(-dt*(float)(FRAMERATE) * 1.1));
     }else{
         code_73640_printItemCount(item);
     }

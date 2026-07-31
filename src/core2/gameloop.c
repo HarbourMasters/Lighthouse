@@ -288,6 +288,7 @@ void func_802E3E7C(enum game_mode_e mode){
     s32 sp28;
     s32 prev_mode;
     s32 prev_map;
+    s32 outgoing_mode = D_8037E8E0.game_mode; // [port] game_setMode below overwrites it
 
     core1_15B30_sendMesg3ToRenderThread();
     sp34 = D_8037E8E0.unk18;
@@ -297,13 +298,16 @@ void func_802E3E7C(enum game_mode_e mode){
     prev_mode = D_8037E8E0.unk0;
     game_setMode(GAME_MODE_2_UNKNOWN, 0);
     if(!volatileFlag_getAndSet(VOLATILE_FLAG_21, 0) || map_getLevel(gsworld_getMap()) == map_getLevel(D_8037E8E0.map)){
-        if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE))
+        if(!volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)
+            && EventSystem_Should(VB_MAP_SAVESTATE_USE, true, outgoing_mode))
             mapSavestate_save(gsworld_getMap());
     }
     func_802E398C(1);
     prev_map = gsworld_getMap();
     func_802E38E8(map, sp28, sp34);
-    mapSavestate_apply(map);
+    if(EventSystem_Should(VB_MAP_SAVESTATE_USE, true, mode)){
+        mapSavestate_apply(map);
+    }
     D_8037E8E0.unk0 = prev_mode;
     game_setMode(mode, sp30);
     jiggylist_map_actors();
@@ -557,6 +561,7 @@ bool func_802E4424(void) {
                 return false;
 
             case 7:                                     /* switch 1 */
+                port_beginDemoAudioHold();
                 func_8034B8C0(D_8037E8E0.map, D_8037E8E0.exit);
                 func_802E3E7C(GAME_MODE_8_BOTTLES_BONUS);
                 return false;
