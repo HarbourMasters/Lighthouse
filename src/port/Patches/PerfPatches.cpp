@@ -2,7 +2,10 @@
 #include <cmath>
 #include <cstring>
 
+#include <spdlog/spdlog.h>
+
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 #include "port/ShipInit.hpp"
 
 extern "C" {
@@ -10,7 +13,7 @@ extern "C" {
 #include "functions.h"
 #include "core2/lighting.h"
 
-extern s32 D_80383450[0x40];
+extern s32 D_80383450[CUBE_SORT_SCRATCH_SIZE];
 
 // core1 helpers not exposed through functions.h.
 extern void func_80256E24(f32 dst[3], f32 theta, f32 phi, f32 x, f32 y, f32 z);
@@ -26,6 +29,26 @@ static f32 sPadFrustumX = 89.21774f;
 static f32 sPadFrustumY = 93.9692611694336f;
 static f32 sPadPlanes[4][4];
 static bool sPadPlanesDirty = true;
+
+// TODO: Find better place for these two warn functions
+// Capped so a bad frame can't flood the log; one print is enough to investigate.
+extern "C" void port_warnPropNotInCube(int32_t index, int32_t propCnt) {
+    static int32_t sReported = 0;
+    if (sReported < 20) {
+        sReported++;
+        SPDLOG_WARN("cube_removeProp: prop not in cube (index {}, cnt {})", index, propCnt);
+    }
+}
+
+// Fires only for a cube the old :5 unk0_4 would have silently corrupted, so if this
+// never prints, no shipped map reaches the limit and the widening is forward-looking.
+extern "C" void port_warnNodePropSplit(int32_t splitIndex, int32_t nodeCnt) {
+    static int32_t sReported = 0;
+    if (sReported < 20) {
+        sReported++;
+        SPDLOG_WARN("cube node-prop split {} of {} exceeds the old 31 limit", splitIndex, nodeCnt);
+    }
+}
 
 // __cube_sort re-sorts every visible cube's props each tick, but only the camera
 // moves, so the order rarely changes. A stable insertion sort skims an already

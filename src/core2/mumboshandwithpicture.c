@@ -69,7 +69,6 @@ Actor *chMumbosHandWithPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, V
     modelRender_draw(gfx, mtx, sp58, NULL, 1.0f, sp4C, D_8037DFE8);
     gDPSetColorDither((*gfx)++, G_CD_DISABLE);
     depthbuffer_clear(gfx);
-    port_readAuxFbToCpu(gfx);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp48));
     modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod,  (void *)this);

@@ -183,14 +183,18 @@ s32 commonParticle_findFree(void){
 int commonParticle_new(enum common_particle_e particle_id, int arg1){
     f32 sp34[3];
     uintptr_t a0;
+    s32 slot;
 
     if(arg1 == 0)
         return -1;
     
     ml_vec3f_clear(sp34);
-    D_80384FD0 = commonParticle_findFree();
-    if(D_80384FD0 < 0)
+    // [port] Don't publish -1 to the global; every D_80384490[D_80384FD0] access
+    // downstream (accessors, commonParticle_update) would read out of bounds.
+    slot = commonParticle_findFree();
+    if(slot < 0)
         return -1;
+    D_80384FD0 = slot;
 
     
     D_80384490[D_80384FD0].projectileIndex = func_8033FA84();
@@ -249,6 +253,10 @@ void freeParticleByIndex(s32 arg0){
 
 void commonParticle_add(ActorMarker *arg0, s32 arg1, FuncUnk40 arg2){
     s32 tmp_v0 = commonParticle_findFree();
+    // [port] Pool full returns -1; writing D_80384490[-1] corrupts whatever precedes it.
+    if(tmp_v0 < 0){
+        return;
+    }
     D_80384490[tmp_v0].isInUse--;
     D_80384490[tmp_v0].unk38 = arg0;
     D_80384490[tmp_v0].unk3C = arg1;

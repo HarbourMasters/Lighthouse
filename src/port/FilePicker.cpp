@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "portable-file-dialogs.h"
+#include "port/DevTools/ThreadWatchdog.h"
 #endif
 
 namespace fs = std::filesystem;
@@ -38,16 +39,19 @@ void PickFile(Ship::FileBrowserRequest request, std::function<void(std::optional
     const std::vector<std::string> filters = ToPfdFilters(request.Filters);
 
     std::optional<fs::path> result;
-    if (request.Save) {
-        const std::string defaultPath = (fs::path(startDir) / request.DefaultName).string();
-        std::string selection = pfd::save_file(request.Title, defaultPath, filters).result();
-        if (!selection.empty()) {
-            result = fs::path(selection);
-        }
-    } else {
-        std::vector<std::string> selection = pfd::open_file(request.Title, startDir, filters).result();
-        if (!selection.empty()) {
-            result = fs::path(selection.front());
+    {
+        Lighthouse::ExpectedStall watchdogPause("native file dialog");
+        if (request.Save) {
+            const std::string defaultPath = (fs::path(startDir) / request.DefaultName).string();
+            std::string selection = pfd::save_file(request.Title, defaultPath, filters).result();
+            if (!selection.empty()) {
+                result = fs::path(selection);
+            }
+        } else {
+            std::vector<std::string> selection = pfd::open_file(request.Title, startDir, filters).result();
+            if (!selection.empty()) {
+                result = fs::path(selection.front());
+            }
         }
     }
     if (onResult) {

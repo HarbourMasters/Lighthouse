@@ -35,7 +35,6 @@ Actor *func_802DF160(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     sp38 = picturebox_getColorBuffer();
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
-    port_readAuxFbToCpu(gfx);
     gSPSegment((*gfx)++, 0x04, osVirtualToPhysical(sp38));
     modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)actor_predrawMethod, (void *)this);
     modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)D_8037E000);

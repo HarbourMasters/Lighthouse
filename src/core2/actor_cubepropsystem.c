@@ -119,7 +119,7 @@ BKCollisionTriangle *D_80383420;
 u8  D_80383428[MARKER_BITMAP_BYTES];
 s32 D_80383444;
 int D_80383448;
-s32 D_80383450[0x40];
+s32 D_80383450[CUBE_SORT_SCRATCH_SIZE];
 bk_vector(ActorMarker *) *D_80383550;
 bk_vector(ActorMarker *) *D_80383554;
 Method_Core2_A5BC0 D_80383558;
@@ -137,6 +137,11 @@ void __cube_sort(Cube *cube, bool global) {
     Prop * var_t0;
     s32 i;
     Prop *new_var;
+
+    // [port] Sorting is only draw order; skip rather than overrun the scratch.
+    if (cube->prop2Cnt > CUBE_SORT_SCRATCH_SIZE) {
+        return;
+    }
 
     if (cube->prop2Cnt >= 2) {
         if (global == 0) {
@@ -515,14 +520,20 @@ s32 func_8032D9C0(Cube *cube, Prop* prop){
     s32 tmp;
 
     sp24 = 0;
-    if(cube->prop2Cnt != 0){
+    if(cube != NULL && cube->prop2Cnt != 0 && prop != NULL && cube->prop2Ptr != NULL){
+        ptrdiff_t index = prop - cube->prop2Ptr;
+        // [port] A stale propPtr makes elementsAfter enormous; drop the removal instead.
+        if (index < 0 || index >= (ptrdiff_t)cube->prop2Cnt) {
+            port_warnPropNotInCube((s32)index, (s32)cube->prop2Cnt);
+            return sp24;
+        }
+
         sp24 = prop->unk8_1;
         if(func_80305D14()){
             func_80305CD8(func_803058C0(prop->unk4[1]), -1);
         }
 
         // port - Rando manipulation of prop2Ptr results in mismatched data, this corrects that.
-        ptrdiff_t index = prop - cube->prop2Ptr;
         ptrdiff_t elementsAfter = (cube->prop2Cnt - 1) - index;
         if (elementsAfter > 0) {
             memmove(prop, prop + 1, elementsAfter * sizeof(Prop));
@@ -943,6 +954,11 @@ static void __codeA5BC0_initPropPointerForCube(NodeProp *node, Cube *cube, s32 c
             memcpy(&cube->prop1Ptr[cube->unk0_4], &node[i], sizeof(NodeProp));
             cube->unk0_4++;
         }
+    }
+
+    // [port] unk0_4 is the front index of this partition; :5 wrapped it here.
+    if(cube->unk0_4 > 31){
+        port_warnNodePropSplit(cube->unk0_4, cnt);
     }
 
     bk_free(node);

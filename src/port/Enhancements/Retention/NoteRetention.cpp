@@ -81,6 +81,9 @@ int64_t noteKey(int32_t mapId, int32_t noteIndex) {
 using retention::activeSlot;
 using retention::systemActive;
 
+// Level whose note count is waiting to be seeded; -1 when nothing is pending.
+int32_t sPendingSeedLevel = -1;
+
 bool applyEnabled() {
     return CVAR_VALUE;
 }
@@ -363,10 +366,27 @@ void RegisterNoteRetention_Init() {
     // Seed the level's note counter from collected notes.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
+        sPendingSeedLevel = ev->levelId;
+    });
+
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent*) {
+        if (sPendingSeedLevel < 0) {
+            return;
+        }
+        if (getGameMode() != GAME_MODE_3_NORMAL) {
+            // Demo or playback: drop the seed, its score state is scratch. Anything else
+            // (transition, pause) just waits for normal play to resume.
+            if (func_802E4A08()) {
+                sPendingSeedLevel = -1;
+            }
+            return;
+        }
+        const int32_t level = sPendingSeedLevel;
+        sPendingSeedLevel = -1;
         if (!systemActive() || !applyEnabled()) {
             return;
         }
-        item_adjustByDiffWithoutHud(ITEM_C_NOTE, countCollectedForLevel(ev->levelId) - item_getCount(ITEM_C_NOTE));
+        item_adjustByDiffWithoutHud(ITEM_C_NOTE, countCollectedForLevel(level) - item_getCount(ITEM_C_NOTE));
     });
 
     // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress them.

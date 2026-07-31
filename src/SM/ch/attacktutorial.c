@@ -137,6 +137,8 @@ static bool __chAttackTutorial_areLearnableAbilitiesUnlocked() {
 }
 
 // [port] A local tutorial opt-out unlocks every move mid-session; re-arm the spawn latch.
+bool func_802E4A08(void); // non-interactive demo/playback modes
+
 void chAttackTutorial_onTutorialSkipped(void) {
     Actor *tutorial = actorArray_findActorFromActorId(ACTOR_167_ATTACK_TUTORIAL);
     if (tutorial != NULL) {
@@ -175,8 +177,9 @@ static void __chAttackTutorial_update(Actor *this) {
         case CH_ATTACK_TUTORIAL_STATE_1_UNKNOWN:
             if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_4))
                 __chAttackTutorial_setState(this, CH_ATTACK_TUTORIAL_STATE_5_SHOW_LEARN_MOVE_DIALOG);
-            
-            if (this->movesKnownAtSpawn || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
+            if (this->movesKnownAtSpawn
+                || (func_802E4A08() && __chAttackTutorial_areLearnableAbilitiesUnlocked())
+                || volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE))
                 __chAttackTutorial_setState(this, CH_ATTACK_TUTORIAL_STATE_4_TUTORIAL_COMPLETED);
             break;
 

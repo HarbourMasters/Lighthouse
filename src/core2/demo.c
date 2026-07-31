@@ -42,8 +42,11 @@ s32 func_80349EC0(s32 arg0){
 }
 
 int demo_readInput(OSContPad* arg0, s32* arg1){
-    int not_eof = D_803860D8 < D_803860DC;
-    DemoInput *input_ptr = not_eof ? &D_803860D0[D_803860D8++] : &D_80371EF0;
+    s32 idx = D_803860D8;
+    int not_eof = (idx + 1) < D_803860DC;
+    DemoInput *input_ptr = not_eof ? &D_803860D0[idx] : &D_80371EF0;
+    if (idx < D_803860DC)
+        D_803860D8 = idx + 1;
 #if 0
     DemoInput *input_ptr = &D_803860D0[D_803860D8++];
     int not_eof = D_803860D8 < D_803860DC;

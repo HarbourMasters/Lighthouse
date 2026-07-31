@@ -182,6 +182,23 @@ void RegisterMumboTokenIdResolve_Init() {
               });
 }
 
+// Map savestates and demo playback
+static bool isPlaybackMode(s32 mode) {
+    return (mode == GAME_MODE_5_UNKNOWN) || (mode == GAME_MODE_6_FILE_PLAYBACK) || (mode == GAME_MODE_7_ATTRACT_DEMO) ||
+           (mode == GAME_MODE_8_BOTTLES_BONUS) || (mode == GAME_MODE_9_BANJO_AND_KAZOOIE) ||
+           (mode == GAME_MODE_A_SNS_PICTURE);
+}
+
+void RegisterMapSavestatePlayback_Init() {
+    REGISTER_VB_SHOULD(VB_MAP_SAVESTATE_USE, EVENT_PRIORITY_NORMAL, {
+        s32 mode = va_arg(args, s32);
+        if (isPlaybackMode(mode)) {
+            *should = false;
+        }
+    });
+}
+
+static RegisterShipInitFunc initMapSavestatePlaybackFunc(RegisterMapSavestatePlayback_Init);
 static RegisterShipInitFunc initVoidOutFunc(RegisterVoidOutGameOver_Init, { CVAR_VOID_OUT });
 static RegisterShipInitFunc initFurnaceFunDialogFunc(RegisterFurnaceFunDialog_Init, { CVAR_FF_DIALOG });
 static RegisterShipInitFunc initGruntyDefeatedFlagFunc(RegisterGruntyDefeatedFlag_Init, { CVAR_GRUNTY_FLAG });

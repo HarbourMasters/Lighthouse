@@ -46,8 +46,6 @@ void port_getPauseFramebufferSize(int* w, int* h);
 int port_pauseConsumeRecaptureRequest(void);
 int port_shouldCaptureTransition(void);
 
-int32_t port_getAuxGpuFbId(void);
-void port_readAuxFbToCpu(void* gfx_ptr);
 void port_patchPictureModel(void* model_bin, int32_t min_xy, int32_t max_xy, int32_t min_z, int32_t max_z,
                             uint32_t from);
 int32_t port_getTransitionGpuFbId(void);
@@ -193,6 +191,12 @@ int32_t port_hutSmash_countForCurrentLevel(void);
 
 void port_jiggyCrane_broadcast(int32_t stage);
 void port_jiggyCrane_remoteApply(int32_t stage);
+
+// Rate-limited: a marker reached cube_removeProp with a propPtr outside its cube.
+void port_warnPropNotInCube(int32_t index, int32_t propCnt);
+
+// Rate-limited: a cube's node-prop split index passed 31, where the old :5 field wrapped.
+void port_warnNodePropSplit(int32_t splitIndex, int32_t nodeCnt);
 
 #ifdef __cplusplus
 }
