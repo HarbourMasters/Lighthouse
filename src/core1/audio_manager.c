@@ -8,6 +8,7 @@
 #include "n_audio/PR/n_libaudio.h"
 //#include "PR/os_system.h"
 #include "port/DevTools/ThreadWatchdog.h"
+#include "port/OS/OS.h"
 #include "port/Patches/Patches.h"
 #include "port/ShipUtils.h"
 
