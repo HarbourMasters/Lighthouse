@@ -25,15 +25,7 @@ bool systemActive() {
     if (slot < 0 || gameFile_saveData[slot].shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
         return false;
     }
-    switch (getGameMode()) {
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-        case GAME_MODE_A_SNS_PICTURE:
-            return false;
-        default:
-            return true;
-    }
+    return !func_802E4A08();
 }
 
 } // namespace retention
