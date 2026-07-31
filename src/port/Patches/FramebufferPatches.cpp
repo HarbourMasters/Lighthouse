@@ -276,8 +276,8 @@ void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 m
     sPicMaxXY = max_xy;
     sPicMinZ = min_z;
     sPicMaxZ = max_z;
-    patchModelDL(model_bin, 0x04000000, 0x04100000, sAuxFbDummy, IMAGE_WIDTH, IMAGE_HEIGHT,
-                 setPictureVertexTexcoord, G_TF_BILERP, 1);
+    patchModelDL(model_bin, 0x04000000, 0x04100000, sAuxFbDummy, IMAGE_WIDTH, IMAGE_HEIGHT, setPictureVertexTexcoord,
+                 G_TF_BILERP, 1);
 }
 
 // Transition model patching (falling jiggy pieces)

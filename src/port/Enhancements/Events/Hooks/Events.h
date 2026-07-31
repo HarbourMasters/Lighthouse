@@ -78,13 +78,13 @@ typedef enum VBehaviorID {
     VB_VILE_PLAYER_EAT_PIECE,
     VB_VILE_GAME_UPDATE,
     VB_VILE_CPU_AI,
-    VB_CCW_FLOWER_REMOTE_GROW,      // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
-    VB_FP_TWINKLY_START,            // Gates FP twinkly minigame start so only one client owns a run at a time.
-    VB_SM_TUTORIAL_CHOICE_OPEN,     // True while the SM tutorial choice is still open to the local player.
-    VB_SM_MOLEHILL_ACTIVE,          // SM ability molehills stay inert until the tutorial choice is made.
-    VB_DOOR_OPEN_CAMERA,            // Suppresses door-open camera lock when the flag came from a teammate, not us.
-    VB_CC_RINGS_SNAP_WATER,         // CC rings water snap on run teardown: suppressed when a teammate finished the rings.
-    VB_LEVELDOOR_REMOTE_OPEN_DONE,  // Lair door remote-open "already handled" test.
+    VB_CCW_FLOWER_REMOTE_GROW,  // Lets a remotely-watered CCW flower grow without local camera/fanfare/jiggy.
+    VB_FP_TWINKLY_START,        // Gates FP twinkly minigame start so only one client owns a run at a time.
+    VB_SM_TUTORIAL_CHOICE_OPEN, // True while the SM tutorial choice is still open to the local player.
+    VB_SM_MOLEHILL_ACTIVE,      // SM ability molehills stay inert until the tutorial choice is made.
+    VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
+    VB_CC_RINGS_SNAP_WATER,     // CC rings water snap on run teardown: suppressed when a teammate finished the rings.
+    VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
 
     // Romhack port gates
     VB_JIGGYSCORE_LEVEL_TOTAL,

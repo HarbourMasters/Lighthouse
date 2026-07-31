@@ -184,9 +184,9 @@ void RegisterMumboTokenIdResolve_Init() {
 
 // Map savestates and demo playback
 static bool isPlaybackMode(s32 mode) {
-    return (mode == GAME_MODE_5_UNKNOWN) || (mode == GAME_MODE_6_FILE_PLAYBACK) ||
-           (mode == GAME_MODE_7_ATTRACT_DEMO) || (mode == GAME_MODE_8_BOTTLES_BONUS) ||
-           (mode == GAME_MODE_9_BANJO_AND_KAZOOIE) || (mode == GAME_MODE_A_SNS_PICTURE);
+    return (mode == GAME_MODE_5_UNKNOWN) || (mode == GAME_MODE_6_FILE_PLAYBACK) || (mode == GAME_MODE_7_ATTRACT_DEMO) ||
+           (mode == GAME_MODE_8_BOTTLES_BONUS) || (mode == GAME_MODE_9_BANJO_AND_KAZOOIE) ||
+           (mode == GAME_MODE_A_SNS_PICTURE);
 }
 
 void RegisterMapSavestatePlayback_Init() {
