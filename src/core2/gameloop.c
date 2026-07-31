@@ -132,9 +132,6 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
     CALL_EVENT(OnWorldDraw, gfx, mtx, vtx);
     port_mirror_endScene();
     port_mirror_undoProjection(gfx, mtx);
-    if (port_shouldCaptureTransition()) {
-        port_captureTransitionFb(gfx);
-    }
     if(!arg4){
         func_802E67AC();
         func_802E3BD0(getActiveFramebuffer());
@@ -143,6 +140,9 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
     }
 
     if ((D_8037E8E0.game_mode == GAME_MODE_A_SNS_PICTURE) && (D_8037E8E0.unk19 != 6) && (D_8037E8E0.unk19 != 5)) {
+        if (port_shouldCaptureTransition()) {
+            port_captureTransitionFb(gfx);
+        }
         gctransition_draw(gfx, mtx, vtx);
     }
 
@@ -183,6 +183,10 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
     }
 
     if ((D_8037E8E0.game_mode != GAME_MODE_A_SNS_PICTURE) || (D_8037E8E0.unk19 == 6) || (D_8037E8E0.unk19 == 5)) {
+        // [port] Snapshot the composed frame for the falling-jiggy piece textures.
+        if (port_shouldCaptureTransition()) {
+            port_captureTransitionFb(gfx);
+        }
         gctransition_draw(gfx, mtx, vtx);
     }
     // [port] Populate gFramebuffers from the GPU via gDPReadFB at native resolution.
