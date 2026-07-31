@@ -31,6 +31,7 @@ extern "C" {
 #include "enums.h"
 int bs_getState(void);
 int bsbtrot_inSet(int state); // nonzero if `state` is one of the Talon Trot states
+s32 getGameMode(void);
 }
 
 using namespace Ship;
@@ -130,6 +131,8 @@ void ControlSchemes_Apply(int scheme) {
             ClearButtonSDL(controller, BTN_CUP);
             BindButton(controller, BTN_CUP, SDL_CONTROLLER_BUTTON_Y);
             BindButton(controller, BTN_CDOWN, SDL_CONTROLLER_BUTTON_B);
+            BindAxisToButton(controller, BTN_CLEFT, SDL_CONTROLLER_AXIS_RIGHTX, -1);
+            BindAxisToButton(controller, BTN_CRIGHT, SDL_CONTROLLER_AXIS_RIGHTX, 1);
 
             // Recenter camera
             ClearButtonSDL(controller, BTN_R);
@@ -228,50 +231,21 @@ extern "C" void port_shapeControllerInput(void* contPad) {
             pad->button &= ~BTN_CDOWN;
         }
 
-        // Read the raw right stick straight from SDL
-        int32_t sdlX = 0;
-        int32_t sdlY = 0;
-        {
-            auto ctx = Ship::Context::GetRawInstance();
-            auto controlDeck = ctx != nullptr ? ctx->GetControlDeck() : nullptr;
-            auto deviceManager = controlDeck != nullptr ? controlDeck->GetConnectedPhysicalDeviceManager() : nullptr;
-            if (deviceManager != nullptr) {
-                for (auto& [instanceId, gamepad] : deviceManager->GetConnectedSDLGamepadsForPort(0)) {
-                    if (gamepad == nullptr) {
-                        continue;
-                    }
-                    int32_t x = SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_RIGHTX);
-                    int32_t y = SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_RIGHTY);
-                    if ((x < 0 ? -x : x) > (sdlX < 0 ? -sdlX : sdlX)) {
-                        sdlX = x;
-                    }
-                    if ((y < 0 ? -y : y) > (sdlY < 0 ? -sdlY : sdlY)) {
-                        sdlY = y;
-                    }
-                }
+        const s32 mode = getGameMode();
+        const bool picturePuzzle = (mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE);
+        if (!picturePuzzle) {
+            const uint16_t stickC = pad->button & (BTN_CLEFT | BTN_CRIGHT);
+            uint16_t allow = 0;
+
+            // One action per push, so holding the stick cannot repeat Wonderwing.
+            static bool sStickArmed = true;
+            if (stickC == 0) {
+                sStickArmed = true;
+            } else if (crouched && (stickC & BTN_CRIGHT) && arx >= ary && sStickArmed) {
+                allow = BTN_CRIGHT;
+                sStickArmed = false;
             }
-        }
-        int32_t asx = (sdlX < 0) ? -sdlX : sdlX;
-        int32_t asy = (sdlY < 0) ? -sdlY : sdlY;
-
-        // Edge press with hysteresis
-        static bool sStickArmed = true;
-        const int32_t onThreshold = 12000;
-        const int32_t offThreshold = 6000;
-
-        // Standing, the camera owns the right stick
-        // Crouched, it yields one action
-        uint16_t want = 0;
-        if (crouched && sdlX > onThreshold && asx >= asy) {
-            want = BTN_CRIGHT; // stick-right -> Wonderwing
-        }
-
-        if (want != 0 && sStickArmed) {
-            pad->button |= want;
-            sStickArmed = false;
-        }
-        if ((crouched ? asx : asy) < offThreshold) {
-            sStickArmed = true;
+            pad->button = (pad->button & ~(BTN_CLEFT | BTN_CRIGHT)) | allow;
         }
     } else {
         uint16_t axisMask = 0;
