@@ -96,10 +96,7 @@ bool Anchor::AllowedWithoutGameSync(const std::string& packetType) {
     return packetType == HANDSHAKE || packetType == ALL_CLIENT_STATE || packetType == UPDATE_CLIENT_STATE ||
            packetType == UPDATE_ROOM_STATE || packetType == MAP_LOAD || packetType == PLAYER_UPDATE ||
            packetType == PLAYER_UPDATE_FULL || packetType == PLAYER_ANIM || packetType == PLAYER_SUBRANGE ||
-           packetType == PLAYER_TRANSFORM || packetType == PLAYER_SFX || packetType == SERVER_MESSAGE ||
-           packetType == DISABLE_ANCHOR || packetType == GAME_COMPLETE ||
-           // Carry their own room-setting gates, which the global room forces off.
-           packetType == DAMAGE_PLAYER || packetType == REQUEST_TELEPORT || packetType == TELEPORT_TO;
+           packetType == PLAYER_TRANSFORM || packetType == PLAYER_SFX || packetType == SERVER_MESSAGE;
 }
 
 void Anchor::SendJsonToRemote(nlohmann::json payload) {

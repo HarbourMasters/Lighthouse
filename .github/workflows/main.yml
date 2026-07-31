@@ -71,7 +71,7 @@ jobs:
           mkdir lighthouse-release/debug
           mv build/x64/Lighthouse.exe lighthouse-release/
           mv build/x64/lighthouse.o2r lighthouse-release/
-          mv build/x64/*.pdb lighthouse-release/
+          mv build/x64/*.pdb lighthouse-release/debug/
           mv README.md lighthouse-release/readme.txt
           mv config.yml lighthouse-release/
           mv assets lighthouse-release/
