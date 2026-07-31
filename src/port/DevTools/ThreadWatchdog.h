@@ -78,7 +78,7 @@ void viMgr_getWatchdogState(ViMgrWatchdogState* out);
 
 namespace Lighthouse {
 class ExpectedStall {
-  public:
+public:
     explicit ExpectedStall(const char* reason) {
         ThreadWatchdog_BeginExpectedStall(reason);
     }

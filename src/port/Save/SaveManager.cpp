@@ -81,10 +81,17 @@ struct ResolvedFlag {
 
 static int PuzzleIndexForFlag(const FlagDef& f) {
     static const char* const kPuzzleFlagNames[] = {
-        "MM_PUZZLE_PIECES_PLACED",  "TTC_PUZZLE_PIECES_PLACED", "CC_PUZZLE_PIECES_PLACED",
-        "BGS_PUZZLE_PIECES_PLACED", "FP_PUZZLE_PIECES_PLACED",  "GV_PUZZLE_PIECES_PLACED",
-        "MMM_PUZZLE_PIECES_PLACED", "RBB_PUZZLE_PIECES_PLACED", "CCW_PUZZLE_PIECES_PLACED",
-        "DOG_PUZZLE_PIECES_PLACED", "DOUBLE_HEALTH_PUZZLE_PIECES_PLACED",
+        "MM_PUZZLE_PIECES_PLACED",
+        "TTC_PUZZLE_PIECES_PLACED",
+        "CC_PUZZLE_PIECES_PLACED",
+        "BGS_PUZZLE_PIECES_PLACED",
+        "FP_PUZZLE_PIECES_PLACED",
+        "GV_PUZZLE_PIECES_PLACED",
+        "MMM_PUZZLE_PIECES_PLACED",
+        "RBB_PUZZLE_PIECES_PLACED",
+        "CCW_PUZZLE_PIECES_PLACED",
+        "DOG_PUZZLE_PIECES_PLACED",
+        "DOUBLE_HEALTH_PUZZLE_PIECES_PLACED",
     };
     if (f.name != nullptr) {
         for (int i = 0; i < 11; i++) {
