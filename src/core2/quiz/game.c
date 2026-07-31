@@ -502,6 +502,19 @@ void port_breakable_remoteBreakAt(s32 markerId, s32 x, s32 y, s32 z) {
     }
 }
 
+static bool port_breakable_survivesBreak(s32 markerId) {
+    switch (markerId) {
+        case MARKER_34_CEMETARY_POT:            // flowers
+        case MARKER_66_ORANGE_PAD:              // stays, marked hit
+        case MARKER_9F_CHURCH_GATE_LEFT_LOCK:   // broken lock stays on the gate
+        case MARKER_A0_HEDGE_GATE_RIGHT_LOCK_1:
+        case MARKER_FF_HEDGE_GATE_RIGHT_LOCK_2:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
 // [port] Iterates backward: despawn swap-removes from the end.
 void port_breakable_despawnBrokenRestores(s32 map) {
     s32 i;
@@ -512,6 +525,9 @@ void port_breakable_despawnBrokenRestores(s32 map) {
     for (i = suBaddieActorArray->cnt - 1; i >= 0; i--) {
         Actor *actor = &suBaddieActorArray->data[i];
         if (actor->marker == NULL || actor->despawn_flag) {
+            continue;
+        }
+        if (port_breakable_survivesBreak(actor->marker->id)) {
             continue;
         }
         if (port_breakable_isBroken(map, actor->marker->id, (s32)actor->position[0], (s32)actor->position[1],
