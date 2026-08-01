@@ -750,7 +750,11 @@ add_custom_target(
     ExtractAssets
     DEPENDS TorchExternal
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND ${TORCH_EXECUTABLE} o2r baserom.z64
+    # [port] Stamp bk.o2r with the project version so VerifyArchiveVersion() (Engine.cpp)
+    # accepts it. Without -u, Torch writes no portVersion record -> the archive reads as
+    # version {0,0,0}, never matches the build, and the runtime shows "incompatible ROM
+    # archives" and re-extracts on every launch. Mirrors GeneratePortO2R's stamping.
+    COMMAND ${TORCH_EXECUTABLE} o2r baserom.z64 -u ${PROJECT_VERSION}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/bk.o2r" "${CMAKE_BINARY_DIR}/bk.o2r"
 )
 
