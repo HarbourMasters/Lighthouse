@@ -381,13 +381,6 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
     PlacedItemCounts placedItems = { .noteCount = 0, .jiggyCount = 0, .mumboTokenCount = 0 };
     PlacedCheckObject placedCheckItems[RC_MAX] = {};
 
-    for (auto& shuffledCheck : checkPool) {
-        reachableChecks[shuffledCheck].isShuffled = true;
-    }
-    for (auto& shuffledAbiity : abilityCheckPool) {
-        reachableChecks[shuffledAbiity].isShuffled = true;
-    }
-
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
         PopulateJinjoCheckIds();
     }
@@ -403,23 +396,46 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         reachableChecks[checkId].name = checkData.name;
         reachableChecks[checkId].canAccess = false;
         reachableChecks[checkId].isFilled = false;
+        reachableChecks[checkId].isShuffled = false;
+    }
+
+    for (auto& shuffledCheck : checkPool) {
+        reachableChecks[shuffledCheck].isShuffled = true;
+    }
+    for (auto& shuffledAbiity : abilityCheckPool) {
+        reachableChecks[shuffledAbiity].isShuffled = true;
     }
 
     // Starting Initialization
     reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess = true;
     Rando::Logic::GrantStartingLoadout();
     for (auto& [ability, abilityInfo] : abilityLoadoutMap) {
-        if (CVarGetInteger(abilityInfo.second, 0)) {
-            RandoCheckId abilityCheck = Rando::StaticData::GetCheckByAbilityId(ability);
-
-            auto it = std::find(abilityCheckPool.begin(), abilityCheckPool.end(), abilityCheck);
-            if (it != abilityCheckPool.end()) {
-                abilityCheckPool.erase(it);
-                UpdateAccessibility(RR_SPIRAL_MOUNTAIN_ENTRANCE,
-                                    reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess);
-                continue;
-            }
+        if (!CVarGetInteger(abilityInfo.second, 0)) {
+            continue;
         }
+
+        RandoCheckId abilityCheck = Rando::StaticData::GetCheckByAbilityId(ability);
+
+        auto it = std::find(abilityCheckPool.begin(), abilityCheckPool.end(), abilityCheck);
+        if (it == abilityCheckPool.end()) {
+            continue;
+        }
+
+        abilityCheckPool.erase(it);
+
+        // The molehill left the pool, so it has to stop being a valid placement target as well.
+        reachableChecks[abilityCheck].isShuffled = false;
+
+        // The player already owns this ability, so its item leaves the pool alongside the molehill.
+        auto item = std::find_if(abilityItemPool.begin(), abilityItemPool.end(),
+                                 [&](const std::tuple<actor_e, int32_t, RandoCheckId>& abilityItem) {
+                                     return std::get<1>(abilityItem) == (int32_t)ability;
+                                 });
+        if (item != abilityItemPool.end()) {
+            abilityItemPool.erase(item);
+        }
+
+        UpdateAccessibility(RR_SPIRAL_MOUNTAIN_ENTRANCE, reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess);
     }
     UpdateAccessibility(RR_SPIRAL_MOUNTAIN_ENTRANCE, reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess);
 
