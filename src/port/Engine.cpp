@@ -1269,6 +1269,12 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
             break;
         }
         const auto& m = mtx_replacements[frameIdx];
+        // Vertex-animated models blend into one buffer per draw, so unlike the
+        // matrix maps this can't be precomputed per sub-frame. It has to land
+        // right before the pass that reads it.
+        if (frameCount > 1) {
+            FrameInterpolation_ApplyAnimVertices((float)(frameIdx + 1) / (float)frameCount);
+        }
         bool isFinalFrame = (frameIdx == frameCount - 1);
         if (frameCount > 1 || wndBase->IsFrameReady()) {
             // Sample the full CPU cost of producing this sub-frame.

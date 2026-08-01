@@ -83,6 +83,9 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
                                          float camYaw, float camPitch, float spriteRoll, const float rotation[3],
                                          int mirrored);
 
+void FrameInterpolation_RecordAnimVertices(void* dst, const void* vertices, int32_t count);
+void FrameInterpolation_ApplyAnimVertices(float t);
+
 // Drop the prev tree at known camera cuts (map load, camera type change).
 void FrameInterpolation_DontInterpolateCamera(void);
 

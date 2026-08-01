@@ -9,6 +9,8 @@ extern "C" {
 #include "port/Patches/Patches.h"
 }
 
+#include "port/Interpolation/FrameInterpolation.h"
+
 namespace {
 
 // A single anim-vertex model runs 500-750 vertices. This covers roughly 20-25
@@ -44,5 +46,9 @@ extern "C" void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices,
     Vtx* copy = arena + gUsed;
     gUsed += (size_t)count;
     std::memcpy(copy, vertices, (size_t)count * sizeof(Vtx));
+
+    // Hand the pose to interpolation. It owns the blend from here: this buffer
+    // is private to this draw, so replay can rewrite it per sub-frame.
+    FrameInterpolation_RecordAnimVertices(copy, vertices, count);
     gSPSegment((*gfx)++, 0x01, osVirtualToPhysical(copy));
 }

@@ -9,12 +9,15 @@
 #include <unordered_map>
 
 #include <libultraship/libultra/gu.h>
+#include <libultraship/libultra/gbi.h>
 
 namespace {
 
 constexpr uint64_t kFnvSeed = 0xcbf29ce484222325ULL;
 constexpr uint64_t kSigKindToMtx = 0x1ULL;
 constexpr uint64_t kSigKindSprite = 0x2ULL;
+constexpr uint64_t kSigKindAnimVtx = 0x3ULL;
+constexpr float kAnimVtxSnapRatio = 0.5f;
 constexpr float kSpriteSnapDistSq = 300.0f * 300.0f;
 constexpr int kRingSlots = 4;
 constexpr uint32_t kAmbiguousSig = UINT32_MAX;
@@ -26,6 +29,14 @@ struct ToMtxData {
     bool noInterpolate;
     bool camRelFixup;
     bool ambiguousSig;
+};
+
+struct AnimVtxData {
+    void* dst;
+    uint32_t count;
+    uint64_t pathSig;
+    bool ambiguousSig;
+    std::vector<int16_t> pos;
 };
 
 struct SpriteDrawData {
@@ -55,6 +66,7 @@ struct ScopeFrame {
     uint64_t pathHash;
     uint32_t toMtxIdx;
     uint32_t spriteIdx;
+    uint32_t animVtxIdx;
     const char* key;
     uintptr_t id;
 };
@@ -63,8 +75,10 @@ struct FrameTree {
     std::vector<ToMtxData> toMtxs;
     std::vector<CameraProjRotData> projRots;
     std::vector<SpriteDrawData> sprites;
+    std::vector<AnimVtxData> animVtxs;
     std::unordered_map<uint64_t, uint32_t> sigToToMtx;
     std::unordered_map<uint64_t, uint32_t> sigToSprite;
+    std::unordered_map<uint64_t, uint32_t> sigToAnimVtx;
     std::vector<ScopeFrame> scopeStack;
     float cameraPos[3] = { 0.0f, 0.0f, 0.0f };
     bool hasCameraPos = false;
@@ -77,8 +91,10 @@ struct FrameTree {
         toMtxs.clear();
         projRots.clear();
         sprites.clear();
+        animVtxs.clear();
         sigToToMtx.clear();
         sigToSprite.clear();
+        sigToAnimVtx.clear();
         scopeStack.clear();
         cameraPos[0] = cameraPos[1] = cameraPos[2] = 0.0f;
         hasCameraPos = false;
@@ -99,11 +115,18 @@ struct PairedSprite {
     bool snap;
 };
 
+struct PairedAnimVtx {
+    uint32_t currIdx;
+    uint32_t prevIdx;
+    bool snap;
+};
+
 struct InterpolationCache {
     bool built = false;
     bool valid = false;
     std::vector<PairedToMtx> pairedToMtxs;
     std::vector<PairedSprite> pairedSprites;
+    std::vector<PairedAnimVtx> pairedAnimVtxs;
     std::vector<uint32_t> camRelFixups;
     float cameraDelta[3] = { 0.0f, 0.0f, 0.0f };
     bool hasCameraDelta = false;
@@ -115,6 +138,7 @@ struct InterpolationCache {
         valid = false;
         pairedToMtxs.clear();
         pairedSprites.clear();
+        pairedAnimVtxs.clear();
         camRelFixups.clear();
         hasCameraDelta = false;
         prevHasCameraPos = false;
@@ -207,7 +231,7 @@ void FrameInterpolation_StartRecord(void) {
     gRecord->sprites.reserve(256);
     gRecord->sigToToMtx.reserve(512);
     gRecord->sigToSprite.reserve(64);
-    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0, "root", 0 });
+    gRecord->scopeStack.push_back({ kFnvSeed, 0, 0, 0, "root", 0 });
     gShouldInterpolate = true;
     gNoInterpolateDepth = 0;
     gCameraRelativeDepth = 0;
@@ -293,7 +317,7 @@ void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id) {
     uint64_t h = gRecord->scopeStack.back().pathHash;
     h = fnvMix(h, reinterpret_cast<uintptr_t>(key));
     h = fnvMix(h, static_cast<uint64_t>(id));
-    gRecord->scopeStack.push_back({ h, 0, 0, static_cast<const char*>(key), id });
+    gRecord->scopeStack.push_back({ h, 0, 0, 0, static_cast<const char*>(key), id });
 }
 
 void FrameInterpolation_RecordCloseChild(void) {
@@ -410,6 +434,34 @@ void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRel
     d.mirrored = (mirrored != 0);
     d.ambiguousSig = false;
     recordSigCollision(gRecord->sigToSprite, gRecord->sprites, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
+}
+
+void FrameInterpolation_RecordAnimVertices(void* dst, const void* vertices, int32_t count) {
+    if (!gRecording || dst == nullptr || vertices == nullptr || count <= 0) {
+        return;
+    }
+    ScopeFrame& scope = gRecord->scopeStack.back();
+    uint64_t sig = fnvMix(fnvMix(scope.pathHash, kSigKindAnimVtx), scope.animVtxIdx);
+    scope.animVtxIdx++;
+
+    uint32_t idx = static_cast<uint32_t>(gRecord->animVtxs.size());
+    gRecord->animVtxs.emplace_back();
+    AnimVtxData& d = gRecord->animVtxs.back();
+    d.dst = dst;
+    d.count = static_cast<uint32_t>(count);
+    d.pathSig = sig;
+    d.ambiguousSig = false;
+    d.pos.resize(static_cast<size_t>(count) * 3);
+
+    // Only ob[] moves; everything else in the Vtx (uv, colour/normal) is what
+    // the tick's own copy already put in dst.
+    const Vtx* src = static_cast<const Vtx*>(vertices);
+    for (int32_t i = 0; i < count; i++) {
+        d.pos[i * 3 + 0] = src[i].v.ob[0];
+        d.pos[i * 3 + 1] = src[i].v.ob[1];
+        d.pos[i * 3 + 2] = src[i].v.ob[2];
+    }
+    recordSigCollision(gRecord->sigToAnimVtx, gRecord->animVtxs, sig, idx, gRecord->sigCollisions, gRecord->scopeStack);
 }
 
 void FrameInterpolation_DontInterpolateCamera(void) {
@@ -560,6 +612,46 @@ void BuildInterpolationCache() {
         gCache.pairedSprites.push_back({ i, it->second, snap });
     }
 
+    // Same pairing as the sprite path. A vertex blend can't go degenerate the way
+    // a matrix lerp does, but blending across an animation cut still drags the
+    // model through itself, so measure the jump against the model's own size.
+    const std::vector<AnimVtxData>& currAnimVtxs = gRenderCurr->animVtxs;
+    const std::vector<AnimVtxData>& prevAnimVtxs = gRenderPrev->animVtxs;
+    const std::unordered_map<uint64_t, uint32_t>& prevAnimVtxMap = gRenderPrev->sigToAnimVtx;
+    gCache.pairedAnimVtxs.reserve(currAnimVtxs.size());
+    for (uint32_t i = 0; i < currAnimVtxs.size(); i++) {
+        const AnimVtxData& c = currAnimVtxs[i];
+        if (c.dst == nullptr || c.ambiguousSig) {
+            continue;
+        }
+        auto it = prevAnimVtxMap.find(c.pathSig);
+        if (it == prevAnimVtxMap.end() || it->second >= prevAnimVtxs.size()) {
+            continue;
+        }
+        const AnimVtxData& p = prevAnimVtxs[it->second];
+        // A different vertex count means the sig landed on a different model.
+        if (p.count != c.count || p.pos.size() != c.pos.size()) {
+            continue;
+        }
+        if (p.pos == c.pos) {
+            continue; // pose held still; dst already has it
+        }
+        int32_t maxExtent = 0;
+        int32_t maxDelta = 0;
+        for (size_t k = 0; k < c.pos.size(); k++) {
+            int32_t a = std::abs(static_cast<int32_t>(c.pos[k]));
+            int32_t d = std::abs(static_cast<int32_t>(c.pos[k]) - static_cast<int32_t>(p.pos[k]));
+            if (a > maxExtent) {
+                maxExtent = a;
+            }
+            if (d > maxDelta) {
+                maxDelta = d;
+            }
+        }
+        bool snap = maxExtent > 0 && static_cast<float>(maxDelta) > kAnimVtxSnapRatio * static_cast<float>(maxExtent);
+        gCache.pairedAnimVtxs.push_back({ i, it->second, snap });
+    }
+
     // A tree recycled while we walked it means every index above is suspect.
     // Drop the pass to uninterpolated and say which slot collided.
     if (gRenderPrev->generation.load(std::memory_order_acquire) != prevGen ||
@@ -648,6 +740,46 @@ void emitSprite(const SpriteDrawData& L, std::unordered_map<Mtx*, MtxF>& replace
 }
 
 } // namespace
+
+void FrameInterpolation_ApplyAnimVertices(float t) {
+    if (!gRenderShould) {
+        return;
+    }
+    if (!gCache.built) {
+        BuildInterpolationCache();
+    }
+    if (!gCache.valid) {
+        return;
+    }
+    if (gCache.prevHasCameraPos && gRenderCurr->hasCameraPos) {
+        float dx = gRenderCurr->cameraPos[0] - gCache.prevCameraPos[0];
+        float dy = gRenderCurr->cameraPos[1] - gCache.prevCameraPos[1];
+        float dz = gRenderCurr->cameraPos[2] - gCache.prevCameraPos[2];
+        constexpr float kCutDistSq = 1000.0f * 1000.0f;
+        if (dx * dx + dy * dy + dz * dz > kCutDistSq) {
+            return;
+        }
+    }
+
+    const std::vector<AnimVtxData>& currAnimVtxs = gRenderCurr->animVtxs;
+    const std::vector<AnimVtxData>& prevAnimVtxs = gRenderPrev->animVtxs;
+    const float w = 1.0f - t;
+
+    for (const PairedAnimVtx& pair : gCache.pairedAnimVtxs) {
+        const AnimVtxData& c = currAnimVtxs[pair.currIdx];
+        if (pair.snap) {
+            continue; // never written, so dst still holds this tick's pose
+        }
+        const AnimVtxData& p = prevAnimVtxs[pair.prevIdx];
+        Vtx* dst = reinterpret_cast<Vtx*>(c.dst);
+        for (uint32_t i = 0; i < c.count; i++) {
+            for (int k = 0; k < 3; k++) {
+                float blended = w * static_cast<float>(p.pos[i * 3 + k]) + t * static_cast<float>(c.pos[i * 3 + k]);
+                dst[i].v.ob[k] = static_cast<int16_t>(std::lrintf(blended));
+            }
+        }
+    }
+}
 
 void FrameInterpolation_Interpolate(float t, std::unordered_map<Mtx*, MtxF>& replacements) {
     replacements.clear();
