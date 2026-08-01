@@ -25,12 +25,13 @@ typedef struct {
 
 void jigsawPicture_setState(Actor *this, s32 next_state);
 void updateJigsawPictureActor(Actor *this);
+Actor *jigsawPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 static s32 sBuzzedPedestalField = 0;
 
 /* .data */
-ActorInfo JIGSAW_PICTURE_ACTOR = { 0x1EB, 0x3B7, 0x48B, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, actor_draw, 0, 0, 0.0f, 0};
-ActorInfo JIGSAW_PICTURE_ACTOR_2 = { 0x1EB, 0x3BC, 0x538, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, actor_draw, 0, 0, 0.0f, 0};
+ActorInfo JIGSAW_PICTURE_ACTOR = { 0x1EB, 0x3B7, 0x48B, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, jigsawPicture_draw, 0, 0, 0.0f, 0};
+ActorInfo JIGSAW_PICTURE_ACTOR_2 = { 0x1EB, 0x3BC, 0x538, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, jigsawPicture_draw, 0, 0, 0.0f, 0};
 Struct_lair_86F0_0 D_803947F8[0xb] ={
     { 1, 0x1, FILEPROG_5D_MM_PUZZLE_PIECES_PLACED},
     { 2, 0x2, FILEPROG_5E_TTC_PUZZLE_PIECES_PLACED},
@@ -429,6 +430,26 @@ void addPieces(Actor *this, s32 arg1) {
     fileProgressFlag_set(FILEPROG_DE_USED_ALL_YOUR_PUZZLE_PIECES, 1);
 }
 
+// [port] unk38_31 marks a podium that is spawned but not yet revealed by its switch (see boggy3).
+Actor *jigsawPicture_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+    Actor *this = marker_getActor(marker);
+
+    if (this->unk38_31) return this;
+
+    return actor_draw(marker, gfx, mtx, vtx);
+}
+
+static void revealCcwPuzzlePodium(Actor *this) {
+    this->unk38_31 = false;
+    this->marker->propPtr->unk8_3 = true;
+    if (!fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
+        __bundle_spawnFromFirstActor(BUNDLE_20__UNKNOWN, this);
+        func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
+        func_80324D2C(2.1f, COMUSIC_43_ENTER_LEVEL_GLITTER);
+        func_8030E6D4(SFX_113_PAD_APPEARS);
+    }
+}
+
 void updateJigsawPictureActor(Actor *this) {
     ActorLocal_lair_86F0 *local;
     s32 sp7C[6]; //buttons
@@ -462,23 +483,27 @@ void updateJigsawPictureActor(Actor *this) {
         this->volatile_initialized = true;
         if (this->actorTypeSpecificField == 9) {
             this->unk1C[0] = 8.0f;
-            this->unk1C[1] = 0.0f;
+            if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
+                // [port] Anchor suppresses the despawn: a despawned podium only comes back when the
+                // cube re-streams, which would strand a teammate standing here when the flag arrives.
+                if (EventSystem_Should(VB_CCW_PODIUM_DESPAWN, true, this)) {
+                    marker_despawn(this->marker);
+                } else {
+                    this->unk38_31 = true;
+                    this->marker->propPtr->unk8_3 = false;
+                }
+                return;
+            }
+            revealCcwPuzzlePodium(this);
         }
     }
 
-    if (this->actorTypeSpecificField == 9) {
+    // [port] Waiting on the switch: reveal in place the moment the flag lands, ours or a teammate's.
+    if (this->unk38_31) {
         if (!fileProgressFlag_get(FILEPROG_53_CCW_PUZZLE_PODIUM_SWITCH_PRESSED)) {
             return;
         }
-        if (this->unk1C[1] == 0.0f) {
-            this->unk1C[1] = 1.0f;
-            if (!fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {
-                __bundle_spawnFromFirstActor(BUNDLE_20__UNKNOWN, this);
-                func_80324CFC(0.0f, COMUSIC_43_ENTER_LEVEL_GLITTER, 0x7FFF);
-                func_80324D2C(2.1f, COMUSIC_43_ENTER_LEVEL_GLITTER);
-                func_8030E6D4(SFX_113_PAD_APPEARS);
-            }
-        }
+        revealCcwPuzzlePodium(this);
     }
 
     if ((this->actorTypeSpecificField == 9) && !fileProgressFlag_get(FILEPROG_54_CCW_PUZZLE_PODIUM_ACTIVE)) {

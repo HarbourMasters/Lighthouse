@@ -306,6 +306,10 @@ void Anchor::RegisterHooks() {
 
     COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
 
+    // Vanilla despawns the CCW podium until its switch is pressed, and only rebuilds it when the cube
+    // re-streams. Keep the actor alive (hidden) instead, so a teammate's press reveals it in place.
+    COND_VB_SHOULD(VB_CCW_PODIUM_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
+
     // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off
     // visual state (fully open == 0x1B) instead. Other lair doors stay flag-based.
     COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {

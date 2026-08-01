@@ -85,6 +85,8 @@ typedef enum VBehaviorID {
     VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_CC_RINGS_SNAP_WATER,     // CC rings water snap on run teardown: suppressed when a teammate finished the rings.
     VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
+    VB_CCW_PODIUM_DESPAWN, // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
+                           // reveal it live.
 
     // Romhack port gates
     VB_JIGGYSCORE_LEVEL_TOTAL,
