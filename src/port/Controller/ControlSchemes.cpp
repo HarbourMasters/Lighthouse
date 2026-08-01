@@ -17,7 +17,6 @@
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLButtonToButtonMapping.h>
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLButtonToAxisDirectionMapping.h>
-#include <ship/controller/physicaldevice/ConnectedPhysicalDeviceManager.h>
 #include <ship/controller/physicaldevice/PhysicalDeviceType.h>
 #include <libultraship/libultra/controller.h>
 #include <libultraship/bridge.h>
@@ -92,20 +91,40 @@ void BindButtonToLeftStick(const std::shared_ptr<Controller>& controller, Direct
     stick->SaveAxisDirectionMappingIdsToConfig();
 }
 
-// True if the given C-button is currently driven by a stick axis (the right
-// stick), as opposed to a face button. Drives which directions the shaping pass
-// regenerates from the raw right stick.
-bool CButtonIsAxis(const std::shared_ptr<Controller>& controller, CONTROLLERBUTTONS_T bitmask) {
+// How many of a button's mappings are physically active right now. Lets a
+// scheme tell one binding for a button apart from another without reaching past
+// the mapper to poll hardware that the player may have unbound.
+int CountActiveMappings(const std::shared_ptr<Controller>& controller, CONTROLLERBUTTONS_T bitmask) {
     auto button = controller->GetButton(bitmask);
     if (button == nullptr) {
-        return false;
+        return 0;
     }
+    int active = 0;
     for (auto& [id, mapping] : button->GetAllButtonMappings()) {
-        if (dynamic_cast<SDLAxisDirectionToButtonMapping*>(mapping.get()) != nullptr) {
-            return true;
+        uint16_t held = 0;
+        mapping->UpdatePad(held);
+        if (held != 0) {
+            active++;
         }
     }
-    return false;
+    return active;
+}
+
+// Splits a C-button's mappings into the two kinds the shaping pass cares about.
+void CollectCButtonSources(const std::shared_ptr<Controller>& controller, CONTROLLERBUTTONS_T bitmask,
+                           uint16_t& axisMask, uint16_t& otherHeld) {
+    auto button = controller->GetButton(bitmask);
+    if (button == nullptr) {
+        return;
+    }
+    for (auto& [id, mapping] : button->GetAllButtonMappings()) {
+        auto axis = dynamic_cast<SDLAxisDirectionToButtonMapping*>(mapping.get());
+        if (axis != nullptr && axis->AxisIsStick()) {
+            axisMask |= bitmask;
+        } else {
+            mapping->UpdatePad(otherHeld);
+        }
+    }
 }
 
 } // namespace
@@ -180,8 +199,11 @@ void ControlSchemes_Apply(int scheme) {
             ClearButtonSDL(controller, BTN_CDOWN);
             BindButton(controller, BTN_CDOWN, SDL_CONTROLLER_BUTTON_B);
 
-            // Recenter camera
+            // Tip-toe / Talon Trot trigger. Recentering moves to a B hold, which
+            // frees R to carry Pocket's extra gesture as a real, rebindable
+            // binding instead of the shaping pass polling the trigger itself.
             ClearButtonSDL(controller, BTN_R);
+            BindAxisToButton(controller, BTN_R, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 1);
 
             // Crouch / Talon Trot
             ClearButtonSDL(controller, BTN_Z);
@@ -217,9 +239,23 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         return;
     }
 
-    const bool modern = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN;
+    const int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
+    const bool modern = (scheme == CONTROL_SCHEME_MODERN);
+    const bool pocket = (scheme == CONTROL_SCHEME_POCKET);
     const bool crouched = (bs_getState() == BS_7_CROUCH);
     const bool eggPooping = (bs_getState() == BS_A_EGG_ASS);
+
+    // Pocket takes its tip-toe / Talon Trot gesture from R and its crouch from
+    // Z, so both follow whatever the player has bound. Sample them here, before
+    // the blocks below start injecting synthetic R and Z bits, and consume R -
+    // in Pocket that button is the gesture channel, not the camera recenter.
+    bool pocketGesture = false;
+    bool pocketCrouch = false;
+    if (pocket) {
+        pocketGesture = (pad->button & BTN_R) != 0;
+        pocketCrouch = (pad->button & BTN_Z) != 0;
+        pad->button &= ~BTN_R;
+    }
 
     int32_t rx = pad->right_stick_x;
     int32_t ry = pad->right_stick_y;
@@ -249,18 +285,14 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         }
     } else {
         uint16_t axisMask = 0;
-        if (CButtonIsAxis(controller, BTN_CRIGHT)) {
-            axisMask |= BTN_CRIGHT;
+        uint16_t otherHeld = 0;
+        static const CONTROLLERBUTTONS_T kCButtons[] = { BTN_CRIGHT, BTN_CLEFT, BTN_CDOWN, BTN_CUP };
+        for (CONTROLLERBUTTONS_T cButton : kCButtons) {
+            CollectCButtonSources(controller, cButton, axisMask, otherHeld);
         }
-        if (CButtonIsAxis(controller, BTN_CLEFT)) {
-            axisMask |= BTN_CLEFT;
-        }
-        if (CButtonIsAxis(controller, BTN_CDOWN)) {
-            axisMask |= BTN_CDOWN;
-        }
-        if (CButtonIsAxis(controller, BTN_CUP)) {
-            axisMask |= BTN_CUP;
-        }
+        // Directions the stick owns outright; anything a second binding is
+        // holding stays put instead of being cleared and regenerated.
+        const uint16_t clearMask = axisMask & ~otherHeld;
 
         static uint16_t sLatchDir = 0;
         static int32_t sLatchTTL = 0;
@@ -274,11 +306,11 @@ extern "C" void port_shapeControllerInput(void* contPad) {
                     stickBits = (ry > 0) ? BTN_CUP : BTN_CDOWN;
                 }
             }
-            pad->button &= ~(stickBits & axisMask);
+            pad->button &= ~(stickBits & clearMask);
             sLatchDir = 0;
             sLatchTTL = 0;
         } else if (axisMask != 0) {
-            pad->button &= ~axisMask;
+            pad->button &= ~clearMask;
 
             if (arx * arx + ary * ary > 24 * 24) {
                 uint16_t dir;
@@ -318,44 +350,20 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     }
 
     // Modern Talon Trot
-    static bool sPrevLeftTrigger = false;
-    static bool sPrevRightTrigger = false;
-
+    //
+    // Crouch gets bound to both triggers, and pressing the second one while the
+    // first is held starts the trot. Counting how many crouch bindings are live
+    // expresses that without naming a trigger: whatever the player has on Z is
+    // what works, and a trigger they have unbound does nothing.
+    static int sPrevCrouchBindings = 0;
     if (modern) {
-        const Sint16 kTriggerThreshold = 8000;
-        bool leftTrigger = false;
-        bool rightTrigger = false;
-
-        auto ctx = Ship::Context::GetRawInstance();
-        auto controlDeck = ctx != nullptr ? ctx->GetControlDeck() : nullptr;
-        auto deviceManager = controlDeck != nullptr ? controlDeck->GetConnectedPhysicalDeviceManager() : nullptr;
-        if (deviceManager != nullptr) {
-            for (auto& [instanceId, gamepad] : deviceManager->GetConnectedSDLGamepadsForPort(0)) {
-                if (gamepad == nullptr) {
-                    continue;
-                }
-                if (SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > kTriggerThreshold) {
-                    leftTrigger = true;
-                }
-                if (SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > kTriggerThreshold) {
-                    rightTrigger = true;
-                }
-            }
+        const int crouchBindings = CountActiveMappings(controller, BTN_Z);
+        if (crouched && crouchBindings >= 2 && crouchBindings > sPrevCrouchBindings) {
+            pad->button |= BTN_CLEFT;
         }
-
-        if (crouched) {
-            bool leftEdge = leftTrigger && !sPrevLeftTrigger;
-            bool rightEdge = rightTrigger && !sPrevRightTrigger;
-            if ((rightEdge && sPrevLeftTrigger) || (leftEdge && sPrevRightTrigger)) {
-                pad->button |= BTN_CLEFT;
-            }
-        }
-
-        sPrevLeftTrigger = leftTrigger;
-        sPrevRightTrigger = rightTrigger;
+        sPrevCrouchBindings = crouchBindings;
     } else {
-        sPrevLeftTrigger = false;
-        sPrevRightTrigger = false;
+        sPrevCrouchBindings = 0;
     }
 
     // Toggle Trot
@@ -393,8 +401,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     static bool sBWasHeld = false;
     const int32_t kBHoldFrames = 12; // ~0.2s before a standing press counts as a hold
     bool bHeld = (pad->button & BTN_CDOWN) != 0;
-    if (CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_POCKET && !crouched &&
-        !eggPooping) {
+    if (pocket && !crouched && !eggPooping) {
         pad->button &= ~BTN_CDOWN;
         if (bHeld) {
             if (sBHeldFrames < kBHoldFrames) {
@@ -417,43 +424,25 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     }
     sBWasHeld = bHeld;
 
-    // Pocket: Talon Trot (LT + RT) and tip-toe (RT)
-    //  LT crouches. While crouched, an RT press injects C-Left to start the Talon Trot.
-    //  RT on its own (no crouch) lightly touches the analog stick for a tip-toe.
+    // Pocket: Talon Trot (Z + R) and tip-toe (R)
+    //  Z crouches. While crouched, an R press injects C-Left to start the Talon Trot.
+    //  R on its own (no crouch) lightly touches the analog stick for a tip-toe.
+    //  Both come off the mapped pad, so rebinding either button moves the gesture.
     static bool sTipToe = false;
-    static bool sPrevR2 = false;
-    if (CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_POCKET) {
-        bool r2 = false;
-        bool l2 = false;
-        auto ctx = Ship::Context::GetRawInstance();
-        auto controlDeck = ctx != nullptr ? ctx->GetControlDeck() : nullptr;
-        auto deviceManager = controlDeck != nullptr ? controlDeck->GetConnectedPhysicalDeviceManager() : nullptr;
-        if (deviceManager != nullptr) {
-            for (auto& [instanceId, gamepad] : deviceManager->GetConnectedSDLGamepadsForPort(0)) {
-                if (gamepad == nullptr) {
-                    continue;
-                }
-                if (SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 8000) {
-                    r2 = true;
-                }
-                if (SDL_GameControllerGetAxis(gamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 8000) {
-                    l2 = true;
-                }
-            }
-        }
-
-        if (l2) {
-            // Crouching: RT is the Talon Trot trigger, not tip-toe.
-            if (crouched && r2 && !sPrevR2) {
+    static bool sPrevGesture = false;
+    if (pocket) {
+        if (pocketCrouch) {
+            // Crouching: R is the Talon Trot trigger, not tip-toe.
+            if (crouched && pocketGesture && !sPrevGesture) {
                 pad->button |= BTN_CLEFT; // C-Left while crouched starts the Talon Trot
             }
             sTipToe = false;
         } else if (CVarGetInteger(CVAR_SETTING("Controls.PocketTipToeHold"), 0) != 0) {
-            sTipToe = r2; // hold mode
-        } else if (r2 && !sPrevR2) {
+            sTipToe = pocketGesture; // hold mode
+        } else if (pocketGesture && !sPrevGesture) {
             sTipToe = !sTipToe; // tap toggles
         }
-        sPrevR2 = r2;
+        sPrevGesture = pocketGesture;
 
         if (sTipToe) {
             const float kTipToeScale = 0.25f;
@@ -462,6 +451,6 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         }
     } else {
         sTipToe = false;
-        sPrevR2 = false;
+        sPrevGesture = false;
     }
 }
