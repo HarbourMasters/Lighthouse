@@ -1289,6 +1289,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 
     if(model_bin->anim_vertices_list_offset != 0 && D_8038371C != NULL){
         animVerticesList_transform((BKAnimVerticesList *)((uintptr_t)modelRenderModelBin + (uintptr_t)(u32)modelRenderModelBin->anim_vertices_list_offset), modelRendervertexList, D_8038371C);
+        // [port] The transform just posed the model's shared vertex array. Hand this draw a private copy.
+        port_modelRender_snapshotAnimVertices(gfx, vtxList_getVertices(modelRendervertexList), vtxList_getVtxCount(modelRendervertexList));
     }
 
     mlMtxIdent();

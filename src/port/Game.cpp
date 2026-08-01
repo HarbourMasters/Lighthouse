@@ -244,6 +244,7 @@ void push_frame() {
     }
 
     GameEngine::Instance->StartFrame();
+    port_animVtx_beginTick();
     // Demo/playback modes render at native rate with no interpolation, so skip recording it.
     const bool recordInterpolation = GameEngine::IsInterpolationEnabled() && !func_802E4A08();
     if (recordInterpolation) {

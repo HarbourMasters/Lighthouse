@@ -83,6 +83,14 @@ int port_spriteSizeCulled(float depth, float size, float baseThreshold, int disa
 float port_hudOrthoShift(float refX);
 void port_modelRenderResetTLUT(Gfx** gfx);
 
+// Vertex-animated models (AnimVertexPatches.cpp)
+
+// Recycles the per-draw vertex arena; once per tick, before the display list is built.
+void port_animVtx_beginTick(void);
+// Copies the just-posed vertices somewhere only this draw points at, and repoints
+// segment 0x01 at the copy.
+void port_modelRender_snapshotAnimVertices(Gfx** gfx, void* vertices, int32_t count);
+
 // Mirror (MirrorPatches.cpp)
 
 int port_mirror_active(void);
