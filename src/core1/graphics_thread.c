@@ -492,16 +492,7 @@ void thread5_entry(void *arg) {
         }
         ThreadWatchdog_Beat(WATCHDOG_THREAD5); // [port] one beat per serviced message
         thread5_checkAndExecutePreNMI();
-        // [port] OSMesg is an 8-byte union on PC. Hardware events are posted with
-        // OS_MESG_32(code), which sets .data32 but leaves the union's high 4 bytes
-        // UNINITIALIZED (garbage). The original discrimination here was
-        // `(uintptr_t)msg.ptr < 100`, i.e. it read all 8 bytes — so an event whose garbage
-        // high bytes happened to be non-zero (observed: SP=6 arriving as 0x00007FCE_00000006)
-        // was mis-read as a task pointer and never dispatched. That silently dropped the
-        // gfx-completion/yield SP events, stranding the yield and hanging game-tick on
-        // sMesgQueue2 (the freeze). Task submissions carry a real pointer whose low 32 bits
-        // are always large, so discriminate on .data32 (the event code) instead, which is
-        // immune to the garbage high bytes.
+        // [port] OSMesg is an 8-byte union and OS_MESG_32 leaves its high bytes garbage, so discriminate on .data32 (the event code), not the full .ptr, which mis-read events as task pointers and dropped SP events (the post-import freeze).
         if (msg.data32 < 100) {
             if (msg.data32 == THREAD5_MESSAGE_EVENT_SYNC) { thread5_handleSyncEvent(); }
             else if (msg.data32 == THREAD5_MESSAGE_EVENT_VI_RETRACE)  { thread5_handleVIRetraceEvent(); }
