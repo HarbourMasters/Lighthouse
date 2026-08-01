@@ -1936,9 +1936,13 @@ void actors_applyFromSavestate(void *savestate_ptr, ActorListSaveState *savestat
                 pad = savestate_actor->yaw;
                 CALL_CANCELLABLE_EVENT(OnLoadActorSaveState, savestate_actor, sp50[0], sp50[1], sp50[2]) {
                     temp_v0_6 = actor_spawnWithYaw_s32(savestate_actor->modelCacheIndex, &sp50, pad);
-                    actor_copy(savestate_actor, temp_v0_6);
-                    func_80329B68(temp_v0_6);
-                    func_803299B4(temp_v0_6);
+                    // [port] The spawn is nullable: the id may not be spawnable here, and a
+                    // cancelled OnActorSpawn returns whatever the listener supplied, including NULL.
+                    if (temp_v0_6 != NULL) {
+                        actor_copy(savestate_actor, temp_v0_6);
+                        func_80329B68(temp_v0_6);
+                        func_803299B4(temp_v0_6);
+                    }
                 }
             }
             savestate_actor++;

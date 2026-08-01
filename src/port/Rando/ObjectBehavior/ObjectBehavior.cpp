@@ -16,7 +16,6 @@ extern "C" {
 extern ActorArray* suBaddieActorArray;
 }
 
-bool isSaveState = false;
 std::map<RandoCheckId, std::tuple<int32_t, int32_t, int32_t>> randoSaveState;
 
 // clang-format off
@@ -89,12 +88,10 @@ bool IsActorWhitelisted(int32_t actorId) {
         }
     }
 
-    if (!isSaveState) {
-        if (CVarGetInteger(Rando::StaticData::Options[RO_SPAWN_JUNK].cvar, 0) == RO_GENERIC_ON) {
-            for (auto& junk : junkItemList) {
-                if (junk == actorId) {
-                    return true;
-                }
+    if (CVarGetInteger(Rando::StaticData::Options[RO_SPAWN_JUNK].cvar, 0) == RO_GENERIC_ON) {
+        for (auto& junk : junkItemList) {
+            if (junk == actorId) {
+                return true;
             }
         }
     }
@@ -316,11 +313,10 @@ void Rando::ObjectBehavior::Init() {
     COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
 
-        // Junk doesn't count as rando-managed while restoring; only real checks do.
-        isSaveState = true;
-        bool randoManaged = IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex);
-        isSaveState = false;
-        if (!randoManaged) {
+        // Decide up front whether this restore is ours: anything we don't manage falls
+        // through to the vanilla restore untouched. The predicate has to be the same one
+        // the save side recorded under, junk included.
+        if (!IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex)) {
             return;
         }
 
@@ -346,12 +342,16 @@ void Rando::ObjectBehavior::Init() {
             return;
         }
 
+        // The check already has a live actor. Restoring would stack a second one on
+        // top of it, so drop the restore entirely.
         if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
             event->Cancelled = true;
             return;
         }
 
-        Actor* randoCustomActor = CustomObject::ShouldCreateCustomActorEX(randoCheckId, position, false, ev->actor);
+        // refActor keeps an obtained check restoring the junk actor it was saved as
+        // instead of rolling a fresh one.
+        CustomObject::ShouldCreateCustomActorEX(randoCheckId, position, false, ev->actor);
         randoSaveState.erase(randoCheckId);
         event->Cancelled = true;
     })
