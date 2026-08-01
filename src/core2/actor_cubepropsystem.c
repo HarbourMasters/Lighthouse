@@ -4,6 +4,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "enums.h"
+#include "actor.h"
 
 #include <core2/file.h>
 #include "port/Patches/Patches.h"
@@ -13,8 +14,8 @@ extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 
 #define AssetCacheSize 0x3D5
 
-// Port Expand Marker Pool for Rando Allocation
-#define MARKER_POOL_SIZE 0x1C0
+// [port] Expand Marker Pool for Rando Allocation
+#define MARKER_POOL_SIZE ACTOR_POOL_SIZE
 #define MARKER_BITMAP_BYTES (MARKER_POOL_SIZE / 8)
 
 extern bool func_802E74A0(f32[3], f32, f32[3], f32[3]);

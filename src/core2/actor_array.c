@@ -56,7 +56,9 @@ typedef struct {
 }Actorlocal_Core2_9E370;
 
 // [port] Sized ahead of demand so actor_new never bk_reallocs (relocates) the array mid-map.
-#define ACTOR_ARRAY_INITIAL_CAP 512
+// The marker pool is the binding limit (see ACTOR_POOL_SIZE); the grow chunk only exists so
+// the array stays large enough to hold whatever the pool handed out, never the other way round.
+#define ACTOR_ARRAY_INITIAL_CAP ACTOR_POOL_SIZE
 #define ACTOR_ARRAY_GROW_CHUNK  128
 
 /* .data */
