@@ -27,6 +27,6 @@ void Rando::ObjectBehavior::InitMusicNoteBehavior() {
             }
         }
 
-        item_set(ITEM_C_NOTE, currentNotes);
+        item_adjustByDiffWithoutHud(ITEM_C_NOTE, currentNotes - item_getCount(ITEM_C_NOTE));
     })
 }

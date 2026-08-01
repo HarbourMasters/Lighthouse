@@ -210,7 +210,7 @@ void RegisterJinjoRetention_Init() {
         }
         u8 bits = collectedBits(ev->levelId);
         if (bits != 0) {
-            item_set(ITEM_12_JINJOS, bits);
+            item_adjustByDiffWithoutHud(ITEM_12_JINJOS, bits - item_getCount(ITEM_12_JINJOS));
         }
     });
 
