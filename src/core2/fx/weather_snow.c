@@ -29,22 +29,22 @@ Gfx D_80369290[] =
     gsSPEndDisplayList(),
 };
 
-Gfx D_803692B0[] =
+// [port] The flake model reaches these render modes through segment 3 at fixed byte
+// offsets; one 2D array guarantees the contiguity three separate globals did not.
+Gfx D_803692B0[][2] =
 {
-    gsDPSetRenderMode(Z_CMP | CVG_DST_CLAMP | ZMODE_OPA | FORCE_BL | G_RM_PASS, Z_CMP | CVG_DST_CLAMP | ZMODE_OPA | FORCE_BL | GBL_c2(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)),
-    gsSPEndDisplayList(),
-};
-
-Gfx D_803692C0[] = 
-{
-    gsDPSetRenderMode(AA_EN | Z_CMP | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | G_RM_PASS, AA_EN | Z_CMP | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)),
-    gsSPEndDisplayList(),
-};
-
-Gfx D_803692D0[] =
-{
-    gsDPSetRenderMode(Z_CMP | IM_RD | CVG_DST_FULL | ZMODE_OPA | FORCE_BL | G_RM_PASS, Z_CMP | IM_RD | CVG_DST_FULL | ZMODE_OPA | FORCE_BL | GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)),
-    gsSPEndDisplayList(),
+    {
+        gsDPSetRenderMode(Z_CMP | CVG_DST_CLAMP | ZMODE_OPA | FORCE_BL | G_RM_PASS, Z_CMP | CVG_DST_CLAMP | ZMODE_OPA | FORCE_BL | GBL_c2(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)),
+        gsSPEndDisplayList(),
+    },
+    {
+        gsDPSetRenderMode(AA_EN | Z_CMP | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | G_RM_PASS, AA_EN | Z_CMP | IM_RD | CVG_DST_CLAMP | ZMODE_OPA | ALPHA_CVG_SEL | GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)),
+        gsSPEndDisplayList(),
+    },
+    {
+        gsDPSetRenderMode(Z_CMP | IM_RD | CVG_DST_FULL | ZMODE_OPA | FORCE_BL | G_RM_PASS, Z_CMP | IM_RD | CVG_DST_FULL | ZMODE_OPA | FORCE_BL | GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)),
+        gsSPEndDisplayList(),
+    },
 };
 
 /* .bss */
@@ -208,9 +208,13 @@ void func_802F962C(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         func_80349AD0();
         gSPSegment((*gfx)++, 1, osVirtualToPhysical(temp_s3 + 1));
         gSPSegment((*gfx)++, 0x02, osVirtualToPhysical((void*)((uintptr_t)D_80369288 + D_80369288->texture_list_offset + sizeof(BKTextureList) + sizeof(BKTextureInfo))));
-        gSPSetGeometryMode((*gfx)++, G_ZBUFFER);
+        // [port] Vanilla only sets G_ZBUFFER here, inheriting the rest of the RSP/RDP state
+        // from whatever drew last. GraphicsPatches.cpp substitutes a self-contained preamble.
+        if (EventSystem_Should(VB_SNOW_RENDER_STATE, true, gfx)) {
+            gSPSetGeometryMode((*gfx)++, G_ZBUFFER);
+        }
         gSPDisplayList((*gfx)++, D_80369290);
-        gSPSegment((*gfx)++, 0x03, osVirtualToPhysical(&D_803692B0));
+        gSPSegment((*gfx)++, 0x03, osVirtualToPhysical(D_803692B0));
 
         D_80381094 = (Struct_core2_72060_0 *)((uintptr_t)D_80369288 + D_80369288->geo_list_offset);
         

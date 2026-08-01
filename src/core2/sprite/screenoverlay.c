@@ -206,7 +206,9 @@ void codeAEDA0_drawSprite( Gfx **gfx )
         D_80370338[0] = 1;
      }
 
-     if(D_80383634 == 0x0E){
+     // [port] Vanilla only disarms G_AC_THRESHOLD when the draw-mode global still reads
+     // 0x0E. SpritePatches.cpp forces it so a mode change cannot leak it into later draws.
+     if (EventSystem_Should(VB_SPRITE_RESTORE_ALPHA_COMPARE, D_80383634 == 0x0E, gfx)) {
          gDPSetAlphaCompare((*gfx)++, G_AC_NONE);
      }
  }

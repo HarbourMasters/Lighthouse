@@ -711,6 +711,7 @@ void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
     f32 sp30[3];
 
     if(cmd->unk8){
+        FrameInterpolation_RecordOpenChildHash3("billboard", (uintptr_t)cmd, 0, 0);
         mlMtx_apply_vec3f(sp30, cmd->unkC);
         mlMtx_push_translation(sp30[0], sp30[1], sp30[2]);
         mlMtxRotYaw(modelRenderCameraRotation[1]);
@@ -724,6 +725,7 @@ void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *arg2){
         modelRender_executeGeoCmds(gfx, mtx, (BKGeoCmd*)((u8*)cmd + cmd->unk8));
         mlMtxPop();
         gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
+        FrameInterpolation_RecordCloseChild();
     }
 }
 
@@ -1157,6 +1159,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         tmp_f0 = D_80383708 - 500.0f;
         if(tmp_f0 < camera_focus_distance){
             alpha = (s32)((1.0f - (camera_focus_distance - tmp_f0)/500.0f)*255.0f);
+            EventSystem_Should(VB_MODEL_DRAWDIST_FADE_ALPHA, true, &alpha);
             if(modelRenderColorMode == COLOR_MODE_DYNAMIC_PRIM_AND_ENV){
                 modelRenderDynColors.prim[3] = (modelRenderDynColors.prim[3] * alpha) / 0xff;
             }

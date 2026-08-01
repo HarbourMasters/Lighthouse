@@ -4,7 +4,9 @@
 
 #include <libultraship.h>
 
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
+#include "port/ShipInit.hpp"
 
 extern "C" {
 
@@ -222,3 +224,9 @@ void port_pauseBannerFree(void) {
 }
 
 } // extern "C"
+
+static void RegisterSpriteRestoreAlphaCompare_Init() {
+    COND_VB_SHOULD(VB_SPRITE_RESTORE_ALPHA_COMPARE, EVENT_PRIORITY_NORMAL, true, { *should = true; });
+}
+
+static RegisterShipInitFunc sSpriteRestoreAlphaCompareInit(RegisterSpriteRestoreAlphaCompare_Init);

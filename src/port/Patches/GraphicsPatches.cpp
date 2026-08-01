@@ -267,3 +267,35 @@ static void RegisterStaleTileFix_Init() {
 }
 
 static RegisterShipInitFunc staleTileFixInit(RegisterStaleTileFix_Init, { CVAR_FP_LOBBY_DOOR_TILE });
+
+// ============================
+// INHERITED RENDER STATE
+// ============================
+
+static void ApplySnowRenderState(Gfx** gfx) {
+    gSPClearGeometryMode((*gfx)++, G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
+                                       G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH);
+    gSPSetGeometryMode((*gfx)++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
+    gDPSetAlphaCompare((*gfx)++, G_AC_NONE);
+    gDPSetPrimColor((*gfx)++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetEnvColor((*gfx)++, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetBlendColor((*gfx)++, 0x00, 0x00, 0x00, 0x80);
+}
+
+static void RegisterSnowRenderState_Init() {
+    COND_VB_SHOULD(VB_SNOW_RENDER_STATE, EVENT_PRIORITY_NORMAL, true, {
+        ApplySnowRenderState(va_arg(args, Gfx**));
+        *should = false;
+    });
+}
+
+static RegisterShipInitFunc sSnowRenderStateInit(RegisterSnowRenderState_Init);
+
+static void RegisterModelDrawDistFadeAlpha_Init() {
+    COND_VB_SHOULD(VB_MODEL_DRAWDIST_FADE_ALPHA, EVENT_PRIORITY_NORMAL, true, {
+        s32* alpha = va_arg(args, s32*);
+        *alpha = std::clamp(*alpha, 0, 0xFF);
+    });
+}
+
+static RegisterShipInitFunc sModelDrawDistFadeAlphaInit(RegisterModelDrawDistFadeAlpha_Init);
