@@ -6,6 +6,7 @@
 #include "gc/gctransition.h"
 #include "port/Patches/Patches.h"
 #include "port/Engine.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 void anctrl_setAnimTimer(AnimCtrl*, f32);
 void func_8025AC20(s32, s32, s32, f32, char*, s32);
@@ -253,6 +254,7 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     if(s_current_transition.state == 0)
         return;
 
+    FrameInterpolation_RecordOpenChild("transition", 0);
     viewport_backupState();
     if(s_current_transition.anctrl != NULL){
         vp_position[0] = 0.0f;
@@ -377,7 +379,7 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     }
     viewport_restoreState();
     viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
-    
+    FrameInterpolation_RecordCloseChild();
 }
 
 void gctransition_8030BD4C(void){

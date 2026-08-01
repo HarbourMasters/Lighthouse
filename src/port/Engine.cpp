@@ -75,9 +75,6 @@ extern s32 D_80275610;
 bool prevAltAssets = false;
 // bool gEnableGammaBoost = true;
 
-// Game mode helper
-bool func_802E4A08(void);
-
 // Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
 u8* soundfont1ctl_ROM_START = NULL;
 u8* soundfont1ctl_ROM_END = NULL;
@@ -1317,20 +1314,11 @@ namespace {
 struct SubframePacing {
     int subframes; // renders to emit this tick (>= 1)
     int fps;       // target present fps for this tick
+    int viPerTick; // VIs of game time this tick covers
 };
 
 SubframePacing ComputeSubframePacing() {
     int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-
-    // Demo/replay modes render at the native rate
-    const bool replayMode = func_802E4A08();
-    if (!replayMode) {
-        // Some music-synced cutscenes cap interpolation at native 30
-        int fpsCap = port_getInterpolationFpsCap();
-        if (fpsCap > 0 && target_fps > fpsCap) {
-            target_fps = fpsCap;
-        }
-    }
 
     // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
     // replay and cutscene stutter raise it for slow N64 frames.
@@ -1340,6 +1328,12 @@ SubframePacing ComputeSubframePacing() {
     }
     if (viPerTick < gVIsPerFrame) {
         viPerTick = gVIsPerFrame;
+    }
+    // time_setDeltaReal_frames() clamps the demo's recorded VI count to 15, so the
+    // tick never advances more than that no matter what the demo asks for. Match it
+    // here or a bogus recorded value would scale the sub-frame count with it.
+    if (viPerTick > 15) {
+        viPerTick = 15;
     }
 
     int effective_logic_fps = 60 / viPerTick;
@@ -1355,18 +1349,16 @@ SubframePacing ComputeSubframePacing() {
         subframesPerTick = 1;
     }
 
-    // Replay modes never interpolate: one render per tick, held to viPerTick/60 by the floor.
-    if (replayMode) {
-        subframesPerTick = 1;
+    // paceFps drives DXGI's per-present wait so that subframes * 1/paceFps =
+    // viPerTick/60 wall (= game time per tick). Derived from viPerTick rather than
+    // effective_logic_fps: the latter is truncated (VI=7 -> 8, not 8.57), which would
+    // stretch wall time on the odd VI counts demo playback hands us every tick.
+    int fps = subframesPerTick * 60 / viPerTick;
+    if (fps < 1) {
+        fps = 1;
     }
 
-    // paceFps drives DXGI's per-present wait so that subframes * 1/paceFps =
-    // viPerTick/60 wall (= game time per tick). When viPerTick == gVIsPerFrame
-    // and target_fps is a multiple of eff, paceFps == target_fps and stays
-    // constant. Otherwise it varies per tick to keep wall == game.
-    int fps = subframesPerTick * effective_logic_fps;
-
-    return { subframesPerTick, fps };
+    return { subframesPerTick, fps, viPerTick };
 }
 } // namespace
 
@@ -1415,7 +1407,8 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
         activeFrames++;
     }
 
-    sPassBudgetNs = 1000000000LL * subframesPerTick / fps;
+    // Wall time this tick is worth, straight from its VI count.
+    sPassBudgetNs = 1000000000LL * pacing.viPerTick / 60;
 
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);

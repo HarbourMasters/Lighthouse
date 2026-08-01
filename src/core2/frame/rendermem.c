@@ -5,6 +5,7 @@
 #include "variables.h"
 
 #include "bk_time.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 extern void func_8023DFF0(s32);
 extern void coMusicPlayer_update(void);
@@ -54,13 +55,17 @@ void func_802E329C(s32 arg0, Gfx **gfx_begin, Gfx **gfx_end) {
         drawRectangle2D(&gfx, 0, 0, (s32) (f32) gFramebufferWidth, (s32) (f32) gFramebufferHeight, 0, 0, 0);
     }
     if ((D_8037E8C0.unk14 == 0) || (D_8037E8C0.unk14 == 3)) {
+        FrameInterpolation_RecordOpenChild("rendermem_bound", 0);
         viewport_setRenderViewportAndPerspectiveMatrix(&gfx, &mtx);
         gcbound_draw(&gfx);
+        FrameInterpolation_RecordCloseChild();
     }
     if (D_8037E8C0.unk14 == 1) {
+        FrameInterpolation_RecordOpenChild("rendermem_pause", 0);
         drawRectangle2D(&gfx, 0, 0, (s32) (f32) gFramebufferWidth, (s32) (f32) gFramebufferHeight, 0, 0, 0);
         viewport_setRenderViewportAndPerspectiveMatrix(&gfx, &mtx);
         func_802F1858(D_8037E8C0.unk10, &gfx, &mtx, &vtx);
+        FrameInterpolation_RecordCloseChild();
     }
     core1_15B30_finishDList(&gfx);
     graphicsCache_checkFrame(gfx_start, gfx, mtx_start, mtx, vtx_start, vtx);

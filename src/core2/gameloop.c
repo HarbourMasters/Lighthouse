@@ -484,6 +484,9 @@ void func_802E4384(void){
     }
     else{
         func_8033DC18();
+        // [port] Latch this cutscene frame's stutter before anything reads it, so the
+        // time delta below and the renderer's frame budget agree for the whole tick.
+        port_tickCutsceneStutter();
         // [port] Use a fixed 2-VI timestep for normal gameplay.
         s32 viDivisor = viMgr_func_8024BFA0();
         func_8033DC20(); // always consume wall-clock to keep last_ticks fresh

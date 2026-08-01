@@ -40,8 +40,6 @@ void audioManagerThread_entry(void* arg);
 void core1_15B30_sendMesg3ToRenderThread(void);
 OSMesgQueue* thread5_getTaskQueue(void);
 OSMesgQueue* thread5_getSyncQueue(void);
-// Non-interactive demo/playback modes (attract demo, file playback, etc.) -- decomp gameloop.c
-bool func_802E4A08(void);
 }
 
 // The game tick runs on its own thread and submits display lists through the
@@ -245,8 +243,7 @@ void push_frame() {
 
     GameEngine::Instance->StartFrame();
     port_animVtx_beginTick();
-    // Demo/playback modes render at native rate with no interpolation, so skip recording it.
-    const bool recordInterpolation = GameEngine::IsInterpolationEnabled() && !func_802E4A08();
+    const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
     if (recordInterpolation) {
         FrameInterpolation_StartRecord();
     }

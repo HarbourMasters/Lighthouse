@@ -6,6 +6,7 @@
 
 #include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 #define PRINT_JP (ResourceMgr_IsJapanese())
 
@@ -906,6 +907,7 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     f32 _y;
     f32 width;
 
+    FrameInterpolation_RecordOpenChild("printbuffer", 0);
     gSPDisplayList((*gfx)++, D_80369238);
     for(print_sCurrentPtr = print_sPrintBuffer; print_sCurrentPtr < print_sPrintBuffer + 0x20; print_sCurrentPtr++){
         if (print_sCurrentPtr->string != 0) {
@@ -961,6 +963,7 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     gDPSetTexturePersp((*gfx)++, G_TP_PERSP);
     gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
     viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
+    FrameInterpolation_RecordCloseChild();
 }//*/
 
 //adds a new string to the print buffer and updates string buffer end ptr

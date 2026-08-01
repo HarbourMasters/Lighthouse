@@ -21,8 +21,8 @@ void port_pipelineSyncPoint(void);
 int port_getDemoViCount(void);
 void port_setDemoViCount(int viCount);
 int port_getDemoDisplayViCount(int rawViCount);
+void port_tickCutsceneStutter(void);
 int port_getCutsceneExtraVis(void);
-int port_getInterpolationFpsCap(void);
 
 // Localization (Localization.cpp)
 
