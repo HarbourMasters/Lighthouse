@@ -41,8 +41,7 @@ const char* CmdTypeName(int type) {
     }
 }
 
-// Each command is keyed by (model part, byte offset within the model bin). The offset is
-// fixed per asset, so it never shifts when force-drawing reveals more geometry.
+// Each command is keyed by (model part, byte offset within the model's geo command list).
 struct Key {
     int part;
     int offset;

@@ -114,7 +114,9 @@ static void OnGeoCull_LevelOcclusion(IEvent* event) {
     if (ev->type != OCCLUSION_CMD_CAMERA) {
         return;
     }
-    if (gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN && ev->offset == 0x2CD0 &&
+    // Offset into the opaque map model's geo command list (the "outside areas {1,2}" CAMERA
+    // command). Read it off the Occlusion Debugger, which reports the same geo-relative key.
+    if (gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN && ev->offset == 0x2C98 &&
         ev->modelBin == (const void*)mapModel_getModelBin(0)) {
         *ev->forceDraw = true;
     }
