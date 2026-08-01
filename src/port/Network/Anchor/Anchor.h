@@ -20,11 +20,12 @@ extern "C" {
 typedef struct {
     uint32_t clientId;
     std::string name;
-    // Color_RGB8 color;
+    BKPlayerColorSet colors;
     std::string clientVersion;
     std::string teamId;
     bool online;
     bool self;
+    uint32_t joinOrder;
     uint32_t seed;
     bool isSaveLoaded;
     bool isGameComplete;
@@ -79,6 +80,7 @@ private:
     void RemoveDummy(uint32_t clientId);
 
     void EvaluateDummyForClient(uint32_t clientId);
+    void ApplyClientCosmetics(uint32_t clientId);
 
     void HandlePacket_AllClientState(nlohmann::json& payload);
     void HandlePacket_AuthorityState(nlohmann::json& payload);
@@ -218,6 +220,7 @@ public:
 
     bool ShouldShowNotifications();
     std::string GetClientName(uint32_t clientId);
+    std::string GetNametagLabel(uint32_t clientId);
 
     void SendPacket_AuthorityState(u8 activity, bool claimed);
     void SendPacket_ClearTeamState(std::string teamId);

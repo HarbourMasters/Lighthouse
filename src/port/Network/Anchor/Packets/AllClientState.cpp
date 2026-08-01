@@ -21,8 +21,10 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
     bool isGlobalRoom = IsGlobalRoom();
 
     std::vector<uint32_t> clientsToRemove;
+    uint32_t joinOrder = 0;
     // add new clients
     for (auto& client : newClients) {
+        client.joinOrder = client.online ? ++joinOrder : 0;
         if (!client.online && clients.contains(client.clientId)) {
             clientsToRemove.push_back(client.clientId);
         }
@@ -62,6 +64,9 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
         clients[client.clientId].isGameComplete = client.isGameComplete;
         clients[client.clientId].map = client.map;
         clients[client.clientId].exit = client.exit;
+        clients[client.clientId].joinOrder = client.joinOrder;
+        clients[client.clientId].colors = client.colors;
+        ApplyClientCosmetics(client.clientId);
         Authority_OnClientStateChanged(client.clientId, client.online, client.map);
     }
 
@@ -78,6 +83,7 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json& payload) {
         if (dummies.contains(clientId)) {
             dummies.erase(clientId);
         }
+        PlayerColors_forgetOwner(clientId);
         if (clients.at(clientId).dummy != nullptr) {
             clients.at(clientId).dummy->dummy_free();
             free(clients.at(clientId).dummy);

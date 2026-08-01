@@ -7,6 +7,8 @@
 #include "core2/ba/physics.h"
 #include "bk_math.h"
 
+#include "port/Enhancements/Cosmetics/PlayerColors.h"
+
 void assetcache_release(void *); //assetcache_free
 void modelRender_func_8033A280(f32);
 
@@ -101,6 +103,8 @@ void baModel_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
         modelRender_setPreDrawCallback((model_render_pre_draw_callback_f)_baModel_preDraw, 0);
         modelRender_setRefPoints(D_80363780);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
+        // [port] Swap in this player's recoloured palettes/vertex colours for this draw.
+        PlayerColors_applyLocalForDraw(baModel_getModelId(), baModelBin);
         if(D_8037C150.unk0){
             D_8037C150.unk0 = 0;
             modelRender_draw(gfx, mtx, D_8037C150.unk4, rotation, baModelScale, sp38, baModelBin);

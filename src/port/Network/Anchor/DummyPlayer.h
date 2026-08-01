@@ -2,6 +2,7 @@
 #include "functions.h"
 #include "core2/ba/model.h"
 #include "variables.h"
+#include "port/Enhancements/Cosmetics/PlayerColors.h"
 
 class DummyPlayer {
 public:
@@ -81,6 +82,13 @@ public:
         return dummyMarker;
     }
     void dummy_despawnActor(void);
+    // Cosmetics: which Anchor client this stand-in belongs to, and the model colors they chose.
+    void dummy_setOwner(uint32_t clientId) {
+        dummyOwnerId = clientId;
+    }
+    void dummy_setColors(const BKPlayerColorSet& colors) {
+        dummyColors = colors;
+    }
 
 private:
     uint32_t PlayerID;
@@ -138,4 +146,6 @@ private:
     f32 dummy_banjoRightEye;
     Transformation dummy_transformation;
     s32 dummyBottlesBonus = 0;
+    uint32_t dummyOwnerId = 0;
+    BKPlayerColorSet dummyColors = {};
 };

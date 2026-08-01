@@ -21,6 +21,7 @@
 #include "DevTools/ThreadWatchdog.h"
 #include "GameStatus.h"
 #include "Interpolation/FrameInterpolation.h"
+#include "Nametag/Nametag.h"
 #include "Network/Anchor/Anchor.h"
 #include "OS/OS.h"
 #include "Patches/Patches.h"
@@ -107,6 +108,7 @@ extern "C" void port_thread5_onSubmit(void* taskData) {
     FrameInterpolation_GetRecordingPair(&pair.prev, &pair.curr, &pair.should);
     FrameInterpolation_ClaimPair(pair.prev, pair.curr);
     FrameInterpolation_StopRecord();
+    Nametag::SubmitFrame(task->data_ptr);
     std::lock_guard<std::mutex> lock(sInterpMutex);
     pair.serial = ++sInterpSerial;
     auto [it, inserted] = sTaskInterp.emplace(task->data_ptr, pair);
@@ -141,6 +143,7 @@ void RenderTask(void* dlStart) {
         }
     }
     FrameInterpolation_BeginRenderPass(pair.prev, pair.curr, pair.should);
+    Nametag::BeginRenderPass(dlStart, pair.should);
     GameEngine::ProcessGfxCommands((Gfx*)dlStart);
     FrameInterpolation_ReleasePair(pair.prev, pair.curr);
 }

@@ -26,6 +26,10 @@ nlohmann::json Anchor::PrepClientState() {
     payload["teamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["online"] = true;
 
+    BKPlayerColorSet colors;
+    PlayerColors_getLocal(&colors);
+    to_json(payload["colors"], colors);
+
     if (IsSaveLoaded()) {
         payload["seed"] = (uint32_t)(IS_RANDO ? RANDO_SEED : 0);
         payload["isSaveLoaded"] = true;
@@ -66,6 +70,8 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json& payload) {
         clients[clientId].isGameComplete = client.isGameComplete;
         clients[clientId].map = client.map;
         clients[clientId].exit = client.exit;
+        clients[clientId].colors = client.colors;
+        ApplyClientCosmetics(clientId);
         EvaluateDummyForClient(clientId);
         Authority_OnClientStateChanged(clientId, client.online, client.map);
         SweepUnoccupiedLevelState((GameMap)gsworld_getMap());

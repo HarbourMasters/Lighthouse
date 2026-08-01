@@ -199,6 +199,8 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
         // modelRender_preDraw((GenFunction_1)_dummy_preDraw, 0);
         modelRender_setRefPoints(dummy_D_80363780);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
+        // Each dummy draws the shared model bin through its own recolored palettes.
+        PlayerColors_applyForDraw(dummyOwnerId, dummy_getModelId(), dummyBin, &dummyColors);
         if (dummy_D_8037C150.unk0) {
             dummy_D_8037C150.unk0 = 0;
             modelRender_draw(gfx, mtx, dummy_D_8037C150.unk4, rotation, dummyScale, sp38, dummyBin);

@@ -35,6 +35,7 @@
 #include "Extractor/GameExtractor.h"
 #include "ship/window/gui/FileBrowserWindow.h"
 #include "Interpolation/FrameInterpolation.h"
+#include "Nametag/Nametag.h"
 #include "OS/OS.h"
 #include "Network/Anchor/Anchor.h"
 #include "port/Enhancements/Events/PortEnhancements.h"
@@ -1269,9 +1270,13 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
         // Vertex-animated models blend into one buffer per draw, so unlike the
         // matrix maps this can't be precomputed per sub-frame. It has to land
         // right before the pass that reads it.
+        const float subframeBlend = (frameCount > 1) ? (float)(frameIdx + 1) / (float)frameCount : 1.0f;
         if (frameCount > 1) {
-            FrameInterpolation_ApplyAnimVertices((float)(frameIdx + 1) / (float)frameCount);
+            FrameInterpolation_ApplyAnimVertices(subframeBlend);
         }
+        // Overlays drawn by the Gui pass below place themselves per tick, so they need the
+        // same blend the geometry is being posed with or they step while the world glides.
+        Nametag::SetSubframeBlend(subframeBlend);
         bool isFinalFrame = (frameIdx == frameCount - 1);
         if (frameCount > 1 || wndBase->IsFrameReady()) {
             // Sample the full CPU cost of producing this sub-frame.

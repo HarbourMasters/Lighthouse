@@ -47,6 +47,7 @@ void Anchor::Disable() {
         }
     }
     clients.clear();
+    PlayerColors_reset();
     RefreshClientActors();
 }
 
@@ -301,13 +302,32 @@ void Anchor::SetDummyPlayerClientId(const Actor* actor, uint32_t clientId) {
     ObjectExtension::GetInstance().Set<DummyPlayerClientId>(actor, DummyPlayerClientId{ clientId });
 }
 
+// Roughly the top of Banjo's head.
+static constexpr f32 kNametagHeight = 155.0f;
+
+// The menu exposes the nametag range as a multiplier of this, the same way Extended Draw
+// Distance scales off its own base.
+static constexpr f32 kNametagRangeUnit = 3000.0f;
+
 void Anchor::DrawDummies(OnPlayerDraw* event) {
     if (!isConnected)
         return;
+    const bool showNametags = CVarGetInteger(CVAR_REMOTE_ANCHOR("Nametags"), 1) != 0;
+    const f32 nametagRange = kNametagRangeUnit * CVarGetFloat(CVAR_REMOTE_ANCHOR("NametagScale"), 1.0f);
     for (const auto& [id, dummy] : dummies) {
         FrameInterpolation_RecordOpenChild(clients[id].name.c_str(), 0);
         dummy->Draw(event->gfx, event->mtx, event->vtx);
         FrameInterpolation_RecordCloseChild();
+
+        // A nameless client would otherwise get an empty tag box floating over them.
+        const std::string label = showNametags ? GetNametagLabel(id) : std::string();
+        if (dummy->dummy_isVisible() && !label.empty()) {
+            f32 position[3];
+            dummy->dummy_getPosition(position);
+            position[1] += kNametagHeight;
+            const f32 fade = Nametag::FadeForDistance(position[0], position[1], position[2], nametagRange);
+            Nametag::Push(id, position[0], position[1], position[2], label.c_str(), fade);
+        }
     }
 }
 
@@ -416,6 +436,19 @@ void Anchor::RegisterDummy(DummyPlayer* dummy, uint32_t clientID) {
     dummies.emplace(clientID, dummy);
 }
 
+// Pushes a client's chosen model colours onto their stand-in so the next draw picks them up.
+void Anchor::ApplyClientCosmetics(uint32_t clientId) {
+    if (!clients.contains(clientId)) {
+        return;
+    }
+    AnchorClient& client = clients[clientId];
+    if (client.dummy == nullptr) {
+        return;
+    }
+    client.dummy->dummy_setOwner(clientId);
+    client.dummy->dummy_setColors(client.colors);
+}
+
 void Anchor::EvaluateDummyForClient(uint32_t clientId) {
     if (!clients.contains(clientId))
         return;
@@ -454,6 +487,21 @@ bool Anchor::IsSaveLoaded() {
 
 bool Anchor::ShouldShowNotifications() {
     return CVarGetInteger(CVAR_REMOTE_ANCHOR("Notifications"), 1) != 0;
+}
+
+// Public global room shows player number instead of custom name
+std::string Anchor::GetNametagLabel(uint32_t clientId) {
+    auto it = clients.find(clientId);
+    if (it == clients.end()) {
+        return "";
+    }
+    if (!IsGlobalRoom()) {
+        return it->second.name;
+    }
+    if (it->second.joinOrder == 0) {
+        return "Player";
+    }
+    return "Player " + std::to_string(it->second.joinOrder);
 }
 
 std::string Anchor::GetClientName(uint32_t clientId) {

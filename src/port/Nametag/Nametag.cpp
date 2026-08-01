@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <libultraship/libultraship.h>
@@ -29,15 +31,60 @@ constexpr float kBorderThickness = 1.5f;
 constexpr float kGameAspect = 4.0f / 3.0f;
 constexpr float kLowResAspect = 320.0f / 240.0f;
 
+// Distance over which a tag fades out as it reaches the edge of its range.
+constexpr float kFadeBand = 500.0f;
+constexpr float kMaxFadeShare = 0.25f;
+
 struct Entry {
-    float pos[3];
+    uint32_t id;
+    float screen[2];
+    bool onScreen;
+    float alpha;
     std::string text;
 };
 
-std::vector<Entry> sQueue;
+ImU32 WithAlpha(ImU32 color, float alpha) {
+    const float scaled = (float)((color >> IM_COL32_A_SHIFT) & 0xFF) * alpha;
+    const ImU32 value = (ImU32)(scaled < 0.0f ? 0.0f : (scaled > 255.0f ? 255.0f : scaled));
+    return (color & ~IM_COL32_A_MASK) | (value << IM_COL32_A_SHIFT);
+}
+
+// Game thread only.
+std::vector<Entry> sRecording;
+bool sRecordingStale = false;
+
+void RetireRecording() {
+    sRecording.clear();
+}
+
+struct FrameTags {
+    uint64_t serial;
+    std::vector<Entry> entries;
+};
+std::mutex sHandoffMutex;
+std::unordered_map<const void*, FrameTags> sHandoff;
+uint64_t sHandoffSerial = 0;
+constexpr uint64_t kHandoffStaleAfter = 8;
+
+// Render thread only.
+std::vector<Entry> sRenderCurr;
+std::vector<Entry> sRenderPrev;
+bool sRenderInterpolate = false;
+float sSubframeBlend = 1.0f;
+
 Nametag::ProjectFn sProject = nullptr;
+Nametag::DistanceFn sDistance = nullptr;
 const int* sFbWidth = nullptr;
 const int* sFbHeight = nullptr;
+
+const Entry* FindPrevious(uint32_t id) {
+    for (const auto& entry : sRenderPrev) {
+        if (entry.id == id) {
+            return &entry;
+        }
+    }
+    return nullptr;
+}
 
 // Mirrors LUS Gui::GetIntegerScaleFactor; mGameWindowViewport lags one
 // frame, matching DrawGame's own read order.
@@ -174,19 +221,28 @@ public:
         const float scaleY = contentH / static_cast<float>(*sFbHeight);
 
         ImDrawList* drawList = ImGui::GetForegroundDrawList();
-        for (const auto& entry : sQueue) {
-            float pos[3] = { entry.pos[0], entry.pos[1], entry.pos[2] };
-            float screen[2];
-            if (sProject(pos, screen)) {
-                ImVec2 textSize = ImGui::CalcTextSize(entry.text.c_str());
-                ImVec2 anchor(originX + screen[0] * scaleX, originY + screen[1] * scaleY);
-                ImVec2 textTL(anchor.x - textSize.x * 0.5f, anchor.y - textSize.y * 0.5f);
-                ImVec2 boxTL(textTL.x - kPaddingX, textTL.y - kPaddingY);
-                ImVec2 boxBR(textTL.x + textSize.x + kPaddingX, textTL.y + textSize.y + kPaddingY);
-                drawList->AddRectFilled(boxTL, boxBR, kBgColor, kCornerRadius);
-                drawList->AddRect(boxTL, boxBR, kBorderColor, kCornerRadius, 0, kBorderThickness);
-                drawList->AddText(textTL, kTextColor, entry.text.c_str());
+        for (const auto& entry : sRenderCurr) {
+            if (!entry.onScreen) {
+                continue;
             }
+            float screenX = entry.screen[0];
+            float screenY = entry.screen[1];
+            float alpha = entry.alpha;
+            const Entry* previous = sRenderInterpolate ? FindPrevious(entry.id) : nullptr;
+            if (previous != nullptr && previous->onScreen) {
+                screenX = previous->screen[0] + (screenX - previous->screen[0]) * sSubframeBlend;
+                screenY = previous->screen[1] + (screenY - previous->screen[1]) * sSubframeBlend;
+                alpha = previous->alpha + (alpha - previous->alpha) * sSubframeBlend;
+            }
+
+            ImVec2 textSize = ImGui::CalcTextSize(entry.text.c_str());
+            ImVec2 anchor(originX + screenX * scaleX, originY + screenY * scaleY);
+            ImVec2 textTL(anchor.x - textSize.x * 0.5f, anchor.y - textSize.y * 0.5f);
+            ImVec2 boxTL(textTL.x - kPaddingX, textTL.y - kPaddingY);
+            ImVec2 boxBR(textTL.x + textSize.x + kPaddingX, textTL.y + textSize.y + kPaddingY);
+            drawList->AddRectFilled(boxTL, boxBR, WithAlpha(kBgColor, alpha), kCornerRadius);
+            drawList->AddRect(boxTL, boxBR, WithAlpha(kBorderColor, alpha), kCornerRadius, 0, kBorderThickness);
+            drawList->AddText(textTL, WithAlpha(kTextColor, alpha), entry.text.c_str());
         }
     }
 };
@@ -197,6 +253,10 @@ namespace Nametag {
 
 void SetProjectFn(ProjectFn fn) {
     sProject = fn;
+}
+
+void SetDistanceFn(DistanceFn fn) {
+    sDistance = fn;
 }
 
 void SetNativeFramebufferSize(const int* width, const int* height) {
@@ -211,20 +271,88 @@ void RegisterOverlay() {
     overlay->Show();
 }
 
-void Clear() {
-    sQueue.clear();
+void BeginDraw() {
+    if (sRecordingStale) {
+        RetireRecording();
+    }
+    sRecordingStale = true;
 }
 
-void Push(float x, float y, float z, const char* label) {
-    if (label == nullptr) {
+void Push(uint32_t id, float x, float y, float z, const char* label, float alpha) {
+    if (label == nullptr || alpha <= 0.0f || sProject == nullptr) {
         return;
     }
+    if (sRecordingStale) {
+        RetireRecording();
+        sRecordingStale = false;
+    }
     Entry entry;
-    entry.pos[0] = x;
-    entry.pos[1] = y;
-    entry.pos[2] = z;
+    entry.id = id;
+    float pos[3] = { x, y, z };
+    entry.onScreen = sProject(pos, entry.screen);
+    entry.alpha = alpha > 1.0f ? 1.0f : alpha;
     entry.text = label;
-    sQueue.push_back(std::move(entry));
+    sRecording.push_back(std::move(entry));
+}
+
+// Game thread. A list is submitted while its tick is still recording, so the
+// tags travel with the task the same way the interpolation pair does.
+void SubmitFrame(const void* key) {
+    std::lock_guard<std::mutex> lock(sHandoffMutex);
+    const uint64_t serial = ++sHandoffSerial;
+    auto [it, inserted] = sHandoff.emplace(key, FrameTags{ serial, sRecording });
+    if (!inserted) {
+        it->second.serial = serial;
+        it->second.entries = sRecording;
+    }
+
+    // Anything still here after a full trip round the ring will never be picked
+    // up by a render pass, so drop it rather than grow the map forever.
+    for (auto stale = sHandoff.begin(); stale != sHandoff.end();) {
+        if (stale->second.serial + kHandoffStaleAfter < serial) {
+            stale = sHandoff.erase(stale);
+        } else {
+            ++stale;
+        }
+    }
+}
+
+// Render thread. Adopt the tags submitted with this list; what the previous
+// pass drew stays behind as the interpolation source.
+void BeginRenderPass(const void* key, bool interpolate) {
+    std::vector<Entry> tags;
+    {
+        std::lock_guard<std::mutex> lock(sHandoffMutex);
+        auto it = sHandoff.find(key);
+        if (it != sHandoff.end()) {
+            tags = std::move(it->second.entries);
+            sHandoff.erase(it);
+        }
+    }
+    sRenderPrev = std::move(sRenderCurr);
+    sRenderCurr = std::move(tags);
+    sRenderInterpolate = interpolate;
+}
+
+float FadeForDistance(float x, float y, float z, float maxDistance) {
+    if (sDistance == nullptr) {
+        return 1.0f;
+    }
+    float pos[3] = { x, y, z };
+    const float distance = sDistance(pos);
+    if (distance >= maxDistance) {
+        return 0.0f;
+    }
+    const float band = std::min(kFadeBand, maxDistance * kMaxFadeShare);
+    const float fadeStart = maxDistance - band;
+    if (distance <= fadeStart || band <= 0.0f) {
+        return 1.0f;
+    }
+    return (maxDistance - distance) / band;
+}
+
+void SetSubframeBlend(float blend) {
+    sSubframeBlend = blend < 0.0f ? 0.0f : (blend > 1.0f ? 1.0f : blend);
 }
 
 } // namespace Nametag
