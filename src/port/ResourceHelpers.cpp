@@ -222,17 +222,21 @@ extern "C" int ResourceMgr_IsAssetRepointed(uint32_t assetId) {
     return sDialogOverride.find(assetId) != sDialogOverride.end() ? 1 : 0;
 }
 
-// Resolve an asset id to its o2r path: the active language override wins for
-// re-pointed dialog ids, otherwise the base manifest.
-static std::string ResolveAssetPath(uint32_t assetId) {
-    if (auto ov = sDialogOverride.find(assetId); ov != sDialogOverride.end()) {
-        return ov->second;
-    }
+// The base game's own o2r path for an asset id, ignoring any active language re-point.
+std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId) {
     const auto& symbolMap = GetAssetSymbolMap();
     if (auto entry = symbolMap.find(assetId); entry != symbolMap.end()) {
         return entry->second;
     }
     return std::string();
+}
+
+// The o2r path an asset id resolves to right now.
+std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId) {
+    if (auto ov = sDialogOverride.find(assetId); ov != sDialogOverride.end()) {
+        return ov->second;
+    }
+    return ResourceHelpers_GetBaseAssetPath(assetId);
 }
 
 static char* LoadAndRetainResource(const std::string& path, uint32_t assetId) {
@@ -253,7 +257,7 @@ extern "C" char* ResourceMgr_ReloadByAssetId(uint32_t assetId) {
         sResourceRefCache.erase(it);
     }
 
-    std::string mappedPath = ResolveAssetPath(assetId);
+    std::string mappedPath = ResourceHelpers_GetActiveAssetPath(assetId);
     if (!mappedPath.empty()) {
         std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
@@ -278,7 +282,7 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
         sResourceRefCache.erase(it);
     }
 
-    std::string mappedPath = ResolveAssetPath(assetId);
+    std::string mappedPath = ResourceHelpers_GetActiveAssetPath(assetId);
     if (mappedPath.empty()) {
         // A reserved-but-empty ROM slot resolves to nothing by design (the game
         // tolerates it, as on N64); only a genuinely-missing asset is worth tracing.

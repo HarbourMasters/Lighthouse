@@ -54,6 +54,14 @@ bool ReadStampedCrc(const std::string& archivePath, uint32_t& outCrc) {
 
 } // namespace
 
+std::string BaseArchivePath() {
+    std::string basePath = Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk");
+    if (basePath.empty() || !std::filesystem::exists(basePath)) {
+        return std::string(); // not extracted yet
+    }
+    return basePath;
+}
+
 BKVersion GetBaseVersion() {
     static BKVersion sVersion = BK_VER_US_10;
     static bool sResolved = false;
@@ -61,8 +69,8 @@ BKVersion GetBaseVersion() {
         return sVersion;
     }
 
-    std::string basePath = Ship::Context::LocateFileAcrossAppDirs("bk.o2r", "bk");
-    if (basePath.empty() || !std::filesystem::exists(basePath)) {
+    const std::string basePath = BaseArchivePath();
+    if (basePath.empty()) {
         return sVersion; // not extracted yet — retry on the next call
     }
 
