@@ -307,6 +307,7 @@ void ncCamera_update(void){
     viewport_getPosition_vec3f(sp2C);
     viewport_getRotation_vec3f(sp20);
     func_802BB4D8(sp2C, sp20);
+    viewport_setPosition_vec3f(sp2C);
     viewport_update();
     func_802BEFB0();
     func_802BBA84();
