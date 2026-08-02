@@ -3,13 +3,13 @@
 ## Windows
 
 Requires:
-  * At least 8GB of RAM (machines with 4GB have seen complier failures)
+  * At least 8GB of RAM (machines with 4GB have seen compiler failures)
   * Visual Studio 2022 Community Edition with the C++ feature set
   * One of the Windows SDKs that comes with Visual Studio, for example the current Windows 10 version 10.0.19041.0
   * The `MSVC v143 - VS 2022 C++ build tools` component of Visual Studio
   * Python 3 (can be installed manually or as part of Visual Studio)
   * Git (can be installed manually or as part of Visual Studio)
-  * Cmake version <= 3.3 (can be installed via chocolatey or manually)
+  * CMake version >= 3.26 (can be installed via chocolatey or manually)
 
 During installation, check the "Desktop development with C++" feature set:
 
@@ -103,10 +103,10 @@ pacman -S clang git cmake ninja lsb-release sdl2 libpng libzip nlohmann-json tin
 #### Fedora
 ```sh
 # using gcc
-dnf install gcc gcc-c++ git cmake ninja-build lsb_release SDL2-devel libpng-devel libzip-devel libzip-tools nlohmann-json-devel tinyxml2-devel spdlog-devel boost-devel libogg-devel libvorbis-devel
+dnf install gcc gcc-c++ git cmake ninja-build redhat-lsb-core SDL2-devel SDL2_net-devel libpng-devel libzip-devel libzip-tools nlohmann-json-devel tinyxml2-devel spdlog-devel boost-devel libogg-devel libvorbis-devel
 
 # or using clang
-dnf install clang git cmake ninja-build lsb_release SDL2-devel libpng-devel libzip-devel libzip-tools nlohmann-json-devel tinyxml2-devel spdlog-devel boost-devel libogg-devel libvorbis-devel
+dnf install clang git cmake ninja-build redhat-lsb-core SDL2-devel SDL2_net-devel libpng-devel libzip-devel libzip-tools nlohmann-json-devel tinyxml2-devel spdlog-devel boost-devel libogg-devel libvorbis-devel
 ```
 #### openSUSE
 ```sh
