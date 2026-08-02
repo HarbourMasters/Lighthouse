@@ -20,13 +20,14 @@ enum map_e gsworld_getMap(void);
 // Demo Display Pacing
 
 static int sDemoViCount = 0;
+static constexpr int kMaxDemoViCount = 0xF;
 
 int port_getDemoViCount(void) {
     return sDemoViCount;
 }
 
 void port_setDemoViCount(int viCount) {
-    sDemoViCount = viCount;
+    sDemoViCount = (viCount > kMaxDemoViCount) ? kMaxDemoViCount : viCount;
 }
 
 int port_getDemoDisplayViCount(int rawViCount) {

@@ -221,8 +221,14 @@ void SetActiveLanguage(const std::string& name) {
 
     std::unordered_map<uint32_t, std::string> dialogOverride;
     if (entry->source != nullptr) {
+        // The pack's assets are numbered for the ROM it was extracted from, so they have
+        // to be translated into the base's v1.0 id space before they can override anything.
+        const uint32_t rawVersion = static_cast<uint32_t>(entry->source->GetGameVersion());
+        BKVersion packVersion = BK_VER_US_10;
+        const bool classified = ClassifyArchiveVersion(rawVersion, packVersion);
+
         const std::unordered_map<uint32_t, uint32_t>* remap = nullptr;
-        switch (static_cast<BKVersion>(entry->source->GetGameVersion())) {
+        switch (packVersion) {
             case BK_VER_US_11:
                 remap = &sV10toV11Remap;
                 break;
@@ -232,8 +238,19 @@ void SetActiveLanguage(const std::string& name) {
             case BK_VER_JP:
                 remap = &sV10toJPRemap;
                 break;
+            case BK_VER_US_10:
             default:
                 break; // pack ids already match v1.0
+        }
+
+        // Without a recognised stamp there is no way to know which id space the pack is in.
+        // Installing its assets under their own ids would drop them onto whatever v1.0 asset
+        // happens to share the number, so leave the language alone instead.
+        if (!classified) {
+            SPDLOG_ERROR("[Lang] '{}': pack version stamp {:#010x} matches no known ROM; refusing to apply it "
+                         "(its asset ids cannot be translated to the base game's).",
+                         name, rawVersion);
+            return;
         }
         std::unordered_map<uint32_t, uint32_t> inverse;
         if (remap != nullptr) {
@@ -263,6 +280,8 @@ void SetActiveLanguage(const std::string& name) {
             } else if (auto it = inverse.find(packId); it != inverse.end()) {
                 v10Id = it->second;
             } else {
+                // Nothing to translate: the asset has no v1.0 counterpart (the JP-only
+                // font and friends, which the port asks for by their pack id).
                 v10Id = packId;
             }
             dialogOverride[v10Id] = path;
