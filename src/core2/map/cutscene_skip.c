@@ -1522,9 +1522,15 @@ void func_8031FAB4(NodeProp *arg0, ActorMarker *arg1) {
 void warp_lairEnterLairFromSMLevel(NodeProp *arg0, ActorMarker *arg1) {
     if (fileProgressFlag_get(FILEPROG_BD_ENTER_LAIR_CUTSCENE) != 0) {
         // MM Lobby
-        // [port] BB romhacks can override this warp destination
-        s32 override = port_getRomhackWarpEnterLair();
-        func_8031CC8C(arg0, override >= 0 ? override : 0x6912);
+        // [port] BB romhacks can override this warp destination via BKCF; port
+        // listeners can refine further by responding to OnWarpResolveDest.
+        s32 dest = 0x6912;
+        s32 bkcf = port_getRomhackWarpEnterLair();
+        if (bkcf >= 0) {
+            dest = bkcf;
+        }
+        CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL, 0x6912, bkcf, &dest);
+        func_8031CC8C(arg0, dest);
     } else {
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);
         // Enter Lair Cutscene

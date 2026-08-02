@@ -48,6 +48,9 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     // rebinds, though Nostalgia 64 also fills spare overlay space with its own
     // functions and repoints update funcs at them.
 
+    // Banjo-Dreamie
+    { "3972b2a3aca230dde1cbf66ffa6f052327b7d3fa", "Dreamie", true },
+
     // Jiggies of Time
     { "ad7ef5ba9051c6a360c1d60546d5ca8cf61f0d92", "JiggiesOfTime", true },
 

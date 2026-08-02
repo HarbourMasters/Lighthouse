@@ -16,6 +16,7 @@
 #include "port/ShipInit.hpp"
 
 #define ROMHACK_PORT_LIST(PORT) \
+    PORT(Dreamie)               \
     PORT(JiggiesOfTime)         \
     PORT(NewHorizons)           \
     PORT(Nostalgia64)           \

@@ -769,3 +769,8 @@ extern "C" int port_getRomhackWarpDest(int warp_index) {
     auto it = sWarpDests.find(warp_index);
     return (it != sWarpDests.end()) ? it->second : -1;
 }
+
+extern "C" void port_clearRomhackWarpDest(int warp_index) {
+    LoadGameConfig();
+    sWarpDests.erase(warp_index);
+}

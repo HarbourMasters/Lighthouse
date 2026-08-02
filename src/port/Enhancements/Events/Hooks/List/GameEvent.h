@@ -28,6 +28,9 @@ DEFINE_EVENT(OnSaveFileSave, void* saveBuffer; int32_t fileNum; int32_t * result
 typedef enum WarpId {
     WARP_ID_SM_EXIT_BANJOS_HOUSE = 1,
     WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL = 2,
+    // Also lands in the MM Lobby, but from the post-cutscene branch of a different
+    // dispatcher. Listeners that treat both lair entrances alike should match on 2 || 3.
+    WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL = 3,
 } WarpId;
 
 DEFINE_EVENT(OnWarpResolveDest, int32_t warpId; int32_t defaultDest; int32_t bkcfOverride; int32_t * dest;)
