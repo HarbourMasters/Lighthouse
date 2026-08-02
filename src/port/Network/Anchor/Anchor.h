@@ -31,6 +31,7 @@ typedef struct {
     bool isGameComplete;
     GameMap map, prevMap;
     s32 exit, prevExit;
+    s32 cutsceneReturnMap;
 
     DummyPlayer* dummy;
 } AnchorClient;

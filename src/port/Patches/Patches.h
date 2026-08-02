@@ -142,6 +142,8 @@ void port_breakable_recordBreak(int32_t markerId, int32_t x, int32_t y, int32_t 
 
 int32_t port_breakable_isBroken(int32_t map, int32_t markerId, int32_t x, int32_t y, int32_t z);
 
+int32_t port_cutsceneWarp_getReturnMap(void);
+
 void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage);
 int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId);
 void port_eggToll_remoteApply(int32_t map, int32_t secondaryId, int32_t stage);

@@ -534,6 +534,10 @@ void port_breakable_despawnBrokenRestores(s32 map) {
     }
 }
 
+s32 port_cutsceneWarp_getReturnMap(void) {
+    return D_80367694;
+}
+
 void chMMMBreakableWooden_update(Actor *this){
     func_802D3CE8(this);
 }

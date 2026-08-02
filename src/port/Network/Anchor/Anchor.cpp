@@ -343,6 +343,12 @@ void Anchor::ClearDummies() {
     dummies.clear();
 }
 
+// Presence only: true in any room, including the global one. For dummy-player visuals.
+extern "C" s32 port_anchor_isConnected(void) {
+    Anchor* anchor = Anchor::GetInstance();
+    return (anchor != nullptr && anchor->isConnected) ? 1 : 0;
+}
+
 // Lets decomp gate Anchor-only catch-up paths so single player keeps vanilla behaviour.
 extern "C" s32 port_anchor_isWorldSyncActive(void) {
     Anchor* anchor = Anchor::GetInstance();
@@ -403,11 +409,20 @@ void Anchor::RemoveDummy(uint32_t clientId) {
     }
 }
 
+extern "C" s32 port_cutsceneWarp_getReturnMap(void);
 extern void port_breakable_clearForLevel(int32_t levelId);
 extern void port_hutSmash_clearForLevel(int32_t levelId);
 extern void port_eggToll_clearForLevel(int32_t levelId);
 extern void port_puzzleStep_clearForLevel(int32_t levelId);
 extern void port_carriedSync_clearForLevel(int32_t levelId);
+
+s32 Anchor_LevelOfMap(s32 map) {
+    if (map <= 0 || map >= MAP_NUM_MAPS) {
+        return 0;
+    }
+    s32 level = (s32)map_getLevel((enum map_e)map);
+    return (level > 0 && level < 0x20) ? level : 0;
+}
 
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
     // Nothing is shared without world sync, so these stores hold only our own progress —
@@ -416,20 +431,24 @@ void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
         return;
     }
 
+    s32 selfLevel = Anchor_LevelOfMap((s32)selfMap);
+    if (selfLevel == 0 || selfLevel == (s32)LEVEL_D_CUTSCENE || selfMap == MAP_91_FILE_SELECT) {
+        return;
+    }
+
     bool occupied[0x20] = { false }; // level_e ids are small; matches jinjo retention slot count
     auto markOccupied = [&occupied](s32 map) {
-        if (map <= 0 || map >= MAP_NUM_MAPS) {
-            return;
-        }
-        s32 level = (s32)map_getLevel((enum map_e)map);
-        if (level > 0 && level < 0x20) {
+        s32 level = Anchor_LevelOfMap(map);
+        if (level != 0) {
             occupied[level] = true;
         }
     };
     markOccupied((s32)selfMap);
+    markOccupied(port_cutsceneWarp_getReturnMap());
     for (auto& [clientId, client] : clients) {
         if (!client.self && client.online && client.isSaveLoaded) {
             markOccupied((s32)client.map);
+            markOccupied(client.cutsceneReturnMap);
         }
     }
     for (s32 level = 1; level < 0x20; level++) {

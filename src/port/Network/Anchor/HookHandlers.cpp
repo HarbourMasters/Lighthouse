@@ -25,6 +25,8 @@ extern "C" void port_fpTwinkly_release(void) {
     NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
 }
 
+s32 Anchor_LevelOfMap(s32 map);
+
 // Every listener below that alters vanilla behaviour is wrapped in this. Presence-only rooms
 // (the global room, or sync turned off) must play exactly like single player.
 static bool Anchor_WorldSyncActive() {
@@ -182,13 +184,16 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->ClearDummies();
         Anchor::GetInstance()->PopulateDummies((GameMap)ev->nextMap);
         Authority_OnSelfMapChanged(ev->nextMap);
-        Anchor::GetInstance()->SweepUnoccupiedLevelState((GameMap)ev->nextMap);
+        s32 prevLevel = Anchor_LevelOfMap((s32)ev->prevMap);
+        if (prevLevel == 0 || prevLevel != Anchor_LevelOfMap((s32)ev->nextMap)) {
+            Anchor::GetInstance()->SweepUnoccupiedLevelState((GameMap)ev->nextMap);
+        }
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)ev->nextMap, ev->exit);
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
 
         auto* anchor = Anchor::GetInstance();
-        if (Anchor_WorldSyncActive() && ev->nextMap != MAP_91_FILE_SELECT &&
-            ev->nextMap != MAP_1E_CS_START_NINTENDO && ev->nextMap != MAP_1F_CS_START_RAREWARE) {
+        if (Anchor_WorldSyncActive() && ev->nextMap != MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
+            ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
 
             s32 enteredFlag = -1;

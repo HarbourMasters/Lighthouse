@@ -67,6 +67,7 @@ inline void from_json(const json& j, AnchorClient& client) {
     client.map = j.value("map", MAP_0_UNKNOWN);
     client.exit = j.value("exit", (s32)0);
     client.self = j.value("self", false);
+    client.cutsceneReturnMap = 0;
 }
 
 #endif // __cplusplus

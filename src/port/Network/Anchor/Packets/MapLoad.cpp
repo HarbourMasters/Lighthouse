@@ -5,6 +5,7 @@
 
 #include "variables.h"
 #include "functions.h"
+#include "port/Patches/Patches.h"
 
 /**
  * MAP_LOAD
@@ -18,6 +19,7 @@ void Anchor::SendPacket_MapLoad(GameMap map, s32 exit) {
     payload["type"] = MAP_LOAD;
     payload["map"] = map;
     payload["exit"] = exit;
+    payload["returnMap"] = port_cutsceneWarp_getReturnMap();
     SendJsonToRemote(payload);
 }
 
@@ -28,6 +30,7 @@ void Anchor::HandlePacket_MapLoad(nlohmann::json& payload) {
 
     clients[clientId].map = payload.at("map").get<GameMap>();
     clients[clientId].exit = payload.at("exit").get<s32>();
+    clients[clientId].cutsceneReturnMap = payload.value("returnMap", (s32)0);
     clients[clientId].isSaveLoaded = clients[clientId].map != MAP_1E_CS_START_NINTENDO &&
                                      clients[clientId].map != MAP_1F_CS_START_RAREWARE &&
                                      clients[clientId].map != MAP_91_FILE_SELECT;
