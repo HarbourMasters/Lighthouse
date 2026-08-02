@@ -261,21 +261,17 @@ void LighthouseMenu::AddMenuSettings() {
         .Options(ButtonOptions()
                      .Size(Sizes::Inline)
                      .Tooltip("Pick a Banjo-Kazooie ROM and extract only its dialog into a slim language pack."));
+
+    // Accessibility Options
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
-#if defined(_WIN32) || defined(__APPLE__) || defined(ESPEAK)
-    AddWidget(path, "Text to Speech", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("A11yTTS"))
+    AddWidget(path, "Disable Screen Shake", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_SETTING("A11yDisableScreenShake"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Enables text to speech for in game dialog"));
-#endif
-    AddWidget(path, "Disable Idle Camera Re-Centering", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("A11yDisableIdleCam"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables the automatic re-centering of the camera when idle."));
-    AddWidget(path, "Disable Screen Flash for Finishing Blow", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("A11yNoScreenFlashForFinishingBlow"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables the white screen flash on enemy kill."));
+        .Options(CheckboxOptions().Tooltip(
+            "Stops the camera shaking on impacts such as Beak Buster landings, boulders and boss attacks. "
+            "Controller rumble is unaffected."));
+
+    // Experimental Options
     AddWidget(path, "EXPERIMENTAL", WIDGET_SEPARATOR_TEXT).Options(TextOptions().Color(Colors::Orange));
     AddWidget(path, "ImGui Menu Scaling", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("ImGuiScale"))

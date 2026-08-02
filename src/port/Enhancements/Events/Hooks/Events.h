@@ -20,6 +20,7 @@ typedef enum VBehaviorID {
     VB_STATIC_CAMERA_EXIT,
     VB_CAMERA_LIVE_ASPECT,
     VB_CAMERA_FOLLOW,
+    VB_CAMERA_APPLY_SHAKE,
 
     // Cutscene and celebration skips
     VB_PLAY_BOOT_LOGOS,
