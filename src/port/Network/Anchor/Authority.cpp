@@ -48,9 +48,14 @@ static void Authority_ClearClaim(NetworkActivityId activity) {
     }
 }
 
+static bool Authority_SyncActive() {
+    Anchor* anchor = Anchor::GetInstance();
+    return anchor != nullptr && anchor->IsWorldSyncActive();
+}
+
 bool NetAuthority_IsSelf(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected || !Authority_IsValidActivity(activity)) {
+    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
         return true;
     }
     const ActivityState& state = sActivities[activity];
@@ -58,7 +63,7 @@ bool NetAuthority_IsSelf(NetworkActivityId activity) {
 }
 
 bool NetAuthority_IsClaimed(NetworkActivityId activity) {
-    return Authority_IsValidActivity(activity) && sActivities[activity].claimed;
+    return Authority_SyncActive() && Authority_IsValidActivity(activity) && sActivities[activity].claimed;
 }
 
 uint32_t NetAuthority_GetOwner(NetworkActivityId activity) {
@@ -70,7 +75,7 @@ uint32_t NetAuthority_GetOwner(NetworkActivityId activity) {
 
 void NetAuthority_Claim(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected || !Authority_IsValidActivity(activity)) {
+    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
         return;
     }
     ActivityState& state = sActivities[activity];
@@ -87,7 +92,7 @@ void NetAuthority_Claim(NetworkActivityId activity) {
 
 void NetAuthority_Release(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected || !Authority_IsValidActivity(activity)) {
+    if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {
         return;
     }
     ActivityState& state = sActivities[activity];

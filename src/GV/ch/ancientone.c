@@ -4,7 +4,7 @@
 #include "variables.h"
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
-extern s32 port_anchor_isConnected(void);
+extern s32 port_anchor_isWorldSyncActive(void);
 
 typedef struct {
     f32 unk0[3];
@@ -135,7 +135,7 @@ void chAncientOne_update(Actor *this){
         }
         // Anchor only. A statue that has not been drawn yet still has to run the
         // body below so it can catch up to flags another client set.
-        if(!port_anchor_isConnected()){
+        if(!port_anchor_isWorldSyncActive()){
             return;
         }
         {
@@ -152,7 +152,7 @@ void chAncientOne_update(Actor *this){
             return;
         }
         // Anchor: ring order is randomized per-client; advance by synced-flag count.
-        if(port_anchor_isConnected()){
+        if(port_anchor_isWorldSyncActive()){
             s32 fc = 0, fi;
             for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
             if(this->state == 1 && this->actorTypeSpecificField <= fc){

@@ -25,6 +25,13 @@ extern "C" void port_fpTwinkly_release(void) {
     NetAuthority_Release(NET_ACTIVITY_FP_TWINKLY);
 }
 
+// Every listener below that alters vanilla behaviour is wrapped in this. Presence-only rooms
+// (the global room, or sync turned off) must play exactly like single player.
+static bool Anchor_WorldSyncActive() {
+    Anchor* anchor = Anchor::GetInstance();
+    return anchor != nullptr && anchor->IsWorldSyncActive();
+}
+
 // True when a remote client owns the Mr. Vile minigame (our local logic must follow).
 static bool Anchor_IsVileFollower() {
     return !NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
@@ -32,8 +39,7 @@ static bool Anchor_IsVileFollower() {
 
 // True when we are the live, connected authority for the Mr. Vile minigame.
 static bool Anchor_IsVileAuthority() {
-    return Anchor::GetInstance()->isConnected && NetAuthority_IsClaimed(NET_ACTIVITY_VILE_MINIGAME) &&
-           NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
+    return NetAuthority_IsClaimed(NET_ACTIVITY_VILE_MINIGAME) && NetAuthority_IsSelf(NET_ACTIVITY_VILE_MINIGAME);
 }
 
 // Authority-side per-frame work: stream Mr. Vile's transform and broadcast the periodic
@@ -60,7 +66,7 @@ static void Anchor_UpdateVileSync() {
 
 static void Anchor_UpdateFightSync() {
     auto* anchor = Anchor::GetInstance();
-    if (!anchor->isConnected || !anchor->IsSaveLoaded() || gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
+    if (!Anchor_WorldSyncActive() || !anchor->IsSaveLoaded() || gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
         return;
     }
 
@@ -181,7 +187,7 @@ void Anchor::RegisterHooks() {
         // Anchor::GetInstance()->SendPacket_PlayerUpdate(true);
 
         auto* anchor = Anchor::GetInstance();
-        if (anchor->isConnected && anchor->roomState.syncItemsAndFlags && ev->nextMap != MAP_91_FILE_SELECT &&
+        if (Anchor_WorldSyncActive() && ev->nextMap != MAP_91_FILE_SELECT &&
             ev->nextMap != MAP_1E_CS_START_NINTENDO && ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
 
@@ -248,7 +254,7 @@ void Anchor::RegisterHooks() {
         Anchor_UpdateVileSync();
         Anchor_UpdateFightSync();
 
-        if (anchor->isConnected && anchor->IsSaveLoaded()) {
+        if (Anchor_WorldSyncActive() && anchor->IsSaveLoaded()) {
             anchor->FlushPendingJiggySpawns();
             if (!anchor->hasCheckedRandoCompat) {
                 anchor->CheckRandoRoomCompatibility();
@@ -268,7 +274,7 @@ void Anchor::RegisterHooks() {
     // returning to idle (or the player declining) releases it.
     COND_HOOK(OnVileGameStateChange, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         auto ev = reinterpret_cast<OnVileGameStateChange*>(event);
-        if (!Anchor::GetInstance()->isConnected || gsworld_getMap() != MAP_10_BGS_MR_VILE) {
+        if (!Anchor_WorldSyncActive() || gsworld_getMap() != MAP_10_BGS_MR_VILE) {
             return;
         }
         if (ev->state >= 2) {
@@ -300,23 +306,35 @@ void Anchor::RegisterHooks() {
 
     // Followers: suppress local random logic; network state drives these instead.
     COND_VB_SHOULD(VB_CCW_FLOWER_REMOTE_GROW, EVENT_PRIORITY_NORMAL, isConnected, {
-        s32 stageFlag = va_arg(args, s32);
-        *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
+        if (Anchor_WorldSyncActive()) {
+            s32 stageFlag = va_arg(args, s32);
+            *should = fileProgressFlag_get((enum file_progress_e)stageFlag) != 0;
+        }
     });
 
-    COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
+    COND_VB_SHOULD(VB_CC_RINGS_SNAP_WATER, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive()) {
+            *should = false;
+        }
+    });
 
     // Vanilla despawns the CCW podium until its switch is pressed, and only rebuilds it when the cube
     // re-streams. Keep the actor alive (hidden) instead, so a teammate's press reveals it in place.
-    COND_VB_SHOULD(VB_CCW_PODIUM_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected, { *should = false; });
+    COND_VB_SHOULD(VB_CCW_PODIUM_DESPAWN, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive()) {
+            *should = false;
+        }
+    });
 
     // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off
     // visual state (fully open == 0x1B) instead. Other lair doors stay flag-based.
     COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
-        s32 doorActorId = va_arg(args, s32);
-        s32 doorState = va_arg(args, s32);
-        if (doorActorId == ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE) {
-            *should = (doorState == 0x1B);
+        if (Anchor_WorldSyncActive()) {
+            s32 doorActorId = va_arg(args, s32);
+            s32 doorState = va_arg(args, s32);
+            if (doorActorId == ACTOR_2E5_LARGE_DOOR_TO_FINAL_BATTLE) {
+                *should = (doorState == 0x1B);
+            }
         }
     });
 
@@ -329,25 +347,27 @@ void Anchor::RegisterHooks() {
     });
 
     COND_VB_SHOULD(VB_DOOR_OPEN_CAMERA, EVENT_PRIORITY_NORMAL, isConnected, {
-        s32 doorId = va_arg(args, s32);
-        switch (doorId) {
-            case GV_DOOR_CAM_SUN:
-                *should = !port_mapFlag_wasSetRemotely(3);
-                break;
-            case GV_DOOR_CAM_STAR:
-                *should = !port_mapFlag_wasSetRemotely(5);
-                break;
-            case GV_DOOR_CAM_KAZOOIE:
-                *should = !port_mapFlag_wasSetRemotely(6);
-                break;
-            case GV_DOOR_CAM_JINXY:
-                *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
-                break;
-            case MMM_DOOR_CAM_CHURCH:
-                *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
-                break;
-            default:
-                break;
+        if (Anchor_WorldSyncActive()) {
+            s32 doorId = va_arg(args, s32);
+            switch (doorId) {
+                case GV_DOOR_CAM_SUN:
+                    *should = !port_mapFlag_wasSetRemotely(3);
+                    break;
+                case GV_DOOR_CAM_STAR:
+                    *should = !port_mapFlag_wasSetRemotely(5);
+                    break;
+                case GV_DOOR_CAM_KAZOOIE:
+                    *should = !port_mapFlag_wasSetRemotely(6);
+                    break;
+                case GV_DOOR_CAM_JINXY:
+                    *should = !(port_mapFlag_wasSetRemotely(0) && port_mapFlag_wasSetRemotely(1));
+                    break;
+                case MMM_DOOR_CAM_CHURCH:
+                    *should = !port_mapFlag_wasSetRemotely(0); // MMM_SPECIFIC_FLAG_0_UNKNOWN
+                    break;
+                default:
+                    break;
+            }
         }
     });
 
@@ -520,26 +540,32 @@ void Anchor::RegisterHooks() {
 
     // SM intro Bottles: the tutorial offer is first-answer-wins for the team.
     COND_VB_SHOULD(VB_SM_TUTORIAL_CHOICE_OPEN, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
-            (port_puzzleStep_getForMap(MAP_1_SM_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
-            *should = false;
-        } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) && !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
-            *should = false;
-        } else {
-            NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
+        if (Anchor_WorldSyncActive()) {
+            if (__chSmBottles_isAnySpiralMountainAbilityLearned() ||
+                (port_puzzleStep_getForMap(MAP_1_SM_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
+                *should = false;
+            } else if (NetAuthority_IsClaimed(NET_ACTIVITY_SM_TUTORIAL) &&
+                       !NetAuthority_IsSelf(NET_ACTIVITY_SM_TUTORIAL)) {
+                *should = false;
+            } else {
+                NetAuthority_Claim(NET_ACTIVITY_SM_TUTORIAL);
+            }
         }
     });
 
     // Ability molehills wake up only after the tutorial choice exists: the offer was
     // answered (synced bit) or a move is already known (covers skip-tutorial saves).
     COND_VB_SHOULD(VB_SM_MOLEHILL_ACTIVE, EVENT_PRIORITY_NORMAL, isConnected, {
-        if (!__chSmBottles_isAnySpiralMountainAbilityLearned() &&
+        if (Anchor_WorldSyncActive() && !__chSmBottles_isAnySpiralMountainAbilityLearned() &&
             !(port_puzzleStep_getForMap(MAP_1_SM_SPIRAL_MOUNTAIN, ANCHOR_PUZZLE_SM_TUTORIAL) & 1)) {
             *should = false;
         }
     });
 
     COND_HOOK(OnTimedJiggyExpired, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+        if (!Anchor_WorldSyncActive()) {
+            return;
+        }
         auto ev = reinterpret_cast<OnTimedJiggyExpired*>(event);
         port_jiggySpawn_remove(ev->jiggyId);
     });

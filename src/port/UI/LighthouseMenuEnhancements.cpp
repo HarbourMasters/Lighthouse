@@ -43,7 +43,7 @@ static const char* kBottlesBonusLockedTooltip =
 
 static bool IsBottlesBonusUnlocked(int i) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor != nullptr && anchor->isConnected) {
+    if (anchor != nullptr && anchor->isConnected && !anchor->IsGlobalRoom()) {
         return true;
     }
     return gCompletedBottlesBonusGames[i] != 0;

@@ -1,5 +1,6 @@
 #include "Anchor.h"
 #include "Authority.h"
+#include <cstring>
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/Engine.h"
@@ -32,7 +33,11 @@ void Anchor::Enable() {
 }
 
 bool Anchor::IsGlobalRoom() {
-    return std::string("lh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), "");
+    return strcmp(CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""), "lh-global") == 0;
+}
+
+bool Anchor::IsWorldSyncActive() {
+    return isConnected && !IsGlobalRoom() && roomState.syncItemsAndFlags != 0;
 }
 
 void Anchor::Disable() {
@@ -55,8 +60,8 @@ void Anchor::OnConnected() {
     SendPacket_Handshake();
     RegisterHooks();
 
-    port_noteRetention_setForced(1);
-    port_jinjoRetention_setForced(1);
+    port_noteRetention_setForced(IsGlobalRoom() ? 0 : 1);
+    port_jinjoRetention_setForced(IsGlobalRoom() ? 0 : 1);
 
     if (IsSaveLoaded()) {
         SendPacket_RequestTeamState();
@@ -339,9 +344,9 @@ void Anchor::ClearDummies() {
 }
 
 // Lets decomp gate Anchor-only catch-up paths so single player keeps vanilla behaviour.
-extern "C" s32 port_anchor_isConnected(void) {
+extern "C" s32 port_anchor_isWorldSyncActive(void) {
     Anchor* anchor = Anchor::GetInstance();
-    return (anchor != nullptr && anchor->isConnected) ? 1 : 0;
+    return (anchor != nullptr && anchor->IsWorldSyncActive()) ? 1 : 0;
 }
 
 // actorArray_free tears down actors/markers without firing OnActorDestroy; forget them all.
@@ -405,6 +410,12 @@ extern void port_puzzleStep_clearForLevel(int32_t levelId);
 extern void port_carriedSync_clearForLevel(int32_t levelId);
 
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
+    // Nothing is shared without world sync, so these stores hold only our own progress —
+    // dropping them on a level change would undo single-player state.
+    if (!IsWorldSyncActive()) {
+        return;
+    }
+
     bool occupied[0x20] = { false }; // level_e ids are small; matches jinjo retention slot count
     auto markOccupied = [&occupied](s32 map) {
         if (map <= 0 || map >= MAP_NUM_MAPS) {

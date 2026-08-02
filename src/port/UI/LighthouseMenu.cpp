@@ -217,7 +217,7 @@ void LighthouseMenu::InitElement() {
         { FORCED_ON_FOR_ANCHOR_CONNECTED,
           { [](disabledInfo& info) -> bool {
                Anchor* anchor = Anchor::GetInstance();
-               return anchor != nullptr && anchor->isConnected;
+               return anchor != nullptr && anchor->isConnected && !anchor->IsGlobalRoom();
            },
             "Forced on while connected to Anchor" } },
     };

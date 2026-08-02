@@ -5,9 +5,14 @@
 
 static std::unordered_map<int32_t, uint32_t> sPedestalOwner;
 
+static bool JigsawPedestal_SyncActive() {
+    Anchor* anchor = Anchor::GetInstance();
+    return anchor != nullptr && anchor->IsWorldSyncActive();
+}
+
 int32_t port_jigsawPedestal_tryClaim(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected) {
+    if (!JigsawPedestal_SyncActive()) {
         return 1;
     }
     auto it = sPedestalOwner.find(id);
@@ -21,7 +26,7 @@ int32_t port_jigsawPedestal_tryClaim(int32_t id) {
 
 int32_t port_jigsawPedestal_isSelf(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected) {
+    if (!JigsawPedestal_SyncActive()) {
         return 1;
     }
     auto it = sPedestalOwner.find(id);
@@ -30,7 +35,7 @@ int32_t port_jigsawPedestal_isSelf(int32_t id) {
 
 void port_jigsawPedestal_release(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
-    if (anchor == nullptr || !anchor->isConnected) {
+    if (!JigsawPedestal_SyncActive()) {
         return;
     }
     auto it = sPedestalOwner.find(id);
