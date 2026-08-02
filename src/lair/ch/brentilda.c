@@ -19,13 +19,13 @@ ActorAnimationInfo chBrentildaAnimations[] ={
 ActorInfo chBrentilda = { 0x1E0, 0x348, 0x539, 0x1, chBrentildaAnimations, chBrentilda_update, actor_update_func_80326224, actor_draw, 2000, 0, 2.0f, 0};
 
 /* .code */
-void func_8038BA30(ActorMarker *marker, enum asset_e text_id, s32 arg2){
+s32 func_8038BA30(ActorMarker *marker, enum asset_e text_id, s32 arg2){
     Actor *this;
     s32 phi_v1;
 
     this = marker_getActor(marker);
     phi_v1 = this->unk10_12*2;
-    volatileFlag_getN(VOLATILE_FLAG_20_BEGIN_CHARACTER_PARADE + this->actorTypeSpecificField*6 + phi_v1, 2);
+    return volatileFlag_getN(VOLATILE_FLAG_20_BEGIN_CHARACTER_PARADE + this->actorTypeSpecificField*6 + phi_v1, 2);
 }
 
 void healDuoToFull(ActorMarker *marker, enum asset_e text_id, s32 arg2){

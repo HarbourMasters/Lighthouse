@@ -926,8 +926,8 @@ f32 func_80342260(s32 arg0, f32 arg1, s32 arg2){
     return func_803234FC(func_80342038(arg0), arg1, 1.0f) / ((f32)arg2 /4);
 }
 
-void func_803422AC(ActorMarker *caller, enum asset_e text_id, s32 arg2){
-    jiggyscore_total();
+s32 func_803422AC(ActorMarker *caller, enum asset_e text_id, s32 arg2){
+    return jiggyscore_total();
 }
 
 s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){

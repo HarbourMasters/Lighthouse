@@ -2413,7 +2413,7 @@ void volatileFlag_clear(void);
 void volatileFlag_restoreAll(void);
 
 // --- core2/gc/dialog.c ---
-int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, void (*arg4)(ActorMarker *, enum asset_e, s32));
+int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 (*arg4)(ActorMarker *, enum asset_e, s32));
 int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32));
 int gcdialog_getCurrentTextId(void);
 int func_803115C4(s32 next_state);

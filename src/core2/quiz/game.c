@@ -978,8 +978,8 @@ void func_getCameraViewFromLevel(enum map_e map_id, s32 arg1, bool arg2) {
 }
 
 
-void func_802D5140(ActorMarker *caller, enum asset_e text_id, s32 arg2){
-    itemscore_noteScores_get(volatileFlag_getN(VOLATILE_FLAG_19_CURRENT_LEVEL_ID, 4));
+s32 func_802D5140(ActorMarker *caller, enum asset_e text_id, s32 arg2){
+    return itemscore_noteScores_get(volatileFlag_getN(VOLATILE_FLAG_19_CURRENT_LEVEL_ID, 4));
 }
 
 void func_802D5178(s32 arg0, enum file_progress_e arg1, s32 arg2, enum map_e arg3, s32 arg4, s32 arg5, enum actor_e arg6, s32 arg7){
