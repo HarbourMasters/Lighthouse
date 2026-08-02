@@ -241,7 +241,9 @@ void PopulateJinjoCheckIds() {
 }
 
 void ResetSaveData() {
-    for (int s = 0; s < sizeof(SaveData); s++) {
+    // [port] `data` is the 112-byte vanilla payload, not the whole SaveData, which is
+    // ~43 KB once shipSaveData (rando checks, note/jinjo retention) is counted.
+    for (size_t s = 0; s < sizeof(gameFile_saveData[selectedFileNum].data); s++) {
         gameFile_saveData[selectedFileNum].data[s] = 0;
     }
 
