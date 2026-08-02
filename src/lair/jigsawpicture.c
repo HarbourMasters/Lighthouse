@@ -5,6 +5,7 @@
 #include "jigsawpicture.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Network/Anchor/JigsawPedestal.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMarker *);
 extern void func_80324CFC(f32, enum comusic_e, s32);
 extern void rand_seed(s32);
@@ -565,6 +566,7 @@ void updateJigsawPictureActor(Actor *this) {
             break;
 
         case 4: //L8038FE28
+            { CALL_EVENT(OnJigsawPodiumInput, this->actorTypeSpecificField); }
             if ((gcdialog_getCurrentTextId() != 0xF7C) && (gcdialog_getCurrentTextId() != 0xF7D)) {
                 if (sp7C[FACE_BUTTON(BUTTON_A)] == 1) {
                     addPieces(this, 5);

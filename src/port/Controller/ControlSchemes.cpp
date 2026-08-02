@@ -23,6 +23,8 @@
 
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 #include "ControlSchemes.h"
 
@@ -225,6 +227,15 @@ void ControlSchemes_Apply(int scheme) {
     }
 }
 
+// Frames of C-Down passthrough left for a jigsaw podium.
+static int32_t sJigsawPodiumTTL = 0;
+
+void RegisterControlSchemes_Init() {
+    COND_HOOK(OnJigsawPodiumInput, EVENT_PRIORITY_NORMAL, true, [](IEvent*) { sJigsawPodiumTTL = 4; });
+}
+
+static RegisterShipInitFunc initControlSchemes(RegisterControlSchemes_Init);
+
 extern "C" void port_shapeControllerInput(void* contPad) {
     auto* pad = static_cast<OSContPad*>(contPad);
     if (pad == nullptr) {
@@ -262,8 +273,13 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     int32_t arx = (rx < 0) ? -rx : rx;
     int32_t ary = (ry < 0) ? -ry : ry;
 
+    const bool onJigsawPodium = (sJigsawPodiumTTL > 0);
+    if (sJigsawPodiumTTL > 0) {
+        sJigsawPodiumTTL--;
+    }
+
     if (modern) {
-        if (!crouched && !eggPooping) {
+        if (!crouched && !eggPooping && !onJigsawPodium) {
             pad->button &= ~BTN_CDOWN;
         }
 
@@ -297,7 +313,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         static uint16_t sLatchDir = 0;
         static int32_t sLatchTTL = 0;
 
-        if (port_freeLook_isEnabled()) {
+        if (port_freeLook_isEnabled() && !onJigsawPodium) {
             uint16_t stickBits = 0;
             if (arx * arx + ary * ary > 24 * 24) {
                 if (arx >= ary) {

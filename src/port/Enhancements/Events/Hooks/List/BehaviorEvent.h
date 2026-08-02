@@ -20,6 +20,7 @@ DEFINE_EVENT(OnGruntyJinjonatorComplete)
 DEFINE_EVENT(OnIntroCutsceneCheck, bool* skipIntro;)
 DEFINE_EVENT(OnMiscCutscenesCheck, bool* skipMiscCutscenes;)
 DEFINE_EVENT(OnTooieJiggyCollect, f32* position;)
+DEFINE_EVENT(OnJigsawPodiumInput, s32 podiumId;)
 DEFINE_EVENT(OnMumboTokenUpdate, Actor* actor;)
 DEFINE_EVENT(OnMumboTokenIdResolve, s32* tokenId; s32 * position; s32 mapId;)
 DEFINE_EVENT(OnPlayerAnimChange, AssetID anim_id; f32 duration; AnimControl control; f32 start_position;

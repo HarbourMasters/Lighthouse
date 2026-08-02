@@ -62,6 +62,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnTooieJiggyCollect);
+    REGISTER_EVENT(OnJigsawPodiumInput);
     REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
     REGISTER_EVENT(OnNametagDraw);
