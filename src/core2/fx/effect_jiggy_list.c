@@ -334,6 +334,9 @@ void func_80333388(enum jiggy_e jiggy_id) {
 void func_803333DC(Struct81s *arg0, Actor *arg1) {
     s32 jiggy_id;
 
+    if (EventSystem_Should(VB_OVERRIDE_JIGGY_ACTOR_LINK, false, arg0, arg1)) {
+        return;
+    }
     arg0->marker = arg1->marker;
     if (arg0->unk14 != NULL) {
         arg0->unk14(arg1, arg0->unk18);

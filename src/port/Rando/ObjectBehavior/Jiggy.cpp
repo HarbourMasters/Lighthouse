@@ -28,6 +28,15 @@ static void MarkWorldStateFromJiggySpawn(RandoCheckId randoCheckId) {
 }
 
 void Rando::ObjectBehavior::InitJiggyBehavior() {
+    COND_VB_SHOULD(VB_OVERRIDE_JIGGY_ACTOR_LINK, EVENT_PRIORITY_NORMAL, true, {
+        (void)va_arg(args, Struct81s*);
+        Actor* actor = va_arg(args, Actor*);
+
+        if (actor == NULL || actor->marker == NULL || actor->marker->id != MARKER_52_JIGGY) {
+            *should = true;
+        }
+    })
+
     COND_VB_SHOULD(VB_NAPPER_SET_JIGGY_POSITION, EVENT_PRIORITY_NORMAL, true, {
         if (!IS_RANDO && !OPTION_ENABLED) {
             return;

@@ -7,6 +7,10 @@
 void func_80347B10(Struct81s *arg0){
     Actor *actor;
     actor = bundle_spawn_f32(BUNDLE_10__JIGGY, arg0->position);
+    // [port] VB_OVERRIDE_BUNDLE_SPAWN can consume the spawn and yield no actor
+    if (actor == NULL) {
+        return;
+    }
     actor->unk54 = 3.0f;
     func_803333DC(arg0, actor);
 }
