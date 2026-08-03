@@ -188,12 +188,16 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/properties.h.in ${CMAKE_CURRENT_SOUR
 set(Header_Files "resource.h")
 source_group("include" FILES ${Header_Files})
 
+# Flag enum name tables for the Flag Tracer, derived from include/enums.h.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateFlagNames.cmake)
+
 # Include directories
 include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/include"
     "${PROJECT_SOURCE_DIR}/lib/ultralib/include"
     "${PROJECT_SOURCE_DIR}/src"
+    "${CMAKE_BINARY_DIR}/generated"
 )
 
 # Collect source files to build the executable
