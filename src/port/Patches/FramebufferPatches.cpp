@@ -227,7 +227,7 @@ static void createAuxFb(void* arg) {
     if (nativeH < 1) {
         nativeH = 1;
     }
-    sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, nativeW, nativeH, 1, 0);
+    sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, nativeW, nativeH, 1, true);
     if (sAuxGpuFbId >= 0) {
         gfx_register_fb_texture(sAuxFbDummy, sAuxGpuFbId);
     }
