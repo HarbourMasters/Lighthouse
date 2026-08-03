@@ -26,11 +26,10 @@
 #define UNKFLAG1_TASK_YIELDED   0x20
 
 /* .extern */
-extern u8 n_aspMainTextStart[];
+// n_aspMainTextStart/n_aspMainDataStart come from <n_audio/PR/n_libaudio.h> (via core1/music.h)
 extern u8 gSPF3DEX_fifoTextStart[];
 extern u8 gSPL3DEX_fifoTextStart[];
 
-extern u8 n_aspMainDataStart[];
 extern u8 gSPF3DEX_fifoDataStart[];
 extern u8 gSPL3DEX_fifoDataStart[];
 
@@ -143,8 +142,8 @@ void thread5_insertGfxTaskData(OSMesg arg0) {
 void thread5_startAudioTask(struct ucode_task_data_s *task_data) {
 #if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sAudTask.t.ucode_boot, &sAudTask.t.ucode_boot_size);
-    sAudTask.t.ucode = n_aspMainTextStart;
-    sAudTask.t.ucode_data = n_aspMainDataStart;
+    sAudTask.t.ucode = (u64 *) n_aspMainTextStart;
+    sAudTask.t.ucode_data = (u64 *) n_aspMainDataStart;
 #endif
     sAudTask.t.data_ptr = (void*) task_data->data_ptr;
     sAudTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;

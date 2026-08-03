@@ -332,10 +332,10 @@ void audioManager_create(void) {
 
     for (i = 0; i < 89; i++) {
         alLink(&sDMAStateData[i + 1].link, &sDMAStateData[i].link);
-        sDMAStateData[i].heap = (uintptr_t)alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
+        sDMAStateData[i].heap = (uintptr_t)alHeapAlloc(sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
     }
 
-    sDMAStateData[i].heap = (uintptr_t)alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
+    sDMAStateData[i].heap = (uintptr_t)alHeapAlloc(sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
 
     for (i = 0; i < 2; i++) {
         audioManager.ACMDList[i] = bk_malloc(NUM_AUDIO_CMDS_PER_SECOND * sizeof(Acmd) / FRAMERATE);
@@ -344,7 +344,7 @@ void audioManager_create(void) {
     sNumAudioCmdsPerFrame = NUM_AUDIO_CMDS_PER_SECOND / FRAMERATE;
 
     for (i = 0; i < 3; i++) {
-        audioManager.audio_info[i] = alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, sizeof(AudioInfo));
+        audioManager.audio_info[i] = alHeapAlloc(sn_alConfig.heap, 1, sizeof(AudioInfo));
         audioManager.audio_info[i]->reply_mesg_data.unk0 = 0;
         audioManager.audio_info[i]->reply_mesg_data.audio_info_ptr = audioManager.audio_info[i];
         audioManager.audio_info[i]->data = bk_malloc(4 * sMaxFrameSize);

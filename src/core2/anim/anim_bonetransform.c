@@ -17,7 +17,7 @@ f32 D_803709E0[] = {
 s32 assetCacheCurrentSize = 0;
  u8 assetCacheLength = 0; //assetCache_size;
  u8 assetCacheCurrentIndex = 0;
- u8 D_80370A1C = 0;
+ u8 D_80370A1C = FALSE;
 
 
 /* .bss */
@@ -390,8 +390,8 @@ BKSprite *codeB3A80_getSprite(enum asset_e sprite_id, BKSpriteDisplayData **arg1
     return s0;
 }
 
-void func_8033B788(void ){
-    D_80370A1C = 1;
+void assetcache_func_8033B788(void) {
+    D_80370A1C = TRUE;
 }
 
 void *assetcache_get(enum asset_e assetId) {
@@ -424,10 +424,10 @@ void *assetcache_reload(enum asset_e assetId) {
     void *uncompressed_file;//sp34
     u8 sp33; //sp33
     void *compressed_file;//sp2C
-    s32 sp28;//sp28
+    bool sp28;
     
-    sp28 = (s32 )D_80370A1C;
-    D_80370A1C = (u8)0U;
+    sp28 = D_80370A1C;
+    D_80370A1C = FALSE;
     for(i = 0; i < assetCacheLength && assetId != assetCacheAssetIdList[i]; i++);
     assetCacheCurrentIndex = i;
     if(i == 0x96)
@@ -457,7 +457,7 @@ void *assetcache_reload(enum asset_e assetId) {
             compressed_file = (void *)((s32) uncompressed_file + uncomp_size);
         } else {
             sp33 = 2;
-            if (sp28 != 0) {
+            if (sp28) {
                 func_80254C98();
             }
             uncompressed_file = bk_malloc(uncomp_size);
@@ -500,7 +500,7 @@ void assetCache_resizeAsset(void *assetPtr, s32 size){
 
 void assetCache_init(void){
     // Lighthouse TODO assets
-    D_80370A1C = 0;
+    D_80370A1C = FALSE;
     func_8033B180();
     assetCachePtrList = (void **)bk_malloc(150*sizeof(void*));
     // Lighthouse [port] Changed from 600 to sizeof

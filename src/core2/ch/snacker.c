@@ -137,7 +137,7 @@ static void __chsnacker_die(ActorMarker *marker, ActorMarker *other){
 void func_802E0FC4(Actor *this){
     s_chSnacker_marker = NULL;
     D_8037E630 = this->unk166;
-    if(func_8025AD7C(COMUSIC_34_SNACKER_DANGER)){
+    if(comusic_isTrackQueued(COMUSIC_34_SNACKER_DANGER)){
         func_8025AABC(COMUSIC_34_SNACKER_DANGER);
         func_8025A7DC(COMUSIC_34_SNACKER_DANGER);
     }

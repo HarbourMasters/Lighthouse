@@ -15,6 +15,8 @@
 #include "core1/mem.h"
 #include "core1/ml.h"
 #include "core1/mlmtx.h"
+#include "core1/music.h"
+#include "core1/musicplayer.h"
 #include "core1/pfsmanager.h"
 #include "core1/rarezip.h"
 #include "core1/sns.h"
@@ -34,14 +36,10 @@ void* malloc(size_t size);
 
 void glcrc_calc_checksum(void *start, void *end, u32 checksum[2]);
 
-void func_80250530(s32 arg0, u16 chan_mask, f32 arg2);
-
 void func_8025A104(enum comusic_e arg0, s32 arg1);
 void func_8025A55C(s32 arg0, s32 arg1, s32 arg2);
 s32 func_8025A864(enum comusic_e track_id);
-void func_8025ABB8(enum comusic_e comusic_id, s32 arg1, s32 arg2, s32 arg3);
-int func_8025AD7C(enum comusic_e arg0);
-int func_8025ADBC(enum comusic_e arg0);
+void func_8025ABB8(enum comusic_e track_id, s32 arg1, s32 arg2, s32 arg3);
 
 void piMgr_read(void *vaddr, s32 devaddr, s32 size);
 
@@ -120,7 +118,7 @@ void core1_7090_freeSfxSource(int idx);
 /* src/core1/code_CE60.c */
 
 void core1_ce60_setChanMask(s32 chan_mask);
-void core1_ce60_setChanMaskWithValue(s32 chan_mask, f32 arg1);
+void core1_ce60_setChanMaskWithTransitionSpeed(s32 chan_mask, f32 transition_speed);
 bool core1_ce60_isPlayerInRange(s32 x, s32 z, s32 distance);
 f32 core1_ce60_getPlayerDistance(f32 x, f32 z);
 bool core1_ce60_isPlayerInsideBoundingBox(s32 box_idx);

@@ -85,7 +85,7 @@ void func_802E3460(s32 arg0) {
     }
     else if (D_8037E8C0.unk14 == 1) {
         D_8037E8C0.unk4 = 0.0f;
-        if (func_8025AD7C(COMUSIC_31_GAME_OVER)) {
+        if (comusic_isTrackQueued(COMUSIC_31_GAME_OVER)) {
             comusic_8025AB44(COMUSIC_31_GAME_OVER, 0, 200);
         }
         func_802F1934(D_8037E8C0.unk10, getActiveFramebuffer());

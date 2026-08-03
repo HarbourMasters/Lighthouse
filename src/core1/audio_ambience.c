@@ -30,14 +30,14 @@ static BoundingBox sBoundingBoxes[] = {
 static s32 sUnusedCounter; // is only incremented and decremented, but not used
 static bool D_802806F4;
 static s32 sPlayerPosition[4];
-static enum comusic_e sTrackId[4];
+static enum comusic_e sTrackId[4]; // 0 - enum comusic_e, 1 - enum comusic_e, 2 - s32 volume for [0], 3 - s32 volume for [1]
 
 void core1_ce60_setChanMask(s32 chan_mask) {
-    func_80250530(0, chan_mask, 3.0f);
+    musicSlot_stepToChannelMask(0, chan_mask, 3.0f);
 }
 
-void core1_ce60_setChanMaskWithValue(s32 chan_mask, f32 value) {
-    func_80250530(0, chan_mask, value);
+void core1_ce60_setChanMaskWithTransitionSpeed(s32 chan_mask, f32 transition_speed) {
+    musicSlot_stepToChannelMask(0, chan_mask, transition_speed);
 }
 
 bool core1_ce60_isPlayerInRange(s32 x, s32 z, s32 distance) {
@@ -56,13 +56,13 @@ bool core1_ce60_isPlayerInsideBoundingBox(s32 box_idx) {
 }
 
 void core1_ce60_func_8024A9EC(s32 arg0) {
-    if (!func_8025ADBC(sTrackId[0]) && sTrackId[2]) {
+    if (!comusic_isPrimaryTrack(sTrackId[0]) && sTrackId[2]) {
         func_8025A104(sTrackId[0], 0);
     }
 
     func_8025A55C(sTrackId[2], arg0 ? arg0 : 0x1f4, 4);
 
-    if (func_8025AD7C(sTrackId[1]) || sTrackId[3]) {
+    if (comusic_isTrackQueued(sTrackId[1]) || sTrackId[3]) {
         func_8025ABB8(sTrackId[1], sTrackId[3], arg0 ? arg0 : 0x1f4, 4 );
     }
 
@@ -78,7 +78,7 @@ void core1_ce60_func_8024AAB0(void) {
 
     sTrackId[0] = func_8032274C();
     sTrackId[1] = func_80322758();
-    sTrackId[2] = sTrackId[3] = COMUSIC_0_DING_A;
+    sTrackId[2] = sTrackId[3] = 0;
 
     if (0 <= sTrackId[0])
         sTrackId[2] = gcMusic_getDefaultVolumeForTrack(sTrackId[0]);
@@ -100,17 +100,17 @@ void core1_ce60_func_8024AAB0(void) {
 
         case MAP_1_SM_SPIRAL_MOUNTAIN:
             if (core1_ce60_isPlayerInsideBoundingBox(4)) {
-                sTrackId[2] = COMUSIC_0_DING_A;
+                sTrackId[2] = 0;
             } else {
-                sTrackId[3] = COMUSIC_0_DING_A;
+                sTrackId[3] = 0;
             }
             break;
 
         case MAP_1B_MMM_MAD_MONSTER_MANSION:
             if (func_80309D58(player_position, 1)) {
-                sTrackId[2] = COMUSIC_0_DING_A;
+                sTrackId[2] = 0;
             } else {
-                sTrackId[3] = COMUSIC_0_DING_A;
+                sTrackId[3] = 0;
             }
             break;
 
@@ -118,34 +118,34 @@ void core1_ce60_func_8024AAB0(void) {
             if (jiggyscore_isCollected(JIGGY_2E_FP_PRESENTS) ||
                 (levelSpecificFlags_get(LEVEL_FLAG_11_FP_UNKNOWN) && levelSpecificFlags_get(LEVEL_FLAG_12_FP_UNKNOWN) && levelSpecificFlags_get(LEVEL_FLAG_13_FP_UNKNOWN)))
             {
-                sTrackId[2] = COMUSIC_0_DING_A;
+                sTrackId[2] = 0;
             } else {
-                sTrackId[3] = COMUSIC_0_DING_A;
+                sTrackId[3] = 0;
             }
             break;
 
         case MAP_1D_MMM_CELLAR:
             if (sns_get_item_state(SNS_ITEM_EGG_CYAN, 1) && sPlayerPosition[0] >= 0x23A) {
-                sTrackId[2] = COMUSIC_0_DING_A;
+                sTrackId[2] = 0;
             } else {
-                sTrackId[3] = COMUSIC_0_DING_A;
+                sTrackId[3] = 0;
             }
             break;
 
         case MAP_7F_FP_WOZZAS_CAVE:
             if (sns_get_item_state(SNS_ITEM_ICE_KEY, 1) && core1_ce60_isPlayerInRange(0x619, 0x97a, 0x69a)) {
-                sTrackId[2] = COMUSIC_0_DING_A;
+                sTrackId[2] = 0;
             } else {
-                sTrackId[3] = COMUSIC_0_DING_A;
+                sTrackId[3] = 0;
             }
             break;
 
         case MAP_45_CCW_AUTUMN:
         case MAP_46_CCW_WINTER:
             if (core1_ce60_isPlayerInsideBoundingBox(5)) {
-                sTrackId[2] = COMUSIC_0_DING_A;
+                sTrackId[2] = 0;
             } else {
-                sTrackId[3] = COMUSIC_0_DING_A;
+                sTrackId[3] = 0;
             }
             break;
     }
@@ -237,9 +237,9 @@ void core1_ce60_func_8024AF48(void) {
 
             if (player_getWaterState() == BSWATERGROUP_2_UNDERWATER) {
                 if(!(sPlayerPosition[1] < 651)) {
-                    core1_ce60_setChanMaskWithValue(0x8180, 5.0f);
+                    core1_ce60_setChanMaskWithTransitionSpeed(0x8180, 5.0f);
                 } else {
-                    core1_ce60_setChanMaskWithValue(0x3e00, 5.0f);
+                    core1_ce60_setChanMaskWithTransitionSpeed(0x3e00, 5.0f);
                 }
             } else {
                 core1_ce60_setChanMask(0x407f);
@@ -296,7 +296,7 @@ void core1_ce60_func_8024AF48(void) {
             break;
 
         case MAP_1B_MMM_MAD_MONSTER_MANSION:
-            if (!mapSpecificFlags_get(1) && !func_8025AD7C(COMUSIC_4_MMM_CLOCK_VERSION) && !func_8025AD7C(COMUSIC_3C_MINIGAME_LOSS)) {
+            if (!mapSpecificFlags_get(1) && !comusic_isTrackQueued(COMUSIC_4_MMM_CLOCK_VERSION) && !comusic_isTrackQueued(COMUSIC_3C_MINIGAME_LOSS)) {
                 core1_ce60_func_8024A9EC(0);
             }
             
@@ -305,9 +305,9 @@ void core1_ce60_func_8024AF48(void) {
 
         case MAP_D_BGS_BUBBLEGLOOP_SWAMP: 
             if (core1_ce60_isPlayerInRange(1890, -1346, 1400) || core1_ce60_isPlayerInRange(-133, 2008, 900) || core1_ce60_isPlayerInRange(-3629, -535, 1400)) {
-                core1_ce60_setChanMaskWithValue(0x2f4f, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x2f4f, 2.0f);
             } else {
-                core1_ce60_setChanMaskWithValue(0x6f4f, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x6f4f, 2.0f);
             }
             break;
 
@@ -329,15 +329,15 @@ void core1_ce60_func_8024AF48(void) {
             
         case MAP_40_CCW_HUB:
             if (core1_ce60_isPlayerInRange(0, 0, 2050)) {
-                core1_ce60_setChanMaskWithValue(7, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(7, 2.0f);
             } else if (1450 <= sPlayerPosition[2]){
-                core1_ce60_setChanMaskWithValue(0x407, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x407, 2.0f);
             } else if (sPlayerPosition[0] < -1449) {
-                core1_ce60_setChanMaskWithValue(0x707, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x707, 2.0f);
             } else if (sPlayerPosition[2] < -1449) {
-                core1_ce60_setChanMaskWithValue(0x1067, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x1067, 2.0f);
             } else if (1450 <= sPlayerPosition[0]) {
-                core1_ce60_setChanMaskWithValue(0x7007, 2.0f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x7007, 2.0f);
             }
             break;
 
@@ -590,14 +590,14 @@ void core1_ce60_func_8024AF48(void) {
 
         case MAP_91_FILE_SELECT:
             if (!gameSelect_getGameNumber()) {
-                core1_ce60_setChanMaskWithValue(0x200, 0.5f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x200, 0.5f);
             } else {
-                core1_ce60_setChanMaskWithValue(0x1ff, 0.5f);
+                core1_ce60_setChanMaskWithTransitionSpeed(0x1ff, 0.5f);
             }
             break;
 
         case MAP_8C_SM_BANJOS_HOUSE:
-            core1_ce60_setChanMaskWithValue(0x1ff, 0.5f);
+            core1_ce60_setChanMaskWithTransitionSpeed(0x1ff, 0.5f);
             break;
 
         case MAP_1D_MMM_CELLAR:

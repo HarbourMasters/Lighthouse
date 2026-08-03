@@ -76,17 +76,17 @@ ParticleSettingsVelocityPosition CH_TREASUREHUNT_VELOCITY_RANGES = {
 
 /* .code */
 static bool __chTreasurehunt_isActiveHitboxBeakBusterHitbox(void) {
-    enum comusic_e comusic_id;
+    enum comusic_e track_id;
     s32 music_volume;
 
     if (player_getActiveHitbox(0) == HITBOX_1_BEAK_BUSTER) {
-        comusic_id = COMUSIC_2B_DING_B;
+        track_id = COMUSIC_2B_DING_B;
         music_volume = 28000;
         if (chtreasureHunt_puzzleCurrentStep == 5) {
-            comusic_id = COMUSIC_2D_PUZZLE_SOLVED_FANFARE;
+            track_id = COMUSIC_2D_PUZZLE_SOLVED_FANFARE;
             music_volume = 0x7FFF;
         }
-        coMusicPlayer_playMusic(comusic_id, music_volume);
+        coMusicPlayer_playMusic(track_id, music_volume);
         return true;
     }
     return false;

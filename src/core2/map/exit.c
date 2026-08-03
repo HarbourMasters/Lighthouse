@@ -258,7 +258,7 @@ void func_8034BA20(void) {
     func_802E412C(1, 5);
     func_802E40A8(MAP_97_CS_END_BEACH_2, 0);
     func_802E40C4(1);
-    if (func_8025AD7C(5)) {
+    if (comusic_isTrackQueued(5)) {
         func_8025A7DC(5);
     }
     D_80386110 = 0;

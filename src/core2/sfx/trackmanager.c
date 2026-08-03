@@ -194,7 +194,7 @@ s32 func_803226BC(enum map_e map_id){
     return D_8036DE80[func_803225E0(map_id)].unk6;
 }
 
-s32 func_803226E8(enum map_e map_id){
+s32 core2_9B650_getMusicTrackFromMap(enum map_e map_id){
     int t1, t2;
     if (port_getRomhackMusic(map_id, &t1, &t2)) {
         return t1;
@@ -232,7 +232,7 @@ void func_8032278C(s32 arg0, s32 arg1) {
     static s32 D_8036E2B4 = 1;
 
     D_80383340.unk4 = func_803226BC(gsworld_getMap());
-    D_80383340.unk0 = func_803226E8(gsworld_getMap());
+    D_80383340.unk0 = core2_9B650_getMusicTrackFromMap(gsworld_getMap());
     D_80383340.unk2 = func_80322714(gsworld_getMap());
     if (arg1 == 3) {
         D_8036E2B4 = 1;

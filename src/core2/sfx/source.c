@@ -6,7 +6,7 @@
 #include "port/ShipUtils.h" // gPortResetPending
 #include <n_audio/PR/n_libaudio.h>
 
-extern void func_80335394(intptr_t, f32);
+extern void sfxInstruments_func_80335394(intptr_t, f32);
 extern f32 sfx_randf2(f32, f32);
 
 #define SFX_SRC_FLAG_0_UNKOWN (1 << 0)
@@ -177,10 +177,10 @@ void func_8030CBD0(SfxSource *arg0){
         sfxsource_setFlag(arg0, SFX_SRC_FLAG_3_UNKOWN);
         sfxsource_setFlag(arg0, SFX_SRC_FLAG_4_UNKOWN);
         if(arg0->sfx_uid > 0x3e8){
-            func_80335354(arg0->sfx_uid - 0x3e9, func_8030C8DC(arg0->unk40));
+            sfxInstruments_func_80335354(arg0->sfx_uid - 0x3e9, func_8030C8DC(arg0->unk40));
         }
         else{
-            func_8033531C(arg0->sfx_uid, func_8030C8DC(arg0->unk40));
+            sfxInstruments_func_8033531C(arg0->sfx_uid, func_8030C8DC(arg0->unk40));
         }
     }//L8030CC7C
 }
@@ -190,7 +190,7 @@ void func_8030CC90(SfxSource *arg0){
         sfxsource_clearFlag(arg0, SFX_SRC_FLAG_5_UNKOWN);
         func_8030C7F8(arg0, 2);
         if(arg0->unk40){
-            func_8033543C((Struct81s *)func_8030C8F4(arg0->unk40));
+            sfxInstruments_func_8033543C((Struct81s *)func_8030C8F4(arg0->unk40));
         }
     }
 }
@@ -245,25 +245,25 @@ s32 func_8030CDE4(SfxSource *arg0){
 
 void func_8030CF68(s32 arg0, s32 arg1){
     if(arg0){
-        func_803353F4((intptr_t)func_8030C8F4(arg0), arg1);
+        sfxInstruments_func_803353F4((intptr_t)func_8030C8F4(arg0), arg1);
     }
 }
 
 void func_8030CF9C(s32 arg0, s32 arg1){
     if(arg0){
-        func_80335418((intptr_t)func_8030C8F4(arg0), arg1);
+        sfxInstruments_func_80335418((intptr_t)func_8030C8F4(arg0), arg1);
     }
 }
 
 void func_8030CFD0(s32 arg0, f32 arg1){
     if(arg0){
-        func_80335394((intptr_t)func_8030C8F4(arg0), arg1);
+        sfxInstruments_func_80335394((intptr_t)func_8030C8F4(arg0), arg1);
     }
 }
 
 void func_8030D004(s32 arg0, s32 arg1){
     if(arg0){
-        func_803353BC((intptr_t)func_8030C8F4(arg0), (u16) arg1);
+        sfxInstruments_func_803353BC((intptr_t)func_8030C8F4(arg0), (u16) arg1);
     }
 }
 
@@ -474,8 +474,8 @@ void func_8030D8A8(s32 arg0, s32 arg){
 }
 
 void func_8030D8B4(void){
-    func_8024FB8C();
-    func_8024F83C();
+    musicSlot_stopAll();
+    musicTrack_releaseAll();
 }
 
 void func_8030D8DC(void){

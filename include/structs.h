@@ -240,25 +240,6 @@ typedef struct struct_8_s{
     f32 unk60;
 }struct8s;
 
-typedef struct struct_11_s{
-    f32 unk0;
-    f32 unk4;
-    s32 volume;
-    s32 unkC;
-    s16 track_id; //trackId
-    s16 unk12;
-    u8 unk14;
-    u8 unk15;
-    u8 pad16[0x2];
-    FREE_LIST(struct12s) *unk18;
-    s32 unk1C[0xE];
-} CoMusic;
-
-typedef struct struct_12_s{
-    s32 unk0;
-    s32 unk1;
-} struct12s;
-
 typedef struct dialog_s {
     s32 cmd;
     u8* str;
@@ -795,8 +776,8 @@ typedef struct{
 typedef struct {
     s32 unk0; //sound state cnt
     s32 unk4;
-    s32 unk8; //maxSounds
-    struct ALHeap *unkC; //heap
+    s32 max_sounds;
+    struct ALHeap *heap;
     u16 unk10;
 }Struct87s;
 #ifdef __cplusplus

@@ -1332,7 +1332,7 @@ void func_802D6114(void){
             func_802E4A70();
         }//L802D6194
         volatileFlag_set(VOLATILE_FLAG_21, 1);
-        if(sp24 != 0x1C || !func_8025ADBC(COMUSIC_23_MMM_INSIDE_CHURCH)){
+        if(sp24 != 0x1C || !comusic_isPrimaryTrack(COMUSIC_23_MMM_INSIDE_CHURCH)){
             musicKeepsPlaying();
         }
         transitionToMap(sp24, sp20, 0);

@@ -437,7 +437,7 @@ void func_803382FC(s32);
 void func_80315200(GcZoombox *this){
      s32 s1 = 0;
      if(-1.0f == this->unk110[0]){
-          if(func_8025AD7C(this->unk108[0])){
+          if(comusic_isTrackQueued(this->unk108[0])){
                func_8025A7DC(this->unk108[0]);
           }
      }else{
@@ -546,7 +546,7 @@ void func_803155C8(GcZoombox *this){
     this->unk1A4_26 = 0;
     this->unk1A4_31 = 0;
     if(-1.0f ==  this->unk110[0]){
-        if(func_8025AD7C(this->unk108[0])){
+        if(comusic_isTrackQueued(this->unk108[0])){
             func_8025A7DC(this->unk108[0]);
         }
     }else{
@@ -716,7 +716,7 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
         }
 
         if (this->unk110[0] == -1.0f) {
-            if (func_8025AD7C(this->unk108[0]) == 0) {
+            if (comusic_isTrackQueued(this->unk108[0]) == 0) {
                 comusic_playTrack(this->unk108[0]);
             }
         } else {

@@ -622,7 +622,7 @@ void func_80353580(ActorMarker *marker);
 void func_8025A58C(u32 arg0, u32 arg1);
 void func_8025AABC(enum comusic_e track_id);
 void func_8025AEA0(enum comusic_e track_id, s32 arg1);
-void comusic_8025AB44(enum comusic_e comusic_id, s32 arg1, s32 arg2);
+void comusic_8025AB44(enum comusic_e track_id, s32 arg1, s32 arg2);
 void comusic_playTrack(enum comusic_e);
 void coMusicPlayer_playMusic(enum comusic_e, s32);
 
@@ -962,26 +962,11 @@ void maCastle_release(void);
 void maCastle_update(void);
 
 // --- core1/audio_instruments.c ---
-s32 gcMusic_getDefaultVolumeForTrack(s32 track_id);
-s32 func_802501A0(u8 arg0, s32 arg1, s32 *arg2);
-void func_8024F764(s32 arg0);
-void func_8024F7C4(s32 arg0);
-void func_8024F83C(void);
-void func_8024FB8C(void);
-s32 func_8024FEEC(u8 arg0);
-void func_8024FF34(void);
-void func_80250170(u8 arg0, s32 arg1, s32 arg2);
-void func_80250650(void);
-void musicInstruments_init(void);
+// (see include/core1/music.h)
 
 // --- core1/musicplayer.c ---
 int func_8025AEEC(void);
-s32 coMusicPlayer_getTrackCount(void);
-s32 func_8025ADD4(enum comusic_e id);
-void coMusicPlayer_free(void);
-void coMusicPlayer_init(void);
-void comusic_defrag(void);
-void func_8025A23C(s32 arg0);
+void func_8025A23C(enum comusic_e track_id);
 void func_8025A2B0(void);
 void func_8025A2D8(void);
 void func_8025A2FC(s32 arg0, s32 arg1);
@@ -1250,7 +1235,7 @@ void assetCache_init(void);
 void assetcache_update_ptr(void * arg0, void* arg1);
 void func_8033B5FC(void);
 void func_8033B61C(void);
-void func_8033B788(void);
+void assetcache_func_8033B788(void);
 void func_8033BD6C(void);
 bool func_8033BD8C(void* arg0);
 
@@ -1296,12 +1281,12 @@ void anSeq_update(void **ppAnSeq, AnimCtrl *pAnCtl);
 
 // --- core2/sfx/instruments.c ---
 bool func_803354EC(enum sfx_e sfx_id);
-bool func_80335520(s32 arg0);
-intptr_t func_8033531C(enum sfx_e uid, struct46s *arg1);
-intptr_t func_80335354(int uid, struct46s *arg1);
-void func_803353BC(intptr_t arg0, u16 arg1);
-void func_803353F4(intptr_t arg0, s32 arg1);
-void func_80335418(intptr_t arg0, s32 arg1);
+bool func_80335520(enum sfx_e sfx_id);
+intptr_t sfxInstruments_func_8033531C(enum sfx_e sfx_id, struct46s *arg1);
+intptr_t sfxInstruments_func_80335354(enum sfx_e sfx_id, struct46s *arg1);
+void sfxInstruments_func_803353BC(intptr_t arg0, u16 arg1);
+void sfxInstruments_func_803353F4(intptr_t arg0, s32 arg1);
+void sfxInstruments_func_80335418(intptr_t arg0, s32 arg1);
 void sfxInstruments_init(void);
 
 // --- core2/ba/anim.c ---
@@ -1795,7 +1780,7 @@ void ncCamera_update(void);
 
 // --- core2/sfx/trackmanager.c ---
 int func_80322914(void);
-s32 func_803226E8(enum map_e map_id);
+s32 core2_9B650_getMusicTrackFromMap(enum map_e map_id);
 s32 func_8032274C(void);
 s32 func_80322758(void);
 void func_80322764(void);
@@ -3118,7 +3103,7 @@ void func_8029BC60(enum asset_e *anim_id, f32 *anim_duration);
 s32 func_802E4AD4(s32 arg0);
 
 // --- core2/sfx/instruments.c ---
-void func_8033543C(Struct81s *arg0);
+void sfxInstruments_func_8033543C(Struct81s *arg0);
 
 // --- core2/fx/projectile_system.c ---
 void func_8033F7F0(u8 indx, Gfx **gfx, Mtx **mtx, Vtx **vtx);

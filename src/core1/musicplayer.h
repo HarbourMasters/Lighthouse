@@ -1,7 +1,0 @@
-// BanjoDecomp: core1/musicplayer.h
-#ifndef BANJO_KAZOOIE_MUSICPLAYER_H
-#define BANJO_KAZOOIE_MUSICPLAYER_H
-
-#define MAX_MUSIC_STRUCT_COUNT 6
-
-#endif // BANJO_KAZOOIE_MUSICPLAYER_H

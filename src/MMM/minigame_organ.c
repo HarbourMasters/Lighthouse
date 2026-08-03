@@ -317,7 +317,7 @@ void code3420_handleOrganGame(s32 arg0, s32 arg1) {
     bool is_black_key;
 
     Me.unk8 = D_8038BF20;
-    func_80250170(0, 0x6A, 0);
+    musicSlot_func_80250170(0, 0x6A, 0);
     Me.state = 0;
 
     if ((gsworld_getMap() == MAP_1C_MMM_CHURCH) && (arg1 == 2)) {
@@ -358,7 +358,7 @@ void code3420_handleOrganGame(s32 arg0, s32 arg1) {
 
 
 void maOrgan_update(void){
-    UNK_TYPE(u32) sp4C;
+    s32 chan;
     f32 motzhand_dist;
     Actor *motzhand;
     f32 sp38[3];
@@ -369,8 +369,8 @@ void maOrgan_update(void){
         return;
     }
 
-    if(func_802501A0(0, 0x6A, &sp4C)){
-        func_80250170(0, 0x6A, 0);
+    if(musicSlot_func_802501A0(0, 0x6A, &chan)){
+        musicSlot_func_80250170(0, 0x6A, 0);
         Me.unk8++;
         if(Me.unk8->unk4 == -1){
             Me.unk8 = &D_8038BF20[10];

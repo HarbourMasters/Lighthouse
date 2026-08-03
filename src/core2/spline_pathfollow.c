@@ -953,7 +953,7 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
 
         switch (arg1->t0.unk4.common.bit3) {
             case 1:
-                func_80250530(0, arg1->t0.unk4.common.bit31, 3.0f);
+                musicSlot_stepToChannelMask(0, arg1->t0.unk4.common.bit31, 3.0f);
                 break;
 
             case 2:
@@ -1399,8 +1399,8 @@ s32 func_803438E0(Actor *actor, s32 arg1, s32 arg2, s32 arg3) {
             }
         }
 
-        if ((actor->unk138_3 != 0) && func_802501A0(0, actor->unk138_3 + 0x69, 0)) {
-            func_80250170(0, actor->unk138_3 + 0x69, 0);
+        if ((actor->unk138_3 != 0) && musicSlot_func_802501A0(0, actor->unk138_3 + 0x69, NULL)) {
+            musicSlot_func_80250170(0, actor->unk138_3 + 0x69, 0);
             actor->unk138_3 = 0;
         }
     }

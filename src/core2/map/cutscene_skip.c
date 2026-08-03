@@ -135,8 +135,8 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
     s32 sp1C;
 
     if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) && (getGameMode() != GAME_MODE_7_ATTRACT_DEMO)) {
-        sp1C = func_803226E8(gsworld_getMap());
-        if ((func_803226E8(map_id) != sp1C) && (func_80322914() == 0)) {
+        sp1C = core2_9B650_getMusicTrackFromMap(gsworld_getMap());
+        if ((core2_9B650_getMusicTrackFromMap(map_id) != sp1C) && (func_80322914() == 0)) {
             func_8025A388(0, 0x4E2);
             func_8025AB00();
             core1_ce60_incOrDecCounter(false);

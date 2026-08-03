@@ -17,7 +17,7 @@ ALVoiceState    *__n_mapVoice(ALSeqPlayer *, u8, u8, u8);
 ALSound         *__n_lookupSoundQuick(ALSeqPlayer *, u8, u8, u8);
 void		__n_seqpReleaseVoice(ALSeqPlayer *seqp, ALVoice *voice, ALMicroTime deltaTime);
 char __alCSeqNextDelta(ALCSeq *seq, s32 *pDeltaTicks);
-void func_80250104(ALCSeq *arg0, s32 arg1, s32 arg2);
+void musicSlot_func_80250104(ALCSeq *cseq, s32 arg1, s32 chan);
 
 /*====================================================================
  * csplayer.c
@@ -746,7 +746,7 @@ static void __n_CSPHandleMIDIMsg(N_ALCSPlayer *seqp, ALEvent *event)
                 case 0x75:                          /* switch 2 */
                 case 0x76:                          /* switch 2 */
                 case 0x77:                          /* switch 2 */
-                    func_80250104(seqp->target, byte1, chan);
+                    musicSlot_func_80250104(seqp->target, byte1, chan);
                     break;
 /*                case (AL_MIDI_FX_CTRL_0):
                 case (AL_MIDI_FX_CTRL_1):
