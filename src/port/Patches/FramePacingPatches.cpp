@@ -31,23 +31,16 @@ void port_setDemoViCount(int viCount) {
 }
 
 int port_getDemoDisplayViCount(int rawViCount) {
-    int displayViCount = rawViCount;
-    int game_mode = getGameMode();
-
-    if (game_mode == GAME_MODE_8_BOTTLES_BONUS) {
-        displayViCount = 3;
-    } else if (game_mode == GAME_MODE_A_SNS_PICTURE) {
+    if (getGameMode() == GAME_MODE_A_SNS_PICTURE) {
         switch (gsworld_getMap()) {
             case MAP_7F_FP_WOZZAS_CAVE:
             case MAP_92_GV_SNS_CHAMBER:
-                displayViCount = 3;
-                break;
+                return 3;
             default:
                 break;
         }
     }
-
-    return displayViCount;
+    return rawViCount;
 }
 
 // Cutscene Stutter Compensation

@@ -20,6 +20,7 @@ extern "C" {
 
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
+s32 getGameMode(void);
 
 // During FADE_IN, the game disables scene drawing one frame before
 // capturing gFramebuffers. Without freezing, the readback would overwrite
@@ -333,6 +334,11 @@ void port_patchTransitionModel(BKModelBin* model_bin) {
 
 } // extern "C"
 
+// Submitted picture-mode frames since the last map load. The first few frames a
+// reloaded map composes are structurally normal DLs that draw nothing visible.
+static s32 sPicFramesSinceMapLoad = 0;
+static constexpr s32 kPicWarmupFrames = 3;
+
 void RegisterFramebufferPatches_Init() {
     REGISTER_VB_SHOULD(VB_PICTUREBOX_TARGET_FB, EVENT_PRIORITY_NORMAL, {
         Gfx** gdl = va_arg(args, Gfx**);
@@ -341,6 +347,21 @@ void RegisterFramebufferPatches_Init() {
             gsSPSetFB((*gdl)++, auxFb);
         }
         (void)should;
+    });
+
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { sPicFramesSinceMapLoad = 0; });
+
+    REGISTER_VB_SHOULD(VB_PICTUREBOX_SUBMIT_FRAME, EVENT_PRIORITY_NORMAL, {
+        s32 gfxCount = va_arg(args, s32);
+        s32 mode = getGameMode();
+        if (mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE) {
+            sPicFramesSinceMapLoad++;
+            if (sPicFramesSinceMapLoad <= kPicWarmupFrames || gfxCount < 100) {
+                SPDLOG_INFO("[pictureDiag] dropped frame (sinceLoad={}, gfxCount={})", sPicFramesSinceMapLoad,
+                            gfxCount);
+                *should = false;
+            }
+        }
     });
 }
 

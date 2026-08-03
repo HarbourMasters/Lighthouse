@@ -122,7 +122,7 @@ void func_802E398C(s32 arg0) {
 }
 
 void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool arg4) {
-    Mtx* mtx_start = *mtx; 
+    Mtx* mtx_start = *mtx;
     Vtx* vtx_start = *vtx;
 
     setupFramebufferForGamemode(gfx, framebuffer_idx);
@@ -345,6 +345,11 @@ void game_draw(bool arg0) {
     vtx_start = vtx;
 
     func_802E39D0(&gfx, &mtx, &vtx, getActiveFramebuffer(), arg0);
+
+    // [port] Frame submission gate
+    if (!EventSystem_Should(VB_PICTUREBOX_SUBMIT_FRAME, true, (s32)(gfx - gfx_start))) {
+        return;
+    }
 
     graphicsCache_checkFrame(gfx_start, gfx, mtx_start, mtx, vtx_start, vtx);
 
