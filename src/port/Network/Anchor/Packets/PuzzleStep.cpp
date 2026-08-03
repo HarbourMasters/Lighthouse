@@ -35,17 +35,92 @@ static int32_t puzzlePosHash(int32_t x, int32_t y, int32_t z) {
     return (int32_t)((h & 0x7FFFFFFFu) | 1u); // never 0 (the "no positional hash" sentinel)
 }
 
+/**
+ * Every bitmask entry is written by one vanilla actor that lives in one known map, and
+ * some entries are derived from -- or applied back to -- raw map/level flag indices whose
+ * meaning is map-relative. A romhack that relocates such an actor makes it read one map's
+ * flag and republish it as another's. To avoid complications, each puzzle id is scoped to
+ * its actor's home: outside it every leg is inert.
+ *
+ * Vanilla is unaffected, and a romhack keeps live sync for every puzzle it didn't relocate.
+ */
+struct PuzzleHome {
+    std::set<int32_t> maps;
+    int32_t level = -1; // home is a whole level (romhacks may remap a level's maps)
+};
+
+static const std::map<int32_t, PuzzleHome>& puzzleHomes() {
+    static const std::map<int32_t, PuzzleHome> homes = {
+        { ANCHOR_PUZZLE_BGS_TANKTUP, { { MAP_D_BGS_BUBBLEGLOOP_SWAMP } } },
+        { ANCHOR_PUZZLE_BGS_CROCTUS, { { MAP_D_BGS_BUBBLEGLOOP_SWAMP } } },
+        // The egg chain's map isn't pinned down in the decomp; its readback only drives
+        // actor state, so the whole level is safe.
+        { ANCHOR_PUZZLE_BGS_PINKEGG, { {}, LEVEL_4_BUBBLEGLOOP_SWAMP } },
+        { ANCHOR_PUZZLE_CC_CLANKER_TEETH, { { MAP_B_CC_CLANKERS_CAVERN } } },
+        { ANCHOR_PUZZLE_GV_JINXY_DOOR, { { MAP_12_GV_GOBIS_VALLEY } } },
+        { ANCHOR_PUZZLE_MM_JUJU, { { MAP_2_MM_MUMBOS_MOUNTAIN } } },
+        { ANCHOR_PUZZLE_TTC_NIPPER, { { MAP_7_TTC_TREASURE_TROVE_COVE } } },
+        { ANCHOR_PUZZLE_TTC_BLUBBER, { { MAP_7_TTC_TREASURE_TROVE_COVE } } },
+        { ANCHOR_PUZZLE_TTC_XHUNT, { { MAP_7_TTC_TREASURE_TROVE_COVE } } },
+        { ANCHOR_PUZZLE_FP_TREE_ICE, { { MAP_53_FP_CHRISTMAS_TREE } } },
+        { ANCHOR_PUZZLE_FP_PRESENTS, { { MAP_27_FP_FREEZEEZY_PEAK } } },
+        { ANCHOR_PUZZLE_FP_SNOWBUTTONS, { { MAP_27_FP_FREEZEEZY_PEAK } } },
+        { ANCHOR_PUZZLE_FP_SLUSHES, { { MAP_27_FP_FREEZEEZY_PEAK } } },
+        { ANCHOR_PUZZLE_RBB_ENGINE_FANS, { { MAP_34_RBB_ENGINE_ROOM } } },
+        // Tutorial choreography follows the level, not the map.
+        { ANCHOR_PUZZLE_SM_TUTORIAL, { {}, LEVEL_B_SPIRAL_MOUNTAIN } },
+    };
+    return homes;
+}
+
+static bool mirrorAllowedFor(int32_t puzzleId, int32_t map) {
+    auto it = puzzleHomes().find(puzzleId);
+    if (it == puzzleHomes().end()) {
+        return false; // unknown id: fail inert
+    }
+    if (it->second.maps.count(map)) {
+        return true;
+    }
+    return it->second.level >= 0 && (int32_t)map_getLevel((enum map_e)map) == it->second.level;
+}
+
+static bool mirrorLive(int32_t puzzleId) {
+    return mirrorAllowedFor(puzzleId, (int32_t)gsworld_getMap());
+}
+
 extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
+    if (!mirrorLive(puzzleId)) {
+        return 0;
+    }
     auto it = sPuzzleBits.find({ (int32_t)gsworld_getMap(), puzzleId });
     return it != sPuzzleBits.end() ? it->second : 0;
 }
 
 extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
+    if (!mirrorAllowedFor(puzzleId, map)) {
+        return 0;
+    }
     auto it = sPuzzleBits.find({ map, puzzleId });
     return it != sPuzzleBits.end() ? it->second : 0;
 }
 
+// For level-homed puzzles: a relocated actor writes under the romhack's map
+// key, which a map-keyed read can't know. ORs the puzzle's bits across the level.
+extern "C" int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId) {
+    int32_t bits = 0;
+    for (const auto& [key, val] : sPuzzleBits) {
+        if (key[1] == puzzleId && mirrorAllowedFor(puzzleId, key[0]) &&
+            (int32_t)map_getLevel((enum map_e)key[0]) == levelId) {
+            bits |= val;
+        }
+    }
+    return bits;
+}
+
 extern "C" void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits) {
+    if (!mirrorLive(puzzleId)) {
+        return;
+    }
     int32_t map = (int32_t)gsworld_getMap();
     std::array<int32_t, 2> key = { map, puzzleId };
     int32_t before = sPuzzleBits.count(key) ? sPuzzleBits[key] : 0;
@@ -84,6 +159,9 @@ void Anchor::HandlePacket_PuzzleStep(nlohmann::json& payload) {
 
     s32 puzzleId = payload.at("puzzle").get<s32>();
     s32 map = payload.at("map").get<s32>();
+    if (!mirrorAllowedFor(puzzleId, map)) {
+        return;
+    }
     s32 phash = payload.value("phash", (s32)0);
     if (phash != 0) {
         sPuzzlePos[{ map, puzzleId }].insert(phash);
@@ -106,6 +184,9 @@ std::vector<int32_t> port_puzzleStep_snapshot() {
 void port_puzzleStep_restore(const std::vector<int32_t>& flat) {
     sPuzzleBits.clear();
     for (size_t i = 0; i + 3 <= flat.size(); i += 3) {
+        if (!mirrorAllowedFor(flat[i + 1], flat[i])) {
+            continue;
+        }
         sPuzzleBits[{ flat[i], flat[i + 1] }] = flat[i + 2];
     }
 }
@@ -127,11 +208,17 @@ void port_puzzleStep_clearForLevel(int32_t levelId) {
  */
 
 extern "C" int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+    if (!mirrorLive(puzzleId)) {
+        return 0;
+    }
     auto it = sPuzzlePos.find({ (int32_t)gsworld_getMap(), puzzleId });
     return (it != sPuzzlePos.end() && it->second.count(puzzlePosHash(x, y, z))) ? 1 : 0;
 }
 
 extern "C" void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z) {
+    if (!mirrorLive(puzzleId)) {
+        return;
+    }
     int32_t map = (int32_t)gsworld_getMap();
     int32_t hash = puzzlePosHash(x, y, z);
     auto& set = sPuzzlePos[{ map, puzzleId }];
@@ -161,9 +248,12 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
     while (i + 3 <= flat.size()) {
         int32_t map = flat[i], puzzleId = flat[i + 1], count = flat[i + 2];
         i += 3;
-        auto& set = sPuzzlePos[{ map, puzzleId }];
+        // Still consume the run's hashes when filtered so the stream stays aligned.
+        const bool allowed = mirrorAllowedFor(puzzleId, map);
         for (int32_t j = 0; j < count && i < flat.size(); j++, i++) {
-            set.insert(flat[i]);
+            if (allowed) {
+                sPuzzlePos[{ map, puzzleId }].insert(flat[i]);
+            }
         }
     }
 }
@@ -172,6 +262,8 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
  * PUZZLE_COUNT
  *
  * Companion to PUZZLE_STEP for count-based progress (Eyrie's fed worms, Nabnut's acorns).
+ * Not home-scoped: counters never touch flag indices (keyed by the real map, applied only
+ * to actor state), and scoping them would brick a relocated Eyrie/Nabnut.
  */
 
 extern "C" int32_t port_puzzleCount_get(int32_t counterId) {

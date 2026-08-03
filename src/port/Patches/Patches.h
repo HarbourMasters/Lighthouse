@@ -179,9 +179,15 @@ void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offs
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void port_remoteCarry_reset(void);
 void port_anchorDummies_onActorsFreed(void);
+
+// Connected, in a real room, syncing world state.
+int32_t port_anchor_isWorldSyncActive(void);
+
+// The puzzle mirrors below are home-scoped.
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
+int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId);
 
 void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
