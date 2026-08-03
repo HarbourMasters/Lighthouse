@@ -136,21 +136,6 @@ void chHoneycomb_update(Actor *this){
         }
     }//L802CA098
 
-    {
-        s32 gateFlag = -1;
-        if(local->uid == HONEYCOMB_B_GV_CACTUS) gateFlag = 0xd;
-        else if(local->uid == HONEYCOMB_F_RBB_BOAT_HOUSE) gateFlag = 0;
-        if(gateFlag >= 0){
-            if(!mapSpecificFlags_get(gateFlag)){
-                this->unk58_0 = false;
-                actor_collisionOff(this);
-                return;
-            }
-            this->unk58_0 = true;
-            actor_collisionOn(this);
-        }
-    }
-
     if(gsworld_getMap() == MAP_27_FP_FREEZEEZY_PEAK){
         if(maSlalom_isActive()){
             this->unk58_0 = false;
@@ -173,24 +158,6 @@ void chHoneycomb_update(Actor *this){
             commonParticle_new(8, this->marker->unk14_21);
         }
     }
-}
-
-extern void __baMarker_8028BA00(s32);
-void chHoneycomb_netRevealFromSwitch(void){
-    s32 uid = -1;
-
-    switch(gsworld_getMap()){
-        case MAP_12_GV_GOBIS_VALLEY:
-            if(mapSpecificFlags_get(0xD)) uid = HONEYCOMB_B_GV_CACTUS;
-            break;
-        case MAP_31_RBB_RUSTY_BUCKET_BAY:
-            if(mapSpecificFlags_get(0)) uid = HONEYCOMB_F_RBB_BOAT_HOUSE;
-            break;
-        default:
-            break;
-    }
-    if(uid < 0 || honeycombscore_get(uid)) return;
-    __baMarker_8028BA00(uid);
 }
 
 enum honeycomb_e func_802CA1C4(Actor *this){

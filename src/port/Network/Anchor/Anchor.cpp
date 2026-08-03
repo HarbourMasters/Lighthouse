@@ -402,6 +402,35 @@ void Anchor::OnActorDestroyed(Actor* actor) {
     }
 }
 
+// Queues the honeycomb spawn the switch press performs.
+extern "C" void __baMarker_8028BA00(s32 honeycombId);
+
+// The GV cactus and RBB boathouse honeycombs only exist once their switch is
+// beak-busted: marker.c sets a map flag and spawns the actor. A teammate's press
+// reaches us as flag state, so spawn the same actor the local press would have.
+void Anchor::RevealSwitchHoneycomb() {
+    s32 uid;
+    s32 flag;
+
+    switch (gsworld_getMap()) {
+        case MAP_12_GV_GOBIS_VALLEY:
+            uid = HONEYCOMB_B_GV_CACTUS;
+            flag = 0xD;
+            break;
+        case MAP_36_RBB_BOATHOUSE:
+            uid = HONEYCOMB_F_RBB_BOAT_HOUSE;
+            flag = 0;
+            break;
+        default:
+            return;
+    }
+
+    if (!mapSpecificFlags_get(flag) || honeycombscore_get((enum honeycomb_e)uid)) {
+        return;
+    }
+    __baMarker_8028BA00(uid);
+}
+
 void Anchor::RemoveDummy(uint32_t clientId) {
     if (dummies.contains(clientId)) {
         dummies[clientId]->dummy_despawnActor();
