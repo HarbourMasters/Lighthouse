@@ -168,6 +168,10 @@ Actor* CustomObject::SpawnCustomActorEX(RandoCheckId randoCheckId, int32_t posit
     Actor* customActor = actor_new(position, 0, actorInfo, flags);
 
     if (customActor != NULL) {
+        // Music notes don't cast shadows, custom or otherwise.
+        if (actorInfo->actorId == ACTOR_51_MUSIC_NOTE) {
+            customActor->unk124_6 = 0;
+        }
         customActor = SetCustomActorParametersEX(randoCheckId, customActor);
         randoSpawnedCheckIds.push_back(randoCheckId);
     }
