@@ -356,6 +356,7 @@ int SDL_main(int argc, char* argv[]) {
     OS_JoinDecompThreads();
     ThreadWatchdog_Stop();
     OS_StopViTicker();
+    OS_StopTimerWorker();
 #ifdef USE_NETWORKING
     Anchor::GetInstance()->Disable();
     SDLNet_Quit();

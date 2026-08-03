@@ -30,13 +30,18 @@ struct Armed {
 std::mutex sMutex;
 std::map<OSTimer*, Armed> sTimers;
 std::condition_variable sCv;
+std::thread sWorker;
 bool sWorkerStarted = false;
+bool sStop = false;
 
 // One worker serves every timer, waking for whichever is due first and
 // recomputing whenever the set changes under it.
 void Worker() {
     std::unique_lock<std::mutex> lock(sMutex);
     for (;;) {
+        if (sStop) {
+            return;
+        }
         OSTimer* key = nullptr;
         std::chrono::steady_clock::time_point deadline{};
         for (auto& [t, armed] : sTimers) {
@@ -51,6 +56,9 @@ void Worker() {
         }
         if (sCv.wait_until(lock, deadline) != std::cv_status::timeout) {
             continue; // re-armed or stopped while waiting
+        }
+        if (sStop) {
+            return;
         }
         auto it = sTimers.find(key);
         if (it == sTimers.end() || it->second.deadline != deadline) {
@@ -73,9 +81,12 @@ void Worker() {
 
 extern "C" int osSetTimer(OSTimer* t, OSTime countdown, OSTime interval, OSMesgQueue* mq, OSMesg msg) {
     std::lock_guard<std::mutex> lock(sMutex);
+    if (sStop) {
+        return 0;
+    }
     if (!sWorkerStarted) {
         sWorkerStarted = true;
-        std::thread(Worker).detach();
+        sWorker = std::thread(Worker);
     }
     Armed armed;
     armed.deadline = std::chrono::steady_clock::now() + std::chrono::nanoseconds(countdown * 64 / 3);
@@ -92,4 +103,19 @@ extern "C" int osStopTimer(OSTimer* t) {
     sTimers.erase(t);
     sCv.notify_all();
     return 0;
+}
+
+extern "C" void OS_StopTimerWorker(void) {
+    {
+        std::lock_guard<std::mutex> lock(sMutex);
+        if (!sWorkerStarted || sStop) {
+            return;
+        }
+        sStop = true;
+        sTimers.clear();
+    }
+    sCv.notify_all();
+    if (sWorker.joinable()) {
+        sWorker.join();
+    }
 }

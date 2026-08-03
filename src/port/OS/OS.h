@@ -73,6 +73,9 @@ int OS_SiPumpLive(void);
 // needs this one declared here.
 int osStopTimer(OSTimer* t);
 
+// The timer worker starts with the first osSetTimer; this stops it at shutdown.
+void OS_StopTimerWorker(void);
+
 s32 osPfsInit(OSMesgQueue* mq, OSPfs* pfs, s32 channel);
 
 // Whether osViBlack has the display blanked. The renderer blacks the presented
