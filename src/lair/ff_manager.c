@@ -1136,7 +1136,7 @@ void func_8038E070(void)
 void lair_func_8038E0B0(void) {
     s32 sp48[6]; //buttons
     s32 temp_v0;
-    s32 sp3C[2]; //joystick
+    s32 sp3C[3]; //side buttons (Z, L, R)
     s32 ff_tile_type;
     s32 sp28;
 
