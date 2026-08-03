@@ -211,7 +211,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
                 ev->result = RANDO_SAVE_FLAGS[RANDO_INF_MINIGAME_RINGS_COMPLETED].flagState ||
                              CustomObject::CheckSpawnedIdList(randoCheckId);
             } else {
-                ev->result = CustomObject::CheckSpawnedIdList(randoCheckId);
+                ev->result = CustomObject::CheckSpawnedIdList(randoCheckId) || RANDO_SAVE_CHECKS[randoCheckId].obtained;
             }
         }
     })
