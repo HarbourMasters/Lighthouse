@@ -74,9 +74,7 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
     } else {
         bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
         fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
-        port_notedoor_remoteOpen(flag);
-        port_breakable_remoteBreak(flag);
-        port_leveldoor_remoteOpen(flag);
+        port_progressFlag_remoteCue(flag);
         // Vanilla only; rando reports world access via SET_CHECK_STATUS instead.
         if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {
             if (const char* opened = LevelOpenSeenFlagName(flag)) {
