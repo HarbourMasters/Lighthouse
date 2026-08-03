@@ -213,6 +213,10 @@ const uint8_t sCrosshairTextureData[32 * 32 * 4] = {
 int sFiring = 0;
 int sOverlayShown = 0;
 
+bool canAimEggs() {
+    return can_egg() && player_getTransformation() == TRANSFORM_1_BANJO;
+}
+
 } // namespace
 
 void RegisterEggAimSpawn_Init() {
@@ -241,7 +245,7 @@ void RegisterEggAim_Init() {
             return;
         }
 
-        if (!can_egg()) {
+        if (!canAimEggs()) {
             return;
         }
 
