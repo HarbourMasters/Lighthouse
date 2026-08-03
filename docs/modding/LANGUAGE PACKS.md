@@ -8,6 +8,19 @@ This guide walks through building one pack end to end: a **Spanish** translation
 
 ## 1. Export the text to editable YAML
 
+Pack mode has to be on **before** you export. In the repo's `config.yml`, find your base ROM's entry (keyed by ROM hash) and add the `dialog_pack` flag to its `config:` block, pointing `output.binary` at your pack's filename:
+
+```yaml
+config:
+  dialog_pack: true   # add
+  output:
+    binary: bkes.o2r  # was bk.o2r; the pack's filename
+```
+
+This is the one edit the pack flow makes to the base game's config, and it also redirects the normal game build - so **revert it once your pack is built**.
+
+Now run the export:
+
 ```
 torch modding export <baserom.z64> -s <lighthouse> -d <workdir>
 ```
@@ -20,7 +33,13 @@ This decodes every asset into an editable form under `<workdir>/src/assets/asset
 | `lang/us/quizq/`   | Grunty furnace quiz questions | 170 |
 | `lang/us/gruntyq/` | Final-boss Grunty questions   |  30 |
 
-You only edit the files you want to translate. Anything you leave alone stays in English. Rename the `us` folder to your country code (`es` for this example) and delete whatever asset yamls you won't be modifying.
+You only edit the files you want to translate. Anything you leave alone stays in English. Next, edit the country code in **three places**:
+
+1. the folder name - `lang/us/` -> `lang/es/` (`es` for this example);
+2. the top-level key inside each yaml you keep - `lang/us/dialog/ASSET_…` -> `lang/es/dialog/ASSET_…`;
+3. both sides of every `modding.yml` entry - `assets/lang/us/…: assets/lang/us/….yaml` -> `assets/lang/es/…`.
+
+Then delete the asset yamls you won't be modifying and prune their `modding.yml` entries to match.
 
 ---
 
@@ -58,7 +77,9 @@ lang/es/quizq/ASSET_1213_FF_QUIZ_QUESTION:
     - [0x83, 0xfd, 0x6c, "75"]
 ```
 
-Translate the question lines and the answer text. On each option, **keep the two bytes before the string** (`0xfd, 0x6c`) as they bind the answer to its slot. (Here `$` and `%` are font slots this pack draws as `¿` and `Á` once its font is in place; see below.)
+Translate the question lines and the answer text. On each option, **keep the two bytes before the string** (`0xfd, 0x6c`) as they bind the answer to its slot; the importer rejects an option row without them. Grunty questions (`gruntyq/`) use the same shape. (Here `$` and `%` are font slots this pack draws as `¿` and `Á` once its font is in place; see below.)
+
+One yaml hygiene rule: always put double quotes around your translations - an unquoted `,`, `:` or `#` breaks the yaml when the pack is imported.
 
 ### How the text is encoded
 
@@ -70,7 +91,7 @@ The dialog/quiz/grunty font (`0x6EB`) is a flat, contiguous sheet beginning at b
 ! " # $ % & ' ( ) * + , - . /   0-9   : ; < = > ? @   A-Z   [ \ ] ^
 ```
 
-The stock font holds only the ASCII set - `A–Z`, `0–9`, and punctuation. **None of Spanish's accents are in it**: `¡ ¿ Á É Í Ó Ú Ñ` all live in byte positions the stock font draws as ASCII symbols (`#`, `%`, `&`, …). So each accent has to be **added** to the font, and you type it as whatever slot you put it in. Our Spanish pack repaints eight symbol slots - `#` `$` `%` `&` `(` `)` `*` `+` → `¡` `¿` `Á` `É` `Í` `Ó` `Ú` `Ñ` (full table in [#5](#5-fonts-and-glyphs)). That's why `COMPA+ERO` renders *COMPAÑERO* (`+` = Ñ) and `$EST%S` renders *¿ESTÁS*. A `\xNN` escape works for any byte inside a double-quoted string, if you'd rather not type the symbol.
+The stock font holds only the ASCII set - `A–Z`, `0–9`, and punctuation. **None of Spanish's accents are in it**: `¡ ¿ Á É Í Ó Ú Ñ` all live in byte positions the stock font draws as ASCII symbols (`#`, `%`, `&`, …). So each accent has to be **added** to the font, and you type it as whatever slot you put it in. Our Spanish pack repaints eight symbol slots - `#` `$` `%` `&` `(` `)` `*` `+` → `¡` `¿` `Á` `É` `Í` `Ó` `Ú` `Ñ` (full table in [#5](#5-fonts-and-glyphs)). That's why `COMPA+ERO` renders *COMPAÑERO* (`+` = Ñ) and `$EST%S` renders *¿ESTÁS*. A `\xNN` escape works for any byte inside a **single-quoted** string (`'\xFD'` style - the importer decodes them, and it's the form the exporter itself emits for text carrying inline control codes). Use it for slots past `0x7E`, an extended sheet's high glyphs included; a literal backslash in such a string is `\\`. Don't put high escapes in *double*-quoted strings - there the yaml parser processes them itself, which is fine up to `\x7F` but re-encodes `\x80`–`\xFF` as two UTF-8 bytes, desyncing the text.
 
 The same goes for lowercase `a–z` and any non-Latin script - no stock glyph, so you add one. There are two ways to add glyphs, both covered in [#5 Fonts and glyphs](#5-fonts-and-glyphs):
 
@@ -83,7 +104,7 @@ Either way, you type the **slot**, and the replacement font makes it render. Pic
 
 ## 3. Declare the language
 
-Two small things turn an ordinary import into a language pack: a header that names the language, and a config flag that puts the build into pack mode.
+Two small things turn an ordinary import into a language pack: the `dialog_pack` config flag you already set in [step 1](#1-export-the-text-to-editable-yaml), and a header that names the language.
 
 ### Name the language
 
@@ -98,7 +119,7 @@ strings: # optional - see "Hardcoded UI strings" below
   "<English UI string>": "<translation>"
 ```
 
-Torch turns this into the `langinfo` manifest that Lighthouse reads to build its language menu. Because it lives in your pack's source, you never touch the base game's canonical asset config. The fields:
+Torch turns this into the `langinfo` manifest that Lighthouse reads to build its language menu. Because it lives in your pack's source, the language list never touches the base game's asset yamls. The fields:
 
 - **`name`** - what shows in the options menu. This label is drawn by the PC menu (not the in-game font), so the native spelling with real accents is fine here.
 - **`index`** - the language's slot; `0` for a single-language pack.
@@ -178,18 +199,9 @@ strings:
 
 One limit comes with this approach: **word order is fixed by the engine.** The number always precedes its noun and the prefix always precedes the game number, so a language that needs the count *after* the noun can't reorder it here. The numbers and the clock are rendered by the engine and aren't translatable - only the words around them are. And the rebuild only happens for a pack that actually supplies these `strings:`; a base US/PAL game keeps its own built-in line.
 
-### Turn on pack mode
+### Pack mode
 
-The second piece is a `dialog_pack` flag in the config entry, plus an output name:
-
-```yaml
-config:
-  dialog_pack: true
-  output:
-    binary: bkes.o2r
-```
-
-`dialog_pack: true` trims the build down to just the translated assets, prefixes them under `lang/<region>/`, and builds the `langinfo` manifest.
+The `dialog_pack: true` flag was already set back in [step 1](#1-export-the-text-to-editable-yaml) - the export needs it too. At import time it's what trims the build down to just the translated assets, prefixes them under `lang/<region>/`, and builds the `langinfo` manifest.
 
 ---
 
@@ -199,7 +211,7 @@ config:
 torch modding import o2r <baserom.z64> -s <lighthouse> -d <workdir>
 ```
 
-The importer walks the asset list: your edited yamls are re-encoded from `<workdir>`, everything else parses straight from the ROM, and `dialog_pack` strips the result down to the language assets plus `langinfo`. The finished pack lands in **`mods/~lang/`** automatically, named from your `output.binary` - `bkes.o2r` in our case. Copy that into the game's `mods/~lang/` folder and it shows up in the options menu.
+The importer walks the asset list: your edited yamls are re-encoded from `<workdir>`, everything else parses straight from the ROM, and `dialog_pack` strips the result down to the language assets plus `langinfo`. The finished pack lands in **`<workdir>/mods/~lang/`** automatically, named from your `output.binary` - `bkes.o2r` in our case. Copy that into Lighthouse's `mods/~lang/` folder and it shows up in the options menu.
 
 ---
 
@@ -256,15 +268,32 @@ You can still ship that content by declaring it as an **additive** asset - a slo
 
 On import, `dialog_pack` scans your `modding.yml` for any `lang/<region>/{dialog,quizq,gruntyq,sprite}/ASSET_<id>` the base table didn't provide and folds it into the pack. Use the **canonical (v1.0) id** for the slot (`0x11CA` for the Motzand credit) no matter which region your base ROM is.
 
-The `sprite` folder also covers **world-name banners** (one per world, at `0x1600`+). Provide them as RGBA32 intensity-mask sprites - the same format the JP cart uses - and the runtime tints each with its world's bold-font sphere colour, rendering titles as graphics instead of bold-font text.
-
 This matters for the parade because Lighthouse keys the alternate (PAL/JP-style) parade on the *presence* of `0x11CA` in the active pack, not on the base version. A player on a plain US v1.0 `bk.o2r` who loads a pack that supplies `0x11CA` gets the Motzand parade order **and** the translated credit, while the rest of the game keeps using US assets. Cover `0x11CA` and the parade switches; omit it and the US parade is left untouched.
+
+### World-name banners
+
+The `sprite` folder covers the pause-menu **world-name banners** - the pre-rendered titles the JP release draws on its totals pages instead of bold-font text. There are twelve, one per menu page, and a pack ships them as additive sprites at `0x1600 + page`:
+
+| Id | Page | Id | Page |
+|---|---|---|---|
+| `0x1600` | Totals overview | `0x1606` | Bubblegloop Swamp |
+| `0x1601` | Spiral Mountain | `0x1607` | Freezeezy Peak |
+| `0x1602` | Gruntilda's Lair | `0x1608` | Gobi's Valley |
+| `0x1603` | Mumbo's Mountain | `0x1609` | Mad Monster Mansion |
+| `0x1604` | Treasure Trove Cove | `0x160A` | Rusty Bucket Bay |
+| `0x1605` | Clanker's Cavern | `0x160B` | Click Clock Wood |
+
+Each page is checked on its own: ship any subset, and a page without a banner keeps drawing its name as bold-font text. A `script: 0` pack can banner just the handful of names its repainted font can't spell and leave the rest to text. Declare each one like any other additive asset (the yaml under `sprite/`, plus its `modding.yml` line).
+
+The sprite itself is a single-frame **RGBA32 intensity mask** - the same format as the JP originals. Draw the title as white-on-transparent artwork, not pre-coloured text: at draw time the runtime refills the mask live with the world's swirling bold-font sphere texture (the highlighted current-world page gets its own sphere; other pages the default fill). The banner renders centered on the page header at its native size and is only scaled down if it's wider than ~92% of the screen, so any sensible resolution works.
+
+(A `script: 1` pack that reuses the JP cart's own banners keeps their native ids - `0xE2C`–`0xE37` re-point to the `0x1600` slots automatically. `0xE38` is not a banner; it's the default fill texture the masks are filled with.)
 
 ---
 
 ## 7. HD fonts & textures (optional)
 
-Everything above produces an **SD** pack - the only kind Torch builds. Players running an HD texture pack need high-resolution versions of whatever you replaced, and those are made with a different tool: [Retro](https://github.com/HarbourMasters/retro), HarbourMasters' OTR/O2R generation tool. The two pipelines are separate - Torch doesn't build HD assets, and Retro doesn't build the SD pack.
+Everything above produces an **SD** pack. Players running an HD texture pack need high-resolution versions of whatever you replaced, and those are made with a different tool: [Retro](https://github.com/HarbourMasters/retro), HarbourMasters' OTR/O2R generation tool.
 
 The two tiers live at different paths inside the o2r, scoped by language:
 
