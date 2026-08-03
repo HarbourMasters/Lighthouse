@@ -255,11 +255,10 @@ extern u8 D_8037DDF0; // the transformation this hut offers
 
 static bool sMumboFastXformStarted = false;
 
-static void FastTransform_startHutTransform(Actor* actor) {
+static bool FastTransform_startHutTransform(Actor* actor) {
     if (actor->has_met_before || (actor->unk10_12 == 0 && (s32)player_getTransformation() != TRANSFORM_1_BANJO &&
                                   (s32)player_getTransformation() != romhack_mumboWishwashyId())) {
-        romhack_mumboTransform(TRANSFORM_1_BANJO);
-        return;
+        return romhack_mumboTransform(TRANSFORM_1_BANJO);
     }
     if (romhack_mumboTransform(D_8037DDF0)) {
         if (D_8037DDF0 != romhack_mumboWishwashyId()) {
@@ -273,7 +272,9 @@ static void FastTransform_startHutTransform(Actor* actor) {
         if (actor->unk10_12 == 1) {
             actor->unk10_12 = 0;
         }
+        return true;
     }
+    return false;
 }
 
 // No has_met_before branch: those sequences are left to vanilla below.
@@ -307,12 +308,11 @@ void RegisterFastTransform_Init() {
         Actor* actor = va_arg(args, Actor*);
         // T-Rex/mistake gags end in a dialog wired to a callback private to mumbo.c.
         if (actor != nullptr && !actor->has_met_before) {
+            // Only latch once the spell has been accepted. Gags don't count as valid.
             if (!sMumboFastXformStarted) {
-                sMumboFastXformStarted = true;
-                FastTransform_startHutTransform(actor);
+                sMumboFastXformStarted = FastTransform_startHutTransform(actor);
             } else if (!baflag_isTrue(BA_FLAG_1B_TRANSFORMING)) {
-                // player_transform sets the flag synchronously, so this can't fire on the
-                // frame the transform starts.
+                // Safe to read as "the transformation ended" only because of the latch above.
                 sMumboFastXformStarted = false;
                 FastTransform_endHutTransform(actor);
             }
