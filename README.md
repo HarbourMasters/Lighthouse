@@ -55,7 +55,7 @@ Lighthouse ships with a file with many standard controller mappings that can be 
 
 ### Default keyboard configuration
 | N64 | A | B | L | R | Z | Start | Analog stick | C buttons | D-Pad |
-| - | - | - | - | - | - | - | - |
+| - | - | - | - | - | - | - | - | - | - |
 | Keyboard | X | C | E | R | Z | Space | WASD | Arrow keys | TFGH |
 
 ### Other shortcuts
