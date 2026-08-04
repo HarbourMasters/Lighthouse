@@ -331,6 +331,12 @@ void Anchor::RegisterHooks() {
         }
     });
 
+    COND_VB_SHOULD(VB_JIGSAW_PICTURE_RESYNC, EVENT_PRIORITY_NORMAL, isConnected, {
+        if (Anchor_WorldSyncActive()) {
+            *should = true;
+        }
+    });
+
     // Lair door remote-open: Door of Grunty's open flag (0xE2) is already set on arrival; key off
     // visual state (fully open == 0x1B) instead. Other lair doors stay flag-based.
     COND_VB_SHOULD(VB_LEVELDOOR_REMOTE_OPEN_DONE, EVENT_PRIORITY_NORMAL, isConnected, {
