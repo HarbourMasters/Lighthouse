@@ -36,20 +36,44 @@ public final class MainActivity extends SDLActivity {
             return;
         }
         for (String name : BOOTSTRAP_ASSETS) {
-            File output = new File(destination, name);
-            if (output.isFile() && output.length() > 0) {
-                continue;
+            copyAssetFile(name, new File(destination, name));
+        }
+        copyAssetTree("assets", new File(destination, "assets"));
+    }
+
+    private void copyAssetFile(String name, File output) {
+        if (output.isFile() && output.length() > 0) {
+            return;
+        }
+        File parent = output.getParentFile();
+        if (parent != null) {
+            parent.mkdirs();
+        }
+        try (InputStream input = getAssets().open(name);
+             FileOutputStream stream = new FileOutputStream(output)) {
+            byte[] buffer = new byte[32 * 1024];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                stream.write(buffer, 0, count);
             }
-            try (InputStream input = getAssets().open(name);
-                 FileOutputStream stream = new FileOutputStream(output)) {
-                byte[] buffer = new byte[32 * 1024];
-                int count;
-                while ((count = input.read(buffer)) != -1) {
-                    stream.write(buffer, 0, count);
-                }
-            } catch (IOException ignored) {
-                // Native startup reports missing bootstrap data through its GUI.
+        } catch (IOException ignored) {
+            // Native startup reports missing bootstrap data through its GUI.
+        }
+    }
+
+    private void copyAssetTree(String assetPath, File output) {
+        try {
+            String[] children = getAssets().list(assetPath);
+            if (children == null || children.length == 0) {
+                copyAssetFile(assetPath, output);
+                return;
             }
+            output.mkdirs();
+            for (String child : children) {
+                copyAssetTree(assetPath + "/" + child, new File(output, child));
+            }
+        } catch (IOException ignored) {
+            // Native startup reports missing bootstrap data through its GUI.
         }
     }
 }

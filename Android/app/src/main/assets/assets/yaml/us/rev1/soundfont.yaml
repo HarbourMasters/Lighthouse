@@ -1,0 +1,30 @@
+:config:
+  header:
+    code:
+      - '#include "structs.h"'
+
+soundfont1ctl:
+  type: BK64:SOUNDFONT_CTL
+  offset: 0xD87CA0
+  size: 0x10DF0
+  symbol: soundfont1ctl
+
+soundfont1tbl:
+  type: BK64:SOUNDFONT_TBL
+  offset: 0xD98A90
+  ctl_offset: 0xD87CA0
+  ctl_size: 0x10DF0
+  symbol: soundfont1tbl
+
+soundfont2ctl:
+  type: BK64:SOUNDFONT_CTL
+  offset: 0xEA7490
+  size: 0x9FB0
+  symbol: soundfont2ctl
+
+soundfont2tbl:
+  type: BK64:SOUNDFONT_TBL
+  offset: 0xEB1440
+  ctl_offset: 0xEA7490
+  ctl_size: 0x9FB0
+  symbol: soundfont2tbl
