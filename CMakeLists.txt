@@ -160,6 +160,10 @@ endif()
 # Set game compilation version
 set(VERSION us)
 option(USE_NETWORKING "Enable networking features" ON)
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # LUS's Android dependency set intentionally does not include SDL_net.
+    set(USE_NETWORKING OFF CACHE BOOL "Enable networking features" FORCE)
+endif()
 set(SKIP_XCODE_VERSION_CHECK ON)
 
 # Add compile definitions for the target
@@ -178,7 +182,7 @@ add_compile_definitions(
 )
 
 # Find necessary libraries
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT ANDROID)
     find_package(OpenGL REQUIRED)
 endif()
 
@@ -248,6 +252,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
         MACOSX_BUNDLE_INFO_PLIST ${IOS_DIR}/plist.in
         RESOURCE "${IMAGE_FILES};${STORYBOARD_FILE};${ICON_FILES}"
     )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # SDLActivity loads the game entry point as a JNI shared library.
+    add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
 else()
     add_executable(${PROJECT_NAME} ${ALL_FILES})
 endif()
@@ -475,6 +482,10 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${DEVKITPRO}/portlibs/wiiu/include/
     )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # Android uses SDL/OpenSL ES through libultraship; do not pull desktop
+    # Ogg/Vorbis or SDL_net packages into the NDK build.
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES "")
 else()
     find_package(Ogg REQUIRED)
     find_package(Vorbis REQUIRED)
@@ -734,7 +745,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   endif()
 endif()
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch" AND NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
+# Torch is a host-side O2R packer. Android builds consume the pre-generated
+# lighthouse.o2r packaged by Gradle instead of attempting to execute a
+# cross-compiled tool during the native build.
 include(ExternalProject)
 ExternalProject_Add(TorchExternal
 	PREFIX TorchExternal

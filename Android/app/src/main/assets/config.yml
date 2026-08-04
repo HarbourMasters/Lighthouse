@@ -1,0 +1,59 @@
+1fe1632098865f639e22c11b9a81ee8f29c75d7a:
+  name: Banjo-Kazooie (USA (Rev0))
+  path: assets/yaml/us/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
+
+ded6ee166e740ad1bc810fd678a84b48e245ab80:
+  name: Banjo-Kazooie (USA (Rev1))
+  path: assets/yaml/us/rev1
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
+
+bb359a75941df74bf7290212c89fbc6e2c5601fe:
+  name: Banjo-Kazooie (PAL)
+  path: assets/yaml/pal/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
+
+90726d7e7cd5bf6cdfd38f45c9acbf4d45bd9fd8:
+  name: Banjo-Kazooie (JP)
+  path: assets/yaml/jp/rev0
+  config:
+    gbi: F3DEX_BK64
+    sort: OFFSET
+    logging: WARN
+    textures: ADDITIONAL_DEFINES
+    include_autogen: true
+    output:
+      binary: bk.o2r
+      code: src/assets
+      headers: include/assets
+      modding: src/assets
