@@ -228,7 +228,7 @@ void DrawCheckTrackerList() {
                     }
 
                     ImGui::BeginGroup();
-                    ImGui::TextColored(checkTextColor, Ship_ConvertEnumToReadableName(entry.name).c_str());
+                    ImGui::TextColored(checkTextColor, "%s", Ship_ConvertEnumToReadableName(entry.name).c_str());
                     if (entry.obtained) {
                         ImGui::SameLine();
                         RandoItemId randoItemId = Rando::Logic::GetShuffledObject(entry.randoCheckId).randoItemId;
@@ -428,7 +428,7 @@ void SettingsWindow::DrawElement() {
                     Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
                 }
                 ImGui::SameLine();
-                ImGui::Text(colorText.c_str());
+                ImGui::Text("%s", colorText.c_str());
                 ImGui::PopID();
                 checkColorIndex++;
             }
