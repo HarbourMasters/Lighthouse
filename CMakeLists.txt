@@ -748,6 +748,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   endif()
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # The existing ImGui UI has numerous trusted runtime labels. Keep Clang's
+    # diagnostic visible, but do not turn it into a cross-platform build stop.
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=format-security)
+endif()
+
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch" AND NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
 # Torch is a host-side O2R packer. Android builds consume the pre-generated
 # lighthouse.o2r packaged by Gradle instead of attempting to execute a
