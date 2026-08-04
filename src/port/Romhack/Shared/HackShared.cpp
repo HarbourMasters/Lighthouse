@@ -9,6 +9,7 @@ extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "actor.h"
+#include "core2/abilityprogress.h"
 
 extern ActorArray* suBaddieActorArray;
 
@@ -26,10 +27,12 @@ void ApplyNoteSignHooks();
 f32 MeasureBoldNameWidth(const char* s);
 void ApplyPauseNameCentering();
 void ApplyDialogSuppression();
+void ApplyForceAbilitiesUsed();
 
 int sNoteSignActorId = -1;
 const int* sSuppressedDialogs = nullptr;
 int sSuppressedDialogCount = 0;
+s32 sForcedUsedAbilities = 0;
 
 // Romhacks that have note signs and Bottles explainers don't need them when
 // note saving is turned on. Suppress them.
@@ -109,6 +112,17 @@ void ApplyDialogSuppression() {
     });
 }
 
+// Mark moves as already used
+void ApplyForceAbilitiesUsed() {
+    COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, sForcedUsedAbilities != 0, [](IEvent*) {
+        for (int move = 0; move < 32; move++) {
+            if (sForcedUsedAbilities & (1 << move)) {
+                ability_setHasUsed(static_cast<ability_e>(move));
+            }
+        }
+    });
+}
+
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
 
@@ -123,4 +137,11 @@ void HackShared_EnableDialogSuppression(const int* dialogIds, int count) {
     sSuppressedDialogs = dialogIds;
     sSuppressedDialogCount = count;
     ApplyDialogSuppression();
+}
+
+void HackShared_EnableForceAbilitiesUsed(const ability_used* moves, int count) {
+    for (int i = 0; i < count; i++) {
+        sForcedUsedAbilities |= (1 << moves[i]);
+    }
+    ApplyForceAbilitiesUsed();
 }

@@ -371,6 +371,7 @@ void RegisterGruntchPatches() {
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();
     HackShared_EnableDialogSuppression(kGruntchSuppressedDialogs);
+    HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
 
     /* MISSING FEATURES
      *  Static camera pan for mumbo's reward
