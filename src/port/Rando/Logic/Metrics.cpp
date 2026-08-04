@@ -21,7 +21,7 @@ bool metricsInitialized = false;
 void Metrics_DrawEventData() {
     if (ImGui::BeginChild("EventData", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
         for (auto& event : eventAccessList) {
-            ImGui::Text(event.c_str());
+            ImGui::Text("%s", event.c_str());
         }
         ImGui::EndChild();
     }
@@ -30,7 +30,7 @@ void Metrics_DrawEventData() {
 void Metrics_DrawRegionData() {
     if (ImGui::BeginChild("RegionData", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
         for (auto& region : regionAccessList) {
-            ImGui::Text(region.c_str());
+            ImGui::Text("%s", region.c_str());
         }
         ImGui::EndChild();
     }
