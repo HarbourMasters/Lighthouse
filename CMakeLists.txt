@@ -198,6 +198,7 @@ include_directories(
     "${PROJECT_SOURCE_DIR}/include"
     "${PROJECT_SOURCE_DIR}/lib/ultralib/include"
     "${PROJECT_SOURCE_DIR}/src"
+    "${PROJECT_SOURCE_DIR}/Torch/src"
 )
 
 # Collect source files to build the executable
