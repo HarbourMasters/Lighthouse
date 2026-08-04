@@ -2,6 +2,16 @@ plugins {
     id 'com.android.application'
 }
 
+// Keep extractor manifests authoritative in the repository root. This is
+// intentionally generated for every APK build rather than copied into Android/
+// so decomp/YAML updates cannot go stale in a second tracked asset tree.
+def generatedRootAssetsDir = file("$buildDir/generated/root-assets")
+
+tasks.register('syncRootAssets', Sync) {
+    from('../../assets')
+    into("$generatedRootAssetsDir/assets")
+}
+
 android {
     namespace 'com.pacoa.lighthouse'
     compileSdk 35
@@ -38,4 +48,12 @@ android {
             version '3.31.5'
         }
     }
+
+    sourceSets {
+        main.assets.srcDir(generatedRootAssetsDir)
+    }
+}
+
+tasks.named('preBuild').configure {
+    dependsOn(tasks.named('syncRootAssets'))
 }
