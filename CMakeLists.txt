@@ -517,14 +517,8 @@ option(BUILD_FZERO "Build with F-Zero X support" OFF)
 option(BUILD_OOT "Build with Ocarina of Time support" OFF)
 option(BUILD_MARIO_ARTIST "Build with Mario Artist support" OFF)
 option(BUILD_NAUDIO "Build with NAudio support" OFF)
-# Torch is a host-side resource packer. Android builds consume the prepacked
-# lighthouse.o2r asset and cannot configure Torch as an NDK target.
-if(NOT ANDROID)
-    add_subdirectory(Torch)
-    target_link_libraries(${PROJECT_NAME} PRIVATE torch "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
-else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
-endif()
+add_subdirectory(Torch)
+target_link_libraries(${PROJECT_NAME} PRIVATE torch "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
 
 if(CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
 
