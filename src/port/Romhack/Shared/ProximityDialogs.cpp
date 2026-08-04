@@ -11,6 +11,8 @@ extern f32 D_8037C5B0[3];
 }
 
 namespace {
+constexpr s32 kDialogFlagSkippable = 0x1;
+
 u16 sDialogShown[2] = { 0, 0 };
 const ProximityDialogMap* sWorldMaps = nullptr;
 s32 sWorldMapCount = 0;
@@ -56,7 +58,8 @@ void ProximityDialogs_Run(const ProximityDialogMap* maps, int count) {
         if (!(ml_vec3f_distance(anchor, D_8037C5B0) < page.radius)) {
             return;
         }
-        gcdialog_showDialog(page.textId, page.dialogFlags, (f32*)page.dialogPos, NULL, NULL, NULL);
+        gcdialog_showDialog(page.textId, page.dialogFlags | kDialogFlagSkippable, (f32*)page.dialogPos, NULL, NULL,
+                            NULL);
         sDialogShown[page.word] |= page.doneBit;
         if (page.token >= 0) {
             mumboscore_set((enum mumbotoken_e)page.token, true);

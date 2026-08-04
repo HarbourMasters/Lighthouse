@@ -179,6 +179,7 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
     }
 
     if (!capturing) {
+        CALL_EVENT(OnHudDraw, gfx, mtx, vtx);
         printbuffer_draw(gfx, mtx, vtx);
     }
 

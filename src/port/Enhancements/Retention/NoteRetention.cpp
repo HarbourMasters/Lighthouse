@@ -13,6 +13,7 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
@@ -395,19 +396,22 @@ void RegisterNoteRetention_Init() {
     // Seeding ITEM_C_NOTE re-triggers vanilla high-score dialogs; suppress them.
     COND_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_NORMAL, true, {
         s32 textId = va_arg(args, s32);
-        if (!applyEnabled()) {
-            return;
-        }
-        switch (textId) {
-            case 0xD9C: // Bottles' first-note text: "you can't take notes with you"
-            case 0xF76: // "you just beat your high score"
-                // Milestones...maybe they should not be suppressed? They're aides for new players.
-                /* case 0xF74: // milestone: 50 notes (Mumbo's Mountain)
-                case 0xF78: // milestone: collected every note in the level*/
-                *should = true;
-                break;
-            default:
-                break;
+        // Bottles' 50-note-door line assumes vanilla note-door costs, which
+        // romhacks retune, so it is wrong for them whether or not retention is
+        // on. In vanilla it stays: it's an aide for new players.
+        if (textId == 0xF74 && port_isRomhack()) {
+            *should = true;
+        } else if (applyEnabled()) {
+            switch (textId) {
+                case 0xD9C: // Bottles' first-note text: "you can't take notes with you"
+                case 0xF76: // "you just beat your high score"
+                    // 0xF78 (every note in the level) is left alone here; hacks that
+                    // want it gone suppress it per-hack, as Gruntch does.
+                    *should = true;
+                    break;
+                default:
+                    break;
+            }
         }
     });
 

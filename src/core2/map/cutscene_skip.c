@@ -135,6 +135,9 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
     s32 sp1C;
 
     if ((D_80383190 == 0) && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) && (getGameMode() != GAME_MODE_7_ATTRACT_DEMO)) {
+        // [port] Romhack gate: a listener may call musicKeepsPlaying() here to
+        // carry a special-music state across this warp.
+        EventSystem_Should(VB_WARP_KEEPS_MUSIC, true, map_id);
         sp1C = func_803226E8(gsworld_getMap());
         if ((func_803226E8(map_id) != sp1C) && (func_80322914() == 0)) {
             func_8025A388(0, 0x4E2);

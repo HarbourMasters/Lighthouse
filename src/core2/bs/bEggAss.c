@@ -40,7 +40,10 @@ void bseggass_update(void) {
     }
     if (has_eggs) {
         if (anctrl_isAt(plyr_mvmt, 0.3837f)) {
-            func_8030E760(SFX_3E_POOP_NOISE, 1.4f, 28000);
+            // [port] Romhack gate
+            s32 rate = 28000;
+            EventSystem_Should(VB_EGG_FIRE_SFX, true, 2, &rate);
+            func_8030E760(SFX_3E_POOP_NOISE, 1.4f, rate);
             commonParticle_new(COMMON_PARTICLE_4_EGG_ASS, 1);
             item_dec(ITEM_D_EGGS);
             ability_use(7);
