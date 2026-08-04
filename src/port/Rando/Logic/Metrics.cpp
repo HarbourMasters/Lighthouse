@@ -39,7 +39,7 @@ void Metrics_DrawRegionData() {
 void Metrics_DrawAbilityData() {
     if (ImGui::BeginChild("AbilityData", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
         for (auto& ability : learnedAbilities) {
-            ImGui::Text(ability.c_str());
+            ImGui::Text("%s", ability.c_str());
         }
         ImGui::EndChild();
     }
@@ -57,7 +57,7 @@ void Metrics_DrawSeedData() {
 
         ImGui::SeparatorText("Seed Data");
 
-        ImGui::TextColored(statusColor, statusText.c_str());
+        ImGui::TextColored(statusColor, "%s", statusText.c_str());
         ImGui::Separator();
         ImGui::Text("Seed ID: %i", randoFinalSeed);
         ImGui::Separator();
