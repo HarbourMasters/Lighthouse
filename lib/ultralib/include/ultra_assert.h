@@ -1,5 +1,10 @@
-#ifndef __ASSERT_H__
-#define __ASSERT_H__
+#ifndef _ULTRA_ASSERT_H_
+#define _ULTRA_ASSERT_H_
+
+// bionic reserves __assert with an incompatible ABI.
+#if defined(__ANDROID__)
+#define __assert ultra_assert
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
