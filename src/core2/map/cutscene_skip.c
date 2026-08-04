@@ -1374,18 +1374,8 @@ void warp_smExitBanjosHouse(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void warp_lairEnterMMLobbyFromSMLevel(NodeProp *arg0, ActorMarker *arg1) {
-    // [port] BB romhacks can override this warp destination via BKCF; port
-    // listeners can refine further by responding to OnWarpResolveDest.
     s32 dest = 0x6912;
-    s32 bkcf = port_getRomhackWarpEnterLair();
-    if (bkcf >= 0) {
-        dest = bkcf;
-    }
-    s32 mapOverride = port_getRomhackStartLevel2();
-    if (mapOverride >= 0) {
-        dest = (mapOverride << 8) | (dest & 0xFF);
-    }
-    CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL, 0x6912, bkcf, &dest);
+    CALL_EVENT(OnWarpResolveDest, WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL, 0x6912, -1, &dest);
     func_8031CC8C(arg0, dest);
 }
 
