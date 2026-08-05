@@ -6,9 +6,6 @@
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/Shared/HackShared.h"
-#include "port/Romhack/Shared/Storybook.h"
-#include "port/Romhack/Shared/ProximityDialogs.h"
-#include "port/Romhack/Shared/StealthNoise.h"
 
 extern "C" {
 #include "enums.h"
@@ -248,117 +245,6 @@ static void Gruntch_EnableConditionalActors() {
     COND_VB_SHOULD(VB_BOGGY_HOME_VISIBLE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, { *should = true; });
 }
 
-// --------------------------------------------------------------- Mumbo reward
-namespace {
-constexpr f32 kJiggyDelay = 4.15f;
-constexpr f32 kStateDelay = 3.85f;
-constexpr f32 kStateValue = 1.1f;
-constexpr f32 kCameraReleaseDelay = 0.5f;
-constexpr s32 kRewardJiggy = 3;
-constexpr s32 kCameraMotor = 1;
-constexpr s32 kLeaveHutText = 0xA7E;
-constexpr s32 kLeaveHutFlags = 0x02;
-
-f32 sJiggyPos[3] = { 0.0f, 500.0f, -95.0f };
-f32 sMumboState = 0.0f;
-bool sMumboRewardEnabled = false;
-bool sLeaveHutPending = false;
-
-void MumboReward_spawnJiggy() {
-    jiggy_spawn((enum jiggy_e)kRewardJiggy, sJiggyPos);
-    func_802BB3DC(kCameraMotor, 3.0f, 1.0f);
-    timedFunc_set_1(kCameraReleaseDelay, (GenFunction_1)func_802BB41C, kCameraMotor);
-}
-
-void MumboReward_setState() {
-    sMumboState = kStateValue;
-}
-} // namespace
-
-extern "C" s32 romhack_mumboTransform(s32 transformId) {
-    if (!sMumboRewardEnabled || gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
-        return player_transform((enum transformation_e)transformId);
-    }
-    timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
-    timedFunc_set_0(kStateDelay, MumboReward_setState);
-    sLeaveHutPending = true;
-    return 1;
-}
-
-extern "C" s32 romhack_mumboWishwashyId(void) {
-    return sMumboRewardEnabled ? 9 : TRANSFORM_7_WISHWASHY;
-}
-
-extern "C" s32 romhack_mumboRandomEventsAllowed(void) {
-    return sMumboRewardEnabled ? 0 : 1;
-}
-
-// Mumbo's reward shows a static camera
-namespace {
-constexpr f32 kPanPosition[3] = { -250.0f, 194.0f, 147.0f };
-constexpr f32 kPanRotation[3] = { 35.0f, 315.0f, 0.0f };
-
-bool sPanSaved = false;
-f32 sPanSavedPosition[3];
-f32 sPanSavedRotation[3];
-
-void MumboReward_updatePendingDialog() {
-    if (!sLeaveHutPending) {
-        return;
-    }
-    const s32 state = bs_getState();
-    if (state == BS_74_UNKNOWN || state == BS_20_LANDING || state == BS_44_JIG_JIGGY) {
-        return;
-    }
-    gcdialog_showDialog(kLeaveHutText, kLeaveHutFlags, NULL, NULL, NULL, NULL);
-    sLeaveHutPending = false;
-}
-
-void MumboReward_updateCamera() {
-    if (!sMumboRewardEnabled) {
-        return;
-    }
-    MumboReward_updatePendingDialog();
-    if (sMumboState > 0.0f) {
-        if (!sPanSaved) {
-            sPanSaved = true;
-            for (int i = 0; i < 3; i++) {
-                sPanSavedPosition[i] = cameraPosition[i];
-                sPanSavedRotation[i] = cameraRotation[i];
-            }
-        }
-        for (int i = 0; i < 3; i++) {
-            cameraPosition[i] = kPanPosition[i];
-            cameraRotation[i] = kPanRotation[i];
-            D_8037D948[i] = kPanPosition[i];
-            D_8037D9C8[i] = 0.0f;
-            D_8037D9E0[i] = 0.0f;
-        }
-        D_8037D9D4 = 0.0f;
-        D_8037D9D8 = 0.0f;
-        D_8037D9EC = 0.0f;
-        D_8037D9F0 = 0.0f;
-
-        sMumboState -= time_getDelta();
-        if (sMumboState == 0.0f) {
-            sMumboState = -1.0f; // sentinel: expired, restore next frame
-        }
-    } else if (sMumboState < 0.0f && sPanSaved) {
-        for (int i = 0; i < 3; i++) {
-            cameraPosition[i] = sPanSavedPosition[i];
-            cameraRotation[i] = sPanSavedRotation[i];
-        }
-        sPanSaved = false;
-        sMumboState = 0.0f;
-    }
-}
-} // namespace
-
-static void Gruntch_EnableMumboReward() {
-    sMumboRewardEnabled = true;
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) { MumboReward_updateCamera(); });
-}
-
 // Game-Over respawns
 static void Gruntch_EnableVoidOutRespawn() {
     REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
@@ -400,17 +286,12 @@ static void Gruntch_EnableEggNoise() {
 }
 
 // Lair music persists through various maps
-constexpr s32 kMusicGroupLair[] = { 0x6A, 0x6C, 0x6F, 0x71, 0x6B, 0x15 };
-constexpr s32 kMusicGroupVillage[] = { 0x1B, 0x22, 0x0C };
-
-static bool SameMusicGroup(const s32* group, int count, s32 a, s32 b) {
-    bool hasA = false, hasB = false;
-    for (int i = 0; i < count; i++) {
-        hasA = hasA || group[i] == a;
-        hasB = hasB || group[i] == b;
-    }
-    return hasA && hasB;
-}
+constexpr int kMusicGroupLair[] = { 0x6A, 0x6C, 0x6F, 0x71, 0x6B, 0x15 };
+constexpr int kMusicGroupVillage[] = { 0x1B, 0x22, 0x0C };
+constexpr WarpMusicGroup kGruntchMusicGroups[] = {
+    { kMusicGroupLair, ARRAY_COUNT(kMusicGroupLair) },
+    { kMusicGroupVillage, ARRAY_COUNT(kMusicGroupVillage) },
+};
 
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
 static void Gruntch_EnableWindowRapNoRebound() {
@@ -422,35 +303,13 @@ static void Gruntch_EnableWindowRapNoRebound() {
     });
 }
 
-static void Gruntch_EnableWarpMusic() {
-    REGISTER_VB_SHOULD(VB_WARP_KEEPS_MUSIC, EVENT_PRIORITY_NORMAL, {
-        const s32 dest = va_arg(args, s32);
-        const s32 cur = gsworld_getMap();
-        if (SameMusicGroup(kMusicGroupVillage, ARRAY_COUNT(kMusicGroupVillage), cur, dest) ||
-            SameMusicGroup(kMusicGroupLair, ARRAY_COUNT(kMusicGroupLair), cur, dest)) {
-            musicKeepsPlaying();
-        }
-        (void)should;
-    });
-}
-
 // ------------------------------------------------------- Jiggy consolidation
-constexpr s32 kJiggyToMM[] = { 0x14, 0x20, 0x2E, 0x4A };
-constexpr s32 kJiggyToMMM[] = { 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3E };
-
-static bool JiggyMovedFromVanillaLevel(s32 id) {
-    for (s32 m : kJiggyToMM) {
-        if (m == id) {
-            return true;
-        }
-    }
-    for (s32 m : kJiggyToMMM) {
-        if (m == id) {
-            return true;
-        }
-    }
-    return false;
-}
+constexpr int kJiggyToMM[] = { 0x14, 0x20, 0x2E, 0x4A };
+constexpr int kJiggyToMMM[] = { 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3E };
+constexpr JiggyRelocation kGruntchJiggyRelocations[] = {
+    { LEVEL_1_MUMBOS_MOUNTAIN, kJiggyToMM, ARRAY_COUNT(kJiggyToMM) },
+    { LEVEL_A_MAD_MONSTER_MANSION, kJiggyToMMM, ARRAY_COUNT(kJiggyToMMM) },
+};
 
 // Pause-menu totals layout for Gruntch and Santa's Village
 static void Gruntch_EnablePauseTotalsLayout() {
@@ -463,33 +322,7 @@ static void Gruntch_EnablePauseTotalsLayout() {
 }
 
 static void Gruntch_EnableJiggyTally() {
-    REGISTER_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {
-        s32 lvl = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
-        s32 cnt = 0;
-        if (lvl >= 1 && lvl <= 0xA) {
-            for (s32 id = (lvl - 1) * 10 + 1; id <= lvl * 10; id++) {
-                if (!JiggyMovedFromVanillaLevel(id) && jiggyscore_isCollected((enum jiggy_e)id)) {
-                    cnt++;
-                }
-            }
-            if (lvl == 1) {
-                for (s32 id : kJiggyToMM) {
-                    if (jiggyscore_isCollected((enum jiggy_e)id)) {
-                        cnt++;
-                    }
-                }
-            } else if (lvl == 0xA) {
-                for (s32 id : kJiggyToMMM) {
-                    if (jiggyscore_isCollected((enum jiggy_e)id)) {
-                        cnt++;
-                    }
-                }
-            }
-        }
-        *result = cnt;
-        *should = false;
-    });
+    HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
 
     // Hide Mt Grumpit's notes and jiggies
     REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {
@@ -528,10 +361,10 @@ void RegisterGruntchPatches() {
     StealthNoise_Enable(kGruntchStealth);
     Gruntch_EnableActGate();
     Gruntch_EnableConditionalActors();
-    Gruntch_EnableMumboReward();
+    HackShared_EnableMumboReward();
     Gruntch_EnableVoidOutRespawn();
     Gruntch_EnableEggNoise();
-    Gruntch_EnableWarpMusic();
+    HackShared_EnableWarpMusicGroups(kGruntchMusicGroups);
     Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();

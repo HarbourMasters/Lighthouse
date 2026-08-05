@@ -35,6 +35,7 @@ int port_getRomhackHideJiggiesLevel(void);
 int port_getRomhackHideCollectiblesLevel(void);
 int port_getRomhackJiggiesPerWorld(void);
 int port_getRomhackHoneycombsPerWorld(void);
+void port_overrideRomhackHoneycombsPerWorld(int value);
 int port_getRomhackExtraHcStart(void);
 int port_getRomhackNoteDoor(int door_index);
 int port_getRomhackJiggyPuzzleCost(int puzzle_index);

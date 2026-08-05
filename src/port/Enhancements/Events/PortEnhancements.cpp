@@ -22,6 +22,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnControllerUpdate);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
+    REGISTER_EVENT(OnMapLoadStub);
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnModelLoad);
     REGISTER_EVENT(OnModelDisplayListLoad);

@@ -5,8 +5,39 @@
 
 #include "model.h"
 
+#include "port/ShipUtils.h"
+
 extern f32  vtxList_getGlobalNorm(BKVertexList *);
 extern void points_to_boundingBoxWithMargin(f32 arg0[3], f32 arg1[3], f32 margin, f32 min[3], f32 max[3]);
+
+#define COLLISION_GEO_SCRATCH_MAX 100
+
+// [port] A collision triangle indexing outside its own model's vertex pool means the
+// two lists disagree.
+static s32 port_collisionTriValid(BKCollisionTriangle *tri, BKVertexList *vtx_list) {
+    static s32 reported = 0;
+    u32 count = (u32)(u16)vtx_list->count;
+    if ((u16)tri->unk0[0] < count && (u16)tri->unk0[1] < count && (u16)tri->unk0[2] < count) {
+        return TRUE;
+    }
+    if (reported < 8) {
+        reported++;
+        BK_LOG_DEBUG("[collision] map 0x%02X: triangle indexes %d/%d/%d outside vertex pool of %d - skipped",
+                     gsworld_getMap(), tri->unk0[0], tri->unk0[1], tri->unk0[2], (s32)count);
+    }
+    return FALSE;
+}
+
+// [port] Fires per collision query when the geometry scratch list fills, so it is
+// rate-limited even at debug level.
+static void port_reportCollisionScratchFull(void) {
+    static s32 reported = 0;
+    if (reported < 8) {
+        reported++;
+        BK_LOG_DEBUG("[collision] geometry scratch list full (%d cells) - query truncated",
+                     COLLISION_GEO_SCRATCH_MAX);
+    }
+}
 
 #define ABS_F(s) (((s) >= 0.0f) ? (s) : -(s))
 
@@ -20,8 +51,8 @@ typedef struct {
 
 
 /* .bss */
-struct { 
-    BKCollisionGeometry *unk0[100];
+struct {
+    BKCollisionGeometry *unk0[COLLISION_GEO_SCRATCH_MAX];
     BKCollisionGeometry **unk190;
 }D_8037E910;
 f32 D_8037EAA8[3][3];
@@ -34,8 +65,8 @@ void collisionTriangle_func_802E6D20(BKCollisionTriangle *arg0, BKVertexList *vt
     s32 i;
 
     vtx = (Vtx *)(vtx_list + 1);
-    
-    if (arg0 == NULL) 
+
+    if (arg0 == NULL || !port_collisionTriValid(arg0, vtx_list))
         return;
 
     for(i = 0; i < 3; i++){
@@ -96,10 +127,15 @@ void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3],
         for(z = sp3C[2]; z <= sp30[2]; z++){
             for(y = sp3C[1]; y <= sp30[1]; y++){
                 for(x = sp3C[0]; x <= sp30[0]; x++){
+                    if (D_8037E910.unk190 >= &D_8037E910.unk0[COLLISION_GEO_SCRATCH_MAX]) {
+                        port_reportCollisionScratchFull();
+                        goto scratch_full;
+                    }
                     *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeometry *)(collision_list + 1))  + x + (y * collision_list->unkC);
                 }
             }
         }
+    scratch_full:
         *arg3 = &D_8037E910.unk0[0];
         *arg4 = D_8037E910.unk190;
     }
@@ -155,10 +191,15 @@ void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCo
         for(z = sp3C[2]; z <= sp30[2]; z++){
             for(y = sp3C[1]; y <= sp30[1]; y++){
                 for(x = sp3C[0]; x <= sp30[0]; x++){
+                    if (D_8037E910.unk190 >= &D_8037E910.unk0[COLLISION_GEO_SCRATCH_MAX]) {
+                        port_reportCollisionScratchFull();
+                        goto scratch_full;
+                    }
                     *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeometry *)(collision_list + 1))  + x + (y * collision_list->unkC);
                 }
             }
         }
+    scratch_full:
         *begin_geo_ptr = &D_8037E910.unk0[0];
         *end_geo_ptr = D_8037E910.unk190;
     }
@@ -299,6 +340,8 @@ BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList 
         for(i_tri = start_tri; i_tri < end_tri; i_tri++){
             vtx_pool = (Vtx*)(vertexList + 1);
             if((i_tri->flags & flagFilter))
+                { continue; }
+            if (!port_collisionTriValid(i_tri, vertexList))
                 { continue; }
 
             sp164[0] = &vtx_pool[i_tri->unk0[0]];
@@ -481,6 +524,9 @@ s32 func_802E81CC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 
         end_tri = start_tri + (*i_geo)->tri_count;
         for(i_tri = start_tri; i_tri < end_tri; i_tri++){
             if (!(i_tri->flags & flagFilter)) {
+                if (!port_collisionTriValid(i_tri, vertexList)) {
+                    continue;
+                }
                 for(i = 0; i < 3; i++){
                     i_vtx = vertex_pool + i_tri->unk0[i];
                     for(j = 0; j < 3; j++){
@@ -832,6 +878,9 @@ BKCollisionTriangle *func_802E92AC(BKCollisionList *collisionList, BKVertexList 
         for(i_tri = start_tri; i_tri < end_tri; i_tri++){
             //filter tri
             if (!(i_tri->flags & flagFilter)){
+                if (!port_collisionTriValid(i_tri, vertexList)) {
+                    continue;
+                }
 
                 //get tri coords
                 for(i = 0; i < 3; i++){

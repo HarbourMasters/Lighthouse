@@ -3,7 +3,7 @@
 
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
-#include "StealthNoise.h"
+#include "HackShared.h"
 
 extern "C" {
 #include "enums.h"

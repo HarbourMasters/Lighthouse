@@ -604,7 +604,7 @@ void chSnsEgg_update(Actor *this){
     if(!this->initialized){
         this->initialized = true;
         func_802D3CE8(this);
-        if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false)) {
+        if (!EventSystem_Should(VB_OVERRIDE_SNS_MAP_CHECK, false, SNS_MAP_CHECK_SPAWN, this)) {
             switch (gsworld_getMap()) {
             case MAP_1D_MMM_CELLAR: //L802D4058
                 if (sns_get_item_state(SNS_ITEM_EGG_CYAN, 1) && !sns_get_item_state(SNS_ITEM_EGG_CYAN, 0)) {
@@ -1253,7 +1253,8 @@ void func_802D5628(void){
                 }
             }
         }//L802D5E18
-        if(level_get() == LEVEL_6_LAIR){
+        // [port] Romhack gate: false = skip Grunty's random lair-taunt timer entirely.
+        if(level_get() == LEVEL_6_LAIR && EventSystem_Should(VB_LAIR_GRUNTY_TAUNTS, true)){
             if( getGameMode() == GAME_MODE_3_NORMAL
                 || func_802E4A08()
             ){

@@ -288,13 +288,23 @@ f32 func_8029B56C(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 void func_8029B5EC(void){
     func_802DC560(0, 0);
     func_802E412C(1, 0);
-    transitionToMap(MAP_1F_CS_START_RAREWARE, 0, 1);
+    // [port] Romhack gate: hacks send the game-over return somewhere of their own.
+    {
+        s32 returnMap = MAP_1F_CS_START_RAREWARE;
+        EventSystem_Should(VB_GAME_OVER_RETURN_MAP, true, &returnMap);
+        transitionToMap((enum map_e)returnMap, 0, 1);
+    }
 }
 
 void func_8029B62C(void){
     // [port] v1.1 fix: don't trigger game over during Boggy's race — just reload the map
     if(item_empty(ITEM_16_LIFE) && maSlalom_isActive() && !EventSystem_Should(VB_BOGGY_RACE_GAME_OVER, true)){
-        func_802E4048(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        // [port] Romhack gate: some hacks want a full map transition here instead.
+        if (EventSystem_Should(VB_RACE_VOID_OUT_FULL_TRANSITION, false)) {
+            transitionToMap((enum map_e)gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        } else {
+            func_802E4048(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+        }
         return;
     }
     // [port] Permadeath difficulty empties the reserve and erases the save here.

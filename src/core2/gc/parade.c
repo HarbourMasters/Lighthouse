@@ -162,7 +162,10 @@ void gcparade_8031ABA0(void) {
 void gcparade_8031ABF8(void) {
     D_803830F0.unk8 = gameSelect_getGameNumber();
     func_8030AFD8(1);
-    mapSavestate_clearAll();
+    // [port] Romhack gate: hacks that persist map savestates only clear on file select.
+    if (EventSystem_Should(VB_MAP_SAVESTATE_CLEAR_ALL, true)) {
+        mapSavestate_clearAll();
+    }
     levelSpecificFlags_clear();
     func_80347A7C();
     debugScoreStates();

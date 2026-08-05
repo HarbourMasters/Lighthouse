@@ -112,6 +112,33 @@ void ApplyDialogSuppression() {
     });
 }
 
+// Music keeps playing across warps whose endpoints share a group
+const WarpMusicGroup* sWarpMusicGroups = nullptr;
+int sWarpMusicGroupCount = 0;
+
+bool WarpInMusicGroup(const WarpMusicGroup& group, s32 a, s32 b) {
+    bool hasA = false, hasB = false;
+    for (int i = 0; i < group.count; i++) {
+        hasA = hasA || group.maps[i] == a;
+        hasB = hasB || group.maps[i] == b;
+    }
+    return hasA && hasB;
+}
+
+void ApplyWarpMusicGroups() {
+    COND_VB_SHOULD(VB_WARP_KEEPS_MUSIC, EVENT_PRIORITY_NORMAL, sWarpMusicGroupCount > 0, {
+        const s32 dest = va_arg(args, s32);
+        const s32 cur = gsworld_getMap();
+        for (int i = 0; i < sWarpMusicGroupCount; i++) {
+            if (WarpInMusicGroup(sWarpMusicGroups[i], cur, dest)) {
+                musicKeepsPlaying();
+                break;
+            }
+        }
+        (void)should;
+    });
+}
+
 // Mark moves as already used
 void ApplyForceAbilitiesUsed() {
     COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, sForcedUsedAbilities != 0, [](IEvent*) {
@@ -123,8 +150,68 @@ void ApplyForceAbilitiesUsed() {
     });
 }
 
+// Relocated jiggies: vanilla ids retallied under the level that now hosts them
+const JiggyRelocation* sJiggyRelocations = nullptr;
+int sJiggyRelocationCount = 0;
+const int* sJiggyExcluded = nullptr;
+int sJiggyExcludedCount = 0;
+
+bool JiggyRelocated(s32 id) {
+    for (int g = 0; g < sJiggyRelocationCount; g++) {
+        for (int i = 0; i < sJiggyRelocations[g].count; i++) {
+            if (sJiggyRelocations[g].ids[i] == id) {
+                return true;
+            }
+        }
+    }
+    for (int i = 0; i < sJiggyExcludedCount; i++) {
+        if (sJiggyExcluded[i] == id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ApplyJiggyRelocation() {
+    COND_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, sJiggyRelocationCount > 0, {
+        const s32 level = va_arg(args, s32);
+        s32* result = va_arg(args, s32*);
+        s32 total = 0;
+
+        // Vanilla groups jiggies into ten-id blocks, one block per level.
+        if ((u32)(level - 1) < 0xA) {
+            for (s32 id = (level - 1) * 10 + 1; id <= level * 10; id++) {
+                if (!JiggyRelocated(id) && jiggyscore_isCollected((enum jiggy_e)id)) {
+                    total++;
+                }
+            }
+            for (int g = 0; g < sJiggyRelocationCount; g++) {
+                if (sJiggyRelocations[g].toLevel != level) {
+                    continue;
+                }
+                for (int i = 0; i < sJiggyRelocations[g].count; i++) {
+                    total += jiggyscore_isCollected((enum jiggy_e)sJiggyRelocations[g].ids[i]) != 0;
+                }
+            }
+        }
+
+        *result = total;
+        *should = false;
+    });
+}
+
+void ApplyNoteDoorNumbers() {
+    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
+        const s32 noteDoorIdx = va_arg(args, s32);
+        if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
+            *should = false;
+        }
+    });
+}
+
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
+RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 
 } // namespace
 
@@ -144,4 +231,19 @@ void HackShared_EnableForceAbilitiesUsed(const ability_used* moves, int count) {
         sForcedUsedAbilities |= (1 << moves[i]);
     }
     ApplyForceAbilitiesUsed();
+}
+
+void HackShared_EnableJiggyRelocation(const JiggyRelocation* groups, int groupCount, const int* alsoExcluded,
+                                      int excludedCount) {
+    sJiggyRelocations = groups;
+    sJiggyRelocationCount = groupCount;
+    sJiggyExcluded = alsoExcluded;
+    sJiggyExcludedCount = excludedCount;
+    ApplyJiggyRelocation();
+}
+
+void HackShared_EnableWarpMusicGroups(const WarpMusicGroup* groups, int groupCount) {
+    sWarpMusicGroups = groups;
+    sWarpMusicGroupCount = groupCount;
+    ApplyWarpMusicGroups();
 }

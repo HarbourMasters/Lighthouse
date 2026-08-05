@@ -22,7 +22,8 @@
     PORT(Nostalgia64)           \
     PORT(CutThroatCoast)        \
     PORT(BubblingBog)           \
-    PORT(Gruntch)
+    PORT(Gruntch)               \
+    PORT(SnowGlowVillage)
 
 #define ROMHACK_PORT_DECL(name) void Register##name##Patches();
 ROMHACK_PORT_LIST(ROMHACK_PORT_DECL)

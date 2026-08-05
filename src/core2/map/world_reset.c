@@ -32,11 +32,17 @@ void func_803216D0(enum map_e map){
             D_80383300.unk0 = 1;
         }
     
-        mapSavestate_init();
-        itemscore_levelReset(D_80383300.level);
-        CALL_EVENT(OnLevelReset, D_80383300.level);
-        jiggyscore_clearAllSpawned();
-        levelSpecificFlags_clear();
+        // [port] Romhack gate: hacks that keep per-level world state replace this
+        // outright, snapshotting the outgoing level and restoring the incoming one.
+        if (EventSystem_Should(VB_LEVEL_LOAD_SAVESTATE_INIT, true, prev_lvl)) {
+            mapSavestate_init();
+        }
+        if (EventSystem_Should(VB_LEVEL_LOAD_RESET_SCORES, true, D_80383300.level)) {
+            itemscore_levelReset(D_80383300.level);
+            CALL_EVENT(OnLevelReset, D_80383300.level);
+            jiggyscore_clearAllSpawned();
+            levelSpecificFlags_clear();
+        }
         bsStoredState_clearTimers();
         func_803219A8();
         if( volatileFlag_getAndSet(VOLATILE_FLAG_17, false) 
@@ -47,20 +53,22 @@ void func_803216D0(enum map_e map){
             volatileFlag_set(VOLATILE_FLAG_18, true);
         }
 
-        if(D_80383300.level == LEVEL_9_RUSTY_BUCKET_BAY){
-            rbb_propellorCtrl_reset();
-        }
+        if (EventSystem_Should(VB_LEVEL_LOAD_RESET_MAP_SETPIECES, true, map)) {
+            if(D_80383300.level == LEVEL_9_RUSTY_BUCKET_BAY){
+                rbb_propellorCtrl_reset();
+            }
 
-        switch(map){
-            case MAP_2_MM_MUMBOS_MOUNTAIN:
-                mm_resetHuts();
-                break;
-            case MAP_7_TTC_TREASURE_TROVE_COVE:
-                chTreasurehunt_resetProgress();
-                break;
-            case MAP_1B_MMM_MAD_MONSTER_MANSION:
-                chFlowerpot_reset();
-                break;
+            switch(map){
+                case MAP_2_MM_MUMBOS_MOUNTAIN:
+                    mm_resetHuts();
+                    break;
+                case MAP_7_TTC_TREASURE_TROVE_COVE:
+                    chTreasurehunt_resetProgress();
+                    break;
+                case MAP_1B_MMM_MAD_MONSTER_MANSION:
+                    chFlowerpot_reset();
+                    break;
+            }
         }
     }
 }
@@ -80,7 +88,10 @@ void func_80321854(void){
         }
         bsStoredState_8029A924(); //null
         func_803465BC(); //null
-        mapSavestate_clearAll();
+        // [port] Romhack gate: see gcparade_8031ABF8.
+        if (EventSystem_Should(VB_MAP_SAVESTATE_CLEAR_ALL, true)) {
+            mapSavestate_clearAll();
+        }
         func_8032196C();
     }
 }
