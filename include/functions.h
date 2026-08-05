@@ -890,7 +890,7 @@ void chTumblar_copyPosition(s32 arg0, Struct68s *arg1, f32 arg2[3]);
 void chTumblar_checkMMMChecksums(void);
 
 // --- MMM/minigame_organ.c ---
-int func_80389CE8(s32 arg0, s32 arg1, s32 arg2);
+int func_80389CE8(Struct5Fs *arg0, Struct68s *arg1, s32 arg2);
 s32 func_80389BBC(void);
 void MMM_func_80389CD8();
 void code3420_handleOrganGame(s32 arg0, s32 arg1);

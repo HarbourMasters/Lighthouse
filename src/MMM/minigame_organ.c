@@ -280,7 +280,9 @@ void MMM_func_80389CD8() {}
 
 void func_80389CE0() {}
 
-int func_80389CE8(s32 arg0, s32 arg1, s32 arg2){
+// [port] pointer truncation
+//int func_80389CE8(s32 arg0, s32 arg1, s32 arg2){
+int func_80389CE8(Struct5Fs *arg0, Struct68s *arg1, s32 arg2){
     if(Me.state == 3){
         if(*Me.unk10 == arg2){
             Me.unk0--;
@@ -296,7 +298,8 @@ int func_80389CE8(s32 arg0, s32 arg1, s32 arg2){
             return 1;
         }//L80389D6C
         else{
-            func_8028F55C(0xD,  func_80351794((Struct68s *)(intptr_t)arg1));
+//          func_8028F55C(0xD,  func_80351794((Struct68s *)(intptr_t)arg1));
+            func_8028F55C(0xD,  func_80351794(arg1));
             return 2;
         }
     }
