@@ -362,6 +362,11 @@ void audioManagerThread_entry(void *arg) {
             return;
         }
         ThreadWatchdog_Beat(WATCHDOG_AUDIO_MANAGER); // [port] one beat per audio frame
+        // [port] Pump messages backlog while a stall blocks this thread
+        // and then burst.
+        if (osAiGetLength() / 4 >= sMaxFrameSize) {
+            continue;
+        }
         if (audioManager_handleFrameMsg(audioManager.audio_info[sAudioInfoID % 3], sPrevFinishedAudioInfo)) {
             if (skip_handle_done_mesg == 0) {
                 osRecvMesg(&audioManager.audioReplyMsgQ, (OSMesg *) &D_80275844, OS_MESG_BLOCK);
@@ -370,6 +375,14 @@ void audioManagerThread_entry(void *arg) {
             } else {
                 skip_handle_done_mesg--;
             }
+        }
+        // [port] The N64 pacing is open-loop (pump cadence x frame size vs the
+        // DAC, same crystal), so a pump missed on PC drains the playback
+        // cushion for tens of seconds. Self-post one extra frame at a time,
+        // re-deciding on the fresh buffer level after each push, until the
+        // cushion is rebuilt.
+        if (port_audioCatchupFrames() > 0) {
+            osSendMesgPtr(&audioManager.audioFrameMsgQ, NULL, OS_MESG_NOBLOCK);
         }
     }
 }

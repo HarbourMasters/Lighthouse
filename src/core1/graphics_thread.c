@@ -210,6 +210,11 @@ void thread5_startGfxTask(struct ucode_task_data_s *task_data) {
 
 void thread5_handleAudioTaskMesg(OSMesg msg) {
     thread5_insertAudioTaskData(msg);
+    if ((sUnkFlag1 == UNKFLAG1_NO_TASK) && (sActiveAudioTaskDataID != sSelectedAudioTaskDataID)) {
+        struct ucode_task_data_s *ptr = sAudioTaskDataList[sActiveAudioTaskDataID];
+        sActiveAudioTaskDataID = (sActiveAudioTaskDataID + 1) % 20;
+        thread5_startAudioTask(ptr);
+    }
 }
 
 void thread5_handleF3DEXTaskMesg(OSMesg msg) {
