@@ -194,6 +194,27 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
                         break;
                     }
                 }
+                if (ev->jiggyId == JIGGY_2A_FP_BOGGY_1) {
+                    if (currenLevel == LEVEL_5_FREEZEEZY_PEAK) {
+                        event->Cancelled = true;
+                        ev->result = RANDO_SAVE_CHECKS[RC_FP_JIGGY_SLED_TO_BOGGY].obtained;
+                        break;
+                    }
+                }
+                if (ev->jiggyId == JIGGY_30_FP_BOGGY_2) {
+                    if (currenLevel == LEVEL_5_FREEZEEZY_PEAK) {
+                        event->Cancelled = true;
+                        ev->result = RANDO_SAVE_CHECKS[RC_FP_JIGGY_BOGGY_RACE_1].obtained;
+                        break;
+                    }
+                }
+                if (ev->jiggyId == JIGGY_2C_FP_BOGGY_3) {
+                    if (currenLevel == LEVEL_5_FREEZEEZY_PEAK) {
+                        event->Cancelled = true;
+                        ev->result = RANDO_SAVE_CHECKS[RC_FP_JIGGY_BOGGY_RACE_2].obtained;
+                        break;
+                    }
+                }
 
                 event->Cancelled = true;
                 ev->result = randoSaveCheck.obtained;
