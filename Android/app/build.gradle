@@ -12,6 +12,13 @@ tasks.register('syncRootAssets', Sync) {
     into("$generatedRootAssetsDir/assets")
 }
 
+tasks.register('syncRootConfig', Copy) {
+    from('../..') {
+        include 'config.yml'
+    }
+    into(generatedRootAssetsDir)
+}
+
 android {
     namespace 'com.pacoa.lighthouse'
     compileSdk 35
@@ -56,4 +63,5 @@ android {
 
 tasks.named('preBuild').configure {
     dependsOn(tasks.named('syncRootAssets'))
+    dependsOn(tasks.named('syncRootConfig'))
 }
