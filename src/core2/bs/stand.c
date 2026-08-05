@@ -92,7 +92,7 @@ void bsstand_init(void){
     if(bsclimb_inSet(bs_getPrevState()))
         climb_release();
 
-    baanim_playForDuration_once(ASSET_6F_ANIM_BSSTAND_IDLE, 5.5f);
+    baanim_playForDuration_onceSmooth(ASSET_6F_ANIM_BSSTAND_IDLE, 5.5f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802900B4();
@@ -243,12 +243,12 @@ void bsstand_update(void) {
         D_8037D540 = func_802B4870(D_8037D540);
         sp18 = D_80364D20[D_8037D540];
         if (sp18 & 0x10) {
-            baanim_playForDuration_once(ASSET_95_ANIM_BSSTAND_KAZOOIE_PECK, 5.5f);
+            baanim_playForDuration_onceSmooth(ASSET_95_ANIM_BSSTAND_KAZOOIE_PECK, 5.5f);
             anctrl_start(anim_ctrl, "bsstand.c", 0x1AB);
             modelAppendages_setKazooiesUpperHalfVisibility(true);
             func_802900FC();
         } else if (sp18 & 0x20) {
-            baanim_playForDuration_once(ASSET_95_ANIM_BSSTAND_KAZOOIE_PECK, 5.5f);
+            baanim_playForDuration_onceSmooth(ASSET_95_ANIM_BSSTAND_KAZOOIE_PECK, 5.5f);
             modelAppendages_setKazooiesUpperHalfVisibility(true);
             func_802900FC();
         } else if (sp18 & 8) {

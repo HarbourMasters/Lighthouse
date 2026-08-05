@@ -44,7 +44,7 @@ void func_802A04F0(void){
 
 void bsbeefly_bs8Bunknown_init(void){
     func_802A0340();
-    baanim_playForDuration_onceSmooth(0x1df, 1.5f);
+    baanim_playForDuration_once(0x1df, 1.5f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_AIRBORN);
     if(bastick_distance() != 0.0f){
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());

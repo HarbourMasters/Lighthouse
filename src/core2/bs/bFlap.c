@@ -22,7 +22,7 @@ f32 D_8037D308;
 u8 D_8037D30C;
 
 void bsbflap_init(void) {
-    baanim_playForDuration_onceSmooth(ASSET_18_ANIM_BSBFLAP_ENTER, 0.3f);
+    baanim_playForDuration_once(ASSET_18_ANIM_BSBFLAP_ENTER, 0.3f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     if (bastick_distance() != 0.0f) {
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());

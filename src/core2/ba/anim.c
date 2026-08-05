@@ -278,7 +278,7 @@ void baanim_playForDuration_loop(enum asset_e anim_id, f32 duration){
     anctrl_start(playerAnimCtrl, "baanim.c", 0x193);
 }
 
-void baanim_playForDuration_loopStartingAt(enum asset_e anim_id, f32 duration, f32 start_position){
+void baanim_playForDuration_loopSmoothStartingAt(enum asset_e anim_id, f32 duration, f32 start_position){
     anctrl_reset(playerAnimCtrl);
     anctrl_setIndex(playerAnimCtrl, anim_id);
     anctrl_setDuration(playerAnimCtrl, duration);
@@ -287,17 +287,15 @@ void baanim_playForDuration_loopStartingAt(enum asset_e anim_id, f32 duration, f
     anctrl_start(playerAnimCtrl, "baanim.c", 0x19e);
 }
 
-void baanim_playForDuration_once(enum asset_e anim_id, f32 duration){
+void baanim_playForDuration_onceSmooth(enum asset_e anim_id, f32 duration){
     anctrl_reset(playerAnimCtrl);
-    // [port] smooth should be off, isn't in decomp
-    anctrl_setSmoothTransition(playerAnimCtrl, false);
     anctrl_setIndex(playerAnimCtrl, anim_id);
     anctrl_setDuration(playerAnimCtrl, duration);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
     anctrl_start(playerAnimCtrl, "baanim.c", 0x1a8);
 }
 
-void baanim_playForDuration_onceStartingAt(enum asset_e anim_id, f32 duration, f32 start_position){
+void baanim_playForDuration_onceSmoothStartingAt(enum asset_e anim_id, f32 duration, f32 start_position){
     anctrl_reset(playerAnimCtrl);
     anctrl_setIndex(playerAnimCtrl, anim_id);
     anctrl_setDuration(playerAnimCtrl, duration);
@@ -306,17 +304,16 @@ void baanim_playForDuration_onceStartingAt(enum asset_e anim_id, f32 duration, f
     anctrl_start(playerAnimCtrl, "baanim.c", 0x1b3);
 }
 
-void baanim_playForDuration_onceSmooth(enum asset_e anim_id, f32 duration){
+void baanim_playForDuration_once(enum asset_e anim_id, f32 duration){
     anctrl_reset(playerAnimCtrl);
-    // [port] possible decomp/src bug? smooth should be on here, and off above
-    // anctrl_setSmoothTransition(playerAnimCtrl, false);
+    anctrl_setSmoothTransition(playerAnimCtrl, false);
     anctrl_setIndex(playerAnimCtrl, anim_id);
     anctrl_setDuration(playerAnimCtrl, duration);
     anctrl_setPlaybackType(playerAnimCtrl, ANIMCTRL_ONCE);
     anctrl_start(playerAnimCtrl, "baanim.c", 0x1bd);
 }
 
-void baanim_playForDuration_onceSmoothStartingAt(enum asset_e anim_id, f32 duration, f32 start_position){
+void baanim_playForDuration_onceStartingAt(enum asset_e anim_id, f32 duration, f32 start_position){
     anctrl_reset(playerAnimCtrl);
     anctrl_setSmoothTransition(playerAnimCtrl, false);
     anctrl_setIndex(playerAnimCtrl, anim_id);

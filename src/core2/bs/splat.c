@@ -23,7 +23,7 @@ void func_802B4570(void) {
 
 void bssplat_init(void){
     s32 sp1C;
-    baanim_playForDuration_onceSmooth(ASSET_149_ANIM_BSSPLAT, 1.1f);
+    baanim_playForDuration_once(ASSET_149_ANIM_BSSPLAT, 1.1f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_LOCKED_ROTATION);
     bafalldamage_get_damage(&sp1C);
     item_adjustByDiffWithHud(ITEM_14_HEALTH, -sp1C);
@@ -60,7 +60,7 @@ void bssplat_update(void){
             sp1C = BS_2F_FALL;
 
         if(anctrl_isStopped(aCtrl)){
-            baanim_playForDuration_once(ASSET_D2_ANIM_BSSPLAT, 2.25f);
+            baanim_playForDuration_onceSmooth(ASSET_D2_ANIM_BSSPLAT, 2.25f);
             D_8037D530 = 1;
         }
         break;

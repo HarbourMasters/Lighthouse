@@ -373,7 +373,7 @@ static void __bswalrus_recoil_init(s32 damage){
     f32 sp24[3];
 
     barebound_set_active(func_80296560());
-    baanim_playForDuration_onceSmooth(ASSET_19C_ANIM_BSWALRUS_BOUNCE, 1.0f);
+    baanim_playForDuration_once(ASSET_19C_ANIM_BSWALRUS_BOUNCE, 1.0f);
     if(damage == 1)
         func_8030E58C(SFX_38_BANJO_AYE_1, 1.8f);
     else
@@ -726,7 +726,7 @@ void bswalrus_sledloseinair_end(void){
 }
 
 void bswalrus_timeout_init(void) {
-    baanim_playForDuration_once(ASSET_1A9_ANIM_BSWALRUS_LOSS, 3.2f);
+    baanim_playForDuration_onceSmooth(ASSET_1A9_ANIM_BSWALRUS_LOSS, 3.2f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_FREEZE);
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802914CC(0xD);

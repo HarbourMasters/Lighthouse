@@ -146,7 +146,7 @@ void bscroc_idle_end(void){
 }
 
 void bscroc_walk_init(void){
-    baanim_playForDuration_loopStartingAt(ASSET_E0_ANIM_BSCROC_WALK, 0.8f, 0.4f);
+    baanim_playForDuration_loopSmoothStartingAt(ASSET_E0_ANIM_BSCROC_WALK, 0.8f, 0.4f);
     code_14420_setUpdateTypes(BAANIM_UPDATE_2_SCALE_HORZ, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     baanim_setVelocityMapRanges(bsCrocMinWalkVelocity, bsCrocMaxWalkVelocity, bsCrocSlowestWalkDuration, bsCrocFastestWalkDuration);
     func_802900B4();
@@ -514,7 +514,7 @@ static void func_802ACF58(void){
 }
 
 void bscroc_bite_init(void){
-    baanim_playForDuration_loopStartingAt(ASSET_122_ANIM_BSCROC_BITE, 0.25f, 0.2f);
+    baanim_playForDuration_loopSmoothStartingAt(ASSET_122_ANIM_BSCROC_BITE, 0.25f, 0.2f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_LOCKED_ROTATION);
     func_802ACF58();
     D_8037D3F4 = 0;
@@ -563,7 +563,7 @@ void bscroc_bite_end(void){
 }
 
 void bscroc_eat_bad_init(void){
-    baanim_playForDuration_once(ASSET_123_ANIM_BSCROC_EAT_BAD, 2.41f);
+    baanim_playForDuration_onceSmooth(ASSET_123_ANIM_BSCROC_EAT_BAD, 2.41f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_target_horizontal_velocity(0.0f);
 }

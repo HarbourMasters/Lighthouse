@@ -288,7 +288,7 @@ void bsbswim_ow_init(void) {
     f32 sp24[3];
 
     barebound_set_active(func_80296560());
-    baanim_playForDuration_onceSmooth(0x1A0, 1.4f);
+    baanim_playForDuration_once(0x1A0, 1.4f);
     basfx_playOwSfx(1.0f);
     playerPosition_get(sp30);
     func_80294980(sp24);
@@ -334,7 +334,7 @@ void bsbswim_ow_end(void) {
 
 void bsSwim_dive_init(void) {
     ability_use(ABILITY_3_CAMERA_CONTROL);
-    baanim_playForDuration_once(ASSET_3C_ANIM_BSSWIM_DIVE_ENTER, 1.0f);
+    baanim_playForDuration_onceSmooth(ASSET_3C_ANIM_BSSWIM_DIVE_ENTER, 1.0f);
     func_802A7140();
     yaw_setVelocityBounded(500.0f, 5.0f);
     baphysics_set_target_velocity(0);

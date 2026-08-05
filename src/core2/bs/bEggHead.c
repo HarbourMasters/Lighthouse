@@ -15,7 +15,7 @@ u8 D_8037D2F1;
 
 /* .code */
 void bsegghead_init(void){
-    baanim_playForDuration_onceSmooth(ASSET_2A_ANIM_BSEGGHEAD, 1.0f);
+    baanim_playForDuration_once(ASSET_2A_ANIM_BSEGGHEAD, 1.0f);
     code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 1, BA_PHYSICS_LOCKED_ROTATION);
     yaw_setVelocityBounded(350.0f, 14.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
