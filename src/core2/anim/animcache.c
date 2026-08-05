@@ -81,13 +81,15 @@ void animCache_update(void){
 
 s16 animCache_getNextFree(void){
     int i;
-
-    for(i = 0; i<340; i++){
+// [port] Don't let animCache_getNew index before the array
+//  for(i = 0; i<340; i++){
+    for(i = 1; i<340; i++){
         if(!D_80379E20[i].alive){
             return i;
         }
     }
-    return -1;
+//  return -1;
+    return 0;
 }
 
 s16 animCache_getNew(void){
