@@ -31,6 +31,15 @@
 
 extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
 
+extern "C" {
+// SNS picture demo table (core2/map/exit.c, Struct_core2_C4320_0). unk2 is both
+// the demo file slot and the map exit/entry-point id used for the warp.
+typedef struct {
+    uint8_t map, unk1, exit, unk3, unk4, unk5;
+} BKSnsDemoEntry;
+extern BKSnsDemoEntry D_80371F78[3];
+}
+
 // Dialog language state — detected at boot from o2r version
 static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
 static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
@@ -118,6 +127,17 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                 SPDLOG_INFO("Loaded US v1.0 o2r");
                 // v1.0 or a v1.0-based romhack: decomp IDs are already correct.
                 break;
+        }
+
+        // Non-v1.0 ROMs keep the SNS picture demos one slot lower (0x5E, matching
+        // the PAL VER_SELECT in the decomp) and their map setups place the demo
+        // entry points at that exit id too. The compiled v1.0 value (0x5F) would
+        // load the right demo file via the alias but warp to a nonexistent exit,
+        // so retarget the table; the 2508/2511/2513 aliases cover the asset side.
+        if (remapTable) {
+            for (auto& entry : D_80371F78) {
+                entry.exit = 0x5E;
+            }
         }
 
         // Relocate the JP world-name banners to their 0x1600 aliases for a JP

@@ -222,7 +222,9 @@ void func_8034B8C0(enum map_e map_id, s32 demo_id) {
         volatileFlag_set(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE, 1);
         func_802E4A70();
     }
-    if ((demo_id == 0x5B) || (demo_id == 0x5F)) {
+    // [port] 0x5E: SNS picture demo slot on non-v1.0 bases (table retargeted in
+    // ResourceHelpers); unused leftover slot on v1.0, so always safe to accept.
+    if ((demo_id == 0x5B) || (demo_id == 0x5E) || (demo_id == 0x5F)) {
         sns_backup_items_and_unlock_all();
     }
 }
