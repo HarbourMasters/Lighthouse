@@ -368,7 +368,7 @@ void thread5_handleTask7Mesg(OSMesg arg0) {
 void thread5_handleAudioTimerEvent(void) {
     // [port] While the demo audio hold is up, skip the frame message so the
     // engine does not consume sfx cues queued for the demo's first frame.
-    if (port_audioHeld()) {
+    if (port_audioHeld() || port_audioStallHold()) {
         return;
     }
     osSendMesgPtr(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);

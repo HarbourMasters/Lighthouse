@@ -316,6 +316,7 @@ int SDL_main(int argc, char* argv[]) {
     });
     while (WindowIsRunning() || !sGameThreadDone.load()) {
         ThreadWatchdog_Beat(WATCHDOG_MAIN_LOOP);
+        port_noteMainLoopAlive();
         // Pump events every iteration: a task-starved pass must not starve
         // input and window messages.
         Ship::Context::GetRawInstance()->GetWindow()->HandleEvents();
