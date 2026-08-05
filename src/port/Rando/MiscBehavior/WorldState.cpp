@@ -180,6 +180,20 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
                         break;
                     }
                 }
+                if (ev->jiggyId == JIGGY_20_BGS_ELEVATED_WALKWAY) {
+                    if (currenLevel == LEVEL_4_BUBBLEGLOOP_SWAMP) {
+                        event->Cancelled = true;
+                        ev->result = RANDO_SAVE_CHECKS[RC_BGS_JIGGY_ELEVATED_WALKWAY].obtained;
+                        break;
+                    }
+                }
+                if (ev->jiggyId == JIGGY_25_BGS_MAZE) {
+                    if (currenLevel == LEVEL_4_BUBBLEGLOOP_SWAMP) {
+                        event->Cancelled = true;
+                        ev->result = RANDO_SAVE_CHECKS[RC_BGS_JIGGY_MAZE].obtained;
+                        break;
+                    }
+                }
 
                 event->Cancelled = true;
                 ev->result = randoSaveCheck.obtained;
