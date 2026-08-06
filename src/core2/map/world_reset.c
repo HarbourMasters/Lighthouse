@@ -34,6 +34,7 @@ void func_803216D0(enum map_e map){
     
         mapSavestate_init();
         itemscore_levelReset(D_80383300.level);
+        CALL_EVENT(OnLevelReset, D_80383300.level);
         jiggyscore_clearAllSpawned();
         levelSpecificFlags_clear();
         bsStoredState_clearTimers();

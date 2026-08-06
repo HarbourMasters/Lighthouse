@@ -69,7 +69,6 @@ struct QueuedNote {
     int32_t pos[3];
     int32_t mapId;
     int32_t noteIndex;
-    bool spawned;
 };
 
 int32_t noteCounter = 0;
@@ -78,18 +77,9 @@ std::unordered_map<int64_t, ActorMarker*> activeNoteSet;
 
 // Notes taken since entering this level: reproduces the prop "taken" bit they lost to actors.
 std::unordered_set<int64_t> collectedThisVisit;
-int32_t sVisitLevel = -1;
 
 int64_t noteKey(int32_t mapId, int32_t noteIndex) {
     return ((int64_t)mapId << 32) | (uint32_t)noteIndex;
-}
-
-// 0 for maps outside the section table; map_getLevel would deref null on those.
-int32_t levelOfMap(int32_t map) {
-    if (map <= 0 || map >= MAP_NUM_MAPS) {
-        return 0;
-    }
-    return (int32_t)map_getLevel((enum map_e)map);
 }
 
 using retention::activeSlot;
@@ -238,14 +228,9 @@ extern "C" void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t not
 // Called from gsworld_load before cube parsing; fires on every re-parse (map load, intra-
 // level warps). Resets the index counter.
 extern "C" void port_noteRetention_beginMapLoad(int32_t mapId) {
+    (void)mapId;
     noteCounter = 0;
     noteActorQueue.clear();
-    // Sub-area hops stay within the visit; only a real level change lets notes come back.
-    int32_t level = levelOfMap(mapId);
-    if (level != sVisitLevel) {
-        sVisitLevel = level;
-        collectedThisVisit.clear();
-    }
 }
 
 extern "C" void port_noteRetention_onActorsFreed(void) {
@@ -375,10 +360,10 @@ static RegisterShipInitFunc initNoteRetention(RegisterNoteRetention_Init, { CVAR
 // Always registered: the sprite-prop pickup path has no marker to record through, so notes must
 // be actors even when the enhancement isn't applying. Only the suppression below is gated.
 static void RegisterRetentionSaving_Init() {
-    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) {
-        collectedThisVisit.clear();
-        sVisitLevel = -1;
-    });
+    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { collectedThisVisit.clear(); });
+
+    // The visit's taken notes have to die with the note counter.
+    REGISTER_LISTENER(OnLevelReset, EVENT_PRIORITY_NORMAL, [](IEvent*) { collectedThisVisit.clear(); });
 
     // The cube parse rebuilds static notes every map load, so a restored copy would double them
     // on a sub-area round trip. Bundle notes have no parse to come from and must survive.
@@ -432,7 +417,6 @@ static void RegisterRetentionSaving_Init() {
         queued.pos[2] = spawnPosition[2];
         queued.mapId = mapId;
         queued.noteIndex = noteIndex;
-        queued.spawned = false;
         noteActorQueue.push_back(queued);
     });
 
@@ -441,10 +425,9 @@ static void RegisterRetentionSaving_Init() {
         if (!systemActive() || noteActorQueue.empty()) {
             return;
         }
-        for (auto& q : noteActorQueue) {
-            if (q.spawned) {
-                continue;
-            }
+        std::vector<QueuedNote> pending;
+        pending.swap(noteActorQueue);
+        for (auto& q : pending) {
             int32_t pos[3];
             pos[0] = q.pos[0];
             pos[1] = q.pos[1];
@@ -459,7 +442,6 @@ static void RegisterRetentionSaving_Init() {
                 ObjectExtension::GetInstance().Set<NoteRetentionData>(marker, NoteRetentionData(q.mapId, q.noteIndex));
                 activeNoteSet[noteKey(q.mapId, q.noteIndex)] = marker;
             }
-            q.spawned = true;
         }
     });
 
