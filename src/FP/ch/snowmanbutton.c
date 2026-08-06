@@ -92,14 +92,18 @@ void FP_func_80386CF8(Actor *this){
     }
 
     {
-        s32 bit = 1 << (this->actorTypeSpecificField - 1);
-        if(this->state == 1 && (port_puzzleStep_get(ANCHOR_PUZZLE_FP_SNOWBUTTONS) & bit)){
+        // [port] Anchor mirror
+        s32 x = (s32)this->position[0];
+        s32 y = (s32)this->position[1];
+        s32 z = (s32)this->position[2];
+
+        if(this->state == 1 && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)){
             subaddie_set_state_with_direction(this, 2, 0.01f, 1);
             actor_collisionOff(this);
             maSnowButton_decRemaining();
         }
         if(this->state != 1){
-            port_puzzleStep_orBits(ANCHOR_PUZZLE_FP_SNOWBUTTONS, bit);
+            port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
         }
     }
 
