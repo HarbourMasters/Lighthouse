@@ -92,13 +92,17 @@ bool correctChunk(const std::string& activePath, const std::string& basePath) {
         return false;
     }
 
-    // Top-align the HD rows into the k-scaled native cell; the zero-filled remainder stays transparent.
-    const int copyRows = (int)alt->Height < dstH ? (int)alt->Height : dstH;
+    // The extra row v1.1/PAL/JP added sits at the top of the cell
+    const int altH = (int)alt->Height;
+    const int dstRow0 = dstH > altH ? dstH - altH : 0;
+    const int srcRow0 = altH > dstH ? altH - dstH : 0;
+    const int copyRows = altH < dstH ? altH : dstH;
     const int rowBytes = dstW * 4;
 
     auto pixels = std::make_shared<std::vector<char>>((size_t)dstW * dstH * 4, 0);
     for (int r = 0; r < copyRows; r++) {
-        std::memcpy(pixels->data() + (size_t)r * rowBytes, alt->ImageData + (size_t)r * rowBytes, (size_t)rowBytes);
+        std::memcpy(pixels->data() + (size_t)(dstRow0 + r) * rowBytes,
+                    alt->ImageData + (size_t)(srcRow0 + r) * rowBytes, (size_t)rowBytes);
     }
 
     // Same HD pixels, but VPixelScale re-derived against the live native rows (native_rows * k == dstH).
