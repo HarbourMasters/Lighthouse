@@ -215,11 +215,19 @@ static bool isWishyWashyUnlocked() {
     return (baanim_getActiveBottlesBonusMask() & BAANIM_WISHYWASHY) != 0;
 }
 
+static bool jiggyCollectInFlight() {
+    return baflag_isTrue(BA_FLAG_7_TOUCHING_JIGGY) || bsjig_inJiggyJig((enum bs_e)bs_getState());
+}
+
 // Transformation cycling with D-pad Up/Down
 // D-pad Up: Cycle forward through transformations (Banjo -> Termite -> ... -> Bee -> [Wishy] -> Banjo)
 // D-pad Down: Cycle backward through transformations (Banjo -> [Wishy] -> Bee -> ... -> Termite -> Banjo)
 void RegisterCycleTransform_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CYCLE_TRANSFORM, 0), [](IEvent* event) {
+        if (jiggyCollectInFlight()) {
+            return;
+        }
+
         s32 currentTransform = (s32)player_getTransformation();
 
         // D-pad Up: Cycle forward through transformations
