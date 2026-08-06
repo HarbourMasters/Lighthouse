@@ -22,6 +22,7 @@ public:
     void GetRoms(std::vector<std::string>& roms);
     std::string GetRomPath();
     std::string GetRegionSlug() const;
+    bool IsRomhack() const;
     bool GenerateOTR(std::string appShortName = "");
     bool GenerateOTR(std::atomic<size_t>& assetCount, std::string appShortName = "");
     bool GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<size_t>& totalAssets, std::string appShortName = "");

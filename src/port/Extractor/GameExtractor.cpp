@@ -223,6 +223,10 @@ std::string GameExtractor::GetRegionSlug() const {
     }
 }
 
+bool GameExtractor::IsRomhack() const {
+    return !mGameData.empty() && BK64::IsRomhack(mGameData);
+}
+
 bool GameExtractor::GenerateOTR(std::string appShortName) {
     std::atomic<size_t> assetCount{ 0 };
     return GenerateOTR(assetCount, appShortName);

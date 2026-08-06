@@ -864,6 +864,15 @@ static void StartInlineRomExtraction(bool langPack) {
             return; // cancelled or failed to load
         }
         if (langPack) {
+            if (extractor->IsRomhack()) {
+                LighthouseGui::RegisterPopup("Not a Retail ROM",
+                                             "That file is a romhack, not a retail Banjo-Kazooie ROM.\n"
+                                             "\n"
+                                             "To extract it as a mod overlay instead, use\n"
+                                             "Settings -> Romhack Menu -> \"Generate Romhack from ROM\".",
+                                             "OK", "", nullptr, nullptr);
+                return;
+            }
             // Refuse a pack when we already have it as bk.o2r.
             const std::string region = extractor->GetRegionSlug();
             if (region.empty()) {
@@ -881,10 +890,19 @@ static void StartInlineRomExtraction(bool langPack) {
                 return;
             }
             // Re-extracting a region overwrites its existing pack (e.g. to refresh it after an
-            // update), so a pre-existing mods/lang/bk<region>.o2r is fine.
+            // update), so a pre-existing mods/~lang/bk<region>.o2r is fine.
             std::error_code ec;
-            std::filesystem::create_directories(Ship::Context::GetPathRelativeToAppDirectory("mods/lang"), ec);
+            std::filesystem::create_directories(Ship::Context::GetPathRelativeToAppDirectory("mods/~lang"), ec);
             extractor->SetDialogPack(true);
+        } else if (!extractor->IsRomhack()) {
+            LighthouseGui::RegisterPopup("Not a Romhack",
+                                         "That file is a retail Banjo-Kazooie ROM, not a romhack.\n"
+                                         "Extracting it here would overwrite your base game data.\n"
+                                         "\n"
+                                         "To add its dialog as another language instead, use\n"
+                                         "Settings -> Languages -> \"Add Language Pack from ROM\".",
+                                         "OK", "", nullptr, nullptr);
+            return;
         }
         BeginInlineExtraction(extractor, langPack);
     });
