@@ -21,7 +21,9 @@ bool batimer_decrement(s32 id){
     if(0.0f == s_batimer.value[id]){
         return false;
     }
-    s_batimer.value[id] = ml_max_f(0.0f, s_batimer.value[id] - time_getDelta());
+    int mult = 1;
+    CALL_EVENT(SetAnimSpeedMult, &mult, id);
+    s_batimer.value[id] = ml_max_f(0.0f, s_batimer.value[id] - (time_getDelta() * mult));
     return s_batimer.value[id] == 0.0f;
 }
 

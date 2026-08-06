@@ -99,8 +99,9 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
-
     REGISTER_EVENT(OnReset);
+    REGISTER_EVENT(SetAnimSpeedMult);
+    REGISTER_EVENT(OnActorUpdate);
 
     // Register rando events
     REGISTER_EVENT(InitRandoEvents);

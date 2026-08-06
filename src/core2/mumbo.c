@@ -220,6 +220,7 @@ void chMumbo_func_802D1B8C(Actor *this, enum transformation_e transform_id) {
 }
 
 void chMumbo_update(Actor *this) {
+    CALL_EVENT(OnActorUpdate, this);
     s32 face_buttons[6];
     f32 sp4C[3];
     bool sp48;
@@ -280,9 +281,9 @@ void chMumbo_update(Actor *this) {
 
         case 2: //L802D1F90
             if (actor_animationIsAt(this, 0.25f) != 0) {
-            sfxsource_playHighPriority(0x41);
-        }
-        actor_playAnimationOnce(this);
+                sfxsource_playHighPriority(0x41);
+            }
+            actor_playAnimationOnce(this);
             if (actor_animationIsAt(this, 0.999f)) {
                 if( !fileProgressFlag_get(FILEPROG_11_HAS_MET_MUMBO) 
                     && !volatileFlag_get(VOLATILE_FLAG_1) 
@@ -375,10 +376,6 @@ void chMumbo_update(Actor *this) {
             break;
 
         case 5: //L802D2488
-            // [port] Fast Transformation drives this state from Cheats.cpp instead.
-            if (!EventSystem_Should(VB_MUMBO_HUT_TRANSFORM_CUTSCENE, true, this)) {
-                break;
-            }
             actor_playAnimationOnce(this);
             if (actor_animationIsAt(this, 0.35f)){
                 sfxSource_func_8030E2C4(this->unk44_31);

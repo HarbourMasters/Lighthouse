@@ -247,82 +247,26 @@ void RegisterCycleTransform_Init() {
     });
 }
 
-// Copies of chMumbo_update state 5's 0.01 and 0.999 beats minus the audio; keep in step with it.
-extern "C" {
-void chMumbo_func_802D1B8C(Actor* actor, enum transformation_e transform_id);
-extern u8 D_8037DDF0; // the transformation this hut offers
-}
-
-static bool sMumboFastXformStarted = false;
-
-static bool FastTransform_startHutTransform(Actor* actor) {
-    if (actor->has_met_before || (actor->unk10_12 == 0 && (s32)player_getTransformation() != TRANSFORM_1_BANJO &&
-                                  (s32)player_getTransformation() != romhack_mumboWishwashyId())) {
-        return romhack_mumboTransform(TRANSFORM_1_BANJO);
-    }
-    if (romhack_mumboTransform(D_8037DDF0)) {
-        if (D_8037DDF0 != romhack_mumboWishwashyId()) {
-            enum file_progress_e paidFlag =
-                (enum file_progress_e)((D_8037DDF0 - TRANSFORM_2_TERMITE) + FILEPROG_90_PAID_TERMITE_COST);
-            if (fileProgressFlag_getAndSet(paidFlag, true)) {
-                actor->velocity[0] = 1.0f;
-            }
-            actor->unk38_31 = 0;
-        }
-        if (actor->unk10_12 == 1) {
-            actor->unk10_12 = 0;
-        }
-        return true;
-    }
-    return false;
-}
-
-// No has_met_before branch: those sequences are left to vanilla below.
-static void FastTransform_endHutTransform(Actor* actor) {
-    func_8028F918(0); // pops the look-at lock state 4 pushed
-    if ((s32)player_getTransformation() != TRANSFORM_1_BANJO) {
-        subaddie_set_state(actor, 3);
-        chMumbo_func_802D1B8C(actor, (enum transformation_e)D_8037DDF0);
-        return;
-    }
-    gcpausemenu_80314AC8(1);
-    subaddie_set_state(actor, 4);
-}
-
-// Fast Transformation — speeds up Mumbo transformation animation by 3x
 void RegisterFastTransform_Init() {
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), [](IEvent* event) {
-        // Check if currently transforming
+    COND_HOOK(SetAnimSpeedMult, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), [](IEvent* event) {
         if (baflag_isTrue(BA_FLAG_1B_TRANSFORMING)) {
-            // Speed up the transformation timer (timer 0 controls animation progress)
-            f32 remaining = batimer_get(0);
-            if (remaining > 0.0f) {
-                // Reduce timer by 2x remaining time per frame (3x total speed)
-                batimer_incrementBy(0, -remaining * 2.0f);
+            SetAnimSpeedMult* ev = reinterpret_cast<SetAnimSpeedMult*>(event);
+            if (ev->id == 0) {
+                *ev->mult *= 8;
             }
         }
     });
 
-    // Hut transforms ignore that timer; Mumbo's state 5 paces off his own 7.5s animation instead.
-    COND_VB_SHOULD(VB_MUMBO_HUT_TRANSFORM_CUTSCENE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), {
-        Actor* actor = va_arg(args, Actor*);
-        // T-Rex/mistake gags end in a dialog wired to a callback private to mumbo.c.
-        if (actor != nullptr && !actor->has_met_before) {
-            // Only latch once the spell has been accepted. Gags don't count as valid.
-            if (!sMumboFastXformStarted) {
-                sMumboFastXformStarted = FastTransform_startHutTransform(actor);
-            } else if (!baflag_isTrue(BA_FLAG_1B_TRANSFORMING)) {
-                // Safe to read as "the transformation ended" only because of the latch above.
-                sMumboFastXformStarted = false;
-                FastTransform_endHutTransform(actor);
-            }
-            *should = false;
+    COND_HOOK(OnActorUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), [](IEvent* event) {
+        OnActorUpdate* ev = reinterpret_cast<OnActorUpdate*>(event);
+        if (ev->actor->actor_info->actorId != ACTOR_7_MUMBO) {
+            return;
+        }
+
+        if (ev->actor->state == 4 || ev->actor->state == 5) {
+            anctrl_setDuration(ev->actor->anctrl, 7.5f / 8.0f);
         }
     });
-
-    // A map torn down mid-transform would leave the next one thinking it had already run.
-    COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0),
-              [](IEvent* event) { sMumboFastXformStarted = false; });
 }
 
 // ============================================================================

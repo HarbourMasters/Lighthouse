@@ -2,6 +2,8 @@
 
 #include <libultraship/bridge/eventsbridge.h>
 
+DEFINE_EVENT(SetAnimSpeedMult, int32_t* mult; int32_t id;)
+DEFINE_EVENT(OnActorUpdate, Actor* actor;)
 DEFINE_EVENT(OnActorDestroy, Actor* actor;)
 DEFINE_EVENT(OnPlayerDeath)
 DEFINE_EVENT(OnGameFileErase, int32_t gamenum;)

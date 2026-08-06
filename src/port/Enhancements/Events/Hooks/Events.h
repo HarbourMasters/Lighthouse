@@ -47,7 +47,6 @@ typedef enum VBehaviorID {
     // Gameplay options and cheats
     VB_DISABLE_SNACKER,
     VB_SAVE_AND_EXIT,
-    VB_MUMBO_HUT_TRANSFORM_CUTSCENE,
     VB_MUMBO_DETRANSFORM,
 
     // Rando object behavior
