@@ -38,6 +38,7 @@ void PortEnhancements_Register() {
     // Register localization events
     REGISTER_EVENT(LocalizeFileSelectPrompt);
     REGISTER_EVENT(OnFileSelectLanguageRefresh);
+    REGISTER_EVENT(OnFileSelectPortrait);
     REGISTER_EVENT(LocalizeParade);
     REGISTER_EVENT(ParadeCreditDialogId);
     REGISTER_EVENT(ResolveBoldFontSlot);

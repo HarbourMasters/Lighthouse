@@ -9,6 +9,7 @@ namespace MiscBehavior {
 
 void Init();
 void InitWorldStateBehavior();
+void InitFileSelectBehavior();
 void OnFileLoad();
 void OnFileSave();
 

@@ -281,6 +281,7 @@ void setGameInformationZoombox(s32 gamenum){
     gczoombox_setStrings(chGameSelectBottomZoombox, 2, (char **)sp20);
     gczoombox_maximize(chGameSelectBottomZoombox);
     gczoombox_resolve_minimize(chGameSelectBottomZoombox);
+    CALL_EVENT(OnFileSelectPortrait, gamenum, chGameSelectBottomZoombox);
 }
 
 void eraseGame(s32 arg0){
@@ -355,6 +356,11 @@ void gameSelect_update(Actor *this){
     // [port] Let the localization layer rebuild the info zoombox live when the
     // language changed (it gates on the language generation + the selected slot).
     CALL_EVENT(OnFileSelectLanguageRefresh, sp84, sp80);
+
+    // [port] Backstop for the swap in setGameInformationZoombox.
+    if(sp80){
+        CALL_EVENT(OnFileSelectPortrait, sp84, chGameSelectBottomZoombox);
+    }
 
     if(!this->initialized){
         __spawnQueue_add_1((GenFunction_1)spawnGameSelectProps, (uintptr_t)this->marker);

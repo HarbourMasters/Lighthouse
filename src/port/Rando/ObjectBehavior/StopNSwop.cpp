@@ -16,7 +16,7 @@ void marker_despawn(ActorMarker* marker);
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_STOP_N_SWOP].optionValue
 
 void Rando::ObjectBehavior::ModifyStopNSwopWorldBehavior(void* snsActor) {
-    if (!IS_RANDO && !OPTION_ENABLED) {
+    if (!IS_RANDO || !OPTION_ENABLED) {
         return;
     }
 

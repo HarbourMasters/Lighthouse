@@ -3,6 +3,7 @@
 #include "port/UI/Notification.h"
 
 extern "C" f32 itemPrintValues[0x2C];
+extern "C" s32 D_80385F30[0x2C];
 
 typedef struct {
     int32_t actorId;
@@ -79,10 +80,17 @@ bool failSafeTrigger = false;
 int32_t prevProgressionIndex = -1;
 std::vector<RandoCheckId> jinjoCheckIds;
 
+static void SetItemCountSilently(item_e item, int32_t value) {
+    D_80385F30[item] = value < 0 ? 0 : value;
+    if (item == ITEM_1C_MUMBO_TOKEN) {
+        D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = D_80385F30[item];
+    }
+}
+
 void UpdateSaveDataItemCounts(PlacedItemCounts itemCounts) {
-    item_adjustByDiffWithoutHud(ITEM_C_NOTE, (itemCounts.noteCount - item_getCount(ITEM_C_NOTE)));
-    item_adjustByDiffWithoutHud(ITEM_E_JIGGY, (itemCounts.jiggyCount - item_getCount(ITEM_E_JIGGY)));
-    item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, (itemCounts.mumboTokenCount - item_getCount(ITEM_1C_MUMBO_TOKEN)));
+    SetItemCountSilently(ITEM_C_NOTE, itemCounts.noteCount);
+    SetItemCountSilently(ITEM_E_JIGGY, itemCounts.jiggyCount);
+    SetItemCountSilently(ITEM_1C_MUMBO_TOKEN, itemCounts.mumboTokenCount);
 
     switch (itemCounts.mumboTokenCount) {
         case 5:
@@ -251,15 +259,15 @@ void ResetSaveData() {
         ability_setLearned((ability_e)a, false);
     }
 
-    for (int f = FILEPROG_90_PAID_TERMITE_COST; f < FILEPROG_94_PAID_BEE_COST; f++) {
+    for (int f = FILEPROG_90_PAID_TERMITE_COST; f <= FILEPROG_94_PAID_BEE_COST; f++) {
         fileProgressFlag_set((file_progress_e)f, 0);
     }
 
-    item_adjustByDiffWithoutHud(ITEM_C_NOTE, -item_getCount(ITEM_C_NOTE));
-    item_adjustByDiffWithoutHud(ITEM_E_JIGGY, -item_getCount(ITEM_26_JIGGY_TOTAL));
-    item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -item_getCount(ITEM_26_JIGGY_TOTAL));
-    item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, -item_getCount(ITEM_1C_MUMBO_TOKEN));
-    item_adjustByDiffWithoutHud(ITEM_25_MUMBO_TOKEN_TOTAL, -item_getCount(ITEM_25_MUMBO_TOKEN_TOTAL));
+    SetItemCountSilently(ITEM_C_NOTE, 0);
+    SetItemCountSilently(ITEM_E_JIGGY, 0);
+    SetItemCountSilently(ITEM_26_JIGGY_TOTAL, 0);
+    SetItemCountSilently(ITEM_1C_MUMBO_TOKEN, 0);
+    SetItemCountSilently(ITEM_25_MUMBO_TOKEN_TOTAL, 0);
 
     itemscore_noteScores_clear();
 }

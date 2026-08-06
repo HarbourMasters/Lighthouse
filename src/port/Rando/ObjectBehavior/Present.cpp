@@ -23,7 +23,7 @@ void GetPresentLevelFlag(Actor* actor, level_flags_e levelFlag) {
 }
 
 void Rando::ObjectBehavior::ModifyPresentBehavior(void* presentActor) {
-    if (!IS_RANDO && !OPTION_ENABLED) {
+    if (!IS_RANDO || !OPTION_ENABLED) {
         return;
     }
 

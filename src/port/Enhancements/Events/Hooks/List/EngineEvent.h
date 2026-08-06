@@ -49,6 +49,7 @@ DEFINE_EVENT(ResolveSpriteHdPath, const void* chunkAddr; const char** path;);
 DEFINE_EVENT(OnFileSelectInfoBuild, int32_t gamenum; char* upper; char* lower;);
 DEFINE_EVENT(LocalizeFileSelectPrompt, int32_t promptId; void* zoombox;);
 DEFINE_EVENT(OnFileSelectLanguageRefresh, int32_t gamenum; int32_t isSelected;);
+DEFINE_EVENT(OnFileSelectPortrait, int32_t gamenum; void* zoombox;);
 DEFINE_EVENT(LocalizeParade, int32_t paradeId; void** table; uint8_t * count;);
 DEFINE_EVENT(ParadeCreditDialogId, int32_t index; int32_t * dialogId;);
 DEFINE_EVENT(ResolveBoldFontSlot, int32_t* slot; int32_t * letterId;);

@@ -309,9 +309,11 @@ s16 *picturebox_getColorBuffer(void);
 // --- core2/jiggyscore.c ---
 u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
 int jiggyscore_isSpawned(enum jiggy_e jiggy_id);
+u32 port_jiggyscore_isCollectedRaw(enum jiggy_e jiggy_id);
 
 // --- core2/honeycombscore.c ---
 bool honeycombscore_get(enum honeycomb_e indx);
+bool port_honeycombscore_getRaw(enum honeycomb_e indx);
 
 // --- core2/map/mapspecificflags.c ---
 s32 mapSpecificFlags_get(s32 i);

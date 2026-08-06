@@ -23,8 +23,6 @@ void InitPropBehavior();
 void InitStopNSwopBehavior();
 
 void ModifySwitchBehavior(int32_t switchActorId);
-void ModifyGobiBehavior(void* gobiActor);
-void ModifyBoggyBehavior(void* boggyActor);
 void ModifyPresentBehavior(void* presentActor);
 void ModifyStopNSwopWorldBehavior(void* snsActor);
 void DespawnCollectedBundles();

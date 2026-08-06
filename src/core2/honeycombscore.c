@@ -62,7 +62,8 @@ s32 honeycombscore_get_level_total(enum level_e level_id){
 
     s2 = (level_id*2 - 1 == 0x15) ? v1 + 6 : v1 + 2;
     for(i = v1, total = 0; i<s2; i++){
-        if(honeycombscore_get(i))
+//      if(honeycombscore_get(i))
+        if(port_honeycombscore_getRaw(i))
             total++;
     }
     return total;

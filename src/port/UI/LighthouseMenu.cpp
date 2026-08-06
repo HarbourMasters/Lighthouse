@@ -6,6 +6,7 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Patches/Patches.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "port/Rando/Rando.h"
 #include <ship/window/gui/GuiMenuBar.h>
 #include <ship/window/gui/GuiElement.h>
 #include <variant>
@@ -214,6 +215,9 @@ void LighthouseMenu::InitElement() {
             "Not available during the character parade." } },
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
+        { DISABLE_FOR_RANDO,
+          { [](disabledInfo& info) -> bool { return IS_RANDO || CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0); },
+            "Not available with the randomizer" } },
         { FORCED_ON_FOR_ANCHOR_CONNECTED,
           { [](disabledInfo& info) -> bool {
                Anchor* anchor = Anchor::GetInstance();

@@ -446,6 +446,9 @@ void LighthouseMenu::AddMenuEnhancements() {
             if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
             }
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_RANDO).active) {
+                info.activeDisables.push_back(DISABLE_FOR_RANDO);
+            }
         })
         .Options(CheckboxOptions().Tooltip(
             "Start in the Lair with all basic moves and the six empty honeycombs collected."));

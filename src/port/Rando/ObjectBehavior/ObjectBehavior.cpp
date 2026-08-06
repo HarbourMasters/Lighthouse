@@ -528,19 +528,6 @@ void Rando::ObjectBehavior::Init() {
         OnActorTick* ev = (OnActorTick*)event;
 
         switch (ev->actor->actor_info->actorId) {
-            case ACTOR_12E_GOBI_1:
-            case ACTOR_12F_GOBI_ROPE:
-            case ACTOR_130_GOBI_ROCK:
-            case ACTOR_131_GOBI_2:
-            case ACTOR_135_GOBI_3:
-                Rando::ObjectBehavior::ModifyGobiBehavior(ev->actor);
-                break;
-            case ACTOR_160_BOGGY_1:
-            case ACTOR_181_SCARF_SLED:
-            case ACTOR_C8_BOGGY_2:
-            case 0x33D: // Actor Boggy 3
-                Rando::ObjectBehavior::ModifyBoggyBehavior(ev->actor);
-                break;
             case ACTOR_14E_BGS_ELEVATED_WALKWAY_SWITCH:
             case ACTOR_1FB_BGS_MAZE_SWITCH:
                 Rando::ObjectBehavior::ModifySwitchBehavior(ev->actor->actor_info->actorId);

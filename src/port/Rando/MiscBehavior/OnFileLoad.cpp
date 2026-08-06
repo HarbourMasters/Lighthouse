@@ -39,7 +39,6 @@ void Rando::MiscBehavior::OnFileLoad() {
                 Rando::Logic::GenerateShufflePool(saveData);
                 Rando::Logic::GrantStartingLoadout();
                 Rando::Logic::GrantFileProgressFlags();
-                Rando::Logic::GrantSpiralMountainChecks();
                 std::string spoilerName = std::to_string(saveData->shipSaveData.randoSaveData.seedId).c_str();
                 std::erase(spoilerName, '-');
                 spoilerName += ".json";
