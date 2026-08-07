@@ -155,8 +155,8 @@ bool EntryStamp(zip_t* z, const std::string& entryPath, uint32_t& outCrc, uint64
     return true;
 }
 
-size_t DropUnchangedOverrides(const std::string& packArchivePath,
-                              std::unordered_map<uint32_t, std::string>& overrides) {
+size_t DropUnchangedOverrides(const std::string& packArchivePath, std::unordered_map<uint32_t, std::string>& overrides,
+                              const std::unordered_map<uint32_t, std::vector<std::string>>& packFamilies) {
     const std::string basePath = BaseArchivePath();
     if (basePath.empty() || packArchivePath.empty()) {
         return 0;
@@ -177,11 +177,31 @@ size_t DropUnchangedOverrides(const std::string& packArchivePath,
             ++it;
             continue;
         }
-        uint32_t packCrc = 0, baseCrc = 0;
-        uint64_t packSize = 0, baseSize = 0;
         const std::string baseEntry = ResourceHelpers_GetBaseAssetPath(it->first);
-        if (baseEntry.empty() || !EntryStamp(packZip, it->second, packCrc, packSize) ||
-            !EntryStamp(baseZip, baseEntry, baseCrc, baseSize) || packCrc != baseCrc || packSize != baseSize) {
+        if (baseEntry.empty()) {
+            ++it;
+            continue;
+        }
+
+        bool unchanged = true;
+        auto family = packFamilies.find(it->first);
+        const std::vector<std::string> single = { it->second };
+        const std::vector<std::string>& entries = family != packFamilies.end() ? family->second : single;
+        for (const std::string& packEntry : entries) {
+            if (packEntry.rfind(it->second, 0) != 0) {
+                unchanged = false;
+                break;
+            }
+            const std::string baseSibling = baseEntry + packEntry.substr(it->second.size());
+            uint32_t packCrc = 0, baseCrc = 0;
+            uint64_t packSize = 0, baseSize = 0;
+            if (!EntryStamp(packZip, packEntry, packCrc, packSize) ||
+                !EntryStamp(baseZip, baseSibling, baseCrc, baseSize) || packCrc != baseCrc || packSize != baseSize) {
+                unchanged = false;
+                break;
+            }
+        }
+        if (!unchanged) {
             ++it;
             continue;
         }
@@ -316,12 +336,14 @@ void SetActiveLanguage(const std::string& name) {
         }
 
         std::unordered_map<uint32_t, std::string> packMain;
+        std::unordered_map<uint32_t, std::vector<std::string>> packFamilies;
         if (auto files = entry->source->ListFiles()) {
             for (const auto& [hash, path] : *files) {
                 uint32_t id = 0;
                 if (!AssetHexFromPath(path, id)) {
                     continue;
                 }
+                packFamilies[id].push_back(path);
                 auto it = packMain.find(id);
                 if (it == packMain.end() || path.size() < it->second.size()) {
                     packMain[id] = path;
@@ -343,7 +365,8 @@ void SetActiveLanguage(const std::string& name) {
             dialogOverride[v10Id] = path;
         }
 
-        if (const size_t dropped = DropUnchangedOverrides(entry->source->GetPath(), dialogOverride); dropped > 0) {
+        if (const size_t dropped = DropUnchangedOverrides(entry->source->GetPath(), dialogOverride, packFamilies);
+            dropped > 0) {
             SPDLOG_INFO("[Lang] '{}': {} pack asset(s) are identical to the base game and were left un-repointed", name,
                         dropped);
         }
