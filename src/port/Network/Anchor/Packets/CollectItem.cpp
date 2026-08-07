@@ -6,6 +6,7 @@
 #include "port/UI/Notification.h"
 
 #include "functions.h"
+#include "port/ShipUtils.h"
 
 static const char* const kJiggyLevelNames[10] = {
     "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp", "Freezeezy Peak",

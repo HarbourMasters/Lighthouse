@@ -147,7 +147,7 @@ void chjiggy_update(Actor *this) {
             }
             
 //          if (jiggyscore_isCollected(local->id)) {
-            if (port_jiggyscore_isCollectedRaw(local->id)) {
+            if (EventSystem_Should(VB_COLLECTABLE_ALREADY_HELD, jiggyscore_isCollected(local->id), this)) {
                 marker_despawn(this->marker);
             } else {
                 subaddie_set_state(this, JIGGY_STATE_2_IDLE);

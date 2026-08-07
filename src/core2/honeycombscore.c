@@ -53,6 +53,12 @@ s32 honeycombscore_get_level_total(enum level_e level_id){
     s32 s2;
     int i;
     s32 total;
+    s32 override_total = 0;
+
+    // [port] Listeners can supply the whole per-level tally.
+    if (!EventSystem_Should(VB_HONEYCOMBSCORE_LEVEL_TOTAL, true, level_id, &override_total)) {
+        return override_total;
+    }
 
     if(level_id <= 0 || level_id == LEVEL_6_LAIR || level_id >= 0xC)
         return 0;
@@ -62,8 +68,7 @@ s32 honeycombscore_get_level_total(enum level_e level_id){
 
     s2 = (level_id*2 - 1 == 0x15) ? v1 + 6 : v1 + 2;
     for(i = v1, total = 0; i<s2; i++){
-//      if(honeycombscore_get(i))
-        if(port_honeycombscore_getRaw(i))
+        if(honeycombscore_get(i))
             total++;
     }
     return total;

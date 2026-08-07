@@ -3,6 +3,8 @@
 #include <libultraship/libultraship.h>
 
 #include "functions.h"
+#include "port/ShipUtils.h"
+
 extern "C" {
 void chHoneycomb_netSpawnDropAt(s32 uid, s32 bundleId, f32 x, f32 y, f32 z);
 }

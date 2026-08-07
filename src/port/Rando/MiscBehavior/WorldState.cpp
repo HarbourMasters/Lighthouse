@@ -6,6 +6,7 @@
 #include "enums.h"
 
 #include "functions.h"
+#include "port/ShipUtils.h"
 
 // These read per-file save data, so they must not be evaluated before a file is selected.
 #define EMPTY_HONEYCOMB_OPTION_ENABLED \
@@ -15,25 +16,6 @@
     (selectedFileNum != DEFAULT_FILE_NUM && RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUMBO_TOKENS].optionValue)
 
 bool isPauseMenu = false;
-
-extern "C" {
-u8* jiggyscore_getPtr(void);
-u8* honeycombscore_get_ptr(void);
-
-u32 port_jiggyscore_isCollectedRaw(enum jiggy_e jiggy_id) {
-    if (jiggy_id <= 0 || jiggy_id >= 0x65) {
-        return 0;
-    }
-    return (jiggyscore_getPtr()[(jiggy_id - 1) / 8] & (1 << (jiggy_id & 7))) != 0;
-}
-
-bool port_honeycombscore_getRaw(enum honeycomb_e indx) {
-    if (indx <= 0 || indx >= 0x19) {
-        return 0;
-    }
-    return (honeycombscore_get_ptr()[(indx - 1) / 8] & (1 << (indx & 7))) != 0;
-}
-}
 
 void Rando::StaticData::ModifyRandoInfFlagState(RandoCheckId randoCheckId) {
     RandoInf randoInfFlag = RANDO_INF_UNKNOWN;
@@ -91,6 +73,70 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
         if (jiggyActor != NULL && jiggyActor->marker != NULL && jiggyActor->marker->randoCheckId != RC_UNKNOWN) {
             *should = true;
         }
+    })
+
+    COND_VB_SHOULD(VB_COLLECTABLE_ALREADY_HELD, EVENT_PRIORITY_NORMAL, true, {
+        Actor* collectable = va_arg(args, Actor*);
+
+        if (!IS_RANDO || collectable == NULL || collectable->marker == NULL) {
+            return;
+        }
+
+        RandoCheckId randoCheckId = (RandoCheckId)collectable->marker->randoCheckId;
+
+        if (randoCheckId == RC_UNKNOWN || randoCheckId >= RC_MAX) {
+            return;
+        }
+
+        *should = RANDO_SAVE_CHECKS[randoCheckId].obtained;
+    })
+
+    COND_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, true, {
+        s32 level = va_arg(args, s32);
+        s32* result = va_arg(args, s32*);
+
+        if (!IS_RANDO || !JIGGY_OPTION_ENABLED) {
+            return;
+        }
+
+        s32 total = 0;
+
+        if (level > 0 && level < 0xB) {
+            for (s32 jiggyId = (level - 1) * 10 + 1; jiggyId < level * 10 + 1; jiggyId++) {
+                if (port_jiggyscore_isCollectedRaw((jiggy_e)jiggyId)) {
+                    total++;
+                }
+            }
+        }
+
+        *result = total;
+        *should = false;
+    })
+
+    COND_VB_SHOULD(VB_HONEYCOMBSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, true, {
+        s32 level = va_arg(args, s32);
+        s32* result = va_arg(args, s32*);
+
+        if (!IS_RANDO || !EMPTY_HONEYCOMB_OPTION_ENABLED) {
+            return;
+        }
+
+        s32 total = 0;
+
+        if (level > 0 && level != LEVEL_6_LAIR && level < 0xC) {
+            s32 first = level * 2 - 1;
+            first = (level < 7) ? first : first - 2;
+            s32 end = (level * 2 - 1 == 0x15) ? first + 6 : first + 2;
+
+            for (s32 honeycombId = first; honeycombId < end; honeycombId++) {
+                if (port_honeycombscore_getRaw((honeycomb_e)honeycombId)) {
+                    total++;
+                }
+            }
+        }
+
+        *result = total;
+        *should = false;
     })
 
     REGISTER_LISTENER(OnActorSpawn, EVENT_PRIORITY_NORMAL, [](IEvent* event) {

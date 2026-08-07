@@ -98,8 +98,7 @@ s32 jiggyscore_leveltotal(s32 lvl) {
     start = (lvl - 1)*10 + 1;
     end = (lvl)*10 + 1;
     for(i = start; i < end; i++ ){
-//      if(jiggyscore_isCollected(i))
-        if(port_jiggyscore_isCollectedRaw(i))
+        if(jiggyscore_isCollected(i))
             cnt++;
     }
     return cnt;
