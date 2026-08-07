@@ -62,6 +62,10 @@ int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker);
 
 int32_t port_carriedSync_collectedCount(int32_t kind);
 
+void setCollectedBits(int32_t level, u8 bits);
+uint8_t jinjoBitFromActor(int32_t actorId);
+uint8_t collectedBits(int32_t level);
+
 #ifdef __cplusplus
 }
 

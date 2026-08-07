@@ -40,7 +40,7 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
 // notification, or re-broadcast).
 void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     RandoCheckId rc = (RandoCheckId)rcRaw;
-    if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].obtained) {
+    if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].eligible) {
         return;
     }
     if (CustomObject::CheckSpawnedIdList(rc)) {
@@ -63,7 +63,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     if (rc <= RC_UNKNOWN || rc >= RC_MAX) {
         return;
     }
-    if (RANDO_SAVE_CHECKS[rc].obtained) {
+    if (RANDO_SAVE_CHECKS[rc].eligible) {
         return;
     }
 

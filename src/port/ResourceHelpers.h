@@ -6,6 +6,7 @@
 #include <unordered_map>
 //#include "ResourceManager.h"
 #include "ship/Context.h"
+#include "ship/resource/ResourceManager.h"
 
 std::shared_ptr<Ship::IResource> GetResourceByName(const char* path);
 

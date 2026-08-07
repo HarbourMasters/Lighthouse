@@ -517,24 +517,6 @@ void Anchor::RegisterHooks() {
         anchor->SendPacket_SetCheckStatus((s32)ev->randoCheckId, (s32)ev->map);
     });
 
-    COND_HOOK(SetRandoInfFlag, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
-        auto* anchor = Anchor::GetInstance();
-        if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {
-            return;
-        }
-        auto ev = reinterpret_cast<SetRandoInfFlag*>(event);
-        if (!ev->flagState) {
-            return;
-        }
-        switch (ev->flagId) {
-            case RANDO_INF_BRIDGE_REPAIRED_DIALOG_COMPLETE:
-                anchor->SendPacket_SetFlag((u8)ANCHOR_FLAGSPACE_RANDO_INF, (s16)ev->flagId);
-                break;
-            default:
-                break;
-        }
-    });
-
     COND_HOOK(OnJiggySpawned, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         if (!anchor->IsSaveLoaded() || !anchor->roomState.syncItemsAndFlags) {

@@ -81,7 +81,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     if (IS_RANDO) {
         std::vector<u8> checks(RC_MAX, 0);
         for (s32 rc = RC_UNKNOWN + 1; rc < RC_MAX; rc++) {
-            checks[rc] = RANDO_SAVE_CHECKS[rc].obtained ? 1 : 0;
+            checks[rc] = RANDO_SAVE_CHECKS[rc].eligible ? 1 : 0;
         }
         payload["state"]["randoChecks"] = checks;
 

@@ -76,10 +76,13 @@ std::vector<std::tuple<const char*, Color_RGBA8, const char*>> defaultCheckColor
     { CVAR_NAME_ITEM_COLOR, DEFAULT_ITEM_COLOR, "Obtained Item" },
 };
 
+std::map<RandoCheckId, std::string> checkNames;
+
 Rando::StaticData::RandoLogicData reachableRegions[RR_MAX];
 Rando::StaticData::RandoLogicData reachableEvents[RA_MAX];
 Rando::StaticData::RandoLogicData reachableChecks[RC_MAX];
 
+bool isCheckTrackerInitialized = false;
 bool checkTrackerPopoutState = false;
 ImVec4 checkTrackerBG = ImVec4{ 0, 0, 0, 0.5f };
 ImVec4 collectedChecksBG = ImVec4{ 0, 0, 0, 0.5f };
@@ -100,7 +103,7 @@ std::string GetTotalCheckCount() {
     uint32_t collected = 0;
     uint32_t totalShuffled = 0;
     for (auto& entry : Rando::Logic::shuffledPool) {
-        if (entry.obtained || entry.skipped) {
+        if (entry.eligible || entry.skipped) {
             collected++;
         }
         if (entry.isShuffled) {
@@ -113,6 +116,13 @@ std::string GetTotalCheckCount() {
     return totalChecks;
 }
 
+void CreateCheckStringList() {
+    checkNames.clear();
+    for (auto& entry : Rando::Logic::shuffledPool) {
+        checkNames.insert({ entry.randoCheckId, Ship_ConvertEnumToReadableName(entry.name) });
+    }
+}
+
 void UpdateWorldCheckCount(level_e world) {
     worldCollected = 0;
     worldTotalShuffled = 0;
@@ -121,7 +131,7 @@ void UpdateWorldCheckCount(level_e world) {
         if (Rando::StaticData::Checks[entry.randoCheckId].worldId != world) {
             continue;
         }
-        if (entry.obtained || entry.skipped) {
+        if (entry.eligible || entry.skipped) {
             worldCollected++;
         }
         if (entry.isShuffled) {
@@ -165,6 +175,11 @@ void DrawCheckTrackerList() {
         return;
     }
 
+    if (!isCheckTrackerInitialized) {
+        CreateCheckStringList();
+        isCheckTrackerInitialized = true;
+    }
+
     if (CVAR_SHOW_COLLECTED_CHECKS && !CVAR_SHOW_SEPARATE_COLLECTED_CHECKS) {
         DrawCheckTrackerCount();
     }
@@ -204,7 +219,7 @@ void DrawCheckTrackerList() {
                         continue;
                     }
 
-                    if (CVAR_HIDE_COLLECTED && entry.obtained) {
+                    if (CVAR_HIDE_COLLECTED && entry.eligible) {
                         continue;
                     }
 
@@ -212,24 +227,24 @@ void DrawCheckTrackerList() {
                         continue;
                     }
 
-                    ImVec4 checkTextColor = entry.obtained ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
+                    ImVec4 checkTextColor = entry.eligible ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
                                                            : UIWidgets::ColorValues.at(UIWidgets::Colors::White);
 
-                    ImVec4 itemTextColor = entry.obtained ? VecFromRGBA8(CVAR_ITEM_COLOR)
+                    ImVec4 itemTextColor = entry.eligible ? VecFromRGBA8(CVAR_ITEM_COLOR)
                                                           : UIWidgets::ColorValues.at(UIWidgets::Colors::Indigo);
                     if (entry.skipped) {
                         checkTextColor = itemTextColor = VecFromRGBA8(CVAR_SKIPPED_COLOR);
                     }
 
-                    if (!entry.obtained && CVAR_SHOW_LOGIC) {
+                    if (!entry.eligible && CVAR_SHOW_LOGIC) {
                         checkTextColor = Rando::Logic::CanAccessCheck(entry.randoCheckId)
                                              ? UIWidgets::ColorValues.at(UIWidgets::Colors::White)
                                              : VecFromRGBA8(CVAR_LOGIC_COLOR);
                     }
 
                     ImGui::BeginGroup();
-                    ImGui::TextColored(checkTextColor, Ship_ConvertEnumToReadableName(entry.name).c_str());
-                    if (entry.obtained) {
+                    ImGui::TextColored(checkTextColor, checkNames.at(entry.randoCheckId).c_str());
+                    if (entry.eligible) {
                         ImGui::SameLine();
                         RandoItemId randoItemId = Rando::Logic::GetShuffledObject(entry.randoCheckId).randoItemId;
                         const std::string& randoItemName =

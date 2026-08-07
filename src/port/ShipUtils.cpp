@@ -323,8 +323,11 @@ std::vector<file_progress_e> worldOpenFlags = {
     FILEPROG_36_GV_OPEN, FILEPROG_37_MMM_OPEN, FILEPROG_38_RBB_OPEN, FILEPROG_39_CCW_OPEN,
 };
 
-std::vector<std::string> levelAbbreviations = {
-    "MM", "TTC", "CC", "BGS", "FP", "GL", "GV", "CCW", "RBB", "MMM", "SM",
+std::unordered_map<std::string, std::string> levelAbbreviations = {
+    { "MM", "Mumbos Mountain" },      { "TTC", "Treasure Trove Cove" }, { "CC", "Clankers Cavern" },
+    { "BGS", "Bubblegloop Swamp" },   { "FP", "Freezeezy Peak" },       { "GL", "Gruntildas Lair" },
+    { "GV", "Gobis Valley" },         { "CCW", "Click Clock Wood" },    { "RBB", "Rusty Bucket Bay" },
+    { "MMM", "Mad Monster Mansion" }, { "SM", "Spiral Mountain" },
 };
 
 json Ship_RetrieveSaveFile(int32_t filenum) {
@@ -346,9 +349,10 @@ json Ship_RetrieveSaveFile(int32_t filenum) {
     return jsonSave;
 }
 
-std::string Ship_ConvertEnumToReadableName(const std::string& input) {
+std::string Ship_ConvertEnumToReadableName(const std::string& input, bool addPrefix) {
     std::string result;
     std::string content = input;
+    std::string abbreviation = "";
 
     // Step 1: Remove "RC_" prefix if present
     const std::string prefix = "RC_";
@@ -358,9 +362,10 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input) {
 
     // Step 2: Remove level abbreviation if present
     for (auto& abbr : levelAbbreviations) {
-        std::string prefix = abbr + "_";
+        std::string prefix = abbr.first + "_";
         if (content.rfind(prefix, 0) == 0) {
             content = content.substr(prefix.size());
+            abbreviation = abbr.first;
             break;
         }
     }
@@ -377,8 +382,10 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input) {
     for (auto& w : words) {
         std::transform(w.begin(), w.end(), w.begin(), [](unsigned char c) { return std::tolower(c); });
         if (!w.empty()) {
-            if (w == "hp") {
-                w = "HP";
+            if (w == "rbb") {
+                w = "RBB";
+            } else if (w == "mmm") {
+                w = "MMM";
             } else {
                 w[0] = std::toupper(w[0]);
             }
@@ -390,6 +397,14 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input) {
         result += words[i];
         if (i < words.size() - 1) {
             result += " ";
+        }
+    }
+
+    // Step 6: Add back full prefix if enabled
+    if (addPrefix && abbreviation != "") {
+        auto it = levelAbbreviations.find(abbreviation);
+        if (it != levelAbbreviations.end()) {
+            result = it->second + " " + result;
         }
     }
 

@@ -22,12 +22,12 @@ void Rando::ObjectBehavior::ModifyGobiBehavior(void* gobiActor) {
         case ACTOR_12E_GOBI_1:
         case ACTOR_12F_GOBI_ROPE:
         case ACTOR_130_GOBI_ROCK:
-            if (RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_1].obtained) {
+            if (RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_1].eligible) {
                 marker_despawn(actor->marker);
             }
             break;
         case ACTOR_131_GOBI_2:
-            if (RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_1].obtained && !RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_2].obtained) {
+            if (RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_1].eligible && !RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_2].eligible) {
                 if (actor->state == 1) {
                     chGobi2_setState(actor, 2);
                     actor->marker->collidable = true;
@@ -41,7 +41,7 @@ void Rando::ObjectBehavior::ModifyGobiBehavior(void* gobiActor) {
             }
             break;
         case ACTOR_135_GOBI_3:
-            if (RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_2].obtained) {
+            if (RANDO_SAVE_CHECKS[RC_GV_JIGGY_GOBI_2].eligible) {
                 if (actor->state == 0) {
                     chGobi3_setState(actor, 2);
                     actor->marker->collidable = true;

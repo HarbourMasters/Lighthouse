@@ -4,6 +4,8 @@
 #include "port/Rando/Rando.h"
 #include <ship/window/gui/GuiWindow.h>
 
+extern bool isCheckTrackerInitialized;
+
 namespace Rando {
 
 namespace CheckTracker {

@@ -8,6 +8,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/Rando/Rando.h"
 
 #include "functions.h"
 extern "C" {
@@ -113,7 +114,7 @@ void emitSparkle(f32 x, f32 y, f32 z) {
     }
 }
 
-void spawnOrbit() {
+extern "C" void spawnOrbit() {
     clearOrbit();
 
     f32 banjo[3];
@@ -273,7 +274,7 @@ void RegisterJiggyCollect_Init() {
     clearOrbit();
     const bool skip = CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0);
     const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0) || sJiggyDanceForced;
-    const bool playOrbit = tooie && !skip;
+    const bool playOrbit = (tooie && !skip) || IS_RANDO;
 
     COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, { *should = false; });
 
@@ -288,4 +289,4 @@ void TooieJiggyDance_ForceEnable() {
 }
 
 static RegisterShipInitFunc initJiggyCollect(RegisterJiggyCollect_Init,
-                                             { CVAR_TOOIE_JIGGY_DANCE, CVAR_SKIP_JIGGY_DANCE });
+                                             { CVAR_TOOIE_JIGGY_DANCE, CVAR_SKIP_JIGGY_DANCE, "IS_RANDO" });

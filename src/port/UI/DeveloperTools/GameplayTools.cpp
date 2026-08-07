@@ -2,6 +2,7 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/CustomCollectible/CustomCollectible.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "port/UI/UIWidgets.hpp"
@@ -52,6 +53,7 @@ int32_t selectedSnsItem = SNS_ITEM_EGG_YELLOW;
 int32_t selectedJiggy = JIGGY_01_MM_JINJO;
 int32_t selectedHoneycomb = HONEYCOMB_1_MM_HILL;
 int32_t selectedToken = MUMBOTOKEN_01_MM_STUMP_NEAR_CONGA;
+int32_t selectedCustomCollectible = RC_BGS_BLUE_EGG_BEHIND_ENTRANCE_1;
 
 const char* mapNames[] = {
     "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",   "Freezeezy Peak",
@@ -107,7 +109,26 @@ std::map<map_e, std::pair<const char*, int32_t>> commonWarpMap = {
     { MAP_44_CCW_SUMMER, { "Click Clock Wood - Summer", 1 } },
     { MAP_45_CCW_AUTUMN, { "Click Clock Wood - Autumn", 1 } },
     { MAP_46_CCW_WINTER, { "Click Clock Wood - Winter", 1 } },
-    { MAP_8E_GL_FURNACE_FUN, { "Grunty's Furnace Fun", WARP_GL_FURNACE_FUN_2_ENTRANCE_PAD } },
+    { MAP_69_GL_MM_LOBBY, { "Gruntilda's Lair - MM Lobby", 2 } },
+    { MAP_6A_GL_TTC_AND_CC_PUZZLE, { "Gruntilda's Lair - TTC and CC Puzzle", 1 } },
+    { MAP_6B_GL_180_NOTE_DOOR, { "Gruntilda's Lair - 180 Note Door", 1 } },
+    { MAP_6C_GL_RED_CAULDRON_ROOM, { "Gruntilda's Lair - Red Cauldron Room", 1 } },
+    { MAP_6D_GL_TTC_LOBBY, { "Gruntilda's Lair - TTC Lobby", 1 } },
+    { MAP_6E_GL_GV_LOBBY, { "Gruntilda's Lair - GV Lobby", 1 } },
+    { MAP_6F_GL_FP_LOBBY, { "Gruntilda's Lair - FP Lobby", 1 } },
+    { MAP_70_GL_CC_LOBBY, { "Gruntilda's Lair - CC Lobby", 1 } },
+    { MAP_71_GL_STATUE_ROOM, { "Gruntilda's Lair - Statue Room", 1 } },
+    { MAP_72_GL_BGS_LOBBY, { "Gruntilda's Lair - BGS Lobby", 1 } },
+    { MAP_74_GL_GV_PUZZLE, { "Gruntilda's Lair - GV Puzzle", 1 } },
+    { MAP_75_GL_MMM_LOBBY, { "Gruntilda's Lair - MMM Lobby", 1 } },
+    { MAP_76_GL_640_NOTE_DOOR, { "Gruntilda's Lair - 640 Note Door", 1 } },
+    { MAP_77_GL_RBB_LOBBY, { "Gruntilda's Lair - RBB Lobby", 1 } },
+    { MAP_78_GL_RBB_AND_MMM_PUZZLE, { "Gruntilda's Lair - RBB and MMM Puzzle", 1 } },
+    { MAP_79_GL_CCW_LOBBY, { "Gruntilda's Lair - CCW Lobby", 1 } },
+    { MAP_7A_GL_CRYPT, { "Gruntilda's Lair - Crypt", 1 } },
+    { MAP_80_GL_FF_ENTRANCE, { "Gruntilda's Lair - FF Entrance", 1 } },
+    { MAP_8E_GL_FURNACE_FUN, { "Gruntilda's Lair - Furnace Fun", 1 } },
+    { MAP_93_GL_DINGPOT, { "Gruntilda's Lair - Dingpot", 0 } },
 };
 
 // clang-format off
@@ -202,7 +223,7 @@ void GameplayTools_UpdateSnsCheckboxes(StopNSwop_Item selectedSnsId) {
 }
 
 void GameplayTools_SpawnPosition() {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i <= 2; i++) {
         spawnPosition[i] = playerPosition[i] + spawnOffset[i];
     }
 }
@@ -382,6 +403,27 @@ void GameplayTools_ObjectSpawner() {
                                         actorInfoMap.at(ACTOR_25D_ICE_KEY).second);
         }
 
+        ImGui::EndTable();
+    }
+
+    ImGui::SeparatorText("Custom Collectible Testing");
+    if (ImGui::BeginTable("ObjectSpawner", 2, ImGuiTableFlags_SizingStretchSame)) {
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Spawn Custom Collectible", { .color = THEME_COLOR })) {
+            Actor* newActor = CustomCollectible::Spawn(spawnPosition, (RandoCheckId)selectedCustomCollectible);
+        }
+        ImGui::TableNextColumn();
+        std::string customCollectibleText = std::to_string(selectedCustomCollectible) + ": " +
+                                            Rando::StaticData::Checks[(RandoCheckId)selectedCustomCollectible].name;
+
+        UIWidgets::SliderInt("##customCollectibleIndex", &selectedCustomCollectible,
+                             UIWidgets::IntSliderOptions()
+                                 .Color(THEME_COLOR)
+                                 .Min(RC_UNKNOWN + 1)
+                                 .Max(RC_MAX - 1)
+                                 .DefaultValue(RC_BGS_BLUE_EGG_BEHIND_ENTRANCE_1)
+                                 .Format(customCollectibleText.c_str())
+                                 .LabelPosition(UIWidgets::LabelPositions::None));
         ImGui::EndTable();
     }
 }

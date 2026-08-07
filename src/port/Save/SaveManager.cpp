@@ -139,18 +139,18 @@ static uint32_t ClampPuzzleCount(int puzzle, uint32_t value, const char* name) {
 }
 
 void RandoSaveCheck_to_json(nlohmann::json& j, const RandoSaveCheck& randoSaveCheck) {
-    j = nlohmann::json::array({ randoSaveCheck.randoCheckId, randoSaveCheck.randoItemId, randoSaveCheck.shuffledCheckId,
-                                randoSaveCheck.randoCollectionId, randoSaveCheck.isShuffled, randoSaveCheck.obtained,
-                                randoSaveCheck.skipped });
+    j = nlohmann::json::array({ randoSaveCheck.randoCheckId, randoSaveCheck.randoItemId,
+                                randoSaveCheck.randoCollectionId, randoSaveCheck.isShuffled, randoSaveCheck.eligible,
+                                randoSaveCheck.received, randoSaveCheck.skipped });
 }
 
 RandoSaveCheck RandoSaveCheck_from_json(const nlohmann::json& j, RandoSaveCheck& randoSaveCheck) {
     j.at(0).get_to(randoSaveCheck.randoCheckId);
     j.at(1).get_to(randoSaveCheck.randoItemId);
-    j.at(2).get_to(randoSaveCheck.shuffledCheckId);
-    j.at(3).get_to(randoSaveCheck.randoCollectionId);
-    j.at(4).get_to(randoSaveCheck.isShuffled);
-    j.at(5).get_to(randoSaveCheck.obtained);
+    j.at(2).get_to(randoSaveCheck.randoCollectionId);
+    j.at(3).get_to(randoSaveCheck.isShuffled);
+    j.at(4).get_to(randoSaveCheck.eligible);
+    j.at(5).get_to(randoSaveCheck.received);
     j.at(6).get_to(randoSaveCheck.skipped);
 
     return randoSaveCheck;

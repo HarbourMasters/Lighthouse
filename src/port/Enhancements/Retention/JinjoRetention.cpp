@@ -58,12 +58,12 @@ static bool levelInRange(int32_t level) {
     return level > 0 && level < JINJO_RETENTION_LEVEL_SLOTS;
 }
 
-static u8 collectedBits(int32_t level) {
+uint8_t collectedBits(int32_t level) {
     JinjoRetentionSaveData* s = store();
     return (s != nullptr && levelInRange(level)) ? s->collected[level] : 0;
 }
 
-static void setCollectedBits(int32_t level, u8 bits) {
+void setCollectedBits(int32_t level, u8 bits) {
     JinjoRetentionSaveData* s = store();
     if (s != nullptr && levelInRange(level)) {
         s->collected[level] = bits;
@@ -87,7 +87,7 @@ static u8 jinjoBitFromMarker(int32_t markerId) {
     }
 }
 
-static u8 jinjoBitFromActor(int32_t actorId) {
+uint8_t jinjoBitFromActor(int32_t actorId) {
     switch (actorId) {
         case ACTOR_60_JINJO_BLUE:
             return 1 << 0;

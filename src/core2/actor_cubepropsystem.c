@@ -1813,7 +1813,7 @@ BKSpriteDisplayData *func_80330E54(ActorMarker *marker, BKSprite **sprite_ptr) {
         return 0;
     }
     model_cache_ptr = &modelCache[marker_getActor(marker)->modelCacheIndex];
-    if (model_cache_ptr->unk4 == 0) {
+    if (model_cache_ptr->unk4 == 00 || marker->id == MARKER_300_CUSTOM_COLLECTIBLE) {
         model_cache_ptr->unk4 = codeB3A80_getSprite(marker->modelId, &model_cache_ptr->unk8);
     }
     model_cache_ptr->unk10 = globalTimer_getTime();
@@ -2230,6 +2230,9 @@ f32 func_80331E64(ActorMarker *marker) {
 
     if (marker->modelId == 0) {
         return 0.0f;
+    }
+    if (marker->id == MARKER_300_CUSTOM_COLLECTIBLE) {
+        return 150.0f;
     }
     sp24 = func_80331D20(func_80330F50(marker));
     marker->unk38[1] = (s16) (sp24 / 2);

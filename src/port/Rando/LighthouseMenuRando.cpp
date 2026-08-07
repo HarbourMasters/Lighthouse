@@ -135,7 +135,7 @@ void LighthouseMenu::AddMenuRando() {
     AddSidebarEntry("Rando", "Shuffle Options", 2);
     path = { "Rando", "Shuffle Options", SECTION_COLUMN_1 };
 
-    AddWidget(path, "Shuffle Collectables", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Base Shuffles", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Shuffle Empty Honeycombs", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_EMPTY_HONEYCOMBS].cvar)
@@ -146,15 +146,27 @@ void LighthouseMenu::AddMenuRando() {
     AddWidget(path, "Shuffle Jinjos", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Jinjos into the Pool."));
-    AddWidget(path, "Shuffle Molehills", WIDGET_CVAR_CHECKBOX)
-        .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
-        .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
     AddWidget(path, "Shuffle Mumbo Tokens", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MUMBO_TOKENS].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Mumbo Tokens into the Pool."));
     AddWidget(path, "Shuffle Music Notes", WIDGET_CVAR_CHECKBOX)
         .CVar(Rando::StaticData::Options[RO_SHUFFLE_MUSIC_NOTES].cvar)
         .Options(CheckboxOptions().Tooltip("Shuffles Music Notes into the Pool."));
+
+    AddWidget(path, "Advanced Shuffles", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Shuffle Beehive Contents", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_BEEHIVE_HONEYCOMBS].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Contents of Beehives into the Pool."));
+    AddWidget(path, "Shuffle Blue Eggs", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_BLUE_EGGS].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Blue Eggs into the Pool."));
+    AddWidget(path, "Shuffle Extra Lives", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_EXTRA_LIVES].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles Extra Lives into the Pool."));
+    AddWidget(path, "Shuffle Molehills", WIDGET_CVAR_CHECKBOX)
+        .CVar(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar)
+        .Options(CheckboxOptions().Tooltip("Shuffles which abilities each Molehill unlocks."));
 
     path.column = SECTION_COLUMN_2;
 
@@ -255,36 +267,6 @@ void LighthouseMenu::AddMenuRando() {
             ImGui::EndTable();
         }
     });
-
-    // Rando - Junk Options
-    AddSidebarEntry("Rando", "Junk Options", 1);
-    path = { "Rando", "Junk Options", SECTION_COLUMN_1 };
-
-    AddWidget(path, "Enable Junk", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Spawn Junk For Obtained Checks", WIDGET_CVAR_CHECKBOX)
-        .CVar(Rando::StaticData::Options[RO_SPAWN_JUNK].cvar)
-        .Options(CheckboxOptions().Tooltip("Spawns a junk item in place of an object that has already been collected."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-
-    AddWidget(path, "Junk Selection", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Honeycomb Refills", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.HealthRefill"))
-        .Options(CheckboxOptions().Tooltip("Adds Health Refills to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Blue Eggs", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.BlueEggs"))
-        .Options(CheckboxOptions().Tooltip("Adds Blue Eggs to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Red Feathers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.RedFeathers"))
-        .Options(CheckboxOptions().Tooltip("Adds Red Feathers to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Gold Feathers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.GoldFeathers"))
-        .Options(CheckboxOptions().Tooltip("Adds Gold Feathers to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
 
     // Rando - Check Tracker
     path.sidebarName = "Check Tracker";

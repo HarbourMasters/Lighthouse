@@ -843,6 +843,9 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 if (plyr_hitbox_type == HITBOX_1_BEAK_BUSTER)
                     obj_collision_type = MARKER_COLLISION_FUNC_1;
                 break;
+            case MARKER_300_CUSTOM_COLLECTIBLE:
+                marker_callCollisionFunc(playerMarker, marker, plyr_collision_type);
+                break;
             }//L8028D034
             if (baiFrame_getState() == 3) {
                 plyr_collision_type = MARKER_COLLISION_FUNC_0;

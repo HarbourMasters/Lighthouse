@@ -44,6 +44,20 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR] = RandoRegion{ .regionName = "Church Interior", .mapId = MAP_1C_MMM_CHURCH,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_NORTHEAST_1,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_NORTHEAST_2,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_NORTHWEST_1,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_NORTHWEST_2,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_SOUTHEAST_1,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_SOUTHEAST_2,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_SOUTHWEST_1,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_PEW_SOUTHWEST_2,           CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_LEFT_1,     CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_LEFT_2,     CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_LEFT_3,     CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_RIGHT_1,    CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_RIGHT_2,    CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_CHURCH_ORGAN_RIGHT_3,    CAN_ATTACK),
             CHECK(RC_MMM_MUMBO_TOKEN_TOP_OF_STOOL_INSIDE_CHURCH,    CAN_USE_ABILITY(ABILITY_8_FLAP_FLIP)),
             CHECK(RC_MMM_NOTE_ORGAN_PEDALS_1,                       true),
             CHECK(RC_MMM_NOTE_ORGAN_PEDALS_2,                       true),
@@ -60,11 +74,12 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR_UPPER_ORGAN] = RandoRegion{ .regionName = "Church Organ", .mapId = MAP_1C_MMM_CHURCH,
         .checks = {
-            CHECK(RC_MMM_JIGGY_MOTZAND,         CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_1,    true),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_2,    true),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_3,    true),
-            CHECK(RC_MMM_NOTE_ORGAN_PIPES_4,    true),
+            CHECK(RC_MMM_EXTRA_LIFE_CHURCH_PIPES,   true),
+            CHECK(RC_MMM_JIGGY_MOTZAND,             CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_1,        true),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_2,        true),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_3,        true),
+            CHECK(RC_MMM_NOTE_ORGAN_PIPES_4,        true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR,          true),
@@ -74,6 +89,18 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR_RAFTERS] = RandoRegion{ .regionName = "Church Rafters", .mapId = MAP_1C_MMM_CHURCH,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_1,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_2,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_3,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_4,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_5,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_6,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_7,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_8,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_9,                 true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_10,                true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_11,                true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_RAFTERS_12,                true),
             CHECK(RC_MMM_EMPTY_HONEYCOMB_CHURCH_RAFTERS,            true),
             CHECK(RC_MMM_MUMBO_TOKEN_TOP_OF_RAFTER_INSIDE_CHURCH,   true),
         },
@@ -85,6 +112,25 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR_WINDOW] = RandoRegion{ .regionName = "Church Banjo Kazooie Window", .mapId = MAP_2B_MMM_SECRET_CHURCH_ROOM,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_1,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_2,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_3,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_4,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_5,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_6,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_7,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_8,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_9,  true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_10, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_11, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_12, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_13, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_14, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_15, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_16, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_17, true),
+            CHECK(RC_MMM_BLUE_EGG_CHURCH_WINDOW_18, true),
+            CHECK(RC_MMM_EXTRA_LIFE_CHURCH_WINDOW,  true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_CHURCH_EXTERIOR, true),
@@ -93,6 +139,27 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_ENTRANCE] = RandoRegion{ .regionName = "Mad Monster Mansion", .mapId = MAP_1B_MMM_MAD_MONSTER_MANSION,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_MANSION_AWNING_1,                     CAN_USE_ABILITY(ABILITY_5_CLIMB) || CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_MANSION_AWNING_2,                     CAN_USE_ABILITY(ABILITY_5_CLIMB) || CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_MANSION_AWNING_3,                     CAN_USE_ABILITY(ABILITY_5_CLIMB) || CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_MANSION_AWNING_4,                     CAN_USE_ABILITY(ABILITY_5_CLIMB) || CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_MAZE_1,                               true),
+            CHECK(RC_MMM_BLUE_EGG_MAZE_2,                               true),
+            CHECK(RC_MMM_BLUE_EGG_MAZE_3,                               true),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_FOUNTAIN_1,                      true),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_FOUNTAIN_2,                      true),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_FOUNTAIN_3,                      true),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_FOUNTAIN_4,                      true),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_WELL_1,                          CAN_USE_ABILITY(ABILITY_7_FEATHERY_FLAP)),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_WELL_2,                          CAN_USE_ABILITY(ABILITY_7_FEATHERY_FLAP)),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_WELL_3,                          CAN_USE_ABILITY(ABILITY_7_FEATHERY_FLAP)),
+            CHECK(RC_MMM_BLUE_EGG_NEAR_WELL_4,                          CAN_USE_ABILITY(ABILITY_7_FEATHERY_FLAP)),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_MAZE_1,               CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_MAZE_2,               CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_MAZE_3,               CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_TALL_GRASS_1,         CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_TALL_GRASS_2,         CAN_ATTACK),
+            CHECK(RC_MMM_HONEYCOMB_BEEHIVE_IN_THE_TALL_GRASS_3,         CAN_ATTACK),
             CHECK(RC_MMM_JIGGY_JINJO,                           	    CAN_COLLECT_JINJOS(LEVEL_A_MAD_MONSTER_MANSION)),
             CHECK(RC_MMM_JINJO_BLUE,                                  	CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_MMM_JINJO_GREEN,                                 	CAN_USE_ABILITY(ABILITY_5_CLIMB) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
@@ -182,6 +249,9 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_INTERIOR_BEDROOM] = RandoRegion{ .regionName = "Bedroom", .mapId = MAP_2D_MMM_BEDROOM,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_BEDROOM_1, true),
+            CHECK(RC_MMM_BLUE_EGG_BEDROOM_2, true),
+            CHECK(RC_MMM_BLUE_EGG_BEDROOM_3, true),
             CHECK(RC_MMM_JINJO_YELLOW,                  CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_MMM_MUMBO_TOKEN_INSIDE_BEDROOM,    true),
             CHECK(RC_MMM_NOTE_BEDROOM_1,                true),
@@ -196,6 +266,9 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_INTERIOR_CELLAR] = RandoRegion{ .regionName = "Cellar", .mapId = MAP_1D_MMM_CELLAR,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_CELLAR_1,                     CAN_BREAK_OBJECT(RA_BREAK_OBJECT_CELLAR_CASK)),
+            CHECK(RC_MMM_BLUE_EGG_CELLAR_2,                     CAN_BREAK_OBJECT(RA_BREAK_OBJECT_CELLAR_CASK)),
+            CHECK(RC_MMM_BLUE_EGG_CELLAR_3,                     CAN_BREAK_OBJECT(RA_BREAK_OBJECT_CELLAR_CASK)),
             CHECK(RC_MMM_JIGGY_CELLAR,                          CAN_BREAK_OBJECT(RA_BREAK_OBJECT_CELLAR_CASK)),
             CHECK(RC_MMM_JINJO_PINK,                            CAN_BREAK_OBJECT(RA_BREAK_OBJECT_CELLAR_CASK)),
             CHECK(RC_MMM_MUMBO_TOKEN_INSIDE_BARREL_IN_CELLAR,   CAN_BREAK_OBJECT(RA_BREAK_OBJECT_CELLAR_CASK)),
@@ -212,6 +285,12 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_INTERIOR_DINING_ROOM] = RandoRegion{ .regionName = "Dining Room", .mapId = MAP_26_MMM_NAPPERS_ROOM,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_1,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+            CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_2,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+            CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_3,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+            CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_4,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+            CHECK(RC_MMM_BLUE_EGG_DINING_ROOM_MANTLE_5,             CAN_USE_ABILITY(ABILITY_9_FLIGHT) && CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
+            CHECK(RC_MMM_EXTRA_LIFE_DINING_ROOM_CHANDELIER,         CAN_USE_ABILITY(ABILITY_9_FLIGHT)),
             CHECK(RC_MMM_JIGGY_MANSION_TABLE,                       CAN_USE_ABILITY(ABILITY_D_SHOCK_JUMP)),
             CHECK(RC_MMM_MUMBO_TOKEN_IN_CHIMNEY_INSIDE_DINING_ROOM, CAN_USE_ABILITY(ABILITY_12_WONDERWING)),
             CHECK(RC_MMM_NOTE_CHAIR_WEST_SIDE_1,                    true),
@@ -288,6 +367,14 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_INTERIOR_WINDOW_BOTTOM_SOUTH] = RandoRegion{ .regionName = "Bottom South Window", .mapId = MAP_28_MMM_EGG_ROOM,
         .checks = {
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_1, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_2, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_3, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_4, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_5, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_6, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_7, true),
+            CHECK(RC_MMM_BLUE_EGG_EGG_ROOM_8, true),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_ENTRANCE, true),
@@ -296,7 +383,12 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_MAD_MONSTER_MANSION_INTERIOR_WINDOW_MIDDLE_WEST] = RandoRegion{ .regionName = "Middle West Window", .mapId = MAP_2E_MMM_HONEYCOMB_ROOM,
         .checks = {
-            CHECK(RC_MMM_EMPTY_HONEYCOMB_BENEATH_THE_FLOORBOARDS, CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_HONEYCOMB_ROOM_1,                 CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_HONEYCOMB_ROOM_2,                 CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_HONEYCOMB_ROOM_3,                 CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_HONEYCOMB_ROOM_4,                 CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_BLUE_EGG_HONEYCOMB_ROOM_5,                 CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
+            CHECK(RC_MMM_EMPTY_HONEYCOMB_BENEATH_THE_FLOORBOARDS,   CAN_USE_TRANSFORMATION(TRANSFORM_3_PUMPKIN)),
         },
         .connections = {
             CONNECTION(RR_MAD_MONSTER_MANSION_ENTRANCE, true),
