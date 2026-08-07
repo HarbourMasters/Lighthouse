@@ -80,17 +80,11 @@ bool failSafeTrigger = false;
 int32_t prevProgressionIndex = -1;
 std::vector<RandoCheckId> jinjoCheckIds;
 
-static void SetItemCountSilently(item_e item, int32_t value) {
-    D_80385F30[item] = value < 0 ? 0 : value;
-    if (item == ITEM_1C_MUMBO_TOKEN) {
-        D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = D_80385F30[item];
-    }
-}
-
 void UpdateSaveDataItemCounts(PlacedItemCounts itemCounts) {
-    SetItemCountSilently(ITEM_C_NOTE, itemCounts.noteCount);
-    SetItemCountSilently(ITEM_E_JIGGY, itemCounts.jiggyCount);
-    SetItemCountSilently(ITEM_1C_MUMBO_TOKEN, itemCounts.mumboTokenCount);
+    D_80385F30[ITEM_C_NOTE] = itemCounts.noteCount;
+    D_80385F30[ITEM_E_JIGGY] = itemCounts.jiggyCount;
+    D_80385F30[ITEM_1C_MUMBO_TOKEN] = itemCounts.mumboTokenCount;
+    D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = itemCounts.mumboTokenCount;
 
     switch (itemCounts.mumboTokenCount) {
         case 5:
@@ -263,11 +257,11 @@ void ResetSaveData() {
         fileProgressFlag_set((file_progress_e)f, 0);
     }
 
-    SetItemCountSilently(ITEM_C_NOTE, 0);
-    SetItemCountSilently(ITEM_E_JIGGY, 0);
-    SetItemCountSilently(ITEM_26_JIGGY_TOTAL, 0);
-    SetItemCountSilently(ITEM_1C_MUMBO_TOKEN, 0);
-    SetItemCountSilently(ITEM_25_MUMBO_TOKEN_TOTAL, 0);
+    D_80385F30[ITEM_C_NOTE] = 0;
+    D_80385F30[ITEM_E_JIGGY] = 0;
+    D_80385F30[ITEM_26_JIGGY_TOTAL] = 0;
+    D_80385F30[ITEM_1C_MUMBO_TOKEN] = 0;
+    D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = 0;
 
     itemscore_noteScores_clear();
 }
