@@ -169,6 +169,21 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                     sEmptyAssetSlots.insert(v10Id);
                 }
             }
+
+            // v1.0 demo ids that the table doesn't carry are the zero-payload slots of
+            // the demo section. Alias them down 0x100 like the rest of the demo block.
+            for (uint32_t v10Id = 0x9A3; v10Id <= 0xA0A; v10Id++) {
+                if (remapTable->count(v10Id)) {
+                    continue;
+                }
+                const uint32_t targetId = v10Id - 0x100;
+                if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
+                    symbolMap[v10Id] = targetEntry->second;
+                } else {
+                    symbolMap.erase(v10Id);
+                    sEmptyAssetSlots.insert(v10Id);
+                }
+            }
         }
     });
 
