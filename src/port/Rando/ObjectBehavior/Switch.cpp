@@ -42,7 +42,7 @@ void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
     }
 
     // Don't play missed switch scene if the check's been obtained
-    if (Rando::Logic::GetShuffledObject(randoCheckId).obtained) {
+    if (RANDO_SAVE_CHECKS[randoCheckId].obtained) {
         return;
     }
 
