@@ -14,6 +14,7 @@
 #include <fast/resource/type/Texture.h>
 
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/GameVersion/BaseGameVersion.h"
 #include "port/Patches/Patches.h"
 #include "port/ResourceHelpers.h"
 #include "port/ShipInit.hpp"
@@ -34,6 +35,17 @@ std::string fontSheetPath(std::string resolved) {
     return resolved.empty() ? kFontBaseFallback : resolved;
 }
 
+// The same sheet under the base cartridge's language folder. HD packs file the glyphs a region
+// adds (the PAL accents, the JP kana) under the language that introduces them, matching how a
+// language pack lays its own assets out. Empty when the sheet isn't under "assets/".
+std::string langSheetPath(const std::string& sheet) {
+    const std::string prefix = "assets/";
+    if (sheet.rfind(prefix, 0) != 0) {
+        return std::string();
+    }
+    return prefix + "lang/" + Lighthouse::BaseRegionSlug() + "/" + sheet.substr(prefix.size());
+}
+
 std::shared_ptr<Fast::Texture> loadTex(const std::string& path, bool loadExact) {
     return std::static_pointer_cast<Fast::Texture>(
         Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(path, loadExact));
@@ -42,17 +54,22 @@ std::shared_ptr<Fast::Texture> loadTex(const std::string& path, bool loadExact) 
 // HD art for one chunk: the active sheet's own alt when the pack ships one, else the base game's
 // alt for the same slot. Null when neither has art for it.
 std::shared_ptr<Fast::Texture> loadHdChunk(const std::string& activePath, const std::string& basePath,
-                                           const Fast::Texture* nativeCell, bool& fromBaseSheet) {
-    fromBaseSheet = false;
+                                           const Fast::Texture* nativeCell, bool& fromOtherSheet) {
+    fromOtherSheet = false;
     auto alt = loadTex(activePath, false);
     if (alt != nullptr && alt.get() != nativeCell) {
         return alt;
     }
-    if (basePath == activePath) {
+    if (basePath != activePath) {
+        fromOtherSheet = true;
+        return loadTex(Ship::IResource::gAltAssetPrefix + basePath, true);
+    }
+    const std::string langPath = langSheetPath(activePath);
+    if (langPath.empty() || langPath == activePath) {
         return nullptr;
     }
-    fromBaseSheet = true;
-    return loadTex(Ship::IResource::gAltAssetPrefix + basePath, true);
+    fromOtherSheet = true;
+    return loadTex(Ship::IResource::gAltAssetPrefix + langPath, true);
 }
 
 // Build a corrected alt for one chunk and cache it under "alt/<activePath>". Returns false when
@@ -62,8 +79,8 @@ bool correctChunk(const std::string& activePath, const std::string& basePath) {
     if (base == nullptr || base->Width <= 0 || base->Height <= 0) {
         return false;
     }
-    bool fromBaseSheet = false;
-    auto alt = loadHdChunk(activePath, basePath, base.get(), fromBaseSheet);
+    bool fromOtherSheet = false;
+    auto alt = loadHdChunk(activePath, basePath, base.get(), fromOtherSheet);
     if (alt == nullptr || alt->ImageData == nullptr) {
         return false;
     }
@@ -86,9 +103,9 @@ bool correctChunk(const std::string& activePath, const std::string& basePath) {
 
     const int dstW = nativeW * k;
     const int dstH = nativeH * k;
-    // Matching heights mean no drift to correct. Art borrowed from the base sheet still has to be
+    // Matching heights mean no drift to correct. Art borrowed from another sheet still has to be
     // re-cached, though: nothing is reachable at the active path until we put it there.
-    if (dstH == (int)alt->Height && !fromBaseSheet) {
+    if (dstH == (int)alt->Height && !fromOtherSheet) {
         return false;
     }
 
