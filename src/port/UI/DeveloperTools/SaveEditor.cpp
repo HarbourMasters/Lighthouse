@@ -144,7 +144,7 @@ void SaveEditor_DrawUnlocks() {
             ImGui::TableNextColumn();
 
             ImGui::SeparatorText("World Unlocks");
-            for (int i = FILEPROG_31_MM_OPEN; i < FILEPROG_39_CCW_OPEN; i++) {
+            for (int i = FILEPROG_31_MM_OPEN; i <= FILEPROG_39_CCW_OPEN; i++) {
                 ImGui::PushID(i);
                 bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
                 std::string worldName = "Unlock " + worldNameList[progressToLevelMap.at(i) - 1];
