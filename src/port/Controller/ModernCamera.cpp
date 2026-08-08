@@ -68,7 +68,7 @@ namespace {
 
 bool ModernSchemeActive() {
     return CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO) == CONTROL_SCHEME_MODERN &&
-           !port_freeLook_isEnabled();
+           !port_freeLook_isEnabled() && port_rightStickIsMapped();
 }
 
 constexpr int kClimbCamState = 0x10;
@@ -269,7 +269,7 @@ extern "C" int port_camera_suppressVanillaZoom(void) {
     }
     int scheme = CVarGetInteger(CVAR_SETTING("Controls.Scheme"), CONTROL_SCHEME_RETRO);
     if (scheme == CONTROL_SCHEME_MODERN) {
-        return 1;
+        return port_rightStickIsMapped();
     }
     if (scheme == CONTROL_SCHEME_POCKET && bs_getState() == BS_7_CROUCH) {
         return 1;

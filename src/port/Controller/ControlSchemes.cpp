@@ -112,6 +112,11 @@ int CountActiveMappings(const std::shared_ptr<Controller>& controller, CONTROLLE
     return active;
 }
 
+bool RightStickIsMapped(const std::shared_ptr<Controller>& controller) {
+    auto stick = controller->GetRightStick();
+    return stick != nullptr && stick->HasMappingsForPhysicalDeviceType(Ship::SDLGamepad);
+}
+
 // Splits a C-button's mappings into the two kinds the shaping pass cares about.
 void CollectCButtonSources(const std::shared_ptr<Controller>& controller, CONTROLLERBUTTONS_T bitmask,
                            uint16_t& axisMask, uint16_t& otherHeld) {
@@ -130,6 +135,14 @@ void CollectCButtonSources(const std::shared_ptr<Controller>& controller, CONTRO
 }
 
 } // namespace
+
+extern "C" int port_rightStickIsMapped(void) {
+    auto controller = GetPort0Controller();
+    if (controller == nullptr) {
+        return 0;
+    }
+    return RightStickIsMapped(controller) ? 1 : 0;
+}
 
 void ControlSchemes_Apply(int scheme) {
     auto controller = GetPort0Controller();
@@ -257,9 +270,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
     const bool eggPooping = (bs_getState() == BS_A_EGG_ASS);
 
     // Pocket takes its tip-toe / Talon Trot gesture from R and its crouch from
-    // Z, so both follow whatever the player has bound. Sample them here, before
-    // the blocks below start injecting synthetic R and Z bits, and consume R -
-    // in Pocket that button is the gesture channel, not the camera recenter.
+    // Z, so both follow whatever the player has bound.
     bool pocketGesture = false;
     bool pocketCrouch = false;
     if (pocket) {
@@ -278,23 +289,30 @@ extern "C" void port_shapeControllerInput(void* contPad) {
         sJigsawPodiumTTL--;
     }
 
+    const bool stickCamera = RightStickIsMapped(controller);
+
     if (modern) {
-        if (!crouched && !eggPooping && !onJigsawPodium) {
+        if (!crouched && !eggPooping && !onJigsawPodium && stickCamera) {
             pad->button &= ~BTN_CDOWN;
         }
 
         const s32 mode = getGameMode();
         const bool picturePuzzle = (mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE);
-        if (!picturePuzzle) {
+        if (!picturePuzzle && stickCamera) {
+            uint16_t axisMask = 0;
+            uint16_t otherHeld = 0;
+            CollectCButtonSources(controller, BTN_CLEFT, axisMask, otherHeld);
+            CollectCButtonSources(controller, BTN_CRIGHT, axisMask, otherHeld);
+
             const uint16_t stickC = pad->button & (BTN_CLEFT | BTN_CRIGHT);
-            uint16_t allow = 0;
+            uint16_t allow = otherHeld & (BTN_CLEFT | BTN_CRIGHT);
 
             // One action per push, so holding the stick cannot repeat Wonderwing.
             static bool sStickArmed = true;
             if (stickC == 0) {
                 sStickArmed = true;
             } else if (crouched && (stickC & BTN_CRIGHT) && arx >= ary && sStickArmed) {
-                allow = BTN_CRIGHT;
+                allow |= BTN_CRIGHT;
                 sStickArmed = false;
             }
             pad->button = (pad->button & ~(BTN_CLEFT | BTN_CRIGHT)) | allow;
@@ -325,7 +343,7 @@ extern "C" void port_shapeControllerInput(void* contPad) {
             pad->button &= ~(stickBits & clearMask);
             sLatchDir = 0;
             sLatchTTL = 0;
-        } else if (axisMask != 0) {
+        } else if (axisMask != 0 && stickCamera) {
             pad->button &= ~clearMask;
 
             if (arx * arx + ary * ary > 24 * 24) {
@@ -338,7 +356,9 @@ extern "C" void port_shapeControllerInput(void* contPad) {
 
                 if (dir & axisMask) {
                     if (dir != sLatchDir) {
-                        if (sLatchTTL <= 0) {
+                        if (sLatchTTL > 0) {
+                            sLatchTTL--;
+                        } else {
                             sLatchDir = dir;
                             sLatchTTL = 6;
                         }
@@ -356,11 +376,8 @@ extern "C" void port_shapeControllerInput(void* contPad) {
                     }
                 }
             } else {
-                if (sLatchTTL > 0) {
-                    sLatchTTL--;
-                } else {
-                    sLatchDir = 0;
-                }
+                sLatchDir = 0;
+                sLatchTTL = 0;
             }
         }
     }
