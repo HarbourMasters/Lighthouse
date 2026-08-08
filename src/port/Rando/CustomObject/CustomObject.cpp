@@ -71,7 +71,7 @@ bool shouldRemoveEX = false;
 std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
     { ACTOR_2D_MUMBO_TOKEN,     { chMumboToken,       ACTOR_FLAG_UNKNOWN_6 } },
     { ACTOR_46_JIGGY,           { chJiggy,          ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_47_EMPTY_HONEYCOMB, { chEmptyHoneycomb,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_47_EMPTY_HONEYCOMB, { chEmptyHoneycomb, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_49_EXTRA_LIFE,      { chExtraLife,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_51_MUSIC_NOTE,      { sumusicNote,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_5E_JINJO_YELLOW,    { chJinjoYellow,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
@@ -207,7 +207,7 @@ void CustomObject::FlushRandoSpawnQueue() {
         }
 
         actor_e randoActorId = Rando::StaticData::GetActorIdByRandoItemId(randoSaveCheck.randoItemId);
-        if (randoSaveCheck.obtained) {
+        if (randoSaveCheck.eligible) {
             randoActorId = GetRandomJunkActorId(randoSaveCheck);
         }
 
@@ -220,7 +220,7 @@ void CustomObject::FlushRandoSpawnQueue() {
                                                               &actorInfoMap.at(randoActorId).first,
                                                               actorInfoMap.at(randoActorId).second);
 
-        if (customActor != NULL && randoSaveCheck.obtained &&
+        if (customActor != NULL && randoSaveCheck.eligible &&
             RANDO_SAVE_OPTIONS[RO_SPAWN_JUNK].optionValue == RO_GENERIC_ON) {
             customActor->marker->unk14_21 = true;
             customActor->scale = 1.0f;
@@ -254,7 +254,7 @@ Actor* CustomObject::ShouldCreateCustomActorEX(RandoCheckId randoCheckId, int32_
         return NULL;
     }
 
-    if (randoSaveCheck.obtained) {
+    if (randoSaveCheck.eligible) {
         if (refActor != nullptr) {
             randoActorId = (actor_e)refActor->modelCacheIndex;
         } else {
@@ -347,10 +347,10 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
 
 void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
     for (auto& pool : Rando::Logic::shuffledPool) {
-        if (pool.randoCheckId == randoCheckId && !pool.obtained) {
-            pool.obtained = true;
+        if (pool.randoCheckId == randoCheckId && !pool.eligible) {
+            pool.eligible = true;
             shouldRemoveEX = true;
-            RANDO_SAVE_CHECKS[pool.randoCheckId].obtained = true;
+            RANDO_SAVE_CHECKS[pool.randoCheckId].eligible = true;
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
             if (isInit) {
                 CustomObject::ResolveCustomActorCollisionEX(randoCheckId);

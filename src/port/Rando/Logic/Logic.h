@@ -63,16 +63,11 @@ void GrantSpiralMountainChecks();
 void RefreshReachableRegions();
 
 inline bool IsCheckShuffled(RandoCheckId randoCheckId) {
-    bool isShuffled = false;
+    return RANDO_SAVE_CHECKS[randoCheckId].isShuffled;
+}
 
-    for (auto& object : shuffledPool) {
-        if (object.randoCheckId == randoCheckId) {
-            isShuffled = object.isShuffled;
-            break;
-        }
-    }
-
-    return isShuffled;
+inline bool IsCheckObtained(RandoCheckId randoCheckId) {
+    return RANDO_SAVE_CHECKS[randoCheckId].eligible;
 }
 
 inline RandoSaveCheck GetShuffledObject(RandoCheckId randoCheckId) {
@@ -93,25 +88,12 @@ inline RandoSaveCheck GetShuffledObject(RandoCheckId randoCheckId) {
     return shuffledObject;
 }
 
-inline bool IsCheckObtained(RandoCheckId randoCheckId) {
-    bool isObtained = false;
-
-    for (auto& object : shuffledPool) {
-        if (object.randoCheckId == randoCheckId) {
-            isObtained = object.obtained;
-            break;
-        }
-    }
-
-    return isObtained;
-}
-
 inline bool ShouldSpawnJinjoJiggy(int16_t levelId) {
     bool shouldSpawn = false;
     int16_t jinjoCount = 0;
 
     for (auto& location : Rando::Logic::shuffledPool) {
-        if (!location.obtained) {
+        if (!location.eligible) {
             continue;
         }
 
@@ -137,7 +119,7 @@ inline int32_t GetTotalSnsItemsCollected() {
     int32_t snsCount = 0;
 
     for (auto& location : Rando::Logic::shuffledPool) {
-        if (!location.obtained) {
+        if (!location.eligible) {
             continue;
         }
 

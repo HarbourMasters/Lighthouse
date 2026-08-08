@@ -1,5 +1,6 @@
 #include "MiscBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "src/port/ShipInit.hpp"
 #include "ship/Context.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/UI/Notification.h"
@@ -10,12 +11,17 @@
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
 #include "port/Rando/Spoiler/Spoiler.h"
-
-static bool sSeedGenerationFailed = false;
+#include "port/Rando/CheckTracker/CheckTracker.h"
 
 extern "C" {
 enum map_e gsworld_getMap(void);
 }
+
+extern "C" {
+enum map_e gsworld_getMap(void);
+}
+
+static bool sSeedGenerationFailed = false;
 
 void Rando::MiscBehavior::OnFileLoad() {
     REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
@@ -23,6 +29,8 @@ void Rando::MiscBehavior::OnFileLoad() {
         selectedFileNum = ev->fileNum;
         Rando::Logic::shuffledPool.clear();
     });
+
+    REGISTER_LISTENER(OnGameStart, EVENT_PRIORITY_NORMAL, [](IEvent* event) { ShipInit::Init("IS_RANDO"); });
 
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveLoad* ev = (OnSaveLoad*)event;

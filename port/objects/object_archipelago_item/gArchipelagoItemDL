@@ -1,0 +1,16 @@
+<DisplayList Version="0">
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoItemDL_red"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoItemDL_tri_0"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoItemDL_yellow"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoItemDL_tri_1"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoItemDL_blue"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoItemDL_tri_2"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoItemDL_orange"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoItemDL_tri_3"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoItemDL_purple"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoItemDL_tri_4"/>
+	<CallDisplayList Path="objects/object_archipelago_item/mat_gArchipelagoItemDL_green"/>
+	<CallDisplayList Path="objects/object_archipelago_item/gArchipelagoItemDL_tri_5"/>
+	<EndDisplayList/>
+</DisplayList>
+

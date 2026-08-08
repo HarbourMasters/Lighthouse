@@ -268,36 +268,6 @@ void LighthouseMenu::AddMenuRando() {
         }
     });
 
-    // Rando - Junk Options
-    AddSidebarEntry("Rando", "Junk Options", 1);
-    path = { "Rando", "Junk Options", SECTION_COLUMN_1 };
-
-    AddWidget(path, "Enable Junk", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Spawn Junk For Obtained Checks", WIDGET_CVAR_CHECKBOX)
-        .CVar(Rando::StaticData::Options[RO_SPAWN_JUNK].cvar)
-        .Options(CheckboxOptions().Tooltip("Spawns a junk item in place of an object that has already been collected."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-
-    AddWidget(path, "Junk Selection", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Honeycomb Refills", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.HealthRefill"))
-        .Options(CheckboxOptions().Tooltip("Adds Health Refills to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Blue Eggs", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.BlueEggs"))
-        .Options(CheckboxOptions().Tooltip("Adds Blue Eggs to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Red Feathers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.RedFeathers"))
-        .Options(CheckboxOptions().Tooltip("Adds Red Feathers to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Gold Feathers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.GoldFeathers"))
-        .Options(CheckboxOptions().Tooltip("Adds Gold Feathers to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-
     // Rando - Check Tracker
     path.sidebarName = "Check Tracker";
     AddSidebarEntry("Rando", path.sidebarName, 1);
