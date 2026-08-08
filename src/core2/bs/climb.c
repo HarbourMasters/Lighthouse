@@ -96,7 +96,7 @@ void bsclimb_idle_update(void){
         case 0:
             D_8037D3D4 -= time_getDelta();
             if(D_8037D3D4 <= 0.0f){
-                baanim_playForDuration_once(ASSET_B1_ANIM_BSCLIMB_IDLE_1, 2.96f);
+                baanim_playForDuration_onceSmooth(ASSET_B1_ANIM_BSCLIMB_IDLE_1, 2.96f);
                 D_8037D3D0 = 1;
             }
             break;

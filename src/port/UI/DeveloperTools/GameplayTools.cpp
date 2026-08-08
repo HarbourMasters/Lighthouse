@@ -434,9 +434,41 @@ void DrawGrantUnlocks() {
     }
 }
 
+// Index 0 traces every space; the rest are ANCHOR_FLAGSPACE_* ids offset by one.
+static const std::unordered_map<int32_t, const char*> flagTraceSpaces = {
+    { 0, "All" },          { 1, "File Progress" }, { 2, "Volatile" }, { 3, "Level Specific" },
+    { 4, "Map Specific" }, { 5, "Rando Inf" },
+};
+
+void DrawFlagTracer() {
+    ImGui::SeparatorText("Flag Tracer");
+    ImGui::TextWrapped("Logs every flag write to the console and log file, with the flag's enum name and a marker on "
+                       "each map load.");
+
+    UIWidgets::CVarCheckbox("Trace Flag Writes", CVAR_DEVELOPER_TOOLS("FlagTrace"),
+                            UIWidgets::CheckboxOptions().Color(THEME_COLOR).DefaultValue(false));
+
+    if (!CVarGetInteger(CVAR_DEVELOPER_TOOLS("FlagTrace"), 0)) {
+        return;
+    }
+
+    UIWidgets::CVarCombobox("Flag Space", CVAR_DEVELOPER_TOOLS("FlagTraceSpace"), flagTraceSpaces,
+                            UIWidgets::ComboboxOptions()
+                                .Color(THEME_COLOR)
+                                .Tooltip("Limit tracing to a single flag space.")
+                                .DefaultIndex(0));
+    UIWidgets::CVarCheckbox("Include Call Stacks", CVAR_DEVELOPER_TOOLS("FlagTraceStacks"),
+                            UIWidgets::CheckboxOptions()
+                                .Color(THEME_COLOR)
+                                .DefaultValue(false)
+                                .Tooltip("Name the function and line that set each flag."));
+}
+
 void DrawMonitoringTools() {
     level_e currentLevel = map_getLevel(gsworld_getMap());
     int32_t mapIndex = 0;
+
+    DrawFlagTracer();
 
     ImGui::SeparatorText("Map Specific Flags");
     if (ImGui::BeginChild("MapFlagChild")) {

@@ -1,5 +1,6 @@
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/Shared/HackShared.h"
 
 extern "C" {
 #include "enums.h"
@@ -11,6 +12,7 @@ void TooieJiggyDance_ForceEnable();
 
 void RegisterBubblingBogPatches() {
     TooieJiggyDance_ForceEnable();
+    HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
 
     // Bubbling Bog Brewery's swapy water is hazardous
     REGISTER_VB_SHOULD(VB_GROUND_HAZARD_ACTIVE, EVENT_PRIORITY_NORMAL, {

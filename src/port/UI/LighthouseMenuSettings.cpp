@@ -510,7 +510,8 @@ void LighthouseMenu::AddMenuSettings() {
 
     // Input Viewer
     path.sidebarName = "Input Viewer";
-    AddSidebarEntry("Settings", path.sidebarName, 3);
+    path.column = SECTION_COLUMN_1;
+    AddSidebarEntry("Settings", path.sidebarName, 2);
     AddWidget(path, "Input Viewer", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Input Viewer", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("InputViewer"))

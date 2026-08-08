@@ -48,6 +48,7 @@ typedef enum VBehaviorID {
     VB_DISABLE_SNACKER,
     VB_SAVE_AND_EXIT,
     VB_MUMBO_HUT_TRANSFORM_CUTSCENE,
+    VB_MUMBO_DETRANSFORM,
 
     // Rando object behavior
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,
@@ -90,8 +91,9 @@ typedef enum VBehaviorID {
     VB_DOOR_OPEN_CAMERA,        // Suppresses door-open camera lock when the flag came from a teammate, not us.
     VB_CC_RINGS_SNAP_WATER,     // CC rings water snap on run teardown: suppressed when a teammate finished the rings.
     VB_LEVELDOOR_REMOTE_OPEN_DONE, // Lair door remote-open "already handled" test.
-    VB_CCW_PODIUM_DESPAWN, // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
-                           // reveal it live.
+    VB_CCW_PODIUM_DESPAWN,    // Despawn the unrevealed CCW puzzle podium: suppressed so a teammate's switch press can
+                              // reveal it live.
+    VB_JIGSAW_PICTURE_RESYNC, // Rebuild a lair podium's cached piece state when the synced flags disagree with it.
 
     // Romhack port gates
     VB_JIGGYSCORE_LEVEL_TOTAL,
@@ -104,6 +106,9 @@ typedef enum VBehaviorID {
     VB_MAP_CHANGE_REQUEST,
     VB_MAP_TRANSITION_IN_INDEX,
     VB_VOID_OUT_RESPAWN_TRANSITION,
+    VB_EGG_FIRE_SFX,
+    VB_WARP_KEEPS_MUSIC,
+    VB_BUMP_REBOUNDS_PLAYER,
     VB_WARP_DISPATCH,
     VB_GAMESELECT_START_NEW_GAME,
     VB_NOTEDOOR_DRAW_NUMBER,

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <spdlog/spdlog.h>
+#include <zip.h>
 
 #include "libultraship/libultraship.h"
 #include "ship/Context.h"
@@ -136,6 +137,61 @@ bool ArchiveHasAssetHex(Ship::Archive* archive, uint32_t hex) {
         }
     }
     return false;
+}
+
+bool IsLocalizedText(const std::string& path) {
+    return path.find("/dialog/") != std::string::npos || path.find("/quizq/") != std::string::npos ||
+           path.find("/gruntyq/") != std::string::npos;
+}
+
+bool EntryStamp(zip_t* z, const std::string& entryPath, uint32_t& outCrc, uint64_t& outSize) {
+    zip_stat_t st;
+    zip_stat_init(&st);
+    if (zip_stat(z, entryPath.c_str(), 0, &st) != 0 || !(st.valid & ZIP_STAT_CRC) || !(st.valid & ZIP_STAT_SIZE)) {
+        return false;
+    }
+    outCrc = static_cast<uint32_t>(st.crc);
+    outSize = static_cast<uint64_t>(st.size);
+    return true;
+}
+
+size_t DropUnchangedOverrides(const std::string& packArchivePath,
+                              std::unordered_map<uint32_t, std::string>& overrides) {
+    const std::string basePath = BaseArchivePath();
+    if (basePath.empty() || packArchivePath.empty()) {
+        return 0;
+    }
+    zip_t* packZip = zip_open(packArchivePath.c_str(), ZIP_RDONLY, nullptr);
+    if (packZip == nullptr) {
+        return 0; // a folder-based archive, not a zip: no cheap stamp to compare
+    }
+    zip_t* baseZip = zip_open(basePath.c_str(), ZIP_RDONLY, nullptr);
+    if (baseZip == nullptr) {
+        zip_close(packZip);
+        return 0;
+    }
+
+    size_t dropped = 0;
+    for (auto it = overrides.begin(); it != overrides.end();) {
+        if (IsLocalizedText(it->second)) {
+            ++it;
+            continue;
+        }
+        uint32_t packCrc = 0, baseCrc = 0;
+        uint64_t packSize = 0, baseSize = 0;
+        const std::string baseEntry = ResourceHelpers_GetBaseAssetPath(it->first);
+        if (baseEntry.empty() || !EntryStamp(packZip, it->second, packCrc, packSize) ||
+            !EntryStamp(baseZip, baseEntry, baseCrc, baseSize) || packCrc != baseCrc || packSize != baseSize) {
+            ++it;
+            continue;
+        }
+        it = overrides.erase(it);
+        dropped++;
+    }
+
+    zip_close(baseZip);
+    zip_close(packZip);
+    return dropped;
 }
 
 const LanguageEntry* FindLanguage(const std::string& name) {
@@ -285,6 +341,11 @@ void SetActiveLanguage(const std::string& name) {
                 v10Id = packId;
             }
             dialogOverride[v10Id] = path;
+        }
+
+        if (const size_t dropped = DropUnchangedOverrides(entry->source->GetPath(), dialogOverride); dropped > 0) {
+            SPDLOG_INFO("[Lang] '{}': {} pack asset(s) are identical to the base game and were left un-repointed", name,
+                        dropped);
         }
     }
 

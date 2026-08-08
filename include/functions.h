@@ -483,10 +483,10 @@ bool baanim_isAnimID(enum asset_e anim_id);
 AnimCtrl *baanim_getAnimCtrlPtr(void);
 bool  baanim_isAt(f32);
 void baanim_playForDuration_loopSmooth(enum asset_e anim_id, f32 duration);
-void baanim_playForDuration_loopStartingAt(enum asset_e anim_id, f32, f32);
-void baanim_playForDuration_once(enum asset_e anim_id, f32 duration);
-void baanim_playForDuration_onceSmooth(enum asset_e, f32);
-void baanim_playForDuration_onceStartingAt(enum asset_e anim_id, f32 duration, f32 arg2);
+void baanim_playForDuration_loopSmoothStartingAt(enum asset_e anim_id, f32, f32);
+void baanim_playForDuration_onceSmooth(enum asset_e anim_id, f32 duration);
+void baanim_playForDuration_once(enum asset_e, f32);
+void baanim_playForDuration_onceSmoothStartingAt(enum asset_e anim_id, f32 duration, f32 arg2);
 void baanim_scaleDuration(f32);
 void baanim_setDurationRange(f32, f32);
 void baanim_setEnd(f32);
@@ -890,7 +890,7 @@ void chTumblar_copyPosition(s32 arg0, Struct68s *arg1, f32 arg2[3]);
 void chTumblar_checkMMMChecksums(void);
 
 // --- MMM/minigame_organ.c ---
-int func_80389CE8(s32 arg0, s32 arg1, s32 arg2);
+int func_80389CE8(Struct5Fs *arg0, Struct68s *arg1, s32 arg2);
 s32 func_80389BBC(void);
 void MMM_func_80389CD8();
 void code3420_handleOrganGame(s32 arg0, s32 arg1);

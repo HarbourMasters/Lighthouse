@@ -29,7 +29,7 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     { "13f4fa8a180fe5775a606486effbafeb58862d26", "CutThroatCoast", true },
 
     // The Gruntch, Santa's Village
-    { "bed22dd8ef931228fbc94f006dfc718a4d4f6f8c", "Gruntch", false },
+    { "bed22dd8ef931228fbc94f006dfc718a4d4f6f8c", "Gruntch", true },
 
     // Snow Glow Village
     { "23596c2858283b847e9e0ff44785e35110002fc7", "SnowGlowVillage", false },

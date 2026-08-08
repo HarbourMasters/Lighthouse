@@ -7,6 +7,9 @@
 // thread-shared section with osSetIntMask(OS_IM_NONE)/restore. Routing those brackets to this
 // lock protects all of them with no edits to the audio code.
 
+#include <atomic>
+#include <chrono>
+#include <cstdint>
 #include <mutex>
 
 extern "C" {
@@ -17,6 +20,26 @@ namespace {
 std::recursive_mutex gAudioLock;
 thread_local int gAudioMaskDepth = 0;
 } // namespace
+
+// Window-freeze audio hold
+namespace {
+constexpr int64_t kCushionMs = 100;
+std::atomic<int64_t> sAllowedUntilMs{ 0 };
+
+int64_t NowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
+} // namespace
+
+extern "C" void port_noteMainLoopAlive(void) {
+    sAllowedUntilMs.store(NowMs() + kCushionMs, std::memory_order_relaxed);
+}
+
+extern "C" int port_audioStallHold(void) {
+    const int64_t allowedUntil = sAllowedUntilMs.load(std::memory_order_relaxed);
+    return allowedUntil != 0 && NowMs() > allowedUntil;
+}
 
 extern "C" void port_lockAudio(void) {
     gAudioLock.lock();

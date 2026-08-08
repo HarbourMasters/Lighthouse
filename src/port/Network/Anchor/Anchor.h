@@ -279,6 +279,7 @@ public:
     void SendPacket_VileHoleState(u8 holeId, u8 holeState, u8 pieceType, u32 eaterClientId);
     void SendPacket_VileUpdate(const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 animMode);
     void OnActorDestroyed(Actor* actor);
+    void RevealSwitchHoneycomb();
     void SendToCurrentMapPlayers(nlohmann::json& payload);
     void SendToCurrentLevelPlayers(nlohmann::json& payload);
     void SweepUnoccupiedLevelState(GameMap selfMap);

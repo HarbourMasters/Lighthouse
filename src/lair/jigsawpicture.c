@@ -451,6 +451,24 @@ static void revealCcwPuzzlePodium(Actor *this) {
     }
 }
 
+static s32 jigsawPicture_placedFromFlags(Actor *this) {
+    return fileProgressFlag_getN(_puzzleFlag(this->actorTypeSpecificField - 1), _puzzleSize(this->actorTypeSpecificField - 1));
+}
+
+static void jigsawPicture_resyncFromFlags(Actor *this) {
+    ActorLocal_lair_86F0 *local = (ActorLocal_lair_86F0*)&this->local;
+    s32 placed = jigsawPicture_placedFromFlags(this);
+    s32 i;
+
+    local->unk0 = 0;
+    local->unk4 = 0;
+    for(i = 0; i < placed; i++){
+        local->unk4++;
+        local->unk0 |= (1 << getPicturePiecePosition(this));
+    }
+    setInitialJigsawPictureOpacity(this);
+}
+
 void updateJigsawPictureActor(Actor *this) {
     ActorLocal_lair_86F0 *local;
     s32 sp7C[6]; //buttons
@@ -533,6 +551,9 @@ void updateJigsawPictureActor(Actor *this) {
     controller_copyFaceButtons(0, sp7C);
     controller_copySideButtons(0, sp6C);
     func_8038EDBC(this);
+    if (local->unk4 != jigsawPicture_placedFromFlags(this) && EventSystem_Should(VB_JIGSAW_PICTURE_RESYNC, false, this)) {
+        jigsawPicture_resyncFromFlags(this);
+    }
     if (this->state != JIGSAW_PICTURE_LEAVE_PODIUM && !port_jigsawPedestal_isSelf(this->actorTypeSpecificField)) {
         jigsawPicture_setState(this, JIGSAW_PICTURE_LEAVE_PODIUM);
         return;

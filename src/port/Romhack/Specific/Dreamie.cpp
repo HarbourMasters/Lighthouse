@@ -30,8 +30,7 @@ void RegisterDreamiePatches() {
 
     REGISTER_LISTENER(OnWarpResolveDest, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnWarpResolveDest*>(event);
-        if (ev->warpId == WARP_ID_SM_EXIT_BANJOS_HOUSE || ev->warpId == WARP_ID_LAIR_ENTER_MM_LOBBY_FROM_SM_LEVEL ||
-            ev->warpId == WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL) {
+        if (ev->warpId == WARP_ID_SM_EXIT_BANJOS_HOUSE || ev->warpId == WARP_ID_LAIR_ENTER_LAIR_FROM_SM_LEVEL) {
             *ev->dest = ev->defaultDest;
         }
     });

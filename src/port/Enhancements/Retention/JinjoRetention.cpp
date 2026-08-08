@@ -156,7 +156,7 @@ extern "C" void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit,
 
 // Called from the actual pickup (__chJinjo_802CDBA8), not broad-phase collision.
 extern "C" void port_jinjoRetention_onLocalJinjoCollected(int32_t markerId) {
-    if (!applyEnabled() || !systemActive()) {
+    if (!systemActive()) {
         return;
     }
     u8 bit = jinjoBitFromMarker(markerId);
@@ -232,16 +232,6 @@ void RegisterJinjoRetention_Init() {
         event->Cancelled = true;
     });
 
-    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in.
-    COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_HIGH, CVAR_VALUE, [](IEvent* event) {
-        OnSaveFileSave* ev = (OnSaveFileSave*)event;
-        SaveData* buf = (SaveData*)ev->saveBuffer;
-        JinjoRetentionSaveData* live = store();
-        if (buf != nullptr && live != nullptr && &buf->shipSaveData.jinjoRetention != live) {
-            buf->shipSaveData.jinjoRetention = *live;
-        }
-    });
-
     COND_VB_SHOULD(VB_OVERRIDE_BUNDLE_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
         (void)va_arg(args, int);
         BundleInfo* bundleInfo = va_arg(args, BundleInfo*);
@@ -265,3 +255,17 @@ void RegisterJinjoRetention_Init() {
 }
 
 static RegisterShipInitFunc initJinjoRetention(RegisterJinjoRetention_Init, { CVAR_JINJO_RETENTION });
+
+static void RegisterRetentionSaving_Init() {
+    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in.
+    COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        OnSaveFileSave* ev = (OnSaveFileSave*)event;
+        SaveData* buf = (SaveData*)ev->saveBuffer;
+        JinjoRetentionSaveData* live = store();
+        if (buf != nullptr && live != nullptr && &buf->shipSaveData.jinjoRetention != live) {
+            buf->shipSaveData.jinjoRetention = *live;
+        }
+    });
+}
+
+static RegisterShipInitFunc initRetentionSaving(RegisterRetentionSaving_Init);

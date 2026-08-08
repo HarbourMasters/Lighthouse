@@ -25,6 +25,19 @@ extern "C" u32 osAiGetLength(void) {
     return excess > 0 ? (u32)excess * 4 : 0;
 }
 
+// How many extra synth frames the audio pump should queue this cycle to
+// rebuild the playback cushion.
+extern "C" int32_t port_audioCatchupFrames(void) {
+    constexpr int32_t kFrameSamples = 736;
+    constexpr int32_t kMaxCatchup = 3;
+    int32_t deficit = AudioPlayerGetDesiredBuffered() - AudioPlayerBuffered();
+    if (deficit < kFrameSamples) {
+        return 0;
+    }
+    int32_t frames = deficit / kFrameSamples;
+    return frames > kMaxCatchup ? kMaxCatchup : frames;
+}
+
 extern "C" s32 osAiSetNextBuffer(void* buff, size_t len) {
     static bool sPrimed = false;
     if (!sPrimed) {

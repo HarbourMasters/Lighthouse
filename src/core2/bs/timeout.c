@@ -11,7 +11,7 @@ f32 func_8029B41C(void);
 void ncbadie_func_802BF2C0(f32);
 
 void timeout_banjo_init(void){
-    baanim_playForDuration_once(ASSET_77_ANIM_BSTIMEOUT, 3.2f);
+    baanim_playForDuration_onceSmooth(ASSET_77_ANIM_BSTIMEOUT, 3.2f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802914CC(0xD);

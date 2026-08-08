@@ -514,26 +514,30 @@ Actor *chMumbo_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 }
 
 void chMumbo_detransformWarn(NodeProp *arg0, ActorMarker *arg1){
-    s32 xform;
-    xform = player_getTransformation();
-    if(xform == TRANSFORM_1_BANJO || xform  == TRANSFORM_7_WISHWASHY || sHasWarnedBanjoAboutDetransform)
-        return;
-    
-    sHasWarnedBanjoAboutDetransform++;
-    if(D_8037DDF3)
-        return;
-    
-    gcdialog_showDialog(fileProgressFlag_getAndSet(FILEPROG_83_MAGIC_GET_WEAK_TEXT, TRUE) ? VER_SELECT(ASSET_F5C_DIALOG_MUMBO_MAGIC_GET_WEAK_ABREV, 0xAC2, 0, 0) : VER_SELECT(ASSET_F5B_DIALOG_MUMBO_MAGIC_GET_WEAK_FULL, 0xAC1, 0, 0), 0xe, NULL, NULL, NULL, NULL);
+    if (EventSystem_Should(VB_MUMBO_DETRANSFORM, true)) {
+        s32 xform;
+        xform = player_getTransformation();
+        if (xform == TRANSFORM_1_BANJO || xform == TRANSFORM_7_WISHWASHY || sHasWarnedBanjoAboutDetransform)
+            return;
+
+        sHasWarnedBanjoAboutDetransform++;
+        if (D_8037DDF3)
+            return;
+
+        gcdialog_showDialog(fileProgressFlag_getAndSet(FILEPROG_83_MAGIC_GET_WEAK_TEXT, TRUE) ? VER_SELECT(ASSET_F5C_DIALOG_MUMBO_MAGIC_GET_WEAK_ABREV, 0xAC2, 0, 0) : VER_SELECT(ASSET_F5B_DIALOG_MUMBO_MAGIC_GET_WEAK_FULL, 0xAC1, 0, 0), 0xe, NULL, NULL, NULL, NULL);
+    }
 }
 
 void chMumbo_detransformTrigger(NodeProp *arg0, ActorMarker *arg1){
-    s32 xform;
-    xform = player_getTransformation();
-    if(xform == TRANSFORM_1_BANJO || xform  == TRANSFORM_7_WISHWASHY || D_8037DDF1)
-        return;
-    gcdialog_showDialog(fileProgressFlag_getAndSet(FILEPROG_84_MAGIC_ALL_GONE_TEXT, TRUE) ? VER_SELECT(ASSET_F5E_DIALOG_MUMBO_MAGIC_RUN_OUT_ABREV, 0xAC4, 0, 0): VER_SELECT(ASSET_F5D_DIALOG_MUMBO_MAGIC_RUN_OUT_FULL, 0xAC3, 0, 0), 0xe, NULL, NULL, NULL, NULL);
-    D_8037DDF1++;
-    player_transform(TRANSFORM_1_BANJO);
+    if (EventSystem_Should(VB_MUMBO_DETRANSFORM, true)) {
+        s32 xform;
+        xform = player_getTransformation();
+        if (xform == TRANSFORM_1_BANJO || xform == TRANSFORM_7_WISHWASHY || D_8037DDF1)
+            return;
+        gcdialog_showDialog(fileProgressFlag_getAndSet(FILEPROG_84_MAGIC_ALL_GONE_TEXT, TRUE) ? VER_SELECT(ASSET_F5E_DIALOG_MUMBO_MAGIC_RUN_OUT_ABREV, 0xAC4, 0, 0) : VER_SELECT(ASSET_F5D_DIALOG_MUMBO_MAGIC_RUN_OUT_FULL, 0xAC3, 0, 0), 0xe, NULL, NULL, NULL, NULL);
+        D_8037DDF1++;
+        player_transform(TRANSFORM_1_BANJO);
+    }
 }
 
 void func_802D2CB8(void){

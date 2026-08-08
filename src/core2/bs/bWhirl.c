@@ -81,7 +81,7 @@ void func_802AA58C(enum bs_e *arg0){
 }
 
 void bsbwhirl_enter_init(void){
-    baanim_playForDuration_onceSmooth(ASSET_22_ANIM_BSWHIRL_EXIT, 0.5f);
+    baanim_playForDuration_once(ASSET_22_ANIM_BSWHIRL_EXIT, 0.5f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     bastick_setZoneMax(0, 0.03f);

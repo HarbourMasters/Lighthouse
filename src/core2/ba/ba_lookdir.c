@@ -690,9 +690,13 @@ void func_8028F408(f32 arg0[3]){
 }
 
 bool func_8028F428(s32 arg0, ActorMarker *marker) {
+    s32 handled = 2;
     func_80296CB4(arg0);
     func_80296CA8(marker);
-    return bs_checkInterrupt(BS_INTR_24) == 2;
+    if (EventSystem_Should(VB_BUMP_REBOUNDS_PLAYER, true, marker)) {
+        handled = bs_checkInterrupt(BS_INTR_24);
+    }
+    return handled == 2;
 }
 
 bool func_8028F45C(s32 arg0, f32 arg1[3]) {

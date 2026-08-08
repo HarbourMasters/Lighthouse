@@ -62,7 +62,7 @@ extern uint32_t Ship_Hash(std::string str) {
     return hval;
 }
 
-extern std::string port_FormatTimeDisplay(uint32_t value) {
+extern std::string port_FormatTimeDisplay(uint64_t value) {
     uint32_t sec = value / 10;
     uint32_t hh = sec / 3600;
     uint32_t mm = (sec - hh * 3600) / 60;

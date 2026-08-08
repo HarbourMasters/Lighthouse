@@ -18,12 +18,12 @@ void func_802AD6D0(void){
 }
 
 void func_802AD6FC(void){
-    baanim_playForDuration_once(ASSET_116_ANIM_BSCROUCH_NOINPUT, 2.0f);
+    baanim_playForDuration_onceSmooth(ASSET_116_ANIM_BSCROUCH_NOINPUT, 2.0f);
     D_8037D404 = 2;
 }
 
 void func_802AD728(void){
-    baanim_playForDuration_onceStartingAt(ASSET_10C_ANIM_BSCROUCH_IDLE, 0.5f, 0.9999f);
+    baanim_playForDuration_onceSmoothStartingAt(ASSET_10C_ANIM_BSCROUCH_IDLE, 0.5f, 0.9999f);
     batimer_set(2, 2.0f);
     D_8037D404 = 1;
 }

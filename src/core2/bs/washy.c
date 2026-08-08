@@ -49,7 +49,7 @@ void bswashy_end(void){
 }
 
 void bswashy_init(void){
-    baanim_playForDuration_once(ASSET_281_ANIM_WISHYWASHY_DOOOH, 40.0f);
+    baanim_playForDuration_onceSmooth(ASSET_281_ANIM_WISHYWASHY_DOOOH, 40.0f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_NORMAL);
     func_802900B4();
     func_802B9980(0);

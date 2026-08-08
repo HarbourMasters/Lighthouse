@@ -7,9 +7,6 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "functions.h"
-extern "C" {
-void chHoneycomb_netRevealFromSwitch(void);
-}
 
 static uint32_t sMapFlagSetRemotely = 0;
 
@@ -64,7 +61,7 @@ void Anchor::HandlePacket_ScopedFlag(nlohmann::json& payload) {
             if (value && index >= 0 && index < 32) {
                 sMapFlagSetRemotely |= (1u << index);
             }
-            chHoneycomb_netRevealFromSwitch();
+            RevealSwitchHoneycomb();
         }
     }
 }

@@ -1,5 +1,6 @@
 #include "port/Network/Anchor/JigsawPedestal.h"
 #include "port/Network/Anchor/Anchor.h"
+#include "functions.h"
 #include <unordered_map>
 #include <vector>
 
@@ -36,6 +37,11 @@ int32_t port_jigsawPedestal_isSelf(int32_t id) {
 void port_jigsawPedestal_release(int32_t id) {
     Anchor* anchor = Anchor::GetInstance();
     if (!JigsawPedestal_SyncActive()) {
+        return;
+    }
+    // Keep a finished picture's claim until we leave the map: vanilla already refuses to let anyone
+    // step back on it, and holding covers a teammate whose completion bits are still in flight.
+    if (jigsawPicture_isJigsawPictureComplete(id)) {
         return;
     }
     auto it = sPedestalOwner.find(id);

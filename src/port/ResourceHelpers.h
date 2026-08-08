@@ -37,6 +37,8 @@ Mtx* ResourceMgr_LoadMtxByName(char* path);
 
 void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
                                    int dialogCount, int dialogIndex);
+std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId);
+std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId);
 #endif
 
 #endif

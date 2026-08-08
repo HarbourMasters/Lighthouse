@@ -680,7 +680,7 @@ void LighthouseMenu::AddMenuEnhancements() {
             "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
 
     path = { "Enhancements", "Trackers", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
@@ -709,7 +709,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
         .CVar("gDisplayOverlay.Background")
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
-    AddWidget(path, "Scale: %.1fx", WIDGET_CVAR_SLIDER_FLOAT)
+    AddWidget(path, "Timer Scale", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gDisplayOverlay.Scale")
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the Scale for the Display Overlay window.")

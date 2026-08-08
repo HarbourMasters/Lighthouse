@@ -10,11 +10,9 @@
 
 #include "save.h"
 #include "enums.h"
+#include "functions.h"
 
 extern "C" {
-enum map_e gsworld_getMap(void);
-u16 itemscore_timeScores_get(enum level_e level_id);
-
 extern SaveData gameFile_saveData[4];
 }
 
@@ -33,7 +31,7 @@ int64_t DisplayOverlay_GetTotalInGameTime() {
 }
 
 void DisplayOverlayWindow::Draw() {
-    if (!IsVisible() || gsworld_getMap() == MAP_91_FILE_SELECT) {
+    if (gsworld_getMap() == MAP_91_FILE_SELECT) {
         return;
     }
 

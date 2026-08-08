@@ -54,4 +54,5 @@ DEFINE_EVENT(ParadeCreditDialogId, int32_t index; int32_t * dialogId;);
 DEFINE_EVENT(ResolveBoldFontSlot, int32_t* slot; int32_t * letterId;);
 DEFINE_EVENT(OnWorldDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
+DEFINE_EVENT(OnHudDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnReset);

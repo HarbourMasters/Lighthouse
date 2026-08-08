@@ -53,6 +53,7 @@
 #include "src/port/Enhancements/Events/Hooks/Events.h"
 #include "UI/LighthouseGui.hpp"
 #include "UI/LighthouseModMenuWindow.h"
+#include "LaunchArgs.h"
 
 #ifdef __SWITCH__
 #include <port/switch/SwitchImpl.h>
@@ -362,6 +363,9 @@ void GameEngine::FinishInit() {
         std::filesystem::create_directories(patches_path);
     }
 
+    // Apply `-hack <name>` before the scan.
+    Lighthouse::ApplyLaunchHack();
+
     // Load enabled mod o2rs into the ArchiveManager.
     UpdateModFiles(true);
     LoadLooseModDirectories(patches_path);
@@ -378,6 +382,7 @@ void GameEngine::FinishInit() {
     Ship::Context::GetRawInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
     SPDLOG_INFO("Starting Lighthouse version {} (Branch: {} | Commit: {})", (char*)gBuildVersion, (char*)gGitBranch,
                 (char*)gGitCommitHash);
+    Lighthouse::FlushLaunchHackLog();
 
     context->InitFileDropMgr();
     context->InitCrashHandler();
@@ -404,6 +409,10 @@ void GameEngine::FinishInit() {
     Lighthouse::RescanLanguages();
 
     LighthouseGui::SetupGuiElements();
+    // Undo the -hack override only now: LighthouseModMenuWindow::InitElement()
+    // re-runs UpdateModFiles(true) during SetupGuiElements and would otherwise
+    // re-read the restored CVars and reload the persisted hack over the override.
+    Lighthouse::RestoreModSelectionAfterLaunchHack();
     // If UpdateModFiles(true) above quarantined conflicting romhack overlays,
     // surface that to the user now that the modal window is alive.
     MaybeShowModConflictPopup();
@@ -442,10 +451,17 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
 
     std::filesystem::path ownPath;
     std::vector<std::string> args;
-    if (argc > 1) {
-        for (int i = 1; i < argc; i++) {
-            args.push_back(argv[argc]);
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        std::string inlineValue;
+        bool takesValue = false;
+        if (Lighthouse::IsLaunchHackFlag(arg, inlineValue, takesValue)) {
+            if (takesValue) {
+                i++;
+            }
+            continue;
         }
+        args.push_back(arg);
     }
     GameExtractor extract;
     PromptSteps promptStep = PS_FILE_CHECK;
@@ -1016,6 +1032,7 @@ void GameEngine::ScaleImGui() {
 }
 
 void GameEngine::Create(int argc, char* argv[]) {
+    Lighthouse::ParseLaunchArgs(argc, argv);
     const auto instance = Instance = new GameEngine();
     // instance->AudioInit();
     // DisplayListPatch::Run();

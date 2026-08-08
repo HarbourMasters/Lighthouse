@@ -64,6 +64,23 @@ bool isCollected(int32_t slot, int32_t mapId, int32_t hash) {
     return sCollected.count({ slot, mapId, hash }) != 0;
 }
 
+// Gold and the presents feed a credit-back reconcile that rebuilds carried counts as
+// collected-minus-delivered. Respawn suppression and that credit must fire together
+// or a collected item is lost across a reload, so both are scoped to the consumer's
+// level; outside it, neither runs and the collectible simply respawns, as on hardware.
+bool kindAllowedFor(int32_t kind, int32_t mapId) {
+    switch (kind) {
+        case ANCHOR_COLLECTIBLE_GOLD:
+            return (int32_t)map_getLevel((enum map_e)mapId) == LEVEL_2_TREASURE_TROVE_COVE;
+        case ANCHOR_COLLECTIBLE_PRESENT_BLUE:
+        case ANCHOR_COLLECTIBLE_PRESENT_GREEN:
+        case ANCHOR_COLLECTIBLE_PRESENT_RED:
+            return (int32_t)map_getLevel((enum map_e)mapId) == LEVEL_5_FREEZEEZY_PEAK;
+        default:
+            return true;
+    }
+}
+
 bool inDemoPlayback() {
     return func_802E4A08() != 0;
 }
@@ -84,7 +101,7 @@ extern "C" void port_carriedSync_register(int32_t kind, void* marker, int32_t x,
     int32_t mapId = (int32_t)gsworld_getMap();
     int32_t hash = spawnHash(x, y, z);
     ObjectExtension::GetInstance().Set<CarriedSpawnData>(marker, CarriedSpawnData(mapId, hash));
-    if (!inDemoPlayback() && isCollected(slot, mapId, hash)) {
+    if (!inDemoPlayback() && kindAllowedFor(kind, mapId) && isCollected(slot, mapId, hash)) {
         *suppress = 1;
     }
 }
@@ -143,7 +160,7 @@ extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
     }
     int32_t count = 0;
     for (const auto& e : sCollected) {
-        if (e[0] == slot) {
+        if (e[0] == slot && kindAllowedFor(kind, e[1])) {
             count++;
         }
     }

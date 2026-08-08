@@ -209,6 +209,11 @@ void thread5_startGfxTask(struct ucode_task_data_s *task_data) {
 
 void thread5_handleAudioTaskMesg(OSMesg msg) {
     thread5_insertAudioTaskData(msg);
+    if ((sUnkFlag1 == UNKFLAG1_NO_TASK) && (sActiveAudioTaskDataID != sSelectedAudioTaskDataID)) {
+        struct ucode_task_data_s *ptr = sAudioTaskDataList[sActiveAudioTaskDataID];
+        sActiveAudioTaskDataID = (sActiveAudioTaskDataID + 1) % 20;
+        thread5_startAudioTask(ptr);
+    }
 }
 
 void thread5_handleF3DEXTaskMesg(OSMesg msg) {
@@ -367,7 +372,7 @@ void thread5_handleTask7Mesg(OSMesg arg0) {
 void thread5_handleAudioTimerEvent(void) {
     // [port] While the demo audio hold is up, skip the frame message so the
     // engine does not consume sfx cues queued for the demo's first frame.
-    if (port_audioHeld()) {
+    if (port_audioHeld() || port_audioStallHold()) {
         return;
     }
     osSendMesgPtr(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);

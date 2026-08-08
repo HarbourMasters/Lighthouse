@@ -12,7 +12,7 @@ u8 D_8037D2E1;
 
 /* .code */
 void bseggass_init(void){
-    baanim_playForDuration_onceSmooth(ASSET_2B_ANIM_BSEGGASS, 1.0f);
+    baanim_playForDuration_once(ASSET_2B_ANIM_BSEGGASS, 1.0f);
     code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 1, BA_PHYSICS_LOCKED_ROTATION);
     yaw_setVelocityBounded(350.0f, 14.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
@@ -40,7 +40,10 @@ void bseggass_update(void) {
     }
     if (has_eggs) {
         if (anctrl_isAt(plyr_mvmt, 0.3837f)) {
-            func_8030E760(SFX_3E_POOP_NOISE, 1.4f, 28000);
+            // [port] Romhack gate
+            s32 rate = 28000;
+            EventSystem_Should(VB_EGG_FIRE_SFX, true, 2, &rate);
+            func_8030E760(SFX_3E_POOP_NOISE, 1.4f, rate);
             commonParticle_new(COMMON_PARTICLE_4_EGG_ASS, 1);
             item_dec(ITEM_D_EGGS);
             ability_use(7);

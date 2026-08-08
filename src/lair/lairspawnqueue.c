@@ -929,19 +929,24 @@ void func_803875F0(Actor * this)
 
     if (!this->volatile_initialized)
     {
-        if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN))
-        {
-            marker_despawn(this->marker);
-            return;
-        }
-
+        // [port] Anchor: a teammate's press delivers map flag 0 and FILEPROG_1E in the same
+        // packet drain, so check the switch flag first -- while we're here to watch, the rise
+        // animation should win over the already-open catch-up despawn.
         if (mapSpecificFlags_get(0))
         {
             this->unk1C_y = this->position_y;
-            gcStaticCamera_activate(0x2A);
+            // A remote press shouldn't steal our camera.
+            if (!port_mapFlag_wasSetRemotely(0)) {
+                gcStaticCamera_activate(0x2A);
+            }
             fileProgressFlag_set(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN, true);
             this->volatile_initialized = true;
             this->unk38_31 = 0x0C;
+        }
+        else if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN))
+        {
+            marker_despawn(this->marker);
+            return;
         }
     }
     else
@@ -1086,24 +1091,83 @@ void func_80387730(Actor *this) {
     }
 }
 
-void port_notedoor_remoteOpen(s32 progressFlag) {
-    s32 field;
+// A live actor by id (and actorTypeSpecificField when >= 0), or NULL.
+static Actor *__lair_findActor(s32 actorId, s32 typeField) {
     s32 i;
+
+    if (suBaddieActorArray == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        if (actor->marker != NULL && actor->modelCacheIndex == actorId &&
+            (typeField < 0 || actor->actorTypeSpecificField == typeField)) {
+            return actor;
+        }
+    }
+    return NULL;
+}
+
+// [port] Anchor: one-shot cues for a teammate's file-progress flag.
+void port_progressFlag_remoteCue(s32 progressFlag) {
+    Actor *actor;
+
+    port_notedoor_remoteOpen(progressFlag);
+    port_leveldoor_remoteOpen(progressFlag);
+    port_breakable_remoteBreak(progressFlag);
+
+    switch (progressFlag) {
+        // Circular grate over the BGS puzzle: rise + slam (func_803875F0).
+        case FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN:
+            actor = __lair_findActor(ACTOR_213_GL_BGS_PUZZLE_GRATE, -1);
+            if (actor != NULL && !actor->volatile_initialized) {
+                actor->unk1C_y = actor->position_y;
+                actor->volatile_initialized = TRUE;
+                actor->unk38_31 = 0x0C;
+            }
+            break;
+
+        // CC lobby pipes: rise + slam (func_80388FC8 / lair_func_80389204).
+        case FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED:
+        case FILEPROG_20_CC_LOBBY_PIPE_2_RAISED:
+        case FILEPROG_21_CC_LOBBY_PIPE_3_RAISED: {
+            s32 pipeId = (progressFlag == FILEPROG_1F_CC_LOBBY_PIPE_1_RAISED)
+                             ? ACTOR_215_GL_CC_ENTRANCE_LONG_PIPE_GREEN
+                         : (progressFlag == FILEPROG_20_CC_LOBBY_PIPE_2_RAISED)
+                             ? ACTOR_216_GL_CC_ENTRANCE_LONG_PIPE_BLUE
+                             : ACTOR_218_GL_CC_ENTRANCE_SHORT_PIPE;
+            actor = __lair_findActor(pipeId, -1);
+            // initialized = rise base captured; lifetime_value != 0 = already raised.
+            if (actor != NULL && actor->initialized && actor->lifetime_value == 0.0f &&
+                !actor->volatile_initialized) {
+                actor->volatile_initialized = TRUE;
+                actor->unk38_31 = 12;
+            }
+            break;
+        }
+
+        // Grunty statue hat
+        case FILEPROG_A1_STATUE_HAT_OPEN:
+            actor = __lair_findActor(ACTOR_21B_GRUNTY_STATUE_BREAKABLE_HAT_TOP, -1);
+            if (actor != NULL && actor->volatile_initialized && actor->unk1C[0] == 0.0f) {
+                actor->unk1C[0] = 1.0f;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+void port_notedoor_remoteOpen(s32 progressFlag) {
+    Actor *actor;
 
     if (progressFlag < FILEPROG_3A_NOTE_DOOR_50_OPEN || progressFlag > FILEPROG_45_NOTE_DOOR_882_OPEN) {
         return;
     }
-    if (suBaddieActorArray == NULL) {
-        return;
-    }
-    field = progressFlag - FILEPROG_39_CCW_OPEN;
-    for (i = 0; i < suBaddieActorArray->cnt; i++) {
-        Actor *actor = &suBaddieActorArray->data[i];
-        if (actor->marker != NULL && actor->modelCacheIndex == ACTOR_203_NOTE_DOOR &&
-            actor->actorTypeSpecificField == field) {
-            actor->unk1C[0] = 1.0f; // picked up by func_80387730 next update
-            return;
-        }
+    actor = __lair_findActor(ACTOR_203_NOTE_DOOR, progressFlag - FILEPROG_39_CCW_OPEN);
+    if (actor != NULL) {
+        actor->unk1C[0] = 1.0f; // picked up by func_80387730 next update
     }
 }
 
@@ -1732,7 +1796,8 @@ void func_80388FC8(Actor *this)
 
         if (mapSpecificFlags_get(1))
         {
-            if (this->modelCacheIndex == 0x215)
+            // [port] Anchor: a remote press shouldn't steal our camera.
+            if (this->modelCacheIndex == 0x215 && !port_mapFlag_wasSetRemotely(1))
             {
                 gcStaticCamera_activate(0x2B);
                 if (1);  // oof
@@ -1809,7 +1874,10 @@ void lair_func_80389204(Actor *this)
 
         if (mapSpecificFlags_get(2))
         {
-            gcStaticCamera_activate(0x2C);
+            // [port] Anchor: a remote press shouldn't steal our camera.
+            if (!port_mapFlag_wasSetRemotely(2)) {
+                gcStaticCamera_activate(0x2C);
+            }
             fileProgressFlag_set(FILEPROG_21_CC_LOBBY_PIPE_3_RAISED, true);
 
             this->volatile_initialized = true;

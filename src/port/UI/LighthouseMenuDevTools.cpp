@@ -101,6 +101,11 @@ void LighthouseMenu::AddMenuDevTools() {
     AddWidget(path, "Spiral Mountain Ending Sequence", WIDGET_BUTTON)
         .Callback([](WidgetInfo&) { RequestSequence(SEQ_MODE9_BK); })
         .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-parade demo."));
+    AddWidget(path, "All 100 Ending Scene", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestSequence(SEQ_ENDING_ALL_100); })
+        .Options(ButtonOptions()
+                     .Size(Sizes::Inline)
+                     .Tooltip("Jump to the 100-jiggy ending cutscene (normally shown after the final parade)."));
 
     AddWidget(path, "Attract Demos", WIDGET_SEPARATOR_TEXT);
     // Demo index = slot in the decomp attract table (D_80371F00); 4 and 9 are the

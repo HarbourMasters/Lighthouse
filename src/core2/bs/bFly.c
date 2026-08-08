@@ -138,7 +138,7 @@ int func_802A37F8(void){
 }
 
 void bsbfly_enter_init(void){
-    baanim_playForDuration_onceSmooth(ASSET_45_ANIM_BSBFLY_ENTER, 1.4f);
+    baanim_playForDuration_once(ASSET_45_ANIM_BSBFLY_ENTER, 1.4f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_AIRBORN);
     if(bastick_distance() != 0.0f)
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());
@@ -325,7 +325,7 @@ int bsbfly_bombHitboxActive(void){
 //bsbfly_bomb_init
 void bsbfly_bomb_init(void){
     f32 sp1C[3];
-    baanim_playForDuration_once(ASSET_43_ANIM_BSBFLY_BEAKBOMB_START, 1.0f);
+    baanim_playForDuration_onceSmooth(ASSET_43_ANIM_BSBFLY_BEAKBOMB_START, 1.0f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_FREEZE);
     func_802A339C(D_8037D338, sp1C, 4200.0f);
     yaw_setIdeal(sp1C[1] + 180.0f);
@@ -481,7 +481,7 @@ void bsbfly_beakbombend_update(void){
     switch(D_8037D344){
         case 0://L802A457C
             if(func_8028B254(0x5A)){
-                baanim_playForDuration_onceStartingAt(ASSET_8_ANIM_BSJUMP, 2.0f, 0.6667f);
+                baanim_playForDuration_onceSmoothStartingAt(ASSET_8_ANIM_BSJUMP, 2.0f, 0.6667f);
                 D_8037D344 = 1;
             }
             break;
@@ -532,7 +532,7 @@ void func_802A46C8(void) {
 
 
 void bsbfly_beakbomb_crash_init(void) {
-    baanim_playForDuration_once(ASSET_3E_ANIM_BSBFLY_BEAKBOMB_CRASH, 1.4f);
+    baanim_playForDuration_onceSmooth(ASSET_3E_ANIM_BSBFLY_BEAKBOMB_CRASH, 1.4f);
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_LOCKED_ROTATION);
     modelAppendages_setKazooiesUpperHalfVisibility(true);
     FUNC_8030E624(SFX_1F_HITTING_AN_ENEMY_3, 0.8f, 32750);
@@ -584,7 +584,7 @@ void func_802A48B4(void) {
                 D_8037D344 = 2;
             }
         } else if (anctrl_isAt(sp18, 0.92f)) {
-            baanim_playForDuration_once(ASSET_D2_ANIM_BSSPLAT, 2.25f);
+            baanim_playForDuration_onceSmooth(ASSET_D2_ANIM_BSSPLAT, 2.25f);
             D_8037D344 = 1;
         }
         break;
@@ -636,7 +636,7 @@ void func_802A4A78(s32 arg0) {
         sp20 = 400.0f;
     }
     func_802BB3DC(2, 100.0f, 0.85f);
-    baanim_playForDuration_onceSmooth(ASSET_D3_ANIM_BSBFLY_BEAKBOMB_REBOUND, 1.2f);
+    baanim_playForDuration_once(ASSET_D3_ANIM_BSBFLY_BEAKBOMB_REBOUND, 1.2f);
     basfx_playOwSfx(1.0f);
     baMotor_80250D94(1.0f, 0.5f, 0.5f);
     playerPosition_get(sp3C);
@@ -714,7 +714,7 @@ void bsbfly_knockback_init(void) {
     f32 sp1C[3];
 
     func_802BB3DC(2, 100.0f, 0.85f);
-    baanim_playForDuration_onceSmooth(0x10D, 1.0f);
+    baanim_playForDuration_once(0x10D, 1.0f);
     func_8030E58C(SFX_56_BANJO_HUI, 1.0f);
     playerPosition_get(player_position);
     func_80294980(sp1C);

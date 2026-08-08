@@ -5,9 +5,6 @@
 #include <vector>
 
 #include "functions.h"
-extern "C" {
-void chHoneycomb_netRevealFromSwitch(void);
-}
 
 /**
  * REQUEST_SCOPED_STATE / SCOPED_STATE
@@ -86,6 +83,6 @@ void Anchor::HandlePacket_ScopedState(nlohmann::json& payload) {
     if (payload.contains("mapFlags") && (s32)gsworld_getMap() == payload.at("map").get<s32>()) {
         u32 mapFlags = payload["mapFlags"].get<u32>();
         mapSpecificFlags_setAll(mapSpecificFlags_getAll() | mapFlags);
-        chHoneycomb_netRevealFromSwitch();
+        RevealSwitchHoneycomb();
     }
 }

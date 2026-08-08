@@ -468,7 +468,6 @@ void gameSelect_update(Actor *this){
                                 timedFunc_set_3(0.0f, (GenFunction_3)transitionToMap, newGameMap, 0, 1);
                                 if (port_getRomhackKnowAllMoves() >= 0) {
                                     ability_setAllLearned(-1);
-                                    ability_setAllUsed(-1);
                                 }
                             }
                         }

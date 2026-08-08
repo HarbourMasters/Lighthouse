@@ -35,7 +35,14 @@ struct8s D_80381ED0;
 
 /* .code */
 s32 func_802FFDE0(s32 arg0){
-    return D_8036A260[arg0/4];
+// [port] Off by one
+//  return D_8036A260[arg0/4];
+    s32 idx = arg0/4;
+    s32 last = (s32)(sizeof(D_8036A260)/sizeof(D_8036A260[0])) - 1;
+    if (idx > last) {
+        idx = last;
+    }
+    return D_8036A260[idx];
 }
 
 s32 func_802FFE04(void){

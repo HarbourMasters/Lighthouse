@@ -215,11 +215,19 @@ static bool isWishyWashyUnlocked() {
     return (baanim_getActiveBottlesBonusMask() & BAANIM_WISHYWASHY) != 0;
 }
 
+static bool jiggyCollectInFlight() {
+    return baflag_isTrue(BA_FLAG_7_TOUCHING_JIGGY) || bsjig_inJiggyJig((enum bs_e)bs_getState());
+}
+
 // Transformation cycling with D-pad Up/Down
 // D-pad Up: Cycle forward through transformations (Banjo -> Termite -> ... -> Bee -> [Wishy] -> Banjo)
 // D-pad Down: Cycle backward through transformations (Banjo -> [Wishy] -> Bee -> ... -> Termite -> Banjo)
 void RegisterCycleTransform_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CYCLE_TRANSFORM, 0), [](IEvent* event) {
+        if (jiggyCollectInFlight()) {
+            return;
+        }
+
         s32 currentTransform = (s32)player_getTransformation();
 
         // D-pad Up: Cycle forward through transformations
@@ -331,12 +339,8 @@ void RegisterFastTransform_Init() {
 
 // Disable Mumbo untransform when going too far
 void RegisterNoMumboUntransform_Init() {
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NO_MUMBO_UNTRANSFORM, 0), [](IEvent* event) {
-        // Prevent Mumbo from triggering untransform dialog/warn
-        // These functions check game state and show dialog
-        // We disable them by setting a flag they check
-        volatileFlag_set((enum volatile_flags_e)207, 1); // Prevents detransform warning
-    });
+    COND_VB_SHOULD(VB_MUMBO_DETRANSFORM, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NO_MUMBO_UNTRANSFORM, 0),
+                   { *should = false; });
 }
 
 // ============================================================================

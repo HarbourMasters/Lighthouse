@@ -40,7 +40,7 @@ void bsbpeck_init(void){
     if(bafalldamage_get_state() == 1)
         bafalldamage_set_state(2);
 
-    baanim_playForDuration_onceSmooth(ASSET_1A_ANIM_BSBPECK, 0.2f);
+    baanim_playForDuration_once(ASSET_1A_ANIM_BSBPECK, 0.2f);
     code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 1, BA_PHYSICS_AIRBORN);
     yaw_setVelocityBounded(1200.0f, 10.0f);
     modelAppendages_setKazooiesUpperHalfVisibility(true);

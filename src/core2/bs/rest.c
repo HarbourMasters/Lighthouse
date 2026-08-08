@@ -35,7 +35,7 @@ void func_802B3AAC(enum asset_e anim_id, f32 anim_duration) {
             anctrl_setPlaybackType(anim_ctrl, ANIMCTRL_ONCE);
             break;
         default:
-            baanim_playForDuration_once(ASSET_167_ANIM_BSREST_MOVE, 0.5f);
+            baanim_playForDuration_onceSmooth(ASSET_167_ANIM_BSREST_MOVE, 0.5f);
             anctrl_setPlaybackType(anim_ctrl, ANIMCTRL_ONCE);
             break;
         }

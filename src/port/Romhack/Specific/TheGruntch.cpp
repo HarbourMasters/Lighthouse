@@ -8,6 +8,7 @@
 #include "port/Romhack/Shared/HackShared.h"
 #include "port/Romhack/Shared/Storybook.h"
 #include "port/Romhack/Shared/ProximityDialogs.h"
+#include "port/Romhack/Shared/StealthNoise.h"
 
 extern "C" {
 #include "enums.h"
@@ -16,9 +17,20 @@ extern "C" {
 #include "actor.h"
 #include "core1/ml.h"
 #include "core2/timedfunc.h"
+#include "bk_time.h"
 
 extern f32 D_8037C5B0[3];
 extern PfsManagerControllerData D_80281138[4];
+extern f32 cameraPosition[3];
+extern f32 cameraRotation[3];
+extern f32 D_8037D948[3];
+extern f32 D_8037D9C8[3];
+extern f32 D_8037D9E0[3];
+extern f32 D_8037D9D4, D_8037D9D8, D_8037D9EC, D_8037D9F0;
+extern struct {
+    u8 unk0;
+    u8 level;
+} D_80383300;
 
 typedef struct struct_1A_s {
     f32 delay;
@@ -250,6 +262,7 @@ constexpr s32 kLeaveHutFlags = 0x02;
 f32 sJiggyPos[3] = { 0.0f, 500.0f, -95.0f };
 f32 sMumboState = 0.0f;
 bool sMumboRewardEnabled = false;
+bool sLeaveHutPending = false;
 
 void MumboReward_spawnJiggy() {
     jiggy_spawn((enum jiggy_e)kRewardJiggy, sJiggyPos);
@@ -268,7 +281,7 @@ extern "C" s32 romhack_mumboTransform(s32 transformId) {
     }
     timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
     timedFunc_set_0(kStateDelay, MumboReward_setState);
-    gcdialog_showDialog(kLeaveHutText, kLeaveHutFlags, NULL, NULL, NULL, NULL);
+    sLeaveHutPending = true;
     return 1;
 }
 
@@ -280,8 +293,145 @@ extern "C" s32 romhack_mumboRandomEventsAllowed(void) {
     return sMumboRewardEnabled ? 0 : 1;
 }
 
+// Mumbo's reward shows a static camera
+namespace {
+constexpr f32 kPanPosition[3] = { -250.0f, 194.0f, 147.0f };
+constexpr f32 kPanRotation[3] = { 35.0f, 315.0f, 0.0f };
+
+bool sPanSaved = false;
+f32 sPanSavedPosition[3];
+f32 sPanSavedRotation[3];
+
+void MumboReward_updatePendingDialog() {
+    if (!sLeaveHutPending) {
+        return;
+    }
+    const s32 state = bs_getState();
+    if (state == BS_74_UNKNOWN || state == BS_20_LANDING || state == BS_44_JIG_JIGGY) {
+        return;
+    }
+    gcdialog_showDialog(kLeaveHutText, kLeaveHutFlags, NULL, NULL, NULL, NULL);
+    sLeaveHutPending = false;
+}
+
+void MumboReward_updateCamera() {
+    if (!sMumboRewardEnabled) {
+        return;
+    }
+    MumboReward_updatePendingDialog();
+    if (sMumboState > 0.0f) {
+        if (!sPanSaved) {
+            sPanSaved = true;
+            for (int i = 0; i < 3; i++) {
+                sPanSavedPosition[i] = cameraPosition[i];
+                sPanSavedRotation[i] = cameraRotation[i];
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            cameraPosition[i] = kPanPosition[i];
+            cameraRotation[i] = kPanRotation[i];
+            D_8037D948[i] = kPanPosition[i];
+            D_8037D9C8[i] = 0.0f;
+            D_8037D9E0[i] = 0.0f;
+        }
+        D_8037D9D4 = 0.0f;
+        D_8037D9D8 = 0.0f;
+        D_8037D9EC = 0.0f;
+        D_8037D9F0 = 0.0f;
+
+        sMumboState -= time_getDelta();
+        if (sMumboState == 0.0f) {
+            sMumboState = -1.0f; // sentinel: expired, restore next frame
+        }
+    } else if (sMumboState < 0.0f && sPanSaved) {
+        for (int i = 0; i < 3; i++) {
+            cameraPosition[i] = sPanSavedPosition[i];
+            cameraRotation[i] = sPanSavedRotation[i];
+        }
+        sPanSaved = false;
+        sMumboState = 0.0f;
+    }
+}
+} // namespace
+
 static void Gruntch_EnableMumboReward() {
     sMumboRewardEnabled = true;
+    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) { MumboReward_updateCamera(); });
+}
+
+// Game-Over respawns
+static void Gruntch_EnableVoidOutRespawn() {
+    REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
+        s32 map = va_arg(args, s32);
+        s32 exit = va_arg(args, s32);
+        if (D_80383300.level == 1) {
+            map = MAP_28_MMM_EGG_ROOM;
+            exit = 2;
+        } else if (D_80383300.level == 0xA) {
+            map = MAP_6C_GL_RED_CAULDRON_ROOM;
+            exit = 5;
+        }
+        transitionToMap((enum map_e)map, exit, 1);
+        *should = false;
+    });
+}
+
+// Firing an egg spikes the stealth meter
+static void Gruntch_EnableEggNoise() {
+    REGISTER_VB_SHOULD(VB_EGG_FIRE_SFX, EVENT_PRIORITY_NORMAL, {
+        s32 slot = va_arg(args, s32);
+        s32* rate = va_arg(args, s32*);
+        switch (slot) {
+            case 0:
+                StealthNoise_AddBurst(0.3f, 0.2f);
+                break;
+            case 1:
+                StealthNoise_AddBurst(0.65f, 0.3f);
+                *rate = 0x6D60;
+                break;
+            case 2:
+                StealthNoise_AddBurst(0.65f, 0.4f);
+                break;
+            default:
+                break;
+        }
+        (void)should;
+    });
+}
+
+// Lair music persists through various maps
+constexpr s32 kMusicGroupLair[] = { 0x6A, 0x6C, 0x6F, 0x71, 0x6B, 0x15 };
+constexpr s32 kMusicGroupVillage[] = { 0x1B, 0x22, 0x0C };
+
+static bool SameMusicGroup(const s32* group, int count, s32 a, s32 b) {
+    bool hasA = false, hasB = false;
+    for (int i = 0; i < count; i++) {
+        hasA = hasA || group[i] == a;
+        hasB = hasB || group[i] == b;
+    }
+    return hasA && hasB;
+}
+
+// Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
+static void Gruntch_EnableWindowRapNoRebound() {
+    REGISTER_VB_SHOULD(VB_BUMP_REBOUNDS_PLAYER, EVENT_PRIORITY_NORMAL, {
+        ActorMarker* marker = va_arg(args, ActorMarker*);
+        if (marker != NULL && marker->id == MARKER_107_ENGINE_ROOM_DOOR) {
+            *should = false;
+        }
+    });
+}
+
+static void Gruntch_EnableWarpMusic() {
+    REGISTER_VB_SHOULD(VB_WARP_KEEPS_MUSIC, EVENT_PRIORITY_NORMAL, {
+        const s32 dest = va_arg(args, s32);
+        const s32 cur = gsworld_getMap();
+        if (SameMusicGroup(kMusicGroupVillage, ARRAY_COUNT(kMusicGroupVillage), cur, dest) ||
+            SameMusicGroup(kMusicGroupLair, ARRAY_COUNT(kMusicGroupLair), cur, dest)) {
+            musicKeepsPlaying();
+        }
+        (void)should;
+    });
 }
 
 // ------------------------------------------------------- Jiggy consolidation
@@ -360,22 +510,31 @@ static void Gruntch_EnableActGate() {
     });
 }
 
+// ------------------------------------------------------------ Stealth section
+extern "C" void warp_rbbExitBoomBoxContainer(NodeProp*, ActorMarker*);
+
+constexpr s32 kWarpRbbExitBoomBoxContainer = 182;
+
+constexpr StealthNoiseConfig kGruntchStealth = {
+    MAP_3C_RBB_KITCHEN,           -500.0f, 3600.0f, 0.0f, 3100.0f, 0xA7B, kWarpRbbExitBoomBoxContainer,
+    warp_rbbExitBoomBoxContainer, 0x13,
+};
+
 // ------------------------------------------------------- Patch registration
 void RegisterGruntchPatches() {
     TooieJiggyDance_ForceEnable();
     Storybook_Enable(kGruntchStorybook);
     ProximityDialogs_Enable(kGruntchGameplayDialogs);
+    StealthNoise_Enable(kGruntchStealth);
     Gruntch_EnableActGate();
     Gruntch_EnableConditionalActors();
     Gruntch_EnableMumboReward();
+    Gruntch_EnableVoidOutRespawn();
+    Gruntch_EnableEggNoise();
+    Gruntch_EnableWarpMusic();
+    Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();
     HackShared_EnableDialogSuppression(kGruntchSuppressedDialogs);
-
-    /* MISSING FEATURES
-     *  Static camera pan for mumbo's reward
-     *  Stealth minigame in Gruntch's room (RBB Kitchen)
-     *  Possible retention of turbo trainers through cauldron warp
-     *  Game over respawn to Gruntch Cave
-     */
+    HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
 }

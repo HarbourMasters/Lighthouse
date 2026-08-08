@@ -128,9 +128,13 @@ void romhack_RewriteActorSpawn(void* actorInfo, u32* flags);
 void port_beginDemoAudioHold(void);
 void port_tickDemoAudioHold(void);
 int port_audioHeld(void);
+void port_noteMainLoopAlive(void);
+int port_audioStallHold(void);
+int32_t port_audioCatchupFrames(void);
 
+// One-shot cues when a teammate's file-progress flag arrives
+void port_progressFlag_remoteCue(int32_t progressFlag);
 void port_notedoor_remoteOpen(int32_t progressFlag);
-
 void port_leveldoor_remoteOpen(int32_t progressFlag);
 
 void port_breakable_remoteBreak(int32_t progressFlag);
@@ -179,9 +183,15 @@ void port_remoteCarry_setCarried(uint32_t clientId, int32_t markerId, float offs
 void port_remoteCarry_throw(uint32_t clientId, int32_t markerId, float start[3], float target[3]);
 void port_remoteCarry_reset(void);
 void port_anchorDummies_onActorsFreed(void);
+
+// Connected, in a real room, syncing world state.
+int32_t port_anchor_isWorldSyncActive(void);
+
+// The puzzle mirrors below are home-scoped.
 void port_puzzleStep_orBits(int32_t puzzleId, int32_t bits);
 int32_t port_puzzleStep_get(int32_t puzzleId);
 int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId);
+int32_t port_puzzleStep_getForLevel(int32_t levelId, int32_t puzzleId);
 
 void port_puzzlePos_mark(int32_t puzzleId, int32_t x, int32_t y, int32_t z);
 int32_t port_puzzlePos_isMarked(int32_t puzzleId, int32_t x, int32_t y, int32_t z);

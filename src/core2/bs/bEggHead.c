@@ -15,7 +15,7 @@ u8 D_8037D2F1;
 
 /* .code */
 void bsegghead_init(void){
-    baanim_playForDuration_onceSmooth(ASSET_2A_ANIM_BSEGGHEAD, 1.0f);
+    baanim_playForDuration_once(ASSET_2A_ANIM_BSEGGHEAD, 1.0f);
     code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 1, BA_PHYSICS_LOCKED_ROTATION);
     yaw_setVelocityBounded(350.0f, 14.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
@@ -42,11 +42,19 @@ void bsegghead_update(void) {
             func_80346C10((enum bs_e *)&sp28, -1, 0, ITEM_D_EGGS, 0);
     }
     if (has_eggs) {
-        if (anctrl_isAt(aCtrl, 0.1f))
-            func_8030E760(SFX_46_KAZOOIE_CHOKING_UP, 1.0f, 0x7fff);
+        // [port] Romhack gate: listeners may retune the sample rate and hook the
+        // egg noise into a stealth meter.
+        if (anctrl_isAt(aCtrl, 0.1f)) {
+            s32 rate = 0x7fff;
+            EventSystem_Should(VB_EGG_FIRE_SFX, true, 0, &rate);
+            func_8030E760(SFX_46_KAZOOIE_CHOKING_UP, 1.0f, rate);
+        }
 
-        if (anctrl_isAt(aCtrl, 0.4f))
-            func_8030E760(SFX_57_KAZOOIE_HEGH, 1.0f, 0x7fff);
+        if (anctrl_isAt(aCtrl, 0.4f)) {
+            s32 rate = 0x7fff;
+            EventSystem_Should(VB_EGG_FIRE_SFX, true, 1, &rate);
+            func_8030E760(SFX_57_KAZOOIE_HEGH, 1.0f, rate);
+        }
 
         if (anctrl_isAt(aCtrl, 0.4704f)){
             commonParticle_new(COMMON_PARTICLE_1_EGG_HEAD, 1);
