@@ -4,7 +4,10 @@
  */
 
 #include <libultraship/bridge.h>
+#include <cmath>
+
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/Shared/HackShared.h"
 
 extern "C" {
@@ -14,8 +17,10 @@ extern "C" {
 #include "actor.h"
 #include "core1/ml.h"
 #include "core2/timedfunc.h"
+#include "core2/modelRender.h"
 #include "bk_time.h"
 
+extern ActorInfo chLargeCrocodile;
 extern f32 D_8037C5B0[3];
 extern PfsManagerControllerData D_80281138[4];
 extern f32 cameraPosition[3];
@@ -56,6 +61,7 @@ constexpr int kGruntchSuppressedDialogs[] = {
     ASSET_D9F_DIALOG_RED_FEATHER_MEET,
     ASSET_DA0_DIALOG_GOLD_FEATHER_MEET,
     ASSET_DA1_DIALOG_HONEYCOMB_MEET,
+    ASSET_DA2_DIALOG_EMPTY_HONEYCOMB_MEET,
 };
 
 // ---------------------------------------------------------- Proximity dialogs
@@ -168,7 +174,12 @@ static bool GruntchDialogGate15() {
     return true;
 }
 
+static bool Gruntch_HeadHasNoticedPlayer();
+
 static bool GruntchDialogGate1B() {
+    if (!Gruntch_HeadHasNoticedPlayer()) {
+        return false;
+    }
     if (ProximityDialogs_IsShown(1, 0xC000) && player_isStable()) {
         f32 reArm[3] = { 0.0f, 720.0f, -360.0f };
         if (ml_vec3f_distance(reArm, D_8037C5B0) < 170.0f && D_80281138[0].face_button[1] == 1) {
@@ -323,6 +334,7 @@ static void Gruntch_EnablePauseTotalsLayout() {
 
 static void Gruntch_EnableJiggyTally() {
     HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
+    port_overrideRomhackJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
     REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {
@@ -340,6 +352,226 @@ static void Gruntch_EnableActGate() {
         if (va_arg(args, int) == 0xAA && !fileProgressFlag_get(FILEPROG_38_RBB_OPEN)) {
             *should = false;
         }
+    });
+}
+
+// Mumbo's token dialogs are rendered by the hack once his jiggy is collected
+static void Gruntch_EnableMumboTokenDialogs() {
+    REGISTER_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_LOW, {
+        const s32 textId = va_arg(args, s32);
+        if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
+             textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
+            gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL ||
+            !jiggyscore_isCollected((enum jiggy_e)3)) {
+            return;
+        }
+        func_80324E38(0.0f, 3);
+        *should = true;
+    });
+}
+
+// ------------------------------------------------------- Santa's head-look
+namespace {
+
+constexpr f32 kHeadYawCone = 80.0f;
+constexpr f32 kHeadYawRate = 0.5f;
+constexpr f32 kHeadPitchRate = 0.67f;
+constexpr f32 kHeadPitchFree = 330.0f;
+constexpr f32 kHeadPitchMin = 40.0f;
+constexpr f32 kHeadPitchMax = 185.0f;
+constexpr f32 kHeadPitchBias = 55.0f;
+constexpr f32 kHeadBobSpeed = 5.0f;
+constexpr f32 kHeadBobAmount = 0.5f;
+constexpr f32 kHeadBobOffset = 2.0f;
+constexpr f32 kHeadBobPeriod = 62.831853f;
+constexpr f32 kHeadDeadZone = 1.0f;
+constexpr f32 kHeadShadowY = 732.0f;
+constexpr f32 kHeadShadowPitch = 3.0f;
+constexpr f32 kHeadShadowScale = 0.4f;
+constexpr s32 kHeadShadowAlpha = 0xF1;
+constexpr s32 kHeadTrackDialogA = 0xA13;
+constexpr s32 kHeadTrackDialogB = 0xA7D;
+
+struct HeadLookState {
+    bool initialised;
+    bool noticedPlayer;
+    f32 restYaw;
+    f32 restPitch;
+    f32 restRoll;
+    f32 forward[3];
+    f32 basePosition[3];
+    f32 bobPhase;
+    void (*savedUpdate)(Actor*);
+    Actor* (*savedDraw)(ActorMarker*, Gfx**, Mtx**, Vtx**);
+};
+
+HeadLookState sHead{};
+
+f32 HeadLook_radToDeg(f32 radians) {
+    return (f32)((f64)radians * 57.29577951308232);
+}
+
+f32 HeadLook_angleDelta(f32 from, f32 to) {
+    while (from >= 180.0f) {
+        from -= 360.0f;
+    }
+    while (to >= 180.0f) {
+        to -= 360.0f;
+    }
+    return (to < from) ? -(from - to) : (to - from);
+}
+
+f32 HeadLook_approach(f32 current, f32 target, f32 rate) {
+    f32 delta = HeadLook_angleDelta(current, target);
+    if (delta >= 180.0f) {
+        delta -= 360.0f;
+    }
+    if (fabsf(delta) < kHeadDeadZone) {
+        return mlNormalizeAngle(current);
+    }
+    return mlNormalizeAngle(current + delta * rate * 0.5f);
+}
+
+f32 HeadLook_vecAngle(const f32 a[3], const f32 b[3]) {
+    const f32 lenA = sqrtf(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+    const f32 lenB = sqrtf(b[0] * b[0] + b[1] * b[1] + b[2] * b[2]);
+    const f32 cosine = (b[0] * a[0] + b[1] * a[1] + b[2] * a[2]) / (lenB * lenA);
+    if (cosine > 1.0f) {
+        return (f32)acos(1.0);
+    }
+    if (cosine < -1.0f) {
+        return (f32)acos(-1.0);
+    }
+    return (f32)acos((f64)cosine);
+}
+
+f32 HeadLook_vecAngleAbout(const f32 a[3], const f32 b[3], const f32 axis[3]) {
+    const f32 cross[3] = {
+        b[1] * a[2] - a[1] * b[2],
+        b[2] * a[0] - a[2] * b[0],
+        a[1] * b[0] - b[1] * a[0],
+    };
+    const f32 sine = cross[0] * axis[0] + cross[1] * axis[1] + cross[2] * axis[2];
+    const f32 cosine = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    return atan2f(sine, cosine);
+}
+
+void HeadLook_rotateVector(f32 pitchDeg, f32 yawDeg, const f32 in[3], f32 out[3]) {
+    const f32 pitch = (f32)((f64)(pitchDeg / 180.0f) * 3.141592653589793);
+    const f32 yaw = (f32)((f64)(yawDeg / 180.0f) * 3.141592653589793);
+    const f32 sinPitch = sinf(pitch);
+    const f32 cosPitch = cosf(pitch);
+    const f32 sinYaw = sinf(yaw);
+    const f32 cosYaw = cosf(yaw);
+    const f32 x = in[0], y = in[1], z = in[2];
+
+    out[0] = x * cosYaw + (z * cosPitch + y * sinPitch) * sinYaw;
+    out[1] = y * cosPitch - z * sinPitch;
+    out[2] = (z * cosPitch + y * sinPitch) * cosYaw - x * sinYaw;
+}
+
+void HeadLook_capture(Actor* self) {
+    sHead.initialised = true;
+    sHead.restPitch = self->pitch + kHeadPitchBias;
+    self->pitch = sHead.restPitch;
+    sHead.restYaw = self->yaw;
+    sHead.restRoll = self->roll;
+
+    const f32 unitZ[3] = { 0.0f, 0.0f, 1.0f };
+    HeadLook_rotateVector(0.0f, sHead.restYaw, unitZ, sHead.forward);
+
+    for (int i = 0; i < 3; i++) {
+        sHead.basePosition[i] = self->position[i];
+    }
+}
+
+void HeadLook_update(Actor* self) {
+    if (!sHead.initialised) {
+        HeadLook_capture(self);
+    }
+
+    sHead.noticedPlayer = false;
+    if (sHead.savedUpdate != nullptr) {
+        sHead.savedUpdate(self);
+    }
+
+    const f32 axisY[3] = { 0.0f, 1.0f, 0.0f };
+    const f32 flatToPlayer[3] = { D_8037C5B0[0] - self->position[0], 0.0f, D_8037C5B0[2] - self->position[2] };
+    const f32 yawDeg = HeadLook_radToDeg(HeadLook_vecAngleAbout(flatToPlayer, sHead.forward, axisY));
+    const f32 yaw = mlNormalizeAngle(yawDeg + sHead.restYaw);
+
+    bool tracking = fabsf(yawDeg) <= kHeadYawCone;
+    if (!tracking) {
+        const s32 textId = gcdialog_getCurrentTextId();
+        tracking = (textId == kHeadTrackDialogA || textId == kHeadTrackDialogB);
+    }
+
+    f32 pitch;
+    if (tracking) {
+        sHead.noticedPlayer = true;
+        self->yaw = HeadLook_approach(self->yaw, yaw, kHeadYawRate);
+
+        const f32 toPlayer[3] = { D_8037C5B0[0] - self->position[0], D_8037C5B0[1] - self->position[1],
+                                  D_8037C5B0[2] - self->position[2] };
+        const f32 reference[3] = { toPlayer[0], toPlayer[1] - D_8037C5B0[1], toPlayer[2] };
+        pitch = mlNormalizeAngle(sHead.restPitch - HeadLook_radToDeg(HeadLook_vecAngle(toPlayer, reference)));
+    } else {
+        self->yaw = HeadLook_approach(self->yaw, sHead.restYaw, kHeadYawRate);
+        pitch = 0.0f;
+    }
+
+    if (pitch <= kHeadPitchFree) {
+        if (pitch < kHeadPitchMin) {
+        } else if (pitch >= kHeadPitchMax) {
+            pitch = kHeadPitchFree;
+        } else {
+            pitch = kHeadPitchMin;
+        }
+    }
+    self->pitch = HeadLook_approach(self->pitch, pitch, kHeadPitchRate);
+
+    sHead.bobPhase += time_getDelta() * kHeadBobSpeed;
+    if (sHead.bobPhase > kHeadBobPeriod) {
+        sHead.bobPhase -= kHeadBobPeriod;
+    }
+    self->position[1] = sHead.basePosition[1] + kHeadBobOffset + sinf(sHead.bobPhase) * kHeadBobAmount;
+}
+
+Actor* HeadLook_draw(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx) {
+    Actor* self = nullptr;
+    if (sHead.savedDraw != nullptr) {
+        self = sHead.savedDraw(marker, gfx, mtx, vtx);
+    }
+    Actor* actor = marker_getActor(marker);
+    if (actor == NULL) {
+        return self;
+    }
+
+    modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
+    BKModelBin* shadow = (BKModelBin*)assetcache_get(ASSET_3BF_MODEL_PLAYER_SHADOW);
+    f32 position[3] = { actor->position[0], kHeadShadowY, actor->position[2] };
+    f32 rotation[3] = { kHeadShadowPitch, 0.0f, 0.0f };
+    modelRender_setAlpha(kHeadShadowAlpha);
+    modelRender_draw(gfx, mtx, position, rotation, kHeadShadowScale, NULL, shadow);
+    return self;
+}
+
+} // namespace
+
+static bool Gruntch_HeadHasNoticedPlayer() {
+    return sHead.noticedPlayer;
+}
+
+static void Gruntch_EnableHeadLook() {
+    sHead.savedUpdate = chLargeCrocodile.update_func;
+    sHead.savedDraw = chLargeCrocodile.draw_func;
+    chLargeCrocodile.update_func = HeadLook_update;
+    chLargeCrocodile.draw_func = HeadLook_draw;
+
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) {
+        sHead.initialised = false;
+        sHead.noticedPlayer = false;
+        sHead.bobPhase = 0.0f;
     });
 }
 
@@ -361,6 +593,7 @@ void RegisterGruntchPatches() {
     StealthNoise_Enable(kGruntchStealth);
     Gruntch_EnableActGate();
     Gruntch_EnableConditionalActors();
+    Gruntch_EnableHeadLook();
     HackShared_EnableMumboReward();
     Gruntch_EnableVoidOutRespawn();
     Gruntch_EnableEggNoise();
@@ -369,5 +602,6 @@ void RegisterGruntchPatches() {
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();
     HackShared_EnableDialogSuppression(kGruntchSuppressedDialogs);
+    Gruntch_EnableMumboTokenDialogs();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
 }

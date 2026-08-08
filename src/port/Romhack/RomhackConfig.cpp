@@ -694,6 +694,9 @@ extern "C" int port_getRomhackJiggiesPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sJiggiesPerWorld;
 }
+extern "C" void port_overrideRomhackJiggiesPerWorld(int value) {
+    sJiggiesPerWorld = value;
+}
 extern "C" int port_getRomhackHoneycombsPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sHoneycombsPerWorld;
