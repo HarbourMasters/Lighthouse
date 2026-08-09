@@ -153,20 +153,36 @@ void anSeq_PushStep_ManyArg(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, voi
     memcpy(&out->arg0, arg_ptr, arg_size);
 }
 
+# if 0
 void anSeq_func_80288E68(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, s32 arg3, s32 arg4){
     anSeq_PushStep_3Arg(ppAnSeq, duration, __anSeq_func_80288914, arg2, arg3, arg4);
+#endif
+void anSeq_func_80288E68(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, f32 arg3, f32 arg4){
+    anSeq_PushStep_3Arg(ppAnSeq, duration, __anSeq_func_80288914, arg2, (uintptr_t)reinterpret_cast(u32, arg3), (uintptr_t)reinterpret_cast(u32, arg4));
 }
 
+# if 0
 void anSeq_func_80288EB0(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, s32 arg3, s32 arg4){
     anSeq_PushStep_3Arg(ppAnSeq, duration, __anSeq_func_8028894C, arg2, arg3, arg4);
+#endif
+void anSeq_func_80288EB0(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, f32 arg3, f32 arg4){
+    anSeq_PushStep_3Arg(ppAnSeq, duration, __anSeq_func_8028894C, arg2, (uintptr_t)reinterpret_cast(u32, arg3), (uintptr_t)reinterpret_cast(u32, arg4));
 }
 
+# if 0
 void anSeq_func_80288EF8(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, s32 arg3){
     anSeq_PushStep_2Arg(ppAnSeq, duration, __anSeq_func_8028984, arg2, arg3);
+#endif
+void anSeq_func_80288EF8(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, f32 arg3){
+    anSeq_PushStep_2Arg(ppAnSeq, duration, __anSeq_func_8028984, arg2, (uintptr_t)reinterpret_cast(u32, arg3));
 }
 
+#if 0
 void anSeq_func_80288F38(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, s32 arg3){
     anSeq_PushStep_2Arg(ppAnSeq, duration, __anSeq_func_80289C8, arg2, arg3);
+#endif
+void anSeq_func_80288F38(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2, f32 arg3){
+    anSeq_PushStep_2Arg(ppAnSeq, duration, __anSeq_func_80289C8, arg2, (uintptr_t)reinterpret_cast(u32, arg3));
 }
 
 void anSeq_func_80288F78(bk_vector(AnSeqElement) **ppAnSeq, f32 duration, s32 arg2){
