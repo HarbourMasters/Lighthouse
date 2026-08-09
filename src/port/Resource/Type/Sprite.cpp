@@ -26,25 +26,25 @@ void Sprite::BuildSpriteStructure() {
     for (int frameIdx = 0; frameIdx < frameCount; frameIdx++) {
         const auto& frameData = frames[frameIdx];
 
-        size_t frameSize = sizeof(BKSpriteFrame);
+        size_t frameStart = totalSize;
+        size_t cursor = frameStart + sizeof(BKSpriteFrame);
 
         if (!frameData.paletteData.empty()) {
-            // Palette must be at Align8(sizeof(BKSpriteFrame)) = offset 24.
-            // print_getLettersFromFont aligns (frame_ptr+1) to 8 before reading palette,
-            // and spriteRender_drawWithSegment does the same.
-            frameSize = Align8(frameSize);
-            frameSize += frameData.paletteData.size();
+            // Palette must start at the next 8-byte boundary from basePtr.
+            cursor = Align8(cursor);
+            cursor += frameData.paletteData.size();
         }
 
         for (const auto& chunk : frameData.chunks) {
-            frameSize += sizeof(BKSpriteTextureBlock);
-            frameSize = Align8(frameSize);
-            frameSize += chunk.textureData.size();
+            cursor += sizeof(BKSpriteTextureBlock);
+            cursor = Align8(cursor);
+            cursor += chunk.textureData.size();
         }
 
+        size_t frameSize = cursor - frameStart;
         frameSizes.push_back(frameSize);
-        frameOffsets.push_back(totalSize);
-        totalSize += frameSize;
+        frameOffsets.push_back(frameStart);
+        totalSize = frameStart + frameSize;
     }
 
     // Allocate single contiguous buffer for entire sprite
@@ -84,11 +84,9 @@ void Sprite::BuildSpriteStructure() {
         *frame = frameData.frameHeader;
         offset += sizeof(BKSpriteFrame);
 
-        // Write palette at Align8(sizeof(BKSpriteFrame)) = offset 24.
-        // Both print_getLettersFromFont and spriteRender_drawWithSegment walk (frame_ptr+1)
-        // up to the next 8-byte alignment before reading the palette.
+        // Write palette at the next 8-byte boundary from basePtr.
         if (!frameData.paletteData.empty()) {
-            offset = Align8(offset);
+            offset = Align8(frameOffset + offset) - frameOffset;
             std::memcpy(framePtr + offset, frameData.paletteData.data(), frameData.paletteData.size());
             offset += frameData.paletteData.size();
         }
@@ -111,7 +109,7 @@ void Sprite::BuildSpriteStructure() {
             }
 
             // Write texture data
-            offset = Align8(offset);
+            offset = Align8(frameOffset + offset) - frameOffset;
             std::memcpy(framePtr + offset, chunkData.textureData.data(), chunkData.textureData.size());
 
             // [port] RGBA16 texture data stays in N64 big-endian byte order.
