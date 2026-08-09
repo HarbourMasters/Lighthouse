@@ -2365,7 +2365,9 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
 
     this = marker_getActor(arg0);
     sp70 = collision_getDropBundleNum(arg2);
-    sp6C = collision_getUnkBit7(arg2);
+// [port] unkBit7 is 3 bits wide, but each bundle group holds only 5 spread variants
+//  sp6C = collision_getUnkBit7(arg2);
+    sp6C = MIN(collision_getUnkBit7(arg2), 5);
     sp68 = collision_getHitsToTrigger(arg2);
     sp64 = collision_getNextState(arg2);
     if (((baiFrame_getState() != 3) && func_8028F1E0()) || (collision_getDamageToPlayer(arg2) == 0)) {
