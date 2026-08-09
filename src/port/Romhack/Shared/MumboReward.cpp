@@ -132,8 +132,7 @@ void HackShared_EnableMumboReward() {
 
     // Pressing B once the Jiggy is already collected
     REGISTER_VB_SHOULD(VB_MUMBO_HUT_INTERACT, EVENT_PRIORITY_NORMAL, {
-        if (gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL ||
-            !jiggyscore_isCollected((enum jiggy_e)kRewardJiggy)) {
+        if (gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)kRewardJiggy)) {
             return;
         }
         gcdialog_showDialog(kAlreadyRewardedText, kAlreadyRewardedFlags, NULL, NULL, NULL, NULL);

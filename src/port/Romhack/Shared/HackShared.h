@@ -41,8 +41,7 @@ struct JiggyRelocation {
 void HackShared_EnableJiggyRelocation(const JiggyRelocation* groups, int groupCount, const int* alsoExcluded = nullptr,
                                       int excludedCount = 0);
 
-template <int N>
-inline void HackShared_EnableJiggyRelocation(const JiggyRelocation (&groups)[N]) {
+template <int N> inline void HackShared_EnableJiggyRelocation(const JiggyRelocation (&groups)[N]) {
     HackShared_EnableJiggyRelocation(groups, N);
 }
 

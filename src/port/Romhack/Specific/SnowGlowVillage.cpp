@@ -31,7 +31,7 @@ typedef struct {
 extern struct1Bs D_8036C560[];
 extern ActorInfo D_80394C70; // the unused {MARKER_29A_FF_PRIZE, 0x3C6, 0x34C} prize slot
 extern ActorInfo gChCubMoggy;
-extern u8 D_8036366C[];       // SNS egg collect-burst colours, 6 RGB triples
+extern u8 D_8036366C[]; // SNS egg collect-burst colours, 6 RGB triples
 
 extern s32 D_80385F30[0x2C]; // item / score counters, indexed by enum item_e
 extern f32 D_8037C5B0[3];    // player position
@@ -66,10 +66,8 @@ namespace {
 
 // Tooie Jiggy Anim is enforced except for these maps
 constexpr s32 kDanceSuppressedMaps[] = {
-    MAP_16_GV_RUBEES_CHAMBER,   MAP_1B_MMM_MAD_MONSTER_MANSION,
-    MAP_1C_MMM_CHURCH,          MAP_1D_MMM_CELLAR,
-    MAP_26_MMM_NAPPERS_ROOM,    MAP_34_RBB_ENGINE_ROOM,
-    MAP_8F_TTC_SHARKFOOD_ISLAND, MAP_92_GV_SNS_CHAMBER,
+    MAP_16_GV_RUBEES_CHAMBER, MAP_1B_MMM_MAD_MONSTER_MANSION, MAP_1C_MMM_CHURCH,           MAP_1D_MMM_CELLAR,
+    MAP_26_MMM_NAPPERS_ROOM,  MAP_34_RBB_ENGINE_ROOM,         MAP_8F_TTC_SHARKFOOD_ISLAND, MAP_92_GV_SNS_CHAMBER,
 };
 
 // Pause menu
@@ -154,12 +152,17 @@ void SnowGlow_EnablePauseRowVisibility() {
 // Dialog gates
 constexpr int kSnowGlowSuppressedDialogs[] = {
     ASSET_D96_DIALOG_BEEHIVE_MEET,
-    ASSET_D97_DIALOG_JINJO_MEET_YELLOW, ASSET_D98_DIALOG_JINJO_MEET_BLUE,
-    ASSET_D99_DIALOG_JINJO_MEET_GREEN,  ASSET_D9A_DIALOG_JINJO_MEET_PINK,
+    ASSET_D97_DIALOG_JINJO_MEET_YELLOW,
+    ASSET_D98_DIALOG_JINJO_MEET_BLUE,
+    ASSET_D99_DIALOG_JINJO_MEET_GREEN,
+    ASSET_D9A_DIALOG_JINJO_MEET_PINK,
     ASSET_D9B_DIALOG_JINJO_MEET_ORANGE,
-    ASSET_D9C_DIALOG_MUSIC_NOTE_MEET,  ASSET_D9D_DIALOG_MUMBO_TOKEN_MEET,
-    ASSET_D9E_DIALOG_BLUE_EGG_MEET,    ASSET_D9F_DIALOG_RED_FEATHER_MEET,
-    ASSET_DA0_DIALOG_GOLD_FEATHER_MEET, ASSET_DA1_DIALOG_HONEYCOMB_MEET,
+    ASSET_D9C_DIALOG_MUSIC_NOTE_MEET,
+    ASSET_D9D_DIALOG_MUMBO_TOKEN_MEET,
+    ASSET_D9E_DIALOG_BLUE_EGG_MEET,
+    ASSET_D9F_DIALOG_RED_FEATHER_MEET,
+    ASSET_DA0_DIALOG_GOLD_FEATHER_MEET,
+    ASSET_DA1_DIALOG_HONEYCOMB_MEET,
     ASSET_DA3_DIALOG_EXTRA_LIFE_MEET,
     0xF74, // MM 50-note milestone
     0xF75, // past-the-50-note-door taunt
@@ -174,8 +177,7 @@ void SnowGlow_EnableDialogGates() {
         const s32 textId = va_arg(args, s32);
         if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
              textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
-            gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL ||
-            !jiggyscore_isCollected((enum jiggy_e)3)) {
+            gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
             return;
         }
         func_80324E38(0.0f, 3);
@@ -200,9 +202,8 @@ struct ProgressCap {
     s32 flag;
 };
 constexpr ProgressCap kProgressCaps[] = {
-    { 1, 1, 0x5D },  { 2, 2, 0x5E },  { 5, 3, 0x60 },  { 7, 3, 0x63 },
-    { 8, 4, 0x66 },  { 9, 4, 0x6A },  { 10, 4, 0x6E }, { 20, 5, 0x72 },
-    { 0, 1, 0x77 },  { 25, 5, 0x78 }, { 4, 3, 0x7D },
+    { 1, 1, 0x5D },  { 2, 2, 0x5E },  { 5, 3, 0x60 }, { 7, 3, 0x63 },  { 8, 4, 0x66 }, { 9, 4, 0x6A },
+    { 10, 4, 0x6E }, { 20, 5, 0x72 }, { 0, 1, 0x77 }, { 25, 5, 0x78 }, { 4, 3, 0x7D },
 };
 
 void SnowGlow_EnableProgressCaps() {
@@ -224,9 +225,8 @@ constexpr s32 kSlotJiggyBits = 0x78;
 constexpr s32 kSavedItemBytes = 0x70;
 constexpr s32 kJiggyBitBytes = 0xD;
 constexpr s32 kAirRefill = 0xE10;
-constexpr s32 kRestoredItemOffsets[] = { 0x00, 0x1C, 0x24, 0x10, 0x28, 0x2C, 0x08,
-                                         0x20, 0x30, 0x38, 0x48, 0x60, 0x64, 0x8C,
-                                         0x68, 0x6C, 0x7C, 0x80, 0x84, 0x88 };
+constexpr s32 kRestoredItemOffsets[] = { 0x00, 0x1C, 0x24, 0x10, 0x28, 0x2C, 0x08, 0x20, 0x30, 0x38,
+                                         0x48, 0x60, 0x64, 0x8C, 0x68, 0x6C, 0x7C, 0x80, 0x84, 0x88 };
 
 u8 sLevelSlots[kLevelSlotStride * kLevelSlotCount];
 bool sLevelSlotsSeeded = false;
@@ -283,8 +283,7 @@ void SnowGlow_EnableLevelStateSlots() {
 
 // Jiggy totals
 constexpr int kJiggiesMovedToFP[] = {
-    JIGGY_03_MM_MUMBOS_SKULL, JIGGY_25_BGS_MAZE,
-    JIGGY_02_MM_TICKERS_TOWER, JIGGY_4_MM_JUJU, JIGGY_27_BGS_TIPTUP,
+    JIGGY_03_MM_MUMBOS_SKULL, JIGGY_25_BGS_MAZE, JIGGY_02_MM_TICKERS_TOWER, JIGGY_4_MM_JUJU, JIGGY_27_BGS_TIPTUP,
 };
 constexpr JiggyRelocation kSnowGlowJiggyRelocations[] = {
     { LEVEL_5_FREEZEEZY_PEAK, kJiggiesMovedToFP, ARRAY_COUNT(kJiggiesMovedToFP) },
@@ -298,8 +297,8 @@ constexpr s32 kHoneycombsMovedToFP[] = {
     HONEYCOMB_B_GV_CACTUS,
 };
 constexpr s32 kHoneycombsMovedToMMM[] = {
-    HONEYCOMB_1_MM_HILL,        HONEYCOMB_2_MM_JUJU,        HONEYCOMB_3_TTC_UNDERWATER,
-    HONEYCOMB_5_CC_UNDERWATER,  HONEYCOMB_6_CC_ABOVE_WATER, HONEYCOMB_14_SM_WATERFALL,
+    HONEYCOMB_1_MM_HILL,       HONEYCOMB_2_MM_JUJU,        HONEYCOMB_3_TTC_UNDERWATER,
+    HONEYCOMB_5_CC_UNDERWATER, HONEYCOMB_6_CC_ABOVE_WATER, HONEYCOMB_14_SM_WATERFALL,
 };
 
 bool SnowGlow_HoneycombRelocated(s32 index) {
@@ -404,8 +403,7 @@ void SnowGlow_RecolorSnsEggBursts() {
 
 bool SnowGlow_AllSnsCollected() {
     return sns_get_item_state(SNS_ITEM_EGG_PINK, SNS_COLLECTED) &&
-           sns_get_item_state(SNS_ITEM_EGG_CYAN, SNS_COLLECTED) &&
-           sns_get_item_state(SNS_ITEM_ICE_KEY, SNS_COLLECTED);
+           sns_get_item_state(SNS_ITEM_EGG_CYAN, SNS_COLLECTED) && sns_get_item_state(SNS_ITEM_ICE_KEY, SNS_COLLECTED);
 }
 
 // Selectively enable SNS
@@ -494,7 +492,6 @@ void SnowGlow_SuppressGobi2() {
         }
     });
 }
-
 
 // Sparkle projectiles use asset 0x70F instead of the yellow sparkle
 void SnowGlow_RepointSparkleSprite() {
@@ -611,8 +608,7 @@ constexpr SnsPageSlot kSnsPageSlots[] = {
 };
 constexpr s32 kSnsGhostAlpha = 0x50;
 
-void SnowGlow_DrawSnsPage(Gfx** gfx, Mtx** mtx, s32 snsAlpha, s16* angles, BKModelBin* eggModel,
-                          BKModelBin* keyModel) {
+void SnowGlow_DrawSnsPage(Gfx** gfx, Mtx** mtx, s32 snsAlpha, s16* angles, BKModelBin* eggModel, BKModelBin* keyModel) {
     const f32 dt = time_getDelta();
     for (const auto& slot : kSnsPageSlots) {
         FrameInterpolation_RecordOpenChild("sgv_sns", (uintptr_t)slot.item);

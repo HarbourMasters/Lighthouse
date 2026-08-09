@@ -398,8 +398,8 @@ static void LoadGameConfig() {
                     pos += 4;
                     if ((dest >> 8) == 0) {
                         SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} has invalid "
-                                    "destination 0x{:04X} (map 0), ignoring",
-                                    warpIdx, dest);
+                                     "destination 0x{:04X} (map 0), ignoring",
+                                     warpIdx, dest);
                         continue;
                     }
                     if (canValidate) {
@@ -408,8 +408,8 @@ static void LoadGameConfig() {
                                       (dest >> 8) + 0x71C);
                         if (!archive->HasFile(setupPath)) {
                             SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} targets map 0x{:02X}, "
-                                        "which has no setup — dropping override",
-                                        warpIdx, dest >> 8);
+                                         "which has no setup — dropping override",
+                                         warpIdx, dest >> 8);
                             continue;
                         }
                     }

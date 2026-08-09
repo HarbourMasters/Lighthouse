@@ -361,8 +361,7 @@ static void Gruntch_EnableMumboTokenDialogs() {
         const s32 textId = va_arg(args, s32);
         if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
              textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
-            gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL ||
-            !jiggyscore_isCollected((enum jiggy_e)3)) {
+            gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
             return;
         }
         func_80324E38(0.0f, 3);
