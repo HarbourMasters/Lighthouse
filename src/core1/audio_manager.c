@@ -357,7 +357,11 @@ void audioManagerThread_entry(void *arg) {
     s32 skip_handle_done_mesg = 1;
 
     while (true) {
-        osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
+        // [port] False when the pump owes the playback cushion a catch-up frame, which it takes
+        // without waiting.
+        if (port_audioPumpShouldWait()) {
+            osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
+        }
         if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
             return;
         }
@@ -375,14 +379,6 @@ void audioManagerThread_entry(void *arg) {
             } else {
                 skip_handle_done_mesg--;
             }
-        }
-        // [port] The N64 pacing is open-loop (pump cadence x frame size vs the
-        // DAC, same crystal), so a pump missed on PC drains the playback
-        // cushion for tens of seconds. Self-post one extra frame at a time,
-        // re-deciding on the fresh buffer level after each push, until the
-        // cushion is rebuilt.
-        if (port_audioCatchupFrames() > 0) {
-            osSendMesgPtr(&audioManager.audioFrameMsgQ, NULL, OS_MESG_NOBLOCK);
         }
     }
 }
