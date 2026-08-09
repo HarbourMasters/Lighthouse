@@ -926,7 +926,7 @@ void SaveManager_Init() {
     // Decomp clears global arrays (e.g. gCompletedBottlesBonusGames) just before
     // gameFile_load fires OnGameLoad. Restore them from global.json here before
     // other OnGameLoad listeners read them.
-    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_HIGH, [](IEvent* event) { LoadGlobalData(); });
+    REGISTER_LISTENER(OnGameLoad, EVENT_PRIORITY_LOW, [](IEvent* event) { LoadGlobalData(); });
 }
 
 static void RegisterPersistBottlesBonus_Init() {

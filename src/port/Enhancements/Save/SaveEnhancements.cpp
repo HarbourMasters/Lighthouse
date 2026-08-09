@@ -53,7 +53,7 @@ extern "C" void port_syncBottlesBonusIndex(void) {
 }
 
 void RegisterStopNSwop100_Init() {
-    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, CVAR_STOPNSWOP, [](IEvent* event) {
+    COND_HOOK(OnGameStart, EVENT_PRIORITY_NORMAL, CVAR_STOPNSWOP, [](IEvent* event) {
         if (jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
             for (int i = 1; i < SNS_ITEM_length; i++) {
                 sns_set_item_state(i, SNS_UNLOCKED, true);
