@@ -1,11 +1,11 @@
 #include "Anchor.h"
 #include "port/Engine.h"
+#include "port/Rando/Rando.h"
+#include "port/GameStatus.h"
 
-extern "C" {
 #include "variables.h"
 #include "functions.h"
 // extern PlayState* gPlayState;
-}
 
 void AnchorRoomWindow::Draw() {
     if (!IsVisible() || !Anchor::GetInstance()->isConnected) {
@@ -34,9 +34,7 @@ void AnchorRoomWindow::Draw() {
 }
 
 void AnchorRoomWindow::DrawElement() {
-    bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
-
-    if (isGlobalRoom) {
+    if (Anchor::GetInstance()->IsGlobalRoom()) {
         u32 activeClients = 0;
         for (auto& [clientId, client] : Anchor::GetInstance()->clients) {
             if (client.online) {
@@ -84,9 +82,8 @@ void AnchorRoomWindow::DrawElement() {
                 (Anchor::GetInstance()->roomState.showLocationsMode == 1 && isOwnTeam)) {
                 if ((client.self ? Anchor::GetInstance()->IsSaveLoaded() : client.isSaveLoaded)) {
                     ImGui::SameLine();
-                    ImGui::TextColored(
-                        ImVec4(1, 1, 1, 0.5f), "- %s",
-                        /*SohUtils::GetSceneName(client.self ? gPlayState->sceneNum : client.sceneNum).c_str()*/ "");
+                    ImGui::TextColored(ImVec4(1, 1, 1, 0.5f), "- %s",
+                                       port_getLevelName((int)(client.self ? gsworld_getMap() : client.map)));
                 }
             }
 
@@ -110,7 +107,7 @@ void AnchorRoomWindow::DrawElement() {
                     ImGui::EndTooltip();
                 }
             }
-            uint32_t seed = /*IS_RANDO ? Rando::Context::GetRawInstance()->GetSeed() :*/ 0;
+            uint32_t seed = IS_RANDO ? (uint32_t)RANDO_SEED : 0;
             if (client.isSaveLoaded && Anchor::GetInstance()->IsSaveLoaded() && client.seed != seed && client.online &&
                 !client.self) {
                 ImGui::SameLine();

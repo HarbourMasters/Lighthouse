@@ -27,11 +27,11 @@ Actor *func_80390290(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
     if(this->unk38_31) return this;
 
-    if(gcdialog_getCurrentTextId() == 0xC1F || gcdialog_getCurrentTextId() == 0xC1E){
+    if(gcdialog_getCurrentTextId() == VER_SELECT(ASSET_C1F_DIALOG_BOGGY_IGLOO_2, 0x999, 0, 0) || gcdialog_getCurrentTextId() == VER_SELECT(ASSET_C1E_DIALOG_BOGGY_IGLOO_1, 0x998, 0, 0)){
         sp18 = 1;
     }
-    func_8033A45C(1, 0);
-    func_8033A45C(3, sp18);
+    modelRender_setAppendageVisibility(1, 0);
+    modelRender_setAppendageVisibility(3, sp18);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
@@ -53,7 +53,9 @@ void func_80390388(Actor *this){
             levelSpecificFlags_set(LEVEL_FLAG_12_FP_UNKNOWN, true);
             levelSpecificFlags_set(LEVEL_FLAG_13_FP_UNKNOWN, true);
         }
-        if(jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3) || jiggyscore_isSpawned(JIGGY_2C_FP_BOGGY_3)){
+        if(EventSystem_Should(VB_BOGGY_HOME_VISIBLE,
+               jiggyscore_isCollected(JIGGY_2C_FP_BOGGY_3) || jiggyscore_isSpawned(JIGGY_2C_FP_BOGGY_3),
+               this)){
             this->unk38_31 = false;
             this->marker->propPtr->unk8_3 = true;
         }
@@ -78,15 +80,15 @@ void func_80390388(Actor *this){
         && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
     ){
         if(0.0f == this->unk1C[0] && func_80390334()){
-            if(gcdialog_showDialog(ASSET_C1F_DIALOG_BOGGY_IGLOO_2, 0xb, this->position, NULL, NULL, NULL)){
-                this->has_met_before = true;
+            if(gcdialog_showDialog(VER_SELECT(ASSET_C1F_DIALOG_BOGGY_IGLOO_2, 0x999, 0, 0), 0xb, this->position, NULL, NULL, NULL)){
+                this->has_met_before = TRUE;
                 this->unk1C[0] = 1.0f;
             }
         }
         else{
             if( !this->has_met_before ){
-                if(gcdialog_showDialog(ASSET_C1E_DIALOG_BOGGY_IGLOO_1, 0x2b, this->position, NULL, NULL, NULL)){
-                    this->has_met_before = true;
+                if(gcdialog_showDialog(VER_SELECT(ASSET_C1E_DIALOG_BOGGY_IGLOO_1, 0x998, 0, 0), 0x2b, this->position, NULL, NULL, NULL)){
+                    this->has_met_before = TRUE;
                 }
             }
         }

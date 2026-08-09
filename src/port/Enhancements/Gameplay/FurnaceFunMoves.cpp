@@ -4,11 +4,9 @@
 #include "port/ShipInit.hpp"
 #include "port/Romhack/RomhackConfig.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "core2/abilityprogress.h"
-}
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves")
 
@@ -23,7 +21,12 @@ void RegisterFurnaceFunMoves_Init() {
                 continue;
             }
             ability_unlock(static_cast<ability_e>(ability));
+            ability_setHasUsed(static_cast<ability_e>(ability));
         }
+        // Outside the loop's range. Without it the note doors never open and Bottles
+        // force-triggers his tutorial on approach to the 50-note door.
+        ability_unlock(ABILITY_13_1ST_NOTEDOOR);
+        ability_setHasUsed(ABILITY_13_1ST_NOTEDOOR);
     });
 }
 

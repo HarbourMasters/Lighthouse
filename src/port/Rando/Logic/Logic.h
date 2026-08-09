@@ -6,32 +6,21 @@
 
 #include <unordered_set>
 
+#include "functions.h"
 extern "C" {
-void item_set(s32 item, s32 val);
-void item_adjustByDiffWithoutHud(enum item_e item, s32 diff);
-s32 item_getCount(enum item_e item);
-void itemscore_noteScores_clear(void);
-
-void ability_unlock(enum ability_e);
-int ability_isUnlocked(enum ability_e uid);
-void ability_setLearned(s32 move, s32 val);
+// Decomp functions that functions.h does not declare (defined in smbottles.c,
+// mumbo_transforms.c and jigsawpicture.c respectively).
 void __chSmBottles_skipIntroTutorial(void);
-
-void fileProgressFlag_set(enum file_progress_e index, s32 set);
-bool fileProgressFlag_get(enum file_progress_e index);
 s32 __transformation_getCost(enum transformation_e trans_id);
 s32 _puzzleCost(s32 index);
-
-u32 player_getTransformation(void);
-
-enum level_e map_getLevel(enum map_e map);
-enum map_e gsworld_getMap(void);
 }
 
 extern int32_t randoFinalSeed;
 
 extern std::map<ability_e, std::pair<const char*, const char*>> abilityLoadoutMap;
 extern std::map<item_e, std::pair<const char*, const char*>> itemLoadoutMap;
+extern std::vector<file_progress_e> progressLoadout;
+extern std::vector<RandoCheckId> smRandoCheckIdList;
 
 extern Rando::StaticData::RandoLogicData reachableRegions[RR_MAX];
 extern Rando::StaticData::RandoLogicData reachableEvents[RA_MAX];
@@ -67,20 +56,17 @@ void GeneratePoolFromSaveData(SaveData* saveData);
 void InitializeSaveData(SaveData* saveData);
 void GenerateSaveData(SaveData* saveData);
 void GrantStartingLoadout();
+void GrantFileProgressFlags();
+void GrantSpiralMountainChecks();
 
 void RefreshReachableRegions();
 
 inline bool IsCheckShuffled(RandoCheckId randoCheckId) {
-    bool isShuffled = false;
+    return RANDO_SAVE_CHECKS[randoCheckId].isShuffled;
+}
 
-    for (auto& object : shuffledPool) {
-        if (object.randoCheckId == randoCheckId) {
-            isShuffled = object.isShuffled;
-            break;
-        }
-    }
-
-    return isShuffled;
+inline bool IsCheckObtained(RandoCheckId randoCheckId) {
+    return RANDO_SAVE_CHECKS[randoCheckId].eligible;
 }
 
 inline RandoSaveCheck GetShuffledObject(RandoCheckId randoCheckId) {
@@ -101,25 +87,12 @@ inline RandoSaveCheck GetShuffledObject(RandoCheckId randoCheckId) {
     return shuffledObject;
 }
 
-inline bool IsCheckObtained(RandoCheckId randoCheckId) {
-    bool isObtained = false;
-
-    for (auto& object : shuffledPool) {
-        if (object.randoCheckId == randoCheckId) {
-            isObtained = object.obtained;
-            break;
-        }
-    }
-
-    return isObtained;
-}
-
 inline bool ShouldSpawnJinjoJiggy(int16_t levelId) {
     bool shouldSpawn = false;
     int16_t jinjoCount = 0;
 
     for (auto& location : Rando::Logic::shuffledPool) {
-        if (!location.obtained) {
+        if (!location.eligible) {
             continue;
         }
 
@@ -145,7 +118,7 @@ inline int32_t GetTotalSnsItemsCollected() {
     int32_t snsCount = 0;
 
     for (auto& location : Rando::Logic::shuffledPool) {
-        if (!location.obtained) {
+        if (!location.eligible) {
             continue;
         }
 
@@ -251,7 +224,9 @@ inline bool CanOpenWorld(level_e levelId) {
         return true;
     }
 
-    int32_t puzzleCost = levelId == LEVEL_6_LAIR ? 25 : _puzzleCost(levelNum - 1);
+    // [port] index 9 is the Door of Grunty picture; 25 is only its vanilla cost, and a
+    // romhack can change it like any other.
+    int32_t puzzleCost = levelId == LEVEL_6_LAIR ? _puzzleCost(9) : _puzzleCost(levelNum - 1);
     int32_t jiggyCount = item_getCount(ITEM_E_JIGGY);
 
     if (jiggyCount >= puzzleCost) {
@@ -363,6 +338,8 @@ inline bool CanKillEnemy(actor_e enemyType) {
                 ability_isUnlocked(ABILITY_B_RATATAT_RAP)) {
                 canKillEnemy = true;
             }
+            break;
+        default:
             break;
     }
 

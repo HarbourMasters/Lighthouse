@@ -9,8 +9,8 @@
 // Implemented in src/BGS (see [port] Anchor sync entry points there).
 extern void chyumblie_netApplyState(Actor* actor, s32 state, s32 piece_type);
 extern s32 chyumblie_netGetState(Actor* actor, s32* piece_type);
-extern void chvile_netApplyUpdate(Actor* actor, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode);
-extern s32 chvile_netGetAnimMode(Actor* actor);
+extern void chMrVile_netApplyUpdate(Actor* actor, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode);
+extern s32 chMrVile_netGetAnimMode(Actor* actor);
 extern bool chvilegame_netGather(Actor* actor, VileGameSnapshot* dst);
 extern void chvilegame_netApply(Actor* actor, const VileGameSnapshot* src);
 extern bool chvilegame_netConsumeRemote(Actor* actor, f32 position[3], s32* out_piece_type, s32* out_correct_type);
@@ -98,7 +98,7 @@ bool VileSync_HandleEatRequest(int32_t holeId, uint32_t eaterClientId, int32_t* 
         return false;
     }
     pos[0] = holePos[0];
-    pos[1] = 0.0f; // piece positions are stored with y = 0 (see chvilegame_new_piece)
+    pos[1] = 0.0f; // piece positions are stored with y = 0 (see chMrVileMinigame_newPiece)
     pos[2] = holePos[1];
     // A successful consume broadcasts the eaten hole state itself (the state change
     // fires OnVileHoleStateChange on this authority client); the piece type / correctness
@@ -117,7 +117,7 @@ void VileSync_ApplyVileUpdate(const float position[3], float pitch, float yaw, f
     Actor* vile = VileSync_FindActor(ACTOR_13A_MR_VILE);
 
     if (vile != NULL) {
-        chvile_netApplyUpdate(vile, position, pitch, yaw, roll, animMode);
+        chMrVile_netApplyUpdate(vile, position, pitch, yaw, roll, animMode);
     }
 }
 

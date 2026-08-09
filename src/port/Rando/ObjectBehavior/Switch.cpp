@@ -6,19 +6,15 @@
 #include "spdlog/spdlog.h"
 
 extern "C" {
-Actor* actorArray_findActorFromActorId(enum actor_e actor_id);
 void destroyJiggy(Actor* thisx, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, enum volatile_flags_e arg6);
-
-s32 mapSpecificFlags_get(s32 i);
-void mapSpecificFlags_set(s32 i, s32 val);
-
-void actor_collisionOff(Actor*);
 }
+
+Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId); // ObjectBehavior.cpp
 
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue
 
 void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
-    if (!IS_RANDO && !OPTION_ENABLED) {
+    if (!IS_RANDO || !OPTION_ENABLED) {
         return;
     }
 
@@ -45,9 +41,12 @@ void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
         return;
     }
 
-    RandoSaveCheck randoSaveCheck = Rando::Logic::GetShuffledObject(randoCheckId);
-    actor_e actorId = (actor_e)Rando::StaticData::Items[randoSaveCheck.randoItemId].actorId;
-    Actor* findActor = actorArray_findActorFromActorId(actorId);
+    // Don't play missed switch scene if the check's been obtained
+    if (RANDO_SAVE_CHECKS[randoCheckId].eligible) {
+        return;
+    }
+
+    Actor* findActor = FindActorByRandoCheckId(randoCheckId);
 
     if (findActor != NULL) {
         actor_collisionOff(findActor);

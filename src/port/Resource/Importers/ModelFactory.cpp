@@ -6,12 +6,12 @@
 #include <fast/resource/type/Texture.h>
 
 #include "port/Resource/Alt/AltPathPool.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include <string>
+#include <vector>
 
-extern "C" {
 #include "model.h"
-}
 
 namespace Factories {
 namespace {
@@ -130,6 +130,18 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         tm.textureDataOffset = reader->ReadUInt32();
         SPDLOG_TRACE("[BKModel] '{}' tex[{}]: type=0x{:X} {}x{} tlutColors={} romOff=0x{:X}", initData->Path, ti,
                      tm.type, tm.width, tm.height, tm.tlutColors, tm.textureDataOffset);
+    }
+
+    // Let enhancements patch the raw display list before it is widened.
+    // Command indices must be preserved; the geo layout references them by position.
+    if (!rawDLWords.empty() && texCount > 0) {
+        std::vector<ModelTexSize> texSizes;
+        texSizes.reserve(texMetas.size());
+        for (const auto& tm : texMetas) {
+            texSizes.push_back(ModelTexSize{ tm.width, tm.height });
+        }
+        CALL_EVENT(OnModelDisplayListLoad, initData->Path.c_str(), rawDLWords.data(),
+                   static_cast<uint32_t>(rawDLWords.size()), texSizes.data(), texCount);
     }
 
     // Raw texture data blob — full contiguous pixel area from the ROM.
@@ -386,28 +398,21 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     //
     // Layout (each section padded to 8-byte alignment):
     //   [  0 ] BKModelBin header (zero-init, geo_type set)
-    //   [ GL ] GeoLayout command tree                          → geo_list_offset
-    //   [ T  ] BKTextureList + BKTextureInfo[] + pixel data    → texture_list_offset
-    //   [ A  ] BKAnimationList + BKAnimation[]                 → animation_list_offset
-    //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           → collision_list_offset
-    //   [ 14 ] BKModelUnk14List + entries                      → unk14
-    //   [ 20 ] BKCameraAreaList + entries                      → unk20
-    //   [ E  ] effect count (s16) + effects                    → mesh_list_offset
-    //   [ 28 ] BKAnimVerticesList + entries                    → unk28
-    //   [ AT ] AnimTexture[4]                                  → animated_texture_list_offset
-    //   [ V  ] BKVertexList header + Vtx[]                     → vtx_list_offset
-    //   [ G  ] BKGfxList header + Gfx[]                        → gfx_list_offset
+    //   [ T  ] BKTextureList + BKTextureInfo[] + pixel data    -> texture_list_offset
+    //   [ GL ] GeoLayout command tree                          -> geo_list_offset
+    //   [ A  ] BKAnimationList + BKAnimation[]                 -> animation_list_offset
+    //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           -> collision_list_offset
+    //   [ 14 ] BKModelUnk14List + entries                      -> unk14
+    //   [ 20 ] BKCameraAreaList + entries                      -> unk20
+    //   [ E  ] effect count (s16) + effects                    -> mesh_list_offset
+    //   [ 28 ] BKAnimVerticesList + entries                    -> unk28
+    //   [ AT ] AnimTexture[4]                                  -> animated_texture_list_offset
+    //   [ V  ] BKVertexList header + Vtx[]                     -> vtx_list_offset
+    //   [ G  ] BKGfxList header + Gfx[]                        -> gfx_list_offset
 
     auto out = std::vector<uint8_t>(sizeof(BKModelBin), 0);
     auto hdr = [&]() -> BKModelBin* { return reinterpret_cast<BKModelBin*>(out.data()); };
     hdr()->geo_type = static_cast<int16_t>(geoType);
-
-    // GeoLayout section
-    if (geoBlob && !geoBlob->Data.empty()) {
-        PadTo8(out);
-        hdr()->geo_list_offset = static_cast<int32_t>(out.size());
-        AppendBytes(out, geoBlob->Data.data(), geoBlob->Data.size());
-    }
 
     // Texture section
     if (texCount > 0) {
@@ -441,11 +446,14 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         // Write pixel data area (raw blob from Torch)
         if (blobPtr) {
             AppendBytes(out, blobPtr, rawTexDataSize);
-        } else {
-            // Fallback: zero-filled if blob was missing
-            for (uint32_t i = 0; i < rawTexDataSize; i++)
-                out.push_back(0);
         }
+    }
+
+    // GeoLayout section
+    if (geoBlob && !geoBlob->Data.empty()) {
+        PadTo8(out);
+        hdr()->geo_list_offset = static_cast<int32_t>(out.size());
+        AppendBytes(out, geoBlob->Data.data(), geoBlob->Data.size());
     }
 
     // Animation section

@@ -1,4 +1,4 @@
-// BanjoDecomp: code_2F60.c
+// BanjoDecomp: MMM/ch/portrait.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -63,7 +63,7 @@ ActorInfo chPortraitMinion = {
 
 /* .code */
 Actor *chPortrait_draw(ActorMarker *marker, Gfx **graphics, Mtx **matrix, Vtx **vertex) {
-    func_8033A45C(3, marker_getActor(marker)->unk38_31);
+    modelRender_setAppendageVisibility(3, marker_getActor(marker)->unk38_31);
     return actor_draw(marker, graphics, matrix, vertex);
 }
 

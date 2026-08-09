@@ -1,5 +1,7 @@
+// BanjoDecomp: core2/code_630D0.c
 #include <ultra64.h>
 #include "functions.h"
+#include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
 #include "variables.h"
 #include "animation.h"
 
@@ -31,7 +33,7 @@ MtxF *animMtxList_get(AnimMtxList *this, s32 arg1){
     }
     // [port] bounds check - on N64 this never happens but corrupt data can cause OOB
     if (arg1 < 0 || arg1 >= this->size) {
-        BK_LOG_WARN("[port] animMtxList_get: OOB index %d (size=%d)", arg1, this->size);
+        BK_LOG_WARN("animMtxList_get: OOB index %d (size=%d)", arg1, this->size);
         return &this->default_matrix; // fallback to identity
     }
     return &this->data[arg1];

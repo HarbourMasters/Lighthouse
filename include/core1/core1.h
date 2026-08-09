@@ -2,6 +2,7 @@
 #define BANJO_KAZOOIE_CORE1_CORE1_H
 
 #include <ultra64.h>
+#include <PR/libaudio.h> // [port] for ALSeqpConfig/ALHeap in audioManager decls (decomp gets this via SDK ultra64.h)
 #include "bool.h"
 #include "enums.h"
 #include "structs.h"
@@ -23,6 +24,10 @@
 #include "core1/viewport.h"
 #include "core1/vimgr.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* need to sort out in individual header files */
 void* malloc(size_t size);
@@ -38,8 +43,18 @@ void func_8025ABB8(enum comusic_e comusic_id, s32 arg1, s32 arg2, s32 arg3);
 int func_8025AD7C(enum comusic_e arg0);
 int func_8025ADBC(enum comusic_e arg0);
 
-OSMesgQueue * audioManager_getFrameMesgQueue(void);
 void piMgr_read(void *vaddr, s32 devaddr, s32 size);
+
+
+/* src/core1/code_1D00.c */
+
+void audioManager_setupSeqp(ALSeqpConfig *config);
+void audioManager_init(void);
+ALHeap *audioManager_getALHeapInfo(void);
+OSMesgQueue *audioManager_getDMANotifyMesgQueue(void);
+OSIoMesg *audioManager_getExtraDMAMesg(void);
+OSMesgQueue *audioManager_getFrameMesgQueue(void);
+OSMesgQueue *audioManager_getReplyMesgQueue(void);
 
 
 /* src/core1/overlay.c */
@@ -123,17 +138,17 @@ void core1_ce60_func_8024BD40(s32 arg0, s32 arg1);
 
 /* src/core1/depthbuffer.c */
 
-extern u8 D_8000E800;
+extern u8 D_8000E800[];
 
-void func_80253190(Gfx **gfx);
-void func_80253208(Gfx **gfx, s32 x, s32 y, s32 w, s32 h, void *color_buffer);
-int func_80253400(void);
-bool depthBuffer_isPointerSet(void);
-void depthBuffer_stub(void);
-void func_80253428(int arg0);
-void func_802534A8(int arg0);
-void zBuffer_set(Gfx **gfx);
-void *zBuffer_get(void);
+void depthbuffer_clear(Gfx **gfx);
+void depthbuffer_clearRegion(Gfx **gfx, s32 x, s32 y, s32 w, s32 h, void *color_buffer);
+bool depthbuffer_getUnk4(void);
+bool depthbuffer_isDataPtrSet(void);
+void depthbuffer_stub(void);
+void depthbuffer_enable(bool enable);
+void depthbuffer_setUnk4(bool value);
+void depthbuffer_set(Gfx **gfx);
+void *depthbuffer_getDataPtr(void);
 
 
 
@@ -149,8 +164,8 @@ struct ucode_task_data_s {
     s32 unk4; // is only set for gfx tasks (0 or 0x40000000)
     void *data_ptr; // begin of dlist data (was u64* upstream; void* here for port-side casts)
     void *data_ptr_end; // end of dlist data
-    OSMesgQueue *unk10; // only relevant for audio tasks
-    s32 unk14; // only relevant for audio tasks
+    OSMesgQueue *audio_mesg_queue; // only relevant for audio tasks
+    OSMesg audio_mesg; // only relevant for audio tasks
 };
 
 #define DEFAULT_FRAMEBUFFER_WIDTH 292
@@ -162,10 +177,10 @@ extern u16 gFramebuffers[2][DEFAULT_FRAMEBUFFER_WIDTH * DEFAULT_FRAMEBUFFER_HEIG
 
 void core1_15B30_requestLockForTaskDataID(void);
 void core1_15B30_requestReleaseForTaskDataID(void);
-void core1_15B30_addAudioTaskData(Gfx **start, Gfx **end, void *mesg_queue, void *msg);
-void func_80253640(Gfx ** gdl, void *arg1);
-void scissorBox_SetForGameMode(Gfx **gdl, s32 framebuffer_idx);
-void setupScissorBoxAndFramebuffer(Gfx **gfx, uintptr_t framebuffer_address);
+void core1_15B30_addAudioTaskData(Acmd *start, Acmd *end, OSMesgQueue *mesg_queue, OSMesg msg);
+void setupFramebuffer(Gfx **gfx, void *color_buffer);
+void setupFramebufferForGamemode(Gfx **gfx, s32 framebuffer_idx);
+void setupScissorBoxAndFramebuffer(Gfx **gfx, void *color_buffer);
 void setupDefaultScissorBoxAndFramebuffer(Gfx **gfx, s32 framebuffer_idx);
 void core1_15B30_finishDList_renderThread(Gfx **gfx);
 void core1_15B30_finishDList(Gfx **gfx);
@@ -186,8 +201,8 @@ void graphicsCache_checkFrame(Gfx *gfxStart, Gfx *gfxEnd, Mtx *mtxStart, Mtx *mt
 void scissorBox_set(s32 left, s32 top, s32 right, s32 bottom);
 void scissorBox_setDefault(void);
 void core1_15B30_addTask7TaskData(s32 framebuffer_id);
-void toggleTextureFilterPoint(void);
-void getGraphicsStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void core1_15B30_toggleTexturePointFilter(void);
+void graphicscache_swapAndGetStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void dummy_func_80254464(void);
 
 /* src/core1/defragmanager.c */
@@ -200,5 +215,11 @@ void dummy_func_80254464(void);
 void defragManager_init(void);
 void defragManager_free(void);
 void defragManager_setPriority(OSPri pri);
+void defragManager_resume(void);
+void defragManager_pause(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

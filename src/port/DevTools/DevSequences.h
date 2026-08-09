@@ -9,6 +9,7 @@ enum DevSequenceId {
     SEQ_PARADE_FINAL,
     SEQ_MODE9_BK,
     SEQ_MODE9_DIALOG,
+    SEQ_ENDING_ALL_100,
     SEQ_ATTRACT_BASE,
 };
 

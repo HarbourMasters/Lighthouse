@@ -1,0 +1,591 @@
+// BanjoDecomp: core2/bs/bSwim.c
+#include <ultra64.h>
+#include "functions.h"
+#include "variables.h"
+
+#include "core2/ba/model.h"
+#include "core2/ba/physics.h"
+#include "core2/ba/timer.h"
+#include "core2/yaw.h"
+
+
+extern f32  func_8029494C(void);
+extern f32  bastick_getX(void);
+
+/* .bss */
+f32 D_8037D390;
+u8  D_8037D394;
+u8  D_8037D395;
+u8  D_8037D396;
+f32 D_8037D398;
+
+void func_802A7140() {
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NO_GRAVITY);
+}
+
+f32 func_802A716C() {
+    f32 sp24[3];
+    baphysics_get_velocity(sp24);
+    return ml_map_f(gu_sqrtf((sp24[0] * sp24[0]) + (sp24[1] * sp24[1]) + (sp24[2] * sp24[2])), 50.0f, 200.0f, 0.0f, 1.0f); // [port] implicit MIPS $f0 return
+}
+
+void func_802A71D8(void) {
+    f32 yaw_range;
+    f32 sp38;
+    f32 roll_range;
+    f32 sp30;
+
+    sp30 = bastick_getX();
+    sp38 = func_802A716C();
+    if (bakey_held(BUTTON_R)) {
+        roll_range = 45.0f;
+        yaw_range = 4.3f;
+        yaw_setVelocityBounded(250.0f, 20.0f);
+    } else {
+        roll_range = 35.0f;
+        yaw_range = ml_interpolate_f(sp38, 3.1f, 2.4f);
+        yaw_setVelocityBounded(90.0f, ml_interpolate_f(sp38, 3.8f, 2.2f));
+    }
+    roll_setIdeal(ml_map_f(sp30, -1.0f, 1.0f, -roll_range, roll_range));
+    yaw_setIdeal(mlNormalizeAngle(yaw_getIdeal() + ml_map_f(sp30, -1.0f, 1.0f, yaw_range, -yaw_range)));
+}
+
+void func_802A7304() {
+    f32 temp_f0;
+
+    pitch_setAngVel(ml_interpolate_f(func_802A716C(), 70.0f, 30.0f), 0.9f);
+    temp_f0 = bastick_getY();
+    if (temp_f0 < 0.0f) {
+        pitch_setIdeal(ml_map_f(temp_f0, -1.0f, 0.0f, 275.0f, 360.0f));
+        return;
+    }
+    pitch_setIdeal(ml_map_f(temp_f0, 0.0f, 1.0f, 0.0f, 85.0f));
+}
+
+bool func_802A73BC(void) {
+    f32 sp1C;
+
+    sp1C = (gsworld_getMap() == MAP_46_CCW_WINTER) ? 90.0f : 130.0f;
+    return floor_isCurrentFloorunk59() && playerPosition_getY() > (floor_getCurrentFloorYPosition() - sp1C);
+}
+
+void func_802A744C(void) {
+    if (player_isInRBB() && bs_getState() != BS_4C_LANDING_IN_WATER) {
+        progressDialog_showDialogMaskZero(FILEPROG_AC_DIVE_OILY_WATER);
+    }
+    roll_setAngularVelocity(30.0f, 0.9f);
+    baphysics_set_gravity(0.0f);
+    baphysics_set_terminal_velocity(-399.99f);
+    bastick_setZoneMax(0, 0.03f);
+    bastick_setZoneMax(1, 1.0f);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
+    func_80294378(3);
+    baModel_setYDisplacement(60.0f);
+    baphysics_set_acceleration(2.0f);
+}
+
+
+bool bsbswim_inSet(enum bs_e move_id){
+    return move_id == BS_2B_DIVE_IDLE
+        || move_id == BS_2C_DIVE_B
+        || move_id == BS_39_DIVE_A
+        || move_id == BS_30_DIVE_ENTER
+        || move_id == BS_78_DIVE_LOOKAT_DRONE
+        || move_id == BS_7F_DIVE_OW
+        || move_id == BS_54_SWIM_DIE
+        || move_id == BS_97_DIVE_DRONE
+        ;
+}
+
+bool func_802A7588(void){
+    return bsbswim_inSet(bs_getState());
+}
+
+void func_802A75B0(void) {
+    if (!bsbswim_inSet(bs_getNextState())) {
+        pitch_setIdeal(0.0f);
+        roll_setIdeal(0.0f);
+        baphysics_reset_terminal_velocity();
+        baphysics_reset_gravity();
+        bastick_resetZones();
+        modelAppendages_setKazooiesUpperHalfVisibility(false);
+        func_80294378(1);
+        baModel_setYDisplacement(0.0f);
+    }
+}
+
+void bsbdive_idle_init() {
+    baanim_playForDuration_loopSmooth(0x70, 2.0f);
+    func_802A7140();
+    baphysics_set_target_velocity(0);
+    func_802A744C();
+    baphysics_set_acceleration(0.4f);
+}
+
+void bsbdive_idle_update() {
+    s32 state_id = 0;
+
+    func_802A71D8();
+    func_802A7304();
+    
+    if (bainput_should_look_first_person_camera()) {
+        state_id = badrone_look();
+    }
+    if (bakey_held(BUTTON_A)) {
+        state_id = BS_39_DIVE_A;
+    }
+    if (bakey_held(BUTTON_B)) {
+        state_id = BS_2C_DIVE_B;
+    }
+    if (func_802A73BC()) {
+        state_id = BS_2D_SWIM_IDLE;
+    }
+    if (!player_inWater()) {
+        state_id = BS_1_IDLE;
+    }
+
+    bs_setState(state_id);
+}
+
+void bsbdive_idle_end() {
+    func_802A75B0();
+}
+
+void bsbdiveb_init(void) {
+    AnimCtrl* temp_s0;
+    AnimCtrl* temp_v0;
+
+    temp_v0 = baanim_getAnimCtrlPtr();
+    temp_s0 = temp_v0;
+    anctrl_reset(temp_v0);
+    anctrl_setIndex(temp_s0, ASSET_3F_ANIM_BSSWIM_DIVE_MOVE);
+    anctrl_setStart(temp_s0, 0.4626f);
+    anctrl_setDuration(temp_s0, 1.0f);
+    anctrl_start(temp_s0, "bsbswim.c", 0x186);
+    func_802A7140();
+    func_802A744C();
+    D_8037D390 = 0.0f;
+    baphysics_set_acceleration(1.0f);
+    func_802906A4(2);
+}
+
+void func_802A77D8(void) {
+    f32 sp34;
+    f32 sp30;
+    f32 sp24[3];
+
+    sp34 = pitch_get();
+    sp30 = yaw_get();
+    func_80256E24(sp24, sp34, sp30, 0.0f, 0.0f, D_8037D390);
+    baphysics_set_target_velocity(sp24);
+    baphysics_set_velocity(sp24);
+}
+
+void bsbdiveb_update(void) {
+    s32 next_state;
+    AnimCtrl *anim_ctrl;
+    f64 temp_f2;
+
+    next_state = 0;
+    anim_ctrl = baanim_getAnimCtrlPtr();
+    func_802A71D8();
+    func_802A7304();
+    if (D_8037D390 > 0.0f) {
+        func_802A77D8();
+        D_8037D390 = ml_max_f(D_8037D390 - 10.0f, 0.0f);
+    }
+    if (anctrl_isAt(anim_ctrl, 0.1f)) {
+        func_8030EB88(SFX_0_BLOOP, 1.2f, 1.4f);
+        D_8037D390 = 600.0f;
+        CALL_EVENT(OnBeakSwimVelocitySet, &D_8037D390);
+    }
+    if (anctrl_isAt(anim_ctrl, 0.4626f)) {
+        anctrl_setDuration(anim_ctrl, 1.0f);
+    }
+    if (anctrl_isAt(anim_ctrl, 0.2766f)) {
+        anctrl_setDuration(anim_ctrl, 3.0f);
+    }
+    if (!bakey_held(BUTTON_B)) {
+        if (bakey_held(BUTTON_A)) {
+            temp_f2 = (f64) anctrl_getAnimTimer(anim_ctrl);
+            if (temp_f2 <= 0.4625 && 0.1 < temp_f2) {
+                next_state = BS_39_DIVE_A;
+            }
+        } else if (anctrl_isAt(anim_ctrl, 0.4625f)) {
+            next_state = BS_2B_DIVE_IDLE;
+        }
+    }
+    if (anctrl_isAt(anim_ctrl, 0.4625f) && !bakey_held(BUTTON_B)) {
+        if (bakey_held(BUTTON_A)) {
+            next_state = BS_39_DIVE_A;
+        } else {
+            next_state = BS_2B_DIVE_IDLE;
+        }
+    }
+    if (func_802A73BC()) {
+        next_state = BS_2D_SWIM_IDLE;
+    }
+    if (player_inWater() == 0) {
+        next_state = BS_1_IDLE;
+    }
+    bs_setState(next_state);
+}
+
+void bsbdiveb_end() {
+    func_802906A4(1);
+    func_802A75B0();
+}
+
+void bsswim_divea_init() {
+    baanim_playForDuration_loopSmooth(0x71, 0.75f);
+    func_802A7140();
+    func_802A744C();
+    D_8037D390 = 120.0f;
+    baphysics_set_acceleration(2.0f);
+    func_802906A4(2);
+}
+
+void bsswim_divea_update(void) {
+    s32 next_state;
+    AnimCtrl *anim_ctl;
+
+    next_state = 0;
+    anim_ctl = baanim_getAnimCtrlPtr();
+    func_802A71D8();
+    func_802A7304();
+    func_802A77D8();
+    if (anctrl_isAt(anim_ctl, 0.17f)) {
+        func_8030E760(SFX_0_BLOOP, 1.9f, 10000);
+    }
+    if (anctrl_isAt(anim_ctl, 0.67f)) {
+        func_8030E760(SFX_0_BLOOP, 1.7f, 10000);
+    }
+    if (anctrl_isAt(anim_ctl, 0.99f)) {
+        if (!bakey_held(BUTTON_A)) {
+            next_state = BS_2B_DIVE_IDLE;
+        }
+        if (bakey_held(BUTTON_B)) {
+            next_state = BS_2C_DIVE_B;
+        }
+    }
+    if (func_802A73BC()) {
+        next_state = BS_2D_SWIM_IDLE;
+    }
+    if (!player_inWater()) {
+        next_state = BS_1_IDLE;
+    }
+    bs_setState(next_state);
+}
+
+void bsswim_divea_end(void) {
+    func_802906A4(1);
+    func_802A75B0();
+}
+
+void bsbswim_ow_init(void) {
+    f32 sp3C;
+    f32 sp30[3];
+    f32 sp24[3];
+
+    barebound_set_active(func_80296560());
+    baanim_playForDuration_once(0x1A0, 1.4f);
+    basfx_playOwSfx(1.0f);
+    playerPosition_get(sp30);
+    func_80294980(sp24);
+    func_80257F18(sp24, sp30, &sp3C);
+    yaw_setIdeal(mlNormalizeAngle(sp3C));
+    yaw_applyIdeal();
+    baphysics_set_target_horizontal_velocity(barebound_get_horizontal_velocity());
+    baphysics_set_target_yaw(sp3C);
+    baphysics_set_horizontal_velocity(sp3C, baphysics_get_target_horizontal_velocity());
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
+    baMarker_collisionOff();
+    baeyes_close();
+    func_802A744C();
+}
+
+void bsbswim_ow_update(void) {
+    s32 next_state;
+    f32 plyr_pos[3];
+    ParticleEmitter *p_ctrl;
+
+    next_state = 0;
+    playerPosition_get(plyr_pos);
+    plyr_pos[1] += 60.0f;
+    p_ctrl = func_8029B950(plyr_pos, 25.0f);
+    particleEmitter_setParticleVelocityRange(p_ctrl, -60.0f, -50.0f, -60.0f, 60.0f, 100.0f, 60.0f);
+    particleEmitter_emitN(p_ctrl, 1);
+    if (baanim_isAt(0.3f)) {
+        baeyes_open();
+    }
+    if (anctrl_isStopped(baanim_getAnimCtrlPtr())) {
+        next_state = BS_2B_DIVE_IDLE;
+    }
+    bs_setState(next_state);
+}
+
+
+void bsbswim_ow_end(void) {
+    baiFrame_start();
+    baMarker_collisionOn();
+    baeyes_open();
+    func_802A75B0();
+}
+
+void bsSwim_dive_init(void) {
+    ability_use(ABILITY_3_CAMERA_CONTROL);
+    baanim_playForDuration_onceSmooth(ASSET_3C_ANIM_BSSWIM_DIVE_ENTER, 1.0f);
+    func_802A7140();
+    yaw_setVelocityBounded(500.0f, 5.0f);
+    baphysics_set_target_velocity(0);
+    func_802A744C();
+    pitch_setAngVel(200.0f, 2.5f);
+    basfx_80299BD4();
+    D_8037D396 = 0;
+}
+
+
+void bsSwim_dive_update(void) {
+    s32 next_state;
+    AnimCtrl *sp38;
+    f32 sp34;
+    f32 sp30;
+    f32 sp24[3];
+
+    next_state = 0;
+    sp38 = baanim_getAnimCtrlPtr();
+    switch (D_8037D396) {
+    case 0:
+        pitch_setIdeal(50.0f);
+        if (anctrl_isAt(sp38, 0.7247f)) {
+            sp34 = pitch_get();
+            sp30 = yaw_get();
+            func_80256E24(sp24, sp34, sp30, 0.0f, 0.0f, 800.0f);
+            baphysics_set_velocity(sp24);
+            batimer_set(1, 0.8f);
+            D_8037D396 = true;
+        }
+        break;
+    case 1:
+        if (batimer_decrement(1)) {
+            next_state = BS_2B_DIVE_IDLE;
+        }
+        break;
+    }
+    if (anctrl_isAt(sp38, 0.6f)) {
+        func_8030E4E4(SFX_0_BLOOP);
+    }
+    if (!player_inWater()) {
+        next_state = BS_1_IDLE;
+    }
+    bs_setState(next_state);
+}
+
+void bsSwim_dive_end(void){
+    func_802A75B0();
+}
+
+void bsbswim_die_init(void) {
+    D_8037D394 = BOOL(bs_getPrevState() == BS_41_DIE);
+
+    if (D_8037D394 || level_get() == LEVEL_9_RUSTY_BUCKET_BAY || gsworld_getMap() == MAP_46_CCW_WINTER) {
+        D_8037D395 = 0;
+    } else {
+        D_8037D395 = 1;
+    }
+
+    func_8029B930();
+    baanim_playForDuration_loopSmooth(ASSET_B9_ANIM_BSSWIM_DIE, 0.7f);
+    func_802A7140();
+    func_802A744C();
+    baphysics_set_acceleration(1.0f);
+    baphysics_set_target_velocity(0);
+    baphysics_set_velocity(0);
+    pitch_setIdeal(275.0f);
+    roll_setIdeal(0.0f);
+    D_8037D396 = 0;
+    baMarker_collisionOff();
+    batimer_set(0, 0.0f);
+    batimer_set(1, 0.0f);
+    func_802906A4(3);
+    basfx_80299CF4(SFX_CA_BANJO_DROWNING_1, 1.0f, 24000);
+}
+
+void bsbswim_die_update(void) {
+    s32 next_state;
+    f32 sp40[3];
+    ParticleEmitter *p_ctrl;
+    f32 plyr_pos[3];
+
+    next_state = 0;
+    func_80256E24(sp40, -90.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    baphysics_set_target_velocity(sp40);
+    baphysics_set_velocity(sp40);
+    batimer_increment(1);
+    if( batimer_isAt(1, 0.2f) 
+        || batimer_isAt(1, 0.8f) 
+        || batimer_isAt(1, 1.4f)
+    ) {
+        basfx_80299CF4(SFX_CB_BANJO_DROWNING_2, 1.0f, 24000);
+    }
+    switch (D_8037D396) {
+    case 0:
+        if (globalTimer_getTimeMasked(1) == 0) {
+            playerPosition_get(plyr_pos);
+            plyr_pos[1] += 60.0f;
+            p_ctrl = func_8029B950(plyr_pos, 25.0f);
+            particleEmitter_setParticleVelocityRange(p_ctrl, -60.0f, -50.0f, -60.0f, 60.0f, 100.0f, 60.0f);
+            particleEmitter_emitN(p_ctrl, 1);
+        }
+        if (batimer_get(1) < 1.8 && func_802A73BC() && D_8037D395) {
+            next_state = BS_2D_SWIM_IDLE;
+        }
+        if (batimer_isGreaterThan(1, 1.55f)) {
+            baphysics_set_vertical_velocity(-50.0f);
+        }
+        if (batimer_isAt(1, 1.9f)) {
+            func_802914CC(0xD);
+            ncbadie_func_802BF2C0(80.0f);
+            if (D_8037D394) {
+                batimer_set(0, 0.5f);
+            } else {
+                func_8029C984();
+                batimer_set(0, 2.75f);
+            }
+        }
+        break;
+    case 1:
+        break;
+    }
+    if (batimer_decrement(0)) {
+        func_8029B890();
+    }
+    bs_setState(next_state);
+}
+
+void bsbswim_die_end(void) {
+    func_802906A4(1);
+    func_80291548();
+    core1_ce60_incOrDecCounter(false);
+    baMarker_collisionOn();
+    if (bs_getNextState() != BS_5A_LOADZONE) {
+        func_80346CE8();
+    }
+    func_802A75B0();
+}
+
+void __bsbswim_update_rotation(void) {
+    f32 sp44[3];
+    f32 sp38[3];
+    f32 sp2C[3];
+
+    if (balookat_getState() && balookat_try_get_position(sp2C)) {
+        playerPosition_get(sp44);
+        ml_horizontal_and_vertical_angles(sp44[0], sp44[1], sp44[2], sp2C[0], sp2C[1], sp2C[2], &sp38[0], &sp38[1]);
+        pitch_setIdeal(sp38[0]);
+        yaw_setIdeal(sp38[1]);
+        roll_setIdeal(0.0f);
+    }
+}
+
+void bsbswim_lookat_init(void) {
+    baanim_playForDuration_loopSmooth(0x70, 2.0f);
+    func_802A7140();
+    baphysics_set_target_velocity(0);
+    baphysics_set_acceleration(0.4f);
+    func_802A744C();
+    __bsbswim_update_rotation();
+}
+
+void bsbswim_lookat_update(void) {
+    s32 next_state;
+
+    next_state = 0;
+    if (balookat_getState() == 0) {
+        next_state = BS_2B_DIVE_IDLE;
+    }
+    __bsbswim_update_rotation();
+    bs_setState(next_state);
+}
+
+
+void bsbswim_lookat_end(void){
+    func_802A75B0();
+}
+
+void bsbswim_landingInWater_init(void) {
+    AnimCtrl *temp_s0;
+    f32 sp28;
+
+    temp_s0 = baanim_getAnimCtrlPtr();
+    func_8029CCC4();
+    sp28 = func_8029494C();
+    if (bs_getPrevState() == 0xF) {
+        sp28 = ml_max_f(sp28, 600.0f);
+    }
+    if (sp28 > 80.0f) {
+        anctrl_reset(temp_s0);
+        anctrl_setIndex(temp_s0, ASSET_4F_ANIM_BSTWIRL);
+        anctrl_setPlaybackType(temp_s0, ANIMCTRL_STOPPED);
+        anctrl_setDuration(temp_s0, 1.2f);
+        anctrl_setStart(temp_s0, 0.8204f);
+        anctrl_start(temp_s0, "bsbswim.c", 0x417);
+    } else {
+        anctrl_reset(temp_s0);
+        anctrl_setIndex(temp_s0, ASSET_57_ANIM_BSSWIM_IDLE);
+        anctrl_setPlaybackType(temp_s0, ANIMCTRL_LOOP);
+        anctrl_setDuration(temp_s0, 1.2f);
+        anctrl_setStart(temp_s0, 0.6412f);
+        anctrl_start(temp_s0, "bsbswim.c", 0x41E);
+    }
+    D_8037D398 = ml_map_f(sp28, 40.0f, 1000.0f, -300.0f, -1200.0f);
+    baphysics_set_vertical_velocity(D_8037D398);
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NO_GRAVITY);
+    func_802A744C();
+    baphysics_set_type(BA_PHYSICS_AIRBORN);
+}
+
+void bsbswim_landingInWater_update(void) {
+    s32 next_state;
+    f32 sp38[3];
+    ParticleEmitter *sp34;
+
+    next_state = 0;
+    playerPosition_get(sp38);
+    sp38[1] += 60.0f;
+    sp34 = func_8029B950(sp38, 20.0f);
+    particleEmitter_setParticleVelocityRange(sp34, -30.0f, -30.0f, -30.0f, 30.0f, 30.0f, 30.0f);
+    particleEmitter_emitN(sp34, 1);
+    if (D_8037D398 < 0.0f) {
+        D_8037D398 += ml_max_f(mlAbsF(D_8037D398) * 0.1, 50.0f);
+        baphysics_set_vertical_velocity(D_8037D398);
+    }
+    if (player_isStable()) {
+        next_state = BS_2D_SWIM_IDLE;
+    }
+    if (!player_inWater()) {
+        next_state = BS_1_IDLE;
+    }
+    if (baphysics_get_vertical_velocity() >= 0.0f) {
+        next_state = BS_2D_SWIM_IDLE;
+    }
+    bs_setState(next_state);
+}
+
+void bsbswim_landingInWater_end(void){
+    func_802A75B0();
+}
+
+void bsbswim_drone_init(void){
+    func_802A744C();
+    bsdrone_init();
+}
+
+void bsbswim_drone_update(void){
+    bsdrone_update();
+}
+
+void bsbswim_drone_end(void){
+    bsdrone_end();
+    func_802A75B0();
+}

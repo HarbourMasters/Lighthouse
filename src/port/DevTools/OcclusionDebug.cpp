@@ -16,9 +16,7 @@
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-extern "C" {
 #include "functions.h" // gsworld_getMap, mapModel_getModelBin
-}
 
 // mapModel_getModelBin returns BKModelBin*; the debugger only compares it as an opaque
 // pointer, so reinterpret to const void* at the call sites.
@@ -43,8 +41,7 @@ const char* CmdTypeName(int type) {
     }
 }
 
-// Each command is keyed by (model part, byte offset within the model bin). The offset is
-// fixed per asset, so it never shifts when force-drawing reveals more geometry.
+// Each command is keyed by (model part, byte offset within the model's geo command list).
 struct Key {
     int part;
     int offset;
@@ -157,7 +154,7 @@ void OcclusionDebugWindow::DrawElement() {
     }
     ImGui::TextWrapped(
         "Flip 'Force draw all' on for a moment to walk every cull command and populate the list (the "
-        "screen will look broken — that is expected), then turn it off and tick 'Force Draw' on "
+        "screen will look broken - that is expected), then turn it off and tick 'Force Draw' on "
         "individual rows to find the chunk(s) that reveal the target scenery. Offsets are stable, so the "
         "list never shifts. Dump the chosen set to the log when done.");
 

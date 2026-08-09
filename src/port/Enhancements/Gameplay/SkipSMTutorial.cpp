@@ -3,12 +3,11 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 #include "port/Romhack/RomhackConfig.h"
+#include "port/Rando/Rando.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "core2/abilityprogress.h"
-}
 
 extern "C" float D_80386000[];
 
@@ -31,7 +30,7 @@ constexpr ability_used kSpiralMountainUsedMoves[] = {
 
 void RegisterSkipSMTutorial_Init() {
     COND_HOOK(OnNewGame, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NAME, 0), [](IEvent* event) {
-        if (port_isRomhack()) {
+        if (port_isRomhack() || IS_RANDO) {
             return;
         }
         auto* ev = reinterpret_cast<OnNewGame*>(event);
@@ -50,6 +49,7 @@ void RegisterSkipSMTutorial_Init() {
         func_8034789C();
         item_adjustByDiffWithoutHud(ITEM_14_HEALTH,
                                     item_getCount(ITEM_15_HEALTH_TOTAL) - item_getCount(ITEM_14_HEALTH));
+
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);
         D_80386000[LEVEL_B_SPIRAL_MOUNTAIN] = 122.0f; // Average speedrun time for SM completion (2:02)
 

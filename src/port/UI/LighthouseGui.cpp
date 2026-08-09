@@ -23,6 +23,8 @@
 #include "port/Rando/CheckTracker/CheckTracker.h"
 
 #include "Notification.h"
+#include "port/Controller/Mapper.h"
+#include "port/Network/Anchor/Anchor.h"
 #include "port/Enhancements/Backports/EggAim.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
@@ -43,6 +45,7 @@ std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
 std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 std::shared_ptr<LighthouseInputEditorWindow> mInputEditorWindow;
+std::shared_ptr<Mapper::MapperWindow> mGamepadMapperWindow;
 std::shared_ptr<LighthouseModMenuWindow> mModMenuWindow;
 std::shared_ptr<LighthouseRomhackMenuWindow> mRomhackMenuWindow;
 
@@ -72,6 +75,7 @@ std::shared_ptr<EggAimCrosshairWindow> mEggAimCrosshair;
 std::shared_ptr<LighthouseModalWindow> mModalWindow;
 std::shared_ptr<EventDebuggerWindow> mEventDebuggerWindow;
 std::shared_ptr<OcclusionDebugWindow> mOcclusionDebugWindow;
+std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mLighthouseMenu->GetMenuThemeColor();
@@ -105,14 +109,18 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find console window");
     }
 
-    mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
-    if (mGfxDebuggerWindow == nullptr) {
-        SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
-    }
+    // mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
+    // if (mGfxDebuggerWindow == nullptr) {
+    //     SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
+    // }
 
     mInputEditorWindow =
         std::make_shared<LighthouseInputEditorWindow>(CVAR_WINDOW("ControllerConfiguration"), "Configure Controller");
     gui->AddGuiWindow(mInputEditorWindow);
+
+    mGamepadMapperWindow =
+        std::make_shared<Mapper::MapperWindow>(CVAR_WINDOW("GamepadMapper"), "Gamepad Mapper", ImVec2(1280, 820));
+    gui->AddGuiWindow(mGamepadMapperWindow);
 
     mModMenuWindow = std::make_shared<LighthouseModMenuWindow>(CVAR_WINDOW("ModMenu"), "Mod Menu");
     gui->AddGuiWindow(mModMenuWindow);
@@ -190,10 +198,10 @@ void SetupGuiElements() {
         "gWindows.CheckTrackerSettings", "Check Tracker Settings");
     gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
 
-    mInputViewer = std::make_shared<InputViewer>("gWindows.InputViewer", "Input Viewer");
+    mInputViewer = std::make_shared<InputViewer>(CVAR_WINDOW("InputViewer"), "Input Viewer");
     gui->AddGuiWindow(mInputViewer);
 
-    mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>("gWindows.InputViewerSettings",
+    mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>(CVAR_WINDOW("InputViewerSettings"),
                                                                        "Input Viewer Settings", ImVec2(500, 525));
     gui->AddGuiWindow(mInputViewerSettings);
 
@@ -202,6 +210,9 @@ void SetupGuiElements() {
 
     mOcclusionDebugWindow = std::make_shared<OcclusionDebugWindow>(CVAR_WINDOW("OcclusionDebug"), "Occlusion Debugger");
     gui->AddGuiWindow(mOcclusionDebugWindow);
+
+    mAnchorRoomWindow = std::make_shared<AnchorRoomWindow>(CVAR_WINDOW("AnchorRoom"), "Anchor Room");
+    gui->AddGuiWindow(mAnchorRoomWindow);
 }
 
 void Destroy() {
@@ -214,6 +225,7 @@ void Destroy() {
     mConsoleWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
     mInputEditorWindow = nullptr;
+    mGamepadMapperWindow = nullptr;
     // mCollisionViewerWindow = nullptr;
     // mEventLogWindow = nullptr;
     mNotificationWindow = nullptr;
@@ -237,6 +249,7 @@ void Destroy() {
     mEggAimCrosshair = nullptr;
     mEventDebuggerWindow = nullptr;
     mOcclusionDebugWindow = nullptr;
+    mAnchorRoomWindow = nullptr;
 }
 
 void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,

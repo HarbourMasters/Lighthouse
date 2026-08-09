@@ -21,10 +21,17 @@ void FrameInterpolation_StartRecord(void);
 void FrameInterpolation_StopRecord(void);
 void FrameInterpolation_ShouldInterpolateFrame(bool shouldInterpolate);
 
+// Which pair of recorded ticks a render pass blends between. The threaded
+// path captures the pair when a display list is submitted and applies it when
+// that list renders; the single-threaded path uses the live variant.
+void FrameInterpolation_GetRecordingPair(int* prevSlot, int* currSlot, bool* shouldInterpolate);
+void FrameInterpolation_ClaimPair(int prevSlot, int currSlot);
+void FrameInterpolation_ReleasePair(int prevSlot, int currSlot);
+void FrameInterpolation_BeginRenderPass(int prevSlot, int currSlot, bool shouldInterpolate);
+
 // Hierarchical scope (cross-tick pairing identity).
 void FrameInterpolation_RecordOpenChild(const void* key, uintptr_t id);
 void FrameInterpolation_RecordCloseChild(void);
-void FrameInterpolation_RecordMarker(const char* file, int line);
 
 // Mix three scalar fields into a stable scope id when no single field is
 // unique on its own (e.g. modelId+pos, particle spawn randomness).
@@ -38,15 +45,7 @@ static inline uint64_t FrameInterpolation_FloatBits(float f) {
     return (uint64_t)u;
 }
 
-// Low-level matrix primitives (from src/core1/math/matrix_stack.c).
-void FrameInterpolation_RecordMatrixIdent(void);
-void FrameInterpolation_RecordMatrixTranslate(float x, float y, float z);
-void FrameInterpolation_RecordMatrixRotYaw(float degrees);
-void FrameInterpolation_RecordMatrixRotPitch(float degrees);
-void FrameInterpolation_RecordMatrixRotRoll(float degrees);
-void FrameInterpolation_RecordMatrixScale(float x, float y, float z);
-void FrameInterpolation_RecordMatrixSet(const float src[4][4]);
-void FrameInterpolation_RecordMatrixMult(const float l[4][4], const float r[4][4]);
+// Final matrix output of a mlMtxApply — the only matrix event replay needs.
 void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]);
 
 // BK puts camera rotation in projection, not modelview. We record the
@@ -67,6 +66,10 @@ void FrameInterpolation_RecordCameraPosition(const float pos[3]);
 void FrameInterpolation_NoInterpolatePush(void);
 void FrameInterpolation_NoInterpolatePop(void);
 
+// Like NoInterpolatePush, but keeps the camera half of the transform live.
+void FrameInterpolation_CameraRelativePush(void);
+void FrameInterpolation_CameraRelativePop(void);
+
 // kind matches the three sprite paths in sprite/render.c:
 //   BILLBOARD       — func_80344138. camYaw/camPitch, no spriteRoll.
 //   BILLBOARD_ROLL  — func_80344424. camYaw/camPitch + spriteRoll forward.
@@ -79,6 +82,9 @@ void FrameInterpolation_NoInterpolatePop(void);
 void FrameInterpolation_RecordSpriteDraw(int kind, void* dst, const float camRelPos[3], const float scale[3],
                                          float camYaw, float camPitch, float spriteRoll, const float rotation[3],
                                          int mirrored);
+
+void FrameInterpolation_RecordAnimVertices(void* dst, const void* vertices, int32_t count);
+void FrameInterpolation_ApplyAnimVertices(float t);
 
 // Drop the prev tree at known camera cuts (map load, camera type change).
 void FrameInterpolation_DontInterpolateCamera(void);

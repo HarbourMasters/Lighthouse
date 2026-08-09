@@ -1,4 +1,4 @@
-// BanjoDecomp: CH/gobirock.c
+// BanjoDecomp: GV/ch/gobirock.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

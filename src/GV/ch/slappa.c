@@ -1,4 +1,4 @@
-// BanjoDecomp: code_4740.c
+// BanjoDecomp: GV/ch/slappa.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

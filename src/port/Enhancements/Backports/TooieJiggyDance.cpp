@@ -8,14 +8,14 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include "port/Rando/Rando.h"
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 #include "core2/particle.h"
 
 ParticleEmitter* __fxSparkle_create(s16 position[3], f32 height, enum asset_e sprite_id);
-f32 player_getYaw(void);
 }
 
 #define CVAR_TOOIE_JIGGY_DANCE CVAR_ENHANCEMENT("Backports.JiggyAnimation")
@@ -114,7 +114,7 @@ void emitSparkle(f32 x, f32 y, f32 z) {
     }
 }
 
-void spawnOrbit() {
+extern "C" void spawnOrbit() {
     clearOrbit();
 
     f32 banjo[3];
@@ -137,6 +137,8 @@ void spawnOrbit() {
     }
     actor->state = 0;
     actor_collisionOff(actor);
+    actor->unk44_2 = 1; // Keep this jiggy out of jiggylist_map_actors
+    actor->unk10_1 = 0; // Keep this jiggy out of map savestate
     sfxsource_playHighPriority(SFX_3E9_UNKNOWN);
     sMarker = (void*)actor->marker;
 }
@@ -264,11 +266,15 @@ void updateOrbit() {
 
 } // namespace
 
+// Romhacks that bundle wedarobi's jiggy dance should have it on by default.
+// The hack may depend on the retained player motion that the animation provides.
+static bool sJiggyDanceForced = false;
+
 void RegisterJiggyCollect_Init() {
     clearOrbit();
     const bool skip = CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0);
-    const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0);
-    const bool playOrbit = tooie && !skip;
+    const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0) || sJiggyDanceForced;
+    const bool playOrbit = (tooie && !skip) || IS_RANDO;
 
     COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, { *should = false; });
 
@@ -277,5 +283,10 @@ void RegisterJiggyCollect_Init() {
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { forgetOrbit(); });
 }
 
+void TooieJiggyDance_ForceEnable() {
+    sJiggyDanceForced = true;
+    RegisterJiggyCollect_Init();
+}
+
 static RegisterShipInitFunc initJiggyCollect(RegisterJiggyCollect_Init,
-                                             { CVAR_TOOIE_JIGGY_DANCE, CVAR_SKIP_JIGGY_DANCE });
+                                             { CVAR_TOOIE_JIGGY_DANCE, CVAR_SKIP_JIGGY_DANCE, "IS_RANDO" });

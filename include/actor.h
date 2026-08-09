@@ -5,6 +5,10 @@
 
 struct actorMarker_s;
 
+// [port] actor_new is the only allocator of ActorMarkers, one per actor, so the
+// marker pool and the actor array have to be sized off the same number.
+#define ACTOR_POOL_SIZE 0x200
+
 #define ACTOR_FLAG_NONE     (0)
 #define ACTOR_FLAG_UNKNOWN_0 (1 << 0)   // 0x1
 #define ACTOR_FLAG_UNKNOWN_1 (1 << 1)   // 0x2

@@ -20,6 +20,7 @@ public:
     void InsertSidebarSearch();
     void RemoveSidebarSearch();
     void UpdateWindowBackendObjects();
+    void UpdateAudioBackendObjects();
     bool IsMenuPopped();
     UIWidgets::Colors GetMenuThemeColor();
 
@@ -41,6 +42,8 @@ protected:
     std::shared_ptr<std::vector<int32_t>> availableWindowBackends;
     std::unordered_map<Fast::WindowBackend, const char*> availableWindowBackendsMap;
     Fast::WindowBackend configWindowBackend;
+    std::shared_ptr<std::vector<Ship::AudioBackend>> availableAudioBackends;
+    std::unordered_map<Ship::AudioBackend, const char*> availableAudioBackendsMap;
 
     std::unordered_map<uint32_t, disabledInfo> disabledMap;
     std::vector<disabledInfo> disabledVector;

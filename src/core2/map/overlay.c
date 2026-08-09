@@ -1,4 +1,4 @@
-// BanjoDecomp: code_9B990.c -> overlay.c (level overlay callbacks)
+// BanjoDecomp: core2/code_9B990.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -164,22 +164,22 @@ static void leveloverlay_MMM_unk14(s32 arg0, s32 arg1) {
 }
 
 static void leveloverlay_CC_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
-    CC_func_80388760(gfx, mtx, vtx);
+    maClanker_draw(gfx, mtx, vtx);
 }
 
 static void leveloverlay_CC_release(void) {
-    func_80388CB4();
-    func_803880D4();
+    maClanker_release();
+    maClankerRings_release();
 }
 
 static void leveloverlay_CC_init(void) {
-    func_80388D54();
-    func_80388104();
+    maClanker_init();
+    maClankerRings_init();
 }
 
 static void leveloverlay_CC_update(void) {
-    CC_func_80388F4C();
-    func_8038817C();
+    maClanker_update();
+    maClankerRings_update();
 }
 
 static void leveloverlay_CC_unk14(s32 arg0, s32 arg1) {}
@@ -372,7 +372,8 @@ void leveloverlay_debug(void) {}
 void leveloverlay_init(void) {
     int i;
     enum overlay_e overlay_id;
-    func_80356714();
+
+    codeCF5F0_init();
     overlay_id = overlayManager_getLoadedID();
     sActiveCallbacks.init = NULL;
     sActiveCallbacks.update = NULL;

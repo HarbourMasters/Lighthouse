@@ -14,6 +14,7 @@ extern "C" {
 void gcparade_beginFFParade(void);
 void gcparade_beginFinalParade(void);
 void func_8034BA7C(enum map_e map_id, int exit_id); // warp (B&K demo uses MAP_1, exit 93)
+void transitionToMap(enum map_e map, int exit, int transition);
 void func_8034B968(void);          // start the attract demo selected by D_80386110 (sets transition + D_80386114)
 extern int D_80386110;             // attract-demo cycle index
 void func_8025A55C(int, int, int); // fade the active music track
@@ -71,6 +72,9 @@ void RegisterDevSequences_Init() {
             case SEQ_MODE9_BK:
                 func_8034BA7C(MAP_1_SM_SPIRAL_MOUNTAIN, 93);
                 sPending = SEQ_MODE9_DIALOG;
+                break;
+            case SEQ_ENDING_ALL_100:
+                transitionToMap(MAP_95_CS_END_ALL_100, 0, 1);
                 break;
             default:
                 D_80386110 = seq - SEQ_ATTRACT_BASE;

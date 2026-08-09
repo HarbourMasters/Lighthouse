@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_AD110.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -554,25 +555,28 @@ void func_80334448(NodeProp *arg0, ActorMarker *arg1) {
     s32 warpIdx;
     s32 warpDest;
 
-    switch(codeA5BC0_getNodePropBit6(arg0)) {
+    switch(codeA5BC0_getNodePropCategory(arg0)) {
         case 3: // warp (L80334480)
             global_timer_time = globalTimer_getTime();
             if ((codeA5BC0_getNodePropUnkC(arg0) + 1) != global_timer_time) {
-                // [port] BB romhacks remap warp destinations via BKCF config
-                warpIdx = codeA5BC0_getNodePropUnk8(arg0);
+                // [port] Romhacks remap warp destinations via BKCF config
+                warpIdx = codeA5BC0_getNodePropActorId(arg0);
                 warpDest = port_getRomhackWarpDest(warpIdx);
                 CALL_EVENT(OnWarpDispatch, warpIdx, warpDest);
-                if (warpDest >= 0) {
-                    func_8031CC8C(arg0, warpDest);
-                } else {
-                    sWarpFunctions[warpIdx](arg0, arg1);
+                // [port] Romhacks can hold a warp shut behind progress
+                if (EventSystem_Should(VB_WARP_DISPATCH, true, warpIdx)) {
+                    if (warpDest >= 0) {
+                        func_8031CC8C(arg0, warpDest);
+                    } else {
+                        sWarpFunctions[warpIdx](arg0, arg1);
+                    }
                 }
             }
             codeA5BC0_setNodePropUnkC(arg0, global_timer_time);
             break;
 
         case 4: // radius trigger like camera (L803344E0)
-            sRadiusTriggers[codeA5BC0_getNodePropUnk8(arg0)](arg0, arg1);
+            sRadiusTriggers[codeA5BC0_getNodePropActorId(arg0)](arg0, arg1);
             break;
 
         case 0: //L80334508

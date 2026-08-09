@@ -7,16 +7,8 @@
 
 
 extern void func_802DABA0(ParticleEmitter *, f32[3], f32, enum asset_e);
-extern void func_8033A45C(s32, s32);
+extern void modelRender_setAppendageVisibility(s32, s32);
 extern void humanoidBaddie_ow(ActorMarker *, ActorMarker *);
-
-enum ccw_season_e
-{
-    SPRING,
-    SUMMER,
-    AUTUMN,
-    WINTER
-};
 
 void chgrublinhood_update(Actor *this);
 Actor *chgrublinhood_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -80,18 +72,18 @@ Actor *chgrublinhood_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
     this = marker_getActor(marker);
     local = (Humanoid_Baddies_Actor *)&this->local;
-    func_8033A45C(3,  (local->baddieSpecific == SUMMER) ? 1 : 2);
-    func_8033A45C(4,  (local->baddieSpecific == SUMMER) ? 1 : 2);
-    func_8033A45C(5,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
-    func_8033A45C(6,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
-    func_8033A45C(7,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
-    func_8033A45C(8,   (local->baddieSpecific < AUTUMN) ? 1 : 2);
-    func_8033A45C(9,  (local->baddieSpecific == SUMMER) ? 1 : 0);
-    func_8033A45C(10,  (local->baddieSpecific < AUTUMN) ? 0 : (local->baddieSpecific == AUTUMN) ? 1 : 2);
-    func_8033A45C(11,  (local->baddieSpecific < AUTUMN) ? 0 : (local->baddieSpecific == AUTUMN) ? 1 : 2);
-    func_8033A45C(12, (local->baddieSpecific == WINTER) ? 2 : 1);
-    func_8033A45C(13, (local->baddieSpecific == WINTER) ? 1 : 0);
-    func_8033A45C(14,      (this->has_met_before)? false : true);
+    modelRender_setAppendageVisibility(3,  (local->baddieSpecific == CCW_SEASON_1_SUMMER) ? 1 : 2);
+    modelRender_setAppendageVisibility(4,  (local->baddieSpecific == CCW_SEASON_1_SUMMER) ? 1 : 2);
+    modelRender_setAppendageVisibility(5,  (local->baddieSpecific <  CCW_SEASON_2_AUTUMN) ? 1 : 2);
+    modelRender_setAppendageVisibility(6,  (local->baddieSpecific <  CCW_SEASON_2_AUTUMN) ? 1 : 2);
+    modelRender_setAppendageVisibility(7,  (local->baddieSpecific <  CCW_SEASON_2_AUTUMN) ? 1 : 2);
+    modelRender_setAppendageVisibility(8,  (local->baddieSpecific <  CCW_SEASON_2_AUTUMN) ? 1 : 2);
+    modelRender_setAppendageVisibility(9,  (local->baddieSpecific == CCW_SEASON_1_SUMMER) ? 1 : 0);
+    modelRender_setAppendageVisibility(10, (local->baddieSpecific <  CCW_SEASON_2_AUTUMN) ? 0 : (local->baddieSpecific == CCW_SEASON_2_AUTUMN) ? 1 : 2);
+    modelRender_setAppendageVisibility(11, (local->baddieSpecific <  CCW_SEASON_2_AUTUMN) ? 0 : (local->baddieSpecific == CCW_SEASON_2_AUTUMN) ? 1 : 2);
+    modelRender_setAppendageVisibility(12, (local->baddieSpecific == CCW_SEASON_3_WINTER) ? 2 : 1);
+    modelRender_setAppendageVisibility(13, (local->baddieSpecific == CCW_SEASON_3_WINTER) ? 1 : 0);
+    modelRender_setAppendageVisibility(14, (this->has_met_before)? false : true);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
@@ -121,14 +113,14 @@ enum ccw_season_e __get_current_season(Actor *this){
         case MAP_5B_CCW_SPRING_ZUBBA_HIVE:// 8038E930
         case MAP_5E_CCW_SPRING_NABNUTS_HOUSE:// 8038E930
         case MAP_65_CCW_SPRING_WHIPCRACK_ROOM:// 8038E930
-            return SPRING;
+            return CCW_SEASON_0_SPRING;
 
         case MAP_44_CCW_SUMMER:// 8038E938
         case MAP_4B_CCW_SUMMER_MUMBOS_SKULL:// 8038E938
         case MAP_5A_CCW_SUMMER_ZUBBA_HIVE:// 8038E938
         case MAP_5F_CCW_SUMMER_NABNUTS_HOUSE:// 8038E938
         case MAP_66_CCW_SUMMER_WHIPCRACK_ROOM:// 8038E938
-            return SUMMER;
+            return CCW_SEASON_1_SUMMER;
         
         case MAP_45_CCW_AUTUMN:// 8038E940
         case MAP_4C_CCW_AUTUMN_MUMBOS_SKULL:// 8038E940
@@ -136,7 +128,7 @@ enum ccw_season_e __get_current_season(Actor *this){
         case MAP_60_CCW_AUTUMN_NABNUTS_HOUSE:// 8038E940
         case MAP_63_CCW_AUTUMN_NABNUTS_WATER_SUPPLY:// 8038E940
         case MAP_67_CCW_AUTUMN_WHIPCRACK_ROOM:// 8038E940
-            return AUTUMN;
+            return CCW_SEASON_2_AUTUMN;
         
         case MAP_46_CCW_WINTER:// 8038E948
         case MAP_4D_CCW_WINTER_MUMBOS_SKULL:// 8038E948
@@ -144,11 +136,10 @@ enum ccw_season_e __get_current_season(Actor *this){
         case MAP_62_CCW_WINTER_HONEYCOMB_ROOM:// 8038E948
         case MAP_64_CCW_WINTER_NABNUTS_WATER_SUPPLY:// 8038E948
         case MAP_68_CCW_WINTER_WHIPCRACK_ROOM:// 8038E948
-            return WINTER;
+            return CCW_SEASON_3_WINTER;
         
         default:
-            return SPRING;
-        
+            return CCW_SEASON_0_SPRING;
     }
 }
 

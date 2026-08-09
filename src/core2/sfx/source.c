@@ -1,7 +1,9 @@
+// BanjoDecomp: core2/code_85800.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/ShipUtils.h" // gPortResetPending
 #include <n_audio/PR/n_libaudio.h>
 
 extern void func_80335394(intptr_t, f32);
@@ -220,7 +222,7 @@ s32 func_8030CDE4(SfxSource *arg0){
     f32 pad;
 
     viewport_getPosition_vec3f(sp44);
-    viewport_getLookbk_vector(sp38);
+    viewport_getLookVector(sp38);
     sp2C[0] = arg0->position[0] - sp44[0];
     sp2C[1] = arg0->position[1] - sp44[1];
     sp2C[2] = arg0->position[2] - sp44[2];
@@ -859,8 +861,12 @@ void sfxsource_play(enum sfx_e uid, s32 sampleRate){
     func_8030D6C4(uid, 1.0f, sampleRate, 0, 2);
 }
 
-void gcsfx_playAtSampleRate(enum sfx_e uid){
-    sfxsource_play(uid, 0x7ff8);
+void gcsfx_playAtSampleRate(enum sfx_e uid, s32 sampleRate){
+    sfxsource_play(uid, sampleRate);
+}
+
+void gcsfx_play(enum sfx_e uid){
+    gcsfx_playAtSampleRate(uid, 0x7FF8);
 }
 
 void func_8030E560(enum sfx_e uid, s32 arg1){

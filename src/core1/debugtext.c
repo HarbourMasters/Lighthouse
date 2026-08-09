@@ -253,7 +253,7 @@ void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void func_80247F24(s32 arg0, s32 arg1) {
+void gcdebugText_showLargeValue(s32 arg0, s32 arg1) {
     D_80275BD0 = 0;
     D_80275BCC = arg0;
     D_80275BBC = 0xE;

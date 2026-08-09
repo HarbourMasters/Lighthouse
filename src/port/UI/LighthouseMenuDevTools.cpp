@@ -6,12 +6,11 @@
 //#include <soh/GameVersions.h>
 #include "port/ResourceHelpers.h"
 #include "port/DevTools/DevSequences.h"
+#include "port/DevTools/ThreadWatchdog.h"
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
-extern "C" {
 #include "variables.h"
-}
 
 namespace LighthouseGui {
 
@@ -73,9 +72,14 @@ void LighthouseMenu::AddMenuDevTools() {
         .Options(CheckboxOptions().Tooltip(
             "Enables the Gfx trace mode, which will output information about the Gfx commands being run."));
 #endif
-    AddWidget(path, "Nametag Distance", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar(CVAR_DEVELOPER_TOOLS("NametagDist"))
-        .Options(FloatSliderOptions().DefaultValue(3000.0f).Min(1000.0f).Max(10000.0f).Step(10.0f));
+    AddWidget(path, "Dump Thread State", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { ThreadWatchdog_DumpNow(); })
+        .Options(
+            ButtonOptions()
+                .Size(Sizes::Inline)
+                .Tooltip(
+                    "Log a snapshot of the decomp thread heartbeats and pipeline queue state. The watchdog also logs "
+                    "this automatically when a thread stops beating."));
     /*AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/
@@ -97,6 +101,11 @@ void LighthouseMenu::AddMenuDevTools() {
     AddWidget(path, "Spiral Mountain Ending Sequence", WIDGET_BUTTON)
         .Callback([](WidgetInfo&) { RequestSequence(SEQ_MODE9_BK); })
         .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-parade demo."));
+    AddWidget(path, "All 100 Ending Scene", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestSequence(SEQ_ENDING_ALL_100); })
+        .Options(ButtonOptions()
+                     .Size(Sizes::Inline)
+                     .Tooltip("Jump to the 100-jiggy ending cutscene (normally shown after the final parade)."));
 
     AddWidget(path, "Attract Demos", WIDGET_SEPARATOR_TEXT);
     // Demo index = slot in the decomp attract table (D_80371F00); 4 and 9 are the
@@ -141,14 +150,6 @@ void LighthouseMenu::AddMenuDevTools() {
         .HideInSearch(true)
         .Options(WindowButtonOptions().Tooltip(
             "Shows the stats window, with your FPS and frametimes, and the OS you're playing on."));
-    AddWidget(path, "Adaptive FPS", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("AdaptiveFPS"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions()
-                     .Tooltip("Automatically lowers interpolation FPS in demanding scenes so the game logic never "
-                              "stalls, then restores it when the scene clears. Disable to always target your "
-                              "requested FPS, which may stutter on heavy scenes or weaker hardware.")
-                     .DefaultValue(true));
 
     // Console
     // path.sidebarName = "Console";

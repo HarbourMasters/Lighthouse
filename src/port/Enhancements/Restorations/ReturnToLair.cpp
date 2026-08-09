@@ -8,9 +8,9 @@
 #include "include/core2/anctrl.h"
 #include "include/core2/gc/zoombox.h"
 
-extern "C" struct1Bs D_8036C560[];
-extern "C" enum level_e level_get(void);
-extern "C" bool fileProgressFlag_get(enum file_progress_e index);
+#include "functions.h"
+
+extern "C" struct1Bs D_8036C560[]; // not declared in variables.h
 
 typedef struct struct_1A_s {
     f32 delay;

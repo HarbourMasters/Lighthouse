@@ -18,12 +18,12 @@ void func_802AD6D0(void){
 }
 
 void func_802AD6FC(void){
-    baanim_playForDuration_once(ASSET_116_ANIM_BSCROUCH_NOINPUT, 2.0f);
+    baanim_playForDuration_onceSmooth(ASSET_116_ANIM_BSCROUCH_NOINPUT, 2.0f);
     D_8037D404 = 2;
 }
 
 void func_802AD728(void){
-    baanim_playForDuration_onceStartingAt(ASSET_10C_ANIM_BSCROUCH_IDLE, 0.5f, 0.9999f);
+    baanim_playForDuration_onceSmoothStartingAt(ASSET_10C_ANIM_BSCROUCH_IDLE, 0.5f, 0.9999f);
     batimer_set(2, 2.0f);
     D_8037D404 = 1;
 }
@@ -159,7 +159,7 @@ void bscrouch_update(void){
     }//L802ADC50
 
     if(player_isSliding())
-        sp34 = BS_SLIDE;
+        sp34 = BS_32_SLIDE;
 
     if(player_shouldFall())
         sp34 = BS_2F_FALL;
@@ -181,7 +181,7 @@ enum bs_e func_802ADCD4(enum bs_e arg0){
         arg0 = BS_1_IDLE;
         
         if(bakey_pressed(BUTTON_B) && can_claw())
-            arg0 = BS_CLAW;
+            arg0 = BS_6_CLAW;
 
         if(bakey_pressed(BUTTON_A))
             arg0 = bs_getTypeOfJump();
@@ -203,7 +203,7 @@ enum bs_e func_802ADCD4(enum bs_e arg0){
             arg0 = BS_12_BFLIP;
 
         if(bainput_should_beak_barge())
-            arg0 = BS_BBARGE;
+            arg0 = BS_13_BBARGE;
 
 
     }

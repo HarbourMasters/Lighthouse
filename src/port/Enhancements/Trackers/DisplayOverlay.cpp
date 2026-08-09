@@ -10,19 +10,11 @@
 
 #include "save.h"
 #include "enums.h"
+#include "functions.h"
 
 extern "C" {
-enum map_e gsworld_getMap(void);
-enum level_e map_getLevel(enum map_e map);
-u16 itemscore_timeScores_get(enum level_e level_id);
-
-uint64_t GetUnixTimestamp();
 extern SaveData gameFile_saveData[4];
 }
-
-float windowScale = 1.0f;
-ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);
-static constexpr ImVec4 tintColor = {};
 
 const std::vector<const char*> timerDisplayOptions = {
     "Display Off",  // TIMER_DISPLAY_NONE
@@ -39,7 +31,7 @@ int64_t DisplayOverlay_GetTotalInGameTime() {
 }
 
 void DisplayOverlayWindow::Draw() {
-    if (!IsVisible() || gsworld_getMap() == MAP_91_FILE_SELECT) {
+    if (gsworld_getMap() == MAP_91_FILE_SELECT) {
         return;
     }
 

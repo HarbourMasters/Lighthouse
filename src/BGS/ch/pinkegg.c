@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 typedef struct chpinkegg_s{
     u32 unk0;
     u32 unk4;
@@ -73,8 +75,8 @@ Actor *chPinkEgg_draw(ActorMarker *this, Gfx ** gdl, Mtx** mptr, Vtx **arg3){
     u32 t7;
 
     t7 = marker_getActor(this)->state == 3;
-    func_8033A45C(1, NOT(sp18 = t7));
-    func_8033A45C(2, sp18);
+    modelRender_setAppendageVisibility(1, NOT(sp18 = t7));
+    modelRender_setAppendageVisibility(2, sp18);
     return actor_draw(this, gdl, mptr, arg3);
 }
 
@@ -90,9 +92,11 @@ void chPinkEgg_collision(ActorMarker *this, ActorMarker *other_marker){
     actor_playAnimationOnce(thisActor);
     this->collidable = false;
     thisActor->unk124_6 = 0;
-    if(D_803906C4[(tmp = (ActorLocal_PinkEgg *) &thisActor->local)->unk0] != 0){
-        __spawnQueue_add_2((void (*)(void))chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->unk0);
-    } else {
+    tmp = (ActorLocal_PinkEgg *) &thisActor->local;
+    port_puzzleStep_orBits(ANCHOR_PUZZLE_BGS_PINKEGG, 1 << tmp->unk0);
+    if(D_803906C4[tmp->unk0] != 0){
+        __spawnQueue_add_2((GenFunction_2)chPinkEgg_spawnNext, (uintptr_t)thisActor->marker, tmp->unk0);
+    } else if(!jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG)){
         jiggy_spawn(JIGGY_21_BGS_PINKEGG, thisActor->position);
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
     }
@@ -103,6 +107,19 @@ void chPinkEgg_update(Actor *this){
         this->marker->propPtr->unk8_3 = 1;
         marker_setCollisionScripts(this->marker, NULL, NULL, chPinkEgg_collision);
         this->initialized = true;
+    }
+
+    // Anchor: team finished the chain — despawn unless mid-break (state 3).
+    if(jiggyscore_isSpawned(JIGGY_21_BGS_PINKEGG) && this->state != 3){
+        marker_despawn(this->marker);
+        return;
+    }
+
+    // Anchor: replay teammates' layer breaks.
+    if((port_puzzleStep_get(ANCHOR_PUZZLE_BGS_PINKEGG) & (1 << ((ActorLocal_PinkEgg *)&this->local)->unk0))
+        && this->state != 3){
+        chPinkEgg_collision(this->marker, NULL);
+        return;
     }
 
     switch(this->state){

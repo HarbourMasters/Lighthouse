@@ -4,6 +4,7 @@
 #include "core2/ba/anim.h"
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
+#include "core2/yaw.h"
 
 extern void func_8029AD68(f32, s32);
 
@@ -93,8 +94,8 @@ void func_802B8048(void){
         pitch_setIdeal(0.0f);
         roll_setIdeal(0.0f);
         bastick_resetZones();
-        func_8029E070(0);
-        func_8029E064(0);
+        modelAppendages_setKazooiesUpperHalfVisibility(false);
+        modelAppendages_setKazooiesFeetAndShoesVisibility(false);
         baflag_clear(BA_FLAG_3);
         baflag_clear(BA_FLAG_4);
         func_80293D74();
@@ -105,7 +106,7 @@ void func_802B8048(void){
 void func_802B80D0(void) {
     if (bswalrus_inSledSet(bs_getNextState()) == 0) {
         func_802B8048();
-        func_8029E0E8(0);
+        modelAppendages_setSledVisibility(false);
     }
 }
 
@@ -116,7 +117,7 @@ void func_802B8110(void){
 void func_802B813C(void) {
     if (!bswalrus_inSledSet(bs_getPrevState())) {
         D_8037D5C0 = 0.0f;
-        func_8029E0E8(1);
+        modelAppendages_setSledVisibility(true);
         func_8029CF48(4, 1, 0.15f);
     }
 }
@@ -132,18 +133,18 @@ int bswalrus_inSledSet(enum bs_e state){
 
 int bswalrus_inSet(enum bs_e state){
     return state == BS_67_WALRUS_IDLE
-        || state == BS_WALRUS_WALK
-        || state == BS_WALRUS_JUMP
+        || state == BS_68_WALRUS_WALK
+        || state == BS_69_WALRUS_JUMP
         || state == BS_6A_WALRUS_FALL
-        || state == BS_WALRUS_OW
-        || state == BS_WALRUS_DIE
+        || state == BS_6C_WALRUS_OW
+        || state == BS_6D_WALRUS_DIE
         || state == BS_95_WALRUS_DRONE
         || bswalrus_inSledSet(state);
 }
 
 void bswalrus_idle_init(void){
     baanim_playForDuration_loopSmooth(ASSET_11F_ANIM_BSWALRUS_IDLE, 4.0f);
-    func_8029C7F4(1,1,1, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     pitch_setAngVel(1000.0f, 12.0f);
     roll_setAngularVelocity(1000.0f, 12.0f);
@@ -166,10 +167,10 @@ void bswalrus_idle_update(void){
         next_state = badrone_look();
 
     if(bastick_getZone() > 0)
-        next_state = BS_WALRUS_WALK;
+        next_state = BS_68_WALRUS_WALK;
 
     if(bakey_pressed(BUTTON_A))
-        next_state = BS_WALRUS_JUMP;
+        next_state = BS_69_WALRUS_JUMP;
 
     bs_setState(next_state);
 }
@@ -181,7 +182,7 @@ void bswalrus_idle_end(void){
 
 void bswalrus_walk_init(void){
     baanim_playForDuration_loopSmooth(ASSET_120_ANIM_BSWALRUS_WALK, 0.8f);
-    func_8029C7F4(BAANIM_UPDATE_2_SCALE_HORZ,1,1, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(BAANIM_UPDATE_2_SCALE_HORZ, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     baanim_setVelocityMapRanges(D_80364DC0, D_80364DC4, D_80364DC8, D_80364DCC);
     func_802900B4();
     func_802B8110();
@@ -201,7 +202,7 @@ void bswalrus_walk_update(void){
         next_state = BS_6A_WALRUS_FALL;
 
     if(bakey_pressed(BUTTON_A))
-        next_state = BS_WALRUS_JUMP;
+        next_state = BS_69_WALRUS_JUMP;
 
     bs_setState(next_state);
 }
@@ -222,7 +223,7 @@ void bswalrus_jump_init(void){
     anctrl_setStart(aCtrl, 0.1);
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bswalrus.c", 0x1f8);
-    func_8029C7F4(1,1,3, BA_PHYSICS_AIRBORN);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_AIRBORN);
     if(bastick_distance() != 0.0f)
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());
     baphysics_set_target_yaw(yaw_getIdeal());
@@ -289,10 +290,10 @@ void bswalrus_jump_update(void){
 
     if(player_isStable()){
         if(bastick_getZone() > 0)
-            next_state = BS_WALRUS_WALK;
+            next_state = BS_68_WALRUS_WALK;
 
         if(bakey_pressed(BUTTON_A))
-            next_state = BS_WALRUS_JUMP;
+            next_state = BS_69_WALRUS_JUMP;
     }
 
     bs_setState(next_state);
@@ -311,7 +312,7 @@ void bswalrus_fall_init(void){
     anctrl_setDuration(aCtrl, 0.7f);
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_STOPPED);
     anctrl_start(aCtrl, "bswalrus.c", 0x284);
-    func_8029C7F4(1,1,3, BA_PHYSICS_AIRBORN);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_AIRBORN);
     func_802B8110();
     D_8037D5C8 = 0;
 }
@@ -372,13 +373,13 @@ static void __bswalrus_recoil_init(s32 damage){
     f32 sp24[3];
 
     barebound_set_active(func_80296560());
-    baanim_playForDuration_onceSmooth(0x19c, 1.0f);
+    baanim_playForDuration_once(ASSET_19C_ANIM_BSWALRUS_BOUNCE, 1.0f);
     if(damage == 1)
         func_8030E58C(SFX_38_BANJO_AYE_1, 1.8f);
     else
         func_8030E58C(SFX_56_BANJO_HUI, 1.8f);
     
-    _player_getPosition(sp30);
+    playerPosition_get(sp30);
     func_80294980(sp24);
     func_80257F18(sp24, sp30, &sp3C);
     yaw_setIdeal(mlNormalizeAngle(sp3C + 180.0f));
@@ -386,7 +387,7 @@ static void __bswalrus_recoil_init(s32 damage){
     baphysics_set_target_horizontal_velocity(barebound_get_horizontal_velocity());
     baphysics_set_target_yaw(sp3C);
     baphysics_set_horizontal_velocity(sp3C, baphysics_get_target_horizontal_velocity());
-    func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_vertical_velocity(barebound_get_vertical_velocity());
     baphysics_set_gravity(barebound_get_gravity());
     baMarker_collisionOff();
@@ -451,7 +452,7 @@ void bswalrus_die_init(void){
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bswalrus.c", 0x366);
     func_8030E58C(SFX_36_BANJO_DOH, 1.8f);
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     D_8037D5C4 = 250.0f;
@@ -460,12 +461,12 @@ void bswalrus_die_init(void){
     baphysics_set_target_horizontal_velocity(D_8037D5C4);
     baphysics_set_target_yaw(sp38);
     baphysics_set_horizontal_velocity(sp38, baphysics_get_target_horizontal_velocity());
-    func_8029C7F4(1,1,2, BA_PHYSICS_LOCKED_ROTATION);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 2, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_vertical_velocity(420.0f); //B)
     baphysics_set_gravity(-1200.0f);
     pitch_setAngVel(1000.0f, 12.0f);
     func_802914CC(0xd);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8025AB00();
     func_8025A2FC(0, 0xfa0);
     comusic_playTrack(0x1A);
@@ -530,16 +531,16 @@ void bswalrus_drone_end(void){
     func_802B8048();
 }
 
-void func_802B90D0(void){
+void bswalrus_sledlocked_init(void){
     baanim_playForDuration_loopSmooth(ASSET_19E_ANIM_BSWALRUS_SLED, 0.8f);
-    func_8029C7F4(1,1,3, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
     func_8029C674();
     func_802B813C();
     func_802B3A50();
 }
 
-void func_802B9130(void){
+void bswalrus_sledlocked_update(void){
     enum bs_e next_state = 0;
     func_802B3A50();
     func_80299628(0);
@@ -550,14 +551,14 @@ void func_802B9130(void){
     bs_setState(next_state);
 }
 
-void func_802B917C(void){
+void bswalrus_sledlocked_end(void){
     func_8029C748();
     func_802B80D0();
 }
 
 void bswalrus_sled_init(void){
     baanim_playForDuration_loopSmooth(ASSET_19E_ANIM_BSWALRUS_SLED, 0.8f);
-    func_8029C7F4(BAANIM_UPDATE_2_SCALE_HORZ,1,1, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(BAANIM_UPDATE_2_SCALE_HORZ, YAW_STATE_1_DEFAULT, 1, BA_PHYSICS_NORMAL);
     baanim_setVelocityMapRanges(D_80364DC0, D_80364DC4, D_80364DE0, D_80364DE4);
     func_802900B4();
     func_802B813C();
@@ -603,7 +604,7 @@ void bswalrus_sled_jump_init(void){
     anctrl_setStart(aCtrl, 0.14f);
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_ONCE);
     anctrl_start(aCtrl, "bswalrus.c", 0x477);
-    func_8029C7F4(1,1,3, BA_PHYSICS_AIRBORN);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_AIRBORN);
     if(bastick_distance() != 0.0f)
         yaw_setIdeal(bastick_getAngleRelativeToBanjo());
     baphysics_set_target_yaw(yaw_getIdeal());
@@ -663,7 +664,7 @@ void bswalrus_sled_jump_end(void){
     func_802B80D0();
 }
 
-void func_802B95A0(void){
+void bswalrus_sledloseinair_init(void){
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
     anctrl_reset(aCtrl);
     anctrl_setIndex(aCtrl, ASSET_19F_ANIM_BSWALRUS_SLED_JUMP);
@@ -671,12 +672,12 @@ void func_802B95A0(void){
     anctrl_setDuration(aCtrl, 1.0f);
     anctrl_setPlaybackType(aCtrl, ANIMCTRL_STOPPED);
     anctrl_start(aCtrl, "bswalrus.c", 0x4e2);
-    func_8029C7F4(1,1,3, BA_PHYSICS_AIRBORN);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_AIRBORN);
     func_802B813C();
     D_8037D5C8 = 0;
 }
 
-void func_802B963C(void){
+void bswalrus_sledloseinair_update(void){
     enum bs_e next_state = 0;
     AnimCtrl *aCtrl = baanim_getAnimCtrlPtr();
     f32 sp1C[3];
@@ -720,16 +721,16 @@ void func_802B963C(void){
     bs_setState(next_state);
 }
 
-void func_802B976C(void){
+void bswalrus_sledloseinair_end(void){
     func_802B8048();
 }
 
 void bswalrus_timeout_init(void) {
-    baanim_playForDuration_once(ASSET_1A9_ANIM_BSWALRUS_LOSS, 3.2f);
-    func_8029C7F4(1, 1, 3, BA_PHYSICS_FREEZE);
+    baanim_playForDuration_onceSmooth(ASSET_1A9_ANIM_BSWALRUS_LOSS, 3.2f);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_FREEZE);
     baphysics_set_target_horizontal_velocity(0.0f);
     func_802914CC(0xD);
-    ncDynamicCamD_func_802BF2C0(60.0f);
+    ncbadie_func_802BF2C0(60.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
     core1_ce60_incOrDecCounter(false);
@@ -739,7 +740,7 @@ void bswalrus_timeout_init(void) {
     baeyes_close();
 }
 
-void func_802B9830(void) {
+void bswalrus_timeout_update(void) {
     yaw_setIdeal(func_8029B41C() + 35.0f);
     func_80299628(0);
     if (batimer_decrement(0) != 0) {
@@ -747,7 +748,7 @@ void func_802B9830(void) {
     }
 }
 
-void func_802B9880(void) {
+void bswalrus_timeout_end(void) {
     func_80291548();
     core1_ce60_incOrDecCounter(true);
     func_8025A904();

@@ -9,6 +9,14 @@ enum ControlScheme {
 
 #ifdef __cplusplus
 void ControlSchemes_Apply(int scheme);
+
+extern "C" {
+#endif
+
+int port_rightStickIsMapped(void);
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // CONTROL_SCHEMES_H

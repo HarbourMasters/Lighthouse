@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/gsworld.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
@@ -7,17 +8,18 @@
 #include <core2/file.h>
 #include "core2/particle.h"
 #include "port/Interpolation/FrameInterpolation.h"
-#include "port/Enhancements/NoteRetention/NoteRetention.h"
+#include "port/Enhancements/Retention/Retention.h"
 
 /* .data */
 extern u8 D_80370250 = 0;
 
 /* .bss */
-struct {
-    s32 unk0;
-    s32 map_4;
-    s32 unk8;
-}sGsWorldData;
+struct gsworld_data_s {
+    s32 unk0; // probably game_mode_e
+    enum map_e map;
+    s32 exit;
+};
+struct gsworld_data_s sGsWorldData;
 s32 D_803835DC;
 u32 sEnableDraw;
 
@@ -38,15 +40,15 @@ extern Struct64s *func_8032994C(void);
 extern void func_802F2ED0(Struct64s *, Gfx **, Mtx **, Vtx **);
 
 /* .code */
-void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
+void gsworld_draw(Gfx** gfx, Mtx **mtx, Vtx **vtx) {
     f32 sp44;
     f32 sp40;
 
     if (sEnableDraw == 0) {
-        drawRectangle2D(gdl, 0, 0, gFramebufferWidth, gFramebufferHeight, 0, 0, 0);
-        func_802BBD2C(&sp44, &sp40);
+        drawRectangle2D(gfx, 0, 0, gFramebufferWidth, gFramebufferHeight, 0, 0, 0);
+        core2_34790_getClipDistances(&sp44, &sp40);
         viewport_setNearAndFar(sp44, sp40);
-        viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
+        viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
         return;
     }
     // Lighthouse [port] Crashing here, not sure what this is.
@@ -55,87 +57,87 @@ void gsworld_draw(Gfx** gdl, Mtx **mptr, Vtx **vptr) {
     // }
     spawnQueue_unlock();
     FrameInterpolation_RecordOpenChild("sky", 0);
-    sky_draw(gdl, mptr, vptr);
+    sky_draw(gfx, mtx, vtx);
     FrameInterpolation_RecordCloseChild();
-    func_802BBD2C(&sp44, &sp40);
+    core2_34790_getClipDistances(&sp44, &sp40);
     viewport_setNearAndFar(sp44, sp40);
-    viewport_setRenderViewportAndPerspectiveMatrix(gdl, mptr);
+    viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
     if (mapModel_has_xlu_bin() != 0) {
         FrameInterpolation_RecordOpenChild("map_opa", 0);
-        mapModel_opa_draw(gdl, mptr, vptr);
+        mapModel_opa_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
         if (game_is_frozen() == 0) {
-            leveloverlay_drawCallback(gdl, mptr, vptr);
+            leveloverlay_drawCallback(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("player", 0);
-            player_draw(gdl, mptr, vptr);
+            player_draw(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
-            CALL_EVENT(OnPlayerDraw, gdl, mptr, vptr);
+            CALL_EVENT(OnPlayerDraw, gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
-            func_80302C94(gdl, mptr, vptr);
+            func_80302C94(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("jiggylist", 0);
-            jiggylist_draw(gdl, mptr, vptr);
+            jiggylist_draw(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
-            func_803500D8(gdl, mptr, vptr);
+            func_803500D8(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
-            func_802F2ED0(func_8032994C(), gdl, mptr, vptr);
+            func_802F2ED0(func_8032994C(), gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("part_pass0", 0);
-            partEmitMgr_drawPass0(gdl, mptr, vptr);
+            partEmitMgr_drawPass0(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("map_xlu", 0);
-            mapModel_xlu_draw(gdl, mptr, vptr);
+            mapModel_xlu_draw(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
-        if (game_is_frozen() == 0) {
-            func_8032D3D8(gdl, mptr, vptr);
+        if (!game_is_frozen()) {
+            core2_A5BC0_drawUnknownMarkers(gfx, mtx, vtx);
         }
         if (game_is_frozen() == 0) {
             FrameInterpolation_RecordOpenChild("part_pass1", 0);
-            partEmitMgr_drawPass1(gdl, mptr, vptr);
+            partEmitMgr_drawPass1(gfx, mtx, vtx);
             FrameInterpolation_RecordCloseChild();
         }
         if (game_is_frozen() == 0) {
-            func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
+            func_8034F6F0(gfx, mtx, (s32)(intptr_t)vtx);
         }
-        func_802D520C(gdl, mptr, vptr);
+        func_802D520C(gfx, mtx, vtx);
     } else {
         FrameInterpolation_RecordOpenChild("map_opa", 0);
-        mapModel_opa_draw(gdl, mptr, vptr);
+        mapModel_opa_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
-        leveloverlay_drawCallback(gdl, mptr, vptr);
-        func_8034F6F0(gdl, mptr, (s32)(intptr_t)vptr);
+        leveloverlay_drawCallback(gfx, mtx, vtx);
+        func_8034F6F0(gfx, mtx, (s32)(intptr_t)vtx);
         FrameInterpolation_RecordOpenChild("player", 0);
-        player_draw(gdl, mptr, vptr);
+        player_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
-        CALL_EVENT(OnPlayerDraw, gdl, mptr, vptr);
-        func_80302C94(gdl, mptr, vptr);
-        func_8032D3D8(gdl, mptr, vptr);
+        CALL_EVENT(OnPlayerDraw, gfx, mtx, vtx);
+        func_80302C94(gfx, mtx, vtx);
+        core2_A5BC0_drawUnknownMarkers(gfx, mtx, vtx);
         FrameInterpolation_RecordOpenChild("jiggylist", 0);
-        jiggylist_draw(gdl, mptr, vptr);
+        jiggylist_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
-        func_803500D8(gdl, mptr, vptr);
-        func_802F2ED0(func_8032994C(), gdl, mptr, vptr);
-        func_802D520C(gdl, mptr, vptr);
+        func_803500D8(gfx, mtx, vtx);
+        func_802F2ED0(func_8032994C(), gfx, mtx, vtx);
+        func_802D520C(gfx, mtx, vtx);
         FrameInterpolation_RecordOpenChild("part_draw", 0);
-        partEmitMgr_draw(gdl, mptr, vptr);
+        partEmitMgr_draw(gfx, mtx, vtx);
         FrameInterpolation_RecordCloseChild();
     }
     if (game_is_frozen() == 0) {
-        func_80350818(gdl, mptr, vptr);
+        func_80350818(gfx, mtx, vtx);
     }
     if (game_is_frozen() == 0) {
-        func_802BBD0C(gdl, mptr, vptr);
+        func_802BBD0C(gfx, mtx, vtx);
     }
     spawnQueue_lock();
 }
@@ -144,15 +146,15 @@ void gsworld_stub1(s32 arg0, s32 arg1, s32 arg2){
 }
 
 enum map_e gsworld_getMap(void){
-    return sGsWorldData.map_4;
+    return sGsWorldData.map;
 }
 
 s32 gsworld_getExit(){
-    return sGsWorldData.unk8;
+    return sGsWorldData.exit;
 }
 
 void gsworld_transitionToExit(s32 arg0) {
-    transitionToMap(sGsWorldData.map_4, arg0, 1);
+    transitionToMap(sGsWorldData.map, arg0, 1);
 }
 
 s32 gsworld_getUnk0(){
@@ -214,9 +216,9 @@ void gsworld_free(void) {
         itemPrint_free();
     }
     dialogBin_terminate();
-    func_802986D0();
-    if (func_80322914() == 0) {
-        func_8024F7C4(func_803226E8(sGsWorldData.map_4));
+    playerModel_free();
+    if (!func_80322914()) {
+        func_8024F7C4(func_803226E8(sGsWorldData.map));
     }
     core1_7090_release();
     AnimTextureListCache_free();
@@ -228,12 +230,12 @@ void gsworld_free(void) {
 
 void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     sGsWorldData.unk0 = 3;
-    CALL_EVENT(OnMapLoad, sGsWorldData.map_4, arg0, arg1);
-    sGsWorldData.map_4 = arg0;
+    CALL_EVENT(OnMapLoad, sGsWorldData.map, arg0, arg1);
+    sGsWorldData.map = arg0;
     // [port] Drop the prev tree; the next sub-frame would otherwise lerp
     // the old map's geometry against the new one's.
     FrameInterpolation_DontInterpolateCamera();
-    sGsWorldData.unk8 = arg1;
+    sGsWorldData.exit = arg1;
     leveloverlay_init();
     gsworld_setEnableUpdate(1);
     gsworld_setEnableDraw(1);
@@ -243,15 +245,15 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
         func_8038E7C4();
     }
     if (func_80322914() == 0) {
-        func_8024F764(func_803226E8(sGsWorldData.map_4));
+        func_8024F764(func_803226E8(sGsWorldData.map));
     }
     func_80320B84();
     AnimTextureListCache_init();
     func_8034C97C();
     func_8030A078();
     func_8031B718();
-    func_80298700();
-    if (func_802E4A08() == 0) {
+    playerModel_set();
+    if (!func_802E4A08()) {
         itemPrint_init();
     }
     dialogBin_initialize();
@@ -300,7 +302,7 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     func_80350174();
     gcparade_init();
     func_80351998();
-    func_802BC2CC(sGsWorldData.unk8);
+    func_802BC2CC(sGsWorldData.exit);
     func_802D63D4();
     func_80255A04();
     func_802D6948();
@@ -314,11 +316,11 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
 
 void gsworld_reload(void) {
     gsworld_free();
-    gsworld_set(sGsWorldData.map_4, sGsWorldData.unk8, 1);
+    gsworld_set(sGsWorldData.map, sGsWorldData.exit, 1);
 }
 
 void gsworld_stub2(void) {
-    gsworld_stub3(sGsWorldData.map_4);
+    gsworld_stub3(sGsWorldData.map);
 }
 
 void gsworld_setUnk0(s32 arg0) {
@@ -340,7 +342,7 @@ s32 gsworld_update(void) {
     s32 phi_v1;
     s32 phi_v0;
 
-    codeCF5F0_forgetAllAbilitiesExceptClawSwipeIfChecksumsFail();
+    codeCF5F0_triggerAntiTamperMeasurement();
     func_802D5628();
     itemPrint_update();
     if (getGameMode() != GAME_MODE_4_PAUSED) {
@@ -383,7 +385,9 @@ s32 gsworld_update(void) {
         func_8031B790();
         func_8034C9D4();
         propModelList_flush(1);
-        sky_update();
+        if (EventSystem_Should(VB_SKY_UPDATE, true)) {
+            sky_update();
+        }
         partEmitMgr_update();
         func_8034F918();
         func_80350250();
@@ -403,7 +407,7 @@ s32 gsworld_update(void) {
         func_803306C8(1);
         func_8032AD7C(1);
         func_80322490();
-        if (map_getLevel(sGsWorldData.map_4) == LEVEL_D_CUTSCENE) {
+        if (map_getLevel(sGsWorldData.map) == LEVEL_D_CUTSCENE) {
             func_802C79C4();
         }
         func_8032AABC();
@@ -432,6 +436,7 @@ void gsworld_load(enum map_e map_id) {
     File *fp;
 
     port_noteRetention_beginMapLoad((int32_t)map_id);
+    port_carriedSync_beginMapLoad((int32_t)map_id);
 
     core1_15B30_sendMesg3ToRenderThread();
     fp = file_openMap(map_id); //LevelSetupFile_Open

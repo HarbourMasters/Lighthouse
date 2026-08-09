@@ -3,11 +3,13 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
 #include "macros.h"
 #include "variables.h"
-}
+
+extern "C" ActorMarker* bacarry_getMarker(void);
+
+#include "port/Patches/Patches.h"
 
 /**
  * PLAYER_UPDATE
@@ -22,6 +24,16 @@ extern "C" {
 void Anchor::SendToCurrentMapPlayers(nlohmann::json& payload) {
     for (auto& [clientId, client] : clients) {
         if (client.map == gsworld_getMap() && client.online && client.isSaveLoaded && !client.self) {
+            payload["targetClientId"] = clientId;
+            SendJsonToRemote(payload);
+        }
+    }
+}
+
+void Anchor::SendToCurrentLevelPlayers(nlohmann::json& payload) {
+    enum level_e myLevel = map_getLevel(gsworld_getMap());
+    for (auto& [clientId, client] : clients) {
+        if (client.online && client.isSaveLoaded && !client.self && map_getLevel((enum map_e)client.map) == myLevel) {
             payload["targetClientId"] = clientId;
             SendJsonToRemote(payload);
         }
@@ -161,19 +173,36 @@ void Anchor::SendPacket_PlayerUpdate(bool full, uint32_t targetClientId) {
         anctrl_getSubRange(baanim_getAnimCtrlPtr(), &sub_start, &sub_end);
         payload["subrange_end"] = sub_end;
     }
-    payload["kazooieVisible"] = func_8029DFBC();     // Kazooie visibility (Kazooie popped out)
-    payload["modelSquint"] = func_8029DFA4();        // squint
-    payload["modelWink"] = func_8029DFB0();          // wink
-    payload["modelMouth1"] = func_8029DFE0();        // mouth
-    payload["modelMouth2"] = func_8029DFEC();        // mouth 2
-    payload["modelEyeBlendUpper"] = func_8029DFC8(); // eye blend upper
-    payload["modelEyeBlendLower"] = func_8029DFD4(); // eye blend lower
+    payload["kazooieUpper"] = modelAppendages_showKazooiesUpperHalf();
+    payload["kazooieLower"] = modelAppendages_showKazooiesAss();
+    payload["kazooieFeet"] = modelAppendages_showKazooiesFeetAndShoes();
+    payload["kazooieTurbos"] = modelAppendages_hideTurboTrainers();
+    payload["kazooieBoots"] = modelAppendages_hideWadingBoots();
+    payload["banjoLeftEye"] = modelAppendages_showBanjosLeftEye();
+    payload["banjoRightEye"] = modelAppendages_showBanjosRightEye();
+    payload["bottlesBonus"] = baanim_getActiveBottlesBonusMask();
+    {
+        // Carried-collectible marker id (0 = none); skipped once thrown (unk138_21 = in flight).
+        s32 carryId = 0;
+        ActorMarker* carryMarker = bacarry_getMarker();
+        if (carryMarker != nullptr) {
+            Actor* carried = marker_getActor(carryMarker);
+            if (carried != nullptr && !carried->unk138_21) {
+                carryId = carryMarker->id;
+                payload["carryOff"] = { carried->position[0] - pos[0], carried->position[1] - pos[1],
+                                        carried->position[2] - pos[2] };
+                payload["carryYaw"] = mlNormalizeAngle(carried->yaw - player_getYaw());
+            }
+        }
+        payload["carry"] = carryId;
+    }
 
     if (full) {
         payload["anim_id"] = anctrl_getIndex(baanim_getAnimCtrlPtr());
         payload["anim_control"] = anctrl_getPlaybackType(baanim_getAnimCtrlPtr());
     }
     payload["type"] = full ? PLAYER_UPDATE_FULL : PLAYER_UPDATE;
+    payload["quiet"] = true;
 
     if (targetClientId != 0) {
         payload["targetClientId"] = targetClientId;
@@ -234,9 +263,24 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
                                                     (AnimControl)payload.value("anim_control", (int)ANIMCTRL_LOOP),
                                                     0.0f, payload.value("subrange_end", 1.0f), false);
         }
-        client.dummy->setModelSubStates(payload.value("kazooieVisible", false), payload.value("modelSquint", false),
-                                        payload.value("modelWink", false), payload.value("modelMouth1", false),
-                                        payload.value("modelMouth2", false), payload.value("modelEyeBlendUpper", 0.0f),
-                                        payload.value("modelEyeBlendLower", 0.0f));
+        client.dummy->setModelSubStates(payload.value("kazooieUpper", false), payload.value("kazooieLower", false),
+                                        payload.value("kazooieFeet", false), payload.value("kazooieTurbos", false),
+                                        payload.value("kazooieBoots", false), payload.value("banjoLeftEye", 0.0f),
+                                        payload.value("banjoRightEye", 0.0f));
+        client.dummy->dummy_setBottlesBonus(payload.value("bottlesBonus", 0));
+        {
+            f32 carryOff[3] = { 0.0f, 0.0f, 0.0f };
+            f32 carryYaw = 0.0f;
+            if (payload.contains("carryOff")) {
+                std::vector<f32> off = payload["carryOff"].get<std::vector<f32>>();
+                if (off.size() >= 3) {
+                    carryOff[0] = off[0];
+                    carryOff[1] = off[1];
+                    carryOff[2] = off[2];
+                }
+                carryYaw = payload.value("carryYaw", 0.0f);
+            }
+            port_remoteCarry_setCarried(clientId, payload.value("carry", 0), carryOff, carryYaw);
+        }
     }
 }

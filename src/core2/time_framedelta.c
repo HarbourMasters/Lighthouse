@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_B6C60.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -28,22 +29,7 @@ f32 func_8033DC20(void){
     u64 now = SDL_GetPerformanceCounter();
     u64 freq = SDL_GetPerformanceFrequency();
     f32 out;
-
-    if (last_ticks == 0) {
-        last_ticks = now;
-        out = 1.0f / 30.0f; // first frame: assume 1/30 (N64 rate)
-    } else {
-        out = (f32)(now - last_ticks) / (f32)freq;
-        last_ticks = now;
-    }
-
-    // Cap at 50ms (matching time_setDeltaReal_sec cap)
-    if (out > 0.05f) out = 0.05f;
-    if (out <= 0.0f) out = 1.0f / 60.0f;
-
-    // Keep D_80384470 updated for anything that reads it
-    D_80384470 = (s32)(out * 60.0f + 0.5f);
-    if (D_80384470 < 1) D_80384470 = 1;
-
+    D_80384470 = viMgr_func_8024BD94();
+    out = (1.0 / FRAMERATE)*D_80384470;
     return out;
 }

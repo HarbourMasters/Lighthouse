@@ -44,7 +44,7 @@ void __chlmonkey_updateBringOrange(Actor **this_ptr) {
     player_setCarryObjectPoseInHorizontalRadius((*this_ptr)->position, 800.0f, ACTOR_29_ORANGE_COLLECTIBLE, this_ptr);
 
     if (subaddie_playerIsWithinSphereAndActive(*this_ptr, 345) &&
-        bacarry_get_markerId() == MARKER_36_ORANGE_COLLECTIBLE &&
+        bacarry_getMarkerId() == MARKER_36_ORANGE_COLLECTIBLE &&
         player_throwCarriedObject()) {
 
         func_8028FA34(0xc6, *this_ptr);
@@ -98,20 +98,22 @@ void chlmonkey_update(Actor *this) {
         func_80343DEC(this);
     }
     else {//L80388630
-        if (subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId()) {
+        if (subaddie_playerIsWithinSphereAndActive(this, 700) && !gcdialog_hasCurrentTextId() &&
+            EventSystem_Should(VB_MM_CHIMPY_NOISE, true)) {
             __chlmonkey_playRandomNoise(this);
         }//L8038865C
 
         switch (this->state) {
             case LMONKEY_STATE_1_IDLE://L80388690
-                if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED)) {
+                if (mapSpecificFlags_get(MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED) || jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY)) {
                     subaddie_set_state(this, LMONKEY_STATE_4_LEAVING);
 
-                    if (!jiggyscore_isCollected(JIGGY_9_MM_CHIMPY)) {
-                        gcdialog_showDialog(ASSET_B40_DIALOG_CHIMPY_COMPLETE, 0xE, this->position, this->marker, __chlmonkey_complete, NULL);
+                    if (jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY)) {
+                        mapSpecificFlags_set(MM_SPECIFIC_FLAG_4_SHAKE, true);
+                        subaddie_set_state(this, LMONKEY_STATE_3_WALKING);
                     }
                     else {//L803886E8
-                        __chlmonkey_complete(this->marker, ASSET_B40_DIALOG_CHIMPY_COMPLETE, -1);
+                        gcdialog_showDialog(ASSET_B40_DIALOG_CHIMPY_COMPLETE, 0xE, this->position, this->marker, __chlmonkey_complete, NULL);
                     }//L80388898
                 }
                 else {

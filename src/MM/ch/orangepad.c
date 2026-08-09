@@ -1,28 +1,29 @@
-// BanjoDecomp: orangepad.c
+// BanjoDecomp: MM/ch/orangepad.c
+#include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include <ultra64.h>
+#include "bk_math.h" // [port] TUPLE_ASSIGN
 
-#include <bk_math.h>
+#include "core2/staticcamera.h"
 
-/* extern functions */
-void actor_update_func_80326224(Actor *);
-extern void particleEmitter_func_802EFA20(ParticleEmitter *, f32, f32);
+#include "conga.h"
+#include "orangepad.h"
 
-/* public functions */
-void chorangepad_update(Actor *);
+extern void port_breakable_recordBreak(s32 markerId, s32 x, s32 y, s32 z);
+extern s32 port_breakable_isBroken(s32 map, s32 markerId, s32 x, s32 y, s32 z);
 
-/* .data */
+void chOrangePad_update(Actor *);
+
 ActorInfo chOrangePadInfo = {
     MARKER_66_ORANGE_PAD, ACTOR_57_ORANGE_PAD, ASSET_2EB_MODEL_ORANGE_PAD,
     0, NULL,
-    chorangepad_update, actor_update_func_80326224, actor_draw,
+    chOrangePad_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
 
-/*.code */
-void __chorangepad_spawnJiggy(s32 x, s32 y, s32 z) {
+void spawnJiggy(s32 x, s32 y, s32 z) {
     f32 pos[3];
+
     TUPLE_ASSIGN(pos, x, y, z);
     jiggy_spawn(JIGGY_8_MM_ORANGE_PADS, pos);
 }
@@ -32,101 +33,115 @@ void handleOrangeCollision(ActorMarker *marker) {
     Actor *closest_orange_pad;
     f32 position[3];
     ParticleEmitter *p_ctrl;
-    s32 temp_a0;
+    s32 camera_id;
 
-    position[0] = marker->propPtr->x;
+    position[0] = marker->propPtr->x; // [port] ActorProp uses x/y/z members
     position[1] = marker->propPtr->y;
     position[2] = marker->propPtr->z;
 
-    closest_orange_pad = actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, 1, &distance_to_orange_pad);
+    closest_orange_pad = actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, ORANGE_PAD_STATE_HIT, &distance_to_orange_pad);
 
-    if (closest_orange_pad && !(500.0f < distance_to_orange_pad)) {
-        closest_orange_pad->state = 1;
-
-        if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, 1, &distance_to_orange_pad)) {
-            coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
-        }
-        else {
-            temp_a0 = (closest_orange_pad->secondaryId == 0x106) ? 0x10
-                    : (closest_orange_pad->secondaryId == 0x76)  ? 0xf
-                    : 0xe;
-
-            gcStaticCamera_activate(temp_a0);
-            position[1] += 50.0f;
-            timedFunc_set_3(0.6f, (GenFunction_3) __chorangepad_spawnJiggy, (s32) position[0], (s32) position[1], (s32) position[2]);
-            coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
-
-            if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
-                gcdialog_showDialog(ASSET_B3B_DIALOG_CONGA_ORANGE_PAD_JIGGY, 4, NULL, NULL, NULL, NULL);
-            }
-        }// L803865D8
-
-        // Emmit sparkles
-        p_ctrl = partEmitMgr_newEmitter(30);
-        particleEmitter_setPosition(p_ctrl, closest_orange_pad->position);
-        particleEmitter_setModel(p_ctrl, ASSET_89F_MODEL_ORANGE_PARTICLE);
-        particleEmitter_setStartingScaleRange(p_ctrl, 0.09f, 0.19f);
-        particleEmitter_setFinalScaleRange(p_ctrl, 0.0f, 0.0f);
-        particleEmitter_setParticleVelocityRange(p_ctrl, -200.0f, 500.0f, -200.0f, 200.0f, 700.0f, 200.0f);
-        particleEmitter_setAccelerationRange(p_ctrl, 0.0f, -1200.0f, 0.0f, 0.0f, -1200.0f, 0.0f);
-        particleEmitter_setAngularVelocityRange(p_ctrl, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
-        particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
-        particleEmitter_setParticleLifeTimeRange(p_ctrl, 4.0f, 4.0f);
-        particleEmitter_func_802EF9F8(p_ctrl, 0.01f);
-        particleEmitter_func_802EFA18(p_ctrl, 3);
-        particleEmitter_func_802EFA20(p_ctrl, 1.0f, 1.3f);
-        particleEmitter_emitN(p_ctrl, 30);
+    if (!closest_orange_pad || 500.0f < distance_to_orange_pad) {
+        return;
     }
+
+    closest_orange_pad->state = ORANGE_PAD_STATE_HIT;
+    port_breakable_recordBreak((s32)closest_orange_pad->marker->id, (s32)closest_orange_pad->position[0], (s32)closest_orange_pad->position[1], (s32)closest_orange_pad->position[2]);
+
+    if (actorArray_findClosestActorFromActorId(position, ACTOR_57_ORANGE_PAD, ORANGE_PAD_STATE_HIT, &distance_to_orange_pad)) {
+        // There are still other pads on the ground, play progress ding
+        coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 22000);
+    } else { // No more pads, dispense jiggy
+        camera_id = (closest_orange_pad->secondaryId == ORANGE_PAD_RIGHT) ? MM_ORANGE_PAD_JIGGY_SPAWN_RIGHT
+                  : (closest_orange_pad->secondaryId == ORANGE_PAD_LEFT)  ? MM_ORANGE_PAD_JIGGY_SPAWN_LEFT
+                                                                          : MM_ORANGE_PAD_JIGGY_SPAWN_TOP;
+
+        gcStaticCamera_activate(camera_id);
+
+        position[1] += 50.0f;
+        timedFunc_set_3(0.6f, (GenFunction_3) spawnJiggy, (s32) position[0], (s32) position[1], (s32) position[2]);
+
+        coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
+
+        if (!jiggyscore_isCollected(JIGGY_8_MM_ORANGE_PADS)) {
+            gcdialog_showDialog(VER_SELECT(ASSET_B3B_DIALOG_CONGA_ORANGE_PAD_JIGGY, 0x959, 0, 0), 4, NULL, NULL, NULL, NULL);
+        }
+    }
+
+    // Spawn orange particles
+    p_ctrl = partEmitMgr_newEmitter(ORANGE_PARTICLE_COUNT);
+
+    particleEmitter_setPosition(p_ctrl, closest_orange_pad->position);
+    particleEmitter_setModel(p_ctrl, ASSET_89F_MODEL_ORANGE_PARTICLE);
+    particleEmitter_setStartingScaleRange(p_ctrl, 0.09f, 0.19f);
+    particleEmitter_setFinalScaleRange(p_ctrl, 0.0f, 0.0f);
+    particleEmitter_setParticleVelocityRange(p_ctrl, -200.0f, 500.0f, -200.0f, 200.0f, 700.0f, 200.0f);
+    particleEmitter_setAccelerationRange(p_ctrl, 0.0f, -1200.0f, 0.0f, 0.0f, -1200.0f, 0.0f);
+    particleEmitter_setAngularVelocityRange(p_ctrl, -600.0f, -600.0f, -600.0f, 600.0f, 600.0f, 600.0f);
+    particleEmitter_setSpawnIntervalRange(p_ctrl, 0.0f, 0.01f);
+    particleEmitter_setParticleLifeTimeRange(p_ctrl, 4.0f, 4.0f);
+    particleEmitter_func_802EF9F8(p_ctrl, 0.01f);
+    particleEmitter_func_802EFA18(p_ctrl, 3);
+    particleEmitter_func_802EFA20(p_ctrl, 1.0f, 1.3f);
+
+    particleEmitter_emitN(p_ctrl, ORANGE_PARTICLE_COUNT);
 }
 
-void chOrangePad_handleOrangeCollision(NodeProp *arg0, ActorMarker *arg1) {
-    handleOrangeCollision(arg1);
+void chOrangePad_handleOrangeCollision(s32 _, ActorMarker *marker) {
+    handleOrangeCollision(marker);
 }
 
-void chorangepad_update(Actor *this) {
-    Actor *closest_actor;
+void chOrangePad_update(Actor *this) {
+    Actor *conga;
     f32 unused;
     f32 min_distance;
 
     if (!this->initialized) {
         this->marker->propPtr->unk8_3 = 1;
         actor_collisionOff(this);
-        this->initialized = true;
-    }//L803867B0
-
-    if (!this->volatile_initialized) {
-        this->partnerActor = actorArray_findClosestActorFromActorId(this->position, 8, -1, &min_distance)->marker;
-        this->volatile_initialized = true;
-    }//L803867E0
-
-    if (this->partnerActor) {
-        closest_actor = marker_getActor(this->partnerActor);
+        this->initialized = TRUE;
     }
 
-    if (subaddie_playerIsWithinSphereAndActive(this, 0x28) &&
-        !player_movementGroup() &&
-        !mapSpecificFlags_get(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS) &&
-        closest_actor->state != 3) {
+    if (!this->volatile_initialized) {
+        this->partnerActor = actorArray_findClosestActorFromActorId(this->position, ACTOR_8_CONGA, -1, &min_distance)->marker;
+        this->volatile_initialized = TRUE;
+    }
 
-        if (gcdialog_showDialog(ASSET_B3D_DIALOG_CONGA_TOUCH_PAD, 0, NULL, NULL, NULL, NULL)) {
-            mapSpecificFlags_set(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS, true);
+    // Anchor: a teammate already broke this pad — adopt the hit state.
+    if (this->state != ORANGE_PAD_STATE_HIT
+        && port_breakable_isBroken((s32)gsworld_getMap(), (s32)this->marker->id,
+                                   (s32)this->position[0], (s32)this->position[1], (s32)this->position[2])) {
+        this->state = ORANGE_PAD_STATE_HIT;
+    }
+
+    if (this->partnerActor) {
+        conga = marker_getActor(this->partnerActor);
+    }
+
+    if (subaddie_playerIsWithinSphereAndActive(this, CONGA_WARN_DISTANCE)
+        && !player_movementGroup()
+        && !mapSpecificFlags_get(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS)
+        && conga->state != CONGA_STATE_MOPEY) {
+
+        if (gcdialog_showDialog(VER_SELECT(ASSET_B3D_DIALOG_CONGA_TOUCH_PAD, 0x95B, 0, 0), 0, NULL, NULL, NULL, NULL)) {
+            mapSpecificFlags_set(MM_SPECIFIC_FLAG_CONGA_WARNED_BLOCKS, TRUE);
         }
     }
 
-    if (this->state == 1) {
+    if (this->state == ORANGE_PAD_STATE_HIT) {
         if (this->lifetime_value < 72.0f) {
             commonParticle_add(this->marker, 5, func_80329904);
             commonParticle_new(9, this->marker->unk14_21);
         }
 
-        this->lifetime_value = MIN(255.0, this->lifetime_value + 7.0);
+        // Tick up respawn by 7 every update
+        this->lifetime_value = MIN(ORANGE_PAD_HIT_LIFETIME, this->lifetime_value + ORANGE_PAD_LIFETIME_INCREMENT);
 
-        if (255.0 == this->lifetime_value) {
+        if (ORANGE_PAD_HIT_LIFETIME == this->lifetime_value) {
             marker_despawn(this->marker);
         }
-    }
-    else {
-    }//L80386928
+    } else { } // Can't remove the else ;.;
 
+    // If hit, then fade out
     actor_setOpacity(this, 0xFF - (s32) this->lifetime_value);
-}//*/
+}

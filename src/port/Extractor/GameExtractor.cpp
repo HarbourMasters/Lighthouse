@@ -14,6 +14,7 @@
 #include <unordered_map>
 
 #include "ship/Context.h"
+#include "port/FilePicker.h"
 #include "spdlog/spdlog.h"
 #include <port/Engine.h>
 
@@ -27,10 +28,7 @@
 #ifndef __SWITCH__
 #include "Companion.h"
 #include "factories/bk64/ConfigFactory.h"
-
-#if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
-#include "portable-file-dialogs.h"
-#endif
+#include "port/Romhack/RomhackTable.h"
 
 std::string GameExtractor::sStatusText;
 std::string GameExtractor::sLastError;
@@ -97,53 +95,21 @@ bool GameExtractor::RunStandalone(std::string rom) {
     return true;
 }
 
-bool GameExtractor::SelectGameFromUI() {
-    //// Store both path and already-read data
-    std::string romPath;
-    std::vector<uint8_t> romData;
-
-#if !defined(__IOS__) && !defined(__ANDROID__) && !defined(__SWITCH__)
-    // Desktop: fallback to file dialogue if no baserom found
-    // if (!foundGame) {
-    if (!pfd::settings::available()) {
-        SPDLOG_ERROR("portable-file-dialogs is not available on this system.");
+// Load a ROM from disk into mGameData. The caller does the picking (asynchronously on the boot path —
+// see Engine.cpp PS_FIRST/PS_FIRST_WAIT), so this is just the read.
+bool GameExtractor::LoadRomFromPath(const std::string& romPath) {
+    if (!std::filesystem::exists(romPath)) {
+        SPDLOG_ERROR("Failed to find ROM at path: {}", romPath);
         return false;
     }
 
-    auto selection = pfd::open_file("Select a file", ".", { "N64 Roms", "*.z64" }).result();
-    if (selection.empty()) {
+    std::ifstream inFile(romPath, std::ios::binary);
+    if (!inFile.is_open()) {
         return false;
     }
 
-    romPath = selection[0];
-    //}
-#else
-    // Mobile: fallback to baserom.us.z64
-    if (/*!foundGame && */ !std::filesystem::exists(Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64"))) {
-        SPDLOG_ERROR("baserom not found");
-        return false;
-    }
-
-    // if (!foundGame) {
-    romPath = Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64");
-    //}
-#endif
-
-    // Load file if it is not already open
-    if (romData.empty()) {
-        if (!std::filesystem::exists(romPath)) {
-            SPDLOG_ERROR("Failed to find ROM at path: {}", romPath);
-            return false;
-        }
-
-        std::ifstream inFile(romPath, std::ios::binary);
-        if (!inFile.is_open()) {
-            return false;
-        }
-
-        romData = std::vector<uint8_t>(std::istreambuf_iterator<char>(inFile), {});
-        inFile.close();
-    }
+    std::vector<uint8_t> romData(std::istreambuf_iterator<char>(inFile), {});
+    inFile.close();
 
     this->mGamePath = romPath;
     this->mGameData = std::move(romData);
@@ -168,7 +134,7 @@ void GameExtractor::GetRoms(std::vector<std::string>& roms) {
             // Check for any standard N64 rom file extensions.
             if (ext != NULL &&
                 (strcmp(ext, ".z64") == 0) /* || (strcmp(ext, ".n64") == 0) || (strcmp(ext, ".v64") == 0)*/)
-                roms.push_back(ffd.cFileName);
+                roms.push_back(mSearchPath + "/" + ffd.cFileName);
         }
     } while (FindNextFileA(h, &ffd) != 0);
     FindClose(h);
@@ -182,20 +148,23 @@ void GameExtractor::GetRoms(std::vector<std::string>& roms) {
         while ((dir = readdir(d)) != NULL) {
             struct stat path;
 
-            // Check if current entry is not folder
-            stat(dir->d_name, &path);
-            if (S_ISREG(path.st_mode)) {
+            // Against the full path: a bare name would be resolved relative to the
+            // working directory, so searching anywhere else stat'd the wrong file (or
+            // nothing) and left path uninitialised for the S_ISREG test below.
+            const std::string fullPath = mSearchPath + "/" + dir->d_name;
+            if (stat(fullPath.c_str(), &path) != 0 || !S_ISREG(path.st_mode)) {
+                continue;
+            }
 
-                // Get the position of the extension character.
-                char* ext = strrchr(dir->d_name, '.');
-                if (ext != NULL &&
-                    (strcmp(ext, ".z64") == 0 /* || strcmp(ext, ".n64") == 0 || strcmp(ext, ".v64") == 0*/)) {
-                    roms.push_back(dir->d_name);
-                }
+            // Get the position of the extension character.
+            char* ext = strrchr(dir->d_name, '.');
+            if (ext != NULL &&
+                (strcmp(ext, ".z64") == 0 /* || strcmp(ext, ".n64") == 0 || strcmp(ext, ".v64") == 0*/)) {
+                roms.push_back(fullPath);
             }
         }
+        closedir(d);
     }
-    closedir(d);
 #else
     for (const auto& file : std::filesystem::directory_iterator(mSearchPath)) {
         if (file.is_directory()) {
@@ -252,6 +221,10 @@ std::string GameExtractor::GetRegionSlug() const {
         default:
             return "";
     }
+}
+
+bool GameExtractor::IsRomhack() const {
+    return !mGameData.empty() && BK64::IsRomhack(mGameData);
 }
 
 bool GameExtractor::GenerateOTR(std::string appShortName) {
@@ -339,9 +312,31 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
         }
     } catch (const std::exception& e) { SPDLOG_WARN("Failed to count assets: {}", e.what()); }
 
-    // Detect non-BB custom MIPS code injection
-    if (BK64::HasCustomCodeBlob(this->mGameData)) {
-        SPDLOG_WARN("[GameExtractor] Custom MIPS code detected in ROM; prompting user before extraction.");
+    // Detect custom code: an injected MIPS blob or a rebuilt code overlay.
+    BK64::CustomCodeKind ccKind = BK64::CustomCodeKind::NONE;
+    char ccSha1[41] = {};
+    const bool hasBlob = BK64::GetCustomCodeBlobInfo(this->mGameData, ccKind, ccSha1);
+    const bool rebuiltOverlay = BK64::ClassifyRomhack(this->mGameData) == BK64::RomhackKind::CustomBuild;
+    bool promptCustomCode = rebuiltOverlay;
+    if (!promptCustomCode && hasBlob) {
+        if (const auto* entry = Lighthouse::LookupRomhackEntry(ccSha1)) {
+            // Known blob: the table's verdict beats the location heuristic — an
+            // isPorted=false row means analysis found real un-ported code even
+            // inside a globalization-kind blob (e.g. Nostalgia 64).
+            promptCustomCode = !entry->isPorted;
+            if (!promptCustomCode) {
+                SPDLOG_INFO("[GameExtractor] Custom code blob {} is ported ({}); no warning needed.", ccSha1,
+                            entry->identifier);
+            }
+        } else {
+            // Unknown blob: only injected blobs warrant the prompt; the stock
+            // globalization framework is covered by the statically linked build.
+            promptCustomCode = (ccKind == BK64::CustomCodeKind::BB_INJECTED);
+        }
+    }
+    if (promptCustomCode) {
+        SPDLOG_WARN("[GameExtractor] Romhack ships custom code ({}); prompting user before extraction.",
+                    rebuiltOverlay ? "rebuilt code overlay, non-BB build" : "injected MIPS code blob");
         sCustomCodePromptResult = -1;
         sCustomCodePromptActive = true;
         sCustomCodePromptRequested = true;
@@ -400,7 +395,7 @@ std::optional<std::string> GameExtractor::ValidateChecksum() const {
     return std::nullopt;
 }
 
-bool GameExtractor::SelectGameFromUI() {
+bool GameExtractor::LoadRomFromPath(const std::string& romPath) {
     return false;
 }
 
@@ -416,3 +411,18 @@ void GameExtractor::WritePortVersion() {
     // None
 }
 #endif
+
+// No #ifdef needed: Lighthouse::PickFile picks the backend (native dialog on desktop, ImGui browser
+// on consoles/arm). The N64-ROM title/filters live here so libultraship stays game-agnostic.
+void GameExtractor::SelectGameFromUI(std::function<void(bool)> onComplete) {
+    Ship::FileBrowserRequest req;
+    req.Title = "Select a N64 ROM";
+    req.Filters = { { "N64 ROMs (.z64, .n64, .v64)", { "*.z64", "*.n64", "*.v64" } }, { "All files", { "*" } } };
+    Lighthouse::PickFile(std::move(req),
+                         [this, onComplete = std::move(onComplete)](std::optional<std::filesystem::path> path) {
+                             const bool ok = path.has_value() && LoadRomFromPath(path->string());
+                             if (onComplete) {
+                                 onComplete(ok);
+                             }
+                         });
+}

@@ -3,7 +3,10 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 /* extern functions */
+void chAttackTutorial_onTutorialSkipped(void);
 Actor *func_802D94B4(ActorMarker *, Gfx **, Mtx **, Vtx **);
 void func_8028E668(f32 *, f32, f32, f32);
 void subaddie_turnToYaw(Actor *, f32);
@@ -110,6 +113,19 @@ void __chSmBottles_skipIntroTutorial(void) {
     ability_unlock(ABILITY_5_CLIMB);
     __chSmBottles_setHasUsedSpiralMountainAbilities();
     mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
+    // [port] Vanilla parity: a local opt-out pops the bonus Collywobble this session.
+    chAttackTutorial_onTutorialSkipped();
+}
+
+// [port] Anchor: a remote unlock completed the SM move set mid-session. Apply the same
+// completion state the init block derives from abilities at map load.
+void chSmBottles_netApplyTutorialComplete(void) {
+    mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+    mapSpecificFlags_set(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED, true);
+    mapSpecificFlags_set(SM_SPECIFIC_FLAG_2, true);
+    mapSpecificFlags_set(SM_SPECIFIC_FLAG_C, true);
+    mapSpecificFlags_set(SM_SPECIFIC_FLAG_F, true);
+    chAttackTutorial_onTutorialSkipped();
 }
 
 /**
@@ -496,13 +512,27 @@ void chSmBottles_update(Actor *this) {
             this->yaw_ideal = (f32) subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 4.0f);
 
+            // [port] Anchor: ability molehills stay inert until the team's tutorial choice
+            // is made, so nobody can start a tutorial the pending decision would invalidate.
+            if (this->actorTypeSpecificField != 1 && this->actorTypeSpecificField != 8 &&
+                !EventSystem_Should(VB_SM_MOLEHILL_ACTIVE, true, this)) {
+                break;
+            }
+
             if ((this->actorTypeSpecificField == 1 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) ||
                 (this->actorTypeSpecificField == 8 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)) ||
                 (this->actorTypeSpecificField == 8 && mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_F))
             ) {//L80389C50
-                if (((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && func_8028F20C()) ||
+                if (((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && player_isStableWithExtraSteps()) ||
                     mapSpecificFlags_get(SM_SPECIFIC_FLAG_10)
                 ) {//L80389C8C
+                    // [port] Anchor: the intro tutorial offer is a team decision.
+                    if (this->actorTypeSpecificField == 1 &&
+                        !EventSystem_Should(VB_SM_TUTORIAL_CHOICE_OPEN, true, this)) {
+                        mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+                        break;
+                    }
+
                     if (subaddie_playerIsWithinSphereAndActive(this, 0x96)) {
                         func_8028F45C(9, this->position);
                     }
@@ -512,7 +542,7 @@ void chSmBottles_update(Actor *this) {
                 }
             }
             else {//L80389CBC
-                if (!subaddie_playerIsWithinSphereAndActive(this, 0xfa) || player_movementGroup() || !func_8028F20C() || func_8028EC04()) {
+                if (!subaddie_playerIsWithinSphereAndActive(this, 250) || player_movementGroup() || !player_isStableWithExtraSteps() || func_8028EC04()) {
                     break;
                 }
 
@@ -614,6 +644,14 @@ void chSmBottles_update(Actor *this) {
                 }//L8038A218
 
                 if (bakey_pressed != -1) {
+                    // [port] Anchor: if the tutorial decision belongs to a teammate (or moves
+                    // are already being learned), fold a local opt-out into an opt-in.
+                    if (bakey_pressed == 0 && !EventSystem_Should(VB_SM_TUTORIAL_CHOICE_OPEN, true, this)) {
+                        bakey_pressed = 1;
+                    }
+                    // Record the answer team-wide the moment it lands, so a second pending
+                    // offer folds even before any move is learned.
+                    port_puzzleStep_orBits(ANCHOR_PUZZLE_SM_TUTORIAL, 1);
                     fileProgressFlag_set(FILEPROG_DB_SKIPPED_TUTORIAL, bakey_pressed ? 0 : 1);
                     gcdialog_showDialog(bakey_pressed ? ASSET_E07_DIALOG_BOTTLES_UNKNOWN : ASSET_E09_DIALOG_BOTTLES_SKIPPED_TUTORIAL, 0xe, this->position, this->marker, __chSmBottles_textCallback,__chSmBottles_textActions);
 

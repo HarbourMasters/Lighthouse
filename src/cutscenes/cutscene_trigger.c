@@ -1,4 +1,4 @@
-// BanjoDecomp: (core2 origin - unknown exact file)
+// BanjoDecomp: core2/ch/code_468E0.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"

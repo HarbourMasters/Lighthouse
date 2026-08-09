@@ -1,22 +1,47 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/Enhancements/game-interactor/GameInteractor.h"
-//#include "soh/OTRGlobals.h"
 
-extern "C" {
 #include "functions.h"
 
-// extern PlayState* gPlayState;
-}
+#include "port/Patches/Patches.h"
+#include "port/Rando/Rando.h"
+#include "port/UI/Notification.h"
 
 /**
  * SET_FLAG
  *
- * Fired when a flag is set in the save context
+ * Fired when a flag bit is set (raised) in either flag space.
  */
 
-void Anchor::SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag) {
+static const char* LevelOpenSeenFlagName(s16 flag) {
+    switch (flag) {
+        case 0x28:
+            return "Mumbo's Mountain";
+        case 0x29:
+            return "Treasure Trove Cove";
+        case 0x2A:
+            return "Clanker's Cavern";
+        case 0x2B:
+            return "Bubblegloop Swamp";
+        case 0x2C:
+            return "Freezeezy Peak";
+        case 0x2D:
+            return "Gobi's Valley";
+        case 0x2E:
+            return "Mad Monster Mansion";
+        case 0x2F:
+            return "Rusty Bucket Bay";
+        case 0x30:
+            return "Click Clock Wood";
+        case FILEPROG_E2_DOOR_OF_GRUNTY_OPEN:
+            return "the door to Gruntilda";
+        default:
+            return nullptr;
+    }
+}
+
+void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag) {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
@@ -25,8 +50,7 @@ void Anchor::SendPacket_SetFlag(s16 sceneNum, s16 flagType, s16 flag) {
     payload["type"] = SET_FLAG;
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["addToQueue"] = true;
-    payload["sceneNum"] = sceneNum;
-    payload["flagType"] = flagType;
+    payload["flagSpace"] = flagSpace;
     payload["flag"] = flag;
 
     SendJsonToRemote(payload);
@@ -37,37 +61,28 @@ void Anchor::HandlePacket_SetFlag(nlohmann::json& payload) {
         return;
     }
 
-    s16 sceneNum = payload.at("sceneNum").get<s16>();
-    s16 flagType = payload.at("flagType").get<s16>();
+    u8 flagSpace = payload.at("flagSpace").get<u8>();
     s16 flag = payload.at("flag").get<s16>();
 
-    // if (sceneNum == SCENE_ID_MAX) {
-    //     auto effect = new GameInteractionEffect::SetFlag();
-    //     effect->parameters[0] = flagType;
-    //     effect->parameters[1] = flag;
-    //     effect->Apply();
-
-    //    // Special case: If King Zora moved, and the player has Ruto's Letter, convert it to an empty bottle
-    //    if (flagType == FLAG_EVENT_CHECK_INF && flag == EVENTCHKINF_KING_ZORA_MOVED &&
-    //        Inventory_HasSpecificBottle(ITEM_LETTER_RUTO)) {
-    //        Inventory_ReplaceItem(gPlayState, ITEM_LETTER_RUTO, ITEM_BOTTLE);
-    //    }
-    //} else {
-    //    // Special case: Ignore water temple water level flags, stored at 0x1C, 0x1D, 0x1E.
-    //    if (sceneNum == SCENE_WATER_TEMPLE && flagType == FLAG_SCENE_SWITCH &&
-    //        (flag == 0x1C || flag == 0x1D || flag == 0x1E)) {
-    //        return;
-    //    }
-
-    //    // Special case: Ignore forest temple elevator flag, stored at 0x1B.
-    //    if (sceneNum == SCENE_FOREST_TEMPLE && flagType == FLAG_SCENE_SWITCH && flag == 0x1B) {
-    //        return;
-    //    }
-
-    //    auto effect = new GameInteractionEffect::SetSceneFlag();
-    //    effect->parameters[0] = sceneNum;
-    //    effect->parameters[1] = flagType;
-    //    effect->parameters[2] = flag;
-    //    effect->Apply();
-    //}
+    if (flagSpace == ANCHOR_FLAGSPACE_RANDO_INF) {
+        // Non-derived rando flag; set directly.
+        if (IS_RANDO && flag > RANDO_INF_UNKNOWN && flag < RANDO_INF_MAX) {
+            RANDO_SAVE_FLAGS[flag].flagState = 1;
+        }
+    } else if (flagSpace == ANCHOR_FLAGSPACE_VOLATILE) {
+        volatileFlag_setEx((enum volatile_flags_e)flag, 1, 0);
+    } else {
+        bool wasSet = fileProgressFlag_get((enum file_progress_e)flag) != 0;
+        fileProgressFlag_setEx((enum file_progress_e)flag, 1, 0);
+        port_progressFlag_remoteCue(flag);
+        // Vanilla only; rando reports world access via SET_CHECK_STATUS instead.
+        if (!wasSet && !IS_RANDO && ShouldShowNotifications()) {
+            if (const char* opened = LevelOpenSeenFlagName(flag)) {
+                Notification::Emit({
+                    .prefix = GetClientName(payload.value("clientId", 0u)),
+                    .message = std::string("opened ") + opened,
+                });
+            }
+        }
+    }
 }

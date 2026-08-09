@@ -1,12 +1,11 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/Enhancements/game-interactor/GameInteractor.h"
-//#include "soh/Enhancements/randomizer/randomizer_entrance.h"
-//#include "soh/OTRGlobals.h"
 
 /**
  * ENTRANCE_DISCOVERED
+ *
+ * currently unimplemented
  */
 
 void Anchor::SendPacket_EntranceDiscovered(u16 entranceIndex) {
@@ -29,5 +28,4 @@ void Anchor::HandlePacket_EntranceDiscovered(nlohmann::json& payload) {
     }
 
     u16 entranceIndex = payload.at("entranceIndex").get<u16>();
-    // Entrance_SetEntranceDiscovered(entranceIndex, 1);
 }

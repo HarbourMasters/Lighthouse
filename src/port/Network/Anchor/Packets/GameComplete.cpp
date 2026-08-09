@@ -1,9 +1,7 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "port/UI/Notification.h"
-//#include "soh/ShipUtils.h"
 
 const std::string gameCompleteMessages[] = {
     "killed Ganon",           "saved Zelda",         "proved their Courage",
@@ -12,6 +10,8 @@ const std::string gameCompleteMessages[] = {
 
 /**
  * GAME_COMPLETE
+ *
+ * unimplemented
  */
 
 void Anchor::SendPacket_GameComplete() {
@@ -33,10 +33,9 @@ void Anchor::HandlePacket_GameComplete(nlohmann::json& payload) {
 
     AnchorClient& anchorClient = clients[clientId];
     anchorClient.isGameComplete = true;
-    bool isGlobalRoom = (std::string("soh-global") == CVarGetString(CVAR_REMOTE_ANCHOR("RoomId"), ""));
 
     // Notification::Emit({
-    //     .prefix = isGlobalRoom ? "Someone" : anchorClient.name,
+    //     .prefix = IsGlobalRoom() ? "Someone" : anchorClient.name,
     //     .message = ShipUtils::RandomElement(gameCompleteMessages),
     // });
 }

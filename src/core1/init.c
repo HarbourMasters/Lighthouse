@@ -3,12 +3,11 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/ShipUtils.h" // gPortResetPending
 #include "version.h"
 #include "gc/gctransition.h"
 
 #define MAIN_THREAD_STACK_SIZE 0x17F0
-
-extern void audioManager_init(void);
 
 #if VERSION == VERSION_PAL
     extern s32 D_80000300;
@@ -16,10 +15,10 @@ extern void audioManager_init(void);
 
 s32 D_80275610 = 0;
 s32 D_80275614 = 0;
-u32 gGlobalTimer = 0;
+s32 gGlobalTimer = 0;
 u32 sDebugVar_8027561C[] = { 0x9, 0x4, 0xA, 0x3, 0xB, 0x2, 0xC, 0x5, 0x0,  0x1, 0x6, 0xD,  -1 }; // never used
-u32 D_80275650 = VER_SELECT(0xAD019D3C, 0xA371A8F3, 0, 0); //SM_DATA_CRC_1
-u32 D_80275654 = VER_SELECT(0xD381B72F, 0xD0709154, 0, 0); //SM_DATA_CRC_2
+s32 D_80275650 = VER_SELECT(0xAD019D3C, 0xA371A8F3, 0, 0); //SM_DATA_CRC2
+s32 D_80275654 = VER_SELECT(0xD381B72F, 0xD0709154, 0, 0); //MM_DATA_CRC2
 char sDebugVar_80275658[] = VER_SELECT("HjunkDire:218755", "HjunkDire:300875", "HjunkDire:", "HjunkDire:");
 
 /* .bss */
@@ -71,7 +70,7 @@ void func_8023DA9C(s32 arg0){
     ucode_stub1();
 }
 
-u32 globalTimer_getTimeMasked(u32 mask){
+s32 globalTimer_getTimeMasked(s32 mask) {
     return gGlobalTimer & mask;
 }
 
@@ -118,7 +117,7 @@ void core1_init(void) {
     // [port] Irrelevant and replaced with system malloc
     // heap_init();
     core1_15B30_init();
-    dummy_func_8025AFB0();
+    // dummy_func_8025AFB0();
     // [port] Irrelevant and replaced with system malloc
     // allocUnusedBlock();
     assetCache_init();
@@ -159,7 +158,7 @@ void mainLoop(void){
 // [port] Don't need this
 #if 0
     if(!mapSpecificFlags_validateCRC1()){
-        eeprom_writeBlocks(0, 0, 0x80397AD0, 0x40);
+        eeprom_writeBlocks(0, 0, (void *) PHYS_TO_K0(0x00397AD0), EEPROM_MAXBLOCKS);
     }
 #endif
 
@@ -172,7 +171,7 @@ void mainLoop(void){
             func_80255ACC();
             spawnQueue_func_802C3A18();
             if(func_802E4424())
-                game_draw(0);
+                game_draw(FALSE);
             spawnQueue_flush();
             break;
     }//L8023DE34
@@ -193,7 +192,7 @@ void mainLoop(void){
         //render weird CRC failure image
         for(y= 0x1e; y < gFramebufferHeight - 0x1e; y++){//L8023DEB4
             for(x = 0x14; x < 0xeb; x++){
-                tmp = ((8 * globalTimer_getTime()) + ((x*x) + (y*y)));
+                tmp = ((globalTimer_getTime() << 3) + x * x + y * y);
                 
                 r = _SHIFTL(x>>3, 11, 5);
                 g = _SHIFTL(y>>3, 6, 5);
@@ -210,10 +209,12 @@ void mainLoop(void){
     }//L8023DF70
 #endif
 
+    port_actorDespawn_beginDefer();
     CALL_EVENT(GameFrameUpdate);
+    port_actorDespawn_endDefer();
 }
 
-void mainThread_entry(void *arg) { 
+void mainThread_entry(void *arg) {
     core1_init();
     sns_write_payload_over_heap();
 

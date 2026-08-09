@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/ShipUtils.h" // gPortResetPending
 
 #include "music.h"
 #include <n_audio/PR/n_libaudio.h>
@@ -15,11 +16,6 @@
 extern void func_8025F570(ALCSPlayer *, u8);
 extern void func_8025F510(ALCSPlayer *, u8, u8);
 extern void func_8025F5C0(ALCSPlayer *, u8);
-
-extern OSIoMesg *func_802405D0(void);
-extern OSMesgQueue *func_802405C4(void);
-extern ALHeap *func_802405B8(void);
-extern void func_8023FA64(ALSeqpConfig *arg0);
 
 extern u8 *soundfont2ctl_ROM_START;
 extern u8 *soundfont2ctl_ROM_END;
@@ -257,11 +253,11 @@ void musicInstruments_init(void){
     D_802820E8.maxVoices = 0x18;
     D_802820E8.maxEvents = 0x55;
     D_802820E8.maxChannels = 0x10;
-    D_802820E8.heap = func_802405B8();
+    D_802820E8.heap = audioManager_getALHeapInfo();
     D_802820E8.initOsc = NULL;
     D_802820E8.updateOsc = NULL;
     D_802820E8.stopOsc = NULL;
-    func_8023FA64(&D_802820E8);
+    audioManager_setupSeqp(&D_802820E8);
     for(i = 0; i < 6; i++){
         n_alCSPNew((N_ALCSPlayer *)&D_80281720[i].cseqp, &D_802820E8);
     }
@@ -515,14 +511,14 @@ s32 gcMusic_getDefaultVolumeForTrack(s32 track_id){
     return 0;
 }
 
-void func_80250048(s32 track_id, u16 arg1){
+void gcMusic_setDefaultVolumeForTrack(s32 track_id, u16 arg1){
     if (track_id >= 0 && track_id < 0xB0) {
         D_80275D40[track_id].volume = arg1;
     }
 }
 
 //song_getName
-char *func_80250060(s32 track_id){
+char *gcMusic_getNameForTrack(s32 track_id){
     if (track_id >= 0 && track_id < 0xB0) {
         return D_80275D40[track_id].name;
     }

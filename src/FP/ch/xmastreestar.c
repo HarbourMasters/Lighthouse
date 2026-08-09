@@ -27,8 +27,8 @@ f32 D_803935D0[3];
 
 /* .code */
 Actor *chXmasTreeStar_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    func_8033A45C( 2, mapSpecificFlags_get(0));
-    func_8033A45C( 1, mapSpecificFlags_get(0) ^ 1);
+    modelRender_setAppendageVisibility( 2, mapSpecificFlags_get(0));
+    modelRender_setAppendageVisibility( 1, mapSpecificFlags_get(0) ^ 1);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 

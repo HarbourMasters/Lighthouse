@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_BD100.c
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
@@ -55,7 +56,7 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
 
     FrameInterpolation_RecordOpenChild("sprite_viewport", (uintptr_t)self);
     viewport_getPosition_vec3f(sp6C);
-    viewport_getLookbk_vector(sp60);
+    viewport_getLookVector(sp60);
     sp50[0] = position[0] - sp6C[0];
     sp50[1] = position[1] - sp6C[1];
     sp50[2] = position[2] - sp6C[2];
@@ -129,7 +130,7 @@ void func_80344424(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
 
     FrameInterpolation_RecordOpenChild("sprite_viewport_rot", (uintptr_t)arg0);
     viewport_getPosition_vec3f(sp6C);
-    viewport_getLookbk_vector(sp60);
+    viewport_getLookVector(sp60);
     sp50[0] = position[0] - sp6C[0];
     sp50[1] = position[1] - sp6C[1];
     sp50[2] = position[2] - sp6C[2];
@@ -204,7 +205,7 @@ void func_80344720(BKSpriteDisplayData *arg0, s32 frame, bool mirrored, f32 posi
     // the caller rather than billboarded against the camera.
     FrameInterpolation_RecordOpenChild("sprite_3d", (uintptr_t)arg0);
     viewport_getPosition_vec3f(sp5C);
-    viewport_getLookbk_vector(sp50);
+    viewport_getLookVector(sp50);
     sp40[0] = position[0] - sp5C[0];
     sp40[1] = position[1] - sp5C[1];
     sp40[2] = position[2] - sp5C[2];

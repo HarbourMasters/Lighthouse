@@ -3,6 +3,7 @@
 #include "port/UI/Notification.h"
 
 extern "C" f32 itemPrintValues[0x2C];
+extern "C" s32 D_80385F30[0x2C];
 
 typedef struct {
     int32_t actorId;
@@ -80,9 +81,10 @@ int32_t prevProgressionIndex = -1;
 std::vector<RandoCheckId> jinjoCheckIds;
 
 void UpdateSaveDataItemCounts(PlacedItemCounts itemCounts) {
-    item_adjustByDiffWithoutHud(ITEM_C_NOTE, (itemCounts.noteCount - item_getCount(ITEM_C_NOTE)));
-    item_adjustByDiffWithoutHud(ITEM_E_JIGGY, (itemCounts.jiggyCount - item_getCount(ITEM_E_JIGGY)));
-    item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, (itemCounts.mumboTokenCount - item_getCount(ITEM_1C_MUMBO_TOKEN)));
+    D_80385F30[ITEM_C_NOTE] = itemCounts.noteCount;
+    D_80385F30[ITEM_E_JIGGY] = itemCounts.jiggyCount;
+    D_80385F30[ITEM_1C_MUMBO_TOKEN] = itemCounts.mumboTokenCount;
+    D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = itemCounts.mumboTokenCount;
 
     switch (itemCounts.mumboTokenCount) {
         case 5:
@@ -241,7 +243,9 @@ void PopulateJinjoCheckIds() {
 }
 
 void ResetSaveData() {
-    for (int s = 0; s < sizeof(SaveData); s++) {
+    // [port] `data` is the 112-byte vanilla payload, not the whole SaveData, which is
+    // ~43 KB once shipSaveData (rando checks, note/jinjo retention) is counted.
+    for (size_t s = 0; s < sizeof(gameFile_saveData[selectedFileNum].data); s++) {
         gameFile_saveData[selectedFileNum].data[s] = 0;
     }
 
@@ -249,15 +253,15 @@ void ResetSaveData() {
         ability_setLearned((ability_e)a, false);
     }
 
-    for (int f = FILEPROG_90_PAID_TERMITE_COST; f < FILEPROG_94_PAID_BEE_COST; f++) {
+    for (int f = FILEPROG_90_PAID_TERMITE_COST; f <= FILEPROG_94_PAID_BEE_COST; f++) {
         fileProgressFlag_set((file_progress_e)f, 0);
     }
 
-    item_adjustByDiffWithoutHud(ITEM_C_NOTE, -item_getCount(ITEM_C_NOTE));
-    item_adjustByDiffWithoutHud(ITEM_E_JIGGY, -item_getCount(ITEM_26_JIGGY_TOTAL));
-    item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, -item_getCount(ITEM_26_JIGGY_TOTAL));
-    item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, -item_getCount(ITEM_1C_MUMBO_TOKEN));
-    item_adjustByDiffWithoutHud(ITEM_25_MUMBO_TOKEN_TOTAL, -item_getCount(ITEM_25_MUMBO_TOKEN_TOTAL));
+    D_80385F30[ITEM_C_NOTE] = 0;
+    D_80385F30[ITEM_E_JIGGY] = 0;
+    D_80385F30[ITEM_26_JIGGY_TOTAL] = 0;
+    D_80385F30[ITEM_1C_MUMBO_TOKEN] = 0;
+    D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = 0;
 
     itemscore_noteScores_clear();
 }
@@ -381,13 +385,6 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
     PlacedItemCounts placedItems = { .noteCount = 0, .jiggyCount = 0, .mumboTokenCount = 0 };
     PlacedCheckObject placedCheckItems[RC_MAX] = {};
 
-    for (auto& shuffledCheck : checkPool) {
-        reachableChecks[shuffledCheck].isShuffled = true;
-    }
-    for (auto& shuffledAbiity : abilityCheckPool) {
-        reachableChecks[shuffledAbiity].isShuffled = true;
-    }
-
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
         PopulateJinjoCheckIds();
     }
@@ -403,23 +400,46 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         reachableChecks[checkId].name = checkData.name;
         reachableChecks[checkId].canAccess = false;
         reachableChecks[checkId].isFilled = false;
+        reachableChecks[checkId].isShuffled = false;
+    }
+
+    for (auto& shuffledCheck : checkPool) {
+        reachableChecks[shuffledCheck].isShuffled = true;
+    }
+    for (auto& shuffledAbiity : abilityCheckPool) {
+        reachableChecks[shuffledAbiity].isShuffled = true;
     }
 
     // Starting Initialization
     reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess = true;
     Rando::Logic::GrantStartingLoadout();
     for (auto& [ability, abilityInfo] : abilityLoadoutMap) {
-        if (CVarGetInteger(abilityInfo.second, 0)) {
-            RandoCheckId abilityCheck = Rando::StaticData::GetCheckByAbilityId(ability);
-
-            auto it = std::find(abilityCheckPool.begin(), abilityCheckPool.end(), abilityCheck);
-            if (it != abilityCheckPool.end()) {
-                abilityCheckPool.erase(it);
-                UpdateAccessibility(RR_SPIRAL_MOUNTAIN_ENTRANCE,
-                                    reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess);
-                continue;
-            }
+        if (!CVarGetInteger(abilityInfo.second, 0)) {
+            continue;
         }
+
+        RandoCheckId abilityCheck = Rando::StaticData::GetCheckByAbilityId(ability);
+
+        auto it = std::find(abilityCheckPool.begin(), abilityCheckPool.end(), abilityCheck);
+        if (it == abilityCheckPool.end()) {
+            continue;
+        }
+
+        abilityCheckPool.erase(it);
+
+        // The molehill left the pool, so it has to stop being a valid placement target as well.
+        reachableChecks[abilityCheck].isShuffled = false;
+
+        // The player already owns this ability, so its item leaves the pool alongside the molehill.
+        auto item = std::find_if(abilityItemPool.begin(), abilityItemPool.end(),
+                                 [&](const std::tuple<actor_e, int32_t, RandoCheckId>& abilityItem) {
+                                     return std::get<1>(abilityItem) == (int32_t)ability;
+                                 });
+        if (item != abilityItemPool.end()) {
+            abilityItemPool.erase(item);
+        }
+
+        UpdateAccessibility(RR_SPIRAL_MOUNTAIN_ENTRANCE, reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess);
     }
     UpdateAccessibility(RR_SPIRAL_MOUNTAIN_ENTRANCE, reachableRegions[RR_SPIRAL_MOUNTAIN_ENTRANCE].canAccess);
 

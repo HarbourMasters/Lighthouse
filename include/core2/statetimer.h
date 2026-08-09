@@ -4,6 +4,10 @@
 #include <ultra64.h>
 #include "structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum state_timer_e{
     STATE_TIMER_0_UNKNOWN,
     STATE_TIMER_1_THROW = 1,
@@ -24,4 +28,8 @@ void stateTimer_init(void);
 void stateTimer_clear(enum state_timer_e timer_id);
 void stateTimer_set(enum state_timer_e timer_id, f32 value);
 void stateTimer_update(void);
+#ifdef __cplusplus
+}
+#endif
+
 #endif

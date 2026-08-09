@@ -38,15 +38,15 @@ void func_803877B0(Struct_CC_13C0_1* arg0, void* arg1, f32 position[3], f32 rota
         return;
 
     if (temp_v0 == 0) {
-        func_8033A45C(1, 1);
+        modelRender_setAppendageVisibility(1, 1);
     } else if (temp_v0 == 1) {
-        func_8033A45C(1, 2);
+        modelRender_setAppendageVisibility(1, 2);
     } else if (temp_v0 == 2) {
-        func_8033A45C(1, 2);
+        modelRender_setAppendageVisibility(1, 2);
         rotation[2] += (arg0->unkC * 20.0f);
         arg4 = arg4*(1.0f - arg0->unkC);
     }
-    func_8033A45C(2, 0);
+    modelRender_setAppendageVisibility(2, 0);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
     modelRender_draw(gfx, mtx, position, rotation, arg4, NULL, modeL_ptr);
 }
@@ -109,7 +109,7 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
     s32 sp28;
 
     arg0->unkC += arg2;
-    temp_v0 = func_80388010();
+    temp_v0 = maClankerRings_isMinigameActive();
     if (temp_v0 == 0) {
         func_803878AC(arg0, arg1, 3);
     } else {
@@ -140,7 +140,7 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
         sp28 = ((sp50[0]*sp44[0] + sp50[1]*sp44[1] + sp50[2]*sp44[2]) >= 0.0f) ? 1 : -1;
         if (sp28 == -arg0->unk8) {
             if (LENGTH_VEC3F(sp50) < (func_80351830(arg1) * 250.0f)) {
-                func_8038803C(arg0->unk0);
+                maClankerRings_passRing(arg0->unk0);
             }
         }
         arg0->unk8 = sp28;
@@ -164,6 +164,18 @@ void code13C0_makeCameraFlipAndTilt(void){
     }
     viewport_setRotation_vec3f(sp1C);
 
+}
+
+void code13C0_checkCCChecksums(void){
+#if ANTI_TAMPER
+    u32 rom_data;
+    u32 unused;
+    osPiReadIo(0x504, &rom_data);
+    rom_data = (rom_data & 0xffff) + 0xffff5BA0;
+    if(rom_data){
+        code13C0_makeCameraFlipAndTilt();
+    }
+#endif
 }
 
 void CC_func_80387D4C(void){

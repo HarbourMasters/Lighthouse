@@ -46,6 +46,8 @@ DEFINE_EVENT(OnIsJiggyScoreSpawned, int32_t jiggyId; int32_t result;)
 
 DEFINE_EVENT(SetRandoInfFlag, int32_t flagId; int32_t flagState;)
 
+DEFINE_EVENT(OnRandoCheckObtained, int32_t randoCheckId; int32_t map;)
+
 DEFINE_EVENT(OnIsHoneycombScoreCollected, int32_t honeycombId; int32_t result;)
 
 DEFINE_EVENT(ClearBundleDespawnQueue);

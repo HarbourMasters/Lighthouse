@@ -1,12 +1,10 @@
+// BanjoDecomp: core2/code_AE290.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
 #include <n_audio/PR/n_libaudio.h>
 
 extern ALBank *music_get_sound_bank(void);
-extern OSIoMesg *func_802405D0(void);
-extern OSMesgQueue *func_802405C4(void);
-extern ALHeap *func_802405B8(void);
 extern void func_80243070(void *arg0);
 
 extern u8 *soundfont1ctl_ROM_START;
@@ -40,7 +38,7 @@ void sfxInstruments_init(void){
     D_803835F0.unk4 = 0x100;
     D_803835F0.unk10 = 0x40;
     D_803835F0.unk8 = 0x18;
-    D_803835F0.unkC = func_802405B8();
+    D_803835F0.unkC = audioManager_getALHeapInfo();
     func_80243070(&D_803835F0);
     sfx_sound_bank = bnk;
 }

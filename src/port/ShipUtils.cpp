@@ -10,6 +10,7 @@
 #include <libultraship/libultraship.h>
 #include <fast/Fast3dWindow.h>
 #include "UI/cvar_prefixes.h"
+#include "UI/enhancementTypes.h"
 #include "fast/Fast3dGui.h"
 #ifdef _WIN32
 #include <windows.h>
@@ -61,7 +62,7 @@ extern uint32_t Ship_Hash(std::string str) {
     return hval;
 }
 
-extern std::string port_FormatTimeDisplay(uint32_t value) {
+extern std::string port_FormatTimeDisplay(uint64_t value) {
     uint32_t sec = value / 10;
     uint32_t hh = sec / 3600;
     uint32_t mm = (sec - hh * 3600) / 60;
@@ -74,7 +75,6 @@ extern "C" {
 #include "enums.h" // game_mode_e
 
 // Furnace Fun active flag
-s32 volatileFlag_get(s32);
 s32 getGameMode(void);
 
 int gPortResetPending = 0;
@@ -93,10 +93,6 @@ uint64_t GetUnixTimestamp() {
 
 bool Ship_IsCStringEmpty(const char* str) {
     return str == NULL || str[0] == '\0';
-}
-
-void port_audioStartThread(void) {
-    GameEngine::AudioStartThread();
 }
 
 int port_checkHeap(const char* label) {
@@ -296,8 +292,8 @@ int port_getBootSequence(void) {
     // Romhacks always boot to file select; their intros aren't compatible with the
     // vanilla cutscene/demo path.
     if (port_isRomhack())
-        return 2; // BOOTSEQUENCE_FILESELECT
-    return CVarGetInteger(CVAR_SETTING("BootSequence"), 0);
+        return BOOTSEQUENCE_FILESELECT;
+    return CVarGetInteger(CVAR_SETTING("BootSequence"), BOOTSEQUENCE_DEFAULT);
 }
 
 float port_getRumbleScale(void) {
@@ -320,12 +316,28 @@ float port_getRumbleScale(void) {
     return 1.0f;
 }
 
+u8* jiggyscore_getPtr(void);
+u8* honeycombscore_get_ptr(void);
+
+u32 port_jiggyscore_isCollectedRaw(enum jiggy_e jiggy_id) {
+    if (jiggy_id <= 0 || jiggy_id >= 0x65) {
+        return 0;
+    }
+    return (jiggyscore_getPtr()[(jiggy_id - 1) / 8] & (1 << (jiggy_id & 7))) != 0;
+}
+
+bool port_honeycombscore_getRaw(enum honeycomb_e indx) {
+    if (indx <= 0 || indx >= 0x19) { // HONEYCOMB_COUNT
+        return 0;
+    }
+    return (honeycombscore_get_ptr()[(indx - 1) / 8] & (1 << (indx & 7))) != 0;
+}
+
 } // extern "C"
 
 std::vector<file_progress_e> worldOpenFlags = {
-    FILEPROG_5D_MM_PUZZLE_PIECES_PLACED,  FILEPROG_5E_TTC_PUZZLE_PIECES_PLACED, FILEPROG_60_CC_PUZZLE_PIECES_PLACED,
-    FILEPROG_63_BGS_PUZZLE_PIECES_PLACED, FILEPROG_66_FP_PUZZLE_PIECES_PLACED,  FILEPROG_6A_GV_PUZZLE_PIECES_PLACED,
-    FILEPROG_6E_MMM_PUZZLE_PIECES_PLACED, FILEPROG_72_RBB_PUZZLE_PIECES_PLACED, FILEPROG_76_CCW_PUZZLE_PIECES_PLACED,
+    FILEPROG_31_MM_OPEN, FILEPROG_32_TTC_OPEN, FILEPROG_33_CC_OPEN,  FILEPROG_34_BGS_OPEN, FILEPROG_35_FP_OPEN,
+    FILEPROG_36_GV_OPEN, FILEPROG_37_MMM_OPEN, FILEPROG_38_RBB_OPEN, FILEPROG_39_CCW_OPEN,
 };
 
 std::unordered_map<std::string, std::string> levelAbbreviations = {

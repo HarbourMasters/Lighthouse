@@ -7,12 +7,11 @@
 
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/Logic/Logic.h"
+#include "port/Rando/Spoiler/Spoiler.h"
 
 #include <spdlog/fmt/fmt.h>
 
-extern "C" {
 #include "variables.h"
-}
 
 const char* logicModes[2] = {
     "Glitchless",
@@ -61,6 +60,38 @@ void LighthouseMenu::AddMenuRando() {
         }
         UIWidgets::PopStyleCombobox();
     });
+    AddWidget(path, "Load Existing Spoiler Log", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_RANDOMIZER_SETTING("UseExistingLog"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Uses a Spoiler Log in the randomizer folder."));
+    AddWidget(path, "Available Spoiler Logs", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        std::vector<const char*> spoilerLogPtrs;
+        spoilerLogPtrs.reserve(Rando::Spoiler::spoilerLogs.size());
+        for (const auto& log : Rando::Spoiler::spoilerLogs) {
+            spoilerLogPtrs.push_back(log.c_str());
+        }
+
+        ImGui::BeginDisabled(!CVarGetInteger(CVAR_RANDOMIZER_SETTING("UseExistingLog"), 0));
+        if (UIWidgets::CVarCombobox("Seed", CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), spoilerLogPtrs,
+                                    { .labelPosition = UIWidgets::LabelPositions::None, .color = WIDGET_COLOR })) {
+            if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0) == 0) {
+                CVarSetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "");
+            } else {
+                std::string spoilerName =
+                    Rando::Spoiler::spoilerLogs[CVarGetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0)];
+                CVarSetString("gRandoSettings.SpoilerFile", spoilerName.c_str());
+            }
+        }
+        ImGui::SameLine();
+        if (UIWidgets::Button(ICON_FA_REFRESH, UIWidgets::ButtonOptions()
+                                                   .Color(WIDGET_COLOR)
+                                                   .Size(ImVec2(32.0f, 32.0f))
+                                                   .Tooltip("Refreshes the list of Spoiler Logs."))) {
+            Rando::Spoiler::RefreshSpoilerLogs();
+        }
+        ImGui::EndDisabled();
+    });
+
     AddWidget(path, "Send Collection Notifications", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_RANDOMIZER_SETTING("RandoNotifications"))
         .Options(CheckboxOptions().Tooltip("Sends notifications when you collect a Rando Item."));
@@ -236,36 +267,6 @@ void LighthouseMenu::AddMenuRando() {
             ImGui::EndTable();
         }
     });
-
-    // Rando - Junk Options
-    AddSidebarEntry("Rando", "Junk Options", 1);
-    path = { "Rando", "Junk Options", SECTION_COLUMN_1 };
-
-    AddWidget(path, "Enable Junk", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Spawn Junk For Obtained Checks", WIDGET_CVAR_CHECKBOX)
-        .CVar(Rando::StaticData::Options[RO_SPAWN_JUNK].cvar)
-        .Options(CheckboxOptions().Tooltip("Spawns a junk item in place of an object that has already been collected."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-
-    AddWidget(path, "Junk Selection", WIDGET_SEPARATOR_TEXT);
-
-    AddWidget(path, "Honeycomb Refills", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.HealthRefill"))
-        .Options(CheckboxOptions().Tooltip("Adds Health Refills to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Blue Eggs", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.BlueEggs"))
-        .Options(CheckboxOptions().Tooltip("Adds Blue Eggs to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Red Feathers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.RedFeathers"))
-        .Options(CheckboxOptions().Tooltip("Adds Red Feathers to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
-    AddWidget(path, "Gold Feathers", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_RANDOMIZER_SETTING("Junk.GoldFeathers"))
-        .Options(CheckboxOptions().Tooltip("Adds Gold Feathers to the Junk List."))
-        .Callback([](WidgetInfo& info) { UpdateJunkList(); });
 
     // Rando - Check Tracker
     path.sidebarName = "Check Tracker";

@@ -3,22 +3,14 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
 #include "variables.h"
-}
 
 /**
  * VILE_EAT_RESULT
  *
- * Sent by the minigame authority to confirm a successful VILE_EAT_REQUEST. The
- * requester suppressed its local consume (so its croc never played the chomp), so on
- * receipt it replays the eat feedback: the chomp animation/SFX, plus the wrong-type
- * reaction when the eaten piece didn't match the required type. Score and piece removal
- * are authority-driven and arrive via the snapshot / eaten VILE_HOLE_STATE separately.
- *
- * Broadcast to the chamber with the eater's id; only the eater acts on it. No sequence
- * number: this is one-shot cosmetic feedback, not part of the ordered state stream.
+ * Sent by the minigame authority to confirm a successful VILE_EAT_REQUEST.
+ * Catches up on animations and sounds as necessary
  */
 
 void Anchor::SendPacket_VileEatResult(u32 eaterClientId, u8 pieceType, u8 correctType) {

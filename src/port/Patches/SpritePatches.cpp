@@ -4,6 +4,10 @@
 
 #include <libultraship.h>
 
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
+#include "port/ShipInit.hpp"
+
 extern "C" {
 
 #include "structs.h"
@@ -19,13 +23,12 @@ void assetcache_release(void* asset);
 enum asset_e print_getCurrentMapBoldFontTexture(void);
 char* ResourceMgr_ReloadByAssetId(uint32_t assetId);
 
-int ResourceMgr_IsJapanese(void);
 enum level_e level_get(void);
 s32 gcpausemenu_levelToMenuPage(enum level_e level);
 extern s32 gFramebufferWidth;
 
-extern BKSprite* D_80380AB8[];          // font alphamask sprites ([0] = dialog font)
-extern s32 print_sDialogFontGlyphCount; // reachable glyph count: byte range 0x21 .. 0x21+count-1
+extern BKSprite* print_sFontSpriteAssets[]; // font alphamask sprites ([0] = dialog font)
+extern s32 print_sDialogFontGlyphCount;     // reachable glyph count: byte range 0x21 .. 0x21+count-1
 
 #define SPRITE_DISPLAY_CACHE_SIZE 256
 
@@ -45,8 +48,8 @@ void port_spriteDisplayCache_clear(void) {
 // sets this once from the base font, but a language pack can swap in an extended dialog font
 // (more glyphs than the base 62) at runtime.
 void port_refreshDialogFontGlyphCount(void) {
-    if (D_80380AB8[0] != NULL) {
-        print_sDialogFontGlyphCount = sprite_getFramePtr(D_80380AB8[0], 0)->chunkCnt;
+    if (print_sFontSpriteAssets[0] != NULL) {
+        print_sDialogFontGlyphCount = sprite_getFramePtr(print_sFontSpriteAssets[0], 0)->chunkCnt;
     }
 }
 
@@ -132,9 +135,11 @@ BKSprite* port_loadFilledBanner(s32 bannerAssetId, s32 fillId) {
                 u8* maskPx = px + (x + y * cw) * 4;
                 const s32 intensity = maskPx[2]; // mask byte[2] = intensity
                 const u8 alpha = maskPx[3];      // mask byte[3] = alpha
-                r5 *= (intensity / 0x1F);
-                g5 *= (intensity / 0x1F);
-                b5 *= (intensity / 0x1F);
+                // 5-bit channel * 8-bit intensity / 31 expands to 8-bit exactly (31 * 255 / 31 == 255).
+                // Dividing first truncates to 0..8, blacking out any intensity below 0x1F.
+                r5 = (r5 * intensity) / 0x1F;
+                g5 = (g5 * intensity) / 0x1F;
+                b5 = (b5 * intensity) / 0x1F;
                 maskPx[0] = (u8)r5;
                 maskPx[1] = (u8)g5;
                 maskPx[2] = (u8)b5;
@@ -219,3 +224,9 @@ void port_pauseBannerFree(void) {
 }
 
 } // extern "C"
+
+static void RegisterSpriteRestoreAlphaCompare_Init() {
+    COND_VB_SHOULD(VB_SPRITE_RESTORE_ALPHA_COMPARE, EVENT_PRIORITY_NORMAL, true, { *should = true; });
+}
+
+static RegisterShipInitFunc sSpriteRestoreAlphaCompareInit(RegisterSpriteRestoreAlphaCompare_Init);

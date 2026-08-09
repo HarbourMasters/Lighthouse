@@ -57,8 +57,8 @@ static s32 sLockup_CloseVelocity[3] = {0,0,0};
 /* .code */
 static Actor *__chLockup_drawFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor * actor = marker_getActor(marker);
-    func_8033A45C(3, actor->unk38_31);
-    func_8033A45C(4, actor->unk38_31);
+    modelRender_setAppendageVisibility(3, actor->unk38_31);
+    modelRender_setAppendageVisibility(4, actor->unk38_31);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
@@ -87,9 +87,9 @@ static void __chLockup_updateFunc(Actor *this){
         && subaddie_playerIsWithinSphereAndActive(this, 320)
         && !subaddie_playerIsWithinSphereAndActive(this, 160)
         && !player_movementGroup()
-        && gcdialog_showDialog(ASSET_A15_DIALOG_LOCKUP_SPAWNED, 0, NULL, NULL, NULL, NULL)
-    ){
-        this->has_met_before = true;
+        && gcdialog_showDialog(VER_SELECT(ASSET_A15_DIALOG_LOCKUP_SPAWNED, 0x915, 0, 0), 0, NULL, NULL, NULL, NULL)) {
+
+        this->has_met_before = TRUE;
     }
 
     if(!this->volatile_initialized){

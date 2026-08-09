@@ -3,6 +3,7 @@
 #include "variables.h"
 
 #include "core2/ba/physics.h"
+#include "core2/yaw.h"
 
 /* .bss */
 s32 D_8037D520;
@@ -15,7 +16,7 @@ void func_802B40D0(void){
     f32 sp2C[3];
     f32 sp28;
 
-    _player_getPosition(sp38);
+    playerPosition_get(sp38);
     sp38[1] += 20.0f;
     D_8037D524++;
     if(!(D_8037D524 < 3))
@@ -68,7 +69,7 @@ void bsslide_init(void){
     anctrl_setPlaybackType(aCtrl,  ANIMCTRL_STOPPED);
     anctrl_setDuration(aCtrl, 1.0f);
     anctrl_start(aCtrl, "bsslide.c", 0x7f);
-    func_8029C7F4(1,1,3, BA_PHYSICS_LOCKED_ROTATION);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_target_yaw(yaw_getIdeal());
     baphysics_set_horizontal_velocity(yaw_getIdeal() ,baphysics_get_target_horizontal_velocity());
     pitch_setAngVel(800.0f, 8.0f);

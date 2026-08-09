@@ -6,6 +6,7 @@
 // Entry point for the module, run once on game boot
 void Rando::MiscBehavior::Init() {
     Rando::MiscBehavior::InitWorldStateBehavior();
+    Rando::MiscBehavior::InitFileSelectBehavior();
     Rando::MiscBehavior::OnFileLoad();
     // Rando::MiscBehavior::OnFileSave();
 }

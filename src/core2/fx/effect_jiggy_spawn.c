@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_C0B80.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -6,6 +7,9 @@
 void func_80347B10(Struct81s *arg0){
     Actor *actor;
     actor = bundle_spawn_f32(BUNDLE_10__JIGGY, arg0->position);
+    if (actor == NULL) {
+        return;
+    }
     actor->unk54 = 3.0f;
     func_803333DC(arg0, actor);
 }

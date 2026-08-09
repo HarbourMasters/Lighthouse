@@ -1,8 +1,9 @@
+// BanjoDecomp: core2/code_C9E70.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
 
-#include "core2/quiz_storage.h"
+#include "core2/quiz/storage.h"
 
 extern struct FF_StorageStruct *ffStorage;
 

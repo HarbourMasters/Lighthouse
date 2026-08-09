@@ -417,6 +417,9 @@ static constexpr int kSnsItemCount = sizeof(kSnsUnlocked) / sizeof(kSnsUnlocked[
 // so internal gamenum 0/1/2 corresponds to displayed Game 1/3/2.
 static int SlotToFileIndex(int gameNum) {
     static const int fileMap[3] = { 1, 3, 2 };
+    if (gameNum < 0 || gameNum >= 3) {
+        return 0;
+    }
     return fileMap[gameNum];
 }
 

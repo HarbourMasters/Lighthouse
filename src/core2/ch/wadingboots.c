@@ -9,16 +9,16 @@ Actor *chwadingboots_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chwadingboots_update(Actor *this);
 
 /* .data */
-ActorAnimationInfo D_80367A00[] = {
+ActorAnimationInfo chWadingBootsAnimations[] = {
     {ASSET_67_ANIM_WADINGBOOTS_WALK, 0.7f},
     {ASSET_67_ANIM_WADINGBOOTS_WALK, 0.7f},
     {ASSET_67_ANIM_WADINGBOOTS_WALK, 0.7f},
     {ASSET_67_ANIM_WADINGBOOTS_WALK, 0.7f},
 };
 
-ActorInfo D_80367A20 = {
+ActorInfo chWadingBoots = {
     MARKER_11_WADING_BOOTS, ACTOR_65_WADING_BOOTS, ASSET_366_MODEL_WADING_BOOTS, 
-    0x0, D_80367A00, 
+    0x0, chWadingBootsAnimations,
     chwadingboots_update, actor_update_func_80326224, chwadingboots_draw, 
     0, 0, 0.0f, 0
 };
@@ -70,8 +70,8 @@ void chwadingboots_update(Actor *this){
             if(!subaddie_playerIsWithinSphereAndActive(this, 250)) break;
             if(player_getTransformation() != TRANSFORM_1_BANJO) break;
             
-            if(gcdialog_showDialog(ASSET_DA5_DIALOG_WADINGBOOTS_MEET, 0, NULL, NULL, NULL, NULL)){
-                volatileFlag_set(VOLATILE_FLAG_10_HAS_MEET_WADING_BOOTS, true);
+            if(gcdialog_showDialog(VER_SELECT(ASSET_DA5_DIALOG_WADINGBOOTS_MEET, 0xA23, 0, 0), 0, NULL, NULL, NULL, NULL)){
+                volatileFlag_set(VOLATILE_FLAG_10_HAS_MEET_WADING_BOOTS, TRUE);
             }
 
             break;

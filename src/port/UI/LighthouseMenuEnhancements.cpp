@@ -1,11 +1,66 @@
 #include "LighthouseMenu.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
+#include "port/Network/Anchor/Anchor.h"
+
+#include "functions.h"
+extern "C" {
+#include "variables.h"
+extern u8 gCompletedBottlesBonusGames[7];
+}
 
 #define CVAR_INT_SHIP_INIT(cvar, val) \
     CVarSetInteger(cvar, val);        \
     ShipInit::Init(cvar);
 
 namespace LighthouseGui {
+
+// Live toggle state for the Bottles' Bonus gags (non-cvar checkboxes). Order matches
+// D_803635EC in ba_anim.c and gCompletedBottlesBonusGames.
+static bool sBottlesBonusState[7] = { false };
+
+static const char* kBottlesBonusNames[7] = {
+    "Big Head",
+    "Big Hands & Feet",
+    "Big Kazooie",
+    "Tall Body & Small Head",
+    "Tall Body, Small Head, Big Hands & Feet",
+    "Big Everything",
+    "Wishy-Washy Banjo",
+};
+
+static const char* kBottlesBonusTooltips[7] = {
+    "Bottles' Bonus: enlarges Banjo's head.",
+    "Bottles' Bonus: enlarges Banjo's hands and feet.",
+    "Bottles' Bonus: enlarges Kazooie's head and wings.",
+    "Bottles' Bonus: stretches Banjo's body and shrinks his head.",
+    "Bottles' Bonus: stretched body, shrunken head, and big hands and feet.",
+    "The 'Big Bottles Bonus': big head, big hands and feet, and big Kazooie.",
+    "Bottles' Bonus: turns Banjo into Wishy-Washy.",
+};
+
+static const char* kBottlesBonusLockedTooltip =
+    "Complete this Bottles' Bonus puzzle to unlock it. (Always available while connected to Anchor.)";
+
+static bool IsBottlesBonusUnlocked(int i) {
+    Anchor* anchor = Anchor::GetInstance();
+    if (anchor != nullptr && anchor->isConnected && !anchor->IsGlobalRoom()) {
+        return true;
+    }
+    return gCompletedBottlesBonusGames[i] != 0;
+}
+
+static void ApplyBottlesBonusState() {
+    bool any = false;
+    for (int i = 0; i < 7; i++) {
+        volatileFlag_setEx((enum volatile_flags_e)(VOLATILE_FLAG_97_SANDCASTLE_BOTTLES_BONUS_1 + i),
+                           sBottlesBonusState[i] ? 1 : 0, 0);
+        if (sBottlesBonusState[i]) {
+            any = true;
+        }
+    }
+    // Master gate read by __baanim_applyBottlesBonus / baanim_getActiveBottlesBonusMask.
+    volatileFlag_setEx(VOLATILE_FLAG_78_SANDCASTLE_NO_BONUS, any ? 1 : 0, 0);
+}
 
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 using namespace UIWidgets;
@@ -22,16 +77,31 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Allow Start to Skip Boot Logos", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipBootLogos"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Press Start to skip the Rareware and Nintendo logos on boot."));
 
     AddWidget(path, "Allow Start to Skip Intro Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.StartSkipIntro"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Press Start to Skip Intro Cutscenes."));
 
     AddWidget(path, "Allow Start to Skip Misc Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipMiscCutscenes"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Press Start to skip the Gruntilda's Lair and Game Over cutscenes."));
 
     AddWidget(path, "Skip Jiggy Dance", WIDGET_CVAR_CHECKBOX)
@@ -44,6 +114,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipCluckerCutscene"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Skips the cutscene that plays when first defeating a Clucker."));
+
+    AddWidget(path, "Skip Note Door Dance", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipNoteDoorDance"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Skips Banjo's dance when a note door opens, opening it immediately."));
 
     // Enhancements -> Graphics
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
@@ -60,10 +135,29 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
                                            "unfinished edges of scene geometry."));
 
-    AddWidget(path, "Extended Draw Distance: %dx", WIDGET_CVAR_SLIDER_INT)
+    path.column = SECTION_COLUMN_2;
+
+    AddWidget(path, "Bottles' Bonuses", WIDGET_SEPARATOR_TEXT);
+
+    for (int i = 0; i < 7; i++) {
+        AddWidget(path, kBottlesBonusNames[i], WIDGET_CHECKBOX)
+            .ValuePointer(&sBottlesBonusState[i])
+            .Callback([](WidgetInfo& info) { ApplyBottlesBonusState(); })
+            .PreFunc([i](WidgetInfo& info) {
+                if (!IsBottlesBonusUnlocked(i)) {
+                    info.options->disabled = true;
+                    info.options->disabledTooltip = kBottlesBonusLockedTooltip;
+                }
+            })
+            .Options(CheckboxOptions().Tooltip(kBottlesBonusTooltips[i]));
+    }
+
+    path.column = SECTION_COLUMN_1;
+
+    AddWidget(path, "Extended Draw Distance", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_ENHANCEMENT("Graphics.DrawDistance"))
         .RaceDisable(false)
-        .Options(IntSliderOptions().Min(1).Max(6).DefaultValue(1).ShowButtons(true).Format("").Tooltip(
+        .Options(IntSliderOptions().Min(1).Max(6).DefaultValue(1).ShowButtons(true).Format("%dx").Tooltip(
             "Multiplies the draw distance for objects.\n"
             "Higher values render more but cost performance."));
 
@@ -218,11 +312,21 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix CCW Gnawty Rock (Spring)", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.GnawtySpringRock"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Makes Gnawty's rock indestructible in CCW Spring."));
 
     AddWidget(path, "Fix Termite Mound Slopes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.TermiteMoundSlopes"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Makes slopes in the Mumbo's Mountain termite mound slide instantly."));
 
     AddWidget(path, "Fix Early Claw Swipe During Slide", WIDGET_CVAR_CHECKBOX)
@@ -250,6 +354,13 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Stops the Jinjo charge-up sound the instant it hits Grunty."));
 
+    AddWidget(path, "Mute Chimpy Replay", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.ChimpyStumpRumble"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Mutes Chimpy and the rumbling sound his stump makes on every return trip to "
+            "Mumbo's Mountain. The first rise keeps its sound."));
+
     AddWidget(path, "Fix Cutscene Audio Sync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.CutsceneSync"))
         .RaceDisable(false)
@@ -268,7 +379,23 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CongaText"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Corrects a spelling error when meeting Conga as a termite."));
+
+    AddWidget(path, "Fix Freezeezy Peak Lobby", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Fixes.FPLobbyDoorTile"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Fixes the smeared snow trim around the Freezeezy Peak entrance in "
+                                           "Gruntilda's Lair. Requires a map reload to take effect."));
 
     // Enhancements -> Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
@@ -302,12 +429,25 @@ void LighthouseMenu::AddMenuEnhancements() {
                      })
                      .DefaultIndex(1));
 
+    AddWidget(path, "Permadeath", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.Permadeath"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Your save file is deleted on death. Lives are ignored."));
+
     AddWidget(path, "Skip Spiral Mountain Tutorial", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"))
         .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) {
             if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_RANDO).active) {
+                info.activeDisables.push_back(DISABLE_FOR_RANDO);
             }
         })
         .Options(CheckboxOptions().Tooltip(
@@ -360,7 +500,8 @@ void LighthouseMenu::AddMenuEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
             }
         })
-        .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak."));
+        .Options(CheckboxOptions().Tooltip("Reduces Boggy's max speed during both sled races in Freezeezy Peak.\n"
+                                           "Requires a map reload to take effect."));
 
     AddWidget(path, "Easier Mr Vile", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("EasierMrVile"))
@@ -422,6 +563,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Note Collection Retention", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.NoteRetention"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(FORCED_ON_FOR_ANCHOR_CONNECTED).active) {
+                info.activeDisables.push_back(FORCED_ON_FOR_ANCHOR_CONNECTED);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Notes you've already collected stay collected and don't respawn when you revisit a level. "
             "Collection is always tracked; this toggle controls whether collected notes are skipped on "
@@ -430,6 +576,11 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Jinjo Collection Retention", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.JinjoRetention"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(FORCED_ON_FOR_ANCHOR_CONNECTED).active) {
+                info.activeDisables.push_back(FORCED_ON_FOR_ANCHOR_CONNECTED);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Jinjos you've already collected stay collected across visits instead of resetting each time "
             "you enter a level, so you no longer need all five in one go. Collection is always tracked; "
@@ -499,7 +650,7 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Cheats.TalonTrotCycle"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip(
-            "While in Talon Trot: D-pad Right cycles forward (Normal→Boots→Sneakers), D-pad Left cycles backward."));
+            "While in Talon Trot: D-pad Right cycles forward (Normal->Boots->Sneakers), D-pad Left cycles backward."));
 
     // Transformations Section
     AddWidget(path, "Transformations", WIDGET_SEPARATOR_TEXT);
@@ -507,22 +658,32 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.FastTransform"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Speeds up Mumbo transformation animation by 3x."));
 
     AddWidget(path, "D-pad Cycle Transform", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.CycleTransform"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Press D-pad Up/Down to cycle through transformation forms.\nUp: Forward "
-                                           "(Banjo→Mumbo→...→Wishy→Banjo), Down: Backward."));
+                                           "(Banjo->Termite->...->Bee->Banjo), Down: Backward."));
 
     AddWidget(path, "No Mumbo Untransform", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.NoMumboUntransform"))
         .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
 
     path = { "Enhancements", "Trackers", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
     AddWidget(path, "Gameplay Timer", WIDGET_SEPARATOR_TEXT);
@@ -551,7 +712,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
         .CVar("gDisplayOverlay.Background")
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
-    AddWidget(path, "Scale: %.1fx", WIDGET_CVAR_SLIDER_FLOAT)
+    AddWidget(path, "Timer Scale", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gDisplayOverlay.Scale")
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the Scale for the Display Overlay window.")

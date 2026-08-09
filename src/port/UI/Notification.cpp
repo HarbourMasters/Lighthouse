@@ -2,11 +2,15 @@
 #include "port/UI/cvar_prefixes.h"
 #include <libultraship/libultraship.h>
 #include <fast/Fast3dGui.h>
+#include <mutex>
+#include <vector>
 
 namespace Notification {
 
 static uint32_t nextId = 0;
 static std::vector<Options> notifications = {};
+// Emit() runs on the game thread; Draw()/UpdateElement() run on the render thread.
+static std::mutex notificationsMutex;
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
@@ -46,9 +50,17 @@ void Window::Draw() {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
                         ImVec2(8.0f * CVarGetFloat(CVAR_SETTING("Notifications.Size"), 1.8f), 8.0f));
 
-    for (size_t index = 0; index < notifications.size(); ++index) {
-        auto& notification = notifications[index];
-        int inverseIndex = -ABS((int)index - (int)(notifications.size() - 1));
+    // Render from a snapshot rather than the live vector, so a concurrent Emit() can
+    // reallocate without invalidating anything this loop is reading.
+    std::vector<Options> snapshot;
+    {
+        std::lock_guard<std::mutex> lock(notificationsMutex);
+        snapshot = notifications;
+    }
+
+    for (size_t index = 0; index < snapshot.size(); ++index) {
+        auto& notification = snapshot[index];
+        int inverseIndex = -ABS((int)index - (int)(snapshot.size() - 1));
 
         ImGui::SetNextWindowViewport(vp->ID);
         if (notification.remainingTime < 4.0f) {
@@ -114,6 +126,7 @@ void Window::Draw() {
 }
 
 void Window::UpdateElement() {
+    std::lock_guard<std::mutex> lock(notificationsMutex);
     for (int index = 0; index < notifications.size(); ++index) {
         auto& notification = notifications[index];
 
@@ -129,11 +142,14 @@ void Window::UpdateElement() {
 }
 
 void Emit(Options notification) {
-    notification.id = nextId++;
     if (notification.remainingTime == 0.0f) {
         notification.remainingTime = CVarGetFloat(CVAR_SETTING("Notifications.Duration"), 10.0f);
     }
-    notifications.push_back(notification);
+    {
+        std::lock_guard<std::mutex> lock(notificationsMutex);
+        notification.id = nextId++;
+        notifications.push_back(notification);
+    }
     if (!notification.mute) {
         // TODO: play game notification sound
     }

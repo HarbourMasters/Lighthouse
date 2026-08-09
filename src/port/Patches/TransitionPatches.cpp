@@ -8,9 +8,7 @@
 #include "port/ShipInit.hpp"
 #include "port/Patches/Patches.h"
 
-extern "C" {
 #include "enums.h"
-}
 
 // Falling-pieces transition uids.
 #define TRANSITION_FALLING_PIECES_IN 0x10
@@ -20,20 +18,6 @@ extern "C" {
 static int32_t sTransitionModelId = 0;
 static int32_t sTransitionUid = 0;
 static int32_t sTransitionSubstate = 0;
-
-// Emulate N64's osViBlack on PC. On N64, osViBlack(1) blanked the TV output but
-// the RDP still rendered to framebuffers. On PC we render normally (so the capture
-// sees the world), then Engine.cpp clears the backbuffer to black before present
-// while this flag is set.
-static bool s_viBlack = false;
-
-extern "C" void port_setViBlack(int active) {
-    s_viBlack = (active != 0);
-}
-
-extern "C" int port_isViBlack(void) {
-    return s_viBlack ? 1 : 0;
-}
 
 extern "C" int port_shouldCaptureTransition(void) {
     if (sTransitionModelId != ASSET_467_MODEL_TRANSITION_FALLING_JIGGIES) {
@@ -54,7 +38,6 @@ void RegisterTransitionPatches_Init() {
         sTransitionModelId = ev->modelId;
         sTransitionUid = ev->uid;
         sTransitionSubstate = ev->substate;
-        port_setViBlack(ev->uid == TRANSITION_FALLING_PIECES_IN && ev->substate <= 4 ? 1 : 0);
     });
 
     // Widescreen transition scaling. For the falling jiggy pieces, X-scale the

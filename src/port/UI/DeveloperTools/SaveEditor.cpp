@@ -13,10 +13,8 @@
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/cvar_prefixes.h"
 
-extern "C" {
 #include "enums.h"
 #include "prop.h"
-}
 
 #define DEFAULT_MAX_HEALTH 8
 #define DEFAULT_MAX_EGGS 100
@@ -27,16 +25,8 @@ extern "C" {
 #define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
 
 extern "C" {
-bool player_is_present(void);
-s32 item_getCount(enum item_e item);
-void item_set(s32 item, s32 val);
-bool fileProgressFlag_get(enum file_progress_e index);
-void fileProgressFlag_set(enum file_progress_e index, s32 set);
-int ability_isUnlocked(enum ability_e uid);
-void ability_setLearned(s32 move, s32 val);
-u32 jiggyscore_isCollected(enum jiggy_e jiggy_id);
+bool ability_isUnlocked(enum ability_e uid);
 void jiggyscore_setCollected(s32 indx, s32 val);
-bool honeycombscore_get(enum honeycomb_e indx);
 void honeycombscore_set(enum honeycomb_e indx, bool val);
 void mumboscore_set(enum mumbotoken_e indx, bool val);
 
@@ -93,39 +83,39 @@ bool SaveEditor_IsHoneycombCollected(honeycomb_e honeycombId) {
 }
 
 void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
-    if (randoSaveCheck.obtained) {
+    if (randoSaveCheck.eligible) {
         CustomObject::CheckObtainedEX(randoSaveCheck.randoCheckId);
     }
 
     for (auto& pool : Rando::Logic::shuffledPool) {
         if (pool.randoCheckId == randoSaveCheck.randoCheckId) {
             pool.isShuffled = randoSaveCheck.isShuffled;
-            pool.obtained = randoSaveCheck.obtained;
+            pool.eligible = randoSaveCheck.eligible;
             pool.skipped = randoSaveCheck.skipped;
             break;
         }
     }
 
-    int32_t itemIncr = randoSaveCheck.obtained ? 1 : -1;
+    int32_t itemIncr = randoSaveCheck.eligible ? 1 : -1;
 
     Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
     switch (randoItem.randoItemType) {
         case RITYPE_JIGGY:
-            jiggyscore_setCollected(randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
+            jiggyscore_setCollected(randoSaveCheck.randoCollectionId, randoSaveCheck.eligible);
             item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, itemIncr);
             break;
         case RITYPE_EMPTY_HONEYCOMB:
-            honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
+            honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.eligible);
             break;
         case RITYPE_MOLEHILL:
-            if (randoSaveCheck.obtained) {
+            if (randoSaveCheck.eligible) {
                 ability_unlock((ability_e)randoSaveCheck.randoCollectionId);
             } else {
                 ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, 0);
             }
             break;
         case RITYPE_MUMBO_TOKEN:
-            mumboscore_set((mumbotoken_e)randoSaveCheck.randoCollectionId, randoSaveCheck.obtained);
+            mumboscore_set((mumbotoken_e)randoSaveCheck.randoCollectionId, randoSaveCheck.eligible);
             item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, itemIncr);
             break;
         default:
@@ -155,7 +145,7 @@ void SaveEditor_DrawUnlocks() {
             ImGui::TableNextColumn();
 
             ImGui::SeparatorText("World Unlocks");
-            for (int i = FILEPROG_31_MM_OPEN; i < FILEPROG_39_CCW_OPEN; i++) {
+            for (int i = FILEPROG_31_MM_OPEN; i <= FILEPROG_39_CCW_OPEN; i++) {
                 ImGui::PushID(i);
                 bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
                 std::string worldName = "Unlock " + worldNameList[progressToLevelMap.at(i) - 1];
@@ -367,6 +357,10 @@ void SaveEditor_DrawProgressTab() {
 
 void DrawRandoFlagEditor() {
     ImGui::SeparatorText("Rando INF Flags");
+    if (selectedFileNum == DEFAULT_FILE_NUM) {
+        ImGui::Text("No Save File Loaded");
+        return;
+    }
     if (ImGui::BeginChild("RandoFlagChild")) {
         for (int f = RANDO_INF_UNKNOWN; f < RANDO_INF_MAX; f++) {
             ImGui::PushID(f);
@@ -381,7 +375,7 @@ void DrawRandoFlagEditor() {
 }
 
 void DrawRandoCheckEditor() {
-    if (Rando::Logic::shuffledPool.empty()) {
+    if (selectedFileNum == DEFAULT_FILE_NUM || Rando::Logic::shuffledPool.empty()) {
         ImGui::Text("No Rando Save Data");
     } else {
         static ImGuiTextFilter rcFilter;
@@ -394,9 +388,10 @@ void DrawRandoCheckEditor() {
         }
 
         if (ImGui::BeginChild("RandoToolsChild", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
-            if (ImGui::BeginTable("RandoSaveEditorTable", 6)) {
+            if (ImGui::BeginTable("RandoSaveEditorTable", 7)) {
                 ImGui::TableSetupColumn("shuffled", ImGuiTableColumnFlags_WidthFixed, 34.0f);
-                ImGui::TableSetupColumn("obtained", ImGuiTableColumnFlags_WidthFixed, 34.0f);
+                ImGui::TableSetupColumn("eligible", ImGuiTableColumnFlags_WidthFixed, 34.0f);
+                ImGui::TableSetupColumn("received", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("skipped", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("checkName", ImGuiTableColumnFlags_WidthFixed,
                                         (ImGui::GetContentRegionAvail().x - 34.0f) * 0.60f);
@@ -406,33 +401,52 @@ void DrawRandoCheckEditor() {
                 ImGui::TableNextColumn();
 
                 for (auto& check : RANDO_SAVE_CHECKS) {
-                    if (!rcFilter.PassFilter(check.name) &&
-                        !rcFilter.PassFilter(Rando::StaticData::Items[check.randoItemId].name)) {
+                    auto checkEntry = Rando::StaticData::Checks.find(check.randoCheckId);
+                    if (checkEntry == Rando::StaticData::Checks.end()) {
+                        continue;
+                    }
+                    const char* checkName = checkEntry->second.name;
+
+                    auto itemEntry = Rando::StaticData::Items.find(check.randoItemId);
+                    const char* itemName =
+                        (itemEntry != Rando::StaticData::Items.end()) ? itemEntry->second.name : nullptr;
+
+                    if (!rcFilter.PassFilter(checkName) && !rcFilter.PassFilter(itemName)) {
                         continue;
                     }
 
                     ImGui::PushID(check.randoCheckId);
                     bool isChanged = false;
                     bool isShuffled = check.isShuffled;
-                    bool obtained = check.obtained;
+                    bool eligible = check.eligible;
+                    bool received = check.received;
                     bool skipped = check.skipped;
 
+                    std::string checkId = std::to_string((uint32_t)check.randoCheckId);
+
                     if (UIWidgets::Checkbox(
-                            "isShuffled", &isShuffled,
+                            ("isShuffled##" + checkId).c_str(), &isShuffled,
                             UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
                         RANDO_SAVE_CHECKS[check.randoCheckId].isShuffled = !check.isShuffled;
                         isChanged = true;
                     }
                     ImGui::TableNextColumn();
                     if (UIWidgets::Checkbox(
-                            "obtained", &obtained,
+                            ("eligible##" + checkId).c_str(), &eligible,
                             UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
-                        RANDO_SAVE_CHECKS[check.randoCheckId].obtained = !check.obtained;
+                        RANDO_SAVE_CHECKS[check.randoCheckId].eligible = !check.eligible;
                         isChanged = true;
                     }
                     ImGui::TableNextColumn();
                     if (UIWidgets::Checkbox(
-                            "skipped", &skipped,
+                            ("received##" + checkId).c_str(), &received,
+                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
+                        RANDO_SAVE_CHECKS[check.randoCheckId].received = !check.received;
+                        isChanged = true;
+                    }
+                    ImGui::TableNextColumn();
+                    if (UIWidgets::Checkbox(
+                            ("skipped##" + checkId).c_str(), &skipped,
                             UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
                         RANDO_SAVE_CHECKS[check.randoCheckId].skipped = !check.skipped;
                         isChanged = true;
@@ -443,8 +457,7 @@ void DrawRandoCheckEditor() {
                     }
                     ImGui::TableNextColumn();
 
-                    std::string checkName = Rando::StaticData::Checks[check.randoCheckId].name;
-                    ImGui::TextWrapped(checkName.c_str());
+                    ImGui::TextWrapped("%s", checkName);
                     ImGui::TableNextColumn();
 
                     ImGui::TextWrapped(Rando::StaticData::Items[check.randoItemId].name);

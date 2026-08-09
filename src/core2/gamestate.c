@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_BEF20.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
@@ -29,7 +30,12 @@ bool func_80347A4C(void);
 /* .code */
 void func_80345EB0(enum item_e item){
     if(func_802FAFE8(item)){
-        item_adjustByDiffWithHud(item, (s32)(-time_getDelta()*60.0f * 1.1));
+        // [port] Pin the Bottles Bonus hourglass for timer consistency
+        f32 dt = time_getDelta();
+        if(item == ITEM_0_HOURGLASS_TIMER && getGameMode() == GAME_MODE_8_BOTTLES_BONUS){
+            dt = 1.0f / 30.0f;
+        }
+        item_adjustByDiffWithHud(item, (s32)(-dt*(float)(FRAMERATE) * 1.1));
     }else{
         code_73640_printItemCount(item);
     }
@@ -53,7 +59,7 @@ s32 item_getCount(enum item_e item){
 }
 
 // func_80345FB4
-s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
+s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
     // Modifies the count of an item by the diff
     // no_hud determines whether the HUD pops up during the adjustment
     s32 oldVal;
@@ -93,7 +99,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
     sp34 = ((fileProgressFlag_get(FILEPROG_B9_DOUBLE_HEALTH))? 2 : 1);
     D_80385F30[ITEM_15_HEALTH_TOTAL] = MIN(sp34*8, D_80385F30[ITEM_15_HEALTH_TOTAL]);
     D_80385F30[ITEM_14_HEALTH]= MIN(D_80385F30[ITEM_15_HEALTH_TOTAL], D_80385F30[ITEM_14_HEALTH]);
-    D_80385F30[ITEM_17_AIR] = MIN(3600, D_80385F30[ITEM_17_AIR]);
+    D_80385F30[ITEM_17_AIR] = MIN(VER_SELECT(3600, 3000, 0, 0), D_80385F30[ITEM_17_AIR]);
     D_80385F30[ITEM_25_MUMBO_TOKEN_TOTAL] = D_80385F30[ITEM_1C_MUMBO_TOKEN];
     D_80385F30[ITEM_16_LIFE] = MIN(0xFF, D_80385F30[ITEM_16_LIFE]);
 
@@ -175,6 +181,9 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
             D_80385F30[ITEM_2B_UNKNOWN] += diff;
             break;
     }
+    if (triggerEvent) {
+        CALL_EVENT(OnItemCountChanged, item, D_80385F30[item]);
+    }
     return D_80385F30[item];
 }
 
@@ -182,18 +191,22 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud){
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
-    return item_adjustByDiff(item, diff, 0);
+    return item_adjustByDiff(item, diff, 0, 1);
 }
 
 // item_adjustByDiffWithoutHud
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
-    item_adjustByDiff(item, diff, 1);
+    item_adjustByDiff(item, diff, 1, 1);
+}
+
+void item_setEx(s32 item, s32 val, s32 triggerEvent){
+    item_adjustByDiff(item, val - item_getCount(item), 0, triggerEvent);
 }
 
 void item_set(s32 item, s32 val){
-    item_adjustByDiffWithHud(item, val - item_getCount(item));
+    item_setEx(item, val, 1);
 }
 
 // item_setMaxCount
@@ -215,7 +228,7 @@ void item_setItemsStartCounts(void){
     D_80385F30[ITEM_10_GOLD_FEATHER] = 0;
     D_80385F30[ITEM_14_HEALTH] = D_80385F30[ITEM_15_HEALTH_TOTAL] =  5;
     D_80385F30[ITEM_16_LIFE] = 3;
-    D_80385F30[ITEM_17_AIR] = 3600;
+    D_80385F30[ITEM_17_AIR] = VER_SELECT(3600, 3000, 0, 0);
     D_80385F30[ITEM_1C_MUMBO_TOKEN] = 0;
     D_80385F30[0x2B] = 0;
     D_80385F30[ITEM_26_JIGGY_TOTAL] = 0;
@@ -235,7 +248,7 @@ void itemscore_levelReset(enum level_e level){
     D_80385F30[ITEM_C_NOTE] = 0;
     D_80385F30[ITEM_E_JIGGY] = jiggyscore_leveltotal(level);
     D_80385F30[ITEM_12_JINJOS] = 0;
-    D_80385F30[ITEM_17_AIR] = 3600;
+    D_80385F30[ITEM_17_AIR] = VER_SELECT(3600, 3000, 0, 0);
     D_80385F30[ITEM_18_GOLD_BULLIONS] = 0;
     D_80385F30[ITEM_19_ORANGE] = 0;
     D_80385F30[ITEM_23_ACORNS] = 0;
@@ -318,16 +331,16 @@ void func_803465E4(void){
                 D_80385FEC = MAX(0.0, D_80385FEC - time_getDelta());
             }//L80346870
             if( (!is_in_polluted_or_winter_water && is_underwater) || (is_in_polluted_or_winter_water && is_on_water_surface) ){//L80346894
-                item_adjustByDiffWithHud(ITEM_17_AIR, (s32)((f64)((-time_getDelta())*60.0f)*1.1));
+                item_adjustByDiffWithHud(ITEM_17_AIR, (s32)((f64)((-time_getDelta())*(float)(FRAMERATE))*1.1));
             }
             else{ 
                 if(is_in_polluted_or_winter_water && is_underwater){//L803468D8
-                    item_adjustByDiffWithHud(ITEM_17_AIR, (s32)(f64)((-time_getDelta()*60.0f)*2.1));
+                    item_adjustByDiffWithHud(ITEM_17_AIR, (s32)(f64)((-time_getDelta()*(float)(FRAMERATE))*2.1));
                 }//L80346930
                 if(!is_in_polluted_or_winter_water || D_80385FEC == 0.0f){
-                    if(!D_80385FE4 && D_80385F30[ITEM_17_AIR] < 3600){
-                        item_adjustByDiffWithHud(ITEM_17_AIR, (s32)(((time_getDelta()*60.0f)*100.0)*1.1));
-                        D_80385F30[ITEM_17_AIR] = MIN(D_80385F30[ITEM_17_AIR], 3600);
+                    if(!D_80385FE4 && D_80385F30[ITEM_17_AIR] < VER_SELECT(3600, 3000, 0, 0)){
+                        item_adjustByDiffWithHud(ITEM_17_AIR, (s32)(((time_getDelta()*(float)(FRAMERATE))*100.0)*1.1));
+                        D_80385F30[ITEM_17_AIR] = MIN(D_80385F30[ITEM_17_AIR], VER_SELECT(3600, 3000, 0, 0));
                     }
                 }
             }
@@ -383,7 +396,7 @@ void func_80346CA8(void) {
     if (D_80385FE4) {
         D_80385FE0 = true;
         D_80385F30[ITEM_14_HEALTH] = D_80385F30[ITEM_15_HEALTH_TOTAL];
-        D_80385F30[ITEM_17_AIR] = 60*60;
+        D_80385F30[ITEM_17_AIR] = VER_SELECT(3600, 3000, 0, 0);
     }
 }
 
@@ -425,16 +438,16 @@ void func_80346DB4(s32 note_count) {
         if (D_80385FF0[level_id] < note_count) {
             D_80385FF0[level_id] = note_count;
             if ((level_get() == LEVEL_1_MUMBOS_MOUNTAIN) && (note_count == 50)) {
-                gcdialog_showDialog(0xF74, 4, NULL, NULL, NULL, NULL);
+                gcdialog_showDialog(VER_SELECT(0xF74, 0xADA, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
-            if (note_count == notesMax) {
-                gcdialog_showDialog(0xF78, 4, NULL, NULL, NULL, NULL);
+            if (note_count == 100) {
+                gcdialog_showDialog(VER_SELECT(0xF78, 0xADE, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
             if (note_count == 1) {
                 levelSpecificFlags_set(LEVEL_FLAG_34_UNKNOWN, true);
             }
-            if (!levelSpecificFlags_get(LEVEL_FLAG_34_UNKNOWN) && (gcdialog_showDialog(0xF76, 0, NULL, NULL, NULL, NULL))) {
-                levelSpecificFlags_set(LEVEL_FLAG_34_UNKNOWN, true);
+            if (!levelSpecificFlags_get(LEVEL_FLAG_34_UNKNOWN) && (gcdialog_showDialog(VER_SELECT(0xF76, 0xADC, 0, 0), 0, NULL, NULL, NULL, NULL))) {
+                levelSpecificFlags_set(LEVEL_FLAG_34_UNKNOWN, TRUE);
             }
             if (volatileFlag_get(VOLATILE_FLAG_17) == 0) {
                 volatileFlag_set(VOLATILE_FLAG_17, 1);
@@ -469,6 +482,19 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
             D_80386040 <<= 7;
             D_80386040 |= D_80385FF0[var_s0];
         }
+    }
+}
+
+// Raw per-level note-score array (vs. the packed u64 above).
+void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
+    *size = 0xE;
+    *addr = D_80385FF0;
+}
+
+// Max-merge a level's note high score.
+void itemscore_noteScores_setLevel(enum level_e level, s32 score) {
+    if (level >= 0 && level < 0xE && score > D_80385FF0[level]) {
+        D_80385FF0[level] = score;
     }
 }
 

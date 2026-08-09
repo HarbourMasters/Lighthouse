@@ -40,7 +40,7 @@ void chLongSwampSwitch_update(Actor *this){
     if(mapSpecificFlags_get(7)){
         mapSpecificFlags_set(7, 0);
         if(!mapSpecificFlags_get(3) || (item_getCount(0) > 0)){
-            func_802D68F0(45);
+            code_4C020_setHourglassTimer(45);
         }
     }
     if(!mapSpecificFlags_get(5)){
@@ -60,7 +60,7 @@ void chLongSwampSwitch_update(Actor *this){
     } //L8038EFB4
     if( this->velocity_x != 0.0f && !mapSpecificFlags_get(3) && func_802BB270()){
         mapSpecificFlags_set(3,1);
-        func_802D68F0(45); //adjusts timer
+        code_4C020_setHourglassTimer(45); //adjusts timer
         item_set(ITEM_6_HOURGLASS,1);
     } //L8038EFB4
 }
@@ -83,7 +83,7 @@ void chShortSwampSwitch_update(Actor *this){
     if(mapSpecificFlags_get(8)){
         mapSpecificFlags_set(8, 0);
         if(!mapSpecificFlags_get(0xC) || (item_getCount(0) > 0)){
-            func_802D68F0(10);
+            code_4C020_setHourglassTimer(10);
         }
     }
     if(!mapSpecificFlags_get(9)){
@@ -103,7 +103,7 @@ void chShortSwampSwitch_update(Actor *this){
     } //L8038EFB4
     if( this->velocity_x != 0.0f && !mapSpecificFlags_get(0xC) && func_802BB270()){
         mapSpecificFlags_set(0xC,1);
-        func_802D68F0(10); //adjusts timer
+        code_4C020_setHourglassTimer(10); //adjusts timer
         item_set(ITEM_6_HOURGLASS,1);
     } //L8038EFB4
 }

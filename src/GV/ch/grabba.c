@@ -1,4 +1,4 @@
-// BanjoDecomp: code_5570.c
+// BanjoDecomp: GV/ch/grabba.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -64,7 +64,7 @@ void func_8038BA08(Actor *this){
     if(player_movementGroup() == BSGROUP_6_TURBO_TALON_TRAINERS)
         player_stateTimer_set(STATE_TIMER_3_TURBO_TALON, 0.0f);
 
-    gcdialog_showDialog(ASSET_A79_DIALOG_GRABBA_DEFEAT, 0xf, this->position, this->marker, func_8038B988, NULL);
+    gcdialog_showDialog(VER_SELECT(ASSET_A79_DIALOG_GRABBA_DEFEAT, 0x935, 0, 0), 0xf, this->position, this->marker, func_8038B988, NULL);
     comusic_8025AB44(COMUSIC_57_TURBO_TRAINERS, 7000, 700);
 }
 
@@ -246,8 +246,8 @@ void chGrabba_update(Actor *this){
                 }
                 else{
                     if(!this->has_met_before){
-                        if(gcdialog_showDialog(ASSET_A78_DIALOG_GRABBA_MEET, 0, NULL, NULL, NULL, NULL)){
-                            this->has_met_before = true;
+                        if(gcdialog_showDialog(VER_SELECT(ASSET_A78_DIALOG_GRABBA_MEET, 0x934, 0, 0), 0, NULL, NULL, NULL, NULL)){
+                            this->has_met_before = TRUE;
                         }
                     }
                 }
@@ -277,8 +277,8 @@ void chGrabba_update(Actor *this){
                         }
 
                         if(!this->unk138_23){
-                            if(gcdialog_showDialog(ASSET_A7A_DIALOG_GRABBA_TOO_FAST, 0, NULL, NULL, NULL, NULL)){
-                                this->unk138_23 = true;
+                            if(gcdialog_showDialog(VER_SELECT(ASSET_A7A_DIALOG_GRABBA_TOO_FAST, 0x936, 0, 0), 0, NULL, NULL, NULL, NULL)){
+                                this->unk138_23 = TRUE;
                             }
                         }
                     }

@@ -37,7 +37,7 @@ void bsdie_init(void){
     anctrl_start(aCtrl, "bsdie.c", 0x7e);
     func_8029B930();
     func_8030E58C(SFX_36_BANJO_DOH, 1.0f);
-    _player_getPosition(sp2C);
+    playerPosition_get(sp2C);
     func_80294980(sp20);
     func_80257F18(sp20, sp2C, &sp38);
     D_8037D410 = 250.0f;
@@ -53,9 +53,9 @@ void bsdie_init(void){
     baphysics_set_vertical_velocity(510.0f);
     baphysics_set_gravity(-1400.0f);
     pitch_setAngVel(1000.0f, 12.0f);
-    func_8029E070(1);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
     func_8029151C(0xd);
-    ncDynamicCamD_func_802BF2C0(30.0f);
+    ncbadie_func_802BF2C0(30.0f);
     func_8029C984();
     batimer_set(0,2.9f);
     D_8037D414 = 0;
@@ -112,7 +112,7 @@ void bsdie_update(void){
         && floor_isCurrentFloorunk59() 
         && ( D_8037D414
              || ( anctrl_isStopped(aCtrl) 
-                  && ( player_getYPosition() < (floor_getCurrentFloorYPosition() - 150.0f)) 
+                  && ( playerPosition_getY() < (floor_getCurrentFloorYPosition() - 150.0f)) 
                 )
            )
         && player_inWater()
@@ -127,7 +127,7 @@ void bsdie_update(void){
 void bsdie_end(void){
     core1_ce60_incOrDecCounter(false);
     baphysics_reset_gravity();
-    func_8029E070(0);
+    modelAppendages_setKazooiesUpperHalfVisibility(false);
     pitch_setIdeal(0.0f);
     roll_setIdeal(0.0f);
     func_80291548();

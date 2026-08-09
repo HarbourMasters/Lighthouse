@@ -6,20 +6,14 @@
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
+#include "port/ResourceHelpers.h"
 #include "port/ShipInit.hpp"
 #include "port/UI/cvar_prefixes.h"
 
 typedef unsigned char u8;
 
 extern "C" {
-int ResourceMgr_IsJapanese(void);
-int ResourceMgr_GetDialogLanguageCount(void); // 1 = US, 3 = PAL (EN/FR/DE)
-int ResourceMgr_GetDialogLanguage(void);      // PAL only: 0=English, 1=French, 2=German
-int ResourceMgr_GetLanguageGeneration(void);
-int ResourceMgr_IsAssetRepointed(uint32_t assetId);
-const char* ResourceMgr_GetLangString(const char* english); // active pack's translation, or the key itself
-int ResourceMgr_HasLangStrings(void);                       // active language is a pack carrying UI overrides
-
 bool gameFile_isNotEmpty(int gamenum);
 int jiggyscore_total(void);
 int itemscore_noteScores_getTotal(void);
@@ -37,15 +31,14 @@ int code94620_func_8031B5B0(void);           // current dialog-language index (0
 int func_8031877C(void* zoombox);            // clear a zoombox's strings before re-setting
 
 // Print font internals
-extern void* D_80380AB8[];   // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
-extern void* print_sFonts[]; // FontLetter*[4]: decoded glyph tables per slot
+extern void* print_sFontSpriteAssets[]; // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
+extern void* print_sFonts[];            // FontLetter*[4]: decoded glyph tables per slot
 void* print_getLettersFromFont(void* alphaMask, void* textureSprite);
 int print_getCurrentMapBoldFontTexture(void);
 void print_setBoldFontTexture(int textureId);
 void* assetcache_get(int assetId);
 void assetcache_release(void* ptr);
 void bk_free(void* ptr);
-void port_refreshDialogFontGlyphCount(void);
 }
 
 // Live language change reactions
@@ -65,37 +58,39 @@ void FreeJpFontSlot() {
         bk_free(print_sFonts[2]);
         print_sFonts[2] = nullptr;
     }
-    if (D_80380AB8[2] != nullptr) {
-        assetcache_release(D_80380AB8[2]);
-        D_80380AB8[2] = nullptr;
+    if (print_sFontSpriteAssets[2] != nullptr) {
+        assetcache_release(print_sFontSpriteAssets[2]);
+        print_sFontSpriteAssets[2] = nullptr;
     }
 }
 
 void LoadJpFontSlot() {
     // Bail early if print_init hasn't run to load this slot yet
-    if (D_80380AB8[0] == nullptr) {
+    if (print_sFontSpriteAssets[0] == nullptr) {
         return;
     }
     FreeJpFontSlot(); // drop any stale font first (e.g. a different pack)
     void* tex = assetcache_get(print_getCurrentMapBoldFontTexture());
-    D_80380AB8[2] = assetcache_get(kJpDialogFontAssetId);
-    print_sFonts[2] = print_getLettersFromFont(D_80380AB8[2], tex);
+    print_sFontSpriteAssets[2] = assetcache_get(kJpDialogFontAssetId);
+    print_sFonts[2] = print_getLettersFromFont(print_sFontSpriteAssets[2], tex);
     assetcache_release(tex);
 }
 
 // Re-decode the base dialog font (slot 0) from its current asset.
 void ReloadDialogFontSlot() {
-    if (D_80380AB8[0] == nullptr) {
+    if (print_sFontSpriteAssets[0] == nullptr) {
         return; // print_init hasn't run yet
     }
     void* tex = assetcache_get(print_getCurrentMapBoldFontTexture());
-    assetcache_release(D_80380AB8[0]);
-    D_80380AB8[0] = assetcache_get(kDialogFontAssetId);
+    assetcache_release(print_sFontSpriteAssets[0]);
+    print_sFontSpriteAssets[0] = assetcache_get(kDialogFontAssetId);
     bk_free(print_sFonts[0]);
-    print_sFonts[0] = print_getLettersFromFont(D_80380AB8[0], tex);
+    print_sFonts[0] = print_getLettersFromFont(print_sFontSpriteAssets[0], tex);
     assetcache_release(tex);
     // A pack may ship an extended dialog font; refresh the reachable glyph count to match.
     port_refreshDialogFontGlyphCount();
+    // Build cross-revision-corrected HD glyph textures for the current base (no-op without a pack).
+    port_dialogFontHd_rebuild();
 }
 
 // Per cached-model-slot generation
@@ -517,8 +512,7 @@ static void buildPalJpParades() {
 // present in the active language (sDialogOverride) rather than on the base version.
 static constexpr uint32_t kMotzandParadeCreditId = 0x11CA;
 static bool port_useMotzandParade() {
-    return ResourceMgr_IsJapanese() || ResourceMgr_GetDialogLanguageCount() > 1 ||
-           ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
+    return ResourceMgr_IsJapanese() || ResourceMgr_IsPal() || ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
 }
 
 // Swap the active parade table for the Motzand variant.
@@ -561,7 +555,7 @@ static void RegisterLocalizedText() {
             if (ResourceMgr_IsJapanese()) {
                 sJpFontFreeDelay = 0; // cancel a pending free; ensure slot 2 is current
                 LoadJpFontSlot();
-            } else if (D_80380AB8[2] != nullptr) {
+            } else if (print_sFontSpriteAssets[2] != nullptr) {
                 sJpFontFreeDelay = kJpFontFreeDelayFrames;
             }
             bool fontOverridden = ResourceMgr_IsAssetRepointed(kDialogFontAssetId) != 0;
@@ -585,7 +579,7 @@ static void RegisterLocalizedText() {
     // frame instead of letting the draw dereference a NULL slot.
     REGISTER_LISTENER(ResolveBoldFontSlot, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ResolveBoldFontSlot*)event;
-        if (D_80380AB8[*ev->slot] == nullptr) {
+        if (print_sFontSpriteAssets[*ev->slot] == nullptr) {
             *ev->slot = 0;
             *ev->letterId = 0;
         }

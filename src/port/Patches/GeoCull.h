@@ -22,10 +22,6 @@ extern "C" {
 #define GEOCULL_CONSUMER_DEBUG 1
 #define GEOCULL_CONSUMER_ENHANCEMENT 2
 
-// Called from each conditional cull command in render.c. `cmd`/`modelBin` give the command's
-// stable byte offset; `drawnVanilla` is the unmodified recurse decision. areaIds/areaCount
-// apply to CAMERA only (NULL/0 otherwise); detail0/detail1 are kind-specific extras (CAMERA:
-// flags; LOD: min,max). Returns the final draw decision (1 = draw).
 int port_geoCullDraw(int type, const void* cmd, const void* modelBin, int drawnVanilla, const unsigned char* areaIds,
                      int areaCount, int detail0, int detail1);
 

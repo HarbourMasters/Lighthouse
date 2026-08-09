@@ -404,13 +404,13 @@ void RegisterResolutionWidgets() {
         .CVar(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled")
         .RaceDisable(false);
     // Error/Warning display
-    mLighthouseMenu
-        ->AddWidget(path, ICON_FA_EXCLAMATION_TRIANGLE " Significant frame rate (FPS) drops may be occuring.",
-                    WIDGET_TEXT)
-        .RaceDisable(false)
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = !(!CVarGetInteger(CVAR_LOW_RES_MODE, 0) && IsDroppingFrames()); })
-        .Options(TextOptions().Color(Colors::Orange));
+    // LighthouseMenu
+    //    ->AddWidget(path, ICON_FA_EXCLAMATION_TRIANGLE " Significant frame rate (FPS) drops may be occuring.",
+    //                WIDGET_TEXT)
+    //    .RaceDisable(false)
+    //    .PreFunc(
+    //        [](WidgetInfo& info) { info.isHidden = !(!CVarGetInteger(CVAR_LOW_RES_MODE, 0) && IsDroppingFrames()); })
+    //    .Options(TextOptions().Color(Colors::Orange));
     mLighthouseMenu->AddWidget(path, ICON_FA_QUESTION_CIRCLE " \"N64 Mode\" is overriding these settings.", WIDGET_TEXT)
         .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_LOW_RES_MODE, 0); })
@@ -589,13 +589,13 @@ void UpdateResolutionVars() {
     disabled_pixelCount = !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
 }
 
-bool IsDroppingFrames() {
-    // a rather imprecise way of checking for frame drops.
-    // but it's mostly there to inform the player of large drops.
-    const short targetFPS = GameEngine::Instance->GetInterpolationFPS();
-    const float threshold = targetFPS / 20.0f + 4.1f;
-    return ImGui::GetIO().Framerate < targetFPS - threshold;
-}
+// bool IsDroppingFrames() {
+//     // a rather imprecise way of checking for frame drops.
+//     // but it's mostly there to inform the player of large drops.
+//     const short targetFPS = GameEngine::Instance->GetInterpolationFPS();
+//     const float threshold = targetFPS / 20.0f + 4.1f;
+//     return ImGui::GetIO().Framerate < targetFPS - threshold;
+// }
 
 static RegisterMenuUpdateFunc updateFunc(UpdateResolutionVars, "Settings", "Graphics");
 static RegisterMenuInitFunc menuInitFunc(RegisterResolutionWidgets);

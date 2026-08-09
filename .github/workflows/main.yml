@@ -1,6 +1,7 @@
 name: GenerateBuilds
 on:
   push:
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,9 +9,11 @@ concurrency:
 
 jobs:
   generate-port-o2r:
+    # Same-repo branches fire both push and pull_request; only build once.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: true
     - name: Extract Project Version
@@ -22,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get install gcc g++ git cmake ninja-build lsb-release
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
+      uses: hendrikmuhs/ccache-action@v1.2.23
       with:
         key: ${{ runner.os }}-o2r-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
@@ -41,8 +44,9 @@ jobs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         make -C Torch type=release -j3
+        cp -r ./libultraship/src/fast/shaders ./port
         Torch/cmake-build-release/torch pack port lighthouse.o2r o2r -u ${{ steps.extract_version.outputs.version }}
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: lighthouse.o2r
         path: lighthouse.o2r
@@ -52,31 +56,31 @@ jobs:
     needs: generate-port-o2r
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Build
         run: |
-          cmake -S . -B "build/x64" -G "Visual Studio 17 2022" -T v143 -A x64 -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B "build/x64" -G "Visual Studio 17 2022" -T v143 -A x64
           cmake --build ./build/x64 --config Release --parallel 10
       - name: Download lighthouse.o2r
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: lighthouse.o2r
-          path: ./build/x64/Release
+          path: ./build/x64
       - name: Create Package
         run: |
           mkdir lighthouse-release
           mkdir lighthouse-release/debug
-          mv build/x64/Release/Lighthouse.exe lighthouse-release/
-          mv build/x64/Release/lighthouse.o2r lighthouse-release/
-          mv build/x64/Release/*.pdb lighthouse-release/debug/
+          mv build/x64/Lighthouse.exe lighthouse-release/
+          mv build/x64/lighthouse.o2r lighthouse-release/
+          mv build/x64/*.pdb lighthouse-release/debug/
           mv README.md lighthouse-release/readme.txt
           mv config.yml lighthouse-release/
           mv assets lighthouse-release/
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt" -OutFile "lighthouse-release/gamecontrollerdb.txt"
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lighthouse-windows
           path: lighthouse-release
@@ -85,13 +89,13 @@ jobs:
     needs: generate-port-o2r
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: melusina-org/setup-macports@v1
         with:
           parameters: '.github/macports.yml'
-      - uses: hendrikmuhs/ccache-action@v1.2
+      - uses: hendrikmuhs/ccache-action@v1.2.23
         with:
           key: macos # ccache-macos
       - name: Build
@@ -99,7 +103,7 @@ jobs:
           cmake -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
           cmake --build build-cmake -j
       - name: Download lighthouse.o2r
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: lighthouse.o2r
           path: ./build-cmake
@@ -109,7 +113,7 @@ jobs:
           mv _packages/*.dmg Lighthouse.dmg
           mv README.md readme.txt
       - name: Publish packaged artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lighthouse-mac
           path: |
@@ -120,7 +124,7 @@ jobs:
     needs: generate-port-o2r
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Update machine
@@ -128,7 +132,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install gcc g++ git cmake ninja-build lsb-release libsdl2-dev libpng-dev libsdl2-net-dev libzip-dev zipcmp zipmerge ziptool nlohmann-json3-dev libtinyxml2-dev libspdlog-dev libboost-dev libopengl-dev libogg-dev libvorbis-dev
       - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.2.14
+        uses: hendrikmuhs/ccache-action@v1.2.23
         with:
           key: linux-ccache-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
@@ -183,7 +187,7 @@ jobs:
           sudo make install
           sudo cp -av /usr/local/lib/libzip* /lib/x86_64-linux-gnu/
       - name: Download lighthouse.o2r
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: lighthouse.o2r
           path: ./build-cmake
@@ -196,11 +200,12 @@ jobs:
           mv README.md readme.txt
           mv build-cmake/*.appimage lighthouse.appimage
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lighthouse-linux
           path: |
             lighthouse.appimage
+            readme.txt
             gamecontrollerdb.txt
 
   build-switch:
@@ -210,7 +215,7 @@ jobs:
     container:
       image: devkitpro/devkita64:20241023
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install dependencies
@@ -229,7 +234,7 @@ jobs:
           mv README.md readme.txt
           mv build-switch/*.nro Lighthouse.nro
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lighthouse-switch
           path: |

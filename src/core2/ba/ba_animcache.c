@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_1550.c
 /**
  * @file anim/commoncache.c
  * @brief This file controls a cache of common animations consisting of 

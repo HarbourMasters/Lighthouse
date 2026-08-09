@@ -13,6 +13,7 @@ namespace Rando {
 
 namespace StaticData {
 void SendCollisionNotification(RandoCheckId randoCheckId);
+void SendRemoteCheckNotification(RandoCheckId randoCheckId, const std::string& collectorName);
 
 struct RandoLogicData {
     const char* name;

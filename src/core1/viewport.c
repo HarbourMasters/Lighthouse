@@ -45,7 +45,7 @@ f32 viewport_getDistance(f32 arg0[3]) {
     return ml_vec3f_distance(arg0, sViewportPosition);
 }
 
-void viewport_getLookbk_vector(f32 arg0[3]) {
+void viewport_getLookVector(f32 arg0[3]) {
     ml_vec3f_copy(arg0, sViewportLookbk_vector);
 }
 
@@ -100,12 +100,12 @@ void viewport_setRenderPerspectiveMatrix(Gfx **gfx, Mtx **mtx, f32 near, f32 far
     near = MAX(sViewportNear, near);
     far = MIN(sViewportFar, far);
 
-    // [port] This is either anti-tamper or a legit camera adjustment 
-    // based on NTSC or PAL, because PAL runs at 50Hz instead of 60Hz
-    // if(*(u32*)OS_PHYSICAL_TO_K1(0x1D8) + 0x53D4FFF0) {
-    //     near = 750.0f; 
-    //     far = 1250.0f;
-    // }
+#if ANTI_TAMPER
+    if ((*(u32*) OS_PHYSICAL_TO_K1(0x000001D8)) + 0x53D4FFF0) {
+        near = 750.0f; 
+        far = 1250.0f;
+    }
+#endif
     
     guPerspective(*mtx, &perspNorm, sViewportFOVy, sViewportAspect, near, far, 0.5f);
     gSPPerspNormalize((*gfx)++, perspNorm);
@@ -490,7 +490,7 @@ f32 viewport_transformCoordinate(f32 x, f32 y, f32 viewport_translation[3], f32 
 f32 sViewportBackupPosition[3];
 f32 sViewportBackupRotation[3];
 f32 sViewportBackupFrustumPlanes[4][4];
-f32 sViewportBackupLookbk_vector[3];
+f32 sViewportBackupLookVector[3];
 MtxF sViewportBackupMatrix;
 
 // ??
@@ -537,7 +537,7 @@ void viewport_backupState(void) {
     viewport_getPosition_vec3f(sViewportBackupPosition);
     viewport_getRotation_vec3f(sViewportBackupRotation);
     viewport_getFrustumPlanes(sViewportBackupFrustumPlanes[0], sViewportBackupFrustumPlanes[1], sViewportBackupFrustumPlanes[2], sViewportBackupFrustumPlanes[3]);
-    viewport_getLookbk_vector(sViewportBackupLookbk_vector);
+    viewport_getLookVector(sViewportBackupLookVector);
 
     for(i = 0; i < 4; i++){
         for(j = 0; j < 4; j++){
@@ -552,7 +552,7 @@ void viewport_restoreState(void) {
     viewport_setPosition_vec3f(sViewportBackupPosition);
     viewport_setRotation_vec3f(sViewportBackupRotation);
     viewport_setFrustumPlanes(sViewportBackupFrustumPlanes[0], sViewportBackupFrustumPlanes[1], sViewportBackupFrustumPlanes[2], sViewportBackupFrustumPlanes[3]);
-    ml_vec3f_copy(sViewportLookbk_vector, sViewportBackupLookbk_vector);
+    ml_vec3f_copy(sViewportLookbk_vector, sViewportBackupLookVector);
 
     for(i = 0; i < 4; i++){
         for(j = 0; j < 4; j++){

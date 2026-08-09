@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 extern void func_80324CD8(f32);
 extern Actor *actor_spawnWithYaw_f32(enum actor_e, f32[3], s32);
 
@@ -178,7 +180,7 @@ void chTwinklyBox_destroyBox(ActorMarker *marker){
     chTwinklyBox_destroyBoxDust(this->position, 12, ASSET_700_SPRITE_DUST);
     this->velocity[1] = 0.0f;
     sfx_playFadeShorthandDefault(SFX_30_MAGIC_POOF, 1.0f, 32000, this->position, 1000, 3500);
-    gcdialog_showDialog(0xc13, 0, NULL, NULL, NULL, NULL);
+    gcdialog_showDialog(VER_SELECT(ASSET_C13_DIALOG_TWINKLIE_MINIGAME_COMPLETE, 0x98D, 0, 0), 0, NULL, NULL, NULL, NULL);
 }
 
 void chTwinklyBox_openBox(Actor *this){
@@ -239,7 +241,8 @@ void chTwinklyBox_spawnTwinkly(ActorMarker *marker){
 
 void chTwinklyBox_completeMinigame(ActorMarker *marker){
     Actor *this = marker_getActor(marker);
-    
+
+    port_fpTwinkly_release();
     item_set(ITEM_6_HOURGLASS, false);
     fileProgressFlag_set(FILEPROG_13_COMPLETED_TWINKLIES_MINIGAME, true);
     FUNC_8030E624(SFX_416_ELECTRIC_ZAP, 0.8f, 32000);
@@ -257,6 +260,10 @@ void chTwinklyBox_activateBox(ActorMarker *this_marker, ActorMarker *other_marke
     Actor *this = marker_getActor(this_marker);
 
     if(this->state == 1 || this->state == 2){
+        // Anchor: only one client may run this minigame at a time — claim it or block if already held.
+        if(!EventSystem_Should(VB_FP_TWINKLY_START, true)){
+            return;
+        }
         actor_collisionOff(this);
         timed_setStaticCameraToNode(0.0f, 0xa);
         func_80324CD8(0.1f);
@@ -365,8 +372,8 @@ void chTwinklyBox_update(Actor *this){
         func_8028F784(0);
         subaddie_set_state_with_direction(this, 4, 0.999f, 1);
         actor_playAnimationOnce(this);
-        item_set(ITEM_0_HOURGLASS_TIMER, 80*60 - 1);
-        item_set(ITEM_6_HOURGLASS, true);
+        item_set(ITEM_0_HOURGLASS_TIMER, 80*FRAMERATE - 1);
+        item_set(ITEM_6_HOURGLASS, TRUE);
         this->unk38_31 = 0xA;
         item_set(ITEM_24_TWINKLY_SCORE, this->unk38_31);
         __spawnQueue_add_1((GenFunction_1)chTwinklyBox_spawnSecondAndThirdMuncher, (uintptr_t)this->marker);
@@ -394,6 +401,7 @@ void chTwinklyBox_update(Actor *this){
         }
 
         if(item_empty(ITEM_6_HOURGLASS)){
+            port_fpTwinkly_release();
             subaddie_set_state_with_direction(this, 1, 0.001f, 0);
             actor_playAnimationOnce(this);
             this->unk38_31 = 0;

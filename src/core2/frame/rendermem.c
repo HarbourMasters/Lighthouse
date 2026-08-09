@@ -1,12 +1,14 @@
+// BanjoDecomp: core2/code_5C240.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
 
 #include "bk_time.h"
+#include "port/Interpolation/FrameInterpolation.h"
 
 extern void func_8023DFF0(s32);
-extern void comusicPlayer_update(void);
+extern void coMusicPlayer_update(void);
 extern void func_802F1A10(void *, f32);
 extern void func_8033DC10(void);
 extern void func_8033DC18(void);
@@ -44,22 +46,26 @@ void func_802E329C(s32 arg0, Gfx **gfx_begin, Gfx **gfx_end) {
     Vtx *vtx;
     Vtx *vtx_start;
 
-    getGraphicsStacks(&gfx, &mtx, &vtx);
+    graphicscache_swapAndGetStacks(&gfx, &mtx, &vtx);
     gfx_start = gfx;
     mtx_start = mtx;
     vtx_start = vtx;
-    scissorBox_SetForGameMode(&gfx, arg0);
+    setupFramebufferForGamemode(&gfx, arg0);
     if (D_8037E8C0.unk14 == 2) {
         drawRectangle2D(&gfx, 0, 0, (s32) (f32) gFramebufferWidth, (s32) (f32) gFramebufferHeight, 0, 0, 0);
     }
     if ((D_8037E8C0.unk14 == 0) || (D_8037E8C0.unk14 == 3)) {
+        FrameInterpolation_RecordOpenChild("rendermem_bound", 0);
         viewport_setRenderViewportAndPerspectiveMatrix(&gfx, &mtx);
         gcbound_draw(&gfx);
+        FrameInterpolation_RecordCloseChild();
     }
     if (D_8037E8C0.unk14 == 1) {
+        FrameInterpolation_RecordOpenChild("rendermem_pause", 0);
         drawRectangle2D(&gfx, 0, 0, (s32) (f32) gFramebufferWidth, (s32) (f32) gFramebufferHeight, 0, 0, 0);
         viewport_setRenderViewportAndPerspectiveMatrix(&gfx, &mtx);
         func_802F1858(D_8037E8C0.unk10, &gfx, &mtx, &vtx);
+        FrameInterpolation_RecordCloseChild();
     }
     core1_15B30_finishDList(&gfx);
     graphicsCache_checkFrame(gfx_start, gfx, mtx_start, mtx, vtx_start, vtx);
@@ -112,8 +118,8 @@ void func_802E3580(void) {
     assetcache_release((void *)(intptr_t)D_8037E8C0.unkC);
     func_802F1884(D_8037E8C0.unk10);
     func_802E5F68();
-    comusicPlayer_free();
-    depthBuffer_stub();
+    coMusicPlayer_free();
+    depthbuffer_stub();
     viMgr_func_8024BF94(2);
 }
 
@@ -167,7 +173,7 @@ void func_802E35D8(void ) {
             return;
         }
     }
-    comusicPlayer_update();
+    coMusicPlayer_update();
     if (D_8037E8C0.unk14 == 0) {
         gcbound_alpha(D_8037E8C0.unk8);
     }

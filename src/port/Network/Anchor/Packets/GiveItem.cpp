@@ -1,20 +1,15 @@
 #include "port/Network/Anchor/Anchor.h"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/Enhancements/game-interactor/GameInteractor.h"
 #include "port/UI/Notification.h"
-//#include "soh/Enhancements/randomizer/randomizer.h"
-//#include "soh/SohGui/ImGuiUtils.h"
-//#include "soh/Enhancements/item-tables/ItemTableManager.h"
-//#include "soh/OTRGlobals.h"
 
-extern "C" {
 #include "functions.h"
 // extern PlayState* gPlayState;
-}
 
 /**
  * GIVE_ITEM
+ *
+ * unimplemented
  */
 
 uint8_t incomingIceTrapsFromAnchor = 0;

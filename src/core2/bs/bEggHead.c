@@ -1,0 +1,85 @@
+// BanjoDecomp: core2/bs/bEggHead.c
+#include <ultra64.h>
+#include "functions.h"
+#include "variables.h"
+
+#include "core2/ba/physics.h"
+#include "core2/yaw.h"
+
+void yaw_setVelocityBounded(f32, f32);
+//void anctrl_start(AnimCtrl *, char*, s32);
+
+/* .bss */
+u8 D_8037D2F0;
+u8 D_8037D2F1;
+
+/* .code */
+void bsegghead_init(void){
+    baanim_playForDuration_once(ASSET_2A_ANIM_BSEGGHEAD, 1.0f);
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 1, BA_PHYSICS_LOCKED_ROTATION);
+    yaw_setVelocityBounded(350.0f, 14.0f);
+    baphysics_set_target_horizontal_velocity(0.0f);
+    modelAppendages_setKazooiesUpperHalfVisibility(true);
+    D_8037D2F0 = (D_8037D2F1 = 1);
+    bainput_enable(2,0);
+}
+
+void bsegghead_update(void) {
+    s32 next_state;
+    AnimCtrl *aCtrl;
+    s32 has_eggs;
+    s32 sp28;
+    s32 fill1;
+    s32 fill2;
+
+    next_state = 0;
+    aCtrl = baanim_getAnimCtrlPtr();
+    has_eggs = (item_empty(ITEM_D_EGGS) == 0);
+    if (bainput_should_shoot_egg()) {
+        if (has_eggs)
+            D_8037D2F0 = ml_min_w(D_8037D2F0 + 1, 3);
+        else 
+            func_80346C10((enum bs_e *)&sp28, -1, 0, ITEM_D_EGGS, 0);
+    }
+    if (has_eggs) {
+        // [port] Romhack gate: listeners may retune the sample rate and hook the
+        // egg noise into a stealth meter.
+        if (anctrl_isAt(aCtrl, 0.1f)) {
+            s32 rate = 0x7fff;
+            EventSystem_Should(VB_EGG_FIRE_SFX, true, 0, &rate);
+            func_8030E760(SFX_46_KAZOOIE_CHOKING_UP, 1.0f, rate);
+        }
+
+        if (anctrl_isAt(aCtrl, 0.4f)) {
+            s32 rate = 0x7fff;
+            EventSystem_Should(VB_EGG_FIRE_SFX, true, 1, &rate);
+            func_8030E760(SFX_57_KAZOOIE_HEGH, 1.0f, rate);
+        }
+
+        if (anctrl_isAt(aCtrl, 0.4704f)){
+            commonParticle_new(COMMON_PARTICLE_1_EGG_HEAD, 1);
+            item_dec(ITEM_D_EGGS);
+            ability_use(7);
+        }
+        if ((anctrl_isAt(aCtrl,  0.5919f)) &&  (D_8037D2F1 < D_8037D2F0)) {
+            anctrl_setStart(aCtrl, 0.3878f);
+            anctrl_start(aCtrl, "bsbegghead.c", 0x62);
+            D_8037D2F1++;
+        }
+    }
+    if (anctrl_isStopped(aCtrl)) {
+        next_state = (bakey_held(BUTTON_Z))? BS_7_CROUCH : BS_1_IDLE;
+
+    } else if (0.65 < (f64) anctrl_getAnimTimer(aCtrl)) {
+        next_state = func_802ADCD4(0);
+    }
+    if (player_shouldFall())
+        next_state = BS_2F_FALL;
+    bs_setState(next_state);
+}
+
+void bsegghead_end(void){
+    bainput_enable(2, 1);
+    baphysics_reset_gravity();
+    modelAppendages_setKazooiesUpperHalfVisibility(false);
+}

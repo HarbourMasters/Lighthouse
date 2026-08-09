@@ -6,6 +6,7 @@
 #include <unordered_map>
 //#include "ResourceManager.h"
 #include "ship/Context.h"
+#include "ship/resource/ResourceManager.h"
 
 std::shared_ptr<Ship::IResource> GetResourceByName(const char* path);
 
@@ -14,9 +15,11 @@ extern "C" {
 #include <libultra/gbi.h>
 
 char* ResourceMgr_LoadByAssetId(uint32_t assetId);
+void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath);
 size_t ResourceMgr_GetResourceSize(uint32_t assetId);
 int ResourceMgr_IsModelAsset(uint32_t assetId);
 int ResourceMgr_GetDialogLanguageCount(void);
+int ResourceMgr_IsPal(void);
 int ResourceMgr_IsJapanese(void);
 int ResourceMgr_GetDialogLanguage(void);
 void ResourceMgr_SetDialogLanguage(int lang);
@@ -35,6 +38,8 @@ Mtx* ResourceMgr_LoadMtxByName(char* path);
 
 void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
                                    int dialogCount, int dialogIndex);
+std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId);
+std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId);
 #endif
 
 #endif

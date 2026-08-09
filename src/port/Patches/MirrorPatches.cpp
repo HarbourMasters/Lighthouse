@@ -5,10 +5,10 @@
 #include <libultra/gu.h>
 #include <libultra/convert.h>
 
+#include "functions.h"
 extern "C" {
 #include "model.h"
 #include "prop.h"
-#include "functions.h"
 }
 
 static bool sMirrorSceneActive = false;
@@ -25,12 +25,12 @@ static ActorDrawFunc sOrig_actor_draw = nullptr;
 extern "C" {
 
 // ActorInfo externs for text-bearing models (must be inside extern "C" for correct linkage)
-extern ActorInfo D_80393354; // level entry signs (model 0x563)
-extern ActorInfo D_80367530; // 5 mumbo token sign (0x301)
-extern ActorInfo D_80367554; // 10 mumbo token sign (0x302)
-extern ActorInfo D_80367578; // 15 mumbo token sign (0x303)
-extern ActorInfo D_8036759C; // 20 mumbo token sign (0x304)
-extern ActorInfo D_803675C0; // 25 mumbo token sign (0x305)
+extern ActorInfo D_80393354;    // level entry signs (model 0x563)
+extern ActorInfo chMumboSign5;  // 5 mumbo token sign (0x301)
+extern ActorInfo chMumboSign10; // 10 mumbo token sign (0x302)
+extern ActorInfo chMumboSign15; // 15 mumbo token sign (0x303)
+extern ActorInfo chMumboSign20; // 20 mumbo token sign (0x304)
+extern ActorInfo chMumboSign25; // 25 mumbo token sign (0x305)
 
 // Custom draw functions used by text-bearing actors (not in functions.h)
 extern Actor* lair_func_80387560(ActorMarker*, Gfx**, Mtx**, Vtx**);
@@ -142,11 +142,11 @@ void port_mirror_patchTextActors(void) {
 
     // Mumbo token signs (5 variants: 5, 10, 15, 20, 25 tokens)
     sOrig_actor_draw = (ActorDrawFunc)actor_draw;
-    D_80367530.draw_func = mirror_excluded_actor_draw;
-    D_80367554.draw_func = mirror_excluded_actor_draw;
-    D_80367578.draw_func = mirror_excluded_actor_draw;
-    D_8036759C.draw_func = mirror_excluded_actor_draw;
-    D_803675C0.draw_func = mirror_excluded_actor_draw;
+    chMumboSign5.draw_func = mirror_excluded_actor_draw;
+    chMumboSign10.draw_func = mirror_excluded_actor_draw;
+    chMumboSign15.draw_func = mirror_excluded_actor_draw;
+    chMumboSign20.draw_func = mirror_excluded_actor_draw;
+    chMumboSign25.draw_func = mirror_excluded_actor_draw;
 }
 
 } // extern "C"

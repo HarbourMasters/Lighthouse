@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_CC1E0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -106,7 +107,7 @@ s32 func_803531C8(u8 projectile_indx, s32 arg1){
                     func_8038685C(other_marker);
                     break;
 
-                case MARKER_BB_UNKNOWN: //L803533E4 //"BIG_JINXYHEAD"
+                case MARKER_BB_JINXY_HEAD_SANDYBUTT: //L803533E4
                     other_actor = marker_getActor(other_marker);
                     *(s32 *)&other_actor->local = 1;
                     commonParticle_setCurrentInUseFalse();
@@ -119,9 +120,9 @@ s32 func_803531C8(u8 projectile_indx, s32 arg1){
                     break;
 
                 case MARKER_AB_RUBEES_EGG_POT: //L80353434
-                    if (collisionTri_isHitFromAbove_marker(egg_position, other_marker, 0x1E) && (func_8038E178() < func_8038E184())) {
+                    if (collisionTri_isHitFromAbove_marker(egg_position, other_marker, 0x1E) && (func_8038E178() < rubeeEggPot_getEggGoal())) {
                         commonParticle_setCurrentInUseFalse();
-                        func_8038E140();
+                        rubeeEggPot_addedEggToPot();
                     }
                     break;
 
@@ -180,7 +181,7 @@ void fxegg_head_spawn(void){
     func_8033EA40(0, 20.0f);
     func_8033EA40(1, 0.0f);
     func_8033EA40(2, 0.0f);
-    _player_getPosition(sp50);
+    playerPosition_get(sp50);
     sp50[1] += spawnHeight;
     ml_vec3f_copy(sp68, sp50);
     player_getRotation(sp44);
@@ -290,7 +291,7 @@ void fxegg_ass_spawn(void) {
     func_8033EA40(1, 0);
     func_8033EA40(0, 20.0f);
     func_8033EA40(2, 0);
-    _player_getPosition(marker);
+    playerPosition_get(marker);
     player_getRotation(sp30);
     sp30[1] = mlNormalizeAngle(sp30[1] + 180.0f);
     func_80256E24(sp48, 0.0f, sp30[1], 0.0f, 0.0f, -18.0f);

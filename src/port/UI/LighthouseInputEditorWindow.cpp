@@ -4,6 +4,7 @@
 #include <ship/controller/controldevice/controller/mapping/ControllerRumbleMapping.h>
 #include <ship/controller/controldeck/ControlDeck.h>
 #include <utils/StringHelper.h>
+#include "cvar_prefixes.h"
 #ifndef __WIIU__
 #include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 #endif
@@ -13,6 +14,15 @@
 #define SCALE_IMGUI_SIZE(value) ((value / 13.0f) * ImGui::GetFontSize())
 
 LighthouseInputEditorWindow::~LighthouseInputEditorWindow() {
+    auto ignored = Ship::Context::GetRawInstance()
+                       ->GetControlDeck()
+                       ->GetConnectedPhysicalDeviceManager()
+                       ->GetIgnoredInstanceIdsForPort(0);
+    if (!ignored.empty()) {
+        Ship::Context::GetRawInstance()->GetConfig()->SetBlock("CVars.gSettings.IgnoredControllers", ignored);
+    } else {
+        Ship::Context::GetRawInstance()->GetConfig()->EraseBlock("CVars.gSettings.IgnoredControllers");
+    }
 }
 
 void LighthouseInputEditorWindow::InitElement() {
@@ -40,6 +50,19 @@ void LighthouseInputEditorWindow::InitElement() {
     addButtonName(BTN_DLEFT, "D-pad left");
     addButtonName(BTN_DRIGHT, "D-pad right");
     addButtonName(0, "None");
+    if (Ship::Context::GetRawInstance()->GetConfig()->GetNestedJson()["CVars"]["gSettings"].contains(
+            "IgnoredControllers")) {
+        std::vector<int> ignored =
+            Ship::Context::GetRawInstance()->GetConfig()->GetNestedJson()["CVars"]["gSettings"]["IgnoredControllers"];
+        if (!ignored.empty()) {
+            for (int id : ignored) {
+                Ship::Context::GetRawInstance()
+                    ->GetControlDeck()
+                    ->GetConnectedPhysicalDeviceManager()
+                    ->IgnoreInstanceIdForPort(0, id);
+            }
+        }
+    }
 }
 
 #define INPUT_EDITOR_WINDOW_GAME_INPUT_BLOCK_ID 95237929

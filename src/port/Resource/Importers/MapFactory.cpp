@@ -128,19 +128,24 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
             out.push_back(0x03);
 
             if (!cube.nodeProps.empty()) {
+                // [port] The count is one byte, so only emit what it can advertise;
+                // writing every entry would desync the reader on an oversized cube.
+                const size_t nodeCnt = std::min<size_t>(cube.nodeProps.size(), 0xFF);
                 out.push_back(0x0A);
-                out.push_back(static_cast<uint8_t>(std::min<size_t>(cube.nodeProps.size(), 0xFF)));
+                out.push_back(static_cast<uint8_t>(nodeCnt));
                 out.push_back(0x0B);
-                for (const auto& node : cube.nodeProps) {
-                    WriteNodeProp(out, node);
+                for (size_t n = 0; n < nodeCnt; n++) {
+                    WriteNodeProp(out, cube.nodeProps[n]);
                 }
             }
 
             if (!cube.props.empty()) {
+                const size_t propCnt = std::min<size_t>(cube.props.size(), 0xFF);
                 out.push_back(0x08);
-                out.push_back(static_cast<uint8_t>(std::min<size_t>(cube.props.size(), 0xFF)));
+                out.push_back(static_cast<uint8_t>(propCnt));
                 out.push_back(0x09);
-                for (const auto& prop : cube.props) {
+                for (size_t pi = 0; pi < propCnt; pi++) {
+                    const auto& prop = cube.props[pi];
                     // [port] Props are raw 12-byte N64 big-endian structs from the ROM.
                     // Layout: u32(4) + s16(2) + s16(2) + s16(2) + u16(2) = 12 bytes.
                     // Byte-swap each multi-byte field to native (little-endian) order

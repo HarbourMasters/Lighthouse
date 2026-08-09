@@ -19,10 +19,12 @@ void PortEnhancements_Register() {
     // Register engine events
     REGISTER_EVENT(GameFrameUpdate);
     REGISTER_EVENT(FrameDrawEnd);
+    REGISTER_EVENT(OnControllerUpdate);
     REGISTER_EVENT(VanillaBehavior);
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnModelLoad);
+    REGISTER_EVENT(OnModelDisplayListLoad);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(OnTransitionModelScale);
     REGISTER_EVENT(OnTransitionStateUpdate);
@@ -36,6 +38,7 @@ void PortEnhancements_Register() {
     // Register localization events
     REGISTER_EVENT(LocalizeFileSelectPrompt);
     REGISTER_EVENT(OnFileSelectLanguageRefresh);
+    REGISTER_EVENT(OnFileSelectPortrait);
     REGISTER_EVENT(LocalizeParade);
     REGISTER_EVENT(ParadeCreditDialogId);
     REGISTER_EVENT(ResolveBoldFontSlot);
@@ -49,6 +52,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoldFontReset);
     REGISTER_EVENT(OnWorldDraw);
     REGISTER_EVENT(OnPlayerDraw);
+    REGISTER_EVENT(OnHudDraw);
 
     // Register behavior events
     REGISTER_EVENT(OnBeakSwimVelocitySet);
@@ -60,6 +64,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnIntroCutsceneCheck);
     REGISTER_EVENT(OnMiscCutscenesCheck);
     REGISTER_EVENT(OnTooieJiggyCollect);
+    REGISTER_EVENT(OnJigsawPodiumInput);
     REGISTER_EVENT(OnMumboTokenUpdate);
     REGISTER_EVENT(OnMumboTokenIdResolve);
     REGISTER_EVENT(OnNametagDraw);
@@ -72,8 +77,18 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnVileGameStateChange);
 
     // Register game events
+    REGISTER_EVENT(OnGameFlagSet);
+    REGISTER_EVENT(OnItemCountChanged);
+    REGISTER_EVENT(OnCollectibleCollected);
+    REGISTER_EVENT(OnAbilityLearned);
+    REGISTER_EVENT(OnJiggySpawned);
+    REGISTER_EVENT(OnHoneycombDropSpawn);
+    REGISTER_EVENT(OnTimedJiggyExpired);
+    REGISTER_EVENT(OnPlayerDeath);
+    REGISTER_EVENT(OnGameFileErase);
     REGISTER_EVENT(OnGameLoad);
     REGISTER_EVENT(OnGameSave);
+    REGISTER_EVENT(OnGameErase);
     REGISTER_EVENT(OnBottlesBonusComplete);
     REGISTER_EVENT(OnSaveFileLoad);
     REGISTER_EVENT(OnSaveFileSave);
@@ -81,11 +96,14 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnPropInit);
     REGISTER_EVENT(OnWarpResolveDest);
     REGISTER_EVENT(OnNewGame);
+    REGISTER_EVENT(OnGameStart);
     REGISTER_EVENT(EggHeadSpawn);
     REGISTER_EVENT(OnActorDestroy);
+    REGISTER_EVENT(OnLevelReset);
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
-
     REGISTER_EVENT(OnReset);
+    REGISTER_EVENT(SetAnimSpeedMult);
+    REGISTER_EVENT(OnActorUpdate);
 
     // Register rando events
     REGISTER_EVENT(InitRandoEvents);
@@ -104,6 +122,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnIsJiggyScoreCollected);
     REGISTER_EVENT(OnIsJiggyScoreSpawned);
     REGISTER_EVENT(SetRandoInfFlag);
+    REGISTER_EVENT(OnRandoCheckObtained);
     REGISTER_EVENT(OnIsHoneycombScoreCollected);
     REGISTER_EVENT(ClearBundleDespawnQueue);
     REGISTER_EVENT(OnIsMumboTokenScoreCollected);

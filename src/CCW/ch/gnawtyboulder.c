@@ -4,12 +4,20 @@
 #include "variables.h"
 
 typedef struct {
-    f32 unk0;
+    f32 unk0; // time related
 } ActorLocal_CCW_7120;
 
 void chGnawtyBoulder_update(Actor *this);
 
 /* .data */
+
+enum chGnawtyBoulder_state_e {
+    GNAWTY_BOULDER_STATE_0_NOT_INIT,
+    GNAWTY_BOULDER_STATE_1_IDLE,
+    GNAWTY_BOULDER_STATE_2_BREAK,
+    GNAWTY_BOULDER_STATE_3_DESPAWN
+};
+
 ActorInfo chGnawtyBoulder = {
     0x1BF, 0x2AC, 0x490,
     0x0, NULL,
@@ -18,7 +26,7 @@ ActorInfo chGnawtyBoulder = {
 };
 
 /* .code */
-void CCW_func_8038D510(Actor *this) {
+void chGnawtyBoulder_emitSmoke(Actor *this) {
     static s32 D_8038F664[3] = {0xDE, 0xA7, 0x71};
     static ParticleSettingsVelocityPosition D_8038F670 = {
         {{  0.0f,  50.0f,   0.0f}, { 70.0f, 100.0f,  70.0f}},
@@ -39,7 +47,7 @@ void CCW_func_8038D510(Actor *this) {
     particleEmitter_emitN(pCtrl, 6);
 }
 
-void func_8038D5DC(Actor *this) {
+void chGnawtyBoulder_emitRock(Actor *this) {
     static ParticleSettingsVelocityAccelerationPosition D_8038F6A0 ={
         {{-100.0f,  -50.0f, -100.0f}, {100.0f,   50.0f, 100.0f}},
         {{   0.0f, -800.0f,    0.0f}, {  0.0f, -800.0f,   0.0f}},
@@ -51,7 +59,7 @@ void func_8038D5DC(Actor *this) {
     pCtrl = partEmitMgr_newEmitter(30);
     particleEmitter_func_802EF9F8(pCtrl, 0.6f);
     particleEmitter_func_802EFA18(pCtrl, 3);
-    particleEmitter_setModel(pCtrl, 0x896);
+    particleEmitter_setModel(pCtrl, ASSET_896_MODEL_GOLD_ROCK);
     particleEmitter_setPosition(pCtrl, this->position);
     particleEmitter_setStartingScaleRange(pCtrl, 0.05f, 0.3f);
     particleEmitter_setAngularVelocityRange(pCtrl,
@@ -68,35 +76,35 @@ void chGnawtyBoulder_setNextState(Actor *this, s32 next_state) {
     ActorLocal_CCW_7120 *local = (ActorLocal_CCW_7120 *)&this->local;
 
     local->unk0 = 0.0f;
-    if (next_state == 2) {
+    if (next_state == GNAWTY_BOULDER_STATE_2_BREAK) {
         this->marker->propPtr->unk8_3 = false;
         func_802BB3DC(0, 60.0f, 0.7f);
-        CCW_func_8038D510(this);
-        func_8038D5DC(this);
+        chGnawtyBoulder_emitSmoke(this);
+        chGnawtyBoulder_emitRock(this);
         FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.3f, 15000);
         FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.5f, 15000);
         FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.7f, 15000);
         FUNC_8030E624(SFX_9B_BOULDER_BREAKING_1, 0.9f, 15000);
         func_80324E38(0.0f, 3);
         timed_setStaticCameraToNode(0.5f, 3);
-        timedFunc_set_2(0.5f, (GenFunction_2)levelSpecificFlags_set, LEVEL_FLAG_25_CCW_UNKNOWN, true);
+        timedFunc_set_2(0.5f, (GenFunction_2)levelSpecificFlags_set, LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED, true);
         timed_exitStaticCamera(4.0f);
         func_80324E38(4.0f, 0);
         local->unk0 = 0.5f;
         marker_despawn(this->marker);
     }
-    if (next_state == 3) {
+    if (next_state == GNAWTY_BOULDER_STATE_3_DESPAWN) {
         marker_despawn(this->marker);
     }
     this->state = next_state;
 }
 
-void func_8038D81C(ActorMarker* marker, ActorMarker *other_marker) {
+void chGnawtyBoulder_die(ActorMarker* marker, ActorMarker *other_marker) {
     Actor* actor = marker_getActor(marker);
-    if (actor->state == 1) {
+    if (actor->state == GNAWTY_BOULDER_STATE_1_IDLE) {
         // [port] v1.1 fix: rock is indestructible in Spring (prevents sequence break)
         if (EventSystem_Should(VB_CCW_GNAWTY_SPRING_ROCK, gsworld_getMap() != MAP_43_CCW_SPRING)) {
-            chGnawtyBoulder_setNextState(actor, 2);
+            chGnawtyBoulder_setNextState(actor, GNAWTY_BOULDER_STATE_2_BREAK);
         }
     }
 }
@@ -109,21 +117,30 @@ void chGnawtyBoulder_update(Actor *this) {
     if (!this->volatile_initialized) {
         this->marker->propPtr->unk8_3 = true;
         this->volatile_initialized = true;
-        marker_setCollisionScripts(this->marker, NULL, &func_8038D81C, NULL);
-        chGnawtyBoulder_setNextState(this, 1);
+        marker_setCollisionScripts(this->marker, NULL, &chGnawtyBoulder_die, NULL);
+        chGnawtyBoulder_setNextState(this, GNAWTY_BOULDER_STATE_1_IDLE);
 
         if (jiggyscore_isCollected(JIGGY_4B_CCW_GNAWTY) != false) {
-            levelSpecificFlags_set(LEVEL_FLAG_25_CCW_UNKNOWN, true);
+            levelSpecificFlags_set(LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED, true);
         }
 
-        if ((levelSpecificFlags_get(LEVEL_FLAG_25_CCW_UNKNOWN) != false) && (gsworld_getMap() != MAP_43_CCW_SPRING)) {
+        if ((levelSpecificFlags_get(LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED) != false)
+            && (gsworld_getMap() != MAP_43_CCW_SPRING))
+        {
             marker_despawn(this->marker);
         }
         return;
-    } 
-    if(this->state == 2){
+    }
+    // Anchor: teammate broke the boulder — despawn live (no break cutscene).
+    if (this->state == GNAWTY_BOULDER_STATE_1_IDLE
+        && levelSpecificFlags_get(LEVEL_FLAG_25_CCW_GNAWTY_JIGGY_COLLECTED)
+        && gsworld_getMap() != MAP_43_CCW_SPRING) {
+        marker_despawn(this->marker);
+        return;
+    }
+    if(this->state == GNAWTY_BOULDER_STATE_2_BREAK){
         if (ml_timer_update(&local->unk0, tick) ) {
-            chGnawtyBoulder_setNextState(this, 3);
+            chGnawtyBoulder_setNextState(this, GNAWTY_BOULDER_STATE_3_DESPAWN);
         }
     }
 }

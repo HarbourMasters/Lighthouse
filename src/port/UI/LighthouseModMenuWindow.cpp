@@ -84,8 +84,8 @@ static std::vector<std::string> sRomhackBaseMismatch;
 // Romhacks and universally shared mods get special folders
 // The lang folder is skipped in scans
 #define ROMHACKS_DIR "~romhacks"
-#define SHARED_DIR "shared"
-#define LANG_DIR "lang"
+#define SHARED_DIR "~shared"
+#define LANG_DIR "~lang"
 
 static std::string JoinModList(const std::vector<std::string>& list) {
     std::string s;
@@ -313,7 +313,7 @@ void UpdateModFiles(bool init, bool reset) {
                 if (!IsValidExtension(p.path().extension().generic_string())) {
                     continue;
                 }
-                // Skip reserved folders (e.g. mods/lang/ language packs) — they
+                // Skip reserved folders (e.g. mods/~lang/ language packs) — they
                 // aren't user-toggleable mods and must not appear in either menu.
                 if (IsReservedModPath(modsPath, p.path())) {
                     continue;
@@ -466,7 +466,7 @@ static void DrawModInfo(std::string file) {
 
 using ModFilter = std::function<bool(const std::string&)>;
 
-static void DrawMods(bool enabled, const ModFilter& shown) {
+static void DrawMods(bool enabled, const ModFilter& shown, bool alphabetical) {
     std::vector<std::string>& selectedModFiles = GetModFiles(enabled);
 
     std::vector<size_t> visible;
@@ -482,10 +482,10 @@ static void DrawMods(bool enabled, const ModFilter& shown) {
     bool madeAnyChange = false;
     size_t switchFromIndex = 0;
     size_t switchToIndex = 0;
+    std::string pendingMoveFile;
 
-    // Highest priority (largest real index) draws at the top, matching the
-    // "top overrides bottom" rule.
-    for (size_t vpos = visible.size() - 1; vpos != SIZE_MAX; vpos--) {
+    for (size_t k = 0; k < visible.size(); k++) {
+        size_t vpos = alphabetical ? k : (visible.size() - 1 - k);
         size_t i = visible[vpos];
         std::string file = selectedModFiles[i];
         if (enabled) {
@@ -496,14 +496,10 @@ static void DrawMods(bool enabled, const ModFilter& shown) {
         // (to the disabled list), disabled mods get an arrow pointing left.
         if (UIWidgets::StateButton((file + "_left_right").c_str(), enabled ? ICON_FA_ARROW_RIGHT : ICON_FA_ARROW_LEFT,
                                    ImVec2(25, 25), UIWidgets::ButtonOptions().Color(THEME_COLOR))) {
-            if (enabled) {
-                DisableMod(file);
-            } else {
-                EnableMod(file);
-            }
+            pendingMoveFile = file;
         }
 
-        if (enabled) {
+        if (enabled && !alphabetical) {
             const bool atTop = (vpos == visible.size() - 1);
             const bool atBottom = (vpos == 0);
 
@@ -551,11 +547,19 @@ static void DrawMods(bool enabled, const ModFilter& shown) {
         std::iter_swap(selectedModFiles.begin() + switchFromIndex, selectedModFiles.begin() + switchToIndex);
         AfterModChange();
     }
+
+    if (!pendingMoveFile.empty()) {
+        if (enabled) {
+            DisableMod(pendingMoveFile);
+        } else {
+            EnableMod(pendingMoveFile);
+        }
+    }
 }
 
 static bool editing = false;
 
-static void DrawModManager(const char* tableId, const ModFilter& shown) {
+static void DrawModManager(const char* tableId, const ModFilter& shown, bool alphabetical = false) {
     auto editOpts = UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline).Color(THEME_COLOR);
     editOpts.Disabled(editing);
     editOpts.DisabledTooltip("Already editing...");
@@ -610,7 +614,7 @@ static void DrawModManager(const char* tableId, const ModFilter& shown) {
         ImGui::TableNextColumn();
 
         if (ImGui::BeginChild("Enabled Mods", ImVec2(0, -8))) {
-            DrawMods(true, shown);
+            DrawMods(true, shown, alphabetical);
 
             ImGui::EndChild();
         }
@@ -618,7 +622,7 @@ static void DrawModManager(const char* tableId, const ModFilter& shown) {
         ImGui::TableNextColumn();
 
         if (ImGui::BeginChild("Disabled Mods", ImVec2(0, -8))) {
-            DrawMods(false, shown);
+            DrawMods(false, shown, alphabetical);
 
             ImGui::EndChild();
         }
@@ -662,7 +666,10 @@ void LighthouseRomhackMenuWindow::DrawElement() {
                        "Romhack overlays live in mods/~romhacks/. Changes require a restart, and only one\n"
                        "romhack can be active at a time.");
 
-    DrawModManager("tableRomhacks", [](const std::string& name) { return IsRomhackOverlay(name); });
+    // Romhacks are one-at-a-time, so there's no load order to preserve: list them
+    // alphabetically instead of by priority.
+    DrawModManager(
+        "tableRomhacks", [](const std::string& name) { return IsRomhackOverlay(name); }, true);
 }
 
 void LighthouseModMenuWindow::InitElement() {
@@ -829,19 +836,13 @@ bool IsInlineModExtractionBusy() {
     return sInlineExtracting.load();
 }
 
-void RequestInlineModExtraction() {
-    if (sInlineExtracting.load()) {
-        return;
-    }
-    auto extractor = std::make_unique<GameExtractor>();
-    if (!extractor->SelectGameFromUI()) {
-        return;
-    }
+// Kick off the (detached) extraction worker for a ROM the user already picked + loaded.
+static void BeginInlineExtraction(std::shared_ptr<GameExtractor> extractor, bool langPack) {
     sInlineFile = extractor->GetRomPath();
     sInlineCount = 0;
     sInlineTotal = 0;
     sInlineResult = 0;
-    sInlineLangPack = false;
+    sInlineLangPack = langPack;
     sInlineExtracting = true;
     std::thread([ex = std::move(extractor)]() mutable {
         const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
@@ -850,49 +851,69 @@ void RequestInlineModExtraction() {
     }).detach();
 }
 
-void RequestInlineLanguagePackExtraction() {
+// Shared body of the two public requests: pick a ROM, load it, and start extraction. Language packs
+// add a couple of region gates before the common kickoff. The extractor is a shared_ptr so it stays
+// alive across the async pick (captured in the callback) and the detached extraction thread.
+static void StartInlineRomExtraction(bool langPack) {
     if (sInlineExtracting.load()) {
         return;
     }
-    auto extractor = std::make_unique<GameExtractor>();
-    if (!extractor->SelectGameFromUI()) {
-        return;
-    }
+    auto extractor = std::make_shared<GameExtractor>();
+    extractor->SelectGameFromUI([extractor, langPack](bool ok) {
+        if (!ok) {
+            return; // cancelled or failed to load
+        }
+        if (langPack) {
+            if (extractor->IsRomhack()) {
+                LighthouseGui::RegisterPopup("Not a Retail ROM",
+                                             "That file is a romhack, not a retail Banjo-Kazooie ROM.\n"
+                                             "\n"
+                                             "To extract it as a mod overlay instead, use\n"
+                                             "Settings -> Romhack Menu -> \"Generate Romhack from ROM\".",
+                                             "OK", "", nullptr, nullptr);
+                return;
+            }
+            // Refuse a pack when we already have it as bk.o2r.
+            const std::string region = extractor->GetRegionSlug();
+            if (region.empty()) {
+                LighthouseGui::RegisterPopup("Unrecognized ROM",
+                                             "That file isn't a recognized Banjo-Kazooie ROM, so no\n"
+                                             "language pack could be made from it.",
+                                             "OK", "", nullptr, nullptr);
+                return;
+            }
+            if (region == Lighthouse::BaseRegionSlug()) {
+                LighthouseGui::RegisterPopup("Already Have This Language",
+                                             "Your base game data (bk.o2r) already provides this region's\n"
+                                             "dialog, so there's no need to add it as a language pack.",
+                                             "OK", "", nullptr, nullptr);
+                return;
+            }
+            // Re-extracting a region overwrites its existing pack (e.g. to refresh it after an
+            // update), so a pre-existing mods/~lang/bk<region>.o2r is fine.
+            std::error_code ec;
+            std::filesystem::create_directories(Ship::Context::GetPathRelativeToAppDirectory("mods/~lang"), ec);
+            extractor->SetDialogPack(true);
+        } else if (!extractor->IsRomhack()) {
+            LighthouseGui::RegisterPopup("Not a Romhack",
+                                         "That file is a retail Banjo-Kazooie ROM, not a romhack.\n"
+                                         "Extracting it here would overwrite your base game data.\n"
+                                         "\n"
+                                         "To add its dialog as another language instead, use\n"
+                                         "Settings -> Languages -> \"Add Language Pack from ROM\".",
+                                         "OK", "", nullptr, nullptr);
+            return;
+        }
+        BeginInlineExtraction(extractor, langPack);
+    });
+}
 
-    // Refuse a pack when we already have it as bk.o2r.
-    const std::string region = extractor->GetRegionSlug();
-    if (region.empty()) {
-        LighthouseGui::RegisterPopup("Unrecognized ROM",
-                                     "That file isn't a recognized Banjo-Kazooie ROM, so no\n"
-                                     "language pack could be made from it.",
-                                     "OK", "", nullptr, nullptr);
-        return;
-    }
-    if (region == Lighthouse::BaseRegionSlug()) {
-        LighthouseGui::RegisterPopup("Already Have This Language",
-                                     "Your base game data (bk.o2r) already provides this region's\n"
-                                     "dialog, so there's no need to add it as a language pack.",
-                                     "OK", "", nullptr, nullptr);
-        return;
-    }
-    // Re-extracting a region overwrites its existing pack (e.g. to refresh it
-    // after an update), so a pre-existing mods/lang/bk<region>.o2r is fine.
-    const std::string langDir = Ship::Context::GetPathRelativeToAppDirectory("mods/lang");
-    std::error_code ec;
-    std::filesystem::create_directories(langDir, ec);
+void RequestInlineModExtraction() {
+    StartInlineRomExtraction(false);
+}
 
-    extractor->SetDialogPack(true);
-    sInlineFile = extractor->GetRomPath();
-    sInlineCount = 0;
-    sInlineTotal = 0;
-    sInlineResult = 0;
-    sInlineLangPack = true;
-    sInlineExtracting = true;
-    std::thread([ex = std::move(extractor)]() mutable {
-        const bool ok = ex->GenerateOTR(sInlineCount, sInlineTotal, "bk");
-        sInlineResult = ok ? 1 : 2;
-        sInlineExtracting = false;
-    }).detach();
+void RequestInlineLanguagePackExtraction() {
+    StartInlineRomExtraction(true);
 }
 
 void DrawInlineModExtraction() {
@@ -924,7 +945,7 @@ void DrawInlineModExtraction() {
         const std::string packPath = GameExtractor::sLastOutputPath;
         if (!packPath.empty() && GetArchiveManager()->AddArchive(packPath) == nullptr) {
             // Shouldn't happen for an o2r we just wrote; if it does, the pack is
-            // still in mods/lang and loads on the next launch.
+            // still in mods/~lang and loads on the next launch.
             SPDLOG_WARN("[Lang] Pack '{}' didn't register live; it will load on the next launch.", packPath);
         }
         Lighthouse::RescanLanguages();

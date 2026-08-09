@@ -3,6 +3,9 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+#include "port/Enhancements/Retention/Retention.h"
+
 extern void func_8028E668(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3);
 extern  s32 func_802E0970(s32, f32, f32, f32, s32, s32, f32[3]);
 
@@ -63,7 +66,7 @@ static void __chBlubber_showTextCallback(ActorMarker *caller, enum asset_e text_
     Actor *this = marker_getActor(caller);
     ActorLocal_Blubber *local =  (ActorLocal_Blubber*)&this->local;
 
-    if(text_id == ASSET_A0D_DIALOG_BLUBBER_COMPLETE || text_id == ASSET_A2A_DIALOG_BLUBBER_COMPLETE_JIGGY_COLLECTED){
+    if(text_id == VER_SELECT(ASSET_A0D_DIALOG_BLUBBER_COMPLETE, 0x90D, 0, 0) || text_id == ASSET_A2A_DIALOG_BLUBBER_COMPLETE_JIGGY_COLLECTED){
         local->unk24 = 0;
     }
     else{
@@ -89,7 +92,7 @@ static void __chBlubber_showJiggySpawnedText(ActorMarker *marker){
     this->actor_specific_1_f = 0.0f;
 
     if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN)) {
-        text_id = jiggyscore_isCollected(JIGGY_14_TTC_BLUBBER) ? ASSET_A2A_DIALOG_BLUBBER_COMPLETE_JIGGY_COLLECTED : ASSET_A0D_DIALOG_BLUBBER_COMPLETE;
+        text_id = jiggyscore_isCollected(JIGGY_14_TTC_BLUBBER) ? ASSET_A2A_DIALOG_BLUBBER_COMPLETE_JIGGY_COLLECTED : VER_SELECT(ASSET_A0D_DIALOG_BLUBBER_COMPLETE, 0x90D, 0, 0);
         gcdialog_showDialog(text_id, 0xf, this->position, this->marker, __chBlubber_showTextCallback, __chBlubber_showTextCallback2);
         mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
     }
@@ -121,7 +124,7 @@ static void __func_80387774(Actor **this_ptr){
 
     player_setCarryObjectPoseInCylinder(local->throw_target_position, local->throw_target_radius, 100.0f, ACTOR_2A_GOLD_BULLION, this_ptr);
     if( subaddie_playerIsWithinSphereAndActive(*this_ptr, 200)
-        && bacarry_get_markerId() == MARKER_37_GOLD_BULLION
+        && bacarry_getMarkerId() == MARKER_37_GOLD_BULLION
         && player_throwCarriedObject()
     ) {
         func_8028FA34(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN) ? ACTOR_149_TTC_BLUBBER_UNKNOWN : ACTOR_14A_TTC_BLUBBER_UNKNOWN, *this_ptr);
@@ -140,13 +143,49 @@ static void __func_80387830(Actor *this , f32 arg1, f32 arg2){
 
 static void __chBlubber_updateFunc(Actor *this){
     ActorLocal_Blubber *local;
+    s32 netBits;
 
     this->marker->propPtr->unk8_3 = true;
     func_8028E668(this->position, 90.0f, -10.0f, 110.0f);
+
+    netBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+    if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x1);
+    }
+    if (mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
+        port_puzzleStep_orBits(ANCHOR_PUZZLE_TTC_BLUBBER, 0x3);
+    }
+    if (!this->volatile_initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
+        marker_despawn(this->marker);
+        return;
+    }
+    if ((netBits & 0x1) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN)) {
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_0_BLUBBER_UNKNOWN, true);
+        this->unk138_23  = true; // half-gold dialog belongs to the deliverer
+        this->has_met_before = true;
+    }
+    if (this->initialized && (netBits & 0x2) && !mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)) {
+        local = (ActorLocal_Blubber *)&this->local;
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_1_UNKNOWN, true);
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_2_BLUBBER_JIGGY_SPAWNED_TEXT_SHOWN, true);
+        mapSpecificFlags_set(TTC_SPECIFIC_FLAG_3_BLUBBER_SHOW_JIGGY_SPAWNED_TEXT_FLAG, true);
+        subaddie_set_state(this, CH_BLUBBER_STATE_4_UNKNOWN);
+        actor_loopAnimation(this);
+        this->actor_specific_1_f = 0.0f;
+        local->unk24 = 0;
+    }
+
     if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !subaddie_playerIsWithinSphereAndActive(this, 2500))
         return;
     
     if(!this->volatile_initialized){
+        // Anchor: rebuild local gold count as collected - delivered (carried gold is transient).
+        s32 goldBits = port_puzzleStep_get(ANCHOR_PUZZLE_TTC_BLUBBER);
+        s32 delivered = ((goldBits & 0x1) ? 1 : 0) + ((goldBits & 0x2) ? 1 : 0);
+        s32 pool = port_carriedSync_collectedCount(ANCHOR_COLLECTIBLE_GOLD) - delivered;
+        if (pool > item_getCount(ITEM_18_GOLD_BULLIONS)) {
+            item_adjustByDiffWithoutHud(ITEM_18_GOLD_BULLIONS, pool - item_getCount(ITEM_18_GOLD_BULLIONS));
+        }
         if(this->state == CH_BLUBBER_STATE_3_UNKNOWN){
             subaddie_set_state_with_direction(this, CH_BLUBBER_STATE_2_UNKNOWN, 0.0f, 1);
         }
@@ -157,8 +196,8 @@ static void __chBlubber_updateFunc(Actor *this){
         && !this->has_met_before
         && item_getCount(ITEM_18_GOLD_BULLIONS) == 0
     ){
-        gcdialog_showDialog(ASSET_A0B_DIALOG_BLUBBER_FIRST_MEET, 0xe, this->position, this->marker, __chBlubber_showTextCallback, NULL);
-        this->has_met_before = true;
+        gcdialog_showDialog(VER_SELECT(ASSET_A0B_DIALOG_BLUBBER_FIRST_MEET, 0x90B, 0, 0), 0xe, this->position, this->marker, __chBlubber_showTextCallback, NULL);
+        this->has_met_before = TRUE;
         subaddie_set_state_forward(this, CH_BLUBBER_STATE_3_UNKNOWN);
     }
 
@@ -166,7 +205,7 @@ static void __chBlubber_updateFunc(Actor *this){
         && !this->unk138_23
     ){
         if (item_getCount(ITEM_18_GOLD_BULLIONS) == 0) {
-            gcdialog_showDialog(ASSET_A0C_DIALOG_BLUBBER_HALF_GOLD, 4, NULL, NULL, NULL, NULL);
+            gcdialog_showDialog(VER_SELECT(ASSET_A0C_DIALOG_BLUBBER_HALF_GOLD, 0x90C, 0, 0), 4, NULL, NULL, NULL, NULL);
         }
         
         this->unk138_23 = true;
@@ -256,6 +295,6 @@ static void __chBlubber_update2Func(Actor *this){
 }
 
 static Actor *__chBlubber_drawFunc(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
-    func_8033A45C(4, 0);
+    modelRender_setAppendageVisibility(4, 0);
     return actor_draw(marker, gfx, mtx, vtx);
 }

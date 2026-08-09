@@ -13,9 +13,7 @@
 #include "UIWidgets.hpp"
 #include <spdlog/fmt/fmt.h>
 
-extern "C" {
 #include "variables.h"
-}
 
 namespace LighthouseGui {
 
@@ -156,8 +154,8 @@ void LighthouseMenu::AddMenuSettings() {
                      .ComponentAlignment(ComponentAlignments::Right)
                      .ComboMap(bootSequenceLabels)
                      .Tooltip("Configure what happens when starting or resetting the game.\n\n"
-                              "Default: LUS logo -> N64 logo\n"
-                              "Authentic: N64 logo only\n"
+                              "Default: Replace the N64 branding with LUS branding\n"
+                              "Authentic: Keep the authentic N64 branding\n"
                               "File Select: Skip to file select menu"));
 
     path.column = SECTION_COLUMN_2;
@@ -183,12 +181,13 @@ void LighthouseMenu::AddMenuSettings() {
                     "Make sure you're playing the same game or romhack as the save you're importing.",
                 "Select Save", "Cancel",
                 [slot]() {
-                    SaveConverter::Result r = SaveConverter::PickAndImport(slot);
-                    if (r.message.empty()) {
-                        return; // cancelled
-                    }
-                    LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Import Complete" : "Save Import Failed",
-                                                               r.message, "OK", "", nullptr, nullptr);
+                    SaveConverter::PickAndImport(slot, [](SaveConverter::Result r) {
+                        if (r.message.empty()) {
+                            return; // cancelled
+                        }
+                        LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Import Complete" : "Save Import Failed",
+                                                                   r.message, "OK", "", nullptr, nullptr);
+                    });
                 },
                 nullptr);
         })
@@ -200,12 +199,13 @@ void LighthouseMenu::AddMenuSettings() {
         .RaceDisable(false)
         .Callback([](WidgetInfo& info) {
             int slot = CVarGetInteger(CVAR_SETTING("SaveConvertSlot"), SaveConverter::kSlotAll);
-            SaveConverter::Result r = SaveConverter::PickAndExport(slot);
-            if (r.message.empty()) {
-                return; // cancelled
-            }
-            LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed", r.message,
-                                                       "OK", "", nullptr, nullptr);
+            SaveConverter::PickAndExport(slot, [](SaveConverter::Result r) {
+                if (r.message.empty()) {
+                    return; // cancelled
+                }
+                LighthouseGui::mModalWindow->RegisterPopup(r.ok ? "Save Export Complete" : "Save Export Failed",
+                                                           r.message, "OK", "", nullptr, nullptr);
+            });
         })
         .Options(ButtonOptions().Tooltip(
             "Export the save for the game you're playing to a Banjo: Recompiled file. Use the slot above "
@@ -261,21 +261,17 @@ void LighthouseMenu::AddMenuSettings() {
         .Options(ButtonOptions()
                      .Size(Sizes::Inline)
                      .Tooltip("Pick a Banjo-Kazooie ROM and extract only its dialog into a slim language pack."));
+
+    // Accessibility Options
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
-#if defined(_WIN32) || defined(__APPLE__) || defined(ESPEAK)
-    AddWidget(path, "Text to Speech", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("A11yTTS"))
+    AddWidget(path, "Disable Screen Shake", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_SETTING("A11yDisableScreenShake"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Enables text to speech for in game dialog"));
-#endif
-    AddWidget(path, "Disable Idle Camera Re-Centering", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("A11yDisableIdleCam"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables the automatic re-centering of the camera when idle."));
-    AddWidget(path, "Disable Screen Flash for Finishing Blow", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_SETTING("A11yNoScreenFlashForFinishingBlow"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables the white screen flash on enemy kill."));
+        .Options(CheckboxOptions().Tooltip(
+            "Stops the camera shaking on impacts such as Beak Buster landings, boulders and boss attacks. "
+            "Controller rumble is unaffected."));
+
+    // Experimental Options
     AddWidget(path, "EXPERIMENTAL", WIDGET_SEPARATOR_TEXT).Options(TextOptions().Color(Colors::Orange));
     AddWidget(path, "ImGui Menu Scaling", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("ImGuiScale"))
@@ -293,41 +289,41 @@ void LighthouseMenu::AddMenuSettings() {
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Audio", 3);
 
-    AddWidget(path, "Master Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
+    AddWidget(path, "Master Volume", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SETTING("Volume.Master"))
         .RaceDisable(false)
-        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(40).ShowButtons(true).Format(""));
-    AddWidget(path, "Main Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-        .CVar(CVAR_SETTING("Volume.MainMusic"))
-        .RaceDisable(false)
-        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
+        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(40).ShowButtons(true).Format("%d%%"));
+    // AddWidget(path, "Main Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
+    //     .CVar(CVAR_SETTING("Volume.MainMusic"))
+    //     .RaceDisable(false)
+    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
     //.Callback([](WidgetInfo& info) {
-    //    Audio_SetGameVolume(SEQ_PLAYER_BGM_MAIN,
-    //                        ((float)CVarGetInteger(CVAR_SETTING("Volume.MainMusic"), 100) / 100.0f));
-    //});
-    AddWidget(path, "Sub Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-        .CVar(CVAR_SETTING("Volume.SubMusic"))
-        .RaceDisable(false)
-        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
+    //     Audio_SetGameVolume(SEQ_PLAYER_BGM_MAIN,
+    //                         ((float)CVarGetInteger(CVAR_SETTING("Volume.MainMusic"), 100) / 100.0f));
+    // });
+    // AddWidget(path, "Sub Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
+    //     .CVar(CVAR_SETTING("Volume.SubMusic"))
+    //     .RaceDisable(false)
+    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
     //.Callback([](WidgetInfo& info) {
-    //    Audio_SetGameVolume(SEQ_PLAYER_BGM_SUB,
-    //                        ((float)CVarGetInteger(CVAR_SETTING("Volume.SubMusic"), 100) / 100.0f));
-    //});
-    AddWidget(path, "Fanfare Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-        .CVar(CVAR_SETTING("Volume.Fanfare"))
-        .RaceDisable(false)
-        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
+    //     Audio_SetGameVolume(SEQ_PLAYER_BGM_SUB,
+    //                         ((float)CVarGetInteger(CVAR_SETTING("Volume.SubMusic"), 100) / 100.0f));
+    // });
+    // AddWidget(path, "Fanfare Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
+    //     .CVar(CVAR_SETTING("Volume.Fanfare"))
+    //     .RaceDisable(false)
+    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
     //.Callback([](WidgetInfo& info) {
-    //    Audio_SetGameVolume(SEQ_PLAYER_FANFARE,
-    //                        ((float)CVarGetInteger(CVAR_SETTING("Volume.Fanfare"), 100) / 100.0f));
-    //});
-    AddWidget(path, "Sound Effects Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-        .CVar(CVAR_SETTING("Volume.SFX"))
-        .RaceDisable(false)
-        .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
+    //     Audio_SetGameVolume(SEQ_PLAYER_FANFARE,
+    //                         ((float)CVarGetInteger(CVAR_SETTING("Volume.Fanfare"), 100) / 100.0f));
+    // });
+    // AddWidget(path, "Sound Effects Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
+    //     .CVar(CVAR_SETTING("Volume.SFX"))
+    //     .RaceDisable(false)
+    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
     //.Callback([](WidgetInfo& info) {
-    //    Audio_SetGameVolume(SEQ_PLAYER_SFX, ((float)CVarGetInteger(CVAR_SETTING("Volume.SFX"), 100) / 100.0f));
-    //});
+    //     Audio_SetGameVolume(SEQ_PLAYER_SFX, ((float)CVarGetInteger(CVAR_SETTING("Volume.SFX"), 100) / 100.0f));
+    // });
     AddWidget(path, "Audio API (Needs reload)", WIDGET_AUDIO_BACKEND).RaceDisable(false);
 
     // Graphics Settings
@@ -514,7 +510,8 @@ void LighthouseMenu::AddMenuSettings() {
 
     // Input Viewer
     path.sidebarName = "Input Viewer";
-    AddSidebarEntry("Settings", path.sidebarName, 3);
+    path.column = SECTION_COLUMN_1;
+    AddSidebarEntry("Settings", path.sidebarName, 2);
     AddWidget(path, "Input Viewer", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Input Viewer", WIDGET_WINDOW_BUTTON)
         .CVar(CVAR_WINDOW("InputViewer"))

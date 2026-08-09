@@ -3,6 +3,10 @@
 
 #include "structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PART_EMIT_NO_OPA   0x20
 #define PART_EMIT_NO_DEPTH 0x10
 #define PART_EMIT_NO_LOOP  0x8
@@ -23,5 +27,9 @@ void func_802EFF7C(ParticleEmitter *self, f32, f32, f32);
 void func_802EFF9C(ParticleEmitter *self, f32);
 void partEmitMgr_freeEmitter(ParticleEmitter *self);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

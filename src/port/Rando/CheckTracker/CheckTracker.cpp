@@ -103,7 +103,7 @@ std::string GetTotalCheckCount() {
     uint32_t collected = 0;
     uint32_t totalShuffled = 0;
     for (auto& entry : Rando::Logic::shuffledPool) {
-        if (entry.obtained || entry.skipped) {
+        if (entry.eligible || entry.skipped) {
             collected++;
         }
         if (entry.isShuffled) {
@@ -131,7 +131,7 @@ void UpdateWorldCheckCount(level_e world) {
         if (Rando::StaticData::Checks[entry.randoCheckId].worldId != world) {
             continue;
         }
-        if (entry.obtained || entry.skipped) {
+        if (entry.eligible || entry.skipped) {
             worldCollected++;
         }
         if (entry.isShuffled) {
@@ -219,7 +219,7 @@ void DrawCheckTrackerList() {
                         continue;
                     }
 
-                    if (CVAR_HIDE_COLLECTED && entry.obtained) {
+                    if (CVAR_HIDE_COLLECTED && entry.eligible) {
                         continue;
                     }
 
@@ -227,16 +227,16 @@ void DrawCheckTrackerList() {
                         continue;
                     }
 
-                    ImVec4 checkTextColor = entry.obtained ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
+                    ImVec4 checkTextColor = entry.eligible ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
                                                            : UIWidgets::ColorValues.at(UIWidgets::Colors::White);
 
-                    ImVec4 itemTextColor = entry.obtained ? VecFromRGBA8(CVAR_ITEM_COLOR)
+                    ImVec4 itemTextColor = entry.eligible ? VecFromRGBA8(CVAR_ITEM_COLOR)
                                                           : UIWidgets::ColorValues.at(UIWidgets::Colors::Indigo);
                     if (entry.skipped) {
                         checkTextColor = itemTextColor = VecFromRGBA8(CVAR_SKIPPED_COLOR);
                     }
 
-                    if (!entry.obtained && CVAR_SHOW_LOGIC) {
+                    if (!entry.eligible && CVAR_SHOW_LOGIC) {
                         checkTextColor = Rando::Logic::CanAccessCheck(entry.randoCheckId)
                                              ? UIWidgets::ColorValues.at(UIWidgets::Colors::White)
                                              : VecFromRGBA8(CVAR_LOGIC_COLOR);
@@ -244,7 +244,7 @@ void DrawCheckTrackerList() {
 
                     ImGui::BeginGroup();
                     ImGui::TextColored(checkTextColor, checkNames.at(entry.randoCheckId).c_str());
-                    if (entry.obtained) {
+                    if (entry.eligible) {
                         ImGui::SameLine();
                         RandoItemId randoItemId = Rando::Logic::GetShuffledObject(entry.randoCheckId).randoItemId;
                         const std::string& randoItemName =

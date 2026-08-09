@@ -14,12 +14,22 @@ extern "C" {
 
 DEFINE_EVENT(GameFrameUpdate);
 DEFINE_EVENT(FrameDrawEnd);
+DEFINE_EVENT(OnControllerUpdate);
 
 DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 
 DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
 
 DEFINE_EVENT(OnModelLoad, s32 modelId; void* modelInfo; s32 * reload;);
+
+// Declared texture dimensions from a model's BKTextureInfo table.
+typedef struct {
+    u8 width;
+    u8 height;
+} ModelTexSize;
+
+DEFINE_EVENT(OnModelDisplayListLoad, const char* path; u32 * dlWords; u32 dlWordCount; const ModelTexSize* texSizes;
+             u16 texCount;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 DEFINE_EVENT(OnTransitionModelScale, Gfx** gfx; Mtx * *mtx; s32 uid; f32 * scale;);
 DEFINE_EVENT(OnTransitionStateUpdate, s32 modelId; s32 uid; s32 substate;);
@@ -39,9 +49,11 @@ DEFINE_EVENT(ResolveSpriteHdPath, const void* chunkAddr; const char** path;);
 DEFINE_EVENT(OnFileSelectInfoBuild, int32_t gamenum; char* upper; char* lower;);
 DEFINE_EVENT(LocalizeFileSelectPrompt, int32_t promptId; void* zoombox;);
 DEFINE_EVENT(OnFileSelectLanguageRefresh, int32_t gamenum; int32_t isSelected;);
+DEFINE_EVENT(OnFileSelectPortrait, int32_t gamenum; void* zoombox;);
 DEFINE_EVENT(LocalizeParade, int32_t paradeId; void** table; uint8_t * count;);
 DEFINE_EVENT(ParadeCreditDialogId, int32_t index; int32_t * dialogId;);
 DEFINE_EVENT(ResolveBoldFontSlot, int32_t* slot; int32_t * letterId;);
 DEFINE_EVENT(OnWorldDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnPlayerDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
+DEFINE_EVENT(OnHudDraw, Gfx** gfx; Mtx * *mtx; Vtx * *vtx;);
 DEFINE_EVENT(OnReset);

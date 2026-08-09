@@ -27,13 +27,18 @@
 #include "GameVersion/AssetVersionRemap.h"
 #include "GameVersion/BaseGameVersion.h"
 
-extern "C" {
 #include "enums.h"
-}
 
-extern "C" uint16_t ResourceMgr_LoadTexWidthByName(char* texPath);
-extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
 extern "C" void func_8031B5C4(int32_t lang); // decomp: set dialog language index
+
+extern "C" {
+// SNS picture demo table (core2/map/exit.c, Struct_core2_C4320_0). unk2 is both
+// the demo file slot and the map exit/entry-point id used for the warp.
+typedef struct {
+    uint8_t map, unk1, exit, unk3, unk4, unk5;
+} BKSnsDemoEntry;
+extern BKSnsDemoEntry D_80371F78[3];
+}
 
 // Dialog language state — detected at boot from o2r version
 static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
@@ -107,7 +112,7 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
         switch (Lighthouse::GetBaseVersion()) {
             case BK_VER_US_11:
                 remapTable = &sV10toV11Remap;
-                SPDLOG_INFO("Loaded v1.1 o2r with {} entries", symbolMap.size());
+                SPDLOG_INFO("Loaded US v1.1 o2r with {} entries", symbolMap.size());
                 break;
             case BK_VER_PAL:
                 remapTable = &sV10toPALRemap;
@@ -119,8 +124,20 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                 break;
             case BK_VER_US_10:
             default:
+                SPDLOG_INFO("Loaded US v1.0 o2r");
                 // v1.0 or a v1.0-based romhack: decomp IDs are already correct.
                 break;
+        }
+
+        // Non-v1.0 ROMs keep the SNS picture demos one slot lower (0x5E, matching
+        // the PAL VER_SELECT in the decomp) and their map setups place the demo
+        // entry points at that exit id too. The compiled v1.0 value (0x5F) would
+        // load the right demo file via the alias but warp to a nonexistent exit,
+        // so retarget the table; the 2508/2511/2513 aliases cover the asset side.
+        if (remapTable) {
+            for (auto& entry : D_80371F78) {
+                entry.exit = 0x5E;
+            }
         }
 
         // Relocate the JP world-name banners to their 0x1600 aliases for a JP
@@ -152,6 +169,21 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
                     sEmptyAssetSlots.insert(v10Id);
                 }
             }
+
+            // v1.0 demo ids that the table doesn't carry are the zero-payload slots of
+            // the demo section. Alias them down 0x100 like the rest of the demo block.
+            for (uint32_t v10Id = 0x9A3; v10Id <= 0xA0A; v10Id++) {
+                if (remapTable->count(v10Id)) {
+                    continue;
+                }
+                const uint32_t targetId = v10Id - 0x100;
+                if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
+                    symbolMap[v10Id] = targetEntry->second;
+                } else {
+                    symbolMap.erase(v10Id);
+                    sEmptyAssetSlots.insert(v10Id);
+                }
+            }
         }
     });
 
@@ -169,6 +201,11 @@ bool IsKnownEmptyAssetSlot(uint32_t assetId) {
 
 extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
+}
+
+// PAL is the only base that carries more than one dialog language (EN/FR/DE).
+extern "C" int ResourceMgr_IsPal(void) {
+    return sDialogLanguageCount > 1 ? 1 : 0;
 }
 
 extern "C" int ResourceMgr_IsJapanese(void) {
@@ -220,17 +257,21 @@ extern "C" int ResourceMgr_IsAssetRepointed(uint32_t assetId) {
     return sDialogOverride.find(assetId) != sDialogOverride.end() ? 1 : 0;
 }
 
-// Resolve an asset id to its o2r path: the active language override wins for
-// re-pointed dialog ids, otherwise the base manifest.
-static std::string ResolveAssetPath(uint32_t assetId) {
-    if (auto ov = sDialogOverride.find(assetId); ov != sDialogOverride.end()) {
-        return ov->second;
-    }
+// The base game's own o2r path for an asset id, ignoring any active language re-point.
+std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId) {
     const auto& symbolMap = GetAssetSymbolMap();
     if (auto entry = symbolMap.find(assetId); entry != symbolMap.end()) {
         return entry->second;
     }
     return std::string();
+}
+
+// The o2r path an asset id resolves to right now.
+std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId) {
+    if (auto ov = sDialogOverride.find(assetId); ov != sDialogOverride.end()) {
+        return ov->second;
+    }
+    return ResourceHelpers_GetBaseAssetPath(assetId);
 }
 
 static char* LoadAndRetainResource(const std::string& path, uint32_t assetId) {
@@ -251,7 +292,7 @@ extern "C" char* ResourceMgr_ReloadByAssetId(uint32_t assetId) {
         sResourceRefCache.erase(it);
     }
 
-    std::string mappedPath = ResolveAssetPath(assetId);
+    std::string mappedPath = ResourceHelpers_GetActiveAssetPath(assetId);
     if (!mappedPath.empty()) {
         std::replace(mappedPath.begin(), mappedPath.end(), '\\', '/');
 
@@ -276,7 +317,7 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
         sResourceRefCache.erase(it);
     }
 
-    std::string mappedPath = ResolveAssetPath(assetId);
+    std::string mappedPath = ResourceHelpers_GetActiveAssetPath(assetId);
     if (mappedPath.empty()) {
         // A reserved-but-empty ROM slot resolves to nothing by design (the game
         // tolerates it, as on N64); only a genuinely-missing asset is worth tracing.
@@ -303,14 +344,20 @@ extern "C" size_t ResourceMgr_GetResourceSize(uint32_t assetId) {
     return 0;
 }
 
-// On N64, sprites and models were raw binary blobs that could be type-punned.
-// On PC, they're separate resource types from different importers. Actors with sprite
-// assets can be spawned as "model" props (unk8_1=1), causing collision code to call
-// marker_loadModelBin which reinterprets sprite data as BKModelBin. This helper lets
-// decomp code detect and skip the model path for sprite assets.
+// Force an asset id to resolve to a custom resource shipped at `customPath`.
+extern "C" void ResourceMgr_RegisterAssetOverride(uint32_t assetId, const char* customPath) {
+    auto res = GetResourceByName(customPath);
+    if (res != nullptr && res->GetRawPointer() != nullptr) {
+        sResourceRefCache[assetId] = res;
+    }
+}
+
+// Actors with sprite assets can be spawned as "model" props (unk8_1=1), causing collision
+// code to call marker_loadModelBin which reinterprets sprite data as BKModelBin. This helper
+// lets decomp code detect and skip the model path for sprite assets.
 extern "C" int ResourceMgr_IsModelAsset(uint32_t assetId) {
     if (auto it = sResourceRefCache.find(assetId); it != sResourceRefCache.end()) {
-        return it->second->GetInitData()->Type == 0x424B4D4F; // Torch::ResourceType::BKModel
+        return it->second->GetInitData()->Type == 0x424B4D4F;
     }
     return 0;
 }
@@ -363,7 +410,12 @@ void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dia
     }
     ++sLanguageGeneration; // invalidates re-pointed models on their next draw
     sIsJapanese = isJapanese;
-    sDialogLanguageCount = dialogCount;
+    sDialogLanguageCount = (dialogCount > 0) ? dialogCount : 1;
+    if (dialogIndex < 0 || dialogIndex >= sDialogLanguageCount) {
+        SPDLOG_WARN("[ResourceHelpers] Dialog language index {} out of range for a {}-language source; using 0",
+                    dialogIndex, sDialogLanguageCount);
+        dialogIndex = 0;
+    }
     sDialogLanguage = dialogIndex; // keep ResourceMgr_GetDialogLanguage() in sync
-    func_8031B5C4(dialogIndex);    // clamps against sDialogLanguageCount
+    func_8031B5C4(dialogIndex);
 }

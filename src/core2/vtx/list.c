@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_654C0.c
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
@@ -41,7 +42,7 @@ void vtxList_getBounds_f32(BKVertexList *vtxList, f32 min[3], f32 max[3]){
     max[2] = (f32) vtxList->maxCoord[2];
 }
 
-void vtxList_getBoundsMlMtxTransformed(BKVertexList *self, f32 min[3], f32 max[3]) {
+void vtxList_getBoundsTransformed(BKVertexList *self, f32 min[3], f32 max[3]) {
     Vtx *start_vtx;
     Vtx *end_vtx;
     Vtx *i_vtx;
@@ -75,7 +76,7 @@ void vtxList_getBoundsMlMtxTransformed(BKVertexList *self, f32 min[3], f32 max[3
     }
 }
 
-void func_802EC680(BKVertexList *self, s32 arg1, f32 arg2[3], f32 arg3[3]) {
+void vtxList_func_802EC680(BKVertexList *self, s32 arg1, f32 arg2[3], f32 arg3[3]) {
     Vtx *start_vtx;
     Vtx *end_vtx;
     Vtx *i_vtx;
@@ -227,7 +228,7 @@ void vtxList_func_802ECBD4(BKVertexList *dst, BKVertexList *src, f32 position[3]
     s32 pad40;
 
     viewport_getPosition_vec3f(vp_position);
-    viewport_getLookbk_vector(vp_look);
+    viewport_getLookVector(vp_look);
     mlMtxIdent();
     func_80252CC4(position, rotation, 1.0f, NULL);
     mlMtx_apply_vec3f(vp_position, vp_position);

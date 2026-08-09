@@ -1,4 +1,4 @@
-// BanjoDecomp: CH/sarcophagus.c
+// BanjoDecomp: GV/ch/sarcophagus.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"

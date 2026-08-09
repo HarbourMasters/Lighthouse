@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_C4320.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -44,9 +45,9 @@ extern Struct_core2_C4320_0 D_80371F44[] = {
 extern Struct_core2_C4320_0 D_80371F70 = {MAP_41_FP_BOGGYS_IGLOO, 6, 0x5D, 7, 8, 3};
 
 extern Struct_core2_C4320_0 D_80371F78[] ={
-    {MAP_7_TTC_TREASURE_TROVE_COVE, 0, 0x5F, 6, 9, 9},
-    {MAP_27_FP_FREEZEEZY_PEAK,      0, 0x5F, 9, 9, 9},
-    {MAP_12_GV_GOBIS_VALLEY,        0, 0x5F, 9, 5, 9}
+    {MAP_7_TTC_TREASURE_TROVE_COVE, 0, VER_SELECT(0x5F, 0x5E, 0, 0), 6, 9, 9},
+    {MAP_27_FP_FREEZEEZY_PEAK,      0, VER_SELECT(0x5F, 0x5E, 0, 0), 9, 9, 9},
+    {MAP_12_GV_GOBIS_VALLEY,        0, VER_SELECT(0x5F, 0x5E, 0, 0), 9, 5, 9}
 };
 
 extern s32 D_80371F8C = 0xA; //attract demo count
@@ -221,7 +222,9 @@ void func_8034B8C0(enum map_e map_id, s32 demo_id) {
         volatileFlag_set(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE, 1);
         func_802E4A70();
     }
-    if ((demo_id == 0x5B) || (demo_id == 0x5F)) {
+    // [port] 0x5E: SNS picture demo slot on non-v1.0 bases (table retargeted in
+    // ResourceHelpers); unused leftover slot on v1.0, so always safe to accept.
+    if ((demo_id == 0x5B) || (demo_id == 0x5E) || (demo_id == 0x5F)) {
         sns_backup_items_and_unlock_all();
     }
 }

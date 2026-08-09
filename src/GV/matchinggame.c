@@ -71,9 +71,9 @@ void __matchingGame_setState(s32 next_state){
     if(next_state == 2){
         item_set(ITEM_6_HOURGLASS, 1);
         if(volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME))
-            item_set(ITEM_0_HOURGLASS_TIMER, 4499);
+            item_set(ITEM_0_HOURGLASS_TIMER, VER_SELECT(4499, 0xea5, 0, 0));
         else
-            item_set(ITEM_0_HOURGLASS_TIMER, 5999);
+            item_set(ITEM_0_HOURGLASS_TIMER, VER_SELECT(5999, 0x1387, 0, 0));
     }
     if(matchingGame.state == 2){
         item_set(ITEM_6_HOURGLASS, 0);
@@ -157,7 +157,7 @@ void gv_matchingGame_update(void){
     }
 
     if(matchingGame.tile_a == NULL || matchingGame.tile_b == NULL){
-        if( player_getActiveHitbox(0) == HITBOX_1_BEAK_BUSTER && func_8028F20C()){
+        if( player_getActiveHitbox(0) == HITBOX_1_BEAK_BUSTER && player_isStableWithExtraSteps()){
             player_getPosition(player_position);
             sp4C = model_func_8033F3E8(mapModel_getModel(0), player_position, 0x190, 0x1a0);
             if(sp4C){

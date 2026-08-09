@@ -6,15 +6,27 @@
 void chSnoreZ_update(Actor *this);
 
 /* .data */
-ActorInfo D_8038F6F0 = { 0x1C3, 0x30C, 0x4E4, 0x0, NULL, chSnoreZ_update, NULL, actor_draw, 0, 0, 0.0f, 0};
+
+enum chSnoreZ_state_e {
+    SNORE_Z_STATE_0_NOT_INIT,
+    SNORE_Z_STATE_1_SPAWN_IN,
+    SNORE_Z_STATE_2_FADE_AWAY
+};
+
+ActorInfo chSnoreZ = {
+    MARKER_1C3_SNORE_Z, ACTOR_30C_SNORE_Z, ASSET_4E4_MODEL_SNORE_Z,
+    0x0, NULL,
+    chSnoreZ_update, NULL, actor_draw,
+    0, 0, 0.0f, 0
+};
 
 /* .code */
 void chSnoreZ_setNextState(Actor *this, s32 next_state) {
-    if (next_state == 1) {
-        skeletalAnim_set(this->unk148, 0x21C, 0.0f, 6.0f);
+    if (next_state == SNORE_Z_STATE_1_SPAWN_IN) {
+        skeletalAnim_set(this->unk148, ASSET_21C_ANIM_SNORE_Z, 0.0f, 6.0f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
     }
-    if (next_state == 2) {
+    if (next_state == SNORE_Z_STATE_2_FADE_AWAY) {
         func_80326310(this);
     }
     this->state = next_state;
@@ -27,15 +39,15 @@ void chSnoreZ_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        this->depth_mode = 2;
+        this->depth_mode = MODEL_RENDER_DEPTH_COMPARE;
         this->marker->unk40_22 = true;
-        chSnoreZ_setNextState(this, 1);
+        chSnoreZ_setNextState(this, SNORE_Z_STATE_1_SPAWN_IN);
     }
-    if (this->state == 1) {
+    if (this->state == SNORE_Z_STATE_1_SPAWN_IN) {
         this = this;
         skeletalAnim_getProgressRange(this->unk148, &sp24, &sp20);
         if ((sp24 < 0.25f) && (sp20 >= 0.25f)) {
-            chSnoreZ_setNextState(this, 2);
+            chSnoreZ_setNextState(this, SNORE_Z_STATE_2_FADE_AWAY);
         }
     }
 }

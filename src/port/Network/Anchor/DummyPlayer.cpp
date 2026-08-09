@@ -1,9 +1,9 @@
 #include "Anchor.h"
 #include "port/Nametag/Nametag.h"
 
+#include "functions.h"
 extern "C" {
 #include <ultra64.h>
-#include "functions.h"
 #include "variables.h"
 void func_802D729C(Actor* actor, f32 arg1);
 }
@@ -11,10 +11,20 @@ void func_802D729C(Actor* actor, f32 arg1);
 #include "bk_math.h"
 #include "port/Patches/Patches.h"
 
+static s32 sActiveDummyBottlesBonus = 0;
+
+static void dummy_applyBottlesBonus(uintptr_t boneList, uintptr_t arg1) {
+    baanim_applyBottlesBonusMask(boneList, sActiveDummyBottlesBonus);
+}
+
 DummyPlayer::DummyPlayer(){};
 
 void DummyPlayer::dummy_setTransformation(Transformation transform) {
     dummy_transformation = transform;
+}
+
+void DummyPlayer::dummy_setBottlesBonus(s32 mask) {
+    dummyBottlesBonus = mask;
 }
 
 Transformation DummyPlayer::dummy_getTransformation() {
@@ -49,28 +59,28 @@ void DummyPlayer::dummy_func_8029DBF0(void) {
     switch (dummy_getModelId()) {
         case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:  // L8029DC24
         case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY: // L8029DC24
-            temp_s0 = (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 8.0f);
-            func_8033A45C(0x1B, temp_s0);
-            func_8033A45C(0x1D, temp_s0);
-            func_8033A45C(0x1F, temp_s0);
-            func_8033A45C(0x21, temp_s0);
-            temp_s0 = (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 8.0f);
-            func_8033A45C(0x1A, temp_s0);
-            func_8033A45C(0x1C, temp_s0);
-            func_8033A45C(0x1E, temp_s0);
-            func_8033A45C(0x20, temp_s0);
+            temp_s0 = (s32)ml_interpolate_f(dummy_banjoLeftEye, 1.0f, 8.0f);
+            modelRender_setAppendageVisibility(0x1B, temp_s0);
+            modelRender_setAppendageVisibility(0x1D, temp_s0);
+            modelRender_setAppendageVisibility(0x1F, temp_s0);
+            modelRender_setAppendageVisibility(0x21, temp_s0);
+            temp_s0 = (s32)ml_interpolate_f(dummy_banjoRightEye, 1.0f, 8.0f);
+            modelRender_setAppendageVisibility(0x1A, temp_s0);
+            modelRender_setAppendageVisibility(0x1C, temp_s0);
+            modelRender_setAppendageVisibility(0x1E, temp_s0);
+            modelRender_setAppendageVisibility(0x20, temp_s0);
             break;
 
         case ASSET_34F_MODEL_BANJO_TERMITE: // L8029DCCC
         case ASSET_359_MODEL_BANJO_WALRUS:  // L8029DCCC
         case ASSET_36F_MODEL_BANJO_PUMPKIN: // L8029DCCC
         case ASSET_374_MODEL_BANJO_CROC:    // L8029DCCC
-            func_8033A45C(0x1B, (s32)ml_interpolate_f(dummy_modelEyeBlendUpper, 1.0f, 6.0f));
-            func_8033A45C(0x1A, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 6.0f));
+            modelRender_setAppendageVisibility(0x1B, (s32)ml_interpolate_f(dummy_banjoLeftEye, 1.0f, 6.0f));
+            modelRender_setAppendageVisibility(0x1A, (s32)ml_interpolate_f(dummy_banjoRightEye, 1.0f, 6.0f));
             break;
 
         case ASSET_356_MODEL_BANJO_WISHYWASHY: // L8029DD2C
-            func_8033A45C(1, (s32)ml_interpolate_f(dummy_modelEyeBlendLower, 1.0f, 4.0f));
+            modelRender_setAppendageVisibility(1, (s32)ml_interpolate_f(dummy_banjoRightEye, 1.0f, 4.0f));
             break;
     }
 }
@@ -80,59 +90,59 @@ AnimCtrl* DummyPlayer::dummy_getAnimCtrl() {
 }
 
 void DummyPlayer::dummy_setEyeState(bool squint, bool wink, bool isHat) {
-    dummy_modelSquint = squint;
-    dummy_modelWink = wink;
+    dummy_kazooieLower = squint;
+    dummy_kazooieFeet = wink;
     dummy_D_8037D230 = 1.0f;
     dummy_D_8037D234 = isHat;
 }
 
-void DummyPlayer::func_8029DD6C(void) {
+void DummyPlayer::modelAppendages_loadAppendage(void) {
     s32 temp_s0; // [port] must hold values > 1 for geo selector branches
 
     modelRender_func_8033A1FC();
     switch (dummy_getModelId()) {
         case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
         case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
-            func_8033A45C(1, dummy_kazooieVisible);
-            func_8033A45C(9, dummy_kazooieVisible);
-            func_8033A45C(0xC, dummy_kazooieVisible);
-            func_8033A45C(0xF, dummy_kazooieVisible);
-            func_8033A45C(2, dummy_modelWink);
-            func_8033A45C(0xA, dummy_modelWink);
-            func_8033A45C(0xD, dummy_modelWink);
-            func_8033A45C(0x10, dummy_modelWink);
-            func_8033A45C(8, dummy_modelSquint);
-            func_8033A45C(0xB, dummy_modelSquint);
-            func_8033A45C(0xE, dummy_modelSquint);
-            func_8033A45C(0x11, dummy_modelSquint);
-            temp_s0 = dummy_modelMouth1 + 1;
-            func_8033A45C(0x12, temp_s0);
-            func_8033A45C(0x14, temp_s0);
-            func_8033A45C(0x16, temp_s0);
-            func_8033A45C(0x18, temp_s0);
-            func_8033A45C(0x13, temp_s0);
-            func_8033A45C(0x15, temp_s0);
-            func_8033A45C(0x17, temp_s0);
-            func_8033A45C(0x19, temp_s0);
-            temp_s0 = dummy_modelMouth2 + 1;
-            func_8033A45C(0x22, temp_s0);
-            func_8033A45C(0x24, temp_s0);
-            func_8033A45C(0x26, temp_s0);
-            func_8033A45C(0x28, temp_s0);
-            func_8033A45C(0x23, temp_s0);
-            func_8033A45C(0x25, temp_s0);
-            func_8033A45C(0x27, temp_s0);
-            func_8033A45C(0x29, temp_s0);
+            modelRender_setAppendageVisibility(1, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(9, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(0xC, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(0xF, dummy_kazooieUpper);
+            modelRender_setAppendageVisibility(2, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(0xA, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(0xD, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(0x10, dummy_kazooieFeet);
+            modelRender_setAppendageVisibility(8, dummy_kazooieLower);
+            modelRender_setAppendageVisibility(0xB, dummy_kazooieLower);
+            modelRender_setAppendageVisibility(0xE, dummy_kazooieLower);
+            modelRender_setAppendageVisibility(0x11, dummy_kazooieLower);
+            temp_s0 = dummy_kazooieTurbos + 1;
+            modelRender_setAppendageVisibility(0x12, temp_s0);
+            modelRender_setAppendageVisibility(0x14, temp_s0);
+            modelRender_setAppendageVisibility(0x16, temp_s0);
+            modelRender_setAppendageVisibility(0x18, temp_s0);
+            modelRender_setAppendageVisibility(0x13, temp_s0);
+            modelRender_setAppendageVisibility(0x15, temp_s0);
+            modelRender_setAppendageVisibility(0x17, temp_s0);
+            modelRender_setAppendageVisibility(0x19, temp_s0);
+            temp_s0 = dummy_kazooieBoots + 1;
+            modelRender_setAppendageVisibility(0x22, temp_s0);
+            modelRender_setAppendageVisibility(0x24, temp_s0);
+            modelRender_setAppendageVisibility(0x26, temp_s0);
+            modelRender_setAppendageVisibility(0x28, temp_s0);
+            modelRender_setAppendageVisibility(0x23, temp_s0);
+            modelRender_setAppendageVisibility(0x25, temp_s0);
+            modelRender_setAppendageVisibility(0x27, temp_s0);
+            modelRender_setAppendageVisibility(0x29, temp_s0);
             break;
         case ASSET_359_MODEL_BANJO_WALRUS:
-            func_8033A45C(3, dummy_D_8037D23A);
+            modelRender_setAppendageVisibility(3, dummy_D_8037D23A);
             break;
         case ASSET_374_MODEL_BANJO_CROC:
-            temp_s0 = dummy_modelMouth1 + 1;
-            func_8033A45C(4, temp_s0);
-            func_8033A45C(5, temp_s0);
-            func_8033A45C(6, temp_s0);
-            func_8033A45C(7, temp_s0);
+            temp_s0 = dummy_kazooieTurbos + 1;
+            modelRender_setAppendageVisibility(4, temp_s0);
+            modelRender_setAppendageVisibility(5, temp_s0);
+            modelRender_setAppendageVisibility(6, temp_s0);
+            modelRender_setAppendageVisibility(7, temp_s0);
             break;
     }
     dummy_func_8029DBF0();
@@ -179,13 +189,18 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
     sp38[2] += dummyDisplacement[2];
 
     if (dummyBin) {
+        // anctrl_drawSetup re-runs anim_update, which invokes the bonus-mask callback.
+        sActiveDummyBottlesBonus = dummyBottlesBonus;
         anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
-        func_8029DD6C();
+        sActiveDummyBottlesBonus = 0;
+        modelAppendages_loadAppendage();
         modelRender_setEnvColor(env_color[0], env_color[1], env_color[2], dummyEnvAlpha);
         modelRender_func_8033A280(2.0f);
         // modelRender_preDraw((GenFunction_1)_dummy_preDraw, 0);
         modelRender_setRefPoints(dummy_D_80363780);
         modelRender_setDepthMode(MODEL_RENDER_DEPTH_FULL);
+        // Each dummy draws the shared model bin through its own recolored palettes.
+        PlayerColors_applyForDraw(dummyOwnerId, dummy_getModelId(), dummyBin, &dummyColors);
         if (dummy_D_8037C150.unk0) {
             dummy_D_8037C150.unk0 = 0;
             modelRender_draw(gfx, mtx, dummy_D_8037C150.unk4, rotation, dummyScale, sp38, dummyBin);
@@ -227,9 +242,7 @@ void DummyPlayer::dummy_updateModel(void) {
 }
 
 void DummyPlayer::dummy_reset(void) {
-    // Clear stale actor reference — the game engine owns actor lifetime and may have
-    // already freed it (e.g. after a map transition). Don't dereference the old pointer.
-    // dummyActor = NULL;
+    dummy_despawnActor(); // skips if already detached
     if (dummyAnimCtrl) {
         dummyAnim_free();
         dummyAnimCtrl = NULL;
@@ -266,23 +279,31 @@ void DummyPlayer::dummy_reset(void) {
     dummyAnim_reset();
 }
 
+// Forget the stand-in without despawning it.
 void DummyPlayer::dummy_detachActor(void) {
-    // dummyActor = nullptr;
+    dummyMarker = nullptr;
+}
+
+void DummyPlayer::dummy_despawnActor(void) {
+    if (dummyMarker == nullptr) {
+        return;
+    }
+    Actor* actor = marker_getActor(dummyMarker);
+    if (actor != nullptr && actor->unk104 != nullptr) {
+        ActorMarker* shadowMarker = actor->unk104;
+        Actor* shadow = marker_getActor(shadowMarker);
+        if (shadow != nullptr) {
+            shadow->unk104 = nullptr;
+        }
+        actor->unk104 = nullptr;
+        marker_despawn(shadowMarker);
+    }
+    marker_despawn(dummyMarker);
+    dummyMarker = nullptr;
 }
 
 void DummyPlayer::dummy_free(void) {
-    /*if (dummyActor) {
-        if (dummyActor->unk104) {
-            Actor *shadow = marker_getActor(dummyActor->unk104);
-            shadow->unk104 = NULL;
-            shadow->despawn_flag = true;
-            dummyActor->unk104 = NULL;
-        }
-        if (dummyActor->marker) {
-            marker_despawn(dummyActor->marker);
-        }
-        dummyActor = NULL;
-    }*/
+    dummy_despawnActor();
     if (dummyBin) {
         assetcache_release(dummyBin);
         dummyBin = NULL;
@@ -301,25 +322,41 @@ void DummyPlayer::dummy_free(void) {
 void DummyPlayer::dummyAnim_reset() {
     dummy_D_8037D230 = 0;
     dummy_D_8037D234 = 0;
-    dummy_kazooieVisible = 0;
-    dummy_modelWink = 0;
-    dummy_modelSquint = 0;
-    dummy_modelEyeBlendUpper = 0.0f;
-    dummy_modelEyeBlendLower = 0.0f;
-    dummy_modelMouth1 = 0;
-    dummy_modelMouth2 = 0;
+    dummy_kazooieUpper = 0;
+    dummy_kazooieFeet = 0;
+    dummy_kazooieLower = 0;
+    dummy_banjoLeftEye = 0.0f;
+    dummy_banjoRightEye = 0.0f;
+    dummy_kazooieTurbos = 0;
+    dummy_kazooieBoots = 0;
     dummy_D_8037D23A = 0;
 }
+
+// func_802D7124 (core2/fx/enemy_shadow.c): distance-gated drop-shadow attach + keep-alive.
+extern "C" void func_802D7124(Actor* actor, f32 scale);
 
 void DummyPlayer::dummy_update(void) {
     dummyAnim_update();
 
-    // if (dummyActor && !dummyActor->despawn_flag) {
-    //     dummyActor->position[0] = dummyPosition[0];
-    //     dummyActor->position[1] = dummyPosition[1];
-    //     dummyActor->position[2] = dummyPosition[2];
-    //     func_802D729C(dummyActor, 1.0f);
-    // }
+    if (dummyMarker == nullptr) {
+        Actor* spawned = actor_spawnWithYaw_f32(ACTOR_3CC_DUMMY_PLAYER_ANCHOR, dummyPosition, (s32)dummyYaw);
+        if (spawned == nullptr) {
+            return;
+        }
+        dummyMarker = spawned->marker;
+    }
+
+    Actor* actor = marker_getActor(dummyMarker);
+    if (actor == nullptr || actor->despawn_flag) {
+        return;
+    }
+    actor->position[0] = dummyPosition[0];
+    actor->position[1] = dummyPosition[1];
+    actor->position[2] = dummyPosition[2];
+    actor->yaw = dummyYaw;
+    if (dummyIsVisible) {
+        func_802D7124(actor, 1.0f);
+    }
 }
 
 BKModelBin* DummyPlayer::dummy_getModelBin(void) {
@@ -459,8 +496,7 @@ void DummyPlayer::dummyAnim_init(void) {
     dummyAnimCtrl = anctrl_new(1);
     func_80287784(dummyAnimCtrl, 0);
     anctrl_setSmoothTransition(dummyAnimCtrl, false);
-    // func_8028746C(dummyAnimCtrl, __baanim_applyBottlesBonus);
-    // AnimModifyFunction = NULL;
+    func_8028746C(dummyAnimCtrl, dummy_applyBottlesBonus);
     anctrl_drawSetup(dummyAnimCtrl, dummyPosition, 1);
     dummyAnimUpdateType = BAANIM_UPDATE_0_NONE;
     //__baanim_setUpdateType(BAANIM_UPDATE_1_NORMAL);
@@ -503,18 +539,20 @@ void DummyPlayer::dummyAnim_update(void) {
         default:
             break;
     }
+    sActiveDummyBottlesBonus = dummyBottlesBonus;
     anctrl_update(dummyAnimCtrl);
+    sActiveDummyBottlesBonus = 0;
 }
 
 void DummyPlayer::setModelSubStates(bool kazooie, bool squint, bool wink, bool mouth1, bool mouth2, f32 eyeBlendUpper,
                                     f32 eyeBlendLower) {
-    dummy_kazooieVisible = kazooie;
-    dummy_modelSquint = squint;
-    dummy_modelWink = wink;
-    dummy_modelMouth1 = mouth1;
-    dummy_modelMouth2 = mouth2;
-    dummy_modelEyeBlendUpper = eyeBlendUpper;
-    dummy_modelEyeBlendLower = eyeBlendLower;
+    dummy_kazooieUpper = kazooie;
+    dummy_kazooieLower = squint;
+    dummy_kazooieFeet = wink;
+    dummy_kazooieTurbos = mouth1;
+    dummy_kazooieBoots = mouth2;
+    dummy_banjoLeftEye = eyeBlendUpper;
+    dummy_banjoRightEye = eyeBlendLower;
 }
 
 void DummyPlayer::dummyAnim_setUpdateType(s32 state) {

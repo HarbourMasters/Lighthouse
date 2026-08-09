@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_42CB0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -11,13 +12,15 @@ typedef struct{
 void chHoneycomb_update(Actor *this);
 
 /* .data */
-ActorInfo D_80366C80 = { MARKER_53_EMPTY_HONEYCOMB, ACTOR_47_EMPTY_HONEYCOMB, ASSET_361_MODEL_EMPTY_HONEYCOMB, 
+ActorInfo chEmptyHoneycomb = {
+    MARKER_53_EMPTY_HONEYCOMB, ACTOR_47_EMPTY_HONEYCOMB, ASSET_361_MODEL_EMPTY_HONEYCOMB, 
     0, NULL, 
     chHoneycomb_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.8f, 0
 };
 
-ActorInfo D_80366CA4 = { MARKER_55_HONEYCOMB, ACTOR_50_HONEYCOMB, ASSET_363_MODEL_HONEYCOMB, 
+ActorInfo chHoneycomb = {
+    MARKER_55_HONEYCOMB, ACTOR_50_HONEYCOMB, ASSET_363_MODEL_HONEYCOMB, 
     0, NULL, 
     chHoneycomb_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.8f, 0
@@ -102,7 +105,8 @@ void chHoneycomb_update(Actor *this){
         if( this->marker->id == MARKER_53_EMPTY_HONEYCOMB){
             if(local->uid == 0)
                 local->uid = (!this->unk44_2)? D_8037DDC0 : func_802C9C40(this);
-            if( honeycombscore_get(local->uid)
+//          if( honeycombscore_get(local->uid)
+            if( EventSystem_Should(VB_COLLECTABLE_ALREADY_HELD, honeycombscore_get(local->uid), this)
                 || volatileFlag_get(VOLATILE_FLAG_1)
                 || volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)
             ){
@@ -164,4 +168,20 @@ enum honeycomb_e func_802CA1C4(Actor *this){
 
 void func_802CA1CC(enum honeycomb_e id){
     D_8037DDC0 = id;
+}
+
+// [port] Anchor: spawn a teammate's dropped empty honeycomb locally. Spawned through the
+// same per-map bundle as the local drop so it gets the pickup drop physics.
+static void __chHoneycomb_netSpawnDrop(uintptr_t uid, uintptr_t bundle, uintptr_t x, uintptr_t y, uintptr_t z){
+    f32 pos[3];
+    pos[0] = reinterpret_cast(f32, x);
+    pos[1] = reinterpret_cast(f32, y);
+    pos[2] = reinterpret_cast(f32, z);
+    func_802CA1CC((enum honeycomb_e)uid);
+    bundle_spawn_f32((enum bundle_e)bundle, pos);
+}
+
+void chHoneycomb_netSpawnDropAt(s32 uid, s32 bundleId, f32 x, f32 y, f32 z){
+    __spawnQueue_add_5((GenFunction_5)__chHoneycomb_netSpawnDrop, (uintptr_t)uid, (uintptr_t)bundleId,
+        reinterpret_cast(s32, x), reinterpret_cast(s32, y), reinterpret_cast(s32, z));
 }

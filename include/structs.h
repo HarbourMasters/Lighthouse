@@ -8,6 +8,10 @@
 #include "enums.h"
 #include "bool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // [port] Forward-declare struct tags used in function pointers inside structs below.
 // Without these, clang treats the struct tag as file-local to each struct definition.
 struct actor_s;
@@ -433,6 +437,7 @@ typedef struct{
 typedef struct struct_4D_s{
     f32 unk0[3];
     f32 unkC[3];
+    u32 id; // [port] stable identity for frame interpolation
 }struct4Ds;
 
 typedef struct{
@@ -794,4 +799,8 @@ typedef struct {
     struct ALHeap *unkC; //heap
     u16 unk10;
 }Struct87s;
+#ifdef __cplusplus
+}
+#endif
+
 #endif

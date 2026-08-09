@@ -58,6 +58,79 @@ std::vector<uint8_t> ReadLangBlock(const std::shared_ptr<Ship::BinaryReader>& re
 
     return block;
 }
+
+uint32_t ReadEntryRun(const std::shared_ptr<Ship::BinaryReader>& reader, std::vector<uint8_t>& block) {
+    const uint32_t count = reader->ReadUInt32();
+    for (uint32_t i = 0; i < count; i++) {
+        const uint8_t cmd = reader->ReadUByte();
+        const uint32_t len = reader->ReadUInt32();
+        const auto str = ReadSizedString(reader, len);
+        block.push_back(cmd);
+        block.push_back(static_cast<uint8_t>(len));
+        AppendBytes(block, str.data(), str.size());
+    }
+    return count;
+}
+
+std::vector<uint8_t> ReadQuizLangBlock(const std::shared_ptr<Ship::BinaryReader>& reader) {
+    std::vector<uint8_t> entries;
+    const uint32_t textCount = ReadEntryRun(reader, entries);
+    const uint32_t optionCount = ReadEntryRun(reader, entries);
+
+    std::vector<uint8_t> block;
+    block.push_back(static_cast<uint8_t>(textCount + optionCount));
+    block.insert(block.end(), entries.begin(), entries.end());
+    return block;
+}
+
+std::vector<uint8_t> ReadGruntyLangBlock(const std::shared_ptr<Ship::BinaryReader>& reader) {
+    std::vector<uint8_t> entries;
+    const uint32_t textCount = ReadEntryRun(reader, entries);
+
+    const uint32_t optionCount = reader->ReadUInt32();
+    for (uint32_t i = 0; i < optionCount; i++) {
+        const uint8_t cmd = reader->ReadUByte();
+        const uint8_t unk0 = reader->ReadUByte();
+        const uint8_t unk1 = reader->ReadUByte();
+        const uint32_t len = reader->ReadUInt32();
+        const auto str = ReadSizedString(reader, len);
+
+        entries.push_back(cmd);
+        entries.push_back(static_cast<uint8_t>(len + 2));
+        entries.push_back(unk0);
+        entries.push_back(unk1);
+        AppendBytes(entries, str.data(), str.size());
+    }
+
+    std::vector<uint8_t> block;
+    block.push_back(static_cast<uint8_t>(textCount + optionCount));
+    block.insert(block.end(), entries.begin(), entries.end());
+    return block;
+}
+
+std::vector<uint8_t> BuildQuestionBlob(uint8_t header1, uint8_t header2,
+                                       const std::vector<std::vector<uint8_t>>& blocks) {
+    const uint32_t langCount = static_cast<uint32_t>(blocks.size());
+    const uint32_t headerSize = 3 + langCount * 2;
+
+    std::vector<uint8_t> out;
+    out.push_back(static_cast<uint8_t>(langCount));
+    out.push_back(header1);
+    out.push_back(header2);
+
+    uint32_t pos = headerSize;
+    for (const auto& block : blocks) {
+        out.push_back(static_cast<uint8_t>(pos & 0xFF));
+        out.push_back(static_cast<uint8_t>((pos >> 8) & 0xFF));
+        pos += static_cast<uint32_t>(block.size());
+    }
+
+    for (const auto& block : blocks) {
+        out.insert(out.end(), block.begin(), block.end());
+    }
+
+    return out;
+}
 } // namespace
 
 std::shared_ptr<Ship::IResource>
@@ -132,45 +205,15 @@ ResourceFactoryBinaryBKQuizQuestionV0::ReadResource(std::shared_ptr<Ship::File> 
     }
 
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
-    auto out = std::vector<uint8_t>();
 
-    out.push_back(0x01);
-    out.push_back(0x01);
-    out.push_back(0x02);
-    out.push_back(0x05);
-    out.push_back(0x00);
+    const uint32_t langCount = reader->ReadUInt32();
 
-    const uint32_t textCount = reader->ReadUInt32();
-
-    // [port] Read text entries before optionCount — binary format interleaves them
-    std::vector<std::pair<uint8_t, std::string>> texts;
-    for (uint32_t i = 0; i < textCount; i++) {
-        const uint8_t cmd = reader->ReadUByte();
-        const uint32_t len = reader->ReadUInt32();
-        texts.emplace_back(cmd, ReadSizedString(reader, len));
+    std::vector<std::vector<uint8_t>> blocks;
+    for (uint32_t i = 0; i < langCount; i++) {
+        blocks.push_back(ReadQuizLangBlock(reader));
     }
 
-    const uint32_t optionCount = reader->ReadUInt32();
-    const uint32_t totalCount = textCount + optionCount;
-    out.push_back(static_cast<uint8_t>(totalCount));
-
-    for (const auto& [cmd, str] : texts) {
-        out.push_back(cmd);
-        out.push_back(static_cast<uint8_t>(str.size()));
-        AppendBytes(out, str.data(), str.size());
-    }
-
-    for (uint32_t i = 0; i < optionCount; i++) {
-        const uint8_t cmd = reader->ReadUByte();
-        const uint32_t len = reader->ReadUInt32();
-        const auto str = ReadSizedString(reader, len);
-
-        out.push_back(cmd);
-        out.push_back(static_cast<uint8_t>(len));
-        AppendBytes(out, str.data(), str.size());
-    }
-
-    return MakeBlob(initData, std::move(out));
+    return MakeBlob(initData, BuildQuestionBlob(0x01, 0x02, blocks));
 }
 
 std::shared_ptr<Ship::IResource>
@@ -181,47 +224,14 @@ ResourceFactoryBinaryBKGruntyQuestionV0::ReadResource(std::shared_ptr<Ship::File
     }
 
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
-    auto out = std::vector<uint8_t>();
 
-    out.push_back(0x01);
-    out.push_back(0x03);
-    out.push_back(0x00);
-    out.push_back(0x05);
-    out.push_back(0x00);
+    const uint32_t langCount = reader->ReadUInt32();
 
-    const uint32_t textCount = reader->ReadUInt32();
-
-    std::vector<std::pair<uint8_t, std::string>> texts;
-    for (uint32_t i = 0; i < textCount; i++) {
-        const uint8_t cmd = reader->ReadUByte();
-        const uint32_t len = reader->ReadUInt32();
-        texts.emplace_back(cmd, ReadSizedString(reader, len));
+    std::vector<std::vector<uint8_t>> blocks;
+    for (uint32_t i = 0; i < langCount; i++) {
+        blocks.push_back(ReadGruntyLangBlock(reader));
     }
 
-    const uint32_t optionCount = reader->ReadUInt32();
-    const uint32_t totalCount = textCount + optionCount;
-    out.push_back(static_cast<uint8_t>(totalCount));
-
-    for (const auto& [cmd, str] : texts) {
-        out.push_back(cmd);
-        out.push_back(static_cast<uint8_t>(str.size()));
-        AppendBytes(out, str.data(), str.size());
-    }
-
-    for (uint32_t i = 0; i < optionCount; i++) {
-        const uint8_t cmd = reader->ReadUByte();
-        const uint8_t unk0 = reader->ReadUByte();
-        const uint8_t unk1 = reader->ReadUByte();
-        const uint32_t len = reader->ReadUInt32();
-        const auto str = ReadSizedString(reader, len);
-
-        out.push_back(cmd);
-        out.push_back(static_cast<uint8_t>(len + 2));
-        out.push_back(unk0);
-        out.push_back(unk1);
-        AppendBytes(out, str.data(), str.size());
-    }
-
-    return MakeBlob(initData, std::move(out));
+    return MakeBlob(initData, BuildQuestionBlob(0x03, 0x00, blocks));
 }
 } // namespace Factories

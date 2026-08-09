@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.26.0 FATAL_ERROR)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Set the project version and language
-project(Lighthouse VERSION 0.0.1 LANGUAGES C CXX ASM)
+project(Lighthouse VERSION 1.0.3 LANGUAGES C CXX ASM)
 include(FetchContent)
 
 include(cmake/lighthouse-cvars.cmake)
@@ -28,7 +28,7 @@ math(EXPR PATCH_INDEX "${PROJECT_VERSION_PATCH}")
 # Use the patch number to select the correct word
 list(GET NATO_PHONETIC_ALPHABET ${PATCH_INDEX} PROJECT_PATCH_WORD)
 
-set(PROJECT_BUILD_NAME "Barnard ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
+set(PROJECT_BUILD_NAME "Split Rock ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
 #set(PROJECT_TEAM "SonicDcer & Lywx" CACHE STRING "" FORCE)
 
 # Get Git Information
@@ -188,12 +188,16 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/properties.h.in ${CMAKE_CURRENT_SOUR
 set(Header_Files "resource.h")
 source_group("include" FILES ${Header_Files})
 
+# Flag enum name tables for the Flag Tracer, derived from include/enums.h.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateFlagNames.cmake)
+
 # Include directories
 include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/include"
     "${PROJECT_SOURCE_DIR}/lib/ultralib/include"
     "${PROJECT_SOURCE_DIR}/src"
+    "${CMAKE_BINARY_DIR}/generated"
 )
 
 # Collect source files to build the executable
@@ -217,6 +221,8 @@ file(GLOB_RECURSE ALL_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/include/**/*"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*"
 )
+
+list(FILTER ALL_FILES EXCLUDE REGEX "src/unused/")
 
 list(APPEND ALL_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resource.rc)
 
@@ -497,6 +503,7 @@ option(BUILD_SM64 "Build with Super Mario 64 support" OFF)
 option(BUILD_MK64 "Build with Mario Kart 64 support" OFF)
 option(BUILD_SF64 "Build with Star Fox 64 support" OFF)
 option(BUILD_FZERO "Build with F-Zero X support" OFF)
+option(BUILD_OOT "Build with Ocarina of Time support" OFF)
 option(BUILD_MARIO_ARTIST "Build with Mario Artist support" OFF)
 option(BUILD_NAUDIO "Build with NAudio support" OFF)
 add_subdirectory(Torch)
@@ -541,6 +548,7 @@ if(MSVC)
           /we4311;  # pointer truncation (e.g. void* to int)
           /we4312;  # conversion to pointer of greater size (e.g. int to void*)
           /we4133;  # incompatible pointer types
+          /wd4200;  # we don't care about zero-sized flexible arrays
           ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
           ${DEFAULT_CXX_EXCEPTION_HANDLING}
       )
@@ -690,10 +698,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
           >
       )
   else()
-      if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-        set(CPU_OPTION -msse2 -mfpmath=sse)
-      elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
-        set(CPU_OPTION -mcpu=native)
+      if(NOT DEFINED CPU_OPTION)
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+          set(CPU_OPTION -msse2 -mfpmath=sse)
+        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+          set(CPU_OPTION -mcpu=native)
+        endif()
       endif()
 
       target_compile_options(${PROJECT_NAME} PRIVATE
@@ -763,6 +773,8 @@ add_custom_target(
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   install(FILES "${CMAKE_BINARY_DIR}/lighthouse.o2r" DESTINATION . COMPONENT ${PROJECT_NAME})
+  install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/" DESTINATION ./assets COMPONENT ${PROJECT_NAME})
+  install(FILES "${CMAKE_BINARY_DIR}/config.yml" DESTINATION . COMPONENT ${PROJECT_NAME})
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")

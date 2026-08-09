@@ -3,6 +3,8 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "port/Patches/Patches.h"
+
 Actor *func_80386B80(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void FP_func_80386CF8(Actor *this);
 
@@ -40,8 +42,8 @@ s32 D_80391B44[3] = {225, 225, 245};
 /* .code  */
 Actor *func_80386B80(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this = marker_getActor(marker);
-    func_8033A45C(1, this->state == 3);
-    func_8033A45C(2, modelRender_func_8033A0F0(1) ^ 1);
+    modelRender_setAppendageVisibility(1, this->state == 3);
+    modelRender_setAppendageVisibility(2, modelRender_func_8033A0F0(1) ^ 1);
     return actor_draw(marker, gfx, mtx, vtx);
 
 }
@@ -86,6 +88,22 @@ void FP_func_80386CF8(Actor *this){
         this->volatile_initialized = true;
         if(this->state == 3){
             maSnowButton_decRemaining();
+        }
+    }
+
+    {
+        // [port] Anchor mirror
+        s32 x = (s32)this->position[0];
+        s32 y = (s32)this->position[1];
+        s32 z = (s32)this->position[2];
+
+        if(this->state == 1 && port_puzzlePos_isMarked(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z)){
+            subaddie_set_state_with_direction(this, 2, 0.01f, 1);
+            actor_collisionOff(this);
+            maSnowButton_decRemaining();
+        }
+        if(this->state != 1){
+            port_puzzlePos_mark(ANCHOR_PUZZLE_FP_SNOWBUTTONS, x, y, z);
         }
     }
 

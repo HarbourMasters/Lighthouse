@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_51950.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -7,14 +8,14 @@ extern f32 player_getYaw(void);
 void func_802D88E0(Actor *this);
 
 /* .data */
-ActorInfo D_80367C90 = {
+ActorInfo fxSpentRedFeather = {
     0x100, 0x1FF, 0x580,
     0x0, NULL,
     func_802D88E0, actor_update_func_80326224, fxTouchSparkle_draw, 
     0, 0, 0.0f, 0
 };
 
-ActorInfo D_80367CB4 = {
+ActorInfo fxSpentGoldFeather = {
     0x101, 0x200, 0x6D1,
     0x0, NULL,
     func_802D88E0, actor_update_func_80326224, fxTouchSparkle_draw, 

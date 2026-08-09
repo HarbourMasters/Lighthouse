@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_A4D00.c
 #include "functions.h"
 #include "structs.h"
 #include "variables.h"

@@ -80,6 +80,9 @@ extern void chTooth_update(Actor * this){
             __chTooth_setState(this, 1);
         }
     }
+    else if(this->state == 1 && levelSpecificFlags_get(local->unk0->level_flag)){
+        __chTooth_setState(this, 2);
+    }
     else if(this->state == 2){//L803876B4
         if(local->unk0->jiggy_id && !jiggyscore_isSpawned(local->unk0->jiggy_id)){
             player_getPosition(sp24);

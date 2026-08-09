@@ -130,7 +130,7 @@ void GenerateShufflePool(SaveData* saveData) {
             .randoItemId = Rando::StaticData::Checks[std::get<2>(itemPool[i])].randoItemId,
             .randoCollectionId = std::get<1>(itemPool[i]),
             .isShuffled = checkPool[i] == RC_UNKNOWN ? false : true,
-            .obtained = false,
+            .eligible = false,
             .skipped = false,
         };
 
@@ -146,7 +146,7 @@ void GenerateShufflePool(SaveData* saveData) {
                 .randoItemId = Rando::StaticData::Checks[std::get<2>(abilityItemPool[a])].randoItemId,
                 .randoCollectionId = std::get<1>(abilityItemPool[a]),
                 .isShuffled = true,
-                .obtained = false,
+                .eligible = false,
                 .skipped = false,
             };
 
@@ -177,7 +177,8 @@ void GeneratePoolFromSaveData(SaveData* saveData) {
             .randoItemId = randoSaveCheck.randoItemId,
             .randoCollectionId = randoSaveCheck.randoCollectionId,
             .isShuffled = randoSaveCheck.isShuffled,
-            .obtained = randoSaveCheck.obtained,
+            .eligible = randoSaveCheck.eligible,
+            .received = randoSaveCheck.received,
             .skipped = randoSaveCheck.skipped,
         };
 

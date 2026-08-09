@@ -2,7 +2,7 @@
 #define RESOLUTIONEDITOR_H
 
 namespace LighthouseGui {
-bool IsDroppingFrames();
+// bool IsDroppingFrames();
 void RegisterResolutionWidgets();
 void UpdateResolutionVars();
 } // namespace LighthouseGui

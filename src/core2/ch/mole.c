@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/ch/mole.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -14,6 +15,29 @@ typedef struct{
 } ChMoleDescription;
 
 /* .data */
+
+enum mole_states
+{
+    MOLE_STATE_1_AWAITING_PLAYER = 1,
+    MOLE_STATE_2_POP_OUT_OF_MOLEHILL,
+    MOLE_STATE_3_EXPLAINING_ABILITY,
+    MOLE_STATE_4_REENTER_MOLEHILL,
+    MOLE_STATE_5_REFRESHER
+};
+
+enum mole_ability_learn_actions
+{
+    MOLE_ABILITY_LEARN_ACTION_1_STILT_STRIDE = 1,
+    MOLE_ABILITY_LEARN_ACTION_2_UNK,
+    MOLE_ABILITY_LEARN_ACTION_3_TURBO_TALON_TRAINER,
+    MOLE_ABILITY_LEARN_ACTION_4_UNK,
+    MOLE_ABILITY_LEARN_ACTION_5_EGG_FIRING,
+    MOLE_ABILITY_LEARN_ACTION_6_FLIGHT,
+    MOLE_ABILITY_LEARN_ACTION_7_WONDERWING,
+    MOLE_ABILITY_LEARN_ACTION_8_REFILL_HEALTH,
+    MOLE_ABILITY_LEARN_ACTION_FF_UNK = 0xFF
+};
+
 ActorAnimationInfo moleAnimations[]= {
     {0, 0.0f},
     {ASSET_13A_ANIM_BOTTLES_ENTER,  2000000000.0f},  
@@ -30,22 +54,22 @@ ActorInfo gChMole = {
     0, 0, 0.0f, 0
 }; 
 
-// D_80367DC4
 ChMoleDescription moleTable[] = {
-    {ASSET_C23_DIALOG_BEAKBOMB_LEARN,      ASSET_C24_DIALOG_BEAKBOMB_REFRESHER,      0x0F, ABILITY_1_BEAK_BOMB}, 
-    {ASSET_B47_DIALOG_EGGS_LEARN,          ASSET_B4B_DIALOG_EGGS_REFRESHER,          0x16, ABILITY_6_EGGS},
-    {ASSET_B48_DIALOG_BEAKBUSTER_LEARN,    ASSET_B4C_DIALOG_BEAKBUSTER_REFRESHER,    0x17, ABILITY_2_BEAK_BUSTER},
-    {ASSET_B49_DIALOG_TALON_TROT_LEARN,    ASSET_B4A_DIALOG_TALON_TROT_REFRESHER,    0x18, ABILITY_10_TALON_TROT},
-    {ASSET_A1F_DIALOG_SHOCKJUMP_LEARN,     ASSET_A23_DIALOG_SHOCKJUMP_REFRESHER,     0x0C, ABILITY_D_SHOCK_JUMP},
-    {ASSET_A20_DIALOG_FLY_LEARN,           ASSET_A22_DIALOG_FLY_REFRESHER,           0x0D, ABILITY_9_FLIGHT},
-    {ASSET_D35_DIALOG_WONDERWING_LEARN,    ASSET_D36_DIALOG_WONDERWING_REFRESHER,    0x01, ABILITY_12_WONDERWING},
-    {ASSET_C88_DIALOG_WADING_BOOTS_LEARN,       ASSET_C89_DIALOG_WADING_BOOTS_REFRESHER,       0x10, ABILITY_E_WADING_BOOTS},
-    {ASSET_A84_DIALOG_TURBOTRAINERS_LEARN, ASSET_A85_DIALOG_TURBOTRAINERS_REFRESHER, 0x19, ABILITY_11_TURBO_TALON},
-    {ASSET_F64_DIALOG_NOTEDOORS_LEARN,     ASSET_F65_DIALOG_NOTEDOORS_REFRESHER,     0x0E, ABILITY_13_1ST_NOTEDOOR}
+    {VER_SELECT(ASSET_C23_DIALOG_BEAKBOMB_LEARN,      0x99D, 0, 0), VER_SELECT(ASSET_C24_DIALOG_BEAKBOMB_REFRESHER,      0x99E, 0, 0), 0x0F, ABILITY_1_BEAK_BOMB},
+    {VER_SELECT(ASSET_B47_DIALOG_EGGS_LEARN,          0x965, 0, 0), VER_SELECT(ASSET_B4B_DIALOG_EGGS_REFRESHER,          0x969, 0, 0), 0x16, ABILITY_6_EGGS},
+    {VER_SELECT(ASSET_B48_DIALOG_BEAKBUSTER_LEARN,    0x966, 0, 0), VER_SELECT(ASSET_B4C_DIALOG_BEAKBUSTER_REFRESHER,    0x96A, 0, 0), 0x17, ABILITY_2_BEAK_BUSTER},
+    {VER_SELECT(ASSET_B49_DIALOG_TALON_TROT_LEARN,    0x967, 0, 0), VER_SELECT(ASSET_B4A_DIALOG_TALON_TROT_REFRESHER,    0x968, 0, 0), 0x18, ABILITY_10_TALON_TROT},
+    {VER_SELECT(ASSET_A1F_DIALOG_SHOCKJUMP_LEARN,     0x91F, 0, 0), VER_SELECT(ASSET_A23_DIALOG_SHOCKJUMP_REFRESHER,     0x923, 0, 0), 0x0C, ABILITY_D_SHOCK_JUMP},
+    {VER_SELECT(ASSET_A20_DIALOG_FLY_LEARN,           0x920, 0, 0), VER_SELECT(ASSET_A22_DIALOG_FLY_REFRESHER,           0x922, 0, 0), 0x0D, ABILITY_9_FLIGHT},
+    {VER_SELECT(ASSET_D35_DIALOG_WONDERWING_LEARN,    0xA08, 0, 0), VER_SELECT(ASSET_D36_DIALOG_WONDERWING_REFRESHER,    0xA09, 0, 0), 0x01, ABILITY_12_WONDERWING},
+    {VER_SELECT(ASSET_C88_DIALOG_WADING_BOOTS_LEARN,  0x9CB, 0, 0), VER_SELECT(ASSET_C89_DIALOG_WADING_BOOTS_REFRESHER,  0x9CC, 0, 0), 0x10, ABILITY_E_WADING_BOOTS},
+    {VER_SELECT(ASSET_A84_DIALOG_TURBOTRAINERS_LEARN, 0x940, 0, 0), VER_SELECT(ASSET_A85_DIALOG_TURBOTRAINERS_REFRESHER, 0x941, 0, 0), 0x19, ABILITY_11_TURBO_TALON},
+    {VER_SELECT(ASSET_F64_DIALOG_NOTEDOORS_LEARN,     0xACA, 0, 0), VER_SELECT(ASSET_F65_DIALOG_NOTEDOORS_REFRESHER,     0xACB, 0, 0), 0x0E, ABILITY_13_1ST_NOTEDOOR}
 };
 
+#define MOLE_ID_TO_TABLE_SHIFT   9
+
 /* .code */
-// chmole_learnedAllLevelAbilities
 int chmole_learnedAllLevelAbilities(enum level_e level){
     // Checks if all of the level's abilities are learned.
     switch (level){
@@ -65,7 +89,7 @@ int chmole_learnedAllLevelAbilities(enum level_e level){
         case LEVEL_7_GOBIS_VALLEY:
             return ability_isUnlocked(ABILITY_11_TURBO_TALON);
         default:
-            return false;
+            return FALSE;
   }
 }
 
@@ -76,19 +100,19 @@ enum asset_e chmole_learnedAllLevelAbilitiesDialog(void){
     int learned_all_moves = chmole_learnedAllLevelAbilities(level_id);
     switch(level_id){
         case LEVEL_1_MUMBOS_MOUNTAIN:
-            return learned_all_moves ? ASSET_B4E_DIALOG_BOTTLES_ALL_MM_MOVES_LEARNED : ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return learned_all_moves ? ASSET_B4E_DIALOG_BOTTLES_ALL_MM_MOVES_LEARNED : VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
         case LEVEL_2_TREASURE_TROVE_COVE:
-            return learned_all_moves ? ASSET_A27_DIALOG_BOTTLES_ALL_TTC_MOVES_LEARNED : ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return learned_all_moves ? ASSET_A27_DIALOG_BOTTLES_ALL_TTC_MOVES_LEARNED : VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
         case LEVEL_3_CLANKERS_CAVERN:
-            return learned_all_moves ? ASSET_D37_DIALOG_BOTTLES_ALL_CC_MOVES_LEARNED : ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return learned_all_moves ? VER_SELECT(ASSET_D37_DIALOG_BOTTLES_ALL_CC_MOVES_LEARNED, 0xA0A, 0, 0) : VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
         case LEVEL_4_BUBBLEGLOOP_SWAMP:
-            return learned_all_moves ? ASSET_C8A_DIALOG_BOTTLES_ALL_BGS_MOVES_LEARNED : ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return learned_all_moves ? VER_SELECT(ASSET_C8A_DIALOG_BOTTLES_ALL_BGS_MOVES_LEARNED, 0x9CD, 0, 0) : VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
         case LEVEL_5_FREEZEEZY_PEAK:
-            return learned_all_moves ? ASSET_C2A_DIALOG_BOTTLES_ALL_FP_GV_MOVES_LEARNED : ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return learned_all_moves ? VER_SELECT(ASSET_C2A_DIALOG_BOTTLES_ALL_FP_GV_MOVES_LEARNED, 0x9A4, 0, 0) : VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
         case LEVEL_7_GOBIS_VALLEY:
-            return learned_all_moves ? ASSET_C2A_DIALOG_BOTTLES_ALL_FP_GV_MOVES_LEARNED : ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return learned_all_moves ? VER_SELECT(ASSET_C2A_DIALOG_BOTTLES_ALL_FP_GV_MOVES_LEARNED, 0x9A4, 0, 0) : VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
         default:
-            return ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED;
+            return VER_SELECT(ASSET_D38_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0xA0B, 0, 0);
 
     }
 }
@@ -109,9 +133,9 @@ int chmole_learnedAllGameAbilities(void){
 Actor *func_802D94B4(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *actor = marker_getActor(marker);
 
-    if(actor->state != 1 && actor->state != 5){
-        func_8033A45C(3, 0);
-        func_8033A45C(4, 0);
+    if(actor->state != MOLE_STATE_1_AWAITING_PLAYER && actor->state != MOLE_STATE_5_REFRESHER){
+        modelRender_setAppendageVisibility(3, 0);
+        modelRender_setAppendageVisibility(4, 0);
         actor = actor_draw(marker, gfx, mtx, vtx);
     }
 
@@ -122,9 +146,9 @@ void func_802D9530(Actor *this){
     Actor *other = subaddie_getLinkedActor(this);
     if(this->partnerActor && other){
         if(this->partnerActor->id == 0xB8)
-            subaddie_set_state_with_direction(other, 3, 0.0001f, 1);
+            subaddie_set_state_with_direction(other, MOLE_STATE_3_EXPLAINING_ABILITY, 0.0001f, 1);
     }
-    subaddie_set_state_with_direction(this, 4, 0.0001f, 1);
+    subaddie_set_state_with_direction(this, MOLE_STATE_4_REENTER_MOLEHILL, 0.0001f, 1);
     actor_playAnimationOnce(this);
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
@@ -136,37 +160,35 @@ void func_802D9530(Actor *this){
 
 void func_802D9600(Actor * this){
     anctrl_setSmoothTransition(this->anctrl, 0);
-    subaddie_set_state_with_direction(this, 1, 0.0001f, 1);
+    subaddie_set_state_with_direction(this, MOLE_STATE_1_AWAITING_PLAYER, 0.0001f, 1);
     this->marker->propPtr->unk8_3 = 0;
 }
 
-// chmole_setStaticCamera
 void chmole_setStaticCamera(Actor *this){
     // Sets the camera to a static camera
-    timed_setStaticCameraToNode(0.0f, moleTable[this->actorTypeSpecificField-9].camera_node);
+    timed_setStaticCameraToNode(0.0f, moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].camera_node);
 }
 
-// chmole_healthRefill
 void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     // Refills the player's health upon learning a new ability, if needed
     // Also releases the camera
     Actor *actor = marker_getActor(marker);
 
-    if( arg1 == moleTable[actor->actorTypeSpecificField-9].teach_text_id
+    if( arg1 == moleTable[actor->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].teach_text_id
         && item_getCount(ITEM_14_HEALTH) < item_getCount(ITEM_15_HEALTH_TOTAL)
     ){
-        gcdialog_showDialog(ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH, 7, 0, actor->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
+        gcdialog_showDialog(VER_SELECT(ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH, 0xA0C, 0, 0), 7, 0, actor->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
     }//L802D9738
-    else if(arg1 == moleTable[actor->actorTypeSpecificField-9].teach_text_id || arg1 == ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH){
-        gcdialog_showDialog(chmole_learnedAllGameAbilities()? 0xa87 : chmole_learnedAllLevelAbilitiesDialog(), 7, 0, actor->marker, chmole_healthRefill, NULL);
+    else if(arg1 == moleTable[actor->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].teach_text_id || arg1 == VER_SELECT(ASSET_D39_DIALOG_BOTTLES_REFILL_HEALTH, 0xA0C, 0, 0)){
+        gcdialog_showDialog(chmole_learnedAllGameAbilities()? VER_SELECT(ASSET_A87_DIALOG_BOTTLES_ALL_MOVES_LEARNED, 0x943, 0, 0) : chmole_learnedAllLevelAbilitiesDialog(), 7, 0, actor->marker, chmole_healthRefill, NULL);
     }
     else{//L802D97BC
         if(actor->has_met_before){
             func_80347A14(1);
-            actor->has_met_before = false;
+            actor->has_met_before = FALSE;
         }
         timed_exitStaticCamera(0.0f);
-        if(actor->state == 5){
+        if(actor->state == MOLE_STATE_5_REFRESHER){
             func_8028F918(0);
             func_802D9600(actor);
         }//L802D9814
@@ -176,84 +198,83 @@ void chmole_healthRefill(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     }//L802D9820
 }
 
-// chmole_additionalAbilityLearnActions
 void chmole_additionalAbilityLearnActions(ActorMarker *marker, enum asset_e arg1, s32 arg2){
     // Performs actions depending on what move is being learned
     Actor *actor = marker_getActor(marker);
     switch(arg2){
-        case 1: // Stilt Stride
+        case MOLE_ABILITY_LEARN_ACTION_1_STILT_STRIDE:
             timed_setStaticCameraToNode(0.0f, 0x11);
-            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, true);
+            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, TRUE);
             break;
-        case 2:
-            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, false);
+        case MOLE_ABILITY_LEARN_ACTION_2_UNK:
+            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, FALSE);
             chmole_setStaticCamera(actor);
             break;
-        case 3: // Turbo Talon Trainer
+        case MOLE_ABILITY_LEARN_ACTION_3_TURBO_TALON_TRAINER:
             timed_setStaticCameraToNode(0.0f, 0x29);
-            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, true);
+            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, TRUE);
             break;
-        case 4:
-            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, false);
+        case MOLE_ABILITY_LEARN_ACTION_4_UNK:
+            levelSpecificFlags_set(LEVEL_FLAG_1A_UNKNOWN, FALSE);
             chmole_setStaticCamera(actor);
             break;
-        case 5: // Egg Firing
+        case MOLE_ABILITY_LEARN_ACTION_5_EGG_FIRING:
             item_adjustByDiffWithHud(ITEM_D_EGGS, 50);
             break;
-        case 6: // Flight
+        case MOLE_ABILITY_LEARN_ACTION_6_FLIGHT:
             item_adjustByDiffWithHud(ITEM_F_RED_FEATHER, 25);
             break;
-        case 7: // Wonderwing
+        case MOLE_ABILITY_LEARN_ACTION_7_WONDERWING:
             item_adjustByDiffWithHud(ITEM_10_GOLD_FEATHER, 5);
             break;
-        case 8: // Refill Health
+        case MOLE_ABILITY_LEARN_ACTION_8_REFILL_HEALTH:
             item_set(ITEM_14_HEALTH, item_getCount(ITEM_15_HEALTH_TOTAL));
             break;
-        case 0xff:
+        case MOLE_ABILITY_LEARN_ACTION_FF_UNK:
             chmole_setStaticCamera(actor);
             break;
     }
 }
 
-// chmole_learnAbility
 int chmole_learnAbility(Actor *this){
-    s32 sp2C;
+    s32 teach_text_id;
     s32 sp28 = 0xe;
-    if (!EventSystem_Should(VB_OVERRIDE_MOLEHILL_ABILITY, false, this, &sp2C, &sp28)) {
+    // [port] Rando hands out its own item here, whether or not the vanilla move is known.
+    if (!EventSystem_Should(VB_OVERRIDE_MOLEHILL_ABILITY, false, this, &teach_text_id, &sp28)) {
         // Known Ability: Refresher Dialog
-        if (ability_isUnlocked(moleTable[this->actorTypeSpecificField - 9].ability)) {
+        if(ability_isUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
             sp28 = 0xf;
-            sp2C = moleTable[this->actorTypeSpecificField - 9].refresher_text_id;
+            teach_text_id = moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].refresher_text_id;
         }//L802D99EC
         // New Ability: Learn Dialog & Misc Actions
-        else {
+        else{
             func_80347A14(0);
-            this->has_met_before = true;
-            sp2C = moleTable[this->actorTypeSpecificField - 9].teach_text_id;
-            ability_unlock(moleTable[this->actorTypeSpecificField - 9].ability);
-            switch (moleTable[this->actorTypeSpecificField - 9].ability) {
-            case ABILITY_9_FLIGHT:
-            case ABILITY_D_SHOCK_JUMP:
-                gcsfx_playWithPitch(SFX_113_PAD_APPEARS, 0.9f, 32000);
-                break;
-            case ABILITY_13_1ST_NOTEDOOR:
-                func_802FAD64(ITEM_C_NOTE);
-                break;
+            this->has_met_before = TRUE;
+            teach_text_id = moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].teach_text_id;
+            ability_unlock(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability);
+            switch(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability){
+                case ABILITY_9_FLIGHT:
+                case ABILITY_D_SHOCK_JUMP:
+                    gcsfx_playWithPitch(SFX_113_PAD_APPEARS, 0.9f, 32000);
+                    break;
+                case ABILITY_13_1ST_NOTEDOOR:
+                    func_802FAD64(ITEM_C_NOTE);
+                    break;
             }
         }//L802D9A9C
     }
-    gcdialog_showDialog(sp2C, sp28, this->position, this->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
-    return true;
+    gcdialog_showDialog(teach_text_id, sp28, this->position, this->marker, chmole_healthRefill, chmole_additionalAbilityLearnActions);
+    return TRUE;
 }
 
 void func_802D9ADC(Actor *this){
     Actor *other = subaddie_getLinkedActor(this);
     if(this->partnerActor && other && this->partnerActor->id == 0xB8){
-        subaddie_set_state_with_direction(other, 2, 0.0001f, 1);
+        subaddie_set_state_with_direction(other, MOLE_STATE_2_POP_OUT_OF_MOLEHILL, 0.0001f, 1);
     }
     this->marker->propPtr->unk8_3 = 1;
-    anctrl_setSmoothTransition(this->anctrl, true);
-    subaddie_set_state_with_direction(this, 2, 0.0001f, 1);
+    anctrl_setSmoothTransition(this->anctrl, TRUE);
+    subaddie_set_state_with_direction(this, MOLE_STATE_2_POP_OUT_OF_MOLEHILL, 0.0001f, 1);
     actor_playAnimationOnce(this);
     this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
     sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
@@ -266,16 +287,15 @@ void func_802D9ADC(Actor *this){
 
 void chmole_Refresher(Actor *this){
     // Plays the scene where Bottles gives the player a refresher on the ability.
-    subaddie_set_state(this, 5);
+    subaddie_set_state(this, MOLE_STATE_5_REFRESHER);
     chmole_setStaticCamera(this);
     func_8028F94C(2, this->position);
     chmole_learnAbility(this);
 }
 
-// chmole_setFacingDirection
 void chmole_setFacingDirection(Actor *this){
     // Sets the actor to always be facing the player
-    subaddie_set_state_with_direction(this, 3, 0.0001f, 1);
+    subaddie_set_state_with_direction(this, MOLE_STATE_3_EXPLAINING_ABILITY, 0.0001f, 1);
     actor_loopAnimation(this);
 }
 
@@ -296,11 +316,10 @@ void func_802D9C90(Actor *this){
     }
 }
 
-// chmole_startingDialog
 void chmole_startingDialog(Actor *this){
     // If the player knows the ability, use refresher function
     // Otherwise, set player's position and spawn mole
-    if(ability_isUnlocked(moleTable[this->actorTypeSpecificField - 9].ability)){
+    if(ability_isUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
         chmole_Refresher(this);
     }
     else{
@@ -314,7 +333,6 @@ void chmole_startingDialog(Actor *this){
     }
 }
 
-// chmole_update
 void chmole_update(Actor *this){
     // Sets up the initial functions and state for the actor
     s32 sp50[6];
@@ -326,11 +344,11 @@ void chmole_update(Actor *this){
 
     // Checks the actor's selector value is between 0x8 and 0x13
     // Anything lower is a Spiral Mountain ability, and should use a different actor id
-    if(this->actorTypeSpecificField < 8 || this->actorTypeSpecificField >= 0x13)
+    if(this->actorTypeSpecificField < CH_SM_MOLE_ID_8_BRIDGE || this->actorTypeSpecificField >= CH_MOLE_ID_13_EMPTY)
         return;
     
     if(!this->volatile_initialized){
-        this->volatile_initialized = true;
+        this->volatile_initialized = TRUE;
         marker_setFreeMethod(this->marker, func_802D9C90);
         if(this->initialized){
             other = actorArray_findClosestActorFromActorId(this->position, ACTOR_12C_MOLEHILL, -1, &sp4C);
@@ -338,7 +356,7 @@ void chmole_update(Actor *this){
             if(this->partnerActor){
                 other = subaddie_getLinkedActor(this);
                 if(other && this->partnerActor->id == MARKER_B8_MOLEHILL){
-                    subaddie_set_state(other, 1);
+                    subaddie_set_state(other, MOLE_STATE_1_AWAITING_PLAYER);
                 }
             }
         }
@@ -349,17 +367,17 @@ void chmole_update(Actor *this){
         // If actor exists and player is within radius, force trigger conversation
         node_prop = nodeprop_findByActorIdAndActorPosition(0x372, this);
         if(node_prop == NULL){
-            this->unk38_0 = false;
+            this->unk38_0 = FALSE;
         }
         else{
-            this->unk38_0 = true;
+            this->unk38_0 = TRUE;
             nodeprop_getPosition(node_prop, this->unk1C);
         }
         // Spawns molehill
-        __spawnQueue_add_1((GenFunction_1)chmole_spawnMolehill, (uintptr_t)this->marker);
-        this->marker->propPtr->unk8_3 = false;
-        this->marker->collidable = false;
-        this->initialized = true;
+        __spawnQueue_add_1((GenFunction_1)chmole_spawnMolehill, reinterpret_cast(uintptr_t, this->marker));
+        this->marker->propPtr->unk8_3 = FALSE;
+        this->marker->collidable = FALSE;
+        this->initialized = TRUE;
         if(this->actorTypeSpecificField == CH_MOLE_ID_12_OPEN_NOTEDOORS){
             node_prop = nodeprop_findByActorIdAndActorPosition(0x349, this);
             if(node_prop == NULL){
@@ -376,12 +394,12 @@ void chmole_update(Actor *this){
     }//L802D9F34
     controller_copyFaceButtons(0, sp50); // get face buttons press counters
     switch(this->state){
-        case 1://L802D9F70
+        case MOLE_STATE_1_AWAITING_PLAYER://L802D9F70
             this->yaw_ideal = subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 4.0f);
-            if(func_8028F20C() && func_8028F0D4() && !func_8028EC04()){
+            if(player_isStableWithExtraSteps() && player_isBanjoOrWishywashy() && !func_8028EC04()){
                 if( this->actorTypeSpecificField == CH_MOLE_ID_12_OPEN_NOTEDOORS 
-                    && !ability_isUnlocked(moleTable[this->actorTypeSpecificField-9].ability)
+                    && !ability_isUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)
                     && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
                 ){
                     player_getPosition(sp34);
@@ -400,8 +418,8 @@ void chmole_update(Actor *this){
                 }
             }
             break;
-        case 2://L802DA0A0
-            this->marker->propPtr->unk8_3 = true;
+        case MOLE_STATE_2_POP_OUT_OF_MOLEHILL://L802DA0A0
+            this->marker->propPtr->unk8_3 = TRUE;
             this->yaw_ideal = subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 4.0f);
             if( 0.0 < anctrl_getAnimTimer(this->anctrl)
@@ -427,7 +445,7 @@ void chmole_update(Actor *this){
                 chmole_learnAbility(this);
             }
             break;
-        case 3://L802DA210
+        case MOLE_STATE_3_EXPLAINING_ABILITY://L802DA210
             this->yaw_ideal = subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 4.0f);
             if( ( actor_animationIsAt(this, 0.37f)
@@ -456,7 +474,7 @@ void chmole_update(Actor *this){
                 func_8030E878(SFX_6F_BANJO_HEADSCRATCH, randf2(1.35f, 1.5f), 6000, this->position, 1250.0f, 2500.0f);
             }
             break;
-        case 4://L802DA400
+        case MOLE_STATE_4_REENTER_MOLEHILL://L802DA400
             if( 0.35 < anctrl_getAnimTimer(this->anctrl) 
                 &&  anctrl_getAnimTimer(this->anctrl) < 0.9
             ){

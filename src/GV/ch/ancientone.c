@@ -1,9 +1,10 @@
-// BanjoDecomp: CH/ancientone.c
+// BanjoDecomp: GV/ch/ancientone.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
+extern s32 port_anchor_isWorldSyncActive(void);
 
 typedef struct {
     f32 unk0[3];
@@ -96,7 +97,7 @@ void func_803867F4(void){
 
 void func_80386850(ActorMarker *caller_marker, enum asset_e text_id, s32 arg2){
     Actor *caller = marker_getActor(caller_marker); 
-    if(text_id == 0xA80){
+    if(text_id == VER_SELECT(0xA80, 0x93C, 0, 0)){
         subaddie_set_state_with_direction(caller, 2, 0.0f, 1);
         actor_playAnimationOnce(caller);
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7fff);
@@ -120,20 +121,48 @@ void chAncientOne_update(Actor *this){
         }
     }
     if(!this->initialized){
-        if(D_80390C28[this->actorTypeSpecificField - 1])
+        if(D_80390C28[this->actorTypeSpecificField - 1] == NULL){
+            LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
+            this->position_y -= 1100.0f;
+            D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
+            if(this->actorTypeSpecificField != 1){
+                this->marker->propPtr->isNotFeatherEggOrNote = false;
+            }
+            this->marker->propPtr->unk8_3 = true;
+            actor_collisionOff(this);
+            func_80386620(this);
             return;
-
-        LOCAL_CH_ANCIENT_ONE(this)->unk1C = this->position_y;
-        this->position_y -= 1100.0f;
-        D_80390C28[this->actorTypeSpecificField - 1] = this->marker;
-        if(this->actorTypeSpecificField != 1){
-            this->marker->propPtr->isNotFeatherEggOrNote = false;
         }
-        this->marker->propPtr->unk8_3 = true;
-        actor_collisionOff(this);
-        func_80386620(this);
+        // Anchor only. A statue that has not been drawn yet still has to run the
+        // body below so it can catch up to flags another client set.
+        if(!port_anchor_isWorldSyncActive()){
+            return;
+        }
+        {
+            s32 fc = 0, fi;
+            for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
+            if(fc == 0){
+                return;
+            }
+        }
     }
-    else{//L803869B4
+    {//L803869B4
+        if(jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
+            marker_despawn(this->marker);
+            return;
+        }
+        // Anchor: ring order is randomized per-client; advance by synced-flag count.
+        if(port_anchor_isWorldSyncActive()){
+            s32 fc = 0, fi;
+            for(fi = 7; fi < 0xC && mapSpecificFlags_get(fi); fi++) fc++;
+            if(this->state == 1 && this->actorTypeSpecificField <= fc){
+                subaddie_set_state_with_direction(this, 2, 0.0f, 1);
+                actor_playAnimationOnce(this);
+                if(this->actorTypeSpecificField < 5 && D_80390C28[this->actorTypeSpecificField]){
+                    D_80390C28[this->actorTypeSpecificField]->propPtr->isNotFeatherEggOrNote = true;
+                }
+            }
+        }
         switch(this->state){
             case 1: //L803869E4
                 player_getPosition(sp44);
@@ -150,16 +179,16 @@ void chAncientOne_update(Actor *this){
                             mapSpecificFlags_set(sp38, true);
                             if(sp38== 0xB){
                                 if(!jiggyscore_isCollected(JIGGY_46_GV_ANCIENT_ONES)){
-                                    gcdialog_showDialog(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0xE, NULL, this->marker, func_80386850, NULL);
+                                    gcdialog_showDialog(VER_SELECT(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0x93C, 0, 0), 0xE, NULL, this->marker, func_80386850, NULL);
                                 }
                                 else{
-                                    func_80386850(this->marker, 0xA80, -1);
+                                    func_80386850(this->marker, VER_SELECT(ASSET_A80_DIALOG_ANCIENT_ONES_DONE, 0x93C, 0, 0), -1);
                                 }
                             }//L80386B98
                             else {   
                                 if(sp38== 7){
                                     if(!jiggyscore_isCollected(JIGGY_46_GV_ANCIENT_ONES)){
-                                        gcdialog_showDialog(ASSET_A7F_DIALOG_ANCIENT_ONES_MEET, 0x4, NULL, NULL, NULL, NULL);
+                                        gcdialog_showDialog(VER_SELECT(ASSET_A7F_DIALOG_ANCIENT_ONES_MEET, 0x93B, 0, 0), 0x4, NULL, NULL, NULL, NULL);
                                     }
                                 }
                                 
@@ -225,8 +254,8 @@ Actor *chAncientOne_draw(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **v
     s32 tmp_v0;
 
     sp58 = (this->state == 3) ? 0 : 1;
-    func_8033A45C(3, sp58);
-    func_8033A45C(4, sp58);
+    modelRender_setAppendageVisibility(3, sp58);
+    modelRender_setAppendageVisibility(4, sp58);
     actor_draw(this_marker, gfx, mtx, vtx);
     if( !this->initialized && this_marker->unk14_21){
         vec3fArray_get_vec3i(func_80329934(), 5, sp4C);

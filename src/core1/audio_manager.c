@@ -7,7 +7,12 @@
 //#include "PR/sched.h"
 #include "n_audio/PR/n_libaudio.h"
 //#include "PR/os_system.h"
+#include "port/DevTools/ThreadWatchdog.h"
+#include "port/OS/OS.h"
+#include "port/Patches/Patches.h"
 #include "port/ShipUtils.h"
+
+#define DMA_BLOCK_SIZE VER_SELECT(0x200, 0x270, 0x200, 0x200)
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 
@@ -17,70 +22,58 @@
 #else
 #define AUDIO_HEAP_SIZE VER_SELECT(0x21000, 0x23A00, 0x21000, 0x21000)
 #endif
-#define AUDIOMANAGER_THREAD_STACK_SIZE 0xE78
+#define AUDIOMANAGER_THREAD_STACK_SIZE 3704
+#define NUM_SAMPLES 184 // n_audio has fixed sample count of 184
+#define NUM_OSC_STATES 48
+#define NUM_AUDIO_CMDS_PER_SECOND 150000
 
-extern void n_alInit(N_ALGlobals *, ALSynConfig *);
+struct audio_info_mesg_data_s {
+    s16 unk0;
+    struct audio_info_s *audio_info_ptr;
+};
 
-
-typedef struct AudioInfo_s {
-	short         *data;          /* Output data pointer */
-	short         frameSamples;   /* # of samples synthesized in this frame */
-	u8            pad4[2];
-    s16           unk8;
-	u8            padA[2];
-    struct AudioInfo_s    *unkC;
+typedef struct audio_info_s {
+	s16 *data;          /* Output data pointer */
+	s16 frame_samples;  /* number of samples synthesized in this frame */
+    struct audio_info_mesg_data_s reply_mesg_data;
 } AudioInfo;
 
-typedef struct Struct_1D00_1_s{
-    void *unk0;
-    u8 pad4[4];
-    s16 unk8;
-    u8 pada[2];
-    struct Struct_1D00_1_s *unkC;
-} Struct_1D00_1;
-
-typedef struct {
-    u8 pad0[4];
-    AudioInfo *unk4;
-} Struct_1D00_2;
-
-typedef struct Struct_1D00_3_s{
-    ALLink  unk0;
-    uintptr_t unk8;
+struct dma_state_data_s {
+    ALLink link;
+    uintptr_t unk8; // device address
     uintptr_t unkC;
-    uintptr_t unk10;
-} Struct_1D00_3;
+    uintptr_t heap;
+};
 
 typedef struct{
     u8 pad0[0x18];
 }Struct_core1_1D00_4;
 
-typedef struct struct_core1_1D00_5_s{
-    struct struct_core1_1D00_5_s * next;
+typedef struct osc_state_s {
+    struct osc_state_s *next;
     u8 type;
-    // u8 pad5[1];
-    u16 unk6;
-    u16 unk8;
-    union{
-        struct{u8 unk0; u8 unk1;}type1;
-        struct{f32 unk0;}type80;
-    }unkC;
-}OscState;
+    u16 unk6; // current value
+    u16 unk8; // max value
+    union {
+        struct { u8 unk0; u8 unk1; } type1;
+        struct { f32 cents; } type80;
+    } unkC;
+} OscState;
 
 void audioManager_create(void);
 void audioManagerThread_entry(void *arg);
-// void func_802403B8(void);
 void audioManager_handleDoneMsg(AudioInfo *info);
-void *func_802403B8(void *state);
-void func_802403F0(void);
+ALDMAproc audioManager_DMAInitProc(void *state);
+void audioManager_func_802403F0(void);
 void audioManager_startThread(void);
 bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info);
 
 
 s32 D_80275770 = 0;
-s32 D_80275774 = 0;
+bool sAudioManagerThreadStarted = false;
 u8  D_80275778 = 0;
-s32 D_8027577C[] = {
+
+s32 sEffectsChain[] = {
     6,      /* number of sections in this effect */
     0x1900, /* total allocated memory */
     /* SECTION 1 */
@@ -139,57 +132,47 @@ s32 D_8027577C[] = {
     0x4500   /* low-pass filter */
 };
 
-Struct_1D00_2 *D_80275844 = NULL;
-AudioInfo *D_80275848 = NULL;
-// extern int D_8027584C;//static int D_8027584C = 0;
+struct audio_info_mesg_data_s *D_80275844 = NULL;
+AudioInfo *sPrevFinishedAudioInfo = NULL;
 
-extern s32 osViClock; //0x80277128
-
-extern f32 D_80277620;
-extern f64 D_80277628;
-extern f64 D_80277630;
-extern f32 D_80277638;
+extern s32 osViClock;
 
 struct {
-    Acmd* ACMDList[2];
-    AudioInfo *audioInfo[3];
+    Acmd *ACMDList[2];
+    AudioInfo *audio_info[3];
     OSThread thread;
     OSMesgQueue audioFrameMsgQ;
     OSMesg audioFrameMsgBuf[8];
     OSMesgQueue audioReplyMsgQ;
     OSMesg audioReplyMsgBuf[8];
+    u8 thread_stack[AUDIOMANAGER_THREAD_STACK_SIZE];
 } audioManager;
-u8 sAudioManagerThreadStack[AUDIOMANAGER_THREAD_STACK_SIZE];
-ALHeap D_8027CFF0;
-u8 * D_8027D000; 
-s32  D_8027D004;
-OSMesgQueue D_8027D008;
-OSMesg D_8027D020[3000/FRAMERATE];
-OSIoMesg D_8027D0E8;
-Struct_core1_1D00_4 D_8027D100[3000/FRAMERATE];
+ALHeap sALHeapInfo;
+u8 *sALHeapBuffer;
+s32 pad_8027D004;
+OSMesgQueue audioDMANotifyMsgQ;
+OSMesg audioDMANotifyMsgBuf[3000 / FRAMERATE];
+OSIoMesg sExtraDMAMesg;
+Struct_core1_1D00_4 sDMAMesgBlocks[3000 / FRAMERATE];
 struct {
-    u8 unk0;
-    Struct_1D00_3 *unk4;
-    Struct_1D00_3 *unk8;
-    u8 padC[0x4];
-}  D_8027D5B0;
-Struct_1D00_3 D_8027D5C0[90];
-s32 D_8027DCC8;
-s32 D_8027DCCC;
-s32 D_8027DCD0;
-N_ALGlobals D_8027DCD8;
-ALSynConfig D_8027DD50;
-s32 D_8027DD74;
-s32 D_8027DD78;
-s32 D_8027DD7C;
-s32 D_8027DD80; 
+    u8 initialized;
+    struct dma_state_data_s *unk4;
+    struct dma_state_data_s *unk8;
+} sDMAState;
+struct dma_state_data_s sDMAStateData[90];
+s32 sAudioInfoID;
+s32 sNumDMATransfers; // DMA IO Message blocks index
+s32 sCmdBufferIndex;
+N_ALGlobals sn_alGlobals;
+ALSynConfig sn_alConfig;
+s32 sFrameSize;
+s32 sMinFrameSize;
+s32 sMaxFrameSize;
+s32 sNumAudioCmdsPerFrame;
 OscState *freeOscStateList;
-OscState oscStates[48];
+OscState oscStates[NUM_OSC_STATES];
 
-
-/* .code */
-f32 _depth2Cents(u8 depth)
-{
+f32 depth2Cents(u8 depth) {
 	f32 x = 1.03099298f;
 	f32 cents = 1.0f;
 
@@ -205,8 +188,7 @@ f32 _depth2Cents(u8 depth)
 	return cents;
 }
 
-ALMicroTime initOsc(void **oscState, f32 *initVal, u8 oscType, u8 oscRate, u8 oscDepth, u8 oscDelay, u8 arg6)
-{
+ALMicroTime initOsc(void **oscState, f32 *initVal, u8 oscType, u8 oscRate, u8 oscDepth, u8 oscDelay) {
 	OscState *state;
 	ALMicroTime result = 0;
 
@@ -218,97 +200,99 @@ ALMicroTime initOsc(void **oscState, f32 *initVal, u8 oscType, u8 oscRate, u8 os
 		result = oscDelay << 14;
 
 		switch (oscType) {
-		case 1:
-			state->unk8 = 0;
-			state->unk6 = 259 - oscRate;
-			state->unkC.type1.unk0 = oscDepth >> 1;
-			state->unkC.type1.unk1 = 127 - state->unkC.type1.unk0;
-			*initVal = state->unkC.type1.unk1;
-			break;
-		case 0x80:
-			state->unkC.type80.unk0 = _depth2Cents(oscDepth);
-			state->unk8 = 0;
-			state->unk6 = 259 - oscRate;
-			*initVal = 1.0f;
-			break;
-		default:
-			break;
+            case 1:
+                state->unk8 = 0;
+                state->unk6 = 259 - oscRate;
+                state->unkC.type1.unk0 = oscDepth >> 1;
+                state->unkC.type1.unk1 = 127 - state->unkC.type1.unk0;
+                *initVal = state->unkC.type1.unk1;
+                break;
+
+            case 0x80:
+                state->unkC.type80.cents = depth2Cents(oscDepth);
+                state->unk8 = 0;
+                state->unk6 = 259 - oscRate;
+                *initVal = 1.0f;
+                break;
+
+            default:
+                break;
 		}
 	}
 
 	return result;
 }
 
-ALMicroTime updateOsc(void *oscState, f32 *updateVal)
-{
+ALMicroTime updateOsc(void *oscState, f32 *updateVal) {
 	f32 sp2c;
 	OscState *state = oscState;
 	ALMicroTime result = AL_USEC_PER_FRAME;
 
 	switch (state->type) {
-	case 0x01:
-		state->unk8++;
+        case 0x01:
+            state->unk8++;
 
-		if (state->unk8 >= state->unk6) {
-			state->unk8 = 0;
-		}
+            if (state->unk8 >= state->unk6) {
+                state->unk8 = 0;
+            }
 
-		sp2c = (f32)state->unk8 / (f32)state->unk6;
-		sp2c = sinf(sp2c * BAD_TAU);
-		sp2c = sp2c * state->unkC.type1.unk0;
-		*updateVal = state->unkC.type1.unk1 + sp2c;
-		break;
+            sp2c = (f32)state->unk8 / (f32)state->unk6;
+            sp2c = sinf(sp2c * BAD_TAU);
+            sp2c = sp2c * state->unkC.type1.unk0;
+            *updateVal = state->unkC.type1.unk1 + sp2c;
+            break;
 
-	case 0x80:
-        state->unk8++;
+        case 0x80:
+            state->unk8++;
 
-		if (state->unk8 >= state->unk6) {
-			state->unk8 = 0;
-		}
+            if (state->unk8 >= state->unk6) {
+                state->unk8 = 0;
+            }
 
-		sp2c = (f32)state->unk8 / (f32)state->unk6;
-		sp2c = sinf(sp2c * BAD_TAU) * state->unkC.type80.unk0;
-		*updateVal = alCents2Ratio(sp2c);
-		break;
-	default:
-		break;
+            sp2c = (f32)state->unk8 / (f32)state->unk6;
+            sp2c = sinf(sp2c * BAD_TAU) * state->unkC.type80.cents;
+            *updateVal = alCents2Ratio(sp2c);
+            break;
+        default:
+            break;
 	}
 
 	return result;
 }
 
-void stopOsc(OscState *oscState){
+void stopOsc(OscState *oscState) {
     oscState->next = freeOscStateList;
     freeOscStateList = oscState;
 }
 
-void func_8023FA64(ALSeqpConfig *arg0) {
+void audioManager_setupSeqp(ALSeqpConfig *config) {
 	OscState *item;
-    s32 i;
+    int i;
 
-    freeOscStateList =  &oscStates[0];
+    freeOscStateList = &oscStates[0];
 	item = &oscStates[0];
-    for(i = 0; i< 0x2F; i++){
-        item->next = &oscStates[i+1];
+    for (i = 0; i < NUM_OSC_STATES - 1; i++) {
+        item->next = &oscStates[i + 1];
 		item = item->next;
     }
     item->next = NULL;
-    arg0->initOsc   = initOsc;
-    arg0->updateOsc = updateOsc;
-    arg0->stopOsc   = stopOsc;
+
+    config->initOsc = initOsc;
+    config->updateOsc = updateOsc;
+    config->stopOsc = stopOsc;
 }
 
 extern s32 	osTvType;
 
-void audioManager_init(void){
-    D_8027D000 = (u8 *) bk_malloc(AUDIO_HEAP_SIZE);
-    bzero(D_8027D000, AUDIO_HEAP_SIZE);
-    alHeapInit(&D_8027CFF0, D_8027D000, AUDIO_HEAP_SIZE);
+void audioManager_init(void) {
+    sALHeapBuffer = (u8 *) bk_malloc(AUDIO_HEAP_SIZE);
+    bzero(sALHeapBuffer, AUDIO_HEAP_SIZE);
+    alHeapInit(&sALHeapInfo, sALHeapBuffer, AUDIO_HEAP_SIZE);
 #if VERSION == VERSION_USA_1_0
-    if(osTvType != OS_TV_NTSC)
-        osViClock = 0x2e6025c;
+    if (osTvType != OS_TV_NTSC)
+        osViClock = VI_MPAL_CLOCK;
 #elif VERSION == VERSION_PAL
-    osViClock = 0x2f5b2d2;
+    osViClock = VI_PAL_CLOCK;
 #endif
     audioManager_create();
     sfxInstruments_init();
@@ -318,351 +302,346 @@ void audioManager_init(void){
 
 void audioManager_create(void) {
     int i;
-    f32 var_f0;
+    f32 fsize;
 
-    osCreateMesgQueue(&D_8027D008, D_8027D020, 3000/FRAMERATE);
-    osCreateMesgQueue(&audioManager.audioReplyMsgQ, audioManager.audioReplyMsgBuf, 8); //audioReplyMesgQueue
+    osCreateMesgQueue(&audioDMANotifyMsgQ, audioDMANotifyMsgBuf, 3000 / FRAMERATE);
+    osCreateMesgQueue(&audioManager.audioReplyMsgQ, audioManager.audioReplyMsgBuf, 8);
     osCreateMesgQueue(&audioManager.audioFrameMsgQ, audioManager.audioFrameMsgBuf, 8);
-    var_f0 = 44000.0f/FRAMERATE;
-    D_8027DD74 = (s32)var_f0;
-    if ((f32) D_8027DD74 < var_f0) {
-        D_8027DD74++;
+
+    fsize = 44000.0f / FRAMERATE;
+    sFrameSize = fsize;
+    if (sFrameSize < fsize) {
+        sFrameSize++;
     }
-    D_8027DD74 = ((D_8027DD74 / 0xB8) * 0xB8) + 0xB8;
-    D_8027DD78 = D_8027DD74 - 0xB8;
-    D_8027DD7C = D_8027DD74;
-    D_8027DD50.maxVVoices = 0x18;
-    D_8027DD50.maxPVoices = 0x18;
-    D_8027DD50.maxUpdates = 0x100; // [port] doubled — 64-bit param slots are larger, demand-based audio may call n_alAudioFrame multiple times per game frame
-    D_8027DD50.dmaproc = (void*)func_802403B8;
-    D_8027DD50.fxType = AL_FX_CUSTOM;
-    D_8027DD50.params = (void*) &D_8027577C;
-    D_8027DD50.heap = &D_8027CFF0;
-    D_8027DD50.outputRate = osAiSetFrequency(22000);
-    n_alInit(&D_8027DCD8, &D_8027DD50);
-    D_8027D5C0[0].unk0.prev = NULL;
-    D_8027D5C0[0].unk0.next = NULL;
-    for(i = 0; i < 89; i++){
-        alLink((ALLink *)&D_8027D5C0[i+1], (ALLink *)&D_8027D5C0[i]);
-        D_8027D5C0[i].unk10 = (uintptr_t)alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200));
-    }
-    D_8027D5C0[i].unk10 = (uintptr_t)alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, VER_SELECT(0x200, 0x270, 0x200, 0x200));
-    for(i = 0; i < 2; i++){
-        audioManager.ACMDList[i] = bk_malloc(1200000/FRAMERATE);
+    sFrameSize = ((sFrameSize / NUM_SAMPLES) + 1) * NUM_SAMPLES;
+    sMinFrameSize = sFrameSize - NUM_SAMPLES;
+    sMaxFrameSize = sFrameSize;
+
+    sn_alConfig.maxVVoices = 24;
+    sn_alConfig.maxPVoices = 24;
+    sn_alConfig.maxUpdates = 0x100; // [port] doubled — 64-bit param slots are larger, demand-based audio may call n_alAudioFrame multiple times per game frame
+    sn_alConfig.dmaproc = (void *) audioManager_DMAInitProc;
+    sn_alConfig.fxType = AL_FX_CUSTOM;
+    sn_alConfig.params = sEffectsChain;
+    sn_alConfig.heap = &sALHeapInfo;
+    sn_alConfig.outputRate = osAiSetFrequency(22000);
+    n_alInit(&sn_alGlobals, &sn_alConfig);
+
+    sDMAStateData[0].link.prev = NULL;
+    sDMAStateData[0].link.next = NULL;
+
+    for (i = 0; i < 89; i++) {
+        alLink(&sDMAStateData[i + 1].link, &sDMAStateData[i].link);
+        sDMAStateData[i].heap = (uintptr_t)alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
     }
 
-    D_8027DD80 = 150000/FRAMERATE;
-    for(i = 0; i < 3; i++){
-        audioManager.audioInfo[i] = alHeapDBAlloc(0, 0, D_8027DD50.heap, 1, 0x10);
-        audioManager.audioInfo[i]->unk8 = 0;
-        audioManager.audioInfo[i]->unkC = audioManager.audioInfo[i];
-        audioManager.audioInfo[i]->data = bk_malloc(D_8027DD7C * 4);
+    sDMAStateData[i].heap = (uintptr_t)alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, DMA_BLOCK_SIZE);
+
+    for (i = 0; i < 2; i++) {
+        audioManager.ACMDList[i] = bk_malloc(NUM_AUDIO_CMDS_PER_SECOND * sizeof(Acmd) / FRAMERATE);
     }
 
-    osCreateThread(&audioManager.thread, 4, &audioManagerThread_entry, 0, sAudioManagerThreadStack + AUDIOMANAGER_THREAD_STACK_SIZE, 50);
+    sNumAudioCmdsPerFrame = NUM_AUDIO_CMDS_PER_SECOND / FRAMERATE;
+
+    for (i = 0; i < 3; i++) {
+        audioManager.audio_info[i] = alHeapDBAlloc(0, 0, sn_alConfig.heap, 1, sizeof(AudioInfo));
+        audioManager.audio_info[i]->reply_mesg_data.unk0 = 0;
+        audioManager.audio_info[i]->reply_mesg_data.audio_info_ptr = audioManager.audio_info[i];
+        audioManager.audio_info[i]->data = bk_malloc(4 * sMaxFrameSize);
+    }
+
+    osCreateThread(&audioManager.thread, 4, &audioManagerThread_entry, 0, audioManager.thread_stack + AUDIOMANAGER_THREAD_STACK_SIZE, 50);
 }
 
 void audioManagerThread_entry(void *arg) {
-    s32 phi_s1;
+    s32 skip_handle_done_mesg = 1;
 
-    phi_s1 = 1;
-    while(1){
+    while (true) {
         osRecvMesg(&audioManager.audioFrameMsgQ, NULL, OS_MESG_BLOCK);
-        if (audioManager_handleFrameMsg(audioManager.audioInfo[D_8027DCC8 % 3], D_80275848)){
-            if(phi_s1 == 0){
-                osRecvMesg(&audioManager.audioReplyMsgQ, (OSMesg *)&D_80275844, OS_MESG_BLOCK);
-                audioManager_handleDoneMsg(D_80275844->unk4);
-                D_80275848 = D_80275844->unk4;
-            }else{
-                phi_s1 += -1;
+        if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
+            return;
+        }
+        ThreadWatchdog_Beat(WATCHDOG_AUDIO_MANAGER); // [port] one beat per audio frame
+        // [port] Pump messages backlog while a stall blocks this thread
+        // and then burst.
+        if (osAiGetLength() / 4 >= sMaxFrameSize) {
+            continue;
+        }
+        if (audioManager_handleFrameMsg(audioManager.audio_info[sAudioInfoID % 3], sPrevFinishedAudioInfo)) {
+            if (skip_handle_done_mesg == 0) {
+                osRecvMesg(&audioManager.audioReplyMsgQ, (OSMesg *) &D_80275844, OS_MESG_BLOCK);
+                audioManager_handleDoneMsg(D_80275844->audio_info_ptr);
+                sPrevFinishedAudioInfo = D_80275844->audio_info_ptr;
+            } else {
+                skip_handle_done_mesg--;
             }
+        }
+        // [port] The N64 pacing is open-loop (pump cadence x frame size vs the
+        // DAC, same crystal), so a pump missed on PC drains the playback
+        // cushion for tens of seconds. Self-post one extra frame at a time,
+        // re-deciding on the fresh buffer level after each push, until the
+        // cushion is rebuilt.
+        if (port_audioCatchupFrames() > 0) {
+            osSendMesgPtr(&audioManager.audioFrameMsgQ, NULL, OS_MESG_NOBLOCK);
         }
     }
 }
 
-void func_8023FFAC(void){
-    D_80275770 = osAiGetLength()/4;
+void audioManager_func_8023FFAC(void) {
+    D_80275770 = osAiGetLength() / 4;
 }
 
-void func_8023FFD4(s32 arg0, s32 arg1, s32 arg2){
-    return;
-}
+void audioManager_func_8023FFD4(s32 arg0, s32 arg1, s32 arg2) {}
 
 bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
     s16 *outbuffer;
-    Acmd *sp38;
-    s32 sp34;
-#if VERSION == VERSION_USA_1_0
-    s32 sp30 = 0;
-#else
-    s32 sp30;
-#endif
+    Acmd *command_list_end;
+    s32 command_list_len;
+    s32 ret;
     f32 pad;
 
-    outbuffer = (s16 *)osVirtualToPhysical(info->data);
-    func_802403F0();
-    func_8023FFAC();
-    if(prev_info){
-        sp30 = osAiSetNextBuffer(prev_info->data, prev_info->frameSamples*4);
-    }//L8024003C
-
 #if VERSION == VERSION_USA_1_0
-    if(sp30 == -1){
-        func_80247F24(2, 0x7d2);
-        func_80247F9C(prev_info->frameSamples);
-        func_80247F9C(info->frameSamples);
-        gcdebugText_pauseThread();
-    }    
+    ret = 0;
 #endif
 
-    if((D_80275770 >= 0x139)  & !D_80275778){
-        info->frameSamples = D_8027DD78;
-        D_80275778 = 2;
+    // [port] On N64 nothing could run concurrently with this thread: one core,
+    // and the game brackets its audio writes with osSetIntMask, which blocks
+    // preemption. On PC those brackets map to a lock, and the engine advance
+    // here has to take the same one.
+    port_lockAudio();
+
+    outbuffer = (s16 *) osVirtualToPhysical(info->data);
+    audioManager_func_802403F0();
+    audioManager_func_8023FFAC();
+    if (prev_info) {
+        ret = osAiSetNextBuffer(prev_info->data, 4 * prev_info->frame_samples);
     }
-    else{
-        info->frameSamples = D_8027DD74;
-        if(D_80275778)
+
+#if VERSION == VERSION_USA_1_0
+    if (ret == -1) {
+        gcdebugText_showLargeValue(2, 2002);
+        func_80247F9C(prev_info->frame_samples);
+        func_80247F9C(info->frame_samples);
+        gcdebugText_pauseThread();
+    }
+#endif
+
+    if ((D_80275770 > 312) & !D_80275778) {
+        info->frame_samples = sMinFrameSize;
+        D_80275778 = 2;
+    } else {
+        info->frame_samples = sFrameSize;
+        if (D_80275778)
             D_80275778--;
     }
 
-    if(info->frameSamples < D_8027DD78){
-        info->frameSamples = D_8027DD78;
+    if (info->frame_samples < sMinFrameSize) {
+        info->frame_samples = sMinFrameSize;
     }
 
-    sp38 = n_alAudioFrame(audioManager.ACMDList[D_8027DCD0], &sp34, outbuffer, info->frameSamples);
+    command_list_end = n_alAudioFrame(audioManager.ACMDList[sCmdBufferIndex], &command_list_len, outbuffer, info->frame_samples);
 
 #if VERSION == VERSION_USA_1_0
-    if(D_8027DD80 < sp34){
-        func_80247F24(2, 2000);
-        func_80247F9C(sp34);
-        func_80247F9C(D_8027DD80);
+    if (sNumAudioCmdsPerFrame < command_list_len) {
+        gcdebugText_showLargeValue(2, 2000);
+        func_80247F9C(command_list_len);
+        func_80247F9C(sNumAudioCmdsPerFrame);
         gcdebugText_pauseThread();
     }
 #endif
 
-    if(sp34 == 0){
-        return 0;
-    }else{
-        core1_15B30_addAudioTaskData((Gfx **)audioManager.ACMDList[D_8027DCD0], (Gfx **)sp38, &audioManager.audioReplyMsgQ, &info->unk8);
+    if (command_list_len == 0) {
+        port_unlockAudio(); // [port]
+        return false;
+    } else {
+        core1_15B30_addAudioTaskData(audioManager.ACMDList[sCmdBufferIndex], command_list_end, &audioManager.audioReplyMsgQ, OS_MESG_PTR(&info->reply_mesg_data)); // [port] OSMesg is a union on PC
         func_80250650();
-        D_8027DCD0 ^= 1;
-        return 1;
+        port_unlockAudio(); // [port]
+        sCmdBufferIndex ^= 1;
+        return true;
     }
 }
 
-void audioManager_handleDoneMsg(AudioInfo *info)
-{   
-    static int D_8027584C = true;
-	if (osAiGetLength() >> 2 == 0 && D_8027584C == false) {
-		D_8027584C = false;
+void audioManager_handleDoneMsg(AudioInfo *info) {
+    static bool debug_var = true;
+
+	if ((osAiGetLength() / 4) == 0 && (!debug_var)) {
+		debug_var = false;
 	}
 }
 
-#if VERSION == VERSION_USA_1_0
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state)
-{
-    void *sp44;
-    uintptr_t sp40;
-    Struct_1D00_3 *phi_s0;
-    Struct_1D00_3 *phi_v0;
-    uintptr_t new_var;
-    Struct_1D00_3 *sp30;
+uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) { // [port] pointer-width for 64-bit ALDMAproc
+    void *dest_vaddr;
+    uintptr_t dev_addr_low_bit;
+    uintptr_t dev_addr_end;
+    struct dma_state_data_s *phi_s0, *phi_v0, *sp30;
 
-    phi_s0 = D_8027D5B0.unk4;
+#if VERSION == VERSION_PAL
+    phi_v0 = sDMAState.unk4;
+#endif
     sp30 = NULL;
-    while (phi_s0 != NULL ) {
-        new_var = (phi_s0->unk8 + 0x200);
-        if ((phi_s0->unk8 > addr)) break;
 
-        sp30 = phi_s0;
-        if ((addr + len) <= new_var) {
-            phi_s0->unkC = (uintptr_t) D_8027DCC8;
-            return osVirtualToPhysical((void*)(phi_s0->unk10 + (addr - phi_s0->unk8)));
-        }
-        phi_s0 = (Struct_1D00_3 *)phi_s0->unk0.next;
-
-    }
-    phi_s0 = D_8027D5B0.unk8;
-    if (phi_s0 == NULL) {
-        func_80247F24(2, 0x7D1);
-        gcdebugText_pauseThread();
-        return osVirtualToPhysical(D_8027D5B0.unk4);
-    }
-    D_8027D5B0.unk8 = (Struct_1D00_3 *)phi_s0->unk0.next;
-    alUnlink((ALLink *)phi_s0);
-    if (sp30 != NULL) {
-        alLink((ALLink *)phi_s0, (ALLink *)sp30);
-    } else {
-        phi_v0 = D_8027D5B0.unk4;
-        if (phi_v0 != NULL) {
-            D_8027D5B0.unk4 = phi_s0;
-            phi_s0->unk0.next = (ALLink *)phi_v0;
-            phi_s0->unk0.prev = NULL;
-            phi_v0->unk0.prev = (ALLink *)phi_s0;
-        } else {
-            D_8027D5B0.unk4 = phi_s0;
-            phi_s0->unk0.next = NULL;
-            phi_s0->unk0.prev = NULL;
-        }
-    }
-    sp44 = (void*)phi_s0->unk10;
-    sp40 = addr & 1;
-    addr -= sp40;
-    phi_s0->unk8 = addr;
-    phi_s0->unkC = (uintptr_t) D_8027DCC8;
-    osPiStartDma((OSIoMesg *)&D_8027D100[D_8027DCCC++], 1, 0, addr, sp44, 0x200U, &D_8027D008);
-    return osVirtualToPhysical(sp44) + sp40;
-}
+#if VERSION == VERSION_USA_1_0
+    for (phi_s0 = sDMAState.unk4; phi_s0 != NULL; phi_s0 = (struct dma_state_data_s *) phi_s0->link.next) {
 #elif VERSION == VERSION_PAL
-#ifndef NONMATCHING
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state);
-#pragma GLOBAL_ASM("asm/nonmatchings/core1/code_1D00/func_80240204.s")
-#else
-uintptr_t func_80240204(uintptr_t addr, s32 len, void *state){
-    void *sp44;
-    uintptr_t sp40;
-    Struct_1D00_3 *phi_s0;
-    Struct_1D00_3 *phi_v0;
-    uintptr_t new_var;
-    Struct_1D00_3 *sp30;
+    for (phi_s0 = phi_v0; phi_s0 != NULL; phi_s0 = (struct dma_state_data_s *) phi_s0->link.next) {
+#endif
+        dev_addr_end = phi_s0->unk8 + DMA_BLOCK_SIZE;
 
-    phi_v0 = D_8027D5B0.unk4;
-    sp30 = NULL;
-    for(phi_s0 = phi_v0; phi_s0 != NULL; phi_s0 = (Struct_1D00_3 *)phi_s0->unk0.next) {
-        sp40 = (phi_s0->unk8 + 0x270);
-        if ((phi_s0->unk8 > addr)) break;
+        if (phi_s0->unk8 > addr) {
+            break;
+        }
 
         sp30 = phi_s0;
-        if ((addr + len) <= sp40) {
-            phi_s0->unkC = (uintptr_t) D_8027DCC8;
-            return osVirtualToPhysical((void*)(phi_s0->unk10 + (addr - phi_s0->unk8)));
-        }
-    }
-    phi_s0 = D_8027D5B0.unk8;
-    if (phi_s0 == NULL) {
-        return osVirtualToPhysical(phi_v0);
-    }
-    D_8027D5B0.unk8 = (Struct_1D00_3 *)phi_s0->unk0.next;
-    alUnlink((ALLink *)phi_s0);
-    if (sp30 != NULL) {
-        alLink((ALLink *)phi_s0, (ALLink *)sp30);
-    } else {
-        phi_v0 = D_8027D5B0.unk4;
-        if (phi_v0 != NULL) {
-            D_8027D5B0.unk4 = phi_s0;
-            phi_s0->unk0.next = (ALLink *)phi_v0;
-            phi_s0->unk0.prev = NULL;
-            phi_v0->unk0.prev = (ALLink *)phi_s0;
-        } else {
-            D_8027D5B0.unk4 = phi_s0;
-            phi_s0->unk0.next = NULL;
-            phi_s0->unk0.prev = NULL;
-        }
-    }
 
-    new_var = addr & 1;
-    addr = addr - new_var;
-    phi_s0->unk8 = addr;
-    phi_s0->unkC = (uintptr_t) D_8027DCC8;
-    sp44 = (void*)phi_s0->unk10;
-    osPiStartDma((OSIoMesg *)&D_8027D100[D_8027DCCC++], 1, 0, phi_s0->unk8, (void*)phi_s0->unk10, 0x270U, &D_8027D008);
-    return osVirtualToPhysical(sp44) + new_var;
-}
-#endif
-#endif
-
-void *func_802403B8(void *state) {
-    if (D_8027D5B0.unk0 == 0) {
-        D_8027D5B0.unk4 = NULL;
-        D_8027D5B0.unk8 = &D_8027D5C0[0];
-        D_8027D5B0.unk0 = 1;
-    }
-    *(void **)state = &D_8027D5B0;
-    return &func_80240204;
-}
-
-void func_802403F0(void) {
-    u32 phi_s0;
-    OSMesg sp40;
-    Struct_1D00_3 *phi_s1;
-    Struct_1D00_3 *phi_s0_2;
-
-    sp40.ptr = NULL;
-    for(phi_s0 = 0; phi_s0 < D_8027DCCC; phi_s0++){
-
+        if ((addr + len) <= dev_addr_end) {
+            phi_s0->unkC = sAudioInfoID;
 #if VERSION == VERSION_USA_1_0
-        if (osRecvMesg(&D_8027D008, &sp40, 0) == -1) {
+            return osVirtualToPhysical((u8 *) phi_s0->heap + (addr - phi_s0->unk8));
+#elif VERSION == VERSION_PAL
+            dev_addr_low_bit = (s32) (u8 *) phi_s0->heap + (addr - phi_s0->unk8);
+            return osVirtualToPhysical((void *) dev_addr_low_bit);
+#endif
+        }
+    }
+
+    phi_s0 = sDMAState.unk8;
+    if (phi_s0 == NULL) {
+#if VERSION == VERSION_USA_1_0
+        gcdebugText_showLargeValue(2, 2001);
+        gcdebugText_pauseThread();
+        return osVirtualToPhysical(sDMAState.unk4);
+#elif VERSION == VERSION_PAL
+        return osVirtualToPhysical(phi_v0);
+#endif
+    }
+
+    sDMAState.unk8 = (struct dma_state_data_s *) phi_s0->link.next;
+    alUnlink((ALLink *) phi_s0);
+
+    if (sp30 != NULL) {
+        alLink((ALLink *) phi_s0, (ALLink *) sp30);
+    } else {
+        phi_v0 = sDMAState.unk4;
+        if (phi_v0 != NULL) {
+            sDMAState.unk4 = phi_s0;
+            phi_s0->link.next = (ALLink *) phi_v0;
+            phi_s0->link.prev = NULL;
+            phi_v0->link.prev = (ALLink *) phi_s0;
+        } else {
+            sDMAState.unk4 = phi_s0;
+            phi_s0->link.next = NULL;
+            phi_s0->link.prev = NULL;
+        }
+    }
+
+    dest_vaddr = (void *) phi_s0->heap;
+    dev_addr_low_bit = addr & 1;
+    addr -= dev_addr_low_bit;
+    phi_s0->unk8 = addr;
+    phi_s0->unkC = (uintptr_t) sAudioInfoID;
+    osPiStartDma((OSIoMesg *)&sDMAMesgBlocks[sNumDMATransfers++], OS_MESG_PRI_HIGH, OS_READ, addr, dest_vaddr, DMA_BLOCK_SIZE, &audioDMANotifyMsgQ);
+    return osVirtualToPhysical(dest_vaddr) + dev_addr_low_bit;
+}
+
+ALDMAproc audioManager_DMAInitProc(void *state) {
+    if (!sDMAState.initialized) {
+        sDMAState.unk4 = NULL;
+        sDMAState.unk8 = sDMAStateData;
+        sDMAState.initialized = true;
+    }
+    *(void **)state = (void *) &sDMAState;
+    return func_80240204;
+}
+
+void audioManager_func_802403F0(void) {
+    u32 i;
+    OSMesg temp_mesg;
+    struct dma_state_data_s *phi_s1;
+    struct dma_state_data_s *phi_s0_2;
+
+    temp_mesg.ptr = NULL;
+    for (i = 0; i < sNumDMATransfers; i++) {
+#if VERSION == VERSION_USA_1_0
+        if (osRecvMesg(&audioDMANotifyMsgQ, &temp_mesg, OS_MESG_NOBLOCK) == -1) {
 #if 0 // [port] DMA is synchronous on PC (memcpy), no completion messages to drain
-            func_80247F24(2, 0x7D5);
-            func_80247F9C(D_8027DCCC);
-            func_80247F9C(phi_s0);
+            gcdebugText_showLargeValue(2, 2005);
+            func_80247F9C(sNumDMATransfers);
+            func_80247F9C(i);
             gcdebugText_pauseThread();
 #else
             break;
 #endif
         }
 #else
-        osRecvMesg(&D_8027D008, &sp40, 0);
+        osRecvMesg(&audioDMANotifyMsgQ, &temp_mesg, OS_MESG_NOBLOCK);
 #endif
     }
-    phi_s0_2 = D_8027D5B0.unk4;
-    while(phi_s0_2 != NULL){
-        phi_s1 = (Struct_1D00_3 *)phi_s0_2->unk0.next;
-        if (phi_s0_2->unkC + 1 < D_8027DCC8) {
-            if (phi_s0_2 == D_8027D5B0.unk4) {
-                D_8027D5B0.unk4 = (Struct_1D00_3 *)phi_s0_2->unk0.next;
+
+    phi_s0_2 = sDMAState.unk4;
+
+    while (phi_s0_2 != NULL) {
+        phi_s1 = (struct dma_state_data_s *) phi_s0_2->link.next;
+        if (phi_s0_2->unkC + 1 < sAudioInfoID) {
+            if (phi_s0_2 == sDMAState.unk4) {
+                sDMAState.unk4 = (struct dma_state_data_s *)phi_s0_2->link.next;
             }
-            alUnlink((ALLink *)phi_s0_2);
-            if (D_8027D5B0.unk8 != NULL) {
-                alLink(&phi_s0_2->unk0, &D_8027D5B0.unk8->unk0);
+            alUnlink(&phi_s0_2->link);
+            if (sDMAState.unk8 != NULL) {
+                alLink(&phi_s0_2->link, &sDMAState.unk8->link);
             } else {
-                D_8027D5B0.unk8 = phi_s0_2;
-                phi_s0_2->unk0.next = NULL;
-                phi_s0_2->unk0.prev = NULL;
+                sDMAState.unk8 = phi_s0_2;
+                phi_s0_2->link.next = NULL;
+                phi_s0_2->link.prev = NULL;
             }
         }
         phi_s0_2 = phi_s1;
     }
-    D_8027DCCC = 0;
-    D_8027DCC8 += 1;
+
+    sNumDMATransfers = 0;
+    sAudioInfoID++;
 }
 
 #if VERSION == VERSION_PAL
-void *audioManager_getThread_PAL(void){
+OSThread *audioManager_getThread_PAL(void) {
     return &audioManager.thread;
 }
 #endif
 
-void audioManager_stopThread(void){
-    if(D_80275774){
-        D_80275774 = 0;
+void audioManager_stopThread(void) {
+    if (sAudioManagerThreadStarted) {
+        sAudioManagerThreadStarted = false;
         osStopThread(&audioManager.thread);
     }
 }
 
-void audioManager_startThread(void){
-    if(D_80275774 == 0){
-        D_80275774 = 1;
-        port_audioStartThread();
+void audioManager_startThread(void) {
+    if (!sAudioManagerThreadStarted) {
+        sAudioManagerThreadStarted = true;
+        osStartThread(&audioManager.thread);
     }
 }
 
-OSThread * audioManager_getThread(void){
+OSMesgQueue *audioManager_getReplyMesgQueue(void) {
+    return &audioManager.audioReplyMsgQ;
+}
+
+OSThread *audioManager_getThread(void) {
     return &audioManager.thread;
 }
 
-ALHeap * func_802405B8(void){
-    return &D_8027CFF0;
+ALHeap *audioManager_getALHeapInfo(void) {
+    return &sALHeapInfo;
 }
 
-OSMesgQueue * func_802405C4(void){
-    return &D_8027D008;
+OSMesgQueue *audioManager_getDMANotifyMesgQueue(void) {
+    return &audioDMANotifyMsgQ;
 }
 
-OSIoMesg * func_802405D0(void){
-    return &D_8027D0E8;
+OSIoMesg *audioManager_getExtraDMAMesg(void) {
+    return &sExtraDMAMesg;
 }
 
-OSMesgQueue * audioManager_getFrameMesgQueue(void){
+OSMesgQueue *audioManager_getFrameMesgQueue(void) {
     return &audioManager.audioFrameMsgQ;
 }

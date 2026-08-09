@@ -1,4 +1,4 @@
-// BanjoDecomp: thread5 (osCreateThread OSId 5)
+// BanjoDecomp: core1/code_8C50.c
 // Needs to be included here because interrupt.h contains:
 // typedef u32 OSIntMask; and u32 isn't defined before that.
 
@@ -7,6 +7,9 @@
 #include <PR/ucode.h>
 #include "core1/core1.h"
 #include "functions.h"
+#include "port/DevTools/ThreadWatchdog.h"
+#include "port/OS/OS.h"
+#include "port/Patches/Patches.h"
 #include "libultraship/libultra/rcp.h"
 #include "libultraship/libultra/sptask.h"
 #include "libultraship/libultra/types.h"
@@ -90,11 +93,24 @@ static OSTimer sControllerTimer;
 static bool sEnableControllerTimer;
 
 void thread5_startNextAudioTask(void);
+void osSpTaskLoad(OSTask* task);
+void osSpTaskStartGo(OSTask* task);
 
 /* .code */
+
+// [port] The queues are static; Game.cpp opts them into blocking before
+// thread5_create runs.
+OSMesgQueue* thread5_getTaskQueue(void) {
+    return &sThread5MesgQueue;
+}
+OSMesgQueue* thread5_getSyncQueue(void) {
+    return &sThread5SyncMesgQueue;
+}
+
 void thread5_sendTaskToQueue(OSMesg arg0) {
     static bool clear_freeze = true;
 
+    port_thread5_onSubmit(arg0.ptr); // [port] carry the interpolation pair with the task
     osSendMesg(&sThread5MesgQueue, arg0, 1);
     // Lighthouse [port] Adjustment here to account for our OSMesg union definition
     if (arg0.data32 == THREAD5_MESSAGE_EVENT_SYNC) {
@@ -125,28 +141,29 @@ void thread5_insertGfxTaskData(OSMesg arg0) {
 }
 
 void thread5_startAudioTask(struct ucode_task_data_s *task_data) {
-#if 0
+#if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sAudTask.t.ucode_boot, &sAudTask.t.ucode_boot_size);
     sAudTask.t.ucode = n_aspMainTextStart;
     sAudTask.t.ucode_data = n_aspMainDataStart;
+#endif
     sAudTask.t.data_ptr = (void*) task_data->data_ptr;
-    sAudTask.t.data_size = (task_data->data_ptr_end - task_data->data_ptr) >> 3 << 3;
+    sAudTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;
     osWritebackDCache(sAudTask.t.data_ptr , sAudTask.t.data_size);
     osWritebackDCache(&sAudTask, sizeof(OSTask));
     sActiveAudioTaskDataPtr = task_data;
     osSpTaskLoad(&sAudTask);
     osSpTaskStartGo(&sAudTask);
     sUnkFlag1 = UNKFLAG1_AUDIO_TASK;
-#endif
 }
 
 void thread5_startF3DEXTask(struct ucode_task_data_s *task_data) {
-#if 0
+#if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sGfxTask.t.ucode_boot, &sGfxTask.t.ucode_boot_size);
     sGfxTask.t.ucode = gSPF3DEX_fifoTextStart;
     sGfxTask.t.ucode_data = gSPF3DEX_fifoDataStart;
+#endif
     sGfxTask.t.data_ptr = (void*) task_data->data_ptr;
-    sGfxTask.t.data_size = (task_data->data_ptr_end - task_data->data_ptr) >> 3 << 3;
+    sGfxTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;
     osWritebackDCache(sGfxTask.t.data_ptr , sGfxTask.t.data_size);
     osWritebackDCache(&sGfxTask, sizeof(OSTask));
     osSpTaskLoad(&sGfxTask);
@@ -157,16 +174,16 @@ void thread5_startF3DEXTask(struct ucode_task_data_s *task_data) {
         sUnkFlag2_Saved = sUnkFlag2;
         sUnkCounter3 = 30;
     }
-#endif
 }
 
 void thread5_startL3DEXTask(struct ucode_task_data_s *task_data) {
-#if 0
+#if 0 // [port] microcode boot pointers, there is no RSP to load them into
     ucode_getPtrAndSize(&sGfxTask.t.ucode_boot, &sGfxTask.t.ucode_boot_size);
     sGfxTask.t.ucode = gSPL3DEX_fifoTextStart;
     sGfxTask.t.ucode_data = gSPL3DEX_fifoDataStart;
+#endif
     sGfxTask.t.data_ptr = (void*) task_data->data_ptr;
-    sGfxTask.t.data_size = (task_data->data_ptr_end - task_data->data_ptr) >> 3 << 3;
+    sGfxTask.t.data_size = ((u8 *)task_data->data_ptr_end - (u8 *)task_data->data_ptr) >> 3 << 3;
     osWritebackDCache(sGfxTask.t.data_ptr , sGfxTask.t.data_size);
     osWritebackDCache(&sGfxTask, sizeof(OSTask));
     osSpTaskLoad(&sGfxTask);
@@ -177,11 +194,9 @@ void thread5_startL3DEXTask(struct ucode_task_data_s *task_data) {
         sUnkFlag2_Saved = sUnkFlag2;
         sUnkCounter3 = 30;
     }
-#endif
 }
 
 void thread5_startGfxTask(struct ucode_task_data_s *task_data) {
-#if 0
     switch (task_data->task_type) {
         case 1:
             thread5_startF3DEXTask(task_data);
@@ -191,11 +206,15 @@ void thread5_startGfxTask(struct ucode_task_data_s *task_data) {
             thread5_startL3DEXTask(task_data);
             break;
     }
-#endif
 }
 
 void thread5_handleAudioTaskMesg(OSMesg msg) {
     thread5_insertAudioTaskData(msg);
+    if ((sUnkFlag1 == UNKFLAG1_NO_TASK) && (sActiveAudioTaskDataID != sSelectedAudioTaskDataID)) {
+        struct ucode_task_data_s *ptr = sAudioTaskDataList[sActiveAudioTaskDataID];
+        sActiveAudioTaskDataID = (sActiveAudioTaskDataID + 1) % 20;
+        thread5_startAudioTask(ptr);
+    }
 }
 
 void thread5_handleF3DEXTaskMesg(OSMesg msg) {
@@ -215,7 +234,6 @@ void thread5_handleL3DEXTaskMesg(OSMesg msg) {
 }
 
 void thread5_handleSyncEvent(void) {
-#if 0
     if ((sUnkFlag1 == UNKFLAG1_NO_TASK)
         && (sUnkFlag2_Saved == 2)
         && (sActiveGfxTaskDataID == sSelectedGfxTaskDataID)
@@ -226,13 +244,11 @@ void thread5_handleSyncEvent(void) {
     else {
         sSyncCounter++;
     }
-#endif
 }
 
 extern u64 osClockRate;
 
 void thread5_handleDPEvent(void) {
-#if 0
     if ((sUnkFlag2 << 1) < 0) {
         osDpSetStatus(DPC_SET_FREEZE);
         sCurrentFramebuffer = osViGetCurrentFramebuffer();
@@ -250,12 +266,9 @@ void thread5_handleDPEvent(void) {
             sSyncCounter--;
         }
     }
-#endif
 }
 
 void thread5_handleVIRetraceEvent(void) {
-#if 0
-    static s32 audiotimer_trigger = 0;
     s32 sp2C = (sSyncCounter != 0) && (sActiveGfxTaskDataID == sSelectedGfxTaskDataID) && (sUnkFlag2 == 2) && (sUnkFlag1 == UNKFLAG1_NO_TASK);
     volatile s32 sp30;
 
@@ -265,7 +278,7 @@ void thread5_handleVIRetraceEvent(void) {
             osDpSetStatus(DPC_CLR_FREEZE);
 
             sUnkFlag2_Saved = sUnkFlag2;
-            dummy_func_8025AFB8();
+            // dummy_func_8025AFB8();
 
             if (sUnkFlag2_Saved & 1) {
                 sUnkCounter3 = 30;
@@ -295,25 +308,23 @@ void thread5_handleVIRetraceEvent(void) {
         }
     }
     sTask7Handled = false;
+    static s32 audiotimer_trigger = 0;
     audiotimer_trigger++;
     if (!(audiotimer_trigger & 1)) {
         osStopTimer(&sAudioTimer);
         osSetTimer(&sAudioTimer, 280000, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_AUDIO_TIMER));
     }
-
-    if (sEnableControllerTimer) {
+    if (sEnableControllerTimer && OS_SiPumpLive()) {
         osStopTimer(&sControllerTimer);
 #if VERSION == VERSION_USA_1_0
         osSetTimer(&sControllerTimer, ((osClockRate / 60)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #elif VERSION == VERSION_PAL
-        osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_CONT_TIMER);
+        osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #endif
     }
-#endif
 }
 
 void thread5_handleSPEvent(void) {
-#if 0
     struct ucode_task_data_s *active_audio_task;
     s32 temp_v1;
 
@@ -328,7 +339,10 @@ void thread5_handleSPEvent(void) {
     }
 
     if (sUnkFlag1 == UNKFLAG1_AUDIO_TASK) {
-        osSendMesg(&sActiveAudioTaskDataPtr->task_type, sActiveAudioTaskDataPtr->unk4, 0);
+        // [port] The raw decomp sends through the first two struct fields;
+        // with the struct typed, these are the reply queue and message set by
+        // core1_15B30_addAudioTaskData.
+        osSendMesg(sActiveAudioTaskDataPtr->audio_mesg_queue, sActiveAudioTaskDataPtr->audio_mesg, 0);
     }
 
     if ((sUnkFlag1 == UNKFLAG1_AUDIO_TASK) && (sGfxTaskYielded != 0)) {
@@ -350,7 +364,6 @@ void thread5_handleSPEvent(void) {
         osSendMesgPtr(&sThread5SyncMesgQueue, NULL, 0);
         sSyncCounter--;
     }
-#endif
 }
 
 void thread5_handleTask7Mesg(OSMesg arg0) {
@@ -358,6 +371,11 @@ void thread5_handleTask7Mesg(OSMesg arg0) {
 }
 
 void thread5_handleAudioTimerEvent(void) {
+    // [port] While the demo audio hold is up, skip the frame message so the
+    // engine does not consume sfx cues queued for the demo's first frame.
+    if (port_audioHeld() || port_audioStallHold()) {
+        return;
+    }
     osSendMesgPtr(audioManager_getFrameMesgQueue(), NULL, OS_MESG_NOBLOCK);
     thread5_startNextAudioTask();
 }
@@ -466,40 +484,48 @@ void thread5_checkAndExecutePreNMI(void) {
 
 //thread5 entry
 void thread5_entry(void *arg) {
-#if 0
-    OSMesg msg = NULL;
+    // [port] Only adjustment: OSMesg is a union here,
+    // so event words read through .data32 and tasks through .ptr
+    OSMesg msg;
+    msg.ptr = NULL;
     do {
         osRecvMesg(&sThread5MesgQueue, &msg, OS_MESG_BLOCK);
+        // [port] Shutdown released the queue rather than delivering anything, so msg
+        // holds nothing worth dispatching. Leave before the engine goes away.
+        if (OS_ThreadShouldExit()) {
+            return;
+        }
+        ThreadWatchdog_Beat(WATCHDOG_THREAD5); // [port] one beat per serviced message
         thread5_checkAndExecutePreNMI();
-        if ((s32)msg == THREAD5_MESSAGE_EVENT_SYNC) { thread5_handleSyncEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_VI_RETRACE)  { thread5_handleVIRetraceEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_DP)          { thread5_handleDPEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_SP)          { thread5_handleSPEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_AUDIO_TIMER) { thread5_handleAudioTimerEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_FAULT)       { do{}while(1); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_PRENMI)      { thread5_handlePreNMIEvent(); }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_DEBUG) {  }
-        else if ((u32)msg == THREAD5_MESSAGE_EVENT_CONT_TIMER)  { pfsManager_getStartReadData(); }
-        else if ((u32)msg >= 100) {
-            if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_AUDIO) { thread5_handleAudioTaskMesg(msg); }
-            else if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_F3DEX) { thread5_handleF3DEXTaskMesg(msg); }
-            else if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_L3DEX) { thread5_handleL3DEXTaskMesg(msg); }
-            else if (((struct ucode_task_data_s *)msg)->task_type == UCODE_TASK_TYPE_FRAMEBUFFER_CHANGED) { thread5_handleTask7Mesg(msg); }
+        if ((uintptr_t)msg.ptr < 100) {
+            if (msg.data32 == THREAD5_MESSAGE_EVENT_SYNC) { thread5_handleSyncEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_VI_RETRACE)  { thread5_handleVIRetraceEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_DP)          { thread5_handleDPEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_SP)          { thread5_handleSPEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_AUDIO_TIMER) { thread5_handleAudioTimerEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_FAULT)       { do{}while(1); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_PRENMI)      { thread5_handlePreNMIEvent(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_DEBUG) {  }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_CONT_TIMER)  { pfsManager_getStartReadData(); }
+        }
+        else {
+            if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_AUDIO) { thread5_handleAudioTaskMesg(msg); }
+            else if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_F3DEX) { thread5_handleF3DEXTaskMesg(msg); }
+            else if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_L3DEX) { thread5_handleL3DEXTaskMesg(msg); }
+            else if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_FRAMEBUFFER_CHANGED) { thread5_handleTask7Mesg(msg); }
         }
     } while (1);
-#endif
 }
 
 //thread5 create
 void thread5_create(void) {
-#if 0
     u8 *yield_data_ptr;
-    osCreateMesgQueue(&sThread5MesgQueue, &sThread5MesgBuffer, 20);
-    osCreateMesgQueue(&sThread5SyncMesgQueue, &sThread5SyncMesgBufer, 10);
-    osSetEventMesg(OS_EVENT_DP, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_DP);
-    osSetEventMesg(OS_EVENT_SP, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_SP);
-    osSetEventMesg(OS_EVENT_FAULT, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_FAULT);
-    osSetEventMesg(OS_EVENT_PRENMI, &sThread5MesgQueue, THREAD5_MESSAGE_EVENT_PRENMI);
+    osCreateMesgQueue(&sThread5MesgQueue, sThread5MesgBuffer, 20);
+    osCreateMesgQueue(&sThread5SyncMesgQueue, sThread5SyncMesgBufer, 10);
+    osSetEventMesg(OS_EVENT_DP, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_DP));
+    osSetEventMesg(OS_EVENT_SP, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_SP));
+    osSetEventMesg(OS_EVENT_FAULT, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_FAULT));
+    osSetEventMesg(OS_EVENT_PRENMI, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_PRENMI));
     viMgr_registerSignalMesg(&sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_VI_RETRACE));
     sSyncCounter = 0;
     sTask7Handled = 0;
@@ -516,7 +542,6 @@ void thread5_create(void) {
     sGfxTask.t.yield_data_ptr = (u64 *) yield_data_ptr;
     osCreateThread(&sThread5, THREAD5_ID, thread5_entry, NULL, &sThread5Stack[2048], THREAD5_PRI);
     osStartThread(&sThread5);
-#endif
 }
 
 void thread5_enableControllerTimer(void) {
@@ -538,4 +563,21 @@ OSMesgQueue *__thread5_getMessageQueue(void) {
 
 OSThread *__thread5_getThreadObject(void) {
     return &sThread5;
+}
+
+// [port] Watchdog diagnostics: unsynchronized snapshot of the pipeline state.
+void thread5_getWatchdogState(Thread5WatchdogState *out) {
+    out->unkFlag1 = sUnkFlag1;
+    out->unkFlag2 = sUnkFlag2;
+    out->unkFlag2Saved = sUnkFlag2_Saved;
+    out->syncCounter = sSyncCounter;
+    out->task7Handled = sTask7Handled;
+    out->gfxActiveId = sActiveGfxTaskDataID;
+    out->gfxSelectedId = sSelectedGfxTaskDataID;
+    out->audioActiveId = sActiveAudioTaskDataID;
+    out->audioSelectedId = sSelectedAudioTaskDataID;
+    out->taskQueueCount = sThread5MesgQueue.validCount;
+    out->taskQueueCap = sThread5MesgQueue.msgCount;
+    out->syncQueueCount = sThread5SyncMesgQueue.validCount;
+    out->syncQueueCap = sThread5SyncMesgQueue.msgCount;
 }

@@ -1,4 +1,4 @@
-// BanjoDecomp: (core2 origin - unknown exact file)
+// BanjoDecomp: core2/code_13A00.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -30,7 +30,7 @@ void func_8029A990(void){
     else
         func_8029C304(1);
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     plyr_pos[1] = floor_getCurrentFloorYPosition();
     pCtrl = func_802F4094(plyr_pos, 25.0f);
     particleEmitter_setParticleVelocityRange(pCtrl,
@@ -119,7 +119,7 @@ void func_8029AC34(Struct5Ds *arg0, s32 arg1){
 void func_8029ACD4(void){
     f32 plyr_pos[3];
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     func_802F4894(D_8037D190, plyr_pos);
     func_802F4884( D_8037D190, func_80294660(), floor_getCurrentFloorYPosition());
 }

@@ -3,6 +3,7 @@
 #include "variables.h"
 #include "core2/abilityprogress.h"
 #include "core2/ba/physics.h"
+#include "core2/yaw.h"
 
 
 void func_802915CC(f32);
@@ -17,8 +18,8 @@ int bsclaw_hitboxActive(void){
 }
 
 void bsclaw_init(void){
-    baanim_playForDuration_once(ASSET_5_ANIM_BSPUNCH, 1.3f);
-    func_8029C7F4(1,1,3, BA_PHYSICS_LOCKED_ROTATION);
+    baanim_playForDuration_onceSmooth(ASSET_5_ANIM_BSPUNCH, 1.3f);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_LOCKED_ROTATION);
     baphysics_set_target_yaw(yaw_getIdeal());
     baphysics_set_target_horizontal_velocity(160.0f);
     func_802915CC(80.0f);

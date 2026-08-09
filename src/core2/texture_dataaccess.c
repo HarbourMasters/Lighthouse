@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_63690.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -51,12 +52,12 @@ s32 textureInfo_getPaletteSize(BKTextureInfo *this){
 }
 
 // texture_getOffset
-s32 func_802EA6DC(BKTextureInfo *this){
+s32 textureInfo_getOffset(BKTextureInfo *this){
     return this->offset;
 }
 
 //texture_getSize
-s32 func_802EA6E4(BKTextureInfo *this){
+s32 textureInfo_getTextureSize(BKTextureInfo *this){
     s32 palette_size = textureInfo_getPaletteSize(this);
     s32 pixel_size = textureInfo_getBitDepth(this);
 
@@ -64,6 +65,6 @@ s32 func_802EA6E4(BKTextureInfo *this){
 }
 
 //textureList_getTexture
-BKTextureInfo *func_802EA748(BKTextureList *arg0, s32 indx){
+BKTextureInfo *textureList_getTextureInfo(BKTextureList *arg0, s32 indx){
     return (BKTextureInfo *)(arg0 +1) + indx;
 }

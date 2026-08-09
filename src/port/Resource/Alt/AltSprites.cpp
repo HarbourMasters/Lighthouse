@@ -59,6 +59,22 @@ const char* resolveColorVariant(const char* base, int variant) {
     return result;
 }
 
+std::unordered_map<const char*, bool> sAltPresentCache;
+
+bool altFilePresent(const char* path) {
+    auto it = sAltPresentCache.find(path);
+    if (it != sAltPresentCache.end()) {
+        return it->second;
+    }
+    bool present = false;
+    if (std::string(path).rfind("__OTR__", 0) == 0) {
+        present = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->HasFile(
+            "alt/" + std::string(path + 7));
+    }
+    sAltPresentCache.emplace(path, present);
+    return present;
+}
+
 const char* resolvePath(const void* chunkAddr) {
     const int variant = sColorVariant;
     sColorVariant = -1;
@@ -80,7 +96,7 @@ const char* resolvePath(const void* chunkAddr) {
             return colored;
         }
     }
-    return it->second;
+    return altFilePresent(it->second) ? it->second : nullptr;
 }
 } // namespace
 

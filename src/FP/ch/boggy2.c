@@ -64,8 +64,8 @@ Actor *func_80388740(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     ActorLocal_FP_2350 * local = (ActorLocal_FP_2350 *) &this->local;
     f32 sp2C[3];
 
-    func_8033A45C(1, 1);
-    func_8033A45C(3, 1);
+    modelRender_setAppendageVisibility(1, 1);
+    modelRender_setAppendageVisibility(3, 1);
     this = actor_draw(marker, gfx, mtx, vtx);
     if(this->volatile_initialized && marker->unk14_21){
         if( this->state == 4
@@ -96,20 +96,20 @@ void FP_func_803888E4(Actor *this){
     static f32 D_80391D18[3] = {1463.0f, 635.0f, 5193.0f};
     subaddie_set_state_with_direction(this, 0xC, 0.0001f, 1);
     if(!jiggyscore_isSpawned(JIGGY_30_FP_BOGGY_2)){
-        if(mapSpecificFlags_get(5)){
-            func_80324DBC(0.1f, 0xc06, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+        if(mapSpecificFlags_get(FP_SPECIFIC_FLAG_5_WALRUS_RACE_FAILED)){
+            func_80324DBC(0.1f, VER_SELECT(ASSET_C06_DIALOG_BOGGY_SLED_WALRUS_SECOND_START, 0x980, 0, 0), 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
         else{//L80388964
-            func_80324DBC(0.1f, 0xc03, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+            func_80324DBC(0.1f, VER_SELECT(ASSET_C03_DIALOG_BOGGY_SLED_WALRUS_START, 0x97D, 0, 0), 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
     }
     else{//L803889A0
         func_8028F490(D_80391D0C);
-        if(mapSpecificFlags_get(6)){
-            func_80324DBC(0.1f, 0xc29, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+        if(mapSpecificFlags_get(FP_SPECIFIC_FLAG_6_BANJO_RACE_FAILED)){
+            func_80324DBC(0.1f, VER_SELECT(ASSET_C29_DIALOG_BOGGY_SLED_BEAR_SECOND_START, 0x9A3, 0, 0), 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
         else{
-            func_80324DBC(0.1f, 0xc28, 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
+            func_80324DBC(0.1f, VER_SELECT(ASSET_C28_DIALOG_BOGGY_SLED_BEAR_START, 0x9A2, 0, 0), 0x2a, D_80391D18, this->marker, func_80388D70, NULL);
         }
     }//L80388A30
     mapSpecificFlags_set(5, true);
@@ -126,11 +126,11 @@ void func_80388A50(Actor *this){
 
 void func_80388A94(Actor *this){
     func_80388A50(this);
-    if(mapSpecificFlags_get(6)){
-        gcdialog_showDialog(ASSET_C0A_DIALOG_BOGGY_SLED_BEAR_MISS_RETRY, 0xe, this->position, this->marker, func_80388D70, NULL);
+    if(mapSpecificFlags_get(FP_SPECIFIC_FLAG_6_BANJO_RACE_FAILED)){
+        gcdialog_showDialog(VER_SELECT(ASSET_C0A_DIALOG_BOGGY_SLED_BEAR_MISS_RETRY, 0x984, 0, 0), 0xe, this->position, this->marker, func_80388D70, NULL);
     }
     else{
-        gcdialog_showDialog(ASSET_C09_DIALOG_BOGGY_SLED_BEAR_ANSWER_TO_START, 0xe, this->position, this->marker, func_80388D70, NULL);
+        gcdialog_showDialog(VER_SELECT(ASSET_C09_DIALOG_BOGGY_SLED_BEAR_ANSWER_TO_START, 0x983, 0, 0), 0xe, this->position, this->marker, func_80388D70, NULL);
     }
 }
 
@@ -138,17 +138,17 @@ void func_80388B18(Actor *this, u8 arg1){
     if(arg1 == true){
         if(player_getTransformation() == TRANSFORM_4_WALRUS){
             func_80388A50(this);
-            if(mapSpecificFlags_get(5)){
-                gcdialog_showDialog(ASSET_C05_DIALOG_BOGGY_SLED_WALRUS_MISS_RETRY, 0xf, this->position, this->marker, func_80388D70, NULL);
+            if(mapSpecificFlags_get(FP_SPECIFIC_FLAG_5_WALRUS_RACE_FAILED)){
+                gcdialog_showDialog(VER_SELECT(ASSET_C05_DIALOG_BOGGY_SLED_WALRUS_MISS_RETRY, 0x97F, 0, 0), 0xf, this->position, this->marker, func_80388D70, NULL);
             }
             else{
-                gcdialog_showDialog(ASSET_C02_DIALOG_BOGGY_SLED_WALRUS_MEET, 0xf, this->position, this->marker, func_80388D70, NULL);
+                gcdialog_showDialog(VER_SELECT(ASSET_C02_DIALOG_BOGGY_SLED_WALRUS_MEET, 0x97C, 0, 0), 0xf, this->position, this->marker, func_80388D70, NULL);
             }
         }
         else{//L80388BB8
             if(!volatileFlag_get(VOLATILE_FLAG_B3)){
-                if(gcdialog_showDialog(ASSET_C01_DIALOG_BOGGY_SLED_BEAR_DENY, 0xe, this->position, this->marker, func_80388D70, NULL)){
-                    volatileFlag_set(VOLATILE_FLAG_B3, true);
+                if(gcdialog_showDialog(VER_SELECT(ASSET_C01_DIALOG_BOGGY_SLED_BEAR_DENY, 0x97B, 0, 0), 0xe, this->position, this->marker, func_80388D70, NULL)){
+                    volatileFlag_set(VOLATILE_FLAG_B3, TRUE);
                     func_80388A50(this);
                 }
             }
@@ -157,8 +157,8 @@ void func_80388B18(Actor *this, u8 arg1){
     else{//L80388C08
         if(player_getTransformation() == TRANSFORM_4_WALRUS){
             if(!volatileFlag_get(VOLATILE_FLAG_B4)){
-                if(gcdialog_showDialog(ASSET_C08_DIALOG_BOGGY_SLED_WALRUS_COMPLETE_RETRY, 0xe, this->position, this->marker, func_80388D70, NULL)){
-                    volatileFlag_set(VOLATILE_FLAG_B4, true);
+                if(gcdialog_showDialog(VER_SELECT(ASSET_C08_DIALOG_BOGGY_SLED_WALRUS_COMPLETE_RETRY, 0x982, 0, 0), 0xe, this->position, this->marker, func_80388D70, NULL)){
+                    volatileFlag_set(VOLATILE_FLAG_B4, TRUE);
                     func_80388A50(this);
                 }
             }
@@ -198,10 +198,10 @@ void func_80388D70(ActorMarker *caller, enum asset_e text_id, s32 arg2){
 
     timed_exitStaticCamera(0.0f);
     switch(text_id){
-        case 0xc03:
-        case 0xc06:
-        case 0xc28:
-        case 0xc29://L80388DC4
+        case VER_SELECT(ASSET_C03_DIALOG_BOGGY_SLED_WALRUS_START, 0x97D, 0, 0):
+        case VER_SELECT(ASSET_C06_DIALOG_BOGGY_SLED_WALRUS_SECOND_START, 0x980, 0, 0):
+        case VER_SELECT(ASSET_C28_DIALOG_BOGGY_SLED_BEAR_START, 0x9A2, 0, 0):
+        case VER_SELECT(ASSET_C29_DIALOG_BOGGY_SLED_BEAR_SECOND_START, 0x9A3, 0, 0)://L80388DC4
             coMusicPlayer_playMusic(COMUSIC_3A_FP_BOGGY_RACE, 25000);
             func_8025A58C(0, 4000);
             core1_ce60_incOrDecCounter(false);
@@ -392,7 +392,7 @@ void func_803895E0(void){
             : cubeList_findNodePropByActorIdAndPosition_s32(D_80391DB8[i].unk0, D_80391DAC);
 
         nodeprop_getPosition(s0, sp64);
-        f20 = (f32)nodeprop_getYaw(s0);
+        f20 = (f32)nodeProp_getYaw(s0);
         f8 = (f32)nodeprop_getScale(s0);
         f22 = f8*0.01;
         actor = actor_spawnWithYaw_f32(D_80391DB8[i].actor_id, sp64, (s32)f20);
@@ -474,7 +474,7 @@ void func_803896FC(Actor *this){
             }
             else if( subaddie_playerIsWithinSphereAndActive(this, 0x1C2)
                 && player_movementGroup() == BSGROUP_0_NONE
-                && func_8028F20C()
+                && player_isStableWithExtraSteps()
                 && func_8028EFC8()
                 && sp3C[FACE_BUTTON(BUTTON_B)] == 1
                 && !gcdialog_hasCurrentTextId()
@@ -483,13 +483,13 @@ void func_803896FC(Actor *this){
                     && player_getTransformation() != TRANSFORM_4_WALRUS
                     && volatileFlag_get(VOLATILE_FLAG_B3)
                 ){
-                    gcdialog_showDialog(ASSET_C01_DIALOG_BOGGY_SLED_BEAR_DENY, 0xf, this->position, this->marker, func_80388D70, NULL);
+                    gcdialog_showDialog(VER_SELECT(ASSET_C01_DIALOG_BOGGY_SLED_BEAR_DENY, 0x97B, 0, 0), 0xf, this->position, this->marker, func_80388D70, NULL);
                 }
                 else if( local->unk19 == 2){
                     if( player_getTransformation() == TRANSFORM_4_WALRUS
                         && volatileFlag_get(VOLATILE_FLAG_B4)
                     ){
-                        gcdialog_showDialog(ASSET_C08_DIALOG_BOGGY_SLED_WALRUS_COMPLETE_RETRY, 0xf, this->position, this->marker, func_80388D70, NULL);
+                        gcdialog_showDialog(VER_SELECT(ASSET_C08_DIALOG_BOGGY_SLED_WALRUS_COMPLETE_RETRY, 0x982, 0, 0), 0xf, this->position, this->marker, func_80388D70, NULL);
                     }
                     else if( player_getTransformation() != TRANSFORM_4_WALRUS){
                         func_80388A94(this);

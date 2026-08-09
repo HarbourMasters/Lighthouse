@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/particle.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
@@ -51,11 +52,16 @@ typedef struct particle{
     f32 velocity_50[3];
     u8 unk5C;
     //u8 pad5D[3];
+    // [port] Spawn serial; see the identity comment in __particleEmitter_drawOnPass.
+    u32 portSerial;
 } Particle;
 
 /* .bss */
 f32 particleSfxTimer;
 u8 partEmitMgrEnable;
+
+// [port] Monotonic source for Particle::portSerial.
+static u32 sPortParticleSerial = 0;
 
 /* .code */
 void func_802EE930(ParticleEmitter *this){
@@ -120,6 +126,7 @@ void __particleEmitter_initParticle(ParticleEmitter *this, Particle *particle){
     particle->angluar_velocity[1] = randf2(this->unkBC[1], this->unkC8[1]);
     particle->angluar_velocity[2] = randf2(this->unkBC[2], this->unkC8[2]);
     
+    particle->portSerial = ++sPortParticleSerial; // [port] interpolation identity
     particle->age_48 = 0.0f;
     particle->lifetime_4C = randf2(this->particleLifeTimeRange[0], this->particleLifeTimeRange[1]) + 0.001;
     if(!this->sphericalParticleVelocity_48){
@@ -164,19 +171,10 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
         return;
 
     if(this->model_20 != NULL){
-        // [port] Stable scope per emitter + per particle. Slot index plus
-        // a coarse age bucket: two consecutive frames of the same particle
-        // land in the same bucket, so they pair. When expiry swaps a new
-        // particle into the slot its age resets to ~0 — different bucket,
-        // no false pair with the dead particle. Spawn-field hashing alone
-        // failed for sparkles (shared emitter, zero-width scale/lifetime
-        // ranges → every particle had the same hash → visible flashing).
+        // [port] Stable scope per emitter + per particle, keyed on a spawn serial.
         FrameInterpolation_RecordOpenChild("part_emit", FrameInterpolation_GetId(this));
         for(iPtr = this->pList_start_124; iPtr < this->pList_end_128; iPtr++){
-            FrameInterpolation_RecordOpenChildHash3("part",
-                (uint64_t)(uintptr_t)(iPtr - this->pList_start_124),
-                (uint64_t)(iPtr->age_48 * 2.0f),
-                0);
+            FrameInterpolation_RecordOpenChildHash3("part", (uint64_t)iPtr->portSerial, 0, 0);
             position[0] = iPtr->position[0] + this->unk4[0];
             position[1] = iPtr->position[1] + this->unk4[1];
             position[2] = iPtr->position[2] + this->unk4[2];
@@ -217,13 +215,10 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
         flat_rotation[0] = 90.0f;
         flat_rotation[1] = 0.0f;
         flat_rotation[2] = 0.0f;
-        // [port] Same slot+age-bucket identity as the model branch above.
+        // [port] Same spawn-serial identity as the model branch above.
         FrameInterpolation_RecordOpenChild("part_emit", FrameInterpolation_GetId(this));
         for(iPtr = this->pList_start_124; iPtr < this->pList_end_128; iPtr++){
-            FrameInterpolation_RecordOpenChildHash3("part",
-                (uint64_t)(uintptr_t)(iPtr - this->pList_start_124),
-                (uint64_t)(iPtr->age_48 * 2.0f),
-                0);
+            FrameInterpolation_RecordOpenChildHash3("part", (uint64_t)iPtr->portSerial, 0, 0);
             gDPSetPrimColor((*gfx)++, 0, 0, this->rgb[0], this->rgb[1], this->rgb[2], iPtr->fade*this->alpha);
             position[0] = iPtr->position[0] + this->unk4[0];
             position[1] = iPtr->position[1] + this->unk4[1];

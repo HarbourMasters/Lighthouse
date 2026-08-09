@@ -13,13 +13,9 @@
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "variables.h"
-enum level_e map_getLevel(enum map_e map);
-enum map_e gsworld_getMap(void);
-}
 
 #include <cmath>
 
@@ -96,6 +92,7 @@ static void updateCutsceneAspect(int32_t mapId) {
 // Widescreen yaw fix — per-frame yaw adjustment for certain static cameras in widescreen mode
 
 #define CVAR_WS_CAMERA_FIX CVAR_ENHANCEMENT("Fix.WidescreenCamera")
+#define CVAR_NO_SCREEN_SHAKE CVAR_SETTING("A11yDisableScreenShake")
 
 struct WsYawFix {
     int32_t map;
@@ -176,5 +173,11 @@ void RegisterCameraPatches_Init() {
     });
 }
 
+void RegisterScreenShake_Init() {
+    COND_VB_SHOULD(VB_CAMERA_APPLY_SHAKE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NO_SCREEN_SHAKE, 0),
+                   { *should = false; });
+}
+
 static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });
 static RegisterShipInitFunc staticCamInitFunc(RegisterCameraPatches_Init);
+static RegisterShipInitFunc screenShakeInitFunc(RegisterScreenShake_Init, { CVAR_NO_SCREEN_SHAKE });

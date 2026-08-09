@@ -8,9 +8,9 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 
+#include "functions.h"
 extern "C" {
 #include "enums.h"
-#include "functions.h"
 
 enum map_e gsworld_getMap(void);
 }
@@ -34,6 +34,7 @@ extern "C" int port_isInCharacterParade(void) {
 #define CVAR_JINJO_SOUND CVAR_ENHANCEMENT("Fixes.JinjoChargeSound")
 #define CVAR_GRUNTY_BOUNCE CVAR_ENHANCEMENT("Fixes.GruntyBounce")
 #define CVAR_CONGA_TEXT CVAR_ENHANCEMENT("Fixes.CongaText")
+#define CVAR_STUMP_RUMBLE CVAR_ENHANCEMENT("Fixes.ChimpyStumpRumble")
 
 void RegisterVoidOutGameOver_Init() {
     COND_VB_SHOULD(VB_VOID_OUT_GAME_OVER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_VOID_OUT, 0),
@@ -140,6 +141,29 @@ void RegisterCongaDialog_Init() {
     });
 }
 
+// MM Chimpy stump: Chimpy respawns and walks off again on every entry to MM once his jiggy has
+// spawned, so the stump drops in low and grinds back up with the rumble sfx each time. Mute the
+// rumble for those replays only; the first rise (jiggy spawns 2.9s after the shake starts, so it
+// isn't marked spawned yet) keeps its sound.
+static bool IsChimpyWalkOffReplay() {
+    return jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY) &&
+           !mapSpecificFlags_get(MM_SPECIFIC_FLAG_2_ORANGE_HAS_BEEN_RETURNED);
+}
+
+void RegisterChimpyStumpRumble_Init() {
+    COND_VB_SHOULD(VB_MM_CHIMPY_STUMP_RUMBLE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
+                   { *should = !jiggyscore_isSpawned(JIGGY_9_MM_CHIMPY); });
+    COND_VB_SHOULD(VB_MM_CHIMPY_NOISE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1),
+                   { *should = !IsChimpyWalkOffReplay(); });
+    COND_VB_SHOULD(VB_SPLINE_PATH_SFX, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_STUMP_RUMBLE, 1), {
+        Actor* pathWalker = va_arg(args, Actor*);
+        if (pathWalker != NULL && pathWalker->actor_info != NULL && pathWalker->actor_info->actorId == ACTOR_F_CHIMPY &&
+            IsChimpyWalkOffReplay()) {
+            *should = false;
+        }
+    });
+}
+
 // Mumbo token duplicate-id fix: rewrite the resolved id for the two tokens that share an id.
 void RegisterMumboTokenIdResolve_Init() {
     COND_HOOK(OnMumboTokenIdResolve, EVENT_PRIORITY_NORMAL,
@@ -158,6 +182,23 @@ void RegisterMumboTokenIdResolve_Init() {
               });
 }
 
+// Map savestates and demo playback
+static bool isPlaybackMode(s32 mode) {
+    return (mode == GAME_MODE_5_UNKNOWN) || (mode == GAME_MODE_6_FILE_PLAYBACK) || (mode == GAME_MODE_7_ATTRACT_DEMO) ||
+           (mode == GAME_MODE_8_BOTTLES_BONUS) || (mode == GAME_MODE_9_BANJO_AND_KAZOOIE) ||
+           (mode == GAME_MODE_A_SNS_PICTURE);
+}
+
+void RegisterMapSavestatePlayback_Init() {
+    REGISTER_VB_SHOULD(VB_MAP_SAVESTATE_USE, EVENT_PRIORITY_NORMAL, {
+        s32 mode = va_arg(args, s32);
+        if (isPlaybackMode(mode)) {
+            *should = false;
+        }
+    });
+}
+
+static RegisterShipInitFunc initMapSavestatePlaybackFunc(RegisterMapSavestatePlayback_Init);
 static RegisterShipInitFunc initVoidOutFunc(RegisterVoidOutGameOver_Init, { CVAR_VOID_OUT });
 static RegisterShipInitFunc initFurnaceFunDialogFunc(RegisterFurnaceFunDialog_Init, { CVAR_FF_DIALOG });
 static RegisterShipInitFunc initGruntyDefeatedFlagFunc(RegisterGruntyDefeatedFlag_Init, { CVAR_GRUNTY_FLAG });
@@ -171,5 +212,6 @@ static RegisterShipInitFunc initJinjoChargeSoundFunc(RegisterJinjoChargeSound_In
 static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CVAR_GRUNTY_BOUNCE });
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
+static RegisterShipInitFunc initChimpyStumpRumbleFunc(RegisterChimpyStumpRumble_Init, { CVAR_STUMP_RUMBLE });
 static RegisterShipInitFunc initMumboTokenIdResolveFunc(RegisterMumboTokenIdResolve_Init,
                                                         { CVAR_TOKEN_MMM, CVAR_TOKEN_CCW });

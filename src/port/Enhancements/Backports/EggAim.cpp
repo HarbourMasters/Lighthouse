@@ -13,12 +13,10 @@
 #include "port/ShipInit.hpp"
 #include "EggAim.h"
 
-extern "C" {
 #include "enums.h"
 #include "functions.h"
 #include "core2/commonParticle.h"
 #include "core2/abilityprogress.h"
-}
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Backports.EggAim")
 
@@ -215,6 +213,10 @@ const uint8_t sCrosshairTextureData[32 * 32 * 4] = {
 int sFiring = 0;
 int sOverlayShown = 0;
 
+bool canAimEggs() {
+    return can_egg() && player_getTransformation() == TRANSFORM_1_BANJO;
+}
+
 } // namespace
 
 void RegisterEggAimSpawn_Init() {
@@ -224,7 +226,7 @@ void RegisterEggAimSpawn_Init() {
         }
         auto* ev = reinterpret_cast<EggHeadSpawn*>(event);
         float rotation[3];
-        ncFirstPersonCamera_getZoomedInRotation(rotation);
+        ncba1p_getZoomedInRotation(rotation);
         *ev->pitch = -rotation[0];
         *ev->spawnHeight = 100.0f;
         *ev->minVerticalVelocity = -99999.0f;
@@ -243,11 +245,11 @@ void RegisterEggAim_Init() {
             return;
         }
 
-        if (!can_egg()) {
+        if (!canAimEggs()) {
             return;
         }
 
-        if (ncFirstPersonCamera_getState() == FIRSTPERSON_STATE_2_IDLE) {
+        if (ncba1p_getState() == FIRSTPERSON_STATE_2_IDLE) {
             if (sOverlayShown < kOverlayFadeDuration) {
                 sOverlayShown++;
             }
@@ -303,7 +305,7 @@ void EggAimCrosshairWindow::Draw() {
         tex.ImageDataSize = sizeof(sCrosshairTextureData);
         tex.ImageData = new uint8_t[sizeof(sCrosshairTextureData)];
         std::memcpy(tex.ImageData, sCrosshairTextureData, sizeof(sCrosshairTextureData));
-        gui->LoadGuiTexture(kCrosshairTexture, tex, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+        gui->LoadGuiTexture(kCrosshairTexture, tex, "", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
     const float t = (float)sOverlayShown / (float)kOverlayFadeDuration; // 0..1

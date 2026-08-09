@@ -1,16 +1,15 @@
-// BanjoDecomp: tanktup.c
+// BanjoDecomp: BGS/ch/tanktup.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
 
 #include "prop.h"
 
+#include "port/Patches/Patches.h"
+
 void timed_exitStaticCamera(f32);
 
-#include "core2/timedfunc.h"
-
 void func_8028E668(f32[3], f32, f32, f32);
-extern void __spawnQueue_add_3(GenFunction_3, uintptr_t, uintptr_t, uintptr_t);
 
 void chTanktup_update(Actor *);
 
@@ -29,9 +28,17 @@ ActorAnimationInfo BGS_D_80390C20[] = {
     {0x107, 1.75f}
 };
 
-ActorInfo chTanktup = {MARKER_6C_TANKTUP, ACTOR_E8_TANKTUP, ASSET_3EE_TANKTUP, 0x01, BGS_D_80390C20,
+ActorInfo gChTanktup = {
+    MARKER_6C_TANKTUP, ACTOR_E8_TANKTUP, ASSET_3EE_TANKTUP,
+    0x01, BGS_D_80390C20,
     chTanktup_update, actor_update_func_80326224, actor_draw,
     0, 0x80, 0.0f, 0
+};
+
+enum chTanktupState {
+    CH_TANKTUP_STATE_1_UNK = 1,
+    CH_TANKTUP_STATE_2_UNK,
+    CH_TANKTUP_STATE_3_UNK,
 };
 
 /* .code */
@@ -67,9 +74,7 @@ s32 func_8038F570(s16 *arg0){
     pos[1] = (f32)arg0[1];
     pos[2] = (f32)arg0[2];
     spawnPtr = actorArray_findClosestActorFromActorId(pos, ACTOR_E8_TANKTUP, -1, 0);
-    return spawnPtr->state == 3;
-
-
+    return spawnPtr->state == CH_TANKTUP_STATE_3_UNK;
 }
 
 void func_8038F5E4(ActorMarker *marker, enum asset_e text_id, s32 arg2){
@@ -93,138 +98,174 @@ void func_8038F610(Actor *this) {
 void func_8028F94C(s32, f32[3]);
 void func_8028F918(s32);
 
+// Anchor: set when state 2 took the head-raise look-at/freeze push; state 3 releases it.
+static s32 sTanktupCameraPushed = 0;
+static s32 sTanktupPoseCatchUp = 0;
+
 void chTanktup_update(Actor *this)
 {
-  ActorLocal_TanktupBody *local = (ActorLocal_TanktupBody *) (&this->local);
-  f32 sp48[3];
-  s32 sp44;
-  NodeProp *temp_v0;
-  if (!this->initialized)
-  {
-    temp_v0 = nodeprop_findByActorIdAndActorPosition(ACTOR_32B_UNKNOWN, this);
-    if (temp_v0 == 0)
+    ActorLocal_TanktupBody *local = (ActorLocal_TanktupBody *) (&this->local);
+    f32 sp48[3];
+    s32 sp44;
+    NodeProp *temp_v0;
+    if (!this->initialized)
     {
-      local->unk18[0] = 3672.0f;
-      local->unk18[1] = 100.0f;
-      local->unk18[2] = 987.0f;
-    }
-    else
-    {
-      nodeprop_getPosition(temp_v0, local->unk18);
-    }
-    this->has_met_before = false;
-    this->initialized = true;
-  }
-  if (!this->volatile_initialized)
-  {
-    this->volatile_initialized = true;
-    this->marker->propPtr->unk8_3 = 1;
-    actor_collisionOff(this);
-    this->scale = 1.0f;
-    for (sp44 = 0; sp44 < 4; sp44++)
-    {
-      if (local->unk0[sp44] == 0)
-      {
-        __spawnQueue_add_3((GenFunction_3)func_8038F470, (uintptr_t)this->marker, local->unk0[sp44], sp44);
-      }
-    }
-
-    if (local)
-    {
-      ;
-    }
-  }
-  switch (this->state)
-  {
-    case 1:
-      func_8038F610(this);
-      player_getPosition(sp48);
-      if (!this->has_met_before)
-    {
-      if ((((ml_vec3f_distance(local->unk18, sp48) < 250.0f) && (ml_vec3f_distance(local->unk18, sp48) > 80.0f)) && (!player_movementGroup())) && (player_getTransformation() == TRANSFORM_1_BANJO))
-      {
-        gcdialog_showDialog(ASSET_C7E_DIALOG_TANKTUP_MEET, 0, 0, 0, 0, 0);
-        this->has_met_before = true;
-      }
-    }
-      if (local->unk10)
-    {
-      subaddie_set_state_with_direction(this, 2, 0.0f, -1);
-      local->unk10 = 0;
-      sp44 = 0;
-        (void)&sp44;
-      local->unk14 = 1;
-      for (; sp44 < 4; sp44++)
-      {
-        if (local->unk0[sp44] == 0)
+        temp_v0 = nodeprop_findByActorIdAndActorPosition(ACTOR_32B_UNKNOWN, this);
+        if (temp_v0 == 0)
         {
-          local->unk14 = 0;
+            local->unk18[0] = 3672.0f;
+            local->unk18[1] = 100.0f;
+            local->unk18[2] = 987.0f;
         }
-      }
-
-      if ((!this->unk138_23) && (!local->unk14))
-      {
-        if (gcdialog_showDialog(ASSET_C80_DIALOG_TANKTUP_HIT, 0, 0, 0, 0, 0))
+        else
         {
-          this->unk138_23 = 1;
+            nodeprop_getPosition(temp_v0, local->unk18);
         }
-      }
+        this->has_met_before = FALSE;
+        this->initialized = TRUE;
     }
-      break;
+    if (!this->volatile_initialized)
+    {
+        this->volatile_initialized = TRUE;
+        this->marker->propPtr->unk8_3 = 1;
+        actor_collisionOff(this);
+        this->scale = 1.0f;
+        sTanktupCameraPushed = 0;
+        // Anchor: adopt the team's already-retracted legs.
+        {
+            s32 legBits = port_puzzleStep_get(ANCHOR_PUZZLE_BGS_TANKTUP);
+            for (sp44 = 0; sp44 < 4; sp44++)
+            {
+                if (legBits & (1 << sp44))
+                {
+                    local->unk0[sp44] = 1;
+                }
+            }
+        }
+        for (sp44 = 0; sp44 < 4; sp44++)
+        {
+            if (local->unk0[sp44] == 0)
+            {
+                __spawnQueue_add_3((GenFunction_3)func_8038F470, reinterpret_cast(uintptr_t, this->marker), local->unk0[sp44], sp44);
+            }
+        }
 
-    case 2:
-      func_8038F610(this);
-      if (actor_animationIsAt(this, 0.6f) && local->unk14)
-    {
-      coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
-      func_8028F94C(2, local->unk18);
+        if (local)
+        {
+            ;
+        }
     }
-      if (actor_animationIsAt(this, 0.99f))
+    // Anchor: team completed Tanktup but our body is still idle (state 1) — raise the head to match.
+    if (this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
     {
-      if (!local->unk14)
-      {
-        subaddie_set_state_with_direction(this, 1, 0.0f, -1);
-      }
-      else
-      {
-        subaddie_set_state_with_direction(this, 3, 0.0f, -1);
+        sTanktupPoseCatchUp = 1; // [port] pose only, no presentation
+        subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
         actor_playAnimationOnce(this);
-      }
     }
-      break;
+    switch (this->state)
+    {
+        case CH_TANKTUP_STATE_1_UNK:
+            func_8038F610(this);
+            player_getPosition(sp48);
+            if (!this->has_met_before)
+            {
+                if ((((ml_vec3f_distance(local->unk18, sp48) < 250.0f) && (ml_vec3f_distance(local->unk18, sp48) > 80.0f)) && (!player_movementGroup())) && (player_getTransformation() == TRANSFORM_1_BANJO))
+                {
+                    gcdialog_showDialog(VER_SELECT(ASSET_C7E_DIALOG_TANKTUP_MEET, 0x9C1, 0, 0), 0, 0, 0, 0, 0);
+                    this->has_met_before = TRUE;
+                }
+            }
+            if (local->unk10)
+            {
+                subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_2_UNK, 0.0f, -1);
+                local->unk10 = 0;
+                sp44 = 0;
+                if(&sp44);
+                local->unk14 = 1;
+                for (; sp44 < 4; sp44++)
+                {
+                    if (local->unk0[sp44] == 0)
+                    {
+                        local->unk14 = 0;
+                    }
+                }
 
-    case 3:
-      if (actor_animationIsAt(this, 0.1f) != 0)
-    {
-      timed_setStaticCameraToNode(0.0f, 0xD);
-    }
-      if (actor_animationIsAt(this, 0.55f) != 0)
-    {
-      func_8030E624(0x797FF885U);
-    }
-      if (actor_animationIsAt(this, 0.4f) != 0)
-    {
-      f32 sp34[3];
-      vec3fArray_get_vec3f(this->marker->unk44, 6, sp34);
-      bundle_setYaw(this->yaw);
-      sp34[1] -= 125.0f;
-      jiggy_spawn(JIGGY_26_BGS_TANKTUP, sp34);
-    }
-      if (actor_animationIsAt(this, 0.9f) != 0)
-    {
-      func_8028F918(0);
-      if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
-      {
-        gcdialog_showDialog(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0xF, this->position, this->marker, func_8038F5E4, 0);
-      }
-      else
-      {
-        func_8038F5E4(this->marker, ASSET_C7F_DIALOG_TANKTUP_COMPLETE, -1);
-      }
-    }
-      break;
+                if ((!this->unk138_23) && (!local->unk14))
+                {
+                    if (gcdialog_showDialog(VER_SELECT(ASSET_C80_DIALOG_TANKTUP_HIT, 0x9C3, 0, 0), 0, 0, 0, 0, 0))
+                    {
+                        this->unk138_23 = 1;
+                    }
+                }
+            }
+            break;
 
-  }
+        case CH_TANKTUP_STATE_2_UNK:
+            func_8038F610(this);
+            if (actor_animationIsAt(this, 0.6f) && local->unk14)
+            {
+                coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
+                func_8028F94C(2, local->unk18);
+                sTanktupCameraPushed = 1;
+            }
+            if (actor_animationIsAt(this, 0.99f))
+            {
+                if (!local->unk14)
+                {
+                    subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_1_UNK, 0.0f, -1);
+                }
+                else
+                {
+                    sTanktupPoseCatchUp = 0; // [port] solved for real: keep the presentation
+                    subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
+                    actor_playAnimationOnce(this);
+                }
+            }
+            break;
 
+        case CH_TANKTUP_STATE_3_UNK:
+        {
+            f32 pp[3];
+            s32 near;
+            player_getPosition(pp);
+            near = ml_vec3f_distance(local->unk18, pp) < 700.0f;
+            if (actor_animationIsAt(this, 0.1f) != 0 && near && !sTanktupPoseCatchUp)
+            {
+                timed_setStaticCameraToNode(0.0f, 0xD);
+            }
+            if (actor_animationIsAt(this, 0.55f) != 0 && !sTanktupPoseCatchUp)
+            {
+                func_8030E624(0x797FF885U); // SFX_85_ROUGH_COUGH
+            }
+            if (actor_animationIsAt(this, 0.4f) != 0 && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP) == 0)
+            {
+                f32 sp34[3];
+                vec3fArray_get_vec3f(this->marker->unk44, 6, sp34);
+                bundle_setYaw(this->yaw);
+                sp34[1] -= 125.0f;
+                jiggy_spawn(JIGGY_26_BGS_TANKTUP, sp34);
+            }
+            if (actor_animationIsAt(this, 0.9f) != 0)
+            {
+                // Anchor: release the freeze/look-at if state 2 took it, independent of the proximity check below.
+                if (sTanktupCameraPushed)
+                {
+                    func_8028F918(0);
+                    sTanktupCameraPushed = 0;
+                }
+                if (near)
+                {
+                    if (jiggyscore_isCollected(JIGGY_26_BGS_TANKTUP) == 0)
+                    {
+                        gcdialog_showDialog(VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), 0xF, this->position, this->marker, func_8038F5E4, 0);
+                    }
+                    else
+                    {
+                        func_8038F5E4(this->marker, VER_SELECT(ASSET_C7F_DIALOG_TANKTUP_COMPLETE, 0x9C2, 0, 0), -1);
+                    }
+                }
+            }
+            break;
+        }
+    }
 }
-

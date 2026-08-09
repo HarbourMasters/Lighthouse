@@ -4,6 +4,7 @@
 
 #include "core2/ba/anim.h"
 #include "core2/ba/physics.h"
+#include "core2/yaw.h"
 
 extern void bainput_setDiveCooldown(s32, f32);
 
@@ -73,7 +74,7 @@ void __bsswim_updateVelocity(void) {
     baphysics_set_target_horizontal_velocity(ml_interpolate_f(sp1C, bsSwimHorzVelocityMin, bsSwimHorzVelocityMax));
 }
 
-void swim_enteredWater(void) {
+void __bsswim_enteredWater(void) {
     if (level_get() == LEVEL_9_RUSTY_BUCKET_BAY) {
         progressDialog_showDialogMaskZero(FILEPROG_AB_SWIM_OILY_WATER);
     } else if (gsworld_getMap() == MAP_46_CCW_WINTER) {
@@ -139,10 +140,10 @@ void bsswim_idle_init(void) {
         anctrl_setDuration(anim_ctrl, 1.2f);
         anctrl_start(anim_ctrl, "bsswim.c", 0xFD);
     }
-    func_8029C7F4(1, 3, 3, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NORMAL);
     yaw_setVelocityBounded(500.0f, 5.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
-    swim_enteredWater();
+    __bsswim_enteredWater();
     bsSwimCurrentAnimation = 0;
 }
 
@@ -180,7 +181,7 @@ void bsswim_idle_update(void) {
         next_state = BS_5_JUMP;
     }
     if (baflag_isTrue(BA_FLAG_6) || baflag_isTrue(BA_FLAG_14_LOSE_BOGGY_RACE)) {
-        next_state = BS_D_TIMEOUT;
+        next_state = BS_D_TIMEOUT_TRANSFORMATION;
     }
     bs_setState(next_state);
 }
@@ -245,7 +246,7 @@ void bsswim_swim_update(void) {
     if ((func_80294530() != 0) && (can_dive() != 0)) {
         func_802944D0(sp1C);
         if (sp1C[1] < -0.7) {
-            if ((floor_getCurrentFloorYPosition() - player_getYPosition()) > 90.0f) {
+            if ((floor_getCurrentFloorYPosition() - playerPosition_getY()) > 90.0f) {
                 next_state = BS_30_DIVE_ENTER;
             }
         }
@@ -257,7 +258,7 @@ void bsswim_swim_update(void) {
         next_state = BS_5_JUMP;
     }
     if (baflag_isTrue(BA_FLAG_6) || baflag_isTrue(BA_FLAG_14_LOSE_BOGGY_RACE)) {
-        next_state = BS_D_TIMEOUT;
+        next_state = BS_D_TIMEOUT_TRANSFORMATION;
     }
     bs_setState(next_state);
 }
@@ -266,13 +267,13 @@ void bsswim_swim_end(void){
     __bsswim_end();
 }
 
-void __bsswim_enteredWater(void) {
+void __bsswim_update_rotation(void) {
     f32 sp34;
     f32 plyr_pos[3];
     f32 sp1C[3];
 
     if (balookat_getState() != 0) {
-        _player_getPosition(plyr_pos);
+        playerPosition_get(plyr_pos);
         if (balookat_try_get_position(sp1C) && func_80257F18(plyr_pos, sp1C, &sp34)) {
             yaw_setIdeal(sp34);
         }
@@ -281,11 +282,11 @@ void __bsswim_enteredWater(void) {
 
 void bsswim_lookat_init(void) {
     baanim_playForDuration_loopSmooth(0x57, 1.2f);
-    func_8029C7F4(1, 3, 3, BA_PHYSICS_NORMAL);
+    code_14420_setUpdateTypes(1, YAW_STATE_3_BOUNDED, 3, BA_PHYSICS_NORMAL);
     yaw_setVelocityBounded(500.0f, 5.0f);
     baphysics_set_target_horizontal_velocity(0.0f);
-    swim_enteredWater();
     __bsswim_enteredWater();
+    __bsswim_update_rotation();
 }
 
 void bsswim_lookat_update(void) {
@@ -295,7 +296,7 @@ void bsswim_lookat_update(void) {
     if (balookat_getState() == 0) {
         next_state = BS_2D_SWIM_IDLE;
     }
-    __bsswim_enteredWater();
+    __bsswim_update_rotation();
     bs_setState(next_state);
 }
 
@@ -304,7 +305,7 @@ void bsswim_lookat_end(void){
 }
 
 void bsswim_drone_init(void){
-    swim_enteredWater();
+    __bsswim_enteredWater();
     bsdrone_init();
 }
 

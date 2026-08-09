@@ -9,7 +9,7 @@ Requires:
   * The `MSVC v143 - VS 2022 C++ build tools` component of Visual Studio
   * Python 3 (can be installed manually or as part of Visual Studio)
   * Git (can be installed manually or as part of Visual Studio)
-  * Cmake (can be installed via chocolatey or manually)
+  * Cmake version <= 3.3 (can be installed via chocolatey or manually)
 
 During installation, check the "Desktop development with C++" feature set:
 
@@ -22,10 +22,10 @@ It is recommended that you install Python and Git standalone, the install proces
 
 _Note: Be sure to either clone with the ``--recursive`` flag or do ``git submodule update --init`` after cloning to pull in the libultraship submodule!_
 
-2. Place a Banjo-Kazooie `.z64` ROM in the `baseroms/` directory.
-3. Build and generate the `bk.o2r` asset archive.
+2. Build and generate the `lighthouse.o2r` port assets archive.
+3. Generate the `bk.o2r` ROM asset archive.
 
-_Note: Instructions assume using powershell_
+_Note: Instructions assume using powershell, however, it's recommended to use the GeneratePortO2R project in VS and the built-in extraction flow to create the asset archives
 ```powershell
 # Navigate to the lighthouse repo within powershell. ie: cd "C:\yourpath\lighthouse"
 cd lighthouse
@@ -216,13 +216,13 @@ cmake --build build-cmake --target clean
 ```
 
 # Compatible Roms
-See [`supportedHashes.json`](supportedHashes.json)
+Any retail version. See [the readme](https://github.com/HarbourMasters/Lighthouse/blob/develop/README.md#1-verify-your-rom-dump)
 
 ## Getting CI to work on your fork
 
 The CI works via [Github Actions](https://github.com/features/actions) where we mostly make use of machines hosted by Github; except for the very first step of the CI process called "Extract assets". This step extracts assets from the ROM and generates the `bk.o2r` archive.
 
-To get this step working on your fork, you'll need to add a machine to your own repository as a self-hosted runner via "Settings > Actions > Runners" in your repository settings. Make sure to add the 'asset-builder' tag to your newly added runner to assign it to run this step. To setup your runner as a service read the docs [here](https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service?platform=linux).
+To get this step working on your fork, you'll need to enable actions for all sources in the Actions tab on GitHub. You can also add your own local runner on GitHub.
 
 ### Runner on Windows
 You'll have to enable the ability to run unsigned scripts through PowerShell. To do this, open Powershell as administrator and run `set-executionpolicy remotesigned`. Most dependencies get installed as part of the CI process. You will also need to separately install 7z and add it to the PATH so `7z` can be run as a command. [Chocolatey](https://chocolatey.org/) or other package managers can be used to install it easily.

@@ -2,110 +2,97 @@
 #include "port/Network/Anchor/JsonConversions.hpp"
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
-//#include "soh/OTRGlobals.h"
 #include "port/UI/Notification.h"
+#include "port/Enhancements/Retention/Retention.h"
+#include "port/Rando/Rando.h"
+#include <algorithm>
+#include <vector>
 
-extern "C" {
 #include "variables.h"
-// extern PlayState* gPlayState;
-}
+#include "functions.h"
+
+// In-memory session sets that aren't part of the save but still ride team state. Flat int
+// tuples; defined in the respective port modules.
+extern std::vector<int32_t> port_breakable_snapshotBroken();
+extern void port_breakable_restoreBroken(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_carriedSync_snapshotCollected();
+extern void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_eggToll_snapshot();
+extern void port_eggToll_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_puzzleStep_snapshot();
+extern void port_puzzleStep_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_puzzleCount_snapshot();
+extern void port_puzzleCount_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_puzzlePos_snapshot();
+extern void port_puzzlePos_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_jiggySpawn_snapshot();
+extern void port_jiggySpawn_restore(const std::vector<int32_t>& flat);
+extern std::vector<int32_t> port_hutSmash_snapshot();
+extern void port_hutSmash_restore(const std::vector<int32_t>& flat);
 
 /**
  * UPDATE_TEAM_STATE
  *
- * Pushes the current save state to the server for other teammates to use.
- *
- * Fires when the server passes on a REQUEST_TEAM_STATE packet, or when this client saves the game
- *
- * When sending this packet we will assume that the team queue has been emptied for this client, so the queue
- * stored in the server will be cleared.
- *
- * When receiving this packet, if there is items in the team queue, we will play them back in order.
+ * Pushes our full flag state to teammates on REQUEST_TEAM_STATE or on save. Sending clears
+ * the team queue (assumed drained); receiving replays any queued packets after applying state.
  */
+
+// Snapshot a decomp byte-array score/flag section into a JSON byte array.
+static std::vector<u8> ScoreBytes(void (*getSizeAndPtr)(s32*, u8**)) {
+    s32 size;
+    u8* addr;
+    getSizeAndPtr(&size, &addr);
+    return std::vector<u8>(addr, addr + size);
+}
 
 void Anchor::SendPacket_UpdateTeamState() {
     if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
         return;
     }
 
-    // json payload;
-    // payload["type"] = UPDATE_TEAM_STATE;
-    // payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    json payload;
+    payload["type"] = UPDATE_TEAM_STATE;
+    payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    payload["queue"] = json::array();
+    payload["state"]["fileProgressFlags"] = ScoreBytes(fileProgressFlag_getSizeAndPtr);
+    payload["state"]["jiggies"] = ScoreBytes(jiggyscore_getSizeAndPtr);
+    payload["state"]["honeycombs"] = ScoreBytes(honeycombscore_getSizeAndPtr);
+    payload["state"]["mumboTokens"] = ScoreBytes(mumboscore_getSizeAndPtr);
+    payload["state"]["noteScores"] = ScoreBytes(itemscore_noteScores_getSizeAndPtr);
+    payload["state"]["savedItems"] = ScoreBytes(saveditem_getSizeAndPtr);
+    payload["state"]["abilities"] = ScoreBytes(ability_getSizeAndPtr);
+    // Time scores use a (s32*, void**) accessor, so packed inline.
+    s32 tsSize;
+    void* tsAddr;
+    timeScores_getSizeAndPtr(&tsSize, &tsAddr);
+    payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
+    payload["state"]["volatileFlags"] = ScoreBytes(volatileFlag_getSizeAndPtr);
+    // In-memory session sets (never saved).
+    payload["state"]["brokenObjects"] = port_breakable_snapshotBroken();
+    payload["state"]["carriedCollected"] = port_carriedSync_snapshotCollected();
+    payload["state"]["eggTolls"] = port_eggToll_snapshot();
+    payload["state"]["puzzleSteps"] = port_puzzleStep_snapshot();
+    payload["state"]["puzzleCounts"] = port_puzzleCount_snapshot();
+    payload["state"]["puzzlePos"] = port_puzzlePos_snapshot();
+    payload["state"]["spawnedJiggies"] = port_jiggySpawn_snapshot();
+    payload["state"]["huts"] = port_hutSmash_snapshot();
 
-    //// Assume the team queue has been emptied, so clear it
-    // payload["queue"] = json::array();
+    // Randomizer progress lives outside the vanilla score sections: obtained checks + RANDO_INF flags.
+    if (IS_RANDO) {
+        std::vector<u8> checks(RC_MAX, 0);
+        for (s32 rc = RC_UNKNOWN + 1; rc < RC_MAX; rc++) {
+            checks[rc] = RANDO_SAVE_CHECKS[rc].eligible ? 1 : 0;
+        }
+        payload["state"]["randoChecks"] = checks;
 
-    // payload["state"] = gSaveContext;
-    //// manually update current scene flags
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4] = gPlayState->actorCtx.flags.chest;
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4 + 1] = gPlayState->actorCtx.flags.swch;
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4 + 2] = gPlayState->actorCtx.flags.clear;
-    // payload["state"]["sceneFlags"][gPlayState->sceneNum * 4 + 3] = gPlayState->actorCtx.flags.collect;
+        std::vector<int32_t> randoFlags(RANDO_INF_MAX, 0);
+        for (s32 i = RANDO_INF_UNKNOWN + 1; i < RANDO_INF_MAX; i++) {
+            randoFlags[i] = RANDO_SAVE_FLAGS[i].flagState;
+        }
+        payload["state"]["randoFlags"] = randoFlags;
+    }
 
-    //// The commented out code below is an attempt at sending the entire randomizer seed over, in hopes that a player
-    //// doesn't have to generate the seed themselves Currently it doesn't work :)
-    // if (IS_RANDO) {
-    //     auto randoContext = Rando::Context::GetRawInstance();
-
-    //    payload["state"]["rando"] = json::object();
-    //    payload["state"]["rando"]["itemLocations"] = json::array();
-    //    for (int i = 0; i < RC_MAX; i++) {
-    //        payload["state"]["rando"]["itemLocations"][i] = json::array();
-    //        // payload["state"]["rando"]["itemLocations"][i]["rgID"] =
-    //        // randoContext->GetItemLocation(i)->GetPlacedRandomizerGet();
-    //        payload["state"]["rando"]["itemLocations"][i][0] = randoContext->GetItemLocation(i)->GetCheckStatus();
-    //        payload["state"]["rando"]["itemLocations"][i][1] = (u8)randoContext->GetItemLocation(i)->GetIsSkipped();
-
-    // if (randoContext->GetItemLocation(i)->GetPlacedRandomizerGet() == RG_ICE_TRAP) {
-    //     payload["state"]["rando"]["itemLocations"][i]["fakeRgID"] =
-    //     randoContext->GetItemOverride(i).LooksLike();
-    //     payload["state"]["rando"]["itemLocations"][i]["trickName"] = json::object();
-    //     payload["state"]["rando"]["itemLocations"][i]["trickName"]["english"] =
-    //     randoContext->GetItemOverride(i).GetTrickName().GetEnglish();
-    //     payload["state"]["rando"]["itemLocations"][i]["trickName"]["french"] =
-    //     randoContext->GetItemOverride(i).GetTrickName().GetFrench();
-    // }
-    // if (randoContext->GetItemLocation(i)->HasCustomPrice()) {
-    //     payload["state"]["rando"]["itemLocations"][i]["price"] =
-    //     randoContext->GetItemLocation(i)->GetPrice();
-    // }
-    //}
-
-    // auto entranceCtx = randoContext->GetEntranceShuffler();
-    // for (int i = 0; i < ENTRANCE_OVERRIDES_MAX_COUNT; i++) {
-    //     payload["state"]["rando"]["entrances"][i] = json::object();
-    //     payload["state"]["rando"]["entrances"][i]["type"] = entranceCtx->entranceOverrides[i].type;
-    //     payload["state"]["rando"]["entrances"][i]["index"] = entranceCtx->entranceOverrides[i].index;
-    //     payload["state"]["rando"]["entrances"][i]["destination"] = entranceCtx->entranceOverrides[i].destination;
-    //     payload["state"]["rando"]["entrances"][i]["override"] = entranceCtx->entranceOverrides[i].override;
-    //     payload["state"]["rando"]["entrances"][i]["overrideDestination"] =
-    //     entranceCtx->entranceOverrides[i].overrideDestination;
-    // }
-
-    // payload["state"]["rando"]["seed"] = json::array();
-    // for (int i = 0; i < randoContext->hashIconIndexes.size(); i++) {
-    //     payload["state"]["rando"]["seed"][i] = randoContext->hashIconIndexes[i];
-    // }
-    // payload["state"]["rando"]["inputSeed"] = randoContext->GetSeedString();
-    // payload["state"]["rando"]["finalSeed"] = randoContext->GetSeed();
-
-    // payload["state"]["rando"]["randoSettings"] = json::array();
-    // for (int i = 0; i < RSK_MAX; i++) {
-    //     payload["state"]["rando"]["randoSettings"][i] =
-    //     randoContext->GetOption((RandomizerSettingKey(i))).GetSelectedOptionIndex();
-    // }
-
-    // payload["state"]["rando"]["masterQuestDungeonCount"] = randoContext->GetDungeons()->CountMQ();
-    // payload["state"]["rando"]["masterQuestDungeons"] = json::array();
-    // for (int i = 0; i < randoContext->GetDungeons()->GetDungeonListSize(); i++) {
-    //     payload["state"]["rando"]["masterQuestDungeons"][i] = randoContext->GetDungeon(i)->IsMQ();
-    // }
-    // for (int i = 0; i < randoContext->GetTrials()->GetTrialListSize(); i++) {
-    //     payload["state"]["rando"]["requiredTrials"][i] = randoContext->GetTrial(i)->IsRequired();
-    // }
-    /*}
-
-    SendJsonToRemote(payload);*/
+    SendJsonToRemote(payload);
 }
 
 void Anchor::SendPacket_ClearTeamState(std::string teamId) {
@@ -117,188 +104,167 @@ void Anchor::SendPacket_ClearTeamState(std::string teamId) {
     SendJsonToRemote(payload);
 }
 
+// Overwrites a local byte section with the authoritative team-state array (no additive merge).
+static void ApplyTeamBytes(nlohmann::json& bytes, void (*getSizeAndPtr)(s32*, u8**)) {
+    s32 size;
+    u8* addr;
+    getSizeAndPtr(&size, &addr);
+    s32 count = std::min(size, (s32)bytes.size());
+    for (s32 i = 0; i < count; i++) {
+        addr[i] = bytes[i].get<u8>();
+    }
+}
+
 void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     if (!roomState.syncItemsAndFlags) {
         return;
     }
 
     isHandlingUpdateTeamState = true;
-    // This can happen in between file select and the game starting, so we can't use this check, but we need to ensure
-    // we be careful to wrap PlayState usage in this check
-    //
-    // if (!IsSaveLoaded()) {
-    //     return;
-    // }
 
-    // if (payload.contains("state")) {
-    //     SaveContext loadedData = payload["state"].get<SaveContext>();
+    if (payload.contains("state")) {
+        auto& state = payload["state"];
+        // Direct byte copy bypasses the setters; no OnGameFlagSet / collectible events fire.
+        if (state.contains("fileProgressFlags")) {
+            ApplyTeamBytes(state["fileProgressFlags"], fileProgressFlag_getSizeAndPtr);
+        }
+        if (state.contains("volatileFlags")) {
+            ApplyTeamBytes(state["volatileFlags"], volatileFlag_getSizeAndPtr);
+        }
+        if (state.contains("jiggies")) {
+            ApplyTeamBytes(state["jiggies"], jiggyscore_getSizeAndPtr);
+        }
+        if (state.contains("honeycombs")) {
+            ApplyTeamBytes(state["honeycombs"], honeycombscore_getSizeAndPtr);
+        }
+        if (state.contains("mumboTokens")) {
+            ApplyTeamBytes(state["mumboTokens"], mumboscore_getSizeAndPtr);
+        }
+        if (state.contains("noteScores")) {
+            ApplyTeamBytes(state["noteScores"], itemscore_noteScores_getSizeAndPtr);
+        }
+        // Per-level retention sets; takes effect on next map load.
+        if (state.contains("noteRetention")) {
+            ApplyTeamBytes(state["noteRetention"], port_noteRetention_getSizeAndPtr);
+        }
+        if (state.contains("jinjoRetention")) {
+            ApplyTeamBytes(state["jinjoRetention"], port_jinjoRetention_getSizeAndPtr);
+        }
+        if (state.contains("abilities")) {
+            ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);
+        }
+        // In-memory session sets; takes effect on next map load.
+        if (state.contains("brokenObjects")) {
+            port_breakable_restoreBroken(state["brokenObjects"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("carriedCollected")) {
+            port_carriedSync_restoreCollected(state["carriedCollected"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("eggTolls")) {
+            port_eggToll_restore(state["eggTolls"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("puzzleSteps")) {
+            port_puzzleStep_restore(state["puzzleSteps"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("puzzlePos")) {
+            port_puzzlePos_restore(state["puzzlePos"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("puzzleCounts")) {
+            port_puzzleCount_restore(state["puzzleCounts"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("spawnedJiggies")) {
+            port_jiggySpawn_restore(state["spawnedJiggies"].get<std::vector<int32_t>>());
+        }
+        if (state.contains("huts")) {
+            port_hutSmash_restore(state["huts"].get<std::vector<int32_t>>());
+        }
 
-    //    gSaveContext.healthCapacity = loadedData.healthCapacity;
-    //    gSaveContext.magicLevel = loadedData.magicLevel;
-    //    gSaveContext.magicCapacity = gSaveContext.magic = loadedData.magicCapacity;
-    //    gSaveContext.isMagicAcquired = loadedData.isMagicAcquired;
-    //    gSaveContext.isDoubleMagicAcquired = loadedData.isDoubleMagicAcquired;
-    //    gSaveContext.isDoubleDefenseAcquired = loadedData.isDoubleDefenseAcquired;
-    //    gSaveContext.bgsFlag = loadedData.bgsFlag;
-    //    gSaveContext.swordHealth = loadedData.swordHealth;
-    //    gSaveContext.ship.quest = loadedData.ship.quest;
+        // Recompute cached HUD counts the overwrites above bypassed.
+        if (IsSaveLoaded()) {
+            if (state.contains("jiggies")) {
+                func_8034798C();
+            }
+            if (state.contains("honeycombs")) {
+                func_80347958();
+            }
+            if (state.contains("mumboTokens")) {
+                func_80347984();
+            }
 
-    //    for (int i = 0; i < 124; i++) {
-    //        if (i == SCENE_WATER_TEMPLE) {
-    //            // Keep water temple water level flags
-    //            u32 mask = (1 << 0x1C) | (1 << 0x1D) | (1 << 0x1E);
-    //            loadedData.sceneFlags[i].swch =
-    //                (loadedData.sceneFlags[i].swch & ~mask) | (gSaveContext.sceneFlags[i].swch & mask);
-    //        }
+            // Saved item counts: mumbo tokens [0] and jiggy total [4] always sync; feathers
+            // [1-3] only when the room shares consumables.
+            if (state.contains("savedItems")) {
+                auto& incoming = state["savedItems"];
+                s32 size;
+                u8* addr;
+                saveditem_getSizeAndPtr(&size, &addr); // rebuilds the array from live counts
+                u8 buf[5];
+                for (s32 i = 0; i < 5; i++) {
+                    buf[i] = (i < size) ? addr[i] : 0;
+                }
+                if (incoming.size() >= 5) {
+                    buf[0] = incoming[0].get<u8>();
+                    buf[4] = incoming[4].get<u8>();
+                    if (roomState.shareConsumables) {
+                        buf[1] = incoming[1].get<u8>();
+                        buf[2] = incoming[2].get<u8>();
+                        buf[3] = incoming[3].get<u8>();
+                    }
+                    func_803479C0(buf);
+                }
+            }
 
-    //        if (i == SCENE_FOREST_TEMPLE) {
-    //            // Keep forest temple elevator flag
-    //            u32 mask = (1 << 0x1B);
-    //            loadedData.sceneFlags[i].swch =
-    //                (loadedData.sceneFlags[i].swch & ~mask) | (gSaveContext.sceneFlags[i].swch & mask);
-    //        }
+            // Per-level best times (truncated u16 each).
+            if (state.contains("timeScores")) {
+                auto incoming = state["timeScores"].get<std::vector<u8>>();
+                u16 ts[0xB] = { 0 };
+                size_t n = std::min(incoming.size(), sizeof(ts));
+                for (size_t i = 0; i < n; i++) {
+                    ((u8*)ts)[i] = incoming[i];
+                }
+                itemscore_timeScores_fromSaveData(ts);
+            }
+        }
 
-    //        gSaveContext.sceneFlags[i] = loadedData.sceneFlags[i];
-    //        if (IsSaveLoaded() && gPlayState->sceneNum == i) {
-    //            gPlayState->actorCtx.flags.chest = loadedData.sceneFlags[i].chest;
-    //            gPlayState->actorCtx.flags.swch = loadedData.sceneFlags[i].swch;
-    //            gPlayState->actorCtx.flags.clear = loadedData.sceneFlags[i].clear;
-    //            gPlayState->actorCtx.flags.collect = loadedData.sceneFlags[i].collect;
-    //        }
-    //    }
+        // Randomizer catch-up: reconcile check records (obtain without re-granting, see
+        // AdoptRemoteCheck) and take RANDO_INF flags authoritatively.
+        if (IS_RANDO && IsSaveLoaded()) {
+            if (state.contains("randoChecks")) {
+                auto checks = state["randoChecks"].get<std::vector<u8>>();
+                s32 n = std::min((s32)checks.size(), (s32)RC_MAX);
+                for (s32 rc = RC_UNKNOWN + 1; rc < n; rc++) {
+                    if (checks[rc]) {
+                        AdoptRemoteCheck(rc);
+                    }
+                }
+            }
+            if (state.contains("randoFlags")) {
+                auto flags = state["randoFlags"].get<std::vector<int32_t>>();
+                s32 n = std::min((s32)flags.size(), (s32)RANDO_INF_MAX);
+                for (s32 i = RANDO_INF_UNKNOWN + 1; i < n; i++) {
+                    RANDO_SAVE_FLAGS[i].flagState = flags[i];
+                }
+            }
+        }
 
-    //    for (int i = 0; i < 14; i++) {
-    //        gSaveContext.eventChkInf[i] = loadedData.eventChkInf[i];
-    //    }
+        SweepUnoccupiedLevelState((GameMap)gsworld_getMap());
 
-    //    for (int i = 0; i < 4; i++) {
-    //        gSaveContext.itemGetInf[i] = loadedData.itemGetInf[i];
-    //    }
+        Notification::Emit({
+            .message = "Save updated from team",
+        });
 
-    //    // Skip last row of infTable, don't want to sync swordless flag
-    //    for (int i = 0; i < 29; i++) {
-    //        gSaveContext.infTable[i] = loadedData.infTable[i];
-    //    }
+        if (reloadMapOnTeamState && IsSaveLoaded()) {
+            reloadMapOnTeamState = false;
+            transitionToMap(gsworld_getMap(), gsworld_getExit(), 1);
+        }
+    }
 
-    //    for (int i = 0; i < ceil((RAND_INF_MAX + 15) / 16); i++) {
-    //        gSaveContext.ship.randomizerInf[i] = loadedData.ship.randomizerInf[i];
-    //    }
+    if (payload.contains("queue")) {
+        std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
+        for (auto& item : payload["queue"]) {
+            incomingPacketQueue.push(nlohmann::json::parse(item.get<std::string>()));
+        }
+    }
 
-    //    for (int i = 0; i < 6; i++) {
-    //        gSaveContext.gsFlags[i] = loadedData.gsFlags[i];
-    //    }
-
-    //    gSaveContext.ship.stats.firstInput = loadedData.ship.stats.firstInput;
-    //    gSaveContext.ship.stats.fileCreatedAt = loadedData.ship.stats.fileCreatedAt;
-
-    //    // Restore master sword state
-    //    // Disabling this for now, not really sure I understand why I did this in the past
-    //    // u8 hasMasterSword = CHECK_OWNED_EQUIP(EQUIP_TYPE_SWORD, 1);
-    //    // if (hasMasterSword) {
-    //    //     loadedData.inventory.equipment |= 0x2;
-    //    // } else {
-    //    //     loadedData.inventory.equipment &= ~0x2;
-    //    // }
-
-    //    // Restore bottle contents (unless it's ruto's letter)
-    //    for (int i = 0; i < 4; i++) {
-    //        if (gSaveContext.inventory.items[SLOT_BOTTLE_1 + i] != ITEM_NONE &&
-    //            gSaveContext.inventory.items[SLOT_BOTTLE_1 + i] != ITEM_LETTER_RUTO) {
-    //            loadedData.inventory.items[SLOT_BOTTLE_1 + i] = gSaveContext.inventory.items[SLOT_BOTTLE_1 + i];
-    //        }
-    //    }
-
-    //    // Restore ammo if it's non-zero, unless it's beans
-    //    for (int i = 0; i < ARRAY_COUNT(gSaveContext.inventory.ammo); i++) {
-    //        if (gSaveContext.inventory.ammo[i] != 0 && i != SLOT(ITEM_BEAN) && i != SLOT(ITEM_BEAN + 1)) {
-    //            loadedData.inventory.ammo[i] = gSaveContext.inventory.ammo[i];
-    //        }
-    //    }
-
-    //    gSaveContext.inventory = loadedData.inventory;
-
-    //    // The commented out code below is an attempt at sending the entire randomizer seed over, in hopes that a
-    //    player
-    //    // doesn't have to generate the seed themselves Currently it doesn't work :)
-    //    if (IS_RANDO && payload["state"].contains("rando")) {
-    //        auto randoContext = Rando::Context::GetRawInstance();
-
-    //        for (int i = 0; i < RC_MAX; i++) {
-    //            auto itemLocation = payload["state"]["rando"].at("itemLocations").at(i);
-    //            // randoContext->GetItemLocation(i)->RefPlacedItem() =
-    //            // itemLocation.at("rgID").get<RandomizerGet>();
-    //            OTRGlobals::Instance->gRandoContext->GetItemLocation(i)->SetCheckStatus(
-    //                itemLocation.at(0).get<RandomizerCheckStatus>());
-    //            OTRGlobals::Instance->gRandoContext->GetItemLocation(i)->SetIsSkipped(itemLocation.at(1).get<u8>());
-
-    //            // if (itemLocation.contains("fakeRgID")) {
-    //            //     randoContext->overrides.emplace(static_cast<RandomizerCheck>(i),
-    //            //     Rando::ItemOverride(static_cast<RandomizerCheck>(i),
-    //            //     itemLocation.at("fakeRgID").get<RandomizerGet>()));
-    //            //     randoContext->GetItemOverride(i).GetTrickName().english =
-    //            //     itemLocation.at("trickName").at("english").get<std::string>();
-    //            //     randoContext->GetItemOverride(i).GetTrickName().french =
-    //            //     itemLocation.at("trickName").at("french").get<std::string>();
-    //            // }
-    //            // if (itemLocation.contains("price")) {
-    //            //     u16 price = itemLocation.at("price"].get<u16>();
-    //            //     if (price > 0) {
-    //            //         randoContext->GetItemLocation(i)->SetCustomPrice(price);
-    //            //     }
-    //            // }
-    //        }
-
-    //        // auto entranceCtx = randoContext->GetEntranceShuffler();
-    //        // for (int i = 0; i < ENTRANCE_OVERRIDES_MAX_COUNT; i++) {
-    //        //     entranceCtx->entranceOverrides[i].type =
-    //        //     payload["state"]["rando"]["entrances"][i]["type"].get<u16>();
-    //        entranceCtx->entranceOverrides[i].index
-    //        //     = payload["state"]["rando"]["entrances"][i]["index"].get<s16>();
-    //        //     entranceCtx->entranceOverrides[i].destination =
-    //        //     payload["state"]["rando"]["entrances"][i]["destination"].get<s16>();
-    //        //     entranceCtx->entranceOverrides[i].override =
-    //        //     payload["state"]["rando"]["entrances"][i]["override"].get<s16>();
-    //        //     entranceCtx->entranceOverrides[i].overrideDestination =
-    //        //     payload["state"]["rando"]["entrances"][i]["overrideDestination"].get<s16>();
-    //        // }
-
-    //        // for (int i = 0; i < randoContext->hashIconIndexes.size(); i++) {
-    //        //     randoContext->hashIconIndexes[i] = payload["state"]["rando"]["seed"][i].get<u8>();
-    //        // }
-    //        // randoContext->GetSettings()->SetSeedString(payload["state"]["rando"]["inputSeed"].get<std::string>());
-    //        // randoContext->GetSettings()->SetSeed(payload["state"]["rando"]["finalSeed"].get<u32>());
-
-    //        // for (int i = 0; i < RSK_MAX; i++) {
-    //        //
-    //        randoContext->GetOption(RandomizerSettingKey(i)).SetSelectedIndex(payload["state"]["rando"]["randoSettings"][i].get<u8>());
-    //        // }
-
-    //        // randoContext->GetDungeons()->ClearAllMQ();
-    //        // for (int i = 0; i < randoContext->GetDungeons()->GetDungeonListSize(); i++) {
-    //        //     if (payload["state"]["rando"]["masterQuestDungeons"][i].get<bool>()) {
-    //        //         randoContext->GetDungeon(i)->SetMQ();
-    //        //     }
-    //        // }
-
-    //        // randoContext->GetTrials()->SkipAll();
-    //        // for (int i = 0; i < randoContext->GetTrials()->GetTrialListSize(); i++) {
-    //        //     if (payload["state"]["rando"]["requiredTrials"][i].get<bool>()) {
-    //        //         randoContext->GetTrial(i)->SetAsRequired();
-    //        //     }
-    //        // }
-    //    }
-
-    //    Notification::Emit({
-    //        .message = "Save updated from team",
-    //    });
-    //}
-
-    // if (payload.contains("queue")) {
-    //     std::lock_guard<std::mutex> lock(incomingPacketQueueMutex);
-    //     for (auto& item : payload["queue"]) {
-    //         nlohmann::json itemPayload = nlohmann::json::parse(item.get<std::string>());
-    //         incomingPacketQueue.push(itemPayload);
-    //     }
-    // }
-    // isHandlingUpdateTeamState = false;
+    isHandlingUpdateTeamState = false;
 }

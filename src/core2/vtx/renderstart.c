@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_C62B0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -246,7 +247,7 @@ void func_8034E120(Struct6Ds *arg0, f32 arg1, f32 arg2, f32 arg3,s32 arg4){
 }
 
 void func_8034E174(Struct6Ds *arg0){
-    func_8034E1A4(arg0, 0x3ec, 0.7f, 0.9f);
+    func_8034E1A4(arg0, SFX_3EC_CCW_DOOR_OPENING, 0.7f, 0.9f);
 }
 
 void func_8034E1A4(Struct6Ds *arg0, enum sfx_e sfx_id, f32 arg2, f32 arg3){

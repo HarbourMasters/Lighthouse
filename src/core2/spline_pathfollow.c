@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_B9770.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -925,8 +926,8 @@ f32 func_80342260(s32 arg0, f32 arg1, s32 arg2){
     return func_803234FC(func_80342038(arg0), arg1, 1.0f) / ((f32)arg2 /4);
 }
 
-void func_803422AC(ActorMarker *caller, enum asset_e text_id, s32 arg2){
-    jiggyscore_total();
+s32 func_803422AC(ActorMarker *caller, enum asset_e text_id, s32 arg2){
+    return jiggyscore_total();
 }
 
 s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
@@ -961,6 +962,11 @@ s32 func_803422D4(Actor *arg0, Union_glspline *arg1, SplineList *arg2){
                 break;
 
             case 3:
+                // [port] Path sfx nodes fire for whichever actor is walking the spline; listeners
+                // get the actor so a single actor's path sounds can be muted.
+                if (!EventSystem_Should(VB_SPLINE_PATH_SFX, true, arg0)) {
+                    break;
+                }
                 sp78 = arg1->t0.unk4.common.bit31;
                 sp7C = arg1->t0.unk8.bit31 / 8.388608e6f;
                 sp74 = arg1->t0.unk4.common.bit15 * 8;

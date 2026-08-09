@@ -7,12 +7,12 @@
 #include "core2/modelRender.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-Actor *chvile_draw(ActorMarker*, Gfx **, Mtx **, Vtx **);
-void chvile_update(Actor *);
-void func_8038BB40(ActorMarker *);
+Actor *chMrVile_draw(ActorMarker*, Gfx **, Mtx **, Vtx **);
+void chMrVile_update(Actor *);
+void chMrVile_attackPlayer(ActorMarker *);
 extern BKCollisionTriangle *func_80320C94(f32[3], f32[3], f32, f32[3], s32, u32);
 
-extern bool chvilegame_find_closest_piece(ActorMarker *, f32[3], f32, f32[3]);
+extern bool chMrVileMinigame_findClosestPiece(ActorMarker *, f32[3], f32, f32[3]);
 
 typedef struct chmrvile_s{
     u8 unk0;
@@ -30,7 +30,7 @@ typedef struct chmrvile_s{
 
 /* .data */
 ActorInfo gChVile = {MARKER_C8_MR_VILE, ACTOR_13A_MR_VILE, ASSET_373_MODEL_MR_VILE, 0x00, NULL,
-    chvile_update, NULL, chvile_draw,
+    chMrVile_update, NULL, chMrVile_draw,
     0, 0, 0.0f, 0
 };
 
@@ -73,13 +73,13 @@ void func_8038B9F0(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4) {
     }
 }
 
-void func_8038BB40(ActorMarker * arg0){
+void chMrVile_attackPlayer(ActorMarker * arg0){
     Actor *this;
     ActorLocal_MrVile *local;
 
     this = marker_getActor(arg0);
     local = (ActorLocal_MrVile *)&this->local;
-    if(func_8038A9E0(local->game_marker) >= 3){
+    if(chMrVileMinigame_getDialogIndex(local->game_marker) >= 3){
         item_set(ITEM_14_HEALTH, 0);
         func_8028F66C(BS_INTR_F);
     }
@@ -89,7 +89,7 @@ void func_8038BB40(ActorMarker * arg0){
     }
 }
 
-void BGS_func_8038BBA0(Actor *this, s32 arg1){
+void chMrVile_setAction(Actor *this, s32 arg1){
     ActorLocal_MrVile *local;
     
     local = (ActorLocal_MrVile *)&this->local;
@@ -109,7 +109,7 @@ void BGS_func_8038BBA0(Actor *this, s32 arg1){
         skeletalAnim_swap(this->unk148, 0x124, 0.1f, 0.5f); //0x124 = croc_munch
         if(this->state == 4){
             timed_playSfx(0.31f, SFX_4C_LIP_SMACK, 0.90f, 25000);
-            timedFunc_set_1(0.31f, (GenFunction_1)func_8038BB40, (uintptr_t)this->marker);
+            timedFunc_set_1(0.31f, (GenFunction_1)chMrVile_attackPlayer, (uintptr_t)this->marker);
         }
         else{
             timed_playSfx(0.31f, SFX_4C_LIP_SMACK, 0.90f, 25000);
@@ -138,7 +138,7 @@ void func_8038BD84(Actor *this){
     local->unk28[0] = 0.0f;
     local->unk28[1] = 0.0f; 
     local->unk28[2] = 0.0f;
-    BGS_func_8038BBA0(this, 101);
+    chMrVile_setAction(this, 101);
 }
 
 void func_8038BDD4(Actor *this) {
@@ -195,37 +195,37 @@ void func_8038BDD4(Actor *this) {
     }
 }
 
-void chVile_setState(Actor * this, s32 next_state){
+void chMrVile_setState(Actor * this, s32 next_state){
     ActorLocal_MrVile *local;
 
     local = (ActorLocal_MrVile *)&this->local;
     if(next_state == 1)
-        BGS_func_8038BBA0(this, 101);
+        chMrVile_setAction(this, 101);
 
     if(next_state == 2)
-        BGS_func_8038BBA0(this, 101);
+        chMrVile_setAction(this, 101);
 
     if(next_state == 3)
-        BGS_func_8038BBA0(this, 102);
+        chMrVile_setAction(this, 102);
 
     if(next_state == 4)
-        BGS_func_8038BBA0(this, 102);
+        chMrVile_setAction(this, 102);
 
     if(next_state == 5){
         local->target_position[0] = local->target_position[1] = local->target_position[2] = 0.0f;
-        BGS_func_8038BBA0(this, 102);
+        chMrVile_setAction(this, 102);
     }
 
     if(next_state == 6){
         local->target_position[0] = local->target_position[1] = local->target_position[2] = 0.0f;
         local->unk24 = 300.0f;
-        BGS_func_8038BBA0(this, 102);
+        chMrVile_setAction(this, 102);
     }
 
     this->state = next_state; 
 }
 
-Actor *chvile_draw(ActorMarker *marker, Gfx **gfx, Mtx** mtx, Vtx **vtx){
+Actor *chMrVile_draw(ActorMarker *marker, Gfx **gfx, Mtx** mtx, Vtx **vtx){
     Actor *this;
     ActorLocal_MrVile *local;
     f32 position[3];
@@ -246,14 +246,14 @@ Actor *chvile_draw(ActorMarker *marker, Gfx **gfx, Mtx** mtx, Vtx **vtx){
     return this;
 }
 
-f32 *chVile_getPostion(ActorMarker *marker){
+f32 *chMrVile_getPostion(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
     return this->position;
 }
 
-bool func_8038C2A8(ActorMarker *marker) {
+bool chMrVile_playerWithinRange(ActorMarker *marker) {
     f32 player_position[3];
     Actor *this;
     ActorLocal_MrVile *local;
@@ -268,14 +268,14 @@ bool func_8038C2A8(ActorMarker *marker) {
 }
 
 
-bool BGS_func_8038C338(ActorMarker *marker){
+bool chMrVile_isInitialIdle(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
     return this->state == 1;
 }
 
-void chvile_free(Actor *this){
+void chMrVile_free(Actor *this){
     ActorLocal_MrVile *local;
 
     local = (ActorLocal_MrVile *)&this->local;
@@ -283,46 +283,46 @@ void chvile_free(Actor *this){
 
 }
 
-void func_8038C384(ActorMarker *marker){
+void chMrVile_setStateAttackPlayer(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
-    chVile_setState(this, 4);
+    chMrVile_setState(this, 4);
 }
 
-void func_8038C3B0(ActorMarker *marker){
+void chMrVile_setStateTalkToPlayer(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
-    chVile_setState(this, 2);
+    chMrVile_setState(this, 2);
 }
 
-void func_8038C3DC(ActorMarker *marker){
+void chMrVile_setStatePlayMinigame(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
-    chVile_setState(this, 3);
+    chMrVile_setState(this, 3);
 }
 
-void func_8038C408(ActorMarker *marker){
+void chMrVile_setStateIdleWalking(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
-    chVile_setState(this, 5);
+    chMrVile_setState(this, 5);
 }
 
-void BGS_func_8038C434(ActorMarker *marker){
+void chMrVile_setStateRunFromPlayer(ActorMarker *marker){
     Actor *this;
 
     this = marker_getActor(marker);
-    chVile_setState(this, 6);
+    chMrVile_setState(this, 6);
 }
 
-void BGS_func_8038C460(ActorMarker *arg0){
-    chVile_setState(marker_getActor(arg0), 1);
+void chMrVile_setInitialIdleStill(ActorMarker *arg0){
+    chMrVile_setState(marker_getActor(arg0), 1);
 }
 
-void chvile_update(Actor *this) {
+void chMrVile_update(Actor *this) {
     f32 player_position[3];
     f32 sp90;
     f32 temp_a0;
@@ -341,12 +341,12 @@ void chvile_update(Actor *this) {
     local = (ActorLocal_MrVile *)&this->local;
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        this->marker->actorFreeFunc = chvile_free;
+        this->marker->actorFreeFunc = chMrVile_free;
         local->unk0 = 0;
         local->unk4 = assetcache_get(0x3F6);
         local->game_marker = NULL;
         func_8038BD84(this);
-        chVile_setState(this, 1);
+        chMrVile_setState(this, 1);
         return;
     }
     if (local->game_marker == NULL) {
@@ -372,18 +372,18 @@ void chvile_update(Actor *this) {
         if (((sp84 > 50.0f) && (0.05 < sp7C)) || (sp7C < -0.05)) {
             this->yaw += sp7C * 20.0f;
         } else {
-            chVile_setState(this, 1);
+            chMrVile_setState(this, 1);
         }
     }
     if (this->state == 3) {
-        var_v1 = chvilegame_find_closest_piece(local->game_marker, this->position, this->yaw, local->target_position) && mapSpecificFlags_get(6);
+        var_v1 = chMrVileMinigame_findClosestPiece(local->game_marker, this->position, this->yaw, local->target_position) && mapSpecificFlags_get(6);
         if (!var_v1) {
             local->target_position[0] = 0.0f;
             local->target_position[1] = 0.0f;
             local->target_position[2] = 0.0f;
         }
         if (local->game_marker != NULL) {
-            temp_v0 = chvilegame_get_score_difference(local->game_marker);
+            temp_v0 = chMrVileMinigame_getScoreDifference(local->game_marker);
             if (temp_v0 >= 2) {
                 local->unk10 = 200.0f;
             } else if (temp_v0 >= 0) {
@@ -393,29 +393,29 @@ void chvile_update(Actor *this) {
             } else {
                 local->unk10 = 450.0f;
             }
-            local->unk10 *= D_80390A94[func_8038A9E0(local->game_marker)];
+            local->unk10 *= D_80390A94[chMrVileMinigame_getDialogIndex(local->game_marker)];
             CALL_EVENT(OnMrVileSetSpeed, &local->unk10);
         }
-        if (func_8038A9E0(local->game_marker) < 7) {
+        if (chMrVileMinigame_getDialogIndex(local->game_marker) < 7) {
             func_80258A4C(this->position, this->yaw - 90.0f, local->target_position, &sp70, &sp6C, &sp68);
             if (local->unkC == 102) {
                 if ((-0.8 < sp68) && (sp68 < 0.8) && (sp70 <= 150.0f) && var_v1) {
-                    BGS_func_8038BBA0(this, 103);
+                    chMrVile_setAction(this, 103);
                 }
             }
             if (local->unkC == 103) {
                 if (sp70 <= 50.0f) {
-                    if (chvilegame_cpu_consume_piece(local->game_marker, local->target_position)) {
-                        BGS_func_8038BBA0(this, 104);
+                    if (chMrVileMinigame_mrVileConsumePiece(local->game_marker, local->target_position)) {
+                        chMrVile_setAction(this, 104);
                     } else {
-                        BGS_func_8038BBA0(this, 102);
+                        chMrVile_setAction(this, 102);
                     }
                 } else if (skeletalAnim_getLoopCount(this->unk148) >= 3) {
-                    BGS_func_8038BBA0(this, 102);
+                    chMrVile_setAction(this, 102);
                 }
             }
             if ((local->unkC == 104) && (skeletalAnim_getLoopCount(this->unk148) >= 3)) {
-                BGS_func_8038BBA0(this, 102);
+                chMrVile_setAction(this, 102);
             }
         }
     }
@@ -423,10 +423,10 @@ void chvile_update(Actor *this) {
         player_getPosition(local->target_position);
         local->unk10 = 500.0f;
         if ((local->unkC == 102) && (ml_vec3f_distance(this->position, local->target_position) < 200.0f)) {
-            BGS_func_8038BBA0(this, 103);
+            chMrVile_setAction(this, 103);
         }
         if ((local->unkC == 103) && (skeletalAnim_getLoopCount(this->unk148) >= 2)) {
-            chVile_setState(this, 1);
+            chMrVile_setState(this, 1);
         }
     }
     if (this->state == 5) {
@@ -460,7 +460,7 @@ void chvile_update(Actor *this) {
 
 // [port] Anchor sync entry points.
 // Applies a streamed transform + anim mode from the minigame authority.
-void chvile_netApplyUpdate(Actor *this, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode){
+void chMrVile_netApplyUpdate(Actor *this, const f32 position[3], f32 pitch, f32 yaw, f32 roll, u8 anim_mode){
     ActorLocal_MrVile *local = (ActorLocal_MrVile *)&this->local;
 
     this->position[0] = position[0];
@@ -470,11 +470,11 @@ void chvile_netApplyUpdate(Actor *this, const f32 position[3], f32 pitch, f32 ya
     this->yaw = yaw;
     this->roll = roll;
     if (local->unkC != anim_mode) {
-        BGS_func_8038BBA0(this, anim_mode);
+        chMrVile_setAction(this, anim_mode);
     }
 }
 
-s32 chvile_netGetAnimMode(Actor *this){
+s32 chMrVile_netGetAnimMode(Actor *this){
     ActorLocal_MrVile *local = (ActorLocal_MrVile *)&this->local;
 
     return local->unkC;

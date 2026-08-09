@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_EF50.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -82,15 +83,15 @@ enum bs_e func_80295EE0(enum bs_e arg0){
 enum bs_e __get_rebound_state_id(void){
     switch(bsStoredState_getTransformation()){
         case TRANSFORM_3_PUMPKIN:// L8029606C
-            return BS_PUMPKIN_BOUNCE;
+            return BS_A0_ANT_BOUNCE;
         case TRANSFORM_2_TERMITE:// L80296074
-            return BS_ANT_BOUNCE;
+            return BS_9F_ANT_BOUNCE;
         case TRANSFORM_5_CROC:// L8029607C
-            return  BS_CROC_BOUNCE;
+            return  BS_A1_CROC_BOUNCE;
         case TRANSFORM_4_WALRUS:// L80296084
-            return BS_WALRUS_BOUNCE;
+            return BS_A2_WALRUS_BOUNCE;
         case TRANSFORM_6_BEE:// L8029608C
-            return BS_BEE_BOUNCE;
+            return BS_A3_BEE_BOUNCE;
         case TRANSFORM_1_BANJO:// L80296094
         default:
             if(player_movementGroup() == BSGROUP_A_FLYING)
@@ -147,7 +148,7 @@ void func_8029622C(void){
     f32 sp34[3];
     f32 sp28[3];
 
-    _player_getPosition(sp28);
+    playerPosition_get(sp28);
     func_80256E24(sp34, 0.0f, yaw_get(), 0.0f, 0.0f, 100.0f);
     sp28[0] += sp34[0];
     sp28[1] += sp34[1];
@@ -175,29 +176,29 @@ enum bs_e func_802962BC(u32 arg0){
                 return BS_4E_PUMPKIN_DIE; 
         case TRANSFORM_5_CROC: //L80296344
             if(sp1C)
-                return BS_CROC_OW;
+                return BS_63_CROC_OW;
             else
-                return BS_CROC_OW; 
+                return BS_63_CROC_OW; 
         case TRANSFORM_4_WALRUS: //L8029635C
             if(sp1C)
-                return BS_WALRUS_OW;
+                return BS_6C_WALRUS_OW;
             else
-                return BS_WALRUS_DIE; 
+                return BS_6D_WALRUS_DIE; 
         case TRANSFORM_6_BEE: //L80296374
             if(sp1C)
-                return BS_BEE_OW;
-            return BS_BEE_DIE; 
+                return BS_89_BEE_OW;
+            return BS_8A_BEE_DIE; 
         case TRANSFORM_1_BANJO: //L8029638C
         default:
             if(sp1C){
                 if(bsbtrot_inSet(bs_getState()))
-                    return BS_BTROT_OW;
+                    return BS_7B_BTROT_OW;
 
                 if(player_getWaterState() == BSWATERGROUP_2_UNDERWATER)
                     return BS_7F_DIVE_OW;
                 
                 if(player_movementGroup() == BSGROUP_A_FLYING)
-                    return BS_FLY_OW;
+                    return BS_91_FLY_OW;
                 return BS_E_OW;
             }
             return BS_41_DIE;
@@ -427,7 +428,10 @@ void func_80296608(void){
             break;
         case BS_INTR_35: //L80296984
             baflag_set(BA_FLAG_1A_OPEN_NOTEDOOR);
-            next_state = func_8029B504();
+            // The dance masks the fall/land this normally forces; when it's skipped
+            // (listener clears the flag here), leave the state unchanged so Banjo keeps moving.
+            if(EventSystem_Should(VB_PLAY_NOTEDOOR_DANCE, true))
+                next_state = func_8029B504();
             sp2C = 2;
             break;
         case BS_INTR_34: //L802969A4

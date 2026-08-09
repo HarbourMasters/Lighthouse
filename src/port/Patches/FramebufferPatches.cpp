@@ -5,17 +5,22 @@
 
 #include <libultraship.h>
 
+#include "port/Engine.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/ShipInit.hpp"
+
+// From Patches.h; declared here because this file's definitions use concrete
+// Gfx/model types where the header declares void*.
+extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg);
+
 extern "C" {
 
 #include "core1/core1.h"
 #include "model.h"
 
-int gfx_create_framebuffer(unsigned int width, unsigned int height, unsigned int native_width,
-                           unsigned int native_height, unsigned char resize, unsigned char force_fixed_aspect);
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);
-unsigned int OTRGetGameRenderWidth(void);
-unsigned int OTRGetGameRenderHeight(void);
+s32 getGameMode(void);
 
 // During FADE_IN, the game disables scene drawing one frame before
 // capturing gFramebuffers. Without freezing, the readback would overwrite
@@ -65,10 +70,17 @@ static void currentRenderSize(int* w, int* h) {
     }
 }
 
+// Framebuffer creation talks to the renderer, so under thread5 mode it has to
+// happen on the render thread rather than the game tick.
+static void createPauseFb(void* arg) {
+    (void)arg;
+    s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
+}
+
 int port_getPauseFramebufferId(void) {
     if (s_pauseFbId < 0) {
         currentRenderSize(&s_pauseFbW, &s_pauseFbH);
-        s_pauseFbId = gfx_create_framebuffer(s_pauseFbW, s_pauseFbH, s_pauseFbW, s_pauseFbH, 0, 0);
+        port_runOnRenderThread(createPauseFb, NULL);
     }
     return s_pauseFbId;
 }
@@ -84,7 +96,7 @@ int port_capturePauseFramebuffer(void) {
     if (s_pauseFbId < 0 || w != s_pauseFbW || h != s_pauseFbH) {
         s_pauseFbW = w;
         s_pauseFbH = h;
-        s_pauseFbId = gfx_create_framebuffer(w, h, w, h, 0, 0);
+        port_runOnRenderThread(createPauseFb, NULL);
     }
     return s_pauseFbId;
 }
@@ -179,28 +191,63 @@ static void patchModelDL(BKModelBin* model_bin, uintptr_t seg_start, uintptr_t s
 #define IMAGE_WIDTH (TILE_SIZE * 5)
 #define IMAGE_HEIGHT (TILE_SIZE * 4)
 
-// Aux picture FB readback (Bottles Bonus / SNS pictures)
+// Aux picture FB (Bottles Bonus / SNS pictures)
 
-extern s16* D_80382450; // aux picture CPU buffer (picturebuffer.c)
-extern s32 sAuxGpuFbId; // aux picture GPU FB id (picturebuffer.c)
+// Scale the framebuffer from 160x128 based on the application width
 
-s32 port_getAuxGpuFbId(void) {
-    return sAuxGpuFbId;
+static u16 sAuxFbDummy[1];
+
+#define AUX_FB_SCALE_MAX 2
+#define AUX_FB_SCALE_STEP_WIDTH 640
+
+static s32 sAuxGpuFbId = -1;
+static int s_auxFbRenderW = 0;
+static int s_auxFbRenderH = 0;
+
+static int auxFbScale(void) {
+    int scale = s_auxFbRenderW / AUX_FB_SCALE_STEP_WIDTH;
+
+    if (scale > AUX_FB_SCALE_MAX) {
+        scale = AUX_FB_SCALE_MAX;
+    }
+    if (scale < 1) {
+        scale = 1;
+    }
+    return scale;
 }
 
-void port_readAuxFbToCpu(Gfx** gfx) {
-    if (sAuxGpuFbId >= 0 && D_80382450 != NULL) {
-        gDPReadFB((*gfx)++, sAuxGpuFbId, (u16*)D_80382450, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, 1);
-        __gSPInvalidateTexCache((*gfx)++, 0);
+static void createAuxFb(void* arg) {
+    (void)arg;
+    int scale = auxFbScale();
+    int nativeW = s_auxFbRenderW / scale;
+    int nativeH = s_auxFbRenderH / scale;
+
+    if (nativeW < 1) {
+        nativeW = 1;
     }
+    if (nativeH < 1) {
+        nativeH = 1;
+    }
+    sAuxGpuFbId = gfx_create_framebuffer(IMAGE_WIDTH, IMAGE_HEIGHT, nativeW, nativeH, 1, true);
+    if (sAuxGpuFbId >= 0) {
+        gfx_register_fb_texture(sAuxFbDummy, sAuxGpuFbId);
+    }
+}
+
+static s32 auxGpuFbId(void) {
+    int w;
+    int h;
+    currentRenderSize(&w, &h);
+    if (sAuxGpuFbId < 0 || w != s_auxFbRenderW || h != s_auxFbRenderH) {
+        s_auxFbRenderW = w;
+        s_auxFbRenderH = h;
+        port_runOnRenderThread(createAuxFb, NULL);
+    }
+    return sAuxGpuFbId;
 }
 
 // Picture model patching (Bottles Bonus / SNS pictures)
 
-#define TILE_SIZE 32
-#define IMAGE_WIDTH (TILE_SIZE * 5)
-#define IMAGE_HEIGHT (TILE_SIZE * 4)
-#define SEG4_TAGGED ((uintptr_t)0x04000000 | 1)
 #define FROM_XZ 0
 #define FROM_YZ 1
 
@@ -230,8 +277,8 @@ void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 m
     sPicMaxXY = max_xy;
     sPicMinZ = min_z;
     sPicMaxZ = max_z;
-    patchModelDL(model_bin, 0x04000000, 0x04100000, (const void*)SEG4_TAGGED, IMAGE_WIDTH, IMAGE_HEIGHT,
-                 setPictureVertexTexcoord, G_TF_BILERP, 1);
+    patchModelDL(model_bin, 0x04000000, 0x04100000, sAuxFbDummy, IMAGE_WIDTH, IMAGE_HEIGHT, setPictureVertexTexcoord,
+                 G_TF_BILERP, 1);
 }
 
 // Transition model patching (falling jiggy pieces)
@@ -241,11 +288,16 @@ void port_patchPictureModel(BKModelBin* model_bin, s32 min_xy, s32 max_xy, s32 m
 static u16 sTransitionFbDummy[1];
 static s32 sTransitionGpuFbId = -1;
 
+static void createTransitionFb(void* arg) {
+    (void)arg;
+    sTransitionGpuFbId = gfx_create_framebuffer(DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT,
+                                                DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1, 0);
+    gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
+}
+
 s32 port_getTransitionGpuFbId(void) {
     if (sTransitionGpuFbId < 0) {
-        sTransitionGpuFbId = gfx_create_framebuffer(DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT,
-                                                    DEFAULT_FRAMEBUFFER_WIDTH, DEFAULT_FRAMEBUFFER_HEIGHT, 1, 0);
-        gfx_register_fb_texture(sTransitionFbDummy, sTransitionGpuFbId);
+        port_runOnRenderThread(createTransitionFb, NULL);
     }
     return sTransitionGpuFbId;
 }
@@ -281,3 +333,36 @@ void port_patchTransitionModel(BKModelBin* model_bin) {
 }
 
 } // extern "C"
+
+// Submitted picture-mode frames since the last map load. The first few frames a
+// reloaded map composes are structurally normal DLs that draw nothing visible.
+static s32 sPicFramesSinceMapLoad = 0;
+static constexpr s32 kPicWarmupFrames = 3;
+
+void RegisterFramebufferPatches_Init() {
+    REGISTER_VB_SHOULD(VB_PICTUREBOX_TARGET_FB, EVENT_PRIORITY_NORMAL, {
+        Gfx** gdl = va_arg(args, Gfx**);
+        s32 auxFb = auxGpuFbId();
+        if (gdl != nullptr && auxFb >= 0) {
+            gsSPSetFB((*gdl)++, auxFb);
+        }
+        (void)should;
+    });
+
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { sPicFramesSinceMapLoad = 0; });
+
+    REGISTER_VB_SHOULD(VB_PICTUREBOX_SUBMIT_FRAME, EVENT_PRIORITY_NORMAL, {
+        s32 gfxCount = va_arg(args, s32);
+        s32 mode = getGameMode();
+        if (mode == GAME_MODE_8_BOTTLES_BONUS || mode == GAME_MODE_A_SNS_PICTURE) {
+            sPicFramesSinceMapLoad++;
+            if (sPicFramesSinceMapLoad <= kPicWarmupFrames || gfxCount < 100) {
+                SPDLOG_INFO("[pictureDiag] dropped frame (sinceLoad={}, gfxCount={})", sPicFramesSinceMapLoad,
+                            gfxCount);
+                *should = false;
+            }
+        }
+    });
+}
+
+static RegisterShipInitFunc initFramebufferPatches(RegisterFramebufferPatches_Init);

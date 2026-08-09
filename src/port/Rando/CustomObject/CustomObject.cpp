@@ -2,6 +2,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Rando/Logic/Logic.h"
+#include "port/Rando/ObjectBehavior/ObjectBehavior.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "actor.h"
@@ -34,7 +35,6 @@ void ml_vec3f_to_vec3h(s16 dst[3], f32 src[3]);
 void gcparade_beginFinalParade(void);
 
 void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
-Actor* marker_getActor(ActorMarker* thisx);
 void marker_despawn(ActorMarker* marker);
 Actor* actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags);
 extern ActorInfo chJinjoBlue;
@@ -43,18 +43,18 @@ extern ActorInfo chJinjoYellow;
 extern ActorInfo chJinjoPink;
 extern ActorInfo chJinjoOrange;
 extern ActorInfo chJiggy;
-extern ActorInfo D_80366C80;
-extern ActorInfo D_803685A0;
+extern ActorInfo chEmptyHoneycomb;
+extern ActorInfo chMumboToken;
 extern ActorInfo sumusicNote;
 extern ActorInfo chExtraLife;
 
-extern ActorInfo D_80366CA4;
-extern ActorInfo D_80367D00;
-extern ActorInfo D_80367D24;
-extern ActorInfo D_80367D48;
+extern ActorInfo chHoneycomb;
+extern ActorInfo chBlueEgg;
+extern ActorInfo chRedFeather;
+extern ActorInfo chGoldFeather;
 
-extern ActorInfo D_80367814;
-extern ActorInfo D_803677A8;
+extern ActorInfo chSnsEgg;
+extern ActorInfo chIceKey;
 }
 
 typedef struct {
@@ -69,9 +69,9 @@ bool shouldRemoveEX = false;
 
 // clang-format off
 std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
-    { ACTOR_2D_MUMBO_TOKEN,     { D_803685A0,       ACTOR_FLAG_UNKNOWN_6 } },
+    { ACTOR_2D_MUMBO_TOKEN,     { chMumboToken,       ACTOR_FLAG_UNKNOWN_6 } },
     { ACTOR_46_JIGGY,           { chJiggy,          ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_47_EMPTY_HONEYCOMB, { D_80366C80,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_47_EMPTY_HONEYCOMB, { chEmptyHoneycomb, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_49_EXTRA_LIFE,      { chExtraLife,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_51_MUSIC_NOTE,      { sumusicNote,      ACTOR_FLAG_UNKNOWN_21 } },
     { ACTOR_5E_JINJO_YELLOW,    { chJinjoYellow,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
@@ -79,16 +79,15 @@ std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
     { ACTOR_60_JINJO_BLUE,      { chJinjoBlue,      ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_61_JINJO_PINK,      { chJinjoPink,      ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
     { ACTOR_62_JINJO_GREEN,     { chJinjoGreen,     ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
-    { ACTOR_50_HONEYCOMB,       { D_80366CA4,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_52_BLUE_EGG,        { D_80367D00,       ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_129_RED_FEATHER,    { D_80367D24,       ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_370_GOLD_FEATHER,   { D_80367D48,       ACTOR_FLAG_UNKNOWN_21 } },
-    { ACTOR_25E_SNS_EGG,        { D_80367814,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
-    { ACTOR_25D_ICE_KEY,        { D_803677A8,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+    { ACTOR_50_HONEYCOMB,       { chHoneycomb,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_52_BLUE_EGG,        { chBlueEgg,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_129_RED_FEATHER,    { chRedFeather,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_370_GOLD_FEATHER,   { chGoldFeather,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_25E_SNS_EGG,        { chSnsEgg,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+    { ACTOR_25D_ICE_KEY,        { chIceKey,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
 };
 // clang-format on
 
-extern int32_t GetJinjoActorMarkerId(actor_e actorId);
 int32_t currentMap = -1;
 
 void CustomObject::ResetRandoSpawnQueue() {
@@ -172,6 +171,10 @@ Actor* CustomObject::SpawnCustomActorEX(RandoCheckId randoCheckId, int32_t posit
     Actor* customActor = actor_new(position, 0, actorInfo, flags);
 
     if (customActor != NULL) {
+        // Music notes don't cast shadows, custom or otherwise.
+        if (actorInfo->actorId == ACTOR_51_MUSIC_NOTE) {
+            customActor->unk124_6 = 0;
+        }
         customActor = SetCustomActorParametersEX(randoCheckId, customActor);
         randoSpawnedCheckIds.push_back(randoCheckId);
     }
@@ -204,7 +207,7 @@ void CustomObject::FlushRandoSpawnQueue() {
         }
 
         actor_e randoActorId = Rando::StaticData::GetActorIdByRandoItemId(randoSaveCheck.randoItemId);
-        if (randoSaveCheck.obtained) {
+        if (randoSaveCheck.eligible) {
             randoActorId = GetRandomJunkActorId(randoSaveCheck);
         }
 
@@ -217,7 +220,8 @@ void CustomObject::FlushRandoSpawnQueue() {
                                                               &actorInfoMap.at(randoActorId).first,
                                                               actorInfoMap.at(randoActorId).second);
 
-        if (randoSaveCheck.obtained && RANDO_SAVE_OPTIONS[RO_SPAWN_JUNK].optionValue == RO_GENERIC_ON) {
+        if (customActor != NULL && randoSaveCheck.eligible &&
+            RANDO_SAVE_OPTIONS[RO_SPAWN_JUNK].optionValue == RO_GENERIC_ON) {
             customActor->marker->unk14_21 = true;
             customActor->scale = 1.0f;
         }
@@ -250,7 +254,7 @@ Actor* CustomObject::ShouldCreateCustomActorEX(RandoCheckId randoCheckId, int32_
         return NULL;
     }
 
-    if (randoSaveCheck.obtained) {
+    if (randoSaveCheck.eligible) {
         if (refActor != nullptr) {
             randoActorId = (actor_e)refActor->modelCacheIndex;
         } else {
@@ -335,16 +339,22 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
 
 void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
     for (auto& pool : Rando::Logic::shuffledPool) {
-        if (pool.randoCheckId == randoCheckId && !pool.obtained) {
-            pool.obtained = true;
+        if (pool.randoCheckId == randoCheckId && !pool.eligible) {
+            pool.eligible = true;
             shouldRemoveEX = true;
-            RANDO_SAVE_CHECKS[pool.randoCheckId].obtained = true;
+            RANDO_SAVE_CHECKS[pool.randoCheckId].eligible = true;
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
-            if (!isInit) {
+            if (isInit) {
+                CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
+            } else {
                 Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
             }
             Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
             Rando::Logic::RefreshReachableRegions();
+            // Broadcast real collects only (not save-load/remote apply, both isInit).
+            if (!isInit) {
+                CALL_EVENT(OnRandoCheckObtained, (int32_t)randoCheckId, (int32_t)gsworld_getMap());
+            }
             break;
         }
     }

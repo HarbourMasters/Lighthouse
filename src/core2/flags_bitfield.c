@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_98CB0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -5,10 +6,10 @@
 
 void func_8031FFAC(void);
 void fileProgressFlag_set(enum file_progress_e index, s32 set);
-s32 bitfield_get_bit(u8 *array, s32 index);
-s32 bitfield_get_n_bits(u8 *array, s32 offset, s32 numBits);
-void bitfield_set_bit(u8 *array, s32 index, s32 set);
-void bitfield_set_n_bits(u8 *array, s32 startIndex, s32 set, s32 length);
+s32 bitfieldarray_getBit(u8 *array, s32 index);
+s32 bitfieldarray_getNBits(u8 *array, s32 offset, s32 numBits);
+void bitfieldarray_setBit(u8 *array, s32 index, s32 set);
+void bitfieldarray_setNBits(u8 *array, s32 startIndex, s32 set, s32 length);
 void volatileFlag_clear(void);
 void volatileFlag_set(enum volatile_flags_e index, s32 set);
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);
@@ -117,11 +118,11 @@ void func_8031FEC0(void) {
 }
 
 bool fileProgressFlag_get(enum file_progress_e index) {
-    return bitfield_get_bit(gFileProgressFlags.unk8, index);
+    return bitfieldarray_getBit(gFileProgressFlags.unk8, index);
 }
 
 s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits) {
-    return bitfield_get_n_bits(gFileProgressFlags.unk8, offset, numBits);
+    return bitfieldarray_getNBits(gFileProgressFlags.unk8, offset, numBits);
 }
 
 s32 fileProgressFlag_getAndSet(enum file_progress_e index, s32 set) {
@@ -142,16 +143,25 @@ void func_8031FFAC(void) {
     func_8031FEC0();
 }
 
-void fileProgressFlag_set(enum file_progress_e index, s32 set) {
-    bitfield_set_bit(gFileProgressFlags.unk8, index, set);
+void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent) {
+    s32 changed = bitfieldarray_getBit(gFileProgressFlags.unk8, index) != (set ? 1 : 0);
+    bitfieldarray_setBit(gFileProgressFlags.unk8, index, set);
     func_8031FC40();
     func_8031FEC0();
+    if (triggerEvent && changed) {
+        CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_FILE_PROGRESS, index, set ? 1 : 0, 1);
+    }
+}
+
+void fileProgressFlag_set(enum file_progress_e index, s32 set) {
+    fileProgressFlag_setEx(index, set, 1);
 }
 
 void fileProgressFlag_setN(enum file_progress_e startIndex, s32 set, s32 length) {
-    bitfield_set_n_bits(gFileProgressFlags.unk8, startIndex, set, length);
+    bitfieldarray_setNBits(gFileProgressFlags.unk8, startIndex, set, length);
     func_8031FC40();
     func_8031FEC0();
+    CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_FILE_PROGRESS, startIndex, set, length);
 }
 
 void fileProgressFlag_getSizeAndPtr(s32 *size, u8 **addr) {
@@ -160,7 +170,7 @@ void fileProgressFlag_getSizeAndPtr(s32 *size, u8 **addr) {
 }
 
 // Returns a single bit from a byte array
-s32 bitfield_get_bit(u8 *array, s32 index) {
+s32 bitfieldarray_getBit(u8 *array, s32 index) {
     s32 ret;
     if (array[index / 8] & (1 << (index & 7))) {
         ret = 1;
@@ -171,18 +181,18 @@ s32 bitfield_get_bit(u8 *array, s32 index) {
 }
 
 // Extracts an integer of the given number of bits from a byte array at the starting bit offset
-s32 bitfield_get_n_bits(u8 *array, s32 offset, s32 numBits) {
+s32 bitfieldarray_getNBits(u8 *array, s32 offset, s32 numBits) {
     s32 ret = 0;
     s32 i;
 
     for (i = 0; i < numBits; i++) {
-        ret |= (bitfield_get_bit(array, offset + i) << i);
+        ret |= (bitfieldarray_getBit(array, offset + i) << i);
     }
     return ret;
 }
 
 // Sets or clears a single bit in a byte array
-void bitfield_set_bit(u8 *array, s32 index, s32 set) {
+void bitfieldarray_setBit(u8 *array, s32 index, s32 set) {
     if (set) {
         array[index / 8] |=  (1 << (index & 7));
     } else {
@@ -191,11 +201,11 @@ void bitfield_set_bit(u8 *array, s32 index, s32 set) {
 }
 
 // Sets or clears a range of bits in a byte array
-void bitfield_set_n_bits(u8 *array, s32 startIndex, s32 set, s32 length) {
+void bitfieldarray_setNBits(u8 *array, s32 startIndex, s32 set, s32 length) {
     s32 i;
 
     for (i = 0; i < length; i++) {
-        bitfield_set_bit(array, startIndex + i, (1 << i) & set);
+        bitfieldarray_setBit(array, startIndex + i, (1 << i) & set);
     }
 }
 
@@ -273,11 +283,11 @@ void func_803203A0(void) {
 }
 
 s32 volatileFlag_get(enum volatile_flags_e index) {
-    return bitfield_get_bit(gVolatileFlags.unk8, index);
+    return bitfieldarray_getBit(gVolatileFlags.unk8, index);
 }
 
 s32 volatileFlag_getN(enum volatile_flags_e index, s32 numBits) {
-    return bitfield_get_n_bits(gVolatileFlags.unk8, index, numBits);
+    return bitfieldarray_getNBits(gVolatileFlags.unk8, index, numBits);
 }
 
 s32 volatileFlag_getAndSet(enum volatile_flags_e index, s32 arg1) {
@@ -297,16 +307,30 @@ void volatileFlag_clear(void) {
     func_803203A0();
 }
 
-void volatileFlag_set(enum volatile_flags_e index, s32 set) {
-    bitfield_set_bit(gVolatileFlags.unk8, index, set);
+void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent) {
+    s32 changed = bitfieldarray_getBit(gVolatileFlags.unk8, index) != (set ? 1 : 0);
+    bitfieldarray_setBit(gVolatileFlags.unk8, index, set);
     func_803202D0();
     func_803203A0();
+    if (triggerEvent && changed) {
+        CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_VOLATILE, index, set ? 1 : 0, 1);
+    }
+}
+
+void volatileFlag_set(enum volatile_flags_e index, s32 set) {
+    volatileFlag_setEx(index, set, 1);
 }
 
 void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length) {
-    bitfield_set_n_bits(gVolatileFlags.unk8, startIndex, set, length);
+    bitfieldarray_setNBits(gVolatileFlags.unk8, startIndex, set, length);
     func_803202D0();
     func_803203A0();
+    CALL_EVENT(OnGameFlagSet, ANCHOR_FLAGSPACE_VOLATILE, startIndex, set, length);
+}
+
+void volatileFlag_getSizeAndPtr(s32 *size, u8 **addr) {
+    *size = 0x19;
+    *addr = gVolatileFlags.unk8;
 }
 
 s32 func_8032056C(void) {

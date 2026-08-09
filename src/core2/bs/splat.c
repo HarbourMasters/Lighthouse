@@ -4,6 +4,7 @@
 #include "bsint.h"
 
 #include "core2/ba/physics.h"
+#include "core2/yaw.h"
 
 void func_80292900(f32, f32);
 void baMotor_80250D94(f32, f32, f32);
@@ -22,8 +23,8 @@ void func_802B4570(void) {
 
 void bssplat_init(void){
     s32 sp1C;
-    baanim_playForDuration_onceSmooth(ASSET_149_ANIM_BSSPLAT, 1.1f);
-    func_8029C7F4(1,1,3, BA_PHYSICS_LOCKED_ROTATION);
+    baanim_playForDuration_once(ASSET_149_ANIM_BSSPLAT, 1.1f);
+    code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_LOCKED_ROTATION);
     bafalldamage_get_damage(&sp1C);
     item_adjustByDiffWithHud(ITEM_14_HEALTH, -sp1C);
     if(func_8029CEB0() == 4){
@@ -59,7 +60,7 @@ void bssplat_update(void){
             sp1C = BS_2F_FALL;
 
         if(anctrl_isStopped(aCtrl)){
-            baanim_playForDuration_once(ASSET_D2_ANIM_BSSPLAT, 2.25f);
+            baanim_playForDuration_onceSmooth(ASSET_D2_ANIM_BSSPLAT, 2.25f);
             D_8037D530 = 1;
         }
         break;

@@ -16,7 +16,7 @@ void marker_despawn(ActorMarker* marker);
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_STOP_N_SWOP].optionValue
 
 void Rando::ObjectBehavior::ModifyStopNSwopWorldBehavior(void* snsActor) {
-    if (!IS_RANDO && !OPTION_ENABLED) {
+    if (!IS_RANDO || !OPTION_ENABLED) {
         return;
     }
 
@@ -40,7 +40,7 @@ void Rando::ObjectBehavior::ModifyStopNSwopWorldBehavior(void* snsActor) {
 void Rando::ObjectBehavior::InitStopNSwopBehavior() {
     COND_VB_SHOULD(VB_OVERRIDE_SNS_MAP_CHECK, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, { *should = true; })
     COND_VB_SHOULD(VB_OVERRIDE_TIMED_DIALOGUE, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, {
-        asset_e textId = va_arg(args, asset_e);
+        asset_e textId = (asset_e)va_arg(args, int);
 
         if (textId == ASSET_DB3_DIALOG_SNS_EGG_1_TEXT || textId == ASSET_DB5_DIALOG_ICE_KEY_TEXT ||
             textId == ASSET_DB2_DIALOG_MUMBO_MISTAKE_2) {

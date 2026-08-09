@@ -3,21 +3,14 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-extern "C" {
 #include "functions.h"
 #include "variables.h"
-}
 
 /**
  * VILE_GAME_STATE
  *
  * Periodic full snapshot of the Mr. Vile minigame, broadcast by the authority to other
- * clients in the chamber every second or two while the game is running. Application is
- * idempotent: it corrects any drift from lost packets and brings late joiners fully up
- * to date (a late joiner is just a client whose drift is 100%).
- *
- * Events (VILE_HOLE_STATE / VILE_UPDATE) make the game feel synced; this packet makes
- * it provably synced.
+ * clients in the chamber every second or two while the game is running.
  */
 
 void Anchor::SendPacket_VileGameState() {

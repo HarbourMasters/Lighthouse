@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_45310.c
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
@@ -28,7 +29,7 @@ Actor *func_802CCA7C(ActorMarker *, Gfx **, Mtx **, Vtx **);
 void func_802CCC5C(Actor *this);
 
 /* .data */
-ActorInfo D_80367130 = { 
+ActorInfo chBuzzbomb = {
     MARKER_C2_BUZZBOMB, ACTOR_134_BUZZBOMB, ASSET_3ED_MODEL_BUZZBOMB, 
     0, NULL, 
     func_802CCC5C, NULL, func_802CCA7C, 
@@ -434,7 +435,7 @@ void func_802CCC5C(Actor *this) {
             if (this->state == 1) {
                 player_getPosition(sp8C);
                 viewport_getPosition_vec3f(sp80);
-                viewport_getLookbk_vector(sp74);
+                viewport_getLookVector(sp74);
                 sp5C[0] = this->position[0] - sp80[0];
                 sp5C[1] = this->position[1] - sp80[1];
                 sp5C[2] = this->position[2] - sp80[2];

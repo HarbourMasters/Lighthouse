@@ -80,7 +80,7 @@ static void __chsnacker_start_dialog(Actor *this) {
             text_index = mapSpecificFlags_getN(8, 3);
             if( !this->has_met_before ) {
                 if(text_index < 4) {
-                    if(gcdialog_showDialog(ASSET_A1B_DIALOG_SNACKER_SPAWNED_1 + text_index, 0, NULL, NULL, NULL, NULL)){
+                    if(gcdialog_showDialog(VER_SELECT(ASSET_A1B_DIALOG_SNACKER_SPAWNED_1, 0x91B, 0, 0) + text_index, 0, NULL, NULL, NULL, NULL)){
                         text_index++;
                         mapSpecificFlags_setN(8, text_index, 3);
                         this->has_met_before = true;
@@ -195,7 +195,7 @@ void chsnacker_update(Actor *this) {
         this->unk154 = 0x085E0000;
         marker_setCollisionScripts(this->marker, __chsnacker_ow, func_802E1010, __chsnacker_die);
     }
-    _player_getPosition(player_position);
+    playerPosition_get(player_position);
     controller_state = snackerctl_get_state();
     
     if(func_802E0DC0(this->position) || ((controller_state != SNACKER_CTL_STATE_1_RBB) && (controller_state != SNACKER_CTL_STATE_2_TTC))) {
@@ -330,7 +330,7 @@ void chSnacker_spawn(void) {
     f32 sp20[3];
 
 
-    _player_getPosition(spawn_position);
+    playerPosition_get(spawn_position);
     if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) != 0) {
         nodeprop_getPosition(nodeprop_findByActorIdAndPosition_f32(ACTOR_3CB_UNKNOWN, spawn_position), spawn_position);
     }

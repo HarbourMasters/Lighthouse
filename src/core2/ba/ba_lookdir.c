@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_7060.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -11,10 +12,10 @@
 
 #include "core2/snackerctl.h"
 
-extern int player_isInHorizontalRadius(f32[3], f32);
+extern bool player_isInHorizontalRadius(f32[3], f32);
 extern bool player_isInVerticalRange(f32[3], f32);
 extern void func_80295A8C(void);
-extern void climbSet(f32[3], f32[3], f32, u32);
+extern void climb_set(f32[3], f32[3], f32, u32);
 extern void func_80296C90(f32);
 extern void func_80296C9C(f32);
 extern void func_8029B73C(f32 arg0[3], f32 arg1, f32 arg2, f32 arg3, f32 arg4);
@@ -185,10 +186,10 @@ void func_8028E4B0(void) {
 
     D_8037BFBA = true;
     D_8037BFB9 = false;
-    func_80295914();
+    bsmethods_reset();
     sp20 = gsworld_getExit();
     D_8037BFB8 = 0;
-    player_setPosition(D_803636C0);
+    playerPosition_set(D_803636C0);
     if (volatileFlag_get(VOLATILE_FLAG_E) || func_802D686C() || (sp20 == 0x65)){
         return;
     }
@@ -270,7 +271,7 @@ u32 player_getTransformation(void){
 }
 
 void func_8028E7EC(f32 arg0[3]){
-    climbGetBottom(arg0);
+    climb_getBottom(arg0);
 }
 
 f32 player_stateTimer_get(enum state_timer_e timer_id){
@@ -285,14 +286,14 @@ void func_8028E84C(f32 arg0[3]){
     func_80294480(arg0);
 }
 
-ActorMarker *func_8028E86C(void){
-    return bacarry_get_marker();
+ActorMarker *bacarry_getMarkerWithExtraSteps(void){
+    return bacarry_getMarker();
 }
 
-enum marker_e bacarry_get_markerId(void){
+enum marker_e bacarry_getMarkerId(void){
     ActorMarker *marker;
 
-    marker = bacarry_get_marker();
+    marker = bacarry_getMarker();
     if(marker){
         return marker->id;
     }
@@ -303,7 +304,7 @@ enum actor_e carriedObj_getActorId(void){
     ActorMarker *marker;
     Actor *actor;
 
-    marker = bacarry_get_marker();
+    marker = bacarry_getMarker();
     
     if(marker != NULL){
         actor = marker_getActor(marker);
@@ -333,7 +334,7 @@ f32 func_8028E984(void){
 }
 
 void player_getPosition(f32 dst[3]){
-    _player_getPosition(dst);
+    playerPosition_get(dst);
 }
 
 void func_8028E9C4(s32 arg0, f32 arg1[3]) {
@@ -355,7 +356,7 @@ void func_8028E9C4(s32 arg0, f32 arg1[3]) {
             break;
 
         case 5: //L8028EA2C
-            _player_getPosition(arg1);
+            playerPosition_get(arg1);
             switch(bsStoredState_getTransformation()){
                 case TRANSFORM_3_PUMPKIN: //L8028EA68
                     if(gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION){
@@ -397,12 +398,12 @@ void func_8028E9C4(s32 arg0, f32 arg1[3]) {
 }
 
 
-void player_getPosition_s32(s32 arg0[3]){
+void player_getPosition_s32(s32 position_s32[3]){
     f32 plyr_pos[3];
     player_getPosition(plyr_pos);
-    arg0[0] = (s32)plyr_pos[0];
-    arg0[1] = (s32)plyr_pos[1];
-    arg0[2] = (s32)plyr_pos[2];
+    position_s32[0] = (s32)plyr_pos[0];
+    position_s32[1] = (s32)plyr_pos[1];
+    position_s32[2] = (s32)plyr_pos[2];
 }
 
 f32 player_getYaw(void){
@@ -431,7 +432,7 @@ f32 func_8028EC64(f32 arg0[3]){
     f32 sp1C;
     f32 sp18;
     func_80293D2C(&sp18, &sp1C);
-    _player_getPosition(arg0);
+    playerPosition_get(arg0);
     arg0[1] += sp18;
     return sp1C;
 }
@@ -466,7 +467,7 @@ enum bsgroup_e player_movementGroup(void) {
         case BS_E_OW: //L8028EE00
         case BS_34_JIG_NOTEDOOR: //L8028EE00
         case BS_3C_TALK: //L8028EE00
-        case BS_3F: //L8028EE00
+        case BS_3F_UNKNOWN: //L8028EE00
         case BS_41_DIE: //L8028EE00
         case BS_44_JIG_JIGGY: //L8028EE00
             return BSGROUP_1_INTR;
@@ -548,7 +549,7 @@ f32 func_8028EF88(void){
     if(floor_isCurrentFloorunk59()){
         return floor_getCurrentFloorYPosition();
     }
-    return player_getYPosition();
+    return playerPosition_getY();
 }
 
 bool func_8028EFC8(void){
@@ -559,15 +560,15 @@ bool func_8028EFEC(void){
     return bakey_getAndSetState(BUTTON_A, 2);
 }
 
-void func_8028F010(enum actor_e actor_id){
+void bacarriedobj_decWithExtraSteps(enum actor_e actor_id){
     bacarriedobj_dec(actor_id);
 }
 
-void func_8028F030(enum actor_e actor_id){
+void bacarriedobj_incWithExtraSteps(enum actor_e actor_id){
     bacarriedobj_inc(actor_id);
 }
 
-void func_8028F050(enum actor_e actor_id){
+void bacarriedobj_displayOnHudWithExtraSteps(enum actor_e actor_id){
     bacarriedobj_displayOnHud(actor_id);
 }
 
@@ -588,7 +589,7 @@ bool func_8028F098(void){
     }
 }
 
-bool func_8028F0D4(void){
+bool player_isBanjoOrWishywashy(void){
     enum transformation_e xform_id;
     
     xform_id = bsStoredState_getTransformation();
@@ -608,11 +609,11 @@ bool func_8028F150(void){
     return baModel_isVisible();
 }
 
-bool func_8028F170(void){
+bool player_isInFirstPersonView(void){
     return baflag_isTrue(BA_FLAG_17_FIRST_PERSON_VIEW);
 }
 
-int ability_isUnlocked(enum ability_e uid){
+bool ability_isUnlocked(enum ability_e uid){
     return ability_hasLearned(uid);
 }
 
@@ -628,7 +629,7 @@ bool func_8028F1E0(void){
     return bsList_getInterruptMethod(bs_getState()) != NULL;
 }
 
-bool func_8028F20C(void){
+bool player_isStableWithExtraSteps(void){
     return player_isStable();
 }
 
@@ -689,9 +690,13 @@ void func_8028F408(f32 arg0[3]){
 }
 
 bool func_8028F428(s32 arg0, ActorMarker *marker) {
+    s32 handled = 2;
     func_80296CB4(arg0);
     func_80296CA8(marker);
-    return bs_checkInterrupt(BS_INTR_24) == 2;
+    if (EventSystem_Should(VB_BUMP_REBOUNDS_PLAYER, true, marker)) {
+        handled = bs_checkInterrupt(BS_INTR_24);
+    }
+    return handled == 2;
 }
 
 bool func_8028F45C(s32 arg0, f32 arg1[3]) {
@@ -776,7 +781,7 @@ void player_stateTimer_set(enum state_timer_e timer_id, f32 value){
 }
 
 void player_setClimbParams(f32 bottom[3], f32 top[3], f32 radius, u32 arg3){
-    climbSet(bottom, top, radius, arg3);
+    climb_set(bottom, top, radius, arg3);
 }
 
 void func_8028F760(s32 arg0, f32 arg1, f32 arg2){
@@ -884,7 +889,7 @@ void func_8028FA74(f32 dst[3]){
     f32 plyr_pos[3];
     f32 sp18[3];
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     playerPosition_getOffset(sp18);
     ml_vec3f_add(dst, plyr_pos, sp18);
 }
@@ -893,7 +898,7 @@ void func_8028FAB0(f32 arg0[3]){
     f32 plyr_pos[3];
     f32 diff[3];
 
-    _player_getPosition(plyr_pos);
+    playerPosition_get(plyr_pos);
     ml_vec3f_diff_copy(diff, arg0, plyr_pos);
     playerPosition_setOffset(diff);
 }
@@ -916,7 +921,7 @@ void func_8028FB68(void){
     func_80295D74();
 }
 
-bool func_8028FB88(enum transformation_e xform_id) {
+bool player_transform(enum transformation_e xform_id) {
     if (wishyWashyFlag_get() && xform_id == TRANSFORM_1_BANJO) {
         xform_id = TRANSFORM_7_WISHWASHY;
     }
@@ -935,7 +940,7 @@ bool func_8028FBD4(f32 arg0[3]) {
 }
 
 bool player_throwCarriedObject(void){
-    if (func_8028E86C() && bscarry_inSet(bs_getState())) {
+    if (bacarry_getMarkerWithExtraSteps() && bscarry_inSet(bs_getState())) {
         return bs_checkInterrupt(BS_INTR_16_THROW_CARRIED_OBJ) == 2;
     }
 
@@ -963,4 +968,10 @@ void func_8028FCE8(void) {
     player_getPosition(D_8037BFC0);
     D_8037BFCC = yaw_get();
     D_8037BFD0 = D_8037BFBC;
+}
+
+void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id) {
+    ml_vec3f_copy(D_8037BFC0, position);
+    D_8037BFCC = yaw;
+    D_8037BFD0 = (f32) exit_id;
 }

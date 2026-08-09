@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_9BD0.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -112,7 +113,7 @@ int func_80290E8C(void){
     ncDynamicCamera_setState(3);
     func_80291488(0xB);
     if( gsworld_getMap() == MAP_B_CC_CLANKERS_CAVERN
-        && player_getYPosition() < 1201.0f
+        && playerPosition_getY() < 1201.0f
     ){
         func_802C1B20(1100.0f);
     }

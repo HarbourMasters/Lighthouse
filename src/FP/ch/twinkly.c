@@ -85,8 +85,8 @@ Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s3
 
 Actor *chTwinkly_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this = marker_getActor(marker);
-    func_8033A45C(2, this->unk38_31);
-    func_8033A45C(1, modelRender_func_8033A0F0(2) ^ 1);
+    modelRender_setAppendageVisibility(2, this->unk38_31);
+    modelRender_setAppendageVisibility(1, modelRender_func_8033A0F0(2) ^ 1);
     return actor_draw(marker, gfx, mtx, vtx);
 }
 
@@ -337,11 +337,11 @@ void chTwinkly_update(Actor *this){
             if(this->unk1C[1] <= this->position_y){
                 this->position_y = this->unk1C[1];
                 if(!fileProgressFlag_get(FILEPROG_82_MET_TWINKLIES)){
-                    gcdialog_showDialog(0xc12, 0x2a, this->position, this->marker, chTwinkly_setUpMinigame, NULL);
-                    fileProgressFlag_set(FILEPROG_82_MET_TWINKLIES, true);
+                    gcdialog_showDialog(VER_SELECT(ASSET_C12_DIALOG_TWINKLIE_MINIGAME_START, 0x98C, 0, 0), 0x2a, this->position, this->marker, chTwinkly_setUpMinigame, NULL);
+                    fileProgressFlag_set(FILEPROG_82_MET_TWINKLIES, TRUE);
                 }
                 else{
-                    gcdialog_showDialog(0xc25, 0x2b, this->position, this->marker, chTwinkly_setUpMinigame, NULL);
+                    gcdialog_showDialog(VER_SELECT(ASSET_C25_DIALOG_TWINKLIE_MINIGAME_RETRY, 0x99F, 0, 0), 0x2b, this->position, this->marker, chTwinkly_setUpMinigame, NULL);
                 }
                 subaddie_set_state(this, 5);
                 this->pitch -= 3.0f;

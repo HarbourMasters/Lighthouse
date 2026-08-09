@@ -8,6 +8,8 @@
 
 #include <bk_math.h>
 
+#include "port/Patches/Patches.h"
+
 /* extern function declarations */
 
 void bundle_setYaw(f32);
@@ -40,7 +42,7 @@ Actor *chhut_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     s32 is_intact_or_destroyed  = actorPtr->state == HUT_STATE_0_INTACT || actorPtr->state == HUT_STATE_2_DESTROYED;
 
     this->propPtr->unk8_3 = is_intact_or_destroyed;
-    func_8033A45C(1, is_not_destroyed);
+    modelRender_setAppendageVisibility(1, is_not_destroyed);
     return actor_draw(this, gfx, mtx, vtx);
 }
 
@@ -52,18 +54,43 @@ void __chhut_spawnExplosion(ActorMarker *this) {
     if (this);
 }
 
-void chhut_update(Actor *this) {
-    static enum bundle_e D_803898D8[6] = {
-        BUNDLE_0_MM_HUT_MUSIC_NOTE,
-        BUNDLE_1_MM_HUT_BLUE_EGG,
-        BUNDLE_2_MM_HUT_GRUBLIN,
-        BUNDLE_3_MM_HUT_JINJO_GREEN,
-        BUNDLE_6_MM_HUT_EXTRA_LIFE,
-        BUNDLE_4_MM_HUT_JIGGY
-    };
+static enum bundle_e mm_hut_bundles[6] = {
+    BUNDLE_0_MM_HUT_MUSIC_NOTE,
+    BUNDLE_1_MM_HUT_BLUE_EGG,
+    BUNDLE_2_MM_HUT_GRUBLIN,
+    BUNDLE_3_MM_HUT_JINJO_GREEN,
+    BUNDLE_6_MM_HUT_EXTRA_LIFE,
+    BUNDLE_4_MM_HUT_JIGGY
+};
 
+static void chhut_dropRecordedBundle(Actor *this, s32 loot, s32 fullBundle) {
+    f32 pos[3];
+    if (loot < 0 || loot >= 5) {
+        return; // jiggy / out of range
+    }
+    if (!fullBundle && (loot == 0 || loot == 3)) {
+        return; // note / jinjo: skip on reload
+    }
+    pos[0] = this->position_x;
+    pos[1] = this->position_y + 125.0f;
+    pos[2] = this->position_z;
+    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[loot], *(s32 *)(&pos[0]), *(s32 *)(&pos[1]), *(s32 *)(&pos[2]));
+}
+
+static void chhut_replaySmash(Actor *this, s32 loot) {
+    sfxsource_playHighPriority(SFX_5B_HEAVY_STUFF_FALLING);
+    subaddie_set_state(this, HUT_STATE_1_DAMAGED);
+    actor_playAnimationOnce(this);
+    __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
+    bundle_setYaw(this->yaw);
+    chhut_dropRecordedBundle(this, loot, 1);
+}
+
+void chhut_update(Actor *this) {
     f32 diff_pos[3];
     f32 plyr_pos[3];
+    s32 loot;
+    s32 smashIndex;
 
     if (gsworld_getUnk0() != 2) {
         return;
@@ -72,6 +99,13 @@ void chhut_update(Actor *this) {
     if (!this->initialized) {
         this->marker->collidable = false;
         this->initialized = true;
+        loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+        if (loot >= 0) {
+            chhut_dropRecordedBundle(this, loot, 0);
+            subaddie_set_state(this, HUT_STATE_2_DESTROYED);
+            this->position_y -= 160.0f;
+            return;
+        }
     }
 
     switch (this->state) {
@@ -83,7 +117,7 @@ void chhut_update(Actor *this) {
 
             if (150.0f < diff_pos[1]
                 && player_getActiveHitbox(this->marker) == HITBOX_1_BEAK_BUSTER
-                && func_8028F20C()
+                && player_isStableWithExtraSteps()
                 && LENGTH_VEC3F(diff_pos) < 350.0f
             ){
                 diff_pos[0] = this->position_x;
@@ -97,14 +131,21 @@ void chhut_update(Actor *this) {
                 __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
                 bundle_setYaw(this->yaw);
 
-                if (mm_hut_smash_count < 5) {
-                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, D_803898D8[mm_hut_smash_count], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
+                smashIndex = port_hutSmash_countForCurrentLevel();
+                if (smashIndex < 5) {
+                    __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
                 else {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);
                 }
 
-                mm_hut_smash_count = (mm_hut_smash_count + 1) % 6;
+                port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
+            }
+            else {
+                loot = port_hutSmash_get((s32)this->position_x, (s32)this->position_y, (s32)this->position_z);
+                if (loot >= 0) {
+                    chhut_replaySmash(this, loot);
+                }
             }
             break;
 

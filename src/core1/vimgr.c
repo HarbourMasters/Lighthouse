@@ -6,7 +6,9 @@
 #include "version.h"
 #include "libultraship/libultra/rcp.h"
 
+#include "port/DevTools/ThreadWatchdog.h"
 #include "port/Patches/Patches.h"
+#include "port/OS/OS.h"
 
 #define VIMANAGER_THREAD_STACK_SIZE 0x400
 
@@ -139,6 +141,9 @@ void viMgr_init(void) {
     osCreateMesgQueue(&sMesgQueue2, sMesgBuffer2, 1);
     osCreateMesgQueue(&sMesgQueue3, sMesgBuffer3, FRAMERATE);
     osViSetEvent(&sMesgQueue1, OS_MESG_PTR(NULL), 1);
+    OS_SetQueueBlocking(&sMesgQueue1, 1); // viMgr_entry parks here between retraces
+    OS_SetQueueBlocking(&sMesgQueue2, 1); // the tick parks here for the frame token
+    OS_SetQueueBlocking(&sMesgQueue3, 1); // and here for its retraces
 
     sActiveFramebuffer = 0;
     D_80280724 = 1;
@@ -169,47 +174,42 @@ void viMgr_func_8024BFAC(void){
 
 void viMgr_func_8024BFD8(s32 arg0){
     // [port] Set D_80280724 to the actual VI count so time_func_8033DDB8() returns
-    // the correct delta for demo/playback zoomboxes. On N64 this was set from the
-    // VI wait loop counter which reflected real rendering time (including lag).
-    // During demo playback, sDemoViCount includes the N64's original rendering lag
-    // for maps that ran slow, which the zoombox dialog system needs to pace text.
+    // the correct delta for demo/playback zoomboxes.
     s32 demoVi = port_getDemoViCount();
-    D_80280724 = (demoVi > 0) ? demoVi : time_getDeltaReal_frames();
-#if 0
     static s32 D_80280E90;
-    
+    s32 viBudget = (demoVi > 2) ? demoVi : 2;
+
     osSetThreadPri(NULL, 0x7f);
     defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY_HIGH);
-    defragManager_80240874();
+    defragManager_resume();
     if(arg0){
         osRecvMesg(&sMesgQueue2, NULL, OS_MESG_BLOCK);
     }
 
-    while(D_802808D8 < viMgr_func_8024BFA0() - D_80280E90){
+    while(D_802808D8 < viBudget - D_80280E90){
         osRecvMesg(&sMesgQueue3, NULL, OS_MESG_BLOCK);
     }
 
     while(sMesgQueue3.validCount){
         osRecvMesg(&sMesgQueue3, NULL, OS_MESG_NOBLOCK);
     }
-    
+
     osViSwapBuffer(gFramebuffers[sActiveFramebuffer = getOtherFramebuffer()]);
     D_80280E90 = 0;
     while(!(osDpGetStatus() & 2) && osViGetCurrentFramebuffer() != osViGetNextFramebuffer()){
         osRecvMesg(&sMesgQueue3, NULL, OS_MESG_BLOCK);
         D_80280E90++;
     }//L8024C178
-    D_80280724 = D_802808D8;
+    D_80280724 = (demoVi > 0) ? demoVi : D_802808D8;
     D_802808D8 = 0;
-    defragManager_802408B0();
+    defragManager_pause();
     osSetThreadPri(NULL, 0x14);
     defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY);
-#endif
 }
 
 void viMgr_func_8024C1B4(void){
     viMgr_func_8024BFD8(0);
-    dummy_func_8025AFB8();
+    // dummy_func_8025AFB8();
 }
 
 void viMgr_func_8024C1DC(void){
@@ -237,6 +237,10 @@ void viMgr_entry(void *arg0){
     OSMesg sp48;
     do{
         osRecvMesg(&sMesgQueue1, &sp48, OS_MESG_BLOCK);
+        if (OS_ThreadShouldExit()) { // [port] cooperative shutdown
+            return;
+        }
+        ThreadWatchdog_Beat(WATCHDOG_VIMGR); // [port] one beat per retrace
         thread5_checkAndExecutePreNMI();
         D_802808D8++;
         if(D_802808D8 == 420){
@@ -256,7 +260,6 @@ void viMgr_entry(void *arg0){
 
 void viMgr_setScreenBlack(s32 active) {
     osViBlack(active);
-    port_setViBlack(active);
 }
 
 void viMgr_clearFramebuffers(void) {
@@ -269,6 +272,25 @@ void viMgr_clearFramebuffers(void) {
 
 s32 viMgr_func_8024C4E8(void) {
     return D_802808D8;
+}
+
+// [port] Watchdog diagnostics: unsynchronized snapshot of the pacing state.
+void viMgr_getWatchdogState(ViMgrWatchdogState *out) {
+    out->retraceCount = D_802808D8;
+    out->q1Count = sMesgQueue1.validCount;
+    out->q2Count = sMesgQueue2.validCount;
+    out->q3Count = sMesgQueue3.validCount;
+}
+
+// [port] Watchdog diagnostics: queue identities, so blocked waits get names.
+OSMesgQueue *viMgr_getRetraceQueue(void) {
+    return &sMesgQueue1;
+}
+OSMesgQueue *viMgr_getFrameTokenQueue(void) {
+    return &sMesgQueue2;
+}
+OSMesgQueue *viMgr_getTickRetraceQueue(void) {
+    return &sMesgQueue3;
 }
 
 void viMgr_func_8024C4F8(s32 arg0) {

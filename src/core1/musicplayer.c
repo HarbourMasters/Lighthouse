@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "musicplayer.h"
 
 #include "version.h"
 
@@ -15,7 +16,7 @@ void musicTrack_setVolume(u8, s32);
 void func_8024FC1C(u8, s32);
 void func_8025AC20(enum comusic_e, s32, s32, f32, char*, s32);
 void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void *arg4, char *arg5, s32 arg6);
-void comusicPlayer_free(void);
+void coMusicPlayer_free(void);
 void func_8025A55C(s32, s32, s32);
 void func_8025A7DC(enum comusic_e);
 void func_8025ABB8(enum comusic_e, s32, s32, s32);
@@ -32,7 +33,7 @@ int D_80276E34 = 0;
  * @param track_id 
  * @return CoMusic* 
  */
-CoMusic *__find_track(enum comusic_e track_id) {
+CoMusic *findTrack(enum comusic_e track_id) {
     CoMusic *iMusPtr;
     CoMusic *freeSlotPtr;
 
@@ -76,12 +77,12 @@ void func_802599B4(CoMusic *this){
     func_8024FC1C(this - D_80276E30, -1);
 }
 
-void comusicPlayer_init(void){
+void coMusicPlayer_init(void){
     CoMusic * iPtr;
     s32 i;
     
     if(D_80276E30 != NULL)
-        comusicPlayer_free();
+        coMusicPlayer_free();
 
     D_80276E30 = (CoMusic *) bk_malloc(6*sizeof(CoMusic));
     for(iPtr = D_80276E30; iPtr < D_80276E30 + 6; iPtr++){
@@ -101,7 +102,7 @@ void comusicPlayer_init(void){
 }
 
 //comusic_freeAll
-void comusicPlayer_free(void){
+void coMusicPlayer_free(void){
     CoMusic *iPtr;
     func_8024FB8C();
     func_8024F83C();
@@ -113,7 +114,7 @@ void comusicPlayer_free(void){
     D_80276E30 = NULL;
 }
 
-s32 comusic_active_track_count(void){
+s32 coMusicPlayer_getTrackCount(void){
     CoMusic * iPtr;
     s32 cnt = 0;
     for(iPtr = D_80276E30; iPtr < D_80276E30 + 6; iPtr++){
@@ -123,7 +124,7 @@ s32 comusic_active_track_count(void){
     return cnt;
 }
 
-void comusicPlayer_update(void) {
+void coMusicPlayer_update(void) {
     s32 temp_lo;
     CoMusic *var_s0;
     f32 dt;
@@ -366,7 +367,7 @@ void func_8025A58C(u32 arg0, u32 arg1){
 }
 
 
-void func_8025A5AC(enum comusic_e comusic_id, s32 volume, s32 arg2){
+void playMusic(enum comusic_e comusic_id, s32 volume, s32 arg2){
     CoMusic *tmp_a2;
     s32 sp20;
 
@@ -374,7 +375,7 @@ void func_8025A5AC(enum comusic_e comusic_id, s32 volume, s32 arg2){
         volume = gcMusic_getDefaultVolumeForTrack(comusic_id);
     }
 
-    tmp_a2 = __find_track(comusic_id);
+    tmp_a2 = findTrack(comusic_id);
     if(tmp_a2 == NULL)
         return;
 
@@ -402,11 +403,11 @@ void func_8025A5AC(enum comusic_e comusic_id, s32 volume, s32 arg2){
 }
 
 void coMusicPlayer_playMusicWeak(enum comusic_e track_id, s32 volume){
-    func_8025A5AC(track_id, volume, 0);
+    playMusic(track_id, volume, 0);
 }
 
 void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume){
-    func_8025A5AC(track_id, volume, 1);
+    playMusic(track_id, volume, 1);
 }
 
 //comusic_queueTrack
@@ -414,7 +415,7 @@ void comusic_playTrack(enum comusic_e track_id){
     CoMusic *trackPtr;
     s32 indx;
 
-    trackPtr = __find_track(track_id);
+    trackPtr = findTrack(track_id);
     if(trackPtr == NULL)
         return;
     
@@ -437,7 +438,7 @@ void func_8025A788(enum comusic_e comusic_id, f32 delay1, f32 delay2){
 void func_8025A7DC(enum comusic_e track_id){
     CoMusic *trackPtr;
 
-    trackPtr = __find_track(track_id);
+    trackPtr = findTrack(track_id);
     if (trackPtr != NULL && trackPtr->track_id >= 0){
         func_802599B4(trackPtr);
     }
@@ -454,7 +455,7 @@ s32 func_8025A818(void){
 s32 func_8025A864(enum comusic_e track_id){
     CoMusic *trackPtr;
 
-    trackPtr = __find_track(track_id);
+    trackPtr = findTrack(track_id);
     if (trackPtr != NULL && trackPtr->unkC == 0 && trackPtr->volume <= 0){
         func_802599B4(trackPtr);
         return 1;
@@ -465,7 +466,7 @@ s32 func_8025A864(enum comusic_e track_id){
 void func_8025A8B8(enum comusic_e track_id, s32 arg1){
     CoMusic *trackPtr;
 
-    trackPtr = __find_track(track_id);
+    trackPtr = findTrack(track_id);
     if (trackPtr != NULL){
         trackPtr->unk14 = arg1;
     }
@@ -525,7 +526,7 @@ void func_8025AA48(void){
 void func_8025AABC(enum comusic_e track_id){
     CoMusic *trackPtr;
     
-    if(trackPtr = __find_track(track_id)){
+    if(trackPtr = findTrack(track_id)){
         trackPtr->unk15 = 1;
         if(!trackPtr->volume)
             func_802599B4(trackPtr);
@@ -545,17 +546,17 @@ void comusic_8025AB44(enum comusic_e comusic_id, s32 arg1, s32 arg2){
 }
 
 void comusic_8025AB78(enum comusic_e comusic_id, s32 arg1, s32 arg2, s32 arg3){
-    CoMusic *track = __find_track(comusic_id);
+    CoMusic *track = findTrack(comusic_id);
     if (!track) return;
     func_8025AC7C(comusic_id, arg1, arg2, 0.0f, &track->unk1C[arg3], "comusic.c", VER_SELECT(0x3a3, 0x3a4, 0, 0));
 }
 
 void func_8025ABB8(enum comusic_e comusic_id, s32 arg1, s32 arg2, s32 arg3){
-    func_8025AC7C(comusic_id, arg1, arg2, 0.0f, &(__find_track(comusic_id)->unk1C[arg3]), "comusic.c", VER_SELECT(0x3aa, 0x3ab,0,0));
+    func_8025AC7C(comusic_id, arg1, arg2, 0.0f, &(findTrack(comusic_id)->unk1C[arg3]), "comusic.c", VER_SELECT(0x3aa, 0x3ab,0,0));
 }
 
 void func_8025AC20(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, char* arg4, s32 char5){
-    func_8025AC7C(comusic_id, arg1, arg2, 0.0f, __find_track(comusic_id)->unk1C, "comusic.c", VER_SELECT(0x3b1, 0x3b2,0,0));
+    func_8025AC7C(comusic_id, arg1, arg2, 0.0f, findTrack(comusic_id)->unk1C, "comusic.c", VER_SELECT(0x3b1, 0x3b2,0,0));
 }
 
 void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void *arg4, char* arg5, s32 arg6){
@@ -564,7 +565,7 @@ void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void
     s32 *fadeSlot = (s32 *)arg4;
 
     //get track location
-    trackPtr = __find_track(comusic_id);
+    trackPtr = findTrack(comusic_id);
     if(trackPtr == NULL)
         return;
 
@@ -590,7 +591,7 @@ void func_8025AC7C(enum comusic_e comusic_id, s32 arg1, s32 arg2, f32 arg3, void
 
 //comusic_trackQueued
 int func_8025AD7C(enum comusic_e arg0){
-    CoMusic * trackPtr = __find_track(arg0);
+    CoMusic * trackPtr = findTrack(arg0);
     return (trackPtr == NULL || trackPtr->track_id == -1)? 0 : 1;
 }
 
@@ -600,7 +601,7 @@ int func_8025ADBC(enum comusic_e arg0){
 }
 
 s32 func_8025ADD4(enum comusic_e id){
-    CoMusic * ptr = __find_track(id);
+    CoMusic * ptr = findTrack(id);
     return ptr - D_80276E30;
 }
 
@@ -615,7 +616,7 @@ void func_8025AE50(s32 arg0, f32 arg1){
 }
 
 void func_8025AEA0(enum comusic_e track_id, s32 arg1){
-    CoMusic *ptr = __find_track(track_id);
+    CoMusic *ptr = findTrack(track_id);
     
     if(!ptr) return;
     func_8024FDDC(ptr - D_80276E30, arg1);

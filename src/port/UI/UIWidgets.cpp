@@ -529,7 +529,7 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
     }
     ImGui::AlignTextToFramePadding();
     if (options.alignment == ComponentAlignments::Right && options.labelPosition != LabelPositions::None) {
-        ImGui::Text(label, *value);
+        ImGui::Text("%s", label);
         if (options.labelPosition == LabelPositions::Above) {
             ImGui::NewLine();
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
@@ -540,7 +540,7 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
         }
     } else if (options.alignment == ComponentAlignments::Left) {
         if (options.labelPosition == LabelPositions::Above) {
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         }
     }
     if (options.showButtons) {
@@ -585,11 +585,11 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
     if (options.alignment == ComponentAlignments::Left && options.labelPosition != LabelPositions::None) {
         if (options.labelPosition == LabelPositions::Near) {
             ImGui::SameLine();
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         } else if (options.labelPosition == LabelPositions::Far) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x +
                             ImGui::GetStyle().ItemSpacing.x);
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         }
     }
     PopStyleSlider();
@@ -665,7 +665,7 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
     }
     ImGui::AlignTextToFramePadding();
     if (options.alignment == ComponentAlignments::Right) {
-        ImGui::Text(label, *value);
+        ImGui::Text("%s", label);
         if (options.labelPosition == LabelPositions::Above) {
             ImGui::NewLine();
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
@@ -678,7 +678,7 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
         }
     } else if (options.alignment == ComponentAlignments::Left) {
         if (options.labelPosition == LabelPositions::Above) {
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         }
     }
     if (options.showButtons) {
@@ -717,10 +717,10 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
     if (options.alignment == ComponentAlignments::Left) {
         if (options.labelPosition == LabelPositions::Near) {
             ImGui::SameLine();
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         } else if (options.labelPosition == LabelPositions::Far || options.labelPosition == LabelPositions::None) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - labelSpacing);
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         }
     }
     PopStyleSlider();
@@ -771,13 +771,13 @@ bool InputString(const char* label, std::string* value, const InputOptions& opti
     if (labelSize.x != 0) {
         if (options.alignment == ComponentAlignments::Left) {
             if (options.labelPosition == LabelPositions::Above) {
-                ImGui::Text(label, *value->c_str());
+                ImGui::Text("%s", label);
             }
         } else if (options.alignment == ComponentAlignments::Right) {
             if (options.labelPosition == LabelPositions::Above) {
                 ImGui::NewLine();
                 ImGui::SameLine(width - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label, *value->c_str());
+                ImGui::Text("%s", label);
             }
         }
     }
@@ -834,13 +834,13 @@ bool InputInt(const char* label, int32_t* value, const InputOptions& options) {
     float width = (options.size == ImVec2(0, 0)) ? ImGui::GetContentRegionAvail().x : options.size.x;
     if (options.alignment == ComponentAlignments::Left) {
         if (options.labelPosition == LabelPositions::Above) {
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         }
     } else if (options.alignment == ComponentAlignments::Right) {
         if (options.labelPosition == LabelPositions::Above) {
             ImGui::NewLine();
             ImGui::SameLine(width - ImGui::CalcTextSize(label).x);
-            ImGui::Text(label, *value);
+            ImGui::Text("%s", label);
         }
     }
     ImGui::SetNextItemWidth(width);
@@ -903,7 +903,8 @@ bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaul
     ImGui::AlignTextToFramePadding();
     if (showReset) {
         ImGui::SameLine();
-        std::string uniqueTag = "Reset##" + std::string(label);
+        // Tag off the CVar, not the label.
+        std::string uniqueTag = "Reset##" + std::string(cvarName) + ".Reset";
         if (UIWidgets::Button(uniqueTag.c_str(),
                               UIWidgets::ButtonOptions({ { .tooltip = "Resets this color to its default value" } })
                                   .Color(themeColor)
@@ -920,7 +921,7 @@ bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaul
     }
     if (showRandom) {
         ImGui::SameLine();
-        std::string uniqueTag = "Random##" + std::string(label);
+        std::string uniqueTag = "Random##" + std::string(cvarName) + ".Random";
         if (UIWidgets::Button(uniqueTag.c_str(),
                               UIWidgets::ButtonOptions({ { .tooltip = "Generates a random color value to use" } })
                                   .Color(themeColor)

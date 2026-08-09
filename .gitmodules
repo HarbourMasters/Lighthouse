@@ -4,4 +4,4 @@
 	branch = main
 [submodule "Torch"]
 	path = Torch
-	url = https://github.com/Malkierian/Torch.git
+	url = https://github.com/HarbourMasters/Torch.git

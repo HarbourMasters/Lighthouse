@@ -1,3 +1,4 @@
+// BanjoDecomp: core2/code_9A740.c
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
@@ -33,6 +34,7 @@ void func_803216D0(enum map_e map){
     
         mapSavestate_init();
         itemscore_levelReset(D_80383300.level);
+        CALL_EVENT(OnLevelReset, D_80383300.level);
         jiggyscore_clearAllSpawned();
         levelSpecificFlags_clear();
         bsStoredState_clearTimers();

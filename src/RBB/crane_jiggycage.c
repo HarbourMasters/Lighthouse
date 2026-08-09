@@ -6,13 +6,19 @@
 #include <bk_math.h>
 
 /* typedefs and declarations */
-void func_803878B0(Actor *this);
-void func_8038756C(Actor *this, s32 arg1);
+void chCageUpSwitch_update(Actor *this);
+void chCageUpSwitch_setState(Actor *this, s32 arg1);
+
+// Anchor: set while replaying a teammate's crane action; suppresses camera pans and auto-raise.
+static s32 sCraneRemote = 0;
+extern void port_jiggyCrane_broadcast(s32 stage);
+extern ActorArray *suBaddieActorArray;
 
 /* .data */
-ActorInfo D_80390200 = {
-    0x183, 0x173, 0x402, 0x0, NULL,
-    func_803878B0, NULL, func_80325340,
+ActorInfo chCageUpSwitch = {
+    MARKER_183_RBB_CAGE_UP_SWITCH, ACTOR_173_RBB_CAGE_UP_SWITCH, ASSET_402_MODEL_EGG_TOLL,
+    0x0, NULL,
+    chCageUpSwitch_update, NULL, func_80325340,
     0, 0, 0.0f, 0
 };
 
@@ -23,16 +29,24 @@ s32 D_80390254[4] = { 0xff, 0, 0, 0xff};
 
 f32 D_80390264[3] = {-4900.0f, 0.0f, 0.0f};
 
+enum chcageupswitch_state_e {
+    CH_CAGE_UP_SWITCH_STATE_0_NOT_INIT,
+    CH_CAGE_UP_SWITCH_STATE_1_NOT_PRESSED,
+    CH_CAGE_UP_SWITCH_STATE_2_RAISING_CAGE,
+    CH_CAGE_UP_SWITCH_STATE_3_TIMED_RAISED_CAGE,
+    CH_CAGE_UP_SWITCH_STATE_4_LOWER_CAGE
+};
+
 /* .code */
-void func_80387090(ActorMarker *marker, s32 arg1){
-    func_8038756C(marker_getActor(marker), arg1);
+void chCageUpSwitch_setStateByMarker(ActorMarker *marker, s32 next_state){
+    chCageUpSwitch_setState(marker_getActor(marker), next_state);
 }
 
 void func_803870BC(s32 arg0, s32 arg1){
     Struct70s *tmp_s70 = func_8034C528(arg0);
     if(tmp_s70){
         Struct6Ds *temp_v0 = &tmp_s70->type_6D;
-        func_8034DFB0(temp_v0, D_80390224, D_80390234, (f64)arg1/1000.0);
+        func_8034DFB0(temp_v0, D_80390224, D_80390234, (f64)arg1 / 1000.0);
     }
 }
 
@@ -42,7 +56,7 @@ void func_8038711C(s32 arg0, s32 arg1){
     tmp_s70 = func_8034C528(arg0);
     if(tmp_s70){
         Struct6Ds *temp_v0 = &tmp_s70->type_6D;
-        func_8034DFB0(temp_v0, D_80390244, D_80390254, (f64)arg1/1000.0);
+        func_8034DFB0(temp_v0, D_80390244, D_80390254, (f64)arg1 / 1000.0);
     }
 }
 
@@ -59,17 +73,21 @@ void func_8038718C(ActorMarker *marker){
         func_8034DDF0(sp44, sp38, sp2C, 4.0f, 1);
         func_8034E1A4(sp44, SFX_D8_CRANE, 1.0f, 1.0f);
     }
-    timed_setStaticCameraToNode(0.0f, 4);
-    timed_setStaticCameraToNode(2.5f, 5);
+    if (!sCraneRemote) {
+        timed_setStaticCameraToNode(0.0f, 4);
+        timed_setStaticCameraToNode(2.5f, 5);
+    }
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 0.5f, 19000);
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 0.6f, 19000);
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 0.7f, 19000);
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 0.8f, 19000);
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 0.9f, 19000);
     timed_playSfx(4.0f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 19000);\
-    timed_exitStaticCamera(5.0f);
-    func_80324E38(5.0f, 0);
-    timedFunc_set_2(5.0f, (GenFunction_2) func_80387090, (uintptr_t) marker, 3);
+    if (!sCraneRemote) {
+        timed_exitStaticCamera(5.0f);
+        func_80324E38(5.0f, 0);
+    }
+    timedFunc_set_2(5.0f, (GenFunction_2) chCageUpSwitch_setStateByMarker, (uintptr_t)marker, CH_CAGE_UP_SWITCH_STATE_3_TIMED_RAISED_CAGE);
 }
 
 void func_80387308(ActorMarker *marker){
@@ -91,32 +109,35 @@ void func_80387308(ActorMarker *marker){
     timed_playSfx(0.5f, SFX_7F_HEAVYDOOR_SLAM, 0.8f, 19000);
     timed_playSfx(0.5f, SFX_7F_HEAVYDOOR_SLAM, 0.9f, 19000);
     timed_playSfx(0.5f, SFX_7F_HEAVYDOOR_SLAM, 1.0f, 19000);
-    timedFunc_set_2(0.5f, (GenFunction_2) func_80387090, (uintptr_t)actor->marker, 1);
+    timedFunc_set_2(0.5f, (GenFunction_2) chCageUpSwitch_setStateByMarker, (uintptr_t)actor->marker, CH_CAGE_UP_SWITCH_STATE_1_NOT_PRESSED);
     
     timedFunc_set_2(1.5f, (GenFunction_2) func_803870BC, 0x19d, 0x1f4);
-    timed_exitStaticCamera(1.5f);
-    func_80324E38(1.5f, 0);
-
+    if (!sCraneRemote) {
+        timed_exitStaticCamera(1.5f);
+        func_80324E38(1.5f, 0);
+    }
 }
 
 void func_80387488(ActorMarker *marker){
-    f32 sp1C[3];
+    f32 player_position[3];
     Actor *actor = marker_getActor(marker);
 
-    player_getPosition(sp1C);
-    if(-50.0f < sp1C[1] && sp1C[1] < 600.0f){
-        sp1C[1] = 0;
-        if(ml_vec3f_distance(sp1C, D_80390264) < 500.0f){
+    player_getPosition(player_position);
+    if(-50.0f < player_position[1] && player_position[1] < 600.0f){
+        player_position[1] = 0;
+        if(ml_vec3f_distance(player_position, D_80390264) < 500.0f){
             timedFunc_set_1(1.0f, (GenFunction_1) func_80387488, (uintptr_t)actor->marker);
             return;
         }
     }
-    func_80324E38(0.0f, 3);
-    timed_setStaticCameraToNode(0.0f, 6);
+    if (!sCraneRemote) {
+        func_80324E38(0.0f, 3);
+        timed_setStaticCameraToNode(0.0f, 6);
+    }
     timedFunc_set_1(0.5f, (GenFunction_1) func_80387308, (uintptr_t)actor->marker);
 }
 
-void func_8038756C(Actor *this, s32 arg1){
+void chCageUpSwitch_setState(Actor *this, s32 next_state){
     f32 sp6C[3];
     f32 sp60[3];
     void * temp_v0;
@@ -127,7 +148,8 @@ void func_8038756C(Actor *this, s32 arg1){
     f32 sp30[3];
     f32 sp24[3];
     
-    if(arg1 == 1){
+    if(next_state == CH_CAGE_UP_SWITCH_STATE_1_NOT_PRESSED){
+        sCraneRemote = 0;
         if(this->state != 0){
             sp6C[0] = 0.0f;
             sp6C[1] = 0.0f;
@@ -142,7 +164,10 @@ void func_8038756C(Actor *this, s32 arg1){
         }
     }//L80387610
 
-    if(arg1 == 2){
+    if(next_state == CH_CAGE_UP_SWITCH_STATE_2_RAISING_CAGE){
+        if (!sCraneRemote) {
+            port_jiggyCrane_broadcast(2);
+        }
         sp50[0] = sp50[1] = sp50[2] = 0.0f;
         sp44[0] =  0.0f;
         sp44[1] = 0.0f;
@@ -156,20 +181,25 @@ void func_8038756C(Actor *this, s32 arg1){
         
         timedFunc_set_2(0.1f, (GenFunction_2)func_8038711C, 0x19d, 0x1f4);
         timedFunc_set_2(0.1f, (GenFunction_2)coMusicPlayer_playMusic, COMUSIC_2B_DING_B, 28000);
-        func_80324E38(0.2f, 3);
+        if (!sCraneRemote) {
+            func_80324E38(0.2f, 3);
+        }
         timedFunc_set_1(1.1f, (GenFunction_1)func_8038718C, (uintptr_t)this->marker);
     }//L80387704
 
-    if(arg1 == 3){
+    if(next_state == CH_CAGE_UP_SWITCH_STATE_3_TIMED_RAISED_CAGE){
         item_set(ITEM_6_HOURGLASS, 1);
-        item_set(ITEM_0_HOURGLASS_TIMER, 0x3bf);
+        item_set(ITEM_0_HOURGLASS_TIMER, VER_SELECT(0x3bf, 0x31f, 0, 0));
     }
 
-    if(this->state == 3){
+    if(this->state == CH_CAGE_UP_SWITCH_STATE_3_TIMED_RAISED_CAGE){
         item_set(ITEM_6_HOURGLASS, 0);
     }
 
-    if(arg1 == 4){
+    if(next_state == CH_CAGE_UP_SWITCH_STATE_4_LOWER_CAGE){
+        if (!sCraneRemote) {
+            port_jiggyCrane_broadcast(4);
+        }
         sp3C = func_8034C528(0x19a);
         if(sp3C){
             sp30[0] = 0.0f;
@@ -188,32 +218,52 @@ void func_8038756C(Actor *this, s32 arg1){
         timedFunc_set_1(4.0f, (GenFunction_1)func_80387488, (uintptr_t)this->marker);
     }//L80387828
 
-    this->state = arg1;
+    this->state = next_state;
 }
 
-void func_80387850(ActorMarker *marker, ActorMarker *arg1){
+void chCageUpSwitch_pushSwitch(ActorMarker *marker, ActorMarker *arg1){
     Actor *actor = marker_getActor(marker);
-    if(actor->state == 1){
-        func_8038756C(actor, 2);
+    if(actor->state == CH_CAGE_UP_SWITCH_STATE_1_NOT_PRESSED){
+        chCageUpSwitch_setState(actor, CH_CAGE_UP_SWITCH_STATE_2_RAISING_CAGE);
     }
 }
 
-void func_80387890(Actor *this){
-    func_8038756C(this, 0);
+void chCageUpSwitch_free(Actor *this){
+    chCageUpSwitch_setState(this, CH_CAGE_UP_SWITCH_STATE_0_NOT_INIT);
 }
 
-void func_803878B0(Actor *this){
+void chCageUpSwitch_update(Actor *this){
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
-        this->marker->actorFreeFunc = func_80387890;
-        marker_setCollisionScripts(this->marker, NULL, func_80387850, NULL);
+        this->marker->actorFreeFunc = chCageUpSwitch_free;
+        marker_setCollisionScripts(this->marker, NULL, chCageUpSwitch_pushSwitch, NULL);
         suSetSpriteScale(this, 1.1f);
-        func_8038756C(this, 1);
+        chCageUpSwitch_setState(this, CH_CAGE_UP_SWITCH_STATE_1_NOT_PRESSED);
     }
 
-    if(this->state == 3){
+    if(this->state == CH_CAGE_UP_SWITCH_STATE_3_TIMED_RAISED_CAGE && !sCraneRemote){
         if(item_empty(ITEM_0_HOURGLASS_TIMER)){
-            func_8038756C(this, 4);
+            chCageUpSwitch_setState(this, CH_CAGE_UP_SWITCH_STATE_4_LOWER_CAGE);
         }
+    }
+}
+
+void port_jiggyCrane_remoteApply(s32 stage) {
+    s32 i;
+
+    if (suBaddieActorArray == NULL) {
+        return;
+    }
+    for (i = 0; i < suBaddieActorArray->cnt; i++) {
+        Actor *actor = &suBaddieActorArray->data[i];
+        if (actor->marker == NULL || actor->marker->id != MARKER_183_RBB_CAGE_UP_SWITCH) {
+            continue;
+        }
+        if ((stage == 2 && actor->state == CH_CAGE_UP_SWITCH_STATE_1_NOT_PRESSED)
+            || (stage == 4 && actor->state == CH_CAGE_UP_SWITCH_STATE_3_TIMED_RAISED_CAGE)) {
+            sCraneRemote = 1;
+            chCageUpSwitch_setState(actor, stage);
+        }
+        return;
     }
 }
