@@ -236,7 +236,7 @@ void CustomCollectible::ProcessPropQueue() {
 }
 
 void RegisterCustomCollectible() {
-    COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO,
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO,
               [](IEvent* event) { CustomCollectible::ProcessPropQueue(); });
 }
 

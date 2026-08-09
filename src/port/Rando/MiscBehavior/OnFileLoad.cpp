@@ -69,7 +69,6 @@ void Rando::MiscBehavior::OnFileLoad() {
     REGISTER_LISTENER(OnLoadFileSelect, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnLoadFileSelect* ev = (OnLoadFileSelect*)event;
 
-        isCheckTrackerInitialized = false;
         selectedFileNum = DEFAULT_FILE_NUM;
     });
 }

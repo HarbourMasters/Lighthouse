@@ -1,5 +1,6 @@
 #include "CheckTracker.h"
 #include "port/Rando/Logic/Logic.h"
+#include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 #include "port/UI/UIWidgets.hpp"
 #include <cstring>
@@ -46,8 +47,8 @@
 #define CVAR_CHECK_TRACKER_SCALE CVarGetFloat(CVAR_NAME_CHECK_TRACKER_SCALE, 1.0f)
 #define CVAR_SHOW_CURRENT_LEVEL CVarGetInteger(CVAR_NAME_SHOW_CURRENT_LEVEL, 0)
 #define CVAR_HIDE_COMPLETED_WORLD CVarGetInteger(CVAR_NAME_HIDE_COMPLETED_WORLD, 0)
-#define CVAR_SHOW_COLLECTED_CHECKS CVarGetInteger(CVAR_NAME_SHOW_COLLECTED_CHECKS, 0)
-#define CVAR_SHOW_WORLD_CHECKS CVarGetInteger(CVAR_NAME_SHOW_WORLD_CHECKS, 0)
+#define CVAR_SHOW_COLLECTED_CHECKS CVarGetInteger(CVAR_NAME_SHOW_COLLECTED_CHECKS, 1)
+#define CVAR_SHOW_WORLD_CHECKS CVarGetInteger(CVAR_NAME_SHOW_WORLD_CHECKS, 1)
 #define CVAR_SHOW_LOGIC CVarGetInteger(CVAR_NAME_SHOW_LOGIC, 0)
 #define CVAR_SHOW_SEPARATE_COLLECTED_CHECKS CVarGetInteger(CVAR_NAME_SEPARATE_COLLECTED_CHECKS, 0)
 #define CVAR_COLLECTED_CHECKS_OPACITY CVarGetFloat(CVAR_NAME_COLLECTED_CHECKS_OPACITY, 0.5f)
@@ -76,82 +77,92 @@ std::vector<std::tuple<const char*, Color_RGBA8, const char*>> defaultCheckColor
     { CVAR_NAME_ITEM_COLOR, DEFAULT_ITEM_COLOR, "Obtained Item" },
 };
 
-std::map<RandoCheckId, std::string> checkNames;
+std::map<RandoCheckId, std::string> checkList;
 
 Rando::StaticData::RandoLogicData reachableRegions[RR_MAX];
 Rando::StaticData::RandoLogicData reachableEvents[RA_MAX];
 Rando::StaticData::RandoLogicData reachableChecks[RC_MAX];
 
-bool isCheckTrackerInitialized = false;
 bool checkTrackerPopoutState = false;
 ImVec4 checkTrackerBG = ImVec4{ 0, 0, 0, 0.5f };
 ImVec4 collectedChecksBG = ImVec4{ 0, 0, 0, 0.5f };
 float checkTrackerScale = 1.0f;
 float collectedChecksScale = 1.0f;
 
-std::string totalCheckCount;
-int32_t worldCollected = 0;
-int32_t worldTotalShuffled = 0;
-
 bool expandToggle = true;
 bool expandState = true;
 
 ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing;
 
-std::string GetTotalCheckCount() {
-    std::string totalChecks;
-    uint32_t collected = 0;
-    uint32_t totalShuffled = 0;
-    for (auto& entry : Rando::Logic::shuffledPool) {
-        if (entry.eligible || entry.skipped) {
-            collected++;
+#define WORLD_COUNT 12
+
+uint32_t checkCountTotal;
+uint32_t checkCountPerWorld[WORLD_COUNT];
+uint32_t checkCollectedCountTotal;
+uint32_t checkCollectedCountPerWorld[WORLD_COUNT];
+
+void CheckTracker_InitiateTotals() {
+    checkCountTotal = 0;
+    checkCollectedCountTotal = 0;
+
+    for (int32_t i = 0; i < WORLD_COUNT; i++) {
+        checkCountPerWorld[i] = 0;
+        checkCollectedCountPerWorld[i] = 0;
+    }
+
+    for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
+        RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+        int32_t worldId = Rando::StaticData::Checks[randoCheckId].worldId;
+        if (randoSaveCheck.eligible || randoSaveCheck.skipped) {
+            checkCollectedCountTotal++;
+            checkCollectedCountPerWorld[worldId]++;
         }
-        if (entry.isShuffled) {
-            totalShuffled++;
+        checkCountTotal++;
+        checkCountPerWorld[worldId]++;
+    }
+}
+
+void CheckTracker_AddToCheckCount(uint32_t randoCheckId) {
+    RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[(RandoCheckId)randoCheckId];
+    int32_t worldId = Rando::StaticData::Checks[(RandoCheckId)randoCheckId].worldId;
+    checkCollectedCountTotal++;
+    checkCollectedCountPerWorld[worldId]++;
+}
+
+void CheckTracker_RemoveFromCheckCount(uint32_t randoCheckId) {
+    RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[(RandoCheckId)randoCheckId];
+    int32_t worldId = Rando::StaticData::Checks[(RandoCheckId)randoCheckId].worldId;
+    checkCollectedCountTotal--;
+    checkCollectedCountPerWorld[worldId]--;
+}
+
+void CheckTracker_CreateCheckList() {
+    checkList.clear();
+    for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
+        if (RANDO_SAVE_CHECKS[randoCheckId].isShuffled) {
+            checkList.insert({ randoCheckId, Ship_ConvertEnumToReadableName(randoStaticCheck.name) });
         }
     }
-    totalChecks = std::to_string(collected);
+}
+
+std::string CheckTracker_GetTotalCheckCountString() {
+    std::string totalChecks;
+    totalChecks = std::to_string(checkCollectedCountTotal);
     totalChecks += " of ";
-    totalChecks += std::to_string(totalShuffled);
+    totalChecks += std::to_string(checkCountTotal);
     return totalChecks;
 }
 
-void CreateCheckStringList() {
-    checkNames.clear();
-    for (auto& entry : Rando::Logic::shuffledPool) {
-        checkNames.insert({ entry.randoCheckId, Ship_ConvertEnumToReadableName(entry.name) });
-    }
-}
-
-void UpdateWorldCheckCount(level_e world) {
-    worldCollected = 0;
-    worldTotalShuffled = 0;
-
-    for (auto& entry : Rando::Logic::shuffledPool) {
-        if (Rando::StaticData::Checks[entry.randoCheckId].worldId != world) {
-            continue;
-        }
-        if (entry.eligible || entry.skipped) {
-            worldCollected++;
-        }
-        if (entry.isShuffled) {
-            worldTotalShuffled++;
-        }
-    }
-}
-
-std::string GetWorldCheckString(level_e world) {
+std::string CheckTracker_GetWorldCheckCountString(level_e world) {
     std::string worldCheckString;
-
-    worldCheckString = std::to_string(worldCollected);
+    worldCheckString = std::to_string(checkCollectedCountPerWorld[world]);
     worldCheckString += " / ";
-    worldCheckString += std::to_string(worldTotalShuffled);
+    worldCheckString += std::to_string(checkCountPerWorld[world]);
     return worldCheckString;
 }
 
-void DrawCheckTrackerCount() {
+void CheckTracker_DrawCheckCount() {
     if (CVAR_SHOW_COLLECTED_CHECKS) {
-        totalCheckCount = GetTotalCheckCount();
         if (CVAR_SHOW_SEPARATE_COLLECTED_CHECKS) {
             ImGui::PushStyleColor(ImGuiCol_TitleBgActive, collectedChecksBG);
             ImGui::PushStyleColor(ImGuiCol_TitleBg, collectedChecksBG);
@@ -160,45 +171,35 @@ void DrawCheckTrackerCount() {
                              ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing |
                                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
                 ImGui::SetWindowFontScale(collectedChecksScale);
-                ImGui::Text("Checks: %s", totalCheckCount.c_str());
+                ImGui::Text("Checks: %s", CheckTracker_GetTotalCheckCountString().c_str());
                 ImGui::End();
             }
             ImGui::PopStyleColor(3);
         } else {
-            ImGui::Text("Checks: %s", totalCheckCount.c_str());
+            ImGui::Text("Checks: %s", CheckTracker_GetTotalCheckCountString().c_str());
         }
     }
 }
 
 void DrawCheckTrackerList() {
-    if (Rando::Logic::shuffledPool.empty()) {
-        return;
-    }
-
-    if (!isCheckTrackerInitialized) {
-        CreateCheckStringList();
-        isCheckTrackerInitialized = true;
-    }
-
     if (CVAR_SHOW_COLLECTED_CHECKS && !CVAR_SHOW_SEPARATE_COLLECTED_CHECKS) {
-        DrawCheckTrackerCount();
+        CheckTracker_DrawCheckCount();
     }
 
-    for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i <= LEVEL_B_SPIRAL_MOUNTAIN; i++) {
+    for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i < WORLD_COUNT; i++) {
 
         if (CVAR_SHOW_CURRENT_LEVEL && i != map_getLevel(gsworld_getMap())) {
             continue;
         }
 
-        UpdateWorldCheckCount((level_e)i);
-        if (CVAR_HIDE_COMPLETED_WORLD && worldTotalShuffled == worldCollected) {
+        if (CVAR_HIDE_COMPLETED_WORLD && checkCountPerWorld[i] == checkCollectedCountPerWorld[i]) {
             continue;
         }
 
         std::string headerName = port_mapName(level_get_main_map((level_e)i));
         if (CVAR_SHOW_WORLD_CHECKS) {
             headerName += " ";
-            headerName += GetWorldCheckString((level_e)i);
+            headerName += CheckTracker_GetWorldCheckCountString((level_e)i);
         }
 
         ImGui::PushID(i);
@@ -214,45 +215,44 @@ void DrawCheckTrackerList() {
             if (ImGui::BeginTable("CheckTrackerTable", 1)) {
 
                 ImGui::TableNextColumn();
-                for (auto& entry : Rando::Logic::shuffledPool) {
-                    if (Rando::StaticData::Checks[entry.randoCheckId].worldId != i) {
+                for (auto& [randoCheckId, checkString] : checkList) {
+                    RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+                    if (Rando::StaticData::Checks[randoCheckId].worldId != i) {
                         continue;
                     }
 
-                    if (CVAR_HIDE_COLLECTED && entry.eligible) {
+                    if (CVAR_HIDE_COLLECTED && randoSaveCheck.eligible) {
                         continue;
                     }
 
-                    if (CVAR_HIDE_SKIPPED && entry.skipped) {
+                    if (CVAR_HIDE_SKIPPED && randoSaveCheck.skipped) {
                         continue;
                     }
 
-                    ImVec4 checkTextColor = entry.eligible ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
+                    ImVec4 checkTextColor = randoSaveCheck.eligible
+                                                ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
                                                            : UIWidgets::ColorValues.at(UIWidgets::Colors::White);
 
-                    ImVec4 itemTextColor = entry.eligible ? VecFromRGBA8(CVAR_ITEM_COLOR)
+                    ImVec4 itemTextColor = randoSaveCheck.eligible
+                                               ? VecFromRGBA8(CVAR_ITEM_COLOR)
                                                           : UIWidgets::ColorValues.at(UIWidgets::Colors::Indigo);
-                    if (entry.skipped) {
+                    if (randoSaveCheck.skipped) {
                         checkTextColor = itemTextColor = VecFromRGBA8(CVAR_SKIPPED_COLOR);
                     }
 
-                    if (!entry.eligible && CVAR_SHOW_LOGIC) {
-                        checkTextColor = Rando::Logic::CanAccessCheck(entry.randoCheckId)
+                    if (!randoSaveCheck.eligible && CVAR_SHOW_LOGIC) {
+                        checkTextColor = Rando::Logic::CanAccessCheck(randoCheckId)
                                              ? UIWidgets::ColorValues.at(UIWidgets::Colors::White)
                                              : VecFromRGBA8(CVAR_LOGIC_COLOR);
                     }
 
                     ImGui::BeginGroup();
-                    ImGui::TextColored(checkTextColor, checkNames.at(entry.randoCheckId).c_str());
-                    if (entry.eligible) {
+                    ImGui::TextColored(checkTextColor, checkString.c_str());
+                    if (randoSaveCheck.eligible) {
                         ImGui::SameLine();
-                        RandoItemId randoItemId = Rando::Logic::GetShuffledObject(entry.randoCheckId).randoItemId;
-                        const std::string& randoItemName =
-                            Rando::StaticData::Checks[entry.randoCheckId].randoCheckType == RCTYPE_MOLEHILL
-                                ? abilityNameList[entry.randoCollectionId]
-                                : Rando::StaticData::Items[randoItemId].name;
+                        const std::string& randoItemName = Rando::StaticData::Items[randoSaveCheck.randoItemId].name;
                         ImGui::TextColored(itemTextColor, "(%s)", randoItemName.c_str());
-                    } else if (entry.skipped) {
+                    } else if (randoSaveCheck.skipped) {
                         ImGui::SameLine();
                         ImGui::TextColored(itemTextColor, "(Skipped)");
                     }
@@ -262,7 +262,14 @@ void DrawCheckTrackerList() {
                                                                           ? IM_COL32(255, 255, 0, 128)
                                                                           : IM_COL32(255, 255, 255, 0));
                     if (ImGui::IsItemClicked()) {
-                        entry.skipped = !entry.skipped;
+                        if (!RANDO_SAVE_CHECKS[randoCheckId].eligible) {
+                            if (!RANDO_SAVE_CHECKS[randoCheckId].skipped) {
+                                CheckTracker_AddToCheckCount(randoCheckId);
+                            } else {
+                                CheckTracker_RemoveFromCheckCount(randoCheckId);
+                            }
+                            RANDO_SAVE_CHECKS[randoCheckId].skipped = !RANDO_SAVE_CHECKS[randoCheckId].skipped;
+                        }
                     }
                     ImGui::TableNextColumn();
                 }
@@ -293,7 +300,7 @@ void CheckTrackerWindow::Draw() {
     ImGui::SetNextWindowSize(ImVec2(485.0f, 500.0f), ImGuiCond_FirstUseEver);
 
     if (CVAR_SHOW_COLLECTED_CHECKS && CVAR_SHOW_SEPARATE_COLLECTED_CHECKS) {
-        DrawCheckTrackerCount();
+        CheckTracker_DrawCheckCount();
     }
 
     if (ImGui::Begin("CheckTracker", nullptr, windowFlags)) {
@@ -463,3 +470,12 @@ void Init() {
 
 } // namespace CheckTracker
 } // namespace Rando
+
+void RegisterCheckTracker() {
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+        CheckTracker_CreateCheckList();
+        CheckTracker_InitiateTotals();
+    });
+}
+
+static RegisterShipInitFunc initFunc(RegisterCheckTracker, { "IS_RANDO" });
