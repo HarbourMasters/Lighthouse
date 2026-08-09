@@ -231,11 +231,11 @@ void DrawCheckTrackerList() {
 
                     ImVec4 checkTextColor = randoSaveCheck.eligible
                                                 ? VecFromRGBA8(CVAR_COLLECTED_COLOR)
-                                                           : UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+                                                : UIWidgets::ColorValues.at(UIWidgets::Colors::White);
 
                     ImVec4 itemTextColor = randoSaveCheck.eligible
                                                ? VecFromRGBA8(CVAR_ITEM_COLOR)
-                                                          : UIWidgets::ColorValues.at(UIWidgets::Colors::Indigo);
+                                               : UIWidgets::ColorValues.at(UIWidgets::Colors::Indigo);
                     if (randoSaveCheck.skipped) {
                         checkTextColor = itemTextColor = VecFromRGBA8(CVAR_SKIPPED_COLOR);
                     }
