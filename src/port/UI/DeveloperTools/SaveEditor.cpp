@@ -1,10 +1,12 @@
 #include "SaveEditor.h"
+#include "SaveEditorTooltips.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
+#include "port/Save/Types.h"
 #include "port/ShipUtils.h"
 
 #include <string>
@@ -21,9 +23,6 @@
 #define DEFAULT_MAX_RED_FEATHERS 50
 #define DEFAULT_MAX_GOLD_FEATHERS 10
 
-#define JIGGY_ID_MULTIPLIER(levelId) (1 + (10 * (levelId - 1)))
-#define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
-
 extern "C" {
 bool ability_isUnlocked(enum ability_e uid);
 void jiggyscore_setCollected(s32 indx, s32 val);
@@ -36,6 +35,7 @@ extern struct {
 } jiggyscore;
 
 extern u8 sHoneycombScore[3];
+extern u8 sMumboTokenScore[16];
 }
 
 std::vector<std::string> warpCauldronList = {
@@ -80,6 +80,19 @@ bool SaveEditor_IsJiggyCollected(jiggy_e jiggyId) {
 
 bool SaveEditor_IsHoneycombCollected(honeycomb_e honeycombId) {
     return (sHoneycombScore[(honeycombId - 1) / 8] & (1 << (honeycombId & 7))) != 0;
+}
+
+bool SaveEditor_IsMumboTokenCollected(mumbotoken_e tokenId) {
+    return (sMumboTokenScore[(tokenId - 1) / 8] & (1 << (tokenId & 7))) != 0;
+}
+
+static const WorldDef* SaveEditor_GetWorldDef(int32_t levelId) {
+    for (const WorldDef& world : kWorlds) {
+        if (world.levelId == levelId) {
+            return &world;
+        }
+    }
+    return nullptr;
 }
 
 void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
@@ -289,28 +302,28 @@ void SaveEditor_DrawProgressTab() {
     if (ImGui::BeginChild("ProgressChild")) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
         for (auto& level : levelOrder) {
-            int32_t jiggyId = JIGGY_ID_MULTIPLIER(level);
-            int32_t combId = HONEYCOMB_ID_MULTIPLIER(level);
-
-            if (level > LEVEL_6_LAIR) {
-                combId = HONEYCOMB_ID_MULTIPLIER(level - 1);
+            const WorldDef* world = SaveEditor_GetWorldDef(level);
+            if (world == nullptr) {
+                continue;
             }
 
             ImGui::SeparatorText(worldNameList[level - 1].c_str());
             if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
                 ImGui::TableNextColumn();
 
-                if (level != LEVEL_B_SPIRAL_MOUNTAIN) {
+                if (world->jiggyCount > 0) {
                     ImGui::Text("Jiggies");
                     ImGui::TableNextColumn();
-                    for (int i = jiggyId; i <= (jiggyId + 9); i++) {
+                    for (int i = world->jiggyStart; i < (world->jiggyStart + world->jiggyCount); i++) {
                         std::string labelStr = "##jiggy" + std::to_string(i);
                         bool isCollected = SaveEditor_IsJiggyCollected((jiggy_e)i);
                         int32_t curJiggyCount = item_getCount(ITEM_26_JIGGY_TOTAL);
 
                         ImGui::SameLine();
                         if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
-                                                { .labelPosition = UIWidgets::LabelPositions::None })) {
+                                                UIWidgets::CheckboxOptions()
+                                                    .LabelPosition(UIWidgets::LabelPositions::None)
+                                                    .Tooltip(SaveEditor_GetJiggyTooltip((jiggy_e)i)))) {
                             if (SaveEditor_IsJiggyCollected((jiggy_e)i)) {
                                 jiggyscore_setCollected(i, false);
                                 item_set(ITEM_26_JIGGY_TOTAL, (curJiggyCount - 1));
@@ -325,24 +338,62 @@ void SaveEditor_DrawProgressTab() {
                 }
 
                 ImGui::TableNextColumn();
-                if (level != LEVEL_6_LAIR) {
-                    ImGui::Text("Honeycombs");
+                if (world->mumboCount > 0) {
+                    ImGui::Text("Mumbo Tokens");
                     ImGui::TableNextColumn();
-                    int32_t maxHoneycombs = level == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
-                    for (int i = 1; i <= (maxHoneycombs); i++) {
+                    int32_t tokenCount = world->mumboCount;
+                    if (level == LEVEL_A_MAD_MONSTER_MANSION &&
+                        CVarGetInteger(CVAR_ENHANCEMENT("Fixes.MumboTokenMMM"), 0)) {
+                        tokenCount++;
+                    }
+                    for (int i = 1; i <= tokenCount; i++) {
+                        int32_t tokenId =
+                            (i > world->mumboCount) ? RP_MUMBO_TOKEN_INSIDE_LOGGO : world->mumboStart + (i - 1);
+                        std::string labelStr = "##token" + std::to_string(tokenId);
+                        bool isCollected = SaveEditor_IsMumboTokenCollected((mumbotoken_e)tokenId);
+                        int32_t curTokenCount = item_getCount(ITEM_1C_MUMBO_TOKEN);
+
+                        // Wrap every 10 so the wider worlds don't run off the window.
+                        if (i == 1 || (i % 10) != 1) {
+                            ImGui::SameLine();
+                        }
+                        if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
+                                                UIWidgets::CheckboxOptions()
+                                                    .LabelPosition(UIWidgets::LabelPositions::None)
+                                                    .Tooltip(SaveEditor_GetMumboTokenTooltip((mumbotoken_e)tokenId)))) {
+                            if (SaveEditor_IsMumboTokenCollected((mumbotoken_e)tokenId)) {
+                                mumboscore_set((mumbotoken_e)tokenId, false);
+                                item_set(ITEM_1C_MUMBO_TOKEN, (curTokenCount - 1));
+                            } else {
+                                mumboscore_set((mumbotoken_e)tokenId, true);
+                                item_set(ITEM_1C_MUMBO_TOKEN, (curTokenCount + 1));
+                            }
+                        }
+                    }
+                } else {
+                    ImGui::TableNextColumn();
+                }
+
+                ImGui::TableNextColumn();
+                if (world->honeycombCount > 0) {
+                    ImGui::Text("Empty Honeycombs");
+                    ImGui::TableNextColumn();
+                    for (int combId = world->honeycombStart; combId < (world->honeycombStart + world->honeycombCount);
+                         combId++) {
                         std::string labelStr = "##comb" + std::to_string(combId);
                         bool isCollected = SaveEditor_IsHoneycombCollected((honeycomb_e)combId);
 
                         ImGui::SameLine();
                         if (UIWidgets::Checkbox(labelStr.c_str(), &isCollected,
-                                                { .labelPosition = UIWidgets::LabelPositions::None })) {
+                                                UIWidgets::CheckboxOptions()
+                                                    .LabelPosition(UIWidgets::LabelPositions::None)
+                                                    .Tooltip(SaveEditor_GetHoneycombTooltip((honeycomb_e)combId)))) {
                             if (SaveEditor_IsHoneycombCollected((honeycomb_e)combId)) {
                                 honeycombscore_set((honeycomb_e)combId, false);
                             } else {
                                 honeycombscore_set((honeycomb_e)combId, true);
                             }
                         }
-                        combId++;
                     }
                 }
                 ImGui::EndTable();
