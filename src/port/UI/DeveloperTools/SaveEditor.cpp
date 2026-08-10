@@ -28,6 +28,8 @@ bool ability_isUnlocked(enum ability_e uid);
 void jiggyscore_setCollected(s32 indx, s32 val);
 void honeycombscore_set(enum honeycomb_e indx, bool val);
 void mumboscore_set(enum mumbotoken_e indx, bool val);
+s32 itemscore_noteScores_get(enum level_e lvl_id);
+extern u8 D_80385FF0[0xE];
 
 extern struct {
     u8 D_803832C0[0xD];
@@ -310,6 +312,20 @@ void SaveEditor_DrawProgressTab() {
             ImGui::SeparatorText(worldNameList[level - 1].c_str());
             if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
                 ImGui::TableNextColumn();
+
+                if (world->hasNoteScore) {
+                    ImGui::Text("100 Notes");
+                    ImGui::TableNextColumn();
+                    bool hasAllNotes = itemscore_noteScores_get(level) >= 100;
+                    std::string noteLabel = "##notes" + std::to_string(level);
+
+                    ImGui::SameLine();
+                    if (UIWidgets::Checkbox(noteLabel.c_str(), &hasAllNotes,
+                                            { .labelPosition = UIWidgets::LabelPositions::None })) {
+                        D_80385FF0[level] = hasAllNotes ? 100 : 0;
+                    }
+                    ImGui::TableNextColumn();
+                }
 
                 if (world->jiggyCount > 0) {
                     ImGui::Text("Jiggies");
