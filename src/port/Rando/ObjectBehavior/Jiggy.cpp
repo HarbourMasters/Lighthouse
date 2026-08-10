@@ -26,7 +26,7 @@ bool OverrideJiggySpawn(f32 position[3], jiggy_e jiggyId) {
     if (actor != NULL && jiggyId != JIGGY_17_CC_CLANKER_RAISED && jiggyId != JIGGY_1B_CC_TOOTH) {
         ApplyCustomActorPhysics(randoCheckId, actor, false);
     }
-    
+
     return true;
 }
 
