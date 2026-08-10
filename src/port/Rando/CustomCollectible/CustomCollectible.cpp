@@ -12,6 +12,7 @@ extern "C" {
 void __chJinjo_802CDC9C(Actor* thisx, s16 arg1);
 Actor* func_802D94B4(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx);
 Actor* chSnsEgg_draw(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx);
+extern ActorArray* suBaddieActorArray;
 }
 
 static std::queue<QueuedProp> propQueue;
@@ -130,6 +131,10 @@ Actor* CustomCollectible::AttachCustomVariables(RandoCheckId randoCheckId, Actor
 }
 
 Actor* CustomCollectible::Spawn(int32_t position[3], RandoCheckId randoCheckId) {
+    if (CustomCollectible::GetActorByRC(randoCheckId) != NULL) {
+        return NULL;
+    }
+
     int32_t spawnPosition[3] = { position[0], position[1], position[2] };
 
     int32_t flags = ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21;
@@ -216,6 +221,33 @@ void CustomCollectible::OnCollect(struct actorMarker_s* self, struct actorMarker
     marker_despawn(self);
 }
 
+Actor* CustomCollectible::GetActorByRC(RandoCheckId randoCheckId) {
+    Actor* start;
+    Actor* end;
+
+    if (suBaddieActorArray == NULL) {
+        return NULL;
+    }
+
+    start = suBaddieActorArray->data;
+    end = start + suBaddieActorArray->cnt;
+    for (Actor* actor = start; actor < end; actor++) {
+
+        if (actor == nullptr || actor->marker == nullptr) {
+            continue;
+        }
+
+        if (actor->actor_info->actorId == ACTOR_3CD_CUSTOM_COLLECTIBLE) {
+            ActorLocal_CustomCollectible* customLocal = (ActorLocal_CustomCollectible*)&actor->local;
+            if (customLocal->randoCheckId == randoCheckId) {
+                return actor;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 // When regular props are spawned in BK, the game isn't fully set up yet to spawn
 // actors. So we delay prop spawns until the game's ready to spawn actors.
 void CustomCollectible::QueueProp(int32_t position[3], RandoCheckId randoCheckId) {
@@ -230,7 +262,7 @@ void CustomCollectible::QueueProp(int32_t position[3], RandoCheckId randoCheckId
 void CustomCollectible::ProcessPropQueue() {
     while (propQueue.size() > 0) {
         QueuedProp prop = propQueue.front();
-        Actor* actor = CustomCollectible::Spawn(prop.position, prop.randoCheckId);
+        CustomCollectible::Spawn(prop.position, prop.randoCheckId);
         propQueue.pop();
     }
 }

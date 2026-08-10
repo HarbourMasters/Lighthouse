@@ -173,7 +173,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BGS_NOTE_TANKTUP_FEET_4,                           true),
             CHECK(RC_BGS_NOTE_THIRD_SHORT_SWAMP_LOG_1, 			        true),
             CHECK(RC_BGS_NOTE_THIRD_SHORT_SWAMP_LOG_2, 			        true),
-            CHECK(RC_BGS_NOTE_THIRD_SHORT_SWAMP_LOG_2, 			        true),
+            CHECK(RC_BGS_NOTE_THIRD_SHORT_SWAMP_LOG_3, 			        true),
         },
         .connections = {
             CONNECTION(RR_BUBBLEGLOOP_SWAMP_INTERIOR_MR_VILES,              CAN_USE_TRANSFORMATION(TRANSFORM_5_CROC)),

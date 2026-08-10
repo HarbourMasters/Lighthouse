@@ -36,7 +36,7 @@ extern void spawnOrbit();
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 
 #define CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS "gRandoSettings.RandoNotifications"
-#define CVAR_SHOW_COLLISION_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS, 0)
+#define CVAR_SHOW_COLLISION_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS, 1)
 
 #define JIGGY_ID_MULTIPLIER(levelId) (1 + (10 * (levelId - 1)))
 #define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
