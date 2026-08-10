@@ -241,8 +241,6 @@ static void FireClearBundleDespawnQueue() {
 
 // Entry point for the module, run once on game boot
 void Rando::ObjectBehavior::Init() {
-    InitStopNSwopBehavior();
-
     UpdateJunkList();
 
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
@@ -552,12 +550,6 @@ void Rando::ObjectBehavior::Init() {
             case ACTOR_1EF_GREEN_PRESENT_COLLECTIBLE:
             case ACTOR_1F1_RED_PRESENT_COLLECTIBLE:
                 Rando::ObjectBehavior::ModifyPresentBehavior(ev->actor);
-                break;
-            case 0x253: // FP Wozza's Cave Ice Wall
-            case 0x191: // MMM Cellar SNS Entrance
-            case ACTOR_243_GV_SNS_CHAMBER_DOOR:
-            case ACTOR_25C_SHARKFOOD_ISLAND:
-                Rando::ObjectBehavior::ModifyStopNSwopWorldBehavior(ev->actor);
                 break;
             default:
                 break;
