@@ -74,7 +74,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
 
     AdoptRemoteCheck(rc);
 
-    if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 0) && ShouldShowNotifications()) {
+    if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 1) && ShouldShowNotifications()) {
         Rando::StaticData::SendRemoteCheckNotification(rc, GetClientName(payload.value("clientId", 0u)));
     }
 }
