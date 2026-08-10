@@ -2232,7 +2232,7 @@ f32 func_80331E64(ActorMarker *marker) {
         return 0.0f;
     }
     if (marker->id == MARKER_300_CUSTOM_COLLECTIBLE) {
-        return 150.0f;
+        return 250.0f;
     }
     sp24 = func_80331D20(func_80330F50(marker));
     marker->unk38[1] = (s16) (sp24 / 2);

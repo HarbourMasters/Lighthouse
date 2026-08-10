@@ -410,7 +410,7 @@ void GameplayTools_ObjectSpawner() {
     if (ImGui::BeginTable("ObjectSpawner", 2, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Spawn Custom Collectible", { .color = THEME_COLOR })) {
-            Actor* newActor = CustomCollectible::Spawn(spawnPosition, (RandoCheckId)selectedCustomCollectible);
+            CustomCollectible::Spawn(spawnPosition, (RandoCheckId)selectedCustomCollectible);
         }
         ImGui::TableNextColumn();
         std::string customCollectibleText = std::to_string(selectedCustomCollectible) + ": " +
