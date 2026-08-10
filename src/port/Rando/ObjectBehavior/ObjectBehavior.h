@@ -13,11 +13,9 @@ namespace Rando {
 namespace ObjectBehavior {
 
 void Init();
-void InitStopNSwopBehavior();
 
 void ModifySwitchBehavior(int32_t switchActorId);
 void ModifyPresentBehavior(void* presentActor);
-void ModifyStopNSwopWorldBehavior(void* snsActor);
 
 } // namespace ObjectBehavior
 
