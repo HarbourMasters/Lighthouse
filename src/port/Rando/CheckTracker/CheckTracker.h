@@ -1,11 +1,10 @@
 #ifndef RANDO_CHECK_TRACKER_H
 #define RANDO_CHECK_TRACKER_H
 
-#include "port/Rando/Rando.h"
 #include <ship/window/gui/GuiWindow.h>
 #include <nlohmann/json.hpp>
 
-extern bool isCheckTrackerInitialized;
+void CheckTracker_AddToCheckCount(uint32_t randoCheckId);
 
 namespace Rando {
 
