@@ -373,7 +373,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Fix Widescreen Camera", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fix.WidescreenCamera"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Adjusts static camera angles in widescreen to prevent skybox "
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip("Adjusts static camera angles in widescreen to prevent skybox "
                                            "exposure at the edges of the screen."));
 
     AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)

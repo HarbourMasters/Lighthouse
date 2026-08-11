@@ -94,6 +94,7 @@ void func_802CDAC4(Actor *this){
     sp1C[0] = this->pitch;
     sp1C[1] = this->yaw;
     sp1C[2] = 0.0f;
+    CALL_EVENT(CameraRotationAuthored, CAMERA_TYPE_1_UNKNOWN, this->actorTypeSpecificField, this->position, sp1C);
     viewport_setRotation_vec3f(sp1C);
 }
 

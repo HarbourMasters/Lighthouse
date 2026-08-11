@@ -62,7 +62,8 @@ void port_syncBottlesBonusIndex(void);
 
 // Camera (CameraPatches.cpp)
 
-void port_camera_applyWsYawFix(float rotation[3]);
+float port_wsCameraYawScale(void);
+float port_wsCameraPitchScale(void);
 
 // Input
 

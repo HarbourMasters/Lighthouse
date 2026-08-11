@@ -14,8 +14,7 @@ extern "C" {
 namespace {
 
 // A single anim-vertex model runs 500-750 vertices. This covers roughly 20-25
-// of them on screen at once; past that a draw falls back to the shared buffer,
-// which is exactly the behaviour that existed before this file.
+// of them on screen at once; past that a draw falls back to the shared buffer.
 constexpr size_t kVerticesPerSlot = 16384;
 constexpr int kSlots = 2;
 
