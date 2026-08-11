@@ -371,12 +371,13 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Visual", WIDGET_SEPARATOR_TEXT);
 
     // Structural widescreen fix, always on.
-/*
-    AddWidget(path, "Fix widescreen oddities", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Fix.WidescreenCamera"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().DefaultValue(true).Tooltip("Adjusts camera angles and actors to accommodate wider aspect ratios."));
-*/
+    /*
+        AddWidget(path, "Fix widescreen oddities", WIDGET_CVAR_CHECKBOX)
+            .CVar(CVAR_ENHANCEMENT("Fix.WidescreenCamera"))
+            .RaceDisable(false)
+            .Options(CheckboxOptions().DefaultValue(true).Tooltip("Adjusts camera angles and actors to accommodate wider
+       aspect ratios."));
+    */
 
     AddWidget(path, "Fix Conga's Name", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Fixes.CongaText"))

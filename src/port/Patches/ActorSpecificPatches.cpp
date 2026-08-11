@@ -43,8 +43,7 @@ static const HiddenCutsceneActor sHiddenCutsceneActors[] = {
     { .map = MAP_1E_CS_START_NINTENDO, .modelId = ASSET_354_MODEL_SMALL_BULL, .delay = 0.7f },
     { .map = MAP_1E_CS_START_NINTENDO, .modelId = ASSET_369_MODEL_CONCERT_FROG, .delay = 0.2f },
 };
-static constexpr int HIDDEN_CUTSCENE_ACTOR_COUNT =
-    sizeof(sHiddenCutsceneActors) / sizeof(sHiddenCutsceneActors[0]);
+static constexpr int HIDDEN_CUTSCENE_ACTOR_COUNT = sizeof(sHiddenCutsceneActors) / sizeof(sHiddenCutsceneActors[0]);
 static constexpr float kHiddenMoveThreshold = 1.0f;
 static std::map<ActorMarker*, SpawnAnchor> sSpawnAnchors;
 static constexpr int WS_XLU_SCALE_FIX_COUNT = sizeof(sWsXluScaleFixes) / sizeof(sWsXluScaleFixes[0]);

@@ -82,9 +82,9 @@ struct WsCameraFix {
     int32_t source;
     int32_t id = -1;
     bool matchTransform = false;
-    float position[3] = { 0.0f, 0.0f, 0.0f };   // x, y, z
-    float rotation[3] = { 0.0f, 0.0f, 0.0f };   // pitch, yaw, roll
-    float adjust[3] = { 0.0f, 0.0f, 0.0f };     // pitch, yaw, roll
+    float position[3] = { 0.0f, 0.0f, 0.0f }; // x, y, z
+    float rotation[3] = { 0.0f, 0.0f, 0.0f }; // pitch, yaw, roll
+    float adjust[3] = { 0.0f, 0.0f, 0.0f };   // pitch, yaw, roll
 };
 
 // If adding a camera adjustment here, you need the following:
@@ -102,15 +102,9 @@ static const WsCameraFix sWsCameraFixes[] = {
       .rotation = { 0.0f, 83.0f, 0.0f },
       .adjust = { 0.0f, -5.0f, 0.0f } },
     // Eggs molehill
-    { .map = MAP_2_MM_MUMBOS_MOUNTAIN,
-      .source = CAMERA_TYPE_3_STATIC,
-      .id = 0x16,
-      .adjust = { 5.9f, -6.0f, 0.0f } },
+    { .map = MAP_2_MM_MUMBOS_MOUNTAIN, .source = CAMERA_TYPE_3_STATIC, .id = 0x16, .adjust = { 5.9f, -6.0f, 0.0f } },
     // Beak Buster molehill
-    { .map = MAP_2_MM_MUMBOS_MOUNTAIN,
-      .source = CAMERA_TYPE_3_STATIC,
-      .id = 0x17,
-      .adjust = { 0.0f, -6.0f, 0.0f } },
+    { .map = MAP_2_MM_MUMBOS_MOUNTAIN, .source = CAMERA_TYPE_3_STATIC, .id = 0x17, .adjust = { 0.0f, -6.0f, 0.0f } },
 };
 
 static constexpr int WS_CAMERA_FIX_COUNT = sizeof(sWsCameraFixes) / sizeof(sWsCameraFixes[0]);
@@ -209,25 +203,24 @@ void RegisterCutsceneAspect() {
 }
 
 void RegisterWidescreenCamera() {
-    COND_HOOK(CameraRotationAuthored, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1),
-              [](IEvent* event) {
-                  float scale[3];
-                  wsCameraScales(scale);
-                  if (scale[1] <= 0.0f) {
-                      return;
-                  }
-                  auto* ev = (CameraRotationAuthored*)event;
-                  int32_t curMap = (int32_t)gsworld_getMap();
-                  for (int i = 0; i < WS_CAMERA_FIX_COUNT; i++) {
-                      if (wsCameraFixMatches(sWsCameraFixes[i], ev, curMap)) {
-                          for (int axis = 0; axis < 3; axis++) {
-                              ev->rotation[axis] =
-                                  mlNormalizeAngle(ev->rotation[axis] + sWsCameraFixes[i].adjust[axis] * scale[axis]);
-                          }
-                          break;
-                      }
-                  }
-              });
+    COND_HOOK(CameraRotationAuthored, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
+        float scale[3];
+        wsCameraScales(scale);
+        if (scale[1] <= 0.0f) {
+            return;
+        }
+        auto* ev = (CameraRotationAuthored*)event;
+        int32_t curMap = (int32_t)gsworld_getMap();
+        for (int i = 0; i < WS_CAMERA_FIX_COUNT; i++) {
+            if (wsCameraFixMatches(sWsCameraFixes[i], ev, curMap)) {
+                for (int axis = 0; axis < 3; axis++) {
+                    ev->rotation[axis] =
+                        mlNormalizeAngle(ev->rotation[axis] + sWsCameraFixes[i].adjust[axis] * scale[axis]);
+                }
+                break;
+            }
+        }
+    });
 
     COND_HOOK(CameraRotationAuthored, EVENT_PRIORITY_LOW, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
         auto* ev = (CameraRotationAuthored*)event;
