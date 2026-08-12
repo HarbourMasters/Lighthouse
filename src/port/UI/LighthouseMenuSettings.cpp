@@ -11,6 +11,8 @@
 #include "port/Localization/Language.h"
 #include "port/Save/SaveConverter.h"
 #include "UIWidgets.hpp"
+#include <ship/Context.h>
+#include <fast/Fast3dGui.h>
 #include <spdlog/fmt/fmt.h>
 
 #include "variables.h"
@@ -75,6 +77,15 @@ static const std::unordered_map<int32_t, const char*> saveConvertSlotLabels = {
 };
 
 static int32_t sAppliedControlScheme = -1;
+
+// Contributors sorted by commit count (GitHub handle preferred; real name where no handle is known)
+static std::vector<std::string> contributors = {
+    "Banjo Decomp", "Caladius",        "JeodC",        "Malkierian",   "ProxySaw",    "PurpleHato",
+    "sitton76",     "JordanLongstaff", "scorched11",   "Bl00D4NGEL",   "mariob92",    "Fredomato",
+    "Mr-Wiseguy",   "Owlenuff",        "nabnut",       "MaikelChan",   "CyrusKashef", "aMannus",
+    "Eblo",         "adbonnin",        "inspectredc",  "BraydonKains", "JamieKerber", "buddingmonkey",
+    "Shmoopi",      "SuperZambezi",    "godwai-games", "mattman107",   "wowjinxy",
+};
 
 void LighthouseMenu::AddMenuSettings() {
     // Add Settings Menu
@@ -283,6 +294,56 @@ void LighthouseMenu::AddMenuSettings() {
                      .ComponentAlignment(ComponentAlignments::Right)
                      .LabelPosition(LabelPositions::Far));
     //.Callback([](WidgetInfo& info) { GameEngine::Instance->ScaleImGui(); });
+
+    // About / Contributors
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "About", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Lighthouse", WIDGET_TEXT);
+    if (gGitCommitTag[0] != 0) {
+        AddWidget(path, gBuildVersion, WIDGET_TEXT);
+    } else {
+        AddWidget(path, ("Branch: " + std::string(gGitBranch)), WIDGET_TEXT);
+        AddWidget(path, ("Commit: " + std::string(gGitCommitHash)), WIDGET_TEXT);
+    }
+
+    // Contributors section
+    AddWidget(path, "contributors", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
+        ImGui::SeparatorText("Thank You");
+        ImGui::PopStyleColor();
+
+        ImGui::SameLine();
+        ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
+                           "everyone in the larger decomp & N64 communities who make this project possible.\n\n");
+
+        // Draw auto scrolling list of contributors in columns
+        ImGui::SetNextWindowSize(ImVec2(0.0f, ImGui::GetMainViewport()->WorkSize.y / 3));
+        ImGui::BeginChild("contributors", ImVec2(0, 0), 0,
+                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        static double scrollSpeed = 1.5f * (ImGui::GetFontSize() / 1000.0f);
+        static int numColumns = 2;
+
+        float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+        float singleListHeight =
+            (contributors.size() / numColumns + (contributors.size() % numColumns != 0 ? 1 : 0)) * lineHeight;
+
+        double scrollPosition = fmod((GetUnixTimestamp() % 18446744000000000000ull) * scrollSpeed, singleListHeight);
+        ImGui::SetScrollY(static_cast<float>(scrollPosition));
+
+        // Render twice for infinite scroll
+        for (int iteration = 0; iteration < 2; iteration++) {
+            for (int column = 0; column < numColumns; column++) {
+                if (column > 0)
+                    ImGui::SameLine();
+                ImGui::BeginGroup();
+                for (size_t i = column; i < contributors.size(); i += numColumns) {
+                    ImGui::Text("%s", contributors.at(i).c_str());
+                }
+                ImGui::EndGroup();
+            }
+        }
+        ImGui::EndChild();
+    });
 
     // Audio Settings
     path.sidebarName = "Audio";
