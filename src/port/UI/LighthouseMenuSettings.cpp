@@ -295,18 +295,8 @@ void LighthouseMenu::AddMenuSettings() {
                      .LabelPosition(LabelPositions::Far));
     //.Callback([](WidgetInfo& info) { GameEngine::Instance->ScaleImGui(); });
 
-    // About / Contributors
-    path.column = SECTION_COLUMN_2;
-    AddWidget(path, "About", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Lighthouse", WIDGET_TEXT);
-    if (gGitCommitTag[0] != 0) {
-        AddWidget(path, gBuildVersion, WIDGET_TEXT);
-    } else {
-        AddWidget(path, ("Branch: " + std::string(gGitBranch)), WIDGET_TEXT);
-        AddWidget(path, ("Commit: " + std::string(gGitCommitHash)), WIDGET_TEXT);
-    }
-
     // Contributors section
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "contributors", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
         ImGui::SeparatorText("Thank You");
