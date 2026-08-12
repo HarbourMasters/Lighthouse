@@ -78,7 +78,7 @@ static const std::unordered_map<int32_t, const char*> saveConvertSlotLabels = {
 
 static int32_t sAppliedControlScheme = -1;
 
-// Contributors sorted by commit count (GitHub handle preferred; real name where no handle is known)
+// Contributors (GitHub handle preferred; real name where no handle is known)
 static std::vector<std::string> contributors = {
     "Banjo Decomp", "Caladius",        "JeodC",        "Malkierian",   "ProxySaw",    "PurpleHato",
     "sitton76",     "JordanLongstaff", "scorched11",   "Bl00D4NGEL",   "mariob92",    "Fredomato",
@@ -169,7 +169,7 @@ void LighthouseMenu::AddMenuSettings() {
                               "Authentic: Keep the authentic N64 branding\n"
                               "File Select: Skip to file select menu"));
 
-    path.column = SECTION_COLUMN_2;
+    path.column = SECTION_COLUMN_1;
     AddWidget(path, "Save Conversion", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Save Slot", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_SETTING("SaveConvertSlot"))
