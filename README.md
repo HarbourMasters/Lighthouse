@@ -81,6 +81,13 @@ Lighthouse can also be launched directly to a romhack with a launch argument lik
 
 _NOTE_: When using romhacks, only US v1.0 is supported, inherited from Banjo's Backpack. Therefore, it is recommended to use **US v1.0** as your base `bk.o2r` file.
 
+Romhacks also support language packs, scoped the same as mods are. Craft a language pack and add it to `mods/~lang/<hack>/` to see it in the dropdown menu. `<hack>` is a folder of the romhack's filename without the o2r extension; Lighthouse creates it for you when the romhack is enabled. Note that language packs for romhacks can work two ways:
+
+- A complete language pack includes every dialog, so it stands on its own.
+- A delta language pack only includes the dialogs the hack modified; everything else falls back to the base game's language, or to a base game language pack if one is installed for the same language.
+
+A base game language pack in `mods/~lang/` does not appear in the dropdown while a romhack is loaded, since on its own it would leave every line the hack replaced untranslated.
+
 # Custom Assets
 
 Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place them in the `mods` folder.

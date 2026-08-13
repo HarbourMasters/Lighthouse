@@ -2,6 +2,7 @@
 #define RESOURCE_HELPERS_H
 
 #ifdef __cplusplus
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 //#include "ResourceManager.h"
@@ -35,10 +36,13 @@ Mtx* ResourceMgr_LoadMtxByName(char* path);
 #ifdef __cplusplus
 }
 
-void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
+void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride,
+                                   std::unordered_map<uint32_t, std::string> scopedDialogOverride, bool isJapanese,
                                    int dialogCount, int dialogIndex);
 std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId);
 std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId);
+bool ResourceHelpers_GetOverlayAsset(uint32_t assetId, std::string& outArchivePath, std::string& outPath);
+void ResourceHelpers_BuildOverlayRepoints();
 #endif
 
 #endif
