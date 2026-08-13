@@ -197,8 +197,6 @@ void Anchor::ProcessIncomingPacketQueue() {
                 HandlePacket_EntranceDiscovered(payload);
             else if (packetType == GAME_COMPLETE)
                 HandlePacket_GameComplete(payload);
-            else if (packetType == GIVE_ITEM)
-                HandlePacket_GiveItem(payload);
             else if (packetType == PLAYER_ANIM)
                 HandlePacket_PlayerAnimChange(payload);
             else if (packetType == PLAYER_SUBRANGE)

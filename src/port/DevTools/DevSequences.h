@@ -15,7 +15,6 @@ enum DevSequenceId {
     SEQ_ATTRACT_BASE,
 };
 
-constexpr int ATTRACT_DEMO_COUNT = 10;
 void RequestSequence(int seq);
 void RequestCutsceneMap(int mapId);
 

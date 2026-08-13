@@ -5,7 +5,6 @@
 #include "LighthouseModals.h"
 
 namespace LighthouseGui {
-void SetupHooks();
 void SetupMenu();
 void SetupGuiElements();
 void Draw();

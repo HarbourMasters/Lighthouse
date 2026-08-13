@@ -332,37 +332,6 @@ void LighthouseMenu::AddMenuSettings() {
         .CVar(CVAR_SETTING("Volume.Master"))
         .RaceDisable(false)
         .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(40).ShowButtons(true).Format("%d%%"));
-    // AddWidget(path, "Main Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-    //     .CVar(CVAR_SETTING("Volume.MainMusic"))
-    //     .RaceDisable(false)
-    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
-    //.Callback([](WidgetInfo& info) {
-    //     Audio_SetGameVolume(SEQ_PLAYER_BGM_MAIN,
-    //                         ((float)CVarGetInteger(CVAR_SETTING("Volume.MainMusic"), 100) / 100.0f));
-    // });
-    // AddWidget(path, "Sub Music Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-    //     .CVar(CVAR_SETTING("Volume.SubMusic"))
-    //     .RaceDisable(false)
-    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
-    //.Callback([](WidgetInfo& info) {
-    //     Audio_SetGameVolume(SEQ_PLAYER_BGM_SUB,
-    //                         ((float)CVarGetInteger(CVAR_SETTING("Volume.SubMusic"), 100) / 100.0f));
-    // });
-    // AddWidget(path, "Fanfare Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-    //     .CVar(CVAR_SETTING("Volume.Fanfare"))
-    //     .RaceDisable(false)
-    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
-    //.Callback([](WidgetInfo& info) {
-    //     Audio_SetGameVolume(SEQ_PLAYER_FANFARE,
-    //                         ((float)CVarGetInteger(CVAR_SETTING("Volume.Fanfare"), 100) / 100.0f));
-    // });
-    // AddWidget(path, "Sound Effects Volume: %d %%", WIDGET_CVAR_SLIDER_INT)
-    //     .CVar(CVAR_SETTING("Volume.SFX"))
-    //     .RaceDisable(false)
-    //     .Options(IntSliderOptions().Min(0).Max(100).DefaultValue(100).ShowButtons(true).Format(""));
-    //.Callback([](WidgetInfo& info) {
-    //     Audio_SetGameVolume(SEQ_PLAYER_SFX, ((float)CVarGetInteger(CVAR_SETTING("Volume.SFX"), 100) / 100.0f));
-    // });
     AddWidget(path, "Audio API (Needs reload)", WIDGET_AUDIO_BACKEND).RaceDisable(false);
 
     // Graphics Settings

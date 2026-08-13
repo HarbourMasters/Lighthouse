@@ -192,14 +192,12 @@ void LighthouseInputEditorWindow::DrawAnalogPreview(const char* label, ImVec2 st
 #define BUTTON_COLOR_GAMEPAD_BLUE ImVec4(0.0f, 0.255f, 0.976f, 0.5f)
 #define BUTTON_COLOR_GAMEPAD_BLUE_HOVERED ImVec4(0.0f, 0.255f, 0.976f, 1.0f)
 
-#define BUTTON_COLOR_GAMEPAD_RED ImVec4(0.976f, 0.0f, 0.094f, 0.5f)
-#define BUTTON_COLOR_GAMEPAD_RED_HOVERED ImVec4(0.976f, 0.0f, 0.094f, 1.0f)
-
-#define BUTTON_COLOR_GAMEPAD_ORANGE ImVec4(0.976f, 0.376f, 0.0f, 0.5f)
-#define BUTTON_COLOR_GAMEPAD_ORANGE_HOVERED ImVec4(0.976f, 0.376f, 0.0f, 1.0f)
-
-#define BUTTON_COLOR_GAMEPAD_GREEN ImVec4(0.0f, 0.5f, 0.0f, 0.5f)
-#define BUTTON_COLOR_GAMEPAD_GREEN_HOVERED ImVec4(0.0f, 0.5f, 0.0f, 1.0f)
+// #define BUTTON_COLOR_GAMEPAD_RED ImVec4(0.976f, 0.0f, 0.094f, 0.5f)
+// #define BUTTON_COLOR_GAMEPAD_RED_HOVERED ImVec4(0.976f, 0.0f, 0.094f, 1.0f)
+// #define BUTTON_COLOR_GAMEPAD_ORANGE ImVec4(0.976f, 0.376f, 0.0f, 0.5f)
+// #define BUTTON_COLOR_GAMEPAD_ORANGE_HOVERED ImVec4(0.976f, 0.376f, 0.0f, 1.0f)
+// #define BUTTON_COLOR_GAMEPAD_GREEN ImVec4(0.0f, 0.5f, 0.0f, 0.5f)
+// #define BUTTON_COLOR_GAMEPAD_GREEN_HOVERED ImVec4(0.0f, 0.5f, 0.0f, 1.0f)
 
 #define BUTTON_COLOR_GAMEPAD_PURPLE ImVec4(0.431f, 0.369f, 0.706f, 0.5f)
 #define BUTTON_COLOR_GAMEPAD_PURPLE_HOVERED ImVec4(0.431f, 0.369f, 0.706f, 1.0f)
@@ -1223,35 +1221,6 @@ void LighthouseInputEditorWindow::DrawGyroSection(uint8_t port) {
         DrawAddGyroMappingButton(port);
     }
 }
-
-const ImGuiTableFlags PANEL_TABLE_FLAGS = ImGuiTableFlags_BordersH | ImGuiTableFlags_BordersV;
-const ImGuiTableColumnFlags PANEL_TABLE_COLUMN_FLAGS =
-    ImGuiTableColumnFlags_IndentEnable | ImGuiTableColumnFlags_NoSort;
-
-namespace TableHelper {
-void InitHeader(bool has_header = true) {
-    if (has_header) {
-        ImGui::TableHeadersRow();
-    }
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::AlignTextToFramePadding(); // This is to adjust Vertical pos of item in a cell to be normlized.
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-}
-
-void NextCol() {
-    ImGui::TableNextColumn();
-    ImGui::AlignTextToFramePadding();
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-}
-
-void NextLine() {
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::AlignTextToFramePadding();
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-}
-} // namespace TableHelper
 
 void LighthouseInputEditorWindow::addButtonName(N64ButtonMask mask, const char* name) {
     buttons.push_back(std::make_pair(mask, name));

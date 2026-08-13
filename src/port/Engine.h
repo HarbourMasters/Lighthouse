@@ -1,10 +1,5 @@
 #pragma once
 
-#define LOAD_ASSET(path) \
-    (path == NULL ? NULL \
-                  : (GameEngine_OTRSigCheck((const char*)path) ? ResourceGetDataByName((const char*)path) : path))
-#define LOAD_ASSET_RAW(path) ResourceGetDataByName((const char*)path)
-
 typedef enum {
     BK_VER_US_10 = 0x0693BFA4,
     BK_VER_US_11 = 0xAC5975CD,
@@ -68,7 +63,6 @@ public:
     static ImFont* CreateFontWithSize(float size, std::string fontPath);
     static void ScaleImGui();
 
-    static int ShowYesNoBox(const char* title, const char* box);
     static void ShowMessage(const char* title, const char* message, SDL_MessageBoxFlags type = SDL_MESSAGEBOX_ERROR);
     static bool HasVersion(BKVersion ver);
     static std::vector<BKVersion> GetAvailableVersions();
@@ -85,32 +79,15 @@ extern "C" {
 #endif
 
 void* GameEngine_Malloc(size_t size);
+void GameEngine_Free(void* ptr);
 bool GameEngine_HasVersion(BKVersion ver);
-void GameEngine_ProcessGfxCommands(Gfx* commands);
 float GameEngine_GetAspectRatio();
-uint8_t GameEngine_OTRSigCheck(const char* imgData);
-uint32_t OTRGetCurrentWidth(void);
-uint32_t OTRGetCurrentHeight(void);
-float OTRGetHUDAspectRatio();
-int32_t OTRConvertHUDXToScreenX(int32_t v);
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
 int16_t OTRGetRectDimensionFromLeftEdge(float v);
 int16_t OTRGetRectDimensionFromRightEdge(float v);
-float OTRGetDimensionFromLeftEdgeForcedAspect(float v, float aspectRatio);
-float OTRGetDimensionFromRightEdgeForcedAspect(float v, float aspectRatio);
-int16_t OTRGetRectDimensionFromLeftEdgeForcedAspect(float v, float aspectRatio);
-int16_t OTRGetRectDimensionFromRightEdgeForcedAspect(float v, float aspectRatio);
-float OTRGetDimensionFromLeftEdgeOverride(float v);
-float OTRGetDimensionFromRightEdgeOverride(float v);
-int16_t OTRGetRectDimensionFromLeftEdgeOverride(float v);
-int16_t OTRGetRectDimensionFromRightEdgeOverride(float v);
 uint32_t OTRGetGameRenderWidth();
 uint32_t OTRGetGameRenderHeight();
-void* GameEngine_Malloc(size_t size);
-void GameEngine_Free(void* ptr);
-void GameEngine_GetTextureInfo(const char* path, int32_t* width, int32_t* height, float* scale, bool* custom);
-// void gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt);
 uint32_t GameEngine_GetInterpolationFrameCount();
 
 #ifdef __cplusplus

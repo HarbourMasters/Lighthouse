@@ -72,7 +72,6 @@ const uint32_t defaultImGuiScale = 1;
 
 namespace {
 constexpr int kDemoAudioHoldFrames = 2;
-const char* sOtrSignature = "__OTR__";
 
 // Attract-demo audio hold
 std::atomic<bool> sHoldAudio{ false };
@@ -830,45 +829,6 @@ extern "C" uint32_t GameEngine_GetGameVersion() {
     return 0x00000001;
 }
 
-extern "C" uint8_t GameEngine_OTRSigCheck(const char* data) {
-    if (data == nullptr) {
-        return 0;
-    }
-    return strncmp(data, sOtrSignature, strlen(sOtrSignature)) == 0;
-}
-
-extern "C" void GameEngine_GetTextureInfo(const char* path, int32_t* width, int32_t* height, float* scale,
-                                          bool* custom) {
-    if (GameEngine_OTRSigCheck(path) != 1) {
-        *custom = false;
-        return;
-    }
-    std::shared_ptr<Fast::Texture> tex = std::static_pointer_cast<Fast::Texture>(
-        Ship::Context::GetRawInstance()->GetResourceManager()->LoadResourceProcess(path));
-    *width = tex->Width;
-    *height = tex->Height;
-    *scale = tex->VPixelScale;
-    *custom = tex->Flags & (1 << 0);
-}
-
-// Gets the width of the main ImGui window
-extern "C" uint32_t OTRGetCurrentWidth() {
-    return GameEngine::Instance->context->GetWindow()->GetWidth();
-}
-
-// Gets the height of the main ImGui window
-extern "C" uint32_t OTRGetCurrentHeight() {
-    return GameEngine::Instance->context->GetWindow()->GetHeight();
-}
-
-extern "C" float OTRGetHUDAspectRatio() {
-    if (CVarGetInteger("gHUDAspectRatio.Enabled", 0) == 0 || CVarGetInteger("gHUDAspectRatio.X", 0) == 0 ||
-        CVarGetInteger("gHUDAspectRatio.Y", 0) == 0) {
-        return GameEngine_GetAspectRatio();
-    }
-    return ((float)CVarGetInteger("gHUDAspectRatio.X", 1) / (float)CVarGetInteger("gHUDAspectRatio.Y", 1));
-}
-
 static float OTRDimensionFromEdge(float v, float aspectRatio, bool fromRight) {
     auto interpreter = GameEngine_GetInterpreter();
     const uint32_t nativeWidth = interpreter->mNativeDimensions.width;
@@ -884,22 +844,6 @@ extern "C" float OTRGetDimensionFromLeftEdge(float v) {
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
     return OTRDimensionFromEdge(v, 0.0f, true);
-}
-
-extern "C" float OTRGetDimensionFromLeftEdgeForcedAspect(float v, float aspectRatio) {
-    return OTRDimensionFromEdge(v, aspectRatio, false);
-}
-
-extern "C" float OTRGetDimensionFromRightEdgeForcedAspect(float v, float aspectRatio) {
-    return OTRDimensionFromEdge(v, aspectRatio, true);
-}
-
-extern "C" float OTRGetDimensionFromLeftEdgeOverride(float v) {
-    return OTRDimensionFromEdge(v, OTRGetHUDAspectRatio(), false);
-}
-
-extern "C" float OTRGetDimensionFromRightEdgeOverride(float v) {
-    return OTRDimensionFromEdge(v, OTRGetHUDAspectRatio(), true);
 }
 
 extern "C" uint32_t OTRGetGameRenderWidth() {
@@ -918,40 +862,6 @@ extern "C" int16_t OTRGetRectDimensionFromLeftEdge(float v) {
 
 extern "C" int16_t OTRGetRectDimensionFromRightEdge(float v) {
     return ((int)ceilf(OTRGetDimensionFromRightEdge(v)));
-}
-
-extern "C" int16_t OTRGetRectDimensionFromLeftEdgeForcedAspect(float v, float aspectRatio) {
-    return ((int)floorf(OTRGetDimensionFromLeftEdgeForcedAspect(v, aspectRatio)));
-}
-
-extern "C" int16_t OTRGetRectDimensionFromRightEdgeForcedAspect(float v, float aspectRatio) {
-    return ((int)ceilf(OTRGetDimensionFromRightEdgeForcedAspect(v, aspectRatio)));
-}
-
-extern "C" int16_t OTRGetRectDimensionFromLeftEdgeOverride(float v) {
-    return OTRGetRectDimensionFromLeftEdgeForcedAspect(v, OTRGetHUDAspectRatio());
-}
-
-extern "C" int16_t OTRGetRectDimensionFromRightEdgeOverride(float v) {
-    return OTRGetRectDimensionFromRightEdgeForcedAspect(v, OTRGetHUDAspectRatio());
-}
-
-extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
-    auto interpreter = GameEngine_GetInterpreter();
-    float gameAspectRatio = interpreter->mCurDimensions.aspect_ratio;
-    int32_t gameHeight = interpreter->mCurDimensions.height;
-    int32_t gameWidth = interpreter->mCurDimensions.width;
-    float hudAspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
-    int32_t hudHeight = gameHeight;
-    int32_t hudWidth = static_cast<int32_t>(hudHeight * hudAspectRatio);
-    float hudScreenRatio = (hudWidth / (float)SCREEN_WIDTH);
-    float hudCoord = v * hudScreenRatio;
-    float gameOffset = static_cast<float>((gameWidth - hudWidth) / 2);
-    float gameCoord = hudCoord + gameOffset;
-    float gameScreenRatio = ((float)SCREEN_WIDTH / gameWidth);
-    float screenScaledCoord = gameCoord * gameScreenRatio;
-    int32_t screenScaledCoordInt = static_cast<int32_t>(screenScaledCoord);
-    return screenScaledCoordInt;
 }
 
 extern "C" void* GameEngine_Malloc(size_t size) {

@@ -5,7 +5,6 @@
 
 #include "variables.h"
 #include "functions.h"
-// extern PlayState* gPlayState;
 
 void AnchorRoomWindow::Draw() {
     if (!IsVisible() || !Anchor::GetInstance()->isConnected) {

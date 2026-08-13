@@ -362,8 +362,6 @@ inline bool CanKillEnemy(actor_e enemyType) {
 
 #define CAN_ACCESS(accessId) CanAccessEvent(accessId)
 
-#define CAN_ACCESS_REGION(randoRegionId) CanAccessRegion(randoRegionId)
-
 #define CAN_ATTACK                                                                                                   \
     (CAN_USE_ABILITY(ABILITY_B_RATATAT_RAP) || CAN_USE_ABILITY(ABILITY_4_CLAW_SWIPE) ||                              \
      CAN_USE_ABILITY(ABILITY_6_EGGS) || CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER) || CAN_USE_ABILITY(ABILITY_C_ROLL) || \

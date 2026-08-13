@@ -89,7 +89,6 @@ private:
     void HandlePacket_DisableAnchor(nlohmann::json& payload);
     void HandlePacket_EntranceDiscovered(nlohmann::json& payload);
     void HandlePacket_GameComplete(nlohmann::json& payload);
-    void HandlePacket_GiveItem(nlohmann::json& payload);
     void HandlePacket_MapLoad(nlohmann::json& payload);
     void HandlePacket_PlayerSfx(nlohmann::json& payload);
     void HandlePacket_PlayerAnimChange(nlohmann::json& payload);
@@ -144,7 +143,6 @@ public:
     inline static const std::string DISABLE_ANCHOR = "DISABLE_ANCHOR";
     inline static const std::string ENTRANCE_DISCOVERED = "ENTRANCE_DISCOVERED";
     inline static const std::string GAME_COMPLETE = "GAME_COMPLETE";
-    inline static const std::string GIVE_ITEM = "GIVE_ITEM";
     inline static const std::string HANDSHAKE = "HANDSHAKE";
     inline static const std::string MAP_LOAD = "MAP_LOAD";
     inline static const std::string PLAYER_ANIM = "PLAYER_ANIM";
@@ -201,7 +199,6 @@ public:
     void OnConnected();
     void OnDisconnected();
     void ProcessOutgoingPackets();
-    void DrawMenu();
     void ProcessIncomingPacketQueue();
     void SendJsonToRemote(nlohmann::json packet);
     bool IsSaveLoaded();
@@ -233,7 +230,6 @@ public:
     void SendPacket_DamagePlayer(u32 clientId, u8 damageEffect, u8 damage);
     void SendPacket_EntranceDiscovered(u16 entranceIndex);
     void SendPacket_GameComplete();
-    void SendPacket_GiveItem(u16 modId, s16 getItemId);
     void SendPacket_Handshake();
     void SendPacket_MapLoad(GameMap map, s32 exit);
     void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position,

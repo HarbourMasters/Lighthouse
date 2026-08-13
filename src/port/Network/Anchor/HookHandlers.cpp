@@ -167,14 +167,6 @@ void Anchor::RegisterHooks() {
 
     // #region Hooks that are required for basic Anchor functionality
 
-    // COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, isConnected, [&]() {
-    //     SendPacket_UpdateClientState();
-
-    //    if (IsSaveLoaded()) {
-    //        RefreshClientActors();
-    //    }
-    //});
-
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
         auto ev = reinterpret_cast<OnMapLoad*>(event);
         if (ev->prevMap == MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
@@ -586,37 +578,4 @@ void Anchor::RegisterHooks() {
               [](IEvent* event) { Anchor::GetInstance()->SendPacket_UpdateTeamState(); });
 
     // #endregion
-
-    //    COND_HOOK(OnPlayerSfx, isConnected, [&](u16 sfxId) { SendPacket_PlayerSfx(sfxId); });
-    //
-    //    COND_HOOK(OnRandoSetCheckStatus, isConnected, [&](RandomizerCheck rc, RandomizerCheckStatus status) {
-    //        if (!isHandlingUpdateTeamState) {
-    //            SendPacket_SetCheckStatus(rc);
-    //        }
-    //    });
-    //
-    //    COND_HOOK(OnRandoSetIsSkipped, isConnected, [&](RandomizerCheck rc, bool isSkipped) {
-    //        if (!isHandlingUpdateTeamState) {
-    //            SendPacket_SetCheckStatus(rc);
-    //        }
-    //    });
-    //
-    //    COND_HOOK(OnRandoEntranceDiscovered, isConnected,
-    //              [&](u16 entranceIndex, u8 isReversedEntrance) { SendPacket_EntranceDiscovered(entranceIndex); });
-    //
-    //    COND_ID_HOOK(OnBossDefeat, ACTOR_BOSS_GANON2, isConnected, [&](void* refActor) { SendPacket_GameComplete();
-    //    });
-    //
-    //    COND_HOOK(OnItemReceive, isConnected, [&](GetItemEntry itemEntry) {
-    //        // Handle vanilla dungeon items a bit differently
-    //        if (itemEntry.modIndex == MOD_NONE &&
-    //            (itemEntry.itemId >= ITEM_KEY_BOSS && itemEntry.itemId <= ITEM_KEY_SMALL)) {
-    //            SendPacket_UpdateDungeonItems();
-    //            return;
-    //        }
-    //
-    //        SendPacket_GiveItem(itemEntry.tableId, itemEntry.getItemId);
-    //    });
-    //
-    //    // #endregion
 }

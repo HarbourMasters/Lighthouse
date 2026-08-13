@@ -60,7 +60,6 @@ const ImVec4 messageColor[]{
     { 0.0f, 0.85f, 0.55f, 1.0f }, // MESSAGE_INFO
     { 0.75f, 0.75f, 0.75f, 1.0f } // MESSAGE_GRAY_75
 };
-static const float enhancementSpacerHeight = 19.0f;
 // Initialise update flags.
 static bool update[3];
 
