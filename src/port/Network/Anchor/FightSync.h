@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "port/Network/Anchor/SeqGate.h"
+
 // Final Grunty fight sync (Anchor).
 //
 // First client in the fight map with the boss spawned claims NET_ACTIVITY_FINAL_BOSS and runs
@@ -73,10 +75,6 @@ bool chjinjonatorbase_netGetPads(uint8_t pads[4]);
 // v0/v1/v2 may be NULL for events that carry no vectors.
 void FightSync_SendEvent(int32_t ev, int32_t a, int32_t b, const float v0[3], const float v1[3], const float v2[3]);
 void FightSync_SendSnapshot(uint32_t clientId);
-
-uint32_t FightSyncSeq_Next(void);
-bool FightSyncSeq_Accept(uint32_t seq);
-void FightSyncSeq_Reset(void);
 
 // --- network -> sync layer (implemented in FightSync.c) --------------------------------
 

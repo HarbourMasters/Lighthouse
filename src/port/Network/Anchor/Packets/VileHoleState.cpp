@@ -23,7 +23,7 @@ void Anchor::SendPacket_VileHoleState(u8 holeId, u8 holeState, u8 pieceType, u32
 
     nlohmann::json payload;
     payload["type"] = VILE_HOLE_STATE;
-    payload["seq"] = VileSync_NextOutgoingSeq();
+    payload["seq"] = SeqGate_Next(&gVileSeq);
     payload["holeId"] = holeId;
     payload["holeState"] = holeState;
     payload["pieceType"] = pieceType;
@@ -36,7 +36,7 @@ void Anchor::HandlePacket_VileHoleState(nlohmann::json& payload) {
     if (gsworld_getMap() != MAP_10_BGS_MR_VILE) {
         return;
     }
-    if (!VileSync_AcceptIncomingSeq(payload.value("seq", (u32)0))) {
+    if (!SeqGate_Accept(&gVileSeq, payload.value("seq", (u32)0))) {
         return;
     }
 

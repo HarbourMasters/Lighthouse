@@ -163,4 +163,3 @@ void Rando::Logic::GrantFileProgressFlags() {
         fileProgressFlag_set(fileprog, 1);
     }
 }
-

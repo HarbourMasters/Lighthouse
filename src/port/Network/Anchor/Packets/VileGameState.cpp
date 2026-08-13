@@ -32,7 +32,7 @@ void Anchor::SendPacket_VileGameState() {
 
     nlohmann::json payload;
     payload["type"] = VILE_GAME_STATE;
-    payload["seq"] = VileSync_NextOutgoingSeq();
+    payload["seq"] = SeqGate_Next(&gVileSeq);
     payload["gameState"] = snapshot.gameState;
     payload["round"] = snapshot.round;
     payload["maxRound"] = snapshot.maxRound;
@@ -52,7 +52,7 @@ void Anchor::HandlePacket_VileGameState(nlohmann::json& payload) {
     if (gsworld_getMap() != MAP_10_BGS_MR_VILE) {
         return;
     }
-    if (!VileSync_AcceptIncomingSeq(payload.value("seq", (u32)0))) {
+    if (!SeqGate_Accept(&gVileSeq, payload.value("seq", (u32)0))) {
         return;
     }
 

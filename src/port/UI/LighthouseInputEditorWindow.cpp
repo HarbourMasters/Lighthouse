@@ -231,6 +231,43 @@ void LighthouseInputEditorWindow::DrawInputChip(const char* buttonName, ImVec4 c
     ImGui::EndDisabled();
 }
 
+const char* LighthouseInputEditorWindow::MappingTypeIcon(int8_t mappingType) {
+    switch (mappingType) {
+        case MAPPING_TYPE_GAMEPAD:
+            return ICON_FA_GAMEPAD;
+        case MAPPING_TYPE_KEYBOARD:
+            return ICON_FA_KEYBOARD_O;
+        default:
+            return ICON_FA_BUG;
+    }
+}
+
+void LighthouseInputEditorWindow::PushMappingButtonColors(Ship::PhysicalDeviceType deviceType) {
+    auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+    auto buttonHoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+    GetButtonColorsForDeviceType(deviceType, buttonColor, buttonHoveredColor);
+    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoveredColor);
+}
+
+void LighthouseInputEditorWindow::DrawMappingCapturePopup(const char* popupId, const char* verb,
+                                                          const std::function<bool()>& capture) {
+    if (!ImGui::BeginPopup(popupId)) {
+        return;
+    }
+    mInputEditorPopupOpen = true;
+    ImGui::Text("Press any button,\nmove any axis,\nor press any key\nto %s mapping", verb);
+    if (ImGui::Button("Cancel")) {
+        mInputEditorPopupOpen = false;
+        ImGui::CloseCurrentPopup();
+    }
+    if (mMappingInputBlockTimer == INT32_MAX && capture()) {
+        mInputEditorPopupOpen = false;
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::EndPopup();
+}
+
 void LighthouseInputEditorWindow::DrawButtonLineAddMappingButton(uint8_t port, N64ButtonMask bitmask) {
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     auto popupId = StringHelper::Sprintf("addButtonMappingPopup##%d-%d", port, bitmask);
@@ -241,24 +278,14 @@ void LighthouseInputEditorWindow::DrawButtonLineAddMappingButton(uint8_t port, N
     };
     ImGui::PopStyleVar();
 
-    if (ImGui::BeginPopup(popupId.c_str())) {
-        mInputEditorPopupOpen = true;
-        ImGui::Text("Press any button,\nmove any axis,\nor press any key\nto add mapping");
-        if (ImGui::Button("Cancel")) {
-            mInputEditorPopupOpen = false;
-            ImGui::CloseCurrentPopup();
-        }
-        // todo: figure out why optional params (using id = "" in the definition) wasn't working
-        if (mMappingInputBlockTimer == INT32_MAX && Ship::Context::GetRawInstance()
-                                                        ->GetControlDeck()
-                                                        ->GetControllerByPort(port)
-                                                        ->GetButton(bitmask)
-                                                        ->AddOrEditButtonMappingFromRawPress(bitmask, "")) {
-            mInputEditorPopupOpen = false;
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
+    // todo: figure out why optional params (using id = "" in the definition) wasn't working
+    DrawMappingCapturePopup(popupId.c_str(), "add", [port, bitmask]() {
+        return Ship::Context::GetRawInstance()
+            ->GetControlDeck()
+            ->GetControllerByPort(port)
+            ->GetButton(bitmask)
+            ->AddOrEditButtonMappingFromRawPress(bitmask, "");
+    });
 }
 
 void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, N64ButtonMask bitmask, std::string id) {
@@ -272,25 +299,9 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-    std::string icon = "";
-    switch (mapping->GetMappingType()) {
-        case MAPPING_TYPE_GAMEPAD:
-            icon = ICON_FA_GAMEPAD;
-            break;
-        case MAPPING_TYPE_KEYBOARD:
-            icon = ICON_FA_KEYBOARD_O;
-            break;
-        case MAPPING_TYPE_UNKNOWN:
-            icon = ICON_FA_BUG;
-            break;
-    }
-    auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-    auto buttonHoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-    auto physicalInputDisplayName =
-        StringHelper::Sprintf("%s %s", icon.c_str(), mapping->GetPhysicalInputName().c_str());
-    GetButtonColorsForDeviceType(mapping->GetPhysicalDeviceType(), buttonColor, buttonHoveredColor);
-    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoveredColor);
+    auto physicalInputDisplayName = StringHelper::Sprintf("%s %s", MappingTypeIcon(mapping->GetMappingType()),
+                                                          mapping->GetPhysicalInputName().c_str());
+    PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     auto popupId = StringHelper::Sprintf("editButtonMappingPopup##%s", id.c_str());
     if (ImGui::Button(
             StringHelper::Sprintf("%s###editButtonMappingButton%s", physicalInputDisplayName.c_str(), id.c_str())
@@ -305,23 +316,13 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
 
-    if (ImGui::BeginPopup(popupId.c_str())) {
-        mInputEditorPopupOpen = true;
-        ImGui::Text("Press any button,\nmove any axis,\nor press any key\nto edit mapping");
-        if (ImGui::Button("Cancel")) {
-            mInputEditorPopupOpen = false;
-            ImGui::CloseCurrentPopup();
-        }
-        if (mMappingInputBlockTimer == INT32_MAX && Ship::Context::GetRawInstance()
-                                                        ->GetControlDeck()
-                                                        ->GetControllerByPort(port)
-                                                        ->GetButton(bitmask)
-                                                        ->AddOrEditButtonMappingFromRawPress(bitmask, id)) {
-            mInputEditorPopupOpen = false;
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
+    DrawMappingCapturePopup(popupId.c_str(), "edit", [port, bitmask, id]() {
+        return Ship::Context::GetRawInstance()
+            ->GetControlDeck()
+            ->GetControllerByPort(port)
+            ->GetButton(bitmask)
+            ->AddOrEditButtonMappingFromRawPress(bitmask, id);
+    });
 
     ImGui::PopStyleVar();
     ImGui::SameLine(0, 0);
@@ -443,8 +444,7 @@ void LighthouseInputEditorWindow::DrawButtonLineEditMappingButton(uint8_t port, 
         ImGui::SameLine(0, 0);
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoveredColor);
+    PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     if (ImGui::Button(StringHelper::Sprintf("%s###removeButtonMappingButton%s", ICON_FA_TIMES, id.c_str()).c_str(),
                       ImVec2(ImGui::CalcTextSize(ICON_FA_TIMES).x + SCALE_IMGUI_SIZE(10.0f), 0.0f))) {
@@ -486,78 +486,27 @@ void LighthouseInputEditorWindow::DrawStickDirectionLineAddMappingButton(uint8_t
     };
     ImGui::PopStyleVar();
 
-    if (ImGui::BeginPopup(popupId.c_str())) {
-        mInputEditorPopupOpen = true;
-        ImGui::Text("Press any button,\nmove any axis,\nor press any key\nto add mapping");
-        if (ImGui::Button("Cancel")) {
-            mInputEditorPopupOpen = false;
-            ImGui::CloseCurrentPopup();
-        }
-        if (stick == Ship::LEFT) {
-            if (mMappingInputBlockTimer == INT32_MAX &&
-                Ship::Context::GetRawInstance()
-                    ->GetControlDeck()
-                    ->GetControllerByPort(port)
-                    ->GetLeftStick()
-                    ->AddOrEditAxisDirectionMappingFromRawPress(direction, "")) {
-                mInputEditorPopupOpen = false;
-                ImGui::CloseCurrentPopup();
-            }
-        } else {
-            if (mMappingInputBlockTimer == INT32_MAX &&
-                Ship::Context::GetRawInstance()
-                    ->GetControlDeck()
-                    ->GetControllerByPort(port)
-                    ->GetRightStick()
-                    ->AddOrEditAxisDirectionMappingFromRawPress(direction, "")) {
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        ImGui::EndPopup();
-    }
+    DrawMappingCapturePopup(popupId.c_str(), "add", [port, stick, direction]() {
+        auto controller = Ship::Context::GetRawInstance()->GetControlDeck()->GetControllerByPort(port);
+        auto axis = stick == Ship::LEFT ? controller->GetLeftStick() : controller->GetRightStick();
+        return axis->AddOrEditAxisDirectionMappingFromRawPress(direction, "");
+    });
 }
 
 void LighthouseInputEditorWindow::DrawStickDirectionLineEditMappingButton(uint8_t port, uint8_t stick,
                                                                           Ship::Direction direction, std::string id) {
-    std::shared_ptr<Ship::ControllerAxisDirectionMapping> mapping = nullptr;
-    if (stick == Ship::LEFT) {
-        mapping = Ship::Context::GetRawInstance()
-                      ->GetControlDeck()
-                      ->GetControllerByPort(port)
-                      ->GetLeftStick()
-                      ->GetAxisDirectionMappingById(direction, id);
-    } else {
-        mapping = Ship::Context::GetRawInstance()
-                      ->GetControlDeck()
-                      ->GetControllerByPort(port)
-                      ->GetRightStick()
-                      ->GetAxisDirectionMappingById(direction, id);
-    }
+    auto controller = Ship::Context::GetRawInstance()->GetControlDeck()->GetControllerByPort(port);
+    auto axis = stick == Ship::LEFT ? controller->GetLeftStick() : controller->GetRightStick();
+    std::shared_ptr<Ship::ControllerAxisDirectionMapping> mapping = axis->GetAxisDirectionMappingById(direction, id);
 
     if (mapping == nullptr) {
         return;
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
-    std::string icon = "";
-    switch (mapping->GetMappingType()) {
-        case MAPPING_TYPE_GAMEPAD:
-            icon = ICON_FA_GAMEPAD;
-            break;
-        case MAPPING_TYPE_KEYBOARD:
-            icon = ICON_FA_KEYBOARD_O;
-            break;
-        case MAPPING_TYPE_UNKNOWN:
-            icon = ICON_FA_BUG;
-            break;
-    }
-    auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-    auto buttonHoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-    auto physicalInputDisplayName =
-        StringHelper::Sprintf("%s %s", icon.c_str(), mapping->GetPhysicalInputName().c_str());
-    GetButtonColorsForDeviceType(mapping->GetPhysicalDeviceType(), buttonColor, buttonHoveredColor);
-    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoveredColor);
+    auto physicalInputDisplayName = StringHelper::Sprintf("%s %s", MappingTypeIcon(mapping->GetMappingType()),
+                                                          mapping->GetPhysicalInputName().c_str());
+    PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     auto popupId = StringHelper::Sprintf("editStickDirectionMappingPopup##%s", id.c_str());
     if (ImGui::Button(
             StringHelper::Sprintf("%s###editStickDirectionMappingButton%s", physicalInputDisplayName.c_str(),
@@ -573,41 +522,15 @@ void LighthouseInputEditorWindow::DrawStickDirectionLineEditMappingButton(uint8_
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
 
-    if (ImGui::BeginPopup(popupId.c_str())) {
-        mInputEditorPopupOpen = true;
-        ImGui::Text("Press any button,\nmove any axis,\nor press any key\nto edit mapping");
-        if (ImGui::Button("Cancel")) {
-            mInputEditorPopupOpen = false;
-            ImGui::CloseCurrentPopup();
-        }
-
-        if (stick == Ship::LEFT) {
-            if (mMappingInputBlockTimer == INT32_MAX &&
-                Ship::Context::GetRawInstance()
-                    ->GetControlDeck()
-                    ->GetControllerByPort(port)
-                    ->GetLeftStick()
-                    ->AddOrEditAxisDirectionMappingFromRawPress(direction, id)) {
-                mInputEditorPopupOpen = false;
-                ImGui::CloseCurrentPopup();
-            }
-        } else {
-            if (mMappingInputBlockTimer == INT32_MAX &&
-                Ship::Context::GetRawInstance()
-                    ->GetControlDeck()
-                    ->GetControllerByPort(port)
-                    ->GetRightStick()
-                    ->AddOrEditAxisDirectionMappingFromRawPress(direction, id)) {
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        ImGui::EndPopup();
-    }
+    DrawMappingCapturePopup(popupId.c_str(), "edit", [port, stick, direction, id]() {
+        auto controller = Ship::Context::GetRawInstance()->GetControlDeck()->GetControllerByPort(port);
+        auto axis = stick == Ship::LEFT ? controller->GetLeftStick() : controller->GetRightStick();
+        return axis->AddOrEditAxisDirectionMappingFromRawPress(direction, id);
+    });
 
     ImGui::PopStyleVar();
     ImGui::SameLine(0, 0);
-    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoveredColor);
+    PushMappingButtonColors(mapping->GetPhysicalDeviceType());
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(1.0f, 0.5f));
     if (ImGui::Button(
             StringHelper::Sprintf("%s###removeStickDirectionMappingButton%s", ICON_FA_TIMES, id.c_str()).c_str(),

@@ -25,7 +25,7 @@ void Anchor::SendPacket_VileUpdate(const f32 position[3], f32 pitch, f32 yaw, f3
 
     nlohmann::json payload;
     payload["type"] = VILE_UPDATE;
-    payload["seq"] = VileSync_NextOutgoingSeq();
+    payload["seq"] = SeqGate_Next(&gVileSeq);
     payload["pos"] = { position[0], position[1], position[2] };
     payload["rot"] = { pitch, yaw, roll };
     payload["mode"] = animMode;
@@ -38,7 +38,7 @@ void Anchor::HandlePacket_VileUpdate(nlohmann::json& payload) {
     if (gsworld_getMap() != MAP_10_BGS_MR_VILE) {
         return;
     }
-    if (!VileSync_AcceptIncomingSeq(payload.value("seq", (u32)0))) {
+    if (!SeqGate_Accept(&gVileSeq, payload.value("seq", (u32)0))) {
         return;
     }
 

@@ -5,6 +5,7 @@
 #include <set>
 #include <list>
 #include <memory>
+#include <functional>
 #include "stdint.h"
 #include <ship/window/gui/GuiWindow.h>
 #include <ship/controller/controldevice/controller/mapping/ControllerAxisDirectionMapping.h>
@@ -41,6 +42,10 @@ protected:
     void UpdateElement() override;
 
 private:
+    void DrawMappingCapturePopup(const char* popupId, const char* verb, const std::function<bool()>& capture);
+    static const char* MappingTypeIcon(int8_t mappingType);
+    void PushMappingButtonColors(Ship::PhysicalDeviceType deviceType);
+
     void DrawStickDirectionLine(const char* axisDirectionName, uint8_t port, uint8_t stick, Ship::Direction direction,
                                 ImVec4 color);
     void DrawButtonLine(const char* buttonName, uint8_t port, N64ButtonMask bitmask, ImVec4 color);

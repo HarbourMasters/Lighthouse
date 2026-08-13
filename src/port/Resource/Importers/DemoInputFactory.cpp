@@ -3,22 +3,9 @@
 #include <libultraship/libultraship.h>
 #include <ship/resource/type/Blob.h>
 
+#include "BlobWriter.h"
+
 namespace Factories {
-namespace {
-template <typename T> void AppendValue(std::vector<uint8_t>& dst, const T& value) {
-    const auto base = dst.size();
-    dst.resize(base + sizeof(T));
-    std::memcpy(dst.data() + base, &value, sizeof(T));
-}
-
-std::shared_ptr<Ship::Blob> MakeBlob(const std::shared_ptr<Ship::ResourceInitData>& initData,
-                                     std::vector<uint8_t>&& data) {
-    auto blob = std::make_shared<Ship::Blob>(initData);
-    blob->Data = std::move(data);
-    return blob;
-}
-} // namespace
-
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryBKDemoInputV0::ReadResource(std::shared_ptr<Ship::File> file,
                                                  std::shared_ptr<Ship::ResourceInitData> initData) {

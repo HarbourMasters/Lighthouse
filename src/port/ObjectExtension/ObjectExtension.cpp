@@ -19,4 +19,3 @@ void ObjectExtension::Free(const void* object) {
         return key.first == object;
     });
 }
-

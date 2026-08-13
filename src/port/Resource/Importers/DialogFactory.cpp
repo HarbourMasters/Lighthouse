@@ -3,14 +3,10 @@
 #include <libultraship/libultraship.h>
 #include <ship/resource/type/Blob.h>
 
+#include "BlobWriter.h"
+
 namespace Factories {
 namespace {
-void AppendBytes(std::vector<uint8_t>& dst, const char* data, size_t size) {
-    const auto base = dst.size();
-    dst.resize(base + size);
-    std::memcpy(dst.data() + base, data, size);
-}
-
 std::string ReadSizedString(const std::shared_ptr<Ship::BinaryReader>& reader, uint32_t len) {
     std::string out;
     out.resize(len);
@@ -18,13 +14,6 @@ std::string ReadSizedString(const std::shared_ptr<Ship::BinaryReader>& reader, u
         reader->Read(out.data(), static_cast<int32_t>(len));
     }
     return out;
-}
-
-std::shared_ptr<Ship::Blob> MakeBlob(const std::shared_ptr<Ship::ResourceInitData>& initData,
-                                     std::vector<uint8_t>&& data) {
-    auto blob = std::make_shared<Ship::Blob>(initData);
-    blob->Data = std::move(data);
-    return blob;
 }
 
 // Read one language block from Torch's o2r format (u32 counts, u8 cmd, u32 strlen, chars)

@@ -423,13 +423,13 @@ void InputViewerSettingsWindow::DrawElement() {
     CVarCheckbox("Enable Dragging", CVAR_INPUT_VIEWER("EnableDragging"),
                  CheckboxOptions().Color(THEME_COLOR).DefaultValue(true));
 
-    UIWidgets::PaddedSeparator(true, true);
+    UIWidgets::Separator(true, true);
 
     // gInputViewer.ShowBackground
     CVarCheckbox("Show Background Layer", CVAR_INPUT_VIEWER("ShowBackground"),
                  CheckboxOptions().Color(THEME_COLOR).DefaultValue(true));
 
-    UIWidgets::PaddedSeparator(true, true);
+    UIWidgets::Separator(true, true);
 
     PushStyleHeader(THEME_COLOR);
     if (ImGui::CollapsingHeader("Buttons")) {
@@ -448,7 +448,7 @@ void InputViewerSettingsWindow::DrawElement() {
         CVarCheckbox("Use for all buttons", CVAR_INPUT_VIEWER("UseGlobalButtonOutlineMode"),
                      CheckboxOptions().Color(THEME_COLOR).DefaultValue(true));
 
-        UIWidgets::PaddedSeparator();
+        UIWidgets::Separator();
 
         bool useIndividualOutlines = !CVarGetInteger(CVAR_INPUT_VIEWER("UseGlobalButtonOutlineMode"), 1);
 
@@ -570,7 +570,7 @@ void InputViewerSettingsWindow::DrawElement() {
             ImGui::Unindent();
         }
 
-        UIWidgets::PaddedSeparator(true, true);
+        UIWidgets::Separator(true, true);
     }
 
     if (ImGui::CollapsingHeader("Analog Stick")) {
@@ -603,7 +603,7 @@ void InputViewerSettingsWindow::DrawElement() {
                           .ShowButtons(true)
                           .Tooltip("Sets the distance to move the analog stick in the input viewer. Useful for custom "
                                    "input viewers."));
-        UIWidgets::PaddedSeparator(true, true);
+        UIWidgets::Separator(true, true);
     }
 
     if (ImGui::CollapsingHeader("Additional (\"Right\") Stick")) {
@@ -636,7 +636,7 @@ void InputViewerSettingsWindow::DrawElement() {
                 .ShowButtons(true)
                 .Tooltip(
                     "Sets the distance to move the right stick in the input viewer. Useful for custom input viewers."));
-        UIWidgets::PaddedSeparator(true, true);
+        UIWidgets::Separator(true, true);
     }
 
     if (ImGui::CollapsingHeader("Analog Angle Values")) {
@@ -667,7 +667,7 @@ void InputViewerSettingsWindow::DrawElement() {
                               .ShowButtons(true)
                               .Tooltip("Sets the distance to move the right stick in the input viewer. Useful for "
                                        "custom input viewers."));
-            UIWidgets::PaddedSeparator(true, true);
+            UIWidgets::Separator(true, true);
             // gInputViewer.AnalogAngles.Range1.Enabled
             CVarCheckbox(
                 "Highlight ESS Position", CVAR_INPUT_VIEWER("AnalogAngles.Range1.Enabled"),
@@ -681,7 +681,7 @@ void InputViewerSettingsWindow::DrawElement() {
                                 ColorPickerRandomButton | ColorPickerResetButton);
             }
 
-            UIWidgets::PaddedSeparator(true, true);
+            UIWidgets::Separator(true, true);
             // gInputViewer.AnalogAngles.Range2.Enabled
             CVarCheckbox("Highlight Walking Speed Angles", CVAR_INPUT_VIEWER("AnalogAngles.Range2.Enabled"),
                          CheckboxOptions()
