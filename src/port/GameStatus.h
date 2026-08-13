@@ -1,13 +1,17 @@
 #pragma once
 
 #include "libultraship/libultra/types.h"
+#include "enums.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// [port] Current level name from the pause menu totals table (romhack-patchable).
-// Returns the patched string for the level containing map_id, or a fallback debug name.
+// [port] Level name from the pause menu totals table (romhack-patchable), supplemented
+// for the level_e values that table doesn't list. Upper case, as the game stores it.
+const char* port_levelName(enum level_e level);
+
+// [port] As above, for the level containing map_id; falls back to a debug map name.
 const char* port_getLevelName(int map_id);
 
 // [port] Per-level game stats (romhack-aware max values).

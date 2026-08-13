@@ -34,8 +34,6 @@ namespace fs = std::filesystem;
 const std::string savesFolderPathString(Ship::Context::GetPathRelativeToAppDirectory("saves"));
 const std::filesystem::path savesFolderPath(savesFolderPathString);
 
-#define CVAR_NAME_BOTTLES_BONUS CVAR_ENHANCEMENT("Saving.PersistBottlesBonus")
-
 std::string SaveManager_GetSavePath(const std::string& filename) {
     std::string romName = GetActiveRomhackBasename();
     std::string dir = romName.empty() ? savesFolderPathString

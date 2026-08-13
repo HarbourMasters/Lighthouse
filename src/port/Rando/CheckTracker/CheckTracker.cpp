@@ -3,6 +3,7 @@
 #include "port/ShipUtils.h"
 #include "port/UI/UIWidgets.hpp"
 #include <cstring>
+#include "port/GameStatus.h"
 
 #define DEFAULT_LOGIC_COLOR \
     Color_RGBA8 {           \
@@ -184,7 +185,7 @@ void DrawCheckTrackerList() {
             continue;
         }
 
-        std::string headerName = port_mapName(level_get_main_map((level_e)i));
+        std::string headerName = port_levelName((level_e)i);
         if (CVAR_SHOW_WORLD_CHECKS) {
             headerName += " ";
             headerName += GetWorldCheckString((level_e)i);

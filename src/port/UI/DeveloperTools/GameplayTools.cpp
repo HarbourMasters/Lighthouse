@@ -10,6 +10,7 @@
 #include "port/Patches/Patches.h"
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
+#include "port/GameStatus.h"
 
 #include <cstdio>
 #include <string>
@@ -57,12 +58,6 @@ int32_t selectedJiggy = JIGGY_01_MM_JINJO;
 int32_t selectedHoneycomb = HONEYCOMB_1_MM_HILL;
 int32_t selectedToken = MUMBOTOKEN_01_MM_STUMP_NEAR_CONGA;
 
-const char* mapNames[] = {
-    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",   "Freezeezy Peak",
-    "Gobi's Valley",    "Click Clock Wood",    "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
-    "Cutscene",         "Gruntilda's Lair",    "Boss Arena",
-};
-
 std::vector<int32_t> mapIdList = {
     MAP_2_MM_MUMBOS_MOUNTAIN,
     MAP_7_TTC_TREASURE_TROVE_COVE,
@@ -78,6 +73,18 @@ std::vector<int32_t> mapIdList = {
     MAP_69_GL_MM_LOBBY,
     MAP_90_GL_BATTLEMENTS,
 };
+
+static const std::vector<const char*>& warpMapNames() {
+    static const std::vector<const char*> names = [] {
+        std::vector<const char*> out;
+        out.reserve(mapIdList.size());
+        for (int32_t mapId : mapIdList) {
+            out.push_back(port_levelName(map_getLevel((enum map_e)mapId)));
+        }
+        return out;
+    }();
+    return names;
+}
 
 std::map<actor_e, std::tuple<const char*, UIWidgets::Colors, bool>> jinjoDataMap = {
     { ACTOR_5E_JINJO_YELLOW, { "Yellow Jinjo", UIWidgets::Colors::Yellow, false } },
@@ -395,7 +402,7 @@ void DrawGameplayToolsWarpList() {
     if (ImGui::BeginChild("WarpChild")) {
         ImGui::Text("Map Select ");
         ImGui::SameLine();
-        UIWidgets::Combobox("##mapSelect", &mapId, mapNames,
+        UIWidgets::Combobox("##mapSelect", &mapId, warpMapNames(),
                             { .labelPosition = UIWidgets::LabelPositions::None, .color = THEME_COLOR });
         UIWidgets::SliderInt("Exit ID", &exitId,
                              {
@@ -406,7 +413,7 @@ void DrawGameplayToolsWarpList() {
                                  .labelPosition = UIWidgets::LabelPositions::None,
                                  .color = THEME_COLOR,
                              });
-        if (UIWidgets::Button(mapNames[mapId], { .color = THEME_COLOR })) {
+        if (UIWidgets::Button(warpMapNames()[mapId], { .color = THEME_COLOR })) {
             func_8031D04C((map_e)mapIdList[mapId], exitId);
         }
 

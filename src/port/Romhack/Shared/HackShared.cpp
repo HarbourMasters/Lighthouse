@@ -3,6 +3,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
+#include "port/Enhancements/Retention/Retention.h"
 #include "HackShared.h"
 
 extern "C" {
@@ -18,8 +19,6 @@ extern s32 print_sMonospacedModeEnabled;
 extern char print_sPreviousBoldLetter;
 f32 print_calculateLetterXPos(u8 letter, f32* xPtr, f32* yPtr, f32 arg3);
 }
-
-#define CVAR_NOTE_RETENTION CVAR_ENHANCEMENT("Gameplay.NoteRetention")
 
 namespace {
 

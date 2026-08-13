@@ -6,6 +6,7 @@
 
 #include "port/Patches/Patches.h"
 #include "port/Rando/Rando.h"
+#include "port/GameStatus.h"
 #include "port/UI/Notification.h"
 
 /**
@@ -15,30 +16,18 @@
  */
 
 static const char* LevelOpenSeenFlagName(s16 flag) {
-    switch (flag) {
-        case 0x28:
-            return "Mumbo's Mountain";
-        case 0x29:
-            return "Treasure Trove Cove";
-        case 0x2A:
-            return "Clanker's Cavern";
-        case 0x2B:
-            return "Bubblegloop Swamp";
-        case 0x2C:
-            return "Freezeezy Peak";
-        case 0x2D:
-            return "Gobi's Valley";
-        case 0x2E:
-            return "Mad Monster Mansion";
-        case 0x2F:
-            return "Rusty Bucket Bay";
-        case 0x30:
-            return "Click Clock Wood";
-        case FILEPROG_E2_DOOR_OF_GRUNTY_OPEN:
-            return "the door to Gruntilda";
-        default:
-            return nullptr;
+    static const enum level_e kSeenFlagLevels[] = {
+        LEVEL_1_MUMBOS_MOUNTAIN,     LEVEL_2_TREASURE_TROVE_COVE, LEVEL_3_CLANKERS_CAVERN,
+        LEVEL_4_BUBBLEGLOOP_SWAMP,   LEVEL_5_FREEZEEZY_PEAK,      LEVEL_7_GOBIS_VALLEY,
+        LEVEL_A_MAD_MONSTER_MANSION, LEVEL_9_RUSTY_BUCKET_BAY,    LEVEL_8_CLICK_CLOCK_WOOD,
+    };
+    if (flag >= 0x28 && flag <= 0x30) {
+        return port_levelName(kSeenFlagLevels[flag - 0x28]);
     }
+    if (flag == FILEPROG_E2_DOOR_OF_GRUNTY_OPEN) {
+        return "the door to Gruntilda";
+    }
+    return nullptr;
 }
 
 void Anchor::SendPacket_SetFlag(u8 flagSpace, s16 flag) {

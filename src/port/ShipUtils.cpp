@@ -26,11 +26,36 @@ namespace fs = std::filesystem;
 
 int32_t gSelectedFileNum = 0;
 
-std::vector<std::string> worldNameList = {
-    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",
-    "Freezeezy Peak",   "Gruntilda's Lair",    "Gobi's Valley",    "Click Clock Wood",
-    "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
-};
+extern "C" {
+// Pause menu level name table; see GameStatus.cpp.
+typedef struct {
+    s16 level_id;
+    s16 x;
+    u8* string;
+} PauseLevelEntry;
+extern PauseLevelEntry D_8036C58C[0xD];
+}
+
+// The nine worlds plus the lair and Spiral Mountain, in level_e order; SaveEditor
+// indexes it by (level - 1). Built from the game's own table so the strings live in
+// one place. Static init can't see a romhack's overrides, so anything that should
+// follow those calls port_levelName() instead.
+static std::vector<std::string> BuildWorldNameList() {
+    std::vector<std::string> names;
+    for (int level = LEVEL_1_MUMBOS_MOUNTAIN; level <= LEVEL_B_SPIRAL_MOUNTAIN; level++) {
+        const char* name = "UNKNOWN LEVEL";
+        for (int i = 0; i < 0xD; i++) {
+            if (D_8036C58C[i].level_id == level) {
+                name = (const char*)D_8036C58C[i].string;
+                break;
+            }
+        }
+        names.emplace_back(name);
+    }
+    return names;
+}
+
+std::vector<std::string> worldNameList = BuildWorldNameList();
 
 std::vector<std::string> abilityNameList = { "Beak Barge", "Beak Bomb",   "Beak Buster",  "Camera Control",
                                              "Claw Swipe", "Climb",       "Eggs",         "Feathery Flap",

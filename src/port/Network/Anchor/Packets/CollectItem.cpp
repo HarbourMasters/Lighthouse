@@ -7,11 +7,7 @@
 
 #include "functions.h"
 #include "port/ShipUtils.h"
-
-static const char* const kJiggyLevelNames[10] = {
-    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp", "Freezeezy Peak",
-    "Gruntilda's Lair", "Gobi's Valley",       "Click Clock Wood", "Rusty Bucket Bay",  "Mad Monster Mansion",
-};
+#include "port/GameStatus.h"
 
 /**
  * COLLECT_ITEM
@@ -54,10 +50,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
                     code_73640_printItemCount(ITEM_26_JIGGY_TOTAL);
                 }
                 if (!IS_RANDO && ShouldShowNotifications()) {
-                    size_t levelIdx = (size_t)(id - 1) / 10;
-                    const char* where = levelIdx < (sizeof(kJiggyLevelNames) / sizeof(kJiggyLevelNames[0]))
-                                            ? kJiggyLevelNames[levelIdx]
-                                            : "an unknown level";
+                    const char* where = port_levelName((enum level_e)((id - 1) / 10 + 1));
                     Notification::Emit({
                         .prefix = GetClientName(payload.value("clientId", 0u)),
                         .message = "collected Jiggy #" + std::to_string(((id - 1) % 10) + 1) + " in " + where,
