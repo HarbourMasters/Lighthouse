@@ -38,13 +38,6 @@ void FrameInterpolation_RecordCloseChild(void);
 uintptr_t FrameInterpolation_Hash3(uint64_t a, uint64_t b, uint64_t c);
 void FrameInterpolation_RecordOpenChildHash3(const char* key, uint64_t a, uint64_t b, uint64_t c);
 
-// Safe float->u32 for feeding into Hash3.
-static inline uint64_t FrameInterpolation_FloatBits(float f) {
-    uint32_t u;
-    memcpy(&u, &f, sizeof(u));
-    return (uint64_t)u;
-}
-
 // Final matrix output of a mlMtxApply — the only matrix event replay needs.
 void FrameInterpolation_RecordMatrixToMtx(void* dst, const float src[4][4]);
 

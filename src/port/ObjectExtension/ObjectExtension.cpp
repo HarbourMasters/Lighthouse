@@ -20,6 +20,3 @@ void ObjectExtension::Free(const void* object) {
     });
 }
 
-extern "C" void ObjectExtension_Free(const void* object) {
-    ObjectExtension::GetInstance().Free(object);
-}

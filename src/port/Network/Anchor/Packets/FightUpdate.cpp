@@ -52,11 +52,6 @@ void Anchor::SendPacket_FightUpdate(const f32 pos[3], f32 yaw, s32 state, s32 ph
     SendToCurrentMapPlayers(payload);
 }
 
-extern "C" void FightSync_SendUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror,
-                                     int32_t vuln) {
-    Anchor::GetInstance()->SendPacket_FightUpdate(pos, yaw, state, phase, mirror, vuln);
-}
-
 void Anchor::HandlePacket_FightUpdate(nlohmann::json& payload) {
     if (gsworld_getMap() != MAP_90_GL_BATTLEMENTS) {
         return;

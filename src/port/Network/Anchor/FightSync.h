@@ -70,7 +70,6 @@ bool chjinjonatorbase_netGetPads(uint8_t pads[4]);
 
 // --- C -> network (bridges implemented in the packet .cpp files) -----------------------
 
-void FightSync_SendUpdate(const float pos[3], float yaw, int32_t state, int32_t phase, int32_t mirror, int32_t vuln);
 // v0/v1/v2 may be NULL for events that carry no vectors.
 void FightSync_SendEvent(int32_t ev, int32_t a, int32_t b, const float v0[3], const float v1[3], const float v2[3]);
 void FightSync_SendSnapshot(uint32_t clientId);

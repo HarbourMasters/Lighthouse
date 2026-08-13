@@ -20,7 +20,6 @@ extern int32_t randoFinalSeed;
 extern std::map<ability_e, std::pair<const char*, const char*>> abilityLoadoutMap;
 extern std::map<item_e, std::pair<const char*, const char*>> itemLoadoutMap;
 extern std::vector<file_progress_e> progressLoadout;
-extern std::vector<RandoCheckId> smRandoCheckIdList;
 
 extern Rando::StaticData::RandoLogicData reachableRegions[RR_MAX];
 extern Rando::StaticData::RandoLogicData reachableEvents[RA_MAX];
@@ -57,7 +56,6 @@ void InitializeSaveData(SaveData* saveData);
 void GenerateSaveData(SaveData* saveData);
 void GrantStartingLoadout();
 void GrantFileProgressFlags();
-void GrantSpiralMountainChecks();
 
 void RefreshReachableRegions();
 
@@ -90,19 +88,6 @@ inline RandoSaveCheck GetShuffledObject(RandoCheckId randoCheckId) {
     }
 
     return shuffledObject;
-}
-
-inline bool IsCheckObtained(RandoCheckId randoCheckId) {
-    bool isObtained = false;
-
-    for (auto& object : shuffledPool) {
-        if (object.randoCheckId == randoCheckId) {
-            isObtained = object.obtained;
-            break;
-        }
-    }
-
-    return isObtained;
 }
 
 inline bool ShouldSpawnJinjoJiggy(int16_t levelId) {

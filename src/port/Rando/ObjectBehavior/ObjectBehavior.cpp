@@ -200,14 +200,6 @@ void Rando::StaticData::SendRemoteCheckNotification(RandoCheckId randoCheckId, c
     EmitCheckNotification(randoCheckId, collectorName);
 };
 
-bool ShouldOverrideSpawn(RandoCheckId randoCheckId) {
-    if (Rando::Logic::IsCheckShuffled(randoCheckId)) {
-        return true;
-    }
-
-    return false;
-}
-
 bool CheckEnemyOverlapPosition(int32_t pos[3]) {
     level_e levelId = map_getLevel(gsworld_getMap());
     bool enemyOverlap = false;

@@ -56,16 +56,11 @@ public:
                             size_t frameCount);
     static void Destroy();
     static uint32_t GetInterpolationFPS();
-    static uint32_t GetInterpolationFrameCount();
     static bool IsInterpolationEnabled();
     static void SetInterpolationRecorded(bool recorded);
     static void ProcessGfxCommands(Gfx* commands);
     static ImFont* CreateFontWithSize(float size, std::string fontPath);
     static void ScaleImGui();
-
-    static void ShowMessage(const char* title, const char* message, SDL_MessageBoxFlags type = SDL_MESSAGEBOX_ERROR);
-    static bool HasVersion(BKVersion ver);
-    static std::vector<BKVersion> GetAvailableVersions();
 };
 
 Fast::Interpreter* GameEngine_GetInterpreter();
@@ -80,7 +75,6 @@ extern "C" {
 
 void* GameEngine_Malloc(size_t size);
 void GameEngine_Free(void* ptr);
-bool GameEngine_HasVersion(BKVersion ver);
 float GameEngine_GetAspectRatio();
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
@@ -88,7 +82,6 @@ int16_t OTRGetRectDimensionFromLeftEdge(float v);
 int16_t OTRGetRectDimensionFromRightEdge(float v);
 uint32_t OTRGetGameRenderWidth();
 uint32_t OTRGetGameRenderHeight();
-uint32_t GameEngine_GetInterpolationFrameCount();
 
 #ifdef __cplusplus
 }

@@ -1039,20 +1039,11 @@ bool CVarInputInt(const char* label, const char* cvarName, const InputOptions& o
 bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaultColor, bool hasAlpha = false,
                      uint8_t modifiers = 0, UIWidgets::Colors themeColor = UIWidgets::Colors::LightBlue);
 bool RadioButton(const char* label, bool active);
-bool CVarRadioButton(const char* text, const char* cvarName, int32_t id, const RadioButtonsOptions& options);
 bool StateButton(const char* str_id, const char* label, ImVec2 size, UIWidgets::ButtonOptions options,
                  ImGuiButtonFlags flags = ImGuiButtonFlags_None);
-void DrawFlagArray32(const std::string& name, uint32_t& flags, Colors color = Colors::LightBlue);
-void DrawFlagArray16(const std::string& name, uint16_t& flags, Colors color = Colors::LightBlue);
-void DrawFlagArray8(const std::string& name, uint8_t& flags, Colors color = Colors::LightBlue);
-void DrawFlagArray8Mask(const std::string& name, uint8_t& flags, Colors color = Colors::LightBlue);
-
-void InsertHelpHoverText(const std::string& text);
-void InsertHelpHoverText(const char* text);
 } // namespace UIWidgets
 ImVec4 GetRandomValue();
 
-Color_RGBA8 RGBA8FromVec(ImVec4 vec);
 ImVec4 VecFromRGBA8(Color_RGBA8 color);
 
 #endif /* UIWidgets_hpp */

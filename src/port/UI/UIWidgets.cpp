@@ -238,27 +238,6 @@ void Separator(bool padTop, bool padBottom, float extraVerticalTopPadding, float
     }
 }
 
-// Adds a "?" next to the previous ImGui item with a custom tooltip
-void InsertHelpHoverText(const std::string& text) {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "?");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", WrappedText(text, 60).c_str());
-        ImGui::EndTooltip();
-    }
-}
-
-void InsertHelpHoverText(const char* text) {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "?");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", WrappedText(text, 60).c_str());
-        ImGui::EndTooltip();
-    }
-}
-
 void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash) {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
@@ -1028,130 +1007,6 @@ bool RadioButton(const char* label, bool active, const RadioButtonsOptions& opti
     return pressed;
 }
 
-bool CVarRadioButton(const char* text, const char* cvarName, int32_t id, const RadioButtonsOptions& options) {
-    std::string make_invisible = "##" + std::string(text) + std::string(cvarName);
-
-    bool ret = false;
-    int val = CVarGetInteger(cvarName, options.defaultIndex);
-    PushStyleCheckbox(options.color);
-    if (ImGui::RadioButton(make_invisible.c_str(), id == val)) {
-        CVarSetInteger(cvarName, id);
-        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        ret = true;
-    }
-    ImGui::SameLine();
-    ImGui::Text("%s", text);
-    PopStyleCheckbox();
-    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
-    }
-
-    return ret;
-}
-
-void DrawFlagArray32(const std::string& name, uint32_t& flags, Colors color) {
-    ImGui::PushID(name.c_str());
-    for (int32_t flagIndex = 0; flagIndex < 32; flagIndex++) {
-        if ((flagIndex % 8) != 0) {
-            ImGui::SameLine();
-        }
-        ImGui::PushID(flagIndex);
-        uint32_t bitMask = 1 << flagIndex;
-        bool flag = (flags & bitMask) != 0;
-        PushStyleCheckbox(color);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 3.0f));
-        std::string id = fmt::format("##{}{}", name, flagIndex);
-        if (ImGui::Checkbox(id.c_str(), &flag)) {
-            if (flag) {
-                flags |= bitMask;
-            } else {
-                flags &= ~bitMask;
-            }
-        }
-        ImGui::PopStyleVar();
-        PopStyleCheckbox();
-        ImGui::PopID();
-    }
-    ImGui::PopID();
-}
-
-void DrawFlagArray16(const std::string& name, uint16_t& flags, Colors color) {
-    ImGui::PushID(name.c_str());
-    for (int16_t flagIndex = 0; flagIndex < 16; flagIndex++) {
-        if ((flagIndex % 8) != 0) {
-            ImGui::SameLine();
-        }
-        ImGui::PushID(flagIndex);
-        uint16_t bitMask = 1 << flagIndex;
-        bool flag = (flags & bitMask) != 0;
-        PushStyleCheckbox(color);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 3.0f));
-        std::string id = fmt::format("##{}{}", name, flagIndex);
-        if (ImGui::Checkbox(id.c_str(), &flag)) {
-            if (flag) {
-                flags |= bitMask;
-            } else {
-                flags &= ~bitMask;
-            }
-        }
-        ImGui::PopStyleVar();
-        PopStyleCheckbox();
-        ImGui::PopID();
-    }
-    ImGui::PopID();
-}
-
-void DrawFlagArray8(const std::string& name, uint8_t& flags, Colors color) {
-    ImGui::PushID(name.c_str());
-    for (int8_t flagIndex = 0; flagIndex < 8; flagIndex++) {
-        if ((flagIndex % 8) != 0) {
-            ImGui::SameLine();
-        }
-        ImGui::PushID(flagIndex);
-        uint8_t bitMask = 1 << flagIndex;
-        bool flag = (flags & bitMask) != 0;
-        PushStyleCheckbox(color);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 3.0f));
-        std::string id = fmt::format("##{}{}", name, flagIndex);
-        if (ImGui::Checkbox(id.c_str(), &flag)) {
-            if (flag) {
-                flags |= bitMask;
-            } else {
-                flags &= ~bitMask;
-            }
-        }
-        ImGui::PopStyleVar();
-        PopStyleCheckbox();
-        ImGui::PopID();
-    }
-    ImGui::PopID();
-}
-
-void DrawFlagArray8Mask(const std::string& name, uint8_t& flags, Colors color) {
-    ImGui::PushID(name.c_str());
-    for (int8_t flagIndex = 0; flagIndex < 8; flagIndex++) {
-        if ((flagIndex % 8) != 0) {
-            ImGui::SameLine();
-        }
-        ImGui::PushID(flagIndex);
-        uint8_t bitMask = 1 << flagIndex;
-        bool flag = (flags & bitMask) != 0;
-        PushStyleCheckbox(color);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 3.0f));
-        std::string id = fmt::format("##{}{}", name, flagIndex);
-        if (ImGui::Checkbox(id.c_str(), &flag)) {
-            if (flag) {
-                flags |= bitMask;
-            } else {
-                flags &= ~bitMask;
-            }
-        }
-        ImGui::PopStyleVar();
-        PopStyleCheckbox();
-        ImGui::PopID();
-    }
-    ImGui::PopID();
-}
 } // namespace UIWidgets
 
 ImVec4 GetRandomValue() {
@@ -1169,12 +1024,6 @@ ImVec4 GetRandomValue() {
     NewColor.y = (float)(dist(rng)) / 255.0f;
     NewColor.z = (float)(dist(rng)) / 255.0f;
     return NewColor;
-}
-
-Color_RGBA8 RGBA8FromVec(ImVec4 vec) {
-    Color_RGBA8 color = { static_cast<uint8_t>(vec.x * 255), static_cast<uint8_t>(vec.y * 255),
-                          static_cast<uint8_t>(vec.z * 255), static_cast<uint8_t>(vec.w * 255) };
-    return color;
 }
 
 ImVec4 VecFromRGBA8(Color_RGBA8 color) {

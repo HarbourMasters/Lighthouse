@@ -111,6 +111,4 @@ template <typename T> ObjectExtension::Id ObjectExtension::Register<T>::Id = Obj
 
 #else // __cplusplus
 
-void ObjectExtension_Free(const void* object);
-
 #endif // __cplusplus

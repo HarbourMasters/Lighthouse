@@ -19,7 +19,3 @@ static struct AudioState {
         shutdown();
     }
 } audio;
-
-inline void AudioExit() {
-    audio.shutdown();
-}

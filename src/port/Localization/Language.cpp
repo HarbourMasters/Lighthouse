@@ -245,10 +245,6 @@ std::vector<std::string> GetAvailableLanguageNames() {
     return names;
 }
 
-std::string GetActiveLanguage() {
-    return sActiveLanguage;
-}
-
 // Localize a hardcoded UI string: returns the active pack's translation of `english`,
 // or `english` itself when the pack doesn't override it (or no pack is active). The
 // returned pointer is valid until the language changes; callers pass string literals.

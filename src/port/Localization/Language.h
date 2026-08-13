@@ -24,9 +24,6 @@ std::vector<std::string> GetAvailableLanguageNames();
 // the next dialog. No-op if the name isn't currently available.
 void SetActiveLanguage(const std::string& name);
 
-// Display name of the active language.
-std::string GetActiveLanguage();
-
 // Number of available dialog languages (base + packs).
 int GetAvailableLanguageCount();
 
