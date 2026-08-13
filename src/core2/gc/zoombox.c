@@ -612,7 +612,7 @@ void func_8031594C(GcZoombox * this, u8 *str, s32 arg2, s32 arg3){
      s0 = arg2;
      s4 = this;
      s1 = 0;
-     f22 = (this->portrait_id == ZOOMBOX_SPRITE_5F_TOOTY_4) ? 0.4 : 0.8;
+     f22 = (this->portrait_id == ZOOMBOX_SPRITE_5F_SEXY_GRUNTY) ? 0.4 : 0.8;
 
      // [port] The zoombox draws from the shared gameplay RNG, and these two calls are a
      // save/restore of the whole state around that.
@@ -677,7 +677,7 @@ void func_8031594C(GcZoombox * this, u8 *str, s32 arg2, s32 arg3){
 u8 func_80315BC0(GcZoombox *this, enum sfx_e sfx_id, s32 arg2){
      u8 sp1F = func_8030ED2C(sfx_id, arg2) & 0xff;
      func_8030DD90(sp1F, 0);
-     if(this->portrait_id == ZOOMBOX_SPRITE_66_LOCKUP){
+     if(this->portrait_id == ZOOMBOX_SPRITE_66_GRUNTILDA_4){
           func_8030DCCC(sp1F, 0x40);
      }
      return sp1F;
