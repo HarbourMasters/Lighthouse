@@ -46,7 +46,7 @@ static std::string SanitizeFilename(const std::string& name) {
 
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
-} // namespace SohGui
+} // namespace LighthouseGui
 
 struct PresetInfo {
     nlohmann::json presetValues;
@@ -111,15 +111,15 @@ void applyPreset(std::string presetName, std::vector<PresetSection> includeSecti
                 continue;
             }
             if (i == PRESET_SECTION_TRACKERS) {
-                //ItemTracker_LoadFromPreset(info.presetValues["blocks"][blockInfo[i].names[1]]["windows"]);
+                // ItemTracker_LoadFromPreset(info.presetValues["blocks"][blockInfo[i].names[1]]["windows"]);
                 if (info.presetValues["blocks"][blockInfo[i].names[1]]["windows"].contains("Check Tracker")) {
                     Rando::CheckTracker::LoadFromPreset(
                         info.presetValues["blocks"][blockInfo[i].names[1]]["windows"]["Check Tracker"]);
                 }
-                //if (info.presetValues["blocks"][blockInfo[i].names[1]]["windows"].contains("Entrance Tracker")) {
-                //    EntranceTracker::LoadFromPreset(
-                //        info.presetValues["blocks"][blockInfo[i].names[1]]["windows"]["Entrance Tracker"]);
-                //}
+                // if (info.presetValues["blocks"][blockInfo[i].names[1]]["windows"].contains("Entrance Tracker")) {
+                //     EntranceTracker::LoadFromPreset(
+                //         info.presetValues["blocks"][blockInfo[i].names[1]]["windows"]["Entrance Tracker"]);
+                // }
             }
             auto section = info.presetValues["blocks"][blockInfo[i].names[1]];
             std::string sectionStrategy = "overwrite";
@@ -147,11 +147,11 @@ void applyPreset(std::string presetName, std::vector<PresetSection> includeSecti
                     Ship::Context::GetRawInstance()->GetConsoleVariables()->Load();
                 }
             }
-            //if (i == PRESET_SECTION_RANDOMIZER) {
-            //    Rando::Settings::GetInstance()->UpdateAllOptions();
-            //    LighthouseGui::UpdateMenuTricks();
-            //    SohGui::UpdateMenuLocations();
-            //}
+            // if (i == PRESET_SECTION_RANDOMIZER) {
+            //     Rando::Settings::GetInstance()->UpdateAllOptions();
+            //     LighthouseGui::UpdateMenuTricks();
+            //     SohGui::UpdateMenuLocations();
+            // }
         }
     }
     ShipInit::InitAll();
@@ -346,37 +346,37 @@ void DrawEditPresetPopup() {
             }
         }
         if (saveSection[PRESET_SECTION_TRACKERS]) {
-            //for (auto id : itemTrackerWindowIDs) {
-            //    auto window = ImGui::FindWindowByName(id);
-            //    if (window != nullptr) {
-            //        auto size = window->Size;
-            //        auto pos = window->Pos;
-            //        presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
-            //                                           ["windows"][id]["size"]["width"] = size.x;
-            //        presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
-            //                                           ["windows"][id]["size"]["height"] = size.y;
-            //        presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
-            //                                           ["windows"][id]["pos"]["x"] = pos.x;
-            //        presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
-            //                                           ["windows"][id]["pos"]["y"] = pos.y;
-            //    }
-            //}
+            // for (auto id : itemTrackerWindowIDs) {
+            //     auto window = ImGui::FindWindowByName(id);
+            //     if (window != nullptr) {
+            //         auto size = window->Size;
+            //         auto pos = window->Pos;
+            //         presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
+            //                                            ["windows"][id]["size"]["width"] = size.x;
+            //         presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
+            //                                            ["windows"][id]["size"]["height"] = size.y;
+            //         presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
+            //                                            ["windows"][id]["pos"]["x"] = pos.x;
+            //         presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]
+            //                                            ["windows"][id]["pos"]["y"] = pos.y;
+            //     }
+            // }
 
-            //auto window = ImGui::FindWindowByName("Entrance Tracker");
-            //if (window != nullptr) {
-            //    auto size = window->Size;
-            //    auto pos = window->Pos;
-            //    presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
-            //                                       ["Entrance Tracker"]["size"]["width"] = size.x;
-            //    presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
-            //                                       ["Entrance Tracker"]["size"]["height"] = size.y;
-            //    presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
-            //                                       ["Entrance Tracker"]["pos"]["x"] = pos.x;
-            //    presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
-            //                                       ["Entrance Tracker"]["pos"]["y"] = pos.y;
-            //}
+            // auto window = ImGui::FindWindowByName("Entrance Tracker");
+            // if (window != nullptr) {
+            //     auto size = window->Size;
+            //     auto pos = window->Pos;
+            //     presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
+            //                                        ["Entrance Tracker"]["size"]["width"] = size.x;
+            //     presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
+            //                                        ["Entrance Tracker"]["size"]["height"] = size.y;
+            //     presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
+            //                                        ["Entrance Tracker"]["pos"]["x"] = pos.x;
+            //     presets[newPresetName].presetValues["blocks"][blockInfo[PRESET_SECTION_TRACKERS].names[1]]["windows"]
+            //                                        ["Entrance Tracker"]["pos"]["y"] = pos.y;
+            // }
 
-            //auto window = ImGui::FindWindowByName("Entrance Tracker");
+            // auto window = ImGui::FindWindowByName("Entrance Tracker");
             auto window = ImGui::FindWindowByName("Check Tracker");
             if (window != nullptr) {
                 auto size = window->Size;

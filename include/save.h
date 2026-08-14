@@ -6,6 +6,7 @@
 typedef enum {
     FILE_TYPE_SAVE_VANILLA,
     FILE_TYPE_SAVE_RANDO,
+    FILE_TYPE_PRESET,
 } FileType;
 
 typedef struct {

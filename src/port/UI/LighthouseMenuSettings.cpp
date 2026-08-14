@@ -76,6 +76,44 @@ static const std::unordered_map<int32_t, const char*> saveConvertSlotLabels = {
 
 static int32_t sAppliedControlScheme = -1;
 
+static void DrawResetAll(WidgetInfo& info) {
+    static bool pressed = false;
+    bool lastPressed = pressed;
+    if (UIWidgets::Button("Reset All Options", UIWidgets::ButtonOptions().Color(WIDGET_COLOR))) {
+        if (pressed) {
+            pressed = false;
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_SETTING);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_ENHANCEMENT);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_AUDIO);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_COSMETIC);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_CHEAT);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_REMOTE);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_DEVELOPER_TOOLS);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_RANDOMIZER_SETTING);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_RANDOMIZER_ENHANCEMENT);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_GAMEPLAY_STATS);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_TIME_DISPLAY);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_TRACKER);
+            Ship::Context::GetRawInstance()->GetConsoleVariables()->ClearBlock(CVAR_PREFIX_WINDOW);
+        } else {
+            pressed = true;
+        }
+    }
+    if (ImGui::IsItemHovered()) {
+        if (ImGui::BeginTooltip()) {
+            ImGui::Text("Resets all menu options to their default state.\nPress twice to activate.");
+            if (lastPressed) {
+                ImGui::TextColored(
+                    ImVec4(0.9f, 0.0f, 0.0f, 1.0f),
+                    "PRESSED ONCE. PRESS AGAIN TO RESET EVERYTHING.\nTHIS IS UNRECOVERABLE WITHOUT PRESETS.");
+            }
+            ImGui::EndTooltip();
+        }
+    } else {
+        pressed = false;
+    }
+}
+
 void LighthouseMenu::AddMenuSettings() {
     // Add Settings Menu
     AddMenuEntry("Settings", CVAR_SETTING("Menu.SettingsSidebarSection"));
@@ -106,6 +144,7 @@ void LighthouseMenu::AddMenuSettings() {
             "Sets the opacity of the background of the port menu."));
 
     AddWidget(path, "General Settings", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Reset All Options", WIDGET_CUSTOM).CustomFunction(DrawResetAll);
     AddWidget(path, "Cursor Always Visible", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_SETTING("CursorVisibility"))
         .RaceDisable(false)

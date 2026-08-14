@@ -21,7 +21,7 @@
         79, 0, 221, 255    \
     }
 
-#define CVAR_NAME_SHOW_CHECK_TRACKER "gWindows.CheckTracker"
+#define CVAR_NAME_SHOW_CHECK_TRACKER CVAR_WINDOW("CheckTracker")
 #define CVAR_NAME_ENABLE_FLOATING_WINDOW "gRando.CheckTracker.Floating"
 #define CVAR_NAME_CHECK_TRACKER_OPACITY "gRando.CheckTracker.Opacity"
 #define CVAR_NAME_CHECK_TRACKER_SCALE "gRando.CheckTracker.Scale"
@@ -89,6 +89,10 @@ float collectedChecksScale = 1.0f;
 std::string totalCheckCount;
 int32_t worldCollected = 0;
 int32_t worldTotalShuffled = 0;
+
+static bool presetLoaded = false;
+static ImVec2 presetPos;
+static ImVec2 presetSize;
 
 bool expandToggle = true;
 bool expandState = true;
@@ -264,6 +268,12 @@ namespace Rando {
 
 namespace CheckTracker {
 
+void LoadFromPreset(const nlohmann::json& info) {
+    presetLoaded = true;
+    presetPos = { info.at("pos").at("x"), info.at("pos").at("y") };
+    presetSize = { info.at("size").at("width"), info.at("size").at("height") };
+}
+
 void CheckTrackerWindow::Draw() {
     if (!CVAR_SHOW_CHECK_TRACKER) {
         return;
@@ -275,7 +285,13 @@ void CheckTrackerWindow::Draw() {
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
 
-    ImGui::SetNextWindowSize(ImVec2(485.0f, 500.0f), ImGuiCond_FirstUseEver);
+    if (presetLoaded) {
+        ImGui::SetNextWindowSize(presetSize);
+        ImGui::SetNextWindowPos(presetPos);
+        presetLoaded = false;
+    } else {
+        ImGui::SetNextWindowSize(ImVec2(485.0f, 500.0f), ImGuiCond_FirstUseEver);
+    }
 
     if (CVAR_SHOW_COLLECTED_CHECKS && CVAR_SHOW_SEPARATE_COLLECTED_CHECKS) {
         DrawCheckTrackerCount();
@@ -308,14 +324,14 @@ void SettingsWindow::DrawElement() {
         windowFlags |= ImGuiWindowFlags_NoTitleBar;
     }
 
-    if (CVarGetInteger("gWindows.CheckTracker", 0)) {
+    if (CVarGetInteger(CVAR_WINDOW("CheckTracker"), 0)) {
         checkTrackerPopoutState = true;
-        UIWidgets::WindowButton("Return Check Tracker", "gWindows.CheckTracker",
+        UIWidgets::WindowButton("Return Check Tracker", CVAR_WINDOW("CheckTracker"),
                                 LighthouseGui::mRandoCheckTrackerWindow,
                                 { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::Red });
     } else {
         checkTrackerPopoutState = false;
-        UIWidgets::WindowButton("Popout Check Tracker", "gWindows.CheckTracker",
+        UIWidgets::WindowButton("Popout Check Tracker", CVAR_WINDOW("CheckTracker"),
                                 LighthouseGui::mRandoCheckTrackerWindow,
                                 { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::Green });
     }
@@ -439,7 +455,7 @@ void SettingsWindow::DrawElement() {
 }
 
 void Init() {
-    checkTrackerPopoutState = CVarGetInteger("gWindows.CheckTracker", 0);
+    checkTrackerPopoutState = CVarGetInteger(CVAR_WINDOW("CheckTracker"), 0);
     checkTrackerBG = { 0, 0, 0, CVAR_CHECK_TRACKER_OPACITY };
     collectedChecksBG = { 0, 0, 0, CVAR_COLLECTED_CHECKS_OPACITY };
     checkTrackerScale = CVAR_CHECK_TRACKER_SCALE;

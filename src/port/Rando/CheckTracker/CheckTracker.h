@@ -3,12 +3,14 @@
 
 #include "port/Rando/Rando.h"
 #include <ship/window/gui/GuiWindow.h>
+#include <nlohmann/json.hpp>
 
 namespace Rando {
 
 namespace CheckTracker {
 
 void Init();
+void LoadFromPreset(const nlohmann::json& info);
 
 class CheckTrackerWindow : public Ship::GuiWindow {
 public:
