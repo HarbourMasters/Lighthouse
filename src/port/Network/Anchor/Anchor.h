@@ -233,7 +233,7 @@ public:
     void SendPacket_DamagePlayer(u32 clientId, u8 damageEffect, u8 damage);
     void SendPacket_EntranceDiscovered(u16 entranceIndex);
     void SendPacket_GameComplete();
-    void SendPacket_GiveItem(u16 modId, s16 getItemId);
+    void SendPacket_GiveItem(s32 randoItemId);
     void SendPacket_Handshake();
     void SendPacket_MapLoad(GameMap map, s32 exit);
     void SendPacket_PlayerAnimChange(AssetID anim_id, f32 duration, AnimControl control, f32 start_position,
