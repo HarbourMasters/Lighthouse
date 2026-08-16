@@ -1,7 +1,7 @@
 #include <cstring>
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "Storybook.h"
+#include "HackShared.h"
 
 extern "C" {
 #include "enums.h"

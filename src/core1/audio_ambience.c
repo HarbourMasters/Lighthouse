@@ -198,6 +198,12 @@ void core1_ce60_func_8024AF48(void) {
         return;
     }
 
+    // [port] Romhack gate: false = a listener replaced the whole per-map ambience
+    // switch. sPlayerPosition/sTrackId are file-static, so pass them through.
+    if (!EventSystem_Should(VB_AMBIENCE_MAP_UPDATE, true, sPlayerPosition, sTrackId)) {
+        return;
+    }
+
     player_getPosition_s32(sPlayerPosition);
     core1_ce60_func_8024AAB0();
 

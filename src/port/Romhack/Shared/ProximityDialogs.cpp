@@ -1,6 +1,6 @@
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "ProximityDialogs.h"
+#include "HackShared.h"
 
 extern "C" {
 #include "enums.h"

@@ -11,6 +11,7 @@
 #include "core2/ba/physics.h"
 
 #include "core2/snackerctl.h"
+#include "port/ShipUtils.h"
 
 extern bool player_isInHorizontalRadius(f32[3], f32);
 extern bool player_isInVerticalRange(f32[3], f32);
@@ -209,6 +210,15 @@ void func_8028E4B0(void) {
         sp20 = func_8028E440(sp24);
         if (sp20 != -1) {
             func_8028E0F0(sp20, sp24);
+        } else {
+            // [port] Neither the requested exit nor the any-entry fallback resolved, so
+            // the player is left at the (-16000)^3 default and will void endlessly.
+            // File select legitimately has no entries (and no player) - skip it.
+            if (gsworld_getMap() != MAP_91_FILE_SELECT) {
+                BK_LOG_DEBUG("[spawn] map 0x%02X exit 0x%02X has no entry-point props - "
+                             "player left at the void default position",
+                             gsworld_getMap(), gsworld_getExit());
+            }
         }
     }
     if (D_80363694 != 0) {

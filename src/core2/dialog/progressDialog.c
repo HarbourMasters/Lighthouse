@@ -79,6 +79,11 @@ static s32 __findIndex(MapProgressFlagToDialogID *map, s32 key) {
 s32 showProgressFlagDialog(enum file_progress_e progress_flag, s32 arg1) {
     s32 index;
 
+    // [port] Romhack gate: false = suppress every progress-flag dialog (flag stays unset).
+    if (!EventSystem_Should(VB_PROGRESS_FLAG_DIALOG, true, progress_flag)) {
+        return 0;
+    }
+
     if (fileProgressFlag_get(progress_flag) != 0) {
         return 0;
     } else {

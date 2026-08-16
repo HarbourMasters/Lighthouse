@@ -35,6 +35,7 @@ u32 port_jiggyscore_isCollectedRaw(enum jiggy_e jiggy_id);
 bool port_honeycombscore_getRaw(enum honeycomb_e indx);
 
 // SPDLOG level wrappers callable from C
+void BK_LOG_DEBUG(const char* fmt, ...);
 void BK_LOG_INFO(const char* fmt, ...);
 void BK_LOG_WARN(const char* fmt, ...);
 void BK_LOG_ERROR(const char* fmt, ...);

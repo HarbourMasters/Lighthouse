@@ -4,11 +4,11 @@
  */
 
 #include <libultraship/bridge.h>
+#include <cmath>
+
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/Shared/HackShared.h"
-#include "port/Romhack/Shared/Storybook.h"
-#include "port/Romhack/Shared/ProximityDialogs.h"
-#include "port/Romhack/Shared/StealthNoise.h"
 
 extern "C" {
 #include "enums.h"
@@ -17,8 +17,10 @@ extern "C" {
 #include "actor.h"
 #include "core1/ml.h"
 #include "core2/timedfunc.h"
+#include "core2/modelRender.h"
 #include "bk_time.h"
 
+extern ActorInfo chLargeCrocodile;
 extern f32 D_8037C5B0[3];
 extern PfsManagerControllerData D_80281138[4];
 extern f32 cameraPosition[3];
@@ -59,6 +61,7 @@ constexpr int kGruntchSuppressedDialogs[] = {
     ASSET_D9F_DIALOG_RED_FEATHER_MEET,
     ASSET_DA0_DIALOG_GOLD_FEATHER_MEET,
     ASSET_DA1_DIALOG_HONEYCOMB_MEET,
+    ASSET_DA2_DIALOG_EMPTY_HONEYCOMB_MEET,
 };
 
 // ---------------------------------------------------------- Proximity dialogs
@@ -171,7 +174,12 @@ static bool GruntchDialogGate15() {
     return true;
 }
 
+static bool Gruntch_HeadHasNoticedPlayer();
+
 static bool GruntchDialogGate1B() {
+    if (!Gruntch_HeadHasNoticedPlayer()) {
+        return false;
+    }
     if (ProximityDialogs_IsShown(1, 0xC000) && player_isStable()) {
         f32 reArm[3] = { 0.0f, 720.0f, -360.0f };
         if (ml_vec3f_distance(reArm, D_8037C5B0) < 170.0f && D_80281138[0].face_button[1] == 1) {
@@ -248,117 +256,6 @@ static void Gruntch_EnableConditionalActors() {
     COND_VB_SHOULD(VB_BOGGY_HOME_VISIBLE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, { *should = true; });
 }
 
-// --------------------------------------------------------------- Mumbo reward
-namespace {
-constexpr f32 kJiggyDelay = 4.15f;
-constexpr f32 kStateDelay = 3.85f;
-constexpr f32 kStateValue = 1.1f;
-constexpr f32 kCameraReleaseDelay = 0.5f;
-constexpr s32 kRewardJiggy = 3;
-constexpr s32 kCameraMotor = 1;
-constexpr s32 kLeaveHutText = 0xA7E;
-constexpr s32 kLeaveHutFlags = 0x02;
-
-f32 sJiggyPos[3] = { 0.0f, 500.0f, -95.0f };
-f32 sMumboState = 0.0f;
-bool sMumboRewardEnabled = false;
-bool sLeaveHutPending = false;
-
-void MumboReward_spawnJiggy() {
-    jiggy_spawn((enum jiggy_e)kRewardJiggy, sJiggyPos);
-    func_802BB3DC(kCameraMotor, 3.0f, 1.0f);
-    timedFunc_set_1(kCameraReleaseDelay, (GenFunction_1)func_802BB41C, kCameraMotor);
-}
-
-void MumboReward_setState() {
-    sMumboState = kStateValue;
-}
-} // namespace
-
-extern "C" s32 romhack_mumboTransform(s32 transformId) {
-    if (!sMumboRewardEnabled || gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL) {
-        return player_transform((enum transformation_e)transformId);
-    }
-    timedFunc_set_0(kJiggyDelay, MumboReward_spawnJiggy);
-    timedFunc_set_0(kStateDelay, MumboReward_setState);
-    sLeaveHutPending = true;
-    return 1;
-}
-
-extern "C" s32 romhack_mumboWishwashyId(void) {
-    return sMumboRewardEnabled ? 9 : TRANSFORM_7_WISHWASHY;
-}
-
-extern "C" s32 romhack_mumboRandomEventsAllowed(void) {
-    return sMumboRewardEnabled ? 0 : 1;
-}
-
-// Mumbo's reward shows a static camera
-namespace {
-constexpr f32 kPanPosition[3] = { -250.0f, 194.0f, 147.0f };
-constexpr f32 kPanRotation[3] = { 35.0f, 315.0f, 0.0f };
-
-bool sPanSaved = false;
-f32 sPanSavedPosition[3];
-f32 sPanSavedRotation[3];
-
-void MumboReward_updatePendingDialog() {
-    if (!sLeaveHutPending) {
-        return;
-    }
-    const s32 state = bs_getState();
-    if (state == BS_74_UNKNOWN || state == BS_20_LANDING || state == BS_44_JIG_JIGGY) {
-        return;
-    }
-    gcdialog_showDialog(kLeaveHutText, kLeaveHutFlags, NULL, NULL, NULL, NULL);
-    sLeaveHutPending = false;
-}
-
-void MumboReward_updateCamera() {
-    if (!sMumboRewardEnabled) {
-        return;
-    }
-    MumboReward_updatePendingDialog();
-    if (sMumboState > 0.0f) {
-        if (!sPanSaved) {
-            sPanSaved = true;
-            for (int i = 0; i < 3; i++) {
-                sPanSavedPosition[i] = cameraPosition[i];
-                sPanSavedRotation[i] = cameraRotation[i];
-            }
-        }
-        for (int i = 0; i < 3; i++) {
-            cameraPosition[i] = kPanPosition[i];
-            cameraRotation[i] = kPanRotation[i];
-            D_8037D948[i] = kPanPosition[i];
-            D_8037D9C8[i] = 0.0f;
-            D_8037D9E0[i] = 0.0f;
-        }
-        D_8037D9D4 = 0.0f;
-        D_8037D9D8 = 0.0f;
-        D_8037D9EC = 0.0f;
-        D_8037D9F0 = 0.0f;
-
-        sMumboState -= time_getDelta();
-        if (sMumboState == 0.0f) {
-            sMumboState = -1.0f; // sentinel: expired, restore next frame
-        }
-    } else if (sMumboState < 0.0f && sPanSaved) {
-        for (int i = 0; i < 3; i++) {
-            cameraPosition[i] = sPanSavedPosition[i];
-            cameraRotation[i] = sPanSavedRotation[i];
-        }
-        sPanSaved = false;
-        sMumboState = 0.0f;
-    }
-}
-} // namespace
-
-static void Gruntch_EnableMumboReward() {
-    sMumboRewardEnabled = true;
-    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) { MumboReward_updateCamera(); });
-}
-
 // Game-Over respawns
 static void Gruntch_EnableVoidOutRespawn() {
     REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
@@ -400,17 +297,12 @@ static void Gruntch_EnableEggNoise() {
 }
 
 // Lair music persists through various maps
-constexpr s32 kMusicGroupLair[] = { 0x6A, 0x6C, 0x6F, 0x71, 0x6B, 0x15 };
-constexpr s32 kMusicGroupVillage[] = { 0x1B, 0x22, 0x0C };
-
-static bool SameMusicGroup(const s32* group, int count, s32 a, s32 b) {
-    bool hasA = false, hasB = false;
-    for (int i = 0; i < count; i++) {
-        hasA = hasA || group[i] == a;
-        hasB = hasB || group[i] == b;
-    }
-    return hasA && hasB;
-}
+constexpr int kMusicGroupLair[] = { 0x6A, 0x6C, 0x6F, 0x71, 0x6B, 0x15 };
+constexpr int kMusicGroupVillage[] = { 0x1B, 0x22, 0x0C };
+constexpr WarpMusicGroup kGruntchMusicGroups[] = {
+    { kMusicGroupLair, ARRAY_COUNT(kMusicGroupLair) },
+    { kMusicGroupVillage, ARRAY_COUNT(kMusicGroupVillage) },
+};
 
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
 static void Gruntch_EnableWindowRapNoRebound() {
@@ -422,35 +314,13 @@ static void Gruntch_EnableWindowRapNoRebound() {
     });
 }
 
-static void Gruntch_EnableWarpMusic() {
-    REGISTER_VB_SHOULD(VB_WARP_KEEPS_MUSIC, EVENT_PRIORITY_NORMAL, {
-        const s32 dest = va_arg(args, s32);
-        const s32 cur = gsworld_getMap();
-        if (SameMusicGroup(kMusicGroupVillage, ARRAY_COUNT(kMusicGroupVillage), cur, dest) ||
-            SameMusicGroup(kMusicGroupLair, ARRAY_COUNT(kMusicGroupLair), cur, dest)) {
-            musicKeepsPlaying();
-        }
-        (void)should;
-    });
-}
-
 // ------------------------------------------------------- Jiggy consolidation
-constexpr s32 kJiggyToMM[] = { 0x14, 0x20, 0x2E, 0x4A };
-constexpr s32 kJiggyToMMM[] = { 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3E };
-
-static bool JiggyMovedFromVanillaLevel(s32 id) {
-    for (s32 m : kJiggyToMM) {
-        if (m == id) {
-            return true;
-        }
-    }
-    for (s32 m : kJiggyToMMM) {
-        if (m == id) {
-            return true;
-        }
-    }
-    return false;
-}
+constexpr int kJiggyToMM[] = { 0x14, 0x20, 0x2E, 0x4A };
+constexpr int kJiggyToMMM[] = { 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3E };
+constexpr JiggyRelocation kGruntchJiggyRelocations[] = {
+    { LEVEL_1_MUMBOS_MOUNTAIN, kJiggyToMM, ARRAY_COUNT(kJiggyToMM) },
+    { LEVEL_A_MAD_MONSTER_MANSION, kJiggyToMMM, ARRAY_COUNT(kJiggyToMMM) },
+};
 
 // Pause-menu totals layout for Gruntch and Santa's Village
 static void Gruntch_EnablePauseTotalsLayout() {
@@ -463,33 +333,8 @@ static void Gruntch_EnablePauseTotalsLayout() {
 }
 
 static void Gruntch_EnableJiggyTally() {
-    REGISTER_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {
-        s32 lvl = va_arg(args, s32);
-        s32* result = va_arg(args, s32*);
-        s32 cnt = 0;
-        if (lvl >= 1 && lvl <= 0xA) {
-            for (s32 id = (lvl - 1) * 10 + 1; id <= lvl * 10; id++) {
-                if (!JiggyMovedFromVanillaLevel(id) && jiggyscore_isCollected((enum jiggy_e)id)) {
-                    cnt++;
-                }
-            }
-            if (lvl == 1) {
-                for (s32 id : kJiggyToMM) {
-                    if (jiggyscore_isCollected((enum jiggy_e)id)) {
-                        cnt++;
-                    }
-                }
-            } else if (lvl == 0xA) {
-                for (s32 id : kJiggyToMMM) {
-                    if (jiggyscore_isCollected((enum jiggy_e)id)) {
-                        cnt++;
-                    }
-                }
-            }
-        }
-        *result = cnt;
-        *should = false;
-    });
+    HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
+    port_overrideRomhackJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
     REGISTER_VB_SHOULD(VB_PAUSEMENU_ROW_VISIBLE, EVENT_PRIORITY_NORMAL, {
@@ -507,6 +352,225 @@ static void Gruntch_EnableActGate() {
         if (va_arg(args, int) == 0xAA && !fileProgressFlag_get(FILEPROG_38_RBB_OPEN)) {
             *should = false;
         }
+    });
+}
+
+// Mumbo's token dialogs are rendered by the hack once his jiggy is collected
+static void Gruntch_EnableMumboTokenDialogs() {
+    REGISTER_VB_SHOULD(VB_OVERRIDE_DIALOG_SHOW, EVENT_PRIORITY_LOW, {
+        const s32 textId = va_arg(args, s32);
+        if ((textId != ASSET_DAA_DIALOG_MUMBO_HAS_ENOUGH_TOKENS &&
+             textId != ASSET_DAB_DIALOG_MUMBO_NOT_ENOUGH_TOKENS) ||
+            gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
+            return;
+        }
+        func_80324E38(0.0f, 3);
+        *should = true;
+    });
+}
+
+// ------------------------------------------------------- Santa's head-look
+namespace {
+
+constexpr f32 kHeadYawCone = 80.0f;
+constexpr f32 kHeadYawRate = 0.5f;
+constexpr f32 kHeadPitchRate = 0.67f;
+constexpr f32 kHeadPitchFree = 330.0f;
+constexpr f32 kHeadPitchMin = 40.0f;
+constexpr f32 kHeadPitchMax = 185.0f;
+constexpr f32 kHeadPitchBias = 55.0f;
+constexpr f32 kHeadBobSpeed = 5.0f;
+constexpr f32 kHeadBobAmount = 0.5f;
+constexpr f32 kHeadBobOffset = 2.0f;
+constexpr f32 kHeadBobPeriod = 62.831853f;
+constexpr f32 kHeadDeadZone = 1.0f;
+constexpr f32 kHeadShadowY = 732.0f;
+constexpr f32 kHeadShadowPitch = 3.0f;
+constexpr f32 kHeadShadowScale = 0.4f;
+constexpr s32 kHeadShadowAlpha = 0xF1;
+constexpr s32 kHeadTrackDialogA = 0xA13;
+constexpr s32 kHeadTrackDialogB = 0xA7D;
+
+struct HeadLookState {
+    bool initialised;
+    bool noticedPlayer;
+    f32 restYaw;
+    f32 restPitch;
+    f32 restRoll;
+    f32 forward[3];
+    f32 basePosition[3];
+    f32 bobPhase;
+    void (*savedUpdate)(Actor*);
+    Actor* (*savedDraw)(ActorMarker*, Gfx**, Mtx**, Vtx**);
+};
+
+HeadLookState sHead{};
+
+f32 HeadLook_radToDeg(f32 radians) {
+    return (f32)((f64)radians * 57.29577951308232);
+}
+
+f32 HeadLook_angleDelta(f32 from, f32 to) {
+    while (from >= 180.0f) {
+        from -= 360.0f;
+    }
+    while (to >= 180.0f) {
+        to -= 360.0f;
+    }
+    return (to < from) ? -(from - to) : (to - from);
+}
+
+f32 HeadLook_approach(f32 current, f32 target, f32 rate) {
+    f32 delta = HeadLook_angleDelta(current, target);
+    if (delta >= 180.0f) {
+        delta -= 360.0f;
+    }
+    if (fabsf(delta) < kHeadDeadZone) {
+        return mlNormalizeAngle(current);
+    }
+    return mlNormalizeAngle(current + delta * rate * 0.5f);
+}
+
+f32 HeadLook_vecAngle(const f32 a[3], const f32 b[3]) {
+    const f32 lenA = sqrtf(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+    const f32 lenB = sqrtf(b[0] * b[0] + b[1] * b[1] + b[2] * b[2]);
+    const f32 cosine = (b[0] * a[0] + b[1] * a[1] + b[2] * a[2]) / (lenB * lenA);
+    if (cosine > 1.0f) {
+        return (f32)acos(1.0);
+    }
+    if (cosine < -1.0f) {
+        return (f32)acos(-1.0);
+    }
+    return (f32)acos((f64)cosine);
+}
+
+f32 HeadLook_vecAngleAbout(const f32 a[3], const f32 b[3], const f32 axis[3]) {
+    const f32 cross[3] = {
+        b[1] * a[2] - a[1] * b[2],
+        b[2] * a[0] - a[2] * b[0],
+        a[1] * b[0] - b[1] * a[0],
+    };
+    const f32 sine = cross[0] * axis[0] + cross[1] * axis[1] + cross[2] * axis[2];
+    const f32 cosine = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    return atan2f(sine, cosine);
+}
+
+void HeadLook_rotateVector(f32 pitchDeg, f32 yawDeg, const f32 in[3], f32 out[3]) {
+    const f32 pitch = (f32)((f64)(pitchDeg / 180.0f) * 3.141592653589793);
+    const f32 yaw = (f32)((f64)(yawDeg / 180.0f) * 3.141592653589793);
+    const f32 sinPitch = sinf(pitch);
+    const f32 cosPitch = cosf(pitch);
+    const f32 sinYaw = sinf(yaw);
+    const f32 cosYaw = cosf(yaw);
+    const f32 x = in[0], y = in[1], z = in[2];
+
+    out[0] = x * cosYaw + (z * cosPitch + y * sinPitch) * sinYaw;
+    out[1] = y * cosPitch - z * sinPitch;
+    out[2] = (z * cosPitch + y * sinPitch) * cosYaw - x * sinYaw;
+}
+
+void HeadLook_capture(Actor* self) {
+    sHead.initialised = true;
+    sHead.restPitch = self->pitch + kHeadPitchBias;
+    self->pitch = sHead.restPitch;
+    sHead.restYaw = self->yaw;
+    sHead.restRoll = self->roll;
+
+    const f32 unitZ[3] = { 0.0f, 0.0f, 1.0f };
+    HeadLook_rotateVector(0.0f, sHead.restYaw, unitZ, sHead.forward);
+
+    for (int i = 0; i < 3; i++) {
+        sHead.basePosition[i] = self->position[i];
+    }
+}
+
+void HeadLook_update(Actor* self) {
+    if (!sHead.initialised) {
+        HeadLook_capture(self);
+    }
+
+    sHead.noticedPlayer = false;
+    if (sHead.savedUpdate != nullptr) {
+        sHead.savedUpdate(self);
+    }
+
+    const f32 axisY[3] = { 0.0f, 1.0f, 0.0f };
+    const f32 flatToPlayer[3] = { D_8037C5B0[0] - self->position[0], 0.0f, D_8037C5B0[2] - self->position[2] };
+    const f32 yawDeg = HeadLook_radToDeg(HeadLook_vecAngleAbout(flatToPlayer, sHead.forward, axisY));
+    const f32 yaw = mlNormalizeAngle(yawDeg + sHead.restYaw);
+
+    bool tracking = fabsf(yawDeg) <= kHeadYawCone;
+    if (!tracking) {
+        const s32 textId = gcdialog_getCurrentTextId();
+        tracking = (textId == kHeadTrackDialogA || textId == kHeadTrackDialogB);
+    }
+
+    f32 pitch;
+    if (tracking) {
+        sHead.noticedPlayer = true;
+        self->yaw = HeadLook_approach(self->yaw, yaw, kHeadYawRate);
+
+        const f32 toPlayer[3] = { D_8037C5B0[0] - self->position[0], D_8037C5B0[1] - self->position[1],
+                                  D_8037C5B0[2] - self->position[2] };
+        const f32 reference[3] = { toPlayer[0], toPlayer[1] - D_8037C5B0[1], toPlayer[2] };
+        pitch = mlNormalizeAngle(sHead.restPitch - HeadLook_radToDeg(HeadLook_vecAngle(toPlayer, reference)));
+    } else {
+        self->yaw = HeadLook_approach(self->yaw, sHead.restYaw, kHeadYawRate);
+        pitch = 0.0f;
+    }
+
+    if (pitch <= kHeadPitchFree) {
+        if (pitch < kHeadPitchMin) {
+        } else if (pitch >= kHeadPitchMax) {
+            pitch = kHeadPitchFree;
+        } else {
+            pitch = kHeadPitchMin;
+        }
+    }
+    self->pitch = HeadLook_approach(self->pitch, pitch, kHeadPitchRate);
+
+    sHead.bobPhase += time_getDelta() * kHeadBobSpeed;
+    if (sHead.bobPhase > kHeadBobPeriod) {
+        sHead.bobPhase -= kHeadBobPeriod;
+    }
+    self->position[1] = sHead.basePosition[1] + kHeadBobOffset + sinf(sHead.bobPhase) * kHeadBobAmount;
+}
+
+Actor* HeadLook_draw(ActorMarker* marker, Gfx** gfx, Mtx** mtx, Vtx** vtx) {
+    Actor* self = nullptr;
+    if (sHead.savedDraw != nullptr) {
+        self = sHead.savedDraw(marker, gfx, mtx, vtx);
+    }
+    Actor* actor = marker_getActor(marker);
+    if (actor == NULL) {
+        return self;
+    }
+
+    modelRender_setDepthMode(MODEL_RENDER_DEPTH_COMPARE);
+    BKModelBin* shadow = (BKModelBin*)assetcache_get(ASSET_3BF_MODEL_PLAYER_SHADOW);
+    f32 position[3] = { actor->position[0], kHeadShadowY, actor->position[2] };
+    f32 rotation[3] = { kHeadShadowPitch, 0.0f, 0.0f };
+    modelRender_setAlpha(kHeadShadowAlpha);
+    modelRender_draw(gfx, mtx, position, rotation, kHeadShadowScale, NULL, shadow);
+    return self;
+}
+
+} // namespace
+
+static bool Gruntch_HeadHasNoticedPlayer() {
+    return sHead.noticedPlayer;
+}
+
+static void Gruntch_EnableHeadLook() {
+    sHead.savedUpdate = chLargeCrocodile.update_func;
+    sHead.savedDraw = chLargeCrocodile.draw_func;
+    chLargeCrocodile.update_func = HeadLook_update;
+    chLargeCrocodile.draw_func = HeadLook_draw;
+
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) {
+        sHead.initialised = false;
+        sHead.noticedPlayer = false;
+        sHead.bobPhase = 0.0f;
     });
 }
 
@@ -528,13 +592,15 @@ void RegisterGruntchPatches() {
     StealthNoise_Enable(kGruntchStealth);
     Gruntch_EnableActGate();
     Gruntch_EnableConditionalActors();
-    Gruntch_EnableMumboReward();
+    Gruntch_EnableHeadLook();
+    HackShared_EnableMumboReward();
     Gruntch_EnableVoidOutRespawn();
     Gruntch_EnableEggNoise();
-    Gruntch_EnableWarpMusic();
+    HackShared_EnableWarpMusicGroups(kGruntchMusicGroups);
     Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();
     HackShared_EnableDialogSuppression(kGruntchSuppressedDialogs);
+    Gruntch_EnableMumboTokenDialogs();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
 }

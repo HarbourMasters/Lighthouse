@@ -13,6 +13,11 @@ extern "C" {
 // Flag set used when making a Stop 'n' Swop item visible and collectible in-game
 #define SNS_UNLOCKED  (1)
 
+/* Which call site raised VB_OVERRIDE_SNS_MAP_CHECK. The pickup site awards the
+   item; the spawn site only decides whether the egg actor is drawn. */
+#define SNS_MAP_CHECK_PICKUP (0)
+#define SNS_MAP_CHECK_SPAWN  (1)
+
 /**
  * sns mode (read FROM other game, or write TO other game)
  */

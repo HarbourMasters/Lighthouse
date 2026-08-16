@@ -106,6 +106,13 @@ int port_checkHeap(const char* label) {
 }
 
 // Wrappers to use SPDLOG from C code
+void BK_LOG_DEBUG(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    bk_log_vfmt(spdlog::level::debug, fmt, args);
+    va_end(args);
+}
+
 void BK_LOG_INFO(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);

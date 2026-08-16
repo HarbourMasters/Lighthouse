@@ -99,6 +99,19 @@ typedef enum VBehaviorID {
     // Romhack port gates
     VB_JIGGYSCORE_LEVEL_TOTAL,
     VB_HONEYCOMBSCORE_LEVEL_TOTAL,
+    VB_MUMBO_HUT_INTERACT,
+    VB_LEVEL_LOAD_RESET_SCORES,
+    VB_LEVEL_LOAD_RESET_MAP_SETPIECES,
+    VB_CUTSCENE_SKIP_REQUIRE_PROGRESS,
+    VB_GAME_OVER_RETURN_MAP,
+    VB_MAP_SAVESTATE_CLEAR_ALL,
+    VB_LEVEL_LOAD_SAVESTATE_INIT,
+    VB_RACE_VOID_OUT_FULL_TRANSITION,
+    VB_PROGRESS_FLAG_DIALOG, // showProgressFlagDialog(): false = never show (and never set) progress dialogs.
+    VB_LAIR_GRUNTY_TAUNTS,   // Grunty's random lair taunt timer block: false = skip entirely.
+    VB_AMBIENCE_MAP_UPDATE,  // Per-map ambience/chan-mask switch: false = a listener replaced it.
+    VB_PAUSEMENU_SNS_ITEMS,  // Overrides the collected-SNS-item count that gates the Stop 'N' Swop page.
+    VB_PAUSEMENU_SNS_DRAW,   // Stop 'N' Swop totals display: false = a listener drew its own version.
     VB_PAUSEMENU_LEVEL_TO_PAGE,
     VB_PAUSEMENU_SET_NEXT_PAGE,
     VB_PAUSEMENU_DRAW_JOYSTICKS,

@@ -270,15 +270,45 @@ void updateOrbit() {
 // The hack may depend on the retained player motion that the animation provides.
 static bool sJiggyDanceForced = false;
 
+// Opt-in per-map suppression.
+static const s32* sSuppressedMaps = nullptr;
+static s32 sSuppressedMapCount = 0;
+
+static bool JiggyDanceSuppressedOnThisMap() {
+    if (sSuppressedMaps == nullptr) {
+        return false;
+    }
+    const s32 map = gsworld_getMap();
+    for (s32 i = 0; i < sSuppressedMapCount; i++) {
+        if (sSuppressedMaps[i] == map) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void TooieJiggyDance_SetMapSuppression(const s32* maps, s32 count) {
+    sSuppressedMaps = maps;
+    sSuppressedMapCount = count;
+}
+
 void RegisterJiggyCollect_Init() {
     clearOrbit();
     const bool skip = CVarGetInteger(CVAR_SKIP_JIGGY_DANCE, 0);
     const bool tooie = CVarGetInteger(CVAR_TOOIE_JIGGY_DANCE, 0) || sJiggyDanceForced;
     const bool playOrbit = (tooie && !skip) || IS_RANDO;
 
-    COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, { *should = false; });
+    COND_VB_SHOULD(VB_PLAY_JIGGY_DANCE, EVENT_PRIORITY_NORMAL, skip || tooie, {
+        if (!JiggyDanceSuppressedOnThisMap()) {
+            *should = false;
+        }
+    });
 
-    COND_HOOK(OnTooieJiggyCollect, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { spawnOrbit(); });
+    COND_HOOK(OnTooieJiggyCollect, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) {
+        if (!JiggyDanceSuppressedOnThisMap()) {
+            spawnOrbit();
+        }
+    });
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { updateOrbit(); });
     COND_HOOK(OnMapLoad, EVENT_PRIORITY_NORMAL, playOrbit, [](IEvent*) { forgetOrbit(); });
 }

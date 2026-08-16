@@ -205,16 +205,9 @@ void RegisterCutThroatCoastPatches() {
         (void)should;
     });
 
-    // TODO: CTC has an extra data blob separate from the asset table
-    // where a custom gravestone and note door (100) are. Torch should not
-    // need to do per-romhack extraction, so these will need to either be skipped
-    // or rebuilt a different way. For now, blank the digits on the note door.
-    REGISTER_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, {
-        s32 noteDoorIdx = va_arg(args, s32);
-        if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
-            *should = false;
-        }
-    });
+    // TODO: CTC has an extra data blob separate from the asset table where a custom
+    // gravestone and note door (100) live. Its retuned note-door numbers are blanked
+    // generically by HackShared until the blob's assets can be applied.
 
     // Exiting via the exit pad should go back to the CTC lobby map
     REGISTER_VB_SHOULD(VB_MAP_CHANGE_REQUEST, EVENT_PRIORITY_NORMAL, {

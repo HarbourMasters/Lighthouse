@@ -1,9 +1,10 @@
 #include <libultraship/bridge.h>
 #include <cmath>
+#include <spdlog/spdlog.h>
 
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Romhack/RomhackConfig.h"
-#include "StealthNoise.h"
+#include "HackShared.h"
 
 extern "C" {
 #include "enums.h"
@@ -27,6 +28,7 @@ typedef struct {
     u8 rgba[4];
 } StealthPrintBuffer;
 extern StealthPrintBuffer* print_sCurrentPtr;
+bool gcpausemenu_isCapturing(void);
 }
 
 namespace {
@@ -174,6 +176,9 @@ void Update() {
     if (sCfg == nullptr || gsworld_getMap() != sCfg->map) {
         return;
     }
+    if (game_is_frozen() || gcpausemenu_isCapturing()) {
+        return;
+    }
     NoiseState& meter = sState;
 
     Approach(meter.hudX, meter.targetX, kHudLerp, 1.0f);
@@ -232,6 +237,11 @@ void Update() {
     const bool inner = playerX >= sCfg->innerMin && playerX <= sCfg->innerMax;
     if (!inRoom) {
         ResetMeter();
+        meter.loudLanding = false;
+        if (!quiet) {
+            meter.noise = stable ? 1.0f : kLoudAirborne + randf() * kLoudAirJitter;
+        }
+        meter.noise = Clamp01(meter.noise);
         return;
     }
 
@@ -264,12 +274,8 @@ void Update() {
             if (!inner) {
                 meter.loudLanding = false;
                 const f32 decayed = meter.noise * kDecay;
-                if (decayed < kDecayFloor) {
-                    meter.airborneFrames = 0;
-                    meter.noise = 0.0f;
-                } else {
-                    meter.noise = decayed;
-                }
+                meter.airborneFrames = 0;
+                meter.noise = (decayed < kDecayFloor) ? 0.0f : decayed;
                 meter.noise += randf() * kGainJitter;
             }
         }

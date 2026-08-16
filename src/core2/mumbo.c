@@ -324,6 +324,11 @@ void chMumbo_update(Actor *this) {
             ){
                 controller_copyFaceButtons(0, face_buttons);
                 if(face_buttons[FACE_BUTTON(BUTTON_B)] == 1){
+                    // [port] Romhack gate: a listener can handle the interaction itself and
+                    // skip the whole purchase/transform path.
+                    if (!EventSystem_Should(VB_MUMBO_HUT_INTERACT, true, this)) {
+                        return;
+                    }
                     if (D_8037DDF0 == TRANSFORM_7_WISHWASHY) {
                         this->unk38_31 = 0;
                     } else if (player_getTransformation() == TRANSFORM_1_BANJO && !fileProgressFlag_get(__bkProgId_from_transformationId(D_8037DDF0)) && gsworld_getMap() != MAP_7A_GL_CRYPT){

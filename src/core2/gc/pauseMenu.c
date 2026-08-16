@@ -814,6 +814,12 @@ void gcpausemenu_init(void) {
     sp34 = sns_get_item_state(2, 0);
     sp38 = sns_get_item_state(1, 0);
     D_80383010.sns_items = sp38 + sp34 + sp30 + sp2C + sp28 + sp24 + sns_get_item_state(7, 0);
+    // [port] Romhack gate: a listener can override the count
+    {
+        s32 snsItems = D_80383010.sns_items;
+        EventSystem_Should(VB_PAUSEMENU_SNS_ITEMS, true, &snsItems);
+        D_80383010.sns_items = snsItems;
+    }
     D_80383010.return_to_lair_disabled = gcpausemenu_initReturnToLair();
     gcdialog_incrementYPositionModifier();
     gcpausemenu_zoomboxes_initMainMenu();
@@ -1370,7 +1376,11 @@ s32 gcPauseMenu_update(void) {
                     func_802DC560(0, 0);
                     func_802E412C(1, 0);
                     // [port] Honor BootSequence so Save & Quit lands at the same place as a fresh boot.
-                    transitionToMap(getDefaultBootMap(), 0, 1);
+                    {
+                        s32 returnMap = getDefaultBootMap();
+                        EventSystem_Should(VB_GAME_OVER_RETURN_MAP, true, &returnMap);
+                        transitionToMap((enum map_e)returnMap, 0, 1);
+                    }
                     D_80383010.unk3_6 = 1;
                 }
             }
@@ -1540,7 +1550,11 @@ void gcpausemenu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         }
     }
 
-    if (D_80383010.sns_alpha != 0) {
+    if (D_80383010.sns_alpha != 0
+        // [port] Romhack gate: false = a listener drew its own Stop 'N' Swop display.
+        && EventSystem_Should(VB_PAUSEMENU_SNS_DRAW, true, gfx, mtx, (s32)D_80383010.sns_alpha,
+                              D_80383010.unk3E, D_80383010.sns_egg_model,
+                              D_80383010.ice_key_model)) {
         sp7C = time_getDelta();
         for (i = 1; i < 7; i++) {
             if (sns_get_item_state(i, 0)) {

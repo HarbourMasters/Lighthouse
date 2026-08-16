@@ -6,6 +6,9 @@
 #include "core2/commonParticle.h"
 #include "core2/anim/sprite.h"
 
+// [port] Sparkle sprite config. Romhacks repoint the sprite by writing unk0.
+extern s32 D_803726F0[2];
+
 extern f32 player_getYaw(void);
 extern void projectile_getPosition(u8 arg0, f32 arg1[3]);
 extern void func_8033FC98(u8 arg0, s32 arg1);
@@ -533,7 +536,8 @@ void func_80355864(void) {
     (&sp48->unk0)[0] = randf2(-10.0f, 10.0f);
     (&sp48->unk0)[1] = (f32) ((randf() * 45.0f) + 10.0f);
     (&sp48->unk0)[2] = randf2(-10.0f, 10.0f);
-    projectile_setSprite(sp5F, 0x713);
+    // [port] derive the sprite so romhack repoints of the sparkle sprite apply here too.
+    projectile_setSprite(sp5F, ASSET_710_SPRITE_SPARKLE_PURPLE + D_803726F0[0]);
     projectile_setPosition(sp5F, sp38);
     func_8033FCD8(sp5F, 0xC);
     animsprite_default(sp58);

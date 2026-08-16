@@ -389,13 +389,34 @@ static void LoadGameConfig() {
                 break;
 
             case 10: // WARP_DESTINATIONS
+            {
+                // Validate warp destinations
+                const bool canValidate = archive->HasFile("assets/setup/ASSET_71D_UNNAMED");
                 for (uint16_t e = 0; e < entryCount && pos + 4 <= size; e++) {
                     int warpIdx = readLE16(data + pos);
                     int dest = readLE16(data + pos + 2);
                     pos += 4;
+                    if ((dest >> 8) == 0) {
+                        SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} has invalid "
+                                     "destination 0x{:04X} (map 0), ignoring",
+                                     warpIdx, dest);
+                        continue;
+                    }
+                    if (canValidate) {
+                        char setupPath[48];
+                        std::snprintf(setupPath, sizeof(setupPath), "assets/setup/ASSET_%X_UNNAMED",
+                                      (dest >> 8) + 0x71C);
+                        if (!archive->HasFile(setupPath)) {
+                            SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} targets map 0x{:02X}, "
+                                         "which has no setup — dropping override",
+                                         warpIdx, dest >> 8);
+                            continue;
+                        }
+                    }
                     sWarpDests[warpIdx] = dest;
                 }
                 break;
+            }
 
             case 11: // CUSTOM_CODE
                 if (entryCount >= 1 && pos + 24 <= size) {
@@ -673,9 +694,15 @@ extern "C" int port_getRomhackJiggiesPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sJiggiesPerWorld;
 }
+extern "C" void port_overrideRomhackJiggiesPerWorld(int value) {
+    sJiggiesPerWorld = value;
+}
 extern "C" int port_getRomhackHoneycombsPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sHoneycombsPerWorld;
+}
+extern "C" void port_overrideRomhackHoneycombsPerWorld(int value) {
+    sHoneycombsPerWorld = value;
 }
 extern "C" int port_getRomhackExtraHcStart(void) {
     ROMHACK_GUARD_INT;

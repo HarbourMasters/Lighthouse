@@ -264,7 +264,10 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
     func_80332894();
     func_803305AC();
     func_8031F9E8();
+    // [port] Romhack gate: func_80323230 is an empty stub, and romhacks hijack it as
+    // an injection point in the map-load chain.
     func_80323230();
+    CALL_EVENT(OnMapLoadStub);
     commonParticleType_init();
     animBinCache_init();
     animsprite_init();
