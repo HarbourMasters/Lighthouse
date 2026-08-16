@@ -532,7 +532,7 @@ void SnowGlow_AmbienceUpdate(s32* playerPos, s32* trackId) {
     if (map == MAP_34_RBB_ENGINE_ROOM) {
         core1_ce60_setChanMask(player_getWaterState() == BSWATERGROUP_2_UNDERWATER ? 0x800 : 0x43FE);
     } else if (map == MAP_91_FILE_SELECT) {
-        core1_ce60_setChanMaskWithValue(gameSelect_getGameNumber() == 0 ? 0x200 : 0x1FF, 0.5f);
+        core1_ce60_setChanMaskWithTransitionSpeed(gameSelect_getGameNumber() == 0 ? 0x200 : 0x1FF, 0.5f);
     } else {
         for (const s32 m : kAmbienceAllChanMaps) {
             if (m == map) {
@@ -561,19 +561,19 @@ void SnowGlow_AmbienceUpdate(s32* playerPos, s32* trackId) {
 
     if (activeZone != nullptr) {
         if (D_80383340.unk2 != activeZone->track) {
-            func_8024F7C4(D_80383340.unk2);
-            func_8024F764(activeZone->track);
+            musicTrack_release((comusic_e)D_80383340.unk2);
+            musicTrack_load((comusic_e)activeZone->track);
         }
         D_80383340.unk2 = (s16)activeZone->track;
         if (zoneDistance < activeZone->inner) {
             trackId[2] = 0;
-            trackId[3] = gcMusic_getDefaultVolumeForTrack(activeZone->track);
+            trackId[3] = gcMusic_getDefaultVolumeForTrack((comusic_e)activeZone->track);
             core1_ce60_func_8024A9EC(0);
         }
         trackId[0] = D_80383340.unk0;
         trackId[1] = activeZone->track;
     } else if (onZoneMap) {
-        trackId[2] = gcMusic_getDefaultVolumeForTrack(D_80383340.unk0);
+        trackId[2] = gcMusic_getDefaultVolumeForTrack((comusic_e)D_80383340.unk0);
         trackId[3] = 0;
         core1_ce60_func_8024A9EC(0);
         player_getPosition_s32(playerPos);
