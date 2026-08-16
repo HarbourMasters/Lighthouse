@@ -8,6 +8,8 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/UI/LighthouseModMenuWindow.h"
 #include "port/UI/Notification.h"
+#include <cstddef>
+#include <cstring>
 #include <fstream>
 #include <filesystem>
 #include <regex>
@@ -889,17 +891,7 @@ void SaveManager_Init() {
     REGISTER_LISTENER(OnSaveClear, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnSaveClear* ev = (OnSaveClear*)event;
         SaveData* saveData = (SaveData*)ev->result;
-
-        ShipSaveData ship = saveData->shipSaveData; // Retain ShipSaveData during Save Process
-
-        u8* savedata = (u8*)saveData;
-        int i;
-        for (i = 0; i < sizeof(SaveData); i++) {
-            savedata[i] = 0;
-        }
-
-        saveData = (SaveData*)savedata;
-        saveData->shipSaveData = ship;
+        memset(saveData, 0, offsetof(SaveData, shipSaveData));
 
         event->Cancelled = true;
     });
