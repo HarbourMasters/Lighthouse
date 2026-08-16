@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.26.0 FATAL_ERROR)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Set the project version and language
-project(Lighthouse VERSION 1.0.3 LANGUAGES C CXX ASM)
+project(Lighthouse VERSION 1.1.0 LANGUAGES C CXX ASM)
 include(FetchContent)
 
 include(cmake/lighthouse-cvars.cmake)
@@ -28,7 +28,7 @@ math(EXPR PATCH_INDEX "${PROJECT_VERSION_PATCH}")
 # Use the patch number to select the correct word
 list(GET NATO_PHONETIC_ALPHABET ${PATCH_INDEX} PROJECT_PATCH_WORD)
 
-set(PROJECT_BUILD_NAME "Split Rock ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
+set(PROJECT_BUILD_NAME "Hatteras ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
 #set(PROJECT_TEAM "SonicDcer & Lywx" CACHE STRING "" FORCE)
 
 # Get Git Information
