@@ -7,7 +7,7 @@
 #include "port/Controller/ModernCamera.h"
 
 
-extern bool func_80245314(f32[3], f32[3], f32, f32, u32);
+extern BKCollisionTriangle *func_80245314(f32[3], f32[3], f32, f32, s32);
 extern BKCollisionTriangle *func_80244D94(f32[3], f32[3], f32[3], u32, f32);
 extern BKCollisionTriangle *func_8024575C(f32[3], f32[3], f32, f32[3], s32, u32);
 extern f32 func_8028E82C(void);
@@ -261,7 +261,7 @@ void func_802BCD30(void){
 f32 func_802BCD60(void) {
     f32 sp34[3];
     f32 sp28[3];
-    s32 temp_v0;
+    BKCollisionTriangle *temp_v0;
     if ((D_8037D940 & 1) && !func_802BC428())
         return D_8037D9A0;
 

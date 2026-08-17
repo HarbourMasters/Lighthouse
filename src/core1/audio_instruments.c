@@ -631,7 +631,7 @@ u16 musicSlot_func_80250474(s32 index) {
     }
     osSetIntMask(old_int_mask);
 
-    core1_ce60_func_8024AF48();
+    midichannel_func_8024AF48();
 
     if (D_802762C0 == -1) {
         D_802762C0 = 0xFFFF;

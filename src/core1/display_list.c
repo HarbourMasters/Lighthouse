@@ -1,5 +1,6 @@
 // BanjoDecomp: code_15B30.c
 #include "core1/core1.h"
+#include "core2/core2.h"
 #include <ultra64.h>
 #include "functions.h"
 #include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput

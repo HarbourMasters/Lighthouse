@@ -125,7 +125,7 @@ void bsdie_update(void){
 }
 
 void bsdie_end(void){
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     baphysics_reset_gravity();
     modelAppendages_setKazooiesUpperHalfVisibility(false);
     pitch_setIdeal(0.0f);

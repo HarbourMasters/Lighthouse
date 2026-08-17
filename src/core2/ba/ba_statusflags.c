@@ -8,20 +8,20 @@ u8 D_80383370;
 
 /* .code */
 void func_80323100(void){
-    core1_ce60_resetState();
+    midichannel_resetState();
 }
 
 void func_80323120(void){
-    core1_ce60_func_8024AE74();
+    midichannel_func_8024AE74();
 }
 
 void func_80323140(s32 arg0, s32 arg1){
-    core1_ce60_func_8024BD40(arg0, arg1);
+    midichannel_func_8024BD40(arg0, arg1);
     func_8032278C(arg0, arg1);
 }
 
 void func_80323170(void){
-    core1_ce60_func_8024AF48();
+    midichannel_func_8024AF48();
 }
 
 void func_80323190(void){
