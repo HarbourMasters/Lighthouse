@@ -230,8 +230,9 @@ typedef struct actor_s{
         ActorLocal_Jinjo jinjo;
         ActorLocal_SM_4070 sm_4070;
         u8  local[1];
-        struct{ 
-            u8  unk7C[0x40];
+        struct{
+//          u8  unk7C[0x40];
+            u8  unk7C[0x70];
             u8  unkBC[0x30];
         };
         

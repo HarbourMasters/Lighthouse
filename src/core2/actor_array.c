@@ -957,7 +957,8 @@ Actor *actor_new(s32 position[3], s32 yaw, ActorInfo* actorInfo, u32 flags){
     suLastBaddie->alpha_124_19 = 0xff;
     suLastBaddie->depth_mode = MODEL_RENDER_DEPTH_FULL;
     suLastBaddie->unk124_0 = suLastBaddie->unk138_31 = 1;
-    for(i = 0; i < 0x10; i++){
+//  for(i = 0; i < 0x10; i++){
+    for(i = 0; i < 0x1C; i++){ // [port] unk7C widened to 0x70
         ((s32 *)suLastBaddie->unk7C)[i] = 0;
     }
     for(i = 0; i < 0x0C; i++){
