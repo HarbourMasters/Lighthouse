@@ -269,8 +269,9 @@ void __baMarker_resolveCollision(Prop *other_prop){
     f32 spA0[3];
     s32 jiggy_id;
     s32 sp98;
-    volatile s32 sp94;
-    s32 sp88[3]; //0
+//  volatile s32 sp94;
+//  s32 sp88[3]; //0
+    s32 sp88[4]; //0 [port] sp94 is sp88[3]; they only aliased via IDO stack layout
     s32 tmp2;
     s32 tmp3;
     s32 sp7C; //+4
@@ -676,7 +677,8 @@ void __baMarker_resolveCollision(Prop *other_prop){
                     sp64 = D_80363660;
                 //+C
                 sp78 = 0xA;
-                sp94 = 0xAA;
+//              sp94 = 0xAA;
+                sp88[3] = 0xAA;
 
                 for (sp7C = 0; sp7C < 4; sp7C++) { //L8028CA4C
 
@@ -698,7 +700,8 @@ void __baMarker_resolveCollision(Prop *other_prop){
 
                     sp64.unk0 -= 50.0f;
                     sp64.unk2 += 260.0f;
-                    sp94 -= 0x1e;
+//                  sp94 -= 0x1e;
+                    sp88[3] -= 0x1e;
                 }
 
                 tmp1 = sns_get_item_state(SNS_ITEM_EGG_YELLOW, 0) + sns_get_item_state(SNS_ITEM_EGG_RED, 0) + sns_get_item_state(SNS_ITEM_EGG_GREEN, 0)
