@@ -159,10 +159,10 @@ void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[
     arg1[2] += phi_f12 * sp48[2];
 }
 
-bool func_80245314(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4) {
+BKCollisionTriangle *func_80245314(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4) {
     f32 sp2C[3];
     f32 sp20[3];
-    bool temp_v0;
+    BKCollisionTriangle *temp_v0;
 
     ml_vec3f_copy(sp2C, arg0);
     ml_vec3f_copy(sp20, arg0);
@@ -175,28 +175,28 @@ bool func_80245314(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3, s32 arg4) {
     return temp_v0;
 }
 
-bool func_802453A0(f32 arg0[3], f32 arg1[3], u32 arg2){
+BKCollisionTriangle *func_802453A0(f32 arg0[3], f32 arg1[3], s32 arg2){
     f32 sp24[3];
     f32 sp18[3];
     ml_vec3f_copy(sp18, arg1);
     return func_80320B98(arg0, sp18, sp24, arg2);
 }
 
-f32 func_802453DC(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
+f32 func_802453DC(struct56s *arg0, f32 arg1, f32 arg2[3], s32 arg3) {
     f32 sp24[3];
     f32 phi_f0;
 
-    func_80323240((struct56s *)arg0, arg1, sp24);
-    if (!func_802453A0(arg2, sp24, (u32)arg3)) {
+    func_80323240(arg0, arg1, sp24);
+    if (!func_802453A0(arg2, sp24, arg3)) {
         return arg1;
     }
-    func_80323240((struct56s *)arg0, 1.0f, sp24);
-    if (!func_802453A0(arg2, sp24, (u32)arg3)) {
+    func_80323240(arg0, 1.0f, sp24);
+    if (!func_802453A0(arg2, sp24, arg3)) {
         return 1.0f;
     }
 
-    func_80323240((struct56s *)arg0, 0.0f, sp24);
-    if (!func_802453A0(arg2, sp24, (u32)arg3)) {
+    func_80323240(arg0, 0.0f, sp24);
+    if (!func_802453A0(arg2, sp24, arg3)) {
         return 0.0f;
     }
     return arg1;
@@ -215,7 +215,7 @@ BKCollisionTriangle *func_8024549C(f32 arg0[3], f32 arg1){
 
     ml_vec3f_diff_copy(sp2C, arg0, sp20);
     ml_vec3f_add(sp38, arg0, sp20);
-    sp1C = func_80309B48(sp2C, sp38, sp44, 0xf800ff0f);
+    sp1C = (BKCollisionTriangle *) func_80309B48(sp2C, sp38, sp44, 0xf800ff0f);
     if(sp1C){
         ml_vec3f_copy(arg0, sp38);
     }

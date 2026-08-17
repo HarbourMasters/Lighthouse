@@ -1,46 +1,50 @@
 // BanjoDecomp: pimanager.c
 #include <ultra64.h>
 #include "core1/core1.h"
-#include "functions.h"
-#include "variables.h"
 #include "version.h"
 
-#define PIMGR_MESGBUFFER_SIZE 16
+#define PIMANAGER_MESGBUFFER_SIZE 16
 
-OSIoMesg sPiMgrIOMesg;
+#if VERSION == VERSION_USA_1_0
+#define BLOCK_SIZE 0x20000
+#elif VERSION == VERSION_PAL
+#define BLOCK_SIZE 0x8000
+#endif
 
 struct {
+    OSIoMesg io_mesg;
     OSMesg mesg;
     OSMesgQueue queue;
-} sPiMgrReadMesg;
+} sPiManagerDMAData;
 
-OSMesg sPiMgrMesgBuffer[PIMGR_MESGBUFFER_SIZE];
-OSMesgQueue sPiMgrMesgQueue;
+struct {
+    OSMesg mesg[PIMANAGER_MESGBUFFER_SIZE];
+    OSMesgQueue queue;
+} sPiManagerData;
 
-void piMgr_read(void *vaddr, s32 devaddr, s32 size) {
+void parallel_readDMA(void *vaddr, s32 devaddr, s32 size) {
     s32 block_cnt;
     s32 block_remainder;
-    s32 block_size = VER_SELECT(0x20000, 0x8000, 0, 0);
     int i;
 
     osWritebackDCache(vaddr, size);
-    block_cnt       = size / block_size;
-    block_remainder = size % block_size;
+    block_cnt       = size / BLOCK_SIZE;
+    block_remainder = size % BLOCK_SIZE;
 
-    for(i = 0; i < block_cnt; i++){
-        osPiStartDma(&sPiMgrIOMesg, OS_MESG_PRI_NORMAL, OS_READ, devaddr, vaddr, VER_SELECT(0x20000, 0x8000, 0, 0), &sPiMgrReadMesg.queue);
-        osRecvMesg(&sPiMgrReadMesg.queue, NULL, 1);
-        devaddr += VER_SELECT(0x20000, 0x8000, 0, 0);
-        vaddr = (u32 *) vaddr + VER_SELECT(0x8000, 0x2000, 0, 0);
+    for (i = 0; i < block_cnt; i++) {
+        osPiStartDma(&sPiManagerDMAData.io_mesg, OS_MESG_PRI_NORMAL, OS_READ, devaddr, vaddr, BLOCK_SIZE, &sPiManagerDMAData.queue);
+        osRecvMesg(&sPiManagerDMAData.queue, NULL, OS_MESG_BLOCK);
+        devaddr += BLOCK_SIZE;
+        vaddr = (u8 *) vaddr + BLOCK_SIZE;
     }
 
-    osPiStartDma(&sPiMgrIOMesg, OS_MESG_PRI_NORMAL, OS_READ, devaddr, vaddr, block_remainder, &sPiMgrReadMesg.queue);
-    osRecvMesg(&sPiMgrReadMesg.queue, NULL, 1);
+    osPiStartDma(&sPiManagerDMAData.io_mesg, OS_MESG_PRI_NORMAL, OS_READ, devaddr, vaddr, block_remainder, &sPiManagerDMAData.queue);
+    osRecvMesg(&sPiManagerDMAData.queue, NULL, OS_MESG_BLOCK);
     osInvalDCache(vaddr, size);
 }
 
-void piMgr_init(void) {
-    osCreateMesgQueue(&sPiMgrReadMesg.queue, &sPiMgrReadMesg.mesg, 1);
-    osCreateMesgQueue(&sPiMgrMesgQueue, sPiMgrMesgBuffer, PIMGR_MESGBUFFER_SIZE);
-    osCreatePiManager(OS_PRIORITY_PIMGR, &sPiMgrMesgQueue, sPiMgrMesgBuffer, PIMGR_MESGBUFFER_SIZE);
+void parallel_init(void) {
+    osCreateMesgQueue(&sPiManagerDMAData.queue, &sPiManagerDMAData.mesg, 1);
+    osCreateMesgQueue(&sPiManagerData.queue, sPiManagerData.mesg, PIMANAGER_MESGBUFFER_SIZE);
+    osCreatePiManager(OS_PRIORITY_PIMGR, &sPiManagerData.queue, sPiManagerData.mesg, PIMANAGER_MESGBUFFER_SIZE);
 }

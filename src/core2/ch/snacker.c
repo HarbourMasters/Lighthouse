@@ -373,10 +373,10 @@ void chSnacker_spawn(void) {
     }
     if (volatileFlag_get(VOLATILE_FLAG_C1_IN_FINAL_CHARACTER_PARADE) == 0) {
         func_8032BB88(snacker, 5000, 750);
-        core1_ce60_incOrDecCounter(false);
+        midichannel_incOrDecCounter(false);
         coMusicPlayer_playMusic(COMUSIC_34_SNACKER_DANGER, 0);
         comusic_8025AB44(COMUSIC_34_SNACKER_DANGER, 0x7FFF, 750);
-        core1_ce60_incOrDecCounter(true);
+        midichannel_incOrDecCounter(true);
     }
     s_chSnacker_spawnTimer = 0.0f;
     func_8032CA80(snacker, s_chSnacker_inRbb ? 15 : 9);

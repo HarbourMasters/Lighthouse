@@ -20,7 +20,7 @@ nlohmann::ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNu
 SaveData* Convert_JSONToSaveData(int32_t fileNum);
 std::string CollapsedJSONArray(const nlohmann::ordered_json& jsonFile);
 
-extern "C" void glcrc_calc_checksum(void* start, void* end, uint32_t checksum[2]);
+extern "C" void glcrc_calcChecksum(void* start, void* end, uint32_t checksum[2]);
 
 namespace {
 
@@ -127,7 +127,7 @@ void SwapSlotEndianness(uint8_t* data) {
 
 void StoreChecksumBE(uint8_t* dst, const uint8_t* start, const uint8_t* end) {
     uint32_t cs[2];
-    glcrc_calc_checksum(const_cast<uint8_t*>(start), const_cast<uint8_t*>(end), cs);
+    glcrc_calcChecksum(const_cast<uint8_t*>(start), const_cast<uint8_t*>(end), cs);
     uint32_t sum = cs[0] ^ cs[1];
     dst[0] = (uint8_t)(sum >> 24);
     dst[1] = (uint8_t)(sum >> 16);
@@ -137,7 +137,7 @@ void StoreChecksumBE(uint8_t* dst, const uint8_t* start, const uint8_t* end) {
 
 bool SlotChecksumOk(const uint8_t* slot) {
     uint32_t cs[2];
-    glcrc_calc_checksum(const_cast<uint8_t*>(slot), const_cast<uint8_t*>(slot + SAVE_SLOT_SIZE - 4), cs);
+    glcrc_calcChecksum(const_cast<uint8_t*>(slot), const_cast<uint8_t*>(slot + SAVE_SLOT_SIZE - 4), cs);
     uint32_t sum = cs[0] ^ cs[1];
     uint32_t stored = ((uint32_t)slot[SAVE_SLOT_SIZE - 4] << 24) | ((uint32_t)slot[SAVE_SLOT_SIZE - 3] << 16) |
                       ((uint32_t)slot[SAVE_SLOT_SIZE - 2] << 8) | (uint32_t)slot[SAVE_SLOT_SIZE - 1];

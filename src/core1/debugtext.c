@@ -1,9 +1,6 @@
 // BanjoDecomp: debugtext.c
 #include <ultra64.h>
 #include "core1/core1.h"
-#include "functions.h"
-#include "variables.h"
-
 #include "version.h"
 
 #if VERSION == VERSION_USA_1_0
@@ -80,19 +77,13 @@ s32 D_80275BE4 = 0;
 char CHARACTER_RANGE[] = {'a','z','A','Z','0','9','.',':', '-', ' '};
 
 
-/* .h */
-void func_802484D0(void);
-void func_8024856C(void);
-void func_80248520(void);
-
-/* code */
-void func_80247750(s32 r, s32 g, s32 b){
+void gcdebugtext_setRGB(s32 r, s32 g, s32 b){
     D_80275A68 = r;
     D_80275A6C = g;
     D_80275A70 = b;
 }
 
-void func_8024776C(s32 x, s32 y) {
+void gcdebugtext_setPixelInFrameBuffer(s32 x, s32 y) {
     s32 rgba16;
     if( ((x >= 0) && (x < gFramebufferWidth))
         && ((y >= 0) && (y < gFramebufferHeight))
@@ -103,56 +94,56 @@ void func_8024776C(s32 x, s32 y) {
     }
 }
 
-void func_80247818(s32 x, s32 y, s32 w, s32 h) {
+void gcdebugtext_drawPixel(s32 x, s32 y, s32 w, s32 h) {
     s32 iy;
     s32 var_s1;
     s32 ix;
 
     for(ix = 0; ix < w; ix++){
         for(iy = 0; iy < h; iy++){
-            func_8024776C(x + ix, y + iy);
+            gcdebugtext_setPixelInFrameBuffer(x + ix, y + iy);
         }
     }
     osWritebackDCacheAll();
 }
 
-void func_802478C0(s32 r, s32 g, s32 b) {
-    func_80247750(r, g, b);
-    func_80247818((gFramebufferWidth - 128) / 2, (gFramebufferHeight - 100) / 2, 128, 100);
+void gcdebugtext_drawSquare(s32 r, s32 g, s32 b) {
+    gcdebugtext_setRGB(r, g, b);
+    gcdebugtext_drawPixel((gFramebufferWidth - 128) / 2, (gFramebufferHeight - 100) / 2, 128, 100);
 }
 
-void func_8024792C(void){}
+void gcdebugtext_stub1(void){}
 
-void func_80247934(void) {
+void gcdebugtext_stallOnThread(void) {
     s32 var_s0;
 
     for(var_s0 = 0; var_s0 < 2000000; var_s0++){
-        func_8024792C();
+        gcdebugtext_stub1();
     }
 }
 
-void func_80247978(s32 arg0) {
+void gcdebugtext_flashSquare(s32 arg0) {
     do{
-        func_802478C0(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
-        func_80247934();
-        func_802478C0(0, 0, 0);
-        func_80247934();
+        gcdebugtext_drawSquare(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
+        gcdebugtext_stallOnThread();
+        gcdebugtext_drawSquare(0, 0, 0);
+        gcdebugtext_stallOnThread();
     }
     while(1);
 }
 
-void func_802479E4(s32 arg0) {
-    func_802478C0(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
-    func_80247934();
-    func_802478C0(0, 0, 0);
-    func_80247934();
+void gcdebugtext_drawSquare2(s32 arg0) {
+    gcdebugtext_drawSquare(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
+    gcdebugtext_stallOnThread();
+    gcdebugtext_drawSquare(0, 0, 0);
+    gcdebugtext_stallOnThread();
 }
 
-void func_80247A40(s32 arg0) {
-    func_802478C0(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
+void gcdebugtext_drawSquareOnly(s32 arg0) {
+    gcdebugtext_drawSquare(RGB_VALUES[arg0][0], RGB_VALUES[arg0][1], RGB_VALUES[arg0][2]);
 }
 
-void func_80247A7C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 g, s32 b) {
+void gcdebugtext_drawCharacter(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 g, s32 b) {
     s32 var_s3;
     s32 sp48;
     u32 sp44;
@@ -173,13 +164,13 @@ void func_80247A7C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 
         for(var_s3 = 0; var_s3 != sp44; var_s3++){
             var_s4 >>= 1;
             if (sp40 & var_s4) {
-                func_80247750(r, g, b);
-                func_80247818((D_80275BC4 + arg2*var_s3) - arg3, (D_80275BC8 + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
+                gcdebugtext_setRGB(r, g, b);
+                gcdebugtext_drawPixel((D_80275BC4 + arg2*var_s3) - arg3, (D_80275BC8 + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
             } else {
                 if (arg4 != 0) {
-                    func_80247750(0, 0, 0);
+                    gcdebugtext_setRGB(0, 0, 0);
                 }
-                func_80247818((D_80275BC4 + arg2*var_s3) - arg3, (D_80275BC8 + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
+                gcdebugtext_drawPixel((D_80275BC4 + arg2*var_s3) - arg3, (D_80275BC8 + temp_lo) - arg3, (arg2 + arg3) + arg3, (arg2 + arg3) + arg3);
             }
         }
     }
@@ -188,7 +179,7 @@ void func_80247A7C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 r, s32 
     }
 }
 
-void func_80247C20(void) {
+void gcdebugtext_clearText(void) {
     s16 *var_v0;
     s16 *var_v1;
     s32 temp_lo;
@@ -213,12 +204,12 @@ void func_80247C20(void) {
     }
 }
 
-void func_80247CEC(s32 arg0, s32 arg1, s32 arg2) {
-    func_80247A7C(arg0, arg1, arg2, 1, 1, 0, 0, 0);
-    func_80247A7C(arg0, arg1, arg2, 0, 1, RGB_VALUES[COLOR_SELECTOR[arg0]][0], RGB_VALUES[COLOR_SELECTOR[arg0]][1], RGB_VALUES[COLOR_SELECTOR[arg0]][2]);
+void gcdebugtext_printCharacter(s32 arg0, s32 arg1, s32 arg2) {
+    gcdebugtext_drawCharacter(arg0, arg1, arg2, 1, 1, 0, 0, 0);
+    gcdebugtext_drawCharacter(arg0, arg1, arg2, 0, 1, RGB_VALUES[COLOR_SELECTOR[arg0]][0], RGB_VALUES[COLOR_SELECTOR[arg0]][1], RGB_VALUES[COLOR_SELECTOR[arg0]][2]);
 }
 
-void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
+void gcdebugtext_printValue(s32 arg0, s32 arg1, s32 arg2) {
     s16 temp_v0;
     s32 var_a1;
     s32 var_s0;
@@ -227,7 +218,7 @@ void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
     D_80275BC4 = D_80275BBC;
     D_80275BD4 = arg2;
     if (arg1 < 0) {
-        func_80247CEC(arg0, 0x26, arg2);
+        gcdebugtext_printCharacter(arg0, 0x26, arg2);
         arg1 *= -1;
     }
     
@@ -239,11 +230,11 @@ void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
         for(var_a1 = 0; arg1 >= var_s0; var_a1++){
             arg1 -= var_s0;
         }
-        func_80247CEC(arg0, var_a1, arg2);
+        gcdebugtext_printCharacter(arg0, var_a1, arg2);
     }
 
-    func_80247CEC(arg0, arg1, arg2);
-    func_8024856C();
+    gcdebugtext_printCharacter(arg0, arg1, arg2);
+    gcdebugtext_printSpace();
     if (arg2 == 7) {
         D_80275BD8 = D_80275BC4;
         D_80275BDC = 0;
@@ -253,50 +244,50 @@ void func_80247D80(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void gcdebugText_showLargeValue(s32 arg0, s32 arg1) {
+void gcdebugtext_showLargeValue(s32 arg0, s32 arg1) {
     D_80275BD0 = 0;
     D_80275BCC = arg0;
     D_80275BBC = 0xE;
     D_80275BC8 = 0xA;
-    func_80247D80(arg0, arg1, 7);
-    func_802484D0();
+    gcdebugtext_printValue(arg0, arg1, 7);
+    gcdebugtext_wrapToTop();
     D_80275BC0 = D_80275BC8;
     D_80275BDC = D_80275BBC;
     shouldClearText = 1;
 }
 
 
-void func_80247F9C(s32 arg0){
-    func_80247D80(D_80275BCC, arg0, 2);
-    func_802484D0();
+void gcdebugtext_showValue(s32 arg0){
+    gcdebugtext_printValue(D_80275BCC, arg0, 2);
+    gcdebugtext_wrapToTop();
 }
 
-void func_80247FD0(u32 arg0) {
+void gcdebugtext_showHexValue(u32 arg0) {
     s32 var_s0;
 
     D_80275BC4 = D_80275BBC;
     D_80275BD4 = 2;
-    func_80247CEC(D_80275BCC, 0x25, 2);
+    gcdebugtext_printCharacter(D_80275BCC, 0x25, 2);
      var_s0 = (arg0 >= 0x01000000U) ? 0x1C
             : (arg0 >= 0x10000U) ? 0x14
             :0xC;
     if (var_s0 >= 0) {
         do {
-            func_80247CEC(D_80275BCC, ((s32) arg0 >> var_s0) & 0xF, 2);
+            gcdebugtext_printCharacter(D_80275BCC, ((s32) arg0 >> var_s0) & 0xF, 2);
             var_s0 -= 4;
         } while (var_s0 >= 0);
     }
-    func_80248520();
+    gcdebugtext_endLine();
 }
 
-void func_80248098(f32 arg0) {
+void gcdebugtext_showFloat(f32 arg0) {
     f32 var_f22;
     s32 var_s0;
 
     D_80275BC4 = D_80275BBC;
     D_80275BD4 = 2;
     if (arg0 < 0.0f) {
-        func_80247CEC(D_80275BCC, 0x26, 2);
+        gcdebugtext_printCharacter(D_80275BCC, 0x26, 2);
         arg0 *= -1.0f;
     }
     var_f22 = 1e+09;
@@ -305,7 +296,7 @@ void func_80248098(f32 arg0) {
     }
     while (1e-09 <= var_f22) {
             if ((0.09 < var_f22) && (var_f22 < 0.11)) {
-                func_80247CEC(D_80275BCC, 0x24, 2);
+                gcdebugtext_printCharacter(D_80275BCC, 0x24, 2);
             }
             
             var_s0 = 0;
@@ -313,14 +304,14 @@ void func_80248098(f32 arg0) {
                     arg0 -= var_f22;
                     var_s0 += 1;
             }
-            func_80247CEC(D_80275BCC, var_s0, 2);
+            gcdebugtext_printCharacter(D_80275BCC, var_s0, 2);
             var_f22 /= 10.0f;
     }
-    func_80248520();
+    gcdebugtext_endLine();
 }
 
 //letter to font index???
-s32 func_8024824C(s32 arg0) {
+s32 gcdebugtext_encodeCharacter(s32 arg0) {
     //lowercase_letter
     if ((arg0 >= (s32) CHARACTER_RANGE[0]) && ((s32) CHARACTER_RANGE[1] >= arg0)) {
         return (arg0 - CHARACTER_RANGE[0]) + 0xA;
@@ -358,7 +349,7 @@ s32 func_8024824C(s32 arg0) {
 }
 
 
-void func_80248330(u8 *arg0){
+void gcdebugtext_showText(u8 *arg0){
     s32 i;
     s32 var_v0;
 
@@ -366,25 +357,25 @@ void func_80248330(u8 *arg0){
     D_80275BD4 = 2;
     for(i = 0; arg0[i] != 0; i++){
         var_v0 = arg0[i];
-        func_80247CEC(D_80275BCC, func_8024824C(var_v0), 2);
+        gcdebugtext_printCharacter(D_80275BCC, gcdebugtext_encodeCharacter(var_v0), 2);
     }
-    func_80248520();
+    gcdebugtext_endLine();
 }
 
 
-void func_802483B8(void){
+void gcdebugtext_lockScreen(void){
     D_80275BD0 = 1;
     do{}while(1);
 }
 
-void gcdebugText_pauseThread(void){
+void gcdebugtext_pauseThread(void){
     s32 i;
     D_80275BD0 = 1;
     for(i = 30000000; i != 0; i--){}
     D_80275BD0 = 0;
 }
 
-void func_80248404(s32 arg0){
+void gcdebugtext_pauseThreadForTime(s32 arg0){
     s32 i;
 
     D_80275BD0 = 1;
@@ -395,7 +386,7 @@ void func_80248404(s32 arg0){
     D_80275BD0 = 0;
 }
 
-void func_80248444(s32 arg0) {
+void gcdebugtext_checkYAndgcdebugtext_wrapToTop(s32 arg0) {
     D_80275BC8 += arg0;
     if (D_80275BC8 >= 0xCD) {
         D_80275BBC = D_80275BDC + 4;
@@ -405,36 +396,35 @@ void func_80248444(s32 arg0) {
     }
 }
 
-void func_802484D0(void){
-    func_80248444( D_80275BD4*5 + 2);
+void gcdebugtext_wrapToTop(void){
+    gcdebugtext_checkYAndgcdebugtext_wrapToTop( D_80275BD4*5 + 2);
 }
 
-void func_80248500(void){
-    func_80248444(2);
+void gcdebugtext_wrapToTopSmall(void){
+    gcdebugtext_checkYAndgcdebugtext_wrapToTop(2);
 }
 
-void func_80248520(void){
-    func_8024856C();
+void gcdebugtext_endLine(void){
+    gcdebugtext_printSpace();
     if(D_80275BC4 >= D_80275BDC){
         D_80275BDC = D_80275BC4;
     }
-    func_802484D0();
+    gcdebugtext_wrapToTop();
 }
 
-void func_8024856C(void) {
+void gcdebugtext_printSpace(void) {
     s16 sp1E;
     s16 temp_v0;
 
     sp1E = D_80275BC4--;
-    func_80247CEC(D_80275BCC, 0x27, D_80275BD4);
+    gcdebugtext_printCharacter(D_80275BCC, 0x27, D_80275BD4);
     D_80275BC4 = sp1E;
 }
 
 
-s32 gcdebugText_isThreadLocked(void){
+bool gcdebugtext_isThreadLocked(void){
     return D_80275BD0;
 }
 
-void func_802485C8(s32 arg0){
-}
+void gcdebugtext_stub2(s32 arg0) {}
 #endif

@@ -43,14 +43,14 @@ void snspayload_set_key_at_idx(struct SnsPayload *payload, s32 idx, s32 key)
 
 void snspayload_calc_checksum(struct SnsPayload *payload)
 {
-    glcrc_calc_checksum(payload, &payload->checksum, payload->checksum);
+    glcrc_calcChecksum(payload, &payload->checksum, payload->checksum);
 }
 
 bool snspayload_validate(struct SnsPayload *payload)
 {
     u32 checksum[2];
 
-    glcrc_calc_checksum(payload, payload->checksum, checksum);
+    glcrc_calcChecksum(payload, payload->checksum, checksum);
 
     if ((payload->checksum[0] == checksum[0]) && (payload->checksum[1] == checksum[1]))
         return true;

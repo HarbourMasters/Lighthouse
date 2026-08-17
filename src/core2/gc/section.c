@@ -284,7 +284,7 @@ void func_8030AFD8(s32 arg0){
         func_8033301C();
     }
     func_8034789C();
-    baMotor_80250FC0(); //stop controller motor
+    baMotor_forceStop(); //stop controller motor
     gcpausemenu_80314B24();
     func_80347A70();
 }

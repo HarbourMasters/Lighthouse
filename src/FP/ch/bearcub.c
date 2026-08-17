@@ -108,7 +108,7 @@ void func_8038A318(ActorMarker *caller, enum asset_e text_id, s32 arg1){
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 32000);
         coMusicPlayer_playMusic(COMUSIC_5B_FP_IGLOO_HAPPY, 25000);
         func_8025A58C(0, 4000);
-        core1_ce60_incOrDecCounter(false);
+        midichannel_incOrDecCounter(false);
     }
 }
 
