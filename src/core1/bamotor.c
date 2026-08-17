@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "core2/core2.h"
+#include "functions.h"
 #include "bk_time.h"
 #include "version.h"
 #include "port/DevTools/ThreadWatchdog.h"
