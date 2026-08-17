@@ -2,6 +2,10 @@
 #define BANJO_KAZOOIE_CORE1_PFSMANAGER_H
 #include "libultraship/libultra/message.h"
 #include "libultraship/libultra/controller.h"
+
+#define CONTROLLER_THREAD_ID 7
+#define CONTROLLER_THREAD_PRI 40
+
 typedef struct pfs_manager_face_buttons_s {
     bool button_a;
     bool button_b;
@@ -60,7 +64,7 @@ void func_8024F2E4(s32 arg0, Struct_core1_10A00_1 *arg1);
 void func_8024F328(s32 controller_index, s32 arg1);
 OSMesgQueue * pfsManager_getFrameReplyQ(void);
 OSMesgQueue *pfsManager_getFrameMesgQ(void);
-void func_8024F35C(s32 arg0);
+void controller_func_8024F35C(s32 arg0);
 bool pfsManager_isBusy(void);
 int func_8024F3C4(int arg0);
 OSContPad *func_8024F3F4(void);

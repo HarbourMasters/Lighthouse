@@ -202,7 +202,7 @@ void func_8038D3D8(void){
     comusic_8025AB44(COMUSIC_68_TWINKLY_MINIGAME, 0, 4000);
     func_8025AABC(COMUSIC_68_TWINKLY_MINIGAME);
     func_8025A58C(-1, 4000);
-    core1_ce60_incOrDecCounter(true);
+    midichannel_incOrDecCounter(true);
 }
 
 void chTwinklyBox_spawnSecondAndThirdMuncher(ActorMarker *marker){
@@ -273,7 +273,7 @@ void chTwinklyBox_activateBox(ActorMarker *this_marker, ActorMarker *other_marke
         this->unk1C[1] = 0.0f;
         coMusicPlayer_playMusic(COMUSIC_68_TWINKLY_MINIGAME, 25000);
         func_8025A58C(0, 4000);
-        core1_ce60_incOrDecCounter(false);
+        midichannel_incOrDecCounter(false);
         this->unk1C[2] = 428571.0f;
         func_8025AEA0(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
         subaddie_set_state_with_direction(this, 3, 0.001f, 1);

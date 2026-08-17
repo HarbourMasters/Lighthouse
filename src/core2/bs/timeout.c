@@ -19,7 +19,7 @@ void timeout_banjo_init(void){
     ncbadie_func_802BF2C0(80.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     modelAppendages_setKazooiesUpperHalfVisibility(true);
     baMarker_collisionOff();
 }
@@ -44,7 +44,7 @@ void timeout_banjo_update(void){
 void timeout_banjo_end(void){
     baeyes_open();
     func_80291548();
-    core1_ce60_incOrDecCounter(true);
+    midichannel_incOrDecCounter(true);
 }
 
 void timeout_transformation_init(void){
@@ -60,7 +60,7 @@ void timeout_transformation_init(void){
     ncbadie_func_802BF2C0(80.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     baMarker_collisionOff();
     batimer_set(0, 2.9f);
 }
@@ -73,6 +73,6 @@ void timeout_transformation_update(void){
 void timeout_transformation_end(void){
     modelAppendages_setKazooiesUpperHalfVisibility(false);
     func_80291548();
-    core1_ce60_incOrDecCounter(true);
+    midichannel_incOrDecCounter(true);
     func_8025A904();
 }

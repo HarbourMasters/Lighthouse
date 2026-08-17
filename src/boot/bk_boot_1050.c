@@ -12,8 +12,8 @@ extern u8 gHeapBase[];
 extern u8 core1_VRAM[];
 
 /// @brief Entry point of the game
-/// @param arg0 unused/unknown parameter
-void func_80000450(s32 arg0) {
+/// @param arg unused/unknown parameter
+void func_80000450(void *arg) {
     // [port] Stubbed on PC. This is the N64 ROM entry point that boots core1
     // by DMA-reading the core1_rzip segment from ROM, decompressing it into
     // VRAM via rarezip, recording its CRCs into gCore1CRCs, and jumping into
@@ -43,6 +43,6 @@ void func_80000450(s32 arg0) {
 
     overlaytable_init();
 
-    (&core1_main)(arg0);
+    (&core1_main)(arg);
 #endif
 }

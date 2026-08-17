@@ -8,19 +8,31 @@
 #include "structs.h"
 #include "prop.h"
 
+#include "core1/audiomanager.h"
+#include "core1/bamotor.h"
+#include "core1/debugtext.h"
+#include "core1/defragthread.h"
+#include "core1/depthbuffer.h"
 #include "core1/eeprom.h"
 #include "core1/framebufferdraw.h"
+#include "core1/glcrc.h"
+#include "core1/initthread.h"
 #include "core1/lookup.h"
 #include "core1/main.h"
 #include "core1/mem.h"
 #include "core1/ml.h"
 #include "core1/mlmtx.h"
+#include "core1/midichannel.h"
 #include "core1/music.h"
 #include "core1/musicplayer.h"
+#include "core1/overlay.h"
+#include "core1/overlaymanager.h"
+#include "core1/parallel.h"
 #include "core1/pfsmanager.h"
 #include "core1/rarezip.h"
 #include "core1/sns.h"
 #include "core1/sprite.h"
+#include "core1/stub_1D590.h"
 #include "core1/thread5.h"
 #include "core1/ucode.h"
 #include "core1/viewport.h"
@@ -34,77 +46,10 @@ extern "C" {
 /* need to sort out in individual header files */
 void* malloc(size_t size);
 
-void glcrc_calc_checksum(void *start, void *end, u32 checksum[2]);
-
 void func_8025A104(enum comusic_e arg0, s32 arg1);
 void func_8025A55C(s32 arg0, s32 arg1, s32 arg2);
 s32 func_8025A864(enum comusic_e track_id);
 void func_8025ABB8(enum comusic_e track_id, s32 arg1, s32 arg2, s32 arg3);
-
-void piMgr_read(void *vaddr, s32 devaddr, s32 size);
-
-
-/* src/core1/code_1D00.c */
-
-void audioManager_setupSeqp(ALSeqpConfig *config);
-void audioManager_init(void);
-ALHeap *audioManager_getALHeapInfo(void);
-OSMesgQueue *audioManager_getDMANotifyMesgQueue(void);
-OSIoMesg *audioManager_getExtraDMAMesg(void);
-OSMesgQueue *audioManager_getFrameMesgQueue(void);
-OSMesgQueue *audioManager_getReplyMesgQueue(void);
-
-
-/* src/core1/overlay.c */
-
-void overlay_load(
-    s32 id,
-    u8 *ram_start, u8 *ram_end,
-    u32 rom_start, u32 rom_end,
-    u8 *code_start, u8 *code_end,
-    u8 *data_start, u8 *data_end,
-    u8 *bss_start, u8 *bss_end
-);
-
-
-/* src/core1/overlaymanager.c */
-
-#define MAKE_OVERLAY_SEGMENT_EXTERNS(segname) \
-    extern u8 segname##_VRAM[]; \
-    extern u8 segname##_VRAM_END[]; \
-    extern u8 segname##_ROM_START[]; \
-    extern u8 segname##_ROM_END[]; \
-    extern u8 segname##_TEXT_START[]; \
-    extern u8 segname##_TEXT_END[]; \
-    extern u8 segname##_DATA_START[]; \
-    extern u8 segname##_DATA_END[]; \
-    extern u8 segname##_RODATA_START[]; \
-    extern u8 segname##_RODATA_END[]; \
-    extern u8 segname##_BSS_START[]; \
-    extern u8 segname##_BSS_END[];
-
-#define MAKE_SEGMENT_ENTRY(segname, realname) \
-    {#realname, segname##_VRAM, segname##_VRAM_END, (u32) segname##_ROM_START, (u32) segname##_ROM_END, segname##_TEXT_START, segname##_TEXT_END, segname##_DATA_START, segname##_RODATA_END, segname##_BSS_START, segname##_BSS_END}
-
-#define MAKE_DUMMY_SEGMENT_ENTRY(segname, realname) \
-    {#realname, segname##_VRAM, segname##_VRAM_END, (u32) segname##_ROM_START, (u32) segname##_ROM_END, NULL, NULL, NULL, NULL, NULL, NULL}
-
-struct overlay_address_map_s {
-    char *name;
-    u8 *ram_start, *ram_end;
-    u32 rom_start;
-    u32 rom_end;
-    u8 *code_start, *code_end;
-    u8 *data_start, *data_end;
-    u8 *bss_start, *bss_end;
-};
-
-enum overlay_e overlayManager_getLoadedID(void);
-bool overlayManager_isOverlayLoaded(enum overlay_e id);
-bool overlayManager_load(enum overlay_e id);
-void overlayManager_clearLoadedId(void);
-void overlayManager_loadCore2(void);
-void overlayManager_debug(void);
 
 
 /* src/core1/code_7090.c */
@@ -113,41 +58,6 @@ void core1_7090_alloc(void);
 void core1_7090_release(void);
 void core1_7090_initSfxSource(s32 idx, s32 lookup_idx, s32 sample_rate, f32 volume);
 void core1_7090_freeSfxSource(int idx);
-
-
-/* src/core1/code_CE60.c */
-
-void core1_ce60_setChanMask(s32 chan_mask);
-void core1_ce60_setChanMaskWithTransitionSpeed(s32 chan_mask, f32 transition_speed);
-bool core1_ce60_isPlayerInRange(s32 x, s32 z, s32 distance);
-f32 core1_ce60_getPlayerDistance(f32 x, f32 z);
-bool core1_ce60_isPlayerInsideBoundingBox(s32 box_idx);
-void core1_ce60_func_8024A9EC(s32 arg0);
-void core1_ce60_func_8024AAB0(void);
-void core1_ce60_func_8024ADF0(bool arg0);
-void core1_ce60_func_8024AE74(void);
-void core1_ce60_resetState(void);
-void core1_ce60_setChanMaskFromWaterState(s32 chan_mask_underwater, s32 chan_mask_surface);
-void core1_ce60_func_8024AF48(void);
-void core1_ce60_incOrDecCounter(bool increment);
-void core1_ce60_func_8024BD40(s32 arg0, s32 arg1);
-
-
-
-/* src/core1/depthbuffer.c */
-
-extern u8 D_8000E800[];
-
-void depthbuffer_clear(Gfx **gfx);
-void depthbuffer_clearRegion(Gfx **gfx, s32 x, s32 y, s32 w, s32 h, void *color_buffer);
-bool depthbuffer_getUnk4(void);
-bool depthbuffer_isDataPtrSet(void);
-void depthbuffer_stub(void);
-void depthbuffer_enable(bool enable);
-void depthbuffer_setUnk4(bool value);
-void depthbuffer_set(Gfx **gfx);
-void *depthbuffer_getDataPtr(void);
-
 
 
 /* src/core1/code_15B30.c */
@@ -202,19 +112,6 @@ void core1_15B30_addTask7TaskData(s32 framebuffer_id);
 void core1_15B30_toggleTexturePointFilter(void);
 void graphicscache_swapAndGetStacks(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void dummy_func_80254464(void);
-
-/* src/core1/defragmanager.c */
-
-#define DEFRAGMANAGER_THREAD_STACK_SIZE        2048
-#define DEFRAGMANAGER_THREAD_ID                2
-#define DEFRAGMANAGER_THREAD_PRIORITY          10
-#define DEFRAGMANAGER_THREAD_PRIORITY_HIGH     30
-
-void defragManager_init(void);
-void defragManager_free(void);
-void defragManager_setPriority(OSPri pri);
-void defragManager_resume(void);
-void defragManager_pause(void);
 
 #ifdef __cplusplus
 }

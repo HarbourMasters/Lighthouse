@@ -466,7 +466,7 @@ void bsbswim_die_update(void) {
 void bsbswim_die_end(void) {
     func_802906A4(1);
     func_80291548();
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     baMarker_collisionOn();
     if (bs_getNextState() != BS_5A_LOADZONE) {
         func_80346CE8();
