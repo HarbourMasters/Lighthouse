@@ -985,6 +985,25 @@ bool RadioButton(const char* label, bool active, const RadioButtonsOptions& opti
     return pressed;
 }
 
+bool CVarRadioButton(const char* text, const char* cvarName, int32_t id, const RadioButtonsOptions& options) {
+    std::string make_invisible = "##" + std::string(text) + std::string(cvarName);
+
+    bool ret = false;
+    int val = CVarGetInteger(cvarName, options.defaultIndex);
+    PushStyleCheckbox(options.color);
+    if (ImGui::RadioButton(make_invisible.c_str(), id == val)) {
+        CVarSetInteger(cvarName, id);
+        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+        ret = true;
+    }
+    ImGui::SameLine();
+    ImGui::Text("%s", text);
+    PopStyleCheckbox();
+    WidgetTooltip(options.tooltip);
+
+    return ret;
+}
+
 } // namespace UIWidgets
 
 ImVec4 GetRandomValue() {

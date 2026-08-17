@@ -821,6 +821,7 @@ bool CVarInputInt(const char* label, const char* cvarName, const InputOptions& o
 bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaultColor, bool hasAlpha = false,
                      uint8_t modifiers = 0, UIWidgets::Colors themeColor = UIWidgets::Colors::LightBlue);
 bool RadioButton(const char* label, bool active);
+bool CVarRadioButton(const char* text, const char* cvarName, int32_t id, const RadioButtonsOptions& options);
 bool StateButton(const char* str_id, const char* label, ImVec2 size, UIWidgets::ButtonOptions options,
                  ImGuiButtonFlags flags = ImGuiButtonFlags_None);
 } // namespace UIWidgets

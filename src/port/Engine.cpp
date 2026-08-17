@@ -30,7 +30,6 @@
 #include <ship/window/gui/Fonts.h>
 #include <ship/window/gui/resource/Font.h>
 
-#include "Audio/GameAudio.h"
 #include "build.h"
 #include "Extractor/ExtractFlow.h"
 #include "Extractor/GameExtractor.h"

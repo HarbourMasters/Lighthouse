@@ -101,6 +101,20 @@ std::vector<file_progress_e> progressLoadout = {
 
 };
 
+std::vector<RandoCheckId> smRandoCheckIdList = {
+    RC_SM_EMPTY_HONEYCOMB_COLLIWOBBLE,
+    RC_SM_EMPTY_HONEYCOMB_QUARRIES,
+    RC_SM_EMPTY_HONEYCOMB_STUMP,
+    RC_SM_EMPTY_HONEYCOMB_TREE,
+    RC_SM_EMPTY_HONEYCOMB_UNDERWATER,
+    RC_SM_EMPTY_HONEYCOMB_WATERFALL,
+    RC_SM_MOLEHILL_ATTACK,
+    RC_SM_MOLEHILL_BEAK_BARGE,
+    RC_SM_MOLEHILL_CAMERA_CONTROL,
+    RC_SM_MOLEHILL_CLIMB,
+    RC_SM_MOLEHILL_DIVE,
+    RC_SM_MOLEHILL_JUMP,
+};
 // clang-format on
 
 void Rando::Logic::InitializeSaveData(SaveData* saveData) {
@@ -161,5 +175,25 @@ void Rando::Logic::GrantStartingLoadout() {
 void Rando::Logic::GrantFileProgressFlags() {
     for (auto& fileprog : progressLoadout) {
         fileProgressFlag_set(fileprog, 1);
+    }
+}
+
+void Rando::Logic::GrantSpiralMountainChecks() {
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"), 0)) {
+        return;
+    }
+
+    for (auto& smCheckId : smRandoCheckIdList) {
+        RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[smCheckId];
+
+        if (!randoSaveCheck.isShuffled) {
+            continue;
+        }
+
+        CustomObject::CheckObtainedEX(smCheckId, true);
+        if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
+            ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, true);
+            ability_setHasUsed((ability_e)randoSaveCheck.randoCollectionId);
+        }
     }
 }
