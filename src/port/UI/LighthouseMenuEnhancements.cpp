@@ -2,6 +2,9 @@
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
 #include "port/Network/Anchor/Anchor.h"
 
+#include <ship/Context.h>
+#include <fast/Fast3dWindow.h>
+
 #include "functions.h"
 extern "C" {
 #include "variables.h"
@@ -193,6 +196,42 @@ void LighthouseMenu::AddMenuEnhancements() {
             "The camera holds its angle until you use a C-button camera control, which returns "
             "to the normal camera. While enabled, the right stick no longer acts as the C-buttons."));
 
+    AddWidget(path, "Free Look (Mouse)", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseEnabled"))
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            auto ctx = Ship::Context::GetRawInstance();
+            if (!ctx) return;
+            auto window = ctx->GetWindow();
+            if (!window) return;
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.MouseEnabled"), 0)) {
+                window->SetAutoCaptureMouse(true);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Use the mouse to freely orbit the camera around Banjo (yaw and pitch). "
+            "The camera holds its angle until you use a C-button camera control, which returns "
+            "to the normal camera. Mouse must be captured to the window (click inside or press F2)."));
+
+    AddWidget(path, "Mouse Camera Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseSensitivity"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(1.0f).Max(10.0f).DefaultValue(3.0f).Step(0.5f).Format("%.1f").Tooltip(
+            "Sensitivity of the mouse-controlled camera."));
+
+    AddWidget(path, "Field of View", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseFov"))
+        .RaceDisable(false)
+        .Options(FloatSliderOptions().Min(20.0f).Max(100.0f).DefaultValue(40.0f).Step(1.0f).Format("%.0f").Tooltip(
+            "Adjusts the field of view. Lower values zoom in, higher values zoom out."));
+
+    AddWidget(path, "FOV Scroll Wheel", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseFovScroll"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Scroll wheel adjusts the field of view in-game. "
+            "Scroll up to zoom in, scroll down to zoom out."));
+
     AddWidget(path, "Free Look Yaw Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.YawSensitivity"))
         .RaceDisable(false)
@@ -218,7 +257,7 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Free Look Smoothing", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.SmoothRate"))
         .RaceDisable(false)
-        .Options(FloatSliderOptions().Min(8.0f).Max(60.0f).DefaultValue(40.0f).Step(1.0f).Format("%.0f").Tooltip(
+        .Options(FloatSliderOptions().Min(0.0f).Max(60.0f).DefaultValue(40.0f).Step(1.0f).Format("%.0f").Tooltip(
             "How quickly the camera settles when sliding along geometry. "
             "Lower is smoother but floatier; higher is snappier but can hitch on walls."));
 
