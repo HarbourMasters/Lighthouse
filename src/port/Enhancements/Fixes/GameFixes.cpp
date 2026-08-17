@@ -164,6 +164,43 @@ void RegisterChimpyStumpRumble_Init() {
     });
 }
 
+// Chimpy softlock prevention
+static bool sChimpyDeliveryInFlight = false;
+
+// Lazily expires the in-flight flag.
+static bool ChimpyDeliveryStillInFlight() {
+    if (sChimpyDeliveryInFlight) {
+        sChimpyDeliveryInFlight =
+            gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN && !mapSpecificFlags_get(MM_SPECIFIC_FLAG_3_CHIMPY_HAS_LEFT);
+    }
+    return sChimpyDeliveryInFlight;
+}
+
+void RegisterChimpySoftlock_Init() {
+    REGISTER_LISTENER(OnCarryThrow, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnCarryThrow*>(event);
+
+        if (ev->markerId == MARKER_36_ORANGE_COLLECTIBLE && gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN) {
+            sChimpyDeliveryInFlight = true;
+        }
+    });
+
+    REGISTER_LISTENER(OnIsJiggyScoreSpawned, EVENT_PRIORITY_HIGH, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnIsJiggyScoreSpawned*>(event);
+
+        if (ev->jiggyId == JIGGY_9_MM_CHIMPY && ChimpyDeliveryStillInFlight()) {
+            event->Cancelled = true;
+            ev->result = 0;
+        }
+    });
+
+    REGISTER_VB_SHOULD(VB_OVERRIDE_JIGGY_SPAWN, EVENT_PRIORITY_LOW, {
+        if (va_arg(args, int) == JIGGY_9_MM_CHIMPY && jiggyscore_isCollected(JIGGY_9_MM_CHIMPY)) {
+            *should = true;
+        }
+    });
+}
+
 // Mumbo token duplicate-id fix: rewrite the resolved id for the two tokens that share an id.
 void RegisterMumboTokenIdResolve_Init() {
     COND_HOOK(OnMumboTokenIdResolve, EVENT_PRIORITY_NORMAL,
@@ -213,5 +250,6 @@ static RegisterShipInitFunc initGruntyBounceFunc(RegisterGruntyBounce_Init, { CV
 static RegisterShipInitFunc initYumYumDropFunc(RegisterYumYumDrop_Init);
 static RegisterShipInitFunc initCongaDialogFunc(RegisterCongaDialog_Init, { CVAR_CONGA_TEXT });
 static RegisterShipInitFunc initChimpyStumpRumbleFunc(RegisterChimpyStumpRumble_Init, { CVAR_STUMP_RUMBLE });
+static RegisterShipInitFunc initChimpySoftlockFunc(RegisterChimpySoftlock_Init);
 static RegisterShipInitFunc initMumboTokenIdResolveFunc(RegisterMumboTokenIdResolve_Init,
                                                         { CVAR_TOKEN_MMM, CVAR_TOKEN_CCW });

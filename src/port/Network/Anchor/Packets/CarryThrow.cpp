@@ -41,6 +41,8 @@ void Anchor::HandlePacket_CarryThrow(nlohmann::json& payload) {
 }
 
 extern "C" void port_anchor_onCarryThrow(s32 markerId, f32 start[3], f32 target[3]) {
+    CALL_EVENT(OnCarryThrow, markerId, start, target);
+
     Anchor* anchor = Anchor::GetInstance();
     if (anchor == nullptr || !anchor->isConnected) {
         return;
