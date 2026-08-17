@@ -14,7 +14,7 @@ void gcdebugtext_stallOnThread(void);
 void gcdebugtext_flashSquare(s32 color);
 void gcdebugtext_drawSquare2(s32 color);
 void gcdebugtext_drawSquareOnly(s32 color);
-void gcdebugtext_drawCharacter(s32 colorSelect, s32 displayCharacter, s32 fontSize, s32 keepCursor, bool setBackgroundColorBlack, s32 r, s32 g, s32 b);
+void gcdebugtext_drawCharacter(s32 colorSelect, s32 displayCharacter, s32 fontSize, s32 keepCursor, s32 setBackgroundColorBlack, s32 r, s32 g, s32 b);
 void gcdebugtext_clearText(void);
 void gcdebugtext_printCharacter(s32 colorSelect, s32 displayCharacter, s32 fontSize);
 void gcdebugtext_printValue(s32 colorSelect, s32 displayValue, s32 fontSize);
