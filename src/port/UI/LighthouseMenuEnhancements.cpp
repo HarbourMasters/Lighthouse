@@ -201,9 +201,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Callback([](WidgetInfo& info) {
             auto ctx = Ship::Context::GetRawInstance();
-            if (!ctx) return;
+            if (!ctx)
+                return;
             auto window = ctx->GetWindow();
-            if (!window) return;
+            if (!window)
+                return;
             if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.MouseEnabled"), 0)) {
                 window->SetAutoCaptureMouse(true);
             }
@@ -228,9 +230,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "FOV Scroll Wheel", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MouseFovScroll"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Scroll wheel adjusts the field of view in-game. "
-            "Scroll up to zoom in, scroll down to zoom out."));
+        .Options(CheckboxOptions().Tooltip("Scroll wheel adjusts the field of view in-game. "
+                                           "Scroll up to zoom in, scroll down to zoom out."));
 
     AddWidget(path, "Free Look Yaw Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.YawSensitivity"))

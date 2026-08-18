@@ -107,10 +107,13 @@ void MouseCamera_Update() {
     sMouseDeltaY = 0.0f;
     sMouseMoved = false;
     auto ctx = Ship::Context::GetRawInstance();
-    if (!ctx) return;
+    if (!ctx)
+        return;
     auto window = ctx->GetWindow();
-    if (!window) return;
-    if (!window->IsMouseCaptured()) return;
+    if (!window)
+        return;
+    if (!window->IsMouseCaptured())
+        return;
     Ship::Coords delta = window->GetMouseDelta();
     sMouseDeltaX = static_cast<float>(delta.x);
     sMouseDeltaY = static_cast<float>(delta.y);
