@@ -298,6 +298,13 @@ void Rando::ObjectBehavior::Init() {
         ev->result = randoCustomActor;
     })
 
+    COND_VB_SHOULD(VB_APPLY_CUBE_PROP_DATA, EVENT_PRIORITY_NORMAL, IS_RANDO, {
+        Actor* actor = va_arg(args, Actor*);
+        if (actor != NULL && actor->marker != NULL && actor->marker->randoCheckId != RC_UNKNOWN) {
+            *should = false;
+        }
+    })
+
     COND_HOOK(OnSaveActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnSaveActorSaveState* ev = (OnSaveActorSaveState*)event;
 

@@ -1389,6 +1389,9 @@ ActorMarker * marker_init(s32 *pos, MarkerDrawFunc draw_func, int arg2, int mark
     marker->unk4C = 0;
     marker->unk40_20 = 0;
     marker->unk40_31 = 0;
+    // [port] randoCheckId is a port field on a pooled struct; clear it so a recycled
+    // marker doesn't carry the previous occupant's check id.
+    marker->randoCheckId = 0;
     return marker;
 }
 
@@ -1525,7 +1528,8 @@ void func_80330208(Cube *cube) {
                 position[1] = (s32) i_prop->y;
                 position[2] = (s32) i_prop->z;
                 actor = func_803055E0(i_prop->unk8, position, i_prop->yaw, i_prop->unk10_31, i_prop->unk10_19);
-                if (actor != NULL) {
+//              if (actor != NULL) {
+                if (actor != NULL && EventSystem_Should(VB_APPLY_CUBE_PROP_DATA, TRUE, actor)) {
                     actor->secondaryId = i_prop->unk10_31;
                     actor->actorTypeSpecificField = i_prop->radius;
                     suSetSpriteScale(actor, (i_prop->scale != 0) ? ((f32)i_prop->scale * 0.01) : 1.0);
