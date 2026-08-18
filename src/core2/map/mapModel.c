@@ -374,6 +374,7 @@ void mapModel_opa_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
 void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     s32 temp_a0;
+    f32 scale; // [port]
 
     if (mapModel.model_bin_xlu != NULL) {
         if (gsworld_getMap() == MAP_1D_MMM_CELLAR) {
@@ -385,7 +386,10 @@ void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             modelRender_setAnimatedTexturesCacheId(temp_a0);
         }
         modelRender_setEnvColor(mapModel.env_red, mapModel.env_green, mapModel.env_blue, 0xFF);
-        modelRender_draw(gfx, mtx, NULL, NULL, mapModel.description->scale, NULL, mapModel.model_bin_xlu);
+//      modelRender_draw(gfx, mtx, NULL, NULL, mapModel.description->scale, NULL, mapModel.model_bin_xlu);
+        scale = mapModel.description->scale;
+        CALL_EVENT(MapModelXluScale, gsworld_getMap(), &scale);
+        modelRender_draw(gfx, mtx, NULL, NULL, scale, NULL, mapModel.model_bin_xlu);
         func_802F7BC0(gfx, mtx, vtx);
     }
 }

@@ -16,8 +16,7 @@ typedef enum VBehaviorID {
     VB_ZOOMBOX_TEXT_ADJUST, // text scale (shrink pause text) + X nudge (JP kana clearance)
 
     // Camera behavior
-    VB_STATIC_CAMERA_SET,
-    VB_STATIC_CAMERA_EXIT,
+    VB_CUTSCENE_ACTOR_DRAW,
     VB_CAMERA_LIVE_ASPECT,
     VB_CAMERA_FOLLOW,
     VB_CAMERA_APPLY_SHAKE,

@@ -149,9 +149,10 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
     }
 
     // Ignore packets from mismatched clients, except for ALL_CLIENT_STATE, UPDATE_CLIENT_STATE, and
-    // PLAYER_UPDATE(_FULL)
+    // player updates
     if (packetType != ALL_CLIENT_STATE && packetType != UPDATE_CLIENT_STATE && packetType != PLAYER_UPDATE &&
-        packetType != PLAYER_UPDATE_FULL) {
+        packetType != PLAYER_UPDATE_FULL && packetType != PLAYER_ANIM && packetType != PLAYER_SUBRANGE &&
+        packetType != PLAYER_TRANSFORM) {
         if (payload.contains("clientId")) {
             uint32_t clientId = payload["clientId"].get<uint32_t>();
             if (clients.contains(clientId) && clients[clientId].clientVersion != clientVersion) {

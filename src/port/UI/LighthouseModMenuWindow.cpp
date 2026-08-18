@@ -645,7 +645,9 @@ void LighthouseModMenuWindow::DrawElement() {
                            "No romhack active. Displaying mods compatible with base game.");
     } else {
         ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Cyan),
-                           "Displaying eligible mods for mods/~romhacks/%s.o2r.", activeHack.c_str());
+                           "Displaying eligible mods for mods/~romhacks/%s.o2r. If you do not see an elibigle mod,\n"
+                           "add one to mods/~shared/ or mods/%s/",
+                           activeHack.c_str(), activeHack.c_str());
     }
 
     ImGui::TextColored(

@@ -1,5 +1,6 @@
 // BanjoDecomp: core2/code_41FB0.c
 #include "functions.h"
+#include "port/ShipUtils.h"
 #include "variables.h"
 #include <ultra64.h>
 
@@ -148,6 +149,12 @@ Actor *__bundle_spawnWithFirstActor(enum bundle_e bundle_id, f32 position[3], Ac
         if (!EventSystem_Should(VB_OVERRIDE_BUNDLE_SPAWN, false, bundle_id, bundle_info, i, position, &actor)) {
             actor = (i == 0 && firstActor) ? firstActor : actor_spawnWithYaw_f32(bundle_info->actor_id, position, 0);
             //}
+            // [port] Suppressed spawn: a cancelled OnActorSpawn returns the listener's actor,
+            // which is NULL when the rando replaced this check with an object that already exists.
+            if (actor == NULL) {
+                BK_LOG_WARN("bundle %d: spawn of actor 0x%X suppressed", bundle_id, bundle_info->actor_id);
+                continue;
+            }
             actor->is_bundle = true;
 
             bundle = (Bundle*)&actor->unkBC;

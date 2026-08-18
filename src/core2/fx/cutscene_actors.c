@@ -91,6 +91,9 @@ Actor *func_802E0738(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *this;
 
     this = marker_getActorAndRotation(marker, rotation);
+    if (!EventSystem_Should(VB_CUTSCENE_ACTOR_DRAW, true, this)) {
+        return this;
+    }
     modelRender_setPreDrawCallback( (model_render_pre_draw_callback_f)func_802E0710, (void *)this);
     modelRender_setPostDrawCallback((model_render_post_draw_callback_f)actor_postdrawMethod, (void *)marker);
     modelRender_draw(gfx, mtx, this->position, rotation, this->scale, NULL, marker_loadModelBin(marker));

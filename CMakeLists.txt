@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.26.0 FATAL_ERROR)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Set the project version and language
-project(Lighthouse VERSION 1.0.3 LANGUAGES C CXX ASM)
+project(Lighthouse VERSION 1.1.0 LANGUAGES C CXX ASM)
 include(FetchContent)
 
 include(cmake/lighthouse-cvars.cmake)
@@ -28,7 +28,7 @@ math(EXPR PATCH_INDEX "${PROJECT_VERSION_PATCH}")
 # Use the patch number to select the correct word
 list(GET NATO_PHONETIC_ALPHABET ${PATCH_INDEX} PROJECT_PATCH_WORD)
 
-set(PROJECT_BUILD_NAME "Split Rock ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
+set(PROJECT_BUILD_NAME "Hatteras ${PROJECT_PATCH_WORD}" CACHE STRING "" FORCE)
 #set(PROJECT_TEAM "SonicDcer & Lywx" CACHE STRING "" FORCE)
 
 # Get Git Information
@@ -370,7 +370,7 @@ if (CMAKE_GENERATOR MATCHES "Visual Studio")
     )
 endif()
 
-add_subdirectory(libultraship ${CMAKE_CURRENT_SOURCE_DIR}/libultraship)
+add_subdirectory(libultraship ${CMAKE_CURRENT_BINARY_DIR}/libultraship)
 add_dependencies(${PROJECT_NAME} libultraship)
 target_link_libraries(${PROJECT_NAME} PRIVATE libultraship)
 
@@ -743,7 +743,7 @@ include(ExternalProject)
 ExternalProject_Add(TorchExternal
 	PREFIX TorchExternal
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/Torch
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/Torch -DENABLE_ASAN=${ENABLE_ASAN}
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/Torch -DENABLE_ASAN=${ENABLE_ASAN} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 )
 #set_target_properties(TorchExternal PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 ExternalProject_Get_Property(TorchExternal install_dir)

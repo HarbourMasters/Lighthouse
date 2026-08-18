@@ -294,7 +294,8 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
     //complex animation (from animation bin file)
     if(s_current_transition.state == 1 || s_current_transition.state == 6){
-        modelRender_draw(gfx, mtx, sp58, vp_rotation, 1.0f, 0, s_current_transition.model_ptr);
+//      modelRender_draw(gfx, mtx, sp58, vp_rotation, 1.0f, 0, s_current_transition.model_ptr);
+        modelRender_draw(gfx, mtx, sp58, vp_rotation, transitionScale, 0, s_current_transition.model_ptr);
         if(s_current_transition.anctrl != NULL){
             gDPSetTextureFilter((*gfx)++, G_TF_BILERP);
             gDPSetColorDither((*gfx)++, G_CD_MAGICSQ);
@@ -314,7 +315,8 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             vp_rotation[2] = s_current_transition.rotation - 90.0f*percentage;
             scale = percentage*s_current_transition.transistion_info->scale + 0.1;
         }
-        modelRender_draw(gfx, mtx, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
+//      modelRender_draw(gfx, mtx, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
+        modelRender_draw(gfx, mtx, sp58, vp_rotation, scale * transitionScale, 0, s_current_transition.model_ptr);
     }
     else if(s_current_transition.state == TRANSITION_STATE_5_FADE_OUT){//L8030B9EC
         switch (s_current_transition.transistion_info->uid)
@@ -335,7 +337,8 @@ void gctransition_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                 break;
         }
         if(!(s_current_transition.substate < 3) || s_current_transition.transistion_info->uid != 0x11){
-            modelRender_draw(gfx, mtx, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
+//          modelRender_draw(gfx, mtx, sp58, vp_rotation, scale, 0, s_current_transition.model_ptr);
+            modelRender_draw(gfx, mtx, sp58, vp_rotation, scale * transitionScale, 0, s_current_transition.model_ptr);
         }
         else{
             modelRender_reset();

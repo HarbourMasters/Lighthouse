@@ -9,13 +9,18 @@
 #include "port/ShipInit.hpp"
 
 #define CVAR_CUTSCENE_SYNC CVAR_ENHANCEMENT("Fix.CutsceneSync")
+#define CVAR_GV_LOBBY_FRAMERATE CVAR_ENHANCEMENT("Fix.GVLobbyFramerate")
 
 extern "C" {
 
 #include "enums.h"
+#include "core2/nc/camera.h"
 
 int getGameMode(void);
 enum map_e gsworld_getMap(void);
+s32 ncCamera_getType(void);
+bool func_802BB270(void);
+void viMgr_func_8024BF94(s32 viPerTick);
 
 // Demo Display Pacing
 
@@ -133,4 +138,16 @@ void RegisterFramePacingPatches_Init() {
     });
 }
 
+void RegisterGVLobbyFramerate_Init() {
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_GV_LOBBY_FRAMERATE, 1), [](IEvent* event) {
+        (void)event;
+        if (gsworld_getMap() != MAP_6E_GL_GV_LOBBY) {
+            return;
+        }
+        const bool scripted = (ncCamera_getType() == CAMERA_TYPE_3_STATIC) || !func_802BB270();
+        viMgr_func_8024BF94(scripted ? 3 : 2);
+    });
+}
+
 static RegisterShipInitFunc initFunc(RegisterFramePacingPatches_Init);
+static RegisterShipInitFunc initGVLobbyFramerateFunc(RegisterGVLobbyFramerate_Init, { CVAR_GV_LOBBY_FRAMERATE });

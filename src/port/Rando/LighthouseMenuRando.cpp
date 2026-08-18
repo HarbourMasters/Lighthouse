@@ -79,7 +79,7 @@ void LighthouseMenu::AddMenuRando() {
             } else {
                 std::string spoilerName =
                     Rando::Spoiler::spoilerLogs[CVarGetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0)];
-                CVarSetString("gRandoSettings.SpoilerFile", spoilerName.c_str());
+                CVarSetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), spoilerName.c_str());
             }
         }
         ImGui::SameLine();
@@ -272,7 +272,7 @@ void LighthouseMenu::AddMenuRando() {
     path.sidebarName = "Check Tracker";
     AddSidebarEntry("Rando", path.sidebarName, 1);
     AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.CheckTrackerSettings")
+        .CVar(CVAR_WINDOW("CheckTrackerSettings"))
         .WindowName("Check Tracker Settings")
         .HideInSearch(true);
 }

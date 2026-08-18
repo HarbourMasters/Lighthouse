@@ -112,6 +112,16 @@ static inline int32_t clamp32(int64_t v) {
     return (int32_t)v;
 }
 
+static uint16_t naudio_dmem_addr(uint8_t dmem_shift) {
+    static const uint16_t kNAudioBuffers[] = { 0, 368, 736, 1248, 1616, 1984, 2352 };
+    for (unsigned i = 0; i < sizeof(kNAudioBuffers) / sizeof(kNAudioBuffers[0]); i++) {
+        if ((kNAudioBuffers[i] >> 8) == dmem_shift) {
+            return kNAudioBuffers[i];
+        }
+    }
+    return (uint16_t)(dmem_shift << 8);
+}
+
 void aClearBufferImpl(uint16_t addr, int nbytes) {
     nbytes = ROUND_UP_16(nbytes);
     memset(BUF_U8(addr), 0, nbytes);
@@ -356,7 +366,9 @@ void aResampleImpl(uint8_t flags, uint16_t pitch, RESAMPLE_STATE state, uint16_t
     int16_t tmp[16];
     int16_t* in_initial = BUF_S16(inofs);
     int16_t* in = in_initial;
-    int16_t* out = BUF_S16(OFS_BASE + ((outflag & 3) != 0) * NUM_BYTES);
+    // [port] outflag is a packed buffer address, not a flag. Reading it as one was right only
+    // because the resampler is never pointed past N_AL_TEMP_1.
+    int16_t* out = BUF_S16(naudio_dmem_addr(outflag));
     int nbytes = ROUND_UP_16(NUM_BYTES);
     uint32_t pitch_accumulator;
     int i;
@@ -699,14 +711,9 @@ void aSetVolumeImpl(uint8_t flags, int16_t v, int16_t t, int16_t r) {
 
 // Lighthouse-custom
 void aPoleFilterImpl(uint8_t flags, uint16_t gain, uint8_t dmem_shift, void* state) {
-    // dmem_shift is the buffer address >> 8
-    uint16_t dmem_addr = dmem_shift << 8;
+    uint16_t dmem_addr = naudio_dmem_addr(dmem_shift);
     int16_t* buf = BUF_S16(dmem_addr);
     POLEF_STATE* filterState = (POLEF_STATE*)state;
-
-    // Single-pole IIR lowpass: y[n] = (gain * x[n] + coef[8] * y[n-1]) >> 14
-    // gain = fgain (SCALE - timeConstant), coef[8] = timeConstant
-    // SCALE = 16384 = 2^14, so gain + coef[8] = SCALE (unity DC gain)
     int16_t* coef = (int16_t*)rspa.adpcm_table;
 
     int32_t prev;
