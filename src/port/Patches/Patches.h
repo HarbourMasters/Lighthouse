@@ -62,7 +62,8 @@ void port_syncBottlesBonusIndex(void);
 
 // Camera (CameraPatches.cpp)
 
-void port_camera_applyWsYawFix(float rotation[3]);
+float port_wsCameraYawScale(void);
+float port_wsCameraPitchScale(void);
 
 // Input
 
@@ -130,7 +131,7 @@ void port_tickDemoAudioHold(void);
 int port_audioHeld(void);
 void port_noteMainLoopAlive(void);
 int port_audioStallHold(void);
-int32_t port_audioCatchupFrames(void);
+int32_t port_audioPumpShouldWait(void);
 
 // One-shot cues when a teammate's file-progress flag arrives
 void port_progressFlag_remoteCue(int32_t progressFlag);

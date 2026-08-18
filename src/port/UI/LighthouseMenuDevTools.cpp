@@ -11,6 +11,7 @@
 #include <spdlog/fmt/fmt.h>
 
 #include "variables.h"
+#include "enums.h"
 
 namespace LighthouseGui {
 
@@ -84,7 +85,7 @@ void LighthouseMenu::AddMenuDevTools() {
         .CVar(CVAR_DEVELOPER_TOOLS("DebugMode"))
         .Options(CheckboxOptions().Tooltip("Various debug features, including a level selector from the main menu."));*/
 
-    // Sequences (dev: jump straight to a parade or demo)
+    // Sequences
     using namespace Lighthouse::DevTools;
     path.sidebarName = "Sequences";
     AddSidebarEntry("Dev Tools", "Sequences", 1);
@@ -97,19 +98,51 @@ void LighthouseMenu::AddMenuDevTools() {
         .Callback([](WidgetInfo&) { RequestSequence(SEQ_PARADE_FINAL); })
         .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-Grunty end-credits parade."));
 
-    AddWidget(path, "Demos", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Cutscenes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Spiral Mountain Ending Sequence", WIDGET_BUTTON)
         .Callback([](WidgetInfo&) { RequestSequence(SEQ_MODE9_BK); })
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the post-parade demo."));
+    AddWidget(path, "Under 100 Ending Scene", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestCutsceneMap(MAP_20_CS_END_NOT_100); })
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the not-100 jiggy ending cutscene."));
     AddWidget(path, "All 100 Ending Scene", WIDGET_BUTTON)
         .Callback([](WidgetInfo&) { RequestSequence(SEQ_ENDING_ALL_100); })
-        .Options(ButtonOptions()
-                     .Size(Sizes::Inline)
-                     .Tooltip("Jump to the 100-jiggy ending cutscene (normally shown after the final parade)."));
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the 100-jiggy ending cutscene."));
+    AddWidget(path, "Game Over Cutscene", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestSequence(SEQ_GAME_OVER); })
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(
+            ButtonOptions().Size(Sizes::Inline).Tooltip("Jump to the Game Over cutscene in Grunty's machine room."));
+    AddWidget(path, "Klungo's Machine Room (Unused)", WIDGET_BUTTON)
+        .Callback([](WidgetInfo&) { RequestCutsceneMap(MAP_84_CS_UNUSED_MACHINE_ROOM); })
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(
+            ButtonOptions().Size(Sizes::Inline).Tooltip("Unused and incomplete cutscene. It has no exit trigger."));
 
     AddWidget(path, "Attract Demos", WIDGET_SEPARATOR_TEXT);
-    // Demo index = slot in the decomp attract table (D_80371F00); 4 and 9 are the
-    // Rareware-logo cutscenes, intentionally skipped.
     static const struct {
         const char* name;
         int demo;

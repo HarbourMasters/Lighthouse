@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "port/Rando/Logic/Logic.h"
+#include <nlohmann/json.hpp>
 #include <filesystem>
 
 namespace Rando {

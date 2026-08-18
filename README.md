@@ -77,7 +77,9 @@ Lighthouse supports using multiple regions of Banjo-Kazooie as language packs. G
 
 Many romhacks can be extracted from patched ROMs and used as mods with Lighthouse. This can be done in-game using the Romhacks menu in the Settings section. If any hack isn't fully supported, the menu should inform you when extracting the mod. Most supported romhacks currently haven't been fully tested, so there may still be some issues.
 
-_NOTE: When using romhacks, only US v1.0 is supported, inherited from Banjo's Backpack. Therefore, it is recommended to use **US v1.0** as your base `bk.o2r` file.
+Lighthouse can also be launched directly to a romhack with a launch argument like so: `./Lighthouse.exe -hack jiggies-of-time`. This is a one-off and your loaded romhack is not saved to your remembered config when using a launch argument.
+
+_NOTE_: When using romhacks, only US v1.0 is supported, inherited from Banjo's Backpack. Therefore, it is recommended to use **US v1.0** as your base `bk.o2r` file.
 
 # Custom Assets
 

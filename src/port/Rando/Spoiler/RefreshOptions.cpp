@@ -1,9 +1,10 @@
 #include "Spoiler.h"
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "ship/Context.h"
+#include <ship/Context.h>
 #include <filesystem>
 
 #include <libultraship/libultra/types.h>
+#include "port/UI/cvar_prefixes.h"
 
 std::vector<std::string> Rando::Spoiler::spoilerLogs;
 const std::filesystem::path randomizerFolderPath(Ship::Context::GetPathRelativeToAppDirectory("randomizer", "bk64"));
@@ -25,16 +26,16 @@ void Rando::Spoiler::RefreshSpoilerLogs() {
             Rando::Spoiler::spoilerLogs.push_back(fileName);
 
             // Check if the current file is the one set in the cvar
-            if (fileName == CVarGetString("gRandoSettings.SpoilerFile", "")) {
+            if (fileName == CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "")) {
                 spoilerFileIndex = Rando::Spoiler::spoilerLogs.size() - 1;
             }
         }
     }
 
     if (spoilerFileIndex == -1) {
-        CVarSetInteger("gRandoSettings.SpoilerFileIndex", 0);
-        CVarSetString("gRandoSettings.SpoilerFile", "");
+        CVarSetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), 0);
+        CVarSetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "");
     } else {
-        CVarSetInteger("gRandoSettings.SpoilerFileIndex", spoilerFileIndex);
+        CVarSetInteger(CVAR_RANDOMIZER_SETTING("SpoilerFileIndex"), spoilerFileIndex);
     }
 }

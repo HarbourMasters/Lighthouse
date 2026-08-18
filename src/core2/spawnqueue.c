@@ -522,7 +522,7 @@ void __spawnQueue_add_0(GenFunction_0 arg0){
         spawnQueue[spawnQueueLength].arg_cnt = 0;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_0 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_0 entry", tmp);
     }
 }
 
@@ -534,7 +534,7 @@ void __spawnQueue_add_1(GenFunction_1 arg0, uintptr_t arg1){
         spawnQueue[spawnQueueLength].arg_cnt = 1;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_1 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_1 entry", tmp);
     }
 }
 
@@ -547,7 +547,7 @@ void __spawnQueue_add_2(GenFunction_2 arg0, uintptr_t arg1, uintptr_t arg2){
         spawnQueue[spawnQueueLength].arg_cnt = 2;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_2 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_2 entry", tmp);
     }
 }
 
@@ -561,7 +561,7 @@ void __spawnQueue_add_3(GenFunction_3 arg0, uintptr_t arg1, uintptr_t arg2, uint
         spawnQueue[spawnQueueLength].arg_cnt = 3;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_3 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_3 entry", tmp);
     }
 }
 
@@ -576,7 +576,7 @@ void __spawnQueue_add_4(GenFunction_4 arg0, uintptr_t arg1, uintptr_t arg2, uint
         spawnQueue[spawnQueueLength].arg_cnt = 4;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_4 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_4 entry", tmp);
     }
 }
 
@@ -592,7 +592,7 @@ void __spawnQueue_add_5(GenFunction_5 arg0, uintptr_t arg1, uintptr_t arg2, uint
         spawnQueue[spawnQueueLength].arg_cnt = 5;
         spawnQueueLength++;
     } else {
-        BK_LOG_WARN("spawnQueue FULL (%d entries) — dropped add_5 entry", tmp);
+        BK_LOG_DEBUG("spawnQueue FULL (%d entries): dropped add_5 entry", tmp);
     }
 }
 

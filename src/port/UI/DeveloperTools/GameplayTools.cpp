@@ -1,4 +1,5 @@
 #include "GameplayTools.h"
+#include "CameraTools.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
@@ -7,8 +8,11 @@
 
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
+#include "port/Patches/Patches.h"
+#include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
 
+#include <cstdio>
 #include <string>
 #include <imgui.h>
 #include <libultraship/libultraship.h>
@@ -557,6 +561,10 @@ void GameplayTools_DrawTabBar() {
         }
         if (ImGui::BeginTabItem("Monitoring")) {
             DrawMonitoringTools();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Cameras")) {
+            DrawCameraTools();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

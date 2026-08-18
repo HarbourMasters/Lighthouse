@@ -1806,6 +1806,7 @@ bool code33310_func_802BA4F0(ZoomCameraNode *self);
 s32 code33250_func_802BA234(RandomCameraNode *self);
 
 // --- core2/nc/cameranodelist.c ---
+s32 __ncCameraNodeList_capacity();
 s32 ncCameraNodeList_getNodeType(int camera_node_index);
 s32 ncCameraNodeList_nodeIsValid(int camera_node_index);
 void ncCameraNodeList_defrag();

@@ -1,9 +1,3 @@
-// Camera Patches
-//
-// Cutscene aspect lock and widescreen yaw fixes. The cutscene lock and
-// static camera tracking use the event system; the per-frame yaw fix
-// is as a direct port_* call from viewport_update().
-
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 
@@ -28,23 +22,24 @@ extern float sViewportFOVy;
 extern float sViewportAspect;
 }
 
-// Cutscene aspect lock — force 4:3 during cutscene maps
-
 #define CVAR_AR_ENABLED CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled"
 #define CVAR_AR_COMBO CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.AspectRatio"
 #define CVAR_AR_X CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioX"
 #define CVAR_AR_Y CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioY"
 #define CVAR_CUTSCENE_ASPECT CVAR_ENHANCEMENT("Graphics.CutsceneAspect")
-
 #define CVAR_CSA_BAK_ACTIVE CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Active")
 #define CVAR_CSA_BAK_ENABLED CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Enabled")
 #define CVAR_CSA_BAK_COMBO CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Combo")
 #define CVAR_CSA_BAK_X CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.X")
 #define CVAR_CSA_BAK_Y CVAR_ENHANCEMENT("Graphics.CutsceneAspectBackup.Y")
+#define CVAR_WS_CAMERA_FIX CVAR_ENHANCEMENT("Fix.WidescreenCamera")
+#define CVAR_NO_SCREEN_SHAKE CVAR_SETTING("A11yDisableScreenShake")
 
 static int32_t sCutsceneAspectActive = 0;
+static constexpr float kWsPositionTolerance = 2.0f;
+static constexpr float kWsRotationTolerance = 1.0f;
+static constexpr float kWsReferenceAspect = 16.0f / 9.0f;
 
-// Restore the user's Advanced Resolution settings from the persisted backup and clear the flag.
 static void restoreCutsceneAspectBackup() {
     CVarSetInteger(CVAR_AR_ENABLED, CVarGetInteger(CVAR_CSA_BAK_ENABLED, 0));
     CVarSetInteger(CVAR_AR_COMBO, CVarGetInteger(CVAR_CSA_BAK_COMBO, 3));
@@ -52,13 +47,6 @@ static void restoreCutsceneAspectBackup() {
     CVarSetFloat(CVAR_AR_Y, CVarGetFloat(CVAR_CSA_BAK_Y, 9.0f));
     CVarClear(CVAR_CSA_BAK_ACTIVE);
     sCutsceneAspectActive = 0;
-}
-
-static void ResetCutsceneAspect() {
-    if (!sCutsceneAspectActive) {
-        return;
-    }
-    restoreCutsceneAspectBackup();
 }
 
 static void updateCutsceneAspect(int32_t mapId) {
@@ -85,53 +73,126 @@ static void updateCutsceneAspect(int32_t mapId) {
             sCutsceneAspectActive = 1;
         }
     } else if (!isCutscene && sCutsceneAspectActive) {
-        ResetCutsceneAspect();
+        restoreCutsceneAspectBackup();
     }
 }
 
-// Widescreen yaw fix — per-frame yaw adjustment for certain static cameras in widescreen mode
-
-#define CVAR_WS_CAMERA_FIX CVAR_ENHANCEMENT("Fix.WidescreenCamera")
-#define CVAR_NO_SCREEN_SHAKE CVAR_SETTING("A11yDisableScreenShake")
-
-struct WsYawFix {
+struct WsCameraFix {
     int32_t map;
-    int32_t node;
-    float adjust;
+    int32_t source;
+    int32_t id = -1;
+    bool matchTransform = false;
+    float position[3] = { 0.0f, 0.0f, 0.0f }; // x, y, z
+    float rotation[3] = { 0.0f, 0.0f, 0.0f }; // pitch, yaw, roll
+    float adjust[3] = { 0.0f, 0.0f, 0.0f };   // pitch, yaw, roll
 };
 
-static const WsYawFix sWsYawFixes[] = {
-    { MAP_2_MM_MUMBOS_MOUNTAIN, 0x17, -5.0f },
+// If adding a camera adjustment here, you need the following:
+//   - map: the map the camera is in
+//   - source: the camera type
+//   - matchTransform: true if the camera moves and you need conditional adjustment
+//   - position, rotation: keys for matchTransform
+//   - adjust: self explanatory
+static const WsCameraFix sWsCameraFixes[] = {
+    // Concert, when Banjo looks at Tooty
+    { .map = MAP_1E_CS_START_NINTENDO,
+      .source = CAMERA_TYPE_1_UNKNOWN,
+      .matchTransform = true,
+      .position = { 464.32f, 382.75f, 258.68f },
+      .rotation = { 0.0f, 83.0f, 0.0f },
+      .adjust = { 0.0f, -5.0f, 0.0f } },
+    // Eggs molehill
+    { .map = MAP_2_MM_MUMBOS_MOUNTAIN, .source = CAMERA_TYPE_3_STATIC, .id = 0x16, .adjust = { 5.9f, -6.0f, 0.0f } },
+    // Beak Buster molehill
+    { .map = MAP_2_MM_MUMBOS_MOUNTAIN, .source = CAMERA_TYPE_3_STATIC, .id = 0x17, .adjust = { 0.0f, -6.0f, 0.0f } },
 };
-static constexpr int WS_YAW_FIX_COUNT = sizeof(sWsYawFixes) / sizeof(sWsYawFixes[0]);
 
-static int32_t sLastStaticCameraNode = -1;
+static constexpr int WS_CAMERA_FIX_COUNT = sizeof(sWsCameraFixes) / sizeof(sWsCameraFixes[0]);
 
-extern "C" void port_camera_applyWsYawFix(float rotation[3]) {
-    if (!CVarGetInteger(CVAR_WS_CAMERA_FIX, 1))
-        return;
-    if (WS_YAW_FIX_COUNT == 0 || sLastStaticCameraNode < 0) {
-        return;
+struct WsAuthoredCamera {
+    bool valid;
+    int32_t map;
+    int32_t source;
+    int32_t id;
+    float position[3];
+    float rotation[3];
+};
+
+static WsAuthoredCamera sWsAuthored;
+static float sWsLastAspect;
+
+extern "C" float port_wsCameraYawScale(void) {
+    float fovY = sViewportFOVy > 0.0f ? sViewportFOVy : 40.0f;
+    float tanHalfFovY = std::tan((fovY * 0.5f) * (float)(M_PI / 180.0));
+    float base = std::atan(tanHalfFovY * sViewportAspect);
+    float reference = std::atan(tanHalfFovY * kWsReferenceAspect) - base;
+    if (reference <= 0.0f) {
+        return 1.0f;
     }
-    if (GameEngine_GetAspectRatio() <= 1.34f) {
-        return;
+    float extra = std::atan(tanHalfFovY * GameEngine_GetAspectRatio()) - base;
+    return extra > 0.0f ? extra / reference : 0.0f;
+}
+
+extern "C" float port_wsCameraPitchScale(void) {
+    return std::sqrt(port_wsCameraYawScale());
+}
+
+static void wsCameraScales(float scale[3]) {
+    scale[1] = port_wsCameraYawScale();
+    scale[0] = std::sqrt(scale[1]);
+    scale[2] = 1.0f;
+}
+
+static float wsAngleDifference(float a, float b) {
+    float delta = a - b;
+    while (delta > 180.0f) {
+        delta -= 360.0f;
     }
-    int32_t curMap = (int32_t)gsworld_getMap();
-    for (int i = 0; i < WS_YAW_FIX_COUNT; i++) {
-        if (curMap == sWsYawFixes[i].map &&
-            (sWsYawFixes[i].node == -1 || sLastStaticCameraNode == sWsYawFixes[i].node)) {
-            rotation[1] += sWsYawFixes[i].adjust;
-            break;
+    while (delta < -180.0f) {
+        delta += 360.0f;
+    }
+    return delta;
+}
+
+static bool wsCameraFixMatches(const WsCameraFix& fix, const CameraRotationAuthored* ev, int32_t curMap) {
+    if (curMap != fix.map || ev->source != fix.source) {
+        return false;
+    }
+    if (fix.id != -1 && ev->id != fix.id) {
+        return false;
+    }
+    if (!fix.matchTransform) {
+        return true;
+    }
+    if (ev->position == nullptr) {
+        return false;
+    }
+    for (int i = 0; i < 3; i++) {
+        if (std::fabs(ev->position[i] - fix.position[i]) > kWsPositionTolerance) {
+            return false;
+        }
+        if (std::fabs(wsAngleDifference(ev->rotation[i], fix.rotation[i])) > kWsRotationTolerance) {
+            return false;
         }
     }
+    return true;
+}
+
+static void wsReauthorStaticCamera() {
+    float rotation[3];
+    for (int i = 0; i < 3; i++) {
+        rotation[i] = sWsAuthored.rotation[i];
+    }
+    CALL_EVENT(CameraRotationAuthored, sWsAuthored.source, sWsAuthored.id, sWsAuthored.position, rotation);
+
+    float position[3];
+    ncStaticCamera_getPosition(position);
+    ncStaticCamera_setPositionAndRotation(position, rotation);
 }
 
 // Event listeners
 
 void RegisterCutsceneAspect() {
-    // Boot-time self-heal: if a previous session crashed or quit during a cutscene, the persisted
-    // gAdvancedResolution cvars may still hold the forced 4:3. Restore the user's real settings from
-    // the backup before anything reads them. This runs from the init process, not a per-frame listener.
     if (CVarGetInteger(CVAR_CSA_BAK_ACTIVE, 0)) {
         restoreCutsceneAspectBackup();
     }
@@ -141,27 +202,66 @@ void RegisterCutsceneAspect() {
     });
 }
 
+void RegisterWidescreenCamera() {
+    COND_HOOK(CameraRotationAuthored, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
+        float scale[3];
+        wsCameraScales(scale);
+        if (scale[1] <= 0.0f) {
+            return;
+        }
+        auto* ev = (CameraRotationAuthored*)event;
+        int32_t curMap = (int32_t)gsworld_getMap();
+        for (int i = 0; i < WS_CAMERA_FIX_COUNT; i++) {
+            if (wsCameraFixMatches(sWsCameraFixes[i], ev, curMap)) {
+                for (int axis = 0; axis < 3; axis++) {
+                    ev->rotation[axis] =
+                        mlNormalizeAngle(ev->rotation[axis] + sWsCameraFixes[i].adjust[axis] * scale[axis]);
+                }
+                break;
+            }
+        }
+    });
+
+    COND_HOOK(CameraRotationAuthored, EVENT_PRIORITY_LOW, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
+        auto* ev = (CameraRotationAuthored*)event;
+        sWsAuthored.valid = true;
+        sWsAuthored.map = (int32_t)gsworld_getMap();
+        sWsAuthored.source = ev->source;
+        sWsAuthored.id = ev->id;
+        for (int i = 0; i < 3; i++) {
+            sWsAuthored.rotation[i] = ev->rotation[i];
+            sWsAuthored.position[i] = ev->position != nullptr ? ev->position[i] : 0.0f;
+        }
+    });
+
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_WS_CAMERA_FIX, 1), [](IEvent* event) {
+        float aspect = GameEngine_GetAspectRatio();
+        if (std::fabs(aspect - sWsLastAspect) < 0.0005f) {
+            return;
+        }
+        sWsLastAspect = aspect;
+        if (!sWsAuthored.valid || sWsAuthored.source != CAMERA_TYPE_3_STATIC) {
+            return;
+        }
+        if (sWsAuthored.map != (int32_t)gsworld_getMap() || ncCamera_getType() != CAMERA_TYPE_3_STATIC) {
+            return;
+        }
+        wsReauthorStaticCamera();
+    });
+}
+
 void RegisterCameraPatches_Init() {
 
-    COND_VB_SHOULD(VB_STATIC_CAMERA_SET, EVENT_PRIORITY_NORMAL, true,
-                   { sLastStaticCameraNode = *va_arg(args, int32_t*); });
-    COND_VB_SHOULD(VB_STATIC_CAMERA_EXIT, EVENT_PRIORITY_NORMAL, true, { sLastStaticCameraNode = -1; });
     COND_VB_SHOULD(VB_CAMERA_LIVE_ASPECT, EVENT_PRIORITY_NORMAL, true, { *should = false; });
 
-    // Bigger frustum — widen the side planes from the actual FOV and aspect
-    // ratio, and pad the top/bottom planes to mask vertical cam pop-in.
-    // Bail in replayed-input modes (attract demo, Bottles bonus, SnS picture):
-    // those recordings are deterministic against the vanilla cull set, and any
-    // frustum change shifts which actors tick and desyncs the playback.
+    // Bigger frustum for wider aspect ratios, no-op for deterministic scenes
     REGISTER_LISTENER(ViewportFrustumUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         if (IsDemoMode()) {
             return;
         }
         auto* ev = (ViewportFrustumUpdate*)event;
-        // Widen the side planes to the actual render aspect, floored at 4:3 so we never
-        // cull tighter than vanilla.
-        const float kFrustumZ = 45.168514251708984f; // must match the literal in viewport.c
-        const float kMargin = 1.10f;                 // ~10% wider than the exact FOV
+        const float kFrustumZ = 45.168514251708984f;
+        const float kMargin = 1.10f;
         float aspect = GameEngine_GetAspectRatio();
         if (aspect < sViewportAspect) {
             aspect = sViewportAspect;
@@ -179,5 +279,6 @@ void RegisterScreenShake_Init() {
 }
 
 static RegisterShipInitFunc cutsceneAspectInitFunc(RegisterCutsceneAspect, { CVAR_CUTSCENE_ASPECT });
+static RegisterShipInitFunc widescreenCameraInitFunc(RegisterWidescreenCamera, { CVAR_WS_CAMERA_FIX });
 static RegisterShipInitFunc staticCamInitFunc(RegisterCameraPatches_Init);
 static RegisterShipInitFunc screenShakeInitFunc(RegisterScreenShake_Init, { CVAR_NO_SCREEN_SHAKE });

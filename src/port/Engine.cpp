@@ -32,6 +32,7 @@
 
 #include "Audio/GameAudio.h"
 #include "build.h"
+#include "Extractor/ExtractFlow.h"
 #include "Extractor/GameExtractor.h"
 #include "ship/window/gui/FileBrowserWindow.h"
 #include "Interpolation/FrameInterpolation.h"
@@ -59,13 +60,38 @@
 #include <port/switch/SwitchImpl.h>
 #endif
 
+// Engine constants
+
+#define SAMPLES_PER_FRAME (560 * 2 * 2)
+#define gVIsPerFrame 2 // 30 Hz
+
 const float imguiScaleOptionToValue[4] = { 0.75f, 1.0f, 1.5f, 2.0f };
-std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
 const uint32_t defaultImGuiScale = 1;
-int32_t previousImGuiScaleIndex = -1;
-float previousImGuiScale = defaultImGuiScale;
+
+// Engine globals
+
+namespace {
+constexpr int kDemoAudioHoldFrames = 2;
+const char* sOtrSignature = "__OTR__";
+
+// Attract-demo audio hold
+std::atomic<bool> sHoldAudio{ false };
+int sHoldFramesRemaining = 0;
+std::vector<std::shared_ptr<Ship::IResource>> sSoundfontResources;
+
+// Frame pacing and rendering
+bool sInterpolationRecorded = false;
+std::vector<std::future<void>> sMapBuildFutures;
+long long sLastSubFrameNs = 0;
+long long sPassBudgetNs = 0;
+} // namespace
+
+std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
 bool portArchiveVersionMatch = false;
 std::string assets_path;
+
+int32_t previousImGuiScaleIndex = -1;
+float previousImGuiScale = defaultImGuiScale;
 
 namespace fs = std::filesystem;
 
@@ -77,7 +103,7 @@ extern s32 D_80275610;
 bool prevAltAssets = false;
 // bool gEnableGammaBoost = true;
 
-// Soundfont ROM symbols — loaded from OTR in LoadSoundfonts()
+// Soundfont symbols
 u8* soundfont1ctl_ROM_START = NULL;
 u8* soundfont1ctl_ROM_END = NULL;
 u8* soundfont1tbl_ROM_START = NULL;
@@ -89,54 +115,7 @@ u8* soundfont2tbl_ROM_START = NULL;
 std::vector<uint8_t*> MemoryPool;
 GameEngine* GameEngine::Instance;
 
-typedef struct {
-    uint16_t major;
-    uint16_t minor;
-    uint16_t patch;
-} OTRVersion;
-
-// Read the port version from an OTR file
-OTRVersion ReadPortVersionFromOTR(std::string otrPath) {
-    OTRVersion version = {};
-
-    // Use a temporary archive instance to load the otr and read the version file
-    auto archive = std::make_shared<Ship::O2rArchive>(otrPath);
-    if (archive->Open()) {
-        auto t = archive->LoadFile("portVersion");
-        if (t != nullptr && t->IsLoaded) {
-            auto stream = std::make_shared<Ship::MemoryStream>(t->Buffer->data(), t->Buffer->size());
-            auto reader = std::make_shared<Ship::BinaryReader>(stream);
-            reader->SetEndianness(Ship::Endianness::Big);
-            version.major = reader->ReadUInt16();
-            version.minor = reader->ReadUInt16();
-            version.patch = reader->ReadUInt16();
-        } else {
-            SPDLOG_WARN("Failed to read portVersion file from O2R: {}", otrPath);
-        }
-    } else {
-        SPDLOG_WARN("Failed to open O2R for version reading: {}", otrPath);
-    }
-
-    return version;
-}
-
-// Reads the port version recorded in the named o2r. A missing file yields INT16_MAX in every
-// field; an o2r that opens without a portVersion record yields zeros.
-OTRVersion DetectOTRVersion(std::string fileName) {
-    std::string otrPath = Ship::Context::LocateFileAcrossAppDirs(fileName);
-
-    // Doesn't exist so nothing to do here
-    if (!std::filesystem::exists(otrPath)) {
-        SPDLOG_WARN("O2R file not found at path: {}", otrPath);
-        return { INT16_MAX, INT16_MAX, INT16_MAX };
-    }
-
-    return ReadPortVersionFromOTR(otrPath);
-}
-
-bool VerifyArchiveVersion(OTRVersion version) {
-    return version.major == gBuildVersionMajor && version.minor == gBuildVersionMinor;
-}
+// Construction
 
 GameEngine::GameEngine() {
     this->context = Ship::Context::CreateUninitializedInstance("Lighthouse", "bk", "lighthouse.cfg.json");
@@ -146,10 +125,8 @@ GameEngine::GameEngine() {
     Ship::Switch::Init(Ship::PostInitPhase);
 #endif
 
-    this->context->InitConfiguration();    // without this line InitConsoleVariables fails at Config::Reload()
-    this->context->InitConsoleVariables(); // without this line the controldeck constructor failes in
-    // ShipDeviceIndexMappingManager::UpdateControllerNamesFromConfig()
-
+    this->context->InitConfiguration();
+    this->context->InitConsoleVariables();
     assets_path = Ship::Context::LocateFileAcrossAppDirs("lighthouse.o2r");
     portArchiveVersionMatch = std::filesystem::exists(assets_path); // TODO: port archive versioning
 
@@ -168,7 +145,7 @@ GameEngine::GameEngine() {
                       CALL_EVENT(OnReset);
                       return 0;
                   },
-                   "Reset to boot map." });
+                   "Reset the game." });
     Ship::Context::GetRawInstance()->GetConsole()->AddCommand(
         "quit", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
                      Ship::Context::GetRawInstance()->GetWindow()->Close();
@@ -197,77 +174,8 @@ GameEngine::GameEngine() {
     ScaleImGui();
 }
 
-typedef enum ExtractSteps {
-    ES_PORT_ARCHIVE,
-    ES_WINDOWS,
-    ES_EXTRACT_ARGS,
-    ES_EXTRACT,
-    ES_VERIFY,
-} ExtractSteps;
+// Startup
 
-typedef enum PromptSteps {
-    PS_FILE_CHECK,
-    PS_LOCAL,
-    PS_FIRST,
-    PS_FIRST_WAIT, // waiting for the async file-pick result (resolves immediately on the native path)
-    PS_WAIT,
-    PS_NONE,
-} PromptSteps;
-
-typedef enum WindowsSteps {
-    WS_TEMP,
-    WS_PERMS,
-    WS_ONEDRIVE,
-    WS_DONE,
-} WindowsSteps;
-
-bool IsSubpath(const std::filesystem::path& path, const std::filesystem::path& base) {
-    auto rel = std::filesystem::relative(path, base);
-    return !rel.empty() && rel.native()[0] != '.';
-}
-
-bool PathTestCleanup() {
-    try {
-        if (std::filesystem::exists("./text.txt"))
-            std::filesystem::remove("./text.txt");
-        if (std::filesystem::exists("./test/"))
-            std::filesystem::remove("./test/");
-    } catch (std::filesystem::filesystem_error const&) { return false; }
-    return true;
-}
-
-void CheckAndCreateModFolder() {
-    try {
-        std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", "bk");
-        if (!std::filesystem::exists(modsPath)) {
-            // Create mods folder relative to app dir
-            modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods", "bk");
-            std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
-            if (std::filesystem::create_directories(modsPath)) {
-                std::ofstream(filePath).close();
-                std::filesystem::create_directories(modsPath + "/~romhacks"); // BK romhacks go here
-                std::filesystem::create_directories(modsPath + "/~lang");     // Language packs go here
-                std::filesystem::create_directories(modsPath + "/~shared");   // Mods usable by everything go here
-            }
-        }
-    } catch (std::filesystem::filesystem_error const&) {
-        // Couldn't make the folder, continue silently
-        return;
-    }
-}
-
-static const std::vector<std::string> sRomArchives = { "bk.o2r" };
-
-static bool AnyRomArchiveExists() {
-    for (const auto& archive : sRomArchives) {
-        if (std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs(archive, "bk"))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// Register every resource factory the game's asset types need.
 static void RegisterResourceFactories(const std::shared_ptr<Ship::ResourceLoader>& loader) {
     loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinarySpriteV0>(),
                                     RESOURCE_FORMAT_BINARY, "Sprite",
@@ -314,9 +222,6 @@ static void RegisterResourceFactories(const std::shared_ptr<Ship::ResourceLoader
                                     "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
 }
 
-// Loose mod directories (development convenience — a folder of unpacked assets
-// used as an overlay). Not subject to the enable/disable CVar because they don't
-// represent installable packages. Folders owned by the Mod Menu loader are skipped.
 static void LoadLooseModDirectories(const std::string& patches_path) {
     if (patches_path.empty() || !std::filesystem::is_directory(patches_path)) {
         return;
@@ -335,7 +240,6 @@ static void LoadLooseModDirectories(const std::string& patches_path) {
     }
 }
 
-// Load every .o2r language pack from mods/~lang into the ArchiveManager.
 static void LoadLanguagePacks() {
     const std::string lang_path = Ship::Context::GetPathRelativeToAppDirectory("mods/~lang");
     if (lang_path.empty() || !std::filesystem::is_directory(lang_path)) {
@@ -351,7 +255,7 @@ static void LoadLanguagePacks() {
 }
 
 void GameEngine::FinishInit() {
-    for (const auto& archive : sRomArchives) {
+    for (const auto& archive : kRomArchives) {
         std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
         if (std::filesystem::exists(romPath)) {
             context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
@@ -363,10 +267,7 @@ void GameEngine::FinishInit() {
         std::filesystem::create_directories(patches_path);
     }
 
-    // Apply `-hack <name>` before the scan.
     Lighthouse::ApplyLaunchHack();
-
-    // Load enabled mod o2rs into the ArchiveManager.
     UpdateModFiles(true);
     LoadLooseModDirectories(patches_path);
     LoadLanguagePacks();
@@ -405,18 +306,11 @@ void GameEngine::FinishInit() {
     prevAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 1);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
-    // Build the dialog-language list from the base region plus any loaded packs.
     Lighthouse::RescanLanguages();
 
     LighthouseGui::SetupGuiElements();
-    // Undo the -hack override only now: LighthouseModMenuWindow::InitElement()
-    // re-runs UpdateModFiles(true) during SetupGuiElements and would otherwise
-    // re-read the restored CVars and reload the persisted hack over the override.
     Lighthouse::RestoreModSelectionAfterLaunchHack();
-    // If UpdateModFiles(true) above quarantined conflicting romhack overlays,
-    // surface that to the user now that the modal window is alive.
     MaybeShowModConflictPopup();
-    // Likewise if it refused romhack overlays due to a non-v1.0 base.
     MaybeShowRomhackBaseMismatchPopup();
     Instance->AudioInit();
     // Instance->LoadDictionary();
@@ -426,560 +320,7 @@ void GameEngine::FinishInit() {
 #endif
 }
 
-void GameEngine::RunExtract(int argc, char* argv[]) {
-    bool extractDone = false;
-    ExtractSteps extractStep = ES_PORT_ARCHIVE;
-    WindowsSteps windowsStep = WS_TEMP;
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(context->GetWindow());
-    auto gui = wnd->GetGui();
-    bool menuWasVisible = false;
-    if (gui->GetMenu()->IsVisible()) {
-        menuWasVisible = true;
-        gui->GetMenu()->Hide();
-    }
-
-    OTRVersion romArchiveVersion = { INT16_MAX, 0, 0 };
-    for (const auto& archive : sRomArchives) {
-        OTRVersion ver = DetectOTRVersion(archive);
-        if (ver.major != INT16_MAX) {
-            romArchiveVersion = ver;
-            break;
-        }
-    }
-
-    bool shouldRegen = !VerifyArchiveVersion(romArchiveVersion) && romArchiveVersion.major != INT16_MAX;
-
-    std::filesystem::path ownPath;
-    std::vector<std::string> args;
-    for (int i = 1; i < argc; i++) {
-        std::string arg = argv[i];
-        std::string inlineValue;
-        bool takesValue = false;
-        if (Lighthouse::IsLaunchHackFlag(arg, inlineValue, takesValue)) {
-            if (takesValue) {
-                i++;
-            }
-            continue;
-        }
-        args.push_back(arg);
-    }
-    GameExtractor extract;
-    PromptSteps promptStep = PS_FILE_CHECK;
-    std::atomic<bool> extracting = false;
-    bool extractStarted = false;
-    std::atomic<size_t> extractCount{ 0 }, totalExtract{ 0 };
-
-    // Async ROM selection: the result callback fires on this thread during the render step below, so
-    // these plain locals are safe to capture by reference.
-    bool romLoaded = false;
-    bool romResultReady = false;
-
-    std::string installPath = Ship::Context::GetAppBundlePath();
-    std::string file;
-
-#if defined(__SWITCH__)
-    LighthouseGui::RegisterPopup("Outdated ROM Archives",
-                                 "\x1b[2;2HYou've launched the Ship with an old ROM O2R file."
-                                 "\x1b[4;2HPlease regenerate a new ROM O2R and relaunch."
-                                 "\x1b[6;2HPress the Home button to exit...",
-                                 "OK", "", [&]() { exit(1); });
-#elif defined(__WIIU__)
-    LighthouseGui::RegisterPopup("Outdated ROM Archives",
-                                 "You've launched the Ship with an old a ROM O2R file.\n\n"
-                                 "Please generate a ROM O2R and relaunch.\n\n"
-                                 "Press and hold the Power button to shutdown...",
-                                 "OK", "", [&]() { exit(1); });
-    OSFatal();
-#endif
-
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("/assets"))) {
-        LighthouseGui::RegisterPopup(
-            "Extractor assets not found",
-            "No O2R files found. Missing 'assets/' folder needed to generate OTR file.\nPlease "
-            "re-extract them from the download or.\n\nExiting...",
-            "OK", "", [&]() {
-                lhFast3dWindow = nullptr;
-                context = nullptr;
-                exit(1);
-            });
-    } else if (shouldRegen) {
-        LighthouseGui::RegisterPopup("Outdated ROM Archives",
-                                     "Your ROM archives were created with incompatible versions of Lighthouse.\n"
-                                     "You will now be redirected to re-extract them.");
-        for (const auto& archive : sRomArchives) {
-            std::filesystem::remove(archive);
-        }
-    }
-
-    std::shared_ptr<BS::thread_pool> threadPool = std::make_shared<BS::thread_pool>(1);
-    while (!extractDone) {
-        if (GameExtractor::sCustomCodePromptRequested.load()) {
-            GameExtractor::sCustomCodePromptRequested = false;
-            LighthouseGui::RegisterPopup(
-                "Custom Code Romhack Detected",
-                "This romhack ships custom code.\n"
-                "Lighthouse cannot extract this code, so expected\n"
-                "behavior will be missing or broken when playing.\n"
-                "\n"
-                "Continue extraction anyway?",
-                "Continue", "Cancel",
-                []() {
-                    GameExtractor::sCustomCodePromptResult = 1;
-                    GameExtractor::sCustomCodePromptActive = false;
-                },
-                []() {
-                    GameExtractor::sCustomCodePromptResult = 0;
-                    GameExtractor::sCustomCodePromptActive = false;
-                });
-        }
-        if (LighthouseGui::PopupsQueued() > 0 || extracting || Ship::FileBrowserWindow::IsOpen()) {
-            goto render;
-        }
-
-        if (extractStep == ES_EXTRACT && promptStep == PS_FIRST && extractStarted && !extracting) {
-            extractStep = ES_VERIFY;
-            extractStarted = false;
-            extractCount = 0;
-            totalExtract = 0;
-        }
-        switch (extractStep) {
-            case ES_PORT_ARCHIVE: {
-                if (portArchiveVersionMatch) {
-#ifdef _WIN32
-                    extractStep = ES_WINDOWS;
-#elif (defined(__WIIU__) || defined(__SWITCH__))
-                    extractStep = ES_VERIFY;
-#else
-                    extractStep = ES_EXTRACT;
-#endif
-                } else {
-                    std::string msg;
-
-#if defined(__SWITCH__)
-                    msg = "\x1b[4;2HPlease re-extract it from the download.\n"
-                          "\x1b[6;2HPress the Home button to exit...";
-#elif defined(__WIIU__)
-                    msg = "Please extract the lighthouse.o2r from the Lighthouse download\nto your "
-                          "folder.\n\nPress "
-                          "and hold the power\n"
-                          "button to shutdown...";
-#else
-                    msg = "Please extract the lighthouse.o2r from the Lighthouse download to your "
-                          "folder.\n\nExiting...";
-#endif
-                    std::string title =
-                        !std::filesystem::exists(assets_path) ? "Missing lighthouse.o2r" : "lighthouse.o2r is outdated";
-                    LighthouseGui::RegisterPopup(title, msg, "OK", "", [&]() { exit(1); });
-                }
-                continue;
-            }
-            case ES_WINDOWS: {
-                switch (windowsStep) {
-                    case WS_TEMP: {
-#ifdef _WIN32
-                        char* tempVar = getenv("TEMP");
-                        std::filesystem::path tempPath;
-                        try {
-                            tempPath = std::filesystem::canonical(tempVar);
-                        } catch (std::filesystem::filesystem_error const&) {
-                            std::string userPath = getenv("USERPROFILE");
-                            userPath.append("\\AppData\\Local\\Temp");
-                            tempPath = std::filesystem::canonical(userPath);
-                        }
-                        wchar_t buffer[MAX_PATH];
-                        GetModuleFileName(NULL, buffer, _countof(buffer));
-                        ownPath = std::filesystem::canonical(buffer).parent_path();
-                        if (IsSubpath(ownPath, tempPath)) {
-                            LighthouseGui::RegisterPopup(
-                                "Lighthouse Path Error",
-                                "Lighthouse is running in a temp folder.\nExtract the .zip and run again.", "OK", "",
-                                [&]() {
-                                    threadPool = nullptr;
-                                    lhFast3dWindow = nullptr;
-                                    context = nullptr;
-                                    exit(0);
-                                });
-                        } else {
-                            windowsStep = WS_PERMS;
-                        }
-#endif
-                        continue;
-                    }
-                    case WS_PERMS: {
-                        FILE* tfile = fopen("./text.txt", "w");
-                        std::filesystem::path tfolder = std::filesystem::path("./test/");
-                        bool error = false;
-                        try {
-                            create_directories(tfolder);
-                        } catch (std::filesystem::filesystem_error const&) { error = true; }
-                        if (tfile == NULL || error) {
-                            LighthouseGui::RegisterPopup(
-                                "Lighthouse Permissions Error",
-                                "Lighthouse does not have proper file permissions.\nPlease move it to a "
-                                "folder that does and run again.",
-                                "OK", "", [&]() {
-                                    if (tfile != NULL) {
-                                        fclose(tfile);
-                                    }
-                                    PathTestCleanup();
-                                    threadPool = nullptr;
-                                    lhFast3dWindow = nullptr;
-                                    context = nullptr;
-                                    exit(0);
-                                });
-                        } else {
-                            fclose(tfile);
-                            if (!PathTestCleanup()) {
-                                LighthouseGui::RegisterPopup(
-                                    "Lighthouse Permissions Error",
-                                    "Lighthouse does not have proper file permissions.\nPlease move it to a "
-                                    "folder that does and run again.",
-                                    "OK", "", [&]() {
-                                        threadPool = nullptr;
-                                        lhFast3dWindow = nullptr;
-                                        context = nullptr;
-                                        exit(0);
-                                    });
-                            }
-                            windowsStep = WS_ONEDRIVE;
-                        }
-                        continue;
-                    }
-                    case WS_ONEDRIVE: {
-                        if (ownPath.string().find("OneDrive") != std::string::npos) {
-                            LighthouseGui::RegisterPopup(
-                                "Lighthouse Path Error",
-                                "Lighthouse appears to be in a OneDrive folder, which will cause issues.\n"
-                                "Please move it to a folder outside of OneDrive, like the root of a\n"
-                                "drive (e.g. \"C:\\Games\\Lighthouse\").",
-                                "OK", "", [&]() {
-                                    threadPool = nullptr;
-                                    lhFast3dWindow = nullptr;
-                                    context = nullptr;
-                                    exit(0);
-                                });
-                        } else {
-                            windowsStep = WS_DONE;
-                            if (args.size() > 0) {
-                                extractStep = ES_EXTRACT_ARGS;
-                            } else {
-                                extractStep = ES_EXTRACT;
-                            }
-                        }
-                        continue;
-                    }
-                    default:
-                        continue;
-                }
-                break;
-            }
-            case ES_EXTRACT_ARGS: {
-#if !defined(__SWITCH__) && !defined(__WIIU__)
-                if (args.size() == 0) {
-                    LighthouseGui::RegisterPopup(
-                        "Run Lighthouse", "All files have been processed. Run Lighthouse?", "Yes", "No",
-                        [&]() {
-                            if (!AnyRomArchiveExists()) {
-                                extractStep = ES_EXTRACT;
-                                promptStep = PS_FILE_CHECK;
-                            } else {
-                                extractStep = ES_VERIFY;
-                            }
-                        },
-                        [&]() {
-                            threadPool = nullptr;
-                            lhFast3dWindow = nullptr;
-                            context = nullptr;
-                            exit(0);
-                        });
-                    break;
-                }
-                file = args.at(0);
-                args.erase(args.begin());
-                extract = GameExtractor();
-                if (extract.RunStandalone(file)) {
-                    bool doExtract = true;
-                    std::string archive = "bk.o2r";
-                    if (std::filesystem::exists(Ship::Context::GetAppDirectoryPath("bk") + "/" + archive)) {
-                        std::string msg = "Archive for current ROM, " + archive + ", already exists.\nExtract again?";
-                        LighthouseGui::RegisterPopup("Confirm Re-extract", msg.c_str(), "Yes", "No", [&]() {
-                            extracting = true;
-                            (void)threadPool->submit_task([&]() -> void {
-                                extract.GenerateOTR(extractCount, totalExtract, "bk");
-                                extracting = false;
-                            });
-                        });
-                    } else {
-                        extracting = true;
-                        (void)threadPool->submit_task([&]() -> void {
-                            extract.GenerateOTR(extractCount, totalExtract, "bk");
-                            extracting = false;
-                        });
-                    }
-                } else {
-                    bool open = true;
-                    std::string msg = "File\n" + std::string(file) + "\nis not a ROM or does not match supported ROMs.";
-                    LighthouseGui::RegisterPopup("Lighthouse ROM Error", msg.c_str());
-                }
-#else
-                extractStep = ES_VERIFY;
-#endif
-                break;
-            }
-            case ES_EXTRACT: {
-                switch (promptStep) {
-                    case PS_FILE_CHECK: {
-                        const bool romO2RExists = AnyRomArchiveExists();
-
-                        if (!romO2RExists) {
-                            LighthouseGui::RegisterPopup(
-                                "No O2R Files", "No O2R files found. Generate one now?", "Yes", "No",
-                                [&]() { promptStep = PS_LOCAL; },
-                                [&]() {
-                                    threadPool = nullptr;
-                                    lhFast3dWindow = nullptr;
-                                    context = nullptr;
-                                    exit(0);
-                                });
-                        } else {
-                            extractStep = ES_VERIFY;
-                        }
-                        continue;
-                    }
-                    case PS_LOCAL: {
-                        extract = GameExtractor();
-                        const std::string appDir = Ship::Context::GetAppDirectoryPath("bk");
-                        std::error_code sameDirEc;
-                        const bool sameDir = std::filesystem::equivalent(installPath, appDir, sameDirEc);
-                        extract.SetSearchPath(installPath);
-                        extract.GetRoms(args);
-                        if (sameDirEc || !sameDir) {
-                            extract.SetSearchPath(appDir);
-                            extract.GetRoms(args);
-                        }
-                        std::sort(args.begin(), args.end());
-                        args.erase(std::unique(args.begin(), args.end()), args.end());
-                        if (!args.empty()) {
-                            promptStep = PS_WAIT;
-                            LighthouseGui::RegisterPopup(
-                                "ROMs found", "ROMs found in application directory. Would you like to process them?",
-                                "Yes", "No", [&]() { extractStep = ES_EXTRACT_ARGS; },
-                                [&]() {
-                                    args.clear();
-                                    promptStep = PS_FIRST;
-                                });
-                        } else {
-                            promptStep = PS_FIRST;
-                        }
-                        continue;
-                    }
-                    case PS_FIRST: {
-                        if (args.empty()) {
-                            // Skip the picker entirely if a baserom.us.z64 is sitting in the app
-                            // directory: load it and go straight to extraction.
-                            std::string baserom = Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64");
-                            if (std::filesystem::exists(baserom) && extract.LoadRomFromPath(baserom)) {
-                                extracting = true;
-                                extractStarted = true;
-                                file = extract.GetRomPath();
-                                (void)threadPool->submit_task([&]() -> void {
-                                    extract.GenerateOTR(extractCount, totalExtract, "bk");
-                                    extracting = false;
-                                });
-                                continue; // stay in PS_FIRST; the completion check fires when done
-                            }
-                            // Otherwise open the picker (native dialog on desktop, ImGui browser on
-                            // consoles/arm). For the browser, the IsOpen() gate above keeps the loop
-                            // rendering until the user picks or cancels; the ROM loads before the callback.
-                            romResultReady = false;
-                            romLoaded = false;
-                            extract.SelectGameFromUI([&](bool ok) {
-                                romLoaded = ok;
-                                romResultReady = true;
-                            });
-                            promptStep = PS_FIRST_WAIT;
-                            continue;
-                        }
-                        extracting = true;
-                        extractStarted = true;
-                        file = extract.GetRomPath();
-                        (void)threadPool->submit_task([&]() -> void {
-                            extract.GenerateOTR(extractCount, totalExtract, "bk");
-                            extracting = false;
-                        });
-                        continue;
-                    }
-                    case PS_FIRST_WAIT: {
-                        if (!romResultReady) {
-                            goto render; // browser still open; keep drawing it
-                        }
-                        romResultReady = false;
-                        if (!romLoaded) {
-                            promptStep = PS_FILE_CHECK; // cancelled or failed to load
-                            continue;
-                        }
-                        extracting = true;
-                        extractStarted = true;
-                        file = extract.GetRomPath();
-                        promptStep = PS_FIRST; // so the ES_EXTRACT/PS_FIRST completion check fires
-                        (void)threadPool->submit_task([&]() -> void {
-                            extract.GenerateOTR(extractCount, totalExtract, "bk");
-                            extracting = false;
-                        });
-                        continue;
-                    }
-                    default:
-                        break;
-                }
-                break;
-            }
-            case ES_VERIFY: {
-                const bool romO2RExists = AnyRomArchiveExists();
-
-                if (!romO2RExists) {
-                    if (LighthouseGui::PopupsQueued() == 0) {
-                        std::string errorMsg;
-                        if (!GameExtractor::sLastError.empty()) {
-                            // Insert line breaks for long error messages
-                            std::string wrapped = GameExtractor::sLastError;
-                            const size_t wrapCol = 80;
-                            size_t pos = 0;
-                            while (pos + wrapCol < wrapped.size()) {
-                                size_t breakAt = wrapped.rfind(' ', pos + wrapCol);
-                                if (breakAt == std::string::npos || breakAt <= pos) {
-                                    breakAt = pos + wrapCol;
-                                }
-                                wrapped.insert(breakAt, "\n");
-                                pos = breakAt + 1;
-                            }
-                            errorMsg = "ROM extraction failed:\n\n" + wrapped +
-                                       "\n\nCheck logs/Lighthouse.log for full details.";
-                        } else {
-                            errorMsg = "No ROM O2R file detected.\nPlease generate a ROM O2R and relaunch.";
-                        }
-                        LighthouseGui::RegisterPopup("Extraction Error", errorMsg.c_str(), "OK", "", [&]() {
-                            threadPool = nullptr;
-                            lhFast3dWindow = nullptr;
-                            context = nullptr;
-                            exit(0);
-                        });
-                    }
-                    // Don't set extractDone — keep the loop alive so the popup renders.
-                    continue;
-                }
-                extractDone = true;
-                continue;
-            }
-            default:
-                break;
-        }
-
-    render:
-        if (!WindowIsRunning()) {
-            threadPool = nullptr;
-            lhFast3dWindow = nullptr;
-            context = nullptr;
-            exit(0);
-        }
-        // Process window events for resize, mouse, keyboard events
-        wnd->HandleEvents();
-        UIWidgets::Colors themeColor =
-            static_cast<UIWidgets::Colors>(CVarGetInteger(CVAR_SETTING("Menu.Theme"), UIWidgets::Colors::LightBlue));
-        ImGui::PushStyleColor(ImGuiCol_TitleBgActive, UIWidgets::ColorValues.at(themeColor));
-        ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, UIWidgets::ColorValues.at(UIWidgets::Colors::DarkGray));
-
-        // Skip dropped frames
-        if (!wnd->IsFrameReady()) {
-            continue;
-        }
-        gui->StartDraw();
-        lhFast3dWindow->StartFrame();
-        lhFast3dWindow->RunGuiOnly();
-        const bool showExtractPopup = extracting && !GameExtractor::sCustomCodePromptActive.load();
-        if (showExtractPopup && !ImGui::IsPopupOpen("ROM Extraction")) {
-            ImGui::OpenPopup("ROM Extraction");
-        }
-        if (showExtractPopup) {
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
-            auto color = UIWidgets::ColorValues.at(THEME_COLOR);
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(color.x, color.y, color.z, 0.6f));
-            ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(color.x, color.y, color.z, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
-            if (ImGui::BeginPopupModal("ROM Extraction", NULL,
-                                       ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
-                                           ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-                                           ImGuiWindowFlags_NoSavedSettings)) {
-                int phase = GameExtractor::sPhase;
-                float progress;
-                if (phase == 3) {
-                    progress = 100.0f;
-                } else {
-                    progress = (totalExtract > 0 ? (float)extractCount / (float)totalExtract : 0) * 100.0f;
-                    if (progress > 100.0f)
-                        progress = 100.0f;
-                }
-
-                // Status text
-                auto filename = std::filesystem::path(file).filename().string();
-                if (phase == 3) {
-                    ImGui::Text("Done!");
-                } else if (phase >= 1) {
-                    ImGui::Text("Processing %s... (Step %d/2)", filename.c_str(), phase);
-                    if (Companion::Instance != nullptr && !Companion::Instance->GetCurrentAssetName().empty()) {
-                        auto assetName = Companion::Instance->GetCurrentAssetName();
-                        float maxWidth = 600.0f - ImGui::GetStyle().WindowPadding.x * 2;
-                        ImVec2 textSize = ImGui::CalcTextSize(assetName.c_str());
-                        if (textSize.x > maxWidth) {
-                            // Truncate with ellipsis
-                            std::string ellipsis = "...";
-                            float ellipsisWidth = ImGui::CalcTextSize(ellipsis.c_str()).x;
-                            while (assetName.size() > 3 &&
-                                   ImGui::CalcTextSize(assetName.c_str()).x > maxWidth - ellipsisWidth) {
-                                assetName.pop_back();
-                            }
-                            assetName += ellipsis;
-                        }
-                        ImGui::Text("%s", assetName.c_str());
-                    }
-                } else {
-                    ImGui::Text("Starting up...");
-                }
-
-                // Progress bar
-                std::string overlay;
-                if (totalExtract > 0 && extractCount > 0) {
-                    overlay = fmt::format("{:.0f}%", progress);
-                } else if (phase >= 1) {
-                    overlay = "Reading ROM, please wait...";
-                } else {
-                    overlay = "Starting up...";
-                }
-                ImGui::ProgressBar(progress / 100.0f, ImVec2(600.0f, 50.0f), overlay.c_str());
-                ImGui::EndPopup();
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::PopStyleVar(2);
-        }
-        gui->EndDraw();
-        lhFast3dWindow->EndFrame();
-        ImGui::PopStyleColor(2);
-    }
-    threadPool = nullptr;
-
-#ifdef __SWITCH__
-    Ship::Switch::Init(Ship::PreInitPhase);
-#elif defined(__WIIU__)
-    Ship::WiiU::Init(appShortName);
-#endif
-
-#if not defined(__SWITCH__) && not defined(__WIIU__)
-    CheckAndCreateModFolder();
-#endif
-    if (menuWasVisible) {
-        gui->GetMenu()->Show();
-    }
-}
+// Fonts and ImGui scaling
 
 ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
     auto mImGuiIo = &ImGui::GetIO();
@@ -1004,7 +345,6 @@ ImFont* GameEngine::CreateFontWithSize(float size, std::string fontPath) {
         font =
             mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, static_cast<int>(fontData->DataSize), size, &config);
     }
-    // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
     float iconFontSize = size * 2.0f / 3.0f;
     static const ImWchar sIconsRanges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
     ImFontConfig iconsConfig;
@@ -1031,6 +371,8 @@ void GameEngine::ScaleImGui() {
     previousImGuiScaleIndex = imGuiScaleIndex;
 }
 
+// Lifecycle
+
 void GameEngine::Create(int argc, char* argv[]) {
     Lighthouse::ParseLaunchArgs(argc, argv);
     const auto instance = Instance = new GameEngine();
@@ -1045,8 +387,6 @@ void GameEngine::Create(int argc, char* argv[]) {
     SaveManager_Init();
     ShipInit::InitAll();
     ShipInit::Init("BOOT");
-
-    // Stop rumble on any exit path (including direct exit() calls)
     atexit([]() {
         if (Instance && Instance->context && Instance->context->GetControlDeck()) {
             for (int i = 0; i < 4; i++) {
@@ -1063,7 +403,6 @@ extern void ResourceHelpers_ClearRefCache();
 void ReleaseSoundfonts();
 
 void GameEngine::Destroy() {
-    // Stop rumble on all controllers before tearing down
     if (Instance->context && Instance->context->GetControlDeck()) {
         for (int i = 0; i < 4; i++) {
             auto controller = Instance->context->GetControlDeck()->GetControllerByPort(i);
@@ -1075,9 +414,6 @@ void GameEngine::Destroy() {
 
     LighthouseGui::Destroy();
     lhFast3dWindow = nullptr;
-
-    // Flush all resource refs so destructors run while spdlog is still active.
-    // sResourceRefCache holds shared_ptrs that outlive the LUS cache otherwise.
     ResourceHelpers_ClearRefCache();
     AudioDma_Clear();
     ReleaseSoundfonts();
@@ -1120,7 +456,6 @@ void GameEngine::RenderGuiFrame() const {
     if (lhFast3dWindow == nullptr) {
         return;
     }
-    // Pump window events so the modal stays interactive and the window can close.
     lhFast3dWindow->HandleEvents();
     if (!lhFast3dWindow->IsFrameReady()) {
         return;
@@ -1139,7 +474,6 @@ void GameEngine::RelaunchIfRequested(int argc, char* argv[]) {
     if (!sRelaunchRequested) {
         return;
     }
-    // Called from SDL_main after Destroy()
 #ifdef _WIN32
     wchar_t exePath[MAX_PATH];
     if (GetModuleFileNameW(nullptr, exePath, MAX_PATH) > 0) {
@@ -1159,19 +493,11 @@ void GameEngine::RelaunchIfRequested(int argc, char* argv[]) {
 #endif
 }
 
-#define SAMPLES_PER_FRAME (560 * 2 * 2)
-
-// 2 VIs per game frame (30fps)
-#define gVIsPerFrame 2
+// Audio
 
 extern "C" uint32_t GameEngine_GetSamplesPerFrame() {
     return SAMPLES_PER_FRAME;
 }
-
-// Attract-demo audio hold
-static std::atomic<bool> sHoldAudio{ false };
-static constexpr int kDemoAudioHoldFrames = 2; // drawn ticks to stay held after the load
-static int sHoldFramesRemaining = 0;           // game thread only
 
 extern "C" void port_beginDemoAudioHold(void) {
     if (kDemoAudioHoldFrames <= 0) {
@@ -1191,13 +517,10 @@ extern "C" int port_audioHeld(void) {
     return sHoldAudio.load() ? 1 : 0;
 }
 
-static std::vector<std::shared_ptr<Ship::IResource>> sSoundfontResources;
-
 void ReleaseSoundfonts() {
     sSoundfontResources.clear();
 }
 
-// Load soundfont BLOBs from OTR and set ROM symbol pointers
 static void LoadSoundfonts() {
     auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
     sSoundfontResources.clear();
@@ -1237,65 +560,41 @@ void GameEngine::AudioInit() {
     LoadSoundfonts();
 }
 
-// Local timer helper for the per-sub-frame cost measurement.
+// Frame pacing and rendering
+
 namespace {
 using Clock = std::chrono::steady_clock;
 inline long long NsSince(Clock::time_point t0) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - t0).count();
 }
-
-// In-flight async builds of interpolated sub-frame replacement maps
-std::vector<std::future<void>> sMapBuildFutures;
-
-// Cost of the most recent sub-frame, and the wall time this pass may spend:
-// subframes/paceFps is exactly the game time one task represents.
-long long sLastSubFrameNs = 0;
-long long sPassBudgetNs = 0;
 } // namespace
 
 void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
                              size_t frameCount) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
-
     if (wnd == nullptr) {
         return;
     }
-
     auto interpreter = wnd->GetInterpreterWeak().lock().get();
-
-    // Process window events for resize, mouse, keyboard events
     wnd->HandleEvents();
-
     interpreter->mInterpolationIndex = 0;
-
-    // Expand DrawAndRunGraphicsCommands so we can read the backbuffer between
-    // Run() (frame rendered) and EndFrame() (buffer swap). On N64, CPU/RDP shared
-    // physical memory so gFramebuffers always had valid pixel data after rendering.
     auto wndBase = Ship::Context::GetRawInstance()->GetWindow();
     const auto passT0 = Clock::now();
     for (size_t frameIdx = 0; frameIdx < frameCount; frameIdx++) {
         if (frameIdx >= 1 && frameIdx - 1 < sMapBuildFutures.size()) {
             sMapBuildFutures[frameIdx - 1].wait();
         }
-        // Stop once another sub-frame no longer fits in what the tick's worth
-        // of wall time has left.
         if (frameIdx > 0 && sLastSubFrameNs > 0 && (sPassBudgetNs - NsSince(passT0)) < sLastSubFrameNs) {
             break;
         }
         const auto& m = mtx_replacements[frameIdx];
-        // Vertex-animated models blend into one buffer per draw, so unlike the
-        // matrix maps this can't be precomputed per sub-frame. It has to land
-        // right before the pass that reads it.
         const float subframeBlend = (frameCount > 1) ? (float)(frameIdx + 1) / (float)frameCount : 1.0f;
         if (frameCount > 1) {
             FrameInterpolation_ApplyAnimVertices(subframeBlend);
         }
-        // Overlays drawn by the Gui pass below place themselves per tick, so they need the
-        // same blend the geometry is being posed with or they step while the world glides.
         Nametag::SetSubframeBlend(subframeBlend);
         bool isFinalFrame = (frameIdx == frameCount - 1);
         if (frameCount > 1 || wndBase->IsFrameReady()) {
-            // Sample the full CPU cost of producing this sub-frame.
             auto runT0 = Clock::now();
             auto gui = wndBase->GetGui();
             wndBase->GetMouseStateManager()->StartFrame();
@@ -1315,7 +614,6 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
         }
         interpreter->mInterpolationIndex++;
     }
-
     bool curAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 1);
     if (prevAltAssets != curAltAssets) {
         prevAltAssets = curAltAssets;
@@ -1324,25 +622,18 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     }
 }
 
-bool GameEngine::IsInterpolationEnabled() {
-    return (int)GetInterpolationFPS() > 60 / gVIsPerFrame;
+void GameEngine::SetInterpolationRecorded(bool recorded) {
+    sInterpolationRecorded = recorded;
 }
 
-// How many interpolated sub-frames to render this tick, plus the present-pacing
-// fps that keeps wall-clock time aligned with the game's VI cadence. Pure policy
-// derived from the interpolation target, adaptive cap, and demo/cutscene state.
 namespace {
 struct SubframePacing {
-    int subframes; // renders to emit this tick (>= 1)
-    int fps;       // target present fps for this tick
-    int viPerTick; // VIs of game time this tick covers
+    int subframes;
+    int fps;
+    int viPerTick;
 };
 
-SubframePacing ComputeSubframePacing() {
-    int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-
-    // Game-logic VI per tick: gVIsPerFrame (=2 -> 30 Hz) normally; demo
-    // replay and cutscene stutter raise it for slow N64 frames.
+int CurrentViPerTick() {
     int viPerTick = port_getDemoViCount();
     if (viPerTick <= 0) {
         viPerTick = gVIsPerFrame + port_getCutsceneExtraVis();
@@ -1350,30 +641,32 @@ SubframePacing ComputeSubframePacing() {
     if (viPerTick < gVIsPerFrame) {
         viPerTick = gVIsPerFrame;
     }
-    // time_setDeltaReal_frames() clamps the demo's recorded VI count to 15, so the
-    // tick never advances more than that no matter what the demo asks for. Match it
-    // here or a bogus recorded value would scale the sub-frame count with it.
+    // Clamp to 15 for demo playbacks.
     if (viPerTick > 15) {
         viPerTick = 15;
     }
+    return viPerTick;
+}
 
-    int effective_logic_fps = 60 / viPerTick;
-    if (effective_logic_fps < 1) {
-        effective_logic_fps = 1;
-    }
+int EffectiveLogicFps() {
+    int fps = 60 / CurrentViPerTick();
+    return (fps < 1) ? 1 : fps;
+}
 
-    // Subframes per tick: integer count. floor(target_fps / eff), min 1. This
-    // guarantees an integer count even when target_fps isn't a multiple of
-    // eff (the fractional-ratio jitter at target=30 / VI=3).
-    int subframesPerTick = target_fps / effective_logic_fps;
-    if (subframesPerTick < 1) {
+int SubframesForTarget(int targetFps) {
+    int subframes = targetFps / EffectiveLogicFps();
+    return (subframes < 1) ? 1 : subframes;
+}
+
+SubframePacing ComputeSubframePacing() {
+    int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
+    int viPerTick = CurrentViPerTick();
+    int subframesPerTick = SubframesForTarget(target_fps);
+
+    if (!sInterpolationRecorded) {
         subframesPerTick = 1;
     }
 
-    // paceFps drives DXGI's per-present wait so that subframes * 1/paceFps =
-    // viPerTick/60 wall (= game time per tick). Derived from viPerTick rather than
-    // effective_logic_fps: the latter is truncated (VI=7 -> 8, not 8.57), which would
-    // stretch wall time on the odd VI counts demo playback hands us every tick.
     int fps = subframesPerTick * 60 / viPerTick;
     if (fps < 1) {
         fps = 1;
@@ -1382,6 +675,10 @@ SubframePacing ComputeSubframePacing() {
     return { subframesPerTick, fps, viPerTick };
 }
 } // namespace
+
+bool GameEngine::IsInterpolationEnabled() {
+    return (int)GetInterpolationFPS() > EffectiveLogicFps();
+}
 
 void GameEngine::ProcessGfxCommands(Gfx* commands) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
@@ -1395,18 +692,12 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // }
     wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
 
-    // Persistent across frames so each map's bucket array survives.
-    // Interpolate clears entries but keeps the buckets, saving thousands
-    // of node allocations per tick at high refresh rates.
     static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
 
     const SubframePacing pacing = ComputeSubframePacing();
     const int subframesPerTick = pacing.subframes;
     const int fps = pacing.fps;
 
-    // Emit exactly subframesPerTick sub-frames with t values evenly spaced.
-    // No accumulator carry: each tick is independent so VI changes don't
-    // misalign leftover state.
     if ((int)mtx_replacements.size() < subframesPerTick) {
         mtx_replacements.resize(subframesPerTick);
     }
@@ -1428,12 +719,10 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
         activeFrames++;
     }
 
-    // Wall time this tick is worth, straight from its VI count.
     sPassBudgetNs = 1000000000LL * pacing.viPerTick / 60;
 
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);
-        // Hardcoded: CVarGetInteger crashes due to heap corruption in debug builds.
         wnd->SetMaximumFrameLatency(2);
     }
 
@@ -1447,8 +736,6 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
 
     RunCommands(commands, mtx_replacements, activeFrames);
 
-    // Drain any builds the render loop didn't consume (debugger path, early
-    // return) before the next tick's StartRecord resets the trees they read.
     for (auto& f : sMapBuildFutures) {
         if (f.valid()) {
             f.wait();
@@ -1471,12 +758,14 @@ uint32_t GameEngine::GetInterpolationFPS() {
 }
 
 uint32_t GameEngine::GetInterpolationFrameCount() {
-    return static_cast<uint32_t>(ceil((float)GetInterpolationFPS() / (60.0f / gVIsPerFrame)));
+    return static_cast<uint32_t>(SubframesForTarget((int)GetInterpolationFPS()));
 }
 
 extern "C" uint32_t GameEngine_GetInterpolationFrameCount() {
     return GameEngine::GetInterpolationFrameCount();
 }
+
+// Version reporting and message boxes
 
 void GameEngine::ShowMessage(const char* title, const char* message, SDL_MessageBoxFlags type) {
 #if defined(__SWITCH__)
@@ -1523,6 +812,8 @@ extern "C" uint32_t GameEngine_GetSampleRate() {
 
 // End
 
+// C ABI shims
+
 Fast::Interpreter* GameEngine_GetInterpreter() {
     return std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow())
         ->GetInterpreterWeak()
@@ -1538,8 +829,6 @@ extern "C" float GameEngine_GetAspectRatio() {
 extern "C" uint32_t GameEngine_GetGameVersion() {
     return 0x00000001;
 }
-
-static const char* sOtrSignature = "__OTR__";
 
 extern "C" uint8_t GameEngine_OTRSigCheck(const char* data) {
     if (data == nullptr) {
@@ -1580,53 +869,44 @@ extern "C" float OTRGetHUDAspectRatio() {
     return ((float)CVarGetInteger("gHUDAspectRatio.X", 1) / (float)CVarGetInteger("gHUDAspectRatio.Y", 1));
 }
 
-static float OTRWidescreenHalfHeight() {
+static float OTRDimensionFromEdge(float v, float aspectRatio, bool fromRight) {
     auto interpreter = GameEngine_GetInterpreter();
-    return interpreter->mNativeDimensions.width * 3.0f / 4.0f / 2.0f;
+    const uint32_t nativeWidth = interpreter->mNativeDimensions.width;
+    const float aspect = (aspectRatio > 0) ? aspectRatio : interpreter->mCurDimensions.aspect_ratio;
+    const float halfSpan = (nativeWidth * 3.0f / 4.0f / 2.0f) * aspect;
+
+    return fromRight ? (nativeWidth / 2 + halfSpan - (nativeWidth - v)) : (nativeWidth / 2 - halfSpan + v);
 }
 
 extern "C" float OTRGetDimensionFromLeftEdge(float v) {
-    auto interpreter = GameEngine_GetInterpreter();
-    return (interpreter->mNativeDimensions.width / 2 -
-            OTRWidescreenHalfHeight() * interpreter->mCurDimensions.aspect_ratio + (v));
+    return OTRDimensionFromEdge(v, 0.0f, false);
 }
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
-    auto interpreter = GameEngine_GetInterpreter();
-    return (interpreter->mNativeDimensions.width / 2 +
-            OTRWidescreenHalfHeight() * interpreter->mCurDimensions.aspect_ratio -
-            (interpreter->mNativeDimensions.width - v));
+    return OTRDimensionFromEdge(v, 0.0f, true);
 }
 
 extern "C" float OTRGetDimensionFromLeftEdgeForcedAspect(float v, float aspectRatio) {
-    auto interpreter = GameEngine_GetInterpreter();
-    return (interpreter->mNativeDimensions.width / 2 -
-            OTRWidescreenHalfHeight() * (aspectRatio > 0 ? aspectRatio : interpreter->mCurDimensions.aspect_ratio) +
-            (v));
+    return OTRDimensionFromEdge(v, aspectRatio, false);
 }
 
 extern "C" float OTRGetDimensionFromRightEdgeForcedAspect(float v, float aspectRatio) {
-    auto interpreter = GameEngine_GetInterpreter();
-    return (interpreter->mNativeDimensions.width / 2 +
-            OTRWidescreenHalfHeight() * (aspectRatio > 0 ? aspectRatio : interpreter->mCurDimensions.aspect_ratio) -
-            (interpreter->mNativeDimensions.width - v));
+    return OTRDimensionFromEdge(v, aspectRatio, true);
 }
 
 extern "C" float OTRGetDimensionFromLeftEdgeOverride(float v) {
-    return OTRGetDimensionFromLeftEdgeForcedAspect(v, OTRGetHUDAspectRatio());
+    return OTRDimensionFromEdge(v, OTRGetHUDAspectRatio(), false);
 }
 
 extern "C" float OTRGetDimensionFromRightEdgeOverride(float v) {
-    return OTRGetDimensionFromRightEdgeForcedAspect(v, OTRGetHUDAspectRatio());
+    return OTRDimensionFromEdge(v, OTRGetHUDAspectRatio(), true);
 }
 
-// Gets the width of the current render target area
 extern "C" uint32_t OTRGetGameRenderWidth() {
     auto interpreter = GameEngine_GetInterpreter();
     return interpreter->mCurDimensions.width;
 }
 
-// Gets the height of the current render target area
 extern "C" uint32_t OTRGetGameRenderHeight() {
     auto interpreter = GameEngine_GetInterpreter();
     return interpreter->mCurDimensions.height;

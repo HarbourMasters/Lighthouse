@@ -194,8 +194,6 @@ void viewport_setPosition_f3(f32 x, f32 y, f32 z) {
 
 void viewport_setRotation_vec3f(f32 src[3]) {
     ml_vec3f_copy(sViewportRotation, src);
-    // [port] Nudge static-camera yaw on configured maps when in widescreen.
-    port_camera_applyWsYawFix(sViewportRotation);
 }
 
 void viewport_setRotation_f3(f32 pitch, f32 yaw, f32 roll) {

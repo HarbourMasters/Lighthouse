@@ -1,5 +1,6 @@
 #include "Logic.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "port/UI/cvar_prefixes.h"
 
 namespace Rando {
 
@@ -18,7 +19,7 @@ void RefreshReachableRegions() {
         }
     }
 
-    if (CVarGetInteger("gRandoSettings.GeneratingSeed", 0)) {
+    if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("GeneratingSeed"), 0)) {
         seen.insert(RR_SPIRAL_MOUNTAIN_ENTRANCE);
     }
 
