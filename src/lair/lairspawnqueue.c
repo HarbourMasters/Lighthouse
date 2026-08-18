@@ -698,13 +698,19 @@ void func_803867A8(Actor *this) {
             if (this->unk38_31 != 0) {
                 this->unk38_31--;
             } else {
-                phi_v0 = this->alpha_124_19 + 3;
+                // [port] This actor advances per logic tick, and GV Lobby's framerate
+                // actor made that 20 ticks/s on N64. RegisterGVLobbyFramerate_Init
+                // lifts the room to 30, so scale by the current VI divisor (3 = 20 ticks/s)
+                // to keep the pad's original real-time rate.
+//              phi_v0 = this->alpha_124_19 + 3;
+                phi_v0 = this->alpha_124_19 + viMgr_func_8024BFA0();
                 if(phi_v0 >= 0x100){
                     phi_v0 = 0xFF;
                 }
                 this->alpha_124_19 = phi_v0;
                 if (this->alpha_124_19 < 0xAA){
-                    this->velocity[0] += 1.0f;
+//                  this->velocity[0] += 1.0f;
+                    this->velocity[0] += viMgr_func_8024BFA0() / 3.0f;
                     if((this->velocity[0] < 0.0f) || (this->velocity[0] > 19.0f)) {
                         this->velocity[0] = 0.0f;
                         gcsfx_playWithPitch(SFX_3F6_RUBBING, 0.5f, this->alpha_124_19*0x25 + 0x3840);
@@ -712,14 +718,16 @@ void func_803867A8(Actor *this) {
                 }
             }
         } else {
-            this->velocity[0] += 1.0f;
+//          this->velocity[0] += 1.0f;
+            this->velocity[0] += viMgr_func_8024BFA0() / 3.0f;
             if ((this->velocity[0] < 0.0f) || (this->velocity[0] > 19.0f)) {
                 this->velocity[0] = 0.0f;
                 sfx_playFadeShorthandDefault(SFX_3F6_RUBBING, 0.5f, 24000, this->position, 100, 2300);
 
             }
         }
-        this->lifetime_value += 2.5;
+//      this->lifetime_value += 2.5;
+        this->lifetime_value += 2.5 * (viMgr_func_8024BFA0() / 3.0f);
         while(this->lifetime_value >= 360.0f){ this->lifetime_value -= 360.0f;}
 
         this->position_y = this->unk1C[1];
