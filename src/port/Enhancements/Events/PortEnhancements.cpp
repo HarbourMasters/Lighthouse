@@ -1,6 +1,7 @@
 #include "PortEnhancements.h"
 #include "port/Save/SaveManager.h"
 #include "port/Rando/Rando.h"
+#include "port/Enhancements/Trackers/WorldTracker/WorldTracker.h"
 #include "port/ShipUtils.h"
 
 #include <stdarg.h>
@@ -12,7 +13,8 @@
 
 void PortEnhancements_Init() {
     PortEnhancements_Register();
-    // LoadGuiTextures();
+    LoadGuiTextures();
+    WorldTracker::Init();
 }
 
 void PortEnhancements_Register() {
@@ -106,6 +108,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnActorDestroy);
     REGISTER_EVENT(OnLevelReset);
     REGISTER_EVENT(OnCheckSpiralMountainAbilities);
+    REGISTER_EVENT(OnActorCollisionEnd);
     REGISTER_EVENT(OnReset);
     REGISTER_EVENT(SetAnimSpeedMult);
     REGISTER_EVENT(OnActorUpdate);

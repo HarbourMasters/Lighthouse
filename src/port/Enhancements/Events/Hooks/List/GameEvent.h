@@ -50,3 +50,5 @@ DEFINE_EVENT(OnLevelReset, int32_t levelId;)
 DEFINE_EVENT(OnGetLevelSpecificFlag, int32_t flagId; int32_t result;)
 
 DEFINE_EVENT(OnCheckSpiralMountainAbilities, int32_t result;)
+
+DEFINE_EVENT(OnActorCollisionEnd)
