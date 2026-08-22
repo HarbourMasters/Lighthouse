@@ -160,13 +160,18 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_TREASURE_TROVE_COVE_INTERIOR_NIPPER] = RandoRegion{ .regionName = "Inside Nipper", .mapId = MAP_6_TTC_NIPPERS_SHELL,
         .checks = {
-            CHECK(RC_TTC_JIGGY_NIPPER, 		    true),
-            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_1,  true),
-            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_2,  true),
-            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_3,  true),
-            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_4,  true),
-            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_5,  true),
-            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_6,  true),
+            CHECK(RC_TTC_JIGGY_NIPPER, 		        true),
+            CHECK(RC_TTC_BLUE_EGG_INSIDE_NIPPER_1,  true),
+            CHECK(RC_TTC_BLUE_EGG_INSIDE_NIPPER_2,  true),
+            CHECK(RC_TTC_BLUE_EGG_INSIDE_NIPPER_3,  true),
+            CHECK(RC_TTC_BLUE_EGG_INSIDE_NIPPER_4,  true),
+            CHECK(RC_TTC_BLUE_EGG_INSIDE_NIPPER_5,  true),
+            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_1,      true),
+            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_2,      true),
+            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_3,      true),
+            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_4,      true),
+            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_5,      true),
+            CHECK(RC_TTC_NOTE_INSIDE_NIPPER_6,      true),
 
         },
         .connections = {
