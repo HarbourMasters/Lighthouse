@@ -12,6 +12,7 @@
 
 #define CVAR_DRAW_DISTANCE CVAR_ENHANCEMENT("Graphics.DrawDistance")
 #define CVAR_DISABLE_LOD CVAR_ENHANCEMENT("Graphics.DisableLOD")
+#define CVAR_DISABLE_CULLING CVAR_ENHANCEMENT("Graphics.DisableCulling")
 #define CVAR_FP_LOBBY_DOOR_TILE CVAR_ENHANCEMENT("Fixes.FPLobbyDoorTile")
 
 static const int kMaxDrawDistanceMul = 6;
@@ -21,6 +22,7 @@ static int sDrawDistanceCubeWidth(int mul) {
 
 static int sDrawDistanceLevel = 1;
 static int sDisableLOD = 0;
+static int sDisableCulling = 0;
 
 extern "C" {
 #include <ultra64.h>
@@ -100,6 +102,10 @@ int port_shouldDisableLOD(void) {
     }
     return sDisableLOD;
 }
+
+int port_shouldDisableCulling(void) {
+    return sDisableCulling;
+}
 }
 
 // ============================================================================
@@ -161,9 +167,10 @@ static void RefreshDrawDistanceCVars() {
     }
     sDrawDistanceLevel = mul;
     sDisableLOD = CVarGetInteger(CVAR_DISABLE_LOD, 0);
+    sDisableCulling = CVarGetInteger(CVAR_DISABLE_CULLING, 0);
 }
 
-static RegisterShipInitFunc drawDistanceCVarCache(RefreshDrawDistanceCVars, { CVAR_DRAW_DISTANCE, CVAR_DISABLE_LOD });
+static RegisterShipInitFunc drawDistanceCVarCache(RefreshDrawDistanceCVars, { CVAR_DRAW_DISTANCE, CVAR_DISABLE_LOD, CVAR_DISABLE_CULLING });
 
 // ============================================================================
 // STALE TILE DESCRIPTOR — Freezeezy Peak lobby door trim
