@@ -170,7 +170,8 @@ static void RefreshDrawDistanceCVars() {
     sDisableCulling = CVarGetInteger(CVAR_DISABLE_CULLING, 0);
 }
 
-static RegisterShipInitFunc drawDistanceCVarCache(RefreshDrawDistanceCVars, { CVAR_DRAW_DISTANCE, CVAR_DISABLE_LOD, CVAR_DISABLE_CULLING });
+static RegisterShipInitFunc drawDistanceCVarCache(RefreshDrawDistanceCVars,
+                                                  { CVAR_DRAW_DISTANCE, CVAR_DISABLE_LOD, CVAR_DISABLE_CULLING });
 
 // ============================================================================
 // STALE TILE DESCRIPTOR — Freezeezy Peak lobby door trim
