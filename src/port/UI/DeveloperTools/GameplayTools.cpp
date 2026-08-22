@@ -232,20 +232,101 @@ void GameplayTools_SpawnPosition() {
     }
 }
 
+void GameplayTools_PlayerTools() {
+    player_getPosition_s32(playerPosition);
+
+    ImGui::SeparatorText("Player Position");
+    ImGui::Text("Current Map ID: %i", gsworld_getMap());
+
+    if (ImGui::BeginTable("CurrentPlayerPosition", 2)) {
+        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+        ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+        ImGui::TableNextColumn();
+
+        ImGui::Text("Pos X: ");
+        ImGui::TableNextColumn();
+        ImGui::Text(std::to_string(playerPosition[0]).c_str());
+        ImGui::TableNextColumn();
+
+        ImGui::Text("Pos Y: ");
+        ImGui::TableNextColumn();
+        ImGui::Text(std::to_string(playerPosition[1]).c_str());
+        ImGui::TableNextColumn();
+
+        ImGui::Text("Pos Z: ");
+        ImGui::TableNextColumn();
+        ImGui::Text(std::to_string(playerPosition[2]).c_str());
+
+        ImGui::EndTable();
+    }
+
+    ImGui::SeparatorText("Warp Player");
+    if (ImGui::BeginTable("WarpPlayer", 2)) {
+        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+        ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 250.0f);
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+        ImGui::Text("Pos X: ");
+        ImGui::TableNextColumn();
+        static std::string warpPosX = "0";
+        if (UIWidgets::InputString("##WarpPosX", &warpPosX,
+                                   UIWidgets::InputOptions()
+                                       .Size(ImGui::GetContentRegionAvail() -
+                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
+                                       .Color(THEME_COLOR))) {}
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+        ImGui::Text("Pos Y: ");
+        ImGui::TableNextColumn();
+        static std::string warpPosY = "0";
+        if (UIWidgets::InputString("##WarpPosY", &warpPosY,
+                                   UIWidgets::InputOptions()
+                                       .Size(ImGui::GetContentRegionAvail() -
+                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
+                                       .Color(THEME_COLOR))) {}
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+        ImGui::Text("Pos Z: ");
+        ImGui::TableNextColumn();
+        static std::string warpPosZ = "0";
+        if (UIWidgets::InputString("##WarpPosZ", &warpPosZ,
+                                   UIWidgets::InputOptions()
+                                       .Size(ImGui::GetContentRegionAvail() -
+                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
+                                       .Color(THEME_COLOR))) {}
+
+        ImGui::EndTable();
+        if (UIWidgets::Button("Warp Player",
+                              UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
+            f32 warpPosition[3] = { std::stof(warpPosX), std::stof(warpPosY), std::stof(warpPosZ) };
+            playerPosition_set(warpPosition);
+        }
+        ImGui::SameLine();
+        if (UIWidgets::Button("Copy Current Player Coords",
+                              UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
+            warpPosX = std::to_string(playerPosition[0]);
+            warpPosY = std::to_string(playerPosition[1]);
+            warpPosZ = std::to_string(playerPosition[2]);
+        }
+    }
+}
+
 void GameplayTools_ObjectSpawner() {
     player_getPosition_s32(playerPosition);
     GameplayTools_SpawnPosition();
 
-    ImGui::SeparatorText("Player Position");
-    ImGui::Text("Map ID: %i", gsworld_getMap());
+    ImGui::SeparatorText("Object Spawn Position");
 
     if (ImGui::BeginTable("SpawnInfoTable", 3)) {
-        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 75.0f);
+        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableNextColumn();
 
-        ImGui::Text("Pos X: ");
+        ImGui::Text("Player Pos X: ");
         ImGui::TableNextColumn();
         ImGui::Text(std::to_string(playerPosition[0]).c_str());
         ImGui::TableNextColumn();
@@ -261,7 +342,7 @@ void GameplayTools_ObjectSpawner() {
         }
         ImGui::TableNextColumn();
 
-        ImGui::Text("Pos Y: ");
+        ImGui::Text("Player Pos Y: ");
         ImGui::TableNextColumn();
         ImGui::Text(std::to_string(playerPosition[1]).c_str());
         ImGui::TableNextColumn();
@@ -277,7 +358,7 @@ void GameplayTools_ObjectSpawner() {
         }
         ImGui::TableNextColumn();
 
-        ImGui::Text("Pos Z: ");
+        ImGui::Text("Player Pos Z: ");
         ImGui::TableNextColumn();
         ImGui::Text(std::to_string(playerPosition[2]).c_str());
         ImGui::TableNextColumn();
@@ -547,6 +628,10 @@ void DrawMonitoringTools() {
 void GameplayTools_DrawTabBar() {
     UIWidgets::PushStyleTabs(THEME_COLOR);
     if (ImGui::BeginTabBar("GameplayToolsTabBar")) {
+        if (ImGui::BeginTabItem("Player Tools")) {
+            GameplayTools_PlayerTools();
+            ImGui::EndTabItem();
+        }
         if (ImGui::BeginTabItem("Spawn Object")) {
             GameplayTools_ObjectSpawner();
             ImGui::EndTabItem();
