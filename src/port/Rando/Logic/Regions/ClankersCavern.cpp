@@ -132,6 +132,9 @@ static RegisterShipInitFunc initFunc([]() {
         .connections = {
             CONNECTION(RR_CLANKERS_CAVERN_INTERIOR_CLANKER, true),
         },
+        .events = {
+            EVENT(RA_WITCH_SWITCH_CLANKERS_CAVERN, CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
+        }
     };
 
     Regions[RR_CLANKERS_CAVERN_NEAR_CLANKER] = RandoRegion{ .regionName = "Near Clanker", .mapId = MAP_B_CC_CLANKERS_CAVERN,

@@ -108,6 +108,9 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR,              true),
             CONNECTION(RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR_UPPER_ORGAN,  true),
         },
+        .events = {
+            EVENT(RA_WITCH_SWITCH_MAD_MONSTER_MANSION, CAN_USE_ABILITY(ABILITY_2_BEAK_BUSTER)),
+        }
     };
 
     Regions[RR_MAD_MONSTER_MANSION_CHURCH_INTERIOR_WINDOW] = RandoRegion{ .regionName = "Church Banjo Kazooie Window", .mapId = MAP_2B_MMM_SECRET_CHURCH_ROOM,
