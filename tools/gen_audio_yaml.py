@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-# Rebuilds soundfont.yaml under assets/yaml/<region>/<rev>/ from the decomp: sound names,
-# how many source files use each sound, and where the two banks sit in each ROM revision.
+# Rebuilds the audio yaml under assets/yaml/<region>/<rev>/ from the decomp.
+#   soundfont  soundfont.yaml: sound names, how many source files use each sound,
+#              and where the two banks sit in each ROM revision
+#   music      assets.yaml's music_volumes block, from musicTrackInfo
+# Runs both unless one is named.
 import os
 import re
 import sys
@@ -9,6 +12,7 @@ from collections import defaultdict
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src')
 ENUMS = os.path.join(ROOT, 'include', 'enums.h')
+MUSIC_SOURCE = os.path.join(SRC, 'core1', 'audio_instruments.c')
 REVISIONS = {
     'us/rev0': ((0xD846C0, 0xD954B0), (0xEA3EB0, 0xEADE60)),
     'us/rev1': ((0xD87CA0, 0xD98A90), (0xEA7490, 0xEB1440)),
@@ -18,6 +22,7 @@ REVISIONS = {
 CTL_SIZE = {1: 0x10DF0, 2: 0x9FB0}
 SFX_BASE = {1: 0x000, 2: 0x3E9}
 SFX_COUNT = {1: 402, 2: 61}
+MUSIC_KEY = 'music_volumes'
 
 def yaml_path(rev, name):
     return os.path.join(ROOT, 'assets', 'yaml', *rev.split('/'), name)
@@ -106,8 +111,54 @@ def gen_soundfont():
     total = SFX_COUNT[1] + SFX_COUNT[2]
     print('%d files | %d of %d sounds named in code' % (written, referenced, total))
 
+def read_music_volumes():
+    text = open(MUSIC_SOURCE, encoding='utf-8', errors='replace').read()
+    body = re.search(r'MusicTrackMeta\s+musicTrackInfo\[\d+\]\s*=\s*\{(.*?)\n\};', text, re.S)
+    if body is None:
+        sys.exit('musicTrackInfo not found in %s' % MUSIC_SOURCE)
+    rows = re.findall(r'\{\s*"((?:[^"\\]|\\.)*)"\s*,\s*(\d+)\s*\}', body.group(1))
+    if not rows:
+        sys.exit('musicTrackInfo parsed to nothing')
+    return [int(v) for _, v in rows]
+
+def rewrite_music_volumes(path, volumes):
+    lines = open(path, encoding='utf-8').read().split('\n')
+    out = []
+    skipping = False
+    for line in lines:
+        if skipping:
+            if line.startswith('    '):
+                continue
+            skipping = False
+        if line.strip() == '%s:' % MUSIC_KEY:
+            skipping = True
+            continue
+        out.append(line)
+    end = next((i for i, line in enumerate(out) if i > 0 and line and not line.startswith(' ')), len(out))
+    while end > 0 and not out[end - 1].strip():
+        end -= 1
+    block = ['  %s:' % MUSIC_KEY] + ['    %d: %d' % (i, v) for i, v in enumerate(volumes)]
+    out[end:end] = block
+    open(path, 'w', encoding='utf-8', newline='\n').write('\n'.join(out))
+
+def gen_music():
+    volumes = read_music_volumes()
+    for rev in REVISIONS:
+        path = yaml_path(rev, 'assets.yaml')
+        if not os.path.exists(path):
+            print('skipped %s (not present)' % rev)
+            continue
+        rewrite_music_volumes(path, volumes)
+        print('%-9s %d volumes' % (rev, len(volumes)))
+
 def main():
-    gen_soundfont()
+    targets = sys.argv[1:] or ['soundfont', 'music']
+    if any(t not in ('soundfont', 'music') for t in targets):
+        sys.exit('usage: gen_audio_yaml.py [soundfont] [music]')
+    if 'soundfont' in targets:
+        gen_soundfont()
+    if 'music' in targets:
+        gen_music()
 
 if __name__ == '__main__':
     sys.exit(main())

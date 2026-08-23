@@ -45,6 +45,7 @@
 #include "Resource/Importers/DialogFactory.h"
 #include "Resource/Importers/MapFactory.h"
 #include "Resource/Importers/ModelFactory.h"
+#include "Resource/Importers/MusicFactory.h"
 #include "Resource/Importers/SoundFactory.h"
 #include "Resource/Importers/SpriteFactory.h"
 #include "src/port/Enhancements/Events/Hooks/Events.h"
@@ -183,6 +184,8 @@ static void RegisterResourceFactories(const std::shared_ptr<Ship::ResourceLoader
                                     RESOURCE_FORMAT_BINARY, "BKSound", Factories::kBKSoundResourceType, 0);
     loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinaryBKSoundBankV0>(),
                                     RESOURCE_FORMAT_BINARY, "BKSoundBank", Factories::kBKSoundBankResourceType, 0);
+    loader->RegisterResourceFactory(std::make_shared<Factories::ResourceFactoryBinaryBKMusicV0>(),
+                                    RESOURCE_FORMAT_BINARY, "BKMusic", Factories::kBKMusicResourceType, 0);
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV0>(), RESOURCE_FORMAT_BINARY,
                                     "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 0);
     loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV1>(), RESOURCE_FORMAT_BINARY,

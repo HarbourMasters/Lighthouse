@@ -497,6 +497,14 @@ void func_8024FF34(void) {
 
 s32 gcMusic_getDefaultVolumeForTrack(enum comusic_e track_id) {
     if (track_id >= 0 && track_id < 176) { // [port] bounds guard
+        // [port] a track carries its own slot volume in the archive, so a music mod
+        // can set it without this table.
+        extern s32 port_getMusicTrackVolume(u32 assetId);
+        s32 volume = port_getMusicTrackVolume(MUSIC_TRACK_ASSET_BASE_ID + track_id);
+
+        if (volume >= 0) {
+            return volume;
+        }
         return musicTrackInfo[track_id].volume;
     }
     return 0;
