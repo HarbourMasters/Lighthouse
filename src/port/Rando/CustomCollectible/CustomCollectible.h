@@ -42,6 +42,7 @@ public:
     static f32 GetScale(RandoItemType itemType);
     static void FacePlayer(Actor* actor);
     static Actor* GetActorByRC(RandoCheckId randoCheckId);
+    static void DespawnByRC(RandoCheckId randoCheckId);
     static void QueueProp(int32_t position[3], RandoCheckId randoCheckId);
     static void ProcessPropQueue();
 };

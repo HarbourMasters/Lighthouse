@@ -216,9 +216,12 @@ ActorInfo CustomCollectible::GetActorAndDrawInfo(RandoItemId randoItemId) {
 void CustomCollectible::OnCollect(struct actorMarker_s* self, struct actorMarker_s* other) {
     Actor* actor = marker_getActor(self);
     ActorLocal_CustomCollectible* customLocal = (ActorLocal_CustomCollectible*)&actor->local;
+
     fxSparkle_honeycomb(&self->propPtr->x);
     ItemQueue::AddCheck(customLocal->randoCheckId);
     marker_despawn(self);
+
+    CALL_EVENT(OnRandoCheckObtained, (int32_t)customLocal->randoCheckId, (int32_t)gsworld_getMap());
 }
 
 Actor* CustomCollectible::GetActorByRC(RandoCheckId randoCheckId) {
@@ -246,6 +249,13 @@ Actor* CustomCollectible::GetActorByRC(RandoCheckId randoCheckId) {
     }
 
     return NULL;
+}
+
+void CustomCollectible::DespawnByRC(RandoCheckId randoCheckId) {
+    Actor* actor = CustomCollectible::GetActorByRC(randoCheckId);
+    if (actor != NULL && actor->marker != NULL) {
+        marker_despawn(actor->marker);
+    }
 }
 
 // When regular props are spawned in BK, the game isn't fully set up yet to spawn
