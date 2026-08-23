@@ -5,6 +5,26 @@
 
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_BLUE_EGGS].optionValue
 
+bool OverrideBlueEggActorSpawn(OnActorSpawn* ev) {
+    if (ev->actorId != ACTOR_52_BLUE_EGG) {
+        return false;
+    }
+
+    int32_t spawnPosition[3] = { ev->posX, ev->posY, ev->posZ };
+    RandoCheckId randoCheckId = Rando::StaticData::GetCheckByPosition(ev->posX, ev->posY, ev->posZ);
+
+    if (randoCheckId == RC_UNKNOWN || !Rando::Logic::IsCheckShuffled(randoCheckId)) {
+        return false;
+    }
+
+    if (Rando::Logic::IsCheckObtained(randoCheckId)) {
+        return true;
+    }
+
+    CustomCollectible::Spawn(spawnPosition, randoCheckId);
+    return true;
+}
+
 bool OverrideBlueEggSpawn(s16 spawnPosition[3], int32_t propAsset) {
     if (propAsset != ASSET_6D7_SPRITE_BLUE_EGGS) {
         return false;
@@ -27,6 +47,17 @@ bool OverrideBlueEggSpawn(s16 spawnPosition[3], int32_t propAsset) {
 }
 
 void RegisterRandoBlueEggs() {
+    // Blue Eggs are usually spawned as props, but are rarely spawned as actors like the 3 eggs above
+    // the shock pad in TTC.
+    COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
+        OnActorSpawn* ev = (OnActorSpawn*)event;
+
+        bool replaceBlueEgg = OverrideBlueEggActorSpawn(ev);
+        if (replaceBlueEgg) {
+            event->Cancelled = true;
+        }
+    });
+
     COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, {
         s16* spawnPosition = va_arg(args, s16*);
         int32_t propAsset = va_arg(args, int32_t);
