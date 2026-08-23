@@ -25,10 +25,6 @@ void func_8025F570(N_ALCSPlayer *seqp, u8 chan); // n_audio
 void func_8025F3F0(ALCSPlayer *, f32, f32); // audio
 void func_8025F510(ALCSPlayer *seqp, u8 chan, u8 tempo); // audio, alCSPSetTempo for channel
 
-extern u8 *soundfont2ctl_ROM_START;
-extern u8 *soundfont2ctl_ROM_END;
-extern u8 *soundfont2tbl_ROM_START;
-
 MusicTrackMeta musicTrackInfo[176] = {
     { "Blank", 15000 },
     { "Scrap", 15000 },
@@ -220,7 +216,6 @@ ChanTempoState sChanTempoStates[NUM_CHANNEL_TEMPO_STATES];
 
 void musicInstruments_init(void) {
     ALBankFile *bnk_f;
-    u32 size;
     int i;
 
     sNumMIDIAssets = COMUSIC_NUM_TRACKS;
@@ -239,10 +234,10 @@ void musicInstruments_init(void) {
         sMusicSlots[i].cseqp.state = AL_STOPPED;
     }
 
-    // [port] Parse N64 big-endian ctl binary into native 64-bit structs
-    extern ALBankFile *port_alBnkfNew(u8 *ctlData, s32 ctlSize, u8 *tblData);
-    size = soundfont2ctl_ROM_END - soundfont2ctl_ROM_START;
-    bnk_f = port_alBnkfNew(soundfont2ctl_ROM_START, size, soundfont2tbl_ROM_START);
+    // [port] the soundfont ships as one resource per sound rather than a ctl/tbl pair;
+    // assemble the bank from the descriptor and the sounds it names
+    extern ALBankFile *port_alBnkfLoad(const char *descriptorPath);
+    bnk_f = port_alBnkfLoad("assets/instrument_bank");
 
     sMusicInstrumentsSeqConfig.maxVoices = 24;
     sMusicInstrumentsSeqConfig.maxEvents = 85;

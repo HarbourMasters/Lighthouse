@@ -42,7 +42,6 @@ public:
     GameEngine();
     void StartFrame() const;
     static void Create(int argc, char* argv[]);
-    static void AudioInit();
     void FinishInit();
     void RunExtract(int argc, char* argv[]);
     // Render a GUI-only frame (no game tick). Used to keep the ImGui progress
