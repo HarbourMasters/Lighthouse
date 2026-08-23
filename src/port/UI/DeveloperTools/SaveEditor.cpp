@@ -3,6 +3,7 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/ItemQueue/ItemQueue.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
@@ -95,47 +96,6 @@ static const WorldDef* SaveEditor_GetWorldDef(int32_t levelId) {
         }
     }
     return nullptr;
-}
-
-void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
-    if (randoSaveCheck.eligible) {
-        CustomObject::CheckObtainedEX(randoSaveCheck.randoCheckId);
-    }
-
-    for (auto& pool : Rando::Logic::shuffledPool) {
-        if (pool.randoCheckId == randoSaveCheck.randoCheckId) {
-            pool.isShuffled = randoSaveCheck.isShuffled;
-            pool.eligible = randoSaveCheck.eligible;
-            pool.skipped = randoSaveCheck.skipped;
-            break;
-        }
-    }
-
-    int32_t itemIncr = randoSaveCheck.eligible ? 1 : -1;
-
-    Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
-    switch (randoItem.randoItemType) {
-        case RITYPE_JIGGY:
-            jiggyscore_setCollected(randoSaveCheck.randoCollectionId, randoSaveCheck.eligible);
-            item_adjustByDiffWithoutHud(ITEM_26_JIGGY_TOTAL, itemIncr);
-            break;
-        case RITYPE_EMPTY_HONEYCOMB:
-            honeycombscore_set((honeycomb_e)randoSaveCheck.randoCollectionId, randoSaveCheck.eligible);
-            break;
-        case RITYPE_MOLEHILL:
-            if (randoSaveCheck.eligible) {
-                ability_unlock((ability_e)randoSaveCheck.randoCollectionId);
-            } else {
-                ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, 0);
-            }
-            break;
-        case RITYPE_MUMBO_TOKEN:
-            mumboscore_set((mumbotoken_e)randoSaveCheck.randoCollectionId, randoSaveCheck.eligible);
-            item_adjustByDiffWithoutHud(ITEM_1C_MUMBO_TOKEN, itemIncr);
-            break;
-        default:
-            break;
-    }
 }
 
 void SaveEditor_DrawUnlocks() {
@@ -455,7 +415,7 @@ void DrawRandoCheckEditor() {
         }
 
         if (ImGui::BeginChild("RandoToolsChild", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
-            if (ImGui::BeginTable("RandoSaveEditorTable", 7)) {
+            if (ImGui::BeginTable("RandoSaveEditorTable", 6)) {
                 ImGui::TableSetupColumn("shuffled", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("eligible", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableSetupColumn("received", ImGuiTableColumnFlags_WidthFixed, 34.0f);
@@ -464,26 +424,20 @@ void DrawRandoCheckEditor() {
                                         (ImGui::GetContentRegionAvail().x - 34.0f) * 0.60f);
                 ImGui::TableSetupColumn("itemName", ImGuiTableColumnFlags_WidthFixed,
                                         (ImGui::GetContentRegionAvail().x - 34.0f) * 0.25f);
-                ImGui::TableSetupColumn("collectionId", ImGuiTableColumnFlags_WidthFixed, 34.0f);
                 ImGui::TableNextColumn();
 
                 for (auto& check : RANDO_SAVE_CHECKS) {
-                    auto checkEntry = Rando::StaticData::Checks.find(check.randoCheckId);
-                    if (checkEntry == Rando::StaticData::Checks.end()) {
-                        continue;
-                    }
-                    const char* checkName = checkEntry->second.name;
+                    auto checkEntry = Rando::StaticData::Checks[check.randoCheckId];
+                    const char* checkName = checkEntry.name;
 
-                    auto itemEntry = Rando::StaticData::Items.find(check.randoItemId);
-                    const char* itemName =
-                        (itemEntry != Rando::StaticData::Items.end()) ? itemEntry->second.name : nullptr;
+                    auto itemEntry = Rando::StaticData::Items[check.randoItemId];
+                    const char* itemName = itemEntry.name;
 
                     if (!rcFilter.PassFilter(checkName) && !rcFilter.PassFilter(itemName)) {
                         continue;
                     }
 
                     ImGui::PushID(check.randoCheckId);
-                    bool isChanged = false;
                     bool isShuffled = check.isShuffled;
                     bool eligible = check.eligible;
                     bool received = check.received;
@@ -491,49 +445,43 @@ void DrawRandoCheckEditor() {
 
                     std::string checkId = std::to_string((uint32_t)check.randoCheckId);
 
-                    if (UIWidgets::Checkbox(
-                            ("isShuffled##" + checkId).c_str(), &isShuffled,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
+                    if (UIWidgets::Checkbox(("shuffled##" + checkId).c_str(), &isShuffled,
+                                            UIWidgets::CheckboxOptions()
+                                                .LabelPosition(UIWidgets::LabelPositions::None)
+                                                .Tooltip("Shuffled"))) {
                         RANDO_SAVE_CHECKS[check.randoCheckId].isShuffled = !check.isShuffled;
-                        isChanged = true;
                     }
                     ImGui::TableNextColumn();
-                    if (UIWidgets::Checkbox(
-                            ("eligible##" + checkId).c_str(), &eligible,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
+                    if (UIWidgets::Checkbox(("eligible##" + checkId).c_str(), &eligible,
+                                            UIWidgets::CheckboxOptions()
+                                                .LabelPosition(UIWidgets::LabelPositions::None)
+                                                .Tooltip("Eligible"))) {
                         RANDO_SAVE_CHECKS[check.randoCheckId].eligible = !check.eligible;
-                        isChanged = true;
+                        if (RANDO_SAVE_CHECKS[check.randoCheckId].eligible) {
+                            ItemQueue::AddCheck(check.randoCheckId);
+                        }
                     }
                     ImGui::TableNextColumn();
-                    if (UIWidgets::Checkbox(
-                            ("received##" + checkId).c_str(), &received,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
+                    if (UIWidgets::Checkbox(("received##" + checkId).c_str(), &received,
+                                            UIWidgets::CheckboxOptions()
+                                                .LabelPosition(UIWidgets::LabelPositions::None)
+                                                .Tooltip("Received"))) {
                         RANDO_SAVE_CHECKS[check.randoCheckId].received = !check.received;
-                        isChanged = true;
                     }
                     ImGui::TableNextColumn();
-                    if (UIWidgets::Checkbox(
-                            ("skipped##" + checkId).c_str(), &skipped,
-                            UIWidgets::CheckboxOptions().LabelPosition(UIWidgets::LabelPositions::None))) {
+                    if (UIWidgets::Checkbox(("skipped##" + checkId).c_str(), &skipped,
+                                            UIWidgets::CheckboxOptions()
+                                                .LabelPosition(UIWidgets::LabelPositions::None)
+                                                .Tooltip("Skipped"))) {
                         RANDO_SAVE_CHECKS[check.randoCheckId].skipped = !check.skipped;
-                        isChanged = true;
                     }
 
-                    if (isChanged) {
-                        SaveEditor_UpdateCheckTracker(check);
-                    }
                     ImGui::TableNextColumn();
 
                     ImGui::TextWrapped("%s", checkName);
                     ImGui::TableNextColumn();
 
                     ImGui::TextWrapped(Rando::StaticData::Items[check.randoItemId].name);
-                    ImGui::TableNextColumn();
-
-                    Rando::StaticData::RandoStaticItem randoItem = Rando::StaticData::Items[check.randoItemId];
-                    if (randoItem.randoItemType != RITYPE_JINJO && randoItem.randoItemType != RITYPE_MUSIC_NOTE) {
-                        TableCellCenteredText(std::to_string(check.randoCollectionId).c_str());
-                    }
                     ImGui::TableNextColumn();
 
                     ImGui::PopID();
