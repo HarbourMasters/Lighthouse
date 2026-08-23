@@ -7,4 +7,5 @@ public:
     static void GiveItem(RandoItemId randoItemId);
     static void SendNotification(RandoItemId randoItemId);
     static void AddCheck(RandoCheckId randoCheckId);
+    static void RequeueMissedItems();
 };
