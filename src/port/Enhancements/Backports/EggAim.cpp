@@ -18,6 +18,8 @@
 #include "core2/commonParticle.h"
 #include "core2/abilityprogress.h"
 
+extern "C" bool func_802A7588(void);
+
 #define CVAR_NAME CVAR_ENHANCEMENT("Backports.EggAim")
 
 namespace {
@@ -214,7 +216,8 @@ int sFiring = 0;
 int sOverlayShown = 0;
 
 bool canAimEggs() {
-    return can_egg() && player_getTransformation() == TRANSFORM_1_BANJO;
+    return can_egg() && player_getTransformation() == TRANSFORM_1_BANJO && !func_802A7588() &&
+           bs_getState() != BS_96_SWIM_DRONE;
 }
 
 } // namespace
