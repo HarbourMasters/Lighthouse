@@ -283,7 +283,12 @@ static void __chVegetables_elevateAndMoveVegetable(Actor* this) {
 static bool __chVegetables_func_80387FA8(Actor* this, sChVegetable* local, s32 yaw, s32 arg3) {
     f32 sp24[3];
     f32 sp18[3];
-    
+
+    // [port] Spawning outside every enemy zone leaves unk10_25 at 0, and func_80307258
+    // would index D_8036A9BC[-1].
+    if (this->unk10_25 == 0)
+        return true;
+
     sp18[0] = arg3;
     sp18[1] = 0.0f;
     sp18[2] = 0.0f;

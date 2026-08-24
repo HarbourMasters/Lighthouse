@@ -1860,7 +1860,8 @@ s32 func_80307258(f32 arg0[3], s32 arg1, s32 arg2) {
 
     temp_v0 = &D_8036A9BC[arg1];
     var_v1 = temp_v0->unk8 + arg2;
-    if (((arg0[0] - var_v1->position[0]) * (arg0[0] - var_v1->position[0])) + (((arg0[2] - var_v1->position[2]) * (arg0[2] - var_v1->position[2]))) < (var_v1->radius * var_v1->radius)) {
+//  if (((arg0[0] - var_v1->position[0]) * (arg0[0] - var_v1->position[0])) + (((arg0[2] - var_v1->position[2]) * (arg0[2] - var_v1->position[2]))) < (var_v1->radius * var_v1->radius)) {
+    if (arg2 >= 0 && ((arg0[0] - var_v1->position[0]) * (arg0[0] - var_v1->position[0])) + (((arg0[2] - var_v1->position[2]) * (arg0[2] - var_v1->position[2]))) < (var_v1->radius * var_v1->radius)) {
         return arg2;
     }
     temp_a0 = temp_v0->unk8 + temp_v0->count;
