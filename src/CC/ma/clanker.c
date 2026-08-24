@@ -5,6 +5,7 @@
 #include "variables.h"
 
 #include "core2/modelRender.h"
+#include "port/Patches/Patches.h"
 
 extern BKCollisionTriangle *func_8028EF48(void);
 extern void func_8030E9FC(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4[3], f32 arg5, f32 arg6);
@@ -61,6 +62,24 @@ enum maClankerState_e {
     MACLANKER_STATE_2_LIFTING,
     MACLANKER_STATE_3_IDLE_RAISED
 };
+
+// LIGHTHOUSE_ALWAYS_LOAD_CLANKER_CC_V1
+// LIGHTHOUSE_ALWAYS_LOAD_CLANKER_CC_V2
+extern s32 getGameMode(void);
+
+static s32 lighthouse_clankerInDemoPlayback(void) {
+    switch (getGameMode()) {
+        case GAME_MODE_2_UNKNOWN:
+        case GAME_MODE_6_FILE_PLAYBACK:
+        case GAME_MODE_7_ATTRACT_DEMO:
+        case GAME_MODE_8_BOTTLES_BONUS:
+        case GAME_MODE_9_BANJO_AND_KAZOOIE:
+        case GAME_MODE_A_SNS_PICTURE:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
 
 BKCollisionTriangle *__maClanker_getClankerCollisionTris(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3){ // [port] pointer-width args
     BKCollisionTriangle *collision_tris;
@@ -151,7 +170,8 @@ void maClanker_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     
     viewport_getPosition_vec3f(viewport_position);
         
-    if(viewport_position[0] <  -2600.0f || 11600.0f < viewport_position[0])
+    if ((!port_shouldDisableCulling() || lighthouse_clankerInDemoPlayback()) &&
+        (viewport_position[0] < -2600.0f || 11600.0f < viewport_position[0]))
         return;
 
     bone_transform_list = skeletalAnim_getBoneTransformList(maClanker.skeletonAnim);

@@ -83,6 +83,7 @@ int port_scalePlayerDamage(int damage);
 int port_getDrawDistanceSetting(void); // configured multiplier; safe during map load
 int port_getDrawDistanceLevel(void);   // render-time multiplier; clamped to 1x outside normal gameplay
 int port_shouldDisableLOD(void);
+int port_shouldDisableCullingCubeRange(void);
 int port_shouldDisableCulling(void);
 float port_drawDistanceMul(void);
 void port_applyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist);

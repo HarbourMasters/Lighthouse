@@ -13,6 +13,22 @@
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/Patches/GeoCull.h"
 
+extern s32 getGameMode(void);
+
+static s32 port_modelRenderInDemoPlayback(void) {
+    switch (getGameMode()) {
+        case GAME_MODE_2_UNKNOWN:
+        case GAME_MODE_6_FILE_PLAYBACK:
+        case GAME_MODE_7_ATTRACT_DEMO:
+        case GAME_MODE_8_BOTTLES_BONUS:
+        case GAME_MODE_9_BANJO_AND_KAZOOIE:
+        case GAME_MODE_A_SNS_PICTURE:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
 //extern void assetCache_free(BKModelBin *);
@@ -1076,10 +1092,11 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     camera_focus[1] = object_position[1] - modelRenderCameraPosition[1];
     camera_focus[2] = object_position[2] - modelRenderCameraPosition[2];
 
-    if( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
+    // [port] Disable Culling model distance gates V3.1
+    if ((!port_shouldDisableCulling() || port_modelRenderInDemoPlayback()) && ( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
         || ((camera_focus[1] < -17000.0f) || (17000.0f < camera_focus[1]))
         || ((camera_focus[2] < -17000.0f) || (17000.0f < camera_focus[2]))
-    ){
+    )) {
         modelRender_reset();
         return 0;
     }
@@ -1115,7 +1132,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 
-    if(D_80383708 <= camera_focus_distance){
+    if ((!port_shouldDisableCulling() || port_modelRenderInDemoPlayback()) && D_80383708 <= camera_focus_distance) {
         modelRender_reset();
         return 0;
     }
@@ -1150,7 +1167,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 //  modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == NULL) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
     modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == 0) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
 
-    if(D_80383710){
+    if (D_80383710 && (!port_shouldDisableCulling() || port_modelRenderInDemoPlayback())) {
         tmp_f0 = D_80383708 - 500.0f;
         if(tmp_f0 < camera_focus_distance){
             alpha = (s32)((1.0f - (camera_focus_distance - tmp_f0)/500.0f)*255.0f);
