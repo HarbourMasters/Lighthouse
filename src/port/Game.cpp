@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <atomic>
+#include <clocale>
 #include <condition_variable>
 #include <cstring>
 #include <cstdlib>
@@ -279,6 +280,7 @@ void push_frame() {
 
 int SDL_main(int argc, char* argv[]) {
 #ifdef _WIN32
+    setlocale(LC_ALL, ".UTF8");
     timeBeginPeriod(1);
 #endif
 
