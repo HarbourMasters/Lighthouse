@@ -709,6 +709,29 @@ void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     dot_prod = dist[0] * p1[0] + dist[1] * p1[1] + dist[2] * p1[2];
     dot_prod = -dot_prod;
 
+    // [port] Disable Culling SORT one-sided geometry fix
+    // A one-sided SORT node normally submits only the camera-facing child.
+    // With Disable Culling, submit both children in camera order during normal gameplay.
+    // Demo/playback keeps the original branch selection for deterministic behavior.
+    if (port_shouldDisableCulling() && !port_isDemoPlayback() &&
+        (cmd->flags & BK_GEO_CMD_SORT_RUN_BOTH_BIT)) {
+        debug_var = dot_prod;
+        if (dot_prod >= 0.0f) {
+            if (cmd->branch_offset_1)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_1));
+
+            if (cmd->branch_offset_2)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_2));
+        } else {
+            if (cmd->branch_offset_2)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_2));
+
+            if (cmd->branch_offset_1)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_1));
+        }
+        return;
+    }
+
     if (cmd->flags & BK_GEO_CMD_SORT_RUN_BOTH_BIT) {
         if ((dot_prod >= 0.0f) && cmd->branch_offset_2) {
             debug_var = dot_prod;
@@ -1138,10 +1161,15 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 //  modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == NULL) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
     modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == 0) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
 
-    if (D_80383710 && (!port_shouldDisableCulling() || port_isDemoPlayback())) {
+    if (D_80383710) {
         tmp_f0 = D_80383708 - 500.0f;
         if(tmp_f0 < camera_focus_distance){
             alpha = (s32)((1.0f - (camera_focus_distance - tmp_f0)/500.0f)*255.0f);
+            // [port] Preserve model fading with Disable Culling
+            // No-cull can keep a model alive beyond the original final cutoff.
+            // Clamp the completed fade instead of allowing alpha to wrap.
+            if (alpha < 0) alpha = 0;
+            else if (alpha > 0xFF) alpha = 0xFF;
             EventSystem_Should(VB_MODEL_DRAWDIST_FADE_ALPHA, true, &alpha);
             if(modelRenderColorMode == COLOR_MODE_DYNAMIC_PRIM_AND_ENV){
                 modelRenderDynColors.prim[3] = (modelRenderDynColors.prim[3] * alpha) / 0xff;
