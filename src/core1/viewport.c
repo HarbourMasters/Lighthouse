@@ -50,48 +50,6 @@ bool lighthouse_cullV2_inPlaybackMode(void) {
     }
 }
 
-// Disable-Culling menu + widescreen demo-sync state.
-static bool lighthouse_menuCull_frustumChecksEnabled = true;
-
-void lighthouse_menuCull_setFrustumChecksEnabled(bool enabled) {
-    lighthouse_menuCull_frustumChecksEnabled = enabled;
-}
-
-static bool lighthouse_menuCull_inPlaybackMode(void) {
-    switch (getGameMode()) {
-        case GAME_MODE_2_UNKNOWN:
-        case GAME_MODE_6_FILE_PLAYBACK:
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_A_SNS_PICTURE:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-            return true;
-        default:
-            return false;
-    }
-}
-
-// widescreen demo culling state.
-static bool lighthouse_demoSync_frustum_checks_enabled = true;
-
-void lighthouse_demoSync_setFrustumChecksEnabled(bool enabled) {
-    lighthouse_demoSync_frustum_checks_enabled = enabled;
-}
-
-static bool lighthouse_demoSync_inPlaybackMode(void) {
-    switch (getGameMode()) {
-        case GAME_MODE_2_UNKNOWN:
-        case GAME_MODE_6_FILE_PLAYBACK:
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_A_SNS_PICTURE:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-            return true;
-        default:
-            return false;
-    }
-}
-
 void viewport_moveAlongZAxis(f32 offset) {
     f32 delta_position[3];
 

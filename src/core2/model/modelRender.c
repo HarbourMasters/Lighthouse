@@ -35,8 +35,6 @@ static s32 port_modelRenderInDemoPlayback(void) {
 extern void assetCache_free(void *);
 extern bool lighthouse_cullV2_inPlaybackMode(void);
 extern void lighthouse_cullV2_setFrustumChecksEnabled(bool enabled);
-extern void lighthouse_menuCull_setFrustumChecksEnabled(bool enabled);
-extern void lighthouse_demoSync_setFrustumChecksEnabled(bool enabled);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void actor_predrawMethod(Actor *);
 
