@@ -230,7 +230,7 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)getDefaultBootMap(), gsworld_getExit());
     });
 
-    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+    COND_HOOK(OnGameStart, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         anchor->hasCheckedRandoCompat = false;
         anchor->reloadMapOnTeamState = false;

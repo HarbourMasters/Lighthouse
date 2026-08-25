@@ -1,5 +1,6 @@
 #include "GameplayTools.h"
 #include "CameraTools.h"
+#include "WarpCatalog.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
@@ -12,9 +13,12 @@
 #include "port/ShipUtils.h"
 #include "port/GameStatus.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <string>
+#include <vector>
 #include <imgui.h>
+#include <spdlog/fmt/fmt.h>
 #include <libultraship/libultraship.h>
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/cvar_prefixes.h"
@@ -49,8 +53,6 @@ typedef struct {
 int32_t playerPosition[3];
 int32_t spawnOffset[3];
 int32_t spawnPosition[3];
-int32_t mapId = 0;
-int32_t exitId = 0;
 
 actor_e selectedJinjo = ACTOR_60_JINJO_BLUE;
 int32_t selectedSnsItem = SNS_ITEM_EGG_YELLOW;
@@ -58,34 +60,6 @@ int32_t selectedJiggy = JIGGY_01_MM_JINJO;
 int32_t selectedHoneycomb = HONEYCOMB_1_MM_HILL;
 int32_t selectedToken = MUMBOTOKEN_01_MM_STUMP_NEAR_CONGA;
 int32_t selectedCustomCollectible = RC_BGS_BLUE_EGG_BEHIND_ENTRANCE_1;
-
-std::vector<int32_t> mapIdList = {
-    MAP_2_MM_MUMBOS_MOUNTAIN,
-    MAP_7_TTC_TREASURE_TROVE_COVE,
-    MAP_B_CC_CLANKERS_CAVERN,
-    MAP_D_BGS_BUBBLEGLOOP_SWAMP,
-    MAP_27_FP_FREEZEEZY_PEAK,
-    MAP_12_GV_GOBIS_VALLEY,
-    MAP_40_CCW_HUB,
-    MAP_31_RBB_RUSTY_BUCKET_BAY,
-    MAP_1B_MMM_MAD_MONSTER_MANSION,
-    MAP_1_SM_SPIRAL_MOUNTAIN,
-    MAP_7B_CS_INTRO_GL_DINGPOT_1,
-    MAP_69_GL_MM_LOBBY,
-    MAP_90_GL_BATTLEMENTS,
-};
-
-static const std::vector<const char*>& warpMapNames() {
-    static const std::vector<const char*> names = [] {
-        std::vector<const char*> out;
-        out.reserve(mapIdList.size());
-        for (int32_t mapId : mapIdList) {
-            out.push_back(port_levelName(map_getLevel((enum map_e)mapId)));
-        }
-        return out;
-    }();
-    return names;
-}
 
 std::map<actor_e, std::tuple<const char*, UIWidgets::Colors, bool>> jinjoDataMap = {
     { ACTOR_5E_JINJO_YELLOW, { "Yellow Jinjo", UIWidgets::Colors::Yellow, false } },
@@ -144,42 +118,6 @@ std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
 };
 // clang-format on
 
-std::map<map_e, std::pair<const char*, int32_t>> commonWarpMap = {
-    { MAP_1_SM_SPIRAL_MOUNTAIN, { "Outside Banjo's House", 0 } },
-    { MAP_2_MM_MUMBOS_MOUNTAIN, { "Mumbo's Mountain Warp Pad", 5 } },
-    { MAP_7_TTC_TREASURE_TROVE_COVE, { "Treasure Trove Cove Warp Pad", 4 } },
-    { MAP_B_CC_CLANKERS_CAVERN, { "Clanker's Cavern Warp Pad", 5 } },
-    { MAP_D_BGS_BUBBLEGLOOP_SWAMP, { "Bubblegloop Swamp Warp Pad", 2 } },
-    { MAP_27_FP_FREEZEEZY_PEAK, { "Freezeezy Peak Warp Pad", 1 } },
-    { MAP_12_GV_GOBIS_VALLEY, { "Gobi's Valley Warp Pad", 8 } },
-    { MAP_1B_MMM_MAD_MONSTER_MANSION, { "Mad Monster Mansion Warp Pad", 20 } },
-    { MAP_31_RBB_RUSTY_BUCKET_BAY, { "Rusty Bucket Bay Warp Pad", 16 } },
-    { MAP_40_CCW_HUB, { "Click Clock Wood Warp Pad", 7 } },
-    { MAP_43_CCW_SPRING, { "Click Clock Wood - Spring", 1 } },
-    { MAP_44_CCW_SUMMER, { "Click Clock Wood - Summer", 1 } },
-    { MAP_45_CCW_AUTUMN, { "Click Clock Wood - Autumn", 1 } },
-    { MAP_46_CCW_WINTER, { "Click Clock Wood - Winter", 1 } },
-    { MAP_69_GL_MM_LOBBY, { "Gruntilda's Lair - MM Lobby", 2 } },
-    { MAP_6A_GL_TTC_AND_CC_PUZZLE, { "Gruntilda's Lair - TTC and CC Puzzle", 1 } },
-    { MAP_6B_GL_180_NOTE_DOOR, { "Gruntilda's Lair - 180 Note Door", 1 } },
-    { MAP_6C_GL_RED_CAULDRON_ROOM, { "Gruntilda's Lair - Red Cauldron Room", 1 } },
-    { MAP_6D_GL_TTC_LOBBY, { "Gruntilda's Lair - TTC Lobby", 1 } },
-    { MAP_6E_GL_GV_LOBBY, { "Gruntilda's Lair - GV Lobby", 1 } },
-    { MAP_6F_GL_FP_LOBBY, { "Gruntilda's Lair - FP Lobby", 1 } },
-    { MAP_70_GL_CC_LOBBY, { "Gruntilda's Lair - CC Lobby", 1 } },
-    { MAP_71_GL_STATUE_ROOM, { "Gruntilda's Lair - Statue Room", 1 } },
-    { MAP_72_GL_BGS_LOBBY, { "Gruntilda's Lair - BGS Lobby", 1 } },
-    { MAP_74_GL_GV_PUZZLE, { "Gruntilda's Lair - GV Puzzle", 1 } },
-    { MAP_75_GL_MMM_LOBBY, { "Gruntilda's Lair - MMM Lobby", 1 } },
-    { MAP_76_GL_640_NOTE_DOOR, { "Gruntilda's Lair - 640 Note Door", 1 } },
-    { MAP_77_GL_RBB_LOBBY, { "Gruntilda's Lair - RBB Lobby", 1 } },
-    { MAP_78_GL_RBB_AND_MMM_PUZZLE, { "Gruntilda's Lair - RBB and MMM Puzzle", 1 } },
-    { MAP_79_GL_CCW_LOBBY, { "Gruntilda's Lair - CCW Lobby", 1 } },
-    { MAP_7A_GL_CRYPT, { "Gruntilda's Lair - Crypt", 1 } },
-    { MAP_80_GL_FF_ENTRANCE, { "Gruntilda's Lair - FF Entrance", 1 } },
-    { MAP_8E_GL_FURNACE_FUN, { "Gruntilda's Lair - Furnace Fun", 1 } },
-    { MAP_93_GL_DINGPOT, { "Gruntilda's Lair - Dingpot", 0 } },
-};
 
 // clang-format off
 std::vector<GameplayToolsMapData> mapSpecificFlagList = {
@@ -559,37 +497,15 @@ void GameplayTools_ObjectSpawner() {
     }
 }
 
-void DrawGameplayToolsWarpList() {
-    ImGui::SeparatorText("Custom Warp Selector");
-    if (ImGui::BeginChild("WarpChild")) {
-        ImGui::Text("Map Select ");
-        ImGui::SameLine();
-        UIWidgets::Combobox("##mapSelect", &mapId, warpMapNames(),
-                            { .labelPosition = UIWidgets::LabelPositions::None, .color = THEME_COLOR });
-        UIWidgets::SliderInt("Exit ID", &exitId,
-                             {
-                                 .format = "Exit: %i",
-                                 .min = 0,
-                                 .max = 20,
-                                 .clamp = true,
-                                 .labelPosition = UIWidgets::LabelPositions::None,
-                                 .color = THEME_COLOR,
-                             });
-        if (UIWidgets::Button(warpMapNames()[mapId], { .color = THEME_COLOR })) {
-            func_8031D04C((map_e)mapIdList[mapId], exitId);
-        }
+void DrawGameplayToolsEntranceRecorder() {
+    // The recorder is fixed height and scrolls its own arrival list, so it draws
+    // inline; only the catalog below it needs to claim the leftover space.
+    ImGui::SeparatorText("Entrance Recorder");
+    DrawEntranceRecorder();
 
-        ImGui::SeparatorText("Common Locations");
-        if (ImGui::BeginTable("CommonWarps", 2, ImGuiTableFlags_SizingStretchSame)) {
-            ImGui::TableNextColumn();
-            for (auto& [mapId, mapData] : commonWarpMap) {
-                if (UIWidgets::Button(mapData.first, { .color = THEME_COLOR })) {
-                    func_8031D04C(mapId, mapData.second);
-                }
-                ImGui::TableNextColumn();
-            }
-            ImGui::EndTable();
-        }
+    ImGui::SeparatorText("Catalog");
+    if (ImGui::BeginChild("WarpCatalogChild")) {
+        DrawWarpCatalog();
         ImGui::EndChild();
     }
 }
@@ -683,7 +599,11 @@ void GameplayTools_DrawTabBar() {
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Warp")) {
-            DrawGameplayToolsWarpList();
+            DrawWarpTab();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Entrance Recorder")) {
+            DrawGameplayToolsEntranceRecorder();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Grant Unlocks")) {

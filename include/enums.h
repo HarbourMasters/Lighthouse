@@ -6167,7 +6167,8 @@ enum ch_mole_ids
 
 enum map_warp_SM_spiral_mountain
 {
-    // unclear which one is house exit
+    WARP_SM_SPIRAL_MOUNTAIN_1_BANJOS_HOUSE = 0x1,
+
     WARP_SM_SPIRAL_MOUNTAIN_13_LAIR_ENTRANCE = 0x13
 };
 
@@ -6342,7 +6343,7 @@ enum map_warp_GL_furnace_fun
     WARP_GL_FURNACE_FUN_1_AFTER_PAD = 0x1,
     WARP_GL_FURNACE_FUN_2_ENTRANCE_PAD,
 
-    WARP_GL_FURNACE_FUN_4_AFTER_BOARD = 0x3,
+    WARP_GL_FURNACE_FUN_4_AFTER_BOARD,
     WARP_GL_FURNACE_FUN_5_TO_TOWER,
 
     WARP_GL_FURNACE_FUN_8_CAULDRON = 0x8
@@ -6359,7 +6360,10 @@ enum map_warp_GL_tower
     WARP_GL_TOWER_A_GRUNTY_PUZZLE = 0xA
 };
 
-// map_warp_GL_boss - one entrance, unclear which
+enum map_warp_GL_boss
+{
+    WARP_GL_BOSS_1_ENTRANCE = 0x1
+};
 
 enum map_warp_MM
 {
@@ -6438,8 +6442,8 @@ enum map_warp_CC
 
 enum map_warp_CC_inside_clanker
 {
-    // 0x1 exit from witch switch room? also the default
-    WARP_CC_INSIDE_CLANKER_2_MOUTH_ROOFTOP = 0x2,
+    WARP_CC_INSIDE_CLANKER_1_STOMACH_ROOFTOP = 0x1,
+    WARP_CC_INSIDE_CLANKER_2_MOUTH_ROOFTOP,
     WARP_CC_INSIDE_CLANKER_3_GOLD_FEATHER_ENTRANCE,
     WARP_CC_INSIDE_CLANKER_4_LEFT_GILL,
     WARP_CC_INSIDE_CLANKER_5_RIGHT_GILL,
@@ -6454,7 +6458,10 @@ enum map_warp_CC_witch_switch
     WARP_CC_WITCH_SWITCH_14_WITCH_SWITCH = 0x14
 };
 
-// map_warp_CC_gold_feather - one exit, unclear which
+enum map_warp_CC_gold_feather
+{
+    WARP_CC_GOLD_FEATHER_1_ENTRANCE = 0x1,
+};
 
 enum map_warp_BGS
 {
@@ -6546,14 +6553,21 @@ enum map_warp_GV_maze_pyramid
 
 enum map_warp_GV_water_pyramid
 {
-    // 0, 2-5 all start at entrance from above
     WARP_GV_WATER_PYRAMID_1_RETURN_TO_JIGGY = 0x1,
+    WARP_GV_WATER_PYRAMID_2_CEILING,
 
     WARP_GV_WATER_PYRAMID_6_LOWER_EXIT = 0x6
 };
 
-// map_warp_GV_rubee_pyramid - one entrance, unclear which
-// map_warp_GV_inside_jinxy - one entrance, unclear which
+enum map_warp_GV_rubee_pyramid
+{
+    WARP_GV_RUBEES_CHAMBER_7_ENTRANCE = 0x7
+};
+
+enum map_warp_GV_inside_jinxy
+{
+    WARP_GV_INSIDE_JINXY_2_ENTRANCE = 0x2
+};
 
 enum map_warp_GV_egg_room
 {
@@ -6596,18 +6610,41 @@ enum map_warp_MMM_red_feather
     WARP_MMM_RED_FEATHER_1_ENTRANCE = 0x1
 };
 
-// map_warp_MMM_egg - one entrance, unclear which
-// map_warp_MMM_bathroom  - one entrance, unclear which
-// map_warp_MMM_gold_feather - one entrance, unclear which
-// map_warp_MMM_bedroom - one entrance, unclear which
-// map_warp_MMM_note - one entrance, unclear which
+enum map_warp_MMM_egg
+{
+    WARP_MMM_EGG_ROOM_1_ENTRANCE = 0x1
+};
+
+enum map_warp_MMM_bathroom
+{
+    WARP_MMM_BATHROOM_1_ENTRANCE = 0x1,
+    WARP_MMM_BATHROOM_4_LOGGO = 0x4
+};
+
+enum map_warp_MMM_honeycomb
+{
+    WARP_MMM_HONEYCOMB_ROOM_1_ENTRANCE = 0x1
+};
+
+enum map_warp_MMM_bedroom
+{
+    WARP_MMM_BEDROOM_1_ENTRANCE = 0x1
+};
+
+enum map_warp_MMM_note
+{
+    WARP_MMM_NOTE_ROOM_1_ENTRANCE = 0x1
+};
 
 enum map_warp_MMM_septic_tank
 {
     WARP_MMM_SEPTIC_TANK_4_ENTRANCE = 0x4
 };
 
-// map_warp_MMM_cellar - one entrance, unclear which
+enum map_warp_MMM_cellar
+{
+    WARP_MMM_CELLAR_1_ENTRANCE = 0x1
+};
 
 enum map_warp_MMM_church
 {
@@ -6616,11 +6653,15 @@ enum map_warp_MMM_church
     WARP_MMM_CHURCH_14_WITCH_SWITCH = 0x14
 };
 
-// map_warp_MMM_church_window - one entrance, unclear which
+enum map_warp_MMM_church_window
+{
+    WARP_MMM_SECRET_CHURCH_ROOM_1_ENTRANCE = 0x1
+};
 
 enum map_warp_MMM_well
 {
-    // 0-3 both spawn from top entrance
+    WARP_MMM_WELL_1_TOP_ENTRANCE = 0x1,
+
     WARP_MMM_WELL_4_BOTTOM_ENTRANCE = 0x4
 };
 
@@ -6744,6 +6785,58 @@ enum map_warp_CCW
     WARP_CCW_7_WORLD_ENTRANCE = 0x7
 };
 
+enum map_warp_CCW_spring
+{
+    WARP_CCW_SPRING_1_ENTRANCE = 0x1,
+
+    WARP_CCW_SPRING_4_NABNUT_WINDOW = 0x4,
+    WARP_CCW_SPRING_5_SUMMER_SWITCH,
+    WARP_CCW_SPRING_6_ZUBBA_HIVE,
+    WARP_CCW_SPRING_7_NABNUT_HOUSE,
+    WARP_CCW_SPRING_8_TOP_DOOR,
+    WARP_CCW_SPRING_9_MUMBOS_HUT
+};
+
+enum map_warp_CCW_summer
+{
+    WARP_CCW_SUMMER_1_ENTRANCE = 0x1,
+
+    WARP_CCW_SUMMER_4_NABNUT_WINDOW = 0x4,
+    WARP_CCW_SUMMER_5_AUTUMN_SWITCH,
+    WARP_CCW_SUMMER_6_ZUBBA_HIVE,
+    WARP_CCW_SUMMER_7_NABNUT_HOUSE,
+    WARP_CCW_SUMMER_8_TOP_DOOR,
+    WARP_CCW_SUMMER_9_MUMBOS_HUT
+};
+
+enum map_warp_CCW_autumn
+{
+    WARP_CCW_AUTUMN_1_ENTRANCE = 0x1,
+
+    WARP_CCW_AUTUMN_4_NABNUT_WINDOW = 0x4,
+    WARP_CCW_AUTUMN_5_ZUBBA_HIVE,
+    WARP_CCW_AUTUMN_6_NABNUT_UPPER_WINDOW,
+    WARP_CCW_AUTUMN_7_NABNUT_HOUSE,
+    WARP_CCW_AUTUMN_8_TOP_DOOR,
+    WARP_CCW_AUTUMN_9_MUMBOS_HUT,
+
+    WARP_CCW_AUTUMN_F_WINTER_SWITCH = 0xF
+};
+
+enum map_warp_CCW_winter
+{
+    WARP_CCW_WINTER_1_ENTRANCE = 0x1,
+
+    WARP_CCW_WINTER_4_NABNUT_WINDOW = 0x4,
+    WARP_CCW_WINTER_5_HIGHEST_WINDOW,
+    WARP_CCW_WINTER_6_NABNUT_UPPER_WINDOW,
+    // 0x7 would be Nabnut's Door, but no entrance object exists on the map
+    WARP_CCW_WINTER_8_TOP_DOOR = 0x8,
+    WARP_CCW_WINTER_9_MUMBOS_HUT,
+
+    WARP_CCW_WINTER_15_WITCH_SWITCH = 0x15
+};
+
 enum map_warp_CCW_mumbos_hut_spring
 {
     WARP_CCW_MUMBOS_HUT_SPRING_1_ENTRANCE = 0x1
@@ -6771,11 +6864,14 @@ enum map_warp_CCW_beehive_spring
 
 enum map_warp_CCW_beehive_summer
 {
-    // 0-2 spawn from top entrance
-    WARP_CCW_BEEHIVE_SUMMER_3_REDO = 0x3
+    WARP_CCW_BEEHIVE_SUMMER_2_TOP = 0x2,
+    WARP_CCW_BEEHIVE_SUMMER_3_REDO
 };
 
-// map_warp_CCW_beehive_autumn - one entrance, unclear which
+enum map_warp_CCW_beehive_autumn
+{
+    WARP_CCW_BEEHIVE_AUTUMN_2_ENTRANCE = 0x2
+};
 
 enum map_warp_CCW_nabnut_spring
 {
