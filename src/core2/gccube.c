@@ -146,9 +146,6 @@ struct {
 } sCubeList;
 
 /* .code */
-extern void lighthouse_spritePrepassBegin(void);
-extern void lighthouse_spritePrepassEnd(void);
-extern void lighthouse_spritePrepassUpdateCube(Cube *cube);
 void __7AF80_func_80301F10(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     __code7AF80_func_80308F0C(cube);
     func_8032D510(cube, gfx, mtx, vtx);
@@ -582,21 +579,6 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
     func_8032D3A8();
 
-    // Keep every sprite animation current when culling is disabled.
-    if (port_shouldDisableCulling()) {
-        Cube *lighthouseSpriteCube;
-
-        lighthouse_spritePrepassBegin();
-
-        for (lighthouseSpriteCube = sCubeList.cubes;
-             lighthouseSpriteCube < sCubeList.cubes + sCubeList.cubeCnt;
-             lighthouseSpriteCube++) {
-            lighthouse_spritePrepassUpdateCube(lighthouseSpriteCube);
-        }
-
-        lighthouse_spritePrepassUpdateCube(sCubeList.unk3C);
-        lighthouse_spritePrepassUpdateCube(sCubeList.unk40);
-    }
     viewport_getPosition_vec3f(vp_position);
     viewport_getRotation_vec3f(vp_rotation);
     ml_vec3f_clamp_deg360(vp_rotation);
@@ -708,7 +690,6 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         func_80302634(gfx, mtx, vtx, vp_cube_indices, sp44, sp38);
     }
     func_80308D2C(gfx, mtx, vtx);
-    lighthouse_spritePrepassEnd();
 }
 
 void cube_positionToIndices(s32 indices[3], f32 position[3]) {

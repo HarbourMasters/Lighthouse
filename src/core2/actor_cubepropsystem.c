@@ -311,45 +311,6 @@ void func_8032CD60(Prop *prop) {
     }
 }
 
-static bool sLighthouseSpritePrepassActive = false;
-
-void lighthouse_spritePrepassBegin(void) {
-    sLighthouseSpritePrepassActive = true;
-}
-
-void lighthouse_spritePrepassEnd(void) {
-    sLighthouseSpritePrepassActive = false;
-}
-
-bool lighthouse_spritePrepassActive(void) {
-    return sLighthouseSpritePrepassActive;
-}
-
-void lighthouse_spritePrepassUpdateCube(Cube *cube) {
-    Prop *prop;
-    s32 i;
-
-    if (cube == NULL || cube->prop2Ptr == NULL || cube->prop2Cnt == 0) {
-        return;
-    }
-
-    for (i = 0; i < cube->prop2Cnt; i++) {
-        prop = &cube->prop2Ptr[i];
-
-        if (!prop->unk8_4) {
-            continue;
-        }
-
-        if (!prop->unk8_1
-            || (prop->markerFlag
-                && prop->actorProp.marker != NULL
-                && prop->actorProp.marker->modelId != 0
-                && !ResourceMgr_IsModelAsset(prop->actorProp.marker->modelId))) {
-            func_8032CD60(prop);
-        }
-    }
-}
-
 void cube_sortAbsolute(Cube *cube){
     if(cube->prop2Cnt >= 2)
         __cube_sort(cube, 1);
@@ -545,9 +506,7 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                     && iProp->actorProp.marker->modelId != 0
                     && !ResourceMgr_IsModelAsset(iProp->actorProp.marker->modelId))){
                 if (!lighthouse_demoCubeVisualOnly()) {
-                    if (!lighthouse_spritePrepassActive()) {
-                        func_8032CD60(iProp);
-                    }
+                    func_8032CD60(iProp);
                 }
             }
             if(iProp->isActorProp){//actorProp;
