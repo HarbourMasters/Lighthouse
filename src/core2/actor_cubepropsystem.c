@@ -505,9 +505,9 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                 || (iProp->isActorProp && iProp->actorProp.marker != NULL
                     && iProp->actorProp.marker->modelId != 0
                     && !ResourceMgr_IsModelAsset(iProp->actorProp.marker->modelId))){
-                if (!lighthouse_demoCubeVisualOnly()) {
-                    func_8032CD60(iProp);
-                }
+                // Sprite frame state is visual; update extra demo-rendered sprites when this cube is traversed.
+                // This replaces the old full-world sprite prepass without freezing normally culled demo sprites.
+                func_8032CD60(iProp);
             }
             if(iProp->isActorProp){//actorProp;
                 // [port] marker is NULL until actor spawns
