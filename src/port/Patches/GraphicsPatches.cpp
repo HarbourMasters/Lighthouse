@@ -113,6 +113,20 @@ int port_shouldDisableCullingCubeRange(void) {
 int port_shouldDisableCulling(void) {
     return sDisableCulling;
 }
+
+int port_isDemoPlayback(void) {
+    switch (getGameMode()) {
+        case GAME_MODE_2_UNKNOWN:
+        case GAME_MODE_6_FILE_PLAYBACK:
+        case GAME_MODE_7_ATTRACT_DEMO:
+        case GAME_MODE_8_BOTTLES_BONUS:
+        case GAME_MODE_9_BANJO_AND_KAZOOIE:
+        case GAME_MODE_A_SNS_PICTURE:
+            return 1;
+        default:
+            return 0;
+    }
+}
 }
 
 // ============================================================================
@@ -125,11 +139,23 @@ int port_shouldDisableCulling(void) {
 // specific chunks known to suffer from it. Currently the only one is the Mumbo's Mountain
 // stonehenge: a single "outside areas {1,2}" CAMERA command in the opaque map model.
 
-static void OnGeoCull_LevelOcclusion(IEvent* event) {
+static void OnGeoCull_GraphicsEnhancements(IEvent* event) {
     auto* ev = reinterpret_cast<OnGeoCull*>(event);
-    if (ev->type != OCCLUSION_CMD_CAMERA) {
+
+    // Preserve the existing Disable Culling demo/playback behavior while routing the
+    // render-only override through Lighthouse's GeoCull event.
+    bool disableCulling = port_shouldDisableCulling() && !port_isDemoPlayback();
+    if (disableCulling && (ev->type == OCCLUSION_CMD_CAMERA || ev->type == OCCLUSION_CMD_UNKE)) {
+        *ev->forceDraw = true;
         return;
     }
+
+    // Keep the existing draw-distance exception gated exactly as before. The shared
+    // enhancement listener can also be active solely because Disable Culling is enabled.
+    if (port_getDrawDistanceSetting() < kMaxDrawDistanceMul || ev->type != OCCLUSION_CMD_CAMERA) {
+        return;
+    }
+
     // Offset into the opaque map model's geo command list (the "outside areas {1,2}" CAMERA
     // command). Read it off the Occlusion Debugger, which reports the same geo-relative key.
     if (gsworld_getMap() == MAP_2_MM_MUMBOS_MOUNTAIN && ev->offset == 0x2C98 &&
@@ -140,11 +166,14 @@ static void OnGeoCull_LevelOcclusion(IEvent* event) {
 
 void RegisterLevelOcclusion_Init() {
     bool maxed = CVarGetInteger(CVAR_DRAW_DISTANCE, 1) >= kMaxDrawDistanceMul;
-    GeoCull_SetConsumer(GEOCULL_CONSUMER_ENHANCEMENT, maxed);
-    COND_HOOK(OnGeoCull, EVENT_PRIORITY_NORMAL, maxed, OnGeoCull_LevelOcclusion);
+    bool disableCulling = CVarGetInteger(CVAR_DISABLE_CULLING, 0) != 0;
+    bool active = maxed || disableCulling;
+    GeoCull_SetConsumer(GEOCULL_CONSUMER_ENHANCEMENT, active);
+    COND_HOOK(OnGeoCull, EVENT_PRIORITY_NORMAL, active, OnGeoCull_GraphicsEnhancements);
 }
 
-static RegisterShipInitFunc sInitLevelOcclusion(RegisterLevelOcclusion_Init, { CVAR_DRAW_DISTANCE });
+static RegisterShipInitFunc sInitLevelOcclusion(RegisterLevelOcclusion_Init,
+                                                { CVAR_DRAW_DISTANCE, CVAR_DISABLE_CULLING });
 
 static void RegisterDrawDistanceGraphics_Init() {
     COND_HOOK(DrawDistanceCubeWidth, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DRAW_DISTANCE, 1) > 1,

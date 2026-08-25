@@ -36,20 +36,6 @@ void lighthouse_cullV2_setFrustumChecksEnabled(bool enabled) {
     lighthouse_cullV2_frustumChecksEnabled = enabled;
 }
 
-bool lighthouse_cullV2_inPlaybackMode(void) {
-    switch (getGameMode()) {
-        case GAME_MODE_2_UNKNOWN:
-        case GAME_MODE_6_FILE_PLAYBACK:
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_A_SNS_PICTURE:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-            return true;
-        default:
-            return false;
-    }
-}
-
 void viewport_moveAlongZAxis(f32 offset) {
     f32 delta_position[3];
 
@@ -310,7 +296,7 @@ void viewport_setFrustumPlanes(f32 arg0[4], f32 arg1[4], f32 arg2[4], f32 arg3[4
 }
 
 bool viewport_isBoundingBoxInFrustum(f32 min[3], f32 max[3]) {
-    if (port_shouldDisableCulling() && !lighthouse_cullV2_inPlaybackMode()) {
+    if (port_shouldDisableCulling() && !port_isDemoPlayback()) {
         return true;
     }
 
@@ -409,7 +395,7 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
 // viewport_distanceFromPlane ?
 bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
     if (port_shouldDisableCulling()) {
-        if (!lighthouse_cullV2_inPlaybackMode() || !lighthouse_cullV2_frustumChecksEnabled) {
+        if (!port_isDemoPlayback() || !lighthouse_cullV2_frustumChecksEnabled) {
             return true;
         }
 
@@ -447,7 +433,7 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
 }
 
 bool viewport_isPointOutsideFrustum_3f(f32 x, f32 y, f32 z) {
-    if (port_shouldDisableCulling() && !lighthouse_cullV2_inPlaybackMode()) {
+    if (port_shouldDisableCulling() && !port_isDemoPlayback()) {
         return false;
     }
 
@@ -466,7 +452,7 @@ bool viewport_isPointOutsideFrustum_vec3f(f32 arg0[3]) {
 
 // need to figure out, what plane 2 is (neg/pos x/y ?)
 bool viewport_isPointPlane_3f(f32 arg0, f32 arg1, f32 arg2) {
-    if (port_shouldDisableCulling() && !lighthouse_cullV2_inPlaybackMode()) {
+    if (port_shouldDisableCulling() && !port_isDemoPlayback()) {
         return false;
     }
 

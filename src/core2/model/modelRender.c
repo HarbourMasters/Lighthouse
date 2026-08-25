@@ -15,25 +15,10 @@
 
 extern s32 getGameMode(void);
 
-static s32 port_modelRenderInDemoPlayback(void) {
-    switch (getGameMode()) {
-        case GAME_MODE_2_UNKNOWN:
-        case GAME_MODE_6_FILE_PLAYBACK:
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-        case GAME_MODE_A_SNS_PICTURE:
-            return TRUE;
-        default:
-            return FALSE;
-    }
-}
-
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
 //extern void assetCache_free(BKModelBin *);
 extern void assetCache_free(void *);
-extern bool lighthouse_cullV2_inPlaybackMode(void);
 extern void lighthouse_cullV2_setFrustumChecksEnabled(bool enabled);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void actor_predrawMethod(Actor *);
@@ -952,13 +937,6 @@ void modelRender_geoCmd_UnkE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     f32 dist_scaled;
     struct geo_cmd_E_s *cmd = (struct geo_cmd_E_s *) data;
 
-    if (port_shouldDisableCulling() && !lighthouse_cullV2_inPlaybackMode()) {
-        if (cmd->branch_offset) {
-            modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
-        }
-        return;
-    }
-
     if (cmd->anim_mtx_id == -1) {
         s32 draw;
         pos_scaled[0] = cmd->position[0] * modelRenderScale;
@@ -1001,13 +979,6 @@ void modelRender_geoCmd_UnkE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
 
 void modelRender_geoCmd_CAMERA(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     struct geo_cmd_camera_s *cmd = (struct geo_cmd_camera_s *) data;
-
-    if (port_shouldDisableCulling() && !lighthouse_cullV2_inPlaybackMode()) {
-        if (cmd->branch_offset) {
-            modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
-        }
-        return;
-    }
 
     bool found = cameraAreaList_searchForEntryInBounds(modelRenderCameraAreaList, cmd->id_list, cmd->count);
     int draw;
@@ -1091,7 +1062,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     camera_focus[2] = object_position[2] - modelRenderCameraPosition[2];
 
     // [port] Disable Culling model distance gates V3.1
-    if ((!port_shouldDisableCulling() || port_modelRenderInDemoPlayback()) && ( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
+    if ((!port_shouldDisableCulling() || port_isDemoPlayback()) && ( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
         || ((camera_focus[1] < -17000.0f) || (17000.0f < camera_focus[1]))
         || ((camera_focus[2] < -17000.0f) || (17000.0f < camera_focus[2]))
     )) {
@@ -1130,13 +1101,15 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 
-    if ((!port_shouldDisableCulling() || port_modelRenderInDemoPlayback()) && D_80383708 <= camera_focus_distance) {
+    if ((!port_shouldDisableCulling() || port_isDemoPlayback()) && D_80383708 <= camera_focus_distance) {
         modelRender_reset();
         return 0;
     }
 
     if (port_shouldDisableCulling()) {
-        if (lighthouse_cullV2_inPlaybackMode()) {
+        if (port_isDemoPlayback()) {
+            // Exact widescreen demo state: remember original visibility,
+            // but keep the visual model alive during the draw.
             cur_model_would_have_been_culled_in_demo =
                 !((D_80383704) ? viewport_func_8024DB50(object_position, spD0 * scale) : TRUE);
         } else {
@@ -1165,7 +1138,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 //  modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == NULL) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
     modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == 0) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
 
-    if (D_80383710 && (!port_shouldDisableCulling() || port_modelRenderInDemoPlayback())) {
+    if (D_80383710 && (!port_shouldDisableCulling() || port_isDemoPlayback())) {
         tmp_f0 = D_80383708 - 500.0f;
         if(tmp_f0 < camera_focus_distance){
             alpha = (s32)((1.0f - (camera_focus_distance - tmp_f0)/500.0f)*255.0f);
@@ -1361,7 +1334,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 
     modelRender_reset();
     if (port_shouldDisableCulling()) {
-        if (lighthouse_cullV2_inPlaybackMode()) {
+        if (port_isDemoPlayback()) {
             // Critical Recomp behavior: expose original visibility after draw.
             D_80370990 = !cur_model_would_have_been_culled_in_demo;
         } else {
