@@ -103,12 +103,6 @@ int port_shouldDisableLOD(void) {
     return sDisableLOD;
 }
 
-int port_shouldDisableCullingCubeRange(void) {
-    if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
-        return 0;
-    }
-    return sDisableCulling;
-}
 
 int port_shouldDisableCulling(void) {
     return sDisableCulling;

@@ -181,20 +181,6 @@ static bool lighthouse_cubeWasInOriginalDemoRange(Cube *cube) {
         && iz >= sLighthouseDemoOriginalMin[2] && iz <= sLighthouseDemoOriginalMax[2];
 }
 
-static bool lighthouse_demoPlaybackModeExact(void) {
-    switch (getGameMode()) {
-        case GAME_MODE_2_UNKNOWN:
-        case GAME_MODE_6_FILE_PLAYBACK:
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_A_SNS_PICTURE:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-            return true;
-        default:
-            return false;
-    }
-}
-
 static bool lighthouse_demoCubePassesOriginalDistance(Cube *cube) {
     f32 vp[3];
     f32 rel[3];
@@ -239,7 +225,7 @@ static void lighthouse_drawCubeSinglePass(
     }
 
     if (!port_shouldDisableCulling()
-        || !lighthouse_demoPlaybackModeExact()
+        || !port_isDemoPlayback()
         || !lighthouse_demoCubePassesOriginalDistance(cube)) {
         return;
     }
@@ -670,14 +656,11 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         // [port] Extended draw distance: per-level cube iteration width.
         int width = 4;
         if (port_shouldDisableCulling() && !func_802E4A08()) {
-            // No-cull normal gameplay: consider the full prop-cube range.
+            // Disable Culling: consider the full prop-cube range in the modes handled here.
             width = sCubeList.width[i];
         } else {
-            // Culling ON, or demo/playback: completely stock range behavior.
+            // Preserve the existing draw-distance event behavior in the remaining modes.
             CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);
-        if (port_shouldDisableCullingCubeRange()) {
-            width = sCubeList.width[i];
-        }
         }
 
         if(vp_cube_indices[i] - sp44[i] > width){
@@ -691,7 +674,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     // Save the ORIGINAL demo bounds for logic, then widen only the render
     // traversal to the original +/-4-cube distance around the camera.
     sLighthouseDemoExpandedRangeActive = false;
-    if (port_shouldDisableCulling() && lighthouse_demoPlaybackModeExact()) {
+    if (port_shouldDisableCulling() && port_isDemoPlayback()) {
         for (i = 0; i < 3; i++) {
             sLighthouseDemoOriginalMin[i] = sp44[i];
             sLighthouseDemoOriginalMax[i] = sp38[i];
