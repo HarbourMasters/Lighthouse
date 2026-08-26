@@ -68,6 +68,6 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
 
     if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 1) && ShouldShowNotifications()) {
         Rando::Helpers::SendNotification(RANDO_SAVE_CHECKS[rc].randoItemId,
-                                                       GetClientName(payload.value("clientId", 0u)));
+                                         GetClientName(payload.value("clientId", 0u)));
     }
 }

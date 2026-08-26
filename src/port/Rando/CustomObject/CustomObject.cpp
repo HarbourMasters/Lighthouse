@@ -303,8 +303,7 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
 
                     if (jiggyCheckId != RC_UNKNOWN) {
                         Actor* customActor = ShouldCreateCustomActorEX(jiggyCheckId, spawnPosition, false);
-                        if (customActor != NULL) {
-                        }
+                        if (customActor != NULL) {}
                     }
                 }
             }
