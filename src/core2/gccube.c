@@ -250,6 +250,19 @@ static void lighthouse_drawCubeSinglePass(
     D_803860F4 = randF4;
 }
 
+static void lighthouse_drawCubeTraversal(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+    bool originallyInRange;
+    bool originallyFrustumVisible;
+
+    if (cube == NULL || cube->prop2Cnt == 0) {
+        return;
+    }
+
+    originallyInRange = lighthouse_cubeWasInOriginalDemoRange(cube);
+    originallyFrustumVisible = originallyInRange && viewport_cube_isInFrustum2(cube) != 0;
+    lighthouse_drawCubeSinglePass(cube, originallyInRange, originallyFrustumVisible, gfx, mtx, vtx);
+}
+
 void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s32 arg5[3]) {
     s32 sp54;
     s32 sp50;
@@ -267,14 +280,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 < arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -282,14 +288,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while( var_s1 >= arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -303,14 +302,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 < arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -318,14 +310,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 >= arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -347,14 +332,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while( var_s1 < arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -362,14 +340,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while( var_s1 >= arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -383,14 +354,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];            
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 < arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -398,14 +362,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];            
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 >= arg3[2]) {
-                if (var_s0->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_s0);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_s0) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_s0, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -434,27 +391,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg4[2]; sp54 < arg3[2]; sp54++) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 += sCubeList.stride[1];
@@ -465,27 +408,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg5[2]; sp54 >= arg3[2]; sp54--) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 -= sCubeList.stride[1];
@@ -502,27 +431,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg4[2]; sp54 < arg3[2]; sp54++) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 += sCubeList.stride[1];
@@ -533,27 +448,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg5[2]; sp54 >= arg3[2]; sp54--) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if (var_fp->prop2Cnt != 0) {
-                    bool lighthouseOriginalCubeInRange = lighthouse_cubeWasInOriginalDemoRange(var_fp);
-                    bool lighthouseOriginalCubeVisible =
-                        lighthouseOriginalCubeInRange && viewport_cube_isInFrustum2(var_fp) != 0;
-                    lighthouse_drawCubeSinglePass(
-                        var_fp, lighthouseOriginalCubeInRange, lighthouseOriginalCubeVisible, gfx, mtx, vtx
-                    );
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 -= sCubeList.stride[1];
