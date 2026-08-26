@@ -103,7 +103,6 @@ int port_shouldDisableLOD(void) {
     return sDisableLOD;
 }
 
-
 int port_shouldDisableCulling(void) {
     return sDisableCulling;
 }
@@ -130,7 +129,7 @@ int port_isDemoPlayback(void) {
 // Some distant level geometry is hidden by BK's camera-area portal culling rather than the
 // distance/LOD culls the prop draw-distance enhancement covers. Disabling that culling
 // wholesale floods the render buffer, so at the maxed draw-distance level we force just the
-// specific chunks known to suffer from it. Currently the only one is the Mumbo's Mountain
+// Disable Culling uses this listener for general render-only overrides. Draw Distance still only forces
 // stonehenge: a single "outside areas {1,2}" CAMERA command in the opaque map model.
 
 static void OnGeoCull_GraphicsEnhancements(IEvent* event) {

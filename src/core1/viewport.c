@@ -30,10 +30,10 @@ MtxF sViewportDefaultMatrix;
 s32 sViewportStackIndex;
 
 // Preserve the original demo/playback frustum state while visual culling is disabled.
-static bool lighthouse_cullV2_frustumChecksEnabled = true;
+static bool lighthouse_frustumChecksEnabled = true;
 
-void lighthouse_cullV2_setFrustumChecksEnabled(bool enabled) {
-    lighthouse_cullV2_frustumChecksEnabled = enabled;
+void lighthouse_setFrustumChecksEnabled(bool enabled) {
+    lighthouse_frustumChecksEnabled = enabled;
 }
 
 void viewport_moveAlongZAxis(f32 offset) {
@@ -395,7 +395,7 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
 // viewport_distanceFromPlane ?
 bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
     if (port_shouldDisableCulling()) {
-        if (!port_isDemoPlayback() || !lighthouse_cullV2_frustumChecksEnabled) {
+        if (!port_isDemoPlayback() || !lighthouse_frustumChecksEnabled) {
             return true;
         }
 

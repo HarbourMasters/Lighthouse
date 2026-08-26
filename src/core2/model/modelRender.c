@@ -13,12 +13,11 @@
 #include "port/Interpolation/FrameInterpolation.h"
 #include "port/Patches/GeoCull.h"
 
-
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 
 //extern void assetCache_free(BKModelBin *);
 extern void assetCache_free(void *);
-extern void lighthouse_cullV2_setFrustumChecksEnabled(bool enabled);
+extern void lighthouse_setFrustumChecksEnabled(bool enabled);
 void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data);
 void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data);
 void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data);
@@ -1254,11 +1253,11 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     // [port] Mirror mode: counter-mirror text-bearing models so text reads correctly
     if (_mirror_excluded) gSPClearExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     if (port_shouldDisableCulling()) {
-        lighthouse_cullV2_setFrustumChecksEnabled(false);
+        lighthouse_setFrustumChecksEnabled(false);
     }
     modelRender_executeGeoCmds(gfx, mtx, modelbin_getGeoCmdList_MACRO(model_bin));
     if (port_shouldDisableCulling()) {
-        lighthouse_cullV2_setFrustumChecksEnabled(true);
+        lighthouse_setFrustumChecksEnabled(true);
     }
     // [port] Mirror mode: restore culling inversion
     if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);

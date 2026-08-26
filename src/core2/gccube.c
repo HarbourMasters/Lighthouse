@@ -3,7 +3,6 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "enums.h"
 #include "bk_math.h" // [port] TUPLE macros
 
 #include <core2/file.h>
@@ -49,7 +48,6 @@ bool func_80308F54(s32 cube_index);
 
 extern ActorInfo D_803675F0;
 extern ActorInfo gWorldExitPad;
-extern s32 getGameMode(void);
 extern s32 D_803860E0;
 extern s32 D_803860E4;
 extern s32 D_803860E8;
