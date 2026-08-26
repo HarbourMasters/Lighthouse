@@ -26,6 +26,7 @@
 
 #include "GameVersion/AssetVersionRemap.h"
 #include "GameVersion/BaseGameVersion.h"
+#include "Localization/Language.h"
 
 #include "enums.h"
 
@@ -203,9 +204,10 @@ extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
 }
 
-// PAL is the only base that carries more than one dialog language (EN/FR/DE).
+// Asks about the cartridge, not the active language: its callers pick PAL-shifted text
+// format bytes and the PAL character-parade table, both properties of the base game.
 extern "C" int ResourceMgr_IsPal(void) {
-    return sDialogLanguageCount > 1 ? 1 : 0;
+    return Lighthouse::GetBaseVersion() == BK_VER_PAL ? 1 : 0;
 }
 
 extern "C" int ResourceMgr_IsJapanese(void) {
@@ -241,6 +243,16 @@ static std::unordered_map<uint32_t, std::shared_ptr<Ship::IResource>> sResourceR
 // source archive's paths (a loaded language pack).
 static std::unordered_map<uint32_t, std::string> sDialogOverride;
 
+// The same, for a language pack scoped to the active romhack (mods/~lang/<hack>/).
+static std::unordered_map<uint32_t, std::string> sScopedDialogOverride;
+
+// Active mod-overlay re-point: maps v1.0 asset IDs to a mod archive's own paths.
+struct OverlayAsset {
+    std::string archivePath;
+    std::string path;
+};
+static std::unordered_map<uint32_t, OverlayAsset> sOverlayOverride;
+
 // Bumped on every language change. This is the single "language changed" signal:
 // the localization layer reads it to drive every live reaction: font slot, model
 // re-fetch, file-select rebuild, etc
@@ -254,7 +266,7 @@ extern "C" int ResourceMgr_GetLanguageGeneration(void) {
 // pack rather than the base game). Used by the model reload to know which models
 // must track the language.
 extern "C" int ResourceMgr_IsAssetRepointed(uint32_t assetId) {
-    return sDialogOverride.find(assetId) != sDialogOverride.end() ? 1 : 0;
+    return (sDialogOverride.count(assetId) != 0 || sScopedDialogOverride.count(assetId) != 0) ? 1 : 0;
 }
 
 // The base game's own o2r path for an asset id, ignoring any active language re-point.
@@ -266,12 +278,77 @@ std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId) {
     return std::string();
 }
 
-// The o2r path an asset id resolves to right now.
 std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId) {
+    if (auto ov = sScopedDialogOverride.find(assetId); ov != sScopedDialogOverride.end()) {
+        return ov->second;
+    }
+    if (auto ov = sOverlayOverride.find(assetId); ov != sOverlayOverride.end()) {
+        return ov->second.path;
+    }
     if (auto ov = sDialogOverride.find(assetId); ov != sDialogOverride.end()) {
         return ov->second;
     }
     return ResourceHelpers_GetBaseAssetPath(assetId);
+}
+
+bool ResourceHelpers_GetOverlayAsset(uint32_t assetId, std::string& outArchivePath, std::string& outPath) {
+    auto it = sOverlayOverride.find(assetId);
+    if (it == sOverlayOverride.end()) {
+        return false;
+    }
+    outArchivePath = it->second.archivePath;
+    outPath = it->second.path;
+    return true;
+}
+
+void ResourceHelpers_BuildOverlayRepoints() {
+    for (const auto& [id, path] : sOverlayOverride) {
+        sResourceRefCache.erase(id);
+    }
+    sOverlayOverride.clear();
+
+    // US v1.0, bail early.
+    if (Lighthouse::GetBaseVersion() == BK_VER_US_10) {
+        return;
+    }
+
+    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetArchives();
+    if (!archives) {
+        return;
+    }
+
+    for (const auto& archive : *archives) {
+        if (archive == nullptr || !archive->HasFile("assets/aGameConfig")) {
+            continue;
+        }
+        auto files = archive->ListFiles();
+        if (!files) {
+            continue;
+        }
+
+        std::unordered_map<uint32_t, std::string> mine;
+        for (const auto& [hash, path] : *files) {
+            if (path.rfind("assets/", 0) != 0 || path.find("lang/") != std::string::npos) {
+                continue;
+            }
+            uint32_t id = 0;
+            if (!Lighthouse::AssetHexFromPath(path, id)) {
+                continue;
+            }
+            if (auto [it, inserted] = mine.try_emplace(id, path); !inserted && path.size() < it->second.size()) {
+                it->second = path;
+            }
+        }
+
+        for (auto& [id, path] : mine) {
+            sResourceRefCache.erase(id);
+            sOverlayOverride.insert_or_assign(id, OverlayAsset{ archive->GetPath(), std::move(path) });
+        }
+    }
+
+    if (!sOverlayOverride.empty()) {
+        SPDLOG_INFO("[ResourceHelpers] Re-pointed {} asset id(s) onto romhack overlays", sOverlayOverride.size());
+    }
 }
 
 static char* LoadAndRetainResource(const std::string& path, uint32_t assetId) {
@@ -399,15 +476,20 @@ void ResourceHelpers_ClearRefCache() {
     sResourceRefCache.clear();
 }
 
-void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
+void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride,
+                                   std::unordered_map<uint32_t, std::string> scopedDialogOverride, bool isJapanese,
                                    int dialogCount, int dialogIndex) {
-    for (const auto& [id, path] : sDialogOverride) {
-        sResourceRefCache.erase(id);
-    }
+    auto evict = [](const std::unordered_map<uint32_t, std::string>& m) {
+        for (const auto& [id, path] : m) {
+            sResourceRefCache.erase(id);
+        }
+    };
+    evict(sDialogOverride);
+    evict(sScopedDialogOverride);
     sDialogOverride = std::move(dialogOverride);
-    for (const auto& [id, path] : sDialogOverride) {
-        sResourceRefCache.erase(id);
-    }
+    sScopedDialogOverride = std::move(scopedDialogOverride);
+    evict(sDialogOverride);
+    evict(sScopedDialogOverride);
     ++sLanguageGeneration; // invalidates re-pointed models on their next draw
     sIsJapanese = isJapanese;
     sDialogLanguageCount = (dialogCount > 0) ? dialogCount : 1;

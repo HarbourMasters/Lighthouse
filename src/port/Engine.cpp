@@ -245,12 +245,22 @@ static void LoadLanguagePacks() {
     if (lang_path.empty() || !std::filesystem::is_directory(lang_path)) {
         return;
     }
-    for (const auto& p : std::filesystem::directory_iterator(lang_path)) {
-        if (p.is_regular_file() && p.path().extension() == ".o2r") {
-            SPDLOG_INFO("Loading language pack: {}", p.path().generic_string());
-            Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
-                p.path().generic_string());
+    auto loadFrom = [](const std::filesystem::path& dir, const char* what) {
+        std::error_code ec;
+        if (!std::filesystem::is_directory(dir, ec)) {
+            return;
         }
+        for (const auto& p : std::filesystem::directory_iterator(dir, ec)) {
+            if (p.is_regular_file() && p.path().extension() == ".o2r") {
+                SPDLOG_INFO("Loading {} language pack: {}", what, p.path().generic_string());
+                Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
+                    p.path().generic_string());
+            }
+        }
+    };
+    loadFrom(lang_path, "base");
+    if (const std::string activeHack = GetActiveRomhackBasename(); !activeHack.empty()) {
+        loadFrom(std::filesystem::path(lang_path) / activeHack, activeHack.c_str());
     }
 }
 
@@ -271,6 +281,7 @@ void GameEngine::FinishInit() {
     UpdateModFiles(true);
     LoadLooseModDirectories(patches_path);
     LoadLanguagePacks();
+    ResourceHelpers_BuildOverlayRepoints();
 
 #if (_DEBUG)
     auto defaultLogLevel = spdlog::level::debug;
@@ -311,7 +322,6 @@ void GameEngine::FinishInit() {
     LighthouseGui::SetupGuiElements();
     Lighthouse::RestoreModSelectionAfterLaunchHack();
     MaybeShowModConflictPopup();
-    MaybeShowRomhackBaseMismatchPopup();
     Instance->AudioInit();
     // Instance->LoadDictionary();
     // Instance->LoadPlayerAnims();

@@ -75,11 +75,16 @@ Lighthouse supports using multiple regions of Banjo-Kazooie as language packs. G
 
 # Romhacks
 
-Many romhacks can be extracted from patched ROMs and used as mods with Lighthouse. This can be done in-game using the Romhacks menu in the Settings section. If any hack isn't fully supported, the menu should inform you when extracting the mod. Most supported romhacks currently haven't been fully tested, so there may still be some issues.
+Many romhacks can be extracted from patched ROMs and used as mods with Lighthouse, even if your retail game version is not US 1.0. This can be done in-game using the Romhacks menu in the Settings section. If any hack isn't fully supported, the menu should inform you when extracting the mod. Most supported romhacks currently haven't been fully tested, so there may still be some issues.
 
 Lighthouse can also be launched directly to a romhack with a launch argument like so: `./Lighthouse.exe -hack jiggies-of-time`. This is a one-off and your loaded romhack is not saved to your remembered config when using a launch argument.
 
-_NOTE_: When using romhacks, only US v1.0 is supported, inherited from Banjo's Backpack. Therefore, it is recommended to use **US v1.0** as your base `bk.o2r` file.
+Romhacks also support language packs, scoped the same as mods are. Craft a language pack and add it to `mods/~lang/<hack>/` to see it in the dropdown menu. `<hack>` is a folder of the romhack's filename without the o2r extension; Lighthouse creates it for you when the romhack is enabled. Note that language packs for romhacks can work two ways:
+
+- A complete language pack includes every dialog, so it stands on its own.
+- A delta language pack only includes the dialogs the hack modified; everything else falls back to the base game's language, or to a base game language pack if one is installed for the same language.
+
+A base game language pack in `mods/~lang/` does not appear in the dropdown while a romhack is loaded, since on its own it would leave every line the hack replaced untranslated.
 
 # Custom Assets
 

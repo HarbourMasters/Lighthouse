@@ -265,9 +265,7 @@ void LighthouseMenu::AddMenuSettings() {
             if (!opts->comboMap.empty() && opts->comboMap.find(cur) == opts->comboMap.end()) {
                 CVarSetInteger(CVAR_SETTING("DialogLanguage"), opts->comboMap.begin()->first);
             }
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active)
-                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
-            else if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_SINGLE_LANGUAGE).active)
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_SINGLE_LANGUAGE).active)
                 info.activeDisables.push_back(DISABLE_FOR_SINGLE_LANGUAGE);
             if (mLighthouseMenu->disabledMap.at(DISABLE_DURING_PARADE).active)
                 info.activeDisables.push_back(DISABLE_DURING_PARADE);
@@ -288,10 +286,6 @@ void LighthouseMenu::AddMenuSettings() {
                      .ComponentAlignment(ComponentAlignments::Right));
     AddWidget(path, "Add Language Pack from ROM", WIDGET_BUTTON)
         .RaceDisable(false)
-        .PreFunc([](WidgetInfo& info) {
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active)
-                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
-        })
         .Callback([](WidgetInfo& info) {
             LighthouseGui::mModalWindow->RegisterPopup(
                 "Add Language Pack from ROM", "Select any Banjo-Kazooie ROM whose language you want to add.\n",

@@ -1,5 +1,6 @@
 #include "Language.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -34,6 +35,9 @@ struct LanguageEntry {
     int index;             // dialog index within the source's multi-language blob
     int count;             // number of languages packed in the source's blobs
     int script;            // LanguageScript: drives the JP font/sprite path
+    // A pack from mods/~lang/<hack>/ translating the active romhack's own lines.
+    // Independent of `source`: a language can be provided by either or both.
+    Ship::Archive* scopedSource = nullptr;
 };
 
 std::vector<LanguageEntry> sLanguages;
@@ -105,22 +109,6 @@ std::vector<LangInfoEntry> ParseLangInfo(const char* data, size_t size,
     return out;
 }
 
-bool AssetHexFromPath(const std::string& path, uint32_t& out) {
-    auto a = path.rfind("ASSET_");
-    if (a == std::string::npos) {
-        return false;
-    }
-    a += 6;
-    auto e = path.find('_', a);
-    if (e == std::string::npos) {
-        return false;
-    }
-    try {
-        out = static_cast<uint32_t>(std::stoul(path.substr(a, e - a), nullptr, 16));
-        return true;
-    } catch (...) { return false; }
-}
-
 // True if the archive contains an asset whose id hex matches `hex`.
 bool ArchiveHasAssetHex(Ship::Archive* archive, uint32_t hex) {
     if (archive == nullptr) {
@@ -155,7 +143,10 @@ bool EntryStamp(zip_t* z, const std::string& entryPath, uint32_t& outCrc, uint64
     return true;
 }
 
-size_t DropUnchangedOverrides(const std::string& packArchivePath, std::unordered_map<uint32_t, std::string>& overrides,
+// Drop the overrides whose asset is byte-identical to the one it would replace, so the
+// pack does not shadow HD art for slots it never localized.
+size_t DropUnchangedOverrides(const std::string& packArchivePath, bool scoped,
+                              std::unordered_map<uint32_t, std::string>& overrides,
                               const std::unordered_map<uint32_t, std::vector<std::string>>& packFamilies) {
     const std::string basePath = BaseArchivePath();
     if (basePath.empty() || packArchivePath.empty()) {
@@ -165,11 +156,16 @@ size_t DropUnchangedOverrides(const std::string& packArchivePath, std::unordered
     if (packZip == nullptr) {
         return 0; // a folder-based archive, not a zip: no cheap stamp to compare
     }
-    zip_t* baseZip = zip_open(basePath.c_str(), ZIP_RDONLY, nullptr);
-    if (baseZip == nullptr) {
-        zip_close(packZip);
-        return 0;
-    }
+
+    // Reference archives are opened once each and reused across ids.
+    std::unordered_map<std::string, zip_t*> refZips;
+    auto refZip = [&](const std::string& path) -> zip_t* {
+        auto [it, inserted] = refZips.try_emplace(path, nullptr);
+        if (inserted) {
+            it->second = zip_open(path.c_str(), ZIP_RDONLY, nullptr);
+        }
+        return it->second;
+    };
 
     size_t dropped = 0;
     for (auto it = overrides.begin(); it != overrides.end();) {
@@ -177,8 +173,14 @@ size_t DropUnchangedOverrides(const std::string& packArchivePath, std::unordered
             ++it;
             continue;
         }
-        const std::string baseEntry = ResourceHelpers_GetBaseAssetPath(it->first);
-        if (baseEntry.empty()) {
+        std::string refArchive = basePath;
+        std::string refEntry;
+        if (!scoped || !ResourceHelpers_GetOverlayAsset(it->first, refArchive, refEntry)) {
+            refArchive = basePath;
+            refEntry = ResourceHelpers_GetBaseAssetPath(it->first);
+        }
+        zip_t* ref = refEntry.empty() ? nullptr : refZip(refArchive);
+        if (ref == nullptr) {
             ++it;
             continue;
         }
@@ -192,11 +194,11 @@ size_t DropUnchangedOverrides(const std::string& packArchivePath, std::unordered
                 unchanged = false;
                 break;
             }
-            const std::string baseSibling = baseEntry + packEntry.substr(it->second.size());
-            uint32_t packCrc = 0, baseCrc = 0;
-            uint64_t packSize = 0, baseSize = 0;
-            if (!EntryStamp(packZip, packEntry, packCrc, packSize) ||
-                !EntryStamp(baseZip, baseSibling, baseCrc, baseSize) || packCrc != baseCrc || packSize != baseSize) {
+            const std::string refSibling = refEntry + packEntry.substr(it->second.size());
+            uint32_t packCrc = 0, refCrc = 0;
+            uint64_t packSize = 0, refSize = 0;
+            if (!EntryStamp(packZip, packEntry, packCrc, packSize) || !EntryStamp(ref, refSibling, refCrc, refSize) ||
+                packCrc != refCrc || packSize != refSize) {
                 unchanged = false;
                 break;
             }
@@ -209,7 +211,11 @@ size_t DropUnchangedOverrides(const std::string& packArchivePath, std::unordered
         dropped++;
     }
 
-    zip_close(baseZip);
+    for (auto& [path, z] : refZips) {
+        if (z != nullptr) {
+            zip_close(z);
+        }
+    }
     zip_close(packZip);
     return dropped;
 }
@@ -223,7 +229,104 @@ const LanguageEntry* FindLanguage(const std::string& name) {
     return nullptr;
 }
 
+bool BuildPackOverride(Ship::Archive* pack, const std::string& name, int script, bool scoped,
+                       std::unordered_map<uint32_t, std::string>& out) {
+    const std::unordered_map<uint32_t, uint32_t>* remap = nullptr;
+    if (!scoped) {
+        // The pack's assets are numbered for the ROM it was extracted from.
+        const uint32_t rawVersion = static_cast<uint32_t>(pack->GetGameVersion());
+        BKVersion packVersion = BK_VER_US_10;
+        if (!ClassifyArchiveVersion(rawVersion, packVersion)) {
+            SPDLOG_ERROR("[Lang] '{}': pack version stamp {:#010x} matches no known ROM; refusing to apply it.", name,
+                         rawVersion);
+            return false;
+        }
+        switch (packVersion) {
+            case BK_VER_US_11:
+                remap = &sV10toV11Remap;
+                break;
+            case BK_VER_PAL:
+                remap = &sV10toPALRemap;
+                break;
+            case BK_VER_JP:
+                remap = &sV10toJPRemap;
+                break;
+            case BK_VER_US_10:
+            default:
+                break; // pack ids already match v1.0
+        }
+    }
+
+    std::unordered_map<uint32_t, uint32_t> inverse;
+    if (remap != nullptr) {
+        for (const auto& [v10Id, targetId] : *remap) {
+            inverse[targetId] = v10Id;
+        }
+    }
+
+    std::unordered_map<uint32_t, std::string> packMain;
+    std::unordered_map<uint32_t, std::vector<std::string>> packFamilies;
+    if (auto files = pack->ListFiles()) {
+        for (const auto& [hash, path] : *files) {
+            uint32_t id = 0;
+            if (!AssetHexFromPath(path, id)) {
+                continue;
+            }
+            packFamilies[id].push_back(path);
+            auto it = packMain.find(id);
+            if (it == packMain.end() || path.size() < it->second.size()) {
+                packMain[id] = path;
+            }
+        }
+    }
+
+    for (const auto& [packId, path] : packMain) {
+        uint32_t v10Id;
+        if (script == SCRIPT_JP && packId >= 0xE2C && packId <= 0xE38) {
+            v10Id = 0x1600 + (packId - 0xE2C); // JP kanji world-name banners
+        } else if (auto it = inverse.find(packId); it != inverse.end()) {
+            v10Id = it->second;
+        } else {
+            v10Id = packId;
+        }
+        out[v10Id] = path;
+    }
+
+    if (const size_t dropped = DropUnchangedOverrides(pack->GetPath(), scoped, out, packFamilies); dropped > 0) {
+        SPDLOG_INFO("[Lang] '{}': {} pack asset(s) are identical to the base game and were left un-repointed", name,
+                    dropped);
+    }
+    return true;
+}
+
+// A pack in mods/~lang/<hack>/ belongs to that romhack; one directly in mods/~lang/
+// localizes the base game.
+bool IsHackScopedPack(const std::string& archivePath) {
+    const std::string marker = "/~lang/";
+    const auto pos = archivePath.find(marker);
+    if (pos == std::string::npos) {
+        return false;
+    }
+    return archivePath.find('/', pos + marker.size()) != std::string::npos;
+}
+
 } // namespace
+
+bool AssetHexFromPath(const std::string& path, uint32_t& out) {
+    auto a = path.rfind("ASSET_");
+    if (a == std::string::npos) {
+        return false;
+    }
+    a += 6;
+    auto e = path.find('_', a);
+    if (e == std::string::npos) {
+        return false;
+    }
+    try {
+        out = static_cast<uint32_t>(std::stoul(path.substr(a, e - a), nullptr, 16));
+        return true;
+    } catch (...) { return false; }
+}
 
 int32_t LanguageKey(const std::string& name) {
     // Stable FNV-1a hash so the combobox key / CVar survives reboots and changes
@@ -296,85 +399,18 @@ void SetActiveLanguage(const std::string& name) {
     }
 
     std::unordered_map<uint32_t, std::string> dialogOverride;
-    if (entry->source != nullptr) {
-        // The pack's assets are numbered for the ROM it was extracted from, so they have
-        // to be translated into the base's v1.0 id space before they can override anything.
-        const uint32_t rawVersion = static_cast<uint32_t>(entry->source->GetGameVersion());
-        BKVersion packVersion = BK_VER_US_10;
-        const bool classified = ClassifyArchiveVersion(rawVersion, packVersion);
-
-        const std::unordered_map<uint32_t, uint32_t>* remap = nullptr;
-        switch (packVersion) {
-            case BK_VER_US_11:
-                remap = &sV10toV11Remap;
-                break;
-            case BK_VER_PAL:
-                remap = &sV10toPALRemap;
-                break;
-            case BK_VER_JP:
-                remap = &sV10toJPRemap;
-                break;
-            case BK_VER_US_10:
-            default:
-                break; // pack ids already match v1.0
-        }
-
-        // Without a recognised stamp there is no way to know which id space the pack is in.
-        // Installing its assets under their own ids would drop them onto whatever v1.0 asset
-        // happens to share the number, so leave the language alone instead.
-        if (!classified) {
-            SPDLOG_ERROR("[Lang] '{}': pack version stamp {:#010x} matches no known ROM; refusing to apply it "
-                         "(its asset ids cannot be translated to the base game's).",
-                         name, rawVersion);
-            return;
-        }
-        std::unordered_map<uint32_t, uint32_t> inverse;
-        if (remap != nullptr) {
-            for (const auto& [v10Id, targetId] : *remap) {
-                inverse[targetId] = v10Id;
-            }
-        }
-
-        std::unordered_map<uint32_t, std::string> packMain;
-        std::unordered_map<uint32_t, std::vector<std::string>> packFamilies;
-        if (auto files = entry->source->ListFiles()) {
-            for (const auto& [hash, path] : *files) {
-                uint32_t id = 0;
-                if (!AssetHexFromPath(path, id)) {
-                    continue;
-                }
-                packFamilies[id].push_back(path);
-                auto it = packMain.find(id);
-                if (it == packMain.end() || path.size() < it->second.size()) {
-                    packMain[id] = path;
-                }
-            }
-        }
-
-        for (const auto& [packId, path] : packMain) {
-            uint32_t v10Id;
-            if (entry->script == SCRIPT_JP && packId >= 0xE2C && packId <= 0xE38) {
-                v10Id = 0x1600 + (packId - 0xE2C); // JP kanji world-name banners
-            } else if (auto it = inverse.find(packId); it != inverse.end()) {
-                v10Id = it->second;
-            } else {
-                // Nothing to translate: the asset has no v1.0 counterpart (the JP-only
-                // font and friends, which the port asks for by their pack id).
-                v10Id = packId;
-            }
-            dialogOverride[v10Id] = path;
-        }
-
-        if (const size_t dropped = DropUnchangedOverrides(entry->source->GetPath(), dialogOverride, packFamilies);
-            dropped > 0) {
-            SPDLOG_INFO("[Lang] '{}': {} pack asset(s) are identical to the base game and were left un-repointed", name,
-                        dropped);
-        }
+    std::unordered_map<uint32_t, std::string> scopedOverride;
+    if (entry->source != nullptr && !BuildPackOverride(entry->source, name, entry->script, false, dialogOverride)) {
+        return;
+    }
+    if (entry->scopedSource != nullptr) {
+        BuildPackOverride(entry->scopedSource, name, entry->script, true, scopedOverride);
     }
 
     // Hand the computed language to the resource layer
-    const size_t repointed = dialogOverride.size();
-    ResourceHelpers_ApplyLanguage(std::move(dialogOverride), entry->script == SCRIPT_JP, entry->count, entry->index);
+    const size_t repointed = dialogOverride.size() + scopedOverride.size();
+    ResourceHelpers_ApplyLanguage(std::move(dialogOverride), std::move(scopedOverride), entry->script == SCRIPT_JP,
+                                  entry->count, entry->index);
     SPDLOG_INFO("[Lang] Active language '{}'", name, repointed);
 }
 
@@ -397,10 +433,7 @@ void RescanLanguages() {
             break;
     }
 
-    // Don't allow languages in romhacks
-    if (port_isRomhack()) {
-    } else if (auto archives =
-                   Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetArchives()) {
+    if (auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetArchives()) {
         for (const auto& archive : *archives) {
             if (!archive) {
                 continue;
@@ -414,10 +447,8 @@ void RescanLanguages() {
             auto packStrings = std::make_shared<StringMap>();
             auto langs = ParseLangInfo(data, size, packStrings.get());
             const int cnt = static_cast<int>(langs.size());
+            const bool scoped = IsHackScopedPack(archive->GetPath());
             for (const auto& le : langs) {
-                if (FindLanguage(le.name) != nullptr) {
-                    continue;
-                }
                 // A JP-script pack must carry the JP dialog font (0x6EA).
                 if (le.script == SCRIPT_JP && !ArchiveHasAssetHex(archive.get(), 0x6EA)) {
                     SPDLOG_ERROR("[Lang] Pack '{}' declares Japanese ('{}') but is missing the JP font sprite "
@@ -425,12 +456,34 @@ void RescanLanguages() {
                                  archive->GetPath(), le.name);
                     continue;
                 }
-                sLanguages.push_back({ le.name, archive.get(), le.index, cnt, le.script });
-                if (!packStrings->empty()) {
+                auto existing = std::find_if(sLanguages.begin(), sLanguages.end(),
+                                             [&](const LanguageEntry& e) { return e.name == le.name; });
+                if (existing != sLanguages.end()) {
+                    Ship::Archive*& slot = scoped ? existing->scopedSource : existing->source;
+                    if (slot == nullptr) {
+                        slot = archive.get();
+                    }
+                } else {
+                    LanguageEntry entry{ le.name, scoped ? nullptr : archive.get(), le.index, cnt, le.script };
+                    if (scoped) {
+                        entry.scopedSource = archive.get();
+                    }
+                    sLanguages.push_back(entry);
+                }
+                if (!packStrings->empty() && sLangStringsByName.find(le.name) == sLangStringsByName.end()) {
                     sLangStringsByName[le.name] = packStrings;
                 }
             }
         }
+    }
+
+    // Hide vanilla language packs unless there's a hack langpack as well,
+    // exemptions for languages the base o2r provides.
+    if (port_isRomhack()) {
+        sLanguages.erase(
+            std::remove_if(sLanguages.begin(), sLanguages.end(),
+                           [](const LanguageEntry& e) { return e.source != nullptr && e.scopedSource == nullptr; }),
+            sLanguages.end());
     }
 
     // Re-apply the persisted selection against the refreshed list; fall back to

@@ -65,7 +65,6 @@ static std::string sInlineFile;
 static std::atomic<bool> sInlineLangPack{ false };
 
 static std::vector<std::string> sQuarantinedConflicts;
-static std::vector<std::string> sRomhackBaseMismatch;
 
 #define CVAR_ENABLED_MODS_NAME CVAR_SETTING("EnabledMods")
 #define CVAR_ENABLED_MODS_DEFAULT ""
@@ -377,12 +376,12 @@ void UpdateModFiles(bool init, bool reset) {
             AfterModChange();
 
             if (init) {
-                const bool baseCompatible = Lighthouse::BaseGameSupportsRomhacks();
                 const std::string activeHack = GetActiveHack();
 
                 if (!activeHack.empty()) {
                     std::error_code ec;
                     std::filesystem::create_directories(std::filesystem::path(modsPath) / activeHack, ec);
+                    std::filesystem::create_directories(std::filesystem::path(modsPath) / LANG_DIR / activeHack, ec);
                 }
 
                 auto loadCategory = [&](ModCategory want) {
@@ -395,13 +394,6 @@ void UpdateModFiles(bool init, bool reset) {
                             continue;
                         if (want == ModCategory::Scoped && modScopeHack[mod] != activeHack)
                             continue;
-                        if (want == ModCategory::Romhack && !baseCompatible) {
-                            SPDLOG_WARN("[ModMenu] Refusing romhack overlay '{}': base bk.o2r is not US v1.0; "
-                                        "romhacks require a v1.0 base.",
-                                        mod);
-                            sRomhackBaseMismatch.push_back(mod);
-                            continue;
-                        }
                         SPDLOG_INFO("[ModMenu] Loading mod '{}'", it->second.generic_string());
                         GetArchiveManager()->AddArchive(it->second.generic_string());
                     }
@@ -413,20 +405,6 @@ void UpdateModFiles(bool init, bool reset) {
                 loadCategory(ModCategory::Romhack);
                 loadCategory(ModCategory::Scoped);
                 loadCategory(ModCategory::Shared);
-
-                // Persist-disable the refused romhacks so the mod list reflects
-                // reality on the next boot.
-                for (const auto& mod : sRomhackBaseMismatch) {
-                    auto eit = std::find(enabledModFiles.begin(), enabledModFiles.end(), mod);
-                    if (eit != enabledModFiles.end()) {
-                        enabledModFiles.erase(eit);
-                        disabledModFiles.push_back(mod);
-                    }
-                }
-                if (!sRomhackBaseMismatch.empty()) {
-                    AfterModChange();
-                    changed = true;
-                }
             }
         }
         if (changed) {
@@ -741,21 +719,6 @@ void MaybeShowModConflictPopup() {
     sQuarantinedConflicts.clear();
 }
 
-void MaybeShowRomhackBaseMismatchPopup() {
-    if (sRomhackBaseMismatch.empty()) {
-        return;
-    }
-    std::string body = "One or more romhack mods were disabled because your base game data\n"
-                       "(bk.o2r) is not the US v1.0 version. Romhacks are built from US v1.0 ROMs.\n"
-                       "To play romhacks, re-extract bk.o2r from a US v1.0 ROM.\n\n"
-                       "Disabled romhacks:\n";
-    for (const auto& name : sRomhackBaseMismatch) {
-        body += "  - " + name + "\n";
-    }
-    LighthouseGui::RegisterPopup("Romhack Requires US v1.0", body, "OK", "", nullptr, nullptr);
-    sRomhackBaseMismatch.clear();
-}
-
 void SetSoleEnabledRomhack(const std::string& keepBasename) {
     const std::string modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods");
     if (modsPath.empty() || !std::filesystem::is_directory(modsPath)) {
@@ -982,27 +945,17 @@ void DrawInlineModExtraction() {
         const std::string keep = std::filesystem::path(GameExtractor::sLastOutputPath).stem().string();
         SetSoleEnabledRomhack(keep);
         Ship::Context::GetRawInstance()->GetConsoleVariables()->Save();
-        if (!Lighthouse::BaseGameSupportsRomhacks()) {
-            LighthouseGui::RegisterPopup("Romhack Requires US v1.0",
-                                         "The romhack mod was extracted into your mods folder, but your\n"
-                                         "base game data (bk.o2r) is not the US v1.0 version.\n\n"
-                                         "Romhacks are built from US v1.0 ROMs and will not play correctly\n"
-                                         "on a v1.1/PAL/JP base. Re-extract bk.o2r from a US v1.0 ROM,\n"
-                                         "then enable this mod from Settings -> Romhack Menu.",
-                                         "OK", "", nullptr, nullptr);
-        } else {
-            LighthouseGui::RegisterPopup(
-                "Mod Installed",
-                "The romhack mod was extracted into your mods folder.\n"
-                "Lighthouse needs to restart to load it.\n\n"
-                "Restart now?",
-                "Restart", "Later",
-                []() {
-                    GameEngine::RequestRelaunch();
-                    Ship::Context::GetRawInstance()->GetWindow()->Close();
-                },
-                nullptr);
-        }
+        LighthouseGui::RegisterPopup(
+            "Mod Installed",
+            "The romhack mod was extracted into your mods folder.\n"
+            "Lighthouse needs to restart to load it.\n\n"
+            "Restart now?",
+            "Restart", "Later",
+            []() {
+                GameEngine::RequestRelaunch();
+                Ship::Context::GetRawInstance()->GetWindow()->Close();
+            },
+            nullptr);
     } else if (result == 2) {
         sInlineResult = -1;
         std::string body = GameExtractor::sLastError.empty()

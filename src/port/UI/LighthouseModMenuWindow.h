@@ -49,11 +49,6 @@ void DisableMod(std::string file);
 // modal window is initialized (i.e. after LighthouseGui::SetupGuiElements).
 void MaybeShowModConflictPopup();
 
-// If UpdateModFiles(true) refused to load romhack overlays because the base
-// bk.o2r is not US v1.0, show an ImGui popup explaining they were disabled.
-// Must be called only after the modal window is initialized.
-void MaybeShowRomhackBaseMismatchPopup();
-
 // Ensure the mod o2r named `keepBasename` is the only enabled overlay carrying
 // assets/aGameConfig. Called right after an inline extraction succeeds so the
 // boot-time conflict check doesn't quarantine the freshly-generated romhack.

@@ -98,10 +98,6 @@ bool ClassifyArchiveVersion(uint32_t rawVersion, BKVersion& out) {
     return false;
 }
 
-bool BaseGameSupportsRomhacks() {
-    return GetBaseVersion() == BK_VER_US_10;
-}
-
 std::string BaseRegionSlug() {
     switch (GetBaseVersion()) {
         case BK_VER_PAL:
