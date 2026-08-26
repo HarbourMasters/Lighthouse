@@ -4,8 +4,7 @@
 
 #include "port/UI/cvar_prefixes.h"
 #include "port/Rando/Rando.h"
-#include "port/Rando/CustomObject/CustomObject.h"
-#include "port/Rando/StaticData/StaticData.h"
+#include "port/Rando/Helpers/Helpers.h"
 
 #include "functions.h"
 extern "C" {
@@ -43,13 +42,6 @@ void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].eligible) {
         return;
     }
-    if (CustomObject::CheckSpawnedIdList(rc)) {
-        Actor* actor = FindActorByRandoCheckId(rc);
-        if (actor != NULL && actor->marker != NULL) {
-            marker_despawn(actor->marker);
-        }
-    }
-    CustomObject::CheckObtainedEX(rc, true);
 }
 
 void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
@@ -75,6 +67,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     AdoptRemoteCheck(rc);
 
     if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 1) && ShouldShowNotifications()) {
-        Rando::StaticData::SendRemoteCheckNotification(rc, GetClientName(payload.value("clientId", 0u)));
+        Rando::Helpers::SendNotification(RANDO_SAVE_CHECKS[rc].randoItemId,
+                                                       GetClientName(payload.value("clientId", 0u)));
     }
 }

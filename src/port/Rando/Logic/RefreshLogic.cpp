@@ -1,6 +1,7 @@
 #include "Logic.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/cvar_prefixes.h"
+#include "port/Rando/StaticData/StaticData.h"
 
 namespace Rando {
 

@@ -189,16 +189,6 @@ static void EmitCheckNotification(RandoCheckId randoCheckId, const std::string& 
     });
 }
 
-void Rando::StaticData::SendCollisionNotification(RandoCheckId randoCheckId) {
-    if (CVAR_SHOW_COLLISION_NOTIFICATIONS) {
-        EmitCheckNotification(randoCheckId, "You");
-    }
-};
-
-void Rando::StaticData::SendRemoteCheckNotification(RandoCheckId randoCheckId, const std::string& collectorName) {
-    EmitCheckNotification(randoCheckId, collectorName);
-};
-
 bool ShouldOverrideSpawn(RandoCheckId randoCheckId) {
     if (Rando::Logic::IsCheckShuffled(randoCheckId)) {
         return true;

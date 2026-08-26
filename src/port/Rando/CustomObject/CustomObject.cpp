@@ -337,8 +337,6 @@ void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
             if (isInit) {
                 CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
-            } else {
-                Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
             }
             Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
             Rando::Logic::RefreshReachableRegions();

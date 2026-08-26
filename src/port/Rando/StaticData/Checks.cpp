@@ -2033,6 +2033,14 @@ std::map<RandoCheckId, std::tuple<int32_t, int32_t, int32_t>> multiSpawnCheckMap
 };
 // clang-format on
 
+std::unordered_map<int16_t, RandoCheckId> JinjoJiggyChecks = {
+    { LEVEL_1_MUMBOS_MOUNTAIN, RC_MM_JIGGY_JINJO },      { LEVEL_2_TREASURE_TROVE_COVE, RC_TTC_JIGGY_JINJO },
+    { LEVEL_3_CLANKERS_CAVERN, RC_CC_JIGGY_JINJO },      { LEVEL_4_BUBBLEGLOOP_SWAMP, RC_BGS_JIGGY_JINJO },
+    { LEVEL_5_FREEZEEZY_PEAK, RC_FP_JIGGY_JINJO },       { LEVEL_7_GOBIS_VALLEY, RC_GV_JIGGY_JINJO },
+    { LEVEL_8_CLICK_CLOCK_WOOD, RC_CCW_JIGGY_JINJO },    { LEVEL_9_RUSTY_BUCKET_BAY, RC_RBB_JIGGY_JINJO },
+    { LEVEL_A_MAD_MONSTER_MANSION, RC_MMM_JIGGY_JINJO },
+};
+
 RandoCheckId GetCheckByPosition(int32_t posX, int32_t posY, int32_t posZ) {
     for (auto& [randoCheckId, randoStaticCheck] : Checks) {
         if (randoStaticCheck.posX == posX && randoStaticCheck.posY == posY && randoStaticCheck.posZ == posZ) {
