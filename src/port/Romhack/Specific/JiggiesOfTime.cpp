@@ -28,4 +28,6 @@ void RegisterJiggiesOfTimePatches() {
     // JoT's note signs are repurposed Red Question Marks.
     // Source: https://github.com/Mr-Wiseguy/JiggiesOfTimeRecomp/blob/main/src/note_signs.c
     HackShared_EnableNoteSignSuppression(ACTOR_54_RED_QUESTION_MARK);
+    // JoT leaves the selector-8 Bottles as the note explainer, so drop it too.
+    HackShared_EnableBottlesExplainerSuppression();
 }

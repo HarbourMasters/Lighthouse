@@ -30,6 +30,7 @@ void ApplyDialogSuppression();
 void ApplyForceAbilitiesUsed();
 
 int sNoteSignActorId = -1;
+bool sSuppressBottlesExplainer = false;
 const int* sSuppressedDialogs = nullptr;
 int sSuppressedDialogCount = 0;
 s32 sForcedUsedAbilities = 0;
@@ -37,7 +38,9 @@ s32 sForcedUsedAbilities = 0;
 // Romhacks that have note signs and Bottles explainers don't need them when
 // note saving is turned on. Suppress them.
 void ApplyNoteSignHooks() {
-    const bool active = sNoteSignActorId >= 0 && CVarGetInteger(CVAR_NOTE_RETENTION, 0);
+    const bool noteRetention = CVarGetInteger(CVAR_NOTE_RETENTION, 0);
+    const bool active = sNoteSignActorId >= 0 && noteRetention;
+    const bool suppressBottles = sSuppressBottlesExplainer && noteRetention;
 
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, active, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnActorSpawn*>(event);
@@ -47,7 +50,7 @@ void ApplyNoteSignHooks() {
         }
     });
 
-    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, active, [](IEvent*) {
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, suppressBottles, [](IEvent*) {
         if (suBaddieActorArray == nullptr) {
             return;
         }
@@ -217,6 +220,11 @@ RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 
 void HackShared_EnableNoteSignSuppression(int signActorId) {
     sNoteSignActorId = signActorId;
+    ApplyNoteSignHooks();
+}
+
+void HackShared_EnableBottlesExplainerSuppression() {
+    sSuppressBottlesExplainer = true;
     ApplyNoteSignHooks();
 }
 

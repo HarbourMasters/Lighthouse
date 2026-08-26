@@ -14,6 +14,7 @@ constexpr ability_used kAllUsedAbilities[] = {
 };
 
 void HackShared_EnableNoteSignSuppression(int signActorId);
+void HackShared_EnableBottlesExplainerSuppression();
 void HackShared_EnableDialogSuppression(const int* dialogIds, int count);
 void HackShared_EnableForceAbilitiesUsed(const ability_used* moves, int count);
 
