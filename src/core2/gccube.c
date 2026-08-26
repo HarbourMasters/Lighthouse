@@ -652,7 +652,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp38[i] = vp_cube_indices[i] + width;
         }
     }
-    // Single-Pass Demo Object No-Cull V2:
+    // Demo visual-only cube rendering:
     // Save the ORIGINAL demo bounds for logic, then widen only the render
     // traversal to the original +/-4-cube distance around the camera.
     sLighthouseDemoExpandedRangeActive = false;

@@ -999,7 +999,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     camera_focus[1] = object_position[1] - modelRenderCameraPosition[1];
     camera_focus[2] = object_position[2] - modelRenderCameraPosition[2];
 
-    // [port] Disable Culling model distance gates V3.1
+    // [port] Disable Culling model distance gates
     if ((!port_shouldDisableCulling() || port_isDemoPlayback()) && ( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
         || ((camera_focus[1] < -17000.0f) || (17000.0f < camera_focus[1]))
         || ((camera_focus[2] < -17000.0f) || (17000.0f < camera_focus[2]))
@@ -1278,7 +1278,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     modelRender_reset();
     if (port_shouldDisableCulling()) {
         if (port_isDemoPlayback()) {
-            // Critical Recomp behavior: expose original visibility after draw.
+            // Preserve the original visibility result after the visual-only draw.
             D_80370990 = !cur_model_would_have_been_culled_in_demo;
         } else {
             D_80370990 = true;

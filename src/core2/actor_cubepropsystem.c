@@ -345,7 +345,7 @@ static bool lighthouse_demoCubeSafeMarkerDraw(ActorMarker *marker) {
         return true;
     }
 
-    // V3: generic sprite-actor renderers.
+    // Generic sprite-actor renderers.
     // These use Lighthouse's normal sprite renderer and marker-visible
     // callback path. The existing visual-only demo guards suppress the
     // marker-visible game-logic update while still allowing the sprite draw.
@@ -355,9 +355,7 @@ static bool lighthouse_demoCubeSafeMarkerDraw(ActorMarker *marker) {
         return true;
     }
 
-    // Truly custom per-actor draw functions remain stock-culled for now.
-    // ALL36 CUSTOM ACTOR TEST START
-    // All 36 marker IDs that were stable in separate A/B tests.
+    // Custom per-actor draw functions that are known to be safe for visual-only demo rendering.
     switch (marker->id) {
         case 3:
         case 53:
@@ -399,7 +397,6 @@ static bool lighthouse_demoCubeSafeMarkerDraw(ActorMarker *marker) {
         default:
             break;
     }
-    // ALL36 CUSTOM ACTOR TEST END
     return false;
 }
 

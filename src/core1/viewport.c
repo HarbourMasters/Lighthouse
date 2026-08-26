@@ -29,7 +29,7 @@ MtxF sViewportMatrix;
 MtxF sViewportDefaultMatrix;
 s32 sViewportStackIndex;
 
-// Disable Culling V2: preserve exact demo/playback culling state.
+// Preserve the original demo/playback frustum state while visual culling is disabled.
 static bool lighthouse_cullV2_frustumChecksEnabled = true;
 
 void lighthouse_cullV2_setFrustumChecksEnabled(bool enabled) {
