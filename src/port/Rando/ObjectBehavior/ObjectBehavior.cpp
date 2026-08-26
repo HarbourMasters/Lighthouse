@@ -241,8 +241,6 @@ static void FireClearBundleDespawnQueue() {
 
 // Entry point for the module, run once on game boot
 void Rando::ObjectBehavior::Init() {
-    UpdateJunkList();
-
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnActorSpawn* ev = (OnActorSpawn*)event;
         map_e currentMap = gsworld_getMap();

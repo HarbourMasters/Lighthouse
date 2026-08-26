@@ -11,12 +11,12 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/Rando/Rando.h"
-#include "port/Rando/CustomObject/CustomObject.h"
 
 #include "enums.h"
 #include "actor.h"
 #include "prop.h"
 #include "functions.h"
+#include "src/core2/bundle.h"
 
 extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 
