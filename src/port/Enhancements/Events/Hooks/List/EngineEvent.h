@@ -37,6 +37,7 @@ DEFINE_EVENT(MapModelXluScale, s32 map; f32 * scale;);
 DEFINE_EVENT(OnTransitionModelScale, Gfx** gfx; Mtx * *mtx; s32 uid; f32 * scale;);
 DEFINE_EVENT(OnTransitionStateUpdate, s32 modelId; s32 uid; s32 substate;);
 DEFINE_EVENT(DrawDistanceCubeWidth, int32_t mapWidth; int32_t * width;);
+DEFINE_EVENT(MapUnderwaterTint, s32 map; s32 * tintMap;);
 
 DEFINE_EVENT(OnActorTick, Actor* actor;);
 DEFINE_EVENT(OnPropTick, ActorMarker* marker; float* position;);

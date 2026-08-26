@@ -87,4 +87,12 @@ void RegisterNostalgia64Patches() {
 
     // The N64 cube stands in for the note signs
     HackShared_EnableNoteSignSuppression(ACTOR_93_INTRO_N64_CUBE);
+
+    // Temple map gets the unused teal underwater tint
+    REGISTER_LISTENER(MapUnderwaterTint, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<MapUnderwaterTint*>(event);
+        if (ev->map == MAP_11_BGS_TIPTUP) {
+            *ev->tintMap = MAP_3_UNUSED;
+        }
+    });
 }

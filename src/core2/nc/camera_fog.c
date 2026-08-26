@@ -40,8 +40,12 @@ Struct_core2_37E50_0 *func_802BEDE0(enum map_e map_id){
 
     phi_v1 = (u8 *)&D_80365D60;
     phi_v1_2 = (u8 *)&D_80365D60;
+    // [port] Let a romhack pick up another map's tint, including the unused first row.
+    s32 tintMap = map_id;
+    CALL_EVENT(MapUnderwaterTint, map_id, &tintMap);
     for(iPtr = D_80365D60; iPtr->map_id != 0; iPtr++){
-        if(map_id == iPtr->map_id){
+//      if(map_id == iPtr->map_id){
+        if(tintMap == iPtr->map_id){
             return iPtr;
         }
     }
