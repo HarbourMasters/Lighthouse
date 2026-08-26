@@ -4,7 +4,7 @@
 
 #include "port/UI/cvar_prefixes.h"
 #include "port/Rando/Rando.h"
-#include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/CustomCollectible/CustomCollectible.h"
 #include "port/Rando/StaticData/StaticData.h"
 
 #include "functions.h"
@@ -40,16 +40,13 @@ void Anchor::SendPacket_SetCheckStatus(s32 rc, s32 map) {
 // notification, or re-broadcast).
 void Anchor::AdoptRemoteCheck(s32 rcRaw) {
     RandoCheckId rc = (RandoCheckId)rcRaw;
+
     if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].eligible) {
         return;
     }
-    if (CustomObject::CheckSpawnedIdList(rc)) {
-        Actor* actor = FindActorByRandoCheckId(rc);
-        if (actor != NULL && actor->marker != NULL) {
-            marker_despawn(actor->marker);
-        }
-    }
-    CustomObject::CheckObtainedEX(rc, true);
+
+    CustomCollectible::DespawnByRC(rc);
+    ItemQueue::GiveItem(RANDO_SAVE_CHECKS[rc].randoItemId);
 }
 
 void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
@@ -60,10 +57,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     RandoCheckId rc = (RandoCheckId)payload.at("rc").get<s32>();
     s32 map = payload.at("map").get<s32>();
 
-    if (rc <= RC_UNKNOWN || rc >= RC_MAX) {
-        return;
-    }
-    if (RANDO_SAVE_CHECKS[rc].eligible) {
+    if (rc <= RC_UNKNOWN || rc >= RC_MAX || RANDO_SAVE_CHECKS[rc].eligible) {
         return;
     }
 
