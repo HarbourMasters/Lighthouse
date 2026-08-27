@@ -73,6 +73,16 @@ void CustomCollectible_Update(Actor* actor) {
         actor->yaw += 5.0f;
     }
 
+    // Handle spawning the item inside the ice inside the christmas tree. Otherwise the player
+    // can collect the item before finishing the christmas tree.
+    if (customLocal->randoCheckId == RC_FP_JIGGY_INSIDE_THE_TREE) {
+        if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
+            actor_collisionOn(actor);
+        } else {
+            actor_collisionOff(actor);
+        }
+    }
+
     // Sparkles
     if (customCollectibleDrawInfo[customLocal->actorId].drawType != CCT_GENERIC_SPRITE) {
         for (int i = 0; i < 4; i++) {
@@ -131,10 +141,6 @@ Actor* CustomCollectible::AttachCustomVariables(RandoCheckId randoCheckId, Actor
 }
 
 Actor* CustomCollectible::Spawn(int32_t position[3], RandoCheckId randoCheckId) {
-    if (CustomCollectible::GetActorByRC(randoCheckId) != NULL) {
-        return NULL;
-    }
-
     int32_t spawnPosition[3] = { position[0], position[1], position[2] };
 
     int32_t flags = ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21;
@@ -278,6 +284,19 @@ void CustomCollectible::ProcessPropQueue() {
 }
 
 void RegisterCustomCollectible() {
+    COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
+        OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
+
+        // Decide up front whether this restore is ours: anything we don't manage falls
+        // through to the vanilla restore untouched. The predicate has to be the same one
+        // the save side recorded under, junk included.
+        if ((actor_e)ev->actor->modelCacheIndex != ACTOR_3CD_CUSTOM_COLLECTIBLE) {
+            return;
+        }
+        return;
+        event->Cancelled = true;
+    });
+
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO,
               [](IEvent* event) { CustomCollectible::ProcessPropQueue(); });
 }

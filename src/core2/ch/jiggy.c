@@ -146,8 +146,7 @@ void chjiggy_update(Actor *this) {
                 local->id = getJiggyId(this);
             }
             
-//          if (jiggyscore_isCollected(local->id)) {
-            if (EventSystem_Should(VB_COLLECTABLE_ALREADY_HELD, jiggyscore_isCollected(local->id), this)) {
+            if (jiggyscore_isCollected(local->id)) {
                 marker_despawn(this->marker);
             } else {
                 subaddie_set_state(this, JIGGY_STATE_2_IDLE);
@@ -200,8 +199,7 @@ void chjiggy_update(Actor *this) {
 
                 case JIGGY_2F_FP_XMAS_TREE:
 //                  if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
-                    if (EventSystem_Should(VB_XMAS_TREE_JIGGY_COLLIDABLE,
-                                           levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE), this)) {
+                    if (levelSpecificFlags_get(LEVEL_FLAG_29_FP_XMAS_TREE_COMPLETE)) {
                         actor_collisionOn(this);
                     } else {
                         actor_collisionOff(this);

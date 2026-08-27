@@ -81,7 +81,6 @@ void ItemQueue::Process() {
     if (!randoSaveCheck.received) {
         ItemQueue::GiveItem(randoSaveCheck.randoItemId);
         ItemQueue::SendNotification(randoSaveCheck.randoItemId);
-        Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
         RANDO_SAVE_CHECKS[randoCheckId].received = true;
     }
 

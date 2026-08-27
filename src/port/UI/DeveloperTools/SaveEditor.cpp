@@ -2,6 +2,7 @@
 #include "SaveEditorTooltips.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
+#include "port/Rando/MiscBehavior/WorldState.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/ItemQueue/ItemQueue.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
@@ -393,7 +394,7 @@ void DrawRandoFlagEditor() {
             ImGui::PushID(f);
             bool flagState = RANDO_SAVE_FLAGS[f].flagState;
             if (UIWidgets::Checkbox(Rando::StaticData::Flags[(RandoInf)f].name, &flagState)) {
-                CALL_EVENT(SetRandoInfFlag, (RandoInf)f, !RANDO_SAVE_FLAGS[f].flagState);
+                Rando::WorldState::SetRandoInfFlag((RandoInf)f, !RANDO_SAVE_FLAGS[f].flagState);
             }
             ImGui::PopID();
         }
