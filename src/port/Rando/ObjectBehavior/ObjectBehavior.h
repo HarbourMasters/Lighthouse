@@ -2,6 +2,7 @@
 #define RANDO_OBJECT_BEHAVIOR_H
 
 #include "port/Rando/Rando.h"
+#include "enums.h"
 #include <vector>
 
 bool CheckEnemyOverlapPosition(int32_t pos[3]);

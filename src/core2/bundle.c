@@ -1,4 +1,5 @@
 // BanjoDecomp: core2/code_41FB0.c
+#include "bundle.h"
 #include "functions.h"
 #include "variables.h"
 #include <ultra64.h>
@@ -9,25 +10,6 @@ extern BKCollisionTriangle *func_80309DBC(f32[3], f32[3], f32, f32[3], s32, s32)
 extern BKCollisionTriangle *func_80320C94(f32[3], f32[3], f32, f32[3], s32, s32);
 extern f32 func_8033229C(ActorMarker *);
 extern bool func_80309D58(f32[3], s32);
-
-typedef struct {
-    s16 flags;
-    // u8 pad2[0x2];
-    s32 actor_id;
-    s32 count;
-    s16 sfx_id;
-    s16 sfx_volume;
-    s16 sfx_sampleRate;
-    // u8 pad12[0x2];
-    f32 velocity_x;
-    f32 randomVelocity_x;
-    f32 velocity_y;
-    f32 randomVelocity_y;
-    f32 velocity_z;
-    f32 randomVelocity_z;
-    f32 bounce_factor;
-    f32 yaw;
-} BundleInfo;
 
 typedef struct {
     s32 index;

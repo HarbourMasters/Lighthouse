@@ -207,10 +207,6 @@ void CustomObject::FlushRandoSpawnQueue() {
         }
 
         actor_e randoActorId = Rando::StaticData::GetActorIdByRandoItemId(randoSaveCheck.randoItemId);
-        if (randoSaveCheck.eligible) {
-            randoActorId = GetRandomJunkActorId(randoSaveCheck);
-        }
-
         if (randoActorId == ACTOR_1_UNKNOWN) {
             queue.isSpawned = true;
             continue;
@@ -257,8 +253,6 @@ Actor* CustomObject::ShouldCreateCustomActorEX(RandoCheckId randoCheckId, int32_
     if (randoSaveCheck.eligible) {
         if (refActor != nullptr) {
             randoActorId = (actor_e)refActor->modelCacheIndex;
-        } else {
-            randoActorId = GetRandomJunkActorId(randoSaveCheck);
         }
     }
 
@@ -309,9 +303,7 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
 
                     if (jiggyCheckId != RC_UNKNOWN) {
                         Actor* customActor = ShouldCreateCustomActorEX(jiggyCheckId, spawnPosition, false);
-                        if (customActor != NULL) {
-                            ApplyCustomActorPhysics(jiggyCheckId, customActor, true);
-                        }
+                        if (customActor != NULL) {}
                     }
                 }
             }
@@ -321,8 +313,6 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
             if (randoItem.worldId == currentLevel) {
                 item_set(ITEM_C_NOTE, D_80385FF0[map_getLevel(gsworld_getMap())]);
             }
-
-            UpdateSaveDataNoteScores();
             fxSparkle_musicNote(sparklePos);
             coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
             break;
@@ -346,8 +336,6 @@ void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
             if (isInit) {
                 CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
-            } else {
-                Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
             }
             Rando::Logic::RefreshReachableRegions();
             // Broadcast real collects only (not save-load/remote apply, both isInit).

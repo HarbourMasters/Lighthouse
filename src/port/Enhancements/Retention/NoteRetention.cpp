@@ -15,7 +15,7 @@
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Rando/Rando.h"
-#include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/CustomCollectible/CustomCollectible.h"
 
 #include <vector>
 #include <unordered_map>
@@ -300,7 +300,7 @@ void RegisterNoteRetention_Init() {
         nl->mapId = mapId;
         nl->noteIndex = noteIndex;
 
-        ApplyBundleActorPhysics(note, (int32_t)bundleId, bundleInfo, gBundle_yaw);
+        CustomCollectible::ApplyBundlePhysics(note, (int32_t)bundleId, bundleInfo, gBundle_yaw);
 
         activeNoteSet[key] = note->marker;
         *actorOut = note;

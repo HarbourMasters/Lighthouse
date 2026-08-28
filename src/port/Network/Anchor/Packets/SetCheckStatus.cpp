@@ -4,8 +4,8 @@
 
 #include "port/UI/cvar_prefixes.h"
 #include "port/Rando/Rando.h"
+#include "port/Rando/Helpers/Helpers.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
-#include "port/Rando/StaticData/StaticData.h"
 
 #include "functions.h"
 extern "C" {
@@ -69,6 +69,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
     AdoptRemoteCheck(rc);
 
     if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 1) && ShouldShowNotifications()) {
-        Rando::StaticData::SendRemoteCheckNotification(rc, GetClientName(payload.value("clientId", 0u)));
+        Rando::Helpers::SendNotification(RANDO_SAVE_CHECKS[rc].randoItemId,
+                                         GetClientName(payload.value("clientId", 0u)));
     }
 }

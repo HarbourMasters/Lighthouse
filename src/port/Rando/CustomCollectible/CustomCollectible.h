@@ -1,6 +1,7 @@
 #pragma once
 #include "port/Rando/ItemQueue/ItemQueue.h"
 #include "prop.h"
+#include "src/core2/bundle.h"
 
 typedef struct {
     RandoCheckId randoCheckId;
@@ -45,4 +46,6 @@ public:
     static void DespawnByRC(RandoCheckId randoCheckId);
     static void QueueProp(int32_t position[3], RandoCheckId randoCheckId);
     static void ProcessPropQueue();
+    static void ApplyCustomPhysics(RandoCheckId randoCheckId, Actor* actor, bool isJinjoJiggy);
+    static void ApplyBundlePhysics(Actor* actor, int32_t bundle_id, BundleInfo* bundle_info, f32 bundleYaw);
 };

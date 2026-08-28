@@ -2,7 +2,6 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/ShipUtils.h"
 #include "port/Rando/Rando.h"
-// #include "port/Rando/Logic/Logic.h"
 
 #include "enums.h"
 
@@ -123,6 +122,24 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_AP_ITEM_PROGRESSION,                  "a",    "AP Progression Item",      RITYPE_AP_ITEM,             ACTOR_3CD_CUSTOM_COLLECTIBLE,       LEVEL_D_CUTSCENE),
 };
 // clang-format on
+
+std::unordered_map<actor_e, UIWidgets::Colors> ItemColors = {
+    { ACTOR_1_UNKNOWN, UIWidgets::Colors::Brown },           { ACTOR_52_BLUE_EGG, UIWidgets::Colors::Cyan },
+    { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow }, { ACTOR_49_EXTRA_LIFE, UIWidgets::Colors::Yellow },
+    { ACTOR_50_HONEYCOMB, UIWidgets::Colors::Yellow },       { ACTOR_46_JIGGY, UIWidgets::Colors::Yellow },
+    { ACTOR_60_JINJO_BLUE, UIWidgets::Colors::SkyBlue },     { ACTOR_62_JINJO_GREEN, UIWidgets::Colors::Green },
+    { ACTOR_5F_JINJO_ORANGE, UIWidgets::Colors::Orange },    { ACTOR_61_JINJO_PINK, UIWidgets::Colors::Pink },
+    { ACTOR_5E_JINJO_YELLOW, UIWidgets::Colors::Yellow },    { ACTOR_12C_MOLEHILL, UIWidgets::Colors::Cyan },
+    { ACTOR_2D_MUMBO_TOKEN, UIWidgets::Colors::Gray },       { ACTOR_51_MUSIC_NOTE, UIWidgets::Colors::Yellow },
+    { ACTOR_25E_SNS_EGG, UIWidgets::Colors::Pink },          { ACTOR_25D_ICE_KEY, UIWidgets::Colors::White },
+};
+
+std::unordered_map<RandoItemId, UIWidgets::Colors> SnsColors = {
+    { RI_STOP_N_SWOP_EGG_YELLOW, UIWidgets::Colors::Yellow }, { RI_STOP_N_SWOP_EGG_RED, UIWidgets::Colors::Red },
+    { RI_STOP_N_SWOP_EGG_GREEN, UIWidgets::Colors::Green },   { RI_STOP_N_SWOP_EGG_BLUE, UIWidgets::Colors::Blue },
+    { RI_STOP_N_SWOP_EGG_PINK, UIWidgets::Colors::Pink },     { RI_STOP_N_SWOP_EGG_CYAN, UIWidgets::Colors::Cyan },
+    { RI_STOP_N_SWOP_ICE_KEY, UIWidgets::Colors::White },
+};
 
 RandoItemId GetRandoItemByActorId(actor_e actorId) {
     for (auto& [randoItemId, randoStaticItem] : Items) {

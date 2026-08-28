@@ -4,6 +4,8 @@
 #include "port/Rando/Rando.h"
 #include <ship/window/gui/GuiWindow.h>
 
+#include "enums.h"
+
 typedef struct {
     int32_t noteLevelTotal;
     int32_t jiggyLevelTotal;

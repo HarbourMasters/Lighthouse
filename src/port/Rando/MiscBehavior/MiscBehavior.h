@@ -10,7 +10,6 @@ namespace MiscBehavior {
 void Init();
 void InitFileSelectBehavior();
 void OnFileLoad();
-void OnFileSave();
 
 } // namespace MiscBehavior
 
