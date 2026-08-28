@@ -494,8 +494,6 @@ void RegisterCheckTracker() {
         CheckTracker_CreateCheckList();
         CheckTracker_InitiateTotals();
     });
-
-
 }
 
 static RegisterShipInitFunc initFunc(RegisterCheckTracker, { "IS_RANDO" });
