@@ -2381,9 +2381,6 @@ typedef enum {
 
 typedef enum {
     RANDO_INF_UNKNOWN,
-    RANDO_INF_ANCHOR_RAISED,
-    RANDO_INF_CLANKER_RAISED,
-    RANDO_INF_MINIGAME_RINGS_COMPLETED,
     RANDO_INF_WATER_PYRAMID_DRAINED,
     RANDO_INF_MAX,
 } RandoInf;
@@ -2405,7 +2402,7 @@ typedef struct RandoSaveOption {
 } RandoSaveOption;
 
 typedef struct RandoSaveFlag {
-    int32_t flagState;
+    uint8_t flagState;
 } RandoSaveFlag;
 
 #endif // RANDO_TYPES_H

@@ -45,7 +45,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
 
     switch (kind) {
         case ANCHOR_COLLECTIBLE_JIGGY:
-            if (!port_jiggyscore_isCollectedRaw((enum jiggy_e)id)) {
+            if (!jiggyscore_isCollected((enum jiggy_e)id)) {
                 jiggyscore_setCollected(id, true);
                 func_8034798C(); // recompute the current-level jiggy HUD count
                 if ((s32)map_getLevel((enum map_e)map) == (s32)level_get()) {
@@ -75,7 +75,7 @@ void Anchor::HandlePacket_CollectItem(nlohmann::json& payload) {
             }
             break;
         case ANCHOR_COLLECTIBLE_HONEYCOMB:
-            if (!port_honeycombscore_getRaw((enum honeycomb_e)id)) {
+            if (!honeycombscore_get((enum honeycomb_e)id)) {
                 honeycombscore_set((enum honeycomb_e)id, 1);
                 item_inc(ITEM_13_EMPTY_HONEYCOMB);
                 if (!(item_getCount(ITEM_13_EMPTY_HONEYCOMB) < 6)) {
