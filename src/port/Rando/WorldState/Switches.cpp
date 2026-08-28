@@ -1,23 +1,14 @@
-#include "ObjectBehavior.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/CustomCollectible/CustomCollectible.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
-#include "spdlog/spdlog.h"
+#define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue
 
 extern "C" {
 void destroyJiggy(Actor* thisx, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, enum volatile_flags_e arg6);
 }
 
-Actor* FindActorByRandoCheckId(RandoCheckId randoCheckId); // ObjectBehavior.cpp
-
-#define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue
-
-void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
-    if (!IS_RANDO || !OPTION_ENABLED) {
-        return;
-    }
-
+void ModifySwitchBehavior(int32_t switchActorId) {
     RandoCheckId randoCheckId = RC_UNKNOWN;
 
     if (item_getCount(ITEM_0_HOURGLASS_TIMER) == 0) {
@@ -46,7 +37,7 @@ void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
         return;
     }
 
-    Actor* findActor = FindActorByRandoCheckId(randoCheckId);
+    Actor* findActor = CustomCollectible::GetActorByRC(randoCheckId);
 
     if (findActor != NULL) {
         actor_collisionOff(findActor);
@@ -55,6 +46,22 @@ void Rando::ObjectBehavior::ModifySwitchBehavior(int32_t switchActorId) {
         } else {
             destroyJiggy(findActor, 0xd, 0xc, 0x1e, 9, 0xb, VOLATILE_FLAG_AF_BGS_MAZE_JIGGY_MISSED);
         }
-        CustomObject::RemoveSpawnedIdFromList(randoCheckId);
     }
 }
+
+void RegisterWorldStateSwitches() {
+    COND_HOOK(OnActorTick, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
+        OnActorTick* ev = (OnActorTick*)event;
+
+        switch (ev->actor->actor_info->actorId) {
+            case ACTOR_14E_BGS_ELEVATED_WALKWAY_SWITCH:
+            case ACTOR_1FB_BGS_MAZE_SWITCH:
+                ModifySwitchBehavior(ev->actor->actor_info->actorId);
+                break;
+            default:
+                break;
+        }
+    });
+}
+
+static RegisterShipInitFunc initFunc(RegisterWorldStateSwitches, { "IS_RANDO" });

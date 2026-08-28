@@ -1,7 +1,7 @@
 #include "Rando.h"
 #include <ship/Context.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "ObjectBehavior/ObjectBehavior.h"
+#include "ShuffleBehavior/ObjectBehavior.h"
 #include "MiscBehavior/MiscBehavior.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
 // #include "port/Rando/EntranceTracker/EntranceTracker.h"

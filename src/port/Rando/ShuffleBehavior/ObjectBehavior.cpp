@@ -465,27 +465,6 @@ void RegisterObjectBehaviour() {
             event->Cancelled = true;
         }
     })
-
-    COND_HOOK(OnActorTick, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
-        OnActorTick* ev = (OnActorTick*)event;
-
-        switch (ev->actor->actor_info->actorId) {
-            case ACTOR_14E_BGS_ELEVATED_WALKWAY_SWITCH:
-            case ACTOR_1FB_BGS_MAZE_SWITCH:
-                Rando::ObjectBehavior::ModifySwitchBehavior(ev->actor->actor_info->actorId);
-                break;
-            case ACTOR_33A_BLUE_PRESENT:
-            case ACTOR_33B_GREEN_PRESENT:
-            case ACTOR_33C_RED_PRESENT:
-            case ACTOR_1ED_BLUE_PRESENT_COLLECTIBLE:
-            case ACTOR_1EF_GREEN_PRESENT_COLLECTIBLE:
-            case ACTOR_1F1_RED_PRESENT_COLLECTIBLE:
-                Rando::ObjectBehavior::ModifyPresentBehavior(ev->actor);
-                break;
-            default:
-                break;
-        }
-    })
 }
 
 static RegisterShipInitFunc initFunc(RegisterObjectBehaviour, { "IS_RANDO" });

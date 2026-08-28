@@ -15,9 +15,6 @@ namespace ObjectBehavior {
 
 void Init();
 
-void ModifySwitchBehavior(int32_t switchActorId);
-void ModifyPresentBehavior(void* presentActor);
-
 } // namespace ObjectBehavior
 
 } // namespace Rando
