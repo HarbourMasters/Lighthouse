@@ -489,6 +489,8 @@ void Init() {
 } // namespace Rando
 
 void RegisterCheckTracker() {
+    REGISTER_LISTENER(OnGameStart, EVENT_PRIORITY_NORMAL, [](IEvent* event) { Rando::CheckTracker::Init(); });
+
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         CheckTracker_CreateCheckList();
         CheckTracker_InitiateTotals();

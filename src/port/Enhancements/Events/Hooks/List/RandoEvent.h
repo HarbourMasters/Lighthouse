@@ -14,8 +14,6 @@ extern "C" {
 }
 #endif
 
-DEFINE_EVENT(InitRandoEvents)
-
 DEFINE_EVENT(OnLoadFileSelect)
 
 DEFINE_EVENT(OnSaveLoad, void* saveData;)

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <random>
 #include <spdlog/spdlog.h>
+#include "port/UI/Notification.h"
 
 #include "enums.h"
 
@@ -138,6 +139,7 @@ bool GenerateShufflePool(SaveData* saveData) {
         }
 
         if (!generated) {
+            Notification::Emit({ .message = "Seed Configuration impossible, failed to generate." });
             return false;
         }
     } else if (RANDO_SAVE_OPTIONS[RO_LOGIC].optionValue == RO_LOGIC_NO_LOGIC) {

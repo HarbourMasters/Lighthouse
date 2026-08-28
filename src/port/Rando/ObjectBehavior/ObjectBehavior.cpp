@@ -1,4 +1,5 @@
 #include "ObjectBehavior.h"
+#include "port/ShipInit.hpp"
 #include "port/UI/UIWidgets.hpp"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/Notification.h"
@@ -230,7 +231,7 @@ static void FireClearBundleDespawnQueue() {
 }
 
 // Entry point for the module, run once on game boot
-void Rando::ObjectBehavior::Init() {
+void RegisterObjectBehaviour() {
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnActorSpawn* ev = (OnActorSpawn*)event;
         map_e currentMap = gsworld_getMap();
@@ -486,3 +487,5 @@ void Rando::ObjectBehavior::Init() {
         }
     })
 }
+
+static RegisterShipInitFunc initFunc(RegisterObjectBehaviour, { "IS_RANDO" });
