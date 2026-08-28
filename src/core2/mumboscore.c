@@ -23,9 +23,7 @@ u8* func_80321538(void){
 bool mumboscore_get(enum mumbotoken_e indx){
     if( indx <= 0 || indx >= MUMBO_TOKEN_COUNT)
         return 0;
-    CALL_CANCELLABLE_RETURN_EVENT(OnIsMumboTokenScoreCollected, indx) {
-        return (sMumboTokenScore[(indx - 1) / 8] & (1 << (indx & 7))) != 0;
-    }
+    return (sMumboTokenScore[(indx - 1) / 8] & (1 << (indx & 7))) != 0;
 }
 
 void mumboscore_debug(void){}

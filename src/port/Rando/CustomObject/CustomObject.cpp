@@ -347,7 +347,6 @@ void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
             if (isInit) {
                 CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
             }
-            Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
             Rando::Logic::RefreshReachableRegions();
             // Broadcast real collects only (not save-load/remote apply, both isInit).
             if (!isInit) {

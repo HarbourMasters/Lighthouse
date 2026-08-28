@@ -77,8 +77,6 @@ struct RandoStaticFlag {
 
 extern std::map<RandoInf, RandoStaticFlag> Flags;
 
-void ModifyRandoInfFlagState(RandoCheckId randoCheckId);
-
 extern std::unordered_map<std::string, RandoCheckId> locationNameToEnum;
 extern std::unordered_map<std::string, RandoItemId> itemNameToEnum;
 

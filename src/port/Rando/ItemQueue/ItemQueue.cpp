@@ -57,7 +57,6 @@ void ItemQueue::Process() {
         if (CVAR_SHOW_RANDO_NOTIFICATIONS) {
             Rando::Helpers::SendNotification(randoSaveCheck.randoItemId, "You");
         }
-        Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
         RANDO_SAVE_CHECKS[randoCheckId].received = true;
     }
 

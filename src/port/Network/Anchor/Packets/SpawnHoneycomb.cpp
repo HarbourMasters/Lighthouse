@@ -36,7 +36,7 @@ void Anchor::HandlePacket_SpawnHoneycomb(nlohmann::json& payload) {
     if ((s32)gsworld_getMap() != payload.at("ctx").get<s32>()) {
         return;
     }
-    if (port_honeycombscore_getRaw((enum honeycomb_e)honeycombId)) {
+    if (honeycombscore_get((enum honeycomb_e)honeycombId)) {
         return;
     }
     // Already present locally, nothing to add.

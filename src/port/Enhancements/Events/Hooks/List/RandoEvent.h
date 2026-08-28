@@ -44,14 +44,8 @@ DEFINE_EVENT(OnIsJiggyScoreCollected, int32_t jiggyId; int32_t result;)
 
 DEFINE_EVENT(OnIsJiggyScoreSpawned, int32_t jiggyId; int32_t result;)
 
-DEFINE_EVENT(SetRandoInfFlag, int32_t flagId; int32_t flagState;)
-
 DEFINE_EVENT(OnRandoCheckObtained, int32_t randoCheckId; int32_t map;)
 
-DEFINE_EVENT(OnIsHoneycombScoreCollected, int32_t honeycombId; int32_t result;)
-
 DEFINE_EVENT(ClearBundleDespawnQueue);
-
-DEFINE_EVENT(OnIsMumboTokenScoreCollected, int32_t tokenId; int32_t result;)
 
 DEFINE_EVENT(OnSnSItemState, int32_t snsItem; int32_t result;)

@@ -23,11 +23,10 @@ u8 *honeycombscore_get_ptr(void){
 }
 
 bool honeycombscore_get(enum honeycomb_e indx){
-    if( indx <= 0 || indx >= HONEYCOMB_COUNT)
+    if (indx <= 0 || indx >= HONEYCOMB_COUNT) {
         return 0;
-    CALL_CANCELLABLE_RETURN_EVENT(OnIsHoneycombScoreCollected, indx) {
-        return (sHoneycombScore[(indx - 1) / 8] & (1 << (indx & 7))) != 0;
     }
+    return (sHoneycombScore[(indx - 1) / 8] & (1 << (indx & 7))) != 0;
 }
 
 void honeycombscore_debug(void){}

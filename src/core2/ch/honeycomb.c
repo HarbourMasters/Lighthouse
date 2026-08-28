@@ -105,8 +105,7 @@ void chHoneycomb_update(Actor *this){
         if( this->marker->id == MARKER_53_EMPTY_HONEYCOMB){
             if(local->uid == 0)
                 local->uid = (!this->unk44_2)? D_8037DDC0 : func_802C9C40(this);
-//          if( honeycombscore_get(local->uid)
-            if( EventSystem_Should(VB_COLLECTABLE_ALREADY_HELD, honeycombscore_get(local->uid), this)
+            if(honeycombscore_get(local->uid)
                 || volatileFlag_get(VOLATILE_FLAG_1)
                 || volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME)
             ){
