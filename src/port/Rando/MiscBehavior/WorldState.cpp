@@ -2,6 +2,7 @@
 
 #include "port/ShipInit.hpp"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
+#include "port/Rando/StaticData/StaticData.h"
 
 #include "enums.h"
 #include "functions.h"
