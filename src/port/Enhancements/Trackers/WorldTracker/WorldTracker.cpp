@@ -1,6 +1,6 @@
 #include "WorldTracker.h"
 #include "port/Enhancements/Retention/Retention.h"
-#include "port/Rando/ObjectBehavior/ObjectBehavior.h"
+#include "port/Rando/ShuffleBehavior/ObjectBehavior.h"
 #include "port/Save/Types.h"
 #include "port/ShipUtils.h"
 #include "port/UI/UIWidgets.hpp"

@@ -2,7 +2,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/Rando/ObjectBehavior/ObjectBehavior.h"
+#include "port/Rando/ShuffleBehavior/ObjectBehavior.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "actor.h"
