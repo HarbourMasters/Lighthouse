@@ -32,9 +32,6 @@ void SetFlagsOnCheckObtained(RandoCheckId randoCheckId) {
                 Rando::WorldState::SetRandoInfFlag(RANDO_INF_WATER_PYRAMID_DRAINED, true);
             }
             break;
-        case RC_RBB_JIGGY_SNORKEL:
-            Rando::WorldState::SetRandoInfFlag(RANDO_INF_ANCHOR_RAISED, true);
-            break;
         default:
             break;
     }

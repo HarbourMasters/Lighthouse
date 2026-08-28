@@ -2381,7 +2381,6 @@ typedef enum {
 
 typedef enum {
     RANDO_INF_UNKNOWN,
-    RANDO_INF_ANCHOR_RAISED,
     RANDO_INF_WATER_PYRAMID_DRAINED,
     RANDO_INF_MAX,
 } RandoInf;
