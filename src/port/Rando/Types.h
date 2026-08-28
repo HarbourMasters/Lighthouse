@@ -1,7 +1,7 @@
 #ifndef RANDO_TYPES_H
 #define RANDO_TYPES_H
 
-#include "Types.h"
+#include <stdint.h>
 
 typedef enum {
     RP_MUMBO_TOKEN_INSIDE_LOGGO = 0x74,

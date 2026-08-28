@@ -207,10 +207,6 @@ void CustomObject::FlushRandoSpawnQueue() {
         }
 
         actor_e randoActorId = Rando::StaticData::GetActorIdByRandoItemId(randoSaveCheck.randoItemId);
-        if (randoSaveCheck.eligible) {
-            randoActorId = GetRandomJunkActorId(randoSaveCheck);
-        }
-
         if (randoActorId == ACTOR_1_UNKNOWN) {
             queue.isSpawned = true;
             continue;
@@ -257,8 +253,6 @@ Actor* CustomObject::ShouldCreateCustomActorEX(RandoCheckId randoCheckId, int32_
     if (randoSaveCheck.eligible) {
         if (refActor != nullptr) {
             randoActorId = (actor_e)refActor->modelCacheIndex;
-        } else {
-            randoActorId = GetRandomJunkActorId(randoSaveCheck);
         }
     }
 
@@ -318,8 +312,8 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
                     RandoCheckId jiggyCheckId = Rando::StaticData::GetJinjoJiggyCheckByLevelId(randoItem.worldId);
 
                     if (jiggyCheckId != RC_UNKNOWN) {
-                        __spawnQueue_add_4((GenFunction_4)SpawnJinjoJiggy, jiggyCheckId, (uintptr_t)spawnPosition[0],
-                                           (uintptr_t)spawnPosition[1], (uintptr_t)spawnPosition[2]);
+                        Actor* customActor = ShouldCreateCustomActorEX(jiggyCheckId, spawnPosition, false);
+                        if (customActor != NULL) {}
                     }
                 }
             }
@@ -329,8 +323,6 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
             if (randoItem.worldId == currentLevel) {
                 item_set(ITEM_C_NOTE, sItemscoreNoteScores[map_getLevel(gsworld_getMap())]);
             }
-
-            UpdateSaveDataNoteScores();
             fxSparkle_musicNote(sparklePos);
             coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
             break;
@@ -354,8 +346,6 @@ void CustomObject::CheckObtainedEX(RandoCheckId randoCheckId, bool isInit) {
             CustomObject::RemoveSpawnedIdFromList(randoCheckId);
             if (isInit) {
                 CustomObject::ResolveCustomActorCollisionEX(randoCheckId);
-            } else {
-                Rando::StaticData::SendCollisionNotification(pool.randoCheckId);
             }
             Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
             Rando::Logic::RefreshReachableRegions();

@@ -11,12 +11,12 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/Rando/Rando.h"
-#include "port/Rando/CustomObject/CustomObject.h"
 
 #include "enums.h"
 #include "actor.h"
 #include "prop.h"
 #include "functions.h"
+#include "src/core2/bundle.h"
 
 static bool sForcedByAnchor = false;
 #define CVAR_JINJO_RETENTION CVAR_ENHANCEMENT("Gameplay.JinjoRetention")

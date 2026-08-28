@@ -1,9 +1,11 @@
 #include "CustomCollectible.h"
 #include "CustomCollectibleDrawCustom.h"
-#include <unordered_map>
 
 #include <libultraship/bridge.h>
 #include "port/ShipInit.hpp"
+#include "port/Rando/StaticData/StaticData.h"
+
+#include <unordered_map>
 #include <queue>
 
 extern "C" {

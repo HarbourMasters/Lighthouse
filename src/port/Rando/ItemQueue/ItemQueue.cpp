@@ -6,11 +6,11 @@
 
 #include <libultraship/bridge.h>
 #include "port/ShipInit.hpp"
-#include "port/UI/Notification.h"
-#include "port/UI/UIWidgets.hpp"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Rando/Rando.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
-#include "port/Rando/Logic/Logic.h"
+#include "port/Rando/Helpers/Helpers.h"
+#include "port/Rando/StaticData/StaticData.h"
 
 extern "C" {
 #include "actor.h"
@@ -35,39 +35,13 @@ extern void spawnOrbit();
 
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 
-#define CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS "gRandoSettings.RandoNotifications"
-#define CVAR_SHOW_COLLISION_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_COLLISION_NOTIFICATIONS, 1)
+#define CVAR_NAME_SHOW_RANDO_NOTIFICATIONS "gRandoSettings.RandoNotifications"
+#define CVAR_SHOW_RANDO_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_RANDO_NOTIFICATIONS, 1)
 
 #define JIGGY_ID_MULTIPLIER(levelId) (1 + (10 * (levelId - 1)))
 #define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
 
 static std::queue<RandoCheckId> itemQueue;
-
-std::unordered_map<actor_e, UIWidgets::Colors> itemColors = {
-    { ACTOR_1_UNKNOWN, UIWidgets::Colors::Brown },           { ACTOR_52_BLUE_EGG, UIWidgets::Colors::Cyan },
-    { ACTOR_47_EMPTY_HONEYCOMB, UIWidgets::Colors::Yellow }, { ACTOR_49_EXTRA_LIFE, UIWidgets::Colors::Yellow },
-    { ACTOR_50_HONEYCOMB, UIWidgets::Colors::Yellow },       { ACTOR_46_JIGGY, UIWidgets::Colors::Yellow },
-    { ACTOR_60_JINJO_BLUE, UIWidgets::Colors::SkyBlue },     { ACTOR_62_JINJO_GREEN, UIWidgets::Colors::Green },
-    { ACTOR_5F_JINJO_ORANGE, UIWidgets::Colors::Orange },    { ACTOR_61_JINJO_PINK, UIWidgets::Colors::Pink },
-    { ACTOR_5E_JINJO_YELLOW, UIWidgets::Colors::Yellow },    { ACTOR_12C_MOLEHILL, UIWidgets::Colors::Cyan },
-    { ACTOR_2D_MUMBO_TOKEN, UIWidgets::Colors::Gray },       { ACTOR_51_MUSIC_NOTE, UIWidgets::Colors::Yellow },
-    { ACTOR_25E_SNS_EGG, UIWidgets::Colors::Pink },          { ACTOR_25D_ICE_KEY, UIWidgets::Colors::White },
-};
-
-std::unordered_map<RandoItemId, UIWidgets::Colors> snsColors = {
-    { RI_STOP_N_SWOP_EGG_YELLOW, UIWidgets::Colors::Yellow }, { RI_STOP_N_SWOP_EGG_RED, UIWidgets::Colors::Red },
-    { RI_STOP_N_SWOP_EGG_GREEN, UIWidgets::Colors::Green },   { RI_STOP_N_SWOP_EGG_BLUE, UIWidgets::Colors::Blue },
-    { RI_STOP_N_SWOP_EGG_PINK, UIWidgets::Colors::Pink },     { RI_STOP_N_SWOP_EGG_CYAN, UIWidgets::Colors::Cyan },
-    { RI_STOP_N_SWOP_ICE_KEY, UIWidgets::Colors::White },
-};
-
-std::unordered_map<int16_t, RandoCheckId> jinjoJiggyChecks = {
-    { LEVEL_1_MUMBOS_MOUNTAIN, RC_MM_JIGGY_JINJO },      { LEVEL_2_TREASURE_TROVE_COVE, RC_TTC_JIGGY_JINJO },
-    { LEVEL_3_CLANKERS_CAVERN, RC_CC_JIGGY_JINJO },      { LEVEL_4_BUBBLEGLOOP_SWAMP, RC_BGS_JIGGY_JINJO },
-    { LEVEL_5_FREEZEEZY_PEAK, RC_FP_JIGGY_JINJO },       { LEVEL_7_GOBIS_VALLEY, RC_GV_JIGGY_JINJO },
-    { LEVEL_8_CLICK_CLOCK_WOOD, RC_CCW_JIGGY_JINJO },    { LEVEL_9_RUSTY_BUCKET_BAY, RC_RBB_JIGGY_JINJO },
-    { LEVEL_A_MAD_MONSTER_MANSION, RC_MMM_JIGGY_JINJO },
-};
 
 void ItemQueue::Process() {
     if (itemQueue.size() < 1) {
@@ -80,7 +54,9 @@ void ItemQueue::Process() {
     RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
     if (!randoSaveCheck.received) {
         ItemQueue::GiveItem(randoSaveCheck.randoItemId);
-        ItemQueue::SendNotification(randoSaveCheck.randoItemId);
+        if (CVAR_SHOW_RANDO_NOTIFICATIONS) {
+            Rando::Helpers::SendNotification(randoSaveCheck.randoItemId, "You");
+        }
         Rando::StaticData::ModifyRandoInfFlagState(randoCheckId);
         RANDO_SAVE_CHECKS[randoCheckId].received = true;
     }
@@ -151,7 +127,7 @@ void ItemQueue::GiveItem(RandoItemId randoItemId) {
             collectedJinjos = collectedBits(worldId);
             collectedJinjos |= jinjoBitFromActor(actorId);
             if (collectedJinjos == kAllJinjos) {
-                ItemQueue::AddCheck(jinjoJiggyChecks[worldId]);
+                ItemQueue::AddCheck(Rando::StaticData::JinjoJiggyChecks[worldId]);
             }
             setCollectedBits(worldId, collectedJinjos);
             // Spawn vanilla jinjo on top of the player because the animation is too complex to handle without doing
@@ -286,42 +262,6 @@ void ItemQueue::GiveItem(RandoItemId randoItemId) {
             break;
         default:
             break;
-    }
-}
-
-void ItemQueue::SendNotification(RandoItemId randoItemId) {
-    if (CVAR_SHOW_COLLISION_NOTIFICATIONS) {
-        RandoItemType itemType = Rando::StaticData::Items[randoItemId].randoItemType;
-        actor_e actorId = (actor_e)Rando::StaticData::Items[randoItemId].actorId;
-        std::string prefix = "";
-        std::string message = Rando::StaticData::Items[randoItemId].name;
-        std::string suffix = "";
-        ImVec4 itemColor = UIWidgets::ColorValues.at(itemColors[actorId]);
-
-        if (itemType == RITYPE_MOLEHILL) {
-            prefix = "You learned";
-        } else if (itemType == RITYPE_SNS_EGG || itemType == RITYPE_SNS_KEY) {
-            int32_t totalsnsItems = Rando::Logic::GetTotalSnsItemsCollected();
-            prefix = "You collected ";
-            prefix += Rando::StaticData::Items[randoItemId].article;
-            suffix = "(";
-            suffix += std::to_string(totalsnsItems);
-            suffix += " / 7)";
-
-            itemColor = UIWidgets::ColorValues.at(snsColors[randoItemId]);
-        } else {
-            prefix = "You collected ";
-            prefix += Rando::StaticData::Items[randoItemId].article;
-        }
-
-        Notification::Emit({
-            .prefix = prefix,
-            .prefixColor = UIWidgets::ColorValues.at(UIWidgets::Colors::White),
-            .message = message,
-            .messageColor = itemColor,
-            .suffix = suffix,
-            .suffixColor = UIWidgets::ColorValues.at(UIWidgets::Colors::White),
-        });
     }
 }
 

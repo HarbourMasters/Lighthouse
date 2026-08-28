@@ -520,9 +520,9 @@ bool OverrideBundleSpawn(bundle_e bundleId, BundleInfo* bundleInfo, s32 bundleCo
     Actor* actor = CustomCollectible::Spawn(position, randoBundleInfo.randoCheckId);
     if (actor != NULL) {
         if (randoBundleInfo.customPhysics) {
-            ApplyCustomActorPhysics(randoBundleInfo.randoCheckId, actor, false);
+            CustomCollectible::ApplyCustomPhysics(randoBundleInfo.randoCheckId, actor, false);
         } else {
-            ApplyBundleActorPhysics(actor, bundleId, (BundleInfo*)bundleInfo, gBundle_yaw);
+            CustomCollectible::ApplyBundlePhysics(actor, bundleId, (BundleInfo*)bundleInfo, gBundle_yaw);
         }
     }
 

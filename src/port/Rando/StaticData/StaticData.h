@@ -1,8 +1,8 @@
 #ifndef RANDO_STATIC_DATA_H
 #define RANDO_STATIC_DATA_H
 
+#include "port/UI/UIWidgets.hpp"
 #include <map>
-#include <unordered_map>
 #include <array>
 #include <string>
 #include "port/Rando/Types.h"
@@ -12,8 +12,6 @@
 namespace Rando {
 
 namespace StaticData {
-void SendCollisionNotification(RandoCheckId randoCheckId);
-void SendRemoteCheckNotification(RandoCheckId randoCheckId, const std::string& collectorName);
 
 struct RandoLogicData {
     const char* name;
@@ -58,19 +56,9 @@ RandoItemId GetRandoItemByActorId(actor_e actorId);
 actor_e GetActorIdByRandoItemId(RandoItemId randoItemId);
 
 extern std::map<RandoItemId, RandoStaticItem> Items;
-
-// struct RandoStaticEntrance {
-//     RandoEntranceId randoEntranceId;
-//     const char* name;
-//     int16_t destinationId;
-//     RandoEntranceType randoEntranceType;
-//     WarpNodes deathWarpId;
-//     int16_t deathArea;
-// };
-
-// extern std::map<RandoEntranceId, RandoStaticEntrance> Entrances;
-
-// RandoEntranceId GetEntranceIdFromDestination(int16_t destinationId);
+extern std::unordered_map<actor_e, UIWidgets::Colors> ItemColors;
+extern std::unordered_map<RandoItemId, UIWidgets::Colors> SnsColors;
+extern std::unordered_map<int16_t, RandoCheckId> JinjoJiggyChecks;
 
 struct RandoStaticOption {
     RandoOptionId randoOptionId;

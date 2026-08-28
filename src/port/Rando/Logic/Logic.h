@@ -2,6 +2,7 @@
 #define RANDO_LOGIC_H
 
 #include "port/Rando/Rando.h"
+#include "port/Rando/StaticData/StaticData.h"
 #include "port/ShipUtils.h"
 
 #include <unordered_set>

@@ -1,5 +1,6 @@
 #include "MiscBehavior.h"
 #include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/StaticData/StaticData.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "spdlog/spdlog.h"
