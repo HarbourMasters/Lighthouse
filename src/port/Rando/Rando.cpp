@@ -24,14 +24,6 @@ void Rando::Init() {
     }
 
     Rando::Spoiler::RefreshSpoilerLogs();
-    Rando::MiscBehavior::Init();
     // Rando::EntranceTracker::Init();
     // Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(Rando::Spoiler::HandleFileDropped);
-
-    REGISTER_LISTENER(InitRandoEvents, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        InitRandoEvents* ev = (InitRandoEvents*)event;
-
-        Rando::ObjectBehavior::Init();
-        Rando::CheckTracker::Init();
-    });
 }
