@@ -282,64 +282,6 @@ void Rando::ObjectBehavior::Init() {
         ev->result = randoCustomActor;
     })
 
-    COND_HOOK(OnSaveActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
-        OnSaveActorSaveState* ev = (OnSaveActorSaveState*)event;
-
-        if (!IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex)) {
-            return;
-        }
-
-        randoSaveState.insert(
-            { (RandoCheckId)ev->actor->marker->randoCheckId,
-              { ev->actor->marker->propPtr->x, ev->actor->marker->propPtr->y, ev->actor->marker->propPtr->z } });
-    })
-
-    COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
-        OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
-
-        // Decide up front whether this restore is ours: anything we don't manage falls
-        // through to the vanilla restore untouched. The predicate has to be the same one
-        // the save side recorded under, junk included.
-        if (!IsActorWhitelisted((actor_e)ev->actor->modelCacheIndex)) {
-            return;
-        }
-
-        if (randoSaveState.empty()) {
-            return;
-        }
-
-        int32_t position[3];
-        position[0] = ev->posX;
-        position[1] = ev->posY;
-        position[2] = ev->posZ;
-
-        RandoCheckId randoCheckId = RC_UNKNOWN;
-        for (auto& [checkId, location] : randoSaveState) {
-            if (std::get<0>(location) == ev->posX && std::get<1>(location) == ev->posY &&
-                std::get<2>(location) == ev->posZ) {
-                randoCheckId = checkId;
-                break;
-            }
-        }
-
-        if (randoCheckId == RC_UNKNOWN) {
-            return;
-        }
-
-        // The check already has a live actor. Restoring would stack a second one on
-        // top of it, so drop the restore entirely.
-        if (CustomObject::CheckSpawnedIdList(randoCheckId)) {
-            event->Cancelled = true;
-            return;
-        }
-
-        // refActor keeps an obtained check restoring the junk actor it was saved as
-        // instead of rolling a fresh one.
-        CustomObject::ShouldCreateCustomActorEX(randoCheckId, position, false, ev->actor);
-        randoSaveState.erase(randoCheckId);
-        event->Cancelled = true;
-    })
-
     COND_HOOK(OnActorCollision, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         OnActorCollision* ev = (OnActorCollision*)event;
         RandoItemId randoItemId = RI_UNKNOWN;

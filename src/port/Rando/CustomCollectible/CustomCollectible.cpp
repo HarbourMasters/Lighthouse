@@ -286,19 +286,6 @@ void CustomCollectible::ProcessPropQueue() {
 }
 
 void RegisterCustomCollectible() {
-    COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
-        OnLoadActorSaveState* ev = (OnLoadActorSaveState*)event;
-
-        // Decide up front whether this restore is ours: anything we don't manage falls
-        // through to the vanilla restore untouched. The predicate has to be the same one
-        // the save side recorded under, junk included.
-        if ((actor_e)ev->actor->modelCacheIndex != ACTOR_3CD_CUSTOM_COLLECTIBLE) {
-            return;
-        }
-        return;
-        event->Cancelled = true;
-    });
-
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, IS_RANDO,
               [](IEvent* event) { CustomCollectible::ProcessPropQueue(); });
 }
