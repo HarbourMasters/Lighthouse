@@ -1,6 +1,6 @@
 #include "GameplayTools.h"
 #include "CameraTools.h"
-#include "WarpCatalog.h"
+#include "Warps.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
@@ -216,88 +216,6 @@ void GameplayTools_SpawnPosition() {
     }
 }
 
-void GameplayTools_PlayerTools() {
-    player_getPosition_s32(playerPosition);
-
-    ImGui::SeparatorText("Player Position");
-    ImGui::Text("Current Map ID: %i", gsworld_getMap());
-
-    if (ImGui::BeginTable("CurrentPlayerPosition", 2)) {
-        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 70.0f);
-        ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 100.0f);
-        ImGui::TableNextColumn();
-
-        ImGui::Text("Pos X: ");
-        ImGui::TableNextColumn();
-        ImGui::Text(std::to_string(playerPosition[0]).c_str());
-        ImGui::TableNextColumn();
-
-        ImGui::Text("Pos Y: ");
-        ImGui::TableNextColumn();
-        ImGui::Text(std::to_string(playerPosition[1]).c_str());
-        ImGui::TableNextColumn();
-
-        ImGui::Text("Pos Z: ");
-        ImGui::TableNextColumn();
-        ImGui::Text(std::to_string(playerPosition[2]).c_str());
-
-        ImGui::EndTable();
-    }
-
-    ImGui::SeparatorText("Warp Player");
-    if (ImGui::BeginTable("WarpPlayer", 2)) {
-        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 70.0f);
-        ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 250.0f);
-        ImGui::TableNextColumn();
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
-        ImGui::Text("Pos X: ");
-        ImGui::TableNextColumn();
-        static std::string warpPosX = "0";
-        if (UIWidgets::InputString("##WarpPosX", &warpPosX,
-                                   UIWidgets::InputOptions()
-                                       .Size(ImGui::GetContentRegionAvail() -
-                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
-                                       .Color(THEME_COLOR))) {}
-        ImGui::TableNextColumn();
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
-        ImGui::Text("Pos Y: ");
-        ImGui::TableNextColumn();
-        static std::string warpPosY = "0";
-        if (UIWidgets::InputString("##WarpPosY", &warpPosY,
-                                   UIWidgets::InputOptions()
-                                       .Size(ImGui::GetContentRegionAvail() -
-                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
-                                       .Color(THEME_COLOR))) {}
-        ImGui::TableNextColumn();
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
-        ImGui::Text("Pos Z: ");
-        ImGui::TableNextColumn();
-        static std::string warpPosZ = "0";
-        if (UIWidgets::InputString("##WarpPosZ", &warpPosZ,
-                                   UIWidgets::InputOptions()
-                                       .Size(ImGui::GetContentRegionAvail() -
-                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
-                                       .Color(THEME_COLOR))) {}
-
-        ImGui::EndTable();
-        if (UIWidgets::Button("Warp Player",
-                              UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
-            f32 warpPosition[3] = { std::stof(warpPosX), std::stof(warpPosY), std::stof(warpPosZ) };
-            playerPosition_set(warpPosition);
-        }
-        ImGui::SameLine();
-        if (UIWidgets::Button("Copy Current Player Coords",
-                              UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
-            warpPosX = std::to_string(playerPosition[0]);
-            warpPosY = std::to_string(playerPosition[1]);
-            warpPosZ = std::to_string(playerPosition[2]);
-        }
-    }
-}
-
 void GameplayTools_ObjectSpawner() {
     player_getPosition_s32(playerPosition);
     GameplayTools_SpawnPosition();
@@ -497,19 +415,6 @@ void GameplayTools_ObjectSpawner() {
     }
 }
 
-void DrawGameplayToolsEntranceRecorder() {
-    // The recorder is fixed height and scrolls its own arrival list, so it draws
-    // inline; only the catalog below it needs to claim the leftover space.
-    ImGui::SeparatorText("Entrance Recorder");
-    DrawEntranceRecorder();
-
-    ImGui::SeparatorText("Catalog");
-    if (ImGui::BeginChild("WarpCatalogChild")) {
-        DrawWarpCatalog();
-        ImGui::EndChild();
-    }
-}
-
 void DrawGrantUnlocks() {
     if (UIWidgets::Button("Unlock Moves", { .color = THEME_COLOR })) {
         ability_setAllLearned(-1);
@@ -590,20 +495,12 @@ void DrawMonitoringTools() {
 void GameplayTools_DrawTabBar() {
     UIWidgets::PushStyleTabs(THEME_COLOR);
     if (ImGui::BeginTabBar("GameplayToolsTabBar")) {
-        if (ImGui::BeginTabItem("Player Tools")) {
-            GameplayTools_PlayerTools();
-            ImGui::EndTabItem();
-        }
         if (ImGui::BeginTabItem("Spawn Object")) {
             GameplayTools_ObjectSpawner();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Warp")) {
-            DrawWarpTab();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Entrance Recorder")) {
-            DrawGameplayToolsEntranceRecorder();
+        if (ImGui::BeginTabItem("Warps")) {
+            DrawWarpsTab();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Grant Unlocks")) {

@@ -10,7 +10,7 @@ struct MapNameEntry {
     const char* displayName;
 };
 
-inline constexpr MapNameEntry kMapNames[MAP_NUM_MAPS] = {
+inline constexpr MapNameEntry mapNames[MAP_NUM_MAPS] = {
     { "MAP_0_UNKNOWN", "Unknown" }, // 0x00
     { "MAP_1_SM_SPIRAL_MOUNTAIN", "SM Spiral Mountain" }, // 0x01
     { "MAP_2_MM_MUMBOS_MOUNTAIN", "MM Mumbo's Mountain" }, // 0x02
