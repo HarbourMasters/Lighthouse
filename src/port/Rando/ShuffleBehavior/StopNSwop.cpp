@@ -1,6 +1,6 @@
-#include "ObjectBehavior.h"
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Rando/Rando.h"
 
 extern "C" {
 void marker_despawn(ActorMarker* marker);

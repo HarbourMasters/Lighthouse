@@ -87,6 +87,9 @@ void RegisterMiscBehaviour() {
 
         selectedFileNum = DEFAULT_FILE_NUM;
     });
+
+    COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO,
+              [](IEvent* event) { Rando::Logic::RefreshReachableRegions(); })
 }
 
 static RegisterShipInitFunc initFunc(RegisterMiscBehaviour, { "IS_RANDO" });

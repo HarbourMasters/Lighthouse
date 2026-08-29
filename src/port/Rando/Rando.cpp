@@ -1,16 +1,9 @@
 #include "Rando.h"
-#include <ship/Context.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "ShuffleBehavior/ObjectBehavior.h"
-#include "MiscBehavior/MiscBehavior.h"
-#include "port/Rando/CheckTracker/CheckTracker.h"
 // #include "port/Rando/EntranceTracker/EntranceTracker.h"
 #include "port/Rando/Spoiler/Spoiler.h"
 #include "port/ShipInit.hpp"
 
-#include "spdlog/spdlog.h"
-
-#include <fstream>
 #include <filesystem>
 namespace fs = std::filesystem;
 

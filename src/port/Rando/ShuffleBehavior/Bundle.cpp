@@ -1,6 +1,4 @@
-#include "ObjectBehavior.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "port/ShipInit.hpp"
@@ -17,6 +15,41 @@ typedef struct {
 } RandoBundleInfo;
 
 int32_t vileCount = 0;
+
+std::vector<RandoCheckId> enemyKillOverlapList = {
+    RC_CC_MUMBO_TOKEN_CHOMPA_BEHIND_CLANKERS_TAIL, RC_CCW_NOTE_SPRING_LOWER_TREE_LEDGE_1,
+    RC_CCW_NOTE_SPRING_LOWER_TREE_LEDGE_2,         RC_CCW_NOTE_SPRING_LOWER_TREE_LEDGE_3,
+    RC_CCW_NOTE_SPRING_LOWER_TREE_LEDGE_4,         RC_CCW_NOTE_SPRING_LOWER_TREE_LEDGE_5,
+    RC_CCW_NOTE_SPRING_LOWER_TREE_LEDGE_6,
+};
+
+bool CheckEnemyOverlapPosition(int32_t pos[3]) {
+    level_e levelId = map_getLevel(gsworld_getMap());
+    bool enemyOverlap = false;
+
+    for (auto& check : enemyKillOverlapList) {
+        if (Rando::StaticData::Checks[check].worldId != levelId) {
+            continue;
+        }
+
+        int32_t checkPosition[3];
+        checkPosition[0] = Rando::StaticData::Checks[check].posX;
+        checkPosition[1] = Rando::StaticData::Checks[check].posY;
+        checkPosition[2] = Rando::StaticData::Checks[check].posZ;
+
+        int32_t posMatches = 0;
+        for (int i = 0; i < 3; i++) {
+            if (pos[i] == checkPosition[i]) {
+                posMatches++;
+            }
+        }
+        if (posMatches == 3) {
+            enemyOverlap = true;
+        }
+    }
+
+    return enemyOverlap;
+}
 
 RandoBundleInfo IdentifyBundle(bundle_e bundleId, BundleInfo* bundleInfo, s32 bundleCount, f32 spawnPosition[3]) {
     map_e currentMap = gsworld_getMap();

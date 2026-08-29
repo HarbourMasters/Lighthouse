@@ -4,8 +4,6 @@
 #include "port/UI/LighthouseModals.h"
 #include "port/ResourceHelpers.h"
 #include "port/UI/UIWidgets.hpp"
-
-#include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/Spoiler/Spoiler.h"
 

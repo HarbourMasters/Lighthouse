@@ -3,7 +3,6 @@
 #include "Warps.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
@@ -78,6 +77,46 @@ std::map<StopNSwop_Item, std::tuple<const char*, UIWidgets::Colors, bool>> snsDa
     { SNS_ITEM_EGG_PINK, { "SNS Pink Egg", UIWidgets::Colors::Pink, false } },
     { SNS_ITEM_EGG_CYAN, { "SNS Cyan Egg", UIWidgets::Colors::Cyan, false } },
 };
+
+extern "C" {
+extern ActorInfo chJinjoBlue;
+extern ActorInfo chJinjoGreen;
+extern ActorInfo chJinjoYellow;
+extern ActorInfo chJinjoPink;
+extern ActorInfo chJinjoOrange;
+extern ActorInfo chJiggy;
+extern ActorInfo chEmptyHoneycomb;
+extern ActorInfo chMumboToken;
+extern ActorInfo sumusicNote;
+extern ActorInfo chExtraLife;
+extern ActorInfo chHoneycomb;
+extern ActorInfo chBlueEgg;
+extern ActorInfo chRedFeather;
+extern ActorInfo chGoldFeather;
+extern ActorInfo chSnsEgg;
+extern ActorInfo chIceKey;
+}
+
+// clang-format off
+std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
+    { ACTOR_2D_MUMBO_TOKEN,     { chMumboToken,       ACTOR_FLAG_UNKNOWN_6 } },
+    { ACTOR_46_JIGGY,           { chJiggy,          ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_47_EMPTY_HONEYCOMB, { chEmptyHoneycomb, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_49_EXTRA_LIFE,      { chExtraLife,      ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_51_MUSIC_NOTE,      { sumusicNote,      ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_5E_JINJO_YELLOW,    { chJinjoYellow,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
+    { ACTOR_5F_JINJO_ORANGE,    { chJinjoOrange,    ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
+    { ACTOR_60_JINJO_BLUE,      { chJinjoBlue,      ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
+    { ACTOR_61_JINJO_PINK,      { chJinjoPink,      ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
+    { ACTOR_62_JINJO_GREEN,     { chJinjoGreen,     ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 } },
+    { ACTOR_50_HONEYCOMB,       { chHoneycomb,       ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_52_BLUE_EGG,        { chBlueEgg,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_129_RED_FEATHER,    { chRedFeather,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_370_GOLD_FEATHER,   { chGoldFeather,       ACTOR_FLAG_UNKNOWN_21 } },
+    { ACTOR_25E_SNS_EGG,        { chSnsEgg,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+    { ACTOR_25D_ICE_KEY,        { chIceKey,       ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15 } },
+};
+// clang-format on
 
 // clang-format off
 std::vector<GameplayToolsMapData> mapSpecificFlagList = {

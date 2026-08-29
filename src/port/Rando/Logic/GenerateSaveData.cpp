@@ -3,7 +3,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "port/Rando/CustomObject/CustomObject.h"
+#include "port/Rando/ItemQueue/ItemQueue.h"
 
 #include "port/Save/Types.h"
 
@@ -121,8 +121,6 @@ void Rando::Logic::InitializeSaveData(SaveData* saveData) {
         RandoSaveCheck randoSaveCheck = {
             .name = randoStaticCheck.name,
             .randoItemId = randoStaticCheck.randoItemId,
-            // .randoItemId = Rando::StaticData::GetRandoItemByActorId((actor_e)randoStaticCheck.actorId),
-            .randoCollectionId = randoStaticCheck.collectionId,
             .isShuffled = false,
             .eligible = false,
             .skipped = false,
@@ -187,9 +185,6 @@ void Rando::Logic::GrantSpiralMountainChecks() {
             continue;
         }
 
-        CustomObject::CheckObtainedEX(smCheckId, true);
-        if (Rando::StaticData::Items[randoSaveCheck.randoItemId].randoItemType == RITYPE_MOLEHILL) {
-            ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, true);
-        }
+        ItemQueue::AddCheck(smCheckId);
     }
 }

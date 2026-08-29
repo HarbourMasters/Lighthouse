@@ -2,7 +2,6 @@
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/GameStatus.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/Rando/ShuffleBehavior/ObjectBehavior.h"
 #include "port/Save/Types.h"
 #include "port/ShipUtils.h"
 #include "port/UI/UIWidgets.hpp"
@@ -35,6 +34,12 @@ std::vector<const char*> jinjoTextureNameList = { "Blue Jinjo", "Green Jinjo", "
 
 std::vector<actor_e> orderedJinjoActorList = { ACTOR_60_JINJO_BLUE, ACTOR_62_JINJO_GREEN, ACTOR_5F_JINJO_ORANGE,
                                                ACTOR_61_JINJO_PINK, ACTOR_5E_JINJO_YELLOW };
+
+std::map<actor_e, int32_t> jinjoMarkerMap = { { ACTOR_60_JINJO_BLUE, MARKER_5A_JINJO_BLUE },
+                                              { ACTOR_5E_JINJO_YELLOW, MARKER_5E_JINJO_YELLOW },
+                                              { ACTOR_62_JINJO_GREEN, MARKER_5B_JINJO_GREEN },
+                                              { ACTOR_61_JINJO_PINK, MARKER_5D_JINJO_PINK },
+                                              { ACTOR_5F_JINJO_ORANGE, MARKER_5C_JINJO_ORANGE } };
 
 namespace LighthouseGui {
 extern std::shared_ptr<WorldTracker::WorldTrackerWindow> mWorldTrackerWindow;
@@ -209,44 +214,6 @@ void WorldTracker_DrawTracker() {
     }
 }
 
-uint8_t WorldTracker_GetJinjoBits(int32_t levelId) {
-    if (!IS_RANDO) {
-        return collectedBits(levelId);
-    }
-
-    uint8_t jinjoBits = 0;
-
-    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_JINJOS].optionValue) {
-        for (auto& pool : Rando::Logic::shuffledPool) {
-            if (pool.obtained && pool.randoItemId >= RI_JINJO_BLUE && pool.randoItemId <= RI_JINJO_YELLOW &&
-                Rando::StaticData::Checks[pool.shuffledCheckId].worldId == levelId) {
-                jinjoBits |= jinjoBitFromActor(Rando::StaticData::Items[pool.randoItemId].actorId);
-            }
-        }
-        return jinjoBits;
-    }
-
-    for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
-        if (randoStaticCheck.randoCheckType != RCTYPE_JIGGY || randoStaticCheck.collectionId != (10 * levelId) - 9) {
-            continue;
-        }
-
-        bool jinjoJiggyCollected = Rando::Logic::IsCheckShuffled(randoCheckId)
-                                       ? Rando::Logic::IsCheckObtained(randoCheckId)
-                                       : jiggyscore_isCollected((enum jiggy_e)randoStaticCheck.collectionId);
-        if (jinjoJiggyCollected) {
-            return 0x1F;
-        }
-        break;
-    }
-
-    if (levelId == level_get()) {
-        jinjoBits = item_getCount(ITEM_12_JINJOS) & 0x1F;
-    }
-
-    return jinjoBits;
-}
-
 namespace WorldTracker {
 
 WorldTrackerObject worldTrackerObject[LEVEL_C_BOSS];
@@ -282,7 +249,7 @@ void UpdateWorldTracker() {
     for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i <= LEVEL_B_SPIRAL_MOUNTAIN; i++) {
         int32_t tokenMaxCount = kWorlds[i - 1].mumboStart + kWorlds[i - 1].mumboCount;
         int32_t collectedTokens = 0;
-        uint8_t collectedJinjos = WorldTracker_GetJinjoBits(i);
+        uint8_t collectedJinjos = collectedBits(i);
 
         worldTrackerObject[i].noteLevelTotal = sItemscoreNoteScores[i];
         worldTrackerObject[i].jiggyLevelTotal = jiggyscore_leveltotal(i);
@@ -296,8 +263,7 @@ void UpdateWorldTracker() {
         worldTrackerObject[i].tokenLevelTotal = collectedTokens;
 
         for (int j = 0; j < 5; j++) {
-            int32_t jinjoIndex =
-                (GetJinjoActorMarkerId((actor_e)(int32_t)(ACTOR_5E_JINJO_YELLOW + j)) - MARKER_5A_JINJO_BLUE);
+            int32_t jinjoIndex = jinjoMarkerMap[(actor_e)(ACTOR_5E_JINJO_YELLOW + j)] - MARKER_5A_JINJO_BLUE;
             u8 jinjoBit = jinjoBitFromActor(ACTOR_5E_JINJO_YELLOW + j);
             worldTrackerObject[i].hasJinjo[jinjoIndex] = (collectedJinjos & jinjoBit) != 0 ? 1 : 0;
         }

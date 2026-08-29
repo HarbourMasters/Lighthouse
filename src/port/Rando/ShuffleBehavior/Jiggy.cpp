@@ -1,8 +1,6 @@
-#include "ObjectBehavior.h"
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Rando/Logic/Logic.h"
-#include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
 
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_JIGGIES].optionValue

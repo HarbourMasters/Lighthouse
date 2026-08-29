@@ -3,7 +3,6 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/WorldState/WorldState.h"
-#include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Rando/ItemQueue/ItemQueue.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/GameStatus.h"
