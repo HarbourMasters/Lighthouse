@@ -118,7 +118,6 @@ std::map<actor_e, std::pair<ActorInfo, int32_t>> actorInfoMap = {
 };
 // clang-format on
 
-
 // clang-format off
 std::vector<GameplayToolsMapData> mapSpecificFlagList = {
     { MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED,					"MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED", 					LEVEL_1_MUMBOS_MOUNTAIN },

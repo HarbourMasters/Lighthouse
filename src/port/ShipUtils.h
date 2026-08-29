@@ -19,9 +19,9 @@ extern std::vector<file_progress_e> worldOpenFlags;
 extern std::vector<std::string> abilityNameList;
 
 inline constexpr const char* worldNameList[] = {
-    "Unknown",           "Mumbo's Mountain",  "Treasure Trove Cove", "Clanker's Cavern",
-    "Bubblegloop Swamp", "Freezeezy Peak",    "Gruntilda's Lair",    "Gobi's Valley",
-    "Click Clock Wood",  "Rusty Bucket Bay",  "Mad Monster Mansion", "Spiral Mountain",
+    "Unknown",           "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern",
+    "Bubblegloop Swamp", "Freezeezy Peak",   "Gruntilda's Lair",    "Gobi's Valley",
+    "Click Clock Wood",  "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
     "Boss Arena",        "Cutscenes",
 };
 

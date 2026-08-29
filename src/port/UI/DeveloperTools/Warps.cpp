@@ -372,10 +372,18 @@ constexpr struct {
 };
 
 constexpr int32_t quickWarpMaps[] = {
-    MAP_2_MM_MUMBOS_MOUNTAIN,    MAP_7_TTC_TREASURE_TROVE_COVE, MAP_B_CC_CLANKERS_CAVERN,
-    MAP_D_BGS_BUBBLEGLOOP_SWAMP, MAP_27_FP_FREEZEEZY_PEAK,      MAP_12_GV_GOBIS_VALLEY,
-    MAP_40_CCW_HUB,              MAP_31_RBB_RUSTY_BUCKET_BAY,   MAP_1B_MMM_MAD_MONSTER_MANSION,
-    MAP_1_SM_SPIRAL_MOUNTAIN,    MAP_7B_CS_INTRO_GL_DINGPOT_1,  MAP_69_GL_MM_LOBBY,
+    MAP_2_MM_MUMBOS_MOUNTAIN,
+    MAP_7_TTC_TREASURE_TROVE_COVE,
+    MAP_B_CC_CLANKERS_CAVERN,
+    MAP_D_BGS_BUBBLEGLOOP_SWAMP,
+    MAP_27_FP_FREEZEEZY_PEAK,
+    MAP_12_GV_GOBIS_VALLEY,
+    MAP_40_CCW_HUB,
+    MAP_31_RBB_RUSTY_BUCKET_BAY,
+    MAP_1B_MMM_MAD_MONSTER_MANSION,
+    MAP_1_SM_SPIRAL_MOUNTAIN,
+    MAP_7B_CS_INTRO_GL_DINGPOT_1,
+    MAP_69_GL_MM_LOBBY,
     MAP_90_GL_BATTLEMENTS,
 };
 
@@ -591,7 +599,8 @@ void DrawPlayerTools() {
         ImGui::EndTable();
     }
 
-    if (UIWidgets::Button("Warp Player", UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
+    if (UIWidgets::Button("Warp Player",
+                          UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
         try {
             f32 target[3] = { std::stof(warpPos[0]), std::stof(warpPos[1]), std::stof(warpPos[2]) };
             playerPosition_set(target);
