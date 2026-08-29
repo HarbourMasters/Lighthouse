@@ -123,7 +123,7 @@ void SaveEditor_DrawUnlocks() {
             for (int i = FILEPROG_31_MM_OPEN; i <= FILEPROG_39_CCW_OPEN; i++) {
                 ImGui::PushID(i);
                 bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
-                std::string worldName = "Unlock " + worldNameList[progressToLevelMap.at(i) - 1];
+                std::string worldName = "Unlock " + std::string(worldNameList[progressToLevelMap.at(i)]);
                 if (UIWidgets::Checkbox(worldName.c_str(), &isUnlocked)) {
                     if (fileProgressFlag_get((file_progress_e)i)) {
                         fileProgressFlag_set((file_progress_e)i, false);
@@ -270,7 +270,7 @@ void SaveEditor_DrawProgressTab() {
                 continue;
             }
 
-            ImGui::SeparatorText(worldNameList[level - 1].c_str());
+            ImGui::SeparatorText(worldNameList[level]);
             if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
                 ImGui::TableNextColumn();
 

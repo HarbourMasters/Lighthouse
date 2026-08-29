@@ -187,7 +187,11 @@ enum level_e map_getLevel(enum map_e map){
     if (remap >= 0) {
         return (enum level_e)remap;
     }
-    return func_8030AD00(map)->level_id;
+    MapInfo* info = func_8030AD00(map);
+    if (info == NULL) {
+        return 0;
+    }
+    return info->level_id;
 }
 
 /* returns string containing the map name and index */

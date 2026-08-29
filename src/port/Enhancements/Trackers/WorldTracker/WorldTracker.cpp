@@ -129,7 +129,7 @@ void WorldTracker_DrawWorldObject(level_e levelId) {
     ImGui::PushID(levelId);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding,
                         ImVec2(ImGui::GetStyle().CellPadding.x, ImGui::GetStyle().CellPadding.y + 2.0f));
-    std::string levelName = worldNameList[levelId - 1].c_str();
+    std::string levelName = worldNameList[levelId];
     int32_t maxEHoneycombs = levelId == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
 
     WorldTracker_PushImageButtonStyle();

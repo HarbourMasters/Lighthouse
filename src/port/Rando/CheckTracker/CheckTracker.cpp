@@ -201,7 +201,7 @@ void DrawCheckTrackerList() {
             continue;
         }
 
-        std::string headerName = port_levelName((level_e)i);
+        std::string headerName = worldNameList[i];
         if (CVAR_SHOW_WORLD_CHECKS) {
             headerName += " ";
             headerName += CheckTracker_GetWorldCheckCountString((level_e)i);
