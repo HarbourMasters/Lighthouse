@@ -34,6 +34,12 @@ struct WarpEntranceInfo {
     uint32_t yaw;
 };
 
+// A table row plus the button label built for it at startup.
+struct WarpListEntry {
+    const WarpEntry* entry;
+    std::string label;
+};
+
 // clang-format off
 // Generated from the map_warp_* enums in enums.h. Entrance indices are written as
 // their enum constants; the enum tags were matched to maps against the warp
@@ -41,15 +47,15 @@ struct WarpEntranceInfo {
 // Indices with no constant (demo slots, Furnace Fun) stay as literals.
 constexpr WarpEntry warpsInfo[] = {
     // LEVEL_1_MUMBOS_MOUNTAIN
-    { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_1_MUMBOS_HUT, LEVEL_1_MUMBOS_MOUNTAIN, "Outside Mumbo's Skull" },
+    { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_1_MUMBOS_HUT, LEVEL_1_MUMBOS_MOUNTAIN, "Outside Mumbo's Hut" },
     { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_2_TOWER_BOTTOM, LEVEL_1_MUMBOS_MOUNTAIN, "Outside Ticker's Bottom" },
     { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_3_TOWER_TOP, LEVEL_1_MUMBOS_MOUNTAIN, "Outside Ticker's Top" },
-    { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_4_WITCH_SWITCH, LEVEL_1_MUMBOS_MOUNTAIN, "Witch Switch Return" },
+    { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_4_WITCH_SWITCH, LEVEL_1_MUMBOS_MOUNTAIN, "Witch Switch" },
     { MAP_2_MM_MUMBOS_MOUNTAIN, WARP_MM_5_WORLD_ENTRACE, LEVEL_1_MUMBOS_MOUNTAIN, "Warp Pad" },
     { MAP_2_MM_MUMBOS_MOUNTAIN, 91, LEVEL_1_MUMBOS_MOUNTAIN, "Demo" },
-    { MAP_C_MM_TICKERS_TOWER, WARP_MM_TICKERS_TOWER_1_TOP, LEVEL_1_MUMBOS_MOUNTAIN, "Ticker's Tower Top" },
-    { MAP_C_MM_TICKERS_TOWER, WARP_MM_TICKERS_TOWER_2_BOTTOM, LEVEL_1_MUMBOS_MOUNTAIN, "Ticker's Tower Bottom" },
-    { MAP_E_MM_MUMBOS_SKULL, WARP_MM_MUMBOS_HUT_1_ENTRANCE, LEVEL_1_MUMBOS_MOUNTAIN, "Mumbo's Skull" },
+    { MAP_C_MM_TICKERS_TOWER, WARP_MM_TICKERS_TOWER_1_TOP, LEVEL_1_MUMBOS_MOUNTAIN, "Top" },
+    { MAP_C_MM_TICKERS_TOWER, WARP_MM_TICKERS_TOWER_2_BOTTOM, LEVEL_1_MUMBOS_MOUNTAIN, "Bottom" },
+    { MAP_E_MM_MUMBOS_SKULL, WARP_MM_MUMBOS_HUT_1_ENTRANCE, LEVEL_1_MUMBOS_MOUNTAIN, "Entrance" },
     // LEVEL_2_TREASURE_TROVE_COVE
     { MAP_5_TTC_BLUBBERS_SHIP, WARP_TCC_BLUBBERS_SHIP_5_TOP_HATCH, LEVEL_2_TREASURE_TROVE_COVE, "Crate" },
     { MAP_5_TTC_BLUBBERS_SHIP, WARP_TCC_BLUBBERS_SHIP_6_SIDE_HATCH, LEVEL_2_TREASURE_TROVE_COVE, "Underwater" },
@@ -64,7 +70,7 @@ constexpr WarpEntry warpsInfo[] = {
     { MAP_7_TTC_TREASURE_TROVE_COVE, WARP_TTC_C_LIGHTHOUSE_BOTTOM, LEVEL_2_TREASURE_TROVE_COVE, "Lighthouse Bottom" },
     { MAP_7_TTC_TREASURE_TROVE_COVE, WARP_TTC_E_ISLAND_TOP_STAIRS, LEVEL_2_TREASURE_TROVE_COVE, "Heights" },
     { MAP_7_TTC_TREASURE_TROVE_COVE, WARP_TTC_F_CLIFFSIDE_STAIRS, LEVEL_2_TREASURE_TROVE_COVE, "Cave" },
-    { MAP_7_TTC_TREASURE_TROVE_COVE, WARP_TTC_14_WITCH_SWITCH, LEVEL_2_TREASURE_TROVE_COVE, "Witch Switch Return" },
+    { MAP_7_TTC_TREASURE_TROVE_COVE, WARP_TTC_14_WITCH_SWITCH, LEVEL_2_TREASURE_TROVE_COVE, "Witch Switch" },
     { MAP_7_TTC_TREASURE_TROVE_COVE, 91, LEVEL_2_TREASURE_TROVE_COVE, "Demo" },
     { MAP_7_TTC_TREASURE_TROVE_COVE, 95, LEVEL_2_TREASURE_TROVE_COVE, "Sharkfood SNS Cutscene" },
     { MAP_7_TTC_TREASURE_TROVE_COVE, 128, LEVEL_2_TREASURE_TROVE_COVE, "Outside Sharkfood" },
@@ -73,7 +79,7 @@ constexpr WarpEntry warpsInfo[] = {
     { MAP_A_TTC_SANDCASTLE, 2, LEVEL_2_TREASURE_TROVE_COVE, "FF Dark Snippet Fight" },
     // LEVEL_3_CLANKERS_CAVERN
     { MAP_21_CC_WITCH_SWITCH_ROOM, WARP_CC_WITCH_SWITCH_1_TOP_ENTRANCE, LEVEL_3_CLANKERS_CAVERN, "From Blowhole" },
-    { MAP_21_CC_WITCH_SWITCH_ROOM, WARP_CC_WITCH_SWITCH_14_WITCH_SWITCH, LEVEL_3_CLANKERS_CAVERN, "Witch Switch Return" },
+    { MAP_21_CC_WITCH_SWITCH_ROOM, WARP_CC_WITCH_SWITCH_14_WITCH_SWITCH, LEVEL_3_CLANKERS_CAVERN, "Witch Switch" },
     { MAP_22_CC_INSIDE_CLANKER, WARP_CC_INSIDE_CLANKER_1_STOMACH_ROOFTOP, LEVEL_3_CLANKERS_CAVERN, "Stomach Ceiling" },
     { MAP_22_CC_INSIDE_CLANKER, WARP_CC_INSIDE_CLANKER_2_MOUTH_ROOFTOP, LEVEL_3_CLANKERS_CAVERN, "Mouth Ceiling" },
     { MAP_22_CC_INSIDE_CLANKER, WARP_CC_INSIDE_CLANKER_3_GOLD_FEATHER_ENTRANCE, LEVEL_3_CLANKERS_CAVERN, "Top" },
@@ -96,19 +102,19 @@ constexpr WarpEntry warpsInfo[] = {
     { MAP_11_BGS_TIPTUP, WARP_BGS_TIPTUP_1_ENTRANCE, LEVEL_4_BUBBLEGLOOP_SWAMP, "Inside Tanktup" },
     { MAP_11_BGS_TIPTUP, WARP_BGS_TIPTUP_2_PODIUM, LEVEL_4_BUBBLEGLOOP_SWAMP, "Minigame Win Return" },
     { MAP_11_BGS_TIPTUP, 92, LEVEL_4_BUBBLEGLOOP_SWAMP, "FF Tiptup Minigame" },
-    { MAP_47_BGS_MUMBOS_SKULL, WARP_BGS_MUMBOS_HUT_1_ENTRANCE, LEVEL_4_BUBBLEGLOOP_SWAMP, "Mumbo's Skull" },
+    { MAP_47_BGS_MUMBOS_SKULL, WARP_BGS_MUMBOS_HUT_1_ENTRANCE, LEVEL_4_BUBBLEGLOOP_SWAMP, "Entrance" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_1_CROC_FRONT, LEVEL_4_BUBBLEGLOOP_SWAMP, "Croc Front" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_2_WORLD_ENTRANCE, LEVEL_4_BUBBLEGLOOP_SWAMP, "Warp Pad" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_3_TURTLE, LEVEL_4_BUBBLEGLOOP_SWAMP, "Tanktup Mouth" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_4_CROC_LEFT, LEVEL_4_BUBBLEGLOOP_SWAMP, "Right Nostril" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_5_CROC_RIGHT, LEVEL_4_BUBBLEGLOOP_SWAMP, "Left Nostril" },
-    { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_6_MUMBOS_HUT, LEVEL_4_BUBBLEGLOOP_SWAMP, "Outside Mumbo's Skull" },
+    { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_6_MUMBOS_HUT, LEVEL_4_BUBBLEGLOOP_SWAMP, "Outside Mumbo's Hut" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, WARP_BGS_14_WITCH_SWITCH, LEVEL_4_BUBBLEGLOOP_SWAMP, "Switch Return" },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, 91, LEVEL_4_BUBBLEGLOOP_SWAMP, "Demo?" },
     // LEVEL_5_FREEZEEZY_PEAK
     { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_1_WORLD_ENTRANCE, LEVEL_5_FREEZEEZY_PEAK, "Warp Pad" },
     { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_6_WOZZA_CAVE, LEVEL_5_FREEZEEZY_PEAK, "Outside Wozza's Cave" },
-    { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_7_MUMBOS_HUT, LEVEL_5_FREEZEEZY_PEAK, "Outside Mumbo's Skull" },
+    { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_7_MUMBOS_HUT, LEVEL_5_FREEZEEZY_PEAK, "Outside Mumbo's Hut" },
     { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_8_IGLOO, LEVEL_5_FREEZEEZY_PEAK, "Outside Igloo" },
     { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_9_TREE_BOTTOM, LEVEL_5_FREEZEEZY_PEAK, "Christmas Tree" },
     { MAP_27_FP_FREEZEEZY_PEAK, WARP_FP_D_TREE_STAR, LEVEL_5_FREEZEEZY_PEAK, "Lit Tree CS Return" },
@@ -383,12 +389,6 @@ constexpr struct {
     { 0x5B, 0x62 },
 };
 
-const char* quickWarpNames[] = {
-    "Mumbo's Mountain", "Treasure Trove Cove", "Clanker's Cavern", "Bubblegloop Swamp",   "Freezeezy Peak",
-    "Gobi's Valley",    "Click Clock Wood",    "Rusty Bucket Bay", "Mad Monster Mansion", "Spiral Mountain",
-    "Cutscene",         "Gruntilda's Lair",    "Boss Arena",
-};
-
 constexpr int32_t quickWarpMaps[] = {
     MAP_2_MM_MUMBOS_MOUNTAIN,    MAP_7_TTC_TREASURE_TROVE_COVE, MAP_B_CC_CLANKERS_CAVERN,
     MAP_D_BGS_BUBBLEGLOOP_SWAMP, MAP_27_FP_FREEZEEZY_PEAK,      MAP_12_GV_GOBIS_VALLEY,
@@ -397,13 +397,11 @@ constexpr int32_t quickWarpMaps[] = {
     MAP_90_GL_BATTLEMENTS,
 };
 
-int32_t quickWarpIndex = 0;
-int32_t currentExitId = 0;
 std::vector<WarpEntranceInfo> mapEntrances;
 // Props are built after OnMapLoad fires, so the scan waits for the next frame.
 bool entranceScanPending = false;
-// warpsInfo never changes, so the level grouping is built once at startup.
-std::vector<std::vector<const WarpEntry*>> warpsByLevel;
+// warpsInfo never changes, so the level grouping and its labels are built once at startup.
+std::vector<std::vector<WarpListEntry>> warpsByLevel;
 
 void ScanMapEntrances() {
     mapEntrances.clear();
@@ -434,6 +432,10 @@ const char* MapDisplayName(int32_t map) {
     return (map >= 0 && map < MAP_NUM_MAPS) ? mapNames[map].displayName : "Unknown";
 }
 
+const char* MapShortName(int32_t map) {
+    return (map >= 0 && map < MAP_NUM_MAPS) ? mapNames[map].shortName : "Unknown";
+}
+
 const char* LevelDisplayName(int32_t level) {
     return levelNames[(level > 0 && level < levelCount) ? level : 0].displayName;
 }
@@ -461,10 +463,39 @@ bool EntranceExists(int32_t exit) {
                        [exit](const WarpEntranceInfo& info) { return info.id == exit; });
 }
 
+// Under a level heading the level's own map needs no qualifier, but its subareas do.
+// Names that already carry the map - either the generated "<map display> - " prefix or
+// a hand-written one - are trimmed back to the bare entrance so it is never said twice.
+std::string BuildWarpLabel(const WarpEntry& entry, int32_t mainMap) {
+    const std::string shortName = MapShortName(entry.map);
+    std::string label = entry.name;
+
+    const std::string generated = std::string(MapDisplayName(entry.map)) + " - ";
+    if (label.rfind(generated, 0) == 0) {
+        label.erase(0, generated.size());
+    } else if (label == shortName) {
+        label.clear();
+    } else if (label.rfind(shortName + " ", 0) == 0) {
+        label.erase(0, shortName.size() + 1);
+    }
+
+    if (entry.map == mainMap) {
+        return label.empty() ? shortName : label;
+    }
+    return label.empty() ? shortName : shortName + " - " + label;
+}
+
 void BuildGrouping() {
+    // Every level 1..0xD is in the section table; level 0 is not, and has no main map.
+    int32_t mainMap[levelCount] = {};
+    for (int32_t level = 1; level < levelCount; level++) {
+        mainMap[level] = (int32_t)level_get_main_map((enum level_e)level);
+    }
+
     warpsByLevel.assign(levelCount, {});
     for (const auto& entry : warpsInfo) {
-        warpsByLevel[(entry.level > 0 && entry.level < levelCount) ? entry.level : 0].push_back(&entry);
+        int32_t level = (entry.level > 0 && entry.level < levelCount) ? entry.level : 0;
+        warpsByLevel[level].push_back({ &entry, BuildWarpLabel(entry, mainMap[level]) });
     }
 }
 
@@ -510,7 +541,7 @@ void DrawDestinationList(int32_t currentMap) {
     if (ImGui::BeginChild("WarpDestinations")) {
         // Starts at 0 so an entry whose level never resolved still has a group to live in.
         for (int32_t level = 0; level < levelCount; level++) {
-            const std::vector<const WarpEntry*>& entries = warpsByLevel[level];
+            const std::vector<WarpListEntry>& entries = warpsByLevel[level];
             if (entries.empty()) {
                 continue;
             }
@@ -520,10 +551,10 @@ void DrawDestinationList(int32_t currentMap) {
                     ImGui::TableSetupColumn("Destination", ImGuiTableColumnFlags_WidthStretch);
                     ImGui::TableSetupColumn("Map / Entrance");
                     for (int32_t i = 0; i < (int32_t)entries.size(); i++) {
-                        const WarpEntry& entry = *entries[i];
+                        const WarpEntry& entry = *entries[i].entry;
                         ImGui::PushID(i);
                         ImGui::TableNextColumn();
-                        if (UIWidgets::Button(entry.name, { .color = THEME_COLOR })) {
+                        if (UIWidgets::Button(entries[i].label.c_str(), { .color = THEME_COLOR })) {
                             func_8031D04C((map_e)entry.map, entry.exit);
                         }
                         ImGui::TableNextColumn();
@@ -606,7 +637,7 @@ void DrawWarpsTab() {
     int32_t currentMap = (int32_t)gsworld_getMap();
 
     if (ImGui::BeginTable("WarpsLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
-        ImGui::TableSetupColumn("Warps", ImGuiTableColumnFlags_WidthStretch, 2.0f);
+        ImGui::TableSetupColumn("Warps", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Player", ImGuiTableColumnFlags_WidthStretch, 1.0f);
 
         ImGui::TableNextColumn();
