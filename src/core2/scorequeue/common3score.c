@@ -5,6 +5,7 @@
 #include "port/Patches/Patches.h"
 #include "variables.h"
 #include "port/Engine.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
 
@@ -198,7 +199,10 @@ void fxcommon3score_draw(enum item_e item_id, void *arg1, Gfx **gfx, Mtx **mtx, 
         draw_x = a1->unk30 + port_hudOrthoShift(a1->unk30);
         a1->value_string[0] = '\0';
         strIToA(a1->value_string, itemPrint_getValue(item_id));
-        print_bold_spaced(draw_x + a1->unk40, sp40 + a1->unk44, a1->value_string);
+        // [port] Ultrawide exposes normally hidden item counters
+        if(EventSystem_Should(VB_ITEMPRINT_DRAW_COUNT, true, item_id)){
+            print_bold_spaced(draw_x + a1->unk40, sp40 + a1->unk44, a1->value_string);
+        }
         sp3C = viewport_transformCoordinate(draw_x, sp40, sp5C, sp68);
 
         sp44[0] = 0.0f;

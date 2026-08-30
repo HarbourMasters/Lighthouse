@@ -304,3 +304,18 @@ static void RegisterModelDrawDistFadeAlpha_Init() {
 }
 
 static RegisterShipInitFunc sModelDrawDistFadeAlphaInit(RegisterModelDrawDistFadeAlpha_Init);
+
+// ============
+// HUD COUNTERS
+// ============
+
+static void RegisterOffscreenHudCounters_Init() {
+    COND_VB_SHOULD(VB_ITEMPRINT_DRAW_COUNT, EVENT_PRIORITY_NORMAL, true, {
+        const enum item_e item = (enum item_e)va_arg(args, int);
+        if (item == ITEM_1D_GRUMBLIE || item == ITEM_1E_YUMBLIE) {
+            *should = false;
+        }
+    });
+}
+
+static RegisterShipInitFunc sOffscreenHudCountersInit(RegisterOffscreenHudCounters_Init);
