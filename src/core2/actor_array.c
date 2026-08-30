@@ -3,6 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
 #include "actor.h"
 
@@ -584,7 +585,8 @@ void func_803268B4(void) {
                         if (anim_ctrl != NULL) {
                                 actor->sound_timer = anctrl_getAnimTimer(anim_ctrl);
                         }
-                    } else if (!temp_s1 || (temp_s1 && func_803296D8(actor, temp_s1))) {
+                    } else if (EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE,
+                                                  !temp_s1 || func_803296D8(actor, temp_s1))) {
                         if ( marker->actorUpdateFunc != NULL) {
                              marker->actorUpdateFunc(actor);
                             actor = &suBaddieActorArray->data[temp_v1]; // [port] re-fetch: see above

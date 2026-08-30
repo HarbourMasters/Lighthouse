@@ -3,6 +3,7 @@
 #include "rand.h"
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 #include <math.h>
 
 #include "bk_math.h" // [port] SQ macro
@@ -218,6 +219,9 @@ void chConga_update(Actor *this) {
     f32 unused;
     NodeProp *node_prop;
     s32 sp3C;
+    bool playerWithinUpdateRadius;
+    bool shouldUpdateForDistance;
+    bool distanceOverrideActive;
 
     this->marker->propPtr->unk8_3 = timedFuncQueue_is_empty() ? 1 : 0; // [port] def takes no args
 
@@ -245,7 +249,12 @@ void chConga_update(Actor *this) {
 
     marker_setCollisionScripts(this->marker, NULL, NULL, func_80387168);
 
-    if (!subaddie_playerIsWithinSphereAndActive(this, 2100)
+    playerWithinUpdateRadius = subaddie_playerIsWithinSphereAndActive(this, 2100);
+    shouldUpdateForDistance = EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, playerWithinUpdateRadius);
+    distanceOverrideActive = shouldUpdateForDistance && !playerWithinUpdateRadius
+                             && this->state != 2 && this->state != 8;
+
+    if (!playerWithinUpdateRadius
         && this->state != 2
         && this->state != 8) {
 
@@ -254,7 +263,9 @@ void chConga_update(Actor *this) {
             subaddie_set_state_with_direction(this, 1, 0.76f, 1);
         }
 
-        return;
+        if (!shouldUpdateForDistance) {
+            return;
+        }
     }
 
     sp3C = subaddie_playerIsWithinSphereAndActive(this, 1000);
@@ -275,8 +286,10 @@ void chConga_update(Actor *this) {
     switch (this->state) {
         case CONGA_STATE_IDLE://80387990
             actor_loopAnimation(this);
-            func_80386FB0(this);
-            __chConga_playRandomNoise();
+            if (!distanceOverrideActive) {
+                func_80386FB0(this);
+                __chConga_playRandomNoise();
+            }
 
             if(actor_animationIsAt(this, 0.0f) || actor_animationIsAt(this, 0.45f)){
                 if(randf() < 0.2){
@@ -310,7 +323,9 @@ void chConga_update(Actor *this) {
         case CONGA_STATE_BEAT_CHEST_STOP: //L80387B24
             ((ActorLocal_Conga *)&this->local)->unkC = 1;
             actor_playAnimationOnce(this);
-            __chConga_playRandomNoise();
+            if (!distanceOverrideActive) {
+                __chConga_playRandomNoise();
+            }
 
             if (anctrl_isPlayedForwards(this->anctrl) == TRUE
                 && actor_animationIsAt(this, 0.0f)) {
@@ -326,25 +341,30 @@ void chConga_update(Actor *this) {
         case CONGA_STATE_BEAT_CHEST: //L80387BC0
             ((ActorLocal_Conga *)&this->local)->unkC = 1;
             actor_loopAnimation(this);
-            __chConga_playRandomNoise();
+            if (!distanceOverrideActive) {
+                __chConga_playRandomNoise();
+            }
 
             if (actor_animationIsAt(this, 0.99f)) {
                 subaddie_maybe_set_state_position_direction(this, CONGA_STATE_BEAT_CHEST_STOP, 0.999f, 0, sp3C ? 1.0 : 0.4);
             }//L80387C30
 
-            if (actor_animationIsAt(this, 0.9f)
-                || actor_animationIsAt(this, 0.4f)) {
+            if (!distanceOverrideActive
+                && (actor_animationIsAt(this, 0.9f)
+                    || actor_animationIsAt(this, 0.4f))) {
                 func_8030E6D4(SFX_3FB_UNKNOWN);
             }
 
             break;
 
         case CONGA_STATE_TARGET_GROUND: //L80387C74
-            if (actor_animationIsAt(this, 0.6f)) {
+            if (!distanceOverrideActive && actor_animationIsAt(this, 0.6f)) {
                 func_8030E58C(SFX_2_CLAW_SWIPE, 0.7f);
             }
 
-            func_80386FB0(this);
+            if (!distanceOverrideActive) {
+                func_80386FB0(this);
+            }
 
             if (!sp3C
                 || player_is_in_jiggy_jig()

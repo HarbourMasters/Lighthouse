@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "port/Patches/Patches.h"
 #include "port/Enhancements/Retention/Retention.h"
@@ -175,7 +176,8 @@ static void __chBlubber_updateFunc(Actor *this){
         local->unk24 = 0;
     }
 
-    if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN) && !subaddie_playerIsWithinSphereAndActive(this, 2500))
+    if(!mapSpecificFlags_get(TTC_SPECIFIC_FLAG_1_UNKNOWN)
+       && !EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphereAndActive(this, 2500)))
         return;
     
     if(!this->volatile_initialized){
