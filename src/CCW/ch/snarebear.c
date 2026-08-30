@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 
 void chSnarebear_update(Actor *this);
@@ -64,7 +65,7 @@ void chSnarebear_update(Actor *this) {
 
     time_delta = time_getDelta();
 
-    if(!subaddie_playerIsWithinSphere(this, 3000)) return;
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 3000))) return;
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;

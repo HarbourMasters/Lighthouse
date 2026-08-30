@@ -126,6 +126,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Forces maximum model detail everywhere."));
 
+    AddWidget(path, "Always Update Actors", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Graphics.AlwaysUpdateActors"))
+        .Options(CheckboxOptions().Tooltip(
+            "Keeps supported loaded actors updating beyond their usual update distance without changing normal "
+            "interaction ranges. May cost performance when enabled."));
+
     AddWidget(path, "Original Aspect Ratio In Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.CutsceneAspect"))
         .Options(CheckboxOptions().Tooltip("Forces game to show original aspect ratio during cutscenes to avoid seeing "
