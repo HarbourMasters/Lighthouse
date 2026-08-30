@@ -39,8 +39,6 @@ extern "C" {
 // (owns the claim, nobody has claimed, or we are offline).
 bool NetAuthority_IsSelf(NetworkActivityId activity);
 bool NetAuthority_IsClaimed(NetworkActivityId activity);
-// Owning clientId, or 0 when unclaimed.
-uint32_t NetAuthority_GetOwner(NetworkActivityId activity);
 void NetAuthority_Claim(NetworkActivityId activity);
 void NetAuthority_Release(NetworkActivityId activity);
 

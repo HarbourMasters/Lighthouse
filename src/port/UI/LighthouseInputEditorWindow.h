@@ -5,6 +5,7 @@
 #include <set>
 #include <list>
 #include <memory>
+#include <functional>
 #include "stdint.h"
 #include <ship/window/gui/GuiWindow.h>
 #include <ship/controller/controldevice/controller/mapping/ControllerAxisDirectionMapping.h>
@@ -29,11 +30,8 @@ public:
     using GuiWindow::GuiWindow;
     ~LighthouseInputEditorWindow();
 
-    void DrawButton(const char* label, int32_t n64Btn, int32_t currentPort, int32_t* btnReading);
-
     void DrawInputChip(const char* buttonName, ImVec4 color);
     void DrawAnalogPreview(const char* label, ImVec2 stick, float deadzone = 0, bool gyro = false);
-    void DrawControllerSchema();
     bool TestingRumble();
     void DrawFullContents();
     void DrawPortTabContents(uint8_t portIndex);
@@ -44,6 +42,10 @@ protected:
     void UpdateElement() override;
 
 private:
+    void DrawMappingCapturePopup(const char* popupId, const char* verb, const std::function<bool()>& capture);
+    static const char* MappingTypeIcon(int8_t mappingType);
+    void PushMappingButtonColors(Ship::PhysicalDeviceType deviceType);
+
     void DrawStickDirectionLine(const char* axisDirectionName, uint8_t port, uint8_t stick, Ship::Direction direction,
                                 ImVec4 color);
     void DrawButtonLine(const char* buttonName, uint8_t port, N64ButtonMask bitmask, ImVec4 color);

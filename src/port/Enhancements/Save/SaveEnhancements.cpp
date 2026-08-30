@@ -8,6 +8,7 @@
 #include <fstream>
 #include <filesystem>
 #include "port/Save/Types.h"
+#include "port/Save/SaveManager.h"
 
 extern "C" {
 #include "variables.h"
@@ -34,7 +35,6 @@ using nlohmann::json;
 namespace fs = std::filesystem;
 
 #define CVAR_NAME_EXTRA_LIVES CVAR_ENHANCEMENT("Saving.PersistExtraLives")
-#define CVAR_NAME_BOTTLES_BONUS CVAR_ENHANCEMENT("Saving.PersistBottlesBonus")
 #define CVAR_NAME_STOPNSWOP CVAR_ENHANCEMENT("Gameplay.StopNSwop100")
 
 #define CVAR_EXTRA_LIVES CVarGetInteger(CVAR_NAME_EXTRA_LIVES, 0)

@@ -108,11 +108,6 @@ int EffectiveLogicFps() {
     int fps = 60 / GameEngine::CurrentViPerTick();
     return (fps < 1) ? 1 : fps;
 }
-
-int SubframesForTarget(int targetFps) {
-    int subframes = targetFps / EffectiveLogicFps();
-    return (subframes < 1) ? 1 : subframes;
-}
 } // namespace
 
 bool GameEngine::IsInterpolationEnabled() {
@@ -313,10 +308,3 @@ uint32_t GameEngine::GetInterpolationFPS() {
     return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 30);
 }
 
-uint32_t GameEngine::GetInterpolationFrameCount() {
-    return static_cast<uint32_t>(SubframesForTarget((int)GetInterpolationFPS()));
-}
-
-extern "C" uint32_t GameEngine_GetInterpolationFrameCount() {
-    return GameEngine::GetInterpolationFrameCount();
-}

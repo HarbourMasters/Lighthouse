@@ -14,8 +14,6 @@
 
 std::vector<ImVec2> windowTypeSizes = { {} };
 
-extern std::unordered_map<s16, const char*> warpPointSceneList;
-
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseModalWindow> mModalWindow;
 }

@@ -33,7 +33,6 @@ extern ActorInfo sumusicNote;
 
 namespace {
 
-#define CVAR_NOTE_RETENTION CVAR_ENHANCEMENT("Gameplay.NoteRetention")
 static bool sForcedByAnchor = false;
 #define CVAR_VALUE (CVarGetInteger(CVAR_NOTE_RETENTION, 0) || sForcedByAnchor)
 

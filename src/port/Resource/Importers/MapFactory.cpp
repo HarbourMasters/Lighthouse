@@ -5,21 +5,10 @@
 #include <ship/resource/type/Blob.h>
 #include <array>
 
+#include "BlobWriter.h"
+
 namespace Factories {
 namespace {
-template <typename T> void AppendValue(std::vector<uint8_t>& dst, const T& value) {
-    const auto base = dst.size();
-    dst.resize(base + sizeof(T));
-    std::memcpy(dst.data() + base, &value, sizeof(T));
-}
-
-std::shared_ptr<Ship::Blob> MakeBlob(const std::shared_ptr<Ship::ResourceInitData>& initData,
-                                     std::vector<uint8_t>&& data) {
-    auto blob = std::make_shared<Ship::Blob>(initData);
-    blob->Data = std::move(data);
-    return blob;
-}
-
 struct BKMapNodeProp {
     int16_t position[3];
     uint16_t radius;

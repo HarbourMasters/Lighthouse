@@ -5,6 +5,10 @@
 
 #include <stdint.h>
 
+#include "port/UI/cvar_prefixes.h"
+
+#define CVAR_NOTE_RETENTION CVAR_ENHANCEMENT("Gameplay.NoteRetention")
+
 #ifdef __cplusplus
 extern "C" {
 #endif
