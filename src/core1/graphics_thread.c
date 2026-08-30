@@ -248,7 +248,7 @@ void thread5_handleSyncEvent(void) {
 extern u64 osClockRate;
 
 void thread5_handleDPEvent(void) {
-    if ((sUnkFlag2 << 1) < 0) {
+    if (sUnkFlag2_Saved & 0x40000000) {
         osDpSetStatus(DPC_SET_FREEZE);
         sCurrentFramebuffer = osViGetCurrentFramebuffer();
         viMgr_func_8024BFAC();
