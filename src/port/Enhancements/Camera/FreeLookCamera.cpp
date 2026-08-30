@@ -3,6 +3,9 @@
 #include <cmath>
 
 #include <libultraship/bridge/consolevariablebridge.h>
+#include <ship/Context.h>
+#include <fast/Fast3dWindow.h>
+#include <ship/controller/controldevice/controller/mapping/mouse/WheelHandler.h>
 
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Camera/FreeLookCamera.h"
@@ -44,6 +47,9 @@ void func_802BE230(float gain, float damp);          // position spring tuning
 int func_802BE60C(void);                             // swept camera collision + slide
 int func_802BC84C(int mode);                         // occluded-too-long recovery
 void func_802BE6FC(float rotOut[3], float focus[3]); // look-at from the live position
+
+float viewport_getFOVy(void);
+void viewport_setFOVy(float fovy);
 }
 
 namespace {
@@ -53,6 +59,10 @@ namespace {
 #define CVAR_FREELOOK_INVERT_X CVAR_ENHANCEMENT("Camera.FreeLook.InvertX")
 #define CVAR_FREELOOK_INVERT_Y CVAR_ENHANCEMENT("Camera.FreeLook.InvertY")
 #define CVAR_FREELOOK_SMOOTH_RATE CVAR_ENHANCEMENT("Camera.FreeLook.SmoothRate")
+#define CVAR_MOUSE_ENABLED CVAR_ENHANCEMENT("Camera.FreeLook.MouseEnabled")
+#define CVAR_MOUSE_SENS CVAR_ENHANCEMENT("Camera.FreeLook.MouseSensitivity")
+#define CVAR_MOUSE_FOV CVAR_ENHANCEMENT("Camera.FreeLook.MouseFov")
+#define CVAR_MOUSE_FOV_SCROLL CVAR_ENHANCEMENT("Camera.FreeLook.MouseFovScroll")
 
 constexpr float kDeadzone = 0.15f;
 constexpr float kEnterThreshold = 0.30f;
@@ -69,10 +79,20 @@ constexpr float kDampRatio = 4.0f;
 
 constexpr float kRadToDeg = 57.29577951308232f;
 
+constexpr float kDefaultFov = 40.0f;
+constexpr float kMinFov = 20.0f;
+constexpr float kMaxFov = 100.0f;
+constexpr float kFovSmoothRate = 10.0f;
+
 bool sActive = false;
 bool sAimValid = false;
 float sPitch = 0.0f;
 float sAimY = 0.0f;
+
+float sMouseDeltaX = 0.0f;
+float sMouseDeltaY = 0.0f;
+bool sMouseMoved = false;
+float sFovCurrent = kDefaultFov;
 
 float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
@@ -80,6 +100,26 @@ float clampf(float v, float lo, float hi) {
 
 float SpringGain() {
     return CVarGetFloat(CVAR_FREELOOK_SMOOTH_RATE, kDefaultSmooth) * kSmoothToGain;
+}
+
+void MouseCamera_Update() {
+    sMouseDeltaX = 0.0f;
+    sMouseDeltaY = 0.0f;
+    sMouseMoved = false;
+    auto ctx = Ship::Context::GetRawInstance();
+    if (!ctx)
+        return;
+    auto window = ctx->GetWindow();
+    if (!window)
+        return;
+    if (!window->IsMouseCaptured())
+        return;
+    Ship::Coords delta = window->GetMouseDelta();
+    sMouseDeltaX = static_cast<float>(delta.x);
+    sMouseDeltaY = static_cast<float>(delta.y);
+    if (std::abs(sMouseDeltaX) > 0.5f || std::abs(sMouseDeltaY) > 0.5f) {
+        sMouseMoved = true;
+    }
 }
 
 float ReadStick(float out[2]) {
@@ -120,7 +160,11 @@ float CapturePitch() {
 
 void EnterOrbit() {
     func_802C0150(2);
-    func_802BE230(SpringGain(), SpringGain() * kDampRatio);
+    if (CVarGetInteger(CVAR_MOUSE_ENABLED, 0) != 0) {
+        func_802BE230(30.0f, 30.0f * kDampRatio);
+    } else {
+        func_802BE230(SpringGain(), SpringGain() * kDampRatio);
+    }
     func_802C04B0();
     sPitch = CapturePitch();
 
@@ -141,7 +185,31 @@ void ExitOrbit() {
 } // namespace
 
 extern "C" int port_freeLook_isEnabled(void) {
-    return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0;
+    return CVarGetInteger(CVAR_FREELOOK_ENABLED, 0) != 0 || CVarGetInteger(CVAR_MOUSE_ENABLED, 0) != 0;
+}
+
+extern "C" int port_freeLook_mouseEnabled(void) {
+    return CVarGetInteger(CVAR_MOUSE_ENABLED, 0) != 0;
+}
+
+extern "C" void port_fov_update(void) {
+    float fovTarget = CVarGetFloat(CVAR_MOUSE_FOV, kDefaultFov);
+    if (CVarGetInteger(CVAR_MOUSE_FOV_SCROLL, 0) != 0) {
+        auto wheelHandler = Ship::WheelHandler::GetInstance();
+        if (wheelHandler) {
+            Ship::CoordsF wheel = wheelHandler->GetCoords();
+            if (wheel.y != 0.0f) {
+                fovTarget = clampf(fovTarget - wheel.y * 3.0f, kMinFov, kMaxFov);
+                CVarSetFloat(CVAR_MOUSE_FOV, fovTarget);
+            }
+        }
+    }
+    float dt = time_getDelta();
+    sFovCurrent += (fovTarget - sFovCurrent) * clampf(kFovSmoothRate * dt, 0.0f, 1.0f);
+    if (std::abs(sFovCurrent - fovTarget) < 0.05f) {
+        sFovCurrent = fovTarget;
+    }
+    viewport_setFOVy(sFovCurrent);
 }
 
 extern "C" int port_freeLook_handle(void) {
@@ -150,6 +218,10 @@ extern "C" int port_freeLook_handle(void) {
             ExitOrbit();
         }
         return 0;
+    }
+
+    if (CVarGetInteger(CVAR_MOUSE_ENABLED, 0) != 0) {
+        MouseCamera_Update();
     }
 
     int state = ncDynamicCamera_getState();
@@ -175,7 +247,11 @@ extern "C" int port_freeLook_handle(void) {
     }
 
     float stick[2];
-    if (ReadStick(stick) >= kEnterThreshold) {
+    float stickMag = ReadStick(stick);
+
+    bool mouseEnabled = CVarGetInteger(CVAR_MOUSE_ENABLED, 0) != 0;
+
+    if ((stickMag >= kEnterThreshold) || (mouseEnabled && sMouseMoved)) {
         EnterOrbit();
         return 1;
     }
@@ -186,16 +262,28 @@ extern "C" int port_freeLook_handle(void) {
 extern "C" void port_freeLookCamera_update(void) {
     float dt = time_getDelta();
 
+    if (CVarGetInteger(CVAR_MOUSE_ENABLED, 0) != 0) {
+        func_802BE230(30.0f, 30.0f * kDampRatio);
+    }
+
     float stick[2];
     ReadStick(stick);
 
     float yawSens = CVarGetFloat(CVAR_FREELOOK_YAW_SENS, 1.0f);
     float pitchSens = CVarGetFloat(CVAR_FREELOOK_PITCH_SENS, 1.0f);
+    float mouseSens = CVarGetFloat(CVAR_MOUSE_SENS, 3.0f);
     bool invertX = CVarGetInteger(CVAR_FREELOOK_INVERT_X, 0) != 0;
     bool invertY = CVarGetInteger(CVAR_FREELOOK_INVERT_Y, 0) != 0;
 
-    D_8037DB70 = mlNormalizeAngle(D_8037DB70 + (invertX ? -stick[0] : stick[0]) * kYawSpeed * yawSens * dt);
-    sPitch = clampf(sPitch + (invertY ? stick[1] : -stick[1]) * kPitchSpeed * pitchSens * dt, kMinPitch, kMaxPitch);
+    float yawInput = (invertX ? -stick[0] : stick[0]) * kYawSpeed * yawSens * dt;
+    float pitchInput = (invertY ? stick[1] : -stick[1]) * kPitchSpeed * pitchSens * dt;
+
+    float mouseSensitivity = mouseSens * 0.015f;
+    yawInput += (invertX ? -sMouseDeltaX : sMouseDeltaX) * mouseSensitivity;
+    pitchInput += (invertY ? -sMouseDeltaY : sMouseDeltaY) * mouseSensitivity;
+
+    D_8037DB70 = mlNormalizeAngle(D_8037DB70 + yawInput);
+    sPitch = clampf(sPitch + pitchInput, kMinPitch, kMaxPitch);
 
     float focus[3];
     float offset[3];

@@ -398,6 +398,7 @@ void ncDynamicCamera_update(void){
     }
     viewport_setPosition_vec3f(position);
     viewport_setRotation_vec3f(rotation);
+    port_fov_update();
 }
 
 int ncDynamicCamera_getState(void){
