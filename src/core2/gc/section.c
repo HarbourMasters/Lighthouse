@@ -192,7 +192,12 @@ enum level_e map_getLevel(enum map_e map){
     if (remap >= 0) {
         return (enum level_e)remap;
     }
-    return gcsection_getMapInfo(map)->level_id;
+//  return gcsection_getMapInfo(map)->level_id;
+    MapInfo* info = gcsection_getMapInfo(map);
+    if (info == NULL) {
+        return 0;
+    }
+    return info->level_id;
 }
 
 /* returns string containing the map name and index */
