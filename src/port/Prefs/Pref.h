@@ -240,11 +240,21 @@ struct EnumEntry {
 // An int32 in memory, an entry name on disk.
 class Enum : public Scalar<int32_t> {
 public:
-    Enum(PrefSection section, std::string path, int32_t def, std::map<int32_t, EnumEntry> entries,
+    // Borrows a shared map. It must outlive the pref, so hand it over from a function-local
+    // static rather than a namespace-scope global — a global in another translation unit may
+    // still be zero-initialised when this constructor runs, and a zero-initialised std::map is
+    // not a valid empty one.
+    Enum(PrefSection section, std::string path, int32_t def, const std::map<int32_t, EnumEntry>& entries,
          Options<int32_t> options = {});
 
+    // Takes ownership. Binds the map literal written at the declaration site, so a one-off enum
+    // reads exactly as it did before and no temporary is left dangling.
+    Enum(PrefSection section, std::string path, int32_t def, std::map<int32_t, EnumEntry>&& entries,
+         Options<int32_t> options = {});
+
+    // Never null: both constructors take a reference.
     const std::map<int32_t, EnumEntry>& Entries() const {
-        return mEntries;
+        return *mEntries;
     }
 
     const std::string& PendingWireName() const {
@@ -255,8 +265,13 @@ public:
     bool Read(const nlohmann::json& in) override;
 
 protected:
-    std::map<int32_t, EnumEntry> mEntries;
+    // Engaged only when this pref owns its map; mEntries points into it either way.
+    std::optional<std::map<int32_t, EnumEntry>> mOwnedEntries;
+    const std::map<int32_t, EnumEntry>* mEntries;
     std::string mPendingWireName;
+
+private:
+    void InstallEntryValidator();
 };
 
 // Never instantiate Vector<bool>: std::vector<bool> is the proxy-reference specialisation and the

@@ -13,16 +13,6 @@ namespace {
 constexpr const char* kSectionBlocks[SECTION_COUNT] = {
     "settings", "enhancements", "rando", "trackers", "network", // "cosmetics", "audio",
 };
-
-Options<int32_t> WithKeyAllowList(const std::map<int32_t, EnumEntry>& entries, Options<int32_t> options) {
-    if (options.oneOf.empty()) {
-        options.oneOf.reserve(entries.size());
-        for (const auto& [key, entry] : entries) {
-            options.oneOf.push_back(key);
-        }
-    }
-    return options;
-}
 } // namespace
 
 const char* SectionBlock(PrefSection section) {
@@ -105,15 +95,31 @@ void Color::Randomize() {
     Set(next);
 }
 
-Enum::Enum(PrefSection section, std::string path, int32_t def, std::map<int32_t, EnumEntry> entries,
+Enum::Enum(PrefSection section, std::string path, int32_t def, const std::map<int32_t, EnumEntry>& entries,
            Options<int32_t> options)
-    : Scalar<int32_t>(section, std::move(path), def, WithKeyAllowList(entries, std::move(options))),
-      mEntries(std::move(entries)) {
+    : Scalar<int32_t>(section, std::move(path), def, std::move(options)), mEntries(&entries) {
+    InstallEntryValidator();
+}
+
+Enum::Enum(PrefSection section, std::string path, int32_t def, std::map<int32_t, EnumEntry>&& entries,
+           Options<int32_t> options)
+    : Scalar<int32_t>(section, std::move(path), def, std::move(options)), mOwnedEntries(std::move(entries)),
+      mEntries(&*mOwnedEntries) {
+    InstallEntryValidator();
+}
+
+// Keys validate against the map itself rather than a copied allow-list, so sharing a map costs
+// nothing per pref and the lookup happens after construction.
+void Enum::InstallEntryValidator() {
+    if (mOptions.validator) {
+        return;
+    }
+    mOptions.validator = [this](int32_t& value) { return mEntries->contains(value); };
 }
 
 void Enum::Write(nlohmann::json& out) const {
-    const auto it = mEntries.find(mValue);
-    if (it != mEntries.end()) {
+    const auto it = mEntries->find(mValue);
+    if (it != mEntries->end()) {
         out = it->second.wireName;
         return;
     }
@@ -127,7 +133,7 @@ void Enum::Write(nlohmann::json& out) const {
 bool Enum::Read(const nlohmann::json& in) {
     if (in.is_string()) {
         const std::string name = in.get<std::string>();
-        for (const auto& [key, entry] : mEntries) {
+        for (const auto& [key, entry] : *mEntries) {
             if (name == entry.wireName) {
                 mValue = key;
                 mPendingWireName.clear();
