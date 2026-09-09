@@ -187,6 +187,18 @@ static bool retentionActiveForLevel(int32_t level) {
     return true;
 }
 
+// Unlike the entry seed this also corrects downward: after a sync the bitfield is the team's truth.
+extern "C" void port_jinjoRetention_requestReseed(void) {
+    if (!systemActive() || !applyEnabled()) {
+        return;
+    }
+    const int32_t level = (int32_t)level_get();
+    if (!retentionActiveForLevel(level)) {
+        return;
+    }
+    item_adjustByDiffWithoutHud(ITEM_12_JINJOS, collectedBits(level) - item_getCount(ITEM_12_JINJOS));
+}
+
 void RegisterJinjoRetention_Init() {
     // Seed ITEM_12_JINJOS from saved bits on entry.
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
