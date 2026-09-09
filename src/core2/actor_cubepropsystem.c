@@ -11,6 +11,13 @@
 #include "port/Interpolation/FrameInterpolation.h"
 
 extern int ResourceMgr_IsModelAsset(uint32_t assetId);
+Actor *func_80325F2C(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+Actor *actor_drawFullDepth(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+Actor *actor_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+extern bool lighthouse_demoCubeVisualOnly(void);
+Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
+Actor *fxTouchSparkle_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 #define AssetCacheSize 0x3D5
 
@@ -318,6 +325,85 @@ void cube_sortRelative(Cube *cube){
         __cube_sort(cube, 0);
 }
 
+static bool lighthouse_demoCubeSafeMarkerDraw(ActorMarker *marker) {
+    if (!lighthouse_demoCubeVisualOnly()) {
+        return true;
+    }
+
+    if (marker == NULL || marker->drawFunc == NULL) {
+        return false;
+    }
+
+    if (marker->unk40_22) {
+        return false;
+    }
+
+    if (marker->unk40_19) {
+        return false;
+    }
+
+    // Standard 3D actor paths.
+    if (marker->drawFunc == (MarkerDrawFunc)actor_draw
+        || marker->drawFunc == (MarkerDrawFunc)actor_drawFullDepth
+        || marker->drawFunc == (MarkerDrawFunc)func_80325F2C) {
+        return true;
+    }
+
+    // Generic sprite-actor renderers.
+    // These use Lighthouse's normal sprite renderer and marker-visible
+    // callback path. The existing visual-only demo guards suppress the
+    // marker-visible game-logic update while still allowing the sprite draw.
+    if (marker->drawFunc == (MarkerDrawFunc)fxTouchSparkle_draw
+        || marker->drawFunc == (MarkerDrawFunc)func_80325AE0
+        || marker->drawFunc == (MarkerDrawFunc)func_80325CAC) {
+        return true;
+    }
+
+    // Custom per-actor draw functions that are known to be safe for visual-only demo rendering.
+    switch (marker->id) {
+        case 3:
+        case 53:
+        case 82:
+        case 479:
+        case 103:
+        case 184:
+        case 155:
+        case 96:
+        case 484:
+        case 71:
+        case 213:
+        case 194:
+        case 197:
+        case 196:
+        case 193:
+        case 218:
+        case 17:
+        case 252:
+        case 445:
+        case 449:
+        case 462:
+        case 482:
+        case 178:
+        case 463:
+        case 390:
+        case 467:
+        case 466:
+        case 591:
+        case 56:
+        case 595:
+        case 175:
+        case 176:
+        case 195:
+        case 421:
+        case 187:
+        case 172:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 static void __marker_draw(ActorMarker *this, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     Actor *actor;
     u32 draw_dist;
@@ -401,7 +487,9 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
 
     if(cube->prop2Cnt == 0 ) return;
 
-    __cube_sort(cube, 0);
+    if (!lighthouse_demoCubeVisualOnly()) {
+        __cube_sort(cube, 0);
+    }
     iOffset = 0;
     for(i = 0; i < cube->prop2Cnt; i++){//L8032D5A0
 
@@ -418,6 +506,8 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                 || (iProp->markerFlag && iProp->actorProp.marker != NULL
                     && iProp->actorProp.marker->modelId != 0
                     && !ResourceMgr_IsModelAsset(iProp->actorProp.marker->modelId))){
+                // Sprite frame state is visual; update extra demo-rendered sprites when this cube is traversed.
+                // This replaces the old full-world sprite prepass without freezing normally culled demo sprites.
                 func_8032CD60(iProp);
             }
             if(iProp->markerFlag){//actorProp;
@@ -425,7 +515,12 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                 if(iProp->actorProp.marker != NULL){
                     // [port] Fire one tick event per static prop for port-side features (e.g. nametags).
                     f32 propPos[3] = { (f32)iProp->actorProp.x, (f32)iProp->actorProp.y, (f32)iProp->actorProp.z };
-                    CALL_EVENT(OnPropTick, iProp->actorProp.marker, propPos);
+                    if (!lighthouse_demoCubeVisualOnly()) {
+                        CALL_EVENT(OnPropTick, iProp->actorProp.marker, propPos);
+                    }
+                    if (!lighthouse_demoCubeSafeMarkerDraw(iProp->actorProp.marker)) {
+                        continue;
+                    }
                     if(iProp->actorProp.marker->unk40_22){
                         markerPtr = (ActorMarker **)bk_vector_pushBackNew(&D_80383550);
                         *markerPtr = iProp->actorProp.marker;
@@ -468,7 +563,9 @@ void func_8032D510(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
                         (u16)iProp->spriteProp.unk4[2]);
                     // [port] Fire one tick event per static sprite prop. Asset id
                     // is the raw sprite index offset (+ 0x572 is the asset base).
-                    CALL_EVENT(OnSpritePropTick, (s32)iProp->spriteProp.spriteId + 0x572, sp94);
+                    if (!lighthouse_demoCubeVisualOnly()) {
+                        CALL_EVENT(OnSpritePropTick, (s32)iProp->spriteProp.spriteId + 0x572, sp94);
+                    }
                     propModelList_drawSprite( gfx, mtx, vtx,
                         sp94, (f32)iProp->spriteProp.scale/100.0, iProp->spriteProp.spriteId, cube,
                         iProp->spriteProp.rgb_remove_red, iProp->spriteProp.rgb_remove_green, iProp->spriteProp.rgb_remove_blue,
