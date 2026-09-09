@@ -444,14 +444,6 @@ struct IntSliderOptions : WidgetOptions {
         return *this;
     }
 
-    IntSliderOptions& Setting(Prefs::Int32* pref_) {
-        pref = pref_;
-        return *this;
-    }
-
-    Prefs::Int32* GetSetting() const {
-        return static_cast<Prefs::Int32*>(pref);
-    }
 };
 
 struct FloatSliderOptions : WidgetOptions {
@@ -539,13 +531,87 @@ struct FloatSliderOptions : WidgetOptions {
         return *this;
     }
 
-    FloatSliderOptions& Setting(Prefs::Float* pref_) {
+};
+
+// Logical value is always stored/factor.
+enum class SliderDisplay {
+    Integer,
+    Float,
+    Percentage, // logical value * 100
+};
+
+// Range, precision and clamping come from the pref; these are presentation only.
+struct SliderOptions : WidgetOptions {
+    bool showButtons = true;
+    int32_t step = 1; // stored units: with factor 100, step 1 is 0.01
+    SliderDisplay display = SliderDisplay::Integer;
+    // Null derives the bar readout from the pref's factor.
+    const char* format = nullptr;
+    ComponentAlignments alignment = ComponentAlignments::Left;
+    LabelPositions labelPosition = LabelPositions::Above;
+    Colors color = Colors::Gray;
+    ImGuiSliderFlags flags = 0;
+    ImVec2 size = { 0, 0 };
+
+    SliderOptions& ShowButtons(bool showButtons_) {
+        showButtons = showButtons_;
+        return *this;
+    }
+
+    SliderOptions& Step(int32_t step_) {
+        step = step_;
+        return *this;
+    }
+
+    SliderOptions& Display(SliderDisplay display_) {
+        display = display_;
+        return *this;
+    }
+
+    SliderOptions& IsPercentage() {
+        display = SliderDisplay::Percentage;
+        return *this;
+    }
+
+    SliderOptions& Format(const char* format_) {
+        format = format_;
+        return *this;
+    }
+
+    SliderOptions& ComponentAlignment(ComponentAlignments alignment_) {
+        alignment = alignment_;
+        return *this;
+    }
+
+    SliderOptions& LabelPosition(LabelPositions labelPosition_) {
+        labelPosition = labelPosition_;
+        return *this;
+    }
+
+    SliderOptions& Tooltip(const char* tooltip_) {
+        WidgetOptions::tooltip = tooltip_;
+        return *this;
+    }
+
+    SliderOptions& Color(Colors color_) {
+        color = color_;
+        return *this;
+    }
+
+    SliderOptions& Size(ImVec2 size_) {
+        size = size_;
+        return *this;
+    }
+
+    SliderOptions& Setting(Prefs::Fixed* pref_) {
         pref = pref_;
         return *this;
     }
 
-    Prefs::Float* GetSetting() const {
-        return static_cast<Prefs::Float*>(pref);
+    // dynamic_cast because the aggregate form ({ .pref = ... }) bypasses the setter above; casting
+    // a non-Fixed statically would read Factor() off the end of the object.
+    Prefs::Fixed* GetSetting() const {
+        return dynamic_cast<Prefs::Fixed*>(pref);
     }
 };
 
@@ -874,10 +940,11 @@ void PushStyleSlider(Colors color = Colors::LightBlue);
 void PopStyleSlider();
 bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& options = {});
 bool CVarSliderInt(const char* label, const char* cvarName, const IntSliderOptions& options = {});
-bool PrefSliderInt(const char* label, const IntSliderOptions& options = {});
 bool SliderFloat(const char* label, float* value, const FloatSliderOptions& options = {});
 bool CVarSliderFloat(const char* label, const char* cvarName, const FloatSliderOptions& options = {});
-bool PrefSliderFloat(const char* label, const FloatSliderOptions& options = {});
+// The label is an ImGui format string, same contract as SliderScalar's: "Scale: %.2f" substitutes
+// the value, and a literal percent must be written "%%".
+bool PrefSlider(const char* label, const SliderOptions& options = {});
 bool InputString(const char* label, std::string* value, const InputOptions& options = {});
 bool CVarInputString(const char* label, const char* cvarName, const InputOptions& options = {});
 bool InputInt(const char* label, int32_t* value, const InputOptions& options = {});

@@ -274,6 +274,34 @@ private:
     void InstallEntryValidator();
 };
 
+// Stored as an int32 and divided by factor, because a float pref cannot represent 0.1 exactly and
+// every save round-trips through the binary noise. factor is steps per whole unit, so 100 gives two
+// decimal places. Options min/max are in stored units.
+class Fixed : public Scalar<int32_t> {
+public:
+    Fixed(PrefSection section, std::string path, int32_t def, int32_t factor, Options<int32_t> options = {});
+
+    int32_t Factor() const {
+        return mFactor;
+    }
+
+    float Float() const {
+        return (float)mValue / (float)mFactor;
+    }
+
+    float DefaultFloat() const {
+        return (float)mDefault / (float)mFactor;
+    }
+
+    int32_t Decimals() const;
+
+    // Rounds to the nearest stored unit.
+    void SetFloat(float value);
+
+protected:
+    int32_t mFactor;
+};
+
 // Never instantiate Vector<bool>: std::vector<bool> is the proxy-reference specialisation and the
 // const V& accessors above do not behave. Use Vector<uint8_t> for a flag array.
 template <typename T> using Vector = Scalar<std::vector<T>>;

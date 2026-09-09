@@ -1,6 +1,7 @@
 #include "Pref.h"
 
 #include <algorithm>
+#include <cmath>
 #include <random>
 
 #include "Registry.h"
@@ -152,6 +153,23 @@ bool Enum::Read(const nlohmann::json& in) {
 
     SPDLOG_WARN("Setting '{}' is neither an entry name nor a key in the config; using the default", mPath);
     return false;
+}
+
+// No Write/Read override: the config sees the plain int32 Scalar<int32_t> already serialises.
+Fixed::Fixed(PrefSection section, std::string path, int32_t def, int32_t factor, Options<int32_t> options)
+    : Scalar<int32_t>(section, std::move(path), def, std::move(options)), mFactor(factor < 1 ? 1 : factor) {
+}
+
+int32_t Fixed::Decimals() const {
+    int32_t places = 0;
+    for (int32_t f = mFactor; f >= 10; f /= 10) {
+        ++places;
+    }
+    return places;
+}
+
+void Fixed::SetFloat(float value) {
+    Set((int32_t)std::lround(value * (float)mFactor));
 }
 
 // Emitted here so Setting.h can stay on <nlohmann/json_fwd.hpp>. A module needing some other

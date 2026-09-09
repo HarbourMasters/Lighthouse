@@ -384,7 +384,7 @@ bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions
 bool PrefCheckbox(const char* label, const CheckboxOptions& options) {
     bool dirty = false;
     Prefs::Bool* pref = options.GetSetting();
-    bool value = pref;
+    bool value = pref->Get();
     if (Checkbox(label, &value, options)) {
         *pref = value;
         dirty = true;
@@ -634,13 +634,51 @@ bool CVarSliderInt(const char* label, const char* cvarName, const IntSliderOptio
     return dirty;
 }
 
-bool PrefSliderInt(const char* label, const IntSliderOptions& options) {
+bool PrefSlider(const char* label, const SliderOptions& options) {
     bool dirty = false;
-    Prefs::Int32* pref = options.GetSetting();
+    Prefs::Fixed* pref = options.GetSetting();
+    assert(pref != nullptr && "PrefSlider requires a Prefs::Fixed; use factor 1 for whole numbers");
+    if (pref == nullptr) {
+        return false;
+    }
     assert(pref->GetOpts().min.has_value() && pref->GetOpts().max.has_value());
     const int32_t min = pref->GetOpts().min.value();
     const int32_t max = pref->GetOpts().max.value();
+    const int32_t step = options.step > 0 ? options.step : 1;
     int32_t value = pref->Get();
+
+    // Integer stays S32 end to end. Scaled modes convert for display only and round back to an int
+    // on edit, so nothing a float cannot represent reaches the config.
+    const bool scaled = options.display != SliderDisplay::Integer;
+    const float toDisplay =
+        (options.display == SliderDisplay::Percentage ? 100.0f : 1.0f) / (float)pref->Factor();
+    float displayValue = (float)value * toDisplay;
+    float displayMin = (float)min * toDisplay;
+    float displayMax = (float)max * toDisplay;
+
+    // Percentage multiplies by 100, moving the point two places.
+    char derivedFormat[16] = "%d";
+    if (scaled) {
+        int32_t decimals = pref->Decimals();
+        if (options.display == SliderDisplay::Percentage) {
+            decimals = decimals > 2 ? decimals - 2 : 0;
+            snprintf(derivedFormat, sizeof(derivedFormat), "%%.%df%%%%", decimals);
+        } else {
+            snprintf(derivedFormat, sizeof(derivedFormat), "%%.%df", decimals);
+        }
+    }
+    const char* barFormat = options.format != nullptr ? options.format : derivedFormat;
+
+    // The raw label stays the id: substituting the value into it would change the id as the value
+    // moves and break an in-progress drag.
+    char labelBuf[256];
+    if (scaled) {
+        ImGui::DataTypeFormatString(labelBuf, IM_ARRAYSIZE(labelBuf), ImGuiDataType_Float, &displayValue, label);
+    } else {
+        ImGui::DataTypeFormatString(labelBuf, IM_ARRAYSIZE(labelBuf), ImGuiDataType_S32, &value, label);
+    }
+    const char* displayLabel = labelBuf;
+
     std::string invisibleLabelStr = "##" + std::string(label);
     const char* invisibleLabel = invisibleLabelStr.c_str();
     ImGui::PushID(label);
@@ -649,11 +687,11 @@ bool PrefSliderInt(const char* label, const IntSliderOptions& options) {
     PushStyleSlider(options.color);
     float width = (options.size == ImVec2(0, 0)) ? ImGui::GetContentRegionAvail().x : options.size.x;
     if (options.labelPosition == LabelPositions::Near || options.labelPosition == LabelPositions::Far) {
-        width = width - (ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x);
+        width = width - (ImGui::CalcTextSize(displayLabel).x + ImGui::GetStyle().FramePadding.x);
     }
     ImGui::AlignTextToFramePadding();
     if (options.alignment == ComponentAlignments::Right && options.labelPosition != LabelPositions::None) {
-        ImGui::Text("%s", label);
+        ImGui::Text("%s", displayLabel);
         if (options.labelPosition == LabelPositions::Above) {
             ImGui::NewLine();
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
@@ -664,12 +702,12 @@ bool PrefSliderInt(const char* label, const IntSliderOptions& options) {
         }
     } else if (options.alignment == ComponentAlignments::Left) {
         if (options.labelPosition == LabelPositions::Above) {
-            ImGui::Text("%s", label);
+            ImGui::Text("%s", displayLabel);
         }
     }
     if (options.showButtons) {
         if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && value > min) {
-            value -= options.step;
+            value -= step;
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
@@ -677,14 +715,20 @@ bool PrefSliderInt(const char* label, const IntSliderOptions& options) {
     } else {
         ImGui::SetNextItemWidth(width);
     }
-    if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_S32, &value, &min, &max, options.format, options.flags)) {
+    if (scaled) {
+        if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &displayValue, &displayMin, &displayMax,
+                                barFormat, options.flags)) {
+            value = (int32_t)std::lround((double)displayValue / (double)toDisplay);
+            dirty = true;
+        }
+    } else if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_S32, &value, &min, &max, barFormat, options.flags)) {
         dirty = true;
     }
     if (options.showButtons) {
         ImGui::SameLine(0, 3.0f);
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (Button("+", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && value < max) {
-            value += options.step;
+            value += step;
             dirty = true;
         }
     }
@@ -692,11 +736,11 @@ bool PrefSliderInt(const char* label, const IntSliderOptions& options) {
     if (options.alignment == ComponentAlignments::Left && options.labelPosition != LabelPositions::None) {
         if (options.labelPosition == LabelPositions::Near) {
             ImGui::SameLine();
-            ImGui::Text("%s", label);
+            ImGui::Text("%s", displayLabel);
         } else if (options.labelPosition == LabelPositions::Far) {
-            ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x +
+            ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(displayLabel).x +
                             ImGui::GetStyle().ItemSpacing.x);
-            ImGui::Text("%s", label);
+            ImGui::Text("%s", displayLabel);
         }
     }
     PopStyleSlider();
@@ -705,7 +749,9 @@ bool PrefSliderInt(const char* label, const IntSliderOptions& options) {
     WidgetTooltip(options.tooltip, options.disabled, options.disabledTooltip);
     ImGui::PopID();
     if (dirty) {
-        *pref = value;
+        // Same integer grid the -/+ buttons walk.
+        value = min + (int32_t)std::lround((double)(value - min) / (double)step) * step;
+        pref->Set(value < min ? min : (value > max ? max : value));
     }
     return dirty;
 }
@@ -831,98 +877,6 @@ bool CVarSliderFloat(const char* label, const char* cvarName, const FloatSliderO
         CVarSetFloat(cvarName, value);
         CommitCVar(cvarName);
         dirty = true;
-    }
-    return dirty;
-}
-
-bool PrefSliderFloat(const char* label, const FloatSliderOptions& options) {
-    bool dirty = false;
-    Prefs::Float* pref = options.GetSetting();
-    assert(pref->GetOpts().min.has_value() && pref->GetOpts().max.has_value());
-    const float min = pref->GetOpts().min.value();
-    const float max = pref->GetOpts().max.value();
-    float value = pref->Get();
-    std::string invisibleLabelStr = "##" + std::string(label);
-    const char* invisibleLabel = invisibleLabelStr.c_str();
-    float valueToDisplay = options.isPercentage ? value * 100.0f : value;
-    float maxToDisplay = options.isPercentage ? max * 100.0f : max;
-    float minToDisplay = options.isPercentage ? min * 100.0f : min;
-    ImGui::PushID(label);
-    ImGui::BeginGroup();
-    ImGui::BeginDisabled(options.disabled);
-    PushStyleSlider(options.color);
-    float labelSpacing = ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x;
-    float width = (options.size == ImVec2(0, 0)) ? ImGui::GetContentRegionAvail().x : options.size.x;
-    if (options.labelPosition == LabelPositions::Near || options.labelPosition == LabelPositions::Far) {
-        width = width - (ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x);
-    }
-    ImGui::AlignTextToFramePadding();
-    if (options.alignment == ComponentAlignments::Right) {
-        ImGui::Text("%s", label);
-        if (options.labelPosition == LabelPositions::Above) {
-            ImGui::NewLine();
-            ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
-        } else if (options.labelPosition == LabelPositions::Near) {
-            width -= labelSpacing;
-            ImGui::SameLine();
-        } else if (options.labelPosition == LabelPositions::Far || options.labelPosition == LabelPositions::None) {
-            width -= labelSpacing;
-            ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
-        }
-    } else if (options.alignment == ComponentAlignments::Left) {
-        if (options.labelPosition == LabelPositions::Above) {
-            ImGui::Text("%s", label);
-        }
-    }
-    if (options.showButtons) {
-        if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && value > min) {
-            value -= options.step;
-            if (pref->GetOpts().clamp) {
-                ClampFloat(&value, min, max, options.step);
-            }
-            dirty = true;
-        }
-        ImGui::SameLine(0, 3.0f);
-        ImGui::SetNextItemWidth(width - (ImGui::CalcTextSize("+").x + ImGui::GetStyle().FramePadding.x * 2 + 3) * 2);
-    } else {
-        ImGui::SetNextItemWidth(width);
-    }
-    if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &valueToDisplay, &minToDisplay, &maxToDisplay,
-                            options.format, options.flags)) {
-        value = options.isPercentage ? valueToDisplay / 100.0f : valueToDisplay;
-        if (pref->GetOpts().clamp) {
-            ClampFloat(&value, min, max, options.step);
-        }
-        dirty = true;
-    }
-    if (options.showButtons) {
-        ImGui::SameLine(0, 3.0f);
-        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        if (Button("+", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && value < max) {
-            value += options.step;
-            if (pref->GetOpts().clamp) {
-                ClampFloat(&value, min, max, options.step);
-            }
-            dirty = true;
-        }
-    }
-
-    if (options.alignment == ComponentAlignments::Left) {
-        if (options.labelPosition == LabelPositions::Near) {
-            ImGui::SameLine();
-            ImGui::Text("%s", label);
-        } else if (options.labelPosition == LabelPositions::Far || options.labelPosition == LabelPositions::None) {
-            ImGui::SameLine(ImGui::GetContentRegionAvail().x - labelSpacing);
-            ImGui::Text("%s", label);
-        }
-    }
-    PopStyleSlider();
-    ImGui::EndDisabled();
-    ImGui::EndGroup();
-    WidgetTooltip(options.tooltip, options.disabled, options.disabledTooltip);
-    ImGui::PopID();
-    if (dirty) {
-        *pref = value;
     }
     return dirty;
 }
