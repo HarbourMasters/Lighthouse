@@ -193,20 +193,22 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
     std::string installPath = Ship::Context::GetAppBundlePath();
     std::string file;
 
+    if (shouldRegen) {
 #if defined(__SWITCH__)
-    LighthouseGui::RegisterPopup("Outdated ROM Archives",
-                                 "\x1b[2;2HYou've launched Lighthouse with an old ROM O2R file."
-                                 "\x1b[4;2HPlease regenerate a new ROM O2R and relaunch."
-                                 "\x1b[6;2HPress the Home button to exit...",
-                                 "OK", "", [&]() { exit(1); });
+        LighthouseGui::RegisterPopup("Outdated ROM Archives",
+                                     "\x1b[2;2HYou've launched Lighthouse with an old ROM O2R file."
+                                     "\x1b[4;2HPlease regenerate a new ROM O2R and relaunch."
+                                     "\x1b[6;2HPress the Home button to exit...",
+                                     "OK", "", [&]() { exit(1); });
 #elif defined(__WIIU__)
-    LighthouseGui::RegisterPopup("Outdated ROM Archives",
-                                 "You've launched Lighthouse with an old a ROM O2R file.\n\n"
-                                 "Please generate a ROM O2R and relaunch.\n\n"
-                                 "Press and hold the Power button to shutdown...",
-                                 "OK", "", [&]() { exit(1); });
-    OSFatal();
+        LighthouseGui::RegisterPopup("Outdated ROM Archives",
+                                     "You've launched Lighthouse with an old a ROM O2R file.\n\n"
+                                     "Please generate a ROM O2R and relaunch.\n\n"
+                                     "Press and hold the Power button to shutdown...",
+                                     "OK", "", [&]() { exit(1); });
+        OSFatal();
 #endif
+    }
 
     if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("/assets"))) {
         LighthouseGui::RegisterPopup(
@@ -491,8 +493,20 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                     }
                     case PS_FIRST: {
                         if (args.empty()) {
-                            std::string baserom = Ship::Context::GetPathRelativeToAppDirectory("baserom.us.z64");
-                            if (std::filesystem::exists(baserom) && extract.LoadRomFromPath(baserom)) {
+                            // The names the build and the README use, not just baserom.us.z64.
+                            static const char* kRomNames[] = {
+                                "baserom.us.z64",     "baserom.z64",    "baserom.us.v10.z64",
+                                "baserom.us.v11.z64", "baserom.jp.z64", "baserom.pal.z64",
+                            };
+                            std::string baserom;
+                            for (const char* name : kRomNames) {
+                                std::string candidate = Ship::Context::GetPathRelativeToAppDirectory(name);
+                                if (std::filesystem::exists(candidate)) {
+                                    baserom = candidate;
+                                    break;
+                                }
+                            }
+                            if (!baserom.empty() && extract.LoadRomFromPath(baserom)) {
                                 extracting = true;
                                 extractStarted = true;
                                 file = extract.GetRomPath();
