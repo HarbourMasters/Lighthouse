@@ -33,7 +33,7 @@ void func_802E31D0(s32 arg0) {
     temp_v0 = D_8037E8C0.unk14;
     if ((temp_v0 == 0) || (temp_v0 == 3)) {
         framebufferdraw_setBufferIndex(arg0);
-        framebufferdraw_func_80249DE0(0, 0, (s16 *)(intptr_t)D_8037E8C0.unkC, 0, 0);
+        framebufferdraw_func_80249DE0(0, 0, (Struct84s *)(intptr_t)D_8037E8C0.unkC, 0, 0);
         osWritebackDCache(gFramebuffers[arg0], (s32) ((f32) gFramebufferWidth * (f32) gFramebufferHeight * sizeof(s16)));
     }
 }

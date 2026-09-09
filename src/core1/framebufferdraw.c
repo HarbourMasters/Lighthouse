@@ -1,9 +1,9 @@
 // BanjoDecomp: framebufferdraw.c
 #include <ultra64.h>
 #include "core1/core1.h"
+#include "core2/core2.h"
 
 #include "port/Patches/Patches.h"
-extern BKSpriteTextureBlock *func_8033EFB0(void *, s32);
 
 #define IA8_I(ia) ((ia) >> 4)
 #define IA8_A(ia) ((ia) & 0xF)
@@ -41,14 +41,14 @@ void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
     s32 color2;
     
     framebuffer = gFramebuffers[sBufferIndex];
-    sprite_frame = sprite_getFramePtr(sprite, (u32) frame);
+    sprite_frame = sprite_getFramePtr(sprite, frame);
     if (!alpha_enabled){
         framebufferdraw_setPrimColor(0, 0, 0x80);
         framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
     
     //align palette
-    for(palette_offset = (uintptr_t) (sprite_frame + 1); palette_offset % 8; palette_offset++){
+    for(palette_offset = (uintptr_t) sprite_frame->palette; palette_offset % 8; palette_offset++){
         continue;
     }
     palette = (u16*)palette_offset;
@@ -59,7 +59,7 @@ void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
         tmem = (u8 *) (chunk + 1);
         while (((uintptr_t) tmem) % 8)
         {
-            tmem = (u8 *)(((uintptr_t) tmem) + 1);
+            tmem++;
         }
         
         //copy texture to framebuffer
@@ -79,7 +79,7 @@ void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
                           *pxl_ptr = color1;
                         } else if (!alpha_enabled) {
                           *pxl_ptr = (unsigned long) 1;
-                          palette_offset = (uintptr_t)(u16 *) (sprite_frame + 1);
+                          palette_offset = (uintptr_t) sprite_frame->palette;
                         }
                         if (palette[indx2] & 1) { 
                             pxl_ptr[1] = palette[indx2];
@@ -117,13 +117,13 @@ void framebufferdraw_draw_CI8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alp
         D_80275C00 = 0;
     }
     framebuffer = gFramebuffers[sBufferIndex];
-    sprite_frame = sprite_getFramePtr(sprite, (u32) frame);
+    sprite_frame = sprite_getFramePtr(sprite, frame);
     if (!alpha_enabled){
         framebufferdraw_setPrimColor(0, 0, 0x80);
         framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
 
-    palette = (u16 *) (sprite_frame + 1);
+    palette = sprite_frame->palette;
     for (palette_unaligned = (uintptr_t)palette; ((uintptr_t) palette_unaligned) % 8; palette_unaligned++){
         ;
     }
@@ -190,7 +190,7 @@ void framebufferdraw_draw_RGBA16(s32 x, s32 y, BKSprite *sprite, s32 frame, bool
     }
     chunk_ptr = (BKSpriteTextureBlock *)(sprite_ptr + 1);
     for(i_chunk = 0; i_chunk < sprite_ptr->chunkCnt; i_chunk++) {
-        for(tmem = (u16 *)(chunk_ptr + 1); (uintptr_t)tmem % 8; tmem++);
+        for(tmem = (s16 *)(chunk_ptr + 1); (uintptr_t)tmem % 8; tmem++);
 
         for(txtr_y = 0; txtr_y < chunk_ptr->h; txtr_y++) {
             for(txtr_x = 0; txtr_x < chunk_ptr->w; txtr_x++) {
@@ -331,7 +331,7 @@ void framebufferdraw_draw_IA4(s32 x, s32 y, BKSprite *sprite, s32 frame, bool ap
 void framebufferdraw_draw_I8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled) {
     BKSpriteFrame *frame_ptr;
     BKSpriteTextureBlock *chunk_ptr;
-    s16 *pixel_ptr;
+    u16 *pixel_ptr;
     u8 *txtr_ptr;
     s32 fb_y;
     u16 *framebuffer_ptr;
@@ -379,7 +379,7 @@ void framebufferdraw_draw_I8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alph
 void framebufferdraw_draw_IA8(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
     BKSpriteFrame *sprite_frame;
     BKSpriteTextureBlock *chunk_ptr;
-    s16 *temp_a1;
+    u16 *temp_a1;
     s16 *temp_v0;
     u8 *var_t2;
     u16 *framebuffer_ptr;
@@ -546,7 +546,7 @@ void framebufferdraw_draw(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_e
 }
 
 //arg4 = alpha enabled?
-void framebufferdraw_func_80249DE0(s32 x, s32 y, s16 *arg2, s32 arg3, s32 arg4) {
+void framebufferdraw_func_80249DE0(s32 x, s32 y, Struct84s *arg2, s32 arg3, s32 arg4) {
     s32 ix;
     s32 var_t2;
     s32 iy;
@@ -557,7 +557,7 @@ void framebufferdraw_func_80249DE0(s32 x, s32 y, s16 *arg2, s32 arg3, s32 arg4) 
 
     temp_v0 = func_8033EFB0(arg2, arg3);
     texture_ptr = (u16*)(temp_v0 + 1);
-    if (*arg2 == SPRITE_TYPE_CI4) {
+    if (arg2->texture_type == SPRITE_TYPE_CI4) {
         framebufferdraw_drawTexture_CI4(x, y, temp_v0 + 1, temp_v0->w, temp_v0->h, arg4);
         return;
     }
@@ -656,8 +656,8 @@ void framebufferdraw_func_8024A564(s32 x, s32 y, u16 *arg2, s32 arg3, s32 arg4, 
     s32 var_t3;
     s32 var_v0;
     s32 fb_width;
-    s16 *pixel;
-    s16 *var_t2;
+    u16 *pixel;
+    u16 *var_t2;
     
     var_v0 = 0;
     fb_width = gFramebufferWidth;

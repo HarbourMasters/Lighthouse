@@ -10,7 +10,7 @@
 #include "port/Patches/Patches.h"
 #include "port/OS/OS.h"
 
-#define VIMANAGER_THREAD_STACK_SIZE 0x400
+#define VIMANAGER_THREAD_STACK_SIZE 1024
 
 // Used in US 1.0 NTSC 
 static OSViMode sViMode_US10_NTSC = {
@@ -156,7 +156,7 @@ void viMgr_init(void) {
     D_802808D8 = 0;
     viMgr_func_8024BF94(2);
 
-    osCreateThread(&sViManagerThread, 0, viMgr_entry, NULL, sViManagerThreadStack + VIMANAGER_THREAD_STACK_SIZE, 80);
+    osCreateThread(&sViManagerThread, VI_THREAD_ID, viMgr_entry, NULL, sViManagerThreadStack + VIMANAGER_THREAD_STACK_SIZE, VI_THREAD_PRI);
     osStartThread(&sViManagerThread);
 }
 
@@ -180,8 +180,8 @@ void viMgr_func_8024BFD8(s32 arg0){
     s32 viBudget = (demoVi > 2) ? demoVi : 2;
 
     osSetThreadPri(NULL, 0x7f);
-    defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY_HIGH);
-    defragManager_resume();
+    defragthread_setPriority(DEFRAGMANAGER_THREAD_PRI_HIGH);
+    defragthread_resume();
     if(arg0){
         osRecvMesg(&sMesgQueue2, NULL, OS_MESG_BLOCK);
     }
@@ -202,14 +202,14 @@ void viMgr_func_8024BFD8(s32 arg0){
     }//L8024C178
     D_80280724 = (demoVi > 0) ? demoVi : D_802808D8;
     D_802808D8 = 0;
-    defragManager_pause();
+    defragthread_pause();
     osSetThreadPri(NULL, 0x14);
-    defragManager_setPriority(DEFRAGMANAGER_THREAD_PRIORITY);
+    defragthread_setPriority(DEFRAGMANAGER_THREAD_PRI);
 }
 
 void viMgr_func_8024C1B4(void){
     viMgr_func_8024BFD8(0);
-    // dummy_func_8025AFB8();
+    // core1_1D590_func_8025AFB8();
 }
 
 void viMgr_func_8024C1DC(void){
@@ -245,7 +245,7 @@ void viMgr_entry(void *arg0){
         D_802808D8++;
         if(D_802808D8 == 420){
 #if VERSION == VERSION_USA_1_0
-            gcdebugText_isThreadLocked();
+            gcdebugtext_isThreadLocked();
 #endif
         }
         osSendMesgPtr(&sMesgQueue3, NULL, OS_MESG_NOBLOCK);

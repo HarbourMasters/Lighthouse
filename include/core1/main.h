@@ -7,9 +7,12 @@
 extern "C" {
 #endif
 
-void core1_main(s32 arg0);
+#define MAINTHREAD_ID 6
+#define MAINTHREAD_PRI 20
+
+void core1_main(void *arg);
 void func_8023DA74(void);
-void func_8023DA9C(s32 arg0);
+void func_8023DA9C(s32 next_state);
 s32 globalTimer_getTimeMasked(s32 mask);
 s32 globalTimer_getTime(void);
 void globalTimer_reset(void);

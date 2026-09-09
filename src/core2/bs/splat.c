@@ -7,7 +7,6 @@
 #include "core2/yaw.h"
 
 void func_80292900(f32, f32);
-void baMotor_80250D94(f32, f32, f32);
 
 /* .bss */
 u8 D_8037D530;

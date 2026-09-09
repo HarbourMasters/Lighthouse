@@ -20,7 +20,7 @@ void ucode_load(void) {
     sStatus |= sIMEMdword ? 0x02 : 0x00;
 
     if (sStatus == 0) {
-        piMgr_read(sUcodeData, PHYS_TO_K1(PI_DOM1_ADDR2 + IPL3FONT_ROM_ADDR), UCODE_SIZE);
+        parallel_readDMA(sUcodeData, PHYS_TO_K1(PI_DOM1_ADDR2 + IPL3FONT_ROM_ADDR), UCODE_SIZE);
     }
 #endif
 }

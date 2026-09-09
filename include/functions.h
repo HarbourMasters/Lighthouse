@@ -988,11 +988,6 @@ void func_80244814(void *arg0);
 void func_80244978(intptr_t arg0, s16 type, s32 arg2);
 void func_80244A98(s32 arg0);
 
-// --- core1/bamotor.c ---
-void baMotor_80250C08(void);
-void baMotor_80250FC0(void);
-void baMotor_init(void);
-
 // --- core1/collision.c ---
 int collisionTri_isHitFromAbove_actor(f32 arg0[3], Actor *arg1, s32 arg2);
 int collisionTri_isHitFromAbove_marker(f32 position[3], ActorMarker *marker, s32 verticalOffset);
@@ -1001,20 +996,11 @@ void collisionTri_copy(BKCollisionTriangle *dst, BKCollisionTriangle *src);
 void func_802450DC(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3]);
 void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3], s32 arg5);
 
-// --- core1/debugtext.c ---
-s32 gcdebugText_isThreadLocked(void);
-void gcdebugText_showLargeValue(s32 arg0, s32 arg1);
-void func_80247F9C(s32 arg0);
-void gcdebugText_pauseThread(void);
-
 // --- core1/gu_perspective.c ---
 void _guMtxF2L(float mf[4][4], Mtx *m);
 
 // --- boot/inflate.c ---
 int bk_inflate(void);
-
-// --- core1/initthread.c ---
-void initThread_create(void);
 
 // --- core1/memory.c ---
 bool func_802555D0(void);
@@ -1051,11 +1037,6 @@ void sns_restore_backed_up_items(void);
 void sns_save_and_update_global_data(void);
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state);
 void sns_write_payload_over_heap(void);
-
-// --- unused/dummy_overlay_callbacks.c ---
-void dummy_func_8025AFB0(void);
-void dummy_func_8025AFB8(void);
-void dummy_func_8025AFC0(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/abilityprogress.c ---
 int ability_hasLearned(enum ability_e);
@@ -3158,10 +3139,6 @@ void bkmemset64(void *dest, s32 value, s32 size);
 
 // --- RBB/ch/engineparts.c ---
 f32 func_8038A6B8(ActorMarker *);
-
-// --- core1/bamotor.c ---
-void baMotor_80250D94(f32, f32, f32);
-void baMotor_80250E94(f32, f32, f32, f32, f32, f32);
 
 // --- core1/memory.c ---
 void * bk_malloc(size_t size);

@@ -277,7 +277,7 @@ void thread5_handleVIRetraceEvent(void) {
             osDpSetStatus(DPC_CLR_FREEZE);
 
             sUnkFlag2_Saved = sUnkFlag2;
-            // dummy_func_8025AFB8();
+            // core1_1D590_func_8025AFB8();
 
             if (sUnkFlag2_Saved & 1) {
                 sUnkCounter3 = 30;
@@ -468,7 +468,7 @@ void thread5_handlePreNMIEvent(void) {
         // if(&osViModeMpalLpn1){}
         osViSetMode(&osViModePalLpn1);
 #endif
-        baMotor_80250FC0(); //stop controller motors
+        baMotor_forceStop(); //stop controller motors
         do {
             osDpSetStatus(DPC_STATUS_FLUSH);
         } while (1);

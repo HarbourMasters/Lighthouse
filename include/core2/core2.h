@@ -71,4 +71,8 @@ s32  gsworld_getEnableDraw(void);
 void gsworld_load(enum map_e map_id);
 void gsworld_stub3(s32 arg0);
 
+s32 getGameMode(void);
+s16 *picturebox_getColorBuffer(void);
+BKSpriteTextureBlock *func_8033EFB0(Struct84s *arg0, s32 arg1);
+
 #endif

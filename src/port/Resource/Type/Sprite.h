@@ -20,7 +20,6 @@ inline size_t Align8(size_t offset) {
 
 // Store frame data with palette and texture chunks
 struct SpriteFrameData {
-    BKSpriteFrame frameHeader;
     std::vector<uint8_t> paletteData;
 
     struct ChunkData {
@@ -29,6 +28,7 @@ struct SpriteFrameData {
         std::string resPath;
     };
     std::vector<ChunkData> chunks;
+    BKSpriteFrame frameHeader;
 };
 
 class Sprite : public Ship::Resource<BKSprite> {

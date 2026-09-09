@@ -12,7 +12,6 @@ void yaw_setVelocityBounded(f32, f32);
 //void anctrl_start(AnimCtrl *, char*, s32);
 
 void func_802900B4(void);
-void baMotor_80250D94(f32, f32, f32);
 
 /* .data */
 u8 D_80364D20[] = {

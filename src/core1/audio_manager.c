@@ -22,7 +22,6 @@
 #else
 #define AUDIO_HEAP_SIZE VER_SELECT(0x21000, 0x23A00, 0x21000, 0x21000)
 #endif
-#define AUDIOMANAGER_THREAD_STACK_SIZE 3704
 #define NUM_SAMPLES 184 // n_audio has fixed sample count of 184
 #define NUM_OSC_STATES 48
 #define NUM_AUDIO_CMDS_PER_SECOND 150000
@@ -145,7 +144,7 @@ struct {
     OSMesg audioFrameMsgBuf[8];
     OSMesgQueue audioReplyMsgQ;
     OSMesg audioReplyMsgBuf[8];
-    u8 thread_stack[AUDIOMANAGER_THREAD_STACK_SIZE];
+    u8 thread_stack[3704];
 } audioManager;
 ALHeap sALHeapInfo;
 u8 *sALHeapBuffer;
@@ -350,7 +349,7 @@ void audioManager_create(void) {
         audioManager.audio_info[i]->data = bk_malloc(4 * sMaxFrameSize);
     }
 
-    osCreateThread(&audioManager.thread, 4, &audioManagerThread_entry, 0, audioManager.thread_stack + AUDIOMANAGER_THREAD_STACK_SIZE, 50);
+    osCreateThread(&audioManager.thread, AUDIOMANAGER_THREAD_ID, audioManagerThread_entry, NULL, audioManager.thread_stack + 3704, AUDIOMANAGER_THREAD_PRI);
 }
 
 void audioManagerThread_entry(void *arg) {
@@ -415,10 +414,10 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
 
 #if VERSION == VERSION_USA_1_0
     if (ret == -1) {
-        gcdebugText_showLargeValue(2, 2002);
-        func_80247F9C(prev_info->frame_samples);
-        func_80247F9C(info->frame_samples);
-        gcdebugText_pauseThread();
+        gcdebugtext_showLargeValue(2, 2002);
+        gcdebugtext_showValue(prev_info->frame_samples);
+        gcdebugtext_showValue(info->frame_samples);
+        gcdebugtext_pauseThread();
     }
 #endif
 
@@ -439,10 +438,10 @@ bool audioManager_handleFrameMsg(AudioInfo *info, AudioInfo *prev_info){
 
 #if VERSION == VERSION_USA_1_0
     if (sNumAudioCmdsPerFrame < command_list_len) {
-        gcdebugText_showLargeValue(2, 2000);
-        func_80247F9C(command_list_len);
-        func_80247F9C(sNumAudioCmdsPerFrame);
-        gcdebugText_pauseThread();
+        gcdebugtext_showLargeValue(2, 2000);
+        gcdebugtext_showValue(command_list_len);
+        gcdebugtext_showValue(sNumAudioCmdsPerFrame);
+        gcdebugtext_pauseThread();
     }
 #endif
 
@@ -504,8 +503,8 @@ uintptr_t func_80240204(uintptr_t addr, s32 len, void *state) { // [port] pointe
     phi_s0 = sDMAState.unk8;
     if (phi_s0 == NULL) {
 #if VERSION == VERSION_USA_1_0
-        gcdebugText_showLargeValue(2, 2001);
-        gcdebugText_pauseThread();
+        gcdebugtext_showLargeValue(2, 2001);
+        gcdebugtext_pauseThread();
         return osVirtualToPhysical(sDMAState.unk4);
 #elif VERSION == VERSION_PAL
         return osVirtualToPhysical(phi_v0);
@@ -561,10 +560,10 @@ void audioManager_func_802403F0(void) {
 #if VERSION == VERSION_USA_1_0
         if (osRecvMesg(&audioDMANotifyMsgQ, &temp_mesg, OS_MESG_NOBLOCK) == -1) {
 #if 0 // [port] DMA is synchronous on PC (memcpy), no completion messages to drain
-            gcdebugText_showLargeValue(2, 2005);
-            func_80247F9C(sNumDMATransfers);
-            func_80247F9C(i);
-            gcdebugText_pauseThread();
+            gcdebugtext_showLargeValue(2, 2005);
+            gcdebugtext_showValue(sNumDMATransfers);
+            gcdebugtext_showValue(i);
+            gcdebugtext_pauseThread();
 #else
             break;
 #endif

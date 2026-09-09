@@ -4,18 +4,9 @@
 #include "core1/core1.h"
 #include "checksums.h"
 
-extern u8  gHeapBase;
-extern u32 D_8027BF2C;
-extern u32 D_8027BF30;
+extern u8 gHeapBase[];
 
-void overlay_load(
-    s32 id,
-    u8 *ram_start, u8 *ram_end,
-    u32 rom_start, u32 rom_end,
-    u8 *code_start, u8 *code_end,
-    u8 *data_start, u8 *data_end,
-    u8 *bss_start, u8 *bss_end
-) {
+void overlay_load(s32 id, u8 *ram_start, u8 *ram_end, u32 rom_start, u32 rom_end, u8 *code_start, u8 *code_end, u8 *data_start, u8 *data_end, u8 *bss_start, u8 *bss_end) {
 #if 0
     void *compressed_buffer;
     u32 crc2, crc1;
@@ -36,10 +27,10 @@ void overlay_load(
         core1_15B30_sendMesg3ToRenderThread();
         compressed_buffer = &D_8000E800;
     } else {
-        compressed_buffer = &gHeapBase;
+        compressed_buffer = gHeapBase;
     }
 
-    piMgr_read(compressed_buffer, rom_start, rom_end - rom_start);
+    parallel_readDMA(compressed_buffer, rom_start, rom_end - rom_start);
     rarezip_uncompress(&compressed_buffer, &ram_start);
     crc1 = D_8027BF2C;
     crc2 = D_8027BF30;

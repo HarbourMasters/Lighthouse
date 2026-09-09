@@ -168,7 +168,7 @@ void func_802E39D0(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 framebuffer_idx, bool ar
 
     gcpausemenu_draw(gfx, mtx, vtx);
     if(!game_is_frozen() && !capturing){
-        // dummy_func_8025AFC0(gfx, mtx, vtx);
+        // core1_1D590_func_8025AFC0(gfx, mtx, vtx);
     }
 
     if (!capturing) {
@@ -423,7 +423,7 @@ void func_802E412C(s32 arg0, s32 arg1){
 
 void func_802E4170(void){
     game_setMode(GAME_MODE_2_UNKNOWN,0);
-    defragManager_free();
+    defragthread_free();
     func_802E5F68();
     if(!func_802E4A08())
         print_free();
@@ -460,7 +460,7 @@ void func_802E4214(enum map_e map_id){
     if(!func_802E4A08())
         print_init();
     func_802E5F38();
-    defragManager_init();
+    defragthread_init();
     modelRender_init();
     depthbuffer_enable(TRUE);
     animCache_init();

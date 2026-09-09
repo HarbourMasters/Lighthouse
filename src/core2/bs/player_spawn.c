@@ -870,7 +870,7 @@ void func_8029C984(void){
     func_8025AB00();
     func_8025A2FC(0, 4000);
     comusic_playTrack(COMUSIC_1A_DEATH);
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
 }
 
 s32 func_8029C9C0(s32 arg0){
@@ -935,7 +935,7 @@ void func_8029CB84(void){
 
 void func_8029CBC4(void){
     func_8025A55C(-1, 4000, 0xc);
-    core1_ce60_incOrDecCounter(true);
+    midichannel_incOrDecCounter(true);
 }
 
 void func_8029CBF4(void){
@@ -982,7 +982,7 @@ void func_8029CCC4(void){
         return;
     }
 
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     func_8025A55C(0, 4000, 0xC);
     coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
     timedFunc_set_0(4.0f, func_8029CBF4);

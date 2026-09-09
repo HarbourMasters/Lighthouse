@@ -509,7 +509,7 @@ void bswalrus_die_update(void){
 }
 
 void bswalrus_die_end(void){
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     baphysics_reset_gravity();
     pitch_setIdeal(0.0f);
     roll_setIdeal(0.0f);
@@ -733,7 +733,7 @@ void bswalrus_timeout_init(void) {
     ncbadie_func_802BF2C0(60.0f);
     func_8025A58C(0, 4000);
     comusic_playTrack(COMUSIC_3C_MINIGAME_LOSS);
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     baMarker_collisionOff();
     batimer_set(0, 2.9f);
     func_802B813C();
@@ -750,7 +750,7 @@ void bswalrus_timeout_update(void) {
 
 void bswalrus_timeout_end(void) {
     func_80291548();
-    core1_ce60_incOrDecCounter(true);
+    midichannel_incOrDecCounter(true);
     func_8025A904();
     baeyes_open();
     func_802B80D0();

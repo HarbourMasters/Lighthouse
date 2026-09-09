@@ -4,7 +4,6 @@
 #include "variables.h"
 
 
-extern void baMotor_80250E6C(f32, f32);
 extern void func_802BE720(void);
 
 typedef struct {

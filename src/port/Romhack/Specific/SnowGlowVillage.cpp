@@ -530,13 +530,13 @@ void SnowGlow_AmbienceUpdate(s32* playerPos, s32* trackId) {
 
     // Channel masks
     if (map == MAP_34_RBB_ENGINE_ROOM) {
-        core1_ce60_setChanMask(player_getWaterState() == BSWATERGROUP_2_UNDERWATER ? 0x800 : 0x43FE);
+        midichannel_setChanMask(player_getWaterState() == BSWATERGROUP_2_UNDERWATER ? 0x800 : 0x43FE);
     } else if (map == MAP_91_FILE_SELECT) {
-        core1_ce60_setChanMaskWithTransitionSpeed(gameSelect_getGameNumber() == 0 ? 0x200 : 0x1FF, 0.5f);
+        midichannel_setChanMaskWithTransitionSpeed(gameSelect_getGameNumber() == 0 ? 0x200 : 0x1FF, 0.5f);
     } else {
         for (const s32 m : kAmbienceAllChanMaps) {
             if (m == map) {
-                core1_ce60_setChanMask(player_getWaterState() == BSWATERGROUP_2_UNDERWATER ? 0x8000 : 0x7FFF);
+                midichannel_setChanMask(player_getWaterState() == BSWATERGROUP_2_UNDERWATER ? 0x8000 : 0x7FFF);
                 break;
             }
         }
@@ -568,14 +568,14 @@ void SnowGlow_AmbienceUpdate(s32* playerPos, s32* trackId) {
         if (zoneDistance < activeZone->inner) {
             trackId[2] = 0;
             trackId[3] = gcMusic_getDefaultVolumeForTrack((comusic_e)activeZone->track);
-            core1_ce60_func_8024A9EC(0);
+            midichannel_func_8024A9EC(0);
         }
         trackId[0] = D_80383340.unk0;
         trackId[1] = activeZone->track;
     } else if (onZoneMap) {
         trackId[2] = gcMusic_getDefaultVolumeForTrack((comusic_e)D_80383340.unk0);
         trackId[3] = 0;
-        core1_ce60_func_8024A9EC(0);
+        midichannel_func_8024A9EC(0);
         player_getPosition_s32(playerPos);
     }
 }

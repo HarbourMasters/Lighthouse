@@ -22,7 +22,7 @@ s32 sprite_getFrameCount(BKSprite *this) {
     return this->frameCnt;
 }
 
-BKSpriteFrame *sprite_getFramePtr(BKSprite *this, u32 frame_id) {
+BKSpriteFrame *sprite_getFramePtr(BKSprite *this, s32 frame_id) {
     // Lighthouse [port] Changed to pointers, may revert, unsure - Proxy
     return this->frames[frame_id];
 }

@@ -80,6 +80,7 @@ typedef struct bk_sprite_frame_s{
     s16 unkE;
     s16 unk10;
     s16 unk12;
+    u16 palette[];
 } BKSpriteFrame;
 
 typedef struct bk_sprite_texture_block_s{

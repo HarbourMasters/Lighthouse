@@ -470,7 +470,7 @@ void bsbeemain_die_update(void){
 }
 
 void bsbeemain_die_end(void){
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     baphysics_reset_gravity();
     func_80291548();
     baeyes_open();
@@ -509,7 +509,7 @@ void bsbee_locked_end(void){
 void func_802A2054(void){
     baMarker_collisionOn();
     func_8025A2FC(-1, 0xFA0);
-    core1_ce60_incOrDecCounter(true);
+    midichannel_incOrDecCounter(true);
     func_80291548();
     balookat_end();
 }
@@ -520,7 +520,7 @@ void func_802A2098(void){
     yaw_setIdeal(func_8029B41C());
     code_14420_setUpdateTypes(1, YAW_STATE_1_DEFAULT, 3, BA_PHYSICS_NORMAL);
     baphysics_set_target_horizontal_velocity(0.0f);
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     func_8025A2FC(0, 0xFA0);
     coMusicPlayer_playMusic(COMUSIC_42_NOTEDOOR_OPENING_FANFARE, -1);
     func_8029151C(0xC);

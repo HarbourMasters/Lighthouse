@@ -13,7 +13,7 @@
 #include "port/OS/OS.h"
 #include "port/Patches/Patches.h"
 
-#define PFSMANAGER_THREAD_STACK_SIZE 0x200
+#define PFSMANAGER_THREAD_STACK_SIZE 512
 
 extern s32 D_803727F4;
 extern s32 D_80276574;
@@ -301,7 +301,7 @@ void pfsManager_update(void) {
 }
 
 void pfsManager_readData(){
-    func_8024F35C(0);
+    controller_func_8024F35C(0);
 }
 
 
@@ -324,7 +324,7 @@ void pfsManager_entry(void *arg) {
 void pfsManager_init(void) {
     osCreateMesgQueue(&pfsManagerContPollingMsqQ, &pfsManagerContPollingMsqBuf, 1);
     osCreateMesgQueue(&pfsManagerContReplyMsgQ, &pfsManagerContReplyMsgBuf, 1);
-    osCreateThread(&sPfsManagerThread, 7, pfsManager_entry, NULL, sPfsManagerThreadStack + PFSMANAGER_THREAD_STACK_SIZE, 40);
+    osCreateThread(&sPfsManagerThread, CONTROLLER_THREAD_ID, pfsManager_entry, NULL, sPfsManagerThreadStack + PFSMANAGER_THREAD_STACK_SIZE, CONTROLLER_THREAD_PRI);
     osSetEventMesg(OS_EVENT_SI, &pfsManagerContPollingMsqQ, OS_MESG_PTR(&pfsManagerContPollingMsqBuf));
     osContInit(&pfsManagerContPollingMsqQ, &pfsManagerBitPattern, &pfsManagerContStatus);
     osContSetCh(1);
@@ -349,7 +349,7 @@ void func_8024F180(void){
 
 void pfsManager_getStartReadData(void){
     if(pfsManagerBusy == 0){
-        func_8024F35C(1);
+        controller_func_8024F35C(1);
         osContStartReadData(&pfsManagerContPollingMsqQ);
     }
 }
@@ -407,7 +407,7 @@ OSMesgQueue *pfsManager_getSiLockQueue(void){
     return &D_802816E8;
 }
 
-void func_8024F35C(s32 arg0) {
+void controller_func_8024F35C(s32 arg0) {
     if(!arg0)
         func_8024F4AC();
     else
