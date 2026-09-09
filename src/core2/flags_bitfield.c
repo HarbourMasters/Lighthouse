@@ -37,7 +37,8 @@ struct {
     u8 unk8[0x19];
 } gVolatileFlags;
 
-u8 glVolatileFlagsCopy[0x21]; //copy of gVolatileFlags
+//u8 glVolatileFlagsCopy[0x21]; //copy of gVolatileFlags
+u8 glVolatileFlagsCopy[0x24]; //copy of gVolatileFlags
 
 
 /* .code */

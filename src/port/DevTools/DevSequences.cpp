@@ -26,6 +26,7 @@ int getGameMode(void);
 void func_80324DBC(float time, int text_id, int arg2, float* position, void* caller, void* cb1, void* cb2);
 void timedFunc_set_1(float time, void (*func)(int), int arg); // queue a 1-arg delayed call
 void func_80311714(int next_state);                           // set g_Dialog.unk128_3 (parade-credit persist flag)
+void volatileFlag_set(enum volatile_flags_e index, int set);
 }
 
 namespace Lighthouse {
@@ -33,6 +34,7 @@ namespace DevTools {
 
 static int sPending = SEQ_NONE;
 static int sPendingMap = -1;
+static bool sMode9InDemo = false;
 
 void RequestSequence(int seq) {
     sPending = seq;
@@ -45,6 +47,11 @@ void RequestCutsceneMap(int mapId) {
 
 void RegisterDevSequences_Init() {
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
+        if (sMode9InDemo && !gctransition_8030BDC0() && getGameMode() != GAME_MODE_9_BANJO_AND_KAZOOIE) {
+            sMode9InDemo = false;
+            volatileFlag_set(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE, 0);
+        }
+
         if (sPending == SEQ_NONE || gctransition_8030BDC0()) {
             return;
         }
@@ -56,6 +63,7 @@ void RegisterDevSequences_Init() {
             timedFunc_set_1(1.0f, func_80311714, 0);
             func_80324DBC(1.0f, 0x11C9, 0xA0, nullptr, nullptr, nullptr, nullptr);
             timedFunc_set_1(1.0f, func_80311714, 1);
+            sMode9InDemo = true;
             sPending = SEQ_NONE;
             return;
         }

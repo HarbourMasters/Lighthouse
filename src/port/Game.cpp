@@ -32,6 +32,7 @@
 #include "UI/LighthouseModMenuWindow.h"
 
 extern "C" {
+#include <libultra/rdp.h>
 #include "enums.h"
 #include "core1/core1.h"
 #include "core1/main.h"
@@ -42,6 +43,7 @@ void audioManagerThread_entry(void* arg);
 void core1_15B30_sendMesg3ToRenderThread(void);
 OSMesgQueue* thread5_getTaskQueue(void);
 OSMesgQueue* thread5_getSyncQueue(void);
+u32 osDpGetStatus(void);
 }
 
 // The game tick runs on its own thread and submits display lists through the
@@ -154,6 +156,9 @@ void RenderTask(void* dlStart) {
 // goes out. DP has to lead: SP frees thread5 to start the next task, and starting
 // one overwrites the flags the frame's swap token gates on.
 int ServiceRcp() {
+    if (osDpGetStatus() & DPC_STATUS_FREEZE) {
+        return 0;
+    }
     OSTask* task = OS_SpTakePendingTask();
     if (task == nullptr) {
         return 0;

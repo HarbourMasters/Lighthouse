@@ -155,7 +155,7 @@ GameEngine::GameEngine() {
 
     lhFast3dWindow = std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({}));
     this->context->InitWindow(lhFast3dWindow);
-    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 736, .DesiredBuffered = 2208 });
+    this->context->InitAudio({ .SampleRate = 22000, .SampleLength = 1024, .DesiredBuffered = 2208 });
 
     LighthouseGui::SetupMenu();
 

@@ -270,6 +270,8 @@ ALBank *musicInstruments_getSoundBank(void) {
 }
 
 void musicTrack_load(enum comusic_e track_id) {
+    // [port] Maps with no music use track -1 (MAP_94), and romhack ids are unvalidated.
+    if ((s32)track_id < 0 || (s32)track_id >= sNumMIDIAssets) return;
     if (sMIDIAssets[track_id] == NULL) {
         assetcache_func_8033B788();
         sMIDIAssets[track_id] = assetcache_get(MUSIC_TRACK_ASSET_BASE_ID + track_id);
@@ -279,6 +281,7 @@ void musicTrack_load(enum comusic_e track_id) {
 void musicTrack_release(enum comusic_e track_id) {
     int i;
 
+    if ((s32)track_id < 0 || (s32)track_id >= sNumMIDIAssets) return; // [port]
     port_lockAudio();
     if (sMIDIAssets[track_id] != NULL) {
         for (i = 0; i < NUM_MUSIC_SLOTS; i++) {

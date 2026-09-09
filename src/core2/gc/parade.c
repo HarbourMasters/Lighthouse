@@ -272,7 +272,9 @@ void gcparade_setState(enum parade_state_e next_state) {
 }
 
 void func_8031B010(void){
-    gcparade_setState(PARADE_STATE_6_NAME_DISAPPEAR);
+// [port] Null guard for dev tools
+//  gcparade_setState(PARADE_STATE_6_NAME_DISAPPEAR);
+    if (D_803830F0.parade_element != NULL) gcparade_setState(PARADE_STATE_6_NAME_DISAPPEAR);
 }
 
 void gcparade_textCallback(ActorMarker *caller, enum asset_e text_id, s32 arg2){
