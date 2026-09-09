@@ -36,10 +36,10 @@ void Anchor::HandlePacket_SetItemCount(nlohmann::json& payload) {
     s16 item = payload.at("item").get<s16>();
     s32 count = payload.at("count").get<s32>();
 
-    // Jiggy-total increase is a teammate's collect: apply silently (paired COLLECT_ITEM pops the
-    // HUD counter). Decreases (pedestal spends) keep the vanilla total pop.
-    if (item == ITEM_26_JIGGY_TOTAL && count > item_getCount(ITEM_26_JIGGY_TOTAL)) {
-        item_adjustByDiff((enum item_e)item, count - item_getCount(ITEM_26_JIGGY_TOTAL), 1, 0);
+    if (item == ITEM_26_JIGGY_TOTAL) {
+        s32 delta = count - item_getCount(ITEM_26_JIGGY_TOTAL);
+        s32 noHud = (delta > 0 || func_802FADD4(ITEM_2B_UNKNOWN)) ? 1 : 0;
+        item_adjustByDiff((enum item_e)item, delta, noHud, 0);
         return;
     }
 

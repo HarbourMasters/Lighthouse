@@ -26,6 +26,7 @@ extern "C" void port_fpTwinkly_release(void) {
 }
 
 s32 Anchor_LevelOfMap(s32 map);
+void Anchor_DespawnCollectedCollectibles();
 
 // Every listener below that alters vanilla behaviour is wrapped in this. Presence-only rooms
 // (the global room, or sync turned off) must play exactly like single player.
@@ -194,6 +195,7 @@ void Anchor::RegisterHooks() {
         auto* anchor = Anchor::GetInstance();
         if (Anchor_WorldSyncActive() && ev->nextMap != MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
             ev->nextMap != MAP_1F_CS_START_RAREWARE) {
+            Anchor_DespawnCollectedCollectibles();
             anchor->SendPacket_RequestScopedState((GameMap)ev->nextMap);
 
             s32 enteredFlag = -1;
@@ -238,7 +240,7 @@ void Anchor::RegisterHooks() {
         Anchor::GetInstance()->SendPacket_MapLoad((GameMap)getDefaultBootMap(), gsworld_getExit());
     });
 
-    COND_HOOK(OnGameLoad, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
+    COND_HOOK(OnGameStart, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         anchor->hasCheckedRandoCompat = false;
         anchor->reloadMapOnTeamState = false;

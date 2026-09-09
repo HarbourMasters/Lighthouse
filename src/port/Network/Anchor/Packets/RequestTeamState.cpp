@@ -16,8 +16,8 @@
  */
 
 void Anchor::SendPacket_RequestTeamState(bool force) {
-    // `force` bypasses the IsSaveLoaded check: OnGameLoad fires from gameFile_load while the map is
-    // still FILE_SELECT, so the save is loading but IsSaveLoaded() is still false.
+    // `force` bypasses the IsSaveLoaded check: OnGameStart fires from the file-select state machine
+    // while the map is still FILE_SELECT, so the save is loaded but IsSaveLoaded() is still false.
     if ((!force && !IsSaveLoaded()) || !roomState.syncItemsAndFlags) {
         return;
     }

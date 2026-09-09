@@ -3,9 +3,13 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 #include "port/UI/Notification.h"
+#include "port/UI/LighthouseGui.hpp"
+#include "port/UI/LighthouseModals.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Romhack/RomhackCompat.h"
 #include "port/Rando/Rando.h"
 #include <algorithm>
+#include <string>
 #include <vector>
 
 #include "variables.h"
@@ -37,6 +41,15 @@ extern void port_hutSmash_restore(const std::vector<int32_t>& flat);
  * the team queue (assumed drained); receiving replays any queued packets after applying state.
  */
 
+// Identifies the game a team state was captured under.
+static std::string TeamStateSignature() {
+    std::string sig = Lighthouse::CurrentRomhackLabel();
+    if (IS_RANDO) {
+        sig += " (rando:" + std::to_string((int32_t)RANDO_SEED) + ")";
+    }
+    return sig;
+}
+
 // Snapshot a decomp byte-array score/flag section into a JSON byte array.
 static std::vector<u8> ScoreBytes(void (*getSizeAndPtr)(s32*, u8**)) {
     s32 size;
@@ -45,8 +58,25 @@ static std::vector<u8> ScoreBytes(void (*getSizeAndPtr)(s32*, u8**)) {
     return std::vector<u8>(addr, addr + size);
 }
 
+bool Anchor::LocalGameMatchesRoom() {
+    if (roomState.romhackName.empty()) {
+        return true;
+    }
+
+    if (Lighthouse::CurrentRomhackLabel() != roomState.romhackName) {
+        return false;
+    }
+    const bool localRando = IS_RANDO;
+    if (localRando != roomState.isRando) {
+        return false;
+    }
+    return !localRando || (int32_t)RANDO_SEED == roomState.seed;
+}
+
 void Anchor::SendPacket_UpdateTeamState() {
-    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags) {
+    // Don't overwrite the team's stored save with progress from a different game than the room is
+    // running. This covers answering a teammate's request as well as our own saves.
+    if (!IsSaveLoaded() || !roomState.syncItemsAndFlags || !LocalGameMatchesRoom()) {
         return;
     }
 
@@ -54,6 +84,7 @@ void Anchor::SendPacket_UpdateTeamState() {
     payload["type"] = UPDATE_TEAM_STATE;
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["queue"] = json::array();
+    payload["state"]["gameSig"] = TeamStateSignature();
     payload["state"]["fileProgressFlags"] = ScoreBytes(fileProgressFlag_getSizeAndPtr);
     payload["state"]["jiggies"] = ScoreBytes(jiggyscore_getSizeAndPtr);
     payload["state"]["honeycombs"] = ScoreBytes(honeycombscore_getSizeAndPtr);
@@ -104,6 +135,16 @@ void Anchor::SendPacket_ClearTeamState(std::string teamId) {
     SendJsonToRemote(payload);
 }
 
+// Drops the room's stored team save and reseeds it from our own file, so the room carries the game
+// we're actually playing. Only ever called for the room owner with nobody playing from the old one.
+void Anchor::ClearMismatchedTeamState(std::string teamId) {
+    SendPacket_ClearTeamState(teamId);
+    SendPacket_UpdateTeamState();
+    Notification::Emit({
+        .message = "Cleared team state from a different game",
+    });
+}
+
 // Overwrites a local byte section with the authoritative team-state array (no additive merge).
 static void ApplyTeamBytes(nlohmann::json& bytes, void (*getSizeAndPtr)(s32*, u8**)) {
     s32 size;
@@ -118,6 +159,55 @@ static void ApplyTeamBytes(nlohmann::json& bytes, void (*getSizeAndPtr)(s32*, u8
 void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
     if (!roomState.syncItemsAndFlags) {
         return;
+    }
+
+    if (payload.contains("state") && payload["state"].contains("gameSig")) {
+        if (selectedFileNum == DEFAULT_FILE_NUM) {
+            return;
+        }
+        const std::string incoming = payload["state"]["gameSig"].get<std::string>();
+        const std::string local = TeamStateSignature();
+        if (incoming != local) {
+            const std::string ownTeam = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+            bool teammatePlaying = false;
+            for (auto& [clientId, client] : clients) {
+                if (!client.self && client.online && client.isSaveLoaded && client.teamId == ownTeam) {
+                    teammatePlaying = true;
+                    break;
+                }
+            }
+            const bool mayClear = ownClientId != 0 && roomState.ownerClientId == ownClientId && !teammatePlaying;
+
+            if (incoming == lastClearedTeamStateSig) {
+                return;
+            }
+            lastClearedTeamStateSig = incoming;
+
+            std::string msg = "The team save stored for this room was recorded under a different\n"
+                              "game, so it was not applied to your file.\n\n";
+            msg += "    Stored save:  " + incoming + "\n";
+            msg += "    Your file:    " + local + "\n\n";
+            msg += "Your save is untouched, and nothing of yours is being shared with it.\n";
+
+            if (!mayClear) {
+                // Someone else's session to resolve: either they own the room, or a teammate is
+                // mid-session on it. Say what's happening and leave their save alone.
+                msg += "\nLoad a file that matches it, or start a new one, to join the session.";
+                LighthouseGui::RegisterPopup("Team State Mismatch", msg);
+                return;
+            }
+
+            if (CVarGetInteger(CVAR_REMOTE_ANCHOR("RoomSettings.AutoClearMismatchedState"), 0)) {
+                ClearMismatchedTeamState(ownTeam);
+                return;
+            }
+
+            msg += "\nClear it and start this room fresh on your game?";
+            LighthouseGui::RegisterPopup("Team State Mismatch", msg, "Clear It", "Keep It",
+                                         [this, ownTeam]() { ClearMismatchedTeamState(ownTeam); });
+            return;
+        }
+        lastClearedTeamStateSig.clear();
     }
 
     isHandlingUpdateTeamState = true;

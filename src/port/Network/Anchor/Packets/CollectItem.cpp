@@ -13,6 +13,33 @@ static const char* const kJiggyLevelNames[10] = {
     "Gruntilda's Lair", "Gobi's Valley",       "Click Clock Wood", "Rusty Bucket Bay",  "Mad Monster Mansion",
 };
 
+void Anchor_DespawnCollectedCollectibles() {
+    for (s32 id = 1; id < 0x65; id++) {
+        if (port_jiggyscore_isCollectedRaw((enum jiggy_e)id)) {
+            ActorMarker* m = func_8032B16C((enum jiggy_e)id);
+            if (m != nullptr) {
+                marker_despawn(m);
+            }
+        }
+    }
+    for (s32 id = 1; id < 0x19; id++) { // HONEYCOMB_COUNT
+        if (port_honeycombscore_getRaw((enum honeycomb_e)id)) {
+            ActorMarker* m = actorArray_findHoneycombMarkerById((enum honeycomb_e)id);
+            if (m != nullptr) {
+                marker_despawn(m);
+            }
+        }
+    }
+    for (s32 id = 1; id < 126; id++) { // MUMBO_TOKEN_COUNT
+        if (mumboscore_get((enum mumbotoken_e)id)) {
+            ActorMarker* m = actorArray_findMumboTokenMarkerById((enum mumbotoken_e)id);
+            if (m != nullptr) {
+                marker_despawn(m);
+            }
+        }
+    }
+}
+
 /**
  * COLLECT_ITEM
  */
