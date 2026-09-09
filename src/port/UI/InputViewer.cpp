@@ -109,9 +109,9 @@ void InputViewer::DrawElement() {
     ImVec2 bgSize = GetFast3dGui()->GetTextureSize("Input-Viewer-Background");
     ImVec2 scaledBGSize = ImVec2(bgSize.x * scale, bgSize.y * scale);
 
-    ImGui::SetNextWindowSize(ImVec2(
-        scaledBGSize.x + 20,
-        scaledBGSize.y + (showAnalogAngles ? ImGui::CalcTextSize("X").y : 0) * scale * angleTextScale + 20));
+    ImGui::SetNextWindowSize(
+        ImVec2(scaledBGSize.x + 20,
+               scaledBGSize.y + (showAnalogAngles ? ImGui::CalcTextSize("X").y : 0) * scale * angleTextScale + 20));
     ImGui::SetNextWindowContentSize(
         ImVec2(scaledBGSize.x, scaledBGSize.y + (showAnalogAngles ? 15 : 0) * scale * angleTextScale));
     ImGui::SetNextWindowPos(ImVec2(mainPos.x + size.x - scaledBGSize.x - 30, mainPos.y + size.y - scaledBGSize.y - 30),
@@ -222,15 +222,15 @@ void InputViewer::DrawElement() {
 
         // Dpad
         if (Prefs::Settings::InputViewer::Buttons::Dpad) {
-            const int dpadOutlineMode = useGlobalOutlineMode
-                                            ? buttonOutlineMode
-                                            : Prefs::Settings::InputViewer::Buttons::DpadOutlineMode.Get();
+            const int dpadOutlineMode =
+                useGlobalOutlineMode ? buttonOutlineMode : Prefs::Settings::InputViewer::Buttons::DpadOutlineMode.Get();
             ImGui::SetNextItemAllowOverlap();
             ImGui::SetCursorPos(aPos);
             RenderButton("Dpad-Left", "Dpad-Left Outline", pads[0].button & BTN_DLEFT, scaledBGSize, dpadOutlineMode);
             ImGui::SetNextItemAllowOverlap();
             ImGui::SetCursorPos(aPos);
-            RenderButton("Dpad-Right", "Dpad-Right Outline", pads[0].button & BTN_DRIGHT, scaledBGSize, dpadOutlineMode);
+            RenderButton("Dpad-Right", "Dpad-Right Outline", pads[0].button & BTN_DRIGHT, scaledBGSize,
+                         dpadOutlineMode);
             ImGui::SetNextItemAllowOverlap();
             ImGui::SetCursorPos(aPos);
             RenderButton("Dpad-Up", "Dpad-Up Outline", pads[0].button & BTN_DUP, scaledBGSize, dpadOutlineMode);
@@ -318,11 +318,11 @@ InputViewerSettingsWindow::~InputViewerSettingsWindow() {
 void InputViewerSettingsWindow::DrawElement() {
     // gInputViewer.Scale
     PrefSlider("Input Viewer Scale: %.0f%%", SliderOptions()
-                                               .Setting(&Prefs::Settings::InputViewer::Scale)
-                                               .Display(SliderDisplay::Percentage)
-                                               .Color(THEME_COLOR)
-                                               .ShowButtons(true)
-                                               .Tooltip("Sets the on screen size of the input viewer"));
+                                                 .Setting(&Prefs::Settings::InputViewer::Scale)
+                                                 .Display(SliderDisplay::Percentage)
+                                                 .Color(THEME_COLOR)
+                                                 .ShowButtons(true)
+                                                 .Tooltip("Sets the on screen size of the input viewer"));
 
     // gInputViewer.EnableDragging
     PrefCheckbox("Enable Dragging",
@@ -350,8 +350,9 @@ void InputViewerSettingsWindow::DrawElement() {
                          "custom input viewers."));
 
         // gInputViewer.UseGlobalButtonOutlineMode
-        PrefCheckbox("Use for all buttons", CheckboxOptions().Color(THEME_COLOR).Setting(
-                                                &Prefs::Settings::InputViewer::Buttons::UseGlobalOutlineMode));
+        PrefCheckbox(
+            "Use for all buttons",
+            CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::UseGlobalOutlineMode));
 
         UIWidgets::Separator();
 
@@ -362,8 +363,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::A));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::A) {
             ImGui::Indent();
-            PrefCombobox("##ABtnOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::AOutlineMode));
+            PrefCombobox(
+                "##ABtnOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::AOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.BBtn
@@ -371,8 +373,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::B));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::B) {
             ImGui::Indent();
-            PrefCombobox("##BBtnOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::BOutlineMode));
+            PrefCombobox(
+                "##BBtnOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::BOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.CUp
@@ -380,8 +383,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CUp));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::CUp) {
             ImGui::Indent();
-            PrefCombobox("##CUpOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                             &Prefs::Settings::InputViewer::Buttons::CUpOutlineMode));
+            PrefCombobox(
+                "##CUpOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CUpOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.CRight
@@ -389,8 +393,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CRight));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::CRight) {
             ImGui::Indent();
-            PrefCombobox("##CRightOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                                &Prefs::Settings::InputViewer::Buttons::CRightOutlineMode));
+            PrefCombobox("##CRightOutline", ComboboxOptions()
+                                                .Color(THEME_COLOR)
+                                                .Setting(&Prefs::Settings::InputViewer::Buttons::CRightOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.CDown
@@ -398,8 +403,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CDown));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::CDown) {
             ImGui::Indent();
-            PrefCombobox("##CDownOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                               &Prefs::Settings::InputViewer::Buttons::CDownOutlineMode));
+            PrefCombobox(
+                "##CDownOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CDownOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.CLeft
@@ -407,8 +413,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CLeft));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::CLeft) {
             ImGui::Indent();
-            PrefCombobox("##CLeftOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                               &Prefs::Settings::InputViewer::Buttons::CLeftOutlineMode));
+            PrefCombobox(
+                "##CLeftOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::CLeftOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.LBtn
@@ -416,8 +423,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::L));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::L) {
             ImGui::Indent();
-            PrefCombobox("##LBtnOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::LOutlineMode));
+            PrefCombobox(
+                "##LBtnOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::LOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.RBtn
@@ -425,8 +433,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::R));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::R) {
             ImGui::Indent();
-            PrefCombobox("##RBtnOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::ROutlineMode));
+            PrefCombobox(
+                "##RBtnOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::ROutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.ZBtn
@@ -434,8 +443,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Z));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::Z) {
             ImGui::Indent();
-            PrefCombobox("##ZBtnOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::ZOutlineMode));
+            PrefCombobox(
+                "##ZBtnOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::ZOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.StartBtn
@@ -443,8 +453,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Start));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::Start) {
             ImGui::Indent();
-            PrefCombobox("##StartBtnOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                                  &Prefs::Settings::InputViewer::Buttons::StartOutlineMode));
+            PrefCombobox(
+                "##StartBtnOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::StartOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.Dpad
@@ -452,8 +463,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Dpad));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::Dpad) {
             ImGui::Indent();
-            PrefCombobox("##DpadOutline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::DpadOutlineMode));
+            PrefCombobox(
+                "##DpadOutline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::DpadOutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.Mod1
@@ -461,8 +473,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Mod1));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::Mod1) {
             ImGui::Indent();
-            PrefCombobox("##Mmod1Outline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                               &Prefs::Settings::InputViewer::Buttons::Mod1OutlineMode));
+            PrefCombobox(
+                "##Mmod1Outline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Mod1OutlineMode));
             ImGui::Unindent();
         }
         // gInputViewer.Mod2
@@ -470,8 +483,9 @@ void InputViewerSettingsWindow::DrawElement() {
                      CheckboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Mod2));
         if (useIndividualOutlines && Prefs::Settings::InputViewer::Buttons::Mod2) {
             ImGui::Indent();
-            PrefCombobox("##Mod2Outline", ComboboxOptions().Color(THEME_COLOR).Setting(
-                                              &Prefs::Settings::InputViewer::Buttons::Mod2OutlineMode));
+            PrefCombobox(
+                "##Mod2Outline",
+                ComboboxOptions().Color(THEME_COLOR).Setting(&Prefs::Settings::InputViewer::Buttons::Mod2OutlineMode));
             ImGui::Unindent();
         }
 

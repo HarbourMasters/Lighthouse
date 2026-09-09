@@ -650,8 +650,7 @@ bool PrefSlider(const char* label, const SliderOptions& options) {
     // Integer stays S32 end to end. Scaled modes convert for display only and round back to an int
     // on edit, so nothing a float cannot represent reaches the config.
     const bool scaled = options.display != SliderDisplay::Integer;
-    const float toDisplay =
-        (options.display == SliderDisplay::Percentage ? 100.0f : 1.0f) / (float)pref->Factor();
+    const float toDisplay = (options.display == SliderDisplay::Percentage ? 100.0f : 1.0f) / (float)pref->Factor();
     float displayValue = (float)value * toDisplay;
     float displayMin = (float)min * toDisplay;
     float displayMax = (float)max * toDisplay;
@@ -716,8 +715,8 @@ bool PrefSlider(const char* label, const SliderOptions& options) {
         ImGui::SetNextItemWidth(width);
     }
     if (scaled) {
-        if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &displayValue, &displayMin, &displayMax,
-                                barFormat, options.flags)) {
+        if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &displayValue, &displayMin, &displayMax, barFormat,
+                                options.flags)) {
             value = (int32_t)std::lround((double)displayValue / (double)toDisplay);
             dirty = true;
         }

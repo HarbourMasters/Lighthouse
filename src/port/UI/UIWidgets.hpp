@@ -443,7 +443,6 @@ struct IntSliderOptions : WidgetOptions {
         size = size_;
         return *this;
     }
-
 };
 
 struct FloatSliderOptions : WidgetOptions {
@@ -530,7 +529,6 @@ struct FloatSliderOptions : WidgetOptions {
         size = size_;
         return *this;
     }
-
 };
 
 // Logical value is always stored/factor.
