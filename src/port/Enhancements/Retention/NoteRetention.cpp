@@ -241,6 +241,15 @@ extern "C" void port_noteRetention_onActorsFreed(void) {
     noteActorQueue.clear();
 }
 
+// Queue the same deferred reseed a level entry uses; it waits for normal play, so it can't fire
+// mid-transition or in the pause menu.
+extern "C" void port_noteRetention_requestReseed(void) {
+    if (!systemActive() || !applyEnabled()) {
+        return;
+    }
+    sPendingSeedLevel = (int32_t)level_get();
+}
+
 extern "C" void port_noteRetention_setForced(int32_t forced) {
     sForcedByAnchor = forced != 0;
     ShipInit::Init(CVAR_NOTE_RETENTION);

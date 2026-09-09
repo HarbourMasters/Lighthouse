@@ -98,6 +98,9 @@ void Anchor::SendPacket_UpdateTeamState() {
     timeScores_getSizeAndPtr(&tsSize, &tsAddr);
     payload["state"]["timeScores"] = std::vector<u8>((u8*)tsAddr, (u8*)tsAddr + tsSize);
     payload["state"]["volatileFlags"] = ScoreBytes(volatileFlag_getSizeAndPtr);
+    // Per-level retention bitfields; the receiver rebuilds its counters from these.
+    payload["state"]["noteRetention"] = ScoreBytes(port_noteRetention_getSizeAndPtr);
+    payload["state"]["jinjoRetention"] = ScoreBytes(port_jinjoRetention_getSizeAndPtr);
     // In-memory session sets (never saved).
     payload["state"]["brokenObjects"] = port_breakable_snapshotBroken();
     payload["state"]["carriedCollected"] = port_carriedSync_snapshotCollected();
@@ -233,12 +236,15 @@ void Anchor::HandlePacket_UpdateTeamState(nlohmann::json& payload) {
         if (state.contains("noteScores")) {
             ApplyTeamBytes(state["noteScores"], itemscore_noteScores_getSizeAndPtr);
         }
-        // Per-level retention sets; takes effect on next map load.
+        // Per-level retention sets. The live ITEM_C_NOTE / ITEM_12_JINJOS counters are derived from
+        // these and only seeded on level entry, so reseed them or a mid-level sync shows stale counts.
         if (state.contains("noteRetention")) {
             ApplyTeamBytes(state["noteRetention"], port_noteRetention_getSizeAndPtr);
+            port_noteRetention_requestReseed();
         }
         if (state.contains("jinjoRetention")) {
             ApplyTeamBytes(state["jinjoRetention"], port_jinjoRetention_getSizeAndPtr);
+            port_jinjoRetention_requestReseed();
         }
         if (state.contains("abilities")) {
             ApplyTeamBytes(state["abilities"], ability_getSizeAndPtr);

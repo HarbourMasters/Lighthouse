@@ -17,6 +17,10 @@ void port_noteRetention_onActorsFreed(void);
 // Live slot's note-retention bytes for Anchor team-state sync (size 0 / null if no slot).
 void port_noteRetention_getSizeAndPtr(int32_t* size, uint8_t** addr);
 
+// Recompute the live note counter from the bitfield, deferred to normal play. Call after anything
+// overwrites the bitfield wholesale (team-state sync).
+void port_noteRetention_requestReseed(void);
+
 void port_noteRetention_applyRemoteCollect(int32_t mapId, int32_t noteIndex, int32_t sameMap);
 
 // Record + broadcast a local note pickup (marker is ActorMarker*, void* to avoid engine types).
@@ -29,6 +33,9 @@ void port_noteRetention_setForced(int32_t forced);
 
 // Live slot's jinjo-retention bytes for Anchor team-state sync (size 0 / null if no slot).
 void port_jinjoRetention_getSizeAndPtr(int32_t* size, uint8_t** addr);
+
+// Same as the note variant, for ITEM_12_JINJOS.
+void port_jinjoRetention_requestReseed(void);
 
 void port_jinjoRetention_applyRemoteCollect(int32_t map, int32_t bit, int32_t sameMap);
 
