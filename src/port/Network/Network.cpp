@@ -86,8 +86,9 @@ void Network::ReceiveFromServer() {
 
         // Listen to socket messages
         while (isConnected && networkSocket && isEnabled) {
-            // we check first if socket has data, to not block in the TCP_Recv
-            int socketsReady = SDLNet_CheckSockets(socketSet, 0);
+            // Check for data first so TCP_Recv never blocks.
+            // Must be > 0 or thread returns immediately and spins forever.
+            int socketsReady = SDLNet_CheckSockets(socketSet, 16);
 
             if (socketsReady == -1) {
                 SPDLOG_ERROR("[Network] SDLNet_CheckSockets: {}", SDLNet_GetError());
