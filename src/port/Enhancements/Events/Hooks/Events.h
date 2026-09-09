@@ -45,6 +45,7 @@ typedef enum VBehaviorID {
 
     // Gameplay options and cheats
     VB_DISABLE_SNACKER,
+    VB_ACTOR_UPDATE_DISTANCE, // Proximity gate that skips an actor's normal update work.
     VB_SAVE_AND_EXIT,
     VB_MUMBO_DETRANSFORM,
 

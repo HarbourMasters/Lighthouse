@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 void chSlappa_update(Actor *this);
 
@@ -174,7 +175,7 @@ void chSlappa_update(Actor *this){
         }
     }//L8038B25C
 
-    if(!subaddie_playerIsWithinSphere(this, 4500)) return;
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4500))) return;
 
     this->unk58_0 = true;
     switch(this->state){

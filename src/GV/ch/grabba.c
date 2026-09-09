@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern void func_8025AE50(s32, f32);
 
@@ -188,7 +189,7 @@ void chGrabba_update(Actor *this){
         this->marker->propPtr->unk8_3 = false;
     }//L8038BFF4
 
-    if(subaddie_playerIsWithinSphere(this, 4000) || this->state == 5){
+    if(EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4000)) || this->state == 5){
         this->unk58_0 = true;
         this->marker->propPtr->unk8_3 = true;
         switch(this->state){

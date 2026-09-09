@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "port/Patches/Patches.h"
 
@@ -210,6 +211,8 @@ int __chSnowman_CCW_playerInProtectedZone(void){
 void chSnowman_update(Actor *this){
     ActorLocal_chSirSlush *local = (ActorLocal_chSirSlush *) &this->local;
     f32 dt;
+    bool playerWithinActiveRadius;
+    bool shouldStayActive;
 
 
     dt = time_getDelta();
@@ -255,7 +258,7 @@ void chSnowman_update(Actor *this){
 
         }
     }//L802E223C
-    if(!subaddie_playerIsWithinSphere(this, 4000))
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4000)))
         return;
 
     if(!local->unkB && this->marker->unk14_21){
@@ -265,8 +268,12 @@ void chSnowman_update(Actor *this){
         case CHSNOWMAN_STATE_1_IDLE://L802E22B0
             local->unk9 = false;
             local->unkA = 1;
-            __chSnowman_setYawTarget(this, 6.0f);
-            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
+            playerWithinActiveRadius = subaddie_playerIsWithinSphereAndActive(this, 3150);
+            shouldStayActive = EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, playerWithinActiveRadius);
+            if (playerWithinActiveRadius || !shouldStayActive) {
+                __chSnowman_setYawTarget(this, 6.0f);
+            }
+            if (!shouldStayActive) {
                 __chSnowman_enterDeath(this);
             }
             else if( 
@@ -294,7 +301,9 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_2_ATTACK://L802E23E8
-            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
+            playerWithinActiveRadius = subaddie_playerIsWithinSphereAndActive(this, 3150);
+            shouldStayActive = EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, playerWithinActiveRadius);
+            if (!shouldStayActive) {
                 __chSnowman_enterDeath(this);
             }//L802E240C
             else if( 
@@ -334,7 +343,9 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_3_DIE://L802E2604
-            if(subaddie_playerIsWithinSphereAndActive(this, 3150)){
+            playerWithinActiveRadius = subaddie_playerIsWithinSphereAndActive(this, 3150);
+            shouldStayActive = EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, playerWithinActiveRadius);
+            if (shouldStayActive) {
                 __chSnowman_enterIdle(this);
             }
             break;
