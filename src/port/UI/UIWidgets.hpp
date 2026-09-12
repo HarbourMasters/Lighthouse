@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include "src/port/ShipUtils.h"
 #include "src/port/ShipInit.hpp"
+#include "port/Prefs/Pref.h"
 
 namespace UIWidgets {
 
@@ -109,6 +110,7 @@ struct WidgetOptions {
     const char* tooltip = "";
     bool disabled = false;
     const char* disabledTooltip = "";
+    Prefs::Base* pref = nullptr;
 
     WidgetOptions& Tooltip(const char* tooltip_) {
         tooltip = tooltip_;
@@ -166,7 +168,7 @@ struct ColorPickerOptions : WidgetOptions {
     ImVec2 padding = ImVec2(10.0f, 8.0f);
     Colors color = Colors::Gray;
     Color_RGBA8 defaultValue = { 255, 255, 255, 255 };
-    bool useAlpha, showReset, showRandom, showRainbow, showLock;
+    bool useAlpha = false, showReset = false, showRandom = false, showRainbow = false, showLock = false;
 
     ColorPickerOptions& Size(ImVec2 size_) {
         size = size_;
@@ -216,6 +218,16 @@ struct ColorPickerOptions : WidgetOptions {
     ColorPickerOptions& DefaultValue(Color_RGBA8 defaultValue_) {
         defaultValue = defaultValue_;
         return *this;
+    }
+
+    // Only applicable to PrefColorPicker; the pref carries its own default, rainbow and lock.
+    ColorPickerOptions& Setting(Prefs::Color* pref_) {
+        pref = pref_;
+        return *this;
+    }
+
+    Prefs::Color* GetSetting() const {
+        return static_cast<Prefs::Color*>(pref);
     }
 };
 
@@ -298,6 +310,15 @@ struct CheckboxOptions : WidgetOptions {
         padding = padding_;
         return *this;
     }
+
+    CheckboxOptions& Setting(Prefs::Bool* settingObj) {
+        pref = settingObj;
+        return *this;
+    }
+
+    Prefs::Bool* GetSetting() const {
+        return static_cast<Prefs::Bool*>(pref);
+    }
 };
 
 struct ComboboxOptions : WidgetOptions {
@@ -337,12 +358,22 @@ struct ComboboxOptions : WidgetOptions {
         color = color_;
         return *this;
     }
+
+    ComboboxOptions& Setting(Prefs::Enum* pref_) {
+        pref = pref_;
+        return *this;
+    }
+
+    Prefs::Enum* GetSetting() const {
+        return static_cast<Prefs::Enum*>(pref);
+    }
 };
 
 struct IntSliderOptions : WidgetOptions {
     bool showButtons = true;
     const char* format = "%d";
     int32_t step = 1;
+    // min/max/defaultValue/clamp are only used by SliderInt/CVarSliderInt; PrefSliderInt takes them from the pref.
     int32_t min = 1;
     int32_t max = 10;
     int32_t defaultValue = 1;
@@ -383,6 +414,11 @@ struct IntSliderOptions : WidgetOptions {
         return *this;
     }
 
+    IntSliderOptions& Clamp(bool clamp_) {
+        clamp = clamp_;
+        return *this;
+    }
+
     IntSliderOptions& ComponentAlignment(ComponentAlignments alignment_) {
         alignment = alignment_;
         return *this;
@@ -407,17 +443,14 @@ struct IntSliderOptions : WidgetOptions {
         size = size_;
         return *this;
     }
-
-    IntSliderOptions& Clamp(bool clamp_) {
-        clamp = clamp_;
-        return *this;
-    }
 };
 
 struct FloatSliderOptions : WidgetOptions {
     bool showButtons = true;
     const char* format = "%f";
     float step = 0.01f;
+    // min/max/defaultValue/clamp are only used by SliderFloat/CVarSliderFloat; PrefSliderFloat takes them from the
+    // pref.
     float min = 0.01f;
     float max = 10.0f;
     float defaultValue = 1.0f;
@@ -459,6 +492,11 @@ struct FloatSliderOptions : WidgetOptions {
         return *this;
     }
 
+    FloatSliderOptions& Clamp(bool clamp_) {
+        clamp = clamp_;
+        return *this;
+    }
+
     FloatSliderOptions& ComponentAlignment(ComponentAlignments alignment_) {
         alignment = alignment_;
         return *this;
@@ -491,10 +529,87 @@ struct FloatSliderOptions : WidgetOptions {
         size = size_;
         return *this;
     }
+};
 
-    FloatSliderOptions& Clamp(bool clamp_) {
-        clamp = clamp_;
+// Logical value is always stored/factor.
+enum class SliderDisplay {
+    Integer,
+    Float,
+    Percentage, // logical value * 100
+};
+
+// Range, precision and clamping come from the pref; these are presentation only.
+struct SliderOptions : WidgetOptions {
+    bool showButtons = true;
+    int32_t step = 1; // stored units: with factor 100, step 1 is 0.01
+    SliderDisplay display = SliderDisplay::Integer;
+    // Null derives the bar readout from the pref's factor.
+    const char* format = nullptr;
+    ComponentAlignments alignment = ComponentAlignments::Left;
+    LabelPositions labelPosition = LabelPositions::Above;
+    Colors color = Colors::Gray;
+    ImGuiSliderFlags flags = 0;
+    ImVec2 size = { 0, 0 };
+
+    SliderOptions& ShowButtons(bool showButtons_) {
+        showButtons = showButtons_;
         return *this;
+    }
+
+    SliderOptions& Step(int32_t step_) {
+        step = step_;
+        return *this;
+    }
+
+    SliderOptions& Display(SliderDisplay display_) {
+        display = display_;
+        return *this;
+    }
+
+    SliderOptions& IsPercentage() {
+        display = SliderDisplay::Percentage;
+        return *this;
+    }
+
+    SliderOptions& Format(const char* format_) {
+        format = format_;
+        return *this;
+    }
+
+    SliderOptions& ComponentAlignment(ComponentAlignments alignment_) {
+        alignment = alignment_;
+        return *this;
+    }
+
+    SliderOptions& LabelPosition(LabelPositions labelPosition_) {
+        labelPosition = labelPosition_;
+        return *this;
+    }
+
+    SliderOptions& Tooltip(const char* tooltip_) {
+        WidgetOptions::tooltip = tooltip_;
+        return *this;
+    }
+
+    SliderOptions& Color(Colors color_) {
+        color = color_;
+        return *this;
+    }
+
+    SliderOptions& Size(ImVec2 size_) {
+        size = size_;
+        return *this;
+    }
+
+    SliderOptions& Setting(Prefs::Fixed* pref_) {
+        pref = pref_;
+        return *this;
+    }
+
+    // dynamic_cast because the aggregate form ({ .pref = ... }) bypasses the setter above; casting
+    // a non-Fixed statically would read Factor() off the end of the object.
+    Prefs::Fixed* GetSetting() const {
+        return dynamic_cast<Prefs::Fixed*>(pref);
     }
 };
 
@@ -521,6 +636,10 @@ struct RadioButtonsOptions : WidgetOptions {
     RadioButtonsOptions& DefaultIndex(int32_t defaultIndex_) {
         defaultIndex = defaultIndex_;
         return *this;
+    }
+
+    Prefs::Int32* GetSetting() const {
+        return static_cast<Prefs::Int32*>(pref);
     }
 };
 
@@ -596,6 +715,10 @@ struct InputOptions : WidgetOptions {
         errorText = errorText_;
         return *this;
     }
+
+    Prefs::String* GetSetting() const {
+        return static_cast<Prefs::String*>(pref);
+    }
 };
 
 void PushStyleMenu(const ImVec4& color);
@@ -621,6 +744,9 @@ void PopStyleCheckbox();
 void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash);
 bool Checkbox(const char* label, bool* v, const CheckboxOptions& options = {});
 bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions& options = {});
+bool PrefCheckbox(const char* label, const CheckboxOptions& options = {});
+bool PrefCombobox(const char* label, const ComboboxOptions& options = {});
+bool SettingCheckbox(const char* label, const CheckboxOptions& options);
 
 void PushStyleCombobox(const ImVec4& color);
 void PushStyleCombobox(Colors color = Colors::LightBlue);
@@ -697,7 +823,7 @@ bool ComboboxImpl(const char* label, T* value, const ComboboxOptions& options, c
     if (ImGui::BeginCombo(invisibleLabel, previewLabel, options.flags)) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
         forEach([&](T entryValue, const char* entryLabel) {
-            if (strlen(entryLabel) > 1 && ImGui::Selectable(entryLabel, entryValue == *value)) {
+            if (entryLabel[0] != '\0' && ImGui::Selectable(entryLabel, entryValue == *value)) {
                 *value = entryValue;
                 dirty = true;
             }
@@ -814,12 +940,16 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
 bool CVarSliderInt(const char* label, const char* cvarName, const IntSliderOptions& options = {});
 bool SliderFloat(const char* label, float* value, const FloatSliderOptions& options = {});
 bool CVarSliderFloat(const char* label, const char* cvarName, const FloatSliderOptions& options = {});
+// The label is an ImGui format string, same contract as SliderScalar's: "Scale: %.2f" substitutes
+// the value, and a literal percent must be written "%%".
+bool PrefSlider(const char* label, const SliderOptions& options = {});
 bool InputString(const char* label, std::string* value, const InputOptions& options = {});
 bool CVarInputString(const char* label, const char* cvarName, const InputOptions& options = {});
 bool InputInt(const char* label, int32_t* value, const InputOptions& options = {});
 bool CVarInputInt(const char* label, const char* cvarName, const InputOptions& options = {});
 bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaultColor, bool hasAlpha = false,
                      uint8_t modifiers = 0, UIWidgets::Colors themeColor = UIWidgets::Colors::LightBlue);
+bool PrefColorPicker(const char* label, const ColorPickerOptions& options);
 bool RadioButton(const char* label, bool active);
 bool CVarRadioButton(const char* text, const char* cvarName, int32_t id, const RadioButtonsOptions& options);
 bool StateButton(const char* str_id, const char* label, ImVec2 size, UIWidgets::ButtonOptions options,

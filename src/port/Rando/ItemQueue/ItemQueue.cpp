@@ -10,7 +10,8 @@
 #include "port/Rando/Rando.h"
 #include "port/Rando/CheckTracker/CheckTracker.h"
 #include "port/Rando/Helpers/Helpers.h"
-#include "port/Rando/StaticData/StaticData.h"
+#include "port/Rando/Logic/Logic.h"
+#include "port/Prefs/Sections/RandoPrefs.h"
 
 extern "C" {
 #include "actor.h"
@@ -35,9 +36,6 @@ extern void spawnOrbit();
 
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 
-#define CVAR_NAME_SHOW_RANDO_NOTIFICATIONS "gRandoSettings.RandoNotifications"
-#define CVAR_SHOW_RANDO_NOTIFICATIONS CVarGetInteger(CVAR_NAME_SHOW_RANDO_NOTIFICATIONS, 1)
-
 #define JIGGY_ID_MULTIPLIER(levelId) (1 + (10 * (levelId - 1)))
 #define HONEYCOMB_ID_MULTIPLIER(levelId) (1 + (2 * (levelId - 1)))
 
@@ -54,7 +52,7 @@ void ItemQueue::Process() {
     RandoSaveCheck randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
     if (!randoSaveCheck.received) {
         ItemQueue::GiveItem(randoSaveCheck.randoItemId);
-        if (CVAR_SHOW_RANDO_NOTIFICATIONS) {
+        if (Prefs::Rando::Notifications) {
             Rando::Helpers::SendNotification(randoSaveCheck.randoItemId, "You");
         }
         RANDO_SAVE_CHECKS[randoCheckId].received = true;

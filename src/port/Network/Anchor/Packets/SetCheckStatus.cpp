@@ -7,6 +7,8 @@
 #include "port/Rando/Helpers/Helpers.h"
 #include "port/Rando/CustomCollectible/CustomCollectible.h"
 
+#include "port/Prefs/Sections/RandoPrefs.h"
+
 #include "functions.h"
 extern "C" {
 void marker_despawn(ActorMarker* marker);
@@ -68,7 +70,7 @@ void Anchor::HandlePacket_SetCheckStatus(nlohmann::json& payload) {
 
     AdoptRemoteCheck(rc);
 
-    if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("RandoNotifications"), 1) && ShouldShowNotifications()) {
+    if (Prefs::Rando::Notifications && ShouldShowNotifications()) {
         Rando::Helpers::SendNotification(RANDO_SAVE_CHECKS[rc].randoItemId,
                                          GetClientName(payload.value("clientId", 0u)));
     }

@@ -359,12 +359,51 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
     return pressed;
 }
 
+bool SettingCheckbox(const char* label, const CheckboxOptions& options) {
+    bool dirty = false;
+    Prefs::Bool* pref = options.GetSetting();
+    bool value = pref->Get();
+    if (Checkbox(label, &value, options)) {
+        *pref = value;
+        dirty = true;
+    }
+    return dirty;
+}
+
 bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions& options) {
     bool dirty = false;
     bool value = (bool)CVarGetInteger(cvarName, options.defaultValue);
     if (Checkbox(label, &value, options)) {
         CVarSetInteger(cvarName, value);
         CommitCVar(cvarName);
+        dirty = true;
+    }
+    return dirty;
+}
+
+bool PrefCheckbox(const char* label, const CheckboxOptions& options) {
+    bool dirty = false;
+    Prefs::Bool* pref = options.GetSetting();
+    bool value = pref->Get();
+    if (Checkbox(label, &value, options)) {
+        *pref = value;
+        dirty = true;
+    }
+    return dirty;
+}
+
+bool PrefCombobox(const char* label, const ComboboxOptions& options) {
+    bool dirty = false;
+    Prefs::Enum* pref = options.GetSetting();
+    int32_t value = pref->Get();
+    const auto& entries = pref->Entries();
+    // Set() rather than operator=: Enum's implicit copy-assignment hides Scalar's operator=(V).
+    if (detail::ComboboxImpl<int32_t>(label, &value, options, [&](auto&& visit) {
+            for (const auto& [key, entry] : entries) {
+                visit(key, entry.displayLabel);
+            }
+        })) {
+        pref->Set(value);
         dirty = true;
     }
     return dirty;
@@ -591,6 +630,127 @@ bool CVarSliderInt(const char* label, const char* cvarName, const IntSliderOptio
         CVarSetInteger(cvarName, value);
         CommitCVar(cvarName);
         dirty = true;
+    }
+    return dirty;
+}
+
+bool PrefSlider(const char* label, const SliderOptions& options) {
+    bool dirty = false;
+    Prefs::Fixed* pref = options.GetSetting();
+    assert(pref != nullptr && "PrefSlider requires a Prefs::Fixed; use factor 1 for whole numbers");
+    if (pref == nullptr) {
+        return false;
+    }
+    assert(pref->GetOpts().min.has_value() && pref->GetOpts().max.has_value());
+    const int32_t min = pref->GetOpts().min.value();
+    const int32_t max = pref->GetOpts().max.value();
+    const int32_t step = options.step > 0 ? options.step : 1;
+    int32_t value = pref->Get();
+
+    // Integer stays S32 end to end. Scaled modes convert for display only and round back to an int
+    // on edit, so nothing a float cannot represent reaches the config.
+    const bool scaled = options.display != SliderDisplay::Integer;
+    const float toDisplay = (options.display == SliderDisplay::Percentage ? 100.0f : 1.0f) / (float)pref->Factor();
+    float displayValue = (float)value * toDisplay;
+    float displayMin = (float)min * toDisplay;
+    float displayMax = (float)max * toDisplay;
+
+    // Percentage multiplies by 100, moving the point two places.
+    char derivedFormat[16] = "%d";
+    if (scaled) {
+        int32_t decimals = pref->Decimals();
+        if (options.display == SliderDisplay::Percentage) {
+            decimals = decimals > 2 ? decimals - 2 : 0;
+            snprintf(derivedFormat, sizeof(derivedFormat), "%%.%df%%%%", decimals);
+        } else {
+            snprintf(derivedFormat, sizeof(derivedFormat), "%%.%df", decimals);
+        }
+    }
+    const char* barFormat = options.format != nullptr ? options.format : derivedFormat;
+
+    // The raw label stays the id: substituting the value into it would change the id as the value
+    // moves and break an in-progress drag.
+    char labelBuf[256];
+    if (scaled) {
+        ImGui::DataTypeFormatString(labelBuf, IM_ARRAYSIZE(labelBuf), ImGuiDataType_Float, &displayValue, label);
+    } else {
+        ImGui::DataTypeFormatString(labelBuf, IM_ARRAYSIZE(labelBuf), ImGuiDataType_S32, &value, label);
+    }
+    const char* displayLabel = labelBuf;
+
+    std::string invisibleLabelStr = "##" + std::string(label);
+    const char* invisibleLabel = invisibleLabelStr.c_str();
+    ImGui::PushID(label);
+    ImGui::BeginGroup();
+    ImGui::BeginDisabled(options.disabled);
+    PushStyleSlider(options.color);
+    float width = (options.size == ImVec2(0, 0)) ? ImGui::GetContentRegionAvail().x : options.size.x;
+    if (options.labelPosition == LabelPositions::Near || options.labelPosition == LabelPositions::Far) {
+        width = width - (ImGui::CalcTextSize(displayLabel).x + ImGui::GetStyle().FramePadding.x);
+    }
+    ImGui::AlignTextToFramePadding();
+    if (options.alignment == ComponentAlignments::Right && options.labelPosition != LabelPositions::None) {
+        ImGui::Text("%s", displayLabel);
+        if (options.labelPosition == LabelPositions::Above) {
+            ImGui::NewLine();
+            ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
+        } else if (options.labelPosition == LabelPositions::Near) {
+            ImGui::SameLine();
+        } else if (options.labelPosition == LabelPositions::Far) {
+            ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
+        }
+    } else if (options.alignment == ComponentAlignments::Left) {
+        if (options.labelPosition == LabelPositions::Above) {
+            ImGui::Text("%s", displayLabel);
+        }
+    }
+    if (options.showButtons) {
+        if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && value > min) {
+            value -= step;
+            dirty = true;
+        }
+        ImGui::SameLine(0, 3.0f);
+        ImGui::SetNextItemWidth(width - (ImGui::CalcTextSize("+").x + ImGui::GetStyle().FramePadding.x * 2 + 3) * 2);
+    } else {
+        ImGui::SetNextItemWidth(width);
+    }
+    if (scaled) {
+        if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &displayValue, &displayMin, &displayMax, barFormat,
+                                options.flags)) {
+            value = (int32_t)std::lround((double)displayValue / (double)toDisplay);
+            dirty = true;
+        }
+    } else if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_S32, &value, &min, &max, barFormat, options.flags)) {
+        dirty = true;
+    }
+    if (options.showButtons) {
+        ImGui::SameLine(0, 3.0f);
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+        if (Button("+", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && value < max) {
+            value += step;
+            dirty = true;
+        }
+    }
+
+    if (options.alignment == ComponentAlignments::Left && options.labelPosition != LabelPositions::None) {
+        if (options.labelPosition == LabelPositions::Near) {
+            ImGui::SameLine();
+            ImGui::Text("%s", displayLabel);
+        } else if (options.labelPosition == LabelPositions::Far) {
+            ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(displayLabel).x +
+                            ImGui::GetStyle().ItemSpacing.x);
+            ImGui::Text("%s", displayLabel);
+        }
+    }
+    PopStyleSlider();
+    ImGui::EndDisabled();
+    ImGui::EndGroup();
+    WidgetTooltip(options.tooltip, options.disabled, options.disabledTooltip);
+    ImGui::PopID();
+    if (dirty) {
+        // Same integer grid the -/+ buttons walk.
+        value = min + (int32_t)std::lround((double)(value - min) / (double)step) * step;
+        pref->Set(value < min ? min : (value > max ? max : value));
     }
     return dirty;
 }
@@ -924,6 +1084,87 @@ bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaul
     }
 
     return changed;
+}
+
+bool PrefColorPicker(const char* label, const ColorPickerOptions& options) {
+    Prefs::Color* pref = options.GetSetting();
+    Color_RGBA8 color = pref->Value();
+    ImVec4 colorVec = VecFromRGBA8(color);
+    const bool locked = pref->Locked();
+    bool dirty = false;
+    bool changed = false;
+
+    // Scope the modifier widgets to this pref so two pickers sharing a label stay distinct.
+    ImGui::PushID(pref->FullPath().c_str());
+    ImGui::BeginDisabled(options.disabled);
+    ImGui::BeginDisabled(locked);
+    PushStyleCombobox(UIWidgets::Colors::DarkGray);
+    if (options.useAlpha) {
+        changed = ImGui::ColorEdit4(label, (float*)&colorVec,
+                                    ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar |
+                                        ImGuiColorEditFlags_AlphaPreview);
+    } else {
+        changed =
+            ImGui::ColorEdit3(label, (float*)&colorVec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+    }
+    PopStyleCombobox();
+    WidgetTooltip(options.tooltip, options.disabled, options.disabledTooltip);
+    ImGui::AlignTextToFramePadding();
+    if (options.showReset) {
+        ImGui::SameLine();
+        if (Button("Reset", ButtonOptions({ { .tooltip = "Resets this color to its default value" } })
+                                .Color(options.color)
+                                .Size(Sizes::Inline))) {
+            pref->Reset();
+            dirty = true;
+        }
+    }
+    if (options.showRandom) {
+        ImGui::SameLine();
+        if (Button("Random", ButtonOptions({ { .tooltip = "Generates a random color value to use" } })
+                                 .Color(options.color)
+                                 .Size(Sizes::Inline))) {
+            pref->Randomize();
+            dirty = true;
+        }
+    }
+    if (options.showRainbow) {
+        ImGui::SameLine();
+        bool rainbow = pref->Rainbow();
+        if (Checkbox("Rainbow", &rainbow,
+                     CheckboxOptions(
+                         { { .tooltip = "Cycles through colors on a timer\nOverwrites previously chosen color" } })
+                         .Color(options.color))) {
+            pref->SetRainbow(rainbow);
+            dirty = true;
+        }
+    }
+    ImGui::EndDisabled();
+    if (options.showLock) {
+        ImGui::SameLine();
+        bool lock = locked;
+        if (Checkbox(
+                "Lock", &lock,
+                CheckboxOptions({ { .tooltip = "Prevents this color from being changed" } }).Color(options.color))) {
+            pref->SetLocked(lock);
+            dirty = true;
+        }
+    }
+    ImGui::EndDisabled();
+    ImGui::PopID();
+
+    if (changed) {
+        color.r = (uint8_t)(colorVec.x * 255.0f);
+        color.g = (uint8_t)(colorVec.y * 255.0f);
+        color.b = (uint8_t)(colorVec.z * 255.0f);
+        if (options.useAlpha) {
+            color.a = (uint8_t)(colorVec.w * 255.0f);
+        }
+        pref->SetValue(color);
+        dirty = true;
+    }
+
+    return dirty;
 }
 
 bool RadioButton(const char* label, bool active, const RadioButtonsOptions& options) {
