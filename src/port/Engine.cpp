@@ -388,6 +388,8 @@ void GameEngine::Create(int argc, char* argv[]) {
     ShipInit::InitAll();
     ShipInit::Init("BOOT");
     atexit([]() {
+        Prefs::FlushNow();
+
         if (Instance && Instance->context && Instance->context->GetControlDeck()) {
             for (int i = 0; i < 4; i++) {
                 auto controller = Instance->context->GetControlDeck()->GetControllerByPort(i);
@@ -403,6 +405,8 @@ extern void ResourceHelpers_ClearRefCache();
 void ReleaseSoundfonts();
 
 void GameEngine::Destroy() {
+    Prefs::FlushNow();
+
     if (Instance->context && Instance->context->GetControlDeck()) {
         for (int i = 0; i < 4; i++) {
             auto controller = Instance->context->GetControlDeck()->GetControllerByPort(i);

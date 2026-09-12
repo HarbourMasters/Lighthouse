@@ -1,6 +1,7 @@
 #include "Registry.h"
 
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <system_error>
@@ -19,8 +20,15 @@ namespace {
 constexpr const char* kFileName = "lighthouse.settings.json";
 constexpr int kDocumentVersion = 1;
 
+using Clock = std::chrono::steady_clock;
+
+constexpr auto kQuietPeriod = std::chrono::milliseconds(400);
+constexpr auto kMaxDefer = std::chrono::seconds(5);
+
 bool sDirty = false;
 bool sLoaded = false;
+Clock::time_point sLastChange;
+Clock::time_point sDirtySince;
 
 std::string FilePath() {
     return Ship::Context::GetPathRelativeToAppDirectory(kFileName);
@@ -65,30 +73,45 @@ nlohmann::json& Document() {
 }
 
 void MarkDirty() {
+    const auto now = Clock::now();
+    if (!sDirty) {
+        sDirtySince = now;
+    }
     sDirty = true;
+    sLastChange = now;
 }
 
 bool IsDirty() {
     return sDirty;
 }
 
-void StoreNode(const Base& pref) {
-    pref.Write(Doc()[PointerFor(pref)]);
+bool StoreNode(const Base& pref) {
+    nlohmann::json value;
+    pref.Write(value);
+
+    // Creates the node as null when absent, so an added node compares unequal and reports a change.
+    nlohmann::json& slot = Doc()[PointerFor(pref)];
+    if (slot == value) {
+        return false;
+    }
+    slot = std::move(value);
+    return true;
 }
 
-void EraseNode(const Base& pref) {
+bool EraseNode(const Base& pref) {
     const auto pointer = PointerFor(pref);
     if (!Doc().contains(pointer)) {
-        return;
+        return false;
     }
 
     // json_pointer has no erase; drop the leaf from its parent object.
     const auto parentPointer = pointer.parent_pointer();
     const std::string leaf = pointer.back();
     nlohmann::json& parent = Doc()[parentPointer];
-    if (parent.is_object()) {
-        parent.erase(leaf);
+    if (!parent.is_object()) {
+        return false;
     }
+    return parent.erase(leaf) > 0;
 }
 
 void Load() {
@@ -130,9 +153,10 @@ void Load() {
     }
 
     sLoaded = true;
-    // On a fresh install nothing has been set, so without this the file would never appear
-    // until the user changed something. Write a baseline on the first flush instead.
-    sDirty = !existed;
+    sDirty = false;
+    if (!existed) {
+        MarkDirty();
+    }
 }
 
 void Save() {
@@ -153,6 +177,18 @@ void Save() {
 }
 
 void FlushIfDirty() {
+    if (!sDirty) {
+        return;
+    }
+
+    const auto now = Clock::now();
+    if (now - sLastChange < kQuietPeriod && now - sDirtySince < kMaxDefer) {
+        return;
+    }
+    Save();
+}
+
+void FlushNow() {
     if (sDirty) {
         Save();
     }

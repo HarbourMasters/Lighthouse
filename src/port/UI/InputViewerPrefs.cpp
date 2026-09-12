@@ -37,8 +37,7 @@ Prefs::Bool ShowBackground{ PrefSection::SECTION_SETTINGS, "InputViewer.ShowBack
 namespace Buttons {
 std::string confPath = "InputViewer.Buttons.";
 Prefs::Enum OutlineMode{ PrefSection::SECTION_SETTINGS, confPath + "OutlineMode", BUTTON_OUTLINE_NOT_PRESSED,
-                         buttonOutlineEntries,
-                         Prefs::Options<int32_t>().CVar(CVAR_INPUT_VIEWER("ButtonOutlineMode")) };
+                         buttonOutlineEntries, Prefs::Options<int32_t>().CVar(CVAR_INPUT_VIEWER("ButtonOutlineMode")) };
 Prefs::Bool UseGlobalOutlineMode{ PrefSection::SECTION_SETTINGS, confPath + "UseGlobalOutlineMode", true,
                                   Prefs::Options<bool>().CVar(CVAR_INPUT_VIEWER("UseGlobalButtonOutlineMode")) };
 

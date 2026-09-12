@@ -32,8 +32,9 @@ Base::~Base() {
 }
 
 void Base::MarkChanged(bool valueChanged) {
-    StoreNode(*this);
-    MarkDirty();
+    if (StoreNode(*this)) {
+        MarkDirty();
+    }
 
     if (!valueChanged) {
         return;
@@ -47,8 +48,9 @@ void Base::MarkChanged(bool valueChanged) {
 }
 
 void Base::MarkReset(bool valueChanged) {
-    EraseNode(*this);
-    MarkDirty();
+    if (EraseNode(*this)) {
+        MarkDirty();
+    }
 
     if (!valueChanged) {
         return;
