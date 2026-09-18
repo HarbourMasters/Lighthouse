@@ -410,6 +410,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Restores the unused Return to Lair option when in Worlds."));
 
+    AddWidget(path, "Restore Spaceworld Mumbo's Mountain Music", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Restorations.SpaceworldMusic"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Restores the Spaceworld-era Mumbo's Mountain music variations in supported areas."));
+
     // Enhancements -> Gameplay
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);

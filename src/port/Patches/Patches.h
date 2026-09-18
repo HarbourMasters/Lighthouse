@@ -112,6 +112,16 @@ void port_mirror_patchTextActors(void);
 
 int port_isInCharacterParade(void);
 
+// Restorations
+
+// Spaceworld music exact primary-slot mirroring
+void port_spaceworldMusicOnMusicSlotVolume(int32_t index, int32_t trackId, int32_t volume);
+void port_spaceworldMusicOnMusicSlotTrack(int32_t index, int32_t trackId);
+void port_spaceworldMusicRefreshPhysicalMusicSlotVolume(int32_t index);
+void port_spaceworldMusicOnMusicSlotChannelMask(int32_t index, int32_t trackId, int32_t channelMask, float transitionSpeed);
+void port_spaceworldMusicOnMusicSlotTransport(int32_t index, int32_t trackId, int32_t playing);
+int32_t port_spaceworldMusicGetPhysicalMusicSlotVolume(int32_t index, int32_t trackId, int32_t requestedVolume);
+
 // Audio engine lock
 
 void port_lockAudio(void);

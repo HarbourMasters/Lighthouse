@@ -311,6 +311,7 @@ FetchContent_Declare(
 	GIT_TAG da35f9d6c7374a95353fd1df1d394d44ab66cf01
 )
 FetchContent_MakeAvailable(dr_libs)
+include_directories(${dr_libs_SOURCE_DIR})
 
 #==============================================================================#
 # Libultraship Integration                                                     #

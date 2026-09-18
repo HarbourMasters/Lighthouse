@@ -311,8 +311,11 @@ void musicSlot_loadTrack(u8 index, enum comusic_e track_id) {
     if (track_id == -1) {
         if (track_id != sMusicSlots[index].track_id) {
             alCSPStop((ALCSPlayer *) &sMusicSlots[index].cseqp);
+            port_spaceworldMusicOnMusicSlotTransport(
+                index, sMusicSlots[index].track_id, 0);
         }
         sMusicSlots[index].track_id = track_id;
+        port_spaceworldMusicOnMusicSlotTrack(index, track_id);
     } else {
         if (sMusicSlots[index].track_id != -1) {
             musicSlot_loadTrack(index, -1);
@@ -320,6 +323,7 @@ void musicSlot_loadTrack(u8 index, enum comusic_e track_id) {
         sMusicSlots[index].unk2 = FALSE;
         sMusicSlots[index].unk3 = FALSE;
         sMusicSlots[index].track_id = track_id;
+        port_spaceworldMusicOnMusicSlotTrack(index, track_id);
         for (i = 0; i < 14; i++) {
             sMusicSlots[index].unk184[i] = 0;
             sMusicSlots[index].unk192[i] = 0;
@@ -329,9 +333,19 @@ void musicSlot_loadTrack(u8 index, enum comusic_e track_id) {
             n_alCSeqNew(&sMusicSlots[index].cseq, (u8 *) sMIDIAssets[sMusicSlots[index].track_id]);
         }
         sMusicSlots[index].cseqp.chanMask = musicSlot_func_80250474(index);
+        // Mirror the initial retail channel mask too. A freshly loaded
+        // retail sequence begins with this mask immediately, so the
+        // external recording must not crossfade from a stale variant.
+        port_spaceworldMusicOnMusicSlotChannelMask(
+            index, sMusicSlots[index].track_id,
+            sMusicSlots[index].cseqp.chanMask, 0.0f);
         alCSPSetSeq(&sMusicSlots[index].cseqp, &sMusicSlots[index].cseq);
         alCSPPlay(&sMusicSlots[index].cseqp);
-        alCSPSetVol(&sMusicSlots[index].cseqp, sMusicSlots[index].volume);
+        port_spaceworldMusicOnMusicSlotTransport(
+            index, sMusicSlots[index].track_id, 1);
+        const s16 physicalVolume = (s16)port_spaceworldMusicGetPhysicalMusicSlotVolume(
+            index, sMusicSlots[index].track_id, sMusicSlots[index].volume);
+        alCSPSetVol(&sMusicSlots[index].cseqp, physicalVolume);
 
         if (player_is_present() && (player_getWaterState() == BSWATERGROUP_2_UNDERWATER)) {
             func_8025F3F0(&sMusicSlots[index].cseqp, 0.0f, 1.0f);
@@ -428,7 +442,10 @@ void musicSlot_func_8024FCE0(u8 index, s16 volume) {
 
 void musicSlot_setVolume(u8 index, s16 volume) {
     sMusicSlots[index].volume = volume;
-    alCSPSetVol(&sMusicSlots[index].cseqp, volume);
+    port_spaceworldMusicOnMusicSlotVolume(index, sMusicSlots[index].track_id, volume);
+    const s16 physicalVolume = (s16)port_spaceworldMusicGetPhysicalMusicSlotVolume(
+        index, sMusicSlots[index].track_id, volume);
+    alCSPSetVol(&sMusicSlots[index].cseqp, physicalVolume);
 
     if (sMusicSlots[index].unk3 && volume) {
         musicSlot_func_8024FCE0(index, volume);
@@ -438,6 +455,18 @@ void musicSlot_setVolume(u8 index, s16 volume) {
         }
     }
 }
+
+void port_spaceworldMusicRefreshPhysicalMusicSlotVolume(int32_t index) {
+    if (index < 0 || index >= NUM_MUSIC_SLOTS) {
+        return;
+    }
+
+    const s16 physicalVolume =
+        (s16)port_spaceworldMusicGetPhysicalMusicSlotVolume(
+            index, sMusicSlots[index].track_id, sMusicSlots[index].volume);
+    alCSPSetVol(&sMusicSlots[index].cseqp, physicalVolume);
+}
+
 
 void musicSlot_setTempo(u8 index, s32 tempo) {
     if (!musicSlot_hasStopped(index)) {
@@ -471,6 +500,8 @@ void func_8024FF34(void) {
             case AL_PLAYING:
                 if (sMusicSlots[i].unk2) {
                     alCSPStop(&sMusicSlots[i].cseqp);
+                    port_spaceworldMusicOnMusicSlotTransport(
+                        i, sMusicSlots[i].track_id, 0);
 
                     if (sMusicSlots[i].unk3) {
                         sMusicSlots[i].unk2 = FALSE;
@@ -482,6 +513,8 @@ void func_8024FF34(void) {
                 if (sMusicSlots[i].unk2) {
                     if (sMusicSlots[i].unk3) {
                         alCSPPlay(&sMusicSlots[i].cseqp);
+                        port_spaceworldMusicOnMusicSlotTransport(
+                            i, sMusicSlots[i].track_id, 1);
                     } else {
                         musicSlot_func_8024FA98(i, sMusicSlots[i].index_cpy);
                     }
@@ -641,6 +674,9 @@ u16 musicSlot_func_80250474(s32 index) {
 }
 
 void musicSlot_stepToChannelMask(s32 index, u16 chan_mask, f32 transition_speed) {
+    port_spaceworldMusicOnMusicSlotChannelMask(
+        index, sMusicSlots[index].track_id, chan_mask, transition_speed);
+
     s32 chan;
 
     if (D_802762C0 != chan_mask) {
