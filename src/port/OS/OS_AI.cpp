@@ -16,6 +16,7 @@ extern "C" {
 int32_t AudioPlayerBuffered(void);
 int32_t AudioPlayerGetDesiredBuffered(void);
 void AudioPlayerPlayFrame(const uint8_t* buf, size_t len);
+void port_spaceworldMusicMix(int16_t* samples, size_t sampleCount);
 }
 
 #include <cstring>
@@ -64,15 +65,19 @@ extern "C" s32 osAiSetNextBuffer(void* buff, size_t len) {
         AudioPlayerPlayFrame(silence.data(), silence.size());
     }
 
+    static thread_local std::vector<int16_t> spaceworldMixed;
+    const int16_t* originalSamples = (const int16_t*)buff;
+    spaceworldMixed.assign(originalSamples, originalSamples + (len / sizeof(int16_t)));
+    port_spaceworldMusicMix(spaceworldMixed.data(), spaceworldMixed.size());
     float masterVol = CVarGetInteger(CVAR_SETTING("Volume.Master"), 40) / 100.0f;
     if (masterVol >= 1.0f) {
-        AudioPlayerPlayFrame((const uint8_t*)buff, len);
+        AudioPlayerPlayFrame((const uint8_t*)spaceworldMixed.data(), len);
         sCatchupOwed = AudioCatchupFrames();
         return 0;
     }
     static thread_local std::vector<int16_t> scaled;
     scaled.resize(len / 2);
-    const int16_t* src = (const int16_t*)buff;
+    const int16_t* src = spaceworldMixed.data();
     for (size_t i = 0; i < scaled.size(); i++) {
         scaled[i] = (int16_t)(src[i] * masterVol);
     }
