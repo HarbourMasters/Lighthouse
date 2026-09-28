@@ -60,7 +60,8 @@ static RegisterShipInitFunc initFunc([]() {
 
     Regions[RR_GRUNTILDAS_LAIR_FINAL_ROOM] = RandoRegion{ .regionName = "Final Room", .mapId = MAP_93_GL_DINGPOT,
         .connections = {
-            CONNECTION(RR_GRUNTILDAS_LAIR_BOSS_GRUNTILDA,   CAN_UNLOCK_WORLD(LEVEL_6_LAIR)),
+            CONNECTION(RR_GRUNTILDAS_LAIR_BOSS_GRUNTILDA,   CAN_UNLOCK_WORLD(LEVEL_6_LAIR) && CAN_USE_ABILITY(ABILITY_9_FLIGHT) &&
+                                                            CAN_USE_ABILITY(ABILITY_1_BEAK_BOMB) && CAN_USE_ABILITY(ABILITY_6_EGGS)),
             CONNECTION(RR_GRUNTILDAS_LAIR_FURNACE_FUN,      true),
         },
         .events = {

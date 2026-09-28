@@ -271,6 +271,16 @@ Actor* CustomObject::ShouldCreateCustomActorEX(RandoCheckId randoCheckId, int32_
                                             actorInfoMap.at(randoActorId).second);
 }
 
+// Runs from the spawn queue. Spawning during a collision reallocs the cube's props
+// out from under the prop being collected.
+static void SpawnJinjoJiggy(uintptr_t jiggyCheckId, uintptr_t x, uintptr_t y, uintptr_t z) {
+    int32_t position[3] = { (int32_t)x, (int32_t)y, (int32_t)z };
+    Actor* customActor = CustomObject::ShouldCreateCustomActorEX((RandoCheckId)jiggyCheckId, position, false);
+    if (customActor != NULL) {
+        ApplyCustomActorPhysics((RandoCheckId)jiggyCheckId, customActor, true);
+    }
+}
+
 void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
     RandoSaveCheck shuffledObject = Rando::Logic::GetShuffledObject(randoCheckId);
     if (shuffledObject.randoCheckId == RC_UNKNOWN) {
@@ -308,10 +318,8 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
                         Rando::StaticData::Checks[shuffledObject.shuffledCheckId].worldId);
 
                     if (jiggyCheckId != RC_UNKNOWN) {
-                        Actor* customActor = ShouldCreateCustomActorEX(jiggyCheckId, spawnPosition, false);
-                        if (customActor != NULL) {
-                            ApplyCustomActorPhysics(jiggyCheckId, customActor, true);
-                        }
+                        __spawnQueue_add_4((GenFunction_4)SpawnJinjoJiggy, jiggyCheckId, (uintptr_t)spawnPosition[0],
+                                           (uintptr_t)spawnPosition[1], (uintptr_t)spawnPosition[2]);
                     }
                 }
             }
