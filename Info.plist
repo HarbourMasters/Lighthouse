@@ -9,7 +9,7 @@
     <key>CFBundleExecutable</key>
     <string>Lighthouse</string>
     <key>CFBundleGetInfoString</key>
-    <string>0.1.0</string>
+    <string>@PROJECT_VERSION@</string>
     <key>CFBundleIconFile</key>
     <string>Lighthouse.icns</string>
     <key>CFBundleIdentifier</key>
@@ -22,13 +22,13 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.1.0</string>
+    <string>@PROJECT_VERSION@</string>
     <key>CFBundleSignature</key>
     <string>ZMM</string>
     <key>CFBundleVersion</key>
-    <string>0.1.0</string>
+    <string>@PROJECT_VERSION@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright 2024 HarbourMasters.</string>
+    <string>Copyright 2026 HarbourMasters.</string>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.games</string>
     <key>LSMinimumSystemVersion</key>

@@ -738,6 +738,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   endif()
 endif()
 
+# GCC 15 stopped zero-filling the rest of a union after a member initializer,
+# and OS_MESG_32 only writes the low four bytes of an OSMesg.
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fzero-init-padding-bits=unions)
+endif()
+
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 include(ExternalProject)
 ExternalProject_Add(TorchExternal
@@ -795,7 +801,7 @@ add_custom_target(CreateOSXIcons
     COMMENT "Creating OSX icons ..."
     )
     add_dependencies(${PROJECT_NAME} CreateOSXIcons)
-    configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" COPYONLY)
+    configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" @ONLY)
 
     file(DOWNLOAD
         https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt

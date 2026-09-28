@@ -573,7 +573,8 @@ void __baMarker_resolveCollision(Prop *other_prop){
 
                 player_getPosition(spA0);
                 jiggy_id = chjiggy_getJiggyId(actor);
-                if (jiggy_id != JIGGY_2F_FP_XMAS_TREE
+//              if (jiggy_id != JIGGY_2F_FP_XMAS_TREE
+                if (jiggy_id != JIGGY_2F_FP_XMAS_TREE || EventSystem_Should(VB_XMAS_TREE_JIGGY_COLLIDABLE, false, actor)
                     || (player_isStable() && !(3600.0f < ml_distanceSquared_vec3f(actor->position, spA0)))
                     ) {
                     jiggyscore_setCollected(jiggy_id, true);

@@ -383,6 +383,7 @@ void maOrgan_update(void){
     if(Me.state == 1 && Me.motzhand_marker == NULL){
         sp38[0] = sp38[1] = sp38[2] = 0.0f;
         motzhand = actorArray_findClosestActorFromActorId(sp38, ACTOR_3A_MOTZHAND, -1, &motzhand_dist);
+        if (motzhand == NULL) return; // [port] not spawned yet, look again next frame
         Me.motzhand_marker = motzhand->marker;
     }//L8038A078
 

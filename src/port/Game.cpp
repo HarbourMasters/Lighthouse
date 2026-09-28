@@ -156,7 +156,7 @@ void RenderTask(void* dlStart) {
 // goes out. DP has to lead: SP frees thread5 to start the next task, and starting
 // one overwrites the flags the frame's swap token gates on.
 int ServiceRcp() {
-    if (osDpGetStatus() & DPC_STATUS_FREEZE) {
+    if (OS_SpPeekPendingTask() == nullptr || (osDpGetStatus() & DPC_STATUS_FREEZE)) {
         return 0;
     }
     OSTask* task = OS_SpTakePendingTask();
