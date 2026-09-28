@@ -20,6 +20,7 @@ void port_pipelineSyncPoint(void);
 
 int port_getDemoViCount(void);
 void port_setDemoViCount(int viCount);
+unsigned port_getDemoViSerial(void);
 int port_getDemoDisplayViCount(int rawViCount);
 void port_tickCutsceneStutter(void);
 int port_getCutsceneExtraVis(void);

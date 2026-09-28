@@ -64,6 +64,9 @@ public:
     static uint32_t GetInterpolationFrameCount();
     static bool IsInterpolationEnabled();
     static void SetInterpolationRecorded(bool recorded);
+    static void SetFrameTiming(long long latchNs, int viPerTick, unsigned viSerial);
+    static bool IsTimedPassActive();
+    static int CurrentViPerTick();
     static void ProcessGfxCommands(Gfx* commands);
     static ImFont* CreateFontWithSize(float size, std::string fontPath);
     static void ScaleImGui();

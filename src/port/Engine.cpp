@@ -2,8 +2,6 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <chrono>
-#include <future>
 #if defined(__linux__) || defined(__APPLE__)
 #include <unistd.h>
 #include <cerrno>
@@ -35,9 +33,6 @@
 #include "Extractor/ExtractFlow.h"
 #include "Extractor/GameExtractor.h"
 #include "ship/window/gui/FileBrowserWindow.h"
-#include "Interpolation/FrameInterpolation.h"
-#include "Nametag/Nametag.h"
-#include "OS/OS.h"
 #include "Network/Anchor/Anchor.h"
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Patches/Patches.h"
@@ -63,7 +58,6 @@
 // Engine constants
 
 #define SAMPLES_PER_FRAME (560 * 2 * 2)
-#define gVIsPerFrame 2 // 30 Hz
 
 const float imguiScaleOptionToValue[4] = { 0.75f, 1.0f, 1.5f, 2.0f };
 const uint32_t defaultImGuiScale = 1;
@@ -78,12 +72,6 @@ const char* sOtrSignature = "__OTR__";
 std::atomic<bool> sHoldAudio{ false };
 int sHoldFramesRemaining = 0;
 std::vector<std::shared_ptr<Ship::IResource>> sSoundfontResources;
-
-// Frame pacing and rendering
-bool sInterpolationRecorded = false;
-std::vector<std::future<void>> sMapBuildFutures;
-long long sLastSubFrameNs = 0;
-long long sPassBudgetNs = 0;
 } // namespace
 
 std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
@@ -558,211 +546,6 @@ static void LoadSoundfonts() {
 
 void GameEngine::AudioInit() {
     LoadSoundfonts();
-}
-
-// Frame pacing and rendering
-
-namespace {
-using Clock = std::chrono::steady_clock;
-inline long long NsSince(Clock::time_point t0) {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - t0).count();
-}
-} // namespace
-
-void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
-                             size_t frameCount) {
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
-    if (wnd == nullptr) {
-        return;
-    }
-    auto interpreter = wnd->GetInterpreterWeak().lock().get();
-    wnd->HandleEvents();
-    interpreter->mInterpolationIndex = 0;
-    auto wndBase = Ship::Context::GetRawInstance()->GetWindow();
-    const auto passT0 = Clock::now();
-    for (size_t frameIdx = 0; frameIdx < frameCount; frameIdx++) {
-        if (frameIdx >= 1 && frameIdx - 1 < sMapBuildFutures.size()) {
-            sMapBuildFutures[frameIdx - 1].wait();
-        }
-        if (frameIdx > 0 && sLastSubFrameNs > 0 && (sPassBudgetNs - NsSince(passT0)) < sLastSubFrameNs) {
-            break;
-        }
-        const auto& m = mtx_replacements[frameIdx];
-        const float subframeBlend = (frameCount > 1) ? (float)(frameIdx + 1) / (float)frameCount : 1.0f;
-        if (frameCount > 1) {
-            FrameInterpolation_ApplyAnimVertices(subframeBlend);
-        }
-        Nametag::SetSubframeBlend(subframeBlend);
-        bool isFinalFrame = (frameIdx == frameCount - 1);
-        if (frameCount > 1 || wndBase->IsFrameReady()) {
-            auto runT0 = Clock::now();
-            auto gui = wndBase->GetGui();
-            wndBase->GetMouseStateManager()->StartFrame();
-            gui->StartDraw();
-            interpreter->StartFrame();
-            interpreter->Run(Commands, m);
-            if (OS_ViBlackActive()) {
-                interpreter->mGfxFrameBuffer = 0;
-                auto rapi = interpreter->GetCurrentRenderingAPI();
-                rapi->StartDrawToFramebuffer(0, 1.0f);
-                rapi->ClearFramebuffer(true, false);
-            }
-            gui->EndDraw();
-            sLastSubFrameNs = NsSince(runT0);
-            interpreter->EndFrame();
-            CALL_EVENT(FrameDrawEnd);
-        }
-        interpreter->mInterpolationIndex++;
-    }
-    bool curAltAssets = CVarGetInteger(CVAR_SETTING("Mods.AlternateAssets"), 1);
-    if (prevAltAssets != curAltAssets) {
-        prevAltAssets = curAltAssets;
-        Ship::Context::GetRawInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
-        gfx_texture_cache_clear();
-    }
-}
-
-void GameEngine::SetInterpolationRecorded(bool recorded) {
-    sInterpolationRecorded = recorded;
-}
-
-namespace {
-struct SubframePacing {
-    int subframes;
-    int fps;
-    int viPerTick;
-};
-
-int CurrentViPerTick() {
-    int viPerTick = port_getDemoViCount();
-    if (viPerTick <= 0) {
-        viPerTick = gVIsPerFrame + port_getCutsceneExtraVis();
-    }
-    if (viPerTick < gVIsPerFrame) {
-        viPerTick = gVIsPerFrame;
-    }
-    // Clamp to 15 for demo playbacks.
-    if (viPerTick > 15) {
-        viPerTick = 15;
-    }
-    return viPerTick;
-}
-
-int EffectiveLogicFps() {
-    int fps = 60 / CurrentViPerTick();
-    return (fps < 1) ? 1 : fps;
-}
-
-int SubframesForTarget(int targetFps) {
-    int subframes = targetFps / EffectiveLogicFps();
-    return (subframes < 1) ? 1 : subframes;
-}
-
-SubframePacing ComputeSubframePacing() {
-    int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-    int viPerTick = CurrentViPerTick();
-    int subframesPerTick = SubframesForTarget(target_fps);
-
-    if (!sInterpolationRecorded) {
-        subframesPerTick = 1;
-    }
-
-    int fps = subframesPerTick * 60 / viPerTick;
-    if (fps < 1) {
-        fps = 1;
-    }
-
-    return { subframesPerTick, fps, viPerTick };
-}
-} // namespace
-
-bool GameEngine::IsInterpolationEnabled() {
-    return (int)GetInterpolationFPS() > EffectiveLogicFps();
-}
-
-void GameEngine::ProcessGfxCommands(Gfx* commands) {
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
-
-    if (wnd == nullptr) {
-        return;
-    }
-
-    // if(gEnableGammaBoost) {
-    //     wnd->EnableSRGBMode();
-    // }
-    wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
-
-    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-
-    const SubframePacing pacing = ComputeSubframePacing();
-    const int subframesPerTick = pacing.subframes;
-    const int fps = pacing.fps;
-
-    if ((int)mtx_replacements.size() < subframesPerTick) {
-        mtx_replacements.resize(subframesPerTick);
-    }
-    size_t activeFrames = 0;
-    sMapBuildFutures.clear();
-    for (int i = 1; i <= subframesPerTick; i++) {
-        if (i < subframesPerTick) {
-            float t = (float)i / (float)subframesPerTick;
-            if (i == 1) {
-                FrameInterpolation_Interpolate(t, mtx_replacements[activeFrames]);
-            } else {
-                auto* map = &mtx_replacements[activeFrames];
-                sMapBuildFutures.push_back(
-                    std::async(std::launch::async, [t, map] { FrameInterpolation_Interpolate(t, *map); }));
-            }
-        } else {
-            mtx_replacements[activeFrames].clear();
-        }
-        activeFrames++;
-    }
-
-    sPassBudgetNs = 1000000000LL * pacing.viPerTick / 60;
-
-    if (wnd != nullptr) {
-        wnd->SetTargetFps(fps);
-        wnd->SetMaximumFrameLatency(2);
-    }
-
-    if (GfxDebuggerIsDebugging()) {
-        if (mtx_replacements.empty()) {
-            mtx_replacements.emplace_back();
-        }
-        mtx_replacements[0].clear();
-        activeFrames = 1;
-    }
-
-    RunCommands(commands, mtx_replacements, activeFrames);
-
-    for (auto& f : sMapBuildFutures) {
-        if (f.valid()) {
-            f.wait();
-        }
-    }
-    sMapBuildFutures.clear();
-}
-
-uint32_t GameEngine::GetInterpolationFPS() {
-    if (CVarGetInteger(CVAR_SETTING("MatchRefreshRate"), 0)) {
-        return Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate();
-
-    } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
-               !Ship::Context::GetRawInstance()->GetWindow()->CanDisableVerticalSync()) {
-        return std::min<uint32_t>(Ship::Context::GetRawInstance()->GetWindow()->GetCurrentRefreshRate(),
-                                  CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 60));
-    }
-
-    return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 30);
-}
-
-uint32_t GameEngine::GetInterpolationFrameCount() {
-    return static_cast<uint32_t>(SubframesForTarget((int)GetInterpolationFPS()));
-}
-
-extern "C" uint32_t GameEngine_GetInterpolationFrameCount() {
-    return GameEngine::GetInterpolationFrameCount();
 }
 
 // Version reporting and message boxes

@@ -7,6 +7,7 @@
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
+#include <atomic>
 
 #define CVAR_CUTSCENE_SYNC CVAR_ENHANCEMENT("Fix.CutsceneSync")
 #define CVAR_GV_LOBBY_FRAMERATE CVAR_ENHANCEMENT("Fix.GVLobbyFramerate")
@@ -24,15 +25,21 @@ void viMgr_func_8024BF94(s32 viPerTick);
 
 // Demo Display Pacing
 
-static int sDemoViCount = 0;
+static std::atomic<int> sDemoViCount{ 0 };
+static std::atomic<unsigned> sDemoViSerial{ 0 };
 static constexpr int kMaxDemoViCount = 0xF;
 
 int port_getDemoViCount(void) {
-    return sDemoViCount;
+    return sDemoViCount.load(std::memory_order_acquire);
 }
 
 void port_setDemoViCount(int viCount) {
-    sDemoViCount = (viCount > kMaxDemoViCount) ? kMaxDemoViCount : viCount;
+    sDemoViCount.store((viCount > kMaxDemoViCount) ? kMaxDemoViCount : viCount, std::memory_order_release);
+    sDemoViSerial.fetch_add(1, std::memory_order_acq_rel);
+}
+
+unsigned port_getDemoViSerial(void) {
+    return sDemoViSerial.load(std::memory_order_acquire);
 }
 
 int port_getDemoDisplayViCount(int rawViCount) {

@@ -88,6 +88,11 @@ OSTask* OS_SpTakePendingTask(void);
 // Same, but without consuming it; the watchdog reports what is in flight.
 OSTask* OS_SpPeekPendingTask(void);
 
+// VI swap timing, for starting a frame's render on the retrace its swap latches on.
+long long OS_ViLastSwapNs(void);
+long long OS_ViLastLatchNs(void);
+long long OS_ViNextRetraceAfterNs(long long t);
+
 #ifdef __cplusplus
 }
 #endif

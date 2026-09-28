@@ -60,6 +60,9 @@ struct InterpPair {
     int curr = -1;
     bool should = false;
     uint64_t serial = 0;
+    long long swapNs = 0;
+    int viPerTick = 0;
+    unsigned viSerial = 0;
 };
 std::mutex sInterpMutex;
 std::map<void*, InterpPair> sTaskInterp;
@@ -110,6 +113,9 @@ extern "C" void port_thread5_onSubmit(void* taskData) {
     InterpPair pair;
     FrameInterpolation_GetRecordingPair(&pair.prev, &pair.curr, &pair.should);
     FrameInterpolation_ClaimPair(pair.prev, pair.curr);
+    pair.swapNs = OS_ViLastSwapNs();
+    pair.viPerTick = GameEngine::CurrentViPerTick();
+    pair.viSerial = port_getDemoViSerial();
     FrameInterpolation_StopRecord();
     Nametag::SubmitFrame(task->data_ptr);
     std::lock_guard<std::mutex> lock(sInterpMutex);
@@ -147,25 +153,54 @@ void RenderTask(void* dlStart) {
     }
     FrameInterpolation_BeginRenderPass(pair.prev, pair.curr, pair.should);
     Nametag::BeginRenderPass(dlStart, pair.should);
+    GameEngine::SetFrameTiming(OS_ViNextRetraceAfterNs(pair.swapNs), pair.viPerTick, pair.viSerial);
     GameEngine::ProcessGfxCommands((Gfx*)dlStart);
     FrameInterpolation_ReleasePair(pair.prev, pair.curr);
 }
+
+bool sTaskReleased = true;
+bool sPickedUpFrozen = false;
+} // namespace
+
+// Hands the task back once the list is no longer read. A timed pass calls this after its
+// last draw; otherwise ServiceRcp does once the pass returns.
+extern "C" void port_releaseRcpTask(void) {
+    if (sTaskReleased) {
+        return;
+    }
+    sTaskReleased = true;
+    if (sPickedUpFrozen) {
+        const auto giveUp = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
+        while ((osDpGetStatus() & DPC_STATUS_FREEZE) && std::chrono::steady_clock::now() < giveUp) {
+            std::this_thread::sleep_for(std::chrono::microseconds(200));
+        }
+    }
+    OS_SendEventMesg(OS_EVENT_DP);
+    OS_SendEventMesg(OS_EVENT_SP);
+}
+
+namespace {
 
 // This thread plays the RCP: thread5 hands over a task, it runs and raises DP
 // then SP. Hardware raises SP first, but the list is fully drawn before either
 // goes out. DP has to lead: SP frees thread5 to start the next task, and starting
 // one overwrites the flags the frame's swap token gates on.
 int ServiceRcp() {
-    if (OS_SpPeekPendingTask() == nullptr || (osDpGetStatus() & DPC_STATUS_FREEZE)) {
+    if (OS_SpPeekPendingTask() == nullptr) {
+        return 0;
+    }
+    const bool frozen = (osDpGetStatus() & DPC_STATUS_FREEZE) != 0;
+    if (frozen && !GameEngine::IsTimedPassActive()) {
         return 0;
     }
     OSTask* task = OS_SpTakePendingTask();
     if (task == nullptr) {
         return 0;
     }
+    sTaskReleased = false;
+    sPickedUpFrozen = frozen;
     RenderTask(task->t.data_ptr);
-    OS_SendEventMesg(OS_EVENT_DP);
-    OS_SendEventMesg(OS_EVENT_SP);
+    port_releaseRcpTask();
     return 1;
 }
 
