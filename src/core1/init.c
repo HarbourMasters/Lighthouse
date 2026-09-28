@@ -13,6 +13,7 @@
     extern s32 D_80000300;
 #endif
 
+// [port] The "reset" console command sets D_80275610, see Engine.cpp
 s32 D_80275610 = 0; // always set to 0
 s32 D_80275614 = 0;
 s32 gGlobalTimer = 0;
@@ -198,6 +199,7 @@ void mainLoop(void) {
      * - func_802E35D8: Only would be called in the above switch block if D_8027A130 was 4 (never happens, see above)
      * - func_802E4424: When D_8037E8E0.transition was 2 or 3, which is never the case
      */
+    // [port] It does run here: the "reset" console command sets D_80275610.
     if (D_80275610) {
         func_8023DA9C(D_80275610 - 1);
         D_80275610 = 0;
