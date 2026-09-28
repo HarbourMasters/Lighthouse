@@ -61,8 +61,8 @@ struct InterpPair {
     bool should = false;
     uint64_t serial = 0;
     long long swapNs = 0;
-    int viPerTick = 0;
     unsigned viSerial = 0;
+    bool timed = false;
 };
 std::mutex sInterpMutex;
 std::map<void*, InterpPair> sTaskInterp;
@@ -114,8 +114,8 @@ extern "C" void port_thread5_onSubmit(void* taskData) {
     FrameInterpolation_GetRecordingPair(&pair.prev, &pair.curr, &pair.should);
     FrameInterpolation_ClaimPair(pair.prev, pair.curr);
     pair.swapNs = OS_ViLastSwapNs();
-    pair.viPerTick = GameEngine::CurrentViPerTick();
     pair.viSerial = port_getDemoViSerial();
+    pair.timed = GameEngine::WantsTimedPass(pair.curr >= 0, GameEngine::CurrentViPerTick());
     FrameInterpolation_StopRecord();
     Nametag::SubmitFrame(task->data_ptr);
     std::lock_guard<std::mutex> lock(sInterpMutex);
@@ -153,13 +153,25 @@ void RenderTask(void* dlStart) {
     }
     FrameInterpolation_BeginRenderPass(pair.prev, pair.curr, pair.should);
     Nametag::BeginRenderPass(dlStart, pair.should);
-    GameEngine::SetFrameTiming(OS_ViNextRetraceAfterNs(pair.swapNs), pair.viPerTick, pair.viSerial);
+    GameEngine::SetFrameTiming(OS_ViNextRetraceAfterNs(pair.swapNs), pair.viSerial, pair.timed);
     GameEngine::ProcessGfxCommands((Gfx*)dlStart);
     FrameInterpolation_ReleasePair(pair.prev, pair.curr);
 }
 
+// A timed pass may start while the previous swap is still waiting to latch.
+bool IsTimedTask(void* dlStart) {
+    std::lock_guard<std::mutex> lock(sInterpMutex);
+    auto it = sTaskInterp.find(dlStart);
+    return it != sTaskInterp.end() && it->second.timed;
+}
+
 bool sTaskReleased = true;
-bool sPickedUpFrozen = false;
+bool sReleaseDeferred = false;
+
+void SendTaskDone() {
+    OS_SendEventMesg(OS_EVENT_DP);
+    OS_SendEventMesg(OS_EVENT_SP);
+}
 } // namespace
 
 // Hands the task back once the list is no longer read. A timed pass calls this after its
@@ -169,14 +181,11 @@ extern "C" void port_releaseRcpTask(void) {
         return;
     }
     sTaskReleased = true;
-    if (sPickedUpFrozen) {
-        const auto giveUp = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
-        while ((osDpGetStatus() & DPC_STATUS_FREEZE) && std::chrono::steady_clock::now() < giveUp) {
-            std::this_thread::sleep_for(std::chrono::microseconds(200));
-        }
+    if (osDpGetStatus() & DPC_STATUS_FREEZE) {
+        sReleaseDeferred = true;
+        return;
     }
-    OS_SendEventMesg(OS_EVENT_DP);
-    OS_SendEventMesg(OS_EVENT_SP);
+    SendTaskDone();
 }
 
 namespace {
@@ -186,11 +195,19 @@ namespace {
 // goes out. DP has to lead: SP frees thread5 to start the next task, and starting
 // one overwrites the flags the frame's swap token gates on.
 int ServiceRcp() {
-    if (OS_SpPeekPendingTask() == nullptr) {
+    if (sReleaseDeferred) {
+        if (osDpGetStatus() & DPC_STATUS_FREEZE) {
+            return 0;
+        }
+        sReleaseDeferred = false;
+        SendTaskDone();
+    }
+    OSTask* pending = OS_SpPeekPendingTask();
+    if (pending == nullptr) {
         return 0;
     }
     const bool frozen = (osDpGetStatus() & DPC_STATUS_FREEZE) != 0;
-    if (frozen && !GameEngine::IsTimedPassActive()) {
+    if (frozen && !IsTimedTask(pending->t.data_ptr)) {
         return 0;
     }
     OSTask* task = OS_SpTakePendingTask();
@@ -198,7 +215,6 @@ int ServiceRcp() {
         return 0;
     }
     sTaskReleased = false;
-    sPickedUpFrozen = frozen;
     RenderTask(task->t.data_ptr);
     port_releaseRcpTask();
     return 1;
@@ -256,6 +272,10 @@ extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg) {
     sSvcCv.wait(lock, done);
 }
 
+extern "C" void port_serviceRenderRequests(void) {
+    DrainRenderService();
+}
+
 // Barrier before the tick frees or reads memory an in-flight list references.
 // The game's own EVENT_SYNC handshake is the RDP-done wait.
 extern "C" void port_pipelineSyncPoint(void) {
@@ -290,7 +310,6 @@ void push_frame() {
     GameEngine::Instance->StartFrame();
     port_animVtx_beginTick();
     const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
-    GameEngine::SetInterpolationRecorded(recordInterpolation);
     if (recordInterpolation) {
         FrameInterpolation_StartRecord();
     }

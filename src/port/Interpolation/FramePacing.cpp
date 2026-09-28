@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
-#include <future>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 #include <unordered_map>
-#include <vector>
 
 #include <libultraship/libultraship.h>
 #include <fast/Fast3dWindow.h>
@@ -25,13 +25,10 @@ extern "C" bool prevAltAssets;
 extern "C" void port_releaseRcpTask(void);
 
 namespace {
-bool sInterpolationRecorded = false;
-std::vector<std::future<void>> sMapBuildFutures;
 long long sLastSubFrameNs = 0;
-long long sPassBudgetNs = 0;
 long long sFrameLatchNs = 0;
-int sFrameVis = 2;
 unsigned sFrameViSerial = 0;
+bool sFrameTimed = false;
 
 using Clock = std::chrono::steady_clock;
 inline long long NsSince(Clock::time_point t0) {
@@ -46,10 +43,35 @@ void SyncAltAssets() {
         gfx_texture_cache_clear();
     }
 }
+
+// Draws one sub-frame without presenting it.
+void DrawSubframe(Fast::Interpreter* interpreter, const std::shared_ptr<Ship::Window>& wndBase, Gfx* commands,
+                  const std::unordered_map<Mtx*, MtxF>& replacements) {
+    auto runT0 = Clock::now();
+    auto gui = wndBase->GetGui();
+    wndBase->GetMouseStateManager()->StartFrame();
+    gui->StartDraw();
+    interpreter->StartFrame();
+    interpreter->Run(commands, replacements);
+    if (OS_ViBlackActive()) {
+        interpreter->mGfxFrameBuffer = 0;
+        auto rapi = interpreter->GetCurrentRenderingAPI();
+        rapi->StartDrawToFramebuffer(0, 1.0f);
+        rapi->ClearFramebuffer(true, false);
+    }
+    gui->EndDraw();
+    sLastSubFrameNs = NsSince(runT0);
+}
+
+void PresentSubframe(Fast::Interpreter* interpreter) {
+    interpreter->EndFrame();
+    CALL_EVENT(FrameDrawEnd);
+    interpreter->mInterpolationIndex++;
+}
 } // namespace
 
-void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
-                             size_t frameCount) {
+void GameEngine::RunCommands(Gfx* Commands) {
+    static const std::unordered_map<Mtx*, MtxF> kNoReplacements;
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
     if (wnd == nullptr) {
         return;
@@ -58,54 +80,15 @@ void GameEngine::RunCommands(Gfx* Commands, const std::vector<std::unordered_map
     wnd->HandleEvents();
     interpreter->mInterpolationIndex = 0;
     auto wndBase = Ship::Context::GetRawInstance()->GetWindow();
-    const auto passT0 = Clock::now();
-    for (size_t frameIdx = 0; frameIdx < frameCount; frameIdx++) {
-        if (frameIdx >= 1 && frameIdx - 1 < sMapBuildFutures.size()) {
-            sMapBuildFutures[frameIdx - 1].wait();
-        }
-        if (frameIdx > 0 && sLastSubFrameNs > 0 && (sPassBudgetNs - NsSince(passT0)) < sLastSubFrameNs) {
-            break;
-        }
-        const auto& m = mtx_replacements[frameIdx];
-        const float subframeBlend = (frameCount > 1) ? (float)(frameIdx + 1) / (float)frameCount : 1.0f;
-        if (frameCount > 1) {
-            FrameInterpolation_ApplyAnimVertices(subframeBlend);
-        }
-        Nametag::SetSubframeBlend(subframeBlend);
-        bool isFinalFrame = (frameIdx == frameCount - 1);
-        auto runT0 = Clock::now();
-        auto gui = wndBase->GetGui();
-        wndBase->GetMouseStateManager()->StartFrame();
-        gui->StartDraw();
-        interpreter->StartFrame();
-        interpreter->Run(Commands, m);
-        if (OS_ViBlackActive()) {
-            interpreter->mGfxFrameBuffer = 0;
-            auto rapi = interpreter->GetCurrentRenderingAPI();
-            rapi->StartDrawToFramebuffer(0, 1.0f);
-            rapi->ClearFramebuffer(true, false);
-        }
-        gui->EndDraw();
-        sLastSubFrameNs = NsSince(runT0);
-        interpreter->EndFrame();
-        CALL_EVENT(FrameDrawEnd);
-        interpreter->mInterpolationIndex++;
+    Nametag::SetSubframeBlend(1.0f);
+    if (wndBase->IsFrameReady()) {
+        DrawSubframe(interpreter, wndBase, Commands, kNoReplacements);
+        PresentSubframe(interpreter);
     }
     SyncAltAssets();
 }
 
-void GameEngine::SetInterpolationRecorded(bool recorded) {
-    sInterpolationRecorded = recorded;
-}
-
-namespace {
-struct SubframePacing {
-    int subframes;
-    int fps;
-    int viPerTick;
-};
-
-int CurrentViPerTick() {
+int GameEngine::CurrentViPerTick() {
     int viPerTick = port_getDemoViCount();
     if (viPerTick <= 0) {
         viPerTick = gVIsPerFrame + port_getCutsceneExtraVis();
@@ -120,8 +103,9 @@ int CurrentViPerTick() {
     return viPerTick;
 }
 
+namespace {
 int EffectiveLogicFps() {
-    int fps = 60 / CurrentViPerTick();
+    int fps = 60 / GameEngine::CurrentViPerTick();
     return (fps < 1) ? 1 : fps;
 }
 
@@ -129,44 +113,24 @@ int SubframesForTarget(int targetFps) {
     int subframes = targetFps / EffectiveLogicFps();
     return (subframes < 1) ? 1 : subframes;
 }
-
-SubframePacing ComputeSubframePacing() {
-    int target_fps = (int)GameEngine::Instance->GetInterpolationFPS();
-    int viPerTick = CurrentViPerTick();
-    int subframesPerTick = SubframesForTarget(target_fps);
-
-    if (!sInterpolationRecorded) {
-        subframesPerTick = 1;
-    }
-
-    int fps = subframesPerTick * 60 / viPerTick;
-    if (fps < 1) {
-        fps = 1;
-    }
-
-    return { subframesPerTick, fps, viPerTick };
-}
 } // namespace
 
 bool GameEngine::IsInterpolationEnabled() {
     return (int)GetInterpolationFPS() > EffectiveLogicFps();
 }
 
-int GameEngine::CurrentViPerTick() {
-    return ::CurrentViPerTick();
+// Decided once per list at submit, so the pickup in ServiceRcp and the pass that draws it agree.
+bool GameEngine::WantsTimedPass(bool recorded, int viPerTick) {
+    return recorded && !GfxDebuggerIsDebugging() && (int)GetInterpolationFPS() > 60 / viPerTick;
 }
 
-void GameEngine::SetFrameTiming(long long latchNs, int viPerTick, unsigned viSerial) {
+void GameEngine::SetFrameTiming(long long latchNs, unsigned viSerial, bool timed) {
     sFrameViSerial = viSerial;
     sFrameLatchNs = latchNs;
-    sFrameVis = viPerTick > 0 ? viPerTick : 2;
+    sFrameTimed = timed;
 }
 
 namespace {
-long long SteadyNs() {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now().time_since_epoch()).count();
-}
-
 // Room left before the next swap has to latch, for the last draw and the game's swap behind it.
 constexpr long long kReleaseMarginNs = 4000000;
 constexpr int kMaxTimedSubframes = 32;
@@ -179,6 +143,53 @@ void BuildReplacements(float t, std::unordered_map<Mtx*, MtxF>& replacements) {
     } else {
         replacements.clear();
     }
+}
+
+class Prefetcher {
+public:
+    void Start(float t, std::unordered_map<Mtx*, MtxF>* out) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (!mThread.joinable()) {
+            mThread = std::thread([this] { Run(); });
+        }
+        mT = t;
+        mOut = out;
+        mBusy = true;
+        mCv.notify_all();
+    }
+
+    void Wait() {
+        std::unique_lock<std::mutex> lock(mMutex);
+        mCv.wait(lock, [this] { return !mBusy; });
+    }
+
+private:
+    void Run() {
+        std::unique_lock<std::mutex> lock(mMutex);
+        for (;;) {
+            mCv.wait(lock, [this] { return mOut != nullptr; });
+            auto* out = mOut;
+            const float t = mT;
+            mOut = nullptr;
+            lock.unlock();
+            BuildReplacements(t, *out);
+            lock.lock();
+            mBusy = false;
+            mCv.notify_all();
+        }
+    }
+
+    std::thread mThread;
+    std::mutex mMutex;
+    std::condition_variable mCv;
+    std::unordered_map<Mtx*, MtxF>* mOut = nullptr;
+    float mT = 0.0f;
+    bool mBusy = false;
+};
+
+Prefetcher& GetPrefetcher() {
+    static Prefetcher* sPrefetcher = new Prefetcher();
+    return *sPrefetcher;
 }
 
 // Draws the frame at the window's rate until its successor is due to latch, blending each sub-frame to
@@ -194,16 +205,20 @@ void RunTimedPass(Gfx* commands, int fps) {
     wnd->HandleEvents();
     interpreter->mInterpolationIndex = 0;
     static std::unordered_map<Mtx*, MtxF> maps[2];
-    std::future<void> prefetch;
+    Prefetcher& prefetcher = GetPrefetcher();
+    bool prefetching = false;
     float prefetchT = -1.0f;
-    const auto countBy = Clock::now() + std::chrono::milliseconds(3);
-    while (port_getDemoViSerial() == sFrameViSerial && Clock::now() < countBy) {
-        std::this_thread::yield();
+    // The tick after this list's sets its VI count when it polls input, right after the submit, and that
+    // count decides when this frame latches.
+    const long long waitEndNs = OS_SteadyNs() + 3000000;
+    while (port_getDemoViSerial() == sFrameViSerial && OS_SteadyNs() < waitEndNs) {
+        port_serviceRenderRequests();
+        port_waitDemoViSerial(sFrameViSerial, 250);
     }
     const int vis = std::max(port_getDemoViCount(), 2);
     const long long tickNs = 1000000000LL * vis / 60;
     const long long presentNs = 1000000000LL / fps;
-    const long long passStartNs = SteadyNs();
+    const long long passStartNs = OS_SteadyNs();
     long long anchorNs = sFrameLatchNs;
     if (anchorNs == 0 || std::llabs(passStartNs - anchorNs) > tickNs) {
         const long long latchNs = OS_ViLastLatchNs();
@@ -215,7 +230,7 @@ void RunTimedPass(Gfx* commands, int fps) {
     int count = 0;
 
     for (;;) {
-        const long long now = SteadyNs();
+        const long long now = OS_SteadyNs();
         if (prevRunNs != 0) {
             runIntervalNs = std::max(presentNs, now - prevRunNs);
         }
@@ -225,8 +240,9 @@ void RunTimedPass(Gfx* commands, int fps) {
         float t = std::clamp((float)(now + presentNs - anchorNs) / (float)tickNs, 0.0f, 1.0f);
         auto& replacements = maps[count & 1];
         bool prefetched = false;
-        if (prefetch.valid()) {
-            prefetch.wait();
+        if (prefetching) {
+            prefetcher.Wait();
+            prefetching = false;
             if (std::fabs(prefetchT - t) <= kPrefetchSlack) {
                 t = prefetchT;
                 prefetched = true;
@@ -237,48 +253,27 @@ void RunTimedPass(Gfx* commands, int fps) {
         }
         if (!last) {
             prefetchT = std::clamp((float)(now + runIntervalNs + presentNs - anchorNs) / (float)tickNs, 0.0f, 1.0f);
-            auto* next = &maps[(count + 1) & 1];
-            const float nextT = prefetchT;
-            prefetch = std::async(std::launch::async, [nextT, next] { BuildReplacements(nextT, *next); });
+            prefetcher.Start(prefetchT, &maps[(count + 1) & 1]);
+            prefetching = true;
         }
         FrameInterpolation_ApplyAnimVertices(t);
         Nametag::SetSubframeBlend(t);
-
-        auto runT0 = Clock::now();
-        auto gui = wndBase->GetGui();
-        wndBase->GetMouseStateManager()->StartFrame();
-        gui->StartDraw();
-        interpreter->StartFrame();
-        interpreter->Run(commands, replacements);
-        if (OS_ViBlackActive()) {
-            interpreter->mGfxFrameBuffer = 0;
-            auto rapi = interpreter->GetCurrentRenderingAPI();
-            rapi->StartDrawToFramebuffer(0, 1.0f);
-            rapi->ClearFramebuffer(true, false);
-        }
-        gui->EndDraw();
-        sLastSubFrameNs = NsSince(runT0);
+        DrawSubframe(interpreter, wndBase, commands, replacements);
         if (last) {
             port_releaseRcpTask();
         }
-        interpreter->EndFrame();
-        CALL_EVENT(FrameDrawEnd);
-        interpreter->mInterpolationIndex++;
+        PresentSubframe(interpreter);
         count++;
         if (last) {
             break;
         }
     }
-    if (prefetch.valid()) {
-        prefetch.wait();
+    if (prefetching) {
+        prefetcher.Wait();
     }
     SyncAltAssets();
 }
 } // namespace
-
-bool GameEngine::IsTimedPassActive() {
-    return IsInterpolationEnabled();
-}
 
 void GameEngine::ProcessGfxCommands(Gfx* commands) {
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
@@ -292,66 +287,17 @@ void GameEngine::ProcessGfxCommands(Gfx* commands) {
     // }
     wnd->SetRendererUCode(UcodeHandlers::ucode_f3dex);
 
-    static std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-
-    if (sInterpolationRecorded && !GfxDebuggerIsDebugging()) {
+    if (sFrameTimed) {
         const int fps = (int)GetInterpolationFPS();
-        if (fps > 60 / sFrameVis) {
-            wnd->SetTargetFps(fps);
-            wnd->SetMaximumFrameLatency(2);
-            RunTimedPass(commands, fps);
-            return;
-        }
-    }
-
-    const SubframePacing pacing = ComputeSubframePacing();
-    const int subframesPerTick = pacing.subframes;
-    const int fps = pacing.fps;
-
-    if ((int)mtx_replacements.size() < subframesPerTick) {
-        mtx_replacements.resize(subframesPerTick);
-    }
-    size_t activeFrames = 0;
-    sMapBuildFutures.clear();
-    for (int i = 1; i <= subframesPerTick; i++) {
-        if (i < subframesPerTick) {
-            float t = (float)i / (float)subframesPerTick;
-            if (i == 1) {
-                FrameInterpolation_Interpolate(t, mtx_replacements[activeFrames]);
-            } else {
-                auto* map = &mtx_replacements[activeFrames];
-                sMapBuildFutures.push_back(
-                    std::async(std::launch::async, [t, map] { FrameInterpolation_Interpolate(t, *map); }));
-            }
-        } else {
-            mtx_replacements[activeFrames].clear();
-        }
-        activeFrames++;
-    }
-
-    sPassBudgetNs = 1000000000LL * pacing.viPerTick / 60;
-
-    if (wnd != nullptr) {
         wnd->SetTargetFps(fps);
         wnd->SetMaximumFrameLatency(2);
+        RunTimedPass(commands, fps);
+        return;
     }
 
-    if (GfxDebuggerIsDebugging()) {
-        if (mtx_replacements.empty()) {
-            mtx_replacements.emplace_back();
-        }
-        mtx_replacements[0].clear();
-        activeFrames = 1;
-    }
-
-    RunCommands(commands, mtx_replacements, activeFrames);
-
-    for (auto& f : sMapBuildFutures) {
-        if (f.valid()) {
-            f.wait();
-        }
-    }
-    sMapBuildFutures.clear();
+    wnd->SetTargetFps(EffectiveLogicFps());
+    wnd->SetMaximumFrameLatency(2);
+    RunCommands(commands);
 }
 
 uint32_t GameEngine::GetInterpolationFPS() {

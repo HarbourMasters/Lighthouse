@@ -8,6 +8,9 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/ShipInit.hpp"
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
 
 #define CVAR_CUTSCENE_SYNC CVAR_ENHANCEMENT("Fix.CutsceneSync")
 #define CVAR_GV_LOBBY_FRAMERATE CVAR_ENHANCEMENT("Fix.GVLobbyFramerate")
@@ -27,6 +30,8 @@ void viMgr_func_8024BF94(s32 viPerTick);
 
 static std::atomic<int> sDemoViCount{ 0 };
 static std::atomic<unsigned> sDemoViSerial{ 0 };
+static std::mutex sDemoViMutex;
+static std::condition_variable sDemoViCv;
 static constexpr int kMaxDemoViCount = 0xF;
 
 int port_getDemoViCount(void) {
@@ -35,11 +40,21 @@ int port_getDemoViCount(void) {
 
 void port_setDemoViCount(int viCount) {
     sDemoViCount.store((viCount > kMaxDemoViCount) ? kMaxDemoViCount : viCount, std::memory_order_release);
-    sDemoViSerial.fetch_add(1, std::memory_order_acq_rel);
+    {
+        std::lock_guard<std::mutex> lock(sDemoViMutex);
+        sDemoViSerial.fetch_add(1, std::memory_order_acq_rel);
+    }
+    sDemoViCv.notify_all();
 }
 
 unsigned port_getDemoViSerial(void) {
     return sDemoViSerial.load(std::memory_order_acquire);
+}
+
+int port_waitDemoViSerial(unsigned seen, int timeoutUs) {
+    std::unique_lock<std::mutex> lock(sDemoViMutex);
+    return sDemoViCv.wait_for(lock, std::chrono::microseconds(timeoutUs),
+                              [seen] { return sDemoViSerial.load(std::memory_order_acquire) != seen; });
 }
 
 int port_getDemoDisplayViCount(int rawViCount) {
@@ -68,7 +83,7 @@ static int sLairDingpotDurations[] = { 6, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 static int sCutsceneCounter = 0;
 static int sCutsceneNextStutter = 0;
 static int sCutsceneLagIndex = 0;
-static int sCutsceneExtraVis = 0;
+static std::atomic<int> sCutsceneExtraVis{ 0 };
 
 static bool shouldLagCutscene(int* startFrames, int* durations, int count) {
     if (sCutsceneNextStutter == -1) {

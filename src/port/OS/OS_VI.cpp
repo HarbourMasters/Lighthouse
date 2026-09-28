@@ -35,14 +35,14 @@ std::atomic<bool> sBlack{ false };
 std::atomic<long long> sLatchNs{ 0 };
 std::atomic<long long> sRetraceNs{ 0 }; // when the latest retrace was scheduled
 std::atomic<long long> sSwapNs{ 0 };
-constexpr long long kViNs = 16666667;
+constexpr long long kViNs = 16666667; // NTSC 60Hz
 
-long long SteadyNs() {
+} // namespace
+
+extern "C" long long OS_SteadyNs(void) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch())
         .count();
 }
-
-} // namespace
 
 extern "C" void osCreateViManager(OSPri pri) {
     (void)pri;
@@ -50,7 +50,7 @@ extern "C" void osCreateViManager(OSPri pri) {
         return;
     }
     sTicker = std::thread([] {
-        constexpr std::chrono::nanoseconds kVi(16666667); // NTSC 60Hz
+        constexpr std::chrono::nanoseconds kVi(kViNs);
         auto next = std::chrono::steady_clock::now() + kVi;
         while (sTickerRun.load(std::memory_order_relaxed)) {
             std::this_thread::sleep_until(next);
@@ -66,7 +66,7 @@ extern "C" void osCreateViManager(OSPri pri) {
             // A retrace latches whatever swap armed, then raises VI.
             void* armed = sNextFramebuffer.load(std::memory_order_acquire);
             if (sCurrentFramebuffer.exchange(armed, std::memory_order_acq_rel) != armed) {
-                sLatchNs.store(SteadyNs(), std::memory_order_release);
+                sLatchNs.store(OS_SteadyNs(), std::memory_order_release);
             }
             ThreadWatchdog_Beat(WATCHDOG_VI_TICKER);
             OS_SendEventMesg(OS_EVENT_VI);
@@ -89,7 +89,7 @@ extern "C" void osViSetEvent(OSMesgQueue* queue, OSMesg mesg, u32 retraceCount) 
 }
 
 extern "C" void osViSwapBuffer(void* framebuffer) {
-    sSwapNs.store(SteadyNs(), std::memory_order_release);
+    sSwapNs.store(OS_SteadyNs(), std::memory_order_release);
     sNextFramebuffer.store(framebuffer, std::memory_order_release);
 }
 
