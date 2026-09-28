@@ -2,7 +2,7 @@
 [comment]: <> (Todo: Make Dark Mode Image)
 
 # Lighthouse
-LUS-based decomp port of Banjo Kazooie
+Harbour Masters port of Banjo Kazooie
 
 Lead Developer: 
 * Malkierian
@@ -11,8 +11,8 @@ Developers:
 * JeodC
 * Caladius
 
-## Discord
-Official Discord: https://discord.gg/bpYVagUZa
+## Website & Discord
+Official Website: https://www.harbourmasters.org/
 
 *If you're having any trouble after reading through this `README`, feel free ask for help in the Lighthouse text channels. Please keep in mind that we do not condone piracy.*
 
@@ -33,7 +33,7 @@ If you have multiple regions of the game and want to use them as language packs,
 ### 2. Verify your ROM is in .z64 format
 Your ROM needs to be in .z64 format. If it's in .n64 format, use the following to convert it to a .z64: https://hack64.net/tools/swapper.php
 
-### 3. Download Lighthouse from [Releases](https://github.com/IsleOPorts/Lighthouse/releases)
+### 3. Download Lighthouse from [Releases](https://github.com/HarbourMasters/Lighthouse/releases)
 
 ### 4. Generating the O2R from the ROM and Play!
 
@@ -92,14 +92,14 @@ If you're interested in creating and/or packing your own custom asset `.o2r`/`.o
 # Development
 
 ### Building
-If you want to manually compile Lighthouse, please consult the [building instructions](https://github.com/IsleOPorts/Lighthouse/blob/main/docs/BUILDING.md).
+If you want to manually compile Lighthouse, please consult the [building instructions](https://github.com/HarbourMasters/Lighthouse/blob/develop/docs/BUILDING.md).
 
 ### Playtesting
 If you want to playtest a continuous integration build, you can find them at the links below. Keep in mind that these are for playtesting only, and you will likely encounter bugs and possibly crashes.
 
-* [Windows](https://nightly.link/IsleOPorts/Lighthouse/workflows/main/main/Lighthouse-windows.zip)
-* [macOS](https://nightly.link/IsleOPorts/Lighthouse/workflows/main/main/Lighthouse-mac.zip)
-* [Linux](https://nightly.link/IsleOPorts/Lighthouse/workflows/main/main/Lighthouse-linux.zip)
+* [Windows](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-windows.zip)
+* [macOS](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-mac.zip)
+* [Linux](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-linux.zip)
 
 <a href="https://github.com/Kenix3/libultraship/">
   <picture>
