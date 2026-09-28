@@ -210,6 +210,7 @@ void setGameInformationZoombox(s32 gamenum){
     static u8 *sJigsawLabel[] = { " JIGSAW",  " PI" "\x63" "CE",  " PUZZLETEIL" };
     static u8 *sJigsawPlural[] = { "S", "S", "E" };
     static u8 *sNoteLabel[]   = { " NOTE",    " NOTE",    " NOTE" };
+    static u8 *sNotePlural[]  = { "S", "S", "N" };
     static u8 *sEmptyLabel[]  = { ": EMPTY",  ": VIDE",   ": LEER" };
     s32 lang = code94620_func_8031B5B0();
 
@@ -249,7 +250,8 @@ void setGameInformationZoombox(s32 gamenum){
         strIToA(lowerTextLine, itemscore_noteScores_getTotal());
         strcat(lowerTextLine, sNoteLabel[lang]);
         if(itemscore_noteScores_getTotal() != 1){
-            strcat(lowerTextLine, "S");
+//          strcat(lowerTextLine, "S");
+            strcat(lowerTextLine, sNotePlural[lang]);
         }
         strcat(lowerTextLine, ".");
         strcat(lowerTextLine, "");

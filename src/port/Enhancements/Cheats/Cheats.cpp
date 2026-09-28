@@ -271,7 +271,7 @@ void RegisterFastTransform_Init() {
             return;
         }
 
-        if (ev->actor->state == 4 || ev->actor->state == 5) {
+        if (ev->actor->state == 5) {
             anctrl_setDuration(ev->actor->anctrl, 7.5f / 8.0f);
         }
     });
