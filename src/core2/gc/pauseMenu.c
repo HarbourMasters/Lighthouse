@@ -690,8 +690,8 @@ void gcPauseMenu_setState(enum gcpausemenu_state_e next_state) {
 
         case PAUSE_STATE_12_SNS_DISPOSE: /* 8B978 80312908 3C128038 */
             D_80383010.selection = D_80383010.page;
-            func_8033BD20((void **)&D_80383010.sns_egg_model); //free
-            func_8033BD20((void **)&D_80383010.ice_key_model); //free
+            func_8033BD20(&D_80383010.sns_egg_model); //free
+            func_8033BD20(&D_80383010.ice_key_model); //free
             break;
 
         case PAUSE_STATE_13_EXIT_PAUSE: /* 8B9A8 80312938 3C128038 */
