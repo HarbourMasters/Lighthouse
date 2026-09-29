@@ -6408,8 +6408,6 @@ enum ch_mole_ids
 
 enum map_warp_SM_spiral_mountain
 {
-    WARP_SM_1_BANJOS_HOUSE = 0x1,
-
     WARP_SM_12_FROM_HOUSE = 0x12,
     WARP_SM_13_LAIR_ENTRANCE
 };

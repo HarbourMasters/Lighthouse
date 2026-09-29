@@ -345,7 +345,7 @@ constexpr WarpEntry warpsInfo[] = {
     { MAP_30_MMM_MUMBOS_SKULL,        WARP_MMM_MUMBOS_HUT_1_ENTRANCE,         "Entrance" },
     { MAP_8D_MMM_INSIDE_LOGGO,        WARP_MMM_SEPTIC_TANK_4_ENTRANCE,        "Entrance" },
     // LEVEL_B_SPIRAL_MOUNTAIN
-    { MAP_1_SM_SPIRAL_MOUNTAIN, WARP_SM_1_BANJOS_HOUSE,   "Outside Banjo's House" },
+    { MAP_1_SM_SPIRAL_MOUNTAIN, WARP_SM_12_FROM_HOUSE,    "Outside Banjo's House" },
     { MAP_1_SM_SPIRAL_MOUNTAIN, WARP_SM_13_LAIR_ENTRANCE, "Lair Entrance" },
     { MAP_8C_SM_BANJOS_HOUSE,   WARP_SM_BANJOS_HOUSE_1_ENTRANCE,          "Banjo's House" },
     { MAP_8C_SM_BANJOS_HOUSE,   WARP_SM_BANJOS_HOUSE_2_BOTTLES,           "SM Banjo's House - Bottles" },
