@@ -46,13 +46,13 @@ void chwadingboots_update(Actor *this){
         subaddie_set_state(this, 0);
     }
 
-    if(!volatileFlag_get(VOLATILE_FLAG_10_HAS_MEET_WADING_BOOTS) && ability_isUnlocked(ABILITY_E_WADING_BOOTS)){
+    if(!volatileFlag_get(VOLATILE_FLAG_10_HAS_MEET_WADING_BOOTS) && player_isAbilityUnlocked(ABILITY_E_WADING_BOOTS)){
         volatileFlag_set(VOLATILE_FLAG_10_HAS_MEET_WADING_BOOTS, true);
     }
 
     switch(this->state){
         case 0://L802D6C60
-            if(ability_isUnlocked(ABILITY_E_WADING_BOOTS))
+            if(player_isAbilityUnlocked(ABILITY_E_WADING_BOOTS))
                 actor_setOpacity(this, 0xff);
             else
                 actor_setOpacity(this, 0x87);
@@ -101,7 +101,7 @@ void chwadingboots_update(Actor *this){
 }
 
 bool chwadingboots_802D6E0C(Actor *this){
-    return this->unk10_12 && ability_isUnlocked(ABILITY_E_WADING_BOOTS);
+    return this->unk10_12 && player_isAbilityUnlocked(ABILITY_E_WADING_BOOTS);
 }
 
 f32 chwadingboots_802D6E4C(Actor *this){

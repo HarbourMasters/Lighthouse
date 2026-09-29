@@ -49,10 +49,10 @@ extern ParticleSettingsVelocityAccelerationPosition chFightFlightPad_D_80366FB4 
 void chShockJump_update(Actor *this){
     this->marker->propPtr->unk8_3 = true;
     if(volatileFlag_get(VOLATILE_FLAG_86_SANDCASTLE_SHOCKSPRING_JUMP_UNLOCKED)){
-        ability_unlock(ABILITY_D_SHOCK_JUMP);
+        player_unlockAbility(ABILITY_D_SHOCK_JUMP);
     }
 
-    if(ability_isUnlocked(ABILITY_D_SHOCK_JUMP)){
+    if(player_isAbilityUnlocked(ABILITY_D_SHOCK_JUMP)){
         actor_setOpacity(this, 0xff);
     }
     else{
@@ -63,10 +63,10 @@ void chShockJump_update(Actor *this){
 void chFlightPad_update(Actor *this){
     this->marker->propPtr->unk8_3 = true;
     if(volatileFlag_get(VOLATILE_FLAG_8A_SANDCASTLE_FLIGHT_UNLOCKED)){
-        ability_unlock(ABILITY_9_FLIGHT);
+        player_unlockAbility(ABILITY_9_FLIGHT);
     }
 
-    if(ability_isUnlocked(ABILITY_9_FLIGHT)){
+    if(player_isAbilityUnlocked(ABILITY_9_FLIGHT)){
         actor_setOpacity(this, 0xff);
     }
     else{

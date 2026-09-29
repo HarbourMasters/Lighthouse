@@ -164,7 +164,7 @@ void bsjump_update(void){
 
 void bsjump_end(void){
     if(ability_hasLearned(ABILITY_A_HOLD_A_JUMP_HIGHER))
-        ability_use(0);
+        ability_setUsedWithDialog(0);
 
     if(bs_getNextState() != BS_11_BPECK)
         baphysics_reset_gravity();

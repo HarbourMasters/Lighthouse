@@ -147,7 +147,7 @@ void ApplyForceAbilitiesUsed() {
     COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, sForcedUsedAbilities != 0, [](IEvent*) {
         for (int move = 0; move < 32; move++) {
             if (sForcedUsedAbilities & (1 << move)) {
-                ability_setHasUsed(static_cast<ability_e>(move));
+                ability_setUsed(static_cast<ability_used_e>(move));
             }
         }
     });
@@ -234,7 +234,7 @@ void HackShared_EnableDialogSuppression(const int* dialogIds, int count) {
     ApplyDialogSuppression();
 }
 
-void HackShared_EnableForceAbilitiesUsed(const ability_used* moves, int count) {
+void HackShared_EnableForceAbilitiesUsed(const ability_used_e* moves, int count) {
     for (int i = 0; i < count; i++) {
         sForcedUsedAbilities |= (1 << moves[i]);
     }

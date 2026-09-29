@@ -132,7 +132,7 @@ void bsbpeck_update(void){
 
 void bsbpeck_end(void){
     D_8037D376 = 0;
-    ability_use(0xa);
+    ability_setUsedWithDialog(0xa);
     baModel_80292048(1, 0.0f, 0.0f, 0.0f);
     baModel_80292048(0, 0.0f, 0.0f, 0.0f);
     baMarker_8028D638(0, 0);

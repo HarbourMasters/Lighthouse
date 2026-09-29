@@ -2,7 +2,7 @@
 #define BANJO_KAZOOIE_CORE2_ANIMTEXTURECACHE_H
 
 #include <ultra64.h>
-#include "model.h"
+#include "core2/model.h"
 
 bool AnimTextureListCache_tryGetTextureOffset(s32 index, s32 texture_index, s32 *texture_offset);
 s32 AnimTextureListCache_newList(void);

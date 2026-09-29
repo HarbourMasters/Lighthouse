@@ -2,11 +2,11 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 
 #include "core2/gc/zoombox.h"
-#include "core2/nc/camera.h"
 #include "core2/quiz/storage.h"
+#include "core2/nc/camera.h"
 
 #define ARRLEN(x) ((s32)(sizeof(x) / sizeof(x[0])))
 
@@ -60,7 +60,6 @@ extern void code_7060_setVoidOutLocation(enum map_e, s32);
 extern void quizQuestionAskedBitfield_set(u32, int); // ff_isAsked_flag_set
 extern bool quizQuestionAskedBitfield_get(u32); // ff_isAsked_flag_get
 extern void model_getMeshCenter(BKModel *model, s32 mesh_id, s16 [3]); //! $a2 type unk
-extern void ability_setAllLearned(s32);  // set unlocked moves bitfield
 extern s32  ability_getAllLearned(void); // get unlocked moves bitfield
 extern void func_8025A55C(s32, s32, s32);
 extern void func_80324CFC(f32, s16, s16);

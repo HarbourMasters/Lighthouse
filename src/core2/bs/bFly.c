@@ -177,7 +177,7 @@ void bsbfly_enter_update(void){
 }
 
 void bsbfly_enter_end(void){
-    ability_use(8);
+    ability_setUsedWithDialog(8);
     modelAppendages_setKazooiesUpperHalfVisibility(false);
 }
 

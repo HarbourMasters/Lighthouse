@@ -917,7 +917,7 @@ void sfx_play(enum sfx_e uid, f32 volume, u32 sampleRate, f32 position[3], f32 m
     __sfx_getPlayerPositionIfPresent(player_position);
     if( !(maxFadeDistance <= ml_vec3f_distance(player_position, position))
         && levelSpecificFlags_validateCRC2()
-        && dummy_func_80320240()
+        && volatileflag_stub1()
     ){
         sfxsource = sfxsource_createSfxsourceAndReturnIndex();
         if(sfxsource){

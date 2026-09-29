@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "ch/gameSelect.h"
+#include "core2/ch/gameSelect.h"
 
 #include "core2/modelRender.h"
 
@@ -31,7 +31,6 @@ extern void func_802C71F0(Actor *);
 extern void func_802C74F4(Actor *, s32, f32 );
 extern void warp_lairEnterLairFromSMLevel(s32, s32);
 extern void warp_smExitBanjosHouse(s32, s32);
-extern void gsworld_setEnableUpdate(s32);
 extern void controller_copyJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);

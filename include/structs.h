@@ -2,7 +2,7 @@
 #define STRUCTS_H
 
 #include <ultra64.h>
-#include "model.h"
+#include "core2/model.h"
 #include "core2/vla.h"
 #include "core2/fla.h"
 #include "enums.h"

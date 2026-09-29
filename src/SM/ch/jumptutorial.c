@@ -46,15 +46,15 @@ void chJumpTutorial_setState(Actor *this, s32 state) {
             player_getPosition(this->velocity);
             func_8028F918(0);
 
-            if (ability_isUnlocked(ABILITY_7_FEATHERY_FLAP)) {
+            if (player_isAbilityUnlocked(ABILITY_7_FEATHERY_FLAP)) {
                 mapSpecificFlags_set(SM_SPECIFIC_FLAG_9_ABILITY_FEATHERY_UNLOCKED, true);
             }
-            else if (ability_isUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER)) {//L8038A540
+            else if (player_isAbilityUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER)) {//L8038A540
                 mapSpecificFlags_set(SM_SPECIFIC_FLAG_8_ABILITY_HOLD_A_JUMP_HIGHER_UNLOCKED, true);
             }
             else {//L8038A560
                 __chJumpTutorial_setStaticCameraToNode4(this);
-                ability_unlock(ABILITY_A_HOLD_A_JUMP_HIGHER);
+                player_unlockAbility(ABILITY_A_HOLD_A_JUMP_HIGHER);
 
                 gcdialog_showDialog(ASSET_DF6_DIALOG_BOTTLES_HIGH_JUMP_LEARN, 0xe, this->unk1C, this->marker, __chJumpTutorial_textCallback, NULL);
                 this->sm_4070.dialog_id = VER_SELECT(ASSET_E1A_DIALOG_BOTTLES_UNKNOWN, 0xA5C, 0, 0);
@@ -110,7 +110,7 @@ void chJumpTutorial_update(Actor *this) {
             if (!gcdialog_hasCurrentTextId()) {
                 if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_8_ABILITY_HOLD_A_JUMP_HIGHER_UNLOCKED)) {
                     __chJumpTutorial_setStaticCameraToNode4(this);
-                    ability_unlock(ABILITY_7_FEATHERY_FLAP);
+                    player_unlockAbility(ABILITY_7_FEATHERY_FLAP);
 
                     gcdialog_showDialog(ASSET_DF7_DIALOG_BOTTLES_FEATHERY_FLAP_LEARN, 0xa, this->unk1C, this->marker, __chJumpTutorial_textCallback, NULL);
                     this->sm_4070.dialog_id = VER_SELECT(ASSET_E1B_DIALOG_BOTTLES_UNKNOWN, 0xA5D, 0, 0);
@@ -119,7 +119,7 @@ void chJumpTutorial_update(Actor *this) {
 
                 if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_9_ABILITY_FEATHERY_UNLOCKED)) {
                     __chJumpTutorial_setStaticCameraToNode4(this);
-                    ability_unlock(ABILITY_8_FLAP_FLIP);
+                    player_unlockAbility(ABILITY_8_FLAP_FLIP);
 
                     gcdialog_showDialog(ASSET_DF8_DIALOG_BOTTLES_FLAP_FLIP_LEARN, 0xa, this->unk1C, this->marker, __chJumpTutorial_textCallback, NULL);
                     this->sm_4070.dialog_id = VER_SELECT(ASSET_E1C_DIALOG_BOTTLES_UNKNOWN, 0xA5E, 0, 0);

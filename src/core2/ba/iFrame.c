@@ -2,8 +2,8 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "iFrame.h"
 #include "core2/statetimer.h"
+#include "core2/ba/iFrame.h"
 
 /* .bss */
 u8 D_8037C530;

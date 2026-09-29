@@ -366,7 +366,7 @@ void func_803465E4(void){
     }//L80346B6C
 
     if((globalTimer_getTime() & 7) == 6){
-        if(!func_80320708() || !dummy_func_80320248()){
+        if(!volatileflag_func_80320708() || !volatileflag_stub2()){
             D_80385F30[randi2(0, 0x2C)] = 1;
             D_80385FF0[randi2(0, 0xE)] = 1;
             D_80386000[randi2(0, 0xE)] = 1.0f;

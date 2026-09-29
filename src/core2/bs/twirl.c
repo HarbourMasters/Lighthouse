@@ -83,6 +83,6 @@ void bstwirl_update(void){
 }
 
 void bstwirl_end(void){
-    ability_use(ABILITY_USED_TWIRL);
+    ability_setUsedWithDialog(ABILITY_USED_C_TWIRL);
     _bstwirlHitboxActive = false;
 }
