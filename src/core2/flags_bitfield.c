@@ -242,7 +242,7 @@ s32 volatileflag_func_80320320(void) {
     s32 addr = (s32) &gVolatileFlags.unk8[0];
     s32 checksum = 0x281E421C;
     s32 len = 25;
-    uintptr_t scrambled;
+    s32 scrambled;
     u32 i;
 
     // Scrambles the address of D_803831D8
@@ -362,7 +362,7 @@ s32 volatileflag_func_80320708(void) {
     return 1;
 #if 0
     u16 temp_t6;
-    uintptr_t addr;
+    s32 addr;
 
     temp_t6 = ((s32) &gVolatileFlags.unk4 >> 0x10);
     addr = (s32) &gVolatileFlags.unk4 ^ temp_t6;
