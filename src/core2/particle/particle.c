@@ -636,7 +636,7 @@ void particleEmitter_update(ParticleEmitter *this){
         for(particle = this->pList_start_124; particle < this->pList_end_128;){//L802F005C
             particle->age_48 += tick;
             if(particle->lifetime_4C <= particle->age_48){
-                memcpy(particle, --this->pList_end_128, sizeof(Particle));
+                bk_memcpy(particle, --this->pList_end_128, sizeof(Particle));
             }else{//L802F00A0
                 temp_f0 = particle->age_48/particle->lifetime_4C;
                 if(temp_f0 < this->fade_in)
@@ -678,7 +678,7 @@ void particleEmitter_update(ParticleEmitter *this){
                 if( 0.0f != this->unkFC
                     && !viewport_func_8024DB50(particle->position, this->unkFC)
                 ){
-                    memcpy(particle, --this->pList_end_128, sizeof(Particle));
+                    bk_memcpy(particle, --this->pList_end_128, sizeof(Particle));
                 }
                 else{//L802F029C
                     if(particle->unk5C > 0){
@@ -709,7 +709,7 @@ void particleEmitter_update(ParticleEmitter *this){
                             if(--particle->unk5C == 0){
                                 if(this->particleCallback_80)
                                     this->particleCallback_80(this, particle->position);
-                                memcpy(particle, --this->pList_end_128, sizeof(Particle));
+                                bk_memcpy(particle, --this->pList_end_128, sizeof(Particle));
                                 continue;
                             }
                         }

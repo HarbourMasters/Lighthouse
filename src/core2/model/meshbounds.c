@@ -175,7 +175,7 @@ BKModel *meshList_createModel(BKMeshList *meshList, BKVertexList *vertexList) {
             phi_s0 = ((BKModelVtxRef *)(phi_s5 + 1));
             for(phi_s1 = 0; phi_s1 < phi_s3->vtx_count; phi_s1++){
                 phi_s0->vtx_id = ((s16 *)(phi_s3 + 1))[phi_s1];
-                memcpy(phi_s0, ((Vtx *)(vertexList + 1)) + phi_s0->vtx_id, sizeof(Vtx));
+                bk_memcpy(phi_s0, ((Vtx *)(vertexList + 1)) + phi_s0->vtx_id, sizeof(Vtx));
                 phi_s0++;
             }
             phi_s3 = (BKMesh *)((s16 *)(phi_s3 + 1) + phi_s3->vtx_count);

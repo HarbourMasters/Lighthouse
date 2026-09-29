@@ -8,7 +8,6 @@
 #include "version.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
-void _guRotateF(f32 mf[4][4], f32, f32, f32, f32);
 f32 func_80263FF0(f32);
 f32 cosf(f32);
 
@@ -45,7 +44,7 @@ MtxF *mlMtx_get_stack_pointer(void){
 }
 
 void mlMtxApply(Mtx *mPtr){
-    _guMtxF2L(s_mtx_stack->mf, mPtr); // [port] pass mf[4][4] member, not MtxF*
+    core1_7F60_guMtxF2L(s_mtx_stack->mf, mPtr); // [port] pass mf[4][4] member, not MtxF*
     FrameInterpolation_RecordMatrixToMtx(mPtr, s_mtx_stack->mf);
 }
 
@@ -257,8 +256,8 @@ void mlMtxSet(MtxF* arg0) {
 }
 
 void mlMtxRotate(f32 a, f32 x, f32 y, f32 z) {
-    _guRotateF((s_mtx_stack + 1)->mf, a, x, y, z);
-    guMtxCatF((s_mtx_stack + 1)->mf, s_mtx_stack->mf, s_mtx_stack->mf);
+    core1_7F60_guRotateF((s_mtx_stack + 1)->mf, a, x, y, z);
+    core1_7F60_guMtxCatF((s_mtx_stack + 1)->mf, s_mtx_stack->mf, s_mtx_stack->mf);
 }
 
 void mlMtxRotPitch(f32 arg0) {

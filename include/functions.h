@@ -980,9 +980,6 @@ void collisionTri_copy(BKCollisionTriangle *dst, BKCollisionTriangle *src);
 void func_802450DC(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3]);
 void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3], s32 arg5);
 
-// --- core1/gu_perspective.c ---
-void _guMtxF2L(float mf[4][4], Mtx *m);
-
 // --- boot/inflate.c ---
 int bk_inflate(void);
 
@@ -3116,9 +3113,6 @@ void bkmemset64(void *dest, s32 value, s32 size);
 f32 func_8038A6B8(ActorMarker *);
 
 // --- core1/memory.c ---
-void * bk_malloc(size_t size);
-void *bk_realloc(void* ptr, size_t size);
-void bk_free(void*);
 void *defrag(void *);
 void *defrag_asset(void *);
 

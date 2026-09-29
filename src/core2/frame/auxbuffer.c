@@ -48,7 +48,7 @@ void picturebox_func_8030C180(void) {
 
 void picturebox_init(void) {
     if (sPictureBoxColorBufferBase == NULL) {
-        sPictureBoxColorBuffer = malloc(IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(u16) + 64);
+        sPictureBoxColorBuffer = bk_malloc(IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(u16) + 64);
         sPictureBoxColorBufferBase = sPictureBoxColorBuffer;
 
         // Make sure that the color buffer is aligned on a 64-byte boundary
@@ -60,7 +60,7 @@ void picturebox_init(void) {
 
 void picturebox_free(void) {
     if (sPictureBoxColorBufferBase) {
-        free(sPictureBoxColorBufferBase);
+        bk_free(sPictureBoxColorBufferBase);
         sPictureBoxColorBufferBase = NULL;
     }
 

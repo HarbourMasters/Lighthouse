@@ -386,7 +386,7 @@ void func_8024F224(void){
 }
 
 void func_8024F2E4(s32 arg0, Struct_core1_10A00_1 *arg1){
-    memcpy(arg1, D_80281250 + arg0, sizeof(Struct_core1_10A00_1));
+    bk_memcpy(arg1, D_80281250 + arg0, sizeof(Struct_core1_10A00_1));
 }
 
 void func_8024F328(s32 controller_index, s32 arg1){

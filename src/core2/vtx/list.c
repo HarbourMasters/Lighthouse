@@ -166,7 +166,7 @@ BKVertexList *vtxList_clone(BKVertexList *vtxList){
     
     list_size = sizeof(BKVertexList) + vtxList->count*sizeof(Vtx);
     out_v0 = (BKVertexList *) bk_malloc(list_size);
-    memcpy(out_v0, vtxList, list_size);
+    bk_wmemcpy(out_v0, vtxList, list_size);
     return out_v0;
 }
 

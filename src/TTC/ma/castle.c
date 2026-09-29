@@ -503,9 +503,9 @@ static void __maCastle_resetCheatCodeProgress(void)
     }
 
     if (volatileFlag_get(VOLATILE_FLAG_2_FF_IN_MINIGAME))
-        strcpy(sCheatCodes[0].code, "j4663n86pink"); // EIOOZAKOJNAB
+        bk_strcpy(sCheatCodes[0].code, "j4663n86pink"); // EIOOZAKOJNAB
     else
-        strcpy(sCheatCodes[0].code, "knip68n3664j"); // BANJOKAZOOIE
+        bk_strcpy(sCheatCodes[0].code, "knip68n3664j"); // BANJOKAZOOIE
 
     __maCastle_resetSecretCheatCodeProgress();
 }

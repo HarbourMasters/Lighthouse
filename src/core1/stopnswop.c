@@ -227,8 +227,8 @@ void sns_write_payload_over_heap(void)
 
     sns_generate_payload(snsBasePayloadPtr2);
 
-    wmemcpy(snsBasePayloadPtr3, snsBasePayloadPtr2, sizeof(*snsBasePayloadPtr2));
-    wmemcpy(snsBasePayloadPtr4, snsBasePayloadPtr2, sizeof(*snsBasePayloadPtr2));
+    bk_wmemcpy(snsBasePayloadPtr3, snsBasePayloadPtr2, sizeof(*snsBasePayloadPtr2));
+    bk_wmemcpy(snsBasePayloadPtr4, snsBasePayloadPtr2, sizeof(*snsBasePayloadPtr2));
 
     for (i = 1; i < 5; i++)
     {
@@ -241,7 +241,7 @@ void sns_write_payload_over_heap(void)
             val1 -= val1 & 0x1FFF;
 
             for (val1 += 0x2C00; val1 < val3; val1 += 0x2000)
-                wmemcpy((void *)val1, snsBasePayloadPtr2, sizeof(*snsBasePayloadPtr2));
+                bk_wmemcpy((void *)val1, snsBasePayloadPtr2, sizeof(*snsBasePayloadPtr2));
         }
     }
 #endif

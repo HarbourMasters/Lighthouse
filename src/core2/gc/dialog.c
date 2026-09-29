@@ -502,8 +502,8 @@ void dialog_update(void) {
                             }
 
                             if(ret >= 0 && CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] + ret + 1)->cmd == -8) {
-                                strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] + ret + 1)->str);
-                                strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
+                                bk_strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] + ret + 1)->str);
+                                bk_strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
 
                                 replaceText(
                                         g_Dialog.output,
@@ -530,9 +530,9 @@ void dialog_update(void) {
                                 ret = g_Dialog.unk144(g_Dialog.caller, g_Dialog.unk130, g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]);
                             }
 
-                            strIToA(D_80382FF8, ret);
-                            strlen(D_80382FF8);
-                            strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
+                            bk_strIToA(D_80382FF8, ret);
+                            bk_strlen(D_80382FF8);
+                            bk_strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
 
                             replaceText(
                                     g_Dialog.output,

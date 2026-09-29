@@ -10,6 +10,7 @@
 
 #include "core1/audiomanager.h"
 #include "core1/bamotor.h"
+#include "core1/bk_gu.h"
 #include "core1/debugtext.h"
 #include "core1/defragthread.h"
 #include "core1/depthbuffer.h"
