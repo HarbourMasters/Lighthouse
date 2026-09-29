@@ -500,62 +500,62 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 break;
 
             case 0x241: //L8028C31C
-                __baMarker_8028BB1C(plyr_hitbox_type, 0xC6, 0x6E, 0x81, 0x2C, 0xA, 0xC7);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0xC6, MAP_6E_GL_GV_LOBBY, 0x81, 0x2C, 0xA, 0xC7);
                 break;
 
             case MARKER_23C_GV_SNS_SWITCH: //L8028C350
-                __baMarker_8028BB1C(plyr_hitbox_type, 0xA3, 0x92, 0x7F, 0x1A, 0xA, 0xA4);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0xA3, MAP_92_GV_SNS_CHAMBER, 0x7F, 0x1A, 0xA, 0xA4);
                 break;
 
             case MARKER_161_GV_WITCH_SWITCH: //L8028C384
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BE_WITCH_SWITCH_PRESSED_GV, 0x6E, 0x7D, 0x19, 0x14, 0xA0);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BE_WITCH_SWITCH_PRESSED_GV, MAP_6E_GL_GV_LOBBY, 0x7D, 0x19, 0x14, 0xA0);
                 break;
 
             case MARKER_162_BGS_WITCH_SWITCH: //L8028C3BC
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BD_WITCH_SWITCH_PRESSED_BGS, 0x71, 0x7C, 0x18, 0x14, 0x9F);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BD_WITCH_SWITCH_PRESSED_BGS, MAP_71_GL_STATUE_ROOM, 0x7C, 0x18, 0x14, 0x9F);
                 break;
             case MARKER_166_CC_WITCH_SWITCH: //L8028C3F4
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BC_WITCH_SWITCH_PRESSED_CC, 0x6A, 0x7A, 0x17, 0x14, 0x9A);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BC_WITCH_SWITCH_PRESSED_CC, MAP_6A_GL_TTC_AND_CC_PUZZLE, 0x7A, 0x17, 0x14, 0x9A);
                 break;
 
             case MARKER_22B_FP_WITCH_SWITCH: //L8028C42C
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP, 0x6F, 0x3A, 0x13, 0x15, 0x47);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BB_WITCH_SWITCH_PRESSED_FP, MAP_6F_GL_FP_LOBBY, 0x3A, 0x13, 0x15, 0x47);
                 break;
 
             case MARKER_22A_CCW_WITCH_SWITCH: //L8028C464
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BA_WITCH_SWITCH_PRESSED_CCW, 0x79, 0x39, 0x12, 0x15, 0x46);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_BA_WITCH_SWITCH_PRESSED_CCW, MAP_79_GL_CCW_LOBBY, 0x39, 0x12, 0x15, 0x46);
                 break;
 
             case MARKER_103_MM_WITCH_SWITCH: //L8028C49C
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM, 0x69, 0x26, 1, 4, 0x18);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B6_WITCH_SWITCH_PRESSED_MM, MAP_69_GL_MM_LOBBY, 0x26, 1, 4, 0x18);
                 break;
 
             case MARKER_104_MMM_WITCH_SWITCH: //L8028C4D4
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B7_WITCH_SWITCH_PRESSED_MMM, 0x6F, 0x27, 2, 0x14, 0x19);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B7_WITCH_SWITCH_PRESSED_MMM, MAP_6F_GL_FP_LOBBY, 0x27, 2, 0x14, 0x19);
                 break;
 
             case MARKER_105_TTC_WITCH_SWITCH: //L8028C50C
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B8_WITCH_SWITCH_PRESSED_TTC, 0x6D, 0x28, 3, 0x14, 0x1A);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B8_WITCH_SWITCH_PRESSED_TTC, MAP_6D_GL_TTC_LOBBY, 0x28, 3, 0x14, 0x1A);
                 break;
 
             case MARKER_106_RBB_WITCH_SWITCH: //L8028C544
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B9_WITCH_SWITCH_PRESSED_RBB, 0x76, 0x29, 4, 0xe, 0x1C);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x400000 | VOLATILE_FLAG_B9_WITCH_SWITCH_PRESSED_RBB, MAP_76_GL_640_NOTE_DOOR, 0x29, 4, 0xe, 0x1C);
                 break;
 
             case MARKER_11B_WATER_LEVEL_SWITCH_1: //L8028C57C
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x22, 0x77, 0x2D, 5, 0xA, 0x23);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x22, MAP_77_GL_RBB_LOBBY, 0x2D, 5, 0xA, 0x23);
                 break;
 
             case MARKER_11C_WATER_LEVEL_SWITCH_2: //L8028C5B0
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x24, 0x77, 0x2E, 6, 0xA, 0x25);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x24, MAP_77_GL_RBB_LOBBY, 0x2E, 6, 0xA, 0x25);
                 break;
 
             case MARKER_11D_WATER_LEVEL_SWITCH_3: //L8028C5E4
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x26, 0x76, 0x2F, 0x7, 0xA, 0x27);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x26, MAP_76_GL_640_NOTE_DOOR, 0x2F, 0x7, 0xA, 0x27);
                 break;
 
             case 0x232: //L8028C618
-                __baMarker_8028BB1C(plyr_hitbox_type, 0x53, 0x6b, 0x3b, 0x14, 0x12, 0x54);
+                __baMarker_8028BB1C(plyr_hitbox_type, 0x53, MAP_6B_GL_180_NOTE_DOOR, 0x3b, 0x14, 0x12, 0x54);
                 break;
 
             case MARKER_F3_GV_KAZOOIE_TARGET: //L8028C64C
