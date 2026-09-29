@@ -169,6 +169,9 @@ jobs:
           make -j 10
           sudo make install
           sudo cp -av /usr/local/lib/libSDL* /lib/${{ matrix.arch }}-linux-gnu/
+      - uses: ./.github/actions/install-sdl2-net
+      - name: Copy SDL libs to multiarch dir
+        run: sudo cp -av /usr/local/lib/libSDL* /lib/${{ matrix.arch }}-linux-gnu/
       - name: Install latest tinyxml2
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
