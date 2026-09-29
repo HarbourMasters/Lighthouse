@@ -385,7 +385,7 @@ void func_80296608(void){
             next_state = func_8029B504();
             sp2C = 2;
             break;
-        case BS_INTR_1F: //L80296868
+        case BS_INTR_1F_HAZARD: //L80296868
             if(baiFrame_getState() != 3 && baMarker_isCollidable()){
         case BS_INTR_31: //L8029688C
                 func_802960C4(2);

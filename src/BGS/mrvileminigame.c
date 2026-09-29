@@ -33,7 +33,7 @@ void chMrVileMinigame_setState(Actor *this, s32 next_state);
 void chMrVileMinigame_update(Actor *this);
 
 /* .data */
-ActorInfo D_80390960 = {
+ActorInfo gChVileGame = {
     MARKER_C6_VILE_GAME_CTRL, ACTOR_138_VILE_GAME_CTRL, 0,
     0, NULL,
     chMrVileMinigame_update, NULL, func_80325340,
@@ -561,7 +561,7 @@ bool chMrVileMinigame_mrVileConsumePiece(ActorMarker *marker, f32 position[3]) {
     return false;
 }
 
-BKModelBin *chvilegame_get_grumblie_model(ActorMarker *marker){
+BKModelBin *chMrVileMinigame_getGrumblieModel(ActorMarker *marker){
     Actor *this;
     chMrVileMinigameActor *local;
 
@@ -678,7 +678,7 @@ void chMrVileMinigame_free(Actor *this){
     assetcache_release(local->grumblie_model_bin);
 }
 
-void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker) {
+void chMrVileMinigame_removePiece(ActorMarker *game_marker, ActorMarker *piece_marker) {
     Actor *this;
     chMrVileMinigameActor *local;
     struct vilegame_piece *begin;

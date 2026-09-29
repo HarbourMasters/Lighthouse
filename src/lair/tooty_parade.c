@@ -8,7 +8,12 @@ extern void player_walkToPosition(f32[3], f32, void(*)(ActorMarker *), ActorMark
 void __codeC6C0_updateFunc(Actor *this);
 
 /* .data */
-ActorInfo D_80394D20 = { 0x29C, 0x3C9, 0x0, 0x0, NULL, __codeC6C0_updateFunc, actor_update_func_80326224, func_80325340, 0, 0, 0.0f, 0};
+ActorInfo gChActorFurnaceFunPickPrice = {
+    MARKER_29C_FURNACE_FUN_PICK_PRICE, ACTOR_3C9_FURNACE_FUN_PICK_PRICE, 0x0,
+    0x0, NULL,
+    __codeC6C0_updateFunc, actor_update_func_80326224, func_80325340,
+    0, 0, 0.0f, 0
+};
 
 /* .code */
 void __codeC6C0_func_80392AB0(ActorMarker *marker, enum asset_e text_id, s32 arg2){
@@ -23,7 +28,7 @@ void __codeC6C0_func_80392AF4(ActorMarker *marker, enum asset_e text_id, s32 arg
 
 void __codeC6C0_func_80392B1C(ActorMarker *marker) {
     func_8028E6EC(0);
-    gcdialog_showDialog(0x1040, 8, NULL, marker, __codeC6C0_func_80392AB0, __codeC6C0_func_80392AF4);
+    gcdialog_showDialog(ASSET_1040_DIALOG_FURNACE_FUN_PICK_PRICE, 8, NULL, marker, __codeC6C0_func_80392AB0, __codeC6C0_func_80392AF4);
 }
 
 void __codeC6C0_updateFunc(Actor *this) {
@@ -36,7 +41,7 @@ void __codeC6C0_updateFunc(Actor *this) {
             marker_despawn(this->marker);
             return;
         }
-        phi_a0 = nodeprop_findByActorIdAndActorPosition(0x3BE, this);
+        phi_a0 = nodeprop_findByActorIdAndActorPosition(ACTOR_3BE_LAIR_UNKNOWN, this);
         if (this == NULL) {
             this->unk1C[0] = -1300.0f;
             this->unk1C[1] = 250.0f;
@@ -45,11 +50,11 @@ void __codeC6C0_updateFunc(Actor *this) {
             nodeprop_getPosition(phi_a0, this->unk1C);
         }
     }
-    if (mapSpecificFlags_get(7) != 0) {
+    if (mapSpecificFlags_get(LAIR_SPECIFIC_FLAG_7_UKNOWN) != FALSE) {
         sp28 = ml_vec3f_distance(this->position, this->unk1C) / 350.0;
         comusic_playTrack(COMUSIC_A9_TOOTY);
-        mapSpecificFlags_set(7, 0);
-        mapSpecificFlags_set(9, 1);
+        mapSpecificFlags_set(LAIR_SPECIFIC_FLAG_7_UKNOWN, FALSE);
+        mapSpecificFlags_set(LAIR_SPECIFIC_FLAG_9_UKNOWN, TRUE);
         ncStaticCamera_setToNode(0x10);
         func_8028F918(0);
         func_8028F85C(this->position);

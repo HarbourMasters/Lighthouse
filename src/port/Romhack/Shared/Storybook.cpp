@@ -14,7 +14,7 @@ extern OSContPad sInputs[MAXCONTROLLERS];
 extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
 extern struct CachedInputs sCachedInputs[MAXCONTROLLERS];
 extern f32 D_8037C5B0[3];
-extern f32 player_position[3];
+extern f32 sPlayerPosition[3];
 }
 
 namespace {
@@ -93,7 +93,7 @@ void StorybookPageUpdate() {
             D_8037C5B0[0] += kPageStep;
         }
     }
-    player_position[0] = D_8037C5B0[0];
+    sPlayerPosition[0] = D_8037C5B0[0];
 }
 
 void ApplyStorybookIntroHooks() {

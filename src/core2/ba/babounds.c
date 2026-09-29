@@ -6,37 +6,34 @@
 
 /* .bss */
 struct{
-    f32 unk0[3];
-    f32 unkC[3];
-    u8  unk18;
-    u8  pad19[3];
+    f32 max[3];
+    f32 min[3];
+    u8  attempted_return;
 } D_8037C3C0;
 
 /* .code */
 void babounds_init(void){
-    s32 sp24[3];
-    s32 sp18[3];
+    s32 max[3];
+    s32 min[3];
 
-    mapModel_getBounds(sp18, sp24);
-    ml_vec3w_to_vec3f(D_8037C3C0.unkC, sp18);
-    ml_vec3w_to_vec3f(D_8037C3C0.unk0, sp24);
-    D_8037C3C0.unkC[0] -= 400.0f;
-    D_8037C3C0.unkC[1] = -8000.0f;
-    D_8037C3C0.unkC[2] -= 400.0f;
-    D_8037C3C0.unk0[0] += 400.0f;
-    D_8037C3C0.unk0[1] += 1000.0f;
-    D_8037C3C0.unk0[2] += 400.0f;
-    D_8037C3C0.unk18 = 0;
-
-
+    mapModel_getBounds(min, max);
+    ml_vec3w_to_vec3f(D_8037C3C0.min, min);
+    ml_vec3w_to_vec3f(D_8037C3C0.max, max);
+    D_8037C3C0.min[0] -= 400.0f;
+    D_8037C3C0.min[1] = -8000.0f;
+    D_8037C3C0.min[2] -= 400.0f;
+    D_8037C3C0.max[0] += 400.0f;
+    D_8037C3C0.max[1] += 1000.0f;
+    D_8037C3C0.max[2] += 400.0f;
+    D_8037C3C0.attempted_return = 0;
 }
 
 void babounds_update(void){
     f32 sp1C[3];
     playerPosition_get(sp1C);
-    if(!ml_vec3f_inside_box_vec3f(sp1C, D_8037C3C0.unkC, D_8037C3C0.unk0)){
-        if(D_8037C3C0.unk18 == 0){
-            D_8037C3C0.unk18 = 1;
+    if(!ml_vec3f_inside_box_vec3f(sp1C, D_8037C3C0.min, D_8037C3C0.max)){
+        if(D_8037C3C0.attempted_return == 0){
+            D_8037C3C0.attempted_return = 1;
             func_8029B6F0();
         }
         else{

@@ -23,6 +23,17 @@ enum chSmBottles_state_e {
     SM_BOTTLES_STATE_5_UNKNOWN
 };
 
+enum sm_mole_text_actions
+{
+    SM_MOLE_TEXT_ACTION_ACTION_1_UNK = 1,
+    SM_MOLE_TEXT_ACTION_ACTION_2_UNK,
+    SM_MOLE_TEXT_ACTION_ACTION_3_SHOW_LAIR,
+    SM_MOLE_TEXT_ACTION_ACTION_4_UNK,
+    SM_MOLE_TEXT_ACTION_ACTION_5_SHOW_TUTORIAL_BOTTLES_CONVO,
+    SM_MOLE_TEXT_ACTION_ACTION_6_UNK,
+    SM_MOLE_TEXT_ACTION_ACTION_FF_UNK = 0xFF
+};
+
 typedef struct {
     s16 teach_text_id;
     s16 refresher_text_id;
@@ -63,6 +74,8 @@ ChSmBottlesDialog chSmBottlesDialogTable[8] = {
 };
 
 s32 chSmBottlesDialogIndex = 0;
+
+#define SM_BOTTLES_ID_TO_TABLE_SHIFT   1
 
 /* .code */
 
@@ -133,11 +146,11 @@ void chSmBottles_netApplyTutorialComplete(void) {
  * camera that points to the lair. Otherwise, use the camera for the ability.
  */
 void __chSmBottles_setStaticCameraToNode(Actor *this) {
-    if (this->actorTypeSpecificField == 1 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) {
+    if (this->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) {
         timed_setStaticCameraToNode(0.0f, 0x12);
     }
     else { //L80388F68
-        timed_setStaticCameraToNode(0.0f, chSmBottlesDialogTable[this->actorTypeSpecificField - 1].camera_node);
+        timed_setStaticCameraToNode(0.0f, chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].camera_node);
     }
 }
 
@@ -202,7 +215,7 @@ void __chSmBottles_setState(Actor *this, s32 next_state) {
             other = subaddie_getLinkedActor(this);
             molehillMarker = this->partnerActor;
 
-            if (molehillMarker && other && molehillMarker->id == 0xB8) {
+            if (molehillMarker && other && molehillMarker->id == MARKER_B8_MOLEHILL) {
                 subaddie_set_state_with_direction(other, 2, 0.0001f, 1);
             }
 
@@ -210,7 +223,7 @@ void __chSmBottles_setState(Actor *this, s32 next_state) {
             actor_playAnimationOnce(this);
 
             this->unk44_31 = sfxsource_createSfxsourceAndReturnIndex();
-            sfxsource_setSfxId(this->unk44_31, 0x3f9);
+            sfxsource_setSfxId(this->unk44_31, SFX_3F9_UNKNOWN);
             sfxSource_setunk43_7ByIndex(this->unk44_31, 2);
             sfxsource_playSfxAtVolume(this->unk44_31, 1.4f);
             sfxsource_setSampleRate(this->unk44_31, 0x6590);
@@ -231,23 +244,23 @@ static void __chSmBottles_textActions(ActorMarker *marker, enum asset_e text_id,
     Actor *actor = marker_getActor(marker);
 
     switch (arg2) {
-        case 3:
+        case SM_MOLE_TEXT_ACTION_ACTION_3_SHOW_LAIR:
             timed_setStaticCameraToNode(0.0f, 2);
             break;
 
-        case 4:
-            mapSpecificFlags_set(SM_SPECIFIC_FLAG_4, true);
+        case SM_MOLE_TEXT_ACTION_ACTION_4_UNK:
+            mapSpecificFlags_set(SM_SPECIFIC_FLAG_4, TRUE);
             break;
 
-        case 5:
+        case SM_MOLE_TEXT_ACTION_ACTION_5_SHOW_TUTORIAL_BOTTLES_CONVO:
             timed_setStaticCameraToNode(0.0f, 0x12);
             break;
 
-        case 6:
+        case SM_MOLE_TEXT_ACTION_ACTION_6_UNK:
             comusic_playTrack(COMUSIC_2B_DING_B);
             break;
 
-        case 0xff:
+        case SM_MOLE_TEXT_ACTION_ACTION_FF_UNK:
             __chSmBottles_setStaticCameraToNode(actor);
             break;
     }
@@ -308,7 +321,7 @@ void __chSmBottles_textCallback(ActorMarker *marker, enum asset_e text_id, s32 a
 void __chSmBottles_getRefresherDialog(Actor *this, s32 *text_id, s32 *text_flags) {
     // Selects the learn and refresh dialogs.
     // Gives the player the ability if not learned.
-    if (player_isAbilityUnlocked(chSmBottlesDialogTable[this->actorTypeSpecificField - 1].ability)) {
+    if (player_isAbilityUnlocked(chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].ability)) {
         if (fileProgressFlag_get(FILEPROG_DB_SKIPPED_TUTORIAL)) {
             *text_id = chSmBottlesDialogIndex + ASSET_E0A_DIALOG_BOTTLES_REFUSE_HELP_1;
             chSmBottlesDialogIndex++;
@@ -320,7 +333,7 @@ void __chSmBottles_getRefresherDialog(Actor *this, s32 *text_id, s32 *text_flags
         }
         else {//L8038956C
             *text_flags |= 1;
-            *text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - 1].refresher_text_id;
+            *text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].refresher_text_id;
 
             if (*text_id == ASSET_DFE_DIALOG_BOTTLES_DIVE_REFRESHER && !ability_hasUsed(ABILITY_USED_3_SWIM)) {
                 *text_id = ASSET_DFD_DIALOG_BOTTLES_SWIM_LEARN;
@@ -328,8 +341,8 @@ void __chSmBottles_getRefresherDialog(Actor *this, s32 *text_id, s32 *text_flags
         }
     }
     else {//L803895C0
-        *text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - 1].teach_text_id;
-        player_unlockAbility(chSmBottlesDialogTable[this->actorTypeSpecificField - 1].ability);
+        *text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].teach_text_id;
+        player_unlockAbility(chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].ability);
     }
 }
 
@@ -341,8 +354,8 @@ void __chSmBottles_talk(Actor *this) {
     text_id = 0;
 
     if (!EventSystem_Should(VB_OVERRIDE_MOLEHILL_ABILITY, false, this, &text_id, &text_flags)) {
-        switch (this->actorTypeSpecificField) {
-        case 1://L8038965C
+    switch (this->actorTypeSpecificField) {
+        case CH_SM_MOLE_ID_1_INTRO://L8038965C
             if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) {
                 text_flags |= 1;
 
@@ -352,16 +365,16 @@ void __chSmBottles_talk(Actor *this) {
                     chSmBottlesDialogIndex = MIN(chSmBottlesDialogIndex, 5);
                 }
                 else {//L803896C0
-                    text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - 1].refresher_text_id;
+                    text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].refresher_text_id;
                 }
             }
             else {//L803896E8
-                text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - 1].teach_text_id;
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, true);
+                text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].teach_text_id;
+                mapSpecificFlags_set(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES, TRUE);
             }
             break;
 
-        case 8://L80389720
+        case CH_SM_MOLE_ID_8_BRIDGE://L80389720
             if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED)) {
                 if (fileProgressFlag_get(FILEPROG_A6_FURNACE_FUN_COMPLETE)) {
                     text_id = ASSET_E37_DIALOG_BOTTLES_STOP_WASTING_TIME_AFTER_FURNACE_FUN;
@@ -374,35 +387,35 @@ void __chSmBottles_talk(Actor *this) {
                 else {//L80389780
                     __chSmBottles_setHasUsedSpiralMountainAbilities();
                     text_id = fileProgressFlag_get(FILEPROG_DB_SKIPPED_TUTORIAL) ? 0xe1e : 0xe13;
-                    mapSpecificFlags_set(SM_SPECIFIC_FLAG_F, true);
+                    mapSpecificFlags_set(SM_SPECIFIC_FLAG_F, TRUE);
                 } //L803897B4
 
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_2, true);
+                mapSpecificFlags_set(SM_SPECIFIC_FLAG_2, TRUE);
             }
             else {//L803897C8
                 if (mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)) {
-                    text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - 1].refresher_text_id;
+                    text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].refresher_text_id;
                     text_flags |= 1;
                 }
                 else {
-                    text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - 1].teach_text_id;
-                    mapSpecificFlags_set(SM_SPECIFIC_FLAG_2, true);
+                    text_id = chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].teach_text_id;
+                    mapSpecificFlags_set(SM_SPECIFIC_FLAG_2, TRUE);
                 }
             }
             break;
 
-        case 4://L80389848
+        case CH_SM_MOLE_ID_4_ATTACK_TUTORIAL://L80389848
             if (!(player_isAbilityUnlocked(ABILITY_4_CLAW_SWIPE) && player_isAbilityUnlocked(ABILITY_C_ROLL) && player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP))) {//L803898D4
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_4, true);
+                mapSpecificFlags_set(SM_SPECIFIC_FLAG_4, TRUE);
             }
             else {//L803898E4
                 __chSmBottles_getRefresherDialog(this, &text_id, &text_flags);
             }
             break;
 
-        case 6://L803898A0
+        case CH_SM_MOLE_ID_6_JUMP_TUTORIAL://L803898A0
             if (!(player_isAbilityUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER) && player_isAbilityUnlocked(ABILITY_7_FEATHERY_FLAP) && player_isAbilityUnlocked(ABILITY_8_FLAP_FLIP))) {//L803898D4
-                mapSpecificFlags_set(SM_SPECIFIC_FLAG_E, true);
+                mapSpecificFlags_set(SM_SPECIFIC_FLAG_E, TRUE);
             }
             else {//L803898E4
                 __chSmBottles_getRefresherDialog(this, &text_id, &text_flags);
@@ -412,7 +425,8 @@ void __chSmBottles_talk(Actor *this) {
         default://L803898F8
             __chSmBottles_getRefresherDialog(this, &text_id, &text_flags);
             break;
-        }//L80389904
+    }//L80389904
+
     }
 
     if (text_id) {
@@ -446,13 +460,13 @@ void __chSmBottles_free(Actor *this) {
 void chSmBottles_update(Actor *this) {
     s32 face_buttons[6];
     f32 plyr_pos[3];
-    void *sp40;
+    void *node_prop;
     int sp34;
     int bakey_pressed;
 
     // Checks the actor's selector value is lower than 0x9
     // Anything higher is a non-Spiral Mountain ability, and should use a different actor id
-    if (this->actorTypeSpecificField >= 9) {
+    if (this->actorTypeSpecificField >= CH_MOLE_ID_9_BEAK_BOMB) {
         return;
     }
 
@@ -462,21 +476,21 @@ void chSmBottles_update(Actor *this) {
         this->initialized = true;
         marker_setFreeMethod(this->marker, __chSmBottles_free);
 
-        if (this->actorTypeSpecificField == 1 || this->actorTypeSpecificField == 8) {//L80389A30
-            sp40 = nodeprop_findByActorIdAndActorPosition(ACTOR_349_UNKNOWN, this);
+        if (this->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO || this->actorTypeSpecificField == CH_SM_MOLE_ID_8_BRIDGE) {//L80389A30
+            node_prop = nodeprop_findByActorIdAndActorPosition(ACTOR_349_UNKNOWN, this);
 
-            if (!sp40) {
+            if (!node_prop) {
                 this->unk1C_x = this->position_x;
                 this->unk1C_y = this->position_y;
                 this->unk1C_z = this->position_z;
                 this->actor_specific_1_f = 300.0f;
             }
             else { //L80389A68
-                nodeprop_getPosition(sp40, this->unk1C);
-                this->actor_specific_1_f = nodeprop_getRadius(sp40);
+                nodeprop_getPosition(node_prop, this->unk1C);
+                this->actor_specific_1_f = nodeprop_getRadius(node_prop);
             }//L80389A8C
 
-            if (this->actorTypeSpecificField == 1) {
+            if (this->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO) {
                 if (volatileFlag_get(VOLATILE_FLAG_1) || volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE)) {
                     __chSmBottles_setState(this, SM_BOTTLES_STATE_3_UNKNOWN);
                 }
@@ -519,9 +533,9 @@ void chSmBottles_update(Actor *this) {
                 break;
             }
 
-            if ((this->actorTypeSpecificField == 1 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) ||
-                (this->actorTypeSpecificField == 8 && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)) ||
-                (this->actorTypeSpecificField == 8 && mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_F))
+            if ((this->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_1_TALKED_TO_BOTTLES)) ||
+                (this->actorTypeSpecificField == CH_SM_MOLE_ID_8_BRIDGE && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_2)) ||
+                (this->actorTypeSpecificField == CH_SM_MOLE_ID_8_BRIDGE && mapSpecificFlags_get(SM_SPECIFIC_FLAG_3_ALL_SM_ABILITIES_LEARNED) && !mapSpecificFlags_get(SM_SPECIFIC_FLAG_F))
             ) {//L80389C50
                 if (((ml_vec3f_distance(plyr_pos, this->unk1C) < this->actor_specific_1_f) && player_isStableWithExtraSteps()) ||
                     mapSpecificFlags_get(SM_SPECIFIC_FLAG_10)
@@ -533,7 +547,7 @@ void chSmBottles_update(Actor *this) {
                         break;
                     }
 
-                    if (subaddie_playerIsWithinSphereAndActive(this, 0x96)) {
+                    if (subaddie_playerIsWithinSphereAndActive(this, 150)) {
                         func_8028F45C(9, this->position);
                     }
 
@@ -546,16 +560,16 @@ void chSmBottles_update(Actor *this) {
                     break;
                 }
 
-                sp34 = (chSmBottlesDialogTable[this->actorTypeSpecificField - 1].ability + 1) && player_isAbilityUnlocked(chSmBottlesDialogTable[this->actorTypeSpecificField - 1].ability);
+                sp34 = (chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].ability + 1) && player_isAbilityUnlocked(chSmBottlesDialogTable[this->actorTypeSpecificField - SM_BOTTLES_ID_TO_TABLE_SHIFT].ability);
 
-                if (!sp34 && this->actorTypeSpecificField != 1 || fileProgressFlag_get(FILEPROG_DB_SKIPPED_TUTORIAL) == 0 || chSmBottlesDialogIndex < 6) {
-                    if (this->actorTypeSpecificField != 8 || !fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
-                        if (func_8028EFC8() && face_buttons[FACE_BUTTON(BUTTON_B)] == 1) {
-                            if (sp34 || this->actorTypeSpecificField == 1 || this->actorTypeSpecificField == 8) {
+                if (!sp34 && this->actorTypeSpecificField != CH_SM_MOLE_ID_1_INTRO || fileProgressFlag_get(FILEPROG_DB_SKIPPED_TUTORIAL) == FALSE || chSmBottlesDialogIndex < 6) {
+                    if (this->actorTypeSpecificField != CH_SM_MOLE_ID_8_BRIDGE || !fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)) {
+                        if (func_8028EFC8() && face_buttons[FACE_BUTTON(BUTTON_B)] == TRUE) {
+                            if (sp34 || this->actorTypeSpecificField == CH_SM_MOLE_ID_1_INTRO || this->actorTypeSpecificField == CH_SM_MOLE_ID_8_BRIDGE) {
                                 __chSmBottles_setState(this, SM_BOTTLES_STATE_5_UNKNOWN);
                             }
                             else {
-                                if (subaddie_playerIsWithinSphereAndActive(this, 0x96) && !sp34) {
+                                if (subaddie_playerIsWithinSphereAndActive(this, 150) && !sp34) {
                                     func_8028F45C(9, this->position);
                                 }
 
@@ -634,7 +648,7 @@ void chSmBottles_update(Actor *this) {
             if (this->unk38_0) {
                 this->lifetime_value += time_getDelta();
 
-                if (gcdialog_getCurrentTextId() != 0xe1d) {
+                if (gcdialog_getCurrentTextId() != ASSET_E1D_DIALOG_BOTTLES_TUTORIAL_OFFER_WAIT) {
                     if (face_buttons[FACE_BUTTON(BUTTON_A)] == true) {
                         bakey_pressed = 1;
                     }

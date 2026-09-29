@@ -33,7 +33,7 @@ static s32 sBuzzedPedestalField = 0;
 /* .data */
 ActorInfo JIGSAW_PICTURE_ACTOR = { 0x1EB, 0x3B7, 0x48B, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, jigsawPicture_draw, 0, 0, 0.0f, 0};
 ActorInfo JIGSAW_PICTURE_ACTOR_2 = { 0x1EB, 0x3BC, 0x538, 0x1, NULL, updateJigsawPictureActor, actor_update_func_80326224, jigsawPicture_draw, 0, 0, 0.0f, 0};
-Struct_lair_86F0_0 D_803947F8[0xb] ={
+Struct_lair_86F0_0 PICTURE_INFO[0xb] ={
     { 1, 0x1, FILEPROG_5D_MM_PUZZLE_PIECES_PLACED},
     { 2, 0x2, FILEPROG_5E_TTC_PUZZLE_PIECES_PLACED},
     { 5, 0x3, FILEPROG_60_CC_PUZZLE_PIECES_PLACED},
@@ -58,17 +58,17 @@ ParticleScaleAndLifetimeRanges D_80394830 = {
 /* .code */
 s32 _puzzleCost(s32 index) {
     s32 override = port_getRomhackJiggyPuzzleCost(index);
-    return (override >= 0) ? override : D_803947F8[index].cost;
+    return (override >= 0) ? override : PICTURE_INFO[index].cost;
 }
 
 s32 _puzzleSize(s32 index) {
     s32 override = port_getRomhackJiggyPuzzleSize(index);
-    return (override >= 0) ? override : D_803947F8[index].size_bits;
+    return (override >= 0) ? override : PICTURE_INFO[index].size_bits;
 }
 
 s32 _puzzleFlag(s32 index) {
     s32 override = port_getRomhackJiggyPuzzleFlag(index);
-    return (override >= 0) ? override : D_803947F8[index].progress_flag;
+    return (override >= 0) ? override : PICTURE_INFO[index].progress_flag;
 }
 
 bool jigsawPicture_isJigsawPictureComplete(s32 arg0) {
@@ -486,7 +486,7 @@ void updateJigsawPictureActor(Actor *this) {
     }
 
     if (!this->volatile_initialized) {
-        // temp_v0 = &D_803947F8[this->actorTypeSpecificField - 1];
+        // temp_v0 = &PICTURE_INFO[this->actorTypeSpecificField - 1];
         sp64 = fileProgressFlag_getN(_puzzleFlag(this->actorTypeSpecificField - 1), _puzzleSize(this->actorTypeSpecificField - 1));
         local->unk0 = 0;
         local->unk4 = 0;
@@ -566,7 +566,7 @@ void updateJigsawPictureActor(Actor *this) {
             }
             if (subaddie_playerIsWithinSphereAndActive(this, 300)) {
                 if ((this->actorTypeSpecificField == 0xA) && !fileProgressFlag_get(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM)) {
-                    phi_a0 = (item_getCount(ITEM_26_JIGGY_TOTAL) < D_803947F8[this->actorTypeSpecificField - 1].cost) ? 0xFAB : 0xFC0;
+                    phi_a0 = (item_getCount(ITEM_26_JIGGY_TOTAL) < PICTURE_INFO[this->actorTypeSpecificField - 1].cost) ? 0xFAB : 0xFC0;
                     if (gcdialog_showDialog(phi_a0, 0, NULL, NULL, NULL, NULL)) {
                         fileProgressFlag_set(FILEPROG_F6_SEEN_DOOR_OF_GRUNTY_PUZZLE_PODIUM, true);
                     }

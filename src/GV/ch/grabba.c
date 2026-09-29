@@ -15,6 +15,15 @@ typedef struct {
 void chGrabba_update(Actor *this);
 
 /* .data */
+enum chGrabba_state_e {
+    GRABBA_STATE_1_WAIT_UNTIL_PLAYER_IS_FAR_ENOUGH = 1,
+    GRABBA_STATE_2_RISE,
+    GRABBA_STATE_3_IDLE,
+    GRABBA_STATE_4_HIDE,
+    GRABBA_STATE_5_DEFEATED,
+    GRABBA_STATE_6_COMPLETE,
+};
+
 ActorAnimationInfo chGrabbaAnimations[] ={
     {0x00, 0.0f},
     {ASSET_C5_ANIM_GRABBA_APPEAR,   8000000.0f},
@@ -25,7 +34,8 @@ ActorAnimationInfo chGrabbaAnimations[] ={
     {ASSET_C7_ANIM_GRABBA_IDLE,     1.8f}
 };
 
-ActorInfo chGrabba = { MARKER_A6_GRABBA, ACTOR_118_GRABBA, ASSET_371_MODEL_GRABBA, 
+ActorInfo chGrabba = {
+    MARKER_A6_GRABBA, ACTOR_118_GRABBA, ASSET_371_MODEL_GRABBA, 
     0x1, chGrabbaAnimations, 
     chGrabba_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.0f, 0
@@ -48,7 +58,7 @@ extern s32 D_80391A80;
 /* .code */
 void func_8038B988(ActorMarker *caller, enum asset_e text_id, s32 arg2){
     Actor *this = marker_getActor(caller);
-    subaddie_set_state_with_direction(this, 5, 0.01f, 1);
+    subaddie_set_state_with_direction(this, GRABBA_STATE_5_DEFEATED, 0.01f, 1);
     actor_loopAnimation(this);
     gcStaticCamera_activate(0x13);
     FUNC_8030E624(SFX_8D_BOGGY_OHWW, 0.9f, 32000);
@@ -57,7 +67,7 @@ void func_8038B988(ActorMarker *caller, enum asset_e text_id, s32 arg2){
 }
 
 void func_8038BA08(Actor *this){
-    subaddie_set_state_with_direction(this, 6, 0.01f, 1);
+    subaddie_set_state_with_direction(this, GRABBA_STATE_6_COMPLETE, 0.01f, 1);
     actor_loopAnimation(this);
     this->partnerActor = NULL;
     D_80391A80 = 3;
@@ -188,15 +198,15 @@ void chGrabba_update(Actor *this){
         this->marker->propPtr->unk8_3 = false;
     }//L8038BFF4
 
-    if(subaddie_playerIsWithinSphere(this, 4000) || this->state == 5){
+    if(subaddie_playerIsWithinSphere(this, 4000) || this->state == GRABBA_STATE_5_DEFEATED){
         this->unk58_0 = true;
         this->marker->propPtr->unk8_3 = true;
         switch(this->state){
-            case 1: //L8038C064
+            case GRABBA_STATE_1_WAIT_UNTIL_PLAYER_IS_FAR_ENOUGH: //L8038C064
                 this->unk58_0 = false;
                 this->marker->propPtr->unk8_3 = false;
                 if(func_8038BB24(this)){
-                    subaddie_set_state_with_direction(this, 2, 0.01f, 1);
+                    subaddie_set_state_with_direction(this, GRABBA_STATE_2_RISE, 0.01f, 1);
                     actor_playAnimationOnce(this);
                     this->unk38_31 = 0;
                     D_80391A80 = this->state;
@@ -207,9 +217,9 @@ void chGrabba_update(Actor *this){
                 }
                 break;
 
-            case 2: //L8038C108
+            case GRABBA_STATE_2_RISE: //L8038C108
                 if(actor_animationIsAt(this, 0.69f)){
-                    subaddie_set_state_with_direction(this, 3, 0.01f, 1);
+                    subaddie_set_state_with_direction(this, GRABBA_STATE_3_IDLE, 0.01f, 1);
                     actor_loopAnimation(this);
                     D_80391A80 = this->state;
                     if(this->partnerActor){
@@ -226,12 +236,12 @@ void chGrabba_update(Actor *this){
                 }
                 break;
 
-            case 3: //L8038C1CC
+            case GRABBA_STATE_3_IDLE: //L8038C1CC
                 if(this->partnerActor && this->partnerActor->unk5C != local->unk0){
                     func_8038BA08(this);
                 }
                 else if(this->unk38_31 >= 0xC){
-                    subaddie_set_state_with_direction(this, 4, 0.01f, 1);
+                    subaddie_set_state_with_direction(this, GRABBA_STATE_4_HIDE, 0.01f, 1);
                     actor_playAnimationOnce(this);
                     D_80391A80 = this->state;
                     func_802BB3DC(0, 12.0f, 0.92f);
@@ -253,12 +263,12 @@ void chGrabba_update(Actor *this){
                 }
                 break;
 
-            case 4: //L8038C304
+            case GRABBA_STATE_4_HIDE: //L8038C304
                 if(this->partnerActor && this->partnerActor->unk5C != local->unk0){
                     func_8038BA08(this);
                 }
                 else if(actor_animationIsAt(this, 0.89f)){
-                    subaddie_set_state_with_direction(this, 1, 0.01f, 1);
+                    subaddie_set_state_with_direction(this, GRABBA_STATE_1_WAIT_UNTIL_PLAYER_IS_FAR_ENOUGH, 0.01f, 1);
                     actor_loopAnimation(this);
                     D_80391A80 = this->state;
                 }
@@ -286,7 +296,7 @@ void chGrabba_update(Actor *this){
                 }
                 break;
 
-            case 5: //L8038C488
+            case GRABBA_STATE_5_DEFEATED: //L8038C488
                 if(this->position_y <= this->unk1C[1] - 330.0f){
                     marker_despawn(this->marker);
                     func_8038C748();

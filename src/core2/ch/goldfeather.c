@@ -9,14 +9,14 @@ void func_802D88E0(Actor *this);
 
 /* .data */
 ActorInfo fxSpentRedFeather = {
-    0x100, 0x1FF, 0x580,
+    MARKER_100_SPENT_RED_FEATHER, ACTOR_1FF_SPENT_RED_FEATHER, ASSET_580_SPRITE_RED_FEATHER,
     0x0, NULL,
     func_802D88E0, actor_update_func_80326224, fxTouchSparkle_draw, 
     0, 0, 0.0f, 0
 };
 
 ActorInfo fxSpentGoldFeather = {
-    0x101, 0x200, 0x6D1,
+    MARKER_101_SPENT_GOLD_FEATHER, ACTOR_200_SPENT_GOLD_FEATHER, ASSET_6D1_SPRITE_GOLDFEATHER,
     0x0, NULL,
     func_802D88E0, actor_update_func_80326224, fxTouchSparkle_draw, 
     0, 0, 0.0f, 0
@@ -90,5 +90,5 @@ void func_802D8B20(enum actor_e actor_id){
 }
 
 void func_802D8BE4(bool gold_feather){
-    __spawnQueue_add_1((GenFunction_1)func_802D8B20, (!gold_feather) ? 0x1FF : 0x200);
+    __spawnQueue_add_1((GenFunction_1)func_802D8B20, (!gold_feather) ? ACTOR_1FF_SPENT_RED_FEATHER : ACTOR_200_SPENT_GOLD_FEATHER);
 }
