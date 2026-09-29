@@ -9,7 +9,6 @@
 //function declarations
 void anim_setIndex(Animation *this, enum asset_e arg1);
 void anim_drawSetup(Animation *this);
-void animationFile_getBoneTransformList(AnimationFile *, f32, BoneTransformList *);
 void boneTransformList_interpolate(BoneTransformList *, BoneTransformList *, BoneTransformList *, f32);
 
 //function definitions
@@ -64,11 +63,11 @@ void __anim_update_doubleBuffer(Animation *this){
     }
     this->reset = 0;
     if( this->duration < 1.0f && __anim_startTransformInUse(this)){
-        animationFile_getBoneTransformList(animBinCache_get(this->index), this->timer, animcache_getCurrentTransform(this));
+        animationfilebin_getBoneTransformList(animcommoncache_get(this->index), this->timer, animcache_getCurrentTransform(this));
         boneTransformList_interpolate(animcache_getCurrentTransform(this), anim_getStartTransform(this), animcache_getCurrentTransform(this), this->duration);
     }
     else{
-        animationFile_getBoneTransformList(animBinCache_get(this->index), this->timer, animcache_getCurrentTransform(this));
+        animationfilebin_getBoneTransformList(animcommoncache_get(this->index), this->timer, animcache_getCurrentTransform(this));
     }
 
 }
@@ -90,19 +89,19 @@ void __anim_update_tripleBuffer(Animation *this){
     }
     this->reset = 0;
     if( this->duration < 1.0f && __anim_startTransformInUse(this) && !this->unk1E){
-        AnimationFile *animFile = animBinCache_get(this->index);
+        BKAnimationFileBin *animFile = animcommoncache_get(this->index);
         if(animFile == NULL){
-            BK_LOG_WARN("[anim] BLEND: animBinCache_get(0x%X) returned NULL!", this->index);
+            BK_LOG_WARN("[anim] BLEND: animcommoncache_get(0x%X) returned NULL!", this->index);
         }
-        animationFile_getBoneTransformList(animFile, this->timer, anim_getTargetTransform(this));
+        animationfilebin_getBoneTransformList(animFile, this->timer, anim_getTargetTransform(this));
         boneTransformList_interpolate(animcache_getCurrentTransform(this), anim_getStartTransform(this), anim_getTargetTransform(this), this->duration);
     }
     else{
-        AnimationFile *animFile = animBinCache_get(this->index);
+        BKAnimationFileBin *animFile = animcommoncache_get(this->index);
         if(animFile == NULL && this->index != 0){
-            BK_LOG_WARN("[anim] DIRECT: animBinCache_get(0x%X) returned NULL!", this->index);
+            BK_LOG_WARN("[anim] DIRECT: animcommoncache_get(0x%X) returned NULL!", this->index);
         }
-        animationFile_getBoneTransformList(animFile, this->timer, animcache_getCurrentTransform(this));
+        animationfilebin_getBoneTransformList(animFile, this->timer, animcache_getCurrentTransform(this));
         if(this->unk1E && this->index)
             this->unk1E = 0;
     }

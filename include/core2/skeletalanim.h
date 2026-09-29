@@ -21,7 +21,8 @@ typedef struct {
 
 typedef struct {
     BoneTransformList *bone_transform;
-    struct animation_file_s *animation_bin;
+//  struct animation_file_s *animation_bin;
+    struct bk_animation_file_bin_s *animation_bin;
     f32 progress;
     f32 duration;
     bk_vector(SkeletalAnimationCallback) *callback_list;
