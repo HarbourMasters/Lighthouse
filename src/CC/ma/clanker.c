@@ -230,19 +230,19 @@ void func_80388BBC(f32 arg0[3], f32 arg1[3]){
 }
 
 void func_80388C00(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
-    func_8031CD20(arg0, 0xb, 3);
+    func_8031CD20(arg0, MAP_B_CC_CLANKERS_CAVERN, 3);
 }
 
 void func_80388C28(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
-    func_8031CD20(arg0, 0xb, 4);
+    func_8031CD20(arg0, MAP_B_CC_CLANKERS_CAVERN, 4);
 }
 
 void func_80388C50(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
-    func_8031CD20(arg0, 0xb, 1);
+    func_8031CD20(arg0, MAP_B_CC_CLANKERS_CAVERN, 1);
 }
 
 void CC_func_80388C78(NodeProp *arg0, ActorMarker *arg1){ // [port] pointer-width
-    func_8031CD20(arg0, 0xb, 2);
+    func_8031CD20(arg0, MAP_B_CC_CLANKERS_CAVERN, 2);
 }
 
 int CC_func_80388CA0(void){

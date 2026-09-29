@@ -286,8 +286,8 @@ extern void warp_ccwExitSpringNabnutWindow(NodeProp*, ActorMarker*);
 extern void warp_ccwExitSummerNabnutWindow(NodeProp*, ActorMarker*);
 extern void warp_ccwExitAutumnNabnutWindow(NodeProp*, ActorMarker*);
 extern void warp_ccwExitWinterNabnutWindow(NodeProp*, ActorMarker*);
-extern void warp_gvEnterSNSChamper(NodeProp*, ActorMarker*);
-extern void warp_gvExitSNSChamper(NodeProp*, ActorMarker*);
+extern void warp_gvEnterSNSChamber(NodeProp*, ActorMarker*);
+extern void warp_gvExitSNSChamber(NodeProp*, ActorMarker*);
 extern void warp_lairEnterLairFromSMLevel(NodeProp*, ActorMarker*);
 
 extern void func_802C1674(NodeProp*, ActorMarker*);
@@ -389,8 +389,8 @@ CodeAD110Callback sWarpFunctions[] = {
     warp_rbbExitAnchorRoom, warp_rbbEnterAnchorRoom, warp_mmmEnterWellBottom, warp_mmmExitWellBottom,
     warp_mmmEnterBathroomFromLoggo, warp_mmmEnterLoggo, warp_ccwEnterLevel, warp_ccwEnterSpringNabnutWindow,
     warp_ccwEnterSummerNabnutWindow, warp_ccwEnterAutumnNabnutWindow, warp_ccwEnterWinterNabnutWindow, warp_ccwExitSpringNabnutWindow,
-    warp_ccwExitSummerNabnutWindow, warp_ccwExitAutumnNabnutWindow, warp_ccwExitWinterNabnutWindow, warp_gvEnterSNSChamper,
-    warp_gvExitSNSChamper, warp_lairEnterLairFromSMLevel, func_80334430, func_80334430,
+    warp_ccwExitSummerNabnutWindow, warp_ccwExitAutumnNabnutWindow, warp_ccwExitWinterNabnutWindow, warp_gvEnterSNSChamber,
+    warp_gvExitSNSChamber, warp_lairEnterLairFromSMLevel, func_80334430, func_80334430,
     func_80334430, func_80334430, func_80334430, func_80334430,
     func_80334430, func_80334430, func_80334430,
 };
