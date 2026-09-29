@@ -1,5 +1,4 @@
 // BanjoDecomp: core1/code_3250.c
-#include "core1/core1.h"
 #include <ultra64.h>
 #include "core1/bk_gu.h"
 #include <string.h>
@@ -92,7 +91,7 @@ void core1_3250_guLookAtReflectF(float mf[4][4], LookAt *l,
 	yUp *= len;
 	zUp *= len;
 
-	/* reflectance bk_vectors = Up and Right */
+	/* reflectance vectors = Up and Right */
 
 	l->l[0].l.dir[0] = FTOFRAC8(xRight);
 	l->l[0].l.dir[1] = FTOFRAC8(yRight);
