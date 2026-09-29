@@ -13,11 +13,11 @@ Actor *func_80328230(enum actor_e id, f32 pos[3], f32 rot[3]);
 /* .data */
 ActorAnimationInfo D_80391B80[] = {
     {0x000, 0.0f},
-    {0x14E, 2.0f},
-    {0x14D, 7.0f},
-    {0x14C, 2.0f},
-    {0x14F, 0.5f},
-    {0x14F, 1.0f}
+    {ASSET_14E_ANIM_BOGGY_JIGGY_IN_BELLY, 2.0f},
+    {ASSET_14D_ANIM_BOGGY_HIT_BY_SLED, 7.0f},
+    {ASSET_14C_ANIM_BOGGY_IDLE, 2.0f},
+    {ASSET_14F_ANIM_BOGGY_RUN, 0.5f},
+    {ASSET_14F_ANIM_BOGGY_RUN, 1.0f}
 };
 
 ActorInfo D_80391BB0 = { 

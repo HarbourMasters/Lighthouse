@@ -14,10 +14,10 @@ void chTwinklyBox_update(Actor *this);
 /* .data */
 ActorAnimationInfo D_803920C0[] ={
     {0x000, 0.0f},
-    {0x16D, 10000000.0f},
-    {0x237, 2.0f},
-    {0x16D, 0.8f},
-    {0x16D, 0.8f}
+    {ASSET_16D_ANIM_TWINKLYBOX_OPENING, 10000000.0f},
+    {ASSET_237_ANIM_TWINKLYBOX_SHAKING, 2.0f},
+    {ASSET_16D_ANIM_TWINKLYBOX_OPENING, 0.8f},
+    {ASSET_16D_ANIM_TWINKLYBOX_OPENING, 0.8f}
 };
 
 ActorInfo gChTwinklyBox = { 0x204, 0x336, 0x442,

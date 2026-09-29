@@ -9,7 +9,7 @@ void func_80390388(Actor *this);
 /* .data */
 ActorAnimationInfo D_80392680[] = {
     {0, 0.0f},
-    {0x222, 2.0f}
+    {ASSET_222_ANIM_BOGGY_ASLEEP, 2.0f}
 };
 
 ActorInfo gChBoggyHome = { 0x20D, 0x33D, 0x38A,
