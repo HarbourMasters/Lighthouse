@@ -204,7 +204,7 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
                 (this->draw_mode & PART_EMIT_NO_OPA)? 0xff : this->alpha
             );
             func_80338370();
-            codeAEDA0_postDrawSprite(gfx);
+            codeAEDA0_drawSprite(gfx);
         }
         else if(this->draw_mode & PART_EMIT_NO_DEPTH){//L802EF0C0
             gSPDisplayList((*gfx)++, D_80368978);
@@ -242,7 +242,7 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
         FrameInterpolation_RecordCloseChild();
         if( this->rgb[0] != 0xff || this->rgb[1] != 0xff || this->rgb[2] != 0xff || this->alpha != 0xff 
         ){
-            codeAEDA0_drawSprite(gfx);
+            codeAEDA0_postDrawSprite(gfx);
         }
     }
 }

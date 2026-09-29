@@ -76,7 +76,7 @@ void func_803380F8(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 void func_803381B4(Gfx **gfx, Mtx **mtx, f32 arg2[3]);
 
 /* .code */
-void codeAEDA0_postDrawSprite(Gfx **gfx){
+void codeAEDA0_drawSprite(Gfx **gfx){
     gDPPipeSync((*gfx)++);
     if (D_80370338[0] == 0) {
         gDPSetColorDither((*gfx)++, G_CD_DISABLE);
@@ -196,7 +196,7 @@ void codeAEDA0_postDrawSprite(Gfx **gfx){
     }
 }
 
-void codeAEDA0_drawSprite( Gfx **gfx )
+void codeAEDA0_postDrawSprite( Gfx **gfx )
  {
      /* Turn off texturing */
      gDPPipeSync((*gfx)++);
@@ -256,7 +256,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     } else if (sprite->type & SPRITE_TYPE_RGBA32){
         pixel_size_nibbles = 8;
     }
-    codeAEDA0_postDrawSprite(gfx);
+    codeAEDA0_drawSprite(gfx);
 
     //set to 1Prim if using
     if(D_80383638 || (sprite->type & SPRITE_TYPE_CI8)){
@@ -382,7 +382,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
         gDPPipelineMode((*gfx)++, G_PM_NPRIMITIVE);
     }
     if(sp1B4);
-    codeAEDA0_drawSprite(gfx);
+    codeAEDA0_postDrawSprite(gfx);
 }
 
 void func_80337B68(Gfx **gfx, Vtx **vtx, BKSpriteMask *texture_list, s32 texture_index) {
@@ -398,7 +398,7 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, BKSpriteMask *texture_list, s32 texture
     s32 i_vtx0;
     s32 size; 
 
-    codeAEDA0_postDrawSprite(gfx);
+    codeAEDA0_drawSprite(gfx);
     txtr_ptr = spritemask_getChunk(texture_list, texture_index);
     start_vtx = *vtx;
     temp_lo = (s32) D_80383644 / 3;
@@ -432,7 +432,7 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, BKSpriteMask *texture_list, s32 texture
         tmem += txtr_ptr->w * 0x1A;
         i_vtx0 += 4;
     }
-    codeAEDA0_drawSprite(gfx);
+    codeAEDA0_postDrawSprite(gfx);
 }
 
 void func_80338048(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], BKSpriteMask *arg4, s32 arg5) {
