@@ -253,9 +253,9 @@ void fxegg_head_update(void){
     if(ml_isZero_vec3f(sp88)){
         s0 = func_8033E840();
         projectile_getPosition(projectile_indx, sp60);
-        sp54[0] = (f32)s0->propPtr->x;
-        sp54[1] = (f32)s0->propPtr->y;
-        sp54[2] = (f32)s0->propPtr->z;
+        sp54[0] = (f32)s0->propPtr->position_x;
+        sp54[1] = (f32)s0->propPtr->position_y;
+        sp54[2] = (f32)s0->propPtr->position_z;
         commonParticle_setCurrentInUseFalse();
         fxegg_shatter(projectile_indx);
     }//L803539D4

@@ -2388,7 +2388,7 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
             }
         }
         if (sp6C != 0 && EventSystem_Should(VB_ENEMY_BECOME_BUNDLE, true, this->actor_info->actorId)) {
-            bundle_setYaw(func_80257204(arg0->propPtr->x, arg0->propPtr->z, arg1->propPtr->x, arg1->propPtr->z) + 90.0f);
+            bundle_setYaw(func_80257204(arg0->propPtr->position_x, arg0->propPtr->position_z, arg1->propPtr->position_x, arg1->propPtr->position_z) + 90.0f);
             D_8036E564 = sp6C;
             if (this->unk138_25) {
                 __bundle_spawnFromFirstActor(sp6C + BUNDLE_21__ICECUBE_B, this);

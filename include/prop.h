@@ -15,27 +15,37 @@ extern "C" {
 #endif
 
 typedef struct sprite_prop_s{
-    u32 spriteId:0xC;
-    u32 unk0_19:0x1;
-    u32 rgb_remove_red:0x3;
-    u32 rgb_remove_green:0x3;
-    u32 rgb_remove_blue:0x3;
-    u32 scale:0x8;
-    u32 isMirrored:0x1;
-    u32 pad0_0:0x1;
+    u32 spriteId:12;
+    u32 unk0_19:1;
+    u32 rgb_remove_red:3;
+    u32 rgb_remove_green:3;
+    u32 rgb_remove_blue:3;
+    u32 scale:8;
+    u32 isMirrored:1;
+    u32 pad0_0: 1;
 #if UINTPTR_MAX > 0xFFFFFFFFu
     u32 _pad64;
 #endif
-    s16 unk4[3];
+    union
+    {
+        s16 position[3];
+        struct {
+            s16 position_x;
+            s16 position_y;
+            s16 position_z;
+        };
+    };
     u16 frame: 5;
     u16 unk8_10: 5;
-    u16 unk8_5: 1;
+    u16 unk8_5: 1; // other structs use this to determine whether it's mirrored, however for sprites another bit address is used
     u16 isNotFeatherEggOrNote: 1;
-    u16 unk8_3: 1;
+    u16 unk8_3: 1; // is initialized?
     u16 isCollisionResolved: 1;
-    u16 isModelProp:1;
-    u16 isActorProp:1;
+    u16 isModelProp:1; // always false for this struct
+    u16 isActorProp:1; // always false for this struct
 } SpriteProp;
+
+#define SPRITE_ASSET_OFFSET 0x572
 
 typedef struct model_prop_s{
     union{
@@ -50,12 +60,23 @@ typedef struct model_prop_s{
 #if UINTPTR_MAX > 0xFFFFFFFFu
     u32 _pad64;
 #endif
-    s16 unk4[3];
+    union
+    {
+        s16 position[3];
+        struct {
+            s16 position_x;
+            s16 position_y;
+            s16 position_z;
+        };
+    };
     u8 scale;
-    u8 padB_7 :2;
-    u8 unkB_5 :1;
-    u8 unkB_4 :1;
-    u8 padB_3 :4;
+    u8 padB_7:2;
+    u8 unkB_5:1;
+    u8 unkB_4:1;
+    u8 unk8_3:1; // is initialized?
+    u8 isCollisionResolved:1;
+    u8 isModelProp:1; // always true for this struct
+    u8 isActorProp:1; // always false for this struct
 } ModelProp;
 
 #define MODEL_ASSET_OFFSET 0x2D1
@@ -70,17 +91,23 @@ typedef struct actor_prop_s{
     union {
         struct {
             struct actorMarker_s* marker;
-            s16 x;
-            s16 y;
-            s16 z;
+            union
+            {
+                s16 position[3]; // position_
+                struct {
+                    s16 position_x;
+                    s16 position_y;
+                    s16 position_z;
+                };
+            };
             u16 frame:5;
             u16 unk8_10:5;
             u16 isMirrored:1;
             u16 isNotFeatherEggOrNote:1;
-            u16 unk8_3:1;
+            u16 unk8_3:1; // is initialized?
             u16 isCollisionResolved:1;
-            u16 isModelProp:1;
-            u16 isActorProp:1;
+            u16 isModelProp:1; // always false for this struct
+            u16 isActorProp:1; // always true for this struct
         };
         s32 words[ACTORPROP_WORD_BASE + 2];
     };
@@ -351,15 +378,22 @@ typedef union prop_s
 #else
         u32 pad0;
 #endif
-        s16 unk4[3];
-        // s16 unk6;
-        u16 pad8_15: 10;
-        u16 unk8_5: 1;
-        u16 unk8_4: 1;
-        u16 unk8_3: 1;
-        u16 unk8_2: 1;
-        u16 unk8_1: 1;
-        u16 markerFlag: 1;
+        union
+        {
+            s16 position[3];
+            struct {
+                s16 position_x;
+                s16 position_y;
+                s16 position_z;
+            };
+        };
+        s16 pad8_15:10;
+        u16 isMirrored:1;
+        u16 isNotFeatherEggOrNote:1;
+        u16 unk8_3:1; // is initialized?
+        u16 isCollisionResolved:1;
+        u16 isModelProp:1;
+        u16 isActorProp:1;
     };
 } Prop;
 

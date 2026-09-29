@@ -30,7 +30,7 @@ void chMumboToken_collect(ActorMarker *marker, ActorMarker *other_marker){
     CALL_EVENT(OnCollectibleCollected, ANCHOR_COLLECTIBLE_MUMBO, func_802E0CB0(this));
     func_8030E760(0x401, 1.0f, 0x7fff);
     timedFunc_set_1(0.75f, (GenFunction_1)progressDialog_showDialogMaskZero, FILEPROG_4_MUMBO_TOKEN_TEXT);
-    fxSparkle_mumboToken(&marker->propPtr->x);
+    fxSparkle_mumboToken(&marker->propPtr->position_x);
     item_inc(ITEM_1C_MUMBO_TOKEN);
     marker_despawn(marker);
     

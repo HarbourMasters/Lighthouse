@@ -1,9 +1,10 @@
 // BanjoDecomp: core2/code_4C020.c
+#include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include <ultra64.h>
 
+#include "core2/dustemitter.h"
 #include <libultra/convert.h>
 
 extern void func_8025A788(enum comusic_e, f32, f32);
@@ -190,7 +191,7 @@ void func_802D2FB0(Actor *this, s32 arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5
         spA4[1] = randf2(4.0f, 10.0f);
         spA4[0] = randf2(-8.0f, 8.0f);
         spA4[2] = randf2(-8.0f, 8.0f);
-        dustEmitter_emit(sp98, spA4, D_803679A0, 1, arg4, 50.0f, arg5, randi2(arg6, arg7), 0);
+        dustEmitter_emit(sp98, spA4, D_803679A0, 1, arg4, 50.0f, arg5, randi2(arg6, arg7), DUST_EMITTER_TYPE_DUST);
     }
 }
 
@@ -919,27 +920,27 @@ void func_802D4D3C(enum actor_e arg0, enum actor_e arg1) {
             sp4C[3] = 200;
             sp4C[0] = sp4C[1] = sp4C[2] = 180;\
             ml_vec3f_assign(sp40, 0.0f, 0.0f, 0.0f);
-            dustEmitter_emit(sp5C, sp40, sp4C, 0, 6.0f, 200.0f, 200, 100, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 6.0f, 200.0f, 200, 100, DUST_EMITTER_TYPE_DUST);
 
             sp4C[3] = 230;
             sp4C[0] = sp4C[1] = sp4C[2] = 150;
             ml_vec3f_assign(sp40, 0.0f, 2.0f, 0.0f);
-            dustEmitter_emit(sp5C, sp40, sp4C, 0, 2.0f, 90.0f, 50, 33, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 2.0f, 90.0f, 50, 33, DUST_EMITTER_TYPE_DUST);
           
             sp4C[3] = 150;
             sp4C[0] = sp4C[1] = sp4C[2] = 230;
             ml_vec3f_assign(sp40, -3.0f, 1.0f, 1.0f);
-            dustEmitter_emit(sp5C, sp40, sp4C, 0, 3.5f, 130.0f, 100, 80, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 3.5f, 130.0f, 100, 80, DUST_EMITTER_TYPE_DUST);
 
             sp4C[3] = 200;
             sp4C[0] = sp4C[1] = sp4C[2] = 250;
             ml_vec3f_assign(sp40, -1.0f, 3.0f, -3.0f);
-            dustEmitter_emit(sp5C, sp40, sp4C, 0, 2.4f, 40.0f, 10, 120, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 2.4f, 40.0f, 10, 120, DUST_EMITTER_TYPE_DUST);
             
             sp4C[3] = 130;
             sp4C[0] = sp4C[1] = sp4C[2] = 130;
             ml_vec3f_assign(sp40, 2.0f, -2.0f, 2.0f);
-            dustEmitter_emit(sp5C, sp40, sp4C, 0, 4.7f, 180.0f, 20, 160, 0);
+            dustEmitter_emit(sp5C, sp40, sp4C, 0, 4.7f, 180.0f, 20, 160, DUST_EMITTER_TYPE_DUST);
             func_8030E6D4(SFX_1B_EXPLOSION_1);
         }
         else{
@@ -959,10 +960,10 @@ void func_802D5000(enum map_e map_id){
     transitionToMap(D_80367684, 0x65, 0);
 }
 
-void func_getCameraViewFromLevel(enum map_e map_id, s32 arg1, bool arg2) {
+void func_getCameraViewFromLevel(enum map_e map_id, s32 camera_id, bool arg2) {
     volatileFlag_set(VOLATILE_FLAG_1, 1);
     D_80367684 = map_id;
-    D_80367688 = arg1;
+    D_80367688 = camera_id;
     if (arg2) {
         D_8036768C = 0x2D;
     } else {

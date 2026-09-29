@@ -733,9 +733,9 @@ void func_80303D78(ActorMarker *marker, f32 arg1, s32 arg2) {
 
 
     sp5C = 0;
-    sp50[0] = (f32) marker->propPtr->x;
-    sp50[1] = (f32) marker->propPtr->y;
-    sp50[2] = (f32) marker->propPtr->z;
+    sp50[0] = (f32) marker->propPtr->position_x;
+    sp50[1] = (f32) marker->propPtr->position_y;
+    sp50[2] = (f32) marker->propPtr->position_z;
     cube_positionToIndices(sp60, sp50);
     for(sp6C[2] = sp60[2] - 1; sp6C[2] <= sp60[2] + 1; sp6C[2]++){
         for(sp6C[1] = sp60[1] - 1; sp6C[1] <= sp60[1] + 1; sp6C[1]++){
@@ -2201,7 +2201,7 @@ bool cube_getOrSetProp2Flag(Cube *this_cube, s32 *prop2_index, bool set_flag, bo
 
     prop = this_cube->prop2Ptr + *prop2_index;
 
-    while ((*prop2_index < this_cube->prop2Cnt) && (prop->markerFlag == 1)) {
+    while ((*prop2_index < this_cube->prop2Cnt) && (prop->isActorProp == 1)) {
         (*prop2_index)++;
         prop++;
     }
@@ -2211,11 +2211,11 @@ bool cube_getOrSetProp2Flag(Cube *this_cube, s32 *prop2_index, bool set_flag, bo
         return false;
     }
 
-    old_value = prop->unk8_4;
+    old_value = prop->isNotFeatherEggOrNote;
     (*prop2_index)++;
 
     if (set_flag) {
-        prop->unk8_4 = value;
+        prop->isNotFeatherEggOrNote = value;
     }
 
     return old_value;
