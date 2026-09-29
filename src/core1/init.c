@@ -20,7 +20,11 @@ s32 gGlobalTimer = 0;
 
 /**
  * An unused Konami-esque button combo.
- * Probably used to enable a crash debugger, like in Tooie.
+ *
+ * Not used for a crash debugger like I initially thought,
+ * despite a similar one being in Tooie.
+ *
+ * It was actually for a security code of some kind.
  */
 u32 sKonamiCode_8027561C[] =
 {
@@ -41,7 +45,28 @@ u32 sKonamiCode_8027561C[] =
 
 s32 D_80275650 = VER_SELECT(0xAD019D3C, 0xA371A8F3, 0, 0); //SM_DATA_CRC2
 s32 D_80275654 = VER_SELECT(0xD381B72F, 0xD0709154, 0, 0); //MM_DATA_CRC2
-char sDebugVar_80275658[] = VER_SELECT("HjunkDire:218755", "HjunkDire:300875", "HjunkDire:", "HjunkDire:");
+
+/**
+ * "HjunkDire" -- a random, unique, build ID code.
+ * 
+ * It needed to be a string that could be easily searchable in a ROM,
+ * so that its build date and who it was sent to could be found.
+ * 
+ * The numbers were random - they were only required to be unique and
+ * differentiable from prior builds.
+ * 
+ * The reason for the naming though is still not clear - it's likely
+ * obscure and randomised also, to disguise its true purpose in the ROM.
+ * 
+ * Some builds were sent to the playtester Huw Ward.
+ */
+char gBuildIdentifier[] = VER_SELECT(
+    "HjunkDire:218755", /* Build date: 20 May 1998 */
+    "HjunkDire:300875", /* Build date: 15 June 1998 */
+    "HjunkDire:746580", /* Build date: 14 July 1998 (listed as "Japanese version" for some reason) */
+    "HjunkDire:309178"  /* Build date: unknown */
+    /* Debug ramdumps: HjunkDire:584817 - Build date: 18 Nov 1997 ("Shoshinkai Demo") */
+);
 
 u32 D_8027A130; // always set to 3
 u8 pad_8027A138[0x400];
