@@ -90,7 +90,7 @@ BKSprite *propModelList_getSprite(s32 arg0){
 }
 
 f32 propModelList_getScale(Prop *arg0){
-    if(arg0->unk8_1){
+    if(arg0->isModelProp){
         ModelProp* ModelProp = &arg0->modelProp;
         if (D_80382390 == NULL || arg0->spriteProp.spriteId >= 0x2A2) {
             return 0.0f;
@@ -107,7 +107,7 @@ f32 propModelList_getScale(Prop *arg0){
 }
 
 void propModelList_setScale(Prop *arg0, f32 arg1){
-    if(arg0->unk8_1){
+    if(arg0->isModelProp){
         ModelProp* ModelProp = &arg0->modelProp;
         if (D_80382390 == NULL || arg0->spriteProp.spriteId >= 0x2A2) {
             return;

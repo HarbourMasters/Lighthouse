@@ -205,9 +205,9 @@ void func_803513EC(ModelProp *arg0, s32 arg1) {
 
     arg0->unkB_5 = true;
     arg0->unkB_4 = false;
-    sp3C[0] = (f32) arg0->unk4[0];
-    sp3C[1] = (f32) arg0->unk4[1];
-    sp3C[2] = (f32) arg0->unk4[2];
+    sp3C[0] = (f32) arg0->position[0];
+    sp3C[1] = (f32) arg0->position[1];
+    sp3C[2] = (f32) arg0->position[2];
     sp2C[0] = 0.0f;
     sp2C[1] = (f32) (arg0->yaw * 2);
     sp2C[2] = (f32) (arg0->roll * 2);
@@ -265,7 +265,7 @@ bool func_803515EC(NodeProp *arg0) {
 bool func_80351700(Prop * arg0){
 
     // N64 offset 0xA = flags u16; bit 1 = unk8_1. Use struct access instead.
-    if (arg0->unk8_1) {
+    if (arg0->isModelProp) {
         return true;
     }
     return true;
@@ -275,7 +275,7 @@ bool func_80351724(void * arg0){
 
     // N64 offset 0xA = flags u16; bit 1 = unk8_1, bit 5 = unk8_5. Use struct access instead.
     Prop *prop = (Prop *)arg0;
-    if (prop->unk8_1 && prop->unk8_5) {
+    if (prop->isModelProp && prop->isMirrored) {
         prop->actorProp.isMirrored = false;
         prop->actorProp.isNotFeatherEggOrNote = true;
     }

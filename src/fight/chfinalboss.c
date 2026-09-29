@@ -1529,7 +1529,7 @@ ActorMarker *chfinalboss_findCollidingJinjo(Actor *this, f32 arg1) {
     func_80320ED8(this->marker, arg1, 1);
     prop = func_8032F528();
     while(prop !=NULL){
-        if (prop->markerFlag){
+        if (prop->isActorProp){
             jinjo = marker_getActor(prop->actorProp.marker);
             jinjo_marker_id = jinjo->marker->id;
             if(
