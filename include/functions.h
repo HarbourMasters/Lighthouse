@@ -1314,10 +1314,10 @@ void bafalldamage_set_state(s32 arg0);
 void bafalldamage_update(void);
 
 // --- core2/ba/ba_falling.c ---
-void func_80350818(Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void func_80350BC8(void);
-void func_80350BFC(void);
-void func_80350CA4(void);
+void lensflare_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void lensflare_free(void);
+void lensflare_init(void);
+void lensflare_update(void);
 
 // --- core2/ba/hazards.c ---
 void freeHazardSfxId(void);
