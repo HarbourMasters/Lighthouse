@@ -40,36 +40,26 @@ u32 sns_get_next_key_in_range(void)
     return 0;
 }
 
-void sns_update_global_save_data_checksum(void)
+void sns_save_global_data(void)
 {
     s32 i;
 
     /**
-     * Updates the save data checksum multiple times (?)
-     * 
-     * Running this multiple times seems to achieve nothing.
-     * A debug leftover?
+     * Try and save global data to EEPROM.
+     * It's done multiple times in case of error.
      */
     for (i = 5; i != 0 && savedata_8033CE40((u8 *)&gSaveData); i--)
         ;
 }
 
-void sns_save_and_update_global_data(void)
+void sns_load_global_data(void)
 {
     s32 i;
 
-    /**
-     * Triggers a save of the global save data to EEPROM,
-     * and validates the checksum.
-     */
-
+    // Try and load global save data from EEPROM, and validate the checksum.
     if (savedata_8033CA9C(&gSaveData))
     {
-        /**
-         * Failed, hide the evidence.
-         * 
-         * Clears the entire global data area.
-         */
+        // Failed, global data is corrupt. Clear it.
 
         gSaveData.sns.uEggYellow = false;
         gSaveData.sns.uEggRed    = false;
@@ -92,11 +82,11 @@ void sns_save_and_update_global_data(void)
         for (i = 0; i < sizeof(gSaveData.padding); i++)
             gSaveData.padding[i] = 0;
 
-        sns_update_global_save_data_checksum();
+        sns_save_global_data();
     }
 
     sns_unlock_parsed_items();
-    sns_update_global_save_data_checksum();
+    sns_save_global_data();
 }
 
 /**
@@ -330,7 +320,7 @@ void sns_set_item_state(enum StopNSwop_Item item, s32 set, s32 state)
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state)
 {
     sns_set_item_state(item, set, state);
-    sns_update_global_save_data_checksum();
+    sns_save_global_data();
     sns_write_payload_over_heap();
 }
 

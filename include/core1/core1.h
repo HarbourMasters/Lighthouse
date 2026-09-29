@@ -29,7 +29,7 @@
 #include "core1/overlay.h"
 #include "core1/overlaymanager.h"
 #include "core1/parallel.h"
-#include "core1/pfsmanager.h"
+#include "core1/joy.h"
 #include "core1/rarezip.h"
 #include "core1/sns.h"
 #include "core1/sprite.h"

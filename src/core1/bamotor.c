@@ -119,7 +119,7 @@ void baMotor_init(void) {
     s32 status;
 
     controller_func_8024F35C(4);
-    sbaMotorPfsMesgQ = pfsManager_getFrameReplyQ();
+    sbaMotorPfsMesgQ = si_getReplyQueue();
     status = osPfsInit(sbaMotorPfsMesgQ, &sbaMotorPfsHandle, 0);
     if ((status == PFS_ERR_ID_FATAL) || (status == PFS_ERR_DEVICE)) {
         // The rumble pack is only initialized, if no Pfs (Transfer Pak) is inserted into the Controller

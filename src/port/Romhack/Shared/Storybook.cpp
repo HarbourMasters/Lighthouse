@@ -10,9 +10,9 @@ extern "C" {
 #include "actor.h"
 #include "core1/ml.h"
 
-extern OSContPad pfsManagerContPadData[4];
-extern PfsManagerControllerData D_80281138[4];
-extern Struct_core1_10A00_1 D_80281250[4];
+extern OSContPad sInputs[MAXCONTROLLERS];
+extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
+extern struct CachedInputs sCachedInputs[MAXCONTROLLERS];
 extern f32 D_8037C5B0[3];
 extern f32 player_position[3];
 }
@@ -67,13 +67,13 @@ void StorybookInputCapture() {
     if (!IsStorybookMap(gsworld_getMap())) {
         return;
     }
-    sStoryStickX = pfsManagerContPadData[0].stick_x;
-    sStoryStickY = pfsManagerContPadData[0].stick_y;
-    memset(&D_80281138[0], 0, sizeof(D_80281138[0]));
-    memset(&D_80281250[0], 0, sizeof(D_80281250[0]));
-    pfsManagerContPadData[0].stick_x = 0;
-    pfsManagerContPadData[0].stick_y = 0;
-    pfsManagerContPadData[0].button = 0;
+    sStoryStickX = sInputs[0].stick_x;
+    sStoryStickY = sInputs[0].stick_y;
+    memset(&sHeldFrames[0], 0, sizeof(sHeldFrames[0]));
+    memset(&sCachedInputs[0], 0, sizeof(sCachedInputs[0]));
+    sInputs[0].stick_x = 0;
+    sInputs[0].stick_y = 0;
+    sInputs[0].button = 0;
 }
 
 void StorybookPageUpdate() {

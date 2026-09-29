@@ -279,7 +279,7 @@ void game_setMode(enum game_mode_e next_mode, s32 arg1){
     else if(next_mode == GAME_MODE_4_PAUSED){//L802E3E24
         gsworld_setEnableUpdate(0);
         FUNC_8030E624(SFX_C9_PAUSEMENU_ENTER, 1.1f, 32750);
-        pfsManager_update();
+        joy_update();
         func_8025A430(0, 2000, 3);
         func_8025A23C(COMUSIC_6F_PAUSE_SCREEN);
         gcpausemenu_init();
@@ -448,7 +448,7 @@ void func_802E4214(enum map_e map_id){
     D_8037E8E0.unkC = FALSE;
     D_8037E8E0.unk1C = 0;
     savedata_init();
-    sns_save_and_update_global_data();
+    sns_load_global_data();
     func_8030D86C();
     coMusicPlayer_init();
     func_80322764();
@@ -622,7 +622,7 @@ bool func_802E4424(void) {
             break;
         case GAME_MODE_3_NORMAL:                                     /* switch 2 */
             D_8037E8E0.unk10 += time_getDelta();
-            if( (func_8024E698(0) == 1)
+            if( (controller_getStartButtonSafe(0) == 1)
                 && func_8028F070()
                 && (func_8028EC04() == 0)
                 && !gctransition_8030BDC0()

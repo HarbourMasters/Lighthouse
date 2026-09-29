@@ -285,7 +285,7 @@ void func_80295C14(void){
     balookat_update();
     stateTimer_update();
     modelAppendages_kazooiesUpperHalfVisibilityTimer();
-    pfsManager_update();//controller_update
+    joy_update();//controller_update
     disableInput_set();
     bakey_update();
     bastick_update();

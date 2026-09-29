@@ -1019,9 +1019,9 @@ s32 gcPauseMenu_update(void) {
     }
 
     controller_copyFaceButtons(0, face_button);
-    controller_getJoystick(0, joystick);
+    controller_copyJoystick(0, joystick);
     controller_copySideButtons(0, sp60);
-    func_8024E6E0(0, sp50);
+    controller_copyDpadButtons(0, sp50);
     func_80310D2C();
 
     for (i = 0; i < 4; i++) {

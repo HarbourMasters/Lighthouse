@@ -86,7 +86,7 @@ void func_80349FB0(DemoInput *input_ptr, u32 size, int arg2){
     func_803216D0(gsworld_getMap());
     func_8030AFA0(gsworld_getMap());
     volatileFlag_set(VOLATILE_FLAG_C4_WOZZA_HIDE_IN_SNS_PARADE, 1);
-    func_8024F224();
+    joy_reset();
     rand_reset();
     globalTimer_reset();
 }//*/
