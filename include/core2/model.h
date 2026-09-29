@@ -524,7 +524,7 @@ void cameraAreaList_updateInBoundsFlag(BKCameraAreaList *self, f32 camera_positi
 
 s32 meshList_getVtxCount(BKMeshList *self);
 BKMesh *meshList_getMesh(BKMeshList *self, s32 mesh_id);
-bool meshList_meshContainsVtx(BKMeshList *self, s32 mesh_id, void *vtx_id);
+bool meshList_meshContainsVtx(BKMeshList *self, s32 mesh_id, s16 *vtx_id);
 BKModel *meshList_createModel(BKMeshList *self, BKVertexList *bk_vtx_list);
 
 

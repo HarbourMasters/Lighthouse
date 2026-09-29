@@ -45,7 +45,7 @@ typedef struct {
     level_e levelId;
 } GameplayToolsMapData;
 
-int32_t playerPosition[3];
+static int32_t playerPosition[3];
 int32_t spawnOffset[3];
 int32_t spawnPosition[3];
 int32_t mapId = 0;
