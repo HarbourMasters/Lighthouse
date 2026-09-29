@@ -57,9 +57,9 @@ void propModelList_drawSprite(Gfx **gfx, Mtx **mtx, Vtx **Vtx, f32 arg3[3], f32 
     } else {
         codeAEDA0_setSpriteDrawMode(0xE);
     }
-    codeAEDA0_postDrawSprite(gfx);
-    func_80344138(sp28, argB, argA, arg3, sp2C, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
+    func_80344138(sp28, argB, argA, arg3, sp2C, gfx, mtx);
+    codeAEDA0_postDrawSprite(gfx);
 }
 
 BKModelBin *propModelList_getModel(s32 arg0){
