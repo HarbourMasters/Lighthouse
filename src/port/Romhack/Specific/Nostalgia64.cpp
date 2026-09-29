@@ -92,7 +92,7 @@ void RegisterNostalgia64Patches() {
     REGISTER_LISTENER(MapUnderwaterTint, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = reinterpret_cast<MapUnderwaterTint*>(event);
         if (ev->map == MAP_11_BGS_TIPTUP) {
-            *ev->tintMap = MAP_3_UNUSED;
+            *ev->tintMap = MAP_3_STUB_TEST_TEMPLE;
         }
     });
 }

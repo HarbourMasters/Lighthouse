@@ -19,13 +19,13 @@ struct overlay_table_map_s {
 
 static struct camera_node_type4_vectors_s sCode35520Table_SM[] = {
     { MAP_1_SM_SPIRAL_MOUNTAIN, 1, { 800, 850, 375 }, { 950, 1000, 525 }, { 1100, 1150, 675 } },
-    { MAP_0_UNKNOWN,            0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL,                0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_MM[] = {
     { MAP_2_MM_MUMBOS_MOUNTAIN, 1, { 800, 850, 550 }, { 950, 1000, 750 }, { 1100, 1150, 1050 } },
     { MAP_2_MM_MUMBOS_MOUNTAIN, 0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150,  675 } },
-    { MAP_0_UNKNOWN,            0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150,  675 } }
+    { MAP_0_NIL,                0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150,  675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_TTC[] = {
@@ -35,12 +35,12 @@ static struct camera_node_type4_vectors_s sCode35520Table_TTC[] = {
     { MAP_7_TTC_TREASURE_TROVE_COVE, 2, { 550, 600, 175 }, { 850, 900, 475 }, {  950, 1000,  775 } },
     { MAP_7_TTC_TREASURE_TROVE_COVE, 1, { 700, 750, 450 }, { 850, 900, 750 }, { 1000, 1050, 1050 } },
     { MAP_7_TTC_TREASURE_TROVE_COVE, 0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150,  675 } },
-    { MAP_0_UNKNOWN,                 0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150,  675 } }
+    { MAP_0_NIL,                     0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150,  675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_CC[] = {
     { MAP_B_CC_CLANKERS_CAVERN, 1, { 650, 700, 275 }, { 875, 925, 475 }, { 1100, 1150, 675 } },
-    { MAP_0_UNKNOWN,            0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL,                0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_BGS[] = {
@@ -48,11 +48,11 @@ static struct camera_node_type4_vectors_s sCode35520Table_BGS[] = {
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, 3, { 550, 600, 225 }, { 850, 900, 375 }, { 1100, 1150, 675 } },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, 2, { 550, 600, 175 }, { 750, 800, 475 }, {  950, 1000, 750 } },
     { MAP_D_BGS_BUBBLEGLOOP_SWAMP, 1, { 550, 600, 175 }, { 850, 900, 425 }, { 1100, 1150, 675 } },
-    { MAP_0_UNKNOWN,               0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL,                   0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_FP[] = {
-    { MAP_0_UNKNOWN, 0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL, 0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_GV[] = {
@@ -60,7 +60,7 @@ static struct camera_node_type4_vectors_s sCode35520Table_GV[] = {
     { MAP_12_GV_GOBIS_VALLEY, 3, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } },
     { MAP_12_GV_GOBIS_VALLEY, 2, { 550, 600, 175 }, { 725, 775, 475 }, {  900,  950, 775 } },
     { MAP_12_GV_GOBIS_VALLEY, 1, { 550, 600, 175 }, { 750, 800, 575 }, {  950, 1000, 975 } },
-    { MAP_0_UNKNOWN,          0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL,              0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_MMM[] = {
@@ -68,7 +68,7 @@ static struct camera_node_type4_vectors_s sCode35520Table_MMM[] = {
     { MAP_1B_MMM_MAD_MONSTER_MANSION, 3, { 550, 600, 200 }, { 750, 800, 375 }, {  950, 1000, 675 } },
     { MAP_1B_MMM_MAD_MONSTER_MANSION, 2, { 550, 600, 200 }, { 750, 800, 325 }, {  950, 1000, 450 } },
     { MAP_1B_MMM_MAD_MONSTER_MANSION, 1, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } },
-    { MAP_0_UNKNOWN,                  0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL,                      0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_RBB[] = {
@@ -77,7 +77,7 @@ static struct camera_node_type4_vectors_s sCode35520Table_RBB[] = {
     { MAP_31_RBB_RUSTY_BUCKET_BAY, 3, { 550, 600, 350 }, { 675, 725, 725 }, {  800,  850, 1100 } },
     { MAP_31_RBB_RUSTY_BUCKET_BAY, 2, { 550, 600, 175 }, { 750, 800, 525 }, {  950, 1000,  875 } },
     { MAP_31_RBB_RUSTY_BUCKET_BAY, 1, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150,  675 } },
-    { MAP_0_UNKNOWN,               0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150,  675 } }
+    { MAP_0_NIL,               0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150,  675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_CCW[] = {
@@ -89,11 +89,11 @@ static struct camera_node_type4_vectors_s sCode35520Table_CCW[] = {
     { MAP_44_CCW_SUMMER, 1, { 800, 850, 550 }, { 950, 1000, 800 }, { 1100, 1150, 1050 } },
     { MAP_45_CCW_AUTUMN, 1, { 800, 850, 550 }, { 950, 1000, 800 }, { 1100, 1150, 1050 } },
     { MAP_46_CCW_WINTER, 1, { 800, 850, 550 }, { 950, 1000, 800 }, { 1100, 1150, 1050 } },
-    { MAP_0_UNKNOWN,     0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150,  675 } }
+    { MAP_0_NIL,     0, { 550, 600, 175 }, { 850,  900, 375 }, { 1100, 1150,  675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_Lair[] = {
-    { MAP_0_UNKNOWN, 0, { 550, 600, 150 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL, 0, { 550, 600, 150 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_Fight[] = {
@@ -101,7 +101,7 @@ static struct camera_node_type4_vectors_s sCode35520Table_Fight[] = {
 };
 
 static struct camera_node_type4_vectors_s sCode35520Table_Default[] = {
-    { MAP_0_UNKNOWN, 0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
+    { MAP_0_NIL, 0, { 550, 600, 175 }, { 850, 900, 375 }, { 1100, 1150, 675 } }
 };
 
 static struct overlay_table_map_s sCode35520_map[] = {

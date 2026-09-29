@@ -130,7 +130,7 @@ int32_t countCollectedForLevel(int32_t levelId) {
     }
     int32_t total = 0;
     for (int32_t mapId = 0; mapId < NOTE_RETENTION_MAP_SLOTS; mapId++) {
-        // Skip empty maps: map_getLevel crashes on non-existent ids (e.g. MAP_0_UNKNOWN).
+        // Skip empty maps: map_getLevel crashes on non-existent ids (e.g. MAP_0_NIL).
         int32_t mapTotal = 0;
         for (int32_t b = 0; b < NOTE_RETENTION_BYTES_PER_MAP; b++) {
             uint8_t byte = s->collected[mapId][b];
