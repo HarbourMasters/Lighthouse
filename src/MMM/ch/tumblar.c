@@ -147,7 +147,7 @@ void chTumblar_update(Struct_MMM_47D0_0 *arg0, Struct68s *arg1, f32 tick) {
 
     if (arg0->state == TUMBLAR_STATE_0_IDLE) {
         func_8035179C_copyPosition(arg1, position);
-        controller_getJoystick(0, joystick);
+        controller_copyJoystick(0, joystick);
         is_banjo_above = chTumblar_isBanjoAbove(arg0, arg1);
 
         if (is_banjo_above) {

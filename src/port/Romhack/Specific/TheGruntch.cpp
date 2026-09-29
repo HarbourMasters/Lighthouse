@@ -22,7 +22,7 @@ extern "C" {
 
 extern ActorInfo chLargeCrocodile;
 extern f32 D_8037C5B0[3];
-extern PfsManagerControllerData D_80281138[4];
+extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
 extern f32 cameraPosition[3];
 extern f32 cameraRotation[3];
 extern f32 D_8037D948[3];
@@ -182,7 +182,7 @@ static bool GruntchDialogGate1B() {
     }
     if (ProximityDialogs_IsShown(1, 0xC000) && player_isStable()) {
         f32 reArm[3] = { 0.0f, 720.0f, -360.0f };
-        if (ml_vec3f_distance(reArm, D_8037C5B0) < 170.0f && D_80281138[0].face_button[1] == 1) {
+        if (ml_vec3f_distance(reArm, D_8037C5B0) < 170.0f && sHeldFrames[0][JOY_BUTTON_B] == 1) {
             ProximityDialogs_ClearShown(1, 0xC000);
         }
     }

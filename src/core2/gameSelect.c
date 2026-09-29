@@ -32,7 +32,7 @@ extern void func_802C74F4(Actor *, s32, f32 );
 extern void warp_lairEnterLairFromSMLevel(s32, s32);
 extern void warp_smExitBanjosHouse(s32, s32);
 extern void gsworld_setEnableUpdate(s32);
-extern void controller_getJoystick(s32, f32*);
+extern void controller_copyJoystick(s32, f32*);
 
 extern char *gcpausemenu_TimeToA(int);
 extern Vec3fArray *func_803097A0(void);
@@ -382,7 +382,7 @@ void gameSelect_update(Actor *this){
     else{//L802C4D24
         controller_copySideButtons(0, sp74);
         controller_copyFaceButtons(0, sp5C);
-        controller_getJoystick(0, sp54);
+        controller_copyJoystick(0, sp54);
         switch(this->state){
             case 2:
             case 5:

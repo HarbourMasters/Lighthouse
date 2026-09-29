@@ -19,7 +19,7 @@ void stub_802409C0(f32 position[3], f32 speed) {
     f32 dt;
     
     dt = time_getDelta() * speed;
-    controller_getJoystick(0, joystick_data);
+    controller_copyJoystick(0, joystick_data);
 
     delta_position[0] = joystick_data[0] * dt;
     delta_position[1] = 0.0f;
@@ -51,7 +51,7 @@ void stub_80240AC8(f32 position[3], f32 speed) {
     f32 dt;
     
     dt = time_getDelta() * speed;
-    controller_getJoystick(0, joystick_data);
+    controller_copyJoystick(0, joystick_data);
 
     if (0.0f != joystick_data[0] || 0.0f != joystick_data[1]) {
         sTimeout++;

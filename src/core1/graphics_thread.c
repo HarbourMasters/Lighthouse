@@ -505,7 +505,7 @@ void thread5_entry(void *arg) {
             else if (msg.data32 == THREAD5_MESSAGE_EVENT_FAULT)       { do{}while(1); }
             else if (msg.data32 == THREAD5_MESSAGE_EVENT_PRENMI)      { thread5_handlePreNMIEvent(); }
             else if (msg.data32 == THREAD5_MESSAGE_EVENT_DEBUG) {  }
-            else if (msg.data32 == THREAD5_MESSAGE_EVENT_CONT_TIMER)  { pfsManager_getStartReadData(); }
+            else if (msg.data32 == THREAD5_MESSAGE_EVENT_CONT_TIMER)  { joy_getStartReadData(); }
         }
         else {
             if (((struct ucode_task_data_s *)msg.ptr)->task_type == UCODE_TASK_TYPE_AUDIO) { thread5_handleAudioTaskMesg(msg); }

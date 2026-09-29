@@ -898,8 +898,8 @@ void func_80316764(GcZoombox *this, s32 arg1) {
         controller_copySideButtons(0, sp2C);
         phi_f0 = time_getDelta();
     } else {
-        pfsManager_getFirstControllerFaceButtonState(0, sp38);
-        func_8024E640(0, sp2C);
+        controller_copyFaceButtonsPrimary(0, sp38);
+        controller_copySideButtonsPrimary(0, sp2C);
         phi_f0 = time_func_8033DDB8();
     }
 
@@ -1100,8 +1100,8 @@ void gczoombox_update(GcZoombox *this){
           tmp_f0 = time_getDelta();
      }
      else{
-          pfsManager_getFirstControllerFaceButtonState(0, sp58);
-          func_8024E640(0, sp4C);
+          controller_copyFaceButtonsPrimary(0, sp58);
+          controller_copySideButtonsPrimary(0, sp4C);
           tmp_f0 = time_func_8033DDB8();
      }
 

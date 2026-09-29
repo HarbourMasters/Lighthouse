@@ -93,7 +93,7 @@ void func_80322298(Struct_core2_9B180_0 *arg0){
 }
 
 void func_803222BC(Struct_core2_9B180_0 * ag0){
-    if(func_8024E698(0) == 1){
+    if(controller_getStartButtonSafe(0) == 1){
         func_8031D06C(0,0);
     }
 }
