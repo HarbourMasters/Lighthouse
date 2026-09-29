@@ -455,7 +455,7 @@ void print_init(void){
     s32 length;
     int found;
 
-    length = strlen(boldFontLetters);
+    length = bk_strlen(boldFontLetters);
     print_sCurrentFont = \
     print_sPreviousFont = \
     print_sMonospacedModeEnabled = \
@@ -919,7 +919,7 @@ void printbuffer_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
                 _printbuffer_draw_letter(print_sCurrentPtr->fmtString[j], &_x, &_y, 1.0f, gfx, mtx, vtx);
             }
             if (print_sBackgroundModeEnabled != 0) {
-                width = (strlen(print_sCurrentPtr->string) -1)*maxFontLetterWidths[print_sCurrentFont];
+                width = (bk_strlen(print_sCurrentPtr->string) -1)*maxFontLetterWidths[print_sCurrentFont];
                 gDPPipeSync((*gfx)++);
                 gDPSetPrimColor((*gfx)++, 0, 0, 0x00, 0x00, 0x00, 0x64);
                 gDPSetCombineMode((*gfx)++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
@@ -988,7 +988,7 @@ void _printbuffer_push_new(s32 x, s32 y, u8 * string) {
 void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72l" : "fl");
+        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72l" : "fl");
         print_sCurrentPtr->scale = arg2;
     }
 }
@@ -996,21 +996,21 @@ void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
 void print_bold_spaced(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72" : "f");
+        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72" : "f");
     }
 }
 
 void print_dialog(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6Flq" : "elq");
+        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6Flq" : "elq");
     }
 }
 
 void print_dialog_w_bg(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "p\x6D" : "pb");
+        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "p\x6D" : "pb");
     }
 }
 
@@ -1019,7 +1019,7 @@ void print_dialog_gradient(s32 x, s32 y, u8* string, u8 arg3, u8 arg4){
     if(print_sCurrentPtr){
         print_sCurrentPtr->topVertexAlpha = arg3;
         print_sCurrentPtr->bottomVertexAlpha = arg4;
-        strcpy(print_sCurrentPtr->fmtString, "v"); // v is above glyph range, no PAL shift needed
+        bk_strcpy(print_sCurrentPtr->fmtString, "v"); // v is above glyph range, no PAL shift needed
     }
 }
 
@@ -1028,7 +1028,7 @@ void print_dialog_gradient2(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
     if(print_sCurrentPtr){
         print_sCurrentPtr->topVertexAlpha = arg3;
         print_sCurrentPtr->bottomVertexAlpha = arg4;
-        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6E\x6Flq" : "delq");
+        bk_strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6E\x6Flq" : "delq");
 
     }
 }

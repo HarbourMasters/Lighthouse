@@ -257,7 +257,7 @@ void timedFunc_set_5(f32 time, GenFunction_5 funcPtr, uintptr_t arg0, uintptr_t 
 void timedFunc_set_6(f32 time, GenFunction_6 funcPtr, void* argPtr, size_t argSize){
     TimedFunction *q = __timedFuncQueue_insert(time, 6, funcPtr, 0, 0, 0, 0, 0);
     if (argPtr != NULL) {
-        memcpy(&q->arg[5], argPtr, argSize);
+        bk_memcpy(&q->arg[5], argPtr, argSize);
     }
 }
 
@@ -286,7 +286,7 @@ void timedFuncQueue_flush(void){
 
     while(bk_vector_size(D_80383380.ptr) > 0){
         iPtr = bk_vector_getBegin(D_80383380.ptr);
-        memcpy(&iFunc, iPtr, sizeof(TimedFunction));
+        bk_memcpy(&iFunc, iPtr, sizeof(TimedFunction));
         bk_vector_remove(D_80383380.ptr, 0);
         __timedFunc_execute(&iFunc);
     }
@@ -318,7 +318,7 @@ void timedFuncQueue_update(void){
         iPtr = bk_vector_getBegin(D_80383380.ptr);
         if(D_80383380.time < iPtr->time)
             break;
-        memcpy(&iFunc, iPtr, sizeof(TimedFunction));
+        bk_memcpy(&iFunc, iPtr, sizeof(TimedFunction));
         bk_vector_remove(D_80383380.ptr, 0);
         __timedFunc_execute(&iFunc);
     }

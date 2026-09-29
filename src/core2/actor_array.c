@@ -1095,7 +1095,7 @@ static void __actor_free(ActorMarker *arg0, Actor *arg1){
     arrayEnd = &suBaddieActorArray->data[suBaddieActorArray->cnt - 1];
     func_80325FE8(arg1);
     if(arg1 != arrayEnd)
-        memcpy(arg1, arrayEnd, sizeof(Actor));
+        bk_memcpy(arg1, arrayEnd, sizeof(Actor));
     arg1->marker->actrArrayIdx = arg0->actrArrayIdx;
 
     //remove last actor from actor array
@@ -1782,7 +1782,7 @@ void actor_copy(Actor *dst, Actor *src){
     dst->unk148 = src->unk148;
     dst->unk14C[0] = src->unk14C[0];
     dst->unk14C[1] = src->unk14C[1];
-    memcpy(src, dst, sizeof(Actor));
+    bk_memcpy(src, dst, sizeof(Actor));
 }
 
 void *actors_appendToSavestate(void *savestate_begin_ptr, void *savestate_end_ptr) {
@@ -1809,7 +1809,7 @@ void *actors_appendToSavestate(void *savestate_begin_ptr, void *savestate_end_pt
 
         for (actor_ptr = suBaddieActorArray->data; actor_ptr < &suBaddieActorArray->data[(u32) suBaddieActorArray->cnt]; actor_ptr++) {
             if (actor_ptr->marker && (actor_ptr->unk10_1 == 1) && (!actor_ptr->despawn_flag) && (actor_ptr->unk40 == 0)) {
-                memcpy(actor_savestate_ptr, actor_ptr, sizeof(Actor));
+                bk_memcpy(actor_savestate_ptr, actor_ptr, sizeof(Actor));
                 CALL_EVENT(OnSaveActorSaveState, actor_ptr);
                 actor_savestate_ptr->unk40 = 0;
                 actor_savestate_ptr->unk138_28 = 1;

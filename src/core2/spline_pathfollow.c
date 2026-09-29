@@ -650,7 +650,7 @@ void func_803411B0(void){
                     *((u8 *)temp_v0_16 + 11) = (u8)D_80371E78;
 #endif
 
-                    memcpy(var_s1_2, temp_v0_16, sizeof(Union_glspline));
+                    bk_memcpy(var_s1_2, temp_v0_16, sizeof(Union_glspline));
 #if !(defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
                     // so reversed LE bitfield structs extract correct values
                     glspline_convert_from_nodeprop(var_s1_2);
@@ -670,9 +670,9 @@ void func_803411B0(void){
                     var_s1_2 = var_s0_2 + 1;
 
                     if (var_s0_2->common.unk0 > var_s1_2->common.unk0) {
-                        memcpy(&sp80, var_s0_2, sizeof(Union_glspline));
-                        memcpy(var_s0_2, var_s1_2, sizeof(Union_glspline));
-                        memcpy(var_s1_2, &sp80, sizeof(Union_glspline));
+                        bk_memcpy(&sp80, var_s0_2, sizeof(Union_glspline));
+                        bk_memcpy(var_s0_2, var_s1_2, sizeof(Union_glspline));
+                        bk_memcpy(var_s1_2, &sp80, sizeof(Union_glspline));
                         var_s2++;
                     }
                 }

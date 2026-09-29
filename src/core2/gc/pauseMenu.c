@@ -336,21 +336,21 @@ char *gcpausemenu_TimeToA(int time) {
     s32 minutes;
     s32 seconds;
 
-    strcpy(D_80383088, "");
-    strIToA(D_80383088, time / 3600);
-    strcat(D_80383088, ":");
+    bk_strcpy(D_80383088, "");
+    bk_strIToA(D_80383088, time / 3600);
+    bk_strcat(D_80383088, ":");
     minutes = (time / 60) % 60;
     if (minutes < 10) {
-        strcat(D_80383088, "0");
+        bk_strcat(D_80383088, "0");
     }
-    strIToA(D_80383088, minutes);
-    strcat(D_80383088, ":");
+    bk_strIToA(D_80383088, minutes);
+    bk_strcat(D_80383088, ":");
     seconds = time % 60;
     if (seconds < 10) {
-        strcat(D_80383088, "0");
+        bk_strcat(D_80383088, "0");
     }
-    strIToA(D_80383088, seconds);
-    strcat(D_80383088, "");
+    bk_strIToA(D_80383088, seconds);
+    bk_strcat(D_80383088, "");
     return D_80383088;
 }
 
@@ -361,31 +361,31 @@ void gcpausemenu_printLevelTotals(enum level_e level) {
 
     //note ratio 2 string
     gcpausemenu_getLevelNoteScore(level, &val, &max);
-    strcpy(D_8036C520[0].str, empty);
-    strIToA(D_8036C520[0].str, val);
-    strcat(D_8036C520[0].str, "/");
-    strIToA(D_8036C520[0].str, max);
-    strcat(D_8036C520[0].str, empty);
+    bk_strcpy(D_8036C520[0].str, empty);
+    bk_strIToA(D_8036C520[0].str, val);
+    bk_strcat(D_8036C520[0].str, "/");
+    bk_strIToA(D_8036C520[0].str, max);
+    bk_strcat(D_8036C520[0].str, empty);
 
     //jiggy_ratio_2_string
     gcpausemenu_getLevelJiggyScore(level, &val, &max);
-    strcpy(D_8036C520[1].str, empty);
-    strIToA(D_8036C520[1].str, val);
-    strcat(D_8036C520[1].str, "/");
-    strIToA(D_8036C520[1].str, max);
-    strcat(D_8036C520[1].str, empty);
+    bk_strcpy(D_8036C520[1].str, empty);
+    bk_strIToA(D_8036C520[1].str, val);
+    bk_strcat(D_8036C520[1].str, "/");
+    bk_strIToA(D_8036C520[1].str, max);
+    bk_strcat(D_8036C520[1].str, empty);
 
     //honeycomb_ratio_2_string
     gcpausemenu_getLevelHoneycombScore(level, &val, &max);
-    strcpy(D_8036C520[2].str, empty);
-    strIToA(D_8036C520[2].str, val);
-    strcat(D_8036C520[2].str, "/");
-    strIToA(D_8036C520[2].str, max);
-    strcat(D_8036C520[2].str, empty);
+    bk_strcpy(D_8036C520[2].str, empty);
+    bk_strIToA(D_8036C520[2].str, val);
+    bk_strcat(D_8036C520[2].str, "/");
+    bk_strIToA(D_8036C520[2].str, max);
+    bk_strcat(D_8036C520[2].str, empty);
 
     //gametime_2_sting
-    strcpy(D_8036C520[3].str, empty);
-    strcat(D_8036C520[3].str, gcpausemenu_TimeToA(itemscore_timeScores_get(level)));
+    bk_strcpy(D_8036C520[3].str, empty);
+    bk_strcat(D_8036C520[3].str, gcpausemenu_TimeToA(itemscore_timeScores_get(level)));
 }
 
 void gcpausemenu_getTotalNoteScore(s32 *dst) {
@@ -406,25 +406,25 @@ void gcpausemenu_printTotals(void) {
 
     //note ratio 2 string
     gcpausemenu_getTotalNoteScore(&val);
-    strcpy(D_8036C520[0].str, D_8036C61C);
-    strIToA(D_8036C520[0].str, val);
-    strcat(D_8036C520[0].str, D_8036C61C);
+    bk_strcpy(D_8036C520[0].str, D_8036C61C);
+    bk_strIToA(D_8036C520[0].str, val);
+    bk_strcat(D_8036C520[0].str, D_8036C61C);
 
     //jiggy_ratio_2_string
     gcpausemenu_getTotalJiggyScore(&val);
-    strcpy(D_8036C520[1].str, D_8036C61C);
-    strIToA(D_8036C520[1].str, val);
-    strcat(D_8036C520[1].str, D_8036C61C);
+    bk_strcpy(D_8036C520[1].str, D_8036C61C);
+    bk_strIToA(D_8036C520[1].str, val);
+    bk_strcat(D_8036C520[1].str, D_8036C61C);
 
     //honeycomb_ratio_2_string
     gcpausemenu_getTotalHoneycombScore(&val);
-    strcpy(D_8036C520[2].str, D_8036C61C);
-    strIToA(D_8036C520[2].str, val);
-    strcat(D_8036C520[2].str, D_8036C61C);
+    bk_strcpy(D_8036C520[2].str, D_8036C61C);
+    bk_strIToA(D_8036C520[2].str, val);
+    bk_strcat(D_8036C520[2].str, D_8036C61C);
 
     //gametime_2_sting
-    strcpy(D_8036C520[3].str, D_8036C61C);
-    strcat(D_8036C520[3].str, gcpausemenu_TimeToA(itemscore_timeScores_getTotal()));
+    bk_strcpy(D_8036C520[3].str, D_8036C61C);
+    bk_strcat(D_8036C520[3].str, gcpausemenu_TimeToA(itemscore_timeScores_getTotal()));
 }
 
 s32 gcpausemenu_levelToMenuPage(enum level_e level) {
