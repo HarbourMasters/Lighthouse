@@ -116,18 +116,17 @@ void func_8033B2A4(s32 arg0) {
     assetCacheLength += 1;
 }
 
-bool codeB3A80_releaseSprite(void **sprite_ptr, BKSpriteDisplayData **arg1)
+bool codeB3A80_releaseSprite(BKSprite **sprite_ptr, BKSpriteDisplayData **sprite_gfx_ptr)
 {
-    void *new_var;
+    BKSprite *sprite;
     if ((*sprite_ptr) == NULL)
-    return 0;
+        return FALSE;
 
-    new_var = *sprite_ptr;
-    assetcache_release(new_var);
-    *sprite_ptr = 0;
-    *arg1 = 0;
-    return 1;
-    
+    sprite = *sprite_ptr;
+    assetcache_release(sprite);
+    *sprite_ptr = NULL;
+    *sprite_gfx_ptr = NULL;
+    return TRUE;
 }
 
 bool func_8033B388(BKSprite **sprite_ptr, BKSpriteDisplayData **arg1){
@@ -404,7 +403,7 @@ s32 assetCache_getDependencyCount(enum asset_e arg0){
     return 0;
 }
 
-void func_8033BD20(void **arg0){
+void func_8033BD20(BKModelBin **arg0){
     func_8033B020(*arg0);
     *arg0 = NULL;
 }
