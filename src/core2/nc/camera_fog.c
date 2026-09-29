@@ -11,7 +11,7 @@ typedef struct{
 }Struct_core2_37E50_0;
 
 Struct_core2_37E50_0 D_80365D60[] ={
-    {MAP_3_UNUSED,                {0x00, 0xD0, 0xBF}, 0x50},
+    {MAP_3_STUB_TEST_TEMPLE,      {0x00, 0xD0, 0xBF}, 0x50},
     {MAP_B_CC_CLANKERS_CAVERN,    {0x78, 0x6D, 0x39}, 0x50},
     {MAP_22_CC_INSIDE_CLANKER,    {0x78, 0x6D, 0x39}, 0x50},
     {MAP_31_RBB_RUSTY_BUCKET_BAY, {0x32, 0x32, 0x32}, 0xA0},

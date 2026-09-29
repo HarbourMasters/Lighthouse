@@ -221,7 +221,7 @@ void Anchor::HandlePacket_PlayerUpdate(nlohmann::json& payload) {
             return;
         }
 
-        client.map = payload.value("map", MAP_0_UNKNOWN);
+        client.map = payload.value("map", MAP_0_NIL);
         client.exit = payload.value("exit", (s32)0);
         // Self-heal: a missed MAP_LOAD (e.g. it arrived while we were still in the
         // previous map) would otherwise leave this client's dummy unregistered

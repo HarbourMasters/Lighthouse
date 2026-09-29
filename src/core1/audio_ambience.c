@@ -262,7 +262,7 @@ void midichannel_func_8024AF48(void) {
             }
             break;
 
-        case MAP_3_UNUSED:
+        case MAP_3_STUB_TEST_TEMPLE:
             midichannel_setChanMaskFromWaterState(0x1800, 0x67fe);
             break;
 
@@ -364,15 +364,15 @@ void midichannel_func_8024AF48(void) {
             }
             break;
 
-        case MAP_54_UNUSED:
-        case MAP_55_UNUSED:
-        case MAP_57_UNUSED:
-        case MAP_58_UNUSED:
-        case MAP_59_UNUSED:
+        case MAP_54_STUB_ML_CRUSHER_SHED:
+        case MAP_55_STUB_ML_GENERATOR_CAVES:
+        case MAP_57_STUB_ML_TUBS:
+        case MAP_58_STUB_ML_WATER_CAVES:
+        case MAP_59_STUB_ML_WATERFALL:
             midichannel_setChanMaskFromWaterState(0xc, 0x307b);
             break;
             
-        case MAP_56_UNUSED:
+        case MAP_56_STUB_ML_MINE_LEVEL:
             midichannel_setChanMaskFromWaterState(0x10, 0x4f6f);
             break;
 

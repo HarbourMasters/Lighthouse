@@ -283,7 +283,7 @@ void func_803465E4(void){
     if(D_80385FE8){
         if( ncCamera_getType() != 3 // CAMERA_TYPE_3_STATIC
             && func_8028F070()
-            && gsworld_getMap() != MAP_33_UNUSED
+            && gsworld_getMap() != MAP_33_STUB_DEMO_INTRO_ROOM
             && gsworld_getMap() != MAP_91_FILE_SELECT
         ){
             D_80385FE0 = true;
