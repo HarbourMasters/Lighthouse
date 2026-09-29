@@ -20,7 +20,7 @@ extern "C" {
 #include "core2/modelRender.h"
 #include "bk_time.h"
 
-extern ActorInfo chLargeCrocodile;
+extern ActorInfo gChLargeCrocodile;
 extern f32 D_8037C5B0[3];
 extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
 extern f32 cameraPosition[3];
@@ -562,10 +562,10 @@ static bool Gruntch_HeadHasNoticedPlayer() {
 }
 
 static void Gruntch_EnableHeadLook() {
-    sHead.savedUpdate = chLargeCrocodile.update_func;
-    sHead.savedDraw = chLargeCrocodile.draw_func;
-    chLargeCrocodile.update_func = HeadLook_update;
-    chLargeCrocodile.draw_func = HeadLook_draw;
+    sHead.savedUpdate = gChLargeCrocodile.update_func;
+    sHead.savedDraw = gChLargeCrocodile.draw_func;
+    gChLargeCrocodile.update_func = HeadLook_update;
+    gChLargeCrocodile.draw_func = HeadLook_draw;
 
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) {
         sHead.initialised = false;

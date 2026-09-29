@@ -23,12 +23,19 @@ Actor *chLeafBoat_draw(ActorMarker *this, Gfx** gdl, Mtx** mtx, Vtx **Vtx);
 /* .data section */
 u8 D_80390DA0[6] = {0, 0, 0, 1, 1, 1};
 
-ActorInfo chLeafBoat = {MARKER_DA_LEAF_BOAT, ACTOR_F1_LEAF_BOAT, ASSET_30D_MODEL_LEAF_BOAT, 
+ActorInfo gChLeafBoat = {
+    MARKER_DA_LEAF_BOAT, ACTOR_F1_LEAF_BOAT, ASSET_30D_MODEL_LEAF_BOAT, 
     0x01, NULL,
     chLeafBoat_update, chLeafBoat_update, chLeafBoat_draw,
     0, 0, 0.0f, 0
 };
 
+enum chLeafBoatState {
+    CH_LEAF_BOAT_STATE_1_UNK = 1, // idle
+    CH_LEAF_BOAT_STATE_2_UNK,
+    CH_LEAF_BOAT_STATE_3_UNK,
+    CH_LEAF_BOAT_STATE_4_UNK
+};
 
 /* .code section */
 Actor *chLeafBoat_draw(ActorMarker *this, Gfx** gdl, Mtx** mtx, Vtx **vtx){
@@ -41,7 +48,7 @@ Actor *chLeafBoat_draw(ActorMarker *this, Gfx** gdl, Mtx** mtx, Vtx **vtx){
     return thisActor;
 }
 
-void func_8038FD88(ActorMarker *this, ActorMarker *other){
+void chLeafBoat_playerOnTop(ActorMarker *this, ActorMarker *other){
     this->isBanjoOnTop = 1;
 }
 
@@ -59,7 +66,7 @@ void chLeafBoat_update(Actor *this){
     local = (ActorLocal_Leafboat *)&this->local;
     if(!this->initialized){
         this->initialized = true;
-        marker_setCollisionScripts(this->marker, func_8038FD88, NULL, NULL);
+        marker_setCollisionScripts(this->marker, chLeafBoat_playerOnTop, NULL, NULL);
         local->unk6C = randf2(80.0f, 100.0f);
         this->unk1C[0] = this->unk1C[1] = this->unk1C[2] = 0.0f;
         local->unk0[0] = local->unk0[1] = local->unk0[2] = 0.0f;
@@ -87,29 +94,29 @@ void chLeafBoat_update(Actor *this){
     this->yaw   = local->unk60[1];
     this->roll  = local->unk60[2];
     switch(this->state){
-        case 1:
+        case CH_LEAF_BOAT_STATE_1_UNK:
             if(this->marker->unk2C_2)
                 actor_update_func_80326224(this);
             this->marker->propPtr->unk8_3 = 1;
             this->unk1C[0] = 1.0f;
             this->alpha_124_19 = 0xff;
             if(this->unk54 != 0.0f){
-                subaddie_set_state(this, 2);
+                subaddie_set_state(this, CH_LEAF_BOAT_STATE_2_UNK);
             }
             break;
 
-        case 2:
+        case CH_LEAF_BOAT_STATE_2_UNK:
             if(this->marker->unk2C_2)
                 actor_update_func_80326224(this);
                 
             this->marker->propPtr->unk8_3 = 1;
             this->unk1C[0] = 1.0f;
             if(15.0f <= this->velocity_x){
-                subaddie_set_state(this, 3);
+                subaddie_set_state(this, CH_LEAF_BOAT_STATE_3_UNK);
                 this->velocity_x = 0.0f;
             }
             else{
-                if(!tmp[((s32)this->velocity_x)%6])
+                if(!tmp[((s32)this->velocity_x) % 6])
                     this->alpha_124_19 -= 0x55;
                 else
                     this->alpha_124_19 += 0x55;
@@ -117,7 +124,7 @@ void chLeafBoat_update(Actor *this){
             }
 
             break;
-        case 3:
+        case CH_LEAF_BOAT_STATE_3_UNK:
             if (this->marker->unk2C_2) {
                 actor_update_func_80326224(this);
             }
@@ -125,15 +132,15 @@ void chLeafBoat_update(Actor *this){
             this->unk1C[0] = 0.0f;
             this->alpha_124_19 = 0;
             if (this->unk54 == 0.0f) {
-                subaddie_set_state(this, 4);
+                subaddie_set_state(this, CH_LEAF_BOAT_STATE_4_UNK);
             }
             break;
 
-        case 4:
+        case CH_LEAF_BOAT_STATE_4_UNK:
             this->marker->propPtr->unk8_3 = 1;
             this->unk1C[0] = 1.0f;
             if (this->velocity[0] >= 15.0f) {
-                subaddie_set_state(this, 1);
+                subaddie_set_state(this, CH_LEAF_BOAT_STATE_1_UNK);
                 this->velocity[0] = 0.0f;
             } else {
                 if(tmp[5-(((s32)this->velocity_x)%6)]) {

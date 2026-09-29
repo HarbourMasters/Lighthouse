@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "core2/commonParticle.h"
 
 
 typedef struct{
@@ -12,7 +13,7 @@ typedef struct{
     s32 unk10;
 }CommonParticleType;
 
-void commonParticleType_set(enum common_particle_e arg0, GenFunction_0 init_method, GenFunction_0 update_method, GenFunction_0 free_method, s32 arg4, s32 arg5); // [port] update_method was s32 — truncated function pointer on 64-bit
+void commonParticleType_set(enum common_particle_e id, GenFunction_0 init_method, GenFunction_0 update_method, GenFunction_0 free_method, s32 arg4, s32 arg5); // [port] update_method was s32 — truncated function pointer on 64-bit
 
 /* .bss */
 CommonParticleType D_80386260[0x12];

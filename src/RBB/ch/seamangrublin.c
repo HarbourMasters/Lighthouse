@@ -23,7 +23,7 @@ ActorAnimationInfo D_80372DA0[] = {
     {0x1D6, 100000.0f}
 };
 
-ActorInfo D_80372DF8 = {
+ActorInfo chSeamanGrublin = {
     MARKER_21A_SEAMAN_GRUBLIN, ACTOR_350_SEAMAN_GRUBLIN, ASSET_49D_MODEL_SEAMAN_GRUBLIN,
     0x1, D_80372DA0, 
     chSeamanGrublin_update, actor_update_func_80326224, actor_draw, 

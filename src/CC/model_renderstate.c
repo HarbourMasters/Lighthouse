@@ -102,7 +102,7 @@ void CC_func_80387A20(Struct_CC_13C0_1 *arg0, Struct68s *arg1) {
 
 void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
     s32 temp_v0;
-    f32 sp50[3];
+    f32 player_position[3];
     f32 sp44[3];
     f32 sp38[3];
     f32 sp2C[3];
@@ -132,14 +132,14 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
         mlMtxIdent();
         func_80252C08(NULL, sp2C, 1.0f, NULL);
         mlMtx_apply_vec3f(sp44, sp44);
-        player_getPosition(sp50);
-        sp50[1] += 50.0f;
-        sp50[0] -= sp38[0];
-        sp50[1] -= sp38[1];
-        sp50[2] -= sp38[2];
-        sp28 = ((sp50[0]*sp44[0] + sp50[1]*sp44[1] + sp50[2]*sp44[2]) >= 0.0f) ? 1 : -1;
+        player_getPosition(player_position);
+        player_position[1] += 50.0f;
+        player_position[0] -= sp38[0];
+        player_position[1] -= sp38[1];
+        player_position[2] -= sp38[2];
+        sp28 = ((player_position[0] * sp44[0] + player_position[1] * sp44[1] + player_position[2] * sp44[2]) >= 0.0f) ? 1 : -1;
         if (sp28 == -arg0->unk8) {
-            if (LENGTH_VEC3F(sp50) < (func_80351830(arg1) * 250.0f)) {
+            if (LENGTH_VEC3F(player_position) < (func_80351830(arg1) * 250.0f)) {
                 maClankerRings_passRing(arg0->unk0);
             }
         }
@@ -148,22 +148,21 @@ void CC_func_80387A40(Struct_CC_13C0_1* arg0, Struct68s* arg1, f32 arg2) {
 }
 
 void code13C0_makeCameraFlipAndTilt(void){
-    f32 sp1C[3];
-    s32 tmp_v0;
+    f32 rotation[3];
+    s32 timer;
     if(getGameMode() == GAME_MODE_7_ATTRACT_DEMO)
         return;
 
-    viewport_getRotation_vec3f(sp1C);
-    tmp_v0 = globalTimer_getTimeMasked(0x7F);
-    if(tmp_v0 >= 0x40){
-        tmp_v0 = 0x7F - tmp_v0;
+    viewport_getRotation_vec3f(rotation);
+    timer = globalTimer_getTimeMasked(0x7F);
+    if(timer >= 0x40){
+        timer = 0x7F - timer;
     }
-    sp1C[2] += tmp_v0 + 0x94;
-    if(360.0f <= sp1C[2]){
-        sp1C[2] -= 360.0f;
+    rotation[2] += timer + 0x94;
+    if(360.0f <= rotation[2]){
+        rotation[2] -= 360.0f;
     }
-    viewport_setRotation_vec3f(sp1C);
-
+    viewport_setRotation_vec3f(rotation);
 }
 
 void code13C0_checkCCChecksums(void){

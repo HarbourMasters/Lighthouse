@@ -24,8 +24,18 @@ typedef struct {
 void maClankerKey_update(Actor* this);
 
 /* .data */
-ActorInfo D_80389AD0 = {
-    MARKER_4A_CC_KEY, ACTOR_3C_CC_KEY, ASSET_429_MODEL_CC_KEY, 0, NULL,
+
+enum maClankerKey_state_e {
+    CLANKER_KEY_STATE_1_IDLE = 1,
+    CLANKER_KEY_STATE_2_TURN_SLIGHTLY,
+    CLANKER_KEY_STATE_3_TURN_BACK,
+    CLANKER_KEY_STATE_4_FULL_ROTATION,
+    CLANKER_KEY_STATE_5_COMPLETED,
+};
+
+ActorInfo maClankerKey = {
+    MARKER_4A_CC_KEY, ACTOR_3C_CC_KEY, ASSET_429_MODEL_CC_KEY,
+    0, NULL,
     maClankerKey_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
@@ -39,11 +49,17 @@ void CC_func_80386920(Actor *this, s32 next_state){
     s16 sp20[3];
 
     local->unk14 = 0.0f;
-    if(this->state == 2 || this->state == 3 || this->state == 4){
+    if(this->state == CLANKER_KEY_STATE_2_TURN_SLIGHTLY ||
+       this->state == CLANKER_KEY_STATE_3_TURN_BACK ||
+       this->state == CLANKER_KEY_STATE_4_FULL_ROTATION)
+    {
         sfxSource_triggerCallbackByIndex(local->sfxsourceIdx);
     }
 
-    if(next_state == 2 || next_state == 3 || next_state == 4){
+    if(next_state == CLANKER_KEY_STATE_2_TURN_SLIGHTLY ||
+       next_state == CLANKER_KEY_STATE_3_TURN_BACK ||
+       next_state == CLANKER_KEY_STATE_4_FULL_ROTATION)
+    {
         func_8030DD90(local->sfxsourceIdx, 1);
         sfxsource_playSfxAtVolume(local->sfxsourceIdx, 0.3f);
         sfxsource_setSfxId(local->sfxsourceIdx, 0x3ec);
@@ -52,19 +68,21 @@ void CC_func_80386920(Actor *this, s32 next_state){
         sfxSource_func_8030E2C4(local->sfxsourceIdx);
     }
     
-    if(next_state == 2 || next_state == 4){
+    if(next_state == CLANKER_KEY_STATE_2_TURN_SLIGHTLY ||
+       next_state == CLANKER_KEY_STATE_4_FULL_ROTATION)
+    {
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 0x7fff);
         player_getPosition(sp28);
         TUPLE_COPY(sp20, sp28);
         fxSparkle_giantGoldFeather(sp20);
     }
 
-    if(next_state == 4){
+    if(next_state == CLANKER_KEY_STATE_4_FULL_ROTATION){
         maClanker_raiseClankerCutscene();
         coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 0x7FFF);
     }
 
-    if(this->state == 4)
+    if(this->state == CLANKER_KEY_STATE_4_FULL_ROTATION)
         func_8030E730(0x7f, 0.7f, 0x7FFF);
 
     this->state = next_state;
@@ -110,10 +128,10 @@ void maClankerKey_update(Actor *this){
         this->position_y = -2620.0f;
         this->position_z = -20.0f;
         if(jiggyscore_isSpawned(JIGGY_17_CC_CLANKER_RAISED)){
-            CC_func_80386920(this, 5);
+            CC_func_80386920(this, CLANKER_KEY_STATE_5_COMPLETED);
         }
         else{
-            CC_func_80386920(this, 1);
+            CC_func_80386920(this, CLANKER_KEY_STATE_1_IDLE);
         }
     }
     else{//L80386C40
@@ -164,42 +182,42 @@ void maClankerKey_update(Actor *this){
         local->unk4[0] = sp58[0];
         local->unk4[1] = sp58[1];
         local->unk4[2] = sp58[2];
-        if(this->state == 0x1 && local->unk2 == 1){
+        if(this->state == CLANKER_KEY_STATE_1_IDLE && local->unk2 == 1){
             if(--local->unk3 == 0){
-                CC_func_80386920(this, 4);
+                CC_func_80386920(this, CLANKER_KEY_STATE_4_FULL_ROTATION);
             }
             else{
-                CC_func_80386920(this, 2);
+                CC_func_80386920(this, CLANKER_KEY_STATE_2_TURN_SLIGHTLY);
             }
         }//L80386E4C
 
-        if(this->state == 2){
+        if(this->state == CLANKER_KEY_STATE_2_TURN_SLIGHTLY){
             if(1.0f <= local->unk14){
                 local->unk14 = 1.0f;
             }
             this->pitch = (f32)local->unk10 + 30.0f*local->unk14;
             if(1.0f <= local->unk14){
-                CC_func_80386920(this, 3);
+                CC_func_80386920(this, CLANKER_KEY_STATE_3_TURN_BACK);
             }
         }//L80386EC0
 
-        if(this->state == 3){
+        if(this->state == CLANKER_KEY_STATE_3_TURN_BACK){
             if(1.0f <= local->unk14){
                 local->unk14 = 1.0f;
             }
             this->pitch = (f32)local->unk10 + 30.0f*(1.0f - local->unk14);
             if(1.0f <= local->unk14){
-                CC_func_80386920(this, 1);
+                CC_func_80386920(this, CLANKER_KEY_STATE_1_IDLE);
             }
         }//L80386F44
 
-        if(this->state == 4){
+        if(this->state == CLANKER_KEY_STATE_4_FULL_ROTATION){
             if(5.0f <= local->unk14){
                 local->unk14 = 5.0f;
             }
             this->pitch = (f32)local->unk10 + 180.0f*(local->unk14/5.0f);
             if(5.0f <= local->unk14){
-                CC_func_80386920(this, 5);
+                CC_func_80386920(this, CLANKER_KEY_STATE_5_COMPLETED);
                 maClanker_raiseClanker();
             }
         }//L80386FC0

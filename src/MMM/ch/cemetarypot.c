@@ -15,18 +15,20 @@ enum chFlowerpot_state_e {
     FLOWER_POT_STATE_2_FLOWERED
 };
 
-ActorAnimationInfo D_8038BA50[] = {
+ActorAnimationInfo chCemetaryPotAnimations[] = {
     {0x00,                     0.0f},
     {ASSET_A9_ANIM_FLOWER_POT, 2.0f},
     {ASSET_A9_ANIM_FLOWER_POT, 2.0f}
 };
 
-ActorInfo D_8038BA68 = {
+ActorInfo chCemetaryPot = {
     MARKER_34_CEMETARY_POT, ACTOR_25_CEMETARY_POT, ASSET_3AE_MODEL_GRAVE_FLOWER_POT,
-    0x1, D_8038BA50,
+    0x1, chCemetaryPotAnimations,
     chFlowerpot_update, actor_update_func_80326224, actor_draw,
     0, 0, 0.0f, 0
 };
+
+#define NUMBER_OF_CEMETARY_POTS   5
 
 /* .code */
 s32 chFlowerpot_getRemaining(void) {
@@ -40,11 +42,11 @@ void chFlowerpot_setRemaining(s32 arg0) {
 void MMM_func_803871FC(Actor *this) {
     switch (this->state) {
         case FLOWER_POT_STATE_1_IDLE:
-            modelRender_setAppendageVisibility(3, false);
+            modelRender_setAppendageVisibility(3, FALSE);
             break;
 
         case FLOWER_POT_STATE_2_FLOWERED:
-            modelRender_setAppendageVisibility(3, true);
+            modelRender_setAppendageVisibility(3, TRUE);
             break;
     }
 
@@ -52,7 +54,7 @@ void MMM_func_803871FC(Actor *this) {
 }
 
 void chFlowerpot_reset() {
-    chFlowerpot_setRemaining(5);
+    chFlowerpot_setRemaining(NUMBER_OF_CEMETARY_POTS);
 }
 
 void chFlowerpot_update(Actor *this) {

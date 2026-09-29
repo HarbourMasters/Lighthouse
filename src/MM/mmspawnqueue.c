@@ -11,7 +11,7 @@ extern ActorInfo chhutInfo;
 extern ActorInfo chchimpystump;
 extern ActorInfo chgrublinInfo;
 extern ActorInfo chCongaInfo;
-extern ActorInfo chOrangeInfo;
+extern ActorInfo chorangeInfo;
 extern ActorInfo chjujuhitboxInfo;
 extern ActorInfo chjujuInfo;
 extern ActorInfo chOrangePadInfo;
@@ -22,7 +22,7 @@ void MM_func_803888B0(void){
     spawnableActorList_add( &chchimpystump,      actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add( &chgrublinInfo,      actor_new, ACTOR_FLAG_UNKNOWN_25 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_0);
     spawnableActorList_add( &chCongaInfo,        actor_new, ACTOR_FLAG_UNKNOWN_25 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_5);
-    spawnableActorList_add( &chOrangeInfo,       actor_new, ACTOR_FLAG_NONE);
+    spawnableActorList_add( &chorangeInfo,       actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add( &chjujuhitboxInfo,   actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add( &chjujuInfo,         actor_new, ACTOR_FLAG_UNKNOWN_14 | ACTOR_FLAG_UNKNOWN_2);
     spawnableActorList_add( &chOrangePadInfo,    actor_new, ACTOR_FLAG_UNKNOWN_6);

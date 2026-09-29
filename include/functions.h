@@ -664,7 +664,7 @@ s32 chMrVileMinigame_getPieceCount(ActorMarker *marker);
 s32 chMrVileMinigame_getScoreDifference(ActorMarker *marker);
 s32 chMrVileMinigame_getDialogIndex(ActorMarker *marker);
 void chMrVileMinigame_newPiece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type);
-void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker);
+void chMrVileMinigame_removePiece(ActorMarker *game_marker, ActorMarker *piece_marker);
 
 // --- CC/ccspawnqueue.c ---
 void CC_func_80387DA0(void);
