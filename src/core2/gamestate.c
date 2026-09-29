@@ -187,14 +187,14 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
     return D_80385F30[item];
 }
 
-// item_adjustByDiffWithHud
+// func_803463D4
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
     return item_adjustByDiff(item, diff, 0, 1);
 }
 
-// item_adjustByDiffWithoutHud
+// func_803463F4
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
@@ -209,14 +209,14 @@ void item_set(s32 item, s32 val){
     item_setEx(item, val, 1);
 }
 
-// item_setMaxCount
+// func_80346448
 void item_setMaxCount(s32 item){
     // Sets the count of an item to the max
     // Used for TTC cheats and Lair refill pillows
     item_adjustByDiffWithHud(item, 9999999);
 }
 
-// item_setItemsStartCounts
+// func_8034646C
 void item_setItemsStartCounts(void){
     // Sets the player initial inventory count
     int i;

@@ -2,12 +2,10 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "core1/core1.h"
 
 extern void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 extern void func_8028F760(s32, f32, f32);
 extern void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2);
-extern void fileprogressflag_func_8031FFAC(void);
 extern NodeProp *func_80304ED0(void*, f32 *);
 extern void func_8031CD44(enum map_e, s32, f32, f32, s32);
 
@@ -27,7 +25,7 @@ enum actor_e D_8036DDD0[] = {0, 0x184, 0x185, 0x186, -1};
 u8 D_80383190;
 
 /* .code */
-// cutscene_skipIntroCutsceneCheck
+// func_8031C640
 bool cutscene_skipIntroCutsceneCheck(void) {
     // [port] Skip intro cutscene
     if (!EventSystem_Should(VB_PLAY_INTRO_CUTSCENE, true) && controller_getStartButtonSafe(0) == 1) { return true; }
@@ -40,7 +38,7 @@ bool cutscene_skipIntroCutsceneCheck(void) {
     return false;
 }
 
-// cutscene_skipEnterLairCutsceneCheck
+// func_8031C688
 bool cutscene_skipEnterLairCutsceneCheck(void) {
     // [port] Skip lair cutscene
     bool skipMiscCutscenes = false;
@@ -244,15 +242,15 @@ void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2) {
         if (phi_s0 != NULL) {
             nodeprop_getPosition(phi_s0, sp38);
             phi_f2 = 500.0f;
-            if (phi_s0->unk8 == 0x186) {
+            if (phi_s0->actorId == 0x186) {
                 phi_f2 = 1000.0f;
             }
             if (ml_vec3f_distance(arg0, sp38) < phi_f2) {
-                if (phi_s0->unk8 == 0x184) {
+                if (phi_s0->actorId == 0x184) {
                     ncDynamicCamera_setUpdateEnabled(0);
                     func_8031CB50(arg1, arg2, 1);
                     player_walkToPosition(sp38, 1.0f, NULL, NULL);
-                } else if (phi_s0->unk8 == 0x185) {
+                } else if (phi_s0->actorId == 0x185) {
                     func_8031CD44(arg1, arg2, sp38[1], (f32) phi_s0->yaw, phi_s0->scale);
                 } else {
                     func_8031CD44(arg1, arg2, playerPos[1], (f32) phi_s0->yaw, phi_s0->scale);
@@ -623,9 +621,9 @@ void warp_bgsEnterMrVileLeftNostril(NodeProp *arg0, ActorMarker *arg1) {
 void warp_bgsEnterTanktupConditional(NodeProp *arg0, ActorMarker *arg1) {
     s16 pos[3];
 
-    pos[0] = arg0->x;
-    pos[1] = arg0->y;
-    pos[2] = arg0->z;
+    pos[0] = arg0->position_x;
+    pos[1] = arg0->position_y;
+    pos[2] = arg0->position_z;
     if (func_8038F570(pos) != 0)
         _func_8031CC8C(arg0, MAP_11_BGS_TIPTUP, WARP_BGS_TIPTUP_1_ENTRANCE);
 }
@@ -633,9 +631,9 @@ void warp_bgsEnterTanktupConditional(NodeProp *arg0, ActorMarker *arg1) {
 void warp_ttcEnterNippersShell(NodeProp *arg0, ActorMarker *arg1) {
     s16 pos[3];
 
-    pos[0] = arg0->x;
-    pos[1] = arg0->y;
-    pos[2] = arg0->z;
+    pos[0] = arg0->position_x;
+    pos[1] = arg0->position_y;
+    pos[2] = arg0->position_z;
     if (chNipper_isInState7(pos) != 0)
         _func_8031CC8C(arg0, MAP_6_TTC_NIPPERS_SHELL, WARP_TCC_NIPPERS_SHELL_1_ENTRANCE);
 }
@@ -773,8 +771,8 @@ void func_8031E204(NodeProp *node, s32 arg1, s32 arg2){
     f32 sp28[3];
     f32 sp1C[3];
 
-    nodeprop_getPosition(nodeprop_findByActorIdAndPosition_s16(ACTOR_154_UNKNOWN, &node->x), sp34);
-    nodeprop_getPosition(nodeprop_findByActorIdAndPosition_s16(ACTOR_155_UNKNOWN, &node->x), sp28);
+    nodeprop_getPosition(nodeprop_findByActorIdAndPosition_s16(ACTOR_154_UNKNOWN, &node->position_x), sp34);
+    nodeprop_getPosition(nodeprop_findByActorIdAndPosition_s16(ACTOR_155_UNKNOWN, &node->position_x), sp28);
     player_getPosition(sp1C);
     if(sp28[1] < sp1C[1]){
         sp1C[1] = sp28[1];
