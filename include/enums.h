@@ -542,22 +542,28 @@ enum joystick_e{
 
 typedef enum map_e
 {
-    MAP_0_UNKNOWN,
+    /* aka gcSectionMin */
+    MAP_0_NIL,
     MAP_1_SM_SPIRAL_MOUNTAIN = 0x01,
     MAP_2_MM_MUMBOS_MOUNTAIN,
-    MAP_3_UNUSED,
-    MAP_4_UNUSED,
+    /* The "Temple Test" level */
+    MAP_3_STUB_TEST_TEMPLE,
+    /* MB: Morten 'Buzzbomb' Brodersen (Deputy Keyboard Tapper) */
+    MAP_4_STUB_TEST_MB,
     MAP_5_TTC_BLUBBERS_SHIP,
     MAP_6_TTC_NIPPERS_SHELL,
     MAP_7_TTC_TREASURE_TROVE_COVE,
-    MAP_8_UNUSED,
-    MAP_9_UNUSED,
+    /* CS: Chris 'Snacker' Sutherland (Chief Keyboard Tapper) */
+    MAP_8_STUB_TEST_CS_HEIGHT_AND_DISTANCE,
+    /* CS: Chris 'Snacker' Sutherland (Chief Keyboard Tapper) */
+    MAP_9_STUB_TEST_CS_SLIGHT_SLOPES,
     MAP_A_TTC_SANDCASTLE = 0x0A,
     MAP_B_CC_CLANKERS_CAVERN,
     MAP_C_MM_TICKERS_TOWER = 0x0C,
     MAP_D_BGS_BUBBLEGLOOP_SWAMP,
     MAP_E_MM_MUMBOS_SKULL,
-    MAP_F_UNUSED,
+    /* PM: Paul 'Big-Clucker' Machacek (Deputy Keyboard Tapper) */
+    MAP_F_STUB_TEST_PM,
     MAP_10_BGS_MR_VILE = 0x10,
     MAP_11_BGS_TIPTUP,
     MAP_12_GV_GOBIS_VALLEY,
@@ -565,9 +571,12 @@ typedef enum map_e
     MAP_14_GV_SANDYBUTTS_MAZE,
     MAP_15_GV_WATER_PYRAMID,
     MAP_16_GV_RUBEES_CHAMBER,
-    MAP_17_UNUSED,
-    MAP_18_UNUSED,
-    MAP_19_UNUSED,
+    /* GS: Graham 'Snippet' Smith (Deputy Keyboard Tapper) */
+    MAP_17_STUB_TEST_GS,
+    /* RL: Rhys 'Lockup' Lewis (Keyboard Tapper) */
+    MAP_18_STUB_TEST_RL,
+    /* CS: Chris 'Snacker' Sutherland (Chief Keyboard Tapper) */
+    MAP_19_STUB_TEST_CS_STEEP_SLOPES,
     MAP_1A_GV_INSIDE_JINXY = 0x1A,
     MAP_1B_MMM_MAD_MONSTER_MANSION = 0x1B,
     MAP_1C_MMM_CHURCH = 0x1C,
@@ -592,8 +601,9 @@ typedef enum map_e
     MAP_2F_MMM_WATERDRAIN_BARREL = 0x2F,
     MAP_30_MMM_MUMBOS_SKULL = 0x30,
     MAP_31_RBB_RUSTY_BUCKET_BAY = 0x31,
-    MAP_32_UNUSED,
-    MAP_33_UNUSED,
+    /* This is the "Lava Level" (main area) - aka HFP in Tooie */
+    MAP_32_STUB_LL_LAVA_LEVEL,
+    MAP_33_STUB_DEMO_INTRO_ROOM,
     MAP_34_RBB_ENGINE_ROOM,
     MAP_35_RBB_WAREHOUSE,
     MAP_36_RBB_BOATHOUSE,
@@ -608,34 +618,37 @@ typedef enum map_e
     MAP_3F_RBB_CAPTAINS_CABIN,
     MAP_40_CCW_HUB,
     MAP_41_FP_BOGGYS_IGLOO,
-    MAP_42_UNUSED,
+    MAP_42_STUB_LL_TIPTUPS_CAVE,
     MAP_43_CCW_SPRING = 0x43,
     MAP_44_CCW_SUMMER = 0x44,
     MAP_45_CCW_AUTUMN = 0x45,
     MAP_46_CCW_WINTER = 0x46,
     MAP_47_BGS_MUMBOS_SKULL = 0x47,
     MAP_48_FP_MUMBOS_SKULL = 0x48,
-    MAP_49_UNUSED,
+    MAP_49_STUB_ML_MUMBOS_SKULL,
     MAP_4A_CCW_SPRING_MUMBOS_SKULL = 0x4A,
     MAP_4B_CCW_SUMMER_MUMBOS_SKULL = 0x4B,
     MAP_4C_CCW_AUTUMN_MUMBOS_SKULL = 0x4C,
     MAP_4D_CCW_WINTER_MUMBOS_SKULL = 0x4D,
-    MAP_4E_UNUSED,
-    MAP_4F_UNUSED,
-    MAP_50_UNUSED,
-    MAP_51_UNUSED,
-    MAP_52_UNUSED,
+    MAP_4E_STUB_LL_MUMBOS_SKULL,
+    /* FL: Fantasy Level - aka CCL in Tooie */
+    MAP_4F_STUB_FL_MUMBOS_SKULL_NORMAL,
+    MAP_50_STUB_FL_MUMBOS_SKULL_RAIN_DANCE,
+    MAP_51_STUB_LL_SWIM,
+    MAP_52_STUB_LL_TEMPLE,
     MAP_53_FP_CHRISTMAS_TREE = 0x53,
-    MAP_54_UNUSED,
-    MAP_55_UNUSED,
-    MAP_56_UNUSED,
-    MAP_57_UNUSED,
-    MAP_58_UNUSED,
-    MAP_59_UNUSED,
+    MAP_54_STUB_ML_CRUSHER_SHED,
+    MAP_55_STUB_ML_GENERATOR_CAVES,
+    /* This is the "Mine Level" (main area) - aka GGM in Tooie */
+    MAP_56_STUB_ML_MINE_LEVEL,
+    MAP_57_STUB_ML_TUBS,
+    MAP_58_STUB_ML_WATER_CAVES,
+    MAP_59_STUB_ML_WATERFALL,
     MAP_5A_CCW_SUMMER_ZUBBA_HIVE = 0x5A, // Summer & Spring are swapped here
     MAP_5B_CCW_SPRING_ZUBBA_HIVE,
     MAP_5C_CCW_AUTUMN_ZUBBA_HIVE,
-    MAP_5D_UNUSED,
+    /* Explicitly listed as "Unused", but almost certainly just Zubba's Hive in Winter */
+    MAP_5D_STUB_CCW_WINTER_ZUBBA_HIVE,
     MAP_5E_CCW_SPRING_NABNUTS_HOUSE = 0x5E,
     MAP_5F_CCW_SUMMER_NABNUTS_HOUSE = 0x5F,
     MAP_60_CCW_AUTUMN_NABNUTS_HOUSE = 0x60,
@@ -657,7 +670,8 @@ typedef enum map_e
     MAP_70_GL_CC_LOBBY = 0x70,
     MAP_71_GL_STATUE_ROOM,
     MAP_72_GL_BGS_LOBBY,
-    MAP_73_UNUSED,
+    /* Explicitly listed as "Unused", but KBM has evidence that it was the original FP Lobby */
+    MAP_73_STUB_GL_ORIGINAL_FP_LOBBY,
     MAP_74_GL_GV_PUZZLE = 0x74,
     MAP_75_GL_MMM_LOBBY,
     MAP_76_GL_640_NOTE_DOOR,
@@ -696,6 +710,13 @@ typedef enum map_e
     MAP_97_CS_END_BEACH_2,
     MAP_98_CS_END_SPIRAL_MOUNTAIN_1,
     MAP_99_CS_END_SPIRAL_MOUNTAIN_2,
+
+    /* These last maps were allocated somewhere at some point (e.g. the asset enum), but never made it to the map enum itself */
+    // MAP_9A_UNUSED,
+    // MAP_9B_UNUSED,
+    // MAP_9C_UNUSED,
+
+    /* aka gcSectionMax */
     MAP_NUM_MAPS
 } GameMap;
 
