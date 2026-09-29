@@ -75,8 +75,8 @@ Actor *func_80386B9C(ActorMarker *marker, Gfx **gdl, Mtx **mptr, Vtx **arg3);
 ActorAnimationInfo D_803900C0[4] = {
     {0, 0.0f},
     {0, 0.0f},
-    {0xD4, 0.15f},
-    {0xD5, 0.5f}
+    {ASSET_D4_ANIM_SWITCH_DOWN, 0.15f},
+    {ASSET_D5_ANIM_SWITCH_UP, 0.5f}
 };
 
 ActorInfo chEngineRoomDoor = {

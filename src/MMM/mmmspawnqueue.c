@@ -53,8 +53,8 @@ void chMMMWindow_update(Actor *this);
 ActorAnimationInfo D_8038BBE0[] = {
     {0x00, 0.0f},
     {0x00, 0.0f},
-    {0xD4, 0.15f},
-    {0xD5, 0.5f},
+    {ASSET_D4_ANIM_SWITCH_DOWN, 0.15f},
+    {ASSET_D5_ANIM_SWITCH_UP, 0.5f},
     {0x00, 0.0f},
     {0x00, 0.0f},
     {0x00, 0.0f},

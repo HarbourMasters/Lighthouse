@@ -15,8 +15,8 @@ void chOverlayNoController_update(Actor *this);
 /* .data */
 ActorAnimationInfo D_80368150[] ={
     {0, 0.0f},
-    {0x286, 1.1f},
-    {0x287, 1.6f}
+    {ASSET_286_ANIM_unk, 1.1f},
+    {ASSET_287_ANIM_unk, 1.6f}
 };
 
 f32 D_80368168[3] = {0.0f, 0.0f, 0.0f};

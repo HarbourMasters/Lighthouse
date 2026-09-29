@@ -21,18 +21,18 @@ typedef struct {
 
 ActorAnimationInfo chJinjonatorAnimationInfo[] = {
    {0x000, 00000000},
-   {0x275, 1000000.0f},
-   {0x275, 3.3f},
-   {0x276, 0.67f},
-   {0x277, 1.167f},
-   {0x27E, 2.5f},
-   {0x27F, 4.0f},
-   {0x262, 2.0f},
-   {0x278, 1.75f},
-   {0x27B, 2.25f},
-   {0x27C, 0.33f},
-   {0x27D, 0.8f},
-   {0x280, 0.4f}  
+   {ASSET_275_ANIM_JINJONATOR_unk, 1000000.0f},
+   {ASSET_275_ANIM_JINJONATOR_unk, 3.3f},
+   {ASSET_276_ANIM_JINJONATOR_unk, 0.67f},
+   {ASSET_277_ANIM_JINJONATOR_unk, 1.167f},
+   {ASSET_27E_ANIM_JINJONATOR_unk, 2.5f},
+   {ASSET_27F_ANIM_JINJONATOR_unk, 4.0f},
+   {ASSET_262_ANIM_BOSSJINJO_unk,  2.0f},
+   {ASSET_278_ANIM_JINJONATOR_unk, 1.75f},
+   {ASSET_27B_ANIM_JINJONATOR_unk, 2.25f},
+   {ASSET_27C_ANIM_JINJONATOR_unk, 0.33f},
+   {ASSET_27D_ANIM_JINJONATOR_unk, 0.8f},
+   {ASSET_280_ANIM_JINJONATOR_unk, 0.4f}  
 };
 
 ActorInfo chJinjonator = { MARKER_285_JINJONATOR, ACTOR_3AC_JINJONATOR, ASSET_551_MODEL_JINJONATOR, 1, chJinjonatorAnimationInfo, chjinjonator_update, actor_update_func_80326224, actor_draw, 0, 0, 1.0f, 0 };

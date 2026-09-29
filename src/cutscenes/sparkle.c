@@ -13,8 +13,8 @@ Actor* func_8038CBCC(ActorMarker *, Gfx **, Mtx**, Vtx **);
 /* .data */
 extern ActorAnimationInfo D_8038E700[] ={
     {0x000, 0.0f},
-    {0x168, 10000.0f},
-    {0x168, 3.0f}
+    {ASSET_168_ANIM_unk, 10000.0f},
+    {ASSET_168_ANIM_unk, 3.0f}
 };
 
 extern ActorInfo D_8038E718 = {
