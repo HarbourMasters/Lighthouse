@@ -487,7 +487,7 @@ bool func_802BB884(f32 arg0[3], f32 *arg1);
 bool func_802BC428(void);
 
 // --- core2/nc/camera_fog.c ---
-bool func_802BEF64(void);
+bool core2_37E50_isCameraUnderwater(void);
 
 // --- core2/nc/camera_focus.c ---
 bool func_802BAC1C(void);
@@ -1059,10 +1059,10 @@ void subaddie_set_state_looped(Actor * self, u32 arg1);
 bool func_80305248(f32 arg0[3], s32 arg1, f32 *arg2);
 bool func_8030526C(f32 arg0[3], s32 arg1, f32 *arg2);
 bool func_80305290(bool (* arg0)(NodeProp *), bool (* arg1)(Prop *));
-bool func_80305344(s32 arg0, u32 *arg1);
+bool nodeprop_findYawFromActorId(s32 arg0, u32 *arg1);
 bool func_80305D14(void);
 bool func_80307390(s32 arg0, s32 arg1);
-enum actor_e func_803084F0(s32 arg0);
+enum actor_e nodeprop_getExitActorId(s32 arg0);
 s32 func_803048E0(s32 arg0[3], void *arg1, void *arg2, s32 arg3, s32 arg4);
 s32 func_80304FC4(enum actor_e *actor_id_list, NodeProp **node_list, s32 arg2);
 s32 func_8030508C(s32 arg0, f32 arg1[3], s32 arg2);
@@ -1082,7 +1082,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_80303F6C(s32 indx, s32 arg1);
 void func_803045CC(s32 arg0, s32 arg1);
 void func_803045D8();
-void func_8030578C(void);
+void cubeList_spawnActors(void);
 void func_80305990(s32 mode);
 void func_80305D38(void);
 void func_80305D94(void);
@@ -1124,7 +1124,7 @@ void func_8032FFD4(ActorMarker *self, s32 arg1);
 void func_80330078(ActorMarker *marker, ActorMarker *other_marker, s16 *arg2);
 void func_803300B8(ActorMarker *marker, MarkerCollisionFunc method);
 void func_803300C0(ActorMarker *marker, s32 (*method)(ActorMarker *, ActorMarker *));
-void func_80330208(Cube *cube);
+void cube_spawnActors(Cube *cube);
 void func_803303B8(Cube *cube);
 void func_803305AC(void);
 void func_803306C8(s32 arg0);
@@ -1398,11 +1398,11 @@ enum marker_e bacarry_getMarkerId(void);
 f32 func_8028EC64(f32 arg0[3]);
 bool player_isAbilityUnlocked(enum ability_e uid);
 int func_8028EC04(void);
-s32 func_8028E4A4(void);
+s32 player_getExitId(void);
 s32 func_8028F68C(enum bs_interrupt_e arg0, ActorMarker *marker);
 s32 func_8028F6B8(enum bs_interrupt_e arg0, enum asset_e model_id);
 s32 func_8028F6E4(enum bs_interrupt_e arg0, f32 arg1[3]);
-void func_8028E4B0(void);
+void player_spawnAtMapExit(void);
 void func_8028E644(void);
 void func_8028E6EC(s32 arg0);
 void func_8028E71C(void);
@@ -1662,10 +1662,10 @@ void func_802BAC10(void);
 void func_802BAC58(void);
 
 // --- core2/nc/camera_fog.c ---
-void func_802BEE2C(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void core2_37E50_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802BEF70(void);
-void func_802BEF78(void);
-void func_802BEFB0(void);
+void core2_37E50_reset(void);
+void core2_37E50_update(void);
 
 // --- core2/propModelList.c ---
 void propModelList_free(void);
@@ -1700,8 +1700,8 @@ void ncCamera_update(void);
 // --- core2/sfx/trackmanager.c ---
 int func_80322914(void);
 s32 core2_9B650_getMusicTrackFromMap(enum map_e map_id);
-s32 func_8032274C(void);
-s32 func_80322758(void);
+s32 core2_9B650_getCurrentMusicTrack(void);
+s32 core2_9B650_getCurrentSecondaryMusicTrack(void);
 void func_80322764(void);
 void func_8032278C(s32 arg0, s32 arg1);
 
@@ -2154,27 +2154,27 @@ void func_802E67C4(void);
 void func_802E6820(s32 arg0);
 
 // --- core2/frame/rendermem.c ---
-bool func_802E4424(void);
+bool game_update(void);
 bool func_802E4A08(void);
-s32 func_802E4A98(s32 arg0);
-s32 func_802E4AAC(s32 arg0);
-s32 func_802E4AC0(s32 arg0);
-s32 func_802E4AE8(s32 arg0);
-s32 func_802E4AFC(s32 arg0);
-s32 func_802E4B10(s32 arg0);
-s32 func_802E4B24(s32 arg0);
+s32 game_getHardcodedExitX(s32 arg0);
+s32 game_getHardcodedExitY(s32 arg0);
+s32 game_getHardcodedExitZ(s32 arg0);
+s32 game_getHardcodedExitCameraX(s32 arg0);
+s32 game_getHardcodedExitCameraY(s32 arg0);
+s32 game_getHardcodedExitCameraZ(s32 arg0);
+s32 game_getHardcodedExitCameraYaw(s32 arg0);
 s32 game_defrag(void);
-u8 func_802E4A8C(void);
-void func_802E4048(s32 map, s32 exit, s32 transition);
-void func_802E40C4(s32 arg0);
-void func_802E40D0(s32 map, s32 exit);
-void func_802E40E8(s32 transition);
-void func_802E412C(s32 arg0, s32 arg1);
-void func_802E4170(void);
-void func_802E4214(enum map_e map_id);
+u8 game_getKeepLevelState(void);
+void game_transitionToMapResettingLevel(s32 map, s32 exit, s32 transition);
+void game_setMapChangeRequest(s32 arg0);
+void game_setNextMap(s32 map, s32 exit);
+void game_setMapTransition(s32 transition);
+void game_setMapTransitionWithStyle(s32 arg0, s32 arg1);
+void game_free(void);
+void game_init(enum map_e map_id);
 void func_802E4384(void);
-void func_802E4A70(void);
-void func_802E4A80(void);
+void game_setKeepLevelState(void);
+void game_clearKeepLevelState(void);
 void game_draw(bool arg0);
 
 // --- core2/frame/rendermem.c ---
@@ -2342,7 +2342,7 @@ void gcpausemenu_returnToLair(void);
 enum level_e map_getLevel(enum map_e map);
 enum map_e level_get_main_map(enum level_e level_id);
 s32 level_get_main_exit(enum level_e level_id);
-void func_8030AFA0(enum map_e arg0);
+void gcsection_setJiggyListForMap(enum map_e arg0);
 void func_8030AFD8(s32 arg0);
 
 // --- core2/gc/sky.c ---
@@ -2406,10 +2406,10 @@ void func_8034BA7C(enum map_e map_id, s32 exit_id);
 
 // --- core2/map/mapModel.c ---
 Vec3fArray *func_803097A0(void);
-BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
+BKCollisionTriangle *mapModel_intersectLine(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
 bool func_80309D58(f32 arg0[3], s32 arg1);
 bool mapModel_has_xlu_bin(void);
-void func_8030A078(void);
+void mapModel_init(void);
 void mapModel_defrag(void);
 void mapModel_free(void);
 void mapModel_getBounds(s32 min[3], s32 max[3]);
@@ -2428,10 +2428,10 @@ int game_is_frozen(void);
 // --- core2/map/mapspecificflags.c ---
 
 // --- core2/map/list.c ---
-void func_8029A47C(s32 arg0[3]);
-void func_8029A4D0(void);
+void core2_12F30_getPlayerTint(s32 arg0[3]);
+void core2_12F30_reset(void);
 void func_8029A54C(void);
-void func_8029A554(void);
+void core2_12F30_update(void);
 
 // --- core2/fx/projectile_system.c ---
 void func_8033F9C0(void);
@@ -2603,7 +2603,7 @@ bool can_feathery_flap(void);
 bool can_peck(void);
 bool can_view_first_person(void);
 bool func_8028ABB8(void);
-bool func_8028ADB4(void);
+bool player_shouldPlayLevelEntrance(void);
 bool func_8028B394(void);
 bool func_8028B4C4(void);
 bool func_8028B528(void);
@@ -2633,12 +2633,12 @@ void func_802DC560(NodeProp*, ActorMarker*);
 void func_802DC604(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/gc/transition.c ---
-int func_8032190C(void);
+int level_enteredFromLair(void);
 enum level_e level_get(void);
-void func_803216D0(enum map_e map);
-void func_80321854(void);
-void func_80321918(int arg0);
-void func_80321924(void);
+void level_load(enum map_e map);
+void level_unload(void);
+void level_setEnteredFromLair(int arg0);
+void level_update(void);
 
 // --- core2/quiz/quizquestionaskedbitfield.c ---
 void quizQuestionAskedBitfield_defrag(void);
@@ -2994,7 +2994,7 @@ bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3);
 void func_8029BC60(enum asset_e *anim_id, f32 *anim_duration);
 
 // --- core2/frame/rendermem.c ---
-s32 func_802E4AD4(s32 arg0);
+s32 game_getHardcodedExitYaw(s32 arg0);
 
 // --- core2/sfx/instruments.c ---
 void sfxInstruments_func_8033543C(Struct81s *arg0);

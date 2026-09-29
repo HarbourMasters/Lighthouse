@@ -9,7 +9,7 @@
 #include "functions.h"
 #include "core2/abilityprogress.h"
 
-extern "C" float D_80386000[];
+extern "C" float sItemscoreTimeScores[];
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial")
 
@@ -51,7 +51,7 @@ void RegisterSkipSMTutorial_Init() {
                                     item_getCount(ITEM_15_HEALTH_TOTAL) - item_getCount(ITEM_14_HEALTH));
 
         fileProgressFlag_set(FILEPROG_BD_ENTER_LAIR_CUTSCENE, 1);
-        D_80386000[LEVEL_B_SPIRAL_MOUNTAIN] = 122.0f; // Average speedrun time for SM completion (2:02)
+        sItemscoreTimeScores[LEVEL_B_SPIRAL_MOUNTAIN] = 122.0f; // Average speedrun time for SM completion (2:02)
 
         *ev->skipIntro = 1;
     });

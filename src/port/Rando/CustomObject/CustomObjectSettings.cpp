@@ -36,7 +36,7 @@ typedef struct {
 
 extern "C" {
 extern SaveData gameFile_saveData[4];
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 void ml_vec3f_copy(f32 dst[3], f32 src[3]);
 extern f32 gBundle_randomVelocity;
 extern f32 gBundle_yaw;
@@ -79,7 +79,7 @@ void UpdateSaveDataNoteScores() {
 
     for (int i = 0; i <= LEVEL_A_MAD_MONSTER_MANSION; i++) {
         packed_notes <<= 7;
-        packed_notes |= (D_80385FF0[level_id] & 0x7F);
+        packed_notes |= (sItemscoreNoteScores[level_id] & 0x7F);
 
         level_id--;
         if (level_id == LEVEL_6_LAIR) {

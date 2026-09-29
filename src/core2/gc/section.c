@@ -5,11 +5,12 @@
 
 #include "port/Romhack/RomhackConfig.h"
 
+/* The map and exit the player arrives at when entering a level */
 typedef struct {
     s16 level_id;
     s16 map_id;
     s16 exit_id;
-}Struct_core2_83D70_1;
+}LevelEntrance;
 
 typedef struct map_info{
     s16 map_id;
@@ -18,7 +19,10 @@ typedef struct map_info{
 }MapInfo;
 
 /* .data */
-MapInfo D_8036B810[0x9B] ={
+/* Every map, the level it belongs to (which decides the level overlay that gets
+ * loaded) and its debug name. The first and last entries are markers.
+ * Maps missing from this list make map_getLevel() dereference NULL. */
+MapInfo sGcSectionMapInfoList[0x9B] ={
     {0x0000, 0, "(gcSectionMin)"},
     {MAP_1_SM_SPIRAL_MOUNTAIN,          LEVEL_B_SPIRAL_MOUNTAIN,        "Training - Spiral Mountain"},
     {MAP_2_MM_MUMBOS_MOUNTAIN,          LEVEL_1_MUMBOS_MOUNTAIN,        "Jungle"},
@@ -151,7 +155,7 @@ MapInfo D_8036B810[0x9B] ={
     {0,                                 0,                              "(gcSectionMax)"}
 };
 
-Struct_core2_83D70_1 D_8036BCE8[] = {
+LevelEntrance sGcSectionLevelEntrances[] = {
     {LEVEL_1_MUMBOS_MOUNTAIN,       MAP_2_MM_MUMBOS_MOUNTAIN,        0x5},
     {LEVEL_2_TREASURE_TROVE_COVE,   MAP_7_TTC_TREASURE_TROVE_COVE,   0x4},
     {LEVEL_3_CLANKERS_CAVERN,       MAP_B_CC_CLANKERS_CAVERN,        0x5},
@@ -168,13 +172,14 @@ Struct_core2_83D70_1 D_8036BCE8[] = {
 };
 
 /* .bss */
-char D_803823A0[0x70];
+char sGcSectionNameBuffer[0x70];
 
 /* .data */
-MapInfo * func_8030AD00(enum map_e map_id){
+/* returns NULL for maps that aren't in the list */
+MapInfo * gcsection_getMapInfo(enum map_e map_id){
     MapInfo *phi_v1;
 
-    for(phi_v1 = &D_8036B810[1]; phi_v1->map_id != 0; phi_v1++){
+    for(phi_v1 = &sGcSectionMapInfoList[1]; phi_v1->map_id != 0; phi_v1++){
         if (map_id == phi_v1->map_id) {
             return phi_v1;
         }
@@ -187,24 +192,24 @@ enum level_e map_getLevel(enum map_e map){
     if (remap >= 0) {
         return (enum level_e)remap;
     }
-    return func_8030AD00(map)->level_id;
+    return gcsection_getMapInfo(map)->level_id;
 }
 
 /* returns string containing the map name and index */
 char *gcsection_getName(enum map_e map){
-    MapInfo *map_info = func_8030AD00(map);
-    D_803823A0[0] = 0;
-    bk_strcat(D_803823A0, map_info->name);
-    bk_strcat(D_803823A0, " (");
-    bk_strIToA(D_803823A0, map);
-    bk_strcat(D_803823A0, ")");
-    return D_803823A0;
+    MapInfo *map_info = gcsection_getMapInfo(map);
+    sGcSectionNameBuffer[0] = 0;
+    bk_strcat(sGcSectionNameBuffer, map_info->name);
+    bk_strcat(sGcSectionNameBuffer, " (");
+    bk_strIToA(sGcSectionNameBuffer, map);
+    bk_strcat(sGcSectionNameBuffer, ")");
+    return sGcSectionNameBuffer;
 }
 
 enum map_e level_get_main_map(enum level_e level_id) {
-    Struct_core2_83D70_1 *phi_v1;
+    LevelEntrance *phi_v1;
 
-    for(phi_v1 = D_8036BCE8; phi_v1->level_id != 0; phi_v1++){
+    for(phi_v1 = sGcSectionLevelEntrances; phi_v1->level_id != 0; phi_v1++){
         if (level_id == phi_v1->level_id) {
             return phi_v1->map_id;
         }
@@ -214,9 +219,9 @@ enum map_e level_get_main_map(enum level_e level_id) {
 
 
 s32 level_get_main_exit(enum level_e level_id) {
-    Struct_core2_83D70_1 *phi_v1;
+    LevelEntrance *phi_v1;
 
-    for(phi_v1 = D_8036BCE8; phi_v1->level_id != 0; phi_v1++){
+    for(phi_v1 = sGcSectionLevelEntrances; phi_v1->level_id != 0; phi_v1++){
         if (level_id == phi_v1->level_id) {
             return phi_v1->exit_id;
         }
@@ -224,7 +229,8 @@ s32 level_get_main_exit(enum level_e level_id) {
     return 0;
 }
 
-void func_8030AE70(s32 *arg0) {
+/* fills mapList with every map id sorted by debug name, terminated by 0 */
+void gcsection_getMapsSortedByName(s32 *mapList) {
     MapInfo *var_v0;
     s16 var_v1;
     s32 *var_s0;
@@ -234,20 +240,20 @@ void func_8030AE70(s32 *arg0) {
     s32 var_s1;
     s32 i;
 
-    var_v0 = D_8036B810 + 1;
+    var_v0 = sGcSectionMapInfoList + 1;
     var_s1 = 0;
     while(var_v0->map_id != 0) {
-        arg0[var_s1] = var_v0->map_id;
+        mapList[var_s1] = var_v0->map_id;
         var_s1++;
         var_v0++;
     }
-    arg0[var_s1] = 0;
+    mapList[var_s1] = 0;
     var_s1 = 0;
-    while(arg0[var_s1 + 1] != 0){
-        if (bk_strcmp(func_8030AD00(arg0[var_s1])->name, func_8030AD00(arg0[var_s1 + 1])->name) > 0) {
-            temp_v0 = arg0[var_s1];
-            arg0[var_s1] = arg0[var_s1 + 1];
-            arg0[var_s1 + 1] = temp_v0;
+    while(mapList[var_s1 + 1] != 0){
+        if (bk_strcmp(gcsection_getMapInfo(mapList[var_s1])->name, gcsection_getMapInfo(mapList[var_s1 + 1])->name) > 0) {
+            temp_v0 = mapList[var_s1];
+            mapList[var_s1] = mapList[var_s1 + 1];
+            mapList[var_s1 + 1] = temp_v0;
             var_s1 = 0;
         } else {
             var_s1++;
@@ -255,28 +261,29 @@ void func_8030AE70(s32 *arg0) {
     }
 }
 
-bool func_8030AF58(enum map_e arg0) {
+bool gcsection_mapExists(enum map_e mapId) {
     MapInfo *phi_v0;
 
-    for(phi_v0 = &D_8036B810[1]; phi_v0->map_id != 0; phi_v0++) {
-        if(phi_v0->map_id == arg0){
+    for(phi_v0 = &sGcSectionMapInfoList[1]; phi_v0->map_id != 0; phi_v0++) {
+        if(phi_v0->map_id == mapId){
             return true;
         }
     }
     return false;
 }
 
-void func_8030AFA0(enum map_e arg0){
-    s32 level = map_getLevel(arg0);
+/* sets up the jiggy list for the map, unless its level is the final battle or a cutscene */
+void gcsection_setJiggyListForMap(enum map_e mapId){
+    s32 level = map_getLevel(mapId);
     CALL_EVENT(OnSetJiggyList, level);
     if(level > 0 && level < LEVEL_C_BOSS){
-        jiggylist_set_level(arg0);
+        jiggylist_set_level(mapId);
     }
 }
 
 void func_8030AFD8(s32 arg0){
     s32 sp1C = level_get();
-    func_80321918(0);
+    level_setEnteredFromLair(0);
     if(arg0){
         gameSelect_saveAndExit();
     }

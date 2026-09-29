@@ -956,7 +956,7 @@ void func_802D4D3C(enum actor_e arg0, enum actor_e arg1) {
 
 void func_802D5000(enum map_e map_id){
     if(map_getLevel(map_id) != level_get())
-        func_802E4A70();
+        game_setKeepLevelState();
     musicKeepsPlaying();
     transitionToMap(D_80367684, 0x65, 0);
 }
@@ -1332,7 +1332,7 @@ void func_802D6114(void){
     func_802D6344();
     if(gsworld_getMap() != sp24){
         if(map_getLevel(sp24) != map_getLevel(gsworld_getMap())){
-            func_802E4A70();
+            game_setKeepLevelState();
         }//L802D6194
         volatileFlag_set(VOLATILE_FLAG_21, 1);
         if(sp24 != MAP_1C_MMM_CHURCH || !comusic_isPrimaryTrack(COMUSIC_23_MMM_INSIDE_CHURCH)){
@@ -1352,7 +1352,7 @@ void func_802D6114(void){
 
 void func_802D61FC(enum map_e arg0){
     if( map_getLevel(arg0) != map_getLevel(gsworld_getMap()))
-        func_802E4A70();
+        game_setKeepLevelState();
     musicKeepsPlaying();
     transitionToMap(D_80367684, 0, 0);
     func_802D6750();

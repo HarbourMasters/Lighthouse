@@ -32,7 +32,7 @@ extern f32 D_8037D9D4, D_8037D9D8, D_8037D9EC, D_8037D9F0;
 extern struct {
     u8 unk0;
     u8 level;
-} D_80383300;
+} sLevelState;
 
 typedef struct struct_1A_s {
     f32 delay;
@@ -261,10 +261,10 @@ static void Gruntch_EnableVoidOutRespawn() {
     REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
         s32 map = va_arg(args, s32);
         s32 exit = va_arg(args, s32);
-        if (D_80383300.level == 1) {
+        if (sLevelState.level == 1) {
             map = MAP_28_MMM_EGG_ROOM;
             exit = 2;
-        } else if (D_80383300.level == 0xA) {
+        } else if (sLevelState.level == 0xA) {
             map = MAP_6C_GL_RED_CAULDRON_ROOM;
             exit = 5;
         }
