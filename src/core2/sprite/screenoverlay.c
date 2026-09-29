@@ -10,7 +10,6 @@ void codeAEDA0_setSpriteDrawMode(s32 arg0);
 void spriteRender_set1Primative(bool boolean);
 void func_803382FC(s32 arg0);
 void func_80338308(s32 arg0, s32 arg1);
-BKSpriteTextureBlock *func_8033EFB0(Struct84s *arg0, s32 arg1);
 
 /* .data */
 Gfx D_80370260[] = {
@@ -386,7 +385,7 @@ void spriteRender_drawWithSegment(Gfx **gfx, Vtx **vtx, BKSprite *sprite, u32 fr
     codeAEDA0_drawSprite(gfx);
 }
 
-void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_index) {
+void func_80337B68(Gfx **gfx, Vtx **vtx, BKSpriteMask *texture_list, s32 texture_index) {
     s32 var_s1;
     s32 var_t2;
     s32 var_v1;
@@ -400,7 +399,7 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_in
     s32 size; 
 
     codeAEDA0_postDrawSprite(gfx);
-    txtr_ptr = func_8033EFB0(texture_list, texture_index);
+    txtr_ptr = spritemask_getChunk(texture_list, texture_index);
     start_vtx = *vtx;
     temp_lo = (s32) D_80383644 / 3;
     var_a2 = -((f32) txtr_ptr->x / (f32) txtr_ptr->w) * D_80383640;
@@ -436,13 +435,13 @@ void func_80337B68(Gfx **gfx, Vtx **vtx, Struct84s *texture_list, s32 texture_in
     codeAEDA0_drawSprite(gfx);
 }
 
-void func_80338048(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], Struct84s *arg4, s32 arg5) {
+void func_80338048(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], BKSpriteMask *arg4, s32 arg5) {
     func_803380F8(gfx, mtx, arg3);
     func_80337B68(gfx, vtx, arg4, arg5);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
 }
 
-void func_803380A0(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], Struct84s *arg4, s32 arg5) {
+void func_803380A0(Gfx **gfx, Mtx **mtx, Vtx **vtx, f32 arg3[3], BKSpriteMask *arg4, s32 arg5) {
     func_803381B4(gfx, mtx, arg3);
     func_80337B68(gfx, vtx, arg4, arg5);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);

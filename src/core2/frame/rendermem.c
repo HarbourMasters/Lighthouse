@@ -19,7 +19,7 @@ struct {
     f32 unk0;
     f32 unk4;
     s32 unk8;
-    s32 unkC;
+    BKSpriteMask *unkC;
     void *unk10;
     s32 unk14;
     f32 unk18;
@@ -33,7 +33,7 @@ void func_802E31D0(s32 arg0) {
     temp_v0 = D_8037E8C0.unk14;
     if ((temp_v0 == 0) || (temp_v0 == 3)) {
         framebufferdraw_setBufferIndex(arg0);
-        framebufferdraw_func_80249DE0(0, 0, (Struct84s *)(intptr_t)D_8037E8C0.unkC, 0, 0);
+        framebufferdraw_drawSpriteMask(0, 0, D_8037E8C0.unkC, 0, 0);
         osWritebackDCache(gFramebuffers[arg0], (s32) ((f32) gFramebufferWidth * (f32) gFramebufferHeight * sizeof(s16)));
     }
 }
