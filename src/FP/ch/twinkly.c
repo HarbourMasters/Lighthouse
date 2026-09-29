@@ -12,12 +12,12 @@ void chTwinkly_update(Actor *this);
 /* .data */
 ActorAnimationInfo D_80391F50[] = {
     {0x000, 0.0f},
-    {0x178, 1e+08f},
-    {0x17C, 1e+08f},
-    {0x178, 1e+08f},
-    {0x17C, 2.0f},
-    {0x17C, 1.0f},
-    {0x17C, 2.0f}
+    {ASSET_178_ANIM_TWINKLY_SPAWNING, 100000000},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     100000000},
+    {ASSET_178_ANIM_TWINKLY_SPAWNING, 100000000},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     2.0f},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     1.0f},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     2.0f}
 };
 
 ActorInfo gChTwinklyBlue = { MARKER_200_TWINKLY_BLUE, ACTOR_332_TWINKLY_BLUE, ASSET_448_MODEL_TWINKLY_BLUE,
