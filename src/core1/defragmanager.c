@@ -4,49 +4,47 @@
 #include "functions.h"
 #include "variables.h"
 
-#define DEFRAG_THREAD_STACK_SIZE 0x800
-
-void defragThread_entry(void *arg);
+#define DEFRAG_THREAD_STACK_SIZE 2048
 
 OSMesgQueue sDefragThreadResumeSyncQueue;
 OSMesg      sDefragThreadResumeSyncMesg;
 OSMesgQueue sDefragThreadPauseSyncQueue;
 OSMesg      sDefragThreadPauseSyncMesg;
 OSThread    sDefragThread;
-u8          sDefragThreadStack[0x800];
+u8          sDefragThreadStack[DEFRAG_THREAD_STACK_SIZE];
 
 /* .code */
-void defragManager_init(void){
+void defragthread_init(void){
     osCreateMesgQueue(&sDefragThreadResumeSyncQueue, &sDefragThreadResumeSyncMesg, 1);
     osCreateMesgQueue(&sDefragThreadPauseSyncQueue, &sDefragThreadPauseSyncMesg, 1);
-    osCreateThread(&sDefragThread, 2, defragThread_entry, NULL, sDefragThreadStack + DEFRAG_THREAD_STACK_SIZE, 10);
+    osCreateThread(&sDefragThread, DEFRAGMANAGER_THREAD_ID, defragthread_entry, NULL, sDefragThreadStack + DEFRAG_THREAD_STACK_SIZE, DEFRAGMANAGER_THREAD_PRI);
     osStartThread(&sDefragThread);
 }
 
-void defragManager_free(void){
+void defragthread_free(void){
     osStopThread(&sDefragThread);
     osDestroyThread(&sDefragThread);
 }
 
-void defragManager_resume(void){
+void defragthread_resume(void){
     if(func_8023E000() == 3){
         osSendMesgPtr(&sDefragThreadResumeSyncQueue, NULL, OS_MESG_BLOCK);
     }
 }
 
-void defragManager_pause(void){
+void defragthread_pause(void){
     if(func_8023E000() == 3){
         osSendMesgPtr(&sDefragThreadPauseSyncQueue, NULL, OS_MESG_BLOCK);
     }
 }
 
-void defragManager_setPriority(OSPri pri){
+void defragthread_setPriority(OSPri pri){
     if(func_8023E000() == 3){
         osSetThreadPri(&sDefragThread, pri);
     }
 }
 
-void defragThread_entry(void *arg) {
+void defragthread_entry(void *arg) {
     int tmp_v0;
     do{
         osRecvMesg(&sDefragThreadResumeSyncQueue, NULL, OS_MESG_BLOCK);

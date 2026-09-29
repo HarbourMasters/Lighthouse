@@ -152,7 +152,7 @@ void func_8031CB50(enum map_e map_id, s32 exit_id, s32 arg2) {
         if ((core2_9B650_getMusicTrackFromMap(map_id) != sp1C) && (func_80322914() == 0)) {
             func_8025A388(0, 0x4E2);
             func_8025AB00();
-            core1_ce60_incOrDecCounter(false);
+            midichannel_incOrDecCounter(false);
         }
         if (func_802E4A08()) {
             func_802E40D0(map_id, exit_id);

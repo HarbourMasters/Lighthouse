@@ -3,6 +3,9 @@
 
 #include "libultra/message.h"
 
+#define VI_THREAD_ID 0
+#define VI_THREAD_PRI 80
+
 typedef struct struct_1_s{
     OSMesgQueue *messageQueue;
     OSMesg message;
@@ -21,7 +24,7 @@ void viMgr_func_8024C1B4(void);
 void viMgr_func_8024C1DC(void);
 void viMgr_unregisterSignalMesg(OSMesgQueue *mq, OSMesg msg);
 void viMgr_setActiveFramebuffer(s32 arg0);
-void viMgr_entry(void *arg0);
+void viMgr_entry(void *arg);
 void viMgr_setScreenBlack(s32 active);
 void viMgr_clearFramebuffers(void);
 s32 viMgr_func_8024C4E8(void);

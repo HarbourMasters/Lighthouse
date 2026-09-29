@@ -41,7 +41,7 @@ static void __bsbwhirl_end(void){
         bastick_resetZones();
         modelAppendages_setKazooiesUpperHalfVisibility(false);
         func_8025A55C(-1, 0xfa0, 0xd);
-        core1_ce60_incOrDecCounter(true);
+        midichannel_incOrDecCounter(true);
         func_8025A7DC(COMUSIC_25_USING_GOLD_FEATHERS);
     }  
     baanim_setUpdateType(BAANIM_UPDATE_1_NORMAL);
@@ -88,7 +88,7 @@ void bsbwhirl_enter_init(void){
     bastick_setZoneMax(1, 1.0f);
     modelAppendages_setKazooiesUpperHalfVisibility(true);
     D_8037D3B0 = 0.0f;
-    core1_ce60_incOrDecCounter(false);
+    midichannel_incOrDecCounter(false);
     func_8025A55C(0, 0xfa0, 0xd);
     coMusicPlayer_playMusic(0x25, 0x6d60);
     basfx_80299BD4();

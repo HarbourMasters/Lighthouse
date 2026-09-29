@@ -112,7 +112,6 @@ BKCollisionTriangle *func_803311D4(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg
 
 // --- core2/gameloop.c ---
 u8 GetCurrentMap();
-s32 getGameMode(void);
 void transitionToMap(enum map_e map, s32 exit, s32 transition);
 
 // --- core2/map/list.c ---
@@ -241,10 +240,6 @@ BoneTransformList *animcache_getCurrentTransform(Animation *self);
 BoneTransformList *anim_getStartTransform(Animation *self);
 BoneTransformList *anim_getTargetTransform(Animation *self);
 
-// --- core1/audio_manager.c ---
-ALDMAproc audioManager_DMAInitProc(void *state);
-OSThread *audioManager_getThread_PAL(void);
-
 // --- core2/anim/anim_sequencehandler.c ---
 u8 *func_8032479C(void);
 
@@ -300,10 +295,6 @@ StaticCameraNode *ncCameraNodeList_getStaticCameraNode(int camera_node_index);
 ZoomCameraNode *ncCameraNodeList_getZoomCameraNode(int camera_node_index);
 RandomCameraNode *ncCameraNodeList_getRandomCameraNode(int camera_node_index);
 
-// MISC POINTER-RETURNING + OS + GBI PROTOTYPES
-
-s16 *picturebox_getColorBuffer(void);
-
 // COMMONLY MISSING PROTOTYPES
 
 // --- core2/jiggyscore.c ---
@@ -323,10 +314,6 @@ s32 levelSpecificFlags_get(s32 i);
 void levelSpecificFlags_set(s32, s32);
 void levelSpecificFlags_setEx(s32 index, s32 val, s32 triggerEvent);
 void levelSpecificFlags_getSizeAndPtr(s32 *size, u8 **addr);
-
-// --- core2/gameloop.c ---
-s32 getGameMode(void);
-void transitionToMap(enum map_e map, s32 exit, s32 transition);
 
 // --- core2/gamestate.c ---
 s32 item_empty(enum item_e item);
@@ -370,9 +357,6 @@ void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
 // --- core2/dialog/progressDialog.c ---
 void progressDialog_setAndTriggerDialog_0(enum volatile_flags_e arg0);
-
-// --- core1/init.c ---
-s32 globalTimer_getTime(void);
 
 // --- core2/actor_array.c ---
 bool subaddie_playerIsWithinSphereAndActive(Actor *self, s32 dist);
@@ -988,11 +972,6 @@ void func_80244814(void *arg0);
 void func_80244978(intptr_t arg0, s16 type, s32 arg2);
 void func_80244A98(s32 arg0);
 
-// --- core1/bamotor.c ---
-void baMotor_80250C08(void);
-void baMotor_80250FC0(void);
-void baMotor_init(void);
-
 // --- core1/collision.c ---
 int collisionTri_isHitFromAbove_actor(f32 arg0[3], Actor *arg1, s32 arg2);
 int collisionTri_isHitFromAbove_marker(f32 position[3], ActorMarker *marker, s32 verticalOffset);
@@ -1001,20 +980,11 @@ void collisionTri_copy(BKCollisionTriangle *dst, BKCollisionTriangle *src);
 void func_802450DC(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3]);
 void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3], s32 arg5);
 
-// --- core1/debugtext.c ---
-s32 gcdebugText_isThreadLocked(void);
-void gcdebugText_showLargeValue(s32 arg0, s32 arg1);
-void func_80247F9C(s32 arg0);
-void gcdebugText_pauseThread(void);
-
 // --- core1/gu_perspective.c ---
 void _guMtxF2L(float mf[4][4], Mtx *m);
 
 // --- boot/inflate.c ---
 int bk_inflate(void);
-
-// --- core1/initthread.c ---
-void initThread_create(void);
 
 // --- core1/memory.c ---
 bool func_802555D0(void);
@@ -1035,9 +1005,6 @@ void func_80255ACC(void);
 // --- core1/mlmtx.c ---
 void func_802515D4(f32 arg0[3][3]);
 
-// --- core1/overlaymanager.c ---
-// overlayManager_* functions are declared in core1/core1.h
-
 // --- core1/sns.c ---
 void snspayload_finalise_outgoing_payload(struct SnsPayload *payload);
 void snspayload_rewind_outgoing(void);
@@ -1051,11 +1018,6 @@ void sns_restore_backed_up_items(void);
 void sns_save_and_update_global_data(void);
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state);
 void sns_write_payload_over_heap(void);
-
-// --- unused/dummy_overlay_callbacks.c ---
-void dummy_func_8025AFB0(void);
-void dummy_func_8025AFB8(void);
-void dummy_func_8025AFC0(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/abilityprogress.c ---
 int ability_hasLearned(enum ability_e);
@@ -3044,8 +3006,6 @@ float gu_sqrtf(float val);
 void osViExtendVStart(u32 arg0);
 OSYieldResult osSpTaskYielded(OSTask* task);
 void __osError(s16 error_code, s16 num_args, ...);
-s32 eeprom_readBlocks(s32 file, s32 offset, void* buffer, s32 count);
-s32 eeprom_writeBlocks(s32 file, s32 offset, void* buffer, s32 count);
 
 // --- port/OS/OS_RCP.cpp ---
 u32 osDpGetStatus(void);
@@ -3158,10 +3118,6 @@ void bkmemset64(void *dest, s32 value, s32 size);
 
 // --- RBB/ch/engineparts.c ---
 f32 func_8038A6B8(ActorMarker *);
-
-// --- core1/bamotor.c ---
-void baMotor_80250D94(f32, f32, f32);
-void baMotor_80250E94(f32, f32, f32, f32, f32, f32);
 
 // --- core1/memory.c ---
 void * bk_malloc(size_t size);

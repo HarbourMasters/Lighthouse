@@ -75,7 +75,7 @@ constexpr const char* kThreadNonQueueWaits[WATCHDOG_NUM_THREADS] = {
     "sMesgMutex",
     "func_8024F450 -> D_802816E8 wait; port_shapeControllerInput; CALL_EVENT(OnControllerUpdate)",
     "port_lockAudio (gAudioLock) in audioManager_handleFrameMsg",
-    "func_8024F450 -> D_802816E8 wait via __baMotor_startRumble/stopRumble/func_80250930; __osMotorAccess -> "
+    "func_8024F450 -> D_802816E8 wait via baMotor_startMotor/stopMotor/reinitialize; __osMotorAccess -> "
     "ControlDeck rumble",
 };
 
@@ -88,7 +88,7 @@ constexpr const char* kThreadLoops[WATCHDOG_NUM_THREADS] = {
     "viMgr_entry (vimgr.c)",
     "pfsManager_entry (pfsmanager.c)",
     "audioManagerThread_entry (audio_manager.c)",
-    "rumbleThread_entry (bamotor.c)",
+    "baMotor_entry (bamotor.c)",
 };
 
 // The audio thread legitimately idles through demo audio holds, and the
@@ -180,10 +180,10 @@ QueueInfo DescribeQueue(OSMesgQueue* mq) {
         return { true, "pfsManagerContReplyMsgQ (pfsmanager.c)", "pfsManager_entry when !pfsManagerBusy" };
     }
     if (mq == pfsManager_getSiLockQueue()) {
-        return { true, "D_802816E8 (pfsmanager.c)", "func_8024F4AC via func_8024F35C(0)" };
+        return { true, "D_802816E8 (pfsmanager.c)", "func_8024F4AC via controller_func_8024F35C(0)" };
     }
     if (mq == baMotor_getRetraceQueue()) {
-        return { true, "D_80282390 (bamotor.c)", "viMgr_entry retrace signal (NOBLOCK, so extras drop)" };
+        return { true, "sbaMotorThreadMesgQ (bamotor.c)", "viMgr_entry retrace signal (NOBLOCK, so extras drop)" };
     }
     if (mq == audioManager_getFrameMesgQueue()) {
         return { true, "audioFrameMsgQ (audio_manager.c)",
