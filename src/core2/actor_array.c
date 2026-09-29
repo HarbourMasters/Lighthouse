@@ -43,8 +43,8 @@ extern void modelRender_setSecondaryModel(enum asset_e mode_id, f32, f32);
 extern void codeAEDA0_setPrimaryColorRGB(s32, s32, s32);
 extern void func_803382FC(s32);
 extern void codeAEDA0_setSpriteDrawMode(s32);
-extern void codeAEDA0_drawSprite(Gfx **);
 extern void codeAEDA0_postDrawSprite(Gfx **);
+extern void codeAEDA0_drawSprite(Gfx **);
 extern void func_80344138(BKSpriteDisplayData *, s32, s32, f32[3], f32[3], Gfx **, Mtx **);
 extern BKVertexList *vtxList_clone(BKVertexList *vtxList);
 bool func_803296D8(Actor *this, s32 dist);
@@ -274,9 +274,9 @@ Actor *fxTouchSparkle_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
         codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    codeAEDA0_postDrawSprite(gfx);
-    func_80344138(sp3C, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, scale, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
+    func_80344138(sp3C, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, scale, gfx, mtx);
+    codeAEDA0_postDrawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -312,9 +312,9 @@ Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    codeAEDA0_postDrawSprite(gfx);
-    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
+    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
+    codeAEDA0_postDrawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -349,10 +349,10 @@ Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    codeAEDA0_postDrawSprite(gfx);
+    codeAEDA0_drawSprite(gfx);
     func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     
-    codeAEDA0_drawSprite(gfx);
+    codeAEDA0_postDrawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];

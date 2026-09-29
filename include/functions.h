@@ -2819,8 +2819,8 @@ void func_80349AD0(void);
 void func_80349B1C(Gfx **gfx);
 
 // --- core2/sprite/screenoverlay.c ---
-void codeAEDA0_postDrawSprite(Gfx **gfx);
 void codeAEDA0_drawSprite(Gfx **gfx);
+void codeAEDA0_postDrawSprite(Gfx **gfx);
 void func_803382B4(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void codeAEDA0_setSpriteDrawMode(s32 arg0);
 void func_803382FC(s32 arg0);

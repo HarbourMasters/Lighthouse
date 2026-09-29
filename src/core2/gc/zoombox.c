@@ -873,7 +873,7 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     func_803382FC(this->unk168 * arg6);
     codeAEDA0_setSpriteDrawMode(5);
-    codeAEDA0_postDrawSprite(gfx);
+    codeAEDA0_drawSprite(gfx);
     viewport_setRenderViewportAndOrthoMatrix(gfx, mtx);
     mlMtxIdent();
     if (this->unk1A4_24) {
@@ -891,7 +891,7 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_LOAD | G_MTX_MODELVIEW);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     func_80344090(arg5, this->unk186, gfx);
-    codeAEDA0_drawSprite(gfx);
+    codeAEDA0_postDrawSprite(gfx);
     viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
 }
 
