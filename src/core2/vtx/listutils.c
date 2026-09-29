@@ -2,13 +2,12 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-
+#include "bk_math.h"
 #include "model.h"
 
 #include "port/ShipUtils.h"
 
 extern f32  vtxList_getGlobalNorm(BKVertexList *);
-extern void points_to_boundingBoxWithMargin(f32 arg0[3], f32 arg1[3], f32 margin, f32 min[3], f32 max[3]);
 
 #define COLLISION_GEO_SCRATCH_MAX 100
 
@@ -41,273 +40,238 @@ static void port_reportCollisionScratchFull(void) {
 
 #define ABS_F(s) (((s) >= 0.0f) ? (s) : -(s))
 
-typedef struct {
-    f32 edgeAB[3]; 
-    f32 edgeAC[3]; 
-    f32 normal[3];
-    BKCollisionTriangle *tri_ptr;
-    f32 tri_coord[3][3];
-}Struct_core2_5FD90_0;
+ // This is filled but never used
+struct { 
+//  BKCollisionGeometry *list[100];
+    BKCollisionGeometry *list[COLLISION_GEO_SCRATCH_MAX];
+    BKCollisionGeometry **current;
+} sActiveCollisionLists;
 
+f32 sStoredTriangle[3][3]; // This is calculated but never used
+BKProcessedCollisionTriangle sActiveCollTris[100];
 
-/* .bss */
-struct {
-    BKCollisionGeometry *unk0[COLLISION_GEO_SCRATCH_MAX];
-    BKCollisionGeometry **unk190;
-}D_8037E910;
-f32 D_8037EAA8[3][3];
-Struct_core2_5FD90_0 D_8037EAD0[100];
+void collisionList_setStoredTriangle(BKCollisionTriangle *triangle, BKVertexList *bk_vtx_list) {
+    Vtx *vtx_start, *i_vtx;
+    int i;
 
-/* .code */
-void collisionTriangle_func_802E6D20(BKCollisionTriangle *arg0, BKVertexList *vtx_list) {
-    Vtx *vtx;
-    Vtx *i_vtx;
-    s32 i;
-
-    vtx = (Vtx *)(vtx_list + 1);
-
-    if (arg0 == NULL || !port_collisionTriValid(arg0, vtx_list))
-        return;
-
-    for(i = 0; i < 3; i++){
-        i_vtx = vtx + arg0->unk0[i];
-        D_8037EAA8[i][0] = (f32) i_vtx->v.ob[0];
-        D_8037EAA8[i][1] = (f32) i_vtx->v.ob[1];
-        D_8037EAA8[i][2] = (f32) i_vtx->v.ob[2];
-    }
+    vtx_start = bk_vtx_list->vertices;
     
+    if (!triangle) {
+        return;
+    }
+
+    if (!port_collisionTriValid(triangle, bk_vtx_list)) {
+        return;
+    }
+
+    for (i = 0; i < 3; i++) {
+        i_vtx = vtx_start + triangle->unk0[i];
+        TUPLE_COPY(sStoredTriangle[i], i_vtx->v.ob);
+    }
 }
 
-void collisionList_getIntersecting(BKCollisionList *collision_list, f32 arg1[3], f32 arg2[3], BKCollisionGeometry ***arg3, BKCollisionGeometry ***arg4) {
-    s32 sp3C[3];
-    s32 sp30[3];
-
-    s32 i;
+void collisionList_getIntersecting_f32(BKCollisionList *this, f32 min[3], f32 max[3], BKCollisionGeometry ***begin_ptr, BKCollisionGeometry ***end_ptr) {
+    s32 min_scaled[3], max_scaled[3];
+    int i;
     s32 x, y, z;
 
-    if (collision_list->unk12 == 0) {
-        D_8037E910.unk190 = &D_8037E910.unk0[0];
-        *(D_8037E910.unk190++) = (BKCollisionGeometry *)((uintptr_t)collision_list + sizeof(BKCollisionList));
-        *arg3 = &D_8037E910.unk0[0];
-        *arg4 = D_8037E910.unk190;
-    }
-    else{
-        for(i = 0 ;  i < 3; i++){
-            if (arg1[i] >= 0.0f) {
-                sp3C[i] = (s32) arg1[i] / collision_list->unk12;
-            } else {
-                sp3C[i] = ((s32) arg1[i] / collision_list->unk12) - 1;
+    if (this->scale == 0) {
+        sActiveCollisionLists.current = sActiveCollisionLists.list;
+        *sActiveCollisionLists.current++ = (BKCollisionGeometry *) this->data;
+
+        *begin_ptr = sActiveCollisionLists.list;
+        *end_ptr = sActiveCollisionLists.current;
+    } else {
+        for (i = 0 ; i < 3; i++) {
+            min_scaled[i] = min[i] >= 0.0f ? (s32) min[i] / this->scale : (s32) min[i] / this->scale - 1;
+            max_scaled[i] = max[i] >= 0.0f ? (s32) max[i] / this->scale : (s32) max[i] / this->scale - 1;
+
+            if (min_scaled[i] < this->min[i]) {
+                min_scaled[i] = this->min[i];
             }
 
-            if (arg2[i] >= 0.0f) {
-                sp30[i] = (s32) arg2[i] / collision_list->unk12;
-            } else {
-                sp30[i] = ((s32) arg2[i] / collision_list->unk12) - 1;
+            if (this->max[i] < min_scaled[i]) {
+                min_scaled[i] = this->max[i];
             }
 
-            if (sp3C[i] < collision_list->unk0[i]) {
-                sp3C[i] = collision_list->unk0[i];
-            }
-            if (collision_list->unk6[i] < sp3C[i]) {
-                sp3C[i] = collision_list->unk6[i];
+            if (max_scaled[i] < this->min[i]) {
+                max_scaled[i] = this->min[i];
             }
 
-            if (sp30[i] < collision_list->unk0[i]) {
-                sp30[i] = collision_list->unk0[i];
-            }
-            if (collision_list->unk6[i] < sp30[i]) {
-                sp30[i] = collision_list->unk6[i];
+            if (this->max[i] < max_scaled[i]) {
+                max_scaled[i] = this->max[i];
             }
 
-            sp3C[i] -= collision_list->unk0[i];
-            sp30[i] -= collision_list->unk0[i];
+            min_scaled[i] -= this->min[i];
+            max_scaled[i] -= this->min[i];
         }
 
-        D_8037E910.unk190 = &D_8037E910.unk0[0];
-        for(z = sp3C[2]; z <= sp30[2]; z++){
-            for(y = sp3C[1]; y <= sp30[1]; y++){
-                for(x = sp3C[0]; x <= sp30[0]; x++){
-                    if (D_8037E910.unk190 >= &D_8037E910.unk0[COLLISION_GEO_SCRATCH_MAX]) {
+        sActiveCollisionLists.current = sActiveCollisionLists.list;
+
+        for (z = min_scaled[2]; z <= max_scaled[2]; z++) {
+            for (y = min_scaled[1]; y <= max_scaled[1]; y++) {
+                for (x = min_scaled[0]; x <= max_scaled[0]; x++) {
+                    if (sActiveCollisionLists.current >= &sActiveCollisionLists.list[COLLISION_GEO_SCRATCH_MAX]) {
                         port_reportCollisionScratchFull();
                         goto scratch_full;
                     }
-                    *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeometry *)(collision_list + 1))  + x + (y * collision_list->unkC);
+                    *sActiveCollisionLists.current++ = this->z_stride * z + (BKCollisionGeometry *) this->data + x + y * this->y_stride;
                 }
             }
         }
     scratch_full:
-        *arg3 = &D_8037E910.unk0[0];
-        *arg4 = D_8037E910.unk190;
+
+        *begin_ptr = sActiveCollisionLists.list;
+        *end_ptr = sActiveCollisionLists.current;
     }
 }
 
-void func_802E70FC(BKCollisionList *collision_list, s32 min[3], s32 max[3], BKCollisionGeometry ***begin_geo_ptr, BKCollisionGeometry ***end_geo_ptr) {
-    s32 sp3C[3];
-    s32 sp30[3];
-
-    s32 i;
+void collisionList_getIntersecting_s32(BKCollisionList *this, s32 min[3], s32 max[3], BKCollisionGeometry ***begin_ptr, BKCollisionGeometry ***end_ptr) {
+    s32 min_scaled[3], max_scaled[3];
+    int i;
     s32 x, y, z;
 
-    if (collision_list->unk12 == 0) {
-        D_8037E910.unk190 = &D_8037E910.unk0[0];
-        *(D_8037E910.unk190++) = (BKCollisionGeometry *)((uintptr_t)collision_list + sizeof(BKCollisionList));
-        *begin_geo_ptr = &D_8037E910.unk0[0];
-        *end_geo_ptr = D_8037E910.unk190;
-    }
-    else{
-        for(i = 0 ;  i < 3; i++){
-            if (min[i] >= 0) {
-                sp3C[i] = (s32) min[i] / collision_list->unk12;
-            } else {
-                sp3C[i] = ((s32) min[i] / collision_list->unk12) - 1;
+    if (this->scale == 0) {
+        sActiveCollisionLists.current = sActiveCollisionLists.list;
+        *sActiveCollisionLists.current++ = (BKCollisionGeometry *) this->data;
+
+        *begin_ptr = sActiveCollisionLists.list;
+        *end_ptr = sActiveCollisionLists.current;
+    } else {
+        for (i = 0; i < 3; i++) {
+            min_scaled[i] = min[i] >= 0 ? min[i] / this->scale : min[i] / this->scale - 1;
+            max_scaled[i] = max[i] >= 0 ? max[i] / this->scale : max[i] / this->scale - 1;
+
+            if (min_scaled[i] < this->min[i]) {
+                min_scaled[i] = this->min[i];
             }
 
-            if (max[i] >= 0) {
-                sp30[i] = (s32) max[i] / collision_list->unk12;
-            } else {
-                sp30[i] = ((s32) max[i] / collision_list->unk12) - 1;
+            if (this->max[i] < min_scaled[i]) {
+                min_scaled[i] = this->max[i];
             }
 
-            if (sp3C[i] < collision_list->unk0[i]) {
-                sp3C[i] = collision_list->unk0[i];
-            }
-            if (collision_list->unk6[i] < sp3C[i]) {
-                sp3C[i] = collision_list->unk6[i];
+            if (max_scaled[i] < this->min[i]) {
+                max_scaled[i] = this->min[i];
             }
 
-            if (sp30[i] < collision_list->unk0[i]) {
-                sp30[i] = collision_list->unk0[i];
-            }
-            if (collision_list->unk6[i] < sp30[i]) {
-                sp30[i] = collision_list->unk6[i];
+            if (this->max[i] < max_scaled[i]) {
+                max_scaled[i] = this->max[i];
             }
 
-            sp3C[i] -= collision_list->unk0[i];
-            sp30[i] -= collision_list->unk0[i];
+            min_scaled[i] -= this->min[i];
+            max_scaled[i] -= this->min[i];
         }
 
-        D_8037E910.unk190 = &D_8037E910.unk0[0];
-        
-        for(z = sp3C[2]; z <= sp30[2]; z++){
-            for(y = sp3C[1]; y <= sp30[1]; y++){
-                for(x = sp3C[0]; x <= sp30[0]; x++){
-                    if (D_8037E910.unk190 >= &D_8037E910.unk0[COLLISION_GEO_SCRATCH_MAX]) {
+        sActiveCollisionLists.current = sActiveCollisionLists.list;
+
+        for (z = min_scaled[2]; z <= max_scaled[2]; z++) {
+            for (y = min_scaled[1]; y <= max_scaled[1]; y++) {
+                for (x = min_scaled[0]; x <= max_scaled[0]; x++) {
+                    if (sActiveCollisionLists.current >= &sActiveCollisionLists.list[COLLISION_GEO_SCRATCH_MAX]) {
                         port_reportCollisionScratchFull();
                         goto scratch_full;
                     }
-                    *(D_8037E910.unk190++) = ((collision_list->unkE * z) + (BKCollisionGeometry *)(collision_list + 1))  + x + (y * collision_list->unkC);
+                    *sActiveCollisionLists.current++ = this->z_stride * z + (BKCollisionGeometry *) this->data + x + y * this->y_stride;
                 }
             }
         }
     scratch_full:
-        *begin_geo_ptr = &D_8037E910.unk0[0];
-        *end_geo_ptr = D_8037E910.unk190;
+
+        *begin_ptr = sActiveCollisionLists.list;
+        *end_ptr = sActiveCollisionLists.current;
     }
 }
 
-void func_802E73C8(f32 arg0[3][3]) {
-    s32 i;
-    for(i = 0; i < 3; i++){
-        arg0[i][0] = D_8037EAA8[i][0]; 
-        arg0[i][1] = D_8037EAA8[i][1]; 
-        arg0[i][2] = D_8037EAA8[i][2]; 
+void collisionList_getStoredTriangle(f32 tri[3][3]) {
+    int i;
 
+    for (i = 0; i < 3; i++) {
+        TUPLE_COPY(tri[i], sStoredTriangle[i]);
     }
 }
 
-s32 func_802E7408(BKCollisionList *collisionList) {
-    BKCollisionTriangle *temp_a1;
-    BKCollisionTriangle *temp_a2;
-    BKCollisionTriangle *phi_a2;
-    s32 phi_v1;
+s32 collisionList_getTriCount_0x1E0000(BKCollisionList *this) {
+    BKCollisionTriangle *tri_start, *tri_end, *i_tri;
+    s32 count;
 
-    phi_v1 = 0;
-    temp_a2 = (BKCollisionTriangle *)((collisionList->unk10 * 4) + (uintptr_t)collisionList + sizeof(BKCollisionList));
-    temp_a1 = (BKCollisionTriangle *)((collisionList->unk14 * 0xC) + (uintptr_t)temp_a2);
-    for(phi_a2 = temp_a2; phi_a2 < temp_a1; phi_a2++){
-        if(phi_a2->flags & 0x1E0000){
-            phi_v1++;
+    count = 0;
+    tri_start = (BKCollisionTriangle *) (this->geo_count + (BKCollisionGeometry *) this->data);
+    tri_end = tri_start + this->tri_count;
+
+    for (i_tri = tri_start; i_tri < tri_end; i_tri++) {
+        if (i_tri->flags & 0x1E0000) {
+            count++;
         }
     }
-    return phi_v1;
+
+    return count;
 }
 
-s32 func_802E7468(BKCollisionList *collisionList){
-    return collisionList->unk14;
+s32 collisionList_getTriCount(BKCollisionList *this) {
+    return this->tri_count;
 }
 
-void collisionList_getTris(BKCollisionList *collision_list, BKCollisionTriangle **begin_ptr, BKCollisionTriangle **end_ptr){
-    *begin_ptr = (BKCollisionTriangle *)((collision_list->unk10 * 4) + (uintptr_t)collision_list + sizeof(BKCollisionList));
-    *end_ptr = (BKCollisionTriangle *)((collision_list->unk14 * 0xC) + (uintptr_t)*begin_ptr);
+void collisionList_getTris(BKCollisionList *this, BKCollisionTriangle **begin_ptr, BKCollisionTriangle **end_ptr) {
+    *begin_ptr = (BKCollisionTriangle *) (this->geo_count + (BKCollisionGeometry *) this->data);
+    *end_ptr = *begin_ptr + this->tri_count;
 }
 
-
-bool func_802E74A0(f32 arg0[3], f32 arg1, f32 arg2[3], f32 arg3[3]) {
+bool collisionList_pointOnLine(f32 point[3], f32 margin, f32 line_start[3], f32 line_end[3]) {
     f32 sp24[3];
     f32 sp20;
 
-    if (arg1 <= ml_vec3f_distance_to_point(arg2, arg3, arg0)) {
+    if (margin <= ml_vec3f_distance_to_point(line_start, line_end, point)) {
         return FALSE;
     }
-    sp24[0] = (arg2[0] + arg3[0]) / 2;
-    sp24[1] = (arg2[1] + arg3[1]) / 2;
-    sp24[2] = (arg2[2] + arg3[2]) / 2;
-    sp20 = ml_vec3f_distance(sp24, arg0);
-    if ((ml_vec3f_distance(sp24, arg2) + arg1) <= sp20) {
-        return false;
-    }
-    return true;
-}
 
-// Unused
-bool func_802E7588(f32 arg0[3], f32 arg1, f32 arg2[3], f32 arg3) {
-    return (ml_vec3f_distance(arg0, arg2) < (arg1 + arg3));
-}
+    sp24[0] = (line_start[0] + line_end[0]) / 2;
+    sp24[1] = (line_start[1] + line_end[1]) / 2;
+    sp24[2] = (line_start[2] + line_end[2]) / 2;
 
-void calculateBoundsAndDirection(f32 startPoint[3], f32 endPoint[3], s32 minBounds[3], s32 maxBounds[3], f32 directionbk_vector[3]) {
-    s32 i;
+    sp20 = ml_vec3f_distance(sp24, point);
 
-    for(i = 0; i < 3; i++){
-        if (startPoint[i] < endPoint[i]) {
-            minBounds[i] = (s32) startPoint[i];
-            maxBounds[i] = (s32) endPoint[i];
-        }
-        else {
-            minBounds[i] = (s32) endPoint[i];
-            maxBounds[i] = (s32) startPoint[i];
-        }
-
-        minBounds[i] += -1;
-        maxBounds[i] += 1;
+    if ((ml_vec3f_distance(sp24, line_start) + margin) <= sp20) {
+        return FALSE;
     }
 
-    directionbk_vector[0] = (endPoint[0] - startPoint[0]);
-    directionbk_vector[1] = (endPoint[1] - startPoint[1]);
-    directionbk_vector[2] = (endPoint[2] - startPoint[2]);
+    return TRUE;
 }
 
-BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter) {
-    s32 i;
-    s32 j;
-    BKCollisionGeometry **start_geo;
-    BKCollisionGeometry **i_geo;
-    BKCollisionGeometry **end_geo;
-    BKCollisionTriangle *start_tri;
-    BKCollisionGeometry *temp_v1;
-    BKCollisionTriangle *end_tri;
-    BKCollisionTriangle *i_tri;
-    Vtx *vtx_pool;
-    Vtx *sp164[3];
-    s32 min_bounds[3];
-    s32 max_bounds[3];
-    f32 direction_bk_vector[3];
-    Vtx *temp_a2;
-    f32 sp130[3];
-    f32 sp124[3];
-    f32 sp118[3];
-    f32 sp10C[3];
+bool collisionList_spheresIntersect(f32 pos1[3], f32 radius1, f32 pos2[3], f32 radius2) {
+    return ml_vec3f_distance(pos1, pos2) < radius1 + radius2;
+}
+
+void collisionList_calculateBoundsAndDirection(f32 start_point[3], f32 end_point[3], s32 min_bounds[3], s32 max_bounds[3], f32 direction_vector[3]) {
+    int i;
+
+    for (i = 0; i < 3; i++) {
+        if (start_point[i] < end_point[i]) {
+            min_bounds[i] = (s32) start_point[i];
+            max_bounds[i] = (s32) end_point[i];
+        } else {
+            min_bounds[i] = (s32) end_point[i];
+            max_bounds[i] = (s32) start_point[i];
+        }
+
+        min_bounds[i] -= 1;
+        max_bounds[i] += 1;
+    }
+
+    TUPLE_DIFF_COPY(direction_vector, end_point, start_point);
+}
+
+BKCollisionTriangle *collisionList_intersectLine(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 line_start[3], f32 line_end[3], f32 normal[3], u32 flag_filter) {
+    int i, j;
+    BKCollisionGeometry **start_geo, **i_geo, **end_geo, *temp_v1;
+    BKCollisionTriangle *start_tri, *end_tri, *i_tri;
+    Vtx *vtx_pool, *tri_vtx[3];
+    s32 min_bounds[3], max_bounds[3];
+    f32 direction_vector[3];
+    Vtx *i_vtx;
+    f32 tri_edge_ab[3], tri_edge_ac[3];
+    f32 local_line_start[3], local_line_end[3];
     f32 temp_f0_2;
-    f32 spFC[3];
+    f32 line_current_pos[3];
     f32 spF0[3];
     f32 spE4[3];
 
@@ -315,297 +279,296 @@ BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList 
     f32 temp_f12_3;
     f32 temp_f12_4;
     f32 temp_f14_2;
-    f32 temp_f20;
+    f32 vtx_radius;
     f32 temp_f2_2;
     f32 temp_f2_6;
-    f32 spBC[3];
+    f32 tri_normal[3];
 
-    s32 phi_a0_2;
+    s32 primary_axis;
     f32 pad;
-    f32 sp90[3][3];
+    f32 tri[3][3];
     BKCollisionTriangle *result_collision;
 
     result_collision = NULL;
-    temp_f20 = (f32) vertexList->global_norm;
-    calculateBoundsAndDirection(startPoint, endPoint, min_bounds, max_bounds, direction_bk_vector);
-    for(i = 0; i < 3; i++){
-        if ((max_bounds[i] <= -temp_f20) || (temp_f20 <= min_bounds[i])) {
+    vtx_radius = bk_vtx_list->global_norm;
+    collisionList_calculateBoundsAndDirection(line_start, line_end, min_bounds, max_bounds, direction_vector);
+
+    // Do bounding sphere of model and bounding box of line intersect?
+    for(i = 0; i < 3; i++) {
+        if ((max_bounds[i] <= -vtx_radius) || (vtx_radius <= min_bounds[i])) {
             return NULL;
         }
     }
-    func_802E70FC(collisionList, min_bounds, max_bounds, &start_geo, &end_geo);
-    for(i_geo = start_geo; i_geo < end_geo; i_geo++){
-        start_tri = (BKCollisionTriangle *)((BKCollisionGeometry *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
+
+    // Filter collision geometry entities that lies inside the bounding box
+    collisionList_getIntersecting_s32(this, min_bounds, max_bounds, &start_geo, &end_geo);
+
+    // Iterate over collision geometry entities
+    for (i_geo = start_geo; i_geo < end_geo; i_geo++) {
+        start_tri = (BKCollisionTriangle *) ((BKCollisionGeometry *) this->data + this->geo_count) + (*i_geo)->start_tri_index;
         end_tri = start_tri + (*i_geo)->tri_count;
-        for(i_tri = start_tri; i_tri < end_tri; i_tri++){
-            vtx_pool = (Vtx*)(vertexList + 1);
-            if((i_tri->flags & flagFilter))
-                { continue; }
-            if (!port_collisionTriValid(i_tri, vertexList))
-                { continue; }
 
-            sp164[0] = &vtx_pool[i_tri->unk0[0]];
-            sp164[1] = &vtx_pool[i_tri->unk0[1]];
-            sp164[2] = &vtx_pool[i_tri->unk0[2]];
-            if((sp164[0]->v.ob[0] < min_bounds[0]) && (sp164[1]->v.ob[0] < min_bounds[0]) && (sp164[2]->v.ob[0] < min_bounds[0])) { continue; }
-            if((max_bounds[0] < sp164[0]->v.ob[0]) && (max_bounds[0] < sp164[1]->v.ob[0]) && (max_bounds[0] < sp164[2]->v.ob[0])) { continue; }
+        // Iterate over every triangle
+        for (i_tri = start_tri; i_tri < end_tri; i_tri++) {
+            vtx_pool = bk_vtx_list->vertices;
 
-            if((sp164[0]->v.ob[2] < min_bounds[2]) && (sp164[1]->v.ob[2] < min_bounds[2]) && (sp164[2]->v.ob[2] < min_bounds[2])) { continue; }
-            if((max_bounds[2] < sp164[0]->v.ob[2]) && (max_bounds[2] < sp164[1]->v.ob[2]) && (max_bounds[2] < sp164[2]->v.ob[2])) { continue; }
+            // Is current triangle filtered out?
+            if ((i_tri->flags & flag_filter)) {
+                continue;
+            }
 
-            if((sp164[0]->v.ob[1] < min_bounds[1]) && (sp164[1]->v.ob[1] < min_bounds[1]) && (sp164[2]->v.ob[1] < min_bounds[1])) { continue; }
-            if((max_bounds[1] < sp164[0]->v.ob[1]) && (max_bounds[1] < sp164[1]->v.ob[1]) && (max_bounds[1] < sp164[2]->v.ob[1])) { continue; }
+            if (!port_collisionTriValid(i_tri, bk_vtx_list)) {
+                continue;
+            }
 
-            for(i = 0; i < 3; i++){
-                temp_a2 = &vtx_pool[i_tri->unk0[i]];
-                for(j = 0; j <3; j++){
-                    sp90[i][j] = temp_a2->v.ob[j];
+            tri_vtx[0] = &vtx_pool[i_tri->unk0[0]]; 
+            tri_vtx[1] = &vtx_pool[i_tri->unk0[1]]; 
+            tri_vtx[2] = &vtx_pool[i_tri->unk0[2]];
+
+            // Is current triangle outside bounding box?
+            if ((tri_vtx[0]->v.ob[0] < min_bounds[0]) && (tri_vtx[1]->v.ob[0] < min_bounds[0]) && (tri_vtx[2]->v.ob[0] < min_bounds[0])) continue;
+            if ((tri_vtx[0]->v.ob[0] > max_bounds[0]) && (tri_vtx[1]->v.ob[0] > max_bounds[0]) && (tri_vtx[2]->v.ob[0] > max_bounds[0])) continue;
+            if ((tri_vtx[0]->v.ob[2] < min_bounds[2]) && (tri_vtx[1]->v.ob[2] < min_bounds[2]) && (tri_vtx[2]->v.ob[2] < min_bounds[2])) continue;
+            if ((tri_vtx[0]->v.ob[2] > max_bounds[2]) && (tri_vtx[1]->v.ob[2] > max_bounds[2]) && (tri_vtx[2]->v.ob[2] > max_bounds[2])) continue;
+            if ((tri_vtx[0]->v.ob[1] < min_bounds[1]) && (tri_vtx[1]->v.ob[1] < min_bounds[1]) && (tri_vtx[2]->v.ob[1] < min_bounds[1])) continue;
+            if ((tri_vtx[0]->v.ob[1] > max_bounds[1]) && (tri_vtx[1]->v.ob[1] > max_bounds[1]) && (tri_vtx[2]->v.ob[1] > max_bounds[1])) continue;
+
+            // Copy triangle vertex positions
+            for (i = 0; i < 3; i++) {
+                i_vtx = &vtx_pool[i_tri->unk0[i]];
+                for (j = 0; j <3; j++) {
+                    tri[i][j] = i_vtx->v.ob[j];
                 }
             }
-            sp130[0] = sp90[1][0] - sp90[0][0];
-            sp130[1] = sp90[1][1] - sp90[0][1];
-            sp130[2] = sp90[1][2] - sp90[0][2];
 
-            sp124[0] = sp90[2][0] - sp90[0][0];
-            sp124[1] = sp90[2][1] - sp90[0][1];
-            sp124[2] = sp90[2][2] - sp90[0][2];
+            // Calculate triangle normal (length is not normalized)
+            TUPLE_DIFF_COPY(tri_edge_ab, tri[1], tri[0]);
+            TUPLE_DIFF_COPY(tri_edge_ac, tri[2], tri[0]);
+            TUPLE_CROSS_PRODUCT(tri_normal, tri_edge_ab, tri_edge_ac);
 
-            spBC[0] = (sp130[1] * sp124[2]) - (sp130[2] * sp124[1]);
-            spBC[1] = (sp130[2] * sp124[0]) - (sp130[0] * sp124[2]);
-            spBC[2] = (sp130[0] * sp124[1]) - (sp130[1] * sp124[0]);
-            if( (100000.0f < spBC[0]) || (100000.0f < spBC[1]) || (100000.0f < spBC[2]) 
-                || (spBC[0] < -100000.0f) || (spBC[1] < -100000.0f) || (spBC[2] < -100000.0f)
+            // Scale normal if too big
+            if ((100000.0f < tri_normal[0]) || (100000.0f < tri_normal[1]) || (100000.0f < tri_normal[2]) ||
+                (tri_normal[0] < -100000.0f) || (tri_normal[1] < -100000.0f) || (tri_normal[2] < -100000.0f)
             ) {
-                spBC[0] /= 100000.0f;
-                spBC[1] /= 100000.0f;
-                spBC[2] /= 100000.0f;
+                TUPLE_SCALE_INVERSE(tri_normal, 100000.0f);
             }
 
-            sp118[0] = startPoint[0] - sp90[0][0];
-            sp118[1] = startPoint[1] - sp90[0][1];
-            sp118[2] = startPoint[2] - sp90[0][2];
+            // Bring line coordinates in triangle space
+            TUPLE_DIFF_COPY(local_line_start, line_start, tri[0]);
+            TUPLE_DIFF_COPY(local_line_end, line_end, tri[0]);
 
-            sp10C[0] = endPoint[0] - sp90[0][0];
-            sp10C[1] = endPoint[1] - sp90[0][1];
-            sp10C[2] = endPoint[2] - sp90[0][2];
-
-            temp_f12_2 = sp118[0]*spBC[0] + sp118[1]*spBC[1] + sp118[2]*spBC[2];
-            temp_f2_2 = sp10C[0]*spBC[0] + sp10C[1]*spBC[1] + sp10C[2]*spBC[2];
+            temp_f12_2 = TUPLE_DOT_PRODUCT(local_line_start, tri_normal);
+            temp_f2_2 = TUPLE_DOT_PRODUCT(local_line_end, tri_normal);
             pad = temp_f2_2;
-            if ((!((temp_f12_2 >= 0.0f) && (pad >= 0.0f))))
-            if( !((temp_f12_2 <= 0.0f) && (pad <= 0.0f))) {
+
+            if ((!((temp_f12_2 >= 0.0f) && (pad >= 0.0f))) && !((temp_f12_2 <= 0.0f) && (pad <= 0.0f))) {
                 if ((i_tri->flags & 0x10000) && (temp_f12_2 < 0.0f)) {
-                    spBC[0] = -spBC[0];
-                    spBC[1] = -spBC[1];
-                    spBC[2] = -spBC[2];
+                    TUPLE_COPY(tri_normal, -tri_normal);
                 }
 
-                temp_f12_3 = spBC[0]*direction_bk_vector[0] + spBC[1]*direction_bk_vector[1] + spBC[2]*direction_bk_vector[2];
-                pad = (sp90[0][0]*spBC[0] + sp90[0][1]*spBC[1] + sp90[0][2]*spBC[2]);
-                if (temp_f12_3 == 0.0f)
-                    { continue; }
+                temp_f12_3 = TUPLE_DOT_PRODUCT(tri_normal, direction_vector);
+                pad = TUPLE_DOT_PRODUCT(tri[0], tri_normal);
+                if (temp_f12_3 == 0.0f) {
+                    continue;
+                }
 
-                temp_f0_2 = -((spBC[0]*startPoint[0] + spBC[1]*startPoint[1] + spBC[2]*startPoint[2]) - pad)/ temp_f12_3;
-                if(temp_f0_2 <= 0.0f || 1.0f <= temp_f0_2)
-                    { continue; }
+                temp_f0_2 = -(TUPLE_DOT_PRODUCT(tri_normal, line_start) - pad) / temp_f12_3;
+                if ((temp_f0_2 <= 0.0f) || (temp_f0_2 >= 1.0f)) {
+                    continue;
+                }
 
-                spFC[0] = startPoint[0] + (direction_bk_vector[0] * temp_f0_2);
-                spFC[1] = startPoint[1] + (direction_bk_vector[1] * temp_f0_2);
-                spFC[2] = startPoint[2] + (direction_bk_vector[2] * temp_f0_2);
+                TUPLE_ADD_COPY(line_current_pos, line_start, temp_f0_2 * direction_vector);
 
-                phi_a0_2 = (ABS_F(spBC[0]) > ABS_F(spBC[1])) ? 0 : 1;
-                phi_a0_2 = (ABS_F(spBC[2]) > ABS_F(spBC[phi_a0_2])) ? 2 : phi_a0_2;
+                primary_axis = (ABS_F(tri_normal[0]) > ABS_F(tri_normal[1])) ? 0 : 1;
+                primary_axis = (ABS_F(tri_normal[2]) > ABS_F(tri_normal[primary_axis])) ? 2 : primary_axis;
 
-                spF0[0] = spFC[(phi_a0_2 + 1) % 3] - sp90[0][(phi_a0_2 + 1) % 3];
-                spF0[1] = sp130[(phi_a0_2 + 1) % 3];
-                spF0[2] = sp124[(phi_a0_2 + 1) % 3];
+                spF0[0] = line_current_pos[(primary_axis + 1) % 3] - tri[0][(primary_axis + 1) % 3];
+                spF0[1] = tri_edge_ab[(primary_axis + 1) % 3];
+                spF0[2] = tri_edge_ac[(primary_axis + 1) % 3];
 
-                spE4[0] = spFC[(phi_a0_2 + 2) % 3] - sp90[0][(phi_a0_2 + 2) % 3];
-                spE4[1] = sp130[(phi_a0_2 + 2) % 3];
-                spE4[2] = sp124[(phi_a0_2 + 2) % 3];
+                spE4[0] = line_current_pos[(primary_axis + 2) % 3] - tri[0][(primary_axis + 2) % 3];
+                spE4[1] = tri_edge_ab[(primary_axis + 2) % 3];
+                spE4[2] = tri_edge_ac[(primary_axis + 2) % 3];
+
                 temp_f14_2 = ((spF0[1] * spE4[2]) - (spE4[1] * spF0[2]));
 
                 temp_f12_4 = ((spF0[0] * spE4[2]) - (spE4[0] * spF0[2])) / temp_f14_2;
-                if(temp_f12_4 < 0.0f || 1.0f < temp_f12_4)
-                    { continue; }
+                if(temp_f12_4 < 0.0f || 1.0f < temp_f12_4) 
+                    continue;
 
                 temp_f2_6 =  ((spF0[1] * spE4[0]) - (spE4[1] * spF0[0])) / temp_f14_2;
-                if(temp_f2_6 < 0.0f || 1.0f < temp_f2_6)
-                    { continue; }
 
-                if(1.0f < (temp_f12_4 + temp_f2_6))
-                    { continue; }
+                if ((temp_f2_6 < 0.0f) || (temp_f2_6 > 1.0f)) {
+                    continue;
+                }
+
+                if (temp_f12_4 + temp_f2_6 > 1.0f) {
+                    continue;
+                }
 
                 result_collision = i_tri;
-                endPoint[0] = spFC[0];
-                endPoint[1] = spFC[1];
-                endPoint[2] = spFC[2];
-                ml_vec3f_normalize_copy(arg4, spBC);
-                calculateBoundsAndDirection(startPoint, endPoint, min_bounds, max_bounds, direction_bk_vector);
+                TUPLE_COPY(line_end, line_current_pos);
+                ml_vec3f_normalize_copy(normal, tri_normal);
+                collisionList_calculateBoundsAndDirection(line_start, line_end, min_bounds, max_bounds, direction_vector);
             }
-
         }
     }
-    collisionTriangle_func_802E6D20(result_collision, vertexList);
+
+    collisionList_setStoredTriangle(result_collision, bk_vtx_list);
+
     return result_collision;
 }
 
-BKCollisionTriangle *collisionList_func_802E805C(BKCollisionList *collision_list, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7[3], u32 arg8){
-    f32 sp44[3];
-    f32 sp38[3];
-    BKCollisionTriangle *sp34;
+BKCollisionTriangle *collisionList_intersectLineGlobal(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 position[3], f32 rotation[3], f32 scale, f32 line_start[3], f32 line_end[3], f32 normal[3], u32 flag_filter) {
+    f32 object_line_start[3];
+    f32 object_line_end[3];
+    BKCollisionTriangle *coll_tri;
     int i;
 
-    if(!func_802E74A0(arg2, vtxList->global_norm*arg4, arg5, arg6)){
-        return 0;
+    // Is object near the given line? If not, return NULL.
+    if (!collisionList_pointOnLine(position, bk_vtx_list->global_norm * scale, line_start, line_end)) {
+        return NULL;
     }
-    else{
-        mlMtxIdent();
-        func_80252CC4(arg2, arg3, arg4, 0);
-        mlMtx_apply_vec3f(sp44, arg5);
-        mlMtx_apply_vec3f(sp38, arg6);
-        sp34 = func_802E76B0(collision_list, vtxList, sp44, sp38, arg7, arg8);
-        if(!sp34){
-            return NULL;
-        }
-        else{
-            mlMtxIdent();
-            func_80252C08(arg2, arg3, arg4, NULL);
-            mlMtx_apply_vec3f(arg6, sp38);
 
-            mlMtxIdent();
-            func_80252C08(NULL, arg3, 1.0f, 0);
-            mlMtx_apply_vec3f(arg7, arg7);
+    // Transform line_start and line_end from world to object space
+    mlMtxIdent();
+    func_80252CC4(position, rotation, scale, NULL);
+    mlMtx_apply_vec3f(object_line_start, line_start);
+    mlMtx_apply_vec3f(object_line_end, line_end);
 
-            mlMtxIdent();
-            func_80252C08(arg2, arg3, arg4, 0);
-
-            for(i = 0; i < 3; i++){
-                mlMtx_apply_vec3f(D_8037EAA8[i], D_8037EAA8[i]);
-            }
-
-        }
+    // Check collision for every triangle
+    coll_tri = collisionList_intersectLine(this, bk_vtx_list, object_line_start, object_line_end, normal, flag_filter);
+    if (!coll_tri) {
+        return NULL;
     }
-    return sp34;
+
+    // Transform modified line_end from object space to world space
+    mlMtxIdent();
+    func_80252C08(position, rotation, scale, NULL);
+    mlMtx_apply_vec3f(line_end, object_line_end);
+
+    // Transform normal from object to world space
+    mlMtxIdent();
+    func_80252C08(NULL, rotation, 1.0f, NULL);
+    mlMtx_apply_vec3f(normal, normal);
+
+    // Transform sStoredTriangle from object to world space
+    mlMtxIdent();
+    func_80252C08(position, rotation, scale, NULL);
+    for (i = 0; i < 3; i++) {
+        mlMtx_apply_vec3f(sStoredTriangle[i], sStoredTriangle[i]);
+    }
+
+    return coll_tri;
 }
 
-s32 func_802E81CC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 p1[3], f32 p2[3], f32 velocity[3], f32 margin, s32 flagFilter, Struct_core2_5FD90_0 **activeTriStartPtr, Struct_core2_5FD90_0 **activeTriEndPtr) {
-    BKCollisionGeometry **start_geo;
-    BKCollisionGeometry **i_geo;
-    BKCollisionGeometry **end_geo;
+bool collisionList_intersectMovingSphere_FastCheck(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 p1[3], f32 p2[3], f32 velocity[3], f32 margin, u32 flag_filter, BKProcessedCollisionTriangle **activeTriStartPtr, BKProcessedCollisionTriangle **activeTriEndPtr) {
+    BKCollisionGeometry **start_geo, **i_geo, **end_geo;
     f32 spC0[3];
     BKCollisionTriangle *start_tri;
     BKCollisionTriangle *end_tri;
-    f32 min[3];
-    f32 max[3];
+    f32 min_bounds[3], max_bounds[3];
     BKCollisionTriangle *i_tri;
     Vtx *vertex_pool;
     Vtx *i_vtx;
-    s32 i;
-    s32 j;
+    int i, j;
     f32 tri_min_coord[3];
     f32 tri_max_coord[3];
-    Struct_core2_5FD90_0 *var_s2;
-    f32 temp_f0;
+    BKProcessedCollisionTriangle *cur_processed_tri;
+    f32 vtx_radius;
 
+    core2_B6640_calculateLineBoundingBox(p1, p2, margin, min_bounds, max_bounds);
+    vtx_radius = vtxList_getGlobalNorm(bk_vtx_list);
 
-    points_to_boundingBoxWithMargin(p1, p2, margin, min, max);
-    temp_f0 = vtxList_getGlobalNorm(vertexList);
-    for(i = 0; i < 3; i++){
-        if ((max[i] <= -temp_f0) || (temp_f0 <= min[i])) {
-            return 0;
+    for (i = 0; i < 3; i++) {
+        if ((max_bounds[i] <= -vtx_radius) || (min_bounds[i] >= vtx_radius)) {
+//          return NULL;
+            return FALSE;
         }
     }
-    collisionList_getIntersecting(collisionList, min, max, &start_geo, &end_geo);
-    vertex_pool = vtxList_getVertices(vertexList);
-    var_s2 = D_8037EAD0;
-    for(i_geo = start_geo; i_geo < end_geo; i_geo++){
-        start_tri = (BKCollisionTriangle *)((BKCollisionGeometry *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
+
+    collisionList_getIntersecting_f32(this, min_bounds, max_bounds, &start_geo, &end_geo);
+    vertex_pool = vtxList_getVertices(bk_vtx_list);
+    cur_processed_tri = sActiveCollTris;
+
+    for (i_geo = start_geo; i_geo < end_geo; i_geo++) {
+        start_tri = (BKCollisionTriangle *) ((BKCollisionGeometry *) this->data + this->geo_count) + (*i_geo)->start_tri_index;
         end_tri = start_tri + (*i_geo)->tri_count;
-        for(i_tri = start_tri; i_tri < end_tri; i_tri++){
-            if (!(i_tri->flags & flagFilter)) {
-                if (!port_collisionTriValid(i_tri, vertexList)) {
+
+        for (i_tri = start_tri; i_tri < end_tri; i_tri++) {
+            if (!(i_tri->flags & flag_filter)) {
+                if (!port_collisionTriValid(i_tri, bk_vtx_list)) {
                     continue;
                 }
-                for(i = 0; i < 3; i++){
+                for (i = 0; i < 3; i++) {
                     i_vtx = vertex_pool + i_tri->unk0[i];
-                    for(j = 0; j < 3; j++){
-                        var_s2->tri_coord[i][j] = i_vtx->v.ob[j];
+                    for (j = 0; j < 3; j++) {
+                        cur_processed_tri->tri_coord[i][j] = i_vtx->v.ob[j];
                     }
                 }
 
                 //get min/max bounds of triangle
-                tri_min_coord[0] = var_s2->tri_coord[0][0];\
-                tri_min_coord[1] = var_s2->tri_coord[0][1];\
-                tri_min_coord[2] = var_s2->tri_coord[0][2];
-                    
-                tri_max_coord[0] = var_s2->tri_coord[0][0];\
-                tri_max_coord[1] = var_s2->tri_coord[0][1];\
-                tri_max_coord[2] = var_s2->tri_coord[0][2];
+                TUPLE_COPY(tri_min_coord, cur_processed_tri->tri_coord[0]);
+                TUPLE_COPY(tri_max_coord, cur_processed_tri->tri_coord[0]);
 
-                for(i = 1; i < 3; i++){
-                    for(j = 0; j < 3; j++){
-                        if (var_s2->tri_coord[i][j] < tri_min_coord[j]) {
-                            tri_min_coord[j] = var_s2->tri_coord[i][j];
+                for (i = 1; i < 3; i++) {
+                    for (j = 0; j < 3; j++) {
+                        if (tri_min_coord[j] > cur_processed_tri->tri_coord[i][j]) {
+                            tri_min_coord[j] = cur_processed_tri->tri_coord[i][j];
                         }
-    
-                        if (tri_max_coord[j] < var_s2->tri_coord[i][j]) {
-                            tri_max_coord[j] = var_s2->tri_coord[i][j];
+
+                        if (tri_max_coord[j] < cur_processed_tri->tri_coord[i][j]) {
+                            tri_max_coord[j] = cur_processed_tri->tri_coord[i][j];
                         }
                     }
                 }
-    
+
                 //check if tri intersects region
-                if ((max[0] < tri_min_coord[0]) || (tri_max_coord[0] < min[0])) continue;
-                if ((max[1] < tri_min_coord[1]) || (tri_max_coord[1] < min[1])) continue;
-                if ((max[2] < tri_min_coord[2]) || (tri_max_coord[2] < min[2])) continue;
-    
-                //calculate normal of tri
-                var_s2->edgeAB[0] = var_s2->tri_coord[1][0] - var_s2->tri_coord[0][0];
-                var_s2->edgeAB[1] = var_s2->tri_coord[1][1] - var_s2->tri_coord[0][1];
-                var_s2->edgeAB[2] = var_s2->tri_coord[1][2] - var_s2->tri_coord[0][2];
-                    
-                var_s2->edgeAC[0] = var_s2->tri_coord[2][0] - var_s2->tri_coord[0][0];
-                var_s2->edgeAC[1] = var_s2->tri_coord[2][1] - var_s2->tri_coord[0][1];
-                var_s2->edgeAC[2] = var_s2->tri_coord[2][2] - var_s2->tri_coord[0][2];
-                    
-                var_s2->normal[0] = (var_s2->edgeAB[1] * var_s2->edgeAC[2]) - (var_s2->edgeAB[2] * var_s2->edgeAC[1]);
-                var_s2->normal[1] = (var_s2->edgeAB[2] * var_s2->edgeAC[0]) - (var_s2->edgeAB[0] * var_s2->edgeAC[2]);
-                var_s2->normal[2] = (var_s2->edgeAB[0] * var_s2->edgeAC[1]) - (var_s2->edgeAB[1] * var_s2->edgeAC[0]);
-                ml_vec3f_normalize( var_s2->normal);
+                if ((tri_min_coord[0] > max_bounds[0]) || (tri_max_coord[0] < min_bounds[0])) continue;
+                if ((tri_min_coord[1] > max_bounds[1]) || (tri_max_coord[1] < min_bounds[1])) continue;
+                if ((tri_min_coord[2] > max_bounds[2]) || (tri_max_coord[2] < min_bounds[2])) continue;
 
-                if (i_tri->flags & 0x10000) {//invert normal?
-                    spC0[0] = p1[0] - var_s2->tri_coord[0][0];
-                    spC0[1] = p1[1] - var_s2->tri_coord[0][1];
-                    spC0[2] = p1[2] - var_s2->tri_coord[0][2];
-                    if (((spC0[0]*var_s2->normal[0]) + (spC0[1]*var_s2->normal[1]) + (spC0[2]*var_s2->normal[2])) < 0.0f) {
-                        var_s2->normal[0] = -var_s2->normal[0];\
-                        var_s2->normal[1] = -var_s2->normal[1];\
-                        var_s2->normal[2] = -var_s2->normal[2];
+                //calculate normal of tri
+                TUPLE_DIFF_COPY(cur_processed_tri->edgeAB, cur_processed_tri->tri_coord[1], cur_processed_tri->tri_coord[0]);
+                TUPLE_DIFF_COPY(cur_processed_tri->edgeAC, cur_processed_tri->tri_coord[2], cur_processed_tri->tri_coord[0]);
+                TUPLE_CROSS_PRODUCT(cur_processed_tri->normal, cur_processed_tri->edgeAB, cur_processed_tri->edgeAC);
+                ml_vec3f_normalize(cur_processed_tri->normal);
+
+                if (i_tri->flags & 0x10000) { //invert normal?
+                    TUPLE_DIFF_COPY(spC0, p1, cur_processed_tri->tri_coord[0]);
+                    if (TUPLE_DOT_PRODUCT(spC0, cur_processed_tri->normal) < 0.0f) {
+                        TUPLE_COPY(cur_processed_tri->normal, -cur_processed_tri->normal);
+                    }
+                } else {
+                    if (TUPLE_DOT_PRODUCT(cur_processed_tri->normal, velocity) > 0.0f) {
+                        continue; //velocity is same direction as triangle normal
                     }
                 }
-                else{
-                    if (((var_s2->normal[0]*velocity[0]) + (var_s2->normal[1]*velocity[1]) + (var_s2->normal[2]*velocity[2])) > 0.0f)
-                        continue; //velocity is same direction as triangle normal
-                }
+
                 //add tri to active tri collisions
-                var_s2->tri_ptr = i_tri;
-                var_s2++;
-                if ((var_s2 - D_8037EAD0) > 100) 
-                    break;       
+                (cur_processed_tri++)->tri_ptr = i_tri;
+//              if (cur_processed_tri - sActiveCollTris > 100) {
+                if (cur_processed_tri - sActiveCollTris >= 100) {
+                    break;      
+                } 
             }
         }
-        if ((var_s2 - D_8037EAD0) > 100) 
-            break; 
+
+//      if (cur_processed_tri - sActiveCollTris > 100) {
+        if (cur_processed_tri - sActiveCollTris >= 100) {
+            break;
+        }
     }
-    *activeTriStartPtr = D_8037EAD0; //activeTriPool
-    *activeTriEndPtr = var_s2; //activeTriPoolEnd
-    return var_s2 - D_8037EAD0 > 0; //Count
+
+    *activeTriStartPtr = sActiveCollTris;
+    *activeTriEndPtr = cur_processed_tri;
+
+    return cur_processed_tri - sActiveCollTris > 0;
 }
 
-Struct_core2_5FD90_0 *func_802E879C(Struct_core2_5FD90_0 *startTri, Struct_core2_5FD90_0 *endTri, f32 position[3], f32 radius, f32 arg4[3]) {
-    s32 i;
-    Struct_core2_5FD90_0 *i_tri;
+BKProcessedCollisionTriangle *collisionList_intersectMovingSphere_Iteration(BKProcessedCollisionTriangle *startTri, BKProcessedCollisionTriangle *endTri, f32 position[3], f32 radius, f32 normal[3]) {
+    int i;
+    BKProcessedCollisionTriangle *i_tri;
     
     f32 sp144[3][3];
     f32 sp120[3][3];
@@ -615,227 +578,202 @@ Struct_core2_5FD90_0 *func_802E879C(Struct_core2_5FD90_0 *startTri, Struct_core2
     f32 temp_f0_4;
 
     f32 temp_f12_3;
-    f32 temp_f18;
+    f32 theta;
     f32 temp_f22;
     f32 spFC[3];
     f32 spF0[3];
     u32 var_a0;
     s32 var_a1;
-    s32 var_a2;
+    s32 primary_axis;
     f32 projected_position[3];
     f32 temp_f2_4;
-    Struct_core2_5FD90_0 *spD0;
+    BKProcessedCollisionTriangle *coll_tri;
     f32 temp_f8;
     f32 *var_s0;
-    
 
+    coll_tri = NULL;
+    TUPLE_SET(normal, 0.0f);
 
-    spD0 = 0;
-    arg4[0] = 0.0f;
-    arg4[1] = 0.0f;
-    arg4[2] = 0.0f;
-    for(i_tri = startTri; i_tri < endTri; i_tri++){
-        //project point onto plane of triangle
-        sp120[0][0] = position[0] - i_tri->tri_coord[0][0];
-        sp120[0][1] = position[1] - i_tri->tri_coord[0][1];
-        sp120[0][2] = position[2] - i_tri->tri_coord[0][2];
-        temp_f18 = (sp120[0][0] * i_tri->normal[0]) + (sp120[0][1] * i_tri->normal[1]) + (sp120[0][2] * i_tri->normal[2]);
-        if ((-(radius - 0.5)>= temp_f18) || ((radius -0.5) <= temp_f18))
+    for (i_tri = startTri; i_tri < endTri; i_tri++) {
+        // Project point onto plane of triangle
+        TUPLE_DIFF_COPY(sp120[0], position, i_tri->tri_coord[0]);
+        theta = TUPLE_DOT_PRODUCT(sp120[0], i_tri->normal);
+
+        if ((-(radius - 0.5) >= theta) || (theta >= (radius - 0.5))) {
             continue;
+        }
 
         temp_f8 = i_tri->normal[0];
         normal_length = (temp_f8 * i_tri->normal[0]) + (i_tri->normal[1] * i_tri->normal[1]) + (i_tri->normal[2] * i_tri->normal[2]);
-        if(normal_length == 0.0f)
+        if (normal_length == 0.0f) {
             continue;
+        }
         
-        normal_length = -temp_f18 / normal_length;
-        projected_position[0] = position[0] + (i_tri->normal[0] * normal_length);
-        projected_position[1] = position[1] + (i_tri->normal[1] * normal_length);
-        projected_position[2] = position[2] + (i_tri->normal[2] * normal_length);
+        normal_length = -theta / normal_length;
+        TUPLE_ADD_COPY(projected_position, position, normal_length * i_tri->normal);
         
-        //check if projected point is inside of triangle
-        var_a2 = (ABS_F(i_tri->normal[0]) > ABS_F(i_tri->normal[1])) ? 0 : 1;
-        var_a2 = (ABS_F(i_tri->normal[2]) > ABS_F(i_tri->normal[var_a2])) ? 2 : var_a2;
+        // Check if projected point is inside of triangle
+        primary_axis = (ABS_F(i_tri->normal[0]) > ABS_F(i_tri->normal[1])) ? 0 : 1;
+        primary_axis = (ABS_F(i_tri->normal[2]) > ABS_F(i_tri->normal[primary_axis])) ? 2 : primary_axis;
 
-        spFC[0] = projected_position[(var_a2 + 1)%3] - i_tri->tri_coord[0][(var_a2 + 1)%3];
-        spFC[1] = i_tri->edgeAB[(var_a2 + 1)%3];
-        spFC[2] = i_tri->edgeAC[(var_a2 + 1)%3];
+        spFC[0] = projected_position[(primary_axis + 1) % 3] - i_tri->tri_coord[0][(primary_axis + 1) % 3];
+        spFC[1] = i_tri->edgeAB[(primary_axis + 1) % 3];
+        spFC[2] = i_tri->edgeAC[(primary_axis + 1) % 3];
 
-        spF0[0] = projected_position[(var_a2 + 2)%3] - i_tri->tri_coord[0][(var_a2 + 2)%3];
-        spF0[1] = i_tri->edgeAB[(var_a2 + 2)%3];
-        spF0[2] = i_tri->edgeAC[(var_a2 + 2)%3];
+        spF0[0] = projected_position[(primary_axis + 2) % 3] - i_tri->tri_coord[0][(primary_axis + 2) % 3];
+        spF0[1] = i_tri->edgeAB[(primary_axis + 2) % 3];
+        spF0[2] = i_tri->edgeAC[(primary_axis + 2) % 3];
 
-        temp_f2_4 =  (spFC[1] * spF0[2]) - (spF0[1] * spFC[2]);
-        temp_f12_3 = ((spFC[0] * spF0[2]) - (spF0[0] * spFC[2]))/temp_f2_4;
-        temp_f0_4 =  ((spFC[1] * spF0[0]) - (spF0[1] * spFC[0]))/ temp_f2_4;
-        if ((0.0f <= temp_f12_3) && (temp_f12_3 <= 1.0f)
-         && (0.0f <= temp_f0_4) && (temp_f0_4 <= 1.0f))
-        if ((0 <= 1.0f - (temp_f12_3 + temp_f0_4))) {
-            //projected point lies on triangle
-            spD0 = i_tri;
-            arg4[0] = arg4[0] + i_tri->normal[0];
-            arg4[1] = arg4[1] + i_tri->normal[1];
-            arg4[2] = arg4[2] + i_tri->normal[2];
+        temp_f2_4 = (spFC[1] * spF0[2]) - (spF0[1] * spFC[2]);
+        temp_f12_3 = ((spFC[0] * spF0[2]) - (spF0[0] * spFC[2])) / temp_f2_4;
+        temp_f0_4 = ((spFC[1] * spF0[0]) - (spF0[1] * spFC[0])) / temp_f2_4;
+
+        // Projected point lies on triangle?
+        if ((0.0f <= temp_f12_3) && (temp_f12_3 <= 1.0f) && (0.0f <= temp_f0_4) && (temp_f0_4 <= 1.0f) && (0 <= 1.0f - (temp_f12_3 + temp_f0_4))) {
+            coll_tri = i_tri;
+            TUPLE_ADD_COPY(normal, normal, i_tri->normal);
             continue;
         }
 
-        //projected point lies outside triangle
-        for(i = 0; i < 3; i++){
-            sp120[i][0] = position[0] - i_tri->tri_coord[i][0];
-            sp120[i][1] = position[1] - i_tri->tri_coord[i][1];
-            sp120[i][2] = position[2] - i_tri->tri_coord[i][2];
-            if (sp120[i][0]*sp120[i][0] + sp120[i][1]*sp120[i][1] + sp120[i][2]*sp120[i][2] < radius * radius) {
-                spD0 = i_tri;
-                arg4[0] = arg4[0] + i_tri->normal[0];
-                arg4[1] = arg4[1] + i_tri->normal[1];
-                arg4[2] = arg4[2] + i_tri->normal[2];
+        // Projected point lies outside triangle?
+        for (i = 0; i < 3; i++) {
+            TUPLE_DIFF_COPY(sp120[i], position, i_tri->tri_coord[i]);
+            if (LENGTH_SQ_VEC3F(sp120[i]) < SQ(radius)) {
+                coll_tri = i_tri;
+                TUPLE_ADD_COPY(normal, normal, i_tri->normal);
                 break;
             }
-            
         }
-        if(i < 3)
+
+        if (i < 3) {
             continue;
-                
-        for(i = 0; i < 3; i++){
-            sp144[i][0] = i_tri->tri_coord[(i + 1) % 3][0] - i_tri->tri_coord[i][0];
-            sp144[i][1] = i_tri->tri_coord[(i + 1) % 3][1] - i_tri->tri_coord[i][1];
-            sp144[i][2] = i_tri->tri_coord[(i + 1) % 3][2] - i_tri->tri_coord[i][2];
-            temp_f22 = sp144[i][0]*sp144[i][0] + sp144[i][1]*sp144[i][1] + sp144[i][2]*sp144[i][2];
+        }
+
+        for (i = 0; i < 3; i++) {
+            TUPLE_DIFF_COPY(sp144[i], i_tri->tri_coord[(i + 1) % 3], i_tri->tri_coord[i]);
+            temp_f22 = LENGTH_SQ_VEC3F(sp144[i]);
             ml_vec3f_normalize(sp144[i]);
-            temp_f0_3 = (sp144[i][0]*sp120[i][0]) + (sp144[i][1]*sp120[i][1]) + (sp144[i][2]*sp120[i][2]);
-            if ((0.0f <= temp_f0_3) && ((temp_f0_3 * temp_f0_3) <= temp_f22)){
-                projected_position[0] = sp120[i][0] - sp144[i][0]*temp_f0_3;
-                projected_position[1] = sp120[i][1] - sp144[i][1]*temp_f0_3;
-                projected_position[2] = sp120[i][2] - sp144[i][2]*temp_f0_3;
-                if(projected_position[0]*projected_position[0] + projected_position[1]*projected_position[1] + projected_position[2]*projected_position[2] < radius * radius){
-                    spD0 = i_tri;
-                    arg4[0] = arg4[0] + i_tri->normal[0];
-                    arg4[1] = arg4[1] + i_tri->normal[1];
-                    arg4[2] = arg4[2] + i_tri->normal[2];
+            temp_f0_3 = TUPLE_DOT_PRODUCT(sp144[i], sp120[i]);
+            if ((0.0f <= temp_f0_3) && (SQ(temp_f0_3) <= temp_f22)) {
+                TUPLE_DIFF_COPY(projected_position, sp120[i], temp_f0_3 * sp144[i]);
+                if (LENGTH_SQ_VEC3F(projected_position) < SQ(radius)) {
+                    coll_tri = i_tri;
+                    TUPLE_ADD_COPY(normal, normal, i_tri->normal);
                     break;
                 }
             } 
         }
     }
-    return spD0;
+
+    return coll_tri;
 }
 
-BKCollisionTriangle *func_802E8E88(BKCollisionList *collision_list, BKVertexList *vtx_list, f32 p1[3], f32 p2[3], f32 radius, f32 arg5[3], s32 arg6, s32 flagFilter){
-    Struct_core2_5FD90_0 * start_active_tri;
-    Struct_core2_5FD90_0 * end_active_tri;
-    f32 spB4[3];
-    
-    f32 temp_f20;
-    f32 phi_f22;
-    f32 phi_f24;
-    s32 phi_s0;
+BKCollisionTriangle *collisionList_intersectMovingSphere(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 p1[3], f32 p2[3], f32 sphere_radius, f32 normal[3], s32 steps, u32 flag_filter) {
+    BKProcessedCollisionTriangle *start_ptri, *end_ptri;
+    f32 distance[3];
+    f32 current, start, end;
+    int i;
+    f32 current_pos[3];
+    f32 temp_normal[3];
+    BKProcessedCollisionTriangle *coll_tri, *cur_coll_tri;
+    f32 velocity[3];
 
-    f32 sp98[3];
-    f32 sp8C[3];
-    Struct_core2_5FD90_0 *phi_s5;
-    Struct_core2_5FD90_0 *phi_v0;
-    f32 sp78[3];
+    TUPLE_DIFF_COPY(velocity, p2, p1);
 
-    sp78[0] = p2[0] - p1[0];
-    sp78[1] = p2[1] - p1[1];
-    sp78[2] = p2[2] - p1[2];
-    if (!func_802E81CC(collision_list, vtx_list, p1, p2, sp78, (f32) ((f64) radius + 0.5), flagFilter, &start_active_tri, &end_active_tri)) {
+    if (!collisionList_intersectMovingSphere_FastCheck(this, bk_vtx_list, p1, p2, velocity, sphere_radius + 0.5, flag_filter, &start_ptri, &end_ptri)) {
         return NULL;
     }
-    phi_s5 = func_802E879C(start_active_tri, end_active_tri, p2, radius, sp8C);
-    if (phi_s5 == NULL) {
+
+    coll_tri = collisionList_intersectMovingSphere_Iteration(start_ptri, end_ptri, p2, sphere_radius, temp_normal);
+    if (!coll_tri) {
         return NULL;
     }
-    arg5[0] = sp8C[0];
-    arg5[1] = sp8C[1];
-    arg5[2] = sp8C[2];
-    spB4[0] = p2[0] - p1[0];
-    spB4[1] = p2[1] - p1[1];
-    spB4[2] = p2[2] - p1[2];
-    p2[0] = p1[0];
-    p2[1] = p1[1];
-    p2[2] = p1[2];
-    phi_f22 = 0.0f;
-    phi_f24 = 1.0f;
-    for(phi_s0 = 0; phi_s0 < arg6; phi_s0++){
-        temp_f20 = (phi_f22 + phi_f24) * 0.5;
-        sp98[0] = p1[0] + (spB4[0] * temp_f20);
-        sp98[1] = p1[1] + (spB4[1] * temp_f20);
-        sp98[2] = p1[2] + (spB4[2] * temp_f20);
-        phi_v0 = func_802E879C(start_active_tri, end_active_tri, sp98, radius, sp8C);
-        if (phi_v0 != NULL) {
-            arg5[0] = sp8C[0];
-            arg5[1] = sp8C[1];
-            arg5[2] = sp8C[2];
-            phi_f24 = temp_f20;
-            phi_s5 = phi_v0;
+
+    TUPLE_COPY(normal, temp_normal);
+    TUPLE_DIFF_COPY(distance, p2, p1);
+    TUPLE_COPY(p2, p1);
+    start = 0.0f;
+    end = 1.0f;
+
+    for (i = 0; i < steps; i++) {
+        current = (start + end) * 0.5;
+        TUPLE_ADD_COPY(current_pos, p1, current * distance);
+        cur_coll_tri = collisionList_intersectMovingSphere_Iteration(start_ptri, end_ptri, current_pos, sphere_radius, temp_normal);
+        if (cur_coll_tri) {
+            TUPLE_COPY(normal, temp_normal);
+            end = current;
+            coll_tri = cur_coll_tri;
         } else {
-            p2[0] = sp98[0];
-            p2[1] = sp98[1];
-            p2[2] = sp98[2];
-            phi_f22 = temp_f20;
+            TUPLE_COPY(p2, current_pos);
+            start = current;
         }
     }
-    if (phi_s5 == NULL) {
+
+    if (!coll_tri) {
         return NULL;
     }
-    ml_vec3f_normalize(arg5);
-    collisionTriangle_func_802E6D20(phi_s5->tri_ptr, vtx_list);
-    return phi_s5->tri_ptr;
+
+    ml_vec3f_normalize(normal);
+    collisionList_setStoredTriangle(coll_tri->tri_ptr, bk_vtx_list);
+
+    return coll_tri->tri_ptr;
 }
 
-BKCollisionTriangle *func_802E9118(BKCollisionList * collision_list, BKVertexList *vtx_list, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 flagFilter) {
-    f32 sp4C[3];
-    f32 sp40[3];
-    BKCollisionTriangle *sp3C;
-    s32 i;
+BKCollisionTriangle *collisionList_intersectMovingSphereGlobal(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 position[3], f32 rotation[3], f32 scale, f32 p1[3], f32 p2[3], f32 sphere_radius, f32 normal[3], s32 steps, u32 flag_filter) {
+    f32 object_p1[3], object_p2[3];
+    BKCollisionTriangle *coll_tri;
+    int i;
 
-    if (((f32)vtx_list->global_norm * arg4) <= (ml_vec3f_distance(arg6, arg2) - arg7)) {
-        return 0;
-    }
-    mlMtxIdent();
-    func_80252CC4(arg2, arg3, arg4, 0);
-    mlMtx_apply_vec3f(sp4C, arg5);
-    mlMtx_apply_vec3f(sp40, arg6);
-    sp3C = func_802E8E88(collision_list, vtx_list, sp4C, sp40, arg7 / arg4, arg8, arg9, flagFilter);
-    if (sp3C == NULL) {
+    // Do bounding spheres intersect?
+    if ((bk_vtx_list->global_norm * scale) <= (ml_vec3f_distance(p2, position) - sphere_radius)) {
         return NULL;
     }
+
+    // Transform sphere center from world to object space
     mlMtxIdent();
-    func_80252C08(arg2, arg3, arg4, 0);
-    mlMtx_apply_vec3f(arg6, sp40);
-    mlMtxIdent();
-    func_80252C08(NULL, arg3, 1.0f, 0);
-    mlMtx_apply_vec3f(arg8, arg8);
-    mlMtxIdent();
-    func_80252C08(arg2, arg3, arg4, 0);
-    for(i = 0; i < 3; i++){
-        mlMtx_apply_vec3f(D_8037EAA8[i], D_8037EAA8[i]);
+    func_80252CC4(position, rotation, scale, NULL);
+    mlMtx_apply_vec3f(object_p1, p1);
+    mlMtx_apply_vec3f(object_p2, p2);
+
+    // Check collision for every triangle
+    coll_tri = collisionList_intersectMovingSphere(this, bk_vtx_list, object_p1, object_p2, sphere_radius / scale, normal, steps, flag_filter);
+    if (!coll_tri) {
+        return NULL;
     }
-    return sp3C;
+
+    // Transform modified sphere center from object space to world space
+    mlMtxIdent();
+    func_80252C08(position, rotation, scale, NULL);
+    mlMtx_apply_vec3f(p2, object_p2);
+
+    // Transform normal from object to world space
+    mlMtxIdent();
+    func_80252C08(NULL, rotation, 1.0f, NULL);
+    mlMtx_apply_vec3f(normal, normal);
+
+    // Transform sStoredTriangle from object to world space
+    mlMtxIdent();
+    func_80252C08(position, rotation, scale, NULL);
+    for (i = 0; i < 3; i++) {
+        mlMtx_apply_vec3f(sStoredTriangle[i], sStoredTriangle[i]);
+    }
+
+    return coll_tri;
 }
 
-BKCollisionTriangle *func_802E92AC(BKCollisionList *collisionList, BKVertexList *vertexList, f32 position[3], f32 radius, f32 arg4[3], s32 flagFilter) {
-    BKCollisionGeometry **start_geo;
-    BKCollisionGeometry **i_geo;
-    BKCollisionGeometry **end_geo;
-    s32 i;
-    s32 j;
-    f32 min[3];
-    f32 max[3];
-    BKCollisionTriangle *start_tri;
-    BKCollisionTriangle *i_tri;
-    BKCollisionTriangle *end_tri;
+BKCollisionTriangle *collisionList_intersectSphere(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 position[3], f32 radius, f32 normal[3], u32 flag_filter) {
+    BKCollisionGeometry **start_geo, **i_geo, **end_geo;
+    int i, j;
+    f32 min[3], max[3];
+    BKCollisionTriangle *start_tri, *i_tri, *end_tri;
     f32 tri_vtx_coord[3][3];
-    Vtx *vtx_pool;
-    Vtx *i_vtx;
-    f32 min_coord[3];
-    f32 max_coord[3];
+    Vtx *vtx_pool, *i_vtx;
+    f32 min_coord[3], max_coord[3];
     BKCollisionGeometry *temp_a2;
     f32 tri_edge[3][3];
     f32 sp138[3][3];
     f32 temp_f0_10;
-    f32 temp_f0_2;
+    f32 vtx_radius;
     f32 temp_f0_6;
     f32 tri_normal[3];
     f32 temp_f0_8;
@@ -849,208 +787,200 @@ BKCollisionTriangle *func_802E92AC(BKCollisionList *collisionList, BKVertexList 
     f32 spE4[3];
     f32 projected_position[3];
     f32 temp_f8;
-    BKCollisionTriangle *spD0;
-    s32 var_a2;
+    BKCollisionTriangle *matched_tri;
+    s32 primary_axis;
     s32 var_v1_2;
 
-    for(i = 0; i < 3; i++){
+    // [min, max] = bounding box around position
+    for (i = 0; i < 3; i++) {
         min[i] = position[i] - (radius + 0.5);
         max[i] = position[i] + (radius + 0.5);
     }
 
-    //check if any vertices are within range;
-    temp_f0_2 = vtxList_getGlobalNorm(vertexList);
-    for(i = 0; i < 3; i++){
-        if((max[i] <= -temp_f0_2)|| temp_f0_2 <= min[i])
+    // Are vertices within bounding box? If not, return.
+    vtx_radius = vtxList_getGlobalNorm(bk_vtx_list);
+    for (i = 0; i < 3; i++) {
+        if ((max[i] <= -vtx_radius) || (min[i] >= vtx_radius)) {
             return NULL;
+        }
     }
 
-    //iterate over collision geometry intersect range
-    spD0 = NULL;
-    spE4[0] = spE4[1] = spE4[2] = 0.0f;
-    collisionList_getIntersecting(collisionList, min, max, &start_geo, &end_geo);
-    vtx_pool = vtxList_getVertices(vertexList);
-    for(i_geo = start_geo; i_geo < end_geo; i_geo++){
+    // Iterate over collision geometry intersect range
+    matched_tri = NULL;
+    TUPLE_SET(spE4, 0.0f);
+    collisionList_getIntersecting_f32(this, min, max, &start_geo, &end_geo);
+    vtx_pool = vtxList_getVertices(bk_vtx_list);
 
-        //iterate over each triangle in collision geometry
-        start_tri = (BKCollisionTriangle *)((BKCollisionGeometry *)(collisionList + 1) + collisionList->unk10) + (*i_geo)->start_tri_index;
+    for (i_geo = start_geo; i_geo < end_geo; i_geo++) {
+        //Iterate over each triangle in collision geometry
+        start_tri = (BKCollisionTriangle *) ((BKCollisionGeometry *) this->data + this->geo_count) + (*i_geo)->start_tri_index;
         end_tri = start_tri + (*i_geo)->tri_count;
-        for(i_tri = start_tri; i_tri < end_tri; i_tri++){
-            //filter tri
-            if (!(i_tri->flags & flagFilter)){
-                if (!port_collisionTriValid(i_tri, vertexList)) {
+
+        for (i_tri = start_tri; i_tri < end_tri; i_tri++) {
+            // Filter triangle
+            if (!(i_tri->flags & flag_filter)) {
+                if (!port_collisionTriValid(i_tri, bk_vtx_list)) {
                     continue;
                 }
-
-                //get tri coords
-                for(i = 0; i < 3; i++){
+                // Get Triangle coords
+                for (i = 0; i < 3; i++) {
                     i_vtx = &vtx_pool[i_tri->unk0[i]];
-                    tri_vtx_coord[i][0] = i_vtx->v.ob[0];
-                    tri_vtx_coord[i][1] = i_vtx->v.ob[1];
-                    tri_vtx_coord[i][2] = i_vtx->v.ob[2];
+                    TUPLE_COPY(tri_vtx_coord[i], i_vtx->v.ob);
                 }
 
-                //get tri bounding points
-                min_coord[0] = tri_vtx_coord[0][0];
-                min_coord[1] = tri_vtx_coord[0][1];
-                min_coord[2] = tri_vtx_coord[0][2];
-    
-                max_coord[0] = tri_vtx_coord[0][0];
-                max_coord[1] = tri_vtx_coord[0][1];
-                max_coord[2] = tri_vtx_coord[0][2];
-                for(i = 1; i < 3; i++){
-                    for(j = 0; j < 3; j++){
-                        if(tri_vtx_coord[i][j] < min_coord[j]){
+                // Calculate bounding box for triangle
+                TUPLE_COPY(min_coord, tri_vtx_coord[0]);
+                TUPLE_COPY(max_coord, tri_vtx_coord[0]);
+
+                for (i = 1; i < 3; i++) {
+                    for (j = 0; j < 3; j++) {
+                        if (tri_vtx_coord[i][j] < min_coord[j]) {
                             min_coord[j] = tri_vtx_coord[i][j];
                         }
-                        if(max_coord[j] < tri_vtx_coord[i][j]){
+
+                        if (max_coord[j] < tri_vtx_coord[i][j]) {
                             max_coord[j] = tri_vtx_coord[i][j];
                         }
                     }
                 }
-    
-                //check if tri is within collision region
+
+                // Check if triangle is within collision region
                 if ((max[0] < min_coord[0]) || (max_coord[0] < min[0])) continue;
                 if ((max[1] < min_coord[1]) || (max_coord[1] < min[1])) continue;
                 if ((max[2] < min_coord[2]) || (max_coord[2] < min[2])) continue;
-                
-                //caluclate normal
-                tri_edge[0][0] = tri_vtx_coord[1][0] - tri_vtx_coord[0][0];\
-                tri_edge[0][1] = tri_vtx_coord[1][1] - tri_vtx_coord[0][1];\
-                tri_edge[0][2] = tri_vtx_coord[1][2] - tri_vtx_coord[0][2];
-    
-                tri_edge[1][0] = tri_vtx_coord[2][0] - tri_vtx_coord[0][0];
-                tri_edge[1][1] = tri_vtx_coord[2][1] - tri_vtx_coord[0][1];
-                tri_edge[1][2] = tri_vtx_coord[2][2] - tri_vtx_coord[0][2];
-    
-                tri_normal[0] = (tri_edge[0][1] * tri_edge[1][2]) - (tri_edge[0][2] * tri_edge[1][1]);
-                tri_normal[1] = (tri_edge[0][2] * tri_edge[1][0]) - (tri_edge[0][0] * tri_edge[1][2]);
-                tri_normal[2] = (tri_edge[0][0] * tri_edge[1][1]) - (tri_edge[0][1] * tri_edge[1][0]);
+
+                // Caluclate normal
+                TUPLE_DIFF_COPY(tri_edge[0], tri_vtx_coord[1], tri_vtx_coord[0]);
+                TUPLE_DIFF_COPY(tri_edge[1], tri_vtx_coord[2], tri_vtx_coord[0]);
+                TUPLE_CROSS_PRODUCT(tri_normal, tri_edge[0], tri_edge[1]);
                 ml_vec3f_normalize(tri_normal);
-                    
-                if ((tri_normal[0] == 0.0f) && (tri_normal[1] == 0.0f) && (tri_normal[2] == 0.0f)) 
+
+                if ((tri_normal[0] == 0.0f) && (tri_normal[1] == 0.0f) && (tri_normal[2] == 0.0f)) {
                     continue;
-    
-                //project point onto triangle?
-                sp138[0][0] = position[0] - tri_vtx_coord[0][0];
-                sp138[0][1] = position[1] - tri_vtx_coord[0][1];
-                sp138[0][2] = position[2] - tri_vtx_coord[0][2];
-    
-                temp_f12_2 = (sp138[0][0] * tri_normal[0]) + (sp138[0][1] * tri_normal[1]) + (sp138[0][2] * tri_normal[2]);
+                }
+
+                // Project point onto triangle?
+                TUPLE_DIFF_COPY(sp138[0], position, tri_vtx_coord[0]);
+
+                temp_f12_2 = TUPLE_DOT_PRODUCT(sp138[0], tri_normal);
                 if((temp_f12_2 <= -(radius - 0.5)) || ((radius - 0.5) <= temp_f12_2))
                     continue;
-    
-                temp_f2_3 = (tri_normal[0] * tri_normal[0]) + (tri_normal[1] * tri_normal[1]) + (tri_normal[2]*tri_normal[2]);
+
+                temp_f2_3 = LENGTH_SQ_VEC3F(tri_normal);
                 if (temp_f2_3 == 0.0f) 
                     continue;
-    
+
                 temp_f0_6 = -temp_f12_2 / temp_f2_3;
-                projected_position[0] = position[0] + (tri_normal[0] * temp_f0_6);
-                projected_position[1] = position[1] + (tri_normal[1] * temp_f0_6);
-                projected_position[2] = position[2] + (tri_normal[2] * temp_f0_6);
-    
-                //???
-                var_a2 = (ABS_F(tri_normal[0]) > ABS_F(tri_normal[1])) ? 0 : 1;
-                var_a2 = (ABS_F(tri_normal[2]) > ABS_F(tri_normal[var_a2])) ? 2 : var_a2;
-                
-                sp108[0] = projected_position[(var_a2 + 1) % 3] - tri_vtx_coord[0][(var_a2 + 1) % 3];
-                sp108[1] = tri_edge[0][(var_a2 + 1) % 3];
-                sp108[2] = tri_edge[1][(var_a2 + 1) % 3];
-    
-                spFC[0] = projected_position[(var_a2 + 2) % 3] - tri_vtx_coord[0][(var_a2 + 2) % 3];
-                spFC[1] = tri_edge[0][(var_a2 + 2) % 3];
-                spFC[2] = tri_edge[1][(var_a2 + 2) % 3];
-                
+                TUPLE_ADD_COPY(projected_position, position, temp_f0_6 * tri_normal);
+
+                // ???
+                primary_axis = (ABS_F(tri_normal[0]) > ABS_F(tri_normal[1])) ? 0 : 1;
+                primary_axis = (ABS_F(tri_normal[2]) > ABS_F(tri_normal[primary_axis])) ? 2 : primary_axis;
+
+                sp108[0] = projected_position[(primary_axis + 1) % 3] - tri_vtx_coord[0][(primary_axis + 1) % 3];
+                sp108[1] = tri_edge[0][(primary_axis + 1) % 3];
+                sp108[2] = tri_edge[1][(primary_axis + 1) % 3];
+
+                spFC[0] = projected_position[(primary_axis + 2) % 3] - tri_vtx_coord[0][(primary_axis + 2) % 3];
+                spFC[1] = tri_edge[0][(primary_axis + 2) % 3];
+                spFC[2] = tri_edge[1][(primary_axis + 2) % 3];
+
                 temp_f14_2 = (sp108[1] * spFC[2]) - (spFC[1] * sp108[2]);
-                temp_f2_6 = ((sp108[0] * spFC[2]) - (spFC[0] * sp108[2]))/ temp_f14_2;
-                if ((0.0f <= temp_f2_6) && (temp_f2_6 <= 1)){
-                    temp_f0_8 = ((sp108[1] * spFC[0]) - (spFC[1] * sp108[0]))/temp_f14_2;
-                    if(1)
-                    if((0.0f <= temp_f0_8) && ((temp_f0_8 <= 1))){
-                        if((temp_f2_6 + temp_f0_8 <= 1)){
-                            spD0 = i_tri;
-                            spE4[0] = spE4[0] + tri_normal[0];
-                            spE4[1] = spE4[1] + tri_normal[1];
-                            spE4[2] = spE4[2] + tri_normal[2];
-                            continue;
+                temp_f2_6 = ((sp108[0] * spFC[2]) - (spFC[0] * sp108[2])) / temp_f14_2;
+
+                if ((0.0f <= temp_f2_6) && (temp_f2_6 <= 1)) {
+                    temp_f0_8 = ((sp108[1] * spFC[0]) - (spFC[1] * sp108[0])) / temp_f14_2;
+
+                    if (1) {
+                        if ((0.0f <= temp_f0_8) && ((temp_f0_8 <= 1))) {
+                            if ((temp_f2_6 + temp_f0_8 <= 1)) {
+                                matched_tri = i_tri;
+                                TUPLE_ADD_COPY(spE4, spE4, tri_normal);
+                                continue;
+                            }
                         }
                     }
                 }
-    
-                for(i = 0; i < 3; i++){
-                    sp138[i][0] = position[0] - tri_vtx_coord[i][0];
-                    sp138[i][1] = position[1] - tri_vtx_coord[i][1];
-                    sp138[i][2] = position[2] - tri_vtx_coord[i][2];
-                    if((sp138[i][0] * sp138[i][0]) + (sp138[i][1] * sp138[i][1]) + (sp138[i][2] * sp138[i][2]) < (radius *radius)){
-                        spD0 = i_tri;
-                        spE4[0] = spE4[0] + tri_normal[0];
-                        spE4[1] = spE4[1] + tri_normal[1];
-                        spE4[2] = spE4[2] + tri_normal[2];
+
+                for (i = 0; i < 3; i++) {
+                    TUPLE_DIFF_COPY(sp138[i], position, tri_vtx_coord[i]);
+                    if (LENGTH_SQ_VEC3F(sp138[i]) < SQ(radius)) {
+                        matched_tri = i_tri;
+                        TUPLE_ADD_COPY(spE4, spE4, tri_normal);
                         break;
                     }
                 }
-                
-                if(i < 3)
+
+                if (i < 3) {
                     continue;
-                    
-                for(i = 0; i < 3; i++){
-                    tri_edge[i][0] = tri_vtx_coord[(i + 1)%3][0] - tri_vtx_coord[i][0];\
-                    tri_edge[i][1] = tri_vtx_coord[(i + 1)%3][1] - tri_vtx_coord[i][1];\
-                    tri_edge[i][2] = tri_vtx_coord[(i + 1)%3][2] - tri_vtx_coord[i][2];
-                    temp_f2_7 = (tri_edge[i][0] * tri_edge[i][0]) + (tri_edge[i][1] * tri_edge[i][1]) + (tri_edge[i][2] * tri_edge[i][2]);
+                }
+
+                for (i = 0; i < 3; i++) {
+                    TUPLE_DIFF_COPY(tri_edge[i], tri_vtx_coord[(i + 1) % 3], tri_vtx_coord[i]);
+                    temp_f2_7 = LENGTH_SQ_VEC3F(tri_edge[i]);
                     ml_vec3f_normalize(tri_edge[i]);
-                    temp_f0_10 = (tri_edge[i][0] * sp138[i][0]) + (tri_edge[i][1] * sp138[i][1]) + (tri_edge[i][2] * sp138[i][2]);
-                    if ((temp_f0_10 >= 0.0f) && ((temp_f0_10 *temp_f0_10) <= temp_f2_7)){
-                        projected_position[0] = sp138[i][0] - (tri_edge[i][0] * temp_f0_10);
-                        projected_position[1] = sp138[i][1] - (tri_edge[i][1] * temp_f0_10);
-                        projected_position[2] = sp138[i][2] - (tri_edge[i][2] * temp_f0_10);
-                        if((projected_position[0] * projected_position[0]) + (projected_position[1] * projected_position[1]) + (projected_position[2] * projected_position[2]) < (radius * radius)) {
-                            spD0 = i_tri;
-                            spE4[0] = spE4[0] + tri_normal[0];
-                            spE4[1] = spE4[1] + tri_normal[1];
-                            spE4[2] = spE4[2] + tri_normal[2];
+                    temp_f0_10 = TUPLE_DOT_PRODUCT(tri_edge[i], sp138[i]);
+
+                    if ((temp_f0_10 >= 0.0f) && (SQ(temp_f0_10) <= temp_f2_7)) {
+                        TUPLE_DIFF_COPY(projected_position, sp138[i], temp_f0_10 * tri_edge[i]);
+
+                        if (LENGTH_SQ_VEC3F(projected_position) < SQ(radius)) {
+                            matched_tri = i_tri;
+                            TUPLE_ADD_COPY(spE4, spE4, tri_normal);
                             break;
                         }
                     } 
                 }
-                
             }
         }
     }
-    if (spD0 != NULL) {
-        ml_vec3f_normalize_copy(arg4, spE4);
+
+    if (matched_tri != NULL) {
+        ml_vec3f_normalize_copy(normal, spE4);
     }
-    collisionTriangle_func_802E6D20(spD0, vertexList);
-    return spD0;
+
+    collisionList_setStoredTriangle(matched_tri, bk_vtx_list);
+
+    return matched_tri;
 }
 
-BKCollisionTriangle *func_802E9DD8(BKCollisionList *collisionList, BKVertexList *vtxList, f32 posA[3], f32 *rotA, f32 scaleA, f32 posB[3], f32 radB, f32 arg7[3], s32 arg8) {
-    f32 sp34[3];
-    BKCollisionTriangle *sp30;
-    s32 i;
+BKCollisionTriangle *collisionList_intersectSphereGlobal(BKCollisionList *this, BKVertexList *bk_vtx_list, f32 position[3], f32 rotation[3], f32 scale, f32 sphere_center[3], f32 sphere_radius, f32 normal[3], u32 flag_filter) {
+    f32 object_sphere_center[3];
+    BKCollisionTriangle *coll_tri;
+    int i;
 
-    // check if (sphere around vtx's) <= ((distance between origins) - (radius of B))
-    if ((vtxList->global_norm * scaleA) <= (ml_vec3f_distance(posB, posA) - radB)) {
+    // Do bounding spheres intersect?
+    if ((bk_vtx_list->global_norm * scale) <= (ml_vec3f_distance(sphere_center, position) - sphere_radius)) {
         return NULL;
     }
+
+    // Transform sphere center from world to object space
     mlMtxIdent();
-    func_80252CC4(posA, rotA, scaleA, NULL);
-    mlMtx_apply_vec3f(sp34, posB);
-    sp30 = func_802E92AC(collisionList, vtxList, sp34, radB / scaleA, arg7, arg8);
-    if (sp30 == 0) {
+    func_80252CC4(position, rotation, scale, NULL);
+    mlMtx_apply_vec3f(object_sphere_center, sphere_center);
+
+    // Check collision for every triangle
+    coll_tri = collisionList_intersectSphere(this, bk_vtx_list, object_sphere_center, sphere_radius / scale, normal, flag_filter);
+    if (!coll_tri) {
         return NULL;
     }
+
+    // Transform modified sphere center from object space to world space
     mlMtxIdent();
-    func_80252C08(posA, rotA, scaleA, NULL);
-    mlMtx_apply_vec3f(posB, sp34);
+    func_80252C08(position, rotation, scale, NULL);
+    mlMtx_apply_vec3f(sphere_center, object_sphere_center);
+
+    // Transform normal from object to world space
     mlMtxIdent();
-    func_80252C08(NULL, rotA, 1.0f, NULL);
-    mlMtx_apply_vec3f(arg7, arg7);
+    func_80252C08(NULL, rotation, 1.0f, NULL);
+    mlMtx_apply_vec3f(normal, normal);
+
+    // Transform sStoredTriangle from object to world space
     mlMtxIdent();
-    func_80252C08(posA, rotA, scaleA, NULL);
-    
-    for(i = 0; i < 3; i++){
-        mlMtx_apply_vec3f(D_8037EAA8[i], D_8037EAA8[i]);
+    func_80252C08(position, rotation, scale, NULL);
+    for (i = 0; i < 3; i++) {
+        mlMtx_apply_vec3f(sStoredTriangle[i], sStoredTriangle[i]);
     }
-    return sp30;
+
+    return coll_tri;
 }

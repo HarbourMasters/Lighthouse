@@ -2463,7 +2463,6 @@ void func_8034B9E4(void);
 void func_8034BA7C(enum map_e map_id, s32 exit_id);
 
 // --- core2/map/mapModel.c ---
-BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
 Vec3fArray *func_803097A0(void);
 BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
 bool func_80309D58(f32 arg0[3], s32 arg1);
@@ -2946,9 +2945,6 @@ void func_8034C21C(ActorMarker *marker);
 
 // --- core2/vtx/gclights.c ---
 void lightingVectorList_fromFile(File *file_ptr);
-
-// --- core2/vtx/listutils.c ---
-void func_802E73C8(f32 arg0[3][3]);
 
 // --- core2/vtx/positionset.c ---
 s32 func_8034F560(Struct76s *arg0);

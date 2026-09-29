@@ -62,6 +62,12 @@
     vec[2] *= value; \
 }
 
+#define TUPLE_SCALE_INVERSE(vec, value) { \
+    vec[0] /= value; \
+    vec[1] /= value; \
+    vec[2] /= value; \
+}
+
 #define TUPLE_SCALE_COPY(dst, vec, value) { \
     dst[0] = vec[0] * value; \
     dst[1] = vec[1] * value; \
