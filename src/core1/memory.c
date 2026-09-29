@@ -384,7 +384,7 @@ void *bk_malloc(size_t size){
             animCache_flushStale();
 
         if(!func_80254B84(0))
-            animBinCache_flushStale(0); //nonpersistent anim
+            animcommoncache_flushStale(FALSE); //nonpersistent anim
 
         if(!func_80254B84(0))
             func_8032AD7C(2);
@@ -405,7 +405,7 @@ void *bk_malloc(size_t size){
                     pem_freeEmitters(); //particleEmitters
                 
                 if(!func_80254B84(0))
-                    animBinCache_flushStale(1); //persistent anim
+                    animcommoncache_flushStale(TRUE); //persistent anim
 
                 if(v1 = func_80254B84(0)){}
                 else

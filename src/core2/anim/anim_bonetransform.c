@@ -6,14 +6,10 @@
 #include "assets.h"
 #include "animation.h"
 #include "port/ResourceHelpers.h"
+#include "bk_math.h"
 
-extern f32 glspline_catmull_rom_interpolate(f32, s32, f32 *);
 extern BKSpriteDisplayData * func_80344A1C(BKSprite *arg0);
-f32 D_803709E0[] = {
-    0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 0.0f
-};
+
 s32 assetCacheCurrentSize = 0;
  u8 assetCacheLength = 0; //assetCache_size;
  u8 assetCacheCurrentIndex = 0;
@@ -35,137 +31,9 @@ bk_vector(struct21s) *D_80383CE0[2];
 
 /* .public */
 
-f32  func_8033ABA0(AnimationFile *anim_file, f32 arg1);
-f32  func_8033AC38(AnimationFile *anim_file, AnimationFileElement *arg1, f32 arg2);
-s32  func_8033AC0C(AnimationFile *this);
-void func_8033AFB8(BoneTransformList *arg0, s32 arg1, f32 arg2[3][3]);
 void func_8033BAB0(enum asset_e asset_id, s32 offset, s32 size, void *dst_ptr);
 
 /* .core2 */
-f32 func_8033AA10(AnimationFile *this, s32 arg1){
-    if(arg1 == this->unk2)
-        return 0.999999f;
-    return (f32)(arg1 - this->unk0)/(f32)(this->unk2 - this->unk0);
-}
-
-void animationFile_getBoneTransformList(AnimationFile *anim_file, f32 progress, BoneTransformList *bone_transform_list){
-    s32 bone_id;
-    int i;
-    f32 tmp_f22;
-    AnimationFileElement *tmp_s0;
-    // [port] unk0_3 indexes 0-8 across rotation(0-2)/scale(3-5)/translation(6-8).
-    // Original code used f32[3][3] with sp54[0][unk0_3] — UB when unk0_3 >= 3.
-    // Use a flat array to avoid strict-aliasing/bounds optimization issues in Release.
-    f32 sp54_flat[9];
-    f32 (*sp54)[3] = (f32 (*)[3])sp54_flat;
-
-    if(anim_file == NULL) return; // [port] sentinel anim IDs (0xFFFE) produce NULL from animBinCache_get
-    tmp_f22 = func_8033ABA0(anim_file, progress);
-    tmp_s0 = (AnimationFileElement *)((uintptr_t)anim_file + sizeof(AnimationFile));
-    bone_id = 0;
-
-    for(i = 0; i < anim_file->elem_cnt; i++){//L8033AAB8
-        if(tmp_s0->unk0_15 != bone_id){
-            if(bone_id != 0)
-                func_8033AFB8(bone_transform_list, bone_id, sp54);
-            bone_id = tmp_s0->unk0_15;
-            sp54[0][0] = sp54[0][1] = sp54[0][2] = 0.0f;
-            sp54[1][0] = sp54[1][1] = sp54[1][2] = 1.0f;
-            sp54[2][0] = sp54[2][1] = sp54[2][2] = 0.0f;
-        }
-
-        sp54_flat[tmp_s0->unk0_3] = func_8033AC38(anim_file, tmp_s0, tmp_f22);
-
-        tmp_s0 += tmp_s0->data_cnt;
-        tmp_s0++;
-    }//L8033AB60
-    func_8033AFB8(bone_transform_list, bone_id, sp54);
-}
-
-f32 func_8033ABA0(AnimationFile *this, f32 arg1){
-    return this->unk0 + arg1*(this->unk2 - this->unk0);
-}
-
-f32 func_8033ABCC(AnimationFile *this){
-    f32 tmp = func_8033AC0C(this);
-    return (tmp - 1.0)/tmp;
-}
-
-s32 func_8033AC0C(AnimationFile *this){
-    return this->unk2;
-}
-
-s32 func_8033AC14(AnimationFile *this){
-    return this->unk0;
-}
-
-s32 func_8033AC1C(AnimationFile *this){
-    return this->unk2 - this->unk0 + 1;
-}
-
-s32 animationFile_count(AnimationFile *this){
-    return this->elem_cnt;
-}
-
-f32 func_8033AC38(AnimationFile *this, AnimationFileElement *elem, f32 time){
-    AnimationFileData *end_anim;
-    AnimationFileData *start_anim;
-    AnimationFileData *var_v0;
-    f32 temp_f12;
-    f32 knot_list[4];
-    u32 temp_t2;
-
-    start_anim = &elem->data[0];
-    if ((s32)time < start_anim->unk0_13) {
-        knot_list[0] = knot_list[1] = D_803709E0[elem->unk0_3];
-        knot_list[2] = (f32) start_anim->unk2 / 64;
-        knot_list[3] = (start_anim->unk0_15 == 1 && elem->data_cnt >= 2) ? (f32)(start_anim + 1)->unk2/64 : knot_list[2];
-        return glspline_catmull_rom_interpolate((time - this->unk0)/(start_anim->unk0_13 - this->unk0), 4, knot_list);
-    }
-    end_anim = start_anim + elem->data_cnt;
-    end_anim--;
-    if ((s32) time >= (end_anim->unk0_13)) {
-        knot_list[1] = (f32) end_anim->unk2 / 64;
-        knot_list[0] =  ((end_anim->unk0_14 == 1) && (elem->data_cnt >= 2)) ? (f32) (end_anim - 1)->unk2 / 64 : knot_list[1];
-        knot_list[2] = knot_list[3] = knot_list[1];
-
-        return glspline_catmull_rom_interpolate(time - end_anim->unk0_13, 4, knot_list);
-    }
-
-    
-    var_v0 = start_anim + 1;
-    while (var_v0 < end_anim){
-            var_v0 = &start_anim[(end_anim - start_anim)/2];
-            if (var_v0->unk0_13 <= (s32)time) {
-                start_anim = var_v0;
-                if (!start_anim);
-            } else {
-                end_anim = var_v0;
-            }
-            var_v0 = start_anim + 1;
-        
-    }
-    
-    knot_list[1] = (f32) start_anim->unk2 / 64;
-    knot_list[2] = (f32) end_anim->unk2 / 64;
-    temp_f12 = (time - start_anim->unk0_13) / (end_anim->unk0_13 - start_anim->unk0_13);
-    if ((start_anim->unk0_14 == 0) && (end_anim->unk0_15 == 0)) {
-        return knot_list[1] + ((knot_list[2] - knot_list[1]) * temp_f12);
-    }
-    
-    knot_list[0] = (start_anim->unk0_14 == 1 && (start_anim - 1) >= &elem->data[0]) ?  (f32)(start_anim - 1)->unk2/64 : knot_list[1];
-    knot_list[3] = (end_anim->unk0_15 == 1 && (end_anim + 1) < &elem->data[elem->data_cnt]) ? (f32)(end_anim + 1)->unk2/64 : knot_list[2];
-    return glspline_catmull_rom_interpolate(temp_f12, 4, knot_list);
-}
-
-void func_8033AFB8(BoneTransformList *bone_transform_list, s32 bone_id, f32 arg2[3][3]){
-    f32 sp18[4];
-    func_80345CD4(sp18, arg2[0]);
-    func_8033A8F0(bone_transform_list, bone_id, sp18);
-    boneTransformList_setBoneScale(bone_transform_list, bone_id, arg2[1]);
-    func_8033A968(bone_transform_list, bone_id, arg2[2]);
-}
-
 void func_8033B020(void *ptr){
     struct21s *start_ptr;
     struct21s *end_ptr;

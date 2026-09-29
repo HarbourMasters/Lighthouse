@@ -228,12 +228,6 @@ void bundle_setYaw(f32);
 // --- core2/actor_array.c (jiggy actors) ---
 Actor **actorArray_findJiggyActors(void);
 
-// --- core2/ba/ba_animcache.c ---
-#ifndef ANIMATION_H
-typedef struct animation_file_s AnimationFile;
-#endif
-AnimationFile *animBinCache_get(enum asset_e asset_id);
-
 // --- core2/anim/anim_buffer.c ---
 BoneTransformList *anim_getTransform(Animation *self, s32 index);
 BoneTransformList *animcache_getCurrentTransform(Animation *self);
@@ -1238,11 +1232,6 @@ void baanim_applyBottlesBonusMask(uintptr_t arg0, s32 mask);
 s32 baanim_getActiveBottlesBonusMask(void);
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
 void baanim_setUpdateType(enum baanim_update_type_e arg0);
-
-// --- core2/ba/ba_animcache.c ---
-void animBinCache_free(void);
-void animBinCache_init(void);
-void animBinCache_update(void);
 
 // --- core2/ba/modelappendages.c ---
 void modelAppendages_loadAppendage(void);
