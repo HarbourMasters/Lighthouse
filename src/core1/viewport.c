@@ -11,8 +11,6 @@
 #include "port/Patches/Patches.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
-extern void guPerspective(Mtx *, u16*, f32, f32, f32, f32, f32);
-
 #define VIEWPORT_FOVY_DEFAULT (40.0f)
 #define VIEWPORT_STACK_SIZE (8)
 
@@ -107,7 +105,7 @@ void viewport_setRenderPerspectiveMatrix(Gfx **gfx, Mtx **mtx, f32 near, f32 far
     }
 #endif
     
-    guPerspective(*mtx, &perspNorm, sViewportFOVy, sViewportAspect, near, far, 0.5f);
+    core1_7F60_guPerspective(*mtx, &perspNorm, sViewportFOVy, sViewportAspect, near, far, 0.5f);
     gSPPerspNormalize((*gfx)++, perspNorm);
     gSPMatrix((*gfx)++, OS_PHYSICAL_TO_K0((*mtx)++), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
 

@@ -13,6 +13,9 @@ extern BKCollisionTriangle *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f3
 extern f32 floor_getXPosition(struct0*);
 extern void func_8031C5AC(struct0 *, f32 *);
 
+s32 D_802758F0 = VER_SELECT(0xAD7FF2F3, 0xB585BADA, 0, 0); // BGS_DATA_CRC2
+s32 D_802758F4 = VER_SELECT(0xD884D8AC, 0xD731B7E2, 0, 0); // FP_DATA_CRC2
+
 /* .bss */
 f32 D_8027EF30;
 

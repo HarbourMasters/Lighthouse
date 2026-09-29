@@ -221,56 +221,56 @@ void setGameInformationZoombox(s32 gamenum){
         gameFile_load(gamenum);
         D_8037DCCE[gamenum] = (itemscore_timeScores_get(LEVEL_6_LAIR)) ? 1 : 0;
 
-        strcpy(upperTextLine, "");
-        strcat(upperTextLine, sGamePrefix[lang]);
+        bk_strcpy(upperTextLine, "");
+        bk_strcat(upperTextLine, sGamePrefix[lang]);
         switch(gamenum){
             case CH_GAME_SELECT_SAVEFILE_0_BED: //L802C4820
-                strIToA(upperTextLine, 1);
+                bk_strIToA(upperTextLine, 1);
                 break;
             case CH_GAME_SELECT_SAVEFILE_1_GAMING_CHAIR: //L802C4838
-                strIToA(upperTextLine, 3);
+                bk_strIToA(upperTextLine, 3);
                 break;
             case CH_GAME_SELECT_SAVEFILE_2_KITCHEN: //L802C484C
-                strIToA(upperTextLine, 2);
+                bk_strIToA(upperTextLine, 2);
                 break;
         }//L802C4858
-        strcat(upperTextLine, sTimeLabel[lang]);
-        strcat(upperTextLine, gcpausemenu_TimeToA(itemscore_timeScores_getTotal()));
-        strcat(upperTextLine, ",");
-        strcat(upperTextLine, "");
+        bk_strcat(upperTextLine, sTimeLabel[lang]);
+        bk_strcat(upperTextLine, gcpausemenu_TimeToA(itemscore_timeScores_getTotal()));
+        bk_strcat(upperTextLine, ",");
+        bk_strcat(upperTextLine, "");
 
-        strcpy(lowerTextLine, "");
-        strIToA(lowerTextLine, jiggyscore_total());
-        strcat(lowerTextLine, sJigsawLabel[lang]);
+        bk_strcpy(lowerTextLine, "");
+        bk_strIToA(lowerTextLine, jiggyscore_total());
+        bk_strcat(lowerTextLine, sJigsawLabel[lang]);
         if(jiggyscore_total() != 1){
-            strcat(lowerTextLine, sJigsawPlural[lang]);
+            bk_strcat(lowerTextLine, sJigsawPlural[lang]);
         }
-        strcat(lowerTextLine, ", ");
-        strIToA(lowerTextLine, itemscore_noteScores_getTotal());
-        strcat(lowerTextLine, sNoteLabel[lang]);
+        bk_strcat(lowerTextLine, ", ");
+        bk_strIToA(lowerTextLine, itemscore_noteScores_getTotal());
+        bk_strcat(lowerTextLine, sNoteLabel[lang]);
         if(itemscore_noteScores_getTotal() != 1){
-            strcat(lowerTextLine, "S");
+            bk_strcat(lowerTextLine, "S");
         }
-        strcat(lowerTextLine, ".");
-        strcat(lowerTextLine, "");
+        bk_strcat(lowerTextLine, ".");
+        bk_strcat(lowerTextLine, "");
     }//L802C49AC
     else{
         D_8037DCCE[gamenum] = 0;
-        strcpy(upperTextLine, "");
-        strcat(upperTextLine, sGamePrefix[lang]);
+        bk_strcpy(upperTextLine, "");
+        bk_strcat(upperTextLine, sGamePrefix[lang]);
         switch (gamenum){
             case CH_GAME_SELECT_SAVEFILE_0_BED:
-                strIToA(upperTextLine, 1);
+                bk_strIToA(upperTextLine, 1);
                 break;
             case CH_GAME_SELECT_SAVEFILE_1_GAMING_CHAIR:
-                strIToA(upperTextLine, 3);
+                bk_strIToA(upperTextLine, 3);
                 break;
             case CH_GAME_SELECT_SAVEFILE_2_KITCHEN:
-                strIToA(upperTextLine, 2);
+                bk_strIToA(upperTextLine, 2);
                 break;
         }//L802C4A40
-        strcat(upperTextLine, sEmptyLabel[lang]);
-        strcpy(lowerTextLine, "");
+        bk_strcat(upperTextLine, sEmptyLabel[lang]);
+        bk_strcpy(lowerTextLine, "");
     }//L802C4A68
 
     // [port] JP rebuilds these lines in its own layout

@@ -294,7 +294,7 @@ void fxcommon2score_draw(enum item_e item_id, struct8s *arg1, Gfx **gfx, Mtx **m
     }
     arg1->string_54[0] = 0;
     //convert to string
-    strIToA(arg1->string_54, sp38);
+    bk_strIToA(arg1->string_54, sp38);
     //print text (blue egg font)
     print_bold_spaced(
         (s32)(func_802FB0DC(arg1) + arg1->unk38 + arg1->unk44 + sp34 + port_hudOrthoShift(arg1->unk38)),

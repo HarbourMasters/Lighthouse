@@ -1262,7 +1262,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         if(0.0f == camera_focus[2]){
             camera_focus[2] = -0.1f;
         }
-        guLookAtReflect(*mtx, D_803837E0.cur_lookat,
+        core1_3250_guLookAtReflect(*mtx, D_803837E0.cur_lookat,
             D_803837E0.eye_pos[0], D_803837E0.eye_pos[1], D_803837E0.eye_pos[2],
             camera_focus[0], camera_focus[1], camera_focus[2],
             0.0f, 1.0f, 0.0f);

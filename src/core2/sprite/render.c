@@ -289,7 +289,7 @@ BKSpriteDisplayData * func_80344A1C(BKSprite *arg0){
         frame_vtx_size[i] = ALIGN(sizeof(Vtx)*(vtx_end - vtx_start), 0x10);
         frame_gfx_size[i] = sizeof(Gfx)*(gfx_end - gfx_start);
         s1 += frame_vtx_size[i] + frame_gfx_size[i];
-        memcpy((void *)((uintptr_t)vtx_start + frame_vtx_size[i]), gfx_start, frame_gfx_size[i]);
+        bk_memcpy((void *)((uintptr_t)vtx_start + frame_vtx_size[i]), gfx_start, frame_gfx_size[i]);
         s6 = bk_realloc(s6, header_size + s1);
     }//L80344B6C
     osWritebackDCache(s6, header_size + s1);

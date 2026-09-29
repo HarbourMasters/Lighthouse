@@ -136,39 +136,45 @@ void func_8025456C(EmptyHeapBlock * arg0){
     }
     _heap_defragEmptyBlock(arg0);
 }
-#if 0
-void memcpy(void * dst, void *src, int size){
-    while(size > 0){
-        *(u8*)dst = *(u8*)src;
-        size--;
-        dst = (u8 *) dst + 1;
+
+void bk_memcpy(void *dest, void *src, int count) {
+    while (count > 0) {
+        *((u8 *) dest) = *((u8 *) src);
+        count--;
+        dest = (u8 *) dest + 1;
         src = (u8 *) src + 1;
     }
 }
 
-void wmemcpy(void * dst, void *src, int size){
-    while(size > 0){
-        *(u32*)dst = *(u32*)src;
-        size -= 4;
-        dst = (u32 *) dst + 1;
+void bk_wmemcpy(void *dest, void *src, int count) {
+    while (count > 0) {
+        *((u32 *) dest) = *((u32 *) src);
+        count -= 4;
+        dest = (u32 *) dest + 1;
         src = (u32 *) src + 1;
     }
 }
 
-void memmove(u8* dst, u8* src, s32 n) {
-    if(dst < src){ //copy
-        while(n--){
-            *(dst++) = *(src++);
+void bk_memmove(void *dest, void *src, int count) {
+    if (dest < src) {
+        // copy forward
+        while (count--) {
+            *((u8 *) dest) = *((u8 *) src);
+            dest = (u8 *) dest + 1;
+            src = (u8 *) src + 1;
         }
-    }else{ //copy backwards to avoid data lose
-        dst += n -1;
-        src += n -1;
-        while(n--){
-            *(dst--) = *(src--);
+    } else {
+        // copy backwards
+        dest = (u8 *) dest + count - 1;
+        src = (u8 *) src + count - 1;
+        while (count--) {
+            *((u8 *) dest) = *((u8 *) src);
+            dest = (u8 *) dest - 1;
+            src = (u8 *) src - 1;
         }
     }
 }
-#endif
+
 s32 heap_get_size(void){ return HEAP_SIZE; }
 
 s32 func_802546DC(void){ return 0; }
@@ -571,9 +577,9 @@ void *func_8025534C(void){
     return D_80283228;
 }
 
-void *bk_realloc(void *ptr, size_t size){
+void *bk_realloc(void *ptr, size_t new_size){
     // Lighthouse [port] Use standard realloc function
-    return realloc(ptr, size);
+    return realloc(ptr, new_size);
 #if 0
 
     
@@ -585,16 +591,16 @@ void *bk_realloc(void *ptr, size_t size){
     D_80283224 = ptr;
     D_80283228 = ptr;
     sPtr = (HeapHeader *)ptr - 1;
-    if(!((uintptr_t)((u8*) sPtr->next - (u8*)ptr) < size)){
+    if(!((uintptr_t)((u8*) sPtr->next - (u8*)ptr) < new_size)){
         //current pointer has enough free space to accomidate size change
-        func_80255300(sPtr, size);
+        func_80255300(sPtr, new_size);
         return ptr;
     }
 
     D_8027659C = ptr;
     emptySeg = (EmptyHeapBlock*) sPtr->next;
     if( emptySeg->hdr.unkC_7 == HEAP_BLOCK_EMPTY
-        && !((uintptr_t)((u8*)emptySeg->hdr.next - (u8*)sPtr) - 0x10 < size)
+        && !((uintptr_t)((u8*)emptySeg->hdr.next - (u8*)sPtr) - 0x10 < new_size)
     ){//combine current heap segment with the next one (if next one is free).
         //remove empty segment from list
         emptySeg->next_free->prev_free = emptySeg->prev_free;
@@ -602,16 +608,16 @@ void *bk_realloc(void *ptr, size_t size){
         heap_occupiedBytes += (u8*)emptySeg->hdr.next - (u8*)emptySeg;
         sPtr->next = emptySeg->hdr.next;
         emptySeg->hdr.next->prev = sPtr;
-        func_80255300(sPtr, size);
+        func_80255300(sPtr, new_size);
         D_8027659C = 0;
         return ptr;
     }//L80255430
 
-    if(!(newSeg = bk_malloc(size))){
+    if(!(newSeg = bk_malloc(new_size))){
         return 0;
     }
 
-    bkmemcpy64(newSeg, ptr, __heap_align(size));
+    bkmemcpy64(newSeg, ptr, __heap_align(new_size));
     bk_free(ptr);
     ptr = newSeg;
     D_8027659C = 0;

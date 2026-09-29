@@ -556,7 +556,7 @@ void func_8032DB2C(Cube *cube, NodeProp *arg1) {
 
     sp24 = arg1 - cube->prop1Ptr;
     if (sp24 < cube->prop1Cnt - 1) {
-        memcpy(arg1, arg1 + 1, (uintptr_t)&cube->prop1Ptr[cube->prop1Cnt] - (uintptr_t)arg1 - sizeof(NodeProp));
+        bk_memcpy(arg1, arg1 + 1, (uintptr_t)&cube->prop1Ptr[cube->prop1Cnt] - (uintptr_t)arg1 - sizeof(NodeProp));
     }
     if (sp24 < cube->unk0_4) {
         cube->unk0_4--;
@@ -945,10 +945,10 @@ static void __codeA5BC0_initPropPointerForCube(NodeProp *node, Cube *cube, s32 c
             || (iPtr->bit6 == PROP_1_CATEGORY_A_FLAG) 
             || (iPtr->bit0 == 1)
         ){
-            memcpy(&cube->prop1Ptr[cube_ptr_idx], &node[i], sizeof(NodeProp));
+            bk_memcpy(&cube->prop1Ptr[cube_ptr_idx], &node[i], sizeof(NodeProp));
             cube_ptr_idx--;
         } else {
-            memcpy(&cube->prop1Ptr[cube->unk0_4], &node[i], sizeof(NodeProp));
+            bk_memcpy(&cube->prop1Ptr[cube->unk0_4], &node[i], sizeof(NodeProp));
             cube->unk0_4++;
         }
     }
@@ -2454,7 +2454,7 @@ void func_80332894(void) {
     s32 i;
 
     size = VER_SELECT(0x579, 0x391, 0, 0);
-    D_8036E7C4 = malloc(size);
+    D_8036E7C4 = bk_malloc(size);
     i = 0;
     do{
         D_8036E7C4[i] = 0;

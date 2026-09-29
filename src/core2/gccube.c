@@ -1502,7 +1502,7 @@ void __code7AF80_concatElementsAndRemoveEmpty(s32 *count, Struct_core2_7AF80_1 *
                             )) {
                                 //concat b_list to end of a_list
                                 a_list->unk8 = (Struct_core2_7AF80_2 *) bk_realloc(a_list->unk8, (a_list->count + b_list->count)*sizeof(Struct_core2_7AF80_2));
-                                memcpy(a_list->unk8 + a_list->count, b_list->unk8, b_list->count * sizeof(Struct_core2_7AF80_2));
+                                bk_memcpy(a_list->unk8 + a_list->count, b_list->unk8, b_list->count * sizeof(Struct_core2_7AF80_2));
                                 a_list->count = (s32) (a_list->count + b_list->count);
                                 
                                 b_list->count = 0;
@@ -1525,7 +1525,7 @@ void __code7AF80_concatElementsAndRemoveEmpty(s32 *count, Struct_core2_7AF80_1 *
                 for(b_list = a_list + 1; (b_list < *arg1 + *count) && continue_loop; b_list++){
                     if (b_list->count != 0) { //B is not empty
                         //swap A an B
-                        memcpy(a_list, b_list, sizeof(Struct_core2_7AF80_1));
+                        bk_memcpy(a_list, b_list, sizeof(Struct_core2_7AF80_1));
                         b_list->count = 0;
                         b_list->unk8 = NULL;
 

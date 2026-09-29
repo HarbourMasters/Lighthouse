@@ -100,7 +100,7 @@ void func_802F9114(void){
 void func_802F9134(s32 gfx){
     D_80369284 = D_80369284 - 1;
     if(gfx < D_80369284){
-        memcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
+        bk_wmemcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
     }
 }
 

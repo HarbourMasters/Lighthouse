@@ -166,11 +166,11 @@ s32 func_802E4F98(char *arg0) {
 
 
     sp1C = D_8037E900->string_len;
-    D_8037E900->string_len += strlen(arg0) + 1;
+    D_8037E900->string_len += bk_strlen(arg0) + 1;
     if (D_8037E900->string_len >= 2) {
         D_8037E900->string = (char *)bk_realloc(D_8037E900->string, D_8037E900->string_len + 1);
     }
-    strcpy(D_8037E900->string + sp1C, arg0);
+    bk_strcpy(D_8037E900->string + sp1C, arg0);
     return sp1C;
 }
 
@@ -204,7 +204,7 @@ s32 func_802E51A4(char *str, s32 arg1, s32 start, u32 flags) {
     s32 i;
 
     if (flags & 2) {
-        return  2 * D_8037E900->unk4[arg1].half_width *strlen(str);
+        return  2 * D_8037E900->unk4[arg1].half_width *bk_strlen(str);
     }
 
     position = start;

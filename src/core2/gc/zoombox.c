@@ -1081,7 +1081,7 @@ void func_80316E84(GcZoombox *this, s32 state){
 }
 
 s32 gczoombox_strlen(u8 *arg0){
-    return strlen(arg0);
+    return bk_strlen(arg0);
 }
 
 void gczoombox_update(GcZoombox *this){
