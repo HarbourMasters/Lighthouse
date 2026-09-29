@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/abilityprogress.h"
 #include "core2/ba/model.h"
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
