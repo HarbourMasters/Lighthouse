@@ -67,9 +67,9 @@ Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s3
     f32 sp40[3];
     f32 sp3C;
 
-    sp4C[0] = (f32)marker->propPtr->x;
-    sp4C[1] = (f32)marker->propPtr->y;
-    sp4C[2] = (f32)marker->propPtr->z;
+    sp4C[0] = (f32)marker->propPtr->position_x;
+    sp4C[1] = (f32)marker->propPtr->position_y;
+    sp4C[2] = (f32)marker->propPtr->position_z;
 
     sp40[0] = (f32)marker->pitch;
     sp40[1] = this->lifetime_value;

@@ -368,7 +368,7 @@ void Rando::ObjectBehavior::Init() {
         OnActorCollision* ev = (OnActorCollision*)event;
         RandoItemId randoItemId = RI_UNKNOWN;
 
-        if (ev->propId->markerFlag) {
+        if (ev->propId->isActorProp) {
             Actor* markerActor = marker_getActor(ev->propId->actorProp.marker);
 
             if (markerActor->is_bundle && func_802C9C14(markerActor)) {
