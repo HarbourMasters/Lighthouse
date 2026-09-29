@@ -179,7 +179,7 @@ void gsworld_free(void) {
     func_8033FA24();
     func_80344C80();
     animsprite_terminate();
-    animBinCache_free();
+    animcommoncache_free();
     func_802BC10C();
     ncCameraNodeList_free();
     pem_freeDependencies();
@@ -262,7 +262,7 @@ void gsworld_set(enum map_e map, s32 exit, bool reload) {
     func_80323230();
     CALL_EVENT(OnMapLoadStub);
     commonParticleType_init();
-    animBinCache_init();
+    animcommoncache_init();
     animsprite_init();
     func_80344C50();
     func_8033F9C0();
@@ -370,7 +370,7 @@ s32 gsworld_update(void) {
         commonParticle_update();
         pem_updateAll();
         animCache_update();
-        animBinCache_update();
+        animcommoncache_update();
         ncCamera_update();
         func_803045D8();
         func_80332E08();

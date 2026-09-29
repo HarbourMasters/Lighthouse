@@ -5,6 +5,8 @@
 #include "bool.h"
 #include "enums.h"
 
+#include "core2/animationfile.h"
+#include "core2/anim/commoncache.h"
 #include "core2/abilityprogress.h"
 #include "core2/fileprogress.h"
 #include "core2/gsworld.h"
