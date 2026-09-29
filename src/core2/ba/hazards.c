@@ -8,11 +8,11 @@
 #include "core2/statetimer.h"
 
 /* .bss */
-u8 D_8037D210;
+u8 hazardSfxId;
 u8 D_8037D211;
-u8 D_8037D212;
-f32 D_8037D218[3];
-f32 D_8037D224;
+u8 swampEffectsState;
+f32 playerPosition[3];
+f32 effectTimer;
 
 /*.code */
 bool isOnFloor(void){
@@ -20,35 +20,35 @@ bool isOnFloor(void){
 }
 
 void freeHazardSfxId(void){
-    sfxsource_freeSfxsourceByIndex(D_8037D210);
+    sfxsource_freeSfxsourceByIndex(hazardSfxId);
 }
 
 void hazards_reset(void){
     baflag_clear(BA_FLAG_13_TOUCHING_DANGEROUS_GROUND);
-    D_8037D210 = sfxsource_createSfxsourceAndReturnIndex();
-    D_8037D212 = 0;
+    hazardSfxId = sfxsource_createSfxsourceAndReturnIndex();
+    swampEffectsState = 0;
 }
 
 void triggerFrozenHazardEffects(void){
     basfx_80299E48();
-    sfxSource_triggerCallbackByIndex(D_8037D210);
-    sfxsource_setSfxId(D_8037D210, SFX_14D_BANJO_FREEZING);
-    sfxsource_setSampleRate(D_8037D210, 30000);
-    sfxsource_playSfxAtVolume(D_8037D210, 1.2f);
-    sfxSource_setunk43_7ByIndex(D_8037D210, 3);
-    sfxSource_func_8030E2C4(D_8037D210);
+    sfxSource_triggerCallbackByIndex(hazardSfxId);
+    sfxsource_setSfxId(hazardSfxId, SFX_14D_BANJO_FREEZING);
+    sfxsource_setSampleRate(hazardSfxId, 30000);
+    sfxsource_playSfxAtVolume(hazardSfxId, 1.2f);
+    sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+    sfxSource_func_8030E2C4(hazardSfxId);
 
     D_8037D211 = 2;
-    D_8037D224 = 1.0f;
+    effectTimer = 1.0f;
 }
 
 void triggerHotHazardEffects(void) {
-    sfxSource_triggerCallbackByIndex(D_8037D210);
-    sfxsource_setSfxId(D_8037D210, SFX_B0_SIZZLING_NOISE);
-    sfxsource_setSampleRate(D_8037D210, 32000);
-    sfxsource_playSfxAtVolume(D_8037D210, randf2(0.7f, 0.8f));
-    sfxSource_setunk43_7ByIndex(D_8037D210, 3);
-    sfxSource_func_8030E2C4(D_8037D210);
+    sfxSource_triggerCallbackByIndex(hazardSfxId);
+    sfxsource_setSfxId(hazardSfxId, SFX_B0_SIZZLING_NOISE);
+    sfxsource_setSampleRate(hazardSfxId, 32000);
+    sfxsource_playSfxAtVolume(hazardSfxId, randf2(0.7f, 0.8f));
+    sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+    sfxSource_func_8030E2C4(hazardSfxId);
 }
 
 void spawnPiranhaParticles(void){
@@ -60,14 +60,14 @@ void spawnPiranhaParticles(void){
 void triggerSwampHazardEffects(void) {
     __spawnQueue_add_0(&spawnPiranhaParticles);
     FUNC_8030E624(SFX_A_BANJO_LANDING_05, 1.0f, 28000);
-    sfxSource_triggerCallbackByIndex(D_8037D210);
-    sfxsource_setSfxId(D_8037D210, SFX_6D_CROC_BITE);
-    sfxsource_setSampleRate(D_8037D210, 22000);
-    sfxSource_setunk43_7ByIndex(D_8037D210, 3);
-    player_getPosition(D_8037D218);
-    D_8037D218[1] = floor_getCurrentFloorYPosition();
-    D_8037D212 = 4;
-    D_8037D224 = 0.0f;
+    sfxSource_triggerCallbackByIndex(hazardSfxId);
+    sfxsource_setSfxId(hazardSfxId, SFX_6D_CROC_BITE);
+    sfxsource_setSampleRate(hazardSfxId, 22000);
+    sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+    player_getPosition(playerPosition);
+    playerPosition[1] = floor_getCurrentFloorYPosition();
+    swampEffectsState = 4;
+    effectTimer = 0.0f;
 }
 
 /* plays ground damage sound effect */
@@ -94,29 +94,29 @@ void triggerHazardEffects(void) {
 }
 
 void updateFrozenEffects(void) {
-    u8 temp_v0;
+    u8 collision;
 
     if (D_8037D211 != 0) {
-        if ((isOnFloor() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(D_8037D210) != 0)) {
-            sfxSource_triggerCallbackByIndex(D_8037D210);
+        if ((isOnFloor() == 0) && (func_8028F2FC() == 0) && (func_8030E3FC(hazardSfxId) != 0)) {
+            sfxSource_triggerCallbackByIndex(hazardSfxId);
             D_8037D211 = 0;
             return;
         }
 
-        D_8037D224 = ml_max_f(0.0f, D_8037D224 - time_getDelta());
-        if (D_8037D224 == 0.0f) {
+        effectTimer = ml_max_f(0.0f, effectTimer - time_getDelta());
+        if (effectTimer == 0.0f) {
             if (D_8037D211 == 1) {
                 triggerFrozenHazardEffects();
             }
             else if (D_8037D211 == 2) {
-                sfxSource_triggerCallbackByIndex(D_8037D210);
-                sfxsource_setSfxId(D_8037D210, SFX_134_FREEZING_SHIVER);
-                sfxsource_setSampleRate(D_8037D210, 20000);
-                sfxsource_playSfxAtVolume(D_8037D210, 1.2f);
-                sfxSource_setunk43_7ByIndex(D_8037D210, 3);
-                sfxSource_func_8030E2C4(D_8037D210);
+                sfxSource_triggerCallbackByIndex(hazardSfxId);
+                sfxsource_setSfxId(hazardSfxId, SFX_134_FREEZING_SHIVER);
+                sfxsource_setSampleRate(hazardSfxId, 20000);
+                sfxsource_playSfxAtVolume(hazardSfxId, 1.2f);
+                sfxSource_setunk43_7ByIndex(hazardSfxId, 3);
+                sfxSource_func_8030E2C4(hazardSfxId);
                 D_8037D211 = 2;
-                D_8037D224 = 1.5f;
+                effectTimer = 1.5f;
             }
         }
     }
@@ -125,27 +125,27 @@ void updateFrozenEffects(void) {
 
 void updateBurnSfx(void) {
     f32 sp1C;
-    s32 temp_a1;
+    s32 sample_rate;
 
-    if (func_8030E3FC(D_8037D210) != 0) {
+    if (func_8030E3FC(hazardSfxId) != 0) {
         sp1C = time_getDelta();
-        temp_a1 = sfxSource_getSampleRate(D_8037D210) - (s32) (sp1C * 30000.0);
-        if (temp_a1 <= 0) {
-            sfxSource_triggerCallbackByIndex(D_8037D210);
+        sample_rate = sfxSource_getSampleRate(hazardSfxId) - (s32) (sp1C * 30000.0);
+        if (sample_rate <= 0) {
+            sfxSource_triggerCallbackByIndex(hazardSfxId);
             return;
         }
-        sfxsource_setSampleRate(D_8037D210, temp_a1);
+        sfxsource_setSampleRate(hazardSfxId, sample_rate);
     }
 }
 
 void updateSwampEffects(void) {
-    if (D_8037D212 != 0) {
-        D_8037D224 = ml_max_f(0.0f, D_8037D224 - time_getDelta());
-        if (!(D_8037D224 > 0.0f)) {
-            D_8037D212 += -1;
-            D_8037D224 = randf2(0.12f, 0.22f);
-            sfxsource_playSfxAtVolume(D_8037D210, randf2(0.95f, 1.05f));
-            sfxSource_func_8030E2C4(D_8037D210);
+    if (swampEffectsState != 0) {
+        effectTimer = ml_max_f(0.0f, effectTimer - time_getDelta());
+        if (!(effectTimer > 0.0f)) {
+            swampEffectsState += -1;
+            effectTimer = randf2(0.12f, 0.22f);
+            sfxsource_playSfxAtVolume(hazardSfxId, randf2(0.95f, 1.05f));
+            sfxSource_func_8030E2C4(hazardSfxId);
         }
     }
 }
@@ -243,7 +243,7 @@ bool canTakeGroundDamage(void){
 
 void hazards_update(void){
     s32 can_take_ground_damage;
-    BKCollisionTriangle *temp_v0;
+    BKCollisionTriangle *collision;
     s32 sp1C;
     s32 sp18;
     
@@ -251,13 +251,13 @@ void hazards_update(void){
     if(gsworld_getMap() == MAP_12_GV_GOBIS_VALLEY){
         sp18 = 0;
         sp1C = 0;
-        temp_v0 = func_802946F0();
-        if(temp_v0 != NULL){
-            sp1C = temp_v0->flags & 0x4000;
+        collision = func_802946F0();
+        if(collision != NULL){
+            sp1C = collision->flags & 0x4000;
         }
-        temp_v0 = func_8029463C();
-        if(temp_v0 != NULL){
-            sp18 = (temp_v0->flags & 0x4000)  && player_isStable();
+        collision = func_8029463C();
+        if(collision != NULL){
+            sp18 = (collision->flags & 0x4000)  && player_isStable();
         }
         if (sp1C || sp18) {
             baMotor_80250D94(1.0f, 0.5f, 0.4f);

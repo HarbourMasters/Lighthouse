@@ -740,7 +740,7 @@ bool func_8028F4B8(f32 arg0[3], f32 arg1, f32 arg2) {
 
 bool player_checkHazardInterrupt(s32 arg0) {
     func_80296CB4(arg0);
-    return bs_checkInterrupt(BS_INTR_1F) == 2;
+    return bs_checkInterrupt(BS_INTR_1F_HAZARD) == 2;
 }
 
 bool func_8028F530(s32 arg0) {

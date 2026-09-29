@@ -24,7 +24,7 @@ ActorAnimationInfo D_80372D20[] = {
     {0x1E8, 2.2f}
 };
 
-ActorInfo D_80372D78 = { 
+ActorInfo chSkeleton = { 
     MARKER_218_LIMBO, ACTOR_34E_LIMBO, ASSET_4CC_MODEL_LIMBO, 
     0x1, D_80372D20, 
     chskeleton_update, actor_update_func_80326224, actor_draw, 

@@ -115,7 +115,7 @@ f32 D_8037DF18[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
 s32 chBottlesBonusPuzzleIndex;
 f32 D_8037DF70[3];
 f32 D_8037DF80[3];
-s32 gCompletedBottleBonusGames[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
+s32 D_8037DF90[CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT];
 
 /* .code */
 void chBottlesBonus_func_802DD080(Gfx **gfx, Mtx **mtx) {
@@ -487,15 +487,15 @@ void chBottlesBonus_update(Actor *this) {
     sp48 = chBottlesBonusCursor_func_802E06B4() - 1;
     cursor_state = chBottlesBonusCursor_getState();
     for(phi_s0_2 = 0; phi_s0_2 < CH_BOTTLES_BONUS_PUZZLE_PIECE_COUNT; phi_s0_2++){
-        sp40 = gCompletedBottleBonusGames[phi_s0_2];
+        sp40 = D_8037DF90[phi_s0_2];
         temp_v0_2 = &func_8034C2C4(this->marker, phi_s0_2 + 0x190)->type_6D;
         if ((phi_s0_2 == sp48) && (cursor_state == 1) && !chBottlesBonusCursor_func_802E0538(phi_s0_2)) {
-            gCompletedBottleBonusGames[phi_s0_2] = true;
+            D_8037DF90[phi_s0_2] = true;
         } else {
-            gCompletedBottleBonusGames[phi_s0_2] = false;
+            D_8037DF90[phi_s0_2] = false;
         }
-        if (sp40 != gCompletedBottleBonusGames[phi_s0_2]) {
-            switch(gCompletedBottleBonusGames[phi_s0_2]){
+        if (sp40 != D_8037DF90[phi_s0_2]) {
+            switch(D_8037DF90[phi_s0_2]){
                 case true:
                     func_8034DFB0(temp_v0_2, D_803682A4, D_803682B4, 0.1f);
                     break;

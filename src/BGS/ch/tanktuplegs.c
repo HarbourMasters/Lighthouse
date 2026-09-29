@@ -13,49 +13,49 @@ void func_8028E668(f32[3], f32, f32, f32);
 void chTanktupLeg_update(Actor *);
 
 
-ActorAnimationInfo D_80390C70[3] = {
+ActorAnimationInfo chTanktupLegFrontLeftAnimations[3] = {
     {0, 0.0f},
     {ASSET_103_ANIM_TANKTUP_LEGS_FRONT_LEFT, 8000000.0f},
     {ASSET_103_ANIM_TANKTUP_LEGS_FRONT_LEFT, 0.75f}
 };
 
-ActorInfo gChTanktupLegFrontLeft = {MARKER_6D_TANKTUP_LEG, ACTOR_E9_TANKTUP_LEG_FL, ASSET_3EF_MODEL_TANKTUP_LEG_FL, 0x01, D_80390C70,
+ActorInfo gChTanktupLegFrontLeft = {MARKER_6D_TANKTUP_LEG, ACTOR_E9_TANKTUP_LEG_FL, ASSET_3EF_MODEL_TANKTUP_LEG_FL, 0x01, chTanktupLegFrontLeftAnimations,
     chTanktupLeg_update, actor_update_func_80326224, actor_draw,
     0, 0x166, 0.0f, 0
 };
 u8 pad_80390CCC[4] = {0};
 
-ActorAnimationInfo BGS_D_80390CB0[3] = {
+ActorAnimationInfo chTanktupLegBackLeftAnimations[3] = {
     {0, 0.0f},
     {ASSET_104_ANIM_TANKTUP_LEGS_BACK_LEFT, 8000000.0f},
     {ASSET_104_ANIM_TANKTUP_LEGS_BACK_LEFT, 0.75f}
 };
 
-ActorInfo gChTanktupLegBackLeft = {MARKER_6D_TANKTUP_LEG, ACTOR_EA_TANKTUP_LEG_BL, ASSET_3F0_MODEL_TANKTUP_LEG_BL, 0x01, BGS_D_80390CB0,
+ActorInfo gChTanktupLegBackLeft = {MARKER_6D_TANKTUP_LEG, ACTOR_EA_TANKTUP_LEG_BL, ASSET_3F0_MODEL_TANKTUP_LEG_BL, 0x01, chTanktupLegBackLeftAnimations,
     chTanktupLeg_update, actor_update_func_80326224, actor_draw,
     0, 0x166, 0.0f, 0
 };
 u8 pad_80390CEC[4] = {0};
 
-ActorAnimationInfo BGS_D_80390CF0[3] = {
+ActorAnimationInfo chTanktupLegFrontRightAnimations[3] = {
     {0, 0.0f},
     {ASSET_105_ANIM_TANKTUP_LEGS_FRONT_RIGHT, 8000000.0f},
     {ASSET_105_ANIM_TANKTUP_LEGS_FRONT_RIGHT, 0.75f}
 };
 
-ActorInfo gChTanktupLegFrontRight = {MARKER_6D_TANKTUP_LEG, ACTOR_EB_TANKTUP_LEG_FR, ASSET_3F1_MODEL_TANKTUP_LEG_FR, 0x01, BGS_D_80390CF0,
+ActorInfo gChTanktupLegFrontRight = {MARKER_6D_TANKTUP_LEG, ACTOR_EB_TANKTUP_LEG_FR, ASSET_3F1_MODEL_TANKTUP_LEG_FR, 0x01, chTanktupLegFrontRightAnimations,
     chTanktupLeg_update, actor_update_func_80326224, actor_draw,
     0, 0x166, 0.0f, 0
 };
 u8 pad_80390C2C[4] = {0};
 
-ActorAnimationInfo D_80390C30[3] = {
+ActorAnimationInfo chTanktupLegBackRightAnimations[3] = {
     {0, 0.0f},
     {ASSET_106_ANIM_TANKTUP_LEGS_BACK_RIGHT, 8000000.0f},
     {ASSET_106_ANIM_TANKTUP_LEGS_BACK_RIGHT, 0.75f}
 };
 
-ActorInfo gChTanktupLegBackRight = {MARKER_6D_TANKTUP_LEG, ACTOR_EC_TANKTUP_LEG_BR, ASSET_3F2_MODEL_TANKTUP_LEG_BR, 0x01, D_80390C30,
+ActorInfo gChTanktupLegBackRight = {MARKER_6D_TANKTUP_LEG, ACTOR_EC_TANKTUP_LEG_BR, ASSET_3F2_MODEL_TANKTUP_LEG_BR, 0x01, chTanktupLegBackRightAnimations,
     chTanktupLeg_update, actor_update_func_80326224, actor_draw,
     0, 0x166, 0.0f, 0
 };

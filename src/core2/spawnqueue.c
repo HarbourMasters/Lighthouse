@@ -24,7 +24,7 @@ extern ActorInfo gameSelect_banjoGameboy; //banjo.playing_gameboy
 extern ActorInfo gameSelect_banjoCooking; //banjo.cooking
 extern ActorInfo fxWadingBootsTouchSparkle;
 extern ActorInfo fxTurboTrainersTouchSparkle; //turbotrainers
-extern ActorInfo D_80365FB0; //shrapnel
+extern ActorInfo chExplosionRipple; //shrapnel
 extern ActorInfo chBubble;
 extern ActorInfo chBigbutt; //bigbutt
 extern ActorInfo chSmallBull; //brownbull
@@ -129,7 +129,7 @@ extern ActorInfo chSnowman; //sirslush
 extern ActorInfo chSnowball; //snowball
 extern ActorInfo chSnowmanHat; //sir_slush_hat
 extern ActorInfo D_80372810;
-extern ActorInfo D_80372840; //grillchompa
+extern ActorInfo chGrilleChompa; //grillchompa
 extern ActorInfo chClucker; //clucker
 extern ActorInfo chScarabBeetle; //scarab
 extern ActorInfo chMinigame; //boombox
@@ -147,8 +147,8 @@ extern ActorInfo chIcecubeA;
 extern ActorInfo chIcecubeB;//ice_cube
 extern ActorInfo chTeeHee; //teehee
 extern ActorInfo chFlotsam; //floatsam
-extern ActorInfo D_80372D78; //limbo
-extern ActorInfo D_80372DF8; //grublin_hood
+extern ActorInfo chSkeleton; //limbo
+extern ActorInfo chSeamanGrublin; //grublin_hood
 extern ActorInfo chMumMum; //mummum
 extern ActorInfo chChumpFish;
 extern ActorInfo chTermite; //ticker
@@ -271,7 +271,7 @@ void spawnQueue_reset(void){
     spawnableActorList_add(&fxTurboTrainersTouchSparkle, actor_new, ACTOR_FLAG_UNKNOWN_2); //turbotrainers
     spawnableActorList_add(&D_80367184, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&chExtraLife, actor_new, ACTOR_FLAG_UNKNOWN_21); //extralife
-    spawnableActorList_add(&D_80365FB0, actor_new, ACTOR_FLAG_UNKNOWN_2); //shrapnel
+    spawnableActorList_add(&chExplosionRipple, actor_new, ACTOR_FLAG_UNKNOWN_2); //shrapnel
     spawnableActorList_add(&chBadShad, actor_new, ACTOR_FLAG_UNKNOWN_2); //chbadshad
     spawnableActorList_add(&chMumboToken, actor_new, ACTOR_FLAG_UNKNOWN_6); //mumbotoken
     spawnableActorList_add(&D_80367F30, actor_new, ACTOR_FLAG_UNKNOWN_10);
@@ -365,10 +365,10 @@ void spawnQueue_reset(void){
     spawnableActorList_addIfMapVisited(&chBuzzbomb, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_25, MAP_D_BGS_BUBBLEGLOOP_SWAMP); //buzzbomb
     spawnableActorList_addIfMapVisited(&chIcecubeA, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_17 | ACTOR_FLAG_UNKNOWN_25, MAP_27_FP_FREEZEEZY_PEAK);
     spawnableActorList_addIfMapVisited(&chShrapnelDescription, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_25, MAP_7_TTC_TREASURE_TROVE_COVE); //scrapnel
-    spawnableActorList_addIfMapVisited(&D_80372D78, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_24 | ACTOR_FLAG_UNKNOWN_25, MAP_1B_MMM_MAD_MONSTER_MANSION); //limbo
-    spawnableActorList_addIfMapVisited(&D_80372DF8, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_25, MAP_31_RBB_RUSTY_BUCKET_BAY); //grublin_hood
+    spawnableActorList_addIfMapVisited(&chSkeleton, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_24 | ACTOR_FLAG_UNKNOWN_25, MAP_1B_MMM_MAD_MONSTER_MANSION); //limbo
+    spawnableActorList_addIfMapVisited(&chSeamanGrublin, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_25, MAP_31_RBB_RUSTY_BUCKET_BAY); //grublin_hood
     spawnableActorList_addIfMapVisited(&chMumMum, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_16 | ACTOR_FLAG_UNKNOWN_24 | ACTOR_FLAG_UNKNOWN_25, MAP_12_GV_GOBIS_VALLEY); //mummum
-    spawnableActorList_addIfMapVisited(&D_80372840, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 |ACTOR_FLAG_UNKNOWN_25, MAP_B_CC_CLANKERS_CAVERN); //grillchompa
+    spawnableActorList_addIfMapVisited(&chGrilleChompa, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 |ACTOR_FLAG_UNKNOWN_25, MAP_B_CC_CLANKERS_CAVERN); //grillchompa
     spawnableActorList_addIfMapVisited(&chSnippet, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_24 | ACTOR_FLAG_UNKNOWN_25, MAP_7_TTC_TREASURE_TROVE_COVE); //snippet
     spawnableActorList_addIfMapVisited(&chBlackSnippet, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_24 | ACTOR_FLAG_UNKNOWN_25, MAP_7_TTC_TREASURE_TROVE_COVE); //black_snippet
     spawnableActorList_addIfMapVisited(&chMutieSnippet, actor_new, ACTOR_FLAG_UNKNOWN_0 | ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_12 | ACTOR_FLAG_UNKNOWN_24 | ACTOR_FLAG_UNKNOWN_25, MAP_7_TTC_TREASURE_TROVE_COVE); //mutie_snippet

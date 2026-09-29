@@ -3,57 +3,71 @@
 #include "functions.h"
 #include "variables.h"
 
+typedef enum  {
+    BA_LOOKAT_STATE_0_NONE,
+    BA_LOOKAT_STATE_1_UNKNOWN,
+    BA_LOOKAT_STATE_2_UNKNOWN,
+    BA_LOOKAT_STATE_3_UNKNOWN,
+    BA_LOOKAT_STATE_4_UNKNOWN,
+} BaLookAtState;
+
+typedef struct{
+    u8 state;
+    u8 lookat;
+    f32 position[3]; // position
+}BaLookAt;
+
 /* .bss */
-struct50s D_8037C5F0[8];
-u8 D_8037C670;
-u8 D_8037C671;
+BaLookAt s_lookat_stack[8];
+u8 s_length;
+u8 s_lookat_state;
 
 /* .code */
 int balookat_try_get_position(f32 arg0[3]){
-    if(!D_8037C5F0[D_8037C670 - 1].lookat)
+    if(!s_lookat_stack[s_length - 1].lookat)
         return 0;
 
-    ml_vec3f_copy(arg0, D_8037C5F0[D_8037C670 - 1].position);
+    ml_vec3f_copy(arg0, s_lookat_stack[s_length - 1].position);
     return 1;
 }
 
-s32 balookat_getState(void){
-    if(!D_8037C670){
+BaLookAtState balookat_getState(void){
+    if(!s_length){
         return 0;
     }
-    return D_8037C5F0[D_8037C670 - 1].state;
+    return s_lookat_stack[s_length - 1].state;
 }
 
 void balookat_init(void){
-    D_8037C671 = 0;
-    D_8037C670 = 0;
+    s_lookat_state = 0;
+    s_length = 0;
 }
 
 void balookat_pop(void){
-    if(D_8037C670){
-        D_8037C670--;
-        if(D_8037C670 == 0){
+    if(s_length){
+        s_length--;
+        if(s_length == 0){
             baiFrame_startWithValue(1.2f);
-            D_8037C671 = 0;
+            s_lookat_state = 0;
         }
     }
 }
 
-void balookat_push(s32 arg0){
-    D_8037C5F0[D_8037C670].state = arg0;
-    D_8037C5F0[D_8037C670].lookat = 0;
-    ml_vec3f_clear(D_8037C5F0[D_8037C670].position);
-    D_8037C670++;
+void balookat_push(BaLookAtState state){
+    s_lookat_stack[s_length].state = state;
+    s_lookat_stack[s_length].lookat = FALSE;
+    ml_vec3f_clear(s_lookat_stack[s_length].position);
+    s_length++;
 }
 
-void balookat_set_position(f32 arg0[3]){
-    D_8037C5F0[D_8037C670-1].lookat = 1;
-    ml_vec3f_copy(D_8037C5F0[D_8037C670-1].position, arg0);
+void balookat_set_position(f32 position[3]){
+    s_lookat_stack[s_length-1].lookat = TRUE;
+    ml_vec3f_copy(s_lookat_stack[s_length-1].position, position);
 }
 
-void balookat_update_state(s32 arg0){
+void balookat_update_state(BaLookAtState state){
     int val = 0;
-    switch(arg0){
+    switch(state){
         case 1:
             if(bs_checkInterrupt(BS_INTR_1E) == 2)
                 val = 1;
@@ -75,19 +89,19 @@ void balookat_update_state(s32 arg0){
             break;
     }
     if(val)
-        D_8037C671 = arg0;
+        s_lookat_state = state;
 }
 
 void balookat_end(void){
-    if(D_8037C670)
-        D_8037C671 = 0;
+    if(s_length != 0)
+        s_lookat_state = 0;
 }
 
 void balookat_update(void){
     s32 tmp;
-    if(D_8037C670){
-        tmp = D_8037C5F0[D_8037C670-1].state;
-        if(D_8037C671 != tmp){
+    if(s_length){
+        tmp = s_lookat_stack[s_length-1].state;
+        if(s_lookat_state != tmp){
             balookat_update_state(tmp);
         }
     }
