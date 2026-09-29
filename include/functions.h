@@ -1012,7 +1012,7 @@ void sns_backup_items_and_unlock_all(void);
 void sns_find_and_parse_payload(void);
 void sns_init_base_payloads(void);
 void sns_restore_backed_up_items(void);
-void sns_save_and_update_global_data(void);
+void sns_load_global_data(void);
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state);
 void sns_write_payload_over_heap(void);
 

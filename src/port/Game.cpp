@@ -226,8 +226,8 @@ void EnableThread5() {
     OS_SetQueueBlocking(thread5_getTaskQueue(), 1);
     OS_SetQueueBlocking(thread5_getSyncQueue(), 1);
     // The controller manager parks on its polling queue waiting for OS_EVENT_SI.
-    OS_EnableThreadEntry((void*)pfsManager_entry);
-    OS_SetQueueBlocking(pfsManager_getFrameMesgQ(), 1);
+    OS_EnableThreadEntry((void*)joy_main);
+    OS_SetQueueBlocking(si_getEventQueue(), 1);
     OS_EnableThreadEntry((void*)audioManagerThread_entry);
     OS_SetQueueBlocking(audioManager_getFrameMesgQueue(), 1);
     OS_SetQueueBlocking(audioManager_getReplyMesgQueue(), 1);

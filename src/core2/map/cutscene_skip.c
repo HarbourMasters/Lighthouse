@@ -31,10 +31,10 @@ u8 D_80383190;
 // cutscene_skipIntroCutsceneCheck
 bool cutscene_skipIntroCutsceneCheck(void) {
     // [port] Skip intro cutscene
-    if (!EventSystem_Should(VB_PLAY_INTRO_CUTSCENE, true) && func_8024E698(0) == 1) { return true; }
+    if (!EventSystem_Should(VB_PLAY_INTRO_CUTSCENE, true) && controller_getStartButtonSafe(0) == 1) { return true; }
 
     // [port] Romhack gate: hacks that force the skip drop the "has a save file" term.
-    if ((func_8024E698(0) == 1) &&
+    if ((controller_getStartButtonSafe(0) == 1) &&
         (!EventSystem_Should(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, true) || gameFile_anyNonEmpty() != 0)) {
         return true;
     }
@@ -46,9 +46,9 @@ bool cutscene_skipEnterLairCutsceneCheck(void) {
     // [port] Skip lair cutscene
     bool skipMiscCutscenes = false;
     CALL_EVENT(OnMiscCutscenesCheck, &skipMiscCutscenes);
-    if (skipMiscCutscenes && func_8024E698(0) == 1) { return true; }
+    if (skipMiscCutscenes && controller_getStartButtonSafe(0) == 1) { return true; }
 
-    if ((func_8024E698(0) == 1)
+    if ((controller_getStartButtonSafe(0) == 1)
         && (!EventSystem_Should(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, true)
             || (D_8037DCCE[0] != 0)
             || (D_8037DCCE[1] != 0)
@@ -66,13 +66,13 @@ bool cutscene_skipGameOverCutsceneCheck(void) {
     // progress precondition below and pick their own destination map.
     bool requireProgress = EventSystem_Should(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, true);
 
-    sp24 = func_8024E698(0);
+    sp24 = controller_getStartButtonSafe(0);
     if (!requireProgress || mapSpecificFlags_get(0) != 0) {
         fileProgressFlag_set(FILEPROG_E1_UNKNOWN, 1);
     }
     bool skipMiscCutscenes = false;
     CALL_EVENT(OnMiscCutscenesCheck, &skipMiscCutscenes);
-    if (skipMiscCutscenes && func_8024E698(0) == 1) { return true; }
+    if (skipMiscCutscenes && controller_getStartButtonSafe(0) == 1) { return true; }
 
     if ((sp24 == 1) && (!requireProgress || fileProgressFlag_get(FILEPROG_E1_UNKNOWN)) &&
         !gctransition_8030BDC0()) {
@@ -269,7 +269,7 @@ void func_8031D09C(NodeProp *arg0, ActorMarker *arg1) {
 }
 
 void func_8031D0C0(NodeProp *arg0, ActorMarker *arg1) {
-    if (func_8024E698(0) == 1) {
+    if (controller_getStartButtonSafe(0) == 1) {
         func_802E412C(1, 2);
         func_8025A2FC(0, 0x320);
         func_8025AB00();

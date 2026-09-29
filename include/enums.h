@@ -308,8 +308,8 @@ enum volatile_flags_e {
     VOLATILE_FLAG_26_FF_GRUNTY_QUESTIONS = 0x26, // 60 bits FFQ Grunty Question related (two bits for every question)
     // VOLATILE_FLAG_27 to VOLATILE_FLAG_61 belong to VOLATILE_FLAG_26_FF_GRUNTY_QUESTIONS
     VOLATILE_FLAG_62_FF_GRUNTY_QUESTIONS_INITIALIZED = 0x62,
-    VOLATILE_FLAG_63, // related to demo mode
-    VOLATILE_FLAG_64, // related to demo mode
+    VOLATILE_FLAG_63_DEMO_FINISHED_VIA_DEMO_DONE,
+    VOLATILE_FLAG_64_DEMO_FINISHED_VIA_START_BTN,
     VOLATILE_FLAG_65_CHEAT_ENTERED,
     VOLATILE_FLAG_66_SANDCASTLE_OPEN_DOOR_TWO,
     VOLATILE_FLAG_67_SANDCASTLE_OPEN_DOOR_THREE,
@@ -512,7 +512,8 @@ enum ability_e
     ABILITY_13_1ST_NOTEDOOR = 0x13
 };
 
-enum button_e{
+enum button_e
+{
     BUTTON_START = 0x0,
     BUTTON_Z = 0x1,
     BUTTON_L = 0x2,
@@ -526,11 +527,13 @@ enum button_e{
     BUTTON_C_LEFT = 0xA,
     BUTTON_C_DOWN = 0xB,
     BUTTON_C_UP = 0xC,
-    BUTTON_C_RIGHT = 0xD
+    BUTTON_C_RIGHT = 0xD,
+    BUTTON_max
 };
 
 #define FACE_BUTTON(button) (button - BUTTON_A)
 #define SIDE_BUTTON(button) (button - BUTTON_Z)
+#define DPAD_BUTTON(button) (button - BUTTON_D_UP)
 
 enum joystick_e{
     JOYSTICK_X = 0x0,

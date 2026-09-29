@@ -12,10 +12,10 @@ extern "C" {
 #include "bk_time.h"
 #include "core1/core1.h"
 #include "core2/timedfunc.h"
-#include "core1/pfsmanager.h"
+#include "core1/joy.h"
 
 extern f32 D_8037C5B0[3];
-extern PfsManagerControllerData D_80281138[4];
+extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
 extern Gfx D_80369238[];
 f32 randf(void);
 s32 getGameMode(void);
@@ -245,7 +245,7 @@ void Update() {
         return;
     }
 
-    const bool muted = !stable || D_80281138[0].side_button2.button_z != 0 || state == BS_73_UNKNOWN ||
+    const bool muted = !stable || sHeldFrames[0][JOY_BUTTON_Z] != 0 || state == BS_73_UNKNOWN ||
                        state == BS_79_BTROT_LOCKED || state == BS_98_WALK_DRONE || state == BS_1E_WONDERWING_EXIT ||
                        (state & ~0x10) == BS_7_CROUCH;
     f32 gain = 0.0f;

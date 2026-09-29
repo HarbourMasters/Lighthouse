@@ -313,7 +313,7 @@ void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
         print_resetBoldFontTexture();
     }
     if (arg0 != MAP_1F_CS_START_RAREWARE) {
-        func_8024F150();
+        joy_spawnNoControllerOverlay();
     }
 }
 

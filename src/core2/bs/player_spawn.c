@@ -8,7 +8,7 @@
 #include "core2/ba/anim.h"
 #include "core2/ba/physics.h"
 
-extern void controller_getJoystick(s32, f32*);
+extern void controller_copyJoystick(s32, f32*);
 extern f32 player_getYaw(void);
 extern ParticleEmitter *func_802F4094(f32 pos[3], f32 arg1);
 extern void particleEmitter_setSphericalParticleVelocityRange(ParticleEmitter *this, f32 pitch_min, f32 yaw_min, f32 radial_min, f32 pitch_max, f32 yaw_max, f32 radial_max);

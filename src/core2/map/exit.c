@@ -174,7 +174,7 @@ void func_8034B580(s32 arg0) {
             if ((D_80386128 >= 2.5) && (sp1C < 2.5) && (D_80371F9C == 0)) {
                 func_802DC9DC(0, 0);
             }
-            if ((D_80386128 >= 4.0) && (sp1C < 4.0) && !pfsManager_contErr()) {
+            if ((D_80386128 >= 4.0) && (sp1C < 4.0) && !joy_contHasErr()) {
                 chOverlayPressStart_spawn(0, 0);
                 if (D_80371F9C != 0) {
                     chOverlayPressStart_func_802DCDB0();
@@ -186,7 +186,7 @@ void func_8034B580(s32 arg0) {
             if ((D_80386128 >= 2.5) && (sp1C < 2.5)) {
                 chOverlayCopyright_func_802DCB0C(0, 0);
             }
-            if ((D_80386128 >= 4.0) && (sp1C < 4.0) && !pfsManager_contErr()) {
+            if ((D_80386128 >= 4.0) && (sp1C < 4.0) && !joy_contHasErr()) {
                 chOverlayPressStart_spawn(0, 0);
             }
             break;
@@ -319,8 +319,8 @@ void func_8034BB90(void) {
         && sp18 
         && !D_8038611C 
         && (getGameMode() != GAME_MODE_8_BOTTLES_BONUS) 
-        && ((volatileFlag_get(VOLATILE_FLAG_64) && (getGameMode() != GAME_MODE_A_SNS_PICTURE)) 
-        || volatileFlag_get(VOLATILE_FLAG_63))
+        && ((volatileFlag_get(VOLATILE_FLAG_64_DEMO_FINISHED_VIA_START_BTN) && (getGameMode() != GAME_MODE_A_SNS_PICTURE)) 
+        || volatileFlag_get(VOLATILE_FLAG_63_DEMO_FINISHED_VIA_DEMO_DONE))
     ) {
         func_8034B7F0(D_80386114->unk1);
         if (getGameMode() == GAME_MODE_9_BANJO_AND_KAZOOIE) {
@@ -331,7 +331,7 @@ void func_8034BB90(void) {
             } else {
                 func_802DF0C8();
             }
-        } else if (volatileFlag_get(VOLATILE_FLAG_64)) {
+        } else if (volatileFlag_get(VOLATILE_FLAG_64_DEMO_FINISHED_VIA_START_BTN)) {
             func_802E412C(1, D_80386114->unk5);
             func_8034B994();
         } else {
@@ -343,8 +343,8 @@ void func_8034BB90(void) {
             func_8025A58C(0, 800);
             func_8025AB00();
         }
-        volatileFlag_set(VOLATILE_FLAG_64, 0);
-        volatileFlag_set(VOLATILE_FLAG_63, 0);
+        volatileFlag_set(VOLATILE_FLAG_64_DEMO_FINISHED_VIA_START_BTN, 0);
+        volatileFlag_set(VOLATILE_FLAG_63_DEMO_FINISHED_VIA_DEMO_DONE, 0);
         D_8038611C = 1;
     }
 }

@@ -39,11 +39,11 @@ s16 *sPictureBoxColorBuffer;
 void *sPictureBoxColorBufferBase;
 
 void picturebox_func_8030C160(void) {
-    func_8024F150();
+    joy_spawnNoControllerOverlay();
 }
 
 void picturebox_func_8030C180(void) {
-    func_8024F180();
+    joy_noControllerOverlay_8024F180();
 }
 
 void picturebox_init(void) {
