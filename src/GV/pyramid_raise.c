@@ -109,7 +109,7 @@ void chJinxyHeadSandybutt_setState(Actor *this, s32 next_state){
     }//L8038C9B8
 
     if(next_state == CHJINXYHEADSANDYBUTT_STATE_2_UNK){
-        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SHPYNX_EATING, 1.0f, 3.0f);
+        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SPHINX_EATING, 1.0f, 3.0f);
         skeletalAnim_setProgress(this->unk148, 0.27f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_4_STOPPED);
         local->unkC = 0.0f;
@@ -124,13 +124,13 @@ void chJinxyHeadSandybutt_setState(Actor *this, s32 next_state){
 
     if(next_state == CHJINXYHEADSANDYBUTT_STATE_3_UNK){
         local->unk24 = 3.0f;
-        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SHPYNX_EATING, 1.0f, 3.0f);
+        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SPHINX_EATING, 1.0f, 3.0f);
         skeletalAnim_setProgress(this->unk148, 0.27f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_4_STOPPED);
     }//L8038CAB4
 
     if(this->state == CHJINXYHEADSANDYBUTT_STATE_3_UNK){
-        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SHPYNX_EATING, 0.5f, 3.0f);
+        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SPHINX_EATING, 0.5f, 3.0f);
         skeletalAnim_setProgress(this->unk148, 0.99f);
         skeletalAnim_setBehavior(this->unk148, SKELETAL_ANIM_2_ONCE);
         if(next_state == CHJINXYHEADSANDYBUTT_STATE_4_UNK
@@ -142,7 +142,7 @@ void chJinxyHeadSandybutt_setState(Actor *this, s32 next_state){
 
     if(next_state == CHJINXYHEADSANDYBUTT_STATE_6_FED){
         func_80324E38(0.0f, 3);
-        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SHPYNX_EATING, 0.0f, 3.0f);
+        skeletalAnim_set(this->unk148, ASSET_F0_ANIM_MINI_SPHINX_EATING, 0.0f, 3.0f);
         coMusicPlayer_playMusic(COMUSIC_2B_DING_B, 28000);
     }
 

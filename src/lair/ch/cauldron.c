@@ -25,13 +25,13 @@ Actor *chWarpCauldron_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
 /* .data */
 ActorAnimationInfo D_80393520[] = {
     {    0, 0.0f},
-    {0x213, 2.66f},
-    {0x212, 2.0f},
-    {0x214, 6.4f},
-    {0x215, 3.4f},
-    {0x216, 1.0f},
-    {0x28F, 5.167f},
-    {0x290, 6.26f}
+    {ASSET_213_ANIM_unk, 2.66f},
+    {ASSET_212_ANIM_unk, 2.0f},
+    {ASSET_214_ANIM_unk, 6.4f},
+    {ASSET_215_ANIM_unk, 3.4f},
+    {ASSET_216_ANIM_unk, 1.0f},
+    {ASSET_28F_ANIM_unk, 5.167f},
+    {ASSET_290_ANIM_unk, 6.26f}
 };
 ActorInfo D_80393560 = { MARKER_231_WARP_CAULDRON, ACTOR_23B_WARP_CAULDRON, ASSET_4DF_MODEL_WARP_CAULDRON, 1, D_80393520, chWarpCauldron_update, actor_update_func_80326224, chWarpCauldron_draw, 0, 0, 3.0f, 0};
 ActorInfo D_80393584 = { MARKER_244_DINGPOT, ACTOR_2DB_DINGPOT, ASSET_450_MODEL_DINGPOT, 1, D_80393520, chWarpCauldron_update, actor_update_func_80326224, chWarpCauldron_draw, 0, 0, 3.0f, 0};

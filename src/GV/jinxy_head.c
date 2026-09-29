@@ -10,8 +10,8 @@ void func_8038E1A8(Actor *this);
 /* .data */
 ActorAnimationInfo D_80391340[] ={
     {0x00, 0.0f},
-    {0xF0, 80000000.0f},
-    {0xF0, 1.6f},
+    {ASSET_F0_ANIM_MINI_SPHINX_EATING, 80000000.0f},
+    {ASSET_F0_ANIM_MINI_SPHINX_EATING, 1.6f},
 };
 
 // 0x121 - Big Jinxy Head, 0x3E6 - GV Jinxy Head 2

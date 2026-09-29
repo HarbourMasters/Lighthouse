@@ -67,31 +67,31 @@ f32 D_80365E04[3][3] = {
 
 ActorAnimationInfo banjoGameboyAnimations[] = {
     {0x000, 0.0f},
-    {0x24D, 9e+09f},
-    {0x24D, 2.0f},  
-    {0x24E, 1.0f},
-    {0x24F, 0.6f},  
-    {0x24D, 2.0f}
+    {ASSET_24D_ANIM_FSS_BANJO_SLEEPING_unk, 9e+09f},
+    {ASSET_24D_ANIM_FSS_BANJO_SLEEPING_unk, 2.0f},  
+    {ASSET_24E_ANIM_FSS_BANJO_SLEEPING_unk, 1.0f},
+    {ASSET_24F_ANIM_FSS_BANJO_SLEEPING_unk, 0.6f},  
+    {ASSET_24D_ANIM_FSS_BANJO_SLEEPING_unk, 2.0f}
 };
 ActorInfo gameSelect_banjoSleeping = { 0xE4, 0x195, 0x532, 0x1, banjoGameboyAnimations, gameSelect_initAndUpdate, actor_update_func_80326224, gameSelect_zoomboxDraw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365E7C[] = {
     {0x000, 0.0f}, 
-    {0x250, 9e+09f},
-    {0x250, 4.5f}, 
-    {0x251, 1.0f},
-    {0x252, 0.67f}, 
-    {0x250, 4.5f},
+    {ASSET_250_ANIM_FSS_BANJO_GAMEBOY_unk, 9e+09f},
+    {ASSET_250_ANIM_FSS_BANJO_GAMEBOY_unk, 4.5f}, 
+    {ASSET_251_ANIM_FSS_BANJO_GAMEBOY_unk, 1.0f},
+    {ASSET_252_ANIM_FSS_BANJO_GAMEBOY_unk, 0.67f}, 
+    {ASSET_250_ANIM_FSS_BANJO_GAMEBOY_unk, 4.5f},
 };
 ActorInfo gameSelect_banjoGameboy = { 0xE5, 0x196, 0x532, 0x1, D_80365E7C, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 
 ActorAnimationInfo D_80365ED0[] = {
     {0x000, 0.0f},
-    {0x24A, 9e+09f},  
-    {0x24A, 1.0f},
-    {0x24B, 1.0f},  
-    {0x24C, 1.0f},
-    {0x24A, 1.0f}
+    {ASSET_24A_ANIM_FSS_BANJO_COOKING_unk, 9e+09f},  
+    {ASSET_24A_ANIM_FSS_BANJO_COOKING_unk, 1.0f},
+    {ASSET_24B_ANIM_FSS_BANJO_COOKING_unk, 1.0f},  
+    {ASSET_24C_ANIM_FSS_BANJO_COOKING_unk, 1.0f},
+    {ASSET_24A_ANIM_FSS_BANJO_COOKING_unk, 1.0f}
 };
 ActorInfo gameSelect_banjoCooking = { 0xE6, 0x197, 0x532, 0x1, D_80365ED0, gameSelect_update, actor_update_func_80326224, gameSelect_draw, 0, 0, 0.0f, 0};
 

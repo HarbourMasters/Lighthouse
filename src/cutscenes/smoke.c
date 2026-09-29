@@ -13,8 +13,8 @@ Actor* func_8038D13C(ActorMarker *, Gfx **, Mtx**, Vtx **);
 /* .data */
 ActorAnimationInfo D_8038E890[] ={
     {0x000, 0.0f},
-    {0x1F6, 10000.0f},
-    {0x1F6, 5.0f},
+    {ASSET_1F6_ANIM_unk, 10000.0f},
+    {ASSET_1F6_ANIM_unk, 5.0f},
 };
 
 ActorInfo D_8038E8A8 = {

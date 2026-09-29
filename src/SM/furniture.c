@@ -11,8 +11,8 @@ void func_8038A3B0(Actor *this);
 /* .data */
 ActorAnimationInfo D_8038AFF0[3] = {
     {0, 0.0f},
-    {0x248, 1.816f},
-    {0x248, 9e+09f},
+    {ASSET_248_ANIM_unk, 1.816f},
+    {ASSET_248_ANIM_unk, 9e+09f},
 };
 
 ActorInfo gBanjosBed = { 
@@ -24,8 +24,8 @@ ActorInfo gBanjosBed = {
 
 ActorAnimationInfo D_8038B02C[3] = {
     {0, 0.0f},
-    {0x247, 3.0f},
-    {0x247, 9e+09f},
+    {ASSET_247_ANIM_unk, 3.0f},
+    {ASSET_247_ANIM_unk, 9e+09f},
 };//chBanjosChairAnimations
 
 ActorInfo gBanjosChair ={
@@ -37,8 +37,8 @@ ActorInfo gBanjosChair ={
 
 ActorAnimationInfo D_8038B068[3] = {
     {0, 0.0f},
-    {0x249, 1.0f},
-    {0x249, 9e+09f},
+    {ASSET_249_ANIM_unk, 1.0f},
+    {ASSET_249_ANIM_unk, 9e+09f},
 };//chBanjosStoveAnimations
 
 ActorInfo gBanjosStove ={

@@ -11,14 +11,14 @@ Actor *func_80391FC0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 /* .data */
 ActorAnimationInfo D_80394BE0[] = {
     {0x000, 0.0f},
-    {0x28A, 1000000.0f},
-    {0x28A, 1.5f},
-    {0x28C, 1000000.0f},
-    {0x28C, 2.0f},
-    {0x1D5, 1000000.0f},
-    {0x1D5, 0.25},
-    {0x28E, 2.0f},
-    {0x1D0, 3.0f},
+    {ASSET_28A_ANIM_unk, 1000000.0f},
+    {ASSET_28A_ANIM_unk, 1.5f},
+    {ASSET_28C_ANIM_unk, 1000000.0f},
+    {ASSET_28C_ANIM_unk, 2.0f},
+    {ASSET_1D5_ANIM_unk, 1000000.0f},
+    {ASSET_1D5_ANIM_unk, 0.25},
+    {ASSET_28E_ANIM_unk, 2.0f},
+    {ASSET_1D0_ANIM_unk, 3.0f},
 };
 ActorInfo D_80394C28 = { MARKER_29A_FF_PRIZE, ACTOR_3C4_FF_PRIZE_WASHING_CAULDRON, ASSET_55F_MODEL_FF_PRIZE_WASHING_CAULDRON,   
     0x1, D_80394BE0, 

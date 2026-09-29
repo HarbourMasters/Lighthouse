@@ -10,11 +10,11 @@ extern void func_80324CFC(f32, enum comusic_e, s32);
 
 ActorAnimationInfo chBossJinjoAnimationInfo[] = {
     {0, 0.0f},
-    {0x264, 1000000.0f},
-    {0x264, 2.26f},
-    {0x130, 1.75f},
-    {0x131, 2.13333f},
-    {0x262, 2.0f}
+    {ASSET_264_ANIM_BOSSJINJO_unk, 1000000.0f},
+    {ASSET_264_ANIM_BOSSJINJO_unk, 2.26f},
+    {ASSET_130_ANIM_JINJO_FLY_START, 1.75f},
+    {ASSET_131_ANIM_JINJO_FLY_END, 2.13333f},
+    {ASSET_262_ANIM_BOSSJINJO_unk, 2.0f}
 };
 
 ActorInfo chBossJinjoOrange = { MARKER_27B_BOSS_JINJO_ORANGE, ACTOR_3A5_BOSS_JINJO_ORANGE, ASSET_3BC_MODEL_JINJO_ORANGE, 1, chBossJinjoAnimationInfo, chBossJinjo_update, chBossJinjo_update2, actor_draw, 0, 0, 1.0f, 0 };

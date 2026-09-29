@@ -6,9 +6,9 @@
 
 ActorAnimationInfo chStoneJinjoAnimationInfo[] = {
     {0, 0.0f},
-    {0x265, 1e+8f},
-    {0x265, 1e+8f},
-    {0x265, 1e+8f},
+    {ASSET_265_ANIM_STONEJINJO_unk, 1e+8f},
+    {ASSET_265_ANIM_STONEJINJO_unk, 1e+8f},
+    {ASSET_265_ANIM_STONEJINJO_unk, 1e+8f},
 };
 
 ActorInfo chStoneJinjo = { MARKER_276_STONE_JINJO, ACTOR_3A1_STONE_JINJO, ASSET_545_MODEL_STONE_JINJO, 1, chStoneJinjoAnimationInfo, chstonejinjo_update, actor_update_func_80326224, actor_draw, 0, 2048, 1.0f, 0 };

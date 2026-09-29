@@ -10,15 +10,15 @@ Actor *func_80390560(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 /* .data */
 ActorAnimationInfo D_803948E0[] = {
     {0, 0.0f},
-    {0x268, 1.6f},
+    {ASSET_268_ANIM_unk, 1.6f},
 };
 ActorAnimationInfo D_803948F0[] = {
     {0, 0.0f},
-    {0x269, 1.6f},
+    {ASSET_269_ANIM_unk, 1.6f},
 };
 ActorAnimationInfo D_80394900[] = {
     {0, 0.0f},
-    {0x26A, 1.6f},
+    {ASSET_26A_ANIM_unk, 1.6f},
 };
 ActorInfo D_80394910 = { 0x170, 0x1D8, 0x547, 0x1, D_803948E0, func_803906A0, actor_update_func_80326224, func_80390560, 0, 0, 0.7f, 0};
 ActorInfo D_80394934 = { 0x171, 0x1D9, 0x548, 0x1, D_803948F0, func_803906A0, actor_update_func_80326224, func_80390560, 0, 0, 0.5f, 0};
