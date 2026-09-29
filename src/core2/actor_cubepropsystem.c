@@ -1626,7 +1626,7 @@ void func_803306C8(s32 arg0) {
                 if (!D_8036E7CC);
 
                 var_s0_2 = true;
-                codeB3A80_releaseSprite((void **)&var_a2->unk4, &var_a2->unk8);
+                codeB3A80_releaseSprite(&var_a2->unk4, &var_a2->unk8);
             }
             if ((arg0 != 1) && (var_s0_2 == 1) && (func_80254BC4(1))) {
                 return;

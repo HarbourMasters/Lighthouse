@@ -94,10 +94,14 @@ int func_802F8B50(struct6s *this){
 
 void func_802F8B8C(struct6s *this){
     bk_vector_free(this->unk1C);
-    func_8033BD20((void **)&this->unk24[0]);
-    func_8033BD20((void **)&this->unk24[1]);
-    func_8033BD20((void **)&this->unk24[2]);
-    func_8033BD20((void **)&this->unk24[3]);
+//  func_8033BD20(&this->unk24[0]);
+    func_8033BD20((BKModelBin **)&this->unk24[0]);
+//  func_8033BD20(&this->unk24[1]);
+    func_8033BD20((BKModelBin **)&this->unk24[1]);
+//  func_8033BD20(&this->unk24[2]);
+    func_8033BD20((BKModelBin **)&this->unk24[2]);
+//  func_8033BD20(&this->unk24[3]);
+    func_8033BD20((BKModelBin **)&this->unk24[3]);
     bk_free(this);
 }
 

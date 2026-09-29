@@ -67,7 +67,7 @@ static u32 sPortParticleSerial = 0;
 void func_802EE930(ParticleEmitter *this){
     func_8033B388(&this->sprite_1C, &this->unk34);
     if(this->model_20)
-        func_8033BD20((void **)&this->model_20);
+        func_8033BD20(&this->model_20);
 }
 
 int func_802EE974(ParticleEmitter *this, f32 (*arg1)[3], f32 (*arg2)[3], f32 (*arg3)[3], s32 arg4){

@@ -69,7 +69,7 @@ void func_802F8FF0(void){
 void func_802F8FFC(void){
     if(D_80369280){
         bk_free(D_80369280->unk1C);
-        func_8033BD20((void **)&D_80369288);
+        func_8033BD20(&D_80369288);
         bk_free(D_80369280);
         D_80369280 = NULL;
         D_80369284 = 0;

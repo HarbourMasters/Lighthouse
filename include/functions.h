@@ -1158,7 +1158,7 @@ void func_80350174(void);
 void func_80350250(void);
 
 // --- core2/anim/anim_bonetransform.c ---
-bool codeB3A80_releaseSprite(void **sprite_ptr, BKSpriteDisplayData **arg1);
+bool codeB3A80_releaseSprite(BKSprite **sprite_ptr, BKSpriteDisplayData **sprite_gfx_ptr);
 bool func_8033B388(BKSprite **sprite_ptr, BKSpriteDisplayData **arg1);
 s32 code_B3A80_func_8033BDAC(enum asset_e id, void *dst, s32 size);
 s32 func_8033B678(void);
@@ -2964,7 +2964,7 @@ s32 func_802FB0D4(void *self);
 void particleEmitter_manualFree(ParticleEmitter *self);
 
 // --- core2/anim/anim_bonetransform.c ---
-void func_8033BD20(void **arg0);
+void func_8033BD20(BKModelBin **arg0);
 
 // --- core2/timedfuncqueue.c ---
 bool timedFuncQueue_is_empty(void);

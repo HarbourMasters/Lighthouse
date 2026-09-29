@@ -455,14 +455,15 @@ void func_80315200(GcZoombox *this){
 
 void func_803152C4(GcZoombox *this){
      if(this->unk100 != NULL){
-          func_8033BD20((void **)&this->unk100);
+//        func_8033BD20(&this->unk100);
+          func_8033BD20((BKModelBin **)&this->unk100);
           this->unk100 = NULL;
      }
 }
 
 void func_80315300(GcZoombox *this){
      if(this->model != NULL){
-          func_8033BD20((void **)&this->model);
+          func_8033BD20(&this->model);
           this->model = NULL;
      }
      if(this->anim_ctrl != NULL){
@@ -470,7 +471,8 @@ void func_80315300(GcZoombox *this){
           this->anim_ctrl = NULL;
      }
      if(this->unkF8 != NULL){
-          func_8033BD20((void **)&this->unkF8);
+//        func_8033BD20(&this->unkF8);
+          func_8033BD20((BKModelBin **)&this->unkF8);
           this->unkF8 = NULL;
      }
      func_803152C4(this);
