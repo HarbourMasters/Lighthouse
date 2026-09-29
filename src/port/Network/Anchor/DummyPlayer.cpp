@@ -177,7 +177,7 @@ void DummyPlayer::Draw(Gfx** gfx, Mtx** mtx, Vtx** vtx) {
     dummy_getPosition(plyr_pos);
     plyr_pos[1] += 2.0f;
     ml_vec3f_assign(rotation, dummyPitch, dummyYaw, dummyRoll);
-    func_8029A47C(env_color);
+    core2_12F30_getPlayerTint(env_color);
     ml_vec3f_copy(sp38, dummy_D_8037C100);
 
     plyr_pos[0] += dummyDisplacement[0];
@@ -270,7 +270,7 @@ void DummyPlayer::dummy_reset(void) {
     dummyDirection = PLAYER_MODEL_DIR_NONE;
     dummy_setDirection(PLAYER_MODEL_DIR_BANJO);
     // Always load the model. The local player's model loader skips this during the
-    // level-intro flythrough (func_8028ADB4) and re-runs it when the intro ends, but
+    // level-intro flythrough (player_shouldPlayLevelEntrance) and re-runs it when the intro ends, but
     // nothing re-runs model setup for dummies — gating here left the dummy permanently
     // invisible whenever it was registered while entering a level from the lair.
     dummy_updateModel();

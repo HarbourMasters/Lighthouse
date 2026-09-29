@@ -23,7 +23,7 @@ extern struct {
 #define MUMBO_TOKEN_COUNT 126
 #define MUMBOSCORE_SIZE (((MUMBO_TOKEN_COUNT - 1 + 7) & ~7) / 8)
 extern u8 sMumboTokenScore[MUMBOSCORE_SIZE];
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 
 extern ActorInfo chJinjoBlue;
 extern ActorInfo chJinjoGreen;
@@ -224,9 +224,9 @@ void ItemQueue::GiveItem(RandoItemId randoItemId) {
             break;
         case RITYPE_MUSIC_NOTE:
             coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
-            D_80385FF0[worldId]++;
+            sItemscoreNoteScores[worldId]++;
             if (worldId == map_getLevel(gsworld_getMap())) {
-                item_set(ITEM_C_NOTE, D_80385FF0[map_getLevel(gsworld_getMap())]);
+                item_set(ITEM_C_NOTE, sItemscoreNoteScores[map_getLevel(gsworld_getMap())]);
             }
             break;
         case RITYPE_SNS_EGG:

@@ -360,7 +360,7 @@ int32_t LevelBucket(int32_t level) {
     return (level > 0 && level < levelCount) ? level : 0;
 }
 
-// func_803084F0 only maps these index ranges to marker actors; everything else
+// nodeprop_getExitActorId only maps these index ranges to marker actors; everything else
 // returns actor 0 and can never resolve to a prop. Indices >= 0x80 (and 0x63/0x65)
 // take the scripted-spawn path instead and are deliberately left out.
 constexpr struct {
@@ -396,7 +396,7 @@ void ScanMapEntrances() {
     mapEntrances.clear();
     for (const auto& range : probeRanges) {
         for (int32_t id = range.first; id <= range.last; id++) {
-            enum actor_e marker = func_803084F0(id);
+            enum actor_e marker = nodeprop_getExitActorId(id);
             if (marker == 0) {
                 continue;
             }
@@ -410,7 +410,7 @@ void ScanMapEntrances() {
             info.pos[1] = position[1];
             info.pos[2] = position[2];
             u32 yaw = 0;
-            func_80305344((s32)marker, &yaw);
+            nodeprop_findYawFromActorId((s32)marker, &yaw);
             info.yaw = yaw;
             mapEntrances.push_back(info);
         }
