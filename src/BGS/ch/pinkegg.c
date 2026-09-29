@@ -27,7 +27,7 @@ ActorAnimationInfo chPinkEggAnimations[4] = {
     {0, 0.0f},
     {0, 0.0f},
     {0, 0.0f},
-    {0x10B, 2.0f}
+    {ASSET_10B_ANIM_unk, 2.0f}
 };
 
 ActorInfo chPinkEggLargest = {MARKER_6E_PINK_EGG_LARGEST, ACTOR_5B_PINK_EGG_LARGEST, ASSET_380_MODEL_PINK_EGG_LARGEST, 0x01, chPinkEggAnimations,
