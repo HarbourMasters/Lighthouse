@@ -23,9 +23,9 @@ enum chtanktup_leg_e {
 
 ActorAnimationInfo BGS_D_80390C20[] = {
     {0, 0.0f},
-    {0x101, 7.5f},
-    {0x102, 1.75f},
-    {0x107, 1.75f}
+    {ASSET_101_ANIM_TANKTUP_IDLE, 7.5f},
+    {ASSET_102_ANIM_TANKTUP_OW, 1.75f},
+    {ASSET_107_ANIM_TANKTUP_MOUTH_OPEN, 1.75f}
 };
 
 ActorInfo gChTanktup = {
