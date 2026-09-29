@@ -7109,7 +7109,7 @@ enum map_warp_CCW_beehive_summer
 
 enum map_warp_CCW_beehive_autumn
 {
-    WARP_CCW_BEEHIVE_AUTUMN_2_TOP = 0x2,
+    WARP_CCW_BEEHIVE_AUTUMN_2_TOP = 0x2
 };
 
 enum map_warp_CCW_nabnut_spring
