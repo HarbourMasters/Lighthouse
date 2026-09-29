@@ -2318,7 +2318,7 @@ void volatileFlag_getSizeAndPtr(s32 *size, u8 **addr);
 int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 (*arg4)(ActorMarker *, enum asset_e, s32));
 int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32));
 int gcdialog_getCurrentTextId(void);
-int func_803115C4(s32 next_state);
+bool func_803115C4(s32 textId);
 void func_8030F1D0(void);
 void func_80310D2C(void);
 void gcdialog_incrementYPositionModifier(void);
