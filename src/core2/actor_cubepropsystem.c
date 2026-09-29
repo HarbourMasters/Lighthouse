@@ -18,15 +18,11 @@ extern int ResourceMgr_IsModelAsset(uint32_t assetId);
 #define MARKER_POOL_SIZE ACTOR_POOL_SIZE
 #define MARKER_BITMAP_BYTES (MARKER_POOL_SIZE / 8)
 
-extern bool func_802E74A0(f32[3], f32, f32[3], f32[3]);
-extern BKCollisionTriangle *func_802E9118(BKCollisionList * collision_list, BKVertexList *vtx_list, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 argA);
 extern f32 vtxList_getGlobalNorm(BKVertexList *);
 extern void spawnQueue_func_802C39D4(void);
 extern bool func_80340020(Struct83s *, f32[3], f32[3], f32, f32 *, BKVertexList *, f32[3], f32[3]);
 extern void func_80340200(Struct83s *, f32[3], f32[3], f32, f32[3], s16[3], BKVertexList *, f32[3]);
-extern BKCollisionTriangle *func_802E9DD8(BKCollisionList *collisionList, BKVertexList *vtxList, f32 arg2[3], f32 *arg3, f32 arg4, f32 arg5[3], f32 arg6, f32 arg7[3], s32 arg8);
 extern s32 bkmodelunk14list_func_802EBAE0(BKModelUnk14List *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], AnimMtxList *arg5, f32 arg6[3], f32 arg7, f32 arg8[3]);
-extern BKCollisionTriangle *collisionList_func_802E805C(BKCollisionList *, BKVertexList *, f32[3], f32[3], f32, f32[3], f32[3], f32[3], u32);
 extern NodeProp *func_803080C8(s32 arg0);
 extern Cube *func_80308224(void);
 extern Cube *func_8030364C(void);
@@ -1916,7 +1912,7 @@ bool func_80331158(ActorMarker *arg0, f32 *arg1, f32 *arg2) {
 
     actor = marker_getActor(arg0);
     if ((actor->unk3C & 0x400) && ((s32)actor->unk3C << 4) >= 0){
-        return func_802E74A0(actor->position, actor->unk178 * 1.1, arg1, arg2) == 0;
+        return collisionList_pointOnLine(actor->position, actor->unk178 * 1.1, arg1, arg2) == 0;
     }
     return false;
 }
@@ -1956,7 +1952,7 @@ BKCollisionTriangle *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, 
                     spA0[0] = 0.0f;
                     spA0[1] = (f32) (var_s1->modelProp.yaw * 2);
                     spA0[2] = (f32) (var_s1->modelProp.roll * 2);
-                    var_v0 = collisionList_func_802E805C(temp_s2, modelbin_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.scale / 100.0, arg1, arg2, arg3, arg4);
+                    var_v0 = collisionList_intersectLineGlobal(temp_s2, modelbin_getVtxList(var_s0), spAC, spA0, (f32)var_s1->modelProp.scale / 100.0, arg1, arg2, arg3, arg4);
                     if (var_v0 != NULL) {
                         var_s6 = var_v0;
                     }
@@ -1979,7 +1975,7 @@ BKCollisionTriangle *func_803311D4(Cube *arg0, f32 *arg1, f32 *arg2, f32 *arg3, 
                     sp7C[0] = (f32) var_s1->actorProp.marker->pitch;
                     sp7C[1] = (f32) var_s1->actorProp.marker->yaw;
                     sp7C[2] = (f32) var_s1->actorProp.marker->roll;
-                    temp_s0_2 = collisionList_func_802E805C(temp_s0, temp_a1, sp88, sp7C, temp_s2_2->scale, arg1, arg2, arg3, arg4);
+                    temp_s0_2 = collisionList_intersectLineGlobal(temp_s0, temp_a1, sp88, sp7C, temp_s2_2->scale, arg1, arg2, arg3, arg4);
                     if ((temp_s0_2 != NULL) && (func_8029453C())) {
                         marker_loadModelBin(var_s1->actorProp.marker);
                         if (var_s1->actorProp.marker->unk50 != 0) {
@@ -2057,7 +2053,7 @@ BKCollisionTriangle *func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg
       spB0[1] = (f32) (var_s0->modelProp.yaw * 2);
       new_var = spB0;
       spB0[2] = (f32) (var_s0->modelProp.roll * 2);
-      var_v0 = func_802E9118(model_collision_list, modelbin_getVtxList(model_bin), 
+      var_v0 = collisionList_intersectMovingSphereGlobal(model_collision_list, modelbin_getVtxList(model_bin), 
         spBC, new_var, (f32) (((f32) var_s0->modelProp.scale) / 100.0), 
         arg1, arg2, arg3, arg4, arg5, flags
     );
@@ -2089,7 +2085,7 @@ BKCollisionTriangle *func_80331638(Cube *cube, f32 arg1[3], f32 arg2[3], f32 arg
         sp8C[0] = (f32) var_s0->actorProp.marker->pitch;
         sp8C[1] = (f32) var_s0->actorProp.marker->yaw;
         sp8C[2] = (f32) var_s0->actorProp.marker->roll;
-        var_v0 = func_802E9118((BKCollisionList *)model_bin, temp_a1, sp98, new_var2, temp_v0_6->scale, arg1, arg2, arg3, arg4, arg5, flags);
+        var_v0 = collisionList_intersectMovingSphereGlobal((BKCollisionList *)model_bin, temp_a1, sp98, new_var2, temp_v0_6->scale, arg1, arg2, arg3, arg4, arg5, flags);
       }
       if (var_v0 != 0)
       {
@@ -2155,7 +2151,7 @@ BKCollisionTriangle *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 
                     spA0[1] = (f32) (mProp->yaw * 2);
                     model_bin = model_bin;
                     spA0[2] = (f32) (mProp->roll * 2);
-                    var_v0 = func_802E9DD8(model_collision_list, modelbin_getVtxList(model_bin), spAC, spA0, ((f32) mProp->scale) / 100.0, position, radius, arg3, arg4);
+                    var_v0 = collisionList_intersectSphereGlobal(model_collision_list, modelbin_getVtxList(model_bin), spAC, spA0, ((f32) mProp->scale) / 100.0, position, radius, arg3, arg4);
                     if (var_v0 != 0)
                         var_s7 = var_v0;
                 }
@@ -2177,7 +2173,7 @@ BKCollisionTriangle *func_803319C0(Cube *cube, f32 position[3], f32 radius, f32 
             sp7C[0] = aProp->marker->pitch;
             sp7C[1] = aProp->marker->yaw;
             sp7C[2] = aProp->marker->roll;
-            var_v0 = func_802E9DD8((BKCollisionList *)new_var, temp_a1, sp88, sp7C, temp_v0_6->scale, position, radius, arg3, arg4);
+            var_v0 = collisionList_intersectSphereGlobal((BKCollisionList *)new_var, temp_a1, sp88, sp7C, temp_v0_6->scale, position, radius, arg3, arg4);
             if (var_v0 != 0)
             {
             var_s7 = var_v0;

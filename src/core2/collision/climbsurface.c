@@ -514,7 +514,7 @@ bool func_802946FC(f32 arg0[3][3], BKCollisionTriangle *arg1){
           return 0;
      }
      else{
-          func_802E73C8(arg0);
+          collisionList_getStoredTriangle(arg0);
           return 1;
      }
 }
