@@ -313,8 +313,8 @@ void Rando::ObjectBehavior::Init() {
         }
 
         randoSaveState[(RandoCheckId)ev->actor->marker->randoCheckId] =
-            std::make_tuple((int32_t)ev->actor->marker->propPtr->x, (int32_t)ev->actor->marker->propPtr->y,
-                            (int32_t)ev->actor->marker->propPtr->z);
+            std::make_tuple((int32_t)ev->actor->marker->propPtr->position_x, (int32_t)ev->actor->marker->propPtr->position_y,
+                            (int32_t)ev->actor->marker->propPtr->position_z);
     })
 
     COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
