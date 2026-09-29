@@ -56,7 +56,8 @@ void chGrublin_initialize(Actor *this){
     local->foundPlayerSampleRate = 25000;
     local->unkC_28 = TRUE;
     local->hitFunction = NULL;
-    local->dieFunction = chGrublin_die;
+//  local->dieFunction = chGrublin_die;
+    local->dieFunction = (void (*)(ActorMarker *, ActorMarker *)) chGrublin_die;
     local->foundPlayerVolume = 1.0f;
 }
 

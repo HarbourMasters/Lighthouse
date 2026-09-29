@@ -31,7 +31,8 @@ int balookat_try_get_position(f32 arg0[3]){
     return 1;
 }
 
-BaLookAtState balookat_getState(void){
+//BaLookAtState balookat_getState(void){
+s32 balookat_getState(void){
     if(!s_length){
         return 0;
     }
@@ -53,7 +54,8 @@ void balookat_pop(void){
     }
 }
 
-void balookat_push(BaLookAtState state){
+//void balookat_push(BaLookAtState state){
+void balookat_push(s32 state){
     s_lookat_stack[s_length].state = state;
     s_lookat_stack[s_length].lookat = FALSE;
     ml_vec3f_clear(s_lookat_stack[s_length].position);
