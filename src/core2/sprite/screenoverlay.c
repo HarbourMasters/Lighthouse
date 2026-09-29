@@ -56,9 +56,9 @@ u8 D_80370338[4] = {1, 0, 0, 0};
 u8 D_8037033C = 0;
 
 /* .bss */
-s32 D_80383610;
-s32 D_80383614;
-s32 D_80383618;
+s32 sPrimColorR;
+s32 sPrimColorG;
+s32 sPrimColorB;
 s32 D_8038361C;
 s32 D_80383620;
 s32 D_80383624;
@@ -87,26 +87,26 @@ void codeAEDA0_drawSprite(Gfx **gfx){
         
     case 15:
         gSPDisplayList((*gfx)++, D_803702C0);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, 0xFF);
         return;
 
     case 12:
         gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, 0xFF);
         return;
 
     case 10:
         gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineLERP((*gfx)++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, D_8038363C);
         gDPSetEnvColor((*gfx)++, D_80383620, D_80383624, D_80383628, 0xFF);
         return;
 
     case 16:
         gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineLERP((*gfx)++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, D_8038363C);
         gDPSetEnvColor((*gfx)++, D_80383620, D_80383624, D_80383628, 0xFF);
         return;
 
@@ -119,37 +119,37 @@ void codeAEDA0_drawSprite(Gfx **gfx){
             gSPDisplayList((*gfx)++, D_80370260);
             gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         }
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, D_8038363C);
         return;
 
     case 7:
         if (D_8038361C != 0) {
             gSPDisplayList((*gfx)++, D_80370308);
             gDPSetCombineLERP((*gfx)++, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, PRIMITIVE, COMBINED, PRIMITIVE_ALPHA, COMBINED, 0, 0, 0, COMBINED);
-            gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038361C);
+            gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, D_8038361C);
         } else {
             gSPDisplayList((*gfx)++, D_80370260);
             gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-            gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
+            gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, 0xFF);
         }
         return;
 
     case 6:
         gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, D_8038363C);
         return;
 
     case 13:
         gSPDisplayList((*gfx)++, D_80370290);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, D_8038363C);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, D_8038363C);
         return;
 
     case 5:
         gSPDisplayList((*gfx)++, D_80370260);
         gDPSetCombineMode((*gfx)++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor((*gfx)++, 0, 0, D_80383610, D_80383614, D_80383618, 0xFF);
+        gDPSetPrimColor((*gfx)++, 0, 0, sPrimColorR, sPrimColorG, sPrimColorB, 0xFF);
         return;
 
     case 9:
@@ -517,10 +517,10 @@ void func_8033831C(s32 *arg0, s32 *arg1){
     *arg1 = D_80383644;
 }
 
-void codeAEDA0_setPrimaryColorRGB(s32 r, s32 g, s32 b){
-    D_80383610 = r;
-    D_80383614 = g;
-    D_80383618 = b;
+void codeAEDA0_setPrimaryColorRGB(s32 rgb_red, s32 rgb_green, s32 rgb_blue){
+    sPrimColorR = rgb_red;
+    sPrimColorG = rgb_green;
+    sPrimColorB = rgb_blue;
 }
 
 void func_80338354(s32 arg0){
