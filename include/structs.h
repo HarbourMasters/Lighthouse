@@ -80,7 +80,7 @@ typedef struct bk_sprite_frame_s{
     s16 unkE;
     s16 unk10;
     s16 unk12;
-    u16 palette[];
+    u8 data[]; // u16[] (for palette formats), followed by BKSpriteTextureBlock[]
 } BKSpriteFrame;
 
 typedef struct bk_sprite_texture_block_s{
@@ -88,7 +88,14 @@ typedef struct bk_sprite_texture_block_s{
     s16 y;
     s16 w;
     s16 h;
+    u8 data[];
 } BKSpriteTextureBlock;
+
+typedef struct sprite_mask_list_s {
+    s16 texture_type;
+    s16 count;
+    s32 offset[];
+} BKSpriteMask;
 
 typedef struct model_cache_s{
     BKModelBin * modelPtr;
@@ -754,12 +761,6 @@ typedef struct {
     u8 unk1A;
     u8 pad1B[1];
 }Struct83s;
-
-typedef struct{
-    s16 texture_type;
-    s16 count;
-    s32 offset[];
-}Struct84s;
 
 typedef struct{
     u8 pad0[1];
