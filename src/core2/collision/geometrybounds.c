@@ -1,22 +1,19 @@
 // BanjoDecomp: core2/code_B6640.c
 #include <ultra64.h>
-#include "functions.h"
-#include "variables.h"
 
+void core2_B6640_calculateLineBoundingBox(f32 start_point[3], f32 end_point[3], f32 margin, f32 min_bounds[3], f32 max_bounds[3]) {
+    int i;
 
-void points_to_boundingBoxWithMargin(f32 p1[3], f32 p2[3], f32 margin, f32 min[3], f32 max[3]) {
-    s32 i;
-
-    i = 0;
-    for(i = 0; i < 3; i++){
-        if (p1[i] < p2[i]) {
-            min[i] = p1[i];
-            max[i] = p2[i];
+    for (i = 0; i < 3; i++) {
+        if (start_point[i] < end_point[i]) {
+            min_bounds[i] = start_point[i];
+            max_bounds[i] = end_point[i];
         } else {
-            min[i] = p2[i];
-            max[i] = p1[i];
+            min_bounds[i] = end_point[i];
+            max_bounds[i] = start_point[i];
         }
-        min[i] -= margin;
-        max[i] += margin;
+
+        min_bounds[i] -= margin;
+        max_bounds[i] += margin;
     }
 }

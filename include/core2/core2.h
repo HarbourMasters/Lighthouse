@@ -75,4 +75,6 @@ s32 getGameMode(void);
 s16 *picturebox_getColorBuffer(void);
 BKSpriteTextureBlock *func_8033EFB0(Struct84s *arg0, s32 arg1);
 
+void core2_B6640_calculateLineBoundingBox(f32 start_point[3], f32 end_point[3], f32 margin, f32 min_bounds[3], f32 max_bounds[3]);
+
 #endif
