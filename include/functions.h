@@ -2374,7 +2374,7 @@ void func_80341A54(void);
 void glspline_defrag(void);
 
 // --- core2/level/metadata.c ---
-int barebound_set_active(s32 arg0);
+int barebound_set_active(enum ba_rebound_id id);
 s32 barebound_802987B4(void);
 
 // --- core2/level/levelspecificflags.c ---
