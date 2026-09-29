@@ -99,7 +99,10 @@ void Sprite::BuildSpriteStructure() {
 
             // Write chunk header
             BKSpriteTextureBlock* chunk = reinterpret_cast<BKSpriteTextureBlock*>(framePtr + offset);
-            *chunk = chunkData.header;
+            chunk->x = chunkData.header.x;
+            chunk->y = chunkData.header.y;
+            chunk->w = chunkData.header.w;
+            chunk->h = chunkData.header.h;
             offset += sizeof(BKSpriteTextureBlock);
 
             // Register the HD resource path (if any) for this chunk

@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "core2/core2.h"
-
 #include "port/Patches/Patches.h"
 
 #define IA8_I(ia) ((ia) >> 4)
@@ -21,673 +20,659 @@ static s32 sPrimColor_g;
 static s32 sPrimColor_b;
 static s32 sBufferIndex;
 
-void framebufferdraw_draw_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled)
-{
+void framebufferdraw_drawSprite_CI4(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
     BKSpriteFrame *sprite_frame;
-    uintptr_t palette_offset;
-    u16 *palette;
-    s32 fb_y;
-    s32 fb_x;
-    s32 iy;
-    s32 i_chunk;
-    s32 ix;
-    u8 *tmem;
     BKSpriteTextureBlock *chunk;
-    u16 *pxl_ptr;
-    u16 *framebuffer;
-    s32 indx1;
-    s32 indx2;
-    s32 color1;
-    s32 color2;
-    
+    u16 *framebuffer, *fb_pixel;
+    int fb_y, fb_x, iy, ix, i_chunk;
+    u8 *tmem;
+    u32 ci4_1, ci4_2;
+    u8 *palette_unaligned;
+    u16 *palette;
+
     framebuffer = gFramebuffers[sBufferIndex];
     sprite_frame = sprite_getFramePtr(sprite, frame);
-    if (!alpha_enabled){
-        framebufferdraw_setPrimColor(0, 0, 0x80);
+
+    if (!alpha_enabled) {
+        framebufferdraw_setPrimColor(0, 0, 128);
         framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
-    
-    //align palette
-    for(palette_offset = (uintptr_t) sprite_frame->palette; palette_offset % 8; palette_offset++){
-        continue;
-    }
-    palette = (u16*)palette_offset;
-    
+
+    for (palette_unaligned = (u8 *) sprite_frame->data; (uintptr_t) palette_unaligned % 8; palette_unaligned++);
+    palette = (u16 *) palette_unaligned;
+
     chunk = (BKSpriteTextureBlock *) (palette + 16);
+
     for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
-        //align texture
-        tmem = (u8 *) (chunk + 1);
-        while (((uintptr_t) tmem) % 8)
-        {
-            tmem++;
-        }
+        palette_unaligned = (u8 *) sprite_frame->data; // TODO: Check if this can be removed
+        for (tmem = chunk->data; (uintptr_t) tmem % 8; tmem++);
         
-        //copy texture to framebuffer
         for (iy = 0; iy < chunk->h; iy++) {
             for (ix = 0; ix < chunk->w; ix += 2) {
-                indx1 = ((*tmem) >> 4) & 0xF;
-                indx2 = *tmem & 0xF;
-                fb_x = (chunk->x + x) + ix;
-                if ((0 <= fb_x) && (fb_x < gFramebufferWidth))
-                {
-                    fb_y = (chunk->y + y) + iy;
-                    if ((fb_y >= 0) && (fb_y < gFramebufferHeight))
-                    {
-                        pxl_ptr = (framebuffer + fb_x) + (fb_y * gFramebufferWidth);
-                        color1 = palette[indx1];
-                        if (color1 & 1) {
-                          *pxl_ptr = color1;
-                        } else if (!alpha_enabled) {
-                          *pxl_ptr = (unsigned long) 1;
-                          palette_offset = (uintptr_t) sprite_frame->palette;
+                ci4_1 = (*tmem >> 4) & 0xF;
+                ci4_2 = *tmem & 0xF;
+
+                fb_x = x + chunk->x + ix;
+
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
+
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+
+                        if (palette[ci4_1] & 1) {
+                            fb_pixel[0] = palette[ci4_1];
+                        } else {
+                            if (!alpha_enabled) {
+                                fb_pixel[0] = 0x0001;
+                            }
                         }
-                        if (palette[indx2] & 1) { 
-                            pxl_ptr[1] = palette[indx2];
-                        } else if (!alpha_enabled) {
-                            pxl_ptr[1] = 1;
+
+                        if (palette[ci4_2] & 1) { 
+                            fb_pixel[1] = palette[ci4_2];
+                        } else {
+                            if (!alpha_enabled) {
+                                fb_pixel[1] = 0x0001;
+                            }
                         }
                     }
                 }
+
                 tmem++;
             }
         }
+
         chunk = (BKSpriteTextureBlock *) tmem;
     }
 }
 
-void framebufferdraw_draw_CI8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled)
-{
+void framebufferdraw_drawSprite_CI8(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
     static s32 D_80275C00 = 0;
     u16 *palette;
-    s32 fb_y;
-    s32 fb_x;
-    s32 iy;
-    s32 i_chunk;
-    s32 ix;
+    int fb_y, fb_x, iy, ix, i_chunk;
     u8 *tmem;
     BKSpriteTextureBlock *chunk;
-    u16 *pxl_ptr;
+    u16 *fb_pixel;
     int new_var;
     BKSpriteFrame *sprite_frame;
     u16 *framebuffer;
-    s32 indx;
-    uintptr_t palette_unaligned;
-    D_80275C00++;
-    if (D_80275C00 == 0xA) {
+    u8 *palette_unaligned;
+
+    if (++D_80275C00 == 10) {
         D_80275C00 = 0;
     }
+
     framebuffer = gFramebuffers[sBufferIndex];
     sprite_frame = sprite_getFramePtr(sprite, frame);
-    if (!alpha_enabled){
-        framebufferdraw_setPrimColor(0, 0, 0x80);
+
+    if (!alpha_enabled) {
+        framebufferdraw_setPrimColor(0, 0, 128);
         framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
 
-    palette = sprite_frame->palette;
-    for (palette_unaligned = (uintptr_t)palette; ((uintptr_t) palette_unaligned) % 8; palette_unaligned++){
-        ;
-    }
-    palette = (u16 *)palette_unaligned;
-    
-    chunk = (BKSpriteTextureBlock *) (palette + 0x100);
-    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++){
-        palette_unaligned = (uintptr_t)(u16 *) (chunk + 1);
-        for (tmem = (u8 *) (chunk + 1); ((uintptr_t) tmem) % 8; tmem++){
-            ;
-        }
+    for (palette_unaligned = (u8 *) sprite_frame->data; (uintptr_t) palette_unaligned % 8; palette_unaligned++);
+    palette = (u16 *) palette_unaligned;
 
-        for (iy = 0; iy < chunk->h; iy++){
-            for (ix = 0; ix < chunk->w; ix++){
-                fb_x = (chunk->x + x) + ix;
-                if ((0 <= fb_x) && (fb_x < gFramebufferWidth))
-                {
-                    fb_y = (chunk->y + y) + iy;
-                    if ((fb_y >= 0) && (fb_y < gFramebufferHeight))
-                    {
-                        pxl_ptr = (framebuffer + fb_x) + (fb_y * gFramebufferWidth);
-                        if (palette[*tmem] & 1){
-                            *pxl_ptr = palette[*tmem];
-                        } 
-                        else if (!alpha_enabled)
-                        {
-                            if (palette[*tmem] & 0xFFFE){
-                                *pxl_ptr = (D_80275C00 < 5) ? (0xFFFF) : (palette[*tmem] | 1);
-                            }
-                            else{
-                                *pxl_ptr = 1;
+    chunk = (BKSpriteTextureBlock *) (palette + 256);
+
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        palette_unaligned = chunk->data; // TODO: Check if this can be removed
+        for (tmem = chunk->data; (uintptr_t) tmem % 8; tmem++);
+
+        for (iy = 0; iy < chunk->h; iy++) {
+            for (ix = 0; ix < chunk->w; ix++) {
+                fb_x = x + chunk->x + ix;
+
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
+
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+
+                        if (palette[*tmem] & 1) {
+                            *fb_pixel = palette[*tmem];
+                        } else {
+                            if (!alpha_enabled) {
+                                if (palette[*tmem] & 0xFFFE) {
+                                    *fb_pixel = D_80275C00 < 5 ? 0xFFFF : palette[*tmem] | 1;
+                                } else {
+                                    *fb_pixel = 1;
+                                }
                             }
                         }
                     }
                 }
+
                 tmem++;
             }
-
         }
 
         chunk = (BKSpriteTextureBlock *) tmem;
     }
-
 }
 
-void framebufferdraw_draw_RGBA16(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
-    BKSpriteFrame *sprite_ptr;
-    BKSpriteTextureBlock *chunk_ptr;
-    s16 *tmem;
-    u16 *framebuffer_ptr;
-    s32 fb_x;
-    s32 fb_y;
-    s32 i_chunk;
-    s32 txtr_x;
-    s32 txtr_y;
-    u16 *pxl_ptr;
-    u16 rgba;
+void framebufferdraw_drawSprite_RGBA16(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
+    BKSpriteFrame *sprite_frame;
+    BKSpriteTextureBlock *chunk;
+    u16 *framebuffer, *fb_pixel;
+    int fb_y, fb_x, iy, ix, i_chunk;
+    u16 *tmem;
 
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][0];
-    sprite_ptr = sprite_getFramePtr(sprite, frame);
+    framebuffer = gFramebuffers[sBufferIndex];
+    sprite_frame = sprite_getFramePtr(sprite, frame);
+
     if (!alpha_enabled) {
-        framebufferdraw_setPrimColor(0, 0, 0x80);
-        framebufferdraw_drawRect(x, y, sprite_ptr->w, sprite_ptr->h);
+        framebufferdraw_setPrimColor(0, 0, 128);
+        framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
-    chunk_ptr = (BKSpriteTextureBlock *)(sprite_ptr + 1);
-    for(i_chunk = 0; i_chunk < sprite_ptr->chunkCnt; i_chunk++) {
-        for(tmem = (s16 *)(chunk_ptr + 1); (uintptr_t)tmem % 8; tmem++);
 
-        for(txtr_y = 0; txtr_y < chunk_ptr->h; txtr_y++) {
-            for(txtr_x = 0; txtr_x < chunk_ptr->w; txtr_x++) {
-                fb_x = chunk_ptr->x + x + txtr_x;
-                if ((fb_x >= 0) && (fb_x < gFramebufferWidth)) {
-                    fb_y = chunk_ptr->y + y + txtr_y;
-                    if ((fb_y >= 0) && (fb_y < gFramebufferHeight)) {
-                        pxl_ptr = framebuffer_ptr + fb_x +  (fb_y * gFramebufferWidth);
-                        rgba = *tmem;
-                        if (rgba & 1) {
-                            *pxl_ptr = rgba;
-                        } else if (!alpha_enabled) {
-                            *pxl_ptr = rgba | 1;
-                        }
-                    }
-                }
-                tmem++;
-            }
-        }
-        chunk_ptr = (BKSpriteTextureBlock *) tmem;
-    }
-}
+    chunk = (BKSpriteTextureBlock *) sprite_frame->data;
 
-void framebufferdraw_draw_I4(s32 x, s32 y, BKSprite *sprite, s32 frame, bool aplha_enabled) {
-    BKSpriteFrame *frame_ptr;
-    BKSpriteTextureBlock *chunk_ptr;
-    s16 *temp_v0;
-    u8 *tmem;
-    s32 fb_x;
-    s32 fb_y;
-    s32 p1;
-    s32 p2;
-    u16 *framebuffer_ptr;
-    s32 txtr_y;
-    s32 i_chunk;
-    s32 txtr_x;
-    u16 *fb_pxl_ptr;
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        for (tmem = (u16 *) chunk->data; (uintptr_t) tmem % 8; tmem++);
 
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][0];
-    frame_ptr = sprite_getFramePtr(sprite, frame);
-    if (!aplha_enabled) {
-        framebufferdraw_setPrimColor(0, 0, 0x80);
-        framebufferdraw_drawRect(x, y, frame_ptr->w, frame_ptr->h);
-    }
-    chunk_ptr = (BKSpriteTextureBlock *)(frame_ptr + 1);
-    for(i_chunk = 0; i_chunk < frame_ptr->chunkCnt; i_chunk++) {
-        for(tmem = (u8*)(chunk_ptr + 1); (uintptr_t)tmem % 8; tmem++);
-        
-        for(txtr_y = 0; txtr_y < chunk_ptr->h; txtr_y++) {
-            for(txtr_x = 0; txtr_x < chunk_ptr->w; txtr_x += 2) {
-                fb_x = chunk_ptr->x + x + txtr_x;
-                if ((fb_x >= 0) &&  (fb_x < gFramebufferWidth)) {
-                    fb_y = chunk_ptr->y + y + txtr_y;
-                    if ((fb_y >= 0) && (fb_y < gFramebufferHeight)) {
-                        p1 = (*tmem >> 4);
-                        p2 = (*tmem & 0xF);
-                        fb_pxl_ptr = framebuffer_ptr + fb_x + (fb_y * gFramebufferWidth);
-                        if (p1) {
-                            *fb_pxl_ptr = (p1 << 0xC) | (p1 << 0x7) | (p1 << 0x2) | 1;
-                        } else if (!aplha_enabled) {
-                            *fb_pxl_ptr = 1;
-                        }
-                        if (p2) {
-                            *(fb_pxl_ptr + 1) = (p2 << 0xC) | (p2 << 7) | (p2 << 2) | 1;
-                        } else if (!aplha_enabled) {
-                            *(fb_pxl_ptr + 1) = 1;
-                        }
-                    }
-                }
-                tmem++;
-            }
-        }
-        chunk_ptr = (BKSpriteTextureBlock *) tmem;
-    }
-}
+        for (iy = 0; iy < chunk->h; iy++) {
+            for (ix = 0; ix < chunk->w; ix++) {
+                fb_x = x + chunk->x + ix;
 
-void framebufferdraw_draw_IA4(s32 x, s32 y, BKSprite *sprite, s32 frame, bool aplha_enabled) {
-    BKSpriteFrame *frame_ptr;
-    BKSpriteTextureBlock *chunk_ptr;
-    s16 *temp_v0;
-    u8 *tmem;
-    s32 fb_x;
-    s32 fb_y;
-    s32 p1;
-    s32 p2;
-    u16 *framebuffer_ptr;
-    u32 p1_i;
-    u32 p1_a;
-    u32 p2_i;
-    u32 p2_a;
-    s32 txtr_y;
-    s32 i_chunk;
-    s32 txtr_x;
-    u16 *fb_pxl_ptr;
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
 
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][0];
-    frame_ptr = sprite_getFramePtr(sprite, frame);
-    if (!aplha_enabled) {
-        framebufferdraw_setPrimColor(0, 0, 0x80);
-        framebufferdraw_drawRect(x, y, frame_ptr->w, frame_ptr->h);
-    }
-    chunk_ptr = (BKSpriteTextureBlock *)(frame_ptr + 1);
-    for(i_chunk = 0; i_chunk < frame_ptr->chunkCnt; i_chunk++) {
-        for(tmem = (u8*)(chunk_ptr + 1); (uintptr_t)tmem % 8; tmem++);
-        
-        for(txtr_y = 0; txtr_y < chunk_ptr->h; txtr_y++) {
-            for(txtr_x = 0; txtr_x < chunk_ptr->w; txtr_x += 2) {
-                fb_x = chunk_ptr->x + x + txtr_x;
-                if ((fb_x >= 0) &&  (fb_x < gFramebufferWidth)) {
-                    fb_y = chunk_ptr->y + y + txtr_y;
-                    if ((fb_y >= 0) && (fb_y < gFramebufferHeight)) {
-                        fb_pxl_ptr = framebuffer_ptr + fb_x + (fb_y * gFramebufferWidth);\
-                        p1 = (*tmem >> 4);
-                        p2 = (*tmem & 0xF);
-                        p1_i = p1 & 0xE;
-                        p1_a = p1 & 1;
-                        p2_i = p2 & 0xE;
-                        p2_a = p2 & 1;
-                        if (p1_a) { \
-                            *fb_pxl_ptr = ((p1_i << 0xC) | (p1_i << 0x7) | (p1_i << 0x2)) | p1_a;
-                        } else if (!aplha_enabled) {
-                            *fb_pxl_ptr = 1;
-                        }
-                        if (p2_a) {\
-                            *(fb_pxl_ptr + 1) = (p2_i << 0xC) | (p2_i << 7) | (p2_i << 2) | p2_a;
-                        } else if (!aplha_enabled) {
-                            *(fb_pxl_ptr + 1) = 1;
-                        }
-                    }
-                }
-                tmem++;
-            }
-        }
-        chunk_ptr = (BKSpriteTextureBlock *) tmem;
-    }
-}
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
 
-void framebufferdraw_draw_I8(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled) {
-    BKSpriteFrame *frame_ptr;
-    BKSpriteTextureBlock *chunk_ptr;
-    u16 *pixel_ptr;
-    u8 *txtr_ptr;
-    s32 fb_y;
-    u16 *framebuffer_ptr;
-    s32 intensity;
-    s32 fb_x;
-    s32 txtr_x;
-    s32 i_chunk;
-    s32 txtr_y;
-
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][0];
-    frame_ptr = sprite_getFramePtr(sprite, frame);
-    if (!alpha_enabled) {
-        framebufferdraw_setPrimColor(0, 0, 0x80);
-        framebufferdraw_drawRect(x, y, frame_ptr->w, frame_ptr->h);
-    }
-    chunk_ptr = (BKSpriteTextureBlock *)(frame_ptr + 1);
-    for(i_chunk = 0; i_chunk < frame_ptr->chunkCnt; i_chunk++){
-        //align
-        for(txtr_ptr = (u8*)(chunk_ptr + 1); (uintptr_t)txtr_ptr % 8; txtr_ptr++);
-
-        for(txtr_y = 0; txtr_y < chunk_ptr->h; txtr_y++){
-            for(txtr_x = 0; txtr_x < chunk_ptr->w; txtr_x++){
-                fb_x = chunk_ptr->x + x + txtr_x;
-                if (fb_x >= 0) {
-                    if (fb_x < gFramebufferWidth) {
-                        fb_y = chunk_ptr->y + y + txtr_y;
-                        if ((fb_y >= 0) && (fb_y < gFramebufferHeight)) {
-                            pixel_ptr = framebuffer_ptr + fb_x + fb_y * gFramebufferWidth;
-                            intensity = (s32) *txtr_ptr >> 3;
-                            if (intensity != 0) {
-                                *pixel_ptr = (intensity << 0xB) | (intensity << 6) | (intensity << 1) | 1;
-                            } else if (!alpha_enabled) {
-                                *pixel_ptr = 1;
+                        if (*tmem & 1) {
+                            *fb_pixel = *tmem;
+                        } else {
+                            if (!alpha_enabled) {
+                                *fb_pixel = *tmem | 1;
                             }
                         }
                     }
                 }
-                txtr_ptr += 1;
+
+                tmem++;
             }
         }
-        chunk_ptr = (BKSpriteTextureBlock *) txtr_ptr;
+
+        chunk = (BKSpriteTextureBlock *) tmem;
     }
 }
 
-void framebufferdraw_draw_IA8(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
+void framebufferdraw_drawSprite_I4(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
     BKSpriteFrame *sprite_frame;
-    BKSpriteTextureBlock *chunk_ptr;
-    u16 *temp_a1;
-    s16 *temp_v0;
-    u8 *var_t2;
-    u16 *framebuffer_ptr;
-    s32 fb_x;
-    s32 fb_y;
-    s32 var_a3;
-    s32 i_chunk;
-    s32 var_t3;
-    u32 temp_a2;
+    BKSpriteTextureBlock *chunk;
+    u16 *framebuffer, *fb_pixel;
+    int fb_y, fb_x, iy, ix, i_chunk;
+    u8 *tmem;
+    u32 i4_1, i4_2;
 
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][0];
+    framebuffer = gFramebuffers[sBufferIndex];
     sprite_frame = sprite_getFramePtr(sprite, frame);
+
     if (!alpha_enabled) {
-        //draw blue rect over display area
-        framebufferdraw_setPrimColor(0, 0, 0x80);
+        framebufferdraw_setPrimColor(0, 0, 128);
         framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
-    chunk_ptr = (BKSpriteTextureBlock *)(sprite_frame + 1);
-    for(i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
-        for(var_t2 = (u8*)(chunk_ptr + 1); (uintptr_t)var_t2 % 8; var_t2++);//align
+
+    chunk = (BKSpriteTextureBlock *) sprite_frame->data;
+
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        for (tmem = chunk->data; (uintptr_t) tmem % 8; tmem++);
         
-        for(var_t3 = 0; var_t3 < chunk_ptr->h; var_t3++){
-            for(var_a3 = 0; var_a3 < chunk_ptr->w; var_a3++) {
-                fb_x = chunk_ptr->x + x + var_a3;
-                if ((fb_x >= 0) && (fb_x < gFramebufferWidth)) {
-                    fb_y = chunk_ptr->y + y + var_t3;
-                    if ((fb_y >= 0) && (fb_y < gFramebufferHeight)) {
-                        temp_a1 = framebuffer_ptr + fb_x + fb_y * gFramebufferWidth;
-                        temp_a2 = *var_t2;
-                        if (IA8_A(temp_a2)) {
-                            *temp_a1 = I4_2_RGBA16(IA8_I(temp_a2), 1);
-                        } else if (!alpha_enabled) {
-                            *temp_a1 = 1;
+        for (iy = 0; iy < chunk->h; iy++) {
+            for (ix = 0; ix < chunk->w; ix += 2) {
+                fb_x = x + chunk->x + ix;
+
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
+
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        i4_1 = *tmem >> 4;
+                        i4_2 = *tmem & 0xF;
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+
+                        if (i4_1) {
+                            fb_pixel[0] = (i4_1 << 12) | (i4_1 << 7) | (i4_1 << 2) | 1;
+                        } else {
+                            if (!alpha_enabled) {
+                                fb_pixel[0] = 0x0001;
+                            }
+                        }
+
+                        if (i4_2) {
+                            fb_pixel[1] = (i4_2 << 12) | (i4_2 << 7) | (i4_2 << 2) | 1;
+                        } else {
+                            if (!alpha_enabled) {
+                                fb_pixel[1] = 0x0001;
+                            }
                         }
                     }
                 }
-                var_t2++;
+                tmem++;
             }
         }
-        chunk_ptr = (BKSpriteTextureBlock *) var_t2;
+        chunk = (BKSpriteTextureBlock *) tmem;
     }
 }
 
-void framebufferdraw_draw_RGBA32(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled){
-    BKSpriteTextureBlock *chunk_ptr;
+void framebufferdraw_drawSprite_IA4(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
+    BKSpriteFrame *sprite_frame;
+    BKSpriteTextureBlock *chunk;
+    u16 *framebuffer, *fb_pixel;
+    int fb_y, fb_x, iy, ix, i_chunk;
+    u8 *tmem;
+    u32 ia4_1, ia4_2, p1_i, p1_a, p2_i, p2_a;
+
+    framebuffer = gFramebuffers[sBufferIndex];
+    sprite_frame = sprite_getFramePtr(sprite, frame);
+
+    if (!alpha_enabled) {
+        framebufferdraw_setPrimColor(0, 0, 128);
+        framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
+    }
+
+    chunk = (BKSpriteTextureBlock *) sprite_frame->data;
+
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        for (tmem = chunk->data; (uintptr_t) tmem % 8; tmem++);
+        
+        for (iy = 0; iy < chunk->h; iy++) {
+            for (ix = 0; ix < chunk->w; ix += 2) {
+                fb_x = x + chunk->x + ix;
+
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
+
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+                        ia4_1 = *tmem >> 4;
+                        ia4_2 = *tmem & 0xF;
+                        p1_i = ia4_1 & 0x0E;
+                        p1_a = ia4_1 & 0x01;
+                        p2_i = ia4_2 & 0x0E;
+                        p2_a = ia4_2 & 0x01;
+
+                        if (p1_a) { \
+                            fb_pixel[0] = (p1_i << 12) | (p1_i << 7) | (p1_i << 2) | p1_a;
+                        } else {
+                            if (!alpha_enabled) {
+                                fb_pixel[0] = 0x0001;
+                            }
+                        }
+
+                        if (p2_a) {
+                            fb_pixel[1] = (p2_i << 12) | (p2_i << 7) | (p2_i << 2) | p2_a;
+                        } else {
+                            if (!alpha_enabled) {
+                                fb_pixel[1] = 0x0001;
+                            }
+                        }
+                    }
+                }
+
+                tmem++;
+            }
+        }
+
+        chunk = (BKSpriteTextureBlock *) tmem;
+    }
+}
+
+void framebufferdraw_drawSprite_I8(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
+    BKSpriteFrame *sprite_frame;
+    BKSpriteTextureBlock *chunk;
+    u16 *framebuffer, *fb_pixel;
+    int fb_y, fb_x, iy, ix, i_chunk;
+    u8 *tmem;
+    u32 i8;
+
+    framebuffer = gFramebuffers[sBufferIndex];
+    sprite_frame = sprite_getFramePtr(sprite, frame);
+
+    if (!alpha_enabled) {
+        framebufferdraw_setPrimColor(0, 0, 128);
+        framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
+    }
+
+    chunk = (BKSpriteTextureBlock *) sprite_frame->data;
+
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        for (tmem = chunk->data; (uintptr_t) tmem % 8; tmem++);
+
+        for (iy = 0; iy < chunk->h; iy++) {
+            for (ix = 0; ix < chunk->w; ix++) {
+                fb_x = x + chunk->x + ix;
+
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
+
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+                        i8 = *tmem >> 3;
+                        if (i8) {
+                            *fb_pixel = (i8 << 11) | (i8 << 6) | (i8 << 1) | 1;
+                        } else {
+                            if (!alpha_enabled) {
+                                *fb_pixel = 1;
+                            }
+                        }
+                    }
+                }
+
+                tmem++;
+            }
+        }
+
+        chunk = (BKSpriteTextureBlock *) tmem;
+    }
+}
+
+void framebufferdraw_drawSprite_IA8(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
+    BKSpriteFrame *sprite_frame;
+    BKSpriteTextureBlock *chunk;
+    u16 *framebuffer, *fb_pixel;
+    int fb_y, fb_x, iy, ix, i_chunk;
+    u8 *tmem;
+    u32 ia8;
+
+    framebuffer = gFramebuffers[sBufferIndex];
+    sprite_frame = sprite_getFramePtr(sprite, frame);
+
+    if (!alpha_enabled) {
+        framebufferdraw_setPrimColor(0, 0, 128);
+        framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
+    }
+
+    chunk = (BKSpriteTextureBlock *) sprite_frame->data;
+
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        for (tmem = chunk->data; (uintptr_t) tmem % 8; tmem++);
+        
+        for (iy = 0; iy < chunk->h; iy++) {
+            for (ix = 0; ix < chunk->w; ix++) {
+                fb_x = x + chunk->x + ix;
+
+                if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                    fb_y = y + chunk->y + iy;
+
+                    if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                        fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+                        ia8 = *tmem;
+
+                        if (IA8_A(ia8)) {
+                            *fb_pixel = I4_2_RGBA16(IA8_I(ia8), 1);
+                        } else {
+                            if (!alpha_enabled) {
+                                *fb_pixel = 0x0001;
+                            }
+                        }
+                    }
+                }
+
+                tmem++;
+            }
+        }
+
+        chunk = (BKSpriteTextureBlock *) tmem;
+    }
+}
+
+void framebufferdraw_drawSprite_RGBA32(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled){
+    BKSpriteTextureBlock *chunk;
     u32 *tmem;
-    u32 fb_value;
+    u32 dest_rgba32;
     s16 var_v1;
-    s32 fb_x;
-    s32 fb_y;
+    int fb_y, fb_x;
     u16 *framebuffer;
     s32 temp_t1;
     s32 alpha;
-    s32 i_chunk;
-    s32 iy;
-    s32 ix;
-    u16 *pxl_ptr;
+    int i_chunk, iy, ix;
+    u16 *fb_pixel;
     BKSpriteFrame *sprite_frame;
     u16 p1_a;
-    u32 txtr_value;
-    s32 red8;
-    s32 green8;
-    s32 blue8;
+    u32 rgba32;
+    s32 r8, g8, b8;
 
-
-    framebuffer = &gFramebuffers[sBufferIndex][0];
+    framebuffer = gFramebuffers[sBufferIndex];
     sprite_frame = sprite_getFramePtr(sprite, frame);
+
     if (!alpha_enabled) {
-        framebufferdraw_setPrimColor(0, 0, 0x80);
+        framebufferdraw_setPrimColor(0, 0, 128);
         framebufferdraw_drawRect(x, y, sprite_frame->w, sprite_frame->h);
     }
-    chunk_ptr = (BKSpriteTextureBlock *) (sprite_frame + 1);
-    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
-        if( (((chunk_ptr->x >= (-5)) && (chunk_ptr->x < 0x29)) 
-            && (chunk_ptr->y >= (-5))) && (chunk_ptr->y < 0x29)
-        ) {
-            tmem = (u32 *) (1 + chunk_ptr);
-            while (((uintptr_t) tmem) % 8)
-            {
-                tmem++;
-            }
 
-            for (iy = 0; iy < chunk_ptr->h; iy++)
-            {
-                for (ix = 0; ix < chunk_ptr->w; ix++)
-                {
-                    fb_x = (chunk_ptr->x + x) + ix;
-                    if ((fb_x >= 0) && (fb_x < gFramebufferWidth))
-                    {
-                        fb_y = (chunk_ptr->y + y) + iy;
-                        if ((fb_y >= 0) && (fb_y < gFramebufferHeight))
-                        {
-                            txtr_value = *tmem;
-                            pxl_ptr = (framebuffer + fb_x) + (fb_y * gFramebufferWidth);
-                            fb_value = (unsigned int) (*pxl_ptr);
-                            alpha = _SHIFTR(txtr_value, 0, 8);
-                            if (alpha) {//blend texture with existing pixel color
-                                red8 = ((_SHIFTR(txtr_value, 24, 8) * alpha)   + (((((fb_value >> 11) )) *8) * (0xFF - alpha))) / 0xFF;
-                                green8 = ((_SHIFTR(txtr_value, 16, 8) * alpha) + ((_SHIFTR(fb_value, 6, 5) * 8) * (0xFF - alpha))) / 0xFF;
-                                blue8 = ((_SHIFTR(txtr_value, 8, 8) * alpha)   + ((_SHIFTR(fb_value, 1, 5) * 8) * (0xFF - alpha))) / 0xFF;
-                                    
-                                *pxl_ptr = ((_SHIFTL((red8 >> 3), 11, 5) | _SHIFTL((green8 >> 3), 6, 5)) | _SHIFTL((blue8 >> 3), 1, 5)) | 1;
+    chunk = (BKSpriteTextureBlock *) sprite_frame->data;
+
+    for (i_chunk = 0; i_chunk < sprite_frame->chunkCnt; i_chunk++) {
+        if ((-5 <= chunk->x) && (chunk->x < 41) && (-5 <= chunk->y) && (chunk->y < 41)) {
+            for (tmem = (u32 *) chunk->data; (uintptr_t) tmem % 8; tmem++);
+
+            for (iy = 0; iy < chunk->h; iy++) {
+                for (ix = 0; ix < chunk->w; ix++) {
+                    fb_x = x + chunk->x + ix;
+
+                    if ((0 <= fb_x) && (fb_x < gFramebufferWidth)) {
+                        fb_y = y + chunk->y + iy;
+
+                        if ((0 <= fb_y) && (fb_y < gFramebufferHeight)) {
+                            fb_pixel = framebuffer + fb_x + fb_y * gFramebufferWidth;
+                            rgba32 = *tmem;
+                            dest_rgba32 = *fb_pixel;
+                            alpha = _SHIFTR(rgba32, 0, 8);
+
+                            if (alpha) { //blend texture with existing pixel color
+                                r8 = ((_SHIFTR(rgba32, 24, 8) * alpha) + ((       (dest_rgba32 >> 11) * 8) * (255 - alpha))) / 255;
+                                g8 = ((_SHIFTR(rgba32, 16, 8) * alpha) + ((_SHIFTR(dest_rgba32, 6, 5) * 8) * (255 - alpha))) / 255;
+                                b8 = ((_SHIFTR(rgba32,  8, 8) * alpha) + ((_SHIFTR(dest_rgba32, 1, 5) * 8) * (255 - alpha))) / 255;
+
+                                *fb_pixel = ((_SHIFTL((r8 >> 3), 11, 5) | _SHIFTL((g8 >> 3), 6, 5)) | _SHIFTL((b8 >> 3), 1, 5)) | 1;
                             }
-                            else if (!alpha_enabled) {
-                                *pxl_ptr = 0x0001;
+                            else {
+                                if (!alpha_enabled) {
+                                    *fb_pixel = 0x0001;
+                                }
                             }
                         }
                     }
+
                     tmem++;
                 }
-
             }
-            chunk_ptr = (BKSpriteTextureBlock *) tmem;
+
+            chunk = (BKSpriteTextureBlock *) tmem;
         }
     }
 }
 
-void framebufferdraw_stub1(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {} //signature may have more variables passed in
-void framebufferdraw_stub2(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {} //signature may have more variables passed in
+void framebufferdraw_stub1(s32 x, s32 y, s32 w, s32 h) {} //signature may have more variables passed in
+void framebufferdraw_stub2(s32 x, s32 y, s32 w, s32 h) {} //signature may have more variables passed in
 
 void framebufferdraw_drawTexture_CI4(s32 x, s32 y, void *tmem, s32 w, s32 h, bool alpha_enabled) {
     s32 ix;
     s32 iy;
-    s32 icolor;
-    u16 *framebuffer_ptr;
+    s32 ci4;
+    u16 *fb_pixel;
     u16 *palette_ptr;
     u8 *pixel_ptr;
 
-    palette_ptr = (u16*)tmem;
-    pixel_ptr = (u8*)&palette_ptr[0x10];
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][x  + y * gFramebufferWidth];
-    for(iy = 0; iy < h; iy++){
-        for(ix = 0; ix < w; ix++){
-            icolor = (ix & 1)? pixel_ptr[ix/2 + (iy*w)/2] & 0xF
-                   : pixel_ptr[ix/2 + (iy*w)/2] >> 4;
-            *framebuffer_ptr = palette_ptr[icolor];
-            framebuffer_ptr++;
+    palette_ptr = (u16 *) tmem;
+    pixel_ptr = (u8 *) (palette_ptr + 16);
+    fb_pixel = &gFramebuffers[sBufferIndex][x + y * gFramebufferWidth];
+
+    for (iy = 0; iy < h; iy++) {
+        for (ix = 0; ix < w; ix++) {
+            ci4 = (ix & 1) ? pixel_ptr[ix / 2 + (iy * w) / 2] & 0xF : pixel_ptr[ix / 2 + (iy * w) / 2] >> 4;
+            *fb_pixel = palette_ptr[ci4];
+            fb_pixel++;
         }
-        framebuffer_ptr += (gFramebufferWidth - w);
+
+        fb_pixel += gFramebufferWidth - w;
     }
 }
 
-void framebufferdraw_draw(s32 x, s32 y, BKSprite *sprite, s32 frame, s32 alpha_enabled) {
-    s16 type;
+void framebufferdraw_drawSprite(s32 x, s32 y, BKSprite *sprite, s32 frame, bool alpha_enabled) {
+    s16 type = sprite->type;
 
-    type = sprite->type;
     if (type & SPRITE_TYPE_I4) {
-        framebufferdraw_draw_I4(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_I4(x, y, sprite, frame, alpha_enabled);
     } else if (type & SPRITE_TYPE_IA4) {
-        framebufferdraw_draw_IA4(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_IA4(x, y, sprite, frame, alpha_enabled);
     } else if (type & SPRITE_TYPE_I8) {
-        framebufferdraw_draw_I8(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_I8(x, y, sprite, frame, alpha_enabled);
     } else if (type & SPRITE_TYPE_IA8) {
-        framebufferdraw_draw_IA8(x, y, sprite, frame, alpha_enabled);    
+        framebufferdraw_drawSprite_IA8(x, y, sprite, frame, alpha_enabled);    
     } else if (type & SPRITE_TYPE_RGBA16) {
-        framebufferdraw_draw_RGBA16(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_RGBA16(x, y, sprite, frame, alpha_enabled);
     } else if (type & SPRITE_TYPE_RGBA32) {
-        framebufferdraw_draw_RGBA32(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_RGBA32(x, y, sprite, frame, alpha_enabled);
     } else if (type & SPRITE_TYPE_CI4) {
-        framebufferdraw_draw_CI4(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_CI4(x, y, sprite, frame, alpha_enabled);
     } else if (type & SPRITE_TYPE_CI8) {
-        framebufferdraw_draw_CI8(x, y, sprite, frame, alpha_enabled);
+        framebufferdraw_drawSprite_CI8(x, y, sprite, frame, alpha_enabled);
     }
 }
 
-//arg4 = alpha enabled?
-void framebufferdraw_func_80249DE0(s32 x, s32 y, Struct84s *arg2, s32 arg3, s32 arg4) {
-    s32 ix;
-    s32 var_t2;
-    s32 iy;
-    u16 *framebuffer_ptr;
-    u16 *texture_ptr;
-    u16 temp_v1;
-    BKSpriteTextureBlock *temp_v0;
+void framebufferdraw_drawSpriteMask(s32 x, s32 y, BKSpriteMask *sprite_mask, s32 chunk_id, bool alpha_enabled) {
+    BKSpriteTextureBlock *chunk;
+    int iy, ix;
+    u16 *fb_pixel, *tmem;
 
-    temp_v0 = func_8033EFB0(arg2, arg3);
-    texture_ptr = (u16*)(temp_v0 + 1);
-    if (arg2->texture_type == SPRITE_TYPE_CI4) {
-        framebufferdraw_drawTexture_CI4(x, y, temp_v0 + 1, temp_v0->w, temp_v0->h, arg4);
+    chunk = spritemask_getChunk(sprite_mask, chunk_id);
+    tmem = (u16 *) chunk->data;
+
+    if (sprite_mask->texture_type == SPRITE_TYPE_CI4) {
+        framebufferdraw_drawTexture_CI4(x, y, chunk->data, chunk->w, chunk->h, alpha_enabled);
         return;
     }
-    //otherwise RGBA16
-    framebuffer_ptr = &gFramebuffers[sBufferIndex][x + y*gFramebufferWidth];
-    for(iy = 0; iy < temp_v0->h; iy++){
-        for(ix = 0; ix < temp_v0->w; ix++){
-                temp_v1 = *texture_ptr;
-                if (temp_v1 & 1) { //if visible
-                    *framebuffer_ptr = temp_v1;
-                } else if (arg4 == 0) {
-                    *framebuffer_ptr = 1;
+    
+    fb_pixel = &gFramebuffers[sBufferIndex][x + y * gFramebufferWidth];
+
+    for (iy = 0; iy < chunk->h; iy++) {
+        for (ix = 0; ix < chunk->w; ix++) {
+            if (*tmem & 1) {
+                *fb_pixel = *tmem;
+            } else {
+                if (!alpha_enabled) {
+                    *fb_pixel = 0x0001;
                 }
-                texture_ptr++;
-                framebuffer_ptr++;
+            }
+
+            tmem++;
+            fb_pixel++;
         }
-        framebuffer_ptr += (gFramebufferWidth - temp_v0->w);
+
+        fb_pixel += gFramebufferWidth - chunk->w;
     }
 }
 
-void framebufferdraw_func_80249F34(s32 x, s32 y, Struct84s* maskList, s32 maskIndex, s32 mX, s32 mY, s32 mW, s32 mH, s32 maskColor, s32 mStride, bool dim, s32 replacementColor) {
-    BKSpriteTextureBlock* mask_texture;
-    s32 ix;
-    s32 iy;
-    u16* color_ptr;
-    u16* mask_ptr;
+void framebufferdraw_drawSpriteMaskRegion(s32 x, s32 y, BKSpriteMask* sprite_mask, s32 chunk_id, s32 mX, s32 mY, s32 mW, s32 mH, s32 mask_color, s32 mStride, bool dim, s32 replacement_color) {
+    BKSpriteTextureBlock *chunk;
+    int iy, ix;
+    u16 *fb_pixel, *tmem;
 
-    mask_texture = func_8033EFB0(maskList, maskIndex);
-    mask_ptr = (u16*)(mask_texture + 1) + mX + mY * mask_texture->w;
-    color_ptr = &gFramebuffers[sBufferIndex][x + y * gFramebufferWidth];
-    for(iy = 0; iy < mH; iy += mStride){
-        for(ix = 0; ix < mW; ix++){
+    chunk = spritemask_getChunk(sprite_mask, chunk_id);
+    tmem = (u16*) chunk->data + mX + mY * chunk->w;
+    fb_pixel = &gFramebuffers[sBufferIndex][x + y * gFramebufferWidth];
 
-            if(maskColor != *mask_ptr){
-                *color_ptr = (replacementColor != 0)? replacementColor : *mask_ptr;
+    for (iy = 0; iy < mH; iy += mStride) {
+        for (ix = 0; ix < mW; ix++){
+
+            if (mask_color != *tmem) {
+                *fb_pixel = (replacement_color != 0) ? replacement_color : *tmem;
+            } else {
+                if (dim) {
+                    *fb_pixel = _SHIFTL(C8_TO_C5(C5_TO_C8(RGBA16_R5(*fb_pixel)) / 2), 11, 5) 
+                            | _SHIFTL(C8_TO_C5(C5_TO_C8(RGBA16_G5(*fb_pixel)) / 2), 6, 5) 
+                            | _SHIFTL(C8_TO_C5(C5_TO_C8(RGBA16_B5(*fb_pixel)) / 2), 1, 5) 
+                            | 1;
+                }
             }
-            else if(dim){
-                *color_ptr = _SHIFTL(C8_TO_C5(C5_TO_C8(RGBA16_R5(*color_ptr)) / 2), 11, 5) 
-                        | _SHIFTL(C8_TO_C5(C5_TO_C8(RGBA16_G5(*color_ptr)) / 2), 6, 5) 
-                        | _SHIFTL(C8_TO_C5(C5_TO_C8(RGBA16_B5(*color_ptr)) / 2), 1, 5) 
-                        | 1;
-            }
 
-            color_ptr++;
-            mask_ptr++;
+            fb_pixel++;
+            tmem++;
         }
-        mask_ptr += ((mStride * mask_texture->w) - mW);
-        color_ptr += (gFramebufferWidth - mW);
+
+        tmem += mStride * chunk->w - mW;
+        fb_pixel += gFramebufferWidth - mW;
     }
 }
 
-void framebufferdraw_drawGrid(s32 x, s32 y, s32 arg2, s32 arg3, s32 horz_spacing, s32 vert_spacing) {
-    s32 x1;
-    s32 y1;
+void framebufferdraw_drawGrid(s32 x, s32 y, s32 w, s32 h, s32 horz_spacing, s32 vert_spacing) {
+    s32 ix, iy;
 
-    for (x1 = 0; x1 < gFramebufferWidth; x1 += horz_spacing) {
-        for (y1 = 0; y1 < gFramebufferHeight; y1++) {
-            framebufferdraw_setPixel(x + x1, y + y1);
+    // BUG: Grid is always drawn from [x,y] to [gFramebufferWidth,gFramebufferHeight] instead of [w,h]
 
+    for (ix = 0; ix < gFramebufferWidth; ix += horz_spacing) {
+        for (iy = 0; iy < gFramebufferHeight; iy++) {
+            framebufferdraw_setPixel(x + ix, y + iy);
         }
     }
-    for (y1 = 0; y1 < gFramebufferHeight; y1 += vert_spacing) {
-        for (x1 = 0; x1 < gFramebufferWidth; x1++) {
-            framebufferdraw_setPixel(x + x1, y + y1);
+
+    for (iy = 0; iy < gFramebufferHeight; iy += vert_spacing) {
+        for (ix = 0; ix < gFramebufferWidth; ix++) {
+            framebufferdraw_setPixel(x + ix, y + iy);
         }
     }
 }
 
 void framebufferdraw_setPixel(s32 x, s32 y) {
-    if ((x >= 0) && (x < gFramebufferWidth) && (y >= 0) && (y < gFramebufferHeight)) {
-        gFramebuffers[sBufferIndex][x + y * gFramebufferWidth] = _SHIFTL(sPrimColor_r >> 3, 11, 5) | _SHIFTL(sPrimColor_g >> 3, 6, 5) | _SHIFTL(sPrimColor_b >> 3, 1, 5) | _SHIFTL(1, 0, 1);
+    if ((0 <= x) && (x < gFramebufferWidth) && (0 <= y) && (y < gFramebufferHeight)) {
+        gFramebuffers[sBufferIndex][x + y * gFramebufferWidth] =_SHIFTL(sPrimColor_r >> 3, 11, 5) | _SHIFTL(sPrimColor_g >> 3, 6, 5) | _SHIFTL(sPrimColor_b >> 3, 1, 5) | _SHIFTL(1, 0, 1);
     }
 }
 
 void framebufferdraw_drawOutline(s32 x, s32 y, s32 w, s32 h) {
-    s32 x1;
+    s32 ix, iy;
 
-    for (x1 = 0; x1 < w; x1++) {
-        framebufferdraw_setPixel(x + x1, y);
-        framebufferdraw_setPixel(x + x1, y + h - 1);
+    for (ix = 0; ix < w; ix++) {
+        framebufferdraw_setPixel(x + ix, y);
+        framebufferdraw_setPixel(x + ix, y + h - 1);
     }
 
-    for (x1 = 1; x1 < h - 1; x1++) {
-        framebufferdraw_setPixel(x, y + x1);
-        framebufferdraw_setPixel(x + w - 1, y + x1);
+    for (iy = 1; iy < h - 1; iy++) {
+        framebufferdraw_setPixel(x, y + iy);
+        framebufferdraw_setPixel(x + w - 1, y + iy);
     }
 }
 
-void framebufferdraw_func_8024A564(s32 x, s32 y, u16 *arg2, s32 arg3, s32 arg4, f32 arg5, f32 arg6) {
-    s32 temp_lo;
+void framebufferdraw_func_8024A564(s32 x, s32 y, u16 *palette, s32 arg3, s32 arg4, f32 arg5, f32 arg6) {
+    s32 ix_start;
     s32 var_a2;
-    s32 new_var;
-    f32 new_var3;
-    s32 new_var2;
-    s32 var_t1;
-    s32 var_t3;
+    s32 new_var, new_var2;
+    s32 iy, ix;
     s32 var_v0;
     s32 fb_width;
-    u16 *pixel;
-    u16 *var_t2;
-    
+    u16 *fb_pixel_start, *fb_pixel;
+
     var_v0 = 0;
     fb_width = gFramebufferWidth;
-    pixel = &gFramebuffers[sBufferIndex][x + (y * gFramebufferWidth)];
-    new_var = (s32) (((f64) (256.0f / (new_var3 = arg6))) + 0.5);
+    fb_pixel_start = &gFramebuffers[sBufferIndex][x + (y * gFramebufferWidth)];
+    new_var = (s32) (((f64) (256.0f / arg6)) + 0.5);
     new_var2 = (s32) (((f64) (256.0f / arg5)) + 0.5);
 
-    for (var_t1 = (arg4 * arg6) + 0.5; var_t1 != 0; var_t1--)
-    {
-        temp_lo = (arg3 * arg5) + 0.5;
+    for (iy = arg4 * arg6 + 0.5; iy != 0; iy--) {
+        ix_start = arg3 * arg5 + 0.5;
         var_a2 = ((var_v0 >> 8) * arg3) << 8;
-        var_t2 = pixel;
+        fb_pixel = fb_pixel_start;
 
-        for (var_t3 = temp_lo; var_t3 != 0; var_t3--) {
-            *var_t2 = arg2[var_a2 >> 8];
+        for (ix = arg3 * arg5 + 0.5; ix != 0; ix--) {
+            *fb_pixel = palette[var_a2 >> 8];
             var_a2 += new_var2;
-            var_t2++;
+            fb_pixel++;
         }
 
-        pixel += gFramebufferWidth;
+        fb_pixel_start += gFramebufferWidth;
         var_v0 += new_var;
     }
 }
 
 void framebufferdraw_drawRect(s32 x, s32 y, s32 w, s32 h) {
-    s32 y1, x1;
+    s32 iy, ix;
 
-    for (x1 = 0; x1 < w; x1++) {
-        for (y1 = 0; y1 < h; y1++) {
-                framebufferdraw_setPixel(x + x1, y + y1);
+    for (ix = 0; ix < w; ix++) {
+        for (iy = 0; iy < h; iy++) {
+                framebufferdraw_setPixel(x + ix, y + iy);
             }
     }
 }

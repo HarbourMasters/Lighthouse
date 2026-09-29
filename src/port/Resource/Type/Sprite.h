@@ -18,12 +18,22 @@ inline size_t Align8(size_t offset) {
     return (offset + 7) & ~7;
 }
 
+// BKSpriteTextureBlock ends in a flexible array member, which C++ won't allow as a
+// non-final member, so chunks keep a copy of just its fixed header.
+struct TextureBlockHeader {
+    int16_t x;
+    int16_t y;
+    int16_t w;
+    int16_t h;
+};
+static_assert(sizeof(TextureBlockHeader) == sizeof(BKSpriteTextureBlock), "BKSpriteTextureBlock header layout changed");
+
 // Store frame data with palette and texture chunks
 struct SpriteFrameData {
     std::vector<uint8_t> paletteData;
 
     struct ChunkData {
-        BKSpriteTextureBlock header;
+        TextureBlockHeader header;
         std::vector<uint8_t> textureData;
         std::string resPath;
     };
