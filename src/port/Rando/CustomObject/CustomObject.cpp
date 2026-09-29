@@ -11,7 +11,7 @@
 #include "spdlog/spdlog.h"
 
 extern "C" {
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 
 typedef struct chjiggy_s {
     u32 unk0;
@@ -325,9 +325,9 @@ void CustomObject::ResolveCustomActorCollisionEX(RandoCheckId randoCheckId) {
             }
             break;
         case RI_MUSIC_NOTE:
-            D_80385FF0[Rando::StaticData::Checks[shuffledObject.shuffledCheckId].worldId]++;
+            sItemscoreNoteScores[Rando::StaticData::Checks[shuffledObject.shuffledCheckId].worldId]++;
             if (Rando::StaticData::Checks[shuffledObject.shuffledCheckId].worldId == map_getLevel(gsworld_getMap())) {
-                item_set(ITEM_C_NOTE, D_80385FF0[map_getLevel(gsworld_getMap())]);
+                item_set(ITEM_C_NOTE, sItemscoreNoteScores[map_getLevel(gsworld_getMap())]);
             }
 
             UpdateSaveDataNoteScores();

@@ -15,20 +15,22 @@ extern Vec3fArray *vec3fArray_defrag(Vec3fArray *this);
 extern Vec3fArray *vec3fArray_new(void);
 extern void func_8034C6DC(BKModel *arg0);
 
-BKCollisionTriangle *func_80309B48(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3) ;
+BKCollisionTriangle *mapModel_intersectLine(f32 arg0[3], f32 arg1[3], f32 arg2[3], u32 arg3) ;
 
 typedef struct {
     s16 map_id; //enum map_e
     s16 opa_model_id; //enum asset_e level_model_id
     s16 xlu_model_id; //enum asset_e level2_model_id
-    s16 unk6[3]; // min bounds (for cubes?)
-    s16 unkC[3]; // max bounds (for cubes?)
+    s16 cube_min_offset[3]; // added to the cube bounds computed from the opaque model (see mapModel_getCubeBounds)
+    s16 cube_max_offset[3];
     // u8 pad12[0x2];
     f32 scale;
 }MapModelDescription;
 
 /* .data */
-MapModelDescription D_8036ABE0[] = {
+/* The opaque and translucent level models of every map with geometry.
+ * The translucent model holds water surfaces and other see-through parts. */
+MapModelDescription sMapModelDescriptions[] = {
     {MAP_1_SM_SPIRAL_MOUNTAIN,               ASSET_14CF_MODEL_SM_SPIRAL_MOUNTAIN_OPA,       ASSET_14D0_MODEL_SM_SPIRAL_MOUNTAIN_XLU,      { 1,  0,  1}, { -3, -4, -2}, 1.0f},
     {MAP_2_MM_MUMBOS_MOUNTAIN,               ASSET_14AA_MODEL_MM_MUMBOS_MOUNTAIN_OPA,       ASSET_14AB_MODEL_MM_MUMBOS_MOUNTAIN_XLU,      { 1,  0,  2}, { -2,  0, -2}, 1.0f},
     {MAP_5_TTC_BLUBBERS_SHIP,                ASSET_146F_MODEL_TTC_BLUBBERS_SHIP_OPA,        ASSET_1470_MODEL_TTC_BLUBBERS_SHIP_XLU,       { 0,  0,  0}, {  0,  0,  0}, 1.0f},
@@ -170,7 +172,7 @@ struct {
     BKModel *model_xlu;
     BKModelBin *model_bin_opa;
     BKModelBin *model_bin_xlu;
-    uintptr_t unk20;
+    uintptr_t last_hit_model; // BKModelBin * of the model hit by the last line or moving-sphere test
     Vec3fArray *unk24;
     MapModelDescription *description;
     u8 env_red;
@@ -193,18 +195,18 @@ static MapModelDescription *_mapModel_mapIdToDescription(enum map_e map_id){
         sSceneDefOverride.map_id = (s16)map_id;
         sSceneDefOverride.opa_model_id = (s16)opa;
         sSceneDefOverride.xlu_model_id = (s16)xlu;
-        sSceneDefOverride.unk6[0] = min[0];
-        sSceneDefOverride.unk6[1] = min[1];
-        sSceneDefOverride.unk6[2] = min[2];
-        sSceneDefOverride.unkC[0] = max[0];
-        sSceneDefOverride.unkC[1] = max[1];
-        sSceneDefOverride.unkC[2] = max[2];
+        sSceneDefOverride.cube_min_offset[0] = min[0];
+        sSceneDefOverride.cube_min_offset[1] = min[1];
+        sSceneDefOverride.cube_min_offset[2] = min[2];
+        sSceneDefOverride.cube_max_offset[0] = max[0];
+        sSceneDefOverride.cube_max_offset[1] = max[1];
+        sSceneDefOverride.cube_max_offset[2] = max[2];
         sSceneDefOverride.scale = scale;
         return &sSceneDefOverride;
     }
 
     MapModelDescription *i_ptr;
-    for (i_ptr = D_8036ABE0; i_ptr->map_id != 0; i_ptr++) {
+    for (i_ptr = sMapModelDescriptions; i_ptr->map_id != 0; i_ptr++) {
         if (map_id == i_ptr->map_id) {
             return i_ptr;
         }
@@ -212,7 +214,9 @@ static MapModelDescription *_mapModel_mapIdToDescription(enum map_e map_id){
     return NULL;
 }
 
-f32 func_80308FDC(f32 arg0[3], u32 arg1) {
+/* height of the first surface below the point (casts a line down, retrying with longer lines);
+ * surfaces whose collision flags match arg1 are skipped. Returns 0.0f when nothing is found. */
+f32 mapModel_getFloorYWithFilter(f32 arg0[3], u32 arg1) {
     s32 phi_s2;
     f32 sp70[3];
     f32 sp64[3];
@@ -229,7 +233,7 @@ f32 func_80308FDC(f32 arg0[3], u32 arg1) {
     sp58[1] = arg0[1];
     sp58[2] = arg0[2];
     sp58[1] -= 2000.0f;
-    if (func_80309B48(sp64, sp58, sp70, arg1)) {
+    if (mapModel_intersectLine(sp64, sp58, sp70, arg1)) {
         return sp58[1];
     }
     phi_s2 = 150;
@@ -247,7 +251,7 @@ f32 func_80308FDC(f32 arg0[3], u32 arg1) {
         sp58[0] += randf2(-1.0f, 1.0f);
         sp58[1] -= (f32) phi_s1;
         sp58[2] += randf2(-1.0f, 1.0f);
-        if (func_80309B48(sp64, sp58, sp70, arg1)) {
+        if (mapModel_intersectLine(sp64, sp58, sp70, arg1)) {
             return sp58[1];
         }
         phi_s1 += 2000;
@@ -394,12 +398,12 @@ void mapModel_xlu_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 
 void func_80309704(s32 arg0, s32 arg1, s32 arg2){}
 
-s32 func_80309714(void){
+s32 mapModel_getCollisionCellSize(void){
     return mapModel.collision_opa->scale;
 }
 
 f32 mapModel_getFloorY(f32 arg0[3]){
-    return func_80308FDC(arg0, 0x1e0000);
+    return mapModel_getFloorYWithFilter(arg0, 0x1e0000);
 }
 
 BKModel *mapModel_getModel(s32 arg0){
@@ -414,8 +418,8 @@ BKModelBin *mapModel_getModelBin(s32 arg0){
     return 0;
 }
 
-void *func_80309794(void){
-    return (void *)mapModel.unk20;
+void *mapModel_getLastHitModel(void){
+    return (void *)mapModel.last_hit_model;
 }
 
 Vec3fArray *func_803097A0(void){
@@ -423,15 +427,17 @@ Vec3fArray *func_803097A0(void){
 }
 
 
+/* Bounds of the 1000-unit cubes that hold the map's props (see gccube.c):
+ * the opaque model's vertex bounds in cube units, plus the map's offsets */
 void mapModel_getCubeBounds(s32 min[3], s32 max[3]) {
     vtxList_getBounds_s32(modelbin_getVtxList(mapModel.model_bin_opa), min, max);
     coords_scale(min, max, 1000);
-    min[0] = min[0] + mapModel.description->unk6[0];
-    min[1] = min[1] + mapModel.description->unk6[1];
-    min[2] = min[2] + mapModel.description->unk6[2];
-    max[0] = max[0] + mapModel.description->unkC[0];
-    max[1] = max[1] + mapModel.description->unkC[1];
-    max[2] = max[2] + mapModel.description->unkC[2];
+    min[0] = min[0] + mapModel.description->cube_min_offset[0];
+    min[1] = min[1] + mapModel.description->cube_min_offset[1];
+    min[2] = min[2] + mapModel.description->cube_min_offset[2];
+    max[0] = max[0] + mapModel.description->cube_max_offset[0];
+    max[1] = max[1] + mapModel.description->cube_max_offset[1];
+    max[2] = max[2] + mapModel.description->cube_max_offset[2];
 }
 
 void mapModel_getOpaBounds(s32 min[3], s32 max[3]) {
@@ -469,15 +475,20 @@ void mapModel_getBounds(s32 min[3], s32 max[3]) {
     }
 }
 
-f32 func_80309B24(f32 arg0[3]){
-    return func_80308FDC(arg0, 0xf800ff0f);
+/* 0xF800FF0F contains 0x80001F00, so only the translucent model is tested (see
+ * mapModel_intersectLine), and it skips every surface with a footstep type, which leaves the
+ * water surfaces */
+f32 mapModel_getWaterSurfaceY(f32 arg0[3]){
+    return mapModel_getFloorYWithFilter(arg0, 0xf800ff0f);
 }
 
-BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flag_filter) {
+/* tests a line against the opaque and translucent collision; translucent hits win.
+ * A filter containing all of 0x80001F00 skips the opaque model entirely. */
+BKCollisionTriangle *mapModel_intersectLine(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flag_filter) {
     BKCollisionTriangle *opaqueTri;
     BKCollisionTriangle *transparentTri;
 
-    mapModel.unk20 = 0;
+    mapModel.last_hit_model = 0;
     if (mapModel.collision_xlu != NULL) {
         if ((flag_filter & 0x80001F00) == 0x80001F00) {
             opaqueTri = NULL;
@@ -489,12 +500,12 @@ BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[
         transparentTri = collisionList_intersectLine(mapModel.collision_xlu, modelbin_getVtxList(mapModel.model_bin_xlu), startPoint, endPoint, arg2, flag_filter);
 
         if (transparentTri != NULL) {
-            mapModel.unk20 = (uintptr_t) mapModel.model_bin_xlu;
+            mapModel.last_hit_model = (uintptr_t) mapModel.model_bin_xlu;
             return transparentTri;
         }
 
         if (opaqueTri != NULL) {
-            mapModel.unk20 = (uintptr_t) mapModel.model_bin_opa;
+            mapModel.last_hit_model = (uintptr_t) mapModel.model_bin_opa;
         }
 
         return opaqueTri;
@@ -502,14 +513,14 @@ BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[
     else{
         opaqueTri = collisionList_intersectLine(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), startPoint, endPoint, arg2, flag_filter);
         if (opaqueTri != NULL) {
-            mapModel.unk20 = (uintptr_t) mapModel.model_bin_opa;
+            mapModel.last_hit_model = (uintptr_t) mapModel.model_bin_opa;
         }
     }
 
     return opaqueTri;
 }
 
-BKCollisionTriangle *func_80309C74(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flag_filter, BKModelBin **arg4) {
+BKCollisionTriangle *mapModel_intersectLineGetModel(f32 arg0[3], f32 arg1[3], f32 arg2[3], s32 flag_filter, BKModelBin **arg4) {
     BKCollisionTriangle *sp2C;
     BKCollisionTriangle *phi_v0;
 
@@ -538,27 +549,27 @@ bool func_80309D58(f32 arg0[3], s32 arg1) {
     return 0;
 }
 
-BKCollisionTriangle *func_80309DBC(f32 currentPosition[3], f32 next_position[3], f32 arg2, f32 arg3[3], s32 arg4, s32 arg5) {
+BKCollisionTriangle *mapModel_intersectMovingSphere(f32 currentPosition[3], f32 next_position[3], f32 arg2, f32 arg3[3], s32 arg4, s32 arg5) {
     BKCollisionTriangle *sp34;
     BKCollisionTriangle *temp_v0_2;
 
-    mapModel.unk20 = 0;
+    mapModel.last_hit_model = 0;
     sp34 = collisionList_intersectMovingSphere(mapModel.collision_opa, modelbin_getVtxList(mapModel.model_bin_opa), currentPosition, next_position, arg2, arg3, arg4, arg5);
     if (sp34 != NULL) {
-        mapModel.unk20 = (uintptr_t) mapModel.model_bin_opa;
+        mapModel.last_hit_model = (uintptr_t) mapModel.model_bin_opa;
     }
     if (mapModel.collision_xlu == 0) {
         return sp34;
     }
     temp_v0_2 = collisionList_intersectMovingSphere(mapModel.collision_xlu, modelbin_getVtxList(mapModel.model_bin_xlu), currentPosition, next_position, arg2, arg3, arg4, arg5);
     if (temp_v0_2 != NULL) {
-        mapModel.unk20 = (uintptr_t) mapModel.model_bin_xlu;
+        mapModel.last_hit_model = (uintptr_t) mapModel.model_bin_xlu;
         return temp_v0_2;
     }
     return sp34;
 }
 
-BKCollisionTriangle *func_80309EB0(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
+BKCollisionTriangle *mapModel_intersectSphere(f32 arg0[3], f32 arg1, f32 arg2[3], s32 arg3) {
     BKCollisionTriangle *sp24;
     BKCollisionTriangle *temp_v0_2;
 
@@ -574,10 +585,10 @@ bool mapModel_has_xlu_bin(void) {
     return (mapModel.model_bin_opa != NULL) && (mapModel.model_bin_xlu != NULL);
 }
 
-bool func_80309FA4(enum map_e map_id){
+bool mapModel_hasDescription(enum map_e map_id){
     MapModelDescription *i_ptr;
 
-    for(i_ptr = D_8036ABE0; i_ptr->map_id != 0; i_ptr++){
+    for(i_ptr = sMapModelDescriptions; i_ptr->map_id != 0; i_ptr++){
         if(map_id == i_ptr->map_id){
             return true;
         }
@@ -604,7 +615,8 @@ enum asset_e mapModel_getOpaModelId(void){
     return mapModel.description->opa_model_id;
 }
 
-void func_8030A078(void) {
+/* loads the current map's models (called by gsworld_set) */
+void mapModel_init(void) {
     BKMeshList *sp24;
     MapModelDescription *description;
 
@@ -620,7 +632,7 @@ void func_8030A078(void) {
     // causing displacements to stack across map loads.
     mapModel.model_bin_opa = (BKModelBin *)assetcache_reload(mapModel.description->opa_model_id);
     mapModel.collision_opa = modelbin_getCollisionList(mapModel.model_bin_opa);
-    mapModel.unk20 = 0;
+    mapModel.last_hit_model = 0;
     if (mapModel.description->xlu_model_id != 0) {
         mapModel.model_bin_xlu = (BKModelBin *)assetcache_reload(mapModel.description->xlu_model_id);
         mapModel.collision_xlu = modelbin_getCollisionList(mapModel.model_bin_xlu);
@@ -654,7 +666,7 @@ void func_8030A078(void) {
         func_8034C6DC(mapModel.model_xlu);
     }
     mapModel.unk24 = vec3fArray_new();
-    func_80320B44(func_80309B48, func_80309DBC, func_80309EB0, func_80309794);
+    func_80320B44(mapModel_intersectLine, mapModel_intersectMovingSphere, mapModel_intersectSphere, mapModel_getLastHitModel);
 
     if (( mapModel.model_bin_opa != NULL) && (modelbin_getAnimTextureList( mapModel.model_bin_opa) != NULL)) {
         mapModel.unk0 = AnimTextureListCache_newList();

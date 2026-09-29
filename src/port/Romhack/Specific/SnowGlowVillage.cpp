@@ -40,7 +40,7 @@ extern struct TrackManagerState {
     s16 unk0; // current map's music track
     s16 unk2; // current map's second track
     s16 unk4;
-} D_80383340;
+} sCore2_9B650CurrentMusic;
 extern struct {
     u32 unk0;
     u32 unk4;
@@ -53,7 +53,7 @@ extern struct {
 extern struct {
     u8 unk0;
     u8 level;
-} D_80383300;
+} sLevelState;
 void _levelSpecificFlags_updateCRC1(void);
 void _levelSpecificFlags_updateCRC2(void);
 }
@@ -265,7 +265,7 @@ void SnowGlow_EnableLevelStateSlots() {
 
         if (gsworld_getMap() == MAP_91_FILE_SELECT) {
             mapSavestate_init();
-            itemscore_levelReset((enum level_e)D_80383300.level);
+            itemscore_levelReset((enum level_e)sLevelState.level);
             jiggyscore_clearAllSpawned();
             if (!sLevelSlotsSeeded) {
                 sLevelSlotsSeeded = true;
@@ -277,7 +277,7 @@ void SnowGlow_EnableLevelStateSlots() {
         }
 
         SnowGlow_SaveLevelState(prevLevel);
-        SnowGlow_LoadLevelState(D_80383300.level);
+        SnowGlow_LoadLevelState(sLevelState.level);
     });
 }
 
@@ -560,20 +560,20 @@ void SnowGlow_AmbienceUpdate(s32* playerPos, s32* trackId) {
     }
 
     if (activeZone != nullptr) {
-        if (D_80383340.unk2 != activeZone->track) {
-            musicTrack_release((comusic_e)D_80383340.unk2);
+        if (sCore2_9B650CurrentMusic.unk2 != activeZone->track) {
+            musicTrack_release((comusic_e)sCore2_9B650CurrentMusic.unk2);
             musicTrack_load((comusic_e)activeZone->track);
         }
-        D_80383340.unk2 = (s16)activeZone->track;
+        sCore2_9B650CurrentMusic.unk2 = (s16)activeZone->track;
         if (zoneDistance < activeZone->inner) {
             trackId[2] = 0;
             trackId[3] = gcMusic_getDefaultVolumeForTrack((comusic_e)activeZone->track);
             midichannel_func_8024A9EC(0);
         }
-        trackId[0] = D_80383340.unk0;
+        trackId[0] = sCore2_9B650CurrentMusic.unk0;
         trackId[1] = activeZone->track;
     } else if (onZoneMap) {
-        trackId[2] = gcMusic_getDefaultVolumeForTrack((comusic_e)D_80383340.unk0);
+        trackId[2] = gcMusic_getDefaultVolumeForTrack((comusic_e)sCore2_9B650CurrentMusic.unk0);
         trackId[3] = 0;
         midichannel_func_8024A9EC(0);
         player_getPosition_s32(playerPos);
