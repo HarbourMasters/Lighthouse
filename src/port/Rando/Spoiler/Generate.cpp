@@ -89,7 +89,7 @@ void GenerateFromSpoiler(nlohmann::json spoiler) {
         if (spoiler["loadout"].contains("abilities") && !spoiler["loadout"]["abilities"].empty()) {
             for (auto& data : spoiler["loadout"]["abilities"].items()) {
                 ability_setLearned(data.value(), true);
-                ability_setHasUsed(data.value());
+                ability_setUsed(data.value());
             }
         }
 

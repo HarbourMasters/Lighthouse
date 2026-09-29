@@ -351,17 +351,17 @@ void chPurpleTeehee_update(Actor *this){
     switch(this->state){
         case CH_PURPLE_TEEHEE_STATE_1_UNK: //L8035BE78
             actor_collisionOff(this);
-            if(mapSpecificFlags_getClear(4)){
+            if(mapSpecificFlags_getAndReset(4)){
                 marker_despawn(this->marker);
             }
-            else if(mapSpecificFlags_getClear(3)){
+            else if(mapSpecificFlags_getAndReset(3)){
                 subaddie_set_state_with_direction(this, CH_PURPLE_TEEHEE_STATE_3_ROAMING, 0.01f, 1);
             }
             break;
         case CH_PURPLE_TEEHEE_STATE_3_ROAMING: //L8035BECC
             this->unk58_0 = true;
             actor_collisionOn(this);
-            if(mapSpecificFlags_getClear(4)){
+            if(mapSpecificFlags_getAndReset(4)){
                 this->unk38_0 = true;
                 chTeeheePurple_die(this->marker, NULL);
             }

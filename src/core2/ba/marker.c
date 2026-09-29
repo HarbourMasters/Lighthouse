@@ -761,7 +761,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
 
             case MARKER_D4_SPRING_PAD: //L8028CDEC
             case 0x242: //L8028CDEC
-                if (ability_isUnlocked(ABILITY_D_SHOCK_JUMP)) {
+                if (player_isAbilityUnlocked(ABILITY_D_SHOCK_JUMP)) {
                     baflag_set(BA_FLAG_2_ON_SPRING_PAD);
                 }
                 else {
@@ -774,7 +774,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
             case MARKER_45_FLIGHT_PAD: //L8028CE3C
             case MARKER_240_LAIR_SWITCH_FLIGHT_PAD: //L8028CE3C
             case MARKER_261_FIGHT_FLIGHT_PAD: //L8028CE3C
-                if (ability_isUnlocked(ABILITY_9_FLIGHT)) {
+                if (player_isAbilityUnlocked(ABILITY_9_FLIGHT)) {
                     baflag_set(BA_FLAG_1_ON_FLIGHT_PAD);
                 }
                 else if (!volatileFlag_getAndSet(VOLATILE_FLAG_D_HAS_SEEN_FLIGHT_PAD, 1)) {

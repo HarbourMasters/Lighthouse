@@ -13,11 +13,6 @@
 
 extern void mapModel_getCubeBounds(s32 min[3], s32 max[3]);
 extern f32 func_803243D0(struct56s *arg0, f32 arg1[3]);
-extern s32 *bitfield_new(s32 arg0);
-extern void bitfield_free(s32 *arg0);
-extern void bitfield_setBit(s32 *arg0, s32 arg1, bool arg2);
-extern bool bitfield_isBitSet(s32 *arg0, s32 arg1);
-extern void bitfield_setAll(s32 *arg0, bool arg1);
 extern void func_8032D510(Cube *, Gfx **, Mtx **, Vtx **);
 // def returns Prop*, but callers here access via the ActorProp union member
 extern ActorProp *func_803322F0(Cube *, ActorMarker *, f32, s32, s32 *);
@@ -76,7 +71,7 @@ Struct_core2_7AF80_1 *D_8036A9D4 = NULL;
 Struct_core2_7AF80_1 *D_8036A9D8 = NULL;
 
 Cube *D_8036A9DC = NULL;
-s32 *D_8036A9E0 = NULL;
+struct bitfield_s *D_8036A9E0 = NULL;
 
 u8 sMarkerToBitfield[] = {
                                0,    9,    2,    3,    4,    5,    6,    7,   -1,    8,  0xA,  0xB, 
@@ -1306,7 +1301,7 @@ Actor *__actor_spawnWithYaw_s32(enum actor_e arg0, s32 pos[3], s32 rot) {
     CALL_CANCELLABLE_RETURN_EVENT(OnActorSpawn, arg0, pos[0], pos[1], pos[2], rot) {
         s32 i;
 
-        arg0 = (!dummy_func_80320248()) ? (ACTOR_4_BIGBUTT) : (arg0);
+        arg0 = (!volatileflag_stub2()) ? (ACTOR_4_BIGBUTT) : (arg0);
         for (i = 0; i < sSpawnableActorSize; i++) {
             if (arg0 == sSpawnableActorList[i].infoPtr->actorId) {
                 return sSpawnableActorList[i].spawnFunc(pos, rot, ((0, sSpawnableActorList[i])).infoPtr, sSpawnableActorList[i].unk8);
@@ -2058,7 +2053,7 @@ void func_80307CA0(ActorMarker *marker) {
     s32 node_idx;
 
     marker_bitfield = sMarkerToBitfield[marker->id];
-    if ((marker_bitfield != 0xFF) && (bitfield_isBitSet(D_8036A9E0, marker_bitfield) == 1)) {
+    if ((marker_bitfield != 0xFF) && (bitfield_getBit(D_8036A9E0, marker_bitfield) == 1)) {
         codeA5BC0_getActorPosition(marker->propPtr, marker_position);
         cubePtrList = func_80307948(marker_position);
         for(i = 0; cubePtrList[i] != NULL; i++) {

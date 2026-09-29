@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "core1/core1.h"
 #include "functions.h"
-#include "model.h"
+#include "core2/model.h"
 #include "variables.h"
 
 

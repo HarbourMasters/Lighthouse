@@ -38,7 +38,7 @@ void Anchor::HandlePacket_SetAbility(nlohmann::json& payload) {
 
     ability_setLearnedEx(move, value, 0);
     if (value) {
-        ability_setHasUsed((enum ability_e)move);
+        ability_setUsed((enum ability_used_e)move);
     }
 
     // A remote unlock just completed the SM tutorial set while we're standing in Spiral

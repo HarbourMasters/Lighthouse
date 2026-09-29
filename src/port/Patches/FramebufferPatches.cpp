@@ -16,7 +16,7 @@ extern "C" void port_runOnRenderThread(void (*fn)(void*), void* arg);
 extern "C" {
 
 #include "core1/core1.h"
-#include "model.h"
+#include "core2/model.h"
 
 void gfx_register_fb_texture(const void* cpuAddr, int fbId);
 BKGfxList* modelbin_getGfxList(BKModelBin* arg0);

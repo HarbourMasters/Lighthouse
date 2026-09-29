@@ -426,7 +426,7 @@ typedef struct actor_array{
 // Actor needs 8-byte alignment on 64-bit, which would insert 4 bytes
 // of padding, but serialized data places Actors immediately after cnt.
 #pragma pack(push, 4)
-typedef struct {
+typedef struct actor_list_savestate_s {
     u32 cnt;
     Actor data[];
 }ActorListSaveState;

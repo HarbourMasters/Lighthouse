@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 
 
 void func_8034E174(Struct6Ds *arg0);

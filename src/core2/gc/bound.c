@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "gc/gcbound.h"
+#include "core2/gc/bound.h"
 
 /* .data */
 extern s32 D_803688E0 = 0; //_gcBoundAlpha

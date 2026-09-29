@@ -1,8 +1,8 @@
 // BanjoDecomp: core2/code_66490.c
 #include <ultra64.h>
+#include "core2/model.h"
 #include "functions.h"
 #include "variables.h"
-
 
 bool cameraAreaList_searchForEntryInBounds(BKCameraAreaList *this, u8 *id, u32 count) {
     BKCameraArea *start_ptr;

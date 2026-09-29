@@ -3,6 +3,9 @@
 
 #include "prop.h"
 #include "include/core1/sns.h"
+extern "C" {
+#include "core2/abilityprogress.h"
+}
 
 namespace Rando {
 
