@@ -387,7 +387,7 @@ void gChYellowFlibbit_update(Actor *this) {
     local->unk20[1] = (0.2 < (f64) local->unk20[1]) ? randf2(-3.0f, -1.0f) : local->unk20[1];
 
     if(this->state == 1){
-        if(mapSpecificFlags_getClear(0x12)){
+        if(mapSpecificFlags_getAndReset(0x12)){
             gChYellowFlibbit_setState(this, 2);
             return;
         }

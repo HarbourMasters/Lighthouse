@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 
 extern void func_8034CB64(Struct70s *, s32, BKModel *, s32);
 extern void func_8034CD30(Struct70s *, s32, BKModel *, s32);

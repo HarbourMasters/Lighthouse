@@ -7,10 +7,9 @@
 extern void player_walkToPosition(f32 *, f32,  void(*)(ActorMarker *), ActorMarker *);
 extern void func_8028F760(s32, f32, f32);
 extern void func_8031CE70(f32 *arg0, enum map_e arg1, s32 arg2);
-extern void func_8031FFAC(void);
+extern void fileprogressflag_func_8031FFAC(void);
 extern NodeProp *func_80304ED0(void*, f32 *);
 extern void func_8031CD44(enum map_e, s32, f32, f32, s32);
-extern void mapSpecificFlags_set(s32, s32);
 
 bool cutscene_skipEnterLairCutsceneCheck(void);
 bool cutscene_skipGameOverCutsceneCheck(void);
@@ -1548,7 +1547,7 @@ void func_8031FB6C(NodeProp *arg0, ActorMarker *arg1) {
 
 void clearScoreStates(void) {
     bsStoredState_clear();
-    func_8031FFAC();
+    fileprogressflag_func_8031FFAC();
     item_setItemsStartCounts();
     jiggyscore_clearAll();
     honeycombscore_clear();

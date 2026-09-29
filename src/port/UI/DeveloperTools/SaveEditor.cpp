@@ -24,7 +24,7 @@
 #define DEFAULT_MAX_GOLD_FEATHERS 10
 
 extern "C" {
-bool ability_isUnlocked(enum ability_e uid);
+bool player_isAbilityUnlocked(enum ability_e uid);
 void jiggyscore_setCollected(s32 indx, s32 val);
 void honeycombscore_set(enum honeycomb_e indx, bool val);
 void mumboscore_set(enum mumbotoken_e indx, bool val);
@@ -123,7 +123,7 @@ void SaveEditor_UpdateCheckTracker(RandoSaveCheck randoSaveCheck) {
             break;
         case RI_MOLEHILL:
             if (randoSaveCheck.obtained) {
-                ability_unlock((ability_e)randoSaveCheck.randoCollectionId);
+                player_unlockAbility((ability_e)randoSaveCheck.randoCollectionId);
             } else {
                 ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, 0);
             }
@@ -145,10 +145,10 @@ void SaveEditor_DrawUnlocks() {
             ImGui::SeparatorText("Ability Unlocks");
             for (int i = ABILITY_0_BARGE; i <= ABILITY_12_WONDERWING; i++) {
                 ImGui::PushID(i);
-                bool isUnlocked = ability_isUnlocked((ability_e)i);
+                bool isUnlocked = player_isAbilityUnlocked((ability_e)i);
                 std::string abilName = "Unlock " + abilityNameList[i];
                 if (UIWidgets::Checkbox(abilName.c_str(), &isUnlocked)) {
-                    if (ability_isUnlocked((ability_e)i)) {
+                    if (player_isAbilityUnlocked((ability_e)i)) {
                         ability_setLearned((ability_e)i, false);
                     } else {
                         ability_setLearned((ability_e)i, true);

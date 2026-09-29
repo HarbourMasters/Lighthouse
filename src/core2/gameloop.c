@@ -7,19 +7,16 @@
 extern void Graphics_PushFrame(Gfx* data);
 extern void Framebuffer_ReadbackGPU(int bufferIndex);
 
-#include "gc/gctransition.h"
+#include "core2/gc/transition.h"
 #include "bk_time.h"
 #include "port/Patches/Patches.h"
 
 extern void print_updateBoldLetterFontDelayedFreeing(void);
 extern void func_802FA0F8(void);
 extern void timedFuncQueue_update(void);
-extern void gsworld_setEnableDraw(s32);
 extern void func_8025A2B0(void);
 extern void func_8025A430(s32, s32, s32);
-extern void gsworld_setEnableUpdate(s32);
 extern void func_8034BB90(void);
-extern void picturebox_spawn(void);
 extern void func_80321C34(void);
 extern void func_8030ED0C(void);
 extern void coMusicPlayer_update(void);
@@ -631,9 +628,9 @@ bool func_802E4424(void) {
                 && (0.6 < D_8037E8E0.unk10)
                 && gcpausemenu_80314B00()
                 && !player_isDead()
-                && func_8032056C()
+                && volatileflag_func_8032056C()
                 && levelSpecificFlags_validateCRC1()
-                && dummy_func_80320248()
+                && volatileflag_stub2()
             ) {
                 game_setMode(GAME_MODE_4_PAUSED, 0U);
             } else if ((controller_getStartButton(0) == 1) && (D_8037E8E0.unk0 != 0)) {

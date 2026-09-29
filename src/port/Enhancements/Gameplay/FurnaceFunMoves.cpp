@@ -20,13 +20,13 @@ void RegisterFurnaceFunMoves_Init() {
             if (ability == ABILITY_6_EGGS || ability == ABILITY_9_FLIGHT || ability == ABILITY_12_WONDERWING) {
                 continue;
             }
-            ability_unlock(static_cast<ability_e>(ability));
-            ability_setHasUsed(static_cast<ability_e>(ability));
+            player_unlockAbility(static_cast<ability_e>(ability));
+            ability_setUsed(static_cast<ability_used_e>(ability));
         }
         // Outside the loop's range. Without it the note doors never open and Bottles
         // force-triggers his tutorial on approach to the 50-note door.
-        ability_unlock(ABILITY_13_1ST_NOTEDOOR);
-        ability_setHasUsed(ABILITY_13_1ST_NOTEDOOR);
+        player_unlockAbility(ABILITY_13_1ST_NOTEDOOR);
+        ability_setUsed(static_cast<ability_used_e>(ABILITY_13_1ST_NOTEDOOR));
     });
 }
 

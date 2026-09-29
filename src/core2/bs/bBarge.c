@@ -175,7 +175,7 @@ void bsbarge_update(void){
 }
 
 void bsbarge_end(void){
-    ability_use(5);
+    ability_setUsedWithDialog(5);
     modelAppendages_setKazooiesUpperHalfVisibility(false);
     D_8037D2A6 = 0;
 }

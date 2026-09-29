@@ -8,8 +8,6 @@
 #include "port/Save/Types.h"
 
 extern "C" {
-void ability_setHasUsed(enum ability_e move);
-
 void item_setMaxCount(s32 item);
 }
 
@@ -162,7 +160,7 @@ void Rando::Logic::GrantStartingLoadout() {
         if (ability == ABILITY_A_HOLD_A_JUMP_HIGHER || ability == ABILITY_13_1ST_NOTEDOOR ||
             CVarGetInteger(abilityInfo.second, 0)) {
             ability_setLearned(ability, true);
-            ability_setHasUsed(ability);
+            ability_setUsed(static_cast<ability_used_e>(ability));
         }
     }
     for (auto& [item, itemInfo] : itemLoadoutMap) {
@@ -193,7 +191,7 @@ void Rando::Logic::GrantSpiralMountainChecks() {
         CustomObject::CheckObtainedEX(smCheckId, true);
         if (randoSaveCheck.randoItemId == RI_MOLEHILL) {
             ability_setLearned((ability_e)randoSaveCheck.randoCollectionId, true);
-            ability_setHasUsed((ability_e)randoSaveCheck.randoCollectionId);
+            ability_setUsed((ability_used_e)randoSaveCheck.randoCollectionId);
         }
     }
 }

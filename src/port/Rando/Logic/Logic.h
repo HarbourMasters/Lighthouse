@@ -293,42 +293,42 @@ inline bool CanBreakObject(RandoAccessId objectType) {
 
     switch (objectType) {
         case RA_BREAK_OBJECT_BOULDER:
-            if (ability_isUnlocked(ABILITY_0_BARGE) || ability_isUnlocked(ABILITY_6_EGGS) ||
-                ability_isUnlocked(ABILITY_2_BEAK_BUSTER) || ability_isUnlocked(ABILITY_12_WONDERWING)) {
+            if (player_isAbilityUnlocked(ABILITY_0_BARGE) || player_isAbilityUnlocked(ABILITY_6_EGGS) ||
+                player_isAbilityUnlocked(ABILITY_2_BEAK_BUSTER) || player_isAbilityUnlocked(ABILITY_12_WONDERWING)) {
                 canBreakObject = true;
             }
             break;
         case RA_BREAK_OBJECT_BRICK_WALL:
         case RA_BREAK_OBJECT_CELLAR_CASK:
         case RA_BREAK_OBJECT_WOODEN_DOOR:
-            if (ability_isUnlocked(ABILITY_0_BARGE) || ability_isUnlocked(ABILITY_12_WONDERWING) ||
-                ability_isUnlocked(ABILITY_B_RATATAT_RAP) || ability_isUnlocked(ABILITY_6_EGGS)) {
+            if (player_isAbilityUnlocked(ABILITY_0_BARGE) || player_isAbilityUnlocked(ABILITY_12_WONDERWING) ||
+                player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP) || player_isAbilityUnlocked(ABILITY_6_EGGS)) {
                 canBreakObject = true;
             }
             break;
         case RA_BREAK_OBJECT_GNAWTYS_BOULDER:
-            if (ability_isUnlocked(ABILITY_0_BARGE) || ability_isUnlocked(ABILITY_2_BEAK_BUSTER) ||
-                ability_isUnlocked(ABILITY_6_EGGS) || ability_isUnlocked(ABILITY_12_WONDERWING)) {
+            if (player_isAbilityUnlocked(ABILITY_0_BARGE) || player_isAbilityUnlocked(ABILITY_2_BEAK_BUSTER) ||
+                player_isAbilityUnlocked(ABILITY_6_EGGS) || player_isAbilityUnlocked(ABILITY_12_WONDERWING)) {
                 canBreakObject = true;
             }
             break;
         case RA_BREAK_OBJECT_GRATE:
-            if (ability_isUnlocked(ABILITY_6_EGGS) || ability_isUnlocked(ABILITY_B_RATATAT_RAP)) {
+            if (player_isAbilityUnlocked(ABILITY_6_EGGS) || player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP)) {
                 canBreakObject = true;
             }
             break;
         case RA_BREAK_OBJECT_IRON_GATE:
-            if (ability_isUnlocked(ABILITY_0_BARGE) || ability_isUnlocked(ABILITY_12_WONDERWING) ||
-                ability_isUnlocked(ABILITY_B_RATATAT_RAP)) {
+            if (player_isAbilityUnlocked(ABILITY_0_BARGE) || player_isAbilityUnlocked(ABILITY_12_WONDERWING) ||
+                player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP)) {
                 canBreakObject = true;
             }
             break;
         case RA_BREAK_OBJECT_WEB:
-            canBreakObject = ability_isUnlocked(ABILITY_6_EGGS);
+            canBreakObject = player_isAbilityUnlocked(ABILITY_6_EGGS);
             break;
         case RA_BREAK_OBJECT_WINDOWS:
-            if (ability_isUnlocked(ABILITY_6_EGGS) || ability_isUnlocked(ABILITY_12_WONDERWING) ||
-                ability_isUnlocked(ABILITY_B_RATATAT_RAP)) {
+            if (player_isAbilityUnlocked(ABILITY_6_EGGS) || player_isAbilityUnlocked(ABILITY_12_WONDERWING) ||
+                player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP)) {
                 canBreakObject = true;
             }
             break;
@@ -344,13 +344,13 @@ inline bool CanKillEnemy(actor_e enemyType) {
 
     switch (enemyType) {
         case ACTOR_124_SIR_SLUSH:
-            if (ability_isUnlocked(ABILITY_1_BEAK_BOMB) && ability_isUnlocked(ABILITY_9_FLIGHT)) {
+            if (player_isAbilityUnlocked(ABILITY_1_BEAK_BOMB) && player_isAbilityUnlocked(ABILITY_9_FLIGHT)) {
                 canKillEnemy = true;
             }
             break;
         case ACTOR_29B_ZUBBA:
-            if (ability_isUnlocked(ABILITY_0_BARGE) || ability_isUnlocked(ABILITY_12_WONDERWING) ||
-                ability_isUnlocked(ABILITY_B_RATATAT_RAP)) {
+            if (player_isAbilityUnlocked(ABILITY_0_BARGE) || player_isAbilityUnlocked(ABILITY_12_WONDERWING) ||
+                player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP)) {
                 canKillEnemy = true;
             }
             break;
@@ -379,7 +379,7 @@ inline bool CanKillEnemy(actor_e enemyType) {
 #define CAN_KILL_ENEMY(enemyType) CanKillEnemy(enemyType)
 #define CAN_UNLOCK_NOTE_DOOR(noteCount) item_getCount(ITEM_C_NOTE) >= noteCount&& CAN_ACCESS(RA_NOTE_DOOR_##noteCount)
 #define CAN_UNLOCK_WORLD(levelId) CanOpenWorld(levelId)
-#define CAN_USE_ABILITY(abilityId) ability_isUnlocked(abilityId)
+#define CAN_USE_ABILITY(abilityId) player_isAbilityUnlocked(abilityId)
 #define CAN_USE_TRANSFORMATION(transId) CanUseTransformation(transId)
 #define GET_CURRENT_TRANSFORMATION(transId) player_getTransformation() == transId
 

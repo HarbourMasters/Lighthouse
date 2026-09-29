@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "port/ShipUtils.h" // BK_LOG_*, port_shapeControllerInput
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 #include <stddef.h>
 
 extern void func_8034CF74(void *arg0, s32 arg1, BKModel *arg2, s32 arg3);

@@ -1,5 +1,7 @@
-#ifndef __GC_TRANSITION__
-#define __GC_TRANSITION__
+#ifndef BANJO_KAZOOIE_CORE2_GC_TRANSITION_H
+#define BANJO_KAZOOIE_CORE2_GC_TRANSITION_H
+
+#include <ultra64.h>
 
 #ifdef __cplusplus
 extern "C" {

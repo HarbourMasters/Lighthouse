@@ -7,7 +7,7 @@
 
 #include "functions.h"
 extern "C" {
-#include "model.h"
+#include "core2/model.h"
 #include "prop.h"
 }
 

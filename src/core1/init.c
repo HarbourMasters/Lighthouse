@@ -5,7 +5,7 @@
 #include "variables.h"
 #include "port/ShipUtils.h" // gPortResetPending
 #include "version.h"
-#include "gc/gctransition.h"
+#include "core2/gc/transition.h"
 
 #define MAIN_THREAD_STACK_SIZE 0x1800
 
@@ -233,7 +233,7 @@ void mainLoop(void) {
     u16 rgba;
     s32 offset;
 
-    if (!func_8032056C() || !levelSpecificFlags_validateCRC1() || !dummy_func_80320240()) {
+    if (!volatileflag_func_8032056C() || !levelSpecificFlags_validateCRC1() || !volatileflag_stub1()) {
         //render weird CRC failure image
         for (y = 30; y < gFramebufferHeight - 30; y++) {
             for (x = 20; x < 235; x++) {

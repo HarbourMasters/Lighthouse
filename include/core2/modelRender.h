@@ -4,7 +4,7 @@
 #include <ultra64.h>
 #include "core2/code_C31A0.h"
 #include "core2/animmtxlist.h"
-#include "model.h"
+#include "core2/model.h"
 #include "generic.h"
 
 #ifdef __cplusplus

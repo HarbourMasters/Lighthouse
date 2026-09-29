@@ -123,34 +123,34 @@ void Rando::ObjectBehavior::InitMolehillBehavior() {
             switch (moleInfo.ability) {
                 case ABILITY_4_CLAW_SWIPE:
                     *textId = (s32)moleInfo.refresher_text_id;
-                    ability_unlock(ABILITY_4_CLAW_SWIPE);
-                    ability_unlock(ABILITY_C_ROLL);
-                    ability_unlock(ABILITY_B_RATATAT_RAP);
+                    player_unlockAbility(ABILITY_4_CLAW_SWIPE);
+                    player_unlockAbility(ABILITY_C_ROLL);
+                    player_unlockAbility(ABILITY_B_RATATAT_RAP);
                     break;
                 case ABILITY_6_EGGS:
                     *textId = (s32)moleInfo.refresher_text_id;
-                    ability_unlock((ability_e)moleInfo.ability);
+                    player_unlockAbility((ability_e)moleInfo.ability);
                     item_adjustByDiffWithHud(ITEM_D_EGGS, 50);
                     break;
                 case ABILITY_8_FLAP_FLIP:
                     *textId = (s32)moleInfo.refresher_text_id;
-                    ability_unlock(ABILITY_A_HOLD_A_JUMP_HIGHER);
-                    ability_unlock(ABILITY_7_FEATHERY_FLAP);
-                    ability_unlock(ABILITY_8_FLAP_FLIP);
+                    player_unlockAbility(ABILITY_A_HOLD_A_JUMP_HIGHER);
+                    player_unlockAbility(ABILITY_7_FEATHERY_FLAP);
+                    player_unlockAbility(ABILITY_8_FLAP_FLIP);
                     break;
                 case ABILITY_9_FLIGHT:
                     *textId = (s32)moleInfo.refresher_text_id;
-                    ability_unlock((ability_e)moleInfo.ability);
+                    player_unlockAbility((ability_e)moleInfo.ability);
                     item_adjustByDiffWithHud(ITEM_F_RED_FEATHER, 25);
                     break;
                 case ABILITY_12_WONDERWING:
                     *textId = (s32)moleInfo.refresher_text_id;
-                    ability_unlock((ability_e)moleInfo.ability);
+                    player_unlockAbility((ability_e)moleInfo.ability);
                     item_adjustByDiffWithHud(ITEM_10_GOLD_FEATHER, 5);
                     break;
                 default:
                     *textId = (s32)moleInfo.refresher_text_id;
-                    ability_unlock((ability_e)moleInfo.ability);
+                    player_unlockAbility((ability_e)moleInfo.ability);
                     break;
             }
         } else {

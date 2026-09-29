@@ -126,7 +126,7 @@ void RefreshMetrics(std::string text) {
 
     learnedAbilities.clear();
     for (int a = ABILITY_0_BARGE; a < ABILITY_13_1ST_NOTEDOOR; a++) {
-        if (ability_isUnlocked((ability_e)a)) {
+        if (player_isAbilityUnlocked((ability_e)a)) {
             learnedAbilities.push_back(abilityNameList[a].c_str());
         }
     }

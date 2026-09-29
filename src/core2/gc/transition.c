@@ -3,7 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "gc/gctransition.h"
+#include "core2/gc/transition.h"
 #include "port/Patches/Patches.h"
 #include "port/Engine.h"
 #include "port/Interpolation/FrameInterpolation.h"

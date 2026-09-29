@@ -32,10 +32,6 @@ enum gsWorldStartIndicators {
 };
 
 /* public */
-void gsworld_setEnableUpdate(s32);
-void gsworld_setEnableDraw(s32);
-void gsworld_load(enum map_e);
-void gsworld_stub3(s32);
 extern Struct64s *func_8032994C(void);
 extern void func_802F2ED0(Struct64s *, Gfx **, Mtx **, Vtx **);
 
@@ -52,7 +48,7 @@ void gsworld_draw(Gfx** gfx, Mtx **mtx, Vtx **vtx) {
         return;
     }
     // Lighthouse [port] Crashing here, not sure what this is.
-    // if (func_80320708() == 0) {
+    // if (volatileflag_func_80320708() == 0) {
     //     eeprom_writeBlocks(0, 0, 0x80BC7230, EEPROM_MAXBLOCKS);
     // }
     spawnQueue_unlock();
@@ -228,7 +224,7 @@ void gsworld_free(void) {
     animCache_flushAll();
 }
 
-void gsworld_set(enum map_e arg0, s32 arg1, s32 arg2) {
+void gsworld_set(enum map_e arg0, s32 arg1, bool arg2) {
     sGsWorldData.unk0 = 3;
     CALL_EVENT(OnMapLoad, sGsWorldData.map, arg0, arg1);
     sGsWorldData.map = arg0;
@@ -394,9 +390,11 @@ s32 gsworld_update(void) {
         partEmitMgr_update();
         func_8034F918();
         func_80350250();
+        #if ANTI_TAMPER
         if (mapSpecificFlags_validateCRC1() == 0) {
             func_8028FCBC();
         }
+        #endif
         AnimTextureListCache_update();
         func_80350CA4();
         dialogBin_update();
@@ -419,19 +417,19 @@ s32 gsworld_update(void) {
     }
 }
 
-void gsworld_setEnableUpdate(s32 arg0){
+void gsworld_setEnableUpdate(bool arg0){
     D_803835DC = arg0;
 }
 
-s32 gsworld_getEnableUpdate(){
+bool gsworld_getEnableUpdate(){
     return D_803835DC;
 }
 
-void gsworld_setEnableDraw(s32 arg0){
+void gsworld_setEnableDraw(bool arg0){
     sEnableDraw = arg0;
 }
 
-s32 gsworld_getEnableDraw(){
+bool gsworld_getEnableDraw(){
     return sEnableDraw;
 }
 
@@ -462,5 +460,5 @@ void gsworld_load(enum map_e map_id) {
     file_close(fp); //file close
 }
 
-void gsworld_stub3(s32 arg0){
+void gsworld_stub3(enum map_e arg0){
 }

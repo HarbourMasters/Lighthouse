@@ -1,6 +1,6 @@
 // BanjoDecomp: core2/gc/dialog.h
-#ifndef BANJO_KAZOOIE_GC_DIALOG_H
-#define BANJO_KAZOOIE_GC_DIALOG_H
+#ifndef BANJO_KAZOOIE_CORE2_GC_DIALOG_H
+#define BANJO_KAZOOIE_CORE2_GC_DIALOG_H
 
 enum {
     DIALOG_BOTTOM = 0,
@@ -19,4 +19,4 @@ typedef enum {
     DIALOG_STATE_8 = 8
 } DialogState;
 
-#endif // BANJO_KAZOOIE_GC_DIALOG_H
+#endif

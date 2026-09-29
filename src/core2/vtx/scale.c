@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 
 void func_8034EC50(s32 arg0, BKModelVtxRef *ref, Vtx *dst, void *arg3) {
     Struct77s *data = (Struct77s *)arg3;

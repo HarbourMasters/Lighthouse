@@ -1,5 +1,5 @@
-#ifndef __BANJO_KAZOOIE_CORE2_SNACKER_CTL_H__
-#define __BANJO_KAZOOIE_CORE2_SNACKER_CTL_H__
+#ifndef BANJO_KAZOOIE_CORE2_SNACKERCTL_H
+#define BANJO_KAZOOIE_CORE2_SNACKERCTL_H
 
 typedef enum {
     SNACKER_CTL_STATE_0_INACTIVE,
@@ -11,4 +11,4 @@ void snackerctl_reset(void);
 void snackerctl_update(void);
 SnackerCtlState snackerctl_get_state(void);
 
-#endif // __BANJO_KAZOOIE_CORE2_SNACKER_CTL_H__
+#endif

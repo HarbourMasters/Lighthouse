@@ -119,6 +119,6 @@ void bsslide_update(void){
 
 void bsslide_end(void){
     if(level_get() != 6)
-        ability_use(6);
+        ability_setUsedWithDialog(6);
     pitch_setIdeal(0.0f);
 }

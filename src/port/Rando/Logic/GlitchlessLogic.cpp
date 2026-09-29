@@ -269,14 +269,14 @@ void ResetSaveData() {
 }
 
 void SetUnlockedAbility(ability_e abilityId) {
-    ability_unlock((ability_e)abilityId);
+    player_unlockAbility((ability_e)abilityId);
 
     if (abilityId == ABILITY_8_FLAP_FLIP) {
-        ability_unlock(ABILITY_A_HOLD_A_JUMP_HIGHER);
-        ability_unlock(ABILITY_7_FEATHERY_FLAP);
+        player_unlockAbility(ABILITY_A_HOLD_A_JUMP_HIGHER);
+        player_unlockAbility(ABILITY_7_FEATHERY_FLAP);
     } else if (abilityId == ABILITY_4_CLAW_SWIPE) {
-        ability_unlock(ABILITY_C_ROLL);
-        ability_unlock(ABILITY_B_RATATAT_RAP);
+        player_unlockAbility(ABILITY_C_ROLL);
+        player_unlockAbility(ABILITY_B_RATATAT_RAP);
     }
 }
 
@@ -513,7 +513,7 @@ bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_MOLEHILLS].cvar, 0) == RO_GENERIC_ON) {
             int32_t progCheck = 0;
             for (auto& abilityId : progressionAbilities[progressionIndex].abilityIds) {
-                if (ability_isUnlocked((ability_e)abilityId)) {
+                if (player_isAbilityUnlocked((ability_e)abilityId)) {
                     progCheck++;
                     continue;
                 }
@@ -537,21 +537,21 @@ bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
             switch (progressionAbilities[progressionIndex].progID) {
                 case RA_NOTE_DOOR_50:
                     __chSmBottles_skipIntroTutorial();
-                    ability_unlock(ABILITY_6_EGGS);
-                    ability_unlock(ABILITY_10_TALON_TROT);
-                    ability_unlock(ABILITY_2_BEAK_BUSTER);
+                    player_unlockAbility(ABILITY_6_EGGS);
+                    player_unlockAbility(ABILITY_10_TALON_TROT);
+                    player_unlockAbility(ABILITY_2_BEAK_BUSTER);
                     break;
                 case RA_NOTE_DOOR_180:
-                    ability_unlock(ABILITY_D_SHOCK_JUMP);
-                    ability_unlock(ABILITY_12_WONDERWING);
-                    ability_unlock(ABILITY_9_FLIGHT);
+                    player_unlockAbility(ABILITY_D_SHOCK_JUMP);
+                    player_unlockAbility(ABILITY_12_WONDERWING);
+                    player_unlockAbility(ABILITY_9_FLIGHT);
                     break;
                 case RA_NOTE_DOOR_260:
-                    ability_unlock(ABILITY_E_WADING_BOOTS);
+                    player_unlockAbility(ABILITY_E_WADING_BOOTS);
                     break;
                 case RA_NOTE_DOOR_450:
-                    ability_unlock(ABILITY_1_BEAK_BOMB);
-                    ability_unlock(ABILITY_11_TURBO_TALON);
+                    player_unlockAbility(ABILITY_1_BEAK_BOMB);
+                    player_unlockAbility(ABILITY_11_TURBO_TALON);
                     break;
                 default:
                     break;
@@ -673,7 +673,7 @@ bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
             if (!failSafeTrigger) {
                 failSafeTrigger = true;
                 for (int a = 0; a < abilityItemPool.size(); a++) {
-                    if (!ability_isUnlocked((ability_e)std::get<1>(abilityItemPool[a]))) {
+                    if (!player_isAbilityUnlocked((ability_e)std::get<1>(abilityItemPool[a]))) {
                         checkIndex =
                             GetRandomCheckIndexS(reachableChecks, RCTYPE_MOLEHILL, false, true, isGameComplete);
                         SetPlacedItem(checkIndex, a, placedItems, placedCheckItems, abilityItemPool);

@@ -3,6 +3,7 @@
 #include "bool.h"
 #include "checksums.h"
 #include "enums.h"
+#include "core2/abilityprogress.h"
 
 extern u8 boot_bk_boot_ROM_START[]; // bk_boot segment start (skipping entry function)
 extern u8 boot_bk_boot_ROM_END[]; // bk_boot segment end

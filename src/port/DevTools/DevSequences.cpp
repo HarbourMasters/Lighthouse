@@ -26,7 +26,7 @@ int getGameMode(void);
 void func_80324DBC(float time, int text_id, int arg2, float* position, void* caller, void* cb1, void* cb2);
 void timedFunc_set_1(float time, void (*func)(int), int arg); // queue a 1-arg delayed call
 void func_80311714(int next_state);                           // set g_Dialog.unk128_3 (parade-credit persist flag)
-void volatileFlag_set(enum volatile_flags_e index, int set);
+void volatileFlag_set(enum volatile_flags_e index, bool value);
 void func_80321918(int arg0); // set the "entered this world from the lair" flag
 }
 

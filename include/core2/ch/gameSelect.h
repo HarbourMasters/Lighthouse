@@ -1,6 +1,6 @@
 // BanjoDecomp: core2/ch/gameSelect.h
-#ifndef BANJO_KAZOOIE_CH_GAMESELECT_H
-#define BANJO_KAZOOIE_CH_GAMESELECT_H
+#ifndef BANJO_KAZOOIE_CORE2_CH_GAMESELECT_H
+#define BANJO_KAZOOIE_CORE2_CH_GAMESELECT_H
 
 typedef enum {
     GAME_SELECT_INITIALIZE = 1,
@@ -11,4 +11,4 @@ typedef enum {
     GAME_SELECT_DONE = 6
 } GameSelectState;
 
-#endif // BANJO_KAZOOIE_CH_GAMESELECT_H
+#endif

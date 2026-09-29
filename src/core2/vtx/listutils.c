@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "bk_math.h"
-#include "model.h"
+#include "core2/model.h"
 
 #include "port/ShipUtils.h"
 

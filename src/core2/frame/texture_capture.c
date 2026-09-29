@@ -1,6 +1,7 @@
 // BanjoDecomp: core2/code_77E50.c
 #include <ultra64.h>
 #include "core1/core1.h"
+#include "core2/model.h"
 #include "functions.h"
 #include "variables.h"
 

@@ -8,7 +8,7 @@
 extern "C" {
 #include "enums.h"
 #include "functions.h"
-#include "model.h"
+#include "core2/model.h"
 
 extern struct1Cs_1 D_8036C58C[0xD];
 

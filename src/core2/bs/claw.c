@@ -69,7 +69,7 @@ void bsclaw_update(void){
 }
 
 void bsclaw_end(void){
-    ability_use(ABILITY_USED_CLAW);
+    ability_setUsedWithDialog(ABILITY_USED_B_CLAW);
     _bsclawHitboxActive = 0;
     func_802915B8();
 
