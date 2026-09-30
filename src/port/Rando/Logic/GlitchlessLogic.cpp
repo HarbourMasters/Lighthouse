@@ -1,6 +1,7 @@
 #include "Logic.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/Notification.h"
+#include <random>
 
 extern "C" f32 itemPrintValues[0x2C];
 extern "C" s32 D_80385F30[0x2C];
@@ -79,6 +80,8 @@ std::vector<ProgressionAbilityData> progressionAbilities = {
 bool failSafeTrigger = false;
 int32_t prevProgressionIndex = -1;
 std::vector<RandoCheckId> jinjoCheckIds;
+// Seeded once per generation. mt19937's output is fixed by the standard, unlike rand().
+std::mt19937 placementRng;
 
 void UpdateSaveDataItemCounts(PlacedItemCounts itemCounts) {
     D_80385F30[ITEM_C_NOTE] = itemCounts.noteCount;
@@ -139,8 +142,7 @@ int32_t GetRandomCheckIndexS(Rando::StaticData::RandoLogicData (&checks)[RC_MAX]
         return -1;
     }
 
-    srand(randoFinalSeed);
-    int32_t randomCheck = rand() % availableIndex.size();
+    int32_t randomCheck = placementRng() % availableIndex.size();
 
     return availableIndex[randomCheck];
 }
@@ -169,8 +171,7 @@ int32_t GetRandomItemIndexS(std::vector<std::tuple<actor_e, int32_t, RandoCheckI
         return -1;
     }
 
-    srand(randoFinalSeed);
-    int32_t randomItem = rand() % availableIndex.size();
+    int32_t randomItem = placementRng() % availableIndex.size();
 
     return availableIndex[randomItem];
 }
@@ -385,6 +386,8 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
     PlacedItemCounts placedItems = { .noteCount = 0, .jiggyCount = 0, .mumboTokenCount = 0 };
     PlacedCheckObject placedCheckItems[RC_MAX] = {};
 
+    placementRng.seed(randoFinalSeed);
+
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
         PopulateJinjoCheckIds();
     }
@@ -549,10 +552,10 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         if (reachableEvents[progressionItems[progressionIndex].progId].canAccess) {
             if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JIGGIES].cvar, 0) == RO_GENERIC_ON) {
                 while (placedItems.jiggyCount < progressionItems[progressionIndex].itemData[1].itemCount) {
-                    int32_t jinjoChance = rand() % 100;
+                    int32_t jinjoChance = placementRng() % 100;
                     if (jinjoChance >= 45 && GetCurrentAccessibleChecks() >= 6 && !jinjoCheckIds.empty() &&
                         GetRandomItemIndexS(itemPool, ACTOR_46_JIGGY) >= 0) {
-                        int32_t selectedIndex = rand() % jinjoCheckIds.size();
+                        int32_t selectedIndex = placementRng() % jinjoCheckIds.size();
                         int32_t selectedLevel = Rando::StaticData::Checks[jinjoCheckIds[selectedIndex]].worldId;
 
                         std::vector<RandoCheckId> selectedJinjos;
