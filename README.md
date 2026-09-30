@@ -110,5 +110,9 @@ If you want to playtest a continuous integration build, you can find them at the
 # Special Thanks:
 
 * The [Banjo Decomp](https://gitlab.com/banjo.decomp/banjo-kazooie) team
-* The [Hackpack Discord Server](https://discord.gg/Cm2JuQvewN)
+* Our friends at the [Hackpack Discord Server](https://discord.gg/Cm2JuQvewN)
 * Fredomato, scorched11 for work on rando
+
+# AI Disclosure
+
+Lighthouse accepts pull requests that use AI, within policy guidelines, and has used AI assistance for information gathering particularly when the decomp documentation was younger. For more information please see the HarbourMasters [AI Policy](https://github.com/HarbourMasters/code-of-conduct/blob/main/AI_POLICY.md).
