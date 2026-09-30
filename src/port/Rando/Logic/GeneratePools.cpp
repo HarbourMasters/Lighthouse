@@ -39,7 +39,7 @@ void ShuffleRandoItems(const std::string& input, std::vector<std::tuple<actor_e,
     randoFinalSeed = seed;
 }
 
-void GenerateShufflePool(SaveData* saveData) {
+bool GenerateShufflePool(SaveData* saveData) {
     checkPool.clear();
     itemPool.clear();
     abilityCheckPool.clear();
@@ -122,14 +122,14 @@ void GenerateShufflePool(SaveData* saveData) {
         }
 
         if (!generated) {
-            return;
+            return false;
         }
     } else if (RANDO_SAVE_OPTIONS[RO_LOGIC].optionValue == RO_LOGIC_NO_LOGIC) {
         Rando::Logic::GenerateNoLogicPool(itemPool, abilityItemPool);
     }
 
     if (checkPool.size() != itemPool.size()) {
-        return;
+        return false;
     }
 
     for (int i = 0; i < checkPool.size(); i++) {
@@ -173,6 +173,7 @@ void GenerateShufflePool(SaveData* saveData) {
     }
 
     saveData->shipSaveData.randoSaveData.seedId = randoFinalSeed;
+    return true;
 }
 
 void GeneratePoolFromSaveData(SaveData* saveData) {

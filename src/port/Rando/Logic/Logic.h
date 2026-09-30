@@ -52,7 +52,7 @@ void GenerateNoLogicPool(std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>
 
 void ShuffleRandoItems(const std::string& input, std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& pool);
 
-void GenerateShufflePool(SaveData* saveData);
+bool GenerateShufflePool(SaveData* saveData);
 void GeneratePoolFromSaveData(SaveData* saveData);
 void InitializeSaveData(SaveData* saveData);
 void GenerateSaveData(SaveData* saveData);
