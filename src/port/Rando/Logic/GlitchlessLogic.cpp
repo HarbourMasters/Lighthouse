@@ -2,6 +2,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/Notification.h"
 #include <random>
+#include <spdlog/spdlog.h>
 
 extern "C" f32 itemPrintValues[0x2C];
 extern "C" s32 D_80385F30[0x2C];
@@ -373,7 +374,11 @@ namespace Rando {
 
 namespace Logic {
 
-void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
+void SeedGlitchlessPlacement(int32_t seed) {
+    placementRng.seed(seed);
+}
+
+bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                                  std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& itemPool,
                                  std::vector<RandoCheckId>& abilityCheckPool,
                                  std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& abilityItemPool,
@@ -385,8 +390,6 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
 
     PlacedItemCounts placedItems = { .noteCount = 0, .jiggyCount = 0, .mumboTokenCount = 0 };
     PlacedCheckObject placedCheckItems[RC_MAX] = {};
-
-    placementRng.seed(randoFinalSeed);
 
     jinjoCheckIds.clear();
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
@@ -477,7 +480,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                     if (checkIndex >= 0 && itemPoolIndex >= 0) {
                         accessibilityAdded = true;
                     } else {
-                        Notification::Emit({ .message = "No Checks left for First Jiggy." });
+                        SPDLOG_WARN("No checks left for the first jiggy");
                         RefreshMetrics("No Checks Available for First Jiggy");
                     }
                 }
@@ -682,7 +685,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                 }
             } else {
                 if (prevProgressionIndex == progressionIndex) {
-                    Notification::Emit({ .message = "Seed Configuration impossible, failed to generate." });
+                    SPDLOG_WARN("Glitchless placement stalled at progression step {}", progressionIndex);
                     RefreshMetrics("Seed Failed to Generate");
                     ResetSaveData();
                     break;
@@ -692,6 +695,8 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
             }
         }
     }
+
+    return isGameComplete;
 }
 
 } // namespace Logic

@@ -5,6 +5,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <sstream>
 #include <random>
+#include <spdlog/spdlog.h>
 
 #include "enums.h"
 
@@ -98,7 +99,31 @@ void GenerateShufflePool(SaveData* saveData) {
     }
 
     if (RANDO_SAVE_OPTIONS[RO_LOGIC].optionValue == RO_LOGIC_GLITCHLESS) {
-        Rando::Logic::GenerateGlitchlessLogicPool(checkPool, itemPool, abilityCheckPool, abilityItemPool, saveData);
+        // Placement can stall on a bad draw, so retry on the same RNG stream before giving up
+        const int maxAttempts = 10;
+        bool generated = false;
+        Rando::Logic::SeedGlitchlessPlacement(randoFinalSeed);
+        for (int attempt = 1; attempt <= maxAttempts && !generated; attempt++) {
+            std::vector<RandoCheckId> attemptCheckPool = checkPool;
+            std::vector<std::tuple<actor_e, int32_t, RandoCheckId>> attemptItemPool = itemPool;
+            std::vector<RandoCheckId> attemptAbilityCheckPool = abilityCheckPool;
+            std::vector<std::tuple<actor_e, int32_t, RandoCheckId>> attemptAbilityItemPool = abilityItemPool;
+
+            generated = Rando::Logic::GenerateGlitchlessLogicPool(
+                attemptCheckPool, attemptItemPool, attemptAbilityCheckPool, attemptAbilityItemPool, saveData);
+            if (generated) {
+                checkPool = attemptCheckPool;
+                itemPool = attemptItemPool;
+                abilityCheckPool = attemptAbilityCheckPool;
+                abilityItemPool = attemptAbilityItemPool;
+            } else {
+                SPDLOG_WARN("Glitchless generation attempt {} of {} failed", attempt, maxAttempts);
+            }
+        }
+
+        if (!generated) {
+            return;
+        }
     } else if (RANDO_SAVE_OPTIONS[RO_LOGIC].optionValue == RO_LOGIC_NO_LOGIC) {
         Rando::Logic::GenerateNoLogicPool(itemPool, abilityItemPool);
     }
