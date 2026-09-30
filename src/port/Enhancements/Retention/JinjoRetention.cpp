@@ -32,6 +32,9 @@ static bool applyEnabled() {
 }
 
 extern "C" void port_jinjoRetention_setForced(int32_t forced) {
+    if (sForcedByAnchor == (forced != 0)) {
+        return;
+    }
     sForcedByAnchor = forced != 0;
     ShipInit::Init(CVAR_JINJO_RETENTION);
 }

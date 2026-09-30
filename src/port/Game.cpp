@@ -312,6 +312,8 @@ void push_frame() {
     const bool recordInterpolation = GameEngine::IsInterpolationEnabled();
     if (recordInterpolation) {
         FrameInterpolation_StartRecord();
+    } else {
+        FrameInterpolation_DontInterpolateCamera();
     }
     mainLoop();
     if (recordInterpolation) {

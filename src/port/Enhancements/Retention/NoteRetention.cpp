@@ -251,6 +251,9 @@ extern "C" void port_noteRetention_requestReseed(void) {
 }
 
 extern "C" void port_noteRetention_setForced(int32_t forced) {
+    if (sForcedByAnchor == (forced != 0)) {
+        return;
+    }
     sForcedByAnchor = forced != 0;
     ShipInit::Init(CVAR_NOTE_RETENTION);
 }
