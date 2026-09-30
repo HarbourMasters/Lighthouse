@@ -182,10 +182,11 @@ if (UNIX AND NOT APPLE)
     find_package(OpenGL REQUIRED)
 endif()
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c.in ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c @ONLY)
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/properties.h.in ${CMAKE_CURRENT_SOURCE_DIR}/properties.h @ONLY)
+file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c ${CMAKE_CURRENT_SOURCE_DIR}/properties.h)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c.in ${CMAKE_BINARY_DIR}/generated/build.c @ONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/properties.h.in ${CMAKE_BINARY_DIR}/generated/properties.h @ONLY)
 
-set(Header_Files "resource.h")
+set(Header_Files "res/resource.h")
 source_group("include" FILES ${Header_Files})
 
 # Flag enum name tables for the Flag Tracer, derived from include/enums.h.
@@ -224,7 +225,7 @@ file(GLOB_RECURSE ALL_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 
 list(FILTER ALL_FILES EXCLUDE REGEX "src/unused/")
 
-list(APPEND ALL_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resource.rc)
+list(APPEND ALL_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/Resource.rc ${CMAKE_BINARY_DIR}/generated/build.c)
 
 
 # Create source groups that match the real file directory paths
@@ -795,7 +796,7 @@ add_custom_target(CreateOSXIcons
     COMMENT "Creating OSX icons ..."
     )
     add_dependencies(${PROJECT_NAME} CreateOSXIcons)
-    configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" @ONLY)
+    configure_file("${CMAKE_SOURCE_DIR}/res/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" @ONLY)
 
     file(DOWNLOAD
         https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt
@@ -814,7 +815,7 @@ add_custom_target(CreateOSXIcons
 endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
-set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/Lighthouse.desktop")
+set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/res/Lighthouse.desktop")
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_ICON_FILE "${CMAKE_SOURCE_DIR}/res/logo.png")
 endif()
 
