@@ -340,8 +340,8 @@ void chEyrieBaby_update(Actor *this) {
                 {
                     gcdialog_showDialog(VER_SELECT(ASSET_CD8_DIALOG_BABY_EYRIE_CHECK_SUMMER, 0x09ED, 0, 0), 4, NULL, NULL, NULL, NULL);
                 }
-                port_puzzleCount_add(ANCHOR_COUNT_CCW_EYRIE_FED, 1);
-                local->eatenCount = (u32)port_puzzleCount_get(ANCHOR_COUNT_CCW_EYRIE_FED);
+//              local->eatenCount++;
+                local->eatenCount = (u32)port_puzzleCount_add(ANCHOR_COUNT_CCW_EYRIE_FED, (s32)local->eatenCount, 1);
                 if (local->eatenCount < local->progression->caterpillarRequirement) {
                     chEyrieBaby_setState(this, CH_EYRIE_BABY_STATE_5_EATING_CATERPILLARS);
                 } else {

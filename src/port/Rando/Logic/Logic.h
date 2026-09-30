@@ -40,7 +40,8 @@ extern std::vector<std::tuple<actor_e, int32_t, RandoCheckId>> abilityItemPool;
 
 extern std::vector<RandoSaveCheck> shuffledPool;
 
-void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
+void SeedGlitchlessPlacement(int32_t seed);
+bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                                  std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& itemPool,
                                  std::vector<RandoCheckId>& abilityCheckPool,
                                  std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& abilityItemPool,
@@ -51,7 +52,7 @@ void GenerateNoLogicPool(std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>
 
 void ShuffleRandoItems(const std::string& input, std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& pool);
 
-void GenerateShufflePool(SaveData* saveData);
+bool GenerateShufflePool(SaveData* saveData);
 void GeneratePoolFromSaveData(SaveData* saveData);
 void InitializeSaveData(SaveData* saveData);
 void GenerateSaveData(SaveData* saveData);

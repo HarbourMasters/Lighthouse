@@ -459,6 +459,15 @@ void gameSelect_update(Actor *this){
                     if(anctrl_isStopped(this->anctrl)){
                         chBottlesBonus_resetCompleted();
                         gameFile_load(gSelectedGameNum);
+                        // [port] Rando refuses a new file whose seed failed to generate
+                        if(!EventSystem_Should(VB_GAMESELECT_START_GAME, true, sp84)){
+                            coMusicPlayer_playMusic(COMUSIC_2C_BUZZER, 22000);
+                            if(sp84 == CH_GAME_SELECT_SAVEFILE_0_BED)
+                                func_802C75A0(this, 1);
+                            subaddie_set_state(this, 1);
+                            actor_loopAnimation(this);
+                            break;
+                        }
                         port_syncBottlesBonusIndex();
                         CALL_EVENT(OnGameStart);
                         if(EventSystem_Should(VB_GAMESELECT_START_NEW_GAME, !gameFile_isNotEmpty(sp84), sp84)){

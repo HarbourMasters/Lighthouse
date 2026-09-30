@@ -21,6 +21,9 @@ static void MarkWorldStateFromJiggySpawn(RandoCheckId randoCheckId) {
         case RC_CC_JIGGY_RINGS:
             randoInfFlag = RANDO_INF_MINIGAME_RINGS_COMPLETED;
             break;
+        case RC_MMM_JIGGY_MOTZAND:
+            jiggyscore_setSpawned(JIGGY_60_MMM_MOTZHAND, true);
+            return;
         default:
             return;
     }

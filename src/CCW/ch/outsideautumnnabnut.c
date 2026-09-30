@@ -182,8 +182,8 @@ void chAutumnOutsideNabnut_update(Actor *this) {
                 && player_throwCarriedObject())
             {
                 player_setThrowTargetPosition(chAutumnOutdoorNabnutPosition);
-                port_puzzleCount_add(ANCHOR_COUNT_CCW_NABNUT_ACORNS, 1);
-                local->returned_acorn_count = port_puzzleCount_get(ANCHOR_COUNT_CCW_NABNUT_ACORNS);
+//              local->returned_acorn_count++;
+                local->returned_acorn_count = port_puzzleCount_add(ANCHOR_COUNT_CCW_NABNUT_ACORNS, local->returned_acorn_count, 1);
                 if (local->returned_acorn_count >= AUTUMN_NABNUT_ACORN_COUNT) {
                     chAutumnOutsideNabnut_setState(this, CH_AUTUMN_OUTDOOR_NABNUT_STATE_2_WAIT);
                 } else if (item_getCount(ITEM_23_ACORNS) == 1) {

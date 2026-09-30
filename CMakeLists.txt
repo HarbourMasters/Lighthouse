@@ -738,12 +738,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   endif()
 endif()
 
-# GCC 15 stopped zero-filling the rest of a union after a member initializer,
-# and OS_MESG_32 only writes the low four bytes of an OSMesg.
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
-    target_compile_options(${PROJECT_NAME} PRIVATE -fzero-init-padding-bits=unions)
-endif()
-
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 include(ExternalProject)
 ExternalProject_Add(TorchExternal

@@ -85,7 +85,7 @@ static bool mirrorAllowedFor(int32_t puzzleId, int32_t map) {
 }
 
 static bool mirrorLive(int32_t puzzleId) {
-    return mirrorAllowedFor(puzzleId, (int32_t)gsworld_getMap());
+    return Anchor::GetInstance()->IsWorldSyncActive() && mirrorAllowedFor(puzzleId, (int32_t)gsworld_getMap());
 }
 
 extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
@@ -97,7 +97,7 @@ extern "C" int32_t port_puzzleStep_get(int32_t puzzleId) {
 }
 
 extern "C" int32_t port_puzzleStep_getForMap(int32_t map, int32_t puzzleId) {
-    if (!mirrorAllowedFor(puzzleId, map)) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive() || !mirrorAllowedFor(puzzleId, map)) {
         return 0;
     }
     auto it = sPuzzleBits.find({ map, puzzleId });
@@ -267,14 +267,23 @@ void port_puzzlePos_restore(const std::vector<int32_t>& flat) {
  */
 
 extern "C" int32_t port_puzzleCount_get(int32_t counterId) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+        return 0;
+    }
     auto it = sPuzzleCounts.find({ (int32_t)gsworld_getMap(), counterId });
     return it != sPuzzleCounts.end() ? it->second : 0;
 }
 
-extern "C" void port_puzzleCount_add(int32_t counterId, int32_t delta) {
+// Returns the new count: the team's, or offline just the caller's own, as vanilla counted.
+extern "C" int32_t port_puzzleCount_add(int32_t counterId, int32_t localCount, int32_t delta) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+        return localCount + delta;
+    }
     int32_t map = (int32_t)gsworld_getMap();
-    sPuzzleCounts[{ map, counterId }] += delta;
+    int32_t& count = sPuzzleCounts[{ map, counterId }];
+    count += delta;
     Anchor::GetInstance()->SendPacket_PuzzleCount(counterId, delta, map);
+    return count;
 }
 
 void Anchor::SendPacket_PuzzleCount(s32 counterId, s32 delta, s32 map) {
@@ -331,7 +340,7 @@ void RegisterPuzzleStep_Init() {
     });
     // Treasure hunt has no actor to poll until the first X is busted.
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        if (gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE) {
+        if (gsworld_getMap() == MAP_7_TTC_TREASURE_TROVE_COVE && Anchor::GetInstance()->IsWorldSyncActive()) {
             chTreasurehunt_netTick();
         }
     });

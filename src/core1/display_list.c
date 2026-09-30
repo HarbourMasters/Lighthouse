@@ -180,7 +180,7 @@ void func_80253FE8(void){
 }
 
 void core1_15B30_sendMesg3ToRenderThread(void) {
-    thread5_sendTaskToQueue(OS_MESG_32(THREAD5_MESSAGE_EVENT_SYNC));
+    thread5_sendTaskToQueue(OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_SYNC));
 }
 
 void core1_15B30_init(void) {

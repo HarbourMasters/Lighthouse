@@ -18,8 +18,6 @@
 #include "prop.h"
 #include "functions.h"
 
-extern "C" int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
-
 static bool sForcedByAnchor = false;
 #define CVAR_JINJO_RETENTION CVAR_ENHANCEMENT("Gameplay.JinjoRetention")
 #define CVAR_VALUE (CVarGetInteger(CVAR_JINJO_RETENTION, 0) || sForcedByAnchor)
@@ -181,7 +179,7 @@ static bool retentionActiveForLevel(int32_t level) {
         return false;
     }
     if (collectedBits(level) == kAllJinjos && !jiggyscore_isCollected(jinjoJiggy(level)) &&
-        !jiggyscore_isSpawned(jinjoJiggy(level)) && !port_jiggySpawn_isRecorded(jinjoJiggy(level))) {
+        !jiggyscore_isSpawned(jinjoJiggy(level))) {
         return false;
     }
     return true;
@@ -212,8 +210,7 @@ void RegisterJinjoRetention_Init() {
             if (collectedBits(level) != kAllJinjos) {
                 setCollectedBits(level, kAllJinjos);
             }
-        } else if (collectedBits(level) == kAllJinjos && !jiggyscore_isSpawned(jinjoJiggy(level)) &&
-                   !port_jiggySpawn_isRecorded(jinjoJiggy(level))) {
+        } else if (collectedBits(level) == kAllJinjos && !jiggyscore_isSpawned(jinjoJiggy(level))) {
             // Orphaned: all recorded but jiggy neither collected nor spawned.
             setCollectedBits(level, 0);
         }

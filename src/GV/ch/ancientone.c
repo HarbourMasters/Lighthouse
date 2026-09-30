@@ -147,7 +147,7 @@ void chAncientOne_update(Actor *this){
         }
     }
     {//L803869B4
-        if(jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
+        if(port_anchor_isWorldSyncActive() && jiggyscore_isSpawned(JIGGY_46_GV_ANCIENT_ONES)){
             marker_despawn(this->marker);
             return;
         }

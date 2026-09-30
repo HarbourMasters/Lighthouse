@@ -206,12 +206,12 @@ int32_t port_mapFlag_wasSetRemotely(int32_t index);
 
 #define ANCHOR_COUNT_CCW_EYRIE_FED 0
 #define ANCHOR_COUNT_CCW_NABNUT_ACORNS 1
-void port_puzzleCount_add(int32_t counterId, int32_t delta);
+int32_t port_puzzleCount_add(int32_t counterId, int32_t localCount, int32_t delta);
 int32_t port_puzzleCount_get(int32_t counterId);
 
 void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot);
 int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z);
-int32_t port_hutSmash_countForCurrentLevel(void);
+int32_t port_hutSmash_countForCurrentLevel(int32_t localCount);
 
 void port_jiggyCrane_broadcast(int32_t stage);
 void port_jiggyCrane_remoteApply(int32_t stage);

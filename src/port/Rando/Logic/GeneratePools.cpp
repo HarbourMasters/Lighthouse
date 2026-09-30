@@ -5,6 +5,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <sstream>
 #include <random>
+#include <spdlog/spdlog.h>
 
 #include "enums.h"
 
@@ -38,7 +39,7 @@ void ShuffleRandoItems(const std::string& input, std::vector<std::tuple<actor_e,
     randoFinalSeed = seed;
 }
 
-void GenerateShufflePool(SaveData* saveData) {
+bool GenerateShufflePool(SaveData* saveData) {
     checkPool.clear();
     itemPool.clear();
     abilityCheckPool.clear();
@@ -98,13 +99,37 @@ void GenerateShufflePool(SaveData* saveData) {
     }
 
     if (RANDO_SAVE_OPTIONS[RO_LOGIC].optionValue == RO_LOGIC_GLITCHLESS) {
-        Rando::Logic::GenerateGlitchlessLogicPool(checkPool, itemPool, abilityCheckPool, abilityItemPool, saveData);
+        // Placement can stall on a bad draw, so retry on the same RNG stream before giving up
+        const int maxAttempts = 10;
+        bool generated = false;
+        Rando::Logic::SeedGlitchlessPlacement(randoFinalSeed);
+        for (int attempt = 1; attempt <= maxAttempts && !generated; attempt++) {
+            std::vector<RandoCheckId> attemptCheckPool = checkPool;
+            std::vector<std::tuple<actor_e, int32_t, RandoCheckId>> attemptItemPool = itemPool;
+            std::vector<RandoCheckId> attemptAbilityCheckPool = abilityCheckPool;
+            std::vector<std::tuple<actor_e, int32_t, RandoCheckId>> attemptAbilityItemPool = abilityItemPool;
+
+            generated = Rando::Logic::GenerateGlitchlessLogicPool(
+                attemptCheckPool, attemptItemPool, attemptAbilityCheckPool, attemptAbilityItemPool, saveData);
+            if (generated) {
+                checkPool = attemptCheckPool;
+                itemPool = attemptItemPool;
+                abilityCheckPool = attemptAbilityCheckPool;
+                abilityItemPool = attemptAbilityItemPool;
+            } else {
+                SPDLOG_WARN("Glitchless generation attempt {} of {} failed", attempt, maxAttempts);
+            }
+        }
+
+        if (!generated) {
+            return false;
+        }
     } else if (RANDO_SAVE_OPTIONS[RO_LOGIC].optionValue == RO_LOGIC_NO_LOGIC) {
         Rando::Logic::GenerateNoLogicPool(itemPool, abilityItemPool);
     }
 
     if (checkPool.size() != itemPool.size()) {
-        return;
+        return false;
     }
 
     for (int i = 0; i < checkPool.size(); i++) {
@@ -148,6 +173,7 @@ void GenerateShufflePool(SaveData* saveData) {
     }
 
     saveData->shipSaveData.randoSaveData.seedId = randoFinalSeed;
+    return true;
 }
 
 void GeneratePoolFromSaveData(SaveData* saveData) {

@@ -17,6 +17,7 @@ float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
 s32 chMrVile_netGetAnimMode(Actor* actor);
 void port_jiggySpawn_remove(int32_t jiggyId);
+int32_t port_jiggySpawn_isRecorded(int32_t jiggyId);
 int32_t port_mapFlag_wasSetRemotely(int32_t index);
 bool __chSmBottles_isAnySpiralMountainAbilityLearned(void);
 }
@@ -544,6 +545,17 @@ void Anchor::RegisterHooks() {
         }
         auto ev = reinterpret_cast<OnJiggySpawned*>(event);
         anchor->SendPacket_SpawnJiggy((s16)ev->jiggyId, ev->x, ev->y, ev->z);
+    });
+
+    COND_HOOK(OnIsJiggyScoreSpawned, EVENT_PRIORITY_LOW, isConnected, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnIsJiggyScoreSpawned*>(event);
+        if (!Anchor_WorldSyncActive() || !Anchor::GetInstance()->IsSaveLoaded()) {
+            return;
+        }
+        if (port_jiggySpawn_isRecorded(ev->jiggyId)) {
+            event->Cancelled = true;
+            ev->result = 1;
+        }
     });
 
     COND_HOOK(OnHoneycombDropSpawn, EVENT_PRIORITY_NORMAL, isConnected, [](IEvent* event) {

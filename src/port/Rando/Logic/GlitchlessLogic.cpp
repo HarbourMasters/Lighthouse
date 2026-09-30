@@ -1,6 +1,8 @@
 #include "Logic.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "port/UI/Notification.h"
+#include <random>
+#include <spdlog/spdlog.h>
 
 extern "C" f32 itemPrintValues[0x2C];
 extern "C" s32 D_80385F30[0x2C];
@@ -79,6 +81,8 @@ std::vector<ProgressionAbilityData> progressionAbilities = {
 bool failSafeTrigger = false;
 int32_t prevProgressionIndex = -1;
 std::vector<RandoCheckId> jinjoCheckIds;
+// Seeded once per generation. mt19937's output is fixed by the standard, unlike rand().
+std::mt19937 placementRng;
 
 void UpdateSaveDataItemCounts(PlacedItemCounts itemCounts) {
     D_80385F30[ITEM_C_NOTE] = itemCounts.noteCount;
@@ -139,8 +143,7 @@ int32_t GetRandomCheckIndexS(Rando::StaticData::RandoLogicData (&checks)[RC_MAX]
         return -1;
     }
 
-    srand(randoFinalSeed);
-    int32_t randomCheck = rand() % availableIndex.size();
+    int32_t randomCheck = placementRng() % availableIndex.size();
 
     return availableIndex[randomCheck];
 }
@@ -169,8 +172,7 @@ int32_t GetRandomItemIndexS(std::vector<std::tuple<actor_e, int32_t, RandoCheckI
         return -1;
     }
 
-    srand(randoFinalSeed);
-    int32_t randomItem = rand() % availableIndex.size();
+    int32_t randomItem = placementRng() % availableIndex.size();
 
     return availableIndex[randomItem];
 }
@@ -207,7 +209,7 @@ int32_t GetCurrentAccessibleChecks() {
     int32_t currentChecks = 0;
 
     for (auto& check : reachableChecks) {
-        if (check.canAccess = true && check.isFilled == false) {
+        if (check.canAccess == true && check.isFilled == false) {
             currentChecks++;
         }
     }
@@ -372,7 +374,11 @@ namespace Rando {
 
 namespace Logic {
 
-void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
+void SeedGlitchlessPlacement(int32_t seed) {
+    placementRng.seed(seed);
+}
+
+bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                                  std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& itemPool,
                                  std::vector<RandoCheckId>& abilityCheckPool,
                                  std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& abilityItemPool,
@@ -385,6 +391,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
     PlacedItemCounts placedItems = { .noteCount = 0, .jiggyCount = 0, .mumboTokenCount = 0 };
     PlacedCheckObject placedCheckItems[RC_MAX] = {};
 
+    jinjoCheckIds.clear();
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
         PopulateJinjoCheckIds();
     }
@@ -402,6 +409,16 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         reachableChecks[checkId].isFilled = false;
         reachableChecks[checkId].isShuffled = false;
     }
+
+    for (int accessId = RA_UNKNOWN; accessId < RA_MAX; accessId++) {
+        reachableEvents[accessId].canAccess = false;
+    }
+
+    for (auto& progression : progressionAbilities) {
+        progression.isComplete = false;
+    }
+    failSafeTrigger = false;
+    prevProgressionIndex = -1;
 
     for (auto& shuffledCheck : checkPool) {
         reachableChecks[shuffledCheck].isShuffled = true;
@@ -463,7 +480,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                     if (checkIndex >= 0 && itemPoolIndex >= 0) {
                         accessibilityAdded = true;
                     } else {
-                        Notification::Emit({ .message = "No Checks left for First Jiggy." });
+                        SPDLOG_WARN("No checks left for the first jiggy");
                         RefreshMetrics("No Checks Available for First Jiggy");
                     }
                 }
@@ -549,10 +566,10 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         if (reachableEvents[progressionItems[progressionIndex].progId].canAccess) {
             if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JIGGIES].cvar, 0) == RO_GENERIC_ON) {
                 while (placedItems.jiggyCount < progressionItems[progressionIndex].itemData[1].itemCount) {
-                    int32_t jinjoChance = rand() % 100;
+                    int32_t jinjoChance = placementRng() % 100;
                     if (jinjoChance >= 45 && GetCurrentAccessibleChecks() >= 6 && !jinjoCheckIds.empty() &&
                         GetRandomItemIndexS(itemPool, ACTOR_46_JIGGY) >= 0) {
-                        int32_t selectedIndex = rand() % jinjoCheckIds.size();
+                        int32_t selectedIndex = placementRng() % jinjoCheckIds.size();
                         int32_t selectedLevel = Rando::StaticData::Checks[jinjoCheckIds[selectedIndex]].worldId;
 
                         std::vector<RandoCheckId> selectedJinjos;
@@ -668,7 +685,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                 }
             } else {
                 if (prevProgressionIndex == progressionIndex) {
-                    Notification::Emit({ .message = "Seed Configuration impossible, failed to generate." });
+                    SPDLOG_WARN("Glitchless placement stalled at progression step {}", progressionIndex);
                     RefreshMetrics("Seed Failed to Generate");
                     ResetSaveData();
                     break;
@@ -678,6 +695,8 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
             }
         }
     }
+
+    return isGameComplete;
 }
 
 } // namespace Logic
