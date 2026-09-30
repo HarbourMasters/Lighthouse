@@ -32,8 +32,17 @@ std::atomic<bool> sTickerRun{ false };
 std::atomic<void*> sNextFramebuffer{ nullptr };
 std::atomic<void*> sCurrentFramebuffer{ nullptr };
 std::atomic<bool> sBlack{ false };
+std::atomic<long long> sLatchNs{ 0 };
+std::atomic<long long> sRetraceNs{ 0 }; // when the latest retrace was scheduled
+std::atomic<long long> sSwapNs{ 0 };
+constexpr long long kViNs = 16666667; // NTSC 60Hz
 
 } // namespace
+
+extern "C" long long OS_SteadyNs(void) {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
 
 extern "C" void osCreateViManager(OSPri pri) {
     (void)pri;
@@ -41,10 +50,12 @@ extern "C" void osCreateViManager(OSPri pri) {
         return;
     }
     sTicker = std::thread([] {
-        constexpr std::chrono::nanoseconds kVi(16666667); // NTSC 60Hz
+        constexpr std::chrono::nanoseconds kVi(kViNs);
         auto next = std::chrono::steady_clock::now() + kVi;
         while (sTickerRun.load(std::memory_order_relaxed)) {
             std::this_thread::sleep_until(next);
+            sRetraceNs.store(std::chrono::duration_cast<std::chrono::nanoseconds>(next.time_since_epoch()).count(),
+                             std::memory_order_release);
             next += kVi;
             // If the process was suspended (debugger, sleep), resync rather
             // than firing a burst of catch-up retraces.
@@ -53,7 +64,10 @@ extern "C" void osCreateViManager(OSPri pri) {
                 next = now + kVi;
             }
             // A retrace latches whatever swap armed, then raises VI.
-            sCurrentFramebuffer.store(sNextFramebuffer.load(std::memory_order_acquire), std::memory_order_release);
+            void* armed = sNextFramebuffer.load(std::memory_order_acquire);
+            if (sCurrentFramebuffer.exchange(armed, std::memory_order_acq_rel) != armed) {
+                sLatchNs.store(OS_SteadyNs(), std::memory_order_release);
+            }
             ThreadWatchdog_Beat(WATCHDOG_VI_TICKER);
             OS_SendEventMesg(OS_EVENT_VI);
         }
@@ -75,6 +89,7 @@ extern "C" void osViSetEvent(OSMesgQueue* queue, OSMesg mesg, u32 retraceCount) 
 }
 
 extern "C" void osViSwapBuffer(void* framebuffer) {
+    sSwapNs.store(OS_SteadyNs(), std::memory_order_release);
     sNextFramebuffer.store(framebuffer, std::memory_order_release);
 }
 
@@ -84,6 +99,26 @@ extern "C" void* osViGetNextFramebuffer(void) {
 
 extern "C" void* osViGetCurrentFramebuffer(void) {
     return sCurrentFramebuffer.load(std::memory_order_acquire);
+}
+
+// When the last swap latched, which is the earliest a new frame can start drawing.
+extern "C" long long OS_ViLastLatchNs(void) {
+    return sLatchNs.load(std::memory_order_acquire);
+}
+
+extern "C" long long OS_ViLastSwapNs(void) {
+    return sSwapNs.load(std::memory_order_acquire);
+}
+
+// The first retrace after t on the ticker's schedule, which is where a swap made at t latches.
+extern "C" long long OS_ViNextRetraceAfterNs(long long t) {
+    const long long last = sRetraceNs.load(std::memory_order_acquire);
+    if (last == 0 || t == 0) {
+        return 0;
+    }
+    long long d = t - last;
+    long long k = d >= 0 ? d / kViNs + 1 : -((-d - 1) / kViNs);
+    return last + k * kViNs;
 }
 
 extern "C" void osViSetMode(OSViMode* mode) {

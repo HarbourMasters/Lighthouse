@@ -27,6 +27,7 @@ void func_80324DBC(float time, int text_id, int arg2, float* position, void* cal
 void timedFunc_set_1(float time, void (*func)(int), int arg); // queue a 1-arg delayed call
 void func_80311714(int next_state);                           // set g_Dialog.unk128_3 (parade-credit persist flag)
 void volatileFlag_set(enum volatile_flags_e index, int set);
+void func_80321918(int arg0); // set the "entered this world from the lair" flag
 }
 
 namespace Lighthouse {
@@ -35,6 +36,7 @@ namespace DevTools {
 static int sPending = SEQ_NONE;
 static int sPendingMap = -1;
 static bool sMode9InDemo = false;
+static bool sAttractLoading = false;
 
 void RequestSequence(int seq) {
     sPending = seq;
@@ -101,9 +103,18 @@ void RegisterDevSequences_Init() {
             default:
                 D_80386110 = seq - SEQ_ATTRACT_BASE;
                 func_8034B968();
+                sAttractLoading = true;
                 break;
         }
     });
+
+    // We need to lie and say we didn't come from the Lair, just in case
+    REGISTER_LISTENER(OnLevelReset, EVENT_PRIORITY_NORMAL, [](IEvent*) {
+        if (sAttractLoading) {
+            func_80321918(0);
+        }
+    });
+    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { sAttractLoading = false; });
 }
 
 } // namespace DevTools

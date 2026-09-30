@@ -13,6 +13,7 @@ extern "C" {
 void port_thread5_onSubmit(void* taskData);
 // Runs fn on the window thread when the tick is on its own thread.
 void port_runOnRenderThread(void (*fn)(void*), void* arg);
+void port_serviceRenderRequests(void);
 // Waits for in-flight display lists before freeing or reading what they use.
 void port_pipelineSyncPoint(void);
 
@@ -20,6 +21,8 @@ void port_pipelineSyncPoint(void);
 
 int port_getDemoViCount(void);
 void port_setDemoViCount(int viCount);
+unsigned port_getDemoViSerial(void);
+int port_waitDemoViSerial(unsigned seen, int timeoutUs);
 int port_getDemoDisplayViCount(int rawViCount);
 void port_tickCutsceneStutter(void);
 int port_getCutsceneExtraVis(void);

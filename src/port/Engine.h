@@ -57,13 +57,14 @@ public:
         sRelaunchRequested = true;
     }
     static void RelaunchIfRequested(int argc, char* argv[]);
-    static void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements,
-                            size_t frameCount);
+    static void RunCommands(Gfx* Commands);
     static void Destroy();
     static uint32_t GetInterpolationFPS();
     static uint32_t GetInterpolationFrameCount();
     static bool IsInterpolationEnabled();
-    static void SetInterpolationRecorded(bool recorded);
+    static bool WantsTimedPass(bool recorded, int viPerTick);
+    static void SetFrameTiming(long long latchNs, unsigned viSerial, bool timed);
+    static int CurrentViPerTick();
     static void ProcessGfxCommands(Gfx* commands);
     static ImFont* CreateFontWithSize(float size, std::string fontPath);
     static void ScaleImGui();
