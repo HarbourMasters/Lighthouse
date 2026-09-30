@@ -459,9 +459,10 @@ void RescanLanguages() {
                 auto existing = std::find_if(sLanguages.begin(), sLanguages.end(),
                                              [&](const LanguageEntry& e) { return e.name == le.name; });
                 if (existing != sLanguages.end()) {
-                    Ship::Archive*& slot = scoped ? existing->scopedSource : existing->source;
-                    if (slot == nullptr) {
-                        slot = archive.get();
+                    // Only a hack's pack joins a language already listed; a base game pack never
+                    // displaces the base game's own language or an earlier pack.
+                    if (scoped && existing->scopedSource == nullptr) {
+                        existing->scopedSource = archive.get();
                     }
                 } else {
                     LanguageEntry entry{ le.name, scoped ? nullptr : archive.get(), le.index, cnt, le.script };
