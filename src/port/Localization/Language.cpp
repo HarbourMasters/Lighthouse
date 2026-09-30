@@ -38,6 +38,7 @@ struct LanguageEntry {
     // A pack from mods/~lang/<hack>/ translating the active romhack's own lines.
     // Independent of `source`: a language can be provided by either or both.
     Ship::Archive* scopedSource = nullptr;
+    int scopedIndex = 0; // this language's dialog index within scopedSource's blobs
 };
 
 std::vector<LanguageEntry> sLanguages;
@@ -410,7 +411,7 @@ void SetActiveLanguage(const std::string& name) {
     // Hand the computed language to the resource layer
     const size_t repointed = dialogOverride.size() + scopedOverride.size();
     ResourceHelpers_ApplyLanguage(std::move(dialogOverride), std::move(scopedOverride), entry->script == SCRIPT_JP,
-                                  entry->count, entry->index);
+                                  entry->count, entry->index, entry->scopedIndex);
     SPDLOG_INFO("[Lang] Active language '{}'", name, repointed);
 }
 
@@ -463,11 +464,13 @@ void RescanLanguages() {
                     // displaces the base game's own language or an earlier pack.
                     if (scoped && existing->scopedSource == nullptr) {
                         existing->scopedSource = archive.get();
+                        existing->scopedIndex = le.index;
                     }
                 } else {
                     LanguageEntry entry{ le.name, scoped ? nullptr : archive.get(), le.index, cnt, le.script };
                     if (scoped) {
                         entry.scopedSource = archive.get();
+                        entry.scopedIndex = le.index;
                     }
                     sLanguages.push_back(entry);
                 }

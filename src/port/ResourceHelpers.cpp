@@ -43,9 +43,10 @@ extern BKSnsDemoEntry D_80371F78[3];
 }
 
 // Dialog language state — detected at boot from o2r version
-static int sDialogLanguageCount = 1; // 1 for US/JP, 3 for PAL (EN/FR/DE)
-static int sDialogLanguage = 0;      // 0=English, 1=French, 2=German
-static bool sIsJapanese = false;     // true when a JP o2r is loaded
+static int sDialogLanguageCount = 1;  // 1 for US/JP, 3 for PAL (EN/FR/DE)
+static int sDialogLanguage = 0;       // 0=English, 1=French, 2=German
+static int sScopedDialogLanguage = 0; // the same, within a hack's own language pack
+static bool sIsJapanese = false;      // true when a JP o2r is loaded
 
 namespace {
 std::unordered_set<uint32_t> sEmptyAssetSlots;
@@ -246,6 +247,12 @@ static std::unordered_map<uint32_t, std::string> sDialogOverride;
 
 // The same, for a language pack scoped to the active romhack (mods/~lang/<hack>/).
 static std::unordered_map<uint32_t, std::string> sScopedDialogOverride;
+
+// Which language slot to read in this asset's blob. A hack's pack numbers its languages on its
+// own, so its assets use its slot; everything else keeps the game's.
+extern "C" int ResourceMgr_GetDialogSlot(uint32_t assetId, int defaultSlot) {
+    return sScopedDialogOverride.count(assetId) != 0 ? sScopedDialogLanguage : defaultSlot;
+}
 
 // Active mod-overlay re-point: maps v1.0 asset IDs to a mod archive's own paths.
 struct OverlayAsset {
@@ -502,7 +509,7 @@ void ResourceHelpers_ClearRefCache() {
 
 void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride,
                                    std::unordered_map<uint32_t, std::string> scopedDialogOverride, bool isJapanese,
-                                   int dialogCount, int dialogIndex) {
+                                   int dialogCount, int dialogIndex, int scopedDialogIndex) {
     auto evict = [](const std::unordered_map<uint32_t, std::string>& m) {
         for (const auto& [id, path] : m) {
             sResourceRefCache.erase(id);
@@ -523,5 +530,6 @@ void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dia
         dialogIndex = 0;
     }
     sDialogLanguage = dialogIndex; // keep ResourceMgr_GetDialogLanguage() in sync
+    sScopedDialogLanguage = (scopedDialogIndex >= 0) ? scopedDialogIndex : 0;
     func_8031B5C4(dialogIndex);
 }
