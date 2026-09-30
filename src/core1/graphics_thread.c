@@ -311,14 +311,14 @@ void thread5_handleVIRetraceEvent(void) {
     audiotimer_trigger++;
     if (!(audiotimer_trigger & 1)) {
         osStopTimer(&sAudioTimer);
-        osSetTimer(&sAudioTimer, 280000, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_AUDIO_TIMER));
+        osSetTimer(&sAudioTimer, 280000, 0, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_AUDIO_TIMER));
     }
     if (sEnableControllerTimer && OS_SiPumpLive()) {
         osStopTimer(&sControllerTimer);
 #if VERSION == VERSION_USA_1_0
-        osSetTimer(&sControllerTimer, ((osClockRate / 60)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
+        osSetTimer(&sControllerTimer, ((osClockRate / 60)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #elif VERSION == VERSION_PAL
-        osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_CONT_TIMER));
+        osSetTimer(&sControllerTimer, ((osClockRate / 60.0)* 2) / 3, 0, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_CONT_TIMER));
 #endif
     }
 }
@@ -521,11 +521,11 @@ void thread5_create(void) {
     u8 *yield_data_ptr;
     osCreateMesgQueue(&sThread5MesgQueue, sThread5MesgBuffer, 20);
     osCreateMesgQueue(&sThread5SyncMesgQueue, sThread5SyncMesgBufer, 10);
-    osSetEventMesg(OS_EVENT_DP, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_DP));
-    osSetEventMesg(OS_EVENT_SP, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_SP));
-    osSetEventMesg(OS_EVENT_FAULT, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_FAULT));
-    osSetEventMesg(OS_EVENT_PRENMI, &sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_PRENMI));
-    viMgr_registerSignalMesg(&sThread5MesgQueue, OS_MESG_32(THREAD5_MESSAGE_EVENT_VI_RETRACE));
+    osSetEventMesg(OS_EVENT_DP, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_DP));
+    osSetEventMesg(OS_EVENT_SP, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_SP));
+    osSetEventMesg(OS_EVENT_FAULT, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_FAULT));
+    osSetEventMesg(OS_EVENT_PRENMI, &sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_PRENMI));
+    viMgr_registerSignalMesg(&sThread5MesgQueue, OS_MESG_PTR((void*)(uintptr_t)THREAD5_MESSAGE_EVENT_VI_RETRACE));
     sSyncCounter = 0;
     sTask7Handled = 0;
     sUnkFlag2 = sUnkFlag2_Saved = 2;
