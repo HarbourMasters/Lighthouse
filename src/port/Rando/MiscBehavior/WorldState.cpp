@@ -226,7 +226,7 @@ void Rando::MiscBehavior::InitWorldStateBehavior() {
 
         RandoCheckId randoCheckId = Rando::StaticData::GetCheckByJiggyId(ev->jiggyId);
 
-        if (randoCheckId != RC_UNKNOWN) {
+        if (randoCheckId != RC_UNKNOWN && randoCheckId != RC_MMM_JIGGY_MOTZAND) {
             event->Cancelled = true;
             if (randoCheckId == RC_MMM_JIGGY_TUMBLARS_PUZZLE) {
                 ev->result = mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN);
