@@ -80,7 +80,7 @@ float port_drawDistanceMul(void) {
     return (float)level + 0.1f; // Nudge
 }
 
-void port_applyModelDrawDistanceCull(int* fadeFlag, float* cullMult, float* cullDist) {
+void port_applyModelDrawDistanceCull(bool* fadeFlag, float* cullMult, float* cullDist) {
     float mul = port_drawDistanceMul();
     *cullMult *= mul;
     *cullDist *= mul;
