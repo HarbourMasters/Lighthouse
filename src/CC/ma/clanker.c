@@ -5,6 +5,7 @@
 #include "variables.h"
 
 #include "core2/modelRender.h"
+#include "port/Patches/Patches.h"
 
 extern BKCollisionTriangle *func_8028EF48(void);
 extern void func_8030E9FC(enum sfx_e uid, f32 arg1, f32 arg2, u32 arg3, f32 arg4[3], f32 arg5, f32 arg6);
@@ -154,7 +155,8 @@ void maClanker_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     
     viewport_getPosition_vec3f(viewport_position);
         
-    if(viewport_position[0] <  -2600.0f || 11600.0f < viewport_position[0])
+    if ((!port_shouldDisableCulling() || port_isDemoPlayback()) &&
+        (viewport_position[0] < -2600.0f || 11600.0f < viewport_position[0]))
         return;
 
     bone_transform_list = skeletalAnim_getBoneTransformList(maClanker.skeletonAnim);

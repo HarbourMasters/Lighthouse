@@ -53,6 +53,12 @@ bool func_80308F54(s32 cube_index);
 
 extern ActorInfo D_803675F0;
 extern ActorInfo gWorldExitPad;
+extern s32 D_803860E0;
+extern s32 D_803860E4;
+extern s32 D_803860E8;
+extern s32 D_803860EC;
+extern s32 D_803860F0;
+extern s32 D_803860F4;
 
 /* .data */
 s32 sSpawnableActorSize = 0; //0x8036A9B0
@@ -148,6 +154,118 @@ void __7AF80_func_80301F10(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx){
     func_8032D510(cube, gfx, mtx, vtx);
 }
 
+static bool sLighthouseDemoCubeVisualOnly = false;
+static bool sLighthouseDemoExpandedRangeActive = false;
+static s32 sLighthouseDemoOriginalMin[3] = { 0, 0, 0 };
+static s32 sLighthouseDemoOriginalMax[3] = { 0, 0, 0 };
+
+bool lighthouse_demoCubeVisualOnly(void) {
+    return sLighthouseDemoCubeVisualOnly;
+}
+
+static bool lighthouse_cubeWasInOriginalDemoRange(Cube *cube) {
+    s32 ix;
+    s32 iy;
+    s32 iz;
+
+    if (!sLighthouseDemoExpandedRangeActive) {
+        return true;
+    }
+
+    ix = cube->x - sCubeList.min[0];
+    iy = cube->y - sCubeList.min[1];
+    iz = cube->z - sCubeList.min[2];
+
+    return ix >= sLighthouseDemoOriginalMin[0] && ix <= sLighthouseDemoOriginalMax[0]
+        && iy >= sLighthouseDemoOriginalMin[1] && iy <= sLighthouseDemoOriginalMax[1]
+        && iz >= sLighthouseDemoOriginalMin[2] && iz <= sLighthouseDemoOriginalMax[2];
+}
+
+static bool lighthouse_demoCubePassesOriginalDistance(Cube *cube) {
+    f32 vp[3];
+    f32 rel[3];
+    f32 mul;
+
+    if (cube->x == -16) {
+        return true;
+    }
+
+    viewport_getPosition_vec3f(vp);
+    rel[0] = (f32)((cube->x * 1000) + 500) - vp[0];
+    rel[1] = (f32)((cube->y * 1000) + 500) - vp[1];
+    rel[2] = (f32)((cube->z * 1000) + 500) - vp[2];
+
+    mul = port_drawDistanceMul();
+    return ((rel[0] * rel[0]) + (rel[1] * rel[1]) + (rel[2] * rel[2]))
+        <= (1.6e7f * mul * mul);
+}
+
+static void lighthouse_drawCubeSinglePass(
+    Cube *cube,
+    bool originallyInRange,
+    bool originallyFrustumVisible,
+    Gfx **gfx,
+    Mtx **mtx,
+    Vtx **vtx
+) {
+    s32 randE0;
+    s32 randE4;
+    s32 randE8;
+    s32 randEC;
+    s32 randF0;
+    s32 randF4;
+
+    if (cube == NULL || cube->prop2Cnt == 0) {
+        return;
+    }
+
+    if (originallyInRange && originallyFrustumVisible) {
+        __7AF80_func_80301F10(cube, gfx, mtx, vtx);
+        return;
+    }
+
+    if (!port_shouldDisableCulling()
+        || !port_isDemoPlayback()
+        || !lighthouse_demoCubePassesOriginalDistance(cube)) {
+        return;
+    }
+
+    randE0 = D_803860E0;
+    randE4 = D_803860E4;
+    randE8 = D_803860E8;
+    randEC = D_803860EC;
+    randF0 = D_803860F0;
+    randF4 = D_803860F4;
+
+    sLighthouseDemoCubeVisualOnly = true;
+
+    // Do not mark this cube visited; the original demo culled it.
+    // This is a SINGLE render pass at the normal traversal point.
+    func_8032D510(cube, gfx, mtx, vtx);
+
+    sLighthouseDemoCubeVisualOnly = false;
+
+    D_803860E0 = randE0;
+    D_803860E4 = randE4;
+    D_803860E8 = randE8;
+    D_803860EC = randEC;
+    D_803860F0 = randF0;
+    D_803860F4 = randF4;
+}
+
+static void lighthouse_drawCubeTraversal(Cube *cube, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
+    bool originallyInRange;
+    bool originallyFrustumVisible;
+
+    if (cube == NULL || cube->prop2Cnt == 0) {
+        return;
+    }
+
+    originallyInRange = lighthouse_cubeWasInOriginalDemoRange(cube);
+    originallyFrustumVisible = originallyInRange && viewport_cube_isInFrustum2(cube) != 0;
+    lighthouse_drawCubeSinglePass(cube, originallyInRange, originallyFrustumVisible, gfx, mtx, vtx);
+}
+
 void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s32 arg5[3]) {
     s32 sp54;
     s32 sp50;
@@ -165,9 +283,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 < arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -175,9 +291,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while( var_s1 >= arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -191,9 +305,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 < arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -201,9 +313,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 >= arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -225,9 +335,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while( var_s1 < arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -235,9 +343,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while( var_s1 >= arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -251,9 +357,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg4[2];            
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 < arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1++;
                 var_s0 += sCubeList.stride[1];
             }
@@ -261,9 +365,7 @@ void func_80301F50(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
             var_s1 = arg5[2];            
             var_s0 = var_fp + var_s1*sCubeList.stride[1];
             while(var_s1 >= arg3[2]) {
-                if ((var_s0->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_s0) != 0) {
-                    __7AF80_func_80301F10(var_s0, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_s0, gfx, mtx, vtx);
                 var_s1--;
                 var_s0 -= sCubeList.stride[1];
             }
@@ -292,17 +394,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg4[2]; sp54 < arg3[2]; sp54++) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 += sCubeList.stride[1];
@@ -313,17 +411,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg5[2]; sp54 >= arg3[2]; sp54--) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 -= sCubeList.stride[1];
@@ -340,17 +434,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg4[2]; sp54 < arg3[2]; sp54++) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 += sCubeList.stride[1];
@@ -361,17 +451,13 @@ void func_80302634(Gfx **gfx, Mtx **mtx, Vtx **vtx, s32 arg3[3], s32 arg4[3], s3
         for(sp54 = arg5[2]; sp54 >= arg3[2]; sp54--) {
             var_fp = var_s0 + arg4[0];
             for(var_s1 = arg4[0]; var_s1 < arg3[0]; var_s1++) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp++;
             }
 
             var_fp = var_s0 + arg5[0];
             for(var_s1 = arg5[0]; var_s1 >= arg3[0]; var_s1--) {
-                if ((var_fp->prop2Cnt != 0) && viewport_cube_isInFrustum2(var_fp) != 0) {
-                    __7AF80_func_80301F10(var_fp, gfx, mtx, vtx);
-                }
+                lighthouse_drawCubeTraversal(var_fp, gfx, mtx, vtx);
                 var_fp--;
             }
             var_s0 -= sCubeList.stride[1];
@@ -396,6 +482,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 #endif
 
     func_8032D3A8();
+
     viewport_getPosition_vec3f(vp_position);
     viewport_getRotation_vec3f(vp_rotation);
     ml_vec3f_clamp_deg360(vp_rotation);
@@ -406,51 +493,61 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     sp38[0] = sCubeList.width[0] - 1;\
     sp38[1] = sCubeList.width[1] - 1;\
     sp38[2] = sCubeList.width[2] - 1;
-    if ((vp_rotation[0]> 250.0f) && (vp_rotation[0]< 290.0f)) {
-        if ((vp_rotation[1] >= 225.0f) && (vp_rotation[1] <= 315.0f)) {
-            sp44[0] = (vp_cube_indices[0] > sp44[0]) ? vp_cube_indices[0] - 1 : sp44[0];
-        } else {
-            if ((vp_rotation[1] >= 45.0f) && (vp_rotation[1] <= 135.0f)) {
-                sp38[0] = vp_cube_indices[0];
+    // Disable Culling ON + normal gameplay: do not prune prop cubes by camera direction.
+    // Disable Culling OFF: execute the original Lighthouse culling below.
+    // Demo/playback: also execute the original culling for sync.
+    if (!(port_shouldDisableCulling() && !func_802E4A08())) {
+        if ((vp_rotation[0]> 250.0f) && (vp_rotation[0]< 290.0f)) {
+            if ((vp_rotation[1] >= 225.0f) && (vp_rotation[1] <= 315.0f)) {
+                sp44[0] = (vp_cube_indices[0] > sp44[0]) ? vp_cube_indices[0] - 1 : sp44[0];
+            } else {
+                if ((vp_rotation[1] >= 45.0f) && (vp_rotation[1] <= 135.0f)) {
+                    sp38[0] = vp_cube_indices[0];
+                }
             }
-        }
 
-        if ((vp_rotation[0]>= 45.0f) && (vp_rotation[0]<= 135.0f)) {
-            sp44[1] = vp_cube_indices[1];
-        } else if ((vp_rotation[0]>= 225.0f) && (vp_rotation[0]<= 315.0f)) {
-            sp38[1] = vp_cube_indices[1];
-        }
-        if ((vp_rotation[1] >= 135.0f) && (vp_rotation[1] <= 225.0f)) {
-            sp44[2] = (vp_cube_indices[2] > sp44[2]) ? vp_cube_indices[2] - 1 : sp44[2];
-        } else if ((315.0f <= vp_rotation[1]) || (vp_rotation[1] <= 45.0f)) {
-            sp38[2] = vp_cube_indices[2];
-        }
-    } else {
-        if ((vp_rotation[1] >= 225.0f) && (vp_rotation[1] <= 315.0f)) {
-            sp44[0] = vp_cube_indices[0];
-        } else {
-            if ((vp_rotation[1] >= 45.0f) && (vp_rotation[1] <= 135.0f)) {
-                sp38[0] = vp_cube_indices[0];
+            if ((vp_rotation[0]>= 45.0f) && (vp_rotation[0]<= 135.0f)) {
+                sp44[1] = vp_cube_indices[1];
+            } else if ((vp_rotation[0]>= 225.0f) && (vp_rotation[0]<= 315.0f)) {
+                sp38[1] = vp_cube_indices[1];
             }
-        }
+            if ((vp_rotation[1] >= 135.0f) && (vp_rotation[1] <= 225.0f)) {
+                sp44[2] = (vp_cube_indices[2] > sp44[2]) ? vp_cube_indices[2] - 1 : sp44[2];
+            } else if ((315.0f <= vp_rotation[1]) || (vp_rotation[1] <= 45.0f)) {
+                sp38[2] = vp_cube_indices[2];
+            }
+        } else {
+            if ((vp_rotation[1] >= 225.0f) && (vp_rotation[1] <= 315.0f)) {
+                sp44[0] = vp_cube_indices[0];
+            } else {
+                if ((vp_rotation[1] >= 45.0f) && (vp_rotation[1] <= 135.0f)) {
+                    sp38[0] = vp_cube_indices[0];
+                }
+            }
 
-        if ((vp_rotation[0]>= 45.0f) && (vp_rotation[0]<= 135.0f)) {
-            sp44[1] = vp_cube_indices[1];
-        } else if ((vp_rotation[0]>= 225.0f) && (vp_rotation[0]<= 315.0f)) {
-            sp38[1] = vp_cube_indices[1];
-        }
+            if ((vp_rotation[0]>= 45.0f) && (vp_rotation[0]<= 135.0f)) {
+                sp44[1] = vp_cube_indices[1];
+            } else if ((vp_rotation[0]>= 225.0f) && (vp_rotation[0]<= 315.0f)) {
+                sp38[1] = vp_cube_indices[1];
+            }
         
-        if ((vp_rotation[1] >= 135.0f) && (vp_rotation[1] <= 225.0f)) {
-            sp44[2] = vp_cube_indices[2];
-        } else if ((315.0f <= vp_rotation[1]) || (vp_rotation[1] <= 45.0f)) {
-            sp38[2] = vp_cube_indices[2];
+            if ((vp_rotation[1] >= 135.0f) && (vp_rotation[1] <= 225.0f)) {
+                sp44[2] = vp_cube_indices[2];
+            } else if ((315.0f <= vp_rotation[1]) || (vp_rotation[1] <= 45.0f)) {
+                sp38[2] = vp_cube_indices[2];
+            }
         }
     }
-
     for(i = 0; i < 3; i++){
         // [port] Extended draw distance: per-level cube iteration width.
         int width = 4;
-        CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);
+        if (port_shouldDisableCulling() && !func_802E4A08()) {
+            // Disable Culling: consider the full prop-cube range in the modes handled here.
+            width = sCubeList.width[i];
+        } else {
+            // Preserve the existing draw-distance event behavior in the remaining modes.
+            CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);
+        }
 
         if(vp_cube_indices[i] - sp44[i] > width){
             sp44[i] = vp_cube_indices[i] - width;
@@ -459,6 +556,31 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp38[i] = vp_cube_indices[i] + width;
         }
     }
+    // Demo visual-only cube rendering:
+    // Save the ORIGINAL demo bounds for logic, then widen only the render
+    // traversal to the original +/-4-cube distance around the camera.
+    sLighthouseDemoExpandedRangeActive = false;
+    if (port_shouldDisableCulling() && port_isDemoPlayback()) {
+        for (i = 0; i < 3; i++) {
+            sLighthouseDemoOriginalMin[i] = sp44[i];
+            sLighthouseDemoOriginalMax[i] = sp38[i];
+        }
+
+        sLighthouseDemoExpandedRangeActive = true;
+
+        for (i = 0; i < 3; i++) {
+            sp44[i] = vp_cube_indices[i] - 4;
+            sp38[i] = vp_cube_indices[i] + 4;
+
+            if (sp44[i] < 0) {
+                sp44[i] = 0;
+            }
+            if (sp38[i] >= sCubeList.width[i]) {
+                sp38[i] = sCubeList.width[i] - 1;
+            }
+        }
+    }
+
     if (sCubeList.unk3C != NULL) {
         func_8032D510(sCubeList.unk3C, gfx, mtx, vtx);
     }

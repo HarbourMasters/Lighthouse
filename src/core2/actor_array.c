@@ -11,7 +11,9 @@
 #include "port/Patches/Patches.h"
 
 extern s32 D_80370990;
+extern s32 cur_model_would_have_been_culled_in_demo;
 extern f32 GameEngine_GetAspectRatio(void);
+extern bool lighthouse_demoCubeVisualOnly(void);
 
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
 
@@ -155,10 +157,21 @@ void actor_predrawMethod(Actor *this){
         this->unkF4_29 = NOT(this->unkF4_29);
     }//L80325594
 
-    // [port] In widescreen, only run the predraw callback if the actor would
-    // have been visible in the original 4:3 frustum, preserving game logic.
-    if(this->unk130 && (GameEngine_GetAspectRatio() <= 1.34f || D_80370990)){
-        this->unk130(this);
+    if (port_shouldDisableCulling()) {
+        // widescreen logic. Outside playback the flag is always false.
+        if (!cur_model_would_have_been_culled_in_demo) {
+            if (this->unk130) {
+                if (!lighthouse_demoCubeVisualOnly()) {
+                    this->unk130(this);
+                }
+            }
+        }
+    } else {
+        if(this->unk130 && (GameEngine_GetAspectRatio() <= 1.34f || D_80370990)){
+            if (!lighthouse_demoCubeVisualOnly()) {
+                this->unk130(this);
+            }
+        }
     }
 
     if(this->unk148 && !this->marker->unk20){
@@ -207,12 +220,26 @@ void func_80325760(Actor *this) {
 // [port] In widescreen, actors outside the 4:3 frustum are still drawn but
 // should not be marked as visible for game logic purposes.
 void actor_postdrawMethod(ActorMarker *marker){
-    if (GameEngine_GetAspectRatio() <= 1.34f || D_80370990) {
-        marker->unk14_21 = true;
+    if (lighthouse_demoCubeVisualOnly()) {
+        return;
+    }
+
+    if (port_shouldDisableCulling()) {
+        if (!cur_model_would_have_been_culled_in_demo) {
+            marker->unk14_21 = true;
+        }
+    } else {
+        if (GameEngine_GetAspectRatio() <= 1.34f || D_80370990) {
+            marker->unk14_21 = true;
+        }
     }
 }
 
 void func_803257A4(ActorMarker *marker){
+    if (lighthouse_demoCubeVisualOnly()) {
+        return;
+    }
+
     marker->unk14_21 = true;
 }
 
