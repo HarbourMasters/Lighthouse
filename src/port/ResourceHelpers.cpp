@@ -9,6 +9,7 @@
 #include "libultraship/bridge/resourcebridge.h"
 #include "libultraship/libultraship.h"
 #include "ship/Context.h"
+#include "Resource/Importers/MusicFactory.h"
 #include "UI/cvar_prefixes.h"
 #include <spdlog/spdlog.h>
 #include <algorithm>
@@ -333,6 +334,34 @@ extern "C" char* ResourceMgr_LoadByAssetId(uint32_t assetId) {
     }
     SPDLOG_WARN("[ResourceManager({})] symbol '{}' found but resource data is NULL", assetId, mappedPath);
     return nullptr;
+}
+
+// A track carries its own slot volume, read on first ask and kept.
+extern "C" int32_t port_getMusicTrackVolume(uint32_t assetId) {
+    static std::unordered_map<uint32_t, int32_t> sVolumeCache;
+    static std::mutex sVolumeMutex;
+    {
+        const std::lock_guard<std::mutex> lock(sVolumeMutex);
+        if (auto it = sVolumeCache.find(assetId); it != sVolumeCache.end()) {
+            return it->second;
+        }
+    }
+
+    int32_t volume = -1;
+    std::string path = ResourceHelpers_GetActiveAssetPath(assetId);
+    if (!path.empty()) {
+        std::replace(path.begin(), path.end(), '\\', '/');
+        if (auto res = std::dynamic_pointer_cast<Factories::BKMusic>(GetResourceByName(path.c_str()))) {
+            volume = static_cast<int32_t>(res->Volume);
+        }
+    }
+    if (volume < 0) {
+        SPDLOG_WARN("music: asset {} carries no slot volume; using the built-in table", assetId);
+    }
+
+    const std::lock_guard<std::mutex> lock(sVolumeMutex);
+    sVolumeCache[assetId] = volume;
+    return volume;
 }
 
 // Returns the data size of a previously loaded resource (from the ref cache).
