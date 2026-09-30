@@ -780,16 +780,16 @@ endif()
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 add_custom_target(CreateOSXIcons
     COMMAND mkdir -p ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset
-    COMMAND sips -z 16 16     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16.png
-    COMMAND sips -z 32 32     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16@2x.png
-    COMMAND sips -z 32 32     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32.png
-    COMMAND sips -z 64 64     logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32@2x.png
-    COMMAND sips -z 128 128   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128.png
-    COMMAND sips -z 256 256   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128@2x.png
-    COMMAND sips -z 256 256   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256.png
-    COMMAND sips -z 512 512   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256@2x.png
-    COMMAND sips -z 512 512   logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512.png
-    COMMAND cp                logo.png ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512@2x.png
+    COMMAND sips -z 16 16     res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16.png
+    COMMAND sips -z 32 32     res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_16x16@2x.png
+    COMMAND sips -z 32 32     res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32.png
+    COMMAND sips -z 64 64     res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_32x32@2x.png
+    COMMAND sips -z 128 128   res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128.png
+    COMMAND sips -z 256 256   res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_128x128@2x.png
+    COMMAND sips -z 256 256   res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256.png
+    COMMAND sips -z 512 512   res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_256x256@2x.png
+    COMMAND sips -z 512 512   res/logo.png --out ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512.png
+    COMMAND cp                res/logo.png ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset/icon_512x512@2x.png
     COMMAND iconutil -c icns -o ${CMAKE_BINARY_DIR}/macosx/lighthouse.icns ${CMAKE_BINARY_DIR}/macosx/lighthouse.iconset
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Creating OSX icons ..."
@@ -815,7 +815,7 @@ endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/Lighthouse.desktop")
-set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_ICON_FILE "${CMAKE_SOURCE_DIR}/logo.png")
+set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_ICON_FILE "${CMAKE_SOURCE_DIR}/res/logo.png")
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
