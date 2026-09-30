@@ -488,9 +488,11 @@ void Init() {
 } // namespace CheckTracker
 } // namespace Rando
 
-void RegisterCheckTracker() {
+void RegisterCheckTrackerListeners() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { Rando::CheckTracker::Init(); });
+}
 
+void RegisterCheckTracker() {
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {
         CheckTracker_CreateCheckList();
         CheckTracker_InitiateTotals();
@@ -498,3 +500,4 @@ void RegisterCheckTracker() {
 }
 
 static RegisterShipInitFunc initFunc(RegisterCheckTracker, { "IS_RANDO" });
+static RegisterShipInitFunc initListenersFunc(RegisterCheckTrackerListeners, { "BOOT" });

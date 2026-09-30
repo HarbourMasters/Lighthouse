@@ -225,7 +225,7 @@ void CustomCollectible::OnCollect(struct actorMarker_s* self, struct actorMarker
     Actor* actor = marker_getActor(self);
     ActorLocal_CustomCollectible* customLocal = (ActorLocal_CustomCollectible*)&actor->local;
 
-    fxSparkle_honeycomb(&self->propPtr->x);
+    fxSparkle_honeycomb(&self->propPtr->position_x);
     ItemQueue::AddCheck(customLocal->randoCheckId);
     marker_despawn(self);
 

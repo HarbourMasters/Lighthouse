@@ -19,9 +19,9 @@ void RegisterCustomCollectibleSaveState() {
             return;
         }
 
-        collectibleSaveState.insert(
-            { customLocal->randoCheckId,
-              { ev->actor->marker->propPtr->x, ev->actor->marker->propPtr->y, ev->actor->marker->propPtr->z } });
+        collectibleSaveState.insert({ customLocal->randoCheckId,
+                                      { ev->actor->marker->propPtr->position_x, ev->actor->marker->propPtr->position_y,
+                                        ev->actor->marker->propPtr->position_z } });
     });
 
     COND_HOOK(OnLoadActorSaveState, EVENT_PRIORITY_NORMAL, IS_RANDO, [](IEvent* event) {

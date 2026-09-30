@@ -21,7 +21,7 @@ static void FinishPortraitCrossfade(GcZoombox* zoombox) {
     zoombox->unk17C = 0.0f;
 }
 
-void RegisterMiscBehaviour() {
+void RegisterMiscBehaviourListeners() {
     REGISTER_LISTENER(OnFileSelectPortrait, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnFileSelectPortrait* ev = (OnFileSelectPortrait*)event;
 
@@ -87,9 +87,12 @@ void RegisterMiscBehaviour() {
 
         selectedFileNum = DEFAULT_FILE_NUM;
     });
+}
 
+void RegisterMiscBehaviour() {
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO,
               [](IEvent* event) { Rando::Logic::RefreshReachableRegions(); })
 }
 
 static RegisterShipInitFunc initFunc(RegisterMiscBehaviour, { "IS_RANDO" });
+static RegisterShipInitFunc initListenersFunc(RegisterMiscBehaviourListeners, { "BOOT" });
