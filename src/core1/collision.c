@@ -13,6 +13,9 @@ extern BKCollisionTriangle *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f3
 extern f32 floor_getXPosition(struct0*);
 extern void func_8031C5AC(struct0 *, f32 *);
 
+s32 D_802758F0 = VER_SELECT(0xAD7FF2F3, 0xB585BADA, 0, 0); // BGS_DATA_CRC2
+s32 D_802758F4 = VER_SELECT(0xD884D8AC, 0xD731B7E2, 0, 0); // FP_DATA_CRC2
+
 /* .bss */
 f32 D_8027EF30;
 
@@ -215,7 +218,7 @@ BKCollisionTriangle *func_8024549C(f32 arg0[3], f32 arg1){
 
     ml_vec3f_diff_copy(sp2C, arg0, sp20);
     ml_vec3f_add(sp38, arg0, sp20);
-    sp1C = (BKCollisionTriangle *) func_80309B48(sp2C, sp38, sp44, 0xf800ff0f);
+    sp1C = (BKCollisionTriangle *) mapModel_intersectLine(sp2C, sp38, sp44, 0xf800ff0f);
     if(sp1C){
         ml_vec3f_copy(arg0, sp38);
     }

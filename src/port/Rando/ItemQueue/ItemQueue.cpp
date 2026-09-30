@@ -23,7 +23,7 @@ extern struct {
 #define MUMBO_TOKEN_COUNT 126
 #define MUMBOSCORE_SIZE (((MUMBO_TOKEN_COUNT - 1 + 7) & ~7) / 8)
 extern u8 sMumboTokenScore[MUMBOSCORE_SIZE];
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 
 extern ActorInfo chJinjoBlue;
 extern ActorInfo chJinjoGreen;
@@ -156,55 +156,55 @@ void ItemQueue::GiveItem(RandoItemId randoItemId) {
             coMusicPlayer_playMusic(COMUSIC_D_JINGLE_JIGGY_COLLECTED, -1);
             switch (randoItemId) {
                 case RI_MOLEHILL_BARGE:
-                    ability_unlock(ABILITY_0_BARGE);
+                    player_unlockAbility(ABILITY_0_BARGE);
                     break;
                 case RI_MOLEHILL_BEAK_BOMB:
-                    ability_unlock(ABILITY_1_BEAK_BOMB);
+                    player_unlockAbility(ABILITY_1_BEAK_BOMB);
                     break;
                 case RI_MOLEHILL_BEAK_BUSTER:
-                    ability_unlock(ABILITY_2_BEAK_BUSTER);
+                    player_unlockAbility(ABILITY_2_BEAK_BUSTER);
                     break;
                 case RI_MOLEHILL_CAMERA_CONTROL:
-                    ability_unlock(ABILITY_3_CAMERA_CONTROL);
+                    player_unlockAbility(ABILITY_3_CAMERA_CONTROL);
                     break;
                 case RI_MOLEHILL_CLAW_SWIPE:
-                    ability_unlock(ABILITY_4_CLAW_SWIPE);
-                    ability_unlock(ABILITY_C_ROLL);
-                    ability_unlock(ABILITY_B_RATATAT_RAP);
+                    player_unlockAbility(ABILITY_4_CLAW_SWIPE);
+                    player_unlockAbility(ABILITY_C_ROLL);
+                    player_unlockAbility(ABILITY_B_RATATAT_RAP);
                     break;
                 case RI_MOLEHILL_CLIMB:
-                    ability_unlock(ABILITY_5_CLIMB);
+                    player_unlockAbility(ABILITY_5_CLIMB);
                     break;
                 case RI_MOLEHILL_DIVE:
-                    ability_unlock(ABILITY_F_DIVE);
+                    player_unlockAbility(ABILITY_F_DIVE);
                     break;
                 case RI_MOLEHILL_EGGS:
-                    ability_unlock(ABILITY_6_EGGS);
+                    player_unlockAbility(ABILITY_6_EGGS);
                     item_adjustByDiffWithHud(ITEM_D_EGGS, 50);
                     break;
                 case RI_MOLEHILL_FLAP_FLIP:
-                    ability_unlock(ABILITY_A_HOLD_A_JUMP_HIGHER);
-                    ability_unlock(ABILITY_7_FEATHERY_FLAP);
-                    ability_unlock(ABILITY_8_FLAP_FLIP);
+                    player_unlockAbility(ABILITY_A_HOLD_A_JUMP_HIGHER);
+                    player_unlockAbility(ABILITY_7_FEATHERY_FLAP);
+                    player_unlockAbility(ABILITY_8_FLAP_FLIP);
                     break;
                 case RI_MOLEHILL_FLIGHT:
-                    ability_unlock(ABILITY_9_FLIGHT);
+                    player_unlockAbility(ABILITY_9_FLIGHT);
                     item_adjustByDiffWithHud(ITEM_F_RED_FEATHER, 25);
                     break;
                 case RI_MOLEHILL_SHOCK_JUMP:
-                    ability_unlock(ABILITY_D_SHOCK_JUMP);
+                    player_unlockAbility(ABILITY_D_SHOCK_JUMP);
                     break;
                 case RI_MOLEHILL_TALON_TROT:
-                    ability_unlock(ABILITY_10_TALON_TROT);
+                    player_unlockAbility(ABILITY_10_TALON_TROT);
                     break;
                 case RI_MOLEHILL_TURBO_TALON:
-                    ability_unlock(ABILITY_11_TURBO_TALON);
+                    player_unlockAbility(ABILITY_11_TURBO_TALON);
                     break;
                 case RI_MOLEHILL_WADING_BOOTS:
-                    ability_unlock(ABILITY_E_WADING_BOOTS);
+                    player_unlockAbility(ABILITY_E_WADING_BOOTS);
                     break;
                 case RI_MOLEHILL_WONDERWING:
-                    ability_unlock(ABILITY_12_WONDERWING);
+                    player_unlockAbility(ABILITY_12_WONDERWING);
                     item_adjustByDiffWithHud(ITEM_10_GOLD_FEATHER, 5);
                     break;
                 default:
@@ -224,9 +224,9 @@ void ItemQueue::GiveItem(RandoItemId randoItemId) {
             break;
         case RITYPE_MUSIC_NOTE:
             coMusicPlayer_playMusic(COMUSIC_9_NOTE_COLLECTED, 16000);
-            D_80385FF0[worldId]++;
+            sItemscoreNoteScores[worldId]++;
             if (worldId == map_getLevel(gsworld_getMap())) {
-                item_set(ITEM_C_NOTE, D_80385FF0[map_getLevel(gsworld_getMap())]);
+                item_set(ITEM_C_NOTE, sItemscoreNoteScores[map_getLevel(gsworld_getMap())]);
             }
             break;
         case RITYPE_SNS_EGG:

@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 
 /* .code */
 void func_8034CC50(s32 arg0, BKModelVtxRef *arg1, Vtx *arg2, void *arg3){

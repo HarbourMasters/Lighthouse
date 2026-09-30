@@ -22,10 +22,10 @@ extern ActorInfo chMMMTallWindow;
 extern ActorInfo chDiningDoor;
 extern ActorInfo chMMMClockSwitch;
 extern ActorInfo chNapper;
-extern ActorInfo D_8038BA68;
+extern ActorInfo chCemetaryPot;
 extern ActorInfo chMotzhand;
 extern ActorInfo chLoggo;
-extern ActorInfo D_8038BAD0;
+extern ActorInfo chPortraitChompa;
 extern ActorInfo chPortraitGrunty;
 extern ActorInfo chPortraitBlackeye;
 extern ActorInfo chPortraitTower;
@@ -38,7 +38,7 @@ extern ActorInfo chPurpleTeeHee;
 
 extern void core1_7090_initSfxSource(s32, s32, s32, f32);
 extern void func_8025AE0C(s32, f32);
-extern BKCollisionTriangle *func_80309B48(f32[3], f32[3], f32[3], u32);
+extern BKCollisionTriangle *mapModel_intersectLine(f32[3], f32[3], f32[3], u32);
 
 void chMMMBreakableWooden_update(Actor *this);
 void chMMMGate_update(Actor *this);
@@ -53,8 +53,8 @@ void chMMMWindow_update(Actor *this);
 ActorAnimationInfo D_8038BBE0[] = {
     {0x00, 0.0f},
     {0x00, 0.0f},
-    {0xD4, 0.15f},
-    {0xD5, 0.5f},
+    {ASSET_D4_ANIM_SWITCH_DOWN, 0.15f},
+    {ASSET_D5_ANIM_SWITCH_UP, 0.5f},
     {0x00, 0.0f},
     {0x00, 0.0f},
     {0x00, 0.0f},
@@ -182,7 +182,7 @@ f32 MMM_func_80388430(Actor *this, s32 arg1, s32 arg2, f32 arg3) {
     this->unk1C[1] -= 8.0;
     sp34[1] = this->position[1] - 400.0f;
     if (this->unk1C[1] < 0.0f) {
-        if (func_80309B48(sp4C, sp34, sp40, 0) && (this->position[1] <= sp34[1])) {
+        if (mapModel_intersectLine(sp4C, sp34, sp40, 0) && (this->position[1] <= sp34[1])) {
             this->position[1] = sp34[1] + 6.0f;
             switch (this->unk38_31) {
             case 1:
@@ -417,11 +417,11 @@ void MMM_func_803890E0(void){
     spawnableActorList_add(&chDiningDoor, actor_new, ACTOR_FLAG_UNKNOWN_9 | ACTOR_FLAG_UNKNOWN_10 | ACTOR_FLAG_UNKNOWN_15);
     spawnableActorList_add(&chMMMClockSwitch, actor_new, ACTOR_FLAG_UNKNOWN_3);
     spawnableActorList_add(&chNapper,   actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_12);
-    spawnableActorList_add(&D_8038BA68, actor_new, ACTOR_FLAG_UNKNOWN_8);
+    spawnableActorList_add(&chCemetaryPot, actor_new, ACTOR_FLAG_UNKNOWN_8);
     spawnableActorList_add(&chMotzhand, actor_new, ACTOR_FLAG_UNKNOWN_7 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_17);
     spawnableActorList_add(&D_80367E70, actor_new, ACTOR_FLAG_NONE);
     spawnableActorList_add(&chLoggo,    actor_new, ACTOR_FLAG_UNKNOWN_3 | ACTOR_FLAG_UNKNOWN_8);
-    spawnableActorList_add(&D_8038BAD0, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 | ACTOR_FLAG_UNKNOWN_25);
+    spawnableActorList_add(&chPortraitChompa, actor_new, ACTOR_FLAG_UNKNOWN_5 | ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_8 | ACTOR_FLAG_UNKNOWN_11 | ACTOR_FLAG_UNKNOWN_23 | ACTOR_FLAG_UNKNOWN_25);
     spawnableActorList_add(&chPortraitGrunty, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
     spawnableActorList_add(&chPortraitBlackeye, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);
     spawnableActorList_add(&chPortraitTower, actor_new, ACTOR_FLAG_UNKNOWN_6 | ACTOR_FLAG_UNKNOWN_23);

@@ -1,4 +1,3 @@
-// BanjoDecomp: core2/snackerctl.c
 #include "core2/snackerctl.h"
 
 #include <ultra64.h>

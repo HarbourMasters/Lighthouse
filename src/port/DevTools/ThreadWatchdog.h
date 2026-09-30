@@ -21,7 +21,7 @@ typedef enum WatchdogThread {
     WATCHDOG_GAME_TICK,     // push_frame loop (Game.cpp)
     WATCHDOG_THREAD5,       // decomp graphics thread (graphics_thread.c)
     WATCHDOG_VIMGR,         // decomp VI manager thread (vimgr.c)
-    WATCHDOG_PFSMANAGER,    // controller thread (pfsmanager.c)
+    WATCHDOG_JOY,           // controller thread (joy.c)
     WATCHDOG_AUDIO_MANAGER, // audio thread (audio_manager.c); idles during demo audio holds
     WATCHDOG_RUMBLE,        // motor thread (bamotor.c); one beat per retrace signal
     WATCHDOG_NUM_THREADS

@@ -77,12 +77,12 @@ static void __chAttackTutorial_learnAbilityBasedOnDialog(ActorMarker *marker, en
     func_8028F918(0);
     switch(dialog_id) {
         case ASSET_E15_DIALOG_ATTACK_TUTORIAL_FORWARD_ROLL:
-            ability_unlock(ABILITY_C_ROLL);
+            player_unlockAbility(ABILITY_C_ROLL);
             __chAttackTutorial_setState(actor, CH_ATTACK_TUTORIAL_STATE_2_APPLY_LEARNED_MOVE);
             break;
 
         case ASSET_E17_DIALOG_ATTACK_TUTORIAL_RATATAT_RAP:
-            ability_unlock(ABILITY_B_RATATAT_RAP);
+            player_unlockAbility(ABILITY_B_RATATAT_RAP);
             __chAttackTutorial_setState(actor, CH_ATTACK_TUTORIAL_STATE_2_APPLY_LEARNED_MOVE);
             break;
     }
@@ -94,7 +94,7 @@ static void __chAttackTutorial_setState(Actor* this, enum ch_attack_tutorial_sta
     {
         case CH_ATTACK_TUTORIAL_STATE_5_SHOW_LEARN_MOVE_DIALOG:
             if (this->unk10_12 == 0) {
-                ability_unlock(ABILITY_4_CLAW_SWIPE);
+                player_unlockAbility(ABILITY_4_CLAW_SWIPE);
                 gcdialog_showDialog(ASSET_DFF_DIALOG_BOTTLES_CLAW_SWIPE_LEARN, 0xE, this->unk1C, this->marker, __chAttackTutorial_learnAbilityBasedOnDialog, __chAttackTutorial_advanceMarkToState2);
             }
             else{
@@ -131,9 +131,9 @@ static void __chAttackTutorial_setState(Actor* this, enum ch_attack_tutorial_sta
 }
 
 static bool __chAttackTutorial_areLearnableAbilitiesUnlocked() {
-    return ability_isUnlocked(ABILITY_4_CLAW_SWIPE)
-        && ability_isUnlocked(ABILITY_C_ROLL)
-        && ability_isUnlocked(ABILITY_B_RATATAT_RAP);
+    return player_isAbilityUnlocked(ABILITY_4_CLAW_SWIPE)
+        && player_isAbilityUnlocked(ABILITY_C_ROLL)
+        && player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP);
 }
 
 // [port] A local tutorial opt-out unlocks every move mid-session; re-arm the spawn latch.
@@ -161,9 +161,9 @@ static void __chAttackTutorial_update(Actor *this) {
             this->unk1C_y = this->position_y;
             this->unk1C_z = this->position_z;
         }
-        this->unk10_12 = ability_isUnlocked(ABILITY_C_ROLL)
+        this->unk10_12 = player_isAbilityUnlocked(ABILITY_C_ROLL)
         ? 2
-        : ability_isUnlocked(ABILITY_4_CLAW_SWIPE)
+        : player_isAbilityUnlocked(ABILITY_4_CLAW_SWIPE)
           ? 1
           : 0;
 
@@ -209,12 +209,12 @@ static void __chAttackTutorial_handleDialog(ActorMarker *marker, enum asset_e te
             break;
 
         case ASSET_E15_DIALOG_ATTACK_TUTORIAL_FORWARD_ROLL:
-            ability_unlock(ABILITY_C_ROLL);
+            player_unlockAbility(ABILITY_C_ROLL);
             __chAttackTutorial_setState(actor, CH_ATTACK_TUTORIAL_STATE_2_APPLY_LEARNED_MOVE);
             break;
 
         case ASSET_E17_DIALOG_ATTACK_TUTORIAL_RATATAT_RAP:
-            ability_unlock(ABILITY_B_RATATAT_RAP);
+            player_unlockAbility(ABILITY_B_RATATAT_RAP);
             __chAttackTutorial_setState(actor, CH_ATTACK_TUTORIAL_STATE_2_APPLY_LEARNED_MOVE);
             break;
             

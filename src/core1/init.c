@@ -5,9 +5,9 @@
 #include "variables.h"
 #include "port/ShipUtils.h" // gPortResetPending
 #include "version.h"
-#include "gc/gctransition.h"
+#include "core2/gc/transition.h"
 
-#define MAIN_THREAD_STACK_SIZE 0x17F0
+#define MAIN_THREAD_STACK_SIZE 0x1800
 
 #if VERSION == VERSION_PAL
     extern s32 D_80000300;
@@ -17,16 +17,60 @@
 s32 D_80275610 = 0; // always set to 0
 s32 D_80275614 = 0;
 s32 gGlobalTimer = 0;
-u32 sDebugVar_8027561C[] = { 0x9, 0x4, 0xA, 0x3, 0xB, 0x2, 0xC, 0x5, 0x0,  0x1, 0x6, 0xD,  -1 }; // never used
+
+/**
+ * An unused Konami-esque button combo.
+ *
+ * Not used for a crash debugger like I initially thought,
+ * despite a similar one being in Tooie.
+ *
+ * It was actually for a security code of some kind.
+ */
+u32 sKonamiCode_8027561C[] =
+{
+    JOY_BUTTON_D_UP,
+    JOY_BUTTON_C_UP,
+    JOY_BUTTON_D_DOWN,
+    JOY_BUTTON_C_DOWN,
+    JOY_BUTTON_D_LEFT,
+    JOY_BUTTON_C_LEFT,
+    JOY_BUTTON_D_RIGHT,
+    JOY_BUTTON_C_RIGHT,
+    JOY_BUTTON_A,
+    JOY_BUTTON_B,
+    JOY_BUTTON_Z,
+    JOY_BUTTON_START,
+    JOY_BUTTON_nil
+};
+
 s32 D_80275650 = VER_SELECT(0xAD019D3C, 0xA371A8F3, 0, 0); //SM_DATA_CRC2
 s32 D_80275654 = VER_SELECT(0xD381B72F, 0xD0709154, 0, 0); //MM_DATA_CRC2
-char sDebugVar_80275658[] = VER_SELECT("HjunkDire:218755", "HjunkDire:300875", "HjunkDire:", "HjunkDire:");
+
+/**
+ * "HjunkDire" -- a random, unique, build ID code.
+ * 
+ * It needed to be a string that could be easily searchable in a ROM,
+ * so that its build date and who it was sent to could be found.
+ * 
+ * The numbers were random - they were only required to be unique and
+ * differentiable from prior builds.
+ * 
+ * The reason for the naming though is still not clear - it's likely
+ * obscure and randomised also, to disguise its true purpose in the ROM.
+ * 
+ * Some builds were sent to the playtester Huw Ward.
+ */
+char gBuildIdentifier[] = VER_SELECT(
+    "HjunkDire:218755", /* Build date: 20 May 1998 */
+    "HjunkDire:300875", /* Build date: 15 June 1998 */
+    "HjunkDire:746580", /* Build date: 14 July 1998 (listed as "Japanese version" for some reason) */
+    "HjunkDire:309178"  /* Build date: unknown */
+    /* Debug ramdumps: HjunkDire:584817 - Build date: 18 Nov 1997 ("Shoshinkai Demo") */
+);
 
 u32 D_8027A130; // always set to 3
 u8 pad_8027A138[0x400];
-u64 sDebugVar_8027A538; // never used
-u64 sDebugVar_8027A540; // never used
-u8 sMainThreadStack[MAIN_THREAD_STACK_SIZE]; // The real size of the stack is unclear yet, maybe there are some out-optimized debug variables below the stack
+u8 sMainThreadStack[MAIN_THREAD_STACK_SIZE];
 OSThread sMainThread;
 s32 gBootMap;
 bool sDisableInput;
@@ -60,14 +104,14 @@ void func_8023DA9C(s32 next_state) {
     }
 
     if (D_8027A130 == 3) {
-        func_802E4170();
+        game_free();
     }
 
     func_8023DA74();
     D_8027A130 = next_state;
 
     if (D_8027A130 == 3) {
-        func_802E4214(gBootMap);
+        game_init(gBootMap);
     }
 
     if (D_8027A130 == 4) {
@@ -120,7 +164,7 @@ void core1_init(void) {
     // rarezip_init();
     viMgr_init();
     overlayManager_loadCore2();
-    sDebugVar_8027BEF0 = sDebugVar_8027A538;
+    sDebugVar_8027BEF0 = sMainThreadStack[0];
     // [port] Irrelevant and replaced with system malloc
     // heap_init();
     core1_15B30_init();
@@ -128,7 +172,7 @@ void core1_init(void) {
     // [port] Irrelevant and replaced with system malloc
     // allocUnusedBlock();
     assetCache_init();
-    pfsManager_init();
+    joy_thread_init();
     baMotor_init();
     audioManager_init();
     graphicsCache_init();
@@ -158,7 +202,7 @@ void mainLoop(void) {
     }
     
     if (!sDisableInput) {
-        pfsManager_update();
+        joy_update();
     }
 
     sDisableInput = FALSE;
@@ -185,7 +229,7 @@ void mainLoop(void) {
             func_80255524();
             func_80255ACC();
             spawnQueue_func_802C3A18();
-            if (func_802E4424()) {
+            if (game_update()) {
                 game_draw(FALSE);
             }
             spawnQueue_flush();
@@ -197,7 +241,7 @@ void mainLoop(void) {
      * never execute:
      * - func_8023DBAC and func_8023DBDC: Never gets called
      * - func_802E35D8: Only would be called in the above switch block if D_8027A130 was 4 (never happens, see above)
-     * - func_802E4424: When D_8037E8E0.transition was 2 or 3, which is never the case
+     * - game_update: When sGameState.transition was 2 or 3, which is never the case
      */
     // [port] It does run here: the "reset" console command sets D_80275610.
     if (D_80275610) {
@@ -214,7 +258,7 @@ void mainLoop(void) {
     u16 rgba;
     s32 offset;
 
-    if (!func_8032056C() || !levelSpecificFlags_validateCRC1() || !dummy_func_80320240()) {
+    if (!volatileflag_func_8032056C() || !levelSpecificFlags_validateCRC1() || !volatileflag_stub1()) {
         //render weird CRC failure image
         for (y = 30; y < gFramebufferHeight - 30; y++) {
             for (x = 20; x < 235; x++) {

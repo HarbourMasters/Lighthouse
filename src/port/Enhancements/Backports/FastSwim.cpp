@@ -18,15 +18,13 @@
 extern "C" {
 #include "enums.h"
 
-struct animation_file_s;
-typedef struct animation_file_s AnimationFile;
+#include "core2/animationfile.h"
+#include "core2/anim/commoncache.h"
 
 s32 bs_getState(void);
 u32 bakey_held(s32);
 f32 time_getDelta(void);
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
-AnimationFile* animBinCache_get(enum asset_e asset_id);
-void animationFile_getBoneTransformList(AnimationFile* anim_file, f32 progress, BoneTransformList* bone_transform_list);
 
 // Bone transform accessors
 void func_8033A57C(BoneTransformList* self, s32 bone_id, f32 arg2[4]); // get rotation
@@ -72,11 +70,11 @@ static void FastSwim_BoneModifyCallback(uintptr_t arg0, uintptr_t arg1) {
     }
 
     // Sample Banjo's paddle animation at current progress
-    AnimationFile* animFile = animBinCache_get(ASSET_71_ANIM_BSSWIM_DIVE_SLOW);
+    BKAnimationFileBin* animFile = animcommoncache_get(ASSET_71_ANIM_BSSWIM_DIVE_SLOW);
     if (animFile == nullptr || gSecondaryBones == nullptr) {
         return;
     }
-    animationFile_getBoneTransformList(animFile, gDiveSlowProgress, gSecondaryBones);
+    animationfilebin_getBoneTransformList(animFile, gDiveSlowProgress, gSecondaryBones);
 
     // Copy Banjo's leg bone transforms from secondary onto primary
     for (int i = 0; i < BANJO_LEG_BONE_COUNT; i++) {

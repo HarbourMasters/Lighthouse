@@ -1,21 +1,17 @@
 // BanjoDecomp: core2/code_B8020.c
 #include <ultra64.h>
-#include "functions.h"
-#include "variables.h"
+#include "structs.h"
 
+BKSpriteTextureBlock *sNullSpriteTextureBlock;
 
+BKSpriteTextureBlock *spritemask_getChunk(BKSpriteMask *list, s32 index) {
+    s32 *offset_ptr = &list->offset[index];
+    BKSpriteTextureBlock *chunk;
 
-/* .bss */
-BKSpriteTextureBlock *D_80384FF0;
-
-/* .code */
-BKSpriteTextureBlock *func_8033EFB0(Struct84s *arg0, s32 arg1){
-    s32 *offset_ptr = &arg0->offset[arg1];
-    uintptr_t mem_ptr;
-    if(arg0->offset[arg1] == -1){
-        return D_80384FF0;
+    if (*offset_ptr == -1) {
+        return sNullSpriteTextureBlock;
     }
 
-    mem_ptr = *offset_ptr + (intptr_t) &arg0[0].offset[arg0->count];
-    return (BKSpriteTextureBlock *)(mem_ptr);
+    chunk = (BKSpriteTextureBlock *) (*offset_ptr + (u8 *) &((*list).offset[list->count]));
+    return chunk;
 }

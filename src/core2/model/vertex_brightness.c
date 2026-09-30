@@ -2,7 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "model.h"
+#include "core2/model.h"
 
 typedef struct struct_core2_C8360_0{
     f32 unk0;

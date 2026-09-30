@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "model.h"
+#include "core2/model.h"
 
 #include "BlobWriter.h"
 

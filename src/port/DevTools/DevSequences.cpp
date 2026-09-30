@@ -15,7 +15,7 @@ void gcparade_beginFFParade(void);
 void gcparade_beginFinalParade(void);
 void func_8034BA7C(enum map_e map_id, int exit_id); // warp (B&K demo uses MAP_1, exit 93)
 void transitionToMap(enum map_e map, int exit, int transition);
-void func_802E412C(int arg0, int arg1);
+void game_setMapTransitionWithStyle(int arg0, int arg1);
 void func_8034B968(void);          // start the attract demo selected by D_80386110 (sets transition + D_80386114)
 extern int D_80386110;             // attract-demo cycle index
 void func_8025A55C(int, int, int); // fade the active music track
@@ -84,7 +84,7 @@ void RegisterDevSequences_Init() {
                 transitionToMap(MAP_95_CS_END_ALL_100, 0, 1);
                 break;
             case SEQ_GAME_OVER:
-                func_802E412C(1, 0);
+                game_setMapTransitionWithStyle(1, 0);
                 transitionToMap(MAP_83_CS_GAME_OVER_MACHINE_ROOM, 0, 1);
                 break;
             case SEQ_CUTSCENE_MAP:

@@ -5,7 +5,7 @@
 
 extern "C" {
 void item_inc(enum item_e item);
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 }
 
 #define OPTION_ENABLED RANDO_SAVE_OPTIONS[RO_SHUFFLE_MUSIC_NOTES].optionValue
@@ -33,7 +33,7 @@ void RegisterRandoMusicNotes() {
     COND_HOOK(OnSetJiggyList, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, [](IEvent* event) {
         OnSetJiggyList* ev = (OnSetJiggyList*)event;
 
-        item_set(ITEM_C_NOTE, D_80385FF0[ev->levelId]);
+        item_set(ITEM_C_NOTE, sItemscoreNoteScores[ev->levelId]);
     });
 
     COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, IS_RANDO && OPTION_ENABLED, {

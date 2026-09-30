@@ -13,11 +13,6 @@
 
 extern void mapModel_getCubeBounds(s32 min[3], s32 max[3]);
 extern f32 func_803243D0(struct56s *arg0, f32 arg1[3]);
-extern s32 *bitfield_new(s32 arg0);
-extern void bitfield_free(s32 *arg0);
-extern void bitfield_setBit(s32 *arg0, s32 arg1, bool arg2);
-extern bool bitfield_isBitSet(s32 *arg0, s32 arg1);
-extern void bitfield_setAll(s32 *arg0, bool arg1);
 extern void func_8032D510(Cube *, Gfx **, Mtx **, Vtx **);
 // def returns Prop*, but callers here access via the ActorProp union member
 extern ActorProp *func_803322F0(Cube *, ActorMarker *, f32, s32, s32 *);
@@ -76,7 +71,7 @@ Struct_core2_7AF80_1 *D_8036A9D4 = NULL;
 Struct_core2_7AF80_1 *D_8036A9D8 = NULL;
 
 Cube *D_8036A9DC = NULL;
-s32 *D_8036A9E0 = NULL;
+struct bitfield_s *D_8036A9E0 = NULL;
 
 u8 sMarkerToBitfield[] = {
                                0,    9,    2,    3,    4,    5,    6,    7,   -1,    8,  0xA,  0xB, 
@@ -738,9 +733,9 @@ void func_80303D78(ActorMarker *marker, f32 arg1, s32 arg2) {
 
 
     sp5C = 0;
-    sp50[0] = (f32) marker->propPtr->x;
-    sp50[1] = (f32) marker->propPtr->y;
-    sp50[2] = (f32) marker->propPtr->z;
+    sp50[0] = (f32) marker->propPtr->position_x;
+    sp50[1] = (f32) marker->propPtr->position_y;
+    sp50[2] = (f32) marker->propPtr->position_z;
     cube_positionToIndices(sp60, sp50);
     for(sp6C[2] = sp60[2] - 1; sp6C[2] <= sp60[2] + 1; sp6C[2]++){
         for(sp6C[1] = sp60[1] - 1; sp6C[1] <= sp60[1] + 1; sp6C[1]++){
@@ -948,7 +943,7 @@ void cubeList_fromFile(File *file_ptr) {
                 if (cube->unk0_4) {
                     for(iPtr = cube->prop1Ptr; iPtr < &cube->prop1Ptr[cube->unk0_4] ;iPtr++){
                         if (!iPtr->bit0) {
-                            bitfield_setBit(D_8036A9E0, iPtr->unkA, 1);
+                            bitfield_setBit(D_8036A9E0, iPtr->markerId, 1);
                         }
                     }
                 }
@@ -975,7 +970,7 @@ s32 func_80304984(s32 actor_id, u32 *arg1) {
     NodeProp *temp_v0 = cubeList_findNodePropByActorIdAndPosition_s32(actor_id, NULL);
 
     if (temp_v0 != 0) {
-        *arg1 = temp_v0->radius;
+        *arg1 = temp_v0->selector_or_radius;
         return 1;
     }
 
@@ -1073,15 +1068,15 @@ NodeProp *nodeprop_findByActorIdAndPosition_s16(enum actor_e actor_id, s16 *posi
 }
 
 s32 nodeprop_getRadius(NodeProp *arg0) {
-    return arg0->radius;
+    return arg0->selector_or_radius;
 }
 
 void nodeprop_getPosition_s32(NodeProp *nodeProp, s32 dst[3]) {
-    TUPLE_ASSIGN(dst, nodeProp->x, nodeProp->y, nodeProp->z)
+    TUPLE_ASSIGN(dst, nodeProp->position_x, nodeProp->position_y, nodeProp->position_z)
 }
 
 void nodeprop_getPosition(NodeProp *nodeProp, f32 dst[3]) {
-    TUPLE_ASSIGN(dst, nodeProp->x, nodeProp->y, nodeProp->z)
+    TUPLE_ASSIGN(dst, nodeProp->position_x, nodeProp->position_y, nodeProp->position_z)
 }
 
 u32 nodeProp_getYaw(NodeProp *nodeProp) {
@@ -1097,9 +1092,9 @@ bool nodeprop_findPositionFromActorId(enum actor_e actor_id, s32 *position) {
 
     node_prop = cubeList_findNodePropByActorIdAndPosition_s32(actor_id, NULL);
     if (node_prop != 0) {
-        position[0] = (s32) node_prop->x;
-        position[1] = (s32) node_prop->y;
-        position[2] = (s32) node_prop->z;
+        position[0] = (s32) node_prop->position_x;
+        position[1] = (s32) node_prop->position_y;
+        position[2] = (s32) node_prop->position_z;
         return true;
     }
     return false;
@@ -1140,7 +1135,7 @@ NodeProp *func_80304ED0(enum actor_e *arg0 , f32 arg1[3]) {
         return NULL;
     }
     for(i = 0; i < cnt; i++){
-            dist_sq = func_80304E9C(sp34[0] - sp4C[i]->x, sp34[1] - sp4C[i]->y, sp34[2] - sp4C[i]->z);
+            dist_sq = func_80304E9C(sp34[0] - sp4C[i]->position_x, sp34[1] - sp4C[i]->position_y, sp34[2] - sp4C[i]->position_z);
             if (dist_sq < min_dist_sq) {
                 min_dist_sq = dist_sq;
                 closest_node_ptr = sp4C[i];
@@ -1223,7 +1218,7 @@ bool func_80305290(bool (* arg0)(NodeProp *), bool (* arg1)(Prop *)){
     return true;
 }
 
-bool func_80305344(s32 arg0, u32 *arg1) {
+bool nodeprop_findYawFromActorId(s32 arg0, u32 *arg1) {
     NodeProp *temp_v0;
 
     temp_v0 = cubeList_findNodePropByActorIdAndPosition_s32(arg0, NULL);
@@ -1306,7 +1301,7 @@ Actor *__actor_spawnWithYaw_s32(enum actor_e arg0, s32 pos[3], s32 rot) {
     CALL_CANCELLABLE_RETURN_EVENT(OnActorSpawn, arg0, pos[0], pos[1], pos[2], rot) {
         s32 i;
 
-        arg0 = (!dummy_func_80320248()) ? (ACTOR_4_BIGBUTT) : (arg0);
+        arg0 = (!volatileflag_stub2()) ? (ACTOR_4_BIGBUTT) : (arg0);
         for (i = 0; i < sSpawnableActorSize; i++) {
             if (arg0 == sSpawnableActorList[i].infoPtr->actorId) {
                 return sSpawnableActorList[i].spawnFunc(pos, rot, ((0, sSpawnableActorList[i])).infoPtr, sSpawnableActorList[i].unk8);
@@ -1317,7 +1312,8 @@ Actor *__actor_spawnWithYaw_s32(enum actor_e arg0, s32 pos[3], s32 rot) {
     }
 }
 
-void func_8030578C(void){
+/* spawns the actors of every cube */
+void cubeList_spawnActors(void){
     int i;
     u32 sp40;
     Cube *iCube;
@@ -1342,7 +1338,7 @@ void func_8030578C(void){
     }//L80305850
 #endif
     for(iCube = sCubeList.cubes; iCube < sCubeList.cubes + sCubeList.cubeCnt; iCube++){
-        func_80330208(iCube);
+        cube_spawnActors(iCube);
     }
 }
 
@@ -1502,7 +1498,7 @@ void __code7AF80_concatElementsAndRemoveEmpty(s32 *count, Struct_core2_7AF80_1 *
                             )) {
                                 //concat b_list to end of a_list
                                 a_list->unk8 = (Struct_core2_7AF80_2 *) bk_realloc(a_list->unk8, (a_list->count + b_list->count)*sizeof(Struct_core2_7AF80_2));
-                                memcpy(a_list->unk8 + a_list->count, b_list->unk8, b_list->count * sizeof(Struct_core2_7AF80_2));
+                                bk_memcpy(a_list->unk8 + a_list->count, b_list->unk8, b_list->count * sizeof(Struct_core2_7AF80_2));
                                 a_list->count = (s32) (a_list->count + b_list->count);
                                 
                                 b_list->count = 0;
@@ -1525,7 +1521,7 @@ void __code7AF80_concatElementsAndRemoveEmpty(s32 *count, Struct_core2_7AF80_1 *
                 for(b_list = a_list + 1; (b_list < *arg1 + *count) && continue_loop; b_list++){
                     if (b_list->count != 0) { //B is not empty
                         //swap A an B
-                        memcpy(a_list, b_list, sizeof(Struct_core2_7AF80_1));
+                        bk_memcpy(a_list, b_list, sizeof(Struct_core2_7AF80_1));
                         b_list->count = 0;
                         b_list->unk8 = NULL;
 
@@ -2058,7 +2054,7 @@ void func_80307CA0(ActorMarker *marker) {
     s32 node_idx;
 
     marker_bitfield = sMarkerToBitfield[marker->id];
-    if ((marker_bitfield != 0xFF) && (bitfield_isBitSet(D_8036A9E0, marker_bitfield) == 1)) {
+    if ((marker_bitfield != 0xFF) && (bitfield_getBit(D_8036A9E0, marker_bitfield) == 1)) {
         codeA5BC0_getActorPosition(marker->propPtr, marker_position);
         cubePtrList = func_80307948(marker_position);
         for(i = 0; cubePtrList[i] != NULL; i++) {
@@ -2127,9 +2123,9 @@ u32 func_80307EA8(s32 arg0, s32 position[3], s32 *arg2, s32 *arg3) {
             var_s4 =  temp_v0->prop1Ptr[D_803820B4].unk10_31;
             *arg2 =   temp_v0->prop1Ptr[D_803820B4].unk10_19;
             *arg3 =   temp_v0->prop1Ptr[D_803820B4].bit0;
-            position[0] = temp_v0->prop1Ptr[D_803820B4].x;
-            position[1] = temp_v0->prop1Ptr[D_803820B4].y;
-            position[2] = temp_v0->prop1Ptr[D_803820B4].z;
+            position[0] = temp_v0->prop1Ptr[D_803820B4].position_x;
+            position[1] = temp_v0->prop1Ptr[D_803820B4].position_y;
+            position[2] = temp_v0->prop1Ptr[D_803820B4].position_z;
             D_803820B4++;
         }
         if ((temp_v0 == NULL) || (D_803820B4 >= temp_v0->prop1Cnt)) {
@@ -2206,7 +2202,7 @@ bool cube_getOrSetProp2Flag(Cube *this_cube, s32 *prop2_index, bool set_flag, bo
 
     prop = this_cube->prop2Ptr + *prop2_index;
 
-    while ((*prop2_index < this_cube->prop2Cnt) && (prop->markerFlag == 1)) {
+    while ((*prop2_index < this_cube->prop2Cnt) && (prop->isActorProp == 1)) {
         (*prop2_index)++;
         prop++;
     }
@@ -2216,11 +2212,11 @@ bool cube_getOrSetProp2Flag(Cube *this_cube, s32 *prop2_index, bool set_flag, bo
         return false;
     }
 
-    old_value = prop->unk8_4;
+    old_value = prop->isNotFeatherEggOrNote;
     (*prop2_index)++;
 
     if (set_flag) {
-        prop->unk8_4 = value;
+        prop->isNotFeatherEggOrNote = value;
     }
 
     return old_value;
@@ -2271,9 +2267,12 @@ s32 cubeList_getOrSetNextProp2Flags(s32 op) {
     return flag_value;
 }
 
-enum actor_e func_803084F0(s32 arg0){
+/* Map exits (the exit number passed to transitionToMap) are marked in the setup
+ * file by an actor NodeProp with this actor id; the player spawns at its position,
+ * facing its yaw (see player_spawnAtMapExit). */
+enum actor_e nodeprop_getExitActorId(s32 exitId){
     s32 var_v1;
-    switch (arg0) {
+    switch (exitId) {
         case 1: var_v1 = ACTOR_1_UNKNOWN; break;
         case 0x2: var_v1 = ACTOR_2_UNKNOWN; break;
         case 0x3: var_v1 = ACTOR_15_UNKNOWN; break;
@@ -2437,8 +2436,8 @@ static void __code7AF80_func_80308984(void) {
     // this iterates over the cubes and assumes that the cubes pointer is currently at index 0
     for(iCube = sCubeList.cubes; iCube < sCubeList.cubes + sCubeList.cubeCnt; iCube++){
         for(iNode = iCube->prop1Ptr; iNode < iCube->prop1Ptr + iCube->prop1Cnt; iNode++){
-            if (iNode->bit6 == 6 && iNode->bit0 == false){
-                u32 tmp = iNode->unk8;
+            if (iNode->category == 6 && iNode->bit0 == false){
+                u32 tmp = iNode->actorId;
 
                 if(tmp >= unk8_range_min && tmp <= unk8_range_max) {
                     for(i = 0; D_8036ABAC[i] != tmp && D_8036ABAC[i] != -1; i++){
@@ -2451,7 +2450,7 @@ static void __code7AF80_func_80308984(void) {
 
                         for(jCube = sCubeList.cubes; jCube < sCubeList.cubes + sCubeList.cubeCnt; jCube++){
                             for(jNode = jCube->prop1Ptr; jNode < jCube->prop1Ptr + jCube->prop1Cnt; jNode++){
-                                if (jNode->bit6 == 6 && jNode->bit0 == false && jNode->unk8 == D_8036ABC0[i]) {
+                                if (jNode->category == 6 && jNode->bit0 == false && jNode->actorId == D_8036ABC0[i]) {
                                     __code7AF80_addCubeIndexToD_80382150(jCube - sCubeList.cubes);
                                     D_80382150[temp_s4 + 1]++;
                                     jNode = jCube->prop1Ptr + jCube->prop1Cnt;

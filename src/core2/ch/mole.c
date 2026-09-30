@@ -74,20 +74,20 @@ int chmole_learnedAllLevelAbilities(enum level_e level){
     // Checks if all of the level's abilities are learned.
     switch (level){
         case LEVEL_1_MUMBOS_MOUNTAIN:
-            return ability_isUnlocked(ABILITY_6_EGGS)
-                && ability_isUnlocked(ABILITY_2_BEAK_BUSTER)
-                && ability_isUnlocked(ABILITY_10_TALON_TROT);
+            return player_isAbilityUnlocked(ABILITY_6_EGGS)
+                && player_isAbilityUnlocked(ABILITY_2_BEAK_BUSTER)
+                && player_isAbilityUnlocked(ABILITY_10_TALON_TROT);
         case LEVEL_2_TREASURE_TROVE_COVE:
-            return ability_isUnlocked(ABILITY_D_SHOCK_JUMP)
-                && ability_isUnlocked(ABILITY_9_FLIGHT);
+            return player_isAbilityUnlocked(ABILITY_D_SHOCK_JUMP)
+                && player_isAbilityUnlocked(ABILITY_9_FLIGHT);
         case LEVEL_3_CLANKERS_CAVERN:
-            return ability_isUnlocked(ABILITY_12_WONDERWING);
+            return player_isAbilityUnlocked(ABILITY_12_WONDERWING);
         case LEVEL_4_BUBBLEGLOOP_SWAMP:
-            return ability_isUnlocked(ABILITY_E_WADING_BOOTS);
+            return player_isAbilityUnlocked(ABILITY_E_WADING_BOOTS);
         case LEVEL_5_FREEZEEZY_PEAK:
-            return ability_isUnlocked(ABILITY_1_BEAK_BOMB);
+            return player_isAbilityUnlocked(ABILITY_1_BEAK_BOMB);
         case LEVEL_7_GOBIS_VALLEY:
-            return ability_isUnlocked(ABILITY_11_TURBO_TALON);
+            return player_isAbilityUnlocked(ABILITY_11_TURBO_TALON);
         default:
             return FALSE;
   }
@@ -119,15 +119,15 @@ enum asset_e chmole_learnedAllLevelAbilitiesDialog(void){
 
 int chmole_learnedAllGameAbilities(void){
     // Checks if the player has learned all non-Spiral Mountain abilities.
-    return ability_isUnlocked(ABILITY_6_EGGS)
-        && ability_isUnlocked(ABILITY_2_BEAK_BUSTER)
-        && ability_isUnlocked(ABILITY_10_TALON_TROT)
-        && ability_isUnlocked(ABILITY_D_SHOCK_JUMP)
-        && ability_isUnlocked(ABILITY_9_FLIGHT)
-        && ability_isUnlocked(ABILITY_12_WONDERWING)
-        && ability_isUnlocked(ABILITY_E_WADING_BOOTS)
-        && ability_isUnlocked(ABILITY_1_BEAK_BOMB)
-        && ability_isUnlocked(ABILITY_11_TURBO_TALON);
+    return player_isAbilityUnlocked(ABILITY_6_EGGS)
+        && player_isAbilityUnlocked(ABILITY_2_BEAK_BUSTER)
+        && player_isAbilityUnlocked(ABILITY_10_TALON_TROT)
+        && player_isAbilityUnlocked(ABILITY_D_SHOCK_JUMP)
+        && player_isAbilityUnlocked(ABILITY_9_FLIGHT)
+        && player_isAbilityUnlocked(ABILITY_12_WONDERWING)
+        && player_isAbilityUnlocked(ABILITY_E_WADING_BOOTS)
+        && player_isAbilityUnlocked(ABILITY_1_BEAK_BOMB)
+        && player_isAbilityUnlocked(ABILITY_11_TURBO_TALON);
 }
 
 Actor *func_802D94B4(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx){
@@ -242,7 +242,7 @@ int chmole_learnAbility(Actor *this){
     // [port] Rando hands out its own item here, whether or not the vanilla move is known.
     if (!EventSystem_Should(VB_OVERRIDE_MOLEHILL_ABILITY, false, this, &teach_text_id, &sp28)) {
         // Known Ability: Refresher Dialog
-        if(ability_isUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
+        if(player_isAbilityUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
             sp28 = 0xf;
             teach_text_id = moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].refresher_text_id;
         }//L802D99EC
@@ -251,7 +251,7 @@ int chmole_learnAbility(Actor *this){
             func_80347A14(0);
             this->has_met_before = TRUE;
             teach_text_id = moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].teach_text_id;
-            ability_unlock(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability);
+            player_unlockAbility(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability);
             switch(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability){
                 case ABILITY_9_FLIGHT:
                 case ABILITY_D_SHOCK_JUMP:
@@ -319,7 +319,7 @@ void func_802D9C90(Actor *this){
 void chmole_startingDialog(Actor *this){
     // If the player knows the ability, use refresher function
     // Otherwise, set player's position and spawn mole
-    if(ability_isUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
+    if(player_isAbilityUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)){
         chmole_Refresher(this);
     }
     else{
@@ -399,7 +399,7 @@ void chmole_update(Actor *this){
             subaddie_turnToYaw(this, 4.0f);
             if(player_isStableWithExtraSteps() && player_isBanjoOrWishywashy() && !func_8028EC04()){
                 if( this->actorTypeSpecificField == CH_MOLE_ID_12_OPEN_NOTEDOORS 
-                    && !ability_isUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)
+                    && !player_isAbilityUnlocked(moleTable[this->actorTypeSpecificField - MOLE_ID_TO_TABLE_SHIFT].ability)
                     && (player_movementGroup() == BSGROUP_0_NONE || player_movementGroup() == BSGROUP_8_TROT)
                 ){
                     player_getPosition(sp34);
@@ -492,15 +492,15 @@ void chmole_update(Actor *this){
 int chmole_learnedAllSpiralMountainAbilities(void){
     // Checks if the player has learned all of the Spiral Mountain abilities.
     CALL_CANCELLABLE_RETURN_EVENT(OnCheckSpiralMountainAbilities) {
-        return ability_isUnlocked(ABILITY_F_DIVE)
-            && ability_isUnlocked(ABILITY_4_CLAW_SWIPE)
-            && ability_isUnlocked(ABILITY_C_ROLL)
-            && ability_isUnlocked(ABILITY_B_RATATAT_RAP)
-            && ability_isUnlocked(ABILITY_0_BARGE)
-            && ability_isUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER)
-            && ability_isUnlocked(ABILITY_7_FEATHERY_FLAP)
-            && ability_isUnlocked(ABILITY_8_FLAP_FLIP)
-            && ability_isUnlocked(ABILITY_5_CLIMB)
+        return player_isAbilityUnlocked(ABILITY_F_DIVE)
+            && player_isAbilityUnlocked(ABILITY_4_CLAW_SWIPE)
+            && player_isAbilityUnlocked(ABILITY_C_ROLL)
+            && player_isAbilityUnlocked(ABILITY_B_RATATAT_RAP)
+            && player_isAbilityUnlocked(ABILITY_0_BARGE)
+            && player_isAbilityUnlocked(ABILITY_A_HOLD_A_JUMP_HIGHER)
+            && player_isAbilityUnlocked(ABILITY_7_FEATHERY_FLAP)
+            && player_isAbilityUnlocked(ABILITY_8_FLAP_FLIP)
+            && player_isAbilityUnlocked(ABILITY_5_CLIMB)
             ;
     }
 }

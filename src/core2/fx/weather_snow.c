@@ -69,7 +69,7 @@ void func_802F8FF0(void){
 void func_802F8FFC(void){
     if(D_80369280){
         bk_free(D_80369280->unk1C);
-        func_8033BD20((void **)&D_80369288);
+        func_8033BD20(&D_80369288);
         bk_free(D_80369280);
         D_80369280 = NULL;
         D_80369284 = 0;
@@ -100,7 +100,7 @@ void func_802F9114(void){
 void func_802F9134(s32 gfx){
     D_80369284 = D_80369284 - 1;
     if(gfx < D_80369284){
-        memcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
+        bk_wmemcpy(D_80369280->unk1C + gfx, D_80369280->unk1C + D_80369284, sizeof(struct4Ds));
     }
 }
 
@@ -118,7 +118,7 @@ void func_802F919C(void) {
 
 
     if (D_80369280 != NULL) {
-        if (func_802BEF64() != 0) {
+        if (core2_37E50_isCameraUnderwater() != 0) {
             D_80369284 = 0;
             return;
         }

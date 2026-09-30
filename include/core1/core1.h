@@ -10,6 +10,7 @@
 
 #include "core1/audiomanager.h"
 #include "core1/bamotor.h"
+#include "core1/bk_gu.h"
 #include "core1/debugtext.h"
 #include "core1/defragthread.h"
 #include "core1/depthbuffer.h"
@@ -28,7 +29,7 @@
 #include "core1/overlay.h"
 #include "core1/overlaymanager.h"
 #include "core1/parallel.h"
-#include "core1/pfsmanager.h"
+#include "core1/joy.h"
 #include "core1/rarezip.h"
 #include "core1/sns.h"
 #include "core1/sprite.h"

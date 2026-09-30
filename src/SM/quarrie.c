@@ -13,7 +13,7 @@ void SM_func_80386A00(Actor *this);
 /*.data */
 ActorAnimationInfo D_8038AAF0[] = {
     {0, 0.f},
-    {0x2B9, 5.0f}
+    {ASSET_2B9_ANIM_unk, 5.0f}
 };
 
 ActorInfo gQuarrie = {

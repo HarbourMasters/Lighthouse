@@ -28,8 +28,8 @@ typedef struct bk_model_header_s {
     s32 mesh_list_offset;
     s32 anim_vertices_list_offset;
     s32 animated_texture_list_offset;
-    u16 unk30;
-    u16 vertex_count;
+    u16 tri_count;      // number of triangles drawn by the gfx list (G_TRI1 + 2 * G_TRI2)
+    u16 vertex_count;   // same as the vertex list's count
     f32 unk34;
 } BKModelBin;
 
@@ -304,23 +304,52 @@ typedef struct bk_collision_geometry_s {
     s16 tri_count; //tri_cnt
 } BKCollisionGeometry;
 
+/* Collision triangle
+ * unk0 holds three indices into the model's vertex list. The normal is
+ * cross(v1 - v0, v2 - v0).
+ * unk6 bit 1 (0x2): standing on this floor doesn't tint the player (see core2_12F30_getFloorTint).
+ *
+ * A collision query's flag filter skips every triangle with any of the filter's bits set.
+ *
+ * Known flag bits:
+ * - 0x00000080  knocks the player back when they fly into it (bsbfly)
+ * - 0x00001F00  surface type, used to pick footstep sounds (see func_803246B4). With 0x80000000
+ *               set it is looked up in a global table, otherwise bits 0x200-0x1000 pick an
+ *               entry from a per-map table.
+ * - 0x00004000  hurts the player on contact; only checked in Gobi's Valley (see hazards_update)
+ *               and only used by the cactus model (asset 0x424)
+ * - 0x00010000  two-sided: the normal is flipped to face the tested point
+ * - 0x001E0000  water surface: always in the player's floor/wall collision filter
+ * - 0x00400000  always in the player's collision filter (see baMarker_8028D694)
+ * - 0x08000000 << n  added to the player's filter while touching an actor whose marker has
+ *               unk40_31 == 0xB + n and bit n of unk40_27 set (see baMarker_8028D694)
+ */
 typedef struct bk_collision_triangle_s {
     s16 unk0[3]; //vtx_indx
     s16 unk6;
     s32 flags;
 } BKCollisionTriangle;
 
+/* Collision list
+ * The model is divided into a grid of cubic cells `scale` units wide. Each
+ * BKCollisionGeometry is one cell and lists the triangles touching it; a
+ * triangle spanning several cells is stored once per cell. Cell (x, y, z)
+ * (relative to `min`) is at index x + y * y_stride + z * z_stride.
+ * A scale of 0 means a single cell that holds every triangle.
+ * Moving-sphere tests process at most 100 triangles per query (sActiveCollTris).
+ */
 typedef struct bk_collision_list_s {
-    s16 unk0[3]; //min
-    s16 unk6[3]; //max
-    s16 unkC; //y_stride
-    s16 unkE; //z_stride
-    s16 unk10; //geo_cnt
-    s16 unk12; //scale
-    s16 unk14; //tri_cnt
+    s16 min[3];     // first cell, in cell units
+    s16 max[3];     // last cell (inclusive), in cell units
+    s16 y_stride;   // number of cells along x
+    s16 z_stride;   // number of cells in one x-y layer
+    s16 geo_count;  // total number of cells
+    s16 scale;      // cell size in world units
+    s16 tri_count;  // number of triangle entries (including per-cell duplicates)
     u8 pad16[0x2];
-    //BKCollisionGeometry[]
-    //BKCollisionTriangle[]
+    u8 data[];
+    // BKCollisionGeometry[geo_count];
+    // BKCollisionTriangle[tri_count];
 } BKCollisionList;
 
 /* Camera Area Lists
@@ -495,7 +524,7 @@ void cameraAreaList_updateInBoundsFlag(BKCameraAreaList *self, f32 camera_positi
 
 s32 meshList_getVtxCount(BKMeshList *self);
 BKMesh *meshList_getMesh(BKMeshList *self, s32 mesh_id);
-bool meshList_meshContainsVtx(BKMeshList *self, s32 mesh_id, void *vtx_id);
+bool meshList_meshContainsVtx(BKMeshList *self, s32 mesh_id, s16 *vtx_id);
 BKModel *meshList_createModel(BKMeshList *self, BKVertexList *bk_vtx_list);
 
 
@@ -513,6 +542,32 @@ void model_free(BKModel *self);
 //void animVerticesList_setCoords(BKAnimVerticesList *this, BKVertexList *bk_vtx_list, s32 index, f32 coords[3]);
 //void animVerticesList_transform(BKAnimVerticesList *this, BKVertexList *bk_vtx_list, AnimMtxList *mtx_list);
 
+typedef struct bk_processed_collision_triangle_s {
+    f32 edgeAB[3]; 
+    f32 edgeAC[3]; 
+    f32 normal[3];
+    BKCollisionTriangle *tri_ptr;
+    f32 tri_coord[3][3];
+} BKProcessedCollisionTriangle;
+
+void collisionList_setStoredTriangle(BKCollisionTriangle *self, BKVertexList *bk_vtx_list);
+void collisionList_getIntersecting_f32(BKCollisionList *self, f32 min[3], f32 max[3], BKCollisionGeometry ***begin_ptr, BKCollisionGeometry ***end_ptr);
+void collisionList_getIntersecting_s32(BKCollisionList *self, s32 min[3], s32 max[3], BKCollisionGeometry ***begin_ptr, BKCollisionGeometry ***end_ptr);
+void collisionList_getStoredTriangle(f32 tri[3][3]);
+s32 collisionList_getTriCount_0x1E0000(BKCollisionList *self);
+s32 collisionList_getTriCount(BKCollisionList *self);
+void collisionList_getTris(BKCollisionList *self, BKCollisionTriangle **begin_ptr, BKCollisionTriangle **end_ptr);
+bool collisionList_pointOnLine(f32 point[3], f32 margin, f32 line_start[3], f32 line_end[3]);
+bool collisionList_spheresIntersect(f32 pos1[3], f32 radius1, f32 pos2[3], f32 radius2);
+void collisionList_calculateBoundsAndDirection(f32 start_point[3], f32 end_point[3], s32 min_bounds[3], s32 max_bounds[3], f32 direction_vector[3]);
+BKCollisionTriangle *collisionList_intersectLine(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 line_start[3], f32 line_end[3], f32 normal[3], u32 flag_filter);
+BKCollisionTriangle *collisionList_intersectLineGlobal(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 position[3], f32 rotation[3], f32 scale, f32 line_start[3], f32 line_end[3], f32 normal[3], u32 flag_filter);
+bool collisionList_intersectMovingSphere_FastCheck(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 p1[3], f32 p2[3], f32 velocity[3], f32 margin, u32 flag_filter, BKProcessedCollisionTriangle **activeTriStartPtr, BKProcessedCollisionTriangle **activeTriEndPtr);
+BKProcessedCollisionTriangle *collisionList_intersectMovingSphere_Iteration(BKProcessedCollisionTriangle *startTri, BKProcessedCollisionTriangle *endTri, f32 position[3], f32 radius, f32 normal[3]);
+BKCollisionTriangle *collisionList_intersectMovingSphere(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 p1[3], f32 p2[3], f32 radius, f32 arg5[3], s32 steps, u32 flag_filter);
+BKCollisionTriangle *collisionList_intersectMovingSphereGlobal(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 position[3], f32 rotation[3], f32 scale, f32 p1[3], f32 p2[3], f32 sphere_radius, f32 normal[3], s32 steps, u32 flag_filter);
+BKCollisionTriangle *collisionList_intersectSphere(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 position[3], f32 radius, f32 normal[3], u32 flag_filter);
+BKCollisionTriangle *collisionList_intersectSphereGlobal(BKCollisionList *self, BKVertexList *bk_vtx_list, f32 position[3], f32 rotation[3], f32 scale, f32 sphere_center[3], f32 sphere_radius, f32 normal[3], u32 flag_filter);
 
 void gclights_recolor_vertices(BKVertexList *arg0, f32 position[3], f32 rotation[3], f32 scale, f32 arg4[3], BKVertexList *arg5);
 

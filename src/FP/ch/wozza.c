@@ -17,18 +17,18 @@ void chWozza_update(Actor *this);
 /* .data */
 ActorAnimationInfo chWozzaAnimations[] ={
     {0x000, 0.0f},
-    {0x1AC, 3.8f},
-    {0x1AC, 3.8f},
-    {0x1AE, 0.55f},
-    {0x1AE, 0.55f},
-    {0x1B3, 0.6f},
-    {0x1B4, 0.8f},
-    {0x1AE, 0.55f},
-    {0x1AD, 4.4f},
-    {0x1B5, 1.2f},
-    {0x221, 5.0f},
-    {0x1AE, 0.55f},
-    {0x1AE, 0.55f}
+    {ASSET_1AC_ANIM_WOZZA_HOLDING_JIGGY, 3.8f},
+    {ASSET_1AC_ANIM_WOZZA_HOLDING_JIGGY, 3.8f},
+    {ASSET_1AE_ANIM_WOZZA_LEAVING, 0.55f},
+    {ASSET_1AE_ANIM_WOZZA_LEAVING, 0.55f},
+    {ASSET_1B3_ANIM_WOZZA_unk, 0.6f},
+    {ASSET_1B4_ANIM_WOZZA_unk, 0.8f},
+    {ASSET_1AE_ANIM_WOZZA_LEAVING, 0.55f},
+    {ASSET_1AD_ANIM_WOZZA_THROWING_JIGGY, 4.4f},
+    {ASSET_1B5_ANIM_WOZZA_unk, 1.2f},
+    {ASSET_221_ANIM_WOZZA_IN_CAVE, 5.0f},
+    {ASSET_1AE_ANIM_WOZZA_LEAVING, 0.55f},
+    {ASSET_1AE_ANIM_WOZZA_LEAVING, 0.55f}
 };
 
 ActorInfo gChWozza = { MARKER_20B_WOZZA, ACTOR_1F3_WOZZA, ASSET_494_MODEL_WOZZA, 

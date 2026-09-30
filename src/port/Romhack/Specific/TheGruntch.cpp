@@ -20,9 +20,9 @@ extern "C" {
 #include "core2/modelRender.h"
 #include "bk_time.h"
 
-extern ActorInfo chLargeCrocodile;
+extern ActorInfo gChLargeCrocodile;
 extern f32 D_8037C5B0[3];
-extern PfsManagerControllerData D_80281138[4];
+extern s32 sHeldFrames[MAXCONTROLLERS][JOY_BUTTON_COUNT];
 extern f32 cameraPosition[3];
 extern f32 cameraRotation[3];
 extern f32 D_8037D948[3];
@@ -32,7 +32,7 @@ extern f32 D_8037D9D4, D_8037D9D8, D_8037D9EC, D_8037D9F0;
 extern struct {
     u8 unk0;
     u8 level;
-} D_80383300;
+} sLevelState;
 
 typedef struct struct_1A_s {
     f32 delay;
@@ -182,7 +182,7 @@ static bool GruntchDialogGate1B() {
     }
     if (ProximityDialogs_IsShown(1, 0xC000) && player_isStable()) {
         f32 reArm[3] = { 0.0f, 720.0f, -360.0f };
-        if (ml_vec3f_distance(reArm, D_8037C5B0) < 170.0f && D_80281138[0].face_button[1] == 1) {
+        if (ml_vec3f_distance(reArm, D_8037C5B0) < 170.0f && sHeldFrames[0][JOY_BUTTON_B] == 1) {
             ProximityDialogs_ClearShown(1, 0xC000);
         }
     }
@@ -261,10 +261,10 @@ static void Gruntch_EnableVoidOutRespawn() {
     REGISTER_VB_SHOULD(VB_VOID_OUT_RESPAWN_TRANSITION, EVENT_PRIORITY_NORMAL, {
         s32 map = va_arg(args, s32);
         s32 exit = va_arg(args, s32);
-        if (D_80383300.level == 1) {
+        if (sLevelState.level == 1) {
             map = MAP_28_MMM_EGG_ROOM;
             exit = 2;
-        } else if (D_80383300.level == 0xA) {
+        } else if (sLevelState.level == 0xA) {
             map = MAP_6C_GL_RED_CAULDRON_ROOM;
             exit = 5;
         }
@@ -562,10 +562,10 @@ static bool Gruntch_HeadHasNoticedPlayer() {
 }
 
 static void Gruntch_EnableHeadLook() {
-    sHead.savedUpdate = chLargeCrocodile.update_func;
-    sHead.savedDraw = chLargeCrocodile.draw_func;
-    chLargeCrocodile.update_func = HeadLook_update;
-    chLargeCrocodile.draw_func = HeadLook_draw;
+    sHead.savedUpdate = gChLargeCrocodile.update_func;
+    sHead.savedDraw = gChLargeCrocodile.draw_func;
+    gChLargeCrocodile.update_func = HeadLook_update;
+    gChLargeCrocodile.draw_func = HeadLook_draw;
 
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) {
         sHead.initialised = false;

@@ -455,14 +455,15 @@ void func_80315200(GcZoombox *this){
 
 void func_803152C4(GcZoombox *this){
      if(this->unk100 != NULL){
-          func_8033BD20((void **)&this->unk100);
+//        func_8033BD20(&this->unk100);
+          func_8033BD20((BKModelBin **)&this->unk100);
           this->unk100 = NULL;
      }
 }
 
 void func_80315300(GcZoombox *this){
      if(this->model != NULL){
-          func_8033BD20((void **)&this->model);
+          func_8033BD20(&this->model);
           this->model = NULL;
      }
      if(this->anim_ctrl != NULL){
@@ -470,7 +471,8 @@ void func_80315300(GcZoombox *this){
           this->anim_ctrl = NULL;
      }
      if(this->unkF8 != NULL){
-          func_8033BD20((void **)&this->unkF8);
+//        func_8033BD20(&this->unkF8);
+          func_8033BD20((BKModelBin **)&this->unkF8);
           this->unkF8 = NULL;
      }
      func_803152C4(this);
@@ -866,7 +868,7 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     codeAEDA0_setPrimaryColorRGB(0xFF, 0xFF, 0xFF);
     func_803382FC(this->unk168 * arg6);
     codeAEDA0_setSpriteDrawMode(5);
-    codeAEDA0_postDrawSprite(gfx);
+    codeAEDA0_drawSprite(gfx);
     viewport_setRenderViewportAndOrthoMatrix(gfx, mtx);
     mlMtxIdent();
     if (this->unk1A4_24) {
@@ -884,7 +886,7 @@ void func_803164B0(GcZoombox *this, Gfx **gfx, Mtx **mtx, s32 arg3, s32 arg4, BK
     gSPMatrix((*gfx)++, (*mtx)++, G_MTX_LOAD | G_MTX_MODELVIEW);
     modelRender_setDepthMode(MODEL_RENDER_DEPTH_NONE);
     func_80344090(arg5, this->unk186, gfx);
-    codeAEDA0_drawSprite(gfx);
+    codeAEDA0_postDrawSprite(gfx);
     viewport_setRenderViewportAndPerspectiveMatrix(gfx, mtx);
 }
 
@@ -898,8 +900,8 @@ void func_80316764(GcZoombox *this, s32 arg1) {
         controller_copySideButtons(0, sp2C);
         phi_f0 = time_getDelta();
     } else {
-        pfsManager_getFirstControllerFaceButtonState(0, sp38);
-        func_8024E640(0, sp2C);
+        controller_copyFaceButtonsPrimary(0, sp38);
+        controller_copySideButtonsPrimary(0, sp2C);
         phi_f0 = time_func_8033DDB8();
     }
 
@@ -1081,7 +1083,7 @@ void func_80316E84(GcZoombox *this, s32 state){
 }
 
 s32 gczoombox_strlen(u8 *arg0){
-    return strlen(arg0);
+    return bk_strlen(arg0);
 }
 
 void gczoombox_update(GcZoombox *this){
@@ -1100,8 +1102,8 @@ void gczoombox_update(GcZoombox *this){
           tmp_f0 = time_getDelta();
      }
      else{
-          pfsManager_getFirstControllerFaceButtonState(0, sp58);
-          func_8024E640(0, sp4C);
+          controller_copyFaceButtonsPrimary(0, sp58);
+          controller_copySideButtonsPrimary(0, sp4C);
           tmp_f0 = time_func_8033DDB8();
      }
 

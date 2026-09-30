@@ -78,7 +78,7 @@ void bsclimb_idle_init(void){
         yaw_setIdeal(angle_towards_pole);
         yaw_applyIdeal();
     }
-    ability_use(4);
+    ability_setUsedWithDialog(4);
     baanim_playForDuration_loopSmooth(ASSET_B2_ANIM_BSCLIMB_IDLE_2, 2.64f);
     baanim_setUpdateType(BAANIM_UPDATE_1_NORMAL);
     func_802AB654();

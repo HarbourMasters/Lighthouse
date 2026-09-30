@@ -17,8 +17,8 @@ void func_803881AC(Actor *this);
 /* .data */
 ActorAnimationInfo D_80391C00[] = {
     {0x000, 0.0f},
-    {0x152, 4.0f},
-    {0x151, 1.2f}
+    {ASSET_152_ANIM_RACE_FLAG,     4.0f},
+    {ASSET_151_ANIM_RACE_FLAG_HIT, 1.2f}
 };
 
 ActorInfo D_80391C18 = { 

@@ -10,7 +10,7 @@
 #include "port/Enhancements/Retention/Retention.h"
 #include "port/Patches/Patches.h"
 
-extern s32 D_80370990;
+extern bool D_80370990;
 extern f32 GameEngine_GetAspectRatio(void);
 
 #define DIST_SQ_VEC3F(v1, v2) ((v1[0] - v2[0])*(v1[0] - v2[0]) + (v1[1] - v2[1])*(v1[1] - v2[1]) + (v1[2] - v2[2])*(v1[2] - v2[2]))
@@ -43,8 +43,8 @@ extern void modelRender_setSecondaryModel(enum asset_e mode_id, f32, f32);
 extern void codeAEDA0_setPrimaryColorRGB(s32, s32, s32);
 extern void func_803382FC(s32);
 extern void codeAEDA0_setSpriteDrawMode(s32);
-extern void codeAEDA0_drawSprite(Gfx **);
 extern void codeAEDA0_postDrawSprite(Gfx **);
+extern void codeAEDA0_drawSprite(Gfx **);
 extern void func_80344138(BKSpriteDisplayData *, s32, s32, f32[3], f32[3], Gfx **, Mtx **);
 extern BKVertexList *vtxList_clone(BKVertexList *vtxList);
 bool func_803296D8(Actor *this, s32 dist);
@@ -274,9 +274,9 @@ Actor *fxTouchSparkle_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
         codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    codeAEDA0_postDrawSprite(gfx);
-    func_80344138(sp3C, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, scale, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
+    func_80344138(sp3C, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, scale, gfx, mtx);
+    codeAEDA0_postDrawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -312,9 +312,9 @@ Actor *func_80325AE0(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    codeAEDA0_postDrawSprite(gfx);
-    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     codeAEDA0_drawSprite(gfx);
+    func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
+    codeAEDA0_postDrawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -349,10 +349,10 @@ Actor *func_80325CAC(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         codeAEDA0_setSpriteDrawMode(0xE);
     }
     func_80344C38(&func_803257A4, marker);
-    codeAEDA0_postDrawSprite(gfx);
+    codeAEDA0_drawSprite(gfx);
     func_80344720(sp40, marker->propPtr->frame, marker->propPtr->isMirrored, this->position, rotation, scale, gfx, mtx);
     
-    codeAEDA0_drawSprite(gfx);
+    codeAEDA0_postDrawSprite(gfx);
     if (this->unk104 != NULL) {
         this->position[0] = this->position[0] + D_8036E58C[0];
         this->position[1] = this->position[1] + D_8036E58C[1];
@@ -1094,7 +1094,7 @@ static void __actor_free(ActorMarker *arg0, Actor *arg1){
     arrayEnd = &suBaddieActorArray->data[suBaddieActorArray->cnt - 1];
     func_80325FE8(arg1);
     if(arg1 != arrayEnd)
-        memcpy(arg1, arrayEnd, sizeof(Actor));
+        bk_memcpy(arg1, arrayEnd, sizeof(Actor));
     arg1->marker->actrArrayIdx = arg0->actrArrayIdx;
 
     //remove last actor from actor array
@@ -1781,7 +1781,7 @@ void actor_copy(Actor *dst, Actor *src){
     dst->unk148 = src->unk148;
     dst->unk14C[0] = src->unk14C[0];
     dst->unk14C[1] = src->unk14C[1];
-    memcpy(src, dst, sizeof(Actor));
+    bk_memcpy(src, dst, sizeof(Actor));
 }
 
 void *actors_appendToSavestate(void *savestate_begin_ptr, void *savestate_end_ptr) {
@@ -1808,7 +1808,7 @@ void *actors_appendToSavestate(void *savestate_begin_ptr, void *savestate_end_pt
 
         for (actor_ptr = suBaddieActorArray->data; actor_ptr < &suBaddieActorArray->data[(u32) suBaddieActorArray->cnt]; actor_ptr++) {
             if (actor_ptr->marker && (actor_ptr->unk10_1 == 1) && (!actor_ptr->despawn_flag) && (actor_ptr->unk40 == 0)) {
-                memcpy(actor_savestate_ptr, actor_ptr, sizeof(Actor));
+                bk_memcpy(actor_savestate_ptr, actor_ptr, sizeof(Actor));
                 CALL_EVENT(OnSaveActorSaveState, actor_ptr);
                 actor_savestate_ptr->unk40 = 0;
                 actor_savestate_ptr->unk138_28 = 1;
@@ -2311,7 +2311,7 @@ void func_8032B258(Actor *this, enum collision_e arg1) {
 }
 
 bool func_8032B38C(NodeProp *node, s32 arg1){
-    return node->unk8 == 0xF7;
+    return node->actorId == 0xF7;
 }
 
 void func_8032B3A0(Actor *this, ActorMarker *arg1) {
@@ -2388,7 +2388,7 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
             }
         }
         if (sp6C != 0 && EventSystem_Should(VB_ENEMY_BECOME_BUNDLE, true, this->actor_info->actorId)) {
-            bundle_setYaw(func_80257204(arg0->propPtr->x, arg0->propPtr->z, arg1->propPtr->x, arg1->propPtr->z) + 90.0f);
+            bundle_setYaw(func_80257204(arg0->propPtr->position_x, arg0->propPtr->position_z, arg1->propPtr->position_x, arg1->propPtr->position_z) + 90.0f);
             D_8036E564 = sp6C;
             if (this->unk138_25) {
                 __bundle_spawnFromFirstActor(sp6C + BUNDLE_21__ICECUBE_B, this);
@@ -2425,9 +2425,9 @@ void func_8032B5C0(ActorMarker *arg0, ActorMarker *arg1, CollisionParams *arg2) 
                     if (((uintptr_t)arg0->unk44 > 1) && ((sp50[0] != 0.0f) || (sp50[1] != 0.0f) || (sp50[2] != 0.0f))) { // [port] N64 used (s32)<0; unk44 is 0=NULL, 1=flag, or valid ptr
                         __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
                     } else if (this->unk16C_3 && func_803048E0(sp3C, &sp4C, &sp48, 3, (s32) (func_8033229C(arg0) * 4.0f))) {
-                        sp50[0] = (f32) sp48->x;
-                        sp50[1] = (f32) sp48->y;
-                        sp50[2] = (f32) sp48->z;
+                        sp50[0] = (f32) sp48->position_x;
+                        sp50[1] = (f32) sp48->position_y;
+                        sp50[2] = (f32) sp48->position_z;
                         __spawnQueue_add_5((GenFunction_5)spawnQueue_bundleWithYaw_f32, sp70 + BUNDLE_15__JIGGY, reinterpret_cast(s32, sp50[0]), reinterpret_cast(s32, sp50[1]), reinterpret_cast(s32, sp50[2]), reinterpret_cast(s32, player_yaw));
                     } else {
                         sp38 = this->position[1] + func_8033229C(arg0);

@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 
+#include "core2/abilityprogress.h"
 #include "core2/ba/model.h"
 #include "core2/ba/physics.h"
 #include "core2/ba/timer.h"
@@ -62,11 +63,9 @@ void func_802A7304() {
     pitch_setIdeal(ml_map_f(temp_f0, 0.0f, 1.0f, 0.0f, 85.0f));
 }
 
-bool func_802A73BC(void) {
-    f32 sp1C;
-
-    sp1C = (gsworld_getMap() == MAP_46_CCW_WINTER) ? 90.0f : 130.0f;
-    return floor_isCurrentFloorunk59() && playerPosition_getY() > (floor_getCurrentFloorYPosition() - sp1C);
+bool bsbdive_surfacing(void) {
+    f32 waterY = (gsworld_getMap() == MAP_46_CCW_WINTER) ? 90.0f : 130.0f;
+    return floor_isCurrentFloorunk59() && playerPosition_getY() > (floor_getCurrentFloorYPosition() - waterY);
 }
 
 void func_802A744C(void) {
@@ -97,7 +96,7 @@ bool bsbswim_inSet(enum bs_e move_id){
         ;
 }
 
-bool func_802A7588(void){
+bool bsbswim_underwater(void){
     return bsbswim_inSet(bs_getState());
 }
 
@@ -137,7 +136,7 @@ void bsbdive_idle_update() {
     if (bakey_held(BUTTON_B)) {
         state_id = BS_2C_DIVE_B;
     }
-    if (func_802A73BC()) {
+    if (bsbdive_surfacing()) {
         state_id = BS_2D_SWIM_IDLE;
     }
     if (!player_inWater()) {
@@ -222,7 +221,7 @@ void bsbdiveb_update(void) {
             next_state = BS_2B_DIVE_IDLE;
         }
     }
-    if (func_802A73BC()) {
+    if (bsbdive_surfacing()) {
         next_state = BS_2D_SWIM_IDLE;
     }
     if (player_inWater() == 0) {
@@ -268,7 +267,7 @@ void bsswim_divea_update(void) {
             next_state = BS_2C_DIVE_B;
         }
     }
-    if (func_802A73BC()) {
+    if (bsbdive_surfacing()) {
         next_state = BS_2D_SWIM_IDLE;
     }
     if (!player_inWater()) {
@@ -333,7 +332,7 @@ void bsbswim_ow_end(void) {
 }
 
 void bsSwim_dive_init(void) {
-    ability_use(ABILITY_3_CAMERA_CONTROL);
+    ability_setUsedWithDialog(ABILITY_USED_3_SWIM);
     baanim_playForDuration_onceSmooth(ASSET_3C_ANIM_BSSWIM_DIVE_ENTER, 1.0f);
     func_802A7140();
     yaw_setVelocityBounded(500.0f, 5.0f);
@@ -437,7 +436,7 @@ void bsbswim_die_update(void) {
             particleEmitter_setParticleVelocityRange(p_ctrl, -60.0f, -50.0f, -60.0f, 60.0f, 100.0f, 60.0f);
             particleEmitter_emitN(p_ctrl, 1);
         }
-        if (batimer_get(1) < 1.8 && func_802A73BC() && D_8037D395) {
+        if (batimer_get(1) < 1.8 && bsbdive_surfacing() && D_8037D395) {
             next_state = BS_2D_SWIM_IDLE;
         }
         if (batimer_isGreaterThan(1, 1.55f)) {

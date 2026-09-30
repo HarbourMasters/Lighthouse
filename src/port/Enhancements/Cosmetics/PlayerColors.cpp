@@ -12,7 +12,7 @@
 #include "port/UI/cvar_prefixes.h"
 
 extern "C" {
-#include "model.h"
+#include "core2/model.h"
 #include "enums.h"
 #include "core2/modelRender.h"
 s32 port_anchor_isConnected(void);

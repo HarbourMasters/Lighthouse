@@ -25,7 +25,7 @@ enum chChompa_state_e {
     CHOMPA_STATE_6_DEAD
 };
 
-ActorInfo D_8038BAD0 = {
+ActorInfo chPortraitChompa = {
     MARKER_254_PORTRAIT_CHOMPA_A, ACTOR_381_PORTRAIT_CHOMPA, ASSET_521_MODEL_PORTRAIT_CHOMPA,
     0x0, NULL,
     chChompa_update, NULL, chChompa_draw,

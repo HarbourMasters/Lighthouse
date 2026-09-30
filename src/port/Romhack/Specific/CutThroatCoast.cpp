@@ -8,7 +8,7 @@
 extern "C" {
 #include "enums.h"
 #include "functions.h"
-#include "model.h"
+#include "core2/model.h"
 
 extern struct1Cs_1 D_8036C58C[0xD];
 
@@ -21,7 +21,7 @@ typedef struct {
     u8 rgb[3];
     u8 alpha;
 } CameraFogEntry;
-extern CameraFogEntry D_80365D60[];
+extern CameraFogEntry sCore2_37E50UnderwaterTints[];
 
 typedef struct {
     u8 uid;
@@ -69,7 +69,7 @@ void RebuildPauseMenuTable() {
 }
 
 void ApplyDataPatches() {
-    D_80365D60[3] = { 0, { 0x34, 0x6E, 0xEF }, 0x5A };
+    sCore2_37E50UnderwaterTints[3] = { 0, { 0x34, 0x6E, 0xEF }, 0x5A };
     D_8036C150[3].state = 7;      // TRANSITION_STATE_7_WHITE_IN
     D_8036C150[3].next_state = 0; // TRANSITION_STATE_0_NONE
     D_8036C150[3].duration = 0.7f;

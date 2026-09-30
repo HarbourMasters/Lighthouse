@@ -42,8 +42,8 @@ void func_80344124(void){
 }
 
 void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 position[3], f32 scale[3], Gfx **gfx, Mtx **mtx) {
-    f32 sp6C[3];
-    f32 sp60[3];
+    f32 viewport_position[3];
+    f32 viewport_look_vector[3];
     f32 temp_f14;
     f32 sp50[3];
     f32 temp_f0;
@@ -55,12 +55,12 @@ void func_80344138(BKSpriteDisplayData *self, s32 frame, s32 mirrored, f32 posit
     f32 sp34;
 
     FrameInterpolation_RecordOpenChild("sprite_viewport", (uintptr_t)self);
-    viewport_getPosition_vec3f(sp6C);
-    viewport_getLookVector(sp60);
-    sp50[0] = position[0] - sp6C[0];
-    sp50[1] = position[1] - sp6C[1];
-    sp50[2] = position[2] - sp6C[2];
-    temp_f14 = sp60[0]*sp50[0] + sp60[1]*sp50[1] + sp60[2]*sp50[2];
+    viewport_getPosition_vec3f(viewport_position);
+    viewport_getLookVector(viewport_look_vector);
+    sp50[0] = position[0] - viewport_position[0];
+    sp50[1] = position[1] - viewport_position[1];
+    sp50[2] = position[2] - viewport_position[2];
+    temp_f14 = viewport_look_vector[0]*sp50[0] + viewport_look_vector[1]*sp50[1] + viewport_look_vector[2]*sp50[2];
     if ((temp_f14 < 0.0f) || (20000.0f < temp_f14)) {
         func_80344124();
     FrameInterpolation_RecordCloseChild();
@@ -289,7 +289,7 @@ BKSpriteDisplayData * func_80344A1C(BKSprite *arg0){
         frame_vtx_size[i] = ALIGN(sizeof(Vtx)*(vtx_end - vtx_start), 0x10);
         frame_gfx_size[i] = sizeof(Gfx)*(gfx_end - gfx_start);
         s1 += frame_vtx_size[i] + frame_gfx_size[i];
-        memcpy((void *)((uintptr_t)vtx_start + frame_vtx_size[i]), gfx_start, frame_gfx_size[i]);
+        bk_memcpy((void *)((uintptr_t)vtx_start + frame_vtx_size[i]), gfx_start, frame_gfx_size[i]);
         s6 = bk_realloc(s6, header_size + s1);
     }//L80344B6C
     osWritebackDCache(s6, header_size + s1);

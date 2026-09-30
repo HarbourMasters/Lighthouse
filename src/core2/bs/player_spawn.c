@@ -8,7 +8,7 @@
 #include "core2/ba/anim.h"
 #include "core2/ba/physics.h"
 
-extern void controller_getJoystick(s32, f32*);
+extern void controller_copyJoystick(s32, f32*);
 extern f32 player_getYaw(void);
 extern ParticleEmitter *func_802F4094(f32 pos[3], f32 arg1);
 extern void particleEmitter_setSphericalParticleVelocityRange(ParticleEmitter *this, f32 pitch_min, f32 yaw_min, f32 radial_min, f32 pitch_max, f32 yaw_max, f32 radial_max);
@@ -287,7 +287,7 @@ f32 func_8029B56C(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 
 void func_8029B5EC(void){
     func_802DC560(0, 0);
-    func_802E412C(1, 0);
+    game_setMapTransitionWithStyle(1, 0);
     // [port] Romhack gate: hacks send the game-over return somewhere of their own.
     {
         s32 returnMap = MAP_1F_CS_START_RAREWARE;
@@ -303,7 +303,7 @@ void func_8029B62C(void){
         if (EventSystem_Should(VB_RACE_VOID_OUT_FULL_TRANSITION, false)) {
             transitionToMap((enum map_e)gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
         } else {
-            func_802E4048(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+            game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
         }
         return;
     }
@@ -318,7 +318,7 @@ void func_8029B62C(void){
             timedFunc_set_0(5.0f, func_8029B5EC);
         }
         else{
-            func_802E412C(1, 0);
+            game_setMapTransitionWithStyle(1, 0);
             transitionToMap(MAP_83_CS_GAME_OVER_MACHINE_ROOM, 0, 1);
 
         }
@@ -328,7 +328,7 @@ void func_8029B62C(void){
         // full map transition.
         if (EventSystem_Should(VB_VOID_OUT_RESPAWN_TRANSITION, true, gVoidOutReturnLocation[0],
                                gVoidOutReturnLocation[1])) {
-            func_802E4048(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
+            game_transitionToMapResettingLevel(gVoidOutReturnLocation[0], gVoidOutReturnLocation[1], 1);
         }
     }
 }

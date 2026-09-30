@@ -10,7 +10,7 @@
 extern s32 gameFile_GameIdToFileIdMap[];
 s32  item_adjustByDiffWithHud(enum item_e item, s32 diff);
 
-void func_80346DB4(s32);
+void itemscore_noteScores_update(s32);
 
 #include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
@@ -21,8 +21,9 @@ s32 D_80385FE0;
 s32 D_80385FE4;
 s32 D_80385FE8;
 f32 D_80385FEC;
-u8  D_80385FF0[0xE];
-f32 D_80386000[0xE]; //timescores
+//u8  sItemscoreNoteScores[0xB]; // best note count per level, indexed by level id (up to 0xD, past the end of the array)
+u8  sItemscoreNoteScores[0xE];
+f32 sItemscoreTimeScores[0xE]; // per level, indexed by level id
 s32 D_80386038;
 
 bool func_80347A4C(void);
@@ -171,7 +172,7 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
             break;
         case ITEM_C_NOTE:
             sp28 = itemscore_noteScores_get(level_get());
-            func_80346DB4(D_80385F30[item]);
+            itemscore_noteScores_update(D_80385F30[item]);
             if(D_80385F30[item] == 100 && sp28 != 100){
                 coMusicPlayer_playMusic(COMUSIC_36_100TH_NOTE_COLLECTED, 20000);
                 item_inc(ITEM_16_LIFE);
@@ -187,14 +188,14 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
     return D_80385F30[item];
 }
 
-// item_adjustByDiffWithHud
+// func_803463D4
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
     return item_adjustByDiff(item, diff, 0, 1);
 }
 
-// item_adjustByDiffWithoutHud
+// func_803463F4
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
@@ -209,14 +210,14 @@ void item_set(s32 item, s32 val){
     item_setEx(item, val, 1);
 }
 
-// item_setMaxCount
+// func_80346448
 void item_setMaxCount(s32 item){
     // Sets the count of an item to the max
     // Used for TTC cheats and Lair refill pillows
     item_adjustByDiffWithHud(item, 9999999);
 }
 
-// item_setItemsStartCounts
+// func_8034646C
 void item_setItemsStartCounts(void){
     // Sets the player initial inventory count
     int i;
@@ -283,7 +284,7 @@ void func_803465E4(void){
     if(D_80385FE8){
         if( ncCamera_getType() != 3 // CAMERA_TYPE_3_STATIC
             && func_8028F070()
-            && gsworld_getMap() != MAP_33_UNUSED
+            && gsworld_getMap() != MAP_33_STUB_DEMO_INTRO_ROOM
             && gsworld_getMap() != MAP_91_FILE_SELECT
         ){
             D_80385FE0 = true;
@@ -361,15 +362,15 @@ void func_803465E4(void){
         if(sp4C == LEVEL_C_BOSS)
             sp4C = LEVEL_6_LAIR;
         if(sp4C > 0  && sp4C < 0xC && gsworld_getMap() != MAP_91_FILE_SELECT){
-            D_80386000[sp4C] = MAX(1.0, MIN(65535.0, D_80386000[sp4C] + time_getDelta()));
+            sItemscoreTimeScores[sp4C] = MAX(1.0, MIN(65535.0, sItemscoreTimeScores[sp4C] + time_getDelta()));
         }
     }//L80346B6C
 
     if((globalTimer_getTime() & 7) == 6){
-        if(!func_80320708() || !dummy_func_80320248()){
+        if(!volatileflag_func_80320708() || !volatileflag_stub2()){
             D_80385F30[randi2(0, 0x2C)] = 1;
-            D_80385FF0[randi2(0, 0xE)] = 1;
-            D_80386000[randi2(0, 0xE)] = 1.0f;
+            sItemscoreNoteScores[randi2(0, 0xE)] = 1;
+            sItemscoreTimeScores[randi2(0, 0xE)] = 1.0f;
         }
     }
 }
@@ -421,12 +422,12 @@ void itemscore_noteScores_clear(void) {
     s32 i;
 
     for(i = 0; i < 0xe; i++){
-        D_80385FF0[i] = 0;
+        sItemscoreNoteScores[i] = 0;
     }
 }
 
-//itemscore_noteScores_update
-void func_80346DB4(s32 note_count) {
+/* records a new best note count for the current level (not during demos / file playback) */
+void itemscore_noteScores_update(s32 note_count) {
     s32 level_id;
     s32 notesMax;
 
@@ -435,8 +436,8 @@ void func_80346DB4(s32 note_count) {
 
     level_id = level_get();
     if (!func_802E4A08() && (level_id > 0) && (level_id < 0xE)) {
-        if (D_80385FF0[level_id] < note_count) {
-            D_80385FF0[level_id] = note_count;
+        if (sItemscoreNoteScores[level_id] < note_count) {
+            sItemscoreNoteScores[level_id] = note_count;
             if ((level_get() == LEVEL_1_MUMBOS_MOUNTAIN) && (note_count == 50)) {
                 gcdialog_showDialog(VER_SELECT(0xF74, 0xADA, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
@@ -461,13 +462,13 @@ s32 itemscore_noteScores_getTotal(void){
     int i = 1;
     s32 total = 0;
     do{
-        total += D_80385FF0[i++];
+        total += sItemscoreNoteScores[i++];
     }while(i < 0xe);
     return total;
 }
 
 s32 itemscore_noteScores_get(enum level_e lvl_id){
-    return D_80385FF0[lvl_id];
+    return sItemscoreNoteScores[lvl_id];
 }
 
 void notescore_getSizeAndPtr(s32 *size, void **ptr) {
@@ -480,7 +481,7 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
     for(var_s0 = 1; var_s0 < 0xB; var_s0++){
         if(var_s0 != 6){
             D_80386040 <<= 7;
-            D_80386040 |= D_80385FF0[var_s0];
+            D_80386040 |= sItemscoreNoteScores[var_s0];
         }
     }
 }
@@ -488,13 +489,13 @@ void notescore_getSizeAndPtr(s32 *size, void **ptr) {
 // Raw per-level note-score array (vs. the packed u64 above).
 void itemscore_noteScores_getSizeAndPtr(s32 *size, u8 **addr) {
     *size = 0xE;
-    *addr = D_80385FF0;
+    *addr = sItemscoreNoteScores;
 }
 
 // Max-merge a level's note high score.
 void itemscore_noteScores_setLevel(enum level_e level, s32 score) {
-    if (level >= 0 && level < 0xE && score > D_80385FF0[level]) {
-        D_80385FF0[level] = score;
+    if (level >= 0 && level < 0xE && score > sItemscoreNoteScores[level]) {
+        sItemscoreNoteScores[level] = score;
     }
 }
 
@@ -502,14 +503,14 @@ void itemscore_noteScoress_maxAll(void) {
     s32 i;
 
     for(i = 1; i < 11; i++){
-        D_80385FF0[i] = 100;
+        sItemscoreNoteScores[i] = 100;
     }
 }
 
 void itemscore_timeScores_clear(void) {
     s32 i;
     for(i = 0; i < 0xE; i++){
-        D_80386000[i] = 0.0f;
+        sItemscoreTimeScores[i] = 0.0f;
     }
 }
 
@@ -519,13 +520,13 @@ s32 itemscore_timeScores_getTotal(void) {
 
     total = 0;
     for(i = 0; i < 0xE; i++){
-        total += D_80386000[i];
+        total += sItemscoreTimeScores[i];
     }
     return total;
 }
 
 u16 itemscore_timeScores_get(enum level_e level_id) {
-    return  (u16) D_80386000[level_id];
+    return  (u16) sItemscoreTimeScores[level_id];
 }
 
 void timeScores_getSizeAndPtr(s32 *size, void **ptr) {
@@ -534,7 +535,7 @@ void timeScores_getSizeAndPtr(s32 *size, void **ptr) {
 
     *size = 0xB*sizeof(s16);
     for(i = 0; i < 0xB; i++){
-        D_80386048[i] = (u16) D_80386000[i + 1];
+        D_80386048[i] = (u16) sItemscoreTimeScores[i + 1];
 
     }
     *ptr = (void *)&D_80386048;
@@ -562,7 +563,7 @@ void itemscore_highNoteScores_fromSaveData(u8 *savedata) {
     sp28 = *(u64*)savedata;
     level_id = 10;
     for( i = 0; i != 9; i++){
-        D_80385FF0[level_id] = sp28 & 0x7F;
+        sItemscoreNoteScores[level_id] = sp28 & 0x7F;
         level_id--;
         sp28 >>= 7;
         
@@ -578,7 +579,7 @@ void itemscore_timeScores_fromSaveData(u16 *savedata) {
 
     itemscore_timeScores_clear();
     for(i = 0; i < 0xB; i++){
-        D_80386000[i + 1] = savedata[i];
+        sItemscoreTimeScores[i + 1] = savedata[i];
     }
 }
 

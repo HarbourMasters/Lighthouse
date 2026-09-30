@@ -1,9 +1,6 @@
 // BanjoDecomp: core2/code_C9E70.h
-#ifndef BANJO_KAZOOIE_CODE_C9E70_H
-#define BANJO_KAZOOIE_CODE_C9E70_H
-
-#ifndef __CORE2_C9E70_H__
-#define __CORE2_C9E70_H__
+#ifndef BANJO_KAZOOIE_CORE2_C9E70_H
+#define BANJO_KAZOOIE_CORE2_C9E70_H
 
 #include <ultra64.h>
 #include "structs.h"
@@ -94,5 +91,3 @@ struct FF_StorageStruct {
     /* 48 */ struct FF_StorageStruct_48 *unk48;
 }; // 0x4C
 #endif
-
-#endif // BANJO_KAZOOIE_CODE_C9E70_H

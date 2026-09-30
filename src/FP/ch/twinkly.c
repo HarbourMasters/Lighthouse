@@ -12,12 +12,12 @@ void chTwinkly_update(Actor *this);
 /* .data */
 ActorAnimationInfo D_80391F50[] = {
     {0x000, 0.0f},
-    {0x178, 1e+08f},
-    {0x17C, 1e+08f},
-    {0x178, 1e+08f},
-    {0x17C, 2.0f},
-    {0x17C, 1.0f},
-    {0x17C, 2.0f}
+    {ASSET_178_ANIM_TWINKLY_SPAWNING, 100000000},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     100000000},
+    {ASSET_178_ANIM_TWINKLY_SPAWNING, 100000000},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     2.0f},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     1.0f},
+    {ASSET_17C_ANIM_TWINKLY_IDLE,     2.0f}
 };
 
 ActorInfo gChTwinklyBlue = { MARKER_200_TWINKLY_BLUE, ACTOR_332_TWINKLY_BLUE, ASSET_448_MODEL_TWINKLY_BLUE,
@@ -67,9 +67,9 @@ Actor *func_8038C0B0(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s3
     f32 sp40[3];
     f32 sp3C;
 
-    sp4C[0] = (f32)marker->propPtr->x;
-    sp4C[1] = (f32)marker->propPtr->y;
-    sp4C[2] = (f32)marker->propPtr->z;
+    sp4C[0] = (f32)marker->propPtr->position_x;
+    sp4C[1] = (f32)marker->propPtr->position_y;
+    sp4C[2] = (f32)marker->propPtr->position_z;
 
     sp40[0] = (f32)marker->pitch;
     sp40[1] = this->lifetime_value;

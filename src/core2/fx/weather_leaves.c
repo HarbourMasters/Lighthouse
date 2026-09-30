@@ -94,10 +94,14 @@ int func_802F8B50(struct6s *this){
 
 void func_802F8B8C(struct6s *this){
     bk_vector_free(this->unk1C);
-    func_8033BD20((void **)&this->unk24[0]);
-    func_8033BD20((void **)&this->unk24[1]);
-    func_8033BD20((void **)&this->unk24[2]);
-    func_8033BD20((void **)&this->unk24[3]);
+//  func_8033BD20(&this->unk24[0]);
+    func_8033BD20((BKModelBin **)&this->unk24[0]);
+//  func_8033BD20(&this->unk24[1]);
+    func_8033BD20((BKModelBin **)&this->unk24[1]);
+//  func_8033BD20(&this->unk24[2]);
+    func_8033BD20((BKModelBin **)&this->unk24[2]);
+//  func_8033BD20(&this->unk24[3]);
+    func_8033BD20((BKModelBin **)&this->unk24[3]);
     bk_free(this);
 }
 
@@ -145,7 +149,7 @@ void func_802F8CD0(struct6s * this){
     this->unk0 = plyr_pos[0];
     this->unk4 = plyr_pos[1];
     this->unk8 = plyr_pos[2];
-    if(func_802BEF64()){
+    if(core2_37E50_isCameraUnderwater()){
         bk_vector_clear(this->unk1C);
     }
 
@@ -184,7 +188,7 @@ void func_802F8CD0(struct6s * this){
     }
     
     if(ml_timer_update(&this->unk38, f20)){
-        if(this->unk22 == 1 && !func_802BEF64())
+        if(this->unk22 == 1 && !core2_37E50_isCameraUnderwater())
             func_802F87B0(this);
         this->unk38 = 0.1f;
     }

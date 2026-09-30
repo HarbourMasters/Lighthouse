@@ -58,7 +58,7 @@ void *bk_vector_insertNew(VLA **thisPtr, s32 indx){
     this = *thisPtr;
     i = ((intptr_t)this->end - (intptr_t)this->begin)/this->elem_size;
     while(indx < --i){
-        memcpy((void *)((uintptr_t)this->begin + (i)*this->elem_size), (void *)((uintptr_t)this->begin + (i -1)*this->elem_size), this->elem_size);
+        bk_memcpy((void *)((uintptr_t)this->begin + (i)*this->elem_size), (void *)((uintptr_t)this->begin + (i -1)*this->elem_size), this->elem_size);
     }
     return (void *)((uintptr_t)this->begin +  indx*this->elem_size);
 }
@@ -93,7 +93,7 @@ void bk_vector_popBack_n(VLA *this, u32 n){
 }
 
 void bk_vector_assign(VLA *this, s32 indx, void* value){
-    memcpy((void*)((uintptr_t)this->begin + indx * this->elem_size), value, this->elem_size);
+    bk_memcpy((void*)((uintptr_t)this->begin + indx * this->elem_size), value, this->elem_size);
 }
 
 VLA * bk_vector_defrag(VLA *this){

@@ -9,7 +9,7 @@
 
 #include "enums.h"
 #include "functions.h"
-#include "gc/gctransition.h"
+#include "core2/gc/transition.h"
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Backports.Honeyback")
 

@@ -167,7 +167,7 @@ void chSeasonSwitch_update(Actor *this) {
     ){
         func_802D6264(
             1.1f,
-            0x40,
+            MAP_40_CCW_HUB,
             this->unk10_12 + 0x3C,
             0x2B,
             chSeasonSwitchDoorsCutsceneInfo[this->unk10_12].returnEntryPoint,

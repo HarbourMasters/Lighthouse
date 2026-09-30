@@ -3,7 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "enums.h"
-#include "jiggy.h"
+#include "core2/ch/jiggy.h"
 #include "core2/commonParticle.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 

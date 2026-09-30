@@ -12,7 +12,7 @@ extern "C" {
 #include "enums.h"
 int getGameMode(void);
 enum level_e level_get(void);
-int volatileFlag_get(enum volatile_flags_e index);
+bool volatileFlag_get(enum volatile_flags_e index);
 int func_8028F070(void);
 void gcparade_beginFFParade(void);
 void baflag_clear(enum misc_flag_e arg0);

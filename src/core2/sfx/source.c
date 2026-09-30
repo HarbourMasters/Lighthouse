@@ -33,7 +33,7 @@ typedef struct {
     s16 sample_rate;//sample_rate
     u8 unk2C;
     u8 pad2D[3];
-    void (*unk30)(u8 indx);
+    void (*callback)(u8 indx);
     f32 unk34; //volume
     f32 unk38;
     f32 unk3C;
@@ -71,12 +71,12 @@ void __sfx_getPlayerPositionIfPresent(f32 arg0[3]){
         ml_vec3f_clear(arg0);
 }
 
-void sfxSource_setunk43_7(SfxSource *arg0, s32 arg1){
-    arg0->unk43_7 = arg1;
+void sfxSource_setunk43_7(SfxSource *sfxSource, s32 arg1) {
+    sfxSource->unk43_7 = arg1;
 }
 
-s32 sfxSource_getunk43_7(SfxSource *arg0){
-    return arg0->unk43_7;
+s32 sfxSource_getunk43_7(SfxSource *sfxSource){
+    return sfxSource->unk43_7;
 }
 
 void func_8030C7F8(SfxSource *arg0, s32 arg1){
@@ -106,7 +106,7 @@ int sfxsource_isFlagCleared(SfxSource *arg0, s32 arg1){
 void sfxsource_initAll(void){
     int i;
     for(i = 0; i < 35; i++)
-        sfxsources[i].busy = false;
+        sfxsources[i].busy = FALSE;
 }
 
 SfxSource *sfxsource_at(u8 indx){
@@ -125,7 +125,7 @@ u8 sfxsource_getNewIndex(void){
     int i;
     for(i = 1; i < 35; i++){
         if(!sfxsources[i].busy){
-            sfxsources[i].busy = true;
+            sfxsources[i].busy = TRUE;
             return i;
         }
     }
@@ -162,7 +162,7 @@ void sfxsource_free(u8 indx){
         func_8030C9F4(ptr->unk40);
         ptr->unk40 = 0;
     }
-    sfxsources[indx].busy = false;
+    sfxsources[indx].busy = FALSE;
 }
 
 void func_8030CBD0(SfxSource *arg0){
@@ -492,7 +492,7 @@ u8 sfxsource_createSfxsourceAndReturnIndex(void){
         return 0;
 
     s0 = sfxsource_at(s1);
-    s0->unk30 = NULL;
+    s0->callback = NULL;
     s0->sfx_uid = -1;
     s0->sample_rate = 22000;
     s0->unk2C = 0;
@@ -597,19 +597,21 @@ void func_8030DCCC(u8 indx, s32 arg1){
     }
 }
 
-void sfxSource_setunk43_7ByIndex(u8 indx, int arg1){
-    SfxSource *temp_v0;
-    if(indx){
-        temp_v0 = sfxsource_at(indx);
-        sfxSource_setunk43_7(temp_v0, arg1);
+void sfxSource_setunk43_7ByIndex(u8 index, int arg1) {
+    SfxSource *sfx_source;
+
+    if (index) {
+        sfx_source = sfxsource_at(index);
+        sfxSource_setunk43_7(sfx_source, arg1);
     }
 }
 
-void sfxSource_setCallbackByIndex(u8 indx, void (*arg1)(u8)){
-    SfxSource *temp_v0;
-    if(indx){
-        temp_v0 = sfxsource_at(indx);
-        temp_v0->unk30 = arg1;
+void sfxSource_setCallbackByIndex(u8 index, void (*callback)(u8)){
+    SfxSource *sfx_source;
+
+    if (index) {
+        sfx_source = sfxsource_at(index);
+        sfx_source->callback = callback;
     }
 }
 
@@ -744,15 +746,15 @@ enum sfx_e sfxsource_getSfxId(u8 indx){
     }
 }
 
-s32 sfxSource_getSampleRate(u8 indx){
-    SfxSource *ptr;
+s32 sfxSource_getSampleRate(u8 index) {
+    SfxSource *sfx_source;
 
-    if(indx == 0)
+    if (index == 0) {
         return 0;
-    else{
-        ptr = sfxsource_at(indx);
-        return ptr->sample_rate;
     }
+
+    sfx_source = sfxsource_at(index);
+    return sfx_source->sample_rate;
 }
 
 f32 func_8030E200(u8 indx){
@@ -817,32 +819,38 @@ void sfxSource_func_8030E2C4(u8 indx){
     }
 }
 
-void sfxSource_triggerCallbackByIndex(u8 indx){
-    SfxSource *ptr;
+void sfxSource_triggerCallbackByIndex(u8 index){
+    SfxSource *sfx_source;
 
-    if(indx){
-        ptr = sfxsource_at(indx);
-        if(func_8030C814(ptr, 1)){
-            func_8030CC90(ptr);
-            if(ptr->unk30)
-                ptr->unk30(indx);
-        }
+    if (!index) {
+        return;
+    }
+
+    sfx_source = sfxsource_at(index);
+
+    if (!func_8030C814(sfx_source, 1)) { 
+        return;
+    }
+
+    func_8030CC90(sfx_source);
+    if (sfx_source->callback) {
+        sfx_source->callback(index);
     }
 }
 
 
-int func_8030E3FC(u8 indx){
+int func_8030E3FC(u8 indx) {
     SfxSource *ptr;
 
-    if(!indx)
+    if (!indx) {
         return 0;
-    else {
-        ptr = sfxsource_at(indx);
-        return indx
-            && func_8030C814(ptr, 1)
-            && ptr->unk40 
-            && func_8030C8F4(ptr->unk40);
     }
+    
+    ptr = sfxsource_at(indx);
+    return indx
+        && func_8030C814(ptr, 1)
+        && ptr->unk40 
+        && func_8030C8F4(ptr->unk40);
 }
 
 void sfxsource_playHighPriority(enum sfx_e uid){
@@ -890,8 +898,8 @@ void func_8030E624(u32 arg0){
     func_8030D6C4(arg0 & 0x7FF, f6/1023.0, (arg0 >> 6) & 0x7fe0, 0, 2);
 }
 
-void gcsfx_playWithPitch(enum sfx_e uid, f32 arg1, s32 arg2){
-    func_8030D6C4(uid, arg1, arg2, 0, 2);
+void gcsfx_playWithPitch(enum sfx_e uid, f32 pitch, s32 arg2){
+    func_8030D6C4(uid, pitch, arg2, 0, 2);
 }
 
 void func_8030E6D4(enum sfx_e uid){
@@ -913,11 +921,11 @@ void func_8030E760(enum sfx_e uid, f32 arg1, s32 arg2){
 void sfx_play(enum sfx_e uid, f32 volume, u32 sampleRate, f32 position[3], f32 minFadeDistance, f32 maxFadeDistance, s32 arg6){
     u8 sfxsource;
     f32 player_position[3];
-
+    
     __sfx_getPlayerPositionIfPresent(player_position);
     if( !(maxFadeDistance <= ml_vec3f_distance(player_position, position))
         && levelSpecificFlags_validateCRC2()
-        && dummy_func_80320240()
+        && volatileflag_stub1()
     ){
         sfxsource = sfxsource_createSfxsourceAndReturnIndex();
         if(sfxsource){
@@ -938,7 +946,7 @@ void func_8030E878(enum sfx_e id, f32 volume, u32 sampleRate, f32 position[3], f
 }
 
 // fadeDistance is a 32-bit value where the lower 16 bits represent minFadeDistance and the upper 16 bits represent maxFadeDistance.
-void sfx_playFadeShorthand(u32 arg0, f32 position[3], u32 fadeDistance){
+void sfx_playFadeShorthand(u32 arg0, f32 position[3], u32 fadeDistance) {
     sfx_play(
         (arg0 & 0x7ff), (f32)((arg0 >> 0x15) & 0x7ff)/1023.0, ((arg0 >> 0x6) & 0x7fe0),
         position, (f32)(fadeDistance & 0xffff), (f32)((fadeDistance >> 0x10) & 0xffff),

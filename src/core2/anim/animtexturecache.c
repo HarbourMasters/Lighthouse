@@ -57,7 +57,7 @@ void AnimTextureListCache_setAnimTextureList(s32 index, BKAnimTextureList *bk_an
     s32 i;
 
     item = (AnimTextureList *) freelist_at(sAnimTextureListCache, index);
-    memcpy(item, bk_anim_texture_list, sizeof(BKAnimTextureList));
+    bk_memcpy(item, bk_anim_texture_list, sizeof(BKAnimTextureList));
     for (i = 0; i < 4; i++) {
         item->current_frame[i] = 0.0f;
     }

@@ -67,12 +67,12 @@ static u32 sPortParticleSerial = 0;
 void func_802EE930(ParticleEmitter *this){
     func_8033B388(&this->sprite_1C, &this->unk34);
     if(this->model_20)
-        func_8033BD20((void **)&this->model_20);
+        func_8033BD20(&this->model_20);
 }
 
 int func_802EE974(ParticleEmitter *this, f32 (*arg1)[3], f32 (*arg2)[3], f32 (*arg3)[3], s32 arg4){
     if(-100000.0 == this->unk74 && 100000.0 == this->unk78){
-        return (func_80309B48(*arg1, *arg2, *arg3, 0) != NULL);
+        return (mapModel_intersectLine(*arg1, *arg2, *arg3, 0) != NULL);
     }
 
     if(100000.0 != this->unk78 && this->unk78 < (*arg2)[1]){
@@ -204,7 +204,7 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
                 (this->draw_mode & PART_EMIT_NO_OPA)? 0xff : this->alpha
             );
             func_80338370();
-            codeAEDA0_postDrawSprite(gfx);
+            codeAEDA0_drawSprite(gfx);
         }
         else if(this->draw_mode & PART_EMIT_NO_DEPTH){//L802EF0C0
             gSPDisplayList((*gfx)++, D_80368978);
@@ -242,7 +242,7 @@ void __particleEmitter_drawOnPass(ParticleEmitter *this, Gfx **gfx, Mtx **mtx, V
         FrameInterpolation_RecordCloseChild();
         if( this->rgb[0] != 0xff || this->rgb[1] != 0xff || this->rgb[2] != 0xff || this->alpha != 0xff 
         ){
-            codeAEDA0_drawSprite(gfx);
+            codeAEDA0_postDrawSprite(gfx);
         }
     }
 }
@@ -636,7 +636,7 @@ void particleEmitter_update(ParticleEmitter *this){
         for(particle = this->pList_start_124; particle < this->pList_end_128;){//L802F005C
             particle->age_48 += tick;
             if(particle->lifetime_4C <= particle->age_48){
-                memcpy(particle, --this->pList_end_128, sizeof(Particle));
+                bk_memcpy(particle, --this->pList_end_128, sizeof(Particle));
             }else{//L802F00A0
                 temp_f0 = particle->age_48/particle->lifetime_4C;
                 if(temp_f0 < this->fade_in)
@@ -678,7 +678,7 @@ void particleEmitter_update(ParticleEmitter *this){
                 if( 0.0f != this->unkFC
                     && !viewport_func_8024DB50(particle->position, this->unkFC)
                 ){
-                    memcpy(particle, --this->pList_end_128, sizeof(Particle));
+                    bk_memcpy(particle, --this->pList_end_128, sizeof(Particle));
                 }
                 else{//L802F029C
                     if(particle->unk5C > 0){
@@ -709,7 +709,7 @@ void particleEmitter_update(ParticleEmitter *this){
                             if(--particle->unk5C == 0){
                                 if(this->particleCallback_80)
                                     this->particleCallback_80(this, particle->position);
-                                memcpy(particle, --this->pList_end_128, sizeof(Particle));
+                                bk_memcpy(particle, --this->pList_end_128, sizeof(Particle));
                                 continue;
                             }
                         }

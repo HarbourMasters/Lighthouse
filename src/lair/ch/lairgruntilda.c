@@ -11,11 +11,11 @@ void func_80392918(Actor *this);
 /* .data */
 ActorAnimationInfo D_80394CC0[] = {
     {0x000, 0.0f},
-    {0x28B, 8.0f},
-    {0x28D, 0.5f},
-    {0x2AC, 3.0f},
-    {0x2AD, 14.0f},
-    {0x28D, 0.5f},
+    {ASSET_28B_ANIM_unk, 8.0f},
+    {ASSET_28D_ANIM_unk, 0.5f},
+    {ASSET_2AC_ANIM_unk, 3.0f},
+    {ASSET_2AD_ANIM_unk, 14.0f},
+    {ASSET_28D_ANIM_unk, 0.5f},
 };
 ActorInfo D_80394CF0 = { 0x29B, 0x3C5, 0x53D, 0x1, D_80394CC0, func_80392700, func_80392918, func_803925B0, 0, 0, 3.0f, 0};
 
@@ -93,7 +93,7 @@ void func_80392700(Actor *this) {
 
 void func_80392918(Actor *this) {
     if (!this->volatile_initialized) {
-        if (fileProgressFlag_get(FILEPROG_F4_ENTER_FF_CUTSCENE) && (func_8028E4A4() == 2)) {
+        if (fileProgressFlag_get(FILEPROG_F4_ENTER_FF_CUTSCENE) && (player_getExitId() == 2)) {
             mapSpecificFlags_set(4, 1);
         }
         this->unk4C = 400.0f;

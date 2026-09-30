@@ -14,7 +14,7 @@ extern u8 D_8037DCC8; //bottles bonus flags???
 
 
 extern void func_8025AABC(enum comusic_e);
-extern f32 func_8024E420(s32, s32, s32);
+extern f32 controller_clampAndNormaliseJoyAxis(s32, s32, s32);
 extern void chBottlesBonus_func_802DEA50(s32);
 extern void actor_postdrawMethod(ActorMarker *);
 extern void chBottlesBonus_completedPuzzle(void);
@@ -213,7 +213,7 @@ void chBottlesBonusCursor_update(Actor *this) {
     s32 i;
     s32 sp44;
 
-    sp5C = func_8024F3F4();
+    sp5C = joy_getInputsPrimary();
     sp58 = time_func_8033DDB8();
     held_piece = &D_8037E248[D_8037E5C0.unk0];
     if (!this->initialized) {
@@ -240,8 +240,8 @@ void chBottlesBonusCursor_update(Actor *this) {
 
     if (this->state != 8 && this->state != 9 && chBottlesBonus_getState() == 4) {
         if (this->state != 6) {
-            sp54 = func_8024E420(sp5C->stick_x, 7, 0x3B);
-            sp50 = func_8024E420(sp5C->stick_y, 7, 0x3D);
+            sp54 = controller_clampAndNormaliseJoyAxis(sp5C->stick_x, 7, 59);
+            sp50 = controller_clampAndNormaliseJoyAxis(sp5C->stick_y, 7, 61);
             if ((sp54 == 0.0f) || (D_8037E5F0 * sp54 < 0.0f)) {
                     D_8037E5C0.unk28 = 1.0f;
             } else {

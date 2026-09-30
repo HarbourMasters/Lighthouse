@@ -95,7 +95,7 @@ bool chCollectible_collectItem(Actor* actor, enum file_progress_e arg1, enum ass
 s32 chCollectible_collectEgg(ActorProp *arg0){
     Actor *actPtr = NULL;
     if(arg0 != NULL){
-        fxSparkle_blueEgg(&arg0->x);
+        fxSparkle_blueEgg(&arg0->position_x);
         if(arg0->isActorProp)
             actPtr = marker_getActor(arg0->marker);
     }
@@ -104,7 +104,7 @@ s32 chCollectible_collectEgg(ActorProp *arg0){
 
 bool chCollectible_collectRedFeather(ActorProp *arg0){
     Actor *actPtr = NULL;
-    fxSparkle_redFeather(&arg0->x);
+    fxSparkle_redFeather(&arg0->position_x);
     if(arg0->isActorProp)
         actPtr = marker_getActor(arg0->marker);
     chCollectible_collectItem(actPtr, FILEPROG_6_RED_FEATHER_TEXT, VER_SELECT(0xD9F, 0xA1D, 0, 0), COMUSIC_B_RED_FEATHER_COLLECTED, 0xF, 4.0f);
@@ -112,7 +112,7 @@ bool chCollectible_collectRedFeather(ActorProp *arg0){
 
 bool chCollectible_collectGoldFeather(ActorProp *arg0){
     Actor *actPtr = NULL;
-    fxSparkle_goldFeather(&arg0->x);
+    fxSparkle_goldFeather(&arg0->position_x);
     if(arg0->isActorProp)
         actPtr = marker_getActor(arg0->marker);
     chCollectible_collectItem(actPtr, FILEPROG_7_GOLD_FEATHER_TEXT, VER_SELECT(0xDA0, 0xA1E, 0, 0), COMUSIC_14_GOLD_FEATHER_COLLECTED, ITEM_10_GOLD_FEATHER, 6.0f);

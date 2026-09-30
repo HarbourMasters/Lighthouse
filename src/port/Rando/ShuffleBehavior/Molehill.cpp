@@ -6,11 +6,6 @@
 
 #define BRIDGE_REQUIREMENT 6
 
-extern "C" {
-s32 mapSpecificFlags_get(s32 i);
-void mapSpecificFlags_set(s32 i, s32 val);
-}
-
 // clang-format off
 std::vector<RandoCheckId> spiralMountainBridge = {
     RC_SM_MOLEHILL_JUMP,

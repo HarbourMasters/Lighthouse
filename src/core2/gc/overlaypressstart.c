@@ -19,8 +19,8 @@ void chOverlayPressStart_update(Actor *this);
 /* .data */
 ActorAnimationInfo chOverlayPressStartAnimations[] = {
     {0, 0.0f},
-    {0x284, 1.6f},
-    {0x285, 1.6f}
+    {ASSET_284_ANIM_unk, 1.6f},
+    {ASSET_285_ANIM_unk, 1.6f}
 };
 
 f32 D_80368118[3] = {0.0f, 0.0f, 0.0f};

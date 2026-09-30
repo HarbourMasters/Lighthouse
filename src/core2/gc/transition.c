@@ -3,7 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 #include "variables.h"
-#include "gc/gctransition.h"
+#include "core2/gc/transition.h"
 #include "port/Patches/Patches.h"
 #include "port/Engine.h"
 #include "port/Interpolation/FrameInterpolation.h"
@@ -169,7 +169,8 @@ MapTransitionInfo *_gctranstion_get_map_transition_info(s32 map_indx){
 
 void _gctranstion_changeState(s32 state, TransitionInfo *desc){
     if(s_current_transition.model_ptr != NULL){
-        func_8033BD20((void **)&s_current_transition.model_ptr);
+//      func_8033BD20(&s_current_transition.model_ptr);
+        func_8033BD20((BKModelBin **)&s_current_transition.model_ptr);
     }
 
     if(s_current_transition.anctrl != NULL){

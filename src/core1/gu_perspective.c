@@ -1,27 +1,22 @@
 // BanjoDecomp: core1/code_7F60.c
 #include <ultra64.h>
 #include <string.h>
-#include "core1/core1.h"
-#include "functions.h"
-#include "variables.h"
+#include <math.h>
+#include "core1/bk_gu.h"
 #include "version.h"
 
-static void _guMtxIdentF(float mf[4][4]);
+extern f32 gu_sqrtf(f32);
 
-s32 D_802758F0 = VER_SELECT(0xAD7FF2F3, 0xB585BADA, 0, 0); // BGS_DATA_CRC2
-s32 D_802758F4 = VER_SELECT(0xD884D8AC, 0xD731B7E2, 0, 0); // FP_DATA_CRC2
-s32 D_802758F8 = 0;
-s32 D_802758FC = 0;
 s32 D_80275900 = VER_SELECT(0xCFADA290, 0xD39EA620, 0, 0); // LAIR_DATA_CRC2
 s32 D_80275904 = VER_SELECT(0x934A83F1, 0xC77ED5C6, 0, 0); // GV_DATA_CRC2
+//float core1_7F60_M_DTOR = M_DTOR;
+float core1_7F60_M_DTOR = 3.14159265358979323846 / 180.0;
 
-f32 D_80275908 = BAD_DTOR;
-
-static s32 guFToFix32(f32 arg0){
-	return arg0*65536.0f;
+long core1_7F60_guFToFix32(float x) {
+    return FTOFIX32(x);
 }
 
-static void __guMtxF2L(float mf[4][4], Mtx *m)
+void core1_7F60_guMtxF2L_slow(float mf[4][4], Mtx *m)
 {
 #ifdef GBI_FLOATS
 	// [port] With GBI_FLOATS, Mtx is MtxF (float[4][4]) — just copy
@@ -37,15 +32,15 @@ static void __guMtxF2L(float mf[4][4], Mtx *m)
 
 	for (i=0; i<4; i++)
 	for (j=0; j<2; j++) {
-		e1=guFToFix32(mf[i][j*2]);
-		e2=guFToFix32(mf[i][j*2+1]);
+		e1=core1_7F60_guFToFix32(mf[i][j*2]);
+		e2=core1_7F60_guFToFix32(mf[i][j*2+1]);
 		*(ai++) = ( e1 & 0xffff0000 ) | ((e2 >> 16)&0xffff);
 		*(af++) = ((e1 << 16) & 0xffff0000) | (e2 & 0xffff);
 	}
 #endif
 }
 
-void _guMtxF2L(float mf[4][4], Mtx *m) //should be mf[4][4]
+void core1_7F60_guMtxF2L(float mf[4][4], Mtx *m)
 {
 #ifdef GBI_FLOATS
   // [port] With GBI_FLOATS, Mtx is MtxF (float[4][4]) — just copy
@@ -58,7 +53,7 @@ void _guMtxF2L(float mf[4][4], Mtx *m) //should be mf[4][4]
   int *ai;
   int *af;
     float * a2;
-
+    
   ai = (int *) (&m->m[0][0]);
   af = (int *) (&m->m[2][0]);
   a2 = mf[0];
@@ -72,10 +67,10 @@ void _guMtxF2L(float mf[4][4], Mtx *m) //should be mf[4][4]
 #endif
 }
 
-void _guFustrumF(f32 mf[4][4], f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void core1_7F60_guFustrumF(float mf[4][4], float arg1, float arg2, float arg3, float arg4, float arg5, float arg6, float arg7) {
     s32 i, j;
 
-    _guMtxIdentF(mf);
+    core1_7F60_guMtxIdentF(mf);
     mf[0][0] = (2 * arg5) / (arg2 - arg1);
     mf[1][1] = (2 * arg5) / (arg4 - arg3);
     mf[2][0] = (arg2 + arg1) / (arg2 - arg1);
@@ -91,7 +86,7 @@ void _guFustrumF(f32 mf[4][4], f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5,
 	}
 }
 
-static void _guMtxIdentF(float mf[4][4]) //static
+void core1_7F60_guMtxIdentF(float mf[4][4])
 {
 	int	i, j;
 
@@ -101,9 +96,9 @@ static void _guMtxIdentF(float mf[4][4]) //static
 		else mf[i][j] = 0.0;
 }
 
-void guMtxCatF(f32 lmf[4][4], f32 rmf[4][4], f32 dst[4][4]) {
+void core1_7F60_guMtxCatF(float lmf[4][4], float rmf[4][4], float dst[4][4]) {
 	s32 i, j, k;
-    f32 sp1C[4][4];
+    float sp1C[4][4];
 
 	for(i = 0; i < 4; i++){
 		for(j = 0; j < 4; j++){
@@ -120,8 +115,8 @@ void guMtxCatF(f32 lmf[4][4], f32 rmf[4][4], f32 dst[4][4]) {
 	}
 }
 
-static void _guNormalize(f32 *arg0, f32 *arg1, f32 *arg2) {
-    f32 inv_len;
+void core1_7F60_guNormalize(float *arg0, float *arg1, float *arg2) {
+    float inv_len;
 
     inv_len = 1.0f / gu_sqrtf((*arg0 * *arg0) + (*arg1 * *arg1) + (*arg2 * *arg2));
     *arg0 *= inv_len;
@@ -129,7 +124,7 @@ static void _guNormalize(f32 *arg0, f32 *arg1, f32 *arg2) {
     *arg2 *= inv_len;
 }
 
-void guPerspectiveF(float mf[4][4], u16 *perspNorm, float fovy, float aspect, float near, float far, float scale)
+void core1_7F60_guPerspectiveF(float mf[4][4], u16 *perspNorm, float fovy, float aspect, float near, float far, float scale)
 {
   float cot;
   float tmp;
@@ -144,7 +139,7 @@ void guPerspectiveF(float mf[4][4], u16 *perspNorm, float fovy, float aspect, fl
     near = ((-(tmp / scale)) * far) / ((2 * far) - (tmp / scale));
   }
   guMtxIdentF(mf);
-  fovy *= BAD_DTOR;
+  fovy *= 3.141592654 / 180.0;
   cot = cosf(fovy / 2) / sinf(fovy / 2);
   mf[0][0] = cot / aspect;
   mf[1][1] = cot;
@@ -182,28 +177,28 @@ void guPerspectiveF(float mf[4][4], u16 *perspNorm, float fovy, float aspect, fl
 }
 
 
-void guPerspective(Mtx *m, u16 *perspNorm, f32 fovy, f32 aspect, f32 near, f32 far, f32 scale) {
-    f32 sp28[4][4];
+void core1_7F60_guPerspective(Mtx *m, u16 *perspNorm, float fovy, float aspect, float near, float far, float scale) {
+    float sp28[4][4];
 
-    guPerspectiveF(sp28, perspNorm, fovy, aspect, near, far, scale);
-    __guMtxF2L(sp28, m);
+    core1_7F60_guPerspectiveF(sp28, perspNorm, fovy, aspect, near, far, scale);
+    core1_7F60_guMtxF2L_slow(sp28, m);
 }
 
-void _guRotateF(f32 mf[4][4], f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    f32 sp34;
-    f32 sp30;
-    f32 sp2C;
-    f32 sp28;
-    volatile f32 sp24;
+void core1_7F60_guRotateF(float mf[4][4], float arg1, float arg2, float arg3, float arg4) {
+    float sp34;
+    float sp30;
+    float sp2C;
+    float sp28;
+    volatile float sp24;
 
-    _guNormalize(&arg2, &arg3, &arg4);
-    arg1 *= D_80275908;
+    core1_7F60_guNormalize(&arg2, &arg3, &arg4);
+    arg1 *= core1_7F60_M_DTOR;
     sp34 = sinf(arg1);
     sp30 = cosf(arg1);
     sp2C = arg2 * arg3 * (1.0f - sp30);
     sp28 = arg3 * arg4 * (1.0f - sp30);
     sp24 = (arg4 * arg2 * (1.0f - sp30));
-    _guMtxIdentF(mf);
+    core1_7F60_guMtxIdentF(mf);
     mf[0][0] = ((1.0f - (arg2 * arg2)) * sp30) + (arg2 * arg2);
     mf[2][1] = (sp28 - (arg2 * sp34));
     mf[1][2] = ((arg2 * sp34) + sp28);
@@ -217,10 +212,10 @@ void _guRotateF(f32 mf[4][4], f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     mf[0][1] = (arg4 * sp34) + sp2C;
 }
 
-void guRotateRollF(f32 mf[4][4], f32 arg1){
-	f32 c, s;
-	arg1 *= D_80275908;
-	_guMtxIdentF(mf);
+void core1_7F60_guRotateRollF(float mf[4][4], float arg1){
+	float c, s;
+	arg1 *= core1_7F60_M_DTOR;
+	core1_7F60_guMtxIdentF(mf);
 	c = cosf(arg1);
 	mf[1][1] = c;
 	mf[2][2] = c;
@@ -229,10 +224,10 @@ void guRotateRollF(f32 mf[4][4], f32 arg1){
 	mf[2][1] = -s;
 }
 
-void guRotatePitchF(f32 mf[4][4], f32 arg1){
-	f32 c, s;
-	arg1 *= D_80275908;
-	_guMtxIdentF(mf);
+void core1_7F60_guRotatePitchF(float mf[4][4], float arg1){
+	float c, s;
+	arg1 *= core1_7F60_M_DTOR;
+	core1_7F60_guMtxIdentF(mf);
 	c = cosf(arg1);
 	mf[0][0] = c;
 	mf[2][2] = c;
@@ -241,10 +236,10 @@ void guRotatePitchF(f32 mf[4][4], f32 arg1){
 	mf[0][2] = -s;
 }
 
-void guRotateYawF(f32 mf[4][4], f32 arg1){
-	f32 c, s;
-	arg1 *= D_80275908;
-	_guMtxIdentF(mf);
+void core1_7F60_guRotateYawF(float mf[4][4], float arg1){
+	float c, s;
+	arg1 *= core1_7F60_M_DTOR;
+	core1_7F60_guMtxIdentF(mf);
 	c = cosf(arg1);
 	mf[0][0] = c;
 	mf[1][1] = c;
@@ -253,16 +248,16 @@ void guRotateYawF(f32 mf[4][4], f32 arg1){
 	mf[1][0] = -s;
 }
 
-void _guScaleF(f32 mf[4][4], f32 arg1, f32 arg2, f32 arg3){
-	_guMtxIdentF(mf);
+void core1_7F60_guScaleF(float mf[4][4], float arg1, float arg2, float arg3){
+	core1_7F60_guMtxIdentF(mf);
 	mf[0][0] = arg1;
 	mf[1][1] = arg2;
 	mf[2][2] = arg3;
 	mf[3][3] = 1.0f;
 }
 
-void _guTranslateF(f32 mf[4][4], f32 arg1, f32 arg2, f32 arg3){
-	_guMtxIdentF(mf);
+void core1_7F60_guTranslateF(float mf[4][4], float arg1, float arg2, float arg3){
+	core1_7F60_guMtxIdentF(mf);
 	mf[3][0] = arg1;
 	mf[3][1] = arg2;
 	mf[3][2] = arg3;

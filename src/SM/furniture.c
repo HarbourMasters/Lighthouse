@@ -4,15 +4,15 @@
 #include "variables.h"
 
 
-extern f32 D_80365E04[3][3];
+extern f32 INITIAL_CAMERA_TARGETS[3][3];
 
 void func_8038A3B0(Actor *this);
 
 /* .data */
 ActorAnimationInfo D_8038AFF0[3] = {
     {0, 0.0f},
-    {0x248, 1.816f},
-    {0x248, 9e+09f},
+    {ASSET_248_ANIM_unk, 1.816f},
+    {ASSET_248_ANIM_unk, 9e+09f},
 };
 
 ActorInfo gBanjosBed = { 
@@ -24,8 +24,8 @@ ActorInfo gBanjosBed = {
 
 ActorAnimationInfo D_8038B02C[3] = {
     {0, 0.0f},
-    {0x247, 3.0f},
-    {0x247, 9e+09f},
+    {ASSET_247_ANIM_unk, 3.0f},
+    {ASSET_247_ANIM_unk, 9e+09f},
 };//chBanjosChairAnimations
 
 ActorInfo gBanjosChair ={
@@ -37,8 +37,8 @@ ActorInfo gBanjosChair ={
 
 ActorAnimationInfo D_8038B068[3] = {
     {0, 0.0f},
-    {0x249, 1.0f},
-    {0x249, 9e+09f},
+    {ASSET_249_ANIM_unk, 1.0f},
+    {ASSET_249_ANIM_unk, 9e+09f},
 };//chBanjosStoveAnimations
 
 ActorInfo gBanjosStove ={
@@ -54,7 +54,7 @@ void func_8038A3B0(Actor *this){
     s32 sp24 = this->marker->id - 0xe1;
 
     if(this->marker->unk14_21)
-        vec3fArray_get_vec3f(this->marker->unk44, 0x1f, D_80365E04[sp24]);
+        vec3fArray_get_vec3f(this->marker->unk44, 0x1f, INITIAL_CAMERA_TARGETS[sp24]);
 
     actor_collisionOff(this);
     if(this->state == 2 && levelSpecificFlags_get(sp24 + 0x35)){

@@ -9,11 +9,11 @@ Actor *GV_func_8038C5D0(ActorMarker *this_marker, Gfx **gfx, Mtx **mtx, Vtx **vt
 /* .data */
 ActorAnimationInfo D_80391190[] = {
     {0x00, 0.0f},
-    {0xE5, 80000000.0f},
-    {0xE6, 1.6f},
-    {0xE5, 1.8f},
-    {0xE7, 0.55f},
-    {0xE8, 0.8f}
+    {ASSET_E5_ANIM_unk, 80000000.0f},
+    {ASSET_E6_ANIM_unk, 1.6f},
+    {ASSET_E5_ANIM_unk, 1.8f},
+    {ASSET_E7_ANIM_unk, 0.55f},
+    {ASSET_E8_ANIM_unk, 0.8f}
 };
 
 ActorInfo D_803911C0 = { 0xAC, 0x11E, 0x3E5,

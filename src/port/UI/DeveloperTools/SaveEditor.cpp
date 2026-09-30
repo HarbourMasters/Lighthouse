@@ -25,12 +25,12 @@
 #define DEFAULT_MAX_GOLD_FEATHERS 10
 
 extern "C" {
-bool ability_isUnlocked(enum ability_e uid);
+bool player_isAbilityUnlocked(enum ability_e uid);
 void jiggyscore_setCollected(s32 indx, s32 val);
 void honeycombscore_set(enum honeycomb_e indx, bool val);
 void mumboscore_set(enum mumbotoken_e indx, bool val);
 s32 itemscore_noteScores_get(enum level_e lvl_id);
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 
 extern struct {
     u8 D_803832C0[0xD];
@@ -106,10 +106,10 @@ void SaveEditor_DrawUnlocks() {
             ImGui::SeparatorText("Ability Unlocks");
             for (int i = ABILITY_0_BARGE; i <= ABILITY_12_WONDERWING; i++) {
                 ImGui::PushID(i);
-                bool isUnlocked = ability_isUnlocked((ability_e)i);
+                bool isUnlocked = player_isAbilityUnlocked((ability_e)i);
                 std::string abilName = "Unlock " + abilityNameList[i];
                 if (UIWidgets::Checkbox(abilName.c_str(), &isUnlocked)) {
-                    if (ability_isUnlocked((ability_e)i)) {
+                    if (player_isAbilityUnlocked((ability_e)i)) {
                         ability_setLearned((ability_e)i, false);
                     } else {
                         ability_setLearned((ability_e)i, true);
@@ -283,7 +283,7 @@ void SaveEditor_DrawProgressTab() {
                     ImGui::SameLine();
                     if (UIWidgets::Checkbox(noteLabel.c_str(), &hasAllNotes,
                                             { .labelPosition = UIWidgets::LabelPositions::None })) {
-                        D_80385FF0[level] = hasAllNotes ? 100 : 0;
+                        sItemscoreNoteScores[level] = hasAllNotes ? 100 : 0;
                     }
                     ImGui::TableNextColumn();
                 }

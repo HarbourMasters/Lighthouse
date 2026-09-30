@@ -2,8 +2,8 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "iFrame.h"
 #include "core2/statetimer.h"
+#include "core2/ba/iFrame.h"
 
 /* .bss */
 u8 D_8037C530;
@@ -20,7 +20,7 @@ s32 baiFrame_getState(void){
 void baiFrame_reset(void){
     D_8037C530 = 0;
     baiFrame_setState(1);
-    stateTimer_clear(STATE_TIMER_4_UNKNOWN);
+    stateTimer_clear(STATE_TIMER_4_IFRAME);
 }
 
 void baiFrame_start(void){
@@ -28,12 +28,12 @@ void baiFrame_start(void){
 }
 
 void baiFrame_startWithValue(f32 value){
-    stateTimer_set(STATE_TIMER_4_UNKNOWN, value);
+    stateTimer_set(STATE_TIMER_4_IFRAME, value);
     baiFrame_setState(3);
 }
 
 void baiFrame_update(void){
-    if(stateTimer_isDone(STATE_TIMER_4_UNKNOWN)){
+    if(stateTimer_isDone(STATE_TIMER_4_IFRAME)){
         baiFrame_setState(1);
     }
 }

@@ -16,7 +16,7 @@ extern int func_80320ED8(ActorMarker *, f32, s32);
 
 extern f32 func_8033229C(ActorMarker *marker);
 
-extern f32 func_80309B24(f32 [3]);
+extern f32 mapModel_getWaterSurfaceY(f32 [3]);
 
 extern BKCollisionTriangle *func_80320C94(f32 arg0[3], f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4, u32 arg5);
 
@@ -239,7 +239,7 @@ bool func_8032C2F0(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
     sp6C[0] = arg0->actor_specific_1_f;
     sp6C[1] = 0.0f;
     sp6C[2] = 0.0f;
-    guRotateRPYF(sp20, arg0->roll, 90.0f - arg0->yaw, arg0->pitch);
+    core1_3250_guRotateRPYF(sp20, arg0->roll, 90.0f - arg0->yaw, arg0->pitch);
     sp60[0] = (sp20[0][0] * sp6C[0]) + (sp20[0][1] * sp6C[1]) + (sp20[0][2] * sp6C[2]);
     sp60[1] = (sp20[1][0] * sp6C[0]) + (sp20[1][1] * sp6C[1]) + (sp20[1][2] * sp6C[2]);
     sp60[2] = (sp20[2][0] * sp6C[0]) + (sp20[2][1] * sp6C[1]) + (sp20[2][2] * sp6C[2]);
@@ -283,7 +283,7 @@ bool func_8032C4AC(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
         sp40[1] += arg0->unk170;
         arg0->unk170 = (-sp30 < time_getDelta() * (arg0->unk170 * 40.0)) ? time_getDelta() * (arg0->unk170 * 40.0)
                                                                          : -sp30;
-        if (func_80309B48(sp4C, sp40, sp34, 0x5E0000)) {
+        if (mapModel_intersectLine(sp4C, sp40, sp34, 0x5E0000)) {
             arg0->unk170 = -10.0f;
             arg0->position[0] = sp40[0];
             arg0->position[1] = sp40[1];
@@ -300,7 +300,7 @@ bool func_8032C660(Actor *arg0, f32 arg1[3], s32 arg2, s32 arg3) {
     f32 temp_f12;
     f32 temp_f2;
 
-    temp_f2 = func_80309B24(arg0->position) - 130.0f;
+    temp_f2 = mapModel_getWaterSurfaceY(arg0->position) - 130.0f;
     arg0->position[1] = (temp_f2 > arg0->position[1]) ? arg0->position[1] : temp_f2;
     return (temp_f2 == arg0->position[1]);
 }
@@ -352,7 +352,7 @@ bool func_8032C850(Actor *actor, f32 arg1[3], s32 arg2, s32 arg3, bool nonactor)
     func_80320ED8(actor->marker, temp_f0 / 2, 2);
     actor->marker->collidable = stored_collidability;
     for (var_v1 = func_8032F528(); var_v1 != NULL; var_v1 = func_8032F528()) {
-        if (nonactor || (var_v1->markerFlag && (var_v1->actorProp.marker->id == actor->marker->id))) {
+        if (nonactor || (var_v1->isActorProp && (var_v1->actorProp.marker->id == actor->marker->id))) {
             D_803833D0 = var_v1;
             actor->position[0] = (f32) arg1[0];
             actor->position[1] = (f32) arg1[1];
@@ -375,9 +375,9 @@ bool func_8032C9C0(Actor *actor, f32 arg1[3], s32 arg2, s32 arg3) {
 
 void func_8032C9E0(f32 arg0[3]) {
     if (D_803833D0 != NULL) {
-        arg0[0] = (f32) D_803833D0->unk4[0];
-        arg0[1] = (f32) D_803833D0->unk4[1];
-        arg0[2] = (f32) D_803833D0->unk4[2];
+        arg0[0] = (f32) D_803833D0->position[0];
+        arg0[1] = (f32) D_803833D0->position[1];
+        arg0[2] = (f32) D_803833D0->position[2];
     }
 }
 

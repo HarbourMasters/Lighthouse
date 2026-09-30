@@ -33,18 +33,18 @@ void func_803896FC(Actor *this);
 /* .data */
 ActorAnimationInfo D_80391C80[] = {
     {0x000, 0.0f},
-    {0x150, 0.6f},
-    {0x150, 0.6f},
-    {0x150, 0.6f},
-    {0x150, 0.6f},
-    {0x179, 2.3f},
-    {0x17A, 1.3f},
-    {0x17B, 2.0f},
-    {0x150, 1.0f},
-    {0x1AA, 4.3f},
-    {0x1AB, 4.3f},
-    {0x150, 1.0f},
-    {0x150, 0.6f}
+    {ASSET_150_ANIM_BOGGY_SLED, 0.6f},
+    {ASSET_150_ANIM_BOGGY_SLED, 0.6f},
+    {ASSET_150_ANIM_BOGGY_SLED, 0.6f},
+    {ASSET_150_ANIM_BOGGY_SLED, 0.6f},
+    {ASSET_179_ANIM_BOGGY_SLED_HURRY_UP, 2.3f},
+    {ASSET_17A_ANIM_BOGGY_SLED_LOOK_BACK, 1.3f},
+    {ASSET_17B_ANIM_BOGGY_unk, 2.0f},
+    {ASSET_150_ANIM_BOGGY_SLED, 1.0f},
+    {ASSET_1AA_ANIM_BOGGY_RACE_WIN, 4.3f},
+    {ASSET_1AB_ANIM_BOGGY_RACE_LOSE, 4.3f},
+    {ASSET_150_ANIM_BOGGY_SLED, 1.0f},
+    {ASSET_150_ANIM_BOGGY_SLED, 0.6f}
 };
 
 ActorInfo gChBoggySled = { MARKER_97_BOGGY_2, ACTOR_C8_BOGGY_2, ASSET_38A_MODEL_BOGGY_1, 

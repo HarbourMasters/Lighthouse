@@ -28,7 +28,7 @@ extern u8 gCompletedBottlesBonusGames[7];
 s32 jiggyscore_total(void);
 bool fileProgressFlag_get(enum file_progress_e flag);
 void sns_set_item_state(s32 item, s32 set, bool value);
-void sns_update_global_save_data_checksum(void);
+void sns_save_global_data(void);
 }
 
 using nlohmann::json;
@@ -58,7 +58,7 @@ void RegisterStopNSwop100_Init() {
             for (int i = 1; i < SNS_ITEM_length; i++) {
                 sns_set_item_state(i, SNS_UNLOCKED, true);
             }
-            sns_update_global_save_data_checksum();
+            sns_save_global_data();
         }
     });
 }

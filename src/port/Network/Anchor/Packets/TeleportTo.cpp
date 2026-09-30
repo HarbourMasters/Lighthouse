@@ -4,7 +4,7 @@
 
 #include "functions.h"
 
-// Exit id the game reserves for "spawn at an explicit position" (see func_8028E4B0).
+// Exit id the game reserves for "spawn at an explicit position" (see player_spawnAtMapExit).
 #define EXIT_WARP_DESTINATION 0x63
 
 /**

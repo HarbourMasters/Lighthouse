@@ -5,11 +5,8 @@
 
 #include <bk_math.h>
 
-extern BKCollisionTriangle *collisionList_func_802E805C(BKCollisionList *arg0, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7[3], s32 arg8);
-extern BKCollisionTriangle *func_802E9118(BKCollisionList *arg0, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6[3], f32 arg7, f32 arg8[3], s32 arg9, s32 arg10);
-extern BKCollisionTriangle *func_802E9DD8(BKCollisionList *arg0, BKVertexList *vtxList, f32 arg2[3], f32 arg3[3], f32 arg4, f32 arg5[3], f32 arg6, f32 arg7[3], s32 arg8);
 extern bool bkmodelunk14list_func_802EA760(BKModelUnk14List *, s32, f32[3], f32[3], f32, f32[3], f32*, f32*);
-extern BKCollisionTriangle *func_80309DBC(f32[3], f32[3], f32, f32[3], s32, s32);
+extern BKCollisionTriangle *mapModel_intersectMovingSphere(f32[3], f32[3], f32, f32[3], s32, s32);
 extern BKCollisionList *modelbin_getCollisionList(BKModelBin *);
 extern BKModelUnk14List *modelbin_getUnk14List(BKModelBin *);
 void func_80351954(Struct68s *arg);
@@ -131,7 +128,7 @@ BKCollisionTriangle * func_80350F7C(ActorMarker *marker, f32 arg1[3], f32 arg2[3
 
     colision_list = modelbin_getCollisionList(temp_s0->unkC);
     vtx_list = modelbin_getVtxList(temp_s0->unkC);
-    sp4C = collisionList_func_802E805C(colision_list, vtx_list, temp_s0->position, temp_s0->unk20, temp_s0->unk2C, arg1, arg2, arg3, arg4);
+    sp4C = collisionList_intersectLineGlobal(colision_list, vtx_list, temp_s0->position, temp_s0->unk20, temp_s0->unk2C, arg1, arg2, arg3, arg4);
     if (sp4C != 0) {
         if (func_8029453C()) {
             D_80386180.unk20[0] = (s32) arg2[0];
@@ -155,7 +152,7 @@ BKCollisionTriangle *func_803510B4(ActorMarker *marker, f32 arg1[3], f32 arg2[3]
     }
     collision_list = modelbin_getCollisionList(sp40->unkC);
     vertex_list = modelbin_getVtxList(sp40->unkC);
-    return func_802E9118(collision_list, vertex_list, sp40->position, sp40->unk20, sp40->unk2C, arg1, arg2, arg3, arg4, arg5, flagFliter);
+    return collisionList_intersectMovingSphereGlobal(collision_list, vertex_list, sp40->position, sp40->unk20, sp40->unk2C, arg1, arg2, arg3, arg4, arg5, flagFliter);
 }
 
 BKCollisionTriangle *func_80351198(ActorMarker *marker, f32 arg1[3], f32 arg2, f32 arg3[3], s32 arg4) {
@@ -170,7 +167,7 @@ BKCollisionTriangle *func_80351198(ActorMarker *marker, f32 arg1[3], f32 arg2, f
     }
     collision_list = modelbin_getCollisionList(sp38->unkC);
     vtx_list = modelbin_getVtxList(sp38->unkC);
-    return func_802E9DD8(collision_list, vtx_list, sp38->position, sp38->unk20, sp38->unk2C, arg1, arg2, arg3, arg4);
+    return collisionList_intersectSphereGlobal(collision_list, vtx_list, sp38->position, sp38->unk20, sp38->unk2C, arg1, arg2, arg3, arg4);
 }
 
 
@@ -208,9 +205,9 @@ void func_803513EC(ModelProp *arg0, s32 arg1) {
 
     arg0->unkB_5 = true;
     arg0->unkB_4 = false;
-    sp3C[0] = (f32) arg0->unk4[0];
-    sp3C[1] = (f32) arg0->unk4[1];
-    sp3C[2] = (f32) arg0->unk4[2];
+    sp3C[0] = (f32) arg0->position[0];
+    sp3C[1] = (f32) arg0->position[1];
+    sp3C[2] = (f32) arg0->position[2];
     sp2C[0] = 0.0f;
     sp2C[1] = (f32) (arg0->yaw * 2);
     sp2C[2] = (f32) (arg0->roll * 2);
@@ -245,16 +242,16 @@ bool func_803515EC(NodeProp *arg0) {
     s16 phi_v0;
 
 
-    if (arg0->bit6 != 6) {
+    if (arg0->category != 6) {
         return true;
     } else {
         for(phi_s0 = D_803725C0; phi_s0->unk0 != 0; phi_s0++){
-            if( (arg0->unk8 == phi_s0->unk0) 
+            if( (arg0->actorId == phi_s0->unk0) 
                 && ((phi_s0->mapId == 0) || (gsworld_getMap() == phi_s0->mapId))
             ){
-                sp48[0] = (s32) arg0->x;
-                sp48[1] = (s32) arg0->y;
-                sp48[2] = (s32) arg0->z;
+                sp48[0] = (s32) arg0->position_x;
+                sp48[1] = (s32) arg0->position_y;
+                sp48[2] = (s32) arg0->position_z;
                 if(func_803048E0(sp48, &sp44, &sp40, 2, 0x1F4)){
                     func_803513EC(sp40, phi_s0->unk2);
                     break;
@@ -268,7 +265,7 @@ bool func_803515EC(NodeProp *arg0) {
 bool func_80351700(Prop * arg0){
 
     // N64 offset 0xA = flags u16; bit 1 = unk8_1. Use struct access instead.
-    if (arg0->unk8_1) {
+    if (arg0->isModelProp) {
         return true;
     }
     return true;
@@ -278,7 +275,7 @@ bool func_80351724(void * arg0){
 
     // N64 offset 0xA = flags u16; bit 1 = unk8_1, bit 5 = unk8_5. Use struct access instead.
     Prop *prop = (Prop *)arg0;
-    if (prop->unk8_1 && prop->unk8_5) {
+    if (prop->isModelProp && prop->isMirrored) {
         prop->actorProp.isMirrored = false;
         prop->actorProp.isNotFeatherEggOrNote = true;
     }
@@ -421,7 +418,7 @@ void func_80351B28(Struct68s *arg0, f32 arg1[3]) {
         if(sp34 != NULL){
             if(bkmodelunk14list_func_802EA760(sp34, 0, arg0->position, arg0->unk20, arg0->unk2C, 0, sp48, &sp38)){
                 bkmodelunk14list_func_802EA760(sp34, 0, arg1, arg0->unk20, arg0->unk2C, 0, sp3C, &sp38);
-                if(func_80309DBC(sp48, sp3C, sp38, sp54, 3, 0)){
+                if(mapModel_intersectMovingSphere(sp48, sp3C, sp38, sp54, 3, 0)){
                     return;
                 }
             }

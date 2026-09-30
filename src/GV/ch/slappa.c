@@ -6,21 +6,35 @@
 void chSlappa_update(Actor *this);
 
 /* .data */
-ActorAnimationInfo chSlappaAnimations[] ={
-    {0x00, 0.0f},
-    {0xE9, 800000.0f},
-    {0xE9, 0.8f},
-    {0xEA, 1.0f},
-    {0xEA, 2.0f},
-    {0xEB, 0.8f},
-    {0xEB, 800000.0f},
-    {0xEC, 1.2f},
-    {0xEF, 1.4f},
-    {0xEE, 1.4f},
-    {0xEE, 1.4f}
+enum chSlappa_state_e {
+    SLAPPA_STATE_1_IDLE = 1,
+    SLAPPA_STATE_2_RISE,
+    SLAPPA_STATE_3_CHASING_PLAYER,
+    SLAPPA_STATE_4_ABOUT_TO_ATTACK,
+    SLAPPA_STATE_5_ATTACKING,
+    SLAPPA_STATE_6_LAYING_DOWN,
+    SLAPPA_STATE_7_GETTING_UP,
+    SLAPPA_STATE_8_LOWER,
+    SLAPPA_STATE_9_DIE,
+    SLAPPA_STATE_A_DEAD,
 };
 
-ActorInfo chSlappa = { MARKER_AD_SLAPPA, ACTOR_120_SLAPPA, ASSET_376_MODEL_SLAPPA, 
+ActorAnimationInfo chSlappaAnimations[] ={
+    {0x00, 0.0f},
+    {ASSET_E9_ANIM_SLAPPA_RISE, 800000.0f},
+    {ASSET_E9_ANIM_SLAPPA_RISE, 0.8f},
+    {ASSET_EA_ANIM_SLAPPA_CHASE, 1.0f},
+    {ASSET_EA_ANIM_SLAPPA_CHASE, 2.0f},
+    {ASSET_EB_ANIM_SLAPPA_ATTACK, 0.8f},
+    {ASSET_EB_ANIM_SLAPPA_ATTACK, 800000.0f},
+    {ASSET_EC_ANIM_SLAPPA_GETTING_UP, 1.2f},
+    {ASSET_EF_ANIM_SLAPPA_LOWER, 1.4f},
+    {ASSET_EE_ANIM_SLAPPA_DIE, 1.4f},
+    {ASSET_EE_ANIM_SLAPPA_DIE, 1.4f}
+};
+
+ActorInfo chSlappa = {
+    MARKER_AD_SLAPPA, ACTOR_120_SLAPPA, ASSET_376_MODEL_SLAPPA, 
     0x1, chSlappaAnimations, 
     chSlappa_update, actor_update_func_80326224, actor_draw, 
     0, 0, 0.0f, 0
@@ -104,7 +118,7 @@ void func_8038ADFC(f32 pos[3], s32 cnt){
 
 void func_8038AF10(Actor *this){
     anctrl_setSmoothTransition(this->anctrl, true);
-    subaddie_set_state_with_direction(this, 3, 0.00001f, 1);
+    subaddie_set_state_with_direction(this, SLAPPA_STATE_3_CHASING_PLAYER, 0.00001f, 1);
     actor_loopAnimation(this);
     this->actor_specific_1_f = 16.0f;
     this->unk1C[0] = 1.0f;
@@ -124,7 +138,7 @@ void func_8038AFF4(ActorMarker *this_marker, ActorMarker *other_marker){
     Actor *this = marker_getActor(this_marker);
     func_8032B4DC(this, other_marker, 0xC);
     actor_collisionOff(this);
-    subaddie_set_state_with_direction(this, ASSET_9_ANIM_BSDIE, 0.00001f, 1);
+    subaddie_set_state_with_direction(this, SLAPPA_STATE_9_DIE, 0.00001f, 1);
     actor_playAnimationOnce(this);
     this->unk1C[0] = 0.0f;
     func_8030E878(SFX_D7_GRABBA_DEATH, 1.0f, 32000, this->position, 2250.0f, 4500.0f);
@@ -157,7 +171,7 @@ void chSlappa_update(Actor *this){
 
     if(!this->volatile_initialized){
         this->volatile_initialized = true;
-        if(this->state == 0xa)
+        if(this->state == SLAPPA_STATE_A_DEAD)
             marker_despawn(this->marker);
 
         marker_setCollisionScripts(this->marker, func_8038B0BC, func_8038B08C, func_8038AFF4);
@@ -178,7 +192,7 @@ void chSlappa_update(Actor *this){
 
     this->unk58_0 = true;
     switch(this->state){
-        case 1: //L8038B2A4
+        case SLAPPA_STATE_1_IDLE: //L8038B2A4
             this->unk58_0 = false;
             if(0.0 < this->unk1C[1]){
                 this->unk1C[1] = MAX((f64)(this->unk1C[1] - time_getDelta()), 0.0);
@@ -189,7 +203,7 @@ void chSlappa_update(Actor *this){
                 && func_803292E0(this)
             ){
                 anctrl_setSmoothTransition(this->anctrl, 0);
-                subaddie_set_state_with_direction(this, 2, 0.00001f, 1);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_2_RISE, 0.00001f, 1);
                 actor_playAnimationOnce(this);
                 this->yaw = (f32)subaddie_getYawToPlayer(this);
                 this->actor_specific_1_f = 0.0f;
@@ -207,7 +221,7 @@ void chSlappa_update(Actor *this){
             }
             break;
 
-        case 2: //L8038B430
+        case SLAPPA_STATE_2_RISE: //L8038B430
             sfxSource_func_8030E2C4(this->unk44_31);
             if(0.98 < anctrl_getAnimTimer(this->anctrl)){
                 func_8038AF10(this);
@@ -218,15 +232,15 @@ void chSlappa_update(Actor *this){
             }
             break;
 
-        case 3: //L8038B494
+        case SLAPPA_STATE_3_CHASING_PLAYER: //L8038B494
             sfxSource_func_8030E2C4(this->unk44_31);
             if(subaddie_playerIsWithinSphereAndActive(this, 175)){
-                subaddie_set_state_with_direction(this, 4, 0.00001f, 1);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_4_ABOUT_TO_ATTACK, 0.00001f, 1);
                 actor_loopAnimation(this);
                 this->unk1C[0] = 1.0f;
             }
             else if(!subaddie_playerIsWithinSphereAndActive(this, 1100) || !func_8038AF78(this, 8.0f, 16.0f)){
-                subaddie_set_state_with_direction(this, 8, 0.00001f, 1);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_8_LOWER, 0.00001f, 1);
                 actor_playAnimationOnce(this);
                 this->unk1C[0] = 1.0f;
                 func_802BB3DC(0, 6.0f, 0.92f);
@@ -245,11 +259,11 @@ void chSlappa_update(Actor *this){
             }
             break;
 
-        case 4: //L8038B5F0
+        case SLAPPA_STATE_4_ABOUT_TO_ATTACK: //L8038B5F0
             this->yaw_ideal = subaddie_getYawToPlayer(this);
             subaddie_turnToYaw(this, 8.0f);
             if(this->unk38_31 >= 20){
-                subaddie_set_state_with_direction(this, 5, 0.00001f, 1);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_5_ATTACKING, 0.00001f, 1);
                 actor_playAnimationOnce(this);
                 this->unk38_31 = 0;
                 this->unk1C[0] = 1.0f;
@@ -259,7 +273,7 @@ void chSlappa_update(Actor *this){
             }
             break;
 
-        case 5: //L8038B67C
+        case SLAPPA_STATE_5_ATTACKING: //L8038B67C
             if(this->marker->unk14_21 && actor_animationIsAt(this, 0.79f)){
                 vec3fArray_get_vec3f(this->marker->unk44, 5, GV_D_80391A70);
                 func_8038ACEC(GV_D_80391A70, 2);
@@ -269,16 +283,16 @@ void chSlappa_update(Actor *this){
                 func_8030E878(SFX_3_DULL_CANNON_SHOT, 1.0f, 32000, this->position, 2250.0f, 4500.0f);
             }//L8038B734
             if(0.98 < anctrl_getAnimTimer(this->anctrl)){
-                subaddie_set_state_with_direction(this, 6, 0.99f, 0);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_6_LAYING_DOWN, 0.99f, 0);
                 actor_playAnimationOnce(this);
                 this->lifetime_value = 0.0f;
                 this->unk1C[0] = 1.0f;
             }
             break;
 
-        case 6: //L8038B78C
+        case SLAPPA_STATE_6_LAYING_DOWN: //L8038B78C
             if(75.0f <= this->lifetime_value){
-                subaddie_set_state_with_direction(this, 7, 0.00001f, 1);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_7_GETTING_UP, 0.00001f, 1);
                 actor_playAnimationOnce(this);
                 this->unk1C[0] = 1.0f;
             }
@@ -287,22 +301,22 @@ void chSlappa_update(Actor *this){
             }
             break;
 
-        case 7: //L8038B7EC
+        case SLAPPA_STATE_7_GETTING_UP: //L8038B7EC
             if(0.98 < anctrl_getAnimTimer(this->anctrl)){
                 func_8038AF10(this);
             }
             break;
 
-        case 8: //L8038B820
+        case SLAPPA_STATE_8_LOWER: //L8038B820
             if(0.98 < anctrl_getAnimTimer(this->anctrl)){
-                subaddie_set_state_with_direction(this, 1, 0.00001f, 1);
+                subaddie_set_state_with_direction(this, SLAPPA_STATE_1_IDLE, 0.00001f, 1);
                 this->unk1C[0] = 0.0f;
                 this->unk1C[1] = 2.0f;
             }
             break;
 
-        case 9: //L8038B870
-            subaddie_set_state(this, 0xA);
+        case SLAPPA_STATE_9_DIE: //L8038B870
+            subaddie_set_state(this, SLAPPA_STATE_A_DEAD);
             func_8038ACEC(this->position, 2);
             vec3fArray_get_vec3f(this->marker->unk44, 5, GV_D_80391A70);
             func_8038ACEC(GV_D_80391A70, 2);
@@ -312,7 +326,7 @@ void chSlappa_update(Actor *this){
             func_8038ADFC(GV_D_80391A70, 2);
             break;
 
-        case 10: //L8038B900
+        case SLAPPA_STATE_A_DEAD: //L8038B900
             this->unk58_0 = false;
             if(0.0f != this->unk1C[2]){
                 this->unk1C[2] -= 1.0f;

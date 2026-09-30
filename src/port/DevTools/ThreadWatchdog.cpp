@@ -33,10 +33,10 @@ void* osViGetCurrentFramebuffer(void);
 void* osViGetNextFramebuffer(void);
 OSMesgQueue* thread5_getTaskQueue(void);
 OSMesgQueue* thread5_getSyncQueue(void);
-OSMesgQueue* pfsManager_getFrameMesgQ(void);
-OSMesgQueue* pfsManager_getFrameReplyQ(void);
-OSMesgQueue* pfsManager_getSiLockQueue(void);
-int pfsManager_isBusy(void);
+OSMesgQueue* si_getEventQueue(void);
+OSMesgQueue* si_getReplyQueue(void);
+OSMesgQueue* joy_getSiLockQueue(void);
+int joy_getBusy(void);
 OSMesgQueue* audioManager_getFrameMesgQueue(void);
 OSMesgQueue* audioManager_getReplyMesgQueue(void);
 OSMesgQueue* baMotor_getRetraceQueue(void);
@@ -59,7 +59,7 @@ namespace {
 using Clock = std::chrono::steady_clock;
 
 constexpr const char* kThreadNames[WATCHDOG_NUM_THREADS] = {
-    "vi-ticker", "main-loop", "game-tick", "thread5", "vimgr", "pfsmanager", "audio-mgr", "rumble",
+    "vi-ticker", "main-loop", "game-tick", "thread5", "vimgr", "joy", "audio-mgr", "rumble",
 };
 
 // Blocking points in each loop that are not message-queue waits. A stall with
@@ -86,13 +86,13 @@ constexpr const char* kThreadLoops[WATCHDOG_NUM_THREADS] = {
     "push_frame -> mainLoop (Game.cpp)",
     "thread5_entry (graphics_thread.c)",
     "viMgr_entry (vimgr.c)",
-    "pfsManager_entry (pfsmanager.c)",
+    "joy_main (joy.c)",
     "audioManagerThread_entry (audio_manager.c)",
     "baMotor_entry (bamotor.c)",
 };
 
 // The audio thread legitimately idles through demo audio holds, and the
-// pfsmanager thread races the game tick for the same polling queue, so both
+// joy thread races the game tick for the same polling queue, so both
 // get a longer leash than the frame-paced threads.
 constexpr auto kStallAfter = std::chrono::seconds(5);
 constexpr auto kRelaxedStallAfter = std::chrono::seconds(10);
@@ -172,15 +172,15 @@ QueueInfo DescribeQueue(OSMesgQueue* mq) {
     if (mq == viMgr_getTickRetraceQueue()) {
         return { true, "sMesgQueue3 (vimgr.c)", "viMgr_entry" };
     }
-    if (mq == pfsManager_getFrameMesgQ()) {
-        return { true, "pfsManagerContPollingMsqQ (pfsmanager.c)",
+    if (mq == si_getEventQueue()) {
+        return { true, "sSiEventQueue (joy.c)",
                  "OS_EVENT_SI <- OS_SiService (window thread) after osContStartReadData" };
     }
-    if (mq == pfsManager_getFrameReplyQ()) {
-        return { true, "pfsManagerContReplyMsgQ (pfsmanager.c)", "pfsManager_entry when !pfsManagerBusy" };
+    if (mq == si_getReplyQueue()) {
+        return { true, "sSiReplyQueue (joy.c)", "joy_main when !sJoyBusy" };
     }
-    if (mq == pfsManager_getSiLockQueue()) {
-        return { true, "D_802816E8 (pfsmanager.c)", "func_8024F4AC via controller_func_8024F35C(0)" };
+    if (mq == joy_getSiLockQueue()) {
+        return { true, "D_802816E8 (joy.c)", "func_8024F4AC via controller_func_8024F35C(0)" };
     }
     if (mq == baMotor_getRetraceQueue()) {
         return { true, "sbaMotorThreadMesgQ (bamotor.c)", "viMgr_entry retrace signal (NOBLOCK, so extras drop)" };
@@ -421,11 +421,11 @@ std::string BuildDump(const bool* stalled, Clock::time_point now, const std::str
     out += fmt::format("Frame pacing: D_802808D8={}{} frameTokenQ={} tickRetraceQ={} retraceQ={}\n", vi.retraceCount,
                        vi.retraceCount > 10 ? " (accumulating)" : "", vi.q2Count, vi.q3Count, vi.q1Count);
 
-    OSMesgQueue* pfsPoll = pfsManager_getFrameMesgQ();
+    OSMesgQueue* siPoll = si_getEventQueue();
     OSMesgQueue* audioFrame = audioManager_getFrameMesgQueue();
     OSMesgQueue* audioReply = audioManager_getReplyMesgQueue();
-    out += fmt::format("SI/audio: pfsBusy={} pollingQ={} audioFrameQ={} audioReplyQ={} audioHeld={} svcPending={}\n",
-                       pfsManager_isBusy(), pfsPoll->validCount, audioFrame->validCount, audioReply->validCount,
+    out += fmt::format("SI/audio: joyBusy={} pollingQ={} audioFrameQ={} audioReplyQ={} audioHeld={} svcPending={}\n",
+                       joy_getBusy(), siPoll->validCount, audioFrame->validCount, audioReply->validCount,
                        port_audioHeld(), port_renderServicePending());
     out += fmt::format("Context: map={:#x} exit={:#x} gameMode={} build={} {}@{}", gsworld_getMap(), gsworld_getExit(),
                        getGameMode(), (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
@@ -470,8 +470,7 @@ void Watcher() {
                 hb.lastBeat = now;
                 continue;
             }
-            const auto limit =
-                (i == WATCHDOG_AUDIO_MANAGER || i == WATCHDOG_PFSMANAGER) ? kRelaxedStallAfter : kStallAfter;
+            const auto limit = (i == WATCHDOG_AUDIO_MANAGER || i == WATCHDOG_JOY) ? kRelaxedStallAfter : kStallAfter;
             if (now - hb.lastBeat > limit) {
                 stalled[i] = true;
                 anyStalled = true;

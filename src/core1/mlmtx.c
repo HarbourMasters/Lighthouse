@@ -8,7 +8,6 @@
 #include "version.h"
 #include "port/Interpolation/FrameInterpolation.h"
 
-void _guRotateF(f32 mf[4][4], f32, f32, f32, f32);
 f32 func_80263FF0(f32);
 f32 cosf(f32);
 
@@ -45,7 +44,7 @@ MtxF *mlMtx_get_stack_pointer(void){
 }
 
 void mlMtxApply(Mtx *mPtr){
-    _guMtxF2L(s_mtx_stack->mf, mPtr); // [port] pass mf[4][4] member, not MtxF*
+    core1_7F60_guMtxF2L(s_mtx_stack->mf, mPtr); // [port] pass mf[4][4] member, not MtxF*
     FrameInterpolation_RecordMatrixToMtx(mPtr, s_mtx_stack->mf);
 }
 
@@ -257,8 +256,8 @@ void mlMtxSet(MtxF* arg0) {
 }
 
 void mlMtxRotate(f32 a, f32 x, f32 y, f32 z) {
-    _guRotateF((s_mtx_stack + 1)->mf, a, x, y, z);
-    guMtxCatF((s_mtx_stack + 1)->mf, s_mtx_stack->mf, s_mtx_stack->mf);
+    core1_7F60_guRotateF((s_mtx_stack + 1)->mf, a, x, y, z);
+    core1_7F60_guMtxCatF((s_mtx_stack + 1)->mf, s_mtx_stack->mf, s_mtx_stack->mf);
 }
 
 void mlMtxRotPitch(f32 arg0) {
@@ -549,43 +548,44 @@ void func_80252AF0(f32 arg0[3], f32 arg1[3], f32 rotation[3], f32 scale, f32 arg
     }
 }
 
+// mlMtxTranslateRotatePYRScaleRevTranslate
+void func_80252C08(f32 translation[3], f32 rotation[3], f32 scale, f32 rev_translation[3]) {
+    if (translation) {
+        mlMtxTranslate(translation[0], translation[1], translation[2]);
+    }
 
-void func_80252C08(f32 arg0[3], f32 rotation[3], f32 scale, f32 arg3[3]){
-    if(arg0 != NULL)
-        mlMtxTranslate(arg0[0], arg0[1], arg0[2]);
-
-    if(rotation != NULL){
+    if (rotation) {
         mlMtxRotYaw(rotation[1]);  
         mlMtxRotPitch(rotation[0]);
         mlMtxRotRoll(rotation[2]);
     }
 
-    if(scale != 1.0f){
+    if (scale != 1.0f) {
         mlMtxScale_xyz(scale, scale, scale);
     }
 
-    if(arg3 != NULL)
-        mlMtxTranslate(-arg3[0], -arg3[1], -arg3[2]);
-
+    if (rev_translation) {
+        mlMtxTranslate(-rev_translation[0], -rev_translation[1], -rev_translation[2]);
+    }
 }
 
-void func_80252CC4(f32 position[3], f32 rotation[3], f32 scale, f32 arg3[3]){
-    if(arg3 != NULL)
-        mlMtxTranslate(arg3[0], arg3[1], arg3[2]);
+// mlMtxInverseTranslateRotatePYRScaleRevTranslate
+void func_80252CC4(f32 translation[3], f32 rotation[3], f32 scale, f32 rev_translation[3]) {
+    if (rev_translation)
+        mlMtxTranslate(rev_translation[0], rev_translation[1], rev_translation[2]);
     
-    if(scale != 1.0f){
-        mlMtxScale_xyz(1.0f/scale, 1.0f/scale, 1.0f/scale);
+    if (scale != 1.0f) {
+        mlMtxScale_xyz(1.0f / scale, 1.0f / scale, 1.0f / scale);
     }
 
-    if(rotation != NULL){
+    if (rotation) {
         mlMtxRotRoll(-rotation[2]);
         mlMtxRotPitch(-rotation[0]);
         mlMtxRotYaw(-rotation[1]);  
     }
 
-    if(position != NULL)
-        mlMtxTranslate(-position[0], -position[1], -position[2]);
-
+    if (translation)
+        mlMtxTranslate(-translation[0], -translation[1], -translation[2]);
 }
 
 void func_80252D8C(f32 position[3], f32 rotation[3]){

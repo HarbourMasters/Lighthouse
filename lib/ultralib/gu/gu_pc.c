@@ -83,7 +83,6 @@ void guTranslate(Mtx* m, float x, float y, float z) {
     guTranslateF(mf, x, y, z);
     guMtxF2L(mf, m);
 }
-#if 0
 void guScaleF(float mf[4][4], float x, float y, float z) {
     guMtxIdentF(mf);
     mf[0][0] = x;
@@ -96,7 +95,6 @@ void guScale(Mtx* m, float x, float y, float z) {
     guScaleF(mf, x, y, z);
     guMtxF2L(mf, m);
 }
-#endif
 void guNormalize(f32* x, f32* y, f32* z) {
     f32 tmp = 1.0f / sqrtf(*x * *x + *y * *y + *z * *z);
     *x = *x * tmp;

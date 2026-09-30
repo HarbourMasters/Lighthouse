@@ -164,7 +164,7 @@ void func_802F2740(Struct64s *arg0) {
             if (i_ptr != end_ptr) {
                 //if current indx not last index
                 // copy end object to this position and reduce size (dropping this)
-                memcpy(i_ptr, end_ptr, sizeof(Struct65s));
+                bk_memcpy(i_ptr, end_ptr, sizeof(Struct65s));
             } else {
                 //else increment current index
                 i++;

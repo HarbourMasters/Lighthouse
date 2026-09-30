@@ -12,9 +12,9 @@ void chBrentilda_update(Actor *this);
 /* .data */
 ActorAnimationInfo chBrentildaAnimations[] ={
     {0, 0.0f},
-    {0x26B, 4.0f},
-    {0x26C, 4.0f},
-    {0x26B, 4.0f},
+    {ASSET_26B_ANIM_unk, 4.0f},
+    {ASSET_26C_ANIM_unk, 4.0f},
+    {ASSET_26B_ANIM_unk, 4.0f},
 };
 ActorInfo chBrentilda = { 0x1E0, 0x348, 0x539, 0x1, chBrentildaAnimations, chBrentilda_update, actor_update_func_80326224, actor_draw, 2000, 0, 2.0f, 0};
 

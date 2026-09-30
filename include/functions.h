@@ -17,7 +17,7 @@ extern "C" {
 #include "rand.h"
 
 #include "prop.h"
-#include "model.h"
+#include "core2/model.h"
 
 #include "core1/core1.h"
 #include "core2/core2.h"
@@ -228,12 +228,6 @@ void bundle_setYaw(f32);
 // --- core2/actor_array.c (jiggy actors) ---
 Actor **actorArray_findJiggyActors(void);
 
-// --- core2/ba/ba_animcache.c ---
-#ifndef ANIMATION_H
-typedef struct animation_file_s AnimationFile;
-#endif
-AnimationFile *animBinCache_get(enum asset_e asset_id);
-
 // --- core2/anim/anim_buffer.c ---
 BoneTransformList *anim_getTransform(Animation *self, s32 index);
 BoneTransformList *animcache_getCurrentTransform(Animation *self);
@@ -305,8 +299,6 @@ int jiggyscore_isSpawned(enum jiggy_e jiggy_id);
 bool honeycombscore_get(enum honeycomb_e indx);
 
 // --- core2/map/mapspecificflags.c ---
-s32 mapSpecificFlags_get(s32 i);
-void mapSpecificFlags_set(s32, s32);
 void mapSpecificFlags_setEx(s32 i, s32 val, s32 triggerEvent);
 
 // --- core2/level/levelspecificflags.c ---
@@ -344,14 +336,6 @@ enum AnchorCollectibleSpace {
 };
 
 // --- core2/flags_bitfield.c ---
-bool fileProgressFlag_get(enum file_progress_e index);
-s32 fileProgressFlag_getN(enum file_progress_e offset, s32 numBits);
-s32 volatileFlag_get(enum volatile_flags_e index);
-s32 volatileFlag_getAndSet(enum volatile_flags_e index, s32 arg1);
-s32 volatileFlag_getN(enum volatile_flags_e index, s32 numBits);
-void fileProgressFlag_setN(enum file_progress_e, s32, s32);
-void volatileFlag_set(enum volatile_flags_e index, s32 set);
-void volatileFlag_setN(enum volatile_flags_e startIndex, s32 set, s32 length);
 void fileProgressFlag_setEx(enum file_progress_e index, s32 set, s32 triggerEvent);
 void volatileFlag_setEx(enum volatile_flags_e index, s32 set, s32 triggerEvent);
 
@@ -380,7 +364,7 @@ void func_8028F918(s32 arg0);
 void code_7060_setVoidOutLocation(enum map_e map_id, s32 exit_id);
 bool player_setCarryObjectPoseInCylinder(f32[3], f32, f32, enum actor_e actor_id, Actor**);
 u32 player_getTransformation(void);
-void ability_unlock(enum ability_e);
+void player_unlockAbility(enum ability_e);
 void func_8028E668(f32[3], f32, f32, f32);
 void func_8028E7EC(f32 arg0[3]);
 void player_getPosition(f32 dst[3]);
@@ -503,7 +487,7 @@ bool func_802BB884(f32 arg0[3], f32 *arg1);
 bool func_802BC428(void);
 
 // --- core2/nc/camera_fog.c ---
-bool func_802BEF64(void);
+bool core2_37E50_isCameraUnderwater(void);
 
 // --- core2/nc/camera_focus.c ---
 bool func_802BAC1C(void);
@@ -680,7 +664,7 @@ s32 chMrVileMinigame_getPieceCount(ActorMarker *marker);
 s32 chMrVileMinigame_getScoreDifference(ActorMarker *marker);
 s32 chMrVileMinigame_getDialogIndex(ActorMarker *marker);
 void chMrVileMinigame_newPiece(ActorMarker *game_marker, ActorMarker *piece_marker, f32 position[3], u32 yumblie_type);
-void chvilegame_remove_piece(ActorMarker *game_marker, ActorMarker *piece_marker);
+void chMrVileMinigame_removePiece(ActorMarker *game_marker, ActorMarker *piece_marker);
 
 // --- CC/ccspawnqueue.c ---
 void CC_func_80387DA0(void);
@@ -980,9 +964,6 @@ void collisionTri_copy(BKCollisionTriangle *dst, BKCollisionTriangle *src);
 void func_802450DC(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3]);
 void func_802451A4(f32 arg0[3], f32 arg1[3], f32 arg2[3], f32 arg3[3], f32 arg4[3], s32 arg5);
 
-// --- core1/gu_perspective.c ---
-void _guMtxF2L(float mf[4][4], Mtx *m);
-
 // --- boot/inflate.c ---
 int bk_inflate(void);
 
@@ -1015,23 +996,12 @@ void sns_backup_items_and_unlock_all(void);
 void sns_find_and_parse_payload(void);
 void sns_init_base_payloads(void);
 void sns_restore_backed_up_items(void);
-void sns_save_and_update_global_data(void);
+void sns_load_global_data(void);
 void sns_set_item_and_update_payload(enum StopNSwop_Item item, s32 set, s32 state);
 void sns_write_payload_over_heap(void);
 
 // --- core2/abilityprogress.c ---
-int ability_hasLearned(enum ability_e);
-int ability_hasUsed(enum ability_e move);
-s32 ability_getAllLearned(void);
-void ability_clearAll(void);
-void ability_debug(void);
-void ability_getSizeAndPtr(s32 *size, u8 **addr);
-void ability_setAllLearned(s32 val);
-void ability_setAllUsed(s32 val);
-void ability_setHasUsed(enum ability_e move);
-void ability_setLearned(s32 move, s32 val);
 void ability_setLearnedEx(s32 move, s32 val, s32 triggerEvent);
-void ability_use(s32 arg0);
 
 // --- core2/actor_array.c ---
 void func_8032728C(f32[3], f32, s32, int(*)(Actor *));
@@ -1089,10 +1059,10 @@ void subaddie_set_state_looped(Actor * self, u32 arg1);
 bool func_80305248(f32 arg0[3], s32 arg1, f32 *arg2);
 bool func_8030526C(f32 arg0[3], s32 arg1, f32 *arg2);
 bool func_80305290(bool (* arg0)(NodeProp *), bool (* arg1)(Prop *));
-bool func_80305344(s32 arg0, u32 *arg1);
+bool nodeprop_findYawFromActorId(s32 arg0, u32 *arg1);
 bool func_80305D14(void);
 bool func_80307390(s32 arg0, s32 arg1);
-enum actor_e func_803084F0(s32 arg0);
+enum actor_e nodeprop_getExitActorId(s32 arg0);
 s32 func_803048E0(s32 arg0[3], void *arg1, void *arg2, s32 arg3, s32 arg4);
 s32 func_80304FC4(enum actor_e *actor_id_list, NodeProp **node_list, s32 arg2);
 s32 func_8030508C(s32 arg0, f32 arg1[3], s32 arg2);
@@ -1112,7 +1082,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_80303F6C(s32 indx, s32 arg1);
 void func_803045CC(s32 arg0, s32 arg1);
 void func_803045D8();
-void func_8030578C(void);
+void cubeList_spawnActors(void);
 void func_80305990(s32 mode);
 void func_80305D38(void);
 void func_80305D94(void);
@@ -1154,7 +1124,7 @@ void func_8032FFD4(ActorMarker *self, s32 arg1);
 void func_80330078(ActorMarker *marker, ActorMarker *other_marker, s16 *arg2);
 void func_803300B8(ActorMarker *marker, MarkerCollisionFunc method);
 void func_803300C0(ActorMarker *marker, s32 (*method)(ActorMarker *, ActorMarker *));
-void func_80330208(Cube *cube);
+void cube_spawnActors(Cube *cube);
 void func_803303B8(Cube *cube);
 void func_803305AC(void);
 void func_803306C8(s32 arg0);
@@ -1188,7 +1158,7 @@ void func_80350174(void);
 void func_80350250(void);
 
 // --- core2/anim/anim_bonetransform.c ---
-bool codeB3A80_releaseSprite(void **sprite_ptr, BKSpriteDisplayData **arg1);
+bool codeB3A80_releaseSprite(BKSprite **sprite_ptr, BKSpriteDisplayData **sprite_gfx_ptr);
 bool func_8033B388(BKSprite **sprite_ptr, BKSpriteDisplayData **arg1);
 s32 code_B3A80_func_8033BDAC(enum asset_e id, void *dst, s32 size);
 s32 func_8033B678(void);
@@ -1263,11 +1233,6 @@ s32 baanim_getActiveBottlesBonusMask(void);
 void baanim_setModifyMethod(void (*arg0)(uintptr_t, uintptr_t));
 void baanim_setUpdateType(enum baanim_update_type_e arg0);
 
-// --- core2/ba/ba_animcache.c ---
-void animBinCache_free(void);
-void animBinCache_init(void);
-void animBinCache_update(void);
-
 // --- core2/ba/modelappendages.c ---
 void modelAppendages_loadAppendage(void);
 void modelAppendages_reset(void);
@@ -1338,10 +1303,10 @@ void bafalldamage_set_state(s32 arg0);
 void bafalldamage_update(void);
 
 // --- core2/ba/ba_falling.c ---
-void func_80350818(Gfx **gfx, Mtx **mtx, Vtx **vtx);
-void func_80350BC8(void);
-void func_80350BFC(void);
-void func_80350CA4(void);
+void lensflare_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void lensflare_free(void);
+void lensflare_init(void);
+void lensflare_update(void);
 
 // --- core2/ba/hazards.c ---
 void freeHazardSfxId(void);
@@ -1431,13 +1396,13 @@ enum actor_e carriedObj_getActorId(void);
 enum bswatergroup_e player_getWaterState(void);
 enum marker_e bacarry_getMarkerId(void);
 f32 func_8028EC64(f32 arg0[3]);
-bool ability_isUnlocked(enum ability_e uid);
+bool player_isAbilityUnlocked(enum ability_e uid);
 int func_8028EC04(void);
-s32 func_8028E4A4(void);
+s32 player_getExitId(void);
 s32 func_8028F68C(enum bs_interrupt_e arg0, ActorMarker *marker);
 s32 func_8028F6B8(enum bs_interrupt_e arg0, enum asset_e model_id);
 s32 func_8028F6E4(enum bs_interrupt_e arg0, f32 arg1[3]);
-void func_8028E4B0(void);
+void player_spawnAtMapExit(void);
 void func_8028E644(void);
 void func_8028E6EC(s32 arg0);
 void func_8028E71C(void);
@@ -1525,14 +1490,6 @@ void func_803219A8(void);
 void func_803219F4(s32 arg0);
 
 // --- core2/ba/playerposition.c ---
-void playerPosition_init(void);
-void playerPosition_func_8029842C(void);
-void playerPosition_func_80298464(f32 arg0[3]);
-void playerPosition_func_80298504(f32 arg0[3]);
-void playerPosition_getOffset(f32 arg0[3]);
-void playerPosition_setOffset(f32 arg0[3]);
-void playerPosition_applyOffset(void);
-void playerPosition_set(f32 arg0[3]);
 void player_setWarpDestination(f32 position[3], f32 yaw, s32 exit_id);
 
 // --- core2/ba/ba_recoil.c ---
@@ -1705,10 +1662,10 @@ void func_802BAC10(void);
 void func_802BAC58(void);
 
 // --- core2/nc/camera_fog.c ---
-void func_802BEE2C(Gfx **gfx, Mtx **mtx, Vtx **vtx);
+void core2_37E50_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void func_802BEF70(void);
-void func_802BEF78(void);
-void func_802BEFB0(void);
+void core2_37E50_reset(void);
+void core2_37E50_update(void);
 
 // --- core2/propModelList.c ---
 void propModelList_free(void);
@@ -1743,8 +1700,8 @@ void ncCamera_update(void);
 // --- core2/sfx/trackmanager.c ---
 int func_80322914(void);
 s32 core2_9B650_getMusicTrackFromMap(enum map_e map_id);
-s32 func_8032274C(void);
-s32 func_80322758(void);
+s32 core2_9B650_getCurrentMusicTrack(void);
+s32 core2_9B650_getCurrentSecondaryMusicTrack(void);
 void func_80322764(void);
 void func_8032278C(s32 arg0, s32 arg1);
 
@@ -2197,27 +2154,27 @@ void func_802E67C4(void);
 void func_802E6820(s32 arg0);
 
 // --- core2/frame/rendermem.c ---
-bool func_802E4424(void);
+bool game_update(void);
 bool func_802E4A08(void);
-s32 func_802E4A98(s32 arg0);
-s32 func_802E4AAC(s32 arg0);
-s32 func_802E4AC0(s32 arg0);
-s32 func_802E4AE8(s32 arg0);
-s32 func_802E4AFC(s32 arg0);
-s32 func_802E4B10(s32 arg0);
-s32 func_802E4B24(s32 arg0);
+s32 game_getHardcodedExitX(s32 arg0);
+s32 game_getHardcodedExitY(s32 arg0);
+s32 game_getHardcodedExitZ(s32 arg0);
+s32 game_getHardcodedExitCameraX(s32 arg0);
+s32 game_getHardcodedExitCameraY(s32 arg0);
+s32 game_getHardcodedExitCameraZ(s32 arg0);
+s32 game_getHardcodedExitCameraYaw(s32 arg0);
 s32 game_defrag(void);
-u8 func_802E4A8C(void);
-void func_802E4048(s32 map, s32 exit, s32 transition);
-void func_802E40C4(s32 arg0);
-void func_802E40D0(s32 map, s32 exit);
-void func_802E40E8(s32 transition);
-void func_802E412C(s32 arg0, s32 arg1);
-void func_802E4170(void);
-void func_802E4214(enum map_e map_id);
+u8 game_getKeepLevelState(void);
+void game_transitionToMapResettingLevel(s32 map, s32 exit, s32 transition);
+void game_setMapChangeRequest(s32 arg0);
+void game_setNextMap(s32 map, s32 exit);
+void game_setMapTransition(s32 transition);
+void game_setMapTransitionWithStyle(s32 arg0, s32 arg1);
+void game_free(void);
+void game_init(enum map_e map_id);
 void func_802E4384(void);
-void func_802E4A70(void);
-void func_802E4A80(void);
+void game_setKeepLevelState(void);
+void game_clearKeepLevelState(void);
 void game_draw(bool arg0);
 
 // --- core2/frame/rendermem.c ---
@@ -2344,27 +2301,13 @@ void gameSelect_setGameNumber(s32 arg0);
 void gameSelect_resetGameNumber(void);
 
 // --- core2/flags_bitfield.c ---
-s32 bitfieldarray_getBit(u8 *array, s32 index);
-s32 bitfieldarray_getNBits(u8 *array, s32 offset, s32 numBits);
-s32 dummy_func_80320240(void);
-s32 dummy_func_80320248(void);
-s32 fileProgressFlag_getAndSet(enum file_progress_e index, s32 set);
-s32 func_8032056C(void);
-s32 func_80320708(void);
-void bitfieldarray_setBit(u8 *array, s32 index, s32 set);
-void bitfieldarray_setNBits(u8 *array, s32 startIndex, s32 set, s32 length);
-void fileProgressFlag_getSizeAndPtr(s32 *size, u8 **addr);
 void volatileFlag_getSizeAndPtr(s32 *size, u8 **addr);
-void fileProgressFlag_set(enum file_progress_e index, s32 set);
-void volatileFlag_backupAll(void);
-void volatileFlag_clear(void);
-void volatileFlag_restoreAll(void);
 
 // --- core2/gc/dialog.c ---
 int func_803110F8(s32 next_state, s32 arg1, s32 arg2, s32 arg3, s32 (*arg4)(ActorMarker *, enum asset_e, s32));
 int gcdialog_showDialogConditional(s32 text_id, s32 arg1, f32 *pos, ActorMarker *marker, void(*callback)(ActorMarker *, enum asset_e, s32), void(*arg5)(ActorMarker *, enum asset_e, s32), s32(*arg6)(ActorMarker *, s32, s32));
 int gcdialog_getCurrentTextId(void);
-int func_803115C4(s32 next_state);
+bool func_803115C4(s32 textId);
 void func_8030F1D0(void);
 void func_80310D2C(void);
 void gcdialog_incrementYPositionModifier(void);
@@ -2399,7 +2342,7 @@ void gcpausemenu_returnToLair(void);
 enum level_e map_getLevel(enum map_e map);
 enum map_e level_get_main_map(enum level_e level_id);
 s32 level_get_main_exit(enum level_e level_id);
-void func_8030AFA0(enum map_e arg0);
+void gcsection_setJiggyListForMap(enum map_e arg0);
 void func_8030AFD8(s32 arg0);
 
 // --- core2/gc/sky.c ---
@@ -2413,7 +2356,6 @@ void func_8030C180(void);
 void func_8030C1A0(void);
 void func_8030C204(void);
 void func_8030C2D4(Gfx **gdl, Mtx **mptr, Vtx **vptr);
-void picturebox_setScissorBox(void);
 
 // --- core2/displaylist_init.c ---
 void func_80315084(Gfx **gfx, Mtx **mtx, Vtx **vtx);
@@ -2432,7 +2374,7 @@ void func_80341A54(void);
 void glspline_defrag(void);
 
 // --- core2/level/metadata.c ---
-int barebound_set_active(s32 arg0);
+int barebound_set_active(enum ba_rebound_id id);
 s32 barebound_802987B4(void);
 
 // --- core2/level/levelspecificflags.c ---
@@ -2463,12 +2405,11 @@ void func_8034B9E4(void);
 void func_8034BA7C(enum map_e map_id, s32 exit_id);
 
 // --- core2/map/mapModel.c ---
-BKCollisionTriangle *func_802E76B0(BKCollisionList *collisionList, BKVertexList *vertexList, f32 startPoint[3], f32 endPoint[3], f32 arg4[3], u32 flagFilter);
 Vec3fArray *func_803097A0(void);
-BKCollisionTriangle *func_80309B48(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
+BKCollisionTriangle *mapModel_intersectLine(f32 startPoint[3], f32 endPoint[3], f32 arg2[3], u32 flagFilter);
 bool func_80309D58(f32 arg0[3], s32 arg1);
 bool mapModel_has_xlu_bin(void);
-void func_8030A078(void);
+void mapModel_init(void);
 void mapModel_defrag(void);
 void mapModel_free(void);
 void mapModel_getBounds(s32 min[3], s32 max[3]);
@@ -2485,17 +2426,12 @@ int game_is_frozen(void);
 // --- core2/map/gsworld.c ---
 
 // --- core2/map/mapspecificflags.c ---
-s32 mapSpecificFlags_validateCRC1(void);
-u32 mapSpecificFlags_getClear(s32 i);
-u32 mapSpecificFlags_getN(s32 idx, s32 n);
-void mapSpecificFlags_clearAll(void);
-void mapSpecificFlags_setN(s32 idx, s32 val, s32 n);
 
 // --- core2/map/list.c ---
-void func_8029A47C(s32 arg0[3]);
-void func_8029A4D0(void);
+void core2_12F30_getPlayerTint(s32 arg0[3]);
+void core2_12F30_reset(void);
 void func_8029A54C(void);
-void func_8029A554(void);
+void core2_12F30_update(void);
 
 // --- core2/fx/projectile_system.c ---
 void func_8033F9C0(void);
@@ -2667,7 +2603,7 @@ bool can_feathery_flap(void);
 bool can_peck(void);
 bool can_view_first_person(void);
 bool func_8028ABB8(void);
-bool func_8028ADB4(void);
+bool player_shouldPlayLevelEntrance(void);
 bool func_8028B394(void);
 bool func_8028B4C4(void);
 bool func_8028B528(void);
@@ -2697,12 +2633,12 @@ void func_802DC560(NodeProp*, ActorMarker*);
 void func_802DC604(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/gc/transition.c ---
-int func_8032190C(void);
+int level_enteredFromLair(void);
 enum level_e level_get(void);
-void func_803216D0(enum map_e map);
-void func_80321854(void);
-void func_80321918(int arg0);
-void func_80321924(void);
+void level_load(enum map_e map);
+void level_unload(void);
+void level_setEnteredFromLair(int arg0);
+void level_update(void);
 
 // --- core2/quiz/quizquestionaskedbitfield.c ---
 void quizQuestionAskedBitfield_defrag(void);
@@ -2883,8 +2819,8 @@ void func_80349AD0(void);
 void func_80349B1C(Gfx **gfx);
 
 // --- core2/sprite/screenoverlay.c ---
-void codeAEDA0_postDrawSprite(Gfx **gfx);
 void codeAEDA0_drawSprite(Gfx **gfx);
+void codeAEDA0_postDrawSprite(Gfx **gfx);
 void func_803382B4(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void codeAEDA0_setSpriteDrawMode(s32 arg0);
 void func_803382FC(s32 arg0);
@@ -2946,9 +2882,6 @@ void func_8034C21C(ActorMarker *marker);
 
 // --- core2/vtx/gclights.c ---
 void lightingVectorList_fromFile(File *file_ptr);
-
-// --- core2/vtx/listutils.c ---
-void func_802E73C8(f32 arg0[3][3]);
 
 // --- core2/vtx/positionset.c ---
 s32 func_8034F560(Struct76s *arg0);
@@ -3031,7 +2964,7 @@ s32 func_802FB0D4(void *self);
 void particleEmitter_manualFree(ParticleEmitter *self);
 
 // --- core2/anim/anim_bonetransform.c ---
-void func_8033BD20(void **arg0);
+void func_8033BD20(BKModelBin **arg0);
 
 // --- core2/timedfuncqueue.c ---
 bool timedFuncQueue_is_empty(void);
@@ -3061,7 +2994,7 @@ bool func_80245524(f32 arg0[3], void *arg1, intptr_t *arg2, f32 *arg3);
 void func_8029BC60(enum asset_e *anim_id, f32 *anim_duration);
 
 // --- core2/frame/rendermem.c ---
-s32 func_802E4AD4(s32 arg0);
+s32 game_getHardcodedExitYaw(s32 arg0);
 
 // --- core2/sfx/instruments.c ---
 void sfxInstruments_func_8033543C(Struct81s *arg0);
@@ -3120,9 +3053,6 @@ void bkmemset64(void *dest, s32 value, s32 size);
 f32 func_8038A6B8(ActorMarker *);
 
 // --- core1/memory.c ---
-void * bk_malloc(size_t size);
-void *bk_realloc(void* ptr, size_t size);
-void bk_free(void*);
 void *defrag(void *);
 void *defrag_asset(void *);
 
@@ -3171,10 +3101,6 @@ void baModel_80292158(f32);
 f32  get_slope_timer(void);
 
 // --- core2/ba/playerposition.c ---
-f32 playerPosition_getY(void);
-void playerPosition_get(f32 dst[3]);
-void playerPosition_addY(f32);
-void playerPosition_setY(f32);
 
 // --- core2/ba/ba_recoil.c ---
 f32  get_turbo_duration(void);
@@ -3378,22 +3304,6 @@ void timed_exitStaticCamera(f32 time);
 void timed_playSfx(f32, enum sfx_e, f32, s32);
 void timed_setStaticCameraToNode(f32, s32);
 
-// --- core2/vla.c ---
-VLA *   bk_vector_defrag(VLA *vla);
-VLA *   bk_vector_new(u32 elemSize, u32 cnt);
-s32     bk_vector_getIndex(VLA *vla, void *element);
-s32     bk_vector_size(VLA *vla);
-void    bk_vector_assign(VLA *vla, s32 indx, void* value);
-void    bk_vector_clear(VLA *vla);
-void    bk_vector_free(VLA *vla);
-void    bk_vector_popBack_n(VLA *vla, u32 n);
-void    bk_vector_remove(VLA *vla, u32 indx);
-void *  bk_vector_at(VLA *vla, u32 n);
-void *  bk_vector_getBegin(VLA *vla);
-void *  bk_vector_getEnd(VLA *vla);
-void *  bk_vector_insertNew(VLA **vlaPtr, s32 indx);
-void *  bk_vector_pushBackNew(VLA **vlaPtr);
-
 // --- core2/vtx/alphablend.c ---
 void func_8034E71C(Struct73s *arg0, s32 arg1, f32 arg2);
 void func_8034E78C(Struct73s *arg0, s32 arg1, f32 arg2);
@@ -3418,10 +3328,6 @@ void rubeeEggPot_addedEggToPot(void);
 s32 rubeeEggPot_getEggGoal(void);
 
 // --- core2/frame/auxbuffer.c ---
-void picturebox_init(void);
-void picturebox_free(void);
-void picturebox_func_8030C180(void);
-void picturebox_resetScissorBoxAndFramebuffer(Gfx **gfx, Mtx **mtx, Vtx **vtx);
 
 // --- core2/actor_cubepropsystem.c ---
 void core2_A5BC0_drawUnknownMarkers(Gfx **gfx, Mtx **mtx, Vtx **vtx);

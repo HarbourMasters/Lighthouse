@@ -274,7 +274,7 @@ void RegisterEggAim_Init() {
                 func_8030E760(SFX_57_KAZOOIE_HEGH, 1.0f, 0x7fff);
                 commonParticle_new(COMMON_PARTICLE_1_EGG_HEAD, 1);
                 item_dec(ITEM_D_EGGS);
-                ability_use(ABILITY_USED_EGG);
+                ability_setUsedWithDialog(ABILITY_USED_7_EGG);
             }
             sFiring--;
         }

@@ -58,12 +58,12 @@ enum asset_e playerModel_get(void){
                 case MAP_1B_MMM_MAD_MONSTER_MANSION:
                 case MAP_27_FP_FREEZEEZY_PEAK:
                 case MAP_31_RBB_RUSTY_BUCKET_BAY:
-                case MAP_32_UNUSED:
+                case MAP_32_STUB_LL_LAVA_LEVEL:
                 case MAP_43_CCW_SPRING:
                 case MAP_44_CCW_SUMMER:
                 case MAP_45_CCW_AUTUMN:
                 case MAP_46_CCW_WINTER:
-                case MAP_56_UNUSED:
+                case MAP_56_STUB_ML_MINE_LEVEL:
                     if (port_shouldDisableLOD()) {
                         return ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY;
                     }
@@ -85,7 +85,7 @@ void playerModel_free(void){
 void playerModel_set(void){
     enum asset_e model_id = playerModel_get();
 
-    if(func_8028ADB4()){
+    if(player_shouldPlayLevelEntrance()){
         PlayerModelAssetId = 0;
     }
     else if(model_id){
