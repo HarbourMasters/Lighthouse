@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #define _HorzDist3v(v1, v2) ((v1[0]-v2[0])*(v1[0]-v2[0]) + (v1[2]-v2[2])*(v1[2]-v2[2]))
 extern void func_802D729C(Actor *, f32);
@@ -262,7 +263,7 @@ void chicecube_update(Actor *this){
         this->unk58_0 = true;
     }//L8035AAF4
     
-    if(!subaddie_playerIsWithinSphere(this, 3000))
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 3000)))
         return;
 
     func_802D729C(this, 3.4 * this->scale);

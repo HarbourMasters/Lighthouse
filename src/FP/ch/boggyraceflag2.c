@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern void func_803289EC(Actor *, f32, s32);
 extern void func_8028E668(f32[3], f32, f32, f32);
@@ -71,7 +72,9 @@ void func_80388584(Actor *this){
         }
     }
     else{//L80388694
-        if(!subaddie_playerIsWithinSphereAndActive(this, 2000)&& !maSlolam_WithinRadiusOfBoggy(this->position, 2000))
+        if(!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE,
+                               subaddie_playerIsWithinSphereAndActive(this, 2000)
+                                   || maSlolam_WithinRadiusOfBoggy(this->position, 2000)))
             return;
         this->marker->collidable = true;
         this->unk124_6 = true;

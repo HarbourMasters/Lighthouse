@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 Actor *chWozzaJiggy_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chWozzaJiggy_update(Actor *this);
@@ -44,7 +45,7 @@ void chWozzaJiggy_update(Actor *this){
     ParticleEmitter *sp3C;
 
     if( maSlalom_isActive() )               return;
-    if( !subaddie_playerIsWithinSphere(this, 4500) )    return;
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4500))) return;
 
     this->marker->propPtr->unk8_3 = false;
     actor_collisionOff(this);
