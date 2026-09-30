@@ -1,20 +1,19 @@
-[comment]: <> (Todo: Make Light Mode Image)
-[comment]: <> (Todo: Make Dark Mode Image)
+<p align="center">
+  <img alt="Lighthouse" src="./res/lighthouse_titlelogo.png" width="500">
+</p>
 
-# Lighthouse
-Harbour Masters port of Banjo Kazooie
-
-Lead Developer: 
-* Malkierian
+A Banjo-Kazooie PC port with Anchor multiplayer, romhack and multi-language support, and a built-in randomizer.
 
 Developers:
+* Malkierian
 * JeodC
 * Caladius
+* aMannus
 
-## Discord
-Official Discord: https://discord.com/invite/shipofharkinian
+## Website & Discord
+Official Website: https://www.harbourmasters.org/
 
-If you're having any trouble after reading through this `README`, feel free ask for help in the Lighthouse text channels. Please keep in mind that we do not condone piracy.
+*If you're having any trouble after reading through this `README`, feel free ask for help in the Lighthouse text channels. Please keep in mind that we do not condone piracy.*
 
 # Quick Start
 
@@ -35,7 +34,7 @@ Your ROM needs to be in .z64 format. If it's in .n64 format, use the following t
 
 ### 3. Download Lighthouse from [Releases](https://github.com/HarbourMasters/Lighthouse/releases)
 
-### 4. Generating the OTR from the ROM and Play!
+### 4. Generating the O2R from the ROM and Play!
 
 #### Windows
 * Extract every file from the zip into a folder of your choosing.
@@ -94,19 +93,19 @@ Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place 
 
 If you're interested in creating and/or packing your own custom asset `.o2r`/`.otr` files, check out the following tools:
 * [**retro - OTR and O2R generator**](https://github.com/HarbourMasters64/retro)
-* [**fast64 - Blender plugin (Note that BK64 is not supported at this time)**](https://github.com/HarbourMasters/fast64)
+* [**fast64 - Blender plugin**](https://github.com/HarbourMasters/fast64)
 
 # Development
 
 ### Building
-If you want to manually compile Lighthouse, please consult the [building instructions](https://github.com/HarbourMasters/Lighthouse/blob/main/docs/BUILDING.md).
+If you want to manually compile Lighthouse, please consult the [building instructions](https://github.com/HarbourMasters/Lighthouse/blob/develop/docs/BUILDING.md).
 
 ### Playtesting
 If you want to playtest a continuous integration build, you can find them at the links below. Keep in mind that these are for playtesting only, and you will likely encounter bugs and possibly crashes.
 
-* [Windows](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/main/Lighthouse-windows.zip)
-* [macOS](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/main/Lighthouse-mac.zip)
-* [Linux](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/main/Lighthouse-linux.zip)
+* [Windows](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-windows.zip)
+* [macOS](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-mac.zip)
+* [Linux](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-linux.zip)
 
 <a href="https://github.com/Kenix3/libultraship/">
   <picture>
@@ -117,5 +116,10 @@ If you want to playtest a continuous integration build, you can find them at the
 
 # Special Thanks:
 
-* The Banjo decomp team
+* The [Banjo Decomp](https://gitlab.com/banjo.decomp/banjo-kazooie) team
+* Our friends at the [Hackpack Discord Server](https://discord.gg/Cm2JuQvewN)
 * Fredomato, scorched11 for work on rando
+
+# AI Disclosure
+
+Lighthouse accepts pull requests that use AI, within policy guidelines, and has used AI assistance for information gathering particularly when the decomp documentation was younger. For more information please see the HarbourMasters [AI Policy](https://github.com/HarbourMasters/code-of-conduct/blob/main/AI_POLICY.md).
