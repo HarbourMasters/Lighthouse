@@ -185,8 +185,9 @@ int32_t GetCheckPoolJinjoJiggyIndexByLevelId(std::vector<RandoCheckId>& checkPoo
             continue;
         }
 
-        if ((randoStaticCheck.collectionId == (10 * levelId) - 9) &&
-            (reachableChecks[checkPool[i]].canAccess && !reachableChecks[checkPool[i]].isFilled)) {
+        // CAN_COLLECT_JINJOS reads shuffledPool, which is empty until generation ends, so this check
+        // never becomes accessible here. The caller has just put all five jinjos in reachable checks.
+        if ((randoStaticCheck.collectionId == (10 * levelId) - 9) && !reachableChecks[checkPool[i]].isFilled) {
             return checkPool[i];
         }
     }
