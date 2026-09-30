@@ -455,8 +455,7 @@ s32 Anchor_LevelOfMap(s32 map) {
 }
 
 void Anchor::SweepUnoccupiedLevelState(GameMap selfMap) {
-    // Nothing is shared without world sync, so these stores hold only our own progress —
-    // dropping them on a level change would undo single-player state.
+    // Without world sync these stores aren't used; TransientLevelState drops what's left.
     if (!IsWorldSyncActive()) {
         return;
     }

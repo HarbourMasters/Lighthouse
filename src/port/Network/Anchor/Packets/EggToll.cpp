@@ -29,11 +29,17 @@ void recordStage(int32_t map, int32_t secondaryId, int32_t stage) {
 }
 
 extern "C" int32_t port_eggToll_getStage(int32_t map, int32_t secondaryId) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+        return 0;
+    }
     auto it = sStages.find({ map, secondaryId });
     return it != sStages.end() ? it->second : 0;
 }
 
 extern "C" void port_eggToll_onAdvance(int32_t map, int32_t secondaryId, int32_t stage) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+        return;
+    }
     recordStage(map, secondaryId, stage);
     Anchor::GetInstance()->SendPacket_EggToll((s16)secondaryId, stage, map);
 }
@@ -97,6 +103,9 @@ void RegisterEggToll_Init() {
 
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         OnMapLoad* ev = (OnMapLoad*)event;
+        if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+            return;
+        }
         for (const auto& [key, stage] : sStages) {
             if (key[0] == (int32_t)ev->nextMap) {
                 port_eggToll_remoteApply(key[0], key[1], stage);

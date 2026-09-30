@@ -141,10 +141,12 @@ void chjujuhitbox_update(Actor *this) {
 
     if (!this->volatile_initialized) {
         this->volatile_initialized = true;
-        jujuCtlPtr->unk4 = mm_juju_sharedKnocked();
-        if (jujuCtlPtr->unk4 >= 4) {
-            marker_despawn(this->marker);
-            return;
+        if (port_anchor_isWorldSyncActive()) {
+            jujuCtlPtr->unk4 = mm_juju_sharedKnocked();
+            if (jujuCtlPtr->unk4 >= 4) {
+                marker_despawn(this->marker);
+                return;
+            }
         }
         __spawnQueue_add_2((GenFunction_2) __chjujuhitbox_initialize_all, (uintptr_t)this->marker, jujuCtlPtr->unk4);
         __chjujuhitbox_playRubbingSfx(this);

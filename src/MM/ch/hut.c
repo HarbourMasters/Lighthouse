@@ -131,7 +131,8 @@ void chhut_update(Actor *this) {
                 __spawnQueue_add_1((GenFunction_1) __chhut_spawnExplosion, (uintptr_t)this->marker);
                 bundle_setYaw(this->yaw);
 
-                smashIndex = port_hutSmash_countForCurrentLevel();
+//              if (mmhut_smashCount < 5) {
+                smashIndex = port_hutSmash_countForCurrentLevel(mm_hut_smash_count);
                 if (smashIndex < 5) {
                     __spawnQueue_add_4((GenFunction_4) spawnQueue_bundle_f32, mm_hut_bundles[smashIndex], *(s32 * )(&diff_pos[0]), *(s32 * )(&diff_pos[1]), *(s32 * )(&diff_pos[2]));
                 }
@@ -139,6 +140,7 @@ void chhut_update(Actor *this) {
                     jiggy_spawn(JIGGY_5_MM_HUTS, diff_pos);
                 }
 
+                mm_hut_smash_count = (mm_hut_smash_count + 1) % 6;
                 port_hutSmash_record((s32)this->position_x, (s32)this->position_y, (s32)this->position_z, smashIndex);
             }
             else {

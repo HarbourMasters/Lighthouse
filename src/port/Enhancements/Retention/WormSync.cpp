@@ -17,6 +17,7 @@
 extern "C" {
 #include "enums.h"
 #include "actor.h"
+s32 port_anchor_isWorldSyncActive(void);
 }
 
 namespace {
@@ -101,14 +102,15 @@ extern "C" void port_carriedSync_register(int32_t kind, void* marker, int32_t x,
     int32_t mapId = (int32_t)gsworld_getMap();
     int32_t hash = spawnHash(x, y, z);
     ObjectExtension::GetInstance().Set<CarriedSpawnData>(marker, CarriedSpawnData(mapId, hash));
-    if (!inDemoPlayback() && kindAllowedFor(kind, mapId) && isCollected(slot, mapId, hash)) {
+    if (port_anchor_isWorldSyncActive() && !inDemoPlayback() && kindAllowedFor(kind, mapId) &&
+        isCollected(slot, mapId, hash)) {
         *suppress = 1;
     }
 }
 
 extern "C" void port_carriedSync_onLocalCollect(int32_t kind, void* marker) {
     int32_t slot = slotForKind(kind);
-    if (slot < 0 || inDemoPlayback()) {
+    if (slot < 0 || inDemoPlayback() || !port_anchor_isWorldSyncActive()) {
         return;
     }
     CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);
@@ -120,7 +122,7 @@ extern "C" void port_carriedSync_onLocalCollect(int32_t kind, void* marker) {
 }
 
 extern "C" void port_carriedSync_onLocalSpend(int32_t kind) {
-    if (slotForKind(kind) < 0 || inDemoPlayback()) {
+    if (slotForKind(kind) < 0 || inDemoPlayback() || !port_anchor_isWorldSyncActive()) {
         return;
     }
     // A spend (feeding Eyrie/Nabnut) is -1 to the shared pool.
@@ -155,7 +157,7 @@ void port_carriedSync_restoreCollected(const std::vector<int32_t>& flat) {
 
 extern "C" int32_t port_carriedSync_collectedCount(int32_t kind) {
     int32_t slot = slotForKind(kind);
-    if (slot < 0) {
+    if (slot < 0 || !port_anchor_isWorldSyncActive()) {
         return 0;
     }
     int32_t count = 0;
@@ -175,7 +177,7 @@ void port_carriedSync_clearForLevel(int32_t levelId) {
 
 extern "C" int32_t port_carriedSync_consumeRemoteDespawn(int32_t kind, void* marker) {
     int32_t slot = slotForKind(kind);
-    if (slot < 0) {
+    if (slot < 0 || !port_anchor_isWorldSyncActive()) {
         return 0;
     }
     CarriedSpawnData* d = ObjectExtension::GetInstance().Get<CarriedSpawnData>(marker);

@@ -19,11 +19,18 @@
 std::map<std::array<int32_t, 4>, int32_t> sHuts;
 
 extern "C" int32_t port_hutSmash_get(int32_t x, int32_t y, int32_t z) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+        return -1;
+    }
     auto it = sHuts.find({ (int32_t)gsworld_getMap(), x, y, z });
     return it != sHuts.end() ? it->second : -1;
 }
 
-extern "C" int32_t port_hutSmash_countForCurrentLevel(void) {
+// The team's smash count for the level, or offline the caller's own, as vanilla counted.
+extern "C" int32_t port_hutSmash_countForCurrentLevel(int32_t localCount) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive()) {
+        return localCount;
+    }
     int32_t level = (int32_t)map_getLevel(gsworld_getMap());
     int32_t count = 0;
     for (const auto& [key, loot] : sHuts) {
@@ -37,7 +44,7 @@ extern "C" int32_t port_hutSmash_countForCurrentLevel(void) {
 extern "C" void port_hutSmash_record(int32_t x, int32_t y, int32_t z, int32_t loot) {
     int32_t map = (int32_t)gsworld_getMap();
     std::array<int32_t, 4> key = { map, x, y, z };
-    if (sHuts.find(key) != sHuts.end()) {
+    if (!Anchor::GetInstance()->IsWorldSyncActive() || sHuts.find(key) != sHuts.end()) {
         return;
     }
     sHuts[key] = loot;

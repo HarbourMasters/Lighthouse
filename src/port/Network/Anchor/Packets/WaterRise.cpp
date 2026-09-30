@@ -59,7 +59,7 @@ extern "C" void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag
 // teammate's in-flight rise). Clears the pending once the real flag catches up.
 extern "C" int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel) {
     auto it = sLairPendingLevel.find(map);
-    if (it == sLairPendingLevel.end()) {
+    if (it == sLairPendingLevel.end() || !Anchor::GetInstance()->IsWorldSyncActive()) {
         return flagLevel;
     }
     if (flagLevel >= it->second) {

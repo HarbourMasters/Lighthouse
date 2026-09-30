@@ -1,10 +1,8 @@
 // Transient Level State
 //
 // The per-level stores Anchor replicates (huts, breakables, egg tolls, puzzle steps, carried
-// collectibles) are written unconditionally by decomp, but only Anchor's sweep ever cleared
-// them — offline, a smashed hut survived a level exit that should have restored it.
-//
-// Per level, not per map, so sub-area hops keep their state like the actor savestate did.
+// collectibles) are only written and read with world sync on. Without it, whatever an earlier
+// synced session left behind is dropped as each level resets, so it can't resurface in the next.
 
 #include "port/ShipInit.hpp"
 #include "port/Enhancements/Events/PortEnhancements.h"
