@@ -53,6 +53,12 @@ void port_refreshDialogFontGlyphCount(void) {
     }
 }
 
+// PAL's extended dialog font draws 'b' and up as glyphs, so its format codes are shifted past them.
+// Follows the loaded font rather than the cartridge, since a language pack can swap it.
+int port_dialogFontUsesShiftedCodes(void) {
+    return print_sDialogFontGlyphCount > 'b' - '\x21';
+}
+
 BKSpriteDisplayData* port_getOrCreateDisplayData(BKSprite* sprite) {
     s32 i;
     if (sprite == NULL) {

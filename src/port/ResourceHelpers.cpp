@@ -205,8 +205,8 @@ extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
 }
 
-// Asks about the cartridge, not the active language: its callers pick PAL-shifted text
-// format bytes and the PAL character-parade table, both properties of the base game.
+// Asks about the cartridge, not the active language: the PAL character-parade table is a
+// property of the base game. Text format bytes follow the loaded font instead.
 extern "C" int ResourceMgr_IsPal(void) {
     return Lighthouse::GetBaseVersion() == BK_VER_PAL ? 1 : 0;
 }
