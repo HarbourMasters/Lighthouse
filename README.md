@@ -1,15 +1,14 @@
-[comment]: <> (Todo: Make Light Mode Image)
-[comment]: <> (Todo: Make Dark Mode Image)
+<p align="center">
+  <img alt="Lighthouse" src="./res/lighthouse_titlelogo.png" width="500">
+</p>
 
-# Lighthouse
-Harbour Masters port of Banjo Kazooie
-
-Lead Developer: 
-* Malkierian
+A Banjo-Kazooie PC port with Anchor multiplayer, romhack and multi-language support, and a built-in randomizer.
 
 Developers:
+* Malkierian
 * JeodC
 * Caladius
+* aMannus
 
 ## Website & Discord
 Official Website: https://www.harbourmasters.org/
@@ -94,7 +93,7 @@ Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place 
 
 If you're interested in creating and/or packing your own custom asset `.o2r`/`.otr` files, check out the following tools:
 * [**retro - OTR and O2R generator**](https://github.com/HarbourMasters64/retro)
-* [**fast64 - Blender plugin (Note that BK64 is not supported at this time)**](https://github.com/HarbourMasters/fast64)
+* [**fast64 - Blender plugin**](https://github.com/HarbourMasters/fast64)
 
 # Development
 
@@ -117,5 +116,6 @@ If you want to playtest a continuous integration build, you can find them at the
 
 # Special Thanks:
 
-* The Banjo decomp team
+* The [Banjo Decomp](https://gitlab.com/banjo.decomp/banjo-kazooie) team
+* The [Hackpack Discord Server](https://discord.gg/Cm2JuQvewN)
 * Fredomato, scorched11 for work on rando
