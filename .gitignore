@@ -1,92 +1,71 @@
-# ignore all rom files
+# Supplied ROMs
 baseroms/*
 *.z64
 *.n64
 *.v64
 
-#compiled or ripped asm
+# Decomp: split and disassembled output
 asm/nonmatchings
 asm/*.s
 asm/*/*.s
 asm/core1/os
 !asm/ultra
 !asm/core1/ultra
-build/*
-build/
-build-cmake
+nonmatchings/
+.splat_cache*
+undefined_syms_auto*
+undefined_funcs_auto*
+*auto.txt
+*.ld
+*.map
+ctx.c
+diff_settings.py
+expected/
+*.csv
 
-#binaries ripped from the ROMs
+# Decomp: binaries ripped from the ROMs, and modified binaries that override them at compile time
 assets/bko2r*
 assets/log.txt
 bin/
-bin/*
+mod/
 tools/bk_crc/bk_crc
 
-# This folder will hold modified asset binaries
-# these assets will override the original game
-# assets in the bin/ at compile time.
-mod/
-mod/*
+# Build output
+build/
+build-cmake
+/build-arm64
+x64
+/properties.h
+/src/port/build.c
 
-
-#compiled object files
+# Compiler output
 *.slo
 *.lo
 *.o
 *.obj
-
-#Precompiled Headers
 *.gch
 *.pch
-
-#compiled dynamic libraries
 *.so
 *.dylib
 *.dll
-
-#static libraries
 *.lai
 *.la
 *.a
 *.lib
-
-#misc
-__pycache__/
-*__pycache__/
-expected/
-.*/
-!.gitlab/
-*.ld
-*.map
-*auto.txt
-.splat_cache
-.splat_cache*
-diff_settings.py
-ctx.c
-nonmatchings/
-undefined_syms_auto*
-undefined_funcs_auto*
-
-#progress reports
-*.csv
-
-#secret folder
-tmp/
-tmp/*
-/properties.h
 *.pdb
 
-# port output
+# Port: generated archives and runtime files
 torch.hash.yml
 *.o2r
 *.otr
 imgui.ini
 lighthouse.cfg.json
 logs/
-/src/port/build.c
-/clang-format.exe
-CLAUDE.md
 /saves
-/build-arm64
-x64
-/x64/Debug
+
+# Tools and scratch
+/clang-format.exe
+__pycache__/
+tmp/
+.*/
+!.gitlab/
