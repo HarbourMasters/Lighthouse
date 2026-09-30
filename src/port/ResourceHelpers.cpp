@@ -206,10 +206,9 @@ extern "C" int ResourceMgr_GetDialogLanguageCount(void) {
     return sDialogLanguageCount;
 }
 
-// Asks about the cartridge, not the active language: the PAL character-parade table is a
-// property of the base game. Text format bytes follow the loaded font instead.
+// PAL is the only base that carries more than one dialog language (EN/FR/DE).
 extern "C" int ResourceMgr_IsPal(void) {
-    return Lighthouse::GetBaseVersion() == BK_VER_PAL ? 1 : 0;
+    return sDialogLanguageCount > 1 ? 1 : 0;
 }
 
 extern "C" int ResourceMgr_IsJapanese(void) {
