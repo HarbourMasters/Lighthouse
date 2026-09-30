@@ -388,6 +388,7 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
 
     placementRng.seed(randoFinalSeed);
 
+    jinjoCheckIds.clear();
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
         PopulateJinjoCheckIds();
     }
@@ -405,6 +406,16 @@ void GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
         reachableChecks[checkId].isFilled = false;
         reachableChecks[checkId].isShuffled = false;
     }
+
+    for (int accessId = RA_UNKNOWN; accessId < RA_MAX; accessId++) {
+        reachableEvents[accessId].canAccess = false;
+    }
+
+    for (auto& progression : progressionAbilities) {
+        progression.isComplete = false;
+    }
+    failSafeTrigger = false;
+    prevProgressionIndex = -1;
 
     for (auto& shuffledCheck : checkPool) {
         reachableChecks[shuffledCheck].isShuffled = true;
