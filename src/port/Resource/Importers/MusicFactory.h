@@ -9,7 +9,7 @@
 namespace Factories {
 constexpr uint32_t kBKMusicResourceType = 0x424B4D55; // BKMU
 class BKMusic final : public Ship::Resource<void> {
-  public:
+public:
     using Resource::Resource;
     void* GetPointer() override {
         return Data.empty() ? nullptr : Data.data();
@@ -21,7 +21,7 @@ class BKMusic final : public Ship::Resource<void> {
     uint32_t Volume = 0;
 };
 class ResourceFactoryBinaryBKMusicV0 : public Ship::ResourceFactoryBinary {
-  public:
+public:
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file,
                                                   std::shared_ptr<Ship::ResourceInitData> initData) override;
 };
