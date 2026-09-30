@@ -15,6 +15,7 @@ extern void gcquiz_func_80319EA4(void);
 
 extern void port_lairWater_onRiseTrigger(int32_t waterMap, int32_t levelFlag);
 extern int32_t port_lairWater_targetLevel(int32_t map, int32_t flagLevel);
+extern s32 port_anchor_isWorldSyncActive(void);
 
 void chMMMBreakableWooden_update(Actor *this);
 void gWorldExitPad_update(Actor *this);
@@ -1072,7 +1073,7 @@ void func_802D5260(void) {
             sp34 = ((s16 *)&D_803679C8[sp3C])[lvl];
         }
         s32 curMap = gsworld_getMap();
-        if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN)) {
+        if (sLairWaterMap != curMap || levelSpecificFlags_get(LEVEL_FLAG_3C_LAIR_UNKNOWN) || !port_anchor_isWorldSyncActive()) {
             sLairWaterMap = curMap;
         } else {
             f32 curY = sp38->type_6D.unk8;

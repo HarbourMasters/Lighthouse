@@ -156,7 +156,7 @@ void chTanktup_update(Actor *this)
         }
     }
     // Anchor: team completed Tanktup but our body is still idle (state 1) — raise the head to match.
-    if (this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
+    if (port_anchor_isWorldSyncActive() && this->state == CH_TANKTUP_STATE_1_UNK && jiggyscore_isSpawned(JIGGY_26_BGS_TANKTUP))
     {
         sTanktupPoseCatchUp = 1; // [port] pose only, no presentation
         subaddie_set_state_with_direction(this, CH_TANKTUP_STATE_3_UNK, 0.0f, -1);
