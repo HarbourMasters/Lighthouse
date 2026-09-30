@@ -177,27 +177,27 @@ int32_t GetRandomItemIndexS(std::vector<std::tuple<actor_e, int32_t, RandoCheckI
     return availableIndex[randomItem];
 }
 
-int32_t GetCheckPoolJinjoJiggyIndexByLevelId(int16_t levelId) {
-    for (int i = 0; i < Rando::Logic::checkPool.size(); i++) {
-        Rando::StaticData::RandoStaticCheck randoStaticCheck = Rando::StaticData::Checks[Rando::Logic::checkPool[i]];
+int32_t GetCheckPoolJinjoJiggyIndexByLevelId(std::vector<RandoCheckId>& checkPool, int16_t levelId) {
+    for (int i = 0; i < checkPool.size(); i++) {
+        Rando::StaticData::RandoStaticCheck randoStaticCheck = Rando::StaticData::Checks[checkPool[i]];
 
         if (randoStaticCheck.randoCheckType != RCTYPE_JIGGY) {
             continue;
         }
 
         if ((randoStaticCheck.collectionId == (10 * levelId) - 9) &&
-            (reachableChecks[Rando::Logic::checkPool[i]].canAccess &&
-             !reachableChecks[Rando::Logic::checkPool[i]].isFilled)) {
-            return Rando::Logic::checkPool[i];
+            (reachableChecks[checkPool[i]].canAccess && !reachableChecks[checkPool[i]].isFilled)) {
+            return checkPool[i];
         }
     }
 
     return -1;
 }
 
-int32_t GetItemPoolIndexByJinjoCheck(RandoCheckId randoCheckId) {
-    for (int i = 0; i < Rando::Logic::itemPool.size(); i++) {
-        if (std::get<2>(Rando::Logic::itemPool[i]) == randoCheckId) {
+int32_t GetItemPoolIndexByJinjoCheck(std::vector<std::tuple<actor_e, int32_t, RandoCheckId>>& itemPool,
+                                     RandoCheckId randoCheckId) {
+    for (int i = 0; i < itemPool.size(); i++) {
+        if (std::get<2>(itemPool[i]) == randoCheckId) {
             return i;
         }
     }
@@ -230,10 +230,10 @@ void UpdateJinjoChecks(std::vector<RandoCheckId>& jinjoCheckList) {
     jinjoCheckList.clear();
 }
 
-void PopulateJinjoCheckIds() {
+void PopulateJinjoCheckIds(std::vector<RandoCheckId>& checkPool) {
     jinjoCheckIds.clear();
 
-    for (auto& check : Rando::Logic::checkPool) {
+    for (auto& check : checkPool) {
         Rando::StaticData::RandoStaticCheck randoStaticCheck = Rando::StaticData::Checks[check];
 
         if (randoStaticCheck.randoCheckType != RCTYPE_JINJO) {
@@ -393,7 +393,7 @@ bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
 
     jinjoCheckIds.clear();
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_JINJOS].cvar, 0) == RO_GENERIC_ON) {
-        PopulateJinjoCheckIds();
+        PopulateJinjoCheckIds(checkPool);
     }
 
     // This doesn't have to exist, added strictly for better development testing.
@@ -582,14 +582,14 @@ bool GenerateGlitchlessLogicPool(std::vector<RandoCheckId>& checkPool,
                         for (auto& jinjoPlace : selectedJinjos) {
                             checkIndex =
                                 GetRandomCheckIndexS(reachableChecks, RCTYPE_MOLEHILL, true, false, isGameComplete);
-                            itemPoolIndex = GetItemPoolIndexByJinjoCheck(jinjoPlace);
+                            itemPoolIndex = GetItemPoolIndexByJinjoCheck(itemPool, jinjoPlace);
 
                             SetPlacedItem(checkIndex, itemPoolIndex, placedItems, placedCheckItems, itemPool);
                         }
 
                         UpdateJinjoChecks(selectedJinjos);
 
-                        checkIndex = GetCheckPoolJinjoJiggyIndexByLevelId(selectedLevel);
+                        checkIndex = GetCheckPoolJinjoJiggyIndexByLevelId(checkPool, selectedLevel);
                         itemPoolIndex = GetRandomItemIndexS(itemPool, ACTOR_46_JIGGY);
 
                         SetPlacedItem(checkIndex, itemPoolIndex, placedItems, placedCheckItems, itemPool);
