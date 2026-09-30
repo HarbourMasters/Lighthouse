@@ -35,8 +35,6 @@ build/
 build-cmake
 /build-arm64
 x64
-/properties.h
-/src/port/build.c
 
 # Compiler output
 *.slo

@@ -182,8 +182,9 @@ if (UNIX AND NOT APPLE)
     find_package(OpenGL REQUIRED)
 endif()
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c.in ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c @ONLY)
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/properties.h.in ${CMAKE_CURRENT_SOURCE_DIR}/properties.h @ONLY)
+file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c ${CMAKE_CURRENT_SOURCE_DIR}/properties.h)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/port/build.c.in ${CMAKE_BINARY_DIR}/generated/build.c @ONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/properties.h.in ${CMAKE_BINARY_DIR}/generated/properties.h @ONLY)
 
 set(Header_Files "res/resource.h")
 source_group("include" FILES ${Header_Files})
@@ -224,7 +225,7 @@ file(GLOB_RECURSE ALL_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 
 list(FILTER ALL_FILES EXCLUDE REGEX "src/unused/")
 
-list(APPEND ALL_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/Resource.rc)
+list(APPEND ALL_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/Resource.rc ${CMAKE_BINARY_DIR}/generated/build.c)
 
 
 # Create source groups that match the real file directory paths
