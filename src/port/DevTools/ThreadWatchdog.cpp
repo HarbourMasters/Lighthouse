@@ -470,8 +470,7 @@ void Watcher() {
                 hb.lastBeat = now;
                 continue;
             }
-            const auto limit =
-                (i == WATCHDOG_AUDIO_MANAGER || i == WATCHDOG_JOY) ? kRelaxedStallAfter : kStallAfter;
+            const auto limit = (i == WATCHDOG_AUDIO_MANAGER || i == WATCHDOG_JOY) ? kRelaxedStallAfter : kStallAfter;
             if (now - hb.lastBeat > limit) {
                 stalled[i] = true;
                 anyStalled = true;
