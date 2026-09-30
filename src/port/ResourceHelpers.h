@@ -2,6 +2,7 @@
 #define RESOURCE_HELPERS_H
 
 #ifdef __cplusplus
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 //#include "ResourceManager.h"
@@ -21,6 +22,7 @@ int ResourceMgr_GetDialogLanguageCount(void);
 int ResourceMgr_IsPal(void);
 int ResourceMgr_IsJapanese(void);
 int ResourceMgr_GetDialogLanguage(void);
+int ResourceMgr_GetDialogSlot(uint32_t assetId, int defaultSlot);
 void ResourceMgr_SetDialogLanguage(int lang);
 int ResourceMgr_GetLanguageGeneration(void);
 int ResourceMgr_IsAssetRepointed(uint32_t assetId);
@@ -35,10 +37,13 @@ Mtx* ResourceMgr_LoadMtxByName(char* path);
 #ifdef __cplusplus
 }
 
-void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride, bool isJapanese,
-                                   int dialogCount, int dialogIndex);
+void ResourceHelpers_ApplyLanguage(std::unordered_map<uint32_t, std::string> dialogOverride,
+                                   std::unordered_map<uint32_t, std::string> scopedDialogOverride, bool isJapanese,
+                                   int dialogCount, int dialogIndex, int scopedDialogIndex);
 std::string ResourceHelpers_GetBaseAssetPath(uint32_t assetId);
 std::string ResourceHelpers_GetActiveAssetPath(uint32_t assetId);
+bool ResourceHelpers_GetOverlayAsset(uint32_t assetId, std::string& outArchivePath, std::string& outPath);
+void ResourceHelpers_BuildOverlayRepoints();
 #endif
 
 #endif

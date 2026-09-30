@@ -37,6 +37,7 @@ void port_setPrintScale(float scale);
 
 void port_dialogFontHd_rebuild(void);        // rebuild the HD glyph textures for the current base
 void port_refreshDialogFontGlyphCount(void); // re-read the reachable glyph count from the active font
+int port_dialogFontUsesShiftedCodes(void);   // format codes shifted past the extended (PAL) glyph range
 
 // Framebuffer (FramebufferPatches.cpp)
 

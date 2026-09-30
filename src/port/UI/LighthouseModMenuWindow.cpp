@@ -383,6 +383,7 @@ void UpdateModFiles(bool init, bool reset) {
                 if (!activeHack.empty()) {
                     std::error_code ec;
                     std::filesystem::create_directories(std::filesystem::path(modsPath) / activeHack, ec);
+                    std::filesystem::create_directories(std::filesystem::path(modsPath) / LANG_DIR / activeHack, ec);
                 }
 
                 auto loadCategory = [&](ModCategory want) {

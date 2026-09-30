@@ -988,7 +988,7 @@ void _printbuffer_push_new(s32 x, s32 y, u8 * string) {
 void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x72l" : "fl");
+        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72l" : "fl");
         print_sCurrentPtr->scale = arg2;
     }
 }
@@ -996,21 +996,21 @@ void print_bold_overlapping(s32 x, s32 y, f32 arg2, u8* string){
 void print_bold_spaced(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x72" : "f");
+        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x72" : "f");
     }
 }
 
 void print_dialog(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x6Flq" : "elq");
+        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6Flq" : "elq");
     }
 }
 
 void print_dialog_w_bg(s32 x, s32 y, u8* string){
     _printbuffer_push_new(x, y, string);
     if(print_sCurrentPtr){
-        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "p\x6D" : "pb");
+        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "p\x6D" : "pb");
     }
 }
 
@@ -1028,7 +1028,7 @@ void print_dialog_gradient2(s32 x, s32 y, u8* string, s32 arg3, s32 arg4){
     if(print_sCurrentPtr){
         print_sCurrentPtr->topVertexAlpha = arg3;
         print_sCurrentPtr->bottomVertexAlpha = arg4;
-        strcpy(print_sCurrentPtr->fmtString, ResourceMgr_IsPal() ? "\x6E\x6Flq" : "delq");
+        strcpy(print_sCurrentPtr->fmtString, port_dialogFontUsesShiftedCodes() ? "\x6E\x6Flq" : "delq");
 
     }
 }

@@ -4,6 +4,7 @@
 #include "variables.h"
 
 #include "core2/gc/zoombox.h"
+#include "port/ResourceHelpers.h"
 
 extern void func_8025A55C(s32, s32, s32);
 
@@ -318,7 +319,8 @@ static bool __gcquiz_func_803192A4(enum ff_question_type_e q_type, s32 q_index, 
         } while (third_answer_cmd == second_answer_cmd);
     }
         
-    char_iter += 2*code94620_func_8031B5B0(); // SKIP
+//  char_iter += 2*code94620_func_8031B5B0(); // SKIP
+    char_iter += 2*ResourceMgr_GetDialogSlot(quiz_question_index, code94620_func_8031B5B0()); // SKIP
     phi_v1 = *(char_iter++); // NEXT
     phi_v1 += (*(char_iter++) << 8);
     char_iter = (u8 *)(uintptr_t)((uintptr_t)sD_803830E0->unkC + phi_v1);
