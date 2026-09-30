@@ -938,8 +938,14 @@ void func_803875F0(Actor * this)
     if (!this->volatile_initialized)
     {
         // [port] Anchor: a teammate's press delivers map flag 0 and FILEPROG_1E in the same
-        // packet drain, so check the switch flag first -- while we're here to watch, the rise
-        // animation should win over the already-open catch-up despawn.
+        // packet drain; while we're here to watch, the rise wins over the despawn.
+//      if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN))
+        if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN) && !port_mapFlag_wasSetRemotely(0))
+        {
+            marker_despawn(this->marker);
+            return;
+        }
+
         if (mapSpecificFlags_get(0))
         {
             this->unk1C_y = this->position_y;
@@ -950,11 +956,6 @@ void func_803875F0(Actor * this)
             fileProgressFlag_set(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN, true);
             this->volatile_initialized = true;
             this->unk38_31 = 0x0C;
-        }
-        else if (fileProgressFlag_get(FILEPROG_1E_LAIR_GRATE_TO_BGS_PUZZLE_OPEN))
-        {
-            marker_despawn(this->marker);
-            return;
         }
     }
     else
