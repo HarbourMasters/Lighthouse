@@ -239,6 +239,14 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::string app
 
 bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<size_t>& totalAssets,
                                 std::string appShortName) {
+    if (!this->mGameData.empty() && (this->mGameData[0] == 0x37 || this->mGameData[0] == 0x40)) {
+        sLastError =
+            "This ROM is a byte-swapped (.v64) or little-endian (.n64) dump. Convert it to .z64 and try again.";
+        sStatusText.clear();
+        sPhase = 0;
+        return false;
+    }
+
     const std::string assets_path =
         fs::path(Ship::Context::LocateFileAcrossAppDirs("assets", appShortName)).parent_path().generic_string();
     const std::string game_path = Ship::Context::GetAppDirectoryPath(appShortName);
@@ -417,7 +425,7 @@ void GameExtractor::WritePortVersion() {
 void GameExtractor::SelectGameFromUI(std::function<void(bool)> onComplete) {
     Ship::FileBrowserRequest req;
     req.Title = "Select a N64 ROM";
-    req.Filters = { { "N64 ROMs (.z64, .n64, .v64)", { "*.z64", "*.n64", "*.v64" } }, { "All files", { "*" } } };
+    req.Filters = { { "N64 ROMs (.z64)", { "*.z64" } }, { "All files", { "*" } } };
     Lighthouse::PickFile(std::move(req),
                          [this, onComplete = std::move(onComplete)](std::optional<std::filesystem::path> path) {
                              const bool ok = path.has_value() && LoadRomFromPath(path->string());
