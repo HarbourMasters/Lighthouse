@@ -60,8 +60,8 @@ void Anchor::OnConnected() {
     SendPacket_Handshake();
     RegisterHooks();
 
-    port_noteRetention_setForced(IsGlobalRoom() ? 0 : 1);
-    port_jinjoRetention_setForced(IsGlobalRoom() ? 0 : 1);
+    port_noteRetention_setForced(IsWorldSyncActive() ? 1 : 0);
+    port_jinjoRetention_setForced(IsWorldSyncActive() ? 1 : 0);
 
     if (IsSaveLoaded()) {
         SendPacket_RequestTeamState();
