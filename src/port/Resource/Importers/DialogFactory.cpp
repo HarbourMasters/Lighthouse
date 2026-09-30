@@ -133,9 +133,6 @@ std::vector<uint8_t> ReadGruntyLangBlock(const std::shared_ptr<Ship::BinaryReade
 std::vector<uint8_t> BuildQuestionBlob(uint8_t header1, uint8_t header2,
                                        const std::vector<std::vector<uint8_t>>& blocks) {
     const uint32_t langCount = static_cast<uint32_t>(blocks.size());
-    if (langCount == 0) {
-        return {};
-    }
     const uint32_t slots = std::max(langCount, kMaxDialogLanguages);
     const uint32_t headerSize = 3 + slots * 2;
 
@@ -198,6 +195,9 @@ ResourceFactoryBinaryBKQuizQuestionV0::ReadResource(std::shared_ptr<Ship::File> 
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
     const uint32_t langCount = reader->ReadUInt32();
+    if (langCount == 0) {
+        return nullptr;
+    }
 
     std::vector<std::vector<uint8_t>> blocks;
     for (uint32_t i = 0; i < langCount; i++) {
@@ -217,6 +217,9 @@ ResourceFactoryBinaryBKGruntyQuestionV0::ReadResource(std::shared_ptr<Ship::File
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
     const uint32_t langCount = reader->ReadUInt32();
+    if (langCount == 0) {
+        return nullptr;
+    }
 
     std::vector<std::vector<uint8_t>> blocks;
     for (uint32_t i = 0; i < langCount; i++) {
