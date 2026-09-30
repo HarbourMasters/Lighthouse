@@ -795,7 +795,7 @@ add_custom_target(CreateOSXIcons
     COMMENT "Creating OSX icons ..."
     )
     add_dependencies(${PROJECT_NAME} CreateOSXIcons)
-    configure_file("${CMAKE_SOURCE_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" @ONLY)
+    configure_file("${CMAKE_SOURCE_DIR}/res/Info.plist" "${CMAKE_BINARY_DIR}/Info.plist" @ONLY)
 
     file(DOWNLOAD
         https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt
@@ -814,7 +814,7 @@ add_custom_target(CreateOSXIcons
 endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
-set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/Lighthouse.desktop")
+set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/res/Lighthouse.desktop")
 set_property(TARGET ${PROJECT_NAME} PROPERTY APPIMAGE_ICON_FILE "${CMAKE_SOURCE_DIR}/res/logo.png")
 endif()
 
