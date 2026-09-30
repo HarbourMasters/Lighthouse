@@ -6,7 +6,6 @@
 
 #define BRIDGE_REQUIREMENT 6
 
-
 // clang-format off
 std::vector<RandoCheckId> spiralMountainBridge = {
     RC_SM_MOLEHILL_JUMP,
