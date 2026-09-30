@@ -207,7 +207,7 @@ int32_t GetCurrentAccessibleChecks() {
     int32_t currentChecks = 0;
 
     for (auto& check : reachableChecks) {
-        if (check.canAccess = true && check.isFilled == false) {
+        if (check.canAccess == true && check.isFilled == false) {
             currentChecks++;
         }
     }
