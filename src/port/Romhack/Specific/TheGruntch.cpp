@@ -61,7 +61,9 @@ constexpr int kGruntchSuppressedDialogs[] = {
     ASSET_D9F_DIALOG_RED_FEATHER_MEET,
     ASSET_DA0_DIALOG_GOLD_FEATHER_MEET,
     ASSET_DA1_DIALOG_HONEYCOMB_MEET,
-    ASSET_DA2_DIALOG_EMPTY_HONEYCOMB_MEET,
+    0xF75,
+    0xF76,
+    0xF77,
 };
 
 // ---------------------------------------------------------- Proximity dialogs
@@ -304,7 +306,7 @@ static void Gruntch_EnableWindowRapNoRebound() {
 
 // ------------------------------------------------------- Jiggy consolidation
 constexpr int kJiggyToMM[] = { 0x14, 0x20, 0x2E, 0x4A };
-constexpr int kJiggyToMMM[] = { 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3E };
+constexpr int kJiggyToMMM[] = { 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3E, 0x56 };
 constexpr JiggyRelocation kGruntchJiggyRelocations[] = {
     { LEVEL_1_MUMBOS_MOUNTAIN, kJiggyToMM, ARRAY_COUNT(kJiggyToMM) },
     { LEVEL_A_MAD_MONSTER_MANSION, kJiggyToMMM, ARRAY_COUNT(kJiggyToMMM) },
@@ -322,6 +324,7 @@ static void Gruntch_EnablePauseTotalsLayout() {
 
 static void Gruntch_EnableJiggyTally() {
     HackShared_EnableJiggyRelocation(kGruntchJiggyRelocations);
+    HackShared_SetJiggyLevelCap(10);
     port_overrideRomhackJiggiesPerWorld(10);
 
     // Hide Mt Grumpit's notes and jiggies
@@ -573,10 +576,20 @@ constexpr StealthNoiseConfig kGruntchStealth = {
     warp_rbbExitBoomBoxContainer, 0x13,
 };
 
+// These maps shrink the podium, so its standing check is adjusted to compensate
+constexpr PodiumFloor kGruntchPodiumFloors[] = {
+    { MAP_2E_MMM_HONEYCOMB_ROOM, -112.0f },
+    { MAP_3D_RBB_NAVIGATION_ROOM, -352.0f },
+};
+
+void CluckerCutscene_ForceSkip();
+
 // ------------------------------------------------------- Patch registration
 void RegisterGruntchPatches() {
     TooieJiggyDance_ForceEnable();
     Storybook_Enable(kGruntchStorybook);
+    // Book pages show again for each new game or loaded save
+    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) { ProximityDialogs_ClearShown(0, 0xFFFF); });
     ProximityDialogs_Enable(kGruntchGameplayDialogs);
     StealthNoise_Enable(kGruntchStealth);
     Gruntch_EnableActGate();
@@ -592,4 +605,8 @@ void RegisterGruntchPatches() {
     HackShared_EnableDialogSuppression(kGruntchSuppressedDialogs);
     Gruntch_EnableMumboTokenDialogs();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
+    HackShared_EnableFileSelectGameOver();
+    HackShared_EnablePodiumCheck(kGruntchPodiumFloors);
+    HackShared_EnablePuzzleDepositClamp();
+    CluckerCutscene_ForceSkip();
 }

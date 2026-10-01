@@ -148,7 +148,8 @@ void TriggerCatch() {
     sState.noise = 1.0f;
     func_8030E624(kCatchSfxPacked);
     gcdialog_showDialog(sCfg->caughtTextId, sCaughtBefore ? 0x02 : 0x82, NULL, NULL, NULL, NULL);
-    func_80324E38(0.0f, 1);
+    // The hack's wrapper turns its lock value of 1 into 3
+    func_80324E38(0.0f, 3);
     timed_setStaticCameraToNode(kCatchCamDelay, 1);
     timedFunc_set_0(kCatchCamDelay, RetractHud);
     sCaughtBefore = true;
