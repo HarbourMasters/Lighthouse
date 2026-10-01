@@ -19,6 +19,7 @@ extern std::vector<file_progress_e> worldOpenFlags;
 extern std::vector<std::string> worldNameList;
 extern std::vector<std::string> abilityNameList;
 
+void TableCellCenteredSetCursorPosY(float size);
 void TableCellCenteredText(const char* text);
 uint32_t Ship_Hash(std::string str);
 std::string port_FormatTimeDisplay(uint64_t value);

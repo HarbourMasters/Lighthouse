@@ -45,6 +45,12 @@ static void bk_log_vfmt(spdlog::level::level_enum level, const char* fmt, va_lis
     spdlog::default_logger_raw()->log(spdlog::source_loc{}, level, buf);
 }
 
+void TableCellCenteredSetCursorPosY(float size) {
+    float textHeight = ImGui::GetTextLineHeight();
+    float offsetY = (size - textHeight + 5.0f) * 0.5f;
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + offsetY);
+}
+
 void TableCellCenteredText(const char* text) {
     float textHeight = ImGui::GetTextLineHeight();
     float offsetY = (32.0f - textHeight + 5.0f) * 0.5f;
@@ -420,13 +426,28 @@ std::string Ship_ConvertEnumToReadableName(const std::string& input) {
     return result;
 }
 
-// std::vector <std::pair<std::string, std::string>> miscellaneousTextures = {
-//     { "Music Note", "assets/sprite/ASSET_7D9_NOTE_3_0" },
-// };
-//
-// void LoadGuiTextures() {
-//     auto gui = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui());
-//     for (const auto entry : miscellaneousTextures) {
-//         gui->LoadGuiTexture(entry.first, entry.second, ImVec4(1, 0, 0, 1));
-//     }
-// }
+typedef struct {
+    std::string name;
+    std::string texturePath;
+    std::string palettePath;
+} PaletteTextureLoad;
+
+std::vector<PaletteTextureLoad> paletteTextureLoad = {
+    { "Music Note", "assets/sprite/ASSET_81B_LIVE_MUSIC_NOTE_1_0", "assets/sprite/ASSET_81B_LIVE_MUSIC_NOTE_1_TLUT" },
+    { "Jiggy", "assets/sprite/ASSET_80D_LIVE_JIGGY_1_0", "assets/sprite/ASSET_80D_LIVE_JIGGY_1_TLUT" },
+    { "Empty Honeycomb", "assets/sprite/ASSET_81D_LIVE_EXTRA_HEALTH_MAX_1_0",
+      "assets/sprite/ASSET_81D_LIVE_EXTRA_HEALTH_MAX_1_TLUT" },
+    { "Mumbo Token", "assets/sprite/ASSET_41A_MUMBO_TOKEN_1_0", "assets/sprite/ASSET_41A_MUMBO_TOKEN_1_TLUT" },
+    { "Blue Jinjo", "assets/sprite/ASSET_804_JINJO_BLUE_0_0", "assets/sprite/ASSET_804_JINJO_BLUE_0_TLUT" },
+    { "Green Jinjo", "assets/sprite/ASSET_803_JINJO_GREEN_0_0", "assets/sprite/ASSET_803_JINJO_GREEN_0_TLUT" },
+    { "Orange Jinjo", "assets/sprite/ASSET_806_JINJO_ORANGE_0_0", "assets/sprite/ASSET_806_JINJO_ORANGE_0_TLUT" },
+    { "Pink Jinjo", "assets/sprite/ASSET_805_JINJO_PINK_0_0", "assets/sprite/ASSET_805_JINJO_PINK_0_TLUT" },
+    { "Yellow Jinjo", "assets/sprite/ASSET_802_JINJO_YELLOW_0_0", "assets/sprite/ASSET_802_JINJO_YELLOW_0_TLUT" },
+};
+
+void LoadGuiTextures() {
+    auto gui = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui());
+    for (const auto entry : paletteTextureLoad) {
+        gui->LoadGuiTexture(entry.name, entry.texturePath, entry.palettePath, ImVec4(1, 1, 1, 1));
+    }
+}
