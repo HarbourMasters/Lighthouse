@@ -237,11 +237,11 @@ void RegisterCutThroatCoastPatches() {
         (void)should;
     });
 
-    // The repurposed season switches are hidden below the ground when hit
-    REGISTER_VB_SHOULD(VB_CCW_SEASON_SWITCH_PRESSED_INIT, EVENT_PRIORITY_NORMAL, {
-        Actor* switchActor = va_arg(args, Actor*);
-        switchActor->position[1] = -420.0f;
-        subaddie_set_state(switchActor, 4);
+    // The spring door is a rock
+    REGISTER_VB_SHOULD(VB_CCW_SEASON_DOOR_RAISED_INIT, EVENT_PRIORITY_NORMAL, {
+        Actor* door = va_arg(args, Actor*);
+        door->position[1] = -420.0f;
+        subaddie_set_state(door, 4);
         *should = false;
     });
 

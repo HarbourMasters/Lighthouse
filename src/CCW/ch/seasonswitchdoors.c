@@ -142,10 +142,8 @@ void chSeasonSwitch_update(Actor *this) {
     }
     if (!this->volatile_initialized) {
         if (fileProgressFlag_get(this->unk10_12 + FILEPROG_8B_CCW_SPRING_OPEN)) {
-            if (EventSystem_Should(VB_CCW_SEASON_SWITCH_PRESSED_INIT, true, this)) {
-                actor_playAnimationOnce(this);
-                subaddie_set_state_with_direction(this, CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION, 0.999f, 1);
-            }
+            actor_playAnimationOnce(this);
+            subaddie_set_state_with_direction(this, CH_CCW_SEASON_SWITCH_DOOR_STATE_4_NO_COLLISION, 0.999f, 1);
             actor_collisionOff(this);
         } else {
             marker_setCollisionScripts(this->marker, NULL, &chSeasonSwitch_pressed, NULL);
@@ -219,7 +217,9 @@ void chSeasonSwitchDoors_update(Actor *this) {
 
         this->volatile_initialized = true;
         if (fileProgressFlag_get(this->unk10_12 + FILEPROG_8B_CCW_SPRING_OPEN)) {
-            subaddie_set_state(this, CH_CCW_SEASON_SWITCH_DOOR_STATE_3_RAISED);
+            if (EventSystem_Should(VB_CCW_SEASON_DOOR_RAISED_INIT, true, this)) {
+                subaddie_set_state(this, CH_CCW_SEASON_SWITCH_DOOR_STATE_3_RAISED);
+            }
         }
     }
 
