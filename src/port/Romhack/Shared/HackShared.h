@@ -66,6 +66,22 @@ template <int N> inline void HackShared_EnableWarpMusicGroups(const WarpMusicGro
     HackShared_EnableWarpMusicGroups(groups, N);
 }
 
+// ------------------------------------------------------------------ Spawn rewrites
+
+// Spawn flags and draw distance a hack changes as an actor is created
+struct SpawnRewrite {
+    int actorId;
+    unsigned clearFlags;
+    unsigned setFlags;
+    int drawDistance;
+};
+
+void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count);
+
+template <int N> inline void HackShared_EnableSpawnRewrites(const SpawnRewrite (&rewrites)[N]) {
+    HackShared_EnableSpawnRewrites(rewrites, N);
+}
+
 // ------------------------------------------------------------------ Mumbo reward
 
 // Instead of transformations, Mumbo rewards a jiggy

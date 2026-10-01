@@ -218,29 +218,17 @@ constexpr ProximityDialogMap kGruntchGameplayDialogs[] = {
 // ---------------------------------------------------------- Conditional actors
 static bool sConditionalActorsEnabled = false;
 
-extern "C" void romhack_RewriteActorSpawn(void* actorInfo, u32* flags) {
-    if (!sConditionalActorsEnabled || actorInfo == NULL || flags == NULL) {
-        return;
-    }
-    ActorInfo* info = (ActorInfo*)actorInfo;
-    switch (info->actorId) {
-        case 0x131:
-            *flags = (*flags & ~0x02u) | 0x40u;
-            break;
-        case 0xF:
-        case 0xF1:
-        case ACTOR_340_XMAS_TREE_ICE:
-            *flags |= 0x400u;
-            info->draw_distance = 0x8000;
-            break;
-        default:
-            break;
-    }
-}
+constexpr SpawnRewrite kGruntchSpawnRewrites[] = {
+    { ACTOR_F_CHIMPY, 0, 0x400, 0x8000 },
+    { ACTOR_F1_LEAF_BOAT, 0, 0x400, 0x8000 },
+    { ACTOR_340_XMAS_TREE_ICE, 0, 0x400, 0x8000 },
+    { ACTOR_131_GOBI_2, 0x02, 0x40, 0 },
+};
 
 // Draw the Giant Christmas Tree only if it's been "purchased"
 static void Gruntch_EnableConditionalActors() {
     sConditionalActorsEnabled = true;
+    HackShared_EnableSpawnRewrites(kGruntchSpawnRewrites);
     COND_VB_SHOULD(VB_XMAS_TREE_ICE_UPDATE, EVENT_PRIORITY_NORMAL, sConditionalActorsEnabled, {
         Actor* self = va_arg(args, Actor*);
         if (gsworld_getMap() == MAP_1B_MMM_MAD_MONSTER_MANSION && self != NULL && self->marker != NULL &&

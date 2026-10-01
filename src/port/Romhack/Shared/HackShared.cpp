@@ -202,6 +202,9 @@ void ApplyJiggyRelocation() {
     });
 }
 
+const SpawnRewrite* sSpawnRewrites = nullptr;
+int sSpawnRewriteCount = 0;
+
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
 
@@ -243,4 +246,24 @@ void HackShared_EnableWarpMusicGroups(const WarpMusicGroup* groups, int groupCou
     sWarpMusicGroups = groups;
     sWarpMusicGroupCount = groupCount;
     ApplyWarpMusicGroups();
+}
+
+void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count) {
+    sSpawnRewrites = rewrites;
+    sSpawnRewriteCount = count;
+}
+
+extern "C" void romhack_RewriteActorSpawn(void* actorInfo, u32* flags) {
+    ActorInfo* info = (ActorInfo*)actorInfo;
+    for (int i = 0; i < sSpawnRewriteCount; i++) {
+        const SpawnRewrite& rewrite = sSpawnRewrites[i];
+        if (rewrite.actorId != info->actorId) {
+            continue;
+        }
+        *flags = (*flags & ~rewrite.clearFlags) | rewrite.setFlags;
+        if (rewrite.drawDistance != 0) {
+            info->draw_distance = rewrite.drawDistance;
+        }
+        break;
+    }
 }
