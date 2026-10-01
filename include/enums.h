@@ -6600,7 +6600,10 @@ enum map_warp_GL_tower
     WARP_GL_TOWER_A_GRUNTY_PUZZLE = 0xA
 };
 
-// map_warp_GL_boss - one entrance, unclear which
+enum map_warp_GL_boss
+{
+    WARP_GL_BOSS_1_ENTRANCE = 0x1
+};
 
 enum map_warp_MM
 {
@@ -6792,7 +6795,6 @@ enum map_warp_GV_maze_pyramid
 
 enum map_warp_GV_water_pyramid
 {
-    // 0, 2-5 all start at entrance from above
     WARP_GV_WATER_PYRAMID_1_RETURN_TO_JIGGY = 0x1,
     WARP_GV_WATER_PYRAMID_2_TOP,
 

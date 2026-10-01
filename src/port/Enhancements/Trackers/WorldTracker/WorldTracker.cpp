@@ -1,5 +1,6 @@
 #include "WorldTracker.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Rando/Logic/Logic.h"
 #include "port/Rando/ObjectBehavior/ObjectBehavior.h"
 #include "port/Save/Types.h"
 #include "port/ShipUtils.h"
@@ -124,7 +125,7 @@ void WorldTracker_DrawWorldObject(level_e levelId) {
     ImGui::PushID(levelId);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding,
                         ImVec2(ImGui::GetStyle().CellPadding.x, ImGui::GetStyle().CellPadding.y + 2.0f));
-    std::string levelName = worldNameList[levelId - 1].c_str();
+    std::string levelName = worldNameList[levelId];
     int32_t maxEHoneycombs = levelId == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
 
     WorldTracker_PushImageButtonStyle();
@@ -207,6 +208,44 @@ void WorldTracker_DrawTracker() {
     }
 }
 
+uint8_t WorldTracker_GetJinjoBits(int32_t levelId) {
+    if (!IS_RANDO) {
+        return collectedBits(levelId);
+    }
+
+    uint8_t jinjoBits = 0;
+
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_JINJOS].optionValue) {
+        for (auto& pool : Rando::Logic::shuffledPool) {
+            if (pool.obtained && pool.randoItemId >= RI_JINJO_BLUE && pool.randoItemId <= RI_JINJO_YELLOW &&
+                Rando::StaticData::Checks[pool.shuffledCheckId].worldId == levelId) {
+                jinjoBits |= jinjoBitFromActor(Rando::StaticData::Items[pool.randoItemId].actorId);
+            }
+        }
+        return jinjoBits;
+    }
+
+    for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
+        if (randoStaticCheck.randoCheckType != RCTYPE_JIGGY || randoStaticCheck.collectionId != (10 * levelId) - 9) {
+            continue;
+        }
+
+        bool jinjoJiggyCollected = Rando::Logic::IsCheckShuffled(randoCheckId)
+                                       ? Rando::Logic::IsCheckObtained(randoCheckId)
+                                       : jiggyscore_isCollected((enum jiggy_e)randoStaticCheck.collectionId);
+        if (jinjoJiggyCollected) {
+            return 0x1F;
+        }
+        break;
+    }
+
+    if (levelId == level_get()) {
+        jinjoBits = item_getCount(ITEM_12_JINJOS) & 0x1F;
+    }
+
+    return jinjoBits;
+}
+
 namespace WorldTracker {
 
 WorldTrackerObject worldTrackerObject[LEVEL_C_BOSS];
@@ -242,7 +281,7 @@ void UpdateWorldTracker() {
     for (int i = LEVEL_1_MUMBOS_MOUNTAIN; i <= LEVEL_B_SPIRAL_MOUNTAIN; i++) {
         int32_t tokenMaxCount = kWorlds[i - 1].mumboStart + kWorlds[i - 1].mumboCount;
         int32_t collectedTokens = 0;
-        uint8_t collectedJinjos = collectedBits(i);
+        uint8_t collectedJinjos = WorldTracker_GetJinjoBits(i);
 
         worldTrackerObject[i].noteLevelTotal = sItemscoreNoteScores[i];
         worldTrackerObject[i].jiggyLevelTotal = jiggyscore_leveltotal(i);
