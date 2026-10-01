@@ -10,7 +10,7 @@
 #define CVAR_NAME_SHOW_WORLD_TRACKER CVAR_WINDOW("WorldTracker")
 #define CVAR_NAME_SHOW_CURRENT_LEVEL "gRando.WorldTracker.ShowCurrentLevel"
 #define CVAR_NAME_SHOW_TOTAL_COLLECTED "gRando.WorldTracker.ShowTotalCollected"
-#define CVAR_NAME_SEPARATE_TOTAL_COLLECTED "gRando.CheckTracker.SeparateCollectedChecks"
+#define CVAR_NAME_SEPARATE_TOTAL_COLLECTED "gRando.WorldTracker.SeparateTotalCollected"
 
 #define CVAR_SHOW_WORLD_TRACKER CVarGetInteger(CVAR_NAME_SHOW_WORLD_TRACKER, 0)
 #define CVAR_SHOW_CURRENT_LEVEL CVarGetInteger(CVAR_NAME_SHOW_CURRENT_LEVEL, 0)
