@@ -24,8 +24,10 @@ extern "C" {
 #endif
 
 int port_freeLook_isEnabled(void);
+int port_freeLook_mouseEnabled(void);
 int port_freeLook_handle(void);
 void port_freeLookCamera_update(void);
+void port_fov_update(void);
 
 #ifdef __cplusplus
 }
