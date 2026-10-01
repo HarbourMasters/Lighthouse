@@ -145,6 +145,7 @@ typedef enum VBehaviorID {
     VB_JIGSAW_PODIUM_COLLIDE,
     VB_HEALTH_HUD_SHOW,
     VB_MIDI_SET_CHAN_MASK,
+    VB_ITEM_ADJUST_BY_DIFF,
 } VBehaviorID;
 
 typedef enum DoorCameraId {

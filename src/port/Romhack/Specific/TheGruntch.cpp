@@ -325,6 +325,29 @@ static void Gruntch_EnableFullChanMask() {
     });
 }
 
+static bool Gruntch_OnBookMap(s32 map) {
+    return map == MAP_37_RBB_CONTAINER_1 || map == MAP_38_RBB_CONTAINER_3 || map == MAP_3E_RBB_CONTAINER_2;
+}
+
+static void Gruntch_EnableHealthRules() {
+    // No health loss on maps 0x07 and 0x26
+    REGISTER_VB_SHOULD(VB_ITEM_ADJUST_BY_DIFF, EVENT_PRIORITY_NORMAL, {
+        const s32 item = va_arg(args, s32);
+        const s32 diff = va_arg(args, s32);
+        const s32 map = gsworld_getMap();
+        if (item == ITEM_14_HEALTH && diff < 0 &&
+            (map == MAP_7_TTC_TREASURE_TROVE_COVE || map == MAP_26_MMM_NAPPERS_ROOM)) {
+            *should = false;
+        }
+    });
+
+    REGISTER_VB_SHOULD(VB_HEALTH_HUD_SHOW, EVENT_PRIORITY_NORMAL, {
+        if (Gruntch_OnBookMap(va_arg(args, s32))) {
+            *should = false;
+        }
+    });
+}
+
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
 static void Gruntch_EnableWindowRapNoRebound() {
     REGISTER_VB_SHOULD(VB_BUMP_REBOUNDS_PLAYER, EVENT_PRIORITY_NORMAL, {
@@ -631,6 +654,7 @@ void RegisterGruntchPatches() {
     Gruntch_EnableEggNoise();
     HackShared_EnableWarpMusicGroups(kGruntchMusicGroups);
     Gruntch_EnableFullChanMask();
+    Gruntch_EnableHealthRules();
     Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();

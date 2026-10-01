@@ -193,6 +193,9 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
+    if (!EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, diff)) {
+        return D_80385F30[item];
+    }
     return item_adjustByDiff(item, diff, 0, 1);
 }
 
@@ -200,6 +203,9 @@ s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
+    if (!EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, diff)) {
+        return;
+    }
     item_adjustByDiff(item, diff, 1, 1);
 }
 
