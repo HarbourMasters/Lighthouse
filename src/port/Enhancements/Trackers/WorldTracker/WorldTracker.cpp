@@ -18,7 +18,7 @@
 #define CVAR_SHOW_SEPARATE_TOTAL_COLLECTED CVarGetInteger(CVAR_NAME_SEPARATE_TOTAL_COLLECTED, 0)
 
 extern "C" {
-extern u8 D_80385FF0[0xE];
+extern u8 sItemscoreNoteScores[0xE];
 #define MUMBO_TOKEN_COUNT 126
 #define MUMBOSCORE_SIZE (((MUMBO_TOKEN_COUNT - 1 + 7) & ~7) / 8)
 extern u8 sMumboTokenScore[MUMBOSCORE_SIZE];
@@ -243,7 +243,7 @@ void UpdateWorldTracker() {
         int32_t collectedTokens = 0;
         uint8_t collectedJinjos = collectedBits(i);
 
-        worldTrackerObject[i].noteLevelTotal = D_80385FF0[i];
+        worldTrackerObject[i].noteLevelTotal = sItemscoreNoteScores[i];
         worldTrackerObject[i].jiggyLevelTotal = jiggyscore_leveltotal(i);
         worldTrackerObject[i].honeycombLevelTotal = honeycombscore_get_level_total((level_e)i);
 
