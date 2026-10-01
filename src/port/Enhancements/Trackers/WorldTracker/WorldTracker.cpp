@@ -184,6 +184,7 @@ void WorldTracker_DrawTracker() {
     if (gsworld_getMap() == MAP_91_FILE_SELECT) {
         ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Orange), "No File Selected...");
     } else {
+        WorldTracker::UpdateWorldTracker();
         if (CVAR_SHOW_TOTAL_COLLECTED) {
             WorldTracker_DrawTotals();
         }
@@ -331,12 +332,6 @@ void SettingsWindow::DrawElement() {
 
         ImGui::EndTable();
     }
-}
-
-void Init() {
-    REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { WorldTracker::UpdateWorldTracker(); })
-    REGISTER_LISTENER(OnActorCollisionEnd, EVENT_PRIORITY_NORMAL,
-                      [](IEvent* event) { WorldTracker::UpdateWorldTracker(); })
 }
 
 } // namespace WorldTracker

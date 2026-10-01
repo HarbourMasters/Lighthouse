@@ -18,8 +18,6 @@ extern WorldTrackerObject worldTrackerObject[LEVEL_C_BOSS];
 extern WorldTrackerObject worldTrackerTotal;
 void UpdateWorldTracker();
 
-void Init();
-
 class WorldTrackerWindow : public Ship::GuiWindow {
 public:
     using GuiWindow::GuiWindow;
