@@ -6,6 +6,7 @@
 #include <cstring>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
 #include "functions.h"
@@ -71,8 +72,8 @@ void RegisterMumboTokenGV_Init() {
 
 // CCW Gnawty rock: indestructible in Spring (v1.1).
 void RegisterGnawtySpringRock_Init() {
-    COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL, !CVarGetInteger(CVAR_GNAWTY_ROCK, 0),
-                   { *should = true; });
+    COND_VB_SHOULD(VB_CCW_GNAWTY_SPRING_ROCK, EVENT_PRIORITY_NORMAL,
+                   !CVarGetInteger(CVAR_GNAWTY_ROCK, 0) || port_isRomhack(), { *should = true; });
 }
 
 // CCW flower: prevent the re-plant softlock (v1.1). Default on to prevent softlock.
@@ -83,8 +84,8 @@ void RegisterCCWFlowerReplant_Init() {
 
 // Termite mound: instant slide on slopes (v1.1).
 void RegisterTermiteMoundSlopes_Init() {
-    COND_VB_SHOULD(VB_TERMITE_MOUND_SLOPES, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_TERMITE_SLOPES, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_TERMITE_MOUND_SLOPES, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_TERMITE_SLOPES, 0) && !port_isRomhack(), { *should = false; });
 }
 
 // Claw swipe: suppress claw during a slide (v1.1).
@@ -127,7 +128,8 @@ void RegisterYumYumDrop_Init() {
 
 // Spelling: "Congo" -> "Conga" when the Conga-as-termite dialog bin loads.
 void RegisterCongaDialog_Init() {
-    COND_HOOK(OnDialogLoaded, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_CONGA_TEXT, 0), [](IEvent* event) {
+    const bool enabled = CVarGetInteger(CVAR_CONGA_TEXT, 0) && !port_isRomhack();
+    COND_HOOK(OnDialogLoaded, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnDialogLoaded*>(event);
         if (ev->textId != ASSET_B3E_DIALOG_CONGA_MEET_AS_TERMITE || ev->text == nullptr) {
             return;

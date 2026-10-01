@@ -267,8 +267,8 @@ static void OnModelDisplayListLoad_StaleTile(IEvent* event) {
 }
 
 static void RegisterStaleTileFix_Init() {
-    COND_HOOK(OnModelDisplayListLoad, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FP_LOBBY_DOOR_TILE, 0),
-              OnModelDisplayListLoad_StaleTile);
+    COND_HOOK(OnModelDisplayListLoad, EVENT_PRIORITY_NORMAL,
+              CVarGetInteger(CVAR_FP_LOBBY_DOOR_TILE, 0) && !port_isRomhack(), OnModelDisplayListLoad_StaleTile);
 }
 
 static RegisterShipInitFunc staleTileFixInit(RegisterStaleTileFix_Init, { CVAR_FP_LOBBY_DOOR_TILE });
