@@ -2,6 +2,7 @@
 #include "MapNames.h"
 
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/GameStatus.h"
 #include "port/ShipInit.hpp"
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/UIWidgets.hpp"
@@ -354,7 +355,7 @@ constexpr WarpEntry warpsInfo[] = {
 };
 // clang-format on
 
-constexpr int32_t levelCount = (int32_t)(sizeof(worldNameList) / sizeof(worldNameList[0]));
+constexpr int32_t levelCount = LEVEL_D_CUTSCENE + 1;
 
 int32_t LevelBucket(int32_t level) {
     return (level > 0 && level < levelCount) ? level : 0;
@@ -426,7 +427,7 @@ const char* MapShortName(int32_t map) {
 }
 
 const char* LevelDisplayName(int32_t level) {
-    return worldNameList[LevelBucket(level)];
+    return port_levelName((enum level_e)LevelBucket(level));
 }
 
 const char* FindWarpName(int32_t map, int32_t exit) {

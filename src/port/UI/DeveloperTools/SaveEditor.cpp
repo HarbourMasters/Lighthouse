@@ -4,6 +4,7 @@
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/GameStatus.h"
 #include "port/UI/UIWidgets.hpp"
 #include "port/UI/Notification.h"
 #include "port/Save/Types.h"
@@ -162,7 +163,7 @@ void SaveEditor_DrawUnlocks() {
             for (int i = FILEPROG_31_MM_OPEN; i <= FILEPROG_39_CCW_OPEN; i++) {
                 ImGui::PushID(i);
                 bool isUnlocked = fileProgressFlag_get((file_progress_e)i);
-                std::string worldName = "Unlock " + std::string(worldNameList[progressToLevelMap.at(i)]);
+                std::string worldName = "Unlock " + std::string(port_levelName((enum level_e)progressToLevelMap.at(i)));
                 if (UIWidgets::Checkbox(worldName.c_str(), &isUnlocked)) {
                     if (fileProgressFlag_get((file_progress_e)i)) {
                         fileProgressFlag_set((file_progress_e)i, false);
@@ -309,7 +310,7 @@ void SaveEditor_DrawProgressTab() {
                 continue;
             }
 
-            ImGui::SeparatorText(worldNameList[level]);
+            ImGui::SeparatorText(port_levelName((enum level_e)level));
             if (ImGui::BeginTable("WorldTable", 2, ImGuiTableFlags_SizingFixedFit)) {
                 ImGui::TableNextColumn();
 

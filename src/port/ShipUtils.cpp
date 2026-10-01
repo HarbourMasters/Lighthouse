@@ -2,6 +2,7 @@
 #include "Save/SaveManager.h"
 #include "Save/Types.h"
 #include "Engine.h"
+#include "GameStatus.h"
 #include "port/Romhack/RomhackConfig.h"
 #include <chrono>
 #include <cstdarg>
@@ -139,7 +140,7 @@ const char* port_mapName(int map_id) {
     if ((enum map_e)map_id == MAP_91_FILE_SELECT) {
         return "File Select";
     }
-    return worldNameList[map_getLevel((enum map_e)map_id)];
+    return port_levelName(map_getLevel((enum map_e)map_id));
 }
 
 int port_getBootSequence(void) {

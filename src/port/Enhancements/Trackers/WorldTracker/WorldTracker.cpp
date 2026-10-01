@@ -1,5 +1,6 @@
 #include "WorldTracker.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/GameStatus.h"
 #include "port/Rando/Logic/Logic.h"
 #include "port/Rando/ObjectBehavior/ObjectBehavior.h"
 #include "port/Save/Types.h"
@@ -125,7 +126,7 @@ void WorldTracker_DrawWorldObject(level_e levelId) {
     ImGui::PushID(levelId);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding,
                         ImVec2(ImGui::GetStyle().CellPadding.x, ImGui::GetStyle().CellPadding.y + 2.0f));
-    std::string levelName = worldNameList[levelId];
+    std::string levelName = port_levelName(levelId);
     int32_t maxEHoneycombs = levelId == LEVEL_B_SPIRAL_MOUNTAIN ? 6 : 2;
 
     WorldTracker_PushImageButtonStyle();
