@@ -230,7 +230,7 @@ constexpr s32 kAirRefill = 0xE10;
 constexpr s32 kRestoredItemOffsets[] = { 0x00, 0x1C, 0x24, 0x10, 0x28, 0x2C, 0x08, 0x20, 0x30, 0x38,
                                          0x48, 0x60, 0x64, 0x8C, 0x68, 0x6C, 0x7C, 0x80, 0x84, 0x88 };
 
-u8 sLevelSlots[kLevelSlotStride * kLevelSlotCount];
+u8 sLevelSlots[kLevelSlotStride * kLevelSlotCount + 8];
 bool sLevelSlotsSeeded = false;
 
 u8* SnowGlow_LevelSlot(s32 level) {
