@@ -307,4 +307,3 @@ uint32_t GameEngine::GetInterpolationFPS() {
 
     return CVarGetInteger(CVAR_SETTING("InterpolationFPS"), 30);
 }
-
