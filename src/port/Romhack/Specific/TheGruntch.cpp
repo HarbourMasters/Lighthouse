@@ -364,7 +364,8 @@ static void Gruntch_EnableMumboTokenDialogs() {
             gsworld_getMap() != MAP_48_FP_MUMBOS_SKULL || !jiggyscore_isCollected((enum jiggy_e)3)) {
             return;
         }
-        func_80324E38(0.0f, 3);
+        // Release the player, as the skipped dialog would have
+        func_80324E38(0.0f, 0);
         *should = true;
     });
 }
