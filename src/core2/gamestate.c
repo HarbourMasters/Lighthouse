@@ -313,7 +313,9 @@ void func_803465E4(void){
         }
     }//L80346710
 
-    if(sp50){
+    // [port] Romhack gate: false = keep the health HUD hidden on this map.
+//  if(sp50){
+    if(sp50 && EventSystem_Should(VB_HEALTH_HUD_SHOW, true, gsworld_getMap())){
         item_adjustByDiffWithHud(ITEM_14_HEALTH, 0);
     }
 

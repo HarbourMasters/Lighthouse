@@ -23,7 +23,8 @@
     PORT(CutThroatCoast)        \
     PORT(BubblingBog)           \
     PORT(Gruntch)               \
-    PORT(SnowGlowVillage)
+    PORT(SnowGlowVillage)       \
+    PORT(CheatosChallenges)
 
 #define ROMHACK_PORT_DECL(name) void Register##name##Patches();
 ROMHACK_PORT_LIST(ROMHACK_PORT_DECL)

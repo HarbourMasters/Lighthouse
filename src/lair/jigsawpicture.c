@@ -125,7 +125,10 @@ void afterPictureComplete(ActorMarker *marker) {
 }
 
 void onJigsawPodiumCollide(ActorMarker *marker, ActorMarker *other_marker){
-    marker->isBanjoOnTop = true;
+    // [port] Romhack gate: hacks also check where the player stands on the podium.
+    if (EventSystem_Should(VB_JIGSAW_PODIUM_COLLIDE, true, marker)) {
+        marker->isBanjoOnTop = true;
+    }
 }
 
 bool isBanjoOnPodium(ActorMarker *marker) {

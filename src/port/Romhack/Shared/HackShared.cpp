@@ -1,3 +1,4 @@
+#include <cmath>
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
@@ -24,6 +25,10 @@ typedef struct {
     f32 scale;
 } TransitionInfoEntry;
 extern TransitionInfoEntry D_8036C150[0x16];
+
+s32 _puzzleCost(s32 index);
+s32 _puzzleSize(s32 index);
+s32 _puzzleFlag(s32 index);
 
 extern s32 print_sCurrentFont;
 extern s32 print_sMonospacedModeEnabled;
@@ -180,6 +185,7 @@ const JiggyRelocation* sJiggyRelocations = nullptr;
 int sJiggyRelocationCount = 0;
 const int* sJiggyExcluded = nullptr;
 int sJiggyExcludedCount = 0;
+int sJiggyLevelCap = 0;
 
 bool JiggyRelocated(s32 id) {
     for (int g = 0; g < sJiggyRelocationCount; g++) {
@@ -220,8 +226,53 @@ void ApplyJiggyRelocation() {
             }
         }
 
+        if (sJiggyLevelCap > 0 && total > sJiggyLevelCap) {
+            total = sJiggyLevelCap;
+        }
         *result = total;
         *should = false;
+    });
+}
+
+const PodiumFloor* sPodiumFloors = nullptr;
+int sPodiumFloorCount = 0;
+bool sPodiumCheckEnabled = false;
+
+bool PlayerOnPodium(Actor* podium) {
+    f32 pos[3];
+    player_getPosition(pos);
+    const f32 dx = pos[0] - podium->position[0];
+    const f32 dz = pos[2] - podium->position[2];
+    if (sqrtf(dx * dx + dz * dz) > 140.0f) {
+        return false;
+    }
+    for (int i = 0; i < sPodiumFloorCount; i++) {
+        if (sPodiumFloors[i].map == gsworld_getMap()) {
+            return pos[1] >= sPodiumFloors[i].minY;
+        }
+    }
+    return pos[1] - podium->position[1] >= 38.0f;
+}
+
+void ApplyPodiumCheck() {
+    COND_VB_SHOULD(VB_JIGSAW_PODIUM_COLLIDE, EVENT_PRIORITY_NORMAL, sPodiumCheckEnabled, {
+        ActorMarker* marker = va_arg(args, ActorMarker*);
+        *should = PlayerOnPodium(marker_getActor(marker));
+    });
+}
+
+bool sPuzzleDepositClamp = false;
+
+void ApplyPuzzleDepositClamp() {
+    COND_HOOK(OnMapLoadStub, EVENT_PRIORITY_NORMAL, sPuzzleDepositClamp, [](IEvent*) {
+        for (s32 i = 0; i < 11; i++) {
+            const enum file_progress_e flag = (enum file_progress_e)_puzzleFlag(i);
+            const s32 bits = _puzzleSize(i);
+            const s32 cost = _puzzleCost(i);
+            if ((u32)cost < fileProgressFlag_getN(flag, bits)) {
+                fileProgressFlag_setN(flag, cost, bits);
+            }
+        }
     });
 }
 
@@ -318,6 +369,22 @@ void HackShared_EnableJiggyRelocation(const JiggyRelocation* groups, int groupCo
     sJiggyExcluded = alsoExcluded;
     sJiggyExcludedCount = excludedCount;
     ApplyJiggyRelocation();
+}
+
+void HackShared_SetJiggyLevelCap(int cap) {
+    sJiggyLevelCap = cap;
+}
+
+void HackShared_EnablePodiumCheck(const PodiumFloor* floors, int count) {
+    sPodiumFloors = floors;
+    sPodiumFloorCount = count;
+    sPodiumCheckEnabled = true;
+    ApplyPodiumCheck();
+}
+
+void HackShared_EnablePuzzleDepositClamp() {
+    sPuzzleDepositClamp = true;
+    ApplyPuzzleDepositClamp();
 }
 
 void HackShared_EnableWarpMusicGroups(const WarpMusicGroup* groups, int groupCount) {

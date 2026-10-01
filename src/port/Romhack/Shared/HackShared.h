@@ -53,6 +53,27 @@ inline void HackShared_EnableJiggyRelocation(const JiggyRelocation (&groups)[N],
     HackShared_EnableJiggyRelocation(groups, N, alsoExcluded, M);
 }
 
+// Caps every level's retallied total
+void HackShared_SetJiggyLevelCap(int cap);
+
+// ------------------------------------------------------------------ Lair puzzles
+
+// The player counts as on a podium within 140 units of its center and at least 38
+// above it; a listed map checks a fixed height instead
+struct PodiumFloor {
+    int map;
+    float minY;
+};
+
+void HackShared_EnablePodiumCheck(const PodiumFloor* floors = nullptr, int count = 0);
+
+template <int N> inline void HackShared_EnablePodiumCheck(const PodiumFloor (&floors)[N]) {
+    HackShared_EnablePodiumCheck(floors, N);
+}
+
+// Pieces placed past a puzzle's cost are taken back on every map load
+void HackShared_EnablePuzzleDepositClamp();
+
 // ------------------------------------------------------------------ Warp music
 
 // Music keeps playing across a warp when the current and destination maps are

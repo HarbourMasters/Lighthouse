@@ -141,6 +141,9 @@ typedef enum VBehaviorID {
     VB_CCW_SEASON_DOOR_RAISED_INIT,
     VB_XMAS_TREE_ICE_UPDATE,
     VB_BOGGY_HOME_VISIBLE,
+    VB_LAST_JIGGY_COUNT,
+    VB_JIGSAW_PODIUM_COLLIDE,
+    VB_HEALTH_HUD_SHOW,
 } VBehaviorID;
 
 typedef enum DoorCameraId {
