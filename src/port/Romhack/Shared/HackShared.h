@@ -192,3 +192,4 @@ struct StealthNoiseConfig {
 
 void StealthNoise_Enable(const StealthNoiseConfig& cfg);
 void StealthNoise_AddBurst(float amount, float seconds);
+bool StealthNoise_CaughtThisMap();

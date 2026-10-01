@@ -348,6 +348,24 @@ static void Gruntch_EnableHealthRules() {
     });
 }
 
+static void Gruntch_EnableActorTweaks() {
+    // Smashed presents don't explode
+    REGISTER_VB_SHOULD(VB_MM_HUT_DESPAWN_ON_SMASH, EVENT_PRIORITY_NORMAL, { *should = true; });
+
+    // The Gruntch stops snoring when the player is caught
+    REGISTER_VB_SHOULD(VB_NABNUT_SNORE_SFX, EVENT_PRIORITY_NORMAL, {
+        if (gsworld_getMap() == MAP_3C_RBB_KITCHEN && StealthNoise_CaughtThisMap()) {
+            *should = false;
+        }
+    });
+
+    REGISTER_VB_SHOULD(VB_NAPPER_WAKE_SFX, EVENT_PRIORITY_NORMAL, {
+        s32* sfx = va_arg(args, s32*);
+        *sfx = SFX_142_GRUNTY_LAUGH_3;
+        (void)should;
+    });
+}
+
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
 static void Gruntch_EnableWindowRapNoRebound() {
     REGISTER_VB_SHOULD(VB_BUMP_REBOUNDS_PLAYER, EVENT_PRIORITY_NORMAL, {
@@ -655,6 +673,7 @@ void RegisterGruntchPatches() {
     HackShared_EnableWarpMusicGroups(kGruntchMusicGroups);
     Gruntch_EnableFullChanMask();
     Gruntch_EnableHealthRules();
+    Gruntch_EnableActorTweaks();
     Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();

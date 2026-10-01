@@ -61,11 +61,17 @@ enum code_5BF0_state_e {
 /* .code */
 void func_8038BFE0(ActorMarker* marker) {
     Actor* sp2C = marker_getActor(marker);
+    if (!EventSystem_Should(VB_NABNUT_SNORE_SFX, true, marker)) {
+        return;
+    }
     func_8030E878(SFX_5D_BANJO_RAAOWW, randf2(1.0f, 1.1f), (s32)randf2(21000.0f, 22000.0f), sp2C->position, 500.0f, 2500.0f);
 }
 
 void func_8038C064(ActorMarker* marker) {
     Actor* sp2C = marker_getActor(marker);
+    if (!EventSystem_Should(VB_NABNUT_SNORE_SFX, true, marker)) {
+        return;
+    }
     func_8030E878(SFX_5E_BANJO_PHEWWW, randf2(1.0f, 1.1f), (s32)randf2(21000.0f, 22000.0f), sp2C->position, 500.0f, 2500.0f);
 }
 

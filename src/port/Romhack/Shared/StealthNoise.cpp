@@ -107,6 +107,7 @@ const StealthNoiseConfig* sCfg = nullptr;
 bool sCaughtBefore = false;
 bool sSuspended = false;
 bool sCatchPending = false;
+bool sCaughtThisMap = false;
 
 f32 Clamp01(f32 value) {
     return value < 0.0f ? 0.0f : (value > 1.0f ? 1.0f : value);
@@ -154,6 +155,7 @@ void TriggerCatch() {
     timedFunc_set_0(kCatchCamDelay, RetractHud);
     sCaughtBefore = true;
     sCatchPending = true;
+    sCaughtThisMap = true;
 }
 
 void ResolveCatch() {
@@ -344,6 +346,10 @@ void Draw(Gfx** gfx) {
 
 } // namespace
 
+bool StealthNoise_CaughtThisMap() {
+    return sCaughtThisMap;
+}
+
 void StealthNoise_AddBurst(float amount, float seconds) {
     sState.burstAmount = amount;
     sState.burstTimer = seconds;
@@ -363,6 +369,7 @@ void StealthNoise_Enable(const StealthNoiseConfig& cfg) {
     REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent*) {
         sSuspended = false;
         sCatchPending = false;
+        sCaughtThisMap = false;
         sState.hudRetracted = false;
         ResetMeter();
     });
