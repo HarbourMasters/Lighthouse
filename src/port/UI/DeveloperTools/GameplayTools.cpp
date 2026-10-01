@@ -111,7 +111,26 @@ std::map<map_e, std::pair<const char*, int32_t>> commonWarpMap = {
     { MAP_44_CCW_SUMMER, { "Click Clock Wood - Summer", 1 } },
     { MAP_45_CCW_AUTUMN, { "Click Clock Wood - Autumn", 1 } },
     { MAP_46_CCW_WINTER, { "Click Clock Wood - Winter", 1 } },
-    { MAP_8E_GL_FURNACE_FUN, { "Grunty's Furnace Fun", WARP_GL_FURNACE_FUN_2_ENTRANCE_PAD } },
+    { MAP_69_GL_MM_LOBBY, { "Gruntilda's Lair - MM Lobby", 2 } },
+    { MAP_6A_GL_TTC_AND_CC_PUZZLE, { "Gruntilda's Lair - TTC and CC Puzzle", 1 } },
+    { MAP_6B_GL_180_NOTE_DOOR, { "Gruntilda's Lair - 180 Note Door", 1 } },
+    { MAP_6C_GL_RED_CAULDRON_ROOM, { "Gruntilda's Lair - Red Cauldron Room", 1 } },
+    { MAP_6D_GL_TTC_LOBBY, { "Gruntilda's Lair - TTC Lobby", 1 } },
+    { MAP_6E_GL_GV_LOBBY, { "Gruntilda's Lair - GV Lobby", 1 } },
+    { MAP_6F_GL_FP_LOBBY, { "Gruntilda's Lair - FP Lobby", 1 } },
+    { MAP_70_GL_CC_LOBBY, { "Gruntilda's Lair - CC Lobby", 1 } },
+    { MAP_71_GL_STATUE_ROOM, { "Gruntilda's Lair - Statue Room", 1 } },
+    { MAP_72_GL_BGS_LOBBY, { "Gruntilda's Lair - BGS Lobby", 1 } },
+    { MAP_74_GL_GV_PUZZLE, { "Gruntilda's Lair - GV Puzzle", 1 } },
+    { MAP_75_GL_MMM_LOBBY, { "Gruntilda's Lair - MMM Lobby", 1 } },
+    { MAP_76_GL_640_NOTE_DOOR, { "Gruntilda's Lair - 640 Note Door", 1 } },
+    { MAP_77_GL_RBB_LOBBY, { "Gruntilda's Lair - RBB Lobby", 1 } },
+    { MAP_78_GL_RBB_AND_MMM_PUZZLE, { "Gruntilda's Lair - RBB and MMM Puzzle", 1 } },
+    { MAP_79_GL_CCW_LOBBY, { "Gruntilda's Lair - CCW Lobby", 1 } },
+    { MAP_7A_GL_CRYPT, { "Gruntilda's Lair - Crypt", 1 } },
+    { MAP_80_GL_FF_ENTRANCE, { "Gruntilda's Lair - FF Entrance", 1 } },
+    { MAP_8E_GL_FURNACE_FUN, { "Gruntilda's Lair - Furnace Fun", 1 } },
+    { MAP_93_GL_DINGPOT, { "Gruntilda's Lair - Dingpot", 0 } },
 };
 
 // clang-format off
@@ -211,20 +230,101 @@ void GameplayTools_SpawnPosition() {
     }
 }
 
+void GameplayTools_PlayerTools() {
+    player_getPosition_s32(playerPosition);
+
+    ImGui::SeparatorText("Player Position");
+    ImGui::Text("Current Map ID: %i", gsworld_getMap());
+
+    if (ImGui::BeginTable("CurrentPlayerPosition", 2)) {
+        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+        ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+        ImGui::TableNextColumn();
+
+        ImGui::Text("Pos X: ");
+        ImGui::TableNextColumn();
+        ImGui::Text(std::to_string(playerPosition[0]).c_str());
+        ImGui::TableNextColumn();
+
+        ImGui::Text("Pos Y: ");
+        ImGui::TableNextColumn();
+        ImGui::Text(std::to_string(playerPosition[1]).c_str());
+        ImGui::TableNextColumn();
+
+        ImGui::Text("Pos Z: ");
+        ImGui::TableNextColumn();
+        ImGui::Text(std::to_string(playerPosition[2]).c_str());
+
+        ImGui::EndTable();
+    }
+
+    ImGui::SeparatorText("Warp Player");
+    if (ImGui::BeginTable("WarpPlayer", 2)) {
+        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+        ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 250.0f);
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+        ImGui::Text("Pos X: ");
+        ImGui::TableNextColumn();
+        static std::string warpPosX = "0";
+        if (UIWidgets::InputString("##WarpPosX", &warpPosX,
+                                   UIWidgets::InputOptions()
+                                       .Size(ImGui::GetContentRegionAvail() -
+                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
+                                       .Color(THEME_COLOR))) {}
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+        ImGui::Text("Pos Y: ");
+        ImGui::TableNextColumn();
+        static std::string warpPosY = "0";
+        if (UIWidgets::InputString("##WarpPosY", &warpPosY,
+                                   UIWidgets::InputOptions()
+                                       .Size(ImGui::GetContentRegionAvail() -
+                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
+                                       .Color(THEME_COLOR))) {}
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+        ImGui::Text("Pos Z: ");
+        ImGui::TableNextColumn();
+        static std::string warpPosZ = "0";
+        if (UIWidgets::InputString("##WarpPosZ", &warpPosZ,
+                                   UIWidgets::InputOptions()
+                                       .Size(ImGui::GetContentRegionAvail() -
+                                             ImVec2((ImGui::GetFontSize() * 5 + ImGui::GetStyle().ItemSpacing.x), 0))
+                                       .Color(THEME_COLOR))) {}
+
+        ImGui::EndTable();
+        if (UIWidgets::Button("Warp Player",
+                              UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
+            f32 warpPosition[3] = { std::stof(warpPosX), std::stof(warpPosY), std::stof(warpPosZ) };
+            playerPosition_set(warpPosition);
+        }
+        ImGui::SameLine();
+        if (UIWidgets::Button("Copy Current Player Coords",
+                              UIWidgets::ButtonOptions().Color(THEME_COLOR).Size(UIWidgets::Sizes::Inline))) {
+            warpPosX = std::to_string(playerPosition[0]);
+            warpPosY = std::to_string(playerPosition[1]);
+            warpPosZ = std::to_string(playerPosition[2]);
+        }
+    }
+}
+
 void GameplayTools_ObjectSpawner() {
     player_getPosition_s32(playerPosition);
     GameplayTools_SpawnPosition();
 
-    ImGui::SeparatorText("Player Position");
-    ImGui::Text("Map ID: %i", gsworld_getMap());
+    ImGui::SeparatorText("Object Spawn Position");
 
     if (ImGui::BeginTable("SpawnInfoTable", 3)) {
-        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 75.0f);
+        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("PlayerPos", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableNextColumn();
 
-        ImGui::Text("Pos X: ");
+        ImGui::Text("Player Pos X: ");
         ImGui::TableNextColumn();
         ImGui::Text(std::to_string(playerPosition[0]).c_str());
         ImGui::TableNextColumn();
@@ -240,7 +340,7 @@ void GameplayTools_ObjectSpawner() {
         }
         ImGui::TableNextColumn();
 
-        ImGui::Text("Pos Y: ");
+        ImGui::Text("Player Pos Y: ");
         ImGui::TableNextColumn();
         ImGui::Text(std::to_string(playerPosition[1]).c_str());
         ImGui::TableNextColumn();
@@ -256,7 +356,7 @@ void GameplayTools_ObjectSpawner() {
         }
         ImGui::TableNextColumn();
 
-        ImGui::Text("Pos Z: ");
+        ImGui::Text("Player Pos Z: ");
         ImGui::TableNextColumn();
         ImGui::Text(std::to_string(playerPosition[2]).c_str());
         ImGui::TableNextColumn();
@@ -505,6 +605,10 @@ void DrawMonitoringTools() {
 void GameplayTools_DrawTabBar() {
     UIWidgets::PushStyleTabs(THEME_COLOR);
     if (ImGui::BeginTabBar("GameplayToolsTabBar")) {
+        if (ImGui::BeginTabItem("Player Tools")) {
+            GameplayTools_PlayerTools();
+            ImGui::EndTabItem();
+        }
         if (ImGui::BeginTabItem("Spawn Object")) {
             GameplayTools_ObjectSpawner();
             ImGui::EndTabItem();
