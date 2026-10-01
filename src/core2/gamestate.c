@@ -173,7 +173,8 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
         case ITEM_C_NOTE:
             sp28 = itemscore_noteScores_get(level_get());
             itemscore_noteScores_update(D_80385F30[item]);
-            if(D_80385F30[item] == 100 && sp28 != 100){
+//          if(D_80385F30[item] == 100 && sp28 != 100){
+            if(D_80385F30[item] == port_getNotesPerLevel() && sp28 != port_getNotesPerLevel()){
                 coMusicPlayer_playMusic(COMUSIC_36_100TH_NOTE_COLLECTED, 20000);
                 item_inc(ITEM_16_LIFE);
             }
@@ -441,7 +442,8 @@ void itemscore_noteScores_update(s32 note_count) {
             if ((level_get() == LEVEL_1_MUMBOS_MOUNTAIN) && (note_count == 50)) {
                 gcdialog_showDialog(VER_SELECT(0xF74, 0xADA, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
-            if (note_count == 100) {
+//          if (note_count == 100) {
+            if (note_count == notesMax) {
                 gcdialog_showDialog(VER_SELECT(0xF78, 0xADE, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
             if (note_count == 1) {

@@ -690,6 +690,10 @@ extern "C" int port_getRomhackNotesMax(void) {
     ROMHACK_GUARD_INT;
     return sNotesMax;
 }
+extern "C" int port_getNotesPerLevel(void) {
+    const int notesMax = port_getRomhackNotesMax();
+    return notesMax >= 0 ? notesMax : 100;
+}
 extern "C" int port_getRomhackJiggiesPerWorld(void) {
     ROMHACK_GUARD_INT;
     return sJiggiesPerWorld;
