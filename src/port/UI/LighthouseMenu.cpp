@@ -175,7 +175,9 @@ void LighthouseMenu::InitElement() {
         { DISABLE_FOR_ROMHACK,
           { [](disabledInfo& info) -> bool { return port_isRomhack(); }, "Not available with romhacks" } },
         { DISABLE_FOR_RANDO,
-          { [](disabledInfo& info) -> bool { return IS_RANDO || CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0); },
+          { [](disabledInfo& info) -> bool {
+               return IS_RANDO || (CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0) && !port_isRomhack());
+           },
             "Not available with the randomizer" } },
         { FORCED_ON_FOR_ANCHOR_CONNECTED,
           { [](disabledInfo& info) -> bool {

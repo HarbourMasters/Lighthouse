@@ -37,6 +37,11 @@ void LighthouseMenu::AddMenuRando() {
 
     AddWidget(path, "Enable Rando", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_RANDOMIZER_SETTING("Enable"))
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Enables Randomizer on the next new save file."));
     AddWidget(path, "Logic Mode", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         int32_t currentIndex = CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, 0);

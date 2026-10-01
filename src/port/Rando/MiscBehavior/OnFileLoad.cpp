@@ -31,7 +31,7 @@ void Rando::MiscBehavior::OnFileLoad() {
             return;
         }
 
-        if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0)) {
+        if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("Enable"), 0) && !port_isRomhack()) {
             Rando::Logic::InitializeSaveData(saveData);
             std::string spoilerPath = CVarGetString(CVAR_RANDOMIZER_SETTING("SpoilerFile"), "");
             if (CVarGetInteger(CVAR_RANDOMIZER_SETTING("UseExistingLog"), 0) && !spoilerPath.empty()) {
