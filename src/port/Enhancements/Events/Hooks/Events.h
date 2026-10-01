@@ -149,6 +149,9 @@ typedef enum VBehaviorID {
     VB_MM_HUT_DESPAWN_ON_SMASH,
     VB_NABNUT_SNORE_SFX,
     VB_NAPPER_WAKE_SFX,
+    VB_PROP_SPRITE_SCALE,
+    VB_MM_WITCH_SWITCH_JIGGY_FLUSH,
+    VB_CROC_MAX_WALK_VELOCITY,
 } VBehaviorID;
 
 typedef enum DoorCameraId {

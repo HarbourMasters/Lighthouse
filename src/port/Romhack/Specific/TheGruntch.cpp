@@ -44,6 +44,7 @@ typedef struct struct_1A_s {
 } PauseTotalsRow;
 extern PauseTotalsRow D_8036C520[4];
 extern s8 D_8036C5F4[];
+extern s32 D_803726F0[2];
 }
 
 void TooieJiggyDance_ForceEnable();
@@ -366,6 +367,38 @@ static void Gruntch_EnableActorTweaks() {
     });
 }
 
+// Storybook opens on a black fade-in and closes on a black fade-out; the jiggy wipe does the rest
+constexpr TransitionPair kGruntchBookTransitions[] = {
+    { MAP_37_RBB_CONTAINER_1, 0, 0x5, 0xE }, { MAP_3E_RBB_CONTAINER_2, 0, 0x5, 0xE },
+    { MAP_38_RBB_CONTAINER_3, 0, 0x5, 0xE }, { 0, MAP_37_RBB_CONTAINER_1, 0xD, 0x6 },
+    { 0, MAP_3E_RBB_CONTAINER_2, 0xD, 0x6 }, { 0, MAP_38_RBB_CONTAINER_3, 0xD, 0x6 },
+};
+
+static void Gruntch_EnableCosmetics() {
+    HackShared_EnableTransitionPairs(kGruntchBookTransitions);
+
+    // Red sparkles in place of yellow
+    D_803726F0[0] = 5;
+
+    REGISTER_VB_SHOULD(VB_PROP_SPRITE_SCALE, EVENT_PRIORITY_NORMAL, {
+        const s32 sprite = va_arg(args, s32);
+        f32* scale = va_arg(args, f32*);
+        if (sprite == 0x15) {
+            scale[0] = scale[1] = scale[2] = scale[0] / 2.5f;
+        }
+        (void)should;
+    });
+
+    // Play a sound when pressing this switch
+    REGISTER_VB_SHOULD(VB_MM_WITCH_SWITCH_JIGGY_FLUSH, EVENT_PRIORITY_NORMAL, { *should = true; });
+
+    REGISTER_VB_SHOULD(VB_CROC_MAX_WALK_VELOCITY, EVENT_PRIORITY_NORMAL, {
+        f32* velocity = va_arg(args, f32*);
+        *velocity = 450.0f;
+        (void)should;
+    });
+}
+
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
 static void Gruntch_EnableWindowRapNoRebound() {
     REGISTER_VB_SHOULD(VB_BUMP_REBOUNDS_PLAYER, EVENT_PRIORITY_NORMAL, {
@@ -674,6 +707,7 @@ void RegisterGruntchPatches() {
     Gruntch_EnableFullChanMask();
     Gruntch_EnableHealthRules();
     Gruntch_EnableActorTweaks();
+    Gruntch_EnableCosmetics();
     Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();

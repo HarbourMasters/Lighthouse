@@ -53,6 +53,7 @@ void propModelList_drawSprite(Gfx **gfx, Mtx **mtx, Vtx **Vtx, f32 position[3], 
     sp2C[0] = arg4;
     sp2C[1] = arg4;
     sp2C[2] = arg4;
+    EventSystem_Should(VB_PROP_SPRITE_SCALE, true, arg5, sp2C);
     codeAEDA0_setPrimaryColorRGB(0xFF - (rgb_remove_red * 0x10), 0xFF - (rgb_remove_green * 0x10), 0xFF - (rgb_remove_blue * 0x10));
     if (codeBD100_getSpriteType(sprite) & 0xB00) {
         codeAEDA0_setSpriteDrawMode(0xB);
