@@ -16,6 +16,7 @@ namespace WorldTracker {
 
 extern WorldTrackerObject worldTrackerObject[LEVEL_C_BOSS];
 extern WorldTrackerObject worldTrackerTotal;
+extern WorldTrackerObject worldTrackerTotalMax;
 void UpdateWorldTracker();
 
 class WorldTrackerWindow : public Ship::GuiWindow {
