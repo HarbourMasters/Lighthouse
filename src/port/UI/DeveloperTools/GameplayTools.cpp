@@ -76,7 +76,6 @@ std::map<StopNSwop_Item, std::tuple<const char*, UIWidgets::Colors, bool>> snsDa
     { SNS_ITEM_EGG_CYAN, { "SNS Cyan Egg", UIWidgets::Colors::Cyan, false } },
 };
 
-
 // clang-format off
 std::vector<GameplayToolsMapData> mapSpecificFlagList = {
     { MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED,					"MM_SPECIFIC_FLAG_0_CHIMPY_STUMP_RAISED", 					LEVEL_1_MUMBOS_MOUNTAIN },
