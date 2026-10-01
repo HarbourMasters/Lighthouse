@@ -66,6 +66,21 @@ template <int N> inline void HackShared_EnableWarpMusicGroups(const WarpMusicGro
     HackShared_EnableWarpMusicGroups(groups, N);
 }
 
+// ------------------------------------------------------------------ Map transitions
+
+struct TransitionPair {
+    int from;
+    int to;
+    int in;
+    int out;
+};
+
+void HackShared_EnableTransitionPairs(const TransitionPair* pairs, int count);
+
+template <int N> inline void HackShared_EnableTransitionPairs(const TransitionPair (&pairs)[N]) {
+    HackShared_EnableTransitionPairs(pairs, N);
+}
+
 // ------------------------------------------------------------------ Spawn rewrites
 
 // Spawn flags and draw distance a hack changes as an actor is created

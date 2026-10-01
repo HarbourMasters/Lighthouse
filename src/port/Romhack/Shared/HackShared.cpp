@@ -14,6 +14,17 @@ extern "C" {
 
 extern ActorArray* suBaddieActorArray;
 
+typedef struct {
+    u8 uid;
+    u8 state;
+    u8 next_state;
+    f32 duration;
+    s32 model_index;
+    s32 anim_index;
+    f32 scale;
+} TransitionInfoEntry;
+extern TransitionInfoEntry D_8036C150[0x16];
+
 extern s32 print_sCurrentFont;
 extern s32 print_sMonospacedModeEnabled;
 extern char print_sPreviousBoldLetter;
@@ -202,6 +213,56 @@ void ApplyJiggyRelocation() {
     });
 }
 
+// Map transitions
+const TransitionPair* sTransitionPairs = nullptr;
+int sTransitionPairCount = 0;
+s32 sTransitionFromMap = 0;
+
+const TransitionPair* FindTransitionPair(s32 from, s32 to) {
+    for (int i = 0; i < sTransitionPairCount; i++) {
+        const TransitionPair& pair = sTransitionPairs[i];
+        if ((pair.from == 0 || pair.from == from) && (pair.to == 0 || pair.to == to)) {
+            return &pair;
+        }
+    }
+    return nullptr;
+}
+
+void ApplyTransitionPairs() {
+    D_8036C150[3].state = 7; // TRANSITION_STATE_7_WHITE_IN
+    D_8036C150[3].next_state = 0;
+    D_8036C150[3].duration = 0.7f;
+    D_8036C150[3].model_index = 0;
+    D_8036C150[3].scale = 0.0f;
+    D_8036C150[12].duration = 0.4f;
+    D_8036C150[13].state = 3;      // TRANSITION_STATE_3_BLACK_OUT
+    D_8036C150[13].next_state = 1; // TRANSITION_STATE_1_LOADING
+    D_8036C150[13].duration = 0.4f;
+    D_8036C150[13].model_index = 0;
+    D_8036C150[13].scale = 0.0f;
+
+    COND_VB_SHOULD(VB_MAP_TRANSITION_OUT_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
+        const s32 from = va_arg(args, s32);
+        const s32 to = va_arg(args, s32);
+        s32* outIndex = va_arg(args, s32*);
+        sTransitionFromMap = from;
+        if (const TransitionPair* pair = FindTransitionPair(from, to)) {
+            *outIndex = pair->out;
+        }
+        (void)should;
+    });
+
+    COND_VB_SHOULD(VB_MAP_TRANSITION_IN_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
+        const s32 map = va_arg(args, s32);
+        s32* inIndex = va_arg(args, s32*);
+        const TransitionPair* pair = sTransitionFromMap != 0 ? FindTransitionPair(sTransitionFromMap, map) : nullptr;
+        if (pair != nullptr) {
+            *inIndex = pair->in;
+        }
+        (void)should;
+    });
+}
+
 const SpawnRewrite* sSpawnRewrites = nullptr;
 int sSpawnRewriteCount = 0;
 
@@ -246,6 +307,12 @@ void HackShared_EnableWarpMusicGroups(const WarpMusicGroup* groups, int groupCou
     sWarpMusicGroups = groups;
     sWarpMusicGroupCount = groupCount;
     ApplyWarpMusicGroups();
+}
+
+void HackShared_EnableTransitionPairs(const TransitionPair* pairs, int count) {
+    sTransitionPairs = pairs;
+    sTransitionPairCount = count;
+    ApplyTransitionPairs();
 }
 
 void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count) {
