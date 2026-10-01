@@ -17,6 +17,8 @@ void HackShared_EnableNoteSignSuppression(int signActorId);
 void HackShared_EnableBottlesExplainerSuppression();
 void HackShared_EnableDialogSuppression(const int* dialogIds, int count);
 void HackShared_EnableForceAbilitiesUsed(const ability_used_e* moves, int count);
+// Game over returns to file select without the machine-room cutscene; cutscene skips ignore story progress
+void HackShared_EnableFileSelectGameOver();
 
 template <int N> inline void HackShared_EnableDialogSuppression(const int (&dialogIds)[N]) {
     HackShared_EnableDialogSuppression(dialogIds, N);

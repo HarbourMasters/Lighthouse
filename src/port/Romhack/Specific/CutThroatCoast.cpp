@@ -28,6 +28,18 @@ extern CameraFogEntry sCore2_37E50UnderwaterTints[];
 
 namespace {
 
+constexpr int kCutThroatSuppressedDialogs[] = {
+    ASSET_D96_DIALOG_BEEHIVE_MEET,
+    ASSET_D97_DIALOG_JINJO_MEET_YELLOW,
+    ASSET_D98_DIALOG_JINJO_MEET_BLUE,
+    ASSET_D99_DIALOG_JINJO_MEET_GREEN,
+    ASSET_D9A_DIALOG_JINJO_MEET_PINK,
+    ASSET_D9B_DIALOG_JINJO_MEET_ORANGE,
+    0xF75,
+    0xF76,
+    0xF77,
+};
+
 constexpr TransitionPair kCutThroatTransitions[] = {
     { MAP_31_RBB_RUSTY_BUCKET_BAY, MAP_2_MM_MUMBOS_MOUNTAIN, 0xD, 0xE },
     { MAP_2_MM_MUMBOS_MOUNTAIN, MAP_31_RBB_RUSTY_BUCKET_BAY, 0xD, 0xE },
@@ -116,6 +128,8 @@ void UpdateLighthouseBeam() {
 
 } // namespace
 
+void CluckerCutscene_ForceSkip();
+
 extern "C" void CutThroatCoast_DoubloonUpdate(Actor* thisx) {
     thisx->yaw = mlNormalizeAngle(thisx->yaw + 12.0f);
     chCarriedAcorn_update(thisx);
@@ -133,6 +147,20 @@ void RegisterCutThroatCoastPatches() {
     });
 
     HackShared_EnableTransitionPairs(kCutThroatTransitions);
+    HackShared_EnableFileSelectGameOver();
+    HackShared_EnableDialogSuppression(kCutThroatSuppressedDialogs);
+    HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
+    CluckerCutscene_ForceSkip();
+
+    // The hack drops the first-time explainer and hazard dialogs
+    REGISTER_VB_SHOULD(VB_PROGRESS_FLAG_DIALOG, EVENT_PRIORITY_NORMAL, { *should = false; });
+
+    // Only the walk into the coast plays the level entrance
+    REGISTER_VB_SHOULD(VB_LEVEL_ENTERED_FROM_LAIR, EVENT_PRIORITY_NORMAL, {
+        const s32 prevLevel = va_arg(args, s32);
+        const s32 level = va_arg(args, s32);
+        *should = prevLevel == LEVEL_B_SPIRAL_MOUNTAIN && level == LEVEL_A_MAD_MONSTER_MANSION;
+    });
 
     // Pause menu pins below
     REGISTER_VB_SHOULD(VB_JIGGYSCORE_LEVEL_TOTAL, EVENT_PRIORITY_NORMAL, {

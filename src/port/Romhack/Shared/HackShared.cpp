@@ -152,6 +152,18 @@ void ApplyWarpMusicGroups() {
     });
 }
 
+bool sFileSelectGameOver = false;
+
+void ApplyFileSelectGameOver() {
+    COND_VB_SHOULD(VB_GAME_OVER_RETURN_MAP, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, {
+        s32* map = va_arg(args, s32*);
+        *map = MAP_91_FILE_SELECT;
+        (void)should;
+    });
+    COND_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
+    COND_VB_SHOULD(VB_GAME_OVER_MACHINE_ROOM, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
+}
+
 // Mark moves as already used
 void ApplyForceAbilitiesUsed() {
     COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, sForcedUsedAbilities != 0, [](IEvent*) {
@@ -285,6 +297,11 @@ void HackShared_EnableDialogSuppression(const int* dialogIds, int count) {
     sSuppressedDialogs = dialogIds;
     sSuppressedDialogCount = count;
     ApplyDialogSuppression();
+}
+
+void HackShared_EnableFileSelectGameOver() {
+    sFileSelectGameOver = true;
+    ApplyFileSelectGameOver();
 }
 
 void HackShared_EnableForceAbilitiesUsed(const ability_used_e* moves, int count) {
