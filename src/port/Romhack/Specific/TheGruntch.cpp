@@ -294,6 +294,37 @@ constexpr WarpMusicGroup kGruntchMusicGroups[] = {
     { kMusicGroupVillage, ARRAY_COUNT(kMusicGroupVillage) },
 };
 
+// Music plays with every channel on these maps
+constexpr s32 kFullChanMaskMaps[] = { 0x07, 0x0C, 0x15, 0x1B, 0x22, 0x26, 0x28, 0x29, 0x2A, 0x2B,
+                                      0x2C, 0x2D, 0x2E, 0x36, 0x3C, 0x3D, 0x3F, 0x41, 0x60, 0x6A,
+                                      0x6B, 0x6C, 0x6F, 0x71, 0x72, 0x74, 0x75, 0x79, 0x8B };
+
+static bool Gruntch_OnFullChanMaskMap() {
+    const s32 map = gsworld_getMap();
+    for (const s32 listed : kFullChanMaskMaps) {
+        if (listed == map) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void Gruntch_EnableFullChanMask() {
+    REGISTER_VB_SHOULD(VB_MIDI_SET_CHAN_MASK, EVENT_PRIORITY_NORMAL, {
+        s32* mask = va_arg(args, s32*);
+        if (Gruntch_OnFullChanMaskMap()) {
+            *mask = 0xFFFF;
+        }
+        (void)should;
+    });
+
+    REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent*) {
+        if (Gruntch_OnFullChanMaskMap()) {
+            musicSlot_stepToChannelMask(0, 0xFFFF, 3.0f);
+        }
+    });
+}
+
 // Banjo & Kazooie don't rebound when hitting windows with Rat-A-Tap Rap
 static void Gruntch_EnableWindowRapNoRebound() {
     REGISTER_VB_SHOULD(VB_BUMP_REBOUNDS_PLAYER, EVENT_PRIORITY_NORMAL, {
@@ -599,6 +630,7 @@ void RegisterGruntchPatches() {
     Gruntch_EnableVoidOutRespawn();
     Gruntch_EnableEggNoise();
     HackShared_EnableWarpMusicGroups(kGruntchMusicGroups);
+    Gruntch_EnableFullChanMask();
     Gruntch_EnableWindowRapNoRebound();
     Gruntch_EnablePauseTotalsLayout();
     Gruntch_EnableJiggyTally();
