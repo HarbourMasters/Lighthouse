@@ -60,6 +60,12 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     // Nostalgia 64
     { "7a7a07c26d77530dc45caf8ab96e9056ea2877e1", "Nostalgia64", true },
 
+    // Legend of the Crystal Jiggy
+    { "d39888448ada3331c580ed0c077285790cf941f1", "LegendOfTheCrystalJiggy", false },
+
+    // Fort Fun
+    { "bd37a03ed8b1a4cc5a5b4edd9e432376ad7e8c3d", "FortFun", false },
+
     { nullptr, nullptr, false }, // terminator
 };
 
