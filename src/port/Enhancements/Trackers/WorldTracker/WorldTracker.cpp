@@ -7,7 +7,7 @@
 #include "fast/Fast3dGui.h"
 #include "functions.h"
 
-#define CVAR_NAME_SHOW_WORLD_TRACKER "gWindows.WorldTracker"
+#define CVAR_NAME_SHOW_WORLD_TRACKER CVAR_WINDOW("WorldTracker")
 #define CVAR_NAME_SHOW_CURRENT_LEVEL "gRando.WorldTracker.ShowCurrentLevel"
 #define CVAR_NAME_SHOW_TOTAL_COLLECTED "gRando.WorldTracker.ShowTotalCollected"
 #define CVAR_NAME_SEPARATE_TOTAL_COLLECTED "gRando.CheckTracker.SeparateCollectedChecks"
@@ -292,13 +292,15 @@ void WorldTrackerWindow::Draw() {
 }
 
 void SettingsWindow::DrawElement() {
-    if (CVarGetInteger("gWindows.WorldTracker", 0)) {
+    if (CVarGetInteger(CVAR_NAME_SHOW_WORLD_TRACKER, 0)) {
         worldTrackerPopoutState = true;
-        UIWidgets::WindowButton("Return World Tracker", "gWindows.WorldTracker", LighthouseGui::mWorldTrackerWindow,
+        UIWidgets::WindowButton("Return World Tracker", CVAR_NAME_SHOW_WORLD_TRACKER,
+                                LighthouseGui::mWorldTrackerWindow,
                                 { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::Red });
     } else {
         worldTrackerPopoutState = false;
-        UIWidgets::WindowButton("Popout World Tracker", "gWindows.WorldTracker", LighthouseGui::mWorldTrackerWindow,
+        UIWidgets::WindowButton("Popout World Tracker", CVAR_NAME_SHOW_WORLD_TRACKER,
+                                LighthouseGui::mWorldTrackerWindow,
                                 { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::Green });
     }
 
