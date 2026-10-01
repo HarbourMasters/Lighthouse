@@ -24,7 +24,8 @@
     PORT(BubblingBog)           \
     PORT(Gruntch)               \
     PORT(SnowGlowVillage)       \
-    PORT(CheatosChallenges)
+    PORT(CheatosChallenges)     \
+    PORT(LegendOfTheCrystalJiggy)
 
 #define ROMHACK_PORT_DECL(name) void Register##name##Patches();
 ROMHACK_PORT_LIST(ROMHACK_PORT_DECL)
