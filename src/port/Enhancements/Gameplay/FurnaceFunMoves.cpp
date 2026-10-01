@@ -8,6 +8,8 @@
 #include "functions.h"
 #include "core2/abilityprogress.h"
 
+extern "C" void __chSmBottles_setHasUsedSpiralMountainAbilities(void);
+
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves")
 
 void RegisterFurnaceFunMoves_Init() {
@@ -21,12 +23,12 @@ void RegisterFurnaceFunMoves_Init() {
                 continue;
             }
             player_unlockAbility(static_cast<ability_e>(ability));
-            ability_setUsed(static_cast<ability_used_e>(ability));
         }
         // Outside the loop's range. Without it the note doors never open and Bottles
         // force-triggers his tutorial on approach to the 50-note door.
         player_unlockAbility(ABILITY_13_1ST_NOTEDOOR);
-        ability_setUsed(static_cast<ability_used_e>(ABILITY_13_1ST_NOTEDOOR));
+        __chSmBottles_setHasUsedSpiralMountainAbilities();
+        ability_setUsed(ABILITY_USED_9_SHOCK);
     });
 }
 
