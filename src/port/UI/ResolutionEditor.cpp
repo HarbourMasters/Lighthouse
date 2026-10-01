@@ -60,7 +60,6 @@ const ImVec4 messageColor[]{
     { 0.0f, 0.85f, 0.55f, 1.0f }, // MESSAGE_INFO
     { 0.75f, 0.75f, 0.75f, 1.0f } // MESSAGE_GRAY_75
 };
-static const float enhancementSpacerHeight = 19.0f;
 // Initialise update flags.
 static bool update[3];
 
@@ -94,6 +93,38 @@ std::shared_ptr<Fast::Interpreter> GetInterpreter() {
         assert(false && "Lost reference to Fast::Interpreter");
     }
     return intP;
+}
+
+// Clamp and update the cvars that don't use UIWidgets
+void CommitPendingResolutionCVars() {
+    if (update[UPDATE_aspectRatioX] || update[UPDATE_aspectRatioY] || update[UPDATE_verticalPixelCount]) {
+        if (update[UPDATE_aspectRatioX]) {
+            if (aspectRatioX < 0.0f) {
+                aspectRatioX = 0.0f;
+            }
+            CVarSetFloat(CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioX", aspectRatioX);
+        }
+        if (update[UPDATE_aspectRatioY]) {
+            if (aspectRatioY < 0.0f) {
+                aspectRatioY = 0.0f;
+            }
+            CVarSetFloat(CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioY", aspectRatioY);
+        }
+        if (update[UPDATE_verticalPixelCount]) {
+            // There's a upper and lower clamp on the Libultraship side too,
+            // so clamping it here is entirely visual, so the vertical resolution field reflects it.
+            if (verticalPixelCount < minVerticalPixelCount) {
+                verticalPixelCount = minVerticalPixelCount;
+            }
+            if (verticalPixelCount > maxVerticalPixelCount) {
+                verticalPixelCount = maxVerticalPixelCount;
+            }
+            CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalPixelCount", verticalPixelCount);
+        }
+        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.AspectRatio", item_aspectRatio);
+        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.PixelCount", item_pixelCount);
+        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    }
 }
 
 void ResolutionCustomWidget(WidgetInfo& info) {
@@ -280,7 +311,7 @@ void ResolutionCustomWidget(WidgetInfo& info) {
 
         // Beginning of Integer Scaling additional settings.
         {
-            // UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
+            // UIWidgets::Separator(true, true, 3.0f, 3.0f);
 
             // Integer Scaling - Never Exceed Bounds.
             const bool disabled_neverExceedBounds =
@@ -346,35 +377,7 @@ void ResolutionCustomWidget(WidgetInfo& info) {
     } // End of additional settings
     UIWidgets::PopStyleHeader();
 
-    // Clamp and update the cvars that don't use UIWidgets
-    if (update[UPDATE_aspectRatioX] || update[UPDATE_aspectRatioY] || update[UPDATE_verticalPixelCount]) {
-        if (update[UPDATE_aspectRatioX]) {
-            if (aspectRatioX < 0.0f) {
-                aspectRatioX = 0.0f;
-            }
-            CVarSetFloat(CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioX", aspectRatioX);
-        }
-        if (update[UPDATE_aspectRatioY]) {
-            if (aspectRatioY < 0.0f) {
-                aspectRatioY = 0.0f;
-            }
-            CVarSetFloat(CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioY", aspectRatioY);
-        }
-        if (update[UPDATE_verticalPixelCount]) {
-            // There's a upper and lower clamp on the Libultraship side too,
-            // so clamping it here is entirely visual, so the vertical resolution field reflects it.
-            if (verticalPixelCount < minVerticalPixelCount) {
-                verticalPixelCount = minVerticalPixelCount;
-            }
-            if (verticalPixelCount > maxVerticalPixelCount) {
-                verticalPixelCount = maxVerticalPixelCount;
-            }
-            CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalPixelCount", verticalPixelCount);
-        }
-        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.AspectRatio", item_aspectRatio);
-        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.PixelCount", item_pixelCount);
-        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-    }
+    CommitPendingResolutionCVars();
 }
 
 void RegisterResolutionWidgets() {
@@ -517,35 +520,7 @@ void RegisterResolutionWidgets() {
 }
 
 void UpdateResolutionVars() {
-    // Clamp and update the cvars that don't use UIWidgets
-    if (update[UPDATE_aspectRatioX] || update[UPDATE_aspectRatioY] || update[UPDATE_verticalPixelCount]) {
-        if (update[UPDATE_aspectRatioX]) {
-            if (aspectRatioX < 0.0f) {
-                aspectRatioX = 0.0f;
-            }
-            CVarSetFloat(CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioX", aspectRatioX);
-        }
-        if (update[UPDATE_aspectRatioY]) {
-            if (aspectRatioY < 0.0f) {
-                aspectRatioY = 0.0f;
-            }
-            CVarSetFloat(CVAR_PREFIX_ADVANCED_RESOLUTION ".AspectRatioY", aspectRatioY);
-        }
-        if (update[UPDATE_verticalPixelCount]) {
-            // There's a upper and lower clamp on the Libultraship side too,
-            // so clamping it here is entirely visual, so the vertical resolution field reflects it.
-            if (verticalPixelCount < minVerticalPixelCount) {
-                verticalPixelCount = minVerticalPixelCount;
-            }
-            if (verticalPixelCount > maxVerticalPixelCount) {
-                verticalPixelCount = maxVerticalPixelCount;
-            }
-            CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalPixelCount", verticalPixelCount);
-        }
-        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.AspectRatio", item_aspectRatio);
-        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.PixelCount", item_pixelCount);
-        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-    }
+    CommitPendingResolutionCVars();
     // Initialise update flags.
     for (uint8_t i = 0; i < sizeof(update); i++) {
         update[i] = false;

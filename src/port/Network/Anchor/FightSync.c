@@ -536,7 +536,7 @@ void FightSync_OnAuthorityChanged(void) {
     Actor* boss;
     ActorLocal_FinalBoss* local;
 
-    FightSyncSeq_Reset();
+    SeqGate_Reset(&gFightSeq);
     if (sFightNetCinematic) {
         return;
     }

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "port/Network/Anchor/VileHoles.h"
+#include "port/Network/Anchor/SeqGate.h"
 
 // Mr. Vile minigame sync (Anchor).
 //
@@ -49,13 +50,6 @@ typedef struct VileGameSnapshot {
 // loss, disconnect). Resets sequence counters and, on clients that are not the live
 // authority, winds a locally running round back to idle.
 void VileSync_OnAuthorityChanged(void);
-
-// Sequence counter for outgoing authority packets.
-uint32_t VileSync_NextOutgoingSeq(void);
-// Returns false (and does not update) if seq is not newer than the last accepted one.
-bool VileSync_AcceptIncomingSeq(uint32_t seq);
-// Reset both counters; call on map load / authority change.
-void VileSync_ResetSeq(void);
 
 // Drive the yumblie actor at holeId into holeState with the given piece type.
 // eaterClientId is only meaningful for the eaten state (VILE_EATER_MR_VILE = Mr. Vile).

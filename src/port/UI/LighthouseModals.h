@@ -16,5 +16,4 @@ public:
                        std::function<void()> button2callback = nullptr);
     bool IsPopupOpen(std::string title);
     size_t PopupsQueued();
-    void DismissPopup();
 };

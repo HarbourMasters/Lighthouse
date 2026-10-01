@@ -79,13 +79,31 @@ typedef struct {
 extern PauseLevelEntry D_8036C58C[0xD];
 }
 
+extern "C" const char* port_levelName(enum level_e level) {
+    for (int i = 0; i < 0xD; i++) {
+        if (D_8036C58C[i].level_id == level) {
+            // A romhack's own name for the level wins over the vanilla string.
+            const char* rhName = port_getRomhackLevelName(i);
+            return rhName ? rhName : (const char*)D_8036C58C[i].string;
+        }
+    }
+    // The pause totals table only lists the levels the player can score in, so the
+    // remaining level_e values are supplemented here.
+    switch (level) {
+        case LEVEL_C_BOSS:
+            return "BOSS ARENA";
+        case LEVEL_D_CUTSCENE:
+            return "CUTSCENE";
+        default:
+            return "UNKNOWN LEVEL";
+    }
+}
+
 extern "C" const char* port_getLevelName(int map_id) {
     enum level_e level = map_getLevel((enum map_e)map_id);
     for (int i = 0; i < 0xD; i++) {
         if (D_8036C58C[i].level_id == level) {
-            // Check romhack override first
-            const char* rhName = port_getRomhackLevelName(i);
-            return rhName ? rhName : (const char*)D_8036C58C[i].string;
+            return port_levelName(level);
         }
     }
     return port_mapName(map_id);

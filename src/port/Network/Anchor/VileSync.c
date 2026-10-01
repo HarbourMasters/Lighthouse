@@ -1,4 +1,5 @@
 #include "VileSync.h"
+#include "port/Network/Anchor/SeqGate.h"
 #include "port/Network/Anchor/Authority.h"
 
 #include <ultra64.h>
@@ -16,25 +17,7 @@ extern void chvilegame_netApply(Actor* actor, const VileGameSnapshot* src);
 extern bool chvilegame_netConsumeRemote(Actor* actor, f32 position[3], s32* out_piece_type, s32* out_correct_type);
 extern void chvilegame_netPlayEatFeedback(s32 piece_type, s32 correct_type);
 
-static uint32_t sOutgoingSeq = 0;
-static uint32_t sLastAcceptedSeq = 0;
-
-uint32_t VileSync_NextOutgoingSeq(void) {
-    return ++sOutgoingSeq;
-}
-
-bool VileSync_AcceptIncomingSeq(uint32_t seq) {
-    if (seq <= sLastAcceptedSeq) {
-        return false;
-    }
-    sLastAcceptedSeq = seq;
-    return true;
-}
-
-void VileSync_ResetSeq(void) {
-    sOutgoingSeq = 0;
-    sLastAcceptedSeq = 0;
-}
+SeqGate gVileSeq;
 
 // --- Actor lookup helpers ------------------------------------------------------------
 
@@ -174,7 +157,7 @@ void VileSync_OnAuthorityChanged(void) {
     Actor* controller;
     VileGameSnapshot idle;
 
-    VileSync_ResetSeq();
+    SeqGate_Reset(&gVileSeq);
     if (VileSync_IsLiveAuthority()) {
         return;
     }

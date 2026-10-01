@@ -14,47 +14,6 @@
 #include <spdlog/fmt/fmt.h>
 #include <tuple>
 
-static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
-    { UIWidgets::Colors::Red, "Red" },
-    { UIWidgets::Colors::DarkRed, "Dark Red" },
-    { UIWidgets::Colors::Orange, "Orange" },
-    { UIWidgets::Colors::Green, "Green" },
-    { UIWidgets::Colors::DarkGreen, "Dark Green" },
-    { UIWidgets::Colors::LightBlue, "Light Blue" },
-    { UIWidgets::Colors::Blue, "Blue" },
-    { UIWidgets::Colors::DarkBlue, "Dark Blue" },
-    { UIWidgets::Colors::Indigo, "Indigo" },
-    { UIWidgets::Colors::Violet, "Violet" },
-    { UIWidgets::Colors::Purple, "Purple" },
-    { UIWidgets::Colors::Brown, "Brown" },
-    { UIWidgets::Colors::Gray, "Gray" },
-    { UIWidgets::Colors::DarkGray, "Dark Gray" },
-};
-
-static const std::vector<const char*> textureFilteringOptions = {
-    "Three-Point", // Fast::FILTER_THREE_POINT,
-    "Linear",      // Fast::FILTER_LINEAR
-    "None",        // Fast::FILTER_NONE
-};
-
-#ifdef _DEBUG
-DebugLogOption defaultLogLevel = DEBUG_LOG_TRACE;
-#else
-DebugLogOption defaultLogLevel = DEBUG_LOG_INFO;
-#endif
-
-static const std::vector<const char*> logLevels = {
-    "Trace",    // DEBUG_LOG_TRACE
-    "Debug",    // DEBUG_LOG_DEBUG
-    "Info",     // DEBUG_LOG_INFO
-    "Warn",     // DEBUG_LOG_WARN
-    "Error",    // DEBUG_LOG_ERROR
-    "Critical", // DEBUG_LOG_CRITICAL
-    "Off",      // DEBUG_LOG_OFF
-};
-
-extern std::unordered_map<s16, const char*> warpPointSceneList;
-
 namespace LighthouseGui {
 extern std::shared_ptr<LighthouseMenu> mLighthouseMenu;
 

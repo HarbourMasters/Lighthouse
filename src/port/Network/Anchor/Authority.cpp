@@ -66,13 +66,6 @@ bool NetAuthority_IsClaimed(NetworkActivityId activity) {
     return Authority_SyncActive() && Authority_IsValidActivity(activity) && sActivities[activity].claimed;
 }
 
-uint32_t NetAuthority_GetOwner(NetworkActivityId activity) {
-    if (!Authority_IsValidActivity(activity) || !sActivities[activity].claimed) {
-        return 0;
-    }
-    return sActivities[activity].owner;
-}
-
 void NetAuthority_Claim(NetworkActivityId activity) {
     Anchor* anchor = Anchor::GetInstance();
     if (!Authority_SyncActive() || !Authority_IsValidActivity(activity)) {

@@ -8,10 +8,6 @@ extern "C" {
 extern u8 gCompletedBottlesBonusGames[7];
 }
 
-#define CVAR_INT_SHIP_INIT(cvar, val) \
-    CVarSetInteger(cvar, val);        \
-    ShipInit::Init(cvar);
-
 namespace LighthouseGui {
 
 // Live toggle state for the Bottles' Bonus gags (non-cvar checkboxes). Order matches

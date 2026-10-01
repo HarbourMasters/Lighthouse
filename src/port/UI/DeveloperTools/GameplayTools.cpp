@@ -11,6 +11,7 @@
 #include "port/Patches/Patches.h"
 #include "port/ShipInit.hpp"
 #include "port/ShipUtils.h"
+#include "port/GameStatus.h"
 
 #include <algorithm>
 #include <cstdio>

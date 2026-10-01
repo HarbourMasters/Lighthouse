@@ -25,12 +25,6 @@ static const std::unordered_map<int32_t, const char*> logLevels = {
     { DEBUG_LOG_OFF, "Off" },
 };
 
-// static const std::unordered_map<int32_t, const char*> debugInfoPages = {
-//     { DEBUG_PAGE_OBJECTINFO, "Object" }, { DEBUG_PAGE_CHECKSURFACEINFO, "Check Surface" },
-//     { DEBUG_PAGE_MAPINFO, "Map" },       { DEBUG_PAGE_STAGEINFO, "Stage" },
-//     { DEBUG_PAGE_EFFECTINFO, "Effect" }, { DEBUG_PAGE_ENEMYINFO, "Enemy" },
-// };
-
 static const std::unordered_map<int32_t, const char*> language = {
     { 0, "English" },
     { 1, "Japanese" },
