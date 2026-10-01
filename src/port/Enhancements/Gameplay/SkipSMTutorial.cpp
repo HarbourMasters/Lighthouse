@@ -10,6 +10,7 @@
 #include "core2/abilityprogress.h"
 
 extern "C" float sItemscoreTimeScores[];
+extern "C" void __chSmBottles_setHasUsedSpiralMountainAbilities(void);
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial")
 
@@ -19,11 +20,6 @@ constexpr ability_e kSpiralMountainAbilities[] = {
     ABILITY_F_DIVE,          ABILITY_4_CLAW_SWIPE, ABILITY_C_ROLL,
     ABILITY_B_RATATAT_RAP,   ABILITY_0_BARGE,      ABILITY_A_HOLD_A_JUMP_HIGHER,
     ABILITY_7_FEATHERY_FLAP, ABILITY_8_FLAP_FLIP,  ABILITY_5_CLIMB,
-};
-
-constexpr ability_used_e kSpiralMountainUsedMoves[] = {
-    ABILITY_USED_0_JUMP,       ABILITY_USED_1_FLAP, ABILITY_USED_2_FLIP, ABILITY_USED_3_SWIM,  ABILITY_USED_4_CLIMB,
-    ABILITY_USED_5_BEAK_BARGE, ABILITY_USED_A_PECK, ABILITY_USED_B_CLAW, ABILITY_USED_C_TWIRL,
 };
 
 } // namespace
@@ -39,9 +35,7 @@ void RegisterSkipSMTutorial_Init() {
             player_unlockAbility(ability);
         }
 
-        for (ability_used_e move : kSpiralMountainUsedMoves) {
-            ability_setUsed(move);
-        }
+        __chSmBottles_setHasUsedSpiralMountainAbilities();
 
         for (int honeycomb = HONEYCOMB_13_SM_STUMP; honeycomb <= HONEYCOMB_18_SM_QUARRIES; honeycomb++) {
             honeycombscore_set((honeycomb_e)honeycomb, true);
