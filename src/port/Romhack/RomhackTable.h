@@ -32,7 +32,7 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     { "bed22dd8ef931228fbc94f006dfc718a4d4f6f8c", "Gruntch", true },
 
     // Snow Glow Village
-    { "23596c2858283b847e9e0ff44785e35110002fc7", "SnowGlowVillage", false },
+    { "23596c2858283b847e9e0ff44785e35110002fc7", "SnowGlowVillage", true },
 
     // The Corrupted Jiggies
     { "9e20be78496d66f2e5f7930022a0fee769753488", "CorruptedJiggies", false },
