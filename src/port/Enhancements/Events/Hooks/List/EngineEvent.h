@@ -31,6 +31,7 @@ typedef struct {
 
 DEFINE_EVENT(OnModelDisplayListLoad, const char* path; u32 * dlWords; u32 dlWordCount; const ModelTexSize* texSizes;
              u16 texCount;);
+DEFINE_EVENT(OnModelBinBuilt, const char* path; void* bin;);
 DEFINE_EVENT(ViewportFrustumUpdate, float* frustumX; float* frustumY;);
 DEFINE_EVENT(CameraRotationAuthored, s32 source; s32 id; const f32* position; f32 * rotation;);
 DEFINE_EVENT(MapModelXluScale, s32 map; f32 * scale;);

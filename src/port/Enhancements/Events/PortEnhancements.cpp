@@ -26,6 +26,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnDialogLoaded);
     REGISTER_EVENT(OnModelLoad);
     REGISTER_EVENT(OnModelDisplayListLoad);
+    REGISTER_EVENT(OnModelBinBuilt);
     REGISTER_EVENT(ViewportFrustumUpdate);
     REGISTER_EVENT(CameraRotationAuthored);
     REGISTER_EVENT(MapModelXluScale);

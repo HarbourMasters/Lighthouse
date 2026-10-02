@@ -1,7 +1,11 @@
+#include <algorithm>
+#include <cmath>
 #include <cstring>
+#include <string>
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
+#include "port/ResourceHelpers.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/Shared/HackShared.h"
 
@@ -18,6 +22,7 @@ extern "C" {
 #include "core1/viewport.h"
 #include "core2/core2.h"
 #include "core2/gc/zoombox.h"
+#include "core2/model.h"
 #include "core2/modelRender.h"
 
 typedef struct {
@@ -165,10 +170,10 @@ constexpr int kSnowGlowSuppressedDialogs[] = {
     ASSET_DA0_DIALOG_GOLD_FEATHER_MEET,
     ASSET_DA1_DIALOG_HONEYCOMB_MEET,
     ASSET_DA3_DIALOG_EXTRA_LIFE_MEET,
-    0xF74, // MM 50-note milestone
-    0xF75, // past-the-50-note-door taunt
-    0xF76, // first-note-in-level reminder
-    0xF77, // repeat note-door taunt
+    0xF74,
+    0xF75,
+    0xF76,
+    0xF77,
 };
 
 void SnowGlow_EnableDialogGates() {
@@ -401,6 +406,64 @@ void SnowGlow_RecolorSnsEggBursts() {
         row[1] = entry.rgb[1];
         row[2] = entry.rgb[2];
     }
+}
+
+// The hack's pink egg is orange and its cyan egg brown. Each 5-bit channel of its palettes is
+// fitted over {r, g, b, r*r, g*g, r*g, 1} of the vanilla color.
+struct SnsEggPaletteFit {
+    s32 texture;
+    f32 channel[3][7];
+};
+constexpr SnsEggPaletteFit kSnsEggPaletteFits[] = {
+    { 4,
+      { { 1.1836f, -0.0172f, -0.3263f, 0.0f, 0.0f, 0.0f, 4.6328f },
+        { 1.5387f, 0.4889f, -1.0573f, 0.0f, 0.0f, 0.0f, 1.9088f },
+        { -0.2065f, 0.9897f, 0.3624f, 0.0f, 0.0f, 0.0f, -1.8458f } } },
+    { 5,
+      { { -0.3607f, -0.2209f, 0.4289f, -0.0272f, 0.0134f, 0.0542f, -6.0658f },
+        { 0.8751f, 0.0748f, 0.6073f, 0.0125f, -0.0032f, -0.0217f, -10.9947f },
+        { 3.0209f, 2.3332f, -0.1072f, 0.0474f, -0.0358f, -0.1227f, -32.6009f } } },
+};
+
+void SnowGlow_RecolorSnsEggPalettes(BKModelBin* bin) {
+    BKTextureList* textureList = modelbin_getTextureList(bin);
+    for (const auto& fit : kSnsEggPaletteFits) {
+        // CI8 palette, big-endian RGBA5551
+        u8* palette =
+            textureList_getDataPtr(textureList) + textureList_getTextureInfo(textureList, fit.texture)->offset;
+        for (s32 index = 0; index < 256; index++) {
+            u8* entry = palette + 2 * index;
+            const u16 color = (entry[0] << 8) | entry[1];
+            if (!(color & 1)) {
+                continue;
+            }
+            const f32 red = (color >> 11) & 0x1F;
+            const f32 green = (color >> 6) & 0x1F;
+            const f32 blue = (color >> 1) & 0x1F;
+            const f32 terms[7] = { red, green, blue, red * red, green * green, red * green, 1.0f };
+            u16 recolored = 1;
+            for (s32 channel = 0; channel < 3; channel++) {
+                f32 level = 0.0f;
+                for (s32 term = 0; term < 7; term++) {
+                    level += fit.channel[channel][term] * terms[term];
+                }
+                recolored |= std::clamp((s32)std::floor(level + 0.5f), 0, 31) << (11 - 5 * channel);
+            }
+            entry[0] = recolored >> 8;
+            entry[1] = recolored & 0xFF;
+        }
+    }
+}
+
+void SnowGlow_EnableSnsEggPalettes() {
+    REGISTER_LISTENER(OnModelBinBuilt, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = reinterpret_cast<OnModelBinBuilt*>(event);
+        std::string eggPath = ResourceHelpers_GetActiveAssetPath(ASSET_50D_MODEL_SNS_EGG);
+        std::replace(eggPath.begin(), eggPath.end(), '\\', '/');
+        if (eggPath == ev->path) {
+            SnowGlow_RecolorSnsEggPalettes((BKModelBin*)ev->bin);
+        }
+    });
 }
 
 bool SnowGlow_AllSnsCollected() {
@@ -702,6 +765,7 @@ void RegisterSnowGlowVillagePatches() {
     HackShared_EnableJiggyRelocation(kSnowGlowJiggyRelocations, kForceCollectedJiggies);
     SnowGlow_EnableHoneycombTotals();
     SnowGlow_RecolorSnsEggBursts();
+    SnowGlow_EnableSnsEggPalettes();
     SnowGlow_EnableStopNSwop();
     SnowGlow_EnableSnsPausePage();
     SnowGlow_SuppressGobi2();
