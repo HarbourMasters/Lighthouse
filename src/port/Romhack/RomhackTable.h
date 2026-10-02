@@ -38,7 +38,7 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     { "9e20be78496d66f2e5f7930022a0fee769753488", "CorruptedJiggies", false },
 
     // Bubbling Bog Brewery Redone
-    { "af7c71b034b2d7af867cd0aec8751c49aca1f0bc", "BubblingBog", false },
+    { "af7c71b034b2d7af867cd0aec8751c49aca1f0bc", "BubblingBog", true },
 
     // Cheatos Challenges
     { "017bf33d80b22d7926a9839f09fd1c52f83d3b97", "CheatosChallenges", true },
@@ -61,7 +61,7 @@ static constexpr RomhackTableEntry kRomhackTable[] = {
     { "7a7a07c26d77530dc45caf8ab96e9056ea2877e1", "Nostalgia64", true },
 
     // Legend of the Crystal Jiggy
-    { "d39888448ada3331c580ed0c077285790cf941f1", "LegendOfTheCrystalJiggy", false },
+    { "d39888448ada3331c580ed0c077285790cf941f1", "LegendOfTheCrystalJiggy", true },
 
     // Fort Fun
     { "bd37a03ed8b1a4cc5a5b4edd9e432376ad7e8c3d", "FortFun", false },
