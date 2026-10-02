@@ -1033,8 +1033,7 @@ void func_80387730(Actor *this) {
             code_73640_printItemCount(0xC);
         }
         doorIdx = this->actorTypeSpecificField - 1;
-        noteThreshold = port_getRomhackNoteDoor(doorIdx);
-        if (noteThreshold < 0) { noteThreshold = D_8039347C[doorIdx]; }
+        noteThreshold = port_getNoteDoorCost(doorIdx);
         if (forceOpen || itemscore_noteScores_getTotal() >= noteThreshold) {
             if (this->marker->unk14_21) {
                 func_8032BC60(this, 5, sp90);
@@ -1216,9 +1215,7 @@ Actor *func_80387DA8(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx)
      * Hides all note door graphics that don't match this note door's index
      * e.g. for the 50 note door, hides 180, 260, etc.
      */
-    // [port] Romhack gate: a listener may blank this door's baked number (the digits
-    // are a fixed mesh, so an overridden threshold would show the wrong one).
-    bool showNumber = EventSystem_Should(VB_NOTEDOOR_DRAW_NUMBER, true, actor->noteDoorIdx);
+    bool showNumber = EventSystem_Should(VB_NOTEDOOR_DRAW_NUMBER, true, actor->noteDoorIdx, marker);
     for (i = 0; i != NUM_NOTE_DOORS; i++)
         modelRender_setAppendageVisibility(i + 1, showNumber && (actor->noteDoorIdx + 1 == i + 2));
 

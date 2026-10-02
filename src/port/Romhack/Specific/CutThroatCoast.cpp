@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
 
 extern "C" {
@@ -205,9 +206,8 @@ void RegisterCutThroatCoastPatches() {
         (void)should;
     });
 
-    // TODO: CTC has an extra data blob separate from the asset table where a custom
-    // gravestone and note door (100) live. Its retuned note-door numbers are blanked
-    // generically by HackShared until the blob's assets can be applied.
+    // TODO: CTC's blob also patches the gravestone model's display lists once it loads.
+    port_enableNoteDoorComposer();
 
     // Exiting via the exit pad should go back to the CTC lobby map
     REGISTER_VB_SHOULD(VB_MAP_CHANGE_REQUEST, EVENT_PRIORITY_NORMAL, {
