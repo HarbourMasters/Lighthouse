@@ -741,9 +741,9 @@ extern "C" Actor* SnowGlow_MoggyDraw(ActorMarker* marker, Gfx** gfx, Mtx** mtx, 
 }
 
 // These maps shrink the podium, so its standing check is adjusted to compensate
-constexpr PodiumFloor kSnowGlowPodiumFloors[] = {
-    { MAP_15_GV_WATER_PYRAMID, -240.0f },
-};
+// constexpr PodiumFloor kSnowGlowPodiumFloors[] = {
+//     { MAP_15_GV_WATER_PYRAMID, -240.0f },
+// };
 
 void RegisterSnowGlowVillagePatches() {
     D_80394C70.update_func = SnowGlow_PrizeUpdate;
@@ -775,7 +775,7 @@ void RegisterSnowGlowVillagePatches() {
     HackShared_EnableWarpMusicGroups(kSnowGlowMusicGroups);
     HackShared_EnableMumboReward();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
-    HackShared_EnablePodiumCheck(kSnowGlowPodiumFloors);
+    // HackShared_EnablePodiumCheck(kSnowGlowPodiumFloors);
     port_enableNoteDoorComposer();
     port_overrideRomhackHoneycombsPerWorld(6);
 }
