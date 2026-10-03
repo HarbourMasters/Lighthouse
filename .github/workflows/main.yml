@@ -122,29 +122,41 @@ jobs:
 
   build-linux:
     needs: generate-port-o2r
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            arch: x86_64
+          - runner: ubuntu-22.04-arm
+            arch: aarch64
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Update machine
-        run: sudo apt update
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt update
       - name: Install dependencies
-        run: sudo apt-get install gcc g++ git cmake ninja-build lsb-release libsdl2-dev libpng-dev libsdl2-net-dev libzip-dev zipcmp zipmerge ziptool nlohmann-json3-dev libtinyxml2-dev libspdlog-dev libboost-dev libopengl-dev libogg-dev libvorbis-dev
+        run: |
+          sudo apt-get install gcc-14 g++-14 git cmake ninja-build lsb-release libsdl2-dev libpng-dev libsdl2-net-dev libzip-dev zipcmp zipmerge ziptool nlohmann-json3-dev libtinyxml2-dev libspdlog-dev libboost-dev libopengl-dev libogg-dev libvorbis-dev
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 --slave /usr/bin/g++ g++ /usr/bin/g++-14
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2.23
         with:
-          key: linux-ccache-${{ github.ref }}-${{ github.sha }}
+          key: linux-${{ matrix.arch }}-ccache-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            linux-ccache-${{ github.ref }}
-            linux-ccache-
+            linux-${{ matrix.arch }}-ccache-${{ github.ref }}
+            linux-${{ matrix.arch }}-ccache-
       - name: Cache build folders
         uses: actions/cache@v5
         with:
-          key: linux-build-${{ github.ref }}-${{ github.sha }}
+          key: linux-${{ matrix.arch }}-build-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            linux-build-${{ github.ref }}
-            linux-build-
+            linux-${{ matrix.arch }}-build-${{ github.ref }}
+            linux-${{ matrix.arch }}-build-
           path: |
             SDL2-2.30.3
             tinyxml2-10.0.0
@@ -160,7 +172,10 @@ jobs:
           ./configure --enable-hidapi-libusb
           make -j 10
           sudo make install
-          sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
+          sudo cp -av /usr/local/lib/libSDL* /lib/${{ matrix.arch }}-linux-gnu/
+      - uses: ./.github/actions/install-sdl2-net
+      - name: Copy SDL libs to multiarch dir
+        run: sudo cp -av /usr/local/lib/libSDL* /lib/${{ matrix.arch }}-linux-gnu/
       - name: Install latest tinyxml2
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -185,7 +200,7 @@ jobs:
           cmake .. -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF
           make
           sudo make install
-          sudo cp -av /usr/local/lib/libzip* /lib/x86_64-linux-gnu/
+          sudo cp -av /usr/local/lib/libzip* /lib/${{ matrix.arch }}-linux-gnu/
       - name: Download lighthouse.o2r
         uses: actions/download-artifact@v8
         with:
@@ -193,7 +208,7 @@ jobs:
           path: ./build-cmake
       - name: Build
         run: |
-          cmake -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE=Release
+          cmake -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
           cmake --build build-cmake --config Release -j3
           (cd build-cmake && cpack -G External)
           wget -O gamecontrollerdb.txt https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/refs/heads/master/gamecontrollerdb.txt
@@ -202,7 +217,7 @@ jobs:
       - name: Upload build
         uses: actions/upload-artifact@v7
         with:
-          name: Lighthouse-linux
+          name: Lighthouse-linux-${{ matrix.arch }}
           path: |
             lighthouse.appimage
             readme.txt
