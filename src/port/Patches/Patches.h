@@ -124,6 +124,11 @@ void port_unlockAudio(void);
 void port_audioIntMaskEnter(void);
 void port_audioIntMaskExit(void);
 
+// Note doors (NoteDoorNumbers.cpp)
+
+int port_getNoteDoorCost(int doorIdx);
+void port_enableNoteDoorComposer(void);
+
 // Romhacks
 
 void* port_getRomhackResumeWarpFunc(void);

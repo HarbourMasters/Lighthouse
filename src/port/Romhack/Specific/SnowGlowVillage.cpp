@@ -1,6 +1,7 @@
 #include <cstring>
 #include <libultraship/bridge.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Romhack/Shared/HackShared.h"
 
@@ -704,5 +705,6 @@ void RegisterSnowGlowVillagePatches() {
     HackShared_EnableWarpMusicGroups(kSnowGlowMusicGroups);
     HackShared_EnableMumboReward();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
+    port_enableNoteDoorComposer();
     port_overrideRomhackHoneycombsPerWorld(6);
 }

@@ -202,18 +202,8 @@ void ApplyJiggyRelocation() {
     });
 }
 
-void ApplyNoteDoorNumbers() {
-    COND_VB_SHOULD(VB_NOTEDOOR_DRAW_NUMBER, EVENT_PRIORITY_NORMAL, port_isRomhack(), {
-        const s32 noteDoorIdx = va_arg(args, s32);
-        if (noteDoorIdx >= 1 && port_getRomhackNoteDoor(noteDoorIdx - 1) >= 0) {
-            *should = false;
-        }
-    });
-}
-
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
-RegisterShipInitFunc noteDoorNumberInit(ApplyNoteDoorNumbers, { "BOOT" });
 
 } // namespace
 
