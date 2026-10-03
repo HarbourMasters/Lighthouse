@@ -29,9 +29,12 @@ void level_load(enum map_e map){
     if(game_getKeepLevelState()){
         game_clearKeepLevelState();
     }else{
-        if( sLevelState.level != LEVEL_6_LAIR 
+        // [port] Romhack gate: hacks have their own rule for which level entries count.
+//      if( sLevelState.level != LEVEL_6_LAIR
+        if( EventSystem_Should(VB_LEVEL_ENTERED_FROM_LAIR, sLevelState.level != LEVEL_6_LAIR
             && sLevelState.level != LEVEL_C_BOSS
-            && prev_lvl == LEVEL_6_LAIR
+//          && prev_lvl == LEVEL_6_LAIR
+            && prev_lvl == LEVEL_6_LAIR, prev_lvl, sLevelState.level)
         ){
             sLevelState.entered_from_lair = 1;
         }

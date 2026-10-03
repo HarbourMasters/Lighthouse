@@ -1136,6 +1136,9 @@ void func_802D5628(void){
             case 0x1: // L802D57C8
                 if(!D_80367690){
                     timedFunc_set_2(0.4f, (GenFunction_2) func_802D4D3C, 0x34, 0x205);
+                    if (EventSystem_Should(VB_MM_WITCH_SWITCH_JIGGY_FLUSH, false)) {
+                        timedFunc_set_1(1.9f, (GenFunction_1) gcsfx_play, SFX_92_TOILET_FLUSH);
+                    }
                     D_80367690++;
                 }
                 break;

@@ -5,6 +5,7 @@
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
 #include "enums.h"
@@ -13,8 +14,8 @@
 #define CVAR CVarGetInteger(CVAR_DISABLE_SNACKER, 0)
 
 void RegisterDisableSnacker_Init() {
-    COND_VB_SHOULD(VB_DISABLE_SNACKER, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_DISABLE_SNACKER, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_DISABLE_SNACKER, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_DISABLE_SNACKER, 0) && !port_isRomhack(), { *should = false; });
 }
 
 static RegisterShipInitFunc initFunc(RegisterDisableSnacker_Init, { CVAR_DISABLE_SNACKER });

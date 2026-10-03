@@ -5,6 +5,7 @@
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
 #include "enums.h"
@@ -13,7 +14,7 @@
 #define CVAR CVarGetInteger(CVAR_EASIER_MR_VILE, 0)
 
 void RegisterEasierMrVile_Init() {
-    COND_HOOK(OnMrVileSetSpeed, EVENT_PRIORITY_NORMAL, CVAR, [](IEvent* event) {
+    COND_HOOK(OnMrVileSetSpeed, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(), [](IEvent* event) {
         auto* ev = reinterpret_cast<OnMrVileSetSpeed*>(event);
         *ev->speed *= 0.95f;
     });

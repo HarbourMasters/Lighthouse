@@ -17,6 +17,8 @@ void HackShared_EnableNoteSignSuppression(int signActorId);
 void HackShared_EnableBottlesExplainerSuppression();
 void HackShared_EnableDialogSuppression(const int* dialogIds, int count);
 void HackShared_EnableForceAbilitiesUsed(const ability_used_e* moves, int count);
+// Game over returns to file select without the machine-room cutscene; cutscene skips ignore story progress
+void HackShared_EnableFileSelectGameOver();
 
 template <int N> inline void HackShared_EnableDialogSuppression(const int (&dialogIds)[N]) {
     HackShared_EnableDialogSuppression(dialogIds, N);
@@ -51,6 +53,27 @@ inline void HackShared_EnableJiggyRelocation(const JiggyRelocation (&groups)[N],
     HackShared_EnableJiggyRelocation(groups, N, alsoExcluded, M);
 }
 
+// Caps every level's retallied total
+void HackShared_SetJiggyLevelCap(int cap);
+
+// ------------------------------------------------------------------ Lair puzzles
+
+// The player counts as on a podium within 140 units of its center and at least 38
+// above it; a listed map checks a fixed height instead
+struct PodiumFloor {
+    int map;
+    float minY;
+};
+
+void HackShared_EnablePodiumCheck(const PodiumFloor* floors = nullptr, int count = 0);
+
+template <int N> inline void HackShared_EnablePodiumCheck(const PodiumFloor (&floors)[N]) {
+    HackShared_EnablePodiumCheck(floors, N);
+}
+
+// Pieces placed past a puzzle's cost are taken back on every map load
+void HackShared_EnablePuzzleDepositClamp();
+
 // ------------------------------------------------------------------ Warp music
 
 // Music keeps playing across a warp when the current and destination maps are
@@ -64,6 +87,37 @@ void HackShared_EnableWarpMusicGroups(const WarpMusicGroup* groups, int groupCou
 
 template <int N> inline void HackShared_EnableWarpMusicGroups(const WarpMusicGroup (&groups)[N]) {
     HackShared_EnableWarpMusicGroups(groups, N);
+}
+
+// ------------------------------------------------------------------ Map transitions
+
+struct TransitionPair {
+    int from;
+    int to;
+    int in;
+    int out;
+};
+
+void HackShared_EnableTransitionPairs(const TransitionPair* pairs, int count);
+
+template <int N> inline void HackShared_EnableTransitionPairs(const TransitionPair (&pairs)[N]) {
+    HackShared_EnableTransitionPairs(pairs, N);
+}
+
+// ------------------------------------------------------------------ Spawn rewrites
+
+// Spawn flags and draw distance a hack changes as an actor is created
+struct SpawnRewrite {
+    int actorId;
+    unsigned clearFlags;
+    unsigned setFlags;
+    int drawDistance;
+};
+
+void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count);
+
+template <int N> inline void HackShared_EnableSpawnRewrites(const SpawnRewrite (&rewrites)[N]) {
+    HackShared_EnableSpawnRewrites(rewrites, N);
 }
 
 // ------------------------------------------------------------------ Mumbo reward
@@ -138,3 +192,4 @@ struct StealthNoiseConfig {
 
 void StealthNoise_Enable(const StealthNoiseConfig& cfg);
 void StealthNoise_AddBurst(float amount, float seconds);
+bool StealthNoise_CaughtThisMap();

@@ -79,11 +79,12 @@ void RegisterReturnToLair_Init() {
         }
     });
 
-    COND_VB_SHOULD(VB_PAUSE_MENU_PORTRAIT_DEPTH, EVENT_PRIORITY_NORMAL, CVAR, { *should = false; });
+    COND_VB_SHOULD(VB_PAUSE_MENU_PORTRAIT_DEPTH, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(),
+                   { *should = false; });
 
     // Shrink the pause-menu zoombox text so the longer string fits at the vanilla box scale.
     // Only sub-1.0 boxes (the pause menus) are touched; the box scale arrives as the first vararg.
-    COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, CVAR, {
+    COND_VB_SHOULD(VB_ZOOMBOX_TEXT_ADJUST, EVENT_PRIORITY_NORMAL, CVAR && !port_isRomhack(), {
         double boxScale = va_arg(args, double);
         f32* outScale = va_arg(args, f32*);
         int* xOfs = va_arg(args, int*);

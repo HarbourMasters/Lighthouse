@@ -5,6 +5,7 @@
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
 #include "port/Romhack/RomhackConfig.h"
+#include "port/Romhack/Shared/HackShared.h"
 
 extern "C" {
 #include "enums.h"
@@ -23,28 +24,26 @@ typedef struct {
     u8 alpha;
 } CameraFogEntry;
 extern CameraFogEntry sCore2_37E50UnderwaterTints[];
-
-typedef struct {
-    u8 uid;
-    u8 state;
-    u8 next_state;
-    f32 duration;
-    s32 model_index;
-    s32 anim_index;
-    f32 scale;
-} TransitionInfoEntry;
-extern TransitionInfoEntry D_8036C150[0x16];
 }
 
 namespace {
 
-// Custom transition pair
-constexpr s32 kPairMapA = MAP_2_MM_MUMBOS_MOUNTAIN;
-constexpr s32 kPairMapB = MAP_31_RBB_RUSTY_BUCKET_BAY;
-constexpr s32 kPairInIndex = 0xD;
+constexpr int kCutThroatSuppressedDialogs[] = {
+    ASSET_D96_DIALOG_BEEHIVE_MEET,
+    ASSET_D97_DIALOG_JINJO_MEET_YELLOW,
+    ASSET_D98_DIALOG_JINJO_MEET_BLUE,
+    ASSET_D99_DIALOG_JINJO_MEET_GREEN,
+    ASSET_D9A_DIALOG_JINJO_MEET_PINK,
+    ASSET_D9B_DIALOG_JINJO_MEET_ORANGE,
+    0xF75,
+    0xF76,
+    0xF77,
+};
 
-GameMap sPrevMap = (GameMap)0;
-GameMap sCurMap = (GameMap)0;
+constexpr TransitionPair kCutThroatTransitions[] = {
+    { MAP_31_RBB_RUSTY_BUCKET_BAY, MAP_2_MM_MUMBOS_MOUNTAIN, 0xD, 0xE },
+    { MAP_2_MM_MUMBOS_MOUNTAIN, MAP_31_RBB_RUSTY_BUCKET_BAY, 0xD, 0xE },
+};
 
 struct PauseRemap {
     int src;
@@ -71,17 +70,6 @@ void RebuildPauseMenuTable() {
 
 void ApplyDataPatches() {
     sCore2_37E50UnderwaterTints[3] = { 0, { 0x34, 0x6E, 0xEF }, 0x5A };
-    D_8036C150[3].state = 7;      // TRANSITION_STATE_7_WHITE_IN
-    D_8036C150[3].next_state = 0; // TRANSITION_STATE_0_NONE
-    D_8036C150[3].duration = 0.7f;
-    D_8036C150[3].model_index = 0;
-    D_8036C150[3].anim_index = 0;
-    D_8036C150[12].duration = 0.4f;
-    D_8036C150[13].state = 3;      // TRANSITION_STATE_3_BLACK_OUT
-    D_8036C150[13].next_state = 1; // TRANSITION_STATE_1_LOADING
-    D_8036C150[13].duration = 0.4f;
-    D_8036C150[13].model_index = 0;
-    D_8036C150[13].scale = 0.0f;
 }
 
 // Lighthouse beam sweep
@@ -140,6 +128,8 @@ void UpdateLighthouseBeam() {
 
 } // namespace
 
+void CluckerCutscene_ForceSkip();
+
 extern "C" void CutThroatCoast_DoubloonUpdate(Actor* thisx) {
     thisx->yaw = mlNormalizeAngle(thisx->yaw + 12.0f);
     chCarriedAcorn_update(thisx);
@@ -156,11 +146,20 @@ void RegisterCutThroatCoastPatches() {
         UpdateLighthouseBeam();
     });
 
-    // Track map changes for the custom MM <-> RBB transition below.
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_HIGH, [](IEvent* event) {
-        auto* ev = reinterpret_cast<OnMapLoad*>(event);
-        sPrevMap = ev->prevMap;
-        sCurMap = ev->nextMap;
+    HackShared_EnableTransitionPairs(kCutThroatTransitions);
+    HackShared_EnableFileSelectGameOver();
+    HackShared_EnableDialogSuppression(kCutThroatSuppressedDialogs);
+    HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
+    CluckerCutscene_ForceSkip();
+
+    // The hack drops the first-time explainer and hazard dialogs
+    REGISTER_VB_SHOULD(VB_PROGRESS_FLAG_DIALOG, EVENT_PRIORITY_NORMAL, { *should = false; });
+
+    // Only the walk into the coast plays the level entrance
+    REGISTER_VB_SHOULD(VB_LEVEL_ENTERED_FROM_LAIR, EVENT_PRIORITY_NORMAL, {
+        const s32 prevLevel = va_arg(args, s32);
+        const s32 level = va_arg(args, s32);
+        *should = prevLevel == LEVEL_B_SPIRAL_MOUNTAIN && level == LEVEL_A_MAD_MONSTER_MANSION;
     });
 
     // Pause menu pins below
@@ -227,21 +226,11 @@ void RegisterCutThroatCoastPatches() {
         *should = false;
     });
 
-    REGISTER_VB_SHOULD(VB_MAP_TRANSITION_IN_INDEX, EVENT_PRIORITY_NORMAL, {
-        s32 map = va_arg(args, s32);
-        s32* inIndex = va_arg(args, s32*);
-        s32 other = (map == sCurMap) ? sPrevMap : sCurMap;
-        if ((map == kPairMapA && other == kPairMapB) || (map == kPairMapB && other == kPairMapA)) {
-            *inIndex = kPairInIndex;
-        }
-        (void)should;
-    });
-
-    // The repurposed season switches are hidden below the ground when hit
-    REGISTER_VB_SHOULD(VB_CCW_SEASON_SWITCH_PRESSED_INIT, EVENT_PRIORITY_NORMAL, {
-        Actor* switchActor = va_arg(args, Actor*);
-        switchActor->position[1] = -420.0f;
-        subaddie_set_state(switchActor, 4);
+    // The spring door is a rock
+    REGISTER_VB_SHOULD(VB_CCW_SEASON_DOOR_RAISED_INIT, EVENT_PRIORITY_NORMAL, {
+        Actor* door = va_arg(args, Actor*);
+        door->position[1] = -420.0f;
+        subaddie_set_state(door, 4);
         *should = false;
     });
 

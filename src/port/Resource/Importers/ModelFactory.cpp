@@ -746,6 +746,8 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
-    return MakeBlob(initData, std::move(out));
+    auto blob = MakeBlob(initData, std::move(out));
+    CALL_EVENT(OnModelBinBuilt, initData->Path.c_str(), blob->Data.data());
+    return blob;
 }
 } // namespace Factories

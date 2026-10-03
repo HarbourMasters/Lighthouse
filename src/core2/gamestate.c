@@ -173,7 +173,8 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
         case ITEM_C_NOTE:
             sp28 = itemscore_noteScores_get(level_get());
             itemscore_noteScores_update(D_80385F30[item]);
-            if(D_80385F30[item] == 100 && sp28 != 100){
+//          if(D_80385F30[item] == 100 && sp28 != 100){
+            if(D_80385F30[item] == port_getNotesPerLevel() && sp28 != port_getNotesPerLevel()){
                 coMusicPlayer_playMusic(COMUSIC_36_100TH_NOTE_COLLECTED, 20000);
                 item_inc(ITEM_16_LIFE);
             }
@@ -192,6 +193,9 @@ s32 item_adjustByDiff(enum item_e item, s32 diff, s32 no_hud, s32 triggerEvent){
 s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Displays the HUD during the adjustment
+    if (!EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, diff)) {
+        return D_80385F30[item];
+    }
     return item_adjustByDiff(item, diff, 0, 1);
 }
 
@@ -199,6 +203,9 @@ s32 item_adjustByDiffWithHud(enum item_e item, s32 diff){
 void item_adjustByDiffWithoutHud(enum item_e item, s32 diff){
     // Modifies the count of an item by the diff
     // Does not display the HUD during the adjustment
+    if (!EventSystem_Should(VB_ITEM_ADJUST_BY_DIFF, true, item, diff)) {
+        return;
+    }
     item_adjustByDiff(item, diff, 1, 1);
 }
 
@@ -312,7 +319,9 @@ void func_803465E4(void){
         }
     }//L80346710
 
-    if(sp50){
+    // [port] Romhack gate: false = keep the health HUD hidden on this map.
+//  if(sp50){
+    if(sp50 && EventSystem_Should(VB_HEALTH_HUD_SHOW, true, gsworld_getMap())){
         item_adjustByDiffWithHud(ITEM_14_HEALTH, 0);
     }
 
@@ -441,7 +450,8 @@ void itemscore_noteScores_update(s32 note_count) {
             if ((level_get() == LEVEL_1_MUMBOS_MOUNTAIN) && (note_count == 50)) {
                 gcdialog_showDialog(VER_SELECT(0xF74, 0xADA, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
-            if (note_count == 100) {
+//          if (note_count == 100) {
+            if (note_count == notesMax) {
                 gcdialog_showDialog(VER_SELECT(0xF78, 0xADE, 0, 0), 4, NULL, NULL, NULL, NULL);
             }
             if (note_count == 1) {

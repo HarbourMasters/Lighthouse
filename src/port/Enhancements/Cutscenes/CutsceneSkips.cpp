@@ -6,6 +6,7 @@
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Romhack/RomhackConfig.h"
 #include "port/ShipInit.hpp"
 
 extern "C" {
@@ -27,18 +28,18 @@ void coMusicPlayer_playMusic(enum comusic_e track_id, s32 volume);
 #define CVAR_TRIGGER_FF_PARADE CVAR_DEVELOPER_TOOLS("TriggerFFParade")
 
 void RegisterSkipBootLogos_Init() {
-    COND_VB_SHOULD(VB_PLAY_BOOT_LOGOS, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_PLAY_BOOT_LOGOS, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_BOOT_LOGOS, 0) && !port_isRomhack(), { *should = false; });
 }
 
 void RegisterSkipIntroCutscene_Init() {
-    COND_VB_SHOULD(VB_PLAY_INTRO_CUTSCENE, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_SKIP_INTRO, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_PLAY_INTRO_CUTSCENE, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_SKIP_INTRO, 0) && !port_isRomhack(), { *should = false; });
 }
 
 void RegisterSkipMiscCutscenes_Init() {
-    COND_HOOK(OnMiscCutscenesCheck, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0),
-              [](IEvent* event) {
+    COND_HOOK(OnMiscCutscenesCheck, EVENT_PRIORITY_NORMAL,
+              CVarGetInteger(CVAR_SKIP_MISC_CUTSCENES, 0) && !port_isRomhack(), [](IEvent* event) {
                   auto* ev = reinterpret_cast<OnMiscCutscenesCheck*>(event);
                   *ev->skipMiscCutscenes = true;
               });

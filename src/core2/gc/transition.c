@@ -424,7 +424,10 @@ void gctransition_8030BE3C(void){
 
 void gctransition_8030BE60(void){
     TransitionInfo *tmp_a1;
-    tmp_a1 = _gctranstion_8030B400(_gctranstion_get_map_transition_info(gsworld_getMap())->out_index);
+    s32 out_index = _gctranstion_get_map_transition_info(gsworld_getMap())->out_index;
+    EventSystem_Should(VB_MAP_TRANSITION_OUT_INDEX, true, gsworld_getMap(), GetCurrentMap(), &out_index);
+//  tmp_a1 = _gctranstion_8030B400(_gctranstion_get_map_transition_info(gsworld_getMap())->out_index);
+    tmp_a1 = _gctranstion_8030B400(out_index);
    picturebox_func_8030C180();
    _gctranstion_changeState(tmp_a1->state, tmp_a1);
 }

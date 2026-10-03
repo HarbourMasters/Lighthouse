@@ -1,3 +1,4 @@
+#include <cmath>
 #include <libultraship/bridge.h>
 #include "port/UI/cvar_prefixes.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
@@ -13,6 +14,21 @@ extern "C" {
 #include "core2/abilityprogress.h"
 
 extern ActorArray* suBaddieActorArray;
+
+typedef struct {
+    u8 uid;
+    u8 state;
+    u8 next_state;
+    f32 duration;
+    s32 model_index;
+    s32 anim_index;
+    f32 scale;
+} TransitionInfoEntry;
+extern TransitionInfoEntry D_8036C150[0x16];
+
+s32 _puzzleCost(s32 index);
+s32 _puzzleSize(s32 index);
+s32 _puzzleFlag(s32 index);
 
 extern s32 print_sCurrentFont;
 extern s32 print_sMonospacedModeEnabled;
@@ -141,6 +157,18 @@ void ApplyWarpMusicGroups() {
     });
 }
 
+bool sFileSelectGameOver = false;
+
+void ApplyFileSelectGameOver() {
+    COND_VB_SHOULD(VB_GAME_OVER_RETURN_MAP, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, {
+        s32* map = va_arg(args, s32*);
+        *map = MAP_91_FILE_SELECT;
+        (void)should;
+    });
+    COND_VB_SHOULD(VB_CUTSCENE_SKIP_REQUIRE_PROGRESS, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
+    COND_VB_SHOULD(VB_GAME_OVER_MACHINE_ROOM, EVENT_PRIORITY_NORMAL, sFileSelectGameOver, { *should = false; });
+}
+
 // Mark moves as already used
 void ApplyForceAbilitiesUsed() {
     COND_HOOK(OnSaveLoad, EVENT_PRIORITY_NORMAL, sForcedUsedAbilities != 0, [](IEvent*) {
@@ -157,6 +185,7 @@ const JiggyRelocation* sJiggyRelocations = nullptr;
 int sJiggyRelocationCount = 0;
 const int* sJiggyExcluded = nullptr;
 int sJiggyExcludedCount = 0;
+int sJiggyLevelCap = 0;
 
 bool JiggyRelocated(s32 id) {
     for (int g = 0; g < sJiggyRelocationCount; g++) {
@@ -197,10 +226,108 @@ void ApplyJiggyRelocation() {
             }
         }
 
+        if (sJiggyLevelCap > 0 && total > sJiggyLevelCap) {
+            total = sJiggyLevelCap;
+        }
         *result = total;
         *should = false;
     });
 }
+
+const PodiumFloor* sPodiumFloors = nullptr;
+int sPodiumFloorCount = 0;
+bool sPodiumCheckEnabled = false;
+
+bool PlayerOnPodium(Actor* podium) {
+    f32 pos[3];
+    player_getPosition(pos);
+    const f32 dx = pos[0] - podium->position[0];
+    const f32 dz = pos[2] - podium->position[2];
+    if (sqrtf(dx * dx + dz * dz) > 140.0f) {
+        return false;
+    }
+    for (int i = 0; i < sPodiumFloorCount; i++) {
+        if (sPodiumFloors[i].map == gsworld_getMap()) {
+            return pos[1] >= sPodiumFloors[i].minY;
+        }
+    }
+    return pos[1] - podium->position[1] >= 38.0f;
+}
+
+void ApplyPodiumCheck() {
+    COND_VB_SHOULD(VB_JIGSAW_PODIUM_COLLIDE, EVENT_PRIORITY_NORMAL, sPodiumCheckEnabled, {
+        ActorMarker* marker = va_arg(args, ActorMarker*);
+        *should = PlayerOnPodium(marker_getActor(marker));
+    });
+}
+
+bool sPuzzleDepositClamp = false;
+
+void ApplyPuzzleDepositClamp() {
+    COND_HOOK(OnMapLoadStub, EVENT_PRIORITY_NORMAL, sPuzzleDepositClamp, [](IEvent*) {
+        for (s32 i = 0; i < 11; i++) {
+            const enum file_progress_e flag = (enum file_progress_e)_puzzleFlag(i);
+            const s32 bits = _puzzleSize(i);
+            const s32 cost = _puzzleCost(i);
+            if ((u32)cost < fileProgressFlag_getN(flag, bits)) {
+                fileProgressFlag_setN(flag, cost, bits);
+            }
+        }
+    });
+}
+
+// Map transitions
+const TransitionPair* sTransitionPairs = nullptr;
+int sTransitionPairCount = 0;
+s32 sTransitionFromMap = 0;
+
+const TransitionPair* FindTransitionPair(s32 from, s32 to) {
+    for (int i = 0; i < sTransitionPairCount; i++) {
+        const TransitionPair& pair = sTransitionPairs[i];
+        if ((pair.from == 0 || pair.from == from) && (pair.to == 0 || pair.to == to)) {
+            return &pair;
+        }
+    }
+    return nullptr;
+}
+
+void ApplyTransitionPairs() {
+    D_8036C150[3].state = 7; // TRANSITION_STATE_7_WHITE_IN
+    D_8036C150[3].next_state = 0;
+    D_8036C150[3].duration = 0.7f;
+    D_8036C150[3].model_index = 0;
+    D_8036C150[3].scale = 0.0f;
+    D_8036C150[12].duration = 0.4f;
+    D_8036C150[13].state = 3;      // TRANSITION_STATE_3_BLACK_OUT
+    D_8036C150[13].next_state = 1; // TRANSITION_STATE_1_LOADING
+    D_8036C150[13].duration = 0.4f;
+    D_8036C150[13].model_index = 0;
+    D_8036C150[13].scale = 0.0f;
+
+    COND_VB_SHOULD(VB_MAP_TRANSITION_OUT_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
+        const s32 from = va_arg(args, s32);
+        const s32 to = va_arg(args, s32);
+        s32* outIndex = va_arg(args, s32*);
+        sTransitionFromMap = from;
+        if (const TransitionPair* pair = FindTransitionPair(from, to)) {
+            *outIndex = pair->out;
+        }
+        (void)should;
+    });
+
+    COND_VB_SHOULD(VB_MAP_TRANSITION_IN_INDEX, EVENT_PRIORITY_NORMAL, sTransitionPairCount > 0, {
+        const s32 map = va_arg(args, s32);
+        s32* inIndex = va_arg(args, s32*);
+        const TransitionPair* pair = sTransitionFromMap != 0 ? FindTransitionPair(sTransitionFromMap, map) : nullptr;
+        if (pair != nullptr) {
+            *inIndex = pair->in;
+        }
+        (void)should;
+    });
+}
+
+const SpawnRewrite* sSpawnRewrites = nullptr;
+int sSpawnRewriteCount = 0;
 
 RegisterShipInitFunc noteSignInitFunc(ApplyNoteSignHooks, { CVAR_NOTE_RETENTION });
 RegisterShipInitFunc pauseNameCenterInit(ApplyPauseNameCentering, { "BOOT" });
@@ -223,6 +350,11 @@ void HackShared_EnableDialogSuppression(const int* dialogIds, int count) {
     ApplyDialogSuppression();
 }
 
+void HackShared_EnableFileSelectGameOver() {
+    sFileSelectGameOver = true;
+    ApplyFileSelectGameOver();
+}
+
 void HackShared_EnableForceAbilitiesUsed(const ability_used_e* moves, int count) {
     for (int i = 0; i < count; i++) {
         sForcedUsedAbilities |= (1 << moves[i]);
@@ -239,8 +371,50 @@ void HackShared_EnableJiggyRelocation(const JiggyRelocation* groups, int groupCo
     ApplyJiggyRelocation();
 }
 
+void HackShared_SetJiggyLevelCap(int cap) {
+    sJiggyLevelCap = cap;
+}
+
+void HackShared_EnablePodiumCheck(const PodiumFloor* floors, int count) {
+    sPodiumFloors = floors;
+    sPodiumFloorCount = count;
+    sPodiumCheckEnabled = true;
+    ApplyPodiumCheck();
+}
+
+void HackShared_EnablePuzzleDepositClamp() {
+    sPuzzleDepositClamp = true;
+    ApplyPuzzleDepositClamp();
+}
+
 void HackShared_EnableWarpMusicGroups(const WarpMusicGroup* groups, int groupCount) {
     sWarpMusicGroups = groups;
     sWarpMusicGroupCount = groupCount;
     ApplyWarpMusicGroups();
+}
+
+void HackShared_EnableTransitionPairs(const TransitionPair* pairs, int count) {
+    sTransitionPairs = pairs;
+    sTransitionPairCount = count;
+    ApplyTransitionPairs();
+}
+
+void HackShared_EnableSpawnRewrites(const SpawnRewrite* rewrites, int count) {
+    sSpawnRewrites = rewrites;
+    sSpawnRewriteCount = count;
+}
+
+extern "C" void romhack_RewriteActorSpawn(void* actorInfo, u32* flags) {
+    ActorInfo* info = (ActorInfo*)actorInfo;
+    for (int i = 0; i < sSpawnRewriteCount; i++) {
+        const SpawnRewrite& rewrite = sSpawnRewrites[i];
+        if (rewrite.actorId != info->actorId) {
+            continue;
+        }
+        *flags = (*flags & ~rewrite.clearFlags) | rewrite.setFlags;
+        if (rewrite.drawDistance != 0) {
+            info->draw_distance = rewrite.drawDistance;
+        }
+        break;
+    }
 }

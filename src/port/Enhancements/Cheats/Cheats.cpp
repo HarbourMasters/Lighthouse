@@ -256,7 +256,8 @@ void RegisterCycleTransform_Init() {
 }
 
 void RegisterFastTransform_Init() {
-    COND_HOOK(SetAnimSpeedMult, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), [](IEvent* event) {
+    const bool enabled = CVarGetInteger(CVAR_FAST_TRANSFORM, 0) && !port_isRomhack();
+    COND_HOOK(SetAnimSpeedMult, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         if (baflag_isTrue(BA_FLAG_1B_TRANSFORMING)) {
             SetAnimSpeedMult* ev = reinterpret_cast<SetAnimSpeedMult*>(event);
             if (ev->id == 0) {
@@ -265,7 +266,7 @@ void RegisterFastTransform_Init() {
         }
     });
 
-    COND_HOOK(OnActorUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FAST_TRANSFORM, 0), [](IEvent* event) {
+    COND_HOOK(OnActorUpdate, EVENT_PRIORITY_NORMAL, enabled, [](IEvent* event) {
         OnActorUpdate* ev = reinterpret_cast<OnActorUpdate*>(event);
         if (ev->actor->actor_info->actorId != ACTOR_7_MUMBO) {
             return;
@@ -283,8 +284,8 @@ void RegisterFastTransform_Init() {
 
 // Disable Mumbo untransform when going too far
 void RegisterNoMumboUntransform_Init() {
-    COND_VB_SHOULD(VB_MUMBO_DETRANSFORM, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_NO_MUMBO_UNTRANSFORM, 0),
-                   { *should = false; });
+    COND_VB_SHOULD(VB_MUMBO_DETRANSFORM, EVENT_PRIORITY_NORMAL,
+                   CVarGetInteger(CVAR_NO_MUMBO_UNTRANSFORM, 0) && !port_isRomhack(), { *should = false; });
 }
 
 // ============================================================================
