@@ -48,7 +48,7 @@ void RegisterCheatosChallengesPatches() {
     HackShared_EnableJiggyRelocation(kCheatosJiggies);
     HackShared_SetJiggyLevelCap(2);
     HackShared_EnableWarpMusicGroups(kCheatosMusicGroups);
-    HackShared_EnablePodiumCheck();
+    // HackShared_EnablePodiumCheck();
     HackShared_EnablePuzzleDepositClamp();
     HackShared_EnableFileSelectGameOver();
     HackShared_EnableDialogSuppression(kCheatosSuppressedDialogs);

@@ -682,10 +682,10 @@ constexpr StealthNoiseConfig kGruntchStealth = {
 };
 
 // These maps shrink the podium, so its standing check is adjusted to compensate
-constexpr PodiumFloor kGruntchPodiumFloors[] = {
-    { MAP_2E_MMM_HONEYCOMB_ROOM, -112.0f },
-    { MAP_3D_RBB_NAVIGATION_ROOM, -352.0f },
-};
+// constexpr PodiumFloor kGruntchPodiumFloors[] = {
+//     { MAP_2E_MMM_HONEYCOMB_ROOM, -112.0f },
+//     { MAP_3D_RBB_NAVIGATION_ROOM, -352.0f },
+// };
 
 void CluckerCutscene_ForceSkip();
 
@@ -715,7 +715,7 @@ void RegisterGruntchPatches() {
     Gruntch_EnableMumboTokenDialogs();
     HackShared_EnableForceAbilitiesUsed(kAllUsedAbilities);
     HackShared_EnableFileSelectGameOver();
-    HackShared_EnablePodiumCheck(kGruntchPodiumFloors);
+    // HackShared_EnablePodiumCheck(kGruntchPodiumFloors);
     HackShared_EnablePuzzleDepositClamp();
     CluckerCutscene_ForceSkip();
 }
