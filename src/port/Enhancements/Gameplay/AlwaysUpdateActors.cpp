@@ -11,6 +11,10 @@ extern "C" {
 
 #define CVAR_ALWAYS_UPDATE_ACTORS CVAR_ENHANCEMENT("Graphics.AlwaysUpdateActors")
 
+extern "C" bool port_isAlwaysUpdateActorsEnabled() {
+    return CVarGetInteger(CVAR_ALWAYS_UPDATE_ACTORS, 0) != 0;
+}
+
 static bool IsActorUpdatePlaybackMode() {
     return getGameMode() == GAME_MODE_2_UNKNOWN || func_802E4A08();
 }
