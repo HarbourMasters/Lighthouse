@@ -187,7 +187,7 @@ void RegisterLevitate_Init() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_LEVITATE, 0), [](IEvent* event) {
         // Suspend levitation while dialog is up.
         // Cancel fall damage and the tumble/splat animation if pressed mid-fall.
-        if (bakey_held(BUTTON_L) && !gcdialog_hasCurrentTextId()) {
+        if (bakey_held(BUTTON_L) && balookat_getState() == 0) {
             if (bakey_pressed(BUTTON_L) && !player_isStable()) {
                 s32 fallDamage = 0;
                 if (bafalldamage_get_damage(&fallDamage) != 0) {
