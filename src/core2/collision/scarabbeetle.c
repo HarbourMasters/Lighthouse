@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern BKCollisionTriangle *func_80320DB0(f32[3], f32, f32[3], u32);
 
@@ -303,7 +304,7 @@ void chScarabBeetle_update(Actor *this) {
         func_80357F0C(this, 1);
     }
 
-    if (!subaddie_playerIsWithinSphere(this, 4000)) {
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4000))) {
         if (local->sfxsourceIdx != 0) {
             sfxsource_freeSfxsourceByIndex(local->sfxsourceIdx);
             local->sfxsourceIdx = 0U;
