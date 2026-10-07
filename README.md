@@ -106,7 +106,8 @@ If you want to playtest a continuous integration build, you can find them at the
 
 * [Windows](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-windows.zip)
 * [macOS](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-mac.zip)
-* [Linux](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-linux.zip)
+* [Linux-x86_64](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-linux-x86_64.zip)
+* [Linux-aarch64](https://nightly.link/HarbourMasters/Lighthouse/workflows/main/develop/Lighthouse-linux-aarch64.zip)
 
 <a href="https://github.com/Kenix3/libultraship/">
   <picture>
