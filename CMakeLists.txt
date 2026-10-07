@@ -773,9 +773,13 @@ add_custom_target(
 )
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  file(DOWNLOAD
+      https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt
+      ${CMAKE_BINARY_DIR}/gamecontrollerdb.txt)
   install(FILES "${CMAKE_BINARY_DIR}/lighthouse.o2r" DESTINATION . COMPONENT ${PROJECT_NAME})
   install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/" DESTINATION ./assets COMPONENT ${PROJECT_NAME})
   install(FILES "${CMAKE_BINARY_DIR}/config.yml" DESTINATION . COMPONENT ${PROJECT_NAME})
+  install(FILES "${CMAKE_BINARY_DIR}/gamecontrollerdb.txt" DESTINATION . COMPONENT ${PROJECT_NAME})
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")

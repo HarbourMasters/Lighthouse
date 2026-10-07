@@ -41,8 +41,9 @@ Your ROM needs to be in .z64 format. If it's in .n64 format, use the following t
 * Run lighthouse.exe and select your compatible ROM.
 
 #### Linux
-* Extract every file from the zip into a folder of your choosing.
 * Execute lighthouse.appimage. You may have to chmod +x the appimage via terminal.
+* When prompted, select your compatible ROM.
+* Saves, settings, `mods` and `bk.o2r` are stored in `~/.local/share/lighthouse/`. If the folder the appimage is in already has `lighthouse.cfg.json` or `bk.o2r`, that folder is used instead. Set `SHIP_HOME` to choose another folder.
 
 #### MacOS
 * Extract every file from the zip into a folder of your choosing.
