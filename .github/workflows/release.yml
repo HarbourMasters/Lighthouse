@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
+
+jobs:
+  build:
+    uses: ./.github/workflows/main.yml
+
+  release:
+    name: Draft release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+      BUILD_NAME: ${{ needs.build.outputs.build-name }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Package and write notes
+        run: |
+          test -n "$BUILD_NAME"
+          prefix="Lighthouse-${BUILD_NAME// /-}"
+          (cd artifacts/Lighthouse-windows && zip -qr "../../$prefix-Win64.zip" .)
+          (cd artifacts/Lighthouse-mac && zip -qr "../../$prefix-Mac.zip" .)
+          cp artifacts/Lighthouse-linux/lighthouse.appimage lighthouse.appimage
+          url="https://github.com/${{ github.repository }}/releases/download/$TAG"
+          cat > notes.md <<EOF
+          # Download
+          <a href="$url/$prefix-Win64.zip">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="https://github.com/HarbourMasters/Shipwright/assets/70942617/8e99955a-03a6-4663-97f2-39704f50a57f">
+              <img alt="Windows" src="https://github.com/HarbourMasters/Shipwright/assets/70942617/57cdd3c0-ac25-4909-ac40-edaa68c2c698">
+            </picture>
+          </a>
+          <a href="$url/lighthouse.appimage">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="https://github.com/HarbourMasters/Shipwright/assets/70942617/32dad2f8-2669-406f-afb4-7264d7257f79">
+              <img alt="Linux / Steam Deck" src="https://github.com/HarbourMasters/Shipwright/assets/70942617/74c2ec80-f769-4f54-a1b8-c9bc27e2473a">
+            </picture>
+          </a>
+          <a href="$url/$prefix-Mac.zip">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="https://github.com/HarbourMasters/Shipwright/assets/70942617/adacf7bf-19fd-4bdc-b7eb-59a69c52d8b5">
+              <img alt="macOS" src="https://github.com/HarbourMasters/Shipwright/assets/70942617/73759976-597b-46c8-8d71-9dc9a2b0e1e3">
+            </picture>
+          </a>
+
+          ## Biggest Changes:
+          <!-- Write these before publishing -->
+
+          EOF
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ env.BUILD_NAME }} ${{ env.TAG }}
+          body_path: notes.md
+          files: |
+            Lighthouse-*.zip
+            lighthouse.appimage
+          draft: true
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

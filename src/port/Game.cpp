@@ -336,6 +336,40 @@ void push_frame() {
     }
 }
 
+#ifdef __linux__
+static void SetAppImageHome() {
+    const char* appImage = std::getenv("APPIMAGE");
+    if (appImage == nullptr || appImage[0] == '\0' || std::getenv("SHIP_HOME") != nullptr) {
+        return;
+    }
+
+    std::error_code ec;
+    const std::filesystem::path appImageDir = std::filesystem::path(appImage).parent_path();
+    for (const char* file : { "lighthouse.cfg.json", "bk.o2r" }) {
+        if (std::filesystem::exists(appImageDir / file, ec)) {
+            return;
+        }
+    }
+
+    std::filesystem::path home;
+    const char* dataHome = std::getenv("XDG_DATA_HOME");
+    const char* userHome = std::getenv("HOME");
+    if (dataHome != nullptr && std::filesystem::path(dataHome).is_absolute()) {
+        home = dataHome;
+    } else if (userHome != nullptr && userHome[0] != '\0') {
+        home = std::filesystem::path(userHome) / ".local" / "share";
+    } else {
+        return;
+    }
+    home /= "lighthouse";
+
+    std::filesystem::create_directories(home, ec);
+    if (!ec) {
+        setenv("SHIP_HOME", home.c_str(), 0);
+    }
+}
+#endif
+
 /* Rename SDL_main to main for SDL compatibility */
 #ifdef __GNUC__
 #define SDL_main main
@@ -345,6 +379,9 @@ int SDL_main(int argc, char* argv[]) {
 #ifdef _WIN32
     setlocale(LC_ALL, ".UTF8");
     timeBeginPeriod(1);
+#endif
+#ifdef __linux__
+    SetAppImageHome();
 #endif
 
     // Anchor relative paths to the executable instead of cwd

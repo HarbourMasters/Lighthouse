@@ -66,4 +66,5 @@ logs/
 __pycache__/
 tmp/
 .*/
+!.github/
 !.gitlab/

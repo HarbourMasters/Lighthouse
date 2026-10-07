@@ -1,7 +1,14 @@
 name: GenerateBuilds
 on:
   push:
+    branches:
+      - "**"
   pull_request:
+  workflow_call:
+    outputs:
+      build-name:
+        description: CMake's name for this version
+        value: ${{ jobs.build-linux.outputs.build-name }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -123,6 +130,8 @@ jobs:
   build-linux:
     needs: generate-port-o2r
     runs-on: ubuntu-latest
+    outputs:
+      build-name: ${{ steps.build-name.outputs.name }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -196,17 +205,15 @@ jobs:
           cmake -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE=Release
           cmake --build build-cmake --config Release -j3
           (cd build-cmake && cpack -G External)
-          wget -O gamecontrollerdb.txt https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/refs/heads/master/gamecontrollerdb.txt
-          mv README.md readme.txt
           mv build-cmake/*.appimage lighthouse.appimage
+      - name: Read build name
+        id: build-name
+        run: echo "name=$(sed -n 's/^PROJECT_BUILD_NAME:STRING=//p' build-cmake/CMakeCache.txt)" >> "$GITHUB_OUTPUT"
       - name: Upload build
         uses: actions/upload-artifact@v7
         with:
           name: Lighthouse-linux
-          path: |
-            lighthouse.appimage
-            readme.txt
-            gamecontrollerdb.txt
+          path: lighthouse.appimage
 
   build-switch:
     if: false
