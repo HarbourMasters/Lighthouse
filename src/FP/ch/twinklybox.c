@@ -325,7 +325,7 @@ void chTwinklyBox_update(Actor *this){
     {
     case 1: //L8038D89C
         // Doesn't restart idle animation when finishing the minigame.
-        if(EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, false) && this->velocity[1] != 0.0f)
+        if(port_isAlwaysUpdateActorsEnabled() && this->velocity[1] != 0.0f)
             break;
 
         if(!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphereAndActive(this, 800)))
@@ -393,7 +393,8 @@ void chTwinklyBox_update(Actor *this){
 
         func_8025AEA0(COMUSIC_68_TWINKLY_MINIGAME, (s32)this->unk1C[2]);
         if(item_getCount(ITEM_24_TWINKLY_SCORE) == 0){
-            this->velocity[1] = 1.0f;
+            if(port_isAlwaysUpdateActorsEnabled())
+                this->velocity[1] = 1.0f;
             subaddie_set_state_with_direction(this, 1, 0.001f, 1);
             coMusicPlayer_playMusic(COMUSIC_2D_PUZZLE_SOLVED_FANFARE, 28000);
             func_8038D3D8();
