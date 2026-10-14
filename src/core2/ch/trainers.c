@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "core2/statetimer.h"
 extern f32 player_stateTimer_get(enum state_timer_e);
@@ -77,7 +78,7 @@ void chtrainers_update(Actor *this){
 
     switch(this->state){
         case 0://L802CA5A8
-            if(func_803296D8(this, 2000) || sp2C){
+            if(EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, func_803296D8(this, 2000)) || sp2C){
                 if( subaddie_playerIsWithinSphereAndActive(this, 0xfa)
                     && !volatileFlag_get(VOLATILE_FLAG_F_HAS_MEET_TURBO_SHOES)
                     && player_getTransformation() == TRANSFORM_1_BANJO

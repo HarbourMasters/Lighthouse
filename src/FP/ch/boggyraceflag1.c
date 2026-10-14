@@ -2,6 +2,7 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
+#include "port/Enhancements/Events/Hooks/Events.h"
 
 typedef struct {
     u8 unk0;
@@ -128,7 +129,9 @@ void func_803881AC(Actor *this){
         if(0.0f == this->velocity_x)
             return;
     }else{
-        if(!subaddie_playerIsWithinSphereAndActive(this, 2000) && !maSlolam_WithinRadiusOfBoggy(this->position, 2000))
+        if(!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE,
+                               subaddie_playerIsWithinSphereAndActive(this, 2000)
+                                   || maSlolam_WithinRadiusOfBoggy(this->position, 2000)))
             return;
         this->marker->collidable = true;
         this->unk124_6 = true;

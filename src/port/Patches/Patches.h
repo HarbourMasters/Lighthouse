@@ -77,6 +77,7 @@ float port_getRumbleScale(void);
 // Gameplay
 
 int port_scalePlayerDamage(int damage);
+bool port_isAlwaysUpdateActorsEnabled(void);
 
 // Graphics (GraphicsPatches.cpp)
 
