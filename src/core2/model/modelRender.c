@@ -17,7 +17,7 @@
 
 //extern void assetCache_free(BKModelBin *);
 extern void assetCache_free(void *);
-
+extern void lighthouse_setFrustumChecksEnabled(bool enabled);
 void modelRender_geoCmd_Unk0(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data);
 void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data);
 void modelRender_geoCmd_BONE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data);
@@ -448,6 +448,7 @@ Gfx mipMapWrapDL[] =
 };
 
 bool D_80370990 = FALSE;
+bool cur_model_would_have_been_culled_in_demo = FALSE;
 
 BKGeoCmdFunc sGeoCmdList[] = {
     modelRender_geoCmd_Unk0,
@@ -621,6 +622,29 @@ void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
 
     dot_prod = dist[0] * p1[0] + dist[1] * p1[1] + dist[2] * p1[2];
     dot_prod = -dot_prod;
+
+    // [port] Disable Culling SORT one-sided geometry fix
+    // A one-sided SORT node normally submits only the camera-facing child.
+    // With Disable Culling, submit both children in camera order during normal gameplay.
+    // Demo/playback keeps the original branch selection for deterministic behavior.
+    if (port_shouldDisableCulling() && !port_isDemoPlayback() &&
+        (cmd->flags & BK_GEO_CMD_SORT_RUN_BOTH_BIT)) {
+        debug_var = dot_prod;
+        if (dot_prod >= 0.0f) {
+            if (cmd->branch_offset_1)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_1));
+
+            if (cmd->branch_offset_2)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_2));
+        } else {
+            if (cmd->branch_offset_2)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_2));
+
+            if (cmd->branch_offset_1)
+                modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset_1));
+        }
+        return;
+    }
 
     if (cmd->flags & BK_GEO_CMD_SORT_RUN_BOTH_BIT) {
         if ((dot_prod >= 0.0f) && cmd->branch_offset_2) {
@@ -838,8 +862,8 @@ void modelRender_geoCmd_DRAWDIST(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data
         // [port] The N64 bounding boxes in CmdD_DRAW_DISTANCE are too conservative
         // for the port's viewport (292x216 -> 320x240 at 4:3). Extend to all aspect
         // ratios since the port always renders at a higher effective resolution.
-//      if (viewport_isBoundingBoxInFrustum(scaled_min, scaled_max)) {
-        if (EventSystem_Should(VB_DRAWDIST_BOX_CULL, true, scaled_min, scaled_max)) {
+        if (port_shouldDisableCulling() ||
+            EventSystem_Should(VB_DRAWDIST_BOX_CULL, true, scaled_min, scaled_max)) {
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
         }
     }
@@ -892,12 +916,14 @@ void modelRender_geoCmd_UnkE(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
 
 void modelRender_geoCmd_CAMERA(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     struct geo_cmd_camera_s *cmd = (struct geo_cmd_camera_s *) data;
+
     bool found = cameraAreaList_searchForEntryInBounds(modelRenderCameraAreaList, cmd->id_list, cmd->count);
     int draw;
 
-//  if ((!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) || (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT))) {
-    draw = (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) || (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT));
-    draw = port_geoCullDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw, cmd->id_list, cmd->count, cmd->flags, 0);
+    draw = (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) ||
+           (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT));
+    draw = port_geoCullDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw,
+                           cmd->id_list, cmd->count, cmd->flags, 0);
     if (draw) {
         if (cmd->branch_offset)
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
@@ -933,6 +959,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     s32 alpha; 
     f32 tmp_f0;
     f32 padB8;
+
+    cur_model_would_have_been_culled_in_demo = false;
     
     if ((!model_bin && !sSecondaryModelData.model_id) || (model_bin && sSecondaryModelData.model_id)) {
         modelRender_reset();
@@ -970,10 +998,11 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     camera_focus[1] = object_position[1] - modelRenderCameraPosition[1];
     camera_focus[2] = object_position[2] - modelRenderCameraPosition[2];
 
-    if( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
+    // [port] Disable Culling model distance gates
+    if ((!port_shouldDisableCulling() || port_isDemoPlayback()) && ( ((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
         || ((camera_focus[1] < -17000.0f) || (17000.0f < camera_focus[1]))
         || ((camera_focus[2] < -17000.0f) || (17000.0f < camera_focus[2]))
-    ){
+    )) {
         modelRender_reset();
         return 0;
     }
@@ -1009,15 +1038,27 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 
-    if(D_80383708 <= camera_focus_distance){
+    if ((!port_shouldDisableCulling() || port_isDemoPlayback()) && D_80383708 <= camera_focus_distance) {
         modelRender_reset();
         return 0;
     }
 
-    D_80370990 = (D_80383704) ? viewport_func_8024DB50(object_position, spD0*scale) : TRUE;
-    if (!D_80370990) {
-        modelRender_reset();
-        return 0;
+    if (port_shouldDisableCulling()) {
+        if (port_isDemoPlayback()) {
+            // Exact widescreen demo state: remember original visibility,
+            // but keep the visual model alive during the draw.
+            cur_model_would_have_been_culled_in_demo =
+                !((D_80383704) ? viewport_func_8024DB50(object_position, spD0 * scale) : TRUE);
+        } else {
+            cur_model_would_have_been_culled_in_demo = FALSE;
+        }
+        D_80370990 = TRUE;
+    } else {
+        D_80370990 = (D_80383704) ? viewport_func_8024DB50(object_position, spD0 * scale) : TRUE;
+        if (!D_80370990) {
+            modelRender_reset();
+            return 0;
+        }
     }
 
     if (modelRenderCallback.pre_draw != NULL) {
@@ -1034,10 +1075,15 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 //  modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == NULL) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
     modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == 0) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
 
-    if(D_80383710){
+    if (D_80383710) {
         tmp_f0 = D_80383708 - 500.0f;
         if(tmp_f0 < camera_focus_distance){
             alpha = (s32)((1.0f - (camera_focus_distance - tmp_f0)/500.0f)*255.0f);
+            // [port] Preserve model fading with Disable Culling
+            // No-cull can keep a model alive beyond the original final cutoff.
+            // Clamp the completed fade instead of allowing alpha to wrap.
+            if (alpha < 0) alpha = 0;
+            else if (alpha > 0xFF) alpha = 0xFF;
             EventSystem_Should(VB_MODEL_DRAWDIST_FADE_ALPHA, true, &alpha);
             if(modelRenderColorMode == COLOR_MODE_DYNAMIC_PRIM_AND_ENV){
                 modelRenderDynColors.prim[3] = (modelRenderDynColors.prim[3] * alpha) / 0xff;
@@ -1206,7 +1252,13 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 
     // [port] Mirror mode: counter-mirror text-bearing models so text reads correctly
     if (_mirror_excluded) gSPClearExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
+    if (port_shouldDisableCulling()) {
+        lighthouse_setFrustumChecksEnabled(false);
+    }
     modelRender_executeGeoCmds(gfx, mtx, modelbin_getGeoCmdList_MACRO(model_bin));
+    if (port_shouldDisableCulling()) {
+        lighthouse_setFrustumChecksEnabled(true);
+    }
     // [port] Mirror mode: restore culling inversion
     if (_mirror_excluded) gSPSetExtraGeometryMode((*gfx)++, G_EX_INVERT_CULLING);
     gSPPopMatrix((*gfx)++, G_MTX_MODELVIEW);
@@ -1223,6 +1275,15 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     }
 
     modelRender_reset();
+    if (port_shouldDisableCulling()) {
+        if (port_isDemoPlayback()) {
+            // Preserve the original visibility result after the visual-only draw.
+            D_80370990 = !cur_model_would_have_been_culled_in_demo;
+        } else {
+            D_80370990 = true;
+        }
+        cur_model_would_have_been_culled_in_demo = false;
+    }
     return model_bin;
 }
 
