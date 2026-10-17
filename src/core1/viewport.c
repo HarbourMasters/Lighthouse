@@ -29,13 +29,6 @@ MtxF sViewportMatrix;
 MtxF sViewportDefaultMatrix;
 s32 sViewportStackIndex;
 
-// Preserve the original demo/playback frustum state while visual culling is disabled.
-static bool lighthouse_frustumChecksEnabled = true;
-
-void lighthouse_setFrustumChecksEnabled(bool enabled) {
-    lighthouse_frustumChecksEnabled = enabled;
-}
-
 void viewport_moveAlongZAxis(f32 offset) {
     f32 delta_position[3];
 
@@ -296,7 +289,7 @@ void viewport_setFrustumPlanes(f32 arg0[4], f32 arg1[4], f32 arg2[4], f32 arg3[4
 }
 
 bool viewport_isBoundingBoxInFrustum(f32 min[3], f32 max[3]) {
-    if (port_shouldDisableCulling() && !port_isDemoPlayback()) {
+    if (port_shouldDisableCulling()) {
         return true;
     }
 
@@ -394,26 +387,7 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
 
 // viewport_distanceFromPlane ?
 bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
-    if (port_shouldDisableCulling()) {
-        if (!port_isDemoPlayback() || !lighthouse_frustumChecksEnabled) {
-            return true;
-        }
-
-        // Original N64 sphere/frustum math for demo-sync state.
-        f32 delta[3];
-        s32 i;
-        delta[0] = pos[0] - sViewportPosition[0];
-        delta[1] = pos[1] - sViewportPosition[1];
-        delta[2] = pos[2] - sViewportPosition[2];
-        for (i = 0; i < 4; i++) {
-            if (distance <= ml_vec3f_dot_product(delta, sViewportFrustumPlanes[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    f32 delta[3];
+f32 delta[3];
     s32 i;
 
     // [port] Extended draw distance: scale bounding radius by the distance multiplier.
@@ -433,7 +407,7 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
 }
 
 bool viewport_isPointOutsideFrustum_3f(f32 x, f32 y, f32 z) {
-    if (port_shouldDisableCulling() && !port_isDemoPlayback()) {
+    if (port_shouldDisableCulling()) {
         return false;
     }
 
@@ -452,7 +426,7 @@ bool viewport_isPointOutsideFrustum_vec3f(f32 arg0[3]) {
 
 // need to figure out, what plane 2 is (neg/pos x/y ?)
 bool viewport_isPointPlane_3f(f32 arg0, f32 arg1, f32 arg2) {
-    if (port_shouldDisableCulling() && !port_isDemoPlayback()) {
+    if (port_shouldDisableCulling()) {
         return false;
     }
 

@@ -104,21 +104,10 @@ int port_shouldDisableLOD(void) {
 }
 
 int port_shouldDisableCulling(void) {
-    return sDisableCulling;
-}
-
-int port_isDemoPlayback(void) {
-    switch (getGameMode()) {
-        case GAME_MODE_2_UNKNOWN:
-        case GAME_MODE_6_FILE_PLAYBACK:
-        case GAME_MODE_7_ATTRACT_DEMO:
-        case GAME_MODE_8_BOTTLES_BONUS:
-        case GAME_MODE_9_BANJO_AND_KAZOOIE:
-        case GAME_MODE_A_SNS_PICTURE:
-            return 1;
-        default:
-            return 0;
+    if (IsDemoMode() && getGameMode() != GAME_MODE_4_PAUSED) {
+        return 0;
     }
+    return sDisableCulling;
 }
 }
 
@@ -135,9 +124,7 @@ int port_isDemoPlayback(void) {
 static void OnGeoCull_GraphicsEnhancements(IEvent* event) {
     auto* ev = reinterpret_cast<OnGeoCull*>(event);
 
-    // Preserve the existing Disable Culling demo/playback behavior while routing the
-    // render-only override through Lighthouse's GeoCull event.
-    bool disableCulling = port_shouldDisableCulling() && !port_isDemoPlayback();
+    bool disableCulling = port_shouldDisableCulling();
     if (disableCulling && (ev->type == OCCLUSION_CMD_CAMERA || ev->type == OCCLUSION_CMD_UNKE)) {
         *ev->forceDraw = true;
         return;

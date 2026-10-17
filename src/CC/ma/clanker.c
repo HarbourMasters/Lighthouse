@@ -152,7 +152,7 @@ void maClanker_draw(Gfx **gfx, Mtx **mtx, Vtx **vtx){
     
     viewport_getPosition_vec3f(viewport_position);
         
-    if ((!port_shouldDisableCulling() || port_isDemoPlayback()) &&
+    if (!port_shouldDisableCulling() &&
         (viewport_position[0] < -2600.0f || 11600.0f < viewport_position[0]))
         return;
 
