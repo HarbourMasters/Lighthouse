@@ -402,7 +402,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
     sp38[1] = sCubeList.width[1] - 1;\
     sp38[2] = sCubeList.width[2] - 1;
     // Disable Culling: do not prune prop cubes by camera direction.
-    // Outside normal gameplay, port_shouldDisableCulling() returns false.
+    // Otherwise, preserve the original camera-direction pruning.
     if (!port_shouldDisableCulling()) {
         if ((vp_rotation[0]> 250.0f) && (vp_rotation[0]< 290.0f)) {
             if ((vp_rotation[1] >= 225.0f) && (vp_rotation[1] <= 315.0f)) {
@@ -450,7 +450,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
         // [port] Extended draw distance: per-level cube iteration width.
         int width = 4;
         if (port_shouldDisableCulling()) {
-            // Disable Culling: consider the full prop-cube range during normal gameplay.
+            // Disable Culling: consider the full prop-cube range while the enhancement is active.
             width = sCubeList.width[i];
         } else {
             CALL_EVENT(DrawDistanceCubeWidth, sCubeList.width[i], &width);

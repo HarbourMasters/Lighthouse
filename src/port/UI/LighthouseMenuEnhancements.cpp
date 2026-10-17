@@ -128,8 +128,8 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Disable Culling", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Graphics.DisableCulling"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Disables frustum/occlusion culling. "
-                                           "LOD and real draw distance are unaffected."
+        .Options(CheckboxOptions().Tooltip("Disables frustum, occlusion, and model-distance culling. "
+                                           "LOD is unaffected."
                                            " May cost performance when enabled."));
 
     AddWidget(path, "Original Aspect Ratio In Cutscenes", WIDGET_CVAR_CHECKBOX)

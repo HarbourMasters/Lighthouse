@@ -115,7 +115,7 @@ int port_shouldDisableCulling(void) {
 // GEO CULLING — Disable Culling and draw-distance portal exception
 // ============================================================================
 //
-// Disable Culling uses this listener to force CAMERA and UnkE geo commands during normal gameplay.
+// Disable Culling uses this listener to force CAMERA and UnkE geo commands whenever the enhancement is active.
 // Draw Distance also uses it for its existing max-distance exception: the Mumbo's Mountain
 // stonehenge, a single "outside areas {1,2}" CAMERA command in the opaque map model.
 

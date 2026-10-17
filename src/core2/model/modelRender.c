@@ -624,8 +624,8 @@ void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
 
     // [port] Disable Culling SORT one-sided geometry fix
     // A one-sided SORT node normally submits only the camera-facing child.
-    // With Disable Culling, submit both children in camera order during normal gameplay.
-    // Outside normal gameplay the option is inactive, so the original selection is preserved.
+    // With Disable Culling, submit both children in camera order while the enhancement is active.
+    // When the enhancement is inactive, preserve the original branch selection.
     if (port_shouldDisableCulling() &&
         (cmd->flags & BK_GEO_CMD_SORT_RUN_BOTH_BIT)) {
         debug_var = dot_prod;
@@ -995,13 +995,18 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     camera_focus[1] = object_position[1] - modelRenderCameraPosition[1];
     camera_focus[2] = object_position[2] - modelRenderCameraPosition[2];
 
+    original_visibility = TRUE;
+
     // [port] Disable Culling model distance gates
-    if (!port_shouldDisableCulling() && (((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
+    if (((camera_focus[0] < -17000.0f) || (17000.0f < camera_focus[0]))
         || ((camera_focus[1] < -17000.0f) || (17000.0f < camera_focus[1]))
         || ((camera_focus[2] < -17000.0f) || (17000.0f < camera_focus[2]))
-    )) {
-        modelRender_reset();
-        return 0;
+    ) {
+        original_visibility = FALSE;
+        if (!port_shouldDisableCulling()) {
+            modelRender_reset();
+            return 0;
+        }
     }
 
     if(D_80383758.unk18){
@@ -1035,13 +1040,17 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
         D_80383708 = spD4*scale*D_8038370C*50.0f;
     }
 
-    if (!port_shouldDisableCulling() && D_80383708 <= camera_focus_distance) {
-        modelRender_reset();
-        return 0;
+    if (D_80383708 <= camera_focus_distance) {
+        original_visibility = FALSE;
+        if (!port_shouldDisableCulling()) {
+            modelRender_reset();
+            return 0;
+        }
     }
 
     D_80370990 = (D_80383704) ? viewport_func_8024DB50(object_position, spD0*scale) : TRUE;
-    original_visibility = D_80370990;
+    original_visibility = original_visibility && D_80370990;
+    D_80370990 = original_visibility;
     if (!D_80370990 && !port_shouldDisableCulling()) {
         modelRender_reset();
         return 0;
