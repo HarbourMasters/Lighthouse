@@ -407,10 +407,6 @@ bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
 }
 
 bool viewport_isPointOutsideFrustum_3f(f32 x, f32 y, f32 z) {
-    if (port_shouldDisableCulling()) {
-        return false;
-    }
-
     if ((sViewportFrustumPlanes[0][0] * x + sViewportFrustumPlanes[0][1] * y + sViewportFrustumPlanes[0][2] * z + sViewportFrustumPlanes[0][3] <= 0.0f) &&
         (sViewportFrustumPlanes[1][0] * x + sViewportFrustumPlanes[1][1] * y + sViewportFrustumPlanes[1][2] * z + sViewportFrustumPlanes[1][3] <= 0.0f) &&
         (sViewportFrustumPlanes[2][0] * x + sViewportFrustumPlanes[2][1] * y + sViewportFrustumPlanes[2][2] * z + sViewportFrustumPlanes[2][3] <= 0.0f) &&
@@ -426,10 +422,6 @@ bool viewport_isPointOutsideFrustum_vec3f(f32 arg0[3]) {
 
 // need to figure out, what plane 2 is (neg/pos x/y ?)
 bool viewport_isPointPlane_3f(f32 arg0, f32 arg1, f32 arg2) {
-    if (port_shouldDisableCulling()) {
-        return false;
-    }
-
     return ((sViewportFrustumPlanes[2][0]*arg0 + sViewportFrustumPlanes[2][1]*arg1 + sViewportFrustumPlanes[2][2]*arg2 + sViewportFrustumPlanes[2][3]) <= 0.0f);
 }
 

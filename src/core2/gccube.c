@@ -391,7 +391,6 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
 #endif
 
     func_8032D3A8();
-
     viewport_getPosition_vec3f(vp_position);
     viewport_getRotation_vec3f(vp_rotation);
     ml_vec3f_clamp_deg360(vp_rotation);
@@ -446,6 +445,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             }
         }
     }
+
     for(i = 0; i < 3; i++){
         // [port] Extended draw distance: per-level cube iteration width.
         int width = 4;

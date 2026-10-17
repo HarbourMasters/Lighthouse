@@ -112,7 +112,7 @@ int port_shouldDisableCulling(void) {
 }
 
 // ============================================================================
-// LEVEL OCCLUSION — extend draw distance to camera-area portal geometry
+// GEO CULLING — Disable Culling and draw-distance portal exception
 // ============================================================================
 //
 // Disable Culling uses this listener to force CAMERA and UnkE geo commands during normal gameplay.
