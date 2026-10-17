@@ -860,6 +860,7 @@ void modelRender_geoCmd_DRAWDIST(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data
         // [port] The N64 bounding boxes in CmdD_DRAW_DISTANCE are too conservative
         // for the port's viewport (292x216 -> 320x240 at 4:3). Extend to all aspect
         // ratios since the port always renders at a higher effective resolution.
+//      if (viewport_isBoundingBoxInFrustum(scaled_min, scaled_max)) {
         if (port_shouldDisableCulling() ||
             EventSystem_Should(VB_DRAWDIST_BOX_CULL, true, scaled_min, scaled_max)) {
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
@@ -918,10 +919,9 @@ void modelRender_geoCmd_CAMERA(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) 
     bool found = cameraAreaList_searchForEntryInBounds(modelRenderCameraAreaList, cmd->id_list, cmd->count);
     int draw;
 
-    draw = (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) ||
-           (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT));
-    draw = port_geoCullDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw,
-                           cmd->id_list, cmd->count, cmd->flags, 0);
+//  if ((!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) || (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT))) {
+    draw = (!found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_OUTSIDE_BIT)) || (found && (cmd->flags & BK_GEO_CMD_CAMERA_IS_INSIDE_BIT));
+    draw = port_geoCullDraw(OCCLUSION_CMD_CAMERA, cmd, modelRenderModelBin, draw, cmd->id_list, cmd->count, cmd->flags, 0);
     if (draw) {
         if (cmd->branch_offset)
             modelRender_executeGeoCmds(gfx, mtx, (struct bk_geo_cmd_s *) ((u8 *) cmd + cmd->branch_offset));
@@ -1061,7 +1061,7 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
 //  modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == NULL) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
     modelRenderCameraAreaList = (modelRenderModelBin->camera_area_list_offset == 0) ? NULL : modelbin_getCameraAreaList_MACRO(model_bin);
 
-    if (D_80383710) {
+    if(D_80383710){
         tmp_f0 = D_80383708 - 500.0f;
         if(tmp_f0 < camera_focus_distance){
             alpha = (s32)((1.0f - (camera_focus_distance - tmp_f0)/500.0f)*255.0f);
