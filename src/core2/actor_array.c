@@ -160,6 +160,7 @@ void actor_predrawMethod(Actor *this){
     if(this->unk130 && (GameEngine_GetAspectRatio() <= 1.34f || D_80370990)){
         this->unk130(this);
     }
+
     if(this->unk148 && !this->marker->unk20){
         modelRender_setBoneTransformList(skeletalAnim_getBoneTransformList(this->unk148));
     }
@@ -210,6 +211,7 @@ void actor_postdrawMethod(ActorMarker *marker){
         marker->unk14_21 = true;
     }
 }
+
 void func_803257A4(ActorMarker *marker){
     marker->unk14_21 = true;
 }

@@ -387,7 +387,7 @@ bool viewport_cube_isInFrustum2(Cube *cube) {
 
 // viewport_distanceFromPlane ?
 bool viewport_func_8024DB50(f32 pos[3], f32 distance) {
-f32 delta[3];
+    f32 delta[3];
     s32 i;
 
     // [port] Extended draw distance: scale bounding radius by the distance multiplier.

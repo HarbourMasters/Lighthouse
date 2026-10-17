@@ -115,11 +115,9 @@ int port_shouldDisableCulling(void) {
 // LEVEL OCCLUSION — extend draw distance to camera-area portal geometry
 // ============================================================================
 //
-// Some distant level geometry is hidden by BK's camera-area portal culling rather than the
-// distance/LOD culls the prop draw-distance enhancement covers. Disabling that culling
-// wholesale floods the render buffer, so at the maxed draw-distance level we force just the
-// Disable Culling uses this listener for general render-only overrides. Draw Distance still only forces
-// stonehenge: a single "outside areas {1,2}" CAMERA command in the opaque map model.
+// Disable Culling uses this listener to force CAMERA and UnkE geo commands during normal gameplay.
+// Draw Distance also uses it for its existing max-distance exception: the Mumbo's Mountain
+// stonehenge, a single "outside areas {1,2}" CAMERA command in the opaque map model.
 
 static void OnGeoCull_GraphicsEnhancements(IEvent* event) {
     auto* ev = reinterpret_cast<OnGeoCull*>(event);

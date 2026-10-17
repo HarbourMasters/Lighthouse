@@ -624,7 +624,7 @@ void modelRender_geoCmd_SORT(Gfx **gfx, Mtx **mtx, struct bk_geo_cmd_s *data) {
     // [port] Disable Culling SORT one-sided geometry fix
     // A one-sided SORT node normally submits only the camera-facing child.
     // With Disable Culling, submit both children in camera order during normal gameplay.
-    // Demo/playback keeps the original branch selection for deterministic behavior.
+    // Outside normal gameplay the option is inactive, so the original selection is preserved.
     if (port_shouldDisableCulling() &&
         (cmd->flags & BK_GEO_CMD_SORT_RUN_BOTH_BIT)) {
         debug_var = dot_prod;
