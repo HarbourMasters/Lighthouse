@@ -6,7 +6,7 @@
 #include <cstdint>
 
 namespace Factories {
-int ModelTextureIndex(uintptr_t image);
+int ModelTextureIndex(uintptr_t image, bool* palette = nullptr);
 
 class ResourceFactoryBinaryModelV0 : public Ship::ResourceFactoryBinary {
 public:

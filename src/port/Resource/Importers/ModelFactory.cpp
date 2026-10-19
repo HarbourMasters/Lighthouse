@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "core2/model.h"
@@ -27,8 +28,9 @@ void PadTo8(std::vector<uint8_t>& dst) {
 
 } // anonymous namespace
 
-// The N of a G_SETTIMG image ReadResource points at "__OTR__<model>_tex_N", or -1 for any other image.
-int ModelTextureIndex(uintptr_t image) {
+// The N of a G_SETTIMG image ReadResource points at "__OTR__<model>_tex_N", or -1 for any other image. With `palette`,
+// "_tex_N_TLUT" counts too, and *palette says which one the image is.
+int ModelTextureIndex(uintptr_t image, bool* palette) {
     if (image == 0 || (image & 1) != 0 || std::strncmp((const char*)image, "__OTR__", 7) != 0) {
         return -1;
     }
@@ -37,7 +39,18 @@ int ModelTextureIndex(uintptr_t image) {
          found = std::strstr(found + 1, "_tex_")) {
         tag = found;
     }
-    return tag != nullptr ? std::atoi(tag + 5) : -1;
+    if (tag == nullptr) {
+        return -1;
+    }
+    char* end;
+    const int index = (int)std::strtol(tag + 5, &end, 10);
+    const bool isPalette = std::strcmp(end, "_TLUT") == 0;
+    if (palette != nullptr) {
+        *palette = isPalette;
+    } else if (isPalette) {
+        return -1;
+    }
+    return index;
 }
 
 std::shared_ptr<Ship::IResource>
@@ -621,6 +634,30 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         AppendValue<int32_t>(out, static_cast<int32_t>(dlCount));
         AppendValue<int32_t>(out, static_cast<int32_t>(dlUnkInfo));
 
+        // The archives' _tex_N_TLUT palettes, by where each one starts in the model.
+        std::unordered_map<uint32_t, std::pair<std::string, uint16_t>> palettes;
+        auto archives = resourceMgr->GetArchiveManager();
+        for (uint16_t ti = 0; ti < texCount; ti++) {
+            const std::string palette = initData->Path + "_tex_" + std::to_string(ti) + "_TLUT";
+            if (texMetas[ti].tlutColors > 0 && archives->HasFile(palette)) {
+                palettes[texMetas[ti].textureDataOffset] = { palette, texMetas[ti].tlutColors };
+            }
+        }
+        // Some models load 256 colors for a texture that lists 16. Only the model has the other 240, so those loads keep
+        // the model's palette.
+        const auto loadsAtMost = [&](uint32_t at, uint16_t colors) {
+            for (uint32_t j = at + 1; j < dlCount; j++) {
+                const uint8_t op = (uint8_t)(rawDLWords[j * 2] >> 24);
+                if (op == 0xF0) { // G_LOADTLUT
+                    return ((rawDLWords[j * 2 + 1] >> 14) & 0x3FF) + 1 <= colors;
+                }
+                if (op == 0xFD) { // G_SETTIMG
+                    return false;
+                }
+            }
+            return false;
+        };
+
         // Widen each N64 command: (u32 w0, u32 w1) → (uintptr_t w0, uintptr_t w1)
         for (uint32_t i = 0; i < dlCount; i++) {
             uintptr_t w0 = rawDLWords[i * 2];
@@ -631,6 +668,15 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             if (opcode == 0xFD && (uint32_t)((w1 >> 24) & 0xFF) == 0xFF) {
                 const uint32_t texIndex = (uint32_t)(w1 & 0x00FFFFFF);
                 w1 = (uintptr_t)InternAltPath("__OTR__" + initData->Path + "_tex_" + std::to_string(texIndex));
+                AppendValue<uintptr_t>(out, w0);
+                AppendValue<uintptr_t>(out, w1);
+                continue;
+            }
+            const auto palette = opcode == 0xFD && (uint32_t)((w1 >> 24) & 0xFF) == 0x02 // G_SETTIMG from segment 2
+                                     ? palettes.find((uint32_t)(w1 & 0x00FFFFFF))
+                                     : palettes.end();
+            if (palette != palettes.end() && loadsAtMost(i, palette->second.second)) {
+                w1 = (uintptr_t)InternAltPath("__OTR__" + palette->second.first);
                 AppendValue<uintptr_t>(out, w0);
                 AppendValue<uintptr_t>(out, w1);
                 continue;

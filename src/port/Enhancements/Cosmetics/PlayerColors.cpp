@@ -435,6 +435,7 @@ struct ModelState {
     const void* sourceBin = nullptr;
     bool custom = false;
     std::unique_ptr<u64[]> vanillaDisplayList;
+    std::unique_ptr<u64[]> paletteDisplayList;
 };
 
 std::unordered_map<s32, ModelState> sModels;
@@ -450,18 +451,18 @@ ModelState& StateForModel(s32 modelId, BKModelBin* modelBin) {
     return model;
 }
 
-// The textures the display list loads by path point back at the model's own pixels, which a texture pack doesn't
-// replace.
-BKGfxList* VanillaDisplayList(ModelState& model, BKModelBin* modelBin) {
-    if (model.vanillaDisplayList != nullptr || modelBin->gfx_list_offset == 0 || modelBin->texture_list_offset == 0) {
-        return (BKGfxList*)model.vanillaDisplayList.get();
+// The palettes the display list loads by path point back at the model's own, which recoloring edits. With `pixels` its
+// textures do too, and a texture pack doesn't replace those.
+BKGfxList* VanillaDisplayList(std::unique_ptr<u64[]>& list, BKModelBin* modelBin, bool pixels) {
+    if (list != nullptr || modelBin->gfx_list_offset == 0 || modelBin->texture_list_offset == 0) {
+        return (BKGfxList*)list.get();
     }
     const BKGfxList* source = modelbin_getGfxList(modelBin);
     BKTextureList* textures = modelbin_getTextureList(modelBin);
     // ModelFactory ends the list with a G_ENDDL past its size.
     const size_t bytes = sizeof(BKGfxList) + ((size_t)source->size + 1) * sizeof(Gfx);
-    model.vanillaDisplayList = std::make_unique<u64[]>((bytes + 7) / 8);
-    BKGfxList* copy = (BKGfxList*)model.vanillaDisplayList.get();
+    list = std::make_unique<u64[]>((bytes + 7) / 8);
+    BKGfxList* copy = (BKGfxList*)list.get();
     std::memcpy(copy, source, bytes);
 
     for (u32 index = 0; index < copy->size; index++) {
@@ -469,13 +470,15 @@ BKGfxList* VanillaDisplayList(ModelState& model, BKModelBin* modelBin) {
         if ((u8)(command.words.w0 >> 24) != 0xFD) { // G_SETTIMG
             continue;
         }
-        const int textureIndex = Factories::ModelTextureIndex(command.words.w1);
-        if (textureIndex < 0 || textureIndex >= textures->count) {
+        bool palette = false;
+        const int textureIndex = Factories::ModelTextureIndex(command.words.w1, &palette);
+        if (textureIndex < 0 || textureIndex >= textures->count || !(palette || pixels)) {
             continue;
         }
         BKTextureInfo* texture = &textures->texture_infos[textureIndex];
+        const u32 offset = texture->offset + (palette ? 0 : textureInfo_getPaletteSize(texture));
         // Segment 2 is the model's texture data, and ModelFactory tags segmented addresses with bit 0.
-        command.words.w1 = (((uintptr_t)0x02 << 24) | (texture->offset + textureInfo_getPaletteSize(texture))) | 1;
+        command.words.w1 = (((uintptr_t)0x02 << 24) | offset) | 1;
     }
     return copy;
 }
@@ -556,8 +559,9 @@ void PlayerColors_applyForDraw(u32 ownerKey, s32 modelId, void* modelBin, const 
     if (model.custom) {
         return;
     }
-    if (!CVarGetInteger(CVAR_PLAYER_PACK_TEXTURES, 1)) {
-        if (BKGfxList* displayList = VanillaDisplayList(model, (BKModelBin*)modelBin)) {
+    const bool packTextures = CVarGetInteger(CVAR_PLAYER_PACK_TEXTURES, 1);
+    if (!packTextures) {
+        if (BKGfxList* displayList = VanillaDisplayList(model.vanillaDisplayList, (BKModelBin*)modelBin, true)) {
             modelRender_setDisplayList(displayList);
         }
     }
@@ -567,6 +571,11 @@ void PlayerColors_applyForDraw(u32 ownerKey, s32 modelId, void* modelBin, const 
     Variant* variant = BuildVariant(ownerKey, modelId, (BKModelBin*)modelBin, *colors);
     if (variant == nullptr) {
         return;
+    }
+    if (packTextures) {
+        if (BKGfxList* displayList = VanillaDisplayList(model.paletteDisplayList, (BKModelBin*)modelBin, false)) {
+            modelRender_setDisplayList(displayList);
+        }
     }
     modelRender_setTextureList((BKTextureList*)variant->textures);
     modelRender_setVertexList((BKVertexList*)variant->vertices.get());
