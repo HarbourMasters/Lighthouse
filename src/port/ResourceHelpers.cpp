@@ -306,7 +306,8 @@ void ResourceHelpers_BuildOverlayRepoints() {
     }
     sOverlayOverride.clear();
 
-    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetArchives();
+    auto archiveManager = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = archiveManager->GetArchives();
     if (!archives) {
         return;
     }
@@ -327,6 +328,14 @@ void ResourceHelpers_BuildOverlayRepoints() {
             }
             uint32_t id = 0;
             if (!Lighthouse::AssetHexFromPath(path, id)) {
+                continue;
+            }
+            bool part = false;
+            for (size_t cut = path.find('_', path.rfind("ASSET_") + 6); cut != std::string::npos && !part;
+                 cut = path.find('_', cut + 1)) {
+                part = archiveManager->HasFile(path.substr(0, cut));
+            }
+            if (part) {
                 continue;
             }
             if (auto [it, inserted] = mine.try_emplace(id, path); !inserted && path.size() < it->second.size()) {
