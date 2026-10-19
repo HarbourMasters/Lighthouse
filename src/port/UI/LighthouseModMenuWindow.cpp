@@ -805,7 +805,8 @@ void SetSoleEnabledRomhack(const std::string& keepBasename) {
             if (wasDisabled) {
                 SPDLOG_INFO("[ModMenu] Keeping freshly-generated romhack overlay '{}' enabled", basename);
             }
-        } else if (eraseFrom(enabled, basename)) {
+        } else if (eraseFrom(enabled, basename) ||
+                   std::find(disabled.begin(), disabled.end(), basename) == disabled.end()) {
             // A different romhack overlay: disable it so the new one is the
             // sole enabled aGameConfig carrier.
             if (std::find(disabled.begin(), disabled.end(), basename) == disabled.end()) {
