@@ -65,8 +65,8 @@ void ncDynamicCam8_func_802BF9B8(s32 arg0) {
     PivotCameraNode *temp_s0;
 
     temp_s0 = ncCameraNodeList_getPivotCameraNode(arg0);
-    D_8037DB0C = code336F0_func_802BA8BC (temp_s0);
-    D_8037DB0D = code336F0_func_802BA87C(temp_s0);
+    D_8037DB0C = cameraNodeType1_getVFix (temp_s0);
+    D_8037DB0D = cameraNodeType1_getHits(temp_s0);
     code336F0_func_802BA7D8(temp_s0, D_8037DB00);
     cameraNodeType1_getPosition(temp_s0, D_8037DAF0);
     cameraNodeType1_getHorizontalAndVerticalSpeed(temp_s0, &sp2C, &sp28);
