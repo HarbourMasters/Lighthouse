@@ -3,7 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 
-// all functions in this file are unsued
+// all functions in this file are unused
 
 void stub_802409C0(f32 position[3], f32 speed);
 void stub_80240A74(f32 position[3]);

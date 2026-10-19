@@ -3,7 +3,7 @@
 #include "core1/core1.h"
 #include "functions.h"
 
-// all functions in this file are unsued
+// all functions in this file are unused
 
 static Gfx sGfxSublist[] = {
     gsSPClearGeometryMode(G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH | G_CLIPPING | 0x0060CD00),
