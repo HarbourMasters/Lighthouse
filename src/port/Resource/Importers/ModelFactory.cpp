@@ -64,17 +64,17 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     const uint16_t texCount = reader->ReadUInt16();
     const bool hasAnim = reader->ReadUByte() != 0;
     const bool hasCol = reader->ReadUByte() != 0;
-    const bool hasUnk14 = reader->ReadUByte() != 0;
-    const bool hasUnk20 = reader->ReadUByte() != 0;
-    const bool hasEffects = reader->ReadUByte() != 0;
-    const bool hasUnk28 = reader->ReadUByte() != 0;
+    const bool hasCollisionShapes = reader->ReadUByte() != 0;
+    const bool hasCameraAreas = reader->ReadUByte() != 0;
+    const bool hasMeshList = reader->ReadUByte() != 0;
+    const bool hasVertexBoneMap = reader->ReadUByte() != 0;
     const bool hasAnimTex = reader->ReadUByte() != 0;
 
     // [port] Debug: dump parsed flags so we can verify stream alignment
-    SPDLOG_TRACE("[BKModel] '{}' flags: geoType={} tri={} vert={} geo={} vtx={} dl={} tex={} anim={} col={} u14={} "
-                 "u20={} fx={} u28={} animTex={}",
+    SPDLOG_TRACE("[BKModel] '{}' flags: geoType={} tri={} vert={} geo={} vtx={} dl={} tex={} anim={} col={} shapes={} "
+                 "cameraAreas={} meshes={} vertexBoneMap={} animTex={}",
                  initData->Path, geoType, triCount, vertCount, hasGeo, hasVtx, hasDL, texCount, hasAnim, hasCol,
-                 hasUnk14, hasUnk20, hasEffects, hasUnk28, hasAnimTex);
+                 hasCollisionShapes, hasCameraAreas, hasMeshList, hasVertexBoneMap, hasAnimTex);
 
     // VTX header fields
     int16_t vtxMin[3] = {}, vtxMax[3] = {}, vtxCenter[3] = {};
@@ -217,36 +217,35 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
-    // Unk14
-    int16_t u14c0 = 0, u14c1 = 0, u14c2 = 0, u14unk6 = 0;
-    struct U14_0 {
+    int16_t shapeBoxCount = 0, shapeCylinderCount = 0, shapeSphereCount = 0, shapeCullRadius = 0;
+    struct ShapeBox {
         int16_t scale1[3], scale2[3], pos[3];
         uint8_t rot[3], unk15;
         int8_t animIdx;
         uint8_t pad;
     };
-    struct U14_1 {
+    struct ShapeCylinder {
         int16_t unk0, unk2, pos[3];
         uint8_t rot[3], unkD;
         int8_t animIdx;
         uint8_t pad;
     };
-    struct U14_2 {
+    struct ShapeSphere {
         int16_t unk0, unk2[3];
         uint8_t unk8;
         int8_t unk9;
         uint8_t pad[2];
     };
-    std::vector<U14_0> u14_0;
-    std::vector<U14_1> u14_1;
-    std::vector<U14_2> u14_2;
-    if (hasUnk14) {
-        u14c0 = reader->ReadInt16();
-        u14c1 = reader->ReadInt16();
-        u14c2 = reader->ReadInt16();
-        u14unk6 = reader->ReadInt16();
-        for (int16_t i = 0; i < u14c0; i++) {
-            U14_0 e{};
+    std::vector<ShapeBox> shapeBoxes;
+    std::vector<ShapeCylinder> shapeCylinders;
+    std::vector<ShapeSphere> shapeSpheres;
+    if (hasCollisionShapes) {
+        shapeBoxCount = reader->ReadInt16();
+        shapeCylinderCount = reader->ReadInt16();
+        shapeSphereCount = reader->ReadInt16();
+        shapeCullRadius = reader->ReadInt16();
+        for (int16_t i = 0; i < shapeBoxCount; i++) {
+            ShapeBox e{};
             e.scale1[0] = reader->ReadInt16();
             e.scale1[1] = reader->ReadInt16();
             e.scale1[2] = reader->ReadInt16();
@@ -262,10 +261,10 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             e.unk15 = reader->ReadUByte();
             e.animIdx = reader->ReadInt8();
             e.pad = reader->ReadUByte();
-            u14_0.push_back(e);
+            shapeBoxes.push_back(e);
         }
-        for (int16_t i = 0; i < u14c1; i++) {
-            U14_1 e{};
+        for (int16_t i = 0; i < shapeCylinderCount; i++) {
+            ShapeCylinder e{};
             e.unk0 = reader->ReadInt16();
             e.unk2 = reader->ReadInt16();
             e.pos[0] = reader->ReadInt16();
@@ -277,10 +276,10 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             e.unkD = reader->ReadUByte();
             e.animIdx = reader->ReadInt8();
             e.pad = reader->ReadUByte();
-            u14_1.push_back(e);
+            shapeCylinders.push_back(e);
         }
-        for (int16_t i = 0; i < u14c2; i++) {
-            U14_2 e{};
+        for (int16_t i = 0; i < shapeSphereCount; i++) {
+            ShapeSphere e{};
             e.unk0 = reader->ReadInt16();
             e.unk2[0] = reader->ReadInt16();
             e.unk2[1] = reader->ReadInt16();
@@ -289,21 +288,20 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             e.unk9 = reader->ReadInt8();
             e.pad[0] = reader->ReadUByte();
             e.pad[1] = reader->ReadUByte();
-            u14_2.push_back(e);
+            shapeSpheres.push_back(e);
         }
     }
 
-    // Unk20
-    uint8_t u20count = 0;
-    struct U20_0 {
+    uint8_t cameraAreaCount = 0;
+    struct CameraArea {
         int16_t unk0[3], unk6[3];
         uint8_t unkC, pad;
     };
-    std::vector<U20_0> u20_entries;
-    if (hasUnk20) {
-        u20count = reader->ReadUByte();
-        for (uint8_t i = 0; i < u20count; i++) {
-            U20_0 e{};
+    std::vector<CameraArea> cameraAreas;
+    if (hasCameraAreas) {
+        cameraAreaCount = reader->ReadUByte();
+        for (uint8_t i = 0; i < cameraAreaCount; i++) {
+            CameraArea e{};
             e.unk0[0] = reader->ReadInt16();
             e.unk0[1] = reader->ReadInt16();
             e.unk0[2] = reader->ReadInt16();
@@ -312,57 +310,52 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             e.unk6[2] = reader->ReadInt16();
             e.unkC = reader->ReadUByte();
             e.pad = reader->ReadUByte();
-            u20_entries.push_back(e);
+            cameraAreas.push_back(e);
         }
     }
 
-    // Effects
-    uint16_t effectCount = 0;
-    struct EffectEntry {
+    uint16_t meshCount = 0;
+    struct MeshEntry {
         uint16_t dataInfo;
         std::vector<uint16_t> vtxIndices;
     };
-    std::vector<EffectEntry> effects;
-    if (hasEffects) {
-        // Guard against truncated effect data (stale o2r): if the MemoryStream runs
-        // out of bytes, at() throws std::out_of_range.  Catch it, emit a warning, and
-        // continue without an effects section so the model still loads safely.
+    std::vector<MeshEntry> meshes;
+    if (hasMeshList) {
         try {
-            effectCount = reader->ReadUInt16();
-            for (uint16_t i = 0; i < effectCount; i++) {
-                EffectEntry e{};
+            meshCount = reader->ReadUInt16();
+            for (uint16_t i = 0; i < meshCount; i++) {
+                MeshEntry e{};
                 e.dataInfo = reader->ReadUInt16();
                 const uint16_t vtxCnt = reader->ReadUInt16();
                 for (uint16_t j = 0; j < vtxCnt; j++)
                     e.vtxIndices.push_back(reader->ReadUInt16());
-                effects.push_back(e);
+                meshes.push_back(e);
             }
         } catch (const std::out_of_range& ex) {
-            SPDLOG_WARN("[BKModel] Truncated effects section in {} — ignoring effects: {}", initData->Path, ex.what());
-            effects.clear();
+            SPDLOG_WARN("[BKModel] Truncated mesh list in {}, ignoring it: {}", initData->Path, ex.what());
+            meshes.clear();
         }
     }
 
-    // Unk28
-    int16_t u28count = 0;
-    struct U28_0 {
+    int16_t vertexBoneCount = 0;
+    struct VertexBoneEntry {
         int16_t coord[3];
         int8_t animIdx;
         std::vector<int16_t> vtxList;
     };
-    std::vector<U28_0> u28_entries;
-    if (hasUnk28) {
-        u28count = reader->ReadInt16();
-        for (int16_t i = 0; i < u28count; i++) {
-            U28_0 e{};
+    std::vector<VertexBoneEntry> vertexBoneMap;
+    if (hasVertexBoneMap) {
+        vertexBoneCount = reader->ReadInt16();
+        for (int16_t i = 0; i < vertexBoneCount; i++) {
+            VertexBoneEntry e{};
             e.coord[0] = reader->ReadInt16();
             e.coord[1] = reader->ReadInt16();
             e.coord[2] = reader->ReadInt16();
             e.animIdx = reader->ReadInt8();
-            const int8_t vtxCnt = reader->ReadInt8();
-            for (int8_t j = 0; j < vtxCnt; j++)
+            const uint8_t vtxCnt = reader->ReadUByte();
+            for (uint8_t j = 0; j < vtxCnt; j++)
                 e.vtxList.push_back(reader->ReadInt16());
-            u28_entries.push_back(e);
+            vertexBoneMap.push_back(e);
         }
     }
 
@@ -400,10 +393,10 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     //   [ GL ] GeoLayout command tree                          -> geo_list_offset
     //   [ A  ] BKAnimationList + BKAnimation[]                 -> animation_list_offset
     //   [ B  ] BKCollisionList + ColGeo[] + ColTri[]           -> collision_list_offset
-    //   [ 14 ] BKModelUnk14List + entries                      -> unk14
-    //   [ 20 ] BKCameraAreaList + entries                      -> unk20
-    //   [ E  ] effect count (s16) + effects                    -> mesh_list_offset
-    //   [ 28 ] BKAnimVerticesList + entries                    -> unk28
+    //   [ CV ] collision volumes, boxes/cylinders/spheres      -> unk14_list_offset
+    //   [ CA ] BKCameraAreaList + entries                      -> camera_area_list_offset
+    //   [ ML ] mesh count (s16) + named vertex groups          -> mesh_list_offset
+    //   [ VB ] vertex to bone binding + entries                -> anim_vertices_list_offset
     //   [ AT ] AnimTexture[4]                                  -> animated_texture_list_offset
     //   [ V  ] BKVertexList header + Vtx[]                     -> vtx_list_offset
     //   [ G  ] BKGfxList header + Gfx[]                        -> gfx_list_offset
@@ -506,16 +499,15 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
-    // Unk14 section
-    if (hasUnk14) {
+    if (hasCollisionShapes) {
         PadTo8(out);
         hdr()->unk14_list_offset = static_cast<int32_t>(out.size());
 
-        AppendValue<int16_t>(out, u14c0);
-        AppendValue<int16_t>(out, u14c1);
-        AppendValue<int16_t>(out, u14c2);
-        AppendValue<int16_t>(out, u14unk6);
-        for (const auto& e : u14_0) {
+        AppendValue<int16_t>(out, shapeBoxCount);
+        AppendValue<int16_t>(out, shapeCylinderCount);
+        AppendValue<int16_t>(out, shapeSphereCount);
+        AppendValue<int16_t>(out, shapeCullRadius);
+        for (const auto& e : shapeBoxes) {
             AppendValue<int16_t>(out, e.scale1[0]);
             AppendValue<int16_t>(out, e.scale1[1]);
             AppendValue<int16_t>(out, e.scale1[2]);
@@ -532,7 +524,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             AppendValue<int8_t>(out, e.animIdx);
             AppendValue<uint8_t>(out, e.pad);
         }
-        for (const auto& e : u14_1) {
+        for (const auto& e : shapeCylinders) {
             AppendValue<int16_t>(out, e.unk0);
             AppendValue<int16_t>(out, e.unk2);
             AppendValue<int16_t>(out, e.pos[0]);
@@ -545,7 +537,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             AppendValue<int8_t>(out, e.animIdx);
             AppendValue<uint8_t>(out, e.pad);
         }
-        for (const auto& e : u14_2) {
+        for (const auto& e : shapeSpheres) {
             AppendValue<int16_t>(out, e.unk0);
             AppendValue<int16_t>(out, e.unk2[0]);
             AppendValue<int16_t>(out, e.unk2[1]);
@@ -557,14 +549,13 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
-    // Unk20 section
-    if (hasUnk20) {
+    if (hasCameraAreas) {
         PadTo8(out);
         hdr()->camera_area_list_offset = static_cast<int32_t>(out.size());
 
-        AppendValue<uint8_t>(out, u20count);
+        AppendValue<uint8_t>(out, cameraAreaCount);
         AppendValue<uint8_t>(out, 0);
-        for (const auto& e : u20_entries) {
+        for (const auto& e : cameraAreas) {
             AppendValue<int16_t>(out, e.unk0[0]);
             AppendValue<int16_t>(out, e.unk0[1]);
             AppendValue<int16_t>(out, e.unk0[2]);
@@ -576,29 +567,27 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
         }
     }
 
-    // Effects section (only when effects were successfully parsed and non-empty)
-    if (hasEffects && !effects.empty()) {
+    if (hasMeshList && !meshes.empty()) {
         PadTo8(out);
         hdr()->mesh_list_offset = static_cast<int32_t>(out.size());
 
-        AppendValue<int16_t>(out, static_cast<int16_t>(effects.size()));
-        for (const auto& fx : effects) {
-            AppendValue<uint16_t>(out, fx.dataInfo);
-            AppendValue<uint16_t>(out, static_cast<uint16_t>(fx.vtxIndices.size()));
-            for (auto idx : fx.vtxIndices)
+        AppendValue<int16_t>(out, static_cast<int16_t>(meshes.size()));
+        for (const auto& entry : meshes) {
+            AppendValue<uint16_t>(out, entry.dataInfo);
+            AppendValue<uint16_t>(out, static_cast<uint16_t>(entry.vtxIndices.size()));
+            for (auto idx : entry.vtxIndices)
                 AppendValue<uint16_t>(out, idx);
         }
     }
 
-    // Unk28 section
-    if (hasUnk28) {
+    if (hasVertexBoneMap) {
         PadTo8(out);
         hdr()->anim_vertices_list_offset = static_cast<int32_t>(out.size());
 
-        AppendValue<int16_t>(out, u28count);
+        AppendValue<int16_t>(out, vertexBoneCount);
         AppendValue<uint8_t>(out, 0);
         AppendValue<uint8_t>(out, 0);
-        for (const auto& e : u28_entries) {
+        for (const auto& e : vertexBoneMap) {
             AppendValue<int16_t>(out, e.coord[0]);
             AppendValue<int16_t>(out, e.coord[1]);
             AppendValue<int16_t>(out, e.coord[2]);
