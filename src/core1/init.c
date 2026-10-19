@@ -180,7 +180,8 @@ void core1_init(void) {
     gctransition_reset();
     D_8027A130 = 0;
     gGlobalTimer = 0;
-    func_8023DA9C(3);
+//  func_8023DA9C(3);
+    func_8023DA9C(port_bootsUnloaded() ? 0 : 3);
 }
 
 void globalTimer_incTimer(void) {
@@ -279,9 +280,12 @@ void mainLoop(void) {
     }
 #endif
 
-    port_actorDespawn_beginDefer();
-    CALL_EVENT(GameFrameUpdate);
-    port_actorDespawn_endDefer();
+    // [port] Only while a game is loaded, see GameEngine::RequestStop
+    if (D_8027A130 != 0) {
+        port_actorDespawn_beginDefer();
+        CALL_EVENT(GameFrameUpdate);
+        port_actorDespawn_endDefer();
+    }
 }
 
 void mainThread_entry(void *arg) {

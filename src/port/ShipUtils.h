@@ -53,6 +53,7 @@ const char* port_mapName(int map_id);
 
 // Get the boot sequence setting (0=Default, 1=Authentic, 2=FileSelect)
 int port_getBootSequence(void);
+int port_bootsUnloaded(void);
 
 // Currently selected game number (0-2), set at file pick. -1 if none.
 extern s32 gSelectedGameNum;

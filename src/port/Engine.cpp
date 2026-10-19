@@ -50,6 +50,7 @@
 #include "src/port/Enhancements/Events/Hooks/Events.h"
 #include "UI/LighthouseGui.hpp"
 #include "UI/LighthouseModMenuWindow.h"
+#include "FrameHost.h"
 #include "LaunchArgs.h"
 
 #ifdef __SWITCH__
@@ -118,16 +119,16 @@ GameEngine::GameEngine() {
     // Register console commands for menu buttons
     Ship::Context::GetRawInstance()->GetConsole()->AddCommand(
         "reset", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
-                      gPortResetPending = 1; // lets audio spin-waits exit immediately
-                      setBootMap(getDefaultBootMap());
-                      D_80275610 = 3 + 1; // deferred: mainLoop picks this up next frame
-                      CALL_EVENT(OnReset);
+                      auto host = Lighthouse::GetFrameHost();
+                      if (host == nullptr || !host->WantsFrame()) {
+                          RequestReset();
+                      }
                       return 0;
                   },
                    "Reset the game." });
     Ship::Context::GetRawInstance()->GetConsole()->AddCommand(
         "quit", { [](std::shared_ptr<Ship::Console>, const std::vector<std::string>&, std::string*) -> bool {
-                     Ship::Context::GetRawInstance()->GetWindow()->Close();
+                     Quit();
                      return 0;
                  },
                   "Quit the game." });
@@ -151,6 +152,26 @@ GameEngine::GameEngine() {
     previousImGuiScaleIndex = -1;
     previousImGuiScale = defaultImGuiScale;
     ScaleImGui();
+}
+
+void GameEngine::RequestReset() {
+    gPortResetPending = 1; // lets audio spin-waits exit immediately
+    setBootMap(getDefaultBootMap());
+    D_80275610 = 3 + 1; // deferred: mainLoop picks this up next frame
+    CALL_EVENT(OnReset);
+}
+
+// mainLoop unloads the game on its next tick
+void GameEngine::RequestStop() {
+    gPortResetPending = 1;
+    D_80275610 = 0 + 1;
+}
+
+void GameEngine::Quit() {
+    auto host = Lighthouse::GetFrameHost();
+    if (host == nullptr || !host->HoldQuit()) {
+        Ship::Context::GetRawInstance()->GetWindow()->Close();
+    }
 }
 
 // Startup
@@ -250,6 +271,7 @@ static void LoadLanguagePacks() {
 }
 
 void GameEngine::FinishInit() {
+    const bool hosted = Lighthouse::GetFrameHost() != nullptr;
     for (const auto& archive : kRomArchives) {
         std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
         if (std::filesystem::exists(romPath)) {
@@ -262,11 +284,13 @@ void GameEngine::FinishInit() {
         std::filesystem::create_directories(patches_path);
     }
 
-    Lighthouse::ApplyLaunchHack();
-    UpdateModFiles(true);
-    LoadLooseModDirectories(patches_path);
-    LoadLanguagePacks();
-    ResourceHelpers_BuildOverlayRepoints();
+    if (!hosted) {
+        Lighthouse::ApplyLaunchHack();
+        UpdateModFiles(true);
+        LoadLooseModDirectories(patches_path);
+        LoadLanguagePacks();
+        ResourceHelpers_BuildOverlayRepoints();
+    }
 
 #if (_DEBUG)
     auto defaultLogLevel = spdlog::level::debug;
@@ -305,9 +329,11 @@ void GameEngine::FinishInit() {
     Lighthouse::RescanLanguages();
 
     LighthouseGui::SetupGuiElements();
-    Lighthouse::RestoreModSelectionAfterLaunchHack();
-    MaybeShowModConflictPopup();
-    MaybeShowRomhackBaseMismatchPopup();
+    if (!hosted) {
+        Lighthouse::RestoreModSelectionAfterLaunchHack();
+        MaybeShowModConflictPopup();
+        MaybeShowRomhackBaseMismatchPopup();
+    }
     // Instance->LoadDictionary();
     // Instance->LoadPlayerAnims();
 #if defined(__SWITCH__) || defined(__WIIU__)
@@ -424,6 +450,14 @@ void GameEngine::Destroy() {
 #ifdef __SWITCH__
     Ship::Switch::Exit();
 #endif
+}
+
+void GameEngine::ArchivesChanged() {
+    if (auto interpreter = lhFast3dWindow->GetInterpreterWeak().lock()) {
+        interpreter->TextureCacheClear();
+    }
+    ResourceHelpers_ClearRefCache();
+    port_spriteDisplayCache_clear();
 }
 
 void GameEngine::StartFrame() const {

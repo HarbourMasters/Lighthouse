@@ -268,6 +268,25 @@ void Destroy() {
     mAnchorRoomWindow = nullptr;
 }
 
+void SetAttached(bool attached) {
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
+    gui->SetMenu(attached ? mLighthouseMenu : nullptr);
+    const std::shared_ptr<Ship::GuiWindow> windows[] = {
+        mModalWindow,          mInputEditorWindow,          mGamepadMapperWindow,     mModMenuWindow,
+        mRomhackMenuWindow,    mSaveEditorWindow,           mGameplayToolsWindow,     mCosmeticsEditorWindow,
+        mDisplayOverlayWindow, mNotificationWindow,         mRandoCheckTrackerWindow, mRandoCheckTrackerSettingsWindow,
+        mWorldTrackerWindow,   mWorldTrackerSettingsWindow, mEggAimCrosshair,         mInputViewer,
+        mInputViewerSettings,  mEventDebuggerWindow,        mOcclusionDebugWindow,    mAnchorRoomWindow,
+    };
+    for (const auto& window : windows) {
+        if (attached) {
+            gui->AddGuiWindow(window);
+        } else {
+            gui->RemoveGuiWindow(window);
+        }
+    }
+}
+
 void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,
                    std::function<void()> button1callback, std::function<void()> button2callback) {
     mModalWindow->RegisterPopup(title, message, button1, button2, button1callback, button2callback);

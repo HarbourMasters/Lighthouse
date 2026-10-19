@@ -26,6 +26,7 @@
 #include "UIWidgets.hpp"
 #include "port/Engine.h"
 #include "port/Extractor/GameExtractor.h"
+#include "port/FrameHost.h"
 #include "port/GameVersion/BaseGameVersion.h"
 #include "port/ResourceHelpers.h"
 #include "port/Localization/Language.h"
@@ -676,7 +677,9 @@ void LighthouseRomhackMenuWindow::DrawElement() {
 }
 
 void LighthouseModMenuWindow::InitElement() {
-    UpdateModFiles(true);
+    if (Lighthouse::GetFrameHost() == nullptr) {
+        UpdateModFiles(true);
+    }
 }
 
 static void RegisterModMenuWidgets() {

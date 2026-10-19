@@ -432,10 +432,11 @@ void game_free(void){
     if(!func_802E4A08())
         print_free();
     timedFuncQueue_free();
-    func_802F9C48();
+//  func_802F9C48();
     modelRender_free();
     depthbuffer_stub();
     func_802E398C(0);
+    func_802F9C48(); // [port] After the world, whose actors stop their own random-pitch sounds as they're freed
     func_8030AFD8(0);
     level_unload();
     debugScoreStates();

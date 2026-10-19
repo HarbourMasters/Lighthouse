@@ -784,7 +784,7 @@ void Menu::DrawElement() {
                 if (!menu->IsMenuPopped()) {
                     menu->ToggleVisibility();
                 }
-                Ship::Context::GetRawInstance()->GetWindow()->Close();
+                GameEngine::Quit();
             },
             nullptr);
     }

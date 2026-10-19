@@ -20,6 +20,7 @@
 #include "port/build.h"
 #include "port/Extractor/ExtractFlow.h"
 #include "port/Extractor/GameExtractor.h"
+#include "port/FrameHost.h"
 #include "port/LaunchArgs.h"
 #include "port/UI/cvar_prefixes.h"
 #include "port/UI/LighthouseGui.hpp"
@@ -178,6 +179,9 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
             if (takesValue) {
                 i++;
             }
+            continue;
+        }
+        if (Lighthouse::IsFrameHostFlag(arg)) {
             continue;
         }
         args.push_back(arg);
