@@ -53,6 +53,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnParadeNameDraw);
     REGISTER_EVENT(OnJinjoHeadDraw);
     REGISTER_EVENT(ResolveSpriteHdPath);
+    REGISTER_EVENT(ResolveAnimTextureHd);
     REGISTER_EVENT(OnBoldFontLetterBuilt);
     REGISTER_EVENT(ResolveBoldFontHd);
     REGISTER_EVENT(OnBoldFontReset);

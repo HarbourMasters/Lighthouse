@@ -1071,6 +1071,10 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
             if(AnimTextureListCache_tryGetTextureOffset(modelRenderAnimatedTexturesCacheId, i_segment, &texture_offset)){
                 uintptr_t base = (uintptr_t)&modelRenderTextureList->texture_infos[modelRenderTextureList->count];
                 gSPSegment((*gfx)++, 15 - i_segment, osVirtualToPhysical((void *)(base + (uintptr_t)texture_offset)));
+                // [port] ModelFactory moved this slot's pixel load to segment 7 + slot
+                uintptr_t frame = base + (uintptr_t)texture_offset;
+                CALL_EVENT(ResolveAnimTextureHd, (void *)base, i_segment, texture_offset, &frame);
+                gSPSegment((*gfx)++, 7 + i_segment, osVirtualToPhysical((void *)frame));
             }
         }
     }

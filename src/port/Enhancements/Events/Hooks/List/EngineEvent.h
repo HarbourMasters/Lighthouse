@@ -52,6 +52,7 @@ DEFINE_EVENT(OnBoldFontLetterBuilt, void* output; void* maskChunk; void* sphereC
 DEFINE_EVENT(ResolveBoldFontHd, void* output; const char** path;);
 DEFINE_EVENT(OnBoldFontReset);
 DEFINE_EVENT(ResolveSpriteHdPath, const void* chunkAddr; const char** path;);
+DEFINE_EVENT(ResolveAnimTextureHd, const void* textures; int32_t slot; int32_t frameOffset; uintptr_t * segment;);
 DEFINE_EVENT(OnFileSelectInfoBuild, int32_t gamenum; char* upper; char* lower;);
 DEFINE_EVENT(LocalizeFileSelectPrompt, int32_t promptId; void* zoombox;);
 DEFINE_EVENT(OnFileSelectLanguageRefresh, int32_t gamenum; int32_t isSelected;);

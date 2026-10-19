@@ -5,6 +5,7 @@
 #include <fast/resource/type/Vertex.h>
 #include <fast/resource/type/Texture.h>
 
+#include "port/Resource/Alt/AltAnimTextures.h"
 #include "port/Resource/Alt/AltPathPool.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
@@ -387,6 +388,7 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             animTextures.push_back(at);
         }
     }
+    BkAnimTextureAlt::Slot animSlots[4];
 
     // ── Load GEO sub-resource (GeoLayout render tree) ─────────────────────────
     std::shared_ptr<Ship::Blob> geoBlob;
@@ -419,9 +421,11 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     hdr()->geo_type = static_cast<int16_t>(geoType);
 
     // Texture section
+    size_t texturesAt = 0;
     if (texCount > 0) {
         PadTo8(out);
         hdr()->texture_list_offset = static_cast<int16_t>(out.size());
+        texturesAt = out.size() + 8 + texCount * 16; // modelRender_draw's animated texture base
 
         // Use raw texture blob directly — preserves animated frames and
         // all unlisted data. OTEX overlay for alt assets can be added later.
@@ -643,8 +647,8 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
                 palettes[texMetas[ti].textureDataOffset] = { palette, texMetas[ti].tlutColors };
             }
         }
-        // Some models load 256 colors for a texture that lists 16. Only the model has the other 240, so those loads keep
-        // the model's palette.
+        // Some models load 256 colors for a texture that lists 16. Only the model has the other 240, so those loads
+        // keep the model's palette.
         const auto loadsAtMost = [&](uint32_t at, uint16_t colors) {
             for (uint32_t j = at + 1; j < dlCount; j++) {
                 const uint8_t op = (uint8_t)(rawDLWords[j * 2] >> 24);
@@ -657,6 +661,48 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
             }
             return false;
         };
+
+        const auto loadsPixels = [&](uint32_t at) {
+            for (uint32_t j = at + 1; j < dlCount; j++) {
+                const uint8_t op = (uint8_t)(rawDLWords[j * 2] >> 24);
+                if (op == 0xF3 || op == 0xF4) { // G_LOADBLOCK, G_LOADTILE
+                    return true;
+                }
+                if (op == 0xF0 || op == 0xFD) { // G_LOADTLUT, G_SETTIMG
+                    return false;
+                }
+            }
+            return false;
+        };
+        if (hasAnimTex && texCount > 0) {
+            int32_t loads[4] = {};
+            for (uint32_t i = 0; i < dlCount; i++) {
+                const uint32_t seg = (rawDLWords[i * 2 + 1] >> 24) & 0xFF;
+                if ((rawDLWords[i * 2] >> 24) != 0xFD || seg < 0x0B || seg > 0x0F || !loadsPixels(i)) {
+                    continue;
+                }
+                auto& slot = animSlots[0x0F - seg];
+                const uint32_t offset = rawDLWords[i * 2 + 1] & 0x00FFFFFF;
+                if (loads[0x0F - seg]++ > 0 && offset != slot.pixelOffset) {
+                    slot.texIndex = -2; // more than one load: leave the slot alone
+                    continue;
+                }
+                slot.pixelOffset = offset;
+                slot.frameSize = animTextures[0x0F - seg].frameSize;
+                for (uint16_t ti = 0; ti < texCount && slot.texIndex != -2; ti++) {
+                    if (texMetas[ti].textureDataOffset <= offset &&
+                        (slot.texIndex < 0 ||
+                         texMetas[ti].textureDataOffset > texMetas[slot.texIndex].textureDataOffset)) {
+                        slot.texIndex = ti;
+                    }
+                }
+            }
+            for (auto& slot : animSlots) {
+                if (slot.texIndex < 0 || slot.frameSize == 0) {
+                    slot.texIndex = -1;
+                }
+            }
+        }
 
         // Widen each N64 command: (u32 w0, u32 w1) → (uintptr_t w0, uintptr_t w1)
         for (uint32_t i = 0; i < dlCount; i++) {
@@ -680,6 +726,12 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
                 AppendValue<uintptr_t>(out, w0);
                 AppendValue<uintptr_t>(out, w1);
                 continue;
+            }
+            if (opcode == 0xFD && ((w1 >> 24) & 0xFF) >= 0x0B && ((w1 >> 24) & 0xFF) <= 0x0F) {
+                const uint32_t slot = 0x0F - (uint32_t)((w1 >> 24) & 0xFF);
+                if (animSlots[slot].texIndex >= 0 && (uint32_t)(w1 & 0x00FFFFFF) == animSlots[slot].pixelOffset) {
+                    w1 = ((uintptr_t)(BkAnimTextureAlt::kHdSegmentBase + slot) << 24) | (w1 & 0x00FFFFFF);
+                }
             }
 
             // F3DEX opcodes that carry a segmented address in w1.
@@ -797,6 +849,9 @@ ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,
     }
 
     auto blob = MakeBlob(initData, std::move(out));
+    if (hasAnimTex && texturesAt != 0) {
+        BkAnimTextureAlt::Register(blob->Data.data() + texturesAt, initData->Path, animSlots);
+    }
     CALL_EVENT(OnModelBinBuilt, initData->Path.c_str(), blob->Data.data());
     return blob;
 }
