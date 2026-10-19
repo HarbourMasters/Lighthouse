@@ -5,6 +5,7 @@
 #include <string>
 #include <zip.h>
 
+#include "port/build.h"
 #include "ship/Context.h"
 #include <spdlog/spdlog.h>
 
@@ -98,8 +99,27 @@ bool ClassifyArchiveVersion(uint32_t rawVersion, BKVersion& out) {
     return false;
 }
 
-bool BaseGameSupportsRomhacks() {
-    return GetBaseVersion() == BK_VER_US_10;
+ArchiveStamp ReadArchiveStamp(const std::string& archivePath) {
+    int err = 0;
+    zip_t* z = zip_open(archivePath.c_str(), ZIP_RDONLY, &err);
+    if (z == nullptr) {
+        return ArchiveStamp::None;
+    }
+
+    ArchiveStamp stamp = ArchiveStamp::None;
+    if (zip_file_t* f = zip_fopen(z, "portVersion", 0)) {
+        uint8_t buf[4] = {};
+        if (zip_fread(f, buf, sizeof(buf)) == sizeof(buf)) {
+            const uint16_t major = static_cast<uint16_t>((buf[0] << 8) | buf[1]);
+            const uint16_t minor = static_cast<uint16_t>((buf[2] << 8) | buf[3]);
+            stamp = (major == gBuildVersionMajor && minor == gBuildVersionMinor) ? ArchiveStamp::Current
+                                                                                 : ArchiveStamp::Outdated;
+        }
+        zip_fclose(f);
+    }
+
+    zip_close(z);
+    return stamp;
 }
 
 std::string BaseRegionSlug() {

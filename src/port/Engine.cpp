@@ -31,6 +31,7 @@
 #include "build.h"
 #include "Extractor/ExtractFlow.h"
 #include "Extractor/GameExtractor.h"
+#include "GameVersion/BaseGameVersion.h"
 #include "ship/window/gui/FileBrowserWindow.h"
 #include "Network/Anchor/Anchor.h"
 #include "port/Enhancements/Events/PortEnhancements.h"
@@ -258,6 +259,13 @@ static void LoadLanguagePacks() {
         }
         for (const auto& p : std::filesystem::directory_iterator(dir, ec)) {
             if (p.is_regular_file() && p.path().extension() == ".o2r") {
+                // A pack with no portVersion is a custom one, built with Torch
+                if (Lighthouse::ReadArchiveStamp(p.path().generic_string()) == Lighthouse::ArchiveStamp::Outdated) {
+                    SPDLOG_WARN("Refusing {} language pack extracted by another version of Lighthouse: {}", what,
+                                p.path().generic_string());
+                    NoteOutdatedLanguagePack(p.path().filename().generic_string());
+                    continue;
+                }
                 SPDLOG_INFO("Loading {} language pack: {}", what, p.path().generic_string());
                 Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->AddArchive(
                     p.path().generic_string());
@@ -332,7 +340,7 @@ void GameEngine::FinishInit() {
     if (!hosted) {
         Lighthouse::RestoreModSelectionAfterLaunchHack();
         MaybeShowModConflictPopup();
-        MaybeShowRomhackBaseMismatchPopup();
+        MaybeShowOutdatedArchivesPopup();
     }
     // Instance->LoadDictionary();
     // Instance->LoadPlayerAnims();

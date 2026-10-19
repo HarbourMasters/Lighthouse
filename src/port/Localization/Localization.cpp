@@ -704,10 +704,9 @@ static void RegisterLocalizedText() {
     });
 
     // The Motzand parade inserts Motzand at index 20, which shifts the later
-    // credit-dialog ids by one. 0x11CA is the Motzand credit: on a PAL/JP base it
-    // re-points to that version's native dialog (PAL 3065 / JP 3073) via the override;
-    // on a US base it resolves to the pack's additive 0x11CA asset. The other shifted
-    // ids (0x11AF + index - 1) are v1.0 canonical and resolve directly from the base.
+    // credit-dialog ids by one. 0x11CA is the Motzand credit: PAL and JP bases carry it,
+    // and on a US base it resolves to the pack's additive 0x11CA asset. The other shifted
+    // ids (0x11AF + index - 1) resolve directly from the base.
     REGISTER_LISTENER(ParadeCreditDialogId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ParadeCreditDialogId*)event;
         if (!port_useMotzandParade() || ev->index <= 19 || ev->dialogId == nullptr) {
