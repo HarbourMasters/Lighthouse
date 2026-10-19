@@ -1,7 +1,10 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "RomhackTable.h"
+#include "factories/bk64/ConfigFactory.h"
+#include "port/Localization/Language.h"
 
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <cstring>
 #include <cstdlib>
@@ -79,41 +82,26 @@ static int sCustomCodeKind = -1;
 // present.
 static std::string sRomHashHex;
 
-static constexpr uint32_t GAMECONFIG_MAGIC = 0x46434B42;
-
-static uint16_t readLE16(const uint8_t* p) {
-    return p[0] | (p[1] << 8);
-}
-static uint32_t readLE32(const uint8_t* p) {
-    return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-
-enum {
-    CCK_NEW_GAME_MAP = 0,
-    CCK_START_LEVEL_1,
-    CCK_START_LEVEL_2,
-    CCK_KNOW_ALL_MOVES,
-    CCK_MUMBO_COST_TERMITE,
-    CCK_MUMBO_COST_CROC,
-    CCK_MUMBO_COST_WALRUS,
-    CCK_MUMBO_COST_PUMPKIN,
-    CCK_MUMBO_COST_BEE,
-    CCK_EGGS_NORMAL_MAX,
-    CCK_RED_FEATHERS_NORMAL_MAX,
-    CCK_GOLD_FEATHERS_NORMAL_MAX,
-    CCK_EGGS_CHEATO_MAX,
-    CCK_RED_FEATHERS_CHEATO_MAX,
-    CCK_GOLD_FEATHERS_CHEATO_MAX,
-    CCK_NOTES_MAX,
-    CCK_JIGGIES_PER_WORLD,
-    CCK_HONEYCOMBS_PER_WORLD,
-    CCK_EXTRA_HC_START,
-    CCK_WARP_EXIT_BANJOS_HOUSE,
-    CCK_WARP_ENTER_LAIR,
-    CCK_SPECIAL_LEVEL,
-    CCK_HIDE_JIGGIES_LEVEL,
-    CCK_HIDE_COLLECTIBLES_LEVEL,
+// Indexed by BK64::CodeConstantKey.
+static int* const sConstants[] = {
+    &sNewGameMap,       &sStartLevel1,          &sStartLevel2,           &sKnowAllMoves,
+    &sMumboCostTermite, &sMumboCostCroc,        &sMumboCostWalrus,       &sMumboCostPumpkin,
+    &sMumboCostBee,     &sEggsNormalMax,        &sRedFeathersNormalMax,  &sGoldFeathersNormalMax,
+    &sEggsCheatomax,    &sRedFeathersCheatomax, &sGoldFeathersCheatomax, &sNotesMax,
+    &sJiggiesPerWorld,  &sHoneycombsPerWorld,   &sExtraHcStart,          &sWarpExitBanjosHouse,
+    &sWarpEnterLair,    &sSpecialLevel,         &sHideJiggiesLevel,      &sHideCollectiblesLevel,
 };
+static_assert(std::size(sConstants) == static_cast<size_t>(BK64::CodeConstantKey::COUNT));
+
+static std::string HexString(const uint8_t* bytes, size_t count) {
+    std::string out;
+    for (size_t i = 0; i < count; i++) {
+        char hex[3];
+        std::snprintf(hex, sizeof(hex), "%02x", bytes[i]);
+        out += hex;
+    }
+    return out;
+}
 
 static void LoadGameConfig() {
     if (sGameConfigLoaded) {
@@ -129,343 +117,94 @@ static void LoadGameConfig() {
         return;
     }
 
-    const uint8_t* data = reinterpret_cast<const uint8_t*>(res->Buffer->data());
-    size_t size = res->Buffer->size();
-
-    if (size < 8) {
-        SPDLOG_WARN("[GameConfig] File too small ({} bytes)", size);
+    BK64::GameConfigData config;
+    std::string error;
+    if (!BK64::ReadGameConfig(*res->Buffer, config, error)) {
+        SPDLOG_WARN("[GameConfig] {}", error);
         return;
     }
-
-    uint32_t magic = readLE32(data);
-    if (magic != GAMECONFIG_MAGIC) {
-        SPDLOG_WARN("[GameConfig] Bad magic: 0x{:08X} (expected 0x{:08X})", magic, GAMECONFIG_MAGIC);
-        return;
-    }
-
-    uint16_t version = readLE16(data + 4);
-    uint16_t sectionCount = readLE16(data + 6);
-
-    size_t pos = 8;
-    if (pos < size) {
-        uint8_t nameLen = data[pos++];
-        if (pos + nameLen <= size) {
-            sRomName.assign(reinterpret_cast<const char*>(data + pos), nameLen);
-            pos += nameLen;
-        }
-    }
-
+    sRomName = config.romName;
     sIsRomhack = true;
 
-    for (uint16_t s = 0; s < sectionCount && pos + 4 <= size; s++) {
-        uint16_t secType = readLE16(data + pos);
-        uint16_t entryCount = readLE16(data + pos + 2);
-        pos += 4;
-
-        switch (secType) {
-            case 1: // CODE_CONSTANTS
-                for (uint16_t e = 0; e < entryCount && pos + 4 <= size; e++) {
-                    uint16_t key = readLE16(data + pos);
-                    uint16_t val = readLE16(data + pos + 2);
-                    pos += 4;
-
-                    int* target = nullptr;
-                    const char* name = "?";
-                    switch (key) {
-                        case CCK_NEW_GAME_MAP:
-                            target = &sNewGameMap;
-                            name = "new_game_map";
-                            break;
-                        case CCK_START_LEVEL_1:
-                            target = &sStartLevel1;
-                            name = "start_level_1";
-                            break;
-                        case CCK_START_LEVEL_2:
-                            target = &sStartLevel2;
-                            name = "start_level_2";
-                            break;
-                        case CCK_KNOW_ALL_MOVES:
-                            target = &sKnowAllMoves;
-                            name = "know_all_moves";
-                            break;
-                        case CCK_MUMBO_COST_TERMITE:
-                            target = &sMumboCostTermite;
-                            name = "mumbo_cost_termite";
-                            break;
-                        case CCK_MUMBO_COST_CROC:
-                            target = &sMumboCostCroc;
-                            name = "mumbo_cost_croc";
-                            break;
-                        case CCK_MUMBO_COST_WALRUS:
-                            target = &sMumboCostWalrus;
-                            name = "mumbo_cost_walrus";
-                            break;
-                        case CCK_MUMBO_COST_PUMPKIN:
-                            target = &sMumboCostPumpkin;
-                            name = "mumbo_cost_pumpkin";
-                            break;
-                        case CCK_MUMBO_COST_BEE:
-                            target = &sMumboCostBee;
-                            name = "mumbo_cost_bee";
-                            break;
-                        case CCK_EGGS_NORMAL_MAX:
-                            target = &sEggsNormalMax;
-                            name = "eggs_normal_max";
-                            break;
-                        case CCK_RED_FEATHERS_NORMAL_MAX:
-                            target = &sRedFeathersNormalMax;
-                            name = "red_feathers_normal_max";
-                            break;
-                        case CCK_GOLD_FEATHERS_NORMAL_MAX:
-                            target = &sGoldFeathersNormalMax;
-                            name = "gold_feathers_normal_max";
-                            break;
-                        case CCK_EGGS_CHEATO_MAX:
-                            target = &sEggsCheatomax;
-                            name = "eggs_cheato_max";
-                            break;
-                        case CCK_RED_FEATHERS_CHEATO_MAX:
-                            target = &sRedFeathersCheatomax;
-                            name = "red_feathers_cheato_max";
-                            break;
-                        case CCK_GOLD_FEATHERS_CHEATO_MAX:
-                            target = &sGoldFeathersCheatomax;
-                            name = "gold_feathers_cheato_max";
-                            break;
-                        case CCK_NOTES_MAX:
-                            target = &sNotesMax;
-                            name = "notes_max";
-                            break;
-                        case CCK_JIGGIES_PER_WORLD:
-                            target = &sJiggiesPerWorld;
-                            name = "jiggies_per_world";
-                            break;
-                        case CCK_HONEYCOMBS_PER_WORLD:
-                            target = &sHoneycombsPerWorld;
-                            name = "honeycombs_per_world";
-                            break;
-                        case CCK_EXTRA_HC_START:
-                            target = &sExtraHcStart;
-                            name = "extra_hc_start";
-                            break;
-                        case CCK_WARP_EXIT_BANJOS_HOUSE:
-                            target = &sWarpExitBanjosHouse;
-                            name = "warp_exit_banjos_house";
-                            break;
-                        case CCK_WARP_ENTER_LAIR:
-                            target = &sWarpEnterLair;
-                            name = "warp_enter_lair";
-                            break;
-                        case CCK_SPECIAL_LEVEL:
-                            target = &sSpecialLevel;
-                            name = "special_level";
-                            break;
-                        case CCK_HIDE_JIGGIES_LEVEL:
-                            target = &sHideJiggiesLevel;
-                            name = "hide_jiggies_level";
-                            break;
-                        case CCK_HIDE_COLLECTIBLES_LEVEL:
-                            target = &sHideCollectiblesLevel;
-                            name = "hide_collectibles_level";
-                            break;
-                        default:
-                            break;
-                    }
-                    if (target) {
-                        *target = val;
-                    }
-                }
-                break;
-
-            case 2: // SCENE_REMAP
-                for (uint16_t e = 0; e < entryCount && pos + 4 <= size; e++) {
-                    int mapId = readLE16(data + pos);
-                    int levelId = readLE16(data + pos + 2);
-                    pos += 4;
-                    sSceneRemaps[mapId] = levelId;
-                }
-                break;
-
-            case 3: // RETURN_TO_LAIR
-                for (uint16_t e = 0; e < entryCount && pos + 6 <= size; e++) {
-                    int idx = data[pos];
-                    int map = readLE16(data + pos + 2);
-                    int exit = readLE16(data + pos + 4);
-                    pos += 6;
-                    sReturnToLair[idx] = { map, exit };
-                }
-                break;
-
-            case 4: // MUSIC
-                for (uint16_t e = 0; e < entryCount && pos + 6 <= size; e++) {
-                    int mapId = readLE16(data + pos);
-                    int track1 = readLE16(data + pos + 2);
-                    int track2 = readLE16(data + pos + 4);
-                    pos += 6;
-                    sMusicAssign[mapId] = { track1, track2 };
-                }
-                break;
-
-            case 5: // SKYBOX
-                for (uint16_t e = 0; e < entryCount && pos + 32 <= size; e++) {
-                    int sceneId = readLE16(data + pos);
-                    SkyboxLayerData sky = {};
-                    for (int layer = 0; layer < 3; layer++) {
-                        size_t base = pos + 2 + layer * 10;
-                        sky.models[layer] = static_cast<int16_t>(readLE16(data + base));
-                        uint32_t scaleBits = readLE32(data + base + 2);
-                        uint32_t rotBits = readLE32(data + base + 6);
-                        memcpy(&sky.scales[layer], &scaleBits, 4);
-                        memcpy(&sky.rotations[layer], &rotBits, 4);
-                    }
-                    pos += 32;
-                    sSkyboxAssign[sceneId] = sky;
-                }
-                break;
-
-            case 6: // SCENE_DEF
-                for (uint16_t e = 0; e < entryCount && pos + 22 <= size; e++) {
-                    SceneDefData sd = {};
-                    int sceneId = readLE16(data + pos);
-                    sd.opa = static_cast<int16_t>(readLE16(data + pos + 2));
-                    sd.xlu = static_cast<int16_t>(readLE16(data + pos + 4));
-                    for (int b = 0; b < 3; b++) {
-                        sd.min[b] = static_cast<int16_t>(readLE16(data + pos + 6 + b * 2));
-                    }
-                    for (int b = 0; b < 3; b++) {
-                        sd.max[b] = static_cast<int16_t>(readLE16(data + pos + 12 + b * 2));
-                    }
-                    uint32_t scaleBits = readLE32(data + pos + 18);
-                    memcpy(&sd.scale, &scaleBits, 4);
-                    pos += 22;
-                    sSceneDefs[sceneId] = sd;
-                }
-                break;
-
-            case 7: // NOTE_DOORS
-                for (uint16_t e = 0; e < entryCount && pos + 4 <= size; e++) {
-                    int idx = data[pos];
-                    int threshold = readLE16(data + pos + 2);
-                    pos += 4;
-                    if (idx >= 0 && idx < 12) {
-                        sNoteDoors[idx] = threshold;
-                    }
-                }
-                break;
-
-            case 8: // JIGGY_PUZZLES
-                for (uint16_t e = 0; e < entryCount && pos + 6 <= size; e++) {
-                    int idx = data[pos];
-                    int cost = data[pos + 1];
-                    int sizeBits = data[pos + 2];
-                    int flag = readLE16(data + pos + 4);
-                    pos += 6;
-                    if (idx >= 0 && idx < 11) {
-                        sJiggyCosts[idx] = cost;
-                        sJiggySizes[idx] = sizeBits;
-                        sJiggyFlags[idx] = flag;
-                    }
-                }
-                break;
-
-            case 9: // LEVEL_NAMES
-                for (uint16_t e = 0; e < entryCount && pos + 2 <= size; e++) {
-                    int idx = data[pos];
-                    int len = data[pos + 1];
-                    pos += 2;
-                    if (pos + len > size) {
-                        break;
-                    }
-                    if (idx >= 0 && idx < 13) {
-                        if (sLevelNames[idx]) {
-                            free(sLevelNames[idx]);
-                        }
-                        sLevelNames[idx] = static_cast<char*>(malloc(len + 1));
-                        memcpy(sLevelNames[idx], data + pos, len);
-                        sLevelNames[idx][len] = '\0';
-                    }
-                    pos += len;
-                }
-                break;
-
-            case 10: // WARP_DESTINATIONS
-            {
-                // Validate warp destinations
-                const bool canValidate = archive->HasFile("assets/setup/ASSET_71D_UNNAMED");
-                for (uint16_t e = 0; e < entryCount && pos + 4 <= size; e++) {
-                    int warpIdx = readLE16(data + pos);
-                    int dest = readLE16(data + pos + 2);
-                    pos += 4;
-                    if ((dest >> 8) == 0) {
-                        SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} has invalid "
-                                     "destination 0x{:04X} (map 0), ignoring",
-                                     warpIdx, dest);
-                        continue;
-                    }
-                    if (canValidate) {
-                        char setupPath[48];
-                        std::snprintf(setupPath, sizeof(setupPath), "assets/setup/ASSET_%X_UNNAMED",
-                                      (dest >> 8) + 0x71C);
-                        if (!archive->HasFile(setupPath)) {
-                            SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} targets map 0x{:02X}, "
-                                         "which has no setup — dropping override",
-                                         warpIdx, dest >> 8);
-                            continue;
-                        }
-                    }
-                    sWarpDests[warpIdx] = dest;
-                }
-                break;
-            }
-
-            case 11: // CUSTOM_CODE
-                if (entryCount >= 1 && pos + 24 <= size) {
-                    sCustomCodeRamBase = readLE32(data + pos);
-                    char hex[41];
-                    for (int i = 0; i < 20; i++) {
-                        std::snprintf(hex + i * 2, 3, "%02x", data[pos + 4 + i]);
-                    }
-                    sCustomCodeHashHex.assign(hex, 40);
-                    pos += 24;
-                    // Skip any additional entries (forward-compat).
-                    for (uint16_t e = 1; e < entryCount && pos + 24 <= size; e++) {
-                        pos += 24;
-                    }
-                } else {
-                    SPDLOG_WARN("[GameConfig] CUSTOM_CODE section malformed, skipping");
-                    pos += entryCount * 24;
-                }
-                break;
-
-            case 13: // CUSTOM_CODE_INFO
-                if (entryCount >= 1 && pos + 4 <= size) {
-                    sCustomCodeKind = readLE16(data + pos);
-                }
-                pos += entryCount * 4;
-                break;
-
-            case 12: // ROM_HASH — single entry: u8 hash[20]
-                if (entryCount >= 1 && pos + 20 <= size) {
-                    char hex[41];
-                    for (int i = 0; i < 20; i++) {
-                        std::snprintf(hex + i * 2, 3, "%02x", data[pos + i]);
-                    }
-                    sRomHashHex.assign(hex, 40);
-                    pos += 20;
-                    // Skip any additional entries (forward-compat).
-                    for (uint16_t e = 1; e < entryCount && pos + 20 <= size; e++) {
-                        pos += 20;
-                    }
-                } else {
-                    SPDLOG_WARN("[GameConfig] ROM_HASH section malformed, skipping");
-                    pos += entryCount * 20;
-                }
-                break;
-
-            default:
-                SPDLOG_WARN("[GameConfig] Unknown section type {}, aborting parse", secType);
-                return;
+    for (const auto& constant : config.constants) {
+        if (constant.key < std::size(sConstants)) {
+            *sConstants[constant.key] = constant.value;
         }
+    }
+    for (const auto& entry : config.worldByMap) {
+        sSceneRemaps[entry.map] = entry.level;
+    }
+    for (const auto& entry : config.returnToLair) {
+        sReturnToLair[entry.world] = { entry.map, entry.exit };
+    }
+    for (const auto& entry : config.music) {
+        sMusicAssign[entry.map] = { entry.track, entry.alternate };
+    }
+    for (const auto& entry : config.skybox) {
+        SkyboxLayerData& sky = sSkyboxAssign[entry.map];
+        for (int layer = 0; layer < 3; layer++) {
+            sky.models[layer] = entry.layers[layer].model;
+            sky.scales[layer] = entry.layers[layer].scale;
+            sky.rotations[layer] = entry.layers[layer].spin;
+        }
+    }
+    for (const auto& entry : config.levelModels) {
+        SceneDefData& sd = sSceneDefs[entry.map];
+        sd.opa = entry.opaque;
+        sd.xlu = entry.translucent;
+        for (int b = 0; b < 3; b++) {
+            sd.min[b] = entry.cubeMin[b];
+            sd.max[b] = entry.cubeMax[b];
+        }
+        sd.scale = entry.scale;
+    }
+    for (const auto& entry : config.noteDoors) {
+        if (entry.door < 12) {
+            sNoteDoors[entry.door] = entry.notes;
+        }
+    }
+    for (const auto& entry : config.puzzles) {
+        if (entry.picture < 11) {
+            sJiggyCosts[entry.picture] = entry.cost;
+            sJiggySizes[entry.picture] = entry.size;
+            sJiggyFlags[entry.picture] = entry.flag;
+        }
+    }
+    for (const auto& entry : config.titles) {
+        if (entry.index < 13) {
+            free(sLevelNames[entry.index]);
+            sLevelNames[entry.index] = static_cast<char*>(malloc(entry.text.size() + 1));
+            memcpy(sLevelNames[entry.index], entry.text.c_str(), entry.text.size() + 1);
+        }
+    }
+
+    // Validate warp destinations
+    std::unordered_set<uint32_t> setupIds;
+    if (auto files = archive->ListFiles("assets/setup/*")) {
+        for (const auto& path : *files) {
+            uint32_t id = 0;
+            if (Lighthouse::AssetHexFromPath(path, id)) {
+                setupIds.insert(id);
+            }
+        }
+    }
+    for (const auto& entry : config.warps) {
+        if (!setupIds.contains((entry.dest >> 8) + 0x71C)) { // file_openMap's setup id
+            SPDLOG_DEBUG("[GameConfig] WARP_DESTINATIONS entry {} targets map 0x{:02X}, "
+                         "which has no setup — dropping override",
+                         entry.warp, entry.dest >> 8);
+            continue;
+        }
+        sWarpDests[entry.warp] = entry.dest;
+    }
+
+    if (config.hasCustomCode) {
+        sCustomCodeRamBase = config.customCodeRamBase;
+        sCustomCodeHashHex = HexString(config.customCodeSha1, sizeof(config.customCodeSha1));
+    }
+    sCustomCodeKind = static_cast<int>(config.customCodeKind);
+    if (config.hasRomHash) {
+        sRomHashHex = HexString(config.romHash, sizeof(config.romHash));
     }
 
     if (sCustomCodeHashHex.empty()) {

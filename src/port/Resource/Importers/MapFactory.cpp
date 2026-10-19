@@ -3,60 +3,13 @@
 #include "spdlog/spdlog.h"
 #include <libultraship/libultraship.h>
 #include <ship/resource/type/Blob.h>
-#include <array>
+#include "factories/bk64/MapFactory.h"
 
 #include "BlobWriter.h"
 
 namespace Factories {
 namespace {
-struct BKMapNodeProp {
-    int16_t position[3];
-    uint16_t radius;
-    uint8_t bit6;
-    uint8_t bit0;
-    uint16_t unk8;
-    uint8_t unkA;
-    uint8_t padB;
-    uint32_t yaw;
-    uint32_t scale;
-    uint32_t unk10_31;
-    uint32_t unk10_19;
-    uint32_t pad10_7;
-    uint32_t unk10_6;
-    uint32_t pad10_5;
-    uint32_t unk10_0;
-};
-
-struct BKMapCube {
-    int32_t x;
-    int32_t y;
-    int32_t z;
-    std::vector<BKMapNodeProp> nodeProps;
-    std::vector<std::array<uint8_t, 12>> props;
-};
-
-struct BKMapCameraNode {
-    int16_t index;
-    uint8_t type;
-
-    float position[3] = {};
-    float horizontalSpeed = 0.0f;
-    float verticalSpeed = 0.0f;
-    float rotation = 0.0f;
-    float accelaration = 0.0f;
-    float closeDistance = 0.0f;
-    float farDistance = 0.0f;
-    float pitchYawRoll[3] = {};
-    int32_t unknownFlag = 0;
-};
-
-struct BKMapLight {
-    float position[3];
-    float fadeRadii[2];
-    int32_t rgb[3];
-};
-
-void WriteNodeProp(std::vector<uint8_t>& out, const BKMapNodeProp& node) {
+void WriteNodeProp(std::vector<uint8_t>& out, const BK64::NodeProp& node) {
     AppendValue<int16_t>(out, node.position[0]);
     AppendValue<int16_t>(out, node.position[1]);
     AppendValue<int16_t>(out, node.position[2]);
@@ -100,19 +53,26 @@ void WriteNodeProp(std::vector<uint8_t>& out, const BKMapNodeProp& node) {
     AppendValue<uint32_t>(out, f3);
 }
 
-void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCube>& cubes, const int32_t minCube[3],
-                            const int32_t maxCube[3], const std::vector<BKMapCameraNode>& cameras,
-                            const std::vector<BKMapLight>& lights) {
-    out.push_back(0x01);
-    out.push_back(0x01);
-    AppendValue<int32_t>(out, minCube[0]);
-    AppendValue<int32_t>(out, minCube[1]);
-    AppendValue<int32_t>(out, minCube[2]);
-    AppendValue<int32_t>(out, maxCube[0]);
-    AppendValue<int32_t>(out, maxCube[1]);
-    AppendValue<int32_t>(out, maxCube[2]);
+void WriteFloats(std::vector<uint8_t>& out, uint8_t marker, const float* values, int count) {
+    out.push_back(marker);
+    for (int i = 0; i < count; i++) {
+        AppendValue<float>(out, values[i]);
+    }
+}
+} // namespace
 
-    for (const auto& cube : cubes) {
+std::vector<uint8_t> LegacySetupBytes(const BK64::MapData& map) {
+    std::vector<uint8_t> out;
+    out.push_back(0x01);
+    out.push_back(0x01);
+    for (const int32_t bound : map.mCubeMin) {
+        AppendValue<int32_t>(out, bound);
+    }
+    for (const int32_t bound : map.mCubeMax) {
+        AppendValue<int32_t>(out, bound);
+    }
+
+    for (const auto& cube : map.mCubes) {
         if (!cube.nodeProps.empty() || !cube.props.empty()) {
             out.push_back(0x03);
 
@@ -134,12 +94,11 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
                 out.push_back(static_cast<uint8_t>(propCnt));
                 out.push_back(0x09);
                 for (size_t pi = 0; pi < propCnt; pi++) {
-                    const auto& prop = cube.props[pi];
                     // [port] Props are raw 12-byte N64 big-endian structs from the ROM.
                     // Layout: u32(4) + s16(2) + s16(2) + s16(2) + u16(2) = 12 bytes.
                     // Byte-swap each multi-byte field to native (little-endian) order
                     // so the decomp code can read them as native structs.
-                    const auto* p = prop.data();
+                    const uint8_t* p = cube.props[pi].raw;
                     uint32_t word0 = (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3];
                     int16_t x = (int16_t)((uint16_t)p[4] << 8 | p[5]);
                     int16_t y = (int16_t)((uint16_t)p[6] << 8 | p[7]);
@@ -159,7 +118,7 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
     out.push_back(0x00);
 
     out.push_back(0x03);
-    for (const auto& cam : cameras) {
+    for (const auto& cam : map.mCameraNodes) {
         out.push_back(0x01);
         AppendValue<int16_t>(out, cam.index);
 
@@ -168,57 +127,39 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
 
         switch (cam.type) {
             case 1:
-                out.push_back(0x01);
-                AppendValue<float>(out, cam.position[0]);
-                AppendValue<float>(out, cam.position[1]);
-                AppendValue<float>(out, cam.position[2]);
+                WriteFloats(out, 0x01, cam.data.type1.position, 3);
                 out.push_back(0x02);
-                AppendValue<float>(out, cam.horizontalSpeed);
-                AppendValue<float>(out, cam.verticalSpeed);
+                AppendValue<float>(out, cam.data.type1.horizontalSpeed);
+                AppendValue<float>(out, cam.data.type1.verticalSpeed);
                 out.push_back(0x03);
-                AppendValue<float>(out, cam.rotation);
-                AppendValue<float>(out, cam.accelaration);
-                out.push_back(0x04);
-                AppendValue<float>(out, cam.pitchYawRoll[0]);
-                AppendValue<float>(out, cam.pitchYawRoll[1]);
-                AppendValue<float>(out, cam.pitchYawRoll[2]);
+                AppendValue<float>(out, cam.data.type1.rotation);
+                AppendValue<float>(out, cam.data.type1.accelaration);
+                WriteFloats(out, 0x04, cam.data.type1.pitchYawRoll, 3);
                 out.push_back(0x05);
-                AppendValue<int32_t>(out, cam.unknownFlag);
+                AppendValue<int32_t>(out, cam.data.type1.unknownFlag);
                 break;
             case 2:
-                out.push_back(0x01);
-                AppendValue<float>(out, cam.position[0]);
-                AppendValue<float>(out, cam.position[1]);
-                AppendValue<float>(out, cam.position[2]);
-                out.push_back(0x02);
-                AppendValue<float>(out, cam.pitchYawRoll[0]);
-                AppendValue<float>(out, cam.pitchYawRoll[1]);
-                AppendValue<float>(out, cam.pitchYawRoll[2]);
+                WriteFloats(out, 0x01, cam.data.type2.position, 3);
+                WriteFloats(out, 0x02, cam.data.type2.pitchYawRoll, 3);
                 break;
             case 3:
-                out.push_back(0x01);
-                AppendValue<float>(out, cam.position[0]);
-                AppendValue<float>(out, cam.position[1]);
-                AppendValue<float>(out, cam.position[2]);
+                WriteFloats(out, 0x01, cam.data.type3.position, 3);
                 out.push_back(0x02);
-                AppendValue<float>(out, cam.horizontalSpeed);
-                AppendValue<float>(out, cam.verticalSpeed);
+                AppendValue<float>(out, cam.data.type3.horizontalSpeed);
+                AppendValue<float>(out, cam.data.type3.verticalSpeed);
                 out.push_back(0x03);
-                AppendValue<float>(out, cam.rotation);
-                AppendValue<float>(out, cam.accelaration);
+                AppendValue<float>(out, cam.data.type3.rotation);
+                AppendValue<float>(out, cam.data.type3.accelaration);
                 out.push_back(0x06);
-                AppendValue<float>(out, cam.closeDistance);
-                AppendValue<float>(out, cam.farDistance);
-                out.push_back(0x04);
-                AppendValue<float>(out, cam.pitchYawRoll[0]);
-                AppendValue<float>(out, cam.pitchYawRoll[1]);
-                AppendValue<float>(out, cam.pitchYawRoll[2]);
+                AppendValue<float>(out, cam.data.type3.closeDistance);
+                AppendValue<float>(out, cam.data.type3.farDistance);
+                WriteFloats(out, 0x04, cam.data.type3.pitchYawRoll, 3);
                 out.push_back(0x05);
-                AppendValue<int32_t>(out, cam.unknownFlag);
+                AppendValue<int32_t>(out, cam.data.type3.unknownFlag);
                 break;
             case 4:
                 out.push_back(0x01);
-                AppendValue<int32_t>(out, cam.unknownFlag);
+                AppendValue<int32_t>(out, cam.data.type4.unknownFlag);
                 break;
             case 0:
             default:
@@ -233,15 +174,10 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
     out.push_back(0x00);
 
     out.push_back(0x04);
-    for (const auto& light : lights) {
+    for (const auto& light : map.mLightingVectors) {
         out.push_back(0x01);
-        out.push_back(0x02);
-        AppendValue<float>(out, light.position[0]);
-        AppendValue<float>(out, light.position[1]);
-        AppendValue<float>(out, light.position[2]);
-        out.push_back(0x03);
-        AppendValue<float>(out, light.fadeRadii[0]);
-        AppendValue<float>(out, light.fadeRadii[1]);
+        WriteFloats(out, 0x02, light.position, 3);
+        WriteFloats(out, 0x03, light.fadeRadii, 2);
         out.push_back(0x04);
         AppendValue<int32_t>(out, light.rgb[0]);
         AppendValue<int32_t>(out, light.rgb[1]);
@@ -250,8 +186,8 @@ void SerializeLegacyMapData(std::vector<uint8_t>& out, const std::vector<BKMapCu
     out.push_back(0x00);
 
     out.push_back(0x00);
+    return out;
 }
-} // namespace
 
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryBKMapV0::ReadResource(std::shared_ptr<Ship::File> file,
@@ -260,133 +196,12 @@ ResourceFactoryBinaryBKMapV0::ReadResource(std::shared_ptr<Ship::File> file,
         return nullptr;
     }
 
-    auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
-    const auto cubeCount = reader->ReadUInt32();
-    int32_t minCube[3] = { reader->ReadInt32(), reader->ReadInt32(), reader->ReadInt32() };
-    int32_t maxCube[3] = { reader->ReadInt32(), reader->ReadInt32(), reader->ReadInt32() };
-
-    auto cubes = std::vector<BKMapCube>();
-    cubes.reserve(cubeCount);
-    for (uint32_t i = 0; i < cubeCount; i++) {
-        BKMapCube cube;
-        const auto cubeHeader = reader->ReadUInt32();
-        cube.x = static_cast<int32_t>((cubeHeader >> 27) & 0x1F);
-        cube.y = static_cast<int32_t>((cubeHeader >> 22) & 0x1F);
-        cube.z = static_cast<int32_t>((cubeHeader >> 17) & 0x1F);
-
-        const auto nodeCount = reader->ReadUInt32();
-        cube.nodeProps.reserve(nodeCount);
-        for (uint32_t n = 0; n < nodeCount; n++) {
-            BKMapNodeProp node{};
-            // [port] Read individual typed fields directly (no BE bit extraction)
-            // Matches Torch's native-endian field-by-field export format
-            node.position[0] = reader->ReadInt16();
-            node.position[1] = reader->ReadInt16();
-            node.position[2] = reader->ReadInt16();
-            node.radius = reader->ReadUInt16();
-            node.bit6 = reader->ReadUByte();
-            node.bit0 = reader->ReadUByte();
-            node.unk8 = reader->ReadUInt16();
-            node.unkA = reader->ReadUByte();
-            node.padB = reader->ReadUByte();
-            node.yaw = reader->ReadUInt16();
-            node.scale = reader->ReadUInt32();
-            node.unk10_31 = reader->ReadUInt16();
-            node.unk10_19 = reader->ReadUInt16();
-            node.pad10_7 = reader->ReadUByte();
-            node.unk10_6 = reader->ReadUByte();
-            node.pad10_5 = reader->ReadUByte();
-            node.unk10_0 = reader->ReadUByte();
-            cube.nodeProps.push_back(node);
-        }
-
-        const auto propCount = reader->ReadUInt32();
-        cube.props.reserve(propCount);
-        for (uint32_t p = 0; p < propCount; p++) {
-            std::array<uint8_t, 12> prop{};
-            reader->Read(reinterpret_cast<char*>(prop.data()), static_cast<int32_t>(prop.size()));
-            cube.props.push_back(prop);
-        }
-
-        cubes.push_back(cube);
+    const auto map = BK64::ReadMapResource(std::vector<uint8_t>(file->Buffer->begin(), file->Buffer->end()));
+    if (!map) {
+        return nullptr;
     }
-
-    const auto cameraCount = reader->ReadUInt32();
-    auto cameras = std::vector<BKMapCameraNode>();
-    cameras.reserve(cameraCount);
-    for (uint32_t i = 0; i < cameraCount; i++) {
-        BKMapCameraNode cam{};
-        cam.index = reader->ReadInt16();
-        cam.type = reader->ReadUByte();
-
-        switch (cam.type) {
-            case 1:
-                cam.position[0] = reader->ReadFloat();
-                cam.position[1] = reader->ReadFloat();
-                cam.position[2] = reader->ReadFloat();
-                cam.horizontalSpeed = reader->ReadFloat();
-                cam.verticalSpeed = reader->ReadFloat();
-                cam.rotation = reader->ReadFloat();
-                cam.accelaration = reader->ReadFloat();
-                cam.pitchYawRoll[0] = reader->ReadFloat();
-                cam.pitchYawRoll[1] = reader->ReadFloat();
-                cam.pitchYawRoll[2] = reader->ReadFloat();
-                cam.unknownFlag = reader->ReadInt32();
-                break;
-            case 2:
-                cam.position[0] = reader->ReadFloat();
-                cam.position[1] = reader->ReadFloat();
-                cam.position[2] = reader->ReadFloat();
-                cam.pitchYawRoll[0] = reader->ReadFloat();
-                cam.pitchYawRoll[1] = reader->ReadFloat();
-                cam.pitchYawRoll[2] = reader->ReadFloat();
-                break;
-            case 3:
-                cam.position[0] = reader->ReadFloat();
-                cam.position[1] = reader->ReadFloat();
-                cam.position[2] = reader->ReadFloat();
-                cam.horizontalSpeed = reader->ReadFloat();
-                cam.verticalSpeed = reader->ReadFloat();
-                cam.rotation = reader->ReadFloat();
-                cam.accelaration = reader->ReadFloat();
-                cam.closeDistance = reader->ReadFloat();
-                cam.farDistance = reader->ReadFloat();
-                cam.pitchYawRoll[0] = reader->ReadFloat();
-                cam.pitchYawRoll[1] = reader->ReadFloat();
-                cam.pitchYawRoll[2] = reader->ReadFloat();
-                cam.unknownFlag = reader->ReadInt32();
-                break;
-            case 4:
-                cam.unknownFlag = reader->ReadInt32();
-                break;
-            case 0:
-            default:
-                break;
-        }
-
-        cameras.push_back(cam);
-    }
-
-    const auto lightCount = reader->ReadUInt32();
-    auto lights = std::vector<BKMapLight>();
-    lights.reserve(lightCount);
-    for (uint32_t i = 0; i < lightCount; i++) {
-        BKMapLight light{};
-        light.position[0] = reader->ReadFloat();
-        light.position[1] = reader->ReadFloat();
-        light.position[2] = reader->ReadFloat();
-        light.fadeRadii[0] = reader->ReadFloat();
-        light.fadeRadii[1] = reader->ReadFloat();
-        light.rgb[0] = reader->ReadInt32();
-        light.rgb[1] = reader->ReadInt32();
-        light.rgb[2] = reader->ReadInt32();
-        lights.push_back(light);
-    }
-
     // [port] Lighthouse- Hybrid adapter: keep normalized BKMap import, emit legacy chunked bytes for decomp runtime
     // readers.
-    auto out = std::vector<uint8_t>();
-    SerializeLegacyMapData(out, cubes, minCube, maxCube, cameras, lights);
-    return MakeBlob(initData, std::move(out));
+    return MakeBlob(initData, LegacySetupBytes(*map));
 }
 } // namespace Factories
