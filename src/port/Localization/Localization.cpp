@@ -29,6 +29,7 @@ extern u8* D_80365DF8[];                     // top instruction line 1, indexed 
 extern u8* D_80365DFC[];                     // erase-confirm prompt, indexed by language
 int code94620_func_8031B5B0(void);           // current dialog-language index (0=EN,1=FR,2=DE)
 int func_8031877C(void* zoombox);            // clear a zoombox's strings before re-setting
+int levelSpecificFlags_get(int i);
 
 // Print font internals
 extern void* print_sFontSpriteAssets[]; // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
@@ -511,6 +512,9 @@ static void buildPalJpParades() {
 // still supply 0x11CA as an additive asset, so key the alt parade on that credit being
 // present in the active language (sDialogOverride) rather than on the base version.
 static constexpr uint32_t kMotzandParadeCreditId = 0x11CA;
+static constexpr int32_t kPresentMeetBlueDialogId = 0xC20; // then green, red
+static constexpr int32_t kJpPresentLinesDialogId = 0x1614;
+
 static bool port_useMotzandParade() {
     return ResourceMgr_IsJapanese() || ResourceMgr_IsPal() || ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
 }
@@ -713,6 +717,19 @@ static void RegisterLocalizedText() {
             return;
         }
         *ev->dialogId = (ev->index == 20) ? kMotzandParadeCreditId : (0x11AF + ev->index - 1);
+    });
+
+    // JP gives each present's three lines their own dialogs
+    REGISTER_LISTENER(PresentDialogId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (PresentDialogId*)event;
+        const int32_t present = *ev->dialogId - kPresentMeetBlueDialogId;
+        if (!ResourceMgr_IsJapanese() || present < 0 || present > 2) {
+            return;
+        }
+        const int count = levelSpecificFlags_get(0x2A) + levelSpecificFlags_get(0x2B) + levelSpecificFlags_get(0x2C);
+        if (count >= 2) {
+            *ev->dialogId = kJpPresentLinesDialogId + present * 2 + (count - 2);
+        }
     });
 
     // The port owns the dialog-language index (driven by the language picker). The

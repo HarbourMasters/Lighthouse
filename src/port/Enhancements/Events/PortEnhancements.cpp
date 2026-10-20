@@ -47,6 +47,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnFileSelectPortrait);
     REGISTER_EVENT(LocalizeParade);
     REGISTER_EVENT(ParadeCreditDialogId);
+    REGISTER_EVENT(PresentDialogId);
     REGISTER_EVENT(ResolveBoldFontSlot);
 
     // Register draw events

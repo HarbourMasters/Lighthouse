@@ -422,6 +422,7 @@ void __chLevelCollectible_collide(ActorMarker *marker, ActorMarker *other_marker
             default:
                 break;
         }
+        CALL_EVENT(PresentDialogId, &dialog_id);
         if (dialog_id != 0) {
             timedFunc_set_1(0.5f, (GenFunction_1)__chLevelCollectible_callDialog, dialog_id);
         }
