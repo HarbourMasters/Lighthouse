@@ -79,7 +79,7 @@ Many romhacks can be extracted from patched ROMs and used as mods with Lighthous
 
 Lighthouse can also be launched directly to a romhack with a launch argument like so: `./Lighthouse.exe -hack jiggies-of-time`. This is a one-off and your loaded romhack is not saved to your remembered config when using a launch argument.
 
-_NOTE_: When using romhacks, only US v1.0 is supported, inherited from Banjo's Backpack. Therefore, it is recommended to use **US v1.0** as your base `bk.o2r` file.
+_NOTE_: Romhacks are made from US v1.0 ROMs, and a romhack mod only holds what the hack changed. On a US v1.1, PAL or JP base, everything else comes from that base - so the hack's modified lines stay in their language while the rest of the text follows the base.
 
 Romhacks also support language packs, scoped the same as mods are. Craft a language pack and add it to `mods/~lang/<hack>/` to see it in the dropdown menu. `<hack>` is a folder of the romhack's filename without the o2r extension; Lighthouse creates it for you when the romhack is enabled. Note that language packs for romhacks can work two ways:
 
@@ -93,8 +93,17 @@ A base game language pack in `mods/~lang/` does not appear in the dropdown while
 Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place them in the `mods` folder.
 
 If you're interested in creating and/or packing your own custom asset `.o2r`/`.otr` files, check out the following tools:
-* [**retro - OTR and O2R generator**](https://github.com/HarbourMasters64/retro)
-* [**fast64 - Blender plugin**](https://github.com/HarbourMasters/fast64)
+* [**retro - OTR and O2R generator**](https://github.com/HarbourMasters/retro)
+* [**fast64 - Blender plugin, with BK64 model and animation support**](https://github.com/HarbourMasters/fast64)
+
+Step-by-step guides for each kind of mod are in [`docs/modding/`](docs/modding/):
+* [**Texture packs**](docs/modding/TEXTURE%20PACKS.md) - replace any of the game's textures, same-size or HD, with retro
+* [**Custom animations**](docs/modding/CUSTOM%20ANIMATIONS.md) - edit the game's animations as YAML through Torch's modding mode
+* [**Custom dialog**](docs/modding/CUSTOM%20DIALOG.md) - dialog box codes: portraits, choices, substitution, and gameplay triggers
+* [**Custom models**](docs/modding/CUSTOM%20MODELS.md) - the model format, and building one in Blender with fast64
+* [**Custom audio**](docs/modding/CUSTOM%20AUDIO.md) - replace a sound effect with your own audio, or a music track with your own MIDI
+* [**Language packs**](docs/modding/LANGUAGE%20PACKS.md) - add a new in-game language
+* [**Level editing**](docs/modding/LEVEL%20EDITING/README.md) - the map setup files: props, nodes and camera zones
 
 # Development
 
