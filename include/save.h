@@ -36,12 +36,27 @@ typedef struct {
     u8 collected[JINJO_RETENTION_LEVEL_SLOTS];
 } JinjoRetentionSaveData;
 
+// Consumable collection retention
+#define CONSUMABLE_RETENTION_CAPACITY 2048 // vanilla places 1353
+
+typedef struct {
+    u8 map;
+    u8 drop;
+    s16 x, y, z;
+} ConsumablePickup;
+
+typedef struct {
+    u32 count;
+    ConsumablePickup collected[CONSUMABLE_RETENTION_CAPACITY];
+} ConsumableRetentionSaveData;
+
 typedef struct {
     FileType fileType;
     uint64_t fileCreatedAt;
     RandoSaveData randoSaveData;
     NoteRetentionSaveData noteRetention;
     JinjoRetentionSaveData jinjoRetention;
+    ConsumableRetentionSaveData consumableRetention;
 } ShipSaveData;
 
 typedef struct{

@@ -89,6 +89,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnGameFlagSet);
     REGISTER_EVENT(OnItemCountChanged);
     REGISTER_EVENT(OnCollectibleCollected);
+    REGISTER_EVENT(OnConsumableCollected);
     REGISTER_EVENT(OnCarryThrow);
     REGISTER_EVENT(OnAbilityLearned);
     REGISTER_EVENT(OnJiggySpawned);

@@ -16,6 +16,8 @@ DEFINE_EVENT(OnGameFlagSet, int32_t flagSpace; int32_t index; int32_t value; int
 DEFINE_EVENT(OnItemCountChanged, int32_t item; int32_t count;)
 // kind = AnchorCollectibleSpace.
 DEFINE_EVENT(OnCollectibleCollected, int32_t kind; int32_t id;)
+// prop = Prop*, an egg, feather or extra life picked up.
+DEFINE_EVENT(OnConsumableCollected, void* prop;)
 // A carried actor leaving the player's hands; markerId = marker_e, start/target are f32[3].
 DEFINE_EVENT(OnCarryThrow, int32_t markerId; float* start; float* target;)
 // move = ability_e; value = 1 learned, 0 cleared.

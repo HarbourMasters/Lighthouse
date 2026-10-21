@@ -760,6 +760,7 @@ void __baMarker_resolveCollision(Prop *other_prop){
                 timedFunc_set_1(1.5f, (GenFunction_1)progressDialog_showDialogMaskFour, FILEPROG_C_EXTRA_LIFE_TEXT);
                 fxSparkle_extraLife(&other_prop->actorProp.position_x);
                 item_inc(ITEM_16_LIFE);
+                CALL_EVENT(OnConsumableCollected, other_prop);
                 marker_despawn(marker);
                 break;
 

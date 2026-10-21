@@ -625,6 +625,14 @@ void LighthouseMenu::AddMenuEnhancements() {
             "this toggle controls whether collected jinjos are skipped on load and your progress is "
             "restored."));
 
+    AddWidget(path, "Consumable Collection Retention", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.ConsumableRetention"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "For players wanting an extra challenge. Eggs, feathers and extra lives you've already picked up stay gone "
+            " instead of respawning when you come back. Collection is always tracked; this toggle controls whether "
+            " collected ones are skipped on load. The lair's refill pillows still refill."));
+
     // Enhancements -> Cheats
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);

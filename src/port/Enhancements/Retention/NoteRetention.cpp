@@ -81,7 +81,6 @@ int64_t noteKey(int32_t mapId, int32_t noteIndex) {
     return ((int64_t)mapId << 32) | (uint32_t)noteIndex;
 }
 
-using retention::activeSlot;
 using retention::systemActive;
 
 // Level whose note count is waiting to be seeded; -1 when nothing is pending.
@@ -98,8 +97,8 @@ bool randoOwnsNoteProps() {
 }
 
 NoteRetentionSaveData* store() {
-    int32_t slot = activeSlot();
-    return slot >= 0 ? &gameFile_saveData[slot].shipSaveData.noteRetention : nullptr;
+    ShipSaveData* data = retention::activeShipData();
+    return data != nullptr ? &data->noteRetention : nullptr;
 }
 
 bool indexInRange(int32_t mapId, int32_t index) {
@@ -471,16 +470,6 @@ static void RegisterRetentionSaving_Init() {
         if (NoteLocal* nl = bundleNoteLocal(ev->actor)) {
             activeNoteSet.erase(noteKey(nl->mapId, nl->noteIndex));
             nl->magic = 0;
-        }
-    });
-
-    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in.
-    COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        OnSaveFileSave* ev = (OnSaveFileSave*)event;
-        SaveData* buf = (SaveData*)ev->saveBuffer;
-        NoteRetentionSaveData* live = store();
-        if (buf != nullptr && live != nullptr && &buf->shipSaveData.noteRetention != live) {
-            buf->shipSaveData.noteRetention = *live;
         }
     });
 }
