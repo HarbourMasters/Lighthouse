@@ -169,12 +169,17 @@ void LighthouseMenu::AddMenuEnhancements() {
     AddWidget(path, "Invert Camera X", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.InvertX"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Inverts horizontal camera."));
+        .Options(CheckboxOptions().Tooltip("Inverts horizontal camera. First-person has its own setting."));
 
-    AddWidget(path, "Invert Camera Y", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Invert First-Person X", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Inverts horizontal camera in first-person, including Egg Aim."));
+
+    AddWidget(path, "Invert First-Person Y", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.InvertY"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Inverts vertical camera in first-person."));
+        .Options(CheckboxOptions().Tooltip("Inverts vertical camera in first-person, including Egg Aim."));
 
     path.column = SECTION_COLUMN_2;
 

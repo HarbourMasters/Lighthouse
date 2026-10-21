@@ -286,3 +286,7 @@ extern "C" float port_cameraInvertXSign(void) {
 extern "C" float port_cameraInvertYSign(void) {
     return CVarGetInteger(CVAR_ENHANCEMENT("Camera.InvertY"), 0) ? -1.0f : 1.0f;
 }
+
+extern "C" float port_firstPersonInvertXSign(void) {
+    return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0) ? -1.0f : 1.0f;
+}

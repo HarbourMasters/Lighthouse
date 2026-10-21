@@ -49,7 +49,8 @@ void bsDroneLook_update(void) {
         //camera is in "idle" state
         ncba1p_getZoomedInRotation(eye_rotation);
         eye_rotation[0] -= bastick_getY() * 90.0f * dt * port_cameraInvertYSign();
-        eye_rotation[1] -= bastick_getX() * 90.0f * dt * port_cameraInvertXSign();
+//      eye_rotation[1] -= bastick_getX() * 90.0f * dt;
+        eye_rotation[1] -= bastick_getX() * 90.0f * dt * port_firstPersonInvertXSign();
         eye_rotation[2] = 0.0f;
         eye_rotation[0] = (eye_rotation[0] > 180.0f) ? ml_max_f(305.0f, eye_rotation[0]) : ml_min_f(70.0f, eye_rotation[0]);
         ncba1p_setZoomedOutRotation(eye_rotation);

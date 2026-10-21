@@ -13,6 +13,7 @@ void port_modernCamera_handleZoom(void);
 int port_camera_suppressVanillaZoom(void);
 float port_cameraInvertXSign(void);
 float port_cameraInvertYSign(void);
+float port_firstPersonInvertXSign(void);
 
 #ifdef __cplusplus
 }
