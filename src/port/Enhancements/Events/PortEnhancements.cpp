@@ -65,6 +65,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoggyRaceSetSpeed);
     REGISTER_EVENT(OnMrVileSetSpeed);
     REGISTER_EVENT(OnFurnaceFunDialog);
+    REGISTER_EVENT(OnLairRelease);
     REGISTER_EVENT(OnRollInit);
     REGISTER_EVENT(OnRollUpdate);
     REGISTER_EVENT(OnGeoCull);

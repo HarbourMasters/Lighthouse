@@ -610,6 +610,7 @@ void func_8038CCEC(void)
 
 void lair_func_8038CD48(void)
 {
+    CALL_EVENT(OnLairRelease);
     if (ffStorage == NULL)
         return;
 

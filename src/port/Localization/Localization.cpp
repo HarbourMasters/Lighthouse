@@ -111,7 +111,7 @@ extern "C" int port_pauseMenuNeedsRefresh(void) {
     static int sLair = 0;
     static bool sInit = false;
     int gen = ResourceMgr_GetLanguageGeneration();
-    int lair = CVarGetInteger(CVAR_ENHANCEMENT("Restorations.ReturnToLair"), 0);
+    int lair = CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.ReturnToLair"), 0);
     if (!sInit) {
         sInit = true;
         sGen = gen;

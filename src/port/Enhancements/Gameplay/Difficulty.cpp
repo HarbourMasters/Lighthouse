@@ -15,7 +15,7 @@ extern "C" int port_scalePlayerDamage(int damage) {
     if (damage <= 0) {
         return damage;
     }
-    int mode = CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.Difficulty"), 1);
+    int mode = CVarGetInteger(CVAR_ENHANCEMENT("Gameplay.DamageScale"), 1);
     if (mode >= 4) {
         return 9999;
     }

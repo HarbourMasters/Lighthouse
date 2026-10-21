@@ -23,7 +23,7 @@ typedef struct struct_1A_s {
 
 struct1As* menuData;
 
-#define CVAR_NAME CVAR_ENHANCEMENT("Restorations.ReturnToLair")
+#define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.ReturnToLair")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterReturnToLair_Init() {
