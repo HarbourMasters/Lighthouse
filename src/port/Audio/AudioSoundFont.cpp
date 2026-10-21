@@ -414,9 +414,6 @@ extern "C" ALBankFile* port_alBnkfLoad(const char* descriptorPath) {
         }
         file->bankArray[b] = bank;
     }
-
-    SPDLOG_INFO("[Audio] '{}': {} bank(s), {} sounds, {} KB of samples", descriptorPath, bankCount, order.size(),
-                arenaSize / 1024);
     return file;
 }
 

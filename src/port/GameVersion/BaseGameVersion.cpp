@@ -25,6 +25,20 @@ bool IsKnownVersion(uint32_t crc) {
     }
 }
 
+const char* VersionName(BKVersion version) {
+    switch (version) {
+        case BK_VER_US_11:
+            return "US 1.1";
+        case BK_VER_PAL:
+            return "PAL";
+        case BK_VER_JP:
+            return "JP";
+        case BK_VER_US_10:
+        default:
+            return "US 1.0";
+    }
+}
+
 uint32_t ByteSwap32(uint32_t v) {
     return (v >> 24) | ((v >> 8) & 0x0000FF00u) | ((v << 8) & 0x00FF0000u) | (v << 24);
 }
@@ -80,8 +94,7 @@ BKVersion GetBaseVersion() {
     if (ReadStampedCrc(basePath, crc) && ClassifyArchiveVersion(crc, version)) {
         sVersion = version;
         sResolved = true;
-        SPDLOG_INFO("[BaseGameVersion] base bk.o2r CRC 0x{:08X} -> BKVersion 0x{:08X}", crc,
-                    static_cast<uint32_t>(sVersion));
+        SPDLOG_INFO("[BaseGameVersion] Base bk.o2r is {}", VersionName(sVersion));
     }
     return sVersion; // unstamped or unrecognised: stay on the v1.0 default and retry
 }
