@@ -1393,7 +1393,10 @@ void func_803882B0(Actor *this)
     if (this->lifetime_value == 0 && this->pitch > 42.f)
     {
         this->lifetime_value = 1.f;
-        coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        s32 track = COMUSIC_3D_JIGGY_SPAWN;
+        EventSystem_Should(VB_JIGGY_SPAWN_JINGLE, true, JIGGY_38_LAIR_FP_WITCH_SWITCH, &track);
+//      coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        coMusicPlayer_playMusic(track, 0x7FFF);
     }
 
     if (this->pitch > 90.f)
@@ -2116,7 +2119,10 @@ void func_80389934(Actor *this)
                 subaddie_set_state_forward(this, 0x17);
                 actor_playAnimationOnce(this);
                 FUNC_8030E624(SFX_3F6_RUBBING, 0.6f, 32000);
-                coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+                s32 track = COMUSIC_3D_JIGGY_SPAWN;
+                EventSystem_Should(VB_JIGGY_SPAWN_JINGLE, true, JIGGY_3A_LAIR_GV_WITCH_SWITCH, &track);
+//              coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+                coMusicPlayer_playMusic(track, 0x7FFF);
             }
 
             break;

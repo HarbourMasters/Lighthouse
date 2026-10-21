@@ -278,6 +278,7 @@ static void SpawnJinjoJiggy(uintptr_t jiggyCheckId, uintptr_t x, uintptr_t y, ui
     Actor* customActor = CustomObject::ShouldCreateCustomActorEX((RandoCheckId)jiggyCheckId, position, false);
     if (customActor != NULL) {
         ApplyCustomActorPhysics((RandoCheckId)jiggyCheckId, customActor, true);
+        PlaySpawnSound((RandoCheckId)jiggyCheckId);
     }
 }
 

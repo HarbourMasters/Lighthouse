@@ -40,7 +40,7 @@ void bsjig_jiggy_init(void){
     // [port] Romhack gate: hacks with fewer jiggies a level play the last-jiggy fanfare sooner.
     EventSystem_Should(VB_LAST_JIGGY_COUNT, true, &lastJiggyCount);
 //  tmp = (item_getCount(ITEM_E_JIGGY) == 9);
-    tmp = (item_getCount(ITEM_E_JIGGY) == lastJiggyCount);
+    tmp = EventSystem_Should(VB_LAST_JIGGY_FANFARE, item_getCount(ITEM_E_JIGGY) == lastJiggyCount, bsjig_gJiggyMarker);
     if(tmp == 0) //weird if...
         tmp = 0;
     D_8037D4B1 =  tmp;

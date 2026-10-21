@@ -915,7 +915,10 @@ void func_802D4D3C(enum actor_e arg0, enum actor_e arg1) {
 
     if (nodeProp_findPositionFromActorId(arg1, sp5C)) {
         codeABC00_spawnJiggyAtLocation((enum jiggy_e)arg0, sp5C);
-        coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        s32 track = COMUSIC_3D_JIGGY_SPAWN;
+        EventSystem_Should(VB_JIGGY_SPAWN_JINGLE, true, arg0, &track);
+//      coMusicPlayer_playMusic(COMUSIC_3D_JIGGY_SPAWN, 0x7FFF);
+        coMusicPlayer_playMusic(track, 0x7FFF);
         if (arg0 == 0x36) {
             
             sp4C[3] = 200;

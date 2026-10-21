@@ -7,6 +7,7 @@
 bool ShouldOverrideSpawn(RandoCheckId randoCheckId);
 bool CheckEnemyOverlapPosition(int32_t pos[3]);
 int32_t GetJinjoActorMarkerId(actor_e actorId);
+void PlaySpawnSound(RandoCheckId randoCheckId);
 extern std::vector<RandoCheckId> enemyKillOverlapList;
 
 namespace Rando {
