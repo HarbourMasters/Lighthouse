@@ -12,6 +12,7 @@
 #include <cstring>
 #include <fstream>
 #include <filesystem>
+#include <map>
 #include <regex>
 
 #include "save.h"
@@ -403,6 +404,23 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     }
     ship["jinjoRetention"] = jinjoRetention;
 
+    // Consumable retention (all files): [x, y, z] per pickup by map, plus a hut drop's place in its bundle.
+    const ConsumableRetentionSaveData& consumables = saveData->shipSaveData.consumableRetention;
+    std::map<int, ordered_json> consumablesByMap;
+    for (u32 i = 0; i < consumables.count; i++) {
+        const ConsumablePickup& pickup = consumables.collected[i];
+        ordered_json entry = ordered_json::array({ pickup.x, pickup.y, pickup.z });
+        if (pickup.drop != 0) {
+            entry.push_back(pickup.drop);
+        }
+        consumablesByMap[pickup.map].push_back(entry);
+    }
+    ordered_json consumableRetention = ordered_json::object();
+    for (auto& [map, entries] : consumablesByMap) {
+        consumableRetention[std::to_string(map)] = entries;
+    }
+    ship["consumableRetention"] = consumableRetention;
+
     if (saveData->shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
         Rando::Logic::GenerateSaveData(saveData);
         shipRando["seedId"] = saveData->shipSaveData.randoSaveData.seedId;
@@ -669,6 +687,26 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
                 continue;
             }
             saveData->shipSaveData.jinjoRetention.collected[l] = bits.get<uint8_t>();
+        }
+    }
+
+    // Consumable retention (all files): clear then load the pickups by map.
+    ConsumableRetentionSaveData& consumables = saveData->shipSaveData.consumableRetention;
+    consumables.count = 0;
+    if (j.contains("ship") && j["ship"].contains("consumableRetention")) {
+        for (auto& [key, entries] : j["ship"]["consumableRetention"].items()) {
+            const int map = std::stoi(key);
+            for (auto& entry : entries) {
+                if (consumables.count == CONSUMABLE_RETENTION_CAPACITY) {
+                    break;
+                }
+                ConsumablePickup& pickup = consumables.collected[consumables.count++];
+                pickup.map = (u8)map;
+                pickup.x = entry[0].get<s16>();
+                pickup.y = entry[1].get<s16>();
+                pickup.z = entry[2].get<s16>();
+                pickup.drop = entry.size() > 3 ? entry[3].get<u8>() : 0;
+            }
         }
     }
 

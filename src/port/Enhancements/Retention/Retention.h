@@ -1,11 +1,12 @@
 #ifndef PORT_RETENTION_H
 #define PORT_RETENTION_H
 
-// Shared header for the vanilla collectible-retention systems (notes and jinjos).
+// Shared header for the vanilla collectible-retention systems (notes, jinjos and consumables).
 
 #include <stdint.h>
 
 #include "port/UI/cvar_prefixes.h"
+#include "save.h"
 
 #define CVAR_NOTE_RETENTION CVAR_ENHANCEMENT("Gameplay.NoteRetention")
 
@@ -85,6 +86,7 @@ namespace retention {
 int32_t activeSlot();
 // False during demos, Bottles bonus games, and rando files.
 bool systemActive();
+ShipSaveData* activeShipData();
 } // namespace retention
 #endif
 

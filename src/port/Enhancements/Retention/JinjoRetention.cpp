@@ -24,7 +24,6 @@ static bool sForcedByAnchor = false;
 
 constexpr u8 kAllJinjos = 0x1F; // all five color bits collected
 
-using retention::activeSlot;
 using retention::systemActive;
 
 static bool applyEnabled() {
@@ -40,8 +39,8 @@ extern "C" void port_jinjoRetention_setForced(int32_t forced) {
 }
 
 static JinjoRetentionSaveData* store() {
-    int32_t slot = activeSlot();
-    return slot >= 0 ? &gameFile_saveData[slot].shipSaveData.jinjoRetention : nullptr;
+    ShipSaveData* data = retention::activeShipData();
+    return data != nullptr ? &data->jinjoRetention : nullptr;
 }
 
 extern "C" void port_jinjoRetention_getSizeAndPtr(int32_t* size, uint8_t** addr) {
@@ -267,17 +266,3 @@ void RegisterJinjoRetention_Init() {
 }
 
 static RegisterShipInitFunc initJinjoRetention(RegisterJinjoRetention_Init, { CVAR_JINJO_RETENTION });
-
-static void RegisterRetentionSaving_Init() {
-    // bcopy's scratch-slot save buffer doesn't carry our bits; sync them in.
-    COND_HOOK(OnSaveFileSave, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        OnSaveFileSave* ev = (OnSaveFileSave*)event;
-        SaveData* buf = (SaveData*)ev->saveBuffer;
-        JinjoRetentionSaveData* live = store();
-        if (buf != nullptr && live != nullptr && &buf->shipSaveData.jinjoRetention != live) {
-            buf->shipSaveData.jinjoRetention = *live;
-        }
-    });
-}
-
-static RegisterShipInitFunc initRetentionSaving(RegisterRetentionSaving_Init);
