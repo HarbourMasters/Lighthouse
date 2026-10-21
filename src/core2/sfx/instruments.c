@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "variables.h"
 #include <n_audio/PR/n_libaudio.h>
+#include "port/Patches/Patches.h"
 
 extern void func_80243070(Struct87s *arg0);
 
@@ -47,7 +48,8 @@ void sfxInstruments_func_80335394(intptr_t arg0, f32 arg1) {
 void sfxInstruments_func_803353BC(intptr_t arg0, u16 arg1) {
     if(arg1 > 0x7fff)
         arg1 = 0x7fff;
-    func_80244978(arg0, AL_SEQP_PROG_EVT, arg1);
+//  func_80244978(arg0, AL_SEQP_PROG_EVT, arg1);
+    func_80244978(arg0, AL_SEQP_PROG_EVT, (s32)(arg1 * port_getSfxVolume()));
 }
 
 void sfxInstruments_func_803353F4(intptr_t arg0, s32 arg1) {

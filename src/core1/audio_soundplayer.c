@@ -7,6 +7,7 @@
 #include <ultra64.h>
 
 #include <libultra/exception.h>
+#include "port/Patches/Patches.h"
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 
@@ -510,7 +511,8 @@ N_AL_Struct81s *func_8024431C(ALBank *bank, ALSound *sound) {
         }
         temp_s0->unk3E = 0;
         temp_s0->unk3D = 0x40;
-        temp_s0->unk34 = 0x7FFF;
+//      temp_s0->unk34 = 0x7FFF;
+        temp_s0->unk34 = (s16)(0x7FFF * port_getSfxVolume());
     }
     return temp_s0;
 }

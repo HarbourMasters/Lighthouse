@@ -7,6 +7,7 @@
 #include <PR/ultraerror.h>
 // #include "functions.h"
 // #include "variables.h"
+#include "port/Patches/Patches.h"
 
 #define rmonPrintf(...)
 char __alSeqNextDelta(ALSeq *seq, s32 *pDeltaTicks);
@@ -875,7 +876,8 @@ s16 __n_vsVol(N_ALVoiceState *vs, N_ALSeqPlayer *seqp)
     
     t1 *= t2;
     t1 >>=  15;
-    return ((s16)t1);
+//  return ((s16)t1);
+    return ((s16)(t1 * port_getMusicVolume()));
 }
 
 ALMicroTime __n_vsDelta(N_ALVoiceState *vs, ALMicroTime t)

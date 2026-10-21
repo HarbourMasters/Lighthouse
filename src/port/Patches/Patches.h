@@ -124,6 +124,11 @@ void port_unlockAudio(void);
 void port_audioIntMaskEnter(void);
 void port_audioIntMaskExit(void);
 
+// Volume sliders (AudioVolume.cpp)
+
+float port_getMusicVolume(void);
+float port_getSfxVolume(void);
+
 // Note doors (NoteDoorNumbers.cpp)
 
 int port_getNoteDoorCost(int doorIdx);
