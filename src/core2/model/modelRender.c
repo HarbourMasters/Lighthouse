@@ -1026,6 +1026,8 @@ BKModelBin *modelRender_draw(Gfx **gfx, Mtx **mtx, f32 position[3], f32 rotation
     func_80349AD0();
     if(model_bin == NULL){
         model_bin = assetcache_get(sSecondaryModelData.model_id);
+        // [port] Player colors for the file select's Banjos, drawn by model id
+        CALL_EVENT(OnModelDraw, sSecondaryModelData.model_id, model_bin);
     }
     modelRenderModelBin = model_bin;
     modelRenderDisplayList = modelRenderDisplayList ? modelRenderDisplayList : modelbin_getGfxList_MACRO(modelRenderModelBin),

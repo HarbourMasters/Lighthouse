@@ -3,6 +3,10 @@
 
 #include <ultra64.h>
 
+#include "port/UI/cvar_prefixes.h"
+
+#define CVAR_PLAYER_PACK_TEXTURES CVAR_COSMETIC("Player.PackTextures")
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,9 +34,10 @@ typedef struct {
 
 void PlayerColors_getVanilla(s32 channel, u8* red, u8* green, u8* blue);
 const char* PlayerColors_getChannelCVar(s32 channel);
+const char* PlayerColors_getChannelEnabledCVar(s32 channel);
 void PlayerColors_applyForDraw(u32 ownerKey, s32 modelId, void* modelBin, const BKPlayerColorSet* colors);
-void PlayerColors_applyLocalForDraw(s32 modelId, void* modelBin);
 void PlayerColors_getLocal(BKPlayerColorSet* out);
+s32 PlayerColors_hasPackTextures(void);
 void PlayerColors_forgetOwner(u32 ownerKey);
 void PlayerColors_reset(void);
 

@@ -5,6 +5,7 @@
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Patches/Patches.h"
+#include "port/Resource/Importers/ModelFactory.h"
 #include "port/ShipInit.hpp"
 
 extern "C" {
@@ -70,19 +71,11 @@ bool NoteDoorModelMatches(BKGfxList* gfxList, BKVertexList* vertexList, BKTextur
 bool FindDigitImages(BKGfxList* gfxList, BKTextureList* textureList) {
     uintptr_t byTexture[12] = {};
     for (u32 i = 0; i < gfxList->size; i++) {
+        if (GfxOpcode(gfxList->list[i]) != 0xFD) {
+            continue;
+        }
         const uintptr_t image = gfxList->list[i].words.w1;
-        if (GfxOpcode(gfxList->list[i]) != 0xFD || image == 0 || (image & 1) != 0) {
-            continue;
-        }
-        const char* path = (const char*)image;
-        if (strncmp(path, "__OTR__", 7) != 0) {
-            continue;
-        }
-        const char* tag = nullptr;
-        for (const char* found = strstr(path, "_tex_"); found != nullptr; found = strstr(found + 1, "_tex_")) {
-            tag = found;
-        }
-        const int texture = tag != nullptr ? atoi(tag + 5) : -1;
+        const int texture = Factories::ModelTextureIndex(image);
         if (texture >= 0 && texture < 12) {
             byTexture[texture] = image;
         }

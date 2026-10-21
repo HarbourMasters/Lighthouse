@@ -3,7 +3,11 @@
 #include <ship/resource/Resource.h>
 #include <ship/resource/ResourceFactoryBinary.h>
 
+#include <cstdint>
+
 namespace Factories {
+int ModelTextureIndex(uintptr_t image);
+
 class ResourceFactoryBinaryModelV0 : public Ship::ResourceFactoryBinary {
 public:
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file,

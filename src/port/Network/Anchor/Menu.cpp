@@ -1,5 +1,4 @@
 #include "Anchor.h"
-#include <cstring>
 #include <libultraship/libultraship.h>
 #include "port/UI/LighthouseGui.hpp"
 #include "port/UI/LighthouseMenu.h"
@@ -16,68 +15,6 @@ extern std::shared_ptr<AnchorRoomWindow> mAnchorRoomWindow;
 static const char* pvpModes[3] = { "Off", "On", "On + Friendly Fire" };
 static std::vector<const char*> teleportModes = { "None", "Team Only", "All" };
 static std::vector<const char*> showLocationsModes = { "None", "Team Only", "All" };
-
-static const char* playerColorLabels[BK_COLOR_CHANNEL_COUNT] = {
-    "Banjo's fur", "Banjo's shorts", "Kazooie's feathers", "Kazooie's beak & legs", "Banjo's backpack", "Banjo's skin",
-};
-
-// Channel order is the wire order; this is the order the rows are listed in.
-static const int playerColorOrder[BK_COLOR_CHANNEL_COUNT] = {
-    BK_COLOR_BANJO_FUR,      BK_COLOR_BANJO_SKIN,       BK_COLOR_BANJO_SHORTS,
-    BK_COLOR_BANJO_BACKPACK, BK_COLOR_KAZOOIE_FEATHERS, BK_COLOR_KAZOOIE_BEAK,
-};
-
-// Per-part recoloring of the player model. Any mix of channels can be enabled; each one
-// re-tints only the palette entries and vertex colors belonging to that part, so shading
-// is preserved. The selection is part of client state, so everyone in the room sees it.
-static void AnchorPlayerColorSection(Anchor* anchor) {
-    UIWidgets::PushStyleHeader(THEME_COLOR);
-    if (!ImGui::CollapsingHeader("Player Colors")) {
-        UIWidgets::PopStyleHeader();
-        return;
-    }
-
-    ImGui::TextWrapped("Tick a part and pick a color to recolor Banjo & Kazooie. Other players in your "
-                       "room see your choices. Transformations keep their own colors.");
-    ImGui::Spacing();
-
-    for (int row = 0; row < BK_COLOR_CHANNEL_COUNT; row++) {
-        const int i = playerColorOrder[row];
-        const char* baseCVar = PlayerColors_getChannelCVar(i);
-        if (baseCVar == nullptr) {
-            continue;
-        }
-        u8 r, g, b;
-        PlayerColors_getVanilla(i, &r, &g, &b);
-        const Color_RGBA8 vanilla = { r, g, b, 255 };
-        const std::string enabledCVar = std::string(baseCVar) + ".Enabled";
-        const std::string pickerLabel = std::string("##") + baseCVar;
-
-        ImGui::PushID(i);
-        UIWidgets::CVarColorPicker(pickerLabel.c_str(), baseCVar, vanilla, false,
-                                   UIWidgets::ColorPickerResetButton | UIWidgets::ColorPickerRandomButton, THEME_COLOR);
-        ImGui::SameLine();
-        UIWidgets::CVarCheckbox(playerColorLabels[i], enabledCVar.c_str(),
-                                UIWidgets::CheckboxOptions().DefaultValue(false).Color(THEME_COLOR));
-        ImGui::PopID();
-    }
-
-    // Compare the resulting set rather than the widgets' return values: Reset and Random
-    // write the CVar without reporting a change.
-    static BKPlayerColorSet lastSent = {};
-    static bool haveLastSent = false;
-    BKPlayerColorSet current;
-    PlayerColors_getLocal(&current);
-    if (!haveLastSent || std::memcmp(&current, &lastSent, sizeof(current)) != 0) {
-        lastSent = current;
-        haveLastSent = true;
-        if (anchor->isEnabled) {
-            anchor->SendPacket_UpdateClientState();
-        }
-    }
-
-    UIWidgets::PopStyleHeader();
-}
 
 void AnchorMainMenu(WidgetInfo& info) {
     auto anchor = Anchor::GetInstance();
@@ -178,10 +115,6 @@ void AnchorMainMenu(WidgetInfo& info) {
     }
     UIWidgets::PopStyleButton();
     ImGui::EndDisabled();
-    ImGui::Spacing();
-
-    AnchorPlayerColorSection(anchor);
-
     ImGui::Spacing();
 
     UIWidgets::CVarCheckbox("Show Player Nametags", CVAR_REMOTE_ANCHOR("Nametags"),

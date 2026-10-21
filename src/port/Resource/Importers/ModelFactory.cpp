@@ -8,6 +8,8 @@
 #include "port/Resource/Alt/AltPathPool.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -24,6 +26,19 @@ void PadTo8(std::vector<uint8_t>& dst) {
 }
 
 } // anonymous namespace
+
+// The N of a G_SETTIMG image ReadResource points at "__OTR__<model>_tex_N", or -1 for any other image.
+int ModelTextureIndex(uintptr_t image) {
+    if (image == 0 || (image & 1) != 0 || std::strncmp((const char*)image, "__OTR__", 7) != 0) {
+        return -1;
+    }
+    const char* tag = nullptr;
+    for (const char* found = std::strstr((const char*)image, "_tex_"); found != nullptr;
+         found = std::strstr(found + 1, "_tex_")) {
+        tag = found;
+    }
+    return tag != nullptr ? std::atoi(tag + 5) : -1;
+}
 
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryModelV0::ReadResource(std::shared_ptr<Ship::File> file,

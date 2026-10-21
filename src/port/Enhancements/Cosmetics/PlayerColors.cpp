@@ -9,13 +9,16 @@
 
 #include <libultraship/libultraship.h>
 
+#include "port/Enhancements/Events/Hooks/Events.h"
+#include "port/Resource/Importers/ModelFactory.h"
+#include "port/ResourceHelpers.h"
+#include "port/ShipInit.hpp"
 #include "port/UI/cvar_prefixes.h"
 
 extern "C" {
 #include "core2/model.h"
 #include "enums.h"
 #include "core2/modelRender.h"
-s32 port_anchor_isConnected(void);
 }
 
 namespace {
@@ -26,7 +29,8 @@ namespace {
 // Derived from the two player model bins: every CI4 texture and every distinct
 // vertex colour was attributed to a bone (via the geo layout) and to a body
 // region, then grouped by part. Textures are listed per model because the
-// low- and high-poly bins have different texture counts and orderings.
+// bins have different texture counts and orderings. The cutscene, sleeping and
+// concert models reuse the low-poly textures and the same vertex colors.
 // ---------------------------------------------------------------------------
 
 struct ChannelInfo {
@@ -63,6 +67,20 @@ const s16 kHighFeathers[] = { 15 };
 const s16 kHighBeak[] = { 20, 21 };
 const s16 kHighSkin[] = { 3, 8 };
 
+// ASSET_532_MODEL_BANJO_KAZOOIE_CUTSCENES
+const s16 kCutsceneFur[] = { 10, 11, 13, 16 };
+const s16 kCutsceneShorts[] = { 5, 6 };
+const s16 kCutsceneFeathers[] = { 12 };
+const s16 kCutsceneSkin[] = { 2 };
+
+// ASSET_458_MODEL_BANJO_TOP_SLEEPING
+const s16 kSleepingFur[] = { 1, 3, 7 };
+const s16 kSleepingShorts[] = { 6 };
+
+// ASSET_355_MODEL_CONCERT_BANJO
+const s16 kConcertShorts[] = { 5, 6 };
+const s16 kConcertFeathers[] = { 9 };
+
 #define TEXTABLE(array) \
     { array, (s32)(sizeof(array) / sizeof((array)[0])) }
 
@@ -72,8 +90,30 @@ const TextureTable kLowTextures[] = { TEXTABLE(kLowFur),  TEXTABLE(kLowShorts), 
                                       TEXTABLE(kLowBeak), { nullptr, 0 },       TEXTABLE(kLowSkin) };
 const TextureTable kHighTextures[] = { TEXTABLE(kHighFur),  TEXTABLE(kHighShorts), TEXTABLE(kHighFeathers),
                                        TEXTABLE(kHighBeak), { nullptr, 0 },        TEXTABLE(kHighSkin) };
+const TextureTable kCutsceneTextures[] = {
+    TEXTABLE(kCutsceneFur), TEXTABLE(kCutsceneShorts), TEXTABLE(kCutsceneFeathers), { nullptr, 0 },
+    { nullptr, 0 },         TEXTABLE(kCutsceneSkin)
+};
+const TextureTable kSleepingTextures[] = { TEXTABLE(kSleepingFur), TEXTABLE(kSleepingShorts),
+                                           { nullptr, 0 },         { nullptr, 0 },
+                                           { nullptr, 0 },         { nullptr, 0 } };
+const TextureTable kConcertTextures[] = { { nullptr, 0 }, TEXTABLE(kConcertShorts), TEXTABLE(kConcertFeathers),
+                                          { nullptr, 0 }, { nullptr, 0 },           { nullptr, 0 } };
 
 #undef TEXTABLE
+
+struct ModelTextures {
+    s32 modelId;
+    const TextureTable* textures;
+};
+
+const ModelTextures kModels[] = {
+    { ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY, kLowTextures },
+    { ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY, kHighTextures },
+    { ASSET_532_MODEL_BANJO_KAZOOIE_CUTSCENES, kCutsceneTextures },
+    { ASSET_458_MODEL_BANJO_TOP_SLEEPING, kSleepingTextures },
+    { ASSET_355_MODEL_CONCERT_BANJO, kConcertTextures },
+};
 
 const u32 kFurVerts[] = { 0xFA6F12, 0xCC560B, 0xAE4707, 0x833203, 0x632501, 0x411700, 0x270E00 };
 const u32 kShortsVerts[] = { 0xFFFF28, 0xEAEA00, 0xF6B400, 0xCE8700, 0xBA5500, 0x874708 };
@@ -231,8 +271,6 @@ void* PaletteArenaTake(size_t bytes) {
 struct Variant {
     const void* sourceBin = nullptr;
     u64 colorHash = 0;
-    // Palettes live in the ring arena above; vertices are read fresh every draw and are not
-    // cached by address, so they can be rebuilt in place.
     void* textures = nullptr;
     std::unique_ptr<u64[]> vertices;
 };
@@ -262,14 +300,12 @@ bool AnyEnabled(const BKPlayerColorSet& colors) {
 }
 
 const TextureTable* TexturesForModel(s32 modelId) {
-    switch (modelId) {
-        case ASSET_34D_MODEL_BANJOKAZOOIE_LOW_POLY:
-            return kLowTextures;
-        case ASSET_34E_MODEL_BANJOKAZOOIE_HIGH_POLY:
-            return kHighTextures;
-        default:
-            return nullptr;
+    for (const ModelTextures& model : kModels) {
+        if (model.modelId == modelId) {
+            return model.textures;
+        }
     }
+    return nullptr;
 }
 
 void RecolorTextures(void* textureBlob, const TextureTable* textureTable, const BKPlayerColorSet& colors) {
@@ -391,11 +427,72 @@ Variant* BuildVariant(u32 ownerKey, s32 modelId, BKModelBin* modelBin, const BKP
     return &variant;
 }
 
-const char* kChannelCVars[] = {
-    CVAR_REMOTE_ANCHOR("Colors.BanjoFur"),        CVAR_REMOTE_ANCHOR("Colors.BanjoShorts"),
-    CVAR_REMOTE_ANCHOR("Colors.KazooieFeathers"), CVAR_REMOTE_ANCHOR("Colors.KazooieBeak"),
-    CVAR_REMOTE_ANCHOR("Colors.BanjoBackpack"),   CVAR_REMOTE_ANCHOR("Colors.BanjoSkin"),
+// ---------------------------------------------------------------------------
+// Per-model state, shared by every owner
+// ---------------------------------------------------------------------------
+
+struct ModelState {
+    const void* sourceBin = nullptr;
+    bool custom = false;
+    std::unique_ptr<u64[]> vanillaDisplayList;
 };
+
+std::unordered_map<s32, ModelState> sModels;
+
+ModelState& StateForModel(s32 modelId, BKModelBin* modelBin) {
+    ModelState& model = sModels[modelId];
+    if (model.sourceBin != modelBin) {
+        model = {};
+        model.sourceBin = modelBin;
+        // A mod's custom model won't share the part tables' textures and vertex colors.
+        model.custom = ResourceGetIsCustomByName(ResourceHelpers_GetActiveAssetPath(modelId).c_str());
+    }
+    return model;
+}
+
+// The textures the display list loads by path point back at the model's own pixels, which a texture pack doesn't
+// replace.
+BKGfxList* VanillaDisplayList(ModelState& model, BKModelBin* modelBin) {
+    if (model.vanillaDisplayList != nullptr || modelBin->gfx_list_offset == 0 || modelBin->texture_list_offset == 0) {
+        return (BKGfxList*)model.vanillaDisplayList.get();
+    }
+    const BKGfxList* source = modelbin_getGfxList(modelBin);
+    BKTextureList* textures = modelbin_getTextureList(modelBin);
+    // ModelFactory ends the list with a G_ENDDL past its size.
+    const size_t bytes = sizeof(BKGfxList) + ((size_t)source->size + 1) * sizeof(Gfx);
+    model.vanillaDisplayList = std::make_unique<u64[]>((bytes + 7) / 8);
+    BKGfxList* copy = (BKGfxList*)model.vanillaDisplayList.get();
+    std::memcpy(copy, source, bytes);
+
+    for (u32 index = 0; index < copy->size; index++) {
+        Gfx& command = copy->list[index];
+        if ((u8)(command.words.w0 >> 24) != 0xFD) { // G_SETTIMG
+            continue;
+        }
+        const int textureIndex = Factories::ModelTextureIndex(command.words.w1);
+        if (textureIndex < 0 || textureIndex >= textures->count) {
+            continue;
+        }
+        BKTextureInfo* texture = &textures->texture_infos[textureIndex];
+        // Segment 2 is the model's texture data, and ModelFactory tags segmented addresses with bit 0.
+        command.words.w1 = (((uintptr_t)0x02 << 24) | (texture->offset + textureInfo_getPaletteSize(texture))) | 1;
+    }
+    return copy;
+}
+
+struct ChannelCVars {
+    const char* base;
+    const char* value;
+    const char* enabled;
+};
+
+#define CHANNEL_CVARS(name) \
+    { CVAR_COSMETIC(name), CVAR_COSMETIC(name) ".Value", CVAR_COSMETIC(name) ".Enabled" }
+const ChannelCVars kChannelCVars[] = {
+    CHANNEL_CVARS("Banjo.Fur"),    CHANNEL_CVARS("Banjo.Shorts"),   CHANNEL_CVARS("Kazooie.Feathers"),
+    CHANNEL_CVARS("Kazooie.Beak"), CHANNEL_CVARS("Banjo.Backpack"), CHANNEL_CVARS("Banjo.Skin"),
+};
+#undef CHANNEL_CVARS
 
 #define CHANNEL_TABLE_COMPLETE(table) \
     static_assert(sizeof(table) / sizeof((table)[0]) == BK_COLOR_CHANNEL_COUNT, #table)
@@ -404,6 +501,9 @@ CHANNEL_TABLE_COMPLETE(kChannels);
 CHANNEL_TABLE_COMPLETE(kVertexTables);
 CHANNEL_TABLE_COMPLETE(kLowTextures);
 CHANNEL_TABLE_COMPLETE(kHighTextures);
+CHANNEL_TABLE_COMPLETE(kCutsceneTextures);
+CHANNEL_TABLE_COMPLETE(kSleepingTextures);
+CHANNEL_TABLE_COMPLETE(kConcertTextures);
 #undef CHANNEL_TABLE_COMPLETE
 
 } // namespace
@@ -414,7 +514,14 @@ const char* PlayerColors_getChannelCVar(s32 channel) {
     if (channel < 0 || channel >= BK_COLOR_CHANNEL_COUNT) {
         return nullptr;
     }
-    return kChannelCVars[channel];
+    return kChannelCVars[channel].base;
+}
+
+const char* PlayerColors_getChannelEnabledCVar(s32 channel) {
+    if (channel < 0 || channel >= BK_COLOR_CHANNEL_COUNT) {
+        return nullptr;
+    }
+    return kChannelCVars[channel].enabled;
 }
 
 void PlayerColors_getVanilla(s32 channel, u8* red, u8* green, u8* blue) {
@@ -432,11 +539,9 @@ void PlayerColors_getLocal(BKPlayerColorSet* out) {
     }
     for (int channelIndex = 0; channelIndex < BK_COLOR_CHANNEL_COUNT; channelIndex++) {
         const ChannelInfo& channel = kChannels[channelIndex];
-        const std::string valueCVar = std::string(kChannelCVars[channelIndex]) + ".Value";
-        const std::string enabledCVar = std::string(kChannelCVars[channelIndex]) + ".Enabled";
         const Color_RGBA8 vanilla = { channel.vanilla[0], channel.vanilla[1], channel.vanilla[2], 255 };
-        const Color_RGBA8 chosen = CVarGetColor(valueCVar.c_str(), vanilla);
-        out->channel[channelIndex].enabled = CVarGetInteger(enabledCVar.c_str(), 0) ? 1 : 0;
+        const Color_RGBA8 chosen = CVarGetColor(kChannelCVars[channelIndex].value, vanilla);
+        out->channel[channelIndex].enabled = CVarGetInteger(kChannelCVars[channelIndex].enabled, 0) ? 1 : 0;
         out->channel[channelIndex].r = chosen.r;
         out->channel[channelIndex].g = chosen.g;
         out->channel[channelIndex].b = chosen.b;
@@ -444,10 +549,19 @@ void PlayerColors_getLocal(BKPlayerColorSet* out) {
 }
 
 void PlayerColors_applyForDraw(u32 ownerKey, s32 modelId, void* modelBin, const BKPlayerColorSet* colors) {
-    if (!port_anchor_isConnected()) {
+    if (modelBin == nullptr || TexturesForModel(modelId) == nullptr) {
         return;
     }
-    if (colors == nullptr || modelBin == nullptr || !AnyEnabled(*colors)) {
+    ModelState& model = StateForModel(modelId, (BKModelBin*)modelBin);
+    if (model.custom) {
+        return;
+    }
+    if (!CVarGetInteger(CVAR_PLAYER_PACK_TEXTURES, 1)) {
+        if (BKGfxList* displayList = VanillaDisplayList(model, (BKModelBin*)modelBin)) {
+            modelRender_setDisplayList(displayList);
+        }
+    }
+    if (colors == nullptr || !AnyEnabled(*colors)) {
         return;
     }
     Variant* variant = BuildVariant(ownerKey, modelId, (BKModelBin*)modelBin, *colors);
@@ -458,13 +572,19 @@ void PlayerColors_applyForDraw(u32 ownerKey, s32 modelId, void* modelBin, const 
     modelRender_setVertexList((BKVertexList*)variant->vertices.get());
 }
 
-void PlayerColors_applyLocalForDraw(s32 modelId, void* modelBin) {
-    if (TexturesForModel(modelId) == nullptr) {
-        return;
-    }
-    BKPlayerColorSet colors;
-    PlayerColors_getLocal(&colors);
-    PlayerColors_applyForDraw(BK_COLORS_LOCAL_OWNER, modelId, modelBin, &colors);
+s32 PlayerColors_hasPackTextures(void) {
+    static const bool replaced = [] {
+        auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
+        for (const ModelTextures& model : kModels) {
+            const std::string path = ResourceHelpers_GetBaseAssetPath(model.modelId);
+            auto files = path.empty() ? nullptr : archives->ListFiles("alt/" + path + "_tex_*");
+            if (files != nullptr && !files->empty()) {
+                return true;
+            }
+        }
+        return false;
+    }();
+    return replaced;
 }
 
 void PlayerColors_forgetOwner(u32 ownerKey) {
@@ -478,3 +598,17 @@ void PlayerColors_reset(void) {
 }
 
 } // extern "C"
+
+static void RegisterPlayerColors() {
+    REGISTER_LISTENER(OnModelDraw, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (OnModelDraw*)event;
+        if (TexturesForModel(ev->modelId) == nullptr) {
+            return;
+        }
+        BKPlayerColorSet colors;
+        PlayerColors_getLocal(&colors);
+        PlayerColors_applyForDraw(BK_COLORS_LOCAL_OWNER, ev->modelId, ev->modelBin, &colors);
+    });
+}
+
+static RegisterShipInitFunc playerColorsInit(RegisterPlayerColors, {});
