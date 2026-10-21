@@ -37,6 +37,7 @@ void bstwirl_init(void){
     _bstwirlHitboxActive = true;
     batimer_set(0, 0.01f);
     D_8037D5A4 = 0;
+    CALL_EVENT(OnRollInit);
 }
 
 void bstwirl_update(void){
@@ -67,6 +68,7 @@ void bstwirl_update(void){
                 sp1C = BS_1_IDLE;
             break;
     }//L802B6C4C
+    CALL_EVENT(OnRollUpdate, (s32 *)&sp1C);
 
     if(bakey_pressed(BUTTON_A))
         sp1C = bs_getTypeOfJump();
