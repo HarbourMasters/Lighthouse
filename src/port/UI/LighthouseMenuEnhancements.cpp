@@ -681,6 +681,17 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Disables Mumbo untransforming you when going too far and skips his warning dialog."));
 
+    // Cosmetics Editor
+    path.sidebarName = "Cosmetics Editor";
+    AddSidebarEntry("Enhancements", path.sidebarName, 1);
+    path.column = SECTION_COLUMN_1;
+    AddWidget(path, "Popout Cosmetics Editor Window", WIDGET_WINDOW_BUTTON)
+        .CVar(CVAR_WINDOW("CosmeticsEditor"))
+        .RaceDisable(false)
+        .WindowName("Cosmetics Editor")
+        .HideInSearch(true)
+        .Options(WindowButtonOptions().Tooltip("Enables the separate Cosmetics Editor Window."));
+
     path.sidebarName = "Gameplay Timer";
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;

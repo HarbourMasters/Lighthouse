@@ -93,7 +93,7 @@ static BlockInfo blockInfo[PRESET_SECTION_MAX] = {
       ICON_FA_PLUS_CIRCLE,
       { "Enhancements", "enhancements" } },
     //{ { CVAR_PREFIX_AUDIO }, ICON_FA_MUSIC, { "Audio", "audio" } },
-    //{ { CVAR_PREFIX_COSMETIC }, ICON_FA_PAINT_BRUSH, { "Cosmetics", "cosmetics" } },
+    { { CVAR_PREFIX_COSMETIC }, ICON_FA_PAINT_BRUSH, { "Cosmetics", "cosmetics" } },
     { { CVAR_PREFIX_RANDOMIZER_SETTING }, ICON_FA_RANDOM, { "Rando Settings", "rando" } },
     { { CVAR_PREFIX_TRACKER }, ICON_FA_MAP, { "Trackers", "trackers" } },
     { { CVAR_PREFIX_REMOTE }, ICON_FA_WIFI, { "Network", "network" } },

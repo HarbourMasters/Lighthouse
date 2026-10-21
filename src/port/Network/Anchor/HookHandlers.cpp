@@ -7,6 +7,7 @@
 #include "port/Engine.h"
 #include "port/UI/Notification.h"
 #include "port/Patches/Patches.h"
+#include <cstring>
 #include <unordered_set>
 
 #include "functions.h"
@@ -248,6 +249,11 @@ void Anchor::RegisterHooks() {
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_HIGH, isConnected, [](IEvent* event) {
         auto* anchor = Anchor::GetInstance();
         anchor->SendPacket_PlayerUpdate();
+        BKPlayerColorSet colors;
+        PlayerColors_getLocal(&colors);
+        if (std::memcmp(&colors, &anchor->sentColors, sizeof(colors)) != 0) {
+            anchor->SendPacket_UpdateClientState();
+        }
         anchor->ProcessIncomingPacketQueue();
         anchor->RefreshClientActors();
         anchor->UpdateDummies();

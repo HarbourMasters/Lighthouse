@@ -17,6 +17,7 @@
 
 // #include "Enhancements/Trackers/ItemTracker/ItemTracker.h"
 // #include "Enhancements/Trackers/ItemTracker/ItemTrackerSettings.h"
+#include "port/Enhancements/Cosmetics/CosmeticsEditor.h"
 #include "port/Enhancements/Trackers/DisplayOverlay.h"
 #include "port/Enhancements/Trackers/WorldTracker/WorldTracker.h"
 // #include "Enhancements/Trackers//TimeSplits/Timesplits.h"
@@ -54,7 +55,7 @@ std::shared_ptr<LighthouseRomhackMenuWindow> mRomhackMenuWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 std::shared_ptr<GameplayToolsWindow> mGameplayToolsWindow;
 // std::shared_ptr<HudEditorWindow> mHudEditorWindow;
-// std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
+std::shared_ptr<CosmeticsEditorWindow> mCosmeticsEditorWindow;
 // std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 // std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 // std::shared_ptr<EventLogWindow> mEventLogWindow;
@@ -145,9 +146,9 @@ void SetupGuiElements() {
     // mHudEditorWindow = std::make_shared<HudEditorWindow>(CVAR_WINDOW("HudEditor"), "HUD Editor", ImVec2(480, 600));
     // gui->AddGuiWindow(mHudEditorWindow);
 
-    // mCosmeticEditorWindow =
-    //     std::make_shared<CosmeticEditorWindow>(CVAR_WINDOW("CosmeticEditor"), "Cosmetic Editor", ImVec2(480, 600));
-    // gui->AddGuiWindow(mCosmeticEditorWindow);
+    mCosmeticsEditorWindow =
+        std::make_shared<CosmeticsEditorWindow>(CVAR_WINDOW("CosmeticsEditor"), "Cosmetics Editor", ImVec2(550, 520));
+    gui->AddGuiWindow(mCosmeticsEditorWindow);
 
     // mActorViewerWindow = std::make_shared<ActorViewerWindow>(CVAR_WINDOW("ActorViewer"), "Actor Viewer", ImVec2(520,
     // 600)); gui->AddGuiWindow(mActorViewerWindow);
@@ -251,7 +252,7 @@ void Destroy() {
     mSaveEditorWindow = nullptr;
     mGameplayToolsWindow = nullptr;
     // mHudEditorWindow = nullptr;
-    // mCosmeticEditorWindow = nullptr;
+    mCosmeticsEditorWindow = nullptr;
     // mActorViewerWindow = nullptr;
     // mDLViewerWindow = nullptr;
     // mMessageViewerWindow = nullptr;

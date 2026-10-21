@@ -26,9 +26,8 @@ nlohmann::json Anchor::PrepClientState() {
     payload["teamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
     payload["online"] = true;
 
-    BKPlayerColorSet colors;
-    PlayerColors_getLocal(&colors);
-    to_json(payload["colors"], colors);
+    PlayerColors_getLocal(&sentColors);
+    to_json(payload["colors"], sentColors);
 
     if (IsSaveLoaded()) {
         payload["seed"] = (uint32_t)(IS_RANDO ? RANDO_SEED : 0);
