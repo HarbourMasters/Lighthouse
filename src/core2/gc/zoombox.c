@@ -740,7 +740,8 @@ void func_80315C90(GcZoombox *this, s32 arg1) {
             }
             this->prev_sfx = current_sfx;
 
-            if (arg1 != 0) {
+//          if (arg1 != 0) {
+            if (EventSystem_Should(VB_ZOOMBOX_FAST_VOICE, arg1 != 0)) {
                 phi_s1_3 = 15000;
                 phi_s2 = 11000;
                 phi_f2 = -0.1f;

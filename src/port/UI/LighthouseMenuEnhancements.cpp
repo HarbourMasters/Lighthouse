@@ -513,6 +513,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
 
+    AddWidget(path, "Disable Voice Pitch Shift", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.DisableVoicePitchShift"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Voices keep their normal pitch and volume while you hold A to speed up dialog."));
+
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
