@@ -940,7 +940,8 @@ void func_8029CBC4(void){
 }
 
 void func_8029CBF4(void){
-    if(item_getCount(ITEM_E_JIGGY) == 10){
+//  if(item_getCount(ITEM_E_JIGGY) == 10){
+    if(EventSystem_Should(VB_LAST_JIGGY_FANFARE, item_getCount(ITEM_E_JIGGY) == 10, NULL)){
         if( jiggyscore_total() == 100 && fileProgressFlag_get(FILEPROG_FC_DEFEAT_GRUNTY)){
             timedFunc_set_3(4.1f, (GenFunction_3)transitionToMap, MAP_95_CS_END_ALL_100, 0, 1);
         }//L8029CC58
