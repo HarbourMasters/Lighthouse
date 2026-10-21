@@ -314,8 +314,8 @@ void LighthouseMenu::AddMenuSettings() {
                      .Tooltip("Changes the scaling of the ImGui menu elements.")
                      .DefaultIndex(1)
                      .ComponentAlignment(ComponentAlignments::Right)
-                     .LabelPosition(LabelPositions::Far));
-    //.Callback([](WidgetInfo& info) { GameEngine::Instance->ScaleImGui(); });
+                     .LabelPosition(LabelPositions::Far))
+        .Callback([](WidgetInfo& info) { GameEngine::Instance->ScaleImGui(); });
 
     // Audio Settings
     path.sidebarName = "Audio";
