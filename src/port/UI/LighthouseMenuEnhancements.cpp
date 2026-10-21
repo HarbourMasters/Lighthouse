@@ -218,11 +218,18 @@ void LighthouseMenu::AddMenuEnhancements() {
             "How quickly the camera settles when sliding along geometry. "
             "Lower is smoother but floatier; higher is snappier but can hitch on walls."));
 
-    AddWidget(path, "Follow Camera", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Follow Camera", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_ENHANCEMENT("Camera.Follow"))
         .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "The camera will always follow Banjo and Kazooie when available, without requiring the player to hold R"));
+        .Options(ComboboxOptions()
+                     .Tooltip("When the camera follows Banjo and Kazooie. Hold R is the original behavior. Always "
+                              "follows without holding R. Toggle turns following on or off each time you press R.")
+                     .ComboMap({
+                         { 0, "Hold R" },
+                         { 1, "Always" },
+                         { 2, "Toggle with R" },
+                     })
+                     .DefaultIndex(0));
 
     // Enhancements -> Modes
     path = { "Enhancements", "Modes", SECTION_COLUMN_1 };
