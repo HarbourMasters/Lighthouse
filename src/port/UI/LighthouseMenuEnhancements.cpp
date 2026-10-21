@@ -408,13 +408,66 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Fixes the smeared snow trim around the Freezeezy Peak entrance in "
                                            "Gruntilda's Lair. Requires a map reload to take effect."));
 
-    // Enhancements -> Restorations
-    path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
+    // Enhancements -> Gameplay
+    path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);
     path.column = SECTION_COLUMN_1;
 
+    // General Section
+    AddWidget(path, "General", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Furnace Fun Moves", WIDGET_CVAR_COMBOBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(ComboboxOptions()
+                     .Tooltip("Gives new files the moves of an N64 Furnace Fun Moves (FFM) setup file. Egg Firing, "
+                              "Flight, and Wonderwing stay unlearned so Bottles still teaches them with their free "
+                              "eggs and feathers. Has no effect on existing files.\n\n"
+                              "At Start: the file begins with the moves.\n"
+                              "Console Timing: as with the real glitch, Spiral Mountain plays as normal and the "
+                              "moves arrive the first time you leave a Lair map.")
+                     .ComboMap({
+                         { 0, "Off" },
+                         { 1, "At Start" },
+                         { 2, "Console Timing" },
+                     })
+                     .DefaultIndex(0));
+
+    AddWidget(path, "Skip Spiral Mountain Tutorial", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"))
+        .RaceDisable(false)
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_RANDO).active) {
+                info.activeDisables.push_back(DISABLE_FOR_RANDO);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Start in the Lair with all basic moves and the six empty honeycombs collected."));
+
+    AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
+
+    AddWidget(path, "Disable Voice Pitch Shift", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.DisableVoicePitchShift"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Voices keep their normal pitch and volume while you hold A to speed up dialog."));
+
+    // Restorations Section
+    AddWidget(path, "Restorations", WIDGET_SEPARATOR_TEXT);
+
     AddWidget(path, "Restore Return to Lair", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Restorations.ReturnToLair"))
+        .CVar(CVAR_ENHANCEMENT("Gameplay.ReturnToLair"))
         .PreFunc([](WidgetInfo& info) {
             if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
                 info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
@@ -422,13 +475,13 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Restores the unused Return to Lair option when in Worlds."));
 
-    // Enhancements -> Gameplay
-    path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", path.sidebarName, 2);
-    path.column = SECTION_COLUMN_1;
+    path.column = SECTION_COLUMN_2;
 
-    AddWidget(path, "Difficulty", WIDGET_CVAR_COMBOBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.Difficulty"))
+    // Difficulty Section
+    AddWidget(path, "Difficulty", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Damage Scale", WIDGET_CVAR_COMBOBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.DamageScale"))
         .RaceDisable(false)
         .Options(ComboboxOptions()
                      .Tooltip("Scales the damage taken from enemies and hazards.")
@@ -449,38 +502,6 @@ void LighthouseMenu::AddMenuEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Your save file is deleted on death. Lives are ignored."));
-
-    AddWidget(path, "Skip Spiral Mountain Tutorial", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.SkipSMTutorial"))
-        .RaceDisable(false)
-        .PreFunc([](WidgetInfo& info) {
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
-                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
-            }
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_RANDO).active) {
-                info.activeDisables.push_back(DISABLE_FOR_RANDO);
-            }
-        })
-        .Options(CheckboxOptions().Tooltip(
-            "Start in the Lair with all basic moves and the six empty honeycombs collected."));
-
-    AddWidget(path, "Furnace Fun Moves", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves"))
-        .RaceDisable(false)
-        .PreFunc([](WidgetInfo& info) {
-            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
-                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
-            }
-        })
-        .Options(CheckboxOptions().Tooltip(
-            "Start new files with the moves of an N64 Furnace Fun Moves (FFM) setup file. Egg Firing, "
-            "Flight, and Wonderwing stay unlearned so Bottles still teaches them with their free eggs "
-            "and feathers. Has no effect on existing files."));
-
-    AddWidget(path, "Stop N' Swop at 100%", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.StopNSwop100"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip("Unlocks all Stop N' Swop items when loading a 100% save file."));
 
     AddWidget(path, "Disable Snacker Spawn", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.DisableSnackerSpawn"))
@@ -504,7 +525,7 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip("Adds 4 extra seconds to the GV water pyramid hatch timer."));
 
     AddWidget(path, "Easier Boggy Races", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("EasierBoggyRaces"))
+        .CVar(CVAR_ENHANCEMENT("Gameplay.EasierBoggyRaces"))
         .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) {
             if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
@@ -515,7 +536,7 @@ void LighthouseMenu::AddMenuEnhancements() {
                                            "Requires a map reload to take effect."));
 
     AddWidget(path, "Easier Mr Vile", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("EasierMrVile"))
+        .CVar(CVAR_ENHANCEMENT("Gameplay.EasierMrVile"))
         .RaceDisable(false)
         .PreFunc([](WidgetInfo& info) {
             if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
@@ -524,12 +545,6 @@ void LighthouseMenu::AddMenuEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip(
             "Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
-
-    AddWidget(path, "Disable Voice Pitch Shift", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_ENHANCEMENT("Gameplay.DisableVoicePitchShift"))
-        .RaceDisable(false)
-        .Options(CheckboxOptions().Tooltip(
-            "Voices keep their normal pitch and volume while you hold A to speed up dialog."));
 
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };

@@ -10,7 +10,7 @@
 
 #include "enums.h"
 
-#define CVAR_NAME CVAR_ENHANCEMENT("EasierBoggyRaces")
+#define CVAR_NAME CVAR_ENHANCEMENT("Gameplay.EasierBoggyRaces")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterEasierBoggyRaces_Init() {
