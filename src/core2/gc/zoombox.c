@@ -1814,10 +1814,13 @@ void gczoombox_defrag(GcZoombox *this) {
 }
 
 void gczoombox_func_80318C48(GcZoombox *this, bool arg1) {
+    // [port] JP text opens with FD 6A, the switch to the JP font. Rewriting that pair drops the font, so JP
+    // inserts the shaky pair in front of it instead, like a string with no format pair.
     if (this != NULL) {
         if (this->unk1A4_30) {
             if (arg1 != false) {
-                if (this->unk0[0] == 0xFD) {
+//              if (this->unk0[0] == 0xFD) {
+                if (this->unk0[0] == 0xFD && this->unk0[1] != 0x6A) {
                     this->unk0[1] = 0x68;
                 } else {
                     func_803153A8(&this->unk0[0], D_803830B0, 0, sizeof(D_803830B0));
@@ -1826,13 +1829,15 @@ void gczoombox_func_80318C48(GcZoombox *this, bool arg1) {
                     func_803153A8(D_803830B0, &this->unk0[2], 0, sizeof(this->unk0) - 2);
                 }
             }
-            else if (this->unk0[0] == 0xFD) {
+//          else if (this->unk0[0] == 0xFD) {
+            else if (this->unk0[0] == 0xFD && this->unk0[1] != 0x6A) {
                     this->unk0[1] = 0x6C;
             }
         }
         if (this->unk1A4_29) {
             if (arg1 != false) {
-                if (this->unk30[0] == 0xFD) {
+//              if (this->unk30[0] == 0xFD) {
+                if (this->unk30[0] == 0xFD && this->unk30[1] != 0x6A) {
                     this->unk30[1] = 0x68;
                     return;
                 }
@@ -1843,7 +1848,8 @@ void gczoombox_func_80318C48(GcZoombox *this, bool arg1) {
                     func_803153A8(D_803830B0, &this->unk30[2], 0, sizeof(this->unk30) - 2);
                 }
             }
-            else if (this->unk30[0] == 0xFD) {
+//          else if (this->unk30[0] == 0xFD) {
+            else if (this->unk30[0] == 0xFD && this->unk30[1] != 0x6A) {
                 this->unk30[1] = 0x6C;
             }
         }

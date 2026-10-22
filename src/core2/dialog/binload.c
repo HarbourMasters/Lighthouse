@@ -74,3 +74,17 @@ void dialogBin_release(s32 arg0){
     s_dialogBin.ptr = NULL;
     s_dialogBin.index = -1;
 }
+
+// [port] JP only font swaps
+void func_8031BB10(char *str) {
+    u8 *c;
+
+    for (c = (u8 *)str; *c != '\0'; c++) {
+        if (*c >= '0' && *c <= '9') {
+            *c -= 0x20;
+        }
+        if (*c == ':') {
+            *c = '>';
+        }
+    }
+}
