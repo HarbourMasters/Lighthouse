@@ -2248,6 +2248,9 @@ f32 func_80331F1C(Prop *arg0){
     if (idx < 0 || idx >= 0x2A2) return 0.0f;
     BKModelBin *model = propModelList_getModel(idx);
     if (model == NULL) return 0.0f;
+    // [port] A few ids in the prop model range are sprites. Read as a BKModelBin, the sprite's frame
+    // pointer becomes vtx_list_offset; on N64 that read stray RDRAM, here it faults. Use the sprite's own radius.
+    if (!ResourceMgr_IsModelAsset(0x2D1 + idx)) return func_80331D20((BKSprite *)model);
     // [port] modelbin_getVtxList offsets into the model blob; if vtx_list_offset is 0 it returns the header itself
     if (model->vtx_list_offset == 0) return 0.0f;
     BKVertexList *vtx = modelbin_getVtxList(model);

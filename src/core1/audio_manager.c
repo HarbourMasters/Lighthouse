@@ -16,12 +16,10 @@
 
 // [port] BK audio - SDK calls stubbed, functions preserved for game code
 
-// [port] 64-bit structs with pointers are larger — double the heap
-#if UINTPTR_MAX > 0xFFFFFFFF
+// [port] Double the N64 heap on every target: the port's audio structs outgrow the original
+// size even with 32-bit pointers (the sixth music player's allocation fails on 32-bit x86).
+// #define AUDIO_HEAP_SIZE VER_SELECT(0x21000, 0x23A00, 0x21000, 0x21000)
 #define AUDIO_HEAP_SIZE VER_SELECT(0x42000, 0x47400, 0x42000, 0x42000)
-#else
-#define AUDIO_HEAP_SIZE VER_SELECT(0x21000, 0x23A00, 0x21000, 0x21000)
-#endif
 #define NUM_SAMPLES 184 // n_audio has fixed sample count of 184
 #define NUM_OSC_STATES 48
 #define NUM_AUDIO_CMDS_PER_SECOND 150000

@@ -7,6 +7,8 @@
 
 #include "port/build.h"
 #include "ship/Context.h"
+#include "ship/resource/archive/Archive.h"
+#include "ship/resource/archive/ArchiveManager.h"
 #include <spdlog/spdlog.h>
 
 namespace Lighthouse {
@@ -43,7 +45,38 @@ uint32_t ByteSwap32(uint32_t v) {
     return (v >> 24) | ((v >> 8) & 0x0000FF00u) | ((v << 8) & 0x00FF0000u) | (v << 24);
 }
 
+uint32_t StampedCrc(const uint8_t* stamp) {
+    return (static_cast<uint32_t>(stamp[1]) << 24) | (static_cast<uint32_t>(stamp[2]) << 16) |
+           (static_cast<uint32_t>(stamp[3]) << 8) | static_cast<uint32_t>(stamp[4]);
+}
+
+std::shared_ptr<Ship::Archive> MountedArchive(const std::string& archivePath) {
+    auto context = Ship::Context::GetRawInstance();
+    if (context == nullptr || context->GetResourceManager() == nullptr) {
+        return nullptr;
+    }
+    auto archives = context->GetResourceManager()->GetArchiveManager()->GetArchives();
+    if (archives == nullptr) {
+        return nullptr;
+    }
+    for (const auto& archive : *archives) {
+        if (archive != nullptr && archive->GetPath() == archivePath) {
+            return archive;
+        }
+    }
+    return nullptr;
+}
+
 bool ReadStampedCrc(const std::string& archivePath, uint32_t& outCrc) {
+    if (auto archive = MountedArchive(archivePath)) {
+        auto file = archive->LoadFile("version");
+        if (file == nullptr || !file->IsLoaded || file->Buffer->size() < 5) {
+            return false;
+        }
+        outCrc = StampedCrc(reinterpret_cast<const uint8_t*>(file->Buffer->data()));
+        return true;
+    }
+
     int err = 0;
     zip_t* z = zip_open(archivePath.c_str(), ZIP_RDONLY, &err);
     if (z == nullptr) {
@@ -55,8 +88,7 @@ bool ReadStampedCrc(const std::string& archivePath, uint32_t& outCrc) {
         if (zip_file_t* f = zip_fopen_index(z, idx, 0)) {
             uint8_t buf[5] = {};
             if (zip_fread(f, buf, sizeof(buf)) == sizeof(buf)) {
-                outCrc = (static_cast<uint32_t>(buf[1]) << 24) | (static_cast<uint32_t>(buf[2]) << 16) |
-                         (static_cast<uint32_t>(buf[3]) << 8) | static_cast<uint32_t>(buf[4]);
+                outCrc = StampedCrc(buf);
                 ok = true;
             }
             zip_fclose(f);

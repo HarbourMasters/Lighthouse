@@ -78,6 +78,7 @@ int sHoldFramesRemaining = 0;
 std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
 bool portArchiveVersionMatch = false;
 std::string assets_path;
+std::shared_ptr<Ship::Archive> romArchive;
 
 int32_t previousImGuiScaleIndex = -1;
 float previousImGuiScale = defaultImGuiScale;
@@ -282,10 +283,13 @@ void GameEngine::FinishInit() {
     const bool hosted = Lighthouse::GetFrameHost() != nullptr;
     for (const auto& archive : kRomArchives) {
         std::string romPath = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
-        if (std::filesystem::exists(romPath)) {
+        if (romArchive != nullptr && romArchive->GetPath() == romPath) {
+            context->GetResourceManager()->GetArchiveManager()->AddArchive(romArchive);
+        } else if (std::filesystem::exists(romPath)) {
             context->GetResourceManager()->GetArchiveManager()->AddArchive(romPath);
         }
     }
+    romArchive = nullptr;
 
     const std::string patches_path = Ship::Context::GetPathRelativeToAppDirectory("mods");
     if (!patches_path.empty() && !std::filesystem::exists(patches_path)) {
