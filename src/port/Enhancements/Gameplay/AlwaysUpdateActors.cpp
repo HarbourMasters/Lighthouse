@@ -10,7 +10,7 @@ extern "C" {
 #include "functions.h"
 }
 
-#define CVAR_ALWAYS_UPDATE_ACTORS CVAR_ENHANCEMENT("Graphics.AlwaysUpdateActors")
+#define CVAR_ALWAYS_UPDATE_ACTORS CVAR_ENHANCEMENT("Gameplay.AlwaysUpdateActors")
 
 extern "C" bool port_isAlwaysUpdateActorsEnabled() {
     return CVarGetInteger(CVAR_ALWAYS_UPDATE_ACTORS, 0) != 0;
