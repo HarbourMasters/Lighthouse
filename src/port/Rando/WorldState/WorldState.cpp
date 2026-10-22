@@ -59,11 +59,9 @@ void RegisterWorldState() {
         Actor* actor = CustomCollectible::GetActorByRC(randoCheckId);
         ev->result = actor != NULL || RANDO_SAVE_CHECKS[randoCheckId].eligible;
 
-        /*
         if (randoCheckId == RC_MMM_JIGGY_TUMBLARS_PUZZLE) {
             ev->result = mapSpecificFlags_get(MMM_SPECIFIC_FLAG_TUMBLAR_BROKEN);
         }
-        */
     });
 
     COND_HOOK(OnIsJiggyScoreCollected, EVENT_PRIORITY_NORMAL, IS_RANDO && JIGGY_OPTION_ENABLED, [](IEvent* event) {
