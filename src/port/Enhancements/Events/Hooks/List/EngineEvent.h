@@ -20,6 +20,8 @@ DEFINE_EVENT(OnMapLoad, GameMap prevMap; GameMap nextMap; s32 exit;);
 DEFINE_EVENT(OnMapLoadStub);
 
 DEFINE_EVENT(OnDialogLoaded, s32 textId; char* text;);
+DEFINE_EVENT(OnDialogUpdate, s32 textId; s32 state; s32 activeZoombox; BKDialog * *dialogs; u8 * stringCounts;
+             s8 * stringCmds; u8 * stringIndices; char** strings; void** zoomboxes; u8 * pageState;);
 
 DEFINE_EVENT(OnModelLoad, s32 modelId; void* modelInfo; s32 * reload;);
 

@@ -24,6 +24,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnMapLoad);
     REGISTER_EVENT(OnMapLoadStub);
     REGISTER_EVENT(OnDialogLoaded);
+    REGISTER_EVENT(OnDialogUpdate);
     REGISTER_EVENT(OnModelLoad);
     REGISTER_EVENT(OnModelDisplayListLoad);
     REGISTER_EVENT(OnModelBinBuilt);
@@ -67,6 +68,8 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnBoggyRaceSetSpeed);
     REGISTER_EVENT(OnMrVileSetSpeed);
     REGISTER_EVENT(OnFurnaceFunDialog);
+    REGISTER_EVENT(OnQuizStateChange);
+    REGISTER_EVENT(OnQuizUpdate);
     REGISTER_EVENT(OnLairRelease);
     REGISTER_EVENT(OnRollInit);
     REGISTER_EVENT(OnRollUpdate);

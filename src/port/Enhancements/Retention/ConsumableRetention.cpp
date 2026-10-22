@@ -7,6 +7,7 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Save/SaveManager.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
 #include <algorithm>
@@ -34,7 +35,7 @@ struct DropLocal {
 };
 
 static ConsumableRetentionSaveData* store() {
-    ShipSaveData* data = retention::activeShipData();
+    ShipSaveData* data = SaveManager_GetActiveShipData();
     return data != nullptr ? &data->consumableRetention : nullptr;
 }
 

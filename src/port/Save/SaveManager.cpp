@@ -47,6 +47,18 @@ std::string SaveManager_GetSavePath(const std::string& filename) {
     return dir + "/" + filename;
 }
 
+int32_t SaveManager_GetActiveSlot() {
+    if (selectedFileNum < 0 || selectedFileNum >= 4 || gameSelect_getGameNumber() == -1) {
+        return -1;
+    }
+    return (int32_t)selectedFileNum;
+}
+
+ShipSaveData* SaveManager_GetActiveShipData() {
+    int32_t slot = SaveManager_GetActiveSlot();
+    return slot >= 0 ? &gameFile_saveData[slot].shipSaveData : nullptr;
+}
+
 static int BitfieldGetBit(const uint8_t* array, int index) {
     return (array[index / 8] & (1 << (index & 7))) ? 1 : 0;
 }
@@ -421,6 +433,15 @@ ordered_json Convert_SaveDataToJSON(SaveData* saveData, int32_t fileNum) {
     }
     ship["consumableRetention"] = consumableRetention;
 
+    // Brentilda's hints heard (all files)
+    ordered_json heardBrentildaHints = ordered_json::array();
+    for (int i = 0; i < 32; i++) {
+        if (saveData->shipSaveData.heardBrentildaHints & (1u << i)) {
+            heardBrentildaHints.push_back(i);
+        }
+    }
+    ship["heardBrentildaHints"] = heardBrentildaHints;
+
     if (saveData->shipSaveData.fileType == FILE_TYPE_SAVE_RANDO) {
         Rando::Logic::GenerateSaveData(saveData);
         shipRando["seedId"] = saveData->shipSaveData.randoSaveData.seedId;
@@ -706,6 +727,17 @@ SaveData* Convert_JSONToSaveData(int32_t fileNum) {
                 pickup.y = entry[1].get<s16>();
                 pickup.z = entry[2].get<s16>();
                 pickup.drop = entry.size() > 3 ? entry[3].get<u8>() : 0;
+            }
+        }
+    }
+
+    // Brentilda's hints heard (all files)
+    saveData->shipSaveData.heardBrentildaHints = 0;
+    if (j.contains("ship") && j["ship"].contains("heardBrentildaHints")) {
+        for (auto& question : j["ship"]["heardBrentildaHints"]) {
+            const int i = question.get<int>();
+            if (i >= 0 && i < 32) {
+                saveData->shipSaveData.heardBrentildaHints |= 1u << i;
             }
         }
     }

@@ -48,6 +48,7 @@ typedef enum VBehaviorID {
     VB_SAVE_AND_EXIT,
     VB_MUMBO_DETRANSFORM,
     VB_ZOOMBOX_FAST_VOICE,
+    VB_ZOOMBOX_YELLOW_TEXT,
 
     // Rando object behavior
     VB_OVERRIDE_BOTTLES_TEXT_CALLBACK,

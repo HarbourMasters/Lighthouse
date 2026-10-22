@@ -5,10 +5,12 @@
 #include "variables.h"
 #include "core2/gc/dialog.h"
 #include "core2/gc/zoombox.h"
+#include "port/ResourceHelpers.h"
 
 extern void func_803114D0(void);
 extern int gcdialog_hasCurrentTextId(void);
 extern char *dialogBin_get(enum asset_e text_id);
+extern void func_8031BB10(char *str);
 
 //s8 Y_POSITION_MODIFIERS[] = { 1, 0x1E, 0x14, 0xF, 0xB, 8, 6, 4, 3, 2, -1, -1 };
 s8 Y_POSITION_MODIFIERS[] = { 1, 0x1E, 0x14, 0xF, 0xB, 8, 6, 4, 3, 2, -1, -1, -1 };
@@ -71,7 +73,8 @@ struct {
 
     s16 currentTextId;
     s8 yPositionModifierIndex;
-    u8 pad133[0x1];
+//  u8 pad133[0x1];
+    u8 unk133; // [port] JP's page state
     ActorMarker *caller;
     s32 unk138;
     void (* currentCallback)(ActorMarker *, s32, s32);
@@ -128,6 +131,7 @@ void gcdialog_init(void) {
     g_Dialog.conditionalCallback = 0;
     g_Dialog.yPositionModifierIndex = 12; // Length of array is 11, so intentionally setting out of bounds
     g_Dialog.unk128_3 = true;
+    g_Dialog.unk133 = 0; // [port] JP resets its page state here too
 }
 
 static void freeZoomboxes(void) {
@@ -193,7 +197,9 @@ void replaceText(char *next_state, char *arg1, char *arg2, bool arg3, bool arg4)
 
     var_v0 = 0;
     for (i = 0; arg1[i] != '\0'; i++) {
-        if (arg1[i] == ((arg3) ? 0xE : '~')) {
+        // [port] JP marks the slot in its font-2 templates with 0x02; 0x0E is an ordinary JP glyph
+//      if (arg1[i] == ((arg3) ? 0xE : '~')) {
+        if (arg1[i] == ((arg3) ? (ResourceMgr_IsJapanese() ? 0x2 : 0xE) : '~')) {
             if (arg4) {
                 next_state[var_v0++] = 0xFD;
                 next_state[var_v0++] = 0x68;
@@ -391,6 +397,11 @@ void dialog_update(void) {
         controller_copySideButtons(0, controller_side_buttons);
     }
 
+    // [port] Lets the localization layer re-read an open dialog in a new language
+    CALL_EVENT(OnDialogUpdate, g_Dialog.currentTextId, g_Dialog.state, g_Dialog.u8_s.active_zoombox, g_Dialog.dialog,
+               g_Dialog.string_count, g_Dialog.string_cmd, g_Dialog.string_index, g_Dialog.string, (void **)g_Dialog.zoombox,
+               &g_Dialog.unk133);
+
     switch (g_Dialog.state) {    
         case DIALOG_STATE_1:
             for (spA8 = 0, i = 0; i < 2; i++) {
@@ -543,6 +554,9 @@ void dialog_update(void) {
                                     }
         
                                     bk_strIToA(D_80382FF8, ret);
+                                    if (ResourceMgr_IsJapanese()) {
+                                        func_8031BB10(D_80382FF8); // [port] JP swaps the digits for its font's
+                                    }
                                     bk_strlen(D_80382FF8);
                                     bk_strlen(CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str);
         
@@ -566,19 +580,54 @@ void dialog_update(void) {
                                 g_Dialog.unk128_6 = FALSE;
                             }
         
-                            if (ret == -1) {
+                            // [port] JP pre-splits its lines, so a substituted line shares its page with the
+                            // line before it or the line after its variants.
+                            if (ret == -1 && g_Dialog.unk133 == 2) {
+                                sp4C[0] = g_Dialog.output;
+                                sp4C[1] = CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox])->str;
+                                gczoombox_setStrings(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], 2, sp4C);
+                                g_Dialog.unk133 = 0;
+                                g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]++;
+//                          if (ret == -1) {
+                            } else if (ret == -1) {
                                 for (spA8 = g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]; CMD(spA8)->cmd == g_Dialog.string_cmd[g_Dialog.u8_s.active_zoombox] && spA8 - g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] < 8; spA8++) {
+                                    if (ResourceMgr_IsJapanese() && spA8 < g_Dialog.string_count[g_Dialog.u8_s.active_zoombox] - 1 && (CMD(spA8 + 1)->cmd == -8 || CMD(spA8 + 1)->cmd == -9)) {
+                                        break;
+                                    }
                                     sp4C[spA8 - g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]] = CMD(spA8)->str;
                                 }
-        
-                                gczoombox_setStrings(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], spA8 - g_Dialog.string_index[g_Dialog.u8_s.active_zoombox], sp4C);
+
+//                              gczoombox_setStrings(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], spA8 - g_Dialog.string_index[g_Dialog.u8_s.active_zoombox], sp4C);
+                                if (ResourceMgr_IsJapanese() && spA8 - g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] == 1 && spA8 < g_Dialog.string_count[g_Dialog.u8_s.active_zoombox] - 1 && (CMD(spA8 + 1)->cmd == -8 || CMD(spA8 + 1)->cmd == -9)) {
+                                    g_Dialog.unk133 = 1;
+                                } else {
+                                    gczoombox_setStrings(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], spA8 - g_Dialog.string_index[g_Dialog.u8_s.active_zoombox], sp4C);
+                                }
                                 g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] = spA8;
+                            } else if (g_Dialog.unk133 == 1) {
+                                if (g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] > 0) {
+                                    sp4C[0] = CMD(g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] - 1)->str;
+                                    sp4C[1] = g_Dialog.output;
+                                    gczoombox_setStrings(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], 2, sp4C);
+                                }
+                                g_Dialog.unk133 = 0;
+                                g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]++;
                             } else {
-                                func_803183A4(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], g_Dialog.output);
+                                for (spA8 = g_Dialog.string_index[g_Dialog.u8_s.active_zoombox] + 1; ResourceMgr_IsJapanese() && (CMD(spA8)->cmd == -8 || CMD(spA8)->cmd == -9); spA8++);
+
+//                              func_803183A4(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], g_Dialog.output);
+                                if (ResourceMgr_IsJapanese() && CMD(spA8)->cmd == g_Dialog.string_cmd[g_Dialog.u8_s.active_zoombox]) {
+                                    g_Dialog.unk133 = 2;
+                                } else {
+                                    func_803183A4(g_Dialog.zoombox[g_Dialog.u8_s.active_zoombox], g_Dialog.output);
+                                }
                                 g_Dialog.string_index[g_Dialog.u8_s.active_zoombox]++;
                             }
-        
-                            dialog_setState(DIALOG_STATE_3);
+
+//                          dialog_setState(DIALOG_STATE_3);
+                            if (g_Dialog.unk133 == 0) {
+                                dialog_setState(DIALOG_STATE_3);
+                            }
                         }
 
                         break;

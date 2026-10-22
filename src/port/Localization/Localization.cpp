@@ -48,9 +48,7 @@ namespace {
 constexpr int kJpDialogFontAssetId = 0x6EA;    // SPRITE_JP_DIALOG_FONT_ALPHAMASK
 constexpr int kDialogFontAssetId = 0x6EB;      // SPRITE_DIALOG_FONT_ALPHAMASK (base/latin, slot 0)
 constexpr int kBoldLettersFontAssetId = 0x6EC; // SPRITE_BOLD_FONT_LETTERS_ALPHAMASK (world names, headers)
-constexpr int kJpFontFreeDelayFrames = 5;      // grace frames before freeing slot 2
 int sFontLanguageGen = 0;
-int sJpFontFreeDelay = 0;
 bool sDialogFontOverridden = false; // slot 0 currently holds a pack's glyph sheet
 bool sBoldFontOverridden = false;   // bold-letters font currently holds a pack's glyph sheet
 
@@ -550,17 +548,14 @@ static void RegisterLocalizedText() {
     D_80365DFC[2] = (u8*)"SICHER? DR]CKE A, UM ZU BEST[TIGEN, ODER B, UM ZU WIDERRUFEN.";
 
     // Drive the JP dialog-font slot off the language generation, at a safe
-    // between-frames point: load slot 2 when Japanese becomes active, and on
-    // switch away defer the free a few frames so in-flight JP strings finish.
+    // between-frames point: load slot 2 when Japanese becomes active. On switch
+    // away it stays loaded, since JP text already on screen keeps drawing from it.
     REGISTER_LISTENER(GameFrameUpdate, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         int gen = ResourceMgr_GetLanguageGeneration();
         if (gen != sFontLanguageGen) {
             sFontLanguageGen = gen;
             if (ResourceMgr_IsJapanese()) {
-                sJpFontFreeDelay = 0; // cancel a pending free; ensure slot 2 is current
                 LoadJpFontSlot();
-            } else if (print_sFontSpriteAssets[2] != nullptr) {
-                sJpFontFreeDelay = kJpFontFreeDelayFrames;
             }
             bool fontOverridden = ResourceMgr_IsAssetRepointed(kDialogFontAssetId) != 0;
             if (fontOverridden || sDialogFontOverridden) {
@@ -573,14 +568,11 @@ static void RegisterLocalizedText() {
                 sBoldFontOverridden = boldOverridden;
             }
         }
-        if (sJpFontFreeDelay > 0 && --sJpFontFreeDelay == 0) {
-            FreeJpFontSlot();
-        }
     });
 
-    // Font slot fallback: the JP font (slot 2) can be momentarily unloaded for a
-    // frame across a language swap. Redirect to the base font (glyph 0) for that
-    // frame instead of letting the draw dereference a NULL slot.
+    // Font slot fallback: the JP font (slot 2) is only loaded once Japanese has been
+    // active on this map. A font-2 letter drawn without it is redirected to the base
+    // font (glyph 0) instead of letting the draw dereference a NULL slot.
     REGISTER_LISTENER(ResolveBoldFontSlot, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ResolveBoldFontSlot*)event;
         if (print_sFontSpriteAssets[*ev->slot] == nullptr) {
