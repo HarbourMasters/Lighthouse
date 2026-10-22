@@ -416,6 +416,12 @@ void LighthouseMenu::AddMenuEnhancements() {
     // General Section
     AddWidget(path, "General", WIDGET_SEPARATOR_TEXT);
 
+    AddWidget(path, "Always Update Actors", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.AlwaysUpdateActors"))
+        .Options(CheckboxOptions().Tooltip(
+            "Keeps supported loaded actors updating beyond their usual update distance without changing normal "
+            "interaction ranges. May cost performance when enabled."));
+
     AddWidget(path, "Furnace Fun Moves", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.FurnaceFunMoves"))
         .RaceDisable(false)
@@ -482,7 +488,6 @@ void LighthouseMenu::AddMenuEnhancements() {
 
     AddWidget(path, "Damage Scale", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_ENHANCEMENT("Gameplay.DamageScale"))
-
         .RaceDisable(false)
         .Options(ComboboxOptions()
                      .Tooltip("Scales the damage taken from enemies and hazards.")
