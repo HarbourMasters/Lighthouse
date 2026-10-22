@@ -397,6 +397,11 @@ void dialog_update(void) {
         controller_copySideButtons(0, controller_side_buttons);
     }
 
+    // [port] Lets the localization layer re-read an open dialog in a new language
+    CALL_EVENT(OnDialogUpdate, g_Dialog.currentTextId, g_Dialog.state, g_Dialog.u8_s.active_zoombox, g_Dialog.dialog,
+               g_Dialog.string_count, g_Dialog.string_cmd, g_Dialog.string_index, g_Dialog.string, (void **)g_Dialog.zoombox,
+               &g_Dialog.unk133);
+
     switch (g_Dialog.state) {    
         case DIALOG_STATE_1:
             for (spA8 = 0, i = 0; i < 2; i++) {

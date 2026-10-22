@@ -520,6 +520,12 @@ void gcquiz_func_80319EA4(void) {
     if(sD_803830E0 == NULL)
         return;
 
+    // [port] Lets the localization layer re-read an open question in a new language
+    CALL_EVENT(OnQuizUpdate, sD_803830E0->state, sD_803830E0->question_type,
+               __gcquiz_get_type_start_id(sD_803830E0->question_type) + sD_803830E0->question_index,
+               (void **)&sD_803830E0->unkC, sD_803830E0->answer_str_counts, sD_803830E0->answer_values,
+               &sD_803830E0->quiz_question.answer_options[0][0], (void **)sD_803830E0->zoomboxes);
+
     controller_copyFaceButtons(0, face_button_states);
     controller_copyJoystick(0, joystick_states);
     for(phi_s0 = 0; phi_s0 < 4; phi_s0++){
