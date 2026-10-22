@@ -330,8 +330,17 @@ typedef struct actor_s{
     uintptr_t unk154;
     ParticleEmitter *unk158[2];
     void *unk160; //saved marker->unk54
-    u8  unk164[0x2];
-    u8  unk166;
+    // [port] The hit counters are indexed 0-2, so unk166 is unk164[2]. Reading or writing [2] of a
+    // two-byte array is undefined, and an optimizing compiler doesn't have to keep it.
+//  u8  unk164[0x2];
+//  u8  unk166;
+    union {
+        u8  unk164[0x3];
+        struct {
+            u8  pad164[0x2];
+            u8  unk166;
+        };
+    };
     s8  pad167[0x1];
     uintptr_t unk168; //saved marker->unk58
     u32  unk16C_31:27; //saved s1->marker->unk5C
