@@ -102,6 +102,32 @@ void Rando::ObjectBehavior::InitJiggyBehavior() {
         *should = true;
     })
 
+    // If Banjo isn't near the jiggy when it's first rewarded, the tooth asks for it every frame.
+    // In vanilla, the jiggy would spawn on the first frame and that would be that. If this isn't
+    // checked by rando, then it becomes an infinite loop that exhausts the spawn queue.
+    COND_VB_SHOULD(VB_CC_TOOTH_PLACE_JIGGY, EVENT_PRIORITY_NORMAL, true, {
+        jiggy_e jiggyId = (jiggy_e)va_arg(args, int);
+        f32* position = va_arg(args, f32*);
+
+        if (!IS_RANDO || !OPTION_ENABLED) {
+            return;
+        }
+
+        RandoCheckId randoCheckId = Rando::StaticData::GetCheckByJiggyId(jiggyId);
+
+        if (randoCheckId == RC_UNKNOWN || !Rando::Logic::IsCheckShuffled(randoCheckId)) {
+            return;
+        }
+
+        int32_t spawnPosition[3];
+        spawnPosition[0] = (int32_t)position[0];
+        spawnPosition[1] = (int32_t)position[1];
+        spawnPosition[2] = (int32_t)position[2];
+
+        CustomObject::ShouldCreateCustomActorEX(randoCheckId, spawnPosition, false);
+        *should = false;
+    })
+
     // The witch switches' lair cutscenes play their own jingle
     COND_VB_SHOULD(VB_JIGGY_SPAWN_JINGLE, EVENT_PRIORITY_NORMAL, true, {
         jiggy_e jiggyId = (jiggy_e)va_arg(args, int);
