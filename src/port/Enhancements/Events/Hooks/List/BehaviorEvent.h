@@ -16,6 +16,9 @@ DEFINE_EVENT(OnBeakSwimVelocitySet, f32* velocity;)
 DEFINE_EVENT(OnBoggyRaceSetSpeed, f32* speed;)
 DEFINE_EVENT(OnMrVileSetSpeed, f32* speed;)
 DEFINE_EVENT(OnFurnaceFunDialog, s32* lifeThreshold;)
+// The quiz entering a gcquiz_state. zoomboxes holds its four GcZoombox*, and answerValues[i] == 1 marks the box
+// with the right answer.
+DEFINE_EVENT(OnQuizStateChange, s32 state; s32 questionType; s32 questionIndex; void** zoomboxes; s8 * answerValues;)
 DEFINE_EVENT(OnLairRelease)
 DEFINE_EVENT(OnRollInit)
 DEFINE_EVENT(OnRollUpdate, s32* nextState;)

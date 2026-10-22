@@ -47,6 +47,7 @@ static void RegisterRetentionSaving_Init() {
             buf->shipSaveData.noteRetention = live->noteRetention;
             buf->shipSaveData.jinjoRetention = live->jinjoRetention;
             buf->shipSaveData.consumableRetention = live->consumableRetention;
+            buf->shipSaveData.heardBrentildaHints = live->heardBrentildaHints;
         }
     });
 }

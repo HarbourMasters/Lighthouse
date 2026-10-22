@@ -57,6 +57,7 @@ typedef struct {
     NoteRetentionSaveData noteRetention;
     JinjoRetentionSaveData jinjoRetention;
     ConsumableRetentionSaveData consumableRetention;
+    u32 heardBrentildaHints;
 } ShipSaveData;
 
 typedef struct{

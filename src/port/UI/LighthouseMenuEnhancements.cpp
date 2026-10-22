@@ -546,6 +546,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Reduces Mr Vile's max speed during all three phases of his mini game in Bubblegloop Swamp."));
 
+    AddWidget(path, "Highlight Brentilda's Hints", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.HighlightHeardHints"))
+        .Options(CheckboxOptions().Tooltip(
+            "In Furnace Fun, shows the right answer to Grunty's questions in yellow once Brentilda has told you."));
+
     // Enhancements -> Tooie Backports
     path = { "Enhancements", "Tooie Backports", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 2);

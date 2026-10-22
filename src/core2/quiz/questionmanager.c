@@ -489,6 +489,8 @@ static void __gcquiz_advanceStateTo(enum gcquiz_state state){
             break;
     }
     sD_803830E0->state = state;
+    CALL_EVENT(OnQuizStateChange, state, sD_803830E0->question_type, sD_803830E0->question_index,
+               (void **)sD_803830E0->zoomboxes, sD_803830E0->answer_values);
 }
 
 void __gcquiz_func_80319E20(s32 portrait_id, s32 zoombox_state) {
