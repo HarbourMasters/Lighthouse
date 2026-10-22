@@ -1361,11 +1361,9 @@ s32 func_80343694(Actor *actor, s32 indx, s32 begin, s32 end, s32 count, s32 str
     }
     if ((D_80371E80 == 1) && (var_v1 == 1)) {
         actor->unk48 = sp48 + 0.00001;
-#if UINTPTR_MAX > 0xFFFFFFFFu
-        // On N64 the position desync during pause is sub-pixel at 240p.
-        // On PC at higher resolution the stale position is visible.
+        // [port] On N64 the position desync during pause is sub-pixel at 240p.
+        // At port resolutions the stale position is visible.
         func_80323240(D_80371E70[indx], actor->unk48, actor->position);
-#endif
     }
     return var_v1;
 }
