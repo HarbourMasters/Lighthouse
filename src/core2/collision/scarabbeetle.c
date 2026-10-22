@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern BKCollisionTriangle *func_80320DB0(f32[3], f32, f32[3], u32);
 

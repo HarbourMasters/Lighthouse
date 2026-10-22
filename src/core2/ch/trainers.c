@@ -1,7 +1,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "core2/statetimer.h"
 extern f32 player_stateTimer_get(enum state_timer_e);

@@ -1,7 +1,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
 
 #include "port/Patches/Patches.h"
 

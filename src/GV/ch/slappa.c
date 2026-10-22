@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
 
 void chSlappa_update(Actor *this);
 

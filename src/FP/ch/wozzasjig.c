@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
 
 Actor *chWozzaJiggy_draw(ActorMarker *marker, Gfx **gfx, Mtx **mtx, Vtx **vtx);
 void chWozzaJiggy_update(Actor *this);

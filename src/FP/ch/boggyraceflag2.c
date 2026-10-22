@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "functions.h"
 #include "variables.h"
-#include "port/Enhancements/Events/Hooks/Events.h"
 
 extern void func_803289EC(Actor *, f32, s32);
 extern void func_8028E668(f32[3], f32, f32, f32);
