@@ -7,8 +7,12 @@
 namespace Fast {
 class Fast3dWindow;
 }
+namespace Ship {
+class Archive;
+}
 
 inline const std::vector<std::string> kRomArchives = { "bk.o2r" };
 extern std::string assets_path;
 extern bool portArchiveVersionMatch;
 extern std::shared_ptr<Fast::Fast3dWindow> lhFast3dWindow;
+extern std::shared_ptr<Ship::Archive> romArchive;

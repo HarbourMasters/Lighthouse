@@ -42,10 +42,9 @@ typedef struct {
 
 OTRVersion ReadPortVersionFromOTR(std::string otrPath) {
     OTRVersion version = {};
-
-    // Use a temporary archive instance to load the otr and read the version file
     auto archive = std::make_shared<Ship::O2rArchive>(otrPath);
-    if (archive->Open()) {
+    archive->Load();
+    if (archive->IsLoaded()) {
         auto t = archive->LoadFile("portVersion");
         if (t != nullptr && t->IsLoaded) {
             auto stream = std::make_shared<Ship::MemoryStream>(t->Buffer->data(), t->Buffer->size());
@@ -54,6 +53,7 @@ OTRVersion ReadPortVersionFromOTR(std::string otrPath) {
             version.major = reader->ReadUInt16();
             version.minor = reader->ReadUInt16();
             version.patch = reader->ReadUInt16();
+            romArchive = archive;
         } else {
             SPDLOG_WARN("Failed to read portVersion file from O2R: {}", otrPath);
         }
@@ -228,6 +228,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
         LighthouseGui::RegisterPopup("Outdated ROM Archives",
                                      "Your ROM archives were created with incompatible versions of Lighthouse.\n"
                                      "You will now be redirected to re-extract them.");
+        romArchive = nullptr;
         for (const auto& archive : kRomArchives) {
             std::filesystem::remove(archive);
         }
@@ -396,6 +397,7 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                 break;
             }
             case ES_EXTRACT_ARGS: {
+                romArchive = nullptr;
 #if !defined(__SWITCH__) && !defined(__WIIU__)
                 if (args.size() == 0) {
                     LighthouseGui::RegisterPopup(
