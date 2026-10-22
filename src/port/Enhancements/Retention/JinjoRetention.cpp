@@ -10,6 +10,7 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Save/SaveManager.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/CustomObject/CustomObject.h"
 
@@ -39,7 +40,7 @@ extern "C" void port_jinjoRetention_setForced(int32_t forced) {
 }
 
 static JinjoRetentionSaveData* store() {
-    ShipSaveData* data = retention::activeShipData();
+    ShipSaveData* data = SaveManager_GetActiveShipData();
     return data != nullptr ? &data->jinjoRetention : nullptr;
 }
 

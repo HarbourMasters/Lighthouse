@@ -1,6 +1,6 @@
 #include <libultraship/libultraship.h>
 #include "port/Enhancements/Events/Hooks/Events.h"
-#include "port/Enhancements/Retention/Retention.h"
+#include "port/Save/SaveManager.h"
 #include "port/ShipInit.hpp"
 #include "port/UI/cvar_prefixes.h"
 
@@ -28,7 +28,7 @@ static void RegisterHeardHints_Init() {
     COND_HOOK(OnDialogLoaded, EVENT_PRIORITY_NORMAL, true, [](IEvent* event) {
         auto* ev = reinterpret_cast<OnDialogLoaded*>(event);
         const s32 hint = ev->textId - kFirstHintDialog;
-        ShipSaveData* data = retention::activeShipData();
+        ShipSaveData* data = SaveManager_GetActiveShipData();
         if (hint >= 0 && hint < kHintCount && data != nullptr) {
             data->heardBrentildaHints |= 1u << hint;
         }
@@ -45,7 +45,7 @@ static void RegisterHighlightHeardHints_Init() {
             return;
         }
         sYellowBox = nullptr;
-        ShipSaveData* data = retention::activeShipData();
+        ShipSaveData* data = SaveManager_GetActiveShipData();
         if (ev->state != kQuizShowAnswers || ev->questionType != FFQT_3_GRUNTY || data == nullptr ||
             !(data->heardBrentildaHints & (1u << ev->questionIndex))) {
             return;

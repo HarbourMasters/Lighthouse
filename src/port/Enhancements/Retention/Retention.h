@@ -82,11 +82,8 @@ uint8_t collectedBits(int32_t level);
 }
 
 namespace retention {
-// Active save slot index (0-3) for the current game, or -1 (default/demo file).
-int32_t activeSlot();
 // False during demos, Bottles bonus games, and rando files.
 bool systemActive();
-ShipSaveData* activeShipData();
 } // namespace retention
 #endif
 

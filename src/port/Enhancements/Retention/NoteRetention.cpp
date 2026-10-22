@@ -13,6 +13,7 @@
 #include "port/Enhancements/Events/PortEnhancements.h"
 #include "port/Enhancements/Events/Hooks/Events.h"
 #include "port/Enhancements/Retention/Retention.h"
+#include "port/Save/SaveManager.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/Rando/Rando.h"
 #include "port/Rando/CustomObject/CustomObject.h"
@@ -97,7 +98,7 @@ bool randoOwnsNoteProps() {
 }
 
 NoteRetentionSaveData* store() {
-    ShipSaveData* data = retention::activeShipData();
+    ShipSaveData* data = SaveManager_GetActiveShipData();
     return data != nullptr ? &data->noteRetention : nullptr;
 }
 

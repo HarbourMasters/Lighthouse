@@ -4,10 +4,14 @@
 #include <string>
 
 #include "port/UI/cvar_prefixes.h"
+#include <libultraship/libultra/types.h>
+#include "save.h"
 
 #define CVAR_NAME_BOTTLES_BONUS CVAR_ENHANCEMENT("Saving.PersistBottlesBonus")
 
 void SaveManager_Init();
 std::string SaveManager_GetSavePath(const std::string& filename);
+int32_t SaveManager_GetActiveSlot();
+ShipSaveData* SaveManager_GetActiveShipData();
 
 #endif // SAVE_MANAGER_H

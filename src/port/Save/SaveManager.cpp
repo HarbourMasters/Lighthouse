@@ -47,6 +47,18 @@ std::string SaveManager_GetSavePath(const std::string& filename) {
     return dir + "/" + filename;
 }
 
+int32_t SaveManager_GetActiveSlot() {
+    if (selectedFileNum < 0 || selectedFileNum >= 4 || gameSelect_getGameNumber() == -1) {
+        return -1;
+    }
+    return (int32_t)selectedFileNum;
+}
+
+ShipSaveData* SaveManager_GetActiveShipData() {
+    int32_t slot = SaveManager_GetActiveSlot();
+    return slot >= 0 ? &gameFile_saveData[slot].shipSaveData : nullptr;
+}
+
 static int BitfieldGetBit(const uint8_t* array, int index) {
     return (array[index / 8] & (1 << (index & 7))) ? 1 : 0;
 }
