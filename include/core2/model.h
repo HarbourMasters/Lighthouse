@@ -21,12 +21,12 @@ typedef struct bk_model_header_s {
     s16 geo_type;
     s32 gfx_list_offset;
     s32 vtx_list_offset;
-    s32 unk14_list_offset;
+    s32 unk14_list_offset;      // collision volumes: boxes, cylinders and spheres
     s32 animation_list_offset;
     s32 collision_list_offset;
-    s32 camera_area_list_offset;
-    s32 mesh_list_offset;
-    s32 anim_vertices_list_offset;
+    s32 camera_area_list_offset; // boxes the geo CAMERA command draws inside or outside of
+    s32 mesh_list_offset;        // named groups of vertices, addressed and moved at run time
+    s32 anim_vertices_list_offset; // pins each group of vertices onto one point on one matrix
     s32 animated_texture_list_offset;
     u16 tri_count;      // number of triangles drawn by the gfx list (G_TRI1 + 2 * G_TRI2)
     u16 vertex_count;   // same as the vertex list's count

@@ -19,7 +19,6 @@
 #include "ship/resource/File.h"
 
 #include "port/ResourceHelpers.h"
-#include "port/GameVersion/AssetVersionRemap.h"
 #include "port/GameVersion/BaseGameVersion.h"
 #include "port/Romhack/RomhackConfig.h"
 #include "port/UI/cvar_prefixes.h"
@@ -82,7 +81,7 @@ std::vector<LangInfoEntry> ParseLangInfo(const char* data, size_t size,
         return true;
     };
     uint32_t version = 0, count = 0;
-    if (!getU32(version) || version != 1 || !getU32(count)) {
+    if (!getU32(version) || (version != 1 && version != 2) || !getU32(count)) {
         return out; // unknown/old format — ignore (pack must be re-extracted)
     }
     for (uint32_t i = 0; i < count; i++) {
@@ -230,38 +229,26 @@ const LanguageEntry* FindLanguage(const std::string& name) {
     return nullptr;
 }
 
-bool BuildPackOverride(Ship::Archive* pack, const std::string& name, int script, bool scoped,
+uint32_t LangInfoFormat(Ship::Archive* pack) {
+    uint32_t format = 0;
+    auto file = pack->LoadFile("langinfo");
+    if (file && file->IsLoaded && file->Buffer && file->Buffer->size() - file->BufferOffset >= 4) {
+        std::memcpy(&format, file->Buffer->data() + file->BufferOffset, 4);
+    }
+    return format;
+}
+
+bool BuildPackOverride(Ship::Archive* pack, const std::string& name, bool scoped,
                        std::unordered_map<uint32_t, std::string>& out) {
-    const std::unordered_map<uint32_t, uint32_t>* remap = nullptr;
-    if (!scoped) {
+    if (!scoped && LangInfoFormat(pack) == 1) {
         // The pack's assets are numbered for the ROM it was extracted from.
         const uint32_t rawVersion = static_cast<uint32_t>(pack->GetGameVersion());
         BKVersion packVersion = BK_VER_US_10;
-        if (!ClassifyArchiveVersion(rawVersion, packVersion)) {
-            SPDLOG_ERROR("[Lang] '{}': pack version stamp {:#010x} matches no known ROM; refusing to apply it.", name,
-                         rawVersion);
+        if (!ClassifyArchiveVersion(rawVersion, packVersion) || packVersion != BK_VER_US_10) {
+            SPDLOG_ERROR("[Lang] '{}': pack was built for ROM {:#010x} by an older Torch; re-export it with the "
+                         "current one.",
+                         name, rawVersion);
             return false;
-        }
-        switch (packVersion) {
-            case BK_VER_US_11:
-                remap = &sV10toV11Remap;
-                break;
-            case BK_VER_PAL:
-                remap = &sV10toPALRemap;
-                break;
-            case BK_VER_JP:
-                remap = &sV10toJPRemap;
-                break;
-            case BK_VER_US_10:
-            default:
-                break; // pack ids already match v1.0
-        }
-    }
-
-    std::unordered_map<uint32_t, uint32_t> inverse;
-    if (remap != nullptr) {
-        for (const auto& [v10Id, targetId] : *remap) {
-            inverse[targetId] = v10Id;
         }
     }
 
@@ -282,15 +269,7 @@ bool BuildPackOverride(Ship::Archive* pack, const std::string& name, int script,
     }
 
     for (const auto& [packId, path] : packMain) {
-        uint32_t v10Id;
-        if (script == SCRIPT_JP && packId >= 0xE2C && packId <= 0xE38) {
-            v10Id = 0x1600 + (packId - 0xE2C); // JP kanji world-name banners
-        } else if (auto it = inverse.find(packId); it != inverse.end()) {
-            v10Id = it->second;
-        } else {
-            v10Id = packId;
-        }
-        out[v10Id] = path;
+        out[packId] = path;
     }
 
     if (const size_t dropped = DropUnchangedOverrides(pack->GetPath(), scoped, out, packFamilies); dropped > 0) {
@@ -397,11 +376,11 @@ void SetActiveLanguage(const std::string& name) {
 
     std::unordered_map<uint32_t, std::string> dialogOverride;
     std::unordered_map<uint32_t, std::string> scopedOverride;
-    if (entry->source != nullptr && !BuildPackOverride(entry->source, name, entry->script, false, dialogOverride)) {
+    if (entry->source != nullptr && !BuildPackOverride(entry->source, name, false, dialogOverride)) {
         return;
     }
     if (entry->scopedSource != nullptr) {
-        BuildPackOverride(entry->scopedSource, name, entry->script, true, scopedOverride);
+        BuildPackOverride(entry->scopedSource, name, true, scopedOverride);
     }
 
     // Hand the computed language to the resource layer

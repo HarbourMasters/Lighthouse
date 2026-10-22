@@ -12,8 +12,8 @@ static void __cameraNodeType3_setCloseDistance(ZoomCameraNode *this, f32 close_d
 static void __cameraNodeType3_setPosition(ZoomCameraNode *this, f32 position[3]);
 static void __cameraNodeType3_setHorizontalAndVerticalSpeed(ZoomCameraNode *this, f32 horizontal_speed, f32 vertical_speed);
 static void __cameraNodeType3_setRotationAndAccelaration(ZoomCameraNode *this, f32 rotation, f32 accelaration);
-static void __code33310_func_802BA510(ZoomCameraNode *this, bool arg1);
-static void __code33310_func_802BA530(ZoomCameraNode *this, bool arg1);
+static void __cameraNodeType3_setBee(ZoomCameraNode *this, bool arg1);
+static void __cameraNodeType3_setHits(ZoomCameraNode *this, bool arg1);
 
 #define ZOOM_CAMERA_POSITION_INDICATOR          0x01
 #define ZOOM_CAMERA_HORI_VERT_SPEED_INDICATOR   0x02
@@ -24,7 +24,7 @@ static void __code33310_func_802BA530(ZoomCameraNode *this, bool arg1);
 #define ZOOM_CAMERA_END_INDICATOR               0x00
 
 /* .code */
-static void __code33310_func_802BA2A0(ZoomCameraNode *this, bool arg1, s32 arg2) {
+static void __cameraNodeType3_setFlag(ZoomCameraNode *this, bool arg1, s32 arg2) {
     if(arg1) {
         this->unknownFlag |= arg2;
     }
@@ -33,7 +33,7 @@ static void __code33310_func_802BA2A0(ZoomCameraNode *this, bool arg1, s32 arg2)
     }
 }
 
-bool __code33310_func_802BA2D0(ZoomCameraNode *this, s32 arg1) {
+bool __cameraNodeType3_getFlag(ZoomCameraNode *this, s32 arg1) {
     if(this->unknownFlag & arg1)
         return true;
     return false;
@@ -51,8 +51,8 @@ ZoomCameraNode *cameraNodeType3_init() {
     __cameraNodeType3_setRotationAndAccelaration(this, 4.0f, 16.0f);
     __cameraNodeType3_setCloseDistance(this, 1000.0f);
     __cameraNodeType3_setFarDistance(this, 1000.0f);
-    __code33310_func_802BA530(this, false);
-    __code33310_func_802BA510(this, false);
+    __cameraNodeType3_setHits(this, false);
+    __cameraNodeType3_setBee(this, false);
     return this;
 }
 
@@ -112,20 +112,20 @@ static void __cameraNodeType3_setRotationAndAccelaration(ZoomCameraNode *this, f
     this->accelaration = accelaration;
 }
 
-bool code33310_func_802BA4D0(ZoomCameraNode *this) {
-    return __code33310_func_802BA2D0(this, 4);
+bool cameraNodeType3_getBee(ZoomCameraNode *this) {
+    return __cameraNodeType3_getFlag(this, CAMERA_NODE_FLAG_BEE);
 }
 
-bool code33310_func_802BA4F0(ZoomCameraNode *this) {
-    return __code33310_func_802BA2D0(this, 1);
+bool cameraNodeType3_getHits(ZoomCameraNode *this) {
+    return __cameraNodeType3_getFlag(this, CAMERA_NODE_FLAG_HITS);
 }
 
-static void __code33310_func_802BA510(ZoomCameraNode *this, bool arg1) {
-    __code33310_func_802BA2A0(this, arg1, 4);
+static void __cameraNodeType3_setBee(ZoomCameraNode *this, bool arg1) {
+    __cameraNodeType3_setFlag(this, arg1, CAMERA_NODE_FLAG_BEE);
 }
 
-static void __code33310_func_802BA530(ZoomCameraNode *this, bool arg1) {
-    __code33310_func_802BA2A0(this, arg1, 1);
+static void __cameraNodeType3_setHits(ZoomCameraNode *this, bool arg1) {
+    __cameraNodeType3_setFlag(this, arg1, CAMERA_NODE_FLAG_HITS);
 }
 
 void cameraNodeType3_fromFile(File *file_ptr, ZoomCameraNode *this) {

@@ -29,6 +29,7 @@ extern u8* D_80365DF8[];                     // top instruction line 1, indexed 
 extern u8* D_80365DFC[];                     // erase-confirm prompt, indexed by language
 int code94620_func_8031B5B0(void);           // current dialog-language index (0=EN,1=FR,2=DE)
 int func_8031877C(void* zoombox);            // clear a zoombox's strings before re-setting
+int levelSpecificFlags_get(int i);
 
 // Print font internals
 extern void* print_sFontSpriteAssets[]; // BKSprite*[5]: font alphamask assets (slot 2 = JP font)
@@ -511,6 +512,9 @@ static void buildPalJpParades() {
 // still supply 0x11CA as an additive asset, so key the alt parade on that credit being
 // present in the active language (sDialogOverride) rather than on the base version.
 static constexpr uint32_t kMotzandParadeCreditId = 0x11CA;
+static constexpr int32_t kPresentMeetBlueDialogId = 0xC20; // then green, red
+static constexpr int32_t kJpPresentLinesDialogId = 0x1614;
+
 static bool port_useMotzandParade() {
     return ResourceMgr_IsJapanese() || ResourceMgr_IsPal() || ResourceMgr_IsAssetRepointed(kMotzandParadeCreditId) != 0;
 }
@@ -704,16 +708,28 @@ static void RegisterLocalizedText() {
     });
 
     // The Motzand parade inserts Motzand at index 20, which shifts the later
-    // credit-dialog ids by one. 0x11CA is the Motzand credit: on a PAL/JP base it
-    // re-points to that version's native dialog (PAL 3065 / JP 3073) via the override;
-    // on a US base it resolves to the pack's additive 0x11CA asset. The other shifted
-    // ids (0x11AF + index - 1) are v1.0 canonical and resolve directly from the base.
+    // credit-dialog ids by one. 0x11CA is the Motzand credit: PAL and JP bases carry it,
+    // and on a US base it resolves to the pack's additive 0x11CA asset. The other shifted
+    // ids (0x11AF + index - 1) resolve directly from the base.
     REGISTER_LISTENER(ParadeCreditDialogId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
         auto* ev = (ParadeCreditDialogId*)event;
         if (!port_useMotzandParade() || ev->index <= 19 || ev->dialogId == nullptr) {
             return;
         }
         *ev->dialogId = (ev->index == 20) ? kMotzandParadeCreditId : (0x11AF + ev->index - 1);
+    });
+
+    // JP gives each present's three lines their own dialogs
+    REGISTER_LISTENER(PresentDialogId, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        auto* ev = (PresentDialogId*)event;
+        const int32_t present = *ev->dialogId - kPresentMeetBlueDialogId;
+        if (!ResourceMgr_IsJapanese() || present < 0 || present > 2) {
+            return;
+        }
+        const int count = levelSpecificFlags_get(0x2A) + levelSpecificFlags_get(0x2B) + levelSpecificFlags_get(0x2C);
+        if (count >= 2) {
+            *ev->dialogId = kJpPresentLinesDialogId + present * 2 + (count - 2);
+        }
     });
 
     // The port owns the dialog-language index (driven by the language picker). The

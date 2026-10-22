@@ -288,6 +288,11 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
                         if (node["type"] && node["type"].as<std::string>() == "BK64:ASSET_TABLE" &&
                             node["symbol_map"]) {
                             totalAssets += node["symbol_map"].size();
+                        } else if (node["type"] && node["type"].as<std::string>() == "BK64:ASSET_TABLE" &&
+                                   node["names"]) {
+                            YAML::Node names =
+                                YAML::LoadFile((fs::path(assetDir) / node["names"].as<std::string>()).generic_string());
+                            totalAssets += names[key]["symbol_map"].size();
                         } else {
                             totalAssets++;
                         }
@@ -367,9 +372,7 @@ bool GameExtractor::GenerateOTR(std::atomic<size_t>& assetCount, std::atomic<siz
     Companion::Instance->SetAssetTotal(&totalAssets);
     Companion::Instance->SetPhaseCallback([](int phase) { sPhase = phase; });
     Companion::Instance->GetConfig().dialogPack = this->mDialogPack;
-    if (!BK64::IsRomhack(this->mGameData)) {
-        this->WritePortVersion();
-    }
+    this->WritePortVersion();
     try {
         Companion::Instance->Init(ExportType::Binary, assetCount, true);
     } catch (const std::exception& e) {

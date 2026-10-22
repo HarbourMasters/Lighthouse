@@ -30,7 +30,7 @@ void Rando::MiscBehavior::InitFileSelectBehavior() {
                        gameFile_saveData[fileNum].shipSaveData.fileType == FILE_TYPE_SAVE_RANDO;
 
         // Cheato zoombox sprite for Rando files, otherwise Vanilla
-        GcZoomboxSprite wanted = isRando ? ZOOMBOX_SPRITE_5B_CHEATO : ZOOMBOX_SPRITE_C_BANJO_2;
+        GcZoomboxSprite wanted = isRando ? ZOOMBOX_SPRITE_5B_CHEATO : ZOOMBOX_SPRITE_C_BANJO;
         if (gczoombox_loadSprite((GcZoombox*)ev->zoombox, wanted)) {
             FinishPortraitCrossfade((GcZoombox*)ev->zoombox);
         }

@@ -51,8 +51,12 @@ public:
         sRelaunchRequested = true;
     }
     static void RelaunchIfRequested(int argc, char* argv[]);
+    static void RequestReset();
+    static void RequestStop();
+    static void Quit();
     static void RunCommands(Gfx* Commands);
     static void Destroy();
+    static void ArchivesChanged();
     static uint32_t GetInterpolationFPS();
     static bool IsInterpolationEnabled();
     static bool WantsTimedPass(bool recorded, int viPerTick);

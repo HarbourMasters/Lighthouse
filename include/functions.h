@@ -1712,14 +1712,14 @@ void func_802BE940(void);
 void func_803525A0(f32 arg0[3]);
 
 // --- core2/nc/cameranode_type1.c ---
-bool code336F0_func_802BA87C(PivotCameraNode *self);
-bool code336F0_func_802BA89C(PivotCameraNode *self);
-bool code336F0_func_802BA8BC(PivotCameraNode *self);
+bool cameraNodeType1_getHits(PivotCameraNode *self);
+bool cameraNodeType1_getBee(PivotCameraNode *self);
+bool cameraNodeType1_getVFix(PivotCameraNode *self);
 void code336F0_func_802BA7D8(PivotCameraNode *self, f32 arg1[3]);
 
 // --- core2/nc/cameranode_type3.c ---
-bool code33310_func_802BA4D0(ZoomCameraNode *self);
-bool code33310_func_802BA4F0(ZoomCameraNode *self);
+bool cameraNodeType3_getBee(ZoomCameraNode *self);
+bool cameraNodeType3_getHits(ZoomCameraNode *self);
 
 // --- core2/nc/cameranode_type4.c ---
 s32 code33250_func_802BA234(RandomCameraNode *self);

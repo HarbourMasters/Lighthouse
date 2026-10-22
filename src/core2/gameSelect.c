@@ -645,13 +645,13 @@ void gameSelect_initAndUpdate(Actor * this){
     if(!this->initialized){
         gameFile_8033CE40();
          if(chGameSelectBottomZoombox == NULL){
-            chGameSelectBottomZoombox = gczoombox_new(0xA0, ZOOMBOX_SPRITE_C_BANJO_2, 2, 0, NULL);
+            chGameSelectBottomZoombox = gczoombox_new(0xA0, ZOOMBOX_SPRITE_C_BANJO, 2, 0, NULL);
             gczoombox_open(chGameSelectBottomZoombox);
             gczoombox_func_803184C8(chGameSelectBottomZoombox, 30.0f, 5, 2, 0.4f, 0, 0);
         }//L802C57FC
 
         if(chGameSelectTopZoombox == NULL){
-            chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE_1, 2, 1, topZoomboxCallback);
+            chGameSelectTopZoombox = gczoombox_new(0xA, ZOOMBOX_SPRITE_D_KAZOOIE, 2, 1, topZoomboxCallback);
             CALL_CANCELLABLE_EVENT(LocalizeFileSelectPrompt, 0, chGameSelectTopZoombox) {
                 gczoombox_setStrings(chGameSelectTopZoombox, 2, (char **)&selectInstructions);
             }

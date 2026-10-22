@@ -25,7 +25,6 @@
 
 #include "Resource/AssetTrace.h"
 
-#include "GameVersion/AssetVersionRemap.h"
 #include "GameVersion/BaseGameVersion.h"
 #include "Localization/Language.h"
 
@@ -108,84 +107,14 @@ const std::unordered_map<uint32_t, std::string>& GetAssetSymbolMap() {
             }
         }
 
-        // If this o2r was built from a non-v1.0 ROM, inject v1.0 ID aliases so
-        // the decomp's hardcoded IDs resolve transparently.
-        const std::unordered_map<uint32_t, uint32_t>* remapTable = nullptr;
-
-        switch (Lighthouse::GetBaseVersion()) {
-            case BK_VER_US_11:
-                remapTable = &sV10toV11Remap;
-                SPDLOG_INFO("Loaded US v1.1 o2r with {} entries", symbolMap.size());
-                break;
-            case BK_VER_PAL:
-                remapTable = &sV10toPALRemap;
-                SPDLOG_INFO("Loaded PAL o2r with {} entries", symbolMap.size());
-                break;
-            case BK_VER_JP:
-                remapTable = &sV10toJPRemap;
-                SPDLOG_INFO("Loaded JP o2r with {} entries", symbolMap.size());
-                break;
-            case BK_VER_US_10:
-            default:
-                SPDLOG_INFO("Loaded US v1.0 o2r");
-                // v1.0 or a v1.0-based romhack: decomp IDs are already correct.
-                break;
-        }
-
         // Non-v1.0 ROMs keep the SNS picture demos one slot lower (0x5E, matching
         // the PAL VER_SELECT in the decomp) and their map setups place the demo
         // entry points at that exit id too. The compiled v1.0 value (0x5F) would
         // load the right demo file via the alias but warp to a nonexistent exit,
         // so retarget the table; the 2508/2511/2513 aliases cover the asset side.
-        if (remapTable) {
+        if (Lighthouse::GetBaseVersion() != BK_VER_US_10) {
             for (auto& entry : D_80371F78) {
                 entry.exit = 0x5E;
-            }
-        }
-
-        // Relocate the JP world-name banners to their 0x1600 aliases for a JP
-        // base (a JP pack does this re-point at language-select time instead).
-        if (Lighthouse::GetBaseVersion() == BK_VER_JP) {
-            constexpr uint32_t kJpBannerNativeBase = 0xE2C;
-            constexpr uint32_t kJpBannerAliasBase = 0x1600; // SPRITE_WORLD_NAME_TOTAL
-            constexpr uint32_t kJpBannerCount = 13;         // 0xE2C..0xE38
-            for (uint32_t i = 0; i < kJpBannerCount; i++) {
-                auto it = symbolMap.find(kJpBannerNativeBase + i);
-                if (it != symbolMap.end()) {
-                    std::string path = std::move(it->second);
-                    symbolMap.erase(kJpBannerNativeBase + i);
-                    symbolMap[kJpBannerAliasBase + i] = std::move(path);
-                }
-            }
-        }
-
-        if (remapTable) {
-            // Snapshot the manifest before injection
-            const auto snapshot = symbolMap;
-            for (const auto& [v10Id, targetId] : *remapTable) {
-                if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
-                    symbolMap[v10Id] = targetEntry->second;
-                }
-                // An empty slot on the native id stays empty under its v1.0 alias,
-                // so the decomp's hardcoded v1.0 id resolves to a silent NULL too.
-                if (sEmptyAssetSlots.count(targetId)) {
-                    sEmptyAssetSlots.insert(v10Id);
-                }
-            }
-
-            // v1.0 demo ids that the table doesn't carry are the zero-payload slots of
-            // the demo section. Alias them down 0x100 like the rest of the demo block.
-            for (uint32_t v10Id = 0x9A3; v10Id <= 0xA0A; v10Id++) {
-                if (remapTable->count(v10Id)) {
-                    continue;
-                }
-                const uint32_t targetId = v10Id - 0x100;
-                if (auto targetEntry = snapshot.find(targetId); targetEntry != snapshot.end()) {
-                    symbolMap[v10Id] = targetEntry->second;
-                } else {
-                    symbolMap.erase(v10Id);
-                    sEmptyAssetSlots.insert(v10Id);
-                }
             }
         }
     });
@@ -306,7 +235,8 @@ void ResourceHelpers_BuildOverlayRepoints() {
     }
     sOverlayOverride.clear();
 
-    auto archives = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager()->GetArchives();
+    auto archiveManager = Ship::Context::GetRawInstance()->GetResourceManager()->GetArchiveManager();
+    auto archives = archiveManager->GetArchives();
     if (!archives) {
         return;
     }
@@ -327,6 +257,14 @@ void ResourceHelpers_BuildOverlayRepoints() {
             }
             uint32_t id = 0;
             if (!Lighthouse::AssetHexFromPath(path, id)) {
+                continue;
+            }
+            bool part = false;
+            for (size_t cut = path.find('_', path.rfind("ASSET_") + 6); cut != std::string::npos && !part;
+                 cut = path.find('_', cut + 1)) {
+                part = archiveManager->HasFile(path.substr(0, cut));
+            }
+            if (part) {
                 continue;
             }
             if (auto [it, inserted] = mine.try_emplace(id, path); !inserted && path.size() < it->second.size()) {

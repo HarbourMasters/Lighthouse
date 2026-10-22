@@ -39,7 +39,7 @@ MapModelDescription sMapModelDescriptions[] = {
     {MAP_8F_TTC_SHARKFOOD_ISLAND,            ASSET_1473_MODEL_TTC_SHARKFOOD_ISLAND_OPA,     0,                                            { 0,  0,  0}, {  0,  0,  0}, 1.0f},
     {MAP_A_TTC_SANDCASTLE,                   ASSET_1471_MODEL_TTC_SANDCASTLE_OPA,           ASSET_1472_MODEL_TTC_SANDCASTLE_XLU,          { 0,  0,  0}, {  0,  0,  0}, 1.0f},
     {MAP_B_CC_CLANKERS_CAVERN,               ASSET_14ED_MODEL_CC_CLANKERS_CAVERN_OPA,       ASSET_14EE_MODEL_CC_CLANKERS_CAVERN_XLU,      { 0,  0,  0}, {  0, -2, -1}, 1.0f},
-    {MAP_C_MM_TICKERS_TOWER,                 ASSET_14AC_MODEL_SM_TICKERS_TOWER_OPA,         ASSET_14AD_MODEL_SM_TICKERS_TOWER_XLU,        { 0,  0,  0}, {  0,  0,  0}, 1.0f},
+    {MAP_C_MM_TICKERS_TOWER,                 ASSET_14AC_MODEL_MM_TICKERS_TOWER_OPA,         ASSET_14AD_MODEL_MM_TICKERS_TOWER_XLU,        { 0,  0,  0}, {  0,  0,  0}, 1.0f},
     {MAP_D_BGS_BUBBLEGLOOP_SWAMP,            ASSET_14D1_MODEL_BGS_BUBBLEGLOOP_SWAMP_OPA,    ASSET_14D2_MODEL_BGS_BUBBLEGLOOP_SWAMP_XLU,   { 0,  1,  1}, { -1, -1, -1}, 1.0f},
     {MAP_E_MM_MUMBOS_SKULL,                  ASSET_14AE_MODEL_MUMBOS_SKULL_OPA,             0,                                            { 0,  0,  0}, {  0,  0,  0}, 1.0f},
     {MAP_10_BGS_MR_VILE,                     ASSET_14D3_MODEL_BGS_MR_VILE_OPA,              0,                                            { 0,  0,  0}, {  0,  0,  0}, 1.0f},

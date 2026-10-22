@@ -107,7 +107,7 @@ void SnowGlow_EnablePauseMenu() {
             menu[1].delay = 0.1f;
             menu[2].delay = 0.2f;
             menu[3].delay = 0.3f;
-            menu[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_2;
+            menu[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_PAUSE;
             *should = false;
         } else {
             menu[0].y = 55;
@@ -117,7 +117,7 @@ void SnowGlow_EnablePauseMenu() {
             menu[1].delay = 0.3f;
             menu[2].delay = 0.1f;
             menu[3].delay = 0.2f;
-            menu[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
+            menu[1].portrait = ZOOMBOX_SPRITE_4_BANJO_PAUSE;
             *should = true;
         }
     });

@@ -3,6 +3,7 @@
 #include "Save/Types.h"
 #include "Engine.h"
 #include "GameStatus.h"
+#include "port/FrameHost.h"
 #include "port/Romhack/RomhackConfig.h"
 #include <chrono>
 #include <cstdarg>
@@ -149,6 +150,10 @@ int port_getBootSequence(void) {
     if (port_isRomhack())
         return BOOTSEQUENCE_FILESELECT;
     return CVarGetInteger(CVAR_SETTING("BootSequence"), BOOTSEQUENCE_DEFAULT);
+}
+
+int port_bootsUnloaded(void) {
+    return Lighthouse::GetFrameHost() != nullptr;
 }
 
 float port_getRumbleScale(void) {

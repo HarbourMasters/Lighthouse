@@ -20,6 +20,7 @@ extern void func_80256E24(f32 dst[3], f32 theta, f32 phi, f32 x, f32 y, f32 z);
 extern void ml_vec3f_normalize(f32 vec[3]);
 extern void viewport_getPosition_vec3f(f32 dst[3]);
 extern void viewport_getRotation_vec3f(f32 dst[3]);
+extern s32 func_8023E000(void);
 }
 
 static const f32 kFrustumZX = 45.168514251708984f; // must match viewport.c
@@ -240,7 +241,7 @@ static void RegisterDrawDistCull_Init() {
         if (sPadPlanesDirty) {
             RebuildPaddedPlanes();
         }
-        if (PaddedBoxCulled(boxMin, boxMax)) {
+        if (func_8023E000() != 0 && PaddedBoxCulled(boxMin, boxMax)) {
             *should = false;
         }
     });

@@ -12,9 +12,9 @@ static void __cameraNodeType1_setPosition(PivotCameraNode *this, f32 position[3]
 static void __cameraNodeType1_func_802BA808(PivotCameraNode *this, f32 arg1[3]);
 static void __cameraNodeType1_setHorizontalAndVerticalSpeed(PivotCameraNode *this, f32 horizontal_speed, f32 vertical_speed);
 static void __cameraNodeType1_setRotationAndAccelaration(PivotCameraNode *this, f32 rotation, f32 accelaration);
-static void __code336F0_func_802BA8DC(PivotCameraNode *this, s32 arg1);
-static void __code336F0_func_802BA8FC(PivotCameraNode *this, s32 arg1);
-static void __code336F0_func_802BA91C(PivotCameraNode *this, s32 arg1);
+static void __cameraNodeType1_setHits(PivotCameraNode *this, s32 arg1);
+static void __cameraNodeType1_setBee(PivotCameraNode *this, s32 arg1);
+static void __cameraNodeType1_setVFix(PivotCameraNode *this, s32 arg1);
 
 #define PIVOT_CAMERA_POSITION_INDICATOR          0x01
 #define PIVOT_CAMERA_HORI_VERT_SPEED_INDICATOR   0x02
@@ -23,7 +23,7 @@ static void __code336F0_func_802BA91C(PivotCameraNode *this, s32 arg1);
 #define PIVOT_CAMERA_UNK_5_INDICATOR             0x05
 #define PIVOT_CAMERA_END_INDICATOR               0x00
 
-static void __code336F0_func_802BA680(PivotCameraNode *this, s32 arg1, s32 arg2) {
+static void __cameraNodeType1_setFlag(PivotCameraNode *this, s32 arg1, s32 arg2) {
     if(arg1) {
         this->unknownFlag |= arg2;
     } else{
@@ -31,7 +31,7 @@ static void __code336F0_func_802BA680(PivotCameraNode *this, s32 arg1, s32 arg2)
     }
 }
 
-static bool __code336F0_func_802BA6B0(PivotCameraNode *this, s32 arg1) {
+static bool __cameraNodeType1_getFlag(PivotCameraNode *this, s32 arg1) {
     if (this->unknownFlag & arg1) 
         return true;
 
@@ -48,9 +48,9 @@ PivotCameraNode *cameraNodeType1_init() {
     __cameraNodeType1_func_802BA808(this, sp20);
     __cameraNodeType1_setHorizontalAndVerticalSpeed(this, 0.7f, 2.33f);
     __cameraNodeType1_setRotationAndAccelaration(this, 4.0f, 16.0f);
-    __code336F0_func_802BA8DC(this, 0);
-    __code336F0_func_802BA91C(this, 1);
-    __code336F0_func_802BA8FC(this, 0);
+    __cameraNodeType1_setHits(this, 0);
+    __cameraNodeType1_setVFix(this, 1);
+    __cameraNodeType1_setBee(this, 0);
     return this;
 }
 
@@ -94,28 +94,28 @@ static void __cameraNodeType1_setRotationAndAccelaration(PivotCameraNode *this, 
     this->accelaration = accelaration;
 }
 
-bool code336F0_func_802BA87C(PivotCameraNode *this) {
-    return __code336F0_func_802BA6B0(this, 0x1);
+bool cameraNodeType1_getHits(PivotCameraNode *this) {
+    return __cameraNodeType1_getFlag(this, CAMERA_NODE_FLAG_HITS);
 }
 
-bool code336F0_func_802BA89C(PivotCameraNode *this) {
-    return __code336F0_func_802BA6B0(this, 0x4);
+bool cameraNodeType1_getBee(PivotCameraNode *this) {
+    return __cameraNodeType1_getFlag(this, CAMERA_NODE_FLAG_BEE);
 }
 
-bool code336F0_func_802BA8BC(PivotCameraNode *this) {
-    return __code336F0_func_802BA6B0(this, 0x2);
+bool cameraNodeType1_getVFix(PivotCameraNode *this) {
+    return __cameraNodeType1_getFlag(this, CAMERA_NODE_FLAG_VFIX);
 }
 
-static void __code336F0_func_802BA8DC(PivotCameraNode *this, s32 arg1) {
-    __code336F0_func_802BA680(this, arg1, 0x1);
+static void __cameraNodeType1_setHits(PivotCameraNode *this, s32 arg1) {
+    __cameraNodeType1_setFlag(this, arg1, CAMERA_NODE_FLAG_HITS);
 }
 
-static void __code336F0_func_802BA8FC(PivotCameraNode *this, s32 arg1) {
-    __code336F0_func_802BA680(this, arg1, 0x4);
+static void __cameraNodeType1_setBee(PivotCameraNode *this, s32 arg1) {
+    __cameraNodeType1_setFlag(this, arg1, CAMERA_NODE_FLAG_BEE);
 }
 
-static void __code336F0_func_802BA91C(PivotCameraNode *this, s32 arg1) {
-    __code336F0_func_802BA680(this, arg1, 0x2);
+static void __cameraNodeType1_setVFix(PivotCameraNode *this, s32 arg1) {
+    __cameraNodeType1_setFlag(this, arg1, CAMERA_NODE_FLAG_VFIX);
 }
 
 void cameraNodeType1_fromFile(File *file_ptr, PivotCameraNode *this) {

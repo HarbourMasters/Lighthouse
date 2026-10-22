@@ -50,7 +50,7 @@ void RegisterReturnToLair_Init() {
                 menuData[1].delay = 0.1f;
                 menuData[2].delay = 0.2f;
                 menuData[3].delay = 0.3f;
-                menuData[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_2;
+                menuData[1].portrait = ZOOMBOX_SPRITE_5_GRUNTILDA_PAUSE;
                 // From Spiral Mountain you head forward to the Lair rather than exiting back to it.
                 menuData[1].str = isSpiralMountain ? (u8*)"GO TO GRUNTY'S LAIR" : (u8*)"EXIT TO WITCH'S LAIR";
             } else {
@@ -62,7 +62,7 @@ void RegisterReturnToLair_Init() {
                 menuData[1].delay = 0.3f;
                 menuData[2].delay = 0.1f;
                 menuData[3].delay = 0.2f;
-                menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
+                menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_PAUSE;
                 menuData[1].str = (u8*)"EXIT TO WITCH'S LAIR";
             }
         } else {
@@ -74,7 +74,7 @@ void RegisterReturnToLair_Init() {
             menuData[1].delay = 0.3f;
             menuData[2].delay = 0.1f;
             menuData[3].delay = 0.2f;
-            menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_1;
+            menuData[1].portrait = ZOOMBOX_SPRITE_4_BANJO_PAUSE;
             menuData[1].str = (u8*)"EXIT TO WITCH'S LAIR";
         }
     });

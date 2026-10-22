@@ -14,9 +14,9 @@ static void __ncCameraNodeList_setCameraNodeType(int camera_node_index, s32 type
 
 enum ncCameraNodeType {
     NC_CAMERA_NODE_TYPE_0_UNK,
-    NC_CAMERA_NODE_TYPE_1_PIVOT,
+    NC_CAMERA_NODE_TYPE_1_PIVOT,  // "fixed position" in internal editor
     NC_CAMERA_NODE_TYPE_2_STATIC,
-    NC_CAMERA_NODE_TYPE_3_ZOOM,
+    NC_CAMERA_NODE_TYPE_3_ZOOM,   // "dolly to Banjo" in internal editor
     NC_CAMERA_NODE_TYPE_4_RANDOM
 };
 

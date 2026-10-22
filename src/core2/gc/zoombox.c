@@ -66,7 +66,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
           {SFX_E6_MEEP_1, 20000, 1.8f},
           {SFX_E7_MEEP_2, 20000, 1.8f}
      }},
-     {ASSET_81D_SPRITE_LIVE_EXTRA_HEALTH_MAX, 0xED, 0x06, {
+     {ASSET_81D_SPRITE_LIVE_EMPTY_HONEYCOMB, 0xED, 0x06, {
           {SFX_102_ZUBBA_TALKING, 20000, 1.4f}
      }},
      {ASSET_827_SPRITE_LIVE_CLOCK, 0xEE, 0x08, {
@@ -128,7 +128,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
           {SFX_37_BANJO_OHWW,      32000, 0.3f},
           {SFX_38_BANJO_AYE_1,     32000, 0.3f}
      }},
-     {ASSET_800_SPRITE_SNIPPET, 0xF1, 0x04, {
+     {ASSET_800_SPRITE_MUTIE_SNIPPET, 0xF1, 0x04, {
           {SFX_3F8_UNKNOWN,       32000, 1.1f},
           {SFX_3D_TICKER_WALKING, 32000, 1.1f}
      }},
@@ -206,7 +206,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
      {ASSET_810_SPRITE_LIVE_HONEYCOMB, 0xED, 0x04, {
           {SFX_AE_YUMYUM_TALKING, 20000, 1.2f}
      }},
-     {ASSET_81D_SPRITE_LIVE_EXTRA_HEALTH_MAX, 0xED, 0x06, {
+     {ASSET_81D_SPRITE_LIVE_EMPTY_HONEYCOMB, 0xED, 0x06, {
           {SFX_102_ZUBBA_TALKING, 20000, 1.4f}
      }},
      {ASSET_80E_SPRITE_LIVE_EXTRA_LIFE, 0xF0, 0x04, {
@@ -217,10 +217,10 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
           {SFX_E6_MEEP_1, 20000, 1.8f},
           {SFX_E7_MEEP_2, 20000, 1.8f}
      }},
-     {ASSET_812_SPRITE_LIVE_EMPTY_HONEYCOMB, 0xEF, 0x04, {
+     {ASSET_812_SPRITE_LIVE_BEEHIVE, 0xEF, 0x04, {
           {SFX_3FA_HONEYCOMB_TALKING, 15000, 1.0f}
      }},
-     {ASSET_809_SPRITE_CATERPILLAR, 0xF0, 0x05, {
+     {ASSET_809_SPRITE_LIVE_TURBO_TRAINERS, 0xF0, 0x05, {
           {SFX_AD_CATERPILLAR_SQUEAK, 28000, 0.7f}
      }},
      {ASSET_80C_SPRITE_LIVE_WADING_BOOTS, 0xEB, 0x02, {
@@ -303,7 +303,7 @@ gczoomboxPortraitInfo D_8036C6C0[] = {
      {ASSET_822_SPRITE_XMAS_GIFT_BLUE, 0xEC, 0x06, {
           {SFX_414_XMAS_GIFT_TALKING, 20000, -2.0f}
      }},
-     {ASSET_840_SPRITE_WORM, 0xEE, 0x05, {
+     {ASSET_840_SPRITE_CATERPILLAR, 0xEE, 0x05, {
           {SFX_40F_TICKER_TALKING, 20000, 1.4f}
      }},
      {ASSET_848_SPRITE_FREEZING_WATER, 0xEE, 0x06, {
@@ -684,7 +684,7 @@ void func_8031594C(GcZoombox * this, u8 *str, s32 arg2, s32 arg3){
 u8 func_80315BC0(GcZoombox *this, enum sfx_e sfx_id, s32 arg2){
      u8 sp1F = func_8030ED2C(sfx_id, arg2) & 0xff;
      func_8030DD90(sp1F, 0);
-     if(this->portrait_id == ZOOMBOX_SPRITE_66_GRUNTILDA_4){
+     if(this->portrait_id == ZOOMBOX_SPRITE_66_GRUNTILDA_BOULDER){
           func_8030DCCC(sp1F, 0x40);
      }
      return sp1F;

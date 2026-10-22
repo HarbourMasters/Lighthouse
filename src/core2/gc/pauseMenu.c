@@ -93,10 +93,10 @@ enum gcpausemenu_menu_e {
 struct1As D_8036C4E0[4] = {
     // [port] The pause menu strings here match the ones used in Localization.cpp
     // as lookup keys. If modified here, also modify there to keep localization working.
-    {0.0f, 0.0f, "RETURN TO GAME",         55, ZOOMBOX_SPRITE_4_BANJO_1, 0},
-    {0.3f, 0.0f, "EXIT TO WITCH'S LAIR", -100, ZOOMBOX_SPRITE_5_GRUNTILDA_2, 0},
-    {0.1f, 0.0f, "VIEW TOTALS",            90, ZOOMBOX_SPRITE_6_JIGGY_1, 0},
-    {0.2f, 0.0f, "SAVE AND QUIT",         125, ZOOMBOX_SPRITE_7_TOOTY_1, 0},
+    {0.0f, 0.0f, "RETURN TO GAME",         55, ZOOMBOX_SPRITE_4_BANJO_PAUSE, 0},
+    {0.3f, 0.0f, "EXIT TO WITCH'S LAIR", -100, ZOOMBOX_SPRITE_5_GRUNTILDA_PAUSE, 0},
+    {0.1f, 0.0f, "VIEW TOTALS",            90, ZOOMBOX_SPRITE_6_JIGGY_PAUSE, 0},
+    {0.2f, 0.0f, "SAVE AND QUIT",         125, ZOOMBOX_SPRITE_7_TOOTY_PAUSE, 0},
 };
 
 // String literals are read-only on modern compilers; use mutable char arrays instead.
@@ -106,9 +106,9 @@ static u8 D_8036C520_str2[32] = "cc999 / 999cc";
 static u8 D_8036C520_str3[32] = "cc999 : 999cc";
 
 struct1As D_8036C520[4] = {
-    {0.0f, 0.0f, D_8036C520_str0,  30, ZOOMBOX_SPRITE_8_MUSIC_NOTE_1,     0},
-    {0.1f, 0.0f, D_8036C520_str1,  66, ZOOMBOX_SPRITE_9_JIGGY_2,          0},
-    {0.2f, 0.0f, D_8036C520_str2, 102, ZOOMBOX_SPRITE_A_EXTRA_HEALTH_MAX, 0},
+    {0.0f, 0.0f, D_8036C520_str0,  30, ZOOMBOX_SPRITE_8_MUSIC_NOTE_TOTALS, 0},
+    {0.1f, 0.0f, D_8036C520_str1,  66, ZOOMBOX_SPRITE_9_JIGGY_TOTALS,     0},
+    {0.2f, 0.0f, D_8036C520_str2, 102, ZOOMBOX_SPRITE_A_EMPTY_HONEYCOMB, 0},
     {0.3f, 0.0f, D_8036C520_str3, 138, ZOOMBOX_SPRITE_B_CLOCK,            0},
 };
 

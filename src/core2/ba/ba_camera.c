@@ -84,7 +84,7 @@ int func_80290D48(void){
             func_80290BC0(sp24);
             return false;
         case 3: //L80290DD8
-            if(bsBeeFly_inSet(sp1C) && !code33310_func_802BA4D0(ncCameraNodeList_getZoomCameraNode(camera_node_index))){
+            if(bsBeeFly_inSet(sp1C) && !cameraNodeType3_getBee(ncCameraNodeList_getZoomCameraNode(camera_node_index))){
                 return false;
             }
             ncDynamicCamera_setState(0x11);
@@ -92,7 +92,7 @@ int func_80290D48(void){
             func_80291488(0x9);
             return true;
         case 1://L80290E28
-            if(bsBeeFly_inSet(sp1C) && !code336F0_func_802BA89C(ncCameraNodeList_getPivotCameraNode(camera_node_index))){
+            if(bsBeeFly_inSet(sp1C) && !cameraNodeType1_getBee(ncCameraNodeList_getPivotCameraNode(camera_node_index))){
                 return false;
             }
             ncDynamicCamera_setState(0x8);
