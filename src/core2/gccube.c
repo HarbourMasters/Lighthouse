@@ -441,6 +441,7 @@ void func_80302C94(Gfx **gfx, Mtx **mtx, Vtx **vtx) {
             sp38[2] = vp_cube_indices[2];
         }
     }
+    CALL_EVENT(CubeDrawRange, sCubeList.width, sp44, sp38);
 
     for(i = 0; i < 3; i++){
         // [port] Extended draw distance: per-level cube iteration width.

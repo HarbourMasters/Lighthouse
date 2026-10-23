@@ -35,6 +35,7 @@ void PortEnhancements_Register() {
     REGISTER_EVENT(OnTransitionModelScale);
     REGISTER_EVENT(OnTransitionStateUpdate);
     REGISTER_EVENT(DrawDistanceCubeWidth);
+    REGISTER_EVENT(CubeDrawRange);
     REGISTER_EVENT(MapUnderwaterTint);
     REGISTER_EVENT(OnActorTick);
     REGISTER_EVENT(OnPropTick);
