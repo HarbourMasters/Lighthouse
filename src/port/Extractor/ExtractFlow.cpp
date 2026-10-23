@@ -230,7 +230,14 @@ void GameEngine::RunExtract(int argc, char* argv[]) {
                                      "You will now be redirected to re-extract them.");
         romArchive = nullptr;
         for (const auto& archive : kRomArchives) {
-            std::filesystem::remove(archive);
+            std::error_code ec;
+            std::string path = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
+            while (std::filesystem::exists(path) && std::filesystem::remove(path, ec)) {
+                path = Ship::Context::LocateFileAcrossAppDirs(archive, "bk");
+            }
+            if (ec) {
+                SPDLOG_ERROR("Couldn't remove outdated {}: {}", path, ec.message());
+            }
         }
     }
 
