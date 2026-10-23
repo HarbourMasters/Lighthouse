@@ -202,7 +202,10 @@ void chTermite_update(Actor *this) {
         }
         return;
     case 2:
-        if (sp34 != D_80372F48) {
+//      if (sp34 != D_80372F48) {
+        if (!EventSystem_Should(VB_ACTOR_FOOTSTEP_SLOT, true, this)) {
+            // [port] Always Update Actors gave this frame's footsteps to nearer termites.
+        } else if (sp34 != D_80372F48) {
             D_80372F48 = sp34;
             D_80372F4C = 1;
             __chTermite_updateWalkSFX(this);

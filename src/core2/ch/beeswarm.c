@@ -382,7 +382,8 @@ void chBeeSwarm_update(Actor *this) {
         this->unk38_0 = volatileFlag_get(VOLATILE_FLAG_1) | volatileFlag_get(VOLATILE_FLAG_1F_IN_CHARACTER_PARADE);
     }
 
-    if (!subaddie_playerIsWithinSphere(this, 0xFA0)) 
+//  if (!subaddie_playerIsWithinSphere(this, 0xFA0))
+    if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 0xFA0), this))
         return;
     if (!subaddie_playerIsWithinSphere(this, 0x5DC)) {
         if ((u8)this->unk44_31 != 0) {

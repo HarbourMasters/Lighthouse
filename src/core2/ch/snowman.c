@@ -255,7 +255,8 @@ void chSnowman_update(Actor *this){
 
         }
     }//L802E223C
-    if(!subaddie_playerIsWithinSphere(this, 4000))
+//  if(!subaddie_playerIsWithinSphere(this, 4000))
+    if(!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4000), this))
         return;
 
     if(!local->unkB && this->marker->unk14_21){
@@ -266,7 +267,8 @@ void chSnowman_update(Actor *this){
             local->unk9 = false;
             local->unkA = 1;
             __chSnowman_setYawTarget(this, 6.0f);
-            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
+//          if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
+            if(!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphereAndActive(this, 3150), this)){
                 __chSnowman_enterDeath(this);
             }
             else if( 
@@ -294,7 +296,8 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_2_ATTACK://L802E23E8
-            if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
+//          if(!subaddie_playerIsWithinSphereAndActive(this, 3150)){
+            if(!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphereAndActive(this, 3150), this)){
                 __chSnowman_enterDeath(this);
             }//L802E240C
             else if( 
@@ -334,7 +337,8 @@ void chSnowman_update(Actor *this){
             }
             break;
         case CHSNOWMAN_STATE_3_DIE://L802E2604
-            if(subaddie_playerIsWithinSphereAndActive(this, 3150)){
+//          if(subaddie_playerIsWithinSphereAndActive(this, 3150)){
+            if(EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphereAndActive(this, 3150), this)){
                 __chSnowman_enterIdle(this);
             }
             break;

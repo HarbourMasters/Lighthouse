@@ -44,6 +44,9 @@ typedef enum VBehaviorID {
     VB_MAP_SAVESTATE_USE,
 
     // Gameplay options and cheats
+    VB_ACTOR_UPDATE_DISTANCE,
+    VB_ACTOR_FOOTSTEP_SLOT,
+    VB_ACTOR_AMBIENT_PARTICLES,
     VB_DISABLE_SNACKER,
     VB_SAVE_AND_EXIT,
     VB_MUMBO_DETRANSFORM,

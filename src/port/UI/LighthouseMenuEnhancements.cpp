@@ -463,6 +463,16 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Voices keep their normal pitch and volume while you hold A to speed up dialog."));
 
+    AddWidget(path, "Always Update Actors", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.AlwaysUpdateActors"))
+        .PreFunc([](WidgetInfo& info) {
+            if (mLighthouseMenu->disabledMap.at(DISABLE_FOR_ROMHACK).active) {
+                info.activeDisables.push_back(DISABLE_FOR_ROMHACK);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Enemies and other actors keep moving when Banjo is far away instead of freezing. May cost performance."));
+
     // Restorations Section
     AddWidget(path, "Restorations", WIDGET_SEPARATOR_TEXT);
 
