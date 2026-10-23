@@ -40,6 +40,7 @@ static int32_t sCutsceneAspectActive = 0;
 static constexpr float kWsPositionTolerance = 2.0f;
 static constexpr float kWsRotationTolerance = 1.0f;
 static constexpr float kWsReferenceAspect = 16.0f / 9.0f;
+static float sFrustumHalfX;
 
 static void restoreCutsceneAspectBackup() {
     CVarSetInteger(CVAR_AR_ENABLED, CVarGetInteger(CVAR_CSA_BAK_ENABLED, 0));
@@ -277,9 +278,21 @@ void RegisterCameraPatches_Init() {
         float halfY = std::max(halfFovY + kPad, std::atan(kFrustumZY / kVanillaFrustumY));
         halfX = std::min(halfX, kMaxHalfAngle);
         halfY = std::min(halfY, kMaxHalfAngle);
+        sFrustumHalfX = halfX;
 
         *ev->frustumX = kFrustumZX / std::tan(halfX);
         *ev->frustumY = kFrustumZY / std::tan(halfY);
+    });
+
+    REGISTER_LISTENER(CubeDrawRange, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        if (IsDemoMode() || sFrustumHalfX <= (float)(M_PI / 4.0)) {
+            return;
+        }
+        auto* ev = (CubeDrawRange*)event;
+        for (int i : { 0, 2 }) {
+            ev->min[i] = 0;
+            ev->max[i] = ev->mapWidth[i] - 1;
+        }
     });
 }
 
