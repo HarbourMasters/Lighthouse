@@ -14,7 +14,7 @@ extern std::vector<std::string> spoilerLogs;
 
 nlohmann::ordered_json GenerateFromPoolGeneration();
 
-void GenerateFromSpoiler(nlohmann::json spoiler);
+bool GenerateFromSpoiler(nlohmann::json spoiler);
 void SaveToFile(const std::string& fileName, nlohmann::ordered_json spoiler);
 nlohmann::json LoadFromFile(const std::string& filePath);
 
