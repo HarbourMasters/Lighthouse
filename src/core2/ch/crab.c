@@ -399,7 +399,10 @@ void chCrab_update(Actor *this) {
     }
     
     if ((this->state == CRAB_STATE_2_IDLE_UNK) || (this->state == CRAB_STATE_3_TURN_TO_PLAYER) || (this->state == CRAB_STATE_4_CHASE_PLAYER)) {
-        if (sp34 != D_803670B0) {
+//      if (sp34 != D_803670B0) {
+        if (!EventSystem_Should(VB_ACTOR_FOOTSTEP_SLOT, true, this)) {
+            // [port] Always Update Actors gave this frame's footsteps to nearer Snippets.
+        } else if (sp34 != D_803670B0) {
             D_803670B0 = sp34;
             D_803670B4 = 1;
             __chCrab_walkSfxUpdate(this);

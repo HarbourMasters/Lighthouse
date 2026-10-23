@@ -141,7 +141,8 @@ static void chLockup_update(Actor *this) {
                 close(this);
 
                 // Spawn smoke particles
-                for (i = 5; i < 0xE; i++) {
+//              for (i = 5; i < 0xE; i++) {
+                for (i = 5; i < 0xE && EventSystem_Should(VB_ACTOR_AMBIENT_PARTICLES, true, this); i++) {
                     vec3fArray_get_vec3f(this->marker->unk44, i, this->unk1C);
                     dustEmitter_emit(this->unk1C, (f32 *)SMOKE_VELOCITY, SMOKE_COLOR, TRUE, 0.4f, 50.0f, 0xB4, 0xA0, DUST_EMITTER_TYPE_DUST);
                 }

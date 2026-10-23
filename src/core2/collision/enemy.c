@@ -326,8 +326,11 @@ void func_802CCC5C(Actor *this) {
             sfxsource_freeSfxsourceByIndex(local->unk0);
             local->unk0 = 0;
         }
-    } else {
-        if (local->unk0 == 0) {
+//  } else {
+    }
+    if (EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, subaddie_playerIsWithinSphere(this, 4000), this)) {
+//      if (local->unk0 == 0) {
+        if (local->unk0 == 0 && subaddie_playerIsWithinSphere(this, 4000)) {
             func_802CCBF4(this);
         }
         player_getPosition(spC4);

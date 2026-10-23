@@ -157,7 +157,8 @@ void chchumpfish_update(Actor *this) {
     }
     if (LOCAL_D6600(this)->unk0 != 0 && !(globalTimer_getTime() & 0xF)) {
         LOCAL_D6600(this)->unk0--;
-        func_8035D95C(this->marker);
+//      func_8035D95C(this->marker);
+        if (EventSystem_Should(VB_ACTOR_AMBIENT_PARTICLES, true, this)) func_8035D95C(this->marker);
     }
     switch(this->state){
         case CHUMPFISH_STATE_1_IDLE_UNK://L8035DB78

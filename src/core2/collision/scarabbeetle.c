@@ -308,10 +308,12 @@ void chScarabBeetle_update(Actor *this) {
             sfxsource_freeSfxsourceByIndex(local->sfxsourceIdx);
             local->sfxsourceIdx = 0U;
         }
-        return;
+//      return;
+        if (!EventSystem_Should(VB_ACTOR_UPDATE_DISTANCE, false, this)) return;
     }
 
-    if (local->sfxsourceIdx == 0) {
+//  if (local->sfxsourceIdx == 0) {
+    if (local->sfxsourceIdx == 0 && subaddie_playerIsWithinSphere(this, 4000)) {
         func_803584BC(this);
     }
     player_getPosition(sp94);
