@@ -27,7 +27,8 @@ extern f32 gBundle_yaw;
 using retention::systemActive;
 
 // Identity for hut drops. A sub-area restore copies the actor but assigns a new marker, so it lives in
-// actor->local; magic tells ours from leftover data.
+// actor->local; magic tells ours from leftover data. actor_new doesn't clear it, so every consumable bundle
+// drop spawns here.
 constexpr uint32_t kDropLocalMagic = 0x434F4E53u; // 'CONS'
 struct DropLocal {
     uint32_t magic;
@@ -78,6 +79,8 @@ static bool isConsumableActor(s32 actorId) {
            actorId == ACTOR_49_EXTRA_LIFE;
 }
 
+static bool sSpawningDrop = false;
+
 static void RegisterConsumableRetention_Init() {
     COND_VB_SHOULD(VB_OVERRIDE_PROP_SPAWN, EVENT_PRIORITY_NORMAL, CVAR_VALUE, {
         s16* position = va_arg(args, s16*);
@@ -90,7 +93,7 @@ static void RegisterConsumableRetention_Init() {
 
     COND_HOOK(OnActorSpawn, EVENT_PRIORITY_NORMAL, CVAR_VALUE, [](IEvent* event) {
         OnActorSpawn* ev = (OnActorSpawn*)event;
-        if (!systemActive() || !isConsumableActor(ev->actorId) ||
+        if (sSpawningDrop || !systemActive() || !isConsumableActor(ev->actorId) ||
             !isCollected(pickupAt(ev->posX, ev->posY, ev->posZ))) {
             return;
         }
@@ -105,22 +108,25 @@ static void RegisterConsumableRetention_Init() {
         f32* position = va_arg(args, f32*);
         Actor** actorOut = va_arg(args, Actor**);
 
-        if (!systemActive() || (bundleId != BUNDLE_1_MM_HUT_BLUE_EGG && bundleId != BUNDLE_6_MM_HUT_EXTRA_LIFE)) {
+        if (!systemActive() || !isConsumableActor(bundleInfo->actor_id)) {
             return;
         }
         *should = true;
 
+        const bool hutDrop = bundleId == BUNDLE_1_MM_HUT_BLUE_EGG || bundleId == BUNDLE_6_MM_HUT_EXTRA_LIFE;
         const ConsumablePickup pickup = pickupAt(position[0], position[1], position[2], index + 1);
-        if (CVAR_VALUE && isCollected(pickup)) {
+        if (hutDrop && CVAR_VALUE && isCollected(pickup)) {
             return;
         }
+        sSpawningDrop = true;
         Actor* actor = actor_spawnWithYaw_f32((actor_e)bundleInfo->actor_id, position, 0);
+        sSpawningDrop = false;
         if (actor == nullptr) {
             return;
         }
         ApplyBundleActorPhysics(actor, (int32_t)bundleId, bundleInfo, gBundle_yaw);
         DropLocal* local = reinterpret_cast<DropLocal*>(actor->local);
-        local->magic = kDropLocalMagic;
+        local->magic = hutDrop ? kDropLocalMagic : 0;
         local->pickup = pickup;
         *actorOut = actor;
     });
