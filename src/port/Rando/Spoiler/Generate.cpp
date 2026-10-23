@@ -54,12 +54,11 @@ nlohmann::ordered_json GenerateFromPoolGeneration() {
     return orderedSpoiler;
 }
 
-void GenerateFromSpoiler(nlohmann::json spoiler) {
+bool GenerateFromSpoiler(nlohmann::json spoiler) {
     Rando::Logic::shuffledPool.clear();
 
     if (!spoiler.contains("type") || spoiler["type"] != "LIGHTHOUSE_RANDO_SPOILER") {
-        Notification::Emit({ .message = "Error: Invalid Spoiler Log.", .messageColor = ImVec4(0.85f, 0.3f, 0, 1) });
-        return;
+        return false;
     }
 
     gameFile_saveData[selectedFileNum].shipSaveData.randoSaveData.seedId = spoiler["seed"];
@@ -102,6 +101,7 @@ void GenerateFromSpoiler(nlohmann::json spoiler) {
     Rando::Logic::GrantFileProgressFlags();
 
     Notification::Emit({ .message = "Loaded from Spoiler Log.", .messageColor = ImVec4(0, 0.85f, 0, 1) });
+    return true;
 }
 
 } // namespace Spoiler
