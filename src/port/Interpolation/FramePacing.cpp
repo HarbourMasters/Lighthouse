@@ -26,6 +26,8 @@ extern "C" void port_releaseRcpTask(void);
 
 namespace {
 long long sLastSubFrameNs = 0;
+long long sPrevSubFrameNs = 0;
+long long sLastPresentNs = 0;
 long long sFrameLatchNs = 0;
 unsigned sFrameViSerial = 0;
 bool sFrameTimed = false;
@@ -60,11 +62,13 @@ void DrawSubframe(Fast::Interpreter* interpreter, const std::shared_ptr<Ship::Wi
         rapi->ClearFramebuffer(true, false);
     }
     gui->EndDraw();
+    sPrevSubFrameNs = sLastSubFrameNs;
     sLastSubFrameNs = NsSince(runT0);
 }
 
 void PresentSubframe(Fast::Interpreter* interpreter) {
     interpreter->EndFrame();
+    sLastPresentNs = OS_SteadyNs();
     CALL_EVENT(FrameDrawEnd);
     interpreter->mInterpolationIndex++;
 }
@@ -220,19 +224,18 @@ void RunTimedPass(Gfx* commands, int fps) {
         anchorNs = (latchNs > 0 && passStartNs - latchNs < tickNs) ? latchNs : passStartNs;
     }
     const long long releaseBy = anchorNs + tickNs - kReleaseMarginNs;
-    long long prevRunNs = 0;
-    long long runIntervalNs = presentNs;
     int count = 0;
 
     for (;;) {
         const long long now = OS_SteadyNs();
-        if (prevRunNs != 0) {
-            runIntervalNs = std::max(presentNs, now - prevRunNs);
-        }
-        prevRunNs = now;
-        // Last when another draw after this one could not be finished by the release deadline.
-        const bool last = count + 1 >= kMaxTimedSubframes || now + runIntervalNs + sLastSubFrameNs > releaseBy;
-        float t = std::clamp((float)(now + presentNs - anchorNs) / (float)tickNs, 0.0f, 1.0f);
+        const long long drawNs = std::min(sLastSubFrameNs, sPrevSubFrameNs);
+        const long long presentAtNs = std::max(now + drawNs, sLastPresentNs + presentNs);
+        const long long nextPresentAtNs = presentAtNs + std::max(presentNs, drawNs);
+        // Last when the next present would land after the successor latches, or its draw could not be finished by
+        // the release deadline.
+        const bool last = count + 1 >= kMaxTimedSubframes || nextPresentAtNs >= anchorNs + tickNs ||
+                          presentAtNs + sLastSubFrameNs > releaseBy;
+        float t = std::clamp((float)(presentAtNs - anchorNs) / (float)tickNs, 0.0f, 1.0f);
         auto& replacements = maps[count & 1];
         bool prefetched = false;
         if (prefetching) {
@@ -247,7 +250,7 @@ void RunTimedPass(Gfx* commands, int fps) {
             BuildReplacements(t, replacements);
         }
         if (!last) {
-            prefetchT = std::clamp((float)(now + runIntervalNs + presentNs - anchorNs) / (float)tickNs, 0.0f, 1.0f);
+            prefetchT = std::clamp((float)(nextPresentAtNs - anchorNs) / (float)tickNs, 0.0f, 1.0f);
             prefetcher.Start(prefetchT, &maps[(count + 1) & 1]);
             prefetching = true;
         }
