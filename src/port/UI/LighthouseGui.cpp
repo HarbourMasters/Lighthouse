@@ -25,9 +25,9 @@
 #include "port/Rando/CheckTracker/CheckTracker.h"
 
 #include "Notification.h"
+#include "Crosshair.h"
 #include "port/Controller/Mapper.h"
 #include "port/Network/Anchor/Anchor.h"
-#include "port/Enhancements/Backports/EggAim.h"
 #include "LighthouseMenu.h"
 #include "LighthouseInputEditorWindow.h"
 #include "LighthouseModMenuWindow.h"
@@ -75,7 +75,7 @@ std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 // std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
 std::shared_ptr<InputViewer> mInputViewer;
 std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
-std::shared_ptr<EggAimCrosshairWindow> mEggAimCrosshair;
+std::shared_ptr<Crosshair::Window> mCrosshairWindow;
 std::shared_ptr<LighthouseModalWindow> mModalWindow;
 std::shared_ptr<EventDebuggerWindow> mEventDebuggerWindow;
 std::shared_ptr<OcclusionDebugWindow> mOcclusionDebugWindow;
@@ -208,9 +208,9 @@ void SetupGuiElements() {
         std::make_shared<WorldTracker::SettingsWindow>(CVAR_WINDOW("WorldTrackerSettings"), "World Tracker Settings");
     gui->AddGuiWindow(mWorldTrackerSettingsWindow);
 
-    mEggAimCrosshair = std::make_shared<EggAimCrosshairWindow>(CVAR_WINDOW("EggAimCrosshair"), "Egg Aim Crosshair");
-    gui->AddGuiWindow(mEggAimCrosshair);
-    mEggAimCrosshair->Show();
+    mCrosshairWindow = std::make_shared<Crosshair::Window>(CVAR_WINDOW("Crosshair"), "Crosshair");
+    gui->AddGuiWindow(mCrosshairWindow);
+    mCrosshairWindow->Show();
 
     mInputViewer = std::make_shared<InputViewer>(CVAR_WINDOW("InputViewer"), "Input Viewer");
     gui->AddGuiWindow(mInputViewer);
@@ -262,7 +262,7 @@ void Destroy() {
     mDisplayOverlayWindow = nullptr;
     mInputViewer = nullptr;
     mInputViewerSettings = nullptr;
-    mEggAimCrosshair = nullptr;
+    mCrosshairWindow = nullptr;
     mEventDebuggerWindow = nullptr;
     mOcclusionDebugWindow = nullptr;
     mAnchorRoomWindow = nullptr;
@@ -275,7 +275,7 @@ void SetAttached(bool attached) {
         mModalWindow,          mInputEditorWindow,          mGamepadMapperWindow,     mModMenuWindow,
         mRomhackMenuWindow,    mSaveEditorWindow,           mGameplayToolsWindow,     mCosmeticsEditorWindow,
         mDisplayOverlayWindow, mNotificationWindow,         mRandoCheckTrackerWindow, mRandoCheckTrackerSettingsWindow,
-        mWorldTrackerWindow,   mWorldTrackerSettingsWindow, mEggAimCrosshair,         mInputViewer,
+        mWorldTrackerWindow,   mWorldTrackerSettingsWindow, mCrosshairWindow,         mInputViewer,
         mInputViewerSettings,  mEventDebuggerWindow,        mOcclusionDebugWindow,    mAnchorRoomWindow,
     };
     for (const auto& window : windows) {
