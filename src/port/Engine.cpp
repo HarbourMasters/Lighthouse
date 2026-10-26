@@ -325,9 +325,10 @@ void GameEngine::FinishInit() {
     lhFast3dWindow->SetMaximumFrameLatency(1);
     lhFast3dWindow->SetRendererUCode(ucode_f3d);
 
-    // Opt-in to memoization
+    // Opt-in to memoization and mipmaps
     if (auto interpreter = lhFast3dWindow->GetInterpreterWeak().lock()) {
         interpreter->SetResolvedResourceCacheEnabled(true);
+        interpreter->SetMipmapsEnabled(CVarGetInteger(CVAR_SETTING("Mipmaps"), 1));
     }
 
 #ifdef USE_NETWORKING

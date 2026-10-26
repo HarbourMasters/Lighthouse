@@ -26,7 +26,6 @@
 #include "UIWidgets.hpp"
 #include "port/Engine.h"
 #include "port/Extractor/GameExtractor.h"
-#include "port/FrameHost.h"
 #include "port/GameVersion/BaseGameVersion.h"
 #include "port/ResourceHelpers.h"
 #include "port/Localization/Language.h"
@@ -672,12 +671,6 @@ void LighthouseRomhackMenuWindow::DrawElement() {
     // alphabetically instead of by priority.
     DrawModManager(
         "tableRomhacks", [](const std::string& name) { return IsRomhackOverlay(name); }, true);
-}
-
-void LighthouseModMenuWindow::InitElement() {
-    if (Lighthouse::GetFrameHost() == nullptr) {
-        UpdateModFiles(true);
-    }
 }
 
 static void RegisterModMenuWidgets() {
