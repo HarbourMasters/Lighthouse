@@ -203,33 +203,65 @@ float Clamp01(float value) {
     return value < 0.0f ? 0.0f : (value > 1.0f ? 1.0f : value);
 }
 
-// Re-tints one source colour so the channel's vanilla colour lands exactly on `target` and
-// every other shade of the part keeps its position in the shading ramp.
+float HueDifference(float hue, float reference) {
+    float difference = hue - reference;
+    while (difference > 180.0f) {
+        difference -= 360.0f;
+    }
+    while (difference < -180.0f) {
+        difference += 360.0f;
+    }
+    return difference;
+}
+
+float Luma(float red, float green, float blue) {
+    return 0.299f * red + 0.587f * green + 0.114f * blue;
+}
+
 void Recolor(const ChannelInfo& channel, const BKColorChannelSetting& target, u8 sourceRed, u8 sourceGreen,
              u8 sourceBlue, u8* outRed, u8* outGreen, u8* outBlue) {
     const Hsv source = ToHsv(sourceRed / 255.0f, sourceGreen / 255.0f, sourceBlue / 255.0f);
     const Hsv vanilla = ToHsv(channel.vanilla[0] / 255.0f, channel.vanilla[1] / 255.0f, channel.vanilla[2] / 255.0f);
     const Hsv chosen = ToHsv(target.r / 255.0f, target.g / 255.0f, target.b / 255.0f);
 
-    float hueOffset = source.hue - vanilla.hue;
-    while (hueOffset > 180.0f) {
-        hueOffset -= 360.0f;
-    }
-    while (hueOffset < -180.0f) {
-        hueOffset += 360.0f;
-    }
-    const float rampPosition = std::min(std::fabs(hueOffset), 45.0f) / 45.0f;
+    // Near the vanilla hue a shade keeps its whole hue offset, so the vanilla color changes nothing. Further away the
+    // offset shrinks to keep the part in the chosen hue, and luma carries the depth the hue offset did.
+    const float hueOffset = HueDifference(source.hue, vanilla.hue);
+    const float squeezedOffset = std::clamp(hueOffset, -45.0f, 45.0f) * (8.0f / 45.0f);
+    const float nearVanilla = Clamp01(1.0f - std::fabs(HueDifference(chosen.hue, vanilla.hue)) / 45.0f);
 
     Hsv result;
-    result.hue = chosen.hue + (hueOffset < 0.0f ? -1.0f : 1.0f) * rampPosition * 8.0f;
-    result.saturation =
-        vanilla.saturation > 0.001f ? chosen.saturation * (source.saturation / vanilla.saturation) : chosen.saturation;
-    result.value = vanilla.value > 0.001f ? chosen.value * (source.value / vanilla.value) : chosen.value;
-    result.saturation = Clamp01(result.saturation * (1.0f - 0.55f * rampPosition));
-    result.value = Clamp01(result.value * (1.0f + 0.55f * rampPosition));
+    result.hue = chosen.hue + nearVanilla * hueOffset + (1.0f - nearVanilla) * squeezedOffset;
+    result.saturation = Clamp01(
+        vanilla.saturation > 0.001f ? chosen.saturation * (source.saturation / vanilla.saturation) : chosen.saturation);
+    result.value = chosen.value;
 
     float red, green, blue;
     FromHsv(result, &red, &green, &blue);
+
+    const float resultLuma = Luma(red, green, blue);
+    if (resultLuma > 0.001f) {
+        const float targetLuma =
+            Luma(target.r / 255.0f, target.g / 255.0f, target.b / 255.0f) *
+            Luma(sourceRed / 255.0f, sourceGreen / 255.0f, sourceBlue / 255.0f) /
+            Luma(channel.vanilla[0] / 255.0f, channel.vanilla[1] / 255.0f, channel.vanilla[2] / 255.0f);
+        const float scale = targetLuma / resultLuma;
+        red *= scale;
+        green *= scale;
+        blue *= scale;
+        const float brightest = std::max({ red, green, blue });
+        if (brightest > 1.0f) {
+            red /= brightest;
+            green /= brightest;
+            blue /= brightest;
+            const float fullLuma = Luma(red, green, blue);
+            const float toWhite = fullLuma < 1.0f ? Clamp01((targetLuma - fullLuma) / (1.0f - fullLuma)) : 0.0f;
+            red += (1.0f - red) * toWhite;
+            green += (1.0f - green) * toWhite;
+            blue += (1.0f - blue) * toWhite;
+        }
+    }
+
     *outRed = (u8)std::lround(Clamp01(red) * 255.0f);
     *outGreen = (u8)std::lround(Clamp01(green) * 255.0f);
     *outBlue = (u8)std::lround(Clamp01(blue) * 255.0f);
@@ -330,8 +362,6 @@ void RecolorTextures(void* textureBlob, const TextureTable* textureTable, const 
             if ((size_t)texture->offset + (size_t)paletteBytes > (size_t)textureList->size) {
                 continue;
             }
-            // TLUT entries are big-endian RGBA5551, matching what the RDP (and Fast3D's
-            // CI4 importer) reads out of DRAM.
             u8* palette = pixelBase + texture->offset;
             for (s32 paletteEntry = 0; paletteEntry < paletteBytes / 2; paletteEntry++) {
                 const u16 packedColor = (u16)((palette[paletteEntry * 2] << 8) | palette[paletteEntry * 2 + 1]);
