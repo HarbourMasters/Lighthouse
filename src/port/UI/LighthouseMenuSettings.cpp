@@ -11,6 +11,7 @@
 #include "port/Localization/Language.h"
 #include "port/Save/SaveConverter.h"
 #include "UIWidgets.hpp"
+#include <fast/Fast3dWindow.h>
 #include <spdlog/fmt/fmt.h>
 
 #include "variables.h"
@@ -435,9 +436,28 @@ void LighthouseMenu::AddMenuSettings() {
         .Options(CheckboxOptions()
                      .Tooltip("Allows multiple windows to be opened at once. Requires a reload to take effect.")
                      .DefaultValue(true));
-    AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
+    AddWidget(path, "Enable Mipmaps", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_SETTING("Mipmaps"))
+        .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
+            if (auto interpreter = fastWnd ? fastWnd->GetInterpreterWeak().lock() : nullptr) {
+                interpreter->SetMipmapsEnabled(CVarGetInteger(CVAR_SETTING("Mipmaps"), 1));
+            }
+        })
+        .Options(CheckboxOptions()
+                     .Tooltip("Draws distant textures at lower detail so they don't shimmer. Off draws every "
+                              "texture at full size.")
+                     .DefaultValue(true));
+    AddWidget(path, "Texture Filter", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
         .RaceDisable(false)
+        .Callback([](WidgetInfo& info) {
+            if (auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow())) {
+                fastWnd->SetTextureFilter(
+                    (Fast::FilteringMode)CVarGetInteger(CVAR_TEXTURE_FILTER, Fast::FILTER_THREE_POINT));
+            }
+        })
         .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboMap(textureFilteringMap));
 
     path.column = SECTION_COLUMN_2;
