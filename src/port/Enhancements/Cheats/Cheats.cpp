@@ -28,6 +28,7 @@
 #define CVAR_INFINITE_BOOTS_SNEAKERS CVAR_ENHANCEMENT("Cheats.InfiniteBootsSneakers")
 #define CVAR_TALON_TROT_CYCLE CVAR_ENHANCEMENT("Cheats.TalonTrotCycle")
 #define CVAR_LEVITATE CVAR_ENHANCEMENT("Cheats.Levitate")
+#define CVAR_FLY_ANYWHERE CVAR_ENHANCEMENT("Cheats.FlyAnywhere")
 #define CVAR_NO_MUMBO_UNTRANSFORM CVAR_ENHANCEMENT("Cheats.NoMumboUntransform")
 #define CVAR_CYCLE_TRANSFORM CVAR_ENHANCEMENT("Cheats.CycleTransform")
 #define CVAR_FAST_TRANSFORM CVAR_ENHANCEMENT("Cheats.FastTransform")
@@ -180,11 +181,14 @@ void RegisterTalonTrotCycle_Init() {
 // MOVEMENT CHEATS
 // ============================================================================
 
-// Levitate — Hold L to float straight up; tapping L out of a damaging fall cancels the fall.
+// Levitate - Hold L to float straight up; tapping L out of a damaging fall cancels the fall.
 void RegisterLevitate_Init() {
     static const f32 LEVITATE_VELOCITY = 500.0f;
     static bool levitateActive = false;
     COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_LEVITATE, 0), [](IEvent* event) {
+        if (bs_getState() == BS_23_FLY_ENTER) {
+            return;
+        }
         // Suspend levitation while dialog is up.
         // Cancel fall damage and the tumble/splat animation if pressed mid-fall.
         if (bakey_held(BUTTON_L) && balookat_getState() == 0) {
@@ -202,6 +206,27 @@ void RegisterLevitate_Init() {
             // Only reset gravity once when L is released, not every frame.
             baphysics_reset_gravity();
             levitateActive = false;
+        }
+    });
+}
+
+// Fly Anywhere - Press L on the ground to take off as if standing on a flight pad.
+void RegisterFlyAnywhere_Init() {
+    COND_HOOK(GameFrameUpdate, EVENT_PRIORITY_NORMAL, CVarGetInteger(CVAR_FLY_ANYWHERE, 0), [](IEvent* event) {
+        if (!bakey_pressed(BUTTON_L) || getGameMode() != GAME_MODE_3_NORMAL || balookat_getState() != 0 ||
+            !player_isAbilityUnlocked(ABILITY_9_FLIGHT)) {
+            return;
+        }
+        switch (bs_getState()) {
+            case BS_1_IDLE:
+            case BS_1F_WALK_CREEP:
+            case BS_2_WALK_SLOW:
+            case BS_3_WALK:
+            case BS_4_WALK_FAST:
+            case BS_15_BTROT_IDLE:
+            case BS_16_BTROT_WALK:
+                bs_setState(BS_23_FLY_ENTER);
+                break;
         }
     });
 }
@@ -304,6 +329,7 @@ static RegisterShipInitFunc initBootsAndSneakersTimerFunc(RegisterBootsAndSneake
                                                           { CVAR_INFINITE_BOOTS_SNEAKERS });
 static RegisterShipInitFunc initBootCycleFunc(RegisterTalonTrotCycle_Init, { CVAR_TALON_TROT_CYCLE });
 static RegisterShipInitFunc initLevitateFunc(RegisterLevitate_Init, { CVAR_LEVITATE });
+static RegisterShipInitFunc initFlyAnywhereFunc(RegisterFlyAnywhere_Init, { CVAR_FLY_ANYWHERE });
 static RegisterShipInitFunc initCycleTransformFunc(RegisterCycleTransform_Init, { CVAR_CYCLE_TRANSFORM });
 static RegisterShipInitFunc initFastTransformFunc(RegisterFastTransform_Init, { CVAR_FAST_TRANSFORM });
 static RegisterShipInitFunc initNoMumboUntransformFunc(RegisterNoMumboUntransform_Init, { CVAR_NO_MUMBO_UNTRANSFORM });

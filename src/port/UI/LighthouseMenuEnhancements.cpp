@@ -473,6 +473,11 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Enemies and other actors keep moving when Banjo is far away instead of freezing. May cost performance."));
 
+    AddWidget(path, "Beak Bomb Aiming", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Gameplay.BeakBombAiming"))
+        .Options(CheckboxOptions().Tooltip(
+            "Hold B through a Beak Bomb's wind-up to aim it with the stick. Let go to launch."));
+
     // Restorations Section
     AddWidget(path, "Restorations", WIDGET_SEPARATOR_TEXT);
 
@@ -598,6 +603,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Backports Banjo-Tooie's roll, with steering control and continued movement after the roll ends."));
 
+    AddWidget(path, "Tooie Beak Bomb", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Backports.BeakBomb"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip("Backports Banjo-Tooie's Beak Bomb: hold B to fly past the usual range, "
+                                           "spending a red feather each second."));
+
     // Enhancements -> Saving
     path = { "Enhancements", "Saving", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", path.sidebarName, 1);
@@ -706,6 +717,12 @@ void LighthouseMenu::AddMenuEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Cheats.Levitate"))
         .RaceDisable(false)
         .Options(CheckboxOptions().Tooltip("Hold L to levitate upward with gravity disabled."));
+
+    AddWidget(path, "Press L to Fly Anywhere", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ENHANCEMENT("Cheats.FlyAnywhere"))
+        .RaceDisable(false)
+        .Options(CheckboxOptions().Tooltip(
+            "Once Flight is learned, press L on the ground to take off as if from a Flight Pad."));
 
     AddWidget(path, "D-pad Talon Trot Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Cheats.TalonTrotCycle"))

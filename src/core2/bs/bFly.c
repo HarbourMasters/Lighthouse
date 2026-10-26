@@ -379,6 +379,9 @@ void bsbfly_bomb_update(void) {
     sp58 = baanim_getAnimCtrlPtr();
     switch (D_8037D344) {
     case 0:
+        if (!EventSystem_Should(VB_BEAK_BOMB_WINDUP, true, sp58, D_8037D338)) {
+            break;
+        }
         if (anctrl_isAt(sp58, 0.6905f)) {
             baphysics_set_type(BA_PHYSICS_UNK8);
             func_802914CC(5);
@@ -428,7 +431,8 @@ void bsbfly_bomb_update(void) {
         }
         playerPosition_get(sp48);
         ml_vec3f_diff(sp48, D_8037D328);
-        if (sp48[0]*sp48[0] + sp48[1]*sp48[1] + sp48[2]*sp48[2] > 16000000.0f) {
+//      if (sp48[0]*sp48[0] + sp48[1]*sp48[1] + sp48[2]*sp48[2] > 16000000.0f) {
+        if (sp48[0]*sp48[0] + sp48[1]*sp48[1] + sp48[2]*sp48[2] > 16000000.0f && EventSystem_Should(VB_BEAK_BOMB_RANGE_END, true)) {
             next_state = BS_57_BOMB_END;
         }
         if (anctrl_isStopped(sp58) != 0) {
