@@ -170,8 +170,8 @@ void Anchor::RegisterHooks() {
 
     // #region Hooks that are required for basic Anchor functionality
 
-    COND_HOOK(OnMapLoad, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
-        auto ev = reinterpret_cast<OnMapLoad*>(event);
+    COND_HOOK(OnMapLoaded, EVENT_PRIORITY_HIGH, true, [](IEvent* event) {
+        auto ev = reinterpret_cast<OnMapLoaded*>(event);
         if (ev->prevMap == MAP_91_FILE_SELECT && ev->nextMap != MAP_1E_CS_START_NINTENDO &&
             ev->nextMap != MAP_1F_CS_START_RAREWARE) {
             Anchor::GetInstance()->SendPacket_UpdateClientState();
