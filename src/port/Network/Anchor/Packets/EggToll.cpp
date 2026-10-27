@@ -101,8 +101,8 @@ void port_eggToll_clearForLevel(int32_t levelId) {
 void RegisterEggToll_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sStages.clear(); });
 
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnMapLoad* ev = (OnMapLoad*)event;
+    REGISTER_LISTENER(OnMapLoaded, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnMapLoaded* ev = (OnMapLoaded*)event;
         if (!Anchor::GetInstance()->IsWorldSyncActive()) {
             return;
         }

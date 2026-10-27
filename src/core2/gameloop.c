@@ -320,7 +320,7 @@ void game_changeMap(enum game_mode_e mode){
     game_setMode(mode, sp30);
     jiggylist_map_actors();
     func_80346CA8();
-    CALL_EVENT(OnMapLoad, prev_map, map, sp28);
+    CALL_EVENT(OnMapLoaded, prev_map, map, sp28);
 }
 
 s32 func_802E3F80(void){

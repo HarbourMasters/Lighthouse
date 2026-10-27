@@ -108,8 +108,8 @@ extern "C" void port_breakable_despawnBrokenRestores(s32 map);
 void RegisterBreakObject_Init() {
     REGISTER_LISTENER(OnSaveLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) { sBrokenObjects.clear(); });
 
-    REGISTER_LISTENER(OnMapLoad, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
-        OnMapLoad* ev = (OnMapLoad*)event;
+    REGISTER_LISTENER(OnMapLoaded, EVENT_PRIORITY_NORMAL, [](IEvent* event) {
+        OnMapLoaded* ev = (OnMapLoaded*)event;
         if (!Anchor::GetInstance()->IsWorldSyncActive()) {
             return;
         }
